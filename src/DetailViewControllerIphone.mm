@@ -52,26 +52,7 @@ int NOTES_DISPLAY_TOPMARGIN=30;
 #define DEBUG_INFOS 1
 #define DEBUG_NO_SETTINGS 0
 
-
-typedef struct {
-    uint8_t lineNb_col1[3];
-    uint8_t lineNb_col2[3];
-    uint8_t note_col[3];
-    uint8_t instrument_col[3];
-    uint8_t volume_col[3];
-    uint8_t effect_col[3];
-    uint8_t param_col[3];
-} modpat_color_t;
-
-modpat_color_t modpat_colorStd={
-    {0xF0,0xF0,0xF0},  //Line nb color 1
-    {0xF0,0xF0,0x00},  //Line nb color 2
-    {0xFF,0xFF,0xFF},  //Note color
-    {0x80,0xE0,0xFF},  //Instrument color
-    {0x80,0xFF,0x80},  //Volume color
-    {0xFF,0x80,0xE0},  //Effect nb color
-    {0xFF,0xE0,0x80}  //Effect value color
-};
+#include "ModizerTypes.h"
 
 //#include "OGLView.h"
 #include "RenderUtils.h"
@@ -176,6 +157,7 @@ void PresetSwitchFailedEvent(const char* preset_filename, const char* message, v
 #include "../utils/imgui/backends/imgui_impl_ios.h"
 #include "../utils/imgui/backends/imgui_impl_opengl3.h"
 
+extern float font_size[4];
 extern ImFont  *font_menu[4];
 extern ImFont  *font_tracker[FONT_TRACKER_NB][4];
 extern float font_trackerSize[FONT_TRACKER_NB][5];
@@ -1066,7 +1048,6 @@ static float movePinchScale,movePinchScaleOld;
     /////////////////////
     if ((scope==SETTINGS_ALL)||(scope==SETTINGS_VISU)) {
         [self checkGLViewCanDisplay];
-        
         if (m_displayLink) m_displayLink.preferredFramesPerSecond = (settings[GLOB_FXFPS].detail.mdz_switch.switch_value?60:30); //60 or 30 fps depending on device speed iPhone
     }
     
@@ -1372,6 +1353,9 @@ static float movePinchScale,movePinchScaleOld;
 }
 -(void) mdSwitchBloomFX {
 //    settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value=!settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value;
+}
+-(void) mdSwitchFPSHud {
+    settings[GLOB_FXSHOWFPS].detail.mdz_boolswitch.switch_value=!settings[GLOB_FXSHOWFPS].detail.mdz_boolswitch.switch_value;
 }
 
 
@@ -5684,6 +5668,18 @@ void pmSoftReinit() {
     modPatternLineSize=0;
     visibleChan=SOUND_MAXMOD_CHANNELS;
     
+    switch (settings[GLOB_FXMODPattern_Theme].detail.mdz_switch.switch_value) {
+        case 0:
+            modpat_curTheme=&modpat_colorStd;
+            break;
+        case 1:
+            modpat_curTheme=&modpat_colorAlt;
+            break;
+        default:
+            modpat_curTheme=&modpat_colorStd;
+            break;
+    }
+    
     //	[super viewDidLoad];
     end_time=clock();
 #ifdef LOAD_PROFILE
@@ -6776,6 +6772,21 @@ extern "C" int current_sample;
          settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value||
          settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value)  ) {
         
+        //------------------------------------------------
+        // Select current mod pattern themes
+        //------------------------------------------------
+        switch (settings[GLOB_FXMODPattern_Theme].detail.mdz_switch.switch_value) {
+            case 0:
+                modpat_curTheme=&modpat_colorStd;
+                break;
+            case 1:
+                modpat_curTheme=&modpat_colorAlt;
+                break;
+            default:
+                modpat_curTheme=&modpat_colorStd;
+                break;
+        }
+        
         int display_note_mode=(settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value-1);
         if (display_note_mode>=3) display_note_mode-=3;
         
@@ -6898,7 +6909,7 @@ extern "C" int current_sample;
                 float fontWidth=ImGui::CalcTextSize("12345678").x/8.0;
                 RenderUtils::DrawChanLayout(ww,hh,display_note_mode,endChan,((int)(movePxMOD)),fontWidth/glScaleFactor,fontSize,glScaleFactor);
                 
-                if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value>3) {
+                if (settings[GLOB_FXMODPattern_VolBar].detail.mdz_boolswitch.switch_value) {
                     RenderUtils::DrawChanLayoutAfter(ww,hh,display_note_mode,channelVolumeData,endChan,((int)(movePxMOD)),fontWidth/mScaleFactor,fontSize,0,midline,mScaleFactor);
                 } else {
                     RenderUtils::DrawChanLayoutAfter(ww,hh,display_note_mode,NULL,endChan,((int)(movePxMOD)),fontWidth/mScaleFactor,fontSize,0,midline,mScaleFactor);
@@ -6945,13 +6956,13 @@ extern "C" int current_sample;
                         //ImGui::Text("%s",str_prefix);
                         
                         if (i&1) {
-                            colR=modpat_colorStd.lineNb_col1[0]*color_div;
-                            colG=modpat_colorStd.lineNb_col1[1]*color_div;
-                            colB=modpat_colorStd.lineNb_col1[2]*color_div;
+                            colR=modpat_curTheme->lineNb_col1[0]*color_div;
+                            colG=modpat_curTheme->lineNb_col1[1]*color_div;
+                            colB=modpat_curTheme->lineNb_col1[2]*color_div;
                         } else {
-                            colR=modpat_colorStd.lineNb_col2[0]*color_div;
-                            colG=modpat_colorStd.lineNb_col2[1]*color_div;
-                            colB=modpat_colorStd.lineNb_col2[2]*color_div;
+                            colR=modpat_curTheme->lineNb_col2[0]*color_div;
+                            colG=modpat_curTheme->lineNb_col2[1]*color_div;
+                            colB=modpat_curTheme->lineNb_col2[2]*color_div;
                         }
                         
                         ImGui::TextAttr("{#%02X%02X%02X}%s",colR,colG,colB,str_prefix);
@@ -7000,9 +7011,9 @@ extern "C" int current_sample;
                                         cparam=currentNotes[idx].Parameter;
                                         cvol=currentNotes[idx].Volume;
                                         
-                                        colR=modpat_colorStd.note_col[0]*color_div;
-                                        colG=modpat_colorStd.note_col[1]*color_div;
-                                        colB=modpat_colorStd.note_col[2]*color_div;
+                                        colR=modpat_curTheme->note_col[0]*color_div;
+                                        colG=modpat_curTheme->note_col[1]*color_div;
+                                        colB=modpat_curTheme->note_col[2]*color_div;
                                         str_data[k++]='{';str_data[k++]='#';
                                         str_data[k++]=dec2hex[(colR>>4)&0xF];str_data[k++]=dec2hex[colR&0xF];
                                         str_data[k++]=dec2hex[(colG>>4)&0xF];str_data[k++]=dec2hex[colG&0xF];
@@ -7019,9 +7030,9 @@ extern "C" int current_sample;
                                             str_data[k++]=ASCII_MIDDOT[0];str_data[k++]=ASCII_MIDDOT[1];
                                         }
                                         
-                                        colR=modpat_colorStd.instrument_col[0]*color_div;
-                                        colG=modpat_colorStd.instrument_col[1]*color_div;
-                                        colB=modpat_colorStd.instrument_col[2]*color_div;
+                                        colR=modpat_curTheme->instrument_col[0]*color_div;
+                                        colG=modpat_curTheme->instrument_col[1]*color_div;
+                                        colB=modpat_curTheme->instrument_col[2]*color_div;
                                         str_data[k++]='{';str_data[k++]='#';
                                         str_data[k++]=dec2hex[(colR>>4)&0xF];str_data[k++]=dec2hex[colR&0xF];
                                         str_data[k++]=dec2hex[(colG>>4)&0xF];str_data[k++]=dec2hex[colG&0xF];
@@ -7036,9 +7047,9 @@ extern "C" int current_sample;
                                             str_data[k++]=ASCII_MIDDOT[0];str_data[k++]=ASCII_MIDDOT[1];
                                         }
                                         
-                                        colR=modpat_colorStd.volume_col[0]*color_div;
-                                        colG=modpat_colorStd.volume_col[1]*color_div;
-                                        colB=modpat_colorStd.volume_col[2]*color_div;
+                                        colR=modpat_curTheme->volume_col[0]*color_div;
+                                        colG=modpat_curTheme->volume_col[1]*color_div;
+                                        colB=modpat_curTheme->volume_col[2]*color_div;
                                         str_data[k++]='{';str_data[k++]='#';
                                         str_data[k++]=dec2hex[(colR>>4)&0xF];str_data[k++]=dec2hex[colR&0xF];
                                         str_data[k++]=dec2hex[(colG>>4)&0xF];str_data[k++]=dec2hex[colG&0xF];
@@ -7053,9 +7064,9 @@ extern "C" int current_sample;
                                             str_data[k++]=ASCII_MIDDOT[0];str_data[k++]=ASCII_MIDDOT[1];
                                         }
                                         
-                                        colR=modpat_colorStd.effect_col[0]*color_div;
-                                        colG=modpat_colorStd.effect_col[1]*color_div;
-                                        colB=modpat_colorStd.effect_col[2]*color_div;
+                                        colR=modpat_curTheme->effect_col[0]*color_div;
+                                        colG=modpat_curTheme->effect_col[1]*color_div;
+                                        colB=modpat_curTheme->effect_col[2]*color_div;
                                         str_data[k++]='{';str_data[k++]='#';
                                         str_data[k++]=dec2hex[(colR>>4)&0xF];str_data[k++]=dec2hex[colR&0xF];
                                         str_data[k++]=dec2hex[(colG>>4)&0xF];str_data[k++]=dec2hex[colG&0xF];
@@ -7068,9 +7079,9 @@ extern "C" int current_sample;
                                             str_data[k++]=ASCII_MIDDOT[0];str_data[k++]=ASCII_MIDDOT[1];
                                         }
                                         
-                                        colR=modpat_colorStd.param_col[0]*color_div;
-                                        colG=modpat_colorStd.param_col[1]*color_div;
-                                        colB=modpat_colorStd.param_col[2]*color_div;
+                                        colR=modpat_curTheme->param_col[0]*color_div;
+                                        colG=modpat_curTheme->param_col[1]*color_div;
+                                        colB=modpat_curTheme->param_col[2]*color_div;
                                         str_data[k++]='{';str_data[k++]='#';
                                         str_data[k++]=dec2hex[(colR>>4)&0xF];str_data[k++]=dec2hex[colR&0xF];
                                         str_data[k++]=dec2hex[(colG>>4)&0xF];str_data[k++]=dec2hex[colG&0xF];
@@ -7093,9 +7104,9 @@ extern "C" int current_sample;
                                         cnote=currentNotes[idx].Note;
                                         cinst=currentNotes[idx].Instrument;
                                         
-                                        colR=modpat_colorStd.note_col[0]*color_div;
-                                        colG=modpat_colorStd.note_col[1]*color_div;
-                                        colB=modpat_colorStd.note_col[2]*color_div;
+                                        colR=modpat_curTheme->note_col[0]*color_div;
+                                        colG=modpat_curTheme->note_col[1]*color_div;
+                                        colB=modpat_curTheme->note_col[2]*color_div;
                                         str_data[k++]='{';str_data[k++]='#';
                                         str_data[k++]=dec2hex[(colR>>4)&0xF];str_data[k++]=dec2hex[colR&0xF];
                                         str_data[k++]=dec2hex[(colG>>4)&0xF];str_data[k++]=dec2hex[colG&0xF];
@@ -7112,9 +7123,9 @@ extern "C" int current_sample;
                                             str_data[k++]=ASCII_MIDDOT[0];str_data[k++]=ASCII_MIDDOT[1];
                                         }
                                         
-                                        colR=modpat_colorStd.instrument_col[0]*color_div;
-                                        colG=modpat_colorStd.instrument_col[1]*color_div;
-                                        colB=modpat_colorStd.instrument_col[2]*color_div;
+                                        colR=modpat_curTheme->instrument_col[0]*color_div;
+                                        colG=modpat_curTheme->instrument_col[1]*color_div;
+                                        colB=modpat_curTheme->instrument_col[2]*color_div;
                                         str_data[k++]='{';str_data[k++]='#';
                                         str_data[k++]=dec2hex[(colR>>4)&0xF];str_data[k++]=dec2hex[colR&0xF];
                                         str_data[k++]=dec2hex[(colG>>4)&0xF];str_data[k++]=dec2hex[colG&0xF];
@@ -7136,9 +7147,9 @@ extern "C" int current_sample;
                                     for (j=0;j<endChan;j++)  {
                                         cnote=currentNotes[idx].Note;
                                         
-                                        colR=modpat_colorStd.note_col[0]*color_div;
-                                        colG=modpat_colorStd.note_col[1]*color_div;
-                                        colB=modpat_colorStd.note_col[2]*color_div;
+                                        colR=modpat_curTheme->note_col[0]*color_div;
+                                        colG=modpat_curTheme->note_col[1]*color_div;
+                                        colB=modpat_curTheme->note_col[2]*color_div;
                                         str_data[k++]='{';str_data[k++]='#';
                                         str_data[k++]=dec2hex[(colR>>4)&0xF];str_data[k++]=dec2hex[colR&0xF];
                                         str_data[k++]=dec2hex[(colG>>4)&0xF];str_data[k++]=dec2hex[colG&0xF];
@@ -7248,10 +7259,7 @@ extern "C" int current_sample;
         ImGui::PushStyleColor(ImGuiCol_Border,ImVec4(0,0,0,0));
         
         ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.2,1.0,0.1,1.0));
-        
-        
-        
-        
+                                
         ImGui::GetStyle().Alpha=1.0;
         if (font_menu[2]) ImGui::PushFont(font_menu[2]);
         else ImGui::PushFont(nullptr);
@@ -7281,7 +7289,7 @@ extern "C" int current_sample;
         ImGui::Text("%s",strTmp);
         posy+=sizeText.y+2;
         //eEsolution
-        snprintf(strTmp,32,"%dx%d",ww,hh);
+        snprintf(strTmp,32,"%.0fx%.0f",ww*glScaleFactor,hh*glScaleFactor);
         sizeText=ImGui::CalcTextSize(strTmp);
         posx=sizeText.x+8;
         ImGui::SetCursorPos(ImVec2(winsizeX*glScaleFactor-posx,posy));

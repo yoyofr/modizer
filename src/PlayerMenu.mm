@@ -21,8 +21,9 @@
 #endif
 
 
-
+extern float font_size[4];
 extern ImFont *font_menu[4];
+int font_idx;
 extern volatile t_settings settings[MAX_SETTINGS];
 extern bool _pmPresetHasChanged;
 
@@ -132,7 +133,7 @@ const char *menuMidiLabel[16]={
 static GLuint txtMenuModPatternHandle[16];
 const char *menuModPatternLabel[16]={
     "Off",NULL,NULL,NULL,
-    NULL,NULL,NULL,"Fixed bar",
+    "Volume\nbars",NULL,NULL,"Fixed bar",
     "Size 10","Size 16","Size 24","Size 32",
     NULL,"Go to\nsettings","Back","Exit Menu"
 };
@@ -226,15 +227,14 @@ int playerGetActivatedCells(int menu_idx) {
         if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value==1) active_idx|=1<<1;
         if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value==2) active_idx|=1<<2;
         if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value==3) active_idx|=1<<3;
-        if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value==4) active_idx|=1<<4;
-        if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value==5) active_idx|=1<<5;
-        if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value==6) active_idx|=1<<6;
+        if (settings[GLOB_FXMODPattern_VolBar].detail.mdz_boolswitch.switch_value) active_idx|=1<<4;
         if (settings[GLOB_FXMODPattern_CurrentLineMode].detail.mdz_switch.switch_value==1) active_idx|=1<<7;
         if (settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_value==0) active_idx|=1<<8;
         if (settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_value==1) active_idx|=1<<9;
         if (settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_value==2) active_idx|=1<<10;
         if (settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_value==3) active_idx|=1<<11;
         
+        snprintf(menuModPatternDynLabel[5],64,"Themes:\n%s",settings[GLOB_FXMODPattern_Theme].detail.mdz_switch.switch_labels[settings[GLOB_FXMODPattern_Theme].detail.mdz_switch.switch_value]);
         snprintf(menuModPatternDynLabel[12],64,"Font:\n%s",settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_labels[settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_value]);
     } else if (menu_idx==MENU_PROJECTM) {
         if (settings[PROJECTM_FXONOFF].detail.mdz_switch.switch_value) active_idx|=1<<1;
@@ -273,6 +273,7 @@ void playerMenuInit() {
     memset(menuModPatternDynLabel,0,sizeof(menuModPatternDynLabel));
     
     menuOscilloDynLabel[7]=(char*)malloc(64);
+    menuModPatternDynLabel[5]=(char*)malloc(64);
     menuModPatternDynLabel[12]=(char*)malloc(64);
     
     for (int i=0;i<16;i++) menuCpt[i]=rand();
@@ -398,15 +399,6 @@ void playerMenuInit() {
     if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu7c_2x.png"), &(txtMenuModPatternHandle[3]), NULL, NULL)) {
         NSLog(@"Cannot load texture");
     }
-    if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu7d_2x.png"), &(txtMenuModPatternHandle[4]), NULL, NULL)) {
-        NSLog(@"Cannot load texture");
-    }
-    if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu7e_2x.png"), &(txtMenuModPatternHandle[5]), NULL, NULL)) {
-        NSLog(@"Cannot load texture");
-    }
-    if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu7f_2x.png"), &(txtMenuModPatternHandle[6]), NULL, NULL)) {
-        NSLog(@"Cannot load texture");
-    }
     
     //ProjectM
     txtMenuProjectMHandle[1]=txtMenuHandle[FXPROJECTM_IDX];
@@ -461,6 +453,16 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
         menuCpt[i]++;
     }
     
+    int font_idx=3;
+    float idealFontSize=menu_win_size/64;
+    for (int i=0;i<4;i++) {
+        if ( (((idealFontSize-font_size[i])/idealFontSize)<0.2) || (font_size[i]>idealFontSize) ) {
+            font_idx=i;
+            break;
+        }
+    }
+    
+    
     // Global var mirroring
     global_FXAlpha=settings[GLOB_FXAlpha].detail.mdz_slider.slider_value*100;
     
@@ -478,7 +480,7 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
     ImGui::BeginChild("Modizer menu",ImVec2(menu_win_size,menu_win_size));
     static ImGuiTableFlags flagTable = /*ImGuiTableFlags_Borders|*/ImGuiTableFlags_NoBordersInBody|ImGuiTableFlags_SizingFixedSame|ImGuiTableFlags_NoHostExtendX|ImGuiTableFlags_PreciseWidths;
     
-    if (font_menu[2]) ImGui::PushFont(font_menu[2]);
+    if (font_menu[font_idx]) ImGui::PushFont(font_menu[font_idx]);
     else ImGui::PushFont(nullptr);//,18*menu_win_size/512);
     
     int activeFx=playerGetActivatedCells(pMenu_state.menu_idx);
@@ -1337,17 +1339,14 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
                                 settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=3;
                                 txtMenuHandle[FXMODPATTERN_IDX]=current_txtMenuHandle[3];
                                 break;
-                            case 0x01: //All info, volume bars
-                                settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=4;
-                                txtMenuHandle[FXMODPATTERN_IDX]=current_txtMenuHandle[4];
+                            case 0x01: //Volume bars
+                                settings[GLOB_FXMODPattern_VolBar].detail.mdz_boolswitch.switch_value=!settings[GLOB_FXMODPattern_VolBar].detail.mdz_boolswitch.switch_value;
                                 break;
-                            case 0x11: //Medium info, volume bars
-                                settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=5;
-                                txtMenuHandle[FXMODPATTERN_IDX]=current_txtMenuHandle[5];
+                            case 0x11: //Theme
+                                settings[GLOB_FXMODPattern_Theme].detail.mdz_switch.switch_value++;
+                                if (settings[GLOB_FXMODPattern_Theme].detail.mdz_switch.switch_value>=settings[GLOB_FXMODPattern_Theme].detail.mdz_switch.switch_value_nb) settings[GLOB_FXMODPattern_Theme].detail.mdz_switch.switch_value=0;
                                 break;
                             case 0x21: //Min info, volume bars
-                                settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=6;
-                                txtMenuHandle[FXMODPATTERN_IDX]=current_txtMenuHandle[6];
                                 break;
                             case 0x31: //Fixed bar for mod current line
                                 if (settings[GLOB_FXMODPattern_CurrentLineMode].detail.mdz_switch.switch_value) settings[GLOB_FXMODPattern_CurrentLineMode].detail.mdz_switch.switch_value=0;

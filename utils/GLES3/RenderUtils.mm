@@ -8,23 +8,22 @@
  */
 #define BLOOM_BLUR_ITERATIONS 7 //
 
-#define R_BASE1 0xFC
-#define G_BASE1 0xBD
-#define B_BASE1 0xF0
+//#define R_BASE1 0xEC
+//#define G_BASE1 0xAD
+//#define B_BASE1 0xF0
+//
+//#define R_BASE2 0xB0
+//#define G_BASE2 0x90
+//#define B_BASE2 0xFF
 
-#define R_BASE2 0xD0
-#define G_BASE2 0xA0
-#define B_BASE2 0xFF
+#define MODPATTERN_FRAME_COLHIGH1 modpat_curTheme->frame_base1[0],modpat_curTheme->frame_base1[1],modpat_curTheme->frame_base1[2],255
+#define MODPATTERN_FRAME_COLHIGH2 modpat_curTheme->frame_base2[0],modpat_curTheme->frame_base2[1],modpat_curTheme->frame_base2[2],255
 
+#define MODPATTERN_FRAME_COLMED1 modpat_curTheme->frame_base1[0]/3,modpat_curTheme->frame_base1[1]/3,modpat_curTheme->frame_base1[2]/3,255
+#define MODPATTERN_FRAME_COLMED2 modpat_curTheme->frame_base2[0]/3,modpat_curTheme->frame_base2[1]/3,modpat_curTheme->frame_base2[2]/3,255
 
-#define MODPATTERN_FRAME_COLHIGH1 R_BASE1,G_BASE1,B_BASE1,255
-#define MODPATTERN_FRAME_COLHIGH2 R_BASE2,G_BASE2,B_BASE2,255 //60,100,255,255
-
-#define MODPATTERN_FRAME_COLMED1 R_BASE1/3,G_BASE1/3,B_BASE1/3,255
-#define MODPATTERN_FRAME_COLMED2 R_BASE2/3,G_BASE2/3,B_BASE2/3,255
-
-#define MODPATTERN_FRAME_COLLOW1 R_BASE1/5,G_BASE1/5,B_BASE1/5,255
-#define MODPATTERN_FRAME_COLLOW2 R_BASE2/5,G_BASE2/5,B_BASE2/5,255
+#define MODPATTERN_FRAME_COLLOW1 modpat_curTheme->frame_base1[0]/5,modpat_curTheme->frame_base1[1]/5,modpat_curTheme->frame_base1[2]/5,255
+#define MODPATTERN_FRAME_COLLOW2 modpat_curTheme->frame_base2[0]/5,modpat_curTheme->frame_base2[1]/5,modpat_curTheme->frame_base2[2]/5,255
 
 #define mdz_getBundledResFilePath(name) [[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:name] UTF8String]
 
@@ -33,6 +32,7 @@ extern int NOTES_DISPLAY_TOPMARGIN;
 
 #include "RenderUtils.h"
 #include "TextureUtils.h"
+
 
 #import "SettingsGenViewController.h"
 extern volatile t_settings settings[MAX_SETTINGS];
@@ -1126,7 +1126,9 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
     ImGui::PopFont();
     ImGui::PopStyleColor();
     
-    GLfloat line_width=mScaleFactor*thickness/(float)hh;
+    GLfloat line_width;
+    if (hh>ww) line_width=mScaleFactor*thickness/(float)hh;
+    else line_width=mScaleFactor*thickness/(float)ww;
     
     LineVertexF *ptsTriangles;
     
@@ -1189,7 +1191,7 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
     glUniformMatrix4fv ( userData_Render2DLines->mvpLoc, 1, GL_FALSE, ( GLfloat * ) &userData_Render2DLines->mvpMatrix.m[0][0] );
     
     // Load the line width
-    glUniform1fv(widthHandle,1, &line_width);
+    glUniform1f(widthHandle,line_width);
     
     //ImGui::Text("%.3f x %.3f, %.3f x %.3f",ptsLines[0].Ax,ptsLines[0].Ay,ptsLines[0].Bx,ptsLines[0].By);
     
@@ -1303,52 +1305,8 @@ void RenderUtils::DrawChanLayout(uint _ww,uint _hh,int display_note_mode,int cha
     float min_w=col_size*chanNb+col_ofs;
     min_w=fmin(min_w,_ww);
     
-    
-    //Header line
-//    count+=RenderUtils::buildQuad(&(pts[count]),
-//                                  col_ofs,     _hh,
-//                                  min_w, _hh,
-//                                  min_w, _hh-2,
-//                                  col_ofs,     _hh-2,
-//                                  MODPATTERN_FRAME_COLHIGH1,
-//                                  MODPATTERN_FRAME_COLHIGH2,
-//                                  MODPATTERN_FRAME_COLHIGH2,
-//                                  MODPATTERN_FRAME_COLHIGH1,
-//                                  _ww,_hh);
-//    
-//    count+=RenderUtils::buildQuad(&(pts[count]),
-//                                  col_ofs,     _hh-2,
-//                                  min_w, _hh-2,
-//                                  min_w, _hh-(char_height+2-0)-2,
-//                                  col_ofs,     _hh-(char_height+2-0)-2,
-//                                  MODPATTERN_FRAME_COLMED1,
-//                                  MODPATTERN_FRAME_COLMED2,
-//                                  MODPATTERN_FRAME_COLMED2,
-//                                  MODPATTERN_FRAME_COLMED1,
-//                                  _ww,_hh);
-//
-//    count+=RenderUtils::buildQuad(&(pts[count]),
-//                                  col_ofs,     _hh-(char_height+2-0)-2,
-//                                  min_w, _hh-(char_height+2-0)-2,
-//                                  min_w, _hh-(char_height+2-0),
-//                                  col_ofs,     _hh-(char_height+2-0),
-//                                  MODPATTERN_FRAME_COLLOW1,
-//                                  MODPATTERN_FRAME_COLLOW2,
-//                                  MODPATTERN_FRAME_COLLOW2,
-//                                  MODPATTERN_FRAME_COLLOW1,
-//                                  _ww,_hh);
-//    count+=RenderUtils::buildQuad(&(pts[count]),
-//                                  col_ofs-2,     _hh,
-//                                  col_ofs, _hh,
-//                                  col_ofs,  _hh-(char_height+2-0),
-//                                  col_ofs-2,      _hh-(char_height+2-0),
-//                                  MODPATTERN_FRAME_COLHIGH1,
-//                                  MODPATTERN_FRAME_COLHIGH2,
-//                                  MODPATTERN_FRAME_COLHIGH2,
-//                                  MODPATTERN_FRAME_COLHIGH1,
-//                                  _ww,_hh);
-    
     //border / lines nb
+    
 
     count+=RenderUtils::buildQuad(&(pts[count]),
                                   0,     0,
@@ -1543,10 +1501,42 @@ void RenderUtils::DrawChanLayoutAfter(uint _ww,uint _hh,int display_note_mode,in
         case 2:col_size=4*char_width;col_ofs=(char_width)*2+8+6-2;break;
     }
     
+    //Volumes bar
+    if (volumeData) {
+        for (int i=0; i<chanNb; i++) {
+            //if (col_size*i+col_ofs-2.0f>_ww) break;
+            int cr,cg,cb,crb,cgb,cbb;
+            crb=modpat_curTheme->volume_bar[0];
+            cgb=modpat_curTheme->volume_bar[1];
+            cbb=modpat_curTheme->volume_bar[2];
+            cr=crb+volumeData[i]*2; if (cr<0) cr=0; if (cr>255) cr=255;
+            cg=cgb+volumeData[i]/4; if (cg<0) cg=0; if (cg>255) cg=255;
+            cb=cbb+volumeData[i]; if (cb<0) cb=0; if (cb>255) cb=255;
+            
+            if ( ((pixOfs+col_size*i+col_ofs+col_size*1/5-6.0)<_ww) &&
+                 ((pixOfs+col_size*i+col_ofs+col_size*4/5-6.0)>0)
+                )
+            count+=RenderUtils::buildQuad(&(pts[count]),
+                                          pixOfs+col_size*i+col_ofs+col_size*1/5-6.0, 0,
+                                          pixOfs+col_size*i+col_ofs+col_size*4/5-6.0, 0,
+                                          pixOfs+col_size*i+col_ofs+col_size*4/5-6.0, volumeData[i]*_hh/256/5,
+                                          pixOfs+col_size*i+col_ofs+col_size*1/5-6.0, volumeData[i]*_hh/256/5,
+                                          crb,cgb,cbb,255,
+                                          crb,cgb,cbb,255,
+                                          cr,cg,cb,255,
+                                          cr,cg,cb,255,
+                                          _ww,_hh);
+            
+        }
+    }
+    
     //Draw current playing line
     ii=_hh-rowToHighlight*char_height-2*char_height-2-char_yOfs;
     
-    colr=230;colg=76;colb=153;cola=150;
+    colr=modpat_curTheme->highlight_bar[0];
+    colg=modpat_curTheme->highlight_bar[1];
+    colb=modpat_curTheme->highlight_bar[2];
+    cola=150;
     count+=RenderUtils::buildQuad(&(pts[count]),
                                   0,     ii-1,
                                   min_w, ii-1,
@@ -1583,34 +1573,6 @@ void RenderUtils::DrawChanLayoutAfter(uint _ww,uint _hh,int display_note_mode,in
                                   colr,colg,colb,cola,
                                   colr,colg,colb,cola,
                                   _ww,_hh);
-    //Volumes bar
-    if (volumeData) {
-        for (int i=0; i<chanNb; i++) {
-            //if (col_size*i+col_ofs-2.0f>_ww) break;
-            int cr,cg,cb,crb,cgb,cbb;
-            crb=100;
-            cgb=50;
-            cbb=150;
-            cr=crb+volumeData[i]*2; if (cr<0) cr=0; if (cr>255) cr=255;
-            cg=cgb+volumeData[i]/4; if (cg<0) cg=0; if (cg>255) cg=255;
-            cb=cbb+volumeData[i]; if (cb<0) cb=0; if (cb>255) cb=255;
-            
-            if ( ((pixOfs+col_size*i+col_ofs+col_size*1/5-6.0)<_ww) &&
-                 ((pixOfs+col_size*i+col_ofs+col_size*4/5-6.0)>0)
-                )
-            count+=RenderUtils::buildQuad(&(pts[count]),
-                                          pixOfs+col_size*i+col_ofs+col_size*1/5-6.0, 0,
-                                          pixOfs+col_size*i+col_ofs+col_size*4/5-6.0, 0,
-                                          pixOfs+col_size*i+col_ofs+col_size*4/5-6.0, volumeData[i]*_hh/256/5,
-                                          pixOfs+col_size*i+col_ofs+col_size*1/5-6.0, volumeData[i]*_hh/256/5,
-                                          crb,cgb,cbb,255,
-                                          crb,cgb,cbb,255,
-                                          cr,cg,cb,255,
-                                          cr,cg,cb,255,
-                                          _ww,_hh);
-            
-        }
-    }
     
     // Use the program object
     glUseProgram ( userData_simpleRender2D->programObject );
@@ -7837,8 +7799,9 @@ void RenderUtils::DrawPianoRollSynthesiaFX(uint ww,uint hh,int horiz_vert,float 
             x+=widthx;
         }
     }
-    ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0,0,0,64));
+    
     if (settings[GLOB_FXPianoRollOctavesLabels].detail.mdz_switch.switch_value) {
+        ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(0,0,0,64));
         for (int o=0;o<256/12;o++) {
             x=o*width*7.0-note_display_offset;
             

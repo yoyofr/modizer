@@ -781,6 +781,7 @@
 		CC9331942EA28F0F00CB0503 /* Fonts in Resources */ = {isa = PBXBuildFile; fileRef = CC9331932EA28B7B00CB0503 /* Fonts */; };
 		CC93319A2EA55C0E00CB0503 /* SysMonitoring.h in Sources */ = {isa = PBXBuildFile; fileRef = CC9331992EA55C0E00CB0503 /* SysMonitoring.h */; };
 		CC93319E2EA55E6400CB0503 /* SysMonitoring.m in Sources */ = {isa = PBXBuildFile; fileRef = CC93319D2EA55E6400CB0503 /* SysMonitoring.m */; };
+		CC9331A12EA5844900CB0503 /* ModizerGlobals.c in Sources */ = {isa = PBXBuildFile; fileRef = CC9331A02EA583F300CB0503 /* ModizerGlobals.c */; };
 		CC94D9FD1AC7FCE70046C45D /* UIImage+ImageEffects.m in Sources */ = {isa = PBXBuildFile; fileRef = CC94D9FC1AC7FCE70046C45D /* UIImage+ImageEffects.m */; };
 		CC9A51012BE37C2E00CED1F0 /* liblibpmdmini.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CC9A50BC2BE36C8300CED1F0 /* liblibpmdmini.a */; };
 		CC9A51032BE38F2D00CED1F0 /* ym2608_adpcm_rom.bin in Resources */ = {isa = PBXBuildFile; fileRef = CC9A51022BE38F2D00CED1F0 /* ym2608_adpcm_rom.bin */; };
@@ -2472,6 +2473,8 @@
 		CC9331992EA55C0E00CB0503 /* SysMonitoring.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SysMonitoring.h; sourceTree = "<group>"; };
 		CC93319B2EA55D7B00CB0503 /* MetricKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MetricKit.framework; path = System/Library/Frameworks/MetricKit.framework; sourceTree = SDKROOT; };
 		CC93319D2EA55E6400CB0503 /* SysMonitoring.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SysMonitoring.m; sourceTree = "<group>"; };
+		CC93319F2EA5835400CB0503 /* ModizerTypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ModizerTypes.h; sourceTree = "<group>"; };
+		CC9331A02EA583F300CB0503 /* ModizerGlobals.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = ModizerGlobals.c; sourceTree = "<group>"; };
 		CC94D9FB1AC7FCE70046C45D /* UIImage+ImageEffects.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+ImageEffects.h"; sourceTree = "<group>"; };
 		CC94D9FC1AC7FCE70046C45D /* UIImage+ImageEffects.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+ImageEffects.m"; sourceTree = "<group>"; };
 		CC9A0AAB1ACA7BF70002C995 /* Base */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = Base; path = Base.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -3846,6 +3849,8 @@
 				59A65C7E262501A000BC99D1 /* MiniPlayerView.h */,
 				59A65C7F262501A000BC99D1 /* MiniPlayerView.m */,
 				CC9B97161221739A007A156C /* ModizerConstants.h */,
+				CC93319F2EA5835400CB0503 /* ModizerTypes.h */,
+				CC9331A02EA583F300CB0503 /* ModizerGlobals.c */,
 				59BB9F01261B03DE00DB5D6C /* ModizerVoicesData.h */,
 				5950D83825DF1A2500B476B2 /* ModizerWebView.h */,
 				5950D83925DF1A2500B476B2 /* ModizerWebView.m */,
@@ -6338,6 +6343,7 @@
 				591D8E4625DC63620013E19F /* decinit.c in Sources */,
 				CC1E5C3B1200B3B8000A8A4E /* CFtpServer.cpp in Sources */,
 				CC8368E92B57CA9B0035A4DA /* vfs68_fd.c in Sources */,
+				CC9331A12EA5844900CB0503 /* ModizerGlobals.c in Sources */,
 				CC8368662B57CA9A0035A4DA /* ym_puls.c in Sources */,
 				CC1E5C7C1200B3B8000A8A4E /* HardwareClock.cpp in Sources */,
 				59A65C6D2624D40000BC99D1 /* MiniPlayerVC.mm in Sources */,

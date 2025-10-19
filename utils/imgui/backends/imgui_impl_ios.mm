@@ -7,7 +7,7 @@ extern float glScaleFactor;
 static StopWatch g_timer;
 static ImGuiIOSEvent currentEvent;
 
-//ImFont  *font_body;
+float font_size[4]={10,16,24,32};
 ImFont  *font_menu[4];
 ImFont  *font_tracker[FONT_TRACKER_NB][4];
 const char *font_trackerName[FONT_TRACKER_NB][2]={
@@ -46,8 +46,6 @@ bool ImGui_ImplIOS_Init()
     
 //    font_body = io.Fonts->AddFontFromFileTTF([[[NSBundle mainBundle] pathForResource:@"Fonts/Roboto-Medium" ofType: @"ttf"] UTF8String], 24.0f*glScaleFactor, NULL, io.Fonts->GetGlyphRangesDefault());
 //    IM_ASSERT(font_body != NULL);
-    
-    float font_size[4]={10,16,24,32};
     
     for (int j=0;j<4;j++) {
         float ft_size=font_size[j];

@@ -28,8 +28,9 @@
 
 
 #include "GlErrors.h"
-
 #include "Queue.h"
+
+#include "ModizerTypes.h"
 
 
 //struct Mesh;

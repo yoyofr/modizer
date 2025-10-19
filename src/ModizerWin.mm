@@ -74,6 +74,7 @@
               [UIKeyCommand keyCommandWithInput:@"à"   modifierFlags:UIKeyModifierAlternate action:@selector(key0AlternatePressed)],
               
               [UIKeyCommand keyCommandWithInput:@"f"   modifierFlags:0 action:@selector(keyFPressed)],
+              [UIKeyCommand keyCommandWithInput:@"h"   modifierFlags:0 action:@selector(keyHPressed)],
               [UIKeyCommand keyCommandWithInput:@"\r"   modifierFlags:0 action:@selector(enterPressed)],
               [UIKeyCommand keyCommandWithInput:@" "   modifierFlags:0 action:@selector(spacePressed)],
     
@@ -159,6 +160,9 @@
 }
 - (void)keyPPressed{
     [detailViewControllerIphone mdPrevPreset];
+}
+- (void)keyHPressed{
+    [detailViewControllerIphone mdSwitchFPSHud];
 }
 - (void)keyLPressed{
     [detailViewControllerIphone mdSwitchLockPreset];

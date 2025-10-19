@@ -402,7 +402,7 @@ void optNSFPLAYChangedC(id param) {
                     valNb=[prefs objectForKey:str];
                     if ((valNb!=nil)&&([valNb isKindOfClass:[NSNumber class]])) settings[i].detail.mdz_switch.switch_value=[valNb intValue];
                     if (settings[i].detail.mdz_switch.switch_value<0) settings[i].detail.mdz_switch.switch_value=0;
-                    if (settings[i].detail.mdz_switch.switch_value>settings[i].detail.mdz_switch.switch_value_nb) settings[i].detail.mdz_switch.switch_value=settings[i].detail.mdz_switch.switch_value_nb-1;
+                    if (settings[i].detail.mdz_switch.switch_value>=settings[i].detail.mdz_switch.switch_value_nb) settings[i].detail.mdz_switch.switch_value=settings[i].detail.mdz_switch.switch_value_nb-1;
                     break;
                 case MDZ_SLIDER_DISCRETE:
                     valNb=[prefs objectForKey:str];
@@ -1413,15 +1413,24 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXMODPattern].description=NULL;
     settings[GLOB_FXMODPattern].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
     settings[GLOB_FXMODPattern].sub_family=0;
-    settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value_nb=7;
+    settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value_nb=4;
     settings[GLOB_FXMODPattern].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[GLOB_FXMODPattern].detail.mdz_switch.switch_labels[0]=(char*)"Off";
     settings[GLOB_FXMODPattern].detail.mdz_switch.switch_labels[1]=(char*)"1";
     settings[GLOB_FXMODPattern].detail.mdz_switch.switch_labels[2]=(char*)"2";
     settings[GLOB_FXMODPattern].detail.mdz_switch.switch_labels[3]=(char*)"3";
-    settings[GLOB_FXMODPattern].detail.mdz_switch.switch_labels[4]=(char*)"4";
-    settings[GLOB_FXMODPattern].detail.mdz_switch.switch_labels[5]=(char*)"5";
-    settings[GLOB_FXMODPattern].detail.mdz_switch.switch_labels[6]=(char*)"6";
+    
+    SETTINGS_ID_DEF(GLOB_FXMODPattern_Theme)
+    settings[GLOB_FXMODPattern_Theme].type=MDZ_SWITCH;
+    settings[GLOB_FXMODPattern_Theme].label=(char*)"MOD Color Theme";
+    settings[GLOB_FXMODPattern_Theme].description=NULL;
+    settings[GLOB_FXMODPattern_Theme].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+    settings[GLOB_FXMODPattern_Theme].sub_family=0;
+    settings[GLOB_FXMODPattern_Theme].detail.mdz_switch.switch_value_nb=2;
+    settings[GLOB_FXMODPattern_Theme].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_FXMODPattern_Theme].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[GLOB_FXMODPattern_Theme].detail.mdz_switch.switch_labels[0]=(char*)"1";
+    settings[GLOB_FXMODPattern_Theme].detail.mdz_switch.switch_labels[1]=(char*)"2";
+    settings[GLOB_FXMODPattern_Theme].callback=&optVISUChangedC;
     
     SETTINGS_ID_DEF(GLOB_FXMODPattern_CurrentLineMode)
     settings[GLOB_FXMODPattern_CurrentLineMode].type=MDZ_SWITCH;
@@ -1433,6 +1442,14 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXMODPattern_CurrentLineMode].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_FXMODPattern_CurrentLineMode].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[GLOB_FXMODPattern_CurrentLineMode].detail.mdz_switch.switch_labels[0]=(char*)"Scroll";
     settings[GLOB_FXMODPattern_CurrentLineMode].detail.mdz_switch.switch_labels[1]=(char*)"Fixed";
+    
+    SETTINGS_ID_DEF(GLOB_FXMODPattern_VolBar)
+    settings[GLOB_FXMODPattern_VolBar].type=MDZ_BOOLSWITCH;
+    settings[GLOB_FXMODPattern_VolBar].label=(char*)"MOD Volume bars";
+    settings[GLOB_FXMODPattern_VolBar].description=NULL;
+    settings[GLOB_FXMODPattern_VolBar].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+    settings[GLOB_FXMODPattern_VolBar].sub_family=0;
+    
     
     SETTINGS_ID_DEF(GLOB_FXMODPattern_Font)
     settings[GLOB_FXMODPattern_Font].type=MDZ_SWITCH;
@@ -1675,8 +1692,8 @@ void optNSFPLAYChangedC(id param) {
     //    settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_default_value=0;
     settings[GLOB_FXAlpha].detail.mdz_slider.slider_default_value=0.8;
     settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_default_value=0;
-    
-    
+    settings[GLOB_FXMODPattern_Theme].detail.mdz_switch.switch_default_value=0;
+    settings[GLOB_FXMODPattern_VolBar].detail.mdz_boolswitch.switch_default_value=0;
     
     /////////////////////////////////////
     //PROJECTM
@@ -3919,7 +3936,7 @@ void optNSFPLAYChangedC(id param) {
 }
 
 -(NSString*)getLabelValue:(char)digits value:(double)value {
-    NSString *str;
+    NSString *str=NULL;
     switch (digits) {
         case 0:
             str=[NSString stringWithFormat:@"%.0lf",value];
@@ -3943,6 +3960,7 @@ void optNSFPLAYChangedC(id param) {
             str=[NSString stringWithFormat:@"%.2lf",value];
             break;
     }
+    return str;
 }
 
 
