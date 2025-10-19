@@ -39,21 +39,25 @@ enum PMenu_Menu_List {
     MENU_ROOT=0,
     MENU_PROJECTM,
     MENU_OSCILLO,
-    MENU_PIANO,
+    MENU_PIANOROLL,
+    MENU_PIANO3D,
     MENU_MIDIPATTERN,
     MENU_MODPATTERN,
     MENU_2DSPECTRUM,
     MENU_3DSPECTRUM,
-    MENU_3DLANDSCAPE
+    MENU_3DLANDSCAPE,
+    
+    MENU_INDEX_MAX
 };
-#define FXPROJECTM_IDX 0
-#define FXOSCILLO_IDX 1
-#define FXPIANO_IDX 2
-#define FXMIDI_IDX 3
-#define FXMODPATTERN_IDX 4
-#define FX2DSPECTRUM_IDX 5
-#define FX3DSPECTRUM_IDX 6
-#define FX3DLANDSCAPE_IDX 7
+#define FXPROJECTM_IDX (MENU_PROJECTM-1)
+#define FXOSCILLO_IDX (MENU_OSCILLO-1)
+#define FXPIANOROLL_IDX (MENU_PIANOROLL-1)
+#define FXPIANO3D_IDX (MENU_PIANO3D-1)
+#define FXMIDI_IDX (MENU_MIDIPATTERN-1)
+#define FXMODPATTERN_IDX (MENU_MODPATTERN-1)
+#define FX2DSPECTRUM_IDX (MENU_2DSPECTRUM-1)
+#define FX3DSPECTRUM_IDX (MENU_3DSPECTRUM-1)
+#define FX3DLANDSCAPE_IDX (MENU_3DLANDSCAPE-1)
 
 
 static GLuint txtShineFx;
@@ -104,8 +108,15 @@ const char *menu3DLandscapeLabel[16]={
     NULL,NULL,NULL,NULL,
     NULL,"Go to\nsettings","Back","Exit Menu"
 };
-static GLuint txtMenuPianoHandle[16];
-const char *menuPianoLabel[16]={
+static GLuint txtMenuPiano3DHandle[16];
+const char *menuPiano3DLabel[16]={
+    "Off",NULL,NULL,NULL,
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,NULL,
+    NULL,"Go to\nsettings","Back","Exit Menu"
+};
+static GLuint txtMenuPianoRollHandle[16];
+const char *menuPianoRollLabel[16]={
     "Off",NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
     "Voices\nlabels","Octaves\nlabels",NULL,NULL,
@@ -139,8 +150,9 @@ void playerRootMenuInitRightItemsTexture() {
     txtMenuHandle[FX3DSPECTRUM_IDX]=txtMenu3DSpectrumHandle[max(settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value&15,1)];
     txtMenuHandle[FX3DLANDSCAPE_IDX]=txtMenu3DLandscapeHandle[max(settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value&15,1)];
     
-    if (settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value) txtMenuHandle[FXPIANO_IDX]=txtMenuPianoHandle[max(settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value&15,1)];
-    else if (settings[GLOB_FXPiano].detail.mdz_switch.switch_value) txtMenuHandle[FXPIANO_IDX]=txtMenuPianoHandle[max((settings[GLOB_FXPiano].detail.mdz_switch.switch_value+2)&15,1)];
+    txtMenuHandle[FXPIANOROLL_IDX]=txtMenuPianoRollHandle[max(settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value&15,1)];
+    
+    txtMenuHandle[FXPIANO3D_IDX]=txtMenuPiano3DHandle[max((settings[GLOB_FXPiano3D].detail.mdz_switch.switch_value)&15,1)];
     
     txtMenuHandle[FXMIDI_IDX]=txtMenuMidiHandle[max(settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value&15,1)];
     txtMenuHandle[FXMODPATTERN_IDX]=txtMenuModPatternHandle[max(settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value&15,1)];
@@ -154,7 +166,8 @@ int playerGetActivatedCells(int menu_idx) {
         if (settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value) active_idx|=1<<FX2DSPECTRUM_IDX;
         if (settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value) active_idx|=1<<FX3DSPECTRUM_IDX;
         if (settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value) active_idx|=1<<FX3DLANDSCAPE_IDX;
-        if (settings[GLOB_FXPiano].detail.mdz_switch.switch_value||settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value) active_idx|=1<<FXPIANO_IDX;
+        if (settings[GLOB_FXPiano3D].detail.mdz_switch.switch_value) active_idx|=1<<FXPIANO3D_IDX;
+        if (settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value) active_idx|=1<<FXPIANOROLL_IDX;
         if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value) active_idx|=1<<FXMIDI_IDX;
         if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value) active_idx|=1<<FXMODPATTERN_IDX;
         if (settings[PROJECTM_FXONOFF].detail.mdz_switch.switch_value) active_idx|=1<<FXPROJECTM_IDX;
@@ -192,14 +205,16 @@ int playerGetActivatedCells(int menu_idx) {
         if (settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value==6) active_idx|=1<<6;
         if (settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value==7) active_idx|=1<<7;
         if (settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value==8) active_idx|=1<<8;
-    } else if (menu_idx==MENU_PIANO) {
-        if ( (settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value==0) && (settings[GLOB_FXPiano].detail.mdz_switch.switch_value==0)) active_idx|=1<<0;
+    } else if (menu_idx==MENU_PIANO3D) {
+        if (settings[GLOB_FXPiano3D].detail.mdz_switch.switch_value==0) active_idx|=1<<0;
+        if (settings[GLOB_FXPiano3D].detail.mdz_switch.switch_value==1) active_idx|=1<<1;
+        if (settings[GLOB_FXPiano3D].detail.mdz_switch.switch_value==2) active_idx|=1<<2;
+        if (settings[GLOB_FXPiano3D].detail.mdz_switch.switch_value==3) active_idx|=1<<3;
+        if (settings[GLOB_FXPiano3D].detail.mdz_switch.switch_value==4) active_idx|=1<<4;
+    } else if (menu_idx==MENU_PIANOROLL) {
+        if (settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value==0) active_idx|=1<<0;
         if (settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value==1) active_idx|=1<<1;
         if (settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value==2) active_idx|=1<<2;
-        if (settings[GLOB_FXPiano].detail.mdz_switch.switch_value==1) active_idx|=1<<3;
-        if (settings[GLOB_FXPiano].detail.mdz_switch.switch_value==2) active_idx|=1<<4;
-        if (settings[GLOB_FXPiano].detail.mdz_switch.switch_value==3) active_idx|=1<<5;
-        if (settings[GLOB_FXPiano].detail.mdz_switch.switch_value==4) active_idx|=1<<6;
         if (settings[GLOB_FXPianoRollVoicesLabels].detail.mdz_boolswitch.switch_value) active_idx|=1<<8;
         if (settings[GLOB_FXPianoRollOctavesLabels].detail.mdz_boolswitch.switch_value) active_idx|=1<<9;
     } else if (menu_idx==MENU_MIDIPATTERN) {
@@ -251,7 +266,8 @@ void playerMenuInit() {
     memset(txtMenu2DSpectrumHandle,0,sizeof(txtMenu2DSpectrumHandle));
     memset(txtMenu3DSpectrumHandle,0,sizeof(txtMenu3DSpectrumHandle));
     memset(txtMenu3DLandscapeHandle,0,sizeof(txtMenu3DLandscapeHandle));
-    memset(txtMenuPianoHandle,0,sizeof(txtMenuPianoHandle));
+    memset(txtMenuPiano3DHandle,0,sizeof(txtMenuPiano3DHandle));
+    memset(txtMenuPianoRollHandle,0,sizeof(txtMenuPianoRollHandle));
     memset(txtMenuMidiHandle,0,sizeof(txtMenuMidiHandle));
     memset(txtMenuModPatternHandle,0,sizeof(txtMenuModPatternHandle));
     memset(menuModPatternDynLabel,0,sizeof(menuModPatternDynLabel));
@@ -270,7 +286,11 @@ void playerMenuInit() {
         NSLog(@"Cannot load texture");
     }
     //Piano roll
-    if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu11e_2x.png"), &(txtMenuHandle[FXPIANO_IDX]), NULL, NULL)) {
+    if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu11e_2x.png"), &(txtMenuHandle[FXPIANOROLL_IDX]), NULL, NULL)) {
+        NSLog(@"Cannot load texture");
+    }
+    //Piano 3D
+    if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu11a_2x.png"), &(txtMenuHandle[FXPIANO3D_IDX]), NULL, NULL)) {
         NSLog(@"Cannot load texture");
     }
     //Note scrollers
@@ -346,25 +366,23 @@ void playerMenuInit() {
         NSLog(@"Cannot load texture");
     }
     
-    //Piano FX
-    txtMenuPianoHandle[1]=txtMenuHandle[FXPIANO_IDX];
-    if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu11f_2x.png"), &(txtMenuPianoHandle[2]), NULL, NULL)) {
-        NSLog(@"Cannot load texture");
-    }
-    if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu11a_2x.png"), &(txtMenuPianoHandle[3]), NULL, NULL)) {
-        NSLog(@"Cannot load texture");
-    }
-    if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu11b_2x.png"), &(txtMenuPianoHandle[4]), NULL, NULL)) {
-        NSLog(@"Cannot load texture");
-    }
-    if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu11c_2x.png"), &(txtMenuPianoHandle[5]), NULL, NULL)) {
-        NSLog(@"Cannot load texture");
-    }
-    if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu11d_2x.png"), &(txtMenuPianoHandle[6]), NULL, NULL)) {
+    //Piano Roll
+    txtMenuPianoRollHandle[1]=txtMenuHandle[FXPIANOROLL_IDX];
+    if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu11f_2x.png"), &(txtMenuPianoRollHandle[2]), NULL, NULL)) {
         NSLog(@"Cannot load texture");
     }
     
-    
+    //Piano 3D
+    txtMenuPiano3DHandle[1]=txtMenuHandle[FXPIANO3D_IDX];
+    if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu11b_2x.png"), &(txtMenuPiano3DHandle[2]), NULL, NULL)) {
+        NSLog(@"Cannot load texture");
+    }
+    if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu11c_2x.png"), &(txtMenuPiano3DHandle[3]), NULL, NULL)) {
+        NSLog(@"Cannot load texture");
+    }
+    if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu11d_2x.png"), &(txtMenuPiano3DHandle[4]), NULL, NULL)) {
+        NSLog(@"Cannot load texture");
+    }
     
     //Notes scrollers
     txtMenuMidiHandle[1]=txtMenuHandle[FXMIDI_IDX];
@@ -532,32 +550,34 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
                     if (ret) {
                         switch (c*16+r) {
                             case 0x00:
-                                pMenu_state.menu_idx=1;
+                                if (MENU_INDEX_MAX>=1) pMenu_state.menu_idx=1;
                                 break;
                             case 0x10:
-                                pMenu_state.menu_idx=2;
+                                if (MENU_INDEX_MAX>=2) pMenu_state.menu_idx=2;
                                 break;
                             case 0x20:
-                                pMenu_state.menu_idx=3;
+                                if (MENU_INDEX_MAX>=3) pMenu_state.menu_idx=3;
                                 break;
                             case 0x30:
-                                pMenu_state.menu_idx=4;
+                                if (MENU_INDEX_MAX>=4) pMenu_state.menu_idx=4;
                                 break;
                             case 0x01:
-                                pMenu_state.menu_idx=5;
+                                if (MENU_INDEX_MAX>=5) pMenu_state.menu_idx=5;
                                 break;
                             case 0x11:
-                                pMenu_state.menu_idx=6;
+                                if (MENU_INDEX_MAX>=6) pMenu_state.menu_idx=6;
                                 break;
                             case 0x21:
-                                pMenu_state.menu_idx=7;
+                                if (MENU_INDEX_MAX>=7) pMenu_state.menu_idx=7;
                                 break;
                             case 0x31:
-                                pMenu_state.menu_idx=8;
+                                if (MENU_INDEX_MAX>=8) pMenu_state.menu_idx=8;
                                 break;
                             case 0x02:
+                                if (MENU_INDEX_MAX>=9) pMenu_state.menu_idx=9;
                                 break;
                             case 0x12:
+                                if (MENU_INDEX_MAX>=10) pMenu_state.menu_idx=10;
                                 break;
                             case 0x22: //FX Alpha
                                 break;
@@ -574,7 +594,7 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
                                 settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=0;
                                 settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value=0;
                                 settings[OSCILLO_FXMODE].detail.mdz_switch.switch_value=0;
-                                settings[GLOB_FXPiano].detail.mdz_switch.switch_value=0;
+                                settings[GLOB_FXPiano3D].detail.mdz_switch.switch_value=0;
                                 settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value=0;
                                 settings[PROJECTM_FXONOFF].detail.mdz_switch.switch_value=0;
                                 break;
@@ -990,10 +1010,10 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
             }
             ImGui::EndTable();
         }
-    } else if (pMenu_state.menu_idx==MENU_PIANO) {
-        if (ImGui::BeginTable("menu_piano",4,flagTable)) {
-            current_txtMenuHandle=txtMenuPianoHandle;
-            currentMenuLabel=menuPianoLabel;
+    } else if (pMenu_state.menu_idx==MENU_PIANOROLL) {
+        if (ImGui::BeginTable("menu_pianoroll",4,flagTable)) {
+            current_txtMenuHandle=txtMenuPianoRollHandle;
+            currentMenuLabel=menuPianoRollLabel;
             for (int r=0;r<4;r++) {
                 ImGui::TableNextRow(0,cell_size);
                 for (int c=0;c<4;c++) {
@@ -1037,40 +1057,21 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
                     if (ret) {
                         switch (c*16+r) {
                             case 0x00:
-                                settings[GLOB_FXPiano].detail.mdz_switch.switch_value=0;
                                 settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value=0;
-                                txtMenuHandle[FXPIANO_IDX]=current_txtMenuHandle[1];
+                                txtMenuHandle[FXPIANOROLL_IDX]=current_txtMenuHandle[1];
                                 break;
                             case 0x10:
-                                settings[GLOB_FXPiano].detail.mdz_switch.switch_value=0;
                                 settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value=1;
-                                txtMenuHandle[FXPIANO_IDX]=current_txtMenuHandle[1];
+                                txtMenuHandle[FXPIANOROLL_IDX]=current_txtMenuHandle[1];
                                 break;
                             case 0x20:
-                                settings[GLOB_FXPiano].detail.mdz_switch.switch_value=0;
                                 settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value=2;
-                                txtMenuHandle[FXPIANO_IDX]=current_txtMenuHandle[2];
+                                txtMenuHandle[FXPIANOROLL_IDX]=current_txtMenuHandle[2];
                                 break;
-                            case 0x30:
-                                settings[GLOB_FXPiano].detail.mdz_switch.switch_value=1;
-                                settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value=0;
-                                txtMenuHandle[FXPIANO_IDX]=current_txtMenuHandle[3];
-                                break;
-                            case 0x01:
-                                settings[GLOB_FXPiano].detail.mdz_switch.switch_value=2;
-                                settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value=0;
-                                txtMenuHandle[FXPIANO_IDX]=current_txtMenuHandle[4];
-                                break;
-                            case 0x11:
-                                settings[GLOB_FXPiano].detail.mdz_switch.switch_value=3;
-                                settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value=0;
-                                txtMenuHandle[FXPIANO_IDX]=current_txtMenuHandle[5];
-                                break;
-                            case 0x21:
-                                settings[GLOB_FXPiano].detail.mdz_switch.switch_value=4;
-                                settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value=0;
-                                txtMenuHandle[FXPIANO_IDX]=current_txtMenuHandle[6];
-                                break;
+                            case 0x30:break;
+                            case 0x01:break;
+                            case 0x11:break;
+                            case 0x21:break;
                             case 0x31:break;
                             case 0x02: // Voices labels
                                 settings[GLOB_FXPianoRollVoicesLabels].detail.mdz_boolswitch.switch_value=!settings[GLOB_FXPianoRollVoicesLabels].detail.mdz_boolswitch.switch_value;
@@ -1078,6 +1079,95 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
                             case 0x12: // Octaves labels
                                 settings[GLOB_FXPianoRollOctavesLabels].detail.mdz_boolswitch.switch_value=!settings[GLOB_FXPianoRollOctavesLabels].detail.mdz_boolswitch.switch_value;
                                 break;
+                            case 0x22:break;
+                            case 0x32:break;
+                            case 0x03:break;
+                            case 0x13: //Go to settings - visu
+                                keepOpened=2;
+                                break;
+                            case 0x23: //Back to main menu
+                                pMenu_state.menu_idx=MENU_ROOT;
+                                break;
+                            case 0x33: //Exit menu
+                                keepOpened=0;
+                                break;
+                        }
+                    }
+                }
+            }
+            ImGui::EndTable();
+        }
+    } else if (pMenu_state.menu_idx==MENU_PIANO3D) {
+        if (ImGui::BeginTable("menu_piano3d",4,flagTable)) {
+            current_txtMenuHandle=txtMenuPiano3DHandle;
+            currentMenuLabel=menuPiano3DLabel;
+            for (int r=0;r<4;r++) {
+                ImGui::TableNextRow(0,cell_size);
+                for (int c=0;c<4;c++) {
+                    bool isActive=activeFx&(1<<(r*4+c));
+                    ImGui::TableSetColumnIndex(c);
+                    bool ret=false;
+                    ImVec2 uv0(0,0);ImVec2 uv1(1,1);ImVec4 bg_col(0,0,0,0.0f);ImVec4 tint_col(0.4,0.4,0.4,0.8f);
+                    if (isActive) {//Active
+                        tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
+                        if (current_txtMenuHandle[r*4+c]) ImGui::PushStyleColor(ImGuiCol_Button,ImVec4(0.0,0.0,0.0,0.0f));
+                        else ImGui::PushStyleColor(ImGuiCol_Button,colorBtnTextActive);
+                    } else { //Inactive
+                        if (current_txtMenuHandle[r*4+c]) ImGui::PushStyleColor(ImGuiCol_Button,ImVec4(0.0,0.0,0.0,0.4f));
+                        else ImGui::PushStyleColor(ImGuiCol_Button,colorBtnTextInactive);
+                    }
+                    ImVec2 cur_pos=ImGui::GetCursorPos();
+                    if (current_txtMenuHandle[r*4+c]) { //Image Button
+                        if (isActive) {
+                            ImGui::SetNextItemAllowOverlap();
+                            tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
+                            ImGui::PushID((r*4+c)*4+0);
+                            ImGui::ImageButton("",(ImTextureID)(intptr_t)current_txtMenuHandle[r*4+c], ImVec2(cell_size, cell_size),uv0,uv1,bg_col,tint_col);
+                            ImGui::PopID();
+                            tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
+                            ImGui::SetCursorPos(cur_pos);
+                            ImGui::PushID((r*4+c)*4+1);
+                            ret=ImGui::ImageButton("",(ImTextureID)(intptr_t)txtShineFx,ImVec2(cell_size, cell_size),uv0,uv1,bg_col,tint_col);
+                            ImGui::PopID();
+                        } else {
+                            ImGui::PushID((r*4+c)*4);
+                            ret=ImGui::ImageButton("",(ImTextureID)(intptr_t)current_txtMenuHandle[r*4+c], ImVec2(cell_size, cell_size),uv0,uv1,bg_col,tint_col);
+                            ImGui::PopID();
+                        }
+                    } else if (currentMenuLabel[r*4+c]) { //Text Button
+                        ImGui::PushID((r*4+c)*4+0);
+                        if (isActive) ret=ImGui::Button(currentMenuLabel[r*4+c],ImVec2(cell_size, cell_size));
+                        else ret=ImGui::Button(currentMenuLabel[r*4+c],ImVec2(cell_size, cell_size));
+                        ImGui::PopID();
+                    }
+                    ImGui::PopStyleColor();
+                    if (ret) {
+                        switch (c*16+r) {
+                            case 0x00:
+                                settings[GLOB_FXPiano3D].detail.mdz_switch.switch_value=0;
+                                txtMenuHandle[FXPIANO3D_IDX]=current_txtMenuHandle[1];
+                                break;
+                            case 0x10:
+                                settings[GLOB_FXPiano3D].detail.mdz_switch.switch_value=1;
+                                txtMenuHandle[FXPIANO3D_IDX]=current_txtMenuHandle[1];
+                                break;
+                            case 0x20:
+                                settings[GLOB_FXPiano3D].detail.mdz_switch.switch_value=2;
+                                txtMenuHandle[FXPIANO3D_IDX]=current_txtMenuHandle[2];
+                                break;
+                            case 0x30:
+                                settings[GLOB_FXPiano3D].detail.mdz_switch.switch_value=3;
+                                txtMenuHandle[FXPIANO3D_IDX]=current_txtMenuHandle[3];
+                                break;
+                            case 0x01:
+                                settings[GLOB_FXPiano3D].detail.mdz_switch.switch_value=4;
+                                txtMenuHandle[FXPIANO3D_IDX]=current_txtMenuHandle[4];
+                                break;
+                            case 0x11:break;
+                            case 0x21:break;
+                            case 0x31:break;
+                            case 0x02:break;
+                            case 0x12:break;
                             case 0x22:break;
                             case 0x32:break;
                             case 0x03:break;

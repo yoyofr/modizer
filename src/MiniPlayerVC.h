@@ -42,6 +42,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, retain) MiniPlayerView *mpview;
 
 -(void) refreshCoverLabels;
+-(void) refreshCoverView;
 -(void) pushedPause;
 -(void) pushedPlay;
 -(void) pushedPlaylist;

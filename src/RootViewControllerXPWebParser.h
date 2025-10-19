@@ -139,7 +139,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
 -(void)updateMiniPlayer;
 
 -(bool) searchStringRegExp:(NSString*)searchPattern sourceString:(NSString*)sourceString;
-- (void)showMiniPlayer;
+-(void) showMiniPlayer;
 -(void) flushMainLoop;
 -(void) updateWaitingDetail:(NSString *)text;
 -(void) showAlertMsg:(NSString*)title message:(NSString*)message;

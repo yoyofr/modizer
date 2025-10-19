@@ -32,6 +32,11 @@ static NSFileManager *mFileMngr;
 
 @implementation DownloadViewController
 
+#pragma mark -
+#pragma mark Miniplayer
+#include "MiniPlayerImplementTableView.h"
+
+
 @synthesize networkStream,fileStream,downloadLabelSize,downloadLabelName,tableView,downloadPrgView,detailViewController,barItem,rootViewController,onlineVC;
 @synthesize searchViewController,btnCancel,btnSuspend,btnResume,btnClear;
 @synthesize mFTPDownloadQueueDepth,mURLDownloadQueueDepth,moreVC;
@@ -1438,6 +1443,13 @@ gzwrite(f,&str_len,sizeof(str_len));gzwrite(f,str,str_len);
                 [rootViewController refreshViewAfterDownload];
                 //TODO: playlist
             } else [self checkIfShouldAddFile:[filePath path] fileName:[[filePath path] lastPathComponent]];
+            
+            if (mURLIsImage[0]) {
+                //Potentially new cover, update
+                [detailViewController checkNewCover];
+                UIViewController *vc = [self visibleViewController:[UIApplication sharedApplication].keyWindow.rootViewController];
+                if ([vc respondsToSelector:@selector(updateMiniPlayer)]) [vc performSelector:@selector(updateMiniPlayer)];
+            }
             //Remove file if it is not part of accepted one
             
             [AFmanager invalidateSessionCancelingTasks:NO resetSession:NO];

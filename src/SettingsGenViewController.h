@@ -263,7 +263,7 @@ enum MDZ_SETTINGS {
     GLOB_FXAlpha,
     GLOB_FXFullscreen,
     GLOB_FXFPS,
-    GLOB_FXMSAA,
+    GLOB_FXSHOWFPS,
     GLOB_FXLOD,
         MDZ_SETTINGS_FAMILY_PROJECTM,
         PROJECTM_FXONOFF,
@@ -350,7 +350,7 @@ enum MDZ_SETTINGS {
     GLOB_FXMIDICutLine,
     GLOB_FXMIDIBarStyle,
     GLOB_FXMIDIBarVibrato,
-    GLOB_FXPiano,
+    GLOB_FXPiano3D,
     GLOB_FXPianoCutLine,
     GLOB_FXPianoColorMode,
     GLOB_FX3DSpectrum,
@@ -364,12 +364,14 @@ enum MDZ_SETTINGS {
 typedef struct {
     //boolswitch
     unsigned char switch_value;
+    unsigned char switch_default_value;
 } t_setting_boolswitch;
 
 typedef struct {
     //switch
     unsigned char switch_value;
     unsigned char switch_value_nb;
+    unsigned char switch_default_value;
     char **switch_labels;
 } t_setting_switch;
 
@@ -380,23 +382,27 @@ typedef struct {
     float slider_min_value;
     float slider_mid_value;
     float slider_max_value;
+    float slider_default_value;
     char slider_digits; //100:percentage, 60:time, 1:1 digit, 2:2 digits
 } t_setting_slider;
 
 typedef struct {
     //textbox
     char *text;
-    int max_width_char;    
+    char *default_text;
+    int max_width_char;
 } t_setting_textbox;
 
 typedef struct {
     //textbox
     char *text;
+    char *default_text;
 } t_setting_msgbox;
 
 typedef struct {
     //color
     int rgb;
+    int default_rgb;
 } t_setting_color;
 
 
@@ -442,12 +448,6 @@ typedef struct {
     //Color picker
     UIButton *currentColorPickerBtn;
     
-    //FTP
-    CFtpServer *ftpserver;
-    CFtpServer::CUserEntry *pAnonymousUser;
-    CFtpServer::CUserEntry *pUser;
-    bool bServerRunning;
-    
     bool darkMode;
     bool forceReloadCells;
 
@@ -468,6 +468,10 @@ typedef struct {
 + (void) applyDefaultSettings;
 + (void) oscilloGenSystemColor:(int)_mode color_idx:(int)color_idx color_buffer:(unsigned int*)color_buffer;
 + (void) pianomidiGenSystemColor:(int)_mode color_idx:(int)color_idx color_buffer:(unsigned int*)color_buffer;
++ (void) changeSettingsValue:(int)settingsIdx change:(float)value;
++ (void) FTPcheckStatus;
++ (bool) startFTPServer;
++ (NSString *)getIPAddress;
 
 - (IBAction) goPlayer;
 - (void) updateMiniPlayer;

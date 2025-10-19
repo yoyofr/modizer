@@ -22,6 +22,8 @@ int main(int argc, char *argv[]) {
         
         [SettingsGenViewController loadSettings];
         [SettingsGenViewController restoreSettings];
+        //Check if FTP should be started
+        [SettingsGenViewController FTPcheckStatus];
         
         return UIApplicationMain(argc, argv, nil, NSStringFromClass([AppDelegate_Phone class]));
     }

@@ -779,6 +779,8 @@
 		CC8A8D4817F9FF5500A56E0C /* Icon-Small-80.png in Resources */ = {isa = PBXBuildFile; fileRef = CC8A8D4117F9FF5500A56E0C /* Icon-Small-80.png */; };
 		CC8A8D4917F9FF5500A56E0C /* Icon-Small-100.png in Resources */ = {isa = PBXBuildFile; fileRef = CC8A8D4217F9FF5500A56E0C /* Icon-Small-100.png */; };
 		CC9331942EA28F0F00CB0503 /* Fonts in Resources */ = {isa = PBXBuildFile; fileRef = CC9331932EA28B7B00CB0503 /* Fonts */; };
+		CC93319A2EA55C0E00CB0503 /* SysMonitoring.h in Sources */ = {isa = PBXBuildFile; fileRef = CC9331992EA55C0E00CB0503 /* SysMonitoring.h */; };
+		CC93319E2EA55E6400CB0503 /* SysMonitoring.m in Sources */ = {isa = PBXBuildFile; fileRef = CC93319D2EA55E6400CB0503 /* SysMonitoring.m */; };
 		CC94D9FD1AC7FCE70046C45D /* UIImage+ImageEffects.m in Sources */ = {isa = PBXBuildFile; fileRef = CC94D9FC1AC7FCE70046C45D /* UIImage+ImageEffects.m */; };
 		CC9A51012BE37C2E00CED1F0 /* liblibpmdmini.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CC9A50BC2BE36C8300CED1F0 /* liblibpmdmini.a */; };
 		CC9A51032BE38F2D00CED1F0 /* ym2608_adpcm_rom.bin in Resources */ = {isa = PBXBuildFile; fileRef = CC9A51022BE38F2D00CED1F0 /* ym2608_adpcm_rom.bin */; };
@@ -2467,6 +2469,9 @@
 		CC9331562EA040B200CB0503 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		CC9331582EA040B300CB0503 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		CC9331932EA28B7B00CB0503 /* Fonts */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Fonts; sourceTree = "<group>"; };
+		CC9331992EA55C0E00CB0503 /* SysMonitoring.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SysMonitoring.h; sourceTree = "<group>"; };
+		CC93319B2EA55D7B00CB0503 /* MetricKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MetricKit.framework; path = System/Library/Frameworks/MetricKit.framework; sourceTree = SDKROOT; };
+		CC93319D2EA55E6400CB0503 /* SysMonitoring.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SysMonitoring.m; sourceTree = "<group>"; };
 		CC94D9FB1AC7FCE70046C45D /* UIImage+ImageEffects.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+ImageEffects.h"; sourceTree = "<group>"; };
 		CC94D9FC1AC7FCE70046C45D /* UIImage+ImageEffects.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+ImageEffects.m"; sourceTree = "<group>"; };
 		CC9A0AAB1ACA7BF70002C995 /* Base */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = Base; path = Base.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -2876,6 +2881,7 @@
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				CC93319B2EA55D7B00CB0503 /* MetricKit.framework */,
 				CC671C552E95CCD20076CE1E /* MetalANGLE */,
 				CC671C292E95C8FF0076CE1E /* GLKit.framework */,
 				CCABFAD42E95985600AF59B0 /* MetalANGLE-ios13.xcframework */,
@@ -3868,6 +3874,8 @@
 				33ABE5B417B2364C00AE0EA1 /* WB_BookmarksViewController.mm */,
 				CC1E623912041177000A8A4E /* WebBrowser.h */,
 				CC1E623A12041177000A8A4E /* WebBrowser.mm */,
+				CC9331992EA55C0E00CB0503 /* SysMonitoring.h */,
+				CC93319D2EA55E6400CB0503 /* SysMonitoring.m */,
 			);
 			path = src;
 			sourceTree = "<group>";
@@ -6342,6 +6350,7 @@
 				CC83686E2B57CA9A0035A4DA /* unice68_unpack.c in Sources */,
 				CC83695F2B57CCC80035A4DA /* emu68.c in Sources */,
 				591D8E4125DC63620013E19F /* huffCodes.c in Sources */,
+				CC93319E2EA55E6400CB0503 /* SysMonitoring.m in Sources */,
 				CC9CEF252E97E09E00725D15 /* imgui_impl_ios.mm in Sources */,
 				591D8E4A25DC63620013E19F /* quantization.c in Sources */,
 				CCFDC52D17DB105500C6692C /* RingBuffer.mm in Sources */,
@@ -6375,6 +6384,7 @@
 				CC8368602B57CA9A0035A4DA /* paula_io.c in Sources */,
 				CC8368E12B57CA9B0035A4DA /* error68.c in Sources */,
 				59C22A1A25B992D9003FEDBF /* AFURLResponseSerialization.m in Sources */,
+				CC93319A2EA55C0E00CB0503 /* SysMonitoring.h in Sources */,
 				CC2DE0A41217EF2900CF9CFF /* ModizerWin.mm in Sources */,
 				CC8368F52B57CA9B0035A4DA /* file68.c in Sources */,
 				CCFDC52B17DB105500C6692C /* AudioFileWriter.m in Sources */,
@@ -6835,6 +6845,7 @@
 				LINK_WITH_STANDARD_LIBRARIES = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = (
+					"-DNDEBUG",
 					"-DMODIZER",
 					"-D",
 					"VGM_USE_MPEG=1",
@@ -6978,6 +6989,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				LINK_WITH_STANDARD_LIBRARIES = YES;
 				OTHER_CFLAGS = (
+					"-DNDEBUG",
 					"-DMODIZER",
 					"-D",
 					"VGM_USE_MPEG=1",

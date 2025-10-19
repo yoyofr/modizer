@@ -1034,7 +1034,7 @@ didFinishNavigation:(WKNavigation *)navigation {
 }
 
 
--(void) doubleTap :(UITapGestureRecognizer*) sender {
+-(void) findImage :(UITapGestureRecognizer*) sender {
     //  <Find HTML tag which was clicked by user>
     //  <If tag is IMG, then get image URL and start saving>
 /*    int scrollPositionY = [[self.webView stringByEvaluatingJavaScriptFromString:@"window.pageYOffset"] intValue];
@@ -1055,99 +1055,101 @@ didFinishNavigation:(WKNavigation *)navigation {
     NSLog(@"tagName: %@",tagName);
     NSLog(@"urg: %@",urlToSave);*/
 
-
-    CGPoint point = [sender locationInView:self.webView];
-    // convert point from view to HTML coordinate system
-    CGFloat f = 1/self.webView.scrollView.zoomScale;
-    
-    if ([[[UIDevice currentDevice] systemVersion] doubleValue] >= 5.) {
-        point.x = point.x * f;
-        point.y = point.y * f;
-    } else {
-        // On iOS 4 and previous, document.elementFromPoint is not taking
-        // offset into account, we have to handle it
-        CGPoint offset = [self scrollOffset];
-        point.x = point.x * f + offset.x;
-        point.y = point.y * f + offset.y;
-    }
-    
-    // Load the JavaScript code from the Resources and inject it into the web page
-    NSString *path = [[NSBundle mainBundle] pathForResource:@"JSTools" ofType:@"js"];
-    NSString *jsCode = [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:nil];
-    __block BOOL finished=NO;
-    //[webView stringByEvaluatingJavaScriptFromString: jsCode];
-    [self.webView evaluateJavaScript:jsCode completionHandler:^(id _Nullable data, NSError * _Nullable error) {
-                finished=YES;
+    if ([sender state]==UIGestureRecognizerStateBegan) {
+        NSLog(@"longpress detected");
+        
+        CGPoint point = [sender locationInView:self.webView];
+        // convert point from view to HTML coordinate system
+        CGFloat f = 1/self.webView.scrollView.zoomScale;
+        
+        if ([[[UIDevice currentDevice] systemVersion] doubleValue] >= 5.) {
+            point.x = point.x * f;
+            point.y = point.y * f;
+        } else {
+            // On iOS 4 and previous, document.elementFromPoint is not taking
+            // offset into account, we have to handle it
+            CGPoint offset = [self scrollOffset];
+            point.x = point.x * f + offset.x;
+            point.y = point.y * f + offset.y;
+        }
+        
+        // Load the JavaScript code from the Resources and inject it into the web page
+        NSString *path = [[NSBundle mainBundle] pathForResource:@"JSTools" ofType:@"js"];
+        NSString *jsCode = [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:nil];
+        __block BOOL finished=NO;
+        //[webView stringByEvaluatingJavaScriptFromString: jsCode];
+        [self.webView evaluateJavaScript:jsCode completionHandler:^(id _Nullable data, NSError * _Nullable error) {
+            finished=YES;
         }];
-    
-    while (!finished)
+        
+        while (!finished)
         {
             [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]];
         }
-    
-    
-    
-    // call js functions
-    finished=NO;
-    __block NSString *tags;
-    [self.webView evaluateJavaScript:[NSString stringWithFormat:@"getHTMLElementsAtPoint(%li,%li);",(long)(NSInteger)point.x,(long)(NSInteger)point.y] completionHandler:^(id _Nullable data, NSError * _Nullable error) {
+        
+        
+        
+        // call js functions
+        finished=NO;
+        __block NSString *tags;
+        [self.webView evaluateJavaScript:[NSString stringWithFormat:@"getHTMLElementsAtPoint(%li,%li);",(long)(NSInteger)point.x,(long)(NSInteger)point.y] completionHandler:^(id _Nullable data, NSError * _Nullable error) {
             if (data) {
                 //NSData *data = [NSData dataWithContentsOfURL:[NSURL URLWithString:win_width]];
                 tags=[NSString stringWithString:(NSString*)data];
                 finished=YES;
             }
         }];
-    
-    while (!finished)
+        
+        while (!finished)
         {
             [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]];
         }
-    
-    finished=NO;
-    __block NSString *tagsSRC;
-    [self.webView evaluateJavaScript:[NSString stringWithFormat:@"getLinkSRCAtPoint(%li,%li);",(long)(NSInteger)point.x,(long)(NSInteger)point.y] completionHandler:^(id _Nullable data, NSError * _Nullable error) {
+        
+        finished=NO;
+        __block NSString *tagsSRC;
+        [self.webView evaluateJavaScript:[NSString stringWithFormat:@"getLinkSRCAtPoint(%li,%li);",(long)(NSInteger)point.x,(long)(NSInteger)point.y] completionHandler:^(id _Nullable data, NSError * _Nullable error) {
             if (data) {
                 tagsSRC=[NSString stringWithString:(NSString*)data];
                 finished=YES;
             }
         }];
-    
-    while (!finished)
+        
+        while (!finished)
         {
             [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]];
         }
-    
-    /*NSString *tags = [webView stringByEvaluatingJavaScriptFromString:
-                      [NSString stringWithFormat:@"getHTMLElementsAtPoint(%li,%li);",(long)(NSInteger)point.x,(long)(NSInteger)point.y]];
-    NSString *tagsSRC = [webView stringByEvaluatingJavaScriptFromString:
-                         [NSString stringWithFormat:@"getLinkSRCAtPoint(%li,%li);",(long)(NSInteger)point.x,(long)(NSInteger)point.y]];
-    */
-
-    //NSLog(@"src : %@",tags);
-    //NSLog(@"src : %@",tagsSRC);
-
-    NSString *url = nil;
-    if ([tags rangeOfString:@",IMG,"].location != NSNotFound) {
-        url = tagsSRC;    // Here is the image url!
-    }
-    
-    if (url!=nil) {
-        found_img=0;
         
-        if ([[url pathExtension] compare:@"jpg" options:NSCaseInsensitiveSearch]==NSOrderedSame) found_img=1; //jpg
-        if ([[url pathExtension] compare:@"jpeg" options:NSCaseInsensitiveSearch]==NSOrderedSame) found_img=1; //jpg
-        if ([[url pathExtension] compare:@"png" options:NSCaseInsensitiveSearch]==NSOrderedSame) found_img=2; //png
-        if ([[url pathExtension] compare:@"gif" options:NSCaseInsensitiveSearch]==NSOrderedSame) found_img=3; //gif
+        /*NSString *tags = [webView stringByEvaluatingJavaScriptFromString:
+         [NSString stringWithFormat:@"getHTMLElementsAtPoint(%li,%li);",(long)(NSInteger)point.x,(long)(NSInteger)point.y]];
+         NSString *tagsSRC = [webView stringByEvaluatingJavaScriptFromString:
+         [NSString stringWithFormat:@"getLinkSRCAtPoint(%li,%li);",(long)(NSInteger)point.x,(long)(NSInteger)point.y]];
+         */
         
-        if (found_img) {
-            cover_currentPlayFilepath = [detailViewController getCurrentModuleFilepath];
-            if (cover_currentPlayFilepath) {
-                UIAlertController *msgAlert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Image detected",@"")
-                                               message:[NSString stringWithFormat:NSLocalizedString(@"Choose_SaveCover",@""),[cover_currentPlayFilepath lastPathComponent]]
-                                               preferredStyle:UIAlertControllerStyleAlert];
-                
-                UIAlertAction* saveCoverFolderAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"CoverFolder",@"") style:UIAlertActionStyleDefault
-                   handler:^(UIAlertAction * action) {
+        //NSLog(@"src : %@",tags);
+        //NSLog(@"src : %@",tagsSRC);
+        
+        NSString *url = nil;
+        if ([tags rangeOfString:@",IMG,"].location != NSNotFound) {
+            url = tagsSRC;    // Here is the image url!
+        }
+        
+        if (url!=nil) {
+            found_img=0;
+            
+            if ([[url pathExtension] compare:@"jpg" options:NSCaseInsensitiveSearch]==NSOrderedSame) found_img=1; //jpg
+            if ([[url pathExtension] compare:@"jpeg" options:NSCaseInsensitiveSearch]==NSOrderedSame) found_img=1; //jpg
+            if ([[url pathExtension] compare:@"png" options:NSCaseInsensitiveSearch]==NSOrderedSame) found_img=2; //png
+            if ([[url pathExtension] compare:@"gif" options:NSCaseInsensitiveSearch]==NSOrderedSame) found_img=3; //gif
+            
+            if (found_img) {
+                cover_currentPlayFilepath = [detailViewController getCurrentModuleFilepath];
+                if (cover_currentPlayFilepath) {
+                    UIAlertController *msgAlert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Image detected",@"")
+                                                                                      message:[NSString stringWithFormat:NSLocalizedString(@"Choose_SaveCover",@""),[cover_currentPlayFilepath lastPathComponent]]
+                                                                               preferredStyle:UIAlertControllerStyleAlert];
+                    
+                    UIAlertAction* saveCoverFolderAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"CoverFolder",@"") style:UIAlertActionStyleDefault
+                                                                                  handler:^(UIAlertAction * action) {
                         if (detailViewController.mPlaylist_size) {
                             NSString *filename;
                             NSError *err;
@@ -1163,11 +1165,11 @@ didFinishNavigation:(WKNavigation *)navigation {
                             [downloadViewController addURLImageToDownloadList:cover_url_string fileName:filename filesize:cover_expectedContentLength];
                         }
                     }];
-                [msgAlert addAction:saveCoverFolderAction];
-                
-                UIAlertAction* saveCoverFileAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"CoverFile",@"") style:UIAlertActionStyleDefault
-                   handler:^(UIAlertAction * action) {
+                    [msgAlert addAction:saveCoverFolderAction];
                     
+                    UIAlertAction* saveCoverFileAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"CoverFile",@"") style:UIAlertActionStyleDefault
+                                                                                handler:^(UIAlertAction * action) {
+                        
                         if (detailViewController.mPlaylist_size) {
                             NSString *filename;
                             NSError *err;
@@ -1183,18 +1185,19 @@ didFinishNavigation:(WKNavigation *)navigation {
                             [downloadViewController addURLImageToDownloadList:cover_url_string fileName:filename filesize:cover_expectedContentLength];
                         }
                     }];
-                [msgAlert addAction:saveCoverFileAction];
-                
-                UIAlertAction* cancelAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"No",@"") style:UIAlertActionStyleDefault
-                   handler:^(UIAlertAction * action) {
+                    [msgAlert addAction:saveCoverFileAction];
+                    
+                    UIAlertAction* cancelAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"No",@"") style:UIAlertActionStyleDefault
+                                                                         handler:^(UIAlertAction * action) {
                     }];
-                [msgAlert addAction:cancelAction];
-                
-                cover_url_string=[[NSString alloc] initWithString:url];
-                cover_expectedContentLength=-1;
-                
-                [self presentViewController:msgAlert animated:YES completion:nil];
-                //[msgAlert show];
+                    [msgAlert addAction:cancelAction];
+                    
+                    cover_url_string=[[NSString alloc] initWithString:url];
+                    cover_expectedContentLength=-1;
+                    
+                    [self presentViewController:msgAlert animated:YES completion:nil];
+                    //[msgAlert show];
+                }
             }
         }
     }
@@ -1355,15 +1358,19 @@ didFinishNavigation:(WKNavigation *)navigation {
 	[self loadHome];
     [super viewDidLoad];
     
-    UITapGestureRecognizer *doubleTapMac = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(doubleTap:)];
+//    UITapGestureRecognizer *doubleTapMac = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(doubleTap:)];
     //doubleTap.numberOfTouchesRequired = 2;
-    doubleTapMac.numberOfTapsRequired=2;
-    UITapGestureRecognizer *doubleTapiOS = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(doubleTap:)];
-    doubleTapiOS.numberOfTouchesRequired = 2;
+//    doubleTapMac.numberOfTapsRequired=2;
+//    UITapGestureRecognizer *doubleTapiOS = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(doubleTap:)];
+//    doubleTapiOS.numberOfTouchesRequired = 2;
     //doubleTap.numberOfTapsRequired=2;
     
-    [self.webView addGestureRecognizer:doubleTapiOS];
-    [self.webView addGestureRecognizer:doubleTapMac];
+    UILongPressGestureRecognizer *longPress = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(findImage:)];
+    longPress.minimumPressDuration=0.5;
+    
+//    [self.webView addGestureRecognizer:doubleTapiOS];
+//    [self.webView addGestureRecognizer:doubleTapMac];
+    [self.webView addGestureRecognizer:longPress];
     
     [self.webView addObserver:self
                        forKeyPath:NSStringFromSelector(@selector(estimatedProgress))
@@ -1387,8 +1394,6 @@ didFinishNavigation:(WKNavigation *)navigation {
 	NSLog(@"webbro : %d",end_time-start_time);
 #endif
 }
-
-
 
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer
 shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer {

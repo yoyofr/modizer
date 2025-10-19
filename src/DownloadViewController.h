@@ -118,6 +118,7 @@
 - (void)_stopReceiveWithStatus:(NSString *)statusString status:(int)status;
 
 -(void) updateMiniPlayer;
+-(void) showMiniPlayer;
 
 - (void)backupDownloadList;
 - (int)restoreDownloadList;

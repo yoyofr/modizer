@@ -22,6 +22,8 @@ int MIDIFX_OFS;
 #include <pthread.h>
 extern pthread_mutex_t db_mutex;
 
+#import "SysMonitoring.h"
+
 extern BOOL nvdsp_EQ;
 
 #import <mach/mach.h>
@@ -47,7 +49,7 @@ int NOTES_DISPLAY_TOPMARGIN=30;
 
 #include "DBHelper.h"
 
-#define DEBUG_INFOS 0
+#define DEBUG_INFOS 1
 #define DEBUG_NO_SETTINGS 0
 
 
@@ -296,6 +298,9 @@ UIImage *backgroundImage;
 @synthesize mInWasView;
 
 @synthesize not_expected_version;
+
+SysMonitoring *sysMonitor;
+bool sysMonitorIsActive;
 
 -(void) refreshCurrentVC {
     UIViewController *vc = [self visibleViewController:[UIApplication sharedApplication].keyWindow.rootViewController];
@@ -631,7 +636,7 @@ UIImage *backgroundImage;
 -(bool) isProjectMAlone {
     bool ret=true;
     //Only Piano, Midi & MOD are using screen touches
-    if (settings[GLOB_FXPiano].detail.mdz_switch.switch_value||settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value) ret=false;
+    if (settings[GLOB_FXPiano3D].detail.mdz_switch.switch_value||settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value) ret=false;
     if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value) ret=false;
     if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value) ret=false;
     
@@ -645,7 +650,7 @@ UIImage *backgroundImage;
     if (settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value) active_idx|=1<<2;
     if (settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value) active_idx|=1<<3;
     
-    if (settings[GLOB_FXPiano].detail.mdz_switch.switch_value||settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value) active_idx|=1<<4;
+    if (settings[GLOB_FXPiano3D].detail.mdz_switch.switch_value||settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value) active_idx|=1<<4;
     if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value) active_idx|=1<<5;
     if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value) active_idx|=1<<6;
     
@@ -986,6 +991,8 @@ UIImage *backgroundImage;
 
 #import "PlaylistCommonFunctions.h"
 
+
+
 -(IBAction)pushedAddToPl {
     //add to playlist
     [self addToPlaylistSelView:mPlaylist[mPlaylist_pos].mPlaylistFilepath label:mPlaylist[mPlaylist_pos].mPlaylistFilename showNowListening:false];
@@ -1058,8 +1065,6 @@ static float movePinchScale,movePinchScaleOld;
     //VISU
     /////////////////////
     if ((scope==SETTINGS_ALL)||(scope==SETTINGS_VISU)) {
-        m_oglView.drawableMultisample = (settings[GLOB_FXMSAA].detail.mdz_boolswitch.switch_value?MGLDrawableMultisample4X:MGLDrawableMultisampleNone);
-        
         [self checkGLViewCanDisplay];
         
         if (m_displayLink) m_displayLink.preferredFramesPerSecond = (settings[GLOB_FXFPS].detail.mdz_switch.switch_value?60:30); //60 or 30 fps depending on device speed iPhone
@@ -1369,50 +1374,41 @@ static float movePinchScale,movePinchScaleOld;
 //    settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value=!settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value;
 }
 
--(void) switchFX:(int)fxNb {
+
+-(void) switchFX:(int)fxNb change:(int)val {
     if (mOglViewIsHidden==YES) {
         mOglViewIsHidden=NO;
         [self checkGLViewCanDisplay];
     }
     switch (fxNb) {
-        case 0:
-            settings[OSCILLO_FXMODE].detail.mdz_switch.switch_value=(settings[OSCILLO_FXMODE].detail.mdz_switch.switch_value+1)%settings[OSCILLO_FXMODE].detail.mdz_switch.switch_value_nb;
-            break;
         case 1:
-            settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value=(settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value+1)%3;
-            
+            [SettingsGenViewController changeSettingsValue:PROJECTM_FXONOFF change:val];
             break;
         case 2:
-            settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value=(settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value+1)%4;
+            [SettingsGenViewController changeSettingsValue:OSCILLO_FXMODE change:val];
             break;
         case 3:
-            settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value=(settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value+1)%6;
+            [SettingsGenViewController changeSettingsValue:GLOB_FXPianoRoll change:val];
             break;
-        case 4: //cycle through FXPianoRoll first, then FXPiano
-            if (settings[GLOB_FXPiano].detail.mdz_switch.switch_value==0) {
-                if (settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value==0) settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value=1;
-                else if (settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value==1) settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value=2;
-                else {
-                    settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value=0;
-                    settings[GLOB_FXPiano].detail.mdz_switch.switch_value=1;
-                }
-            } else {
-                settings[GLOB_FXPiano].detail.mdz_switch.switch_value=(settings[GLOB_FXPiano].detail.mdz_switch.switch_value+1)%5;
-                if (settings[GLOB_FXPiano].detail.mdz_switch.switch_value==0) settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value=0;
-            }
+        case 4:
+            [SettingsGenViewController changeSettingsValue:GLOB_FXPiano3D change:val];
             break;
         case 5:
-            settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value=(settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value+1)%3;
+            [SettingsGenViewController changeSettingsValue:GLOB_FXMIDIPattern change:val];
             break;
         case 6:
-            settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=(settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value+1)%7;
+            [SettingsGenViewController changeSettingsValue:GLOB_FXMODPattern change:val];
             break;
         case 7:
+            [SettingsGenViewController changeSettingsValue:GLOB_FXSpectrum change:val];
             break;
         case 8:
-            settings[PROJECTM_FXONOFF].detail.mdz_switch.switch_value=(settings[PROJECTM_FXONOFF].detail.mdz_switch.switch_value+1)%2;
+            [SettingsGenViewController changeSettingsValue:GLOB_FX3DSpectrum change:val];
             break;
         case 9:
+            [SettingsGenViewController changeSettingsValue:GLOB_FX3DLandscape change:val];
+            break;
+        case 0:
             break;
     }
     [self settingsChanged:SETTINGS_VISU];
@@ -4343,7 +4339,10 @@ GLsizei txtbackgroundImageWidth,txtbackgroundImageHeight;
             valNb=[prefs objectForKey:@"ProjectM_playlist_index"];if (safe_mode) valNb=nil;
             if (valNb != nil) {
                 int idx=[valNb intValue];
-                if (idx<projectm_playlist_size(_pm_playlist)) projectm_playlist_set_position(_pm_playlist,idx,true);
+                if (idx<projectm_playlist_size(_pm_playlist)) {
+                    NSLog(@"restart pm preset idx: %d",idx);
+                    projectm_playlist_set_position(_pm_playlist,idx,true);
+                }
             }
         }
     }
@@ -4784,7 +4783,7 @@ GLsizei txtbackgroundImageWidth,txtbackgroundImageHeight;
     m_oglView.drawableDepthFormat = MGLDrawableDepthFormat24;
     m_oglView.drawableStencilFormat = MGLDrawableStencilFormat8;
     // Enable multisampling
-    m_oglView.drawableMultisample = (settings[GLOB_FXMSAA].detail.mdz_boolswitch.switch_value?MGLDrawableMultisample4X:MGLDrawableMultisampleNone);
+    m_oglView.drawableMultisample = MGLDrawableMultisampleNone;
     
     
 }
@@ -4961,6 +4960,9 @@ void pmSoftReinit() {
     start_time=clock();
     [super viewDidLoad];
     
+    
+    sysMonitor=[[SysMonitoring alloc] init];
+    sysMonitorIsActive=false;
     
     //--------------------------------//
     // OpenGL
@@ -5681,7 +5683,7 @@ void pmSoftReinit() {
     modPatternWindowSize=0;
     modPatternLineSize=0;
     visibleChan=SOUND_MAXMOD_CHANNELS;
-
+    
     //	[super viewDidLoad];
     end_time=clock();
 #ifdef LOAD_PROFILE
@@ -5920,30 +5922,8 @@ void pmSoftReinit() {
         //update playlist
         /*		NSIndexPath *myindex=[[[NSIndexPath alloc] initWithIndex:0] autorelease];
          [self.playlistTabView selectRowAtIndexPath:[myindex indexPathByAddingIndex:mPlaylist_pos] animated:FALSE scrollPosition:UITableViewScrollPositionMiddle];*/
-        
-        
-        NSString *filePathTmp=mPlaylist[mPlaylist_pos].mPlaylistFilepath;
-        const char *tmp_str=[mPlaylist[mPlaylist_pos].mPlaylistFilepath UTF8String];
-        char tmp_str_copy[1024];
-        int i=0;
-        while (tmp_str[i]) {
-            if (tmp_str[i]=='@') {
-                memcpy(tmp_str_copy,tmp_str,i);
-                tmp_str_copy[i]=0;
-                filePathTmp=[NSString stringWithFormat:@"%s",tmp_str_copy];
-                break;
-            }
-            if (tmp_str[i]=='?') {
-                memcpy(tmp_str_copy,tmp_str,i);
-                tmp_str_copy[i]=0;
-                filePathTmp=[NSString stringWithFormat:@"%s",tmp_str_copy];
-                break;
-            }
-            i++;
-        }
-        
-        [self checkForCover:filePathTmp];
     }
+    [self checkNewCover];
     
     //update play/pause bars...
     
@@ -5982,6 +5962,34 @@ void pmSoftReinit() {
     
     movePxMID=movePyMID=0;
     movePMnomore=0;
+    
+    tgtFrameCnt=0;
+}
+
+- (void)checkNewCover {
+    if (mPlaylist_size) {
+        NSString *filePathTmp=mPlaylist[mPlaylist_pos].mPlaylistFilepath;
+        const char *tmp_str=[mPlaylist[mPlaylist_pos].mPlaylistFilepath UTF8String];
+        char tmp_str_copy[1024];
+        int i=0;
+        while (tmp_str[i]) {
+            if (tmp_str[i]=='@') {
+                memcpy(tmp_str_copy,tmp_str,i);
+                tmp_str_copy[i]=0;
+                filePathTmp=[NSString stringWithFormat:@"%s",tmp_str_copy];
+                break;
+            }
+            if (tmp_str[i]=='?') {
+                memcpy(tmp_str_copy,tmp_str,i);
+                tmp_str_copy[i]=0;
+                filePathTmp=[NSString stringWithFormat:@"%s",tmp_str_copy];
+                break;
+            }
+            i++;
+        }
+        
+        [self checkForCover:filePathTmp];
+    }
 }
 
 
@@ -6132,6 +6140,32 @@ static int mOglView1Tap=0;
     }
 }
 
+// fps calculation
+static float m_nFps; // current FPS
+static CFTimeInterval lastFrameStartTime;
+static CFTimeInterval tgtFrameStartTime;
+static int m_nAverageFps; // the average FPS over 15 frames
+static int m_nAverageFpsCounter;
+static float m_nAverageFpsSum;
+int tgtFrameCnt;
+
+static void calcFps()
+{
+    CFTimeInterval thisFrameStartTime = CFAbsoluteTimeGetCurrent();
+    float deltaTimeInSeconds = thisFrameStartTime - lastFrameStartTime;
+    m_nFps = (deltaTimeInSeconds == 0) ? 0: 1.0 / (deltaTimeInSeconds);
+
+    m_nAverageFpsCounter++;
+    m_nAverageFpsSum+=m_nFps;
+    if (m_nAverageFpsCounter >= 20) // calculate average FPS
+    {
+        m_nAverageFps = round(m_nAverageFpsSum/m_nAverageFpsCounter);
+        m_nAverageFpsCounter = 0;
+        m_nAverageFpsSum = 0;
+    }
+    lastFrameStartTime = thisFrameStartTime;
+}
+
 extern "C" int current_sample;
 
 - (void)doFrame {
@@ -6159,7 +6193,10 @@ extern "C" int current_sample;
     
     frameToUpdate++;
     
-    if (no_reentrant) return;
+    if (no_reentrant) {
+        NSLog(@"reentering doFrame");
+        return;
+    }
     no_reentrant=1;
     
     if (shouldUpdateCoverTexture) {
@@ -6187,9 +6224,26 @@ extern "C" int current_sample;
     ww=m_oglView.frame.size.width;
     hh=m_oglView.frame.size.height;
     
-    
-    
     //    if (frameToUpdate>1) printf("frame: %d\n",frameToUpdate);
+    
+    
+    CFTimeInterval curFrameStartTime=CFAbsoluteTimeGetCurrent();
+    if (tgtFrameStartTime==0) {
+        tgtFrameStartTime=curFrameStartTime;
+        frameToUpdate=1;
+    }
+    else {
+        double time_diff=curFrameStartTime-tgtFrameStartTime;
+        double fps_to_draw=time_diff*60.0;
+        frameToUpdate=round(fps_to_draw);
+        if (frameToUpdate<1) frameToUpdate=1;
+        tgtFrameStartTime=curFrameStartTime;
+    }
+    
+    
+    //tgtFrameCnt=0;
+    
+    int frameUpdated=frameToUpdate;
     while (frameToUpdate) {
         RenderUtils::UpdateDataMidiFX(tim_notes_cpy[[mplayer getCurrentGenBufferIdx]],clearAudioFXbuffer,mPaused);
         RenderUtils::UpdateDataPiano(tim_notes_cpy[[mplayer getCurrentGenBufferIdx]],clearAudioFXbuffer,mPaused);
@@ -6197,24 +6251,7 @@ extern "C" int current_sample;
     }
     clearAudioFXbuffer=false;
     
-    
-//    switch (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value) {
-//        case 1:
-//        case 4:
-//            size_chan=11*(mFontWidth/mScaleFactor);
-//            break;
-//        case 2:
-//        case 5:
-//            size_chan=6*(mFontWidth/mScaleFactor);
-//            break;
-//        case 3:
-//        case 6:
-//            size_chan=4*(mFontWidth/mScaleFactor);
-//            break;
-//    }
-    
-    framecpt++;  //TODO: check dependency / FPS (30, 60)
-    
+    calcFps();
     
     if (settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value) {
         //cover_viewBG.layer.zPosition=MAXFLOAT-10;
@@ -6329,6 +6366,8 @@ extern "C" int current_sample;
         projectm_pcm_add_int16(_pm,(const int16_t*)pmBuffer,sample_count,PROJECTM_STEREO);
         
         projectm_opengl_render_frame(_pm);
+        
+        projectm_set_fps(_pm, m_nFps);
     }
     /*-------------------------------------------------------------------------------*/
     
@@ -6764,18 +6803,7 @@ extern "C" int current_sample;
             RenderUtils::DrawMidiFX(ww,hh,settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value-1,tim_midifx_note_range,tim_midifx_note_offset,tim_midifx_length,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,mScaleFactor);
             
             if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value) {
-                if (DEBUG_INFOS) {
-//                    if (mHeader) delete mHeader;
-//                    mHeader=nil;
-                    
-                    snprintf(str_data,MAX_STR_DATA_SIZE,"%d/%d",tim_voicenb_cpy[playerpos],(int)(settings[TIM_Polyphony].detail.mdz_slider.slider_value));
-//                    mHeader= new CGLString(str_data, mFont,mScaleFactor);
-//                    glPushMatrix();
-//                    glTranslatef(ww-strlen(str_data)*6-2, 5.0f, 0.0f);
-//                    //glScalef(1.58f, 1.58f, 1.58f);
-//                    mHeader->Render(0);
-//                    glPopMatrix();
-                }
+                //printf("%d/%d",tim_voicenb_cpy[playerpos],(int)(settings[TIM_Polyphony].detail.mdz_slider.slider_value));
             }
         }
         if (mplayer.mPatternDataAvail) { //LIBOMPT or LIBXMP
@@ -7201,21 +7229,83 @@ extern "C" int current_sample;
         }
     }
     
-//    ImGui::SetNextWindowPos(ImVec2(0,0));
-//    ImGui::SetNextWindowSize(ImVec2(500*glScaleFactor,500*glScaleFactor));
-//    ImGui::GetStyle().Alpha=1.0f;
-//        ImGui::Begin("On screen debug info",0,0);
-//
-//        ImGuiStyle& style = ImGui::GetStyle();
-//        style.FontSizeBase=36;//*menu_win_size/512;
-//        style._NextFrameFontSizeBase = style.FontSizeBase;
-//    
-//    ImGui::Text("%d x %d",ww,hh);
-//    float f;
-//    //ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
-//    ImGui::End();
-//    //-------------------------------------
-    // ProjectM info
+    if (settings[GLOB_FXSHOWFPS].detail.mdz_boolswitch.switch_value) {
+        
+        if (!sysMonitorIsActive) {
+            [sysMonitor startMonitoring];
+            sysMonitorIsActive=true;
+        }
+        float cpuUsage=sysMonitor.cpuUsage;
+        
+        float winsizeX,winsizeY;
+        winsizeX=80;
+        winsizeY=70;
+        
+        ImGui::SetNextWindowPos(ImVec2((ww-winsizeX)*glScaleFactor,0));
+        ImGui::SetNextWindowSize(ImVec2(winsizeX*glScaleFactor,winsizeY*glScaleFactor));
+        
+        ImGui::PushStyleColor(ImGuiCol_WindowBg,ImVec4(0,0,0,0.5));
+        ImGui::PushStyleColor(ImGuiCol_Border,ImVec4(0,0,0,0));
+        
+        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.2,1.0,0.1,1.0));
+        
+        
+        
+        
+        ImGui::GetStyle().Alpha=1.0;
+        if (font_menu[2]) ImGui::PushFont(font_menu[2]);
+        else ImGui::PushFont(nullptr);
+        ImGui::Begin("Info",0,
+                     ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoScrollbar|ImGuiWindowFlags_NoFocusOnAppearing
+                     );
+        
+        char strTmp[32];
+        float posx,posy=0;
+        ImVec2 sizeText;
+        //FPS
+        snprintf(strTmp,32,"%dFPS",m_nAverageFps);
+        sizeText=ImGui::CalcTextSize(strTmp);
+        posx=sizeText.x+8;
+        posy=0;
+        ImGui::SetCursorPos(ImVec2(winsizeX*glScaleFactor-posx,posy));
+        ImGui::Text("%s",strTmp);
+        posy+=sizeText.y+2;
+        //smaller font
+        if (font_menu[1]) ImGui::PushFont(font_menu[1]);
+        else ImGui::PushFont(nullptr);
+        //CPU
+        snprintf(strTmp,32,"CPU %.2f%%",cpuUsage);
+        sizeText=ImGui::CalcTextSize(strTmp);
+        posx=sizeText.x+8;
+        ImGui::SetCursorPos(ImVec2(winsizeX*glScaleFactor-posx,posy));
+        ImGui::Text("%s",strTmp);
+        posy+=sizeText.y+2;
+        //eEsolution
+        snprintf(strTmp,32,"%dx%d",ww,hh);
+        sizeText=ImGui::CalcTextSize(strTmp);
+        posx=sizeText.x+8;
+        ImGui::SetCursorPos(ImVec2(winsizeX*glScaleFactor-posx,posy));
+        ImGui::Text("%s",strTmp);
+        posy+=sizeText.y+2;
+        
+        
+        
+        
+        ImGui::PopFont();
+        
+        ImGui::End();
+        ImGui::PopFont();
+        ImGui::PopStyleColor();
+        ImGui::PopStyleColor();
+        ImGui::PopStyleColor();
+    } else {
+        if (sysMonitorIsActive) {
+            [sysMonitor stopMonitoring];
+            sysMonitorIsActive=false;
+        }
+    }
+    //-------------------------------------
+    // ProjectM preset name display
     //-------------------------------------
     if ((settings[PROJECTM_FXONOFF].detail.mdz_switch.switch_value) && ((settings[PROJECTM_ShowPresetLabel].detail.mdz_switch.switch_value)||(projectm_playlist_size(_pm_playlist)==0))) {
         if (_pm) {
@@ -7247,12 +7337,6 @@ extern "C" int current_sample;
                 if (font_menu[1]) ImGui::PushFont(font_menu[1]);
                 else ImGui::PushFont(nullptr);
                 ImGui::Begin("On screen info",0,ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoScrollbar|ImGuiWindowFlags_NoFocusOnAppearing);
-                
-                ImGuiStyle& style = ImGui::GetStyle();
-                //style.FontSizeBase=36;//*menu_win_size/512;
-                //style._NextFrameFontSizeBase = style.FontSizeBase;
-                
-                
                 ImVec2 pmPresetStr_size=ImGui::CalcTextSize(pmPresetStr);
                 pmPresetStr_size.x+=18;
                 
@@ -7370,13 +7454,13 @@ extern "C" int current_sample;
         if (settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value) {
             int mirror=1;
             if (settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value) mirror=0;
-            if (settings[GLOB_FXPiano].detail.mdz_switch.switch_value) mirror=0;
+            if (settings[GLOB_FXPiano3D].detail.mdz_switch.switch_value) mirror=0;
             RenderUtils::DrawSpectrum3DBar(real_spectrumL,real_spectrumR,ww,hh,angle,
                                            settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value,nb_spectrum_bands,mirror);
         }
         
-                if (settings[GLOB_FXPiano].detail.mdz_switch.switch_value) {
-            switch (settings[GLOB_FXPiano].detail.mdz_switch.switch_value) {
+                if (settings[GLOB_FXPiano3D].detail.mdz_switch.switch_value) {
+            switch (settings[GLOB_FXPiano3D].detail.mdz_switch.switch_value) {
                 case 1:
                     RenderUtils::DrawPiano3D(ww,hh,1,0,0,0,0,0,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value);
                     break;
@@ -7475,6 +7559,7 @@ extern "C" int current_sample;
     [self presentContextOGL];
     
     no_reentrant=0;
+    
     if (shouldGoToSettings) {
         SettingsGenViewController *settingsVC=[[SettingsGenViewController alloc] initWithNibName:@"SettingsViewController" bundle:[NSBundle mainBundle]];
         settingsVC->detailViewController=self;

@@ -25,33 +25,53 @@
               
               [UIKeyCommand keyCommandWithInput:@"1"   modifierFlags:0 action:@selector(key1Pressed)],
               [UIKeyCommand keyCommandWithInput:@"&"   modifierFlags:0 action:@selector(key1Pressed)],
+              [UIKeyCommand keyCommandWithInput:@"1"   modifierFlags:UIKeyModifierAlternate action:@selector(key1AlternatePressed)],
+              [UIKeyCommand keyCommandWithInput:@"&"   modifierFlags:UIKeyModifierAlternate action:@selector(key1AlternatePressed)],
               
               [UIKeyCommand keyCommandWithInput:@"2"   modifierFlags:0 action:@selector(key2Pressed)],
               [UIKeyCommand keyCommandWithInput:@"é"   modifierFlags:0 action:@selector(key2Pressed)],
+              [UIKeyCommand keyCommandWithInput:@"2"   modifierFlags:UIKeyModifierAlternate action:@selector(key2AlternatePressed)],
+              [UIKeyCommand keyCommandWithInput:@"é"   modifierFlags:UIKeyModifierAlternate action:@selector(key2AlternatePressed)],
               
               [UIKeyCommand keyCommandWithInput:@"3"   modifierFlags:0 action:@selector(key3Pressed)],
               [UIKeyCommand keyCommandWithInput:@"\""   modifierFlags:0 action:@selector(key3Pressed)],
+              [UIKeyCommand keyCommandWithInput:@"3"   modifierFlags:UIKeyModifierAlternate action:@selector(key3AlternatePressed)],
+              [UIKeyCommand keyCommandWithInput:@"\""   modifierFlags:UIKeyModifierAlternate action:@selector(key3AlternatePressed)],
               
               [UIKeyCommand keyCommandWithInput:@"4"   modifierFlags:0 action:@selector(key4Pressed)],
               [UIKeyCommand keyCommandWithInput:@"'"   modifierFlags:0 action:@selector(key4Pressed)],
+              [UIKeyCommand keyCommandWithInput:@"4"   modifierFlags:UIKeyModifierAlternate action:@selector(key4AlternatePressed)],
+              [UIKeyCommand keyCommandWithInput:@"'"   modifierFlags:UIKeyModifierAlternate action:@selector(key4AlternatePressed)],
               
               [UIKeyCommand keyCommandWithInput:@"5"   modifierFlags:0 action:@selector(key5Pressed)],
               [UIKeyCommand keyCommandWithInput:@"("   modifierFlags:0 action:@selector(key5Pressed)],
+              [UIKeyCommand keyCommandWithInput:@"5"   modifierFlags:UIKeyModifierAlternate action:@selector(key5AlternatePressed)],
+              [UIKeyCommand keyCommandWithInput:@"("   modifierFlags:UIKeyModifierAlternate action:@selector(key5AlternatePressed)],
               
               [UIKeyCommand keyCommandWithInput:@"6"   modifierFlags:0 action:@selector(key6Pressed)],
               [UIKeyCommand keyCommandWithInput:@"§"   modifierFlags:0 action:@selector(key6Pressed)],
+              [UIKeyCommand keyCommandWithInput:@"6"   modifierFlags:UIKeyModifierAlternate action:@selector(key6AlternatePressed)],
+              [UIKeyCommand keyCommandWithInput:@"§"   modifierFlags:UIKeyModifierAlternate action:@selector(key6AlternatePressed)],
               
               [UIKeyCommand keyCommandWithInput:@"7"   modifierFlags:0 action:@selector(key7Pressed)],
               [UIKeyCommand keyCommandWithInput:@"è"   modifierFlags:0 action:@selector(key7Pressed)],
+              [UIKeyCommand keyCommandWithInput:@"7"   modifierFlags:UIKeyModifierAlternate action:@selector(key7AlternatePressed)],
+              [UIKeyCommand keyCommandWithInput:@"è"   modifierFlags:UIKeyModifierAlternate action:@selector(key7AlternatePressed)],
               
               [UIKeyCommand keyCommandWithInput:@"8"   modifierFlags:0 action:@selector(key8Pressed)],
               [UIKeyCommand keyCommandWithInput:@"!"   modifierFlags:0 action:@selector(key8Pressed)],
+              [UIKeyCommand keyCommandWithInput:@"8"   modifierFlags:UIKeyModifierAlternate action:@selector(key8AlternatePressed)],
+              [UIKeyCommand keyCommandWithInput:@"!"   modifierFlags:UIKeyModifierAlternate action:@selector(key8AlternatePressed)],
               
               [UIKeyCommand keyCommandWithInput:@"9"   modifierFlags:0 action:@selector(key9Pressed)],
               [UIKeyCommand keyCommandWithInput:@"ç"   modifierFlags:0 action:@selector(key9Pressed)],
+              [UIKeyCommand keyCommandWithInput:@"9"   modifierFlags:UIKeyModifierAlternate action:@selector(key9AlternatePressed)],
+              [UIKeyCommand keyCommandWithInput:@"ç"   modifierFlags:UIKeyModifierAlternate action:@selector(key9AlternatePressed)],
               
               [UIKeyCommand keyCommandWithInput:@"0"   modifierFlags:0 action:@selector(key0Pressed)],
               [UIKeyCommand keyCommandWithInput:@"à"   modifierFlags:0 action:@selector(key0Pressed)],
+              [UIKeyCommand keyCommandWithInput:@"0"   modifierFlags:UIKeyModifierAlternate action:@selector(key0AlternatePressed)],
+              [UIKeyCommand keyCommandWithInput:@"à"   modifierFlags:UIKeyModifierAlternate action:@selector(key0AlternatePressed)],
               
               [UIKeyCommand keyCommandWithInput:@"f"   modifierFlags:0 action:@selector(keyFPressed)],
               [UIKeyCommand keyCommandWithInput:@"\r"   modifierFlags:0 action:@selector(enterPressed)],
@@ -69,42 +89,71 @@
                 
 }
 -(void)key1Pressed {
-    [detailViewControllerIphone switchFX:0];
+    [detailViewControllerIphone switchFX:1 change:1];
+}
+-(void)key1AlternatePressed {
+    [detailViewControllerIphone switchFX:1 change:-1];
 }
 -(void)key2Pressed {
-    [detailViewControllerIphone switchFX:1];
+    [detailViewControllerIphone switchFX:2 change:1];
+}
+-(void)key2AlternatePressed {
+    [detailViewControllerIphone switchFX:2 change:-1];
 }
 -(void)key3Pressed {
-    [detailViewControllerIphone switchFX:2];
+    [detailViewControllerIphone switchFX:3 change:1];
+}
+-(void)key3AlternatePressed {
+    [detailViewControllerIphone switchFX:3 change:-1];
 }
 -(void)key4Pressed {
-    [detailViewControllerIphone switchFX:3];
+    [detailViewControllerIphone switchFX:4 change:1];
+}
+-(void)key4AlternatePressed {
+    [detailViewControllerIphone switchFX:4 change:-1];
 }
 -(void)key5Pressed {
-    [detailViewControllerIphone switchFX:4];
+    [detailViewControllerIphone switchFX:5 change:1];
+}
+-(void)key5AlternatePressed {
+    [detailViewControllerIphone switchFX:5 change:-1];
 }
 -(void)key6Pressed {
-    [detailViewControllerIphone switchFX:5];
+    [detailViewControllerIphone switchFX:6 change:1];
+}
+-(void)key6AlternatePressed {
+    [detailViewControllerIphone switchFX:6 change:-1];
 }
 -(void)key7Pressed {
-    [detailViewControllerIphone switchFX:6];
+    [detailViewControllerIphone switchFX:7 change:1];
+}
+-(void)key7AlternatePressed {
+    [detailViewControllerIphone switchFX:7 change:-1];
 }
 -(void)key8Pressed {
-    [detailViewControllerIphone switchFX:7];
+    [detailViewControllerIphone switchFX:8 change:1];
+}
+-(void)key8AlternatePressed {
+    [detailViewControllerIphone switchFX:8 change:-1];
 }
 -(void)key9Pressed {
-    [detailViewControllerIphone switchFX:8];
+    [detailViewControllerIphone switchFX:9 change:1];
+}
+-(void)key9AlternatePressed {
+    [detailViewControllerIphone switchFX:9 change:-1];
 }
 -(void)key0Pressed {
-    [detailViewControllerIphone switchFX:9];
+    [detailViewControllerIphone switchFX:0 change:1];
 }
--(void)keyFPressed {
-    [detailViewControllerIphone oglButtonPushed];
+-(void)key0AlternatePressed {
+    [detailViewControllerIphone switchFX:0 change:-1];
 }
 - (void)enterPressed{
     [detailViewControllerIphone oglViewSwitchFS];
 }
-
+- (void)keyFPressed{
+    [detailViewControllerIphone oglButtonPushed];
+}
 - (void)keyNPressed{
     [detailViewControllerIphone mdNextPreset];
 }

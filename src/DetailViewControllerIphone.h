@@ -118,7 +118,7 @@ enum {
     
 	
 	st::HardwareClock m_clock;
-	CADisplayLink* m_displayLink;
+	CADisplayLink *m_displayLink,*m_displayLink2;
 	
 	UIView *mInWasView;
 	BOOL mInWasViewHidden;
@@ -394,7 +394,7 @@ enum {
 -(void) jumpSeekFwd;
 -(void) jumpSeekBwd;
 -(void) oglViewSwitchFS;
--(void) switchFX:(int)fxNb;
+
 -(void) mdPrevPreset;
 -(void) mdNextPreset;
 -(void) mdSwitchLockPreset;
@@ -402,6 +402,9 @@ enum {
 -(void) mdBackAction;
 -(void) mdSwitchBloomFX;
 
+- (void)checkNewCover;
 
+-(void) switchFX:(int)fxNb change:(int)val;
+-(void) changeSettingsValue:(int)settingsIdx change:(float)value;
 
 @end

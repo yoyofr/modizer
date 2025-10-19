@@ -319,6 +319,10 @@ int gesture_move_file_min_trans;
     no_reentrant=false;
 }
 
+- (void) refreshCoverView {
+    [coverView setImage:coverImg];
+}
+
 - (void)viewDidLayoutSubviews {
     gesture_swipe_min_vel=SWIPE_MIN_VELOCITY;
     gesture_swipe_min_trans=SWIPE_MIN_TRANSLATION;
