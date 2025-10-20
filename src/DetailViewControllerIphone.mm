@@ -98,6 +98,9 @@ projectm_playlist_handle _pm_playlist; //!< Pointer to the projectM playlist man
 bool _pm_playlist_loadBundled,_pm_playlist_loadCustom;
 char *pmPresetStr;
 int _pm_display_name_countdown;
+float _pm_display_scrollx=0;
+int _pm_display_scroll_direction=1;
+int _pm_display_scroll_pause=0;
 bool _pmPresetHasChanged;
 //
 static int _pm_fps=60;
@@ -1321,6 +1324,13 @@ static float movePinchScale,movePinchScaleOld;
 -(void) mdNextPreset {
 //    if ( _pm_playlist) projectm_playlist_play_next(_pm_playlist, true);
     if ( _pm_playlist) projectm_playlist_play_next(_pm_playlist, false);
+}
+-(void) mdInfoFX {
+    if (_pm && settings[PROJECTM_FXONOFF].detail.mdz_boolswitch.switch_value) {
+        _pm_display_scrollx=0;
+        _pm_display_scroll_direction=1;
+        _pm_display_name_countdown=_pm_fps*PM_PRESET_DISPLAY_TIMEOUT;
+    }
 }
 
 -(void) mdSwitchLockPreset {
@@ -6203,10 +6213,16 @@ extern "C" int current_sample;
     
     if (mOglViewIsHidden) m_oglView.hidden=YES;
     
-    if (self.mainView.hidden||m_oglView.hidden||(coverflow.hidden==FALSE)) {
+    //check if view is really visible
+    bool isVisible=false;
+    if (self.view.window) isVisible=true;
+    
+    if (self.mainView.hidden||m_oglView.hidden||(coverflow.hidden==FALSE)||(isVisible==false)) {
         no_reentrant=0;
         return;
     }
+    
+    
     
 //    if (!mFont || !mFontMenu ) {
 //        no_reentrant=0;
@@ -7318,15 +7334,11 @@ extern "C" int current_sample;
     if ((settings[PROJECTM_FXONOFF].detail.mdz_switch.switch_value) && ((settings[PROJECTM_ShowPresetLabel].detail.mdz_switch.switch_value)||(projectm_playlist_size(_pm_playlist)==0))) {
         if (_pm) {
             //float x,y,w,h;
-            static float scrollx=0;
-            static int scroll_direction=1;
-            static int scroll_pause=0;
-            
             
             if (_pmPresetHasChanged) {
                 _pmPresetHasChanged=false;
-                scrollx=0;
-                scroll_direction=1;
+                _pm_display_scrollx=0;
+                _pm_display_scroll_direction=1;
                 _pm_display_name_countdown=_pm_fps*PM_PRESET_DISPLAY_TIMEOUT;
             }
             
@@ -7350,28 +7362,28 @@ extern "C" int current_sample;
                 
                 ImGui::Text(pmPresetStr);
                 
-                ImGui::SetScrollX(scrollx);
+                ImGui::SetScrollX(_pm_display_scrollx);
                 ImGui::End();
                 ImGui::PopFont();
                 
                 if ((settings[PROJECTM_ShowPresetLabel].detail.mdz_switch.switch_value==1)&&_pm_display_name_countdown) _pm_display_name_countdown--;
                 
-                if (scroll_pause) scroll_pause--;
+                if (_pm_display_scroll_pause) _pm_display_scroll_pause--;
                 else {
-                    if (scroll_direction==1) {
-                        if (m_oglView.frame.size.width*glScaleFactor+scrollx<pmPresetStr_size.x) scrollx+=2;
+                    if (_pm_display_scroll_direction==1) {
+                        if (m_oglView.frame.size.width*glScaleFactor+_pm_display_scrollx<pmPresetStr_size.x) _pm_display_scrollx+=2;
                         else {
-                            if (scrollx>0) {
-                                scroll_direction=-1;
-                                scroll_pause=_pm_fps*1.5;
+                            if (_pm_display_scrollx>0) {
+                                _pm_display_scroll_direction=-1;
+                                _pm_display_scroll_pause=_pm_fps*1.5;
                             }
                         }
                     } else {
-                        if (scrollx>0) scrollx-=2;
+                        if (_pm_display_scrollx>0) _pm_display_scrollx-=2;
                         else {
-                            scrollx=0;
-                            scroll_direction=1;
-                            scroll_pause=_pm_fps*1.5;
+                            _pm_display_scrollx=0;
+                            _pm_display_scroll_direction=1;
+                            _pm_display_scroll_pause=_pm_fps*1.5;
                         }
                     }
                 }

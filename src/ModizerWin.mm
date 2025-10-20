@@ -73,6 +73,7 @@
               [UIKeyCommand keyCommandWithInput:@"0"   modifierFlags:UIKeyModifierAlternate action:@selector(key0AlternatePressed)],
               [UIKeyCommand keyCommandWithInput:@"à"   modifierFlags:UIKeyModifierAlternate action:@selector(key0AlternatePressed)],
               
+              [UIKeyCommand keyCommandWithInput:@"i"   modifierFlags:0 action:@selector(keyIPressed)],
               [UIKeyCommand keyCommandWithInput:@"f"   modifierFlags:0 action:@selector(keyFPressed)],
               [UIKeyCommand keyCommandWithInput:@"h"   modifierFlags:0 action:@selector(keyHPressed)],
               [UIKeyCommand keyCommandWithInput:@"\r"   modifierFlags:0 action:@selector(enterPressed)],
@@ -151,6 +152,9 @@
 }
 - (void)enterPressed{
     [detailViewControllerIphone oglViewSwitchFS];
+}
+- (void)keyIPressed{
+    [detailViewControllerIphone mdInfoFX];
 }
 - (void)keyFPressed{
     [detailViewControllerIphone oglButtonPushed];

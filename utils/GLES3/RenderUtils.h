@@ -15,7 +15,11 @@
 
 #include <GLES3/gl3.h>
 
-#include "esUtil.h"
+#include <glm/glm.hpp>
+#include <glm/ext.hpp>
+
+
+//#include "esUtil.h"
 
 //tmp
 //#include <OpenGLES/ES1/glext.h>
@@ -113,9 +117,15 @@ typedef struct {
     
     // Uniform locations
     GLint  mvpLoc;
+    GLint  modelLoc;
+    GLint  viewLoc;
+    GLint  projectionLoc;
     
     // MVP matrix
-    ESMatrix  mvpMatrix;
+    glm::mat4 Model;
+    glm::mat4 View;
+    glm::mat4 Projection;
+    glm::mat4 mvpMatrix;
     
 } GLUserData;
 

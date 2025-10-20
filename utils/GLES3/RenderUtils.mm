@@ -149,7 +149,9 @@ float specularLight[3][4] = {
 float position[] = { 0, 0, 8, 1 };
 
 
+GLUserData *userData_lightRender3D;
 GLUserData *userData_simpleRender2D;
+GLUserData *userData_simpleRender3D;
 GLUserData *userData_Render2DLines;
 GLUserData *userData_Render2DTextures;
 GLUserData *userData_Render2DColoredTextures;
@@ -332,9 +334,15 @@ int RenderUtils::RenderInit() {
         return 0;
     }
     
+    userData_lightRender3D=InitProgram((char*)[[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/MDZShaders/Vertex3DLight.glsl"]  UTF8String],
+                                        (char*)[[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/MDZShaders/Fragment3DLight.glsl"] UTF8String]);
+    
     userData_simpleRender2D=InitProgram((char*)[[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/MDZShaders/Vertex2DSimple.glsl"]  UTF8String],
                                         (char*)[[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/MDZShaders/Fragment2DSimple.glsl"] UTF8String]);
-    
+
+    userData_simpleRender3D=InitProgram((char*)[[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/MDZShaders/Vertex3DSimple.glsl"]  UTF8String],
+                                        (char*)[[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/MDZShaders/Fragment3DSimple.glsl"] UTF8String]);
+
     userData_Render2DLines=InitProgram((char*)[[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/MDZShaders/Vertex2DLines.glsl"]  UTF8String],
                                         (char*)[[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/MDZShaders/Fragment2DLines.glsl"] UTF8String]);
     
@@ -349,7 +357,9 @@ int RenderUtils::RenderInit() {
     userData_Render2DTexturesBlend=InitProgram((char*)[[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/MDZShaders/Vertex2DTextures.glsl"]  UTF8String],
                                         (char*)[[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/MDZShaders/Fragment2DTexturesBlend.glsl"] UTF8String]);
     
-    if (!userData_simpleRender2D ||
+    if (!userData_lightRender3D ||
+        !userData_simpleRender2D ||
+        !userData_simpleRender3D ||
         !userData_Render2DLines ||
         !userData_Render2DColoredTextures ||
         !userData_Render2DTextures ||
@@ -429,6 +439,9 @@ GLUserData* RenderUtils::InitProgram(char *vsfile,char *fsfile) {
     
     // Get the uniform locations
     userData->mvpLoc = glGetUniformLocation ( userData->programObject, "u_mvpMatrix" );
+    userData->modelLoc = glGetUniformLocation ( userData->programObject, "u_model" );
+    userData->viewLoc = glGetUniformLocation ( userData->programObject, "u_view" );
+    userData->projectionLoc = glGetUniformLocation ( userData->programObject, "u_projection" );
     
     return userData;
 }
@@ -691,7 +704,7 @@ void RenderUtils::startRenderToTexture(int width,int height) {
     glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
     glViewport(0,0,width,height);
     glClearColor(0.0f,0.0f,0.0f,0.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
     
     // Bind our texture in Texture Unit 0
     glActiveTexture(GL_TEXTURE0+0);
@@ -1184,11 +1197,11 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
     glVertexAttribDivisor ( pointABAttribHandle, 1);
     
     // Generate a model view matrix to rotate/translate the cube
-    esMatrixLoadIdentity ( &(userData_Render2DLines->mvpMatrix) );
+    userData_Render2DLines->mvpMatrix = glm::mat4(1.0f);
     
     // Load the uniforms
     // Load the MVP matrix
-    glUniformMatrix4fv ( userData_Render2DLines->mvpLoc, 1, GL_FALSE, ( GLfloat * ) &userData_Render2DLines->mvpMatrix.m[0][0] );
+    glUniformMatrix4fv ( userData_Render2DLines->mvpLoc, 1, GL_FALSE, ( GLfloat * ) &userData_Render2DLines->mvpMatrix[0][0] );
     
     // Load the line width
     glUniform1f(widthHandle,line_width);
@@ -2194,11 +2207,23 @@ void RenderUtils::DrawSpectrum2D(short int *spectrumDataL,short int *spectrumDat
 
 
 void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrumDataR,uint ww,uint hh,float angle,int mode,int nb_spectrum_bands,int mirror) {
-#if 0
+    GLfloat lightPos[3];
+    GLfloat lightColor[3];
     GLfloat spL,spR;
     GLfloat crt,cgt,cbt;
     GLfloat x,y,z,sx,sy,sz;
+    float ang,trans;
     static int frameCpt=0;
+    
+    lightColor[0]=1.0;
+    lightColor[1]=1.0;
+    lightColor[2]=1.0;
+    
+    lightPos[0]=0;//10.0f*cos(glm::radians(frameCpt*1.0f));;
+    lightPos[1]=0.0f;
+    lightPos[2]=0.0f;//+30.0f*sin(glm::radians(frameCpt*1.0f));
+    
+    if (!renderIsInit) return;
     
     if (frameCpt==0) {
         frameCpt=arc4random()&32767;
@@ -2206,23 +2231,13 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
         memset(barSpectrumDataR,0,sizeof(float)*SPECTRUM_BANDS);
     }
     for (int i=0;i<nb_spectrum_bands;i++) {
-        /*barSpectrumDataL[i]=barSpectrumDataL[i]*0.8;
-         barSpectrumDataR[i]=barSpectrumDataR[i]*0.8;
-         if (barSpectrumDataL[i]<(float)spectrumDataL[i]/512.0f)
-         */
         barSpectrumDataL[i]=(float)spectrumDataL[i]/512.0f;
-        /*if (barSpectrumDataR[i]<(float)spectrumDataR[i]/512.0f) */
         barSpectrumDataR[i]=(float)spectrumDataR[i]/512.0f;
     }
     
-    //////////////////////////////
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
     float aspectRatio = (float)ww/(float)hh;
     float _hw;// = 16*1.0/2;//0.2f;
     float _hh;// = _hw/aspectRatio;
-    //glFrustumf(-_hw, _hw, -_hh, _hh, 100.0f, 10000.0f);
-    
     
     switch (mode) {
         case 1:
@@ -2243,116 +2258,219 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
             break;
     }
     
-    glFrustumf(-_hw, _hw, -_hh, _hh, 100.0f, 10000.0f);
+    glDumpState();
     
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-    glPushMatrix();                     /* Push The Modelview Matrix */
-    glEnable(GL_COLOR_MATERIAL);
-    glEnable( GL_LIGHTING );
-    glEnable(GL_LIGHT0);
-    glLightfv(GL_LIGHT0, GL_POSITION, position );
-    glLightf(GL_LIGHT0, GL_SPOT_CUTOFF, 90);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
     
-    glLightfv(GL_LIGHT0, GL_AMBIENT, ambientLight[2]);
-    glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuseLight[2]);
-    glLightfv(GL_LIGHT0, GL_SPECULAR, specularLight[2] );
+    //glEnable(GL_CULL_FACE);
+    glDisable(GL_CULL_FACE);
+    // Enable depth test
+    glEnable(GL_DEPTH_TEST);
+    // Accept fragment if it closer to the camera than the former one
+    glDepthFunc(GL_LESS);
+    glDisable(GL_STENCIL_TEST);
+    
+    GLUserData *curP;
+    
+    curP=userData_lightRender3D;
+    glUseProgram ( curP->programObject );
+    GLuint positionAttribHandle = glGetAttribLocation(curP->programObject, "a_position");
+    
+    // enable data buffers for shader
+    glEnableVertexAttribArray ( positionAttribHandle );
+    
+    // Load the vertex data
+    glVertexAttribPointer ( positionAttribHandle, 3, GL_FLOAT, GL_FALSE, sizeof(GLfloat)*3, &(vertices[0][0]) );
+    
+    curP->Projection=glm::frustum(-_hw, _hw, -_hh, _hh, 100.0f, 10000.0f);
+    
+    // Camera matrix
+    curP->View = glm::lookAt(
+        glm::vec3(0,0,3), // Camera in World Space
+        glm::vec3(0,0,0), // and looks at the origin
+        glm::vec3(0,1,0)  // Head is up (set to 0,-1,0 to look upside-down)
+        );
+    
+    curP->Model=glm::mat4(1.0f);
+    
+    /*curP->Model=glm::translate(curP->Model,glm::vec3(0.0,
+                                   0.0,
+                                   -150.0+
+                                    15*(0.8f*sin((float)frameCpt*0.1f*3.14159f/991)+1.7f*sin((float)frameCpt*0.1f*3.14159f/3065)
+                                        -0.3f*sin((float)frameCpt*0.1f*3.14159f/5009))
+                                   ));*/
+    
+    glUniformMatrix4fv ( curP->modelLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Model[0][0]) );
+    glUniformMatrix4fv ( curP->viewLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->View[0][0]) );
+    glUniformMatrix4fv ( curP->projectionLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Projection[0][0]) );
+    x=lightPos[0]-0.1f;
+    y=lightPos[1]-0.1f;
+    z=lightPos[2]-0.1f;
+    sx=sy=sz=0.2f;
+    crt=cgt=cbt=1.0f;
+    drawbar(x,y,z,sx,sy,sz,crt,cgt,cbt);
+    
+#if 1
+    
+    //-----------------------------
+    //-----------------------------
+    
+    curP=userData_simpleRender3D;
+    // Use the program object
+    glUseProgram ( curP->programObject );
+    positionAttribHandle = glGetAttribLocation(curP->programObject, "a_position");
+    GLuint normalAttribHandle = glGetAttribLocation(curP->programObject, "a_normal");
+    GLuint colorAttribHandle    = glGetAttribLocation(curP->programObject, "a_color");
+    
+    GLuint lightColUnifHandle    = glGetUniformLocation(curP->programObject, "u_lightColor");
+    GLuint lightPosUnifHandle    = glGetUniformLocation(curP->programObject, "u_lightPos");
     
     
-    glEnableClientState(GL_NORMAL_ARRAY);
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glEnableClientState(GL_COLOR_ARRAY);
+    // enable data buffers for shader
+    glEnableVertexAttribArray ( positionAttribHandle );
+    glEnableVertexAttribArray ( normalAttribHandle );
+    glEnableVertexAttribArray ( colorAttribHandle );
     
-    glVertexPointer(3, GL_FLOAT, 0, vertices);
-    glColorPointer(4, GL_FLOAT, 0, vertColor);
-    glNormalPointer(GL_FLOAT, 0, normals);
+    glUniform3fv ( lightColUnifHandle, 1, lightColor );
+    glUniform3fv ( lightPosUnifHandle, 1, lightPos );
+    
+    // Load the vertex data
+    glVertexAttribPointer ( positionAttribHandle, 3, GL_FLOAT, GL_FALSE, sizeof(GLfloat)*3, &(vertices[0][0]) );
+    glVertexAttribPointer ( normalAttribHandle, 3, GL_FLOAT, GL_FALSE, sizeof(GLfloat)*3, &(normals[0][0]) );
+    glVertexAttribPointer ( colorAttribHandle, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat)*4, &(vertColor[0][0]) );
+    
+    //////////////////////////////
+    
+    
+    
+    //glFrustumf(-_hw, _hw, -_hh, _hh, 100.0f, 10000.0f);
+    
+    // Generate a model view matrix to rotate/translate the cube
+    
+    //curP->Projection=glm::perspective(glm::radians(45.f),aspectRatio,80.0f,1000.0f);
+    curP->Projection=glm::frustum(-_hw, _hw, -_hh, _hh, 100.0f, 10000.0f);
+    
+    // Camera matrix
+    curP->View = glm::lookAt(
+        glm::vec3(0,0,3), // Camera is at (4,3,3), in World Space
+        glm::vec3(0,0,0), // and looks at the origin
+        glm::vec3(0,1,0)  // Head is up (set to 0,-1,0 to look upside-down)
+        );
+    
+    curP->Model=glm::mat4(1.0f);
     
     frameCpt++;
     
+//    glMatrixMode(GL_MODELVIEW);
+//    glLoadIdentity();
+    
+//    glPushMatrix();                     /* Push The Modelview Matrix */
+//    glEnable(GL_COLOR_MATERIAL);
+//    glEnable( GL_LIGHTING );
+//    glEnable(GL_LIGHT0);
+//    glLightfv(GL_LIGHT0, GL_POSITION, position );
+//    glLightf(GL_LIGHT0, GL_SPOT_CUTOFF, 90);
+//    
+//    glLightfv(GL_LIGHT0, GL_AMBIENT, ambientLight[2]);
+//    glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuseLight[2]);
+//    glLightfv(GL_LIGHT0, GL_SPECULAR, specularLight[2] );
+    
+    
+//    glEnableClientState(GL_NORMAL_ARRAY);
+//    glEnableClientState(GL_VERTEX_ARRAY);
+//    glEnableClientState(GL_COLOR_ARRAY);
+    
+//    glVertexPointer(3, GL_FLOAT, 0, vertices);
+//    glColorPointer(4, GL_FLOAT, 0, vertColor);
+//    glNormalPointer(GL_FLOAT, 0, normals);
+    
     switch (mode) {
         case 1:
-            glTranslatef(0.0, 0.0, -150.0+
-                         15*(0.8f*sin((float)frameCpt*0.1f*3.14159f/991)+
-                             1.7f*sin((float)frameCpt*0.1f*3.14159f/3065)-
-                             0.3f*sin((float)frameCpt*0.1f*3.14159f/5009)));
+            curP->Model=glm::translate(curP->Model,glm::vec3(0.0,
+                                           0.0,
+                                           -150.0+
+                                            15*(0.8f*sin((float)frameCpt*0.1f*3.14159f/991)+1.7f*sin((float)frameCpt*0.1f*3.14159f/3065)
+                                                -0.3f*sin((float)frameCpt*0.1f*3.14159f/5009))
+                                           ));
+                             
             
-            glRotatef(-90+5.0f*(0.8f*sin((float)frameCpt*0.1f*3.14159f/2691)+
-                                0.7f*sin((float)frameCpt*0.1f*3.14159f/3113)-
-                                0.3f*sin((float)frameCpt*0.1f*3.14159f/7409)),0,0,1);
-            
-            
-            glRotatef(3*360.0f*(0.5f*sin((float)frameCpt*0.1f*3.14159f/761)-
+            curP->Model=glm::rotate(curP->Model,
+                                    glm::radians(-90+5.0f*(0.8f*sin((float)frameCpt*0.1f*3.14159f/2691)+0.7f*sin((float)frameCpt*0.1f*3.14159f/3113)
+                                  -0.3f*sin((float)frameCpt*0.1f*3.14159f/7409)))
+                        , glm::vec3(0,0,1)
+                        );
+            curP->Model=glm::rotate(curP->Model,
+                                    glm::radians(3*360.0f*(0.5f*sin((float)frameCpt*0.1f*3.14159f/761)-
                                 0.7f*sin((float)frameCpt*0.1f*3.14159f/1211)-
-                                0.9f*sin((float)frameCpt*0.1f*3.14159f/2213)), 0, 1, 0);
+                                0.9f*sin((float)frameCpt*0.1f*3.14159f/2213))),glm::vec3(0, 1, 0));
             
             
-            glRotatef(5.0f*(0.8f*sin((float)frameCpt*0.1f*3.14159f/891)-
+            curP->Model=glm::rotate(curP->Model,glm::radians(5.0f*(0.8f*sin((float)frameCpt*0.1f*3.14159f/891)-
                             0.2f*sin((float)frameCpt*0.1f*3.14159f/211)-
-                            0.4f*sin((float)frameCpt*0.1f*3.14159f/5213)),0,0,1);
+                            0.4f*sin((float)frameCpt*0.1f*3.14159f/5213))),glm::vec3(0,0,1));
             
             break;
         case 2:
-            glTranslatef(0.0, 0.0, -190.0+
+            curP->Model=glm::translate(curP->Model, glm::vec3(0.0, 0.0, -190.0+
                          15*(0.8f*sin((float)frameCpt*0.1f*3.14159f/991)+
                              1.7f*sin((float)frameCpt*0.1f*3.14159f/3065)-
-                             0.3f*sin((float)frameCpt*0.1f*3.14159f/5009)));
+                             0.3f*sin((float)frameCpt*0.1f*3.14159f/5009))));
             
-            
-            
-            glRotatef(20+10.0f*(0.8f*sin((float)frameCpt*0.1f*3.14159f/2691)+
+            curP->Model=glm::rotate(curP->Model,glm::radians(20+10.0f*(0.8f*sin((float)frameCpt*0.1f*3.14159f/2691)+
                                 0.7f*sin((float)frameCpt*0.1f*3.14159f/3113)-
-                                0.3f*sin((float)frameCpt*0.1f*3.14159f/7409)),1,0,0);
+                                0.3f*sin((float)frameCpt*0.1f*3.14159f/7409))),glm::vec3(1,0,0));
             
-            glRotatef(5.0f*(0.8f*sin((float)frameCpt*0.1f*3.14159f/891)-
+            curP->Model=glm::rotate(curP->Model,glm::radians(5.0f*(0.8f*sin((float)frameCpt*0.1f*3.14159f/891)-
                             0.2f*sin((float)frameCpt*0.1f*3.14159f/211)-
-                            0.4f*sin((float)frameCpt*0.1f*3.14159f/5213)),0,0,1);
+                            0.4f*sin((float)frameCpt*0.1f*3.14159f/5213))),glm::vec3(0,0,1));
             
             
-            glRotatef(360.0f*(0.5f*sin((float)frameCpt*0.1f*3.14159f/761)-
+            curP->Model=glm::rotate(curP->Model,glm::radians(360.0f*(0.5f*sin((float)frameCpt*0.1f*3.14159f/761)-
                               0.7f*sin((float)frameCpt*0.1f*3.14159f/1211)-
-                              0.9f*sin((float)frameCpt*0.1f*3.14159f/2213)), 0, 1, 0);
+                              0.9f*sin((float)frameCpt*0.1f*3.14159f/2213))), glm::vec3(0, 1, 0));
             
             break;
         case 3:
-            glTranslatef(0.0, 0.0, -150.0+
+            curP->Model=glm::translate(curP->Model, glm::vec3(0.0, 0.0, -150.0+
                          15*(0.8f*sin((float)frameCpt*0.1f*3.14159f/991)+
                              1.7f*sin((float)frameCpt*0.1f*3.14159f/3065)-
-                             0.3f*sin((float)frameCpt*0.1f*3.14159f/5009)));
+                             0.3f*sin((float)frameCpt*0.1f*3.14159f/5009))));
             
-            glRotatef(-90+5.0f*(0.8f*sin((float)frameCpt*0.1f*3.14159f/2691)+
+            curP->Model=glm::rotate(curP->Model,glm::radians(-90+5.0f*(0.8f*sin((float)frameCpt*0.1f*3.14159f/2691)+
                                 0.7f*sin((float)frameCpt*0.1f*3.14159f/3113)-
-                                0.3f*sin((float)frameCpt*0.1f*3.14159f/7409)),0,0,1);
+                                0.3f*sin((float)frameCpt*0.1f*3.14159f/7409))),glm::vec3(0,0,1));
             
             
-            glRotatef(3*360.0f*(0.5f*sin((float)frameCpt*0.1f*3.14159f/761)-
+            curP->Model=glm::rotate(curP->Model,glm::radians(3*360.0f*(0.5f*sin((float)frameCpt*0.1f*3.14159f/761)-
                                 0.7f*sin((float)frameCpt*0.1f*3.14159f/1211)-
-                                0.9f*sin((float)frameCpt*0.1f*3.14159f/2213)), 0, 1, 0);
+                                0.9f*sin((float)frameCpt*0.1f*3.14159f/2213))), glm::vec3(0, 1, 0));
             
             
-            glRotatef(5.0f*(0.8f*sin((float)frameCpt*0.1f*3.14159f/891)-
+            curP->Model=glm::rotate(curP->Model,glm::radians(5.0f*(0.8f*sin((float)frameCpt*0.1f*3.14159f/891)-
                             0.2f*sin((float)frameCpt*0.1f*3.14159f/211)-
-                            0.4f*sin((float)frameCpt*0.1f*3.14159f/5213)),0,0,1);
+                            0.4f*sin((float)frameCpt*0.1f*3.14159f/5213))),glm::vec3(0,0,1));
             
             break;
         case 4:
-            glTranslatef(0.0, 0.0, -150.0+
+            curP->Model=glm::translate(curP->Model, glm::vec3(0.0, 0.0, -150.0+
                          0*(0.8f*sin((float)frameCpt*0.1f*3.14159f/991)+
                             1.7f*sin((float)frameCpt*0.1f*3.14159f/3065)-
-                            0.3f*sin((float)frameCpt*0.1f*3.14159f/5009)));
+                            0.3f*sin((float)frameCpt*0.1f*3.14159f/5009))));
             
-            glRotatef(-90+5.0f*(0.8f*sin((float)frameCpt*0.1f*3.14159f/2691)+
+            curP->Model=glm::rotate(curP->Model,glm::radians(-90+5.0f*(0.8f*sin((float)frameCpt*0.1f*3.14159f/2691)+
                                 0.7f*sin((float)frameCpt*0.1f*3.14159f/3113)-
-                                0.3f*sin((float)frameCpt*0.1f*3.14159f/7409)),0,0,1);
+                                0.3f*sin((float)frameCpt*0.1f*3.14159f/7409))),glm::vec3(0,0,1));
             
             
-            glRotatef(90+0*360.0f*(0.5f*sin((float)frameCpt*0.1f*3.14159f/761)-
+            curP->Model=glm::rotate(curP->Model,glm::radians(90+0*360.0f*(0.5f*sin((float)frameCpt*0.1f*3.14159f/761)-
                                    0.7f*sin((float)frameCpt*0.1f*3.14159f/1211)-
-                                   0.9f*sin((float)frameCpt*0.1f*3.14159f/2213)), 0, 1, 0);
+                                   0.9f*sin((float)frameCpt*0.1f*3.14159f/2213))), glm::vec3(0, 1, 0));
             
             
-            glRotatef(5.0f*(0.8f*sin((float)frameCpt*0.1f*3.14159f/891)-
+            curP->Model=glm::rotate(curP->Model,glm::radians(5.0f*(0.8f*sin((float)frameCpt*0.1f*3.14159f/891)-
                             0.2f*sin((float)frameCpt*0.1f*3.14159f/211)-
-                            0.4f*sin((float)frameCpt*0.1f*3.14159f/5213)),0,0,1);
+                            0.4f*sin((float)frameCpt*0.1f*3.14159f/5213))),glm::vec3(0,0,1));
             
             break;
     }
@@ -2362,10 +2480,10 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
     cgt=0;
     cbt=0;
     
-    float ang=0;
+    ang=0;
     x=-0.5;y=0;z=0;
     sx=sy=24.0/(float)nb_spectrum_bands;
-    float trans=14+sx;
+    trans=14+sx;
     
     if (mode==2) {
         for (int i=0; i<nb_spectrum_bands; i++) {
@@ -2399,22 +2517,32 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
             //y=(i-nb_spectrum_bands/2)*sy*1.2;
             //z=1+spL/4;
             
-            glTranslatef(0,-2,trans);
-            glRotatef(ang+270,1,0,0);
+            curP->Model=glm::translate(curP->Model, glm::vec3(0,-2,trans));
+            curP->Model=glm::rotate(curP->Model,glm::radians(ang+270.0f),glm::vec3(1,0,0));
+            
+            glUniformMatrix4fv ( curP->modelLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Model[0][0]) );
+            glUniformMatrix4fv ( curP->viewLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->View[0][0]) );
+            glUniformMatrix4fv ( curP->projectionLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Projection[0][0]) );
             drawbar(x,y,z,sx,sy,sz,crt,cgt,cbt);
-            glRotatef(-(ang+270),1,0,0);
-            glTranslatef(0,2,-trans);
             
-            glRotatef(180,0,1,0);
+            curP->Model=glm::rotate(curP->Model,glm::radians(-(ang+270)),glm::vec3(1,0,0));
+            curP->Model=glm::translate(curP->Model, glm::vec3(0,2,-trans));
             
-            glTranslatef(0,-2,trans);
-            glRotatef(ang+270,1,0,0);
+            curP->Model=glm::rotate(curP->Model,glm::radians(180.0f),glm::vec3(0,1,0));
+            
+            curP->Model=glm::translate(curP->Model, glm::vec3(0,-2,trans));
+            curP->Model=glm::rotate(curP->Model,glm::radians(ang+270.0f),glm::vec3(1,0,0));
+            
+            glUniformMatrix4fv ( curP->modelLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Model[0][0]) );
+            glUniformMatrix4fv ( curP->viewLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->View[0][0]) );
+            glUniformMatrix4fv ( curP->projectionLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Projection[0][0]) );
             drawbar(x,y,z,sx,sy,sz,crt,cgt,cbt);
-            glRotatef(-(ang+270),1,0,0);
-            glTranslatef(0,2,-trans);
+            
+            curP->Model=glm::rotate(curP->Model,glm::radians(-(ang+270.0f)),glm::vec3(1,0,0));
+            curP->Model=glm::translate(curP->Model, glm::vec3(0,2,-trans));
             
             
-            glRotatef(180,0,1,0);
+            curP->Model=glm::rotate(curP->Model,glm::radians(180.0f),glm::vec3(0,1,0));
             
             
             
@@ -2448,24 +2576,34 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
             //y=(i-nb_spectrum_bands/2)*sy*1.2;
             //z=1+spL/4;
             
-            glRotatef(90,0,1,0);
+            curP->Model=glm::rotate(curP->Model,glm::radians(90.0f),glm::vec3(0,1,0));
             
-            glTranslatef(0,-2,trans);
-            glRotatef(ang+270,1,0,0);
+            curP->Model=glm::translate(curP->Model, glm::vec3(0,-2,trans));
+            curP->Model=glm::rotate(curP->Model,glm::radians(ang+270.0f),glm::vec3(1,0,0));
+            
+            glUniformMatrix4fv ( curP->modelLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Model[0][0]) );
+            glUniformMatrix4fv ( curP->viewLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->View[0][0]) );
+            glUniformMatrix4fv ( curP->projectionLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Projection[0][0]) );
             drawbar(x,y,z,sx,sy,sz,crt,cgt,cbt);
-            glRotatef(-(ang+270),1,0,0);
-            glTranslatef(0,2,-trans);
             
-            glRotatef(180,0,1,0);
+            curP->Model=glm::rotate(curP->Model,glm::radians(-(ang+270.0f)),glm::vec3(1,0,0));
+            curP->Model=glm::translate(curP->Model, glm::vec3(0,2,-trans));
             
-            glTranslatef(0,-2,trans);
-            glRotatef(ang+270,1,0,0);
+            curP->Model=glm::rotate(curP->Model,glm::radians(180.0f),glm::vec3(0,1,0));
+            
+            curP->Model=glm::translate(curP->Model, glm::vec3(0,-2,trans));
+            curP->Model=glm::rotate(curP->Model,glm::radians(ang+270.0f),glm::vec3(1,0,0));
+            
+            glUniformMatrix4fv ( curP->modelLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Model[0][0]) );
+            glUniformMatrix4fv ( curP->viewLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->View[0][0]) );
+            glUniformMatrix4fv ( curP->projectionLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Projection[0][0]) );
             drawbar(x,y,z,sx,sy,sz,crt,cgt,cbt);
-            glRotatef(-(ang+270),1,0,0);
-            glTranslatef(0,2,-trans);
+            
+            curP->Model=glm::rotate(curP->Model,glm::radians(-(ang+270.0f)),glm::vec3(1,0,0));
+            curP->Model=glm::translate(curP->Model, glm::vec3(0,2,-trans));
             
             
-            glRotatef(180+90,0,1,0);
+            curP->Model=glm::rotate(curP->Model,glm::radians(180.0f+90.0f),glm::vec3(0,1,0));
             
             if (ang<90) ang+=(90.0/(float)nb_spectrum_bands)*1.1;
             if (ang>90) ang=90;
@@ -2473,8 +2611,8 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
             
         }
         
-        glRotatef(180,0,0,1);
-        glTranslatef(0,14,0);
+        curP->Model=glm::rotate(curP->Model,glm::radians(180.0f),glm::vec3(0,0,1));
+        curP->Model=glm::translate(curP->Model, glm::vec3(0,14,0));
         ang=0;
         x=-0.5;y=0;z=0;
         sx=sy=24.0/(float)nb_spectrum_bands;
@@ -2513,22 +2651,32 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
                 //y=(i-nb_spectrum_bands/2)*sy*1.2;
                 //z=1+spL/4;
                 
-                glTranslatef(0,-2,trans);
-                glRotatef(ang+270,1,0,0);
+                curP->Model=glm::translate(curP->Model, glm::vec3(0,-2,trans));
+                curP->Model=glm::rotate(curP->Model,glm::radians(ang+270.0f),glm::vec3(1,0,0));
+                
+                glUniformMatrix4fv ( curP->modelLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Model[0][0]) );
+                glUniformMatrix4fv ( curP->viewLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->View[0][0]) );
+                glUniformMatrix4fv ( curP->projectionLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Projection[0][0]) );
                 drawbar(x,y,z,sx,sy,sz,crt,cgt,cbt);
-                glRotatef(-(ang+270),1,0,0);
-                glTranslatef(0,2,-trans);
                 
-                glRotatef(180,0,1,0);
+                curP->Model=glm::rotate(curP->Model,glm::radians(-(ang+270.0f)),glm::vec3(1,0,0));
+                curP->Model=glm::translate(curP->Model, glm::vec3(0,2,-trans));
                 
-                glTranslatef(0,-2,trans);
-                glRotatef(ang+270,1,0,0);
+                curP->Model=glm::rotate(curP->Model,glm::radians(180.0f),glm::vec3(0,1,0));
+                
+                curP->Model=glm::translate(curP->Model, glm::vec3(0,-2,trans));
+                curP->Model=glm::rotate(curP->Model,glm::radians(ang+270.0f),glm::vec3(1,0,0));
+                
+                glUniformMatrix4fv ( curP->modelLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Model[0][0]) );
+                glUniformMatrix4fv ( curP->viewLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->View[0][0]) );
+                glUniformMatrix4fv ( curP->projectionLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Projection[0][0]) );
                 drawbar(x,y,z,sx,sy,sz,crt,cgt,cbt);
-                glRotatef(-(ang+270),1,0,0);
-                glTranslatef(0,2,-trans);
+                
+                curP->Model=glm::rotate(curP->Model,glm::radians(-(ang+270.0f)),glm::vec3(1,0,0));
+                curP->Model=glm::translate(curP->Model, glm::vec3(0,2,-trans));
                 
                 
-                glRotatef(180,0,1,0);
+                curP->Model=glm::rotate(curP->Model,glm::radians(180.0f),glm::vec3(0,1,0));
                 
                 
                 
@@ -2564,24 +2712,34 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
                 //y=(i-nb_spectrum_bands/2)*sy*1.2;
                 //z=1+spL/4;
                 
-                glRotatef(90,0,1,0);
+                curP->Model=glm::rotate(curP->Model,glm::radians(90.0f),glm::vec3(0,1,0));
                 
-                glTranslatef(0,-2,trans);
-                glRotatef(ang+270,1,0,0);
+                curP->Model=glm::translate(curP->Model, glm::vec3(0,-2,trans));
+                curP->Model=glm::rotate(curP->Model,glm::radians(ang+270.0f),glm::vec3(1,0,0));
+                
+                glUniformMatrix4fv ( curP->modelLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Model[0][0]) );
+                glUniformMatrix4fv ( curP->viewLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->View[0][0]) );
+                glUniformMatrix4fv ( curP->projectionLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Projection[0][0]) );
                 drawbar(x,y,z,sx,sy,sz,crt,cgt,cbt);
-                glRotatef(-(ang+270),1,0,0);
-                glTranslatef(0,2,-trans);
                 
-                glRotatef(180,0,1,0);
+                curP->Model=glm::rotate(curP->Model,glm::radians(-(ang+270.0f)),glm::vec3(1,0,0));
+                curP->Model=glm::translate(curP->Model, glm::vec3(0,2,-trans));
                 
-                glTranslatef(0,-2,trans);
-                glRotatef(ang+270,1,0,0);
+                curP->Model=glm::rotate(curP->Model,glm::radians(180.0f),glm::vec3(0,1,0));
+                
+                curP->Model=glm::translate(curP->Model, glm::vec3(0,-2,trans));
+                curP->Model=glm::rotate(curP->Model,glm::radians(ang+270.0f),glm::vec3(1,0,0));
+                
+                glUniformMatrix4fv ( curP->modelLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Model[0][0]) );
+                glUniformMatrix4fv ( curP->viewLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->View[0][0]) );
+                glUniformMatrix4fv ( curP->projectionLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Projection[0][0]) );
                 drawbar(x,y,z,sx,sy,sz,crt,cgt,cbt);
-                glRotatef(-(ang+270),1,0,0);
-                glTranslatef(0,2,-trans);
+                
+                curP->Model=glm::rotate(curP->Model,glm::radians(-(ang+270.0f)),glm::vec3(1,0,0));
+                curP->Model=glm::translate(curP->Model, glm::vec3(0,2,-trans));
                 
                 
-                glRotatef(180+90,0,1,0);
+                curP->Model=glm::rotate(curP->Model,glm::radians(180.0f+90.0f),glm::vec3(0,1,0));
                 
                 if (ang<90) ang+=(90.0/(float)nb_spectrum_bands)*1.1;
                 if (ang>90) ang=90;
@@ -2621,8 +2779,16 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
             y=(i-nb_spectrum_bands/2)*sy*1.2;
             z=1+spL/4;
             
+            glUniformMatrix4fv ( curP->modelLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Model[0][0]) );
+            glUniformMatrix4fv ( curP->viewLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->View[0][0]) );
+            glUniformMatrix4fv ( curP->projectionLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Projection[0][0]) );
             drawbar(x,y,z,sx,sy,sz,crt,cgt,cbt);
-            glRotatef(180, 0, 1, 0);
+            
+            curP->Model=glm::rotate(curP->Model,glm::radians(180.0f), glm::vec3(0, 1, 0));
+            
+            glUniformMatrix4fv ( curP->modelLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Model[0][0]) );
+            glUniformMatrix4fv ( curP->viewLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->View[0][0]) );
+            glUniformMatrix4fv ( curP->projectionLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Projection[0][0]) );
             drawbar(x,y,z,sx,sy,sz,crt,cgt,cbt);
             
             /////////////////
@@ -2655,24 +2821,32 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
             y=(i-nb_spectrum_bands/2)*sy*1.2;
             z=1+spR/4;
             
-            glRotatef(90, 0, 1, 0);
-            drawbar(x,y,z,sx,sy,sz,crt,cgt,cbt);
-            glRotatef(180, 0, 1, 0);
+            curP->Model=glm::rotate(curP->Model,glm::radians(90.0f), glm::vec3(0, 1, 0));
+            
+            glUniformMatrix4fv ( curP->modelLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Model[0][0]) );
+            glUniformMatrix4fv ( curP->viewLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->View[0][0]) );
+            glUniformMatrix4fv ( curP->projectionLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Projection[0][0]) );
             drawbar(x,y,z,sx,sy,sz,crt,cgt,cbt);
             
-            glRotatef(180-90, 0, 1, 0);
+            curP->Model=glm::rotate(curP->Model,glm::radians(180.0f), glm::vec3(0, 1, 0));
+            
+            glUniformMatrix4fv ( curP->modelLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Model[0][0]) );
+            glUniformMatrix4fv ( curP->viewLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->View[0][0]) );
+            glUniformMatrix4fv ( curP->projectionLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Projection[0][0]) );
+            drawbar(x,y,z,sx,sy,sz,crt,cgt,cbt);
+            
+            curP->Model=glm::rotate(curP->Model,glm::radians(180.0f-90.0f), glm::vec3(0, 1, 0));
         }
         
-        glRotatef(-3*360.0f*(0.5f*sin((float)frameCpt*0.1f*3.14159f/761)-
+        curP->Model=glm::rotate(curP->Model,glm::radians(-3*360.0f*(0.5f*sin((float)frameCpt*0.1f*3.14159f/761)-
                              0.7f*sin((float)frameCpt*0.1f*3.14159f/1211)-
-                             0.9f*sin((float)frameCpt*0.1f*3.14159f/2213)), 0, 1, 0);
+                             0.9f*sin((float)frameCpt*0.1f*3.14159f/2213))), glm::vec3(0, 1, 0));
         
-        //glRotatef(180,0,0,1);
-        glTranslatef(12,0,0);
+        curP->Model=glm::translate(curP->Model, glm::vec3(12,0,0));
         
-        glRotatef(-3*360.0f*(0.5f*sin((float)frameCpt*0.1f*3.14159f/761)-
+        curP->Model=glm::rotate(curP->Model,glm::radians(-3*360.0f*(0.5f*sin((float)frameCpt*0.1f*3.14159f/761)-
                              0.7f*sin((float)frameCpt*0.1f*3.14159f/1211)-
-                             0.9f*sin((float)frameCpt*0.1f*3.14159f/2213)), 0, 1, 0);
+                             0.9f*sin((float)frameCpt*0.1f*3.14159f/2213))), glm::vec3(0, 1, 0));
         
         ang=0;
         if (mirror)
@@ -2708,8 +2882,16 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
                 y=(i-nb_spectrum_bands/2)*sy*1.2;
                 z=1+spL/4;
                 
+                glUniformMatrix4fv ( curP->modelLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Model[0][0]) );
+                glUniformMatrix4fv ( curP->viewLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->View[0][0]) );
+                glUniformMatrix4fv ( curP->projectionLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Projection[0][0]) );
                 drawbar(x,y,z,sx,sy,sz,crt,cgt,cbt);
-                glRotatef(180, 0, 1, 0);
+                
+                curP->Model=glm::rotate(curP->Model,glm::radians(180.0f), glm::vec3(0, 1, 0));
+                
+                glUniformMatrix4fv ( curP->modelLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Model[0][0]) );
+                glUniformMatrix4fv ( curP->viewLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->View[0][0]) );
+                glUniformMatrix4fv ( curP->projectionLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Projection[0][0]) );
                 drawbar(x,y,z,sx,sy,sz,crt,cgt,cbt);
                 
                 /////////////////
@@ -2743,12 +2925,21 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
                 y=(i-nb_spectrum_bands/2)*sy*1.2;
                 z=1+spR/4;
                 
-                glRotatef(90, 0, 1, 0);
-                drawbar(x,y,z,sx,sy,sz,crt,cgt,cbt);
-                glRotatef(180, 0, 1, 0);
+                curP->Model=glm::rotate(curP->Model,glm::radians(90.0f), glm::vec3(0, 1, 0));
+                
+                glUniformMatrix4fv ( curP->modelLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Model[0][0]) );
+                glUniformMatrix4fv ( curP->viewLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->View[0][0]) );
+                glUniformMatrix4fv ( curP->projectionLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Projection[0][0]) );
                 drawbar(x,y,z,sx,sy,sz,crt,cgt,cbt);
                 
-                glRotatef(180-90, 0, 1, 0);
+                curP->Model=glm::rotate(curP->Model,glm::radians(180.0f), glm::vec3(0, 1, 0));
+                
+                glUniformMatrix4fv ( curP->modelLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Model[0][0]) );
+                glUniformMatrix4fv ( curP->viewLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->View[0][0]) );
+                glUniformMatrix4fv ( curP->projectionLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Projection[0][0]) );
+                drawbar(x,y,z,sx,sy,sz,crt,cgt,cbt);
+                
+                curP->Model=glm::rotate(curP->Model,glm::radians(180.0f-90.0f), glm::vec3(0, 1, 0));
             }
     }
     
@@ -2784,6 +2975,9 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
             y=(i-nb_spectrum_bands/2)*sy*1.2;
             z=0.1f;//+spL/2;
             
+            glUniformMatrix4fv ( curP->modelLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Model[0][0]) );
+            glUniformMatrix4fv ( curP->viewLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->View[0][0]) );
+            glUniformMatrix4fv ( curP->projectionLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Projection[0][0]) );
             drawbar(x,y,z,sx,sy,sz,crt,cgt,cbt);
             
             /////////////////
@@ -2816,27 +3010,20 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
             y=(i-nb_spectrum_bands/2)*sy*1.2;
             z=0.1f;//+spR/2;
             
-            //glRotatef(90, 0, 1, 0);
-            //drawbar(x,y,z,sx,sy,sz,crt,cgt,cbt);
-            glRotatef(180, 0, 1, 0);
+            curP->Model=glm::rotate(curP->Model,glm::radians(180.0f), glm::vec3(0, 1, 0));
+            
+            glUniformMatrix4fv ( curP->modelLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Model[0][0]) );
+            glUniformMatrix4fv ( curP->viewLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->View[0][0]) );
+            glUniformMatrix4fv ( curP->projectionLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Projection[0][0]) );
             drawbar(x,y,z,sx,sy,sz,crt,cgt,cbt);
             
-            glRotatef(180, 0, 1, 0);
+            curP->Model=glm::rotate(curP->Model,glm::radians(180.0f), glm::vec3(0, 1, 0));
         }
         
-        /*glRotatef(-3*360.0f*(0.5f*sin((float)frameCpt*0.1f*3.14159f/761)-
-         0.7f*sin((float)frameCpt*0.1f*3.14159f/1211)-
-         0.9f*sin((float)frameCpt*0.1f*3.14159f/2213)), 0, 1, 0);
-         */
-        //glRotatef(180,0,0,1);
-        glTranslatef(0,0,12);
+        curP->Model=glm::translate(curP->Model, glm::vec3(0,0,12));
         
-        glRotatef(-45,0,1,0);
+        curP->Model=glm::rotate(curP->Model,glm::radians(-45.0f),glm::vec3(0,1,0));
         
-        /*glRotatef(-3*360.0f*(0.5f*sin((float)frameCpt*0.1f*3.14159f/761)-
-         0.7f*sin((float)frameCpt*0.1f*3.14159f/1211)-
-         0.9f*sin((float)frameCpt*0.1f*3.14159f/2213)), 0, 1, 0);
-         */
         ang=0;
         if (mirror*0)
             for (int i=0; i<nb_spectrum_bands; i++) {
@@ -2871,6 +3058,9 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
                 y=(i-nb_spectrum_bands/2)*sy*1.2;
                 z=0.1f;//+spL/4;
                 
+                glUniformMatrix4fv ( curP->modelLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Model[0][0]) );
+                glUniformMatrix4fv ( curP->viewLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->View[0][0]) );
+                glUniformMatrix4fv ( curP->projectionLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Projection[0][0]) );
                 drawbar(x,y,z,sx,sy,sz,crt,cgt,cbt);
                 
                 /////////////////
@@ -2904,10 +3094,14 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
                 y=(i-nb_spectrum_bands/2)*sy*1.2;
                 z=0.1f;//+spR/4;
                 
-                glRotatef(180, 0, 1, 0);
+                curP->Model=glm::rotate(curP->Model,glm::radians(180.0f), glm::vec3(0, 1, 0));
+                
+                glUniformMatrix4fv ( curP->modelLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Model[0][0]) );
+                glUniformMatrix4fv ( curP->viewLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->View[0][0]) );
+                glUniformMatrix4fv ( curP->projectionLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Projection[0][0]) );
                 drawbar(x,y,z,sx,sy,sz,crt,cgt,cbt);
                 
-                glRotatef(180, 0, 1, 0);
+                curP->Model=glm::rotate(curP->Model,glm::radians(180.0f), glm::vec3(0, 1, 0));
             }
     }
     
@@ -2947,12 +3141,22 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
             z=dsz+spL/4;
             y=(i-nb_spectrum_bands/2)*sy*1.05f;
             
-            glRotatef( curve_rate ,0,1,0);
+            curP->Model=glm::rotate(curP->Model, glm::radians(curve_rate) ,glm::vec3(0,1,0));
+            
+            glUniformMatrix4fv ( curP->modelLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Model[0][0]) );
+            glUniformMatrix4fv ( curP->viewLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->View[0][0]) );
+            glUniformMatrix4fv ( curP->projectionLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Projection[0][0]) );
             drawbar(x,y,z,sx,sy,sz,crt,cgt,cbt);
-            glRotatef(90, 0, 1, 0);
+            
+            curP->Model=glm::rotate(curP->Model,glm::radians(90.0f), glm::vec3(0, 1, 0));
+            
+            glUniformMatrix4fv ( curP->modelLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Model[0][0]) );
+            glUniformMatrix4fv ( curP->viewLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->View[0][0]) );
+            glUniformMatrix4fv ( curP->projectionLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Projection[0][0]) );
             drawbar(x,y,z,sx,sy,sz,crt,cgt,cbt);
-            glRotatef(90, 0, -1, 0);
-            glRotatef(curve_rate,0,-1,0);
+            
+            curP->Model=glm::rotate(curP->Model,glm::radians(90.0f), glm::vec3(0, -1, 0));
+            curP->Model=glm::rotate(curP->Model,glm::radians(curve_rate),glm::vec3(0,-1,0));
             
             /////////////////
             //RIGHT
@@ -2984,25 +3188,35 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
             z=dsz+spR/4;
             y=(i-nb_spectrum_bands/2)*sy*1.05f;
             
-            glRotatef(180+curve_rate,0,1,0);
+            curP->Model=glm::rotate(curP->Model,glm::radians(180.0f+curve_rate),glm::vec3(0,1,0));
+            
+            glUniformMatrix4fv ( curP->modelLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Model[0][0]) );
+            glUniformMatrix4fv ( curP->viewLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->View[0][0]) );
+            glUniformMatrix4fv ( curP->projectionLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Projection[0][0]) );
             drawbar(x,y,z,sx,sy,sz,crt,cgt,cbt);
-            glRotatef(90, 0, 1, 0);
+            
+            curP->Model=glm::rotate(curP->Model,glm::radians(90.0f), glm::vec3(0, 1, 0));
+            
+            glUniformMatrix4fv ( curP->modelLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Model[0][0]) );
+            glUniformMatrix4fv ( curP->viewLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->View[0][0]) );
+            glUniformMatrix4fv ( curP->projectionLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Projection[0][0]) );
             drawbar(x,y,z,sx,sy,sz,crt,cgt,cbt);
-            glRotatef(90, 0, -1, 0);
-            glRotatef(180+curve_rate,0,-1,0);
+            
+            curP->Model=glm::rotate(curP->Model,glm::radians(90.0f), glm::vec3(0, -1, 0));
+            curP->Model=glm::rotate(curP->Model,glm::radians(180.0f+curve_rate),glm::vec3(0,-1,0));
             
         }
         
-        glRotatef(-3*360.0f*(0.5f*sin((float)frameCpt*0.1f*3.14159f/761)-
+        curP->Model=glm::rotate(curP->Model,glm::radians(-3*360.0f*(0.5f*sin((float)frameCpt*0.1f*3.14159f/761)-
                              0.7f*sin((float)frameCpt*0.1f*3.14159f/1211)-
-                             0.9f*sin((float)frameCpt*0.1f*3.14159f/2213)), 0, 1, 0);
+                             0.9f*sin((float)frameCpt*0.1f*3.14159f/2213))), glm::vec3(0, 1, 0));
         
-        //glRotatef(180,0,0,1);
-        glTranslatef(15,0,0);
+        curP->Model=glm::translate(curP->Model, glm::vec3(15,0,0));
         
-        glRotatef(-3*360.0f*(0.5f*sin((float)frameCpt*0.1f*3.14159f/761)-
+        
+        curP->Model=glm::rotate(curP->Model,glm::radians(-3*360.0f*(0.5f*sin((float)frameCpt*0.1f*3.14159f/761)-
                              0.7f*sin((float)frameCpt*0.1f*3.14159f/1211)-
-                             0.9f*sin((float)frameCpt*0.1f*3.14159f/2213)), 0, 1, 0);
+                             0.9f*sin((float)frameCpt*0.1f*3.14159f/2213))), glm::vec3(0, 1, 0));
         
         ang=0;
         if (mirror)
@@ -3043,12 +3257,22 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
                 z=dsz+spL/4;
                 y=(i-nb_spectrum_bands/2)*sy*1.05f;
                 
-                glRotatef( curve_rate ,0,1,0);
+                curP->Model=glm::rotate(curP->Model, glm::radians(curve_rate) ,glm::vec3(0,1,0));
+                
+                glUniformMatrix4fv ( curP->modelLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Model[0][0]) );
+                glUniformMatrix4fv ( curP->viewLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->View[0][0]) );
+                glUniformMatrix4fv ( curP->projectionLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Projection[0][0]) );
                 drawbar(x,y,z,sx,sy,sz,crt,cgt,cbt);
-                glRotatef(90, 0, 1, 0);
+                
+                curP->Model=glm::rotate(curP->Model,glm::radians(90.0f), glm::vec3(0, 1, 0));
+                
+                glUniformMatrix4fv ( curP->modelLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Model[0][0]) );
+                glUniformMatrix4fv ( curP->viewLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->View[0][0]) );
+                glUniformMatrix4fv ( curP->projectionLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Projection[0][0]) );
                 drawbar(x,y,z,sx,sy,sz,crt,cgt,cbt);
-                glRotatef(90, 0, -1, 0);
-                glRotatef(curve_rate,0,-1,0);
+                
+                curP->Model=glm::rotate(curP->Model,glm::radians(90.0f), glm::vec3(0, -1, 0));
+                curP->Model=glm::rotate(curP->Model,glm::radians(curve_rate),glm::vec3(0,-1,0));
                 
                 
                 /////////////////
@@ -3082,30 +3306,31 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
                 z=dsz+spR/4;
                 y=(i-nb_spectrum_bands/2)*sy*1.05f;
                 
-                glRotatef(180+curve_rate,0,1,0);
+                curP->Model=glm::rotate(curP->Model,glm::radians(180.0f+curve_rate),glm::vec3(0,1,0));
+                
+                glUniformMatrix4fv ( curP->modelLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Model[0][0]) );
+                glUniformMatrix4fv ( curP->viewLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->View[0][0]) );
+                glUniformMatrix4fv ( curP->projectionLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Projection[0][0]) );
                 drawbar(x,y,z,sx,sy,sz,crt,cgt,cbt);
-                glRotatef(90, 0, 1, 0);
+                
+                curP->Model=glm::rotate(curP->Model,glm::radians(90.0f), glm::vec3(0, 1, 0));
+                
+                glUniformMatrix4fv ( curP->modelLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Model[0][0]) );
+                glUniformMatrix4fv ( curP->viewLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->View[0][0]) );
+                glUniformMatrix4fv ( curP->projectionLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Projection[0][0]) );
                 drawbar(x,y,z,sx,sy,sz,crt,cgt,cbt);
-                glRotatef(90, 0, -1, 0);
-                glRotatef(180+curve_rate,0,-1,0);
+                
+                curP->Model=glm::rotate(curP->Model,glm::radians(90.0f), glm::vec3(0, -1, 0));
+                curP->Model=glm::rotate(curP->Model,glm::radians(180.0f+curve_rate),glm::vec3(0,-1,0));
             }
     }
     
     
-    /* Disable Vertex Pointer */
-    glDisableClientState(GL_VERTEX_ARRAY);
-    glDisableClientState(GL_COLOR_ARRAY);
-    
-    glDisable(GL_LIGHT0);
-    glDisable( GL_LIGHTING );
-    glDisable(GL_COLOR_MATERIAL);
-    
-    
-    //    glDisable(GL_BLEND);
-    
-    /* Pop The Matrix */
-    glPopMatrix();
+//    glDisable(GL_LIGHT0);
+//    glDisable( GL_LIGHTING );
+//    glDisable(GL_COLOR_MATERIAL);
 #endif
+    glRestoreState();
 }
 
 
@@ -5310,7 +5535,6 @@ void RenderUtils::UpdateDataMidiFX(unsigned int *data,bool clearBuffer,bool paus
 }
 
 void RenderUtils::DrawMidiFX(uint ww,uint hh,int horiz_vert,float note_display_range, float note_display_offset,int fx_len,int color_mode,float mScaleFactor) {
-#if 0
     LineVertexF *ptsB;
     coordData *texcoords; /* Holds Float Info For 4 Sets Of Texture coordinates. */
     int crt,cgt,cbt,ca;
@@ -5342,9 +5566,6 @@ void RenderUtils::DrawMidiFX(uint ww,uint hh,int horiz_vert,float note_display_r
     max_indices=30*MAX_BARS;
     texcoords=(coordData*)malloc(sizeof(coordData)*256*6*8); //max 256 notes, 6pts/spark and max 8 sparks/notes
     
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glEnableClientState(GL_COLOR_ARRAY);
-    
     if (horiz_vert==0) {//Horiz
         band_width=(float)(ww+0*ww/4)/data_midifx_len;
         //        ofs_band=(ww-band_width*data_midifx_len)>>1;
@@ -5358,19 +5579,33 @@ void RenderUtils::DrawMidiFX(uint ww,uint hh,int horiz_vert,float note_display_r
     //    if (line_width_extra<2) line_width_extra=2;
     line_width_extra=3;
     
+    //////////////////////////////////////////////
     
-    
-    //glDisable(GL_BLEND);
-    
+    // Store opengl state
+    glDumpState();
+
+    // Enable blend mode
     glEnable(GL_BLEND);
     glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+    // Disable unused feature
+    glDisable(GL_CULL_FACE);
+    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_STENCIL_TEST);
     
+    // Use the program object
+    glUseProgram ( userData_simpleRender2D->programObject );
     
-    glVertexPointer(2, GL_FLOAT, sizeof(LineVertexF), &ptsB[0].x);
-    glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(LineVertexF), &ptsB[0].r);
+    GLuint positionAttribHandle = glGetAttribLocation(userData_simpleRender2D->programObject, "a_position");
+    GLuint colorAttribHandle    = glGetAttribLocation(userData_simpleRender2D->programObject, "a_color");
     
+    // enable data buffers for shader
+    glEnableVertexAttribArray ( positionAttribHandle );
+    glEnableVertexAttribArray ( colorAttribHandle );
     
-    //////////////////////////////////////////////
+    // Load the vertex data
+    glVertexAttribPointer ( positionAttribHandle, 2, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(ptsB[0].x) );
+    glVertexAttribPointer ( colorAttribHandle, 4, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(ptsB[0].r) );
+    
     
     int data_bar2draw_count=0;
     
@@ -5442,7 +5677,6 @@ void RenderUtils::DrawMidiFX(uint ww,uint hh,int horiz_vert,float note_display_r
         if (data_bar2draw[i].size==0) continue;
         
         //printf("i:%d start:%d end:%d instr:%d note:%d played:%d\n",i,data_bar2draw[i].startidx,data_bar2draw[i].startidx+data_bar2draw[i].size,instr,note,played);
-        
         
         crt=((data_midifx_col[colidx&31]>>16)&0xFF);
         cgt=((data_midifx_col[colidx&31]>>8)&0xFF);
@@ -5550,21 +5784,21 @@ void RenderUtils::DrawMidiFX(uint ww,uint hh,int horiz_vert,float note_display_r
                         glDrawArrays(GL_TRIANGLES, 0, index);
                         index=0;
                     }
-                    ptsB[index++] = LineVertexF(posStart-line_width_extra, posNote-line_width_extra,crtp[0],cgtp[0],cbtp[0],cap[0]);
-                    ptsB[index++] = LineVertexF(posEnd+line_width_extra, posNote-line_width_extra,crtp[1],cgtp[1],cbtp[1],cap[1]);
-                    ptsB[index++] = LineVertexF(posStart-line_width_extra, posNote+(line_width)/2,crt,cgt,cbt,ca);
+                    ptsB[index++] = LineVertexF(posStart-line_width_extra, posNote-line_width_extra,crtp[0],cgtp[0],cbtp[0],cap[0],ww,hh);
+                    ptsB[index++] = LineVertexF(posEnd+line_width_extra, posNote-line_width_extra,crtp[1],cgtp[1],cbtp[1],cap[1],ww,hh);
+                    ptsB[index++] = LineVertexF(posStart-line_width_extra, posNote+(line_width)/2,crt,cgt,cbt,ca,ww,hh);
                     
-                    ptsB[index++] = LineVertexF(posEnd+line_width_extra, posNote-line_width_extra,crtp[1],cgtp[1],cbtp[1],cap[1]);
-                    ptsB[index++] = LineVertexF(posStart-line_width_extra, posNote+(line_width)/2,crt,cgt,cbt,ca);
-                    ptsB[index++] = LineVertexF(posEnd+line_width_extra, posNote+(line_width)/2,crt,cgt,cbt,ca);
+                    ptsB[index++] = LineVertexF(posEnd+line_width_extra, posNote-line_width_extra,crtp[1],cgtp[1],cbtp[1],cap[1],ww,hh);
+                    ptsB[index++] = LineVertexF(posStart-line_width_extra, posNote+(line_width)/2,crt,cgt,cbt,ca,ww,hh);
+                    ptsB[index++] = LineVertexF(posEnd+line_width_extra, posNote+(line_width)/2,crt,cgt,cbt,ca,ww,hh);
                     
-                    ptsB[index++] = LineVertexF(posStart-line_width_extra, posNote+(line_width)/2,crt,cgt,cbt,ca);
-                    ptsB[index++] = LineVertexF(posEnd+line_width_extra, posNote+(line_width)/2,crt,cgt,cbt,ca);
-                    ptsB[index++] = LineVertexF(posStart-line_width_extra, posNote+line_width+line_width_extra,crtp[2],cgtp[2],cbtp[2],cap[2]);
+                    ptsB[index++] = LineVertexF(posStart-line_width_extra, posNote+(line_width)/2,crt,cgt,cbt,ca,ww,hh);
+                    ptsB[index++] = LineVertexF(posEnd+line_width_extra, posNote+(line_width)/2,crt,cgt,cbt,ca,ww,hh);
+                    ptsB[index++] = LineVertexF(posStart-line_width_extra, posNote+line_width+line_width_extra,crtp[2],cgtp[2],cbtp[2],cap[2],ww,hh);
                     
-                    ptsB[index++] = LineVertexF(posEnd+line_width_extra, posNote+(line_width)/2,crt,cgt,cbt,ca);
-                    ptsB[index++] = LineVertexF(posStart-line_width_extra, posNote+line_width+line_width_extra,crtp[2],cgtp[2],cbtp[2],cap[2]);
-                    ptsB[index++] = LineVertexF(posEnd+line_width_extra, posNote+line_width+line_width_extra,crtp[3],cgtp[3],cbtp[3],cap[3]);
+                    ptsB[index++] = LineVertexF(posEnd+line_width_extra, posNote+(line_width)/2,crt,cgt,cbt,ca,ww,hh);
+                    ptsB[index++] = LineVertexF(posStart-line_width_extra, posNote+line_width+line_width_extra,crtp[2],cgtp[2],cbtp[2],cap[2],ww,hh);
+                    ptsB[index++] = LineVertexF(posEnd+line_width_extra, posNote+line_width+line_width_extra,crtp[3],cgtp[3],cbtp[3],cap[3],ww,hh);
                 } else {
                     int border_size=(line_width>=8?2:1);
                     
@@ -5573,49 +5807,49 @@ void RenderUtils::DrawMidiFX(uint ww,uint hh,int horiz_vert,float note_display_r
                         index=0;
                     }
                     //top
-                    ptsB[index++] = LineVertexF(posStart-line_width_extra, posNote-line_width_extra,crtp[0],cgtp[0],cbtp[0],cap[0]);
-                    ptsB[index++] = LineVertexF(posEnd+line_width_extra, posNote-line_width_extra,crtp[1],cgtp[1],cbtp[1],cap[1]);
-                    ptsB[index++] = LineVertexF(posEnd+line_width_extra, posNote-line_width_extra+border_size,crtp[1],cgtp[1],cbtp[1],cap[1]);
+                    ptsB[index++] = LineVertexF(posStart-line_width_extra, posNote-line_width_extra,crtp[0],cgtp[0],cbtp[0],cap[0],ww,hh);
+                    ptsB[index++] = LineVertexF(posEnd+line_width_extra, posNote-line_width_extra,crtp[1],cgtp[1],cbtp[1],cap[1],ww,hh);
+                    ptsB[index++] = LineVertexF(posEnd+line_width_extra, posNote-line_width_extra+border_size,crtp[1],cgtp[1],cbtp[1],cap[1],ww,hh);
                     
-                    ptsB[index++] = LineVertexF(posStart-line_width_extra, posNote-line_width_extra,crtp[0],cgtp[0],cbtp[0],cap[0]);
-                    ptsB[index++] = LineVertexF(posEnd+line_width_extra, posNote-line_width_extra+border_size,crtp[1],cgtp[1],cbtp[1],cap[1]);
-                    ptsB[index++] = LineVertexF(posStart-line_width_extra, posNote-line_width_extra+border_size,crtp[0],cgtp[0],cbtp[0],cap[0]);
+                    ptsB[index++] = LineVertexF(posStart-line_width_extra, posNote-line_width_extra,crtp[0],cgtp[0],cbtp[0],cap[0],ww,hh);
+                    ptsB[index++] = LineVertexF(posEnd+line_width_extra, posNote-line_width_extra+border_size,crtp[1],cgtp[1],cbtp[1],cap[1],ww,hh);
+                    ptsB[index++] = LineVertexF(posStart-line_width_extra, posNote-line_width_extra+border_size,crtp[0],cgtp[0],cbtp[0],cap[0],ww,hh);
                     
                     //left
-                    ptsB[index++] = LineVertexF(posStart-line_width_extra, posNote-line_width_extra,crtp[0],cgtp[0],cbtp[0],cap[0]);
-                    ptsB[index++] = LineVertexF(posStart-line_width_extra+border_size, posNote-line_width_extra,crtp[1],cgtp[1],cbtp[1],cap[1]);
-                    ptsB[index++] = LineVertexF(posStart-line_width_extra+border_size, posNote+(line_width)+line_width_extra,crtp[1],cgtp[1],cbtp[1],cap[1]);
+                    ptsB[index++] = LineVertexF(posStart-line_width_extra, posNote-line_width_extra,crtp[0],cgtp[0],cbtp[0],cap[0],ww,hh);
+                    ptsB[index++] = LineVertexF(posStart-line_width_extra+border_size, posNote-line_width_extra,crtp[1],cgtp[1],cbtp[1],cap[1],ww,hh);
+                    ptsB[index++] = LineVertexF(posStart-line_width_extra+border_size, posNote+(line_width)+line_width_extra,crtp[1],cgtp[1],cbtp[1],cap[1],ww,hh);
                     
-                    ptsB[index++] = LineVertexF(posStart-line_width_extra, posNote-line_width_extra,crtp[0],cgtp[0],cbtp[0],cap[0]);
-                    ptsB[index++] = LineVertexF(posStart-line_width_extra+border_size, posNote+(line_width)+line_width_extra,crtp[1],cgtp[1],cbtp[1],cap[1]);
-                    ptsB[index++] = LineVertexF(posStart-line_width_extra, posNote+(line_width)+line_width_extra,crtp[1],cgtp[1],cbtp[1],cap[1]);
+                    ptsB[index++] = LineVertexF(posStart-line_width_extra, posNote-line_width_extra,crtp[0],cgtp[0],cbtp[0],cap[0],ww,hh);
+                    ptsB[index++] = LineVertexF(posStart-line_width_extra+border_size, posNote+(line_width)+line_width_extra,crtp[1],cgtp[1],cbtp[1],cap[1],ww,hh);
+                    ptsB[index++] = LineVertexF(posStart-line_width_extra, posNote+(line_width)+line_width_extra,crtp[1],cgtp[1],cbtp[1],cap[1],ww,hh);
                     
                     //bottom
-                    ptsB[index++] = LineVertexF(posStart-line_width_extra, posNote+(line_width)+line_width_extra,crtp[2],cgtp[2],cbtp[2],cap[2]);
-                    ptsB[index++] = LineVertexF(posEnd+line_width_extra, posNote+(line_width)+line_width_extra,crtp[3],cgtp[3],cbtp[3],cap[3]);
-                    ptsB[index++] = LineVertexF(posEnd+line_width_extra, posNote+(line_width)+line_width_extra-border_size,crtp[3],cgtp[3],cbtp[3],cap[3]);
+                    ptsB[index++] = LineVertexF(posStart-line_width_extra, posNote+(line_width)+line_width_extra,crtp[2],cgtp[2],cbtp[2],cap[2],ww,hh);
+                    ptsB[index++] = LineVertexF(posEnd+line_width_extra, posNote+(line_width)+line_width_extra,crtp[3],cgtp[3],cbtp[3],cap[3],ww,hh);
+                    ptsB[index++] = LineVertexF(posEnd+line_width_extra, posNote+(line_width)+line_width_extra-border_size,crtp[3],cgtp[3],cbtp[3],cap[3],ww,hh);
                     
-                    ptsB[index++] = LineVertexF(posStart-line_width_extra, posNote+(line_width)+line_width_extra,crtp[2],cgtp[2],cbtp[2],cap[2]);
-                    ptsB[index++] = LineVertexF(posEnd+line_width_extra, posNote+(line_width)+line_width_extra-border_size,crtp[3],cgtp[3],cbtp[3],cap[3]);
-                    ptsB[index++] = LineVertexF(posStart-line_width_extra, posNote+(line_width)+line_width_extra-border_size,crtp[2],cgtp[2],cbtp[2],cap[2]);
+                    ptsB[index++] = LineVertexF(posStart-line_width_extra, posNote+(line_width)+line_width_extra,crtp[2],cgtp[2],cbtp[2],cap[2],ww,hh);
+                    ptsB[index++] = LineVertexF(posEnd+line_width_extra, posNote+(line_width)+line_width_extra-border_size,crtp[3],cgtp[3],cbtp[3],cap[3],ww,hh);
+                    ptsB[index++] = LineVertexF(posStart-line_width_extra, posNote+(line_width)+line_width_extra-border_size,crtp[2],cgtp[2],cbtp[2],cap[2],ww,hh);
                     
                     //right
-                    ptsB[index++] = LineVertexF(posEnd+line_width_extra, posNote-line_width_extra,crtp[2],cgtp[2],cbtp[2],cap[2]);
-                    ptsB[index++] = LineVertexF(posEnd+line_width_extra-border_size, posNote-line_width_extra,crtp[3],cgtp[3],cbtp[3],cap[3]);
-                    ptsB[index++] = LineVertexF(posEnd+line_width_extra-border_size, posNote+(line_width)+line_width_extra,crtp[3],cgtp[3],cbtp[3],cap[3]);
+                    ptsB[index++] = LineVertexF(posEnd+line_width_extra, posNote-line_width_extra,crtp[2],cgtp[2],cbtp[2],cap[2],ww,hh);
+                    ptsB[index++] = LineVertexF(posEnd+line_width_extra-border_size, posNote-line_width_extra,crtp[3],cgtp[3],cbtp[3],cap[3],ww,hh);
+                    ptsB[index++] = LineVertexF(posEnd+line_width_extra-border_size, posNote+(line_width)+line_width_extra,crtp[3],cgtp[3],cbtp[3],cap[3],ww,hh);
                     
-                    ptsB[index++] = LineVertexF(posEnd+line_width_extra, posNote-line_width_extra,crtp[2],cgtp[2],cbtp[2],cap[2]);
-                    ptsB[index++] = LineVertexF(posEnd+line_width_extra-border_size, posNote+(line_width)+line_width_extra,crtp[3],cgtp[3],cbtp[3],cap[3]);
-                    ptsB[index++] = LineVertexF(posEnd+line_width_extra, posNote+(line_width)+line_width_extra,crtp[3],cgtp[3],cbtp[3],cap[3]);
+                    ptsB[index++] = LineVertexF(posEnd+line_width_extra, posNote-line_width_extra,crtp[2],cgtp[2],cbtp[2],cap[2],ww,hh);
+                    ptsB[index++] = LineVertexF(posEnd+line_width_extra-border_size, posNote+(line_width)+line_width_extra,crtp[3],cgtp[3],cbtp[3],cap[3],ww,hh);
+                    ptsB[index++] = LineVertexF(posEnd+line_width_extra, posNote+(line_width)+line_width_extra,crtp[3],cgtp[3],cbtp[3],cap[3],ww,hh);
                     
                     //inner part
-                    ptsB[index++] = LineVertexF(posStart-line_width_extra+border_size, posNote-line_width_extra+border_size,crt,cgt,cbt,ca);
-                    ptsB[index++] = LineVertexF(posEnd+line_width_extra-border_size, posNote-line_width_extra+border_size,crt,cgt,cbt,ca);
-                    ptsB[index++] = LineVertexF(posStart-line_width_extra+border_size, posNote+(line_width)+line_width_extra-border_size,crt,cgt,cbt,ca);
+                    ptsB[index++] = LineVertexF(posStart-line_width_extra+border_size, posNote-line_width_extra+border_size,crt,cgt,cbt,ca,ww,hh);
+                    ptsB[index++] = LineVertexF(posEnd+line_width_extra-border_size, posNote-line_width_extra+border_size,crt,cgt,cbt,ca,ww,hh);
+                    ptsB[index++] = LineVertexF(posStart-line_width_extra+border_size, posNote+(line_width)+line_width_extra-border_size,crt,cgt,cbt,ca,ww,hh);
                     
-                    ptsB[index++] = LineVertexF(posEnd+line_width_extra-border_size, posNote-line_width_extra+border_size,crt,cgt,cbt,ca);
-                    ptsB[index++] = LineVertexF(posStart-line_width_extra+border_size, posNote+(line_width)+line_width_extra-border_size,crt,cgt,cbt,ca);
-                    ptsB[index++] = LineVertexF(posEnd+line_width_extra-border_size, posNote+(line_width)+line_width_extra-border_size,crt,cgt,cbt,ca);
+                    ptsB[index++] = LineVertexF(posEnd+line_width_extra-border_size, posNote-line_width_extra+border_size,crt,cgt,cbt,ca,ww,hh);
+                    ptsB[index++] = LineVertexF(posStart-line_width_extra+border_size, posNote+(line_width)+line_width_extra-border_size,crt,cgt,cbt,ca,ww,hh);
+                    ptsB[index++] = LineVertexF(posEnd+line_width_extra-border_size, posNote+(line_width)+line_width_extra-border_size,crt,cgt,cbt,ca,ww,hh);
                     
                     
                 }
@@ -5633,21 +5867,21 @@ void RenderUtils::DrawMidiFX(uint ww,uint hh,int horiz_vert,float note_display_r
                         index=0;
                     }
                     
-                    ptsB[index++] = LineVertexF(posNote-line_width_extra, posStart-line_width_extra,crtp[0],cgtp[0],cbtp[0],cap[0]);
-                    ptsB[index++] = LineVertexF(posNote-line_width_extra, posEnd+line_width_extra,crtp[1],cgtp[1],cbtp[1],cap[1]);
-                    ptsB[index++] = LineVertexF(posNote+(line_width)/2, posStart-line_width_extra, crt,cgt,cbt,ca);
+                    ptsB[index++] = LineVertexF(posNote-line_width_extra, posStart-line_width_extra,crtp[0],cgtp[0],cbtp[0],cap[0],ww,hh);
+                    ptsB[index++] = LineVertexF(posNote-line_width_extra, posEnd+line_width_extra,crtp[1],cgtp[1],cbtp[1],cap[1],ww,hh);
+                    ptsB[index++] = LineVertexF(posNote+(line_width)/2, posStart-line_width_extra, crt,cgt,cbt,ca,ww,hh);
                     
-                    ptsB[index++] = LineVertexF(posNote-line_width_extra, posEnd+line_width_extra,crtp[1],cgtp[1],cbtp[1],cap[1]);
-                    ptsB[index++] = LineVertexF(posNote+(line_width)/2, posStart-line_width_extra, crt,cgt,cbt,ca);
-                    ptsB[index++] = LineVertexF(posNote+(line_width)/2, posEnd+line_width_extra, crt,cgt,cbt,ca);
+                    ptsB[index++] = LineVertexF(posNote-line_width_extra, posEnd+line_width_extra,crtp[1],cgtp[1],cbtp[1],cap[1],ww,hh);
+                    ptsB[index++] = LineVertexF(posNote+(line_width)/2, posStart-line_width_extra, crt,cgt,cbt,ca,ww,hh);
+                    ptsB[index++] = LineVertexF(posNote+(line_width)/2, posEnd+line_width_extra, crt,cgt,cbt,ca,ww,hh);
                     
-                    ptsB[index++] = LineVertexF(posNote+(line_width)/2, posStart-line_width_extra, crt,cgt,cbt,ca);
-                    ptsB[index++] = LineVertexF(posNote+(line_width)/2, posEnd+line_width_extra, crt,cgt,cbt,ca);
-                    ptsB[index++] = LineVertexF(posNote+(line_width)+line_width_extra, posStart-line_width_extra,crtp[2],cgtp[2],cbtp[2],cap[2]);
+                    ptsB[index++] = LineVertexF(posNote+(line_width)/2, posStart-line_width_extra, crt,cgt,cbt,ca,ww,hh);
+                    ptsB[index++] = LineVertexF(posNote+(line_width)/2, posEnd+line_width_extra, crt,cgt,cbt,ca,ww,hh);
+                    ptsB[index++] = LineVertexF(posNote+(line_width)+line_width_extra, posStart-line_width_extra,crtp[2],cgtp[2],cbtp[2],cap[2],ww,hh);
                     
-                    ptsB[index++] = LineVertexF(posNote+(line_width)/2, posEnd+line_width_extra, crt,cgt,cbt,ca);
-                    ptsB[index++] = LineVertexF(posNote+(line_width)+line_width_extra, posStart-line_width_extra,crtp[2],cgtp[2],cbtp[2],cap[2]);
-                    ptsB[index++] = LineVertexF(posNote+(line_width)+line_width_extra, posEnd+line_width_extra,crtp[3],cgtp[3],cbtp[3],cap[3]);
+                    ptsB[index++] = LineVertexF(posNote+(line_width)/2, posEnd+line_width_extra, crt,cgt,cbt,ca,ww,hh);
+                    ptsB[index++] = LineVertexF(posNote+(line_width)+line_width_extra, posStart-line_width_extra,crtp[2],cgtp[2],cbtp[2],cap[2],ww,hh);
+                    ptsB[index++] = LineVertexF(posNote+(line_width)+line_width_extra, posEnd+line_width_extra,crtp[3],cgtp[3],cbtp[3],cap[3],ww,hh);
                 } else {
                     int border_size=(line_width>=8?2:1);
                     
@@ -5657,49 +5891,49 @@ void RenderUtils::DrawMidiFX(uint ww,uint hh,int horiz_vert,float note_display_r
                     }
                     
                     //top
-                    ptsB[index++] = LineVertexF(posNote-line_width_extra, posStart-line_width_extra, crtp[0],cgtp[0],cbtp[0],cap[0]);
-                    ptsB[index++] = LineVertexF(posNote-line_width_extra, posStart-line_width_extra+border_size, crtp[1],cgtp[1],cbtp[1],cap[1]);
-                    ptsB[index++] = LineVertexF(posNote+(line_width)+line_width_extra, posStart-line_width_extra+border_size, crtp[1],cgtp[1],cbtp[1],cap[1]);
+                    ptsB[index++] = LineVertexF(posNote-line_width_extra, posStart-line_width_extra, crtp[0],cgtp[0],cbtp[0],cap[0],ww,hh);
+                    ptsB[index++] = LineVertexF(posNote-line_width_extra, posStart-line_width_extra+border_size, crtp[1],cgtp[1],cbtp[1],cap[1],ww,hh);
+                    ptsB[index++] = LineVertexF(posNote+(line_width)+line_width_extra, posStart-line_width_extra+border_size, crtp[1],cgtp[1],cbtp[1],cap[1],ww,hh);
                     
-                    ptsB[index++] = LineVertexF(posNote-line_width_extra, posStart-line_width_extra, crtp[0],cgtp[0],cbtp[0],cap[0]);
-                    ptsB[index++] = LineVertexF(posNote+(line_width)+line_width_extra, posStart-line_width_extra+border_size, crtp[1],cgtp[1],cbtp[1],cap[1]);
-                    ptsB[index++] = LineVertexF(posNote+(line_width)+line_width_extra, posStart-line_width_extra, crtp[1],cgtp[1],cbtp[1],cap[1]);
+                    ptsB[index++] = LineVertexF(posNote-line_width_extra, posStart-line_width_extra, crtp[0],cgtp[0],cbtp[0],cap[0],ww,hh);
+                    ptsB[index++] = LineVertexF(posNote+(line_width)+line_width_extra, posStart-line_width_extra+border_size, crtp[1],cgtp[1],cbtp[1],cap[1],ww,hh);
+                    ptsB[index++] = LineVertexF(posNote+(line_width)+line_width_extra, posStart-line_width_extra, crtp[1],cgtp[1],cbtp[1],cap[1],ww,hh);
                     
                     //left
-                    ptsB[index++] = LineVertexF(posNote-line_width_extra, posStart-line_width_extra, crtp[0],cgtp[0],cbtp[0],cap[0]);
-                    ptsB[index++] = LineVertexF(posNote-line_width_extra, posEnd+line_width_extra, crtp[1],cgtp[1],cbtp[1],cap[1]);
-                    ptsB[index++] = LineVertexF(posNote-line_width_extra+border_size, posEnd+line_width_extra, crtp[1],cgtp[1],cbtp[1],cap[1]);
+                    ptsB[index++] = LineVertexF(posNote-line_width_extra, posStart-line_width_extra, crtp[0],cgtp[0],cbtp[0],cap[0],ww,hh);
+                    ptsB[index++] = LineVertexF(posNote-line_width_extra, posEnd+line_width_extra, crtp[1],cgtp[1],cbtp[1],cap[1],ww,hh);
+                    ptsB[index++] = LineVertexF(posNote-line_width_extra+border_size, posEnd+line_width_extra, crtp[1],cgtp[1],cbtp[1],cap[1],ww,hh);
                     
-                    ptsB[index++] = LineVertexF(posNote-line_width_extra, posStart-line_width_extra, crtp[0],cgtp[0],cbtp[0],cap[0]);
-                    ptsB[index++] = LineVertexF(posNote-line_width_extra+border_size, posEnd+line_width_extra, crtp[1],cgtp[1],cbtp[1],cap[1]);
-                    ptsB[index++] = LineVertexF(posNote-line_width_extra+border_size, posStart-line_width_extra, crtp[0],cgtp[0],cbtp[0],cap[0]);
+                    ptsB[index++] = LineVertexF(posNote-line_width_extra, posStart-line_width_extra, crtp[0],cgtp[0],cbtp[0],cap[0],ww,hh);
+                    ptsB[index++] = LineVertexF(posNote-line_width_extra+border_size, posEnd+line_width_extra, crtp[1],cgtp[1],cbtp[1],cap[1],ww,hh);
+                    ptsB[index++] = LineVertexF(posNote-line_width_extra+border_size, posStart-line_width_extra, crtp[0],cgtp[0],cbtp[0],cap[0],ww,hh);
                     
                     //right
-                    ptsB[index++] = LineVertexF(posNote+(line_width)+line_width_extra,posStart-line_width_extra, crtp[2],cgtp[2],cbtp[2],cap[2]);
-                    ptsB[index++] = LineVertexF(posNote+(line_width)+line_width_extra,posEnd+line_width_extra, crtp[3],cgtp[3],cbtp[3],cap[3]);
-                    ptsB[index++] = LineVertexF(posNote+(line_width)+line_width_extra-border_size,posEnd+line_width_extra, crtp[3],cgtp[3],cbtp[3],cap[3]);
+                    ptsB[index++] = LineVertexF(posNote+(line_width)+line_width_extra,posStart-line_width_extra, crtp[2],cgtp[2],cbtp[2],cap[2],ww,hh);
+                    ptsB[index++] = LineVertexF(posNote+(line_width)+line_width_extra,posEnd+line_width_extra, crtp[3],cgtp[3],cbtp[3],cap[3],ww,hh);
+                    ptsB[index++] = LineVertexF(posNote+(line_width)+line_width_extra-border_size,posEnd+line_width_extra, crtp[3],cgtp[3],cbtp[3],cap[3],ww,hh);
                     
-                    ptsB[index++] = LineVertexF(posNote+(line_width)+line_width_extra,posStart-line_width_extra, crtp[2],cgtp[2],cbtp[2],cap[2]);
-                    ptsB[index++] = LineVertexF(posNote+(line_width)+line_width_extra-border_size,posEnd+line_width_extra, crtp[3],cgtp[3],cbtp[3],cap[3]);
-                    ptsB[index++] = LineVertexF(posNote+(line_width)+line_width_extra-border_size,posStart-line_width_extra, crtp[2],cgtp[2],cbtp[2],cap[2]);
+                    ptsB[index++] = LineVertexF(posNote+(line_width)+line_width_extra,posStart-line_width_extra, crtp[2],cgtp[2],cbtp[2],cap[2],ww,hh);
+                    ptsB[index++] = LineVertexF(posNote+(line_width)+line_width_extra-border_size,posEnd+line_width_extra, crtp[3],cgtp[3],cbtp[3],cap[3],ww,hh);
+                    ptsB[index++] = LineVertexF(posNote+(line_width)+line_width_extra-border_size,posStart-line_width_extra, crtp[2],cgtp[2],cbtp[2],cap[2],ww,hh);
                     
                     //bottom
-                    ptsB[index++] = LineVertexF(posNote-line_width_extra, posEnd+line_width_extra, crtp[2],cgtp[2],cbtp[2],cap[2]);
-                    ptsB[index++] = LineVertexF(posNote-line_width_extra, posEnd+line_width_extra-border_size, crtp[3],cgtp[3],cbtp[3],cap[3]);
-                    ptsB[index++] = LineVertexF(posNote+(line_width)+line_width_extra,posEnd+line_width_extra-border_size, crtp[3],cgtp[3],cbtp[3],cap[3]);
+                    ptsB[index++] = LineVertexF(posNote-line_width_extra, posEnd+line_width_extra, crtp[2],cgtp[2],cbtp[2],cap[2],ww,hh);
+                    ptsB[index++] = LineVertexF(posNote-line_width_extra, posEnd+line_width_extra-border_size, crtp[3],cgtp[3],cbtp[3],cap[3],ww,hh);
+                    ptsB[index++] = LineVertexF(posNote+(line_width)+line_width_extra,posEnd+line_width_extra-border_size, crtp[3],cgtp[3],cbtp[3],cap[3],ww,hh);
                     
-                    ptsB[index++] = LineVertexF(posNote-line_width_extra, posEnd+line_width_extra, crtp[2],cgtp[2],cbtp[2],cap[2]);
-                    ptsB[index++] = LineVertexF(posNote+(line_width)+line_width_extra, posEnd+line_width_extra-border_size, crtp[3],cgtp[3],cbtp[3],cap[3]);
-                    ptsB[index++] = LineVertexF(posNote+(line_width)+line_width_extra, posEnd+line_width_extra, crtp[3],cgtp[3],cbtp[3],cap[3]);
+                    ptsB[index++] = LineVertexF(posNote-line_width_extra, posEnd+line_width_extra, crtp[2],cgtp[2],cbtp[2],cap[2],ww,hh);
+                    ptsB[index++] = LineVertexF(posNote+(line_width)+line_width_extra, posEnd+line_width_extra-border_size, crtp[3],cgtp[3],cbtp[3],cap[3],ww,hh);
+                    ptsB[index++] = LineVertexF(posNote+(line_width)+line_width_extra, posEnd+line_width_extra, crtp[3],cgtp[3],cbtp[3],cap[3],ww,hh);
                     
                     //inner part
-                    ptsB[index++] = LineVertexF(posNote-line_width_extra+border_size, posStart-line_width_extra+border_size, crt,cgt,cbt,ca);
-                    ptsB[index++] = LineVertexF(posNote-line_width_extra+border_size, posEnd+line_width_extra-border_size, crt,cgt,cbt,ca);
-                    ptsB[index++] = LineVertexF(posNote+(line_width)+line_width_extra-border_size, posStart-line_width_extra+border_size, crt,cgt,cbt,ca);
+                    ptsB[index++] = LineVertexF(posNote-line_width_extra+border_size, posStart-line_width_extra+border_size, crt,cgt,cbt,ca,ww,hh);
+                    ptsB[index++] = LineVertexF(posNote-line_width_extra+border_size, posEnd+line_width_extra-border_size, crt,cgt,cbt,ca,ww,hh);
+                    ptsB[index++] = LineVertexF(posNote+(line_width)+line_width_extra-border_size, posStart-line_width_extra+border_size, crt,cgt,cbt,ca,ww,hh);
                     
-                    ptsB[index++] = LineVertexF(posNote-line_width_extra+border_size, posEnd+line_width_extra-border_size, crt,cgt,cbt,ca);
-                    ptsB[index++] = LineVertexF(posNote+(line_width)+line_width_extra-border_size, posStart-line_width_extra+border_size, crt,cgt,cbt,ca);
-                    ptsB[index++] = LineVertexF(posNote+(line_width)+line_width_extra-border_size, posEnd+line_width_extra-border_size, crt,cgt,cbt,ca);
+                    ptsB[index++] = LineVertexF(posNote-line_width_extra+border_size, posEnd+line_width_extra-border_size, crt,cgt,cbt,ca,ww,hh);
+                    ptsB[index++] = LineVertexF(posNote+(line_width)+line_width_extra-border_size, posStart-line_width_extra+border_size, crt,cgt,cbt,ca,ww,hh);
+                    ptsB[index++] = LineVertexF(posNote+(line_width)+line_width_extra-border_size, posEnd+line_width_extra-border_size, crt,cgt,cbt,ca,ww,hh);
                 }
             }
         }
@@ -5723,7 +5957,7 @@ void RenderUtils::DrawMidiFX(uint ww,uint hh,int horiz_vert,float note_display_r
                       (data_midifx_len-MIDIFX_OFS-1)*band_width-band_width*2,
                       0,
                       band_width*2,hh,1,
-                      235,210,255,200,0);
+                      235,210,255,200,0,ww,hh);
         
     } else {
         index=DrawBox(ptsB, index,
@@ -5731,7 +5965,7 @@ void RenderUtils::DrawMidiFX(uint ww,uint hh,int horiz_vert,float note_display_r
                       (data_midifx_len-MIDIFX_OFS-1)*band_width-band_width*2,
                       ww,
                       band_width*2,1,
-                      235,210,255,200,0);
+                      235,210,255,200,0,ww,hh);
     }
     glDrawArrays(GL_TRIANGLES, 0, index);
     //    glLineWidth(band_width*mScaleFactor);
@@ -6077,13 +6311,10 @@ void RenderUtils::DrawMidiFX(uint ww,uint hh,int horiz_vert,float note_display_r
     glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
     index=0;
 #endif
-    glDisableClientState(GL_VERTEX_ARRAY);
-    glDisableClientState(GL_COLOR_ARRAY);
-    glDisable(GL_BLEND);
-    
     free(ptsB);
     free(texcoords);
-#endif
+    
+    glRestoreState();
 }
 
 int RenderUtils::DrawBox(LineVertexF *ptsB,int index,float x,float y,float width,float height,float border_size,int crt,int cgt,int cbt,int ca,int subnote,int ww,int hh) {

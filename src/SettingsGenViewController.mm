@@ -1609,11 +1609,12 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FX3DSpectrum].description=NULL;
     settings[GLOB_FX3DSpectrum].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
     settings[GLOB_FX3DSpectrum].sub_family=0;
-    settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value_nb=3;
+    settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value_nb=4;
     settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value_nb*sizeof(char*));
     settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_labels[0]=(char*)"Off";
     settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_labels[1]=(char*)"1";
     settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_labels[2]=(char*)"2";
+    settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_labels[3]=(char*)"3";
     
     SETTINGS_ID_DEF(GLOB_FX3DLandscape)
     settings[GLOB_FX3DLandscape].type=MDZ_SWITCH;

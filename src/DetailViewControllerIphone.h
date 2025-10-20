@@ -402,6 +402,7 @@ enum {
 -(void) mdBackAction;
 -(void) mdSwitchBloomFX;
 -(void) mdSwitchFPSHud;
+-(void) mdInfoFX;
 
 - (void)checkNewCover;
 
