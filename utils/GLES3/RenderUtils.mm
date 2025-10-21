@@ -838,6 +838,7 @@ static signed char cur_snd_data[OSCILLO_BUFFER_SIZE*SOUND_MAXVOICES_BUFFER_FX];
 #define FIXED_POINT_PRECISION 16
 void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,int num_voices,uint ww,uint hh,uint color_mode,float mScaleFactor,bool isfullscreen,bool bloom,char *voices_label,bool draw_frame,bool flag_direct_stereo) {
     SimpleLineVertexF *ptsLines;
+    ColorDataF *ptsCol;
     int mulfactor;
     int val[SOUND_MAXVOICES_BUFFER_FX];
     int oval[SOUND_MAXVOICES_BUFFER_FX];
@@ -950,6 +951,12 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
     ptsLines=(SimpleLineVertexF*)malloc(sizeof(SimpleLineVertexF)*columns_width*num_voices);
     if (!ptsLines) {
         printf("%s: cannot allocate LineVertex buffer\n",__func__);
+        return;
+    }
+    ptsCol=(ColorDataF*)malloc(sizeof(ColorDataF)*columns_width*num_voices);
+    if (!ptsCol) {
+        free(ptsLines);
+        printf("%s: cannot allocate ColorDataF buffer\n",__func__);
         return;
     }
     count=0;
@@ -1102,6 +1109,11 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
                 
                 if (countLines>=max_count-1) break;
                 
+                ptsCol[countLines].r=(float)colR/255.0f;
+                ptsCol[countLines].g=(float)colG/255.0f;
+                ptsCol[countLines].b=(float)colB/255.0f;
+                ptsCol[countLines].a=(float)colA/255.0f;
+                
                 ptsLines[countLines++] = SimpleLineVertexF(xpos+i,osp[cur_voices]+ypos,
                                                          xpos+i+1,sp[cur_voices]+ypos,ww,hh);
                 
@@ -1134,14 +1146,6 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
     //  | / |
     //  03--1
     //
-    
-    for (int i=0;i<6;i++) {
-        ptsTriangles[i].r=(float)colR/255.0;
-        ptsTriangles[i].g=(float)colG/255.0;
-        ptsTriangles[i].b=(float)colB/255.0;
-        ptsTriangles[i].a=1;
-    }
-    
     // Use the program object
     glUseProgram ( userData_Render2DLines->programObject );
     
@@ -1162,7 +1166,7 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
     // Load the vertex data
     glVertexAttribPointer ( positionAttribHandle, 2, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(ptsTriangles[0].x) );
     glVertexAttribPointer ( pointABAttribHandle, 4, GL_FLOAT, GL_FALSE, sizeof(SimpleLineVertexF), &(ptsLines[0].Ax) );
-    glVertexAttribPointer ( colorAttribHandle, 4, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(ptsTriangles[0].r) );
+    glVertexAttribPointer ( colorAttribHandle, 4, GL_FLOAT, GL_FALSE, sizeof(ColorDataF), &(ptsCol[0].r) );
     
     // enable data buffers for shader
     glEnableVertexAttribArray ( positionAttribHandle );
@@ -1170,6 +1174,7 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
     glEnableVertexAttribArray ( colorAttribHandle );
     
     glVertexAttribDivisor ( pointABAttribHandle, 1);
+    glVertexAttribDivisor ( colorAttribHandle, 1);
     
     // Generate a model view matrix to rotate/translate the cube
     userData_Render2DLines->mvpMatrix = glm::mat4(1.0f);
@@ -1195,33 +1200,32 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
         colG=(settings[OSCILLO_GRID_COLOR].detail.mdz_color.rgb>>8)&0xFF;
         colB=(settings[OSCILLO_GRID_COLOR].detail.mdz_color.rgb>>0)&0xFF;
         
-        for (int i=0;i<6;i++) {
-            ptsTriangles[i].r=(float)colR/255.0;
-            ptsTriangles[i].g=(float)colG/255.0;
-            ptsTriangles[i].b=(float)colB/255.0;
-            ptsTriangles[i].a=1;
-        }
         //top
+        ptsCol[countLines].r=(float)colR/255.0;ptsCol[countLines].g=(float)colG/255.0;ptsCol[countLines].b=(float)colB/255.0;ptsCol[countLines].a=1.0f;
         ptsLines[countLines++] = SimpleLineVertexF(0, hh-1,
                                                  ww-1,hh-1,ww,hh);
         //right
+        ptsCol[countLines].r=(float)colR/255.0;ptsCol[countLines].g=(float)colG/255.0;ptsCol[countLines].b=(float)colB/255.0;ptsCol[countLines].a=1.0f;
         ptsLines[countLines++] = SimpleLineVertexF(ww-1, hh-1,
                                                  ww-1,hh-mulfactor*max_voices_by_row*2,ww,hh);
         //bottom
+        ptsCol[countLines].r=(float)colR/255.0;ptsCol[countLines].g=(float)colG/255.0;ptsCol[countLines].b=(float)colB/255.0;ptsCol[countLines].a=1.0f;
         ptsLines[countLines++] = SimpleLineVertexF(ww-1,hh-mulfactor*max_voices_by_row*2,
                                                    0,hh-mulfactor*max_voices_by_row*2,ww,hh);
         //left
+        ptsCol[countLines].r=(float)colR/255.0;ptsCol[countLines].g=(float)colG/255.0;ptsCol[countLines].b=(float)colB/255.0;ptsCol[countLines].a=1.0f;
         ptsLines[countLines++] = SimpleLineVertexF(0,hh-mulfactor*max_voices_by_row*2,
                                                    0,hh-1,ww,hh);
         for (int r=0;r<columns_nb;r++) {
             int xpos=xofs+r*columns_width;
             int max_voices=num_voices*(r+1)/columns_nb;
             int ypos=hh-mulfactor;
-            
+            ptsCol[countLines].r=(float)colR/255.0;ptsCol[countLines].g=(float)colG/255.0;ptsCol[countLines].b=(float)colB/255.0;ptsCol[countLines].a=1.0f;
             ptsLines[countLines++] = SimpleLineVertexF(xpos,hh-1,
                                                        xpos,hh-mulfactor*max_voices_by_row*2,ww,hh);
         }
         for (int r=0;r<max_voices_by_row;r++) {
+            ptsCol[countLines].r=(float)colR/255.0;ptsCol[countLines].g=(float)colG/255.0;ptsCol[countLines].b=(float)colB/255.0;ptsCol[countLines].a=1.0f;
             ptsLines[countLines++] = SimpleLineVertexF(0,hh-mulfactor*r*2,
                                                        ww-1,hh-mulfactor*r*2,ww,hh);
         }
@@ -1232,6 +1236,7 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
     free(ptsLines);
     
     glVertexAttribDivisor ( pointABAttribHandle, 0);
+    glVertexAttribDivisor ( colorAttribHandle, 0);
     glRestoreState();
     
 //    if (bloom) RenderUtils::endRenderToTexture(ww*mScaleFactor,hh*mScaleFactor,bloom_size);

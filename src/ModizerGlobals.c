@@ -146,9 +146,9 @@ t_pattern_colortheme modpat_colorImpulseTracker={
     {177,151,125},  //Effect nb color H
     {74,133,103},  //Effect value color
     {74,133,103},  //Effect value color H
-    {51,51,29},  //volume bar low color
-    {251,251,139},  //volume bar high color
-    MDZ_THEMEFLAG_VolDep|MDZ_THEMEFLAG_BordersLR,              //volume bar mode
+    {51,51,129},  //volume bar low color
+    {251,251,96},  //volume bar high color
+    MDZ_THEMEFLAG_VolDep,              //volume bar mode
     "IT",
 };
 

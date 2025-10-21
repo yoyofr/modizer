@@ -21,7 +21,7 @@ const char *font_trackerName[FONT_TRACKER_NB][2]={
 };
 
 float font_trackerSize[FONT_TRACKER_NB][5]={
-    {16.0,10.0,1.0,0.0,0.0},
+    {16.0,9.0,1.0,0.0,0.0},
     {16.0,17.0,0.82,0.0,2.0},
     {16.0,13.0,0.85,0.0,-1.0},
     {16.0,8.0,1.1,0.0,-2.0},
