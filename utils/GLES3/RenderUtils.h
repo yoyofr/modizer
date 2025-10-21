@@ -97,7 +97,7 @@ struct LineVertexF
     GLfloat r, g, b, a;
 };
 
-struct vertexData {
+struct VertexData {
     GLfloat x;             // OpenGL X Coordinate
     GLfloat y;             // OpenGL Y Coordinate
     GLfloat z;             // OpenGL Z Coordinate
@@ -105,6 +105,24 @@ struct vertexData {
     GLfloat t;             // Texture T Coordinate
     GLfloat r,g,b,a;
 };
+
+struct VertexNData {
+    VertexNData() {}
+    VertexNData(GLfloat _x,GLfloat _y,GLfloat _z,GLfloat _Nx,GLfloat _Ny,GLfloat _Nz,GLfloat _r,GLfloat _g,GLfloat _b,GLfloat _a) :
+    x(_x),y(_y),z(_z),Nx(_Nx),Ny(_Ny),Nz(_Nz),r(_r),g(_g),b(_b) {
+        
+    }
+    
+    
+    GLfloat x;             // OpenGL X Coordinate
+    GLfloat y;             // OpenGL Y Coordinate
+    GLfloat z;             // OpenGL Z Coordinate
+    GLfloat Nx;             // OpenGL Normal X
+    GLfloat Ny;             // OpenGL Normal Y
+    GLfloat Nz;             // OpenGL Normal Z
+    GLfloat r,g,b,a;
+};
+
 
 struct coordData {
     GLfloat u;             // OpenGL X Coordinate
@@ -144,6 +162,7 @@ void ShutdownProgram(GLUserData *userData);
 
 
 void drawbar(float x,float y,float z,float sx,float sy,float sz,float crt,float cgt,float cbt);
+void drawbarF(float x,float y,float z,float sx,float sy,float sz,float crt,float cgt,float cbt);
 void drawbar2(float x,float y,float z,float sx,float sy,float sz,float crt,float cgt,float cbt);
 void drawbar3(float x,float y,float z,float sx,float sy,float sz,float crt,float cgt,float cbt);
 

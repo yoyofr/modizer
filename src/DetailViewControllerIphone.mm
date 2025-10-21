@@ -163,6 +163,7 @@ void PresetSwitchFailedEvent(const char* preset_filename, const char* message, v
 extern float font_size[4];
 extern ImFont  *font_menu[4];
 extern ImFont  *font_tracker[FONT_TRACKER_NB][4];
+extern ImFont  *font_trackerH[FONT_TRACKER_NB][4];
 extern float font_trackerSize[FONT_TRACKER_NB][5];
 
 //--------------------------------------------------
@@ -1331,6 +1332,18 @@ static float movePinchScale,movePinchScaleOld;
         _pm_display_scroll_direction=1;
         _pm_display_name_countdown=_pm_fps*PM_PRESET_DISPLAY_TIMEOUT;
     }
+}
+-(void) mdSwitchVolBars {
+    [SettingsGenViewController changeSettingsValue:GLOB_FXMODPattern_VolBar change:1];
+}
+-(void) mdSwitchModPatternTheme:(int)val {
+    [SettingsGenViewController changeSettingsValue:GLOB_FXMODPattern_Theme change:val];
+}
+-(void) mdSwitchModPatternFont:(int)val {
+    [SettingsGenViewController changeSettingsValue:GLOB_FXMODPattern_Font change:val];
+}
+-(void) mdSwitchModPatternFontSize:(int)val {
+    [SettingsGenViewController changeSettingsValue:GLOB_FXMODPattern_FontSize change:val];
 }
 
 -(void) mdSwitchLockPreset {
@@ -2704,14 +2717,8 @@ int recording=0;
     
     
     alertCannotPlay_displayed=0;
-    //Visiulization stuff
-    movePx=movePy=movePxOld=movePyOld=0;
-    startPx=startPy=0;
-    movePx2=movePy2=movePx2Old=movePy2Old=0;
-    movePinchScale=movePinchScaleOld=0;
-    sliderProgressModuleEdit=0;
-    sliderProgressModuleChanged=0;
-    
+    //Visualization stuff
+    [self reinitVisuVars];
     
     //Is OGLView visible ?
     [self checkGLViewCanDisplay];
@@ -3062,13 +3069,8 @@ int recording=0;
     else btnShowVoices.hidden=true;
     
     alertCannotPlay_displayed=0;
-    //Visiulization stuff
-    movePx=movePy=movePxOld=movePyOld=0;
-    startPx=startPy=0;
-    movePx2=movePy2=movePx2Old=movePy2Old=0;
-    movePinchScale=movePinchScaleOld=0;
-    sliderProgressModuleEdit=0;
-    sliderProgressModuleChanged=0;
+    //Visualization stuff
+    [self reinitVisuVars];
     
     //Is OGLView visible ?
     [self checkGLViewCanDisplay];
@@ -3513,14 +3515,8 @@ int recording=0;
     else btnShowVoices.hidden=true;
     
     alertCannotPlay_displayed=0;
-    //Visiulization stuff
-    movePx=movePy=movePxOld=movePyOld=0;
-    startPx=startPy=0;
-    movePx2=movePy2=movePx2Old=movePy2Old=0;
-    movePinchScale=movePinchScaleOld=0;
-    sliderProgressModuleEdit=0;
-    sliderProgressModuleChanged=0;
-    
+    //Visualization stuff
+    [self reinitVisuVars];
     
     
     //Is OGLView visible ?
@@ -4775,7 +4771,7 @@ GLsizei txtbackgroundImageWidth,txtbackgroundImageHeight;
     // Configure renderbuffers created by the view
     m_oglView.drawableColorFormat = MGLDrawableColorFormatRGBA8888;
     m_oglView.drawableDepthFormat = MGLDrawableDepthFormat24;
-    m_oglView.drawableStencilFormat = MGLDrawableStencilFormat8;
+    m_oglView.drawableStencilFormat = MGLDrawableStencilFormatNone;
     // Enable multisampling
     m_oglView.drawableMultisample = MGLDrawableMultisampleNone;
     
@@ -4946,7 +4942,15 @@ void pmSoftReinit() {
     
 }
 
-
+- (void) reinitVisuVars {
+    movePx=movePy=movePxOld=movePyOld=0;
+    startPx=startPy=0;
+    movePx2=movePy2=movePx2Old=movePy2Old=0;
+    movePinchScale=movePinchScaleOld=0;
+    sliderProgressModuleEdit=0;
+    sliderProgressModuleChanged=0;
+    modPatternLineSize=0;
+}
 
 // Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
 - (void)viewDidLoad {
@@ -5678,17 +5682,7 @@ void pmSoftReinit() {
     modPatternLineSize=0;
     visibleChan=SOUND_MAXMOD_CHANNELS;
     
-    switch (settings[GLOB_FXMODPattern_Theme].detail.mdz_switch.switch_value) {
-        case 0:
-            modpat_curTheme=&modpat_colorStd;
-            break;
-        case 1:
-            modpat_curTheme=&modpat_colorAlt;
-            break;
-        default:
-            modpat_curTheme=&modpat_colorStd;
-            break;
-    }
+    modpat_curTheme=modpat_themesList[(settings[GLOB_FXMODPattern_Theme].detail.mdz_switch.switch_value)&modpat_themesNb];
     
     //	[super viewDidLoad];
     end_time=clock();
@@ -6791,17 +6785,7 @@ extern "C" int current_sample;
         //------------------------------------------------
         // Select current mod pattern themes
         //------------------------------------------------
-        switch (settings[GLOB_FXMODPattern_Theme].detail.mdz_switch.switch_value) {
-            case 0:
-                modpat_curTheme=&modpat_colorStd;
-                break;
-            case 1:
-                modpat_curTheme=&modpat_colorAlt;
-                break;
-            default:
-                modpat_curTheme=&modpat_colorStd;
-                break;
-        }
+        modpat_curTheme=modpat_themesList[(settings[GLOB_FXMODPattern_Theme].detail.mdz_switch.switch_value)%modpat_themesNb];
         
         int display_note_mode=(settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value-1);
         if (display_note_mode>=3) display_note_mode-=3;
@@ -6862,12 +6846,12 @@ extern "C" int current_sample;
                 if (cur_font>=FONT_TRACKER_NB) cur_font=FONT_TRACKER_NB-1;
                 
                 float font_ofsX,font_ofsY;
-                if (font_tracker[cur_font][ftsizeIdx]) { ImGui::PushFont(font_tracker[cur_font][ftsizeIdx]);//,fontSize*glScaleFactor*font_trackerSize[cur_font][2]);
-                    font_ofsX=font_trackerSize[cur_font][3];
-                    font_ofsY=font_trackerSize[cur_font][4];
+                if (font_tracker[cur_font][ftsizeIdx]) { ImGui::PushFont(font_tracker[cur_font][ftsizeIdx]);
+                    font_ofsX=font_trackerSize[cur_font][3]*fontSize/16.0f;
+                    font_ofsY=font_trackerSize[cur_font][4]*fontSize/16.0f;
                 }
                 else {
-                    ImGui::PushFont(nullptr);//,fontSize*glScaleFactor);
+                    ImGui::PushFont(nullptr);
                     font_ofsX=0;
                     font_ofsY=0;
                 }
@@ -6876,7 +6860,7 @@ extern "C" int current_sample;
                 //ImGui::SetCursorPos(ImVec2(0,0));
                 
                 //Compute how many lines to draw
-                float lineHeight=fontSize*glScaleFactor;//ImGui::GetTextLineHeight();
+                float lineHeight=(fontSize+1)*glScaleFactor;//ImGui::GetTextLineHeight();
                 
                 linestodraw=((float)hh*glScaleFactor-lineHeight-4.0*glScaleFactor+lineHeight/2)/lineHeight;
                 //linestodraw=round((hh*glScaleFactor-NOTES_DISPLAY_TOPMARGIN+lineHeight/mScaleFactor+3)/(lineHeight/mScaleFactor+4)); //draw even if halfed for last line
@@ -6923,12 +6907,12 @@ extern "C" int current_sample;
                 idx=startRow*mplayer.numChannels;
  
                 float fontWidth=ImGui::CalcTextSize("12345678").x/8.0;
-                RenderUtils::DrawChanLayout(ww,hh,display_note_mode,endChan,((int)(movePxMOD)),fontWidth/glScaleFactor,fontSize,glScaleFactor);
+                RenderUtils::DrawChanLayout(ww,hh,display_note_mode,endChan,((int)(movePxMOD)),fontWidth/glScaleFactor,fontSize+1,glScaleFactor);
                 
                 if (settings[GLOB_FXMODPattern_VolBar].detail.mdz_boolswitch.switch_value) {
-                    RenderUtils::DrawChanLayoutAfter(ww,hh,display_note_mode,channelVolumeData,endChan,((int)(movePxMOD)),fontWidth/mScaleFactor,fontSize,0,midline,mScaleFactor);
+                    RenderUtils::DrawChanLayoutAfter(ww,hh,display_note_mode,channelVolumeData,endChan,((int)(movePxMOD)),fontWidth/mScaleFactor,fontSize+1,0,midline,mScaleFactor);
                 } else {
-                    RenderUtils::DrawChanLayoutAfter(ww,hh,display_note_mode,NULL,endChan,((int)(movePxMOD)),fontWidth/mScaleFactor,fontSize,0,midline,mScaleFactor);
+                    RenderUtils::DrawChanLayoutAfter(ww,hh,display_note_mode,NULL,endChan,((int)(movePxMOD)),fontWidth/mScaleFactor,fontSize+1,0,midline,mScaleFactor);
                 }
                 
                 
@@ -6939,7 +6923,7 @@ extern "C" int current_sample;
                     //1st win with line nb
                     char str_prefix[3];
                     ImVec2 cursorPos;
-                    float startx=ImGui::CalcTextSize("XX ").x;
+                    float startx=(ImGui::CalcTextSize("123").x)+4.0f;
                     modPatternWindowSize=ww*glScaleFactor-startx;
                     
                     ImGui::SetNextWindowPos(ImVec2(0,0));
@@ -6968,20 +6952,41 @@ extern "C" int current_sample;
                             color_div=0.7;
                         }
                         cursorPos=ImVec2((3.0+font_ofsX)*mScaleFactor, (i-startRow+1)*lineHeight+(4.0+font_ofsY)*glScaleFactor);
-                        ImGui::SetCursorPos(cursorPos);
-                        //ImGui::Text("%s",str_prefix);
                         
-                        if (i&1) {
-                            colR=modpat_curTheme->lineNb_col1[0]*color_div;
-                            colG=modpat_curTheme->lineNb_col1[1]*color_div;
-                            colB=modpat_curTheme->lineNb_col1[2]*color_div;
+                        if ((i==currentRow)&&(modpat_curTheme->theme_flag&MDZ_THEMEFLAG_HighlightZoom)) {
+                            if (i&1) {
+                                colR=modpat_curTheme->lineNb_col1H[0]*color_div;
+                                colG=modpat_curTheme->lineNb_col1H[1]*color_div;
+                                colB=modpat_curTheme->lineNb_col1H[2]*color_div;
+                            } else {
+                                colR=modpat_curTheme->lineNb_col2H[0]*color_div;
+                                colG=modpat_curTheme->lineNb_col2H[1]*color_div;
+                                colB=modpat_curTheme->lineNb_col2H[2]*color_div;
+                            }
                         } else {
-                            colR=modpat_curTheme->lineNb_col2[0]*color_div;
-                            colG=modpat_curTheme->lineNb_col2[1]*color_div;
-                            colB=modpat_curTheme->lineNb_col2[2]*color_div;
+                            if (i&1) {
+                                colR=modpat_curTheme->lineNb_col1[0]*color_div;
+                                colG=modpat_curTheme->lineNb_col1[1]*color_div;
+                                colB=modpat_curTheme->lineNb_col1[2]*color_div;
+                            } else {
+                                colR=modpat_curTheme->lineNb_col2[0]*color_div;
+                                colG=modpat_curTheme->lineNb_col2[1]*color_div;
+                                colB=modpat_curTheme->lineNb_col2[2]*color_div;
+                            }
                         }
                         
-                        ImGui::TextAttr("{#%02X%02X%02X}%s",colR,colG,colB,str_prefix);
+                        if ((i==currentRow)&&(modpat_curTheme->theme_flag&MDZ_THEMEFLAG_HighlightZoom)) {
+                            cursorPos.y+=font_ofsY*0.3f;
+                            cursorPos.x+=font_ofsX*0.3f;
+                            cursorPos.y-=fontSize*0.15f*glScaleFactor;
+                            ImGui::SetCursorPos(cursorPos);
+                            ImGui::PushFont(font_trackerH[cur_font][ftsizeIdx]);
+                            ImGui::TextAttr("{#%02X%02X%02X}%s",colR,colG,colB,str_prefix);
+                            ImGui::PopFont();
+                        } else {
+                            ImGui::SetCursorPos(cursorPos);
+                            ImGui::TextAttr("{#%02X%02X%02X}%s",colR,colG,colB,str_prefix);
+                        }
                         
                     }
                     ImGui::End();
@@ -7018,6 +7023,8 @@ extern "C" int current_sample;
                         }
                         k=0;
                         if (note_avail) {
+                            bool highlight=false;
+                            if ((i==currentRow)&&(modpat_curTheme->theme_flag&MDZ_THEMEFLAG_HighlightZoom)) highlight=true;
                             switch (display_note_mode) {
                                 case 0: //all infos
                                     for (j=0;j<endChan;j++)  {
@@ -7027,9 +7034,15 @@ extern "C" int current_sample;
                                         cparam=currentNotes[idx].Parameter;
                                         cvol=currentNotes[idx].Volume;
                                         
-                                        colR=modpat_curTheme->note_col[0]*color_div;
-                                        colG=modpat_curTheme->note_col[1]*color_div;
-                                        colB=modpat_curTheme->note_col[2]*color_div;
+                                        if (highlight) {
+                                            colR=modpat_curTheme->note_colH[0]*color_div;
+                                            colG=modpat_curTheme->note_colH[1]*color_div;
+                                            colB=modpat_curTheme->note_colH[2]*color_div;
+                                        } else {
+                                            colR=modpat_curTheme->note_col[0]*color_div;
+                                            colG=modpat_curTheme->note_col[1]*color_div;
+                                            colB=modpat_curTheme->note_col[2]*color_div;
+                                        }
                                         str_data[k++]='{';str_data[k++]='#';
                                         str_data[k++]=dec2hex[(colR>>4)&0xF];str_data[k++]=dec2hex[colR&0xF];
                                         str_data[k++]=dec2hex[(colG>>4)&0xF];str_data[k++]=dec2hex[colG&0xF];
@@ -7046,9 +7059,15 @@ extern "C" int current_sample;
                                             str_data[k++]=ASCII_MIDDOT[0];str_data[k++]=ASCII_MIDDOT[1];
                                         }
                                         
-                                        colR=modpat_curTheme->instrument_col[0]*color_div;
-                                        colG=modpat_curTheme->instrument_col[1]*color_div;
-                                        colB=modpat_curTheme->instrument_col[2]*color_div;
+                                        if (highlight) {
+                                            colR=modpat_curTheme->instrument_colH[0]*color_div;
+                                            colG=modpat_curTheme->instrument_colH[1]*color_div;
+                                            colB=modpat_curTheme->instrument_colH[2]*color_div;
+                                        } else {
+                                            colR=modpat_curTheme->instrument_col[0]*color_div;
+                                            colG=modpat_curTheme->instrument_col[1]*color_div;
+                                            colB=modpat_curTheme->instrument_col[2]*color_div;
+                                        }
                                         str_data[k++]='{';str_data[k++]='#';
                                         str_data[k++]=dec2hex[(colR>>4)&0xF];str_data[k++]=dec2hex[colR&0xF];
                                         str_data[k++]=dec2hex[(colG>>4)&0xF];str_data[k++]=dec2hex[colG&0xF];
@@ -7063,9 +7082,15 @@ extern "C" int current_sample;
                                             str_data[k++]=ASCII_MIDDOT[0];str_data[k++]=ASCII_MIDDOT[1];
                                         }
                                         
-                                        colR=modpat_curTheme->volume_col[0]*color_div;
-                                        colG=modpat_curTheme->volume_col[1]*color_div;
-                                        colB=modpat_curTheme->volume_col[2]*color_div;
+                                        if (highlight) {
+                                            colR=modpat_curTheme->volume_colH[0]*color_div;
+                                            colG=modpat_curTheme->volume_colH[1]*color_div;
+                                            colB=modpat_curTheme->volume_colH[2]*color_div;
+                                        } else {
+                                            colR=modpat_curTheme->volume_col[0]*color_div;
+                                            colG=modpat_curTheme->volume_col[1]*color_div;
+                                            colB=modpat_curTheme->volume_col[2]*color_div;
+                                        }
                                         str_data[k++]='{';str_data[k++]='#';
                                         str_data[k++]=dec2hex[(colR>>4)&0xF];str_data[k++]=dec2hex[colR&0xF];
                                         str_data[k++]=dec2hex[(colG>>4)&0xF];str_data[k++]=dec2hex[colG&0xF];
@@ -7080,9 +7105,15 @@ extern "C" int current_sample;
                                             str_data[k++]=ASCII_MIDDOT[0];str_data[k++]=ASCII_MIDDOT[1];
                                         }
                                         
-                                        colR=modpat_curTheme->effect_col[0]*color_div;
-                                        colG=modpat_curTheme->effect_col[1]*color_div;
-                                        colB=modpat_curTheme->effect_col[2]*color_div;
+                                        if (highlight) {
+                                            colR=modpat_curTheme->effect_colH[0]*color_div;
+                                            colG=modpat_curTheme->effect_colH[1]*color_div;
+                                            colB=modpat_curTheme->effect_colH[2]*color_div;
+                                        } else {
+                                            colR=modpat_curTheme->effect_col[0]*color_div;
+                                            colG=modpat_curTheme->effect_col[1]*color_div;
+                                            colB=modpat_curTheme->effect_col[2]*color_div;
+                                        }
                                         str_data[k++]='{';str_data[k++]='#';
                                         str_data[k++]=dec2hex[(colR>>4)&0xF];str_data[k++]=dec2hex[colR&0xF];
                                         str_data[k++]=dec2hex[(colG>>4)&0xF];str_data[k++]=dec2hex[colG&0xF];
@@ -7095,9 +7126,15 @@ extern "C" int current_sample;
                                             str_data[k++]=ASCII_MIDDOT[0];str_data[k++]=ASCII_MIDDOT[1];
                                         }
                                         
-                                        colR=modpat_curTheme->param_col[0]*color_div;
-                                        colG=modpat_curTheme->param_col[1]*color_div;
-                                        colB=modpat_curTheme->param_col[2]*color_div;
+                                        if (highlight) {
+                                            colR=modpat_curTheme->param_colH[0]*color_div;
+                                            colG=modpat_curTheme->param_colH[1]*color_div;
+                                            colB=modpat_curTheme->param_colH[2]*color_div;
+                                        } else {
+                                            colR=modpat_curTheme->param_col[0]*color_div;
+                                            colG=modpat_curTheme->param_col[1]*color_div;
+                                            colB=modpat_curTheme->param_col[2]*color_div;
+                                        }
                                         str_data[k++]='{';str_data[k++]='#';
                                         str_data[k++]=dec2hex[(colR>>4)&0xF];str_data[k++]=dec2hex[colR&0xF];
                                         str_data[k++]=dec2hex[(colG>>4)&0xF];str_data[k++]=dec2hex[colG&0xF];
@@ -7120,9 +7157,15 @@ extern "C" int current_sample;
                                         cnote=currentNotes[idx].Note;
                                         cinst=currentNotes[idx].Instrument;
                                         
-                                        colR=modpat_curTheme->note_col[0]*color_div;
-                                        colG=modpat_curTheme->note_col[1]*color_div;
-                                        colB=modpat_curTheme->note_col[2]*color_div;
+                                        if (highlight) {
+                                            colR=modpat_curTheme->note_colH[0]*color_div;
+                                            colG=modpat_curTheme->note_colH[1]*color_div;
+                                            colB=modpat_curTheme->note_colH[2]*color_div;
+                                        } else {
+                                            colR=modpat_curTheme->note_col[0]*color_div;
+                                            colG=modpat_curTheme->note_col[1]*color_div;
+                                            colB=modpat_curTheme->note_col[2]*color_div;
+                                        }
                                         str_data[k++]='{';str_data[k++]='#';
                                         str_data[k++]=dec2hex[(colR>>4)&0xF];str_data[k++]=dec2hex[colR&0xF];
                                         str_data[k++]=dec2hex[(colG>>4)&0xF];str_data[k++]=dec2hex[colG&0xF];
@@ -7139,9 +7182,15 @@ extern "C" int current_sample;
                                             str_data[k++]=ASCII_MIDDOT[0];str_data[k++]=ASCII_MIDDOT[1];
                                         }
                                         
-                                        colR=modpat_curTheme->instrument_col[0]*color_div;
-                                        colG=modpat_curTheme->instrument_col[1]*color_div;
-                                        colB=modpat_curTheme->instrument_col[2]*color_div;
+                                        if (highlight) {
+                                            colR=modpat_curTheme->instrument_colH[0]*color_div;
+                                            colG=modpat_curTheme->instrument_colH[1]*color_div;
+                                            colB=modpat_curTheme->instrument_colH[2]*color_div;
+                                        } else {
+                                            colR=modpat_curTheme->instrument_col[0]*color_div;
+                                            colG=modpat_curTheme->instrument_col[1]*color_div;
+                                            colB=modpat_curTheme->instrument_col[2]*color_div;
+                                        }
                                         str_data[k++]='{';str_data[k++]='#';
                                         str_data[k++]=dec2hex[(colR>>4)&0xF];str_data[k++]=dec2hex[colR&0xF];
                                         str_data[k++]=dec2hex[(colG>>4)&0xF];str_data[k++]=dec2hex[colG&0xF];
@@ -7163,9 +7212,15 @@ extern "C" int current_sample;
                                     for (j=0;j<endChan;j++)  {
                                         cnote=currentNotes[idx].Note;
                                         
-                                        colR=modpat_curTheme->note_col[0]*color_div;
-                                        colG=modpat_curTheme->note_col[1]*color_div;
-                                        colB=modpat_curTheme->note_col[2]*color_div;
+                                        if (highlight) {
+                                            colR=modpat_curTheme->note_colH[0]*color_div;
+                                            colG=modpat_curTheme->note_colH[1]*color_div;
+                                            colB=modpat_curTheme->note_colH[2]*color_div;
+                                        } else {
+                                            colR=modpat_curTheme->note_col[0]*color_div;
+                                            colG=modpat_curTheme->note_col[1]*color_div;
+                                            colB=modpat_curTheme->note_col[2]*color_div;
+                                        }
                                         str_data[k++]='{';str_data[k++]='#';
                                         str_data[k++]=dec2hex[(colR>>4)&0xF];str_data[k++]=dec2hex[colR&0xF];
                                         str_data[k++]=dec2hex[(colG>>4)&0xF];str_data[k++]=dec2hex[colG&0xF];
@@ -7196,12 +7251,24 @@ extern "C" int current_sample;
                         
                         cursorPos.y=(i-startRow+1)*lineHeight+(4.0+font_ofsY)*glScaleFactor;
                         cursorPos.x=font_ofsX*glScaleFactor;
-                        ImGui::SetCursorPos(cursorPos);
-                        ImGui::TextAttr("%s",str_data);
+                        
+                        if ((i==currentRow)&&(modpat_curTheme->theme_flag&MDZ_THEMEFLAG_HighlightZoom)) {
+                            cursorPos.y-=font_ofsY*0.3f;
+                            cursorPos.x-=font_ofsX*0.3f;
+                            cursorPos.y-=fontSize*0.15f*glScaleFactor;
+                            ImGui::SetCursorPos(cursorPos);
+                            ImGui::PushFont(font_trackerH[cur_font][ftsizeIdx]);//,fontSize*glScaleFactor*font_trackerSize[cur_font][2]);
+                            ImGui::TextAttr("%s",str_data);
+                            ImGui::PopFont();
+                        } else {
+                            ImGui::SetCursorPos(cursorPos);
+                            ImGui::TextAttr("%s",str_data);
+                        }
+                        
                         
 //                        NSLog(@"str_data. size:%d\n%s",strlen(str_data),str_data);
                         
-                        modPatternLineSize=ImGui::CalcTextSize(str_data).x;
+                        if (note_avail) modPatternLineSize=ImGui::CalcTextSize(str_data).x;
 //                        NSLog(@"msize2: %f",modPatternLineSize);
                     }
                     ImGui::SetScrollX(-movePxMOD*glScaleFactor);
@@ -7224,7 +7291,7 @@ extern "C" int current_sample;
                                 str_data[(j-0)*11+5]='0'+(j+1)%10;
                             }
                             str_data[(endChan-1-0)*11+9]=0;
-                            xofs=0.0f;
+                            xofs=0;
                             break;
                         case 1:
                             for (j=0;j<endChan;j++) {
@@ -7244,7 +7311,17 @@ extern "C" int current_sample;
                             break;
                     }
                     ImGui::SetCursorPos(ImVec2(-xofs+font_ofsX*glScaleFactor,(4.0+font_ofsY)*glScaleFactor));
-                    ImGui::Text("%s",str_data);
+                    
+                    colR=modpat_curTheme->header_col[0];
+                    colG=modpat_curTheme->header_col[1];
+                    colB=modpat_curTheme->header_col[2];
+                    
+                    //add an extract space in the string to ensure we can scroll far enough, won't be displayed
+                    j=strlen(str_data);
+                    str_data[j++]=' ';str_data[j++]=' ';str_data[j++]=' ';str_data[j++]=' ';
+                    str_data[j]=0;
+                    
+                    ImGui::TextAttr("{#%02X%02X%02X}%s",colR,colG,colB,str_data);
 
                     ImGui::SetScrollX(-movePxMOD*glScaleFactor);
                     ImGui::End();

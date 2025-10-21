@@ -6,24 +6,18 @@
  *  Copyright 2010 __YoyoFR / Yohann Magnien__. All rights reserved.
  *
  */
+
 #define BLOOM_BLUR_ITERATIONS 7 //
 
-//#define R_BASE1 0xEC
-//#define G_BASE1 0xAD
-//#define B_BASE1 0xF0
-//
-//#define R_BASE2 0xB0
-//#define G_BASE2 0x90
-//#define B_BASE2 0xFF
+#define INIT_COL(a,b) a[0]=b[0];a[1]=b[1];a[2]=b[2];
 
-#define MODPATTERN_FRAME_COLHIGH1 modpat_curTheme->frame_base1[0],modpat_curTheme->frame_base1[1],modpat_curTheme->frame_base1[2],255
-#define MODPATTERN_FRAME_COLHIGH2 modpat_curTheme->frame_base2[0],modpat_curTheme->frame_base2[1],modpat_curTheme->frame_base2[2],255
+#define ARG_COL(a) a[0],a[1],a[2]
 
-#define MODPATTERN_FRAME_COLMED1 modpat_curTheme->frame_base1[0]/3,modpat_curTheme->frame_base1[1]/3,modpat_curTheme->frame_base1[2]/3,255
-#define MODPATTERN_FRAME_COLMED2 modpat_curTheme->frame_base2[0]/3,modpat_curTheme->frame_base2[1]/3,modpat_curTheme->frame_base2[2]/3,255
+#define BOOST_COL(a) a[0]*=1.8f;a[0]+=(255-a[0])/4.0f;if (a[0]>255) a[0]=255;\
+                       a[1]*=1.8f;a[1]+=(255-a[1])/4.0f;if (a[1]>255) a[1]=255;\
+                       a[2]*=1.8f;a[2]+=(255-a[2])/4.0f;if (a[2]>255) a[1]=255;
 
-#define MODPATTERN_FRAME_COLLOW1 modpat_curTheme->frame_base1[0]/5,modpat_curTheme->frame_base1[1]/5,modpat_curTheme->frame_base1[2]/5,255
-#define MODPATTERN_FRAME_COLLOW2 modpat_curTheme->frame_base2[0]/5,modpat_curTheme->frame_base2[1]/5,modpat_curTheme->frame_base2[2]/5,255
+#define DIM_COL(a) a[0]/=2;a[1]/=2;a[2]/=2;
 
 #define mdz_getBundledResFilePath(name) [[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:name] UTF8String]
 
@@ -37,9 +31,6 @@ extern int NOTES_DISPLAY_TOPMARGIN;
 #import "SettingsGenViewController.h"
 extern volatile t_settings settings[MAX_SETTINGS];
 
-//#import "Font.h"
-//#import "GLString.h"
-
 //--------------------------------------------------
 // ImGui
 //--------------------------------------------------
@@ -48,22 +39,6 @@ extern volatile t_settings settings[MAX_SETTINGS];
 #include "../utils/imgui/backends/imgui_impl_opengl3.h"
 
 extern ImFont  *font_menu[4];
-
-
-#define glPushMatrix(...)
-#define glTranslatef(...)
-#define glPushMatrix(...)
-#define glPopMatrix(...)
-#define glEnableClientState(...)
-#define glVertexPointer(...)
-#define glColorPointer(...)
-#define glDisableClientState(...)
-
-#define glMatrixMode(...)
-#define glLoadIdentity(...)
-
-#define glFrustumf(...)
-
 
 
 unsigned int data_midifx_pal1[32];/*={
@@ -1305,12 +1280,12 @@ void RenderUtils::DrawChanLayout(uint _ww,uint _hh,int display_note_mode,int cha
     LineVertexF *pts;
     
     switch (display_note_mode){
-        case 0:col_size=11*char_width;col_ofs=(char_width)*2.5f-1;break;
-        case 1:col_size=6*char_width;col_ofs=(char_width)*2.5f-1;break;
-        case 2:col_size=4*char_width;col_ofs=(char_width)*2.5f-1;break;
+        case 0:col_size=11*char_width;col_ofs=(char_width)*3.0f-4.0f;break;
+        case 1:col_size=6*char_width;col_ofs=(char_width)*3.0f-4.0f;break;
+        case 2:col_size=4*char_width;col_ofs=(char_width)*3.0f-4.0f;break;
     }
     
-    pts=(LineVertexF*)malloc(sizeof(LineVertexF)*6*((chanNb+1)*7+4));
+    pts=(LineVertexF*)malloc(sizeof(LineVertexF)*6*((chanNb+1)*8+9+1));
     if (!pts) {
         NSLog(@"%s - cannot allocate memory",__func__);
         return;
@@ -1319,139 +1294,292 @@ void RenderUtils::DrawChanLayout(uint _ww,uint _hh,int display_note_mode,int cha
     min_w=fmin(min_w,_ww);
     
     //border / lines nb
-    
-
+    int col1[3],col2[3];
+    INIT_COL(col1,modpat_curTheme->frame_base1);
+    INIT_COL(col2,modpat_curTheme->frame_base2);
+    BOOST_COL(col1);
+    BOOST_COL(col2);
     count+=RenderUtils::buildQuad(&(pts[count]),
                                   0,     0,
                                   2, 0,
-                                  2,  _hh-(char_height+2-0)-2,
-                                  0,      _hh-(char_height+2-0)-2,
-                                  MODPATTERN_FRAME_COLHIGH1,
-                                  MODPATTERN_FRAME_COLHIGH2,
-                                  MODPATTERN_FRAME_COLHIGH2,
-                                  MODPATTERN_FRAME_COLHIGH1,
+                                  2,  _hh/*-(char_height+2-0)-2*/,
+                                  0,      _hh/*-(char_height+2-0)-2*/,
+                                  ARG_COL(col1),255,
+                                  ARG_COL(col2),255,
+                                  ARG_COL(col2),255,
+                                  ARG_COL(col1),255,
                                   _ww,_hh);
 
 
-    count+=RenderUtils::buildQuad(&(pts[count]),
-                                  2,     0,
-                                  col_ofs-2, 0,
-                                  col_ofs-2,  _hh-(char_height+2-0)-2,
-                                  2,      _hh-(char_height+2-0)-2,
-                                  MODPATTERN_FRAME_COLMED1,
-                                  MODPATTERN_FRAME_COLMED2,
-                                  MODPATTERN_FRAME_COLMED2,
-                                  MODPATTERN_FRAME_COLMED1,
-                                  _ww,_hh);
-        
+    if (modpat_curTheme->theme_flag&MDZ_THEMEFLAG_NoFillLineNb) {
+        INIT_COL(col1,modpat_curTheme->frame_base1);
+        INIT_COL(col2,modpat_curTheme->frame_base2);
+        count+=RenderUtils::buildQuad(&(pts[count]),
+                                      2.0f, _hh-(char_height+2-0)-2,
+                                      4.0f, _hh-(char_height+2-0)-2,
+                                      4.0f,    0,
+                                      2.0f,    0,
+                                      ARG_COL(col1),255,
+                                      ARG_COL(col1),255,
+                                      ARG_COL(col2),255,
+                                      ARG_COL(col2),255,
+                                      _ww,_hh);
+        DIM_COL(col1);
+        DIM_COL(col2);
+        count+=RenderUtils::buildQuad(&(pts[count]),
+                                      4.0f, _hh-(char_height+2-0)-2,
+                                      6.0f, _hh-(char_height+2-0)-2,
+                                      6.0f,    0,
+                                      4.0f,    0,
+                                      ARG_COL(col1),255,
+                                      ARG_COL(col1),255,
+                                      ARG_COL(col2),255,
+                                      ARG_COL(col2),255,
+                                      _ww,_hh);
+        INIT_COL(col1,modpat_curTheme->frame_base1);
+        INIT_COL(col2,modpat_curTheme->frame_base2);
+        BOOST_COL(col1);
+        BOOST_COL(col2);
+        count+=RenderUtils::buildQuad(&(pts[count]),
+                                      col_ofs-6.0f, _hh-(char_height+2-0)-2,
+                                      col_ofs-6.0f+2.0f, _hh-(char_height+2-0)-2,
+                                      col_ofs-6.0f+2.0f,    0,
+                                      col_ofs-6.0f,    0,
+                                      ARG_COL(col1),255,
+                                      ARG_COL(col1),255,
+                                      ARG_COL(col2),255,
+                                      ARG_COL(col2),255,
+                                      _ww,_hh);
+        INIT_COL(col1,modpat_curTheme->frame_base1);
+        INIT_COL(col2,modpat_curTheme->frame_base2);
+        count+=RenderUtils::buildQuad(&(pts[count]),
+                                      col_ofs-4.0f, _hh-(char_height+2-0)-2,
+                                      col_ofs-4.0f+2.0f, _hh-(char_height+2-0)-2,
+                                      col_ofs-4.0f+2.0f,    0,
+                                      col_ofs-4.0f,    0,
+                                      ARG_COL(col1),255,
+                                      ARG_COL(col1),255,
+                                      ARG_COL(col2),255,
+                                      ARG_COL(col2),255,
+                                      _ww,_hh);
+    } else {
+        INIT_COL(col1,modpat_curTheme->frame_base1);
+        INIT_COL(col2,modpat_curTheme->frame_base2);
+        count+=RenderUtils::buildQuad(&(pts[count]),
+                                      2,     0,
+                                      col_ofs-2, 0,
+                                      col_ofs-2,  _hh-(char_height+2-0)-2,
+                                      2,      _hh-(char_height+2-0)-2,
+                                      ARG_COL(col1),255,
+                                      ARG_COL(col2),255,
+                                      ARG_COL(col1),255,
+                                      ARG_COL(col1),255,
+                                      _ww,_hh);
+    }
+    INIT_COL(col1,modpat_curTheme->frame_base1);
+    INIT_COL(col2,modpat_curTheme->frame_base2);
+    DIM_COL(col1);
+    DIM_COL(col2);
     count+=RenderUtils::buildQuad(&(pts[count]),
                                   col_ofs-2,     0,
                                   col_ofs, 0,
                                   col_ofs,  _hh-(char_height+2-0)-2,
                                   col_ofs-2,      _hh-(char_height+2-0)-2,
-                                  MODPATTERN_FRAME_COLLOW1,
-                                  MODPATTERN_FRAME_COLLOW2,
-                                  MODPATTERN_FRAME_COLLOW2,
-                                  MODPATTERN_FRAME_COLLOW1,
+                                  ARG_COL(col1),255,
+                                  ARG_COL(col2),255,
+                                  ARG_COL(col2),255,
+                                  ARG_COL(col1),255,
                                   _ww,_hh);
         
+    INIT_COL(col1,modpat_curTheme->frame_base1);
+    INIT_COL(col2,modpat_curTheme->frame_base2);
+    BOOST_COL(col1);
+    BOOST_COL(col2);
     count+=RenderUtils::buildQuad(&(pts[count]),
-                                  0,     _hh-(char_height+2-0),
-                                  col_ofs, _hh-(char_height+2-0),
-                                  col_ofs,  _hh-(char_height+2-0)-2,
-                                  0,      _hh-(char_height+2-0)-2,
-                                  MODPATTERN_FRAME_COLHIGH1,
-                                  MODPATTERN_FRAME_COLHIGH1,
-                                  MODPATTERN_FRAME_COLHIGH2,
-                                  MODPATTERN_FRAME_COLHIGH2,
+                                  0,     _hh/*-(char_height+2-0)*/,
+                                  col_ofs, _hh/*-(char_height+2-0)*/,
+                                  col_ofs,  _hh/*-(char_height+2-0)*/-2,
+                                  0,      _hh/*-(char_height+2-0)*/-2,
+                                  ARG_COL(col2),255,
+                                  ARG_COL(col1),255,
+                                  ARG_COL(col1),255,
+                                  ARG_COL(col2),255,
                                   _ww,_hh);
 
 
     //then draw channels frame
+    int j=0;
     for (int i=1; i<=chanNb; i++) {
         if ( ((pixOfs+col_size*i+col_ofs)>=col_ofs) && ( (pixOfs+col_ofs+col_size*(i-1))<_ww) ) {
             //Header line
-            float min_x=fmax(pixOfs+col_ofs+col_size*(i-1),col_ofs);
+            j++;
+            float min_x=pixOfs+col_ofs+col_size*(i-1);
+            if (min_x<col_ofs) min_x=col_ofs;
+            
+            INIT_COL(col1,modpat_curTheme->frame_base1);
+            INIT_COL(col2,modpat_curTheme->frame_base2);
+            BOOST_COL(col1);
+            BOOST_COL(col2);
             count+=RenderUtils::buildQuad(&(pts[count]),
                                           min_x,     _hh,
                                           pixOfs+col_ofs+col_size*i, _hh,
-                                          pixOfs+col_ofs+col_size*i, _hh-2,
+                                          pixOfs+col_ofs+col_size*i+2, _hh-2,
                                           min_x,     _hh-2,
-                                          MODPATTERN_FRAME_COLHIGH1,
-                                          MODPATTERN_FRAME_COLHIGH2,
-                                          MODPATTERN_FRAME_COLHIGH2,
-                                          MODPATTERN_FRAME_COLHIGH1,
+                                          ARG_COL(col1),255,
+                                          ARG_COL(col2),255,
+                                          ARG_COL(col2),255,
+                                          ARG_COL(col1),255,
                                           _ww,_hh);
-            
+            INIT_COL(col1,modpat_curTheme->frame_base1);
+            INIT_COL(col2,modpat_curTheme->frame_base2);
             count+=RenderUtils::buildQuad(&(pts[count]),
                                           min_x,     _hh-2,
                                           pixOfs+col_ofs+col_size*i, _hh-2,
                                           pixOfs+col_ofs+col_size*i, _hh-(char_height+2-0)-2,
                                           min_x,     _hh-(char_height+2-0)-2,
-                                          MODPATTERN_FRAME_COLMED1,
-                                          MODPATTERN_FRAME_COLMED2,
-                                          MODPATTERN_FRAME_COLMED2,
-                                          MODPATTERN_FRAME_COLMED1,
+                                          ARG_COL(col1),255,
+                                          ARG_COL(col2),255,
+                                          ARG_COL(col2),255,
+                                          ARG_COL(col1),255,
                                           _ww,_hh);
+            INIT_COL(col1,modpat_curTheme->frame_base1);
+            INIT_COL(col2,modpat_curTheme->frame_base2);
+            DIM_COL(col1);
+            DIM_COL(col2);
+            count+=RenderUtils::buildQuad(&(pts[count]),
+                                          (j>1?4.0:0)+min_x,     _hh-(char_height+2-0)-2,
+                                          (j>1?4.0:0)+pixOfs+col_ofs+col_size*i, _hh-(char_height+2-0)-2,
+                                          (j>1?4.0:0)+pixOfs+col_ofs+col_size*i, _hh-(char_height+2-0),
+                                          (j>1?4.0:0)+min_x,     _hh-(char_height+2-0),
+                                          ARG_COL(col1),255,
+                                          ARG_COL(col2),255,
+                                          ARG_COL(col2),255,
+                                          ARG_COL(col1),255,
+                                          _ww,_hh);
+            if (j>1) {
+                INIT_COL(col1,modpat_curTheme->frame_base1);
+                INIT_COL(col2,modpat_curTheme->frame_base2);
+                BOOST_COL(col1);
+                BOOST_COL(col2);
+                count+=RenderUtils::buildQuad(&(pts[count]),
+                                              min_x-2,     _hh,
+                                              min_x, _hh,
+                                              min_x,  _hh-(char_height+2-0),
+                                              min_x-2,      _hh-(char_height+2-0),
+                                              ARG_COL(col2),255,
+                                              ARG_COL(col2),255,
+                                              ARG_COL(col1),255,
+                                              ARG_COL(col1),255,
+                                              _ww,_hh);
+            } else {
+                INIT_COL(col1,modpat_curTheme->frame_base1);
+                INIT_COL(col2,modpat_curTheme->frame_base2);
+                BOOST_COL(col1);
+                BOOST_COL(col2);
+                count+=RenderUtils::buildQuad(&(pts[count]),
+                                              min_x-2,     _hh,
+                                              min_x, _hh,
+                                              min_x,  _hh-(char_height+2-0),
+                                              min_x-2,      _hh-(char_height+2-0),
+                                              ARG_COL(col1),255,
+                                              ARG_COL(col1),255,
+                                              ARG_COL(col2),255,
+                                              ARG_COL(col2),255,
+                                              _ww,_hh);
+            }
             
-            count+=RenderUtils::buildQuad(&(pts[count]),
-                                          min_x,     _hh-(char_height+2-0)-2,
-                                          pixOfs+col_ofs+col_size*i, _hh-(char_height+2-0)-2,
-                                          pixOfs+col_ofs+col_size*i, _hh-(char_height+2-0),
-                                          min_x,     _hh-(char_height+2-0),
-                                          MODPATTERN_FRAME_COLLOW1,
-                                          MODPATTERN_FRAME_COLLOW2,
-                                          MODPATTERN_FRAME_COLLOW2,
-                                          MODPATTERN_FRAME_COLLOW1,
-                                          _ww,_hh);
-            count+=RenderUtils::buildQuad(&(pts[count]),
-                                          min_x-2,     _hh,
-                                          min_x, _hh,
-                                          min_x,  _hh-(char_height+2-0),
-                                          min_x-2,      _hh-(char_height+2-0),
-                                          MODPATTERN_FRAME_COLHIGH1,
-                                          MODPATTERN_FRAME_COLHIGH2,
-                                          MODPATTERN_FRAME_COLHIGH2,
-                                          MODPATTERN_FRAME_COLHIGH1,
-                                          _ww,_hh);
+            //Draw header BG if different from frame_base1
+                if ( (modpat_curTheme->headerBG_col[0]!=modpat_curTheme->frame_base1[0]) ||
+                    (modpat_curTheme->headerBG_col[1]!=modpat_curTheme->frame_base1[1]) ||
+                    (modpat_curTheme->headerBG_col[2]!=modpat_curTheme->frame_base1[2]) ) {
+                    //headerbg: try to have 1 char margin on each side
+                    float header_frame_ofsX=(col_size-char_width*4)/2;
+                    //headerbg: if not possible try to have 0.5 char on each side
+                    if (header_frame_ofsX<0) header_frame_ofsX=(col_size-char_width*3)/2;
+                    //headerbg: if not possible limit to 2 pixels on each side
+                    if (header_frame_ofsX<0) header_frame_ofsX=(col_size-2)/2;
+                    //headerbg: if not possible no margin
+                    if (header_frame_ofsX<0) header_frame_ofsX=0;
+                    
+                    if (pixOfs+col_size*i-header_frame_ofsX>0) {
+                        
+                        float hmin_x;
+                        hmin_x=pixOfs+col_ofs+col_size*(i-1)+header_frame_ofsX;
+                        if (hmin_x<col_ofs) hmin_x=col_ofs;
+                        
+                        INIT_COL(col1,modpat_curTheme->headerBG_col);
+                        count+=RenderUtils::buildQuad(&(pts[count]),
+                                                      hmin_x,     _hh-2-2,
+                                                      pixOfs+col_ofs+col_size*i-header_frame_ofsX, _hh-2-2,
+                                                      pixOfs+col_ofs+col_size*i-header_frame_ofsX, _hh-2-(char_height+2-2),
+                                                      hmin_x,     _hh-2-(char_height+2-2),
+                                                      ARG_COL(col1),255,
+                                                      ARG_COL(col1),255,
+                                                      ARG_COL(col1),255,
+                                                      ARG_COL(col1),255,
+                                                      _ww,_hh);
+                    }
+            }
         }
         //channel frame
-        if ( ( (pixOfs+col_size*i+col_ofs-2.0f+1.0)>col_ofs ) && ( (pixOfs+col_size*i+col_ofs-2.0f)<=_ww) ) {
+        if (( (pixOfs+col_size*i+col_ofs-2.0f+1.0)>col_ofs ) && ( (pixOfs+col_size*i+col_ofs-2.0f)<=_ww) ) {
+            INIT_COL(col1,modpat_curTheme->frame_base1);
+            INIT_COL(col2,modpat_curTheme->frame_base2);
+            BOOST_COL(col1);
+            BOOST_COL(col2);
             count+=RenderUtils::buildQuad(&(pts[count]),
                                           pixOfs+col_size*i+col_ofs-2.0f, _hh-2,
                                           pixOfs+col_size*i+col_ofs-2.0f+1.0, _hh-2,
                                           pixOfs+col_size*i+col_ofs-2.0f+1.0,    0,
                                           pixOfs+col_size*i+col_ofs-2.0f,    0,
-                                          MODPATTERN_FRAME_COLHIGH1,
-                                          MODPATTERN_FRAME_COLHIGH1,
-                                          MODPATTERN_FRAME_COLHIGH2,
-                                          MODPATTERN_FRAME_COLHIGH2,
+                                          ARG_COL(col1),255,
+                                          ARG_COL(col1),255,
+                                          ARG_COL(col2),255,
+                                          ARG_COL(col2),255,
                                           _ww,_hh);
-            
+            INIT_COL(col1,modpat_curTheme->frame_base1);
+            INIT_COL(col2,modpat_curTheme->frame_base2);
             count+=RenderUtils::buildQuad(&(pts[count]),
                                           pixOfs+col_size*i+col_ofs-1, _hh-2,
                                           pixOfs+col_size*i+col_ofs+2.0, _hh-2,
                                           pixOfs+col_size*i+col_ofs+2.0,    0,
                                           pixOfs+col_size*i+col_ofs-1,    0,
-                                          MODPATTERN_FRAME_COLMED1,
-                                          MODPATTERN_FRAME_COLMED1,
-                                          MODPATTERN_FRAME_COLMED2,
-                                          MODPATTERN_FRAME_COLMED2,
+                                          ARG_COL(col1),255,
+                                          ARG_COL(col1),255,
+                                          ARG_COL(col2),255,
+                                          ARG_COL(col2),255,
                                           _ww,_hh);
-            
+            INIT_COL(col1,modpat_curTheme->frame_base1);
+            INIT_COL(col2,modpat_curTheme->frame_base2);
+            DIM_COL(col1);
+            DIM_COL(col2);
             count+=RenderUtils::buildQuad(&(pts[count]),
                                           pixOfs+col_size*i+col_ofs+2, _hh-2,
-                                          pixOfs+col_size*i+col_ofs+2+1.0, _hh-2,
-                                          pixOfs+col_size*i+col_ofs+2+1.0,    0,
+                                          pixOfs+col_size*i+col_ofs+2+2.0, _hh-2,
+                                          pixOfs+col_size*i+col_ofs+2+2.0,    0,
                                           pixOfs+col_size*i+col_ofs+2,    0,
-                                          MODPATTERN_FRAME_COLLOW1,
-                                          MODPATTERN_FRAME_COLLOW1,
-                                          MODPATTERN_FRAME_COLLOW2,
-                                          MODPATTERN_FRAME_COLLOW2,
+                                          ARG_COL(col1),255,
+                                          ARG_COL(col1),255,
+                                          ARG_COL(col2),255,
+                                          ARG_COL(col2),255,
                                           _ww,_hh);
         }
     }
     
+    //Top left corner
+    if (1) {
+        INIT_COL(col1,modpat_curTheme->frame_base1);
+        count+=RenderUtils::buildQuad(&(pts[count]),
+                                      2,     _hh-2,
+                                      col_ofs, _hh-2,
+                                      col_ofs,  _hh-2-(char_height+2),
+                                      2,      _hh-2-(char_height+2),
+                                      ARG_COL(col1),255,
+                                      ARG_COL(col1),255,
+                                      ARG_COL(col1),255,
+                                      ARG_COL(col1),255,
+                                      _ww,_hh);
+    }
     // Use the program object
     glUseProgram ( userData_simpleRender2D->programObject );
     
@@ -1465,6 +1593,8 @@ void RenderUtils::DrawChanLayout(uint _ww,uint _hh,int display_note_mode,int cha
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 //    glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+    
+    glEnable(GL_BLEND);
     
     glDisable(GL_CULL_FACE);
     glDisable(GL_DEPTH_TEST);
@@ -1495,12 +1625,12 @@ void RenderUtils::DrawChanLayoutAfter(uint _ww,uint _hh,int display_note_mode,in
     LineVertexF *pts;
     
     switch (display_note_mode){
-        case 0:col_size=11*char_width;col_ofs=(char_width)*2.5f-1;break;
-        case 1:col_size=6*char_width;col_ofs=(char_width)*2.5f-1;break;
-        case 2:col_size=4*char_width;col_ofs=(char_width)*2.5f-1;break;
+        case 0:col_size=11*char_width;col_ofs=(char_width)*3.0f-4.0f;break;
+        case 1:col_size=6*char_width;col_ofs=(char_width)*3.0f-4.0f;break;
+        case 2:col_size=4*char_width;col_ofs=(char_width)*3.0f-4.0f;break;
     }
     
-    pts=(LineVertexF*)malloc(sizeof(LineVertexF)*6*(3+chanNb));
+    pts=(LineVertexF*)malloc(sizeof(LineVertexF)*6*(3+chanNb*4));
     if (!pts) {
         NSLog(@"%s - cannot allocate memory",__func__);
         return;
@@ -1516,45 +1646,116 @@ void RenderUtils::DrawChanLayoutAfter(uint _ww,uint _hh,int display_note_mode,in
     
     //Volumes bar
     if (volumeData) {
+        float barWidth=col_size/4;
+        float barOfsX=(col_size-barWidth)/2;
+        float barShadowOfsX=6.0;
+        float barOfsY;
+        if (barShadowOfsX>barWidth/4) barShadowOfsX=barWidth/4;
         for (int i=0; i<chanNb; i++) {
             //if (col_size*i+col_ofs-2.0f>_ww) break;
-            int cr,cg,cb,crb,cgb,cbb;
-            crb=modpat_curTheme->volume_bar[0];
-            cgb=modpat_curTheme->volume_bar[1];
-            cbb=modpat_curTheme->volume_bar[2];
-            cr=crb+volumeData[i]*2; if (cr<0) cr=0; if (cr>255) cr=255;
-            cg=cgb+volumeData[i]/4; if (cg<0) cg=0; if (cg>255) cg=255;
-            cb=cbb+volumeData[i]; if (cb<0) cb=0; if (cb>255) cb=255;
+            int cr,cg,cb,crbase,cgbase,cbbase;
+            crbase=modpat_curTheme->volume_barL[0];
+            cgbase=modpat_curTheme->volume_barL[1];
+            cbbase=modpat_curTheme->volume_barL[2];
             
-            if ( ((pixOfs+col_size*i+col_ofs+col_size*1/5-6.0)<_ww) &&
-                 ((pixOfs+col_size*i+col_ofs+col_size*4/5-6.0)>0)
-                )
-            count+=RenderUtils::buildQuad(&(pts[count]),
-                                          pixOfs+col_size*i+col_ofs+col_size*1/5-6.0, 0,
-                                          pixOfs+col_size*i+col_ofs+col_size*4/5-6.0, 0,
-                                          pixOfs+col_size*i+col_ofs+col_size*4/5-6.0, volumeData[i]*_hh/256/5,
-                                          pixOfs+col_size*i+col_ofs+col_size*1/5-6.0, volumeData[i]*_hh/256/5,
-                                          crb,cgb,cbb,255,
-                                          crb,cgb,cbb,255,
-                                          cr,cg,cb,255,
-                                          cr,cg,cb,255,
-                                          _ww,_hh);
+            if (modpat_curTheme->theme_flag&MDZ_THEMEFLAG_VolDep) {
+                cr=(crbase*(255-volumeData[i])+modpat_curTheme->volume_barH[0]*volumeData[i])/255;
+                cg=(cgbase*(255-volumeData[i])+modpat_curTheme->volume_barH[1]*volumeData[i])/255;
+                cb=(cbbase*(255-volumeData[i])+modpat_curTheme->volume_barH[2]*volumeData[i])/255;
+            } else {
+                cr=modpat_curTheme->volume_barH[0];
+                cg=modpat_curTheme->volume_barH[1];
+                cb=modpat_curTheme->volume_barH[2];
+                
+            }
             
+            if ( ((pixOfs+col_size*i+col_ofs+barOfsX-6.0)<_ww) &&
+                 ((pixOfs+col_size*i+col_ofs+barOfsX+barWidth-6.0)>0)
+                ) {
+                count+=RenderUtils::buildQuad(&(pts[count]),
+                                              pixOfs+col_size*i+col_ofs+barOfsX-6.0, 0,
+                                              pixOfs+col_size*i+col_ofs+barOfsX+barWidth-6.0, 0,
+                                              pixOfs+col_size*i+col_ofs+barOfsX+barWidth-6.0, volumeData[i]*_hh/256/5,
+                                              pixOfs+col_size*i+col_ofs+barOfsX-6.0, volumeData[i]*_hh/256/5,
+                                              crbase,cgbase,cbbase,255,
+                                              crbase,cgbase,cbbase,255,
+                                              cr,cg,cb,255,
+                                              cr,cg,cb,255,
+                                              _ww,_hh);
+                
+                if ( (modpat_curTheme->theme_flag&MDZ_THEMEFLAG_BordersLR) ||
+                    (modpat_curTheme->theme_flag&MDZ_THEMEFLAG_BordersTop) ){
+                    if ((modpat_curTheme->theme_flag&MDZ_THEMEFLAG_BordersLR)) {
+                        count+=RenderUtils::buildQuad(&(pts[count]),
+                                                      -barShadowOfsX+pixOfs+col_size*i+col_ofs+barOfsX+barWidth-6.0, 0,
+                                                      pixOfs+col_size*i+col_ofs+barOfsX+barWidth-6.0, 0,
+                                                      pixOfs+col_size*i+col_ofs+barOfsX+barWidth-6.0, volumeData[i]*_hh/256/5,
+                                                      -barShadowOfsX+pixOfs+col_size*i+col_ofs+barOfsX+barWidth-6.0, volumeData[i]*_hh/256/5,
+                                                      crbase/2,cgbase/2,cbbase/2,255,
+                                                      crbase/2,cgbase/2,cbbase/2,255,
+                                                      cr/2,cg/2,cb/2,255,
+                                                      cr/2,cg/2,cb/2,255,
+                                                      _ww,_hh);
+                    }
+                    crbase*=1.4f;
+                    cgbase*=1.4f;
+                    cbbase*=1.4f;
+                    cr*=1.4f;
+                    cg*=1.4f;
+                    cb*=1.4f;
+                    crbase+=(255-crbase)/3;
+                    cgbase+=(255-cgbase)/3;
+                    cbbase+=(255-cbbase)/3;
+                    cr+=(255-cr)/3;
+                    cg+=(255-cg)/3;
+                    cb+=(255-cb)/3;
+                    if (crbase>255) crbase=255;
+                    if (cgbase>255) cgbase=255;
+                    if (cbbase>255) cbbase=255;
+                    if (cr>255) cr=255;
+                    if (cg>255) cg=255;
+                    if (cb>255) cb=255;
+                    count+=RenderUtils::buildQuad(&(pts[count]),
+                                                  pixOfs+col_size*i+col_ofs+barOfsX-6.0, 0,
+                                                  barShadowOfsX+pixOfs+col_size*i+col_ofs+barOfsX-6.0, 0,
+                                                  barShadowOfsX+pixOfs+col_size*i+col_ofs+barOfsX-6.0, volumeData[i]*_hh/256/5,
+                                                  pixOfs+col_size*i+col_ofs+barOfsX-6.0, volumeData[i]*_hh/256/5,
+                                                  crbase,cgbase,cbbase,255,
+                                                  crbase,cgbase,cbbase,255,
+                                                  cr,cg,cb,255,
+                                                  cr,cg,cb,255,
+                                                  _ww,_hh);
+                    if (modpat_curTheme->theme_flag&MDZ_THEMEFLAG_BordersTop) {
+                        if (volumeData[i]*_hh/256/5>6.0) barOfsY=6.0;
+                        else barOfsY=volumeData[i]*_hh/256/5;
+                        count+=RenderUtils::buildQuad(&(pts[count]),
+                                                      pixOfs+col_size*i+col_ofs+barOfsX-6.0, volumeData[i]*_hh/256/5-barOfsY,
+                                                      -barShadowOfsX+pixOfs+col_size*i+col_ofs+barOfsX+barWidth-6.0, volumeData[i]*_hh/256/5-barOfsY,
+                                                      pixOfs+col_size*i+col_ofs+barOfsX+barWidth-6.0, volumeData[i]*_hh/256/5,
+                                                      pixOfs+col_size*i+col_ofs+barOfsX-6.0, volumeData[i]*_hh/256/5,
+                                                      cr,cg,cb,255,
+                                                      cr,cg,cb,255,
+                                                      cr,cg,cb,255,
+                                                      cr,cg,cb,255,
+                                                      _ww,_hh);
+                    }
+                }
+            }
         }
     }
     
     //Draw current playing line
-    ii=_hh-rowToHighlight*char_height-2*char_height-2-char_yOfs;
+    ii=_hh-rowToHighlight*char_height-2*char_height-2-char_yOfs+1.0;
     
     colr=modpat_curTheme->highlight_bar[0];
     colg=modpat_curTheme->highlight_bar[1];
     colb=modpat_curTheme->highlight_bar[2];
     cola=150;
     count+=RenderUtils::buildQuad(&(pts[count]),
-                                  0,     ii-1,
-                                  min_w, ii-1,
-                                  min_w, ii+char_height,
-                                  0,     ii+char_height,
+                                  0,     ii-1-2,
+                                  min_w, ii-1-2,
+                                  min_w, ii+char_height+2,
+                                  0,     ii+char_height+2,
                                   colr,colg,colb,cola,
                                   colr,colg,colb,cola,
                                   colr,colg,colb,cola,
@@ -1562,25 +1763,27 @@ void RenderUtils::DrawChanLayoutAfter(uint _ww,uint _hh,int display_note_mode,in
                                   _ww,_hh);
     
     count+=RenderUtils::buildQuad(&(pts[count]),
-                                  0,     ii-1,
-                                  min_w, ii-1,
-                                  min_w, ii-3,
-                                  0, ii-3,
+                                  0,     ii-1-2,
+                                  min_w, ii-1-2,
+                                  min_w, ii-3-2,
+                                  0, ii-3-2,
                                   colr/2,colg/2,colb/2,cola,
                                   colr/2,colg/2,colb/2,cola,
                                   colr/2,colg/2,colb/2,cola,
                                   colr/2,colg/2,colb/2,cola,
                                   _ww,_hh);
-
-    colr*=1.4f;if (colr>255) colr=255;
-    colg*=1.4f;if (colg>255) colg=255;
-    colb*=1.4f;if (colb>255) colb=255;
-    cola*=1.4f;if (cola>255) cola=255;
+    colr*=1.4f;colg*=1.4f;colb*=1.4f;
+    colr+=(255-colr)/3;
+    colg+=(255-colg)/3;
+    colb+=(255-colb)/3;
+    if (colr>255) colr=255;
+    if (colg>255) colg=255;
+    if (colb>255) colb=255;
     count+=RenderUtils::buildQuad(&(pts[count]),
-                                  0,    ii+char_height-2,
-                                  min_w, ii+char_height-2,
-                                  min_w, ii+char_height,
-                                  0, ii+char_height,
+                                  0,    ii+char_height-2+2,
+                                  min_w, ii+char_height-2+2,
+                                  min_w, ii+char_height+2,
+                                  0, ii+char_height+2,
                                   colr,colg,colb,cola,
                                   colr,colg,colb,cola,
                                   colr,colg,colb,cola,
@@ -1676,6 +1879,7 @@ void RenderUtils::calcNormal(GLfloat v[3][3], GLfloat out[3]) {
 }
 
 void RenderUtils::drawbar(float x,float y,float z,float sx,float sy,float sz,float crt,float cgt,float cbt) {
+    bool cst_col=true;
     float cr,cg,cb;
     //top
     cr=crt;cg=cgt;cb=cbt;
@@ -1691,6 +1895,8 @@ void RenderUtils::drawbar(float x,float y,float z,float sx,float sy,float sz,flo
     vertices[2][0]=x;
     vertices[2][1]=y+sy;
     vertices[2][2]=z+sz;
+    
+    
     vertColor[3][0]=cr;vertColor[3][1]=cg;vertColor[3][2]=cb;
     vertices[3][0]=x+sx;
     vertices[3][1]=y+sy;
@@ -1709,9 +1915,9 @@ void RenderUtils::drawbar(float x,float y,float z,float sx,float sy,float sz,flo
     normals[3][1]=0;
     normals[3][2]=1;
     
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+//    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     //left
-    cr=crt/2;cg=cgt/2;cb=cbt/2;
+    if (!cst_col) {cr=crt/2;cg=cgt/2;cb=cbt/2;}
     vertColor[0][0]=cr;vertColor[0][1]=cg;vertColor[0][2]=cb;
     vertices[0][0]=x;
     vertices[0][1]=y;
@@ -1742,7 +1948,7 @@ void RenderUtils::drawbar(float x,float y,float z,float sx,float sy,float sz,flo
     normals[3][1]=0;
     normals[3][2]=0;
     
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+//    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     //right
     vertColor[0][0]=cr;vertColor[0][1]=cg;vertColor[0][2]=cb;
     vertices[0][0]=x+sx;
@@ -1774,7 +1980,7 @@ void RenderUtils::drawbar(float x,float y,float z,float sx,float sy,float sz,flo
     normals[3][1]=0;
     normals[3][2]=0;
     
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+//    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     //up
     vertColor[0][0]=cr;vertColor[0][1]=cg;vertColor[0][2]=cb;
     vertices[0][0]=x;
@@ -1806,7 +2012,7 @@ void RenderUtils::drawbar(float x,float y,float z,float sx,float sy,float sz,flo
     normals[3][1]=1;
     normals[3][2]=0;
     
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+//    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     //down
     vertColor[0][0]=cr;vertColor[0][1]=cg;vertColor[0][2]=cb;
     vertices[0][0]=x;
@@ -1838,9 +2044,9 @@ void RenderUtils::drawbar(float x,float y,float z,float sx,float sy,float sz,flo
     normals[3][1]=-1;
     normals[3][2]=0;
     
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+//    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     //back
-    cr=crt/4;cg=cgt/4;cb=cbt/4;
+    if (!cst_col) {cr=crt/4;cg=cgt/4;cb=cbt/4;}
     vertColor[0][0]=cr;vertColor[0][1]=cg;vertColor[0][2]=cb;
     vertices[0][0]=x;
     vertices[0][1]=y;
@@ -1872,9 +2078,108 @@ void RenderUtils::drawbar(float x,float y,float z,float sx,float sy,float sz,flo
     normals[3][2]=-1;
     
     
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+//    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     
 }
+
+VertexNData verticesN[36];
+void RenderUtils::drawbarF(float x,float y,float z,float sx,float sy,float sz,float crt,float cgt,float cbt) {
+    float cr,cg,cb;
+    int index=0;
+    
+    //back
+    if (1) {
+        verticesN[index++]=VertexNData(x, y, z+sz,
+                                       0, 0, 1, crt, cgt, cbt, 1.0);
+        verticesN[index++]=VertexNData(x+sx, y, z+sz,
+                                       0, 0, 1, crt, cgt, cbt, 1.0);
+        verticesN[index++]=VertexNData(x+sx, y+sy, z+sz,
+                                       0, 0, 1, crt, cgt, cbt, 1.0);
+        verticesN[index++]=VertexNData(x, y, z+sz,
+                                       0, 0, 1, crt, cgt, cbt, 1.0);
+        verticesN[index++]=VertexNData(x+sx, y+sy, z+sz,
+                                       0, 0, 1, crt, cgt, cbt, 1.0);
+        verticesN[index++]=VertexNData(x, y+sy, z+sz,
+                                       0, 0, 1, crt, cgt, cbt, 1.0);
+    }
+    //left
+    if (1) {
+        verticesN[index++]=VertexNData(x, y, z,
+                                       -1, 0, 0, crt, cgt, cbt, 1.0);
+        verticesN[index++]=VertexNData(x, y+sy, z,
+                                       -1, 0, 0, crt, cgt, cbt, 1.0);
+        verticesN[index++]=VertexNData(x, y+sy, z+sz,
+                                       -1, 0, 0, crt, cgt, cbt, 1.0);
+        verticesN[index++]=VertexNData(x, y, z,
+                                       -1, 0, 0, crt, cgt, cbt, 1.0);
+        verticesN[index++]=VertexNData(x, y+sy, z+sz,
+                                       -1, 0, 0, crt, cgt, cbt, 1.0);
+        verticesN[index++]=VertexNData(x, y, z+sz,
+                                       -1, 0, 0, crt, cgt, cbt, 1.0);
+    }
+    //right
+    if (1) {
+        verticesN[index++]=VertexNData(x+sx, y, z,
+                                       1, 0, 0, crt, cgt, cbt, 1.0);
+        verticesN[index++]=VertexNData(x+sx, y+sy, z,
+                                       1, 0, 0, crt, cgt, cbt, 1.0);
+        verticesN[index++]=VertexNData(x+sx, y+sy, z+sz,
+                                       1, 0, 0, crt, cgt, cbt, 1.0);
+        verticesN[index++]=VertexNData(x+sx, y, z,
+                                       1, 0, 0, crt, cgt, cbt, 1.0);
+        verticesN[index++]=VertexNData(x+sx, y+sy, z+sz,
+                                       1, 0, 0, crt, cgt, cbt, 1.0);
+        verticesN[index++]=VertexNData(x+sx, y, z+sz,
+                                       1, 0, 0, crt, cgt, cbt, 1.0);
+    }
+    //up
+    if (1) {
+        verticesN[index++]=VertexNData(x, y+sy, z,
+                                       0, 1, 0, crt, cgt, cbt, 1.0);
+        verticesN[index++]=VertexNData(x+sx, y+sy, z,
+                                       0, 1, 0, crt, cgt, cbt, 1.0);
+        verticesN[index++]=VertexNData(x+sx, y+sy, z+sz,
+                                       0, 1, 0, crt, cgt, cbt, 1.0);
+        verticesN[index++]=VertexNData(x, y+sy, z,
+                                       0, 1, 0, crt, cgt, cbt, 1.0);
+        verticesN[index++]=VertexNData(x+sx, y+sy, z+sz,
+                                       0, 1, 0, crt, cgt, cbt, 1.0);
+        verticesN[index++]=VertexNData(x, y+sy, z+sz,
+                                       0, 1, 0, crt, cgt, cbt, 1.0);
+    }
+    //down
+    if (1) {
+        verticesN[index++]=VertexNData(x, y, z,
+                                       0, -1, 0, crt, cgt, cbt, 1.0);
+        verticesN[index++]=VertexNData(x+sx, y, z,
+                                       0, -1, 0, crt, cgt, cbt, 1.0);
+        verticesN[index++]=VertexNData(x+sx, y, z+sz,
+                                       0, -1, 0, crt, cgt, cbt, 1.0);
+        verticesN[index++]=VertexNData(x, y, z,
+                                       0, -1, 0, crt, cgt, cbt, 1.0);
+        verticesN[index++]=VertexNData(x+sx, y, z+sz,
+                                       0, -1, 0, crt, cgt, cbt, 1.0);
+        verticesN[index++]=VertexNData(x, y, z+sz,
+                                       0, -1, 0, crt, cgt, cbt, 1.0);
+    }
+    //front
+    if (1) {
+        verticesN[index++]=VertexNData(x, y, z,
+                                       0, 0, -1, crt, cgt, cbt, 1.0);
+        verticesN[index++]=VertexNData(x+sx, y, z,
+                                       0, 0, -1, crt, cgt, cbt, 1.0);
+        verticesN[index++]=VertexNData(x+sx, y+sy, z,
+                                       0, 0, -1, crt, cgt, cbt, 1.0);
+        verticesN[index++]=VertexNData(x, y, z,
+                                       0, 0, -1, crt, cgt, cbt, 1.0);
+        verticesN[index++]=VertexNData(x+sx, y+sy, z,
+                                       0, 0, -1, crt, cgt, cbt, 1.0);
+        verticesN[index++]=VertexNData(x, y+sy, z,
+                                       0, 0, -1, crt, cgt, cbt, 1.0);
+    }
+    glDrawArrays(GL_TRIANGLES, 0, index);
+}
+
 
 void RenderUtils::drawbar3(float x,float y,float z,float sx,float sy,float sz,float crt,float cgt,float cbt) {
     float cr,cg,cb;
@@ -2220,8 +2525,8 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
     lightColor[2]=1.0;
     
     lightPos[0]=0;//10.0f*cos(glm::radians(frameCpt*1.0f));;
-    lightPos[1]=0.0f;
-    lightPos[2]=0.0f;//+30.0f*sin(glm::radians(frameCpt*1.0f));
+    lightPos[1]=50.0f;
+    lightPos[2]=160.0f;//+30.0f*sin(glm::radians(frameCpt*1.0f));
     
     if (!renderIsInit) return;
     
@@ -2263,53 +2568,55 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
     glEnable(GL_BLEND);
     glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
     
-    //glEnable(GL_CULL_FACE);
     glDisable(GL_CULL_FACE);
     // Enable depth test
     glEnable(GL_DEPTH_TEST);
     // Accept fragment if it closer to the camera than the former one
-    glDepthFunc(GL_LESS);
+    glDepthFunc(GL_LEQUAL);
     glDisable(GL_STENCIL_TEST);
     
     GLUserData *curP;
     
-    curP=userData_lightRender3D;
-    glUseProgram ( curP->programObject );
-    GLuint positionAttribHandle = glGetAttribLocation(curP->programObject, "a_position");
+    GLuint positionAttribHandle;
+    GLuint normalAttribHandle;
+    GLuint colorAttribHandle;
     
-    // enable data buffers for shader
-    glEnableVertexAttribArray ( positionAttribHandle );
+    GLuint lightColUnifHandle;
+    GLuint lightPosUnifHandle;
     
-    // Load the vertex data
-    glVertexAttribPointer ( positionAttribHandle, 3, GL_FLOAT, GL_FALSE, sizeof(GLfloat)*3, &(vertices[0][0]) );
-    
-    curP->Projection=glm::frustum(-_hw, _hw, -_hh, _hh, 100.0f, 10000.0f);
-    
-    // Camera matrix
-    curP->View = glm::lookAt(
-        glm::vec3(0,0,3), // Camera in World Space
-        glm::vec3(0,0,0), // and looks at the origin
-        glm::vec3(0,1,0)  // Head is up (set to 0,-1,0 to look upside-down)
-        );
-    
-    curP->Model=glm::mat4(1.0f);
-    
-    /*curP->Model=glm::translate(curP->Model,glm::vec3(0.0,
-                                   0.0,
-                                   -150.0+
-                                    15*(0.8f*sin((float)frameCpt*0.1f*3.14159f/991)+1.7f*sin((float)frameCpt*0.1f*3.14159f/3065)
-                                        -0.3f*sin((float)frameCpt*0.1f*3.14159f/5009))
-                                   ));*/
-    
-    glUniformMatrix4fv ( curP->modelLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Model[0][0]) );
-    glUniformMatrix4fv ( curP->viewLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->View[0][0]) );
-    glUniformMatrix4fv ( curP->projectionLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Projection[0][0]) );
-    x=lightPos[0]-0.1f;
-    y=lightPos[1]-0.1f;
-    z=lightPos[2]-0.1f;
-    sx=sy=sz=0.2f;
-    crt=cgt=cbt=1.0f;
-    drawbar(x,y,z,sx,sy,sz,crt,cgt,cbt);
+    //Show light cube
+    if (0) {
+        curP=userData_lightRender3D;
+        glUseProgram ( curP->programObject );
+        positionAttribHandle = glGetAttribLocation(curP->programObject, "a_position");
+        
+        // enable data buffers for shader
+        glEnableVertexAttribArray ( positionAttribHandle );
+        
+        // Load the vertex data
+        glVertexAttribPointer ( positionAttribHandle, 3, GL_FLOAT, GL_FALSE, sizeof(VertexNData), &(verticesN[0].x) );
+        
+        curP->Projection=glm::frustum(-_hw, _hw, -_hh, _hh, 100.0f, 10000.0f);
+        
+        // Camera matrix
+        curP->View = glm::lookAt(
+                                 glm::vec3(0,0,3), // Camera in World Space
+                                 glm::vec3(0,0,0), // and looks at the origin
+                                 glm::vec3(0,1,0)  // Head is up (set to 0,-1,0 to look upside-down)
+                                 );
+        
+        curP->Model=glm::mat4(1.0f);
+        
+        glUniformMatrix4fv ( curP->modelLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Model[0][0]) );
+        glUniformMatrix4fv ( curP->viewLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->View[0][0]) );
+        glUniformMatrix4fv ( curP->projectionLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Projection[0][0]) );
+        x=lightPos[0]-0.1f;
+        y=lightPos[1]-0.1f;
+        z=lightPos[2]-0.1f;
+        sx=sy=sz=0.2f;
+        crt=cgt=cbt=1.0f;
+        drawbarF(x,y,z,sx,sy,sz,crt,cgt,cbt);
+    }
     
 #if 1
     
@@ -2320,11 +2627,11 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
     // Use the program object
     glUseProgram ( curP->programObject );
     positionAttribHandle = glGetAttribLocation(curP->programObject, "a_position");
-    GLuint normalAttribHandle = glGetAttribLocation(curP->programObject, "a_normal");
-    GLuint colorAttribHandle    = glGetAttribLocation(curP->programObject, "a_color");
+    normalAttribHandle = glGetAttribLocation(curP->programObject, "a_normal");
+    colorAttribHandle    = glGetAttribLocation(curP->programObject, "a_color");
     
-    GLuint lightColUnifHandle    = glGetUniformLocation(curP->programObject, "u_lightColor");
-    GLuint lightPosUnifHandle    = glGetUniformLocation(curP->programObject, "u_lightPos");
+    lightColUnifHandle    = glGetUniformLocation(curP->programObject, "u_lightColor");
+    lightPosUnifHandle    = glGetUniformLocation(curP->programObject, "u_lightPos");
     
     
     // enable data buffers for shader
@@ -2336,18 +2643,12 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
     glUniform3fv ( lightPosUnifHandle, 1, lightPos );
     
     // Load the vertex data
-    glVertexAttribPointer ( positionAttribHandle, 3, GL_FLOAT, GL_FALSE, sizeof(GLfloat)*3, &(vertices[0][0]) );
-    glVertexAttribPointer ( normalAttribHandle, 3, GL_FLOAT, GL_FALSE, sizeof(GLfloat)*3, &(normals[0][0]) );
-    glVertexAttribPointer ( colorAttribHandle, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat)*4, &(vertColor[0][0]) );
-    
+    glVertexAttribPointer ( positionAttribHandle, 3, GL_FLOAT, GL_FALSE, sizeof(VertexNData), &(verticesN[0].x) );
+    glVertexAttribPointer ( normalAttribHandle, 3, GL_FLOAT, GL_FALSE, sizeof(VertexNData), &(verticesN[0].Nx) );
+    glVertexAttribPointer ( colorAttribHandle, 3, GL_FLOAT, GL_FALSE, sizeof(VertexNData), &(verticesN[0].r) );
     //////////////////////////////
     
-    
-    
-    //glFrustumf(-_hw, _hw, -_hh, _hh, 100.0f, 10000.0f);
-    
     // Generate a model view matrix to rotate/translate the cube
-    
     //curP->Projection=glm::perspective(glm::radians(45.f),aspectRatio,80.0f,1000.0f);
     curP->Projection=glm::frustum(-_hw, _hw, -_hh, _hh, 100.0f, 10000.0f);
     
@@ -2361,29 +2662,6 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
     curP->Model=glm::mat4(1.0f);
     
     frameCpt++;
-    
-//    glMatrixMode(GL_MODELVIEW);
-//    glLoadIdentity();
-    
-//    glPushMatrix();                     /* Push The Modelview Matrix */
-//    glEnable(GL_COLOR_MATERIAL);
-//    glEnable( GL_LIGHTING );
-//    glEnable(GL_LIGHT0);
-//    glLightfv(GL_LIGHT0, GL_POSITION, position );
-//    glLightf(GL_LIGHT0, GL_SPOT_CUTOFF, 90);
-//    
-//    glLightfv(GL_LIGHT0, GL_AMBIENT, ambientLight[2]);
-//    glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuseLight[2]);
-//    glLightfv(GL_LIGHT0, GL_SPECULAR, specularLight[2] );
-    
-    
-//    glEnableClientState(GL_NORMAL_ARRAY);
-//    glEnableClientState(GL_VERTEX_ARRAY);
-//    glEnableClientState(GL_COLOR_ARRAY);
-    
-//    glVertexPointer(3, GL_FLOAT, 0, vertices);
-//    glColorPointer(4, GL_FLOAT, 0, vertColor);
-//    glNormalPointer(GL_FLOAT, 0, normals);
     
     switch (mode) {
         case 1:
@@ -2475,7 +2753,6 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
             break;
     }
     
-    vertColor[0][3]=vertColor[1][3]=vertColor[2][3]=vertColor[3][3]=1;
     crt=0;
     cgt=0;
     cbt=0;
@@ -2485,6 +2762,7 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
     sx=sy=24.0/(float)nb_spectrum_bands;
     trans=14+sx;
     
+    //Atari style logo
     if (mode==2) {
         for (int i=0; i<nb_spectrum_bands; i++) {
             /////////////////
@@ -2523,7 +2801,7 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
             glUniformMatrix4fv ( curP->modelLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Model[0][0]) );
             glUniformMatrix4fv ( curP->viewLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->View[0][0]) );
             glUniformMatrix4fv ( curP->projectionLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Projection[0][0]) );
-            drawbar(x,y,z,sx,sy,sz,crt,cgt,cbt);
+            drawbarF(x,y,z,sx,sy,sz,crt,cgt,cbt);
             
             curP->Model=glm::rotate(curP->Model,glm::radians(-(ang+270)),glm::vec3(1,0,0));
             curP->Model=glm::translate(curP->Model, glm::vec3(0,2,-trans));
@@ -2536,13 +2814,13 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
             glUniformMatrix4fv ( curP->modelLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Model[0][0]) );
             glUniformMatrix4fv ( curP->viewLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->View[0][0]) );
             glUniformMatrix4fv ( curP->projectionLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Projection[0][0]) );
-            drawbar(x,y,z,sx,sy,sz,crt,cgt,cbt);
+            drawbarF(x,y,z,sx,sy,sz,crt,cgt,cbt);
             
             curP->Model=glm::rotate(curP->Model,glm::radians(-(ang+270.0f)),glm::vec3(1,0,0));
             curP->Model=glm::translate(curP->Model, glm::vec3(0,2,-trans));
             
             
-            curP->Model=glm::rotate(curP->Model,glm::radians(180.0f),glm::vec3(0,1,0));
+            curP->Model=glm::rotate(curP->Model,glm::radians(-180.0f),glm::vec3(0,1,0));
             
             
             
@@ -2584,7 +2862,7 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
             glUniformMatrix4fv ( curP->modelLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Model[0][0]) );
             glUniformMatrix4fv ( curP->viewLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->View[0][0]) );
             glUniformMatrix4fv ( curP->projectionLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Projection[0][0]) );
-            drawbar(x,y,z,sx,sy,sz,crt,cgt,cbt);
+            drawbarF(x,y,z,sx,sy,sz,crt,cgt,cbt);
             
             curP->Model=glm::rotate(curP->Model,glm::radians(-(ang+270.0f)),glm::vec3(1,0,0));
             curP->Model=glm::translate(curP->Model, glm::vec3(0,2,-trans));
@@ -2597,18 +2875,21 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
             glUniformMatrix4fv ( curP->modelLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Model[0][0]) );
             glUniformMatrix4fv ( curP->viewLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->View[0][0]) );
             glUniformMatrix4fv ( curP->projectionLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Projection[0][0]) );
-            drawbar(x,y,z,sx,sy,sz,crt,cgt,cbt);
+            drawbarF(x,y,z,sx,sy,sz,crt,cgt,cbt);
             
             curP->Model=glm::rotate(curP->Model,glm::radians(-(ang+270.0f)),glm::vec3(1,0,0));
             curP->Model=glm::translate(curP->Model, glm::vec3(0,2,-trans));
             
             
-            curP->Model=glm::rotate(curP->Model,glm::radians(180.0f+90.0f),glm::vec3(0,1,0));
+            curP->Model=glm::rotate(curP->Model,glm::radians(-180.0f-90.0f),glm::vec3(0,1,0));
             
             if (ang<90) ang+=(90.0/(float)nb_spectrum_bands)*1.1;
             if (ang>90) ang=90;
             
-            
+            //used to better manage overlapping cube
+            //allow to have one taking over the other
+            sx=sx-0.001f;
+            sy=sy-0.001f;
         }
         
         curP->Model=glm::rotate(curP->Model,glm::radians(180.0f),glm::vec3(0,0,1));
@@ -2657,7 +2938,7 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
                 glUniformMatrix4fv ( curP->modelLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Model[0][0]) );
                 glUniformMatrix4fv ( curP->viewLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->View[0][0]) );
                 glUniformMatrix4fv ( curP->projectionLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Projection[0][0]) );
-                drawbar(x,y,z,sx,sy,sz,crt,cgt,cbt);
+                drawbarF(x,y,z,sx,sy,sz,crt,cgt,cbt);
                 
                 curP->Model=glm::rotate(curP->Model,glm::radians(-(ang+270.0f)),glm::vec3(1,0,0));
                 curP->Model=glm::translate(curP->Model, glm::vec3(0,2,-trans));
@@ -2670,7 +2951,7 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
                 glUniformMatrix4fv ( curP->modelLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Model[0][0]) );
                 glUniformMatrix4fv ( curP->viewLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->View[0][0]) );
                 glUniformMatrix4fv ( curP->projectionLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Projection[0][0]) );
-                drawbar(x,y,z,sx,sy,sz,crt,cgt,cbt);
+                drawbarF(x,y,z,sx,sy,sz,crt,cgt,cbt);
                 
                 curP->Model=glm::rotate(curP->Model,glm::radians(-(ang+270.0f)),glm::vec3(1,0,0));
                 curP->Model=glm::translate(curP->Model, glm::vec3(0,2,-trans));
@@ -2720,7 +3001,7 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
                 glUniformMatrix4fv ( curP->modelLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Model[0][0]) );
                 glUniformMatrix4fv ( curP->viewLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->View[0][0]) );
                 glUniformMatrix4fv ( curP->projectionLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Projection[0][0]) );
-                drawbar(x,y,z,sx,sy,sz,crt,cgt,cbt);
+                drawbarF(x,y,z,sx,sy,sz,crt,cgt,cbt);
                 
                 curP->Model=glm::rotate(curP->Model,glm::radians(-(ang+270.0f)),glm::vec3(1,0,0));
                 curP->Model=glm::translate(curP->Model, glm::vec3(0,2,-trans));
@@ -2733,7 +3014,7 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
                 glUniformMatrix4fv ( curP->modelLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Model[0][0]) );
                 glUniformMatrix4fv ( curP->viewLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->View[0][0]) );
                 glUniformMatrix4fv ( curP->projectionLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Projection[0][0]) );
-                drawbar(x,y,z,sx,sy,sz,crt,cgt,cbt);
+                drawbarF(x,y,z,sx,sy,sz,crt,cgt,cbt);
                 
                 curP->Model=glm::rotate(curP->Model,glm::radians(-(ang+270.0f)),glm::vec3(1,0,0));
                 curP->Model=glm::translate(curP->Model, glm::vec3(0,2,-trans));
@@ -2747,6 +3028,7 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
                 
             }
     }
+    // Spectrum line with a + shape (4faces)
     if (mode==1) {
         for (int i=0; i<nb_spectrum_bands; i++) {
             /////////////////
@@ -2782,14 +3064,14 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
             glUniformMatrix4fv ( curP->modelLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Model[0][0]) );
             glUniformMatrix4fv ( curP->viewLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->View[0][0]) );
             glUniformMatrix4fv ( curP->projectionLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Projection[0][0]) );
-            drawbar(x,y,z,sx,sy,sz,crt,cgt,cbt);
+            drawbarF(x,y,z,sx,sy,sz,crt,cgt,cbt);
             
             curP->Model=glm::rotate(curP->Model,glm::radians(180.0f), glm::vec3(0, 1, 0));
             
             glUniformMatrix4fv ( curP->modelLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Model[0][0]) );
             glUniformMatrix4fv ( curP->viewLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->View[0][0]) );
             glUniformMatrix4fv ( curP->projectionLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Projection[0][0]) );
-            drawbar(x,y,z,sx,sy,sz,crt,cgt,cbt);
+            drawbarF(x,y,z,sx,sy,sz,crt,cgt,cbt);
             
             /////////////////
             //RIGHT
@@ -2826,14 +3108,14 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
             glUniformMatrix4fv ( curP->modelLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Model[0][0]) );
             glUniformMatrix4fv ( curP->viewLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->View[0][0]) );
             glUniformMatrix4fv ( curP->projectionLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Projection[0][0]) );
-            drawbar(x,y,z,sx,sy,sz,crt,cgt,cbt);
+            drawbarF(x,y,z,sx,sy,sz,crt,cgt,cbt);
             
             curP->Model=glm::rotate(curP->Model,glm::radians(180.0f), glm::vec3(0, 1, 0));
             
             glUniformMatrix4fv ( curP->modelLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Model[0][0]) );
             glUniformMatrix4fv ( curP->viewLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->View[0][0]) );
             glUniformMatrix4fv ( curP->projectionLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Projection[0][0]) );
-            drawbar(x,y,z,sx,sy,sz,crt,cgt,cbt);
+            drawbarF(x,y,z,sx,sy,sz,crt,cgt,cbt);
             
             curP->Model=glm::rotate(curP->Model,glm::radians(180.0f-90.0f), glm::vec3(0, 1, 0));
         }
@@ -2885,14 +3167,14 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
                 glUniformMatrix4fv ( curP->modelLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Model[0][0]) );
                 glUniformMatrix4fv ( curP->viewLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->View[0][0]) );
                 glUniformMatrix4fv ( curP->projectionLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Projection[0][0]) );
-                drawbar(x,y,z,sx,sy,sz,crt,cgt,cbt);
+                drawbarF(x,y,z,sx,sy,sz,crt,cgt,cbt);
                 
                 curP->Model=glm::rotate(curP->Model,glm::radians(180.0f), glm::vec3(0, 1, 0));
                 
                 glUniformMatrix4fv ( curP->modelLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Model[0][0]) );
                 glUniformMatrix4fv ( curP->viewLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->View[0][0]) );
                 glUniformMatrix4fv ( curP->projectionLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Projection[0][0]) );
-                drawbar(x,y,z,sx,sy,sz,crt,cgt,cbt);
+                drawbarF(x,y,z,sx,sy,sz,crt,cgt,cbt);
                 
                 /////////////////
                 //RIGHT
@@ -2930,14 +3212,14 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
                 glUniformMatrix4fv ( curP->modelLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Model[0][0]) );
                 glUniformMatrix4fv ( curP->viewLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->View[0][0]) );
                 glUniformMatrix4fv ( curP->projectionLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Projection[0][0]) );
-                drawbar(x,y,z,sx,sy,sz,crt,cgt,cbt);
+                drawbarF(x,y,z,sx,sy,sz,crt,cgt,cbt);
                 
                 curP->Model=glm::rotate(curP->Model,glm::radians(180.0f), glm::vec3(0, 1, 0));
                 
                 glUniformMatrix4fv ( curP->modelLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Model[0][0]) );
                 glUniformMatrix4fv ( curP->viewLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->View[0][0]) );
                 glUniformMatrix4fv ( curP->projectionLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Projection[0][0]) );
-                drawbar(x,y,z,sx,sy,sz,crt,cgt,cbt);
+                drawbarF(x,y,z,sx,sy,sz,crt,cgt,cbt);
                 
                 curP->Model=glm::rotate(curP->Model,glm::radians(180.0f-90.0f), glm::vec3(0, 1, 0));
             }
@@ -2978,7 +3260,7 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
             glUniformMatrix4fv ( curP->modelLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Model[0][0]) );
             glUniformMatrix4fv ( curP->viewLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->View[0][0]) );
             glUniformMatrix4fv ( curP->projectionLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Projection[0][0]) );
-            drawbar(x,y,z,sx,sy,sz,crt,cgt,cbt);
+            drawbarF(x,y,z,sx,sy,sz,crt,cgt,cbt);
             
             /////////////////
             //RIGHT
@@ -3015,7 +3297,7 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
             glUniformMatrix4fv ( curP->modelLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Model[0][0]) );
             glUniformMatrix4fv ( curP->viewLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->View[0][0]) );
             glUniformMatrix4fv ( curP->projectionLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Projection[0][0]) );
-            drawbar(x,y,z,sx,sy,sz,crt,cgt,cbt);
+            drawbarF(x,y,z,sx,sy,sz,crt,cgt,cbt);
             
             curP->Model=glm::rotate(curP->Model,glm::radians(180.0f), glm::vec3(0, 1, 0));
         }
@@ -3061,7 +3343,7 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
                 glUniformMatrix4fv ( curP->modelLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Model[0][0]) );
                 glUniformMatrix4fv ( curP->viewLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->View[0][0]) );
                 glUniformMatrix4fv ( curP->projectionLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Projection[0][0]) );
-                drawbar(x,y,z,sx,sy,sz,crt,cgt,cbt);
+                drawbarF(x,y,z,sx,sy,sz,crt,cgt,cbt);
                 
                 /////////////////
                 //RIGHT
@@ -3099,12 +3381,13 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
                 glUniformMatrix4fv ( curP->modelLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Model[0][0]) );
                 glUniformMatrix4fv ( curP->viewLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->View[0][0]) );
                 glUniformMatrix4fv ( curP->projectionLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Projection[0][0]) );
-                drawbar(x,y,z,sx,sy,sz,crt,cgt,cbt);
+                drawbarF(x,y,z,sx,sy,sz,crt,cgt,cbt);
                 
                 curP->Model=glm::rotate(curP->Model,glm::radians(180.0f), glm::vec3(0, 1, 0));
             }
     }
     
+    // Twisted lines spectrum
     if (mode==3) {
         float dsz,curve_rate;
 #define absf(x) (x<0?x:-x)
@@ -3136,7 +3419,7 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
             
             sx=1;
             sy=1;
-            sz=spL*2+0.1f;
+            sz=spL*1.8f+0.1f;
             x=-0.5f;
             z=dsz+spL/4;
             y=(i-nb_spectrum_bands/2)*sy*1.05f;
@@ -3146,14 +3429,14 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
             glUniformMatrix4fv ( curP->modelLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Model[0][0]) );
             glUniformMatrix4fv ( curP->viewLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->View[0][0]) );
             glUniformMatrix4fv ( curP->projectionLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Projection[0][0]) );
-            drawbar(x,y,z,sx,sy,sz,crt,cgt,cbt);
+            drawbarF(x,y,z,sx,sy,sz,crt,cgt,cbt);
             
             curP->Model=glm::rotate(curP->Model,glm::radians(90.0f), glm::vec3(0, 1, 0));
             
             glUniformMatrix4fv ( curP->modelLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Model[0][0]) );
             glUniformMatrix4fv ( curP->viewLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->View[0][0]) );
             glUniformMatrix4fv ( curP->projectionLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Projection[0][0]) );
-            drawbar(x,y,z,sx,sy,sz,crt,cgt,cbt);
+            drawbarF(x,y,z,sx,sy,sz,crt,cgt,cbt);
             
             curP->Model=glm::rotate(curP->Model,glm::radians(90.0f), glm::vec3(0, -1, 0));
             curP->Model=glm::rotate(curP->Model,glm::radians(curve_rate),glm::vec3(0,-1,0));
@@ -3193,14 +3476,14 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
             glUniformMatrix4fv ( curP->modelLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Model[0][0]) );
             glUniformMatrix4fv ( curP->viewLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->View[0][0]) );
             glUniformMatrix4fv ( curP->projectionLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Projection[0][0]) );
-            drawbar(x,y,z,sx,sy,sz,crt,cgt,cbt);
+            drawbarF(x,y,z,sx,sy,sz,crt,cgt,cbt);
             
             curP->Model=glm::rotate(curP->Model,glm::radians(90.0f), glm::vec3(0, 1, 0));
             
             glUniformMatrix4fv ( curP->modelLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Model[0][0]) );
             glUniformMatrix4fv ( curP->viewLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->View[0][0]) );
             glUniformMatrix4fv ( curP->projectionLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Projection[0][0]) );
-            drawbar(x,y,z,sx,sy,sz,crt,cgt,cbt);
+            drawbarF(x,y,z,sx,sy,sz,crt,cgt,cbt);
             
             curP->Model=glm::rotate(curP->Model,glm::radians(90.0f), glm::vec3(0, -1, 0));
             curP->Model=glm::rotate(curP->Model,glm::radians(180.0f+curve_rate),glm::vec3(0,-1,0));
@@ -3252,7 +3535,7 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
                 
                 sx=1;
                 sy=1;
-                sz=spL*2+0.1f;
+                sz=spL*1.8f+0.1f;
                 x=-0.5f;
                 z=dsz+spL/4;
                 y=(i-nb_spectrum_bands/2)*sy*1.05f;
@@ -3262,14 +3545,14 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
                 glUniformMatrix4fv ( curP->modelLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Model[0][0]) );
                 glUniformMatrix4fv ( curP->viewLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->View[0][0]) );
                 glUniformMatrix4fv ( curP->projectionLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Projection[0][0]) );
-                drawbar(x,y,z,sx,sy,sz,crt,cgt,cbt);
+                drawbarF(x,y,z,sx,sy,sz,crt,cgt,cbt);
                 
                 curP->Model=glm::rotate(curP->Model,glm::radians(90.0f), glm::vec3(0, 1, 0));
                 
                 glUniformMatrix4fv ( curP->modelLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Model[0][0]) );
                 glUniformMatrix4fv ( curP->viewLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->View[0][0]) );
                 glUniformMatrix4fv ( curP->projectionLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Projection[0][0]) );
-                drawbar(x,y,z,sx,sy,sz,crt,cgt,cbt);
+                drawbarF(x,y,z,sx,sy,sz,crt,cgt,cbt);
                 
                 curP->Model=glm::rotate(curP->Model,glm::radians(90.0f), glm::vec3(0, -1, 0));
                 curP->Model=glm::rotate(curP->Model,glm::radians(curve_rate),glm::vec3(0,-1,0));
@@ -3311,14 +3594,14 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
                 glUniformMatrix4fv ( curP->modelLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Model[0][0]) );
                 glUniformMatrix4fv ( curP->viewLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->View[0][0]) );
                 glUniformMatrix4fv ( curP->projectionLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Projection[0][0]) );
-                drawbar(x,y,z,sx,sy,sz,crt,cgt,cbt);
+                drawbarF(x,y,z,sx,sy,sz,crt,cgt,cbt);
                 
                 curP->Model=glm::rotate(curP->Model,glm::radians(90.0f), glm::vec3(0, 1, 0));
                 
                 glUniformMatrix4fv ( curP->modelLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Model[0][0]) );
                 glUniformMatrix4fv ( curP->viewLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->View[0][0]) );
                 glUniformMatrix4fv ( curP->projectionLoc, 1, GL_FALSE, ( GLfloat * ) &(curP->Projection[0][0]) );
-                drawbar(x,y,z,sx,sy,sz,crt,cgt,cbt);
+                drawbarF(x,y,z,sx,sy,sz,crt,cgt,cbt);
                 
                 curP->Model=glm::rotate(curP->Model,glm::radians(90.0f), glm::vec3(0, -1, 0));
                 curP->Model=glm::rotate(curP->Model,glm::radians(180.0f+curve_rate),glm::vec3(0,-1,0));

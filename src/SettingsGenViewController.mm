@@ -32,6 +32,7 @@ extern const char *font_trackerName[FONT_TRACKER_NB][2];
 #define STRINGIZE(x) #x
 #define STRINGIZE2(x) STRINGIZE(x)
 
+#include "ModizerTypes.h"
 
 //FTP
 static CFtpServer *ftpserver;
@@ -1426,10 +1427,12 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXMODPattern_Theme].description=NULL;
     settings[GLOB_FXMODPattern_Theme].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
     settings[GLOB_FXMODPattern_Theme].sub_family=0;
-    settings[GLOB_FXMODPattern_Theme].detail.mdz_switch.switch_value_nb=2;
+    settings[GLOB_FXMODPattern_Theme].detail.mdz_switch.switch_value_nb=modpat_themesNb;
     settings[GLOB_FXMODPattern_Theme].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_FXMODPattern_Theme].detail.mdz_switch.switch_value_nb*sizeof(char*));
-    settings[GLOB_FXMODPattern_Theme].detail.mdz_switch.switch_labels[0]=(char*)"1";
-    settings[GLOB_FXMODPattern_Theme].detail.mdz_switch.switch_labels[1]=(char*)"2";
+    for (int i=0;i<modpat_themesNb;i++) {
+        if (settings[GLOB_FXMODPattern_Theme].detail.mdz_switch.switch_labels[i]) free(settings[GLOB_FXMODPattern_Theme].detail.mdz_switch.switch_labels[i]);
+        settings[GLOB_FXMODPattern_Theme].detail.mdz_switch.switch_labels[i]=strdup(modpat_themesList[i]->themeName);
+    }
     settings[GLOB_FXMODPattern_Theme].callback=&optVISUChangedC;
     
     SETTINGS_ID_DEF(GLOB_FXMODPattern_CurrentLineMode)

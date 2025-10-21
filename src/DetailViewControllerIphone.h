@@ -403,6 +403,10 @@ enum {
 -(void) mdSwitchBloomFX;
 -(void) mdSwitchFPSHud;
 -(void) mdInfoFX;
+-(void) mdSwitchVolBars;
+-(void) mdSwitchModPatternTheme:(int)val;
+-(void) mdSwitchModPatternFont:(int)val;
+-(void) mdSwitchModPatternFontSize:(int)val;
 
 - (void)checkNewCover;
 

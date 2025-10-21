@@ -14,14 +14,14 @@ out vec4 outColor;
 void main()
 {
     // ambient
-    float ambientStrength = 0.1;
+    float ambientStrength = 0.5;
     vec3 ambient = ambientStrength * u_lightColor;
     
     // diffuse
     vec3 norm = normalize(v_normal);
     vec3 lightDir = normalize(v_lightPos - v_fragPos);
-    float diff = max(dot(norm, lightDir), 0.0);
-    vec3 diffuse = diff * u_lightColor;
+    float diff = pow(max(dot(norm, lightDir), 0.0),2.0);
+    vec3 diffuse = diff * u_lightColor * 0.5;
     
     //specular
     float specularStrength = 0.5;
@@ -31,7 +31,7 @@ void main()
     vec3 specular = specularStrength * spec * u_lightColor;
     
     //vec3 result = (ambient + diffuse + specular) * v_color.rgb;
-    vec3 result = (ambient + diffuse + specular) * v_color.rgb ;
+    vec3 result = (ambient + diffuse ) * v_color.rgb + specular;
     //result = v_color.rgb;
     outColor = vec4(result, 1.0);
 }
