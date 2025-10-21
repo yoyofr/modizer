@@ -106,6 +106,19 @@ struct VertexData {
     GLfloat r,g,b,a;
 };
 
+struct VertexCData {
+    VertexCData() {}
+    VertexCData(GLfloat _x,GLfloat _y,GLfloat _z,GLfloat _r,GLfloat _g,GLfloat _b,GLfloat _a) :
+    x(_x),y(_y),z(_z),r(_r),g(_g),b(_b) {
+    }
+    
+    GLfloat x;             // OpenGL X Coordinate
+    GLfloat y;             // OpenGL Y Coordinate
+    GLfloat z;             // OpenGL Z Coordinate
+    GLfloat r,g,b,a;
+};
+
+
 struct VertexNData {
     VertexNData() {}
     VertexNData(GLfloat _x,GLfloat _y,GLfloat _z,GLfloat _Nx,GLfloat _Ny,GLfloat _Nz,GLfloat _r,GLfloat _g,GLfloat _b,GLfloat _a) :
