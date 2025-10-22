@@ -679,6 +679,11 @@
 /* End PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		CC08C3A52EA9255300A0F15F /* fast-float */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "fast-float";
+			sourceTree = "<group>";
+		};
 		CCABA01D2E93C66900AF59B0 /* projectm-ios */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
@@ -1147,6 +1152,7 @@
 		CCABA19A2E93C75B00AF59B0 /* vendor */ = {
 			isa = PBXGroup;
 			children = (
+				CC08C3A52EA9255300A0F15F /* fast-float */,
 				CCABA1382E93C75B00AF59B0 /* glm */,
 				CCABA14A2E93C75B00AF59B0 /* hlslparser */,
 				CCABA1822E93C75B00AF59B0 /* projectm-eval */,
@@ -1523,6 +1529,7 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
+				CC08C3A52EA9255300A0F15F /* fast-float */,
 				CCABA01D2E93C66900AF59B0 /* projectm-ios */,
 			);
 			name = "projectm-ios";

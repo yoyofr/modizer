@@ -43,6 +43,7 @@ enum t_pattern_theme_flag {
   MDZ_THEMEFLAG_BordersTop=1<<2,
   MDZ_THEMEFLAG_NoFillLineNb=1<<3,
   MDZ_THEMEFLAG_HighlightZoom=1<<4,
+  MDZ_THEMEFLAG_VolDottedBar=1<<5,
 };
 
 #ifdef __cplusplus

@@ -121,6 +121,7 @@ float position[] = { 0, 0, 8, 1 };
 
 GLUserData *userData_lightRender3D;
 GLUserData *userData_simpleRender2D;
+GLUserData *userData_customRender2D;
 GLUserData *userData_normalRender3D;
 GLUserData *userData_simpleRender3D;
 GLUserData *userData_Render2DLines;
@@ -260,8 +261,6 @@ GLuint RenderUtils::LoadShaderFromFile ( GLenum type, const char *shaderFile )
 
 int RenderUtils::RenderInit() {
     renderIsInit=false;
-    
-    GLUserData *userData = (GLUserData*)malloc(sizeof(GLUserData));
     GLuint vertexShader;
     GLuint fragmentShader;
     GLuint programObject;
@@ -308,6 +307,7 @@ int RenderUtils::RenderInit() {
     userData_lightRender3D=InitProgram((char*)[[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/MDZShaders/Vertex3DLight.glsl"]  UTF8String],(char*)[[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/MDZShaders/Fragment3DLight.glsl"] UTF8String]);
     
     userData_simpleRender2D=InitProgram((char*)[[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/MDZShaders/Vertex2DSimple.glsl"]  UTF8String],(char*)[[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/MDZShaders/Fragment2DSimple.glsl"] UTF8String]);
+    userData_customRender2D=InitProgram((char*)[[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/MDZShaders/Vertex2DCustom.glsl"]  UTF8String],(char*)[[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/MDZShaders/Fragment2DCustom.glsl"] UTF8String]);
 
     userData_normalRender3D=InitProgram((char*)[[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/MDZShaders/Vertex3DNormal.glsl"]  UTF8String],(char*)[[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/MDZShaders/Fragment3DNormal.glsl"] UTF8String]);
     userData_simpleRender3D=InitProgram((char*)[[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/MDZShaders/Vertex3DSimple.glsl"]  UTF8String],(char*)[[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/MDZShaders/Fragment3DSimple.glsl"] UTF8String]);
@@ -323,6 +323,7 @@ int RenderUtils::RenderInit() {
     
     if (!userData_lightRender3D ||
         !userData_simpleRender2D ||
+        !userData_customRender2D ||
         !userData_simpleRender3D ||
         !userData_normalRender3D ||
         !userData_Render2DLines ||
@@ -1275,9 +1276,9 @@ void RenderUtils::DrawChanLayout(uint _ww,uint _hh,int display_note_mode,int cha
     LineVertexF *pts;
     
     switch (display_note_mode){
-        case 0:col_size=11*char_width;col_ofs=(char_width)*3.0f-4.0f;break;
-        case 1:col_size=6*char_width;col_ofs=(char_width)*3.0f-4.0f;break;
-        case 2:col_size=4*char_width;col_ofs=(char_width)*3.0f-4.0f;break;
+        case 0:col_size=11*char_width;col_ofs=(char_width)*4.0f-4.0f;break;
+        case 1:col_size=6*char_width;col_ofs=(char_width)*4.0f-4.0f;break;
+        case 2:col_size=4*char_width;col_ofs=(char_width)*4.0f-4.0f;break;
     }
     
     pts=(LineVertexF*)malloc(sizeof(LineVertexF)*6*((chanNb+1)*8+9+1));
@@ -1619,31 +1620,43 @@ void RenderUtils::DrawChanLayoutAfter(uint _ww,uint _hh,int display_note_mode,in
     float col_size,col_ofs;
     LineVertexF *pts;
     
-    switch (display_note_mode){
-        case 0:col_size=11*char_width;col_ofs=(char_width)*3.0f-4.0f;break;
-        case 1:col_size=6*char_width;col_ofs=(char_width)*3.0f-4.0f;break;
-        case 2:col_size=4*char_width;col_ofs=(char_width)*3.0f-4.0f;break;
-    }
-    
     pts=(LineVertexF*)malloc(sizeof(LineVertexF)*6*(3+chanNb*4));
     if (!pts) {
         NSLog(@"%s - cannot allocate memory",__func__);
         return;
     }
-    float min_w=col_size*chanNb+col_ofs;
-    min_w=fmin(min_w,_ww);
+    
+    //Save opengl state
+    glDumpState();
+    
+    
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+//    glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+    
+    glDisable(GL_CULL_FACE);
+    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_STENCIL_TEST);
     
     switch (display_note_mode){
-        case 0:col_size=11*char_width;col_ofs=(char_width)*2+8+6-2;break;
-        case 1:col_size=6*char_width;col_ofs=(char_width)*2+8+6-2;break;
-        case 2:col_size=4*char_width;col_ofs=(char_width)*2+8+6-2;break;
+        case 0:col_size=11*char_width;col_ofs=(char_width)*4.0f-4.0f;break;
+        case 1:col_size=6*char_width;col_ofs=(char_width)*4.0f-4.0f;break;
+        case 2:col_size=4*char_width;col_ofs=(char_width)*4.0f-4.0f;break;
     }
+    
+    float min_w=col_size*chanNb+col_ofs;
+    min_w=fmin(min_w,_ww);
     
     //Volumes bar
     if (volumeData) {
         float barWidth=col_size/4;
+        
+        if (modpat_curTheme->theme_flag&MDZ_THEMEFLAG_VolDottedBar) {
+            barWidth=col_size/6;
+        }
+        
         float barOfsX=(col_size-barWidth)/2;
-        float barShadowOfsX=6.0;
+        float barShadowOfsX=4.0;
         float barOfsY;
         if (barShadowOfsX>barWidth/4) barShadowOfsX=barWidth/4;
         for (int i=0; i<chanNb; i++) {
@@ -1652,11 +1665,17 @@ void RenderUtils::DrawChanLayoutAfter(uint _ww,uint _hh,int display_note_mode,in
             crbase=modpat_curTheme->volume_barL[0];
             cgbase=modpat_curTheme->volume_barL[1];
             cbbase=modpat_curTheme->volume_barL[2];
+            int curVol=volumeData[i];
+            int curVolH=curVol*_hh/256/5;
+            
+            if (modpat_curTheme->theme_flag&MDZ_THEMEFLAG_VolDottedBar) {
+                curVolH=(curVolH>>4)<<4; //round to a multiple of 32
+            }
             
             if (modpat_curTheme->theme_flag&MDZ_THEMEFLAG_VolDep) {
-                cr=(crbase*(255-volumeData[i])+modpat_curTheme->volume_barH[0]*volumeData[i])/255;
-                cg=(cgbase*(255-volumeData[i])+modpat_curTheme->volume_barH[1]*volumeData[i])/255;
-                cb=(cbbase*(255-volumeData[i])+modpat_curTheme->volume_barH[2]*volumeData[i])/255;
+                cr=(crbase*(255-curVol)+modpat_curTheme->volume_barH[0]*curVol)/255;
+                cg=(cgbase*(255-curVol)+modpat_curTheme->volume_barH[1]*curVol)/255;
+                cb=(cbbase*(255-curVol)+modpat_curTheme->volume_barH[2]*curVol)/255;
             } else {
                 cr=modpat_curTheme->volume_barH[0];
                 cg=modpat_curTheme->volume_barH[1];
@@ -1670,8 +1689,8 @@ void RenderUtils::DrawChanLayoutAfter(uint _ww,uint _hh,int display_note_mode,in
                 count+=RenderUtils::buildQuad(&(pts[count]),
                                               pixOfs+col_size*i+col_ofs+barOfsX-6.0, 0,
                                               pixOfs+col_size*i+col_ofs+barOfsX+barWidth-6.0, 0,
-                                              pixOfs+col_size*i+col_ofs+barOfsX+barWidth-6.0, volumeData[i]*_hh/256/5,
-                                              pixOfs+col_size*i+col_ofs+barOfsX-6.0, volumeData[i]*_hh/256/5,
+                                              pixOfs+col_size*i+col_ofs+barOfsX+barWidth-6.0, curVolH,
+                                              pixOfs+col_size*i+col_ofs+barOfsX-6.0, curVolH,
                                               crbase,cgbase,cbbase,255,
                                               crbase,cgbase,cbbase,255,
                                               cr,cg,cb,255,
@@ -1684,8 +1703,8 @@ void RenderUtils::DrawChanLayoutAfter(uint _ww,uint _hh,int display_note_mode,in
                         count+=RenderUtils::buildQuad(&(pts[count]),
                                                       -barShadowOfsX+pixOfs+col_size*i+col_ofs+barOfsX+barWidth-6.0, 0,
                                                       pixOfs+col_size*i+col_ofs+barOfsX+barWidth-6.0, 0,
-                                                      pixOfs+col_size*i+col_ofs+barOfsX+barWidth-6.0, volumeData[i]*_hh/256/5,
-                                                      -barShadowOfsX+pixOfs+col_size*i+col_ofs+barOfsX+barWidth-6.0, volumeData[i]*_hh/256/5,
+                                                      pixOfs+col_size*i+col_ofs+barOfsX+barWidth-6.0, curVolH,
+                                                      -barShadowOfsX+pixOfs+col_size*i+col_ofs+barOfsX+barWidth-6.0, curVolH,
                                                       crbase/2,cgbase/2,cbbase/2,255,
                                                       crbase/2,cgbase/2,cbbase/2,255,
                                                       cr/2,cg/2,cb/2,255,
@@ -1713,21 +1732,21 @@ void RenderUtils::DrawChanLayoutAfter(uint _ww,uint _hh,int display_note_mode,in
                     count+=RenderUtils::buildQuad(&(pts[count]),
                                                   pixOfs+col_size*i+col_ofs+barOfsX-6.0, 0,
                                                   barShadowOfsX+pixOfs+col_size*i+col_ofs+barOfsX-6.0, 0,
-                                                  barShadowOfsX+pixOfs+col_size*i+col_ofs+barOfsX-6.0, volumeData[i]*_hh/256/5,
-                                                  pixOfs+col_size*i+col_ofs+barOfsX-6.0, volumeData[i]*_hh/256/5,
+                                                  barShadowOfsX+pixOfs+col_size*i+col_ofs+barOfsX-6.0, curVolH,
+                                                  pixOfs+col_size*i+col_ofs+barOfsX-6.0, curVolH,
                                                   crbase,cgbase,cbbase,255,
                                                   crbase,cgbase,cbbase,255,
                                                   cr,cg,cb,255,
                                                   cr,cg,cb,255,
                                                   _ww,_hh);
                     if (modpat_curTheme->theme_flag&MDZ_THEMEFLAG_BordersTop) {
-                        if (volumeData[i]*_hh/256/5>6.0) barOfsY=6.0;
-                        else barOfsY=volumeData[i]*_hh/256/5;
+                        if (curVolH>barShadowOfsX) barOfsY=barShadowOfsX;
+                        else barOfsY=curVolH;
                         count+=RenderUtils::buildQuad(&(pts[count]),
-                                                      pixOfs+col_size*i+col_ofs+barOfsX-6.0, volumeData[i]*_hh/256/5-barOfsY,
-                                                      -barShadowOfsX+pixOfs+col_size*i+col_ofs+barOfsX+barWidth-6.0, volumeData[i]*_hh/256/5-barOfsY,
-                                                      pixOfs+col_size*i+col_ofs+barOfsX+barWidth-6.0, volumeData[i]*_hh/256/5,
-                                                      pixOfs+col_size*i+col_ofs+barOfsX-6.0, volumeData[i]*_hh/256/5,
+                                                      pixOfs+col_size*i+col_ofs+barOfsX-6.0, curVolH-barOfsY,
+                                                      -barShadowOfsX+pixOfs+col_size*i+col_ofs+barOfsX+barWidth-6.0, curVolH-barOfsY,
+                                                      pixOfs+col_size*i+col_ofs+barOfsX+barWidth-6.0, curVolH,
+                                                      pixOfs+col_size*i+col_ofs+barOfsX-6.0, curVolH,
                                                       cr,cg,cb,255,
                                                       cr,cg,cb,255,
                                                       cr,cg,cb,255,
@@ -1738,6 +1757,22 @@ void RenderUtils::DrawChanLayoutAfter(uint _ww,uint _hh,int display_note_mode,in
             }
         }
     }
+    
+    // Use the program object
+    if (modpat_curTheme->theme_flag&MDZ_THEMEFLAG_VolDottedBar) glUseProgram ( userData_customRender2D->programObject );
+    else glUseProgram ( userData_simpleRender2D->programObject );
+    
+    GLuint positionAttribHandle = glGetAttribLocation(userData_simpleRender2D->programObject, "a_position");
+    GLuint colorAttribHandle    = glGetAttribLocation(userData_simpleRender2D->programObject, "a_color");
+    // Load the vertex data
+    glVertexAttribPointer ( positionAttribHandle, 3, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(pts[0].x) );
+    glVertexAttribPointer ( colorAttribHandle, 4, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(pts[0].r) );
+    // Load the vertex data
+    glEnableVertexAttribArray ( positionAttribHandle );
+    glEnableVertexAttribArray ( colorAttribHandle );
+    // Load the uniforms
+    glDrawArrays(GL_TRIANGLES,0,count);
+    count=0;
     
     //Draw current playing line
     ii=_hh-rowToHighlight*char_height-2*char_height-2-char_yOfs+1.0;
@@ -1786,38 +1821,23 @@ void RenderUtils::DrawChanLayoutAfter(uint _ww,uint _hh,int display_note_mode,in
                                   _ww,_hh);
     
     // Use the program object
-    glUseProgram ( userData_simpleRender2D->programObject );
-    
-    GLuint positionAttribHandle = glGetAttribLocation(userData_simpleRender2D->programObject, "a_position");
-    GLuint colorAttribHandle    = glGetAttribLocation(userData_simpleRender2D->programObject, "a_color");
-    
-    //Save opengl state
-    glDumpState();
-    
-    
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-//    glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-    
-    glDisable(GL_CULL_FACE);
-    glDisable(GL_DEPTH_TEST);
-    glDisable(GL_STENCIL_TEST);
-    
-    // Load the vertex data
-    glVertexAttribPointer ( positionAttribHandle, 3, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(pts[0].x) );
-    glVertexAttribPointer ( colorAttribHandle, 4, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(pts[0].r) );
-    
-    // Load the vertex data
-    glEnableVertexAttribArray ( positionAttribHandle );
-    glEnableVertexAttribArray ( colorAttribHandle );
+    if (modpat_curTheme->theme_flag&MDZ_THEMEFLAG_VolDottedBar) {
+        glUseProgram ( userData_simpleRender2D->programObject );
+        positionAttribHandle = glGetAttribLocation(userData_simpleRender2D->programObject, "a_position");
+        colorAttribHandle    = glGetAttribLocation(userData_simpleRender2D->programObject, "a_color");
+        // Load the vertex data
+        glVertexAttribPointer ( positionAttribHandle, 3, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(pts[0].x) );
+        glVertexAttribPointer ( colorAttribHandle, 4, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(pts[0].r) );
+        // Load the vertex data
+        glEnableVertexAttribArray ( positionAttribHandle );
+        glEnableVertexAttribArray ( colorAttribHandle );
+    }
     
     // Load the uniforms
     glDrawArrays(GL_TRIANGLES,0,count);
     
     glRestoreState();
-    
     free(pts);
-    
 }
 
 /* Reduces A Normal Vector (3 Coordinates)       */
@@ -5056,7 +5076,7 @@ void RenderUtils::DrawPiano3DWithNotesWall(uint ww,uint hh,int automove,float po
             ynBL=yf-key_heightBL*3/5*piano_key_state[i]/8;
             piano_key_state[i]--;
             
-            int colidx;
+            int colidx=0;
             if (color_mode==0) {
                 colidx=(i%12);
             } else if (color_mode==1) {

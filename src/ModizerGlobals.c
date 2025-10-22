@@ -49,7 +49,7 @@ t_pattern_colortheme modpat_colorStd={
 };
 
 t_pattern_colortheme modpat_colorAlt={
-    {0x9E,0xF7,0xAA},  //highlight bar color
+    {128,255,128},  //highlight bar color
     {255,255,255},  //Header color
     {0x0F/2,0x3F/2,0xF7/2},  //Header BG color
     {0x0F/2,0x3F/2,0xF7/2},  //frame color 1
@@ -101,26 +101,26 @@ t_pattern_colortheme modpat_colorScreamTracker={
 };
 
 t_pattern_colortheme modpat_colorProTracker={
-    {123,123,123},  //highlight bar color
+    {123*1.5,123*1.5,123*1.5},  //highlight bar color
     {0,0,0},  //Header color
     {123,123,123},  //Header BG color
     {123,123,123},  //frame color 1
     {123,123,123},  //frame color 2
-    {52,66,224},  //Line nb color 1
+    {82,96,244},  //Line nb color 1
     {0,0,0},  //Line nb color 1 H
-    {52,66,224},  //Line nb color 2
+    {82,96,244},  //Line nb color 2
     {0,0,0},  //Line nb color 2 H
-    {52,66,224},  //Note color
+    {82,96,244},  //Note color
     {0,0,0},  //Note color H
-    {52,66,224},  //Instrument color
+    {82,96,244},  //Instrument color
     {0,0,0},  //Instrument color H
-    {52,66,224},  //Volume color
+    {82,96,244},  //Volume color
     {0,0,0},  //Volume color H
-    {52,66,224},  //Effect nb color
+    {82,96,244},  //Effect nb color
     {0,0,0},  //Effect nb color H
-    {52,66,224},  //Effect value color
+    {82,96,244},  //Effect value color
     {0,0,0},  //Effect value color H
-    {64,255,64},  //volume bar low color
+    {64,255,16},  //volume bar low color
     {255,64,32},  //volume bar high color
     MDZ_THEMEFLAG_VolDep|MDZ_THEMEFLAG_BordersLR|MDZ_THEMEFLAG_NoFillLineNb|MDZ_THEMEFLAG_HighlightZoom,              //volume bar mode
     "Pro",
@@ -146,9 +146,9 @@ t_pattern_colortheme modpat_colorImpulseTracker={
     {177,151,125},  //Effect nb color H
     {74,133,103},  //Effect value color
     {74,133,103},  //Effect value color H
-    {51,51,129},  //volume bar low color
-    {251,251,96},  //volume bar high color
-    MDZ_THEMEFLAG_VolDep,              //volume bar mode
+    {251,251,64},  //volume bar low color
+    {251,151,96},  //volume bar high color
+    MDZ_THEMEFLAG_VolDep|MDZ_THEMEFLAG_VolDottedBar,              //volume bar mode
     "IT",
 };
 

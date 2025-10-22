@@ -60,8 +60,14 @@ void ProjectM::LoadPresetFile(const std::string& presetFilename, bool smoothTran
 {
     try
     {
+        
         m_textureManager->PurgeTextures();
+        
+        clock_t start_time,end_time;
+        start_time=clock();
         StartPresetTransition(m_presetFactoryManager->CreatePresetFromFile(presetFilename), !smoothTransition);
+        end_time=clock();
+        printf("Load preset: %ld\n",end_time-start_time);
     }
     catch (const std::exception& ex)
     {

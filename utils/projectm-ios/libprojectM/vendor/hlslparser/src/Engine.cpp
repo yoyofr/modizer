@@ -6,6 +6,8 @@
 #include <stdlib.h>	// strtol
 #include <locale>
 #include <sstream>
+#include <iostream>
+#include "../../fast_float/fast_float.h" // to replace iss_strtod with a locale independant fast function
 
 namespace M4 {
 
@@ -64,7 +66,6 @@ bool String_EqualNoCase(const char * a, const char * b) {
 #endif
 }
 
-/*
 static inline double iss_strtod(const char * in, char ** end) {
     
     char * in_var = const_cast<char *>(in);
@@ -89,11 +90,19 @@ static inline double iss_strtod(const char * in, char ** end) {
     *end = in_var + pos;
     return df;
 }
-*/
 
-double String_ToDouble(const char * str, char ** endptr) {
-	//return iss_strtod(str, endptr);
-    return strtod(str, endptr);
+
+//YOYOFR
+double String_ToDouble(const char * str, const char * strend, char ** endptr) {
+   // return iss_strtod(str, endptr);
+    double result;
+    auto answer = fast_float::from_chars(str, strend, result);
+    if (answer.ec != std::errc()) {
+        if (endptr) *endptr=(char*)(str);
+        return 0;
+    }
+    if (endptr) *endptr=(char*)(answer.ptr);
+    return result;
 }
 
 int String_ToInteger(const char * str, char ** endptr) {

@@ -1244,6 +1244,9 @@ didFinishNavigation:(WKNavigation *)navigation {
                         [self openPopup: [NSString stringWithFormat:@"Saving : %@",[filename lastPathComponent] ]];
                         NSString *filePath=[NSString stringWithFormat:@"%@/%@/folder.png",NSHomeDirectory(),[cover_currentPlayFilepath stringByDeletingLastPathComponent]];
                         [mFileMngr createFileAtPath:filePath contents:UIImagePNGRepresentation(myImage)  attributes:NULL];
+                        
+                        [detailViewController checkNewCover];
+                        [self updateMiniPlayer];
                     }
                 }];
                 [msgAlert addAction:saveCoverFolderAction];
@@ -1263,6 +1266,9 @@ didFinishNavigation:(WKNavigation *)navigation {
                         [self openPopup: [NSString stringWithFormat:@"Saving : %@",[filename lastPathComponent] ]];
                         NSString *filePath=[NSString stringWithFormat:@"%@/%@.png",NSHomeDirectory(),[cover_currentPlayFilepath stringByDeletingPathExtension]];
                         [mFileMngr createFileAtPath:filePath contents:UIImagePNGRepresentation(myImage)  attributes:NULL];
+                        
+                        [detailViewController checkNewCover];
+                        [self updateMiniPlayer];
                     }
                 }];
                 [msgAlert addAction:saveCoverFileAction];

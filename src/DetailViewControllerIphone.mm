@@ -6923,7 +6923,7 @@ extern "C" int current_sample;
                     //1st win with line nb
                     char str_prefix[3];
                     ImVec2 cursorPos;
-                    float startx=(ImGui::CalcTextSize("123").x)+4.0f;
+                    float startx=(ImGui::CalcTextSize("1234").x);
                     modPatternWindowSize=ww*glScaleFactor-startx;
                     
                     ImGui::SetNextWindowPos(ImVec2(0,0));
@@ -6937,21 +6937,22 @@ extern "C" int current_sample;
                     
                     for (i=startRow;i<startRow+linestodraw;i++) {
                         
-                        str_prefix[2]=0;
+                        str_prefix[3]=0;
+                        str_prefix[0]=' ';
                         if ((i<0)&&prevNotes) {
-                            str_prefix[0]=dec2hex[((numRowsP+i)>>4)&0xF];
-                            str_prefix[1]=dec2hex[(numRowsP+i)&0xF];
+                            str_prefix[1]=dec2hex[((numRowsP+i)>>4)&0xF];
+                            str_prefix[2]=dec2hex[(numRowsP+i)&0xF];
                             color_div=0.7;
                         } else if (i<numRows) {
-                            str_prefix[0]=dec2hex[(i>>4)&0xF];
-                            str_prefix[1]=dec2hex[i&0xF];
+                            str_prefix[1]=dec2hex[(i>>4)&0xF];
+                            str_prefix[2]=dec2hex[i&0xF];
                             color_div=1;
                         } else if (nextNotes) {
-                            str_prefix[0]=dec2hex[((i-numRows)>>4)&0xF];
-                            str_prefix[1]=dec2hex[(i-numRows)&0xF];
+                            str_prefix[1]=dec2hex[((i-numRows)>>4)&0xF];
+                            str_prefix[2]=dec2hex[(i-numRows)&0xF];
                             color_div=0.7;
                         }
-                        cursorPos=ImVec2((3.0+font_ofsX)*mScaleFactor, (i-startRow+1)*lineHeight+(4.0+font_ofsY)*glScaleFactor);
+                        cursorPos=ImVec2((font_ofsX)*mScaleFactor-fontWidth/3.0f, (i-startRow+1)*lineHeight+(4.0+font_ofsY)*glScaleFactor);
                         
                         if ((i==currentRow)&&(modpat_curTheme->theme_flag&MDZ_THEMEFLAG_HighlightZoom)) {
                             if (i&1) {
@@ -7310,7 +7311,7 @@ extern "C" int current_sample;
                             xofs=startx/6.0;
                             break;
                     }
-                    ImGui::SetCursorPos(ImVec2(-xofs+font_ofsX*glScaleFactor,(4.0+font_ofsY)*glScaleFactor));
+                    ImGui::SetCursorPos(ImVec2(-xofs+font_ofsX*glScaleFactor,(4.0+font_ofsY/2.0)*glScaleFactor));
                     
                     colR=modpat_curTheme->header_col[0];
                     colG=modpat_curTheme->header_col[1];
