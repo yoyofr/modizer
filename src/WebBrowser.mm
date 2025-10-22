@@ -1219,6 +1219,66 @@ didFinishNavigation:(WKNavigation *)navigation {
   return nil;
 }
 
+- (void) copyToClip:(NSNotification*)sender {
+    //NSLog(@"copy detected");
+    if ([[UIPasteboard generalPasteboard] hasImages]) {
+        UIImage *myImage=[[UIPasteboard generalPasteboard] image];
+        if (myImage) {
+            cover_currentPlayFilepath = [detailViewController getCurrentModuleFilepath];
+            if (cover_currentPlayFilepath) {
+                UIAlertController *msgAlert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Image detected",@"")
+                                                                                  message:[NSString stringWithFormat:NSLocalizedString(@"Choose_SaveCover",@""),[cover_currentPlayFilepath lastPathComponent]]
+                                                                           preferredStyle:UIAlertControllerStyleAlert];
+                
+                UIAlertAction* saveCoverFolderAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"CoverFolder",@"") style:UIAlertActionStyleDefault
+                                                                              handler:^(UIAlertAction * action) {
+                    if (detailViewController.mPlaylist_size) {
+                        NSString *filename;
+                        NSError *err;
+                        filename=[NSString stringWithFormat:@"%@/folder.png",[cover_currentPlayFilepath stringByDeletingLastPathComponent]];
+                        NSFileManager *mFileMngr=[[NSFileManager alloc] init];
+                        [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@/folder.jpg",NSHomeDirectory(),[cover_currentPlayFilepath stringByDeletingLastPathComponent]] error:&err];
+                        [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@/folder.png",NSHomeDirectory(),[cover_currentPlayFilepath stringByDeletingLastPathComponent]] error:&err];
+                        [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@/folder.gif",NSHomeDirectory(),[cover_currentPlayFilepath stringByDeletingLastPathComponent]] error:&err];
+                        
+                        [self openPopup: [NSString stringWithFormat:@"Saving : %@",[filename lastPathComponent] ]];
+                        NSString *filePath=[NSString stringWithFormat:@"%@/%@/folder.png",NSHomeDirectory(),[cover_currentPlayFilepath stringByDeletingLastPathComponent]];
+                        [mFileMngr createFileAtPath:filePath contents:UIImagePNGRepresentation(myImage)  attributes:NULL];
+                    }
+                }];
+                [msgAlert addAction:saveCoverFolderAction];
+                
+                UIAlertAction* saveCoverFileAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"CoverFile",@"") style:UIAlertActionStyleDefault
+                                                                            handler:^(UIAlertAction * action) {
+                    
+                    if (detailViewController.mPlaylist_size) {
+                        NSString *filename;
+                        NSError *err;
+                        filename=[NSString stringWithFormat:@"%@.png",[cover_currentPlayFilepath stringByDeletingPathExtension]];
+                        NSFileManager *mFileMngr=[[NSFileManager alloc] init];
+                        [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@.jpg",NSHomeDirectory(),[cover_currentPlayFilepath stringByDeletingPathExtension]] error:&err];
+                        [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@.png",NSHomeDirectory(),[cover_currentPlayFilepath stringByDeletingPathExtension]] error:&err];
+                        [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@.gif",NSHomeDirectory(),[cover_currentPlayFilepath stringByDeletingPathExtension]] error:&err];
+                        
+                        [self openPopup: [NSString stringWithFormat:@"Saving : %@",[filename lastPathComponent] ]];
+                        NSString *filePath=[NSString stringWithFormat:@"%@/%@.png",NSHomeDirectory(),[cover_currentPlayFilepath stringByDeletingPathExtension]];
+                        [mFileMngr createFileAtPath:filePath contents:UIImagePNGRepresentation(myImage)  attributes:NULL];
+                    }
+                }];
+                [msgAlert addAction:saveCoverFileAction];
+                
+                UIAlertAction* cancelAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"No",@"") style:UIAlertActionStyleDefault
+                                                                     handler:^(UIAlertAction * action) {
+                }];
+                [msgAlert addAction:cancelAction];
+                
+                [self presentViewController:msgAlert animated:YES completion:nil];
+            }
+        }
+    }
+    
+}
+
 // Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
 - (void)viewDidLoad {
 	clock_t start_time,end_time;	
@@ -1365,12 +1425,12 @@ didFinishNavigation:(WKNavigation *)navigation {
 //    doubleTapiOS.numberOfTouchesRequired = 2;
     //doubleTap.numberOfTapsRequired=2;
     
-    UILongPressGestureRecognizer *longPress = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(findImage:)];
-    longPress.minimumPressDuration=0.5;
+//    UILongPressGestureRecognizer *longPress = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(findImage:)];
+//    longPress.minimumPressDuration=0.5;
     
 //    [self.webView addGestureRecognizer:doubleTapiOS];
 //    [self.webView addGestureRecognizer:doubleTapMac];
-    [self.webView addGestureRecognizer:longPress];
+//    [self.webView addGestureRecognizer:longPress];
     
     [self.webView addObserver:self
                        forKeyPath:NSStringFromSelector(@selector(estimatedProgress))
@@ -1388,12 +1448,15 @@ didFinishNavigation:(WKNavigation *)navigation {
                                       action:@selector(refresh_webpage)
                             forControlEvents:UIControlEventValueChanged];
     
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(copyToClip:) name:UIPasteboardChangedNotification object:nil];
+    
     
 	end_time=clock();
 #ifdef LOAD_PROFILE
 	NSLog(@"webbro : %d",end_time-start_time);
 #endif
 }
+
 
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer
 shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer {
