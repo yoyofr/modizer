@@ -258,7 +258,6 @@ int qsortVGMR_entries_rating_or_entries(const void *entryA, const void *entryB) 
         //sections are determined 'on the fly' since result set is already sorted
         if (previndex!=index) {
             if (previndex>index) {
-                //NSLog(@"********* %s",str);
             } else dbWEB_entries[index]=&(dbWEB_entries_data[dbWEB_entries_index]);
         }
         
@@ -399,7 +398,6 @@ int qsortVGMR_entries_rating_or_entries(const void *entryA, const void *entryB) 
         TFHppleElement *el=[arr_pageNb objectAtIndex:0];
         if (el) {
             int pageNb=[[el text] intValue];
-            //NSLog(@"Page nb: %d",pageNb);
             
             we=(t_web_file_entry*)calloc(1,sizeof(t_web_file_entry)*pageNb*20);
             
@@ -435,11 +433,10 @@ int qsortVGMR_entries_rating_or_entries(const void *entryA, const void *entryB) 
                     }
                                                                 completionHandler:^(NSURLResponse *response, id responseObject, NSError *error) {
                         if (error) {
-                            NSLog(@"Error: %@", error);
+                            MDZELog("Error: %@", error);
                         } else {
                             //urlData_pages=responseObject;
                             [urlData_dic setObject:responseObject forKey:[NSString stringWithFormat:@"data%d",i]];
-                            //NSLog(@"%@ %@", response, responseObject);
                         }
                         dispatch_semaphore_signal(semaphore);
                     }];
@@ -465,7 +462,7 @@ int qsortVGMR_entries_rating_or_entries(const void *entryA, const void *entryB) 
                     if (urlData) doc       = [[TFHpple alloc] initWithHTMLData:urlData];
                     else {
                         doc=nil;
-                        NSLog(@"no data for page %d",i);
+                        MDZILog("no data for page %d",i);
                     }
                 }
                 
@@ -558,7 +555,6 @@ int qsortVGMR_entries_rating_or_entries(const void *entryA, const void *entryB) 
             we=(t_web_file_entry*)calloc(1,sizeof(t_web_file_entry)*[arr_tr count]);
             for (int j=0;j<[arr_tr count];j++) {
                 TFHppleElement *el=[arr_tr objectAtIndex:j];
-                //NSLog(@"%@",[el raw]);
                 if ([el hasChildren]) {
                     NSArray *el_childs=[el childrenWithTagName:@"td"];
                     for (int i=0;i<[el_childs count];i++) {
@@ -566,7 +562,6 @@ int qsortVGMR_entries_rating_or_entries(const void *entryA, const void *entryB) 
                         
                         if ([[elc objectForKey:@"class"] isEqualToString:@"link"]) {
                             TFHppleElement *elc_a=[elc firstChildWithTagName:@"a"];
-                            //NSLog(@"found title: %@",[elc_a objectForKey:@"title"]);
                             we[we_index].file_name=[NSString stringWithString:[elc_a objectForKey:@"title"]];
                             elc_a=[elc firstChildWithTagName:@"div"];
                             if (elc_a) {
@@ -574,7 +569,6 @@ int qsortVGMR_entries_rating_or_entries(const void *entryA, const void *entryB) 
                                 if (elc_a) {
                                     elc_a=[elc_a firstChildWithTagName:@"img"];
                                     if (elc_a) {
-                                        //NSLog(@"found image: %@",[elc_a objectForKey:@"src"]);
                                         we[we_index].file_img_URL=[NSString stringWithString:[elc_a objectForKey:@"src"]];
                                     }
                                 }
@@ -585,9 +579,7 @@ int qsortVGMR_entries_rating_or_entries(const void *entryA, const void *entryB) 
                             if (elc_a) {
                                 elc_a=[elc_a firstChildWithTagName:@"a"];
                                 if (elc_a && [elc_a objectForKey:@"href"] && ([[elc_a objectForKey:@"href"] rangeOfString:@"/developed"].location!=NSNotFound)) {
-                                    //NSLog(@"found link: %@",[elc_a objectForKey:@"href"]);
                                     we[we_index].file_URL=[elc_a objectForKey:@"href"];
-                                    //NSLog(@"count: %@",[elc_a text]);
                                     
                                     if ([[elc_a text] isEqualToString:@"1"]) we[we_index].file_details=[NSString stringWithFormat:@"1 pack"];
                                     else we[we_index].file_details=[NSString stringWithFormat:@"%@ packs",[elc_a text]];
@@ -730,7 +722,6 @@ int qsortVGMR_entries_rating_or_entries(const void *entryA, const void *entryB) 
         if ([mWebBaseURL isEqualToString:@"https://vgmrips.net/packs/latest"]) no_sort=TRUE;
         
         int pageNb=1; //top 20 to start
-        //NSLog(@"Page nb: %d",pageNb);
         
         we=(t_web_file_entry*)calloc(1,sizeof(t_web_file_entry)*pageNb*20);
         for (int i=0;i<pageNb;i++) {
@@ -864,10 +855,8 @@ int qsortVGMR_entries_rating_or_entries(const void *entryA, const void *entryB) 
     index=-1;
     for (int i=0;i<dbWEB_nb_entries;i++) {
         t_web_file_entry *wef = (t_web_file_entry *)[[sortedArray objectAtIndex:i] pointerValue];
-        //NSLog(@"%@",wef->file_name);
         chr=[wef->file_name characterAtIndex:0];
         
-        //NSLog(@"%@",wef->file_size);
         previndex=index;
         index=0;
         if (indexTitleMode) {
@@ -877,7 +866,6 @@ int qsortVGMR_entries_rating_or_entries(const void *entryA, const void *entryB) 
         //sections are determined 'on the fly' since result set is already sorted
         if (previndex!=index) {
             if (previndex>index) {
-                //NSLog(@"********* %s",str);
                 if (previndex>=0) index=previndex;
                 else {
                     index=0;

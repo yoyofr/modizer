@@ -87,23 +87,23 @@ gzwrite(f,&str_len,sizeof(str_len));gzwrite(f,str,str_len);
 
 #define DOWNLOAD_BKP_READ_VAL(a) \
         if (gzread(f,&a,sizeof(a))!=sizeof(a)) {\
-            NSLog(@"gzread error val");\
+MDZELog("gzread error val");\
             gzclose(f);\
             return -5;\
         }
 #define DOWNLOAD_BKP_READ_STR(a) \
             if (gzread(f,&str_len,sizeof(str_len))!=sizeof(str_len)) { \
-                NSLog(@"gzread error FTP entry %d",i); \
+MDZELog("gzread error FTP entry %d",i); \
                 gzclose(f); \
                 return -2; \
             } \
             if (str_len>=sizeof(str)) { \
-                NSLog(@"gzread error too long str (%d) for entry %d",str_len,i); \
+MDZELog("gzread error too long str (%d) for entry %d",str_len,i); \
                 gzclose(f); \
                 return -3; \
             } \
             if (gzread(f,str,str_len)!=str_len) { \
-                NSLog(@"gzread error str for FTP entry %d",i); \
+MDZELog("gzread error str for FTP entry %d",i); \
                 gzclose(f); \
                 return -4; \
             } \
@@ -119,7 +119,7 @@ gzwrite(f,&str_len,sizeof(str_len));gzwrite(f,str,str_len);
         
         DOWNLOAD_BKP_READ_VAL(mFTPDownloadQueueDepth)
         if (mFTPDownloadQueueDepth>MAX_DOWNLOAD_QUEUE) {
-            NSLog(@"Error FTP queue too high %d/%d",mFTPDownloadQueueDepth,MAX_DOWNLOAD_QUEUE);
+            MDZELog("Error FTP queue too high %d/%d",mFTPDownloadQueueDepth,MAX_DOWNLOAD_QUEUE);
             gzclose(f);
             return -1;
         }
@@ -138,7 +138,7 @@ gzwrite(f,&str_len,sizeof(str_len));gzwrite(f,str,str_len);
         
         DOWNLOAD_BKP_READ_VAL(mURLDownloadQueueDepth)
         if (mURLDownloadQueueDepth>MAX_DOWNLOAD_QUEUE) {
-            NSLog(@"Error URL queue too high %d/%d",mURLDownloadQueueDepth,MAX_DOWNLOAD_QUEUE);
+            MDZELog("Error URL queue too high %d/%d",mURLDownloadQueueDepth,MAX_DOWNLOAD_QUEUE);
             gzclose(f);
             return -1;
         }
@@ -598,7 +598,6 @@ gzwrite(f,&str_len,sizeof(str_len));gzwrite(f,str,str_len);
 - (void)_stopReceiveWithStatus:(NSString *)statusString status:(int)status{
     // Shuts down the connection and displays the result (statusString == nil)
     // or the error status (otherwise).
-    //    NSLog(@"stop, reason: %@",statusString);
     
 	NSError *err;
     if (self.networkStream != nil) {
@@ -818,9 +817,6 @@ gzwrite(f,&str_len,sizeof(str_len));gzwrite(f,str,str_len);
 					char tmp_str[1024];
                     NSString *newPath,*newName;
                     
-                    //                    NSLog(@"FILENAME: %@",filePath);
-                    //                    NSLog(@"FILENAME: %@",[filePath stringByDeletingLastPathComponent]);
-                    
                     newPath=[NSString stringWithFormat:@"%@/%@patch.003",[filePath stringByDeletingLastPathComponent],[fileName substringToIndex:3]];
 					mFilePath[mFTPDownloadQueueDepth]=[[NSString alloc] initWithString:newPath];
 					
@@ -845,9 +841,6 @@ gzwrite(f,&str_len,sizeof(str_len));gzwrite(f,str,str_len);
                     char *tmp_str_ptr;
                     char tmp_str[1024];
                     NSString *newPath,*newName;
-                    
-                    //                    NSLog(@"FILENAME: %@",filePath);
-                    //                    NSLog(@"FILENAME: %@",[filePath stringByDeletingLastPathComponent]);
                     
                     newPath=[NSString stringWithFormat:@"%@/songplay",[filePath stringByDeletingLastPathComponent]];
                     mFilePath[mFTPDownloadQueueDepth]=[[NSString alloc] initWithString:newPath];
@@ -1381,7 +1374,6 @@ gzwrite(f,&str_len,sizeof(str_len));gzwrite(f,str,str_len);
     NSString *baseURL;
     if ([[[URL absoluteString] lowercaseString] containsString:@"https"]) baseURL=[NSString stringWithFormat:@"https://%@",URL.host];
     else baseURL=[NSString stringWithFormat:@"http://%@",URL.host];
-    //NSLog(@"baseurl: %@",baseURL);
     
     [request setValue:baseURL forHTTPHeaderField:@"referer"];
     
@@ -1410,11 +1402,9 @@ gzwrite(f,&str_len,sizeof(str_len));gzwrite(f,str,str_len);
         return [NSURL fileURLWithPath:localPath];
     } completionHandler:^(NSURLResponse *response, NSURL *filePath, NSError *error) {
         if (error) {
-            NSLog(@"URL file download error for %@, error: %d %@", filePath,error.code,error.localizedDescription);
+            MDZELog("URL file download error for %@, error: %d %@", filePath,(int)(error.code),error.localizedDescription);
             [self requestFailed];
         } else {
-            NSLog(@"File downloaded to: %@", filePath);
-            
             [self addSkipBackupAttributeToItemAtPath:[filePath path]];
             
             if (mURLIsMODLAND[0]) {

@@ -70,18 +70,6 @@ pthread_mutex_t play_mutex;
     return result == 0;
 }
 
-/*NSUInteger pasteboardChangeCount_;
-
-- (void)pasteboardChangedNotification:(NSNotification*)notification {
-    pasteboardChangeCount_ = [UIPasteboard generalPasteboard].changeCount;
-    NSLog(@"pasteboard count : %d",pasteboardChangeCount_);
-    UIPasteboard *genPB=[UIPasteboard generalPasteboard];
-    NSArray *pbtypes=[genPB pasteboardTypes];
-    for (int i=0;i<[pbtypes count];i++) {
-        NSLog(@"got : %@",[pbtypes objectAtIndex:i]);
-    }
-}*/
-
 -(void) batteryChanged:(NSNotification*)notification {
     if ([[UIDevice currentDevice] batteryState] != UIDeviceBatteryStateUnplugged)
         [UIApplication sharedApplication].idleTimerDisabled=YES;
@@ -122,10 +110,9 @@ pthread_mutex_t play_mutex;
     if (![mFileMngr ubiquityIdentityToken]) {
         icloud_available=false;
         icloudURL=nil;
-        NSLog(@"iCloud not available");
+        MDZILog("iCloud not available");
     } else {
         icloud_available=true;
-//        NSLog(@"got iCloud token");
         NSURL *url=[mFileMngr URLForUbiquityContainerIdentifier:nil];
         
         if (url) {
@@ -138,7 +125,7 @@ pthread_mutex_t play_mutex;
     [mFileMngr createDirectoryAtPath:[NSHomeDirectory() stringByAppendingPathComponent:@"Documents/Downloads"] withIntermediateDirectories:true attributes:NULL error:NULL];
     
 #ifdef DEBUG_MODIZER
-    NSLog(@"%@",[NSHomeDirectory() stringByAppendingPathComponent:@"Documents/Downloads"]);
+    MDZILog("%@",[NSHomeDirectory() stringByAppendingPathComponent:@"Documents/Downloads"]);
 #endif
     
     //create dir for projectm custom assets
@@ -302,7 +289,6 @@ pthread_mutex_t play_mutex;
                 BOOL success = [url getResourceValue:&isDownloadedValue forKey:NSURLUbiquitousItemIsDownloadedKey error:NULL];
                 if (success && ![isDownloadedValue boolValue]) {
                     [[NSFileManager defaultManager] startDownloadingUbiquitousItemAtURL:url error:NULL];
-    //                NSLog(@"file has to be downloaded");
                     
                     UIAlertView *alertDownloading = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Warning",@"") message:NSLocalizedString(@"File is not available locally.\nTrigerring download from iCloud, please check in 'Files' application.",@"") delegate:self cancelButtonTitle:NSLocalizedString(@"Close",@"") otherButtonTitles:nil];
                     if (alertDownloading) [alertDownloading show];
@@ -310,22 +296,17 @@ pthread_mutex_t play_mutex;
                     return YES;
                 }
             }            
-//            NSLog(@"URL secure access granted for %@\n",[url path]);
             
             if ([mFileMngr copyItemAtPath:filepath toPath:imported_filepath error:&err]) {
-//                NSLog(@"file imported in 'Downloads' folder");
                 [rootViewControlleriPhone refreshViewAfterDownload];
             } else {
-//                NSLog(@"file not imported in 'Downloads' folder, error: %ld %@",err.code,[err localizedDescription]);
             }
             [url stopAccessingSecurityScopedResource];
         } else  {
-//            NSLog(@"URL secure access refused for %@\n",[url path]);
         }
         
         NSString *shortfilepath=imported_filepath=[NSString stringWithFormat:@"Documents/Downloads/%@",[filepath lastPathComponent]];
-//        NSLog(@"opening: %@",shortfilepath);
-        //}
+
         t_playlist *pl;
         pl=(t_playlist*)calloc(1,sizeof(t_playlist));
         
@@ -357,12 +338,6 @@ pthread_mutex_t play_mutex;
 }
 
 - (void)applicationDidBecomeActive:(UIApplication *)application {
-/*    if (pasteboardChangeCount_ != [UIPasteboard generalPasteboard].changeCount) {
-        [[NSNotificationCenter defaultCenter] 
-         postNotificationName:UIPasteboardChangedNotification
-         object:[UIPasteboard generalPasteboard]];
-    }*/
-    
 	if ([[UIApplication sharedApplication] respondsToSelector:@selector(endReceivingRemoteControlEvents)]) {
 	//	[[UIApplication sharedApplication] endReceivingRemoteControlEvents];
 		[detailViewControlleriPhone enterForeground];
@@ -406,7 +381,7 @@ pthread_mutex_t play_mutex;
 }
 
 - (void)openFeature:(NSString *)feature {
-    NSLog(@"open feature %@",feature);
+    MDZILog("open feature %@",feature);
 }
 
 - (BOOL)application:(UIApplication *)application
@@ -428,7 +403,7 @@ continueUserActivity:(NSUserActivity *)userActivity
 	
 	// remember to clean up anything outside of this view's scope, such as
 	// data cached in the class instance and other global data.
-	NSLog(@"received a memory warning...");
+    MDZILog("received a memory warning...");
     [SettingsGenViewController backupSettings];
     [detailViewControlleriPhone saveSettings];
     //[downloadVC backupDownloadList];

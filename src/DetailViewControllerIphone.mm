@@ -98,6 +98,7 @@ extern unsigned int m_voice_oscillo_pal3[8];
 #include <GLES3/gl3.h>
 bool _pmIsInitialized;
 int _pm_shouldRestartAt;
+int _pmCanvasWidth,_pmCanvasHeight;
 projectm_handle _pm; //!< Pointer to the projectM instance used by the application.
 projectm_playlist_handle _pm_playlist; //!< Pointer to the projectM playlist manager instance.
 bool _pm_playlist_loadBundled,_pm_playlist_loadCustom;
@@ -141,7 +142,6 @@ void PresetSwitchedEvent(bool isHardCut, unsigned int index, void* context) {
     char *presetName = projectm_playlist_item(_pm_playlist, index);
     char *title=pmGetPresetCleanTitle(presetName);
     
-    //NSLog(@"Preset switched to: %s",presetName);
     if (pmPresetStr) {
         free(pmPresetStr);
     }
@@ -155,7 +155,7 @@ void PresetSwitchedEvent(bool isHardCut, unsigned int index, void* context) {
 }
 
 void PresetSwitchFailedEvent(const char* preset_filename, const char* message, void* user_data) {
-    NSLog(@"Preset switch failed.\Filename: %s\nMessage: %s",preset_filename,message);
+    MDZELog("Preset switch failed.\Filename: %s\nMessage: %s",preset_filename,message);
 }
 
 //--------------------------------------------------
@@ -678,7 +678,6 @@ bool sysMonitorIsActive;
     signed char avg_rating;
     short int playcount;
     
-    //    NSLog(@"upd: %@ | %@",fileName,filePath);
     filePath=[ModizFileHelper getFullCleanFilePath:filePath];
     
     if ([mplayer isArchive]) {
@@ -732,8 +731,6 @@ bool sysMonitorIsActive;
     fileName=mPlaylist[mPlaylist_pos].mPlaylistFilename;
     
     tmp_rating=mPlaylist[mPlaylist_pos].mPlaylistRating;
-    
-    //NSLog(@"updating rating multi: %@\n%@",fileName,filePath);
     
     msgAlert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Favorites",@"")
                                                    message:[NSString stringWithFormat:NSLocalizedString(@"Please choose",@"")]
@@ -945,8 +942,6 @@ bool sysMonitorIsActive;
     if ((single_music_file==false)&&(rating==-1)) {
         [self pushedRatingMulti];
     } else {
-        //NSLog(@"updating rating simple: %@\n%@",fileName,filePath);
-        
         //recompose filePath
         filePath=[ModizFileHelper getFullCleanFilePath:filePath];
         if ([mplayer isArchive]) filePath=[NSString stringWithFormat:@"%@@%d",filePath,[mplayer getArcIndex]];
@@ -1253,7 +1248,6 @@ static float movePinchScale,movePinchScaleOld;
             if (m_oglView.hidden) {
                 viewTapHelpInfo=0;//255;
                 if ([self computeActiveFX]==0) {
-                    //NSLog(@"display oglView & info menu");
                     viewTapHelpShow=1;
                     viewTapHelpShowMode=1;
                 }
@@ -1854,7 +1848,6 @@ static float movePinchScale,movePinchScaleOld;
         noReEntrant=false;
         return;
     } else {
-        //		NSLog(@"waiting : %d %d",mplayer.bGlobalAudioPause,[mplayer isEndReached]);
     }
     
     if (updMPNowCnt==0) {  // call 1/5 => 1/s
@@ -2672,7 +2665,7 @@ int recording=0;
         }
         
         if (retcode) {
-            NSLog(@"Issue in LoadModule(archive) %@",filePath);
+            MDZELog("Issue in LoadModule(archive) %@",filePath);
             if (retcode==-99) mLoadIssueMessage=0;
             else mLoadIssueMessage=1;
             return FALSE;
@@ -2700,7 +2693,7 @@ int recording=0;
                 }
                 
                 if (retcode) {
-                    NSLog(@"Issue in LoadModule(archive) %@",filePath);
+                    MDZELog("Issue in LoadModule(archive) %@",filePath);
                     if (retcode==-99) mLoadIssueMessage=0;
                     else mLoadIssueMessage=2;
                     return FALSE;
@@ -3006,9 +2999,6 @@ int recording=0;
 }
 
 -(void) cancelPushed {
-#if DEBUG_MODIZER
-//    NSLog(@"detailedview cancelPushed");
-#endif
     if (loadRequestInProgress) {
         mplayer.extractPendingCancel=true;
         [waitingView hideCancel];
@@ -3019,9 +3009,7 @@ int recording=0;
 }
 
 -(void) loadNewFileFailed:(NSString *)filePath fname:(NSString *)fileName arcidx:(int)arcidx subsong:(int)subsong {
-#if DEBUG_MODIZER
-    NSLog(@"load failed: %@ %@ %d %d",filePath,fileName,arcidx,subsong);
-#endif
+    MDZELog("load failed: %@ %@ %d %d",filePath,fileName,arcidx,subsong);
     loadRequestInProgress=0;
     
     UIViewController *vc = [self visibleViewController:[UIApplication sharedApplication].keyWindow.rootViewController];
@@ -3053,7 +3041,7 @@ int recording=0;
 
 -(void) loadNewFileCompleted:(NSString *)filePath fname:(NSString *)fileName arcidx:(int)arcidx subsong:(int)subsong {
 #if DEBUG_MODIZER
-//    NSLog(@"load completed: %@ %@ %d %d",filePath,fileName,arcidx,subsong);
+    MDZILog("load completed: %@ %@ %d %d",filePath,fileName,arcidx,subsong);
 #endif
     //UIViewController *vc = [self visibleViewController:[UIApplication sharedApplication].keyWindow.rootViewController];
     //mdz_safe_execute_sel(vc,@selector(hideWaiting),nil)
@@ -3313,7 +3301,7 @@ int recording=0;
             
             if (retcode) {
                 //Wasn't able to load, fail
-                NSLog(@"Issue in LoadModule %@",filePath);
+                MDZELog("Issue in LoadModule %@",filePath);
                 mRestart=0;
                 mRestart_sub=0;
                 mRestart_arc=0;
@@ -3348,7 +3336,7 @@ int recording=0;
                 } while (retcode);
                 
                 if (retcode) {
-                    NSLog(@"Issue in LoadModule(archive) %@",filePath);
+                    MDZELog("Issue in LoadModule(archive) %@",filePath);
                     if (retcode==-99) mLoadIssueMessage=0;
                     else mLoadIssueMessage=4;
                     
@@ -3462,7 +3450,7 @@ int recording=0;
         }
         
         if (retcode) {
-            NSLog(@"Issue in LoadModule %@",filePathTmp);
+            MDZELog("Issue in LoadModule %@",filePathTmp);
             mRestart=0;
             mRestart_sub=0;
             mRestart_arc=0;
@@ -3493,7 +3481,7 @@ int recording=0;
                 } while (retcode);
                 
                 if (retcode) {
-                    NSLog(@"Issue in LoadModule(archive) %@",filePath);
+                    MDZELog("Issue in LoadModule(archive) %@",filePath);
                     if (retcode==-99) mLoadIssueMessage=0;
                     else mLoadIssueMessage=4;
                     
@@ -3714,15 +3702,11 @@ int recording=0;
     [super willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
     //[self updateLayoutsForCurrentOrientation:toInterfaceOrientation view:self.navigationController.view.superview.superview];
     [self shouldAutorotateToInterfaceOrientation:toInterfaceOrientation];
-    
-    //NSLog(@"willAnimateRotationToInterfaceOrientation: %d",toInterfaceOrientation);
-    
 }
 
 // Ensure that the view controller supports rotation and that the split view can therefore show in both portrait and landscape.
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
     orientationHV=interfaceOrientation;
-//    NSLog(@"should rotate to : %d",orientationHV);
     
     if (eqVC) [eqVC shouldAutorotateToInterfaceOrientation:interfaceOrientation];
     
@@ -3783,7 +3767,6 @@ int recording=0;
             
             int yofs=self.navigationItem.titleView.frame.size.height;
             if (is_macOS) yofs+=0;
-            //NSLog(@"nav item: %f x %f",self.navigationItem.titleView.frame.size.width,self.navigationItem.titleView.frame.size.height);
             
             safe_bottom=[[UIApplication sharedApplication] keyWindow].safeAreaInsets.bottom;
             safe_top=[[UIApplication sharedApplication] keyWindow].safeAreaInsets.top;
@@ -4037,10 +4020,8 @@ int recording=0;
                                               cover_viewAll.frame.size.width-2*cover_viewAll.frame.size.width/20,
                                               cover_viewAll.frame.size.height-2*cover_viewAll.frame.size.height/20);
                 
-                //NSLog(@"FS ww:%d hh:%d",mDevice_ww,mDevice_hh);
                 
             } else {
-                //NSLog(@"WS ww:%d hh:%d",mDevice_ww,mDevice_hh);
                 if (mHasFocus) {
                     statusbarHidden=NO;
                     [self setNeedsStatusBarAppearanceUpdate];
@@ -4051,7 +4032,6 @@ int recording=0;
                 
                 int yofs=self.navigationItem.titleView.frame.size.height;
                 if (is_macOS) yofs+=30;
-                //NSLog(@"nav item: %f x %f",self.navigationItem.titleView.frame.size.width,self.navigationItem.titleView.frame.size.height);
                 
                 safe_bottom=[[UIApplication sharedApplication] keyWindow].safeAreaInsets.bottom;
                 safe_top=[[UIApplication sharedApplication] keyWindow].safeAreaInsets.top;
@@ -4079,7 +4059,6 @@ int recording=0;
                                               cover_viewAll.frame.size.width-2*cover_viewAll.frame.size.width/20,
                                               cover_viewAll.frame.size.height-2*cover_viewAll.frame.size.height/20);
                 if (gifAnimation) {
-                    //NSLog(@"3: %f %f",cover_view.frame.size.width,cover_view.frame.size.height);
                     gifAnimation.frame = CGRectMake(0, 0,cover_view.frame.size.width,cover_view.frame.size.height);
                 }
                 
@@ -4360,7 +4339,7 @@ GLsizei txtbackgroundImageWidth,txtbackgroundImageHeight;
                         if (ofs>=fsize) {//refill
                             available_bytes=gzread(f,fdata,fsize);
                             if (!available_bytes) {
-                                NSLog(@"error while uncompressing modizer.plnow @ %d/%d",i,mPlaylist_size);
+                                MDZELog("error while uncompressing modizer.plnow @ %d/%d",i,mPlaylist_size);
                                 mPlaylist_size=0;
                                 break;
                             }
@@ -4368,7 +4347,7 @@ GLsizei txtbackgroundImageWidth,txtbackgroundImageHeight;
                         }
                     }
                     if (ofs_str>=1024) {
-                        NSLog(@"error while uncompressing modizer.plnow @ %d/%d",i,mPlaylist_size);
+                        MDZELog("error while uncompressing modizer.plnow @ %d/%d",i,mPlaylist_size);
                         mPlaylist_size=0;
                         break;
                     }
@@ -4381,7 +4360,7 @@ GLsizei txtbackgroundImageWidth,txtbackgroundImageHeight;
                     if (ofs>=fsize) { //refill
                         available_bytes=gzread(f,fdata,fsize);
                         if (!available_bytes) {
-                            NSLog(@"error while uncompressing modizer.plnow @ %d/%d",i,mPlaylist_size);
+                            MDZELog("error while uncompressing modizer.plnow @ %d/%d",i,mPlaylist_size);
                             mPlaylist_size=0;
                             break;
                         }
@@ -4395,7 +4374,7 @@ GLsizei txtbackgroundImageWidth,txtbackgroundImageHeight;
                         if (ofs>=fsize) { //refill
                             available_bytes=gzread(f,fdata,fsize);
                             if (!available_bytes) {
-                                NSLog(@"error while uncompressing modizer.plnow @ %d/%d",i,mPlaylist_size);
+                                MDZELog("error while uncompressing modizer.plnow @ %d/%d",i,mPlaylist_size);
                                 mPlaylist_size=0;
                                 break;
                             }
@@ -4403,7 +4382,7 @@ GLsizei txtbackgroundImageWidth,txtbackgroundImageHeight;
                         }
                     }
                     if (ofs_str>=1024) {
-                        NSLog(@"error while uncompressing modizer.plnow @ %d/%d",i,mPlaylist_size);
+                        MDZELog("error while uncompressing modizer.plnow @ %d/%d",i,mPlaylist_size);
                         mPlaylist_size=0;
                         break;
                     }
@@ -4415,7 +4394,7 @@ GLsizei txtbackgroundImageWidth,txtbackgroundImageHeight;
                     if (ofs>=fsize) { //refill
                         available_bytes=gzread(f,fdata,fsize);
                         if (!available_bytes) {
-                            NSLog(@"error while uncompressing modizer.plnow @ %d/%d",i,mPlaylist_size);
+                            MDZELog("error while uncompressing modizer.plnow @ %d/%d",i,mPlaylist_size);
                             mPlaylist_size=0;
                             break;
                         }
@@ -4557,7 +4536,6 @@ GLsizei txtbackgroundImageWidth,txtbackgroundImageHeight;
     if (r == ARCHIVE_OK) {
         while (archive_read_next_header(a, &entry) == ARCHIVE_OK) {
             NSString *strFilename=[ModizFileHelper getCorrectFileName:[filepath UTF8String] archive:a entry:entry];
-            //NSLog(@"%@",strFilename);
             bool found_img=false;
             if ([[strFilename pathExtension] caseInsensitiveCompare:@"PNG"]==NSOrderedSame) {
                 //PNG detected
@@ -4582,7 +4560,6 @@ GLsizei txtbackgroundImageWidth,txtbackgroundImageHeight;
                 data_ptr=(char*)malloc(data_size);
                 if (data_ptr) {
                     r=archive_read_data(a,data_ptr,data_size);
-                    //NSLog(@"read img data, size: %d",size_data);
                     if (r==ARCHIVE_OK) res_image=[UIImage imageWithData:[NSData dataWithBytes:data_ptr length:data_size]];
                     free(data_ptr);
                     break;
@@ -4609,7 +4586,6 @@ GLsizei txtbackgroundImageWidth,txtbackgroundImageHeight;
     if (r == ARCHIVE_OK) {
         while (archive_read_next_header(a, &entry) == ARCHIVE_OK) {
             NSString *strFilename=[ModizFileHelper getCorrectFileName:path archive:a entry:entry];
-            //NSLog(@"%@",strFilename);
             if ([[strFilename pathExtension] caseInsensitiveCompare:@"PNG"]==NSOrderedSame) {
                 //PNG detected
                 ret=1;
@@ -4640,8 +4616,6 @@ GLsizei txtbackgroundImageWidth,txtbackgroundImageHeight;
 - (void) checkAvailableCovers:(int)index {
     NSString *pathFolderImgPNG,*pathCoverImgPNG,*pathFileImgPNG,*pathFolderImgJPG,*pathCoverImgJPG,*pathFileImgJPG,*pathFolderImgJPEG,*pathCoverImgJPEG,*pathFileImgJPEG,*pathFolderImgGIF,*pathCoverImgGIF,*pathFileImgGIF,*fullFilepath,*filePath,*basePath;
     NSFileManager *fileMngr=[[NSFileManager alloc] init];
-    
-    //    NSLog(@"look for %d",index);
     
     mPlaylist[index].cover_flag=0; //used for cover flag
     filePath=mPlaylist[index].mPlaylistFilepath;
@@ -4691,7 +4665,6 @@ GLsizei txtbackgroundImageWidth,txtbackgroundImageHeight;
 {
     UIDeviceOrientation op=[[UIDevice currentDevice]orientation];
     UIInterfaceOrientation o = [[UIApplication sharedApplication] statusBarOrientation];
-    //NSLog(@"change orientation: %d / %d",o,op);
     o = [[UIApplication sharedApplication] statusBarOrientation];
     
     switch (o) {
@@ -4763,12 +4736,11 @@ GLsizei txtbackgroundImageWidth,txtbackgroundImageHeight;
 //    oglLayer.retainedBacking = YES;
     oglLayer.contentsScale = [[UIScreen mainScreen] scale];
     glScaleFactor=[[UIScreen mainScreen] scale];
-//    NSLog(@"ogl scale: %f",[[UIScreen mainScreen] scale]);
     
     // Create OpenGL context
     m_oglContext = [[MGLContext alloc] initWithAPI:kMGLRenderingAPIOpenGLES3];
     if (!m_oglContext || ![MGLContext setCurrentContext:m_oglContext]) {
-        NSLog(@"no OGL context!!");
+        MDZELog("no OGL context!!");
     }
     m_oglView.context = m_oglContext;
     
@@ -4822,12 +4794,8 @@ void pmSoftReinit() {
         _pm_playlist_loadBundled=settings[PROJECTM_BundledPresets].detail.mdz_boolswitch.switch_value;
         _pm_playlist_loadCustom=settings[PROJECTM_CustomPresets].detail.mdz_boolswitch.switch_value;
         
-//        NSLog(@"reinit\n- %s\n- %s",presetsDir.c_str(),presetsCustomDir.c_str());
-        
         if (_pm_playlist_loadBundled) projectm_playlist_add_path(_pm_playlist, presetsDir.c_str(), true, false);
         if (_pm_playlist_loadCustom) projectm_playlist_add_path(_pm_playlist, presetsCustomDir.c_str(), true, false);
-        
-//        NSLog(@"playlist entries nb: %d",projectm_playlist_size(_pm_playlist));
         
         if (projectm_playlist_size(_pm_playlist)) {
             projectm_playlist_sort(_pm_playlist, 0, projectm_playlist_size(_pm_playlist), SORT_PREDICATE_FULL_PATH, SORT_ORDER_ASCENDING);
@@ -4845,11 +4813,9 @@ void pmSoftReinit() {
 - (void)pmInit {
     _pm = projectm_create();
     if (!_pm) {
-        NSLog(@"cannot create projectM instance");
+        MDZELog("cannot create projectM instance");
         return;
     }
-    
-    int canvasWidth,canvasHeight;
     
     const char *texturesSearchPaths[2];
     std::string resourceDir;
@@ -4861,18 +4827,9 @@ void pmSoftReinit() {
     std::string texturesCustomDir = homeDir+"/Documents"+PM_ROOT_FOLDER_CUSTOM+"/textures";
     std::string presetsCustomDir = homeDir+"/Documents"+PM_ROOT_FOLDER_CUSTOM+"/presets";
     
-//    NSLog(@"Textures: %s",texturesDir.c_str());
-//    NSLog(@"Presets: %s",presetsDir.c_str());
-    
-        
-    canvasWidth=m_oglView.frame.size.width*glScaleFactor;
-    canvasHeight=m_oglView.frame.size.height*glScaleFactor;
-    
-//    NSLog(@"Canvas: %d x %d",canvasWidth,canvasHeight);
-    
     _pm_fps=settings[GLOB_FXFPS].detail.mdz_switch.switch_value==1?60:30;
 
-    projectm_set_window_size(_pm, canvasWidth, canvasHeight);
+    projectm_set_window_size(_pm, _pmCanvasWidth, _pmCanvasHeight);
     projectm_set_fps(_pm, _pm_fps);
     
     meshX=round(settings[PROJECTM_MeshSizeX].detail.mdz_slider.slider_value/2)*2;
@@ -4905,8 +4862,10 @@ void pmSoftReinit() {
     _pm_playlist = projectm_playlist_create(_pm);
     if (!_pm_playlist)
     {
-        NSLog(@"Failed to create the projectM preset playlist manager instance.");
+        MDZELog("Failed to create the projectM preset playlist manager instance.");
         //Add dealloc projectM
+        projectm_destroy(_pm);
+        _pm=NULL;
         return;
     }
 
@@ -4918,18 +4877,12 @@ void pmSoftReinit() {
     if (_pm_playlist_loadBundled) projectm_playlist_add_path(_pm_playlist, presetsDir.c_str(), true, false);
     if (_pm_playlist_loadCustom) projectm_playlist_add_path(_pm_playlist, presetsCustomDir.c_str(), true, false);
     
-//    NSLog(@"Init\n- %s\n- %s",presetsDir.c_str(),presetsCustomDir.c_str());
-    
-//    NSLog(@"playlist entries nb: %d",projectm_playlist_size(_pm_playlist));
-
     projectm_playlist_sort(_pm_playlist, 0, projectm_playlist_size(_pm_playlist), SORT_PREDICATE_FULL_PATH, SORT_ORDER_ASCENDING);
 
     projectm_playlist_set_preset_switched_event_callback(_pm_playlist, &PresetSwitchedEvent, nil);
     projectm_playlist_set_preset_switch_failed_event_callback(_pm_playlist, &PresetSwitchFailedEvent, nil);
 
 
-//    NSLog(@"projectM initialized");
-    
     pmPresetStr=NULL;
     _pmPresetHasChanged=false;
     _pm_display_name_countdown=0;
@@ -4971,7 +4924,6 @@ void pmSoftReinit() {
     
     [super viewDidLoad];
     
-    
     sysMonitor=[[SysMonitoring alloc] init];
     sysMonitorIsActive=false;
     
@@ -4990,6 +4942,8 @@ void pmSoftReinit() {
     _pm_shouldRestartAt=-1;
     
     //[self pmInit];
+    _pmCanvasWidth=m_oglView.frame.size.width*glScaleFactor;
+    _pmCanvasHeight=m_oglView.frame.size.height*glScaleFactor;
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
         [self pmInit];
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
@@ -5004,8 +4958,6 @@ void pmSoftReinit() {
     //--------------------------------//
     txtbackgroundImage=0;
     glGenTextures(1, &txtbackgroundImage);
-//    NSLog(@"new texture %s %d","txtbackgroundImage",txtbackgroundImage);
-    
     
     //--------------------------------//
     // ImGui init
@@ -5200,7 +5152,6 @@ void pmSoftReinit() {
     safe_right=[[UIApplication sharedApplication] keyWindow].safeAreaInsets.right;
     
     if (safe_bottom>0) safe_bottom+=20;
-    //NSLog(@"saf bottom: %f\n",safe_bottom);
     
     if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
         if (!is_macOS) mDeviceType=DEVICE_IPAD; //ipad
@@ -5213,8 +5164,6 @@ void pmSoftReinit() {
             win=[UIApplication sharedApplication].windows.firstObject;
         } else win=[UIApplication sharedApplication].keyWindow;
         
-        //        NSLog(@"mscr w %f h %f s %f",mainscr.bounds.size.width,mainscr.bounds.size.height,mainscr.scale);
-        //        NSLog(@"win  w %f h %f",win.bounds.size.width,win.bounds.size.height);
         
         //if (mainscr.bounds.size.height>mainscr.bounds.size.width) {
         if (win.bounds.size.height>win.bounds.size.width) {
@@ -5241,8 +5190,6 @@ void pmSoftReinit() {
             win=[UIApplication sharedApplication].windows.firstObject;
         } else win=[UIApplication sharedApplication].keyWindow;
         
-//        NSLog(@"mscr w %f h %f s %f",mainscr.bounds.size.width,mainscr.bounds.size.height,mainscr.scale);
-//        NSLog(@"win  w %f h %f",win.bounds.size.width,win.bounds.size.height);
         
         if (win.bounds.size.height>win.bounds.size.width) {
             mDevice_hh=win.bounds.size.height;
@@ -5262,7 +5209,6 @@ void pmSoftReinit() {
     
     
     CHECK_PROFILE("various3")
-    //    NSLog(@"s %f w %d h %d",mScaleFactor,mDevice_ww,mDevice_hh);
     /* iPhone Simulator == i386
      iPhone == iPhone1,1             //Slow
      3G iPhone == iPhone1,2          //Slow
@@ -5427,21 +5373,6 @@ void pmSoftReinit() {
     
     CHECK_PROFILE("various4")
     
-    // Get location
-    /*self.locManager = [[[CLLocationManager alloc] init] autorelease];
-     if (!self.locManager.locationServicesEnabled) {
-     //@"User has opted out of location services"];
-     //		NSLog(@"no location available");
-     locManager_isOn=0;
-     } else {
-     self.locManager.delegate = self;
-     self.locManager.desiredAccuracy = kCLLocationAccuracyThreeKilometers;
-     self.locManager.distanceFilter = 1000.0f; // in meters
-     locationLastUpdate=[[NSDate alloc] init];
-     locManager_isOn=2;
-     [self.locManager startUpdatingLocation];
-     }*/
-    
     //    [[infoButton layer] setCornerRadius:10.0];
     /* Popup stuff */
     [[infoMsgView layer] setCornerRadius:5.0];
@@ -5528,8 +5459,8 @@ void pmSoftReinit() {
     //opengl stuff
     //Init shaders
     if (RenderUtils::RenderInit()) {
-        NSLog(@"render init OK");
-    }  else NSLog(@"!!render init KO!!");
+         MDZILog("render init OK");
+    }  else MDZELog("!!render init KO!!");
     
     CHECK_PROFILE("Renders")
     
@@ -5620,8 +5551,6 @@ void pmSoftReinit() {
     
     tim_midifx_note_offset_reset=true;
     tim_midifx_length=MAX_MIDIFX_LENGTH;
-    
-//    NSLog(@"ww: %d, note range %f",mDevice_ww,tim_midifx_note_range);
     
     clearAudioFXbuffer=true;
     
@@ -5766,7 +5695,6 @@ void pmSoftReinit() {
 }
 
 - (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
-    //NSLog(@"resize event");
     if (mOglViewIsHidden==NO) {
         //YOYOFR HACK to remove one day (maybe after switch to Metal ?)
         //on macos, when switching to full screen size, a lag appears if opengl view is displayed
@@ -5787,9 +5715,6 @@ void pmSoftReinit() {
     
     
     if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
-        //NSLog(@"transitionning to size: %d x %d\n",size.width,size.height);
-        //if (!is_macOS) mDeviceType=1; //ipad
-        //if (mainscr.bounds.size.height>mainscr.bounds.size.width) {
         if (size.height>size.width) {
             mDevice_hh=size.height+(settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value?0:68);
             mDevice_ww=size.width;
@@ -5800,8 +5725,6 @@ void pmSoftReinit() {
             orientationHV=UIInterfaceOrientationLandscapeLeft; //(int)[[UIDevice currentDevice]orientation];
         }
     }
-    
-//    NSLog(@"resize to %d x %d",mDevice_ww,mDevice_hh);
     
     [self shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)orientationHV];
     
@@ -5847,7 +5770,6 @@ void pmSoftReinit() {
         mDevice_ww=320;
         UIScreen* mainscr = [UIScreen mainScreen];
         UIWindow *win=[UIApplication sharedApplication].keyWindow;
-        //        NSLog(@"w %f h %f s %f",mainscr.bounds.size.width,mainscr.bounds.size.height,mainscr.scale);
         if (win.bounds.size.height>win.bounds.size.width) {
             mDevice_hh=win.bounds.size.height;
             mDevice_ww=win.bounds.size.width;
@@ -5861,8 +5783,6 @@ void pmSoftReinit() {
         
         //if (mScaleFactor>=2) mDeviceType=2;
     }
-    
-    //NSLog(@"will appear: %d x %d",mDevice_ww,mDevice_hh);
     
     safe_bottom=[[UIApplication sharedApplication] keyWindow].safeAreaInsets.bottom;
     safe_top=[[UIApplication sharedApplication] keyWindow].safeAreaInsets.top;
@@ -6113,7 +6033,6 @@ static int mOglView1Tap=0;
     CGPoint pt=[gestureRecognizer locationInView:m_oglView];
     oglTapX=pt.x;
     oglTapY=pt.y;
-    //NSLog(@"tap on %f x %f",oglTapX,oglTapY);
 }
 
 -(void) glViewPanGesture:(UIPanGestureRecognizer *)gestureRecognizer {
@@ -6219,7 +6138,7 @@ extern "C" int current_sample;
     frameToUpdate++;
     
     if (no_reentrant) {
-        NSLog(@"reentering doFrame");
+        MDZELog("reentering doFrame");
         return;
     }
     no_reentrant=1;
@@ -6310,14 +6229,12 @@ extern "C" int current_sample;
         imgui_event.event_type=IMGUI_IOS_Event_Tap_1;
         imgui_event.pos_x=oglTapX*glScaleFactor;
         imgui_event.pos_y=oglTapY*glScaleFactor;
-//        NSLog(@"A:%d x %d",imgui_event.pos_x,imgui_event.pos_y);
         projectm_touch(_pm, imgui_event.pos_x,imgui_event.pos_y, 1, PROJECTM_TOUCH_TYPE_RANDOM);
     }
     if (panGesture1Tap) {
         imgui_event.event_type=IMGUI_IOS_Event_Tap_1;
         imgui_event.pos_x=(movePx+startPx)*glScaleFactor;
         imgui_event.pos_y=(movePy+startPy)*glScaleFactor;
-//        NSLog(@"B:%d x %d",imgui_event.pos_x,imgui_event.pos_y);
         projectm_touch_drag(_pm, imgui_event.pos_x,imgui_event.pos_y, 1);
     }
     ImGui_ImplIOS_NewFrame(ww*glScaleFactor,hh*glScaleFactor,1,&imgui_event);
@@ -6343,7 +6260,6 @@ extern "C" int current_sample;
         
         projectm_get_mesh_size(_pm, &currentMeshX, &currentMeshY);
         if (currentMeshX != meshX || currentMeshY != meshY) {
-//            NSLog(@"new mesh size: %dx%d (old: %dx%d)",meshX,meshY,currentMeshX,currentMeshY);
             projectm_set_mesh_size(_pm, meshX, meshY);
         }
         
@@ -6437,13 +6353,11 @@ extern "C" int current_sample;
                 movePxPM=0;
                 movePyPM=0;
                 movePMnomore=1;
-//                NSLog(@"Prev");
                 if ( _pm_playlist) projectm_playlist_play_last(_pm_playlist, false);
             } else if (movePxPM<-PM_HorizontalSwipe_Threshold) {
                 movePxPM=0;
                 movePyPM=0;
                 movePMnomore=1;
-//                NSLog(@"Next");
 #ifdef DEBUG_PM_PERF
     projectm_playlist_set_shuffle(_pm_playlist, false);
     projectm_playlist_set_position(_pm_playlist,DEBUG_PM_PERF_START,true);
@@ -6457,7 +6371,6 @@ extern "C" int current_sample;
                 movePxPM=0;
                 movePyPM=0;
                 movePMnomore=1;
-//                NSLog(@"Lock");
                 if (_pmIsInitialized && _pm) {
                     //////////////
                     //Lock Preset
@@ -6470,7 +6383,6 @@ extern "C" int current_sample;
                 movePxPM=0;
                 movePyPM=0;
                 movePMnomore=1;
-//                NSLog(@"Unlock");
                 if (_pmIsInitialized && _pm) {
                     //////////////
                     //Unlock Preset
@@ -6675,7 +6587,6 @@ extern "C" int current_sample;
                     
                     if (fft_frequencyAvg[i]<0) fft_frequencyAvg[i]=0;
                     
-                    //NSLog(@"/idx %d || %d.%d || %d.%d || %f",i,lowfreq,highfreq,(lowfreq)*44100/(SOUND_BUFFER_SIZE_SAMPLE_SPECTRUM),(highfreq)*44100/(SOUND_BUFFER_SIZE_SAMPLE_SPECTRUM),fft_frequencyAvg[i]);
                 }
                 
                 for (int i=0;i<SPECTRUM_BANDS;i++) {
@@ -6716,7 +6627,6 @@ extern "C" int current_sample;
                     
                     if (fft_frequencyAvg[i]<0) fft_frequencyAvg[i]=0;
                     
-                    //NSLog(@"Ridx %d || %d.%d || %d.%d || %f",i,lowfreq,highfreq,(lowfreq)*44100/(SOUND_BUFFER_SIZE_SAMPLE_SPECTRUM),(highfreq)*44100/(SOUND_BUFFER_SIZE_SAMPLE_SPECTRUM),fft_frequencyAvg[i]);
                 }
                 
                 for (int i=0;i<SPECTRUM_BANDS;i++) {
@@ -6893,7 +6803,7 @@ extern "C" int current_sample;
                 //Compute how many lines to draw
                 float lineHeight=(fontSize+1)*glScaleFactor;//ImGui::GetTextLineHeight();
                 
-                linestodraw=((float)hh*glScaleFactor-lineHeight-4.0*glScaleFactor+lineHeight/2)/lineHeight;
+                linestodraw=((float)hh*glScaleFactor-lineHeight-4.0*glScaleFactor+lineHeight-1)/lineHeight;
                 //linestodraw=round((hh*glScaleFactor-NOTES_DISPLAY_TOPMARGIN+lineHeight/mScaleFactor+3)/(lineHeight/mScaleFactor+4)); //draw even if halfed for last line
                 //int limit_midline=round((hh*glScaleFactor-NOTES_DISPLAY_TOPMARGIN)/(lineHeight/mScaleFactor+4)); //draw even if halfed for last line
                 int limit_midline=((float)hh*glScaleFactor-lineHeight-4.0*glScaleFactor)/lineHeight;
@@ -7298,10 +7208,7 @@ extern "C" int current_sample;
                         }
                         
                         
-//                        NSLog(@"str_data. size:%d\n%s",strlen(str_data),str_data);
-                        
                         if (note_avail) modPatternLineSize=ImGui::CalcTextSize(str_data).x;
-//                        NSLog(@"msize2: %f",modPatternLineSize);
                     }
                     ImGui::SetScrollX(-movePxMOD*glScaleFactor);
                     ImGui::End();
@@ -7662,7 +7569,6 @@ extern "C" int current_sample;
             }
         } else if (ret==0) {
             viewTapHelpShow=0;
-//            NSLog(@"close");
         } else if (ret>0) {
             if (ret==2) shouldGoToSettings=1; //Visu
             else if (ret==3) shouldGoToSettings=2; //Oscillo
@@ -7795,7 +7701,6 @@ extern "C" int current_sample;
 #pragma mark -
 #pragma mark TKCoverflowViewDelegate methods
 - (void) coverflowView:(TKCoverflowView*)coverflowView coverAtIndexWasBroughtToFront:(int)index{
-    //NSLog(@"Front %d",index);
     if ((index>=0)&&(index<mPlaylist_size)){
         lblMainCoverflow.text=mPlaylist[index].mPlaylistFilename;
         lblSecCoverflow.text=mPlaylist[index].mPlaylistFilepath;
@@ -7810,7 +7715,6 @@ extern "C" int current_sample;
         cover = [[TKCoverflowCoverView alloc] initWithFrame:rect]; // 224
         cover.baseline = coverflow.coverSize.height;//224;
     }
-    //    NSLog(@"ask for cov index %d",index);
     if (mPlaylist[index].cover_flag==-1) [self checkAvailableCovers:index];
     if (mPlaylist[index].cover_flag>0) { //A cover should be available
         NSString *filePath,*coverFilePath;
@@ -7831,10 +7735,8 @@ extern "C" int current_sample;
         else if (mPlaylist[index].cover_flag==10) coverFilePath=[NSHomeDirectory() stringByAppendingFormat:@"/%@/cover.jpeg",[filePath stringByDeletingLastPathComponent]];
         else if (mPlaylist[index].cover_flag==11) coverFilePath=[NSHomeDirectory() stringByAppendingFormat:@"/%@/cover.png",[filePath stringByDeletingLastPathComponent]];
         else if (mPlaylist[index].cover_flag==12) coverFilePath=[NSHomeDirectory() stringByAppendingFormat:@"/%@/cover.gif",[filePath stringByDeletingLastPathComponent]];if (mPlaylist[index].cover_flag==13) {
-            //NSLog(@"embedded img in archive");
             img=[self getArchiveCover:[NSHomeDirectory() stringByAppendingFormat:@"/%@",filePath]];
         }
-        //NSLog(@"got idx %d %d %@",index,mPlaylist[index].cover_flag,coverFilePath);
         if (coverFilePath) img=[UIImage imageWithContentsOfFile:coverFilePath];//covers[index+1];
         
         if (img==nil) { //file not available anymore
@@ -7864,7 +7766,6 @@ extern "C" int current_sample;
         }
         
     } else {  //No cover available, take default one
-        //            NSLog(@"using default");
         cover.image = [UIImage imageNamed:@"default_art.png"];//covers[0];
     }
     
@@ -8171,7 +8072,7 @@ extern "C" int current_sample;
         [recorder startRecordingWithHandler:^(NSError *error) {
             if(error) {
                 isRecordingScreen=RS_NOT_RECORDING;
-                NSLog(@"Error= %@",error.localizedDescription);
+                MDZELog("Error= %@",error.localizedDescription);
             } else {
                 bRSactive=true;
                 isRecordingScreen=RS_RECORDING;
@@ -8195,7 +8096,7 @@ extern "C" int current_sample;
         [recorder startRecordingWithHandler:^(NSError *error) {
             if(error) {
                 isRecordingScreen=RS_NOT_RECORDING;
-                NSLog(@"Error= %@",error.localizedDescription);
+                MDZELog("Error= %@",error.localizedDescription);
             } else {
                 isRecordingScreen=RS_RECORDING;
                 bRSactive=true;
@@ -8219,7 +8120,7 @@ extern "C" int current_sample;
         [recorder startRecordingWithHandler:^(NSError *error) {
             if(error) {
                 isRecordingScreen=RS_NOT_RECORDING;
-                NSLog(@"Error= %@",error.localizedDescription);
+                MDZELog("Error= %@",error.localizedDescription);
             } else {
                 isRecordingScreen=RS_RECORDING_AND_STOP;
                 bRSactive=true;
@@ -8248,7 +8149,7 @@ extern "C" int current_sample;
                 isRecordingScreen=RS_NOT_RECORDING;
                 settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value=0;
                 oglViewFullscreenChanged=0;
-                NSLog(@"Error= %@",error.localizedDescription);
+                MDZELog("Error= %@",error.localizedDescription);
             } else {
                 bRSactive=true;
                 isRecordingScreen=RS_RECORDING_FS;
@@ -8278,7 +8179,7 @@ extern "C" int current_sample;
                 isRecordingScreen=RS_NOT_RECORDING;
                 settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value=0;
                 oglViewFullscreenChanged=0;
-                NSLog(@"Error= %@",error.localizedDescription);
+                MDZELog("Error= %@",error.localizedDescription);
             } else {
                 bRSactive=true;
                 isRecordingScreen=RS_RECORDING_AND_STOP_FS;
@@ -8314,7 +8215,7 @@ extern "C" int current_sample;
         [btnRecordScreen setTitleColor:(bRSactive?[UIColor redColor]:[UIColor grayColor]) forState:UIControlStateHighlighted];
         if(error)
         {
-            NSLog(@"Error= %@",error.localizedDescription);
+            MDZELog("Error= %@",error.localizedDescription);
         }
         
         if(previewViewController)
@@ -8338,7 +8239,7 @@ didStopRecordingWithError:(NSError *)error
     
     
     if(error) {
-        NSLog(@"Error= %@",error.localizedDescription);
+        MDZELog("Error= %@",error.localizedDescription);
     }
     
 }

@@ -383,7 +383,6 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
     
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
     
-    //NSLog(@"indexpath: %d %d %d/ %@ / %08X",indexPath.section,indexPath.row,cell_category,CellIdentifier,(void*)cell);
     if (cell==nil) {
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
         

@@ -160,7 +160,6 @@
 }
 
 -(void) pushedCancel {
-    //    NSLog(@"cancel");
     btnStopCurrentActionPending=true;
     UIViewController *vc=[self firstAvailableUIViewController];
     if ([vc respondsToSelector:@selector(cancelPushed)]) {

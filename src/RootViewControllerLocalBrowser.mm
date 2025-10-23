@@ -107,7 +107,7 @@ static char **browser_sidtune_title,**browser_sidtune_name;
         
         err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
         if (err==SQLITE_OK){
-        } else NSLog(@"ErrSQL : %d",err);
+        } else MDZELog("ErrSQL : %d",err);
         
         snprintf(sqlStatement,1024,"SELECT major,minor FROM version");
         
@@ -118,7 +118,7 @@ static char **browser_sidtune_title,**browser_sidtune_name;
                 *minor=sqlite3_column_int(stmt, 1);
             }
             sqlite3_finalize(stmt);
-        } else NSLog(@"ErrSQL : %d",err);
+        } else MDZELog("ErrSQL : %d",err);
         sqlite3_close(db);
     }
     
@@ -168,7 +168,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
                     
                     err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
                     if (err==SQLITE_OK){
-                    } else NSLog(@"ErrSQL : %d",err);
+                    } else MDZELog("ErrSQL : %d",err);
                     
                     //Migrate DB user data : song length, ratings, playlists, ...
                     snprintf(sqlStatementR,1024,"SELECT name,fullpath,play_count,rating FROM user_stats");
@@ -182,10 +182,10 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
                                     sqlite3_column_int(stmt, 2),
                                     sqlite3_column_int(stmt, 3));
                             err=sqlite3_exec(db, sqlStatementW, NULL, NULL, NULL);
-                            if (err!=SQLITE_OK) NSLog(@"ErrSQL : %d for %s",err,sqlStatementW);
+                            if (err!=SQLITE_OK) MDZELog("ErrSQL : %d for %s",err,sqlStatementW);
                         }
                         sqlite3_finalize(stmt);
-                    } else NSLog(@"ErrSQL : %d",err);
+                    } else MDZELog("ErrSQL : %d",err);
                     
                     snprintf(sqlStatementR,1024,"SELECT id,name,num_files FROM playlists");
                     err=sqlite3_prepare_v2(dbold, sqlStatementR, -1, &stmt, NULL);
@@ -197,7 +197,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
                                     (char*)sqlite3_column_text(stmt, 1),
                                     sqlite3_column_int(stmt, 2));
                             err=sqlite3_exec(db, sqlStatementW, NULL, NULL, NULL);
-                            if (err!=SQLITE_OK) NSLog(@"ErrSQL : %d for %s",err,sqlStatementW);
+                            if (err!=SQLITE_OK) MDZELog("ErrSQL : %d for %s",err,sqlStatementW);
                             
                             //GET NEW PL ID
                             id_playlist=sqlite3_last_insert_rowid(db);
@@ -213,14 +213,14 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
                                             [[[NSString stringWithUTF8String:(char*)sqlite3_column_text(stmt2, 0)] lastPathComponent] UTF8String],
                                             (char*)sqlite3_column_text(stmt2, 1));
                                     err=sqlite3_exec(db, sqlStatementW, NULL, NULL, NULL);
-                                    if (err!=SQLITE_OK) NSLog(@"ErrSQL : %d for %s",err,sqlStatementW);
+                                    if (err!=SQLITE_OK) MDZELog("ErrSQL : %d for %s",err,sqlStatementW);
                                 }
                                 sqlite3_finalize(stmt2);
-                            } else NSLog(@"ErrSQL : %d",err);
+                            } else MDZELog("ErrSQL : %d",err);
                             
                         }
                         sqlite3_finalize(stmt);
-                    } else NSLog(@"ErrSQL : %d",err);
+                    } else MDZELog("ErrSQL : %d",err);
                     
                     
                     
@@ -359,7 +359,6 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
         if (buttonIndex==1) {
             t_local_browse_entry **cur_local_entries=(search_local?search_local_entries:local_entries);
             UITextField *tf=[alertView textFieldAtIndex:0];
-            //NSLog(@"rename %@ to %@",cur_local_entries[renameSec][renameIdx].label,tf.text);
             if (cur_local_entries[renameSec][renameIdx].label) cur_local_entries[renameSec][renameIdx].label=nil;
             
             NSString *curPath,*tgtPath;
@@ -368,12 +367,11 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
             tgtPath=[ModizFileHelper getFullPathForFilePath:cur_local_entries[renameSec][renameIdx].fullpath];
             
             tgtPath=[[tgtPath stringByDeletingLastPathComponent] stringByAppendingPathComponent:tf.text];
-            //NSLog(@"rename %@ to %@",curPath,tgtPath);
             
             NSError *err;
             mFileMngr.delegate=self;
             if ([mFileMngr moveItemAtPath:curPath toPath:tgtPath error:&err]==NO) {
-                NSLog(@"Issue %d while renaming file %@",err.code,curPath);
+                MDZELog("Issue %d while renaming file %@",(int)(err.code),curPath);
                 //UIAlertView *removeAlert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Warning",@"") message:[NSString stringWithFormat:NSLocalizedString(@"Issue %d while trying to renamefile.\n%@",@""),err.code,err.localizedDescription] delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
                 //[removeAlert show];
             } else {
@@ -398,14 +396,13 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
         createFolder=0;
         if (buttonIndex==1) {
             UITextField *tf=[alertView textFieldAtIndex:0];
-            //NSLog(@"rename %@ to %@",cur_local_entries[renameSec][renameIdx].label,tf.text);
             
             NSString *newPath;
             newPath=[[ModizFileHelper getFullPathForFilePath:currentPath] stringByAppendingPathComponent:tf.text];
             
             NSError *err;
             if ([mFileMngr createDirectoryAtPath:newPath withIntermediateDirectories:YES attributes:nil error:&err]==NO) {
-                NSLog(@"Issue %d while create folder %@",err.code,newPath);
+                MDZELog("Issue %d while create folder %@",(int)(err.code),newPath);
                 UIAlertView *removeAlert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Warning",@"") message:[NSString stringWithFormat:NSLocalizedString(@"Issue %d while creating folder\n%@",@""),err.code,newPath] delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
                 [removeAlert show];
             } else {
@@ -694,7 +691,7 @@ END_PROFILE
         
         err=sqlite3_exec(db, "PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
         if (err==SQLITE_OK){
-        } else NSLog(@"ErrSQL : %d",err);
+        } else MDZELog("ErrSQL : %d",err);
         
         if (!realPath) {
             //try to find realPath with md5
@@ -706,7 +703,7 @@ END_PROFILE
                     realPath=tmppath;
                 }
                 sqlite3_finalize(stmt);
-            } else NSLog(@"ErrSQL : %d",err);
+            } else MDZELog("ErrSQL : %d",err);
         } else realPath+=5;
         if (realPath) {
             snprintf(sqlStatement,1024,"SELECT stil_info FROM stil WHERE fullpath=\"%s\"",realPath);
@@ -721,7 +718,7 @@ END_PROFILE
                     }
                 }
                 sqlite3_finalize(stmt);
-            } else NSLog(@"ErrSQL : %d",err);
+            } else MDZELog("ErrSQL : %d",err);
         }
     };
     sqlite3_close(db);
@@ -742,8 +739,6 @@ END_PROFILE
     browser_sidtune_name=(char**)calloc(subsongs_nb,sizeof(char*));
     
     browser_sidtune_title=(char**)calloc(subsongs_nb,sizeof(char*));
-    
-    //NSLog(@"stil info:\n%s\n",browser_stil_info);
     
     while (browser_stil_info[idx]) {
         if ((browser_stil_info[idx]=='(')&&(browser_stil_info[idx+1]=='#')) {
@@ -875,7 +870,6 @@ static int qsort_CompareArcEntries(const void *entryA, const void *entryB) {
     
     // First check count for each section
     cpath=[ModizFileHelper getFullPathForFilePath:currentPath];
-    //NSLog(@"%@\n%@",cpath,currentPath);
     //Check if it is a directory or an archive
     BOOL isDirectory;
     browseType=0;
@@ -956,7 +950,7 @@ static int qsort_CompareArcEntries(const void *entryA, const void *entryB) {
     
     err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
     if (err==SQLITE_OK){
-    } else NSLog(@"ErrSQL : %d",err);
+    } else MDZELog("ErrSQL : %d",err);
     
     
     if (local_nb_entries) {
@@ -984,7 +978,7 @@ static int qsort_CompareArcEntries(const void *entryA, const void *entryB) {
         if (mSidTune==NULL) sid_ok=false;
         else if (!(mSidTune->getStatus())) sid_ok=false;
         if (!sid_ok) {
-            NSLog(@"SID SidTune init error");
+            MDZELog("SID SidTune init error");
             if (mSidTune) {delete mSidTune;mSidTune=NULL;}
         } else {
             const SidTuneInfo *sidtune_info;
@@ -1133,7 +1127,7 @@ static int qsort_CompareArcEntries(const void *entryA, const void *entryB) {
                                     //local_entries[index][local_entries_count[index]].songs=(int)sqlite3_column_int(stmt, 4);
                                 }
                                 sqlite3_finalize(stmt);
-                            } else NSLog(@"ErrSQL : %d",err);
+                            } else MDZELog("ErrSQL : %d",err);
                             
                             local_entries_count[index]++;
                             
@@ -1166,7 +1160,7 @@ static int qsort_CompareArcEntries(const void *entryA, const void *entryB) {
         gme_emu=NULL;
         gme_err_t gme_err=gme_open_file( [cpath UTF8String], &gme_emu, gme_info_only );
         if (gme_err) {
-            NSLog(@"gme_open_file error: %s",gme_err);
+            MDZELog("gme_open_file error: %s",gme_err);
         } else {
             gme_info_t *gme_info;
             
@@ -1260,7 +1254,7 @@ static int qsort_CompareArcEntries(const void *entryA, const void *entryB) {
                 
                 gme_err_t gme_err=gme_open_file( [cpath UTF8String], &gme_emu, gme_info_only );
                 if (gme_err) {
-                    NSLog(@"gme_open_file error: %s",gme_err);
+                    MDZELog("gme_open_file error: %s",gme_err);
                 } else {
                     gme_info_t *gme_info;
                     
@@ -1331,7 +1325,7 @@ static int qsort_CompareArcEntries(const void *entryA, const void *entryB) {
                                         //local_entries[index][local_entries_count[index]].songs=(int)sqlite3_column_int(stmt, 4);
                                     }
                                     sqlite3_finalize(stmt);
-                                } else NSLog(@"ErrSQL : %d",err);
+                                } else MDZELog("ErrSQL : %d",err);
                                 
                                 local_entries_count[index]++;
                                 
@@ -1419,7 +1413,6 @@ static int qsort_CompareArcEntries(const void *entryA, const void *entryB) {
                 file_idx++;
             }
         } else {
-            //NSLog( @"Skipping unsupported archive: %s\n", path );
         }
 //        r = archive_read_free(a);  // Note 3
         
@@ -1548,7 +1541,7 @@ static int qsort_CompareArcEntries(const void *entryA, const void *entryB) {
                                         local_entries[index][local_entries_count[index]].songs=(int)sqlite3_column_int(stmt, 4);
                                     }
                                     sqlite3_finalize(stmt);
-                                } else NSLog(@"ErrSQL : %d",err);
+                                } else MDZELog("ErrSQL : %d",err);
                                 
                                 local_entries_count[index]++;
                                 arc_counter++;
@@ -1884,7 +1877,7 @@ static int qsort_CompareArcEntries(const void *entryA, const void *entryB) {
                                             local_entries[index][local_entries_count[index]].songs=(int)sqlite3_column_int(stmt, 4);
                                         }
                                         sqlite3_finalize(stmt);
-                                    } else NSLog(@"ErrSQL : %d",err);
+                                    } else MDZELog("ErrSQL : %d",err);
 #endif
                                     local_entries_count[index]++;
                                     
@@ -2150,7 +2143,7 @@ static int shouldRestart=1;
     
     
     if ([detailViewController not_expected_version]==1) {
-        NSLog(@"change of version");
+        MDZILog("change of version");
         detailViewController.not_expected_version=0;
 #if 0
         UIAlertController *alertC = [UIAlertController alertControllerWithTitle:[NSString stringWithFormat:NSLocalizedString(@"Modizer v%d.%d",@""),VERSION_MAJOR,VERSION_MINOR]
@@ -2371,17 +2364,13 @@ As a consequence, some entries might disappear from existing playlist.\n\
     if ([cell.reuseIdentifier compare:@"CellH"]==NSOrderedSame) {
         if (cutpaste_filesrcpath) {
             //Paste file or dir
-            //NSLog(@"Pasting: %@",cutpaste_filesrcpath);
-            
             NSString *sourcePath=[ModizFileHelper getFullPathForFilePath:cutpaste_filesrcpath];
             NSString *destPath=[[ModizFileHelper getFullPathForFilePath:currentPath] stringByAppendingPathComponent:[cutpaste_filesrcpath lastPathComponent]];
             NSError *err;
             
-            //NSLog(@"Pasting: %@ to %@",sourcePath,destPath);
-            
             mFileMngr.delegate=self;
             if ([mFileMngr moveItemAtPath:sourcePath toPath:destPath error:&err]!=YES) {
-                NSLog(@"Issue %d while moving: %@",err.code,cutpaste_filesrcpath);
+                MDZELog("Issue %d while moving: %@",(int)(err.code),cutpaste_filesrcpath);
                 UIAlertView *moveAlert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Warning",@"") message:[NSString stringWithFormat:NSLocalizedString(@"Issue %d while moving: %@.\n%@",@""),err.code,cutpaste_filesrcpath] delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
                 [moveAlert show];
             } else {
@@ -2430,7 +2419,6 @@ As a consequence, some entries might disappear from existing playlist.\n\
                 int section=indexPath.section-2;
                 //cutpaste_filesrcpath=[NSString stringWithString:cur_local_entries[section][indexPath.row].fullpath];
                 cutpaste_filesrcpath=[[NSString alloc] initWithString:cur_local_entries[section][indexPath.row].fullpath];
-                //NSLog(@"Cut: %@",cutpaste_filesrcpath);
                 break;
             }
             case 2:{//extract
@@ -2449,7 +2437,6 @@ As a consequence, some entries might disappear from existing playlist.\n\
                 tgtPath=[ModizFileHelper getFullPathForFilePath:[cur_local_entries[section][indexPath.row].fullpath stringByDeletingPathExtension]];
                 int files_found=[ModizFileHelper scanarchive:[filePath UTF8String] filesList_ptr:nil filesCount_ptr:nil];
                 if (files_found) {
-                    //NSLog(@"extracting %d files, %@ to %@",files_found,cur_local_entries[section][indexPath.row].fullpath,tgtPath);
                     [self.tableView setUserInteractionEnabled:false];
                     [self.navigationItem setHidesBackButton:YES animated:YES];
                     extractProgress = [NSProgress progressWithTotalUnitCount:1];
@@ -2511,7 +2498,7 @@ As a consequence, some entries might disappear from existing playlist.\n\
         }
         
         if ([mFileMngr removeItemAtPath:fullpath error:&err]!=YES) {
-            NSLog(@"Issue %d while removing: %@",err.code,fullpath);
+            MDZELog("Issue %d while removing: %@",(int)(err.code),fullpath);
             UIAlertView *removeAlert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Warning",@"") message:[NSString stringWithFormat:NSLocalizedString(@"Issue %d while trying to delete entry.\n%@",@""),err.code,err.localizedDescription] delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
             [removeAlert show];
         } else {
@@ -3041,7 +3028,7 @@ As a consequence, some entries might disappear from existing playlist.\n\
         NSError *err;
         
         if ([mFileMngr removeItemAtPath:fullpath error:&err]!=YES) {
-            NSLog(@"Issue %d while removing: %@",err.code,fullpath);
+            MDZELog("Issue %d while removing: %@",(int)(err.code),fullpath);
             UIAlertView *removeAlert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Warning",@"") message:[NSString stringWithFormat:NSLocalizedString(@"Issue %d while trying to delete entry.\n%@",@""),err.code,err.localizedDescription] delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
             [removeAlert show];
         } else {
@@ -3162,9 +3149,9 @@ As a consequence, some entries might disappear from existing playlist.\n\
             } @catch (NSException * ex) {
                 //“Pushing the same view controller instance more than once is not supported”
                 //NSInvalidArgumentException
-                NSLog(@"Exception: [%@]:%@",[ex  class], ex );
-                NSLog(@"ex.name:'%@'", ex.name);
-                NSLog(@"ex.reason:'%@'", ex.reason);
+                MDZELog("Exception: [%@]:%@",[ex  class], ex );
+                MDZELog("ex.name:'%@'", ex.name);
+                MDZELog("ex.reason:'%@'", ex.reason);
                 //Full error includes class pointer address so only care if it starts with this error
                 NSRange range = [ex.reason rangeOfString:@"Pushing the same view controller instance more than once is not supported"];
                 
@@ -3173,13 +3160,12 @@ As a consequence, some entries might disappear from existing playlist.\n\
                     //view controller already exists in the stack - just pop back to it
                     [self.navigationController popToViewController:detailViewController animated:YES];
                 } else {
-                    NSLog(@"ERROR:UNHANDLED EXCEPTION TYPE:%@", ex);
+                    MDZELog("ERROR:UNHANDLED EXCEPTION TYPE:%@", ex);
                 }
             } @finally {
-                //NSLog(@"finally");
             }
         } else {
-            NSLog(@"ERROR:pushViewController: viewController is nil");
+            MDZELog("ERROR:pushViewController: viewController is nil");
         }
     }
     else {
@@ -3230,7 +3216,7 @@ As a consequence, some entries might disappear from existing playlist.\n\
                     pl->entries[pl->nb_entries].playcounts=cur_local_entries[i][j].playcount;
                     pl->nb_entries++;
                     if (pl->nb_entries>=MAX_PL_ENTRIES) {
-                        NSLog(@"max entries reached (%d)",MAX_PL_ENTRIES);
+                        MDZELog("max entries reached (%d)",MAX_PL_ENTRIES);
                         break;
                     }
                     
@@ -3489,7 +3475,7 @@ As a consequence, some entries might disappear from existing playlist.\n\
                 [self hideWaiting];
             } else {
                 //iCloud not available
-                NSLog(@"icloud not available");
+                MDZILog("icloud not available");
             }
         }
     } else {
@@ -3536,7 +3522,6 @@ As a consequence, some entries might disappear from existing playlist.\n\
             
             
             NSString *newPath;
-            //                    NSLog(@"currentPath:%@\ncellValue:%@\nfullpath:%@",currentPath,cellValue,cur_local_entries[section][indexPath.row].fullpath);
             if (mShowSubdir) newPath=[NSString stringWithString:cur_local_entries[section][indexPath.row].fullpath];
             else newPath=[NSString stringWithFormat:@"%@/%@",currentPath,cellValue];
             //[newPath retain];
@@ -3638,7 +3623,6 @@ As a consequence, some entries might disappear from existing playlist.\n\
     NSIndexPath *indexPath = [self.tableView indexPathForRowAtPoint:p];
     if (indexPath != nil) {
         if ((gestureRecognizer.state==UIGestureRecognizerStateBegan)||(gestureRecognizer.state==UIGestureRecognizerStateChanged)) {
-            //                    NSLog(@"long press on table view at %d/%d", indexPath.section,indexPath.row);
             int crow=indexPath.row;
             int csection=indexPath.section-2;
             if (csection>=0) {
@@ -3759,7 +3743,6 @@ As a consequence, some entries might disappear from existing playlist.\n\
 - (void)viewDidUnload {
     // Relinquish ownership of anything that can be recreated in viewDidLoad or on demand.
     // For example: self.myOutlet = nil;;
-    NSLog(@"unload");
 }
 - (void)dealloc {
     [waitingView removeFromSuperview];

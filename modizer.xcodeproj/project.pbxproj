@@ -217,7 +217,6 @@
 		5905362125DBDB0500AA548E /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5905362025DBDB0500AA548E /* CoreVideo.framework */; };
 		5905362425DBDB1600AA548E /* VideoToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5905362325DBDB1600AA548E /* VideoToolbox.framework */; };
 		5905362825DBDB5900AA548E /* libbz2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 5905362625DBDB2E00AA548E /* libbz2.tbd */; };
-		5905362B25DBDB6500AA548E /* libiconv.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 5905362A25DBDB6500AA548E /* libiconv.tbd */; };
 		5905362E25DBDB8600AA548E /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5905362D25DBDB8600AA548E /* CoreMedia.framework */; };
 		5905DE87284F12AE007DA8EE /* libpsflib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 596642BE2611263C007DAE70 /* libpsflib.a */; };
 		5918E0AC26177CB1004B85DA /* VoicesViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5918E0AA26177CB1004B85DA /* VoicesViewController.mm */; };
@@ -697,7 +696,6 @@
 		CC4D69B312472B5C0074E94B /* info@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CC4D69B212472B5C0074E94B /* info@2x.png */; };
 		CC4F4A062B70581B002A9309 /* liblibeupmini.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CC4F49F62B704F4D002A9309 /* liblibeupmini.a */; };
 		CC4FC8762E8EBF8100B3E56F /* MetalKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CC4FB2F52E8EA80F00B3E56F /* MetalKit.framework */; };
-		CC4FC8772E8EBFC000B3E56F /* MetalKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CC4FB2F52E8EA80F00B3E56F /* MetalKit.framework */; };
 		CC4FC8792E8EBFCE00B3E56F /* Metal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CC4FC8782E8EBFCD00B3E56F /* Metal.framework */; };
 		CC4FC8FA2E91958900B3E56F /* txtMenu13a_2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CC4FC8F62E91958900B3E56F /* txtMenu13a_2x.png */; };
 		CC57D51F2BEB89C9004629AA /* liblibfmpmini.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CC57D4CF2BEB5DDD004629AA /* liblibfmpmini.a */; };
@@ -884,7 +882,6 @@
 		CCE8D7452B8D67460076D8C0 /* AnimatedLaunch.xib in Resources */ = {isa = PBXBuildFile; fileRef = CCE8D7442B8D67460076D8C0 /* AnimatedLaunch.xib */; };
 		CCE8D74A2B8D68FD0076D8C0 /* AnimatedLaunchVC.mm in Sources */ = {isa = PBXBuildFile; fileRef = CCE8D7482B8D68FD0076D8C0 /* AnimatedLaunchVC.mm */; };
 		CCE8D74E2B8F11340076D8C0 /* SONFillAnimation.m in Sources */ = {isa = PBXBuildFile; fileRef = CCE8D74C2B8F11340076D8C0 /* SONFillAnimation.m */; };
-		CCEB4DFF2BAE00CC004831C6 /* libiconv.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 5905362A25DBDB6500AA548E /* libiconv.tbd */; };
 		CCEB4E012BAE00ED004831C6 /* libiconv.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 5905362A25DBDB6500AA548E /* libiconv.tbd */; };
 		CCEB4E052BAE01E6004831C6 /* liblibarchive.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CCEB46FE2BADF7A7004831C6 /* liblibarchive.a */; };
 		CCEB5B4D2BB0153C004831C6 /* libUnrarKIT.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CCEB5A492BB01040004831C6 /* libUnrarKIT.a */; };
@@ -2803,7 +2800,6 @@
 				59280E7A25EACE16009205EA /* libsnsf.a in Frameworks */,
 				59BDE88B260F675D00FB0C69 /* libhighlyexperimental.a in Frameworks */,
 				5905362E25DBDB8600AA548E /* CoreMedia.framework in Frameworks */,
-				5905362B25DBDB6500AA548E /* libiconv.tbd in Frameworks */,
 				CCBFC9A32EAA146300014B5D /* OSLog.framework in Frameworks */,
 				59BDE96E260FE5AB00FB0C69 /* libhighlytheoritical.a in Frameworks */,
 				5905362825DBDB5900AA548E /* libbz2.tbd in Frameworks */,
@@ -2846,11 +2842,9 @@
 				CCDC905D2BBA97E30049CA0D /* libgbsplay.a in Frameworks */,
 				CC1E56C71200B391000A8A4E /* MediaPlayer.framework in Frameworks */,
 				59BDE96D260FE5A500FB0C69 /* libHighlyQuixotic.a in Frameworks */,
-				CC4FC8772E8EBFC000B3E56F /* MetalKit.framework in Frameworks */,
 				5966D0C525CFEE3000520777 /* libLazyusf.a in Frameworks */,
 				5966D0BF25CFEE0F00520777 /* libgme.a in Frameworks */,
 				CC1E56CD1200B391000A8A4E /* QuartzCore.framework in Frameworks */,
-				CCEB4DFF2BAE00CC004831C6 /* libiconv.tbd in Frameworks */,
 				CC1E56CF1200B391000A8A4E /* SystemConfiguration.framework in Frameworks */,
 				5958B42825C601B300724722 /* CoreServices.framework in Frameworks */,
 			);
@@ -5413,7 +5407,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
 				LastSwiftUpdateCheck = 1640;
-				LastUpgradeCheck = 1500;
+				LastUpgradeCheck = 1640;
 				TargetAttributes = {
 					1D6058900D05DD3D006BFB54 = {
 						LastSwiftMigration = 1640;
@@ -6565,7 +6559,6 @@
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 3.12.0;
-				DEVELOPMENT_TEAM = ZV46EUY73C;
 				ENABLE_HARDENED_RUNTIME = NO;
 				"ENABLE_HARDENED_RUNTIME[sdk=macosx*]" = YES;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -6591,7 +6584,7 @@
 					"$(PROJECT_DIR)/utils/imgui/examples/libs/glfw/lib-vc2010-32",
 					"$(PROJECT_DIR)/utils/imgui/examples/libs/glfw/lib-vc2010-64",
 				);
-				MACOSX_DEPLOYMENT_TARGET = "";
+				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				MARKETING_VERSION = 3.12;
 				PRODUCT_BUNDLE_IDENTIFIER = com.yoyofr.modizer;
 				PRODUCT_NAME = modizer;
@@ -6618,7 +6611,6 @@
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 3.12.0;
-				DEVELOPMENT_TEAM = ZV46EUY73C;
 				ENABLE_HARDENED_RUNTIME = NO;
 				"ENABLE_HARDENED_RUNTIME[sdk=macosx*]" = YES;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -6643,7 +6635,7 @@
 					"$(PROJECT_DIR)/utils/imgui/examples/libs/glfw/lib-vc2010-32",
 					"$(PROJECT_DIR)/utils/imgui/examples/libs/glfw/lib-vc2010-64",
 				);
-				MACOSX_DEPLOYMENT_TARGET = "";
+				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				MARKETING_VERSION = 3.12;
 				PRODUCT_BUNDLE_IDENTIFIER = com.yoyofr.modizer;
 				PRODUCT_NAME = modizer;
@@ -6686,7 +6678,9 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_IDENTITY = "Apple Development";
+				DEVELOPMENT_TEAM = ZV46EUY73C;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -6835,6 +6829,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_IDENTITY = "Apple Development";
+				DEVELOPMENT_TEAM = ZV46EUY73C;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -6902,6 +6897,7 @@
 				SKIP_INSTALL = YES;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
 				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OBJC_BRIDGING_HEADER = "modizer-Bridging-Header.h";
 				SYSTEM_HEADER_SEARCH_PATHS = (
 					libs/libzxtune/libzxtune/include,
@@ -6983,6 +6979,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_IDENTITY = "Apple Development";
+				DEVELOPMENT_TEAM = ZV46EUY73C;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -7113,7 +7110,6 @@
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = YES;
 				CURRENT_PROJECT_VERSION = 3.12.0;
-				DEVELOPMENT_TEAM = ZV46EUY73C;
 				ENABLE_HARDENED_RUNTIME = NO;
 				"ENABLE_HARDENED_RUNTIME[sdk=macosx*]" = YES;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -7137,7 +7133,7 @@
 					"$(PROJECT_DIR)/utils/imgui/examples/libs/glfw/lib-vc2010-32",
 					"$(PROJECT_DIR)/utils/imgui/examples/libs/glfw/lib-vc2010-64",
 				);
-				MACOSX_DEPLOYMENT_TARGET = "";
+				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				MARKETING_VERSION = 3.12;
 				PRODUCT_BUNDLE_IDENTIFIER = com.yoyofr.modizer;
 				PRODUCT_NAME = modizer;

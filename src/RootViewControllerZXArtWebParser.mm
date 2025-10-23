@@ -255,7 +255,6 @@ int qsortZXArt_entries_rating_or_entries(const void *entryA, const void *entryB)
         //sections are determined 'on the fly' since result set is already sorted
         if (previndex!=index) {
             if (previndex>index) {
-                //NSLog(@"********* %s",str);
             } else dbWEB_entries[index]=&(dbWEB_entries_data[dbWEB_entries_index]);
         }
         
@@ -465,21 +464,17 @@ int qsortZXArt_entries_rating_or_entries(const void *entryA, const void *entryB)
                 } else we[we_index].file_rating=0;
                 
                 we[we_index].file_URL=[NSString stringWithFormat:@"%@",[el objectForKey:@"href"]];
-                NSLog(@"URL: %@",we[we_index].file_URL);
                 
                 we[we_index].file_name=[[[[we[we_index].file_URL lastPathComponent] componentsSeparatedByString:@":"] lastObject] stringByRemovingPercentEncoding];
                 we[we_index].file_name=[[we[we_index].file_name componentsSeparatedByString:@"_-_"] lastObject];
                 
-                NSLog(@"name: %@",we[we_index].file_name);
                 we[we_index].file_type=1;
                 we[we_index].file_author=[mWebBaseURL lastPathComponent];
-                NSLog(@"author: %@",we[we_index].file_author);
                 
                 
                 
                 if (j<[arr_musicformat count]) {
                     el=[arr_musicformat objectAtIndex:j];
-                    NSLog(@"format: %@",[el text]);
                     we[we_index].file_format=[NSString stringWithFormat:@"%@",[el text]];
                 } else we[we_index].file_format=nil;
                 
@@ -514,7 +509,7 @@ int qsortZXArt_entries_rating_or_entries(const void *entryA, const void *entryB)
             op_done=true;
             }
              failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-            NSLog(@"ERROR: %@", error);
+            MDZELog("ERROR: %@", error);
             op_done=true;
             }];
         
@@ -535,16 +530,6 @@ int qsortZXArt_entries_rating_or_entries(const void *entryA, const void *entryB)
             filename=[filename stringByRemovingPercentEncoding];
             
             if ((author!=nil) && (filename!=nil)) {
-                
-                NSLog(@"title: %@", [tmpDict objectForKey:@"title"]);
-                NSLog(@"url: %@", [tmpDict objectForKey:@"url"]);
-                NSLog(@"type: %@", [tmpDict objectForKey:@"type"]);
-                NSLog(@"rating: %@", [tmpDict objectForKey:@"rating"]);
-                NSLog(@"year: %@", [tmpDict objectForKey:@"year"]);
-                NSLog(@"authorIds: %@", [tmpDict objectForKey:@"authorIds"]);
-                NSLog(@"author: %@",author);
-                NSLog(@"originalFileName: %@", filename);
-                NSLog(@"originalUrl: %@", [tmpDict objectForKey:@"originalUrl"]);
                 
                 we[we_index].file_name=[NSString stringWithString:filename];
                 we[we_index].file_name=[[we[we_index].file_name componentsSeparatedByString:@"_-_"] lastObject];
@@ -609,10 +594,8 @@ int qsortZXArt_entries_rating_or_entries(const void *entryA, const void *entryB)
     index=-1;
     for (int i=0;i<dbWEB_nb_entries;i++) {
         t_web_file_entry *wef = (t_web_file_entry *)[[sortedArray objectAtIndex:i] pointerValue];
-        //NSLog(@"%@",wef->file_name);
         chr=[wef->file_name characterAtIndex:0];
         
-        //NSLog(@"%@",wef->file_size);
         previndex=index;
         index=0;
         if (indexTitleMode) {
@@ -622,7 +605,6 @@ int qsortZXArt_entries_rating_or_entries(const void *entryA, const void *entryB)
         //sections are determined 'on the fly' since result set is already sorted
         if (previndex!=index) {
             if (previndex>index) {
-                //NSLog(@"********* %s",str);
                 if (previndex>=0) index=previndex;
                 else {
                     index=0;

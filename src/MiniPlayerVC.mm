@@ -188,7 +188,6 @@ int gesture_move_file_min_trans;
             labelSub.alpha=(1-alpha);
             labelArtist.alpha=(1-alpha);
                         
-            //NSLog(@"current trans X: %d / %d",translationX,gesture_move_file_min_trans);
             break;
         case UIGestureRecognizerStateFailed:
         case UIGestureRecognizerStateCancelled:
@@ -200,7 +199,6 @@ int gesture_move_file_min_trans;
             if (translationX>gesture_move_file_min_trans) bEntryInsteadOfSub=true;
             if (translationX<-gesture_move_file_min_trans) bEntryInsteadOfSub=true;
             
-            //NSLog(@"trX: %d, max velocity %f",translationX,(float)(max_velocity.x));
             if (translationX>gesture_move_sub_min_trans) [self swipeLeft:bEntryInsteadOfSub];
             else if (translationX<-gesture_move_sub_min_trans) [self swipeRight:bEntryInsteadOfSub];
             else if ((translationX>gesture_swipe_min_trans)&&(max_velocity.x<-gesture_swipe_min_vel)) [self swipeLeft:bEntryInsteadOfSub];
@@ -418,7 +416,6 @@ int gesture_move_file_min_trans;
         if ([NSProcessInfo processInfo].isiOSAppOnMac) {
             UIScreen* mainscr = [UIScreen mainScreen];
             UIWindow *win=[UIApplication sharedApplication].keyWindow;
-            //NSLog(@"%f %f : %f %f",win.bounds.size.width,win.bounds.size.height,win.frame.size.width,win.frame.size.height);
             
             ww=win.bounds.size.width;
         }

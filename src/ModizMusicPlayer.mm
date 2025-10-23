@@ -1424,9 +1424,7 @@ static void * psf_file_fopen( const char * uri )
             i++;
         }
         for (int i=0;i<[listFiles count];i++) {
-            //NSLog(@"file: %@",(NSString*)[listFiles objectAtIndex:i]);
             if (strcleancmp(strtmp,(char*)[(NSString*)[listFiles objectAtIndex:i] UTF8String])) {
-                //NSLog(@"found");
                 f=fopen([[NSString stringWithFormat:@"%@/%@",dir,(NSString*)[listFiles objectAtIndex:i]] UTF8String],"r");
                 break;
             }
@@ -2107,7 +2105,6 @@ static char my_data [] = "Our cleanup function was called";
 
 /* Example cleanup function automatically called when emulator is deleted. */
 static void my_cleanup( void* my_data ) {
-    //NSLog(@"\n%s\n", (char*) my_data );
 }
 
 static 	int buffer_ana_subofs;
@@ -2236,7 +2233,7 @@ static int tim_output_data(char *buf, int32 nbytes) {
         if (buffer_ana_gen_ofs==SOUND_BUFFER_NB) buffer_ana_gen_ofs=0;
         
         if (nbytes>=SOUND_BUFFER_SIZE_SAMPLE*2*2) {
-            NSLog(@"*****************\n*****************\n***************");
+            MDZELog("Timidity sound buffer overrun");
         } else if (nbytes) {
             while (buffer_ana_flag[buffer_ana_gen_ofs]) {
                 [NSThread sleepForTimeInterval:DEFAULT_WAIT_TIME_MS];
@@ -2263,7 +2260,6 @@ static int tim_output_data(char *buf, int32 nbytes) {
 }
 
 static int tim_acntl(int request, void *arg) {
-    //NSLog(@"acntl: req %d",request);
     
     switch (request){
         case PM_REQ_GETFRAGSIZ:
@@ -2271,59 +2267,30 @@ static int tim_acntl(int request, void *arg) {
             return 0;
             
         case PM_REQ_GETQSIZ:
-            //            NSLog(@"acntl: PM_REQ_GETQSIZ");
-            /*            if (total_bytes == -1)
-             return -1;
-             *((int *)arg) = sizeof(globals.buffer);*/
             return -1;
             
         case PM_REQ_GETFILLABLE:
-            //            NSLog(@"acntl: PM_REQ_GETFILLABLE");
-            /*             if (total_bytes == -1)
-             return -1;
-             if(!(dpm.encoding & PE_MONO)) i >>= 1;
-             if(dpm.encoding & PE_16BIT) i >>= 1;
-             *((int *)arg) = i;*/
             return -1;
             
         case PM_REQ_GETFILLED:
-            //             NSLog(@"acntl: PM_REQ_GETFILLED");
-            /*             i = pstatus.queue;
-             if(!(dpm.encoding & PE_MONO)) i >>= 1;
-             if(dpm.encoding & PE_16BIT) i >>= 1;
-             *((int *)arg) = i;*/
             return -1;
             
         case PM_REQ_GETSAMPLES:
-            //            NSLog(@"acntl: PM_REQ_GETSAMPLES");
-            //            *((int *)arg) = globals.samples*2;
-            /*{
-             static int c=0;
-             if( c%0x100000==0 ){
-             ctl->cmsg(CMSG_INFO, VERB_VERBOSE,
-             "getsamples = %d", *((int *)arg));
-             
-             }
-             }*/
-            
             return -1;
             
         case PM_REQ_DISCARD:
-            //            NSLog(@"acntl: PM_REQ_DISCARD");
             return 0;
             
         case PM_REQ_PLAY_START:
-            NSLog(@"acntl: PM_REQ_PLAY_START");
+            //MDZILog("acntl: PM_REQ_PLAY_START");
             return 0;
         case PM_REQ_PLAY_END:
-            NSLog(@"acntl: PM_REQ_PLAY_END");
+            //MDZILog("acntl: PM_REQ_PLAY_END");
             return 0;
             
         case PM_REQ_FLUSH:
-            //            NSLog(@"acntl: PM_REQ_FLUSH");
             return 0;
         case PM_REQ_OUTPUT_FINISH:
-            //            NSLog(@"acntl: PM_REQ_OUTPUT_FINISH");
             return 0;
             
         default:
@@ -2644,35 +2611,23 @@ void propertyListenerCallback (void                   *inUserData,              
     UInt8 reasonValue = [[notification.userInfo valueForKey:AVAudioSessionRouteChangeReasonKey] intValue];
     AVAudioSessionRouteDescription *routeDescription = [notification.userInfo valueForKey:AVAudioSessionRouteChangePreviousRouteKey];
     
-    //NSLog(@"Route change:");
     switch (reasonValue) {
         case AVAudioSessionRouteChangeReasonNewDeviceAvailable:
-            //NSLog(@"     NewDeviceAvailable");
             break;
         case AVAudioSessionRouteChangeReasonOldDeviceUnavailable:
-            //NSLog(@"     OldDeviceUnavailable");
             [self Pause:YES];
             break;
         case AVAudioSessionRouteChangeReasonCategoryChange:
-            //NSLog(@"     CategoryChange");
-            //NSLog(@" New Category: %@", [[AVAudioSession sharedInstance] category]);
             break;
         case AVAudioSessionRouteChangeReasonOverride:
-            //NSLog(@"     Override");
             break;
         case AVAudioSessionRouteChangeReasonWakeFromSleep:
-            //NSLog(@"     WakeFromSleep");
             break;
         case AVAudioSessionRouteChangeReasonNoSuitableRouteForCategory:
-            //NSLog(@"     NoSuitableRouteForCategory");
             break;
         default:
-            //NSLog(@"     ReasonUnknown");
             break;
     }
-    
-    //NSLog(@"Previous route:\n");
-    //NSLog(@"%@", routeDescription);
 }
 
 
@@ -2696,21 +2651,21 @@ void propertyListenerCallback (void                   *inUserData,              
         
         [session setCategory:AVAudioSessionCategoryPlayback error:&audioSessionError];
         if (audioSessionError) {
-            NSLog(@"Audio session setCategory Error %ld, %@",
+            MDZELog("Audio session setCategory Error %ld, %@",
                   (long)audioSessionError.code, audioSessionError.localizedDescription);
         }
         
         NSTimeInterval bufferDuration = SOUND_BUFFER_SIZE_SAMPLE*2.0f/PLAYBACK_FREQ;
         [session setPreferredIOBufferDuration:bufferDuration error:&audioSessionError];
         if (audioSessionError) {
-            NSLog(@"Error %ld, %@",
+            MDZELog("Error %ld, %@",
                   (long)audioSessionError.code, audioSessionError.localizedDescription);
         }
         
         double sampleRate = PLAYBACK_FREQ;
         [session setPreferredSampleRate:sampleRate error:&audioSessionError];
         if (audioSessionError) {
-            NSLog(@"Error %ld, %@",
+            MDZELog("Error %ld, %@",
                   (long)audioSessionError.code, audioSessionError.localizedDescription);
         }
         
@@ -2730,7 +2685,7 @@ void propertyListenerCallback (void                   *inUserData,              
         
         [session setPreferredSampleRate:sampleRate error:&audioSessionError];
         if (audioSessionError) {
-            NSLog(@"Error %ld, %@",
+            MDZELog("Error %ld, %@",
                   (long)audioSessionError.code, audioSessionError.localizedDescription);
         }
         
@@ -2877,10 +2832,9 @@ void propertyListenerCallback (void                   *inUserData,              
         snprintf(UADEstatebase.config.basedir.name,PATH_MAX,"%s",[uade_path UTF8String]);
         UADEstatebase.config.basedir_set=1;
         if (uade_load_initial_config(uadeconfname,sizeof(uadeconfname),&UADEstate.config, &UADEstatebase.config)==0) {
-            NSLog(@"Not able to load uade.conf from ~/.uade2/ or %s/.\n",UADEstate.config.basedir.name);
+            MDZELog("Not able to load uade.conf from ~/.uade2/ or %s/.\n",UADEstate.config.basedir.name);
             //TODO : decide if continue or stop
         } else {
-            //NSLog(@"Loaded configuration: %s\n", uadeconfname);
         }
         snprintf(UADEstate.config.basedir.name,PATH_MAX,"%s",[uade_path UTF8String]);
         snprintf(UADEconfigname,PATH_MAX, "%s/uaerc",UADEstate.config.basedir.name);
@@ -3125,7 +3079,6 @@ void propertyListenerCallback (void                   *inUserData,              
 -(void) iPhoneDrv_PlayWaitStop {
     int counter=0;
     mQueueIsBeingStopped = TRUE;
-    //	NSLog(@"stopping queue");
     bGlobalAudioPause=2;
     AudioQueueStop( mAudioQueue, FALSE );
     while ([self isEndReached]==NO) {
@@ -3138,7 +3091,6 @@ void propertyListenerCallback (void                   *inUserData,              
 }
 -(void) iPhoneDrv_PlayStop {
     mQueueIsBeingStopped = TRUE;
-    //	NSLog(@"stopping queue");
     bGlobalAudioPause=2;
     AudioQueueStop( mAudioQueue, TRUE );
     AudioQueueReset( mAudioQueue );
@@ -3213,7 +3165,6 @@ void propertyListenerCallback (void                   *inUserData,              
     int skip_queue=0;
     mBuffer->mAudioDataByteSize = SOUND_BUFFER_SIZE_SAMPLE*2*2;
     if (bGlobalAudioPause==2) {
-        //NSLog(@"yoyoyo");
         buffer_ana_play_ofs++;
         if (buffer_ana_play_ofs==SOUND_BUFFER_NB) buffer_ana_play_ofs=0;
         
@@ -3377,12 +3328,8 @@ void propertyListenerCallback (void                   *inUserData,              
     
     int buffer_to_compensate=int(latency/buffer_length);
     
-    //NSLog(@"buffer to compensate: %d",buffer_to_compensate);
-    
     if (buffer_to_compensate>=SOUND_BUFFER_NB/2) buffer_to_compensate=SOUND_BUFFER_NB/2; //take some contingency / some fx reading ahead buffer, such as oscilloMultiple
     //if (buffer_to_compensate<2) buffer_to_compensate=2; //take some contingency / avoid having FX using voice_data that can be updated in the middle of the FX
-    
-    //NSLog(@"buffer to compensate adjusted: %d",buffer_to_compensate);
     
     return buffer_to_compensate;
 }
@@ -3506,7 +3453,7 @@ void mdx_update(unsigned char *data,int len,int end_reached) {
         if (buffer_ana_gen_ofs==SOUND_BUFFER_NB) buffer_ana_gen_ofs=0;
         
         if (len>=SOUND_BUFFER_SIZE_SAMPLE*2*2) {
-            NSLog(@"*****************\n*****************\n***************");
+            MDZELog("mdx soundbuffer overrun");
         } else if (len) {
             
             while (buffer_ana_flag[buffer_ana_gen_ofs]) {
@@ -3650,7 +3597,7 @@ extern "C" {
             if (buffer_ana_gen_ofs==SOUND_BUFFER_NB) buffer_ana_gen_ofs=0;
             
             if (lBytes>=SOUND_BUFFER_SIZE_SAMPLE*2*2) {
-                NSLog(@"*****************\n*****************\n***************");
+                MDZELog("sound buffer overrun");
             } else if (lBytes) {
                 while (buffer_ana_flag[buffer_ana_gen_ofs]) {
                     [NSThread sleepForTimeInterval:DEFAULT_WAIT_TIME_MS];
@@ -3725,7 +3672,7 @@ void gsf_update(unsigned char* pSound,int lBytes) {
         if (buffer_ana_gen_ofs==SOUND_BUFFER_NB) buffer_ana_gen_ofs=0;
         
         if (lBytes>=SOUND_BUFFER_SIZE_SAMPLE*2*2) {
-            NSLog(@"*****************\n*****************\n***************");
+            MDZELog("gsf sound buffer overrun");
         } else if (lBytes) {
             while (buffer_ana_flag[buffer_ana_gen_ofs]) {
                 [NSThread sleepForTimeInterval:DEFAULT_WAIT_TIME_MS];
@@ -3757,7 +3704,6 @@ void gsf_update(unsigned char* pSound,int lBytes) {
     //tim_init((char*)[[NSHomeDirectory() stringByAppendingPathComponent:@"modizer.app/timidity"] UTF8String]);
     
     if (tim_force_soundfont) {
-        //NSLog(@"forcing with: %s",tim_force_soundfont_path);
         tim_init(tim_force_soundfont_path);
         snprintf(tim_config_file_path,sizeof(tim_config_file_path),"%s/timidity.cfg",tim_force_soundfont_path);
     } else {
@@ -3841,7 +3787,6 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
             memcpy((char*)(buffer_ana[buffer_ana_gen_ofs])+buffer_ana_subofs,(char*)pSound,to_fill);
             
             //copy voice data for oscillo view
-            //NSLog(@"uade voice: %d",m_voice_current_ptr[0]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
             
             for (int j=0;j<4;j++) {
                 for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][(i+(m_voice_prev_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT))&(SOUND_BUFFER_SIZE_SAMPLE*4*4-1)];
@@ -4279,7 +4224,6 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
                         mod_message_updated=2;
                     }
                     
-                    //NSLog(@"playtime : %d",us->playtime);
                     break;
                     
                 default:
@@ -4492,12 +4436,6 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
         //int cptyo=0;
         while (1) {
             
-            //            if (cptyo++==1024)  {
-            //                cptyo=0;
-            //                AVAudioSession *session=[AVAudioSession sharedInstance];
-            //                NSLog(@"latency: %f / %d",session.outputLatency*1000,[self getLatencyInBuffer:0]);
-            //
-            //            }
             [NSThread sleepForTimeInterval:DEFAULT_WAIT_TIME_MS];
             if (bGlobalIsPlaying) {
                 
@@ -4547,7 +4485,6 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                         int counter=0;
                         [self uade_playloop];
                         
-                        //NSLog(@"Waiting for end");
                         while ([self isEndReached]==NO) {
                             [NSThread sleepForTimeInterval:DEFAULT_WAIT_TIME_MS];
                             counter++;
@@ -4714,8 +4651,6 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                         bGlobalAudioPause=2;
                         tim_finished=1;
                     } else if ((buffer_ana_flag[buffer_ana_gen_ofs]==0)&&(diff_ana_ofs<((SOUND_BUFFER_NB/2)-1))) {
-                        
-                        //NSLog(@"gen %d play %d diff %d",buffer_ana_gen_ofs,buffer_ana_play_ofs,diff_ana_ofs);
                         
                         if (mNeedSeek==1) { //SEEK
                             mNeedSeek=2;  //taken into account
@@ -5917,7 +5852,6 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 
                                 mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
                                 if (mLoopMode) iModuleLength=-1;
-                                //NSLog(@"track : %d, time : %d, start : %d",mod_currentsub,info.time_ms,info.start_ms);
                                 mCurrentSamples=0;
                                 iCurrentTime=0;
                                 mNeedSeek=0;bGlobalSeekProgress=0;
@@ -6104,7 +6038,6 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             nbBytes=0;
                             m_voice_current_system=-1;
                             if (gme_track_ended(gme_emu)) {
-                                //NSLog(@"Track ended : %d",iCurrentTime);
                                 if (mLoopMode==1) {
                                     
                                     memset(m_voice_current_ptr,0,sizeof(m_voice_current_ptr));
@@ -6124,8 +6057,6 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     }
                                 } else nbBytes=(nbBytes==SOUND_BUFFER_SIZE_SAMPLE*2*2?nbBytes-4:nbBytes);
                             } else {
-                                
-                                //                                NSLog(@"before call: old ptr %d new ptr %d",m_voice_prev_current_ptr[0]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT,m_voice_current_ptr[0]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
                                 
                                 gme_play( gme_emu, SOUND_BUFFER_SIZE_SAMPLE*2, buffer_ana[buffer_ana_gen_ofs] );
                                 nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
@@ -6158,8 +6089,6 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 
                                 int diffptr=(m_voice_current_ptr[0]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)-(m_voice_prev_current_ptr[0]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
                                 if (diffptr<0) diffptr+=SOUND_BUFFER_SIZE_SAMPLE*4*4;
-                                //if (diffptr<SOUND_BUFFER_SIZE_SAMPLE)
-                                //    NSLog(@"old ptr %d new ptr %d diff %d",m_voice_prev_current_ptr[0]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT,m_voice_current_ptr[0]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT,diffptr);
                                 
                                 if (diffptr<SOUND_BUFFER_SIZE_SAMPLE) {
                                     for (int j=0;j<(m_genNumVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?m_genNumVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) {
@@ -6263,7 +6192,6 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     }
                                 }
                             } else {
-                                //NSLog(@"XMP: end of song");
                                 nbBytes=0;
                             }
                             
@@ -6476,13 +6404,13 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 memset(vgm_last_vol,0,sizeof(vgm_last_vol));
                                 
                                 if (! (vgm_plrEngine->GetState() & PLAYSTATE_PLAY)) {
-                                    NSLog(@"vgm player not in play state");
+                                    MDZELog("vgm player not in play state");
                                 }
                                 
                                 OSMutex_Lock(vgm_renderMtx);
                                 nbBytes=vgm_player.Render(SOUND_BUFFER_SIZE_SAMPLE*2*2,buffer_ana[buffer_ana_gen_ofs]);
                                 if (nbBytes<SOUND_BUFFER_SIZE_SAMPLE*2*2) {
-                                    NSLog(@"%d",nbBytes);
+                                    MDZELog("vgm player not enough bytes: %d",nbBytes);
                                 }
                                 OSMutex_Unlock(vgm_renderMtx);
                                 if (settings[GLOB_PBRATIO_ONOFF].detail.mdz_boolswitch.switch_value) mCurrentSamples+=SOUND_BUFFER_SIZE_SAMPLE*settings[GLOB_PBRATIO].detail.mdz_slider.slider_value;
@@ -6531,7 +6459,6 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     }
                                 }
                                 
-                                //NSLog(@"prev ptr: %d",m_voice_prev_current_ptr[5]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
                                 //copy voice data for oscillo view
                                 for (int j=0;j<(m_genNumVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?m_genNumVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) {
                                     for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
@@ -7011,8 +6938,6 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             /* If the fade is ended or the play is stopped, break */
                             if ( (KSSPLAY_get_fade_flag(kssplay) == KSSPLAY_FADE_END) || (KSSPLAY_get_stop_flag(kssplay)) ) nbBytes=0;
                             else nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
-                            
-                            //NSLog(@"ptr:%d",m_voice_current_ptr[1]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
                             
                             if (m_genNumVoicesChannels) {
                                 for (int j=0;j<(m_genNumVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?m_genNumVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) {
@@ -7558,7 +7483,6 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 if (info->GetKeyStatus()&&(idx>0)&&((current_mask&(1<<voices_idx))==0)) {
                                     unsigned int subidx=vgm_getSubNote(i);
                                     unsigned int vol=info->GetMaxVolume();
-                                    //NSLog(@"got %d/%d for %d",idx,vol,i);
                                     tim_notes[buffer_ana_gen_ofs][voices_idx]=
                                     idx|
                                     ((voices_idx)<<8)|
@@ -7759,8 +7683,6 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             mdz_zxtune->render_sound(buffer_ana[buffer_ana_gen_ofs],SOUND_BUFFER_SIZE_SAMPLE);
                             nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
                             
-                            //NSLog(@"ptr: %d",m_voice_current_ptr[0]>>16);
-                            
                             mCurrentSamples+=SOUND_BUFFER_SIZE_SAMPLE;
                             
                             //midi like notes data
@@ -7928,13 +7850,6 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
             if (bGlobalShouldEnd) break;
             
         }
-        //NSLog(@"out");
-        //Tell our callback what we've done
-        //    [self performSelectorOnMainThread:@selector(loadComplete) withObject:fileName waitUntilDone:NO];
-        
-        //remove our pool and free the memory collected by it
-        //    tim_close();
-        //[pool release];
     }
 }
 
@@ -7950,15 +7865,11 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
         NSProgress *progress = object;
         
         if ([progress isCancelled]) {
-            //NSLog(@"modizemusicplayer extract cancelled");
             extractDone=true;
             [[NSOperationQueue mainQueue] addOperationWithBlock:^{
                 
             }];
         }
-#if DEBUG_MODIZER
-        //NSLog(@"extract progress: %lf",progress.fractionCompleted);
-#endif
         if (progress.fractionCompleted>=1.0f) extractDone=true;
         
         dispatch_async(dispatch_get_main_queue(), ^(void){
@@ -8017,103 +7928,6 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
     [NSThread sleepForTimeInterval:0.1]; //required when extracting a .rar or .rsn as it seems it goes too fast and prevent 1st file to be read/played
     // }
     return ret;
-#if 0
-    struct archive *a = archive_read_new();
-    struct archive_entry *entry;
-    int r;
-    ssize_t size;
-    
-    bool cancelExtract;
-    FILE *f;
-    NSString *extractFilename,*extractPathFile;
-    NSError *err;
-    int idx,idxAll;
-    archive_read_support_filter_all(a);
-    archive_read_support_format_raw(a);
-    archive_read_support_format_all(a);
-    r = archive_read_open_filename(a, archivePath, 16384);
-    
-    if (r==ARCHIVE_OK) {
-        mdz_ArchiveFilesList=(char**)malloc(mdz_ArchiveFilesCnt*sizeof(char*)); //TODO: free
-        //            mdz_ArchiveFilesListAlias=(char**)malloc(mdz_ArchiveFilesCnt*sizeof(char*)); //TODO: free
-        idx=0;idxAll=0;
-        for (;;) {
-            r = archive_read_next_header(a, &entry);
-            
-            if (r == ARCHIVE_EOF) break;
-            if (r != ARCHIVE_OK) {
-                NSLog(@"archive_read_next_header() %s", archive_error_string(a));
-                break;
-            }
-            
-            NSString *tmp_filename=[ModizFileHelper getCorrectFileName:archivePath archive:a entry:entry];
-            
-            if ([ModizFileHelper isAcceptedFile:tmp_filename no_aux_file:0]) {
-                
-                extractFilename=[NSString stringWithFormat:@"%s/%@",extractPath,tmp_filename];
-                extractPathFile=[extractFilename stringByDeletingLastPathComponent];
-                
-                if (!isRestarting) {
-                    //1st create path if not existing yet
-                    [mFileMngr createDirectoryAtPath:extractPathFile withIntermediateDirectories:TRUE attributes:nil error:&err];
-                    [self addSkipBackupAttributeToItemAtPath:extractPathFile];
-                    
-                    //2nd extract file
-                    f=fopen([extractFilename fileSystemRepresentation],"wb");
-                    if (!f) {
-                        NSLog(@"Cannot open %@ to extract %@",extractFilename,extractPathFile);
-                    } else {
-                        const void *buff;
-                        size_t size;
-                        la_int64_t offset;
-                        
-                        //idxAll++;
-                        UIViewController *vc = [self visibleViewController:[UIApplication sharedApplication].keyWindow.rootViewController];
-                        mdz_safe_execute_sel(vc,@selector(updateWaitingDetail:),([NSString stringWithFormat:@"%d/%d",idx,mdz_ArchiveFilesCnt]))
-                        
-                        [[NSRunLoop mainRunLoop] runUntilDate:[NSDate date]];
-                        
-                        NSInvocationOperation *invo = [[NSInvocationOperation alloc] initWithTarget:vc selector:@selector(isCancelPending) object:nil];
-                        [invo start];
-                        cancelExtract=false;
-                        [invo.result getValue:&cancelExtract];
-                        if (cancelExtract) {
-                            mdz_safe_execute_sel(vc,@selector(resetCancelStatus),nil);
-                            fclose(f);
-                            break;
-                        }
-                        
-                        for (;;) {
-                            r = archive_read_data_block(a, &buff, &size, &offset);
-                            if (r == ARCHIVE_EOF) break;
-                            if (r < ARCHIVE_OK) break;
-                            fwrite(buff,size,1,f);
-                        }
-                        
-                        fclose(f);
-                        
-                        if ([ModizFileHelper isAcceptedFile:tmp_filename no_aux_file:1]) {
-                            mdz_ArchiveFilesList[idx]=(char*)malloc(strlen([tmp_filename fileSystemRepresentation])+1);
-                            strcpy(mdz_ArchiveFilesList[idx],[tmp_filename fileSystemRepresentation]);
-                            
-                            idx++;
-                        }
-                    }
-                } else {
-                    //restarting, skip extract
-                    
-                    if ([ModizFileHelper isAcceptedFile:tmp_filename no_aux_file:1]) {
-                        mdz_ArchiveFilesList[idx]=(char*)malloc(strlen([tmp_filename fileSystemRepresentation])+1);
-                        strcpy(mdz_ArchiveFilesList[idx],[tmp_filename fileSystemRepresentation]);
-                        
-                        idx++;
-                    }
-                }
-            }
-        }
-    }
-    r = archive_read_free(a);
-#endif
 }
 
 -(NSString*) getArcEntryFilename:(const char *)path index:(int)idx {
@@ -8163,7 +7977,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
         
         err=sqlite3_exec(db, "PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
         if (err==SQLITE_OK){
-        } else NSLog(@"ErrSQL : %d",err);
+        } else MDZELog("ErrSQL : %d",err);
         
         snprintf(sqlStatement,1024,"SELECT song_length FROM songlength WHERE id_md5=\"%s\" AND track_nb=%d",song_md5,track_nb);
         err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
@@ -8172,7 +7986,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                 songlength=sqlite3_column_int(stmt, 0)*1000;
             }
             sqlite3_finalize(stmt);
-        } else NSLog(@"ErrSQL : %d getSongLengthfromMD51",err);
+        } else MDZELog("ErrSQL : %d getSongLengthfromMD51",err);
         
     };
     sqlite3_close(db);
@@ -8192,7 +8006,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                     songlength=sqlite3_column_int(stmt, 0)*1000;
                 }
                 sqlite3_finalize(stmt);
-            } else NSLog(@"ErrSQL : %d getSongLengthfromMD52",err);
+            } else MDZELog("ErrSQL : %d getSongLengthfromMD52",err);
             
         };
         sqlite3_close(db);
@@ -8213,17 +8027,17 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
         
         err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
         if (err==SQLITE_OK){
-        } else NSLog(@"ErrSQL : %d",err);
+        } else MDZELog("ErrSQL : %d",err);
         
         snprintf(sqlStatement,1024,"DELETE FROM songlength_user WHERE id_md5=\"%s\" AND track_nb=%d",song_md5,track_nb);
         err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
         if (err==SQLITE_OK){
-        } else NSLog(@"ErrSQL : %d setSongLengthfromMD51",err);
+        } else MDZELog("ErrSQL : %d setSongLengthfromMD51",err);
         
         snprintf(sqlStatement,1024,"INSERT INTO songlength_user (id_md5,track_nb,song_length) VALUES (\"%s\",%d,%d)",song_md5,track_nb,slength/1000);
         err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
         if (err==SQLITE_OK){
-        } else NSLog(@"ErrSQL : %d setSongLengthfromMD52",err);
+        } else MDZELog("ErrSQL : %d setSongLengthfromMD52",err);
         
     };
     sqlite3_close(db);
@@ -8246,7 +8060,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
         
         err=sqlite3_exec(db, "PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
         if (err==SQLITE_OK){
-        } else NSLog(@"ErrSQL : %d",err);
+        } else MDZELog("ErrSQL : %d",err);
         
         if (!realPath) {
             //try to find realPath with md5
@@ -8258,7 +8072,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                     realPath=tmppath;
                 }
                 sqlite3_finalize(stmt);
-            } else NSLog(@"ErrSQL : %d",err);
+            } else MDZELog("ErrSQL : %d",err);
         } else realPath+=5;
         if (realPath) {
             snprintf(sqlStatement,1024,"SELECT stil_info FROM stil WHERE fullpath=\"%s\"",realPath);
@@ -8273,7 +8087,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                     }
                 }
                 sqlite3_finalize(stmt);
-            } else NSLog(@"ErrSQL : %d",err);
+            } else MDZELog("ErrSQL : %d",err);
         }
     };
     sqlite3_close(db);
@@ -8297,7 +8111,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
         
         err=sqlite3_exec(db, "PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
         if (err==SQLITE_OK){
-        } else NSLog(@"ErrSQL : %d",err);
+        } else MDZELog("ErrSQL : %d",err);
         
         if (!realPath) {
             //try to find realPath with md5
@@ -8309,7 +8123,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                     realPath=tmppath;
                 }
                 sqlite3_finalize(stmt);
-            } else NSLog(@"ErrSQL : %d",err);
+            } else MDZELog("ErrSQL : %d",err);
         } else realPath+=5;
         if (realPath) {
             snprintf(sqlStatement,1024,"SELECT stil_info FROM stil_asma WHERE fullpath=\"%s\"",realPath);
@@ -8324,7 +8138,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                     }
                 }
                 sqlite3_finalize(stmt);
-            } else NSLog(@"ErrSQL : %d",err);
+            } else MDZELog("ErrSQL : %d",err);
         }
     };
     sqlite3_close(db);
@@ -8477,7 +8291,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
     
     f=fopen([filePath UTF8String],"rb");
     if (f==NULL) {
-        NSLog(@"GSF Cannot open file %@",filePath);
+        MDZELog("GSF Cannot open file %@",filePath);
         mPlayType=0;
         return -1;
     }
@@ -8490,7 +8304,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
     strcpy(tmp_file,(char*)[filePath UTF8String]);
     int res=GSFRun(tmp_file);
     if (!res) {
-        NSLog(@"Error loading GSF file");
+        MDZELog("Error loading GSF file");
         mPlayType=0;
         if (gsf_libfile) {
             //missing lib
@@ -8613,7 +8427,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
     
     FILE *f=fopen([filePath UTF8String],"rb");
     if (f==NULL) {
-        NSLog(@"MDX Cannot open file %@",filePath);
+        MDZELog("MDX Cannot open file %@",filePath);
         mPlayType=0;
         return -1;
     }
@@ -8623,7 +8437,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
     fclose(f);
     
     if (mdx_load((char*)[filePath UTF8String],&mdx,&pdx,mLoopMode) ) {
-        NSLog(@"MDX mdx_load error");
+        MDZELog("MDX mdx_load error");
         mPlayType=0;
         return -1;
     } else {
@@ -8688,7 +8502,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
     
     FILE *f=fopen([filePath UTF8String],"rb");
     if (f==NULL) {
-        NSLog(@"SC68 Cannot open file %@",filePath);
+        MDZELog("SC68 Cannot open file %@",filePath);
         mPlayType=0;
         return -1;
     }
@@ -8697,7 +8511,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
     mp_datasize=ftell(f);
     mp_data=(char*)malloc(mp_datasize);
     if (!mp_data) {
-        NSLog(@"AtariSound: cannot allocate %dKo to load file\n",mp_datasize>>10);
+        MDZELog("AtariSound: cannot allocate %dKo to load file\n",mp_datasize>>10);
         fclose(f);
         return  -1;
     }
@@ -8706,7 +8520,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
     fclose(f);
     
     if (!(atariSndh.Load(mp_data,mp_datasize,PLAYBACK_FREQ))) {
-        NSLog(@"AtariSound load error");
+        MDZELog("AtariSound load error");
         mPlayType=0;
         free(mp_data);
         return -1;
@@ -8823,7 +8637,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
     
     FILE *f=fopen([filePath UTF8String],"rb");
     if (f==NULL) {
-        NSLog(@"SC68 Cannot open file %@",filePath);
+        MDZELog("SC68 Cannot open file %@",filePath);
         mPlayType=0;
         return -1;
     }
@@ -8834,7 +8648,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
     
     
     if (sc68_load_uri(sc68,[filePath UTF8String])) {
-        NSLog(@"SC68 api68_load_file error");
+        MDZELog("SC68 api68_load_file error");
         mPlayType=0;
         return -1;
     } else {
@@ -8910,7 +8724,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
     g_playing = 0;
     FILE *f=fopen([filePath UTF8String],"rb");
     if (f==NULL) {
-        NSLog(@"EUP Cannot open file %@",filePath);
+        MDZELog("EUP Cannot open file %@",filePath);
         mPlayType=0;
         return -1;
     }
@@ -9015,7 +8829,7 @@ typedef struct {
     
     FILE *f=fopen([filePath UTF8String],"rb");
     if (f==NULL) {
-        NSLog(@"NSFPlay Cannot open file %@",filePath);
+        MDZELog("NSFPlay Cannot open file %@",filePath);
         mPlayType=0;
         return -1;
     }
@@ -9326,7 +9140,7 @@ static WSRPlayerApi* s_coreSwan=&oswan::g_wsr_player_api;
     
     FILE *f=fopen([filePath UTF8String],"rb");
     if (f==NULL) {
-        NSLog(@"WSR Cannot open file %@",filePath);
+        MDZELog("WSR Cannot open file %@",filePath);
         mPlayType=0;
         return -1;
     }
@@ -9340,7 +9154,7 @@ static WSRPlayerApi* s_coreSwan=&oswan::g_wsr_player_api;
     if (!wsr_music_buf) return -2;
     f=fopen([filePath UTF8String],"rb");
     if (f==NULL) {
-        NSLog(@"WSR Cannot open file %@",filePath);
+        MDZELog("WSR Cannot open file %@",filePath);
         mPlayType=0;
         free(wsr_music_buf);
         return -1;
@@ -9350,7 +9164,7 @@ static WSRPlayerApi* s_coreSwan=&oswan::g_wsr_player_api;
     fclose(f);
     
     if (s_coreSwan->pLoadWSR(wsr_music_buf,wsr_music_size)==0) {
-        NSLog(@"WSR Cannot initialize data for file %@",filePath);
+        MDZELog("WSR Cannot initialize data for file %@",filePath);
         mPlayType=0;
         free(wsr_music_buf);
         return -1;
@@ -9365,7 +9179,7 @@ static WSRPlayerApi* s_coreSwan=&oswan::g_wsr_player_api;
     int error;
     src_state=src_callback_new(src_callback_wsr,0,2,&error,NULL); //best quality
     if (!src_state) {
-        NSLog(@"Error while initializing SRC samplerate converter: %d",error);
+        MDZELog("Error while initializing SRC samplerate converter: %d",error);
         return -1;
     }
     
@@ -9425,7 +9239,7 @@ static WSRPlayerApi* s_coreSwan=&oswan::g_wsr_player_api;
         }
         if (numSubsongs == 0) {
             s_coreSwan->pCloseWSR();
-            NSLog(@"WSR no subsong detected for file %@",filePath);
+            MDZELog("WSR no subsong detected for file %@",filePath);
             mPlayType=0;
             free(wsr_music_buf);
             src_delete(src_state);
@@ -9552,7 +9366,7 @@ static WSRPlayerApi* s_coreSwan=&oswan::g_wsr_player_api;
     
     FILE *f=fopen([filePath UTF8String],"rb");
     if (f==NULL) {
-        NSLog(@"PT3 Cannot open file %@",filePath);
+        MDZELog("PT3 Cannot open file %@",filePath);
         mPlayType=0;
         return -1;
     }
@@ -9589,7 +9403,7 @@ static WSRPlayerApi* s_coreSwan=&oswan::g_wsr_player_api;
     if (!pt3_music_buf) return -2;
     f=fopen([filePath UTF8String],"rb");
     if (f==NULL) {
-        NSLog(@"PT3 Cannot open file %@",filePath);
+        MDZELog("PT3 Cannot open file %@",filePath);
         mPlayType=0;
         free(pt3_music_buf);
         return -1;
@@ -9675,7 +9489,7 @@ static WSRPlayerApi* s_coreSwan=&oswan::g_wsr_player_api;
     
     FILE *f=fopen([filePath UTF8String],"rb");
     if (f==NULL) {
-        NSLog(@"GBS Cannot open file %@",filePath);
+        MDZELog("GBS Cannot open file %@",filePath);
         mPlayType=0;
         return -1;
     }
@@ -9694,7 +9508,7 @@ static WSRPlayerApi* s_coreSwan=&oswan::g_wsr_player_api;
     argc = 2;
     gbs = common_init(argc, argv);
     if (!gbs) {
-        NSLog(@"GBS Cannot open file %@",filePath);
+        MDZELog("GBS Cannot open file %@",filePath);
         mPlayType=0;
         return -2;
     }
@@ -9849,7 +9663,7 @@ static WSRPlayerApi* s_coreSwan=&oswan::g_wsr_player_api;
     
     FILE *f=fopen([filePath UTF8String],"rb");
     if (f==NULL) {
-        NSLog(@"PT3 Cannot open file %@",filePath);
+        MDZELog("PT3 Cannot open file %@",filePath);
         mPlayType=0;
         return -1;
     }
@@ -9859,7 +9673,7 @@ static WSRPlayerApi* s_coreSwan=&oswan::g_wsr_player_api;
     pixel_fileBufferLen=mp_datasize;
     pixel_fileBuffer=(char*)malloc(pixel_fileBufferLen);
     if (!pixel_fileBuffer) {
-        NSLog(@"cannot allocate pixel_fileBuffer");
+        MDZELog("cannot allocate pixel_fileBuffer");
         fclose(f);
         return -1;
     }
@@ -9980,7 +9794,7 @@ static WSRPlayerApi* s_coreSwan=&oswan::g_wsr_player_api;
     
     FILE *f=fopen([filePath UTF8String],"rb");
     if (f==NULL) {
-        NSLog(@"STSOUND Cannot open file %@",filePath);
+        MDZELog("STSOUND Cannot open file %@",filePath);
         mPlayType=0;
         return -1;
     }
@@ -9992,7 +9806,7 @@ static WSRPlayerApi* s_coreSwan=&oswan::g_wsr_player_api;
     ymMusic = ymMusicCreate();
     
     if (!ymMusicLoad(ymMusic,[filePath UTF8String])) {
-        NSLog(@"STSOUND ymMusicLoad error");
+        MDZELog("STSOUND ymMusicLoad error");
         mPlayType=0;
         ymMusicDestroy(ymMusic);
         return -1;
@@ -10171,7 +9985,7 @@ char* loadRom(const char* path, size_t romSize)
     //First check that the file is available and get size
     FILE *f=fopen([filePath UTF8String],"rb");
     if (f==NULL) {
-        NSLog(@"SID Cannot open file %@",filePath);
+        MDZELog("SID Cannot open file %@",filePath);
         mPlayType=0;
         return -1;
     }
@@ -10185,7 +9999,7 @@ char* loadRom(const char* path, size_t romSize)
     
     f=fopen([filePath UTF8String],"rb");
     if (f==NULL) {
-        NSLog(@"SID Cannot open file %@",filePath);
+        MDZELog("SID Cannot open file %@",filePath);
         mPlayType=0;
         free(websid_fileBuffer);
         return -1;
@@ -10393,7 +10207,7 @@ char* loadRom(const char* path, size_t romSize)
     //First check that the file is available and get size
     FILE *f=fopen([filePath UTF8String],"rb");
     if (f==NULL) {
-        NSLog(@"SID Cannot open file %@",filePath);
+        MDZELog("SID Cannot open file %@",filePath);
         mPlayType=0;
         return -1;
     }
@@ -10409,7 +10223,7 @@ char* loadRom(const char* path, size_t romSize)
     
     f=fopen([filePath UTF8String],"rb");
     if (f==NULL) {
-        NSLog(@"SID Cannot open file %@",filePath);
+        MDZELog("SID Cannot open file %@",filePath);
         mPlayType=0;
         free(tmp_md5_data);
         return -1;
@@ -10490,7 +10304,7 @@ char* loadRom(const char* path, size_t romSize)
         cfg.sidEmulation  = mBuilder;
         // Check if builder is ok
         if (!mBuilder->getStatus()) {
-            NSLog(@"issue in creating sid builder");
+            MDZELog("issue in creating sid builder");
             return -1;
         }
         unsigned int maxsids = (mSidEmuEngine->info()).maxsids();
@@ -10498,7 +10312,7 @@ char* loadRom(const char* path, size_t romSize)
         
         // Check if builder is ok
         if (!mBuilder->getStatus()) {
-            NSLog(@"issue in creating sid builder");
+            MDZELog("issue in creating sid builder");
             return -1;
         }
         
@@ -10508,7 +10322,7 @@ char* loadRom(const char* path, size_t romSize)
         cfg.sidEmulation  = mBuilder;
         // Check if builder is ok
         if (!mBuilder->getStatus()) {
-            NSLog(@"issue in creating sid builder");
+            MDZELog("issue in creating sid builder");
             return -1;
         }
         unsigned int maxsids = (mSidEmuEngine->info()).maxsids();
@@ -10516,7 +10330,7 @@ char* loadRom(const char* path, size_t romSize)
         
         // Check if builder is ok
         if (!mBuilder->getStatus()) {
-            NSLog(@"issue in creating sid builder");
+            MDZELog("issue in creating sid builder");
             return -1;
         }
         
@@ -10554,14 +10368,14 @@ char* loadRom(const char* path, size_t romSize)
     
     if (mSidTune) {
         if (mSidTune->getStatus()==false) {
-            NSLog(@"SID SidTune init error: wrong format");
+            MDZELog("SID SidTune init error: wrong format");
             delete mSidTune;
             mSidTune=NULL;
         }
     }
     
     if (mSidTune==NULL) {
-        NSLog(@"SID SidTune init error");
+        MDZELog("SID SidTune init error");
         delete mSidEmuEngine; mSidEmuEngine=NULL;
         delete mBuilder; mBuilder=NULL;
         if (mSidTune) {delete mSidTune;mSidTune=NULL;}
@@ -10720,7 +10534,7 @@ char* loadRom(const char* path, size_t romSize)
     
     FILE *f=fopen([filePath UTF8String],"rb");
     if (f==NULL) {
-        NSLog(@"HSS Cannot open file %@",filePath);
+        MDZELog("HSS Cannot open file %@",filePath);
         mPlayType=0;
         return -1;
     }
@@ -10730,7 +10544,7 @@ char* loadRom(const char* path, size_t romSize)
     fclose(f);
     
     if ((kss = KSS_load_file((char*)[filePath UTF8String])) == NULL) {
-        NSLog(@"KSS Cannot load file %@",filePath);
+        MDZELog("KSS Cannot load file %@",filePath);
         return -2;
     }
     
@@ -10947,7 +10761,7 @@ char* loadRom(const char* path, size_t romSize)
     
     FILE *f=fopen([filePath UTF8String],"rb");
     if (f==NULL) {
-        NSLog(@"HVL Cannot open file %@",filePath);
+        MDZELog("HVL Cannot open file %@",filePath);
         mPlayType=0;
         return -1;
     }
@@ -10964,7 +10778,7 @@ char* loadRom(const char* path, size_t romSize)
     hvl_song=hvl_LoadTune((TEXT*)[filePath UTF8String],PLAYBACK_FREQ,1);
     
     if (hvl_song==NULL) {
-        NSLog(@"HVL loadTune error");
+        MDZELog("HVL loadTune error");
         mPlayType=0;
         return -1;
     } else {
@@ -10984,7 +10798,7 @@ char* loadRom(const char* path, size_t romSize)
         mCurrentSamples=0;
         
         
-        if (mod_subsongs>1) NSLog(@"hvl multisub");
+        if (mod_subsongs>1) MDZILog("hvl multisub");
         
         
         //////////////////////////////////
@@ -10993,7 +10807,7 @@ char* loadRom(const char* path, size_t romSize)
         if (mod_subsongs) {
             for (int i=0;i<mod_subsongs; i++) {
                 if (!hvl_InitSubsong( hvl_song,i )) {
-                    NSLog(@"HVL issue in initsubsong %d",i);
+                    MDZELog("HVL issue in initsubsong %d",i);
                     hvl_FreeTune(hvl_song);
                     mPlayType=0;
                     return -2;
@@ -11026,7 +10840,7 @@ char* loadRom(const char* path, size_t romSize)
         }
         
         if (!hvl_InitSubsong( hvl_song,mod_currentsub )) {
-            NSLog(@"HVL issue in initsubsong %d",mod_currentsub);
+            MDZELog("HVL issue in initsubsong %d",mod_currentsub);
             hvl_FreeTune(hvl_song);
             mPlayType=0;
             return -2;
@@ -11064,7 +10878,7 @@ char* loadRom(const char* path, size_t romSize)
     if ([[[filePath pathExtension] lowercaseString] isEqualToString:@"chp"]) {
         mdz_fileBufferLen=chp2ym((char*)[filePath UTF8String], (uint8_t**)&mdz_fileBuffer);
         if (!mdz_fileBufferLen) {
-            NSLog(@"ZXTUNE Cannot open/convert file %@",filePath);
+            MDZELog("ZXTUNE Cannot open/convert file %@",filePath);
             mPlayType=0;
             return -1;
         }
@@ -11072,7 +10886,7 @@ char* loadRom(const char* path, size_t romSize)
     } else {
         FILE *f=fopen([filePath UTF8String],"rb");
         if (f==NULL) {
-            NSLog(@"ZXTUNE Cannot open file %@",filePath);
+            MDZELog("ZXTUNE Cannot open file %@",filePath);
             mPlayType=0;
             return -1;
         }
@@ -11081,7 +10895,7 @@ char* loadRom(const char* path, size_t romSize)
         mdz_fileBufferLen=mp_datasize;
         mdz_fileBuffer=(char*)malloc(mdz_fileBufferLen);
         if (!mdz_fileBuffer) {
-            NSLog(@"cannot allocate mdz_fileBuffer");
+            MDZELog("cannot allocate mdz_fileBuffer");
             fclose(f);
             return -1;
         }
@@ -11099,7 +10913,7 @@ char* loadRom(const char* path, size_t romSize)
         //mdz_zxtune->get_all_extension();
     }
     catch (const std::exception&) {
-        NSLog(@"ZXTune: cannot read file %@",filePath);
+        MDZELog("ZXTune: cannot read file %@",filePath);
         if (mdz_zxtune) {
             delete mdz_zxtune;
             mdz_zxtune=0;
@@ -11201,7 +11015,7 @@ char* loadRom(const char* path, size_t romSize)
     // First check that the file is accessible and get the size
     FILE *f=fopen([filePath UTF8String],"rb");
     if (f==NULL) {
-        NSLog(@"UADE Cannot open file %@",filePath);
+        MDZELog("UADE Cannot open file %@",filePath);
         mPlayType=0;
         return -1;
     }
@@ -11341,8 +11155,6 @@ char* loadRom(const char* path, size_t romSize)
     //Loop
     if (mLoopMode==1) iModuleLength=-1;
     
-    //		NSLog(@"playtime : %d",UADEstate.song->playtime);
-    
     return 0;
 }
 
@@ -11351,7 +11163,7 @@ char* loadRom(const char* path, size_t romSize)
     
     FILE *f=fopen([filePath UTF8String],"rb");
     if (f==NULL) {
-        NSLog(@"XMP Cannot open file %@",filePath);
+        MDZELog("XMP Cannot open file %@",filePath);
         mPlayType=0;
         return -1;
     }
@@ -11362,19 +11174,19 @@ char* loadRom(const char* path, size_t romSize)
     
     xmp_ctx = xmp_create_context();
     if (xmp_ctx==NULL) {
-        NSLog(@"XMP: Cannot create context");
+        MDZELog("XMP: Cannot create context");
         return 1;
     }
     
     if (xmp_load_module(xmp_ctx, (char*)[filePath UTF8String]) < 0) {
-        NSLog(@"XMP: error loading %s\n", [filePath UTF8String]);
+        MDZELog("XMP: error loading %s\n", [filePath UTF8String]);
         xmp_free_context(xmp_ctx);
         xmp_ctx=NULL;
         return 2;
     }
     
     if (xmp_start_player(xmp_ctx, 44100, 0) != 0) {
-        NSLog(@"XMP: error initializing player");
+        MDZELog("XMP: error initializing player");
         xmp_release_module(xmp_ctx);
         xmp_free_context(xmp_ctx);
         xmp_ctx=NULL;
@@ -11417,11 +11229,6 @@ char* loadRom(const char* path, size_t romSize)
         }
     }
     
-    /*NSLog(@"XMP num sequence: %d",xmp_mi->num_sequences);
-     for (int i=0;i<xmp_mi->num_sequences;i++) {
-     NSLog(@"XMP sequence %d duration: %d",i,xmp_mi->seq_data[i].duration);
-     }
-     */
     mod_subsongs=xmp_mi->num_sequences;
     mod_minsub=0;
     mod_maxsub=xmp_mi->num_sequences-1;
@@ -11523,7 +11330,7 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
     
     FILE *f=fopen([filePath UTF8String],"rb");
     if (f==NULL) {
-        NSLog(@"MODPLUG Cannot open file %@",filePath);
+        MDZELog("MODPLUG Cannot open file %@",filePath);
         mPlayType=0;
         return -1;
     }
@@ -11779,7 +11586,7 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
     
     FILE *f=fopen([filePath UTF8String],"rb");
     if (f==NULL) {
-        NSLog(@"timidity Cannot open file %@",filePath);
+        MDZELog("timidity Cannot open file %@",filePath);
         mPlayType=0;
         
         return -1;
@@ -11864,7 +11671,6 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
         //tim_init((char*)[[NSHomeDirectory() stringByAppendingPathComponent:@"modizer.app/timidity"] UTF8String]);
         
         if (tim_force_soundfont) {
-            //NSLog(@"forcing with: %s",tim_force_soundfont_path);
             tim_init(tim_force_soundfont_path);
             snprintf(tim_config_file_path,sizeof(tim_config_file_path),"%s/timidity.cfg",tim_force_soundfont_path);
         } else {
@@ -11968,10 +11774,9 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
     mPlayType=MMP_VGMSTREAM;
     FILE *f;
     
-    //NSLog(@"yo: %@",filePath);
     f=fopen([filePath UTF8String],"rb");
     if (f==NULL) {
-        NSLog(@"VGMSTREAM Cannot open file %@",filePath);
+        MDZELog("VGMSTREAM Cannot open file %@",filePath);
         mPlayType=0;
         return -1;
     }
@@ -11983,7 +11788,7 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
     int error;
     src_state=src_callback_new(src_callback_vgmstream,optVGMSTREAM_resampleQuality,2,&error,NULL);
     if (!src_state) {
-        NSLog(@"Error while initializing SRC samplerate converter: %d",error);
+        MDZELog("Error while initializing SRC samplerate converter: %d",error);
         return -1;
     }
     
@@ -11993,12 +11798,11 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
     if ( optVGMSTREAM_loopmode)
     {
         mVGMSTREAM_force_loop = true;
-        //NSLog(@"VGMStreamPlugin Force Loop");
     }
     
     vgmFile = open_stdio_streamfile([filePath UTF8String]);
     if (!vgmFile) {
-        NSLog(@"Error open_stdio_streamfile %@",filePath);
+        MDZELog("Error open_stdio_streamfile %@",filePath);
         mPlayType=0;
         src_delete(src_state);
         return -1;
@@ -12009,7 +11813,7 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
     vgmStream = init_vgmstream_from_STREAMFILE(vgmFile);
     
     if (!vgmStream) {
-        NSLog(@"Error init_vgmstream_from_STREAMFILE %@",filePath);
+        MDZELog("Error init_vgmstream_from_STREAMFILE %@",filePath);
         mPlayType=0;
         src_delete(src_state);
         close_streamfile(vgmFile);
@@ -12038,7 +11842,7 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
     src_ratio=PLAYBACK_FREQ/(double)(vgmStream->sample_rate);
     
     if (vgmStream->channels <= 0) {
-        NSLog(@"Error vgmStream->channels: %d",vgmStream->channels);
+        MDZELog("Error vgmStream->channels: %d",vgmStream->channels);
         close_vgmstream(vgmStream);
         vgmStream = NULL;
         src_delete(src_state);
@@ -12166,7 +11970,7 @@ void ds_meta_set(const char * tag, const char * value) {
     
     f=fopen([filePath UTF8String],"rb");
     if (f==NULL) {
-        NSLog(@"2SF Cannot open file %@",filePath);
+        MDZELog("2SF Cannot open file %@",filePath);
         mPlayType=0;
         return -1;
     }
@@ -12184,7 +11988,7 @@ void ds_meta_set(const char * tag, const char * value) {
     ds_set_loop(mLoopMode);
     
     if (ds_load_file([filePath UTF8String])) {
-        NSLog(@"2SF Cannot open file %@",filePath);
+        MDZELog("2SF Cannot open file %@",filePath);
         mPlayType=0;
         return -1;
     }
@@ -12222,7 +12026,7 @@ void ds_meta_set(const char * tag, const char * value) {
     
     f=fopen([filePath UTF8String],"rb");
     if (f==NULL) {
-        NSLog(@"NCSF/2SF Cannot open file %@",filePath);
+        MDZELog("NCSF/2SF Cannot open file %@",filePath);
         mPlayType=0;
         return -1;
     }
@@ -12233,7 +12037,7 @@ void ds_meta_set(const char * tag, const char * value) {
     //Create config
     xSFConfig = XSFConfig::Create();
     if (!xSFConfig) {
-        NSLog(@"NCSF/2SF Cannot initiate config");
+        MDZELog("NCSF/2SF Cannot initiate config");
         mPlayType=0;
         return 1;
     }
@@ -12258,7 +12062,7 @@ void ds_meta_set(const char * tag, const char * value) {
     }
     
     if (!xSFPlayer) {
-        NSLog(@"NCSF/2SF Cannot initiate player");
+        MDZELog("NCSF/2SF Cannot initiate player");
         delete xSFConfig;
         mPlayType=0;
         return -2;
@@ -12270,7 +12074,7 @@ void ds_meta_set(const char * tag, const char * value) {
     
     //Load file
     if (!xSFPlayer->Load()) {
-        NSLog(@"NCSF/2SF Cannot load file %@",filePath);
+        MDZELog("NCSF/2SF Cannot load file %@",filePath);
         delete xSFPlayer;
         delete xSFConfig;
         mPlayType=0;
@@ -12355,7 +12159,7 @@ static unsigned char* v2m_check_and_convert(unsigned char* tune, unsigned int* l
         //GZIP compressed
         f=fopen([filePath UTF8String],"rb");
         if (f==NULL) {
-            NSLog(@"V2M Cannot open file %@",filePath);
+            MDZELog("V2M Cannot open file %@",filePath);
             mPlayType=0;
             return -1;
         }
@@ -12367,7 +12171,7 @@ static unsigned char* v2m_check_and_convert(unsigned char* tune, unsigned int* l
         gzFile gzf;
         gzf=gzopen([filePath UTF8String],"rb");
         if (gzf==NULL) {
-            NSLog(@"V2M Cannot open file %@",filePath);
+            MDZELog("V2M Cannot open file %@",filePath);
             mPlayType=0;
             return -1;
         }
@@ -12377,7 +12181,7 @@ static unsigned char* v2m_check_and_convert(unsigned char* tune, unsigned int* l
         //Normal V2M file
         f=fopen([filePath UTF8String],"rb");
         if (f==NULL) {
-            NSLog(@"V2M Cannot open file %@",filePath);
+            MDZELog("V2M Cannot open file %@",filePath);
             mPlayType=0;
             return -1;
         }
@@ -12390,7 +12194,7 @@ static unsigned char* v2m_check_and_convert(unsigned char* tune, unsigned int* l
     }
     
     if (!mp_datasize) {
-        NSLog(@"V2M: issue with file format %@",filePath);
+        MDZELog("V2M: issue with file format %@",filePath);
         mPlayType=0;
         return -1;
     }
@@ -12398,7 +12202,7 @@ static unsigned char* v2m_check_and_convert(unsigned char* tune, unsigned int* l
     //prepare the tune
     mp_data=(char*)v2m_check_and_convert((unsigned char*)mp_data,(unsigned int*)&mp_datasize);
     if (!mp_data) {
-        NSLog(@"V2M: issue with file format %@",filePath);
+        MDZELog("V2M: issue with file format %@",filePath);
         delete mp_data;
         mPlayType=0;
         return -2;
@@ -12461,7 +12265,7 @@ static unsigned char* v2m_check_and_convert(unsigned char* tune, unsigned int* l
     HC_type=0;
     f=fopen([filePath UTF8String],"rb");
     if (f==NULL) {
-        NSLog(@"HE Cannot open file %@",filePath);
+        MDZELog("HE Cannot open file %@",filePath);
         mPlayType=0;
         return -1;
     }
@@ -12481,7 +12285,6 @@ static unsigned char* v2m_check_and_convert(unsigned char* tune, unsigned int* l
     info.trackPeak = 0;
     info.volume = 1;
     HC_type = psf_load( [filePath UTF8String], &psf_file_system, 0, 0, 0, psf_info_meta, &info, 0 );
-    //NSLog(@"HC file type: %d",HC_type);
     if (HC_type <= 0) {
         return -1;
     }
@@ -12499,7 +12302,7 @@ static unsigned char* v2m_check_and_convert(unsigned char* tune, unsigned int* l
     int error;
     src_state=src_callback_new(src_callback_hc,optHC_ResampleQuality,2,&error,NULL);
     if (!src_state) {
-        NSLog(@"Error while initializing SRC samplerate converter: %d",error);
+        MDZELog("Error while initializing SRC samplerate converter: %d",error);
         return -1;
     }
     /////////////////////////
@@ -12527,7 +12330,7 @@ static unsigned char* v2m_check_and_convert(unsigned char* tune, unsigned int* l
         state.first = true;
         state.refresh = 0;
         if ( psf_load( [filePath UTF8String], &psf_file_system, 1, psf1_loader, &state, psf1_info, &state, 1 ) <= 0 ) {
-            NSLog(@"Error loading PSF1");
+            MDZELog("Error loading PSF1");
             mPlayType=0;
             src_delete(src_state);
             if (HC_emulatorCore) free(HC_emulatorCore);
@@ -12553,7 +12356,7 @@ static unsigned char* v2m_check_and_convert(unsigned char* tune, unsigned int* l
         struct psf1_load_state state;
         state.refresh = 0;
         if ( psf_load( (char*)[filePath UTF8String], &psf_file_system, 2, psf2fs_load_callback, HC_emulatorExtra, psf1_info, &state, 1 ) <= 0 ) {
-            NSLog(@"Error loading PSF2");
+            MDZELog("Error loading PSF2");
             mPlayType=0;
             src_delete(src_state);
             if (HC_emulatorExtra ) {
@@ -12588,7 +12391,7 @@ static unsigned char* v2m_check_and_convert(unsigned char* tune, unsigned int* l
         struct sdsf_loader_state state;
         memset( &state, 0, sizeof(state) );
         if ( psf_load( [filePath UTF8String], &psf_file_system, HC_type, sdsf_loader, &state, 0, 0, 0 ) <= 0 ) {
-            NSLog(@"Error loading DSF/SSF");
+            MDZELog("Error loading DSF/SSF");
             mPlayType=0;
             src_delete(src_state);
             return -1;
@@ -12647,7 +12450,7 @@ static unsigned char* v2m_check_and_convert(unsigned char* tune, unsigned int* l
 #endif
         
         if ( psf_load( (char*)[filePath UTF8String], &psf_file_system, 0x21, usf_loader, lzu_state, usf_info, lzu_state,1 ) < 0 ) {
-            NSLog(@"Error loading USF");
+            MDZELog("Error loading USF");
             mPlayType=0;
             usf_shutdown(lzu_state);
             
@@ -12683,7 +12486,7 @@ static unsigned char* v2m_check_and_convert(unsigned char* tune, unsigned int* l
         m_voice_current_samplerate=hc_sample_rate;
         snsf_rom=new snsf_loader_state;
         if ( psf_load( (char*)[filePath UTF8String], &psf_file_system, 0x23, snsf_loader, snsf_rom, 0, 0, 0 ) < 0 ) {
-            NSLog(@"Error loading SNSF");
+            MDZELog("Error loading SNSF");
             mPlayType=0;
             src_delete(src_state);
             delete snsf_rom;
@@ -12707,7 +12510,7 @@ static unsigned char* v2m_check_and_convert(unsigned char* tune, unsigned int* l
         HC_emulatorExtra = state;
         
         if ( psf_load( [filePath UTF8String], &psf_file_system, 0x41, qsf_loader, state, 0, 0, 0 ) <= 0 ) {
-            NSLog(@"Error loading QSF");
+            MDZELog("Error loading QSF");
             mPlayType=0;
             src_delete(src_state);
             free(HC_emulatorExtra);
@@ -12835,7 +12638,7 @@ static void vgm_set_dev_option(PlayerBase *player, UINT8 devId, UINT32 coreOpts)
     
     f = fopen([filePath UTF8String], "rb");
     if (f == NULL) {
-        NSLog(@"VGM Cannot open file %@",filePath);
+        MDZELog("VGM Cannot open file %@",filePath);
         mPlayType=0;
         return -1;
     }
@@ -13191,7 +12994,7 @@ static void vgm_set_dev_option(PlayerBase *player, UINT8 devId, UINT32 coreOpts)
     
     FILE *f=fopen([filePath UTF8String],"rb");
     if (f==NULL) {
-        NSLog(@"PMDMini Cannot open file %@",filePath);
+        MDZELog("PMDMini Cannot open file %@",filePath);
         mPlayType=0;
         return -1;
     }
@@ -13301,7 +13104,7 @@ static void vgm_set_dev_option(PlayerBase *player, UINT8 devId, UINT32 coreOpts)
     
     FILE *f=fopen([filePath UTF8String],"rb");
     if (f==NULL) {
-        NSLog(@"PMDMini Cannot open file %@",filePath);
+        MDZELog("PMDMini Cannot open file %@",filePath);
         mPlayType=0;
         return -1;
     }
@@ -13314,7 +13117,7 @@ static void vgm_set_dev_option(PlayerBase *player, UINT8 devId, UINT32 coreOpts)
     int error;
     src_state=src_callback_new(src_callback_fmpmini,0,2,&error,NULL); //best quality
     if (!src_state) {
-        NSLog(@"Error while initializing SRC samplerate converter: %d",error);
+        MDZELog("Error while initializing SRC samplerate converter: %d",error);
         return -1;
     }
     
@@ -13390,15 +13193,9 @@ static void vgm_set_dev_option(PlayerBase *player, UINT8 devId, UINT32 coreOpts)
     FILE *f;
     int song,duration;
     
-    //		if (ASAP_IsOurFile([filePath UTF8String])==0) {
-    //			NSLog(@"Incompatible with ASAP: %@",filePath);
-    //			mPlayType=0;
-    //			return -1;
-    //		}
-    
     f = fopen([filePath UTF8String], "rb");
     if (f == NULL) {
-        NSLog(@"ASAP Cannot open file %@",filePath);
+        MDZELog("ASAP Cannot open file %@",filePath);
         mPlayType=0;
         return -1;
     }
@@ -13415,7 +13212,7 @@ static void vgm_set_dev_option(PlayerBase *player, UINT8 devId, UINT32 coreOpts)
     memset(vgm_last_vol,0,sizeof(vgm_last_vol));
     
     if (!ASAP_Load(asap, [filePath UTF8String], ASAP_module, ASAP_module_len)) {
-        NSLog(@"Cannot ASAP_Load file %@",filePath);
+        MDZELog("Cannot ASAP_Load file %@",filePath);
         mPlayType=0;
         return -2;
     }
@@ -13513,7 +13310,7 @@ static void vgm_set_dev_option(PlayerBase *player, UINT8 devId, UINT32 coreOpts)
     mPlayType=MMP_ADPLUG;
     FILE *f=fopen([filePath UTF8String],"rb");
     if (f==NULL) {
-        NSLog(@"ADplug Cannot open file %@",filePath);
+        MDZELog("ADplug Cannot open file %@",filePath);
         mPlayType=0;
         return -1;
     }
@@ -13669,7 +13466,7 @@ static void vgm_set_dev_option(PlayerBase *player, UINT8 devId, UINT32 coreOpts)
     
     FILE *f=fopen([filePath UTF8String],"rb");
     if (f==NULL) {
-        NSLog(@"Cannot open file %@",filePath);
+        MDZELog("Cannot open file %@",filePath);
         mPlayType=0;
         return -1;
     }
@@ -13685,7 +13482,7 @@ static void vgm_set_dev_option(PlayerBase *player, UINT8 devId, UINT32 coreOpts)
     gme_emu=NULL;
     err=gme_open_file( [filePath UTF8String], &gme_emu, sample_rate );
     if (err) {
-        NSLog(@"gme_open_file error: %s",err);
+        MDZELog("gme_open_file error: %s",err);
         return -1;
     } else {
         bool let_libkss_takeover=false;
@@ -13737,7 +13534,7 @@ static void vgm_set_dev_option(PlayerBase *player, UINT8 devId, UINT32 coreOpts)
         // Start track
         err=gme_start_track( gme_emu, mod_currentsub );
         if (err) {
-            NSLog(@"gme_start_track error: %s",err);
+            MDZELog("gme_start_track error: %s",err);
             if (gme_emu) gme_delete( gme_emu );
             gme_emu=NULL;
             mPlayType=0;
@@ -13759,7 +13556,6 @@ static void vgm_set_dev_option(PlayerBase *player, UINT8 devId, UINT32 coreOpts)
                 gme_free_info(gme_info);
                 
                 fileName=[self getSubTitle:i];
-                //NSLog(@"%@",mod_loadmodule_filepath);
                 filePathMain=[ModizFileHelper getFilePathFromDocuments:mod_loadmodule_filepath];
                 if (mdz_ArchiveFilesCnt) filePathMain=[NSString stringWithFormat:@"%@@%d",filePathMain,mdz_currentArchiveIndex];
                 
@@ -14064,14 +13860,13 @@ extern bool icloud_available;
                 //[ModizFileHelper scanarchive:[filePath UTF8String] filesList_ptr:nil filesCount_ptr:&mdz_ArchiveFilesCnt];
                 [ModizFileHelper scanarchive:[filePath UTF8String] filesList_ptr:&mdz_ArchiveFilesList filesCount_ptr:&mdz_ArchiveFilesCnt];
                 
-                //NSLog(@"scan done");
                 if (mdz_ArchiveFilesCnt) {
                     mdz_IsArchive=1;
                     
                     FILE *f;
                     f = fopen([filePath UTF8String], "rb");
                     if (f == NULL) {
-                        NSLog(@"Cannot open file %@",filePath);
+                        MDZELog("Cannot open file %@",filePath);
                         no_reentrant=false;
                         return -1;
                     }
@@ -14129,10 +13924,6 @@ extern bool icloud_available;
                     //filePath=[NSHomeDirectory() stringByAppendingPathComponent:_filePath];
                     filePath=[self getFullFilePath:_filePath];
                     snprintf(mod_filename,1024,"%s / %s",archive_filename,[[[filePath lastPathComponent] stringByDeletingPathExtension] UTF8String]);
-                    
-                    //NSLog(@"%@",_filePath);
-                    
-                    
                     
                     if (mdz_IsArchive && mdz_ArchiveFilesCnt) {
                         mdz_ArchiveEntryPlayed=(int*)malloc(mdz_ArchiveFilesCnt*sizeof(int));
@@ -14618,9 +14409,6 @@ extern bool icloud_available;
         //        }
     }
     
-    //NSLog(@"Loading file:%@ ",filePath);
-    //NSLog(@"Loading file:%@ ext:%@",file_no_ext,extension);
-    
     mod_total_length=0;
     
     mod_currentfile=[NSString stringWithString:filePath];
@@ -14669,7 +14457,6 @@ extern bool icloud_available;
     for (int i=0;i<[available_player count];i++) {
         int pl_idx=[((NSNumber*)[available_player objectAtIndex:i]) intValue];
         if (!retval) break;
-        //NSLog(@"pl_idx: %d",i);
         switch (pl_idx) {
             case MMP_TIMIDITY:
                 retval=[self mmp_timidityLoad:filePath];
@@ -14769,7 +14556,7 @@ extern bool icloud_available;
                 break;
             default:
                 //Could not find a lib to load module
-                NSLog(@"Unsupported player: %d",pl_idx); //Should never happen
+                MDZELog("Unsupported player: %d",pl_idx); //Should never happen
                 break;
         }
     }
@@ -15379,7 +15166,6 @@ extern bool icloud_available;
             if (mLoopMode==1) iModuleLength=-1;
             
             
-            //NSLog(@"track : %d, time : %d, start : %d",mod_currentsub,info.time_ms,info.start_ms);
             [self updateCurSubSongPlayed:mod_currentsub-mod_minsub];
             [self Play];
             break;
@@ -15530,7 +15316,6 @@ extern bool icloud_available;
     //wait for sound generation thread to end
     while (bGlobalSoundGenInProgress) {
         [NSThread sleepForTimeInterval:DEFAULT_WAIT_TIME_MS];
-        //NSLog(@"Wait for end of thread");
     }
     bGlobalSeekProgress=0;
     bGlobalAudioPause=0;
@@ -15623,12 +15408,10 @@ extern bool icloud_available;
         }
     }
     if (mPlayType==MMP_UADE) {  //UADE
-        //		NSLog(@"Wait for end of UADE thread");
         while (uadeThread_running) {
             [NSThread sleepForTimeInterval:DEFAULT_WAIT_TIME_MS];
             
         }
-        //		NSLog(@"ok");
         uade_unalloc_song(&UADEstate);
     }
     if (mPlayType==MMP_KSS) { //KSS
@@ -16164,10 +15947,8 @@ extern bool icloud_available;
     datasize=sizeof(UInt32);
     AudioQueueGetProperty(mAudioQueue,kAudioQueueProperty_IsRunning,&i,&datasize);
     if (i==0) {
-        //NSLog(@"end reached");
         return YES;
     }
-    //NSLog(@"end not reached");
     return NO;
 }
 //*****************************************
@@ -16607,7 +16388,6 @@ extern "C" void adjust_amplification(void);
     mLoopMode=val;
 }
 -(void) Seek:(int64_t) seek_time {
-    //NSLog(@"mdz need seek: %lld - %d - %lld",mNeedSeekTime,[self isSeeking],iModuleLength);
     if ([self isSeeking]) return;
     
     if ((mPlayType==MMP_UADE) /*||mNeedSeek*/) return;
@@ -17455,7 +17235,6 @@ extern "C" void adjust_amplification(void);
             int chipIdx=[self getSystemForVoice:channel];
             int voiceIdx=channel-modizChipsetStartVoice[chipIdx];
             int current_mask=(*nsfPlayerConfig)["MASK"];
-            //NSLog(@"chip %d voice %d mask %08X",chipIdx,voiceIdx,current_mask);
             switch (modizChipsetType[chipIdx]) {
                 case NES_APU:
                     if (active) current_mask&=~(1<<voiceIdx);

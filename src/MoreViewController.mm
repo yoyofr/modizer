@@ -464,7 +464,6 @@ extern volatile t_settings settings[MAX_SETTINGS];
             }
             
             NSString *strSystemDetails=[NSString stringWithFormat:@"model:%@\nsystem name:%@\nsystem version:%@\nPref language:%@\nMac M1:%s\nModizer version:%s.%s\n",[self machine],[[UIDevice currentDevice] systemName],[[UIDevice currentDevice] systemVersion],[[NSLocale preferredLanguages] objectAtIndex:0],(isiOSAppOnMac?"Yes":"No"),VERSION_MAJOR_STR,VERSION_MINOR_STR];
-            //NSLog(@"%@",strSystemDetails);
             //get device model, ios version, language settings, modizer version
             
             NSString *strmail=[NSString stringWithFormat:@"%@%@---------------------------------------\n\n%@:\n",MODIZER_SUPPORT_EMAIL,strSystemDetails,NSLocalizedString(@"[Please describe your request below]",@"")];

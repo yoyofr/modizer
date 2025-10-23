@@ -194,7 +194,6 @@
         //sections are determined 'on the fly' since result set is already sorted
         if (previndex!=index) {
             if (previndex>index) {
-                //NSLog(@"********* %s",str);
             } else dbWEB_entries[index]=&(dbWEB_entries_data[dbWEB_entries_index]);
         }
         
@@ -326,7 +325,6 @@
         {@"http://mobile.joshw.info",@"Mobile/Smartphone Music",@"JoshW/Mobile",@"Portables",TRUE}
     };
     
-    //NSLog(@"categ: %@",mWebBaseDir);
     for (int i=0;i<sizeof(webs_entry)/sizeof(t_webSite_entry);i++) {
         if ([mWebBaseDir isEqualToString:webs_entry[i].category]) [tmpArray addObject:[NSValue valueWithPointer:&webs_entry[i]]];
     }
@@ -362,7 +360,6 @@
         //sections are determined 'on the fly' since result set is already sorted
         if (previndex!=index) {
             if (previndex>index) {
-                //NSLog(@"********* %s",str);
                 if (previndex>=0) index=previndex;
                 else {
                     index=0;
@@ -556,7 +553,6 @@
                 we[i][j].file_URL=[NSString stringWithString:[e_url text]];
                 NSArray *arrtmp=[[e_text raw] componentsSeparatedByString:@" "];
                 we[i][j].file_size=[NSString stringWithString:[arrtmp objectAtIndex:[arrtmp count]-3]];
-                //NSLog(@"fs:%@",we[i][j].file_size);
                 [tmpArray addObject:[NSValue valueWithPointer:&(we[i][j])]];
             }
         } else we[i]=NULL;
@@ -585,7 +581,6 @@
         t_web_file_entry *wef = (t_web_file_entry *)[[sortedArray objectAtIndex:i] pointerValue];
         snprintf(str,1024,"%s",[[wef->file_URL stringByRemovingPercentEncoding] UTF8String]);
         
-        //NSLog(@"%@",wef->file_size);
         previndex=index;
         index=0;
         if ((str[0]>='A')&&(str[0]<='Z') ) index=(str[0]-'A'+1);
@@ -593,7 +588,6 @@
         //sections are determined 'on the fly' since result set is already sorted
         if (previndex!=index) {
             if (previndex>index) {
-                //NSLog(@"********* %s",str);
                 if (previndex>=0) index=previndex;
                 else {
                     index=0;
@@ -924,7 +918,6 @@
         //delete file
         NSString *fullpath=[NSHomeDirectory() stringByAppendingFormat:@"/%@",cur_db_entries[section][indexPath.row].fullpath];
         NSError *err;
-        //            NSLog(@"%@",fullpath);
         DBHelper::deleteStatsFileDB(fullpath);
         cur_db_entries[section][indexPath.row].downloaded=0;
         //delete local file

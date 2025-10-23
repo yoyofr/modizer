@@ -70,7 +70,7 @@ static GLuint txtMenuHandle[16];
 const char *menuRootLabel[16]={
     NULL,NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
-    NULL,NULL,"@slider_alpha","Fullscreen",
+    NULL,"Show FPS","@slider_alpha","Fullscreen",
     "Close FX\nwindow","All FX off","Go to\nsettings","Exit Menu"
 };
 static GLuint txtMenuProjectMHandle[16];
@@ -172,7 +172,7 @@ int playerGetActivatedCells(int menu_idx) {
         if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value) active_idx|=1<<FXMIDI_IDX;
         if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value) active_idx|=1<<FXMODPATTERN_IDX;
         if (settings[PROJECTM_FXONOFF].detail.mdz_switch.switch_value) active_idx|=1<<FXPROJECTM_IDX;
-        
+        if (settings[GLOB_FXSHOWFPS].detail.mdz_boolswitch.switch_value) active_idx|=1<<9;
         if (settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value) active_idx|=1<<11;
     } else if (menu_idx==MENU_OSCILLO) {
         if (settings[OSCILLO_FXMODE].detail.mdz_switch.switch_value==0) active_idx|=1<<0;
@@ -280,124 +280,124 @@ void playerMenuInit() {
     
     //ProjectM
     if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu13a_2x.png"), &(txtMenuHandle[FXPROJECTM_IDX]), NULL, NULL)) {
-        NSLog(@"Cannot load texture");
+        MDZELog("Cannot load texture");
     }
     //Oscillo
     if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu5a_2x.png"), &(txtMenuHandle[FXOSCILLO_IDX]), NULL, NULL)) {
-        NSLog(@"Cannot load texture");
+        MDZELog("Cannot load texture");
     }
     //Piano roll
     if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu11e_2x.png"), &(txtMenuHandle[FXPIANOROLL_IDX]), NULL, NULL)) {
-        NSLog(@"Cannot load texture");
+        MDZELog("Cannot load texture");
     }
     //Piano 3D
     if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu11a_2x.png"), &(txtMenuHandle[FXPIANO3D_IDX]), NULL, NULL)) {
-        NSLog(@"Cannot load texture");
+        MDZELog("Cannot load texture");
     }
     //Note scrollers
     if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu8a_2x.png"), &(txtMenuHandle[FXMIDI_IDX]), NULL, NULL)) {
-        NSLog(@"Cannot load texture");
+        MDZELog("Cannot load texture");
     }
     //mod patterns
     if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu7a_2x.png"), &(txtMenuHandle[FXMODPATTERN_IDX]), NULL, NULL)) {
-        NSLog(@"Cannot load texture");
+        MDZELog("Cannot load texture");
     }
     //Spectrum 2D
     if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu4a_2x.png"), &(txtMenuHandle[FX2DSPECTRUM_IDX]), NULL, NULL)) {
-        NSLog(@"Cannot load texture");
+        MDZELog("Cannot load texture");
     }
     //Spectrum 3D objects
     if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu12a_2x.png"), &(txtMenuHandle[FX3DSPECTRUM_IDX]), NULL, NULL)) {
-        NSLog(@"Cannot load texture");
+        MDZELog("Cannot load texture");
     }
     //Spectrum 3D landscape
     if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu2a_2x.png"), &(txtMenuHandle[FX3DLANDSCAPE_IDX]), NULL, NULL)) {
-        NSLog(@"Cannot load texture");
+        MDZELog("Cannot load texture");
     }
     
     //Oscilloscopes
     txtMenuOscilloHandle[1]=txtMenuHandle[FXOSCILLO_IDX];
     if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu5b_2x.png"), &(txtMenuOscilloHandle[2]), NULL, NULL)) {
-        NSLog(@"Cannot load texture");
+        MDZELog("Cannot load texture");
     }
     if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu5c_2x.png"), &(txtMenuOscilloHandle[3]), NULL, NULL)) {
-        NSLog(@"Cannot load texture");
+        MDZELog("Cannot load texture");
     }
     if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu5d_2x.png"), &(txtMenuOscilloHandle[4]), NULL, NULL)) {
-        NSLog(@"Cannot load texture");
+        MDZELog("Cannot load texture");
     }
     
     //Spectrum 2D
     txtMenu2DSpectrumHandle[1]=txtMenuHandle[FX2DSPECTRUM_IDX];
     if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu4b_2x.png"), &(txtMenu2DSpectrumHandle[2]), NULL, NULL)) {
-        NSLog(@"Cannot load texture");
+        MDZELog("Cannot load texture");
     }
     
     
     //Spectrum 3D objects
     txtMenu3DSpectrumHandle[1]=txtMenuHandle[FX3DSPECTRUM_IDX];
     if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu12b_2x.png"), &(txtMenu3DSpectrumHandle[2]), NULL, NULL)) {
-        NSLog(@"Cannot load texture");
+        MDZELog("Cannot load texture");
     }
     if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu12c_2x.png"), &(txtMenu3DSpectrumHandle[3]), NULL, NULL)) {
-        NSLog(@"Cannot load texture");
+        MDZELog("Cannot load texture");
     }
     
     //Spectrum 3D landscape
     txtMenu3DLandscapeHandle[1]=txtMenuHandle[FX3DLANDSCAPE_IDX];
     if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu2b_2x.png"), &(txtMenu3DLandscapeHandle[2]), NULL, NULL)) {
-        NSLog(@"Cannot load texture");
+        MDZELog("Cannot load texture");
     }
     if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu2c_2x.png"), &(txtMenu3DLandscapeHandle[3]), NULL, NULL)) {
-        NSLog(@"Cannot load texture");
+        MDZELog("Cannot load texture");
     }
     if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu2d_2x.png"), &(txtMenu3DLandscapeHandle[4]), NULL, NULL)) {
-        NSLog(@"Cannot load texture");
+        MDZELog("Cannot load texture");
     }
     if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu2e_2x.png"), &(txtMenu3DLandscapeHandle[5]), NULL, NULL)) {
-        NSLog(@"Cannot load texture");
+        MDZELog("Cannot load texture");
     }
     if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu3a_2x.png"), &(txtMenu3DLandscapeHandle[6]), NULL, NULL)) {
-        NSLog(@"Cannot load texture");
+        MDZELog("Cannot load texture");
     }
     if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu3b_2x.png"), &(txtMenu3DLandscapeHandle[7]), NULL, NULL)) {
-        NSLog(@"Cannot load texture");
+        MDZELog("Cannot load texture");
     }
     if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu3c_2x.png"), &(txtMenu3DLandscapeHandle[8]), NULL, NULL)) {
-        NSLog(@"Cannot load texture");
+        MDZELog("Cannot load texture");
     }
     
     //Piano Roll
     txtMenuPianoRollHandle[1]=txtMenuHandle[FXPIANOROLL_IDX];
     if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu11f_2x.png"), &(txtMenuPianoRollHandle[2]), NULL, NULL)) {
-        NSLog(@"Cannot load texture");
+        MDZELog("Cannot load texture");
     }
     
     //Piano 3D
     txtMenuPiano3DHandle[1]=txtMenuHandle[FXPIANO3D_IDX];
     if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu11b_2x.png"), &(txtMenuPiano3DHandle[2]), NULL, NULL)) {
-        NSLog(@"Cannot load texture");
+        MDZELog("Cannot load texture");
     }
     if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu11c_2x.png"), &(txtMenuPiano3DHandle[3]), NULL, NULL)) {
-        NSLog(@"Cannot load texture");
+        MDZELog("Cannot load texture");
     }
     if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu11d_2x.png"), &(txtMenuPiano3DHandle[4]), NULL, NULL)) {
-        NSLog(@"Cannot load texture");
+        MDZELog("Cannot load texture");
     }
     
     //Notes scrollers
     txtMenuMidiHandle[1]=txtMenuHandle[FXMIDI_IDX];
     if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu8b_2x.png"), &(txtMenuMidiHandle[2]), NULL, NULL)) {
-        NSLog(@"Cannot load texture");
+        MDZELog("Cannot load texture");
     }
     
     //Mod patterns
     txtMenuModPatternHandle[1]=txtMenuHandle[FXMODPATTERN_IDX];
     if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu7b_2x.png"), &(txtMenuModPatternHandle[2]), NULL, NULL)) {
-        NSLog(@"Cannot load texture");
+        MDZELog("Cannot load texture");
     }
     if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu7c_2x.png"), &(txtMenuModPatternHandle[3]), NULL, NULL)) {
-        NSLog(@"Cannot load texture");
+        MDZELog("Cannot load texture");
     }
     
     //ProjectM
@@ -407,7 +407,7 @@ void playerMenuInit() {
     //shine texture
     txtShineFx=0;
     if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"gloss.png"), &(txtShineFx), NULL, NULL)) {
-        NSLog(@"Cannot load texture");
+        MDZELog("Cannot load texture");
     }
     
     pMenu_isInitialized=true;
@@ -578,8 +578,8 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
                             case 0x02:
                                 if (MENU_INDEX_MAX>=9) pMenu_state.menu_idx=9;
                                 break;
-                            case 0x12:
-                                if (MENU_INDEX_MAX>=10) pMenu_state.menu_idx=10;
+                            case 0x12: //Show FPS
+                                settings[GLOB_FXSHOWFPS].detail.mdz_boolswitch.switch_value=!settings[GLOB_FXSHOWFPS].detail.mdz_boolswitch.switch_value;
                                 break;
                             case 0x22: //FX Alpha
                                 break;
@@ -1434,7 +1434,6 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
                         }
                         ImGui::PopStyleColor();
                     if (ret) {
-                        //                        NSLog(@"press: %dx%d",c,r);
                         switch (c*16+r) {
                             case 0x00: //MIKDROP OFF
                                 settings[PROJECTM_FXONOFF].detail.mdz_switch.switch_value=0;

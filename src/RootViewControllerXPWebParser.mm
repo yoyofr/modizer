@@ -58,7 +58,6 @@ extern void *LoadingProgressObserverContext;
     {
         if (indexPath != nil) {
             if ((gestureRecognizer.state==UIGestureRecognizerStateBegan)||(gestureRecognizer.state==UIGestureRecognizerStateChanged)) {
-                //                    NSLog(@"long press on table view at %d/%d", indexPath.section,indexPath.row);
                 int crow=indexPath.row;
                 int csection;
                 
@@ -477,7 +476,6 @@ END_PROFILE
         //delete file
         NSString *fullpath=[NSHomeDirectory() stringByAppendingFormat:@"/%@",cur_db_entries[section][indexPath.row].fullpath];
         NSError *err;
-        //            NSLog(@"%@",fullpath);
         DBHelper::deleteStatsFileDB(fullpath);
         cur_db_entries[section][indexPath.row].downloaded=0;
         //delete local file
@@ -554,9 +552,9 @@ END_PROFILE
             } @catch (NSException * ex) {
                 //“Pushing the same view controller instance more than once is not supported”
                 //NSInvalidArgumentException
-                NSLog(@"Exception: [%@]:%@",[ex  class], ex );
-                NSLog(@"ex.name:'%@'", ex.name);
-                NSLog(@"ex.reason:'%@'", ex.reason);
+                MDZELog("Exception: [%@]:%@",[ex  class], ex );
+                MDZELog("ex.name:'%@'", ex.name);
+                MDZELog("ex.reason:'%@'", ex.reason);
                 //Full error includes class pointer address so only care if it starts with this error
                 NSRange range = [ex.reason rangeOfString:@"Pushing the same view controller instance more than once is not supported"];
                 
@@ -565,13 +563,12 @@ END_PROFILE
                     //view controller already exists in the stack - just pop back to it
                     [self.navigationController popToViewController:detailViewController animated:YES];
                 } else {
-                    NSLog(@"ERROR:UNHANDLED EXCEPTION TYPE:%@", ex);
+                    MDZELog("ERROR:UNHANDLED EXCEPTION TYPE:%@", ex);
                 }
             } @finally {
-                //NSLog(@"finally");
             }
         } else {
-            NSLog(@"ERROR:pushViewController: viewController is nil");
+            MDZELog("ERROR:pushViewController: viewController is nil");
         }
     }
     else {

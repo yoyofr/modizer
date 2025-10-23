@@ -224,12 +224,12 @@ extern bool dbhelper_cancel;
 		
         err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
         if (err==SQLITE_OK){
-        } else NSLog(@"ErrSQL : %d",err);
+        } else MDZELog("ErrSQL : %d",err);
         
 		snprintf(sqlStatement,sizeof(sqlStatement),"UPDATE user_stats SET rating=NULL");
 		err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
 		if (err==SQLITE_OK){
-		} else NSLog(@"ErrSQL : %d",err);
+		} else MDZELog("ErrSQL : %d",err);
 	};
 	sqlite3_close(db);
 
@@ -251,12 +251,12 @@ extern bool dbhelper_cancel;
 		
         err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
         if (err==SQLITE_OK){
-        } else NSLog(@"ErrSQL : %d",err);
+        } else MDZELog("ErrSQL : %d",err);
         
         snprintf(sqlStatement,sizeof(sqlStatement),"UPDATE user_stats SET play_count=0");
 		err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
 		if (err==SQLITE_OK){
-		} else NSLog(@"ErrSQL : %d",err);
+		} else MDZELog("ErrSQL : %d",err);
 	};
 	sqlite3_close(db);
     

@@ -266,7 +266,6 @@ int qsortSNESM_entries_rating_or_entries(const void *entryA, const void *entryB)
         //sections are determined 'on the fly' since result set is already sorted
         if (previndex!=index) {
             if (previndex>index) {
-                //NSLog(@"********* %s",str);
             } else dbWEB_entries[index]=&(dbWEB_entries_data[dbWEB_entries_index]);
         }
         
@@ -325,7 +324,7 @@ int qsortSNESM_entries_rating_or_entries(const void *entryA, const void *entryB)
     }
                                                 completionHandler:^(NSURLResponse *response, id responseObject, NSError *error) {
         if (error) {
-            NSLog(@"Error: %@", error);
+            MDZELog("Error: %@", error);
         } else {
             NSData *data=responseObject;
             [data writeToFile:[NSString stringWithFormat:@"%@/%@",NSHomeDirectory(),[[fullpath stringByDeletingPathExtension] stringByAppendingString:@".png"]] atomically:NO];
@@ -525,11 +524,10 @@ int qsortSNESM_entries_rating_or_entries(const void *entryA, const void *entryB)
                 }
                                                             completionHandler:^(NSURLResponse *response, id responseObject, NSError *error) {
                     if (error) {
-                        NSLog(@"Error: %@", error);
+                        MDZELog("Error: %@", error);
                     } else {
                         //urlData_pages=responseObject;
                         [urlData_dic setObject:responseObject forKey:[NSString stringWithFormat:@"data%d",i]];
-                        //NSLog(@"%@ %@", response, responseObject);
                     }
                     dispatch_semaphore_signal(semaphore);
                 }];
@@ -555,7 +553,7 @@ int qsortSNESM_entries_rating_or_entries(const void *entryA, const void *entryB)
                 if (urlData) doc       = [[TFHpple alloc] initWithHTMLData:urlData];
                 else {
                     doc=nil;
-                    NSLog(@"no data for page %d",i);
+                    MDZILog("no data for page %d",i);
                 }
             }
             
@@ -656,10 +654,8 @@ int qsortSNESM_entries_rating_or_entries(const void *entryA, const void *entryB)
     index=-1;
     for (int i=0;i<dbWEB_nb_entries;i++) {
         t_web_file_entry *wef = (t_web_file_entry *)[[sortedArray objectAtIndex:i] pointerValue];
-        //NSLog(@"%@",wef->file_name);
         chr=[wef->file_name characterAtIndex:0];
         
-        //NSLog(@"%@",wef->file_size);
         previndex=index;
         index=0;
         if (indexTitleMode) {
@@ -669,7 +665,6 @@ int qsortSNESM_entries_rating_or_entries(const void *entryA, const void *entryB)
         //sections are determined 'on the fly' since result set is already sorted
         if (previndex!=index) {
             if (previndex>index) {
-                //NSLog(@"********* %s",str);
                 if (previndex>=0) index=previndex;
                 else {
                     index=0;

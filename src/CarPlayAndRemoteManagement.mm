@@ -271,7 +271,6 @@
 
 - (void)playableContentManager:(MPPlayableContentManager *)contentManager didUpdateContext:(MPPlayableContentManagerContext *)context {
     //called when connecting/disconnecting
-    //NSLog(@"didupd context");
     if (context.endpointAvailable) {
         [self refreshMPItems];
         MPRemoteCommandCenter *cmdCenter=[MPRemoteCommandCenter sharedCommandCenter];
@@ -292,7 +291,6 @@
 /// Client applications should always call the completion handler after loading
 /// has finished, if this method is implemented.
 - (void)beginLoadingChildItemsAtIndexPath:(NSIndexPath *)indexPath completionHandler:(void(^)(NSError * __nullable))completionHandler {
-    NSLog(@"yo1");
     if (completionHandler) completionHandler(nil);
 }
 */
@@ -314,7 +312,6 @@
 /// has finished, if this method is implemented.
 - (void)contentItemForIdentifier:(NSString *)identifier completionHandler:(void(^)(MPContentItem *__nullable, NSError * __nullable))completionHandler {
     
-    NSLog(@"yo3 %@",identifier);
     if (completionHandler) completionHandler(nil,nil);
 }
 */
@@ -324,7 +321,6 @@
 /// filesystem, this would be the number of files in a specific folder. An empty
 /// index path represents the root node.
 - (NSInteger)numberOfChildItemsAtIndexPath:(NSIndexPath *)indexPath {
-    //NSLog(@"indexPath len %lu",indexPath.length);
     if (indexPath.length) {
         return 0;
     }
@@ -334,8 +330,6 @@
 /// Returns the content item at the specified index path. If the content item is
 /// mutated after returning, its updated contents will be sent to MediaPlayer.
 - (nullable MPContentItem *)contentItemAtIndexPath:(NSIndexPath *)indexPath {
-    //NSLog(@"%lu",indexPath.section);
-    
     MPContentItem *item=(MPContentItem*)([plArray objectAtIndex:indexPath.section]);
     return item;
 }

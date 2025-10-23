@@ -39,7 +39,7 @@ extern bool icloud_available;
     
     gme_err_t gme_err=gme_open_file( [cpath UTF8String], &gme_emu, gme_info_only );
     if (gme_err) {
-        NSLog(@"gme_open_file error: %s",gme_err);
+        MDZELog("gme_open_file error: %s",gme_err);
     } else {
         gme_info_t *gme_info;
         
@@ -93,12 +93,12 @@ extern bool icloud_available;
         NSError *error = nil;
         URKArchive *archive = [[URKArchive alloc] initWithPath:cpath error:&error];
         if (!archive) {
-            NSLog(@"Error: %ld %@",error.code,error.localizedDescription);
+            MDZELog("Error: %ld %@",error.code,error.localizedDescription);
             return false;
         }
         /*NSArray *filesInArchive = [archive listFilenames:&error];
         if (!filesInArchive) {
-            NSLog(@"Error: %ld %@",error.code,error.localizedDescription);
+            MDZELog("Error: %ld %@",error.code,error.localizedDescription);
             return false;
         }*/
         return true;
@@ -116,7 +116,7 @@ extern bool icloud_available;
     if (r==ARCHIVE_OK) {
         ret=true;
     } else {
-        NSLog( @"Skipping unsupported archive: %s\n", [cpath UTF8String] );
+        MDZILog("Skipping unsupported archive: %s\n", [cpath UTF8String] );
     }
     r = archive_read_free(a);
         
@@ -914,12 +914,12 @@ extern bool icloud_available;
         NSError *error = nil;
         URKArchive *archive = [[URKArchive alloc] initWithPath:cpath error:&error];
         if (!archive) {
-            NSLog(@"Error: %ld %@",error.code,error.localizedDescription);
+            MDZELog("Error: %ld %@",error.code,error.localizedDescription);
             return 0;
         }
         NSArray *filesInArchive = [archive listFilenames:&error];
         if (!filesInArchive) {
-            NSLog(@"Error: %ld %@",error.code,error.localizedDescription);
+            MDZELog("Error: %ld %@",error.code,error.localizedDescription);
             return 0;
         }
         NSString *file;
@@ -974,7 +974,7 @@ extern bool icloud_available;
         }
         
     } else {
-        NSLog( @"Skipping unsupported archive: %s\n", path );
+        MDZILog("Skipping unsupported archive: %s\n", path );
     }
     r = archive_read_free(a);
     return found;
@@ -1003,10 +1003,8 @@ extern bool icloud_available;
     
     dirContent=[fileManager subpathsOfDirectoryAtPath:cpath error:&error];
     for (file in dirContent) {
-        //NSLog(@"%@",file);
-        //        [mFileMngr fileExistsAtPath:[cpath stringByAppendingFormat:@"/%@",file] isDirectory:&isDir];
         result = setxattr([[cpath stringByAppendingFormat:@"/%@",file] fileSystemRepresentation], attrName, &attrValue, sizeof(attrValue), 0, 0);
-        if (result) NSLog(@"Issue %d when settings nobackup flag on %@",result,[cpath stringByAppendingFormat:@"/%@",file]);
+        if (result) MDZELog("Issue %d when settings nobackup flag on %@",result,[cpath stringByAppendingFormat:@"/%@",file]);
     }
     fileManager=nil;
 }
@@ -1019,7 +1017,7 @@ extern bool icloud_available;
         NSError *error = nil;
         URKArchive *archive = [[URKArchive alloc] initWithPath:cpath error:&error];
         if (!archive) {
-            NSLog(@"Error: %ld %@",error.code,error.localizedDescription);
+            MDZELog("Error: %ld %@",error.code,error.localizedDescription);
             return;
         }
         NSArray *filesInArchive = [archive listFilenames:&error];
@@ -1039,7 +1037,7 @@ extern bool icloud_available;
             
             [archive extractFilesTo:[NSString stringWithUTF8String:extractPath] overwrite:YES error:&error];
             if (error) {
-                NSLog(@"Error: %ld %@",error.code,error.localizedDescription);
+                MDZELog("Error: %ld %@",error.code,error.localizedDescription);
             }            
             [extractProgress removeObserver:caller
                                      forKeyPath:NSStringFromSelector(@selector(fractionCompleted))
@@ -1110,7 +1108,7 @@ extern bool icloud_available;
                                 
                 if (r == ARCHIVE_EOF) break;
                 if (r != ARCHIVE_OK) {
-                    NSLog(@"archive_read_next_header() %s", archive_error_string(a));
+                    MDZILog("archive_read_next_header() %s", archive_error_string(a));
                     break;
                 }
                 
@@ -1126,7 +1124,7 @@ extern bool icloud_available;
                     //2nd extract file
                     f=fopen([extractFilename fileSystemRepresentation],"wb");
                     if (!f) {
-                        NSLog(@"Cannot open %@ to extract %@",extractFilename,archivePathNS);
+                        MDZILog("Cannot open %@ to extract %@",extractFilename,archivePathNS);
                     } else {
                         const void *buff;
                         size_t size;
@@ -1163,7 +1161,6 @@ extern bool icloud_available;
                                         context:context];
             [extractProgress resignCurrent];
             
-            NSLog(@"over");
         }
         archive_read_free(a);
         

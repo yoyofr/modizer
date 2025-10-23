@@ -37,9 +37,6 @@
     if (adjust_y<0) adjust_y=-safe_bottom;
     else adjust_y=0;
     
-    //NSLog(@"win height %f|win y %f|safe bottom: %f | v orgin y %f | v height %f",device_height,device_winy,safe_bottom,self.view.frame.origin.y,self.view.frame.size.height);
-    
-        
     miniplayerVC = [[MiniPlayerVC alloc] init];
     //set new title
     miniplayerVC.title = @"Mini Player";

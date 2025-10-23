@@ -266,7 +266,6 @@ int qsortP2612_entries_rating_or_entries(const void *entryA, const void *entryB)
         //sections are determined 'on the fly' since result set is already sorted
         if (previndex!=index) {
             if (previndex>index) {
-                //NSLog(@"********* %s",str);
             } else dbWEB_entries[index]=&(dbWEB_entries_data[dbWEB_entries_index]);
         }
         
@@ -385,11 +384,8 @@ int qsortP2612_entries_rating_or_entries(const void *entryA, const void *entryB)
         for (int i=0;i<[arr_url_dirty count];i++) {
             TFHppleElement *el=[arr_url_dirty objectAtIndex:i];
             NSString *url=[el objectForKey:@"href"];
-            //NSLog(@"url: %@",url);
             NSString *name=[el text];
-            //NSLog(@"name: %@",name);
             if (name==nil) {
-                //NSLog(@"yo");
             } else {
                 if (![arr_name containsObject:name]) {
                     [arr_name addObject:name];
@@ -522,10 +518,8 @@ int qsortP2612_entries_rating_or_entries(const void *entryA, const void *entryB)
     index=-1;
     for (int i=0;i<dbWEB_nb_entries;i++) {
         t_web_file_entry *wef = (t_web_file_entry *)[[sortedArray objectAtIndex:i] pointerValue];
-        //NSLog(@"%@",wef->file_name);
         chr=[wef->file_name characterAtIndex:0];
         
-        //NSLog(@"%@",wef->file_size);
         previndex=index;
         index=0;
         if (indexTitleMode) {
@@ -535,7 +529,6 @@ int qsortP2612_entries_rating_or_entries(const void *entryA, const void *entryB)
         //sections are determined 'on the fly' since result set is already sorted
         if (previndex!=index) {
             if (previndex>index) {
-                //NSLog(@"********* %s",str);
                 if (previndex>=0) index=previndex;
                 else {
                     index=0;

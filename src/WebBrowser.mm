@@ -259,7 +259,6 @@ static UIAlertView *alertChooseName;
 				addressTestField.text=[NSString stringWithFormat:@"http://%@",addressTestField.text];
 			}
 		}
-        //NSLog(@"yo:%@",addressTestField.text);
 		[webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:addressTestField.text]]];
 	}
 	return NO;
@@ -438,8 +437,7 @@ static UIAlertView *alertChooseName;
 	}
     if (do_save) {
         [self openPopup: [NSString stringWithFormat:@"Downloading : %@",[filename lastPathComponent] ]];
-        //NSLog(@"yo %@ / %@ / %d",cover_url_string,filename,cover_expectedContentLength);
-        [downloadViewController addURLImageToDownloadList:cover_url_string fileName:filename filesize:cover_expectedContentLength];        
+        [downloadViewController addURLImageToDownloadList:cover_url_string fileName:filename filesize:cover_expectedContentLength];
     }
     //[cover_url_string autorelease];
     }
@@ -453,35 +451,33 @@ static UIAlertView *alertChooseName;
 	NSArray *downloadMIMETypes = [NSArray arrayWithContentsOfFile: pathMIMETYPESplist];
 	BOOL asdf = [downloadMIMETypes containsObject:MIME];
     
-    //NSLog(@"Connection : %@",MIME);
-        	
 	if (asdf==NO) {
         r.location=NSNotFound;
 		r=[MIME rangeOfString:@"application/"];
 		if (r.location!=NSNotFound) {
-            			NSLog(@"unknown binary content, attempt to download");
-            			NSLog(@"%@",MIME);
+            			MDZILog("unknown binary content, attempt to download");
+            MDZILog("%@",MIME);
 			asdf=YES;
 		} 
 		r.location=NSNotFound;
 		r=[MIME rangeOfString:@"binary/"];
 		if (r.location!=NSNotFound) {
-            			NSLog(@"unknown binary content, attempt to download");
-            			NSLog(@"%@",MIME);
+            MDZILog("unknown binary content, attempt to download");
+            MDZILog("%@",MIME);
 			asdf=YES;
 		}
         r.location=NSNotFound;
 		r=[MIME rangeOfString:@"audio/"];
 		if (r.location!=NSNotFound) {
-            			NSLog(@"unknown binary content, attempt to download");
-            			NSLog(@"%@",MIME);
+            MDZILog("unknown binary content, attempt to download");
+            MDZILog("%@",MIME);
 			asdf=YES;
 		}
         r.location=NSNotFound;
         r=[MIME rangeOfString:@"image/x-mrsid-image"];
         if (r.location!=NSNotFound) {
-                        NSLog(@"unknown binary content, attempt to download");
-                        NSLog(@"%@",MIME);
+            MDZILog("unknown binary content, attempt to download");
+            MDZILog("%@",MIME);
             asdf=YES;
         }
 	}
@@ -489,12 +485,6 @@ static UIAlertView *alertChooseName;
 	}
 	else {
 		NSURL *url=[response URL];
-		/*NSLog(@"a %@",[url absoluteString]);
-         NSLog(@"b %@",response.suggestedFilename);
-         NSLog(@"c %d",response.expectedContentLength);
-         NSLog(@"d %@",response.textEncodingName);
-         */
-		//NSLog(@"Download Info: url:%@ name: %@, size:%d, textencoding:%@",[url absoluteString],response.suggestedFilename,response.expectedContentLength,response.textEncodingName);
 		suggestedFilename=[NSString stringWithFormat:@"%@",response.suggestedFilename];
 		expectedContentLength=response.expectedContentLength;
 		[self stopLoading:nil];
@@ -542,7 +532,6 @@ static UIAlertView *alertChooseName;
 					NSString *tmpstr=[ftpPath substringFromIndex:rMODLAND.location+13];
 					NSString *tmpLocal=DBHelper::getLocalPathFromFullPath(tmpstr);
 					localPath=[[NSString alloc] initWithFormat:@"Documents/%@/%@",MODLAND_BASEDIR,tmpLocal];
-					//NSLog(@"newlocal : %@",localPath);
 					//Is it already existing ?
 					NSFileManager *fileManager = [[NSFileManager alloc] init];
 					BOOL success;
@@ -566,7 +555,6 @@ static UIAlertView *alertChooseName;
 					//get modland path to rebuild localPath
 					NSString *tmpstr=[ftpPath substringFromIndex:rHVSC.location+10];
 					localPath=[[NSString alloc] initWithFormat:@"Documents/%@/%@",HVSC_BASEDIR,tmpstr];
-					//NSLog(@"newlocal : %@",localPath);
 					//Is it already existing ?
 					NSFileManager *fileManager = [[NSFileManager alloc] init];
 					BOOL success;
@@ -590,7 +578,6 @@ static UIAlertView *alertChooseName;
 					//get modland path to rebuild localPath
 					NSString *tmpstr=[ftpPath substringFromIndex:rASMA.location+6];
 					localPath=[[NSString alloc] initWithFormat:@"Documents/%@/%@",ASMA_BASEDIR,tmpstr];
-					//NSLog(@"newlocal : %@",localPath);
 					//Is it already existing ?
 					NSFileManager *fileManager = [[NSFileManager alloc] init];
 					BOOL success;
@@ -739,8 +726,6 @@ static UIAlertView *alertChooseName;
     NSRange r;
     NSString *endUrl=[[[navigationAction.request URL] absoluteString] lastPathComponent];
     
-    //NSLog(@"url : %d %@",navigationAction.navigationType,[[navigationAction.request URL] absoluteString]);
-    
     if (endUrl==nil) {
         decisionHandler(WKNavigationActionPolicyCancel);
         return;
@@ -806,7 +791,6 @@ static UIAlertView *alertChooseName;
                 NSString *tmpstr=[ftpPath substringFromIndex:rMODLAND.location+13];
                 NSString *tmpLocal=DBHelper::getLocalPathFromFullPath(tmpstr);
                 localPath=[[NSString alloc] initWithFormat:@"Documents/%@/%@",MODLAND_BASEDIR,tmpLocal];
-                //NSLog(@"newlocal : %@",localPath);
                 //Is it already existing ?
                 NSFileManager *fileManager = [[NSFileManager alloc] init];
                 BOOL success;
@@ -833,7 +817,6 @@ static UIAlertView *alertChooseName;
                 //get modland path to rebuild localPath
                 NSString *tmpstr=[ftpPath substringFromIndex:rHVSC.location+10];
                 localPath=[[NSString alloc] initWithFormat:@"Documents/%@/%@",HVSC_BASEDIR,tmpstr];
-                //NSLog(@"newlocal : %@",localPath);
                 //Is it already existing ?
                 NSFileManager *fileManager = [[NSFileManager alloc] init];
                 BOOL success;
@@ -864,7 +847,7 @@ static UIAlertView *alertChooseName;
     
     NSURLConnection *theConnection = [NSURLConnection connectionWithRequest:navigationAction.request delegate:self];
     if (theConnection==nil) {
-        NSLog(@"Connection failed");
+        MDZELog("Connection failed");
     }
     
     /*WKNavigationTypeLinkActivated,
@@ -885,8 +868,6 @@ static UIAlertView *alertChooseName;
         
         //[webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:addressTestField.text]]];
         
-        //NSLog(@"navigating to : %@",addressTestField.text);
-        //NSLog(@"action: %d",navigationAction.navigationType);
     }
     
     
@@ -1012,7 +993,6 @@ didFinishNavigation:(WKNavigation *)navigation {
             if (data) {
                 //NSData *data = [NSData dataWithContentsOfURL:[NSURL URLWithString:win_width]];
                 pt.x=[(NSNumber*)data integerValue];
-                //NSLog(@"result: w %f",pt.x);
                 finished1=YES;
             }
         }];
@@ -1021,7 +1001,6 @@ didFinishNavigation:(WKNavigation *)navigation {
             if (data) {
                 //NSData *data = [NSData dataWithContentsOfURL:[NSURL URLWithString:win_width]];
                 pt.y=[(NSNumber*)data integerValue];
-                //NSLog(@"result: w %f",pt.y);
                 finished2=YES;
             }
         }];
@@ -1038,27 +1017,8 @@ didFinishNavigation:(WKNavigation *)navigation {
 -(void) findImage :(UITapGestureRecognizer*) sender {
     //  <Find HTML tag which was clicked by user>
     //  <If tag is IMG, then get image URL and start saving>
-/*    int scrollPositionY = [[self.webView stringByEvaluatingJavaScriptFromString:@"window.pageYOffset"] intValue];
-    int scrollPositionX = [[self.webView stringByEvaluatingJavaScriptFromString:@"window.pageXOffset"] intValue];
-    int displayWidth = [[self.webView stringByEvaluatingJavaScriptFromString:@"window.innerWidth"] intValue];
-    CGFloat scale = webView.frame.size.width / displayWidth;
-    CGPoint pt = [sender locationInView:self.webView];
-    pt.x /= scale;
-    pt.y /= scale;
-    pt.x += scrollPositionX;
-    pt.y += scrollPositionY;
-    NSLog(@"scale:%f displayWidth: %d,x:%f y:%f sx:%f sy:%f",scale,displayWidth, pt.x,pt.y,scrollPositionX,scrollPositionY);
-    NSString *js = [NSString stringWithFormat:@"document.elementFromPoint(%f, %f).tagName", pt.x, pt.y];
-    NSString *tagName = [self.webView stringByEvaluatingJavaScriptFromString:js];
-    NSString *imgURL = [NSString stringWithFormat:@"document.elementFromPoint(%f, %f).src", pt.x, pt.y];
-    NSString *urlToSave = [self.webView stringByEvaluatingJavaScriptFromString:imgURL];
-    
-    NSLog(@"tagName: %@",tagName);
-    NSLog(@"urg: %@",urlToSave);*/
 
     if ([sender state]==UIGestureRecognizerStateBegan) {
-        NSLog(@"longpress detected");
-        
         CGPoint point = [sender locationInView:self.webView];
         // convert point from view to HTML coordinate system
         CGFloat f = 1/self.webView.scrollView.zoomScale;
@@ -1119,15 +1079,6 @@ didFinishNavigation:(WKNavigation *)navigation {
         {
             [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]];
         }
-        
-        /*NSString *tags = [webView stringByEvaluatingJavaScriptFromString:
-         [NSString stringWithFormat:@"getHTMLElementsAtPoint(%li,%li);",(long)(NSInteger)point.x,(long)(NSInteger)point.y]];
-         NSString *tagsSRC = [webView stringByEvaluatingJavaScriptFromString:
-         [NSString stringWithFormat:@"getLinkSRCAtPoint(%li,%li);",(long)(NSInteger)point.x,(long)(NSInteger)point.y]];
-         */
-        
-        //NSLog(@"src : %@",tags);
-        //NSLog(@"src : %@",tagsSRC);
         
         NSString *url = nil;
         if ([tags rangeOfString:@",IMG,"].location != NSNotFound) {
@@ -1221,7 +1172,6 @@ didFinishNavigation:(WKNavigation *)navigation {
 }
 
 - (void) copyToClip:(NSNotification*)sender {
-    //NSLog(@"copy detected");
     if ([[UIPasteboard generalPasteboard] hasImages]) {
         UIImage *myImage=[[UIPasteboard generalPasteboard] image];
         if (myImage) {
@@ -1424,19 +1374,13 @@ didFinishNavigation:(WKNavigation *)navigation {
 	[self loadHome];
     [super viewDidLoad];
     
-//    UITapGestureRecognizer *doubleTapMac = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(doubleTap:)];
-    //doubleTap.numberOfTouchesRequired = 2;
-//    doubleTapMac.numberOfTapsRequired=2;
-//    UITapGestureRecognizer *doubleTapiOS = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(doubleTap:)];
-//    doubleTapiOS.numberOfTouchesRequired = 2;
-    //doubleTap.numberOfTapsRequired=2;
-    
-//    UILongPressGestureRecognizer *longPress = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(findImage:)];
-//    longPress.minimumPressDuration=0.5;
-    
-//    [self.webView addGestureRecognizer:doubleTapiOS];
-//    [self.webView addGestureRecognizer:doubleTapMac];
-//    [self.webView addGestureRecognizer:longPress];
+    if (@available(iOS 14.0, *)) {
+        if ([NSProcessInfo processInfo].isiOSAppOnMac) {
+            UILongPressGestureRecognizer *gestureMac = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(findImage:)];
+            //doubleTapMac.numberOfTouchesRequired=2;
+            [self.webView addGestureRecognizer:gestureMac];
+        }
+    }
     
     [self.webView addObserver:self
                        forKeyPath:NSStringFromSelector(@selector(estimatedProgress))
@@ -1492,7 +1436,6 @@ shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherG
     CGFloat statusbarHeight;
     CGSize statusBarSize = [[UIApplication sharedApplication] statusBarFrame].size;
     statusbarHeight=MIN(statusBarSize.width, statusBarSize.height);
-    //NSLog(@"status bar %f %f",statusBarSize.width, statusBarSize.height);
     
     if (topConstraint) [self.view removeConstraint:topConstraint];
     topConstraint=[NSLayoutConstraint constraintWithItem:addressTestField attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:self.view attribute:NSLayoutAttributeTop multiplier:1.0 constant:statusbarHeight];

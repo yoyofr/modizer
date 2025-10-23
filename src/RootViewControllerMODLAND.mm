@@ -97,7 +97,6 @@ extern volatile t_settings settings[MAX_SETTINGS];
     if (browse_depth>1) {
     if (indexPath != nil) {
         if ((gestureRecognizer.state==UIGestureRecognizerStateBegan)||(gestureRecognizer.state==UIGestureRecognizerStateChanged)) {
-            //                    NSLog(@"long press on table view at %d/%d", indexPath.section,indexPath.row);
             int crow=indexPath.row;
             int csection;
             
@@ -435,7 +434,7 @@ END_PROFILE
         
         err=sqlite3_exec(db, "PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
         if (err==SQLITE_OK){
-        } else NSLog(@"ErrSQL : %d",err);
+        } else MDZELog("ErrSQL : %d",err);
         
 		//1st : count how many entries we'll have
 		if (mSearch) snprintf(sqlStatement,1024,"SELECT count(1) FROM mod_type t,mod_type_author ta\
@@ -448,7 +447,7 @@ END_PROFILE
 				db_nb_entries=sqlite3_column_int(stmt, 0);
 			}
 			sqlite3_finalize(stmt);
-		} else NSLog(@"ErrSQL : %d",err);
+		} else MDZELog("ErrSQL : %d",err);
 		if (db_nb_entries) {
 			//2nd initialize array to receive entries
 			db_entries_data=(t_db_browse_entry *)calloc(db_nb_entries,sizeof(t_db_browse_entry));
@@ -475,7 +474,7 @@ END_PROFILE
 					//sections are determined 'on the fly' since result set is already sorted
 					if (previndex!=index) {
 						if (previndex>index) {
-							NSLog(@"********* %s",str);
+                            MDZELog("********* %s",str);
 						} else db_entries[index]=&(db_entries_data[db_entries_index]);
 					}
 					db_entries[index][db_entries_count[index]].label=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
@@ -490,7 +489,7 @@ END_PROFILE
 					db_entries_index++;
 				}
 				sqlite3_finalize(stmt);
-			} else NSLog(@"ErrSQL : %d",err);
+			} else MDZELog("ErrSQL : %d",err);
 		}
 	};
 	sqlite3_close(db);
@@ -564,7 +563,7 @@ END_PROFILE
         
         err=sqlite3_exec(db, "PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
         if (err==SQLITE_OK){
-        } else NSLog(@"ErrSQL : %d",err);
+        } else MDZELog("ErrSQL : %d",err);
         
 		//1st : count how many entries we'll have		
 		if (mSearch) snprintf(sqlStatement,1024,"SELECT COUNT(1) FROM mod_type WHERE filetype LIKE \"%%%s%%\"",[mSearchText UTF8String]);
@@ -577,7 +576,7 @@ END_PROFILE
 				db_nb_entries=sqlite3_column_int(stmt, 0);
 			}
 			sqlite3_finalize(stmt);
-		} else NSLog(@"ErrSQL : %d",err);
+		} else MDZELog("ErrSQL : %d",err);
 		if (db_nb_entries) {
 			//2nd initialize array to receive entries
 			db_entries_data=(t_db_browse_entry *)calloc(db_nb_entries,sizeof(t_db_browse_entry));
@@ -602,7 +601,7 @@ END_PROFILE
 					//sections are determined 'on the fly' since result set is already sorted
 					if (previndex!=index) {
 						if (previndex>index) {
-							NSLog(@"********* %s",str);
+                            MDZELog("********* %s",str);
 						} else db_entries[index]=&(db_entries_data[db_entries_index]);
 					}
                     
@@ -617,7 +616,7 @@ END_PROFILE
 					db_entries_index++;
 				}
 				sqlite3_finalize(stmt);
-			} else NSLog(@"ErrSQL : %d",err);
+			} else MDZELog("ErrSQL : %d",err);
 		}
 	};
 	sqlite3_close(db);
@@ -690,7 +689,7 @@ END_PROFILE
         
         err=sqlite3_exec(db, "PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
         if (err==SQLITE_OK){
-        } else NSLog(@"ErrSQL : %d",err);
+        } else MDZELog("ErrSQL : %d",err);
         
 		//1st : count how many entries we'll have		
 		if (mSearch) snprintf(sqlStatement,1024,"SELECT count(1) FROM mod_author WHERE author LIKE \"%%%s%%\"",[mSearchText UTF8String]);
@@ -702,7 +701,7 @@ END_PROFILE
 				db_nb_entries=sqlite3_column_int(stmt, 0);
 			}
 			sqlite3_finalize(stmt);
-		} else NSLog(@"ErrSQL : %d",err);
+		} else MDZELog("ErrSQL : %d",err);
 		if (db_nb_entries) {
 			//2nd initialize array to receive entries
 			db_entries_data=(t_db_browse_entry *)calloc(db_nb_entries,sizeof(t_db_browse_entry));
@@ -728,12 +727,10 @@ END_PROFILE
 					//sections are determined 'on the fly' since result set is already sorted
 					if (previndex!=index) {
 						if (previndex>index) {
-							NSLog(@"********* %s",str);
+                            MDZELog("********* %s",str);
 						} else db_entries[index]=&(db_entries_data[db_entries_index]);
 					}
 					
-					
-					//if (sqlite3_column_int(stmt, 1)==37) NSLog(@"%s",(const char*)sqlite3_column_text(stmt, 0));
 					
 					db_entries[index][db_entries_count[index]].label=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
 					if (db_entries[index][db_entries_count[index]].label==nil) db_entries[index][db_entries_count[index]].label=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
@@ -747,7 +744,7 @@ END_PROFILE
 					db_entries_index++;
 				}
 				sqlite3_finalize(stmt);
-			} else NSLog(@"ErrSQL : %d",err);
+			} else MDZELog("ErrSQL : %d",err);
 		}
 	};
 	sqlite3_close(db);
@@ -823,7 +820,7 @@ END_PROFILE
         
         err=sqlite3_exec(db, "PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
         if (err==SQLITE_OK){
-        } else NSLog(@"ErrSQL : %d",err);
+        } else MDZELog("ErrSQL : %d",err);
         
 		//1st : count how many entries we'll have		
 		if (mSearch) snprintf(sqlStatement,1024,"SELECT COUNT(1) FROM mod_author a,mod_type_author m WHERE m.id_type=%d AND m.id_author=a.id AND a.author LIKE \"%%%s%%\"",filetypeID,[mSearchText UTF8String]);
@@ -836,7 +833,7 @@ END_PROFILE
 				db_nb_entries=sqlite3_column_int(stmt, 0);
 			}
 			sqlite3_finalize(stmt);
-		} else NSLog(@"ErrSQL : %d",err);
+		} else MDZELog("ErrSQL : %d",err);
 		if (db_nb_entries) {
 			//2nd initialize array to receive entries
 			db_entries_data=(t_db_browse_entry *)calloc(db_nb_entries,sizeof(t_db_browse_entry));
@@ -862,7 +859,7 @@ END_PROFILE
 					//sections are determined 'on the fly' since result set is already sorted
 					if (previndex!=index) {
 						if (previndex>index) {
-							NSLog(@"********* %s",str);
+                            MDZELog("********* %s",str);
 						} else db_entries[index]=&(db_entries_data[db_entries_index]);
 					}
 					db_entries[index][db_entries_count[index]].label=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
@@ -878,7 +875,7 @@ END_PROFILE
 					db_entries_index++;
 				}
 				sqlite3_finalize(stmt);
-			} else NSLog(@"ErrSQL : %d",err);
+			} else MDZELog("ErrSQL : %d",err);
 		}
 	};
 	sqlite3_close(db);
@@ -957,7 +954,7 @@ END_PROFILE
         
         err=sqlite3_exec(db, "PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
         if (err==SQLITE_OK){
-        } else NSLog(@"ErrSQL : %d",err);
+        } else MDZELog("ErrSQL : %d",err);
         
 		//1st : count how many entries we'll have		
 		if (mSearch) snprintf(sqlStatement,1024,"SELECT count(1),0 FROM mod_file WHERE id_author=%d AND id_album is null AND filename like \"%%%s%%\" \
@@ -971,7 +968,7 @@ END_PROFILE
 				db_nb_entries+=sqlite3_column_int(stmt, 0);
 			}
 			sqlite3_finalize(stmt);
-		} else NSLog(@"ErrSQL : %d",err);
+		} else MDZELog("ErrSQL : %d",err);
 		
 		if (db_nb_entries) {
 			//2nd initialize array to receive entries
@@ -1008,7 +1005,7 @@ END_PROFILE
 					//sections are determined 'on the fly' since result set is already sorted
 					if (previndex!=index) {
 						if (previndex>index) {
-							NSLog(@"********* %s",str);
+                            MDZELog("********* %s",str);
 						} else db_entries[index]=&(db_entries_data[db_entries_index]);
 					}					
 					db_entries[index][db_entries_count[index]].id_author=authorID;
@@ -1032,7 +1029,7 @@ END_PROFILE
 					db_entries_index++;
 				}
 				sqlite3_finalize(stmt);
-			} else NSLog(@"ErrSQL : %d",err);
+			} else MDZELog("ErrSQL : %d",err);
 			
 		}
 	};
@@ -1110,7 +1107,7 @@ END_PROFILE
         
         err=sqlite3_exec(db, "PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
         if (err==SQLITE_OK){
-        } else NSLog(@"ErrSQL : %d",err);
+        } else MDZELog("ErrSQL : %d",err);
         
 		//1st : count how many entries we'll have		
 		if (mSearch) snprintf(sqlStatement,1024,"SELECT count(1),0 FROM mod_file \
@@ -1129,7 +1126,7 @@ END_PROFILE
 				db_nb_entries+=sqlite3_column_int(stmt, 0);
 			}
 			sqlite3_finalize(stmt);
-		} else NSLog(@"ErrSQL : %d",err);
+		} else MDZELog("ErrSQL : %d",err);
 		
 		if (db_nb_entries) {
 			//2nd initialize array to receive entries
@@ -1169,7 +1166,7 @@ END_PROFILE
 					//sections are determined 'on the fly' since result set is already sorted
 					if (previndex!=index) {
 						if (previndex>index) {
-							NSLog(@"********* %s",str);
+                            MDZELog("********* %s",str);
 							index=previndex;
 						} else db_entries[index]=&(db_entries_data[db_entries_index]);
 					}
@@ -1193,7 +1190,7 @@ END_PROFILE
 					db_entries_index++;
 				}
 				sqlite3_finalize(stmt);
-			} else NSLog(@"ErrSQL : %d",err);
+			} else MDZELog("ErrSQL : %d",err);
 		}
 	};
 	sqlite3_close(db);
@@ -1270,7 +1267,7 @@ END_PROFILE
         
         err=sqlite3_exec(db, "PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
         if (err==SQLITE_OK){
-        } else NSLog(@"ErrSQL : %d",err);
+        } else MDZELog("ErrSQL : %d",err);
         
 		//1st : count how many entries we'll have		
 		if (mSearch) snprintf(sqlStatement,1024,"SELECT count(1) FROM mod_file WHERE id_author=%d AND id_album=%d AND filename LIKE \"%%%s%%\" ORDER BY filename",authorID,albumID,[mSearchText UTF8String]);
@@ -1282,7 +1279,7 @@ END_PROFILE
 				db_nb_entries=sqlite3_column_int(stmt, 0);
 			}
 			sqlite3_finalize(stmt);
-		} else NSLog(@"ErrSQL : %d",err);
+		} else MDZELog("ErrSQL : %d",err);
 		if (db_nb_entries) {
 			//2nd initialize array to receive entries
 			db_entries_data=(t_db_browse_entry *)calloc(db_nb_entries,sizeof(t_db_browse_entry));
@@ -1307,7 +1304,7 @@ END_PROFILE
 					//sections are determined 'on the fly' since result set is already sorted
 					if (previndex!=index) {
 						if (previndex>index) {
-							NSLog(@"********* %s",str);
+                            MDZELog("********* %s",str);
 						} else db_entries[index]=&(db_entries_data[db_entries_index]);
 					}
 					db_entries[index][db_entries_count[index]].label=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
@@ -1324,7 +1321,7 @@ END_PROFILE
 					db_entries_index++;
 				}
 				sqlite3_finalize(stmt);
-			} else NSLog(@"ErrSQL : %d",err);
+			} else MDZELog("ErrSQL : %d",err);
 		}
 	};
 	sqlite3_close(db);
@@ -1401,7 +1398,7 @@ END_PROFILE
         
         err=sqlite3_exec(db, "PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
         if (err==SQLITE_OK){
-        } else NSLog(@"ErrSQL : %d",err);
+        } else MDZELog("ErrSQL : %d",err);
         
 		//1st : count how many entries we'll have		
 		if (mSearch) snprintf(sqlStatement,1024,"SELECT count(1) FROM mod_file WHERE id_type=%d AND id_author=%d AND id_album=%d AND filename like \"%%%s%%\"",filetypeID,authorID,albumID,[mSearchText UTF8String]);
@@ -1413,7 +1410,7 @@ END_PROFILE
 				db_nb_entries+=sqlite3_column_int(stmt, 0);
 			}
 			sqlite3_finalize(stmt);
-		} else NSLog(@"ErrSQL : %d",err);
+		} else MDZELog("ErrSQL : %d",err);
 		
 		if (db_nb_entries) {
 			//2nd initialize array to receive entries
@@ -1443,7 +1440,7 @@ END_PROFILE
 					//sections are determined 'on the fly' since result set is already sorted
 					if (previndex!=index) {
 						if (previndex>index) {
-							NSLog(@"********* %s",str);
+                            MDZELog("********* %s",str);
 						} else db_entries[index]=&(db_entries_data[db_entries_index]);
 					}
 					db_entries[index][db_entries_count[index]].label=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
@@ -1460,7 +1457,7 @@ END_PROFILE
 					db_entries_index++;
 				}
 				sqlite3_finalize(stmt);
-			} else NSLog(@"ErrSQL : %d",err);
+			} else MDZELog("ErrSQL : %d",err);
 			
 		}
 	};
@@ -1485,7 +1482,7 @@ END_PROFILE
         
         err=sqlite3_exec(db, "PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
         if (err==SQLITE_OK){
-        } else NSLog(@"ErrSQL : %d",err);
+        } else MDZELog("ErrSQL : %d",err);
         
 		
         snprintf(sqlStatement,1024,"select fullpath from mod_file where id=%d",id_mod);
@@ -1495,7 +1492,7 @@ END_PROFILE
 				fullpath=[NSString stringWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
 			}
 			sqlite3_finalize(stmt);
-		} else NSLog(@"ErrSQL : %d",err);		
+		} else MDZELog("ErrSQL : %d",err);		
 	}
 	
 	sqlite3_close(db);
@@ -1516,7 +1513,7 @@ END_PROFILE
         
         err=sqlite3_exec(db, "PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
         if (err==SQLITE_OK){
-        } else NSLog(@"ErrSQL : %d",err);
+        } else MDZELog("ErrSQL : %d",err);
         
 		
         snprintf(sqlStatement,1024,"select localpath from mod_file where id=%d",id_mod);
@@ -1526,7 +1523,7 @@ END_PROFILE
 				localpath=[NSString  stringWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
 			}
 			sqlite3_finalize(stmt);
-		} else NSLog(@"ErrSQL : %d",err);		
+		} else MDZELog("ErrSQL : %d",err);		
 	}
 	
 	sqlite3_close(db);
@@ -1547,7 +1544,7 @@ END_PROFILE
 		
         err=sqlite3_exec(db, "PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
         if (err==SQLITE_OK){
-        } else NSLog(@"ErrSQL : %d",err);
+        } else MDZELog("ErrSQL : %d",err);
         
         snprintf(sqlStatement,1024,"select filesize from mod_file where filename=\"%s\"",[fileName UTF8String]);
 		err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
@@ -1556,7 +1553,7 @@ END_PROFILE
 				iFileSize=(int)sqlite3_column_int(stmt, 0);
 			}
 			sqlite3_finalize(stmt);
-		} else NSLog(@"ErrSQL : %d",err);
+		} else MDZELog("ErrSQL : %d",err);
 	};
 	sqlite3_close(db);
 	pthread_mutex_unlock(&db_mutex);
@@ -1574,7 +1571,7 @@ END_PROFILE
 		
         err=sqlite3_exec(db, "PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
         if (err==SQLITE_OK){
-        } else NSLog(@"ErrSQL : %d",err);
+        } else MDZELog("ErrSQL : %d",err);
         
         snprintf(sqlStatement,1024,"select filename from mod_file where id=%d",idmod);
 		err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
@@ -1583,7 +1580,7 @@ END_PROFILE
 				fileName=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
 			}
 			sqlite3_finalize(stmt);
-		} else NSLog(@"ErrSQL : %d",err);
+		} else MDZELog("ErrSQL : %d",err);
 	};
 	sqlite3_close(db);
 	pthread_mutex_unlock(&db_mutex);
@@ -1758,7 +1755,7 @@ END_PROFILE
         
         err=sqlite3_exec(db, "PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
         if (err==SQLITE_OK){
-        } else NSLog(@"ErrSQL : %d",err);
+        } else MDZELog("ErrSQL : %d",err);
         
         snprintf(sqlStatement,1024,"SELECT localpath FROM mod_file WHERE id=%d",id_mod);
         err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
@@ -1768,7 +1765,7 @@ END_PROFILE
                 strFullPath=[NSString stringWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
             }
             sqlite3_finalize(stmt);
-        } else NSLog(@"ErrSQL : %d",err);
+        } else MDZELog("ErrSQL : %d",err);
     }
     sqlite3_close(db);
     pthread_mutex_unlock(&db_mutex);
@@ -1798,7 +1795,7 @@ END_PROFILE
         
         err=sqlite3_exec(db, "PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
         if (err==SQLITE_OK){
-        } else NSLog(@"ErrSQL : %d",err);
+        } else MDZELog("ErrSQL : %d",err);
         
         snprintf(sqlStatement,1024,"SELECT author FROM mod_author WHERE id=%d",id_author);
         err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
@@ -1808,7 +1805,7 @@ END_PROFILE
                 strAuthor=[NSString stringWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
             }
             sqlite3_finalize(stmt);
-        } else NSLog(@"ErrSQL : %d",err);
+        } else MDZELog("ErrSQL : %d",err);
     }
     sqlite3_close(db);
     pthread_mutex_unlock(&db_mutex);
@@ -1836,7 +1833,7 @@ END_PROFILE
         
         err=sqlite3_exec(db, "PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
         if (err==SQLITE_OK){
-        } else NSLog(@"ErrSQL : %d",err);
+        } else MDZELog("ErrSQL : %d",err);
         
         snprintf(sqlStatement,1024,"SELECT author FROM mod_author WHERE id=%d",id_author);
         err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
@@ -1846,7 +1843,7 @@ END_PROFILE
                 strAuthor=[NSString stringWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
             }
             sqlite3_finalize(stmt);
-        } else NSLog(@"ErrSQL : %d",err);
+        } else MDZELog("ErrSQL : %d",err);
         snprintf(sqlStatement,1024,"SELECT filetype FROM mod_type WHERE id=%d",id_type);
         err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
         if (err==SQLITE_OK){
@@ -1855,7 +1852,7 @@ END_PROFILE
                 strType=[NSString stringWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
             }
             sqlite3_finalize(stmt);
-        } else NSLog(@"ErrSQL : %d",err);
+        } else MDZELog("ErrSQL : %d",err);
     }
     sqlite3_close(db);
     pthread_mutex_unlock(&db_mutex);
@@ -1883,7 +1880,7 @@ END_PROFILE
         
         err=sqlite3_exec(db, "PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
         if (err==SQLITE_OK){
-        } else NSLog(@"ErrSQL : %d",err);
+        } else MDZELog("ErrSQL : %d",err);
         
         snprintf(sqlStatement,1024,"SELECT author FROM mod_author WHERE id=%d",id_author);
         err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
@@ -1893,7 +1890,7 @@ END_PROFILE
                 strAuthor=[NSString stringWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
             }
             sqlite3_finalize(stmt);
-        } else NSLog(@"ErrSQL : %d",err);
+        } else MDZELog("ErrSQL : %d",err);
         snprintf(sqlStatement,1024,"SELECT filetype FROM mod_type WHERE id=%d",id_type);
         err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
         if (err==SQLITE_OK){
@@ -1902,7 +1899,7 @@ END_PROFILE
                 strType=[NSString stringWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
             }
             sqlite3_finalize(stmt);
-        } else NSLog(@"ErrSQL : %d",err);
+        } else MDZELog("ErrSQL : %d",err);
         snprintf(sqlStatement,1024,"SELECT album FROM mod_album WHERE id=%d",id_album);
         err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
         if (err==SQLITE_OK){
@@ -1911,7 +1908,7 @@ END_PROFILE
                 strAlbum=[NSString stringWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
             }
             sqlite3_finalize(stmt);
-        } else NSLog(@"ErrSQL : %d",err);
+        } else MDZELog("ErrSQL : %d",err);
     }
     sqlite3_close(db);
     pthread_mutex_unlock(&db_mutex);
@@ -1939,7 +1936,7 @@ END_PROFILE
         
         err=sqlite3_exec(db, "PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
         if (err==SQLITE_OK){
-        } else NSLog(@"ErrSQL : %d",err);
+        } else MDZELog("ErrSQL : %d",err);
         
         snprintf(sqlStatement,1024,"SELECT filetype FROM mod_type WHERE id=%d",id_type);
         err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
@@ -1949,7 +1946,7 @@ END_PROFILE
                 strType=[NSString stringWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
             }
             sqlite3_finalize(stmt);
-        } else NSLog(@"ErrSQL : %d",err);
+        } else MDZELog("ErrSQL : %d",err);
         
         snprintf(sqlStatement,1024,"SELECT a.author FROM mod_type_author m,mod_author a WHERE m.id_type=%d AND m.id_author=a.id",id_type);
         err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
@@ -1961,7 +1958,7 @@ END_PROFILE
                 if (success) break;
             }
             sqlite3_finalize(stmt);
-        } else NSLog(@"ErrSQL : %d",err);
+        } else MDZELog("ErrSQL : %d",err);
         
     }
     sqlite3_close(db);
@@ -1988,7 +1985,7 @@ END_PROFILE
         
         err=sqlite3_exec(db, "PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
         if (err==SQLITE_OK){
-        } else NSLog(@"ErrSQL : %d",err);
+        } else MDZELog("ErrSQL : %d",err);
         
         snprintf(sqlStatement,1024,"SELECT filetype FROM mod_type WHERE id=%d",id_type);
         err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
@@ -1997,7 +1994,7 @@ END_PROFILE
                 strType=[NSString stringWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
             }
             sqlite3_finalize(stmt);
-        } else NSLog(@"ErrSQL : %d",err);
+        } else MDZELog("ErrSQL : %d",err);
         snprintf(sqlStatement,1024,"SELECT album FROM mod_album WHERE id=%d",id_album);
         err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
         if (err==SQLITE_OK){
@@ -2005,7 +2002,7 @@ END_PROFILE
                 strAlbum=[NSString stringWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
             }
             sqlite3_finalize(stmt);
-        } else NSLog(@"ErrSQL : %d",err);
+        } else MDZELog("ErrSQL : %d",err);
         
         
         snprintf(sqlStatement,1024,"SELECT a.author FROM mod_type_author_album m,mod_author a WHERE m.id_type=%d AND m.id_album=%d m.id_author=a.id",id_type,id_album);
@@ -2018,7 +2015,7 @@ END_PROFILE
                 if (success) break;
             }
             sqlite3_finalize(stmt);
-        } else NSLog(@"ErrSQL : %d",err);
+        } else MDZELog("ErrSQL : %d",err);
         
     }
     sqlite3_close(db);
@@ -2524,8 +2521,6 @@ END_PROFILE
 }
 - (void)searchBarSearchButtonClicked:(UISearchBar *)searchBar {
     [searchBar resignFirstResponder];
-    
-    NSLog(@"search clicked");
 }
 
 
@@ -2537,9 +2532,9 @@ END_PROFILE
             } @catch (NSException * ex) {
                 //“Pushing the same view controller instance more than once is not supported”
                 //NSInvalidArgumentException
-                NSLog(@"Exception: [%@]:%@",[ex  class], ex );
-                NSLog(@"ex.name:'%@'", ex.name);
-                NSLog(@"ex.reason:'%@'", ex.reason);
+                MDZELog("Exception: [%@]:%@",[ex  class], ex );
+                MDZELog("ex.name:'%@'", ex.name);
+                MDZELog("ex.reason:'%@'", ex.reason);
                 //Full error includes class pointer address so only care if it starts with this error
                 NSRange range = [ex.reason rangeOfString:@"Pushing the same view controller instance more than once is not supported"];
                 
@@ -2548,13 +2543,12 @@ END_PROFILE
                     //view controller already exists in the stack - just pop back to it
                     [self.navigationController popToViewController:detailViewController animated:YES];
                 } else {
-                    NSLog(@"ERROR:UNHANDLED EXCEPTION TYPE:%@", ex);
+                    MDZELog("ERROR:UNHANDLED EXCEPTION TYPE:%@", ex);
                 }
             } @finally {
-                //NSLog(@"finally");
             }
         } else {
-            NSLog(@"ERROR:pushViewController: viewController is nil");
+            MDZELog("ERROR:pushViewController: viewController is nil");
         }
     }
     else {

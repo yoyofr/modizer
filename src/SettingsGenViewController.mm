@@ -148,8 +148,6 @@ volatile t_settings settings[MAX_SETTINGS];
     
     NSIndexPath *indexPath = [self.tableView indexPathForRowAtPoint:p];
     if (indexPath != nil) {
-        //if ((gestureRecognizer.state==UIGestureRecognizerStateBegan)||(gestureRecognizer.state==UIGestureRecognizerStateChanged)) {
-        //                    NSLog(@"long press on table view at %d/%d", indexPath.section,indexPath.row);
         int crow=indexPath.row;
         int csection=indexPath.section;
         if (csection>=0) {
@@ -200,9 +198,9 @@ volatile t_settings settings[MAX_SETTINGS];
             } @catch (NSException * ex) {
                 //“Pushing the same view controller instance more than once is not supported”
                 //NSInvalidArgumentException
-                NSLog(@"Exception: [%@]:%@",[ex  class], ex );
-                NSLog(@"ex.name:'%@'", ex.name);
-                NSLog(@"ex.reason:'%@'", ex.reason);
+                MDZELog("Exception: [%@]:%@",[ex  class], ex );
+                MDZELog("ex.name:'%@'", ex.name);
+                MDZELog("ex.reason:'%@'", ex.reason);
                 //Full error includes class pointer address so only care if it starts with this error
                 NSRange range = [ex.reason rangeOfString:@"Pushing the same view controller instance more than once is not supported"];
                 
@@ -211,15 +209,14 @@ volatile t_settings settings[MAX_SETTINGS];
                     //view controller already exists in the stack - just pop back to it
                     [self.navigationController popToViewController:detailViewController animated:YES];
                 } else {
-                    NSLog(@"ERROR:UNHANDLED EXCEPTION TYPE:%@", ex);
+                    MDZELog("ERROR:UNHANDLED EXCEPTION TYPE:%@", ex);
                     //[self.navigationController popViewControllerAnimated:YES];
                     [self.navigationController popToViewController:detailViewController animated:YES];
                 }
             } @finally {
-                //NSLog(@"finally");
             }
         } else {
-            NSLog(@"ERROR:pushViewController: viewController is nil");
+            MDZELog("ERROR:pushViewController: viewController is nil");
         }
     }
     else {
@@ -384,16 +381,7 @@ void optNSFPLAYChangedC(id param) {
     for (int i=0;i<MAX_SETTINGS;i++)
         if (settings[i].label) {
             
-            //if (settings[i].setting_id) NSLog(@"id:%s",settings[i].setting_id);
-            
             str=[NSString stringWithFormat:@"%s",settings[i].setting_id];
-            
-            /*str=[NSString stringWithFormat:@"%s",settings[i].label];
-             int j=settings[i].family;
-             while (j!=MDZ_SETTINGS_FAMILY_ROOT) {
-             str=[NSString stringWithFormat:@"%s/%@",settings[j].label,str];
-             j=settings[j].family;
-             }*/
             
             switch (settings[i].type) {
                 case MDZ_BOOLSWITCH:
@@ -472,15 +460,6 @@ void optNSFPLAYChangedC(id param) {
         if (settings[i].label) {
             
             str=[NSString stringWithFormat:@"%s",settings[i].setting_id];
-            
-            //NSLog(@"backup settings: %@",str);
-            /*str=[NSString stringWithFormat:@"%s",settings[i].label];
-             int j=settings[i].family;
-             while (j!=MDZ_SETTINGS_FAMILY_ROOT) {
-             str=[NSString stringWithFormat:@"%s/%@",settings[j].label,str];
-             j=settings[j].family;
-             }*/
-            //NSLog(@"got: %@",str);
             
             switch (settings[i].type) {
                 case MDZ_BOOLSWITCH:
@@ -661,13 +640,11 @@ void optNSFPLAYChangedC(id param) {
     
     [SettingsGenViewController oscilloGenSystemColor:0 color_idx:-1 color_buffer:NULL];
     [SettingsGenViewController pianomidiGenSystemColor:0 color_idx:-1 color_buffer:NULL];
-    
-    //NSLog(@"apply default settings");
 }
 
 #define SETTINGS_ID_DEF(x) settings[x].setting_id=STRINGIZE2(x);
 + (void) loadSettings {
-    NSLog(@"load settings");
+    //MDZILog("load settings");
     memset((char*)settings,0,sizeof(settings));
     /////////////////////////////////////
     //ROOT

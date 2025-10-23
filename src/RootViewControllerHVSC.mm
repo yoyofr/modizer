@@ -85,7 +85,6 @@ extern volatile t_settings settings[MAX_SETTINGS];
     if (browse_depth>1) {
         if (indexPath != nil) {
             if ((gestureRecognizer.state==UIGestureRecognizerStateBegan)||(gestureRecognizer.state==UIGestureRecognizerStateChanged)) {
-                //                    NSLog(@"long press on table view at %d/%d", indexPath.section,indexPath.row);
                 int crow=indexPath.row;
                 int csection;
                 
@@ -415,7 +414,7 @@ END_PROFILE
         
         err=sqlite3_exec(db, "PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
         if (err==SQLITE_OK){
-        } else NSLog(@"ErrSQL : %d",err);
+        } else MDZELog("ErrSQL : %d",err);
         
 		//1st : count how many entries we'll have		
 		if (mSearch) snprintf(sqlStatement,1024,"SELECT COUNT(DISTINCT dir1) FROM hvsc_file WHERE dir1 LIKE \"%%%s%%\"",[mSearchText UTF8String]);
@@ -427,7 +426,7 @@ END_PROFILE
 				dbHVSC_nb_entries=sqlite3_column_int(stmt, 0);
 			}
 			sqlite3_finalize(stmt);
-		} else NSLog(@"ErrSQL : %d",err);
+		} else MDZELog("ErrSQL : %d",err);
 		if (dbHVSC_nb_entries) {
 			//2nd initialize array to receive entries
 			dbHVSC_entries_data=(t_dbHVSC_browse_entry *)calloc(1,dbHVSC_nb_entries*sizeof(t_dbHVSC_browse_entry));
@@ -453,7 +452,7 @@ END_PROFILE
 					//sections are determined 'on the fly' since result set is already sorted
 					if (previndex!=index) {
 						if (previndex>index) {
-							NSLog(@"********* %s",str);
+                            MDZELog("********* %s",str);
 						} else dbHVSC_entries[index]=&(dbHVSC_entries_data[dbHVSC_entries_index]);
 					}
 					dbHVSC_entries[index][dbHVSC_entries_count[index]].label=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
@@ -467,7 +466,7 @@ END_PROFILE
 					dbHVSC_entries_index++;
 				}
 				sqlite3_finalize(stmt);
-			} else NSLog(@"ErrSQL : %d",err);
+			} else MDZELog("ErrSQL : %d",err);
 		}
 	};
 	sqlite3_close(db);
@@ -559,7 +558,7 @@ END_PROFILE
         
         err=sqlite3_exec(db, "PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
         if (err==SQLITE_OK){
-        } else NSLog(@"ErrSQL : %d",err);
+        } else MDZELog("ErrSQL : %d",err);
         
 		//1st : count how many entries we'll have		
 		if (mSearch) snprintf(sqlStatement,1024,"SELECT COUNT(DISTINCT dir2) FROM hvsc_file WHERE dir1=\"%s\" AND dir2 LIKE \"%%%s%%\"",[dir1 UTF8String],[mSearchText UTF8String]);
@@ -571,7 +570,7 @@ END_PROFILE
 				dbHVSC_nb_entries=sqlite3_column_int(stmt, 0);
 			}
 			sqlite3_finalize(stmt);
-		} else NSLog(@"ErrSQL : %d",err);
+		} else MDZELog("ErrSQL : %d",err);
 		if (dbHVSC_nb_entries) {
 			//2nd initialize array to receive entries
 			dbHVSC_entries_data=(t_dbHVSC_browse_entry *)calloc(1,dbHVSC_nb_entries*sizeof(t_dbHVSC_browse_entry));
@@ -597,7 +596,7 @@ END_PROFILE
 					//sections are determined 'on the fly' since result set is already sorted
 					if (previndex!=index) {
 						if (previndex>index) {
-							NSLog(@"********* %s",str);
+                            MDZELog("********* %s",str);
 						} else dbHVSC_entries[index]=&(dbHVSC_entries_data[dbHVSC_entries_index]);
 					}
 					dbHVSC_entries[index][dbHVSC_entries_count[index]].label=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
@@ -611,7 +610,7 @@ END_PROFILE
 					dbHVSC_entries_index++;
 				}
 				sqlite3_finalize(stmt);
-			} else NSLog(@"ErrSQL : %d",err);
+			} else MDZELog("ErrSQL : %d",err);
 		}
 	};
 	sqlite3_close(db);
@@ -703,7 +702,7 @@ END_PROFILE
         
         err=sqlite3_exec(db, "PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
         if (err==SQLITE_OK){
-        } else NSLog(@"ErrSQL : %d",err);
+        } else MDZELog("ErrSQL : %d",err);
         
 		//1st : count how many entries we'll have		
 		if (mSearch) snprintf(sqlStatement,1024,"SELECT COUNT(DISTINCT dir3) FROM hvsc_file WHERE dir1=\"%s\" AND dir2=\"%s\" AND dir3 is not null AND dir3 LIKE \"%%%s%%\"\
@@ -717,7 +716,7 @@ END_PROFILE
 				dbHVSC_nb_entries+=sqlite3_column_int(stmt, 0);
 			}
 			sqlite3_finalize(stmt);
-		} else NSLog(@"ErrSQL : %d",err);
+		} else MDZELog("ErrSQL : %d",err);
 		
 		
 		
@@ -750,7 +749,7 @@ END_PROFILE
 					//sections are determined 'on the fly' since result set is already sorted
 					if (previndex!=index) {
 						if (previndex>index) {
-							NSLog(@"********* %s",str);
+                            MDZELog("********* %s",str);
 						} else dbHVSC_entries[index]=&(dbHVSC_entries_data[dbHVSC_entries_index]);
 					}
 					dbHVSC_entries[index][dbHVSC_entries_count[index]].label=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
@@ -773,7 +772,7 @@ END_PROFILE
 					dbHVSC_entries_index++;
 				}
 				sqlite3_finalize(stmt);
-			} else NSLog(@"ErrSQL : %d",err);
+			} else MDZELog("ErrSQL : %d",err);
 			
 		}
 	};
@@ -867,7 +866,7 @@ END_PROFILE
         
         err=sqlite3_exec(db, "PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
         if (err==SQLITE_OK){
-        } else NSLog(@"ErrSQL : %d",err);
+        } else MDZELog("ErrSQL : %d",err);
         
 		//1st : count how many entries we'll have		
 		if (mSearch) snprintf(sqlStatement,1024,"SELECT COUNT(DISTINCT dir4) FROM hvsc_file WHERE dir1=\"%s\" AND dir2=\"%s\" AND dir3=\"%s\" AND dir4 is not null AND dir4 LIKE \"%%%s%%\"\
@@ -881,7 +880,7 @@ END_PROFILE
 				dbHVSC_nb_entries+=sqlite3_column_int(stmt, 0);
 			}
 			sqlite3_finalize(stmt);
-		} else NSLog(@"ErrSQL : %d",err);
+		} else MDZELog("ErrSQL : %d",err);
 		
 		
 		
@@ -914,7 +913,7 @@ END_PROFILE
 					//sections are determined 'on the fly' since result set is already sorted
 					if (previndex!=index) {
 						if (previndex>index) {
-							NSLog(@"********* %s",str);
+                            MDZELog("********* %s",str);
 						} else dbHVSC_entries[index]=&(dbHVSC_entries_data[dbHVSC_entries_index]);
 					}
 					dbHVSC_entries[index][dbHVSC_entries_count[index]].label=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
@@ -937,7 +936,7 @@ END_PROFILE
 					dbHVSC_entries_index++;
 				}
 				sqlite3_finalize(stmt);
-			} else NSLog(@"ErrSQL : %d",err);
+			} else MDZELog("ErrSQL : %d",err);
 			
 		}
 	};
@@ -1031,7 +1030,7 @@ END_PROFILE
         
         err=sqlite3_exec(db, "PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
         if (err==SQLITE_OK){
-        } else NSLog(@"ErrSQL : %d",err);
+        } else MDZELog("ErrSQL : %d",err);
         
 		//1st : count how many entries we'll have		
 		if (mSearch) snprintf(sqlStatement,1024,"SELECT COUNT(DISTINCT dir5) FROM hvsc_file WHERE dir1=\"%s\" AND dir2=\"%s\" AND dir3=\"%s\" AND dir4=\"%s\" AND dir5 is not null AND dir5 LIKE \"%%%s%%\"\
@@ -1045,7 +1044,7 @@ END_PROFILE
 				dbHVSC_nb_entries+=sqlite3_column_int(stmt, 0);
 			}
 			sqlite3_finalize(stmt);
-		} else NSLog(@"ErrSQL : %d",err);
+		} else MDZELog("ErrSQL : %d",err);
 		
 		
 		
@@ -1078,7 +1077,7 @@ END_PROFILE
 					//sections are determined 'on the fly' since result set is already sorted
 					if (previndex!=index) {
 						if (previndex>index) {
-							NSLog(@"********* %s",str);
+                            MDZELog("********* %s",str);
 						} else dbHVSC_entries[index]=&(dbHVSC_entries_data[dbHVSC_entries_index]);
 					}
 					dbHVSC_entries[index][dbHVSC_entries_count[index]].label=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
@@ -1102,7 +1101,7 @@ END_PROFILE
 					dbHVSC_entries_index++;
 				}
 				sqlite3_finalize(stmt);
-			} else NSLog(@"ErrSQL : %d",err);
+			} else MDZELog("ErrSQL : %d",err);
 			
 		}
 	};
@@ -1195,7 +1194,7 @@ END_PROFILE
         
         err=sqlite3_exec(db, "PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
         if (err==SQLITE_OK){
-        } else NSLog(@"ErrSQL : %d",err);
+        } else MDZELog("ErrSQL : %d",err);
         
 		//1st : count how many entries we'll have		
 		if (mSearch) snprintf(sqlStatement,1024,"SELECT COUNT(filename) FROM hvsc_file WHERE dir1=\"%s\" AND dir2=\"%s\" AND dir3=\"%s\" AND dir4=\"%s\" AND dir5=\"%s\" AND filename LIKE \"%%%s%%\"",[dir1 UTF8String],[dir2 UTF8String],[dir3 UTF8String],[dir4 UTF8String],[dir5 UTF8String],[mSearchText UTF8String]);
@@ -1207,7 +1206,7 @@ END_PROFILE
 				dbHVSC_nb_entries+=sqlite3_column_int(stmt, 0);
 			}
 			sqlite3_finalize(stmt);
-		} else NSLog(@"ErrSQL : %d",err);
+		} else MDZELog("ErrSQL : %d",err);
 		
 		
 		
@@ -1238,7 +1237,7 @@ END_PROFILE
 					//sections are determined 'on the fly' since result set is already sorted
 					if (previndex!=index) {
 						if (previndex>index) {
-							NSLog(@"********* %s",str);
+                            MDZELog("********* %s",str);
 						} else dbHVSC_entries[index]=&(dbHVSC_entries_data[dbHVSC_entries_index]);
 					}
 					dbHVSC_entries[index][dbHVSC_entries_count[index]].label=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
@@ -1259,7 +1258,7 @@ END_PROFILE
 					dbHVSC_entries_index++;
 				}
 				sqlite3_finalize(stmt);
-			} else NSLog(@"ErrSQL : %d",err);
+			} else MDZELog("ErrSQL : %d",err);
 			
 		}
 	};
@@ -1281,7 +1280,7 @@ END_PROFILE
         
         err=sqlite3_exec(db, "PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
         if (err==SQLITE_OK){
-        } else NSLog(@"ErrSQL : %d",err);
+        } else MDZELog("ErrSQL : %d",err);
 		
         snprintf(sqlStatement,1024,"select fullpath from mod_file where id=%d",id_mod);
 		err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
@@ -1290,7 +1289,7 @@ END_PROFILE
 				fullpath=[NSString stringWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
 			}
 			sqlite3_finalize(stmt);
-		} else NSLog(@"ErrSQL : %d",err);		
+		} else MDZELog("ErrSQL : %d",err);		
 	}
 	
 	sqlite3_close(db);
@@ -1311,7 +1310,7 @@ END_PROFILE
         
         err=sqlite3_exec(db, "PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
         if (err==SQLITE_OK){
-        } else NSLog(@"ErrSQL : %d",err);
+        } else MDZELog("ErrSQL : %d",err);
         
 		
         snprintf(sqlStatement,1024,"select localpath from mod_file where id=%d",id_mod);
@@ -1321,7 +1320,7 @@ END_PROFILE
 				localpath=[NSString  stringWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
 			}
 			sqlite3_finalize(stmt);
-		} else NSLog(@"ErrSQL : %d",err);		
+		} else MDZELog("ErrSQL : %d",err);		
 	}
 	
 	sqlite3_close(db);
@@ -1342,7 +1341,7 @@ END_PROFILE
 		
         err=sqlite3_exec(db, "PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
         if (err==SQLITE_OK){
-        } else NSLog(@"ErrSQL : %d",err);
+        } else MDZELog("ErrSQL : %d",err);
         
         snprintf(sqlStatement,1024,"select filesize from mod_file where filename=\"%s\"",[fileName UTF8String]);
 		err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
@@ -1351,7 +1350,7 @@ END_PROFILE
 				iFileSize=(int)sqlite3_column_int(stmt, 0);
 			}
 			sqlite3_finalize(stmt);
-		} else NSLog(@"ErrSQL : %d",err);
+		} else MDZELog("ErrSQL : %d",err);
 	};
 	sqlite3_close(db);
 	pthread_mutex_unlock(&db_mutex);
@@ -1369,7 +1368,7 @@ END_PROFILE
 		
         err=sqlite3_exec(db, "PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
         if (err==SQLITE_OK){
-        } else NSLog(@"ErrSQL : %d",err);
+        } else MDZELog("ErrSQL : %d",err);
         
         snprintf(sqlStatement,1024,"select filename from mod_file where id=%d",idmod);
 		err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
@@ -1378,7 +1377,7 @@ END_PROFILE
 				fileName=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
 			}
 			sqlite3_finalize(stmt);
-		} else NSLog(@"ErrSQL : %d",err);
+		} else MDZELog("ErrSQL : %d",err);
 	};
 	sqlite3_close(db);
 	pthread_mutex_unlock(&db_mutex);
@@ -1800,8 +1799,6 @@ END_PROFILE
                         bottomStr=[NSString stringWithFormat:@"%@|%02dch",bottomStr,cur_db_entries[section][indexPath.row].channels_nb];
                     else bottomStr=[NSString stringWithFormat:@"%@|--ch",bottomStr];
                     
-                    //NSLog(@"songs: %d",cur_db_entries[section][indexPath.row].songs);
-                    
                     if (cur_db_entries[section][indexPath.row].songs>0) {
                         if (cur_db_entries[section][indexPath.row].songs==1) bottomStr=[NSString stringWithFormat:@"%@|1 song",bottomStr];
                         else bottomStr=[NSString stringWithFormat:@"%@|%d songs",bottomStr,cur_db_entries[section][indexPath.row].songs];
@@ -1880,7 +1877,6 @@ END_PROFILE
             //delete file
             NSString *fullpath=[NSHomeDirectory() stringByAppendingPathComponent:[NSString stringWithFormat:@"/Documents/%@%@",HVSC_BASEDIR,cur_db_entries[section][indexPath.row].fullpath]];
             NSError *err;
-            //			NSLog(@"%@",fullpath);
         DBHelper::deleteStatsFileDB(fullpath);
             cur_db_entries[section][indexPath.row].downloaded=0;
             //delete local file
@@ -1960,9 +1956,9 @@ END_PROFILE
             } @catch (NSException * ex) {
                 //“Pushing the same view controller instance more than once is not supported”
                 //NSInvalidArgumentException
-                NSLog(@"Exception: [%@]:%@",[ex  class], ex );
-                NSLog(@"ex.name:'%@'", ex.name);
-                NSLog(@"ex.reason:'%@'", ex.reason);
+                MDZELog("Exception: [%@]:%@",[ex  class], ex );
+                MDZELog("ex.name:'%@'", ex.name);
+                MDZELog("ex.reason:'%@'", ex.reason);
                 //Full error includes class pointer address so only care if it starts with this error
                 NSRange range = [ex.reason rangeOfString:@"Pushing the same view controller instance more than once is not supported"];
                 
@@ -1971,13 +1967,12 @@ END_PROFILE
                     //view controller already exists in the stack - just pop back to it
                     [self.navigationController popToViewController:detailViewController animated:YES];
                 } else {
-                    NSLog(@"ERROR:UNHANDLED EXCEPTION TYPE:%@", ex);
+                    MDZELog("ERROR:UNHANDLED EXCEPTION TYPE:%@", ex);
                 }
             } @finally {
-                //NSLog(@"finally");
             }
         } else {
-            NSLog(@"ERROR:pushViewController: viewController is nil");
+            MDZELog("ERROR:pushViewController: viewController is nil");
         }
     }
     else {

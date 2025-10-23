@@ -33,7 +33,7 @@ extern os_log_t mdzLog;
 
 #else
 #define START_PROFILE
-#define CHECK_PROFILE (a)
+#define CHECK_PROFILE(a)
 #define END_PROFILE
 #endif
 

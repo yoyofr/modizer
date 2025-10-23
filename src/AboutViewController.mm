@@ -54,7 +54,6 @@
 
 -(void) adjustViewForMiniplayer:(NSNumber*)value {
     self.textView.frame=CGRectMake(0,self.textView.frame.origin.y,self.textView.frame.size.width,self.textView.frame.size.height-value.floatValue);
-    NSLog(@"%lf %lf",self.textView.frame.size.height,value.floatValue);
 }
 
 -(void)viewDidDisappear:(BOOL)animated {
@@ -160,7 +159,6 @@
 
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
-    NSLog(@"yo3");
 }
 
 /*

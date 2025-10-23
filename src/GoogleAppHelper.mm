@@ -214,14 +214,12 @@ typedef struct  {
                          VERSION_MINOR_STR
     ];
     NSURL *url=[NSURL URLWithString:urlString];
-    //NSLog(@"%@",[url absoluteString]);
     
     AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
     manager.responseSerializer.acceptableContentTypes=[NSSet setWithObject:@"application/json"];
     [manager GET:urlString parameters:nil headers:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-        //NSLog(@"JSON: %@", responseObject);
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-        NSLog(@"Error: %@", error);
+        MDZELog("Error: %@", error);
     }];
     [manager invalidateSessionCancelingTasks:NO resetSession:NO];
     

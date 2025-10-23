@@ -25,7 +25,7 @@
         
         err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
         if (err==SQLITE_OK){
-        } else NSLog(@"ErrSQL : %d",err);
+        } else MDZELog("ErrSQL : %d",err);
         
         snprintf(sqlStatement,1024,"SELECT COUNT(*) FROM playlists");
         err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
@@ -34,7 +34,7 @@
                 pl_number=sqlite3_column_int(stmt, 0);
             }
             sqlite3_finalize(stmt);
-        } else NSLog(@"ErrSQL : %d",err);
+        } else MDZELog("ErrSQL : %d",err);
         
         if (pl_number) {
             int pl_index=0;
@@ -51,7 +51,7 @@
                     pl_index++;
                 }
                 sqlite3_finalize(stmt);
-            } else NSLog(@"ErrSQL : %d",err);
+            } else MDZELog("ErrSQL : %d",err);
         }
     };
     sqlite3_close(db);
@@ -73,7 +73,7 @@
         
         err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
         if (err==SQLITE_OK){
-        } else NSLog(@"ErrSQL : %d",err);
+        } else MDZELog("ErrSQL : %d",err);
         
         snprintf(sqlStatement,1024,"SELECT COUNT(*) FROM user_stats WHERE rating=5");
         err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
@@ -82,7 +82,7 @@
                 pl_number=sqlite3_column_int(stmt, 0);
             }
             sqlite3_finalize(stmt);
-        } else NSLog(@"ErrSQL : %d",err);
+        } else MDZELog("ErrSQL : %d",err);
     };
     sqlite3_close(db);
     pthread_mutex_unlock(&db_mutex);
@@ -103,7 +103,7 @@
         
         err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
         if (err==SQLITE_OK){
-        } else NSLog(@"ErrSQL : %d",err);
+        } else MDZELog("ErrSQL : %d",err);
         
         snprintf(sqlStatement,1024,"SELECT COUNT(*) FROM user_stats WHERE play_count>0");
         err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
@@ -112,7 +112,7 @@
                 pl_number=sqlite3_column_int(stmt, 0);
             }
             sqlite3_finalize(stmt);
-        } else NSLog(@"ErrSQL : %d",err);
+        } else MDZELog("ErrSQL : %d",err);
     };
     sqlite3_close(db);
     pthread_mutex_unlock(&db_mutex);
@@ -133,7 +133,7 @@
         
         err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
         if (err==SQLITE_OK){
-        } else NSLog(@"ErrSQL : %d",err);
+        } else MDZELog("ErrSQL : %d",err);
         
             snprintf(sqlStatement,1024,"SELECT name,fullpath FROM user_stats WHERE play_count>0 ORDER BY play_count DESC,name");
             err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
@@ -144,7 +144,7 @@
                     pl_entries++;
                 }
                 sqlite3_finalize(stmt);
-            } else NSLog(@"ErrSQL : %d",err);
+            } else MDZELog("ErrSQL : %d",err);
     }
     sqlite3_close(db);
     pthread_mutex_unlock(&db_mutex);
@@ -164,7 +164,7 @@
         
         err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
         if (err==SQLITE_OK){
-        } else NSLog(@"ErrSQL : %d",err);
+        } else MDZELog("ErrSQL : %d",err);
         
             snprintf(sqlStatement,1024,"SELECT name,fullpath FROM user_stats WHERE rating=5 ORDER BY rating DESC,name");
             err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
@@ -175,7 +175,7 @@
                     pl_entries++;
                 }
                 sqlite3_finalize(stmt);
-            } else NSLog(@"ErrSQL : %d",err);
+            } else MDZELog("ErrSQL : %d",err);
     }
     sqlite3_close(db);
     pthread_mutex_unlock(&db_mutex);
@@ -195,7 +195,7 @@
         
         err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
         if (err==SQLITE_OK){
-        } else NSLog(@"ErrSQL : %d",err);
+        } else MDZELog("ErrSQL : %d",err);
                     
             snprintf(sqlStatement,1024,"SELECT name,fullpath FROM playlists_entries WHERE id_playlist=%d",pl_id);
             err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
@@ -206,7 +206,7 @@
                     pl_entries++;
                 }
                 sqlite3_finalize(stmt);
-            } else NSLog(@"ErrSQL : %d",err);
+            } else MDZELog("ErrSQL : %d",err);
     }
     sqlite3_close(db);
     pthread_mutex_unlock(&db_mutex);
@@ -228,7 +228,7 @@
         
         err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
         if (err==SQLITE_OK){
-        } else NSLog(@"ErrSQL : %d",err);
+        } else MDZELog("ErrSQL : %d",err);
         
         snprintf(sqlStatement,1024,"INSERT INTO playlists_entries (id_playlist,name,fullpath) SELECT %s,\"%s\",\"%s\"",
                 [id_playlist UTF8String],[label UTF8String],[fullPath UTF8String]);
@@ -237,7 +237,7 @@
             result=TRUE;
         } else {
             result=FALSE;
-            NSLog(@"ErrSQL : %d",err);
+            MDZELog("ErrSQL : %d",err);
         }
         if (result) {
             snprintf(sqlStatement,1024,"UPDATE playlists SET num_files=\
@@ -249,7 +249,7 @@
                 result=TRUE;
             } else {
                 result=FALSE;
-                NSLog(@"ErrSQL : %d",err);
+                MDZELog("ErrSQL : %d",err);
             }
         }
     };
@@ -269,7 +269,7 @@
         
         err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
         if (err==SQLITE_OK){
-        } else NSLog(@"ErrSQL : %d",err);
+        } else MDZELog("ErrSQL : %d",err);
         
         for (int i=0;i<[labels count];i++) {
             snprintf(sqlStatement,sizeof(sqlStatement),"INSERT INTO playlists_entries (id_playlist,name,fullpath) SELECT %s,\"%s\",\"%s\"",
@@ -278,7 +278,7 @@
             if (err==SQLITE_OK){
             } else {
                 result=FALSE;
-                NSLog(@"ErrSQL : %d",err);
+                MDZELog("ErrSQL : %d",err);
                 break;
             }
         }
@@ -293,7 +293,7 @@
                 result=TRUE;
             } else {
                 result=FALSE;
-                NSLog(@"ErrSQL : %d",err);
+                MDZELog("ErrSQL : %d",err);
             }
         }
     };
@@ -378,7 +378,6 @@
 #ifdef HAS_DETAILVIEW_CONT
         UIAlertAction* nowplayingAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Now playing",@"") style:UIAlertActionStyleDefault
            handler:^(UIAlertAction * action) {
-                //NSLog(@"add to Now playing");
                 if ([detailViewController add_to_playlist:fullPath fileName:label forcenoplay:1]) {
                     if ([detailViewController.mplayer isPlaying]) [self showMiniPlayer];
                 }
@@ -435,7 +434,6 @@
 #ifdef HAS_DETAILVIEW_CONT
         UIAlertAction* nowplayingAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Now playing",@"") style:UIAlertActionStyleDefault
            handler:^(UIAlertAction * action) {
-                //NSLog(@"add to Now playing");
                 if ([detailViewController add_to_playlist:arrayPath fileNames:arrayLabel forcenoplay:1]) {
                     if ([detailViewController.mplayer isPlaying]) [self showMiniPlayer];
                 }

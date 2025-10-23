@@ -40,7 +40,6 @@
 
 - (void)checkCPUUsage {
     cpuUsage = [self getCPUUsage];
-    //NSLog(@"Current CPU Usage: %.2f%%", cpuUsage);
 }
 
 - (double)getCPUUsage {
