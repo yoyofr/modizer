@@ -6,7 +6,7 @@
 //  Copyright __YoyoFR / Yohann Magnien__ 2010. All rights reserved.
 //
 
-
+#import <OSLog/OSLog.h>
 #import "RootViewControllerSNESMWebParser.h"
 
 enum {
@@ -92,6 +92,7 @@ int qsortSNESM_entries_rating_or_entries(const void *entryA, const void *entryB)
 
 
 - (void)viewDidLoad {
+    START_PROFILE
     [super viewDidLoad];
     sort_mode=0;
     //set default sort mode
@@ -125,6 +126,7 @@ int qsortSNESM_entries_rating_or_entries(const void *entryA, const void *entryB)
         [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(titleTap)];
         [navbarTitle addGestureRecognizer:tapGesture];
     }
+    END_PROFILE
 }
 
 -(void) fillKeys {

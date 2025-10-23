@@ -7,6 +7,18 @@
  *
  */
 
+#ifdef LOAD_PROFILE
+
+#define START_PROFILE clock_t start_time,end_time;start_time=clock();
+#define END_PROFILE {end_time=clock();double _exectime=1000.0f*(double)(end_time-start_time)/CLOCKS_PER_SEC;\
+os_log_type_t _loglevel=OS_LOG_TYPE_DEBUG; if (_exectime>500) _loglevel=OS_LOG_TYPE_FAULT;\
+os_log_with_type(OS_LOG_DEFAULT, _loglevel,"%s exec time: %lf",__func__,_exectime);}
+
+#else
+#define START_PROFILE
+#define END_PROFILE
+#endif
+
 //#define LOAD_PROFILE
 #ifndef MODIZER_CONSTANTS_H
 #define MODIZER_CONSTANTS_H

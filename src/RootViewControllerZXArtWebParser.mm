@@ -5,6 +5,7 @@
 //  Created by Yohann Magnien on 19/05/24.
 //  Copyright __YoyoFR / Yohann Magnien__ 2024. All rights reserved.
 //
+#import <OSLog/OSLog.h>
 
 #import "RootViewControllerZXArtWebParser.h"
 
@@ -70,6 +71,7 @@ int qsortZXArt_entries_rating_or_entries(const void *entryA, const void *entryB)
 
 
 - (void)viewDidLoad {
+    START_PROFILE
     [super viewDidLoad];
     browse_mode=BROWSE_ALL_INDEX;
     if ([self.title isEqualToString:NSLocalizedString(@"Latest entries",@"")]) {
@@ -113,6 +115,7 @@ int qsortZXArt_entries_rating_or_entries(const void *entryA, const void *entryB)
             [indexTitles addObject:@"Z"];
         }
     }
+    END_PROFILE
 }
 
 -(void) fillKeys {

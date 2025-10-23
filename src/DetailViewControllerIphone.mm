@@ -5,7 +5,10 @@
 //  Created by Yohann Magnien on 04/06/10.
 //  Copyright __YoyoFR / Yohann Magnien__ 2010. All rights reserved.
 //
+//#define DEBUG_PM_PERF
+//#define DEBUG_PM_PERF_START 150
 
+#import <OSLog/OSLog.h>
 
 #define ASCII_MIDDOT "·"
 
@@ -1324,7 +1327,13 @@ static float movePinchScale,movePinchScaleOld;
 }
 -(void) mdNextPreset {
 //    if ( _pm_playlist) projectm_playlist_play_next(_pm_playlist, true);
+#ifdef DEBUG_PM_PERF
+    projectm_playlist_set_shuffle(_pm_playlist, false);
+    projectm_playlist_set_position(_pm_playlist,DEBUG_PM_PERF_START,true);
+    for (int i=0;i<100;i++) projectm_playlist_play_next(_pm_playlist, true);
+#else
     if ( _pm_playlist) projectm_playlist_play_next(_pm_playlist, false);
+#endif
 }
 -(void) mdInfoFX {
     if (_pm && settings[PROJECTM_FXONOFF].detail.mdz_boolswitch.switch_value) {
@@ -4331,7 +4340,9 @@ GLsizei txtbackgroundImageWidth,txtbackgroundImageHeight;
                 int idx=[valNb intValue];
                 if (idx<projectm_playlist_size(_pm_playlist)) {
                     NSLog(@"restart pm preset idx: %d",idx);
+#ifndef DEBUG_PM_PERF
                     projectm_playlist_set_position(_pm_playlist,idx,true);
+#endif
                 }
             }
         }
@@ -4935,7 +4946,15 @@ void pmSoftReinit() {
         pmPresetStr=strdup(strtmp.c_str());
     }
     
+    
+    
+#ifdef DEBUG_PM_PERF
+    projectm_playlist_set_shuffle(_pm_playlist, false);
+    projectm_playlist_set_position(_pm_playlist,DEBUG_PM_PERF_START,true);
+    for (int i=0;i<100;i++) projectm_playlist_play_next(_pm_playlist, true);
+#else
     projectm_playlist_play_next(_pm_playlist, true);
+#endif
 
     
     _pmPresetHasChanged=true;
@@ -4954,8 +4973,8 @@ void pmSoftReinit() {
 
 // Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
 - (void)viewDidLoad {
-    clock_t start_time,end_time;
-    start_time=clock();
+    START_PROFILE
+    
     [super viewDidLoad];
     
     
@@ -5483,18 +5502,10 @@ void pmSoftReinit() {
 //        mTextLine[i]=nil;
 //    }
     
-    end_time=clock();
-#ifdef LOAD_PROFILE
-    NSLog(@"detail1 : %d",end_time-start_time);
-#endif
-    
 //    mHeader=nil;
     mplayer = [[ModizMusicPlayer alloc] initMusicPlayer];
     
     end_time=clock();
-#ifdef LOAD_PROFILE
-    NSLog(@"detail2 : %d",end_time-start_time);
-#endif
     //
     //opengl stuff
     //Init shaders
@@ -5576,9 +5587,6 @@ void pmSoftReinit() {
     
     
     end_time=clock();
-#ifdef LOAD_PROFILE
-    NSLog(@"detail3 : %d",end_time-start_time);
-#endif
     //Visualization
     /* Set Starting Angle To Zero */
     angle=0.0f;
@@ -5617,9 +5625,6 @@ void pmSoftReinit() {
     [SettingsGenViewController oscilloGenSystemColor:2 color_idx:-1 color_buffer:m_voice_oscillo_pal3];
     
     end_time=clock();
-#ifdef LOAD_PROFILE
-    NSLog(@"detail4 : %d",end_time-start_time);
-#endif
     //init play/pause status for button
     self.pauseBar.hidden=YES;
     self.playBar.hidden=NO;
@@ -5627,17 +5632,11 @@ void pmSoftReinit() {
     self.playBarSub.hidden=YES;
     [self updateBarPos];
     end_time=clock();
-#ifdef LOAD_PROFILE
-    NSLog(@"detail5 : %d",end_time-start_time);
-#endif
     mplayer.bGlobalAudioPause=1;
     //init mod player var
     
     
     end_time=clock();
-#ifdef LOAD_PROFILE
-    NSLog(@"detail6 : %d",end_time-start_time);
-#endif
     
     //FFT
     for (int i=0;i<SPECTRUM_BANDS;i++)
@@ -5653,9 +5652,6 @@ void pmSoftReinit() {
     
     
     end_time=clock();
-#ifdef LOAD_PROFILE
-    NSLog(@"detail7 : %d",end_time-start_time);
-#endif
     
     if ([self checkFlagOnStartup]) {
         [self loadSettings:1];
@@ -5665,9 +5661,6 @@ void pmSoftReinit() {
     for (int i=0;i<mPlaylist_size;i++) mPlaylist[i].cover_flag=-1;
     
     end_time=clock();
-#ifdef LOAD_PROFILE
-    NSLog(@"detail8 : %d",end_time-start_time);
-#endif
     
     [self.view bringSubviewToFront:infoMsgView];
     
@@ -5685,10 +5678,8 @@ void pmSoftReinit() {
     modpat_curTheme=modpat_themesList[(settings[GLOB_FXMODPattern_Theme].detail.mdz_switch.switch_value)&modpat_themesNb];
     
     //	[super viewDidLoad];
-    end_time=clock();
-#ifdef LOAD_PROFILE
-    NSLog(@"detail : %d",end_time-start_time);
-#endif
+    END_PROFILE
+    
 }
 
 - (void)dealloc {
@@ -6419,7 +6410,13 @@ extern "C" int current_sample;
                 movePyPM=0;
                 movePMnomore=1;
 //                NSLog(@"Next");
-                if ( _pm_playlist) projectm_playlist_play_next(_pm_playlist, false);
+#ifdef DEBUG_PM_PERF
+    projectm_playlist_set_shuffle(_pm_playlist, false);
+    projectm_playlist_set_position(_pm_playlist,DEBUG_PM_PERF_START,true);
+    for (int i=0;i<100;i++) projectm_playlist_play_next(_pm_playlist, true);
+#else
+    if ( _pm_playlist) projectm_playlist_play_next(_pm_playlist, false);
+#endif
             }
             
             if (movePyPM>PM_VerticalSwipe_Threshold) {

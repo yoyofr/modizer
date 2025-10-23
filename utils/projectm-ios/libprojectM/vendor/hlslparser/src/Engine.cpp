@@ -94,18 +94,18 @@ static inline double iss_strtod(const char * in, char ** end) {
 
 //YOYOFR
 double String_ToDouble(const char * str, const char * strend, char ** endptr) {
-   // return iss_strtod(str, endptr);
+    //return iss_strtod(str, endptr);
     double result;
-    auto answer = fast_float::from_chars(str, strend, result);
-    if (answer.ec != std::errc()) {
-        if (endptr) *endptr=(char*)(str);
-        return 0;
+    
+    if (auto answer = fast_float::from_chars(str, strend, result)) {
+        if (endptr) *endptr=(char*)(answer.ptr);
+        return result;
     }
-    if (endptr) *endptr=(char*)(answer.ptr);
-    return result;
+    if (endptr) *endptr=(char*)(str);
+    return 0;
 }
 
-int String_ToInteger(const char * str, char ** endptr) {
+int String_ToInteger(const char * str,char ** endptr) {
 	return strtol(str, endptr, 10);
 }
 

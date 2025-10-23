@@ -5,6 +5,7 @@
 //  Created by yoyofr on 7/16/10.
 //  Copyright 2010 __YoyoFR / Yohann Magnien__. All rights reserved.
 //
+#import <OSLog/OSLog.h>
 
 enum {
     PLAYLIST_SEARCH=1,
@@ -153,8 +154,7 @@ static NSFileManager *mFileMngr;
 
 // Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
 - (void)viewDidLoad {
-    clock_t start_time,end_time;
-    start_time=clock();
+    START_PROFILE
     
     dictActionBtn=[NSMutableDictionary dictionaryWithCapacity:64];
     
@@ -244,9 +244,7 @@ static NSFileManager *mFileMngr;
     [super viewDidLoad];
     
     end_time=clock();
-#ifdef LOAD_PROFILE
-    NSLog(@"search : %d",end_time-start_time);
-#endif
+END_PROFILE
 }
 
 -(void) traitCollectionDidChange:(UITraitCollection *)previousTraitCollection {

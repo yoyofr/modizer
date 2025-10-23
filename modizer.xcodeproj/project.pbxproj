@@ -454,6 +454,7 @@
 		CC02DD422BA3187200ED5992 /* CoreImage.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 593288A3261FC61700DB4E7C /* CoreImage.framework */; };
 		CC02EC541AB5B35600979E38 /* timidity.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 3396B61A13297F8E001792E0 /* timidity.cfg */; };
 		CC02EC551AB5B37000979E38 /* merlin_gold.sf2 in Resources */ = {isa = PBXBuildFile; fileRef = 33C658B0139437FE00265A1D /* merlin_gold.sf2 */; };
+		CC08C3A92EA9858F00A0F15F /* ModizerIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC08C3A82EA9858F00A0F15F /* ModizerIntent.swift */; };
 		CC0E2DBA2B80A04800CB58C7 /* libogg-openmpt.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CC7BBD3E2B800B0200D8CAAE /* libogg-openmpt.a */; };
 		CC0E2DBB2B80A06C00CB58C7 /* libvorbis-openmpt.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CC7BBD262B800AC600D8CAAE /* libvorbis-openmpt.a */; };
 		CC0E2DBC2B80A07D00CB58C7 /* libmpg123-openmpt.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CC7BBD382B800AF600D8CAAE /* libmpg123-openmpt.a */; };
@@ -838,6 +839,7 @@
 		CCBF101A1221788200E8DE4E /* Ymload.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCBF100B1221788200E8DE4E /* Ymload.cpp */; };
 		CCBF101B1221788200E8DE4E /* YmMusic.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCBF100D1221788200E8DE4E /* YmMusic.cpp */; };
 		CCBF101C1221788200E8DE4E /* YmUserInterface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCBF10101221788200E8DE4E /* YmUserInterface.cpp */; };
+		CCBFC9A32EAA146300014B5D /* OSLog.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CCBFC9A22EAA146300014B5D /* OSLog.framework */; };
 		CCC3A3C32BE77F8700710980 /* libliblzma_mdz.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CCC3A1C72BE77E6A00710980 /* libliblzma_mdz.a */; };
 		CCC543F72B89F46B00E97EC1 /* libadplug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CCC541BB2B89DD1800E97EC1 /* libadplug.a */; };
 		CCC543F82B89F51500E97EC1 /* libbinio.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CCC543DB2B89E83400E97EC1 /* libbinio.a */; };
@@ -887,6 +889,8 @@
 		CCEB4E052BAE01E6004831C6 /* liblibarchive.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CCEB46FE2BADF7A7004831C6 /* liblibarchive.a */; };
 		CCEB5B4D2BB0153C004831C6 /* libUnrarKIT.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CCEB5A492BB01040004831C6 /* libUnrarKIT.a */; };
 		CCFA9ADE1AC75848007C658A /* JSTools.js in Resources */ = {isa = PBXBuildFile; fileRef = CCFA9ADD1AC75848007C658A /* JSTools.js */; };
+		CCFB5ED02EA98C400049DA7F /* ModizerWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = CCFB5ECF2EA98C400049DA7F /* ModizerWrapper.m */; };
+		CCFB5ED22EA98C480049DA7F /* ModizerWrapper.h in Sources */ = {isa = PBXBuildFile; fileRef = CCFB5ED12EA98C480049DA7F /* ModizerWrapper.h */; };
 		CCFDC52A17DB105500C6692C /* AudioFileReader.mm in Sources */ = {isa = PBXBuildFile; fileRef = CCFDC4F217DB105400C6692C /* AudioFileReader.mm */; };
 		CCFDC52B17DB105500C6692C /* AudioFileWriter.m in Sources */ = {isa = PBXBuildFile; fileRef = CCFDC4F417DB105400C6692C /* AudioFileWriter.m */; };
 		CCFDC52C17DB105500C6692C /* Novocaine.m in Sources */ = {isa = PBXBuildFile; fileRef = CCFDC4F617DB105400C6692C /* Novocaine.m */; };
@@ -1954,6 +1958,8 @@
 		CC02DCE02BA316F000ED5992 /* UIControl+HitTestEdgeInsets.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIControl+HitTestEdgeInsets.h"; sourceTree = "<group>"; };
 		CC02DCE12BA316F000ED5992 /* UIControl+HitTestEdgeInsets.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIControl+HitTestEdgeInsets.m"; sourceTree = "<group>"; };
 		CC07A87E2BB952EA0052DE82 /* gbsplay.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = gbsplay.xcodeproj; path = gbsplay/gbsplay.xcodeproj; sourceTree = "<group>"; };
+		CC08C3A72EA9858E00A0F15F /* modizer-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "modizer-Bridging-Header.h"; sourceTree = "<group>"; };
+		CC08C3A82EA9858F00A0F15F /* ModizerIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ModizerIntent.swift; path = src/ModizerIntent.swift; sourceTree = "<group>"; };
 		CC1638392B7CCC22003323FD /* folder.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = folder.png; sourceTree = "<group>"; };
 		CC16383A2B7CCC22003323FD /* folder@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "folder@2x.png"; sourceTree = "<group>"; };
 		CC1638522B7CDF91003323FD /* libnsfplay.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libnsfplay.xcodeproj; path = libnsfplay/libnsfplay.xcodeproj; sourceTree = "<group>"; };
@@ -2672,6 +2678,7 @@
 		CCBF100E1221788200E8DE4E /* YmMusic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YmMusic.h; sourceTree = "<group>"; };
 		CCBF100F1221788200E8DE4E /* YmTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YmTypes.h; sourceTree = "<group>"; };
 		CCBF10101221788200E8DE4E /* YmUserInterface.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = YmUserInterface.cpp; sourceTree = "<group>"; };
+		CCBFC9A22EAA146300014B5D /* OSLog.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OSLog.framework; path = System/Library/Frameworks/OSLog.framework; sourceTree = SDKROOT; };
 		CCC3A1C22BE77E6A00710980 /* liblzma_mdz.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = liblzma_mdz.xcodeproj; path = liblzma_mdz/liblzma_mdz.xcodeproj; sourceTree = "<group>"; };
 		CCC541B62B89DD1700E97EC1 /* adplug.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = adplug.xcodeproj; path = adplug/adplug.xcodeproj; sourceTree = "<group>"; };
 		CCC543D62B89E83400E97EC1 /* binio.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = binio.xcodeproj; path = binio/binio.xcodeproj; sourceTree = "<group>"; };
@@ -2717,6 +2724,8 @@
 		CCEB4E002BAE00D9004831C6 /* libiconv.2.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libiconv.2.tbd; path = usr/lib/libiconv.2.tbd; sourceTree = SDKROOT; };
 		CCEB5A442BB0103F004831C6 /* UnrarKIT.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = UnrarKIT.xcodeproj; path = UnrarKIT/UnrarKIT.xcodeproj; sourceTree = "<group>"; };
 		CCFA9ADD1AC75848007C658A /* JSTools.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = JSTools.js; sourceTree = "<group>"; };
+		CCFB5ECF2EA98C400049DA7F /* ModizerWrapper.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ModizerWrapper.m; sourceTree = "<group>"; };
+		CCFB5ED12EA98C480049DA7F /* ModizerWrapper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ModizerWrapper.h; sourceTree = "<group>"; };
 		CCFDC4ED17DB105400C6692C /* Equalizer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Equalizer.mm; sourceTree = "<group>"; };
 		CCFDC4F117DB105400C6692C /* AudioFileReader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AudioFileReader.h; sourceTree = "<group>"; };
 		CCFDC4F217DB105400C6692C /* AudioFileReader.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = AudioFileReader.mm; sourceTree = "<group>"; };
@@ -2795,6 +2804,7 @@
 				59BDE88B260F675D00FB0C69 /* libhighlyexperimental.a in Frameworks */,
 				5905362E25DBDB8600AA548E /* CoreMedia.framework in Frameworks */,
 				5905362B25DBDB6500AA548E /* libiconv.tbd in Frameworks */,
+				CCBFC9A32EAA146300014B5D /* OSLog.framework in Frameworks */,
 				59BDE96E260FE5AB00FB0C69 /* libhighlytheoritical.a in Frameworks */,
 				5905362825DBDB5900AA548E /* libbz2.tbd in Frameworks */,
 				5966D0FF25CFEFED00520777 /* libsqlite3.tbd in Frameworks */,
@@ -2860,6 +2870,7 @@
 		29B97314FDCFA39411CA2CEA /* CustomTemplate */ = {
 			isa = PBXGroup;
 			children = (
+				CC08C3A82EA9858F00A0F15F /* ModizerIntent.swift */,
 				596117D5262AC74000B0F991 /* XIB */,
 				59B9991425CFDF8F0071E144 /* utils */,
 				593925CB25CF0C56009281DC /* libs */,
@@ -2871,6 +2882,7 @@
 				29B97323FDCFA39411CA2CEA /* Frameworks */,
 				19C28FACFE9D520D11CA2CBB /* Products */,
 				5950D83425DF070200B476B2 /* MIMETYPES.plist */,
+				CC08C3A72EA9858E00A0F15F /* modizer-Bridging-Header.h */,
 			);
 			name = CustomTemplate;
 			sourceTree = "<group>";
@@ -2878,6 +2890,7 @@
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				CCBFC9A22EAA146300014B5D /* OSLog.framework */,
 				CC93319B2EA55D7B00CB0503 /* MetricKit.framework */,
 				CC671C552E95CCD20076CE1E /* MetalANGLE */,
 				CC671C292E95C8FF0076CE1E /* GLKit.framework */,
@@ -3846,6 +3859,8 @@
 				CC93319F2EA5835400CB0503 /* ModizerTypes.h */,
 				CC9331A02EA583F300CB0503 /* ModizerGlobals.c */,
 				59BB9F01261B03DE00DB5D6C /* ModizerVoicesData.h */,
+				CCFB5ECF2EA98C400049DA7F /* ModizerWrapper.m */,
+				CCFB5ED12EA98C480049DA7F /* ModizerWrapper.h */,
 				5950D83825DF1A2500B476B2 /* ModizerWebView.h */,
 				5950D83925DF1A2500B476B2 /* ModizerWebView.m */,
 				CC2DE0A21217EF2900CF9CFF /* ModizerWin.h */,
@@ -5399,6 +5414,11 @@
 				BuildIndependentTargetsInParallel = YES;
 				LastSwiftUpdateCheck = 1640;
 				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					1D6058900D05DD3D006BFB54 = {
+						LastSwiftMigration = 1640;
+					};
+				};
 			};
 			buildConfigurationList = C01FCF4E08A954540054247B /* Build configuration list for PBXProject "modizer" */;
 			compatibilityVersion = "Xcode 15.0";
@@ -6371,6 +6391,7 @@
 				CC1E624312041177000A8A4E /* myTabBarController.mm in Sources */,
 				CC8368622B57CA9A0035A4DA /* mwemul.c in Sources */,
 				CC1E624812041177000A8A4E /* SearchViewController.mm in Sources */,
+				CCFB5ED22EA98C480049DA7F /* ModizerWrapper.h in Sources */,
 				CC83686C2B57CA9A0035A4DA /* conf68.c in Sources */,
 				CC1E624A12041177000A8A4E /* WebBrowser.mm in Sources */,
 				CCCFB6C02BFA3EAE0026F1F7 /* RootViewControllerZXArtWebParser.mm in Sources */,
@@ -6450,6 +6471,7 @@
 				CC83686A2B57CA9A0035A4DA /* api68.c in Sources */,
 				CC83685A2B57CA9A0035A4DA /* ym_io.c in Sources */,
 				CC8368612B57CA9A0035A4DA /* shifter_io.c in Sources */,
+				CCFB5ED02EA98C400049DA7F /* ModizerWrapper.m in Sources */,
 				5937EEE626453B0800270715 /* TFHpple.m in Sources */,
 				CC83685F2B57CA9A0035A4DA /* paulaemul.c in Sources */,
 				CC02DD222BA316F100ED5992 /* MSRGBView.m in Sources */,
@@ -6497,6 +6519,7 @@
 				CC6CBDF317DBE3A8006DCBC7 /* EQViewController.mm in Sources */,
 				CC8368EA2B57CA9B0035A4DA /* gzip68.c in Sources */,
 				CC8368752B57CA9A0035A4DA /* unice68_pack.c in Sources */,
+				CC08C3A92EA9858F00A0F15F /* ModizerIntent.swift in Sources */,
 				CC02DD1D2BA316F100ED5992 /* MSColorSelectionView.m in Sources */,
 				3317854117C56EAC00929E8F /* TPKeyboardAvoidingTableView.m in Sources */,
 				33B7AD0C17C74AE700C1E404 /* SettingsMaintenanceViewController.mm in Sources */,
@@ -6536,6 +6559,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = modizer/modizer.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
@@ -6577,6 +6601,8 @@
 				SKIP_INSTALL = NO;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -6586,6 +6612,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = modizer/modizer.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
@@ -6626,6 +6653,7 @@
 				SKIP_INSTALL = NO;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
 			};
@@ -6697,6 +6725,7 @@
 				LINK_WITH_STANDARD_LIBRARIES = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = (
+					"-DLOAD_PROFILE",
 					"-DMODIZER",
 					"-D",
 					"VGM_USE_MPEG=1",
@@ -6725,6 +6754,7 @@
 				SKIP_INSTALL = YES;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
 				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "modizer-Bridging-Header.h";
 				SYSTEM_HEADER_SEARCH_PATHS = (
 					libs/libzxtune/libzxtune/include,
 					libs/libzxtune/libzxtune/,
@@ -6872,6 +6902,7 @@
 				SKIP_INSTALL = YES;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
 				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "modizer-Bridging-Header.h";
 				SYSTEM_HEADER_SEARCH_PATHS = (
 					libs/libzxtune/libzxtune/include,
 					libs/libzxtune/libzxtune/,
@@ -7017,6 +7048,7 @@
 				SKIP_INSTALL = YES;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
 				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "modizer-Bridging-Header.h";
 				SYSTEM_HEADER_SEARCH_PATHS = (
 					libs/libzxtune/libzxtune/include,
 					libs/libzxtune/libzxtune/,
@@ -7075,6 +7107,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = modizer/modizer.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
@@ -7115,6 +7148,7 @@
 				SKIP_INSTALL = NO;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
 			};

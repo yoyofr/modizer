@@ -116,6 +116,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		CC08C3A62EA983D100A0F15F /* fast_float.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fast_float.h; path = fast_float/fast_float.h; sourceTree = "<group>"; };
 		CCABA01B2E93C66900AF59B0 /* libprojectm-ios.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libprojectm-ios.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		CCABA02A2E93C75B00AF59B0 /* _features.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = _features.hpp; sourceTree = "<group>"; };
 		CCABA02B2E93C75B00AF59B0 /* _fixes.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = _fixes.hpp; sourceTree = "<group>"; };
@@ -679,11 +680,6 @@
 /* End PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		CC08C3A52EA9255300A0F15F /* fast-float */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = "fast-float";
-			sourceTree = "<group>";
-		};
 		CCABA01D2E93C66900AF59B0 /* projectm-ios */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
@@ -1152,7 +1148,7 @@
 		CCABA19A2E93C75B00AF59B0 /* vendor */ = {
 			isa = PBXGroup;
 			children = (
-				CC08C3A52EA9255300A0F15F /* fast-float */,
+				CC08C3A62EA983D100A0F15F /* fast_float.h */,
 				CCABA1382E93C75B00AF59B0 /* glm */,
 				CCABA14A2E93C75B00AF59B0 /* hlslparser */,
 				CCABA1822E93C75B00AF59B0 /* projectm-eval */,
@@ -1529,7 +1525,6 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				CC08C3A52EA9255300A0F15F /* fast-float */,
 				CCABA01D2E93C66900AF59B0 /* projectm-ios */,
 			);
 			name = "projectm-ios";

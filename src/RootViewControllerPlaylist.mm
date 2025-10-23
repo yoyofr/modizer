@@ -5,6 +5,7 @@
 //  Created by Yohann Magnien on 04/06/10.
 //  Copyright __YoyoFR / Yohann Magnien__ 2010. All rights reserved.
 //
+#import <OSLog/OSLog.h>
 #define RATING_IMG(a) ( (a==5?2:(a?1:0)) )
 
 #define PRI_SEC_ACTIONS_IMAGE_SIZE 40
@@ -502,8 +503,7 @@ int qsort_ComparePlaylistEntriesRevFP(const void *entryA, const void *entryB) {
 
 
 - (void)viewDidLoad {
-    clock_t start_time,end_time;
-    start_time=clock();
+    START_PROFILE
     childController=NULL;
     
     dictActionBtn=[NSMutableDictionary dictionaryWithCapacity:64];
@@ -671,9 +671,7 @@ int qsort_ComparePlaylistEntriesRevFP(const void *entryA, const void *entryB) {
     [super viewDidLoad];
     
     end_time=clock();
-#ifdef LOAD_PROFILE
-    NSLog(@"rootview : %d",end_time-start_time);
-#endif
+END_PROFILE
 }
 
 -(void) fillKeys {

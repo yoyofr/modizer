@@ -4,7 +4,7 @@
 //
 //  Created by Yohann Magnien David on 27/02/2024.
 //
-
+#import <OSLog/OSLog.h>
 #import <Foundation/Foundation.h>
 #import "AnimatedLaunchVC.h"
 
@@ -23,6 +23,7 @@
 @synthesize localBrowserVC;
 
 - (void)viewDidLoad {
+    START_PROFILE
     [super viewDidLoad];
     
     UIWindow *win=[UIApplication sharedApplication].keyWindow;
@@ -32,6 +33,7 @@
     int columns=round(win.bounds.size.width/ANIMATION_GRID_CELL_SIZE);
     //self.animation = [[SONFillAnimation alloc] initWithNumberOfRows:rows columns:columns animationType:SONFillAnimationTypeFoldIn];
     self.animation = [[SONFillAnimation alloc] initWithNumberOfRows:rows columns:columns animationType:SONFillAnimationTypeCustom];
+    END_PROFILE
 }
 
 

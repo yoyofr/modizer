@@ -1185,7 +1185,8 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
         count=0;
         countLines=0;
         
-        line_width=thickness*(2.0f/(float)ww);
+//        line_width=thickness*(2.0f/(float)ww);
+        line_width=1.0f*(2.0f/(float)ww);
         
         colR=(settings[OSCILLO_GRID_COLOR].detail.mdz_color.rgb>>16)&0xFF;
         colG=(settings[OSCILLO_GRID_COLOR].detail.mdz_color.rgb>>8)&0xFF;
@@ -1220,6 +1221,8 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
             ptsLines[countLines++] = SimpleLineVertexF(0,hh-mulfactor*r*2,
                                                        ww-1,hh-mulfactor*r*2,ww,hh);
         }
+        // Load the line width
+        glUniform1f(widthHandle,line_width);
         glDrawArraysInstanced(GL_TRIANGLES,0,6, countLines);
     }
     

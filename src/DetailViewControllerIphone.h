@@ -10,7 +10,7 @@
 
 #import "Queue.h"
 #import "DBHelper.h"
-#import "HardwareClock.h"
+//#import "HardwareClock.h"
 
 #import "BButton.h"
 
@@ -117,7 +117,7 @@ enum {
 	int orientationHV;
     
 	
-	st::HardwareClock m_clock;
+	//st::HardwareClock m_clock;
 	CADisplayLink *m_displayLink,*m_displayLink2;
 	
 	UIView *mInWasView;

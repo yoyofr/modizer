@@ -5,6 +5,8 @@
 //  Created by Yohann Magnien on 10/03/24.
 //  Copyright __YoyoFR / Yohann Magnien__ 2024. All rights reserved.
 //
+#import <OSLog/OSLog.h>
+
 extern void *LoadingProgressObserverContext;
 
 #import "RootViewControllerXPWebParser.h"
@@ -105,8 +107,7 @@ extern void *LoadingProgressObserverContext;
 }
 
 - (void)viewDidLoad {
-    clock_t start_time,end_time;
-    start_time=clock();
+    START_PROFILE
     childController=NULL;
     
     dictActionBtn=[NSMutableDictionary dictionaryWithCapacity:64];
@@ -252,9 +253,7 @@ extern void *LoadingProgressObserverContext;
     [super viewDidLoad];
     
     end_time=clock();
-#ifdef LOAD_PROFILE
-    NSLog(@"rootview : %d",end_time-start_time);
-#endif
+END_PROFILE
 }
 
 -(void) fillKeysCompleted {

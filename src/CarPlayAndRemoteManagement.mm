@@ -83,7 +83,7 @@
         
         [plArray addObject:item];
     }
-    if (1) {
+    if (0) { //YOYOFR: To review perf / OPTIM!
         int nb_entries=[rootVCLocalB getLocalFilesCount];
         MPContentItem *item=[[MPContentItem alloc] initWithIdentifier:@"pl_RD"];
         [item setTitle:NSLocalizedString(@"Random picks",@"")];

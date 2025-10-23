@@ -4,6 +4,7 @@
 //
 //  Created by Yohann Magnien on 12/04/2021.
 //
+#import <OSLog/OSLog.h>
 
 int gesture_swipe_min_vel;
 int gesture_swipe_min_trans;
@@ -34,6 +35,7 @@ int gesture_move_file_min_trans;
 @synthesize mpview;
 
 - (void)viewDidLoad {
+    START_PROFILE
     [super viewDidLoad];
     // Do any additional setup after loading the view.
     mpview=[[MiniPlayerView alloc] init];
@@ -48,6 +50,7 @@ int gesture_move_file_min_trans;
     mpview.userInteractionEnabled=true;
     
     labelTime_mode=0;
+    END_PROFILE
 }
 
 - (void)refreshViewDarkmode {

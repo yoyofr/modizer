@@ -7,7 +7,6 @@
  *
  */
 
-//#define LOAD_PROFILE
 #ifndef MODIZER_TYPES_H
 #define MODIZER_TYPES_H
 

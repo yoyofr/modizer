@@ -7,7 +7,7 @@
 //
 
 //#define GEN_EXT_LIST
-
+#import <OSLog/OSLog.h>
 #import "AppDelegate_Phone.h"
 #import <MediaPlayer/MediaPlayer.h>
 
@@ -111,6 +111,7 @@ pthread_mutex_t play_mutex;
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
 	// Override point for customization after application launch
 	//
+    START_PROFILE
 #ifdef GEN_EXT_LIST
     [self getSupportedExtensionList];
 #endif            
@@ -274,6 +275,7 @@ pthread_mutex_t play_mutex;
     [[UILabel appearanceWhenContainedInInstancesOfClasses:@[[UIAlertController class]]] setLineBreakMode:NSLineBreakByWordWrapping];//NSLineBreakByCharWrapping];
     //[[UILabel appearanceWhenContainedInInstancesOfClasses:@[[UIAlertController class]]] setFont:[UIFont systemFontOfSize:6.0]];
     
+    END_PROFILE
     return YES;
 }
 
@@ -401,6 +403,23 @@ pthread_mutex_t play_mutex;
         [downloadVC backupDownloadList];
 		exit(0);
 	}
+}
+
+- (void)openFeature:(NSString *)feature {
+    NSLog(@"open feature %@",feature);
+}
+
+- (BOOL)application:(UIApplication *)application
+continueUserActivity:(NSUserActivity *)userActivity
+ restorationHandler:(void (^)(NSArray<id<UIUserActivityRestoring>> * _Nullable))restorationHandler {
+    
+    if ([userActivity.activityType isEqualToString:@"com.yoyofr.modizer.openFeature"]) {
+        NSString *feature = userActivity.userInfo[@"feature"];
+        [self openFeature:feature];
+        return YES;
+    }
+    
+    return NO;
 }
 
 - (void)didReceiveMemoryWarning

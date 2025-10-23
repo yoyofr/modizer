@@ -5,6 +5,7 @@
 //  Created by Yohann Magnien on 10/08/13.
 //
 //
+#import <OSLog/OSLog.h>
 
 #import "SettingsMaintenanceViewController.h"
 #import "ImagesCache.h"
@@ -52,6 +53,7 @@ extern bool dbhelper_cancel;
 
 - (void)viewDidLoad
 {
+    START_PROFILE
     [super viewDidLoad];
     
     
@@ -108,6 +110,7 @@ extern bool dbhelper_cancel;
     // center align
     [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:waitingViewPlayer attribute:NSLayoutAttributeCenterX multiplier:1.0 constant:0]];
     [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:waitingViewPlayer attribute:NSLayoutAttributeCenterY multiplier:1.0 constant:0]];
+    END_PROFILE
 }
 
 -(void) traitCollectionDidChange:(UITraitCollection *)previousTraitCollection {

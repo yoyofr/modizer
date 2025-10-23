@@ -5,6 +5,7 @@
 //  Created by Yohann Magnien on 08/08/13.
 //
 //
+#import <OSLog/OSLog.h>
 
 #import "MoreViewController.h"
 #import "SettingsGenViewController.h"
@@ -65,6 +66,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
 
 - (void)viewDidLoad
 {
+    START_PROFILE
     [super viewDidLoad];
     
     wasMiniPlayerOn=([detailViewController mPlaylist_size]>0?true:false);
@@ -118,6 +120,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
  
     // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
     // self.navigationItem.rightBarButtonItem = self.editButtonItem;
+    END_PROFILE
 }
 
 -(void) traitCollectionDidChange:(UITraitCollection *)previousTraitCollection {

@@ -5,6 +5,7 @@
 //  Created by Yohann Magnien on 04/06/10.
 //  Copyright __YoyoFR / Yohann Magnien__ 2010. All rights reserved.
 //
+#import <OSLog/OSLog.h>
 
 #define RATING_IMG(a) ( (a==5?2:(a?1:0)) )
 
@@ -472,8 +473,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
 }
 
 - (void)viewDidLoad {
-    clock_t start_time,end_time;
-    start_time=clock();
+    START_PROFILE
     childController=nil;
     
     cutpaste_initiated=0;
@@ -667,10 +667,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     //tableView.refreshControl=refreshControl;
     
     end_time=clock();
-#ifdef LOAD_PROFILE
-    NSLog(@"rootviewLB : %ul",end_time-start_time);
-#endif
-    
+END_PROFILE
 }
 
 -(void) fillKeys {

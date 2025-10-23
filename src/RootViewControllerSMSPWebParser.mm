@@ -5,6 +5,7 @@
 //  Created by Yohann Magnien on 07/05/21.
 //  Copyright __YoyoFR / Yohann Magnien__ 2010. All rights reserved.
 //
+#import <OSLog/OSLog.h>
 
 #import "RootViewControllerSMSPWebParser.h"
 
@@ -65,6 +66,7 @@ int qsortSMSP_entries_rating_or_entries(const void *entryA, const void *entryB) 
 
 
 - (void)viewDidLoad {
+    START_PROFILE
     [super viewDidLoad];
     browse_mode=BROWSE_ALL;
     if ([self.title isEqualToString:@"Systems"]) {
@@ -72,6 +74,7 @@ int qsortSMSP_entries_rating_or_entries(const void *entryA, const void *entryB) 
     } else if (![self.title isEqualToString:NSLocalizedString(@"All",@"")]) {
         browse_mode=BROWSE_ALL_SYSTEM;
     }
+    END_PROFILE
 }
 
 -(void) fillKeys {

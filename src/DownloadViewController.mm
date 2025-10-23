@@ -5,7 +5,7 @@
 //  Created by yoyofr on 6/20/10.
 //  Copyright 2010 __YoyoFR / Yohann Magnien__. All rights reserved.
 //
-
+#import <OSLog/OSLog.h>
 
 #define FTP_BUFFER_SIZE 1*1024*1024
 #define TMP_FILE_NAME @"Documents/tmp.tmpfile"
@@ -284,8 +284,7 @@ gzwrite(f,&str_len,sizeof(str_len));gzwrite(f,str,str_len);
 
 // Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
 - (void)viewDidLoad {
-	clock_t start_time,end_time;
-	start_time=clock();
+	START_PROFILE
     
     forceReloadCells=false;
     darkMode=false;
@@ -383,10 +382,7 @@ gzwrite(f,&str_len,sizeof(str_len));gzwrite(f,str,str_len);
     [self checkNextQueuedItem];
     
     [super viewDidLoad];
-	end_time=clock();
-#ifdef LOAD_PROFILE
-	NSLog(@"download : %d",end_time-start_time);
-#endif
+	END_PROFILE
 }
 
 -(void) traitCollectionDidChange:(UITraitCollection *)previousTraitCollection {

@@ -5,7 +5,7 @@
 //  Created by Yohann Magnien on 07/08/13.
 //
 //
-
+#import <OSLog/OSLog.h>
 #import "WB_BookmarksViewController.h"
 #import "QuartzCore/CAGradientLayer.h"
 
@@ -117,6 +117,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
 
 - (void)viewDidLoad
 {
+    START_PROFILE
     [super viewDidLoad];
     
     self.navigationController.delegate = self;
@@ -184,6 +185,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
     
     // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
     // self.navigationItem.rightBarButtonItem = self.editButtonItem;
+    END_PROFILE
 }
 
 - (void)viewDidAppear:(BOOL)animated {

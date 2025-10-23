@@ -5,6 +5,7 @@
 //  Created by Yohann Magnien on 07/08/13.
 //
 //
+#import <OSLog/OSLog.h>
 
 #import "EQViewController.h"
 #import "QuartzCore/CAGradientLayer.h"
@@ -127,6 +128,7 @@ extern BOOL nvdsp_EQ;
 
 - (void)viewDidLoad
 {
+    START_PROFILE
     [super viewDidLoad];
     
     CGAffineTransform sliderRotation = CGAffineTransformIdentity;
@@ -229,6 +231,7 @@ extern BOOL nvdsp_EQ;
     
     [self.view addSubview:eqOnOffLbl];
     //[eqOnOffLbl release];
+    END_PROFILE
 }
 
 - (void) recomputeFrames {

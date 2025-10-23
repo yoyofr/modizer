@@ -4,6 +4,7 @@
 //
 //  Created by Yohann Magnien on 02/04/2021.
 //
+#import <OSLog/OSLog.h>
 
 #import "VoicesViewController.h"
 #include "ModizerVoicesData.h"
@@ -37,6 +38,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
 
 
 - (void)viewDidLoad {
+    START_PROFILE
     currentPlayingFile=NULL;
     
     for (int i=0;i<SOUND_MAXMOD_CHANNELS;i++) {
@@ -54,6 +56,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
     
     [super viewDidLoad];
     // Do any additional setup after loading the view from its nib.
+    END_PROFILE
 }
 
 - (void) viewWillDisappear:(BOOL)animated {

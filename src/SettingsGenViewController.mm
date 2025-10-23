@@ -4,6 +4,7 @@
 //  Created by Yohann Magnien on 10/08/13.
 //
 //
+#import <OSLog/OSLog.h>
 
 #define safe_strdup(a) ((a)?strdup(a):NULL)
 
@@ -3580,6 +3581,7 @@ void optNSFPLAYChangedC(id param) {
 
 - (void)viewDidLoad
 {
+    START_PROFILE
     [super viewDidLoad];
     
     dictActionBtn=[NSMutableDictionary dictionaryWithCapacity:64];
@@ -3644,6 +3646,7 @@ void optNSFPLAYChangedC(id param) {
             
         }
     }
+    END_PROFILE
 }
 
 -(void) traitCollectionDidChange:(UITraitCollection *)previousTraitCollection {

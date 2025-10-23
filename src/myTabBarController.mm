@@ -5,6 +5,7 @@
 //  Created by Yohann Magnien on 14/06/10.
 //  Copyright 2010 __YoyoFR / Yohann Magnien__. All rights reserved.
 //
+#import <OSLog/OSLog.h>
 
 #import "myTabBarController.h"
 #import "TTFadeAnimator.h"
@@ -94,7 +95,8 @@
 }
 
 - (void)viewDidLoad {
-	[super viewDidLoad];    
+    START_PROFILE
+	[super viewDidLoad];
     self.navigationController.delegate = self;
     
     self.view.backgroundColor = [UIColor clearColor];
@@ -108,8 +110,7 @@
 //    UINavigationController *moreController = self.moreNavigationController;
 //    moreController.navigationBar.barStyle = UIBarStyleBlackOpaque;
 //	moreController.navigationBar.hidden=TRUE;
-    
-    
+    END_PROFILE
 }
 
 @end

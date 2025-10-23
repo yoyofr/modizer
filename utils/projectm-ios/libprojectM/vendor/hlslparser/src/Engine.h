@@ -52,7 +52,7 @@ int String_FormatFloat(char * buffer, int size, float value);
 bool String_Equal(const char * a, const char * b);
 bool String_EqualNoCase(const char * a, const char * b);
 double String_ToDouble(const char * str, const char * strend,char ** end); //YOYOFR
-int String_ToInteger(const char * str, char ** end);
+int String_ToInteger(const char * str,char ** end);
 
 
 // Engine/Log.h

@@ -5,6 +5,7 @@
 //  Created by Yohann Magnien on 07/05/21.
 //  Copyright __YoyoFR / Yohann Magnien__ 2010. All rights reserved.
 //
+#import <OSLog/OSLog.h>
 
 #define RATING_IMG(a) ( (a==5?2:(a?1:0)) )
 
@@ -140,8 +141,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
 
 
 - (void)viewDidLoad {
-    clock_t start_time,end_time;
-    start_time=clock();
+    START_PROFILE
     childController=NULL;
     
     dictActionBtn=[NSMutableDictionary dictionaryWithCapacity:64];
@@ -308,9 +308,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
     [super viewDidLoad];
     
     end_time=clock();
-#ifdef LOAD_PROFILE
-    NSLog(@"rootview : %d",end_time-start_time);
-#endif
+END_PROFILE
 }
 
 -(void) fillKeys {

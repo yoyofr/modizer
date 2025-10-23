@@ -5,6 +5,7 @@
 //  Created by yoyofr on 7/4/10.
 //  Copyright 2010 __YoyoFR / Yohann Magnien__. All rights reserved.
 //
+#import <OSLog/OSLog.h>
 
 static void *WBProgressObserverContext = &WBProgressObserverContext;
 
@@ -1287,8 +1288,7 @@ didFinishNavigation:(WKNavigation *)navigation {
 
 // Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
 - (void)viewDidLoad {
-	clock_t start_time,end_time;	
-	start_time=clock();
+    START_PROFILE
     
     self.navigationController.delegate = self;
     
@@ -1458,9 +1458,7 @@ didFinishNavigation:(WKNavigation *)navigation {
     
     
 	end_time=clock();
-#ifdef LOAD_PROFILE
-	NSLog(@"webbro : %d",end_time-start_time);
-#endif
+END_PROFILE
 }
 
 

@@ -5,6 +5,7 @@
 //  Created by Yohann Magnien on 29/07/13.
 //
 //
+#import <OSLog/OSLog.h>
 
 enum {
     ONLINE_COLLECTIONS_MODLAND=0,
@@ -99,6 +100,7 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
 
 - (void)viewDidLoad
 {
+    START_PROFILE
     [super viewDidLoad];
     
     self.navigationController.delegate = self;
@@ -173,6 +175,7 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
     
     //    [self.tableView registerClass:[UITableViewCell class] forCellReuseIdentifier:@"Cell"];
     //self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
+    END_PROFILE
 }
 
 -(void) traitCollectionDidChange:(UITraitCollection *)previousTraitCollection {

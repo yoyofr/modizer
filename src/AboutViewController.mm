@@ -5,6 +5,7 @@
 //  Created by Yohann Magnien on 16/09/10.
 //  Copyright 2010 __YoyoFR / Yohann Magnien__. All rights reserved.
 //
+#import <OSLog/OSLog.h>
 
 #import "AboutViewController.h"
 
@@ -70,7 +71,7 @@
 
 // Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
 - (void)viewDidLoad {
-    
+    START_PROFILE
     
     textView.font=[UIFont systemFontOfSize:14];
     [super viewDidLoad];
@@ -117,7 +118,7 @@
     [btn addTarget:self action:@selector(goPlayer) forControlEvents:UIControlEventTouchUpInside];
     UIBarButtonItem *item = [[UIBarButtonItem alloc] initWithCustomView: btn];
     self.navigationItem.rightBarButtonItem = item;
-    
+    END_PROFILE
 }
 
 - (UIStatusBarStyle)preferredStatusBarStyle {

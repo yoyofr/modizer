@@ -5,6 +5,7 @@
 //  Created by Yohann Magnien on 07/05/21.
 //  Copyright __YoyoFR / Yohann Magnien__ 2010. All rights reserved.
 //
+#import <OSLog/OSLog.h>
 
 #define PARSER_TIMEOUT 30 //in seconds
 
@@ -15,6 +16,7 @@
 @synthesize mWebBaseDir;
 
 - (void)viewDidLoad {
+    START_PROFILE
     [super viewDidLoad];
     
     //check if folders exist, create if required
@@ -56,6 +58,7 @@
         [indexTitles addObject:@"Y"];
         [indexTitles addObject:@"Z"];
     }
+    END_PROFILE
 }
 
 -(void) fillKeys {
