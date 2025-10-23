@@ -83,12 +83,12 @@
         
         [plArray addObject:item];
     }
-    if (0) { //YOYOFR: To review perf / OPTIM!
-        int nb_entries=[rootVCLocalB getLocalFilesCount];
+    if (1) { //YOYOFR: To review perf / OPTIM!
+        //int nb_entries=[rootVCLocalB getLocalFilesCount];
         MPContentItem *item=[[MPContentItem alloc] initWithIdentifier:@"pl_RD"];
         [item setTitle:NSLocalizedString(@"Random picks",@"")];
-        if (nb_entries) [item setPlayable:TRUE];
-        else [item setPlayable:FALSE];
+        /*if (nb_entries)*/ [item setPlayable:TRUE];
+        //else [item setPlayable:FALSE];
         
         [plArray addObject:item];
     }

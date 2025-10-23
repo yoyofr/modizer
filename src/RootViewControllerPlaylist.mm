@@ -5,7 +5,7 @@
 //  Created by Yohann Magnien on 04/06/10.
 //  Copyright __YoyoFR / Yohann Magnien__ 2010. All rights reserved.
 //
-#import <OSLog/OSLog.h>
+
 #define RATING_IMG(a) ( (a==5?2:(a?1:0)) )
 
 #define PRI_SEC_ACTIONS_IMAGE_SIZE 40
@@ -670,7 +670,6 @@ int qsort_ComparePlaylistEntriesRevFP(const void *entryA, const void *entryB) {
     
     [super viewDidLoad];
     
-    end_time=clock();
 END_PROFILE
 }
 
@@ -1786,8 +1785,6 @@ END_PROFILE
             }
         }
     } else {
-        //        clock_t start_time,end_time;
-        //        start_time=clock();
         NSError *error;
         NSRange rdir;
         NSArray *dirContent;//
@@ -1880,11 +1877,6 @@ END_PROFILE
                 }
             }
         }
-        //        end_time=clock();
-        //        NSLog(@"detail1 : %d",end_time-start_time);
-        //        start_time=end_time;
-        
-        
         if (local_nb_entries) {
             //2nd initialize array to receive entries
             local_entries_data=(t_local_browse_entry *)calloc(local_nb_entries,sizeof(t_local_browse_entry));
@@ -1920,9 +1912,6 @@ END_PROFILE
                         }
                     }
                 
-                //                end_time=clock();
-                //                NSLog(@"detail2 : %d",end_time-start_time);
-                //                start_time=end_time;
                 // Second check count for each section
                 for (fileURL in dirContent) {
                     if (shouldStop) break;
@@ -2059,8 +2048,6 @@ END_PROFILE
                         }
                     }
                 }
-                //                end_time=clock();
-                //                NSLog(@"detail1 : %d",end_time-start_time);
             }
         }
     }
@@ -2242,9 +2229,6 @@ int getPlaylistStatsDBmod(t_playlist *pl) {
         bool found_entry[SEARCH_CHUNK_SIZE];
         sqlite3_stmt *stmt;
         
-        clock_t start_time,end_time;
-        start_time=clock();
-        
         err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = NORMAL;", 0, 0, 0);
         if (err==SQLITE_OK){
         } else NSLog(@"ErrSQL : %d",err);
@@ -2258,10 +2242,6 @@ int getPlaylistStatsDBmod(t_playlist *pl) {
         printf("yo1\n");
         int i=0;
 
-        end_time=clock();
-        printf("yo3 %ul\n",end_time-start_time);
-        start_time=clock();
-        
         i=0;
         while (i<pl->nb_entries) {
             //printf("i:%d\n",i);
@@ -2316,9 +2296,6 @@ int getPlaylistStatsDBmod(t_playlist *pl) {
             }
             i=imax;
         }
-        end_time=clock();
-        printf("yo4 %ul\n",end_time-start_time);
-        start_time=clock();
     }
     sqlite3_close(db);
     

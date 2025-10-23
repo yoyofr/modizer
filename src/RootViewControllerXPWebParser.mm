@@ -5,7 +5,7 @@
 //  Created by Yohann Magnien on 10/03/24.
 //  Copyright __YoyoFR / Yohann Magnien__ 2024. All rights reserved.
 //
-#import <OSLog/OSLog.h>
+
 
 extern void *LoadingProgressObserverContext;
 
@@ -252,7 +252,6 @@ extern void *LoadingProgressObserverContext;
     
     [super viewDidLoad];
     
-    end_time=clock();
 END_PROFILE
 }
 

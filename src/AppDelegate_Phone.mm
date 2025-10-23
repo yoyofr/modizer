@@ -7,7 +7,7 @@
 //
 
 //#define GEN_EXT_LIST
-#import <OSLog/OSLog.h>
+
 #import "AppDelegate_Phone.h"
 #import <MediaPlayer/MediaPlayer.h>
 

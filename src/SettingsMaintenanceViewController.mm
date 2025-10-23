@@ -5,7 +5,7 @@
 //  Created by Yohann Magnien on 10/08/13.
 //
 //
-#import <OSLog/OSLog.h>
+
 
 #import "SettingsMaintenanceViewController.h"
 #import "ImagesCache.h"

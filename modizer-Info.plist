@@ -365,6 +365,10 @@
 	<string></string>
 	<key>CFBundleIconFile</key>
 	<string></string>
+	<key>CFBundleIconFiles</key>
+	<array>
+		<string></string>
+	</array>
 	<key>CFBundleIcons</key>
 	<dict/>
 	<key>CFBundleIcons~ipad</key>
@@ -1958,7 +1962,5 @@
 			</dict>
 		</dict>
 	</array>
-	<key>UTImportedTypeDeclarations</key>
-	<array/>
 </dict>
 </plist>

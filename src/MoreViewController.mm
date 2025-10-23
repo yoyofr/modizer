@@ -5,7 +5,7 @@
 //  Created by Yohann Magnien on 08/08/13.
 //
 //
-#import <OSLog/OSLog.h>
+
 
 #import "MoreViewController.h"
 #import "SettingsGenViewController.h"

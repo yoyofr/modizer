@@ -5,7 +5,7 @@
 //  Created by yoyofr on 7/4/10.
 //  Copyright 2010 __YoyoFR / Yohann Magnien__. All rights reserved.
 //
-#import <OSLog/OSLog.h>
+
 
 static void *WBProgressObserverContext = &WBProgressObserverContext;
 
@@ -1457,7 +1457,6 @@ didFinishNavigation:(WKNavigation *)navigation {
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(copyToClip:) name:UIPasteboardChangedNotification object:nil];
     
     
-	end_time=clock();
 END_PROFILE
 }
 

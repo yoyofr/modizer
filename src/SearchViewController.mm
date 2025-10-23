@@ -5,7 +5,7 @@
 //  Created by yoyofr on 7/16/10.
 //  Copyright 2010 __YoyoFR / Yohann Magnien__. All rights reserved.
 //
-#import <OSLog/OSLog.h>
+
 
 enum {
     PLAYLIST_SEARCH=1,
@@ -243,7 +243,6 @@ static NSFileManager *mFileMngr;
     ASMA_expanded=HVSC_expanded=modland_expanded=local_expanded=playlist_expanded=0;
     [super viewDidLoad];
     
-    end_time=clock();
 END_PROFILE
 }
 

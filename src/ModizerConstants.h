@@ -7,15 +7,33 @@
  *
  */
 
-#ifdef LOAD_PROFILE
+#ifdef __OBJC__
+#import <OSLog/OSLog.h>
+extern os_log_t mdzLog;
+#endif
 
-#define START_PROFILE clock_t start_time,end_time;start_time=clock();
+#define MDZLog(a, ...) os_log_with_type(mdzLog,a,__VA_ARGS__);
+#define MDZILog(...) os_log_with_type(mdzLog,OS_LOG_TYPE_INFO,__VA_ARGS__);
+#define MDZDLog(...) os_log_with_type(mdzLog,OS_LOG_TYPE_DEBUG,__VA_ARGS__);
+#define MDZELog(...) os_log_with_type(mdzLog,OS_LOG_TYPE_ERROR,__VA_ARGS__);
+#define MDZFLog(...) os_log_with_type(mdzLog,OS_LOG_TYPE_FAULT,__VA_ARGS__);
+
+#ifdef LOAD_PROFILE
+//Initial timestamp
+#define START_PROFILE clock_t start_time,last_time,end_time;last_time=start_time=clock();
+//Intermediary check
+#define CHECK_PROFILE(a) {end_time=clock();double _exectime=1000.0f*(double)(end_time-last_time)/CLOCKS_PER_SEC;\
+    last_time=end_time;\
+    os_log_type_t _loglevel=OS_LOG_TYPE_DEBUG; if (_exectime>500) _loglevel=OS_LOG_TYPE_FAULT;\
+    os_log_with_type(mdzLog, _loglevel,"%s %s exec time: %.1lfms",__func__,a,_exectime);}
+//Final timestamp
 #define END_PROFILE {end_time=clock();double _exectime=1000.0f*(double)(end_time-start_time)/CLOCKS_PER_SEC;\
-os_log_type_t _loglevel=OS_LOG_TYPE_DEBUG; if (_exectime>500) _loglevel=OS_LOG_TYPE_FAULT;\
-os_log_with_type(OS_LOG_DEFAULT, _loglevel,"%s exec time: %lf",__func__,_exectime);}
+    os_log_type_t _loglevel=OS_LOG_TYPE_DEBUG; if (_exectime>500) _loglevel=OS_LOG_TYPE_FAULT;\
+    os_log_with_type(mdzLog, _loglevel,"%s exec time: %.1lfms",__func__,_exectime);}
 
 #else
 #define START_PROFILE
+#define CHECK_PROFILE (a)
 #define END_PROFILE
 #endif
 

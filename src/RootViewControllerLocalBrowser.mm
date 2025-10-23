@@ -5,7 +5,7 @@
 //  Created by Yohann Magnien on 04/06/10.
 //  Copyright __YoyoFR / Yohann Magnien__ 2010. All rights reserved.
 //
-#import <OSLog/OSLog.h>
+
 
 #define RATING_IMG(a) ( (a==5?2:(a?1:0)) )
 
@@ -666,7 +666,6 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     
     //tableView.refreshControl=refreshControl;
     
-    end_time=clock();
 END_PROFILE
 }
 
@@ -1588,10 +1587,6 @@ static int qsort_CompareArcEntries(const void *entryA, const void *entryB) {
          [dirContent addObject:fileURL];
          }*/
         dirContent=[directoryEnumerator allObjects];
-        //            end_time=clock();
-        //            NSLog(@"detail0 : %ul",end_time-start_time);
-        //            start_time=end_time;
-        
         
         //if (mShowSubdir) dirContent=[mFileMngr subpathsOfDirectoryAtPath:cpath error:&error];
         //else dirContent=[mFileMngr contentsOfDirectoryAtPath:cpath error:&error];
@@ -1706,10 +1701,6 @@ static int qsort_CompareArcEntries(const void *entryA, const void *entryB) {
                 }
             }
         }
-        //        end_time=clock();
-        //        NSLog(@"detail1 : %ul",end_time-start_time);
-        //        start_time=end_time;
-        
         
         if (local_nb_entries) {
             //2nd initialize array to receive entries
@@ -1749,9 +1740,6 @@ static int qsort_CompareArcEntries(const void *entryA, const void *entryB) {
                         }
                     }
                 
-                //                                end_time=clock();
-                //                                NSLog(@"detail2 : %ul",end_time-start_time);
-                //                                start_time=end_time;
                 // Second check count for each section
                 for (fileURL in sortedDirContent) {
                     if (shouldStop) break;
@@ -1909,8 +1897,6 @@ static int qsort_CompareArcEntries(const void *entryA, const void *entryB) {
                         }
                     }
                 }
-                //                                end_time=clock();
-                //                                NSLog(@"detail3 : %ul",end_time-start_time);
             }
         }
     }

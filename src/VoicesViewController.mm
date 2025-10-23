@@ -4,7 +4,7 @@
 //
 //  Created by Yohann Magnien on 02/04/2021.
 //
-#import <OSLog/OSLog.h>
+
 
 #import "VoicesViewController.h"
 #include "ModizerVoicesData.h"

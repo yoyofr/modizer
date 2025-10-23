@@ -4,7 +4,7 @@
 //
 //  Created by Yohann Magnien David on 27/02/2024.
 //
-#import <OSLog/OSLog.h>
+
 #import <Foundation/Foundation.h>
 #import "AnimatedLaunchVC.h"
 

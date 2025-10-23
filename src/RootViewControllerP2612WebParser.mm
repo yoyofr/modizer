@@ -5,7 +5,7 @@
 //  Created by Yohann Magnien on 07/05/21.
 //  Copyright __YoyoFR / Yohann Magnien__ 2010. All rights reserved.
 //
-#import <OSLog/OSLog.h>
+
 
 #import "RootViewControllerP2612WebParser.h"
 

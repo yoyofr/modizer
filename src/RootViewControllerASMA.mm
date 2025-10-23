@@ -5,7 +5,7 @@
 //  Created by Yohann Magnien on 07/05/21.
 //  Copyright __YoyoFR / Yohann Magnien__ 2010. All rights reserved.
 //
-#import <OSLog/OSLog.h>
+
 
 #define RATING_IMG(a) ( (a==5?2:(a?1:0)) )
 
@@ -307,7 +307,6 @@ extern volatile t_settings settings[MAX_SETTINGS];
     
     [super viewDidLoad];
     
-    end_time=clock();
 END_PROFILE
 }
 

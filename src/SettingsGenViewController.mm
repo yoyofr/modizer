@@ -4,7 +4,7 @@
 //  Created by Yohann Magnien on 10/08/13.
 //
 //
-#import <OSLog/OSLog.h>
+
 
 #define safe_strdup(a) ((a)?strdup(a):NULL)
 

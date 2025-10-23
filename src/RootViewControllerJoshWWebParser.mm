@@ -5,7 +5,7 @@
 //  Created by Yohann Magnien on 07/05/21.
 //  Copyright __YoyoFR / Yohann Magnien__ 2010. All rights reserved.
 //
-#import <OSLog/OSLog.h>
+
 
 #define PARSER_TIMEOUT 30 //in seconds
 

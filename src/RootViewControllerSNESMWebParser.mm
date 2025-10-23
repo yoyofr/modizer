@@ -6,7 +6,7 @@
 //  Copyright __YoyoFR / Yohann Magnien__ 2010. All rights reserved.
 //
 
-#import <OSLog/OSLog.h>
+
 #import "RootViewControllerSNESMWebParser.h"
 
 enum {

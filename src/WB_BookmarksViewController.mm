@@ -5,7 +5,7 @@
 //  Created by Yohann Magnien on 07/08/13.
 //
 //
-#import <OSLog/OSLog.h>
+
 #import "WB_BookmarksViewController.h"
 #import "QuartzCore/CAGradientLayer.h"
 

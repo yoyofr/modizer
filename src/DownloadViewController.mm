@@ -5,7 +5,7 @@
 //  Created by yoyofr on 6/20/10.
 //  Copyright 2010 __YoyoFR / Yohann Magnien__. All rights reserved.
 //
-#import <OSLog/OSLog.h>
+
 
 #define FTP_BUFFER_SIZE 1*1024*1024
 #define TMP_FILE_NAME @"Documents/tmp.tmpfile"

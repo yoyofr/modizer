@@ -5,11 +5,12 @@
 //  Created by yoyofr on 7/28/10.
 //  Copyright __YoyoFR / Yohann Magnien__ 2010. All rights reserved.
 //
-#import <OSLog/OSLog.h>
+
 #import <UIKit/UIKit.h>
 #import "AppDelegate_Phone.h"
 #import "SettingsGenViewController.h"
 
+os_log_t mdzLog;
 
 int main(int argc, char *argv[]) {
     
@@ -18,6 +19,9 @@ int main(int argc, char *argv[]) {
         //init stuff
         //***********************
         //settings
+        
+        mdzLog = os_log_create("com.yoyofr.modizer", "global");
+
                 
         START_PROFILE
         [SettingsGenViewController loadSettings];

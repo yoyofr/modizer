@@ -5,7 +5,7 @@
 //  Created by Yohann Magnien on 16/09/10.
 //  Copyright 2010 __YoyoFR / Yohann Magnien__. All rights reserved.
 //
-#import <OSLog/OSLog.h>
+
 
 #import "AboutViewController.h"
 

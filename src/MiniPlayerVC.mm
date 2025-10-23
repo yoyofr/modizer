@@ -4,7 +4,7 @@
 //
 //  Created by Yohann Magnien on 12/04/2021.
 //
-#import <OSLog/OSLog.h>
+
 
 int gesture_swipe_min_vel;
 int gesture_swipe_min_trans;

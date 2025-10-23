@@ -8,7 +8,7 @@
 //#define DEBUG_PM_PERF
 //#define DEBUG_PM_PERF_START 150
 
-#import <OSLog/OSLog.h>
+
 
 #define ASCII_MIDDOT "·"
 
@@ -96,6 +96,8 @@ extern unsigned int m_voice_oscillo_pal3[8];
 #include <projectM-4/projectM.h>
 #include <projectM-4/playlist.h>
 #include <GLES3/gl3.h>
+bool _pmIsInitialized;
+int _pm_shouldRestartAt;
 projectm_handle _pm; //!< Pointer to the projectM instance used by the application.
 projectm_playlist_handle _pm_playlist; //!< Pointer to the projectM playlist manager instance.
 bool _pm_playlist_loadBundled,_pm_playlist_loadCustom;
@@ -1237,7 +1239,7 @@ static float movePinchScale,movePinchScaleOld;
     }
     
     if ((scope==SETTINGS_ALL)||(scope==SETTINGS_PROJECTM)) {
-        if (_pm && _pm_playlist) {
+        if (_pmIsInitialized && _pm && _pm_playlist) {
             pmSoftReinit();
         }
     }
@@ -1336,7 +1338,7 @@ static float movePinchScale,movePinchScaleOld;
 #endif
 }
 -(void) mdInfoFX {
-    if (_pm && settings[PROJECTM_FXONOFF].detail.mdz_boolswitch.switch_value) {
+    if (_pmIsInitialized && _pm && settings[PROJECTM_FXONOFF].detail.mdz_boolswitch.switch_value) {
         _pm_display_scrollx=0;
         _pm_display_scroll_direction=1;
         _pm_display_name_countdown=_pm_fps*PM_PRESET_DISPLAY_TIMEOUT;
@@ -1356,7 +1358,7 @@ static float movePinchScale,movePinchScaleOld;
 }
 
 -(void) mdSwitchLockPreset {
-    if (_pm) {
+    if (_pmIsInitialized && _pm) {
         char *title;
         uint32_t index=projectm_playlist_get_position(_pm_playlist);
         title = projectm_playlist_item(_pm_playlist, index);
@@ -4333,19 +4335,10 @@ GLsizei txtbackgroundImageWidth,txtbackgroundImageHeight;
         }
     }
     
-    if (_pm_playlist) {
-        if (projectm_playlist_size(_pm_playlist)) {
-            valNb=[prefs objectForKey:@"ProjectM_playlist_index"];if (safe_mode) valNb=nil;
-            if (valNb != nil) {
-                int idx=[valNb intValue];
-                if (idx<projectm_playlist_size(_pm_playlist)) {
-                    NSLog(@"restart pm preset idx: %d",idx);
-#ifndef DEBUG_PM_PERF
-                    projectm_playlist_set_position(_pm_playlist,idx,true);
-#endif
-                }
-            }
-        }
+    valNb=[prefs objectForKey:@"ProjectM_playlist_index"];if (safe_mode) valNb=nil;
+    if (valNb != nil) {
+        int idx=[valNb intValue];
+        _pm_shouldRestartAt=idx;
     }
     
     if (mPlaylist_size) {
@@ -4959,6 +4952,7 @@ void pmSoftReinit() {
     
     _pmPresetHasChanged=true;
     
+    _pmIsInitialized=true;
 }
 
 - (void) reinitVisuVars {
@@ -4981,15 +4975,29 @@ void pmSoftReinit() {
     sysMonitor=[[SysMonitoring alloc] init];
     sysMonitorIsActive=false;
     
+    CHECK_PROFILE("step1")
     //--------------------------------//
     // OpenGL
     //--------------------------------//
     [self setupOGLView];
     [self setContextOGL];
+    
+    CHECK_PROFILE("openGL")
     //--------------------------------//
     // ProjectM
     //--------------------------------//
-    [self pmInit];
+    _pmIsInitialized=false;
+    _pm_shouldRestartAt=-1;
+    
+    //[self pmInit];
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+        [self pmInit];
+        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+                //
+        }];
+    });
+    
+    CHECK_PROFILE("PM init")
     
     //--------------------------------//
     // Texture for background view
@@ -5007,7 +5015,7 @@ void pmSoftReinit() {
     ImGui_ImplIOS_Init();
     ImGui_ImplOpenGL3_Init();
 
-    
+    CHECK_PROFILE("ImGUI")
     //--------------------------------//
     mSendStatTimer=0;
     loadRequestInProgress=0;
@@ -5080,6 +5088,8 @@ void pmSoftReinit() {
     curSongLength=0;
     
     repeatingTimer=0;
+    
+    CHECK_PROFILE("various1")
     
     default_cover=[UIImage imageNamed:@"AppStore512.png"];
     //[default_cover retain];
@@ -5182,6 +5192,8 @@ void pmSoftReinit() {
     
     isRecordingScreen=RS_NOT_RECORDING;
     
+    CHECK_PROFILE("various2")
+    
     safe_bottom=[[UIApplication sharedApplication] keyWindow].safeAreaInsets.bottom;
     safe_top=[[UIApplication sharedApplication] keyWindow].safeAreaInsets.top;
     safe_left=[[UIApplication sharedApplication] keyWindow].safeAreaInsets.left;
@@ -5249,6 +5261,7 @@ void pmSoftReinit() {
     [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(orientationDidChange:) name:UIDeviceOrientationDidChangeNotification object:nil];
     
     
+    CHECK_PROFILE("various3")
     //    NSLog(@"s %f w %d h %d",mScaleFactor,mDevice_ww,mDevice_hh);
     /* iPhone Simulator == i386
      iPhone == iPhone1,1             //Slow
@@ -5412,6 +5425,8 @@ void pmSoftReinit() {
     [self.view addSubview:btnNextSubCFlow];
     [self.view addSubview:btnBackCFlow];
     
+    CHECK_PROFILE("various4")
+    
     // Get location
     /*self.locManager = [[[CLLocationManager alloc] init] autorelease];
      if (!self.locManager.locationServicesEnabled) {
@@ -5474,6 +5489,8 @@ void pmSoftReinit() {
     [labelTime.layer setCornerRadius:8.0];
     //[commandViewU.layer setCornerRadius:8.0];
     
+    CHECK_PROFILE("various5")
+    
     textMessage.font = [UIFont fontWithName:@"Courier-Bold" size:14];
     
     
@@ -5503,15 +5520,18 @@ void pmSoftReinit() {
 //    }
     
 //    mHeader=nil;
+    CHECK_PROFILE("various6")
     mplayer = [[ModizMusicPlayer alloc] initMusicPlayer];
     
-    end_time=clock();
+    CHECK_PROFILE("musicplayer")
     //
     //opengl stuff
     //Init shaders
     if (RenderUtils::RenderInit()) {
         NSLog(@"render init OK");
     }  else NSLog(@"!!render init KO!!");
+    
+    CHECK_PROFILE("Renders")
     
     // Create gesture recognizer
     UITapGestureRecognizer *glViewOneFingerOneTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(glViewOneFingerOneTap:)];
@@ -5585,8 +5605,8 @@ void pmSoftReinit() {
     [eqButton setTitleColor:(nvdsp_EQ?[UIColor whiteColor]:[UIColor grayColor]) forState:UIControlStateNormal];
     [eqButton addAwesomeIcon:FAIconSliders beforeTitle:YES];
     
+    CHECK_PROFILE("various7")
     
-    end_time=clock();
     //Visualization
     /* Set Starting Angle To Zero */
     angle=0.0f;
@@ -5613,7 +5633,10 @@ void pmSoftReinit() {
 //    glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_FASTEST);//GL_NICEST);
     
     
+    CHECK_PROFILE("various8")
     PMenu::playerMenuInit();
+    
+    CHECK_PROFILE("PMenu")
 //
 //Init colors
     [SettingsGenViewController pianomidiGenSystemColor:0 color_idx:-1 color_buffer:data_midifx_pal1];
@@ -5624,19 +5647,15 @@ void pmSoftReinit() {
     [SettingsGenViewController oscilloGenSystemColor:1 color_idx:-1 color_buffer:m_voice_oscillo_pal2];
     [SettingsGenViewController oscilloGenSystemColor:2 color_idx:-1 color_buffer:m_voice_oscillo_pal3];
     
-    end_time=clock();
     //init play/pause status for button
     self.pauseBar.hidden=YES;
     self.playBar.hidden=NO;
     self.pauseBarSub.hidden=YES;
     self.playBarSub.hidden=YES;
     [self updateBarPos];
-    end_time=clock();
     mplayer.bGlobalAudioPause=1;
     //init mod player var
     
-    
-    end_time=clock();
     
     //FFT
     for (int i=0;i<SPECTRUM_BANDS;i++)
@@ -5651,16 +5670,15 @@ void pmSoftReinit() {
     fft_time = (float *)malloc(sizeof(float)*SOUND_BUFFER_SIZE_SAMPLE);
     
     
-    end_time=clock();
-    
+    CHECK_PROFILE("various9")
     if ([self checkFlagOnStartup]) {
         [self loadSettings:1];
         mShouldUpdateInfos=1;
     } else [self loadSettings:0];
     
-    for (int i=0;i<mPlaylist_size;i++) mPlaylist[i].cover_flag=-1;
+    CHECK_PROFILE("load settings")
     
-    end_time=clock();
+    for (int i=0;i<mPlaylist_size;i++) mPlaylist[i].cover_flag=-1;
     
     [self.view bringSubviewToFront:infoMsgView];
     
@@ -5950,6 +5968,22 @@ void pmSoftReinit() {
     
     _pm_fps=settings[GLOB_FXFPS].detail.mdz_switch.switch_value==1?60:30;
     if (settings[PROJECTM_ShowPresetLabel].detail.mdz_switch.switch_value==2) _pmPresetHasChanged=true; //Force a (re)display
+    
+    if (_pmIsInitialized && _pm_playlist) {
+        if (projectm_playlist_size(_pm_playlist)) {
+            if (_pm_shouldRestartAt>=0) {
+                if (_pm_shouldRestartAt<projectm_playlist_size(_pm_playlist)) {
+                    MDZILog("restart pm preset idx: %d",_pm_shouldRestartAt);
+#ifndef DEBUG_PM_PERF
+                    projectm_playlist_set_position(_pm_playlist,_pm_shouldRestartAt,true);
+#endif
+                }
+            }
+        }
+        //reset idx
+        _pm_shouldRestartAt=-1;
+    }
+
     
     movePxMID=movePyMID=0;
     movePMnomore=0;
@@ -6298,7 +6332,7 @@ extern "C" int current_sample;
     /*-------------------------------------------------------------------------------*/
     /*  ProjectM render */
     /*-------------------------------------------------------------------------------*/
-    if (_pm && settings[PROJECTM_FXONOFF].detail.mdz_switch.switch_value) {
+    if (_pmIsInitialized && _pm && settings[PROJECTM_FXONOFF].detail.mdz_switch.switch_value) {
         size_t currentMeshX{0};
         size_t currentMeshY{0};
         
@@ -6424,7 +6458,7 @@ extern "C" int current_sample;
                 movePyPM=0;
                 movePMnomore=1;
 //                NSLog(@"Lock");
-                if (_pm) {
+                if (_pmIsInitialized && _pm) {
                     //////////////
                     //Lock Preset
                     //////////////
@@ -6437,7 +6471,7 @@ extern "C" int current_sample;
                 movePyPM=0;
                 movePMnomore=1;
 //                NSLog(@"Unlock");
-                if (_pm) {
+                if (_pmIsInitialized && _pm) {
                     //////////////
                     //Unlock Preset
                     //////////////
@@ -7407,7 +7441,7 @@ extern "C" int current_sample;
     // ProjectM preset name display
     //-------------------------------------
     if ((settings[PROJECTM_FXONOFF].detail.mdz_switch.switch_value) && ((settings[PROJECTM_ShowPresetLabel].detail.mdz_switch.switch_value)||(projectm_playlist_size(_pm_playlist)==0))) {
-        if (_pm) {
+        if (_pmIsInitialized && _pm) {
             //float x,y,w,h;
             
             if (_pmPresetHasChanged) {

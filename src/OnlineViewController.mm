@@ -5,7 +5,7 @@
 //  Created by Yohann Magnien on 29/07/13.
 //
 //
-#import <OSLog/OSLog.h>
+
 
 enum {
     ONLINE_COLLECTIONS_MODLAND=0,
