@@ -12,6 +12,8 @@
 extern os_log_t mdzLog;
 #endif
 
+#define FONT_BASE_SIZEF 16.0f
+
 #define MDZLog(a, ...) os_log_with_type(mdzLog,a,__VA_ARGS__);
 #define MDZILog(...) os_log_with_type(mdzLog,OS_LOG_TYPE_INFO,__VA_ARGS__);
 #define MDZDLog(...) os_log_with_type(mdzLog,OS_LOG_TYPE_DEBUG,__VA_ARGS__);

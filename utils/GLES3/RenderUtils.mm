@@ -7,7 +7,7 @@
  *
  */
 
-#define BLOOM_BLUR_ITERATIONS 7 //
+#define BLOOM_BLUR_ITERATIONS 9 //
 
 #define INIT_COL(a,b) a[0]=b[0];a[1]=b[1];a[2]=b[2];
 
@@ -515,7 +515,7 @@ void RenderUtils::DrawTexture(uint ww,uint hh,GLuint textureIdx,float alpha,bool
     glRestoreState();
 }
 
-void RenderUtils::DrawTextureBlur(uint ww,uint hh,GLuint textureIdx,int hori,float min_brightness) {
+void RenderUtils::DrawTextureBlur(uint ww,uint hh,GLuint textureIdx,int hori,float min_brightness,float blurDiv) {
     // Use the program object
     if (!renderIsInit) return;
     
@@ -524,6 +524,8 @@ void RenderUtils::DrawTextureBlur(uint ww,uint hh,GLuint textureIdx,int hori,flo
     GLuint textureUnifHandle    = glGetUniformLocation(userData_Render2DTexturesBlur->programObject, "u_curTexture");
     GLuint horizontalUnifHandle    = glGetUniformLocation(userData_Render2DTexturesBlur->programObject, "u_horizontal");
     GLuint minBrightnessUnifHandle    = glGetUniformLocation(userData_Render2DTexturesBlur->programObject, "u_min_brightness");
+    GLuint blurDivUH    = glGetUniformLocation(userData_Render2DTexturesBlur->programObject, "u_blurDivider");
+    
     
     glDumpState();
     
@@ -569,6 +571,8 @@ void RenderUtils::DrawTextureBlur(uint ww,uint hh,GLuint textureIdx,int hori,flo
     glUniform1ui(textureUnifHandle, 0);
     glUniform1i(horizontalUnifHandle, hori);
     glUniform1f(minBrightnessUnifHandle, min_brightness);
+    glUniform1f(blurDivUH, blurDiv);
+    
     
     glActiveTexture(GL_TEXTURE0+0);
     glBindTexture(GL_TEXTURE_2D, textureIdx);
@@ -647,7 +651,8 @@ void RenderUtils::DrawTextureBlend(uint ww,uint hh,GLuint textOrigIdx,GLuint tex
 
 static GLuint framebuffer = 0;
 static GLuint renderedTexture = 0;
-static GLuint colorRenderbuffer,depthRenderbuffer;
+static GLuint colorRenderbuffer=0;
+static GLuint depthRenderbuffer=0;
 static int renderedTextWidth,renderedTextHeight;
 static GLint curFramebuffer,curRenderbuffer;
 static unsigned int pingpongFBO[2];
@@ -678,7 +683,7 @@ void RenderUtils::startRenderToTexture(int width,int height) {
 }
 
 
-void RenderUtils::endRenderToTexture(int width,int height) {
+void RenderUtils::endRenderToTexture(int width,int height,int bloomIntensity) {
     //apply BLUR
     if (!renderIsInit) return;
     GLuint curTexture;
@@ -695,11 +700,23 @@ void RenderUtils::endRenderToTexture(int width,int height) {
 //        if (first_iteration)
 //            first_iteration = false;
 //    }
+    float blurDiv;
+    switch (bloomIntensity) {
+        case 1:blurDiv=10.0f;
+            break;
+        case 2:blurDiv=9.0f;
+            break;
+        case 3:blurDiv=8.0f;
+            break;
+        default:
+            blurDiv=10.0f;
+            break;
+    }
     for (unsigned int i = 0; i < amount; i++)
     {
         glBindFramebuffer(GL_FRAMEBUFFER, pingpongFBO[horizontal]);
         curTexture=first_iteration ? renderedTexture : pingpongBuffer[!horizontal];
-        RenderUtils::DrawTextureBlur(width, height, curTexture, i,(first_iteration?0.0f:0.0f));
+        RenderUtils::DrawTextureBlur(width, height, curTexture, i,(first_iteration?1.0f:0.0f),blurDiv);
         horizontal = !horizontal;
         if (first_iteration)
             first_iteration = false;
@@ -715,6 +732,9 @@ void RenderUtils::endRenderToTexture(int width,int height) {
 }
 
 void RenderUtils::shutdownRenderToTexture() {
+    if (depthRenderbuffer) glDeleteRenderbuffers(1, &depthRenderbuffer);
+    depthRenderbuffer=0;
+    
     if (framebuffer) glDeleteFramebuffers(1, &framebuffer);
     framebuffer=0;
     if (pingpongFBO[0]) glDeleteFramebuffers(2, pingpongFBO);
@@ -766,11 +786,10 @@ bool RenderUtils::initRenderToTexture(int width,int height) {
 //    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, colorRenderbuffer);
     
     // Create a depth or depth/stencil renderbuffer, allocate storage for it, and attach it to the framebuffer’s depth attachment point.
-//    glGenRenderbuffers(1, &depthRenderbuffer);
-//    glBindRenderbuffer(GL_RENDERBUFFER, depthRenderbuffer);
-//    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, width, height);
-//    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthRenderbuffer);
-    
+    glGenRenderbuffers(1, &depthRenderbuffer);
+    glBindRenderbuffer(GL_RENDERBUFFER, depthRenderbuffer);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, width, height);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthRenderbuffer);
     
     //----------------------------
     // Blur rendering setup
@@ -1760,19 +1779,25 @@ void RenderUtils::DrawChanLayoutAfter(uint _ww,uint _hh,int display_note_mode,in
             }
         }
     }
-    
+    GLUserData *curRender;
+    GLuint modeAH,positionAttribHandle,colorAttribHandle;
     // Use the program object
-    if (modpat_curTheme->theme_flag&MDZ_THEMEFLAG_VolDottedBar) glUseProgram ( userData_customRender2D->programObject );
-    else glUseProgram ( userData_simpleRender2D->programObject );
+    if (modpat_curTheme->theme_flag&MDZ_THEMEFLAG_VolDottedBar) curRender=userData_customRender2D;
+    else curRender=userData_simpleRender2D;
     
-    GLuint positionAttribHandle = glGetAttribLocation(userData_simpleRender2D->programObject, "a_position");
-    GLuint colorAttribHandle    = glGetAttribLocation(userData_simpleRender2D->programObject, "a_color");
+    glUseProgram ( curRender->programObject );
+    modeAH = glGetUniformLocation(curRender->programObject, "u_mode");
+    positionAttribHandle = glGetAttribLocation(curRender->programObject, "a_position");
+    colorAttribHandle    = glGetAttribLocation(curRender->programObject, "a_color");
     // Load the vertex data
     glVertexAttribPointer ( positionAttribHandle, 3, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(pts[0].x) );
     glVertexAttribPointer ( colorAttribHandle, 4, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(pts[0].r) );
     // Load the vertex data
     glEnableVertexAttribArray ( positionAttribHandle );
     glEnableVertexAttribArray ( colorAttribHandle );
+    
+    if (modpat_curTheme->theme_flag&MDZ_THEMEFLAG_VolDottedRedTopBar) glUniform1i(modeAH, 1);
+    else glUniform1i(modeAH, 0);
     // Load the uniforms
     glDrawArrays(GL_TRIANGLES,0,count);
     count=0;
@@ -1824,10 +1849,11 @@ void RenderUtils::DrawChanLayoutAfter(uint _ww,uint _hh,int display_note_mode,in
                                   _ww,_hh);
     
     // Use the program object
-    if (modpat_curTheme->theme_flag&MDZ_THEMEFLAG_VolDottedBar) {
-        glUseProgram ( userData_simpleRender2D->programObject );
-        positionAttribHandle = glGetAttribLocation(userData_simpleRender2D->programObject, "a_position");
-        colorAttribHandle    = glGetAttribLocation(userData_simpleRender2D->programObject, "a_color");
+    if (curRender!=userData_simpleRender2D) {
+        curRender=userData_simpleRender2D;
+        glUseProgram ( curRender->programObject );
+        positionAttribHandle = glGetAttribLocation(curRender->programObject, "a_position");
+        colorAttribHandle    = glGetAttribLocation(curRender->programObject, "a_color");
         // Load the vertex data
         glVertexAttribPointer ( positionAttribHandle, 3, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(pts[0].x) );
         glVertexAttribPointer ( colorAttribHandle, 4, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(pts[0].r) );
@@ -2422,7 +2448,7 @@ void RenderUtils::DrawSpectrum2D(short int *spectrumDataL,short int *spectrumDat
 }
 
 
-void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrumDataR,uint ww,uint hh,float angle,int mode,int nb_spectrum_bands,int mirror) {
+void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrumDataR,uint ww,uint hh,float angle,int mode,int nb_spectrum_bands,int mirror,float mScaleFactor,int bloom,float posx,float posy,float posz) {
     GLfloat lightPos[3];
     GLfloat lightColor[3];
     GLfloat spL,spR;
@@ -2473,6 +2499,8 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
             _hh = _hw/aspectRatio;
             break;
     }
+    
+    if (bloom) RenderUtils::startRenderToTexture(ww*mScaleFactor,hh*mScaleFactor);
     
     glDumpState();
     
@@ -2574,8 +2602,11 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
     
     frameCpt++;
     
+    curP->Model=glm::translate(curP->Model,glm::vec3(posx,posy,posz));                                   
+    
     switch (mode) {
         case 1:
+            frameCpt++;
             curP->Model=glm::translate(curP->Model,glm::vec3(0.0,
                                            0.0,
                                            -150.0+
@@ -2585,8 +2616,8 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
                              
             
             curP->Model=glm::rotate(curP->Model,
-                                    glm::radians(-90+5.0f*(0.8f*sin((float)frameCpt*0.1f*3.14159f/2691)+0.7f*sin((float)frameCpt*0.1f*3.14159f/3113)
-                                  -0.3f*sin((float)frameCpt*0.1f*3.14159f/7409)))
+                                    glm::radians(-90+5.0f*(0.5f*sin((float)frameCpt*0.1f*3.14159f/2691)+0.7f*sin((float)frameCpt*0.1f*3.14159f/3113)
+                                  -0.8f*sin((float)frameCpt*0.1f*3.14159f/5409)))
                         , glm::vec3(0,0,1)
                         );
             curP->Model=glm::rotate(curP->Model,
@@ -2601,6 +2632,7 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
             
             break;
         case 2:
+            frameCpt++;
             curP->Model=glm::translate(curP->Model, glm::vec3(0.0, 0.0, -190.0+
                          15*(0.8f*sin((float)frameCpt*0.1f*3.14159f/991)+
                              1.7f*sin((float)frameCpt*0.1f*3.14159f/3065)-
@@ -3524,6 +3556,9 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
 //    glDisable( GL_LIGHTING );
 //    glDisable(GL_COLOR_MATERIAL);
 #endif
+    
+    if (bloom) RenderUtils::endRenderToTexture(ww*mScaleFactor,hh*mScaleFactor,bloom);
+    
     glRestoreState();
 }
 

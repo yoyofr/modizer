@@ -28,7 +28,7 @@
 #include "../utils/imgui/backends/imgui_impl_ios.h"
 #include "../utils/imgui/backends/imgui_impl_opengl3.h"
 extern const char *font_trackerName[FONT_TRACKER_NB][2];
-
+extern float font_size[4];
 
 #define STRINGIZE(x) #x
 #define STRINGIZE2(x) STRINGIZE(x)
@@ -1454,10 +1454,11 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXMODPattern_FontSize].sub_family=0;
     settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_value_nb=4;
     settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_value_nb*sizeof(char*));
-    settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_labels[0]=(char*)"10";
-    settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_labels[1]=(char*)"16";
-    settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_labels[2]=(char*)"24";
-    settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_labels[3]=(char*)"32";
+    for (int i=0;i<4;i++) {
+        char *str=(char*)malloc(3);
+        snprintf(str,3,"%2d",(int)(font_size[i]));
+        settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_labels[i]=str;
+    }
     
     SETTINGS_ID_DEF(GLOB_FXPianoRoll)
     settings[GLOB_FXPianoRoll].type=MDZ_SWITCH;
@@ -1597,6 +1598,19 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_labels[2]=(char*)"2";
     settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_labels[3]=(char*)"3";
     
+    SETTINGS_ID_DEF(GLOB_FX3DSpectrumBloom)
+    settings[GLOB_FX3DSpectrumBloom].label=(char*)"3D Sp.Bloom";
+    settings[GLOB_FX3DSpectrumBloom].description=NULL;
+    settings[GLOB_FX3DSpectrumBloom].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+    settings[GLOB_FX3DSpectrumBloom].sub_family=0;
+    settings[GLOB_FX3DSpectrumBloom].type=MDZ_SWITCH;
+    settings[GLOB_FX3DSpectrumBloom].detail.mdz_switch.switch_value_nb=4;
+    settings[GLOB_FX3DSpectrumBloom].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_FX3DSpectrumBloom].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[GLOB_FX3DSpectrumBloom].detail.mdz_switch.switch_labels[0]=(char*)"Off";
+    settings[GLOB_FX3DSpectrumBloom].detail.mdz_switch.switch_labels[1]=(char*)"Low";
+    settings[GLOB_FX3DSpectrumBloom].detail.mdz_switch.switch_labels[2]=(char*)"Med";
+    settings[GLOB_FX3DSpectrumBloom].detail.mdz_switch.switch_labels[3]=(char*)"High";
+    
     SETTINGS_ID_DEF(GLOB_FX3DLandscape)
     settings[GLOB_FX3DLandscape].type=MDZ_SWITCH;
     settings[GLOB_FX3DLandscape].label=(char*)"3D Landscape";
@@ -1633,7 +1647,6 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXSHOWFPS].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
     settings[GLOB_FXSHOWFPS].sub_family=0;
     settings[GLOB_FXSHOWFPS].type=MDZ_BOOLSWITCH;
-    settings[GLOB_FXSHOWFPS].detail.mdz_boolswitch.switch_value=0;
     
     SETTINGS_ID_DEF(GLOB_FXFPS)
     settings[GLOB_FXFPS].type=MDZ_SWITCH;
@@ -1661,6 +1674,7 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXPianoCutLine].detail.mdz_switch.switch_default_value=0;
     settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_default_value=1;
     settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_default_value=0;
+    settings[GLOB_FX3DSpectrumBloom].detail.mdz_switch.switch_default_value=0;
     settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_default_value=0;
     settings[GLOB_FXLOD].detail.mdz_switch.switch_default_value=2;
     settings[GLOB_FXFPS].detail.mdz_switch.switch_default_value=1;

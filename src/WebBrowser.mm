@@ -443,36 +443,37 @@ static UIAlertView *alertChooseName;
     }
 }
 
-- (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response {
-	NSRange r;	
-	NSString *MIME = response.MIMEType;
-	NSString *appDirectory = [[NSBundle mainBundle] bundlePath];
-	NSString *pathMIMETYPESplist = [appDirectory stringByAppendingPathComponent:@"MIMETYPES.plist"];
-	NSArray *downloadMIMETypes = [NSArray arrayWithContentsOfFile: pathMIMETYPESplist];
-	BOOL asdf = [downloadMIMETypes containsObject:MIME];
+
+-(void)processURLResponse:(NSURLResponse*)response {
+    NSRange r;
+    NSString *MIME = response.MIMEType;
+    NSString *appDirectory = [[NSBundle mainBundle] bundlePath];
+    NSString *pathMIMETYPESplist = [appDirectory stringByAppendingPathComponent:@"MIMETYPES.plist"];
+    NSArray *downloadMIMETypes = [NSArray arrayWithContentsOfFile: pathMIMETYPESplist];
+    BOOL asdf = [downloadMIMETypes containsObject:MIME];
     
-	if (asdf==NO) {
+    if (asdf==NO) {
         r.location=NSNotFound;
-		r=[MIME rangeOfString:@"application/"];
-		if (r.location!=NSNotFound) {
-            			MDZILog("unknown binary content, attempt to download");
+        r=[MIME rangeOfString:@"application/"];
+        if (r.location!=NSNotFound) {
+                        MDZILog("unknown binary content, attempt to download");
             MDZILog("%@",MIME);
-			asdf=YES;
-		} 
-		r.location=NSNotFound;
-		r=[MIME rangeOfString:@"binary/"];
-		if (r.location!=NSNotFound) {
+            asdf=YES;
+        }
+        r.location=NSNotFound;
+        r=[MIME rangeOfString:@"binary/"];
+        if (r.location!=NSNotFound) {
             MDZILog("unknown binary content, attempt to download");
             MDZILog("%@",MIME);
-			asdf=YES;
-		}
+            asdf=YES;
+        }
         r.location=NSNotFound;
-		r=[MIME rangeOfString:@"audio/"];
-		if (r.location!=NSNotFound) {
+        r=[MIME rangeOfString:@"audio/"];
+        if (r.location!=NSNotFound) {
             MDZILog("unknown binary content, attempt to download");
             MDZILog("%@",MIME);
-			asdf=YES;
-		}
+            asdf=YES;
+        }
         r.location=NSNotFound;
         r=[MIME rangeOfString:@"image/x-mrsid-image"];
         if (r.location!=NSNotFound) {
@@ -480,138 +481,140 @@ static UIAlertView *alertChooseName;
             MDZILog("%@",MIME);
             asdf=YES;
         }
-	}
-	if (asdf == NO) {
-	}
-	else {
-		NSURL *url=[response URL];
-		suggestedFilename=[NSString stringWithFormat:@"%@",response.suggestedFilename];
-		expectedContentLength=response.expectedContentLength;
-		[self stopLoading:nil];
-		
-		//check if FTP or HTTP
-		r.location= NSNotFound;
-		r = [[url absoluteString] rangeOfString:@"FTP:" options:NSCaseInsensitiveSearch];
-		if (r.location != NSNotFound) {  //FTP
-			NSString *ftpPath,*ftpHost,*localPath;//,*fileName;
-			char tmp_str[1024],*ptr_str;
-			//fileName=[endUrl stringByReplacingPercentEscapesUsingEncoding:NSASCIIStringEncoding];
-			strcpy(tmp_str,[[[url absoluteString] stringByReplacingPercentEscapesUsingEncoding:NSASCIIStringEncoding] UTF8String]);
-			ptr_str=strchr(tmp_str+6,'/');  // 6 first chars are FTP://
-			if (ptr_str) {
-				*ptr_str=0;
-				ptr_str++;
-				
-				ftpHost=[NSString stringWithFormat:@"%s",tmp_str+6];  //skip the FTP://
-				ftpPath=[NSString stringWithFormat:@"/%s",ptr_str];
-				
-				//Check if it is a collection download (MODLAND, HVSC, ...)
-				int isModland=0;
-				int isHVSC=0;
+    }
+    if (asdf == NO) {
+    }
+    else {
+        NSURL *url=[response URL];
+        suggestedFilename=[NSString stringWithFormat:@"%@",response.suggestedFilename];
+        expectedContentLength=response.expectedContentLength;
+        [self stopLoading:nil];
+        
+        //check if FTP or HTTP
+        r.location= NSNotFound;
+        r = [[url absoluteString] rangeOfString:@"FTP:" options:NSCaseInsensitiveSearch];
+        if (r.location != NSNotFound) {  //FTP
+            NSString *ftpPath,*ftpHost,*localPath;//,*fileName;
+            char tmp_str[1024],*ptr_str;
+            //fileName=[endUrl stringByReplacingPercentEscapesUsingEncoding:NSASCIIStringEncoding];
+            strcpy(tmp_str,[[[url absoluteString] stringByReplacingPercentEscapesUsingEncoding:NSASCIIStringEncoding] UTF8String]);
+            ptr_str=strchr(tmp_str+6,'/');  // 6 first chars are FTP://
+            if (ptr_str) {
+                *ptr_str=0;
+                ptr_str++;
+                
+                ftpHost=[NSString stringWithFormat:@"%s",tmp_str+6];  //skip the FTP://
+                ftpPath=[NSString stringWithFormat:@"/%s",ptr_str];
+                
+                //Check if it is a collection download (MODLAND, HVSC, ...)
+                int isModland=0;
+                int isHVSC=0;
                 int isASMA=0;
-				NSRange rMODLAND;
-				rMODLAND.location=NSNotFound;
-				rMODLAND=[ftpPath rangeOfString:@"MODLAND" options:NSCaseInsensitiveSearch];
-				if (rMODLAND.location!=NSNotFound) isModland++;
-				rMODLAND.location=NSNotFound;
-				rMODLAND=[ftpPath rangeOfString:@"/pub/modules/" options:NSCaseInsensitiveSearch];
-				if (rMODLAND.location!=NSNotFound) isModland++;
-				
-				NSRange rHVSC;
-				rHVSC.location=NSNotFound;
-				rHVSC=[ftpPath rangeOfString:@"/C64Music/" options:NSCaseInsensitiveSearch];
-				if (rHVSC.location!=NSNotFound) isHVSC++;
+                NSRange rMODLAND;
+                rMODLAND.location=NSNotFound;
+                rMODLAND=[ftpPath rangeOfString:@"MODLAND" options:NSCaseInsensitiveSearch];
+                if (rMODLAND.location!=NSNotFound) isModland++;
+                rMODLAND.location=NSNotFound;
+                rMODLAND=[ftpPath rangeOfString:@"/pub/modules/" options:NSCaseInsensitiveSearch];
+                if (rMODLAND.location!=NSNotFound) isModland++;
+                
+                NSRange rHVSC;
+                rHVSC.location=NSNotFound;
+                rHVSC=[ftpPath rangeOfString:@"/C64Music/" options:NSCaseInsensitiveSearch];
+                if (rHVSC.location!=NSNotFound) isHVSC++;
                 
                 NSRange rASMA;
-				rASMA.location=NSNotFound;
-				rASMA=[ftpPath rangeOfString:@"/ASMA/" options:NSCaseInsensitiveSearch];
-				if (rASMA.location!=NSNotFound) isASMA++;
-				
-				if (isModland==2) {  //MODLAND DOWNLOAD
-					//get modland path to rebuild localPath
-					NSString *tmpstr=[ftpPath substringFromIndex:rMODLAND.location+13];
-					NSString *tmpLocal=DBHelper::getLocalPathFromFullPath(tmpstr);
-					localPath=[[NSString alloc] initWithFormat:@"Documents/%@/%@",MODLAND_BASEDIR,tmpLocal];
-					//Is it already existing ?
-					NSFileManager *fileManager = [[NSFileManager alloc] init];
-					BOOL success;
-					success = [fileManager fileExistsAtPath:[NSHomeDirectory() stringByAppendingPathComponent: localPath]];
-					if (success) {//already existing : start play/enqueue
-						if (settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==0) {
-							NSMutableArray *array_label = [[NSMutableArray alloc] init ];
-							NSMutableArray *array_path = [[NSMutableArray alloc] init];
-							[array_label addObject:[localPath lastPathComponent]];
-							[array_path addObject:localPath];
-							[detailViewController play_listmodules:array_label start_index:0 path:array_path];
-						} else [detailViewController add_to_playlist:localPath fileName:[localPath lastPathComponent] forcenoplay:(settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==1)];
-					} else { //start download
-						[self openPopup: [NSString stringWithFormat:@"Downloading : %@",suggestedFilename]];
-						[downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:ftpHost filesize:expectedContentLength
-															filename:suggestedFilename isMODLAND:1 usePrimaryAction:((settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==0)?1:0)];
-					}
+                rASMA.location=NSNotFound;
+                rASMA=[ftpPath rangeOfString:@"/ASMA/" options:NSCaseInsensitiveSearch];
+                if (rASMA.location!=NSNotFound) isASMA++;
+                
+                if (isModland==2) {  //MODLAND DOWNLOAD
+                    //get modland path to rebuild localPath
+                    NSString *tmpstr=[ftpPath substringFromIndex:rMODLAND.location+13];
+                    NSString *tmpLocal=DBHelper::getLocalPathFromFullPath(tmpstr);
+                    localPath=[[NSString alloc] initWithFormat:@"Documents/%@/%@",MODLAND_BASEDIR,tmpLocal];
+                    //Is it already existing ?
+                    NSFileManager *fileManager = [[NSFileManager alloc] init];
+                    BOOL success;
+                    success = [fileManager fileExistsAtPath:[NSHomeDirectory() stringByAppendingPathComponent: localPath]];
+                    if (success) {//already existing : start play/enqueue
+                        if (settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==0) {
+                            NSMutableArray *array_label = [[NSMutableArray alloc] init ];
+                            NSMutableArray *array_path = [[NSMutableArray alloc] init];
+                            [array_label addObject:[localPath lastPathComponent]];
+                            [array_path addObject:localPath];
+                            [detailViewController play_listmodules:array_label start_index:0 path:array_path];
+                        } else [detailViewController add_to_playlist:localPath fileName:[localPath lastPathComponent] forcenoplay:(settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==1)];
+                    } else { //start download
+                        [self openPopup: [NSString stringWithFormat:@"Downloading : %@",suggestedFilename]];
+                        [downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:ftpHost filesize:expectedContentLength
+                                                            filename:suggestedFilename isMODLAND:1 usePrimaryAction:((settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==0)?1:0)];
+                    }
                     //[fileManager release];
                     fileManager=nil;
-				} else if (isHVSC==1) {  //HVSC DOWNLOAD
-					//get modland path to rebuild localPath
-					NSString *tmpstr=[ftpPath substringFromIndex:rHVSC.location+10];
-					localPath=[[NSString alloc] initWithFormat:@"Documents/%@/%@",HVSC_BASEDIR,tmpstr];
-					//Is it already existing ?
-					NSFileManager *fileManager = [[NSFileManager alloc] init];
-					BOOL success;
-					success = [fileManager fileExistsAtPath:[NSHomeDirectory() stringByAppendingPathComponent: localPath]];
-					if (success) {//already existing : start play/enqueue
-						if (settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==0) {
-							NSMutableArray *array_label = [[NSMutableArray alloc] init];
-							NSMutableArray *array_path = [[NSMutableArray alloc] init];
-							[array_label addObject:[localPath lastPathComponent]];
-							[array_path addObject:localPath];
-							[detailViewController play_listmodules:array_label start_index:0 path:array_path];
-						} else [detailViewController add_to_playlist:localPath fileName:[localPath lastPathComponent] forcenoplay:(settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==1)];
-						
-					} else { //start download
-						[self openPopup: [NSString stringWithFormat:@"Downloading : %@",suggestedFilename]];
-						[downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:ftpHost filesize:expectedContentLength
-															filename:suggestedFilename isMODLAND:1 usePrimaryAction:((settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==0)?1:0)];
-					}
+                } else if (isHVSC==1) {  //HVSC DOWNLOAD
+                    //get modland path to rebuild localPath
+                    NSString *tmpstr=[ftpPath substringFromIndex:rHVSC.location+10];
+                    localPath=[[NSString alloc] initWithFormat:@"Documents/%@/%@",HVSC_BASEDIR,tmpstr];
+                    //Is it already existing ?
+                    NSFileManager *fileManager = [[NSFileManager alloc] init];
+                    BOOL success;
+                    success = [fileManager fileExistsAtPath:[NSHomeDirectory() stringByAppendingPathComponent: localPath]];
+                    if (success) {//already existing : start play/enqueue
+                        if (settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==0) {
+                            NSMutableArray *array_label = [[NSMutableArray alloc] init];
+                            NSMutableArray *array_path = [[NSMutableArray alloc] init];
+                            [array_label addObject:[localPath lastPathComponent]];
+                            [array_path addObject:localPath];
+                            [detailViewController play_listmodules:array_label start_index:0 path:array_path];
+                        } else [detailViewController add_to_playlist:localPath fileName:[localPath lastPathComponent] forcenoplay:(settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==1)];
+                        
+                    } else { //start download
+                        [self openPopup: [NSString stringWithFormat:@"Downloading : %@",suggestedFilename]];
+                        [downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:ftpHost filesize:expectedContentLength
+                                                            filename:suggestedFilename isMODLAND:1 usePrimaryAction:((settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==0)?1:0)];
+                    }
                     fileManager=nil;
-				}  else if (isASMA==1) {  //ASMA DOWNLOAD
-					//get modland path to rebuild localPath
-					NSString *tmpstr=[ftpPath substringFromIndex:rASMA.location+6];
-					localPath=[[NSString alloc] initWithFormat:@"Documents/%@/%@",ASMA_BASEDIR,tmpstr];
-					//Is it already existing ?
-					NSFileManager *fileManager = [[NSFileManager alloc] init];
-					BOOL success;
-					success = [fileManager fileExistsAtPath:[NSHomeDirectory() stringByAppendingPathComponent: localPath]];
-					if (success) {//already existing : start play/enqueue
-						if (settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==0) {
-							NSMutableArray *array_label = [[NSMutableArray alloc] init];
-							NSMutableArray *array_path = [[NSMutableArray alloc] init];
-							[array_label addObject:[localPath lastPathComponent]];
-							[array_path addObject:localPath];
-							[detailViewController play_listmodules:array_label start_index:0 path:array_path];
-						} else [detailViewController add_to_playlist:localPath fileName:[localPath lastPathComponent] forcenoplay:(settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==1)];
-						
-					} else { //start download
-						[self openPopup: [NSString stringWithFormat:@"Downloading : %@",suggestedFilename]];
-						[downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:ftpHost filesize:expectedContentLength
-															filename:suggestedFilename isMODLAND:1 usePrimaryAction:((settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==0)?1:0)];
-					}
+                }  else if (isASMA==1) {  //ASMA DOWNLOAD
+                    //get modland path to rebuild localPath
+                    NSString *tmpstr=[ftpPath substringFromIndex:rASMA.location+6];
+                    localPath=[[NSString alloc] initWithFormat:@"Documents/%@/%@",ASMA_BASEDIR,tmpstr];
+                    //Is it already existing ?
+                    NSFileManager *fileManager = [[NSFileManager alloc] init];
+                    BOOL success;
+                    success = [fileManager fileExistsAtPath:[NSHomeDirectory() stringByAppendingPathComponent: localPath]];
+                    if (success) {//already existing : start play/enqueue
+                        if (settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==0) {
+                            NSMutableArray *array_label = [[NSMutableArray alloc] init];
+                            NSMutableArray *array_path = [[NSMutableArray alloc] init];
+                            [array_label addObject:[localPath lastPathComponent]];
+                            [array_path addObject:localPath];
+                            [detailViewController play_listmodules:array_label start_index:0 path:array_path];
+                        } else [detailViewController add_to_playlist:localPath fileName:[localPath lastPathComponent] forcenoplay:(settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==1)];
+                        
+                    } else { //start download
+                        [self openPopup: [NSString stringWithFormat:@"Downloading : %@",suggestedFilename]];
+                        [downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:ftpHost filesize:expectedContentLength
+                                                            filename:suggestedFilename isMODLAND:1 usePrimaryAction:((settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==0)?1:0)];
+                    }
                     //[fileManager release];
                     fileManager=nil;
-				}else { //STANDARD DOWNLOAD
-					localPath=[[NSString alloc] initWithFormat:@"Documents/Downloads/%@",suggestedFilename];
-					[self openPopup: [NSString stringWithFormat:@"Downloading : %@",suggestedFilename]];
-					[downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:ftpHost filesize:expectedContentLength
-														filename:suggestedFilename isMODLAND:0 usePrimaryAction:((settings[GLOB_AfterDownloadAction].detail.mdz_switch.switch_value==2)?1:0)];
-				}
-			}
-		} else {
-			[self openPopup: [NSString stringWithFormat:@"Downloading : %@",suggestedFilename]];
-			[downloadViewController addURLToDownloadList:[url absoluteString] fileName:suggestedFilename filesize:expectedContentLength];
-		}
-	}
+                }else { //STANDARD DOWNLOAD
+                    localPath=[[NSString alloc] initWithFormat:@"Documents/Downloads/%@",suggestedFilename];
+                    [self openPopup: [NSString stringWithFormat:@"Downloading : %@",suggestedFilename]];
+                    [downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:ftpHost filesize:expectedContentLength
+                                                        filename:suggestedFilename isMODLAND:0 usePrimaryAction:((settings[GLOB_AfterDownloadAction].detail.mdz_switch.switch_value==2)?1:0)];
+                }
+            }
+        } else {
+            [self openPopup: [NSString stringWithFormat:@"Downloading : %@",suggestedFilename]];
+            [downloadViewController addURLToDownloadList:[url absoluteString] fileName:suggestedFilename filesize:expectedContentLength];
+        }
+    }
+}
+- (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response {
+    [self processURLResponse:response];
 	
-	//[receivedDataFromConnection setLength:0];
 	[connection cancel];
 }
 
@@ -845,10 +848,23 @@ static UIAlertView *alertChooseName;
     }
     
     
-    NSURLConnection *theConnection = [NSURLConnection connectionWithRequest:navigationAction.request delegate:self];
-    if (theConnection==nil) {
-        MDZELog("Connection failed");
-    }
+//    NSURLConnection *theConnection = [NSURLConnection connectionWithRequest:navigationAction.request delegate:self];
+//    if (theConnection==nil) {
+//        MDZELog("Connection failed");
+//    }
+//    MDZILog("request %@",[[navigationAction.request URL] absoluteString])
+    
+    NSURLSession *session = [NSURLSession sharedSession];
+    NSURLSessionDataTask *dataTask = [session dataTaskWithRequest:navigationAction.request
+            completionHandler:^(NSData *data, NSURLResponse *response, NSError *error)
+            {
+                // do something with the data
+        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+            [self processURLResponse:response];
+        }];
+                
+            }];
+    [dataTask resume];
     
     /*WKNavigationTypeLinkActivated,
     WKNavigationTypeFormSubmitted,

@@ -102,6 +102,7 @@ const char *menu3DSpectrumLabel[16]={
     NULL,NULL,NULL,NULL,
     NULL,"Go to\nsettings","Back","Exit Menu"
 };
+char *menu3DSpectrumDynLabel[16];
 static GLuint txtMenu3DLandscapeHandle[16];
 const char *menu3DLandscapeLabel[16]={
     "Off",NULL,NULL,NULL,
@@ -196,6 +197,8 @@ int playerGetActivatedCells(int menu_idx) {
         if (settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value==1) active_idx|=1<<1;
         if (settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value==2) active_idx|=1<<2;
         if (settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value==3) active_idx|=1<<3;
+        
+        snprintf(menu3DSpectrumDynLabel[7],64,"Bloom:\n%s",settings[GLOB_FX3DSpectrumBloom].detail.mdz_switch.switch_labels[settings[GLOB_FX3DSpectrumBloom].detail.mdz_switch.switch_value]);
     } else if (menu_idx==MENU_3DLANDSCAPE) {
         if (settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value==0) active_idx|=1<<0;
         if (settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value==1) active_idx|=1<<1;
@@ -263,6 +266,7 @@ void playerMenuInit() {
     memset(txtMenuProjectMHandle,0,sizeof(txtMenuProjectMHandle));
     memset(txtMenuOscilloHandle,0,sizeof(txtMenuOscilloHandle));
     memset(menuOscilloDynLabel,0,sizeof(menuOscilloDynLabel));
+    memset(menu3DSpectrumDynLabel,0,sizeof(menu3DSpectrumDynLabel));
     memset(txtMenu2DSpectrumHandle,0,sizeof(txtMenu2DSpectrumHandle));
     memset(txtMenu3DSpectrumHandle,0,sizeof(txtMenu3DSpectrumHandle));
     memset(txtMenu3DLandscapeHandle,0,sizeof(txtMenu3DLandscapeHandle));
@@ -273,6 +277,7 @@ void playerMenuInit() {
     memset(menuModPatternDynLabel,0,sizeof(menuModPatternDynLabel));
     
     menuOscilloDynLabel[7]=(char*)malloc(64);
+    menu3DSpectrumDynLabel[7]=(char*)malloc(64);
     menuModPatternDynLabel[5]=(char*)malloc(64);
     menuModPatternDynLabel[12]=(char*)malloc(64);
     
@@ -816,6 +821,7 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
         if (ImGui::BeginTable("menu_3dspectrum",4,flagTable)) {
             current_txtMenuHandle=txtMenu3DSpectrumHandle;
             currentMenuLabel=menu3DSpectrumLabel;
+            currentMenuDynLabel=menu3DSpectrumDynLabel;
             
             for (int r=0;r<4;r++) {
                 ImGui::TableNextRow(0,cell_size);
@@ -860,6 +866,11 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
                             ret=ImGui::Button(currentMenuLabel[r*4+c],ImVec2(cell_size, cell_size));
                         }
                         ImGui::PopID();
+                    } else if (currentMenuDynLabel[r*4+c]) { //Text button
+                        ImGui::PushID((r*4+c)*4+0);
+                        if (isActive) ret=ImGui::Button(currentMenuDynLabel[r*4+c],ImVec2(cell_size, cell_size));
+                        else ret=ImGui::Button(currentMenuDynLabel[r*4+c],ImVec2(cell_size, cell_size));
+                        ImGui::PopID();
                     }
                     ImGui::PopStyleColor();
                     if (ret) {
@@ -883,7 +894,9 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
                             case 0x01:break;
                             case 0x11:break;
                             case 0x21:break;
-                            case 0x31:break;
+                            case 0x31:  //Bloom
+                                settings[GLOB_FX3DSpectrumBloom].detail.mdz_switch.switch_value=(settings[GLOB_FX3DSpectrumBloom].detail.mdz_switch.switch_value+1)%settings[GLOB_FX3DSpectrumBloom].detail.mdz_switch.switch_value_nb;
+                                break;
                             case 0x02:break;
                             case 0x12:break;
                             case 0x22:break;

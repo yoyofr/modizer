@@ -1007,6 +1007,7 @@ static char dec2hex[16]={'0','1','2','3','4','5','6','7','8','9','A','B','C','D'
 static int currentPattern,currentRow,visibleChan;
 static float modPatternLineSize,modPatternWindowSize;
 
+static int _shiftModeOn;
 static float oglTapX=0,oglTapY=0,movePx=0,movePy=0,movePxMOD=0,movePyMOD=0,movePxOld=0,movePyOld=0,movePxPM=0,movePyPM=0;
 static float startPx=0,startPy=0;
 static int movePMnomore=0;
@@ -1338,8 +1339,19 @@ static float movePinchScale,movePinchScaleOld;
         _pm_display_name_countdown=_pm_fps*PM_PRESET_DISPLAY_TIMEOUT;
     }
 }
+-(void) mdShiftMode:(int)active {
+    _shiftModeOn=active;
+}
+-(void) mdSwitchBloom:(int)val {
+    [SettingsGenViewController changeSettingsValue:GLOB_FX3DSpectrumBloom change:val];
+    
+    [self openPopup:NSLocalizedString(@"Spectrum 3D",@"") secmsg:[NSString stringWithFormat:@"Bloom set to %s",settings[GLOB_FX3DSpectrumBloom].detail.mdz_switch.switch_labels[settings[GLOB_FX3DSpectrumBloom].detail.mdz_switch.switch_value]] style:0];
+}
 -(void) mdSwitchVolBars {
     [SettingsGenViewController changeSettingsValue:GLOB_FXMODPattern_VolBar change:1];
+}
+-(void) mdSwitchFixedBar {
+    [SettingsGenViewController changeSettingsValue:GLOB_FXMODPattern_CurrentLineMode change:1];
 }
 -(void) mdSwitchModPatternTheme:(int)val {
     [SettingsGenViewController changeSettingsValue:GLOB_FXMODPattern_Theme change:val];
@@ -5624,6 +5636,8 @@ void pmSoftReinit() {
     
     modpat_curTheme=modpat_themesList[(settings[GLOB_FXMODPattern_Theme].detail.mdz_switch.switch_value)&modpat_themesNb];
     
+    _shiftModeOn=0;
+    
     //	[super viewDidLoad];
     END_PROFILE
     
@@ -6036,33 +6050,37 @@ static int mOglView1Tap=0;
 }
 
 -(void) glViewPanGesture:(UIPanGestureRecognizer *)gestureRecognizer {
-    CGPoint starting_pt;
-    CGPoint pt=[gestureRecognizer translationInView:m_oglView];
-    movePx=pt.x;
-    movePy=pt.y;
-    switch (gestureRecognizer.state) {
-        case UIGestureRecognizerStateBegan:
-            
-            starting_pt=[gestureRecognizer locationOfTouch:0 inView:m_oglView];
-            startPx=starting_pt.x;
-            startPy=starting_pt.y;
-            
-            panGesture1Tap=1;
-            movePxOld=movePx;
-            movePyOld=movePy;
-            //Also reset tracking variables related to "swipe" like gesture
-            movePxPM=0;movePyPM=0;
-            movePMnomore=0;
-            break;
-        case UIGestureRecognizerStateChanged:
-            panGesture1Tap=2;
-            break;
-        default:
-            panGesture1Tap=0;
-            //Also reset tracking variables related to "swipe" like gesture
-            movePxPM=0;movePyPM=0;
-            movePMnomore=0;
-            break;
+    if (_shiftModeOn) {
+        [self glViewPan2Gesture:gestureRecognizer];
+    } else {
+        CGPoint starting_pt;
+        CGPoint pt=[gestureRecognizer translationInView:m_oglView];
+        movePx=pt.x;
+        movePy=pt.y;
+        switch (gestureRecognizer.state) {
+            case UIGestureRecognizerStateBegan:
+                
+                starting_pt=[gestureRecognizer locationOfTouch:0 inView:m_oglView];
+                startPx=starting_pt.x;
+                startPy=starting_pt.y;
+                
+                panGesture1Tap=1;
+                movePxOld=movePx;
+                movePyOld=movePy;
+                //Also reset tracking variables related to "swipe" like gesture
+                movePxPM=0;movePyPM=0;
+                movePMnomore=0;
+                break;
+            case UIGestureRecognizerStateChanged:
+                panGesture1Tap=2;
+                break;
+            default:
+                panGesture1Tap=0;
+                //Also reset tracking variables related to "swipe" like gesture
+                movePxPM=0;movePyPM=0;
+                movePMnomore=0;
+                break;
+        }
     }
 }
 
@@ -6168,6 +6186,10 @@ extern "C" int current_sample;
 //    }
     
     fxalpha=settings[GLOB_FXAlpha].detail.mdz_slider.slider_value;
+    if (settings[GLOB_FX3DSpectrumBloom].detail.mdz_switch.switch_value) {
+        //if bloom is on, fx alpha should be minimum 0.9f
+        fxalpha=fmax(fxalpha,0.9f);
+    }
     //m_oglView.alpha=fxalpha;
     
     //get ogl view dimension
@@ -6706,6 +6728,68 @@ extern "C" int current_sample;
     
     
     //-------------------------------------
+    // 3D Landscape, 3D Spectrum, 3D Piano
+    //-------------------------------------
+    if ([mplayer isPlaying]){
+        if (settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value) {
+            if (settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value<4){
+                RenderUtils::DrawSpectrum3D(real_spectrumL,real_spectrumR,ww,hh,angle,settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value,nb_spectrum_bands);
+            } else if (settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value<6) { RenderUtils::DrawSpectrumLandscape3D(real_spectrumL,real_spectrumR,ww,hh,angle,settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value-3,nb_spectrum_bands);
+            } else {
+                RenderUtils::DrawSpectrum3DMorph(real_spectrumL,real_spectrumR,ww,hh,angle,settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value-5,nb_spectrum_bands);
+            }
+        }
+        if (settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value) {
+            
+            if (movePinchScaleFXPiano<-0/4) movePinchScaleFXPiano=-0/4;
+            if (movePinchScaleFXPiano>9.0/4) movePinchScaleFXPiano=9.0/4;
+            piano_rotx=movePyFXPiano;
+            piano_roty=movePxFXPiano;
+            piano_posx=movePx2FXPiano*0.05;
+            piano_posy=-movePy2FXPiano*0.05;
+            piano_posz=movePinchScaleFXPiano*10*4;
+            
+            int mirror=1;
+            if (settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value) mirror=0;
+            if (settings[GLOB_FXPiano3D].detail.mdz_switch.switch_value) mirror=0;
+            RenderUtils::DrawSpectrum3DBar(real_spectrumL,real_spectrumR,ww,hh,angle,
+                                           settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value,nb_spectrum_bands,mirror,glScaleFactor,settings[GLOB_FX3DSpectrumBloom].detail.mdz_switch.switch_value,piano_posx,piano_posy,piano_posz);
+        }
+        
+                if (settings[GLOB_FXPiano3D].detail.mdz_switch.switch_value) {
+            switch (settings[GLOB_FXPiano3D].detail.mdz_switch.switch_value) {
+                case 1:
+                    RenderUtils::DrawPiano3D(ww,hh,1,0,0,0,0,0,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value);
+                    break;
+                case 2:
+                    RenderUtils::DrawPiano3DWithNotesWall(ww,hh,1,0,0,0,0,0,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,settings[GLOB_FXLOD].detail.mdz_switch.switch_value);
+                    break;
+                case 3:
+                    if (movePinchScaleFXPiano<-0/4) movePinchScaleFXPiano=-0/4;
+                    if (movePinchScaleFXPiano>9.0/4) movePinchScaleFXPiano=9.0/4;
+                    piano_rotx=movePyFXPiano;
+                    piano_roty=movePxFXPiano;
+                    piano_posx=movePx2FXPiano*0.05;
+                    piano_posy=-movePy2FXPiano*0.05;
+                    piano_posz=movePinchScaleFXPiano*100*4;
+                    RenderUtils::DrawPiano3D(ww,hh,0,piano_posx,piano_posy,piano_posz,piano_rotx,piano_roty,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value);
+                    break;
+                case 4:
+                    if (movePinchScaleFXPiano<-0.8/4) movePinchScaleFXPiano=-0.8/4;
+                    if (movePinchScaleFXPiano>14.0/4) movePinchScaleFXPiano=14.0/4;
+                    piano_rotx=movePyFXPiano;
+                    piano_roty=movePxFXPiano;
+                    piano_posx=movePx2FXPiano*0.05;
+                    piano_posy=-movePy2FXPiano*0.05;
+                    piano_posz=movePinchScaleFXPiano*100*4;
+                    RenderUtils::DrawPiano3DWithNotesWall(ww,hh,0,piano_posx,piano_posy,piano_posz,piano_rotx,piano_roty,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,settings[GLOB_FXLOD].detail.mdz_switch.switch_value);
+                    break;
+            }
+        }
+    }
+    
+    
+    //-------------------------------------
     // Spectrum2D
     //-------------------------------------
     if ([mplayer isPlaying]) {
@@ -6765,17 +6849,17 @@ extern "C" int current_sample;
                 float fontSize=16;
                 int ftsizeIdx=settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_value;
                 switch (settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_value) {
-                    case 0: //10
+                    case 0: //
                         fontSize=10;
                         break;
-                    case 1: //16
-                        fontSize=16;
+                    case 1: //
+                        fontSize=15;
                         break;
-                    case 2: //24
-                        fontSize=24;
+                    case 2: //
+                        fontSize=22;
                         break;
-                    case 3: //32
-                        fontSize=32;
+                    case 3: //
+                        fontSize=30;
                         break;
                 }
                 
@@ -6788,8 +6872,8 @@ extern "C" int current_sample;
                 
                 float font_ofsX,font_ofsY;
                 if (font_tracker[cur_font][ftsizeIdx]) { ImGui::PushFont(font_tracker[cur_font][ftsizeIdx]);
-                    font_ofsX=font_trackerSize[cur_font][3]*fontSize/16.0f;
-                    font_ofsY=font_trackerSize[cur_font][4]*fontSize/16.0f;
+                    font_ofsX=font_trackerSize[cur_font][3]*fontSize/FONT_BASE_SIZEF;
+                    font_ofsY=font_trackerSize[cur_font][4]*fontSize/FONT_BASE_SIZEF;
                 }
                 else {
                     ImGui::PushFont(nullptr);
@@ -7407,6 +7491,8 @@ extern "C" int current_sample;
         }
     }
     
+    
+    
     //-------------------------------------
     // Oscillo
     //-------------------------------------
@@ -7478,62 +7564,6 @@ extern "C" int current_sample;
     //-------------------------------------
     // 3D Landscape, 3D Spectrum, 3D Piano
     //-------------------------------------
-    if ([mplayer isPlaying]){
-        if (settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value) {
-            if (settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value<4){
-                RenderUtils::DrawSpectrum3D(real_spectrumL,real_spectrumR,ww,hh,angle,settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value,nb_spectrum_bands);
-            } else if (settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value<6) { RenderUtils::DrawSpectrumLandscape3D(real_spectrumL,real_spectrumR,ww,hh,angle,settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value-3,nb_spectrum_bands);
-            } else {
-                RenderUtils::DrawSpectrum3DMorph(real_spectrumL,real_spectrumR,ww,hh,angle,settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value-5,nb_spectrum_bands);
-            }
-        }
-        if (settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value) {
-            int mirror=1;
-            if (settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value) mirror=0;
-            if (settings[GLOB_FXPiano3D].detail.mdz_switch.switch_value) mirror=0;
-            RenderUtils::DrawSpectrum3DBar(real_spectrumL,real_spectrumR,ww,hh,angle,
-                                           settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value,nb_spectrum_bands,mirror);
-        }
-        
-                if (settings[GLOB_FXPiano3D].detail.mdz_switch.switch_value) {
-            switch (settings[GLOB_FXPiano3D].detail.mdz_switch.switch_value) {
-                case 1:
-                    RenderUtils::DrawPiano3D(ww,hh,1,0,0,0,0,0,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value);
-                    break;
-                case 2:
-                    RenderUtils::DrawPiano3DWithNotesWall(ww,hh,1,0,0,0,0,0,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,settings[GLOB_FXLOD].detail.mdz_switch.switch_value);
-                    break;
-                case 3:
-                    if (movePinchScaleFXPiano<-0/4) movePinchScaleFXPiano=-0/4;
-                    if (movePinchScaleFXPiano>9.0/4) movePinchScaleFXPiano=9.0/4;
-                    piano_rotx=movePyFXPiano;
-                    piano_roty=movePxFXPiano;
-                    piano_posx=movePx2FXPiano*0.05;
-                    piano_posy=-movePy2FXPiano*0.05;
-                    piano_posz=movePinchScaleFXPiano*100*4;
-                    RenderUtils::DrawPiano3D(ww,hh,0,piano_posx,piano_posy,piano_posz,piano_rotx,piano_roty,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value);
-                    break;
-                case 4:
-                    if (movePinchScaleFXPiano<-0.8/4) movePinchScaleFXPiano=-0.8/4;
-                    if (movePinchScaleFXPiano>14.0/4) movePinchScaleFXPiano=14.0/4;
-                    piano_rotx=movePyFXPiano;
-                    piano_roty=movePxFXPiano;
-                    piano_posx=movePx2FXPiano*0.05;
-                    piano_posy=-movePy2FXPiano*0.05;
-                    piano_posz=movePinchScaleFXPiano*100*4;
-                    RenderUtils::DrawPiano3DWithNotesWall(ww,hh,0,piano_posx,piano_posy,piano_posz,piano_rotx,piano_roty,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,settings[GLOB_FXLOD].detail.mdz_switch.switch_value);
-                    break;
-            }
-        }
-    }
-    
-    //-------------------------------------
-    // FX Rendering over
-    // Apply Bloom if active
-    //-------------------------------------
-//    if (settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value) {
-//        RenderUtils::endRenderToTexture(ww*glScaleFactor, hh*glScaleFactor);
-//    }
     
     
     if (viewTapHelpShow) {
@@ -7654,6 +7684,8 @@ extern "C" int current_sample;
 
 -(void) openPopup:(NSString *)msg secmsg:(NSString*)secmsg style:(int)style{
     CGRect frame;
+    
+    //[UIView commitAnimations];
     
     UIColor *bgcol;
     switch (style){

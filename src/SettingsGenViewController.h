@@ -356,6 +356,7 @@ enum MDZ_SETTINGS {
     GLOB_FXPianoCutLine,
     GLOB_FXPianoColorMode,
     GLOB_FX3DSpectrum,
+    GLOB_FX3DSpectrumBloom,
         
     GLOB_FXSpectrum,
     GLOB_FX3DLandscape,

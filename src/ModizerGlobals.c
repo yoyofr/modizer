@@ -94,9 +94,9 @@ t_pattern_colortheme modpat_colorScreamTracker={
     {154,150,147},  //Effect nb color H
     {154,150,147},  //Effect value color
     {154,150,147},  //Effect value color H
-    {0,40,0},  //volume bar low color
-    {80,176,50},  //volume bar high color
-    MDZ_THEMEFLAG_VolDep,              //volume bar mode
+    {111,230,78},  //volume bar low color
+    {111,230,78},  //volume bar high color
+    MDZ_THEMEFLAG_VolDep|MDZ_THEMEFLAG_VolDottedBar|MDZ_THEMEFLAG_VolDottedRedTopBar,              //volume bar mode
     "ST3",
 };
 
@@ -120,10 +120,10 @@ t_pattern_colortheme modpat_colorProTracker={
     {0,0,0},  //Effect nb color H
     {82,96,244},  //Effect value color
     {0,0,0},  //Effect value color H
-    {64,255,16},  //volume bar low color
-    {255,64,32},  //volume bar high color
+    {60,255,40},  //volume bar low color
+    {255,60,40},  //volume bar high color
     MDZ_THEMEFLAG_VolDep|MDZ_THEMEFLAG_BordersLR|MDZ_THEMEFLAG_NoFillLineNb|MDZ_THEMEFLAG_HighlightZoom,              //volume bar mode
-    "Pro",
+    "Protrk",
 };
 
 t_pattern_colortheme modpat_colorImpulseTracker={

@@ -407,6 +407,10 @@ enum {
 -(void) mdSwitchModPatternTheme:(int)val;
 -(void) mdSwitchModPatternFont:(int)val;
 -(void) mdSwitchModPatternFontSize:(int)val;
+-(void) mdSwitchFixedBar;
+-(void) mdSwitchBloom:(int)val;
+
+-(void) mdShiftMode:(int)active;
 
 - (void)checkNewCover;
 

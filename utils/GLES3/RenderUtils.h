@@ -194,7 +194,7 @@ void DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,int num_voices,
 
 void DrawSpectrum3D(short int *spectrumDataL,short int *spectrumDataR,uint ww,uint hh,float angle,int mode,int nb_spectrum_bands);
 void DrawSpectrumLandscape3D(short int *spectrumDataL,short int *spectrumDataR,uint ww,uint hh,float angle,int mode,int nb_spectrum_bands);
-void DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrumDataR,uint ww,uint hh,float angle,int mode,int nb_spectrum_bands,int mirror);
+void DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrumDataR,uint ww,uint hh,float angle,int mode,int nb_spectrum_bands,int mirror,float mScaleFactor,int bloom,float posx,float posy,float posz);
 void DrawSpectrum2D(short int *spectrumDataL,short int *spectrumDataR,uint ww,uint hh,int mode,int nb_spectrum_bands,float mScaleFactor,bool bloom);
 void DrawSpectrum3DMorph(short int *spectrumDataL,short int *spectrumDataR,uint ww,uint hh,float angle,int mode,int nb_spectrum_bands);
 
@@ -210,13 +210,13 @@ void DrawPiano3D(uint ww,uint hh,int automove,float posx,float posy,float posz,f
 void DrawPiano3DWithNotesWall(uint ww,uint hh,int automove,float posx,float posy,float posz,float rotx,float roty,int color_mode, int fxquality);
 
 void DrawTexture(uint ww,uint hh,GLuint textureIdx,float alpha,bool reversed=false);
-void DrawTextureBlur(uint ww,uint hh,GLuint textureIdx,int hori,float min_brightness);
+void DrawTextureBlur(uint ww,uint hh,GLuint textureIdx,int hori,float min_brightness,float blurDiv);
 void DrawTextureBlend(uint ww,uint hh,GLuint textOrigIdx,GLuint textBlurIdx);
 
 bool initRenderToTexture(int width,int height);
 void shutdownRenderToTexture();
 void startRenderToTexture(int width,int height);
-void endRenderToTexture(int width,int height);
+void endRenderToTexture(int width,int height,int bloomIntensity);
 
 int buildQuad(LineVertexF *pts,
               int x1,int y1,

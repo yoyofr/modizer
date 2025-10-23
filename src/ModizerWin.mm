@@ -83,6 +83,9 @@
               [UIKeyCommand keyCommandWithInput:@"\r"   modifierFlags:0 action:@selector(enterPressed)],
               [UIKeyCommand keyCommandWithInput:@" "   modifierFlags:0 action:@selector(spacePressed)],
               
+              [UIKeyCommand keyCommandWithInput:@"b"   modifierFlags:0 action:@selector(keyBPressed)],
+              [UIKeyCommand keyCommandWithInput:@"m"   modifierFlags:0 action:@selector(keyMPressed)],
+              [UIKeyCommand keyCommandWithInput:@"m"   modifierFlags:UIKeyModifierAlternate action:@selector(keyMAltPressed)],
               [UIKeyCommand keyCommandWithInput:@"v"   modifierFlags:0 action:@selector(keyVPressed)],
               [UIKeyCommand keyCommandWithInput:@"t"   modifierFlags:0 action:@selector(keyTPressed)],
               [UIKeyCommand keyCommandWithInput:@"t"   modifierFlags:UIKeyModifierAlternate action:@selector(keyTAltPressed)],
@@ -90,8 +93,6 @@
               [UIKeyCommand keyCommandWithInput:@"p"   modifierFlags:0 action:@selector(keyPPressed)],
               [UIKeyCommand keyCommandWithInput:@"n"   modifierFlags:0 action:@selector(keyNPressed)],
               [UIKeyCommand keyCommandWithInput:@"l"   modifierFlags:0 action:@selector(keyLPressed)],
-              
-              [UIKeyCommand keyCommandWithInput:@"b"   modifierFlags:0 action:@selector(keyBPressed)],
               
               [UIKeyCommand keyCommandWithInput:UIKeyInputEscape   modifierFlags:0 action:@selector(keyESCPressed)],
               [UIKeyCommand keyCommandWithInput:UIKeyInputDelete   modifierFlags:0 action:@selector(keyDeletePressed)],
@@ -164,6 +165,15 @@
 - (void)keyVPressed{
     [detailViewControllerIphone mdSwitchVolBars];
 }
+- (void)keyBPressed{
+    [detailViewControllerIphone mdSwitchFixedBar];
+}
+- (void)keyMPressed{
+    [detailViewControllerIphone mdSwitchBloom:1];
+}
+- (void)keyMAltPressed{
+    [detailViewControllerIphone mdSwitchBloom:-1];
+}
 - (void)keyFPressed{
     [detailViewControllerIphone mdSwitchModPatternFont:1];
 }
@@ -199,9 +209,6 @@
 }
 - (void)keyLPressed{
     [detailViewControllerIphone mdSwitchLockPreset];
-}
-- (void)keyBPressed{
-    [detailViewControllerIphone mdSwitchBloomFX];
 }
 - (void)keyESCPressed{
     [detailViewControllerIphone mdOpenCloseMenu];
@@ -292,7 +299,8 @@
             UIKey *key=press.key;
             if (key.modifierFlags&UIKeyModifierShift) {
 //                MDZILog("Shift released");
-//                _dontForwardEvent=true;
+                _dontForwardEvent=true;
+                [detailViewControllerIphone mdShiftMode:0];
             }
         }
     }
@@ -306,7 +314,8 @@
             UIKey *key=press.key;
             if (key.modifierFlags&UIKeyModifierShift) {
 //                MDZILog("Shift pressed");
-//                _dontForwardEvent=true;
+                _dontForwardEvent=true;
+                [detailViewControllerIphone mdShiftMode:1];
             }
         }
     }
