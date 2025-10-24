@@ -83,7 +83,7 @@ enum MDZ_SETTINGS {
     GLOB_PlayEnqueueAction,
     GLOB_EnqueueMode,
     GLOB_AfterDownloadAction,    
-    GLOB_BackgroundMode,
+    //GLOB_BackgroundMode,
     GLOB_TruncateNameMode,
     GLOB_TitleFilename,
     GLOB_CoverFlow,

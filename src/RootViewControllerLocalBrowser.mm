@@ -2014,6 +2014,8 @@ static int shouldRestart=1;
     
     //creating view for extending background color
     [self addRefreshView];
+    
+    
 }
 
 -(void) resetCachedStats {

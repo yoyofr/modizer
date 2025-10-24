@@ -889,18 +889,19 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_StatsUpload].type=MDZ_BOOLSWITCH;
     settings[GLOB_StatsUpload].detail.mdz_boolswitch.switch_value=1;
     
-    SETTINGS_ID_DEF(GLOB_BackgroundMode)
-    settings[GLOB_BackgroundMode].type=MDZ_SWITCH;
-    settings[GLOB_BackgroundMode].label=(char*)"Background mode";
-    settings[GLOB_BackgroundMode].description=(char*)"Off=no background process, Partial=keep playing music, Full=keep app on in background";
-    settings[GLOB_BackgroundMode].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER;
-    settings[GLOB_BackgroundMode].sub_family=0;
-    settings[GLOB_BackgroundMode].callback=&optGLOBALChangedC;
-    settings[GLOB_BackgroundMode].detail.mdz_switch.switch_value_nb=3;
-    settings[GLOB_BackgroundMode].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_BackgroundMode].detail.mdz_switch.switch_value_nb*sizeof(char*));
-    settings[GLOB_BackgroundMode].detail.mdz_switch.switch_labels[0]=(char*)"Off";
-    settings[GLOB_BackgroundMode].detail.mdz_switch.switch_labels[1]=(char*)"Partial";
-    settings[GLOB_BackgroundMode].detail.mdz_switch.switch_labels[2]=(char*)"Full";
+    //Not used in modern iOS (13+)
+//    SETTINGS_ID_DEF(GLOB_BackgroundMode)
+//    settings[GLOB_BackgroundMode].type=MDZ_SWITCH;
+//    settings[GLOB_BackgroundMode].label=(char*)"Background mode";
+//    settings[GLOB_BackgroundMode].description=(char*)"Off=no background process, Partial=keep playing music, Full=keep app on in background";
+//    settings[GLOB_BackgroundMode].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER;
+//    settings[GLOB_BackgroundMode].sub_family=0;
+//    settings[GLOB_BackgroundMode].callback=&optGLOBALChangedC;
+//    settings[GLOB_BackgroundMode].detail.mdz_switch.switch_value_nb=3;
+//    settings[GLOB_BackgroundMode].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_BackgroundMode].detail.mdz_switch.switch_value_nb*sizeof(char*));
+//    settings[GLOB_BackgroundMode].detail.mdz_switch.switch_labels[0]=(char*)"Off";
+//    settings[GLOB_BackgroundMode].detail.mdz_switch.switch_labels[1]=(char*)"Partial";
+//    settings[GLOB_BackgroundMode].detail.mdz_switch.switch_labels[2]=(char*)"Full";
     
     SETTINGS_ID_DEF(GLOB_EnqueueMode)
     settings[GLOB_EnqueueMode].type=MDZ_SWITCH;
@@ -1141,7 +1142,7 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_default_value=1;
     settings[GLOB_TitleFilename].detail.mdz_boolswitch.switch_default_value=0;
     settings[GLOB_StatsUpload].detail.mdz_boolswitch.switch_default_value=1;
-    settings[GLOB_BackgroundMode].detail.mdz_switch.switch_default_value=2;
+//    settings[GLOB_BackgroundMode].detail.mdz_switch.switch_default_value=2;
     settings[GLOB_EnqueueMode].detail.mdz_switch.switch_default_value=2;
     settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_default_value=0;
     settings[GLOB_AfterDownloadAction].detail.mdz_switch.switch_default_value=1;

@@ -300,16 +300,16 @@
                                 <viewControllerLayoutGuide type="bottom" id="9zf-eA-E19"/>
                             </layoutGuides>
                             <view key="view" clipsSubviews="YES" contentMode="scaleToFill" id="2020">
-                                <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="551"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <subviews>
                                     <imageView userInteractionEnabled="NO" contentMode="scaleToFill" image="1237346308.jpg" id="G7r-Zh-rDi">
-                                        <rect key="frame" x="0.0" y="-16" width="375" height="844"/>
+                                        <rect key="frame" x="0.0" y="-16" width="375" height="583"/>
                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                         <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                     </imageView>
                                     <tableView clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" alwaysBounceVertical="YES" style="plain" separatorStyle="none" rowHeight="40" sectionHeaderHeight="18" sectionFooterHeight="0.0" translatesAutoresizingMaskIntoConstraints="NO" id="2021">
-                                        <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="375" height="551"/>
                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                         <color key="backgroundColor" red="0.94997608420000001" green="0.94997608420000001" blue="0.94997608420000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         <connections>
@@ -336,6 +336,7 @@
             </viewControllers>
             <connections>
                 <outlet property="detailViewControlleriPhone" destination="11" id="282"/>
+                <outlet property="downloadVC" destination="642" id="O2d-B0-7uc"/>
                 <outlet property="rootViewControllerIphone" destination="1979" id="jD3-8a-hYZ"/>
                 <outlet property="webBrowser" destination="444" id="464"/>
             </connections>

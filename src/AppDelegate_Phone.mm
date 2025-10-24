@@ -18,6 +18,7 @@
 #import "SettingsGenViewController.h"
 #import "CarPlayAndRemoteManagement.h"
 #import "DownloadViewController.h"
+#import "myTabBarController.h"
 
 #import "ModizFileHelper.h"
 
@@ -199,6 +200,7 @@ pthread_mutex_t play_mutex;
     modizerWin.rootViewController=(UITabBarController*)tabBarController;
 	[modizerWin addSubview:[(UITabBarController*)tabBarController view]];
 	[modizerWin makeKeyAndVisible];
+    tabBarController.tabBar.items[4].badgeValue=@"0";
 //    playlistVC->browse_depth=0;
 //    playlistVC->detailViewController=detailViewControlleriPhone;
     
@@ -249,6 +251,8 @@ pthread_mutex_t play_mutex;
     animatedLaunchVC=[[AnimatedLaunchVC alloc] initWithNibName:@"AnimatedLaunch" bundle:[NSBundle mainBundle]];
     animatedLaunchVC.view.frame=/*self.view.*/frame;
     animatedLaunchVC.localBrowserVC=rootViewControlleriPhone;
+    
+    //[downloadVC refreshDownloadCountBadge];
     
     //Faster loading for debug
 #ifdef DEBUG_MODIZER
@@ -335,6 +339,7 @@ pthread_mutex_t play_mutex;
 }
 
 - (void)applicationWillEnterForeground:(UIApplication *)application {
+    [downloadVC refreshDownloadCountBadge];
 }
 
 - (void)applicationDidBecomeActive:(UIApplication *)application {
@@ -343,7 +348,7 @@ pthread_mutex_t play_mutex;
 		[detailViewControlleriPhone enterForeground];
 	}
     
-    [downloadVC restoreDownloadList];
+//    [downloadVC restoreDownloadList];
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application {
@@ -358,26 +363,23 @@ pthread_mutex_t play_mutex;
 	}
 
     // Ensure that settings are saved if closed by OS after resigning active
-    [SettingsGenViewController backupSettings];
-    [detailViewControlleriPhone saveSettings];
-    [downloadVC backupDownloadList];
-	[detailViewControlleriPhone updateFlagOnExit];
+//    [SettingsGenViewController backupSettings];
+//    [detailViewControlleriPhone saveSettings];
+//    [downloadVC backupDownloadList];
+//	[detailViewControlleriPhone updateFlagOnExit];
 }
 
-
-
-// iOS 4 background support
 - (void)applicationDidEnterBackground:(UIApplication *)application {
-	[SettingsGenViewController backupSettings];
-	[detailViewControlleriPhone saveSettings];
-	//if (backgroundSupported==NO) return;
-	if (( (detailViewControlleriPhone.mPaused)&&(settings[GLOB_BackgroundMode].detail.mdz_switch.switch_value==1) )||
-		  (settings[GLOB_BackgroundMode].detail.mdz_switch.switch_value==0) ) {
-		//exit app if not playing anything
-        [detailViewControlleriPhone updateFlagOnExit];
-        [downloadVC backupDownloadList];
-		exit(0);
-	}
+//	[SettingsGenViewController backupSettings];
+//	[detailViewControlleriPhone saveSettings];
+//	//if (backgroundSupported==NO) return;
+//	if (( (detailViewControlleriPhone.mPaused)&&(settings[GLOB_BackgroundMode].detail.mdz_switch.switch_value==1) )||
+//		  (settings[GLOB_BackgroundMode].detail.mdz_switch.switch_value==0) ) {
+//		//exit app if not playing anything
+//        [detailViewControlleriPhone updateFlagOnExit];
+//        [downloadVC backupDownloadList];
+//		exit(0);
+//	}
 }
 
 - (void)openFeature:(NSString *)feature {
@@ -403,7 +405,7 @@ continueUserActivity:(NSUserActivity *)userActivity
 	
 	// remember to clean up anything outside of this view's scope, such as
 	// data cached in the class instance and other global data.
-    MDZILog("received a memory warning...");
+    MDZELog("received a memory warning...");
     [SettingsGenViewController backupSettings];
     [detailViewControlleriPhone saveSettings];
     //[downloadVC backupDownloadList];

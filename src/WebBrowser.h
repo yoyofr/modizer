@@ -19,7 +19,7 @@
 @class DownloadViewController;
 @class DetailViewControllerIphone;
 
-@interface WebBrowser : UIViewController <UINavigationControllerDelegate,WKNavigationDelegate,WKUIDelegate,UITextFieldDelegate> {
+@interface WebBrowser : UIViewController <UINavigationControllerDelegate,WKNavigationDelegate,WKUIDelegate,UITextFieldDelegate,NSURLSessionTaskDelegate,NSURLSessionDataDelegate> {
 	ModizerWebView *webView;
     IBOutlet UIView *view;
 	IBOutlet UIToolbar *toolBar;

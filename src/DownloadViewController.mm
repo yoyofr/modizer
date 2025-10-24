@@ -244,7 +244,6 @@ MDZELog("gzread error str for FTP entry %d",i); \
     [self checkNextQueuedItem];
 }
 
-
 /*
  // The designated initializer.  Override if you create the controller programmatically and want to perform customization that is not appropriate for viewDidLoad.
  - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
@@ -383,6 +382,12 @@ MDZELog("gzread error str for FTP entry %d",i); \
     
     [super viewDidLoad];
 	END_PROFILE
+}
+
+- (void)refreshDownloadCountBadge {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        self.barItem.badgeValue=[NSString stringWithFormat:@"%d",(int)(self.mFTPDownloadQueueDepth+self.mURLDownloadQueueDepth)];
+    });
 }
 
 -(void) traitCollectionDidChange:(UITraitCollection *)previousTraitCollection {
@@ -1178,24 +1183,27 @@ MDZELog("gzread error str for FTP entry %d",i); \
 - (void)checkNextQueuedItem {
 	
 	if (mFTPDownloadQueueDepth+mURLDownloadQueueDepth) {
-		btnCancel.enabled=YES;
-        btnClear.enabled=YES;
-		barItem.badgeValue=[NSString stringWithFormat:@"%d",(mFTPDownloadQueueDepth+mURLDownloadQueueDepth)];
+        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+            self.btnCancel.enabled=YES;
+            self.btnClear.enabled=YES;
+            self.barItem.badgeValue=[NSString stringWithFormat:@"%d",(self.mFTPDownloadQueueDepth+self.mURLDownloadQueueDepth)];
+        }];
 		if (mFTPDownloadQueueDepth&& (!mGetFTPInProgress)&& (!mGetURLInProgress)) [self startReceiveCurrentFTPEntry];
 		else if (mURLDownloadQueueDepth&& (!mGetFTPInProgress)&& (!mGetURLInProgress)) [self startReceiveCurrentURLEntry];
 	} else {
-		barItem.badgeValue=nil;
-		downloadLabelName.text=NSLocalizedString(@"No download in progress",@"");
-		downloadLabelSize.text=@"";
-		downloadPrgView.progress=0.0f;
-		btnCancel.enabled=NO;
-        btnClear.enabled=NO;
+        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+            self.barItem.badgeValue=nil;
+            self.downloadLabelName.text=NSLocalizedString(@"No download in progress",@"");
+            self.downloadLabelSize.text=@"";
+            self.downloadPrgView.progress=0.0f;
+            self.btnCancel.enabled=NO;
+            self.btnClear.enabled=NO;
+        }];
 	}
 	[tableView reloadData];
-	
 }
 
-- (void) addDownloadedURLtoPlayer:(NSString*)_filename filepath:(NSString*)_filepath forcenoplay:(int)fnp {
+- (void)addDownloadedURLtoPlayer:(NSString*)_filename filepath:(NSString*)_filepath forcenoplay:(int)fnp {
 	switch ((int)(settings[GLOB_AfterDownloadAction].detail.mdz_switch.switch_value)) {
 		case 0://do nothing
 			break;
@@ -1213,7 +1221,7 @@ MDZELog("gzread error str for FTP entry %d",i); \
 	}
 }
 
-- (void) addDownloadedDIRtoPlayer:(NSString*)_path shortPath:(NSString*)_shortPath{
+- (void)addDownloadedDIRtoPlayer:(NSString*)_path shortPath:(NSString*)_shortPath{
 	NSDirectoryEnumerator *dirEnum;
 	NSDictionary *fileAttributes;
 	NSString *file;
@@ -1343,7 +1351,7 @@ MDZELog("gzread error str for FTP entry %d",i); \
     downloadPrgView.progress=[downloadProgress fractionCompleted];
 }
 
--(void) startReceiveCurrentURLEntry{
+-(void)startReceiveCurrentURLEntry{
 	if (mGetURLInProgress) return;
     
     if (mSuspended) return;

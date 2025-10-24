@@ -113,7 +113,7 @@ static int _pm_fps=60;
 static int meshX=32,meshY=24;
 float glScaleFactor=1.0;
 
-
+static bool mBackground;
 
 bool GetResourceDir(std::string &outdir) {
     outdir = [[[NSBundle mainBundle] resourcePath] UTF8String];
@@ -4936,6 +4936,8 @@ void pmSoftReinit() {
     
     [super viewDidLoad];
     
+    mBackground=false;
+    
     sysMonitor=[[SysMonitoring alloc] init];
     sysMonitorIsActive=false;
     
@@ -5684,23 +5686,24 @@ void pmSoftReinit() {
 
 
 -(void) enterBackground {
-    //if (mHasFocus) [self.navigationController popViewControllerAnimated:YES];
+    mBackground=true;
+    if (m_displayLink) m_displayLink.preferredFramesPerSecond = 1;     //if (mHasFocus) [self.navigationController popViewControllerAnimated:YES];
     if (mHasFocus) {
         mShouldHaveFocusAfterBackground=1;
-        [self viewWillDisappear:NO];
+        //[self viewWillDisappear:NO];
     } else mShouldHaveFocusAfterBackground=0;
-    
 }
 
 -(void) enterForeground {
     if (mShouldHaveFocusAfterBackground) {
-        [self viewWillAppear:YES];
+        //[self viewWillAppear:YES];
     }
+    mBackground=false;
+    if (m_displayLink) m_displayLink.preferredFramesPerSecond = (settings[GLOB_FXFPS].detail.mdz_switch.switch_value?60:30); //60 or 30 fps depending on device speed iPhone
 }
 
 - (void)viewWillLayoutSubviews {
     [self shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)orientationHV];
-    
     
     //AppDelegate_Phone *app_delegate=(AppDelegate_Phone *)[[UIApplication sharedApplication] delegate];
     //CGRect frame = [[app_delegate modizerWin] frame];
@@ -6153,6 +6156,8 @@ extern "C" int current_sample;
     static int frameToUpdate=0;
     int shouldGoToSettings=0;
     
+    if (mBackground) return;
+    
     frameToUpdate++;
     
     if (no_reentrant) {
@@ -6178,13 +6183,10 @@ extern "C" int current_sample;
         return;
     }
     
-    
-    
 //    if (!mFont || !mFontMenu ) {
 //        no_reentrant=0;
 //        return;
 //    }
-    
     fxalpha=settings[GLOB_FXAlpha].detail.mdz_slider.slider_value;
     if (settings[GLOB_FX3DSpectrumBloom].detail.mdz_switch.switch_value) {
         //if bloom is on, fx alpha should be minimum 0.9f
@@ -7684,8 +7686,6 @@ extern "C" int current_sample;
 
 -(void) openPopup:(NSString *)msg secmsg:(NSString*)secmsg style:(int)style{
     CGRect frame;
-    
-    //[UIView commitAnimations];
     
     UIColor *bgcol;
     switch (style){

@@ -452,6 +452,8 @@ static UIAlertView *alertChooseName;
     NSArray *downloadMIMETypes = [NSArray arrayWithContentsOfFile: pathMIMETYPESplist];
     BOOL asdf = [downloadMIMETypes containsObject:MIME];
     
+//    MDZILog("process URL response.\nMIME: %@",MIME)
+    
     if (asdf==NO) {
         r.location=NSNotFound;
         r=[MIME rangeOfString:@"application/"];
@@ -488,7 +490,11 @@ static UIAlertView *alertChooseName;
         NSURL *url=[response URL];
         suggestedFilename=[NSString stringWithFormat:@"%@",response.suggestedFilename];
         expectedContentLength=response.expectedContentLength;
-        [self stopLoading:nil];
+        
+        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+            [self stopLoading:nil];
+        }];
+        
         
         //check if FTP or HTTP
         r.location= NSNotFound;
@@ -546,7 +552,9 @@ static UIAlertView *alertChooseName;
                             [detailViewController play_listmodules:array_label start_index:0 path:array_path];
                         } else [detailViewController add_to_playlist:localPath fileName:[localPath lastPathComponent] forcenoplay:(settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==1)];
                     } else { //start download
-                        [self openPopup: [NSString stringWithFormat:@"Downloading : %@",suggestedFilename]];
+                        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+                            [self openPopup: [NSString stringWithFormat:@"Downloading : %@",suggestedFilename]];
+                        }];
                         [downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:ftpHost filesize:expectedContentLength
                                                             filename:suggestedFilename isMODLAND:1 usePrimaryAction:((settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==0)?1:0)];
                     }
@@ -570,7 +578,9 @@ static UIAlertView *alertChooseName;
                         } else [detailViewController add_to_playlist:localPath fileName:[localPath lastPathComponent] forcenoplay:(settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==1)];
                         
                     } else { //start download
-                        [self openPopup: [NSString stringWithFormat:@"Downloading : %@",suggestedFilename]];
+                        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+                            [self openPopup: [NSString stringWithFormat:@"Downloading : %@",suggestedFilename]];
+                        }];
                         [downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:ftpHost filesize:expectedContentLength
                                                             filename:suggestedFilename isMODLAND:1 usePrimaryAction:((settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==0)?1:0)];
                     }
@@ -593,7 +603,9 @@ static UIAlertView *alertChooseName;
                         } else [detailViewController add_to_playlist:localPath fileName:[localPath lastPathComponent] forcenoplay:(settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==1)];
                         
                     } else { //start download
-                        [self openPopup: [NSString stringWithFormat:@"Downloading : %@",suggestedFilename]];
+                        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+                            [self openPopup: [NSString stringWithFormat:@"Downloading : %@",suggestedFilename]];
+                        }];
                         [downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:ftpHost filesize:expectedContentLength
                                                             filename:suggestedFilename isMODLAND:1 usePrimaryAction:((settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==0)?1:0)];
                     }
@@ -601,21 +613,21 @@ static UIAlertView *alertChooseName;
                     fileManager=nil;
                 }else { //STANDARD DOWNLOAD
                     localPath=[[NSString alloc] initWithFormat:@"Documents/Downloads/%@",suggestedFilename];
-                    [self openPopup: [NSString stringWithFormat:@"Downloading : %@",suggestedFilename]];
+                    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+                        [self openPopup: [NSString stringWithFormat:@"Downloading : %@",suggestedFilename]];
+                    }];
                     [downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:ftpHost filesize:expectedContentLength
                                                         filename:suggestedFilename isMODLAND:0 usePrimaryAction:((settings[GLOB_AfterDownloadAction].detail.mdz_switch.switch_value==2)?1:0)];
                 }
             }
         } else {
-            [self openPopup: [NSString stringWithFormat:@"Downloading : %@",suggestedFilename]];
+            [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+                [self openPopup: [NSString stringWithFormat:@"Downloading : %@",suggestedFilename]];
+            }];
+            
             [downloadViewController addURLToDownloadList:[url absoluteString] fileName:suggestedFilename filesize:expectedContentLength];
         }
     }
-}
-- (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response {
-    [self processURLResponse:response];
-	
-	[connection cancel];
 }
 
 -(void) hidePopup {
@@ -847,23 +859,14 @@ static UIAlertView *alertChooseName;
         }
     }
     
+    //NSURLSession *session = [NSURLSession sharedSession];
+    NSURLSessionConfiguration *config = [NSURLSessionConfiguration defaultSessionConfiguration];
+    NSURLSession *session = [NSURLSession sessionWithConfiguration:config
+                                                          delegate:self
+                                                     delegateQueue:nil];
     
-//    NSURLConnection *theConnection = [NSURLConnection connectionWithRequest:navigationAction.request delegate:self];
-//    if (theConnection==nil) {
-//        MDZELog("Connection failed");
-//    }
-//    MDZILog("request %@",[[navigationAction.request URL] absoluteString])
+    NSURLSessionDataTask *dataTask = [session dataTaskWithRequest:navigationAction.request];
     
-    NSURLSession *session = [NSURLSession sharedSession];
-    NSURLSessionDataTask *dataTask = [session dataTaskWithRequest:navigationAction.request
-            completionHandler:^(NSData *data, NSURLResponse *response, NSError *error)
-            {
-                // do something with the data
-        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-            [self processURLResponse:response];
-        }];
-                
-            }];
     [dataTask resume];
     
     /*WKNavigationTypeLinkActivated,
@@ -891,6 +894,13 @@ static UIAlertView *alertChooseName;
     return;
 }
 
+- (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveResponse:(NSURLResponse *)response completionHandler:(void (^)(NSURLSessionResponseDisposition))completionHandler {
+    // Check if it is to be downloaded and in this case add it to the list
+    [self processURLResponse:response];
+    // Cancel the download by calling the completion handler with Cancel disposition
+    completionHandler(NSURLSessionResponseCancel);
+    
+}
 
 
 //- (void)webViewDidStartLoad:(WKWebView*)webV {

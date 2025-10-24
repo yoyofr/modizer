@@ -22,5 +22,9 @@
 - (void)dealloc {
 }
 
+- (void)getPlaylistsList {
+    
+}
+
 
 @end

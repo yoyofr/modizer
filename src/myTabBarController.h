@@ -8,6 +8,7 @@
 
 #import <UIKit/UIKit.h>
 #import "DetailViewControllerIphone.h"
+#import "DownloadViewController.h"
 //#import "AboutViewController.h"
 #import "WebBrowser.h"
 #import "RootViewControllerLocalBrowser.h"
@@ -23,12 +24,13 @@
 	//IBOutlet AboutViewController *aboutViewController;
 	IBOutlet WebBrowser *webBrowser;
 	IBOutlet RootViewControllerLocalBrowser *rootViewControllerIphone;
+    IBOutlet DownloadViewController *downloadVC;
     
     AnimatedLaunchVC *animatedLaunchVC;
 }
 
 @property (nonatomic, retain) IBOutlet DetailViewControllerIphone *detailViewControlleriPhone;
-//@property (nonatomic, retain) IBOutlet AboutViewController *aboutViewController;
+@property (nonatomic, retain) IBOutlet DownloadViewController *downloadVC;
 @property (nonatomic, retain) IBOutlet WebBrowser *webBrowser;
 @property (nonatomic, retain) IBOutlet RootViewControllerLocalBrowser *rootViewControllerIphone;
 

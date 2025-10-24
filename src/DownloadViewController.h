@@ -123,6 +123,8 @@
 - (void)backupDownloadList;
 - (int)restoreDownloadList;
 
+- (void)refreshDownloadCountBadge;
+
 //-(void)play_listmodules:(t_playlist*)pl start_index:(int)index;
 //-(void)play_listmodules:(NSArray *)array start_index:(int)index path:(NSArray *)arrayFilepaths;
 
