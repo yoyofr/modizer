@@ -11,7 +11,7 @@ uniform float u_min_brightness;
 uniform float u_blurDivider;
 float weight[5] = float[] (0.227027, 0.1945946, 0.1216216, 0.054054, 0.016216);
 float boost_weight=1.0;
-float alpha_thres=0.02;
+float alpha_thres=0.01;
 
 void main()
 {
@@ -49,10 +49,10 @@ void main()
         result += texture(u_curTexture, v_textCoord);
         result /= u_blurDivider;
         
-        //    outColor = vec4(result.rgb,1.0);
+//         outColor = vec4(result.rgb,1.0);
         //    outColor = result;
         float alpha=length(result.rgb);
-        if (alpha>alpha_thres) alpha=1.0;
+        //if (alpha>alpha_thres) alpha=1.0;
         outColor = vec4(result.rgb, alpha);
     } else outColor = vec4(0,0,0,0);
 }

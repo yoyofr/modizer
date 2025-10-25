@@ -9,7 +9,7 @@ extern float glScaleFactor;
 static StopWatch g_timer;
 static ImGuiIOSEvent currentEvent;
 
-float font_size[4]={10,15,22,30};
+float mdz_font_size[4]={10,15,22,30};
 ImFont  *font_menu[4];
 ImFont  *font_tracker[FONT_TRACKER_NB][4];
 ImFont  *font_trackerH[FONT_TRACKER_NB][4];
@@ -52,7 +52,7 @@ bool ImGui_ImplIOS_Init()
 //    IM_ASSERT(font_body != NULL);
     
     for (int j=0;j<4;j++) {
-        float ft_size=font_size[j];
+        float ft_size=mdz_font_size[j];
         font_menu[j]=io.Fonts->AddFontFromFileTTF([[[NSBundle mainBundle] pathForResource:@"Fonts/Roboto-Medium" ofType: @"ttf"] UTF8String], ft_size*glScaleFactor, NULL, io.Fonts->GetGlyphRangesDefault());
         IM_ASSERT(font_menu[j] != NULL);
     }
@@ -60,7 +60,7 @@ bool ImGui_ImplIOS_Init()
     
     for (int i=0;i<FONT_TRACKER_NB;i++) {
         for (int j=0;j<4;j++) {
-            float ft_size=font_size[j];
+            float ft_size=mdz_font_size[j];
             //NSLog(@"loading %s.ttf size: %f",font_trackerName[i][0],ft_size);
             
             ImFontConfig font_cfg = ImFontConfig();

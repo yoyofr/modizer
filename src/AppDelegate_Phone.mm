@@ -8,6 +8,7 @@
 
 //#define GEN_EXT_LIST
 
+#import <UserNotifications/UserNotifications.h>
 #import "AppDelegate_Phone.h"
 #import <MediaPlayer/MediaPlayer.h>
 
@@ -51,6 +52,7 @@ pthread_mutex_t uade_mutex;
 pthread_mutex_t db_mutex;
 pthread_mutex_t download_mutex;
 pthread_mutex_t play_mutex;
+pthread_mutex_t shader_mutex;
 
 @implementation AppDelegate_Phone
 
@@ -133,6 +135,10 @@ pthread_mutex_t play_mutex;
     [mFileMngr createDirectoryAtPath:[NSHomeDirectory() stringByAppendingPathComponent:[NSString stringWithFormat:@"/Documents%s",PM_ROOT_FOLDER_CUSTOM]] withIntermediateDirectories:true attributes:NULL error:NULL];
     [mFileMngr createDirectoryAtPath:[NSHomeDirectory() stringByAppendingPathComponent:[NSString stringWithFormat:@"/Documents%s/presets",PM_ROOT_FOLDER_CUSTOM]] withIntermediateDirectories:true attributes:NULL error:NULL];
     [mFileMngr createDirectoryAtPath:[NSHomeDirectory() stringByAppendingPathComponent:[NSString stringWithFormat:@"/Documents%s/textures",PM_ROOT_FOLDER_CUSTOM]] withIntermediateDirectories:true attributes:NULL error:NULL];
+
+    //create dir for shaders cache
+    [mFileMngr createDirectoryAtPath:[NSHomeDirectory() stringByAppendingPathComponent:[NSString stringWithFormat:@"/Documents%s",SHADER_CACHE_DIR]] withIntermediateDirectories:true attributes:NULL error:NULL];
+        
     
     if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"14.0"))
     if (@available(iOS 14.0, *)) {
@@ -178,6 +184,10 @@ pthread_mutex_t play_mutex;
 		printf("cannot create play mutex");
 		return NO;
 	}
+    if (pthread_mutex_init(&shader_mutex,NULL)) {
+        printf("cannot create play mutex");
+        return NO;
+    }
 	//sqlite3_enable_shared_cache(1);
 	
 
@@ -200,7 +210,7 @@ pthread_mutex_t play_mutex;
     modizerWin.rootViewController=(UITabBarController*)tabBarController;
 	[modizerWin addSubview:[(UITabBarController*)tabBarController view]];
 	[modizerWin makeKeyAndVisible];
-    tabBarController.tabBar.items[4].badgeValue=@"0";
+    tabBarController.tabBar.items[4].badgeValue=nil;
 //    playlistVC->browse_depth=0;
 //    playlistVC->detailViewController=detailViewControlleriPhone;
     
@@ -265,6 +275,12 @@ pthread_mutex_t play_mutex;
     [[UILabel appearanceWhenContainedInInstancesOfClasses:@[[UIAlertController class]]] setNumberOfLines:2];
     [[UILabel appearanceWhenContainedInInstancesOfClasses:@[[UIAlertController class]]] setLineBreakMode:NSLineBreakByWordWrapping];//NSLineBreakByCharWrapping];
     //[[UILabel appearanceWhenContainedInInstancesOfClasses:@[[UIAlertController class]]] setFont:[UIFont systemFontOfSize:6.0]];
+    
+    
+//    UNUserNotificationCenter* center = [UNUserNotificationCenter currentNotificationCenter];
+//    [center requestAuthorizationWithOptions:UNAuthorizationOptionAlert completionHandler:^(BOOL granted, NSError * _Nullable error) {
+//            
+//    }];
     
     END_PROFILE
     return YES;

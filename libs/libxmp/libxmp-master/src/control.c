@@ -134,6 +134,27 @@ static void set_position(struct context_data *ctx, int pos, int dir)
 	}
 }
 
+//YOYOFR
+int xmp_get_position(xmp_context opaque) {
+    struct context_data *ctx = (struct context_data *)opaque;
+    struct player_data *p = &ctx->p;
+
+    if (ctx->state < XMP_STATE_PLAYING)
+        return -XMP_ERROR_STATE;
+    
+    return p->pos;
+}
+int xmp_get_max_position(xmp_context opaque) {
+    struct context_data *ctx = (struct context_data *)opaque;
+    struct module_data *m = &ctx->m;
+
+    if (ctx->state < XMP_STATE_PLAYING)
+        return -XMP_ERROR_STATE;
+    
+    return m->mod.len;
+}
+//YOYOFR
+
 int xmp_next_position(xmp_context opaque)
 {
 	struct context_data *ctx = (struct context_data *)opaque;

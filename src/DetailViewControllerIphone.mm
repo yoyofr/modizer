@@ -24,6 +24,7 @@ int MIDIFX_OFS;
 
 #include <pthread.h>
 extern pthread_mutex_t db_mutex;
+extern pthread_mutex_t shader_mutex;
 
 #import "SysMonitoring.h"
 
@@ -165,7 +166,7 @@ void PresetSwitchFailedEvent(const char* preset_filename, const char* message, v
 #include "../utils/imgui/backends/imgui_impl_ios.h"
 #include "../utils/imgui/backends/imgui_impl_opengl3.h"
 
-extern float font_size[4];
+extern float mdz_font_size[4];
 extern ImFont  *font_menu[4];
 extern ImFont  *font_tracker[FONT_TRACKER_NB][4];
 extern ImFont  *font_trackerH[FONT_TRACKER_NB][4];
@@ -203,8 +204,11 @@ extern volatile t_settings settings[MAX_SETTINGS];
 extern unsigned int tim_notes_cpy[SOUND_BUFFER_NB][DEFAULT_VOICES];
 extern unsigned char tim_voicenb_cpy[SOUND_BUFFER_NB];
 extern char mplayer_error_msg[1024];
-float tim_midifx_note_range,tim_midifx_note_offset,tim_midifx_noteroll_offset,tim_midifx_length;
+float tim_midifx_note_range,tim_midifx_note_offset,tim_midifx_length;
 bool tim_midifx_note_offset_reset;
+
+float prollfx_note_range,prollfx_noteroll_offset,prollfx_length;
+bool prollfx_note_offset_reset;
 
 extern volatile int db_checked;
 
@@ -1004,7 +1008,7 @@ bool sysMonitorIsActive;
 static char note2charA[12]={'C','C','D','D','E','F','F','G','G','A','A','B'};
 static char note2charB[12]={'-','#','-','#','-','-','#','-','#','-','#','-'};
 static char dec2hex[16]={'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
-static int currentPattern,currentRow,visibleChan;
+static int currentPattern,currentRow,visibleChan,nextPattern,prevPattern;
 static float modPatternLineSize,modPatternWindowSize;
 
 static int _shiftModeOn;
@@ -1013,7 +1017,9 @@ static float startPx=0,startPy=0;
 static int movePMnomore=0;
 static int panGesture1Tap;
 static float movePxMID=0,movePyMID=0,movePinchScaleFXMID=0;
+static float movePxPRoll=0,movePyPRoll=0,movePinchScaleFXPRoll=0;
 static float movePxFXPiano=0,movePyFXPiano=0,movePx2FXPiano=0,movePy2FXPiano=0,movePinchScaleFXPiano=0;
+static float movePxFX3DSpectrum=0,movePyFX3DSpectrum=0,movePx2FX3DSpectrum=0,movePy2FX3DSpectrum=0,movePinchScaleFX3DSpectrum=0;
 static float movePx2=0,movePy2=0,movePx2Old=0,movePy2Old=0;
 static float movePinchScale,movePinchScaleOld;
 
@@ -4823,9 +4829,11 @@ void pmSoftReinit() {
 }
 
 - (void)pmInit {
+    pthread_mutex_lock(&shader_mutex);
     _pm = projectm_create();
     if (!_pm) {
         MDZELog("cannot create projectM instance");
+        pthread_mutex_unlock(&shader_mutex);
         return;
     }
     
@@ -4878,6 +4886,7 @@ void pmSoftReinit() {
         //Add dealloc projectM
         projectm_destroy(_pm);
         _pm=NULL;
+        pthread_mutex_unlock(&shader_mutex);
         return;
     }
 
@@ -4912,12 +4921,12 @@ void pmSoftReinit() {
     for (int i=0;i<100;i++) projectm_playlist_play_next(_pm_playlist, true);
 #else
     projectm_playlist_play_next(_pm_playlist, true);
+    
 #endif
-
-    
     _pmPresetHasChanged=true;
-    
     _pmIsInitialized=true;
+    
+    pthread_mutex_unlock(&shader_mutex);
 }
 
 - (void) reinitVisuVars {
@@ -4949,6 +4958,16 @@ void pmSoftReinit() {
     [self setContextOGL];
     
     CHECK_PROFILE("openGL")
+    
+    //
+    //opengl stuff
+    //Init shaders
+    if (RenderUtils::RenderInit()) {
+         MDZILog("render init OK");
+    }  else MDZELog("!!render init KO!!");
+    
+    CHECK_PROFILE("Renders")
+    
     //--------------------------------//
     // ProjectM
     //--------------------------------//
@@ -5469,14 +5488,7 @@ void pmSoftReinit() {
     mplayer = [[ModizMusicPlayer alloc] initMusicPlayer];
     
     CHECK_PROFILE("musicplayer")
-    //
-    //opengl stuff
-    //Init shaders
-    if (RenderUtils::RenderInit()) {
-         MDZILog("render init OK");
-    }  else MDZELog("!!render init KO!!");
     
-    CHECK_PROFILE("Renders")
     
     // Create gesture recognizer
     UITapGestureRecognizer *glViewOneFingerOneTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(glViewOneFingerOneTap:)];
@@ -5565,6 +5577,15 @@ void pmSoftReinit() {
     
     tim_midifx_note_offset_reset=true;
     tim_midifx_length=MAX_MIDIFX_LENGTH;
+    
+    prollfx_note_range=DEFAULT_VISIBLE_MIDI_NOTES*mDevice_ww/640;
+    if (prollfx_note_range>MAX_VISIBLE_MIDI_NOTES) prollfx_note_range=MAX_VISIBLE_MIDI_NOTES;
+    if (prollfx_note_range<MIN_VISIBLE_MIDI_NOTES) prollfx_note_range=MIN_VISIBLE_MIDI_NOTES;
+    
+    movePinchScaleFXPRoll=(DEFAULT_VISIBLE_MIDI_NOTES-prollfx_note_range)/64.0;
+    
+    prollfx_note_offset_reset=true;
+    prollfx_length=MAX_MIDIFX_LENGTH;
     
     clearAudioFXbuffer=true;
     
@@ -5923,6 +5944,7 @@ void pmSoftReinit() {
 
     
     movePxMID=movePyMID=0;
+    movePxPRoll=movePyPRoll=0;
     movePMnomore=0;
     
     tgtFrameCnt=0;
@@ -6145,13 +6167,18 @@ extern "C" int current_sample;
     int numRows,numRowsP,numRowsN;
     int i,j,k,l,note_avail,idx,startRow;
     int linestodraw,midline;
-    ModPlugNote *currentNotes,*prevNotes,*nextNotes,*readNote;
+    ModPlugNote *currentNotes,*prevNotes,*nextNotes,*readNotes;
     int playerpos=[mplayer getCurrentPlayedBufferIdx];
     static float piano_posx=0;
     static float piano_posy=0;
     static float piano_posz=0;
     static float piano_rotx=0;
     static float piano_roty=0;
+    static float spectrum_posx=0;
+    static float spectrum_posy=0;
+    static float spectrum_posz=0;
+    static float spectrum_rotx=0;
+    static float spectrum_roty=0;
     float fxalpha;
     static int frameToUpdate=0;
     int shouldGoToSettings=0;
@@ -6190,7 +6217,7 @@ extern "C" int current_sample;
     fxalpha=settings[GLOB_FXAlpha].detail.mdz_slider.slider_value;
     if (settings[GLOB_FX3DSpectrumBloom].detail.mdz_switch.switch_value) {
         //if bloom is on, fx alpha should be minimum 0.9f
-        fxalpha=fmax(fxalpha,0.9f);
+        //fxalpha=fmax(fxalpha,0.9f);
     }
     //m_oglView.alpha=fxalpha;
     
@@ -6343,28 +6370,49 @@ extern "C" int current_sample;
     /*-------------------------------------------------------------------------------*/
     
     
-    movePxPM+=movePx-movePxOld;
-    movePyPM+=movePy-movePyOld;
+    if ([SettingsGenViewController isFXActive:PROJECTM_FXONOFF]) {
+        movePxPM+=movePx-movePxOld;
+        movePyPM+=movePy-movePyOld;
+    }
     
-    movePxMOD+=movePx-movePxOld;
-    movePyMOD+=movePy-movePyOld;
-    movePxMID+=movePx-movePxOld;
-    movePyMID+=movePy-movePyOld;
+    if ([SettingsGenViewController isFXActive:GLOB_FXPiano3D]) {
+        movePxFXPiano+=movePx-movePxOld;
+        movePyFXPiano+=movePy-movePyOld;
+        movePx2FXPiano+=movePx2-movePx2Old;
+        movePy2FXPiano+=movePy2-movePy2Old;
+        movePinchScaleFXPiano+=movePinchScale-movePinchScaleOld;
+    }
     
-    movePxFXPiano+=movePx-movePxOld;
-    movePyFXPiano+=movePy-movePyOld;
-    movePx2FXPiano+=movePx2-movePx2Old;
-    movePy2FXPiano+=movePy2-movePy2Old;
+    if ([SettingsGenViewController isFXActive:GLOB_FX3DSpectrum]) {
+        movePxFX3DSpectrum+=movePx-movePxOld;
+        movePyFX3DSpectrum+=movePy-movePyOld;
+        movePx2FX3DSpectrum+=movePx2-movePx2Old;
+        movePy2FX3DSpectrum+=movePy2-movePy2Old;
+        movePinchScaleFX3DSpectrum+=movePinchScale-movePinchScaleOld;
+    }
     
-    movePinchScaleFXPiano+=movePinchScale-movePinchScaleOld;
+    if ([SettingsGenViewController isFXActive:GLOB_FXMIDIPattern]) {
+        movePxMID+=movePx-movePxOld;
+        movePyMID+=movePy-movePyOld;
+        movePinchScaleFXMID+=movePinchScale-movePinchScaleOld;
+    }
     
-    movePinchScaleFXMID+=movePinchScale-movePinchScaleOld;
+    if ([SettingsGenViewController isFXActive:GLOB_FXPianoRoll]) {
+        movePxPRoll+=movePx-movePxOld;
+        movePyPRoll+=movePy-movePyOld;
+        movePinchScaleFXPRoll+=movePinchScale-movePinchScaleOld;
+    }
     
+    if ([SettingsGenViewController isFXActive:GLOB_FXMODPattern]) {
+        movePxMOD+=movePx-movePxOld;
+        movePyMOD+=movePy-movePyOld;
+    }
+    
+    movePinchScaleOld=movePinchScale;
     movePxOld=movePx;
     movePyOld=movePy;
     movePx2Old=movePx2;
     movePy2Old=movePy2;
-    movePinchScaleOld=movePinchScale;
     
     if (settings[PROJECTM_FXONOFF].detail.mdz_switch.switch_value) {
         //PM is active
@@ -6440,12 +6488,10 @@ extern "C" int current_sample;
     /* Compute midiFX display scrolling */
     /*******************************************************/
     if ( ([mplayer isMidiLikeDataAvailable]||mplayer.mPatternDataAvail)&&
-        (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value||settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value) ) {
+        settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value ) {
         float note_fx_linewidth;
         float noteroll_fx_keywidth;
         //scroll  & get current note bar width
-        
-        tim_midifx_noteroll_offset+=-movePxMID;
         
         if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value==2) {
             //vertical
@@ -6482,25 +6528,16 @@ extern "C" int current_sample;
         
         float visible_wkeys_range=(tim_midifx_note_range*7.0/12.0);
         noteroll_fx_keywidth=(float)(ww)/visible_wkeys_range;
-        if (tim_midifx_noteroll_offset<0) {
-            tim_midifx_noteroll_offset=0;
-        }
-        if ( (tim_midifx_noteroll_offset>(MAX_MIDI_NOTES-tim_midifx_note_range)*noteroll_fx_keywidth*7.0/12.0) ) {
-            tim_midifx_noteroll_offset=(MAX_MIDI_NOTES-tim_midifx_note_range)*noteroll_fx_keywidth*7.0/12.0;
-        }
         
         if (tim_midifx_note_offset_reset) {
             tim_midifx_note_offset_reset=false;
             tim_midifx_note_offset=note_fx_linewidth*(128 - tim_midifx_note_range)/2;
             if (tim_midifx_note_offset<0) tim_midifx_note_offset=0;
             
-            tim_midifx_noteroll_offset=noteroll_fx_keywidth*(128 - tim_midifx_note_range)/2.0*7.0/12.0;
-            if (tim_midifx_noteroll_offset<0) tim_midifx_noteroll_offset=0;
         }
         
         //compute current center
         float note_visible_center=tim_midifx_note_offset/note_fx_linewidth+(tim_midifx_note_range/2);
-        float noteroll_visible_center=tim_midifx_noteroll_offset*12.0/7.0/noteroll_fx_keywidth+(tim_midifx_note_range/2);
         
         //update visible notes range
         if (movePinchScaleFXMID<((DEFAULT_VISIBLE_MIDI_NOTES-MAX_VISIBLE_MIDI_NOTES)/64.0f)) movePinchScaleFXMID=((DEFAULT_VISIBLE_MIDI_NOTES-MAX_VISIBLE_MIDI_NOTES)/64.0f);
@@ -6533,17 +6570,62 @@ extern "C" int current_sample;
             tim_midifx_note_offset=(MAX_MIDI_NOTES-tim_midifx_note_range)*note_fx_linewidth;
         }
         
-        tim_midifx_noteroll_offset=(noteroll_visible_center-(tim_midifx_note_range/2))*7.0/12.0*noteroll_fx_keywidth;
-        if (tim_midifx_noteroll_offset<0) {
-            tim_midifx_noteroll_offset=0;
-        }
-        if ( (tim_midifx_noteroll_offset>(MAX_MIDI_NOTES-tim_midifx_note_range)*noteroll_fx_keywidth*7.0/12.0) ) {
-            tim_midifx_noteroll_offset=(MAX_MIDI_NOTES-tim_midifx_note_range)*noteroll_fx_keywidth*7.0/12.0;
-        }
-        //static int cpt=0;
-        //if (((cpt)&31)==0) printf("tim_midifx_noteroll_offset %f  max %f\n",tim_midifx_noteroll_offset,(MAX_MIDI_NOTES-tim_midifx_note_range)*noteroll_fx_keywidth*7.0/12.0);
-        //cpt++;
+    }
+    
+    /*******************************************************/
+    /* Compute pianoroll display scrolling */
+    /*******************************************************/
+    if ( ([mplayer isMidiLikeDataAvailable]||mplayer.mPatternDataAvail)&&
+        settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value ) {
+        float note_fx_linewidth;
+        float noteroll_fx_keywidth;
+        //scroll  & get current note bar width
         
+        prollfx_noteroll_offset+=-movePxPRoll;
+        
+        movePxPRoll=0;
+        movePyPRoll=0;
+        
+        float visible_wkeys_range=(prollfx_note_range*7.0/12.0);
+        noteroll_fx_keywidth=(float)(ww)/visible_wkeys_range;
+        if (prollfx_noteroll_offset<0) {
+            prollfx_noteroll_offset=0;
+        }
+        if ( (prollfx_noteroll_offset>(MAX_MIDI_NOTES-prollfx_note_range)*noteroll_fx_keywidth*7.0/12.0) ) {
+            prollfx_noteroll_offset=(MAX_MIDI_NOTES-prollfx_note_range)*noteroll_fx_keywidth*7.0/12.0;
+        }
+        
+        if (prollfx_note_offset_reset) {
+            prollfx_note_offset_reset=false;
+            prollfx_noteroll_offset=noteroll_fx_keywidth*(128 - prollfx_note_range)/2.0*7.0/12.0;
+            if (prollfx_noteroll_offset<0) prollfx_noteroll_offset=0;
+        }
+        
+        //compute current center
+        float noteroll_visible_center=prollfx_noteroll_offset*12.0/7.0/noteroll_fx_keywidth+(prollfx_note_range/2);
+        
+        //update visible notes range
+        if (movePinchScaleFXPRoll<((DEFAULT_VISIBLE_MIDI_NOTES-MAX_VISIBLE_MIDI_NOTES)/64.0f)) movePinchScaleFXPRoll=((DEFAULT_VISIBLE_MIDI_NOTES-MAX_VISIBLE_MIDI_NOTES)/64.0f);
+        if (movePinchScaleFXPRoll>((DEFAULT_VISIBLE_MIDI_NOTES-MIN_VISIBLE_MIDI_NOTES)/64.0f)) movePinchScaleFXPRoll=(DEFAULT_VISIBLE_MIDI_NOTES-MIN_VISIBLE_MIDI_NOTES)/64.0f;
+        prollfx_note_range=DEFAULT_VISIBLE_MIDI_NOTES-movePinchScaleFXPRoll*64.0f;
+        
+        if  (prollfx_note_range<MIN_VISIBLE_MIDI_NOTES) {
+            prollfx_note_range=MIN_VISIBLE_MIDI_NOTES;
+        }
+        if (prollfx_note_range>MAX_VISIBLE_MIDI_NOTES) prollfx_note_range=MAX_VISIBLE_MIDI_NOTES;
+        
+        //update bar width
+        visible_wkeys_range=(prollfx_note_range*7.0/12.0);
+        noteroll_fx_keywidth=(float)(ww)/visible_wkeys_range;
+        
+        //recompute offset to get same center
+        prollfx_noteroll_offset=(noteroll_visible_center-(prollfx_note_range/2))*7.0/12.0*noteroll_fx_keywidth;
+        if (prollfx_noteroll_offset<0) {
+            prollfx_noteroll_offset=0;
+        }
+        if ( (prollfx_noteroll_offset>(MAX_MIDI_NOTES-prollfx_note_range)*noteroll_fx_keywidth*7.0/12.0) ) {
+            prollfx_noteroll_offset=(MAX_MIDI_NOTES-prollfx_note_range)*noteroll_fx_keywidth*7.0/12.0;
+        }
     }
     
     //check for click
@@ -6743,19 +6825,23 @@ extern "C" int current_sample;
         }
         if (settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value) {
             
-            if (movePinchScaleFXPiano<-0/4) movePinchScaleFXPiano=-0/4;
-            if (movePinchScaleFXPiano>9.0/4) movePinchScaleFXPiano=9.0/4;
-            piano_rotx=movePyFXPiano;
-            piano_roty=movePxFXPiano;
-            piano_posx=movePx2FXPiano*0.05;
-            piano_posy=-movePy2FXPiano*0.05;
-            piano_posz=movePinchScaleFXPiano*10*4;
+            if (movePinchScaleFX3DSpectrum<-9.0/4) movePinchScaleFX3DSpectrum=-9.0/4;
+            if (movePinchScaleFX3DSpectrum>9.0/4) movePinchScaleFX3DSpectrum=9.0/4;
+            spectrum_rotx=movePxFX3DSpectrum*0.5f;
+            spectrum_roty=movePyFX3DSpectrum*0.25f;
+            if (movePx2FX3DSpectrum>400) movePx2FX3DSpectrum=400;
+            if (movePx2FX3DSpectrum<-400) movePx2FX3DSpectrum=-400;
+            if (movePy2FX3DSpectrum>400) movePy2FX3DSpectrum=400;
+            if (movePy2FX3DSpectrum<-400) movePy2FX3DSpectrum=-400;
+            spectrum_posx=movePx2FX3DSpectrum*0.05;
+            spectrum_posy=-movePy2FX3DSpectrum*0.05;
+            spectrum_posz=movePinchScaleFX3DSpectrum*10*4;
             
-            int mirror=1;
+            int mirror=0;
             if (settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value) mirror=0;
             if (settings[GLOB_FXPiano3D].detail.mdz_switch.switch_value) mirror=0;
             RenderUtils::DrawSpectrum3DBar(real_spectrumL,real_spectrumR,ww,hh,angle,
-                                           settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value,nb_spectrum_bands,mirror,glScaleFactor,settings[GLOB_FX3DSpectrumBloom].detail.mdz_switch.switch_value,piano_posx,piano_posy,piano_posz);
+                                           settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value,nb_spectrum_bands,mirror,glScaleFactor,settings[GLOB_FX3DSpectrumBloom].detail.mdz_switch.switch_value,spectrum_rotx,spectrum_roty,spectrum_posx,spectrum_posy,spectrum_posz);
         }
         
                 if (settings[GLOB_FXPiano3D].detail.mdz_switch.switch_value) {
@@ -6826,12 +6912,10 @@ extern "C" int current_sample;
             
             switch (settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value) {
                 case 1:
-//                    tim_midifx_noteroll_offset=0;
-//                    tim_midifx_note_range=DEFAULT_VISIBLE_MIDI_NOTES*mDevice_ww/640.0;
-                    RenderUtils::DrawPianoRollFX(ww,hh,settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value-1,tim_midifx_note_range,tim_midifx_noteroll_offset,tim_midifx_length,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,mScaleFactor,(char*)voicesName);
+                    RenderUtils::DrawPianoRollFX(ww,hh,settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value-1,prollfx_note_range,prollfx_noteroll_offset,prollfx_length,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,mScaleFactor,(char*)voicesName);
                     break;
                 case 2:
-                    RenderUtils::DrawPianoRollSynthesiaFX(ww,hh,settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value-1,tim_midifx_note_range,tim_midifx_noteroll_offset,tim_midifx_length,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,mScaleFactor,(char*)voicesName);
+                    RenderUtils::DrawPianoRollSynthesiaFX(ww,hh,settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value-1,prollfx_note_range,prollfx_noteroll_offset,prollfx_length,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,mScaleFactor,(char*)voicesName);
                     break;
             }
         }
@@ -6908,10 +6992,10 @@ extern "C" int current_sample;
                 currentNotes=[mplayer ompt_getPattern:currentPattern numrows:(unsigned int*)(&numRows)];
                 prevNotes=nil;
                 nextNotes=nil;
-                int prevPattern=[mplayer prevPattern][playerpos];
+                prevPattern=[mplayer prevPattern][playerpos];
                 if (prevPattern>=0) prevNotes=[mplayer ompt_getPattern:prevPattern numrows:(unsigned int*)(&numRowsP)];
                 
-                int nextPattern=[mplayer nextPattern][playerpos];
+                nextPattern=[mplayer nextPattern][playerpos];
                 if (nextPattern>=0) nextNotes=[mplayer ompt_getPattern:nextPattern numrows:(unsigned int*)(&numRowsN)];
                 
                 if (settings[GLOB_FXMODPattern_CurrentLineMode].detail.mdz_switch.switch_value) midline=linestodraw>>1;
@@ -6948,7 +7032,7 @@ extern "C" int current_sample;
                     l=0;
                     
                     //1st win with line nb
-                    char str_prefix[3];
+                    char str_prefix[4];
                     ImVec2 cursorPos;
                     float startx=(ImGui::CalcTextSize("1234").x);
                     modPatternWindowSize=ww*glScaleFactor-startx;
@@ -7033,20 +7117,20 @@ extern "C" int current_sample;
                                 if (numRowsP+i>=0) {
                                     note_avail=1;
                                     idx=(numRowsP+i)*mplayer.numChannels;
-                                    readNote=prevNotes;
+                                    readNotes=prevNotes;
                                 }
                             }
                         } else if (currentNotes&&(i<numRows)) {
                             color_div=1;
                             note_avail=1;
                             idx=i*mplayer.numChannels;
-                            readNote=currentNotes;
+                            readNotes=currentNotes;
                         } else {
                             color_div=0.7;
                             if ((nextNotes)&&((i-numRows)<numRowsN)) {
                                 note_avail=1;
                                 idx=(i-numRows)*mplayer.numChannels;
-                                readNote=nextNotes;
+                                readNotes=nextNotes;
                             }
                         }
                         k=0;
@@ -7056,11 +7140,11 @@ extern "C" int current_sample;
                             switch (display_note_mode) {
                                 case 0: //all infos
                                     for (j=0;j<endChan;j++)  {
-                                        cnote=currentNotes[idx].Note;
-                                        cinst=currentNotes[idx].Instrument;
-                                        ceff=currentNotes[idx].Effect;
-                                        cparam=currentNotes[idx].Parameter;
-                                        cvol=currentNotes[idx].Volume;
+                                        cnote=readNotes[idx].Note;
+                                        cinst=readNotes[idx].Instrument;
+                                        ceff=readNotes[idx].Effect;
+                                        cparam=readNotes[idx].Parameter;
+                                        cvol=readNotes[idx].Volume;
                                         
                                         if (highlight) {
                                             colR=modpat_curTheme->note_colH[0]*color_div;
@@ -7182,8 +7266,8 @@ extern "C" int current_sample;
                                     break;
                                 case 1: //note + instru
                                     for (j=0;j<endChan;j++)  {
-                                        cnote=currentNotes[idx].Note;
-                                        cinst=currentNotes[idx].Instrument;
+                                        cnote=readNotes[idx].Note;
+                                        cinst=readNotes[idx].Instrument;
                                         
                                         if (highlight) {
                                             colR=modpat_curTheme->note_colH[0]*color_div;
@@ -7238,7 +7322,7 @@ extern "C" int current_sample;
                                     break;
                                 case 2: //only note
                                     for (j=0;j<endChan;j++)  {
-                                        cnote=currentNotes[idx].Note;
+                                        cnote=readNotes[idx].Note;
                                         
                                         if (highlight) {
                                             colR=modpat_curTheme->note_colH[0]*color_div;
@@ -7406,8 +7490,15 @@ extern "C" int current_sample;
         ImGui::SetCursorPos(ImVec2(winsizeX*glScaleFactor-posx,posy));
         ImGui::Text("%s",strTmp);
         posy+=sizeText.y+2;
-        //eEsolution
+        //Resolution
         snprintf(strTmp,32,"%.0fx%.0f",ww*glScaleFactor,hh*glScaleFactor);
+        sizeText=ImGui::CalcTextSize(strTmp);
+        posx=sizeText.x+8;
+        ImGui::SetCursorPos(ImVec2(winsizeX*glScaleFactor-posx,posy));
+        ImGui::Text("%s",strTmp);
+        posy+=sizeText.y+2;
+
+        snprintf(strTmp,32,"%d %d %d",prevPattern,currentPattern,nextPattern);
         sizeText=ImGui::CalcTextSize(strTmp);
         posx=sizeText.x+8;
         ImGui::SetCursorPos(ImVec2(winsizeX*glScaleFactor-posx,posy));

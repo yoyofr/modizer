@@ -5,8 +5,6 @@
 //  Created by Yohann Magnien on 04/06/10.
 //  Copyright __YoyoFR / Yohann Magnien__ 2010. All rights reserved.
 //
-
-
 #define RATING_IMG(a) ( (a==5?2:(a?1:0)) )
 
 #define PRI_SEC_ACTIONS_IMAGE_SIZE 40
@@ -16,6 +14,8 @@ extern NSURL *icloudURL;
 extern bool icloud_available;
 
 NSString *cutpaste_filesrcpath=nil;
+
+#import <UserNotifications/UserNotifications.h>
 
 #include <sys/types.h>
 #include <sys/sysctl.h>
@@ -2126,6 +2126,28 @@ static int shouldRestart=1;
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
     
+    
+    
+//    // Configure the notification's payload.
+//    UNMutableNotificationContent *content = [[UNMutableNotificationContent alloc] init];
+//    content.title = [NSString localizedUserNotificationStringForKey:@"Hello!" arguments:nil];
+//    //content.subtitle = [NSString localizedUserNotificationStringForKey:@"Subtitle" arguments:nil];
+//    //content.badge = [NSNumber numberWithInt:1];
+//    content.body = [NSString localizedUserNotificationStringForKey:@"Hello_message_body" arguments:nil];
+//    //content.sound = [UNNotificationSound defaultSound];
+//     
+//    // Deliver the notification in five seconds.
+//    UNTimeIntervalNotificationTrigger* trigger = [UNTimeIntervalNotificationTrigger
+//                triggerWithTimeInterval:5 repeats:NO];
+//    UNNotificationRequest* request = [UNNotificationRequest requestWithIdentifier:@"FiveSecond"
+//                content:content trigger:trigger];
+//     
+//    // Schedule the notification.
+//    UNUserNotificationCenter* center = [UNUserNotificationCenter currentNotificationCenter];
+//    [center addNotificationRequest:request withCompletionHandler:^(NSError * _Nullable error) {
+//        
+//    }];
+//    
     forceReloadCells=false;
     
     //check if a pending cut/paste exists

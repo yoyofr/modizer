@@ -56,6 +56,7 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
 
 #import "OnlineViewController.h"
 #import "TTFadeAnimator.h"
+#import "Reachability.h"
 
 
 @interface OnlineViewController ()
@@ -85,6 +86,7 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
 /////////////////////////////////////////////////////////////////////////////////////////////
 #include "WaitingViewCommonMethods.h"
 /////////////////////////////////////////////////////////////////////////////////////////////
+#include "AlertsCommonFunctions.h"
 
 -(void)viewDidDisappear:(BOOL)animated {
     [repeatingTimer invalidate];
@@ -577,6 +579,7 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
+    Reachability* reach;
     // Navigation logic may go here. Create and push another view controller.
     
     switch (indexPath.section) {
@@ -619,30 +622,44 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
                     [self.navigationController pushViewController:collectionViewController animated:YES];
                     break;
                 case ONLINE_COLLECTIONS_JOSHW: //JOSHW
-                    collectionViewController = [[RootViewControllerJoshWWebParser alloc]  initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]];
-                    //set new title
-                    collectionViewController.title = @"JoshW";
-                    // Set new directory
-                    ((RootViewControllerJoshWWebParser*)collectionViewController)->browse_depth = 0;
-                    ((RootViewControllerJoshWWebParser*)collectionViewController)->detailViewController=detailViewController;
-                    ((RootViewControllerJoshWWebParser*)collectionViewController)->downloadViewController=downloadViewController;
-                    
-                    collectionViewController.view.frame=self.view.frame;
-                    // And push the window
-                    [self.navigationController pushViewController:collectionViewController animated:YES];
+                    reach = [Reachability reachabilityWithHostname:@"pc.joshw.info/"];
+                        
+                    if ([reach isReachable]) {
+                        collectionViewController = [[RootViewControllerJoshWWebParser alloc]  initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]];
+                        //set new title
+                        collectionViewController.title = @"JoshW";
+                        // Set new directory
+                        ((RootViewControllerJoshWWebParser*)collectionViewController)->browse_depth = 0;
+                        ((RootViewControllerJoshWWebParser*)collectionViewController)->detailViewController=detailViewController;
+                        ((RootViewControllerJoshWWebParser*)collectionViewController)->downloadViewController=downloadViewController;
+                        
+                        collectionViewController.view.frame=self.view.frame;
+                        // And push the window
+                        [self.navigationController pushViewController:collectionViewController animated:YES];
+                    } else {
+                       [self showAlertMsg:NSLocalizedString(@"Warning",@"")
+                                  message:NSLocalizedString(@"No internet connectivity or website down.",@"")];
+                   }
                     break;
                 case ONLINE_COLLECTIONS_VGMRips: //VGMRips
-                    collectionViewController = [[RootViewControllerVGMRWebParser alloc]  initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]];
-                    //set new title
-                    collectionViewController.title = @"VGMRips";
-                    // Set new directory
-                    ((RootViewControllerVGMRWebParser*)collectionViewController)->browse_depth = 0;
-                    ((RootViewControllerVGMRWebParser*)collectionViewController)->detailViewController=detailViewController;
-                    ((RootViewControllerVGMRWebParser*)collectionViewController)->downloadViewController=downloadViewController;
-                    
-                    collectionViewController.view.frame=self.view.frame;
-                    // And push the window
-                    [self.navigationController pushViewController:collectionViewController animated:YES];
+                    reach = [Reachability reachabilityWithHostname:@"vgmrips.net"];
+                        
+                    if ([reach isReachable]) {
+                        collectionViewController = [[RootViewControllerVGMRWebParser alloc]  initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]];
+                        //set new title
+                        collectionViewController.title = @"VGMRips";
+                        // Set new directory
+                        ((RootViewControllerVGMRWebParser*)collectionViewController)->browse_depth = 0;
+                        ((RootViewControllerVGMRWebParser*)collectionViewController)->detailViewController=detailViewController;
+                        ((RootViewControllerVGMRWebParser*)collectionViewController)->downloadViewController=downloadViewController;
+                        
+                        collectionViewController.view.frame=self.view.frame;
+                        // And push the window
+                        [self.navigationController pushViewController:collectionViewController animated:YES];
+                    } else {
+                        [self showAlertMsg:NSLocalizedString(@"Warning",@"")
+                                   message:NSLocalizedString(@"No internet connectivity or website down.",@"")];
+                    }
                     break;
 //                case ONLINE_COLLECTIONS_P2612: //P2612
 //                    collectionViewController = [[RootViewControllerP2612WebParser alloc]  initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]];
@@ -658,75 +675,130 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
 //                    [self.navigationController pushViewController:collectionViewController animated:YES];
 //                    break;
                 case ONLINE_COLLECTIONS_SNESM: //SnesMusic
-                    collectionViewController = [[RootViewControllerSNESMWebParser alloc]  initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]];
-                    //set new title
-                    collectionViewController.title = @"SNESmusic";
-                    // Set new directory
-                    ((RootViewControllerSNESMWebParser*)collectionViewController)->browse_depth = 0;
-                    ((RootViewControllerSNESMWebParser*)collectionViewController)->detailViewController=detailViewController;
-                    ((RootViewControllerSNESMWebParser*)collectionViewController)->downloadViewController=downloadViewController;
+                    //check if reachable
+                    // Allocate a reachability object
+                    reach = [Reachability reachabilityWithHostname:@"snesmusic.org/v2"];
                     
-                    collectionViewController.view.frame=self.view.frame;
-                    // And push the window
-                    [self.navigationController pushViewController:collectionViewController animated:YES];
+                    if ([reach isReachable]) {
+                        collectionViewController = [[RootViewControllerSNESMWebParser alloc]  initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]];
+                        //set new title
+                        collectionViewController.title = @"SNESmusic";
+                        // Set new directory
+                        ((RootViewControllerSNESMWebParser*)collectionViewController)->browse_depth = 0;
+                        ((RootViewControllerSNESMWebParser*)collectionViewController)->detailViewController=detailViewController;
+                        ((RootViewControllerSNESMWebParser*)collectionViewController)->downloadViewController=downloadViewController;
+                        
+                        collectionViewController.view.frame=self.view.frame;
+                        // And push the window
+                        [self.navigationController pushViewController:collectionViewController animated:YES];
+                    } else {
+                        [self showAlertMsg:NSLocalizedString(@"Warning",@"")
+                                   message:NSLocalizedString(@"No internet connectivity or website down.",@"")];
+                    }
                     break;
+                
                 case ONLINE_COLLECTIONS_SMSP: //SMS Power!
-                    collectionViewController = [[RootViewControllerSMSPWebParser alloc]  initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]];
-                    //set new title
-                    collectionViewController.title = @"SMS Power!";
-                    // Set new directory
-                    ((RootViewControllerSMSPWebParser*)collectionViewController)->browse_depth = 0;
-                    ((RootViewControllerSMSPWebParser*)collectionViewController)->detailViewController=detailViewController;
-                    ((RootViewControllerSMSPWebParser*)collectionViewController)->downloadViewController=downloadViewController;
-                    
-                    collectionViewController.view.frame=self.view.frame;
-                    // And push the window
-                    [self.navigationController pushViewController:collectionViewController animated:YES];
+                    reach = [Reachability reachabilityWithHostname:@"www.smspower.org"];
+                        
+                    if ([reach isReachable]) {
+                        collectionViewController = [[RootViewControllerSMSPWebParser alloc]  initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]];
+                        //set new title
+                        collectionViewController.title = @"SMS Power!";
+                        // Set new directory
+                        ((RootViewControllerSMSPWebParser*)collectionViewController)->browse_depth = 0;
+                        ((RootViewControllerSMSPWebParser*)collectionViewController)->detailViewController=detailViewController;
+                        ((RootViewControllerSMSPWebParser*)collectionViewController)->downloadViewController=downloadViewController;
+                        
+                        collectionViewController.view.frame=self.view.frame;
+                        // And push the window
+                        [self.navigationController pushViewController:collectionViewController animated:YES];
+                    } else {
+                        [self showAlertMsg:NSLocalizedString(@"Warning",@"")
+                                   message:NSLocalizedString(@"No internet connectivity or website down.",@"")];
+                    }
                     break;
                 case ONLINE_COLLECTIONS_ZXART: //SMS Power!
-                    collectionViewController = [[RootViewControllerZXArtWebParser alloc]  initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]];
-                    //set new title
-                    collectionViewController.title = @"ZXArt";
-                    // Set new directory
-                    ((RootViewControllerZXArtWebParser*)collectionViewController)->browse_depth = 0;
-                    ((RootViewControllerZXArtWebParser*)collectionViewController)->detailViewController=detailViewController;
-                    ((RootViewControllerZXArtWebParser*)collectionViewController)->downloadViewController=downloadViewController;
-                    
-                    collectionViewController.view.frame=self.view.frame;
-                    // And push the window
-                    [self.navigationController pushViewController:collectionViewController animated:YES];
+                    reach = [Reachability reachabilityWithHostname:@"zxart.ee"];
+                        
+                    if ([reach isReachable]) {
+                        collectionViewController = [[RootViewControllerZXArtWebParser alloc]  initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]];
+                        //set new title
+                        collectionViewController.title = @"ZXArt";
+                        // Set new directory
+                        ((RootViewControllerZXArtWebParser*)collectionViewController)->browse_depth = 0;
+                        ((RootViewControllerZXArtWebParser*)collectionViewController)->detailViewController=detailViewController;
+                        ((RootViewControllerZXArtWebParser*)collectionViewController)->downloadViewController=downloadViewController;
+                        
+                        collectionViewController.view.frame=self.view.frame;
+                        // And push the window
+                        [self.navigationController pushViewController:collectionViewController animated:YES];
+                    } else {
+                        [self showAlertMsg:NSLocalizedString(@"Warning",@"")
+                                   message:NSLocalizedString(@"No internet connectivity or website down.",@"")];
+                    }
                     break;
             }
         }
             break;
         case 1:{//internet
-            switch (indexPath.row) {
-                case 0: //World Charts
-                    [webBrowser loadWorldCharts];
-                    [self.navigationController pushViewController:webBrowser animated:YES];
-                    break;
-                case 1: //Internet
-                    [webBrowser loadLastURL];
-                    [self.navigationController pushViewController:webBrowser animated:YES];
-                    break;
+                switch (indexPath.row) {
+                    case 0: //World Charts
+                        reach = [Reachability reachabilityWithHostname:@"modizerdb.appspot.com"];
+                        if ([reach isReachable]) {
+                            [webBrowser loadWorldCharts];
+                            [self.navigationController pushViewController:webBrowser animated:YES];
+                        } else {
+                            [self showAlertMsg:NSLocalizedString(@"Warning",@"")
+                                       message:NSLocalizedString(@"No internet connectivity or website down.",@"")];
+                        }
+                        break;
+                    case 1: //Internet
+                        [webBrowser loadLastURL];
+                        [self.navigationController pushViewController:webBrowser animated:YES];
+                        break;
+                }
             }
-        }
             break;
         case 2: //internet custom URLs
-            [webBrowser goToURLwithLoad:webBrowser.custom_URL[indexPath.row]];
-            [self.navigationController pushViewController:webBrowser animated:YES];
+            reach = [Reachability reachabilityWithHostName:webBrowser.custom_URL[indexPath.row]];
+            if ([reach isReachable]) {
+                [webBrowser goToURLwithLoad:webBrowser.custom_URL[indexPath.row]];
+                [self.navigationController pushViewController:webBrowser animated:YES];
+            }
+            else {
+               [self showAlertMsg:NSLocalizedString(@"Warning",@"")
+                          message:NSLocalizedString(@"No internet connectivity or website down.",@"")];
+           }
             break;
         case 3: //VGM
-            [webBrowser goToURLwithLoad:weblinks_VGM[indexPath.row][0]];
-            [self.navigationController pushViewController:webBrowser animated:YES];
+            reach = [Reachability reachabilityWithHostName:weblinks_VGM[indexPath.row][0]];
+            if ([reach isReachable]) {
+                [webBrowser goToURLwithLoad:weblinks_VGM[indexPath.row][0]];
+                [self.navigationController pushViewController:webBrowser animated:YES];
+            } else {
+                [self showAlertMsg:NSLocalizedString(@"Warning",@"")
+                           message:NSLocalizedString(@"No internet connectivity or website down.",@"")];
+            }
             break;
         case 4: //MODS & Chiptunes
-            [webBrowser goToURL:weblinks_MODS[indexPath.row][0]];
-            [self.navigationController pushViewController:webBrowser animated:YES];
+            reach = [Reachability reachabilityWithHostName:weblinks_MODS[indexPath.row][0]];
+            if ([reach isReachable]) {
+                [webBrowser goToURL:weblinks_MODS[indexPath.row][0]];
+                [self.navigationController pushViewController:webBrowser animated:YES];
+            } else {
+                [self showAlertMsg:NSLocalizedString(@"Warning",@"")
+                           message:NSLocalizedString(@"No internet connectivity or website down.",@"")];
+            }
             break;
         case 5: //Others
-            [webBrowser goToURL:weblinks_Others[indexPath.row][0]];
-            [self.navigationController pushViewController:webBrowser animated:YES];
+            reach = [Reachability reachabilityWithHostName:weblinks_Others[indexPath.row][0]];
+            if ([reach isReachable]) {
+                [webBrowser goToURL:weblinks_Others[indexPath.row][0]];
+                [self.navigationController pushViewController:webBrowser animated:YES];
+            } else {
+                [self showAlertMsg:NSLocalizedString(@"Warning",@"")
+                           message:NSLocalizedString(@"No internet connectivity or website down.",@"")];
+            }
             break;
     }
 }

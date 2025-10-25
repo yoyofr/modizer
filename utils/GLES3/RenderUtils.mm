@@ -7,7 +7,9 @@
  *
  */
 
-#define BLOOM_BLUR_ITERATIONS 9 //
+#define BLOOM_BLUR_ITERATIONS 5 //
+#define BLUR_SIZE_MIN 128.0f
+int _blurW,_blurH;
 
 #define INIT_COL(a,b) a[0]=b[0];a[1]=b[1];a[2]=b[2];
 
@@ -26,7 +28,6 @@ extern int NOTES_DISPLAY_TOPMARGIN;
 
 #include "RenderUtils.h"
 #include "TextureUtils.h"
-
 
 #import "SettingsGenViewController.h"
 extern volatile t_settings settings[MAX_SETTINGS];
@@ -169,7 +170,7 @@ GLuint RenderUtils::LoadShader ( GLenum type, const GLchar *shaderSrc )
          char* infoLog = (char*)malloc (sizeof(char) * infoLen );
 
          glGetShaderInfoLog ( shader, infoLen, NULL, infoLog );
-         NSLog(@"Error compiling shader:\n%s\n", infoLog );
+          MDZELog("Error compiling shader:\n%s\n", infoLog );
          
          free ( infoLog );
       }
@@ -235,7 +236,7 @@ GLuint RenderUtils::LoadShaderFromFile ( GLenum type, const char *shaderFile )
          char* infoLog = (char*)malloc (sizeof(char) * infoLen );
 
          glGetShaderInfoLog ( shader, infoLen, NULL, infoLog );
-         NSLog(@"Error compiling shader:\n%s\n", infoLog );
+          MDZELog("Error compiling shader:\n%s\n", infoLog );
          
          free ( infoLog );
       }
@@ -261,66 +262,34 @@ GLuint RenderUtils::LoadShaderFromFile ( GLenum type, const char *shaderFile )
 
 int RenderUtils::RenderInit() {
     renderIsInit=false;
-    GLuint vertexShader;
-    GLuint fragmentShader;
-    GLuint programObject;
-    GLint linked;
     
-    vertexShader = LoadShaderFromFile(GL_VERTEX_SHADER,[[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/MDZShaders/Vertex2DSimple.glsl"] UTF8String]);
-    fragmentShader = LoadShaderFromFile(GL_FRAGMENT_SHADER,[[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/MDZShaders/Fragment2DSimple.glsl"] UTF8String]);
-    
-    // Create the program object
-    programObject = glCreateProgram ( );
-    
-    if ( programObject == 0 )
-        return 0;
-    
-    glAttachShader ( programObject, vertexShader );
-    glAttachShader ( programObject, fragmentShader );
-    
-    // Link the program
-    glLinkProgram ( programObject );
-    
-    // Check the link status
-    glGetProgramiv ( programObject, GL_LINK_STATUS, &linked );
-    
-    if ( !linked )
-    {
-        GLint infoLen = 0;
+        userData_lightRender3D=InitProgram((char*)[[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/MDZShaders/Vertex3DLight.glsl"]  UTF8String],
+                                           (char*)[[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/MDZShaders/Fragment3DLight.glsl"] UTF8String]);
         
-        glGetProgramiv ( programObject, GL_INFO_LOG_LENGTH, &infoLen );
+        userData_simpleRender2D=InitProgram((char*)[[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/MDZShaders/Vertex2DSimple.glsl"]  UTF8String],
+                                            (char*)[[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/MDZShaders/Fragment2DSimple.glsl"] UTF8String]);
+        userData_customRender2D=InitProgram((char*)[[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/MDZShaders/Vertex2DCustom.glsl"]  UTF8String],
+                                            (char*)[[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/MDZShaders/Fragment2DCustom.glsl"] UTF8String]);
         
-        if ( infoLen > 1 )
-        {
-            char* infoLog = (char*)malloc (sizeof(char) * infoLen );
-            
-            glGetProgramInfoLog ( programObject, infoLen, NULL, infoLog );
-            NSLog ( @"Error linking program:\n%s\n", infoLog );
-            
-            free ( infoLog );
-        }
+        userData_normalRender3D=InitProgram((char*)[[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/MDZShaders/Vertex3DNormal.glsl"]  UTF8String],
+                                            (char*)[[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/MDZShaders/Fragment3DNormal.glsl"] UTF8String]);
+        userData_simpleRender3D=InitProgram((char*)[[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/MDZShaders/Vertex3DSimple.glsl"]  UTF8String],
+                                            (char*)[[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/MDZShaders/Fragment3DSimple.glsl"] UTF8String]);
         
-        glDeleteProgram ( programObject );
-        return 0;
-    }
-    
-    userData_lightRender3D=InitProgram((char*)[[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/MDZShaders/Vertex3DLight.glsl"]  UTF8String],(char*)[[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/MDZShaders/Fragment3DLight.glsl"] UTF8String]);
-    
-    userData_simpleRender2D=InitProgram((char*)[[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/MDZShaders/Vertex2DSimple.glsl"]  UTF8String],(char*)[[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/MDZShaders/Fragment2DSimple.glsl"] UTF8String]);
-    userData_customRender2D=InitProgram((char*)[[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/MDZShaders/Vertex2DCustom.glsl"]  UTF8String],(char*)[[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/MDZShaders/Fragment2DCustom.glsl"] UTF8String]);
-
-    userData_normalRender3D=InitProgram((char*)[[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/MDZShaders/Vertex3DNormal.glsl"]  UTF8String],(char*)[[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/MDZShaders/Fragment3DNormal.glsl"] UTF8String]);
-    userData_simpleRender3D=InitProgram((char*)[[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/MDZShaders/Vertex3DSimple.glsl"]  UTF8String],(char*)[[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/MDZShaders/Fragment3DSimple.glsl"] UTF8String]);
-
-    userData_Render2DLines=InitProgram((char*)[[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/MDZShaders/Vertex2DLines.glsl"]  UTF8String],(char*)[[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/MDZShaders/Fragment2DLines.glsl"] UTF8String]);
-    
-    userData_Render2DTextures=InitProgram((char*)[[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/MDZShaders/Vertex2DTextures.glsl"]  UTF8String],(char*)[[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/MDZShaders/Fragment2DTextures.glsl"] UTF8String]);
-    
-    userData_Render2DColoredTextures=InitProgram((char*)[[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/MDZShaders/Vertex2DColoredTextures.glsl"]  UTF8String],(char*)[[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/MDZShaders/Fragment2DColoredTextures.glsl"] UTF8String]);
-    
-    userData_Render2DTexturesBlur=InitProgram((char*)[[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/MDZShaders/Vertex2DTextures.glsl"]  UTF8String],(char*)[[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/MDZShaders/Fragment2DTexturesBlur.glsl"] UTF8String]);
-    userData_Render2DTexturesBlend=InitProgram((char*)[[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/MDZShaders/Vertex2DTextures.glsl"]  UTF8String],(char*)[[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/MDZShaders/Fragment2DTexturesBlend.glsl"] UTF8String]);
-    
+        userData_Render2DLines=InitProgram((char*)[[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/MDZShaders/Vertex2DLines.glsl"]  UTF8String],
+                                           (char*)[[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/MDZShaders/Fragment2DLines.glsl"] UTF8String]);
+        
+        userData_Render2DTextures=InitProgram((char*)[[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/MDZShaders/Vertex2DTextures.glsl"]  UTF8String],
+                                              (char*)[[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/MDZShaders/Fragment2DTextures.glsl"] UTF8String]);
+        
+        userData_Render2DColoredTextures=InitProgram((char*)[[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/MDZShaders/Vertex2DColoredTextures.glsl"]  UTF8String],
+                                                     (char*)[[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/MDZShaders/Fragment2DColoredTextures.glsl"] UTF8String]);
+        
+        userData_Render2DTexturesBlur=InitProgram((char*)[[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/MDZShaders/Vertex2DTextures.glsl"]  UTF8String],
+                                                  (char*)[[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/MDZShaders/Fragment2DTexturesBlur.glsl"] UTF8String]);
+        userData_Render2DTexturesBlend=InitProgram((char*)[[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/MDZShaders/Vertex2DTextures.glsl"]  UTF8String],
+                                                   (char*)[[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/MDZShaders/Fragment2DTexturesBlend.glsl"] UTF8String]);
+        
     if (!userData_lightRender3D ||
         !userData_simpleRender2D ||
         !userData_customRender2D ||
@@ -339,13 +308,13 @@ int RenderUtils::RenderInit() {
     memset(txt_pianoRoll,0,sizeof(txt_pianoRoll));
     //
     if (!LoadTextureFromFile(mdz_getBundledResFilePath(@"txt_pianoLight.png"), &(txt_pianoRoll[TXT_PIANOROLL_LIGHT]), NULL, NULL)) {
-        NSLog(@"Cannot load texture");
+        MDZELog("Cannot load texture");
     }
     if (!LoadTextureFromFile(mdz_getBundledResFilePath(@"txt_pianoParticle.png"), &(txt_pianoRoll[TXT_PIANOROLL_PARTICLE]), NULL, NULL)) {
-        NSLog(@"Cannot load texture");
+        MDZELog("Cannot load texture");
     }
     if (!LoadTextureFromFile(mdz_getBundledResFilePath(@"txt_pianoSpark.png"), &(txt_pianoRoll[TXT_PIANOROLL_SPARK]), NULL, NULL)) {
-        NSLog(@"Cannot load texture");
+        MDZELog("Cannot load texture");
     }
     
     renderIsInit=true;
@@ -359,8 +328,6 @@ GLUserData* RenderUtils::InitProgram(char *vsfile,char *fsfile) {
     GLuint programObject;
     GLint linked;
     
-    vertexShader = LoadShaderFromFile(GL_VERTEX_SHADER,vsfile);
-    fragmentShader = LoadShaderFromFile(GL_FRAGMENT_SHADER,fsfile);
     
     // Create the program object
     programObject = glCreateProgram ( );
@@ -370,37 +337,40 @@ GLUserData* RenderUtils::InitProgram(char *vsfile,char *fsfile) {
         return 0;
     }
     
-    glAttachShader ( programObject, vertexShader );
-    glAttachShader ( programObject, fragmentShader );
-    
-    // Link the program
-    glLinkProgram ( programObject );
-    
-    // Check the link status
-    glGetProgramiv ( programObject, GL_LINK_STATUS, &linked );
-    
-    if ( !linked )
-    {
-        GLint infoLen = 0;
+        vertexShader = LoadShaderFromFile(GL_VERTEX_SHADER,vsfile);
+        fragmentShader = LoadShaderFromFile(GL_FRAGMENT_SHADER,fsfile);
         
-        glGetProgramiv ( programObject, GL_INFO_LOG_LENGTH, &infoLen );
+        glAttachShader ( programObject, vertexShader );
+        glAttachShader ( programObject, fragmentShader );
         
-        if ( infoLen > 1 )
+        // Link the program
+        glLinkProgram ( programObject );
+        
+        // Check the link status
+        glGetProgramiv ( programObject, GL_LINK_STATUS, &linked );
+        
+        if ( !linked )
         {
-            char* infoLog = (char*)malloc (sizeof(char) * infoLen );
+            GLint infoLen = 0;
             
-            glGetProgramInfoLog ( programObject, infoLen, NULL, infoLog );
-            NSLog ( @"Error linking program:\n%s\n", infoLog );
+            glGetProgramiv ( programObject, GL_INFO_LOG_LENGTH, &infoLen );
             
-            free ( infoLog );
+            if ( infoLen > 1 )
+            {
+                char* infoLog = (char*)malloc (sizeof(char) * infoLen );
+                
+                glGetProgramInfoLog ( programObject, infoLen, NULL, infoLog );
+                MDZELog("Error linking program:\n%s\n", infoLog );
+                
+                free ( infoLog );
+            }
+            
+            glDeleteProgram ( programObject );
+            
+            if (userData) free(userData);
+            return 0;
         }
         
-        glDeleteProgram ( programObject );
-        
-        if (userData) free(userData);
-        return 0;
-    }
-    
     userData->programObject=programObject;
     
     // Get the uniform locations
@@ -408,6 +378,7 @@ GLUserData* RenderUtils::InitProgram(char *vsfile,char *fsfile) {
     userData->modelLoc = glGetUniformLocation ( userData->programObject, "u_model" );
     userData->viewLoc = glGetUniformLocation ( userData->programObject, "u_view" );
     userData->projectionLoc = glGetUniformLocation ( userData->programObject, "u_projection" );
+    
     
     return userData;
 }
@@ -706,17 +677,19 @@ void RenderUtils::endRenderToTexture(int width,int height,int bloomIntensity) {
             break;
         case 2:blurDiv=9.0f;
             break;
-        case 3:blurDiv=8.0f;
+        case 3:blurDiv=8.5f;
             break;
         default:
-            blurDiv=10.0f;
+            blurDiv=9.0f;
             break;
     }
     for (unsigned int i = 0; i < amount; i++)
     {
         glBindFramebuffer(GL_FRAMEBUFFER, pingpongFBO[horizontal]);
+        //glViewport(0,0,width/BLUR_SIZE_DIV,height/BLUR_SIZE_DIV);
+        glViewport(0,0,_blurW,_blurH);
         curTexture=first_iteration ? renderedTexture : pingpongBuffer[!horizontal];
-        RenderUtils::DrawTextureBlur(width, height, curTexture, i,(first_iteration?1.0f:0.0f),blurDiv);
+        RenderUtils::DrawTextureBlur(width, height, curTexture, i,(first_iteration?0.1f:0.0f),blurDiv);
         horizontal = !horizontal;
         if (first_iteration)
             first_iteration = false;
@@ -749,9 +722,9 @@ void RenderUtils::shutdownRenderToTexture() {
 bool RenderUtils::initRenderToTexture(int width,int height) {
     if (!renderIsInit) return false;
     
-    if (!framebuffer) NSLog(@"init render to texture %d x %d",width,height);
+    if (!framebuffer) MDZILog("init render to texture %d x %d",width,height)
     else {
-        NSLog(@"reinit render to texture %d x %d",width,height);
+        MDZILog("reinit render to texture %d x %d",width,height)
         RenderUtils::shutdownRenderToTexture();
     }
     // Save current framebuffer & renderbuffer
@@ -767,7 +740,6 @@ bool RenderUtils::initRenderToTexture(int width,int height) {
     
     // create the texture
     glGenTextures(1, &renderedTexture);
-//    NSLog(@"new texture %s %d","renderedTexture",renderedTexture);
     
     glBindTexture(GL_TEXTURE_2D, renderedTexture);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -797,16 +769,14 @@ bool RenderUtils::initRenderToTexture(int width,int height) {
     
     glGenFramebuffers(2, pingpongFBO);
     glGenTextures(2, pingpongBuffer);
-//    NSLog(@"new texture %s %d","pingpongBuffer0",pingpongBuffer[0]);
-//    NSLog(@"new texture %s %d","pingpongBuffer1",pingpongBuffer[1]);
+    
+    _blurW=_blurH=BLUR_SIZE_MIN;
+    
     for (unsigned int i = 0; i < 2; i++)
     {
         glBindFramebuffer(GL_FRAMEBUFFER, pingpongFBO[i]);
         glBindTexture(GL_TEXTURE_2D, pingpongBuffer[i]);
-//        glTexImage2D(
-//            GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_FLOAT, NULL
-//        );
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F,  width, height, 0, GL_RGBA, GL_FLOAT, NULL);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F,  _blurW,_blurH, 0, GL_RGBA, GL_FLOAT, NULL);
         
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -824,7 +794,7 @@ bool RenderUtils::initRenderToTexture(int width,int height) {
     // Always check that our framebuffer is ok
     GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER) ;
     if(status != GL_FRAMEBUFFER_COMPLETE) {
-        NSLog(@"failed to make complete framebuffer object %x", status);
+        MDZELog("failed to make complete framebuffer object %x", status);
         return false;
     }
     return true;
@@ -933,7 +903,6 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
             columns_nb++;
             
         }
-    // NSLog(@"%d %d / %f",columns_width,mulfactor,ratio);
 
     float thickness;
     switch (settings[OSCILLO_LINE_Width].detail.mdz_switch.switch_value) {
@@ -1305,7 +1274,7 @@ void RenderUtils::DrawChanLayout(uint _ww,uint _hh,int display_note_mode,int cha
     
     pts=(LineVertexF*)malloc(sizeof(LineVertexF)*6*((chanNb+1)*8+9+1));
     if (!pts) {
-        NSLog(@"%s - cannot allocate memory",__func__);
+        MDZELog("%s - cannot allocate memory",__func__);
         return;
     }
     float min_w=col_size*chanNb+col_ofs;
@@ -1644,7 +1613,7 @@ void RenderUtils::DrawChanLayoutAfter(uint _ww,uint _hh,int display_note_mode,in
     
     pts=(LineVertexF*)malloc(sizeof(LineVertexF)*6*(3+chanNb*4));
     if (!pts) {
-        NSLog(@"%s - cannot allocate memory",__func__);
+        MDZELog("%s - cannot allocate memory",__func__);
         return;
     }
     
@@ -2448,7 +2417,7 @@ void RenderUtils::DrawSpectrum2D(short int *spectrumDataL,short int *spectrumDat
 }
 
 
-void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrumDataR,uint ww,uint hh,float angle,int mode,int nb_spectrum_bands,int mirror,float mScaleFactor,int bloom,float posx,float posy,float posz) {
+void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrumDataR,uint ww,uint hh,float angle,int mode,int nb_spectrum_bands,int mirror,float mScaleFactor,int bloom,float rotx,float roty,float posx,float posy,float posz) {
     GLfloat lightPos[3];
     GLfloat lightColor[3];
     GLfloat spL,spR;
@@ -2535,7 +2504,7 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
         // Load the vertex data
         glVertexAttribPointer ( positionAttribHandle, 3, GL_FLOAT, GL_FALSE, sizeof(VertexNData), &(verticesN[0].x) );
         
-        curP->Projection=glm::frustum(-_hw, _hw, -_hh, _hh, 100.0f, 10000.0f);
+        curP->Projection=glm::frustum(-_hw, _hw, -_hh, _hh, 50.0f, 10000.0f);
         
         // Camera matrix
         curP->View = glm::lookAt(
@@ -2589,7 +2558,7 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
     
     // Generate a model view matrix to rotate/translate the cube
     //curP->Projection=glm::perspective(glm::radians(45.f),aspectRatio,80.0f,1000.0f);
-    curP->Projection=glm::frustum(-_hw, _hw, -_hh, _hh, 100.0f, 10000.0f);
+    curP->Projection=glm::frustum(-_hw/2.0f, _hw/2.0f, -_hh/2.0f, _hh/2.0f, 50.0f, 10000.0f);
     
     // Camera matrix
     curP->View = glm::lookAt(
@@ -2602,8 +2571,7 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
     
     frameCpt++;
     
-    curP->Model=glm::translate(curP->Model,glm::vec3(posx,posy,posz));                                   
-    
+    curP->Model=glm::translate(curP->Model,glm::vec3(posx,posy,posz));
     switch (mode) {
         case 1:
             frameCpt++;
@@ -2613,7 +2581,19 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
                                             15*(0.8f*sin((float)frameCpt*0.1f*3.14159f/991)+1.7f*sin((float)frameCpt*0.1f*3.14159f/3065)
                                                 -0.3f*sin((float)frameCpt*0.1f*3.14159f/5009))
                                            ));
-                             
+            
+        {
+            glm::mat4 m1(1.0f);
+            m1=glm::rotate(m1,glm::radians(rotx),glm::vec3(0,1,0));
+            m1=glm::rotate(m1,glm::radians(roty),glm::vec3(glm::vec4(1,0,0,0) * m1));
+            
+            curP->Model= curP->Model * m1;
+        }
+            
+            
+        
+            
+            
             
             curP->Model=glm::rotate(curP->Model,
                                     glm::radians(-90+5.0f*(0.5f*sin((float)frameCpt*0.1f*3.14159f/2691)+0.7f*sin((float)frameCpt*0.1f*3.14159f/3113)
@@ -2638,9 +2618,21 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
                              1.7f*sin((float)frameCpt*0.1f*3.14159f/3065)-
                              0.3f*sin((float)frameCpt*0.1f*3.14159f/5009))));
             
-            curP->Model=glm::rotate(curP->Model,glm::radians(20+10.0f*(0.8f*sin((float)frameCpt*0.1f*3.14159f/2691)+
-                                0.7f*sin((float)frameCpt*0.1f*3.14159f/3113)-
-                                0.3f*sin((float)frameCpt*0.1f*3.14159f/7409))),glm::vec3(1,0,0));
+        {
+            glm::mat4 m1(1.0f);
+            m1=glm::rotate(glm::mat4(1.0f),glm::radians(rotx),glm::vec3(0,1,0));
+            m1=glm::rotate(m1,glm::radians(roty)+
+                              glm::radians(20+10.0f*(0.8f*sin((float)frameCpt*0.1f*3.14159f/2691)+
+                                               0.7f*sin((float)frameCpt*0.1f*3.14159f/3113)-
+                                               0.3f*sin((float)frameCpt*0.1f*3.14159f/7409)))
+                           ,glm::vec3(glm::vec4(1,0,0,0) * m1));
+            
+            curP->Model= curP->Model * m1;
+        }
+            
+//            curP->Model=glm::rotate(curP->Model,glm::radians(20+10.0f*(0.8f*sin((float)frameCpt*0.1f*3.14159f/2691)+
+//                                0.7f*sin((float)frameCpt*0.1f*3.14159f/3113)-
+//                                0.3f*sin((float)frameCpt*0.1f*3.14159f/7409))),glm::vec3(1,0,0));
             
             curP->Model=glm::rotate(curP->Model,glm::radians(5.0f*(0.8f*sin((float)frameCpt*0.1f*3.14159f/891)-
                             0.2f*sin((float)frameCpt*0.1f*3.14159f/211)-
@@ -2658,6 +2650,14 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
                              1.7f*sin((float)frameCpt*0.1f*3.14159f/3065)-
                              0.3f*sin((float)frameCpt*0.1f*3.14159f/5009))));
             
+        {
+            glm::mat4 m1(1.0f);
+            m1=glm::rotate(glm::mat4(1.0f),glm::radians(rotx),glm::vec3(0,1,0));
+            m1=glm::rotate(m1,glm::radians(roty),glm::vec3(glm::vec4(1,0,0,0) * m1));
+            
+            curP->Model= curP->Model * m1;
+        }
+
             curP->Model=glm::rotate(curP->Model,glm::radians(-90+5.0f*(0.8f*sin((float)frameCpt*0.1f*3.14159f/2691)+
                                 0.7f*sin((float)frameCpt*0.1f*3.14159f/3113)-
                                 0.3f*sin((float)frameCpt*0.1f*3.14159f/7409))),glm::vec3(0,0,1));
@@ -2672,6 +2672,7 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
                             0.2f*sin((float)frameCpt*0.1f*3.14159f/211)-
                             0.4f*sin((float)frameCpt*0.1f*3.14159f/5213))),glm::vec3(0,0,1));
             
+        
             break;
         case 4:
             curP->Model=glm::translate(curP->Model, glm::vec3(0.0, 0.0, -150.0+
@@ -2695,6 +2696,7 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
             
             break;
     }
+    
     
     crt=0;
     cgt=0;

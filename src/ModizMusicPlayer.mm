@@ -1101,7 +1101,10 @@ static volatile int64_t mVGMSTREAM_total_samples,mVGMSTREAM_decode_pos_samples,m
 #include "xmp.h"
 static xmp_context xmp_ctx;
 static struct xmp_module_info *xmp_mi;
+static int *xmp_order=NULL;
+static int xmp_order_total;
 }
+static int mod_startPat=-1;
 
 
 //MDX
@@ -3042,7 +3045,8 @@ void propertyListenerCallback (void                   *inUserData,              
     for (int i=0;i<SOUND_BUFFER_NB;i++) {
         buffer_ana_flag[i]=0;
         buffer_ana_sample_ofs[i]=0;
-        playRow[i]=playPattern[i]=prevPattern[i]=nextPattern[i]=genRow[i]=genPattern[i]=genPrevPattern[i]=genNextPattern[i]=0;
+        playRow[i]=playPattern[i]=genRow[i]=genPattern[i]=0;
+        prevPattern[i]=nextPattern[i]=genPrevPattern[i]=genNextPattern[i]=-1;
         memset(playVolData+i*SOUND_MAXMOD_CHANNELS,0,SOUND_MAXMOD_CHANNELS);
         memset(genVolData+i*SOUND_MAXMOD_CHANNELS,0,SOUND_MAXMOD_CHANNELS);
         memset(buffer_ana[i],0,SOUND_BUFFER_SIZE_SAMPLE*2*2);
@@ -3050,6 +3054,11 @@ void propertyListenerCallback (void                   *inUserData,              
         memset(tim_notes[i],0,DEFAULT_VOICES*4);
         memset(tim_notes_cpy[i],0,DEFAULT_VOICES*4);
         tim_voicenb[i]=tim_voicenb_cpy[i]=0;
+        
+        if (mod_startPat>=0) {
+            playPattern[i]=mod_startPat;
+            genPattern[i]=mod_startPat;
+        }
     }
     
     sampleVolume=0;
@@ -3124,6 +3133,11 @@ void propertyListenerCallback (void                   *inUserData,              
         memset(m_voice_buff_ana[i],0,SOUND_BUFFER_SIZE_SAMPLE*SOUND_MAXVOICES_BUFFER_FX);
         memset(m_voice_buff_ana_cpy[i],0,SOUND_BUFFER_SIZE_SAMPLE*SOUND_MAXVOICES_BUFFER_FX);
         tim_voicenb[i]=tim_voicenb_cpy[i]=0;
+        
+        if (mod_startPat>=0) {
+            playPattern[i]=mod_startPat;
+            genPattern[i]=mod_startPat;
+        }
     }
     
     sampleVolume=0;
@@ -6136,8 +6150,13 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 
                                 genPattern[buffer_ana_gen_ofs]=xmp_fi.pattern;
                                 genRow[buffer_ana_gen_ofs]=xmp_fi.row;
-                                genPrevPattern[buffer_ana_gen_ofs]=-1;
-                                genNextPattern[buffer_ana_gen_ofs]=-1;
+                                
+                                int curPos=xmp_get_position(xmp_ctx);
+                                if ((curPos>0) && (curPos<xmp_order_total)) genPrevPattern[buffer_ana_gen_ofs]=xmp_order[curPos-1];
+                                else genPrevPattern[buffer_ana_gen_ofs]=-1;
+                                
+                                if ((curPos>=0) && ((curPos+1)<xmp_order_total)) genNextPattern[buffer_ana_gen_ofs]=xmp_order[curPos+1];
+                                else genNextPattern[buffer_ana_gen_ofs]=-1;
                                 
                                 for (int i=0;i<numChannels;i++) {
                                     int v=xmp_fi.channel_info[i].volume*4;
@@ -6232,11 +6251,11 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             int current_order=openmpt_module_get_current_order(openmpt_module_ext_get_module(ompt_mod));
                             
                             if (current_order>0) order_idx=openmpt_module_get_order_pattern(openmpt_module_ext_get_module(ompt_mod),current_order-1);
-                            genPrevPattern[buffer_ana_gen_ofs]=-1;//order_idx;
+                            genPrevPattern[buffer_ana_gen_ofs]=order_idx;
 
                             order_idx=-1;
                             if (current_order<openmpt_module_get_num_orders(openmpt_module_ext_get_module(ompt_mod))) order_idx=openmpt_module_get_order_pattern(openmpt_module_ext_get_module(ompt_mod),current_order+1);
-                            genNextPattern[buffer_ana_gen_ofs]=-1;//order_idx;
+                            genNextPattern[buffer_ana_gen_ofs]=order_idx;
 
                             
                             genPattern[buffer_ana_gen_ofs]=openmpt_module_get_current_pattern(openmpt_module_ext_get_module(ompt_mod));
@@ -11278,6 +11297,27 @@ char* loadRom(const char* path, size_t romSize)
         xmp_set_tempo_factor(xmp_ctx,1/settings[GLOB_PBRATIO].detail.mdz_slider.slider_value);
     } else xmp_set_tempo_factor(xmp_ctx,1.0);
     
+    xmp_order_total=xmp_get_max_position(xmp_ctx);
+    
+    xmp_order=(int*)malloc(xmp_order_total*sizeof(int));
+    
+    struct xmp_frame_info xmp_fi;
+    for (int i=0;i<xmp_order_total;i++) {
+        xmp_get_frame_info(xmp_ctx, &xmp_fi);
+        xmp_order[i]=xmp_fi.pattern;
+        xmp_next_position(xmp_ctx);
+    }
+    xmp_set_position(xmp_ctx,0);
+    
+    //    genCurOffset=0;genCurOffsetCnt=0;
+    mod_startPat=xmp_order[0];
+    for (int i=0;i<SOUND_BUFFER_NB;i++) {
+        playPattern[i]=mod_startPat;
+        genPattern[i]=mod_startPat;
+    }
+    
+//    xmp_restart_module(xmp_ctx);
+    
     return 0;
 }
 
@@ -11478,6 +11518,14 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
     //Preload all patterns
     for (int i=0;i<numPatterns;i++) {
         [self ompt_getPattern:i numrows:NULL];
+    }
+    
+    
+    mod_startPat=openmpt_module_get_current_pattern(openmpt_module_ext_get_module(ompt_mod));
+    
+    for (int i=0;i<SOUND_BUFFER_NB;i++) {
+        playPattern[i]=mod_startPat;
+        genPattern[i]=mod_startPat;
     }
     
     return 0;
@@ -15332,6 +15380,7 @@ extern bool icloud_available;
         if (xmp_ctx) xmp_free_context(xmp_ctx);
         xmp_ctx=NULL;
         mdz_safe_free(xmp_mi);
+        mdz_safe_free(xmp_order);
         
         if (ompt_patterns) {
             for (int i=0;i<numPatterns;i++) {

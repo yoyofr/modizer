@@ -142,6 +142,8 @@ extern void *LoadingProgressObserverContext;
 #define PM_ROOT_FOLDER_CUSTOM "/ProjectM"
 #define PM_PRESET_DISPLAY_TIMEOUT 5 //Display time in seconds of preset's name when in temporary display mode
 
+#define SHADER_CACHE_DIR "/.shadercache"
+
 
 #define TXT_PIANOROLL_LIGHT 0
 #define TXT_PIANOROLL_PARTICLE 1

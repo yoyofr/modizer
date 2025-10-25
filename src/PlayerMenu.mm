@@ -21,7 +21,7 @@
 #endif
 
 
-extern float font_size[4];
+extern float mdz_font_size[4];
 extern ImFont *font_menu[4];
 int font_idx;
 extern volatile t_settings settings[MAX_SETTINGS];
@@ -135,7 +135,7 @@ static GLuint txtMenuModPatternHandle[16];
 const char *menuModPatternLabel[16]={
     "Off",NULL,NULL,NULL,
     "Volume\nbars",NULL,NULL,"Fixed bar",
-    "Size 10","Size 16","Size 24","Size 32",
+    NULL,NULL,NULL,NULL,
     NULL,"Go to\nsettings","Back","Exit Menu"
 };
 char *menuModPatternDynLabel[16];
@@ -280,6 +280,11 @@ void playerMenuInit() {
     menu3DSpectrumDynLabel[7]=(char*)malloc(64);
     menuModPatternDynLabel[5]=(char*)malloc(64);
     menuModPatternDynLabel[12]=(char*)malloc(64);
+    
+    for (int i=0;i<4;i++) {
+        menuModPatternDynLabel[8+i]=(char*)malloc(64);
+        snprintf(menuModPatternDynLabel[8+i],64,"Font size\n%s",settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_labels[i]);
+    }
     
     for (int i=0;i<16;i++) menuCpt[i]=rand();
     
@@ -459,9 +464,9 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
     }
     
     int font_idx=3;
-    float idealFontSize=menu_win_size/64;
+    float idealFontSize=menu_win_size/80;
     for (int i=0;i<4;i++) {
-        if ( (((idealFontSize-font_size[i])/idealFontSize)<0.2) || (font_size[i]>idealFontSize) ) {
+        if ( (((idealFontSize-mdz_font_size[i])/idealFontSize)<0.2) || (mdz_font_size[i]>idealFontSize) ) {
             font_idx=i;
             break;
         }

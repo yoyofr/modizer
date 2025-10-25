@@ -28,7 +28,7 @@
 #include "../utils/imgui/backends/imgui_impl_ios.h"
 #include "../utils/imgui/backends/imgui_impl_opengl3.h"
 extern const char *font_trackerName[FONT_TRACKER_NB][2];
-extern float font_size[4];
+extern float mdz_font_size[4];
 
 #define STRINGIZE(x) #x
 #define STRINGIZE2(x) STRINGIZE(x)
@@ -1457,7 +1457,7 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_value_nb*sizeof(char*));
     for (int i=0;i<4;i++) {
         char *str=(char*)malloc(3);
-        snprintf(str,3,"%2d",(int)(font_size[i]));
+        snprintf(str,3,"%2d",(int)(mdz_font_size[i]));
         settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_labels[i]=str;
     }
     
@@ -1690,7 +1690,7 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXAlpha].detail.mdz_slider.slider_default_value=0.8;
     settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_default_value=0;
     settings[GLOB_FXMODPattern_Theme].detail.mdz_switch.switch_default_value=0;
-    settings[GLOB_FXMODPattern_VolBar].detail.mdz_boolswitch.switch_default_value=0;
+    settings[GLOB_FXMODPattern_VolBar].detail.mdz_boolswitch.switch_default_value=1;
     
     /////////////////////////////////////
     //PROJECTM
@@ -5140,6 +5140,31 @@ void optNSFPLAYChangedC(id param) {
             break;
     }
 }
+
++ (bool) isFXActive:(int)settingsIdx {
+    if (settingsIdx<0) return false;
+    if (settingsIdx>=MAX_SETTINGS) return false;
+
+    switch (settings[settingsIdx].type) {
+        case MDZ_SWITCH:
+            return settings[settingsIdx].detail.mdz_switch.switch_value>0;
+            break;
+        case MDZ_BOOLSWITCH:
+            return settings[settingsIdx].detail.mdz_boolswitch.switch_value;
+            break;
+        case MDZ_SLIDER_DISCRETE:
+        case MDZ_SLIDER_DISCRETE_EVEN:
+        case MDZ_SLIDER_DISCRETE_TIME:
+        case MDZ_SLIDER_DISCRETE_TIME_LONG:
+        case MDZ_SLIDER_CONTINUOUS:
+            return settings[settingsIdx].detail.mdz_slider.slider_value!=settings[settingsIdx].detail.mdz_slider.slider_min_value;
+            break;
+        default:
+            break;
+    }
+    return false;
+}
+
 
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer
 shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer {

@@ -352,6 +352,11 @@ LIBXMP_EXPORT void        xmp_get_module_info (xmp_context, struct xmp_module_in
 LIBXMP_EXPORT const char *const *xmp_get_format_list (void);
 LIBXMP_EXPORT int         xmp_next_position   (xmp_context);
 LIBXMP_EXPORT int         xmp_prev_position   (xmp_context);
+//YOYOFR
+LIBXMP_EXPORT int xmp_get_position(xmp_context);
+LIBXMP_EXPORT int xmp_get_max_position(xmp_context);
+//YOYOFR
+
 LIBXMP_EXPORT int         xmp_set_position    (xmp_context, int);
 LIBXMP_EXPORT int         xmp_set_row         (xmp_context, int);
 LIBXMP_EXPORT int         xmp_set_tempo_factor(xmp_context, double);
