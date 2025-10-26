@@ -106,7 +106,8 @@ pthread_mutex_t shader_mutex;
 - (void)cleanupTempData {
     NSArray* temp = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:NSTemporaryDirectory() error:NULL];
     for (NSString *file in temp) {
-        [[NSFileManager defaultManager] removeItemAtPath:[NSString stringWithFormat:@"%@%@", NSTemporaryDirectory(), file] error:NULL];
+        NSString *str=(NSString *)file;
+        if ([str containsString:@"MDZNotif"]) [[NSFileManager defaultManager] removeItemAtPath:[NSString stringWithFormat:@"%@%@", NSTemporaryDirectory(), file] error:NULL];
     }
 }
 

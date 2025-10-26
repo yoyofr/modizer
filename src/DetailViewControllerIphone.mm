@@ -2139,7 +2139,7 @@ int recording=0;
     
     // Create temporary file URL
     NSString *tempDirectory = NSTemporaryDirectory();
-    NSString *fileName = [NSString stringWithFormat:@"%@.png", [[NSUUID UUID] UUIDString]];
+    NSString *fileName = [NSString stringWithFormat:@"MDZNotif%@.png", [[NSUUID UUID] UUIDString]];
     NSURL *fileURL = [NSURL fileURLWithPath:[tempDirectory stringByAppendingPathComponent:fileName]];
     
     // Write image data to file
