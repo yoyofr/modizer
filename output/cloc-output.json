@@ -1,27 +1,27 @@
 {"header" : {
   "cloc_url"           : "github.com/AlDanial/cloc",
   "cloc_version"       : "1.98",
-  "elapsed_seconds"    : 28.5926299095154,
-  "n_files"            : 20171,
-  "n_lines"            : 8537390,
-  "files_per_second"   : 705.461514517322,
-  "lines_per_second"   : 298587.084399635,
+  "elapsed_seconds"    : 28.4426009654999,
+  "n_files"            : 20184,
+  "n_lines"            : 8542252,
+  "files_per_second"   : 709.639741614442,
+  "lines_per_second"   : 300333.011399398,
   "report_file"        : "../output/cloc-output.json"},
 "C" :{
-  "nFiles": 5173,
-  "blank": 317663,
-  "comment": 300638,
-  "code": 1883689},
+  "nFiles": 5170,
+  "blank": 317539,
+  "comment": 300398,
+  "code": 1883296},
 "C/C++ Header" :{
-  "nFiles": 9401,
-  "blank": 271181,
-  "comment": 457506,
-  "code": 1865806},
+  "nFiles": 9405,
+  "blank": 271659,
+  "comment": 457968,
+  "code": 1869367},
 "C++" :{
   "nFiles": 2802,
-  "blank": 288593,
-  "comment": 138244,
-  "code": 1464517},
+  "blank": 288598,
+  "comment": 138229,
+  "code": 1464566},
 "Assembly" :{
   "nFiles": 198,
   "blank": 48267,
@@ -39,9 +39,9 @@
   "code": 95963},
 "Objective-C++" :{
   "nFiles": 101,
-  "blank": 15697,
-  "comment": 9805,
-  "code": 76043},
+  "blank": 15763,
+  "comment": 9299,
+  "code": 77228},
 "Scheme" :{
   "nFiles": 8,
   "blank": 49,
@@ -58,10 +58,10 @@
   "comment": 10289,
   "code": 54990},
 "Objective-C" :{
-  "nFiles": 241,
-  "blank": 12197,
-  "comment": 7651,
-  "code": 42360},
+  "nFiles": 243,
+  "blank": 12232,
+  "comment": 7662,
+  "code": 42437},
 "PO File" :{
   "nFiles": 29,
   "blank": 8499,
@@ -173,10 +173,10 @@
   "comment": 66,
   "code": 887},
 "GLSL" :{
-  "nFiles": 35,
-  "blank": 211,
-  "comment": 144,
-  "code": 746},
+  "nFiles": 44,
+  "blank": 248,
+  "comment": 153,
+  "code": 882},
 "TNSDL" :{
   "nFiles": 2,
   "blank": 152,
@@ -203,10 +203,10 @@
   "comment": 74,
   "code": 408},
 "Swift" :{
-  "nFiles": 8,
-  "blank": 57,
-  "comment": 23,
-  "code": 376},
+  "nFiles": 9,
+  "blank": 62,
+  "comment": 31,
+  "code": 392},
 "WebAssembly" :{
   "nFiles": 2,
   "blank": 54,
@@ -328,7 +328,7 @@
   "comment": 0,
   "code": 1},
 "SUM": {
-  "blank": 1054529,
-  "comment": 1068533,
-  "code": 6414328,
-  "nFiles": 20171} }
+  "blank": 1055031,
+  "comment": 1068262,
+  "code": 6418959,
+  "nFiles": 20184} }
