@@ -117,7 +117,8 @@ extern "C" {
 	int mod_subsongs;
 	int mod_currentsub,mod_minsub,mod_maxsub;
 	unsigned int mPlayType;
-	int mp_datasize,numChannels;
+    long mp_datasize;
+    int numChannels;
     int mLoopMode; //0:off, 1:infinite
     NSString *mod_currentfile;  //file being loaded
     NSString *mod_loadmodule_filepath; //filepath given as param of LoadModule
@@ -208,7 +209,8 @@ extern "C" {
 @property int mod_subsongs,mod_currentsub,mod_minsub,mod_maxsub,mLoopMode;
 @property int optForceMono;
 @property unsigned int mPlayType;
-@property int mp_datasize,mPatternDataAvail;
+@property int mPatternDataAvail;
+@property long mp_datasize;
 @property NSString *mod_currentfile,*mod_currentext;
 //Adplug stuff
 @property CPlayer	*adPlugPlayer;

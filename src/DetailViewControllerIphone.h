@@ -16,6 +16,8 @@
 
 #import "WaitingView.h"
 
+
+
 //#import <AVFoundation/AVFoundation.h>
 #import <AudioToolbox/AudioToolbox.h>
 
@@ -48,6 +50,8 @@
 
 #import "CBAutoScrollLabel.h"
 
+#import <UserNotifications/UserNotifications.h>
+
 struct Resources;
 
 @class OGLView;
@@ -67,7 +71,8 @@ enum {
     RS_RECORDING_AND_STOP_FS
 };
 
-@interface DetailViewControllerIphone : UIViewController <UINavigationControllerDelegate,UIGestureRecognizerDelegate, TKCoverflowViewDelegate,TKCoverflowViewDataSource,UIScrollViewDelegate,UITableViewDelegate,UITableViewDataSource,UIPopoverPresentationControllerDelegate,RPPreviewViewControllerDelegate,RPScreenRecorderDelegate,RPBroadcastControllerDelegate,RPBroadcastActivityViewControllerDelegate> {
+@interface DetailViewControllerIphone : UIViewController <UINavigationControllerDelegate,UIGestureRecognizerDelegate, TKCoverflowViewDelegate,TKCoverflowViewDataSource,UIScrollViewDelegate,UITableViewDelegate,UITableViewDataSource,UIPopoverPresentationControllerDelegate,RPPreviewViewControllerDelegate,RPScreenRecorderDelegate,RPBroadcastControllerDelegate,RPBroadcastActivityViewControllerDelegate,
+    UNUserNotificationCenterDelegate> {
     
     __weak IBOutlet MGLKView* m_oglView;
     MGLContext* m_oglContext;
@@ -400,7 +405,6 @@ enum {
 -(void) mdSwitchLockPreset;
 -(void) mdOpenCloseMenu;
 -(void) mdBackAction;
--(void) mdSwitchBloomFX;
 -(void) mdSwitchFPSHud;
 -(void) mdInfoFX;
 -(void) mdSwitchVolBars;
@@ -408,11 +412,13 @@ enum {
 -(void) mdSwitchModPatternFont:(int)val;
 -(void) mdSwitchModPatternFontSize:(int)val;
 -(void) mdSwitchFixedBar;
--(void) mdSwitchBloom:(int)val;
+-(void) mdSwitchSpectrumBloom:(int)val;
+-(void) mdSwitchLandscapeBloom:(int)val;
 
 -(void) mdShiftMode:(int)active;
 
-- (void)checkNewCover;
+-(void) checkNewCover;
+-(void) sendNotifPlayedTitle;
 
 -(void) switchFX:(int)fxNb change:(int)val;
 -(void) changeSettingsValue:(int)settingsIdx change:(float)value;

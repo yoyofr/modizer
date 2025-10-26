@@ -86,6 +86,8 @@
               [UIKeyCommand keyCommandWithInput:@"b"   modifierFlags:0 action:@selector(keyBPressed)],
               [UIKeyCommand keyCommandWithInput:@"m"   modifierFlags:0 action:@selector(keyMPressed)],
               [UIKeyCommand keyCommandWithInput:@"m"   modifierFlags:UIKeyModifierAlternate action:@selector(keyMAltPressed)],
+              [UIKeyCommand keyCommandWithInput:@"o"   modifierFlags:0 action:@selector(keyOPressed)],
+              [UIKeyCommand keyCommandWithInput:@"o"   modifierFlags:UIKeyModifierAlternate action:@selector(keyOAltPressed)],
               [UIKeyCommand keyCommandWithInput:@"v"   modifierFlags:0 action:@selector(keyVPressed)],
               [UIKeyCommand keyCommandWithInput:@"t"   modifierFlags:0 action:@selector(keyTPressed)],
               [UIKeyCommand keyCommandWithInput:@"t"   modifierFlags:UIKeyModifierAlternate action:@selector(keyTAltPressed)],
@@ -169,10 +171,16 @@
     [detailViewControllerIphone mdSwitchFixedBar];
 }
 - (void)keyMPressed{
-    [detailViewControllerIphone mdSwitchBloom:1];
+    [detailViewControllerIphone mdSwitchSpectrumBloom:1];
 }
 - (void)keyMAltPressed{
-    [detailViewControllerIphone mdSwitchBloom:-1];
+    [detailViewControllerIphone mdSwitchSpectrumBloom:-1];
+}
+- (void)keyOPressed{
+    [detailViewControllerIphone mdSwitchLandscapeBloom:1];
+}
+- (void)keyOAltPressed{
+    [detailViewControllerIphone mdSwitchLandscapeBloom:-1];
 }
 - (void)keyFPressed{
     [detailViewControllerIphone mdSwitchModPatternFont:1];

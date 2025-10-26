@@ -21,6 +21,7 @@
 //#define G_BASE2 0x90
 //#define B_BASE2 0xFF
 
+int mdzNotificationAllowed;
 
 t_pattern_colortheme modpat_colorStd={
     {230,76,153},  //highlight bar color
@@ -95,8 +96,8 @@ t_pattern_colortheme modpat_colorScreamTracker={
     {154,150,147},  //Effect value color
     {154,150,147},  //Effect value color H
     {111,230,78},  //volume bar low color
-    {111,230,78},  //volume bar high color
-    MDZ_THEMEFLAG_VolDep|MDZ_THEMEFLAG_VolDottedBar|MDZ_THEMEFLAG_VolDottedRedTopBar,              //volume bar mode
+    {0.9*255,0.2*255,0.14*255},  //volume bar high color
+    MDZ_THEMEFLAG_VolDottedBar|MDZ_THEMEFLAG_VolDottedRedTopBar,              //volume bar mode
     "ST3",
 };
 

@@ -8,7 +8,10 @@
 //#define DEBUG_PM_PERF
 //#define DEBUG_PM_PERF_START 150
 
-
+extern float camera_posX,camera_posY,camera_posZ;
+extern float camera_lookX,camera_lookY,camera_lookZ;
+float pattern_w,header_w;
+float fontWidth;
 
 #define ASCII_MIDDOT "·"
 
@@ -27,6 +30,8 @@ extern pthread_mutex_t db_mutex;
 extern pthread_mutex_t shader_mutex;
 
 #import "SysMonitoring.h"
+
+#import <UserNotifications/UserNotifications.h>
 
 extern BOOL nvdsp_EQ;
 
@@ -236,9 +241,8 @@ static volatile int mPopupAnimation=0;
 
 static volatile int alertCannotPlay_displayed;
 
-static int viewTapHelpInfo=0;
-static int viewTapHelpShow=0;
-static int viewTapHelpShowMode=0;
+static int pmenu_fade=0;
+static int pmenu_show=0;
 
 static 	UIImage *covers_default; // album covers images
 
@@ -251,6 +255,8 @@ static 	UIImage *covers_default; // album covers images
 static int display_length_mode=0;
 
 UIImage *backgroundImage;
+
+static int updMPNowCnt=0;
 
 @implementation DetailViewControllerIphone
 
@@ -1252,14 +1258,6 @@ static float movePinchScale,movePinchScaleOld;
         m_oglView.hidden=YES;
     } else {
         if ((infoView.hidden==YES)) {
-            if (m_oglView.hidden) {
-                viewTapHelpInfo=0;//255;
-                if ([self computeActiveFX]==0) {
-                    viewTapHelpShow=1;
-                    viewTapHelpShowMode=1;
-                }
-                else viewTapHelpShow=0;
-            }
             m_oglView.hidden=NO;
         }
     }
@@ -1317,8 +1315,13 @@ static float movePinchScale,movePinchScaleOld;
         [self checkGLViewCanDisplay];
     }
     
-    if (viewTapHelpShow==0) viewTapHelpShow=1;
-    else viewTapHelpShow=0;
+    if (pmenu_show==0) {
+        pmenu_show=1;
+        pmenu_fade=0;
+    } else {
+        pmenu_show=0;
+        pmenu_fade=0;
+    }
 }
 -(void) mdBackAction {
     PMenu::playerMenuBack();
@@ -1348,10 +1351,15 @@ static float movePinchScale,movePinchScaleOld;
 -(void) mdShiftMode:(int)active {
     _shiftModeOn=active;
 }
--(void) mdSwitchBloom:(int)val {
+-(void) mdSwitchSpectrumBloom:(int)val {
     [SettingsGenViewController changeSettingsValue:GLOB_FX3DSpectrumBloom change:val];
     
     [self openPopup:NSLocalizedString(@"Spectrum 3D",@"") secmsg:[NSString stringWithFormat:@"Bloom set to %s",settings[GLOB_FX3DSpectrumBloom].detail.mdz_switch.switch_labels[settings[GLOB_FX3DSpectrumBloom].detail.mdz_switch.switch_value]] style:0];
+}
+-(void) mdSwitchLandscapeBloom:(int)val {
+    [SettingsGenViewController changeSettingsValue:GLOB_FX3DLandscapeBloom change:val];
+    
+    [self openPopup:NSLocalizedString(@"3D Landscape",@"") secmsg:[NSString stringWithFormat:@"Bloom set to %s",settings[GLOB_FX3DLandscapeBloom].detail.mdz_switch.switch_labels[settings[GLOB_FX3DLandscapeBloom].detail.mdz_switch.switch_value]] style:0];
 }
 -(void) mdSwitchVolBars {
     [SettingsGenViewController changeSettingsValue:GLOB_FXMODPattern_VolBar change:1];
@@ -1396,9 +1404,6 @@ static float movePinchScale,movePinchScaleOld;
         
         
     }
-}
--(void) mdSwitchBloomFX {
-//    settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value=!settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value;
 }
 -(void) mdSwitchFPSHud {
     settings[GLOB_FXSHOWFPS].detail.mdz_boolswitch.switch_value=!settings[GLOB_FXSHOWFPS].detail.mdz_boolswitch.switch_value;
@@ -1539,24 +1544,42 @@ static float movePinchScale,movePinchScaleOld;
 }
 
 -(void) seek:(NSNumber*)seekTime {
-    int curTime;
-    if (curSongLength>0) curTime=(int)(sliderProgressModule.value*(float)(curSongLength-1));
+//    int curTime;
+//    if (curSongLength>0) curTime=(int)(sliderProgressModule.value*(float)(curSongLength-1));
+//    
+//    if (display_length_mode&&(curSongLength>0)) labelTime.text=[NSString stringWithFormat:@"-%.2d:%.2d", ((curSongLength-[mplayer getCurrentTime])/1000)/60,((curSongLength-[mplayer getCurrentTime])/1000)%60];
+//    else labelTime.text=[NSString stringWithFormat:@"%.2d:%.2d", ([mplayer getCurrentTime]/1000)/60,([mplayer getCurrentTime]/1000)%60];
+//    //sliderProgressModuleChanged=0;
+//    //sliderProgressModuleEdit=0;
+    
+    int64_t curTime;
+    if (curSongLength>0) curTime=[seekTime intValue];//(int)(sliderProgressModule.value*(float)(curSongLength-1));
+    
+    if (mPaused) [self playPushed:self];
+    
+    [mplayer Seek:curTime];
+    
     
     if (display_length_mode&&(curSongLength>0)) labelTime.text=[NSString stringWithFormat:@"-%.2d:%.2d", ((curSongLength-[mplayer getCurrentTime])/1000)/60,((curSongLength-[mplayer getCurrentTime])/1000)%60];
     else labelTime.text=[NSString stringWithFormat:@"%.2d:%.2d", ([mplayer getCurrentTime]/1000)/60,([mplayer getCurrentTime]/1000)%60];
-    //sliderProgressModuleChanged=0;
-    //sliderProgressModuleEdit=0;
+    sliderProgressModuleChanged=0;
+    sliderProgressModuleEdit=0;
+    return;
+    
     return;
 }
 
 -(void) updMediaCenterProgress {
-    MPNowPlayingInfoCenter *infoCenter = [MPNowPlayingInfoCenter defaultCenter];
+    //MPNowPlayingInfoCenter *infoCenter = [MPNowPlayingInfoCenter defaultCenter];
+    [self updMediaCenter];
 }
 -(void) updMediaCenter {
     static bool no_reetrant=false;
     if (no_reetrant) return;
     no_reetrant=true;
     MPNowPlayingInfoCenter *infoCenter = [MPNowPlayingInfoCenter defaultCenter];
+    
+    MPRemoteCommandCenter *cmdCenter=[MPRemoteCommandCenter sharedCommandCenter];
     
     if (artwork==nil) {
         if (cover_img) artwork=[[MPMediaItemArtwork alloc] initWithImage:cover_img];
@@ -1571,9 +1594,24 @@ static float movePinchScale,movePinchScaleOld;
         if ([mplayer getModFileTitle]) title=[NSString stringWithFormat:@"%@ /%@",[mplayer getModFileTitle],[mplayer getModName]];
         else title=[NSString stringWithFormat:@"%@",[mplayer getModName]];
         
-        if (is_macOS) {
-            if (mIsPlaying) infoCenter.playbackState=MPNowPlayingPlaybackStatePlaying;
-            else infoCenter.playbackState=MPNowPlayingPlaybackStatePaused;
+        //if (is_macOS) {
+            if (mIsPlaying) {
+                if (mPaused) infoCenter.playbackState=MPNowPlayingPlaybackStatePaused;
+                else infoCenter.playbackState=MPNowPlayingPlaybackStatePlaying;
+            } else infoCenter.playbackState=MPNowPlayingPlaybackStateStopped;
+        //}
+        
+        if (mIsPlaying) {
+            if (mPaused) {
+                [cmdCenter.playCommand setEnabled:YES];
+                [cmdCenter.pauseCommand setEnabled:NO];
+            } else {
+                [cmdCenter.playCommand setEnabled:NO];
+                [cmdCenter.pauseCommand setEnabled:YES];
+            }
+        } else {
+            [cmdCenter.playCommand setEnabled:YES];
+            [cmdCenter.pauseCommand setEnabled:NO];
         }
         
         infoCenter.nowPlayingInfo = [NSMutableDictionary dictionaryWithObjectsAndKeys:
@@ -1606,6 +1644,16 @@ static float movePinchScale,movePinchScaleOld;
                                      //MPMediaItemPropertyPersistentID,
                                      nil];
     } else {
+        
+        if (is_macOS) {
+            infoCenter.playbackState=MPNowPlayingPlaybackStateStopped;
+        }
+        
+        if (mIsPlaying) {
+            [cmdCenter.playCommand setEnabled:YES];
+            [cmdCenter.pauseCommand setEnabled:NO];
+        }
+        
         infoCenter.nowPlayingInfo = [NSDictionary dictionaryWithObjectsAndKeys:
                                      artwork,
                                      MPMediaItemPropertyArtwork,
@@ -1652,7 +1700,6 @@ static float movePinchScale,movePinchScaleOld;
 //define the targetmethod
 -(void) updateInfos: (NSTimer *) theTimer {
     static bool noReEntrant=false;
-    static int updMPNowCnt=0;
     
     if (noReEntrant) return;
     noReEntrant=true;
@@ -2052,10 +2099,171 @@ int recording=0;
     no_reentrant=false;
 }
 
+#pragma mark - UNUserNotificationCenterDelegate
+
+// This method is called when a notification arrives while the app is in the foreground
+- (void)userNotificationCenter:(UNUserNotificationCenter *)center
+       willPresentNotification:(UNNotification *)notification
+         withCompletionHandler:(void (^)(UNNotificationPresentationOptions))completionHandler {
+    
+    //MDZDLog("Notification received in foreground: %@", notification.request.content.title);
+    
+//    if (is_macOS) completionHandler(UNNotificationPresentationOptionBanner);
+//    else
+//    {
+//        // iOS 14+ - Use UNNotificationPresentationOptionBanner
+//        if (@available(iOS 14.0, *)) {
+//            completionHandler(UNNotificationPresentationOptionBanner);
+//        } else {
+//            // iOS 10-13 - Use UNNotificationPresentationOptionAlert
+//            completionHandler(UNNotificationPresentationOptionAlert);
+//        }
+//    }
+}
+
+- (UNNotificationAttachment *)createAttachmentFromUIImage:(UIImage *)image {
+    // Convert UIImage to file and create attachment
+    if (!image) {
+        return nil;
+    }
+    
+    // Convert UIImage to NSData (PNG format)
+    NSData *imageData = UIImagePNGRepresentation(image);
+    // Alternative: Use JPEG with compression
+    // NSData *imageData = UIImageJPEGRepresentation(image, 1.0);
+    
+    if (!imageData) {
+        MDZELog("Failed to convert UIImage to NSData");
+        return nil;
+    }
+    
+    // Create temporary file URL
+    NSString *tempDirectory = NSTemporaryDirectory();
+    NSString *fileName = [NSString stringWithFormat:@"%@.png", [[NSUUID UUID] UUIDString]];
+    NSURL *fileURL = [NSURL fileURLWithPath:[tempDirectory stringByAppendingPathComponent:fileName]];
+    
+    // Write image data to file
+    NSError *writeError = nil;
+    [imageData writeToURL:fileURL options:NSAtomicWrite error:&writeError];
+    
+    if (writeError) {
+        MDZELog("Error writing image to file: %@", writeError.localizedDescription);
+        return nil;
+    }
+    
+    // Create attachment from file URL
+    NSError *attachmentError = nil;
+    UNNotificationAttachment *attachment =
+        [UNNotificationAttachment attachmentWithIdentifier:@"uiimage"
+                                                       URL:fileURL
+                                                   options:nil
+                                                     error:&attachmentError];
+    
+    if (attachmentError) {
+        MDZELog("Error creating attachment: %@", attachmentError.localizedDescription);
+        return nil;
+    }
+    
+    return attachment;
+}
+
+- (void)scheduleAutoRemovingNotification {
+    // Workaround: Schedule a notification and remove it after 5 seconds
+    NSString *identifier = @"AutoRemovingNotification";
+    
+    UNMutableNotificationContent *content = [[UNMutableNotificationContent alloc] init];
+    content.title = @"Temporary Notification";
+    content.body = @"This will be removed automatically";
+    content.sound = [UNNotificationSound defaultSound];
+    
+    UNTimeIntervalNotificationTrigger *trigger =
+        [UNTimeIntervalNotificationTrigger triggerWithTimeInterval:1 repeats:NO];
+    
+    UNNotificationRequest *request =
+        [UNNotificationRequest requestWithIdentifier:identifier
+                                             content:content
+                                             trigger:trigger];
+    
+    float notif_duration=settings[GLOB_NotificationDuration].detail.mdz_slider.slider_value;
+    if (notif_duration<1) notif_duration=1;
+    if (notif_duration>10) notif_duration=10;
+    
+    UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
+    [center addNotificationRequest:request withCompletionHandler:^(NSError *error) {
+        if (!error) {
+            // Schedule removal after 5 seconds
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(5.0 * NSEC_PER_SEC)),
+                          dispatch_get_main_queue(), ^{
+                [self removeNotificationWithIdentifier:identifier];
+            });
+        }
+    }];
+}
+
+- (void)removeNotificationWithIdentifier:(NSString *)identifier {
+    UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
+    
+    // Remove from notification center (delivered notifications)
+    [center removeDeliveredNotificationsWithIdentifiers:@[identifier]];
+    
+    // Also remove from pending notifications (scheduled but not yet delivered)
+    [center removePendingNotificationRequestsWithIdentifiers:@[identifier]];
+    
+    //MDZDLog("Notification removed: %@", identifier);
+}
+
+- (void)sendNotifPlayedTitle {
+    // Configure the notification's payload.
+    NSString *identifier=[NSString stringWithFormat:@"NewTitle%@",[[NSUUID UUID] UUIDString]];
+    UNUserNotificationCenter* center = [UNUserNotificationCenter currentNotificationCenter];
+    center.delegate=self;
+    
+    UNMutableNotificationContent *content = [[UNMutableNotificationContent alloc] init];
+    content.title = [NSString localizedUserNotificationStringForKey:@"Playing" arguments:nil];
+    //content.subtitle = [NSString localizedUserNotificationStringForKey:@"Subtitle" arguments:nil];
+    //content.badge = [NSNumber numberWithInt:1];
+    content.body = [NSString stringWithFormat:NSLocalizedString(@"%@",@""),labelModuleName.text];
+    //content.sound = [UNNotificationSound defaultSound];
+    if (@available(iOS 15.0, *)) {
+        content.interruptionLevel=UNNotificationInterruptionLevelPassive;
+    }
+    if (is_macOS) content.interruptionLevel=UNNotificationInterruptionLevelActive;
+    
+    // Add image attachment
+    if (cover_img) {
+        UNNotificationAttachment *attachment = [self createAttachmentFromUIImage:cover_img];
+        if (attachment) {
+            content.attachments = @[attachment];
+        }
+    }
+       
+    
+    // Deliver the notification in five seconds.
+    UNTimeIntervalNotificationTrigger* trigger = [UNTimeIntervalNotificationTrigger
+                                                  triggerWithTimeInterval:0.1 repeats:NO];
+    
+    UNNotificationRequest* request = [UNNotificationRequest requestWithIdentifier:identifier
+                                                                          content:content trigger:trigger];
+    
+    // Schedule the notification.
+//    UNUserNotificationCenter* center = [UNUserNotificationCenter currentNotificationCenter];
+    [center addNotificationRequest:request withCompletionHandler:^(NSError * _Nullable error) {
+        if (!error) {
+            // Schedule removal after 5 seconds
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(5.0 * NSEC_PER_SEC)),
+                          dispatch_get_main_queue(), ^{
+                [self removeNotificationWithIdentifier:identifier];
+            });
+        }
+    }];
+    
+}
+
 - (IBAction)playNextSub {
     static bool no_reentrant=false;
     if (no_reentrant) return;
     no_reentrant=true;
+    
     
     if (mShuffle==1) {
         [self playNext];
@@ -2091,6 +2299,11 @@ int recording=0;
         if (mPaused) [self playPushed:nil];
         [self refreshCurrentVC];
     }
+    
+    if (settings[GLOB_Notification].detail.mdz_switch.switch_value==2) {
+        [self sendNotifPlayedTitle];
+    }
+    
     no_reentrant=false;
 }
 
@@ -3059,7 +3272,7 @@ int recording=0;
 
 -(void) loadNewFileCompleted:(NSString *)filePath fname:(NSString *)fileName arcidx:(int)arcidx subsong:(int)subsong {
 #if DEBUG_MODIZER
-    MDZILog("load completed: %@ %@ %d %d",filePath,fileName,arcidx,subsong);
+    MDZDLog("load completed: %@ %@ %d %d",filePath,fileName,arcidx,subsong);
 #endif
     //UIViewController *vc = [self visibleViewController:[UIApplication sharedApplication].keyWindow.rootViewController];
     //mdz_safe_execute_sel(vc,@selector(hideWaiting),nil)
@@ -3216,13 +3429,13 @@ int recording=0;
     [textMessage scrollRangeToVisible:NSMakeRange(0, 1)];
     
     
-    MPNowPlayingInfoCenter *infoCenter = [MPNowPlayingInfoCenter defaultCenter];
-    
-    
+//    MPNowPlayingInfoCenter *infoCenter = [MPNowPlayingInfoCenter defaultCenter];
+//    
+//    
     if (cover_img) artwork=[[MPMediaItemArtwork alloc] initWithImage:cover_img];
     else artwork=[[MPMediaItemArtwork alloc] initWithImage:default_cover];
-    
-    [self updMediaCenter];
+//
+    updMPNowCnt=0;
     
     //Activate timer for play infos
     repeatingTimer = [NSTimer scheduledTimerWithTimeInterval: 0.1f target:self selector:@selector(updateInfos:) userInfo:nil repeats: YES]; //10 times/second
@@ -3236,6 +3449,12 @@ int recording=0;
     mRestart=0;
      
     clearAudioFXbuffer=true;
+    
+    if (mPaused==false) {        
+        if (settings[GLOB_Notification].detail.mdz_switch.switch_value>0) {
+            [self sendNotifPlayedTitle];
+        }
+    }
 }
 
 -(int) requestLoadNewFile:(NSString *)filePath fname:(NSString *)fileName arcidx:(int)arcidx subsong:(int)subsong {
@@ -3669,13 +3888,11 @@ int recording=0;
     [textMessage scrollRangeToVisible:NSMakeRange(0, 1)];
     
     
-    MPNowPlayingInfoCenter *infoCenter = [MPNowPlayingInfoCenter defaultCenter];
-    
-    
+//    MPNowPlayingInfoCenter *infoCenter = [MPNowPlayingInfoCenter defaultCenter];
+//    
     if (cover_img) artwork=[[MPMediaItemArtwork alloc] initWithImage:cover_img];
     else artwork=[[MPMediaItemArtwork alloc] initWithImage:default_cover];
-    
-    [self updMediaCenter];
+    updMPNowCnt=0;
     
     //Activate timer for play infos
     repeatingTimer = [NSTimer scheduledTimerWithTimeInterval: 0.1f target:self selector:@selector(updateInfos:) userInfo:nil repeats: YES]; //10 times/second
@@ -4963,7 +5180,7 @@ void pmSoftReinit() {
     //opengl stuff
     //Init shaders
     if (RenderUtils::RenderInit()) {
-         MDZILog("render init OK");
+         MDZDLog("render init OK");
     }  else MDZELog("!!render init KO!!");
     
     CHECK_PROFILE("Renders")
@@ -5661,6 +5878,9 @@ void pmSoftReinit() {
     
     _shiftModeOn=0;
     
+    pmenu_fade=0;
+    pmenu_show=0;
+    
     //	[super viewDidLoad];
     END_PROFILE
     
@@ -6162,7 +6382,7 @@ extern "C" int current_sample;
     int nb_spectrum_bands;
     uint hasdrawnotes;
 #define MAX_STR_DATA_SIZE 65*SOUND_MAXMOD_CHANNELS+1
-    char str_data[MAX_STR_DATA_SIZE]; //MAX 64 channels visible, much higher than what current screen can display
+    char str_data[MAX_STR_DATA_SIZE];
     unsigned int cnote,cinst,ceff,cparam,cvol,endChan;
     int numRows,numRowsP,numRowsN;
     int i,j,k,l,note_avail,idx,startRow;
@@ -6632,7 +6852,10 @@ extern "C" int current_sample;
     if (mOglView1Tap) {
         mOglView1Tap=0;
         
-        if (viewTapHelpShow==0) viewTapHelpShow=1;
+        if (pmenu_show==0) {
+            pmenu_fade=0;
+            pmenu_show=1;
+        }
     }
     
     hasdrawnotes=0;
@@ -6817,10 +7040,10 @@ extern "C" int current_sample;
     if ([mplayer isPlaying]){
         if (settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value) {
             if (settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value<4){
-                RenderUtils::DrawSpectrum3D(real_spectrumL,real_spectrumR,ww,hh,angle,settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value,nb_spectrum_bands);
-            } else if (settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value<6) { RenderUtils::DrawSpectrumLandscape3D(real_spectrumL,real_spectrumR,ww,hh,angle,settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value-3,nb_spectrum_bands);
+                RenderUtils::DrawSpectrum3D(real_spectrumL,real_spectrumR,ww,hh,angle,settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value,nb_spectrum_bands,settings[GLOB_FX3DLandscapeBloom].detail.mdz_boolswitch.switch_value,glScaleFactor);
+            } else if (settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value<6) { RenderUtils::DrawSpectrumLandscape3D(real_spectrumL,real_spectrumR,ww,hh,angle,settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value-3,nb_spectrum_bands,settings[GLOB_FX3DLandscapeBloom].detail.mdz_boolswitch.switch_value,glScaleFactor);
             } else {
-                RenderUtils::DrawSpectrum3DMorph(real_spectrumL,real_spectrumR,ww,hh,angle,settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value-5,nb_spectrum_bands);
+                RenderUtils::DrawSpectrum3DMorph(real_spectrumL,real_spectrumR,ww,hh,angle,settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value-5,nb_spectrum_bands,settings[GLOB_FX3DLandscapeBloom].detail.mdz_boolswitch.switch_value,glScaleFactor);
             }
         }
         if (settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value) {
@@ -6936,16 +7159,16 @@ extern "C" int current_sample;
                 int ftsizeIdx=settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_value;
                 switch (settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_value) {
                     case 0: //
-                        fontSize=10;
+                        fontSize=mdz_font_size[0];
                         break;
                     case 1: //
-                        fontSize=15;
+                        fontSize=mdz_font_size[1];
                         break;
                     case 2: //
-                        fontSize=22;
+                        fontSize=mdz_font_size[2];
                         break;
                     case 3: //
-                        fontSize=30;
+                        fontSize=mdz_font_size[3];
                         break;
                 }
                 
@@ -6958,8 +7181,8 @@ extern "C" int current_sample;
                 
                 float font_ofsX,font_ofsY;
                 if (font_tracker[cur_font][ftsizeIdx]) { ImGui::PushFont(font_tracker[cur_font][ftsizeIdx]);
-                    font_ofsX=font_trackerSize[cur_font][3]*fontSize/FONT_BASE_SIZEF;
-                    font_ofsY=font_trackerSize[cur_font][4]*fontSize/FONT_BASE_SIZEF;
+                    font_ofsX=font_trackerSize[cur_font][3]*fontSize/FONT_BASE_SIZEF*font_trackerSize[cur_font][2];
+                    font_ofsY=font_trackerSize[cur_font][4]*fontSize/FONT_BASE_SIZEF*font_trackerSize[cur_font][2];
                 }
                 else {
                     ImGui::PushFont(nullptr);
@@ -7004,9 +7227,7 @@ extern "C" int current_sample;
                     if (midline>=limit_midline) midline=limit_midline-1;
                 }
                 
-                endChan=mplayer.numChannels;//visibleChan;
-                if (endChan>mplayer.numChannels) endChan=mplayer.numChannels;
-                else if (endChan<mplayer.numChannels) endChan++;
+                endChan=mplayer.numChannels;
                 startRow=currentRow-midline;
                 
                 int channelVolumeData[SOUND_MAXMOD_CHANNELS];
@@ -7017,7 +7238,7 @@ extern "C" int current_sample;
                 
                 idx=startRow*mplayer.numChannels;
  
-                float fontWidth=ImGui::CalcTextSize("12345678").x/8.0;
+                if (fontWidth==0) fontWidth=ImGui::CalcTextSize("ABCDEFGH").x/8.0;
                 RenderUtils::DrawChanLayout(ww,hh,display_note_mode,endChan,((int)(movePxMOD)),fontWidth/glScaleFactor,fontSize+1,glScaleFactor);
                 
                 if (settings[GLOB_FXMODPattern_VolBar].detail.mdz_boolswitch.switch_value) {
@@ -7034,7 +7255,7 @@ extern "C" int current_sample;
                     //1st win with line nb
                     char str_prefix[4];
                     ImVec2 cursorPos;
-                    float startx=(ImGui::CalcTextSize("1234").x);
+                    float startx=(ImGui::CalcTextSize("9999").x);
                     modPatternWindowSize=ww*glScaleFactor-startx;
                     
                     ImGui::SetNextWindowPos(ImVec2(0,0));
@@ -7108,6 +7329,9 @@ extern "C" int current_sample;
                     ImGui::Begin("ModPatternWin2",0,ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|
                                  ImGuiWindowFlags_NoScrollbar|
                                  ImGuiWindowFlags_NoFocusOnAppearing);
+                    
+                    pattern_w=0;
+                    header_w=0;
                     
                     for (i=startRow;i<startRow+linestodraw;i++) {
                         note_avail=0;
@@ -7361,6 +7585,8 @@ extern "C" int current_sample;
                             str_data[k]=0;
                         }
                         
+                        pattern_w=fmax(pattern_w,ImGui::CalcTextSize(str_data).x);
+                        
                         cursorPos.y=(i-startRow+1)*lineHeight+(4.0+font_ofsY)*glScaleFactor;
                         cursorPos.x=font_ofsX*glScaleFactor;
                         
@@ -7393,13 +7619,16 @@ extern "C" int current_sample;
                     memset(str_data,32,11*mplayer.numChannels);//visibleChan);
                     str_data[11*mplayer.numChannels]=0; //11 chars max / channel
                     float xofs=0;
+                    int str_size=1;
                     switch (display_note_mode) {
                         case 0:
                             for (j=0;j<endChan;j++) {
                                 str_data[(j-0)*11+4]='0'+(j+1)/10;
                                 str_data[(j-0)*11+5]='0'+(j+1)%10;
                             }
-                            str_data[(endChan-1-0)*11+9]=0;
+                            //str_data[(endChan-1-0)*11+9]=0;
+                            str_data[11*endChan]=0;
+                            str_size=11*endChan;
                             xofs=0;
                             break;
                         case 1:
@@ -7407,28 +7636,28 @@ extern "C" int current_sample;
                                 str_data[(j-0)*6+2]='0'+(j+1)/10;
                                 str_data[(j-0)*6+3]='0'+(j+1)%10;
                             }
-                            str_data[(endChan-1-0)*6+7]=0;
-                            xofs=startx/6.0;
+                            str_data[6*endChan]=0;
+                            str_size=6*endChan;
+                            xofs=0;
                             break;
                         case 2:
                             for (j=0;j<endChan;j++) {
                                 str_data[(j-0)*4+1]='0'+(j+1)/10;
                                 str_data[(j-0)*4+2]='0'+(j+1)%10;
                             }
-                            str_data[(endChan-1-0)*4+6]=0;
-                            xofs=startx/6.0;
+                            str_data[4*endChan]=0;
+                            str_size=4*endChan;
+                            xofs=0;
                             break;
                     }
+                    header_w=ImGui::CalcTextSize(str_data).x;
+                    fontWidth=header_w/str_size;
+                    
                     ImGui::SetCursorPos(ImVec2(-xofs+font_ofsX*glScaleFactor,(4.0+font_ofsY/2.0)*glScaleFactor));
                     
                     colR=modpat_curTheme->header_col[0];
                     colG=modpat_curTheme->header_col[1];
                     colB=modpat_curTheme->header_col[2];
-                    
-                    //add an extract space in the string to ensure we can scroll far enough, won't be displayed
-                    j=strlen(str_data);
-                    str_data[j++]=' ';str_data[j++]=' ';str_data[j++]=' ';str_data[j++]=' ';
-                    str_data[j]=0;
                     
                     ImGui::TextAttr("{#%02X%02X%02X}%s",colR,colG,colB,str_data);
 
@@ -7452,7 +7681,7 @@ extern "C" int current_sample;
         
         float winsizeX,winsizeY;
         winsizeX=80;
-        winsizeY=70;
+        winsizeY=70;//hh
         
         ImGui::SetNextWindowPos(ImVec2((ww-winsizeX)*glScaleFactor,0));
         ImGui::SetNextWindowSize(ImVec2(winsizeX*glScaleFactor,winsizeY*glScaleFactor));
@@ -7498,15 +7727,12 @@ extern "C" int current_sample;
         ImGui::Text("%s",strTmp);
         posy+=sizeText.y+2;
 
-        snprintf(strTmp,32,"%d %d %d",prevPattern,currentPattern,nextPattern);
-        sizeText=ImGui::CalcTextSize(strTmp);
-        posx=sizeText.x+8;
-        ImGui::SetCursorPos(ImVec2(winsizeX*glScaleFactor-posx,posy));
-        ImGui::Text("%s",strTmp);
-        posy+=sizeText.y+2;
-        
-        
-        
+//        ImGui::SliderFloat("CX", &camera_posX,-4.0f,4.0f);
+//        ImGui::SliderFloat("CY", &camera_posY,-4.0f,4.0f);
+//        ImGui::SliderFloat("CZ", &camera_posZ,-4.0f,4.0f);
+//        ImGui::SliderFloat("LX", &camera_lookX,-4.0f,4.0f);
+//        ImGui::SliderFloat("LY", &camera_lookY,-4.0f,4.0f);
+//        ImGui::SliderFloat("LZ", &camera_lookZ,-4.0f,4.0f);
         
         ImGui::PopFont();
         
@@ -7659,22 +7885,22 @@ extern "C" int current_sample;
     //-------------------------------------
     
     
-    if (viewTapHelpShow) {
-        if (viewTapHelpInfo<255) {
-            viewTapHelpInfo+=48;//48;
-            /*			viewTapHelpInfo+=(255-viewTapHelpInfo)/3;*/
-            if (viewTapHelpInfo>255) viewTapHelpInfo=255;
+    if (pmenu_show) {
+        if (pmenu_fade<255) {
+            pmenu_fade+=48;//48;
+            /*			pmenu_fade+=(255-pmenu_fade)/3;*/
+            if (pmenu_fade>255) pmenu_fade=255;
         }
     } else {
-        if (viewTapHelpInfo>0) {
-            viewTapHelpInfo-=48;//48;
-            /*			viewTapHelpInfo-=(255+32-viewTapHelpInfo)/3;*/
-            if (viewTapHelpInfo<0) viewTapHelpInfo=0;
+        if (pmenu_fade>0) {
+            pmenu_fade-=48;//48;
+            /*			pmenu_fade-=(255+32-pmenu_fade)/3;*/
+            if (pmenu_fade<0) pmenu_fade=0;
         }
     }
     
-    if (viewTapHelpInfo) {
-        float fadelev=sin(viewTapHelpInfo*3.14159/2/256);
+    if (pmenu_fade) {
+        float fadelev=sin(pmenu_fade*3.14159/2/256);
         if (fadelev<0) fadelev=0;
         if (fadelev>1.0f) fadelev=1.0f;
         
@@ -7684,14 +7910,16 @@ extern "C" int current_sample;
         int ret=PMenu::playerShowMenu(ww,hh,glScaleFactor,fadelev);
         if (ret<0) {
             mOglViewIsHidden=YES;
-            viewTapHelpShow=0;
+            pmenu_show=0;
+            pmenu_fade=0;
             if (settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value) {
                 settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value=0;
                 oglViewFullscreenChanged=1;
                 [self shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)orientationHV];
             }
         } else if (ret==0) {
-            viewTapHelpShow=0;
+            pmenu_show=0;
+            pmenu_fade=0;
         } else if (ret>0) {
             if (ret==2) shouldGoToSettings=1; //Visu
             else if (ret==3) shouldGoToSettings=2; //Oscillo

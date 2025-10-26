@@ -419,7 +419,7 @@ int qsortZXArt_entries_rating_or_entries(const void *entryA, const void *entryB)
         
         NSArray *arr_realauthor=[doc searchWithXPathQuery:@"//table[contains(@class, 'author_details_info')]//tr/td[1]"];
         if ([arr_realauthor count]>=1) {
-            if ([[[arr_realauthor objectAtIndex:0] content] containsString:@"Author's profile page"]) {
+            if ([ (NSString*)[[arr_realauthor objectAtIndex:0] content] containsString:@"Author's profile page"]) {
                 NSArray *arr_realauthor2=[doc searchWithXPathQuery:@"//table[contains(@class, 'author_details_info')]//tr/td[2]/a"];
                 NSString *newtitle=[NSString stringWithString:[[arr_realauthor2 objectAtIndex:0] text]];
                 dispatch_sync(dispatch_get_main_queue(), ^(void){

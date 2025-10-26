@@ -23,7 +23,8 @@
 
 #import "ModizFileHelper.h"
 
-extern volatile t_settings settings[MAX_SETTINGS];
+#import "ModizerTypes.h"
+
 
 //GLOBAL VAR
 void *ExtractProgressObserverContext = &ExtractProgressObserverContext;
@@ -42,6 +43,9 @@ char homedirectory[512*4];
 char bundledirectory[512*4];
 NSURL *icloudURL;
 bool icloud_available;
+
+extern volatile t_settings settings[MAX_SETTINGS];
+
 
 
 extern "C" {
@@ -97,6 +101,13 @@ pthread_mutex_t shader_mutex;
     
     //[supportedExtension release];
     supportedExtension=nil;
+}
+
+- (void)cleanupTempData {
+    NSArray* temp = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:NSTemporaryDirectory() error:NULL];
+    for (NSString *file in temp) {
+        [[NSFileManager defaultManager] removeItemAtPath:[NSString stringWithFormat:@"%@%@", NSTemporaryDirectory(), file] error:NULL];
+    }
 }
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
@@ -277,10 +288,14 @@ pthread_mutex_t shader_mutex;
     //[[UILabel appearanceWhenContainedInInstancesOfClasses:@[[UIAlertController class]]] setFont:[UIFont systemFontOfSize:6.0]];
     
     
-//    UNUserNotificationCenter* center = [UNUserNotificationCenter currentNotificationCenter];
-//    [center requestAuthorizationWithOptions:UNAuthorizationOptionAlert completionHandler:^(BOOL granted, NSError * _Nullable error) {
-//            
-//    }];
+    UNUserNotificationCenter* center = [UNUserNotificationCenter currentNotificationCenter];
+    center.delegate=detailViewControlleriPhone;
+    [center requestAuthorizationWithOptions:UNAuthorizationOptionAlert completionHandler:^(BOOL granted, NSError * _Nullable error) {
+        if (!granted) mdzNotificationAllowed=false;
+        else mdzNotificationAllowed=true;
+    }];
+    
+    
     
     END_PROFILE
     return YES;
@@ -347,11 +362,26 @@ pthread_mutex_t shader_mutex;
     return [self application:application openURL:url options:nil];
 }
 
+- (void)removeAllNotifications {
+    UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
+    
+    // Remove all delivered notifications
+    [center removeAllDeliveredNotifications];
+    
+    // Remove all pending notifications
+    [center removeAllPendingNotificationRequests];
+    
+    MDZDLog("All notifications removed");
+}
+
 - (void)applicationWillTerminate:(UIApplication *)application {
     [SettingsGenViewController backupSettings];
 	[detailViewControlleriPhone saveSettings];
     [downloadVC backupDownloadList];
 	[detailViewControlleriPhone updateFlagOnExit];
+    
+    [self removeAllNotifications];
+    [self cleanupTempData];
 }
 
 - (void)applicationWillEnterForeground:(UIApplication *)application {

@@ -6,8 +6,9 @@
 //
 //
 
-#import <UIKit/UIKit.h>
 #import "ModizerConstants.h"
+#import <UIKit/UIKit.h>
+
 #import "DetailViewControllerIphone.h"
 #import "TPKeyboardAvoidingTableView.h"
 
@@ -65,6 +66,8 @@ enum MDZ_SETTINGS {
     //GLOB_PlaybackFrequency,
     GLOB_SearchRegExp,
     GLOB_ResumeOnStart,
+    GLOB_Notification,
+    GLOB_NotificationDuration,
     GLOB_NoScreenAutoLock,
     GLOB_PBRATIO_ONOFF,
     GLOB_PBRATIO,
@@ -259,7 +262,6 @@ enum MDZ_SETTINGS {
         XMP_FLAGS_A500F,
     
     MDZ_SETTINGS_FAMILY_GLOBAL_VISU,
-    //GLOB_BLOOMFX,
     GLOB_FXAlpha,
     GLOB_FXFullscreen,
     GLOB_FXFPS,
@@ -360,6 +362,7 @@ enum MDZ_SETTINGS {
         
     GLOB_FXSpectrum,
     GLOB_FX3DLandscape,
+    GLOB_FX3DLandscapeBloom,
     
     MAX_SETTINGS
 };

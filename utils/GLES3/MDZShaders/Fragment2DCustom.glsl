@@ -5,6 +5,8 @@ in vec4 v_color;
 layout(location = 0) out vec4 outColor;
 
 uniform int u_mode;
+uniform int u_redHeight;
+uniform vec3 u_redCol;
 
 void main()
 {
@@ -14,7 +16,7 @@ void main()
         else outColor = vec4(0,0,0,0);
     } else if (u_mode==1) {
         vec4 col;
-        if (x>(256-96)) col=vec4(0.9,0.2,0.14,v_color.a);
+        if (x>u_redHeight) col=vec4(u_redCol.rgb,v_color.a);
         else col=v_color;
         if ((x&15)<10) outColor = col;
         else outColor = vec4(0,0,0,0);

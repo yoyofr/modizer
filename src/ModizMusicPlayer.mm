@@ -8530,7 +8530,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
     mp_datasize=ftell(f);
     mp_data=(char*)malloc(mp_datasize);
     if (!mp_data) {
-        MDZELog("AtariSound: cannot allocate %dKo to load file\n",mp_datasize>>10);
+        MDZELog("AtariSound: cannot allocate %ldKo to load file\n",mp_datasize>>10);
         fclose(f);
         return  -1;
     }
@@ -13924,7 +13924,9 @@ extern bool icloud_available;
                     
                     //remove tmp dir
                     NSError *err;
-                    NSString *tmpArchivePath=[NSString stringWithFormat:@"%@/tmp/tmpArchive",NSHomeDirectory()];
+                    //NSString *tmpArchivePath=[NSString stringWithFormat:@"%@/tmp/tmpArchive",NSHomeDirectory()];
+                    NSString *tmpArchivePath=[NSString stringWithFormat:@"%@/tmpArchive",NSTemporaryDirectory()];
+                    
                     if ((!isRestarting)&&(!skip_extract)) {
                         [mFileMngr removeItemAtPath:tmpArchivePath error:&err];
                         //create tmp dir

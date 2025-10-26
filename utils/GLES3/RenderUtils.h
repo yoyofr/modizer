@@ -192,11 +192,12 @@ void calcNormal(GLfloat v[3][3], GLfloat out[3]);
 
 void DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,int num_voices,uint ww,uint hh,uint color_mode,float mScaleFactor,bool isfullscreen,bool bloom,char *voices_label=NULL,bool draw_frame=true,bool flag_direct_stereo=false);
 
-void DrawSpectrum3D(short int *spectrumDataL,short int *spectrumDataR,uint ww,uint hh,float angle,int mode,int nb_spectrum_bands);
-void DrawSpectrumLandscape3D(short int *spectrumDataL,short int *spectrumDataR,uint ww,uint hh,float angle,int mode,int nb_spectrum_bands);
+void DrawSpectrum3D(short int *spectrumDataL,short int *spectrumDataR,uint ww,uint hh,float angle,int mode,int nb_spectrum_bands,int bloom,float mScaleFactor);
+void DrawSpectrumLandscape3D(short int *spectrumDataL,short int *spectrumDataR,uint ww,uint hh,float angle,int mode,int nb_spectrum_bands,int bloom,float mScaleFactor);
+void DrawSpectrum3DMorph(short int *spectrumDataL,short int *spectrumDataR,uint ww,uint hh,float angle,int mode,int nb_spectrum_bands,int bloom,float mScaleFactor);
+
 void DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrumDataR,uint ww,uint hh,float angle,int mode,int nb_spectrum_bands,int mirror,float mScaleFactor,int bloom,float rotx,float roty,float posx,float posy,float posz);
 void DrawSpectrum2D(short int *spectrumDataL,short int *spectrumDataR,uint ww,uint hh,int mode,int nb_spectrum_bands,float mScaleFactor,bool bloom);
-void DrawSpectrum3DMorph(short int *spectrumDataL,short int *spectrumDataR,uint ww,uint hh,float angle,int mode,int nb_spectrum_bands);
 
 void UpdateDataMidiFX(unsigned int *data,bool clearBuffer,bool paused);
 void UpdateDataPiano(unsigned int *data,bool clearbuffer,bool paused);
@@ -218,6 +219,11 @@ void shutdownRenderToTexture();
 void startRenderToTexture(int width,int height);
 void endRenderToTexture(int width,int height,int bloomIntensity);
 
+int build3DQuad(VertexCData *vert,float x1,float y1,float z1,float cr1,float cg1,float cb1,float ca1,
+                                 float x2,float y2,float z2,float cr2,float cg2,float cb2,float ca2,
+                                 float x3,float y3,float z3,float cr3,float cg3,float cb3,float ca3,
+                                 float x4,float y4,float z4,float cr4,float cg4,float cb4,float ca4);
+
 int buildQuad(LineVertexF *pts,
               int x1,int y1,
                   int x2,int y2,
@@ -226,9 +232,10 @@ int buildQuad(LineVertexF *pts,
                   int r1,int g1,int b1,int a1,
                   int r2,int g2,int b2,int a2,
                   int r3,int g3,int b3,int a3,
-                  int r4,int g4,int b4,int a4,int ww,int hh) ;
+                  int r4,int g4,int b4,int a4,int ww,int hh);
 
 
 }
+
 
 #endif

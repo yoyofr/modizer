@@ -834,6 +834,31 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_SearchRegExp].callback=&optGLOBALChangedC;
     settings[GLOB_SearchRegExp].type=MDZ_BOOLSWITCH;
     
+    SETTINGS_ID_DEF(GLOB_Notification)
+    settings[GLOB_Notification].type=MDZ_SWITCH;
+    settings[GLOB_Notification].label=(char*)"Notification";
+    settings[GLOB_Notification].description=(char*)"Limited: not for subsong";
+    settings[GLOB_Notification].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER;
+    settings[GLOB_Notification].sub_family=0;
+    settings[GLOB_Notification].callback=&optGLOBALChangedC;
+    settings[GLOB_Notification].detail.mdz_switch.switch_value_nb=3;
+    settings[GLOB_Notification].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_Notification].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[GLOB_Notification].detail.mdz_switch.switch_labels[0]=(char*)"Off";
+    settings[GLOB_Notification].detail.mdz_switch.switch_labels[1]=(char*)"Limited";
+    settings[GLOB_Notification].detail.mdz_switch.switch_labels[2]=(char*)"Full";
+    
+    
+    SETTINGS_ID_DEF(GLOB_NotificationDuration)
+    settings[GLOB_NotificationDuration].label=(char*)"Notification duration";
+    settings[GLOB_NotificationDuration].description=(char*)"Default value is 3s";
+    settings[GLOB_NotificationDuration].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER;
+    settings[GLOB_NotificationDuration].sub_family=0;
+    settings[GLOB_NotificationDuration].callback=&optGLOBALChangedC;
+    settings[GLOB_NotificationDuration].type=MDZ_SLIDER_DISCRETE;
+    settings[GLOB_NotificationDuration].detail.mdz_slider.slider_digits=0;
+    settings[GLOB_NotificationDuration].detail.mdz_slider.slider_min_value=1;
+    settings[GLOB_NotificationDuration].detail.mdz_slider.slider_max_value=10;
+    
     SETTINGS_ID_DEF(GLOB_ArcMultiDefaultAction)
     settings[GLOB_ArcMultiDefaultAction].type=MDZ_SWITCH;
     settings[GLOB_ArcMultiDefaultAction].label=(char*)"Multi default action";
@@ -1132,7 +1157,8 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_Default2SFPlayer].detail.mdz_switch.switch_default_value=0;
     settings[GLOB_DefaultMIDIPlayer].detail.mdz_switch.switch_default_value=0;
     //settings[GLOB_PlaybackFrequency].detail.mdz_switch.switch_default_value=0;
-    
+    settings[GLOB_Notification].detail.mdz_switch.switch_default_value=1;
+    settings[GLOB_NotificationDuration].detail.mdz_slider.slider_default_value=3;
     settings[GLOB_ArcMultiDefaultAction].detail.mdz_switch.switch_default_value=0;
     settings[GLOB_ArcMultiPlayMode].detail.mdz_switch.switch_default_value=0;
     
@@ -1630,6 +1656,19 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_labels[7]=(char*)"7";
     settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_labels[8]=(char*)"8";
     
+    SETTINGS_ID_DEF(GLOB_FX3DLandscapeBloom)
+    settings[GLOB_FX3DLandscapeBloom].label=(char*)"3D Land. Bloom";
+    settings[GLOB_FX3DLandscapeBloom].description=NULL;
+    settings[GLOB_FX3DLandscapeBloom].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+    settings[GLOB_FX3DLandscapeBloom].sub_family=0;
+    settings[GLOB_FX3DLandscapeBloom].type=MDZ_SWITCH;
+    settings[GLOB_FX3DLandscapeBloom].detail.mdz_switch.switch_value_nb=4;
+    settings[GLOB_FX3DLandscapeBloom].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_FX3DLandscapeBloom].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[GLOB_FX3DLandscapeBloom].detail.mdz_switch.switch_labels[0]=(char*)"Off";
+    settings[GLOB_FX3DLandscapeBloom].detail.mdz_switch.switch_labels[1]=(char*)"Low";
+    settings[GLOB_FX3DLandscapeBloom].detail.mdz_switch.switch_labels[2]=(char*)"Med";
+    settings[GLOB_FX3DLandscapeBloom].detail.mdz_switch.switch_labels[3]=(char*)"High";
+    
     SETTINGS_ID_DEF(GLOB_FXLOD)
     settings[GLOB_FXLOD].type=MDZ_SWITCH;
     settings[GLOB_FXLOD].label=(char*)"FX Level of details";
@@ -1676,6 +1715,7 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_default_value=1;
     settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_default_value=0;
     settings[GLOB_FX3DSpectrumBloom].detail.mdz_switch.switch_default_value=0;
+    settings[GLOB_FX3DLandscapeBloom].detail.mdz_switch.switch_default_value=0;
     settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_default_value=0;
     settings[GLOB_FXLOD].detail.mdz_switch.switch_default_value=2;
     settings[GLOB_FXFPS].detail.mdz_switch.switch_default_value=1;

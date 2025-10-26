@@ -10,6 +10,8 @@
 #ifndef MODIZER_TYPES_H
 #define MODIZER_TYPES_H
 
+#import "ModizerConstants.h"
+
 typedef struct {
     uint8_t highlight_bar[3];
     uint8_t header_col[3];
@@ -46,6 +48,9 @@ enum t_pattern_theme_flag {
   MDZ_THEMEFLAG_VolDottedRedTopBar=1<<6,
 };
 
+
+
+
 #ifdef __cplusplus
 #define MDZ_EXTERN extern "C"
 #else
@@ -58,6 +63,8 @@ MDZ_EXTERN t_pattern_colortheme *modpat_curTheme;
 MDZ_EXTERN t_pattern_colortheme *modpat_curTheme;
 MDZ_EXTERN t_pattern_colortheme *modpat_themesList[];
 MDZ_EXTERN int modpat_themesNb;
+
+MDZ_EXTERN int mdzNotificationAllowed;
 
 #endif
 

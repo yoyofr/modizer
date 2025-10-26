@@ -23,11 +23,16 @@ const char *font_trackerName[FONT_TRACKER_NB][2]={
 };
 
 float font_trackerSize[FONT_TRACKER_NB][5]={
+//    {16.0,9.0,1.0,0.0,0.0},
+//    {16.0,16.0,0.82,0.0,2.0},
+//    {16.0,13.0,0.85,0.0,-1.0},
+//    {16.0,8.0,1.1,0.0,-2.0},
+//    {16.0,10.0,0.9,0.0,0.0},
     {16.0,9.0,1.0,0.0,0.0},
-    {16.0,16.0,0.82,0.0,2.0},
-    {16.0,13.0,0.85,0.0,-1.0},
-    {16.0,8.0,1.1,0.0,-2.0},
-    {16.0,10.0,0.9,0.0,0.0},
+    {16.0,14.0,0.7,0.0,2.0},
+    {16.0,12.0,0.8,0.0,-1.0},
+    {16.0,8.0,1.0,0.0,-2.0},
+    {16.0,10.0,1.0,0.0,0.0},
 };
 
 
@@ -64,17 +69,17 @@ bool ImGui_ImplIOS_Init()
             //NSLog(@"loading %s.ttf size: %f",font_trackerName[i][0],ft_size);
             
             ImFontConfig font_cfg = ImFontConfig();
-            font_cfg.GlyphMinAdvanceX=font_trackerSize[i][1]*ft_size/FONT_BASE_SIZEF*glScaleFactor*font_trackerSize[i][2];
-            font_cfg.GlyphMaxAdvanceX=font_trackerSize[i][1]*ft_size/FONT_BASE_SIZEF*glScaleFactor*font_trackerSize[i][2];
+            font_cfg.GlyphMinAdvanceX=round(font_trackerSize[i][1]*ft_size/FONT_BASE_SIZEF*glScaleFactor*font_trackerSize[i][2]);
+            font_cfg.GlyphMaxAdvanceX=round(font_trackerSize[i][1]*ft_size/FONT_BASE_SIZEF*glScaleFactor*font_trackerSize[i][2]);
             
-            font_tracker[i][j] = io.Fonts->AddFontFromFileTTF([[[NSBundle mainBundle] pathForResource:[NSString stringWithFormat:@"Fonts/%s",font_trackerName[i][0]] ofType: @"ttf"] UTF8String], font_trackerSize[i][0]*ft_size*glScaleFactor/FONT_BASE_SIZEF*font_trackerSize[i][2], &font_cfg, io.Fonts->GetGlyphRangesDefault());
+            font_tracker[i][j] = io.Fonts->AddFontFromFileTTF([[[NSBundle mainBundle] pathForResource:[NSString stringWithFormat:@"Fonts/%s",font_trackerName[i][0]] ofType: @"ttf"] UTF8String], font_trackerSize[i][0]*ft_size/FONT_BASE_SIZEF*glScaleFactor*font_trackerSize[i][2], &font_cfg, io.Fonts->GetGlyphRangesDefault());
             IM_ASSERT(font_tracker[i][j] != NULL);
             
             ImFontConfig font_cfgH = ImFontConfig();
-            font_cfgH.GlyphMinAdvanceX=font_trackerSize[i][1]*ft_size/FONT_BASE_SIZEF*glScaleFactor*font_trackerSize[i][2];
-            font_cfgH.GlyphMaxAdvanceX=font_trackerSize[i][1]*ft_size/FONT_BASE_SIZEF*glScaleFactor*font_trackerSize[i][2];
+            font_cfgH.GlyphMinAdvanceX=round(font_trackerSize[i][1]*ft_size/FONT_BASE_SIZEF*glScaleFactor*font_trackerSize[i][2]);
+            font_cfgH.GlyphMaxAdvanceX=round(font_trackerSize[i][1]*ft_size/FONT_BASE_SIZEF*glScaleFactor*font_trackerSize[i][2]);
             
-            font_trackerH[i][j] = io.Fonts->AddFontFromFileTTF([[[NSBundle mainBundle] pathForResource:[NSString stringWithFormat:@"Fonts/%s",font_trackerName[i][0]] ofType: @"ttf"] UTF8String], font_trackerSize[i][0]*ft_size*glScaleFactor/FONT_BASE_SIZEF*font_trackerSize[i][2]*1.3f, &font_cfg, io.Fonts->GetGlyphRangesDefault());
+            font_trackerH[i][j] = io.Fonts->AddFontFromFileTTF([[[NSBundle mainBundle] pathForResource:[NSString stringWithFormat:@"Fonts/%s",font_trackerName[i][0]] ofType: @"ttf"] UTF8String], font_trackerSize[i][0]*ft_size/FONT_BASE_SIZEF*glScaleFactor*font_trackerSize[i][2]*1.3f, &font_cfg, io.Fonts->GetGlyphRangesDefault());
             IM_ASSERT(font_trackerH[i][j] != NULL);
         }
     }

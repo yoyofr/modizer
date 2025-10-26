@@ -2126,28 +2126,6 @@ static int shouldRestart=1;
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
     
-    
-    
-//    // Configure the notification's payload.
-//    UNMutableNotificationContent *content = [[UNMutableNotificationContent alloc] init];
-//    content.title = [NSString localizedUserNotificationStringForKey:@"Hello!" arguments:nil];
-//    //content.subtitle = [NSString localizedUserNotificationStringForKey:@"Subtitle" arguments:nil];
-//    //content.badge = [NSNumber numberWithInt:1];
-//    content.body = [NSString localizedUserNotificationStringForKey:@"Hello_message_body" arguments:nil];
-//    //content.sound = [UNNotificationSound defaultSound];
-//     
-//    // Deliver the notification in five seconds.
-//    UNTimeIntervalNotificationTrigger* trigger = [UNTimeIntervalNotificationTrigger
-//                triggerWithTimeInterval:5 repeats:NO];
-//    UNNotificationRequest* request = [UNNotificationRequest requestWithIdentifier:@"FiveSecond"
-//                content:content trigger:trigger];
-//     
-//    // Schedule the notification.
-//    UNUserNotificationCenter* center = [UNUserNotificationCenter currentNotificationCenter];
-//    [center addNotificationRequest:request withCompletionHandler:^(NSError * _Nullable error) {
-//        
-//    }];
-//    
     forceReloadCells=false;
     
     //check if a pending cut/paste exists
