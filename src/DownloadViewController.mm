@@ -377,7 +377,8 @@ MDZELog("gzread error str for FTP entry %d",i); \
     self.tableView.editing=TRUE;
     
     [self restoreDownloadList];
-    barItem.badgeValue=[NSString stringWithFormat:@"%d",(mFTPDownloadQueueDepth+mURLDownloadQueueDepth)];
+    if (mFTPDownloadQueueDepth+mURLDownloadQueueDepth) barItem.badgeValue=[NSString stringWithFormat:@"%d",(mFTPDownloadQueueDepth+mURLDownloadQueueDepth)];
+    else barItem.badgeValue=nil;
     [self checkNextQueuedItem];
     
     [super viewDidLoad];
@@ -386,7 +387,8 @@ MDZELog("gzread error str for FTP entry %d",i); \
 
 - (void)refreshDownloadCountBadge {
     dispatch_async(dispatch_get_main_queue(), ^{
-        self.barItem.badgeValue=[NSString stringWithFormat:@"%d",(int)(self.mFTPDownloadQueueDepth+self.mURLDownloadQueueDepth)];
+        if (self.mFTPDownloadQueueDepth+self.mURLDownloadQueueDepth) self.barItem.badgeValue=[NSString stringWithFormat:@"%d",(int)(self.mFTPDownloadQueueDepth+self.mURLDownloadQueueDepth)];
+        else self.barItem.badgeValue=nil;
     });
 }
 

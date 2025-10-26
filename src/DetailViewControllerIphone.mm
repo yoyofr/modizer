@@ -2167,39 +2167,6 @@ int recording=0;
     return attachment;
 }
 
-- (void)scheduleAutoRemovingNotification {
-    // Workaround: Schedule a notification and remove it after 5 seconds
-    NSString *identifier = @"AutoRemovingNotification";
-    
-    UNMutableNotificationContent *content = [[UNMutableNotificationContent alloc] init];
-    content.title = @"Temporary Notification";
-    content.body = @"This will be removed automatically";
-    content.sound = [UNNotificationSound defaultSound];
-    
-    UNTimeIntervalNotificationTrigger *trigger =
-        [UNTimeIntervalNotificationTrigger triggerWithTimeInterval:1 repeats:NO];
-    
-    UNNotificationRequest *request =
-        [UNNotificationRequest requestWithIdentifier:identifier
-                                             content:content
-                                             trigger:trigger];
-    
-    float notif_duration=settings[GLOB_NotificationDuration].detail.mdz_slider.slider_value;
-    if (notif_duration<1) notif_duration=1;
-    if (notif_duration>10) notif_duration=10;
-    
-    UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
-    [center addNotificationRequest:request withCompletionHandler:^(NSError *error) {
-        if (!error) {
-            // Schedule removal after 5 seconds
-            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(5.0 * NSEC_PER_SEC)),
-                          dispatch_get_main_queue(), ^{
-                [self removeNotificationWithIdentifier:identifier];
-            });
-        }
-    }];
-}
-
 - (void)removeNotificationWithIdentifier:(NSString *)identifier {
     UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
     
@@ -2225,7 +2192,7 @@ int recording=0;
     content.body = [NSString stringWithFormat:NSLocalizedString(@"%@",@""),labelModuleName.text];
     //content.sound = [UNNotificationSound defaultSound];
     if (@available(iOS 15.0, *)) {
-        content.interruptionLevel=UNNotificationInterruptionLevelPassive;
+        content.interruptionLevel=UNNotificationInterruptionLevelActive;
     }
     if (is_macOS) content.interruptionLevel=UNNotificationInterruptionLevelActive;
     
@@ -2246,11 +2213,17 @@ int recording=0;
                                                                           content:content trigger:trigger];
     
     // Schedule the notification.
+    
+    float notif_duration=settings[GLOB_NotificationDuration].detail.mdz_slider.slider_value;
+    if (notif_duration<1) notif_duration=1;
+    if (notif_duration>10) notif_duration=10;
+    notif_duration=round(notif_duration * NSEC_PER_SEC);
+    
 //    UNUserNotificationCenter* center = [UNUserNotificationCenter currentNotificationCenter];
     [center addNotificationRequest:request withCompletionHandler:^(NSError * _Nullable error) {
         if (!error) {
             // Schedule removal after 5 seconds
-            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(5.0 * NSEC_PER_SEC)),
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(notif_duration)),
                           dispatch_get_main_queue(), ^{
                 [self removeNotificationWithIdentifier:identifier];
             });
@@ -2299,11 +2272,6 @@ int recording=0;
         if (mPaused) [self playPushed:nil];
         [self refreshCurrentVC];
     }
-    
-    if (settings[GLOB_Notification].detail.mdz_switch.switch_value==2) {
-        [self sendNotifPlayedTitle];
-    }
-    
     no_reentrant=false;
 }
 
@@ -2492,14 +2460,23 @@ int recording=0;
             mPlaylist_pos++; if (mPlaylist_pos>=mPlaylist_size) mPlaylist_pos=0;
         }
         [self play_curEntry:-1];
+        if (settings[GLOB_Notification].detail.mdz_switch.switch_value==2) {
+            [self sendNotifPlayedTitle];
+        }
         return 1;
     } else if (mPlaylist_pos<mPlaylist_size-1) {
         mPlaylist_pos++;
         [self play_curEntry:-1];
+        if (settings[GLOB_Notification].detail.mdz_switch.switch_value==2) {
+            [self sendNotifPlayedTitle];
+        }
         return 1;
     } else if (mLoopMode==1) {
         mPlaylist_pos=0;
         [self play_curEntry:-1];
+        if (settings[GLOB_Notification].detail.mdz_switch.switch_value==2) {
+            [self sendNotifPlayedTitle];
+        }
         return 1;
     }
     return 0;
