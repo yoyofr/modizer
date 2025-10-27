@@ -12,6 +12,7 @@
 @property (nonatomic, strong) NSString *name;
 @property (nonatomic, strong) NSString *path;
 @property (nonatomic, assign) BOOL isSelected;
+@property (nonatomic, assign) BOOL isMatchingFilter;
 @property (nonatomic, assign) BOOL isDirectory;
 @property (nonatomic, assign) unsigned long long fileSize;
 @property (nonatomic, strong) NSDate *modificationDate;
@@ -20,6 +21,8 @@
 - (instancetype)initWithPath:(NSString *)path;
 - (NSString *)formattedSize;
 - (void)printStructureWithIndent:(NSInteger)indent;
+
+- (bool)filterNodes:(NSString *)pattern filterDir:(bool)filterDir;
 
 @end
 

@@ -63,6 +63,34 @@
     }
 }
 
+- (bool)filterNodes:(NSString *)pattern filterDir:(bool)filterDir {
+    bool result=false;
+    
+    if (filterDir) {
+        // Filter dir like files
+        if ([[self.name lowercaseString] containsString:[pattern lowercaseString]]) {
+            result=true;
+        }
+    } else if (!self.isDirectory) {
+        // Filter files only
+        if ([[self.name lowercaseString] containsString:[pattern lowercaseString]]) {
+            result=true;
+        }
+    }
+    
+    for (FileNode *child in self.children) {
+        bool ret=[child filterNodes:pattern filterDir:filterDir];
+        if (ret) { //found a child matching
+            result=true;
+        }
+    }
+    
+    if (result) self.isMatchingFilter=YES;
+    else self.isMatchingFilter=NO;
+    
+    return result;
+}
+
 @end
 
 @implementation DirParser

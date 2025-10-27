@@ -9,8 +9,17 @@
 #include "SettingsGenViewController.h"
 #include "TextureUtils.h"
 #import "DirParser.h"
+
+#include "MDZFontAwesome.h"
 extern FileNode *pmBundledPresetsFileNode;
 char pmBundledFilter[64];
+static float idealFontSize;
+
+extern float glScaleFactor;
+
+#define faicon(a) [[NSString stringWithFormat:@"%C", static_cast<unichar>(a)] UTF8String]
+
+static int fullscreenStatus;
 
 #define MENU_BACKGROUND_ALPHA 0.7f
 
@@ -25,7 +34,8 @@ char pmBundledFilter[64];
 
 
 extern float mdz_font_size[4];
-extern ImFont *font_menu[4];
+extern ImFont *font_menu;
+//extern ImFont *font_menu_icon;
 int font_idx;
 extern volatile t_settings settings[MAX_SETTINGS];
 extern bool _pmPresetHasChanged;
@@ -79,16 +89,40 @@ static GLuint txtMenuHandle[16];
 const char *menuRootLabel[16]={
     NULL,NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
-    NULL,NULL,"More","Fullscreen",
-    "Close FX\nwindow","All FX off","Go to\nsettings","Exit Menu"
+    NULL,NULL,NULL,NULL,
+    "Close FX\nwindow","All FX off",NULL,NULL
+};
+void *menuRootVar[16]={
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,NULL,
+};
+const unsigned short menuRootLabelFAIcon[16]={
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,FA_ARROW_CIRCLE_O_RIGHT,FA_WINDOW_MAXIMIZE,
+    NULL,NULL,FA_COG,FA_WINDOW_CLOSE_O,
 };
 
 static GLuint txtMenuMoreHandle[16];
 const char *menuRootMoreLabel[16]={
-    "Show FPS","@slider_alpha",NULL,NULL,
+    "Show FPS","@sliderFX\nalpha",NULL,NULL,
     NULL,NULL,NULL,NULL,
-    NULL,NULL,NULL,"Fullscreen",
-    NULL,"Go to\nsettings","Back","Exit Menu"
+    NULL,NULL,NULL,NULL,
+    NULL,"Go to\nsettings",NULL,NULL,
+};
+void *menuRootMoreVar[16]={
+    NULL,&global_FXAlpha,NULL,NULL,
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,NULL,
+};
+const unsigned short menuRootMoreLabelFAIcon[16]={
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,FA_WINDOW_MAXIMIZE,
+    NULL,NULL,FA_ARROW_CIRCLE_O_LEFT,FA_WINDOW_CLOSE,
 };
 
 static GLuint txtMenuProjectMHandle[16];
@@ -96,12 +130,33 @@ const char *menuProjectMLabel[16]={
     "Off",NULL,"Show name\nand\ndisappear","Show name",
     "Blend presets","Lock preset","Random order","Sequential\norder",
     "Default\npresets","Custom\npresets",NULL,"Fullscreen",
-    "Explorer","Go to\nsettings","Back","Exit Menu"
+    "Explorer","Go to\nsettings","Back","Exit"
+};
+void *menuProjectMVar[16]={
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,NULL,
+};
+const unsigned short menuProjectMLabelFAIcon[16]={
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,FA_WINDOW_CLOSE,
 };
 
-static GLuint txtMenuProjectMExploreHandle[4];
-const char *menuProjectMExploreLabel[4]={
-    NULL,"Go to\nsettings","Back","Exit Menu"
+static GLuint txtMenuProjectMExploreHandle[8];
+const char *menuProjectMExploreLabel[8]={
+    NULL,NULL,"Back","Exit",
+    "Select\nall","Remove\nall","Select\nfiltered","Remove\nfiltered"
+};
+void *menuProjectMExploreVar[8]={
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,NULL,
+};
+const unsigned short menuProjectMExploreLabelFAIcon[8]={
+    NULL,NULL,NULL,FA_WINDOW_CLOSE,
+    NULL,NULL,NULL,NULL,
 };
 
 static GLuint txtMenuOscilloHandle[16];
@@ -109,7 +164,19 @@ const char *menuOscilloLabel[16]={
     "Off",NULL,NULL,NULL,
     NULL,"Labels","Grid",NULL,
     NULL,NULL,NULL,"Fullscreen",
-    NULL,"Go to\nsettings","Back","Exit Menu"
+    NULL,"Go to\nsettings","Back","Exit"
+};
+void *menuOscilloVar[16]={
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,NULL,
+};
+const unsigned short menuOscilloLabelFAIcon[16]={
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,FA_WINDOW_CLOSE,
 };
 char *menuOscilloDynLabel[16];
 
@@ -118,7 +185,19 @@ const char *menu2DSpectrumLabel[16]={
     "Off",NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
     NULL,NULL,NULL,"Fullscreen",
-    NULL,"Go to\nsettings","Back","Exit Menu"
+    NULL,"Go to\nsettings","Back","Exit"
+};
+void *menu2DSpectrumVar[16]={
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,NULL,
+};
+const unsigned short menu2DSpectrumLabelFAIcon[16]={
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,FA_WINDOW_CLOSE,
 };
 
 static GLuint txtMenu3DSpectrumHandle[16];
@@ -126,7 +205,19 @@ const char *menu3DSpectrumLabel[16]={
     "Off",NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
     NULL,NULL,NULL,"Fullscreen",
-    NULL,"Go to\nsettings","Back","Exit Menu"
+    NULL,"Go to\nsettings","Back","Exit"
+};
+void *menu3DSpectrumVar[16]={
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,NULL,
+};
+const unsigned short menu3DSpectrumLabelFAIcon[16]={
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,FA_WINDOW_CLOSE,
 };
 char *menu3DSpectrumDynLabel[16];
 
@@ -135,7 +226,19 @@ const char *menu3DLandscapeLabel[16]={
     "Off",NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
     NULL,NULL,NULL,"Fullscreen",
-    NULL,"Go to\nsettings","Back","Exit Menu"
+    NULL,"Go to\nsettings","Back","Exit"
+};
+void *menu3DLandscapeVar[16]={
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,NULL,
+};
+const unsigned short menu3DLandscapeLabelFAIcon[16]={
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,FA_WINDOW_CLOSE,
 };
 char *menu3DLandscapeDynLabel[16];
 
@@ -144,7 +247,19 @@ const char *menuPiano3DLabel[16]={
     "Off",NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
     NULL,NULL,NULL,"Fullscreen",
-    NULL,"Go to\nsettings","Back","Exit Menu"
+    NULL,"Go to\nsettings","Back","Exit"
+};
+void *menuPiano3DVar[16]={
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,NULL,
+};
+const unsigned short menuPiano3DLabelFAIcon[16]={
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,FA_WINDOW_CLOSE,
 };
 
 static GLuint txtMenuPianoRollHandle[16];
@@ -152,7 +267,19 @@ const char *menuPianoRollLabel[16]={
     "Off",NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
     "Voices\nlabels","Octaves\nlabels",NULL,"Fullscreen",
-    NULL,"Go to\nsettings","Back","Exit Menu"
+    NULL,"Go to\nsettings","Back","Exit"
+};
+void *menuPianoRollVar[16]={
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,NULL,
+};
+const unsigned short menuPianoRollLabelFAIcon[16]={
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,FA_WINDOW_CLOSE,
 };
 
 static GLuint txtMenuMidiHandle[16];
@@ -160,7 +287,19 @@ const char *menuMidiLabel[16]={
     "Off",NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
     NULL,NULL,NULL,"Fullscreen",
-    NULL,"Go to\nsettings","Back","Exit Menu"
+    NULL,"Go to\nsettings","Back","Exit"
+};
+void *menuMidiVar[16]={
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,NULL,
+};
+const unsigned short menuMidiLabelFAIcon[16]={
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,FA_WINDOW_CLOSE,
 };
 
 static GLuint txtMenuModPatternHandle[16];
@@ -168,7 +307,19 @@ const char *menuModPatternLabel[16]={
     "Off",NULL,NULL,NULL,
     "Volume\nbars",NULL,NULL,"Fixed bar",
     NULL,NULL,NULL,"Fullscreen",
-    NULL,"Go to\nsettings","Back","Exit Menu"
+    NULL,"Go to\nsettings","Back","Exit"
+};
+void *menuModPatternVar[16]={
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,NULL,
+};
+const unsigned short menuModPatternLabelFAIcon[16]={
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,FA_WINDOW_CLOSE,
 };
 char *menuModPatternDynLabel[16];
 
@@ -178,7 +329,7 @@ struct {
     int menu_idx;
 } pMenu_state;
 
-int buildDirTree(FileNode *fileNode, int idx, NSString *filter);
+int buildDirTree(FileNode *fileNode, int idx, bool filter);
 
 void playerRootMenuInitRightItemsTexture() {
     txtMenuHandle[FXOSCILLO_IDX]=txtMenuOscilloHandle[max(settings[OSCILLO_FXMODE].detail.mdz_switch.switch_value&15,1)];
@@ -491,6 +642,93 @@ void playerMenuBack() {
     }
 }
 
+int buildSubMenu(int r,
+                 int c,
+                 int num_col,
+                 int isActive,
+                 float cell_size,
+                 float cell_sizeH,
+                 
+                 GLuint *current_txtMenuHandle,
+                 const char **currentMenuLabel,
+                 char **currentMenuDynLabel,
+                 const unsigned short *currentMenuLabelFAIcon,
+                 void **currentMenuVar) {
+    bool ret=false;
+    int celIdx=r*num_col+c;
+    ImVec2 uv0(0,0);ImVec2 uv1(1,1);ImVec4 bg_col(0,0,0,0.0f);ImVec4 tint_col(0.4,0.4,0.4,0.8f);
+    if (isActive) {//Active
+        tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
+        if (current_txtMenuHandle[celIdx]) ImGui::PushStyleColor(ImGuiCol_Button,ImVec4(0.0,0.0,0.0,0.0f));
+        else ImGui::PushStyleColor(ImGuiCol_Button,colorBtnTextActive);
+    } else { //Inactive
+        if (current_txtMenuHandle[celIdx]) ImGui::PushStyleColor(ImGuiCol_Button,ImVec4(0.0,0.0,0.0,0.6f));
+        else ImGui::PushStyleColor(ImGuiCol_Button,colorBtnTextInactive);
+    }
+    ImVec2 cur_pos=ImGui::GetCursorPos();
+    if (current_txtMenuHandle[celIdx]) { //Image Button
+        if (isActive) {
+            ImGui::SetNextItemAllowOverlap();
+            tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
+            ImGui::PushID((celIdx)*4+0);
+            ImGui::ImageButton("",(ImTextureID)(intptr_t)current_txtMenuHandle[celIdx], ImVec2(cell_size, cell_sizeH),uv0,uv1,bg_col,tint_col);
+            ImGui::PopID();
+            ImGui::SetCursorPos(cur_pos);
+            ImGui::PushID((celIdx)*4+1);
+            ret=ImGui::ImageButton("",(ImTextureID)(intptr_t)txtShineFx,ImVec2(cell_size, cell_sizeH),uv0,uv1,bg_col,tint_col);
+            ImGui::PopID();
+        } else {
+            ImGui::PushID((celIdx)*4);
+            ret=ImGui::ImageButton("",(ImTextureID)(intptr_t)current_txtMenuHandle[celIdx], ImVec2(cell_size, cell_sizeH),uv0,uv1,bg_col,tint_col);
+            ImGui::PopID();
+        }
+    } else if (currentMenuLabel[celIdx]) { //Text Button
+        ImGui::PushID((celIdx)*4+0);
+        if (strstr(currentMenuLabel[celIdx],"@slider")) {
+                cur_pos=ImGui::GetCursorPos();
+                cur_pos.y+=(cell_sizeH/4);
+                ImGui::SetCursorPos(cur_pos);
+                ImGui::LabelText("", currentMenuLabel[celIdx]+strlen("@slider"));
+                cur_pos.x+=(cell_size-1.5*cell_size/3);
+                cur_pos.y-=(cell_sizeH/4);
+                ImGui::SetCursorPos(cur_pos);
+                ImGui::PushStyleVar(ImGuiStyleVar_GrabMinSize, cell_sizeH/5);
+                ImGui::VSliderFloat("",ImVec2(cell_size/3,cell_sizeH*4/4),  (float*)(currentMenuVar[celIdx]), 30.0f, 100.0f,"%.0f%%");
+                ImGui::PopStyleVar();
+        } else {
+            if (isActive) {
+                ret=ImGui::Button(currentMenuLabel[celIdx],ImVec2(cell_size, cell_sizeH));
+            } else {
+                ret=ImGui::Button(currentMenuLabel[celIdx],ImVec2(cell_size, cell_sizeH));
+            }
+        }
+        ImGui::PopID();
+    } else if (currentMenuDynLabel) {
+        if (currentMenuDynLabel[celIdx]) { //Text button
+            ImGui::PushID((celIdx)*4+0);
+            if (isActive) ret=ImGui::Button(currentMenuDynLabel[celIdx],ImVec2(cell_size, cell_sizeH));
+            else ret=ImGui::Button(currentMenuDynLabel[celIdx],ImVec2(cell_size, cell_sizeH));
+            ImGui::PopID();
+        }
+    } else if (currentMenuLabelFAIcon[celIdx]) {
+        //ImGui::PushFont(font_menu_icon,idealFontSize*2*glScaleFactor);
+        ImGui::PushID((celIdx)*4+0);
+        
+        auto bta = ImGui::GetStyle().ButtonTextAlign;
+        ImGui::GetStyle().ButtonTextAlign = ImVec2(0.5, 0.5);
+        
+        if (isActive) ret=ImGui::Button(faicon(currentMenuLabelFAIcon[celIdx]),ImVec2(cell_size, cell_sizeH));
+        else ret=ImGui::Button(faicon(currentMenuLabelFAIcon[celIdx]),ImVec2(cell_size, cell_sizeH));
+        
+        ImGui::GetStyle().ButtonTextAlign = bta;
+        
+        ImGui::PopID();
+        //ImGui::PopFont();
+    }
+    ImGui::PopStyleColor();
+    return ret;
+}
+
 //------------------------------------------------------
 // playerShowMenu
 //   draw current menu, keep record of state
@@ -503,25 +741,21 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
     if (!pMenu_isInitialized) return 0;
     int keepOpened=1;
     float menu_win_size=round(fmin(ww,hh)*glScaleFactor);
-    ImVec2 menu_win_pos=ImVec2((ww*glScaleFactor-menu_win_size)/2,(hh*glScaleFactor-menu_win_size)/2);
+    float menu_win_sizeH;;
+    ImVec2 menu_win_pos;
     float cell_size=round(fmin(ww,hh)*glScaleFactor/4.4f);
     GLuint *current_txtMenuHandle;
     const char **currentMenuLabel;
     char **currentMenuDynLabel;
+    const unsigned short *currentMenuLabelFAIcon;
+    void **currentMenuVar;
     
     cpt++;
     for (int i=0;i<16;i++) {
         menuCpt[i]++;
     }
     
-    int font_idx=3;
-    float idealFontSize=menu_win_size/70;
-    for (int i=0;i<4;i++) {
-        if ( (((idealFontSize-mdz_font_size[i])/idealFontSize)<0.1) || (mdz_font_size[i]>idealFontSize) ) {
-            font_idx=i;
-            break;
-        }
-    }
+    float idealFontSize=menu_win_size/60;
     
     
     // Global var mirroring
@@ -531,17 +765,27 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
     ImGui::SetNextWindowPos(ImVec2(0,0));
     ImGui::SetNextWindowSize(ImVec2(ww*glScaleFactor,hh*glScaleFactor));
     
+    ImGui::GetStyle().FrameRounding = 30.0f;
+    
     ImGui::PushStyleColor(ImGuiCol_WindowBg,ImVec4(0.0f,0.0f,0.0f,MENU_BACKGROUND_ALPHA));
     
     ImGui::Begin("Modizer root menu",0,ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoScrollbar);
     ImGui::SetWindowFocus();
     ImGui::GetStyle().Alpha=fadelev;
     
+    if (pMenu_state.menu_idx==MENU_PROJECTM_EXPLORE) {
+        menu_win_sizeH=(hh*0.8f)*glScaleFactor;
+    } else {
+        menu_win_sizeH=menu_win_size;
+        
+    }
+    menu_win_pos=ImVec2((ww*glScaleFactor-menu_win_size)/2,(hh*glScaleFactor-menu_win_sizeH)/2);
+    
     ImGui::SetNextWindowPos(menu_win_pos);
-    ImGui::BeginChild("Modizer menu",ImVec2(menu_win_size,menu_win_size));
+    ImGui::BeginChild("Modizer menu",ImVec2(menu_win_size,menu_win_sizeH));
     static ImGuiTableFlags flagTable = /*ImGuiTableFlags_Borders|*/ImGuiTableFlags_NoBordersInBody|ImGuiTableFlags_SizingFixedSame|ImGuiTableFlags_NoHostExtendX|ImGuiTableFlags_PreciseWidths;
     
-    if (font_menu[font_idx]) ImGui::PushFont(font_menu[font_idx]);
+    if (font_menu) ImGui::PushFont(font_menu,idealFontSize*glScaleFactor);
     else ImGui::PushFont(nullptr);//,18*menu_win_size/512);
     
     int activeFx=playerGetActivatedCells(pMenu_state.menu_idx);
@@ -554,61 +798,26 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
         if (ImGui::BeginTable("menu_root",4,flagTable)) {
             current_txtMenuHandle=txtMenuHandle;
             currentMenuLabel=menuRootLabel;
+            currentMenuLabelFAIcon=menuRootLabelFAIcon;
+            currentMenuVar=menuRootVar;
+            currentMenuDynLabel=NULL;
             for (int r=0;r<4;r++) {
                 ImGui::TableNextRow(0,cell_size);
                 for (int c=0;c<4;c++) {
-                    bool isActive=activeFx&(1<<(r*4+c));
                     ImGui::TableSetColumnIndex(c);
-                    bool ret=false;
-                    ImVec2 uv0(0,0);ImVec2 uv1(1,1);ImVec4 bg_col(0,0,0,0.0f);ImVec4 tint_col(0.4,0.4,0.4,0.8f);
-                    if (isActive) {//Active
-                        tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
-                        if (current_txtMenuHandle[r*4+c]) ImGui::PushStyleColor(ImGuiCol_Button,ImVec4(0.0,0.0,0.0,0.0f));
-                        else ImGui::PushStyleColor(ImGuiCol_Button,colorBtnTextActive);
-                    } else { //Inactive
-                        if (current_txtMenuHandle[r*4+c]) ImGui::PushStyleColor(ImGuiCol_Button,ImVec4(0.0,0.0,0.0,0.6f));
-                        else ImGui::PushStyleColor(ImGuiCol_Button,colorBtnTextInactive);
-                    }
-                    ImVec2 cur_pos=ImGui::GetCursorPos();
-                    if (current_txtMenuHandle[r*4+c]) { //Image Button
-                        if (isActive) {
-                            ImGui::SetNextItemAllowOverlap();
-                            tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
-                            ImGui::PushID((r*4+c)*4+0);
-                            ImGui::ImageButton("",(ImTextureID)(intptr_t)current_txtMenuHandle[r*4+c], ImVec2(cell_size, cell_size),uv0,uv1,bg_col,tint_col);
-                            ImGui::PopID();
-                            ImGui::SetCursorPos(cur_pos);
-                            ImGui::PushID((r*4+c)*4+1);
-                            ret=ImGui::ImageButton("",(ImTextureID)(intptr_t)txtShineFx,ImVec2(cell_size, cell_size),uv0,uv1,bg_col,tint_col);
-                            ImGui::PopID();
-                        } else {
-                            ImGui::PushID((r*4+c)*4);
-                            ret=ImGui::ImageButton("",(ImTextureID)(intptr_t)current_txtMenuHandle[r*4+c], ImVec2(cell_size, cell_size),uv0,uv1,bg_col,tint_col);
-                            ImGui::PopID();
-                        }
-                    } else if (currentMenuLabel[r*4+c]) { //Text Button
-                        ImGui::PushID((r*4+c)*4+0);
-                        if (strcmp(currentMenuLabel[r*4+c],"@slider_alpha")==0) {
-                                cur_pos=ImGui::GetCursorPos();
-                                cur_pos.y+=(cell_size/4);
-                                ImGui::SetCursorPos(cur_pos);
-                                ImGui::LabelText("", "FX\nalpha");
-                                cur_pos.x+=(cell_size-1.5*cell_size/3);
-                                cur_pos.y-=(cell_size/4);
-                                ImGui::SetCursorPos(cur_pos);
-                                ImGui::PushStyleVar(ImGuiStyleVar_GrabMinSize, cell_size/5);
-                                ImGui::VSliderFloat("",ImVec2(cell_size/3,cell_size*4/4),  &global_FXAlpha, 30.0f, 100.0f,"%.0f%%");
-                                ImGui::PopStyleVar();
-                        } else {
-                            if (isActive) {
-                                ret=ImGui::Button(currentMenuLabel[r*4+c],ImVec2(cell_size, cell_size));
-                            } else {
-                                ret=ImGui::Button(currentMenuLabel[r*4+c],ImVec2(cell_size, cell_size));
-                            }
-                        }
-                        ImGui::PopID();
-                    }
-                    ImGui::PopStyleColor();
+                    
+                    bool isActive=activeFx&(1<<(r*4+c));
+                    int ret=buildSubMenu(r,
+                                         c,
+                                         4,
+                                         isActive,
+                                         cell_size,
+                                         cell_size,
+                                         current_txtMenuHandle,
+                                         currentMenuLabel,
+                                         currentMenuDynLabel,
+                                         currentMenuLabelFAIcon,
+                                         currentMenuVar);
                     if (ret) {
                         switch (c*16+r) {
                             case 0x00:
@@ -676,61 +885,26 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
         if (ImGui::BeginTable("menu_root_more",4,flagTable)) {
             current_txtMenuHandle=txtMenuMoreHandle;
             currentMenuLabel=menuRootMoreLabel;
+            currentMenuLabelFAIcon=menuRootMoreLabelFAIcon;
+            currentMenuVar=menuRootMoreVar;
+            currentMenuDynLabel=NULL;
             for (int r=0;r<4;r++) {
                 ImGui::TableNextRow(0,cell_size);
                 for (int c=0;c<4;c++) {
-                    bool isActive=activeFx&(1<<(r*4+c));
                     ImGui::TableSetColumnIndex(c);
-                    bool ret=false;
-                    ImVec2 uv0(0,0);ImVec2 uv1(1,1);ImVec4 bg_col(0,0,0,0.0f);ImVec4 tint_col(0.4,0.4,0.4,0.8f);
-                    if (isActive) {//Active
-                        tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
-                        if (current_txtMenuHandle[r*4+c]) ImGui::PushStyleColor(ImGuiCol_Button,ImVec4(0.0,0.0,0.0,0.0f));
-                        else ImGui::PushStyleColor(ImGuiCol_Button,colorBtnTextActive);
-                    } else { //Inactive
-                        if (current_txtMenuHandle[r*4+c]) ImGui::PushStyleColor(ImGuiCol_Button,ImVec4(0.0,0.0,0.0,0.6f));
-                        else ImGui::PushStyleColor(ImGuiCol_Button,colorBtnTextInactive);
-                    }
-                    ImVec2 cur_pos=ImGui::GetCursorPos();
-                    if (current_txtMenuHandle[r*4+c]) { //Image Button
-                        if (isActive) {
-                            ImGui::SetNextItemAllowOverlap();
-                            tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
-                            ImGui::PushID((r*4+c)*4+0);
-                            ImGui::ImageButton("",(ImTextureID)(intptr_t)current_txtMenuHandle[r*4+c], ImVec2(cell_size, cell_size),uv0,uv1,bg_col,tint_col);
-                            ImGui::PopID();
-                            ImGui::SetCursorPos(cur_pos);
-                            ImGui::PushID((r*4+c)*4+1);
-                            ret=ImGui::ImageButton("",(ImTextureID)(intptr_t)txtShineFx,ImVec2(cell_size, cell_size),uv0,uv1,bg_col,tint_col);
-                            ImGui::PopID();
-                        } else {
-                            ImGui::PushID((r*4+c)*4);
-                            ret=ImGui::ImageButton("",(ImTextureID)(intptr_t)current_txtMenuHandle[r*4+c], ImVec2(cell_size, cell_size),uv0,uv1,bg_col,tint_col);
-                            ImGui::PopID();
-                        }
-                    } else if (currentMenuLabel[r*4+c]) { //Text Button
-                        ImGui::PushID((r*4+c)*4+0);
-                        if (strcmp(currentMenuLabel[r*4+c],"@slider_alpha")==0) {
-                                cur_pos=ImGui::GetCursorPos();
-                                cur_pos.y+=(cell_size/4);
-                                ImGui::SetCursorPos(cur_pos);
-                                ImGui::LabelText("", "FX\nalpha");
-                                cur_pos.x+=(cell_size-1.5*cell_size/3);
-                                cur_pos.y-=(cell_size/4);
-                                ImGui::SetCursorPos(cur_pos);
-                                ImGui::PushStyleVar(ImGuiStyleVar_GrabMinSize, cell_size/5);
-                                ImGui::VSliderFloat("",ImVec2(cell_size/3,cell_size*4/4),  &global_FXAlpha, 30.0f, 100.0f,"%.0f%%");
-                                ImGui::PopStyleVar();
-                        } else {
-                            if (isActive) {
-                                ret=ImGui::Button(currentMenuLabel[r*4+c],ImVec2(cell_size, cell_size));
-                            } else {
-                                ret=ImGui::Button(currentMenuLabel[r*4+c],ImVec2(cell_size, cell_size));
-                            }
-                        }
-                        ImGui::PopID();
-                    }
-                    ImGui::PopStyleColor();
+                    
+                    bool isActive=activeFx&(1<<(r*4+c));
+                    int ret=buildSubMenu(r,
+                                         c,
+                                         4,
+                                         isActive,
+                                         cell_size,
+                                         cell_size,
+                                         current_txtMenuHandle,
+                                         currentMenuLabel,
+                                         currentMenuDynLabel,
+                                         currentMenuLabelFAIcon,
+                                         currentMenuVar);
                     if (ret) {
                         switch (c*16+r) {
                             case 0x00://Show FPS
@@ -768,7 +942,7 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
                             case 0x23: //Back to main menu
                                 pMenu_state.menu_idx=MENU_ROOT;
                                 break;
-                            case 0x33: //Exit menu
+                            case 0x33: //Exit
                                 keepOpened=0;
                                 break;
                         }
@@ -782,53 +956,24 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
             current_txtMenuHandle=txtMenuOscilloHandle;
             currentMenuLabel=menuOscilloLabel;
             currentMenuDynLabel=menuOscilloDynLabel;
+            currentMenuLabelFAIcon=menuOscilloLabelFAIcon;
+            currentMenuVar=menuOscilloVar;
             for (int r=0;r<4;r++) {
                 ImGui::TableNextRow(0,cell_size);
                 for (int c=0;c<4;c++) {
-                    bool isActive=activeFx&(1<<(r*4+c));
                     ImGui::TableSetColumnIndex(c);
-                    
-                    bool ret=false;
-                    ImVec2 uv0(0,0);ImVec2 uv1(1,1);ImVec4 bg_col(0,0,0,0.0f);ImVec4 tint_col(0.4,0.4,0.4,0.8f);
-                    //float padding_val=0;
-                    if (isActive) {//Active
-                        tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
-                        if (current_txtMenuHandle[r*4+c]) ImGui::PushStyleColor(ImGuiCol_Button,ImVec4(0.0,0.0,0.0,0.0f));
-                        else ImGui::PushStyleColor(ImGuiCol_Button,colorBtnTextActive);
-                    } else { //Inactive
-                        if (current_txtMenuHandle[r*4+c]) ImGui::PushStyleColor(ImGuiCol_Button,ImVec4(0.0,0.0,0.0,0.4f));
-                        else ImGui::PushStyleColor(ImGuiCol_Button,colorBtnTextInactive);
-                    }
-                    ImVec2 cur_pos=ImGui::GetCursorPos();
-                    if (current_txtMenuHandle[r*4+c]) { //Image Button
-                        if (isActive) {
-                            ImGui::SetNextItemAllowOverlap();
-                            tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
-                            ImGui::PushID((r*4+c)*4+0);
-                            ImGui::ImageButton("",(ImTextureID)(intptr_t)current_txtMenuHandle[r*4+c], ImVec2(cell_size, cell_size),uv0,uv1,bg_col,tint_col);
-                            ImGui::PopID();
-                            tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
-                            ImGui::SetCursorPos(cur_pos);
-                            ImGui::PushID((r*4+c)*4+1);
-                            ret=ImGui::ImageButton("",(ImTextureID)(intptr_t)txtShineFx,ImVec2(cell_size, cell_size),uv0,uv1,bg_col,tint_col);
-                            ImGui::PopID();
-                        } else {
-                            ImGui::PushID((r*4+c)*4);
-                            ret=ImGui::ImageButton("",(ImTextureID)(intptr_t)current_txtMenuHandle[r*4+c], ImVec2(cell_size, cell_size),uv0,uv1,bg_col,tint_col);
-                            ImGui::PopID();
-                        }
-                    } else if (currentMenuLabel[r*4+c]) { //Text Button
-                        ImGui::PushID((r*4+c)*4+0);
-                        if (isActive) ret=ImGui::Button(currentMenuLabel[r*4+c],ImVec2(cell_size, cell_size));
-                        else ret=ImGui::Button(currentMenuLabel[r*4+c],ImVec2(cell_size, cell_size));
-                        ImGui::PopID();
-                    } else if (currentMenuDynLabel[r*4+c]) { //Text button
-                        ImGui::PushID((r*4+c)*4+0);
-                        if (isActive) ret=ImGui::Button(currentMenuDynLabel[r*4+c],ImVec2(cell_size, cell_size));
-                        else ret=ImGui::Button(currentMenuDynLabel[r*4+c],ImVec2(cell_size, cell_size));
-                        ImGui::PopID();
-                    }
-                    ImGui::PopStyleColor();
+                    bool isActive=activeFx&(1<<(r*4+c));
+                    int ret=buildSubMenu(r,
+                                         c,
+                                         4,
+                                         isActive,
+                                         cell_size,
+                                         cell_size,
+                                         current_txtMenuHandle,
+                                         currentMenuLabel,
+                                         currentMenuDynLabel,
+                                         currentMenuLabelFAIcon,
+                                         currentMenuVar);
                     if (ret) {
                         switch (c*16+r) {
                             case 0x00: //Oscillo OFF
@@ -880,7 +1025,7 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
                             case 0x23: //Back to main menu
                                 pMenu_state.menu_idx=MENU_ROOT;
                                 break;
-                            case 0x33: //Exit menu
+                            case 0x33: //Exit
                                 keepOpened=0;
                                 break;
                         }
@@ -893,51 +1038,26 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
         if (ImGui::BeginTable("menu_2dspectrum",4,flagTable)) {
             current_txtMenuHandle=txtMenu2DSpectrumHandle;
             currentMenuLabel=menu2DSpectrumLabel;
-            
+            currentMenuLabelFAIcon=menu2DSpectrumLabelFAIcon;
+            currentMenuVar=menu2DSpectrumVar;
+            currentMenuDynLabel=NULL;
             for (int r=0;r<4;r++) {
                 ImGui::TableNextRow(0,cell_size);
                 for (int c=0;c<4;c++) {
-                    bool isActive=activeFx&(1<<(r*4+c));
                     ImGui::TableSetColumnIndex(c);
                     
-                    bool ret=false;
-                    ImVec2 uv0(0,0);ImVec2 uv1(1,1);ImVec4 bg_col(0,0,0,0.0f);ImVec4 tint_col(0.4,0.4,0.4,0.8f);
-                    if (isActive) {//Active
-                        tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
-                        if (current_txtMenuHandle[r*4+c]) ImGui::PushStyleColor(ImGuiCol_Button,ImVec4(0.0,0.0,0.0,0.0f));
-                        else ImGui::PushStyleColor(ImGuiCol_Button,colorBtnTextActive);
-                    } else { //Inactive
-                        if (current_txtMenuHandle[r*4+c]) ImGui::PushStyleColor(ImGuiCol_Button,ImVec4(0.0,0.0,0.0,0.4f));
-                        else ImGui::PushStyleColor(ImGuiCol_Button,colorBtnTextInactive);
-                    }
-                    ImVec2 cur_pos=ImGui::GetCursorPos();
-                    if (current_txtMenuHandle[r*4+c]) { //Image Button
-                        if (isActive) {
-                            ImGui::SetNextItemAllowOverlap();
-                            tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
-                            ImGui::PushID((r*4+c)*4+0);
-                            ImGui::ImageButton("",(ImTextureID)(intptr_t)current_txtMenuHandle[r*4+c], ImVec2(cell_size, cell_size),uv0,uv1,bg_col,tint_col);
-                            ImGui::PopID();
-                            tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
-                            ImGui::SetCursorPos(cur_pos);
-                            ImGui::PushID((r*4+c)*4+1);
-                            ret=ImGui::ImageButton("",(ImTextureID)(intptr_t)txtShineFx,ImVec2(cell_size, cell_size),uv0,uv1,bg_col,tint_col);
-                            ImGui::PopID();
-                        } else {
-                            ImGui::PushID((r*4+c)*4);
-                            ret=ImGui::ImageButton("",(ImTextureID)(intptr_t)current_txtMenuHandle[r*4+c], ImVec2(cell_size, cell_size),uv0,uv1,bg_col,tint_col);
-                            ImGui::PopID();
-                        }
-                    } else if (currentMenuLabel[r*4+c]) { //Text Button
-                        ImGui::PushID((r*4+c)*4+0);
-                        if (isActive) {
-                            ret=ImGui::Button(currentMenuLabel[r*4+c],ImVec2(cell_size, cell_size));
-                        } else {
-                            ret=ImGui::Button(currentMenuLabel[r*4+c],ImVec2(cell_size, cell_size));
-                        }
-                        ImGui::PopID();
-                    }
-                    ImGui::PopStyleColor();
+                    bool isActive=activeFx&(1<<(r*4+c));
+                    int ret=buildSubMenu(r,
+                                         c,
+                                         4,
+                                         isActive,
+                                         cell_size,
+                                         cell_size,
+                                         current_txtMenuHandle,
+                                         currentMenuLabel,
+                                         currentMenuDynLabel,
+                                         currentMenuLabelFAIcon,
+                                         currentMenuVar);
                     if (ret) {
                         switch (c*16+r) {
                             case 0x00: //2dSpectrum OFF
@@ -970,7 +1090,7 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
                             case 0x23: //Back to main menu
                                 pMenu_state.menu_idx=MENU_ROOT;
                                 break;
-                            case 0x33: //Exit menu
+                            case 0x33: //Exit
                                 keepOpened=0;
                                 break;
                         }
@@ -984,57 +1104,25 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
             current_txtMenuHandle=txtMenu3DSpectrumHandle;
             currentMenuLabel=menu3DSpectrumLabel;
             currentMenuDynLabel=menu3DSpectrumDynLabel;
-            
+            currentMenuLabelFAIcon=menu3DSpectrumLabelFAIcon;
+            currentMenuVar=menu3DSpectrumVar;
             for (int r=0;r<4;r++) {
                 ImGui::TableNextRow(0,cell_size);
                 for (int c=0;c<4;c++) {
-                    bool isActive=activeFx&(1<<(r*4+c));
                     ImGui::TableSetColumnIndex(c);
                     
-                    bool ret=false;
-                    ImVec2 uv0(0,0);ImVec2 uv1(1,1);ImVec4 bg_col(0,0,0,0.0f);ImVec4 tint_col(0.4,0.4,0.4,0.8f);
-                    //float padding_val=0;
-                    if (isActive) {//Active
-                        tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
-                        if (current_txtMenuHandle[r*4+c]) ImGui::PushStyleColor(ImGuiCol_Button,ImVec4(0.0,0.0,0.0,0.0f));
-                        else ImGui::PushStyleColor(ImGuiCol_Button,colorBtnTextActive);
-                    } else { //Inactive
-                        if (current_txtMenuHandle[r*4+c]) ImGui::PushStyleColor(ImGuiCol_Button,ImVec4(0.0,0.0,0.0,0.4f));
-                        else ImGui::PushStyleColor(ImGuiCol_Button,colorBtnTextInactive);
-                    }
-                    ImVec2 cur_pos=ImGui::GetCursorPos();
-                    if (current_txtMenuHandle[r*4+c]) { //Image Button
-                        if (isActive) {
-                            ImGui::SetNextItemAllowOverlap();
-                            tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
-                            ImGui::PushID((r*4+c)*4+0);
-                            ImGui::ImageButton("",(ImTextureID)(intptr_t)current_txtMenuHandle[r*4+c], ImVec2(cell_size, cell_size),uv0,uv1,bg_col,tint_col);
-                            ImGui::PopID();
-                            tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
-                            ImGui::SetCursorPos(cur_pos);
-                            ImGui::PushID((r*4+c)*4+1);
-                            ret=ImGui::ImageButton("",(ImTextureID)(intptr_t)txtShineFx,ImVec2(cell_size, cell_size),uv0,uv1,bg_col,tint_col);
-                            ImGui::PopID();
-                        } else {
-                            ImGui::PushID((r*4+c)*4);
-                            ret=ImGui::ImageButton("",(ImTextureID)(intptr_t)current_txtMenuHandle[r*4+c], ImVec2(cell_size, cell_size),uv0,uv1,bg_col,tint_col);
-                            ImGui::PopID();
-                        }
-                    } else if (currentMenuLabel[r*4+c]) { //Text Button
-                        ImGui::PushID((r*4+c)*4+0);
-                        if (isActive) {
-                            ret=ImGui::Button(currentMenuLabel[r*4+c],ImVec2(cell_size, cell_size));
-                        } else {
-                            ret=ImGui::Button(currentMenuLabel[r*4+c],ImVec2(cell_size, cell_size));
-                        }
-                        ImGui::PopID();
-                    } else if (currentMenuDynLabel[r*4+c]) { //Text button
-                        ImGui::PushID((r*4+c)*4+0);
-                        if (isActive) ret=ImGui::Button(currentMenuDynLabel[r*4+c],ImVec2(cell_size, cell_size));
-                        else ret=ImGui::Button(currentMenuDynLabel[r*4+c],ImVec2(cell_size, cell_size));
-                        ImGui::PopID();
-                    }
-                    ImGui::PopStyleColor();
+                    bool isActive=activeFx&(1<<(r*4+c));
+                    int ret=buildSubMenu(r,
+                                         c,
+                                         4,
+                                         isActive,
+                                         cell_size,
+                                         cell_size,
+                                         current_txtMenuHandle,
+                                         currentMenuLabel,
+                                         currentMenuDynLabel,
+                                         currentMenuLabelFAIcon,
+                                         currentMenuVar);
                     if (ret) {
                         switch (c*16+r) {
                             case 0x00: //3dSpectrum OFF
@@ -1072,7 +1160,7 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
                             case 0x23: //Back to main menu
                                 pMenu_state.menu_idx=MENU_ROOT;
                                 break;
-                            case 0x33: //Exit menu
+                            case 0x33: //Exit
                                 keepOpened=0;
                                 break;
                         }
@@ -1086,57 +1174,25 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
             current_txtMenuHandle=txtMenu3DLandscapeHandle;
             currentMenuLabel=menu3DLandscapeLabel;
             currentMenuDynLabel=menu3DLandscapeDynLabel;
+            currentMenuLabelFAIcon=menu3DLandscapeLabelFAIcon;
+            currentMenuVar=menu3DLandscapeVar;
             for (int r=0;r<4;r++) {
                 ImGui::TableNextRow(0,cell_size);
                 for (int c=0;c<4;c++) {
-                    bool isActive=activeFx&(1<<(r*4+c));
                     ImGui::TableSetColumnIndex(c);
                     
-                    bool ret=false;
-                    ImVec2 uv0(0,0);ImVec2 uv1(1,1);ImVec4 bg_col(0,0,0,0.0f);ImVec4 tint_col(0.4,0.4,0.4,0.8f);
-                    //float padding_val=0;
-                    if (isActive) {//Active
-                        tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
-                        if (current_txtMenuHandle[r*4+c]) ImGui::PushStyleColor(ImGuiCol_Button,ImVec4(0.0,0.0,0.0,0.0f));
-                        else ImGui::PushStyleColor(ImGuiCol_Button,colorBtnTextActive);
-                    } else { //Inactive
-                        if (current_txtMenuHandle[r*4+c]) ImGui::PushStyleColor(ImGuiCol_Button,ImVec4(0.0,0.0,0.0,0.4f));
-                        else ImGui::PushStyleColor(ImGuiCol_Button,colorBtnTextInactive);
-                    }
-                    ImVec2 cur_pos=ImGui::GetCursorPos();
-                    if (current_txtMenuHandle[r*4+c]) { //Image Button
-                        if (isActive) {
-                            ImGui::SetNextItemAllowOverlap();
-                            tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
-                            ImGui::PushID((r*4+c)*4+0);
-                            ImGui::ImageButton("",(ImTextureID)(intptr_t)current_txtMenuHandle[r*4+c], ImVec2(cell_size, cell_size),uv0,uv1,bg_col,tint_col);
-                            ImGui::PopID();
-                            tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
-                            //bg_col.w=0.0f;
-                            ImGui::SetCursorPos(cur_pos);
-                            ImGui::PushID((r*4+c)*4+1);
-                            ret=ImGui::ImageButton("",(ImTextureID)(intptr_t)txtShineFx,ImVec2(cell_size, cell_size),uv0,uv1,bg_col,tint_col);
-                            ImGui::PopID();
-                        } else {
-                            ImGui::PushID((r*4+c)*4);
-                            ret=ImGui::ImageButton("",(ImTextureID)(intptr_t)current_txtMenuHandle[r*4+c], ImVec2(cell_size, cell_size),uv0,uv1,bg_col,tint_col);
-                            ImGui::PopID();
-                        }
-                    } else if (currentMenuLabel[r*4+c]) { //Text Button
-                        ImGui::PushID((r*4+c)*4+0);
-                        if (isActive) {
-                            ret=ImGui::Button(currentMenuLabel[r*4+c],ImVec2(cell_size, cell_size));
-                        } else {
-                            ret=ImGui::Button(currentMenuLabel[r*4+c],ImVec2(cell_size, cell_size));
-                        }
-                        ImGui::PopID();
-                    } else if (currentMenuDynLabel[r*4+c]) { //Text button
-                        ImGui::PushID((r*4+c)*4+0);
-                        if (isActive) ret=ImGui::Button(currentMenuDynLabel[r*4+c],ImVec2(cell_size, cell_size));
-                        else ret=ImGui::Button(currentMenuDynLabel[r*4+c],ImVec2(cell_size, cell_size));
-                        ImGui::PopID();
-                    }
-                    ImGui::PopStyleColor();
+                    bool isActive=activeFx&(1<<(r*4+c));
+                    int ret=buildSubMenu(r,
+                                         c,
+                                         4,
+                                         isActive,
+                                         cell_size,
+                                         cell_size,
+                                         current_txtMenuHandle,
+                                         currentMenuLabel,
+                                         currentMenuDynLabel,
+                                         currentMenuLabelFAIcon,
+                                         currentMenuVar);
                     if (ret) {
                         switch (c*16+r) {
                             case 0x00: //3DLandscape off
@@ -1189,7 +1245,7 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
                             case 0x23: //Back to main menu
                                 pMenu_state.menu_idx=MENU_ROOT;
                                 break;
-                            case 0x33: //Exit menu
+                            case 0x33: //Exit
                                 keepOpened=0;
                                 break;
                         }
@@ -1202,46 +1258,26 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
         if (ImGui::BeginTable("menu_pianoroll",4,flagTable)) {
             current_txtMenuHandle=txtMenuPianoRollHandle;
             currentMenuLabel=menuPianoRollLabel;
+            currentMenuLabelFAIcon=menuPianoRollLabelFAIcon;
+            currentMenuVar=menuPianoRollVar;
+            currentMenuDynLabel=NULL;
             for (int r=0;r<4;r++) {
                 ImGui::TableNextRow(0,cell_size);
                 for (int c=0;c<4;c++) {
-                    bool isActive=activeFx&(1<<(r*4+c));
                     ImGui::TableSetColumnIndex(c);
-                    bool ret=false;
-                    ImVec2 uv0(0,0);ImVec2 uv1(1,1);ImVec4 bg_col(0,0,0,0.0f);ImVec4 tint_col(0.4,0.4,0.4,0.8f);
-                    if (isActive) {//Active
-                        tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
-                        if (current_txtMenuHandle[r*4+c]) ImGui::PushStyleColor(ImGuiCol_Button,ImVec4(0.0,0.0,0.0,0.0f));
-                        else ImGui::PushStyleColor(ImGuiCol_Button,colorBtnTextActive);
-                    } else { //Inactive
-                        if (current_txtMenuHandle[r*4+c]) ImGui::PushStyleColor(ImGuiCol_Button,ImVec4(0.0,0.0,0.0,0.4f));
-                        else ImGui::PushStyleColor(ImGuiCol_Button,colorBtnTextInactive);
-                    }
-                    ImVec2 cur_pos=ImGui::GetCursorPos();
-                    if (current_txtMenuHandle[r*4+c]) { //Image Button
-                        if (isActive) {
-                            ImGui::SetNextItemAllowOverlap();
-                            tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
-                            ImGui::PushID((r*4+c)*4+0);
-                            ImGui::ImageButton("",(ImTextureID)(intptr_t)current_txtMenuHandle[r*4+c], ImVec2(cell_size, cell_size),uv0,uv1,bg_col,tint_col);
-                            ImGui::PopID();
-                            tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
-                            ImGui::SetCursorPos(cur_pos);
-                            ImGui::PushID((r*4+c)*4+1);
-                            ret=ImGui::ImageButton("",(ImTextureID)(intptr_t)txtShineFx,ImVec2(cell_size, cell_size),uv0,uv1,bg_col,tint_col);
-                            ImGui::PopID();
-                        } else {
-                            ImGui::PushID((r*4+c)*4);
-                            ret=ImGui::ImageButton("",(ImTextureID)(intptr_t)current_txtMenuHandle[r*4+c], ImVec2(cell_size, cell_size),uv0,uv1,bg_col,tint_col);
-                            ImGui::PopID();
-                        }
-                    } else if (currentMenuLabel[r*4+c]) { //Text Button
-                        ImGui::PushID((r*4+c)*4+0);
-                        if (isActive) ret=ImGui::Button(currentMenuLabel[r*4+c],ImVec2(cell_size, cell_size));
-                        else ret=ImGui::Button(currentMenuLabel[r*4+c],ImVec2(cell_size, cell_size));
-                        ImGui::PopID();
-                    }
-                    ImGui::PopStyleColor();
+                    
+                    bool isActive=activeFx&(1<<(r*4+c));
+                    int ret=buildSubMenu(r,
+                                         c,
+                                         4,
+                                         isActive,
+                                         cell_size,
+                                         cell_size,
+                                         current_txtMenuHandle,
+                                         currentMenuLabel,
+                                         currentMenuDynLabel,
+                                         currentMenuLabelFAIcon,
+                                         currentMenuVar);
                     if (ret) {
                         switch (c*16+r) {
                             case 0x00:
@@ -1278,7 +1314,7 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
                             case 0x23: //Back to main menu
                                 pMenu_state.menu_idx=MENU_ROOT;
                                 break;
-                            case 0x33: //Exit menu
+                            case 0x33: //Exit
                                 keepOpened=0;
                                 break;
                         }
@@ -1291,46 +1327,26 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
         if (ImGui::BeginTable("menu_piano3d",4,flagTable)) {
             current_txtMenuHandle=txtMenuPiano3DHandle;
             currentMenuLabel=menuPiano3DLabel;
+            currentMenuLabelFAIcon=menuPiano3DLabelFAIcon;
+            currentMenuVar=menuPiano3DVar;
+            currentMenuDynLabel=NULL;
             for (int r=0;r<4;r++) {
                 ImGui::TableNextRow(0,cell_size);
                 for (int c=0;c<4;c++) {
-                    bool isActive=activeFx&(1<<(r*4+c));
                     ImGui::TableSetColumnIndex(c);
-                    bool ret=false;
-                    ImVec2 uv0(0,0);ImVec2 uv1(1,1);ImVec4 bg_col(0,0,0,0.0f);ImVec4 tint_col(0.4,0.4,0.4,0.8f);
-                    if (isActive) {//Active
-                        tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
-                        if (current_txtMenuHandle[r*4+c]) ImGui::PushStyleColor(ImGuiCol_Button,ImVec4(0.0,0.0,0.0,0.0f));
-                        else ImGui::PushStyleColor(ImGuiCol_Button,colorBtnTextActive);
-                    } else { //Inactive
-                        if (current_txtMenuHandle[r*4+c]) ImGui::PushStyleColor(ImGuiCol_Button,ImVec4(0.0,0.0,0.0,0.4f));
-                        else ImGui::PushStyleColor(ImGuiCol_Button,colorBtnTextInactive);
-                    }
-                    ImVec2 cur_pos=ImGui::GetCursorPos();
-                    if (current_txtMenuHandle[r*4+c]) { //Image Button
-                        if (isActive) {
-                            ImGui::SetNextItemAllowOverlap();
-                            tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
-                            ImGui::PushID((r*4+c)*4+0);
-                            ImGui::ImageButton("",(ImTextureID)(intptr_t)current_txtMenuHandle[r*4+c], ImVec2(cell_size, cell_size),uv0,uv1,bg_col,tint_col);
-                            ImGui::PopID();
-                            tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
-                            ImGui::SetCursorPos(cur_pos);
-                            ImGui::PushID((r*4+c)*4+1);
-                            ret=ImGui::ImageButton("",(ImTextureID)(intptr_t)txtShineFx,ImVec2(cell_size, cell_size),uv0,uv1,bg_col,tint_col);
-                            ImGui::PopID();
-                        } else {
-                            ImGui::PushID((r*4+c)*4);
-                            ret=ImGui::ImageButton("",(ImTextureID)(intptr_t)current_txtMenuHandle[r*4+c], ImVec2(cell_size, cell_size),uv0,uv1,bg_col,tint_col);
-                            ImGui::PopID();
-                        }
-                    } else if (currentMenuLabel[r*4+c]) { //Text Button
-                        ImGui::PushID((r*4+c)*4+0);
-                        if (isActive) ret=ImGui::Button(currentMenuLabel[r*4+c],ImVec2(cell_size, cell_size));
-                        else ret=ImGui::Button(currentMenuLabel[r*4+c],ImVec2(cell_size, cell_size));
-                        ImGui::PopID();
-                    }
-                    ImGui::PopStyleColor();
+                    
+                    bool isActive=activeFx&(1<<(r*4+c));
+                    int ret=buildSubMenu(r,
+                                         c,
+                                         4,
+                                         isActive,
+                                         cell_size,
+                                         cell_size,
+                                         current_txtMenuHandle,
+                                         currentMenuLabel,
+                                         currentMenuDynLabel,
+                                         currentMenuLabelFAIcon,
+                                         currentMenuVar);
                     if (ret) {
                         switch (c*16+r) {
                             case 0x00:
@@ -1369,7 +1385,7 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
                             case 0x23: //Back to main menu
                                 pMenu_state.menu_idx=MENU_ROOT;
                                 break;
-                            case 0x33: //Exit menu
+                            case 0x33: //Exit
                                 keepOpened=0;
                                 break;
                         }
@@ -1382,46 +1398,26 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
         if (ImGui::BeginTable("menu_midipattern",4,flagTable)) {
             current_txtMenuHandle=txtMenuMidiHandle;
             currentMenuLabel=menuMidiLabel;
+            currentMenuLabelFAIcon=menuMidiLabelFAIcon;
+            currentMenuVar=menuMidiVar;
+            currentMenuDynLabel=NULL;
             for (int r=0;r<4;r++) {
                 ImGui::TableNextRow(0,cell_size);
                 for (int c=0;c<4;c++) {
-                    bool isActive=activeFx&(1<<(r*4+c));
                     ImGui::TableSetColumnIndex(c);
-                    bool ret=false;
-                    ImVec2 uv0(0,0);ImVec2 uv1(1,1);ImVec4 bg_col(0,0,0,0.0f);ImVec4 tint_col(0.4,0.4,0.4,0.8f);
-                    if (isActive) {//Active
-                        tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
-                        if (current_txtMenuHandle[r*4+c]) ImGui::PushStyleColor(ImGuiCol_Button,ImVec4(0.0,0.0,0.0,0.0f));
-                        else ImGui::PushStyleColor(ImGuiCol_Button,colorBtnTextActive);
-                    } else { //Inactive
-                        if (current_txtMenuHandle[r*4+c]) ImGui::PushStyleColor(ImGuiCol_Button,ImVec4(0.0,0.0,0.0,0.4f));
-                        else ImGui::PushStyleColor(ImGuiCol_Button,colorBtnTextInactive);
-                    }
-                    ImVec2 cur_pos=ImGui::GetCursorPos();
-                    if (current_txtMenuHandle[r*4+c]) { //Image Button
-                        if (isActive) {
-                            ImGui::SetNextItemAllowOverlap();
-                            tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
-                            ImGui::PushID((r*4+c)*4+0);
-                            ImGui::ImageButton("",(ImTextureID)(intptr_t)current_txtMenuHandle[r*4+c], ImVec2(cell_size, cell_size),uv0,uv1,bg_col,tint_col);
-                            ImGui::PopID();
-                            tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
-                            ImGui::SetCursorPos(cur_pos);
-                            ImGui::PushID((r*4+c)*4+1);
-                            ret=ImGui::ImageButton("",(ImTextureID)(intptr_t)txtShineFx,ImVec2(cell_size, cell_size),uv0,uv1,bg_col,tint_col);
-                            ImGui::PopID();
-                        } else {
-                            ImGui::PushID((r*4+c)*4);
-                            ret=ImGui::ImageButton("",(ImTextureID)(intptr_t)current_txtMenuHandle[r*4+c], ImVec2(cell_size, cell_size),uv0,uv1,bg_col,tint_col);
-                            ImGui::PopID();
-                        }
-                    } else if (currentMenuLabel[r*4+c]) { //Text Button
-                        ImGui::PushID((r*4+c)*4+0);
-                        if (isActive) ret=ImGui::Button(currentMenuLabel[r*4+c],ImVec2(cell_size, cell_size));
-                        else ret=ImGui::Button(currentMenuLabel[r*4+c],ImVec2(cell_size, cell_size));
-                        ImGui::PopID();
-                    }
-                    ImGui::PopStyleColor();
+                    
+                    bool isActive=activeFx&(1<<(r*4+c));
+                    int ret=buildSubMenu(r,
+                                         c,
+                                         4,
+                                         isActive,
+                                         cell_size,
+                                         cell_size,
+                                         current_txtMenuHandle,
+                                         currentMenuLabel,
+                                         currentMenuDynLabel,
+                                         currentMenuLabelFAIcon,
+                                         currentMenuVar);
                     if (ret) {
                         switch (c*16+r) {
                             case 0x00: //Off
@@ -1454,7 +1450,7 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
                             case 0x23: //Back to main menu
                                 pMenu_state.menu_idx=MENU_ROOT;
                                 break;
-                            case 0x33: //Exit menu
+                            case 0x33: //Exit
                                 keepOpened=0;
                                 break;
                         }
@@ -1468,51 +1464,25 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
             current_txtMenuHandle=txtMenuModPatternHandle;
             currentMenuLabel=menuModPatternLabel;
             currentMenuDynLabel=menuModPatternDynLabel;
+            currentMenuLabelFAIcon=menuModPatternLabelFAIcon;
+            currentMenuVar=menuModPatternVar;
             for (int r=0;r<4;r++) {
                 ImGui::TableNextRow(0,cell_size);
                 for (int c=0;c<4;c++) {
-                    bool isActive=activeFx&(1<<(r*4+c));
                     ImGui::TableSetColumnIndex(c);
-                    bool ret=false;
-                    ImVec2 uv0(0,0);ImVec2 uv1(1,1);ImVec4 bg_col(0,0,0,0.0f);ImVec4 tint_col(0.4,0.4,0.4,0.8f);
-                    if (isActive) {//Active
-                        tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
-                        if (current_txtMenuHandle[r*4+c]) ImGui::PushStyleColor(ImGuiCol_Button,ImVec4(0.0,0.0,0.0,0.0f));
-                        else ImGui::PushStyleColor(ImGuiCol_Button,colorBtnTextActive);
-                    } else { //Inactive
-                        if (current_txtMenuHandle[r*4+c]) ImGui::PushStyleColor(ImGuiCol_Button,ImVec4(0.0,0.0,0.0,0.4f));
-                        else ImGui::PushStyleColor(ImGuiCol_Button,colorBtnTextInactive);
-                    }
-                    ImVec2 cur_pos=ImGui::GetCursorPos();
-                    if (current_txtMenuHandle[r*4+c]) { //Image Button
-                        if (isActive) {
-                            ImGui::SetNextItemAllowOverlap();
-                            tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
-                            ImGui::PushID((r*4+c)*4+0);
-                            ImGui::ImageButton("",(ImTextureID)(intptr_t)current_txtMenuHandle[r*4+c], ImVec2(cell_size, cell_size),uv0,uv1,bg_col,tint_col);
-                            ImGui::PopID();
-                            tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
-                            ImGui::SetCursorPos(cur_pos);
-                            ImGui::PushID((r*4+c)*4+1);
-                            ret=ImGui::ImageButton("",(ImTextureID)(intptr_t)txtShineFx,ImVec2(cell_size, cell_size),uv0,uv1,bg_col,tint_col);
-                            ImGui::PopID();
-                        } else {
-                            ImGui::PushID((r*4+c)*4);
-                            ret=ImGui::ImageButton("",(ImTextureID)(intptr_t)current_txtMenuHandle[r*4+c], ImVec2(cell_size, cell_size),uv0,uv1,bg_col,tint_col);
-                            ImGui::PopID();
-                        }
-                    } else if (currentMenuLabel[r*4+c]) { //Text Button
-                        ImGui::PushID((r*4+c)*4+0);
-                        if (isActive) ret=ImGui::Button(currentMenuLabel[r*4+c],ImVec2(cell_size, cell_size));
-                        else ret=ImGui::Button(currentMenuLabel[r*4+c],ImVec2(cell_size, cell_size));
-                        ImGui::PopID();
-                    } else if (currentMenuDynLabel[r*4+c]) { //Text button
-                        ImGui::PushID((r*4+c)*4+0);
-                        if (isActive) ret=ImGui::Button(menuModPatternDynLabel[r*4+c],ImVec2(cell_size, cell_size));
-                        else ret=ImGui::Button(menuModPatternDynLabel[r*4+c],ImVec2(cell_size, cell_size));
-                        ImGui::PopID();
-                    }
-                    ImGui::PopStyleColor();
+                    
+                    bool isActive=activeFx&(1<<(r*4+c));
+                    int ret=buildSubMenu(r,
+                                         c,
+                                         4,
+                                         isActive,
+                                         cell_size,
+                                         cell_size,
+                                         current_txtMenuHandle,
+                                         currentMenuLabel,
+                                         currentMenuDynLabel,
+                                         currentMenuLabelFAIcon,
+                                         currentMenuVar);
                     if (ret) {
                         switch (c*16+r) {
                             case 0x00: //off
@@ -1564,7 +1534,7 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
                             case 0x23: //Back to main menu
                                 pMenu_state.menu_idx=MENU_ROOT;
                                 break;
-                            case 0x33: //Exit menu
+                            case 0x33: //Exit
                                 keepOpened=0;
                                 break;
                         }
@@ -1578,52 +1548,26 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
         if (ImGui::BeginTable("menu_ProjectM",4,flagTable)) {
             current_txtMenuHandle=txtMenuProjectMHandle;
             currentMenuLabel=menuProjectMLabel;
-                
+            currentMenuLabelFAIcon=menuProjectMLabelFAIcon;
+            currentMenuVar=menuProjectMVar;
+            currentMenuDynLabel=NULL;
                 for (int r=0;r<4;r++) {
                     ImGui::TableNextRow(0,cell_size);
                     for (int c=0;c<4;c++) {
-                        bool isActive=activeFx&(1<<(r*4+c));
                         ImGui::TableSetColumnIndex(c);
                         
-                        bool ret=false;
-                        ImVec2 uv0(0,0);ImVec2 uv1(1,1);ImVec4 bg_col(0,0,0,0.0f);ImVec4 tint_col(0.4,0.4,0.4,0.8f);
-                        //float padding_val=0;
-                        if (isActive) {//Active
-                            tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
-                            if (current_txtMenuHandle[r*4+c]) ImGui::PushStyleColor(ImGuiCol_Button,ImVec4(0.0,0.0,0.0,0.0f));
-                            else ImGui::PushStyleColor(ImGuiCol_Button,colorBtnTextActive);
-                        } else { //Inactive
-                            if (current_txtMenuHandle[r*4+c]) ImGui::PushStyleColor(ImGuiCol_Button,ImVec4(0.0,0.0,0.0,0.4f));
-                            else ImGui::PushStyleColor(ImGuiCol_Button,colorBtnTextInactive);
-                        }
-                        ImVec2 cur_pos=ImGui::GetCursorPos();
-                        if (current_txtMenuHandle[r*4+c]) { //Image Button
-                            if (isActive) {
-                                ImGui::SetNextItemAllowOverlap();
-                                tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
-                                ImGui::PushID((r*4+c)*4+0);
-                                ImGui::ImageButton("",(ImTextureID)(intptr_t)current_txtMenuHandle[r*4+c], ImVec2(cell_size, cell_size),uv0,uv1,bg_col,tint_col);
-                                ImGui::PopID();
-                                tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
-                                ImGui::SetCursorPos(cur_pos);
-                                ImGui::PushID((r*4+c)*4+1);
-                                ret=ImGui::ImageButton("",(ImTextureID)(intptr_t)txtShineFx,ImVec2(cell_size, cell_size),uv0,uv1,bg_col,tint_col);
-                                ImGui::PopID();
-                            } else {
-                                ImGui::PushID((r*4+c)*4);
-                                ret=ImGui::ImageButton("",(ImTextureID)(intptr_t)current_txtMenuHandle[r*4+c], ImVec2(cell_size, cell_size),uv0,uv1,bg_col,tint_col);
-                                ImGui::PopID();
-                            }
-                        } else if (currentMenuLabel[r*4+c]) { //Text Button
-                            ImGui::PushID((r*4+c)*4+0);
-                            if (isActive) {
-                                ret=ImGui::Button(currentMenuLabel[r*4+c],ImVec2(cell_size, cell_size));
-                            } else {
-                                ret=ImGui::Button(currentMenuLabel[r*4+c],ImVec2(cell_size, cell_size));
-                            }
-                            ImGui::PopID();
-                        }
-                        ImGui::PopStyleColor();
+                        bool isActive=activeFx&(1<<(r*4+c));
+                        int ret=buildSubMenu(r,
+                                             c,
+                                             4,
+                                             isActive,
+                                             cell_size,
+                                             cell_size,
+                                             current_txtMenuHandle,
+                                             currentMenuLabel,
+                                             currentMenuDynLabel,
+                                             currentMenuLabelFAIcon,
+                                             currentMenuVar);
                     if (ret) {
                         switch (c*16+r) {
                             case 0x00: //PROJECTM OFF
@@ -1678,6 +1622,8 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
                                 settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value=!(settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value);
                                 break;
                             case 0x03:
+                                fullscreenStatus=settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value;
+                                settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value=1;
                                 pMenu_state.menu_idx=MENU_PROJECTM_EXPLORE;
                                 break;
                             case 0x13: //Go to settings - PROJECTM
@@ -1686,7 +1632,7 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
                             case 0x23: //Back to main menu
                                 pMenu_state.menu_idx=MENU_ROOT;
                                 break;
-                            case 0x33: //Exit menu
+                            case 0x33: //Exit
                                 keepOpened=0;
                                 break;
                         }
@@ -1696,58 +1642,32 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
             ImGui::EndTable();
         }
     } else if (pMenu_state.menu_idx==MENU_PROJECTM_EXPLORE) {
-        
         if (ImGui::BeginTable("menu_ProjectM_Explore",4,flagTable)) {
+            settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value=1;
+            
             current_txtMenuHandle=txtMenuProjectMExploreHandle;
             currentMenuLabel=menuProjectMExploreLabel;
-            
-            
+            currentMenuLabelFAIcon=menuProjectMExploreLabelFAIcon;
+            currentMenuVar=menuProjectMExploreVar;
+            currentMenuDynLabel=NULL;
                 
-                for (int r=0;r<1;r++) {
-                    ImGui::TableNextRow(0,cell_size);
+                for (int r=0;r<2;r++) {
+                    ImGui::TableNextRow(0,cell_size/3);
                     for (int c=0;c<4;c++) {
-                        bool isActive=activeFx&(1<<(r*4+c));
                         ImGui::TableSetColumnIndex(c);
                         
-                        bool ret=false;
-                        ImVec2 uv0(0,0);ImVec2 uv1(1,1);ImVec4 bg_col(0,0,0,0.0f);ImVec4 tint_col(0.4,0.4,0.4,0.8f);
-                        //float padding_val=0;
-                        if (isActive) {//Active
-                            tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
-                            if (current_txtMenuHandle[r*4+c]) ImGui::PushStyleColor(ImGuiCol_Button,ImVec4(0.0,0.0,0.0,0.0f));
-                            else ImGui::PushStyleColor(ImGuiCol_Button,colorBtnTextActive);
-                        } else { //Inactive
-                            if (current_txtMenuHandle[r*4+c]) ImGui::PushStyleColor(ImGuiCol_Button,ImVec4(0.0,0.0,0.0,0.4f));
-                            else ImGui::PushStyleColor(ImGuiCol_Button,colorBtnTextInactive);
-                        }
-                        ImVec2 cur_pos=ImGui::GetCursorPos();
-                        if (current_txtMenuHandle[r*4+c]) { //Image Button
-                            if (isActive) {
-                                ImGui::SetNextItemAllowOverlap();
-                                tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
-                                ImGui::PushID((r*4+c)*4+0);
-                                ImGui::ImageButton("",(ImTextureID)(intptr_t)current_txtMenuHandle[r*4+c], ImVec2(cell_size, cell_size),uv0,uv1,bg_col,tint_col);
-                                ImGui::PopID();
-                                tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
-                                ImGui::SetCursorPos(cur_pos);
-                                ImGui::PushID((r*4+c)*4+1);
-                                ret=ImGui::ImageButton("",(ImTextureID)(intptr_t)txtShineFx,ImVec2(cell_size, cell_size),uv0,uv1,bg_col,tint_col);
-                                ImGui::PopID();
-                            } else {
-                                ImGui::PushID((r*4+c)*4);
-                                ret=ImGui::ImageButton("",(ImTextureID)(intptr_t)current_txtMenuHandle[r*4+c], ImVec2(cell_size, cell_size),uv0,uv1,bg_col,tint_col);
-                                ImGui::PopID();
-                            }
-                        } else if (currentMenuLabel[r*4+c]) { //Text Button
-                            ImGui::PushID((r*4+c)*4+0);
-                            if (isActive) {
-                                ret=ImGui::Button(currentMenuLabel[r*4+c],ImVec2(cell_size, cell_size));
-                            } else {
-                                ret=ImGui::Button(currentMenuLabel[r*4+c],ImVec2(cell_size, cell_size));
-                            }
-                            ImGui::PopID();
-                        }
-                        ImGui::PopStyleColor();
+                        bool isActive=activeFx&(1<<(r*4+c));
+                        int ret=buildSubMenu(r,
+                                             c,
+                                             4,
+                                             isActive,
+                                             cell_size,
+                                             cell_size/3,
+                                             current_txtMenuHandle,
+                                             currentMenuLabel,
+                                             currentMenuDynLabel,
+                                             currentMenuLabelFAIcon,
+                                             currentMenuVar);
                     if (ret) {
                         switch (c*16+r) {
                             case 0x00:
@@ -1756,10 +1676,20 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
                                 keepOpened=4;
                                 break;
                             case 0x20: //Back to main menu
+                                settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value=fullscreenStatus;
                                 pMenu_state.menu_idx=MENU_PROJECTM;
                                 break;
-                            case 0x30: //Exit menu
+                            case 0x30: //Exit
+                                settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value=fullscreenStatus;
                                 keepOpened=0;
+                                break;
+                            case 0x01:
+                                break;
+                            case 0x11:
+                                break;
+                            case 0x21:
+                                break;
+                            case 0x31:
                                 break;
                         }
                     }
@@ -1767,21 +1697,37 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
             }
             ImGui::EndTable();
             
-            
-            
             ImVec2 pos=ImGui::GetCursorPos();
             
-            int font_idxB=3;
-            if (font_menu[font_idxB]) ImGui::PushFont(font_menu[font_idxB]);
+            if (font_menu) ImGui::PushFont(font_menu,idealFontSize*glScaleFactor);
             else ImGui::PushFont(nullptr);//,18*menu_win_size/512);
             
-            ImGui::BeginChild("Modizer menu pm explore subwin",ImVec2(menu_win_size,menu_win_size-pos.y));
-            ImGui::Text("Bundled presets");
-            ImGui::InputText("Filter", pmBundledFilter, 64);
-            {
-                int i=0;
-                i=buildDirTree(pmBundledPresetsFileNode,i,[[NSString stringWithUTF8String:pmBundledFilter] lowercaseString]);
+            ImGui::Text("Select active presets");
+            
+            //ImGui::PushFont(font_menu_icon,idealFontSize*2*glScaleFactor);
+            
+            auto bta = ImGui::GetStyle().ButtonTextAlign;
+            ImGui::GetStyle().ButtonTextAlign = ImVec2(0.5, 0.5);
+            
+            if (ImGui::Button(faicon(FA_TIMES))) {
+                pmBundledFilter[0]=0;
             }
+            ImGui::GetStyle().ButtonTextAlign = bta;
+            
+            //ImGui::PopFont();
+            ImGui::InputText("Filter", pmBundledFilter, 64);
+            
+            ImGui::BeginChild("Modizer menu pm explore subwin",ImVec2(menu_win_size,menu_win_sizeH-pos.y));
+            
+            int index=0;
+            bool filter=false;
+            if (strlen(pmBundledFilter)) {
+                filter=true;
+                NSString *strFilter=[NSString stringWithUTF8String:pmBundledFilter];
+                [pmBundledPresetsFileNode filterNodes:strFilter filterDir:true];
+            }
+            
+            index=buildDirTree(pmBundledPresetsFileNode,index,filter);
             
             menu_scrollX[pMenu_state.menu_idx]-=panX;
             if (menu_scrollX[pMenu_state.menu_idx]<0) menu_scrollX[pMenu_state.menu_idx]=0;
@@ -1791,8 +1737,8 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
             if (menu_scrollY[pMenu_state.menu_idx]>ImGui::GetScrollMaxY()) menu_scrollY[pMenu_state.menu_idx]=ImGui::GetScrollMaxY();
             if (menu_scrollY[pMenu_state.menu_idx]<0) menu_scrollY[pMenu_state.menu_idx]=0;
             
-            ImGui::SetScrollX(menu_scrollX[pMenu_state.menu_idx]);
-            ImGui::SetScrollY(menu_scrollY[pMenu_state.menu_idx]);
+            ImGui::SetScrollX(menu_scrollX[pMenu_state.menu_idx]*glScaleFactor);
+            ImGui::SetScrollY(menu_scrollY[pMenu_state.menu_idx]*glScaleFactor);
             
             ImGui::EndChild();
             
@@ -1811,26 +1757,40 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
     return keepOpened;
 }
 
-int buildDirTree(FileNode *fileNode, int idx,NSString *filter) {
+int buildDirTree(FileNode *fileNode, int idx,bool filter) {
+    int flags_default=0;
+    if (filter) {
+        //open all nodes by default
+        flags_default|=ImGuiTreeNodeFlags_DefaultOpen;
+    }
+    
     for (FileNode *child in fileNode.children) {
         if (child.isDirectory) {
-            int flags=ImGuiTreeNodeFlags_OpenOnArrow|ImGuiTreeNodeFlags_SpanAvailWidth;
-            if (child.isSelected) flags|=ImGuiTreeNodeFlags_Selected;
-            bool node_open=ImGui::TreeNodeEx((void*)(intptr_t)idx++, flags, "%s",[[child name] UTF8String]);
-            if (ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen()) {
-                child.isSelected=!child.isSelected;
+            bool skipentry=false;
+            if (filter) {
+                if (!child.isMatchingFilter) skipentry=true;
             }
-            if (node_open) {
-                idx=buildDirTree(child,idx,filter);
-                ImGui::TreePop();
+            
+            if (!skipentry) {
+                int flags=flags_default|ImGuiTreeNodeFlags_OpenOnArrow|ImGuiTreeNodeFlags_SpanAvailWidth;
+                if (child.isSelected) flags|=ImGuiTreeNodeFlags_Selected;
+                
+                bool node_open=ImGui::TreeNodeEx((void*)(intptr_t)idx++, flags, "%s",[[child name] UTF8String]);
+                if (ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen()) {
+                    child.isSelected=!child.isSelected;
+                }
+                if (node_open) {
+                    idx=buildDirTree(child,idx,filter);
+                    ImGui::TreePop();
+                }
             }
         } else {
             bool skipentry=false;
-            if ((filter!=nil)&&[filter length]) {
-                if (![[child.name lowercaseString] containsString:filter]) skipentry=true;
+            if (filter) {
+                if (!child.isMatchingFilter) skipentry=true;
             }
             if (!skipentry) {
-                int flags=ImGuiTreeNodeFlags_Leaf|ImGuiTreeNodeFlags_SpanAvailWidth;
+                int flags=flags_default|ImGuiTreeNodeFlags_Leaf|ImGuiTreeNodeFlags_SpanAvailWidth;
                 if (child.isSelected) flags|=ImGuiTreeNodeFlags_Selected;
                 bool node_open=ImGui::TreeNodeEx((void*)(intptr_t)idx++, flags, "%s",[[child name] UTF8String]);
                 if (ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen()) {

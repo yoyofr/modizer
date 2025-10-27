@@ -10,7 +10,7 @@
 
 extern float camera_posX,camera_posY,camera_posZ;
 extern float camera_lookX,camera_lookY,camera_lookZ;
-float pattern_w,header_w;
+float header_w;
 float fontWidth;
 
 #define ASCII_MIDDOT "·"
@@ -177,9 +177,9 @@ void PresetSwitchFailedEvent(const char* preset_filename, const char* message, v
 ImGui_ImplIOS_UI *imGui_impl_ios;
 
 extern float mdz_font_size[4];
-extern ImFont  *font_menu[4];
-extern ImFont  *font_tracker[FONT_TRACKER_NB][4];
-extern ImFont  *font_trackerH[FONT_TRACKER_NB][4];
+extern ImFont  *font_menu;
+extern ImFont  *font_tracker[FONT_TRACKER_NB];
+extern ImFont  *font_trackerH[FONT_TRACKER_NB];
 extern float font_trackerSize[FONT_TRACKER_NB][5];
 
 //--------------------------------------------------
@@ -6457,6 +6457,8 @@ extern "C" int current_sample;
     
     if (mBackground) return;
     
+    if (!_pmIsInitialized) return; //PRojectM might still be initializing and calling some opengl stuff from background thread
+    
     frameToUpdate++;
     
     if (no_reentrant) {
@@ -7239,7 +7241,7 @@ extern "C" int current_sample;
                 if (cur_font>=FONT_TRACKER_NB) cur_font=FONT_TRACKER_NB-1;
                 
                 float font_ofsX,font_ofsY;
-                if (font_tracker[cur_font][ftsizeIdx]) { ImGui::PushFont(font_tracker[cur_font][ftsizeIdx]);
+                if (font_tracker[cur_font]) { ImGui::PushFont(font_tracker[cur_font],fontSize*glScaleFactor);
                     font_ofsX=font_trackerSize[cur_font][3]*fontSize/FONT_BASE_SIZEF*font_trackerSize[cur_font][2];
                     font_ofsY=font_trackerSize[cur_font][4]*fontSize/FONT_BASE_SIZEF*font_trackerSize[cur_font][2];
                 }
@@ -7343,7 +7345,8 @@ extern "C" int current_sample;
                             str_prefix[2]=dec2hex[(i-numRows)&0xF];
                             color_div=0.7;
                         }
-                        cursorPos=ImVec2((font_ofsX)*mScaleFactor-fontWidth/3.0f, (i-startRow+1)*lineHeight+(4.0+font_ofsY)*glScaleFactor);
+                        cursorPos=ImVec2((font_ofsX)*mScaleFactor-fontWidth/3.0f,
+                                         (i-startRow+1)*lineHeight+(4.0+font_ofsY)*glScaleFactor);
                         
                         if ((i==currentRow)&&(modpat_curTheme->theme_flag&MDZ_THEMEFLAG_HighlightZoom)) {
                             if (i&1) {
@@ -7368,11 +7371,11 @@ extern "C" int current_sample;
                         }
                         
                         if ((i==currentRow)&&(modpat_curTheme->theme_flag&MDZ_THEMEFLAG_HighlightZoom)) {
-                            cursorPos.y+=font_ofsY*0.3f;
-                            cursorPos.x+=font_ofsX*0.3f;
+                            cursorPos.y+=font_ofsY*0.3f*glScaleFactor;
+                            cursorPos.x+=font_ofsX*0.3f*glScaleFactor;
                             cursorPos.y-=fontSize*0.15f*glScaleFactor;
                             ImGui::SetCursorPos(cursorPos);
-                            ImGui::PushFont(font_trackerH[cur_font][ftsizeIdx]);
+                            ImGui::PushFont(font_trackerH[cur_font],(fontSize*glScaleFactor*1.5f));
                             ImGui::TextAttr("{#%02X%02X%02X}%s",colR,colG,colB,str_prefix);
                             ImGui::PopFont();
                         } else {
@@ -7388,9 +7391,6 @@ extern "C" int current_sample;
                     ImGui::Begin("ModPatternWin2",0,ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|
                                  ImGuiWindowFlags_NoScrollbar|
                                  ImGuiWindowFlags_NoFocusOnAppearing);
-                    
-                    pattern_w=0;
-                    header_w=0;
                     
                     for (i=startRow;i<startRow+linestodraw;i++) {
                         note_avail=0;
@@ -7644,17 +7644,15 @@ extern "C" int current_sample;
                             str_data[k]=0;
                         }
                         
-                        pattern_w=fmax(pattern_w,ImGui::CalcTextSize(str_data).x);
-                        
                         cursorPos.y=(i-startRow+1)*lineHeight+(4.0+font_ofsY)*glScaleFactor;
                         cursorPos.x=font_ofsX*glScaleFactor;
                         
                         if ((i==currentRow)&&(modpat_curTheme->theme_flag&MDZ_THEMEFLAG_HighlightZoom)) {
-                            cursorPos.y-=font_ofsY*0.3f;
-                            cursorPos.x-=font_ofsX*0.3f;
+                            cursorPos.y-=font_ofsY*0.3f*glScaleFactor;
+                            cursorPos.x-=font_ofsX*0.3f*glScaleFactor;
                             cursorPos.y-=fontSize*0.15f*glScaleFactor;
                             ImGui::SetCursorPos(cursorPos);
-                            ImGui::PushFont(font_trackerH[cur_font][ftsizeIdx]);//,fontSize*glScaleFactor*font_trackerSize[cur_font][2]);
+                            ImGui::PushFont(font_trackerH[cur_font],(fontSize*glScaleFactor*1.5f));
                             ImGui::TextAttr("%s",str_data);
                             ImGui::PopFont();
                         } else {
@@ -7663,7 +7661,7 @@ extern "C" int current_sample;
                         }
                         
                         
-                        if (note_avail) modPatternLineSize=ImGui::CalcTextSize(str_data).x;
+                        
                     }
                     ImGui::SetScrollX(-movePxMOD*glScaleFactor);
                     ImGui::End();
@@ -7679,6 +7677,7 @@ extern "C" int current_sample;
                     str_data[11*mplayer.numChannels]=0; //11 chars max / channel
                     float xofs=0;
                     int str_size=1;
+                    
                     switch (display_note_mode) {
                         case 0:
                             for (j=0;j<endChan;j++) {
@@ -7697,7 +7696,7 @@ extern "C" int current_sample;
                             }
                             str_data[6*endChan]=0;
                             str_size=6*endChan;
-                            xofs=0;
+                            xofs=0.5;
                             break;
                         case 2:
                             for (j=0;j<endChan;j++) {
@@ -7706,11 +7705,14 @@ extern "C" int current_sample;
                             }
                             str_data[4*endChan]=0;
                             str_size=4*endChan;
-                            xofs=0;
+                            xofs=0.5;
                             break;
                     }
                     header_w=ImGui::CalcTextSize(str_data).x;
-                    fontWidth=header_w/str_size;
+                    fontWidth=round(header_w/str_size);
+                    xofs*=fontWidth;
+                    
+                    if (note_avail) modPatternLineSize=header_w;
                     
                     ImGui::SetCursorPos(ImVec2(-xofs+font_ofsX*glScaleFactor,(4.0+font_ofsY/2.0)*glScaleFactor));
                     
@@ -7740,7 +7742,7 @@ extern "C" int current_sample;
         
         float winsizeX,winsizeY;
         winsizeX=80;
-        winsizeY=hh;//70;//hh
+        winsizeY=70;//hh
         
         ImGui::SetNextWindowPos(ImVec2((ww-winsizeX)*glScaleFactor,0));
         ImGui::SetNextWindowSize(ImVec2(winsizeX*glScaleFactor,winsizeY*glScaleFactor));
@@ -7751,7 +7753,7 @@ extern "C" int current_sample;
         ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.2,1.0,0.1,1.0));
                                 
         ImGui::GetStyle().Alpha=1.0;
-        if (font_menu[2]) ImGui::PushFont(font_menu[2]);
+        if (font_menu) ImGui::PushFont(font_menu,16.0f*glScaleFactor);
         else ImGui::PushFont(nullptr);
         ImGui::Begin("Info",0,
                      ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoScrollbar|ImGuiWindowFlags_NoFocusOnAppearing
@@ -7769,7 +7771,7 @@ extern "C" int current_sample;
         ImGui::Text("%s",strTmp);
         posy+=sizeText.y+2;
         //smaller font
-        if (font_menu[1]) ImGui::PushFont(font_menu[1]);
+        if (font_menu) ImGui::PushFont(font_menu,10.0f*glScaleFactor);
         else ImGui::PushFont(nullptr);
         //CPU
         snprintf(strTmp,32,"CPU %.2f%%",cpuUsage);
@@ -7835,7 +7837,7 @@ extern "C" int current_sample;
                 ImGui::SetNextWindowPos(ImVec2(0,(hh-24)*glScaleFactor));
                 ImGui::SetNextWindowSize(ImVec2(ww*glScaleFactor,24*glScaleFactor));
                 ImGui::GetStyle().Alpha=alpha_val;
-                if (font_menu[1]) ImGui::PushFont(font_menu[1]);
+                if (font_menu) ImGui::PushFont(font_menu,22.0f*glScaleFactor);
                 else ImGui::PushFont(nullptr);
                 ImGui::Begin("On screen info",0,ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoScrollbar|ImGuiWindowFlags_NoFocusOnAppearing);
                 ImVec2 pmPresetStr_size=ImGui::CalcTextSize(pmPresetStr);

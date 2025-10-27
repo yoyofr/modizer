@@ -41,7 +41,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
 #include "../utils/imgui/backends/imgui_impl_ios.h"
 #include "../utils/imgui/backends/imgui_impl_opengl3.h"
 
-extern ImFont  *font_menu[4];
+extern ImFont  *font_menu;
 
 
 unsigned int data_midifx_pal1[32];/*={
@@ -1040,7 +1040,7 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
             fontSize=24;
             break;
     }
-    if (font_menu[curFontIdx]) ImGui::PushFont(font_menu[curFontIdx]);
+    if (font_menu) ImGui::PushFont(font_menu,fontSize*mScaleFactor);
     else ImGui::PushFont(nullptr);
     ImGui::Begin("OscilloFX",0,ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoScrollbar|ImGuiWindowFlags_NoFocusOnAppearing);
     //ImGui::SetCursorPos(ImVec2(0,0));
@@ -1674,14 +1674,14 @@ void RenderUtils::DrawChanLayoutAfter(uint _ww,uint _hh,int display_note_mode,in
                 
             }
             
-            if ( ((pixOfs+col_size*i+col_ofs+barOfsX-6.0)<_ww) &&
-                 ((pixOfs+col_size*i+col_ofs+barOfsX+barWidth-6.0)>0)
+            if ( ((pixOfs+col_size*i+col_ofs+barOfsX)<_ww) &&
+                 ((pixOfs+col_size*i+col_ofs+barOfsX+barWidth)>0)
                 ) {
                 count+=RenderUtils::buildQuad(&(pts[count]),
-                                              pixOfs+col_size*i+col_ofs+barOfsX-6.0, 0,
-                                              pixOfs+col_size*i+col_ofs+barOfsX+barWidth-6.0, 0,
-                                              pixOfs+col_size*i+col_ofs+barOfsX+barWidth-6.0, curVolH,
-                                              pixOfs+col_size*i+col_ofs+barOfsX-6.0, curVolH,
+                                              pixOfs+col_size*i+col_ofs+barOfsX, 0,
+                                              pixOfs+col_size*i+col_ofs+barOfsX+barWidth, 0,
+                                              pixOfs+col_size*i+col_ofs+barOfsX+barWidth, curVolH,
+                                              pixOfs+col_size*i+col_ofs+barOfsX, curVolH,
                                               crbase,cgbase,cbbase,255,
                                               crbase,cgbase,cbbase,255,
                                               cr,cg,cb,255,
@@ -1692,10 +1692,10 @@ void RenderUtils::DrawChanLayoutAfter(uint _ww,uint _hh,int display_note_mode,in
                     (modpat_curTheme->theme_flag&MDZ_THEMEFLAG_BordersTop) ){
                     if ((modpat_curTheme->theme_flag&MDZ_THEMEFLAG_BordersLR)) {
                         count+=RenderUtils::buildQuad(&(pts[count]),
-                                                      -barShadowOfsX+pixOfs+col_size*i+col_ofs+barOfsX+barWidth-6.0, 0,
-                                                      pixOfs+col_size*i+col_ofs+barOfsX+barWidth-6.0, 0,
-                                                      pixOfs+col_size*i+col_ofs+barOfsX+barWidth-6.0, curVolH,
-                                                      -barShadowOfsX+pixOfs+col_size*i+col_ofs+barOfsX+barWidth-6.0, curVolH,
+                                                      -barShadowOfsX+pixOfs+col_size*i+col_ofs+barOfsX+barWidth, 0,
+                                                      pixOfs+col_size*i+col_ofs+barOfsX+barWidth, 0,
+                                                      pixOfs+col_size*i+col_ofs+barOfsX+barWidth, curVolH,
+                                                      -barShadowOfsX+pixOfs+col_size*i+col_ofs+barOfsX+barWidth, curVolH,
                                                       crbase/2,cgbase/2,cbbase/2,255,
                                                       crbase/2,cgbase/2,cbbase/2,255,
                                                       cr/2,cg/2,cb/2,255,
@@ -1721,10 +1721,10 @@ void RenderUtils::DrawChanLayoutAfter(uint _ww,uint _hh,int display_note_mode,in
                     if (cg>255) cg=255;
                     if (cb>255) cb=255;
                     count+=RenderUtils::buildQuad(&(pts[count]),
-                                                  pixOfs+col_size*i+col_ofs+barOfsX-6.0, 0,
-                                                  barShadowOfsX+pixOfs+col_size*i+col_ofs+barOfsX-6.0, 0,
-                                                  barShadowOfsX+pixOfs+col_size*i+col_ofs+barOfsX-6.0, curVolH,
-                                                  pixOfs+col_size*i+col_ofs+barOfsX-6.0, curVolH,
+                                                  pixOfs+col_size*i+col_ofs+barOfsX, 0,
+                                                  barShadowOfsX+pixOfs+col_size*i+col_ofs+barOfsX, 0,
+                                                  barShadowOfsX+pixOfs+col_size*i+col_ofs+barOfsX, curVolH,
+                                                  pixOfs+col_size*i+col_ofs+barOfsX, curVolH,
                                                   crbase,cgbase,cbbase,255,
                                                   crbase,cgbase,cbbase,255,
                                                   cr,cg,cb,255,
@@ -1734,10 +1734,10 @@ void RenderUtils::DrawChanLayoutAfter(uint _ww,uint _hh,int display_note_mode,in
                         if (curVolH>barShadowOfsX) barOfsY=barShadowOfsX;
                         else barOfsY=curVolH;
                         count+=RenderUtils::buildQuad(&(pts[count]),
-                                                      pixOfs+col_size*i+col_ofs+barOfsX-6.0, curVolH-barOfsY,
-                                                      -barShadowOfsX+pixOfs+col_size*i+col_ofs+barOfsX+barWidth-6.0, curVolH-barOfsY,
-                                                      pixOfs+col_size*i+col_ofs+barOfsX+barWidth-6.0, curVolH,
-                                                      pixOfs+col_size*i+col_ofs+barOfsX-6.0, curVolH,
+                                                      pixOfs+col_size*i+col_ofs+barOfsX, curVolH-barOfsY,
+                                                      -barShadowOfsX+pixOfs+col_size*i+col_ofs+barOfsX+barWidth, curVolH-barOfsY,
+                                                      pixOfs+col_size*i+col_ofs+barOfsX+barWidth, curVolH,
+                                                      pixOfs+col_size*i+col_ofs+barOfsX, curVolH,
                                                       cr,cg,cb,255,
                                                       cr,cg,cb,255,
                                                       cr,cg,cb,255,
@@ -6900,7 +6900,7 @@ void RenderUtils::DrawPianoRollFX(uint ww,uint hh,int horiz_vert,float note_disp
     ImGui::GetStyle().Alpha=1.0f;
     ImGui::PushStyleColor(ImGuiCol_WindowBg,ImVec4(0,0,0,0));
     
-    if (font_menu[1]) ImGui::PushFont(font_menu[1]);
+    if (font_menu) ImGui::PushFont(font_menu,15.0f*mScaleFactor);
     else ImGui::PushFont(nullptr);
     ImGui::Begin("PianoRollFX",0,ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoScrollbar|ImGuiWindowFlags_NoFocusOnAppearing);
     
@@ -7097,7 +7097,7 @@ void RenderUtils::DrawPianoRollSynthesiaFX(uint ww,uint hh,int horiz_vert,float 
     ImGui::GetStyle().Alpha=1.0f;
     ImGui::PushStyleColor(ImGuiCol_WindowBg,ImVec4(0,0,0,0));
     
-    if (font_menu[1]) ImGui::PushFont(font_menu[1]);
+    if (font_menu) ImGui::PushFont(font_menu,15.0f*mScaleFactor);
     else ImGui::PushFont(nullptr);
     ImGui::Begin("PianoSynthesiaFX",0,ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoScrollbar|ImGuiWindowFlags_NoFocusOnAppearing);
     

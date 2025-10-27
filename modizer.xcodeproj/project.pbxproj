@@ -1964,6 +1964,7 @@
 		CC1638EE2B7CE5CF003323FD /* FileTypeCommonFunctions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FileTypeCommonFunctions.h; sourceTree = "<group>"; };
 		CC16CA412EAEAEB700255213 /* DirParser.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DirParser.h; sourceTree = "<group>"; };
 		CC16CA422EAEAECE00255213 /* DirParser.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = DirParser.mm; sourceTree = "<group>"; };
+		CC16CA502EAF88B900255213 /* MDZFontAwesome.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MDZFontAwesome.h; sourceTree = "<group>"; };
 		CC17F07E1AC87866006C1E82 /* Images-2.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = "Images-2.xcassets"; path = "modizer/Images-2.xcassets"; sourceTree = SOURCE_ROOT; };
 		CC19620E1B66BCD600778A3E /* Resample.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = Resample.xcodeproj; sourceTree = "<group>"; };
 		CC1E56C01200B391000A8A4E /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
@@ -3824,6 +3825,7 @@
 		CC1E58BA1200B3B7000A8A4E /* src */ = {
 			isa = PBXGroup;
 			children = (
+				CC16CA502EAF88B900255213 /* MDZFontAwesome.h */,
 				337FA728124288FA00DDD352 /* AboutViewController.h */,
 				CC16CA412EAEAEB700255213 /* DirParser.h */,
 				CC16CA422EAEAECE00255213 /* DirParser.mm */,
