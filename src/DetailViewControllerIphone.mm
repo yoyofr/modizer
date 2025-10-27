@@ -33,6 +33,9 @@ extern pthread_mutex_t shader_mutex;
 
 #import <UserNotifications/UserNotifications.h>
 
+#import "DirParser.h"
+FileNode *pmBundledPresetsFileNode;
+
 extern BOOL nvdsp_EQ;
 
 #import <mach/mach.h>
@@ -171,6 +174,8 @@ void PresetSwitchFailedEvent(const char* preset_filename, const char* message, v
 #include "../utils/imgui/backends/imgui_impl_ios.h"
 #include "../utils/imgui/backends/imgui_impl_opengl3.h"
 
+ImGui_ImplIOS_UI *imGui_impl_ios;
+
 extern float mdz_font_size[4];
 extern ImFont  *font_menu[4];
 extern ImFont  *font_tracker[FONT_TRACKER_NB][4];
@@ -229,7 +234,6 @@ static NSDate *locationLastUpdate=nil;
 int mDevice_hh,mDevice_ww;
 static int mShouldHaveFocusAfterBackground,mLoadIssueMessage;
 static int infoIsFullscreen=0;
-static MPVolumeView *volumeView;
 
 static MPMediaItemArtwork *artwork;
 
@@ -282,7 +286,7 @@ static int updMPNowCnt=0;
 @synthesize buttonLoopTitleSel,buttonLoopList,buttonLoopListSel,buttonShuffle,buttonShuffleSel,buttonShuffleOneSel,btnLoopInf;
 @synthesize repeatingTimer;
 @synthesize sliderProgressModule;
-@synthesize detailView,commandViewU,volWin,playlistPos;
+@synthesize detailView,commandViewU,playlistPos;
 @synthesize playBar,pauseBar,playBarSub,pauseBarSub;
 @synthesize playBarSubRewind,playBarSubFFwd,pauseBarSubRewind,pauseBarSubFFwd;
 @synthesize mainView,infoView;
@@ -319,6 +323,10 @@ bool sysMonitorIsActive;
     //[self play_curEntry:(int)row+mplayer.mod_minsub];
     [mplayer playGoToSub:(int)row+mplayer.mod_minsub];
     clearAudioFXbuffer=true;
+    
+    if (settings[GLOB_Notification].detail.mdz_switch.switch_value==2) {
+        [self sendNotifPlayedTitle];
+    }
 }
 
 -(void) cancelSubSel {
@@ -471,6 +479,10 @@ bool sysMonitorIsActive;
     [self play_loadArchiveModule];
     [self hideWaiting];
     clearAudioFXbuffer=true;
+    
+    if (settings[GLOB_Notification].detail.mdz_switch.switch_value==2) {
+        [self sendNotifPlayedTitle];
+    }
     //self.outputLabel.text = [self.data objectAtIndex:row];
 }
 
@@ -1019,6 +1031,7 @@ static float modPatternLineSize,modPatternWindowSize;
 
 static int _shiftModeOn;
 static float oglTapX=0,oglTapY=0,movePx=0,movePy=0,movePxMOD=0,movePyMOD=0,movePxOld=0,movePyOld=0,movePxPM=0,movePyPM=0;
+static float movePxPMenu=0,movePyPMenu=0;
 static float startPx=0,startPy=0;
 static int movePMnomore=0;
 static int panGesture1Tap;
@@ -2061,6 +2074,10 @@ int recording=0;
     if ([mplayer getCurrentTime]>=MIN_DELAY_PREV_ENTRY) {//if more than MIN_DELAY_PREV_ENTRY milliseconds are elapsed, restart current track
         [self restartCurrent];
         clearAudioFXbuffer=true;
+        
+        if (settings[GLOB_Notification].detail.mdz_switch.switch_value==2) {
+            [self sendNotifPlayedTitle];
+        }
         no_reentrant=false;
         return;
     }
@@ -2074,6 +2091,10 @@ int recording=0;
             [self hideWaiting];
         }
         clearAudioFXbuffer=true;
+        
+        if (settings[GLOB_Notification].detail.mdz_switch.switch_value==2) {
+            [self sendNotifPlayedTitle];
+        }
         if (mPaused) [self playPushed:nil];
         [self refreshCurrentVC];
     } else {
@@ -2092,6 +2113,10 @@ int recording=0;
                 } else [self playPrev];
             }
             clearAudioFXbuffer=true;
+            
+            if (settings[GLOB_Notification].detail.mdz_switch.switch_value==2) {
+                [self sendNotifPlayedTitle];
+            }
         } else [self playPrev];
         if (mPaused) [self playPushed:nil];
         [self refreshCurrentVC];
@@ -2241,6 +2266,10 @@ int recording=0;
     if (mShuffle==1) {
         [self playNext];
         clearAudioFXbuffer=true;
+        
+        if (settings[GLOB_Notification].detail.mdz_switch.switch_value==2) {
+            [self sendNotifPlayedTitle];
+        }
         no_reentrant=false;
         return;
     }
@@ -2267,7 +2296,13 @@ int recording=0;
                         [self refreshCurrentVC];
                     }
                 } else [self playNext]; //not an archive, next entry
-            } else clearAudioFXbuffer=true;
+            } else {
+                clearAudioFXbuffer=true;
+                
+                if (settings[GLOB_Notification].detail.mdz_switch.switch_value==2) {
+                    [self sendNotifPlayedTitle];
+                }
+            }
         } else [self playNext]; //not an archive, next entry
         if (mPaused) [self playPushed:nil];
         [self refreshCurrentVC];
@@ -2290,6 +2325,10 @@ int recording=0;
             }
         }
         clearAudioFXbuffer=true;
+        
+        if (settings[GLOB_Notification].detail.mdz_switch.switch_value==2) {
+            [self sendNotifPlayedTitle];
+        }
     }
     no_reentrant=false;
 }
@@ -2309,6 +2348,10 @@ int recording=0;
             }
         }
         clearAudioFXbuffer=true;
+        
+        if (settings[GLOB_Notification].detail.mdz_switch.switch_value==2) {
+            [self sendNotifPlayedTitle];
+        }
     }
     no_reentrant=false;
 }
@@ -2335,7 +2378,9 @@ int recording=0;
     static bool no_reentrant=false;
     if (no_reentrant) return;
     no_reentrant=true;
-    if ([self play_nextEntry]) clearAudioFXbuffer=true;
+    if ([self play_nextEntry]) {
+        clearAudioFXbuffer=true;
+    }
     
     no_reentrant=false;
 }
@@ -2346,8 +2391,11 @@ int recording=0;
     no_reentrant=true;
     if ([mplayer getCurrentTime]>=MIN_DELAY_PREV_ENTRY) {//if more than MIN_DELAY_PREV_ENTRY milliseconds are elapsed, restart current track
         [self play_curEntry:-1];
-    clearAudioFXbuffer=true;
-    } else if ([self play_prevEntry]) clearAudioFXbuffer=true;
+        clearAudioFXbuffer=true;
+        
+    } else if ([self play_prevEntry]) {
+        clearAudioFXbuffer=true;
+    }
         
     no_reentrant=false;
 }
@@ -2460,23 +2508,17 @@ int recording=0;
             mPlaylist_pos++; if (mPlaylist_pos>=mPlaylist_size) mPlaylist_pos=0;
         }
         [self play_curEntry:-1];
-        if (settings[GLOB_Notification].detail.mdz_switch.switch_value==2) {
-            [self sendNotifPlayedTitle];
-        }
+        
         return 1;
     } else if (mPlaylist_pos<mPlaylist_size-1) {
         mPlaylist_pos++;
         [self play_curEntry:-1];
-        if (settings[GLOB_Notification].detail.mdz_switch.switch_value==2) {
-            [self sendNotifPlayedTitle];
-        }
+        
         return 1;
     } else if (mLoopMode==1) {
         mPlaylist_pos=0;
         [self play_curEntry:-1];
-        if (settings[GLOB_Notification].detail.mdz_switch.switch_value==2) {
-            [self sendNotifPlayedTitle];
-        }
+        
         return 1;
     }
     return 0;
@@ -2538,6 +2580,10 @@ int recording=0;
     [self play_curEntry:-1];
     clearAudioFXbuffer=true;
     
+    if (settings[GLOB_Notification].detail.mdz_switch.switch_value==2) {
+        [self sendNotifPlayedTitle];
+    }
+    
     [self refreshCurrentVC];
 }
 
@@ -2594,6 +2640,10 @@ int recording=0;
     [self play_curEntry:-1];
     
     clearAudioFXbuffer=true;
+    
+    if (settings[GLOB_Notification].detail.mdz_switch.switch_value==2) {
+        [self sendNotifPlayedTitle];
+    }
     
     [self refreshCurrentVC];
 }
@@ -2775,12 +2825,20 @@ int recording=0;
         [self play_curEntry:-1];
         playLaunched=1;
         clearAudioFXbuffer=true;
+        
+        if (settings[GLOB_Notification].detail.mdz_switch.switch_value==2) {
+            [self sendNotifPlayedTitle];
+        }
     }
     if ((!forcenoplay)&&(settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==2)) {//Enqueue & play
         mPlaylist_pos=added_pos;
         [self play_curEntry:-1];
         playLaunched=1;
         clearAudioFXbuffer=true;
+        
+        if (settings[GLOB_Notification].detail.mdz_switch.switch_value==2) {
+            [self sendNotifPlayedTitle];
+        }
     }
     
     [self refreshCurrentVC];
@@ -3049,6 +3107,10 @@ int recording=0;
     }
     
     clearAudioFXbuffer=true;
+    
+    if (settings[GLOB_Notification].detail.mdz_switch.switch_value==2) {
+        [self sendNotifPlayedTitle];
+    }
     return TRUE;
 }
 
@@ -4013,18 +4075,6 @@ int recording=0;
             if (bShowEQ) eqVC.view.frame=CGRectMake(m_oglView.frame.origin.x,m_oglView.frame.origin.y,m_oglView.frame.size.width,m_oglView.frame.size.height);
             if (bShowVC) voicesVC.view.frame=CGRectMake(m_oglView.frame.origin.x,m_oglView.frame.origin.y,m_oglView.frame.size.width,m_oglView.frame.size.height);
             
-            if (is_macOS) {
-                volWin.hidden=TRUE;
-            } else {
-                volWin.hidden=NO;
-                volWin.frame= CGRectMake(12, mDevice_hh-64-42-safe_bottom, mDevice_ww-24, 44);
-                //volumeView.frame = CGRectMake(volWin.bounds.origin.x+12,volWin.bounds.origin.y+5,volWin.bounds.size.width-24,volWin.bounds.size.height); //volWin.bounds;
-                
-                volumeView.frame = CGRectMake(volWin.bounds.origin.x,volWin.bounds.origin.y+8,volWin.bounds.size.width,volWin.bounds.size.height);
-                //volumeView.center = CGPointMake((mDevice_ww)/2,32);
-                //[volumeView sizeToFit];
-            }
-            
             if (infoIsFullscreen) infoView.frame = CGRectMake(0, 0, mDevice_ww, mDevice_hh-20-42);
             else infoView.frame = CGRectMake(0, 80, mDevice_ww, mDevice_hh-230-safe_bottom);
             
@@ -4276,16 +4326,6 @@ int recording=0;
                 
                 if (bShowEQ) eqVC.view.frame=CGRectMake(m_oglView.frame.origin.x,m_oglView.frame.origin.y,m_oglView.frame.size.width,m_oglView.frame.size.height);
                 if (bShowVC) voicesVC.view.frame=CGRectMake(m_oglView.frame.origin.x,m_oglView.frame.origin.y,m_oglView.frame.size.width,m_oglView.frame.size.height);
-                
-                
-                //volWin.frame= CGRectMake(200, 40, mDevice_hh-375, 44);
-                volWin.hidden=YES;
-                
-                //volumeView.frame = CGRectMake(volWin.bounds.origin.x+12,volWin.bounds.origin.y,
-                //                               volWin.bounds.size.width-24,volWin.bounds.size.height); //volWin.bounds;
-                //                volumeView.frame = CGRectMake(10, 0, mDevice_hh-375-10, 44);
-                //              volumeView.center = CGPointMake((mDevice_hh-375)/2,32);
-                //            [volumeView sizeToFit];
                 
                 
                 if (infoIsFullscreen) infoView.frame = CGRectMake(0.0, 0, mDevice_hh, mDevice_ww-20-30);
@@ -5022,6 +5062,38 @@ void pmSoftReinit() {
     }
 }
 
+- (void)buildPresetDirStructure {
+    DirParser *dirParser=[[DirParser alloc] init];
+    dirParser.includeHiddenFiles = NO;
+    dirParser.maxDepth = 5;
+    dirParser.filterExt = @"milk";
+    
+    NSString *dirPath = [NSString stringWithFormat:@"%@/projectm/assets/presets",[[NSBundle mainBundle] resourcePath]];
+    NSError *error=nil;
+    pmBundledPresetsFileNode=nil;
+    pmBundledPresetsFileNode=[dirParser parseDirectoryAtPath:dirPath error:&error];
+    if (error) {
+        MDZELog("Cannot parse projectm blunded presets")
+        pmBundledPresetsFileNode=nil;
+    } else {
+//        MDZDLog("Directory Structure:");
+//        [pmBundledPresetsFileNode printStructureWithIndent:0];
+//
+//        // Get flattened list
+//        NSArray<FileNode *> *allFiles = [dirParser flattenTree:pmBundledPresetsFileNode];
+//        MDZDLog("\nTotal items: %lu", (unsigned long)allFiles.count);
+//        
+//        // Calculate total size
+//        unsigned long long totalSize = 0;
+//        for (FileNode *file in allFiles) {
+//            if (!file.isDirectory) {
+//                totalSize += file.fileSize;
+//            }
+//        }
+//        MDZDLog("Total size: %.2f MB", totalSize / (1024.0 * 1024.0));
+    }
+}
+
 - (void)pmInit {
     pthread_mutex_lock(&shader_mutex);
     _pm = projectm_create();
@@ -5162,9 +5234,7 @@ void pmSoftReinit() {
     
     CHECK_PROFILE("Renders")
     
-    //--------------------------------//
-    // ProjectM
-    //--------------------------------//
+    
     _pmIsInitialized=false;
     _pm_shouldRestartAt=-1;
     
@@ -5172,6 +5242,13 @@ void pmSoftReinit() {
     _pmCanvasWidth=m_oglView.frame.size.width*glScaleFactor;
     _pmCanvasHeight=m_oglView.frame.size.height*glScaleFactor;
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+        //--------------------------------//
+        // Build ProjectM presets directories structure
+        //--------------------------------//
+        [self buildPresetDirStructure];
+        //--------------------------------//
+        // ProjectM
+        //--------------------------------//
         [self pmInit];
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
                 //
@@ -5193,6 +5270,8 @@ void pmSoftReinit() {
     ImGui::CreateContext();
     ImGui_ImplIOS_Init();
     ImGui_ImplOpenGL3_Init();
+    imGui_impl_ios=[[ImGui_ImplIOS_UI alloc] init];
+    [imGui_impl_ios initTF:m_oglView];
 
     CHECK_PROFILE("ImGUI")
     //--------------------------------//
@@ -5623,21 +5702,6 @@ void pmSoftReinit() {
     
     infoZoom.hidden=NO;
     infoUnzoom.hidden=YES;
-    
-    
-    if (!is_macOS) {
-        volWin.frame= CGRectMake(12, mDevice_hh-64-42-safe_bottom, mDevice_ww-24, 44);
-        //volumeView = [[MPVolumeView alloc] initWithFrame:CGRectMake(volWin.bounds.origin.x+12,volWin.bounds.origin.y+5,volWin.bounds.size.width-24,volWin.bounds.size.height)/*volWin.bounds*/];
-        volumeView = [[MPVolumeView alloc] initWithFrame:volWin.bounds];
-        volumeView.autoresizingMask = UIViewAutoresizingFlexibleWidth;
-        volumeView.showsVolumeSlider=YES;
-        volumeView.showsRouteButton=YES;
-        
-        [volWin addSubview:volumeView];
-        
-        volumeView.transform = CGAffineTransformMakeScale(0.75, 0.75);
-    }
-    
     
     mRestart=0;
     mRestart_sub=0;
@@ -6265,7 +6329,17 @@ void pmSoftReinit() {
 static int mOglView1Tap=0;
 
 -(void) glViewOneFingerOneTap:(UITapGestureRecognizer *)gestureRecognizer {
-    mOglView1Tap=1;
+    switch (gestureRecognizer.state) {
+        case UIGestureRecognizerStateBegan:
+            break;
+        case UIGestureRecognizerStateChanged:
+            break;
+        default:
+//            MDZILog("reco");
+            mOglView1Tap=1;
+            break;
+    }
+    
     CGPoint pt=[gestureRecognizer locationInView:m_oglView];
     oglTapX=pt.x;
     oglTapY=pt.y;
@@ -6281,7 +6355,6 @@ static int mOglView1Tap=0;
         movePy=pt.y;
         switch (gestureRecognizer.state) {
             case UIGestureRecognizerStateBegan:
-                
                 starting_pt=[gestureRecognizer locationOfTouch:0 inView:m_oglView];
                 startPx=starting_pt.x;
                 startPy=starting_pt.y;
@@ -6291,6 +6364,7 @@ static int mOglView1Tap=0;
                 movePyOld=movePy;
                 //Also reset tracking variables related to "swipe" like gesture
                 movePxPM=0;movePyPM=0;
+                movePxPMenu=0;movePyPMenu=0;
                 movePMnomore=0;
                 break;
             case UIGestureRecognizerStateChanged:
@@ -6300,6 +6374,7 @@ static int mOglView1Tap=0;
                 panGesture1Tap=0;
                 //Also reset tracking variables related to "swipe" like gesture
                 movePxPM=0;movePyPM=0;
+                movePxPMenu=0;movePyPMenu=0;
                 movePMnomore=0;
                 break;
         }
@@ -6471,6 +6546,9 @@ extern "C" int current_sample;
     //-----------------------------------
     // ImGui
     //-----------------------------------
+    
+    [imGui_impl_ios updateEvent];
+    
     ImGuiIOSEvent imgui_event;
     imgui_event.event_type=IMGUI_IOS_Event_None;
     if (mOglView1Tap) {
@@ -6480,7 +6558,7 @@ extern "C" int current_sample;
         projectm_touch(_pm, imgui_event.pos_x,imgui_event.pos_y, 1, PROJECTM_TOUCH_TYPE_RANDOM);
     }
     if (panGesture1Tap) {
-        imgui_event.event_type=IMGUI_IOS_Event_Tap_1;
+        imgui_event.event_type=IMGUI_IOS_Event_MouseMove;
         imgui_event.pos_x=(movePx+startPx)*glScaleFactor;
         imgui_event.pos_y=(movePy+startPy)*glScaleFactor;
         projectm_touch_drag(_pm, imgui_event.pos_x,imgui_event.pos_y, 1);
@@ -6566,13 +6644,17 @@ extern "C" int current_sample;
     }
     /*-------------------------------------------------------------------------------*/
     
+    if (pmenu_show) {
+        movePxPMenu+=movePx-movePxOld;
+        movePyPMenu+=movePy-movePyOld;
+    }
     
-    if ([SettingsGenViewController isFXActive:PROJECTM_FXONOFF]) {
+    if ((pmenu_show==0)&&[SettingsGenViewController isFXActive:PROJECTM_FXONOFF]) {
         movePxPM+=movePx-movePxOld;
         movePyPM+=movePy-movePyOld;
     }
     
-    if ([SettingsGenViewController isFXActive:GLOB_FXPiano3D]) {
+    if ((pmenu_show==0)&&[SettingsGenViewController isFXActive:GLOB_FXPiano3D]) {
         movePxFXPiano+=movePx-movePxOld;
         movePyFXPiano+=movePy-movePyOld;
         movePx2FXPiano+=movePx2-movePx2Old;
@@ -6580,7 +6662,7 @@ extern "C" int current_sample;
         movePinchScaleFXPiano+=movePinchScale-movePinchScaleOld;
     }
     
-    if ([SettingsGenViewController isFXActive:GLOB_FX3DSpectrum]) {
+    if ((pmenu_show==0)&&[SettingsGenViewController isFXActive:GLOB_FX3DSpectrum]) {
         movePxFX3DSpectrum+=movePx-movePxOld;
         movePyFX3DSpectrum+=movePy-movePyOld;
         movePx2FX3DSpectrum+=movePx2-movePx2Old;
@@ -6588,19 +6670,19 @@ extern "C" int current_sample;
         movePinchScaleFX3DSpectrum+=movePinchScale-movePinchScaleOld;
     }
     
-    if ([SettingsGenViewController isFXActive:GLOB_FXMIDIPattern]) {
+    if ((pmenu_show==0)&&[SettingsGenViewController isFXActive:GLOB_FXMIDIPattern]) {
         movePxMID+=movePx-movePxOld;
         movePyMID+=movePy-movePyOld;
         movePinchScaleFXMID+=movePinchScale-movePinchScaleOld;
     }
     
-    if ([SettingsGenViewController isFXActive:GLOB_FXPianoRoll]) {
+    if ((pmenu_show==0)&&[SettingsGenViewController isFXActive:GLOB_FXPianoRoll]) {
         movePxPRoll+=movePx-movePxOld;
         movePyPRoll+=movePy-movePyOld;
         movePinchScaleFXPRoll+=movePinchScale-movePinchScaleOld;
     }
     
-    if ([SettingsGenViewController isFXActive:GLOB_FXMODPattern]) {
+    if ((pmenu_show==0)&&[SettingsGenViewController isFXActive:GLOB_FXMODPattern]) {
         movePxMOD+=movePx-movePxOld;
         movePyMOD+=movePy-movePyOld;
     }
@@ -7658,7 +7740,7 @@ extern "C" int current_sample;
         
         float winsizeX,winsizeY;
         winsizeX=80;
-        winsizeY=70;//hh
+        winsizeY=hh;//70;//hh
         
         ImGui::SetNextWindowPos(ImVec2((ww-winsizeX)*glScaleFactor,0));
         ImGui::SetNextWindowSize(ImVec2(winsizeX*glScaleFactor,winsizeY*glScaleFactor));
@@ -7704,6 +7786,9 @@ extern "C" int current_sample;
         ImGui::Text("%s",strTmp);
         posy+=sizeText.y+2;
 
+//        char strinput[32];
+//        snprintf(strinput,32,"test1");
+//        ImGui::InputText("test", strinput, 32);
 //        ImGui::SliderFloat("CX", &camera_posX,-4.0f,4.0f);
 //        ImGui::SliderFloat("CY", &camera_posY,-4.0f,4.0f);
 //        ImGui::SliderFloat("CZ", &camera_posZ,-4.0f,4.0f);
@@ -7884,7 +7969,8 @@ extern "C" int current_sample;
         //specific case for fullscreen switch change
         bool isFullscreen=settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value;
         
-        int ret=PMenu::playerShowMenu(ww,hh,glScaleFactor,fadelev);
+        int ret=PMenu::playerShowMenu(ww,hh,glScaleFactor,fadelev,movePxPMenu,movePyPMenu);
+        movePxPMenu=movePyPMenu=0;
         if (ret<0) {
             mOglViewIsHidden=YES;
             pmenu_show=0;

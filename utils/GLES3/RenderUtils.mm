@@ -475,8 +475,8 @@ void RenderUtils::DrawTexture(uint ww,uint hh,GLuint textureIdx,float alpha,bool
     glEnableVertexAttribArray ( positionAttribHandle );
     glEnableVertexAttribArray ( textCoordAttribHandle );
     
-    glVertexAttribDivisor ( positionAttribHandle, 0);
-    glVertexAttribDivisor ( textCoordAttribHandle, 0);
+//    glVertexAttribDivisor ( positionAttribHandle, 0);
+//    glVertexAttribDivisor ( textCoordAttribHandle, 0);
     
     // Load the uniforms
     // Load the texture idx

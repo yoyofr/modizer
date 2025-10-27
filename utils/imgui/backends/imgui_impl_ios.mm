@@ -8,6 +8,12 @@
 extern float glScaleFactor;
 static StopWatch g_timer;
 static ImGuiIOSEvent currentEvent;
+static int wantInputText=0;
+static unichar lastChar;
+int move_cursorL,move_cursorR;
+int shiftPressedL,shiftPressedR;
+int keyDel;
+
 
 float mdz_font_size[4]={10,15,22,30};
 ImFont  *font_menu[4];
@@ -35,6 +41,7 @@ float font_trackerSize[FONT_TRACKER_NB][5]={
     {16.0,10.0,1.0,0.0,0.0},
 };
 
+ImGuiKey ImGui_ImplIOS_KeyEventToImGuiKey();
 
 // Functions
 bool ImGui_ImplIOS_Init()
@@ -48,7 +55,6 @@ bool ImGui_ImplIOS_Init()
     //io.BackendFlags |= ImGuiBackendFlags_HasMouseHoveredViewport; // We can set io.MouseHoveredViewport correctly (optional, not easy)
     //io.BackendFlags |= ImGuiConfigFlags_IsTouchScreen;
     io.BackendPlatformName = "imgui_impl_ios";
-    
     g_timer.Restart();
     
     currentEvent.event_type=IMGUI_IOS_Event_None;
@@ -91,8 +97,10 @@ void ImGui_ImplIOS_Shutdown()
 {
 }
 
+
 void ImGui_ImplIOS_UpdateEvent(ImGuiIOSEvent *event)
 {
+    static int mouseEventOnHold=0;
     if (event) {
         currentEvent=*event;
     }
@@ -101,29 +109,76 @@ void ImGui_ImplIOS_UpdateEvent(ImGuiIOSEvent *event)
     //io.WantCaptureMouse=true;
     
     if (currentEvent.event_type==IMGUI_IOS_Event_Tap_1) {
-//        NSLog(@"tap1 event: %d x %d",currentEvent.pos_x,currentEvent.pos_y);
-        //io.MouseDown[0] = 1;
-        //io.MousePos = ImVec2((float)currentEvent.pos_x, (float)currentEvent.pos_y);
-        
         io.AddMouseSourceEvent(ImGuiMouseSource_Mouse);//TouchScreen);
         io.AddMousePosEvent((float)(currentEvent.pos_x), (float)(currentEvent.pos_y));
-        
         io.AddMouseButtonEvent(0, true);
-    } else {
-        
+        mouseEventOnHold=0;
+    } else if (currentEvent.event_type==IMGUI_IOS_Event_MouseMove) {
         io.AddMouseSourceEvent(ImGuiMouseSource_Mouse);//TouchScreen);
-        //Do not reset position if button hasn't been released yet, in order to let ImGui process the event first
-        //NSLog(@"release tap");
-        
-//        if (io.MouseDown[0]==0) {
-//            //io.MousePos = ImVec2((float)0, (float)0);
-//            io.AddMousePosEvent((float)(0), (float)(0));
-//        }
-        
-        //io.MouseDown[0] = 0;
+        io.AddMousePosEvent((float)(currentEvent.pos_x), (float)(currentEvent.pos_y));
+    } else if (!mouseEventOnHold) {
+        io.AddMouseSourceEvent(ImGuiMouseSource_Mouse);//TouchScreen);
         io.AddMouseButtonEvent(0, false);
         io.AddMousePosEvent((float)(-1), (float)(-1));
+        mouseEventOnHold=1;
     }
+    
+    if (io.WantTextInput) {
+        if (wantInputText==0) wantInputText=1;
+        if (wantInputText==2) {
+            if (lastChar) {
+                if (lastChar>=32) io.AddInputCharacter(lastChar);
+                else {
+                    if (lastChar==0x8) { //Backspace
+                        io.AddKeyEvent(ImGuiKey_Backspace,true);
+                        io.AddKeyEvent(ImGuiKey_Backspace,false);
+                    } else if (lastChar==0xD) { //Return
+                        io.AddKeyEvent(ImGuiKey_Enter,true);
+                        io.AddKeyEvent(ImGuiKey_Enter,false);
+                    }
+                }
+                lastChar=0;
+            }
+            if (move_cursorR) {
+                if (move_cursorR==2) io.AddKeyEvent(ImGuiKey_RightArrow,true);
+                else if (move_cursorR==1) io.AddKeyEvent(ImGuiKey_RightArrow,false);
+                move_cursorR=0;
+            }
+            if (move_cursorL) {
+                if (move_cursorL==2) io.AddKeyEvent(ImGuiKey_LeftArrow,true);
+                else if (move_cursorL==1) io.AddKeyEvent(ImGuiKey_LeftArrow,false);
+                move_cursorL=0;
+            }
+            if (shiftPressedL) {
+                if (shiftPressedL==2) io.AddKeyEvent(ImGuiKey_LeftShift,true);
+                else if (shiftPressedL==1) io.AddKeyEvent(ImGuiKey_LeftShift,false);
+                shiftPressedL=0;
+            }
+            if (shiftPressedR) {
+                if (shiftPressedR==2) io.AddKeyEvent(ImGuiKey_RightShift,true);
+                else if (shiftPressedR==1) io.AddKeyEvent(ImGuiKey_RightShift,false);
+                shiftPressedR=0;
+            }
+            if (keyDel) {
+                if (keyDel==2) io.AddKeyEvent(ImGuiKey_Delete,true);
+                else if (keyDel==1) io.AddKeyEvent(ImGuiKey_Delete,false);
+                keyDel=0;
+            }
+        }
+    } else wantInputText=0;
+    
+//    ImGuiKey key = ImGui_ImplIOS_KeyEventToImGuiKey();
+//    static int cpt=0;
+//    cpt++;
+//    key=ImGuiKey_A;
+//    if ((cpt%60)==0) {
+//     
+//        io.AddKeyEvent(key, 0);
+//    }
+//    if ((cpt%60)==10) {
+//        io.AddKeyEvent(key, 1);
+//    }
+    
 }
 
 void ImGui_ImplIOS_ResetTapPos() {
@@ -150,4 +205,113 @@ void ImGui_ImplIOS_NewFrame(float w,float h,float scale,ImGuiIOSEvent *event)
     
     ImGui_ImplIOS_UpdateEvent(event);
 }
+
+ImGuiKey ImGui_ImplIOS_KeyEventToImGuiKey()
+{
+//    int keycode='0';
+//    switch (keycode)
+//    {
+//        case '0': return ImGuiKey_0;
+//        case '1': return ImGuiKey_1;
+//        default: break;
+//    }
+    return ImGuiKey_None;
+}
+
+@implementation ImGui_ImplIOS_UI
+
+- (void)textFieldDidEndEditing:(UITextField *)textField {
+}
+
+- (BOOL)textFieldShouldReturn:(UITextField *)textField{
+    lastChar=0xD;
+    [textField resignFirstResponder];
+    return YES;
+}
+
+- (void)textFieldTextChanged:(UITextField *)textField {
+    NSString *txt=textField.text;
+    if ([txt length]>[self.text length]) {
+        lastChar=[txt characterAtIndex:[txt length]-1];
+    } else if ([txt length]<[self.text length]) {
+        lastChar=8;
+    }
+    _textField.text=@"12";
+    self.text=@"12";
+}
+
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
+    static int no_rentrant=0;
+    if (no_rentrant) return;
+    if([keyPath isEqualToString:@"selectedTextRange"] && _textField == object) {
+        no_rentrant=1;
+        UITextPosition *newPosition = [_textField positionFromPosition:_textField.endOfDocument offset:0];
+        [_textField setSelectedTextRange:[_textField textRangeFromPosition:newPosition toPosition:newPosition]];
+        no_rentrant=0;
+    }
+}
+
+
+
+- (void)viewDidLoad {
+    START_PROFILE
+    [super viewDidLoad];
+    
+    _textField=nil;
+    END_PROFILE
+}
+
+- (void)initTF:(UIView *)view {
+    _mainView=view;
+    
+    _textField = [[UITextField alloc] init];
+    _textField.autoresizingMask=UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleLeftMargin;
+    _textField.borderStyle = UITextBorderStyleRoundedRect;
+    _textField.font = [UIFont systemFontOfSize:15];
+    _textField.autocorrectionType = UITextAutocorrectionTypeNo;
+    _textField.keyboardType = UIKeyboardTypeASCIICapable;
+    _textField.returnKeyType = UIReturnKeyDone;
+    _textField.clearButtonMode = UITextFieldViewModeWhileEditing;
+    _textField.contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
+    _textField.delegate = self;
+//    _textField.tag=indexPath.section;
+    
+    [_textField addTarget:self
+                 action:@selector(textFieldTextChanged:)
+       forControlEvents:UIControlEventEditingChanged];
+    
+    [_mainView addSubview:_textField];
+    
+    _textField.delegate=self;
+    
+    [_textField addObserver:self forKeyPath:@"selectedTextRange" options:NSKeyValueObservingOptionNew|NSKeyValueObservingOptionOld  context:nil];
+
+    _textField.hidden=true;
+    
+    move_cursorL=0;
+    move_cursorR=0;
+    shiftPressedL=0;
+    shiftPressedR=0;
+    lastChar=0;
+}
+
+- (void)updateEvent {
+    if (_textField==nil) return;
+    
+    if (wantInputText==1) {
+        _textField.text=@"12";
+        self.text=@"12";
+        
+        [_textField becomeFirstResponder];
+        UITextPosition *newPosition = [_textField positionFromPosition:_textField.endOfDocument offset:0];
+        [_textField setSelectedTextRange:[_textField textRangeFromPosition:newPosition toPosition:newPosition]];
+        
+        wantInputText=2;
+    } else if (wantInputText==0) {
+        if ([_textField isFirstResponder]) [_textField resignFirstResponder];
+    }
+}
+
+
+@end
 

@@ -460,6 +460,7 @@
 		CC16383B2B7CCC22003323FD /* folder.png in Resources */ = {isa = PBXBuildFile; fileRef = CC1638392B7CCC22003323FD /* folder.png */; };
 		CC16383C2B7CCC22003323FD /* folder@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CC16383A2B7CCC22003323FD /* folder@2x.png */; };
 		CC1638EF2B7CF898003323FD /* liblibnsfplay.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CC1638572B7CDF92003323FD /* liblibnsfplay.a */; };
+		CC16CA432EAEAED100255213 /* DirParser.mm in Sources */ = {isa = PBXBuildFile; fileRef = CC16CA422EAEAECE00255213 /* DirParser.mm */; };
 		CC17F07F1AC87866006C1E82 /* Images-2.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CC17F07E1AC87866006C1E82 /* Images-2.xcassets */; };
 		CC1E56C11200B391000A8A4E /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CC1E56C01200B391000A8A4E /* AudioToolbox.framework */; };
 		CC1E56C31200B391000A8A4E /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CC1E56C21200B391000A8A4E /* AVFoundation.framework */; };
@@ -1961,6 +1962,8 @@
 		CC16383A2B7CCC22003323FD /* folder@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "folder@2x.png"; sourceTree = "<group>"; };
 		CC1638522B7CDF91003323FD /* libnsfplay.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libnsfplay.xcodeproj; path = libnsfplay/libnsfplay.xcodeproj; sourceTree = "<group>"; };
 		CC1638EE2B7CE5CF003323FD /* FileTypeCommonFunctions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FileTypeCommonFunctions.h; sourceTree = "<group>"; };
+		CC16CA412EAEAEB700255213 /* DirParser.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DirParser.h; sourceTree = "<group>"; };
+		CC16CA422EAEAECE00255213 /* DirParser.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = DirParser.mm; sourceTree = "<group>"; };
 		CC17F07E1AC87866006C1E82 /* Images-2.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = "Images-2.xcassets"; path = "modizer/Images-2.xcassets"; sourceTree = SOURCE_ROOT; };
 		CC19620E1B66BCD600778A3E /* Resample.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = Resample.xcodeproj; sourceTree = "<group>"; };
 		CC1E56C01200B391000A8A4E /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
@@ -3822,6 +3825,8 @@
 			isa = PBXGroup;
 			children = (
 				337FA728124288FA00DDD352 /* AboutViewController.h */,
+				CC16CA412EAEAEB700255213 /* DirParser.h */,
+				CC16CA422EAEAECE00255213 /* DirParser.mm */,
 				337FA729124288FA00DDD352 /* AboutViewController.mm */,
 				CCE8D7492B8D68FD0076D8C0 /* AnimatedLaunchVC.h */,
 				CCE8D7482B8D68FD0076D8C0 /* AnimatedLaunchVC.mm */,
@@ -6400,6 +6405,7 @@
 				CCBF10151221788200E8DE4E /* digidrum.cpp in Sources */,
 				CCBF10161221788200E8DE4E /* LzhLib.cpp in Sources */,
 				CC8369542B57CCC80035A4DA /* lines68.c in Sources */,
+				CC16CA432EAEAED100255213 /* DirParser.mm in Sources */,
 				CCBF10191221788200E8DE4E /* Ym2149Ex.cpp in Sources */,
 				CC8368592B57CA9A0035A4DA /* mfpemul.c in Sources */,
 				CCBF101A1221788200E8DE4E /* Ymload.cpp in Sources */,

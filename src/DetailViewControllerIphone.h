@@ -156,8 +156,6 @@ enum {
 	
 	IBOutlet UIButton *oglButton;
 
-	IBOutlet UIView *volWin;
-    
     IBOutlet UIImageView *cover_view,*cover_viewBG;
     IBOutlet UIView *cover_viewAll;
     UIImageView *gifAnimation;
@@ -315,7 +313,7 @@ enum {
 
 @property (nonatomic, retain) NSTimer *repeatingTimer;
 
-@property (nonatomic, retain) IBOutlet UIView *detailView,*commandViewU,*volWin;
+@property (nonatomic, retain) IBOutlet UIView *detailView,*commandViewU;
 
 @property (nonatomic, retain) IBOutlet UILabel *labelNumChannels,*labelModuleType,*playlistPos,*labelLibName;
 @property (nonatomic, retain) IBOutlet UILabel *labelTime,*labelModuleLength;

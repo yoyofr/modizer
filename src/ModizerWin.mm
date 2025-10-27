@@ -8,6 +8,8 @@
 
 #import "ModizerWin.h"
 
+extern int shiftPressedL,shiftPressedR;
+extern int move_cursorL,move_cursorR,keyDel;
 
 @implementation ModizerWin
 @synthesize detailViewControllerIphone;
@@ -16,8 +18,8 @@
 {
     return @[ [UIKeyCommand keyCommandWithInput:UIKeyInputLeftArrow  modifierFlags:0 action:@selector(leftPressed)],
               [UIKeyCommand keyCommandWithInput:UIKeyInputRightArrow   modifierFlags:0 action:@selector(rightPressed)],
-              [UIKeyCommand keyCommandWithInput:UIKeyInputLeftArrow   modifierFlags:UIKeyModifierShift action:@selector(leftShiftPressed)],
-              [UIKeyCommand keyCommandWithInput:UIKeyInputRightArrow   modifierFlags:UIKeyModifierShift action:@selector(rightShiftPressed)],
+              [UIKeyCommand keyCommandWithInput:UIKeyInputLeftArrow   modifierFlags:UIKeyModifierAlternate action:@selector(leftAltPressed)],
+              [UIKeyCommand keyCommandWithInput:UIKeyInputRightArrow   modifierFlags:UIKeyModifierAlternate action:@selector(rightAltPressed)],
               [UIKeyCommand keyCommandWithInput:UIKeyInputLeftArrow   modifierFlags:UIKeyModifierCommand action:@selector(leftCmdPressed)],
               [UIKeyCommand keyCommandWithInput:UIKeyInputRightArrow   modifierFlags:UIKeyModifierCommand action:@selector(rightCmdPressed)],
               [UIKeyCommand keyCommandWithInput:UIKeyInputUpArrow   modifierFlags:0 action:@selector(upPressed)],
@@ -263,7 +265,7 @@
 -(void)rightCmdPressed {
     [detailViewControllerIphone playNext];
 }
--(void)leftShiftPressed {
+-(void)leftAltPressed {
     if ((detailViewControllerIphone.mplayer.mod_subsongs>1)&&
         (detailViewControllerIphone.mplayer.mod_currentsub>detailViewControllerIphone.mplayer.mod_minsub)&&(detailViewControllerIphone.mOnlyCurrentSubEntry==0))
         [detailViewControllerIphone playPrevSub]; //should handle sub ?
@@ -274,7 +276,7 @@
         } else [detailViewControllerIphone play_prevEntry];
     }
 }
--(void)rightShiftPressed {
+-(void)rightAltPressed {
     //1st check if there are more subsongs
     if ((detailViewControllerIphone.mplayer.mod_subsongs>1)&&
         (detailViewControllerIphone.mplayer.mod_currentsub<detailViewControllerIphone.mplayer.mod_maxsub)&&(detailViewControllerIphone.mOnlyCurrentSubEntry==0))
@@ -293,7 +295,7 @@
     [detailViewControllerIphone restartCurrent];
 }
 -(void)downPressed {
-    [self rightShiftPressed];
+    [self rightAltPressed];
 }
 -(void)spacePressed {
     if (detailViewControllerIphone.mPaused) [detailViewControllerIphone playPushed:nil];
@@ -305,10 +307,21 @@
     if (@available(iOS 13.4, *)) {
         for (UIPress *press in presses) {
             UIKey *key=press.key;
-            if (key.modifierFlags&UIKeyModifierShift) {
-//                MDZILog("Shift released");
-                _dontForwardEvent=true;
+            if (key.keyCode==UIKeyboardHIDUsageKeyboardRightShift) {
                 [detailViewControllerIphone mdShiftMode:0];
+                shiftPressedR=1;
+            }
+            if (key.keyCode==UIKeyboardHIDUsageKeyboardLeftShift) {
+                shiftPressedL=1;
+            }
+            if (key.keyCode==UIKeyboardHIDUsageKeyboardRightArrow) {
+                move_cursorR=1;
+            }
+            if (key.keyCode==UIKeyboardHIDUsageKeyboardLeftArrow) {
+                move_cursorL=1;
+            }
+            if (key.keyCode==UIKeyboardHIDUsageKeyboardDeleteForward) {
+                keyDel=1;
             }
         }
     }
@@ -320,10 +333,21 @@
     if (@available(iOS 13.4, *)) {
         for (UIPress *press in presses) {
             UIKey *key=press.key;
-            if (key.modifierFlags&UIKeyModifierShift) {
-//                MDZILog("Shift pressed");
-                _dontForwardEvent=true;
+            if (key.keyCode==UIKeyboardHIDUsageKeyboardRightShift) {
                 [detailViewControllerIphone mdShiftMode:1];
+                shiftPressedR=2;
+            }
+            if (key.keyCode==UIKeyboardHIDUsageKeyboardLeftShift) {
+                shiftPressedL=2;
+            }
+            if (key.keyCode==UIKeyboardHIDUsageKeyboardRightArrow) {
+                move_cursorR=2;
+            }
+            if (key.keyCode==UIKeyboardHIDUsageKeyboardLeftArrow) {
+                move_cursorL=2;
+            }
+            if (key.keyCode==UIKeyboardHIDUsageKeyboardDeleteForward) {
+                keyDel=2;
             }
         }
     }

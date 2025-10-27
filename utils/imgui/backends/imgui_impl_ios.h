@@ -13,6 +13,9 @@
 // If you are new to Dear ImGui, read documentation from the docs/ folder + read the top of imgui.cpp.
 // Read online: https://github.com/ocornut/imgui/tree/master/docs
 
+#ifndef __imgui_impl_ios_h__
+#define __imgui_impl_ios_h__
+
 #include "imgui.h"      // IMGUI_IMPL_API
 
 #define FONT_TRACKER_NB 5
@@ -32,6 +35,7 @@ struct ImGuiIOSEvent {
 enum ImGuiIOSEventType {
     IMGUI_IOS_Event_None,
     IMGUI_IOS_Event_Tap_1,
+    IMGUI_IOS_Event_MouseMove,
     IMGUI_IOS_Event_Swipe
 };
 #endif
@@ -43,4 +47,26 @@ IMGUI_IMPL_API void     ImGui_ImplIOS_NewFrame(float w,float h,float scale,ImGui
 void ImGui_ImplIOS_UpdateEvent(ImGuiIOSEvent *event);
 void ImGui_ImplIOS_ResetTapPos();
 
+#ifdef __OBJC__
+
+#import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
+
+@interface ImGui_ImplIOS_UI : UIViewController <UITextFieldDelegate> {
+    
+}
+
+@property (nonatomic, strong) UIView *mainView;
+@property (nonatomic, strong) UITextField *textField;
+@property (nonatomic, strong) NSString *text;
+@property (nonatomic, assign) BOOL isActive;
+@property (nonatomic, assign) int cursorPos;
+
+- (void)updateEvent;
+- (void)initTF:(UIView *)view;
+
+@end
+
+#endif
+#endif
 

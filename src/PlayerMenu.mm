@@ -8,6 +8,9 @@
 #include "PlayerMenu.h"
 #include "SettingsGenViewController.h"
 #include "TextureUtils.h"
+#import "DirParser.h"
+extern FileNode *pmBundledPresetsFileNode;
+char pmBundledFilter[64];
 
 #define MENU_BACKGROUND_ALPHA 0.7f
 
@@ -47,9 +50,15 @@ enum PMenu_Menu_List {
     MENU_2DSPECTRUM,
     MENU_3DSPECTRUM,
     MENU_3DLANDSCAPE,
-    
+
+    MENU_ROOT_MORE,
+    MENU_PROJECTM_EXPLORE,
     MENU_INDEX_MAX
 };
+
+float menu_scrollX[MENU_INDEX_MAX];
+float menu_scrollY[MENU_INDEX_MAX];
+
 #define FXPROJECTM_IDX (MENU_PROJECTM-1)
 #define FXOSCILLO_IDX (MENU_OSCILLO-1)
 #define FXPIANOROLL_IDX (MENU_PIANOROLL-1)
@@ -70,82 +79,106 @@ static GLuint txtMenuHandle[16];
 const char *menuRootLabel[16]={
     NULL,NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
-    NULL,"Show FPS","@slider_alpha","Fullscreen",
+    NULL,NULL,"More","Fullscreen",
     "Close FX\nwindow","All FX off","Go to\nsettings","Exit Menu"
 };
+
+static GLuint txtMenuMoreHandle[16];
+const char *menuRootMoreLabel[16]={
+    "Show FPS","@slider_alpha",NULL,NULL,
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,"Fullscreen",
+    NULL,"Go to\nsettings","Back","Exit Menu"
+};
+
 static GLuint txtMenuProjectMHandle[16];
 const char *menuProjectMLabel[16]={
     "Off",NULL,"Show name\nand\ndisappear","Show name",
     "Blend presets","Lock preset","Random order","Sequential\norder",
-    "Default\npresets","Custom\npresets",NULL,NULL,
+    "Default\npresets","Custom\npresets",NULL,"Fullscreen",
+    "Explorer","Go to\nsettings","Back","Exit Menu"
+};
+
+static GLuint txtMenuProjectMExploreHandle[4];
+const char *menuProjectMExploreLabel[4]={
     NULL,"Go to\nsettings","Back","Exit Menu"
 };
+
 static GLuint txtMenuOscilloHandle[16];
 const char *menuOscilloLabel[16]={
     "Off",NULL,NULL,NULL,
     NULL,"Labels","Grid",NULL,
-    "Size 10","Size 16","Size 24",NULL,
+    NULL,NULL,NULL,"Fullscreen",
     NULL,"Go to\nsettings","Back","Exit Menu"
 };
 char *menuOscilloDynLabel[16];
+
 static GLuint txtMenu2DSpectrumHandle[16];
 const char *menu2DSpectrumLabel[16]={
     "Off",NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
-    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,"Fullscreen",
     NULL,"Go to\nsettings","Back","Exit Menu"
 };
+
 static GLuint txtMenu3DSpectrumHandle[16];
 const char *menu3DSpectrumLabel[16]={
     "Off",NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
-    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,"Fullscreen",
     NULL,"Go to\nsettings","Back","Exit Menu"
 };
 char *menu3DSpectrumDynLabel[16];
+
 static GLuint txtMenu3DLandscapeHandle[16];
 const char *menu3DLandscapeLabel[16]={
     "Off",NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
-    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,"Fullscreen",
     NULL,"Go to\nsettings","Back","Exit Menu"
 };
 char *menu3DLandscapeDynLabel[16];
+
 static GLuint txtMenuPiano3DHandle[16];
 const char *menuPiano3DLabel[16]={
     "Off",NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
-    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,"Fullscreen",
     NULL,"Go to\nsettings","Back","Exit Menu"
 };
+
 static GLuint txtMenuPianoRollHandle[16];
 const char *menuPianoRollLabel[16]={
     "Off",NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
-    "Voices\nlabels","Octaves\nlabels",NULL,NULL,
+    "Voices\nlabels","Octaves\nlabels",NULL,"Fullscreen",
     NULL,"Go to\nsettings","Back","Exit Menu"
 };
+
 static GLuint txtMenuMidiHandle[16];
 const char *menuMidiLabel[16]={
     "Off",NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
-    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,"Fullscreen",
     NULL,"Go to\nsettings","Back","Exit Menu"
 };
+
 static GLuint txtMenuModPatternHandle[16];
 const char *menuModPatternLabel[16]={
     "Off",NULL,NULL,NULL,
     "Volume\nbars",NULL,NULL,"Fixed bar",
-    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,"Fullscreen",
     NULL,"Go to\nsettings","Back","Exit Menu"
 };
 char *menuModPatternDynLabel[16];
+
 
 
 struct {
     int menu_idx;
 } pMenu_state;
 
+int buildDirTree(FileNode *fileNode, int idx, NSString *filter);
 
 void playerRootMenuInitRightItemsTexture() {
     txtMenuHandle[FXOSCILLO_IDX]=txtMenuOscilloHandle[max(settings[OSCILLO_FXMODE].detail.mdz_switch.switch_value&15,1)];
@@ -174,7 +207,10 @@ int playerGetActivatedCells(int menu_idx) {
         if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value) active_idx|=1<<FXMIDI_IDX;
         if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value) active_idx|=1<<FXMODPATTERN_IDX;
         if (settings[PROJECTM_FXONOFF].detail.mdz_switch.switch_value) active_idx|=1<<FXPROJECTM_IDX;
-        if (settings[GLOB_FXSHOWFPS].detail.mdz_boolswitch.switch_value) active_idx|=1<<9;
+        if (settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value) active_idx|=1<<11;
+    } else if (menu_idx==MENU_ROOT_MORE) {
+        if (settings[GLOB_FXSHOWFPS].detail.mdz_boolswitch.switch_value) active_idx|=1<<0;
+        if (settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value) active_idx|=1<<11;
         if (settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value) active_idx|=1<<11;
     } else if (menu_idx==MENU_OSCILLO) {
         if (settings[OSCILLO_FXMODE].detail.mdz_switch.switch_value==0) active_idx|=1<<0;
@@ -184,20 +220,21 @@ int playerGetActivatedCells(int menu_idx) {
         if (settings[OSCILLO_FXMODE].detail.mdz_switch.switch_value==4) active_idx|=1<<4;
         if (settings[OSCILLO_ShowLabel].detail.mdz_boolswitch.switch_value==1) active_idx|=1<<5;
         if (settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value==1) active_idx|=1<<6;
-        if (settings[OSCILLO_LabelFontSize].detail.mdz_switch.switch_value==0) active_idx|=1<<8;
-        if (settings[OSCILLO_LabelFontSize].detail.mdz_switch.switch_value==1) active_idx|=1<<9;
-        if (settings[OSCILLO_LabelFontSize].detail.mdz_switch.switch_value==2) active_idx|=1<<10;
+        if (settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value) active_idx|=1<<11;
         
         snprintf(menuOscilloDynLabel[7],64,"Thickness:\n%s",settings[OSCILLO_LINE_Width].detail.mdz_switch.switch_labels[settings[OSCILLO_LINE_Width].detail.mdz_switch.switch_value]);
+        snprintf(menuOscilloDynLabel[8],64,"Font size\n%s",settings[OSCILLO_LabelFontSize].detail.mdz_switch.switch_labels[settings[OSCILLO_LabelFontSize].detail.mdz_switch.switch_value]);
     } else if (menu_idx==MENU_2DSPECTRUM) {
         if (settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value==0) active_idx|=1<<0;
         if (settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value==1) active_idx|=1<<1;
         if (settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value==2) active_idx|=1<<2;
+        if (settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value) active_idx|=1<<11;
     } else if (menu_idx==MENU_3DSPECTRUM) {
         if (settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value==0) active_idx|=1<<0;
         if (settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value==1) active_idx|=1<<1;
         if (settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value==2) active_idx|=1<<2;
         if (settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value==3) active_idx|=1<<3;
+        if (settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value) active_idx|=1<<11;
         
         snprintf(menu3DSpectrumDynLabel[7],64,"Bloom:\n%s",settings[GLOB_FX3DSpectrumBloom].detail.mdz_switch.switch_labels[settings[GLOB_FX3DSpectrumBloom].detail.mdz_switch.switch_value]);
     } else if (menu_idx==MENU_3DLANDSCAPE) {
@@ -210,6 +247,7 @@ int playerGetActivatedCells(int menu_idx) {
         if (settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value==6) active_idx|=1<<6;
         if (settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value==7) active_idx|=1<<7;
         if (settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value==8) active_idx|=1<<8;
+        if (settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value) active_idx|=1<<11;
         
         snprintf(menu3DLandscapeDynLabel[9],64,"Bloom:\n%s",settings[GLOB_FX3DLandscapeBloom].detail.mdz_switch.switch_labels[settings[GLOB_FX3DLandscapeBloom].detail.mdz_switch.switch_value]);
     } else if (menu_idx==MENU_PIANO3D) {
@@ -218,16 +256,19 @@ int playerGetActivatedCells(int menu_idx) {
         if (settings[GLOB_FXPiano3D].detail.mdz_switch.switch_value==2) active_idx|=1<<2;
         if (settings[GLOB_FXPiano3D].detail.mdz_switch.switch_value==3) active_idx|=1<<3;
         if (settings[GLOB_FXPiano3D].detail.mdz_switch.switch_value==4) active_idx|=1<<4;
+        if (settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value) active_idx|=1<<11;
     } else if (menu_idx==MENU_PIANOROLL) {
         if (settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value==0) active_idx|=1<<0;
         if (settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value==1) active_idx|=1<<1;
         if (settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value==2) active_idx|=1<<2;
         if (settings[GLOB_FXPianoRollVoicesLabels].detail.mdz_boolswitch.switch_value) active_idx|=1<<8;
         if (settings[GLOB_FXPianoRollOctavesLabels].detail.mdz_boolswitch.switch_value) active_idx|=1<<9;
+        if (settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value) active_idx|=1<<11;
     } else if (menu_idx==MENU_MIDIPATTERN) {
         if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value==0) active_idx|=1<<0;
         if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value==1) active_idx|=1<<1;
         if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value==2) active_idx|=1<<2;
+        if (settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value) active_idx|=1<<11;
     } else if (menu_idx==MENU_MODPATTERN) {
         if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value==0) active_idx|=1<<0;
         if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value==1) active_idx|=1<<1;
@@ -235,13 +276,12 @@ int playerGetActivatedCells(int menu_idx) {
         if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value==3) active_idx|=1<<3;
         if (settings[GLOB_FXMODPattern_VolBar].detail.mdz_boolswitch.switch_value) active_idx|=1<<4;
         if (settings[GLOB_FXMODPattern_CurrentLineMode].detail.mdz_switch.switch_value==1) active_idx|=1<<7;
-        if (settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_value==0) active_idx|=1<<8;
-        if (settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_value==1) active_idx|=1<<9;
-        if (settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_value==2) active_idx|=1<<10;
-        if (settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_value==3) active_idx|=1<<11;
+        if (settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value) active_idx|=1<<11;
         
         snprintf(menuModPatternDynLabel[5],64,"Themes:\n%s",settings[GLOB_FXMODPattern_Theme].detail.mdz_switch.switch_labels[settings[GLOB_FXMODPattern_Theme].detail.mdz_switch.switch_value]);
+        snprintf(menuModPatternDynLabel[8],64,"Font size\n%s",settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_labels[settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_value]);
         snprintf(menuModPatternDynLabel[12],64,"Font:\n%s",settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_labels[settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_value]);
+        
     } else if (menu_idx==MENU_PROJECTM) {
         if (settings[PROJECTM_FXONOFF].detail.mdz_switch.switch_value) active_idx|=1<<1;
         else active_idx|=1<<0;
@@ -253,6 +293,7 @@ int playerGetActivatedCells(int menu_idx) {
         else active_idx|=1<<6;
         if (settings[PROJECTM_BundledPresets].detail.mdz_boolswitch.switch_value) active_idx|=1<<8;
         if (settings[PROJECTM_CustomPresets].detail.mdz_boolswitch.switch_value) active_idx|=1<<9;
+        if (settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value) active_idx|=1<<11;
     }
     return active_idx;
 }
@@ -265,8 +306,12 @@ int playerGetActivatedCells(int menu_idx) {
 void playerMenuInit() {
     pMenu_state.menu_idx=MENU_ROOT;
     
+    memset(pmBundledFilter,0,sizeof(pmBundledFilter));
+    
     memset(txtMenuHandle,0,sizeof(txtMenuHandle));
+    memset(txtMenuMoreHandle,0,sizeof(txtMenuMoreHandle));
     memset(txtMenuProjectMHandle,0,sizeof(txtMenuProjectMHandle));
+    memset(txtMenuProjectMExploreHandle,0,sizeof(txtMenuProjectMExploreHandle));
     memset(txtMenuOscilloHandle,0,sizeof(txtMenuOscilloHandle));
     memset(menuOscilloDynLabel,0,sizeof(menuOscilloDynLabel));
     memset(menu3DSpectrumDynLabel,0,sizeof(menu3DSpectrumDynLabel));
@@ -280,17 +325,18 @@ void playerMenuInit() {
     memset(txtMenuModPatternHandle,0,sizeof(txtMenuModPatternHandle));
     memset(menuModPatternDynLabel,0,sizeof(menuModPatternDynLabel));
     
+    memset(menu_scrollX,0,sizeof(menu_scrollX));
+    memset(menu_scrollY,0,sizeof(menu_scrollY));
+    
     menuOscilloDynLabel[7]=(char*)malloc(64);
+    menuOscilloDynLabel[8]=(char*)malloc(64);
     menu3DSpectrumDynLabel[7]=(char*)malloc(64);
     menu3DLandscapeDynLabel[9]=(char*)malloc(64);
     menuModPatternDynLabel[5]=(char*)malloc(64);
     menuModPatternDynLabel[12]=(char*)malloc(64);
     
-    
-    for (int i=0;i<4;i++) {
-        menuModPatternDynLabel[8+i]=(char*)malloc(64);
-        snprintf(menuModPatternDynLabel[8+i],64,"Font size\n%s",settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_labels[i]);
-    }
+    menuModPatternDynLabel[8]=(char*)malloc(64);
+    snprintf(menuModPatternDynLabel[8],64,"Font size\n%s",settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_labels[settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_value]);
     
     for (int i=0;i<16;i++) menuCpt[i]=rand();
     
@@ -419,7 +465,6 @@ void playerMenuInit() {
     //ProjectM
     txtMenuProjectMHandle[1]=txtMenuHandle[FXPROJECTM_IDX];
     
-    
     //shine texture
     txtShineFx=0;
     if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"gloss.png"), &(txtShineFx), NULL, NULL)) {
@@ -453,7 +498,7 @@ void playerMenuBack() {
 //   return 0 if it has been closed
 //   return 1 if it is to be kept open
 //------------------------------------------------------
-int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
+int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float panX,float panY) {
     static int cpt=0;
     if (!pMenu_isInitialized) return 0;
     int keepOpened=1;
@@ -502,7 +547,6 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
     int activeFx=playerGetActivatedCells(pMenu_state.menu_idx);
     
     ImGuiStyle& style = ImGui::GetStyle();
-    
     
     if (pMenu_state.menu_idx==MENU_ROOT) {
         //Select right current textures for root menu itemas, based on current settings
@@ -594,10 +638,10 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
                             case 0x02:
                                 if (MENU_INDEX_MAX>=9) pMenu_state.menu_idx=9;
                                 break;
-                            case 0x12: //Show FPS
-                                settings[GLOB_FXSHOWFPS].detail.mdz_boolswitch.switch_value=!settings[GLOB_FXSHOWFPS].detail.mdz_boolswitch.switch_value;
+                            case 0x12:
                                 break;
-                            case 0x22: //FX Alpha
+                            case 0x22: //Menu more
+                                pMenu_state.menu_idx=MENU_ROOT_MORE;
                                 break;
                             case 0x32: //Fullscreen switch
                                 settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value=!(settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value);
@@ -620,6 +664,111 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
                                 keepOpened=2;
                                 break;
                             case 0x33: //Exit
+                                keepOpened=0;
+                                break;
+                        }
+                    }
+                }
+            }
+            ImGui::EndTable();
+        }
+    } else if (pMenu_state.menu_idx==MENU_ROOT_MORE) {
+        if (ImGui::BeginTable("menu_root_more",4,flagTable)) {
+            current_txtMenuHandle=txtMenuMoreHandle;
+            currentMenuLabel=menuRootMoreLabel;
+            for (int r=0;r<4;r++) {
+                ImGui::TableNextRow(0,cell_size);
+                for (int c=0;c<4;c++) {
+                    bool isActive=activeFx&(1<<(r*4+c));
+                    ImGui::TableSetColumnIndex(c);
+                    bool ret=false;
+                    ImVec2 uv0(0,0);ImVec2 uv1(1,1);ImVec4 bg_col(0,0,0,0.0f);ImVec4 tint_col(0.4,0.4,0.4,0.8f);
+                    if (isActive) {//Active
+                        tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
+                        if (current_txtMenuHandle[r*4+c]) ImGui::PushStyleColor(ImGuiCol_Button,ImVec4(0.0,0.0,0.0,0.0f));
+                        else ImGui::PushStyleColor(ImGuiCol_Button,colorBtnTextActive);
+                    } else { //Inactive
+                        if (current_txtMenuHandle[r*4+c]) ImGui::PushStyleColor(ImGuiCol_Button,ImVec4(0.0,0.0,0.0,0.6f));
+                        else ImGui::PushStyleColor(ImGuiCol_Button,colorBtnTextInactive);
+                    }
+                    ImVec2 cur_pos=ImGui::GetCursorPos();
+                    if (current_txtMenuHandle[r*4+c]) { //Image Button
+                        if (isActive) {
+                            ImGui::SetNextItemAllowOverlap();
+                            tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
+                            ImGui::PushID((r*4+c)*4+0);
+                            ImGui::ImageButton("",(ImTextureID)(intptr_t)current_txtMenuHandle[r*4+c], ImVec2(cell_size, cell_size),uv0,uv1,bg_col,tint_col);
+                            ImGui::PopID();
+                            ImGui::SetCursorPos(cur_pos);
+                            ImGui::PushID((r*4+c)*4+1);
+                            ret=ImGui::ImageButton("",(ImTextureID)(intptr_t)txtShineFx,ImVec2(cell_size, cell_size),uv0,uv1,bg_col,tint_col);
+                            ImGui::PopID();
+                        } else {
+                            ImGui::PushID((r*4+c)*4);
+                            ret=ImGui::ImageButton("",(ImTextureID)(intptr_t)current_txtMenuHandle[r*4+c], ImVec2(cell_size, cell_size),uv0,uv1,bg_col,tint_col);
+                            ImGui::PopID();
+                        }
+                    } else if (currentMenuLabel[r*4+c]) { //Text Button
+                        ImGui::PushID((r*4+c)*4+0);
+                        if (strcmp(currentMenuLabel[r*4+c],"@slider_alpha")==0) {
+                                cur_pos=ImGui::GetCursorPos();
+                                cur_pos.y+=(cell_size/4);
+                                ImGui::SetCursorPos(cur_pos);
+                                ImGui::LabelText("", "FX\nalpha");
+                                cur_pos.x+=(cell_size-1.5*cell_size/3);
+                                cur_pos.y-=(cell_size/4);
+                                ImGui::SetCursorPos(cur_pos);
+                                ImGui::PushStyleVar(ImGuiStyleVar_GrabMinSize, cell_size/5);
+                                ImGui::VSliderFloat("",ImVec2(cell_size/3,cell_size*4/4),  &global_FXAlpha, 30.0f, 100.0f,"%.0f%%");
+                                ImGui::PopStyleVar();
+                        } else {
+                            if (isActive) {
+                                ret=ImGui::Button(currentMenuLabel[r*4+c],ImVec2(cell_size, cell_size));
+                            } else {
+                                ret=ImGui::Button(currentMenuLabel[r*4+c],ImVec2(cell_size, cell_size));
+                            }
+                        }
+                        ImGui::PopID();
+                    }
+                    ImGui::PopStyleColor();
+                    if (ret) {
+                        switch (c*16+r) {
+                            case 0x00://Show FPS
+                                settings[GLOB_FXSHOWFPS].detail.mdz_boolswitch.switch_value=!settings[GLOB_FXSHOWFPS].detail.mdz_boolswitch.switch_value;
+                                break;
+                            case 0x10: //FX Alpha
+                                break;
+                            case 0x20:
+                                break;
+                            case 0x30:
+                                break;
+                            case 0x01:
+                                break;
+                            case 0x11:
+                                break;
+                            case 0x21:
+                                break;
+                            case 0x31:
+                                break;
+                            case 0x02:
+                                break;
+                            case 0x12:
+                                break;
+                            case 0x22:
+                                break;
+                            case 0x32: //Fullscreen switch
+                                settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value=!(settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value);
+                                break;
+                            case 0x03://Close FX window
+                                keepOpened=-1;
+                                break;
+                            case 0x13: //Go to settings - visu
+                                keepOpened=2;
+                                break;
+                            case 0x23: //Back to main menu
+                                pMenu_state.menu_idx=MENU_ROOT;
+                                break;
+                            case 0x33: //Exit menu
                                 keepOpened=0;
                                 break;
                         }
@@ -715,15 +864,15 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
                                 settings[OSCILLO_LINE_Width].detail.mdz_switch.switch_value=(settings[OSCILLO_LINE_Width].detail.mdz_switch.switch_value+1)%settings[OSCILLO_LINE_Width].detail.mdz_switch.switch_value_nb;
                                 break;
                             case 0x02:
-                                settings[OSCILLO_LabelFontSize].detail.mdz_switch.switch_value=0;
+                                settings[OSCILLO_LabelFontSize].detail.mdz_switch.switch_value=(settings[OSCILLO_LabelFontSize].detail.mdz_switch.switch_value+1)%settings[OSCILLO_LabelFontSize].detail.mdz_switch.switch_value_nb;
                                 break;
                             case 0x12:
-                                settings[OSCILLO_LabelFontSize].detail.mdz_switch.switch_value=1;
                                 break;
                             case 0x22:
-                                settings[OSCILLO_LabelFontSize].detail.mdz_switch.switch_value=2;
                                 break;
-                            case 0x32:break;
+                            case 0x32: //Fullscreen switch
+                                settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value=!(settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value);
+                                break;
                             case 0x03:break;
                             case 0x13: //Go to settings - oscillo
                                 keepOpened=3;
@@ -811,7 +960,9 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
                             case 0x02:break;
                             case 0x12:break;
                             case 0x22:break;
-                            case 0x32:break;
+                            case 0x32: //Fullscreen switch
+                                settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value=!(settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value);
+                                break;
                             case 0x03:break;
                             case 0x13: //Go to settings - visu
                                 keepOpened=2;
@@ -911,7 +1062,9 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
                             case 0x02:break;
                             case 0x12:break;
                             case 0x22:break;
-                            case 0x32:break;
+                            case 0x32: //Fullscreen switch
+                                settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value=!(settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value);
+                                break;
                             case 0x03:break;
                             case 0x13: //Go to settings - visu
                                 keepOpened=2;
@@ -1023,9 +1176,12 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
                                 txtMenuHandle[FX3DLANDSCAPE_IDX]=current_txtMenuHandle[8];
                                 break;
                             case 0x12: //Bloom
-                                settings[GLOB_FX3DLandscapeBloom].detail.mdz_switch.switch_value=(settings[GLOB_FX3DLandscapeBloom].detail.mdz_switch.switch_value+1)%settings[GLOB_FX3DLandscapeBloom].detail.mdz_switch.switch_value_nb;break;
+                                settings[GLOB_FX3DLandscapeBloom].detail.mdz_switch.switch_value=(settings[GLOB_FX3DLandscapeBloom].detail.mdz_switch.switch_value+1)%settings[GLOB_FX3DLandscapeBloom].detail.mdz_switch.switch_value_nb;
+                                break;
                             case 0x22:break;
-                            case 0x32:break;
+                            case 0x32: //Fullscreen switch
+                                settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value=!(settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value);
+                                break;
                             case 0x03:break;
                             case 0x13: //Go to settings - visu
                                 keepOpened=2;
@@ -1112,7 +1268,9 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
                                 settings[GLOB_FXPianoRollOctavesLabels].detail.mdz_boolswitch.switch_value=!settings[GLOB_FXPianoRollOctavesLabels].detail.mdz_boolswitch.switch_value;
                                 break;
                             case 0x22:break;
-                            case 0x32:break;
+                            case 0x32: //Fullscreen switch
+                                settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value=!(settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value);
+                                break;
                             case 0x03:break;
                             case 0x13: //Go to settings - visu
                                 keepOpened=2;
@@ -1201,7 +1359,9 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
                             case 0x02:break;
                             case 0x12:break;
                             case 0x22:break;
-                            case 0x32:break;
+                            case 0x32: //Fullscreen switch
+                                settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value=!(settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value);
+                                break;
                             case 0x03:break;
                             case 0x13: //Go to settings - visu
                                 keepOpened=2;
@@ -1284,7 +1444,9 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
                             case 0x02:break;
                             case 0x12:break;
                             case 0x22:break;
-                            case 0x32:break;
+                            case 0x32: //Fullscreen switch
+                                settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value=!(settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value);
+                                break;
                             case 0x03:break;
                             case 0x13: //Go to settings - visu
                                 keepOpened=2;
@@ -1382,20 +1544,19 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
                                 if (settings[GLOB_FXMODPattern_CurrentLineMode].detail.mdz_switch.switch_value) settings[GLOB_FXMODPattern_CurrentLineMode].detail.mdz_switch.switch_value=0;
                                 else settings[GLOB_FXMODPattern_CurrentLineMode].detail.mdz_switch.switch_value=1;
                                 break;
-                            case 0x02: //Font size 10
-                                settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_value=0;
+                            case 0x02: //Font size
+                                settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_value=(settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_value+1)%settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_value_nb;
                                 break;
-                            case 0x12: //Font size 16
-                                settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_value=1;
+                            case 0x12:
                                 break;
-                            case 0x22: //Font size 24
-                                settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_value=2;
+                            case 0x22:
                                 break;
-                            case 0x32: //Font size 32
-                                settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_value=3;
+                            case 0x32: //Fullscreen switch
+                                settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value=!(settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value);
+                                break;
                                 break;
                             case 0x03: //Current font
-                                settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_value=(settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_value+1)%5;
+                                settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_value=(settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_value+1)%settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_value_nb;
                                 break;
                             case 0x13: //Go to settings - visu
                                 keepOpened=2;
@@ -1465,7 +1626,7 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
                         ImGui::PopStyleColor();
                     if (ret) {
                         switch (c*16+r) {
-                            case 0x00: //MIKDROP OFF
+                            case 0x00: //PROJECTM OFF
                                 settings[PROJECTM_FXONOFF].detail.mdz_switch.switch_value=0;
                                 break;
                             case 0x10: //PROJECTM ON
@@ -1513,9 +1674,13 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
                                 pmSoftReinit();
                                 break;
                             case 0x22:break;
-                            case 0x32:break;
-                            case 0x03:break;
-                            case 0x13: //Go to settings - mikdrop
+                            case 0x32: //Fullscreen switch
+                                settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value=!(settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value);
+                                break;
+                            case 0x03:
+                                pMenu_state.menu_idx=MENU_PROJECTM_EXPLORE;
+                                break;
+                            case 0x13: //Go to settings - PROJECTM
                                 keepOpened=4;
                                 break;
                             case 0x23: //Back to main menu
@@ -1530,7 +1695,111 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
             }
             ImGui::EndTable();
         }
+    } else if (pMenu_state.menu_idx==MENU_PROJECTM_EXPLORE) {
+        
+        if (ImGui::BeginTable("menu_ProjectM_Explore",4,flagTable)) {
+            current_txtMenuHandle=txtMenuProjectMExploreHandle;
+            currentMenuLabel=menuProjectMExploreLabel;
+            
+            
+                
+                for (int r=0;r<1;r++) {
+                    ImGui::TableNextRow(0,cell_size);
+                    for (int c=0;c<4;c++) {
+                        bool isActive=activeFx&(1<<(r*4+c));
+                        ImGui::TableSetColumnIndex(c);
+                        
+                        bool ret=false;
+                        ImVec2 uv0(0,0);ImVec2 uv1(1,1);ImVec4 bg_col(0,0,0,0.0f);ImVec4 tint_col(0.4,0.4,0.4,0.8f);
+                        //float padding_val=0;
+                        if (isActive) {//Active
+                            tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
+                            if (current_txtMenuHandle[r*4+c]) ImGui::PushStyleColor(ImGuiCol_Button,ImVec4(0.0,0.0,0.0,0.0f));
+                            else ImGui::PushStyleColor(ImGuiCol_Button,colorBtnTextActive);
+                        } else { //Inactive
+                            if (current_txtMenuHandle[r*4+c]) ImGui::PushStyleColor(ImGuiCol_Button,ImVec4(0.0,0.0,0.0,0.4f));
+                            else ImGui::PushStyleColor(ImGuiCol_Button,colorBtnTextInactive);
+                        }
+                        ImVec2 cur_pos=ImGui::GetCursorPos();
+                        if (current_txtMenuHandle[r*4+c]) { //Image Button
+                            if (isActive) {
+                                ImGui::SetNextItemAllowOverlap();
+                                tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
+                                ImGui::PushID((r*4+c)*4+0);
+                                ImGui::ImageButton("",(ImTextureID)(intptr_t)current_txtMenuHandle[r*4+c], ImVec2(cell_size, cell_size),uv0,uv1,bg_col,tint_col);
+                                ImGui::PopID();
+                                tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
+                                ImGui::SetCursorPos(cur_pos);
+                                ImGui::PushID((r*4+c)*4+1);
+                                ret=ImGui::ImageButton("",(ImTextureID)(intptr_t)txtShineFx,ImVec2(cell_size, cell_size),uv0,uv1,bg_col,tint_col);
+                                ImGui::PopID();
+                            } else {
+                                ImGui::PushID((r*4+c)*4);
+                                ret=ImGui::ImageButton("",(ImTextureID)(intptr_t)current_txtMenuHandle[r*4+c], ImVec2(cell_size, cell_size),uv0,uv1,bg_col,tint_col);
+                                ImGui::PopID();
+                            }
+                        } else if (currentMenuLabel[r*4+c]) { //Text Button
+                            ImGui::PushID((r*4+c)*4+0);
+                            if (isActive) {
+                                ret=ImGui::Button(currentMenuLabel[r*4+c],ImVec2(cell_size, cell_size));
+                            } else {
+                                ret=ImGui::Button(currentMenuLabel[r*4+c],ImVec2(cell_size, cell_size));
+                            }
+                            ImGui::PopID();
+                        }
+                        ImGui::PopStyleColor();
+                    if (ret) {
+                        switch (c*16+r) {
+                            case 0x00:
+                                break;
+                            case 0x10: //Go to settings - projectm
+                                keepOpened=4;
+                                break;
+                            case 0x20: //Back to main menu
+                                pMenu_state.menu_idx=MENU_PROJECTM;
+                                break;
+                            case 0x30: //Exit menu
+                                keepOpened=0;
+                                break;
+                        }
+                    }
+                }
+            }
+            ImGui::EndTable();
+            
+            
+            
+            ImVec2 pos=ImGui::GetCursorPos();
+            
+            int font_idxB=3;
+            if (font_menu[font_idxB]) ImGui::PushFont(font_menu[font_idxB]);
+            else ImGui::PushFont(nullptr);//,18*menu_win_size/512);
+            
+            ImGui::BeginChild("Modizer menu pm explore subwin",ImVec2(menu_win_size,menu_win_size-pos.y));
+            ImGui::Text("Bundled presets");
+            ImGui::InputText("Filter", pmBundledFilter, 64);
+            {
+                int i=0;
+                i=buildDirTree(pmBundledPresetsFileNode,i,[[NSString stringWithUTF8String:pmBundledFilter] lowercaseString]);
+            }
+            
+            menu_scrollX[pMenu_state.menu_idx]-=panX;
+            if (menu_scrollX[pMenu_state.menu_idx]<0) menu_scrollX[pMenu_state.menu_idx]=0;
+            if (menu_scrollX[pMenu_state.menu_idx]>ImGui::GetScrollMaxX()) menu_scrollX[pMenu_state.menu_idx]=ImGui::GetScrollMaxX();
+            
+            menu_scrollY[pMenu_state.menu_idx]-=panY;
+            if (menu_scrollY[pMenu_state.menu_idx]>ImGui::GetScrollMaxY()) menu_scrollY[pMenu_state.menu_idx]=ImGui::GetScrollMaxY();
+            if (menu_scrollY[pMenu_state.menu_idx]<0) menu_scrollY[pMenu_state.menu_idx]=0;
+            
+            ImGui::SetScrollX(menu_scrollX[pMenu_state.menu_idx]);
+            ImGui::SetScrollY(menu_scrollY[pMenu_state.menu_idx]);
+            
+            ImGui::EndChild();
+            
+            ImGui::PopFont();
+        }
     }
+    
     ImGui::PopFont();
     ImGui::EndChild();
     ImGui::End();
@@ -1540,6 +1809,40 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev) {
     settings[GLOB_FXAlpha].detail.mdz_slider.slider_value=global_FXAlpha/100;
     
     return keepOpened;
+}
+
+int buildDirTree(FileNode *fileNode, int idx,NSString *filter) {
+    for (FileNode *child in fileNode.children) {
+        if (child.isDirectory) {
+            int flags=ImGuiTreeNodeFlags_OpenOnArrow|ImGuiTreeNodeFlags_SpanAvailWidth;
+            if (child.isSelected) flags|=ImGuiTreeNodeFlags_Selected;
+            bool node_open=ImGui::TreeNodeEx((void*)(intptr_t)idx++, flags, "%s",[[child name] UTF8String]);
+            if (ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen()) {
+                child.isSelected=!child.isSelected;
+            }
+            if (node_open) {
+                idx=buildDirTree(child,idx,filter);
+                ImGui::TreePop();
+            }
+        } else {
+            bool skipentry=false;
+            if ((filter!=nil)&&[filter length]) {
+                if (![[child.name lowercaseString] containsString:filter]) skipentry=true;
+            }
+            if (!skipentry) {
+                int flags=ImGuiTreeNodeFlags_Leaf|ImGuiTreeNodeFlags_SpanAvailWidth;
+                if (child.isSelected) flags|=ImGuiTreeNodeFlags_Selected;
+                bool node_open=ImGui::TreeNodeEx((void*)(intptr_t)idx++, flags, "%s",[[child name] UTF8String]);
+                if (ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen()) {
+                    child.isSelected=!child.isSelected;
+                }
+                if (node_open) {
+                    ImGui::TreePop();
+                }
+            }
+        }
+    }
+    return idx;
 }
 
 }
