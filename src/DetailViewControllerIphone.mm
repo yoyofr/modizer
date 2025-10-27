@@ -5011,10 +5011,13 @@ void addSelectFNtoPMPlaylist(FileNode *fnode,projectm_playlist_handle playlist) 
     if ( !fnode.isDirectory && fnode.isSelected ) {
         //add file to playlist
         projectm_playlist_add_preset(_pm_playlist, [fnode.path UTF8String], true);
+        
+        //MDZILog("adding %@",fnode.name)
     }
     
     //Add child from directory if it is selected
     if (fnode.isDirectory /*&& fnode.isSelected*/) {
+        //MDZILog("going through dir %@",fnode.name)
         for (FileNode *child in fnode.children) {
             addSelectFNtoPMPlaylist(child,playlist);
         }
@@ -5052,30 +5055,28 @@ void pmSoftReinit(bool forceReloadPlaylist) {
         (_pm_playlist_loadBundled!=settings[PROJECTM_BundledPresets].detail.mdz_boolswitch.switch_value) ||
         (_pm_playlist_loadCustom!=settings[PROJECTM_CustomPresets].detail.mdz_boolswitch.switch_value)) {
         
-        std::string resourceDir;
-        GetResourceDir(resourceDir);
-        std::string homeDir;
-        GetHomeDir(homeDir);
-        std::string presetsDir = resourceDir+"/projectm/assets/presets";
-        std::string presetsCustomDir = homeDir+"/Documents"+std::string(PM_ROOT_FOLDER_CUSTOM)+"/presets";
+        
+        if (_pm_playlist_loadCustom!=settings[PROJECTM_CustomPresets].detail.mdz_boolswitch.switch_value) {
+            //parse again custom dir
+            updatePresetCustomDirStructure();
+        }
         
         projectm_playlist_clear(_pm_playlist);
         
         _pm_playlist_loadBundled=settings[PROJECTM_BundledPresets].detail.mdz_boolswitch.switch_value;
         _pm_playlist_loadCustom=settings[PROJECTM_CustomPresets].detail.mdz_boolswitch.switch_value;
         
-        //        if (_pm_playlist_loadBundled) projectm_playlist_add_path(_pm_playlist, presetsDir.c_str(), true, false);
-        //        if (_pm_playlist_loadCustom) projectm_playlist_add_path(_pm_playlist, presetsCustomDir.c_str(), true, false);
-        
-        //    if (_pm_playlist_loadBundled) projectm_playlist_add_path(_pm_playlist, presetsDir.c_str(), true, false);
-        //    if (_pm_playlist_loadCustom) projectm_playlist_add_path(_pm_playlist, presetsCustomDir.c_str(), true, false);
-        if (forceReloadPlaylist||_pm_playlist_loadBundled) addSelectFNtoPMPlaylist(pmBundledPresetsFileNode,_pm_playlist);
-        if (forceReloadPlaylist||_pm_playlist_loadCustom) addSelectFNtoPMPlaylist(pmCustomPresetsFileNode,_pm_playlist);
+        if (_pm_playlist_loadBundled) addSelectFNtoPMPlaylist(pmBundledPresetsFileNode,_pm_playlist);
+        if (_pm_playlist_loadCustom) addSelectFNtoPMPlaylist(pmCustomPresetsFileNode,_pm_playlist);
         
         
         if (projectm_playlist_size(_pm_playlist)) {
-            projectm_playlist_sort(_pm_playlist, 0, projectm_playlist_size(_pm_playlist), SORT_PREDICATE_FULL_PATH, SORT_ORDER_ASCENDING);
-            projectm_playlist_play_next(_pm_playlist, true);
+            //MDZILog("new playlist, size %d",projectm_playlist_size(_pm_playlist))
+            //MDZILog("first sort it")
+            if (projectm_playlist_size(_pm_playlist)>1) projectm_playlist_sort(_pm_playlist, 0, projectm_playlist_size(_pm_playlist), SORT_PREDICATE_FULL_PATH, SORT_ORDER_ASCENDING);
+            //MDZILog("Launch a new preset")
+            //projectm_playlist_play_next(_pm_playlist, true);
+            projectm_playlist_play_next(_pm_playlist, false);
         }
         else {
             projectm_load_preset_file(_pm,"idle://Geiss & Sperl - Feedback (projectM idle HDR mix).milk",NULL);
@@ -5086,7 +5087,24 @@ void pmSoftReinit(bool forceReloadPlaylist) {
     }
 }
 
-- (void)buildPresetDirStructure {
+void updatePresetCustomDirStructure() {
+    DirParser *dirParser=[[DirParser alloc] init];
+    dirParser.includeHiddenFiles = NO;
+    dirParser.maxDepth = 5;
+    dirParser.filterExt = @"milk";
+
+    NSError *error;
+    
+    NSString *dirPath = [NSString stringWithFormat:@"%@/Documents%s/presets",NSHomeDirectory(),PM_ROOT_FOLDER_CUSTOM];
+    pmCustomPresetsFileNode=nil;
+    pmCustomPresetsFileNode=[dirParser parseDirectoryAtPath:dirPath error:&error];
+    if (error) {
+        MDZELog("Cannot parse projectm custom presets")
+        pmBundledPresetsFileNode=nil;
+    }
+}
+
+void buildPresetDirStructure() {
     DirParser *dirParser=[[DirParser alloc] init];
     dirParser.includeHiddenFiles = NO;
     dirParser.maxDepth = 5;
@@ -5101,7 +5119,7 @@ void pmSoftReinit(bool forceReloadPlaylist) {
         pmBundledPresetsFileNode=nil;
     }
     
-    dirPath = [NSString stringWithFormat:@"%@/Documents/%s/presets",NSHomeDirectory(),PM_ROOT_FOLDER_CUSTOM];
+    dirPath = [NSString stringWithFormat:@"%@/Documents%s/presets",NSHomeDirectory(),PM_ROOT_FOLDER_CUSTOM];
     pmCustomPresetsFileNode=nil;
     pmCustomPresetsFileNode=[dirParser parseDirectoryAtPath:dirPath error:&error];
     if (error) {
@@ -5263,7 +5281,7 @@ void pmSoftReinit(bool forceReloadPlaylist) {
         // Build ProjectM presets directories structure
         //--------------------------------//
         START_PROFILE
-        [self buildPresetDirStructure];
+        buildPresetDirStructure();
         CHECK_PROFILE("parsed bundled and custom folders")
         //--------------------------------//
         // ProjectM
@@ -7775,7 +7793,7 @@ extern "C" int current_sample;
         ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.2,1.0,0.1,1.0));
                                 
         ImGui::GetStyle().Alpha=1.0;
-        if (font_menu) ImGui::PushFont(font_menu,16.0f*glScaleFactor);
+        if (font_menu) ImGui::PushFont(font_menu,32.0f*glScaleFactor);
         else ImGui::PushFont(nullptr);
         ImGui::Begin("Info",0,
                      ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoScrollbar|ImGuiWindowFlags_NoFocusOnAppearing

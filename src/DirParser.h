@@ -12,8 +12,11 @@
 @property (nonatomic, strong) NSString *name;
 @property (nonatomic, strong) NSString *path;
 @property (nonatomic, assign) BOOL isSelected;
+@property (nonatomic, assign) int selectedChildren;
+@property (nonatomic, assign) BOOL isFullySelected;
 @property (nonatomic, assign) BOOL isMatchingFilter;
 @property (nonatomic, assign) BOOL isDirectory;
+@property (nonatomic, assign) BOOL shouldPropagateStatus;
 @property (nonatomic, assign) unsigned long long fileSize;
 @property (nonatomic, strong) NSDate *modificationDate;
 @property (nonatomic, strong) NSMutableArray<FileNode *> *children;

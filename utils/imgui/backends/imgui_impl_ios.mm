@@ -7,6 +7,10 @@
 
 #include "ModizerConstants.H"
 
+#define FONT_MENU_FILE  @"Fonts/Roboto-Medium"
+#define FONT_MENU_FILE_JAP @"Fonts/Mplus1-Regular"
+
+
 extern float glScaleFactor;
 static StopWatch g_timer;
 static ImGuiIOSEvent currentEvent;
@@ -60,22 +64,24 @@ bool ImGui_ImplIOS_Init()
     
     currentEvent.event_type=IMGUI_IOS_Event_None;
     
-        font_menu=io.Fonts->AddFontFromFileTTF([[[NSBundle mainBundle] pathForResource:@"Fonts/Roboto-Medium" ofType: @"ttf"] UTF8String], 16.0f*glScaleFactor, NULL, io.Fonts->GetGlyphRangesDefault());
-        IM_ASSERT(font_menu != NULL);
-        
-        ImFontConfig icons_config = ImFontConfig();
-        icons_config.MergeMode = true;
-        icons_config.PixelSnapH = true;
-        icons_config.OversampleH = 1;
-        icons_config.OversampleV = 1;
-        static const ImWchar ranges[] =
-          {
-              ICON_MIN_FA, ICON_MAX_FA,
-              0,
-          };
-        //g_font_awesome = ImGuiSupport_AddFontFromFile(fontPath, fontSize, &icons_config, ranges);
-        font_menu_icon=io.Fonts->AddFontFromFileTTF([[[NSBundle mainBundle] pathForResource:@"Fonts/fontawesome-webfont" ofType: @"ttf"] UTF8String], 32.0f*glScaleFactor, &icons_config, ranges);
-        IM_ASSERT(font_menu_icon != NULL);
+    font_menu=io.Fonts->AddFontFromFileTTF([[[NSBundle mainBundle] pathForResource:FONT_MENU_FILE_JAP ofType: @"ttf"] UTF8String], 16.0f*glScaleFactor, NULL, io.Fonts->GetGlyphRangesJapanese());
+    IM_ASSERT(font_menu != NULL);
+    
+    ImFontConfig icons_config = ImFontConfig();
+    icons_config.MergeMode = true;
+    icons_config.PixelSnapH = true;
+    icons_config.OversampleH = 1;
+    icons_config.OversampleV = 1;
+    static const ImWchar ranges[] =
+      {
+          ICON_MIN_FA, ICON_MAX_FA,
+          0,
+      };
+    font_menu_icon=io.Fonts->AddFontFromFileTTF([[[NSBundle mainBundle] pathForResource:@"Fonts/fontawesome-webfont" ofType: @"ttf"] UTF8String], 32.0f*glScaleFactor, &icons_config, ranges);
+    IM_ASSERT(font_menu_icon != NULL);
+    
+//    font_menu=io.Fonts->AddFontFromFileTTF([[[NSBundle mainBundle] pathForResource:FONT_MENU_FILE_JAP ofType: @"ttf"] UTF8String], 16.0f*glScaleFactor, NULL, io.Fonts->GetGlyphRangesJapanese());
+//    IM_ASSERT(font_menu != NULL);
     
     
     for (int i=0;i<FONT_TRACKER_NB;i++) {

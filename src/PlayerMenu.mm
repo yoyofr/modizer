@@ -18,6 +18,8 @@ char pmFileNodeFilter[64];
 static float idealFontSize;
 extern int mouseMoveInProgress;
 
+extern void updatePresetCustomDirStructure();
+
 #define PM_BUNDLED_PLAYLIST 1
 #define PM_CUSTOM_PLAYLIST 2
 int pmCurrentPlaylistMode;
@@ -163,7 +165,7 @@ void *menuProjectMExploreVar[8]={
     
 };
 const unsigned short menuProjectMExploreLabelFAIcon[8]={
-    FA_CHECK_CIRCLE,NULL,FA_ARROW_CIRCLE_LEFT,FA_WINDOW_CLOSE,
+    FA_CHECK_CIRCLE,FA_REFRESH,FA_ARROW_CIRCLE_LEFT,FA_WINDOW_CLOSE,
     NULL,NULL,NULL,NULL,
 };
 
@@ -337,7 +339,8 @@ struct {
     int menu_idx;
 } pMenu_state;
 
-int pMenu_buildDirTree(FileNode *fileNode, int idx, bool filter);
+int pMenu_PMUpdateSelStatus(FileNode *fnode,bool propagateStatus,bool selStatus);
+int pMenu_PMbuildDirTree(FileNode *fileNode, int idx,bool filter);
 int pMenu_PMPresetsSelAll(FileNode *fnode);
 int pMenu_PMPresetsRemAll(FileNode *fnode);
 int pMenu_PMPresetsSelFiltered(FileNode *fnode);
@@ -775,7 +778,7 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
     ImGui::SetNextWindowPos(ImVec2(0,0));
     ImGui::SetNextWindowSize(ImVec2(ww*glScaleFactor,hh*glScaleFactor));
     
-    ImGui::GetStyle().FrameRounding = 30.0f;
+    ImGui::GetStyle().FrameRounding = 10.0f;
     
     ImGui::PushStyleColor(ImGuiCol_WindowBg,ImVec4(0.0f,0.0f,0.0f,MENU_BACKGROUND_ALPHA));
     
@@ -1688,7 +1691,12 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
                             case 0x00: //Apply
                                 pmSoftReinit(true);
                                 break;
-                            case 0x10:
+                            case 0x10: //Refresh
+                                //if custom presets,rescan dir
+                                if (pmCurrentFileNode==pmCustomPresetsFileNode) {
+                                    updatePresetCustomDirStructure();
+                                    pmCurrentFileNode=pmCustomPresetsFileNode;
+                                }
                                 break;
                             case 0x20: //Back to main menu
                                 settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value=fullscreenStatus;
@@ -1737,7 +1745,14 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
                 [pmCurrentFileNode filterNodes:strFilter filterDir:true];
             }
             
-            index=pMenu_buildDirTree(pmCurrentFileNode,index,filter);
+            //update status consistency / tree
+            pMenu_PMUpdateSelStatus(pmCurrentFileNode,FALSE,FALSE);
+            
+            ImGui::PushStyleColor(ImGuiCol_Header, ImVec4(0.5f,0.4f,1.0f,0.9f));
+            
+            index=pMenu_PMbuildDirTree(pmCurrentFileNode,index,filter);
+            
+            ImGui::PopStyleColor();
             
             menu_scrollX[pMenu_state.menu_idx]-=panX;
             if (menu_scrollX[pMenu_state.menu_idx]<0) menu_scrollX[pMenu_state.menu_idx]=0;
@@ -1770,8 +1785,8 @@ int pMenu_PMPresetsRemAll(FileNode *fnode);
 int pMenu_PMPresetsSelFiltered(FileNode *fnode);
 int pMenu_PMPresetsRemFiltered(FileNode *fnode);
 
-int pMenu_buildDirTree(FileNode *fileNode, int idx,bool filter) {
-    int flags_default=ImGuiTreeNodeFlags_SpanLabelWidth|ImGuiTreeNodeFlags_DrawLinesToNodes|ImGuiTreeNodeFlags_SpanFullWidth;
+int pMenu_PMbuildDirTree(FileNode *fileNode, int idx,bool filter) {
+    int flags_default=ImGuiTreeNodeFlags_SpanFullWidth;
     if (filter) {
         //open all nodes by default
         flags_default|=ImGuiTreeNodeFlags_DefaultOpen;
@@ -1779,31 +1794,48 @@ int pMenu_buildDirTree(FileNode *fileNode, int idx,bool filter) {
     
     for (FileNode *child in fileNode.children) {
         if (child.isDirectory) {
+            //Directory
             bool skipentry=false;
             if (filter) {
                 if (!child.isMatchingFilter) skipentry=true;
             }
             
             if (!skipentry) {
+                //Matching filter, if any
                 int flags=flags_default|ImGuiTreeNodeFlags_OpenOnArrow;
+                
                 if (child.isSelected) flags|=ImGuiTreeNodeFlags_Selected;
                 
+                if ( !child.isFullySelected ) ImGui::PushStyleColor(ImGuiCol_Header, ImVec4(0.25f,0.2f,0.5f,0.9f));
                 bool node_open=ImGui::TreeNodeEx((void*)(intptr_t)idx++, flags, "%s",[[child name] UTF8String]);
+                
+                if ( !child.isFullySelected ) ImGui::PopStyleColor();
+                
                 if (!mouseMoveInProgress && ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen()) {
-                    child.isSelected=!child.isSelected;
+                    //Click detected
+                    //if selected and not fully, force fully
+                    //if not remove selected status
+                    if (child.isSelected) {
+                        if (child.isFullySelected) child.isSelected=FALSE;
+                        else child.isSelected=TRUE;
+                    } else child.isSelected=TRUE;
+                    child.shouldPropagateStatus=TRUE;
                 }
                 if (node_open) {
-                    idx=pMenu_buildDirTree(child,idx,filter);
+                    idx=pMenu_PMbuildDirTree(child,idx,filter);
                     ImGui::TreePop();
                 }
             }
         } else {
+            // File
             bool skipentry=false;
             if (filter) {
                 if (!child.isMatchingFilter) skipentry=true;
             }
             if (!skipentry) {
+                //Matching filter, if any
                 int flags=flags_default|ImGuiTreeNodeFlags_Leaf;
+                
                 if (child.isSelected) flags|=ImGuiTreeNodeFlags_Selected;
                 bool node_open=ImGui::TreeNodeEx((void*)(intptr_t)idx++, flags, "%s",[[child name] UTF8String]);
                 if (!mouseMoveInProgress && ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen()) {
@@ -1816,6 +1848,56 @@ int pMenu_buildDirTree(FileNode *fileNode, int idx,bool filter) {
         }
     }
     return idx;
+}
+
+int pMenu_PMUpdateSelStatus(FileNode *fnode,bool propagateStatus,bool selStatus) {
+    int ret=0;
+    if ( !fnode.isDirectory ) {
+        //Just a file, return selected status
+        
+        if (propagateStatus) fnode.isSelected=selStatus;
+        
+        if (fnode.isSelected) {
+            ret=1;
+            fnode.isFullySelected=1;
+        } else fnode.isFullySelected=0;
+    } else {
+        //directory
+        bool partial=false;
+        
+        if (propagateStatus) {
+            fnode.isSelected=selStatus;
+            fnode.shouldPropagateStatus=true;
+        }
+        
+        for (FileNode *child in fnode.children) {
+            if (pMenu_PMUpdateSelStatus(child,fnode.shouldPropagateStatus,fnode.isSelected)) {
+                //Child is selected, increase counted
+                ret++;
+            }
+            //check if child is partially selected, if so propagate
+            if (!child.isFullySelected) partial=true;
+        }
+        //Update how many children are selected
+        fnode.selectedChildren = ret;
+        
+        //Remove propagate status
+        fnode.shouldPropagateStatus=false;
+        
+        //Update dir selected flag
+        if (fnode.selectedChildren==0) fnode.isSelected = FALSE;
+        else fnode.isSelected = TRUE;
+        
+        //Update fullyselected flag accordingly, depend on status of children / partially selected or not
+        if (!partial && fnode.selectedChildren==[fnode.children count]) {
+            //all are selected
+            fnode.isFullySelected = TRUE;
+        } else {
+            fnode.isFullySelected = FALSE;
+        }
+    }
+    
+    return ret;
 }
 
 int pMenu_PMPresetsSelAll(FileNode *fnode) {

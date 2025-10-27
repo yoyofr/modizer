@@ -16,6 +16,9 @@
         _name = [path lastPathComponent];
         _children = [NSMutableArray array];
         _isSelected = TRUE;
+        _selectedChildren = 0;
+        _isFullySelected = FALSE;
+        _shouldPropagateStatus = FALSE;
         
         NSFileManager *fm = [NSFileManager defaultManager];
         NSDictionary *attrs = [fm attributesOfItemAtPath:path error:nil];

@@ -36,6 +36,7 @@ void Playlist::Clear()
 {
     m_presetHistory.clear();
     m_items.clear();
+    m_currentPosition = 0;  //YOYOFR
 }
 
 
@@ -226,7 +227,7 @@ auto Playlist::NextPresetIndex() -> uint32_t
 //            srand(clock());
 //        }
         std::uniform_int_distribution<uint32_t> randomDistribution(0, static_cast<uint32_t>(m_items.size()));
-        m_currentPosition = randomDistribution(m_randomGenerator);
+        m_currentPosition = randomDistribution(m_randomGenerator)%static_cast<uint32_t>(m_items.size()); //YOYOFR
     }
     else
     {
