@@ -1784,8 +1784,8 @@ void optNSFPLAYChangedC(id param) {
     settings[PROJECTM_AutoSwitchPresetsMode].sub_family=0;
     settings[PROJECTM_AutoSwitchPresetsMode].detail.mdz_switch.switch_value_nb=2;
     settings[PROJECTM_AutoSwitchPresetsMode].detail.mdz_switch.switch_labels=(char**)malloc(settings[PROJECTM_AutoSwitchPresetsMode].detail.mdz_switch.switch_value_nb*sizeof(char*));
-    settings[PROJECTM_AutoSwitchPresetsMode].detail.mdz_switch.switch_labels[0]=(char*)"Rand";
-    settings[PROJECTM_AutoSwitchPresetsMode].detail.mdz_switch.switch_labels[1]=(char*)"Next";
+    settings[PROJECTM_AutoSwitchPresetsMode].detail.mdz_switch.switch_labels[0]=(char*)"Seq.";
+    settings[PROJECTM_AutoSwitchPresetsMode].detail.mdz_switch.switch_labels[1]=(char*)"Rand.";
     settings[PROJECTM_AutoSwitchPresetsMode].callback=&optPROJECTMChangedC;
     
     SETTINGS_ID_DEF(PROJECTM_LockPreset)
@@ -1900,7 +1900,7 @@ void optNSFPLAYChangedC(id param) {
     
     settings[PROJECTM_FXONOFF].detail.mdz_switch.switch_default_value=0;
     settings[PROJECTM_ShowPresetLabel].detail.mdz_switch.switch_default_value=1;
-    settings[PROJECTM_AutoSwitchPresetsMode].detail.mdz_switch.switch_default_value=0;
+    settings[PROJECTM_AutoSwitchPresetsMode].detail.mdz_switch.switch_default_value=1;
     settings[PROJECTM_LockPreset].detail.mdz_boolswitch.switch_default_value=0;
     settings[PROJECTM_BlendPresets].detail.mdz_boolswitch.switch_default_value=1;
     settings[PROJECTM_TimeBetweenPreset].detail.mdz_slider.slider_default_value=15.0;

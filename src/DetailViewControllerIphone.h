@@ -22,9 +22,6 @@
 #import <AudioToolbox/AudioToolbox.h>
 
 #import <UIKit/UIKit.h>
-//#import <OpenGLES/EAGL.h>
-//#import <OpenGLES/ES1/gl.h>
-//#import <OpenGLES/ES1/glext.h>
 
 #import <MGLKit.h>
 

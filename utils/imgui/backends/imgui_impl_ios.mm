@@ -4,7 +4,6 @@
 #include "StopWatch.h"
 
 #include "MDZFontAwesome.h"
-#define FAICON_ZOOM_FACTOR 2.0f
 
 #include "ModizerConstants.H"
 
@@ -13,6 +12,7 @@ static StopWatch g_timer;
 static ImGuiIOSEvent currentEvent;
 static int wantInputText=0;
 static unichar lastChar;
+int mouseMoveInProgress;
 int move_cursorL,move_cursorR;
 int shiftPressedL,shiftPressedR;
 int keyDel;
@@ -54,6 +54,7 @@ bool ImGui_ImplIOS_Init()
     //io.BackendFlags |= ImGuiBackendFlags_PlatformHasViewports;    // We can create multi-viewports on the Platform side (optional)
     //io.BackendFlags |= ImGuiBackendFlags_HasMouseHoveredViewport; // We can set io.MouseHoveredViewport correctly (optional, not easy)
     //io.BackendFlags |= ImGuiConfigFlags_IsTouchScreen;
+    io.BackendFlags |= ImGuiConfigFlags_IsTouchScreen;
     io.BackendPlatformName = "imgui_impl_ios";
     g_timer.Restart();
     
@@ -73,7 +74,7 @@ bool ImGui_ImplIOS_Init()
               0,
           };
         //g_font_awesome = ImGuiSupport_AddFontFromFile(fontPath, fontSize, &icons_config, ranges);
-        font_menu_icon=io.Fonts->AddFontFromFileTTF([[[NSBundle mainBundle] pathForResource:@"Fonts/fontawesome-webfont" ofType: @"ttf"] UTF8String], 32.0f*glScaleFactor*FAICON_ZOOM_FACTOR, &icons_config, ranges);
+        font_menu_icon=io.Fonts->AddFontFromFileTTF([[[NSBundle mainBundle] pathForResource:@"Fonts/fontawesome-webfont" ofType: @"ttf"] UTF8String], 32.0f*glScaleFactor, &icons_config, ranges);
         IM_ASSERT(font_menu_icon != NULL);
     
     
@@ -122,6 +123,7 @@ void ImGui_ImplIOS_UpdateEvent(ImGuiIOSEvent *event)
     ImGuiIO& io = ImGui::GetIO();
     //io.WantCaptureMouse=true;
     
+    mouseMoveInProgress=false;
     if (currentEvent.event_type==IMGUI_IOS_Event_Tap_1) {
         io.AddMouseSourceEvent(ImGuiMouseSource_Mouse);//TouchScreen);
         io.AddMousePosEvent((float)(currentEvent.pos_x), (float)(currentEvent.pos_y));
@@ -130,9 +132,12 @@ void ImGui_ImplIOS_UpdateEvent(ImGuiIOSEvent *event)
     } else if (currentEvent.event_type==IMGUI_IOS_Event_MouseMove) {
         io.AddMouseSourceEvent(ImGuiMouseSource_Mouse);//TouchScreen);
         io.AddMousePosEvent((float)(currentEvent.pos_x), (float)(currentEvent.pos_y));
+        io.AddMouseButtonEvent(0, true);
+        mouseEventOnHold=0;
+        mouseMoveInProgress=true;
     } else if (!mouseEventOnHold) {
-        io.AddMouseSourceEvent(ImGuiMouseSource_Mouse);//TouchScreen);
         io.AddMouseButtonEvent(0, false);
+        io.AddMouseSourceEvent(ImGuiMouseSource_Mouse);//TouchScreen);
         io.AddMousePosEvent((float)(-1), (float)(-1));
         mouseEventOnHold=1;
     }

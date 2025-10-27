@@ -35,6 +35,7 @@ extern pthread_mutex_t shader_mutex;
 
 #import "DirParser.h"
 FileNode *pmBundledPresetsFileNode;
+FileNode *pmCustomPresetsFileNode;
 
 extern BOOL nvdsp_EQ;
 
@@ -97,7 +98,6 @@ extern unsigned int m_voice_oscillo_pal3[8];
 
 #include "TextureUtils.h"
 /*----------------------------------------------*/
-
 #include <stdint.h>
 #include <string>
 
@@ -105,6 +105,7 @@ extern unsigned int m_voice_oscillo_pal3[8];
 #include <projectM-4/projectM.h>
 #include <projectM-4/playlist.h>
 #include <GLES3/gl3.h>
+
 bool _pmIsInitialized;
 int _pm_shouldRestartAt;
 int _pmCanvasWidth,_pmCanvasHeight;
@@ -1261,7 +1262,7 @@ static float movePinchScale,movePinchScaleOld;
     
     if ((scope==SETTINGS_ALL)||(scope==SETTINGS_PROJECTM)) {
         if (_pmIsInitialized && _pm && _pm_playlist) {
-            pmSoftReinit();
+            pmSoftReinit(false);
         }
     }
 }
@@ -5006,11 +5007,27 @@ GLsizei txtbackgroundImageWidth,txtbackgroundImageHeight;
     
 }
 
-void pmSoftReinit() {
+void addSelectFNtoPMPlaylist(FileNode *fnode,projectm_playlist_handle playlist) {
+    if ( !fnode.isDirectory && fnode.isSelected ) {
+        //add file to playlist
+        projectm_playlist_add_preset(_pm_playlist, [fnode.path UTF8String], true);
+    }
+    
+    //Add child from directory if it is selected
+    if (fnode.isDirectory /*&& fnode.isSelected*/) {
+        for (FileNode *child in fnode.children) {
+            addSelectFNtoPMPlaylist(child,playlist);
+        }
+    }
+}
+
+
+
+void pmSoftReinit(bool forceReloadPlaylist) {
     if (!_pm) return;
     if (!_pm_playlist) return;
     
-    projectm_playlist_set_shuffle(_pm_playlist, (settings[PROJECTM_AutoSwitchPresetsMode].detail.mdz_switch.switch_value==0));
+    projectm_playlist_set_shuffle(_pm_playlist, settings[PROJECTM_AutoSwitchPresetsMode].detail.mdz_switch.switch_value);
     
     meshX=round(settings[PROJECTM_MeshSizeX].detail.mdz_slider.slider_value/2)*2;
     if (meshX<8) meshX=8;if (meshX>128) meshX=128;
@@ -5020,7 +5037,7 @@ void pmSoftReinit() {
     projectm_set_mesh_size(_pm, meshX, meshY);
     projectm_set_aspect_correction(_pm, settings[PROJECTM_AspectRatio].detail.mdz_boolswitch.switch_value);
     projectm_set_preset_locked(_pm, settings[PROJECTM_LockPreset].detail.mdz_boolswitch.switch_value);
-
+    
     // Preset display settings
     projectm_set_preset_duration(_pm, settings[PROJECTM_TimeBetweenPreset].detail.mdz_slider.slider_value);//15.0);
     if (settings[PROJECTM_BlendPresets].detail.mdz_boolswitch.switch_value) projectm_set_soft_cut_duration(_pm, settings[PROJECTM_BlendTime].detail.mdz_slider.slider_value);//2.0);
@@ -5030,9 +5047,10 @@ void pmSoftReinit() {
     projectm_set_hard_cut_duration(_pm, settings[PROJECTM_HardCutMinTime].detail.mdz_slider.slider_value);
     projectm_set_hard_cut_sensitivity(_pm, settings[PROJECTM_HardCutSensitivity].detail.mdz_slider.slider_value);
     projectm_set_beat_sensitivity(_pm, settings[PROJECTM_BeatSensitivity].detail.mdz_slider.slider_value);
- 
-    if ((_pm_playlist_loadBundled!=settings[PROJECTM_BundledPresets].detail.mdz_boolswitch.switch_value)
-        || (_pm_playlist_loadCustom!=settings[PROJECTM_CustomPresets].detail.mdz_boolswitch.switch_value)) {
+    
+    if (forceReloadPlaylist ||
+        (_pm_playlist_loadBundled!=settings[PROJECTM_BundledPresets].detail.mdz_boolswitch.switch_value) ||
+        (_pm_playlist_loadCustom!=settings[PROJECTM_CustomPresets].detail.mdz_boolswitch.switch_value)) {
         
         std::string resourceDir;
         GetResourceDir(resourceDir);
@@ -5046,8 +5064,14 @@ void pmSoftReinit() {
         _pm_playlist_loadBundled=settings[PROJECTM_BundledPresets].detail.mdz_boolswitch.switch_value;
         _pm_playlist_loadCustom=settings[PROJECTM_CustomPresets].detail.mdz_boolswitch.switch_value;
         
-        if (_pm_playlist_loadBundled) projectm_playlist_add_path(_pm_playlist, presetsDir.c_str(), true, false);
-        if (_pm_playlist_loadCustom) projectm_playlist_add_path(_pm_playlist, presetsCustomDir.c_str(), true, false);
+        //        if (_pm_playlist_loadBundled) projectm_playlist_add_path(_pm_playlist, presetsDir.c_str(), true, false);
+        //        if (_pm_playlist_loadCustom) projectm_playlist_add_path(_pm_playlist, presetsCustomDir.c_str(), true, false);
+        
+        //    if (_pm_playlist_loadBundled) projectm_playlist_add_path(_pm_playlist, presetsDir.c_str(), true, false);
+        //    if (_pm_playlist_loadCustom) projectm_playlist_add_path(_pm_playlist, presetsCustomDir.c_str(), true, false);
+        if (forceReloadPlaylist||_pm_playlist_loadBundled) addSelectFNtoPMPlaylist(pmBundledPresetsFileNode,_pm_playlist);
+        if (forceReloadPlaylist||_pm_playlist_loadCustom) addSelectFNtoPMPlaylist(pmCustomPresetsFileNode,_pm_playlist);
+        
         
         if (projectm_playlist_size(_pm_playlist)) {
             projectm_playlist_sort(_pm_playlist, 0, projectm_playlist_size(_pm_playlist), SORT_PREDICATE_FULL_PATH, SORT_ORDER_ASCENDING);
@@ -5075,22 +5099,14 @@ void pmSoftReinit() {
     if (error) {
         MDZELog("Cannot parse projectm blunded presets")
         pmBundledPresetsFileNode=nil;
-    } else {
-//        MDZDLog("Directory Structure:");
-//        [pmBundledPresetsFileNode printStructureWithIndent:0];
-//
-//        // Get flattened list
-//        NSArray<FileNode *> *allFiles = [dirParser flattenTree:pmBundledPresetsFileNode];
-//        MDZDLog("\nTotal items: %lu", (unsigned long)allFiles.count);
-//        
-//        // Calculate total size
-//        unsigned long long totalSize = 0;
-//        for (FileNode *file in allFiles) {
-//            if (!file.isDirectory) {
-//                totalSize += file.fileSize;
-//            }
-//        }
-//        MDZDLog("Total size: %.2f MB", totalSize / (1024.0 * 1024.0));
+    }
+    
+    dirPath = [NSString stringWithFormat:@"%@/Documents/%s/presets",NSHomeDirectory(),PM_ROOT_FOLDER_CUSTOM];
+    pmCustomPresetsFileNode=nil;
+    pmCustomPresetsFileNode=[dirParser parseDirectoryAtPath:dirPath error:&error];
+    if (error) {
+        MDZELog("Cannot parse projectm custom presets")
+        pmBundledPresetsFileNode=nil;
     }
 }
 
@@ -5156,13 +5172,15 @@ void pmSoftReinit() {
         return;
     }
 
-    projectm_playlist_set_shuffle(_pm_playlist, (settings[PROJECTM_AutoSwitchPresetsMode].detail.mdz_switch.switch_value==0));
+    projectm_playlist_set_shuffle(_pm_playlist, settings[PROJECTM_AutoSwitchPresetsMode].detail.mdz_switch.switch_value);
     
     _pm_playlist_loadBundled=settings[PROJECTM_BundledPresets].detail.mdz_boolswitch.switch_value;
     _pm_playlist_loadCustom=settings[PROJECTM_CustomPresets].detail.mdz_boolswitch.switch_value;
 
-    if (_pm_playlist_loadBundled) projectm_playlist_add_path(_pm_playlist, presetsDir.c_str(), true, false);
-    if (_pm_playlist_loadCustom) projectm_playlist_add_path(_pm_playlist, presetsCustomDir.c_str(), true, false);
+//    if (_pm_playlist_loadBundled) projectm_playlist_add_path(_pm_playlist, presetsDir.c_str(), true, false);
+//    if (_pm_playlist_loadCustom) projectm_playlist_add_path(_pm_playlist, presetsCustomDir.c_str(), true, false);
+    if (_pm_playlist_loadBundled) addSelectFNtoPMPlaylist(pmBundledPresetsFileNode,_pm_playlist);
+    if (_pm_playlist_loadCustom) addSelectFNtoPMPlaylist(pmCustomPresetsFileNode,_pm_playlist);
     
     projectm_playlist_sort(_pm_playlist, 0, projectm_playlist_size(_pm_playlist), SORT_PREDICATE_FULL_PATH, SORT_ORDER_ASCENDING);
 
@@ -5238,18 +5256,21 @@ void pmSoftReinit() {
     _pmIsInitialized=false;
     _pm_shouldRestartAt=-1;
     
-    //[self pmInit];
     _pmCanvasWidth=m_oglView.frame.size.width*glScaleFactor;
     _pmCanvasHeight=m_oglView.frame.size.height*glScaleFactor;
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
         //--------------------------------//
         // Build ProjectM presets directories structure
         //--------------------------------//
+        START_PROFILE
         [self buildPresetDirStructure];
+        CHECK_PROFILE("parsed bundled and custom folders")
         //--------------------------------//
         // ProjectM
         //--------------------------------//
         [self pmInit];
+        CHECK_PROFILE("pmInit")
+        END_PROFILE
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
                 //
         }];
@@ -6335,7 +6356,8 @@ static int mOglView1Tap=0;
         case UIGestureRecognizerStateChanged:
             break;
         default:
-//            MDZILog("reco");
+            //MDZILog("reco");
+            //mOglView1Tap=1;
             mOglView1Tap=1;
             break;
     }
@@ -8669,6 +8691,11 @@ didStopRecordingWithError:(NSError *)error
 
 /* @abstract Called when the view controller is finished and returns a set of activity types that the user has completed on the recording. The built in activity types are listed in UIActivity.h. */
 - (void)previewController:(RPPreviewViewController *)previewController didFinishWithActivityTypes:(NSSet <NSString *> *)activityTypes {
+}
+
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer
+shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer {
+    return YES;
 }
 
 @end

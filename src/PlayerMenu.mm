@@ -12,8 +12,15 @@
 
 #include "MDZFontAwesome.h"
 extern FileNode *pmBundledPresetsFileNode;
-char pmBundledFilter[64];
+extern FileNode *pmCustomPresetsFileNode;
+FileNode *pmCurrentFileNode;
+char pmFileNodeFilter[64];
 static float idealFontSize;
+extern int mouseMoveInProgress;
+
+#define PM_BUNDLED_PLAYLIST 1
+#define PM_CUSTOM_PLAYLIST 2
+int pmCurrentPlaylistMode;
 
 extern float glScaleFactor;
 
@@ -40,7 +47,7 @@ int font_idx;
 extern volatile t_settings settings[MAX_SETTINGS];
 extern bool _pmPresetHasChanged;
 
-extern void pmSoftReinit();
+extern void pmSoftReinit(bool forceReloadPlaylist);
 
 namespace PMenu {
 
@@ -101,8 +108,8 @@ void *menuRootVar[16]={
 const unsigned short menuRootLabelFAIcon[16]={
     NULL,NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
-    NULL,NULL,FA_ARROW_CIRCLE_O_RIGHT,FA_WINDOW_MAXIMIZE,
-    NULL,NULL,FA_COG,FA_WINDOW_CLOSE_O,
+    NULL,NULL,FA_ARROW_CIRCLE_RIGHT,FA_ARROWS_ALT,
+    NULL,NULL,FA_COGS,FA_WINDOW_CLOSE,
 };
 
 static GLuint txtMenuMoreHandle[16];
@@ -110,7 +117,7 @@ const char *menuRootMoreLabel[16]={
     "Show FPS","@sliderFX\nalpha",NULL,NULL,
     NULL,NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
-    NULL,"Go to\nsettings",NULL,NULL,
+    NULL,NULL,NULL,NULL,
 };
 void *menuRootMoreVar[16]={
     NULL,&global_FXAlpha,NULL,NULL,
@@ -121,16 +128,16 @@ void *menuRootMoreVar[16]={
 const unsigned short menuRootMoreLabelFAIcon[16]={
     NULL,NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
-    NULL,NULL,NULL,FA_WINDOW_MAXIMIZE,
-    NULL,NULL,FA_ARROW_CIRCLE_O_LEFT,FA_WINDOW_CLOSE,
+    NULL,NULL,NULL,FA_ARROWS_ALT,
+    NULL,FA_COGS,FA_ARROW_CIRCLE_LEFT,FA_WINDOW_CLOSE,
 };
 
 static GLuint txtMenuProjectMHandle[16];
 const char *menuProjectMLabel[16]={
-    "Off",NULL,"Show name\nand\ndisappear","Show name",
-    "Blend presets","Lock preset","Random order","Sequential\norder",
-    "Default\npresets","Custom\npresets",NULL,"Fullscreen",
-    "Explorer","Go to\nsettings","Back","Exit"
+    NULL,NULL,"Show name\ntemp.","Show name",
+    "Default\npresets","Custom\npresets",NULL,"Blend presets",
+    "Choose\ndefault presets","Choose\ncustom presets",NULL,
+    NULL,NULL,NULL,NULL
 };
 void *menuProjectMVar[16]={
     NULL,NULL,NULL,NULL,
@@ -139,32 +146,33 @@ void *menuProjectMVar[16]={
     NULL,NULL,NULL,NULL,
 };
 const unsigned short menuProjectMLabelFAIcon[16]={
-    NULL,NULL,NULL,NULL,
-    NULL,NULL,NULL,NULL,
-    NULL,NULL,NULL,NULL,
-    NULL,NULL,NULL,FA_WINDOW_CLOSE,
+    FA_POWER_OFF,NULL,NULL,NULL,
+    NULL,NULL,FA_RANDOM,NULL,
+    NULL,NULL,FA_LOCK,FA_ARROWS_ALT,
+    NULL,FA_COGS,FA_ARROW_CIRCLE_LEFT,FA_WINDOW_CLOSE,
 };
 
 static GLuint txtMenuProjectMExploreHandle[8];
 const char *menuProjectMExploreLabel[8]={
-    NULL,NULL,"Back","Exit",
+    NULL,NULL,NULL,NULL,
     "Select\nall","Remove\nall","Select\nfiltered","Remove\nfiltered"
 };
 void *menuProjectMExploreVar[8]={
     NULL,NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
+    
 };
 const unsigned short menuProjectMExploreLabelFAIcon[8]={
-    NULL,NULL,NULL,FA_WINDOW_CLOSE,
+    FA_CHECK_CIRCLE,NULL,FA_ARROW_CIRCLE_LEFT,FA_WINDOW_CLOSE,
     NULL,NULL,NULL,NULL,
 };
 
 static GLuint txtMenuOscilloHandle[16];
 const char *menuOscilloLabel[16]={
-    "Off",NULL,NULL,NULL,
+    NULL,NULL,NULL,NULL,
     NULL,"Labels","Grid",NULL,
-    NULL,NULL,NULL,"Fullscreen",
-    NULL,"Go to\nsettings","Back","Exit"
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,NULL,
 };
 void *menuOscilloVar[16]={
     NULL,NULL,NULL,NULL,
@@ -173,16 +181,16 @@ void *menuOscilloVar[16]={
     NULL,NULL,NULL,NULL,
 };
 const unsigned short menuOscilloLabelFAIcon[16]={
+    FA_POWER_OFF,NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
-    NULL,NULL,NULL,NULL,
-    NULL,NULL,NULL,NULL,
-    NULL,NULL,NULL,FA_WINDOW_CLOSE,
+    NULL,NULL,NULL,FA_ARROWS_ALT,
+    NULL,FA_COGS,FA_ARROW_CIRCLE_LEFT,FA_WINDOW_CLOSE,
 };
 char *menuOscilloDynLabel[16];
 
 static GLuint txtMenu2DSpectrumHandle[16];
 const char *menu2DSpectrumLabel[16]={
-    "Off",NULL,NULL,NULL,
+    NULL,NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
     NULL,NULL,NULL,"Fullscreen",
     NULL,"Go to\nsettings","Back","Exit"
@@ -194,18 +202,18 @@ void *menu2DSpectrumVar[16]={
     NULL,NULL,NULL,NULL,
 };
 const unsigned short menu2DSpectrumLabelFAIcon[16]={
+    FA_POWER_OFF,NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
-    NULL,NULL,NULL,NULL,
-    NULL,NULL,NULL,NULL,
-    NULL,NULL,NULL,FA_WINDOW_CLOSE,
+    NULL,NULL,NULL,FA_ARROWS_ALT,
+    NULL,FA_COGS,FA_ARROW_CIRCLE_LEFT,FA_WINDOW_CLOSE,
 };
 
 static GLuint txtMenu3DSpectrumHandle[16];
 const char *menu3DSpectrumLabel[16]={
-    "Off",NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
-    NULL,NULL,NULL,"Fullscreen",
-    NULL,"Go to\nsettings","Back","Exit"
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,NULL,
 };
 void *menu3DSpectrumVar[16]={
     NULL,NULL,NULL,NULL,
@@ -214,19 +222,19 @@ void *menu3DSpectrumVar[16]={
     NULL,NULL,NULL,NULL,
 };
 const unsigned short menu3DSpectrumLabelFAIcon[16]={
+    FA_POWER_OFF,NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
-    NULL,NULL,NULL,NULL,
-    NULL,NULL,NULL,NULL,
-    NULL,NULL,NULL,FA_WINDOW_CLOSE,
+    NULL,NULL,NULL,FA_ARROWS_ALT,
+    NULL,FA_COGS,FA_ARROW_CIRCLE_LEFT,FA_WINDOW_CLOSE,
 };
 char *menu3DSpectrumDynLabel[16];
 
 static GLuint txtMenu3DLandscapeHandle[16];
 const char *menu3DLandscapeLabel[16]={
-    "Off",NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
-    NULL,NULL,NULL,"Fullscreen",
-    NULL,"Go to\nsettings","Back","Exit"
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,NULL,
 };
 void *menu3DLandscapeVar[16]={
     NULL,NULL,NULL,NULL,
@@ -235,19 +243,19 @@ void *menu3DLandscapeVar[16]={
     NULL,NULL,NULL,NULL,
 };
 const unsigned short menu3DLandscapeLabelFAIcon[16]={
+    FA_POWER_OFF,NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
-    NULL,NULL,NULL,NULL,
-    NULL,NULL,NULL,NULL,
-    NULL,NULL,NULL,FA_WINDOW_CLOSE,
+    NULL,NULL,NULL,FA_ARROWS_ALT,
+    NULL,FA_COGS,FA_ARROW_CIRCLE_LEFT,FA_WINDOW_CLOSE,
 };
 char *menu3DLandscapeDynLabel[16];
 
 static GLuint txtMenuPiano3DHandle[16];
 const char *menuPiano3DLabel[16]={
-    "Off",NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
-    NULL,NULL,NULL,"Fullscreen",
-    NULL,"Go to\nsettings","Back","Exit"
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,NULL,
 };
 void *menuPiano3DVar[16]={
     NULL,NULL,NULL,NULL,
@@ -256,18 +264,18 @@ void *menuPiano3DVar[16]={
     NULL,NULL,NULL,NULL,
 };
 const unsigned short menuPiano3DLabelFAIcon[16]={
+    FA_POWER_OFF,NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
-    NULL,NULL,NULL,NULL,
-    NULL,NULL,NULL,NULL,
-    NULL,NULL,NULL,FA_WINDOW_CLOSE,
+    NULL,NULL,NULL,FA_ARROWS_ALT,
+    NULL,FA_COGS,FA_ARROW_CIRCLE_LEFT,FA_WINDOW_CLOSE,
 };
 
 static GLuint txtMenuPianoRollHandle[16];
 const char *menuPianoRollLabel[16]={
-    "Off",NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
-    "Voices\nlabels","Octaves\nlabels",NULL,"Fullscreen",
-    NULL,"Go to\nsettings","Back","Exit"
+    NULL,NULL,NULL,NULL,
+    "Voices\nlabels","Octaves\nlabels",NULL,NULL,
+    NULL,NULL,NULL,NULL,
 };
 void *menuPianoRollVar[16]={
     NULL,NULL,NULL,NULL,
@@ -276,18 +284,18 @@ void *menuPianoRollVar[16]={
     NULL,NULL,NULL,NULL,
 };
 const unsigned short menuPianoRollLabelFAIcon[16]={
+    FA_POWER_OFF,NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
-    NULL,NULL,NULL,NULL,
-    NULL,NULL,NULL,NULL,
-    NULL,NULL,NULL,FA_WINDOW_CLOSE,
+    NULL,NULL,NULL,FA_ARROWS_ALT,
+    NULL,FA_COGS,FA_ARROW_CIRCLE_LEFT,FA_WINDOW_CLOSE,
 };
 
 static GLuint txtMenuMidiHandle[16];
 const char *menuMidiLabel[16]={
-    "Off",NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
-    NULL,NULL,NULL,"Fullscreen",
-    NULL,"Go to\nsettings","Back","Exit"
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,NULL,
 };
 void *menuMidiVar[16]={
     NULL,NULL,NULL,NULL,
@@ -296,18 +304,18 @@ void *menuMidiVar[16]={
     NULL,NULL,NULL,NULL,
 };
 const unsigned short menuMidiLabelFAIcon[16]={
+    FA_POWER_OFF,NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
-    NULL,NULL,NULL,NULL,
-    NULL,NULL,NULL,NULL,
-    NULL,NULL,NULL,FA_WINDOW_CLOSE,
+    NULL,NULL,NULL,FA_ARROWS_ALT,
+    NULL,FA_COGS,FA_ARROW_CIRCLE_LEFT,FA_WINDOW_CLOSE,
 };
 
 static GLuint txtMenuModPatternHandle[16];
 const char *menuModPatternLabel[16]={
-    "Off",NULL,NULL,NULL,
+    NULL,NULL,NULL,NULL,
     "Volume\nbars",NULL,NULL,"Fixed bar",
-    NULL,NULL,NULL,"Fullscreen",
-    NULL,"Go to\nsettings","Back","Exit"
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,NULL,
 };
 void *menuModPatternVar[16]={
     NULL,NULL,NULL,NULL,
@@ -316,10 +324,10 @@ void *menuModPatternVar[16]={
     NULL,NULL,NULL,NULL,
 };
 const unsigned short menuModPatternLabelFAIcon[16]={
+    FA_POWER_OFF,NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
-    NULL,NULL,NULL,NULL,
-    NULL,NULL,NULL,NULL,
-    NULL,NULL,NULL,FA_WINDOW_CLOSE,
+    NULL,NULL,NULL,FA_ARROWS_ALT,
+    NULL,FA_COGS,FA_ARROW_CIRCLE_LEFT,FA_WINDOW_CLOSE,
 };
 char *menuModPatternDynLabel[16];
 
@@ -329,7 +337,12 @@ struct {
     int menu_idx;
 } pMenu_state;
 
-int buildDirTree(FileNode *fileNode, int idx, bool filter);
+int pMenu_buildDirTree(FileNode *fileNode, int idx, bool filter);
+int pMenu_PMPresetsSelAll(FileNode *fnode);
+int pMenu_PMPresetsRemAll(FileNode *fnode);
+int pMenu_PMPresetsSelFiltered(FileNode *fnode);
+int pMenu_PMPresetsRemFiltered(FileNode *fnode);
+
 
 void playerRootMenuInitRightItemsTexture() {
     txtMenuHandle[FXOSCILLO_IDX]=txtMenuOscilloHandle[max(settings[OSCILLO_FXMODE].detail.mdz_switch.switch_value&15,1)];
@@ -438,12 +451,11 @@ int playerGetActivatedCells(int menu_idx) {
         else active_idx|=1<<0;
         if (settings[PROJECTM_ShowPresetLabel].detail.mdz_switch.switch_value==1) active_idx|=1<<2;
         else if (settings[PROJECTM_ShowPresetLabel].detail.mdz_switch.switch_value==2) active_idx|=1<<3;
-        if (settings[PROJECTM_BlendPresets].detail.mdz_boolswitch.switch_value) active_idx|=1<<4;
-        if (settings[PROJECTM_LockPreset].detail.mdz_boolswitch.switch_value) active_idx|=1<<5;
-        if (settings[PROJECTM_AutoSwitchPresetsMode].detail.mdz_switch.switch_value) active_idx|=1<<7;
-        else active_idx|=1<<6;
-        if (settings[PROJECTM_BundledPresets].detail.mdz_boolswitch.switch_value) active_idx|=1<<8;
-        if (settings[PROJECTM_CustomPresets].detail.mdz_boolswitch.switch_value) active_idx|=1<<9;
+        if (settings[PROJECTM_BundledPresets].detail.mdz_boolswitch.switch_value) active_idx|=1<<4;
+        if (settings[PROJECTM_CustomPresets].detail.mdz_boolswitch.switch_value) active_idx|=1<<5;
+        if (settings[PROJECTM_AutoSwitchPresetsMode].detail.mdz_switch.switch_value) active_idx|=1<<6;
+        if (settings[PROJECTM_BlendPresets].detail.mdz_boolswitch.switch_value) active_idx|=1<<7;
+        if (settings[PROJECTM_LockPreset].detail.mdz_boolswitch.switch_value) active_idx|=1<<10;
         if (settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value) active_idx|=1<<11;
     }
     return active_idx;
@@ -457,7 +469,7 @@ int playerGetActivatedCells(int menu_idx) {
 void playerMenuInit() {
     pMenu_state.menu_idx=MENU_ROOT;
     
-    memset(pmBundledFilter,0,sizeof(pmBundledFilter));
+    memset(pmFileNodeFilter,0,sizeof(pmFileNodeFilter));
     
     memset(txtMenuHandle,0,sizeof(txtMenuHandle));
     memset(txtMenuMoreHandle,0,sizeof(txtMenuMoreHandle));
@@ -688,7 +700,7 @@ int buildSubMenu(int r,
                 cur_pos=ImGui::GetCursorPos();
                 cur_pos.y+=(cell_sizeH/4);
                 ImGui::SetCursorPos(cur_pos);
-                ImGui::LabelText("", currentMenuLabel[celIdx]+strlen("@slider"));
+                ImGui::LabelText("", "%s",currentMenuLabel[celIdx]+strlen("@slider"));
                 cur_pos.x+=(cell_size-1.5*cell_size/3);
                 cur_pos.y-=(cell_sizeH/4);
                 ImGui::SetCursorPos(cur_pos);
@@ -703,19 +715,18 @@ int buildSubMenu(int r,
             }
         }
         ImGui::PopID();
-    } else if (currentMenuDynLabel) {
-        if (currentMenuDynLabel[celIdx]) { //Text button
-            ImGui::PushID((celIdx)*4+0);
-            if (isActive) ret=ImGui::Button(currentMenuDynLabel[celIdx],ImVec2(cell_size, cell_sizeH));
-            else ret=ImGui::Button(currentMenuDynLabel[celIdx],ImVec2(cell_size, cell_sizeH));
-            ImGui::PopID();
-        }
+    } else if (currentMenuDynLabel && currentMenuDynLabel[celIdx]) { //Dynamic text button
+        ImGui::PushID((celIdx)*4+0);
+        if (isActive) ret=ImGui::Button(currentMenuDynLabel[celIdx],ImVec2(cell_size, cell_sizeH));
+        else ret=ImGui::Button(currentMenuDynLabel[celIdx],ImVec2(cell_size, cell_sizeH));
+        ImGui::PopID();
     } else if (currentMenuLabelFAIcon[celIdx]) {
-        //ImGui::PushFont(font_menu_icon,idealFontSize*2*glScaleFactor);
         ImGui::PushID((celIdx)*4+0);
         
         auto bta = ImGui::GetStyle().ButtonTextAlign;
-        ImGui::GetStyle().ButtonTextAlign = ImVec2(0.5, 0.5);
+        //hack related to gap between FAICON size and cell_size, to review if it can be better managed
+        if (cell_sizeH<cell_size) ImGui::GetStyle().ButtonTextAlign = ImVec2(0.5, 0.85);
+        else ImGui::GetStyle().ButtonTextAlign = ImVec2(0.5, 0.55);
         
         if (isActive) ret=ImGui::Button(faicon(currentMenuLabelFAIcon[celIdx]),ImVec2(cell_size, cell_sizeH));
         else ret=ImGui::Button(faicon(currentMenuLabelFAIcon[celIdx]),ImVec2(cell_size, cell_sizeH));
@@ -723,7 +734,6 @@ int buildSubMenu(int r,
         ImGui::GetStyle().ButtonTextAlign = bta;
         
         ImGui::PopID();
-        //ImGui::PopFont();
     }
     ImGui::PopStyleColor();
     return ret;
@@ -774,7 +784,7 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
     ImGui::GetStyle().Alpha=fadelev;
     
     if (pMenu_state.menu_idx==MENU_PROJECTM_EXPLORE) {
-        menu_win_sizeH=(hh*0.8f)*glScaleFactor;
+        menu_win_sizeH=(hh*0.9f)*glScaleFactor;
     } else {
         menu_win_sizeH=menu_win_size;
         
@@ -789,8 +799,6 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
     else ImGui::PushFont(nullptr);//,18*menu_win_size/512);
     
     int activeFx=playerGetActivatedCells(pMenu_state.menu_idx);
-    
-    ImGuiStyle& style = ImGui::GetStyle();
     
     if (pMenu_state.menu_idx==MENU_ROOT) {
         //Select right current textures for root menu itemas, based on current settings
@@ -955,13 +963,14 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
         if (ImGui::BeginTable("menu_oscillo",4,flagTable)) {
             current_txtMenuHandle=txtMenuOscilloHandle;
             currentMenuLabel=menuOscilloLabel;
-            currentMenuDynLabel=menuOscilloDynLabel;
             currentMenuLabelFAIcon=menuOscilloLabelFAIcon;
             currentMenuVar=menuOscilloVar;
+            currentMenuDynLabel=menuOscilloDynLabel;
             for (int r=0;r<4;r++) {
                 ImGui::TableNextRow(0,cell_size);
                 for (int c=0;c<4;c++) {
                     ImGui::TableSetColumnIndex(c);
+                    
                     bool isActive=activeFx&(1<<(r*4+c));
                     int ret=buildSubMenu(r,
                                          c,
@@ -1579,7 +1588,7 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
                             case 0x20: //Show preset's name
                                 if (settings[PROJECTM_ShowPresetLabel].detail.mdz_switch.switch_value==1) settings[PROJECTM_ShowPresetLabel].detail.mdz_switch.switch_value=0;
                                 else settings[PROJECTM_ShowPresetLabel].detail.mdz_switch.switch_value=1;
-                                pmSoftReinit();
+                                pmSoftReinit(false);
                                 break;
                             case 0x30:// Show temporarly preset's name
                                 if (settings[PROJECTM_ShowPresetLabel].detail.mdz_switch.switch_value==2) settings[PROJECTM_ShowPresetLabel].detail.mdz_switch.switch_value=0;
@@ -1587,44 +1596,50 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
                                     settings[PROJECTM_ShowPresetLabel].detail.mdz_switch.switch_value=2;
                                     _pmPresetHasChanged=true; //Force a (re)display
                                 }
-                                pmSoftReinit();
+                                pmSoftReinit(false);
                                 break;
-                            case 0x01:
-                                if (settings[PROJECTM_BlendPresets].detail.mdz_boolswitch.switch_value) settings[PROJECTM_BlendPresets].detail.mdz_boolswitch.switch_value=0;
-                                else settings[PROJECTM_BlendPresets].detail.mdz_boolswitch.switch_value=1;
-                                pmSoftReinit();
-                                break;
-                            case 0x11:
-                                if (settings[PROJECTM_LockPreset].detail.mdz_boolswitch.switch_value) settings[PROJECTM_LockPreset].detail.mdz_boolswitch.switch_value=0;
-                                else settings[PROJECTM_LockPreset].detail.mdz_boolswitch.switch_value=1;
-                                pmSoftReinit();
-                                break;
-                            case 0x21:
-                                settings[PROJECTM_AutoSwitchPresetsMode].detail.mdz_switch.switch_value=0;
-                                pmSoftReinit();
-                                break;
-                            case 0x31:
-                                settings[PROJECTM_AutoSwitchPresetsMode].detail.mdz_switch.switch_value=1;
-                                pmSoftReinit();
-                                break;
-                            case 0x02:
+                            case 0x01://Bundled presets switch
                                 if (settings[PROJECTM_BundledPresets].detail.mdz_boolswitch.switch_value) settings[PROJECTM_BundledPresets].detail.mdz_boolswitch.switch_value=0;
                                 else settings[PROJECTM_BundledPresets].detail.mdz_boolswitch.switch_value=1;
-                                pmSoftReinit();
+                                pmSoftReinit(false);
                                 break;
-                            case 0x12:
+                            case 0x11://Custom presets switch
                                 if (settings[PROJECTM_CustomPresets].detail.mdz_boolswitch.switch_value) settings[PROJECTM_CustomPresets].detail.mdz_boolswitch.switch_value=0;
                                 else settings[PROJECTM_CustomPresets].detail.mdz_boolswitch.switch_value=1;
-                                pmSoftReinit();
+                                pmSoftReinit(false);
                                 break;
-                            case 0x22:break;
+                            case 0x21://Shuffle switch
+                                settings[PROJECTM_AutoSwitchPresetsMode].detail.mdz_switch.switch_value=!settings[PROJECTM_AutoSwitchPresetsMode].detail.mdz_switch.switch_value;
+                                pmSoftReinit(false);
+                                break;
+                            case 0x31:
+                                if (settings[PROJECTM_BlendPresets].detail.mdz_boolswitch.switch_value) settings[PROJECTM_BlendPresets].detail.mdz_boolswitch.switch_value=0;
+                                else settings[PROJECTM_BlendPresets].detail.mdz_boolswitch.switch_value=1;
+                                pmSoftReinit(false);
+                                break;
+                            case 0x02://Bundled presets playlist editor
+                                fullscreenStatus=settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value;
+                                settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value=1;
+                                pmCurrentPlaylistMode=PM_BUNDLED_PLAYLIST;
+                                pMenu_state.menu_idx=MENU_PROJECTM_EXPLORE;
+                                pmCurrentFileNode=pmBundledPresetsFileNode;
+                                break;
+                            case 0x12://Custom presets playlist editor
+                                fullscreenStatus=settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value;
+                                settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value=1;
+                                pmCurrentPlaylistMode=PM_CUSTOM_PLAYLIST;
+                                pMenu_state.menu_idx=MENU_PROJECTM_EXPLORE;
+                                pmCurrentFileNode=pmCustomPresetsFileNode;
+                                break;
+                            case 0x22: //lock switch
+                                if (settings[PROJECTM_LockPreset].detail.mdz_boolswitch.switch_value) settings[PROJECTM_LockPreset].detail.mdz_boolswitch.switch_value=0;
+                                else settings[PROJECTM_LockPreset].detail.mdz_boolswitch.switch_value=1;
+                                pmSoftReinit(false);
+                                break;
                             case 0x32: //Fullscreen switch
                                 settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value=!(settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value);
                                 break;
                             case 0x03:
-                                fullscreenStatus=settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value;
-                                settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value=1;
-                                pMenu_state.menu_idx=MENU_PROJECTM_EXPLORE;
                                 break;
                             case 0x13: //Go to settings - PROJECTM
                                 keepOpened=4;
@@ -1670,10 +1685,10 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
                                              currentMenuVar);
                     if (ret) {
                         switch (c*16+r) {
-                            case 0x00:
+                            case 0x00: //Apply
+                                pmSoftReinit(true);
                                 break;
-                            case 0x10: //Go to settings - projectm
-                                keepOpened=4;
+                            case 0x10:
                                 break;
                             case 0x20: //Back to main menu
                                 settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value=fullscreenStatus;
@@ -1683,13 +1698,19 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
                                 settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value=fullscreenStatus;
                                 keepOpened=0;
                                 break;
-                            case 0x01:
+                            case 0x01: //Select all
+                                pMenu_PMPresetsSelAll(pmCurrentFileNode);
                                 break;
-                            case 0x11:
+                            case 0x11: //Remove all
+                                pMenu_PMPresetsRemAll(pmCurrentFileNode);
+//                                pmCurrentFileNode.isSelected=1;
                                 break;
-                            case 0x21:
+                            case 0x21: //Select filtered
+                                pMenu_PMPresetsSelFiltered(pmCurrentFileNode);
                                 break;
-                            case 0x31:
+                            case 0x31: //Remove filtered
+                                pMenu_PMPresetsRemFiltered(pmCurrentFileNode);
+//                                pmCurrentFileNode.isSelected=1;
                                 break;
                         }
                     }
@@ -1697,37 +1718,26 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
             }
             ImGui::EndTable();
             
-            ImVec2 pos=ImGui::GetCursorPos();
-            
-            if (font_menu) ImGui::PushFont(font_menu,idealFontSize*glScaleFactor);
-            else ImGui::PushFont(nullptr);//,18*menu_win_size/512);
-            
             ImGui::Text("Select active presets");
             
-            //ImGui::PushFont(font_menu_icon,idealFontSize*2*glScaleFactor);
-            
-            auto bta = ImGui::GetStyle().ButtonTextAlign;
-            ImGui::GetStyle().ButtonTextAlign = ImVec2(0.5, 0.5);
-            
-            if (ImGui::Button(faicon(FA_TIMES))) {
-                pmBundledFilter[0]=0;
+            if (ImGui::Button("X")) {
+                pmFileNodeFilter[0]=0;
             }
-            ImGui::GetStyle().ButtonTextAlign = bta;
+            ImGui::SameLine();
+            ImGui::InputText("Filter", pmFileNodeFilter, 64);
             
-            //ImGui::PopFont();
-            ImGui::InputText("Filter", pmBundledFilter, 64);
-            
+            ImVec2 pos=ImGui::GetCursorPos();
             ImGui::BeginChild("Modizer menu pm explore subwin",ImVec2(menu_win_size,menu_win_sizeH-pos.y));
             
             int index=0;
             bool filter=false;
-            if (strlen(pmBundledFilter)) {
+            if (strlen(pmFileNodeFilter)) {
                 filter=true;
-                NSString *strFilter=[NSString stringWithUTF8String:pmBundledFilter];
-                [pmBundledPresetsFileNode filterNodes:strFilter filterDir:true];
+                NSString *strFilter=[NSString stringWithUTF8String:pmFileNodeFilter];
+                [pmCurrentFileNode filterNodes:strFilter filterDir:true];
             }
             
-            index=buildDirTree(pmBundledPresetsFileNode,index,filter);
+            index=pMenu_buildDirTree(pmCurrentFileNode,index,filter);
             
             menu_scrollX[pMenu_state.menu_idx]-=panX;
             if (menu_scrollX[pMenu_state.menu_idx]<0) menu_scrollX[pMenu_state.menu_idx]=0;
@@ -1741,8 +1751,6 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
             ImGui::SetScrollY(menu_scrollY[pMenu_state.menu_idx]*glScaleFactor);
             
             ImGui::EndChild();
-            
-            ImGui::PopFont();
         }
     }
     
@@ -1757,8 +1765,13 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
     return keepOpened;
 }
 
-int buildDirTree(FileNode *fileNode, int idx,bool filter) {
-    int flags_default=0;
+int pMenu_PMPresetsSelAll(FileNode *fnode);
+int pMenu_PMPresetsRemAll(FileNode *fnode);
+int pMenu_PMPresetsSelFiltered(FileNode *fnode);
+int pMenu_PMPresetsRemFiltered(FileNode *fnode);
+
+int pMenu_buildDirTree(FileNode *fileNode, int idx,bool filter) {
+    int flags_default=ImGuiTreeNodeFlags_SpanLabelWidth|ImGuiTreeNodeFlags_DrawLinesToNodes|ImGuiTreeNodeFlags_SpanFullWidth;
     if (filter) {
         //open all nodes by default
         flags_default|=ImGuiTreeNodeFlags_DefaultOpen;
@@ -1772,15 +1785,15 @@ int buildDirTree(FileNode *fileNode, int idx,bool filter) {
             }
             
             if (!skipentry) {
-                int flags=flags_default|ImGuiTreeNodeFlags_OpenOnArrow|ImGuiTreeNodeFlags_SpanAvailWidth;
+                int flags=flags_default|ImGuiTreeNodeFlags_OpenOnArrow;
                 if (child.isSelected) flags|=ImGuiTreeNodeFlags_Selected;
                 
                 bool node_open=ImGui::TreeNodeEx((void*)(intptr_t)idx++, flags, "%s",[[child name] UTF8String]);
-                if (ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen()) {
+                if (!mouseMoveInProgress && ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen()) {
                     child.isSelected=!child.isSelected;
                 }
                 if (node_open) {
-                    idx=buildDirTree(child,idx,filter);
+                    idx=pMenu_buildDirTree(child,idx,filter);
                     ImGui::TreePop();
                 }
             }
@@ -1790,10 +1803,10 @@ int buildDirTree(FileNode *fileNode, int idx,bool filter) {
                 if (!child.isMatchingFilter) skipentry=true;
             }
             if (!skipentry) {
-                int flags=flags_default|ImGuiTreeNodeFlags_Leaf|ImGuiTreeNodeFlags_SpanAvailWidth;
+                int flags=flags_default|ImGuiTreeNodeFlags_Leaf;
                 if (child.isSelected) flags|=ImGuiTreeNodeFlags_Selected;
                 bool node_open=ImGui::TreeNodeEx((void*)(intptr_t)idx++, flags, "%s",[[child name] UTF8String]);
-                if (ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen()) {
+                if (!mouseMoveInProgress && ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen()) {
                     child.isSelected=!child.isSelected;
                 }
                 if (node_open) {
@@ -1804,5 +1817,47 @@ int buildDirTree(FileNode *fileNode, int idx,bool filter) {
     }
     return idx;
 }
+
+int pMenu_PMPresetsSelAll(FileNode *fnode) {
+    int ret=0;
+    fnode.isSelected=1;
+    ret++;
+    for (FileNode *child in fnode.children) {
+        ret+=pMenu_PMPresetsSelAll(child);
+    }
+    return ret;
+}
+int pMenu_PMPresetsRemAll(FileNode *fnode) {
+    int ret=0;
+    fnode.isSelected=0;
+    ret++;
+    for (FileNode *child in fnode.children) {
+        ret+=pMenu_PMPresetsRemAll(child);
+    }
+    return ret;
+}
+int pMenu_PMPresetsSelFiltered(FileNode *fnode){
+    int ret=0;
+    if (fnode.isMatchingFilter) {
+        fnode.isSelected=1;
+        ret++;
+    }
+    for (FileNode *child in fnode.children) {
+        ret+=pMenu_PMPresetsSelFiltered(child);
+    }
+    return ret;
+}
+int pMenu_PMPresetsRemFiltered(FileNode *fnode) {
+    int ret=0;
+    if (fnode.isMatchingFilter) {
+        fnode.isSelected=0;
+        ret++;
+    }
+    for (FileNode *child in fnode.children) {
+        ret+=pMenu_PMPresetsRemFiltered(child);
+    }
+    return ret;
+}
+
 
 }
