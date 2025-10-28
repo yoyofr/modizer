@@ -440,16 +440,6 @@
 		59E4A382261E7219000A31BA /* VGMPlay.ini in Resources */ = {isa = PBXBuildFile; fileRef = 59E4A37F261E7219000A31BA /* VGMPlay.ini */; };
 		59F726B82657ABFD006BB0E3 /* RootViewControllerSMSPWebParser.mm in Sources */ = {isa = PBXBuildFile; fileRef = 59F726B72657ABFD006BB0E3 /* RootViewControllerSMSPWebParser.mm */; };
 		59FF9ACB263F350A004152B8 /* liblibkss.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 59FF9A4A263F34BE004152B8 /* liblibkss.a */; };
-		CC02DD1C2BA316F100ED5992 /* MSColorComponentView.m in Sources */ = {isa = PBXBuildFile; fileRef = CC02DCCD2BA316F000ED5992 /* MSColorComponentView.m */; };
-		CC02DD1D2BA316F100ED5992 /* MSColorSelectionView.m in Sources */ = {isa = PBXBuildFile; fileRef = CC02DCD02BA316F000ED5992 /* MSColorSelectionView.m */; };
-		CC02DD1E2BA316F100ED5992 /* MSColorSelectionViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = CC02DCD22BA316F000ED5992 /* MSColorSelectionViewController.m */; };
-		CC02DD1F2BA316F100ED5992 /* MSColorUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = CC02DCD42BA316F000ED5992 /* MSColorUtils.m */; };
-		CC02DD202BA316F100ED5992 /* MSColorWheelView.m in Sources */ = {isa = PBXBuildFile; fileRef = CC02DCD72BA316F000ED5992 /* MSColorWheelView.m */; };
-		CC02DD212BA316F100ED5992 /* MSHSBView.m in Sources */ = {isa = PBXBuildFile; fileRef = CC02DCD92BA316F000ED5992 /* MSHSBView.m */; };
-		CC02DD222BA316F100ED5992 /* MSRGBView.m in Sources */ = {isa = PBXBuildFile; fileRef = CC02DCDB2BA316F000ED5992 /* MSRGBView.m */; };
-		CC02DD232BA316F100ED5992 /* MSSliderView.m in Sources */ = {isa = PBXBuildFile; fileRef = CC02DCDD2BA316F000ED5992 /* MSSliderView.m */; };
-		CC02DD242BA316F100ED5992 /* MSThumbView.m in Sources */ = {isa = PBXBuildFile; fileRef = CC02DCDF2BA316F000ED5992 /* MSThumbView.m */; };
-		CC02DD252BA316F100ED5992 /* UIControl+HitTestEdgeInsets.m in Sources */ = {isa = PBXBuildFile; fileRef = CC02DCE12BA316F000ED5992 /* UIControl+HitTestEdgeInsets.m */; };
 		CC02DD422BA3187200ED5992 /* CoreImage.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 593288A3261FC61700DB4E7C /* CoreImage.framework */; };
 		CC02EC541AB5B35600979E38 /* timidity.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 3396B61A13297F8E001792E0 /* timidity.cfg */; };
 		CC02EC551AB5B37000979E38 /* merlin_gold.sf2 in Resources */ = {isa = PBXBuildFile; fileRef = 33C658B0139437FE00265A1D /* merlin_gold.sf2 */; };
@@ -1933,28 +1923,6 @@
 		59F726B72657ABFD006BB0E3 /* RootViewControllerSMSPWebParser.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RootViewControllerSMSPWebParser.mm; sourceTree = "<group>"; };
 		59FF9944263D65CD004152B8 /* PlaylistCommonFunctions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlaylistCommonFunctions.h; sourceTree = "<group>"; };
 		59FF99DD263F34BD004152B8 /* libkss.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = libkss.xcodeproj; sourceTree = "<group>"; };
-		CC02DCCC2BA316F000ED5992 /* MSColorComponentView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MSColorComponentView.h; sourceTree = "<group>"; };
-		CC02DCCD2BA316F000ED5992 /* MSColorComponentView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSColorComponentView.m; sourceTree = "<group>"; };
-		CC02DCCE2BA316F000ED5992 /* MSColorPicker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MSColorPicker.h; sourceTree = "<group>"; };
-		CC02DCCF2BA316F000ED5992 /* MSColorSelectionView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MSColorSelectionView.h; sourceTree = "<group>"; };
-		CC02DCD02BA316F000ED5992 /* MSColorSelectionView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSColorSelectionView.m; sourceTree = "<group>"; };
-		CC02DCD12BA316F000ED5992 /* MSColorSelectionViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MSColorSelectionViewController.h; sourceTree = "<group>"; };
-		CC02DCD22BA316F000ED5992 /* MSColorSelectionViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSColorSelectionViewController.m; sourceTree = "<group>"; };
-		CC02DCD32BA316F000ED5992 /* MSColorUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MSColorUtils.h; sourceTree = "<group>"; };
-		CC02DCD42BA316F000ED5992 /* MSColorUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSColorUtils.m; sourceTree = "<group>"; };
-		CC02DCD52BA316F000ED5992 /* MSColorView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MSColorView.h; sourceTree = "<group>"; };
-		CC02DCD62BA316F000ED5992 /* MSColorWheelView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MSColorWheelView.h; sourceTree = "<group>"; };
-		CC02DCD72BA316F000ED5992 /* MSColorWheelView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSColorWheelView.m; sourceTree = "<group>"; };
-		CC02DCD82BA316F000ED5992 /* MSHSBView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MSHSBView.h; sourceTree = "<group>"; };
-		CC02DCD92BA316F000ED5992 /* MSHSBView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSHSBView.m; sourceTree = "<group>"; };
-		CC02DCDA2BA316F000ED5992 /* MSRGBView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MSRGBView.h; sourceTree = "<group>"; };
-		CC02DCDB2BA316F000ED5992 /* MSRGBView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSRGBView.m; sourceTree = "<group>"; };
-		CC02DCDC2BA316F000ED5992 /* MSSliderView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MSSliderView.h; sourceTree = "<group>"; };
-		CC02DCDD2BA316F000ED5992 /* MSSliderView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSSliderView.m; sourceTree = "<group>"; };
-		CC02DCDE2BA316F000ED5992 /* MSThumbView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MSThumbView.h; sourceTree = "<group>"; };
-		CC02DCDF2BA316F000ED5992 /* MSThumbView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSThumbView.m; sourceTree = "<group>"; };
-		CC02DCE02BA316F000ED5992 /* UIControl+HitTestEdgeInsets.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIControl+HitTestEdgeInsets.h"; sourceTree = "<group>"; };
-		CC02DCE12BA316F000ED5992 /* UIControl+HitTestEdgeInsets.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIControl+HitTestEdgeInsets.m"; sourceTree = "<group>"; };
 		CC07A87E2BB952EA0052DE82 /* gbsplay.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = gbsplay.xcodeproj; path = gbsplay/gbsplay.xcodeproj; sourceTree = "<group>"; };
 		CC08C3A72EA9858E00A0F15F /* modizer-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "modizer-Bridging-Header.h"; sourceTree = "<group>"; };
 		CC08C3A82EA9858F00A0F15F /* ModizerIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ModizerIntent.swift; path = src/ModizerIntent.swift; sourceTree = "<group>"; };
@@ -3524,7 +3492,6 @@
 				CC1E58CC1200B3B7000A8A4E /* FFT */,
 				CC1E597C1200B3B8000A8A4E /* FTPServer */,
 				CC1E5A021200B3B8000A8A4E /* Misc */,
-				CC02DD102BA316F000ED5992 /* MSColorPicker-master */,
 				CCFDC4EB17DB105400C6692C /* NVDSP */,
 				33BB80CC14D4679B00EA4B32 /* OBSlider */,
 				59C22A2F25B99ACA003FEDBF /* Reachability */,
@@ -3769,43 +3736,6 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		CC02DCE22BA316F000ED5992 /* MSColorPicker */ = {
-			isa = PBXGroup;
-			children = (
-				CC02DCCC2BA316F000ED5992 /* MSColorComponentView.h */,
-				CC02DCCD2BA316F000ED5992 /* MSColorComponentView.m */,
-				CC02DCCE2BA316F000ED5992 /* MSColorPicker.h */,
-				CC02DCCF2BA316F000ED5992 /* MSColorSelectionView.h */,
-				CC02DCD02BA316F000ED5992 /* MSColorSelectionView.m */,
-				CC02DCD12BA316F000ED5992 /* MSColorSelectionViewController.h */,
-				CC02DCD22BA316F000ED5992 /* MSColorSelectionViewController.m */,
-				CC02DCD32BA316F000ED5992 /* MSColorUtils.h */,
-				CC02DCD42BA316F000ED5992 /* MSColorUtils.m */,
-				CC02DCD52BA316F000ED5992 /* MSColorView.h */,
-				CC02DCD62BA316F000ED5992 /* MSColorWheelView.h */,
-				CC02DCD72BA316F000ED5992 /* MSColorWheelView.m */,
-				CC02DCD82BA316F000ED5992 /* MSHSBView.h */,
-				CC02DCD92BA316F000ED5992 /* MSHSBView.m */,
-				CC02DCDA2BA316F000ED5992 /* MSRGBView.h */,
-				CC02DCDB2BA316F000ED5992 /* MSRGBView.m */,
-				CC02DCDC2BA316F000ED5992 /* MSSliderView.h */,
-				CC02DCDD2BA316F000ED5992 /* MSSliderView.m */,
-				CC02DCDE2BA316F000ED5992 /* MSThumbView.h */,
-				CC02DCDF2BA316F000ED5992 /* MSThumbView.m */,
-				CC02DCE02BA316F000ED5992 /* UIControl+HitTestEdgeInsets.h */,
-				CC02DCE12BA316F000ED5992 /* UIControl+HitTestEdgeInsets.m */,
-			);
-			path = MSColorPicker;
-			sourceTree = "<group>";
-		};
-		CC02DD102BA316F000ED5992 /* MSColorPicker-master */ = {
-			isa = PBXGroup;
-			children = (
-				CC02DCE22BA316F000ED5992 /* MSColorPicker */,
-			);
-			path = "MSColorPicker-master";
-			sourceTree = "<group>";
-		};
 		CC07A87F2BB952EA0052DE82 /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -3825,10 +3755,7 @@
 		CC1E58BA1200B3B7000A8A4E /* src */ = {
 			isa = PBXGroup;
 			children = (
-				CC16CA502EAF88B900255213 /* MDZFontAwesome.h */,
 				337FA728124288FA00DDD352 /* AboutViewController.h */,
-				CC16CA412EAEAEB700255213 /* DirParser.h */,
-				CC16CA422EAEAECE00255213 /* DirParser.mm */,
 				337FA729124288FA00DDD352 /* AboutViewController.mm */,
 				CCE8D7492B8D68FD0076D8C0 /* AnimatedLaunchVC.h */,
 				CCE8D7482B8D68FD0076D8C0 /* AnimatedLaunchVC.mm */,
@@ -3841,6 +3768,8 @@
 				33525D7C1222567600E6E517 /* DBHelper.mm */,
 				CC1E622012041177000A8A4E /* DetailViewControllerIphone.h */,
 				CC1E622112041177000A8A4E /* DetailViewControllerIphone.mm */,
+				CC16CA412EAEAEB700255213 /* DirParser.h */,
+				CC16CA422EAEAECE00255213 /* DirParser.mm */,
 				CC1E622212041177000A8A4E /* DownloadViewController.h */,
 				CC1E622312041177000A8A4E /* DownloadViewController.mm */,
 				CC6CBDF417DC615F006DCBC7 /* EQView.h */,
@@ -3850,6 +3779,7 @@
 				CCAE2AA512732E0E00F42E7D /* GoogleAppHelper.h */,
 				CCAE2AA612732E0E00F42E7D /* GoogleAppHelper.mm */,
 				CCD4631D123CB8F600D063FE /* main.mm */,
+				CC16CA502EAF88B900255213 /* MDZFontAwesome.h */,
 				CCB8D96B17F5F1E4008E6A45 /* MDZUIImageView.h */,
 				CCB8D96C17F5F1E4008E6A45 /* MDZUIImageView.m */,
 				59A65C6B2624D40000BC99D1 /* MiniPlayerVC.h */,
@@ -3857,15 +3787,15 @@
 				59A65C7E262501A000BC99D1 /* MiniPlayerView.h */,
 				59A65C7F262501A000BC99D1 /* MiniPlayerView.m */,
 				CC9B97161221739A007A156C /* ModizerConstants.h */,
-				CC93319F2EA5835400CB0503 /* ModizerTypes.h */,
 				CC9331A02EA583F300CB0503 /* ModizerGlobals.c */,
+				CC93319F2EA5835400CB0503 /* ModizerTypes.h */,
 				59BB9F01261B03DE00DB5D6C /* ModizerVoicesData.h */,
-				CCFB5ECF2EA98C400049DA7F /* ModizerWrapper.m */,
-				CCFB5ED12EA98C480049DA7F /* ModizerWrapper.h */,
 				5950D83825DF1A2500B476B2 /* ModizerWebView.h */,
 				5950D83925DF1A2500B476B2 /* ModizerWebView.m */,
 				CC2DE0A21217EF2900CF9CFF /* ModizerWin.h */,
 				CC2DE0A31217EF2900CF9CFF /* ModizerWin.mm */,
+				CCFB5ED12EA98C480049DA7F /* ModizerWrapper.h */,
+				CCFB5ECF2EA98C400049DA7F /* ModizerWrapper.m */,
 				CC1E622812041177000A8A4E /* ModizMusicPlayer.h */,
 				CC1E622912041177000A8A4E /* ModizMusicPlayer.mm */,
 				33AB276917B3D48F00C12189 /* MoreViewController.h */,
@@ -3881,6 +3811,8 @@
 				33FDFF6617B6E99A00B61B65 /* SettingsGenViewController.mm */,
 				33B7AD0A17C74AE600C1E404 /* SettingsMaintenanceViewController.h */,
 				33B7AD0B17C74AE700C1E404 /* SettingsMaintenanceViewController.mm */,
+				CC9331992EA55C0E00CB0503 /* SysMonitoring.h */,
+				CC93319D2EA55E6400CB0503 /* SysMonitoring.m */,
 				5918E0A926177CB1004B85DA /* VoicesViewController.h */,
 				5918E0AA26177CB1004B85DA /* VoicesViewController.mm */,
 				59A65C902625F3DB00BC99D1 /* WaitingView.h */,
@@ -3889,8 +3821,6 @@
 				33ABE5B417B2364C00AE0EA1 /* WB_BookmarksViewController.mm */,
 				CC1E623912041177000A8A4E /* WebBrowser.h */,
 				CC1E623A12041177000A8A4E /* WebBrowser.mm */,
-				CC9331992EA55C0E00CB0503 /* SysMonitoring.h */,
-				CC93319D2EA55E6400CB0503 /* SysMonitoring.m */,
 			);
 			path = src;
 			sourceTree = "<group>";
@@ -6336,7 +6266,6 @@
 			files = (
 				CC8368EB2B57CA9B0035A4DA /* vfs68_mem.c in Sources */,
 				CC83695C2B57CCC80035A4DA /* inst68.c in Sources */,
-				CC02DD1C2BA316F100ED5992 /* MSColorComponentView.m in Sources */,
 				59C22A3225B99ACA003FEDBF /* Reachability.m in Sources */,
 				CC8368F12B57CA9B0035A4DA /* option68.c in Sources */,
 				CC8368F22B57CA9B0035A4DA /* registry68.c in Sources */,
@@ -6346,7 +6275,6 @@
 				CC8368E32B57CA9B0035A4DA /* endian68.c in Sources */,
 				59C22A1E25B992D9003FEDBF /* AFNetworkReachabilityManager.m in Sources */,
 				CCFDC53A17DB105500C6692C /* NVHighShelvingFilter.m in Sources */,
-				CC02DD252BA316F100ED5992 /* UIControl+HitTestEdgeInsets.m in Sources */,
 				CCFDC54317DB105500C6692C /* NVClippingDetection.m in Sources */,
 				CC8368EC2B57CA9B0035A4DA /* init68.c in Sources */,
 				591D8E4625DC63620013E19F /* decinit.c in Sources */,
@@ -6384,7 +6312,6 @@
 				CC1E623D12041177000A8A4E /* DetailViewControllerIphone.mm in Sources */,
 				CC1E623E12041177000A8A4E /* DownloadViewController.mm in Sources */,
 				CC9CEF2F2E98D76F00725D15 /* PlayerMenu.mm in Sources */,
-				CC02DD1F2BA316F100ED5992 /* MSColorUtils.m in Sources */,
 				591CA87D264850D300168C7E /* ImagesCache.m in Sources */,
 				CC83686B2B57CA9A0035A4DA /* libsc68.c in Sources */,
 				CC1E624112041177000A8A4E /* ModizMusicPlayer.mm in Sources */,
@@ -6412,9 +6339,7 @@
 				CC8368592B57CA9A0035A4DA /* mfpemul.c in Sources */,
 				CCBF101A1221788200E8DE4E /* Ymload.cpp in Sources */,
 				CC8368E02B57CA9B0035A4DA /* vfs68_ao.c in Sources */,
-				CC02DD242BA316F100ED5992 /* MSThumbView.m in Sources */,
 				CC8369642B57CCC80035A4DA /* getea68.c in Sources */,
-				CC02DD202BA316F100ED5992 /* MSColorWheelView.m in Sources */,
 				CCBF101B1221788200E8DE4E /* YmMusic.cpp in Sources */,
 				CCBF101C1221788200E8DE4E /* YmUserInterface.cpp in Sources */,
 				CC8368EF2B57CA9B0035A4DA /* rsc68.c in Sources */,
@@ -6460,7 +6385,6 @@
 				CC8369672B581DDA0035A4DA /* error68.c in Sources */,
 				3370BC35124A858C00691400 /* revmodel.cpp in Sources */,
 				3370BC4B124A891500691400 /* mdxmain.c in Sources */,
-				CC02DD232BA316F100ED5992 /* MSSliderView.m in Sources */,
 				CCB8D96D17F5F1E4008E6A45 /* MDZUIImageView.m in Sources */,
 				CC2E39372B9DA419003E9E77 /* RootViewControllerXPWebParser.mm in Sources */,
 				3370BC8E124A8B7D00691400 /* pcm8.c in Sources */,
@@ -6476,8 +6400,6 @@
 				CCFB5ED02EA98C400049DA7F /* ModizerWrapper.m in Sources */,
 				5937EEE626453B0800270715 /* TFHpple.m in Sources */,
 				CC83685F2B57CA9A0035A4DA /* paulaemul.c in Sources */,
-				CC02DD222BA316F100ED5992 /* MSRGBView.m in Sources */,
-				CC02DD212BA316F100ED5992 /* MSHSBView.m in Sources */,
 				591D8E4525DC63620013E19F /* unpack.c in Sources */,
 				59B9998025CFE5700071E144 /* BButton.m in Sources */,
 				CC83685B2B57CA9A0035A4DA /* mfp_io.c in Sources */,
@@ -6511,7 +6433,6 @@
 				33AB276B17B3D48F00C12189 /* MoreViewController.mm in Sources */,
 				3399D61217B5A143009E2AE9 /* RootViewControllerASMA.mm in Sources */,
 				3399D61617B5A5C6009E2AE9 /* asap.c in Sources */,
-				CC02DD1E2BA316F100ED5992 /* MSColorSelectionViewController.m in Sources */,
 				59A65C922625F3DB00BC99D1 /* WaitingView.m in Sources */,
 				33FDFF6717B6E99A00B61B65 /* SettingsGenViewController.mm in Sources */,
 				33F6A94217B9A36A002369E7 /* MNEValueTrackingSlider.m in Sources */,
@@ -6522,7 +6443,6 @@
 				CC8368EA2B57CA9B0035A4DA /* gzip68.c in Sources */,
 				CC8368752B57CA9A0035A4DA /* unice68_pack.c in Sources */,
 				CC08C3A92EA9858F00A0F15F /* ModizerIntent.swift in Sources */,
-				CC02DD1D2BA316F100ED5992 /* MSColorSelectionView.m in Sources */,
 				3317854117C56EAC00929E8F /* TPKeyboardAvoidingTableView.m in Sources */,
 				33B7AD0C17C74AE700C1E404 /* SettingsMaintenanceViewController.mm in Sources */,
 				5939290525CF59CB009281DC /* hvl_replay.cpp in Sources */,
@@ -6584,7 +6504,7 @@
 				INFOPLIST_FILE = "modizer-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = Modizer;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.music";
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/libs/milkdrop2020-main/external/dxsdk/Lib/x86",
@@ -6635,7 +6555,7 @@
 				INFOPLIST_FILE = "modizer-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = Modizer;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.music";
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/libs/milkdrop2020-main/external/dxsdk/Lib/x86",
@@ -7133,7 +7053,7 @@
 				INFOPLIST_FILE = "modizer-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = Modizer;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.music";
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/libs/milkdrop2020-main/external/dxsdk/Lib/x86",

@@ -77,12 +77,8 @@ bool ImGui_ImplIOS_Init()
           ICON_MIN_FA, ICON_MAX_FA,
           0,
       };
-    font_menu_icon=io.Fonts->AddFontFromFileTTF([[[NSBundle mainBundle] pathForResource:@"Fonts/fontawesome-webfont" ofType: @"ttf"] UTF8String], 32.0f*glScaleFactor, &icons_config, ranges);
+    font_menu_icon=io.Fonts->AddFontFromFileTTF([[[NSBundle mainBundle] pathForResource:@"Fonts/fontawesome-webfont" ofType: @"ttf"] UTF8String], 16.0f*glScaleFactor, &icons_config, ranges);
     IM_ASSERT(font_menu_icon != NULL);
-    
-//    font_menu=io.Fonts->AddFontFromFileTTF([[[NSBundle mainBundle] pathForResource:FONT_MENU_FILE_JAP ofType: @"ttf"] UTF8String], 16.0f*glScaleFactor, NULL, io.Fonts->GetGlyphRangesJapanese());
-//    IM_ASSERT(font_menu != NULL);
-    
     
     for (int i=0;i<FONT_TRACKER_NB;i++) {
         //NSLog(@"loading %s.ttf size: %f",font_trackerName[i][0],ft_size);

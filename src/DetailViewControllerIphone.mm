@@ -36,6 +36,8 @@ extern pthread_mutex_t shader_mutex;
 #import "DirParser.h"
 FileNode *pmBundledPresetsFileNode;
 FileNode *pmCustomPresetsFileNode;
+NSMutableOrderedSet *pmFavoritesBundledPresets;
+NSMutableOrderedSet *pmFavoritesCustomPresets;
 
 extern BOOL nvdsp_EQ;
 
@@ -113,6 +115,7 @@ projectm_handle _pm; //!< Pointer to the projectM instance used by the applicati
 projectm_playlist_handle _pm_playlist; //!< Pointer to the projectM playlist manager instance.
 bool _pm_playlist_loadBundled,_pm_playlist_loadCustom;
 char *pmPresetStr;
+NSString *pmCurPresetFile;
 int _pm_display_name_countdown;
 float _pm_display_scrollx=0;
 int _pm_display_scroll_direction=1;
@@ -152,6 +155,8 @@ void PresetSwitchedEvent(bool isHardCut, unsigned int index, void* context) {
     char *presetName = projectm_playlist_item(_pm_playlist, index);
     char *title=pmGetPresetCleanTitle(presetName);
     
+    pmCurPresetFile=[NSString stringWithUTF8String:title];
+    
     if (pmPresetStr) {
         free(pmPresetStr);
     }
@@ -174,6 +179,8 @@ void PresetSwitchFailedEvent(const char* preset_filename, const char* message, v
 #include "../utils/imgui/imgui.h"
 #include "../utils/imgui/backends/imgui_impl_ios.h"
 #include "../utils/imgui/backends/imgui_impl_opengl3.h"
+
+#include "MDZFontAwesome.h"
 
 ImGui_ImplIOS_UI *imGui_impl_ios;
 
@@ -1391,7 +1398,47 @@ static float movePinchScale,movePinchScaleOld;
     [SettingsGenViewController changeSettingsValue:GLOB_FXMODPattern_FontSize change:val];
 }
 
--(void) mdSwitchLockPreset {
+void addFavoriteCustomPresets(NSString *path);
+void remFavoriteCustomPresets(NSString *path);
+bool isFavoriteCustomPresets(NSString *path);
+
+-(void) mdChangeFavoriteStatusPreset:(int)val {
+    if (_pmIsInitialized && _pm) {
+        char *title;
+        uint32_t index=projectm_playlist_get_position(_pm_playlist);
+        title = projectm_playlist_item(_pm_playlist, index);
+        if (title) {
+            char *name=pmGetPresetCleanTitle(title);
+            NSString *strName=[NSString stringWithUTF8String:name];
+            
+            bool added=false;
+            if (val==1) {
+                addFavoriteCustomPresets(strName);
+                added=true;
+            } else if (val==-1) remFavoriteCustomPresets(strName);
+            else if (val==0) {
+                if (isFavoriteCustomPresets(strName)) remFavoriteCustomPresets(strName);
+                else {
+                    addFavoriteCustomPresets(strName);
+                    added=true;
+                }
+            }
+            if (added) {
+                [self openPopup:NSLocalizedString(@"Preset added to favorite",@"") secmsg:[NSString stringWithFormat:@"%s",title] style:0];
+            } else {
+                [self openPopup:NSLocalizedString(@"Preset removed from favorite",@"") secmsg:[NSString stringWithFormat:@"%s",title] style:0];
+            }
+            projectm_playlist_free_string(title);
+            
+            _pm_display_name_countdown=_pm_fps*PM_PRESET_DISPLAY_TIMEOUT;
+        }
+        
+        
+    }
+}
+
+
+-(void) mdSwitchLockStatusPreset {
     if (_pmIsInitialized && _pm) {
         char *title;
         uint32_t index=projectm_playlist_get_position(_pm_playlist);
@@ -1414,6 +1461,8 @@ static float movePinchScale,movePinchScaleOld;
             
             free(tmp_str);
             projectm_playlist_free_string(title);
+            
+            _pm_display_name_countdown=_pm_fps*PM_PRESET_DISPLAY_TIMEOUT;
         }
         
         
@@ -2642,9 +2691,9 @@ int recording=0;
     
     clearAudioFXbuffer=true;
     
-    if (settings[GLOB_Notification].detail.mdz_switch.switch_value==2) {
-        [self sendNotifPlayedTitle];
-    }
+//    if (settings[GLOB_Notification].detail.mdz_switch.switch_value==2) {
+//        [self sendNotifPlayedTitle];
+//    }
     
     [self refreshCurrentVC];
 }
@@ -3185,7 +3234,7 @@ int recording=0;
         NSError *error;
         NSRange rdir;
         BOOL isDir;
-        NSArray *dirContent;//=[NSMutableArray array];//
+        NSArray *dirContent;
         
         cpath=[NSString stringWithFormat:@"%@/tmp/tmpArchive",NSHomeDirectory()];
         
@@ -5082,10 +5131,28 @@ void pmSoftReinit(bool forceReloadPlaylist) {
             projectm_load_preset_file(_pm,"idle://Geiss & Sperl - Feedback (projectM idle HDR mix).milk",NULL);
             std::string strtmp = "No preset found. Activate bundled presets or copy .milk files in '"+std::string(PM_ROOT_FOLDER_CUSTOM)+"/presets' & .jpg in '"+std::string(PM_ROOT_FOLDER_CUSTOM)+"/textures' folders.";
             pmPresetStr=strdup(strtmp.c_str());
+            
+            pmCurPresetFile=nil;
         }
         _pmPresetHasChanged=true;
     }
 }
+
+void addFavoriteCustomPresets(NSString *path) {
+    if (path==nil) return;
+    [pmFavoritesCustomPresets addObject:path];
+}
+
+void remFavoriteCustomPresets(NSString *path) {
+    if (path==nil) return;
+    [pmFavoritesCustomPresets removeObject:path];
+}
+
+bool isFavoriteCustomPresets(NSString *path) {
+    if (path==nil) return false;
+    return [pmFavoritesCustomPresets containsObject:path];
+}
+
 
 void updatePresetCustomDirStructure() {
     DirParser *dirParser=[[DirParser alloc] init];
@@ -5207,6 +5274,7 @@ void buildPresetDirStructure() {
 
 
     pmPresetStr=NULL;
+    pmCurPresetFile=nil;
     _pmPresetHasChanged=false;
     _pm_display_name_countdown=0;
     
@@ -5258,6 +5326,11 @@ void buildPresetDirStructure() {
     //--------------------------------//
     [self setupOGLView];
     [self setContextOGL];
+    //--------------------------------//
+    // Texture for background view
+    //--------------------------------//
+    txtbackgroundImage=0;
+    glGenTextures(1, &txtbackgroundImage);
     
     CHECK_PROFILE("openGL")
     
@@ -5270,6 +5343,20 @@ void buildPresetDirStructure() {
     
     CHECK_PROFILE("Renders")
     
+    //--------------------------------//
+    // ImGui init
+    //--------------------------------//
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGui_ImplIOS_Init();
+    ImGui_ImplOpenGL3_Init();
+    imGui_impl_ios=[[ImGui_ImplIOS_UI alloc] init];
+    [imGui_impl_ios initTF:m_oglView];
+
+    CHECK_PROFILE("ImGUI")
+    
+    pmFavoritesBundledPresets=[[NSMutableOrderedSet alloc] init];
+    pmFavoritesCustomPresets=[[NSMutableOrderedSet alloc] init];
     
     _pmIsInitialized=false;
     _pm_shouldRestartAt=-1;
@@ -5294,25 +5381,6 @@ void buildPresetDirStructure() {
         }];
     });
     
-    CHECK_PROFILE("PM init")
-    
-    //--------------------------------//
-    // Texture for background view
-    //--------------------------------//
-    txtbackgroundImage=0;
-    glGenTextures(1, &txtbackgroundImage);
-    
-    //--------------------------------//
-    // ImGui init
-    //--------------------------------//
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGui_ImplIOS_Init();
-    ImGui_ImplOpenGL3_Init();
-    imGui_impl_ios=[[ImGui_ImplIOS_UI alloc] init];
-    [imGui_impl_ios initTF:m_oglView];
-
-    CHECK_PROFILE("ImGUI")
     //--------------------------------//
     mSendStatTimer=0;
     loadRequestInProgress=0;
@@ -5405,10 +5473,9 @@ void buildPresetDirStructure() {
     eqVC=nil;
     bShowEQ=false;
     
-    
     [sliderProgressModule setThumbImage:[UIImage imageNamed:@"slider.png" ] forState:UIControlStateNormal];
     
-    
+    CHECK_PROFILE("various2a")
     
     shouldRestart=1;
     
@@ -5436,13 +5503,6 @@ void buildPresetDirStructure() {
     [pauseBarSub layoutIfNeeded];
     [playBarSub layoutIfNeeded];
     
-    
-    
-    /*[[[pauseBarSub subviews] objectAtIndex:2] addGestureRecognizer:longPressPaPrevSGesture];
-     [[[pauseBarSub subviews] objectAtIndex:4] addGestureRecognizer:longPressPaNextSGesture];
-     [[[playBarSub subviews] objectAtIndex:2] addGestureRecognizer:longPressPlPrevSGesture];
-     [[[playBarSub subviews] objectAtIndex:4] addGestureRecognizer:longPressPlNextSGesture];*/
-    
     if ([[playBarSubRewind valueForKey:@"view"] respondsToSelector:@selector(addGestureRecognizer:)]) {
         [[playBarSubRewind valueForKey:@"view"] addGestureRecognizer:longPressPlPrevSGesture];
     }
@@ -5456,7 +5516,6 @@ void buildPresetDirStructure() {
         [[pauseBarSubFFwd valueForKey:@"view"] addGestureRecognizer:longPressPaNextSGesture];
     }
     
-    
     labelModuleName.userInteractionEnabled = YES;
     UITapGestureRecognizer *tapGesture =
     [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(titleTap:)];
@@ -5467,18 +5526,15 @@ void buildPresetDirStructure() {
     self.navigationItem.title=@"No file selected";
     //	self.navigationItem.backBarButtonItem.title=@"dd";
     
+    CHECK_PROFILE("various2b")
+    
     UIBarButtonItem *bbitem=[[UIBarButtonItem alloc] initWithTitle:@"" style:UIBarButtonItemStylePlain target:self action:@selector(showPlaylist)];
     [bbitem setTitleTextAttributes:[NSDictionary dictionaryWithObjectsAndKeys: [UIFont fontWithName:@"FontAwesome" size:22.0], UITextAttributeFont,nil] forState:UIControlStateNormal];
     unichar tmpChar=0xF0CA;
     [bbitem setTitle:[NSString stringWithCharacters:&tmpChar length:1]];
     [self.navigationItem setRightBarButtonItem:bbitem animated:YES];
     [bbitem setTitlePositionAdjustment:UIOffsetMake(0,1.5) forBarMetrics:UIBarMetricsDefault];
-    /*[self.navigationItem setRightBarButtonItem:[[[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"bb_list_white.png"]
-     style:UIBarButtonItemStylePlain
-     target:self
-     action:@selector(showPlaylist)] autorelease]
-     animated:YES];
-     */
+    
     mHasFocus=0;
     mShouldUpdateInfos=0;
     mPaused=1;
@@ -6609,10 +6665,11 @@ extern "C" int current_sample;
     ImGui_ImplOpenGL3_NewFrame();
     ImGui::NewFrame();
     
+    
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     //ImGui::Image((ImTextureID)(intptr_t)txtbackgroundImage,ImVec2
     RenderUtils::DrawTexture(ww, hh, txtbackgroundImage, 1.0f-fxalpha,1);
-    
-    
     
     /*-------------------------------------------------------------------------------*/
     /*  ProjectM render */
@@ -6761,28 +6818,24 @@ extern "C" int current_sample;
             }
             
             if (movePyPM>PM_VerticalSwipe_Threshold) {
+                //----------------------
+                //Swipe down: lock/unlock
+                //----------------------
                 movePxPM=0;
                 movePyPM=0;
                 movePMnomore=1;
                 if (_pmIsInitialized && _pm) {
-                    //////////////
-                    //Lock Preset
-                    //////////////
-                    
-                    settings[PROJECTM_LockPreset].detail.mdz_boolswitch.switch_value=0;
-                    [self mdSwitchLockPreset];
+                    [self mdSwitchLockStatusPreset];
                 }
             } else if (movePyPM<-PM_VerticalSwipe_Threshold) {
+                //----------------------
+                //Swipe up: favorite -> like/unlike
+                //----------------------
                 movePxPM=0;
                 movePyPM=0;
                 movePMnomore=1;
                 if (_pmIsInitialized && _pm) {
-                    //////////////
-                    //Unlock Preset
-                    //////////////
-                    
-                    settings[PROJECTM_LockPreset].detail.mdz_boolswitch.switch_value=1;
-                    [self mdSwitchLockPreset];
+                    [self mdChangeFavoriteStatusPreset:0];
                 }
             }
         }
@@ -7793,12 +7846,12 @@ extern "C" int current_sample;
         ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.2,1.0,0.1,1.0));
                                 
         ImGui::GetStyle().Alpha=1.0;
-        if (font_menu) ImGui::PushFont(font_menu,32.0f*glScaleFactor);
+        if (font_menu) ImGui::PushFont(font_menu,30.0f*glScaleFactor);
         else ImGui::PushFont(nullptr);
+        
         ImGui::Begin("Info",0,
                      ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoScrollbar|ImGuiWindowFlags_NoFocusOnAppearing
                      );
-        
         char strTmp[32];
         float posx,posy=0;
         ImVec2 sizeText;
@@ -7811,7 +7864,7 @@ extern "C" int current_sample;
         ImGui::Text("%s",strTmp);
         posy+=sizeText.y+2;
         //smaller font
-        if (font_menu) ImGui::PushFont(font_menu,10.0f*glScaleFactor);
+        if (font_menu) ImGui::PushFont(font_menu,16.0f*glScaleFactor);
         else ImGui::PushFont(nullptr);
         //CPU
         snprintf(strTmp,32,"CPU %.2f%%",cpuUsage);
@@ -7877,13 +7930,21 @@ extern "C" int current_sample;
                 ImGui::SetNextWindowPos(ImVec2(0,(hh-24)*glScaleFactor));
                 ImGui::SetNextWindowSize(ImVec2(ww*glScaleFactor,24*glScaleFactor));
                 ImGui::GetStyle().Alpha=alpha_val;
-                if (font_menu) ImGui::PushFont(font_menu,22.0f*glScaleFactor);
+                if (font_menu) ImGui::PushFont(font_menu,20.0f*glScaleFactor);
                 else ImGui::PushFont(nullptr);
                 ImGui::Begin("On screen info",0,ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoScrollbar|ImGuiWindowFlags_NoFocusOnAppearing);
                 ImVec2 pmPresetStr_size=ImGui::CalcTextSize(pmPresetStr);
                 pmPresetStr_size.x+=18;
                 
-                ImGui::Text(pmPresetStr);
+                if ( pmCurPresetFile!=nil && isFavoriteCustomPresets(pmCurPresetFile) ) {
+                    ImGui::Text("%s%s%s",
+                                [[NSString stringWithFormat:@"%C", static_cast<unichar>(FA_HEART)] UTF8String],
+                                [[NSString stringWithFormat:@"%C", static_cast<unichar>((settings[PROJECTM_LockPreset].detail.mdz_boolswitch.switch_value?FA_LOCK:FA_UNLOCK))] UTF8String],
+                                pmPresetStr);
+                } else {
+                    ImGui::Text("%s%s",[[NSString stringWithFormat:@"%C", static_cast<unichar>((settings[PROJECTM_LockPreset].detail.mdz_boolswitch.switch_value?FA_LOCK:FA_UNLOCK))] UTF8String],
+                                pmPresetStr);
+                }
                 
                 ImGui::SetScrollX(_pm_display_scrollx);
                 ImGui::End();

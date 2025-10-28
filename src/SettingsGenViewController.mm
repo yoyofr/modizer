@@ -3869,18 +3869,11 @@ void optNSFPLAYChangedC(id param) {
     
     CGFloat r,g,b,a;
     r=g=b=a=0;
-    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"14.0")) {
-        if (@available(iOS 14.0, *)) {
-            UIColor *col=((UIColorWell*)sender).selectedColor;
-            CIColor *cicol=[CIColor colorWithCGColor:col.CGColor];
-            r=cicol.red;
-            g=cicol.green;
-            b=cicol.blue;
-        }
-    } else {
-        [((UIButton*)sender).backgroundColor getRed:&r green:&g blue:&b alpha:&a];
-        
-    }
+    UIColor *col=((UIColorWell*)sender).selectedColor;
+    CIColor *cicol=[CIColor colorWithCGColor:col.CGColor];
+    r=cicol.red;
+    g=cicol.green;
+    b=cicol.blue;
     
     settings[cur_settings_idx[indexPath.section]].detail.mdz_color.rgb=((unsigned char)(r*255)<<16)|((unsigned char)(g*255)<<8)|((unsigned char)(b*255)<<0);
     
@@ -3893,36 +3886,6 @@ void optNSFPLAYChangedC(id param) {
     NSNumber *value=(NSNumber*)[dictActionBtn objectForKey:[[sender.description componentsSeparatedByString:@";"] firstObject] ];
     if (value==NULL) return;
     NSIndexPath *indexPath=[NSIndexPath indexPathForRow:(value.longValue/100) inSection:(value.longValue%100)];
-    
-    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"14.0")) {
-        if (@available(iOS 14.0, *)) {
-        }
-    } else {
-        MSColorSelectionViewController *colorSelectionController = [[MSColorSelectionViewController alloc] init];
-        UINavigationController *navCtrl = [[UINavigationController alloc] initWithRootViewController:colorSelectionController];
-        
-        navCtrl.modalPresentationStyle = UIModalPresentationPopover;
-        navCtrl.popoverPresentationController.delegate = self;
-        navCtrl.popoverPresentationController.sourceView = sender;
-        navCtrl.popoverPresentationController.sourceRect = sender.bounds;
-        navCtrl.preferredContentSize = [colorSelectionController.view systemLayoutSizeFittingSize:UILayoutFittingCompressedSize];
-        
-        currentColorPickerBtn=sender;
-        
-        colorSelectionController.delegate = self;
-        colorSelectionController.color = sender.backgroundColor;
-        
-        navCtrl.view.backgroundColor=[UIColor lightGrayColor];
-        
-        if (self.traitCollection.horizontalSizeClass == UIUserInterfaceSizeClassCompact) {
-            UIBarButtonItem *doneBtn = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Done", ) style:UIBarButtonItemStyleDone target:self action:@selector(ms_dismissViewController:)];
-            colorSelectionController.navigationItem.rightBarButtonItem = doneBtn;
-        }
-        
-        [self presentViewController:navCtrl animated:YES completion:nil];
-        
-        
-    }
 }
 
 -(void) updateSettingValueFromSliderValue:(int)settings_id slider_value:(float)value {
@@ -4631,8 +4594,6 @@ void optNSFPLAYChangedC(id param) {
             
             //btn.layer.zPosition=topLabel.layer.zPosition+1;
             
-            if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"14.0")) {
-                if (@available(iOS 14.0, *)) {
                     int rgb=settings[cur_settings_idx[indexPath.section]].detail.mdz_color.rgb;
                     UIColorWell *colorWell= [[UIColorWell alloc] initWithFrame:CGRectMake(0,0,40,40)];
                     colorWell.supportsAlpha=false;
@@ -4646,26 +4607,6 @@ void optNSFPLAYChangedC(id param) {
                     
                     [dictActionBtn setObject:[NSNumber numberWithInteger:indexPath.row*100+indexPath.section] forKey:[[colorWell.description componentsSeparatedByString:@";"] firstObject]];
                     cell.accessoryView = colorWell;
-                }
-            } else {
-                int rgb=settings[cur_settings_idx[indexPath.section]].detail.mdz_color.rgb;
-                UIButton *colorBtn=[UIButton buttonWithType:UIButtonTypeCustom];
-                colorBtn.layer.borderColor = [UIColor whiteColor].CGColor;
-                colorBtn.layer.borderWidth = 1.0f;
-                colorBtn.layer.cornerRadius = 6.0f;
-                
-                [colorBtn setFrame:CGRectMake(0,0,40,40)];
-                [colorBtn setBackgroundColor:[UIColor colorWithRed:((rgb>>16)&0xFF)*1.0f/255.0f
-                                                             green:((rgb>>8)&0xFF)*1.0f/255.0f
-                                                              blue:((rgb>>0)&0xFF)*1.0f/255.0f
-                                                             alpha:1]];
-                [dictActionBtn setObject:[NSNumber numberWithInteger:indexPath.row*100+indexPath.section] forKey:[[colorBtn.description componentsSeparatedByString:@";"] firstObject]];
-                
-                [colorBtn addTarget:self action:@selector(colorPickerOpen:) forControlEvents:UIControlEventTouchUpInside];
-                
-                
-                cell.accessoryView = colorBtn;
-            }
             
             if (settings[cur_settings_idx[indexPath.section]].description) {
 //                tapLabelDesc = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapPress:)];
@@ -5043,14 +4984,6 @@ void optNSFPLAYChangedC(id param) {
 //iOS 14, deprecated from iOS 15
 - (void)colorPickerViewControllerDidSelectColor:(UIColorPickerViewController *)viewController {
     
-}
-
-#pragma mark - MSColorViewDelegate
-
-- (void)colorViewController:(MSColorSelectionViewController *)colorViewCntroller didChangeColor:(UIColor *)color
-{
-    currentColorPickerBtn.backgroundColor = color;
-    //UIButton *colorBtn=(UIButton*)(navCtrl.popoverPresentationController.sourceView);
 }
 
 #pragma mark - Private

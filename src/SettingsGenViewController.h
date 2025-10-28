@@ -14,9 +14,6 @@
 
 #import "CMPopTipView.h"
 
-#import "MSColorPicker/MSColorSelectionViewController.h"
-
-
 #import "CFtpServer.h"
 #import "MiniPlayerVC.h"
 #import "WaitingView.h"
@@ -435,7 +432,7 @@ typedef struct {
 
 
 
-@interface SettingsGenViewController : UIViewController <UINavigationControllerDelegate,UITextFieldDelegate,UIColorPickerViewControllerDelegate,MSColorSelectionViewControllerDelegate,UIPopoverPresentationControllerDelegate,UIGestureRecognizerDelegate,CMPopTipViewDelegate> {
+@interface SettingsGenViewController : UIViewController <UINavigationControllerDelegate,UITextFieldDelegate,UIColorPickerViewControllerDelegate,UIPopoverPresentationControllerDelegate,UIGestureRecognizerDelegate,CMPopTipViewDelegate> {
     IBOutlet TPKeyboardAvoidingTableView *tableView;
     int cur_settings_nb;
     int cur_settings_idx[MAX_SETTINGS];

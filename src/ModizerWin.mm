@@ -97,6 +97,7 @@ extern int move_cursorL,move_cursorR,keyDel;
               [UIKeyCommand keyCommandWithInput:@"p"   modifierFlags:0 action:@selector(keyPPressed)],
               [UIKeyCommand keyCommandWithInput:@"n"   modifierFlags:0 action:@selector(keyNPressed)],
               [UIKeyCommand keyCommandWithInput:@"l"   modifierFlags:0 action:@selector(keyLPressed)],
+              [UIKeyCommand keyCommandWithInput:@"a"   modifierFlags:0 action:@selector(keyAPressed)],
               
               [UIKeyCommand keyCommandWithInput:UIKeyInputEscape   modifierFlags:0 action:@selector(keyESCPressed)],
               [UIKeyCommand keyCommandWithInput:UIKeyInputDelete   modifierFlags:0 action:@selector(keyDeletePressed)],
@@ -218,7 +219,10 @@ extern int move_cursorL,move_cursorR,keyDel;
     [detailViewControllerIphone mdSwitchFPSHud];
 }
 - (void)keyLPressed{
-    [detailViewControllerIphone mdSwitchLockPreset];
+    [detailViewControllerIphone mdSwitchLockStatusPreset];
+}
+- (void)keyAPressed{
+    [detailViewControllerIphone mdChangeFavoriteStatusPreset:0];
 }
 - (void)keyESCPressed{
     [detailViewControllerIphone mdOpenCloseMenu];

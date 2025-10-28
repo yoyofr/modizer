@@ -8,15 +8,12 @@
 
 /* Begin PBXBuildFile section */
 		CCABA19B2E93C75B00AF59B0 /* CompilerFunctions.c in Sources */ = {isa = PBXBuildFile; fileRef = CCABA1672E93C75B00AF59B0 /* CompilerFunctions.c */; };
-		CCABA19C2E93C75B00AF59B0 /* etc1_utils.c in Sources */ = {isa = PBXBuildFile; fileRef = CCABA1852E93C75B00AF59B0 /* etc1_utils.c */; };
 		CCABA19D2E93C75B00AF59B0 /* HLSLTree.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCABA1442E93C75B00AF59B0 /* HLSLTree.cpp */; };
 		CCABA19E2E93C75B00AF59B0 /* TreeFunctions.c in Sources */ = {isa = PBXBuildFile; fileRef = CCABA1722E93C75B00AF59B0 /* TreeFunctions.c */; };
-		CCABA1A02E93C75B00AF59B0 /* image_helper.c in Sources */ = {isa = PBXBuildFile; fileRef = CCABA1892E93C75B00AF59B0 /* image_helper.c */; };
 		CCABA1A22E93C75B00AF59B0 /* Compiler.c in Sources */ = {isa = PBXBuildFile; fileRef = CCABA1642E93C75B00AF59B0 /* Compiler.c */; };
 		CCABA1A32E93C75B00AF59B0 /* HLSLParser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCABA1402E93C75B00AF59B0 /* HLSLParser.cpp */; };
 		CCABA1A42E93C75B00AF59B0 /* HLSLTokenizer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCABA1422E93C75B00AF59B0 /* HLSLTokenizer.cpp */; };
 		CCABA1A52E93C75B00AF59B0 /* GLSLGenerator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCABA13E2E93C75B00AF59B0 /* GLSLGenerator.cpp */; };
-		CCABA1A72E93C75B00AF59B0 /* SOIL2.c in Sources */ = {isa = PBXBuildFile; fileRef = CCABA18D2E93C75B00AF59B0 /* SOIL2.c */; };
 		CCABA1AB2E93C75B00AF59B0 /* CompileContext.c in Sources */ = {isa = PBXBuildFile; fileRef = CCABA1622E93C75B00AF59B0 /* CompileContext.c */; };
 		CCABA1AD2E93C75B00AF59B0 /* ExpressionTree.c in Sources */ = {isa = PBXBuildFile; fileRef = CCABA16A2E93C75B00AF59B0 /* ExpressionTree.c */; };
 		CCABA1AE2E93C75B00AF59B0 /* MemoryBuffer.c in Sources */ = {isa = PBXBuildFile; fileRef = CCABA16C2E93C75B00AF59B0 /* MemoryBuffer.c */; };
@@ -24,7 +21,6 @@
 		CCABA1B22E93C75B00AF59B0 /* projectm-eval.c in Sources */ = {isa = PBXBuildFile; fileRef = CCABA15E2E93C75B00AF59B0 /* projectm-eval.c */; };
 		CCABA1B32E93C75B00AF59B0 /* CodeWriter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCABA13A2E93C75B00AF59B0 /* CodeWriter.cpp */; };
 		CCABA1B52E93C75B00AF59B0 /* Scanner.c in Sources */ = {isa = PBXBuildFile; fileRef = CCABA16F2E93C75B00AF59B0 /* Scanner.c */; };
-		CCABA1B72E93C75B00AF59B0 /* image_DXT.c in Sources */ = {isa = PBXBuildFile; fileRef = CCABA1872E93C75B00AF59B0 /* image_DXT.c */; };
 		CCABA1B92E93C75B00AF59B0 /* TreeVariables.c in Sources */ = {isa = PBXBuildFile; fileRef = CCABA1742E93C75B00AF59B0 /* TreeVariables.c */; };
 		CCABA2AA2E93C97600AF59B0 /* Milkdrop2077WaveX.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCABA2002E93C97600AF59B0 /* Milkdrop2077WaveX.cpp */; };
 		CCABA2AB2E93C97600AF59B0 /* WaveformAligner.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCABA1D42E93C97600AF59B0 /* WaveformAligner.cpp */; };
@@ -96,6 +92,10 @@
 		CCABA2F32E93C97600AF59B0 /* TimeKeeper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCABA2772E93C97600AF59B0 /* TimeKeeper.cpp */; };
 		CCABA2F42E93C97600AF59B0 /* Line.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCABA1F02E93C97600AF59B0 /* Line.cpp */; };
 		CCABA3512E93D06300AF59B0 /* MilkdropStaticShaders.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCABA3502E93D06300AF59B0 /* MilkdropStaticShaders.cpp */; };
+		CCCB39842EB0457300FE6091 /* BlendMode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCCB39782EB0457300FE6091 /* BlendMode.cpp */; };
+		CCCB39852EB0457300FE6091 /* VertexBufferUsage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCCB39812EB0457300FE6091 /* VertexBufferUsage.cpp */; };
+		CCCB39862EB0457300FE6091 /* Mesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCCB397B2EB0457300FE6091 /* Mesh.cpp */; };
+		CCCB39872EB0457300FE6091 /* VertexIndexArray.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCCB39832EB0457300FE6091 /* VertexIndexArray.cpp */; };
 		CCE025D92E99A5D4008B7070 /* Factory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCE025D02E99A5D4008B7070 /* Factory.cpp */; };
 		CCE025DA2E99A5D4008B7070 /* MilkdropSprite.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCE025D22E99A5D4008B7070 /* MilkdropSprite.cpp */; };
 		CCE025DB2E99A5D4008B7070 /* SpriteManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCE025D62E99A5D4008B7070 /* SpriteManager.cpp */; };
@@ -423,27 +423,6 @@
 		CCABA17F2E93C75B00AF59B0 /* CMakeLists.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = CMakeLists.txt; sourceTree = "<group>"; };
 		CCABA1802E93C75B00AF59B0 /* LICENSE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = LICENSE.md; sourceTree = "<group>"; };
 		CCABA1812E93C75B00AF59B0 /* ReadMe.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = ReadMe.md; sourceTree = "<group>"; };
-		CCABA1832E93C75B00AF59B0 /* CMakeLists.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = CMakeLists.txt; sourceTree = "<group>"; };
-		CCABA1842E93C75B00AF59B0 /* etc1_utils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = etc1_utils.h; sourceTree = "<group>"; };
-		CCABA1852E93C75B00AF59B0 /* etc1_utils.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = etc1_utils.c; sourceTree = "<group>"; };
-		CCABA1862E93C75B00AF59B0 /* image_DXT.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = image_DXT.h; sourceTree = "<group>"; };
-		CCABA1872E93C75B00AF59B0 /* image_DXT.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = image_DXT.c; sourceTree = "<group>"; };
-		CCABA1882E93C75B00AF59B0 /* image_helper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = image_helper.h; sourceTree = "<group>"; };
-		CCABA1892E93C75B00AF59B0 /* image_helper.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = image_helper.c; sourceTree = "<group>"; };
-		CCABA18A2E93C75B00AF59B0 /* pkm_helper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = pkm_helper.h; sourceTree = "<group>"; };
-		CCABA18B2E93C75B00AF59B0 /* pvr_helper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = pvr_helper.h; sourceTree = "<group>"; };
-		CCABA18C2E93C75B00AF59B0 /* SOIL2.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SOIL2.h; sourceTree = "<group>"; };
-		CCABA18D2E93C75B00AF59B0 /* SOIL2.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = SOIL2.c; sourceTree = "<group>"; };
-		CCABA18E2E93C75B00AF59B0 /* stb_image.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = stb_image.h; sourceTree = "<group>"; };
-		CCABA18F2E93C75B00AF59B0 /* stb_image_write.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = stb_image_write.h; sourceTree = "<group>"; };
-		CCABA1902E93C75B00AF59B0 /* stbi_DDS.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = stbi_DDS.h; sourceTree = "<group>"; };
-		CCABA1912E93C75B00AF59B0 /* stbi_DDS_c.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = stbi_DDS_c.h; sourceTree = "<group>"; };
-		CCABA1922E93C75B00AF59B0 /* stbi_ext.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = stbi_ext.h; sourceTree = "<group>"; };
-		CCABA1932E93C75B00AF59B0 /* stbi_ext_c.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = stbi_ext_c.h; sourceTree = "<group>"; };
-		CCABA1942E93C75B00AF59B0 /* stbi_pkm.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = stbi_pkm.h; sourceTree = "<group>"; };
-		CCABA1952E93C75B00AF59B0 /* stbi_pkm_c.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = stbi_pkm_c.h; sourceTree = "<group>"; };
-		CCABA1962E93C75B00AF59B0 /* stbi_pvr.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = stbi_pvr.h; sourceTree = "<group>"; };
-		CCABA1972E93C75B00AF59B0 /* stbi_pvr_c.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = stbi_pvr_c.h; sourceTree = "<group>"; };
 		CCABA1992E93C75B00AF59B0 /* CMakeLists.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = CMakeLists.txt; sourceTree = "<group>"; };
 		CCABA1BA2E93C97600AF59B0 /* audio.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = audio.h; sourceTree = "<group>"; };
 		CCABA1BB2E93C97600AF59B0 /* callbacks.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = callbacks.h; sourceTree = "<group>"; };
@@ -650,6 +629,19 @@
 		CCABA34E2E93D03700AF59B0 /* BuiltInTransitionsResources.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = BuiltInTransitionsResources.hpp; sourceTree = "<group>"; };
 		CCABA34F2E93D06300AF59B0 /* MilkdropStaticShaders.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = MilkdropStaticShaders.hpp; sourceTree = "<group>"; };
 		CCABA3502E93D06300AF59B0 /* MilkdropStaticShaders.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MilkdropStaticShaders.cpp; sourceTree = "<group>"; };
+		CCCB39772EB0457300FE6091 /* BlendMode.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = BlendMode.hpp; sourceTree = "<group>"; };
+		CCCB39782EB0457300FE6091 /* BlendMode.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = BlendMode.cpp; sourceTree = "<group>"; };
+		CCCB39792EB0457300FE6091 /* Color.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Color.hpp; sourceTree = "<group>"; };
+		CCCB397A2EB0457300FE6091 /* Mesh.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Mesh.hpp; sourceTree = "<group>"; };
+		CCCB397B2EB0457300FE6091 /* Mesh.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Mesh.cpp; sourceTree = "<group>"; };
+		CCCB397C2EB0457300FE6091 /* Point.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Point.hpp; sourceTree = "<group>"; };
+		CCCB397D2EB0457300FE6091 /* TextureUV.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = TextureUV.hpp; sourceTree = "<group>"; };
+		CCCB397E2EB0457300FE6091 /* VertexArray.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = VertexArray.hpp; sourceTree = "<group>"; };
+		CCCB397F2EB0457300FE6091 /* VertexBuffer.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = VertexBuffer.hpp; sourceTree = "<group>"; };
+		CCCB39802EB0457300FE6091 /* VertexBufferUsage.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = VertexBufferUsage.hpp; sourceTree = "<group>"; };
+		CCCB39812EB0457300FE6091 /* VertexBufferUsage.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = VertexBufferUsage.cpp; sourceTree = "<group>"; };
+		CCCB39822EB0457300FE6091 /* VertexIndexArray.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = VertexIndexArray.hpp; sourceTree = "<group>"; };
+		CCCB39832EB0457300FE6091 /* VertexIndexArray.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = VertexIndexArray.cpp; sourceTree = "<group>"; };
 		CCE025CB2E99A5D4008B7070 /* MilkdropSpriteFragmentGlsl330.frag */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = MilkdropSpriteFragmentGlsl330.frag; sourceTree = "<group>"; };
 		CCE025CC2E99A5D4008B7070 /* MilkdropSpriteVertexGlsl330.vert */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = MilkdropSpriteVertexGlsl330.vert; sourceTree = "<group>"; };
 		CCE025CE2E99A5D4008B7070 /* CMakeLists.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = CMakeLists.txt; sourceTree = "<group>"; };
@@ -686,6 +678,11 @@
 				CCABA0222E93C66900AF59B0 /* Exceptions for "projectm-ios" folder in "Copy Files" phase from "projectm-ios" target */,
 			);
 			path = "projectm-ios";
+			sourceTree = "<group>";
+		};
+		CCCB39A52EB0464100FE6091 /* SOIL2 */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = SOIL2;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -1117,42 +1114,14 @@
 			path = "projectm-eval";
 			sourceTree = "<group>";
 		};
-		CCABA1982E93C75B00AF59B0 /* SOIL2 */ = {
-			isa = PBXGroup;
-			children = (
-				CCABA1852E93C75B00AF59B0 /* etc1_utils.c */,
-				CCABA1872E93C75B00AF59B0 /* image_DXT.c */,
-				CCABA1892E93C75B00AF59B0 /* image_helper.c */,
-				CCABA18D2E93C75B00AF59B0 /* SOIL2.c */,
-				CCABA1842E93C75B00AF59B0 /* etc1_utils.h */,
-				CCABA1862E93C75B00AF59B0 /* image_DXT.h */,
-				CCABA1882E93C75B00AF59B0 /* image_helper.h */,
-				CCABA18A2E93C75B00AF59B0 /* pkm_helper.h */,
-				CCABA18B2E93C75B00AF59B0 /* pvr_helper.h */,
-				CCABA18C2E93C75B00AF59B0 /* SOIL2.h */,
-				CCABA18F2E93C75B00AF59B0 /* stb_image_write.h */,
-				CCABA18E2E93C75B00AF59B0 /* stb_image.h */,
-				CCABA1912E93C75B00AF59B0 /* stbi_DDS_c.h */,
-				CCABA1902E93C75B00AF59B0 /* stbi_DDS.h */,
-				CCABA1932E93C75B00AF59B0 /* stbi_ext_c.h */,
-				CCABA1922E93C75B00AF59B0 /* stbi_ext.h */,
-				CCABA1952E93C75B00AF59B0 /* stbi_pkm_c.h */,
-				CCABA1942E93C75B00AF59B0 /* stbi_pkm.h */,
-				CCABA1972E93C75B00AF59B0 /* stbi_pvr_c.h */,
-				CCABA1962E93C75B00AF59B0 /* stbi_pvr.h */,
-				CCABA1832E93C75B00AF59B0 /* CMakeLists.txt */,
-			);
-			path = SOIL2;
-			sourceTree = "<group>";
-		};
 		CCABA19A2E93C75B00AF59B0 /* vendor */ = {
 			isa = PBXGroup;
 			children = (
+				CCCB39A52EB0464100FE6091 /* SOIL2 */,
 				CC08C3A62EA983D100A0F15F /* fast_float.h */,
 				CCABA1382E93C75B00AF59B0 /* glm */,
 				CCABA14A2E93C75B00AF59B0 /* hlslparser */,
 				CCABA1822E93C75B00AF59B0 /* projectm-eval */,
-				CCABA1982E93C75B00AF59B0 /* SOIL2 */,
 				CCABA1992E93C75B00AF59B0 /* CMakeLists.txt */,
 			);
 			name = vendor;
@@ -1359,6 +1328,19 @@
 		CCABA2672E93C97600AF59B0 /* Renderer */ = {
 			isa = PBXGroup;
 			children = (
+				CCCB39772EB0457300FE6091 /* BlendMode.hpp */,
+				CCCB39782EB0457300FE6091 /* BlendMode.cpp */,
+				CCCB39792EB0457300FE6091 /* Color.hpp */,
+				CCCB397A2EB0457300FE6091 /* Mesh.hpp */,
+				CCCB397B2EB0457300FE6091 /* Mesh.cpp */,
+				CCCB397C2EB0457300FE6091 /* Point.hpp */,
+				CCCB397D2EB0457300FE6091 /* TextureUV.hpp */,
+				CCCB397E2EB0457300FE6091 /* VertexArray.hpp */,
+				CCCB397F2EB0457300FE6091 /* VertexBuffer.hpp */,
+				CCCB39802EB0457300FE6091 /* VertexBufferUsage.hpp */,
+				CCCB39812EB0457300FE6091 /* VertexBufferUsage.cpp */,
+				CCCB39822EB0457300FE6091 /* VertexIndexArray.hpp */,
+				CCCB39832EB0457300FE6091 /* VertexIndexArray.cpp */,
 				CCE026382E99A7BD008B7070 /* ShaderCache.hpp */,
 				CCE026392E99A7BD008B7070 /* ShaderCache.cpp */,
 				CCABA24B2E93C97600AF59B0 /* CopyTexture.cpp */,
@@ -1526,6 +1508,7 @@
 			);
 			fileSystemSynchronizedGroups = (
 				CCABA01D2E93C66900AF59B0 /* projectm-ios */,
+				CCCB39A52EB0464100FE6091 /* SOIL2 */,
 			);
 			name = "projectm-ios";
 			packageProductDependencies = (
@@ -1573,15 +1556,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				CCABA19B2E93C75B00AF59B0 /* CompilerFunctions.c in Sources */,
-				CCABA19C2E93C75B00AF59B0 /* etc1_utils.c in Sources */,
 				CCABA19D2E93C75B00AF59B0 /* HLSLTree.cpp in Sources */,
 				CCABA19E2E93C75B00AF59B0 /* TreeFunctions.c in Sources */,
-				CCABA1A02E93C75B00AF59B0 /* image_helper.c in Sources */,
 				CCABA1A22E93C75B00AF59B0 /* Compiler.c in Sources */,
 				CCABA1A32E93C75B00AF59B0 /* HLSLParser.cpp in Sources */,
 				CCABA1A42E93C75B00AF59B0 /* HLSLTokenizer.cpp in Sources */,
 				CCABA1A52E93C75B00AF59B0 /* GLSLGenerator.cpp in Sources */,
-				CCABA1A72E93C75B00AF59B0 /* SOIL2.c in Sources */,
 				CCABA2AA2E93C97600AF59B0 /* Milkdrop2077WaveX.cpp in Sources */,
 				CCABA2AB2E93C97600AF59B0 /* WaveformAligner.cpp in Sources */,
 				CCABA2AC2E93C97600AF59B0 /* Filter.cpp in Sources */,
@@ -1599,6 +1579,10 @@
 				CCABA2B82E93C97600AF59B0 /* Milkdrop2077Wave9.cpp in Sources */,
 				CCABA2B92E93C97600AF59B0 /* ProjectM.cpp in Sources */,
 				CCABA2BA2E93C97600AF59B0 /* WaveformPerPointContext.cpp in Sources */,
+				CCCB39842EB0457300FE6091 /* BlendMode.cpp in Sources */,
+				CCCB39852EB0457300FE6091 /* VertexBufferUsage.cpp in Sources */,
+				CCCB39862EB0457300FE6091 /* Mesh.cpp in Sources */,
+				CCCB39872EB0457300FE6091 /* VertexIndexArray.cpp in Sources */,
 				CCABA2BB2E93C97600AF59B0 /* Factory.cpp in Sources */,
 				CCABA2BC2E93C97600AF59B0 /* Shader.cpp in Sources */,
 				CCABA2BD2E93C97600AF59B0 /* PresetState.cpp in Sources */,
@@ -1664,7 +1648,6 @@
 				CCABA1B22E93C75B00AF59B0 /* projectm-eval.c in Sources */,
 				CCABA1B32E93C75B00AF59B0 /* CodeWriter.cpp in Sources */,
 				CCABA1B52E93C75B00AF59B0 /* Scanner.c in Sources */,
-				CCABA1B72E93C75B00AF59B0 /* image_DXT.c in Sources */,
 				CCABA1B92E93C75B00AF59B0 /* TreeVariables.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1734,6 +1717,7 @@
 					"$(PROJECT_DIR)/libprojectM/vendor/projectm-eval/projectm-eval/api",
 					"$(PROJECT_DIR)/libprojectM/src/playlist/api",
 					"$(PROJECT_DIR)/libprojectM/vendor/hlslparser/src",
+					"$(PROJECT_DIR)/libprojectM/vendor/SOIL2/src",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
@@ -1808,6 +1792,7 @@
 					"$(PROJECT_DIR)/libprojectM/vendor/projectm-eval/projectm-eval/api",
 					"$(PROJECT_DIR)/libprojectM/src/playlist/api",
 					"$(PROJECT_DIR)/libprojectM/vendor/hlslparser/src",
+					"$(PROJECT_DIR)/libprojectM/vendor/SOIL2/src",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;

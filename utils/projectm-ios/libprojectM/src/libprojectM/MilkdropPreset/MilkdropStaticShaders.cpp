@@ -120,7 +120,7 @@ static std::string kBlurVertexShaderGlsl330 = R"(
 precision mediump float;
 
 layout(location = 0) in vec2 vertex_position;
-layout(location = 1) in vec2 vertex_texture;
+layout(location = 2) in vec2 vertex_texture;
 
 uniform int flipVertical;
 
@@ -164,7 +164,6 @@ precision mediump float;
 
 layout(location = 0) in vec2 vertex_position;
 layout(location = 1) in vec4 vertex_color;
-layout(location = 2) in int vertex_index;
 
 uniform mat4 vertex_transformation;
 uniform float length_multiplier;
@@ -179,7 +178,7 @@ void main() {
     // screen coordinates.
     vec2 pos = vertex_position;
 
-    if (vertex_index % 2 == 1)
+    if (gl_VertexID % 2 == 1)
     {
         // Reverse propagation using the u/v texture written in the previous frame.
         // Milkdrop's original code did a simple bilinear interpolation, but here it was already
@@ -414,11 +413,11 @@ precision mediump float;
 #define invAspectY aspect.w
 
 layout(location = 0) in vec2 vertex_position;
-layout(location = 1) in vec2 rad_ang;
-layout(location = 2) in vec4 transforms;
-layout(location = 3) in vec2 warp_center;
-layout(location = 4) in vec2 warp_distance;
-layout(location = 5) in vec2 stretch;
+layout(location = 3) in vec2 rad_ang;
+layout(location = 4) in vec4 transforms;
+layout(location = 5) in vec2 warp_center;
+layout(location = 6) in vec2 warp_distance;
+layout(location = 7) in vec2 stretch;
 
 uniform mat4 vertex_transformation;
 uniform vec4 aspect;

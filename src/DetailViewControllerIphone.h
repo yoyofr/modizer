@@ -397,7 +397,8 @@ enum {
 
 -(void) mdPrevPreset;
 -(void) mdNextPreset;
--(void) mdSwitchLockPreset;
+-(void) mdChangeFavoriteStatusPreset:(int)val;
+-(void) mdSwitchLockStatusPreset;
 -(void) mdOpenCloseMenu;
 -(void) mdBackAction;
 -(void) mdSwitchFPSHud;

@@ -19,6 +19,7 @@
         _selectedChildren = 0;
         _isFullySelected = FALSE;
         _shouldPropagateStatus = FALSE;
+        _isFavorite = FALSE;
         
         NSFileManager *fm = [NSFileManager defaultManager];
         NSDictionary *attrs = [fm attributesOfItemAtPath:path error:nil];
@@ -127,7 +128,6 @@
     }
     
     FileNode *node = [[FileNode alloc] initWithPath:path];
-    
     // If it's a file or we've reached max depth, return the node
     if (!node.isDirectory || (self.maxDepth >= 0 && depth >= self.maxDepth)) {
         if (self.filterExt && [[node.name pathExtension] caseInsensitiveCompare:self.filterExt]) return nil;
@@ -156,7 +156,6 @@
             [node.children addObject:childNode];
         }
     }
-    
     return node;
 }
 

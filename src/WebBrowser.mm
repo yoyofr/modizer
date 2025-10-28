@@ -868,14 +868,8 @@ static UIAlertView *alertChooseName;
     NSURLSessionDataTask *dataTask = [session dataTaskWithRequest:navigationAction.request];
     
     [dataTask resume];
+    [session finishTasksAndInvalidate];
     
-    /*WKNavigationTypeLinkActivated,
-    WKNavigationTypeFormSubmitted,
-    WKNavigationTypeBackForward,
-    WKNavigationTypeReload,
-    WKNavigationTypeFormResubmitted,
-    WKNavigationTypeOther = -1,*/
-
     if ((navigationAction.navigationType==WKNavigationTypeLinkActivated)||
         (navigationAction.navigationType==WKNavigationTypeReload)||
         (navigationAction.navigationType==WKNavigationTypeBackForward)) {
@@ -1338,10 +1332,8 @@ didFinishNavigation:(WKNavigation *)navigation {
     // Create the new configuration object to set useful options
     WKWebViewConfiguration *configuration = [[WKWebViewConfiguration alloc] init];
     configuration.suppressesIncrementalRendering = NO;//YES;
-    if (@available(iOS 10.0, *)) {
-        configuration.ignoresViewportScaleLimits = NO;
-        configuration.dataDetectorTypes = WKDataDetectorTypeNone;
-    }
+    configuration.ignoresViewportScaleLimits = NO;
+    configuration.dataDetectorTypes = WKDataDetectorTypeNone;
     
 
     // Create the new WKWebView
@@ -1400,12 +1392,10 @@ didFinishNavigation:(WKNavigation *)navigation {
 	[self loadHome];
     [super viewDidLoad];
     
-    if (@available(iOS 14.0, *)) {
-        if ([NSProcessInfo processInfo].isiOSAppOnMac) {
-            UILongPressGestureRecognizer *gestureMac = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(findImage:)];
-            //doubleTapMac.numberOfTouchesRequired=2;
-            [self.webView addGestureRecognizer:gestureMac];
-        }
+    if ([NSProcessInfo processInfo].isiOSAppOnMac) {
+        UILongPressGestureRecognizer *gestureMac = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(findImage:)];
+        //doubleTapMac.numberOfTouchesRequired=2;
+        [self.webView addGestureRecognizer:gestureMac];
     }
     
     [self.webView addObserver:self

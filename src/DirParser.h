@@ -16,6 +16,7 @@
 @property (nonatomic, assign) BOOL isFullySelected;
 @property (nonatomic, assign) BOOL isMatchingFilter;
 @property (nonatomic, assign) BOOL isDirectory;
+@property (nonatomic, assign) BOOL isFavorite;
 @property (nonatomic, assign) BOOL shouldPropagateStatus;
 @property (nonatomic, assign) unsigned long long fileSize;
 @property (nonatomic, strong) NSDate *modificationDate;

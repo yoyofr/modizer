@@ -427,6 +427,8 @@ void RenderUtils::DrawTexture(uint ww,uint hh,GLuint textureIdx,float alpha,bool
     GLuint textCoordAttribHandle    = glGetAttribLocation(userData_Render2DTextures->programObject, "a_textCoord");
     GLuint textureUnifHandle    = glGetUniformLocation(userData_Render2DTextures->programObject, "u_curTexture");
     GLuint alphaUnifHandle    = glGetUniformLocation(userData_Render2DTextures->programObject, "u_alpha");
+    
+//    MDZILog("ww %d hh %d - %d %d %d %d - txt %d",ww,hh,positionAttribHandle,textCoordAttribHandle,textureUnifHandle,alphaUnifHandle,textureIdx)
 
     //Save opengl state
     glDumpState();
@@ -536,8 +538,8 @@ void RenderUtils::DrawTextureBlur(uint ww,uint hh,GLuint textureIdx,int hori,flo
     glEnableVertexAttribArray ( positionAttribHandle );
     glEnableVertexAttribArray ( textCoordAttribHandle );
     
-    glVertexAttribDivisor ( positionAttribHandle, 0);
-    glVertexAttribDivisor ( textCoordAttribHandle, 0);
+//    glVertexAttribDivisor ( positionAttribHandle, 0);
+//    glVertexAttribDivisor ( textCoordAttribHandle, 0);
     
     // Load the uniforms
     // Load the texture idx
@@ -603,8 +605,8 @@ void RenderUtils::DrawTextureBlend(uint ww,uint hh,GLuint textOrigIdx,GLuint tex
     glEnableVertexAttribArray ( positionAttribHandle );
     glEnableVertexAttribArray ( textCoordAttribHandle );
     
-    glVertexAttribDivisor ( positionAttribHandle, 0);
-    glVertexAttribDivisor ( textCoordAttribHandle, 0);
+//    glVertexAttribDivisor ( positionAttribHandle, 0);
+//    glVertexAttribDivisor ( textCoordAttribHandle, 0);
     
     // Load the uniforms
     glUniform1i(textOrigUnifHandle, 0);

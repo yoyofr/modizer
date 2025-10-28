@@ -915,11 +915,13 @@ extern bool icloud_available;
         URKArchive *archive = [[URKArchive alloc] initWithPath:cpath error:&error];
         if (!archive) {
             MDZELog("Error: %ld %@",error.code,error.localizedDescription);
+            r = archive_read_free(a);
             return 0;
         }
         NSArray *filesInArchive = [archive listFilenames:&error];
         if (!filesInArchive) {
             MDZELog("Error: %ld %@",error.code,error.localizedDescription);
+            r = archive_read_free(a);
             return 0;
         }
         NSString *file;
@@ -941,6 +943,7 @@ extern bool icloud_available;
             }
         }
         
+        r = archive_read_free(a);
         return found;
     }
     

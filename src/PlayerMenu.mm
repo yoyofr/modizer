@@ -8,11 +8,14 @@
 #include "PlayerMenu.h"
 #include "SettingsGenViewController.h"
 #include "TextureUtils.h"
+#include <string.h>
+#include <stdlib.h>
 #import "DirParser.h"
 
 #include "MDZFontAwesome.h"
 extern FileNode *pmBundledPresetsFileNode;
 extern FileNode *pmCustomPresetsFileNode;
+
 FileNode *pmCurrentFileNode;
 char pmFileNodeFilter[64];
 static float idealFontSize;
@@ -44,7 +47,8 @@ static int fullscreenStatus;
 
 extern float mdz_font_size[4];
 extern ImFont *font_menu;
-//extern ImFont *font_menu_icon;
+extern ImFont *font_menu_icon;
+extern ImFont  *font_tracker[FONT_TRACKER_NB];
 int font_idx;
 extern volatile t_settings settings[MAX_SETTINGS];
 extern bool _pmPresetHasChanged;
@@ -730,10 +734,11 @@ int buildSubMenu(int r,
         //hack related to gap between FAICON size and cell_size, to review if it can be better managed
         if (cell_sizeH<cell_size) ImGui::GetStyle().ButtonTextAlign = ImVec2(0.5, 0.85);
         else ImGui::GetStyle().ButtonTextAlign = ImVec2(0.5, 0.55);
-        
+
+        ImGui::PushFont(font_menu_icon,idealFontSize*2.0f*glScaleFactor);
         if (isActive) ret=ImGui::Button(faicon(currentMenuLabelFAIcon[celIdx]),ImVec2(cell_size, cell_sizeH));
         else ret=ImGui::Button(faicon(currentMenuLabelFAIcon[celIdx]),ImVec2(cell_size, cell_sizeH));
-        
+        ImGui::PopFont();
         ImGui::GetStyle().ButtonTextAlign = bta;
         
         ImGui::PopID();
@@ -768,7 +773,7 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
         menuCpt[i]++;
     }
     
-    float idealFontSize=menu_win_size/60;
+    idealFontSize=menu_win_size/60;
     
     
     // Global var mirroring
