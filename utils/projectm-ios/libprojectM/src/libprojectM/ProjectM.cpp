@@ -61,15 +61,7 @@ void ProjectM::LoadPresetFile(const std::string& presetFilename, bool smoothTran
     try
     {
         m_textureManager->PurgeTextures();
-//        static long total_time=0;
-//        static int run_cpt=0;
-//        clock_t start_time,end_time;
-//        start_time=clock();
         StartPresetTransition(m_presetFactoryManager->CreatePresetFromFile(presetFilename), !smoothTransition);
-//        end_time=clock();
-//        total_time+=end_time-start_time;
-//        run_cpt++;
-//        if (run_cpt==100) printf("Load presets total cumulated ticks (clock()): %'d\n",total_time);
     }
     catch (const std::exception& ex)
     {

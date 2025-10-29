@@ -113,7 +113,7 @@ Intrinsic SamplerIntrinsic(const char* name, HLSLBaseType returnType, HLSLBaseTy
 
 
 
-static const int _numberTypeRank[NumericType_Count][NumericType_Count] = 
+static const int _numberTypeRank[NumericType_Count][NumericType_Count] =
 {
     //F  B  I  U
     { 0, 4, 4, 4 },  // NumericType_Float
@@ -261,7 +261,7 @@ static const EffectState samplerStates[] = {
     {"MipMapLodBias", 8, floatValues},
     {"MaxMipLevel", 9, integerValues},
     {"MaxAnisotropy", 10, integerValues},
-    {"sRGBTexture", 11, booleanValues},    
+    {"sRGBTexture", 11, booleanValues},
 };
 
 static const EffectState effectStates[] = {
@@ -427,7 +427,7 @@ const Intrinsic _intrinsic[] =
         Intrinsic( "any", HLSLBaseType_Bool, HLSLBaseType_Float4 ),
         Intrinsic( "any", HLSLBaseType_Bool, HLSLBaseType_Float2x4 ),
         Intrinsic( "any", HLSLBaseType_Bool, HLSLBaseType_Float2x3 ),
-		Intrinsic( "any", HLSLBaseType_Bool, HLSLBaseType_Float2x2 ),
+        Intrinsic( "any", HLSLBaseType_Bool, HLSLBaseType_Float2x2 ),
         Intrinsic( "any", HLSLBaseType_Bool, HLSLBaseType_Float3x4 ),
         Intrinsic( "any", HLSLBaseType_Bool, HLSLBaseType_Float3x3 ),
         Intrinsic( "any", HLSLBaseType_Bool, HLSLBaseType_Float3x2 ),
@@ -477,6 +477,11 @@ const Intrinsic _intrinsic[] =
         Intrinsic( "length", HLSLBaseType_Float,  HLSLBaseType_Float2 ),
         Intrinsic( "length", HLSLBaseType_Float,  HLSLBaseType_Float3 ),
         Intrinsic( "length", HLSLBaseType_Float,  HLSLBaseType_Float4 ),
+
+        Intrinsic( "distance", HLSLBaseType_Float,  HLSLBaseType_Float , HLSLBaseType_Float  ),
+        Intrinsic( "distance", HLSLBaseType_Float,  HLSLBaseType_Float2, HLSLBaseType_Float2 ),
+        Intrinsic( "distance", HLSLBaseType_Float,  HLSLBaseType_Float3, HLSLBaseType_Float3 ),
+        Intrinsic( "distance", HLSLBaseType_Float,  HLSLBaseType_Float4, HLSLBaseType_Float4 ),
 
         INTRINSIC_FLOAT2_FUNCTION( "max" ),
         INTRINSIC_FLOAT2_FUNCTION( "min" ),
@@ -594,7 +599,7 @@ const Intrinsic _intrinsic[] =
         Intrinsic( "mul", HLSLBaseType_Float2x2, HLSLBaseType_Float2x2, HLSLBaseType_Float2x2 ),
 
 
-		Intrinsic( "transpose", HLSLBaseType_Float2x2, HLSLBaseType_Float2x2 ),
+        Intrinsic( "transpose", HLSLBaseType_Float2x2, HLSLBaseType_Float2x2 ),
         Intrinsic( "transpose", HLSLBaseType_Float3x3, HLSLBaseType_Float3x3 ),
         Intrinsic( "transpose", HLSLBaseType_Float4x4, HLSLBaseType_Float4x4 ),
 
@@ -646,10 +651,10 @@ const Intrinsic _intrinsic[] =
         Intrinsic("faceforward",  HLSLBaseType_Float3, HLSLBaseType_Float3, HLSLBaseType_Float3, HLSLBaseType_Float3),
         Intrinsic("faceforward",  HLSLBaseType_Float4, HLSLBaseType_Float4, HLSLBaseType_Float4, HLSLBaseType_Float4),
 
-		Intrinsic("isnan",    HLSLBaseType_Bool, HLSLBaseType_Float),
-		Intrinsic("isinf",    HLSLBaseType_Bool, HLSLBaseType_Float),
+        Intrinsic("isnan",    HLSLBaseType_Bool, HLSLBaseType_Float),
+        Intrinsic("isinf",    HLSLBaseType_Bool, HLSLBaseType_Float),
 
-		Intrinsic("asuint",    HLSLBaseType_Uint, HLSLBaseType_Float),
+        Intrinsic("asuint",    HLSLBaseType_Uint, HLSLBaseType_Float),
 
         SAMPLER_INTRINSIC_FUNCTION("tex2D", HLSLBaseType_Sampler2D, HLSLBaseType_Float2),
         
@@ -713,7 +718,7 @@ const int _binaryOpPriority[] =
 // IC: I'm not sure this table is right, but any errors should be caught by the backend compiler.
 // Also, this is operator dependent. The type resulting from (float4 * float4x4) is not the same as (float4 + float4x4).
 // We should probably distinguish between component-wise operator and only allow same dimensions
-HLSLBaseType _binaryOpTypeLookup[HLSLBaseType_NumericCount][HLSLBaseType_NumericCount] = 
+HLSLBaseType _binaryOpTypeLookup[HLSLBaseType_NumericCount][HLSLBaseType_NumericCount] =
     {
         {   // float
             HLSLBaseType_Float, HLSLBaseType_Float2, HLSLBaseType_Float3, HLSLBaseType_Float4,
@@ -996,7 +1001,7 @@ static const char* GetBinaryOpName(HLSLBinaryOp binaryOp)
  * 4.) Conversion + scalar dimension promotion
  * 5.) Truncation (vector -> scalar or lower component vector, matrix -> scalar or lower component matrix)
  * 6.) Conversion + truncation
- */    
+ */
 static int GetTypeCastRank(HLSLTree * tree, const HLSLType& srcType, const HLSLType& dstType)
 {
     /*if (srcType.array != dstType.array || srcType.arraySize != dstType.arraySize)
@@ -1124,14 +1129,14 @@ struct CompareRanks
 };
 
 static CompareFunctionsResult CompareFunctions(HLSLTree* tree, const HLSLFunctionCall* call, const HLSLFunction* function1, const HLSLFunction* function2)
-{ 
+{
 
 #if defined _WIN32 && !defined alloca
-	int* function1Ranks = static_cast<int*>(_alloca(sizeof(int) * call->numArguments));
-	int* function2Ranks = static_cast<int*>(_alloca(sizeof(int) * call->numArguments));
+    int* function1Ranks = static_cast<int*>(_alloca(sizeof(int) * call->numArguments));
+    int* function2Ranks = static_cast<int*>(_alloca(sizeof(int) * call->numArguments));
 #else
-	int* function1Ranks = static_cast<int*>(alloca(sizeof(int) * call->numArguments));
-	int* function2Ranks = static_cast<int*>(alloca(sizeof(int) * call->numArguments));
+    int* function1Ranks = static_cast<int*>(alloca(sizeof(int) * call->numArguments));
+    int* function2Ranks = static_cast<int*>(alloca(sizeof(int) * call->numArguments));
 #endif /** _WIN32 && ! alloca */
 
     const bool function1Viable = GetFunctionCallCastRanks(tree, call, function1, function1Ranks);
@@ -1218,12 +1223,12 @@ static bool GetBinaryOpResultType(HLSLBinaryOp binaryOp, const HLSLType& type1, 
     case HLSLBinaryOp_LessEqual:
     case HLSLBinaryOp_GreaterEqual:
     case HLSLBinaryOp_Equal:
-	case HLSLBinaryOp_NotEqual:
-		{
+    case HLSLBinaryOp_NotEqual:
+        {
             int numComponents = std::max( baseTypeDescriptions[ type1.baseType ].numComponents, baseTypeDescriptions[ type2.baseType ].numComponents );
-			result.baseType = HLSLBaseType( HLSLBaseType_Bool + numComponents - 1 );
-			break;
-		}
+            result.baseType = HLSLBaseType( HLSLBaseType_Bool + numComponents - 1 );
+            break;
+        }
     case HLSLBinaryOp_Mod:
         result.baseType = HLSLBaseType_Int;
         break;
@@ -1688,7 +1693,7 @@ bool HLSLParser::ParseStatement(HLSLStatement*& statement, const HLSLType& retur
     }
 
     HLSLAttribute * attributes = NULL;
-    ParseAttributeBlock(attributes);    // @@ Leak if not assigned to node? 
+    ParseAttributeBlock(attributes);    // @@ Leak if not assigned to node?
 
 #if 0 // @@ Work in progress.
     // Static statements: @if only for now.
@@ -2179,15 +2184,15 @@ bool HLSLParser::AcceptAssign(HLSLBinaryOp& binaryOp)
     else if (Accept(HLSLToken_MinusEqual))
     {
         binaryOp = HLSLBinaryOp_SubAssign;
-    }     
+    }
     else if (Accept(HLSLToken_TimesEqual))
     {
         binaryOp = HLSLBinaryOp_MulAssign;
-    }     
+    }
     else if (Accept(HLSLToken_DivideEqual))
     {
         binaryOp = HLSLBinaryOp_DivAssign;
-    }     
+    }
     else
     {
         return false;
@@ -2207,9 +2212,9 @@ bool HLSLParser::ParseBinaryExpression(int priority, HLSLExpression*& expression
         return false;
     }
 
-	// reset priority cause openned parenthesis
+    // reset priority cause openned parenthesis
     if( needsExpressionEndChar != 0 )
-		priority = 0;
+        priority = 0;
 
     bool acceptBinaryOp = false;
     HLSLBinaryOp binaryOp;
@@ -2306,7 +2311,7 @@ bool HLSLParser::ParsePartialConstructor(HLSLExpression*& expression, HLSLBaseTy
     if (!ParseExpressionList(')', false, constructorExpression->argument, numArguments))
     {
         return false;
-    }    
+    }
     constructorExpression->expressionType = constructorExpression->type;
     constructorExpression->expressionType.flags = HLSLTypeFlag_Const;
     expression = constructorExpression;
@@ -2331,7 +2336,7 @@ bool HLSLParser::ParseTerminalExpression(HLSLExpression*& expression, char& need
         }
         if (unaryOp == HLSLUnaryOp_BitNot)
         {
-            if (unaryExpression->expression->expressionType.baseType < HLSLBaseType_FirstInteger || 
+            if (unaryExpression->expression->expressionType.baseType < HLSLBaseType_FirstInteger ||
                 unaryExpression->expression->expressionType.baseType > HLSLBaseType_LastInteger)
             {
                 const char * typeName = GetTypeName(unaryExpression->expression->expressionType);
@@ -3011,7 +3016,7 @@ const EffectState* GetEffectState(const char* name, bool isSamplerState, bool is
     // Case insensitive comparison.
     for (int i = 0; i < count; i++)
     {
-        if (String_EqualNoCase(name, validStates[i].name)) 
+        if (String_EqualNoCase(name, validStates[i].name))
         {
             return &validStates[i];
         }
@@ -3023,12 +3028,12 @@ const EffectState* GetEffectState(const char* name, bool isSamplerState, bool is
 static const EffectStateValue* GetStateValue(const char* name, const EffectState* state)
 {
     // Case insensitive comparison.
-    for (int i = 0; ; i++) 
+    for (int i = 0; ; i++)
     {
         const EffectStateValue & value = state->values[i];
         if (value.name == NULL) break;
 
-        if (String_EqualNoCase(name, value.name)) 
+        if (String_EqualNoCase(name, value.name))
         {
             return &value;
         }
@@ -3094,7 +3099,7 @@ bool HLSLParser::ParseStateValue(const EffectState * state, HLSLStateAssignment*
     const bool expectsFloat = state->values == floatValues;
     const bool expectsBoolean = state->values == booleanValues;
 
-    if (!expectsExpression && !expectsInteger && !expectsFloat && !expectsBoolean) 
+    if (!expectsExpression && !expectsInteger && !expectsFloat && !expectsBoolean)
     {
         if (m_tokenizer.GetToken() != HLSLToken_Identifier)
         {
@@ -3171,7 +3176,7 @@ bool HLSLParser::ParseStateValue(const EffectState * state, HLSLStateAssignment*
                 return false;
             }
         }
-        else 
+        else
         {
             // Expect one of the allowed values.
             const EffectStateValue * stateValue = GetStateValue(m_tokenizer.GetIdentifier(), state);
@@ -3334,7 +3339,7 @@ bool HLSLParser::ParseStage(HLSLStatement*& statement)
 
 
 bool HLSLParser::Parse(const char* fileName, const char* buffer, size_t length)
-{    
+{
     HLSLRoot* root = m_tree->GetRoot();
     HLSLStatement* lastStatement = NULL;
 
@@ -3347,7 +3352,7 @@ bool HLSLParser::Parse(const char* fileName, const char* buffer, size_t length)
             return false;
         }
         if (statement != NULL)
-        {   
+        {
             if (lastStatement == NULL)
             {
                 root->statement = statement;
@@ -3551,8 +3556,8 @@ bool HLSLParser::ApplyPreprocessor(const char* fileName, const char* buffer, siz
             m_tokenizer.Next();
         }
 
-        if (valueProcessed == "main") 
-		{
+        if (valueProcessed == "main")
+        {
             valueProcessed = "sampler_fw_main";
         }
 
@@ -3849,12 +3854,12 @@ bool HLSLParser::AcceptTypeModifier(int& flags)
 bool HLSLParser::AcceptInterpolationModifier(int& flags)
 {
     if (Accept("linear"))
-    { 
-        flags |= HLSLTypeFlag_Linear; 
+    {
+        flags |= HLSLTypeFlag_Linear;
         return true;
     }
     else if (Accept("centroid"))
-    { 
+    {
         flags |= HLSLTypeFlag_Centroid;
         return true;
     }
@@ -3903,7 +3908,7 @@ bool HLSLParser::AcceptType(bool allowVoid, HLSLType& type/*, bool acceptFlags*/
     case HLSLToken_Double1x1:
         type.baseType = HLSLBaseType_Float;
         break;
-    case HLSLToken_Float2:      
+    case HLSLToken_Float2:
     case HLSLToken_Float2x1:
     case HLSLToken_Half2:
     case HLSLToken_Half2x1:
@@ -3937,11 +3942,11 @@ bool HLSLParser::AcceptType(bool allowVoid, HLSLType& type/*, bool acceptFlags*/
     case HLSLToken_Double2x3:
         type.baseType = HLSLBaseType_Float2x3;
         break;
-	case HLSLToken_Float2x2:
+    case HLSLToken_Float2x2:
     case HLSLToken_Half2x2:
     case HLSLToken_Double2x2:
-		type.baseType = HLSLBaseType_Float2x2;
-		break;
+        type.baseType = HLSLBaseType_Float2x2;
+        break;
     case HLSLToken_Float3x4:
     case HLSLToken_Half3x4:
     case HLSLToken_Double3x4:
@@ -3975,15 +3980,15 @@ bool HLSLParser::AcceptType(bool allowVoid, HLSLType& type/*, bool acceptFlags*/
     case HLSLToken_Bool:
         type.baseType = HLSLBaseType_Bool;
         break;
-	case HLSLToken_Bool2:
-		type.baseType = HLSLBaseType_Bool2;
-		break;
-	case HLSLToken_Bool3:
-		type.baseType = HLSLBaseType_Bool3;
-		break;
-	case HLSLToken_Bool4:
-		type.baseType = HLSLBaseType_Bool4;
-		break;
+    case HLSLToken_Bool2:
+        type.baseType = HLSLBaseType_Bool2;
+        break;
+    case HLSLToken_Bool3:
+        type.baseType = HLSLBaseType_Bool3;
+        break;
+    case HLSLToken_Bool4:
+        type.baseType = HLSLBaseType_Bool4;
+        break;
     case HLSLToken_Int:
         type.baseType = HLSLBaseType_Int;
         break;

@@ -518,11 +518,11 @@ static const yytype_int8 yytranslate[] =
 /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    82,    82,    83,    93,    97,    98,   102,   106,   107,
-     108,   112,   113,   119,   120,   123,   126,   127,   128,   135,
-     136,   137,   138,   139,   140,   141,   142,   145,   146,   147,
-     148,   149,   150,   153,   154,   157,   160,   163,   166,   167,
-     168,   169,   170,   171,   172,   173,   176,   177,   178,   181
+       0,    77,    77,    78,    88,    92,    93,    97,   101,   102,
+     103,   107,   108,   114,   115,   118,   121,   122,   123,   130,
+     131,   132,   133,   134,   135,   136,   137,   140,   141,   142,
+     143,   144,   145,   148,   149,   152,   155,   158,   161,   162,
+     163,   164,   165,   166,   167,   168,   171,   172,   173,   176
 };
 #endif
 
@@ -1569,39 +1569,7 @@ yydestruct (const char *yymsg,
   YY_SYMBOL_PRINT (yymsg, yykind, yyvaluep, yylocationp);
 
   YY_IGNORE_MAYBE_UNINITIALIZED_BEGIN
-  switch (yykind)
-    {
-    case YYSYMBOL_VAR: /* VAR  */
-            { free(((*yyvaluep).VAR)); }
-        break;
-
-    case YYSYMBOL_FUNC: /* FUNC  */
-            { free(((*yyvaluep).FUNC)); }
-        break;
-
-    case YYSYMBOL_function: /* function  */
-            { prjm_eval_compiler_destroy_node(((*yyvaluep).function)); }
-        break;
-
-    case YYSYMBOL_46_function_arglist: /* function-arglist  */
-            { prjm_eval_compiler_destroy_arglist(((*yyvaluep).yykind_46)); }
-        break;
-
-    case YYSYMBOL_parentheses: /* parentheses  */
-            { prjm_eval_compiler_destroy_node(((*yyvaluep).parentheses)); }
-        break;
-
-    case YYSYMBOL_48_instruction_list: /* instruction-list  */
-            { prjm_eval_compiler_destroy_node(((*yyvaluep).yykind_48)); }
-        break;
-
-    case YYSYMBOL_expression: /* expression  */
-            { prjm_eval_compiler_destroy_node(((*yyvaluep).expression)); }
-        break;
-
-      default:
-        break;
-    }
+  YY_USE (yykind);
   YY_IGNORE_MAYBE_UNINITIALIZED_END
 }
 

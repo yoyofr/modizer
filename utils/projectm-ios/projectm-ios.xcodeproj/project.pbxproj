@@ -534,7 +534,6 @@
 		CCABA22B2E93C97600AF59B0 /* PerPixelContext.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = PerPixelContext.cpp; sourceTree = "<group>"; };
 		CCABA22C2E93C97600AF59B0 /* PerPixelMesh.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = PerPixelMesh.hpp; sourceTree = "<group>"; };
 		CCABA22D2E93C97600AF59B0 /* PerPixelMesh.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = PerPixelMesh.cpp; sourceTree = "<group>"; };
-		CCABA22E2E93C97600AF59B0 /* PresetFileParser.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = PresetFileParser.hpp; sourceTree = "<group>"; };
 		CCABA2302E93C97600AF59B0 /* PresetState.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = PresetState.hpp; sourceTree = "<group>"; };
 		CCABA2312E93C97600AF59B0 /* PresetState.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = PresetState.cpp; sourceTree = "<group>"; };
 		CCABA2322E93C97600AF59B0 /* ShapePerFrameContext.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = ShapePerFrameContext.hpp; sourceTree = "<group>"; };
@@ -642,6 +641,9 @@
 		CCCB39812EB0457300FE6091 /* VertexBufferUsage.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = VertexBufferUsage.cpp; sourceTree = "<group>"; };
 		CCCB39822EB0457300FE6091 /* VertexIndexArray.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = VertexIndexArray.hpp; sourceTree = "<group>"; };
 		CCCB39832EB0457300FE6091 /* VertexIndexArray.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = VertexIndexArray.cpp; sourceTree = "<group>"; };
+		CCCB3A2D2EB1FDA700FE6091 /* Compiler.y */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.yacc; path = Compiler.y; sourceTree = "<group>"; };
+		CCCB3A2E2EB1FDA700FE6091 /* Scanner.l */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.lex; path = Scanner.l; sourceTree = "<group>"; };
+		CCCB3A302EB209DE00FE6091 /* AltComp.y */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.yacc; path = AltComp.y; sourceTree = "<group>"; };
 		CCE025CB2E99A5D4008B7070 /* MilkdropSpriteFragmentGlsl330.frag */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = MilkdropSpriteFragmentGlsl330.frag; sourceTree = "<group>"; };
 		CCE025CC2E99A5D4008B7070 /* MilkdropSpriteVertexGlsl330.vert */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = MilkdropSpriteVertexGlsl330.vert; sourceTree = "<group>"; };
 		CCE025CE2E99A5D4008B7070 /* CMakeLists.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = CMakeLists.txt; sourceTree = "<group>"; };
@@ -1079,7 +1081,10 @@
 		CCABA1752E93C75B00AF59B0 /* projectm-eval */ = {
 			isa = PBXGroup;
 			children = (
+				CCCB3A302EB209DE00FE6091 /* AltComp.y */,
 				CCABA1622E93C75B00AF59B0 /* CompileContext.c */,
+				CCCB3A2D2EB1FDA700FE6091 /* Compiler.y */,
+				CCCB3A2E2EB1FDA700FE6091 /* Scanner.l */,
 				CCABA1642E93C75B00AF59B0 /* Compiler.c */,
 				CCABA1672E93C75B00AF59B0 /* CompilerFunctions.c */,
 				CCABA16A2E93C75B00AF59B0 /* ExpressionTree.c */,
@@ -1292,7 +1297,6 @@
 				CCABA2282E93C97600AF59B0 /* PerFrameContext.hpp */,
 				CCABA22A2E93C97600AF59B0 /* PerPixelContext.hpp */,
 				CCABA22C2E93C97600AF59B0 /* PerPixelMesh.hpp */,
-				CCABA22E2E93C97600AF59B0 /* PresetFileParser.hpp */,
 				CCABA2302E93C97600AF59B0 /* PresetState.hpp */,
 				CCABA2322E93C97600AF59B0 /* ShapePerFrameContext.hpp */,
 				CCABA2342E93C97600AF59B0 /* VideoEcho.hpp */,
@@ -1725,6 +1729,7 @@
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = (
+					"-DMILKDROP_PRESET_DEBUG",
 					"-DPRJM_F_SIZE=8",
 					"-DGLES_SILENCE_DEPRECATION",
 					"-DUSE_GLES",

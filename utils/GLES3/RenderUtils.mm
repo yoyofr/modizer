@@ -824,6 +824,7 @@ static signed char cur_snd_data[OSCILLO_BUFFER_SIZE*SOUND_MAXVOICES_BUFFER_FX];
 void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,int num_voices,uint ww,uint hh,uint color_mode,float mScaleFactor,bool isfullscreen,bool bloom,char *voices_label,bool draw_frame,bool flag_direct_stereo) {
     SimpleLineVertexF *ptsLines;
     ColorDataF *ptsCol;
+    LineVertexF *ptsTriangles;
     int mulfactor;
     int val[SOUND_MAXVOICES_BUFFER_FX];
     int oval[SOUND_MAXVOICES_BUFFER_FX];
@@ -938,6 +939,13 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
     if (!ptsCol) {
         free(ptsLines);
         printf("%s: cannot allocate ColorDataF buffer\n",__func__);
+        return;
+    }
+    ptsTriangles=(LineVertexF*)malloc(sizeof(LineVertexF)*6);
+    if (!ptsTriangles) {
+        free(ptsCol);
+        free(ptsLines);
+        printf("%s: cannot allocate LineVertF buffer\n",__func__);
         return;
     }
     count=0;
@@ -1111,9 +1119,7 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
     if (hh>ww) line_width=mScaleFactor*thickness/(float)hh;
     else line_width=mScaleFactor*thickness/(float)ww;
     
-    LineVertexF *ptsTriangles;
     
-    ptsTriangles=(LineVertexF*)malloc(sizeof(LineVertexF)*6);
     
     ptsTriangles[0].x=0; ptsTriangles[0].y=-0.5;
     ptsTriangles[1].x=1; ptsTriangles[1].y=-0.5;
@@ -1218,6 +1224,7 @@ void RenderUtils::DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,in
     
     free(ptsTriangles);
     free(ptsLines);
+    free(ptsCol);
     
     glVertexAttribDivisor ( pointABAttribHandle, 0);
     glVertexAttribDivisor ( colorAttribHandle, 0);

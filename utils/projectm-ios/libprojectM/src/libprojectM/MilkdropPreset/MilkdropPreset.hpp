@@ -68,6 +68,8 @@ public:
      * @param presetOutputs initialized and filled with data parsed from a MilkdropPreset
      */
     MilkdropPreset(std::istream& presetData);
+    
+    
 
     /**
      * @brief Initializes the preset with rendering-related data.

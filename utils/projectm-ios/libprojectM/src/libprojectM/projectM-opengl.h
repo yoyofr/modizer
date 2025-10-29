@@ -13,7 +13,6 @@
 #ifdef __APPLE__
 //# include <OpenGL/gl3.h>
 //# include <OpenGL/gl3ext.h>
-
 #include <OpenGLES/ES3/gl.h> //YOYOFR
 #include <OpenGLES/ES3/glext.h>  //YOYOFR
 #elif defined(EYETUNE_WINRT)

@@ -14,7 +14,7 @@ typedef void* yyscan_t;
 %define api.prefix {prjm_eval_}
 %define api.value.type union /* Generate YYSTYPE from these types: */
 %define parse.error verbose
-%define parse.lac full
+%define parse.lac full /* Stop at first error */
 
     /* Parser and lexer arguments */
 %param {prjm_eval_compiler_context_t* cctx} { yyscan_t scanner }
@@ -46,11 +46,6 @@ typedef void* yyscan_t;
 %token <char*> VAR FUNC
 %nterm <prjm_eval_compiler_node_t*> function program instruction-list expression parentheses
 %nterm <prjm_eval_compiler_arg_list_t*> function-arglist
-
-/* Cleanup */
-%destructor { free($$); } VAR FUNC
-%destructor { prjm_eval_compiler_destroy_node($$); } function instruction-list expression parentheses
-%destructor { prjm_eval_compiler_destroy_arglist($$); } function-arglist
 
 /* Operator precedence, lowest first, highest last. */
 %precedence ','
@@ -91,6 +86,12 @@ program:
 /* Functions */
 function:
   FUNC[name] '(' function-arglist[args] ')' { PRJM_EVAL_FUNC($$, $name, $args); free($name); }
+| FUNC[name] '(' error ')' {
+  yyerrok;
+  $$ = NULL; /* produce an empty function node instead of crashing */
+  free($name);
+}
+
 ;
 
 function-arglist:
@@ -106,6 +107,15 @@ instruction-list:
   expression[expr]                            { $$ = $expr; }
 | instruction-list[list] ';' expression[expr] { $$ = prjm_eval_compiler_add_instruction(cctx, $list, $expr); }
 | instruction-list[list] ';' empty-expression { $$ = $list; }
+/* === Error recovery inside instruction sequences === */
+| instruction-list[list] error ';' {
+      yyerrok;
+      $$ = $list; /* skip invalid expression and continue */
+  }
+| error ';' {
+      yyerrok;
+      $$ = NULL; /* start of file or invalid instruction */
+  }
 ;
 
 empty-expression:

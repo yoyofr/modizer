@@ -84,6 +84,8 @@ void prjm_eval_destroy_compile_context(prjm_eval_compiler_context_t* cctx)
     free(cctx);
 }
 
+int glob_notidle=0;
+
 prjm_eval_program_t* prjm_eval_compile_code(prjm_eval_compiler_context_t* cctx, const char* code)
 {
     yyscan_t scanner;
@@ -95,7 +97,7 @@ prjm_eval_program_t* prjm_eval_compile_code(prjm_eval_compiler_context_t* cctx, 
     bufferState->yy_bs_column = 0;
 
     int result = prjm_eval_parse(cctx, scanner);
-
+    
     prjm_eval__delete_buffer(bufferState, scanner);
     prjm_eval_lex_destroy(scanner);
 

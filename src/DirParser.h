@@ -7,6 +7,8 @@
 
 #import <Foundation/Foundation.h>
 
+#include <projectM-4/projectM.h>
+
 @interface FileNode : NSObject
 
 @property (nonatomic, strong) NSString *name;
@@ -23,10 +25,46 @@
 @property (nonatomic, strong) NSMutableArray<FileNode *> *children;
 
 - (instancetype)initWithPath:(NSString *)path;
-- (NSString *)formattedSize;
-- (void)printStructureWithIndent:(NSInteger)indent;
 
-- (bool)filterNodes:(NSString *)pattern filterDir:(bool)filterDir;
+- (bool) filterNodes:(NSString *)pattern filterDir:(bool)filterDir;
+- (void) flattenNode:(FileNode *)node selected:(bool)filterSelected favorite:(bool)filterFav intoArray:(NSMutableArray<FileNode *> *)array;
+- (NSArray*) getSelectedPlaylist;
+- (NSArray*) getFavoritePlaylist;
+
+
+@end
+
+@interface MDZPlaylist : NSObject
+
+@property (nonatomic, strong) NSMutableArray *items;
+@property (nonatomic, strong) NSMutableArray *history;
+@property (nonatomic, strong) NSString *curEntryLbl;
+@property (nonatomic, assign) projectm_handle pmh;
+@property (nonatomic, assign) int position;
+@property (nonatomic, assign) int size;
+@property (nonatomic, assign) bool shuffle;
+@property (nonatomic, assign) bool lastFailed;
+
+- (instancetype)init:(projectm_handle)pmh;
+- (instancetype)initWithArray:(NSArray*)array pmh:(projectm_handle)pmh;
+- (void)setItems:(NSArray*)array;
+- (void)addItems:(NSArray*)array;
+- (void)setShuffle:(bool)active;
+- (void)next:(bool)cut;
+- (void)prev:(bool)cut;
+- (void)last:(bool)cut;
+- (int)getPos;
+- (void)setPos:(int)pos cut:(bool)cut;
+- (unsigned long)remove:(int)index;
+- (void)clear;
+- (const char*)getTitle:(int)index;
+- (const char*)getPath:(int)index;
+- (const char*)getCurLabel;
+- (int)getSize;
+- (void)loadCurrentPreset:(bool)cut;
+- (void)loadIdlePreset;
+- (const char *)getPresetCleanTitle:(int)index;
+- (const char *)getCurPresetCleanTitle;
 
 @end
 
