@@ -91,13 +91,11 @@ static inline double iss_strtod(const char * in, char ** end) {
     return df;
 }
 
-
-//YOYOFR
-double String_ToDouble(const char * str, const char * strend, char ** endptr) {
+double String_ToDouble(const char * str, char ** endptr) {
     //return iss_strtod(str, endptr);
-    double result;
+    double result;   //YOYOFR, use fast float instead, much faster preset loading
     
-    if (auto answer = fast_float::from_chars(str, strend, result)) {
+    if (auto answer = fast_float::from_chars(str, str+strlen(str), result)) {
         if (endptr) *endptr=(char*)(answer.ptr);
         return result;
     }

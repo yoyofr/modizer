@@ -18,6 +18,7 @@
 @property (nonatomic, assign) BOOL isFullySelected;
 @property (nonatomic, assign) BOOL isMatchingFilter;
 @property (nonatomic, assign) BOOL isDirectory;
+@property (nonatomic, assign) BOOL isMissing;
 @property (nonatomic, assign) BOOL isFavorite;
 @property (nonatomic, assign) BOOL shouldPropagateStatus;
 @property (nonatomic, assign) unsigned long long fileSize;
@@ -39,14 +40,15 @@
 @property (nonatomic, strong) NSMutableArray *items;
 @property (nonatomic, strong) NSMutableArray *history;
 @property (nonatomic, strong) NSString *curEntryLbl;
+@property (nonatomic, strong) NSString *playlistName;
 @property (nonatomic, assign) projectm_handle pmh;
 @property (nonatomic, assign) int position;
 @property (nonatomic, assign) int size;
 @property (nonatomic, assign) bool shuffle;
 @property (nonatomic, assign) bool lastFailed;
 
-- (instancetype)init:(projectm_handle)pmh;
-- (instancetype)initWithArray:(NSArray*)array pmh:(projectm_handle)pmh;
+- (instancetype)init:(projectm_handle)pmh name:(NSString*)name;
+- (instancetype)initWithArray:(NSArray*)array pmh:(projectm_handle)pmh name:(NSString*)name;
 - (void)setItems:(NSArray*)array;
 - (void)addItems:(NSArray*)array;
 - (void)setShuffle:(bool)active;
@@ -55,7 +57,7 @@
 - (void)last:(bool)cut;
 - (int)getPos;
 - (void)setPos:(int)pos cut:(bool)cut;
-- (unsigned long)remove:(int)index;
+- (void)remove:(int)index;
 - (void)clear;
 - (const char*)getTitle:(int)index;
 - (const char*)getPath:(int)index;
@@ -65,6 +67,24 @@
 - (void)loadIdlePreset;
 - (const char *)getPresetCleanTitle:(int)index;
 - (const char *)getCurPresetCleanTitle;
+
+/*! \brief Save playlist
+ *
+ *  Save playlist
+ *
+ *  \return 0 on success
+*                     <0 in case of erorr
+ */
+- (int)savePlaylist;
+
+/*! \brief Load playlist
+ *
+ *  Load playlist and check / available files
+ *
+ *  \return 0 full succes. Number of missing entries after filesystem check on partial success (playlist loaded, but some files are missing)
+ *          <0 in case of error
+ */
+- (int)loadPlaylist;
 
 @end
 

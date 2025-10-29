@@ -5,12 +5,22 @@
 //  Created by Yohann Magnien David on 26/10/2025.
 //
 
+#define MDZ_PMPLAYLIST_VERSION 1
+
+typedef struct {
+    int version;
+    int itemsNb;
+    int type;
+    char name[64];
+} MDZPlaylist_Header_t;
+
 #define MDZ_PLAYLIST_MAX_RETRY 32
 
 #import "DirParser.h"
 #import "ModizerConstants.h"
 
-extern int glob_notidle;
+#include "zlib.h"
+
 
 @implementation FileNode
 
@@ -19,23 +29,29 @@ extern int glob_notidle;
     if (self) {
         _path = path;
         _name = [path lastPathComponent];
-        _children = [NSMutableArray array];
+        _children = nil;
         _isSelected = TRUE;
         _selectedChildren = 0;
         _isFullySelected = FALSE;
         _shouldPropagateStatus = FALSE;
         _isFavorite = FALSE;
+        _isMissing = FALSE;
         
+        NSError *error;
         NSFileManager *fm = [NSFileManager defaultManager];
-        NSDictionary *attrs = [fm attributesOfItemAtPath:path error:nil];
+        NSDictionary *attrs = [fm attributesOfItemAtPath:path error:&error];
         
-        if (attrs) {
-            _fileSize = [attrs fileSize];
-            _modificationDate = [attrs fileModificationDate];
-            
-            BOOL isDir = NO;
-            [fm fileExistsAtPath:path isDirectory:&isDir];
-            _isDirectory = isDir;
+        if (error) {
+            _isMissing=TRUE;
+        } else {
+            if (attrs) {
+                _fileSize = [attrs fileSize];
+                _modificationDate = [attrs fileModificationDate];
+                
+                BOOL isDir = NO;
+                [fm fileExistsAtPath:path isDirectory:&isDir];
+                _isDirectory = isDir;
+            }
         }
     }
     return self;
@@ -125,13 +141,11 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
 
 @implementation MDZPlaylist
 
-//-----------------------------
-//
-//-----------------------------
-- (instancetype)init:(projectm_handle)pmh; {
+- (instancetype)init:(projectm_handle)pmh name:(NSString*)name {
     _items=[[NSMutableArray alloc] init];
     _position=0;
-    _size=[_items count];
+    _playlistName=name;
+    _size=(int)[_items count];
     _shuffle=false;
     _history=[[NSMutableArray alloc] init];
     _pmh=pmh;
@@ -146,13 +160,11 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
 }
 
 
-//-----------------------------
-//
-//-----------------------------
-- (instancetype)initWithArray:(NSArray*)array pmh:(projectm_handle)pmh;{
+- (instancetype)initWithArray:(NSArray*)array pmh:(projectm_handle)pmh name:(NSString*)name;{
     _items=[NSMutableArray arrayWithArray:array];
     _position=0;
-    _size=[_items count];
+    _playlistName=name;
+    _size=(int)[_items count];
     _shuffle=false;
     _history=[[NSMutableArray alloc] init];
     _pmh=pmh;
@@ -166,41 +178,28 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
 }
 
 - (void)loadIdlePreset {
-    glob_notidle=0;
     projectm_load_preset_file(_pmh,"idle://Geiss & Sperl - Feedback (projectM idle HDR mix).milk",NULL);
     _curEntryLbl=[NSString stringWithFormat:@"No preset found. Activate bundled presets or copy milk files in '%s/presets' & images in '%s/textures' folders.",PM_ROOT_FOLDER_CUSTOM,PM_ROOT_FOLDER_CUSTOM];
 }
 
-//-----------------------------
-//
-//-----------------------------
 - (void)setItems:(NSArray*)array {
     _items=[NSMutableArray arrayWithArray:array];
     _position=0;
-    _size=[_items count];
+    _size=(int)[_items count];
     _history=[[NSMutableArray alloc] init];
 }
 
-//-----------------------------
-//
-//-----------------------------
 - (void)addItems:(NSArray*)array {
     [_items addObjectsFromArray:array];
     _position=0;
-    _size=[_items count];
+    _size=(int)[_items count];
 }
 
 
-//-----------------------------
-//
-//-----------------------------
 - (void)setShuffle:(bool)active {
     _shuffle=active;
 }
 
-//-----------------------------
-//
-//-----------------------------
 - (void)loadCurrentPreset:(bool)cut {
     //Load new preset
     int retry_counter=0;
@@ -208,7 +207,6 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
     while (1) {
         _lastFailed=false;
         item=[_items objectAtIndex:_position];
-        glob_notidle=1;
         projectm_load_preset_file(_pmh, [item.path UTF8String], !cut);
         //if it hasnt failed, break to continue
         if (!_lastFailed) break;
@@ -228,9 +226,6 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
         _curEntryLbl = [NSString stringWithFormat:@"(%d/%d) %@",_position+1,_size,item.name];
     }
 }
-//-----------------------------
-//
-//-----------------------------
 - (void)next:(bool)cut {
     if (!_size) return;
     if (_shuffle) {
@@ -242,9 +237,6 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
     [self loadCurrentPreset:cut];
 }
 
-//-----------------------------
-//
-//-----------------------------
 - (void)last:(bool)cut {
     if (!_size) return;
     if (_shuffle) {
@@ -257,9 +249,6 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
     [self loadCurrentPreset:cut];
 }
 
-//-----------------------------
-//
-//-----------------------------
 - (void)prev:(bool)cut {
     if (!_size) return;
     if (_shuffle) {
@@ -272,26 +261,17 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
     [self loadCurrentPreset:cut];
 }
 
-//-----------------------------
-//
-//-----------------------------
 - (int)getPos {
     return _position;
 }
 
-//-----------------------------
-//
-//-----------------------------
 - (void)setPos:(int)pos cut:(bool)cut {
     if (pos<_size) _position=pos;
     
     [self loadCurrentPreset:cut];
 }
 
-//-----------------------------
-//
-//-----------------------------
-- (unsigned long)remove:(int)index {
+- (void)remove:(int)index {
     if (index<_size) {
         [_items removeObjectAtIndex:index];
         _size--;
@@ -305,18 +285,12 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
     }
 }
 
-//-----------------------------
-//
-//-----------------------------
 - (void)clear {
     [_items removeAllObjects];
     _size=0;
     _position=0;
 }
 
-//-----------------------------
-//
-//-----------------------------
 - (const char *)getCurPresetCleanTitle {
     const char *filename=[[(FileNode*)[_items objectAtIndex:_position] path] UTF8String];
     const char *title=strchr(filename,'/');
@@ -331,9 +305,6 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
     return title;
 }
 
-//-----------------------------
-//
-//-----------------------------
 - (const char *)getPresetCleanTitle:(int)index {
     if ((index<0)||(index>=_size)) return NULL;
     const char *filename=[[(FileNode*)[_items objectAtIndex:index] path] UTF8String];
@@ -350,9 +321,6 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
 }
 
 
-//-----------------------------
-//
-//-----------------------------
 - (const char*)getPath:(int)index {
     if ((index<0)||(index>=_size)) return NULL;
     FileNode *item=[_items objectAtIndex:index];
@@ -361,28 +329,136 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
 }
 
 
-//-----------------------------
-//
-//-----------------------------
 - (const char*)getTitle:(int)index {
     if ((index<0)||(index>=_size)) return NULL;
     FileNode *item=[_items objectAtIndex:index];
     return [item.name UTF8String];
 }
 
-//-----------------------------
-//
-//-----------------------------
 - (const char*)getCurLabel {
     return [_curEntryLbl UTF8String];
 }
 
-//-----------------------------
-//
-//-----------------------------
 - (int)getSize {
     return _size;
 }
+
+
+- (bool)getFavStatus {
+    bool ret=false;
+    if (_size>0) {
+        FileNode *_entry=[_items objectAtIndex:_position];
+        ret=_entry.isFavorite;
+    }
+    return ret;
+}
+
+- (void)setFavStatus:(bool)favorite {
+    if (_size>0) {
+        FileNode *_entry=[_items objectAtIndex:_position];
+        _entry.isFavorite=favorite;
+    }
+}
+- (int)savePlaylist {
+    gzFile f;
+    f=gzopen([[NSHomeDirectory() stringByAppendingPathComponent:@"Documents/modizerPresetsPL.pmpl"] UTF8String],"wb");
+    if (f) {
+        //Write header
+        MDZPlaylist_Header_t header;
+        header.version=MDZ_PMPLAYLIST_VERSION;
+        header.type=0;
+        header.itemsNb=_size;
+        snprintf(header.name,64,"%s",[_playlistName UTF8String]);
+        gzwrite(f,&header,sizeof(MDZPlaylist_Header_t));
+        
+        //Write path for each entries
+        for (FileNode *node in _items) {
+            char isFav=node.isFavorite;
+            const char *str=[node.path UTF8String];
+            int strLen=(int)strlen(str);
+            if (strLen>1023) {
+                strLen=1023;
+                MDZELog("PM playlist/Saving: too long file path for saving (> 1023)")
+            }
+            gzwrite(f,&isFav,sizeof(char));
+            gzwrite(f,&strLen,sizeof(int));
+            gzwrite(f,str,strLen);
+            
+        }
+        gzclose(f);
+    } else {
+        MDZELog("PM playlist/Saving: cannot open saving file for writing");
+        return -1;
+    }
+    return 0;
+}
+
+- (int)loadPlaylist {
+    int missing_counter=0;
+    gzFile f;
+    f=gzopen([[NSHomeDirectory() stringByAppendingPathComponent:@"Documents/modizerPresetsPL.pmpl"] UTF8String],"rb");
+    if (f) {
+        int readBytes;
+        
+        //REad header
+        MDZPlaylist_Header_t header;
+        readBytes=gzread(f,&header,sizeof(MDZPlaylist_Header_t));
+        
+        if (readBytes<sizeof(MDZPlaylist_Header_t)) {
+            MDZELog("PM playlist/Loading: cannot read  file (modizerPresetsPL.pmpl)")
+            gzclose(f);
+            return -1;
+        }
+        if (header.version!=MDZ_PMPLAYLIST_VERSION) {
+            MDZELog("PM playlist/Loading: wrong version")
+            gzclose(f);
+            return -2;
+        }
+        
+        [self clear];
+        _playlistName=[NSString stringWithUTF8String:header.name];
+        
+        char str[1024];
+        for (int i=0;i<header.itemsNb;i++) {
+            char isFav;
+            readBytes=gzread(f,&isFav,sizeof(char));
+            if (readBytes!=sizeof(char)) {
+                MDZELog("PM playlist/Loading: wrong data (isFav) for entry %d, aborting",i)
+                gzclose(f);
+                return -3;
+            }
+            
+            int strLen;
+            readBytes=gzread(f,&strLen,sizeof(int));
+            if (strLen>1023) {
+                MDZELog("PM playlist/Loading: too long path string (>1023) for entry %d, limiting",i)
+            }
+            readBytes=gzread(f,&str,strLen);
+            if (readBytes!=strLen) {
+                MDZELog("PM playlist/Loading: cannot read string data for entry %d, aborting",i)
+                gzclose(f);
+                return -4;
+            }
+            str[strLen]=0;
+
+            FileNode *node=[[FileNode alloc] initWithPath:[NSString stringWithUTF8String:str]];
+            if (node.isMissing) {
+                missing_counter++;
+            } else {
+                node.isSelected=TRUE;
+                node.isFavorite=(isFav?TRUE:FALSE);
+                [_items addObject:node];
+            }
+        }
+        gzclose(f);
+    }
+    if (missing_counter) {
+        MDZILog("PM playlist/Loading: %d entries are missing in filesystem",missing_counter)
+    }
+    _size=(int)[_items count];
+    return missing_counter;
+}
+
 
 
 @end
@@ -444,6 +520,7 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
         FileNode *childNode = [self parseDirectoryAtPath:itemPath depth:depth + 1 error:nil];
         
         if (childNode) {
+            if (node.children==nil) node.children=[NSMutableArray array];
             [node.children addObject:childNode];
         }
     }

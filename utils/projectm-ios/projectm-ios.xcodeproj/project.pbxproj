@@ -643,7 +643,6 @@
 		CCCB39832EB0457300FE6091 /* VertexIndexArray.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = VertexIndexArray.cpp; sourceTree = "<group>"; };
 		CCCB3A2D2EB1FDA700FE6091 /* Compiler.y */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.yacc; path = Compiler.y; sourceTree = "<group>"; };
 		CCCB3A2E2EB1FDA700FE6091 /* Scanner.l */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.lex; path = Scanner.l; sourceTree = "<group>"; };
-		CCCB3A302EB209DE00FE6091 /* AltComp.y */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.yacc; path = AltComp.y; sourceTree = "<group>"; };
 		CCE025CB2E99A5D4008B7070 /* MilkdropSpriteFragmentGlsl330.frag */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = MilkdropSpriteFragmentGlsl330.frag; sourceTree = "<group>"; };
 		CCE025CC2E99A5D4008B7070 /* MilkdropSpriteVertexGlsl330.vert */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = MilkdropSpriteVertexGlsl330.vert; sourceTree = "<group>"; };
 		CCE025CE2E99A5D4008B7070 /* CMakeLists.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = CMakeLists.txt; sourceTree = "<group>"; };
@@ -1081,7 +1080,6 @@
 		CCABA1752E93C75B00AF59B0 /* projectm-eval */ = {
 			isa = PBXGroup;
 			children = (
-				CCCB3A302EB209DE00FE6091 /* AltComp.y */,
 				CCABA1622E93C75B00AF59B0 /* CompileContext.c */,
 				CCCB3A2D2EB1FDA700FE6091 /* Compiler.y */,
 				CCCB3A2E2EB1FDA700FE6091 /* Scanner.l */,

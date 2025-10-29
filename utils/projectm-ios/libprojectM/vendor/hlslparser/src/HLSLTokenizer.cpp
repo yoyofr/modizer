@@ -440,7 +440,7 @@ bool HLSLTokenizer::ScanNumber()
     }
 
     char* fEnd = NULL;
-    double fValue = String_ToDouble(m_buffer, m_bufferEnd, &fEnd); //YOYOFR
+    double fValue = String_ToDouble(m_buffer, &fEnd);
 
     if (fEnd == m_buffer)
     {

@@ -51,7 +51,7 @@ int String_PrintfArgList(char * buffer, int size, const char * format, va_list a
 int String_FormatFloat(char * buffer, int size, float value);
 bool String_Equal(const char * a, const char * b);
 bool String_EqualNoCase(const char * a, const char * b);
-double String_ToDouble(const char * str, const char * strend,char ** end); //YOYOFR
+double String_ToDouble(const char * str,char ** end);
 int String_ToInteger(const char * str,char ** end);
 
 

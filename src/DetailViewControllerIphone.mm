@@ -6,7 +6,7 @@
 //  Copyright __YoyoFR / Yohann Magnien__ 2010. All rights reserved.
 //
 
-extern int glob_notidle;
+int mdz_pmPerFrameHackBadMilkPresets;
 
 extern float camera_posX,camera_posY,camera_posZ;
 extern float camera_lookX,camera_lookY,camera_lookZ;
@@ -4705,8 +4705,6 @@ GLsizei txtbackgroundImageWidth,txtbackgroundImageHeight;
             mPlaylist_size=0;
         }
     }
-    
-    
     if (not_expected_version) {
         
     }
@@ -4769,7 +4767,6 @@ GLsizei txtbackgroundImageWidth,txtbackgroundImageHeight;
         }
     }
     
-    
     valNb=[[NSNumber alloc] initWithInt:mplayer.mod_subsongs];
     [prefs setObject:valNb forKey:@"Subsongs"];
     valNb=[[NSNumber alloc] initWithInt:mplayer.mod_currentsub];
@@ -4788,7 +4785,11 @@ GLsizei txtbackgroundImageWidth,txtbackgroundImageHeight;
         }
     }
     
+    //Synchronise pref
     [prefs synchronize];
+
+    // Save PM playlist if available
+    [_mdzPM_playlist savePlaylist];
 }
 
 
@@ -5173,6 +5174,9 @@ void buildPresetDirStructure() {
 
 
 - (void)pmInit {
+    
+    mdz_pmPerFrameHackBadMilkPresets=1; //ACTIVATE hack
+    
     pthread_mutex_lock(&shader_mutex);
     _pm = projectm_create();
     if (!_pm) {
@@ -5181,8 +5185,11 @@ void buildPresetDirStructure() {
         return;
     }
     
-    // Playlist
-    _mdzPM_playlist=[[MDZPlaylist alloc] init:_pm];
+    // Allocate Playlist
+    _mdzPM_playlist=[[MDZPlaylist alloc] init:_pm name:@"PM Default Playlist"];
+    // Try to load existing save
+    [_mdzPM_playlist loadPlaylist];
+    
     [_mdzPM_playlist setShuffle:settings[PROJECTM_AutoSwitchPresetsMode].detail.mdz_switch.switch_value];
     
     const char *texturesSearchPaths[2];
@@ -5247,8 +5254,12 @@ void buildPresetDirStructure() {
     
 //    if (_pm_playlist_loadBundled) addSelectFNtoPMPlaylist(pmBundledPresetsFileNode,_pm_playlist);
 //    if (_pm_playlist_loadCustom) addSelectFNtoPMPlaylist(pmCustomPresetsFileNode,_pm_playlist);
-    if (_pm_playlist_loadBundled) [_mdzPM_playlist addItems:[pmBundledPresetsFileNode getSelectedPlaylist]];
-    if (_pm_playlist_loadCustom) [_mdzPM_playlist addItems:[pmCustomPresetsFileNode getSelectedPlaylist]];
+    
+    if ([_mdzPM_playlist getSize]==0) {
+        //empty playlist, initiate with available and active presets
+        if (_pm_playlist_loadBundled) [_mdzPM_playlist addItems:[pmBundledPresetsFileNode getSelectedPlaylist]];
+        if (_pm_playlist_loadCustom) [_mdzPM_playlist addItems:[pmCustomPresetsFileNode getSelectedPlaylist]];
+    }
     
 //    projectm_playlist_sort(_pm_playlist, 0, projectm_playlist_size(_pm_playlist), SORT_PREDICATE_FULL_PATH, SORT_ORDER_ASCENDING);
 
@@ -5967,7 +5978,6 @@ void buildPresetDirStructure() {
     //--------------------------------//
     // ProjectM
     //--------------------------------//
-    glob_notidle=0;
     [self pmInit];
     CHECK_PROFILE("pmInit")
     END_PROFILE

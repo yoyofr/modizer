@@ -11,10 +11,13 @@
 #define UNLOCK_FPS 0
 
 #ifdef __APPLE__
-//# include <OpenGL/gl3.h>
-//# include <OpenGL/gl3ext.h>
+#ifdef USE_GLES //YOYOFR
 #include <OpenGLES/ES3/gl.h> //YOYOFR
 #include <OpenGLES/ES3/glext.h>  //YOYOFR
+#else
+# include <OpenGL/gl3.h>
+# include <OpenGL/gl3ext.h>
+#endif
 #elif defined(EYETUNE_WINRT)
 # define GL_GLEXT_PROTOTYPES
 # define GLM_FORCE_CXX03

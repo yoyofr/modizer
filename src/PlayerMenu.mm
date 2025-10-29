@@ -142,7 +142,7 @@ static GLuint txtMenuProjectMHandle[16];
 const char *menuProjectMLabel[16]={
     NULL,NULL,"Show name\ntemp.","Show name",
     "Default\npresets","Custom\npresets",NULL,"Blend presets",
-    "Choose\ndefault presets","Choose\ncustom presets",NULL,
+    NULL,NULL,NULL,NULL,
     NULL,NULL,NULL,NULL
 };
 void *menuProjectMVar[16]={
@@ -157,6 +157,7 @@ const unsigned short menuProjectMLabelFAIcon[16]={
     NULL,NULL,FA_LOCK,FA_ARROWS_ALT,
     NULL,FA_COGS,FA_ARROW_CIRCLE_LEFT,FA_WINDOW_CLOSE,
 };
+char *menuProjectMDynLabel[16];
 
 static GLuint txtMenuProjectMExploreHandle[8];
 const char *menuProjectMExploreLabel[8]={
@@ -464,6 +465,11 @@ int playerGetActivatedCells(int menu_idx) {
         if (settings[PROJECTM_BlendPresets].detail.mdz_boolswitch.switch_value) active_idx|=1<<7;
         if (settings[PROJECTM_LockPreset].detail.mdz_boolswitch.switch_value) active_idx|=1<<10;
         if (settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value) active_idx|=1<<11;
+        
+        if (settings[PROJECTM_BundledPresets].detail.mdz_boolswitch.switch_value) menuProjectMDynLabel[8]=(char*)"Select\ndefault presets";
+        else menuProjectMDynLabel[8]=NULL;
+        if (settings[PROJECTM_CustomPresets].detail.mdz_boolswitch.switch_value) menuProjectMDynLabel[9]=(char*)"Select\ncustom presets";
+        else menuProjectMDynLabel[9]=NULL;
     }
     return active_idx;
 }
@@ -484,6 +490,7 @@ void playerMenuInit() {
     memset(txtMenuProjectMExploreHandle,0,sizeof(txtMenuProjectMExploreHandle));
     memset(txtMenuOscilloHandle,0,sizeof(txtMenuOscilloHandle));
     memset(menuOscilloDynLabel,0,sizeof(menuOscilloDynLabel));
+    memset(menuProjectMDynLabel,0,sizeof(menuProjectMDynLabel));
     memset(menu3DSpectrumDynLabel,0,sizeof(menu3DSpectrumDynLabel));
     memset(menu3DLandscapeDynLabel,0,sizeof(menu3DLandscapeDynLabel));
     memset(txtMenu2DSpectrumHandle,0,sizeof(txtMenu2DSpectrumHandle));
@@ -500,6 +507,8 @@ void playerMenuInit() {
     
     menuOscilloDynLabel[7]=(char*)malloc(64);
     menuOscilloDynLabel[8]=(char*)malloc(64);
+    menuProjectMDynLabel[8]=(char*)malloc(64);
+    menuProjectMDynLabel[9]=(char*)malloc(64);
     menu3DSpectrumDynLabel[7]=(char*)malloc(64);
     menu3DLandscapeDynLabel[9]=(char*)malloc(64);
     menuModPatternDynLabel[5]=(char*)malloc(64);
@@ -1567,7 +1576,7 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
             currentMenuLabel=menuProjectMLabel;
             currentMenuLabelFAIcon=menuProjectMLabelFAIcon;
             currentMenuVar=menuProjectMVar;
-            currentMenuDynLabel=NULL;
+            currentMenuDynLabel=menuProjectMDynLabel;
                 for (int r=0;r<4;r++) {
                     ImGui::TableNextRow(0,cell_size);
                     for (int c=0;c<4;c++) {
@@ -1626,18 +1635,22 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
                                 pmSoftReinit(false);
                                 break;
                             case 0x02://Bundled presets playlist editor
-                                fullscreenStatus=settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value;
-                                settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value=1;
-                                pmCurrentPlaylistMode=PM_BUNDLED_PLAYLIST;
-                                pMenu_state.menu_idx=MENU_PROJECTM_EXPLORE;
-                                pmCurrentFileNode=pmBundledPresetsFileNode;
+                                if (settings[PROJECTM_BundledPresets].detail.mdz_boolswitch.switch_value) {
+                                    fullscreenStatus=settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value;
+                                    settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value=1;
+                                    pmCurrentPlaylistMode=PM_BUNDLED_PLAYLIST;
+                                    pMenu_state.menu_idx=MENU_PROJECTM_EXPLORE;
+                                    pmCurrentFileNode=pmBundledPresetsFileNode;
+                                }
                                 break;
                             case 0x12://Custom presets playlist editor
-                                fullscreenStatus=settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value;
-                                settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value=1;
-                                pmCurrentPlaylistMode=PM_CUSTOM_PLAYLIST;
-                                pMenu_state.menu_idx=MENU_PROJECTM_EXPLORE;
-                                pmCurrentFileNode=pmCustomPresetsFileNode;
+                                if (settings[PROJECTM_CustomPresets].detail.mdz_boolswitch.switch_value) {
+                                    fullscreenStatus=settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value;
+                                    settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value=1;
+                                    pmCurrentPlaylistMode=PM_CUSTOM_PLAYLIST;
+                                    pMenu_state.menu_idx=MENU_PROJECTM_EXPLORE;
+                                    pmCurrentFileNode=pmCustomPresetsFileNode;
+                                }
                                 break;
                             case 0x22: //lock switch
                                 if (settings[PROJECTM_LockPreset].detail.mdz_boolswitch.switch_value) settings[PROJECTM_LockPreset].detail.mdz_boolswitch.switch_value=0;
