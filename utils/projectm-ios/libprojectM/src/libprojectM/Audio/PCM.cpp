@@ -1,5 +1,9 @@
 #include "PCM.hpp"
 
+//YOYOFR
+extern float bassAttr,midAttr,trebAttr;
+
+
 namespace libprojectM {
 namespace Audio {
 
@@ -83,6 +87,12 @@ auto PCM::GetFrameAudioData() const -> FrameAudioData
     data.bassAtt = m_bass.AverageRelative();
     data.midAtt = m_middles.AverageRelative();
     data.trebAtt = m_treble.AverageRelative();
+    
+    //YOYOFR
+    bassAttr=data.bassAtt;
+    midAttr=data.trebAtt;
+    trebAttr=data.trebAtt;
+
 
     data.vol = (data.bass + data.mid + data.treb) * 0.333f;
     data.volAtt = (data.bassAtt + data.midAtt + data.trebAtt) * 0.333f;

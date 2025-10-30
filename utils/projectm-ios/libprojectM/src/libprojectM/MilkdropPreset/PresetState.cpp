@@ -9,8 +9,6 @@
 
 #include <random>
 
-extern int mdz_pmPerFrameHackBadMilkPresets;
-
 namespace libprojectM {
 namespace MilkdropPreset {
 
@@ -138,7 +136,6 @@ void PresetState::Initialize(::libprojectM::PresetFileParser& parsedFile)
     // Code:
     perFrameInitCode = parsedFile.GetCode("per_frame_init_");
     perFrameCode = parsedFile.GetCode("per_frame_");
-    if (mdz_pmPerFrameHackBadMilkPresets) perFrameCode.erase(std::remove(perFrameCode.begin(), perFrameCode.end(), '\n'), perFrameCode.end()); //YOYOFR: hack for bad .milk
     perPixelCode = parsedFile.GetCode("per_pixel_");
 
     // Custom waveform code:

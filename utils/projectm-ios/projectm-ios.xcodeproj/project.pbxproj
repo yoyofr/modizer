@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		CC432B522EB3A076007972E0 /* HLSLPreprocessorCleanup.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC432B512EB3A075007972E0 /* HLSLPreprocessorCleanup.cpp */; };
 		CCABA19B2E93C75B00AF59B0 /* CompilerFunctions.c in Sources */ = {isa = PBXBuildFile; fileRef = CCABA1672E93C75B00AF59B0 /* CompilerFunctions.c */; };
 		CCABA19D2E93C75B00AF59B0 /* HLSLTree.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCABA1442E93C75B00AF59B0 /* HLSLTree.cpp */; };
 		CCABA19E2E93C75B00AF59B0 /* TreeFunctions.c in Sources */ = {isa = PBXBuildFile; fileRef = CCABA1722E93C75B00AF59B0 /* TreeFunctions.c */; };
@@ -117,6 +118,8 @@
 
 /* Begin PBXFileReference section */
 		CC08C3A62EA983D100A0F15F /* fast_float.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fast_float.h; path = fast_float/fast_float.h; sourceTree = "<group>"; };
+		CC432B502EB3A059007972E0 /* HLSLPreprocessorCleanup.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = HLSLPreprocessorCleanup.hpp; sourceTree = "<group>"; };
+		CC432B512EB3A075007972E0 /* HLSLPreprocessorCleanup.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = HLSLPreprocessorCleanup.cpp; sourceTree = "<group>"; };
 		CCABA01B2E93C66900AF59B0 /* libprojectm-ios.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libprojectm-ios.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		CCABA02A2E93C75B00AF59B0 /* _features.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = _features.hpp; sourceTree = "<group>"; };
 		CCABA02B2E93C75B00AF59B0 /* _fixes.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = _fixes.hpp; sourceTree = "<group>"; };
@@ -1255,6 +1258,8 @@
 			children = (
 				CCABA21C2E93C97600AF59B0 /* GenerateStaticShaders.cmake */,
 				CCABA20A2E93C97600AF59B0 /* BlurTexture.cpp */,
+				CC432B502EB3A059007972E0 /* HLSLPreprocessorCleanup.hpp */,
+				CC432B512EB3A075007972E0 /* HLSLPreprocessorCleanup.cpp */,
 				CCABA20C2E93C97600AF59B0 /* Border.cpp */,
 				CCABA2102E93C97600AF59B0 /* CustomShape.cpp */,
 				CCABA2122E93C97600AF59B0 /* CustomWaveform.cpp */,
@@ -1594,6 +1599,7 @@
 				CCABA2C22E93C97600AF59B0 /* Border.cpp in Sources */,
 				CCABA2C32E93C97600AF59B0 /* Milkdrop2077Wave11.cpp in Sources */,
 				CCABA2C42E93C97600AF59B0 /* PresetTransition.cpp in Sources */,
+				CC432B522EB3A076007972E0 /* HLSLPreprocessorCleanup.cpp in Sources */,
 				CCABA2C52E93C97600AF59B0 /* PerPixelMesh.cpp in Sources */,
 				CCABA2C62E93C97600AF59B0 /* Item.cpp in Sources */,
 				CCABA2C72E93C97600AF59B0 /* CustomWaveform.cpp in Sources */,

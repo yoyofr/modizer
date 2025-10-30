@@ -10,7 +10,7 @@
 typedef struct {
     int version;
     int itemsNb;
-    int type;
+    int pltype;
     char name[64];
 } MDZPlaylist_Header_t;
 
@@ -24,11 +24,12 @@ typedef struct {
 
 @implementation FileNode
 
-- (instancetype)initWithPath:(NSString *)path {
+- (instancetype)initWithPath:(NSString *)localpath root:(NSString *)rootpath type:(uint8_t)presetType {
     self = [super init];
     if (self) {
-        _path = path;
-        _name = [path lastPathComponent];
+        _localpath = localpath;
+        _rootpath = rootpath;
+        _name = [_localpath lastPathComponent];
         _children = nil;
         _isSelected = TRUE;
         _selectedChildren = 0;
@@ -36,20 +37,22 @@ typedef struct {
         _shouldPropagateStatus = FALSE;
         _isFavorite = FALSE;
         _isMissing = FALSE;
+        _presetType=presetType;
         
         NSError *error;
         NSFileManager *fm = [NSFileManager defaultManager];
-        NSDictionary *attrs = [fm attributesOfItemAtPath:path error:&error];
+        NSDictionary *attrs = [fm attributesOfItemAtPath:[_rootpath stringByAppendingString:_localpath] error:&error];
         
         if (error) {
             _isMissing=TRUE;
+            MDZELog("FileNode error for %@: %@",_localpath,error)
         } else {
             if (attrs) {
                 _fileSize = [attrs fileSize];
                 _modificationDate = [attrs fileModificationDate];
                 
                 BOOL isDir = NO;
-                [fm fileExistsAtPath:path isDirectory:&isDir];
+                [fm fileExistsAtPath:[_rootpath stringByAppendingString:_localpath] isDirectory:&isDir];
                 _isDirectory = isDir;
             }
         }
@@ -57,17 +60,34 @@ typedef struct {
     return self;
 }
 
+- (NSString*)getFullPath {
+    return [_rootpath stringByAppendingString:_localpath];
+}
+
+-(bool)isStringInArray:(NSString *)string array:(NSArray*)arr {
+    bool ret=true;
+    for (NSString *filter in arr) {
+        if (![[string lowercaseString] containsString:[filter lowercaseString]]) {
+            ret=false;
+            break;
+        }
+    }
+    return ret;
+}
+
 - (bool)filterNodes:(NSString *)pattern filterDir:(bool)filterDir {
     bool result=false;
     
+    NSArray *filterStrings=[pattern componentsSeparatedByString:@" "];
+    
     if (filterDir) {
         // Filter dir like files
-        if ([[self.name lowercaseString] containsString:[pattern lowercaseString]]) {
+        if ([self isStringInArray:self.name array:filterStrings]) {
             result=true;
         }
     } else if (!self.isDirectory) {
         // Filter files only
-        if ([[self.name lowercaseString] containsString:[pattern lowercaseString]]) {
+        if ([self isStringInArray:self.name array:filterStrings]) {
             result=true;
         }
     }
@@ -116,6 +136,57 @@ typedef struct {
     [self flattenNode:self selected:false favorite:true intoArray:result];
     
     return [result copy];
+}
+
+- (void)clearSelected {
+    _isSelected=false;
+    for (FileNode *child in _children) [child clearSelected];
+}
+
+- (NSArray<FileNode *> *)getFilesArray {
+    NSMutableArray<FileNode *> *result = [NSMutableArray array];
+    [self flattenFileNode:self intoArray:result];
+    return [result copy];
+}
+
+- (void)flattenFileNode:(FileNode *)node intoArray:(NSMutableArray<FileNode *> *)array {
+    if (!node.isDirectory) [array addObject:node];
+    for (FileNode *child in node.children) {
+        [self flattenFileNode:child intoArray:array];
+    }
+}
+- (void)setSelectedFromPL:(NSArray *)plNodes {
+    int plSize;
+    //1st get all paths in an array
+    NSMutableArray *pathsPL=[NSMutableArray arrayWithCapacity:[plNodes count]];
+    for (FileNode *node in plNodes) {
+        [pathsPL addObject:node.localpath];
+    }
+    //Sort it and remove potential duplicates
+    NSOrderedSet *orderedPL=[NSOrderedSet orderedSetWithArray:pathsPL];
+    
+    //Build an array of FileNode to update
+    NSArray *fnodes=[self getFilesArray];
+    
+    int posPL=0;
+    int sizePL=(int)[orderedPL count];
+    if (!sizePL) return;
+    NSString *plPath=[orderedPL objectAtIndex:posPL];
+    for (FileNode *node in fnodes) {
+        NSString *filePath=node.localpath;
+        if ([filePath isEqualToString:plPath]) {
+            //file is matching PL entry, move to next PL entry
+            node.isSelected=true;
+            posPL++;
+            if (posPL>=sizePL) break;
+            plPath=[orderedPL objectAtIndex:posPL];
+        } else while ([filePath compare:plPath]==NSOrderedDescending){
+            //file is after pl entry, move pl entry to next one
+            posPL++;
+            if (posPL>=sizePL) break;
+            plPath=[orderedPL objectAtIndex:posPL];
+        }
+    }
 }
 
 @end
@@ -202,21 +273,23 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
 
 - (void)loadCurrentPreset:(bool)cut {
     //Load new preset
-    int retry_counter=0;
     FileNode *item;
-    while (1) {
-        _lastFailed=false;
-        item=[_items objectAtIndex:_position];
-        projectm_load_preset_file(_pmh, [item.path UTF8String], !cut);
-        //if it hasnt failed, break to continue
-        if (!_lastFailed) break;
-        //Issue with last preset, remove from the list
-        [self remove:_position];
-        //If list empty, exit
-        if (_size==0) break;
-        //If too many attempt, exit, to avoid freezing app
-        retry_counter++;
-        if (retry_counter>MDZ_PLAYLIST_MAX_RETRY) break;
+    if (_size) {
+        int retry_counter=0;
+        while (1) {
+            _lastFailed=false;
+            item=[_items objectAtIndex:_position];
+            projectm_load_preset_file(_pmh, [[item getFullPath] UTF8String], !cut);
+            //if it hasnt failed, break to continue
+            if (!_lastFailed) break;
+            //Issue with last preset, remove from the list
+            [self remove:_position];
+            //If list empty, exit
+            if (_size==0) break;
+            //If too many attempt, exit, to avoid freezing app
+            retry_counter++;
+            if (retry_counter>MDZ_PLAYLIST_MAX_RETRY) break;
+        }
     }
     
     if (_size==0) {
@@ -272,16 +345,15 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
 }
 
 - (void)remove:(int)index {
-    if (index<_size) {
-        [_items removeObjectAtIndex:index];
-        _size--;
-        if ((_position>0) && (index<=_position)) _position--;
-    }
-    if (_size>0) {
-        FileNode *item=[_items objectAtIndex:index];
-        _curEntryLbl = [NSString stringWithFormat:@"(%d/%d) %@",_position+1,_size,item.name];
-    } else {
+    if ((index<0)||(index>=_size)) return;
         
+    [_items removeObjectAtIndex:index];
+    _size--;
+    if ((_position>0) && (index<=_position)) _position--;
+    
+    if (_size>0) {
+        FileNode *item=[_items objectAtIndex:_position];
+        _curEntryLbl = [NSString stringWithFormat:@"(%d/%d) %@",_position+1,_size,item.name];
     }
 }
 
@@ -292,7 +364,7 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
 }
 
 - (const char *)getCurPresetCleanTitle {
-    const char *filename=[[(FileNode*)[_items objectAtIndex:_position] path] UTF8String];
+    const char *filename=[[(FileNode*)[_items objectAtIndex:_position] localpath] UTF8String];
     const char *title=strchr(filename,'/');
     while (title) {
         if (strncasecmp(title+1,"presets/",strlen("presets/"))==0) {
@@ -307,7 +379,7 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
 
 - (const char *)getPresetCleanTitle:(int)index {
     if ((index<0)||(index>=_size)) return NULL;
-    const char *filename=[[(FileNode*)[_items objectAtIndex:index] path] UTF8String];
+    const char *filename=[[(FileNode*)[_items objectAtIndex:index] localpath] UTF8String];
     const char *title=strchr(filename,'/');
     while (title) {
         if (strncasecmp(title+1,"presets/",strlen("presets/"))==0) {
@@ -325,7 +397,7 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
     if ((index<0)||(index>=_size)) return NULL;
     FileNode *item=[_items objectAtIndex:index];
     
-    return [item.path UTF8String];
+    return [item.localpath UTF8String];
 }
 
 
@@ -359,6 +431,15 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
         _entry.isFavorite=favorite;
     }
 }
+
+- (NSString*)getLocalPathBundle:(NSString*)fullPath {
+    
+}
+
+- (NSString*)getFullPathDocument:(NSString*)localPath {
+    
+}
+
 - (int)savePlaylist {
     gzFile f;
     f=gzopen([[NSHomeDirectory() stringByAppendingPathComponent:@"Documents/modizerPresetsPL.pmpl"] UTF8String],"wb");
@@ -366,7 +447,7 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
         //Write header
         MDZPlaylist_Header_t header;
         header.version=MDZ_PMPLAYLIST_VERSION;
-        header.type=0;
+        header.pltype=0;
         header.itemsNb=_size;
         snprintf(header.name,64,"%s",[_playlistName UTF8String]);
         gzwrite(f,&header,sizeof(MDZPlaylist_Header_t));
@@ -374,13 +455,15 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
         //Write path for each entries
         for (FileNode *node in _items) {
             char isFav=node.isFavorite;
-            const char *str=[node.path UTF8String];
+            uint8_t presetType=node.presetType;
+            const char *str=[node.localpath UTF8String];
             int strLen=(int)strlen(str);
             if (strLen>1023) {
                 strLen=1023;
                 MDZELog("PM playlist/Saving: too long file path for saving (> 1023)")
             }
             gzwrite(f,&isFav,sizeof(char));
+            gzwrite(f,&presetType,sizeof(uint8_t));
             gzwrite(f,&strLen,sizeof(int));
             gzwrite(f,str,strLen);
             
@@ -395,6 +478,9 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
 
 - (int)loadPlaylist {
     int missing_counter=0;
+    NSString *pmBundleDir = [NSString stringWithFormat:@"%@/projectm/assets/presets",[[NSBundle mainBundle] resourcePath]];
+    NSString *pmCustomDir = [NSString stringWithFormat:@"%@/Documents%s/presets",NSHomeDirectory(),PM_ROOT_FOLDER_CUSTOM];
+    
     gzFile f;
     f=gzopen([[NSHomeDirectory() stringByAppendingPathComponent:@"Documents/modizerPresetsPL.pmpl"] UTF8String],"rb");
     if (f) {
@@ -427,6 +513,13 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
                 gzclose(f);
                 return -3;
             }
+            uint8_t presetType;
+            readBytes=gzread(f,&presetType,sizeof(char));
+            if (readBytes!=sizeof(char)) {
+                MDZELog("PM playlist/Loading: wrong data (presetType) for entry %d, aborting",i)
+                gzclose(f);
+                return -3;
+            }
             
             int strLen;
             readBytes=gzread(f,&strLen,sizeof(int));
@@ -437,11 +530,15 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
             if (readBytes!=strLen) {
                 MDZELog("PM playlist/Loading: cannot read string data for entry %d, aborting",i)
                 gzclose(f);
-                return -4;
+                return -3;
             }
             str[strLen]=0;
+            NSString *rootPath;
+            if (presetType==MDZ_PLAYLIST_FNODE_Bundle) rootPath=pmBundleDir;
+            else if (presetType==MDZ_PLAYLIST_FNODE_Custom) rootPath=pmCustomDir;
+            else rootPath=pmCustomDir; //default to custom
 
-            FileNode *node=[[FileNode alloc] initWithPath:[NSString stringWithUTF8String:str]];
+            FileNode *node=[[FileNode alloc] initWithPath:[NSString stringWithUTF8String:str] root:rootPath type:presetType];
             if (node.isMissing) {
                 missing_counter++;
             } else {
@@ -459,7 +556,10 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
     return missing_counter;
 }
 
-
+- (void)updateFileNodeStatus:(FileNode*)fnode {
+    [fnode clearSelected];
+    if (_size) [fnode setSelectedFromPL:_items];
+}
 
 @end
 
@@ -476,14 +576,9 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
     return self;
 }
 
-- (FileNode *)parseDirectoryAtPath:(NSString *)path error:(NSError **)error {
-    return [self parseDirectoryAtPath:path depth:0 error:error];
-}
-
-- (FileNode *)parseDirectoryAtPath:(NSString *)path depth:(NSInteger)depth error:(NSError **)error {
-    NSFileManager *fm = [NSFileManager defaultManager];
-    
+- (FileNode *)parseDirectoryAtPath:(NSString *)path type:(uint8_t)type error:(NSError **)error {
     // Check if path exists
+    NSFileManager *fm = [NSFileManager defaultManager];
     BOOL exists = [fm fileExistsAtPath:path];
     if (!exists) {
         if (error) {
@@ -494,7 +589,13 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
         return nil;
     }
     
-    FileNode *node = [[FileNode alloc] initWithPath:path];
+    return [self parseDirectoryAtPathInternal:@"/." root:path type:type depth:0 error:error];
+}
+
+- (FileNode *)parseDirectoryAtPathInternal:(NSString *)path root:(NSString *)rootPath type:(uint8_t)type depth:(NSInteger)depth error:(NSError **)error {
+    NSFileManager *fm = [NSFileManager defaultManager];
+    
+    FileNode *node = [[FileNode alloc] initWithPath:path root:rootPath type:type];
     // If it's a file or we've reached max depth, return the node
     if (!node.isDirectory || (self.maxDepth >= 0 && depth >= self.maxDepth)) {
         if (self.filterExt && [[node.name pathExtension] caseInsensitiveCompare:self.filterExt]) return nil;
@@ -502,7 +603,7 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
     }
     
     // Get directory contents
-    NSArray *contents = [fm contentsOfDirectoryAtPath:path error:error];
+    NSArray *contents = [fm contentsOfDirectoryAtPath:[rootPath stringByAppendingString:path] error:error];
     if (!contents) {
         return node; // Return node even if we can't read contents
     }
@@ -517,7 +618,7 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
         }
         
         NSString *itemPath = [path stringByAppendingPathComponent:item];
-        FileNode *childNode = [self parseDirectoryAtPath:itemPath depth:depth + 1 error:nil];
+        FileNode *childNode = [self parseDirectoryAtPathInternal:itemPath root:rootPath type:type depth:depth + 1 error:nil];
         
         if (childNode) {
             if (node.children==nil) node.children=[NSMutableArray array];

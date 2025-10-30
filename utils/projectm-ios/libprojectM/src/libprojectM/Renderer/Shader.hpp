@@ -188,6 +188,8 @@ private:
      * @return The shader ID.
      */
     auto CompileShader(const std::string& source, GLenum type) -> GLuint;
+    
+    std::string addLineNumbers(const std::string& text, int width = 3);
 
     GLuint m_shaderProgram{}; //!< The program ID.
 };

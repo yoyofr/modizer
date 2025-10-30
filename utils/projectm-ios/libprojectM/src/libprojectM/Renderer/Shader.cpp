@@ -2,7 +2,12 @@
 
 #include <glm/gtc/type_ptr.hpp>
 
-#include <vector>
+#include <iostream>
+#include <sstream>
+#include <iomanip>
+#include <regex>
+#include <optional>
+
 
 namespace libprojectM {
 namespace Renderer {
@@ -184,6 +189,132 @@ void Shader::SetUniformMat4x4(const char* uniform, const glm::mat4x4& values) co
     glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(values));
 }
 
+// Structure to store a compilation error
+struct ShaderError {
+    int lineNumber;
+    std::string message;
+    
+    ShaderError(int line, const std::string& msg)
+        : lineNumber(line), message(msg) {}
+};
+
+// Extracts the line number from a GLSL error line
+std::optional<int> extractLineNumber(const std::string& errorLine) {
+    // Method 1: With regex (more robust)
+    // Patterns: "0:NUMBER", "0(NUMBER)", or just ":NUMBER"
+    std::regex patterns[] = {
+        std::regex(R"(0[:\(](\d+))"),      // 0:5 or 0(5)
+        std::regex(R"(:(\d+)[:\(])"),       // :5: or :5(
+        std::regex(R"(\((\d+)\))"),         // (5)
+    };
+    
+    for (const auto& pattern : patterns) {
+        std::smatch match;
+        if (std::regex_search(errorLine, match, pattern)) {
+            return std::stoi(match[1].str());
+        }
+    }
+    
+    return std::nullopt;
+}
+
+// Alternative version without regex (faster)
+std::optional<int> extractLineNumberFast(const std::string& errorLine) {
+    // Look for "0:" or "0("
+    size_t pos = errorLine.find("0:");
+    if (pos == std::string::npos) {
+        pos = errorLine.find("0(");
+    }
+    
+    if (pos != std::string::npos) {
+        pos += 2; // Skip "0:" or "0("
+        if (pos < errorLine.length() && std::isdigit(errorLine[pos])) {
+            return std::stoi(errorLine.substr(pos));
+        }
+    }
+    
+    // Fallback: look for ":NUMBER"
+    pos = errorLine.find(':');
+    while (pos != std::string::npos && pos + 1 < errorLine.length()) {
+        if (std::isdigit(errorLine[pos + 1])) {
+            return std::stoi(errorLine.substr(pos + 1));
+        }
+        pos = errorLine.find(':', pos + 1);
+    }
+    
+    return std::nullopt;
+}
+
+// Parses the complete error log
+std::vector<ShaderError> parseShaderErrors(const std::string& log) {
+    std::vector<ShaderError> errors;
+    std::istringstream iss(log);
+    std::string line;
+    
+    while (std::getline(iss, line)) {
+        // Check if line contains "error" (case insensitive)
+        std::string lowerLine = line;
+        std::transform(lowerLine.begin(), lowerLine.end(), lowerLine.begin(), ::tolower);
+        
+        if (lowerLine.find("error") != std::string::npos) {
+            if (auto lineNum = extractLineNumber(line)) {
+                errors.emplace_back(*lineNum, line);
+            }
+        }
+    }
+    
+    return errors;
+}
+
+// Splits source code into lines
+std::vector<std::string> splitIntoLines(const std::string& source) {
+    std::vector<std::string> lines;
+    std::istringstream iss(source);
+    std::string line;
+    
+    while (std::getline(iss, line)) {
+        lines.push_back(line);
+    }
+    
+    return lines;
+}
+
+// Displays a line with context
+std::string printLineWithContext(const std::string& source, int lineNumber, int contextLines = 2) {
+    auto lines = splitIntoLines(source);
+    std::string result;
+    
+    for (size_t i = 0; i < lines.size(); i++) {
+        int currentLine = static_cast<int>(i + 1);
+        int distance = std::abs(currentLine - lineNumber);
+        
+        if (distance <= contextLines) {
+            if (currentLine == lineNumber) {
+                result+=">>> "+std::to_string(currentLine)+ " | "+ lines[i] + "  <-- ERROR HERE\n";
+            } else {
+                result+= "    " +std::to_string(currentLine)+" | "+lines[i]+"\n";
+            }
+        }
+    }
+    return result;
+}
+
+    
+// Usage example
+std::string Shader::addLineNumbers(const std::string& text, int width) {
+    std::istringstream iss(text);
+    std::ostringstream oss;
+    std::string line;
+    int lineNum = 1;
+    
+    while (std::getline(iss, line)) {
+        oss << std::setw(width) << std::right << lineNum << " | " << line << "\n";
+        lineNum++;
+    }
+    
+    return oss.str();
+}
+
 GLuint Shader::CompileShader(const std::string& source, GLenum type)
 {
     GLint shaderCompiled{};
@@ -205,8 +336,26 @@ GLuint Shader::CompileShader(const std::string& source, GLenum type)
     std::vector<char> message(infoLogLength + 1);
     glGetShaderInfoLog(shader, infoLogLength, nullptr, message.data());
     glDeleteShader(shader);
+    
+    std::string logStr;
+    
+    logStr+="Shader compilation error:\n";
+    // Parse errors
+    auto errors = parseShaderErrors(message.data());
+    
+    logStr+=std::to_string(errors.size())+" error(s) detected:\n";
+    
+    for (size_t i = 0; i < errors.size(); i++) {
+        logStr+="Error #"+std::to_string(i + 1);
+        logStr+=" - Line "+std::to_string(errors[i].lineNumber)+":";
+        logStr+="  "+errors[i].message+"\n";
+        
+        logStr+=printLineWithContext(source, errors[i].lineNumber, 1);
+    }
+    std::string error_message=message.data()+std::string("\n")+logStr;
+    
 
-    throw ShaderException("Error compiling shader: " + std::string(message.data()));
+    throw ShaderException("Error compiling shader: " + std::string(error_message));
 }
 
 auto Shader::GetShaderLanguageVersion() -> Shader::GlslVersion

@@ -274,6 +274,7 @@ enum MDZ_SETTINGS {
         PROJECTM_BlendTime,
         PROJECTM_BundledPresets,
         PROJECTM_CustomPresets,
+        PROJECTM_PermmissiveMode,
         PROJECTM_HardCutEnabled,
         PROJECTM_HardCutMinTime,
         PROJECTM_HardCutSensitivity,

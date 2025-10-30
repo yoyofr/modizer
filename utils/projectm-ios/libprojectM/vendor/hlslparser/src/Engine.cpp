@@ -92,8 +92,9 @@ static inline double iss_strtod(const char * in, char ** end) {
 }
 
 double String_ToDouble(const char * str, char ** endptr) {
+    //YOYOFR, use fast float instead, much faster preset loading
     //return iss_strtod(str, endptr);
-    double result;   //YOYOFR, use fast float instead, much faster preset loading
+    double result;
     
     if (auto answer = fast_float::from_chars(str, str+strlen(str), result)) {
         if (endptr) *endptr=(char*)(answer.ptr);
@@ -101,6 +102,7 @@ double String_ToDouble(const char * str, char ** endptr) {
     }
     if (endptr) *endptr=(char*)(str);
     return 0;
+    //
 }
 
 int String_ToInteger(const char * str,char ** endptr) {

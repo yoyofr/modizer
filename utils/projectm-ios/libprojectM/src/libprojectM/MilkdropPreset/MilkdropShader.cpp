@@ -9,6 +9,10 @@
 #include <GLSLGenerator.h>
 #include <HLSLParser.h>
 
+//YOYOFR
+#include "HLSLPreprocessorCleanup.hpp"
+//
+
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/mat4x4.hpp>
 
@@ -186,14 +190,16 @@ void MilkdropShader::LoadVariables(const PresetState& presetState, const PerFram
                                       presetState.renderContext.fps,
                                       presetState.renderContext.frame,
                                       presetState.renderContext.progress});
-    m_shader.SetUniformFloat4("_c3", {presetState.audioData.bass / 100,
-                                      presetState.audioData.mid / 100,
-                                      presetState.audioData.treb / 100,
-                                      presetState.audioData.vol / 100});
-    m_shader.SetUniformFloat4("_c4", {presetState.audioData.bassAtt / 100,
-                                      presetState.audioData.midAtt / 100,
-                                      presetState.audioData.trebAtt / 100,
-                                      presetState.audioData.volAtt / 100});
+    //YOYOFR
+    m_shader.SetUniformFloat4("_c3", {presetState.audioData.bass / 1,
+                                      presetState.audioData.mid / 1,
+                                      presetState.audioData.treb / 1,
+                                      presetState.audioData.vol / 1});
+    m_shader.SetUniformFloat4("_c4", {presetState.audioData.bassAtt / 1,
+                                      presetState.audioData.midAtt / 1,
+                                      presetState.audioData.trebAtt / 1,
+                                      presetState.audioData.volAtt / 1});
+    //
     m_shader.SetUniformFloat4("_c5", {blurMax[0] - blurMin[0],
                                       blurMin[0],
                                       blurMax[1] - blurMin[1],
@@ -569,6 +575,12 @@ void MilkdropShader::TranspileHLSLShader(const PresetState& presetState, std::st
     {
         shaderTypeString = "warp";
     }
+    
+    //YOYOFR
+    //
+    HLSLPreprocessorCleanup preProcessor;
+    std::string cleanProgram = preProcessor.process(program);
+    //
 
     M4::GLSLGenerator generator;
     M4::Allocator allocator;
@@ -578,9 +590,9 @@ void MilkdropShader::TranspileHLSLShader(const PresetState& presetState, std::st
 
     // Preprocess define macros
     std::string sourcePreprocessed;
-    if (!parser.ApplyPreprocessor("", program.c_str(), program.size(), sourcePreprocessed))
+    if (!parser.ApplyPreprocessor("", cleanProgram.c_str(), cleanProgram.size(), sourcePreprocessed))
     {
-        throw Renderer::ShaderException("Error translating HLSL " + shaderTypeString + " shader: Preprocessing failed.\nSource:\n" + program);
+        throw Renderer::ShaderException("Error translating HLSL " + shaderTypeString + " shader: Preprocessing failed.\nSource:\n" + cleanProgram);
     }
 
     // Remove previous shader declarations

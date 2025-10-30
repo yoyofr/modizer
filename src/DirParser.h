@@ -9,28 +9,42 @@
 
 #include <projectM-4/projectM.h>
 
+enum MDZ_PLAYLIST_FNODE_Type {
+    MDZ_PLAYLIST_FNODE_Bundle,
+    MDZ_PLAYLIST_FNODE_Custom
+} ;
+
 @interface FileNode : NSObject
 
 @property (nonatomic, strong) NSString *name;
-@property (nonatomic, strong) NSString *path;
+@property (nonatomic, strong) NSString *localpath;
+@property (nonatomic, strong) NSString *rootpath;
+
 @property (nonatomic, assign) BOOL isSelected;
-@property (nonatomic, assign) int selectedChildren;
-@property (nonatomic, assign) BOOL isFullySelected;
-@property (nonatomic, assign) BOOL isMatchingFilter;
+
 @property (nonatomic, assign) BOOL isDirectory;
 @property (nonatomic, assign) BOOL isMissing;
 @property (nonatomic, assign) BOOL isFavorite;
+@property (nonatomic, assign) uint8_t presetType; //bundle or custom
+
+// Temp tech data for the menu/explorer
+@property (nonatomic, assign) BOOL isSelected_Temp;
+@property (nonatomic, assign) BOOL isFullySelected;
+@property (nonatomic, assign) BOOL isMatchingFilter;
+@property (nonatomic, assign) int selectedChildren;
 @property (nonatomic, assign) BOOL shouldPropagateStatus;
+
 @property (nonatomic, assign) unsigned long long fileSize;
 @property (nonatomic, strong) NSDate *modificationDate;
 @property (nonatomic, strong) NSMutableArray<FileNode *> *children;
 
-- (instancetype)initWithPath:(NSString *)path;
+- (instancetype)initWithPath:(NSString *)localpath root:(NSString *)rootpath type:(uint8_t)presetType;
 
 - (bool) filterNodes:(NSString *)pattern filterDir:(bool)filterDir;
 - (void) flattenNode:(FileNode *)node selected:(bool)filterSelected favorite:(bool)filterFav intoArray:(NSMutableArray<FileNode *> *)array;
 - (NSArray*) getSelectedPlaylist;
 - (NSArray*) getFavoritePlaylist;
+- (NSString*)getFullPath;
 
 
 @end
@@ -86,6 +100,8 @@
  */
 - (int)loadPlaylist;
 
+- (void)updateFileNodeStatus:(FileNode*)fnode;
+
 @end
 
 @interface DirParser : NSObject
@@ -94,8 +110,8 @@
 @property (nonatomic, strong) NSString *filterExt;
 @property (nonatomic, assign) NSInteger maxDepth;
 
-- (FileNode *)parseDirectoryAtPath:(NSString *)path error:(NSError **)error;
-- (FileNode *)parseDirectoryAtPath:(NSString *)path depth:(NSInteger)depth error:(NSError **)error;
+- (FileNode *)parseDirectoryAtPath:(NSString *)path type:(uint8_t)type error:(NSError **)error;
+- (FileNode *)parseDirectoryAtPathInternal:(NSString *)path root:(NSString *)rootPath type:(uint8_t)type depth:(NSInteger)depth error:(NSError **)error;
 - (NSArray<FileNode *> *)flattenTree:(FileNode *)root;
 
 @end

@@ -5,6 +5,8 @@
 #include <sstream>
 #include <vector>
 
+extern int mdz_pmPerFrameHackBadMilkPresets;
+
 namespace libprojectM {
 
 auto PresetFileParser::Read(const std::string& presetFile) -> bool
@@ -73,6 +75,8 @@ auto PresetFileParser::Read(std::istream& presetStream) -> bool
     return !m_presetValues.empty();
 }
 
+
+
 auto PresetFileParser::GetCode(const std::string& keyPrefix) const -> std::string
 {
     auto lowerKey = ToLower(keyPrefix);
@@ -97,11 +101,41 @@ auto PresetFileParser::GetCode(const std::string& keyPrefix) const -> std::strin
         {
             line.erase(0, 1);
         }
-        code << line << std::endl;
+        
+        //YOYOFR
+        // Special hack: allow to merge line together under certain conditions: no comment, no ';' at the end of line, ...
+        // Allow several milk preset to compile as the code is sometime broken on 2 lines in the middle of a litteral
+        bool removeEndl=false;
+        if (mdz_pmPerFrameHackBadMilkPresets) {
+            //Check if last char is a ';'
+            int pos=(int)line.length()-1;
+            while (pos>=0) {
+                if (line.at(pos)==' ') pos--;
+                else break;
+            }
+            if (pos>0) {
+                char last_char=line.at(pos);
+                if ((line.find("//")==std::string::npos) &&
+                    (line.find("/*")==std::string::npos) &&
+                    (line.at(0)!='#') &&
+                    (last_char!=';') &&
+                    (last_char!='(') &&
+                    (last_char!=')') &&
+                    (last_char!='{') &&
+                    (last_char!='}') &&
+                    (last_char!=',')) {
+                    removeEndl=true;
+                }
+            }
+        }
+        if (removeEndl) code << line;
+        else code << line << std::endl;
+        //
     }
+    
 
     auto codeStr = code.str();
-
+    
     return codeStr;
 }
 

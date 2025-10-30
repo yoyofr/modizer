@@ -15,6 +15,7 @@
 #include "MDZFontAwesome.h"
 extern FileNode *pmBundledPresetsFileNode;
 extern FileNode *pmCustomPresetsFileNode;
+extern MDZPlaylist *_mdzPM_playlist;
 
 FileNode *pmCurrentFileNode;
 char pmFileNodeFilter[64];
@@ -350,6 +351,8 @@ int pMenu_PMPresetsSelAll(FileNode *fnode);
 int pMenu_PMPresetsRemAll(FileNode *fnode);
 int pMenu_PMPresetsSelFiltered(FileNode *fnode);
 int pMenu_PMPresetsRemFiltered(FileNode *fnode);
+void pMenu_PMInitTempData(FileNode *fnode);
+void pMenu_PMCommitTempData(FileNode *fnode);
 
 
 void playerRootMenuInitRightItemsTexture() {
@@ -1639,8 +1642,10 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
                                     fullscreenStatus=settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value;
                                     settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value=1;
                                     pmCurrentPlaylistMode=PM_BUNDLED_PLAYLIST;
-                                    pMenu_state.menu_idx=MENU_PROJECTM_EXPLORE;
                                     pmCurrentFileNode=pmBundledPresetsFileNode;
+                                    pMenu_PMInitTempData(pmCurrentFileNode);
+                                    
+                                    pMenu_state.menu_idx=MENU_PROJECTM_EXPLORE;
                                 }
                                 break;
                             case 0x12://Custom presets playlist editor
@@ -1648,8 +1653,10 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
                                     fullscreenStatus=settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value;
                                     settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value=1;
                                     pmCurrentPlaylistMode=PM_CUSTOM_PLAYLIST;
-                                    pMenu_state.menu_idx=MENU_PROJECTM_EXPLORE;
                                     pmCurrentFileNode=pmCustomPresetsFileNode;
+                                    pMenu_PMInitTempData(pmCurrentFileNode);
+                                    
+                                    pMenu_state.menu_idx=MENU_PROJECTM_EXPLORE;
                                 }
                                 break;
                             case 0x22: //lock switch
@@ -1707,7 +1714,10 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
                     if (ret) {
                         switch (c*16+r) {
                             case 0x00: //Apply
+                                pMenu_PMCommitTempData(pmCurrentFileNode);
                                 pmSoftReinit(true);
+                                [_mdzPM_playlist updateFileNodeStatus:pmCurrentFileNode];
+                                pMenu_PMInitTempData(pmCurrentFileNode);
                                 break;
                             case 0x10: //Refresh
                                 //if custom presets,rescan dir
@@ -1715,6 +1725,8 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
                                     updatePresetCustomDirStructure();
                                     pmCurrentFileNode=pmCustomPresetsFileNode;
                                 }
+                                [_mdzPM_playlist updateFileNodeStatus:pmCurrentFileNode];
+                                pMenu_PMInitTempData(pmCurrentFileNode);
                                 break;
                             case 0x20: //Back to main menu
                                 settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value=fullscreenStatus;
@@ -1729,14 +1741,12 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
                                 break;
                             case 0x11: //Remove all
                                 pMenu_PMPresetsRemAll(pmCurrentFileNode);
-//                                pmCurrentFileNode.isSelected=1;
                                 break;
                             case 0x21: //Select filtered
                                 pMenu_PMPresetsSelFiltered(pmCurrentFileNode);
                                 break;
                             case 0x31: //Remove filtered
                                 pMenu_PMPresetsRemFiltered(pmCurrentFileNode);
-//                                pmCurrentFileNode.isSelected=1;
                                 break;
                         }
                     }
@@ -1798,11 +1808,6 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
     return keepOpened;
 }
 
-int pMenu_PMPresetsSelAll(FileNode *fnode);
-int pMenu_PMPresetsRemAll(FileNode *fnode);
-int pMenu_PMPresetsSelFiltered(FileNode *fnode);
-int pMenu_PMPresetsRemFiltered(FileNode *fnode);
-
 int pMenu_PMbuildDirTree(FileNode *fileNode, int idx,bool filter) {
     int flags_default=ImGuiTreeNodeFlags_SpanFullWidth;
     if (filter) {
@@ -1822,7 +1827,7 @@ int pMenu_PMbuildDirTree(FileNode *fileNode, int idx,bool filter) {
                 //Matching filter, if any
                 int flags=flags_default|ImGuiTreeNodeFlags_OpenOnArrow;
                 
-                if (child.isSelected) flags|=ImGuiTreeNodeFlags_Selected;
+                if (child.isSelected_Temp) flags|=ImGuiTreeNodeFlags_Selected;
                 
                 if ( !child.isFullySelected ) ImGui::PushStyleColor(ImGuiCol_Header, ImVec4(0.25f,0.2f,0.5f,0.9f));
                 bool node_open=ImGui::TreeNodeEx((void*)(intptr_t)idx++, flags, "%s",[[child name] UTF8String]);
@@ -1833,10 +1838,10 @@ int pMenu_PMbuildDirTree(FileNode *fileNode, int idx,bool filter) {
                     //Click detected
                     //if selected and not fully, force fully
                     //if not remove selected status
-                    if (child.isSelected) {
-                        if (child.isFullySelected) child.isSelected=FALSE;
-                        else child.isSelected=TRUE;
-                    } else child.isSelected=TRUE;
+                    if (child.isSelected_Temp) {
+                        if (child.isFullySelected) child.isSelected_Temp=FALSE;
+                        else child.isSelected_Temp=TRUE;
+                    } else child.isSelected_Temp=TRUE;
                     child.shouldPropagateStatus=TRUE;
                 }
                 if (node_open) {
@@ -1854,10 +1859,10 @@ int pMenu_PMbuildDirTree(FileNode *fileNode, int idx,bool filter) {
                 //Matching filter, if any
                 int flags=flags_default|ImGuiTreeNodeFlags_Leaf;
                 
-                if (child.isSelected) flags|=ImGuiTreeNodeFlags_Selected;
+                if (child.isSelected_Temp) flags|=ImGuiTreeNodeFlags_Selected;
                 bool node_open=ImGui::TreeNodeEx((void*)(intptr_t)idx++, flags, "%s",[[child name] UTF8String]);
                 if (!mouseMoveInProgress && ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen()) {
-                    child.isSelected=!child.isSelected;
+                    child.isSelected_Temp=!child.isSelected_Temp;
                 }
                 if (node_open) {
                     ImGui::TreePop();
@@ -1870,12 +1875,13 @@ int pMenu_PMbuildDirTree(FileNode *fileNode, int idx,bool filter) {
 
 int pMenu_PMUpdateSelStatus(FileNode *fnode,bool propagateStatus,bool selStatus) {
     int ret=0;
+    
     if ( !fnode.isDirectory ) {
         //Just a file, return selected status
         
-        if (propagateStatus) fnode.isSelected=selStatus;
+        if (propagateStatus) fnode.isSelected_Temp=selStatus;
         
-        if (fnode.isSelected) {
+        if (fnode.isSelected_Temp) {
             ret=1;
             fnode.isFullySelected=1;
         } else fnode.isFullySelected=0;
@@ -1884,12 +1890,12 @@ int pMenu_PMUpdateSelStatus(FileNode *fnode,bool propagateStatus,bool selStatus)
         bool partial=false;
         
         if (propagateStatus) {
-            fnode.isSelected=selStatus;
+            fnode.isSelected_Temp=selStatus;
             fnode.shouldPropagateStatus=true;
         }
         
         for (FileNode *child in fnode.children) {
-            if (pMenu_PMUpdateSelStatus(child,fnode.shouldPropagateStatus,fnode.isSelected)) {
+            if (pMenu_PMUpdateSelStatus(child,fnode.shouldPropagateStatus,fnode.isSelected_Temp)) {
                 //Child is selected, increase counted
                 ret++;
             }
@@ -1903,8 +1909,8 @@ int pMenu_PMUpdateSelStatus(FileNode *fnode,bool propagateStatus,bool selStatus)
         fnode.shouldPropagateStatus=false;
         
         //Update dir selected flag
-        if (fnode.selectedChildren==0) fnode.isSelected = FALSE;
-        else fnode.isSelected = TRUE;
+        if (fnode.selectedChildren==0) fnode.isSelected_Temp = FALSE;
+        else fnode.isSelected_Temp = TRUE;
         
         //Update fullyselected flag accordingly, depend on status of children / partially selected or not
         if (!partial && fnode.selectedChildren==[fnode.children count]) {
@@ -1914,13 +1920,12 @@ int pMenu_PMUpdateSelStatus(FileNode *fnode,bool propagateStatus,bool selStatus)
             fnode.isFullySelected = FALSE;
         }
     }
-    
     return ret;
 }
 
 int pMenu_PMPresetsSelAll(FileNode *fnode) {
     int ret=0;
-    fnode.isSelected=1;
+    fnode.isSelected_Temp=true;
     ret++;
     for (FileNode *child in fnode.children) {
         ret+=pMenu_PMPresetsSelAll(child);
@@ -1929,7 +1934,7 @@ int pMenu_PMPresetsSelAll(FileNode *fnode) {
 }
 int pMenu_PMPresetsRemAll(FileNode *fnode) {
     int ret=0;
-    fnode.isSelected=0;
+    fnode.isSelected_Temp=false;
     ret++;
     for (FileNode *child in fnode.children) {
         ret+=pMenu_PMPresetsRemAll(child);
@@ -1939,7 +1944,7 @@ int pMenu_PMPresetsRemAll(FileNode *fnode) {
 int pMenu_PMPresetsSelFiltered(FileNode *fnode){
     int ret=0;
     if (fnode.isMatchingFilter) {
-        fnode.isSelected=1;
+        fnode.isSelected_Temp=true;
         ret++;
     }
     for (FileNode *child in fnode.children) {
@@ -1950,13 +1955,23 @@ int pMenu_PMPresetsSelFiltered(FileNode *fnode){
 int pMenu_PMPresetsRemFiltered(FileNode *fnode) {
     int ret=0;
     if (fnode.isMatchingFilter) {
-        fnode.isSelected=0;
+        fnode.isSelected_Temp=false;
         ret++;
     }
     for (FileNode *child in fnode.children) {
         ret+=pMenu_PMPresetsRemFiltered(child);
     }
     return ret;
+}
+
+void pMenu_PMInitTempData(FileNode *fnode) {
+    fnode.isSelected_Temp=fnode.isSelected;
+    for (FileNode *child in fnode.children) pMenu_PMInitTempData(child);
+}
+
+void pMenu_PMCommitTempData(FileNode *fnode) {
+    fnode.isSelected=fnode.isSelected_Temp;
+    for (FileNode *child in fnode.children) pMenu_PMCommitTempData(child);
 }
 
 
