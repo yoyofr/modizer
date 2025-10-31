@@ -505,7 +505,7 @@ comp_20=`
 comp_21=`float shadow (float2 uvi) {int n; float dark;
 comp_22=`dark = 0; n = 0;
 comp_23=`while (!dark && (n < 4)) {;}
-comp_24=`}
+comp_24=`return 0;}
 comp_25=`
 comp_26=`
 comp_27=`shader_body {uv1= (uv-.5)*aspect.xy;
