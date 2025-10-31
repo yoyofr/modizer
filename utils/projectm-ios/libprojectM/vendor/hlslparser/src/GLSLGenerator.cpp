@@ -141,6 +141,7 @@ GLSLGenerator::GLSLGenerator() :
     m_modfFunction[0]           = 0;
     m_acosFunction[0]           = 0;
     m_asinFunction[0]           = 0;
+    m_tanhFunction[0]           = 0;
     m_altMultFunction[0]        = 0;
     m_outputPosition            = false;
     m_outputTargets             = 0;
@@ -171,6 +172,7 @@ bool GLSLGenerator::Generate(HLSLTree* tree, Target target, Version version, con
 	ChooseUniqueName( "modf", m_modfFunction, sizeof( m_modfFunction ) );
 	ChooseUniqueName( "acos", m_acosFunction, sizeof( m_acosFunction ) );
 	ChooseUniqueName( "asin", m_asinFunction, sizeof( m_asinFunction ) );
+    ChooseUniqueName( "tanh", m_tanhFunction, sizeof( m_tanhFunction ) );
 	ChooseUniqueName( "mult", m_altMultFunction, sizeof( m_altMultFunction ) );
 
     for (int i = 0; i < s_numReservedWords; ++i)
@@ -423,15 +425,23 @@ bool GLSLGenerator::Generate(HLSLTree* tree, Target target, Version version, con
         m_writer.WriteLine(0, "vec3 %s(vec3 x) { vec3 ret; ret.x = %s(x.x); ret.y = %s(x.y); ret.z = %s(x.z); return ret; }", m_asinFunction, m_asinFunction, m_asinFunction, m_asinFunction);
         m_writer.WriteLine(0, "vec4 %s(vec4 x) { vec4 ret; ret.x = %s(x.x); ret.y = %s(x.y); ret.z = %s(x.z); ret.w = %s(x.w); return ret; }", m_asinFunction, m_asinFunction, m_asinFunction, m_asinFunction, m_asinFunction);
     }
+    if (m_tree->NeedsFunction("tanh"))
+    {
+        m_writer.WriteLine(0, "float %s(float x) { float ret; float eVec = exp(x*-2.0); ret = (1.0-eVec)/(1.0+eVec); return ret; }", m_tanhFunction);
+        m_writer.WriteLine(0, "vec2 %s(vec2 x) {  vec2 ret; vec2 eVec = exp(x*-2.0); ret = (1.0-eVec)/(1.0+eVec); return ret; }", m_tanhFunction, m_tanhFunction, m_tanhFunction);
+        m_writer.WriteLine(0, "vec3 %s(vec3 x) { vec3 ret; vec3 eVec = exp(x*-2.0); ret = (1.0-eVec)/(1.0+eVec); return ret; }", m_tanhFunction, m_tanhFunction, m_tanhFunction, m_tanhFunction);
+        m_writer.WriteLine(0, "vec4 %s(vec4 x) { vec4 ret; vec4 eVec = exp(x*-2.0); ret = (1.0-eVec)/(1.0+eVec); return ret; }", m_tanhFunction, m_tanhFunction, m_tanhFunction, m_tanhFunction, m_tanhFunction);
+    }
 
     if (m_options.flags & Flag_AlternateNanPropagation) {
         /* Implement alternate functions that propagate NaNs like shader model 3 and DX9. */
-        m_writer.WriteLine(0, "float %s(int i_x, int i_y) { float x=float(i_x); float y=float(i_y); if (x == 0.0 || y == 0.0) { return 0.0; } else { return (x * y); } }", m_altMultFunction);
-        m_writer.WriteLine(0, "float %s(int i_x, float y) { float x=float(i_x); if (x == 0.0 || y == 0.0) { return 0.0; } else { return (x * y); } }", m_altMultFunction);
-        m_writer.WriteLine(0, "float %s(float x, int i_y) { float y=float(i_y); if (x == 0.0 || y == 0.0) { return 0.0; } else { return (x * y); } }", m_altMultFunction);
+        m_writer.WriteLine(0, "float %s(int i_x, int i_y) { float x=float(i_x); float y=float(i_y); if (x == 0.0 || y == 0.0) { return 0.0; } else { return (x * y); } }", m_altMultFunction); //YOYOFR
+        m_writer.WriteLine(0, "float %s(int i_x, float y) { float x=float(i_x); if (x == 0.0 || y == 0.0) { return 0.0; } else { return (x * y); } }", m_altMultFunction); //YOYOFR
+        m_writer.WriteLine(0, "float %s(float x, int i_y) { float y=float(i_y); if (x == 0.0 || y == 0.0) { return 0.0; } else { return (x * y); } }", m_altMultFunction); //YOYOFR
         m_writer.WriteLine(0, "float %s(float x, float y) { if (x == 0.0 || y == 0.0) { return 0.0; } else { return (x * y); } }", m_altMultFunction);
         m_writer.WriteLine(0, "vec2 %s(vec2 x, vec2 y) { return vec2(%s(x.x, y.x), %s(x.y, y.y)); }", m_altMultFunction, m_altMultFunction, m_altMultFunction);
         m_writer.WriteLine(0, "vec3 %s(vec3 x, vec3 y) { return vec3(%s(x.x, y.x), %s(x.y, y.y), %s(x.z, y.z)); }", m_altMultFunction, m_altMultFunction, m_altMultFunction, m_altMultFunction);
+        m_writer.WriteLine(0, "ivec3 %s(ivec3 x, ivec3 y) { return ivec3(%s(x.x, y.x), %s(x.y, y.y), %s(x.z, y.z)); }", m_altMultFunction, m_altMultFunction, m_altMultFunction, m_altMultFunction); //YOYOFR
         m_writer.WriteLine(0, "vec4 %s(vec4 x, vec4 y) { return vec4(%s(x.x, y.x), %s(x.y, y.y), %s(x.z, y.z), %s(x.w, y.w)); }", m_altMultFunction, m_altMultFunction, m_altMultFunction, m_altMultFunction, m_altMultFunction);
         // For matrix multiplication just perform the multiplication
         m_writer.WriteLine(0, "mat2 %s(mat2 x, mat2 y) { return x * y; }", m_altMultFunction);
@@ -1158,7 +1168,11 @@ void GLSLGenerator::OutputIdentifier(const char* name)
     {
         name = m_asinFunction;
     }
-    else 
+    else if (String_Equal(name, "tanh"))
+    {
+        name = m_tanhFunction;
+    }
+    else
     {
         // The identifier could be a GLSL reserved word (if it's not also a HLSL reserved word).
         name = GetSafeIdentifierName(name);
@@ -1796,7 +1810,7 @@ void GLSLGenerator::OutputAttribute(const HLSLType& type, const char* semantic, 
 {
     const char* qualifier = GetAttribQualifier(modifier);
     const char* prefix = (modifier == AttributeModifier_In) ? m_inAttribPrefix : m_outAttribPrefix;
-
+    
     HLSLRoot* root = m_tree->GetRoot();
     if (type.baseType == HLSLBaseType_UserDefined)
     {

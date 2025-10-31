@@ -381,7 +381,7 @@ int playerGetActivatedCells(int menu_idx) {
         if (settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value) active_idx|=1<<FXPIANOROLL_IDX;
         if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value) active_idx|=1<<FXMIDI_IDX;
         if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value) active_idx|=1<<FXMODPATTERN_IDX;
-        if (settings[PROJECTM_FXONOFF].detail.mdz_switch.switch_value) active_idx|=1<<FXPROJECTM_IDX;
+        if (settings[PROJECTM_FXONOFF].detail.mdz_boolswitch.switch_value) active_idx|=1<<FXPROJECTM_IDX;
         if (settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value) active_idx|=1<<11;
     } else if (menu_idx==MENU_ROOT_MORE) {
         if (settings[GLOB_FXSHOWFPS].detail.mdz_boolswitch.switch_value) active_idx|=1<<0;
@@ -458,7 +458,7 @@ int playerGetActivatedCells(int menu_idx) {
         snprintf(menuModPatternDynLabel[12],64,"Font:\n%s",settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_labels[settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_value]);
         
     } else if (menu_idx==MENU_PROJECTM) {
-        if (settings[PROJECTM_FXONOFF].detail.mdz_switch.switch_value) active_idx|=1<<1;
+        if (settings[PROJECTM_FXONOFF].detail.mdz_boolswitch.switch_value) active_idx|=1<<1;
         else active_idx|=1<<0;
         if (settings[PROJECTM_ShowPresetLabel].detail.mdz_switch.switch_value==1) active_idx|=1<<2;
         else if (settings[PROJECTM_ShowPresetLabel].detail.mdz_switch.switch_value==2) active_idx|=1<<3;
@@ -895,7 +895,7 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
                                 settings[OSCILLO_FXMODE].detail.mdz_switch.switch_value=0;
                                 settings[GLOB_FXPiano3D].detail.mdz_switch.switch_value=0;
                                 settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value=0;
-                                settings[PROJECTM_FXONOFF].detail.mdz_switch.switch_value=0;
+                                settings[PROJECTM_FXONOFF].detail.mdz_boolswitch.switch_value=0;
                                 break;
                             case 0x23: //Go to settings - visu
                                 keepOpened=2;
@@ -1600,10 +1600,10 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
                     if (ret) {
                         switch (c*16+r) {
                             case 0x00: //PROJECTM OFF
-                                settings[PROJECTM_FXONOFF].detail.mdz_switch.switch_value=0;
+                                settings[PROJECTM_FXONOFF].detail.mdz_boolswitch.switch_value=0;
                                 break;
                             case 0x10: //PROJECTM ON
-                                settings[PROJECTM_FXONOFF].detail.mdz_switch.switch_value=1;
+                                settings[PROJECTM_FXONOFF].detail.mdz_boolswitch.switch_value=1;
                                 break;
                             case 0x20: //Show preset's name
                                 if (settings[PROJECTM_ShowPresetLabel].detail.mdz_switch.switch_value==1) settings[PROJECTM_ShowPresetLabel].detail.mdz_switch.switch_value=0;

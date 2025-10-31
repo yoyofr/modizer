@@ -624,7 +624,7 @@ void RenderUtils::DrawTextureBlend(uint ww,uint hh,GLuint textOrigIdx,GLuint tex
 }
 
 
-static GLuint framebuffer = 0;
+/*static*/ GLuint mdzRenderbuffer = 0;
 static GLuint renderedTexture = 0;
 static GLuint colorRenderbuffer=0;
 static GLuint depthRenderbuffer=0;
@@ -647,7 +647,7 @@ void RenderUtils::startRenderToTexture(int width,int height) {
         firstCall=false;
     }
     
-    glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+    glBindFramebuffer(GL_FRAMEBUFFER, mdzRenderbuffer);
     glViewport(0,0,width,height);
     glClearColor(0.0f,0.0f,0.0f,0.0f);
     glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
@@ -661,49 +661,52 @@ void RenderUtils::startRenderToTexture(int width,int height) {
 void RenderUtils::endRenderToTexture(int width,int height,int bloomIntensity) {
     //apply BLUR
     if (!renderIsInit) return;
-    GLuint curTexture;
+    
     bool horizontal = true, first_iteration = true;
     int amount = BLOOM_BLUR_ITERATIONS;
     glUseProgram ( userData_Render2DTexturesBlur->programObject );
     
-//    for (unsigned int i = 0; i < amount; i++)
-//    {
-//        glBindFramebuffer(GL_FRAMEBUFFER, pingpongFBO[horizontal]);
-//        curTexture=first_iteration ? renderedTexture : pingpongBuffer[!horizontal];
-//        RenderUtils::DrawTextureBlur(width, height, curTexture, (horizontal?1:0),(first_iteration?0.0f:0.0f));
-//        horizontal = !horizontal;
-//        if (first_iteration)
-//            first_iteration = false;
-//    }
-    float blurDiv;
-    switch (bloomIntensity) {
-        case 1:blurDiv=10.0f;
-            break;
-        case 2:blurDiv=9.0f;
-            break;
-        case 3:blurDiv=8.5f;
-            break;
-        default:
-            blurDiv=9.0f;
-            break;
-    }
-    for (unsigned int i = 0; i < amount; i++)
-    {
-        glBindFramebuffer(GL_FRAMEBUFFER, pingpongFBO[horizontal]);
-        //glViewport(0,0,width/BLUR_SIZE_DIV,height/BLUR_SIZE_DIV);
-        glViewport(0,0,_blurW,_blurH);
-        curTexture=first_iteration ? renderedTexture : pingpongBuffer[!horizontal];
-        RenderUtils::DrawTextureBlur(width, height, curTexture, i,(first_iteration?0.1f:0.0f),blurDiv);
-        horizontal = !horizontal;
-        if (first_iteration)
-            first_iteration = false;
-    }
-    // Bind rendering buffer
-    glBindFramebuffer(GL_FRAMEBUFFER, curFramebuffer);
-    glViewport(0,0,width,height);
     
-    // Render by blending the original & blurred textures
-    RenderUtils::DrawTextureBlend(width, height, renderedTexture,curTexture);
+    if (bloomIntensity) {
+        GLuint curTexture;
+        float blurDiv;
+        switch (bloomIntensity) {
+            case 1:blurDiv=10.0f;
+                break;
+            case 2:blurDiv=9.0f;
+                break;
+            case 3:blurDiv=8.5f;
+                break;
+            default:
+                blurDiv=9.0f;
+                break;
+        }
+        
+        for (unsigned int i = 0; i < amount; i++)
+        {
+            glBindFramebuffer(GL_FRAMEBUFFER, pingpongFBO[horizontal]);
+            //glViewport(0,0,width/BLUR_SIZE_DIV,height/BLUR_SIZE_DIV);
+            glViewport(0,0,_blurW,_blurH);
+            curTexture=first_iteration ? renderedTexture : pingpongBuffer[!horizontal];
+            RenderUtils::DrawTextureBlur(width, height, curTexture, i,(first_iteration?0.1f:0.0f),blurDiv);
+            horizontal = !horizontal;
+            if (first_iteration)
+                first_iteration = false;
+        }
+        // Bind rendering buffer
+        glBindFramebuffer(GL_FRAMEBUFFER, curFramebuffer);
+        glViewport(0,0,width,height);
+        
+        // Render by blending the original & blurred textures
+        RenderUtils::DrawTextureBlend(width, height, renderedTexture,curTexture);
+    } else {
+        // Bind rendering buffer
+        glBindFramebuffer(GL_FRAMEBUFFER, curFramebuffer);
+        glViewport(0,0,width,height);
+        
+        RenderUtils::DrawTexture(width, height, renderedTexture,1.0,0);
+    }
+    
     //RenderUtils::DrawTexture(width, height, curTexture,1.0,0);
     //RenderUtils::DrawTexture(width, height, renderedTexture,1.0,0);
 }
@@ -712,8 +715,8 @@ void RenderUtils::shutdownRenderToTexture() {
     if (depthRenderbuffer) glDeleteRenderbuffers(1, &depthRenderbuffer);
     depthRenderbuffer=0;
     
-    if (framebuffer) glDeleteFramebuffers(1, &framebuffer);
-    framebuffer=0;
+    if (mdzRenderbuffer) glDeleteFramebuffers(1, &mdzRenderbuffer);
+    mdzRenderbuffer=0;
     if (pingpongFBO[0]) glDeleteFramebuffers(2, pingpongFBO);
     pingpongFBO[0]=pingpongFBO[1]=0;
     
@@ -726,7 +729,7 @@ void RenderUtils::shutdownRenderToTexture() {
 bool RenderUtils::initRenderToTexture(int width,int height) {
     if (!renderIsInit) return false;
     
-    if (!framebuffer) {
+    if (!mdzRenderbuffer) {
         //MDZILog("init render to texture %d x %d",width,height)
     } else {
         //MDZILog("reinit render to texture %d x %d",width,height)
@@ -740,8 +743,8 @@ bool RenderUtils::initRenderToTexture(int width,int height) {
     // Initial rendering setup
     //----------------------------
     // Create the framebuffer and bind it
-    glGenFramebuffers(1, &framebuffer);
-    glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+    glGenFramebuffers(1, &mdzRenderbuffer);
+    glBindFramebuffer(GL_FRAMEBUFFER, mdzRenderbuffer);
     
     // create the texture
     glGenTextures(1, &renderedTexture);

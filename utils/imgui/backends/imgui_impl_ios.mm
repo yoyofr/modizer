@@ -10,12 +10,15 @@
 #define FONT_MENU_FILE  @"Fonts/Roboto-Medium"
 #define FONT_MENU_FILE_JAP @"Fonts/Mplus1-Regular"
 
+#define MAX_LASTCHAR_SIZE 16 //buffer to capture key inputs in UITextfield
+
 
 extern float glScaleFactor;
 static StopWatch g_timer;
 static ImGuiIOSEvent currentEvent;
 static int wantInputText=0;
-static unichar lastChar;
+static unichar lastChar[MAX_LASTCHAR_SIZE];
+static volatile int lastChar_pos;
 int mouseMoveInProgress;
 int move_cursorL,move_cursorR;
 int shiftPressedL,shiftPressedR;
@@ -147,18 +150,20 @@ void ImGui_ImplIOS_UpdateEvent(ImGuiIOSEvent *event)
     if (io.WantTextInput) {
         if (wantInputText==0) wantInputText=1;
         if (wantInputText==2) {
-            if (lastChar) {
-                if (lastChar>=32) io.AddInputCharacter(lastChar);
+            int pos=0;
+            while (lastChar_pos) {
+                if (lastChar[pos]>=32) io.AddInputCharacter(lastChar[pos]);
                 else {
-                    if (lastChar==0x8) { //Backspace
+                    if (lastChar[pos]==0x8) { //Backspace
                         io.AddKeyEvent(ImGuiKey_Backspace,true);
                         io.AddKeyEvent(ImGuiKey_Backspace,false);
-                    } else if (lastChar==0xD) { //Return
+                    } else if (lastChar[pos]==0xD) { //Return
                         io.AddKeyEvent(ImGuiKey_Enter,true);
                         io.AddKeyEvent(ImGuiKey_Enter,false);
                     }
                 }
-                lastChar=0;
+                pos++;
+                lastChar_pos--;
             }
             if (move_cursorR) {
                 if (move_cursorR==2) io.AddKeyEvent(ImGuiKey_RightArrow,true);
@@ -171,8 +176,14 @@ void ImGui_ImplIOS_UpdateEvent(ImGuiIOSEvent *event)
                 move_cursorL=0;
             }
             if (shiftPressedL) {
-                if (shiftPressedL==2) io.AddKeyEvent(ImGuiKey_LeftShift,true);
-                else if (shiftPressedL==1) io.AddKeyEvent(ImGuiKey_LeftShift,false);
+                if (shiftPressedL==2) {
+                    io.AddKeyEvent(ImGuiKey_LeftShift,true);
+                    printf("shiftL pressed\n");
+                }
+                else if (shiftPressedL==1) {
+                    io.AddKeyEvent(ImGuiKey_LeftShift,false);
+                    printf("shiftL released\n");
+                }
                 shiftPressedL=0;
             }
             if (shiftPressedR) {
@@ -245,17 +256,25 @@ ImGuiKey ImGui_ImplIOS_KeyEventToImGuiKey()
 }
 
 - (BOOL)textFieldShouldReturn:(UITextField *)textField{
-    lastChar=0xD;
+    lastChar[lastChar_pos]=0xD;
+    if (lastChar_pos<(MAX_LASTCHAR_SIZE-1)) lastChar_pos++;
     [textField resignFirstResponder];
     return YES;
 }
 
 - (void)textFieldTextChanged:(UITextField *)textField {
     NSString *txt=textField.text;
-    if ([txt length]>[self.text length]) {
-        lastChar=[txt characterAtIndex:[txt length]-1];
-    } else if ([txt length]<[self.text length]) {
-        lastChar=8;
+    int diff=(int)([txt length]-[self.text length]);
+    if (diff>0) {
+        while (diff) {
+            lastChar[lastChar_pos]=[txt characterAtIndex:[txt length]-diff];
+            diff--;
+            if (lastChar_pos<(MAX_LASTCHAR_SIZE-1)) lastChar_pos++;
+        }
+    } else while (diff<0) {
+        lastChar[lastChar_pos]=8; //Backspace
+        diff++;
+        if (lastChar_pos<(MAX_LASTCHAR_SIZE-1)) lastChar_pos++;
     }
     _textField.text=@"12";
     self.text=@"12";
@@ -313,7 +332,7 @@ ImGuiKey ImGui_ImplIOS_KeyEventToImGuiKey()
     move_cursorR=0;
     shiftPressedL=0;
     shiftPressedR=0;
-    lastChar=0;
+    lastChar_pos=0;
 }
 
 - (void)updateEvent {

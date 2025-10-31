@@ -446,6 +446,7 @@ const Intrinsic _intrinsic[] =
 
         INTRINSIC_FLOAT1_FUNCTION( "asin" ),
         INTRINSIC_FLOAT1_FUNCTION( "atan" ),
+        INTRINSIC_FLOAT1_FUNCTION( "tanh" ),
         INTRINSIC_FLOAT2_FUNCTION( "atan2" ),
         INTRINSIC_FLOAT3_FUNCTION( "clamp" ),
         INTRINSIC_FLOAT1_FUNCTION( "cos" ),
@@ -690,9 +691,9 @@ const Intrinsic _intrinsic[] =
         Intrinsic("texCUBEsize", HLSLBaseType_Int, HLSLBaseType_SamplerCube),
 
         Intrinsic( "sincos", HLSLBaseType_Void,  HLSLBaseType_Float,   HLSLBaseType_Float,  HLSLBaseType_Float ),
-        Intrinsic( "sincos", HLSLBaseType_Void,  HLSLBaseType_Float2,  HLSLBaseType_Float,  HLSLBaseType_Float2 ),
-        Intrinsic( "sincos", HLSLBaseType_Void,  HLSLBaseType_Float3,  HLSLBaseType_Float,  HLSLBaseType_Float3 ),
-        Intrinsic( "sincos", HLSLBaseType_Void,  HLSLBaseType_Float4,  HLSLBaseType_Float,  HLSLBaseType_Float4 ),
+        Intrinsic( "sincos", HLSLBaseType_Void,  HLSLBaseType_Float2,  HLSLBaseType_Float2,  HLSLBaseType_Float2 ),
+        Intrinsic( "sincos", HLSLBaseType_Void,  HLSLBaseType_Float3,  HLSLBaseType_Float3,  HLSLBaseType_Float3 ),
+        Intrinsic( "sincos", HLSLBaseType_Void,  HLSLBaseType_Float4,  HLSLBaseType_Float4,  HLSLBaseType_Float4 ),
 
         Intrinsic( "mad", HLSLBaseType_Float, HLSLBaseType_Float, HLSLBaseType_Float, HLSLBaseType_Float ),
         Intrinsic( "mad", HLSLBaseType_Float2, HLSLBaseType_Float2, HLSLBaseType_Float2, HLSLBaseType_Float2 ),

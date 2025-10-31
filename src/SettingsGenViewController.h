@@ -266,6 +266,7 @@ enum MDZ_SETTINGS {
     GLOB_FXLOD,
         MDZ_SETTINGS_FAMILY_PROJECTM,
         PROJECTM_FXONOFF,
+        PROJECTM_Quality,
         PROJECTM_ShowPresetLabel,
         PROJECTM_AutoSwitchPresetsMode,
         PROJECTM_LockPreset,

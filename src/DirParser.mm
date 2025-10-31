@@ -367,7 +367,7 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
     const char *filename=[[(FileNode*)[_items objectAtIndex:_position] localpath] UTF8String];
     const char *title=strchr(filename,'/');
     while (title) {
-        if (strncasecmp(title+1,"presets/",strlen("presets/"))==0) {
+        if (strncasecmp(title+1,"presets/./",strlen("presets/./"))==0) {
             title=strchr(title+1,'/')+1;
             break;
         }
@@ -382,7 +382,7 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
     const char *filename=[[(FileNode*)[_items objectAtIndex:index] localpath] UTF8String];
     const char *title=strchr(filename,'/');
     while (title) {
-        if (strncasecmp(title+1,"presets/",strlen("presets/"))==0) {
+        if (strncasecmp(title+1,"presets/./",strlen("presets/./"))==0) {
             title=strchr(title+1,'/')+1;
             break;
         }

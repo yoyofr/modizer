@@ -6,6 +6,7 @@
 //  Copyright __YoyoFR / Yohann Magnien__ 2010. All rights reserved.
 //
 
+extern unsigned int mdzRenderbuffer;
 float bassAttr,midAttr,trebAttr;
 
 int mdz_pmPerFrameHackBadMilkPresets;
@@ -644,7 +645,7 @@ bool sysMonitorIsActive;
     if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value) active_idx|=1<<5;
     if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value) active_idx|=1<<6;
     
-    if (settings[PROJECTM_FXONOFF].detail.mdz_switch.switch_value) active_idx|=1<<8;
+    if (settings[PROJECTM_FXONOFF].detail.mdz_boolswitch.switch_value) active_idx|=1<<8;
     
     if (settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value) active_idx|=1<<13;
     
@@ -1370,8 +1371,7 @@ bool isFavoriteCustomPresets(NSString *path);
 -(void) mdChangeFavoriteStatusPreset:(int)val {
     if (_pmIsInitialized && _pm) {
         const char *title;
-        uint32_t index=[_mdzPM_playlist getPos];
-        title = [_mdzPM_playlist getPresetCleanTitle:index];
+        title = [_mdzPM_playlist getCurPresetCleanTitle];
         if (title) {
             NSString *strName=[NSString stringWithUTF8String:title];
             
@@ -1406,7 +1406,7 @@ bool isFavoriteCustomPresets(NSString *path);
     if (_pmIsInitialized && _pm) {
         const char *title;
         int index=[_mdzPM_playlist getPos];
-        title = [_mdzPM_playlist getPresetCleanTitle:index];
+        title = [_mdzPM_playlist getCurPresetCleanTitle];
         if (title) {
             char *tmp_str=(char*)malloc(strlen(title)+32);
             snprintf(tmp_str,strlen(title)+32,"(%d/%d) %s",index+1,[_mdzPM_playlist getSize],title);
@@ -5894,9 +5894,10 @@ void buildPresetDirStructure() {
     
     _pmIsInitialized=false;
     
+    float _pmScaleFactor=1<<settings[PROJECTM_Quality].detail.mdz_switch.switch_value;;
     
-    _pmCanvasWidth=m_oglView.frame.size.width*glScaleFactor;
-    _pmCanvasHeight=m_oglView.frame.size.height*glScaleFactor;
+    _pmCanvasWidth=m_oglView.frame.size.width*glScaleFactor/_pmScaleFactor;
+    _pmCanvasHeight=m_oglView.frame.size.height*glScaleFactor/_pmScaleFactor;
     
     
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
@@ -6416,7 +6417,7 @@ static int mOglView1Tap=0;
 static float m_nFps; // current FPS
 static CFTimeInterval lastFrameStartTime;
 static CFTimeInterval tgtFrameStartTime;
-static int m_nAverageFps; // the average FPS over 15 frames
+static int m_nAverageFps; // the average FPS
 static int m_nAverageFpsCounter;
 static float m_nAverageFpsSum;
 int tgtFrameCnt;
@@ -6429,7 +6430,7 @@ static void calcFps()
 
     m_nAverageFpsCounter++;
     m_nAverageFpsSum+=m_nFps;
-    if (m_nAverageFpsCounter >= 20) // calculate average FPS
+    if (m_nAverageFpsCounter >= 60) // calculate average FPS
     {
         m_nAverageFps = round(m_nAverageFpsSum/m_nAverageFpsCounter);
         m_nAverageFpsCounter = 0;
@@ -6593,7 +6594,7 @@ extern "C" int current_sample;
     /*-------------------------------------------------------------------------------*/
     /*  ProjectM render */
     /*-------------------------------------------------------------------------------*/
-    if (_pmIsInitialized && _pm && settings[PROJECTM_FXONOFF].detail.mdz_switch.switch_value) {
+    if (_pmIsInitialized && _pm && settings[PROJECTM_FXONOFF].detail.mdz_boolswitch.switch_value) {
         size_t currentMeshX{0};
         size_t currentMeshY{0};
         
@@ -6610,12 +6611,12 @@ extern "C" int current_sample;
         size_t canvasWidth;
         size_t canvasHeight;
         projectm_get_window_size(_pm, &canvasWidth, &canvasHeight);
-        if ((ww*glScaleFactor!=canvasWidth) || (hh*glScaleFactor!=canvasWidth)) {
-            canvasWidth=ww*glScaleFactor;
-            canvasHeight=hh*glScaleFactor;
-            projectm_set_window_size(_pm, canvasWidth, canvasHeight);
-        }
         
+        float _pmScaleFactor=1<<settings[PROJECTM_Quality].detail.mdz_switch.switch_value;;
+        _pmCanvasWidth=m_oglView.frame.size.width*glScaleFactor/_pmScaleFactor;
+        _pmCanvasHeight=m_oglView.frame.size.height*glScaleFactor/_pmScaleFactor;
+        
+        if ((_pmCanvasWidth!=canvasWidth) || (_pmCanvasHeight!=canvasHeight)) projectm_set_window_size(_pm, _pmCanvasWidth, _pmCanvasHeight);
         
         /*------------------------------------------------*/
         // Feed buffer for ProjectM
@@ -6656,9 +6657,13 @@ extern "C" int current_sample;
         int sample_count=(settings[GLOB_FXFPS].detail.mdz_switch.switch_value?735:735*2);
         projectm_pcm_add_int16(_pm,(const int16_t*)pmBuffer,sample_count,PROJECTM_STEREO);
         
-        projectm_opengl_render_frame(_pm);
+        RenderUtils::startRenderToTexture(_pmCanvasWidth,_pmCanvasHeight);
         
-        projectm_set_fps(_pm, m_nFps);
+        projectm_opengl_render_frame_fbo(_pm,mdzRenderbuffer);
+        
+        RenderUtils::endRenderToTexture(ww*glScaleFactor,hh*glScaleFactor,0);
+        
+        projectm_set_fps(_pm, m_nAverageFps);
     }
     /*-------------------------------------------------------------------------------*/
     
@@ -6711,7 +6716,7 @@ extern "C" int current_sample;
     movePx2Old=movePx2;
     movePy2Old=movePy2;
     
-    if (settings[PROJECTM_FXONOFF].detail.mdz_switch.switch_value) {
+    if (settings[PROJECTM_FXONOFF].detail.mdz_boolswitch.switch_value) {
         //PM is active
         
         //check if it is alone before processing inputs, to avoid mixing inputs with other FX
@@ -7834,7 +7839,7 @@ extern "C" int current_sample;
     //-------------------------------------
     // ProjectM preset name display
     //-------------------------------------
-    if ((settings[PROJECTM_FXONOFF].detail.mdz_switch.switch_value) && ((settings[PROJECTM_ShowPresetLabel].detail.mdz_switch.switch_value)||([_mdzPM_playlist getSize]==0))) {
+    if ((settings[PROJECTM_FXONOFF].detail.mdz_boolswitch.switch_value) && ((settings[PROJECTM_ShowPresetLabel].detail.mdz_switch.switch_value)||([_mdzPM_playlist getSize]==0))) {
         if (_pmIsInitialized && _pm) {
             //float x,y,w,h;
             
@@ -7850,7 +7855,7 @@ extern "C" int current_sample;
                 _pm_display_name_countdown=_pm_fps*PM_PRESET_DISPLAY_TIMEOUT;
             }
             
-            const char *pmPresetStr=[_mdzPM_playlist getCurLabel];
+            const char *pmPresetStr=[_mdzPM_playlist getCurPresetCleanTitle];
             if (pmPresetStr&&_pm_display_name_countdown) {
                 float alpha_val=(float)(_pm_display_name_countdown*4)/255.0;
                 if (alpha_val>0.8) alpha_val=0.8;
@@ -7865,13 +7870,15 @@ extern "C" int current_sample;
                 pmPresetStr_size.x+=18;
                 
                 if ( [_mdzPM_playlist size] && isFavoriteCustomPresets([NSString stringWithUTF8String:[_mdzPM_playlist getCurPresetCleanTitle]]) ) {
-                    ImGui::Text("%s%s%s",
+                    ImGui::Text("%s%s(%d/%d) %s",
                                 [[NSString stringWithFormat:@"%C", static_cast<unichar>(FA_HEART)] UTF8String],
                                 [[NSString stringWithFormat:@"%C", static_cast<unichar>((settings[PROJECTM_LockPreset].detail.mdz_boolswitch.switch_value?FA_LOCK:FA_UNLOCK))] UTF8String],
+                                [_mdzPM_playlist getPos],[_mdzPM_playlist size],
                                 pmPresetStr);
                 } else {
                     if ([_mdzPM_playlist size]) {
-                        ImGui::Text("%s%s",[[NSString stringWithFormat:@"%C", static_cast<unichar>((settings[PROJECTM_LockPreset].detail.mdz_boolswitch.switch_value?FA_LOCK:FA_UNLOCK))] UTF8String],
+                        ImGui::Text("%s(%d/%d) %s",[[NSString stringWithFormat:@"%C", static_cast<unichar>((settings[PROJECTM_LockPreset].detail.mdz_boolswitch.switch_value?FA_LOCK:FA_UNLOCK))] UTF8String],
+                                    [_mdzPM_playlist getPos],[_mdzPM_playlist size],
                                     pmPresetStr);
                     } else {
                         ImGui::Text("%s",pmPresetStr);

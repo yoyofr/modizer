@@ -8,9 +8,11 @@
 
 #include <GLSLGenerator.h>
 #include <HLSLParser.h>
+#include <HLSLTypeFixer.h>
+#include <iostream>
 
 //YOYOFR
-#include "HLSLPreprocessorCleanup.hpp"
+#include "ShaderPreprocessor.h"
 //
 
 #include <glm/gtc/matrix_transform.hpp>
@@ -143,9 +145,22 @@ void MilkdropShader::LoadTexturesAndCompile(PresetState& presetState)
         auto desc = presetState.renderContext.textureManager->GetTexture(name);
         m_textureSamplerDescriptors.push_back(std::move(desc));
     }
-
+    
+    //YOYOFR
+    //
+    ShaderPreprocessor preProcessor(ShaderLanguage::HLSL);
+    std::string cleanProgram = preProcessor.preprocess(m_preprocessedCode); //To review, in some case it removes correct code
+    cleanProgram=std::regex_replace(cleanProgram, std::regex("(^|\\n)#\\s+"), "$1#");
+    m_preprocessedCode = cleanProgram;
+    
+    HLSLTypeFixer hlslTypeFixer;
+    cleanProgram = hlslTypeFixer.autoFix(m_preprocessedCode);
+    m_preprocessedCode = cleanProgram;
+    
     // Now that we have the textures, transpile the code.
     TranspileHLSLShader(presetState, m_preprocessedCode);
+    
+    //printf("%s\n",m_preprocessedCode.c_str());
 
     // Update blur texture level if shader was compiled successfully.
     presetState.blurTexture.SetRequiredBlurLevel(m_maxBlurLevelRequired);
@@ -576,12 +591,6 @@ void MilkdropShader::TranspileHLSLShader(const PresetState& presetState, std::st
         shaderTypeString = "warp";
     }
     
-    //YOYOFR
-    //
-    HLSLPreprocessorCleanup preProcessor;
-    std::string cleanProgram = preProcessor.process(program);
-    //
-
     M4::GLSLGenerator generator;
     M4::Allocator allocator;
 
@@ -590,9 +599,9 @@ void MilkdropShader::TranspileHLSLShader(const PresetState& presetState, std::st
 
     // Preprocess define macros
     std::string sourcePreprocessed;
-    if (!parser.ApplyPreprocessor("", cleanProgram.c_str(), cleanProgram.size(), sourcePreprocessed))
+    if (!parser.ApplyPreprocessor("", program.c_str(), program.size(), sourcePreprocessed))
     {
-        throw Renderer::ShaderException("Error translating HLSL " + shaderTypeString + " shader: Preprocessing failed.\nSource:\n" + cleanProgram);
+        throw Renderer::ShaderException("Error translating HLSL " + shaderTypeString + " shader: Preprocessing failed.\nSource:\n" + program);
     }
 
     // Remove previous shader declarations
@@ -655,7 +664,7 @@ void MilkdropShader::TranspileHLSLShader(const PresetState& presetState, std::st
     {
         throw Renderer::ShaderException("Error translating HLSL " + shaderTypeString + " shader: GLSL generating failed.\nSource:\n" + sourcePreprocessed);
     }
-
+    
     // Now we have GLSL source for the preset shader program (hopefully it's valid!)
     // Compile the preset shader fragment shader with the standard vertex shader and cross our fingers.
     if (m_type == ShaderType::WarpShader)

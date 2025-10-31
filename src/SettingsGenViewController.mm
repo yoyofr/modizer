@@ -1737,15 +1737,24 @@ void optNSFPLAYChangedC(id param) {
     /////////////////////////////////////
     ///
     SETTINGS_ID_DEF(PROJECTM_FXONOFF)
-    settings[PROJECTM_FXONOFF].type=MDZ_SWITCH;
+    settings[PROJECTM_FXONOFF].type=MDZ_BOOLSWITCH;
     settings[PROJECTM_FXONOFF].label=(char*)"ProjectM FX";
     settings[PROJECTM_FXONOFF].description=NULL;
     settings[PROJECTM_FXONOFF].family=MDZ_SETTINGS_FAMILY_PROJECTM;
     settings[PROJECTM_FXONOFF].sub_family=0;
-    settings[PROJECTM_FXONOFF].detail.mdz_switch.switch_value_nb=2;
-    settings[PROJECTM_FXONOFF].detail.mdz_switch.switch_labels=(char**)malloc(settings[PROJECTM_FXONOFF].detail.mdz_switch.switch_value_nb*sizeof(char*));
-    settings[PROJECTM_FXONOFF].detail.mdz_switch.switch_labels[0]=(char*)"Off";
-    settings[PROJECTM_FXONOFF].detail.mdz_switch.switch_labels[1]=(char*)"On";
+    
+    SETTINGS_ID_DEF(PROJECTM_Quality)
+    settings[PROJECTM_Quality].type=MDZ_SWITCH;
+    settings[PROJECTM_Quality].label=(char*)"Quality";
+    settings[PROJECTM_Quality].description=(char*)"Rendering quality: Max is pixel resolution, 1/2 is half, ...";
+    settings[PROJECTM_Quality].family=MDZ_SETTINGS_FAMILY_PROJECTM;
+    settings[PROJECTM_Quality].sub_family=0;
+    settings[PROJECTM_Quality].detail.mdz_switch.switch_value_nb=4;
+    settings[PROJECTM_Quality].detail.mdz_switch.switch_labels=(char**)malloc(settings[PROJECTM_Quality].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[PROJECTM_Quality].detail.mdz_switch.switch_labels[0]=(char*)"Max";
+    settings[PROJECTM_Quality].detail.mdz_switch.switch_labels[1]=(char*)"1/2";
+    settings[PROJECTM_Quality].detail.mdz_switch.switch_labels[2]=(char*)"1/4";
+    settings[PROJECTM_Quality].detail.mdz_switch.switch_labels[3]=(char*)"1/8";
     
     SETTINGS_ID_DEF(PROJECTM_BundledPresets)
     settings[PROJECTM_BundledPresets].type=MDZ_BOOLSWITCH;
@@ -1906,7 +1915,8 @@ void optNSFPLAYChangedC(id param) {
     settings[PROJECTM_HardCutSensitivity].detail.mdz_slider.slider_min_value=0;
     settings[PROJECTM_HardCutSensitivity].detail.mdz_slider.slider_max_value=5;
     
-    settings[PROJECTM_FXONOFF].detail.mdz_switch.switch_default_value=0;
+    settings[PROJECTM_FXONOFF].detail.mdz_boolswitch.switch_default_value=0;
+    settings[PROJECTM_Quality].detail.mdz_switch.switch_default_value=1;
     settings[PROJECTM_ShowPresetLabel].detail.mdz_switch.switch_default_value=1;
     settings[PROJECTM_AutoSwitchPresetsMode].detail.mdz_switch.switch_default_value=1;
     settings[PROJECTM_LockPreset].detail.mdz_boolswitch.switch_default_value=0;
