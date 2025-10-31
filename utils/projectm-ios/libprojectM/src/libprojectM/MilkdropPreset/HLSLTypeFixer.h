@@ -38,11 +38,11 @@ struct HLSLIssue {
 struct HLSLFixOptions {
     bool autoFixIntegerDivision = true;
     bool autoFixIntegerLiterals = true;
-    bool autoFixVectorConstructors = true;
+    bool autoFixVectorConstructors = false;
     bool castIntVariables = true;
-    bool addFloatSuffix = true;      // Use 1.0f instead of 1.0 (HLSL prefers 'f')
+    bool addFloatSuffix = false;      // Use 1.0f instead of 1.0 (HLSL prefers 'f')
     bool preserveFormatting = true;
-    bool fixMatrixConstructors = true; // Fix matrix constructors too
+    bool fixMatrixConstructors = false; // Fix matrix constructors too
 };
 
 /**

@@ -150,12 +150,12 @@ void MilkdropShader::LoadTexturesAndCompile(PresetState& presetState)
     //
     ShaderPreprocessor preProcessor(ShaderLanguage::HLSL);
     std::string cleanProgram = preProcessor.preprocess(m_preprocessedCode); //To review, in some case it removes correct code
-    cleanProgram=std::regex_replace(cleanProgram, std::regex("(^|\\n)#\\s+"), "$1#");
+//    cleanProgram=std::regex_replace(cleanProgram, std::regex("(^|\\n)#\\s+"), "$1#"); //Remove any space between a # at start of line and a character (define, if, else, ...)
     m_preprocessedCode = cleanProgram;
     
-    HLSLTypeFixer hlslTypeFixer;
-    cleanProgram = hlslTypeFixer.autoFix(m_preprocessedCode);
-    m_preprocessedCode = cleanProgram;
+//    HLSLTypeFixer hlslTypeFixer;
+//    cleanProgram = hlslTypeFixer.autoFix(m_preprocessedCode);
+//    m_preprocessedCode = cleanProgram;
     
     // Now that we have the textures, transpile the code.
     TranspileHLSLShader(presetState, m_preprocessedCode);

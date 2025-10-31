@@ -1434,6 +1434,9 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXMODPattern_Theme].sub_family=0;
     settings[GLOB_FXMODPattern_Theme].detail.mdz_switch.switch_value_nb=modpat_themesNb;
     settings[GLOB_FXMODPattern_Theme].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_FXMODPattern_Theme].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    if (settings[GLOB_FXMODPattern_Theme].detail.mdz_switch.switch_labels==NULL) {
+        MDZELog("cannot allocate memory for settings[GLOB_FXMODPattern_Theme].detail.mdz_switch.switch_labels")
+    }
     for (int i=0;i<modpat_themesNb;i++) {
         if (settings[GLOB_FXMODPattern_Theme].detail.mdz_switch.switch_labels[i]) free(settings[GLOB_FXMODPattern_Theme].detail.mdz_switch.switch_labels[i]);
         settings[GLOB_FXMODPattern_Theme].detail.mdz_switch.switch_labels[i]=strdup(modpat_themesList[i]->themeName);
