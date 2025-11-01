@@ -679,19 +679,38 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
     return self;
 }
 
-- (void)addFavoriteCustomPresets:(NSString *)path{
+- (void)addFavoritePreset:(NSString *)path {
     if (path==nil) return;
-    [_customPresets addObject:path];
+    if ([path length]<4) return;
+    if ([path characterAtIndex:1]=='B') {
+        [_bundlePresets addObject:path];
+    }
+    if ([path characterAtIndex:1]=='C') {
+        [_customPresets addObject:path];
+    }
 }
 
-- (void)remFavoriteCustomPresets:(NSString *)path {
+- (void)remFavoritePreset:(NSString *)path {
     if (path==nil) return;
-    [_customPresets removeObject:path];
+    if ([path length]<4) return;
+    if ([path characterAtIndex:1]=='B') {
+        [_bundlePresets removeObject:path];
+    }
+    if ([path characterAtIndex:1]=='C') {
+        [_customPresets removeObject:path];
+    }
 }
 
-- (bool)isFavoriteCustomPresets:(NSString *)fname {
-    if (fname==nil) return false;
-    return [_customPresets containsObject:fname];
+- (bool)isFavoritePreset:(NSString *)path {
+    if (path==nil) return false;
+    if ([path length]<4) return false;
+    if ([path characterAtIndex:1]=='B') {
+        return [_bundlePresets containsObject:path];
+    }
+    if ([path characterAtIndex:1]=='C') {
+        return [_customPresets containsObject:path];
+    }
+    return false;
 }
 
 - (int)favoritesTotalSize {
@@ -734,7 +753,6 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
         
         char str[1024];
         for (int i=0;i<header.itemsNb;i++) {
-            char isFav;
             uint8_t presetType;
             readBytes=gzread(f,&presetType,sizeof(char));
             if (readBytes!=sizeof(char)) {
@@ -759,8 +777,8 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
             if (presetType==MDZ_PLAYLIST_FNODE_Bundle) rootPath=pmBundleDir;
             else if (presetType==MDZ_PLAYLIST_FNODE_Custom) rootPath=pmCustomDir;
             else rootPath=pmCustomDir; //default to custom
-
-            FileNode *node=[[FileNode alloc] initWithPath:[NSString stringWithUTF8String:str] root:rootPath type:presetType];
+            //skip first 3 char, i.e. (B) or (C)
+            FileNode *node=[[FileNode alloc] initWithPath:[NSString stringWithUTF8String:str+3] root:rootPath type:presetType];
             if (node.isMissing) {
                 //File doesn't exist anymore, remove from favorites
                 missing_counter++;

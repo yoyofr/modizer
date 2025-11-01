@@ -1373,13 +1373,13 @@ static float movePinchScale,movePinchScaleOld;
             
             bool added=false;
             if (val==1) {
-                [_mdzPM_Favorites addFavoriteCustomPresets:strName];
+                [_mdzPM_Favorites addFavoritePreset:strName];
                 added=true;
-            } else if (val==-1) [_mdzPM_Favorites remFavoriteCustomPresets:strName];
+            } else if (val==-1) [_mdzPM_Favorites remFavoritePreset:strName];
             else if (val==0) {
-                if ([_mdzPM_Favorites isFavoriteCustomPresets:strName]) [_mdzPM_Favorites remFavoriteCustomPresets:strName];
+                if ([_mdzPM_Favorites isFavoritePreset:strName]) [_mdzPM_Favorites remFavoritePreset:strName];
                 else {
-                    [_mdzPM_Favorites addFavoriteCustomPresets:strName];
+                    [_mdzPM_Favorites addFavoritePreset:strName];
                     added=true;
                 }
             }
@@ -7930,7 +7930,7 @@ void menuInterpolValue(float &curValue,float startValue,float tgtValue) {
                 ImVec2 pmPresetStr_size=ImGui::CalcTextSize(pmPresetStr);
                 pmPresetStr_size.x+=18;
                 
-                if ( [_mdzPM_playlist size] && [_mdzPM_Favorites isFavoriteCustomPresets:[NSString stringWithUTF8String:[_mdzPM_playlist getCurPresetCleanTitle]]] ) {
+                if ( [_mdzPM_playlist size] && [_mdzPM_Favorites isFavoritePreset:[NSString stringWithUTF8String:[_mdzPM_playlist getCurPresetCleanTitle]]] ) {
                     ImGui::Text("%s%s(%d/%d) %s",
                                 [[NSString stringWithFormat:@"%C", static_cast<unichar>(FA_HEART)] UTF8String],
                                 [[NSString stringWithFormat:@"%C", static_cast<unichar>((settings[PROJECTM_LockPreset].detail.mdz_boolswitch.switch_value?FA_LOCK:FA_UNLOCK))] UTF8String],

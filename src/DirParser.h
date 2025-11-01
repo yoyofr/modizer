@@ -77,6 +77,7 @@ enum MDZ_PLAYLIST_FNODE_Type {
 - (const char*)getPath:(int)index;
 - (const char*)getCurLabel;
 - (const char*)getCurFullpath;
+- (int)getCurType;
 - (int)getSize;
 - (void)loadCurrentPreset:(bool)cut;
 - (void)loadIdlePreset;
@@ -111,9 +112,9 @@ enum MDZ_PLAYLIST_FNODE_Type {
 @property (nonatomic, strong) NSMutableOrderedSet *bundlePresets;
 @property (nonatomic, strong) NSMutableOrderedSet *customPresets;
 
-- (void)addFavoriteCustomPresets:(NSString *)path;
-- (void)remFavoriteCustomPresets:(NSString *)path;
-- (bool)isFavoriteCustomPresets:(NSString *)path;
+- (void)addFavoritePreset:(NSString *)path;
+- (void)remFavoritePreset:(NSString *)path;
+- (bool)isFavoritePreset:(NSString *)path;
 - (int)favoritesTotalSize;
 - (int)favoritesBundleSize;
 - (int)favoritesCustomSize;
