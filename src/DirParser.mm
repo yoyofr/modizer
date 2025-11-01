@@ -14,6 +14,12 @@ typedef struct {
     char name[64];
 } MDZPlaylist_Header_t;
 
+typedef struct {
+    int version;
+    int itemsNb;
+    char name[64];
+} MDZFavorites_Header_t;
+
 #define MDZ_PLAYLIST_MAX_RETRY 32
 
 #import "DirParser.h"
@@ -213,6 +219,7 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
 @implementation MDZPlaylist
 
 - (instancetype)init:(projectm_handle)pmh name:(NSString*)name {
+    self = [super init];
     _items=[[NSMutableArray alloc] init];
     _position=0;
     _playlistName=name;
@@ -232,6 +239,7 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
 
 
 - (instancetype)initWithArray:(NSArray*)array pmh:(projectm_handle)pmh name:(NSString*)name;{
+    self = [super init];
     _items=[NSMutableArray arrayWithArray:array];
     _position=0;
     _playlistName=name;
@@ -366,15 +374,16 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
 - (const char *)getCurPresetCleanTitle {
     if (_size) {
         const char *filename=[[(FileNode*)[_items objectAtIndex:_position] localpath] UTF8String];
-        const char *title=strchr(filename,'/');
-        while (title) {
-            if (strncasecmp(title+1,"presets/./",strlen("presets/./"))==0) {
-                title=strchr(title+1,'/')+1;
-                break;
-            }
-            title=strchr(title+1,'/');
-        }
-        if (!title) title=filename;
+        FileNode *fnode=[_items objectAtIndex:_position];
+        const char *title=[[NSString stringWithFormat:@"(%c)%s",(fnode.presetType==MDZ_PLAYLIST_FNODE_Bundle?'B':'C'),filename+2] UTF8String];
+//        while (title) {
+//            if (strncasecmp(title+1,"presets/./",strlen("presets/./"))==0) {
+//                title=strchr(title+1,'/')+3;
+//                break;
+//            }
+//            title=strchr(title+1,'/');
+//        }
+//        if (!title) title=filename;
         return title;
     } else {
         return [_curEntryLbl UTF8String];
@@ -383,16 +392,9 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
 
 - (const char *)getPresetCleanTitle:(int)index {
     if ((index<0)||(index>=_size)) return NULL;
-    const char *filename=[[(FileNode*)[_items objectAtIndex:index] localpath] UTF8String];
-    const char *title=strchr(filename,'/');
-    while (title) {
-        if (strncasecmp(title+1,"presets/./",strlen("presets/./"))==0) {
-            title=strchr(title+1,'/')+1;
-            break;
-        }
-        title=strchr(title+1,'/');
-    }
-    if (!title) title=filename;
+    FileNode *fnode=[_items objectAtIndex:index];
+    const char *filename=[[fnode localpath] UTF8String];
+    const char *title=[[NSString stringWithFormat:@"(%c)%s",(fnode.presetType==MDZ_PLAYLIST_FNODE_Bundle?'B':'C'),filename+2] UTF8String];
     return title;
 }
 
@@ -413,6 +415,12 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
 
 - (const char*)getCurLabel {
     return [_curEntryLbl UTF8String];
+}
+
+- (const char*)getCurFullpath {
+    if (_size==0) return NULL;
+    FileNode *item=[_items objectAtIndex:_position];
+    return [item.localpath UTF8String];
 }
 
 - (int)getSize {
@@ -489,8 +497,7 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
     f=gzopen([[NSHomeDirectory() stringByAppendingPathComponent:@"Documents/modizerPresetsPL.pmpl"] UTF8String],"rb");
     if (f) {
         int readBytes;
-        
-        //REad header
+        //Read header
         MDZPlaylist_Header_t header;
         readBytes=gzread(f,&header,sizeof(MDZPlaylist_Header_t));
         
@@ -563,6 +570,22 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
 - (void)updateFileNodeStatus:(FileNode*)fnode {
     [fnode clearSelected];
     if (_size) [fnode setSelectedFromPL:_items];
+}
+
+- (bool)setPosForPreset:(const char*)localPath {
+    bool ret=false;
+    NSString *str=[NSString stringWithUTF8String:localPath];
+    int pos=0;
+    for (FileNode *item in _items) {
+        if ([str isEqualToString:item.localpath]) {
+            break;
+        } else pos++;
+    }
+    if (pos<_size) {
+        _position=pos;
+        ret=true;
+    }
+    return ret;
 }
 
 @end
@@ -644,5 +667,161 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
         [self flattenNode:child intoArray:array];
     }
 }
+
+@end
+
+@implementation MDZFavorites
+
+- (instancetype)init {
+    self = [super init];
+    _bundlePresets=[[NSMutableOrderedSet alloc] init];
+    _customPresets=[[NSMutableOrderedSet alloc] init];
+    return self;
+}
+
+- (void)addFavoriteCustomPresets:(NSString *)path{
+    if (path==nil) return;
+    [_customPresets addObject:path];
+}
+
+- (void)remFavoriteCustomPresets:(NSString *)path {
+    if (path==nil) return;
+    [_customPresets removeObject:path];
+}
+
+- (bool)isFavoriteCustomPresets:(NSString *)fname {
+    if (fname==nil) return false;
+    return [_customPresets containsObject:fname];
+}
+
+- (int)favoritesTotalSize {
+    return [_bundlePresets count]+[_customPresets count];
+}
+- (int)favoritesBundleSize {
+    return [_bundlePresets count];
+}
+- (int)favoritesCustomSize {
+    return [_customPresets count];
+}
+
+
+- (int)loadFavorites {
+    int missing_counter=0;
+    NSString *pmBundleDir = [NSString stringWithFormat:@"%@/projectm/assets/presets",[[NSBundle mainBundle] resourcePath]];
+    NSString *pmCustomDir = [NSString stringWithFormat:@"%@/Documents%s/presets",NSHomeDirectory(),PM_ROOT_FOLDER_CUSTOM];
+    
+    gzFile f;
+    f=gzopen([[NSHomeDirectory() stringByAppendingPathComponent:@"Documents/modizerFavorites.pmfav"] UTF8String],"rb");
+    if (f) {
+        int readBytes;
+        //Read header
+        MDZFavorites_Header_t header;
+        readBytes=gzread(f,&header,sizeof(MDZFavorites_Header_t));
+        
+        if (readBytes<sizeof(MDZFavorites_Header_t)) {
+            MDZELog("PM favorites/Loading: cannot read  file (modizerPresetsPL.pmpl)")
+            gzclose(f);
+            return -1;
+        }
+        if (header.version!=MDZ_PMPLAYLIST_VERSION) {
+            MDZELog("PM favorites/Loading: wrong version")
+            gzclose(f);
+            return -2;
+        }
+        
+        [_bundlePresets removeAllObjects];
+        [_customPresets removeAllObjects];
+        
+        char str[1024];
+        for (int i=0;i<header.itemsNb;i++) {
+            char isFav;
+            uint8_t presetType;
+            readBytes=gzread(f,&presetType,sizeof(char));
+            if (readBytes!=sizeof(char)) {
+                MDZELog("PM favorites/Loading: wrong data (presetType) for entry %d, aborting",i)
+                gzclose(f);
+                return -3;
+            }
+            
+            int strLen;
+            readBytes=gzread(f,&strLen,sizeof(int));
+            if (strLen>1023) {
+                MDZELog("PM favorites/Loading: too long path string (>1023) for entry %d, limiting",i)
+            }
+            readBytes=gzread(f,&str,strLen);
+            if (readBytes!=strLen) {
+                MDZELog("PM favorites/Loading: cannot read string data for entry %d, aborting",i)
+                gzclose(f);
+                return -3;
+            }
+            str[strLen]=0;
+            NSString *rootPath;
+            if (presetType==MDZ_PLAYLIST_FNODE_Bundle) rootPath=pmBundleDir;
+            else if (presetType==MDZ_PLAYLIST_FNODE_Custom) rootPath=pmCustomDir;
+            else rootPath=pmCustomDir; //default to custom
+
+            FileNode *node=[[FileNode alloc] initWithPath:[NSString stringWithUTF8String:str] root:rootPath type:presetType];
+            if (node.isMissing) {
+                //File doesn't exist anymore, remove from favorites
+                missing_counter++;
+            } else {
+                //File exits, put in the right list
+                if (presetType==MDZ_PLAYLIST_FNODE_Bundle) [_bundlePresets addObject:[NSString stringWithUTF8String:str]];
+                if (presetType==MDZ_PLAYLIST_FNODE_Custom) [_customPresets addObject:[NSString stringWithUTF8String:str]];
+            }
+        }
+        gzclose(f);
+    }
+    if (missing_counter) {
+        MDZILog("PM favorites/Loading: %d entries are missing in filesystem",missing_counter)
+    }
+    return missing_counter;
+}
+- (int)saveFavorites {
+    gzFile f;
+    f=gzopen([[NSHomeDirectory() stringByAppendingPathComponent:@"Documents/modizerFavorites.pmfav"] UTF8String],"wb");
+    if (f) {
+        //Write header
+        MDZFavorites_Header_t header;
+        header.version=MDZ_PMPLAYLIST_VERSION;
+        header.itemsNb=[self favoritesTotalSize];
+        snprintf(header.name,64,"%s","Favorites");
+        gzwrite(f,&header,sizeof(MDZFavorites_Header_t));
+        
+        //Write path for each entries
+        for (NSString *path in _bundlePresets) {
+            uint8_t presetType=MDZ_PLAYLIST_FNODE_Bundle;
+            const char *str=[path UTF8String];
+            int strLen=(int)strlen(str);
+            if (strLen>1023) {
+                strLen=1023;
+                MDZELog("PM favorites/Saving: too long file path for saving (> 1023)")
+            }
+            gzwrite(f,&presetType,sizeof(uint8_t));
+            gzwrite(f,&strLen,sizeof(int));
+            gzwrite(f,str,strLen);
+        }
+        for (NSString *path in _customPresets) {
+            uint8_t presetType=MDZ_PLAYLIST_FNODE_Custom;
+            const char *str=[path UTF8String];
+            int strLen=(int)strlen(str);
+            if (strLen>1023) {
+                strLen=1023;
+                MDZELog("PM favorites/Saving: too long file path for saving (> 1023)")
+            }
+            gzwrite(f,&presetType,sizeof(uint8_t));
+            gzwrite(f,&strLen,sizeof(int));
+            gzwrite(f,str,strLen);
+            
+        }
+        gzclose(f);
+    } else {
+        MDZELog("PM favorites/Saving: cannot open saving file for writing");
+        return -1;
+    }
+    return 0;
+}
+
+
 
 @end

@@ -121,7 +121,7 @@ const unsigned short menuRootLabelFAIcon[16]={
 
 static GLuint txtMenuMoreHandle[16];
 const char *menuRootMoreLabel[16]={
-    "Show FPS","@sliderFX\nalpha",NULL,NULL,
+    NULL,"@sliderFX\nalpha",NULL,NULL,
     NULL,NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
@@ -138,6 +138,7 @@ const unsigned short menuRootMoreLabelFAIcon[16]={
     NULL,NULL,NULL,FA_ARROWS_ALT,
     NULL,FA_COGS,FA_ARROW_CIRCLE_LEFT,FA_WINDOW_CLOSE,
 };
+char *menuMenuMoreDynLabel[16];
 
 static GLuint txtMenuProjectMHandle[16];
 const char *menuProjectMLabel[16]={
@@ -162,8 +163,8 @@ char *menuProjectMDynLabel[16];
 
 static GLuint txtMenuProjectMExploreHandle[8];
 const char *menuProjectMExploreLabel[8]={
-    NULL,NULL,NULL,NULL,
-    "Select\nall","Remove\nall","Select\nfiltered","Remove\nfiltered"
+    "Select\nall","Clear\nall",NULL,NULL,
+    "Select\nfiltered","Remove\nfiltered",NULL,NULL,
 };
 void *menuProjectMExploreVar[8]={
     NULL,NULL,NULL,NULL,
@@ -171,8 +172,8 @@ void *menuProjectMExploreVar[8]={
     
 };
 const unsigned short menuProjectMExploreLabelFAIcon[8]={
-    FA_CHECK_CIRCLE,FA_REFRESH,FA_ARROW_CIRCLE_LEFT,FA_WINDOW_CLOSE,
-    NULL,NULL,NULL,NULL,
+    NULL,NULL,FA_REFRESH,FA_CHECK_CIRCLE,
+    NULL,NULL,FA_ARROW_CIRCLE_LEFT,FA_WINDOW_CLOSE,
 };
 
 static GLuint txtMenuOscilloHandle[16];
@@ -384,9 +385,11 @@ int playerGetActivatedCells(int menu_idx) {
         if (settings[PROJECTM_FXONOFF].detail.mdz_boolswitch.switch_value) active_idx|=1<<FXPROJECTM_IDX;
         if (settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value) active_idx|=1<<11;
     } else if (menu_idx==MENU_ROOT_MORE) {
-        if (settings[GLOB_FXSHOWFPS].detail.mdz_boolswitch.switch_value) active_idx|=1<<0;
+        if (settings[GLOB_FXSHOWFPS].detail.mdz_switch.switch_value) active_idx|=1<<0;
         if (settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value) active_idx|=1<<11;
         if (settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value) active_idx|=1<<11;
+        
+        menuMenuMoreDynLabel[0]=settings[GLOB_FXSHOWFPS].detail.mdz_switch.switch_labels[settings[GLOB_FXSHOWFPS].detail.mdz_switch.switch_value];
     } else if (menu_idx==MENU_OSCILLO) {
         if (settings[OSCILLO_FXMODE].detail.mdz_switch.switch_value==0) active_idx|=1<<0;
         if (settings[OSCILLO_FXMODE].detail.mdz_switch.switch_value==1) active_idx|=1<<1;
@@ -492,6 +495,7 @@ void playerMenuInit() {
     memset(txtMenuProjectMHandle,0,sizeof(txtMenuProjectMHandle));
     memset(txtMenuProjectMExploreHandle,0,sizeof(txtMenuProjectMExploreHandle));
     memset(txtMenuOscilloHandle,0,sizeof(txtMenuOscilloHandle));
+    memset(menuMenuMoreDynLabel,0,sizeof(menuMenuMoreDynLabel));
     memset(menuOscilloDynLabel,0,sizeof(menuOscilloDynLabel));
     memset(menuProjectMDynLabel,0,sizeof(menuProjectMDynLabel));
     memset(menu3DSpectrumDynLabel,0,sizeof(menu3DSpectrumDynLabel));
@@ -698,19 +702,20 @@ int buildSubMenu(int r,
     }
     ImVec2 cur_pos=ImGui::GetCursorPos();
     if (current_txtMenuHandle[celIdx]) { //Image Button
+        float padding=6;
         if (isActive) {
             ImGui::SetNextItemAllowOverlap();
             tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
             ImGui::PushID((celIdx)*4+0);
-            ImGui::ImageButton("",(ImTextureID)(intptr_t)current_txtMenuHandle[celIdx], ImVec2(cell_size, cell_sizeH),uv0,uv1,bg_col,tint_col);
+            ImGui::ImageButton("",(ImTextureID)(intptr_t)current_txtMenuHandle[celIdx], ImVec2(cell_size-padding, cell_sizeH-padding),uv0,uv1,bg_col,tint_col);
             ImGui::PopID();
             ImGui::SetCursorPos(cur_pos);
             ImGui::PushID((celIdx)*4+1);
-            ret=ImGui::ImageButton("",(ImTextureID)(intptr_t)txtShineFx,ImVec2(cell_size, cell_sizeH),uv0,uv1,bg_col,tint_col);
+            ret=ImGui::ImageButton("",(ImTextureID)(intptr_t)txtShineFx,ImVec2(cell_size-padding, cell_sizeH-padding),uv0,uv1,bg_col,tint_col);
             ImGui::PopID();
         } else {
             ImGui::PushID((celIdx)*4);
-            ret=ImGui::ImageButton("",(ImTextureID)(intptr_t)current_txtMenuHandle[celIdx], ImVec2(cell_size, cell_sizeH),uv0,uv1,bg_col,tint_col);
+            ret=ImGui::ImageButton("",(ImTextureID)(intptr_t)current_txtMenuHandle[celIdx], ImVec2(cell_size-padding, cell_sizeH-padding),uv0,uv1,bg_col,tint_col);
             ImGui::PopID();
         }
     } else if (currentMenuLabel[celIdx]) { //Text Button
@@ -770,10 +775,10 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
     static int cpt=0;
     if (!pMenu_isInitialized) return 0;
     int keepOpened=1;
-    float menu_win_size=round(fmin(ww,hh)*glScaleFactor);
+    float menu_win_size;
     float menu_win_sizeH;;
     ImVec2 menu_win_pos;
-    float cell_size=round(fmin(ww,hh)*glScaleFactor/4.4f);
+    float cell_size;
     GLuint *current_txtMenuHandle;
     const char **currentMenuLabel;
     char **currentMenuDynLabel;
@@ -785,35 +790,52 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
         menuCpt[i]++;
     }
     
-    idealFontSize=menu_win_size/60;
+    float menu_margin=1.0*glScaleFactor;
+    float menu_cell_padding=1.0*glScaleFactor;
+    float menu_cells_per_line=4;
     
-    
-    // Global var mirroring
-    global_FXAlpha=settings[GLOB_FXAlpha].detail.mdz_slider.slider_value*100;
-    
-    // Root window, full screen
-    ImGui::SetNextWindowPos(ImVec2(0,0));
-    ImGui::SetNextWindowSize(ImVec2(ww*glScaleFactor,hh*glScaleFactor));
-    
-    ImGui::GetStyle().FrameRounding = 10.0f;
-    
-    ImGui::PushStyleColor(ImGuiCol_WindowBg,ImVec4(0.0f,0.0f,0.0f,MENU_BACKGROUND_ALPHA));
-    
-    ImGui::Begin("Modizer root menu",0,ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoScrollbar);
-    ImGui::SetWindowFocus();
-    ImGui::GetStyle().Alpha=fadelev;
-    
+    menu_win_size=round(fmin(ww*glScaleFactor-2*menu_margin,hh*glScaleFactor-2*menu_margin));
+    // Determine menu size, manage exception
+    //------------------------------------------------
     if (pMenu_state.menu_idx==MENU_PROJECTM_EXPLORE) {
         menu_win_sizeH=(hh*0.9f)*glScaleFactor;
     } else {
         menu_win_sizeH=menu_win_size;
         
     }
+    
+    cell_size=round((menu_win_size)/menu_cells_per_line)-3*menu_cell_padding;
+    idealFontSize=menu_win_size/40;
+    
+    
+    // Global var mirroring
+    global_FXAlpha=settings[GLOB_FXAlpha].detail.mdz_slider.slider_value*100;
+    
+    // Root window, full screen
+    ImGui::SetNextWindowPos(ImVec2(menu_margin,menu_margin));
+    ImGui::SetNextWindowSize(ImVec2(ww*glScaleFactor-2*menu_margin,hh*glScaleFactor-2*menu_margin));
+    
+    ImGui::GetStyle().FrameRounding = 10.0f;
+    
+    ImGui::PushStyleColor(ImGuiCol_WindowBg,ImVec4(0.0f,0.0f,0.0f,MENU_BACKGROUND_ALPHA));
+    
+    
+    ImGui::Begin("Modizer root menu",0,ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoScrollbar);
+    ImGui::SetWindowFocus();
+    ImGui::GetStyle().Alpha=fadelev;
+    
+    //------------------------------------------------
+    
     menu_win_pos=ImVec2((ww*glScaleFactor-menu_win_size)/2,(hh*glScaleFactor-menu_win_sizeH)/2);
     
     ImGui::SetNextWindowPos(menu_win_pos);
     ImGui::BeginChild("Modizer menu",ImVec2(menu_win_size,menu_win_sizeH));
-    static ImGuiTableFlags flagTable = /*ImGuiTableFlags_Borders|*/ImGuiTableFlags_NoBordersInBody|ImGuiTableFlags_SizingFixedSame|ImGuiTableFlags_NoHostExtendX|ImGuiTableFlags_PreciseWidths;
+    static ImGuiTableFlags flagTable = /*ImGuiTableFlags_Borders|*/ImGuiTableFlags_NoBordersInBody|ImGuiTableFlags_SizingFixedSame|ImGuiTableFlags_NoHostExtendX|ImGuiTableFlags_PreciseWidths|ImGuiTableFlags_NoPadOuterX;
+    
+    ImVec2 cell_padding(menu_cell_padding,menu_cell_padding);
+    ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, cell_padding);
+    ImGui::PushStyleVar(ImGuiStyleVar_ImageBorderSize, 0);
+    
     
     if (font_menu) ImGui::PushFont(font_menu,idealFontSize*glScaleFactor);
     else ImGui::PushFont(nullptr);//,18*menu_win_size/512);
@@ -830,7 +852,7 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
             currentMenuVar=menuRootVar;
             currentMenuDynLabel=NULL;
             for (int r=0;r<4;r++) {
-                ImGui::TableNextRow(0,cell_size);
+                ImGui::TableNextRow(0,cell_size+2*menu_cell_padding);
                 for (int c=0;c<4;c++) {
                     ImGui::TableSetColumnIndex(c);
                     
@@ -915,9 +937,9 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
             currentMenuLabel=menuRootMoreLabel;
             currentMenuLabelFAIcon=menuRootMoreLabelFAIcon;
             currentMenuVar=menuRootMoreVar;
-            currentMenuDynLabel=NULL;
+            currentMenuDynLabel=menuMenuMoreDynLabel;
             for (int r=0;r<4;r++) {
-                ImGui::TableNextRow(0,cell_size);
+                ImGui::TableNextRow(0,cell_size+2*menu_cell_padding);
                 for (int c=0;c<4;c++) {
                     ImGui::TableSetColumnIndex(c);
                     
@@ -936,7 +958,7 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
                     if (ret) {
                         switch (c*16+r) {
                             case 0x00://Show FPS
-                                settings[GLOB_FXSHOWFPS].detail.mdz_boolswitch.switch_value=!settings[GLOB_FXSHOWFPS].detail.mdz_boolswitch.switch_value;
+                                settings[GLOB_FXSHOWFPS].detail.mdz_switch.switch_value=(settings[GLOB_FXSHOWFPS].detail.mdz_switch.switch_value+1)%settings[GLOB_FXSHOWFPS].detail.mdz_switch.switch_value_nb;
                                 break;
                             case 0x10: //FX Alpha
                                 break;
@@ -1685,6 +1707,7 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
             ImGui::EndTable();
         }
     } else if (pMenu_state.menu_idx==MENU_PROJECTM_EXPLORE) {
+        ImGui::Text("Select active %s presets",(pmCurrentPlaylistMode==PM_BUNDLED_PLAYLIST?"bundled":"custom"));
         if (ImGui::BeginTable("menu_ProjectM_Explore",4,flagTable)) {
             settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value=1;
             
@@ -1693,9 +1716,11 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
             currentMenuLabelFAIcon=menuProjectMExploreLabelFAIcon;
             currentMenuVar=menuProjectMExploreVar;
             currentMenuDynLabel=NULL;
+            
+            float new_cell_h=ImGui::GetTextLineHeight()*2;
                 
                 for (int r=0;r<2;r++) {
-                    ImGui::TableNextRow(0,cell_size/3);
+                    ImGui::TableNextRow(0,new_cell_h);
                     for (int c=0;c<4;c++) {
                         ImGui::TableSetColumnIndex(c);
                         
@@ -1705,7 +1730,7 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
                                              4,
                                              isActive,
                                              cell_size,
-                                             cell_size/3,
+                                             new_cell_h,
                                              current_txtMenuHandle,
                                              currentMenuLabel,
                                              currentMenuDynLabel,
@@ -1713,13 +1738,13 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
                                              currentMenuVar);
                     if (ret) {
                         switch (c*16+r) {
-                            case 0x00: //Apply
-                                pMenu_PMCommitTempData(pmCurrentFileNode);
-                                pmSoftReinit(true);
-                                [_mdzPM_playlist updateFileNodeStatus:pmCurrentFileNode];
-                                pMenu_PMInitTempData(pmCurrentFileNode);
+                            case 0x00: //Select all
+                                pMenu_PMPresetsSelAll(pmCurrentFileNode);
                                 break;
-                            case 0x10: //Refresh
+                            case 0x10: //Clear all
+                                pMenu_PMPresetsRemAll(pmCurrentFileNode);
+                                break;
+                            case 0x20: //Refresh
                                 //if custom presets,rescan dir
                                 if (pmCurrentFileNode==pmCustomPresetsFileNode) {
                                     updatePresetCustomDirStructure();
@@ -1728,33 +1753,31 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
                                 [_mdzPM_playlist updateFileNodeStatus:pmCurrentFileNode];
                                 pMenu_PMInitTempData(pmCurrentFileNode);
                                 break;
-                            case 0x20: //Back to main menu
+                            case 0x30: //Apply
+                                pMenu_PMCommitTempData(pmCurrentFileNode);
+                                pmSoftReinit(true);
+                                [_mdzPM_playlist updateFileNodeStatus:pmCurrentFileNode];
+                                pMenu_PMInitTempData(pmCurrentFileNode);
+                                break;
+                            case 0x01: //Select filtered
+                                pMenu_PMPresetsSelFiltered(pmCurrentFileNode);
+                                break;
+                            case 0x11: //Remove filtered
+                                pMenu_PMPresetsRemFiltered(pmCurrentFileNode);
+                                break;
+                            case 0x21: //Back to main menu
                                 settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value=fullscreenStatus;
                                 pMenu_state.menu_idx=MENU_PROJECTM;
                                 break;
-                            case 0x30: //Exit
+                            case 0x31: //Exit
                                 settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value=fullscreenStatus;
                                 keepOpened=0;
-                                break;
-                            case 0x01: //Select all
-                                pMenu_PMPresetsSelAll(pmCurrentFileNode);
-                                break;
-                            case 0x11: //Remove all
-                                pMenu_PMPresetsRemAll(pmCurrentFileNode);
-                                break;
-                            case 0x21: //Select filtered
-                                pMenu_PMPresetsSelFiltered(pmCurrentFileNode);
-                                break;
-                            case 0x31: //Remove filtered
-                                pMenu_PMPresetsRemFiltered(pmCurrentFileNode);
                                 break;
                         }
                     }
                 }
             }
             ImGui::EndTable();
-            
-            ImGui::Text("Select active presets");
             
             if (ImGui::Button("X")) {
                 pmFileNodeFilter[0]=0;
@@ -1798,6 +1821,8 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
     }
     
     ImGui::PopFont();
+    ImGui::PopStyleVar();
+    ImGui::PopStyleVar();
     ImGui::EndChild();
     ImGui::End();
     ImGui::PopStyleColor();

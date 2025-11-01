@@ -5,7 +5,7 @@
 #include <sstream>
 #include <vector>
 
-extern int mdz_pmPerFrameHackBadMilkPresets;
+extern int mdz_pmMilkPermissiveEvalCode;
 
 namespace libprojectM {
 
@@ -86,6 +86,7 @@ auto PresetFileParser::GetCode(const std::string& keyPrefix) const -> std::strin
 
     key.replace(0, lowerKey.length(), lowerKey);
 
+    bool skipCode=false;
     for (int index{1}; index <= 99999; ++index)
     {
         key.replace(lowerKey.length(), 5, std::to_string(index));
@@ -93,7 +94,7 @@ auto PresetFileParser::GetCode(const std::string& keyPrefix) const -> std::strin
         {
             break;
         }
-
+        
         auto line = m_presetValues.at(key);
 
         // Remove backtick char in shader code
@@ -103,10 +104,45 @@ auto PresetFileParser::GetCode(const std::string& keyPrefix) const -> std::strin
         }
         
         //YOYOFR
-        // Special hack: allow to merge line together under certain conditions: no comment, no ';' at the end of line, ...
+        //------------------
+        //Manage comment
+        //------------------
+        if (skipCode) {
+            size_t pos=line.find("*/");
+            if (pos!=std::string::npos) {
+                //end of comment found
+                line.erase(0,pos+2);
+                skipCode=false;
+            }
+        }
+        
+        if (!skipCode) {
+            size_t pos=line.find("/*");
+            if (pos!=std::string::npos) {
+                //is there an end comment on the same line ?
+                size_t pos2=line.find("*/",pos+2);
+                if (pos2!=std::string::npos) {
+                    line.erase(pos,pos2+2-pos);
+                } else {
+                    //no end of comment found on same line, move into skipCode mode
+                    skipCode=true;
+                }
+            } else {
+                pos=line.find("//");
+                if (pos!=std::string::npos) {
+                    //comment, erase rest of the line
+                    line.erase(pos,line.length()-pos);
+                }
+            }
+        }
+        
+        if (skipCode) break;
+        
+        //------------------
+        // Permissive mode: allow to merge line together under certain conditions: no comment, no ';' at the end of line, ...
         // Allow several milk preset to compile as the code is sometime broken on 2 lines in the middle of a litteral
         bool removeEndl=false;
-        if (mdz_pmPerFrameHackBadMilkPresets) {
+        if (mdz_pmMilkPermissiveEvalCode) {
             //Check if last char is a ';'
             int pos=(int)line.length()-1;
             while (pos>=0) {
@@ -117,6 +153,7 @@ auto PresetFileParser::GetCode(const std::string& keyPrefix) const -> std::strin
                 char last_char=line.at(pos);
                 if ((line.find("//")==std::string::npos) &&
                     (line.find("/*")==std::string::npos) &&
+                    (line.find("*/")==std::string::npos) &&
                     (line.at(0)!='#') &&
                     (last_char!=';') &&
                     (last_char!='(') &&

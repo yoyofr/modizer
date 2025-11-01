@@ -113,6 +113,8 @@ static const char* _reservedWords[] =
         "inline",
         "#define",
         "#if",
+        "#ifdef",
+        "#ifndef",
         "#else",
         "#endif",
         "uniform",
@@ -164,6 +166,10 @@ HLSLTokenizer::HLSLTokenizer(const char* fileName, const char* buffer, size_t le
     m_tokenLineNumber   = 1;
     m_error             = false;
     Next();
+}
+
+void HLSLTokenizer::ClearError() {
+    m_error = false;
 }
 
 void HLSLTokenizer::Next(const bool EOLSkipping)

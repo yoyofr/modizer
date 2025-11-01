@@ -196,7 +196,7 @@ int query_ETC1_capability( void );
 #define SOIL_COMPRESSED_RGBA_PVRTC_2BPPV1_IMG                     0x8C03
 #define SOIL_GL_ETC1_RGB8_OES                                     0x8D64
 
-#if defined( SOIL_X11_PLATFORM ) || defined( SOIL_PLATFORM_WIN32 ) || defined( SOIL_PLATFORM_OSX ) || defined(__HAIKU__)
+#if defined( SOIL_X11_PLATFORM ) || defined( SOIL_PLATFORM_WIN32 ) || defined( SOIL_PLATFORM_OSX ) || defined(__HAIKU__) || defined( SOIL_PLATFORM_IOS )
 typedef const GLubyte *(APIENTRY * P_SOIL_glGetStringiFunc) (GLenum, GLuint);
 static P_SOIL_glGetStringiFunc soilGlGetStringiFunc = NULL;
 
@@ -204,11 +204,17 @@ static int isAtLeastGL3()
 {
 	static int is_gl3 = SOIL_CAPABILITY_UNKNOWN;
 
+    //YOYOFR
 	if ( SOIL_CAPABILITY_UNKNOWN == is_gl3 )
 	{
 		const char * verstr	= (const char *) glGetString( GL_VERSION );
-		is_gl3				= ( verstr && ( atoi(verstr) >= 3 ) &&
-								strstr( verstr, " ES " ) == NULL );
+        int pos=0;
+        while (pos<strlen(verstr)) {
+            if ((verstr[pos]<'0') || (verstr[pos]>'9')) pos++;
+            else break;
+        }
+		is_gl3				= ( verstr && ( atoi(verstr+pos) >= 3 )/* &&
+								strstr( verstr, " ES " ) == NULL */);
 	}
 
 	return is_gl3;
@@ -3402,11 +3408,12 @@ int query_gen_mipmap_capability( void )
 			}
 
 			#elif !defined( SOIL_NO_EGL )
-
-			ext_addr = (P_SOIL_GLGENERATEMIPMAPPROC)SOIL_GL_GetProcAddress("glGenerateMipmapOES");
+//YOYOFR
+			//ext_addr = (P_SOIL_GLGENERATEMIPMAPPROC)SOIL_GL_GetProcAddress("glGenerateMipmapOES");
 
 			if(ext_addr == NULL)
 			{
+                ext_addr = (P_SOIL_GLGENERATEMIPMAPPROC)SOIL_GL_GetProcAddress("glGenerateMipmapOES");
 				ext_addr = (P_SOIL_GLGENERATEMIPMAPPROC)SOIL_GL_GetProcAddress("glGenerateMipmap");
 			}
 

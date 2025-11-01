@@ -26,7 +26,7 @@
 }
 
 - (void)startMonitoring {
-    self.timer = [NSTimer scheduledTimerWithTimeInterval:0.5
+    self.timer = [NSTimer scheduledTimerWithTimeInterval:1.0 //1update / second
                                                   target:self
                                                 selector:@selector(checkCPUUsage)
                                                 userInfo:nil

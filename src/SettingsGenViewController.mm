@@ -108,7 +108,7 @@ volatile t_settings settings[MAX_SETTINGS];
                 UIAlertController *alertC = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Reset",@"")
                                                                                 message:strTmp
                                                                          preferredStyle:UIAlertControllerStyleAlert];
-                UIAlertAction* closeAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Ok",@"") style:UIAlertActionStyleCancel
+                UIAlertAction* resetAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Ok",@"") style:UIAlertActionStyleDefault
                                                                     handler:^(UIAlertAction * action) {
                     switch (settings[cur_settings_idx[indexPath.section]].type) {
                         case MDZ_BOOLSWITCH:
@@ -136,6 +136,10 @@ volatile t_settings settings[MAX_SETTINGS];
                     }
                     [self.tableView reloadData];
                     
+                }];
+                [alertC addAction:resetAction];
+                UIAlertAction* closeAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"No",@"") style:UIAlertActionStyleCancel
+                                                                    handler:^(UIAlertAction * action) {
                 }];
                 [alertC addAction:closeAction];
                 [self showAlert:alertC];
@@ -1685,11 +1689,18 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXLOD].detail.mdz_switch.switch_labels[2]=(char*)"High";
     
     SETTINGS_ID_DEF(GLOB_FXSHOWFPS)
-    settings[GLOB_FXSHOWFPS].label=(char*)"Show FPS";
-    settings[GLOB_FXSHOWFPS].description=NULL;
+    settings[GLOB_FXSHOWFPS].type=MDZ_SWITCH;
+    settings[GLOB_FXSHOWFPS].label=(char*)"Tech Info";
+    settings[GLOB_FXSHOWFPS].description=(char*)"Show FPS and other infos (CPU, Resolution, ProjectM audio data)";
     settings[GLOB_FXSHOWFPS].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
     settings[GLOB_FXSHOWFPS].sub_family=0;
-    settings[GLOB_FXSHOWFPS].type=MDZ_BOOLSWITCH;
+    settings[GLOB_FXSHOWFPS].detail.mdz_switch.switch_value_nb=4;
+    settings[GLOB_FXSHOWFPS].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_FXSHOWFPS].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[GLOB_FXSHOWFPS].detail.mdz_switch.switch_labels[0]=(char*)"Off";
+    settings[GLOB_FXSHOWFPS].detail.mdz_switch.switch_labels[1]=(char*)"Min";
+    settings[GLOB_FXSHOWFPS].detail.mdz_switch.switch_labels[2]=(char*)"Med";
+    settings[GLOB_FXSHOWFPS].detail.mdz_switch.switch_labels[3]=(char*)"Full";
+    settings[GLOB_FXSHOWFPS].callback=&optVISUChangedC;
     
     SETTINGS_ID_DEF(GLOB_FXFPS)
     settings[GLOB_FXFPS].type=MDZ_SWITCH;
@@ -1722,7 +1733,7 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_default_value=0;
     settings[GLOB_FXLOD].detail.mdz_switch.switch_default_value=2;
     settings[GLOB_FXFPS].detail.mdz_switch.switch_default_value=1;
-    settings[GLOB_FXSHOWFPS].detail.mdz_boolswitch.switch_default_value=0;
+    settings[GLOB_FXSHOWFPS].detail.mdz_switch.switch_default_value=0;
     
     settings[GLOB_FXSpectrum].detail.mdz_switch.switch_default_value=0;
     settings[GLOB_FXMODPattern].detail.mdz_switch.switch_default_value=0;
@@ -1929,8 +1940,8 @@ void optNSFPLAYChangedC(id param) {
     settings[PROJECTM_BlendTime].detail.mdz_slider.slider_default_value=2.7;
     settings[PROJECTM_BundledPresets].detail.mdz_boolswitch.switch_default_value=1;
     settings[PROJECTM_CustomPresets].detail.mdz_boolswitch.switch_default_value=1;
-    settings[PROJECTM_MeshSizeX].detail.mdz_slider.slider_default_value=32;
-    settings[PROJECTM_MeshSizeY].detail.mdz_slider.slider_default_value=24;
+    settings[PROJECTM_MeshSizeX].detail.mdz_slider.slider_default_value=64;
+    settings[PROJECTM_MeshSizeY].detail.mdz_slider.slider_default_value=48;
     settings[PROJECTM_HardCutMinTime].detail.mdz_slider.slider_default_value=20;
     settings[PROJECTM_HardCutEnabled].detail.mdz_boolswitch.switch_default_value=0;
     settings[PROJECTM_HardCutSensitivity].detail.mdz_slider.slider_default_value=1.0;

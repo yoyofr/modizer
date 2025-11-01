@@ -1809,6 +1809,19 @@ bool HLSLParser::ParseStatement(HLSLStatement*& statement, const HLSLType& retur
             return false;
         }
         ParseExpression(forStatement->increment);
+        if (forStatement->increment==NULL) {
+            //for without increment clause, add arbitrary increment to avoid stopping parser
+            const char* afileName = GetFileName();
+            int         aline     = GetLineNumber();
+
+            HLSLLiteralExpression* literalExpression = m_tree->AddNode<HLSLLiteralExpression>(afileName, aline);
+            literalExpression->type   = HLSLBaseType_Int;
+            literalExpression->iValue = 1;
+            literalExpression->expressionType.baseType = literalExpression->type;
+            literalExpression->expressionType.flags = HLSLTypeFlag_Const;
+            forStatement->increment = literalExpression;
+            m_tokenizer.ClearError();
+        }
         if (!Expect(')'))
         {
             return false;
@@ -3614,6 +3627,70 @@ bool HLSLParser::ApplyPreprocessor(const char* fileName, const char* buffer, siz
             else
             {
                 m_tokenizer.Error("#if evaluation failed: not an integer");
+                return false;
+            }
+            addOriginalSource = false;
+        }
+        else if (m_tokenizer.GetToken() == HLSLToken_PreprocessorIfdef)
+        {
+            while (m_tokenizer.GetToken() != HLSLToken_IntLiteral && m_tokenizer.GetToken() != HLSLToken_EndOfLine &&
+                   m_tokenizer.GetToken() != HLSLToken_Identifier )
+            {
+                m_tokenizer.Next(false);
+            }
+
+            if (m_tokenizer.GetToken() == HLSLToken_IntLiteral)
+            {
+                isCodeActive.push(m_tokenizer.GetInt() != 0);
+            }
+            else if (m_tokenizer.GetToken() == HLSLToken_Identifier) {
+                bool codeActive=false;
+                // Search a define matching
+                for (int i = m_macros.GetSize() - 1; i >= 0; --i)
+                {
+                    if (String_Equal(m_macros[i]->name, m_tokenizer.GetIdentifier()))
+                    {
+                        codeActive=true;
+                        break;
+                    }
+                }
+                isCodeActive.push(codeActive);
+            }
+            else
+            {
+                m_tokenizer.Error("#ifdef evaluation failed: not an integer");
+                return false;
+            }
+            addOriginalSource = false;
+        }
+        else if (m_tokenizer.GetToken() == HLSLToken_PreprocessorIfndef)
+        {
+            while (m_tokenizer.GetToken() != HLSLToken_IntLiteral && m_tokenizer.GetToken() != HLSLToken_EndOfLine &&
+                   m_tokenizer.GetToken() != HLSLToken_Identifier )
+            {
+                m_tokenizer.Next(false);
+            }
+
+            if (m_tokenizer.GetToken() == HLSLToken_IntLiteral)
+            {
+                isCodeActive.push(m_tokenizer.GetInt() == 0);
+            }
+            else if (m_tokenizer.GetToken() == HLSLToken_Identifier) {
+                bool codeActive=true;
+                // Search a define matching
+                for (int i = m_macros.GetSize() - 1; i >= 0; --i)
+                {
+                    if (String_Equal(m_macros[i]->name, m_tokenizer.GetIdentifier()))
+                    {
+                        codeActive=false;
+                        break;
+                    }
+                }
+                isCodeActive.push(codeActive);
+            }
+            else
+            {
+                m_tokenizer.Error("#ifndef evaluation failed: not an integer");
                 return false;
             }
             addOriginalSource = false;

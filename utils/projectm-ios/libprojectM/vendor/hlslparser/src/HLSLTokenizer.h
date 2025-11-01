@@ -108,6 +108,8 @@ enum HLSLToken
     HLSLToken_Inline,
     HLSLToken_PreprocessorDefine,
     HLSLToken_PreprocessorIf,
+    HLSLToken_PreprocessorIfdef,
+    HLSLToken_PreprocessorIfndef,
     HLSLToken_PreprocessorElse,
     HLSLToken_PreprocessorEndif,
 
@@ -163,6 +165,9 @@ public:
 
     /** Returns the current token in the stream. */
     int GetToken() const;
+    
+    /** Clear error to allow continue, useful for optional statement in for loop */
+    void ClearError();
 
     /** Returns the number of the current token. */
     float GetFloat() const;

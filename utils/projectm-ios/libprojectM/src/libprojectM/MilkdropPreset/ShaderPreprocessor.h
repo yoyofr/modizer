@@ -49,6 +49,14 @@ public:
     [[nodiscard]] std::string fixDivisionByZero(const std::string& shaderSource);
 
     /**
+     * Fix complex for loops with multiple statements in increment section
+     * Moves complex increment logic into the loop body
+     * @param shaderSource The shader source code
+     * @return The processed shader source with simplified for loops
+     */
+    [[nodiscard]] std::string fixComplexForLoops(const std::string& shaderSource);
+
+    /**
      * Apply all preprocessing steps
      * @param shaderSource The shader source code
      * @return The fully processed shader source
@@ -59,6 +67,11 @@ public:
      * Set the shader language
      */
     void setLanguage(ShaderLanguage language) noexcept;
+
+    /**
+     * Enable or disable verbose debug output
+     */
+    void setVerbose(bool verbose) noexcept;
 
 private:
     struct FunctionInfo {
@@ -127,7 +140,30 @@ private:
      */
     [[nodiscard]] std::optional<std::pair<size_t, size_t>> findLoopBody(const std::string& source, size_t forEnd) const;
 
+    struct ComplexForLoopInfo {
+        size_t forStart;
+        size_t forEnd;
+        size_t headerEnd;  // End of for(...) before body
+        std::string initialization;
+        std::string condition;
+        std::string increment;
+        size_t bodyStart;
+        size_t bodyEnd;
+        bool hasBlockBody;  // true if body is {...}, false if single statement
+    };
+
+    /**
+     * Detect for loops with complex increment sections (multiple statements separated by commas)
+     */
+    [[nodiscard]] std::vector<ComplexForLoopInfo> detectComplexForLoops(const std::string& source);
+
+    /**
+     * Parse a for loop header and extract its components
+     */
+    [[nodiscard]] std::optional<ComplexForLoopInfo> parseForLoopHeader(const std::string& source, size_t forPos) const;
+
     ShaderLanguage m_language;
+    bool m_verbose = false;
 };
 
 #endif // SHADER_PREPROCESSOR_H
