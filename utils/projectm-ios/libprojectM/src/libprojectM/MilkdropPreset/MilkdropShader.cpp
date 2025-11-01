@@ -148,10 +148,10 @@ void MilkdropShader::LoadTexturesAndCompile(PresetState& presetState)
     
     //YOYOFR
     //
-    ShaderPreprocessor preProcessor(ShaderLanguage::HLSL);
-    std::string cleanProgram = preProcessor.preprocess(m_preprocessedCode); //To review, in some case it removes correct code
-    m_preprocessedCode = cleanProgram;
-    
+//    ShaderPreprocessor preProcessor(ShaderLanguage::HLSL);
+//    std::string cleanProgram = preProcessor.preprocess(m_preprocessedCode); //To review, in some case it removes correct code
+//    m_preprocessedCode = cleanProgram;
+//    
 //    HLSLTypeFixer hlslTypeFixer;
 //    cleanProgram = hlslTypeFixer.autoFix(m_preprocessedCode);
 //    m_preprocessedCode = cleanProgram;
@@ -669,7 +669,7 @@ void MilkdropShader::TranspileHLSLShader(const PresetState& presetState, std::st
     if (m_type == ShaderType::WarpShader)
     {
         m_shader.CompileProgram(MilkdropStaticShaders::Get()->GetPresetWarpVertexShader(), generator.GetResult());
-        printf("%s\n",generator.GetResult()); //YOYOFR
+        //printf("%s\n",generator.GetResult()); //YOYOFR
     }
     else
     {

@@ -132,16 +132,6 @@ float glScaleFactor=1.0;
 
 static bool mBackground;
 
-bool GetResourceDir(std::string &outdir) {
-    outdir = [[[NSBundle mainBundle] resourcePath] UTF8String];
-    return true;
-}
-
-bool GetHomeDir(std::string &outdir) {
-    outdir = [NSHomeDirectory() UTF8String];
-    return true;
-}
-
 //--------------------------------------------------
 // ImGui
 //--------------------------------------------------
@@ -5151,12 +5141,8 @@ void buildPresetDirStructure() {
     [_mdzPM_playlist setShuffle:settings[PROJECTM_AutoSwitchPresetsMode].detail.mdz_switch.switch_value];
     
     const char *texturesSearchPaths[2];
-    std::string resourceDir;
-    GetResourceDir(resourceDir);
-    std::string homeDir;
-    GetHomeDir(homeDir);
-    std::string texturesDir = resourceDir+"/projectm/assets/textures";
-    std::string texturesCustomDir = homeDir+"/Documents"+PM_ROOT_FOLDER_CUSTOM+"/textures";
+    NSString *pmBundleDir = [NSString stringWithFormat:@"%@/projectm/assets/textures",[[NSBundle mainBundle] resourcePath]];
+    NSString *pmCustomDir = [NSString stringWithFormat:@"%@/Documents%s/textures",NSHomeDirectory(),PM_ROOT_FOLDER_CUSTOM];
     
     _pm_fps=settings[GLOB_FXFPS].detail.mdz_switch.switch_value==1?60:30;
 
@@ -5184,8 +5170,8 @@ void buildPresetDirStructure() {
     
     
     int textureDirNb=0;
-    if (settings[PROJECTM_BundledPresets].detail.mdz_boolswitch.switch_value) texturesSearchPaths[textureDirNb++]=texturesDir.c_str();
-    if (settings[PROJECTM_CustomPresets].detail.mdz_boolswitch.switch_value) texturesSearchPaths[textureDirNb++]=texturesCustomDir.c_str();
+    if (settings[PROJECTM_BundledPresets].detail.mdz_boolswitch.switch_value) texturesSearchPaths[textureDirNb++]=[pmBundleDir UTF8String];
+    if (settings[PROJECTM_CustomPresets].detail.mdz_boolswitch.switch_value) texturesSearchPaths[textureDirNb++]=[pmCustomDir UTF8String];
     
     projectm_set_texture_search_paths(_pm, (const char **)texturesSearchPaths,textureDirNb);
     

@@ -186,7 +186,7 @@ typedef struct {
             posPL++;
             if (posPL>=sizePL) break;
             plPath=[orderedPL objectAtIndex:posPL];
-        } else while ([filePath compare:plPath]==NSOrderedDescending){
+        } else while ([filePath  caseInsensitiveCompare:plPath]==NSOrderedDescending){
             //file is after pl entry, move pl entry to next one
             posPL++;
             if (posPL>=sizePL) break;
@@ -230,6 +230,9 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
     _curEntryLbl = @"";
     [self loadIdlePreset];
     
+    projectm_set_preset_switch_requested_event_callback(_pmh, nullptr, nullptr);
+    projectm_set_preset_switch_failed_event_callback(_pmh, nullptr, nullptr);
+    
     projectm_set_preset_switch_requested_event_callback(_pmh, &MDZOnPresetSwitchRequested, (__bridge void*)self);
     projectm_set_preset_switch_failed_event_callback(_pmh, &MDZOnPresetSwitchFailed, (__bridge void*)self);
     _lastFailed=false;
@@ -250,8 +253,11 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
     _curEntryLbl = @"";
     [self loadIdlePreset];
     
-    projectm_set_preset_switch_requested_event_callback(_pmh, &MDZOnPresetSwitchRequested, NULL);
-    projectm_set_preset_switch_failed_event_callback(_pmh, &MDZOnPresetSwitchFailed, NULL);
+    projectm_set_preset_switch_requested_event_callback(_pmh, nullptr, nullptr);
+    projectm_set_preset_switch_failed_event_callback(_pmh, nullptr, nullptr);
+    
+    projectm_set_preset_switch_requested_event_callback(_pmh, &MDZOnPresetSwitchRequested, (__bridge void*)self);
+    projectm_set_preset_switch_failed_event_callback(_pmh, &MDZOnPresetSwitchFailed, (__bridge void*)self);
     _lastFailed=false;
     return self;
 }
@@ -289,7 +295,50 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
             item=[_items objectAtIndex:_position];
             projectm_load_preset_file(_pmh, [[item getFullPath] UTF8String], !cut);
             //if it hasnt failed, break to continue
-            if (!_lastFailed) break;
+            if (!_lastFailed) {
+                /*
+const char *strdata="\
+img=MilkDrop3_024\n\
+SpriteColorKey=0x000000\n\
+SpriteLayer=1;\n\
+SpriteBlend=3;\n\
+SpriteAlpha=1.000000;\n\
+SpriteSpeed=0.100000;\n\
+init_1=burn=1;\n\
+init_2=x=0.500000;\n\
+init_3=y=0.500000;\n\
+init_4=sx=-0.200000;\n\
+init_5=sy=-0.200000;\n\
+init_6=rot=1.000000;\n\
+init_7=repeatX=1.000000;\n\
+init_8=repeatY=1.000000;\n\
+init_9=blendmode=3;\n\
+code_1=a=1.0;";
+*/
+/*                const char *strdata="\
+img=rose1\n\
+SpriteColorKey=0x000000\n\
+SpriteLayer=1\n\
+SpriteBlend=7\n\
+SpriteAlpha=1.000000\n\
+SpriteSpeed=0.500000;\n\
+init_1=burn=1.0;\n\
+init_2=x=0.500000;\n\
+init_3=y=0.500000;\n\
+init_4=sx=-0.310000;\n\
+init_5=sy=-0.310000;\n\
+init_6=rot=1.000000;\n\
+init_7=blendmode=3;\n\
+init_8=repeatx=1.000000;\n\
+init_9=repeaty=1.000000;\n\
+code_1=new_scale=0.5+0.03*bass_att;\n\
+code_2=sx=new_scale;\n\
+code_3=sy=new_scale;\n\
+code_4=a=1.0;\n\
+";*/
+//                projectm_sprite_create(_pmh,"milkdrop",strdata);
+                break;
+            }
             //Issue with last preset, remove from the list
             [self remove:_position];
             //If list empty, exit

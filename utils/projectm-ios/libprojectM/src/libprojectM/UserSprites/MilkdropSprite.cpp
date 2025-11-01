@@ -28,7 +28,22 @@ namespace UserSprites {
 MilkdropSprite::MilkdropSprite()
     : m_mesh(Renderer::VertexBufferUsage::DynamicDraw, false, true)
 {
+    m_mesh.SetRenderPrimitiveType(Renderer::Mesh::PrimitiveType::TriangleStrip);
+
     m_mesh.SetVertexCount(4);
+    /*m_mesh.Vertices().Set({{-1.0, 1.0},
+                           {1.0, 1.0},
+                           {-1.0, -1.0},
+                           {1.0, -1.0}});
+
+    m_mesh.UVs().Set({{0.0, 1.0},
+                      {1.0, 1.0},
+                      {0.0, 0.0},
+                      {1.0, 0.0}});
+
+    m_mesh.Indices().Set({0, 1, 2, 3});
+
+    m_mesh.Update();*/
 }
 
 void MilkdropSprite::Init(const std::string& spriteData, const Renderer::RenderContext& renderContext)
@@ -142,7 +157,7 @@ void MilkdropSprite::Draw(const Audio::FrameAudioData& audioData,
 
     // First aspect ratio: adjust for non-1:1 images
     {
-        auto aspect = m_texture->Height() / static_cast<float>(m_texture->Width());
+        auto aspect = 1.0f;//m_texture->Height() / static_cast<float>(m_texture->Width());
 
         if (aspect < 1.0f)
         {
@@ -257,6 +272,8 @@ void MilkdropSprite::Draw(const Audio::FrameAudioData& audioData,
 
     // Draw to current output buffer
     m_mesh.Draw();
+    
+    
 
     if (burnIn)
     {

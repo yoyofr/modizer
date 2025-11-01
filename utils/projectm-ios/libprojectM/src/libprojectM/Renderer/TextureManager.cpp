@@ -43,7 +43,6 @@ TextureSamplerDescriptor TextureManager::GetTexture(const std::string& fullName)
     GLint filterMode;
 
     ExtractTextureSettings(fullName, wrapMode, filterMode, unqualifiedName);
-//    printf("%s filterMode : %d / m%d l%d n%d\n",fullName.c_str(),filterMode,GL_LINEAR_MIPMAP_LINEAR,GL_LINEAR,GL_NEAREST);
     if (m_textures.find(unqualifiedName) == m_textures.end())
     {
         return TryLoadingTexture(fullName);
@@ -59,7 +58,6 @@ auto TextureManager::GetSampler(const std::string& fullName) -> std::shared_ptr<
     GLint filterMode;
 
     ExtractTextureSettings(fullName, wrapMode, filterMode, unqualifiedName);
-//    printf("%s filterMode : %d / m%d l%d n%d\n",fullName.c_str(),filterMode,GL_LINEAR_MIPMAP_LINEAR,GL_LINEAR,GL_NEAREST);
 
     return m_samplers.at({wrapMode, filterMode});
 }
@@ -313,15 +311,16 @@ void TextureManager::ExtractTextureSettings(const std::string& qualifiedName, GL
     {
         name = qualifiedName;
         std::string lowerQualifiedName = Utils::ToLower(qualifiedName);
-        //Is it internal textures
+        //Is it an internal texture
         if ( (lowerQualifiedName == "main") ||
             (name.substr(0,4) == "blur") ||
             (name.substr(0,4) == "rand") ||
-            (name.substr(0,5) == "noise") ){
+            (name.substr(0,5) == "noise")||
+            (name.substr(0,4) == "idle") ){
             filterMode = GL_LINEAR;
             wrapMode = GL_REPEAT;
         } else {
-            //Or textures from shaders
+            //Or a texture from shader
             filterMode = GL_LINEAR_MIPMAP_LINEAR;
             wrapMode = GL_REPEAT;
         }

@@ -119,6 +119,7 @@
 
 /* Begin PBXFileReference section */
 		CC08C3A62EA983D100A0F15F /* fast_float.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fast_float.h; path = fast_float/fast_float.h; sourceTree = "<group>"; };
+		CC3B027D2EB69FF50079D537 /* user_sprites.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = user_sprites.h; sourceTree = "<group>"; };
 		CC432B502EB3A059007972E0 /* ShaderPreprocessor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ShaderPreprocessor.h; sourceTree = "<group>"; };
 		CC432B512EB3A075007972E0 /* ShaderPreprocessor.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ShaderPreprocessor.cpp; sourceTree = "<group>"; };
 		CCABA01B2E93C66900AF59B0 /* libprojectm-ios.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libprojectm-ios.a"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1143,6 +1144,7 @@
 				CCABA2F52E93CD4000AF59B0 /* projectM_export.h */,
 				CCABA2F62E93CD4000AF59B0 /* version.h */,
 				CCABA1BA2E93C97600AF59B0 /* audio.h */,
+				CC3B027D2EB69FF50079D537 /* user_sprites.h */,
 				CCABA1BB2E93C97600AF59B0 /* callbacks.h */,
 				CCABA1BC2E93C97600AF59B0 /* core.h */,
 				CCABA1BD2E93C97600AF59B0 /* debug.h */,
