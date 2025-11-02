@@ -1403,9 +1403,9 @@ static float movePinchScale,movePinchScaleOld;
                 }
             }
             if (added) {
-                [self openPopup:NSLocalizedString(@"Preset added to favorite",@"") secmsg:[NSString stringWithFormat:@"%s",title] style:POPUP_STYLE_INFO];
+                [self openPopup:NSLocalizedString(@"Preset added to favorites",@"") secmsg:[NSString stringWithFormat:@"%s",title] style:POPUP_STYLE_INFO];
             } else {
-                [self openPopup:NSLocalizedString(@"Preset removed from favorite",@"") secmsg:[NSString stringWithFormat:@"%s",title] style:POPUP_STYLE_INFO];
+                [self openPopup:NSLocalizedString(@"Preset removed from favorites",@"") secmsg:[NSString stringWithFormat:@"%s",title] style:POPUP_STYLE_INFO];
             }
             //projectm_playlist_free_string(title);
             
@@ -6509,7 +6509,7 @@ void doFramePM(float ww,float hh) {
             //Render to a texture and then display it
             RenderUtils::startRenderToTexture(_pmCanvasWidth,_pmCanvasHeight);
             projectm_opengl_render_frame_fbo(_pm,mdzRenderbuffer);
-            RenderUtils::endRenderToTexture(ww*glScaleFactor,hh*glScaleFactor,0);
+            RenderUtils::endRenderToTextureBasic(ww*glScaleFactor,hh*glScaleFactor,1.0);
         }
         
         projectm_set_fps(_pm, m_nAverageFps);
@@ -6634,7 +6634,7 @@ void doFramePM(float ww,float hh) {
                 //Viewport
                 ImGui::SetCursorPos(ImVec2(2,posy));
                 ImGui::Text("V");
-                snprintf(strTmp,32,"%dx%d",ww,hh);
+                snprintf(strTmp,32,"%.0fx%.0f",ww,hh);
                 sizeText=ImGui::CalcTextSize(strTmp);
                 posx=sizeText.x+8;
                 ImGui::SetCursorPos(ImVec2(cur_winSizeX*glScaleFactor-posx,posy));
@@ -8111,18 +8111,14 @@ void doFramePM(float ww,float hh) {
             }
             NSString *pmInfoStr;
             if ( [_mdzPM_playlist size] && [_mdzPM_Favorites isFavoritePreset:[NSString stringWithUTF8String:[_mdzPM_playlist getCurPresetCleanTitle]]] ) {
-                pmInfoStr=[NSString stringWithFormat:@"%C%C (%d/%d) %s   ",
+                pmInfoStr=[NSString stringWithFormat:@"%C%C %s   ",
                            static_cast<unichar>(FA_HEART),
                            static_cast<unichar>((settings[PROJECTM_LockPreset].detail.mdz_boolswitch.switch_value?FA_LOCK:FA_UNLOCK)),
-                           [_mdzPM_playlist getPos]+1,
-                           [_mdzPM_playlist size],
-                           [_mdzPM_playlist getCurPresetCleanTitle]];
+                           [_mdzPM_playlist getCurLabel]];
             } else {
-                pmInfoStr=[NSString stringWithFormat:@"%C (%d/%d) %s   ",
+                pmInfoStr=[NSString stringWithFormat:@"%C %s   ",
                            static_cast<unichar>((settings[PROJECTM_LockPreset].detail.mdz_boolswitch.switch_value?FA_LOCK:FA_UNLOCK)),
-                           [_mdzPM_playlist getPos]+1,
-                           [_mdzPM_playlist size],
-                           [_mdzPM_playlist getCurPresetCleanTitle]];
+                           [_mdzPM_playlist getCurLabel]];
             }
             const char *pmPresetStr=[pmInfoStr UTF8String];
             if (pmPresetStr&&_pm_display_name_countdown) {

@@ -213,11 +213,13 @@ void DrawPiano3DWithNotesWall(uint ww,uint hh,int automove,float posx,float posy
 void DrawTexture(uint ww,uint hh,GLuint textureIdx,float alpha,bool reversed=false);
 void DrawTextureBlur(uint ww,uint hh,GLuint textureIdx,int hori,float min_brightness,float blurDiv);
 void DrawTextureBlend(uint ww,uint hh,GLuint textOrigIdx,GLuint textBlurIdx);
+void DrawTextureBasic(uint ww,uint hh,GLuint textureIdx,float alpha,bool reversed);
 
 bool initRenderToTexture(int width,int height);
 void shutdownRenderToTexture();
 void startRenderToTexture(int width,int height);
 void endRenderToTexture(int width,int height,int bloomIntensity);
+void endRenderToTextureBasic(int width,int height,float alpha);
 
 int build3DQuad(VertexCData *vert,float x1,float y1,float z1,float cr1,float cg1,float cb1,float ca1,
                                  float x2,float y2,float z2,float cr2,float cg2,float cb2,float ca2,

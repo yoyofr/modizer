@@ -294,7 +294,8 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
 
 - (void)loadIdlePreset {
     projectm_load_preset_file(_pmh,"idle://Geiss & Sperl - Feedback (projectM idle HDR mix).milk",NULL);
-    _curEntryLbl=[NSString stringWithFormat:@"No preset found. Activate bundled presets or copy milk files in '%s/presets' & images in '%s/textures' folders.",PM_ROOT_FOLDER_CUSTOM,PM_ROOT_FOLDER_CUSTOM];
+    _curEntryLbl = [NSString stringWithFormat:@"No preset found. Activate bundled presets or copy milk files in '%s/presets' & images in '%s/textures' folders.",PM_ROOT_FOLDER_CUSTOM,PM_ROOT_FOLDER_CUSTOM];
+    
 }
 
 - (void)setItems:(NSArray*)array {
@@ -383,11 +384,16 @@ code_4=a=1.0;\n\
         [self loadIdlePreset];
     } else {
         item=[_items objectAtIndex:_position];
-        _curEntryLbl = [NSString stringWithFormat:@"(%d/%d) %@",_position+1,_size,item.name];
+        _curEntryLbl = [NSString stringWithFormat:@"(%d/%d) (%c)%@",_position+1,_size,
+                        (item.presetType==MDZ_PLAYLIST_FNODE_Bundle?'B':'C'),
+                        item.name];
     }
 }
 - (void)next:(bool)cut {
-    if (!_size) return;
+    if (!_size) {
+        [self loadIdlePreset];
+        return;
+    }
     if (_shuffle) {
         _position=arc4random_uniform(_size);
     } else {
@@ -398,7 +404,10 @@ code_4=a=1.0;\n\
 }
 
 - (void)last:(bool)cut {
-    if (!_size) return;
+    if (!_size) {
+        [self loadIdlePreset];
+        return;
+    }
     if (_shuffle) {
         _position=arc4random_uniform(_size);
     } else {
@@ -410,7 +419,10 @@ code_4=a=1.0;\n\
 }
 
 - (void)prev:(bool)cut {
-    if (!_size) return;
+    if (!_size) {
+        [self loadIdlePreset];
+        return;
+    }
     if (_shuffle) {
         _position=arc4random_uniform(_size);
     } else {
@@ -426,6 +438,10 @@ code_4=a=1.0;\n\
 }
 
 - (void)setPos:(int)pos cut:(bool)cut {
+    if (!_size) {
+        [self loadIdlePreset];
+        return;
+    }
     if (pos<_size) _position=pos;
     
     [self loadCurrentPreset:cut];
@@ -440,7 +456,9 @@ code_4=a=1.0;\n\
     
     if (_size>0) {
         FileNode *item=[_items objectAtIndex:_position];
-        _curEntryLbl = [NSString stringWithFormat:@"(%d/%d) %@",_position+1,_size,item.name];
+        _curEntryLbl = [NSString stringWithFormat:@"(%d/%d) (c)%@",_position+1,_size,
+                        (item.presetType==MDZ_PLAYLIST_FNODE_Bundle?'B':'C'),
+                        item.name];
     }
 }
 - (void)removeCurEntry {
@@ -463,14 +481,6 @@ code_4=a=1.0;\n\
         const char *filename=[[(FileNode*)[_items objectAtIndex:_position] localpath] UTF8String];
         FileNode *fnode=[_items objectAtIndex:_position];
         const char *title=[[NSString stringWithFormat:@"(%c)%s",(fnode.presetType==MDZ_PLAYLIST_FNODE_Bundle?'B':'C'),filename+2] UTF8String];
-//        while (title) {
-//            if (strncasecmp(title+1,"presets/./",strlen("presets/./"))==0) {
-//                title=strchr(title+1,'/')+3;
-//                break;
-//            }
-//            title=strchr(title+1,'/');
-//        }
-//        if (!title) title=filename;
         return title;
     } else {
         return [_curEntryLbl UTF8String];

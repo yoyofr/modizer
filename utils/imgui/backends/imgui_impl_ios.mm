@@ -12,7 +12,6 @@
 
 #define MAX_LASTCHAR_SIZE 16 //buffer to capture key inputs in UITextfield
 
-
 extern float glScaleFactor;
 static StopWatch g_timer;
 static ImGuiIOSEvent currentEvent;
