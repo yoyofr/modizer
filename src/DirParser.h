@@ -10,7 +10,7 @@
 #include <projectM-4/projectM.h>
 
 enum MDZ_PLAYLIST_FNODE_Type {
-    MDZ_PLAYLIST_FNODE_Bundle,
+    MDZ_PLAYLIST_FNODE_Bundle=0,
     MDZ_PLAYLIST_FNODE_Custom
 } ;
 
@@ -30,8 +30,11 @@ enum MDZ_PLAYLIST_FNODE_Type {
 // Temp tech data for the menu/explorer
 @property (nonatomic, assign) BOOL isSelected_Temp;
 @property (nonatomic, assign) BOOL isFullySelected;
-@property (nonatomic, assign) BOOL isMatchingFilter;
+@property (nonatomic, assign) BOOL isFavorite_Temp;
 @property (nonatomic, assign) int selectedChildren;
+@property (nonatomic, assign) BOOL isFullyFavorite;
+@property (nonatomic, assign) BOOL isMatchingFilter;
+@property (nonatomic, assign) int favoriteChildren;
 @property (nonatomic, assign) BOOL shouldPropagateStatus;
 
 @property (nonatomic, assign) unsigned long long fileSize;
@@ -72,6 +75,8 @@ enum MDZ_PLAYLIST_FNODE_Type {
 - (int)getPos;
 - (void)setPos:(int)pos cut:(bool)cut;
 - (void)remove:(int)index;
+- (void)removeCurEntry;
+- (void)loadCurEntry;
 - (void)clear;
 - (const char*)getTitle:(int)index;
 - (const char*)getPath:(int)index;
@@ -118,6 +123,7 @@ enum MDZ_PLAYLIST_FNODE_Type {
 - (int)favoritesTotalSize;
 - (int)favoritesBundleSize;
 - (int)favoritesCustomSize;
+- (void)updateFileNodeStatus:(FileNode*)fnode type:(int)type;
 
 - (int)loadFavorites;
 - (int)saveFavorites;

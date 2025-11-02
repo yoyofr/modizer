@@ -8,7 +8,7 @@
 #include "ModizerConstants.H"
 
 #define FONT_MENU_FILE  @"Fonts/Roboto-Medium"
-#define FONT_MENU_FILE_JAP @"Fonts/Mplus1Code-Medium"
+#define FONT_MENU_FILE_JAP @"Fonts/Mplus1-Medium"
 
 #define MAX_LASTCHAR_SIZE 16 //buffer to capture key inputs in UITextfield
 
@@ -75,12 +75,14 @@ bool ImGui_ImplIOS_Init()
     icons_config.PixelSnapH = true;
     icons_config.OversampleH = 1;
     icons_config.OversampleV = 1;
+    icons_config.GlyphOffset.y = -4;
+    icons_config.GlyphExtraAdvanceX = 1;
     static const ImWchar ranges[] =
       {
           ICON_MIN_FA, ICON_MAX_FA,
           0,
       };
-    font_menu_icon=io.Fonts->AddFontFromFileTTF([[[NSBundle mainBundle] pathForResource:@"Fonts/fontawesome-webfont" ofType: @"ttf"] UTF8String], 16.0f*glScaleFactor, &icons_config, ranges);
+    font_menu_icon=io.Fonts->AddFontFromFileTTF([[[NSBundle mainBundle] pathForResource:@"Fonts/fontawesome-webfont" ofType: @"ttf"] UTF8String], 10.0f*glScaleFactor, &icons_config, ranges);
     IM_ASSERT(font_menu_icon != NULL);
     
     for (int i=0;i<FONT_TRACKER_NB;i++) {

@@ -19,6 +19,7 @@
 extern FileNode *pmBundledPresetsFileNode;
 extern FileNode *pmCustomPresetsFileNode;
 extern MDZPlaylist *_mdzPM_playlist;
+extern MDZFavorites *_mdzPM_Favorites;
 
 FileNode *pmCurrentFileNode;
 char pmFileNodeFilter[64];
@@ -115,7 +116,7 @@ void *menuRootVar[16]={
     NULL,NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
 };
-const unsigned short menuRootLabelFAIcon[16]={
+unsigned short menuRootLabelFAIcon[16]={
     NULL,NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
     NULL,NULL,FA_ARROW_CIRCLE_RIGHT,FA_ARROWS_ALT,
@@ -136,7 +137,7 @@ void *menuRootMoreVar[16]={
     NULL,NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
 };
-const unsigned short menuRootMoreLabelFAIcon[16]={
+unsigned short menuRootMoreLabelFAIcon[16]={
     NULL,NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
     NULL,NULL,NULL,FA_ARROWS_ALT,
@@ -158,7 +159,7 @@ void *menuProjectMVar[16]={
     NULL,NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
 };
-const unsigned short menuProjectMLabelFAIcon[16]={
+unsigned short menuProjectMLabelFAIcon[16]={
     FA_POWER_OFF,NULL,NULL,NULL,
     NULL,NULL,FA_RANDOM,NULL,
     NULL,NULL,FA_LOCK,FA_ARROWS_ALT,
@@ -177,7 +178,7 @@ void *menuProjectMExploreVar[6*2]={
     NULL,NULL,NULL,NULL,NULL,NULL,
     
 };
-const unsigned short menuProjectMExploreLabelFAIcon[6*2]={
+unsigned short menuProjectMExploreLabelFAIcon[6*2]={
     NULL,NULL,NULL,NULL,FA_REFRESH,FA_CHECK_CIRCLE,
     NULL,NULL,NULL,NULL,FA_ARROW_CIRCLE_LEFT,FA_WINDOW_CLOSE,
 };
@@ -196,7 +197,7 @@ void *menuOscilloVar[16]={
     NULL,NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
 };
-const unsigned short menuOscilloLabelFAIcon[16]={
+unsigned short menuOscilloLabelFAIcon[16]={
     FA_POWER_OFF,NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
     NULL,NULL,NULL,FA_ARROWS_ALT,
@@ -218,7 +219,7 @@ void *menu2DSpectrumVar[16]={
     NULL,NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
 };
-const unsigned short menu2DSpectrumLabelFAIcon[16]={
+unsigned short menu2DSpectrumLabelFAIcon[16]={
     FA_POWER_OFF,NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
     NULL,NULL,NULL,FA_ARROWS_ALT,
@@ -239,7 +240,7 @@ void *menu3DSpectrumVar[16]={
     NULL,NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
 };
-const unsigned short menu3DSpectrumLabelFAIcon[16]={
+unsigned short menu3DSpectrumLabelFAIcon[16]={
     FA_POWER_OFF,NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
     NULL,NULL,NULL,FA_ARROWS_ALT,
@@ -261,7 +262,7 @@ void *menu3DLandscapeVar[16]={
     NULL,NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
 };
-const unsigned short menu3DLandscapeLabelFAIcon[16]={
+unsigned short menu3DLandscapeLabelFAIcon[16]={
     FA_POWER_OFF,NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
     NULL,NULL,NULL,FA_ARROWS_ALT,
@@ -283,7 +284,7 @@ void *menuPiano3DVar[16]={
     NULL,NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
 };
-const unsigned short menuPiano3DLabelFAIcon[16]={
+unsigned short menuPiano3DLabelFAIcon[16]={
     FA_POWER_OFF,NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
     NULL,NULL,NULL,FA_ARROWS_ALT,
@@ -304,7 +305,7 @@ void *menuPianoRollVar[16]={
     NULL,NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
 };
-const unsigned short menuPianoRollLabelFAIcon[16]={
+unsigned short menuPianoRollLabelFAIcon[16]={
     FA_POWER_OFF,NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
     NULL,NULL,NULL,FA_ARROWS_ALT,
@@ -325,7 +326,7 @@ void *menuMidiVar[16]={
     NULL,NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
 };
-const unsigned short menuMidiLabelFAIcon[16]={
+unsigned short menuMidiLabelFAIcon[16]={
     FA_POWER_OFF,NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
     NULL,NULL,NULL,FA_ARROWS_ALT,
@@ -346,7 +347,7 @@ void *menuModPatternVar[16]={
     NULL,NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
 };
-const unsigned short menuModPatternLabelFAIcon[16]={
+unsigned short menuModPatternLabelFAIcon[16]={
     FA_POWER_OFF,NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
     NULL,NULL,NULL,FA_ARROWS_ALT,
@@ -361,7 +362,8 @@ struct {
 } pMenu_state;
 
 int pMenu_PMUpdateSelStatus(FileNode *fnode,bool propagateStatus,bool selStatus);
-int pMenu_PMbuildDirTree(FileNode *fileNode, int idx,bool filter);
+int pMenu_PMUpdateFavStatus(FileNode *fnode,bool propagateStatus,bool favStatus);
+int pMenu_PMbuildDirTree(FileNode *fileNode, int idx,bool filter,int updExpandCollapse);
 int pMenu_PMPresetsSelAll(FileNode *fnode);
 int pMenu_PMPresetsRemAll(FileNode *fnode);
 int pMenu_PMPresetsSelFiltered(FileNode *fnode);
@@ -485,6 +487,10 @@ int playerGetActivatedCells(int menu_idx) {
         if (settings[PROJECTM_BlendPresets].detail.mdz_boolswitch.switch_value) active_idx|=1<<7;
         if (settings[PROJECTM_LockPreset].detail.mdz_boolswitch.switch_value) active_idx|=1<<10;
         if (settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value) active_idx|=1<<11;
+        
+        if (settings[PROJECTM_LockPreset].detail.mdz_boolswitch.switch_value) menuProjectMLabelFAIcon[10]=FA_LOCK;
+        else menuProjectMLabelFAIcon[10]=FA_UNLOCK;
+        
         
         if (settings[PROJECTM_BundledPresets].detail.mdz_boolswitch.switch_value) menuProjectMDynLabel[8]=(char*)"Select\nbundled\npresets";
         else menuProjectMDynLabel[8]=NULL;
@@ -701,7 +707,7 @@ int buildSubMenu(int r,
                  GLuint *current_txtMenuHandle,
                  const char **currentMenuLabel,
                  char **currentMenuDynLabel,
-                 const unsigned short *currentMenuLabelFAIcon,
+                 unsigned short *currentMenuLabelFAIcon,
                  void **currentMenuVar) {
     bool ret=false;
     int celIdx=r*num_col+c;
@@ -761,16 +767,10 @@ int buildSubMenu(int r,
     } else if (currentMenuLabelFAIcon[celIdx]) {
         ImGui::PushID((celIdx)*4+0);
         
-        auto bta = ImGui::GetStyle().ButtonTextAlign;
-        //hack related to gap between FAICON size and cell_size, to review if it can be better managed
-        if (cell_sizeH<cell_size) ImGui::GetStyle().ButtonTextAlign = ImVec2(0.5, 0.85);
-        else ImGui::GetStyle().ButtonTextAlign = ImVec2(0.5, 0.55);
-
-        ImGui::PushFont(font_menu_icon,idealFontSize*2.0f*glScaleFactor);
+        ImGui::PushFont(font_menu_icon,idealFontSize*2.0f*glScaleFactor*16.0/12.0);
         if (isActive) ret=ImGui::Button(faicon(currentMenuLabelFAIcon[celIdx]),ImVec2(cell_size, cell_sizeH));
         else ret=ImGui::Button(faicon(currentMenuLabelFAIcon[celIdx]),ImVec2(cell_size, cell_sizeH));
         ImGui::PopFont();
-        ImGui::GetStyle().ButtonTextAlign = bta;
         
         ImGui::PopID();
     }
@@ -796,7 +796,7 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
     GLuint *current_txtMenuHandle;
     const char **currentMenuLabel;
     char **currentMenuDynLabel;
-    const unsigned short *currentMenuLabelFAIcon;
+    unsigned short *currentMenuLabelFAIcon;
     void **currentMenuVar;
     
     cpt++;
@@ -1742,6 +1742,7 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
             ImGui::EndTable();
         }
     } else if (pMenu_state.menu_idx==MENU_PROJECTM_EXPLORE) {
+        int expandCollapseMode=0;
         ImGui::Text("Select active %s presets",(pmCurrentPlaylistMode==PM_BUNDLED_PLAYLIST?"bundled":"custom"));
         int col_nb=menuProjectMExploreColNb;
         if (ImGui::BeginTable("menu_ProjectM_Explore",col_nb,flagTable)) {
@@ -1779,6 +1780,7 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
                                 pMenu_PMPresetsSelAll(pmCurrentFileNode);
                                 break;
                             case 0x20: //Expand
+                                expandCollapseMode=1;
                                 break;
                             case 0x30:break;
                             case 0x40: //Refresh
@@ -1788,6 +1790,10 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
                                     pmCurrentFileNode=pmCustomPresetsFileNode;
                                 }
                                 [_mdzPM_playlist updateFileNodeStatus:pmCurrentFileNode];
+                                
+                                if (pmCurrentFileNode==pmCustomPresetsFileNode) [_mdzPM_Favorites updateFileNodeStatus:pmCurrentFileNode type:1];
+                                else [_mdzPM_Favorites updateFileNodeStatus:pmCurrentFileNode type:0];
+                                
                                 pMenu_PMInitTempData(pmCurrentFileNode);
                                 break;
                             case 0x50: //Apply
@@ -1803,6 +1809,7 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
                                 pMenu_PMPresetsRemFiltered(pmCurrentFileNode);
                                 break;
                             case 0x21: //Collapse
+                                expandCollapseMode=2;
                                 break;
                             case 0x31:break;
                             case 0x41: //Back to main menu
@@ -1838,10 +1845,13 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
             
             //update status consistency / tree
             pMenu_PMUpdateSelStatus(pmCurrentFileNode,FALSE,FALSE);
+            //update fav status consistency / tree
+            pMenu_PMUpdateFavStatus(pmCurrentFileNode,FALSE,FALSE);
             
             ImGui::PushStyleColor(ImGuiCol_Header, ImVec4(0.5f,0.4f,1.0f,0.9f));
             
-            index=pMenu_PMbuildDirTree(pmCurrentFileNode,index,filter);
+            index=pMenu_PMbuildDirTree(pmCurrentFileNode,index,filter,expandCollapseMode);
+            expandCollapseMode=0;  //Reset flag
             
             ImGui::PopStyleColor();
             
@@ -1873,7 +1883,7 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
     return keepOpened;
 }
 
-int pMenu_PMbuildDirTree(FileNode *fileNode, int idx,bool filter) {
+int pMenu_PMbuildDirTree(FileNode *fileNode, int idx,bool filter,int updExpandCollapse) {
     int flags_default=ImGuiTreeNodeFlags_SpanFullWidth;
     if (filter) {
         //open all nodes by default
@@ -1895,9 +1905,30 @@ int pMenu_PMbuildDirTree(FileNode *fileNode, int idx,bool filter) {
                 if (child.isSelected_Temp) flags|=ImGuiTreeNodeFlags_Selected;
                 
                 if ( !child.isFullySelected ) ImGui::PushStyleColor(ImGuiCol_Header, ImVec4(0.25f,0.2f,0.5f,0.9f));
-                bool node_open=ImGui::TreeNodeEx((void*)(intptr_t)idx++, flags, "%s",[[child name] UTF8String]);
+                
+                switch (updExpandCollapse) {
+                    default:
+                    case 0:break;
+                    case 1: //expand
+                        ImGui::SetNextItemOpen(true);
+                        break;
+                    case 2: //collapse
+                        ImGui::SetNextItemOpen(false);
+                        break;
+                }
+                
+                NSString *strNode;
+                if (child.isFavorite_Temp) {
+                    if (child.isFullyFavorite) strNode=[NSString stringWithFormat:@"%C%@",static_cast<unichar>(FA_HEART),[child name]];
+                    else strNode=[NSString stringWithFormat:@"%C%@",static_cast<unichar>(FA_HEART_O),[child name]];
+                }
+                else strNode=[NSString stringWithFormat:@"%@",[child name]];
+                
+                bool node_open=ImGui::TreeNodeEx((void*)(intptr_t)idx++, flags, "%s",[strNode UTF8String]);
                 
                 if ( !child.isFullySelected ) ImGui::PopStyleColor();
+                
+                
                 
                 if (!mouseMoveInProgress && ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen()) {
                     //Click detected
@@ -1910,7 +1941,7 @@ int pMenu_PMbuildDirTree(FileNode *fileNode, int idx,bool filter) {
                     child.shouldPropagateStatus=TRUE;
                 }
                 if (node_open) {
-                    idx=pMenu_PMbuildDirTree(child,idx,filter);
+                    idx=pMenu_PMbuildDirTree(child,idx,filter,updExpandCollapse);
                     ImGui::TreePop();
                 }
             }
@@ -1925,7 +1956,14 @@ int pMenu_PMbuildDirTree(FileNode *fileNode, int idx,bool filter) {
                 int flags=flags_default|ImGuiTreeNodeFlags_Leaf;
                 
                 if (child.isSelected_Temp) flags|=ImGuiTreeNodeFlags_Selected;
-                bool node_open=ImGui::TreeNodeEx((void*)(intptr_t)idx++, flags, "%s",[[child name] UTF8String]);
+                
+                NSString *strNode;
+                if (child.isFavorite_Temp) {
+                    strNode=[NSString stringWithFormat:@"%C%@",static_cast<unichar>(FA_HEART),[child name]];
+                }
+                else strNode=[NSString stringWithFormat:@"%@",[child name]];
+                
+                bool node_open=ImGui::TreeNodeEx((void*)(intptr_t)idx++, flags, "%s",[strNode UTF8String]);
                 if (!mouseMoveInProgress && ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen()) {
                     child.isSelected_Temp=!child.isSelected_Temp;
                 }
@@ -1937,6 +1975,57 @@ int pMenu_PMbuildDirTree(FileNode *fileNode, int idx,bool filter) {
     }
     return idx;
 }
+
+int pMenu_PMUpdateFavStatus(FileNode *fnode,bool propagateStatus,bool favStatus) {
+    int ret=0;
+    
+    if ( !fnode.isDirectory ) {
+        //Just a file, return favorite status
+        
+        if (propagateStatus) fnode.isFavorite_Temp=favStatus;
+        
+        if (fnode.isFavorite_Temp) {
+            ret=1;
+            fnode.isFullyFavorite=1;
+        } else fnode.isFullyFavorite=0;
+    } else {
+        //directory
+        bool partial=false;
+        
+        if (propagateStatus) {
+            fnode.isFavorite_Temp=favStatus;
+            fnode.shouldPropagateStatus=true;
+        }
+        
+        for (FileNode *child in fnode.children) {
+            if (pMenu_PMUpdateFavStatus(child,fnode.shouldPropagateStatus,fnode.isFavorite_Temp)) {
+                //Child is favorite, increase counted
+                ret++;
+            }
+            //check if child is partially favorite, if so propagate
+            if (!child.isFullyFavorite) partial=true;
+        }
+        //Update how many children are favorites
+        fnode.favoriteChildren = ret;
+        
+        //Remove propagate status
+        fnode.shouldPropagateStatus=false;
+        
+        //Update dir favorite flag
+        if (fnode.favoriteChildren==0) fnode.isFavorite_Temp = FALSE;
+        else fnode.isFavorite_Temp = TRUE;
+        
+        //Update fullyFavorite flag accordingly, depend on status of children / partially favorite or not
+        if (!partial && fnode.favoriteChildren==[fnode.children count]) {
+            //all are favorites
+            fnode.isFullyFavorite = TRUE;
+        } else {
+            fnode.isFullyFavorite = FALSE;
+        }
+    }
+    return ret;
+}
+
 
 int pMenu_PMUpdateSelStatus(FileNode *fnode,bool propagateStatus,bool selStatus) {
     int ret=0;
@@ -1988,6 +2077,8 @@ int pMenu_PMUpdateSelStatus(FileNode *fnode,bool propagateStatus,bool selStatus)
     return ret;
 }
 
+    
+    
 int pMenu_PMPresetsSelAll(FileNode *fnode) {
     int ret=0;
     fnode.isSelected_Temp=true;
@@ -2031,6 +2122,7 @@ int pMenu_PMPresetsRemFiltered(FileNode *fnode) {
 
 void pMenu_PMInitTempData(FileNode *fnode) {
     fnode.isSelected_Temp=fnode.isSelected;
+    fnode.isFavorite_Temp=fnode.isFavorite;
     for (FileNode *child in fnode.children) pMenu_PMInitTempData(child);
 }
 

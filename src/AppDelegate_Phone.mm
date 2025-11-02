@@ -56,7 +56,7 @@ pthread_mutex_t uade_mutex;
 pthread_mutex_t db_mutex;
 pthread_mutex_t download_mutex;
 pthread_mutex_t play_mutex;
-pthread_mutex_t shader_mutex;
+pthread_mutex_t gl_mutex;
 
 @implementation AppDelegate_Phone
 
@@ -196,8 +196,8 @@ pthread_mutex_t shader_mutex;
 		printf("cannot create play mutex");
 		return NO;
 	}
-    if (pthread_mutex_init(&shader_mutex,NULL)) {
-        printf("cannot create play mutex");
+    if (pthread_mutex_init(&gl_mutex,NULL)) {
+        printf("cannot create gl mutex");
         return NO;
     }
 	//sqlite3_enable_shared_cache(1);

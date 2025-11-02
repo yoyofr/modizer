@@ -264,6 +264,7 @@ enum MDZ_SETTINGS {
     GLOB_FXFPS,
     GLOB_FXSHOWINFO,
     GLOB_FXLOD,
+    GLOB_FX_LIMIT_SLOWFX,
         MDZ_SETTINGS_FAMILY_PROJECTM,
         PROJECTM_FXONOFF,
         PROJECTM_Quality,
@@ -283,7 +284,6 @@ enum MDZ_SETTINGS {
         PROJECTM_MeshSizeX,
         PROJECTM_MeshSizeY,
         PROJECTM_AspectRatio,
-        
         
         MDZ_SETTINGS_FAMILY_OSCILLO,
         OSCILLO_FXMODE,

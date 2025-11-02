@@ -149,6 +149,12 @@ typedef struct {
     for (FileNode *child in _children) [child clearSelected];
 }
 
+- (void)clearFavorites {
+    _isFavorite=false;
+    for (FileNode *child in _children) [child clearFavorites];
+}
+
+
 - (NSArray<FileNode *> *)getFilesArray {
     NSMutableArray<FileNode *> *result = [NSMutableArray array];
     [self flattenFileNode:self intoArray:result];
@@ -194,6 +200,32 @@ typedef struct {
         }
     }
 }
+
+- (void)setFavoritesFromFL:(NSArray *)orderedFL {
+    //Build an array of FileNode to update
+    NSArray *fnodes=[self getFilesArray];
+    
+    int posFL=0;
+    int sizeFL=(int)[orderedFL count];
+    if (!sizeFL) return;
+    NSString *flPath=[[orderedFL objectAtIndex:posFL] substringFromIndex:3];
+    for (FileNode *node in fnodes) {
+        NSString *filePath=[node.localpath substringFromIndex:2];
+        if ([filePath isEqualToString:flPath]) {
+            //file is matching FL entry, move to next PL entry
+            node.isFavorite=true;
+            posFL++;
+            if (posFL>=sizeFL) break;
+            flPath=[orderedFL objectAtIndex:posFL];
+        } else while ([filePath  caseInsensitiveCompare:flPath]==NSOrderedDescending){
+            //file is after fl entry, move fl entry to next one
+            posFL++;
+            if (posFL>=sizeFL) break;
+            flPath=[[orderedFL objectAtIndex:posFL] substringFromIndex:3];
+        }
+    }
+}
+
 
 @end
 
@@ -410,6 +442,14 @@ code_4=a=1.0;\n\
         FileNode *item=[_items objectAtIndex:_position];
         _curEntryLbl = [NSString stringWithFormat:@"(%d/%d) %@",_position+1,_size,item.name];
     }
+}
+- (void)removeCurEntry {
+    if (_size==0) return;
+    [self remove:_position];
+}
+- (void)loadCurEntry {
+    if (_size==0) [self loadIdlePreset];
+    [self loadCurrentPreset:true];
 }
 
 - (void)clear {
@@ -731,9 +771,15 @@ code_4=a=1.0;\n\
     if ([path length]<4) return;
     if ([path characterAtIndex:1]=='B') {
         [_bundlePresets addObject:path];
+        [_bundlePresets sortUsingComparator:^NSComparisonResult(NSString *str1, NSString *str2) {
+            return [str1 caseInsensitiveCompare:str2];
+        }];
     }
     if ([path characterAtIndex:1]=='C') {
         [_customPresets addObject:path];
+        [_bundlePresets sortUsingComparator:^NSComparisonResult(NSString *str1, NSString *str2) {
+            return [str1 caseInsensitiveCompare:str2];
+        }];
     }
 }
 
@@ -761,15 +807,36 @@ code_4=a=1.0;\n\
 }
 
 - (int)favoritesTotalSize {
-    return [_bundlePresets count]+[_customPresets count];
+    return (int)[_bundlePresets count]+[_customPresets count];
 }
 - (int)favoritesBundleSize {
-    return [_bundlePresets count];
+    return (int)[_bundlePresets count];
 }
 - (int)favoritesCustomSize {
-    return [_customPresets count];
+    return (int)[_customPresets count];
 }
 
+- (void)updateFileNodeStatus:(FileNode*)fnode type:(int)type {
+    [self listFavorites];
+    [fnode clearFavorites];
+    if ( (type==MDZ_PLAYLIST_FNODE_Bundle) && ([_bundlePresets count]) ) [fnode setFavoritesFromFL:[_bundlePresets array]];
+    if ( (type==MDZ_PLAYLIST_FNODE_Custom) && ([_customPresets count]) ) [fnode setFavoritesFromFL:[_customPresets array]];
+}
+
+- (void)listFavorites {
+    MDZILog("====================")
+    MDZILog("=== Bundle favorites")
+    MDZILog("====================")
+    for (NSString *str in _bundlePresets) {
+        MDZILog("%@",str)
+    }
+    MDZILog("====================")
+    MDZILog("=== Custom favorites")
+    MDZILog("====================")
+    for (NSString *str in _customPresets) {
+        MDZILog("%@",str)
+    }
+}
 
 - (int)loadFavorites {
     int missing_counter=0;
@@ -840,6 +907,15 @@ code_4=a=1.0;\n\
     if (missing_counter) {
         MDZILog("PM favorites/Loading: %d entries are missing in filesystem",missing_counter)
     }
+    
+    //Sort arrays, in case something went wrong earlier
+    [_bundlePresets sortUsingComparator:^NSComparisonResult(NSString *str1, NSString *str2) {
+        return [str1 caseInsensitiveCompare:str2];
+    }];
+    [_customPresets sortUsingComparator:^NSComparisonResult(NSString *str1, NSString *str2) {
+        return [str1 caseInsensitiveCompare:str2];
+    }];
+    
     return missing_counter;
 }
 - (int)saveFavorites {

@@ -6,6 +6,10 @@
 //  Copyright __YoyoFR / Yohann Magnien__ 2010. All rights reserved.
 //
 
+#define PM_FRAMETIME_LIMIT (1000.0f/10.0f) // max allowed frame time in ms, if regularly above, PM will be deactivated
+#define PM_FRAMETIME_LIMIT_WEAK 100 //Max slow frames allowed for 'weak' mode
+#define PM_FRAMETIME_LIMIT_STRONG 10 //Max slow frames allowed for 'strong' mode
+
 #define POPUP_STYLE_INFO 0
 #define POPUP_STYLE_ALERT 1
 
@@ -32,9 +36,6 @@
 #define SHOWINFO_FXFRAME_COLOR 223.0/255.0,176.0/255.0,173.0/255.0
 #define SHOWINFO_FXFRAMEINFO_COLOR 253.0/255.0,253.0/255.0,253.0/255.0
 
-#define PM_FRAMETIME_LIMIT (1000.0f/15.0f) // max allowed frame time in ms, if regularly above, PM will be deactivated
-#define PM_FRAMETIME_LIMIT_COUNTERMAX 30
-
 extern unsigned int mdzRenderbuffer;
 
 int mdz_pmMilkPermissiveEvalCode;
@@ -59,7 +60,6 @@ int MIDIFX_OFS;
 
 #include <pthread.h>
 extern pthread_mutex_t db_mutex;
-extern pthread_mutex_t shader_mutex;
 
 #import "SysMonitoring.h"
 
@@ -930,8 +930,6 @@ bool sysMonitorIsActive;
             [msgAlert addAction:userAction];
         }
     }
-    
-    
     
     [self showAlert:msgAlert];
 }
@@ -5136,11 +5134,9 @@ void buildPresetDirStructure() {
     
     mdz_pmMilkPermissiveEvalCode=settings[PROJECTM_PermmissiveMode].detail.mdz_boolswitch.switch_value;
     
-    pthread_mutex_lock(&shader_mutex);
     _pm = projectm_create();
     if (!_pm) {
         MDZELog("cannot create projectM instance");
-        pthread_mutex_unlock(&shader_mutex);
         return;
     }
     
@@ -5157,6 +5153,8 @@ void buildPresetDirStructure() {
     if ([_mdzPM_playlist getSize]) {
         [_mdzPM_playlist updateFileNodeStatus:pmBundledPresetsFileNode];
         [_mdzPM_playlist updateFileNodeStatus:pmCustomPresetsFileNode];
+        [_mdzPM_Favorites updateFileNodeStatus:pmBundledPresetsFileNode type:0];
+        [_mdzPM_Favorites updateFileNodeStatus:pmCustomPresetsFileNode type:1];
     }
     
     [_mdzPM_playlist setShuffle:settings[PROJECTM_AutoSwitchPresetsMode].detail.mdz_switch.switch_value];
@@ -5215,8 +5213,6 @@ void buildPresetDirStructure() {
     }
     
     _pmPresetHasChanged=true;
-    
-    pthread_mutex_unlock(&shader_mutex);
 }
 
 - (void) reinitVisuVars {
@@ -6410,7 +6406,7 @@ static void calcFps()
 
     m_nAverageFpsCounter++;
     m_nAverageFpsSum+=m_nFps;
-    if (m_nAverageFpsCounter >= 60) // calculate average FPS
+    if (m_nAverageFpsCounter >= 20) // calculate average FPS
     {
         m_nAverageFps = round(m_nAverageFpsSum/m_nAverageFpsCounter);
         m_nAverageFpsCounter = 0;
@@ -6427,11 +6423,389 @@ void menuInterpolValue(float &curValue,float startValue,float tgtValue) {
         float incr=round(diff/20.0)+2;
         curValue+=incr;
         if (curValue>tgtValue) curValue=tgtValue;
+        if (curValue<0) curValue=0;
     } else if (diff<0) {
         diff=curValue-startValue;
         float decr=round(diff/20.0)-2;
+        if (decr>=0) decr=-2;
         curValue+=decr;
         if (curValue<tgtValue) curValue=tgtValue;
+        if (curValue>startValue) curValue=startValue;
+    }
+}
+
+- (void)frameTooSlow {
+    settings[PROJECTM_FXONOFF].detail.mdz_boolswitch.switch_value=false;
+    
+    UIAlertController *msgAlert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Warning",@"")
+                                   message:NSLocalizedString(@"FX too slow.\nProjectM FX has been deactivated.\nPlease consider choosing less complex presets and/or reduce resolution.",@"")
+                                   preferredStyle:UIAlertControllerStyleAlert];
+    
+    UIAlertAction* moveToNext = [UIAlertAction actionWithTitle:NSLocalizedString(@"Move to next",@"") style:UIAlertActionStyleDefault
+       handler:^(UIAlertAction * action) {
+        [_mdzPM_playlist next:true];
+        settings[PROJECTM_FXONOFF].detail.mdz_boolswitch.switch_value=true;
+        }];
+    [msgAlert addAction:moveToNext];
+    
+    UIAlertAction* remAndNext = [UIAlertAction actionWithTitle:NSLocalizedString(@"Remove preset and move to next",@"") style:UIAlertActionStyleDefault
+       handler:^(UIAlertAction * action) {
+        [_mdzPM_playlist removeCurEntry];
+        [_mdzPM_playlist loadCurEntry];
+        settings[PROJECTM_FXONOFF].detail.mdz_boolswitch.switch_value=true;
+        }];
+    [msgAlert addAction:remAndNext];
+    
+    UIAlertAction* closeAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Ok",@"") style:UIAlertActionStyleDefault
+       handler:^(UIAlertAction * action) {
+        }];
+    [msgAlert addAction:closeAction];
+    
+    [self presentViewController:msgAlert animated:YES completion:nil];
+}
+
+void doFramePM(float ww,float hh) {
+    if (!_pmIsInitialized) return; //PRojectM might still be initializing and calling some opengl stuff from background thread
+    
+    /*-------------------------------------------------------------------------------*/
+    /*  ProjectM render */
+    /*-------------------------------------------------------------------------------*/
+    if (_pmIsInitialized && _pm && settings[PROJECTM_FXONOFF].detail.mdz_boolswitch.switch_value) {
+        size_t currentMeshX{0};
+        size_t currentMeshY{0};
+        
+        meshX=round(settings[PROJECTM_MeshSizeX].detail.mdz_slider.slider_value/2)*2;
+        if (meshX<8) meshX=8;if (meshX>128) meshX=128;
+        meshY=round(settings[PROJECTM_MeshSizeY].detail.mdz_slider.slider_value/2)*2;
+        if (meshY<6) meshY=6;if (meshY>96) meshY=96;
+        
+        projectm_get_mesh_size(_pm, &currentMeshX, &currentMeshY);
+        if (currentMeshX != meshX || currentMeshY != meshY) {
+            projectm_set_mesh_size(_pm, meshX, meshY);
+        }
+        
+        size_t canvasWidth;
+        size_t canvasHeight;
+        projectm_get_window_size(_pm, &canvasWidth, &canvasHeight);
+        
+        float _pmScaleFactor=1<<settings[PROJECTM_Quality].detail.mdz_switch.switch_value;;
+        _pmCanvasWidth=ww*glScaleFactor/_pmScaleFactor;
+        _pmCanvasHeight=hh*glScaleFactor/_pmScaleFactor;
+        
+        if ((_pmCanvasWidth!=canvasWidth) || (_pmCanvasHeight!=canvasHeight)) projectm_set_window_size(_pm, _pmCanvasWidth, _pmCanvasHeight);
+        
+       
+        int sample_count=(settings[GLOB_FXFPS].detail.mdz_switch.switch_value?735:735*2);
+        projectm_pcm_add_int16(_pm,(const int16_t*)pmBuffer,sample_count,PROJECTM_STEREO);
+        
+        
+        
+        if ( (_pmCanvasWidth==(ww*glScaleFactor)) && (_pmCanvasHeight==(hh*glScaleFactor)) ) {
+            //Max Quality, screen resolution
+            //Render directly to screen
+            projectm_opengl_render_frame(_pm);
+        } else {
+            //reduced Quality
+            //Render to a texture and then display it
+            RenderUtils::startRenderToTexture(_pmCanvasWidth,_pmCanvasHeight);
+            projectm_opengl_render_frame_fbo(_pm,mdzRenderbuffer);
+            RenderUtils::endRenderToTexture(ww*glScaleFactor,hh*glScaleFactor,0);
+        }
+        
+        projectm_set_fps(_pm, m_nAverageFps);
+    }
+    /*-------------------------------------------------------------------------------*/
+}
+
+- (void)showInfoData:(ImVec2)winsize frameToUpdate:(int)frameToUpdate{
+    float ww=winsize.x;
+    float hh=winsize.y;
+    if (!sysMonitorIsActive) {
+        [sysMonitor startMonitoring];
+        sysMonitorIsActive=true;
+    }
+    float cpuUsage=sysMonitor.cpuUsage;
+    
+    float winsizeX,winsizeY;
+    static float cur_winSizeX=0;
+    static float cur_winSizeY=0;
+
+    static float startX=0,startY=0;
+    static int switchPrevValue=0;
+    if (switchPrevValue!=settings[GLOB_FXSHOWINFO].detail.mdz_switch.switch_value) {
+        switchPrevValue=settings[GLOB_FXSHOWINFO].detail.mdz_switch.switch_value;
+        startX=cur_winSizeX;
+        startY=cur_winSizeY;
+    }
+    switch (settings[GLOB_FXSHOWINFO].detail.mdz_switch.switch_value) {
+        case 0:winsizeX=0;winsizeY=0;break;
+        case 1:winsizeX=68;winsizeY=SHOWINFO_SECTION1_SIZE;break;
+        case 2:winsizeX=80;winsizeY=SHOWINFO_SECTION2_SIZE;break;
+        case 3:winsizeX=80;winsizeY=hh;break;
+        default:winsizeX=0;winsizeY=0;break;
+    }
+    for (int i=0;i<frameToUpdate;i++) {
+        menuInterpolValue(cur_winSizeX,startX,winsizeX);
+        menuInterpolValue(cur_winSizeY,startY,winsizeY);
+    }
+    if ( (cur_winSizeX!=0) || (cur_winSizeY!=0) ) {
+        
+        ImGui::SetNextWindowPos(ImVec2((ww-cur_winSizeX)*glScaleFactor,0));
+        ImGui::SetNextWindowSize(ImVec2(cur_winSizeX*glScaleFactor,cur_winSizeY*glScaleFactor));
+        
+        ImGui::PushStyleColor(ImGuiCol_WindowBg,ImVec4(0,0,0,0.5));
+        ImGui::PushStyleColor(ImGuiCol_Border,ImVec4(0,0,0,0));
+        
+        float txtAlpha=(SHOWINFO_SECTION1_SIZE-(cur_winSizeY-0))/(SHOWINFO_SECTION1_SIZE);
+        if (txtAlpha<0) txtAlpha=0;
+        if (txtAlpha>1) txtAlpha=1;
+        txtAlpha=1-txtAlpha;
+        float txtAlphaX=cur_winSizeX/68.0;
+        if (txtAlphaX>1) txtAlphaX=1;
+        txtAlphaX*=txtAlphaX;
+        txtAlpha*=txtAlphaX;
+
+        
+        ImGui::GetStyle().Alpha=1.0;
+        if (font_menu) ImGui::PushFont(font_menu,FONTSIZE_SHOWINFO_FPS*glScaleFactor);
+        else ImGui::PushFont(nullptr);
+        
+        ImGui::Begin("Info",0,
+                     ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoScrollbar|ImGuiWindowFlags_NoFocusOnAppearing
+                     );
+        char strTmp[32];
+        float posx,posy=0;
+        ImVec2 sizeText;
+        //FPS
+        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(SHOWINFO_FPS_COLOR,txtAlpha));
+        ImGui::SetCursorPos(ImVec2(2,posy));
+        ImGui::Text("FPS");
+        snprintf(strTmp,32,"%d",m_nAverageFps);
+        sizeText=ImGui::CalcTextSize(strTmp);
+        posx=sizeText.x+8;
+        posy=0;
+        ImGui::SetCursorPos(ImVec2(cur_winSizeX*glScaleFactor-posx,posy));
+        ImGui::Text("%s",strTmp);
+        posy+=sizeText.y+2;
+        if (cur_winSizeY>SHOWINFO_SECTION1_SIZE) {
+            txtAlpha=(SHOWINFO_SECTION2_SIZE-SHOWINFO_SECTION1_SIZE-(cur_winSizeY-SHOWINFO_SECTION1_SIZE))/(SHOWINFO_SECTION2_SIZE-SHOWINFO_SECTION1_SIZE);
+            if (txtAlpha<0) txtAlpha=0;
+            if (txtAlpha>1) txtAlpha=1;
+            txtAlpha=1-txtAlpha;
+            txtAlpha*=txtAlphaX;
+            
+            //smaller font
+            if (font_menu) ImGui::PushFont(font_menu,FONTSIZE_SHOWINFO_DETAILS*glScaleFactor);
+            else ImGui::PushFont(nullptr);
+            //CPU
+            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(SHOWINFO_CPU_COLOR,txtAlpha));
+            ImGui::SetCursorPos(ImVec2(2,posy));
+            ImGui::Text("CPU");
+            snprintf(strTmp,32,"%.2f%%",cpuUsage);
+            sizeText=ImGui::CalcTextSize(strTmp);
+            posx=sizeText.x+8;
+            ImGui::SetCursorPos(ImVec2(cur_winSizeX*glScaleFactor-posx,posy));
+            ImGui::Text("%s",strTmp);
+            ImGui::PopStyleColor();
+            posy+=sizeText.y+2;
+            
+            if (cur_winSizeY>SHOWINFO_SECTION2_SIZE) {
+                txtAlpha=(hh-SHOWINFO_SECTION2_SIZE-(cur_winSizeY-SHOWINFO_SECTION2_SIZE))/(hh-SHOWINFO_SECTION2_SIZE);
+                if (txtAlpha<0) txtAlpha=0;
+                if (txtAlpha>1) txtAlpha=1;
+                txtAlpha=1-txtAlpha;
+                txtAlpha*=txtAlphaX;
+                
+                posy+=sizeText.y+6;
+                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(SHOWINFO_FXVIEW_COLOR,txtAlpha));
+                ImGui::SetCursorPos(ImVec2(2,posy));
+                ImGui::Text("FX View");
+                posy+=sizeText.y+4;
+                ImGui::PopStyleColor();
+                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(SHOWINFO_FXVIEWRES_COLOR,txtAlpha));
+                //Resolution
+                ImGui::Text("R");
+                snprintf(strTmp,32,"%.0fx%.0f",ww*glScaleFactor,hh*glScaleFactor);
+                sizeText=ImGui::CalcTextSize(strTmp);
+                posx=sizeText.x+8;
+                ImGui::SetCursorPos(ImVec2(cur_winSizeX*glScaleFactor-posx,posy));
+                ImGui::Text("%s",strTmp);
+                posy+=sizeText.y+2;
+                //Viewport
+                ImGui::SetCursorPos(ImVec2(2,posy));
+                ImGui::Text("V");
+                snprintf(strTmp,32,"%dx%d",ww,hh);
+                sizeText=ImGui::CalcTextSize(strTmp);
+                posx=sizeText.x+8;
+                ImGui::SetCursorPos(ImVec2(cur_winSizeX*glScaleFactor-posx,posy));
+                ImGui::Text("%s",strTmp);
+                ImGui::PopStyleColor();
+                posy+=sizeText.y+2;
+                
+                float devWW,devHH;
+                CGSize screenSize;
+                for (UIScene *scene in UIApplication.sharedApplication.connectedScenes) {
+                    if ([scene isKindOfClass:[UIWindowScene class]]) {
+                        UIWindowScene *wscene=(UIWindowScene *)scene;
+                        for (UIWindow *win in wscene.windows) {
+                            if (win.keyWindow) {
+                                screenSize=win.screen.bounds.size;
+                            }
+                        }
+                    }
+                }
+                devWW=screenSize.width*glScaleFactor;
+                devHH=screenSize.height*glScaleFactor;
+                
+                posy+=sizeText.y+6;
+                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(SHOWINFO_DEVICE_COLOR,txtAlpha));
+                ImGui::SetCursorPos(ImVec2(2,posy));
+                ImGui::Text("Device");
+                posy+=sizeText.y+4;
+                ImGui::PopStyleColor();
+                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(SHOWINFO_DEVICERES_COLOR,txtAlpha));
+                ImGui::SetCursorPos(ImVec2(2,posy));
+                ImGui::Text("R");
+                snprintf(strTmp,32,"%.0fx%.0f",devWW,devHH);
+                sizeText=ImGui::CalcTextSize(strTmp);
+                posx=sizeText.x+8;
+                ImGui::SetCursorPos(ImVec2(cur_winSizeX*glScaleFactor-posx,posy));
+                ImGui::Text("%s",strTmp);
+                posy+=sizeText.y+2;
+                
+                ImGui::SetCursorPos(ImVec2(2,posy));
+                ImGui::Text("V");
+                snprintf(strTmp,32,"%.0fx%.0f",devWW/glScaleFactor,devHH/glScaleFactor);
+                sizeText=ImGui::CalcTextSize(strTmp);
+                posx=sizeText.x+8;
+                ImGui::SetCursorPos(ImVec2(cur_winSizeX*glScaleFactor-posx,posy));
+                ImGui::Text("%s",strTmp);
+                posy+=sizeText.y+2;
+                ImGui::PopStyleColor();
+                
+                posy+=sizeText.y+6;
+                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(SHOWINFO_PM_COLOR,txtAlpha));
+                //ProjectM info
+                ImGui::SetCursorPos(ImVec2(2,posy));
+                ImGui::Text("ProjectM");
+                posy+=sizeText.y+4;
+                //Internal PM resolution
+                ImGui::PopStyleColor();
+                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(SHOWINFO_PMRES_COLOR,txtAlpha));
+                ImGui::SetCursorPos(ImVec2(2,posy));
+                ImGui::Text("R");
+                snprintf(strTmp,32,"%dx%d",_pmCanvasWidth,_pmCanvasHeight);
+                sizeText=ImGui::CalcTextSize(strTmp);
+                posx=sizeText.x+8;
+                ImGui::SetCursorPos(ImVec2(cur_winSizeX*glScaleFactor-posx,posy));
+                ImGui::Text("%s",strTmp);
+                posy+=sizeText.y+4;
+                ImGui::SetCursorPos(ImVec2(2,posy));
+                ImGui::Text("V");
+                snprintf(strTmp,32,"%dx%d",(int)(_pmCanvasWidth/glScaleFactor),(int)(_pmCanvasHeight/glScaleFactor));
+                sizeText=ImGui::CalcTextSize(strTmp);
+                posx=sizeText.x+8;
+                ImGui::SetCursorPos(ImVec2(cur_winSizeX*glScaleFactor-posx,posy));
+                ImGui::Text("%s",strTmp);
+                posy+=sizeText.y+4;
+                
+                ImGui::SetCursorPos(ImVec2(2,posy));
+                ImGui::Text("Mesh");
+                snprintf(strTmp,32,"%.0fx%.0f",
+                         settings[PROJECTM_MeshSizeX].detail.mdz_slider.slider_value,
+                         settings[PROJECTM_MeshSizeY].detail.mdz_slider.slider_value);
+                sizeText=ImGui::CalcTextSize(strTmp);
+                posx=sizeText.x+8;
+                ImGui::SetCursorPos(ImVec2(cur_winSizeX*glScaleFactor-posx,posy));
+                ImGui::Text("%s",strTmp);
+                posy+=sizeText.y+4;
+                
+                posy+=sizeText.y+4;
+                //PM audio data
+                ImGui::PopStyleColor();
+                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(SHOWINFO_PMAUDIO_COLOR,txtAlpha));
+                ImGui::SetCursorPos(ImVec2(2,posy));
+                ImGui::Text("Bass");
+                
+                float bassAttr,midAttr,trebAttr,volAttr;
+                bassAttr=midAttr=trebAttr=volAttr=0;;
+                if (_pm) projectm_get_audio_vars(_pm,&bassAttr,&midAttr,&trebAttr,&volAttr);
+
+                
+                snprintf(strTmp,32,"%1.2f",bassAttr);
+                sizeText=ImGui::CalcTextSize(strTmp);
+                posx=sizeText.x+8;
+                ImGui::SetCursorPos(ImVec2(cur_winSizeX*glScaleFactor-posx,posy));
+                ImGui::Text("%s",strTmp);
+                posy+=sizeText.y+2;
+                
+                ImGui::SetCursorPos(ImVec2(2,posy));
+                ImGui::Text("Mid");
+                snprintf(strTmp,32,"%1.2f",midAttr);
+                sizeText=ImGui::CalcTextSize(strTmp);
+                posx=sizeText.x+8;
+                ImGui::SetCursorPos(ImVec2(cur_winSizeX*glScaleFactor-posx,posy));
+                ImGui::Text("%s",strTmp);
+                posy+=sizeText.y+2;
+                
+                ImGui::SetCursorPos(ImVec2(2,posy));
+                ImGui::Text("Treb");
+                snprintf(strTmp,32,"%1.2f",trebAttr);
+                sizeText=ImGui::CalcTextSize(strTmp);
+                posx=sizeText.x+8;
+                ImGui::SetCursorPos(ImVec2(cur_winSizeX*glScaleFactor-posx,posy));
+                ImGui::Text("%s",strTmp);
+                posy+=sizeText.y+2;
+                
+                ImGui::SetCursorPos(ImVec2(2,posy));
+                ImGui::Text("Vol");
+                snprintf(strTmp,32,"%1.2f",volAttr);
+                sizeText=ImGui::CalcTextSize(strTmp);
+                posx=sizeText.x+8;
+                ImGui::SetCursorPos(ImVec2(cur_winSizeX*glScaleFactor-posx,posy));
+                ImGui::Text("%s",strTmp);
+                posy+=sizeText.y+2;
+                
+                posy+=sizeText.y+6;
+                //FX Frame info
+                ImGui::PopStyleColor();
+                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(SHOWINFO_FXFRAME_COLOR,txtAlpha));
+                ImGui::SetCursorPos(ImVec2(2,posy));
+                ImGui::Text("FX Frame");
+                posy+=sizeText.y+4;
+                ImGui::PopStyleColor();
+                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(SHOWINFO_FXFRAMEINFO_COLOR,txtAlpha));
+                ImGui::SetCursorPos(ImVec2(2,posy));
+                ImGui::Text("Exec");
+                snprintf(strTmp,32,"%.1fms",_fx_frame_time);
+                sizeText=ImGui::CalcTextSize(strTmp);
+                posx=sizeText.x+8;
+                ImGui::SetCursorPos(ImVec2(cur_winSizeX*glScaleFactor-posx,posy));
+                ImGui::Text("%s",strTmp);
+                posy+=sizeText.y+2;
+                
+                ImGui::SetCursorPos(ImVec2(2,posy));
+                ImGui::Text("Slow");
+                snprintf(strTmp,32,"%d",_fx_frame_timeOverLimitCounter);
+                sizeText=ImGui::CalcTextSize(strTmp);
+                posx=sizeText.x+8;
+                ImGui::SetCursorPos(ImVec2(cur_winSizeX*glScaleFactor-posx,posy));
+                ImGui::Text("%s",strTmp);
+                posy+=sizeText.y+2;
+                
+                ImGui::PopStyleColor();
+                
+            }
+            ImGui::PopFont();
+        }
+        ImGui::PopStyleColor();
+        
+        
+        ImGui::End();
+        ImGui::PopFont();
+        
+        ImGui::PopStyleColor();
+        ImGui::PopStyleColor();
     }
 }
 
@@ -6460,14 +6834,12 @@ void menuInterpolValue(float &curValue,float startValue,float tgtValue) {
     static float spectrum_rotx=0;
     static float spectrum_roty=0;
     float fxalpha;
-    static int frameToUpdate=0;
+    int frameToUpdate=0;
     int shouldGoToSettings=0;
     
     if (mBackground) return;
     
     if (!_pmIsInitialized) return; //PRojectM might still be initializing and calling some opengl stuff from background thread
-    
-    frameToUpdate++;
     
     if (no_reentrant) {
         MDZELog("reentering doFrame");
@@ -6507,9 +6879,7 @@ void menuInterpolValue(float &curValue,float startValue,float tgtValue) {
     ww=m_oglView.frame.size.width;
     hh=m_oglView.frame.size.height;
     
-    //    if (frameToUpdate>1) printf("frame: %d\n",frameToUpdate);
-    
-    
+    CFTimeInterval _fx_start_time=CFAbsoluteTimeGetCurrent();
     CFTimeInterval curFrameStartTime=CFAbsoluteTimeGetCurrent();
     if (tgtFrameStartTime==0) {
         tgtFrameStartTime=curFrameStartTime;
@@ -6523,19 +6893,18 @@ void menuInterpolValue(float &curValue,float startValue,float tgtValue) {
         tgtFrameStartTime=curFrameStartTime;
     }
     
-    
     //tgtFrameCnt=0;
-    
-    while (frameToUpdate) {
+    int frameToUpdateTmp=frameToUpdate;
+    while (frameToUpdateTmp) {
         RenderUtils::UpdateDataMidiFX(tim_notes_cpy[[mplayer getCurrentGenBufferIdx]],clearAudioFXbuffer,mPaused);
         RenderUtils::UpdateDataPiano(tim_notes_cpy[[mplayer getCurrentGenBufferIdx]],clearAudioFXbuffer,mPaused);
-        frameToUpdate--;
+        frameToUpdateTmp--;
     }
     clearAudioFXbuffer=false;
     
     calcFps();
     
-    CFTimeInterval _fx_start_time=CFAbsoluteTimeGetCurrent();
+    
     
     if (settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value) {
         //cover_viewBG.layer.zPosition=MAXFLOAT-10;
@@ -6554,6 +6923,43 @@ void menuInterpolValue(float &curValue,float startValue,float tgtValue) {
     glClearColor(0.0f, 0.0f , 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
     
+    /*------------------------------------------------*/
+    // Feed buffer for ProjectM
+    if ([mplayer isPlaying]){
+        short int **snd_buffer;
+        int cur_pos,prev_pos;
+        snd_buffer=[mplayer buffer_ana_cpy];
+        cur_pos=[mplayer getCurrentPlayedBufferIdx];
+        short int *curBuffer=snd_buffer[cur_pos];
+        
+        int sample_count=(settings[GLOB_FXFPS].detail.mdz_switch.switch_value?735:735*2);
+        
+        pmBufferPosWrite=0;
+        
+        if ([mplayer isPaused]) {
+            for (int i=0;i<sample_count;i++) {
+                pmBuffer[pmBufferPosWrite++]=0;
+                pmBuffer[pmBufferPosWrite++]=0;
+                if (pmBufferPosWrite>=PM_BUFFER_SIZE*2) pmBufferPosWrite=0;
+            }
+        } else {
+            int posBuff=0;
+            for (int i=0;i<sample_count;i++) {
+                pmBuffer[pmBufferPosWrite++]=curBuffer[posBuff*2];
+                pmBuffer[pmBufferPosWrite++]=curBuffer[posBuff*2+1];
+                if (pmBufferPosWrite>=PM_BUFFER_SIZE*2) pmBufferPosWrite=0;
+                posBuff++;
+                if (posBuff>=SOUND_BUFFER_SIZE_SAMPLE) {
+                    posBuff=0;
+                    cur_pos++;
+                    if (cur_pos>=SOUND_BUFFER_NB) cur_pos=0;
+                    curBuffer=snd_buffer[cur_pos];
+                }
+            }
+        }
+    }
+    /*----------------------------------------------------*/
+    
     //-----------------------------------
     // ImGui
     //-----------------------------------
@@ -6566,13 +6972,13 @@ void menuInterpolValue(float &curValue,float startValue,float tgtValue) {
         imgui_event.event_type=IMGUI_IOS_Event_Tap_1;
         imgui_event.pos_x=oglTapX*glScaleFactor;
         imgui_event.pos_y=oglTapY*glScaleFactor;
-        projectm_touch(_pm, imgui_event.pos_x,imgui_event.pos_y, 1, PROJECTM_TOUCH_TYPE_RANDOM);
+        //projectm_touch(_pm, imgui_event.pos_x,imgui_event.pos_y, 1, PROJECTM_TOUCH_TYPE_RANDOM);
     }
     if (panGesture1Tap) {
         imgui_event.event_type=IMGUI_IOS_Event_MouseMove;
         imgui_event.pos_x=(movePx+startPx)*glScaleFactor;
         imgui_event.pos_y=(movePy+startPy)*glScaleFactor;
-        projectm_touch_drag(_pm, imgui_event.pos_x,imgui_event.pos_y, 1);
+        //projectm_touch_drag(_pm, imgui_event.pos_x,imgui_event.pos_y, 1);
     }
     
         
@@ -6589,85 +6995,7 @@ void menuInterpolValue(float &curValue,float startValue,float tgtValue) {
     /*-------------------------------------------------------------------------------*/
     /*  ProjectM render */
     /*-------------------------------------------------------------------------------*/
-    if (_pmIsInitialized && _pm && settings[PROJECTM_FXONOFF].detail.mdz_boolswitch.switch_value) {
-        size_t currentMeshX{0};
-        size_t currentMeshY{0};
-        
-        meshX=round(settings[PROJECTM_MeshSizeX].detail.mdz_slider.slider_value/2)*2;
-        if (meshX<8) meshX=8;if (meshX>128) meshX=128;
-        meshY=round(settings[PROJECTM_MeshSizeY].detail.mdz_slider.slider_value/2)*2;
-        if (meshY<6) meshY=6;if (meshY>96) meshY=96;
-        
-        projectm_get_mesh_size(_pm, &currentMeshX, &currentMeshY);
-        if (currentMeshX != meshX || currentMeshY != meshY) {
-            projectm_set_mesh_size(_pm, meshX, meshY);
-        }
-        
-        size_t canvasWidth;
-        size_t canvasHeight;
-        projectm_get_window_size(_pm, &canvasWidth, &canvasHeight);
-        
-        float _pmScaleFactor=1<<settings[PROJECTM_Quality].detail.mdz_switch.switch_value;;
-        _pmCanvasWidth=m_oglView.frame.size.width*glScaleFactor/_pmScaleFactor;
-        _pmCanvasHeight=m_oglView.frame.size.height*glScaleFactor/_pmScaleFactor;
-        
-        if ((_pmCanvasWidth!=canvasWidth) || (_pmCanvasHeight!=canvasHeight)) projectm_set_window_size(_pm, _pmCanvasWidth, _pmCanvasHeight);
-        
-        /*------------------------------------------------*/
-        // Feed buffer for ProjectM
-        if ([mplayer isPlaying]){
-            short int **snd_buffer;
-            int cur_pos,prev_pos;
-            snd_buffer=[mplayer buffer_ana_cpy];
-            cur_pos=[mplayer getCurrentPlayedBufferIdx];
-            short int *curBuffer=snd_buffer[cur_pos];
-            
-            int sample_count=(settings[GLOB_FXFPS].detail.mdz_switch.switch_value?735:735*2);
-            
-            pmBufferPosWrite=0;
-            
-            if ([mplayer isPaused]) {
-                for (int i=0;i<sample_count;i++) {
-                    pmBuffer[pmBufferPosWrite++]=0;
-                    pmBuffer[pmBufferPosWrite++]=0;
-                    if (pmBufferPosWrite>=PM_BUFFER_SIZE*2) pmBufferPosWrite=0;
-                }
-            } else {
-                int posBuff=0;
-                for (int i=0;i<sample_count;i++) {
-                    pmBuffer[pmBufferPosWrite++]=curBuffer[posBuff*2];
-                    pmBuffer[pmBufferPosWrite++]=curBuffer[posBuff*2+1];
-                    if (pmBufferPosWrite>=PM_BUFFER_SIZE*2) pmBufferPosWrite=0;
-                    posBuff++;
-                    if (posBuff>=SOUND_BUFFER_SIZE_SAMPLE) {
-                        posBuff=0;
-                        cur_pos++;
-                        if (cur_pos>=SOUND_BUFFER_NB) cur_pos=0;
-                        curBuffer=snd_buffer[cur_pos];
-                    }
-                }
-            }
-        }
-        /*----------------------------------------------------*/
-        int sample_count=(settings[GLOB_FXFPS].detail.mdz_switch.switch_value?735:735*2);
-        projectm_pcm_add_int16(_pm,(const int16_t*)pmBuffer,sample_count,PROJECTM_STEREO);
-        
-        
-        
-        if ( (_pmCanvasWidth==(ww*glScaleFactor)) && (_pmCanvasHeight==(hh*glScaleFactor)) ) {
-            //Max Quality, screen resolution
-            //Render directly to screen
-            projectm_opengl_render_frame(_pm);
-        } else {
-            //reduced Quality
-            //Render to a texture and then display it
-            RenderUtils::startRenderToTexture(_pmCanvasWidth,_pmCanvasHeight);
-            projectm_opengl_render_frame_fbo(_pm,mdzRenderbuffer);
-            RenderUtils::endRenderToTexture(ww*glScaleFactor,hh*glScaleFactor,0);
-        }
-        
-        projectm_set_fps(_pm, m_nAverageFps);
-    }
+    doFramePM(ww,hh);
     /*-------------------------------------------------------------------------------*/
     
     if (pmenu_show) {
@@ -6931,10 +7259,11 @@ void menuInterpolValue(float &curValue,float startValue,float tgtValue) {
     if (mOglView1Tap) {
         mOglView1Tap=0;
         
-        if ( (oglTapX>=ww*3/4) && (oglTapY<=hh*1/4) ) {
+        //If tapping upper right corner and not in menu, activate showinfo panel
+        if ( (pmenu_show==0) && (oglTapX>=ww*3/4) && (oglTapY<=hh*1/4) ) {
             [SettingsGenViewController changeSettingsValue:GLOB_FXSHOWINFO change:1];
         } else {
-            
+            //Activate menu if tap on the rest of the gl view
             if (pmenu_show==0) {
                 pmenu_fade=0;
                 pmenu_show=1;
@@ -7755,281 +8084,7 @@ void menuInterpolValue(float &curValue,float startValue,float tgtValue) {
         }
     }
     
-    if (!sysMonitorIsActive) {
-        [sysMonitor startMonitoring];
-        sysMonitorIsActive=true;
-    }
-    float cpuUsage=sysMonitor.cpuUsage;
     
-    float winsizeX,winsizeY;
-    static float cur_winSizeX=0;
-    static float cur_winSizeY=0;
-
-    static float startX=0,startY=0;
-    static int switchPrevValue=0;
-    if (switchPrevValue!=settings[GLOB_FXSHOWINFO].detail.mdz_switch.switch_value) {
-        switchPrevValue=settings[GLOB_FXSHOWINFO].detail.mdz_switch.switch_value;
-        startX=cur_winSizeX;
-        startY=cur_winSizeY;
-    }
-    switch (settings[GLOB_FXSHOWINFO].detail.mdz_switch.switch_value) {
-        case 0:winsizeX=0;winsizeY=0;break;
-        case 1:winsizeX=68;winsizeY=SHOWINFO_SECTION1_SIZE;break;
-        case 2:winsizeX=80;winsizeY=SHOWINFO_SECTION2_SIZE;break;
-        case 3:winsizeX=80;winsizeY=hh;break;
-        default:winsizeX=0;winsizeY=0;break;
-    }
-    menuInterpolValue(cur_winSizeX,startX,winsizeX);
-    menuInterpolValue(cur_winSizeY,startY,winsizeY);
-    if ( (cur_winSizeX!=0) || (cur_winSizeY!=0) ) {
-        
-        ImGui::SetNextWindowPos(ImVec2((ww-cur_winSizeX)*glScaleFactor,0));
-        ImGui::SetNextWindowSize(ImVec2(cur_winSizeX*glScaleFactor,cur_winSizeY*glScaleFactor));
-        
-        ImGui::PushStyleColor(ImGuiCol_WindowBg,ImVec4(0,0,0,0.5));
-        ImGui::PushStyleColor(ImGuiCol_Border,ImVec4(0,0,0,0));
-        
-        float txtAlpha=(SHOWINFO_SECTION1_SIZE-(cur_winSizeY-0))/(SHOWINFO_SECTION1_SIZE);
-        if (txtAlpha<0) txtAlpha=0;
-        if (txtAlpha>1) txtAlpha=1;
-        txtAlpha=1-txtAlpha;
-        float txtAlphaX=cur_winSizeX/68.0;
-        if (txtAlphaX>1) txtAlphaX=1;
-        txtAlphaX*=txtAlphaX;
-        txtAlpha*=txtAlphaX;
-
-        
-        ImGui::GetStyle().Alpha=1.0;
-        if (font_menu) ImGui::PushFont(font_menu,FONTSIZE_SHOWINFO_FPS*glScaleFactor);
-        else ImGui::PushFont(nullptr);
-        
-        ImGui::Begin("Info",0,
-                     ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoScrollbar|ImGuiWindowFlags_NoFocusOnAppearing
-                     );
-        char strTmp[32];
-        float posx,posy=0;
-        ImVec2 sizeText;
-        //FPS
-        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(SHOWINFO_FPS_COLOR,txtAlpha));
-        ImGui::SetCursorPos(ImVec2(2,posy));
-        ImGui::Text("FPS");
-        snprintf(strTmp,32,"%d",m_nAverageFps);
-        sizeText=ImGui::CalcTextSize(strTmp);
-        posx=sizeText.x+8;
-        posy=0;
-        ImGui::SetCursorPos(ImVec2(cur_winSizeX*glScaleFactor-posx,posy));
-        ImGui::Text("%s",strTmp);
-        posy+=sizeText.y+2;
-        if (cur_winSizeY>SHOWINFO_SECTION1_SIZE) {
-            txtAlpha=(SHOWINFO_SECTION2_SIZE-SHOWINFO_SECTION1_SIZE-(cur_winSizeY-SHOWINFO_SECTION1_SIZE))/(SHOWINFO_SECTION2_SIZE-SHOWINFO_SECTION1_SIZE);
-            if (txtAlpha<0) txtAlpha=0;
-            if (txtAlpha>1) txtAlpha=1;
-            txtAlpha=1-txtAlpha;
-            txtAlpha*=txtAlphaX;
-            
-            //smaller font
-            if (font_menu) ImGui::PushFont(font_menu,FONTSIZE_SHOWINFO_DETAILS*glScaleFactor);
-            else ImGui::PushFont(nullptr);
-            //CPU
-            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(SHOWINFO_CPU_COLOR,txtAlpha));
-            ImGui::SetCursorPos(ImVec2(2,posy));
-            ImGui::Text("CPU");
-            snprintf(strTmp,32,"%.2f%%",cpuUsage);
-            sizeText=ImGui::CalcTextSize(strTmp);
-            posx=sizeText.x+8;
-            ImGui::SetCursorPos(ImVec2(cur_winSizeX*glScaleFactor-posx,posy));
-            ImGui::Text("%s",strTmp);
-            ImGui::PopStyleColor();
-            posy+=sizeText.y+2;
-            
-            if (cur_winSizeY>SHOWINFO_SECTION2_SIZE) {
-                txtAlpha=(hh-SHOWINFO_SECTION2_SIZE-(cur_winSizeY-SHOWINFO_SECTION2_SIZE))/(hh-SHOWINFO_SECTION2_SIZE);
-                if (txtAlpha<0) txtAlpha=0;
-                if (txtAlpha>1) txtAlpha=1;
-                txtAlpha=1-txtAlpha;
-                txtAlpha*=txtAlphaX;
-                
-                posy+=sizeText.y+8;
-                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(SHOWINFO_FXVIEW_COLOR,txtAlpha));
-                ImGui::SetCursorPos(ImVec2(2,posy));
-                ImGui::Text("FX View");
-                posy+=sizeText.y+4;
-                ImGui::PopStyleColor();
-                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(SHOWINFO_FXVIEWRES_COLOR,txtAlpha));
-                //Resolution
-                ImGui::Text("R");
-                snprintf(strTmp,32,"%.0fx%.0f",ww*glScaleFactor,hh*glScaleFactor);
-                sizeText=ImGui::CalcTextSize(strTmp);
-                posx=sizeText.x+8;
-                ImGui::SetCursorPos(ImVec2(cur_winSizeX*glScaleFactor-posx,posy));
-                ImGui::Text("%s",strTmp);
-                posy+=sizeText.y+2;
-                //Viewport
-                ImGui::SetCursorPos(ImVec2(2,posy));
-                ImGui::Text("V");
-                snprintf(strTmp,32,"%dx%d",ww,hh);
-                sizeText=ImGui::CalcTextSize(strTmp);
-                posx=sizeText.x+8;
-                ImGui::SetCursorPos(ImVec2(cur_winSizeX*glScaleFactor-posx,posy));
-                ImGui::Text("%s",strTmp);
-                ImGui::PopStyleColor();
-                posy+=sizeText.y+2;
-                
-                float devWW,devHH;
-                CGSize screenSize;
-                for (UIScene *scene in UIApplication.sharedApplication.connectedScenes) {
-                    if ([scene isKindOfClass:[UIWindowScene class]]) {
-                        UIWindowScene *wscene=(UIWindowScene *)scene;
-                        for (UIWindow *win in wscene.windows) {
-                            if (win.keyWindow) {
-                                screenSize=win.screen.bounds.size;
-                            }
-                        }
-                    }
-                }
-                devWW=screenSize.width*glScaleFactor;
-                devHH=screenSize.height*glScaleFactor;
-                
-                posy+=sizeText.y+8;
-                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(SHOWINFO_DEVICE_COLOR,txtAlpha));
-                ImGui::SetCursorPos(ImVec2(2,posy));
-                ImGui::Text("Device");
-                posy+=sizeText.y+4;
-                ImGui::PopStyleColor();
-                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(SHOWINFO_DEVICERES_COLOR,txtAlpha));
-                ImGui::SetCursorPos(ImVec2(2,posy));
-                ImGui::Text("R");
-                snprintf(strTmp,32,"%.0fx%.0f",devWW,devHH);
-                sizeText=ImGui::CalcTextSize(strTmp);
-                posx=sizeText.x+8;
-                ImGui::SetCursorPos(ImVec2(cur_winSizeX*glScaleFactor-posx,posy));
-                ImGui::Text("%s",strTmp);
-                posy+=sizeText.y+2;
-                
-                ImGui::SetCursorPos(ImVec2(2,posy));
-                ImGui::Text("V");
-                snprintf(strTmp,32,"%.0fx%.0f",devWW/glScaleFactor,devHH/glScaleFactor);
-                sizeText=ImGui::CalcTextSize(strTmp);
-                posx=sizeText.x+8;
-                ImGui::SetCursorPos(ImVec2(cur_winSizeX*glScaleFactor-posx,posy));
-                ImGui::Text("%s",strTmp);
-                posy+=sizeText.y+2;
-                ImGui::PopStyleColor();
-                
-                posy+=sizeText.y+8;
-                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(SHOWINFO_PM_COLOR,txtAlpha));
-                //ProjectM info
-                ImGui::SetCursorPos(ImVec2(2,posy));
-                ImGui::Text("ProjectM");
-                posy+=sizeText.y+4;
-                //Internal PM resolution
-                ImGui::PopStyleColor();
-                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(SHOWINFO_PMRES_COLOR,txtAlpha));
-                ImGui::SetCursorPos(ImVec2(2,posy));
-                ImGui::Text("R");
-                snprintf(strTmp,32,"%dx%d",_pmCanvasWidth,_pmCanvasHeight);
-                sizeText=ImGui::CalcTextSize(strTmp);
-                posx=sizeText.x+8;
-                ImGui::SetCursorPos(ImVec2(cur_winSizeX*glScaleFactor-posx,posy));
-                ImGui::Text("%s",strTmp);
-                posy+=sizeText.y+4;
-                ImGui::SetCursorPos(ImVec2(2,posy));
-                ImGui::Text("V");
-                snprintf(strTmp,32,"%dx%d",(int)(_pmCanvasWidth/glScaleFactor),(int)(_pmCanvasHeight/glScaleFactor));
-                sizeText=ImGui::CalcTextSize(strTmp);
-                posx=sizeText.x+8;
-                ImGui::SetCursorPos(ImVec2(cur_winSizeX*glScaleFactor-posx,posy));
-                ImGui::Text("%s",strTmp);
-                posy+=sizeText.y+4;
-                
-                ImGui::SetCursorPos(ImVec2(2,posy));
-                ImGui::Text("Mesh");
-                snprintf(strTmp,32,"%.0fx%.0f",
-                         settings[PROJECTM_MeshSizeX].detail.mdz_slider.slider_value,
-                         settings[PROJECTM_MeshSizeY].detail.mdz_slider.slider_value);
-                sizeText=ImGui::CalcTextSize(strTmp);
-                posx=sizeText.x+8;
-                ImGui::SetCursorPos(ImVec2(cur_winSizeX*glScaleFactor-posx,posy));
-                ImGui::Text("%s",strTmp);
-                posy+=sizeText.y+4;
-                
-                posy+=sizeText.y+4;
-                //PM audio data
-                ImGui::PopStyleColor();
-                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(SHOWINFO_PMAUDIO_COLOR,txtAlpha));
-                ImGui::SetCursorPos(ImVec2(2,posy));
-                ImGui::Text("Bass");
-                
-                float bassAttr,midAttr,trebAttr,volAttr;
-                bassAttr=midAttr=trebAttr=volAttr=0;;
-                if (_pm) projectm_get_audio_vars(_pm,&bassAttr,&midAttr,&trebAttr,&volAttr);
-
-                
-                snprintf(strTmp,32,"%1.2f",bassAttr);
-                sizeText=ImGui::CalcTextSize(strTmp);
-                posx=sizeText.x+8;
-                ImGui::SetCursorPos(ImVec2(cur_winSizeX*glScaleFactor-posx,posy));
-                ImGui::Text("%s",strTmp);
-                posy+=sizeText.y+2;
-                
-                ImGui::SetCursorPos(ImVec2(2,posy));
-                ImGui::Text("Mid");
-                snprintf(strTmp,32,"%1.2f",midAttr);
-                sizeText=ImGui::CalcTextSize(strTmp);
-                posx=sizeText.x+8;
-                ImGui::SetCursorPos(ImVec2(cur_winSizeX*glScaleFactor-posx,posy));
-                ImGui::Text("%s",strTmp);
-                posy+=sizeText.y+2;
-                
-                ImGui::SetCursorPos(ImVec2(2,posy));
-                ImGui::Text("Treb");
-                snprintf(strTmp,32,"%1.2f",trebAttr);
-                sizeText=ImGui::CalcTextSize(strTmp);
-                posx=sizeText.x+8;
-                ImGui::SetCursorPos(ImVec2(cur_winSizeX*glScaleFactor-posx,posy));
-                ImGui::Text("%s",strTmp);
-                posy+=sizeText.y+2;
-                
-                ImGui::SetCursorPos(ImVec2(2,posy));
-                ImGui::Text("Vol");
-                snprintf(strTmp,32,"%1.2f",volAttr);
-                sizeText=ImGui::CalcTextSize(strTmp);
-                posx=sizeText.x+8;
-                ImGui::SetCursorPos(ImVec2(cur_winSizeX*glScaleFactor-posx,posy));
-                ImGui::Text("%s",strTmp);
-                posy+=sizeText.y+2;
-                
-                posy+=sizeText.y+8;
-                //FX Frame info
-                ImGui::PopStyleColor();
-                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(SHOWINFO_FXFRAME_COLOR,txtAlpha));
-                ImGui::SetCursorPos(ImVec2(2,posy));
-                ImGui::Text("FX Frame");
-                posy+=sizeText.y+4;
-                ImGui::PopStyleColor();
-                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(SHOWINFO_FXFRAMEINFO_COLOR,txtAlpha));
-                snprintf(strTmp,32,"%.1fms",_fx_frame_time);
-                sizeText=ImGui::CalcTextSize(strTmp);
-                posx=sizeText.x+8;
-                ImGui::SetCursorPos(ImVec2(cur_winSizeX*glScaleFactor-posx,posy));
-                ImGui::Text("%s",strTmp);
-                posy+=sizeText.y+2;
-                
-                
-                ImGui::PopStyleColor();
-                
-            }
-            ImGui::PopFont();
-        }
-        ImGui::PopStyleColor();
-        
-        
-        ImGui::End();
-        ImGui::PopFont();
-        
-        ImGui::PopStyleColor();
-        ImGui::PopStyleColor();
-    }
     /*else {
         if (sysMonitorIsActive) {
             [sysMonitor stopMonitoring];
@@ -8077,7 +8132,7 @@ void menuInterpolValue(float &curValue,float startValue,float tgtValue) {
                 if (font_menu) ImGui::PushFont(font_menu,FONTSIZE_PM_PRESET_INFO_LINE*glScaleFactor);
                 else ImGui::PushFont(nullptr);
                 
-                float textHH=ImGui::GetTextLineHeight()*1.7f;
+                float textHH=ImGui::GetTextLineHeight()/glScaleFactor+6.0;
                 
                 ImGui::SetNextWindowPos(ImVec2(0,(hh-textHH)*glScaleFactor));
                 ImGui::SetNextWindowSize(ImVec2(ww*glScaleFactor,textHH*glScaleFactor));
@@ -8254,6 +8309,8 @@ void menuInterpolValue(float &curValue,float startValue,float tgtValue) {
         
     }
     
+    [self showInfoData:ImVec2(ww,hh) frameToUpdate:frameToUpdate];
+    
     //-----------------------------------
     // ImGui
     //-----------------------------------
@@ -8269,10 +8326,15 @@ void menuInterpolValue(float &curValue,float startValue,float tgtValue) {
         if (_fx_frame_timeOverLimitCounter) _fx_frame_timeOverLimitCounter--;
     } else {
         _fx_frame_timeOverLimitCounter++;
-        if (_fx_frame_timeOverLimitCounter>PM_FRAMETIME_LIMIT_COUNTERMAX) {
-            settings[PROJECTM_FXONOFF].detail.mdz_boolswitch.switch_value=0;
-            _fx_frame_timeOverLimitCounter=0;
-            [self openPopup:NSLocalizedString(@"FX too slow",@"") secmsg:NSLocalizedString(@"ProjectM FX deactivated. Reduce resolution, mesh size or change to lighter presets.", @"") style:POPUP_STYLE_ALERT];
+        int limitSlowFrame=0;
+        switch (settings[GLOB_FX_LIMIT_SLOWFX].detail.mdz_switch.switch_value) {
+            case 0:limitSlowFrame=0;break;
+            case 1:limitSlowFrame=PM_FRAMETIME_LIMIT_WEAK;break;
+            default:
+            case 2:limitSlowFrame=PM_FRAMETIME_LIMIT_STRONG;break;
+        }
+        if (limitSlowFrame) {
+            if (_fx_frame_timeOverLimitCounter>limitSlowFrame) [self frameTooSlow];
         }
     }
     
