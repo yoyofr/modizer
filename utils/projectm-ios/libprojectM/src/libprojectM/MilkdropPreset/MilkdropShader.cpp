@@ -148,18 +148,20 @@ void MilkdropShader::LoadTexturesAndCompile(PresetState& presetState)
     
     //YOYOFR
     //
-//    ShaderPreprocessor preProcessor(ShaderLanguage::HLSL);
-//    std::string cleanProgram = preProcessor.preprocess(m_preprocessedCode); //To review, in some case it removes correct code
-//    m_preprocessedCode = cleanProgram;
-//    
-//    HLSLTypeFixer hlslTypeFixer;
-//    cleanProgram = hlslTypeFixer.autoFix(m_preprocessedCode);
-//    m_preprocessedCode = cleanProgram;
+    ShaderPreprocessor preProcessor(ShaderLanguage::HLSL);
+    std::string cleanProgram = preProcessor.preprocess(m_preprocessedCode); //To review, in some case it removes correct code
+    m_preprocessedCode = cleanProgram;
+    
+    HLSLTypeFixer hlslTypeFixer;
+    cleanProgram = hlslTypeFixer.autoFix(m_preprocessedCode);
+    m_preprocessedCode = cleanProgram;
+    
+//    printf("%s\n",m_preprocessedCode.c_str());
     
     // Now that we have the textures, transpile the code.
     TranspileHLSLShader(presetState, m_preprocessedCode);
     
-    //printf("%s\n",m_preprocessedCode.c_str());
+    
 
     // Update blur texture level if shader was compiled successfully.
     presetState.blurTexture.SetRequiredBlurLevel(m_maxBlurLevelRequired);

@@ -117,22 +117,22 @@ auto PresetFileParser::GetCode(const std::string& keyPrefix) const -> std::strin
         }
         
         if (!skipCode) {
-            size_t pos=line.find("/*");
+            size_t pos=line.find("//");
             if (pos!=std::string::npos) {
-                //is there an end comment on the same line ?
-                size_t pos2=line.find("*/",pos+2);
-                if (pos2!=std::string::npos) {
-                    line.erase(pos,pos2+2-pos);
-                } else {
-                    //no end of comment found on same line, move into skipCode mode
-                    skipCode=true;
-                }
+                //comment, erase rest of the line
+                line.erase(pos,line.length()-pos);
             } else {
-                pos=line.find("//");
-                if (pos!=std::string::npos) {
-                    //comment, erase rest of the line
-                    line.erase(pos,line.length()-pos);
-                }
+                pos=line.find("/*");
+                 if (pos!=std::string::npos) {
+                     //is there an end comment on the same line ?
+                     size_t pos2=line.find("*/",pos+2);
+                     if (pos2!=std::string::npos) {
+                         line.erase(pos,pos2+2-pos);
+                     } else {
+                         //no end of comment found on same line, move into skipCode mode
+                         skipCode=true;
+                     }
+                 }
             }
         }
         

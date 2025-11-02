@@ -6,8 +6,36 @@
 //  Copyright __YoyoFR / Yohann Magnien__ 2010. All rights reserved.
 //
 
+#define POPUP_STYLE_INFO 0
+#define POPUP_STYLE_ALERT 1
+
+#define SHOWINFO_SECTION1_SIZE 26
+#define SHOWINFO_SECTION2_SIZE 44
+
+#define FONTSIZE_PM_PRESET_INFO_LINE 18
+#define FONTSIZE_SHOWINFO_FPS 24
+#define FONTSIZE_SHOWINFO_DETAILS 16
+
+#define SHOWINFO_FPS_COLOR 0.2,1.0,0.1
+#define SHOWINFO_CPU_COLOR 83.0/255.0,182.0/255.0,235.0/255.0
+
+#define SHOWINFO_FXVIEW_COLOR 223.0/255.0,176.0/255.0,173.0/255.0
+#define SHOWINFO_FXVIEWRES_COLOR 238.0/255.0,186.0/255.0,65.0/255.0
+
+#define SHOWINFO_DEVICE_COLOR 223.0/255.0,176.0/255.0,173.0/255.0
+#define SHOWINFO_DEVICERES_COLOR 238.0/255.0,186.0/255.0,65.0/255.0
+
+#define SHOWINFO_PM_COLOR 223.0/255.0,176.0/255.0,173.0/255.0
+#define SHOWINFO_PMRES_COLOR 238.0/255.0,186.0/255.0,65.0/255.0
+#define SHOWINFO_PMAUDIO_COLOR 253.0/255.0,253.0/255.0,253.0/255.0
+
+#define SHOWINFO_FXFRAME_COLOR 223.0/255.0,176.0/255.0,173.0/255.0
+#define SHOWINFO_FXFRAMEINFO_COLOR 253.0/255.0,253.0/255.0,253.0/255.0
+
+#define PM_FRAMETIME_LIMIT (1000.0f/15.0f) // max allowed frame time in ms, if regularly above, PM will be deactivated
+#define PM_FRAMETIME_LIMIT_COUNTERMAX 30
+
 extern unsigned int mdzRenderbuffer;
-float bassAttr,midAttr,trebAttr;
 
 int mdz_pmMilkPermissiveEvalCode;
 
@@ -112,6 +140,9 @@ extern unsigned int m_voice_oscillo_pal3[8];
 #include <GLES3/gl3.h>
 
 bool _pmIsInitialized;
+double _fx_frame_time;
+
+int _fx_frame_timeOverLimitCounter;
 int _pm_shouldRestartAt;
 int _pmCanvasWidth,_pmCanvasHeight;
 projectm_handle _pm; //!< Pointer to the projectM instance used by the application.
@@ -1330,12 +1361,12 @@ static float movePinchScale,movePinchScaleOld;
 -(void) mdSwitchSpectrumBloom:(int)val {
     [SettingsGenViewController changeSettingsValue:GLOB_FX3DSpectrumBloom change:val];
     
-    [self openPopup:NSLocalizedString(@"Spectrum 3D",@"") secmsg:[NSString stringWithFormat:@"Bloom set to %s",settings[GLOB_FX3DSpectrumBloom].detail.mdz_switch.switch_labels[settings[GLOB_FX3DSpectrumBloom].detail.mdz_switch.switch_value]] style:0];
+    [self openPopup:NSLocalizedString(@"Spectrum 3D",@"") secmsg:[NSString stringWithFormat:@"Bloom set to %s",settings[GLOB_FX3DSpectrumBloom].detail.mdz_switch.switch_labels[settings[GLOB_FX3DSpectrumBloom].detail.mdz_switch.switch_value]] style:POPUP_STYLE_INFO];
 }
 -(void) mdSwitchLandscapeBloom:(int)val {
     [SettingsGenViewController changeSettingsValue:GLOB_FX3DLandscapeBloom change:val];
     
-    [self openPopup:NSLocalizedString(@"3D Landscape",@"") secmsg:[NSString stringWithFormat:@"Bloom set to %s",settings[GLOB_FX3DLandscapeBloom].detail.mdz_switch.switch_labels[settings[GLOB_FX3DLandscapeBloom].detail.mdz_switch.switch_value]] style:0];
+    [self openPopup:NSLocalizedString(@"3D Landscape",@"") secmsg:[NSString stringWithFormat:@"Bloom set to %s",settings[GLOB_FX3DLandscapeBloom].detail.mdz_switch.switch_labels[settings[GLOB_FX3DLandscapeBloom].detail.mdz_switch.switch_value]] style:POPUP_STYLE_INFO];
 }
 -(void) mdSwitchVolBars {
     [SettingsGenViewController changeSettingsValue:GLOB_FXMODPattern_VolBar change:1];
@@ -1374,9 +1405,9 @@ static float movePinchScale,movePinchScaleOld;
                 }
             }
             if (added) {
-                [self openPopup:NSLocalizedString(@"Preset added to favorite",@"") secmsg:[NSString stringWithFormat:@"%s",title] style:0];
+                [self openPopup:NSLocalizedString(@"Preset added to favorite",@"") secmsg:[NSString stringWithFormat:@"%s",title] style:POPUP_STYLE_INFO];
             } else {
-                [self openPopup:NSLocalizedString(@"Preset removed from favorite",@"") secmsg:[NSString stringWithFormat:@"%s",title] style:0];
+                [self openPopup:NSLocalizedString(@"Preset removed from favorite",@"") secmsg:[NSString stringWithFormat:@"%s",title] style:POPUP_STYLE_INFO];
             }
             //projectm_playlist_free_string(title);
             
@@ -1400,11 +1431,11 @@ static float movePinchScale,movePinchScaleOld;
             if (settings[PROJECTM_LockPreset].detail.mdz_boolswitch.switch_value) {
                 projectm_set_preset_locked(_pm, false);
                 settings[PROJECTM_LockPreset].detail.mdz_boolswitch.switch_value=0;
-                [self openPopup:NSLocalizedString(@"Preset unlocked",@"") secmsg:[NSString stringWithFormat:@"%s",title] style:0];
+                [self openPopup:NSLocalizedString(@"Preset unlocked",@"") secmsg:[NSString stringWithFormat:@"%s",title] style:POPUP_STYLE_INFO];
             } else {
                 projectm_set_preset_locked(_pm, true);
                 settings[PROJECTM_LockPreset].detail.mdz_boolswitch.switch_value=1;
-                [self openPopup:NSLocalizedString(@"Preset locked",@"") secmsg:[NSString stringWithFormat:@"%s",title] style:0];
+                [self openPopup:NSLocalizedString(@"Preset locked",@"") secmsg:[NSString stringWithFormat:@"%s",title] style:POPUP_STYLE_INFO];
             }
             
             free(tmp_str);
@@ -1417,7 +1448,7 @@ static float movePinchScale,movePinchScaleOld;
     }
 }
 -(void) mdSwitchFPSHud {
-    [SettingsGenViewController changeSettingsValue:GLOB_FXSHOWFPS change:1];
+    [SettingsGenViewController changeSettingsValue:GLOB_FXSHOWINFO change:1];
 }
 
 
@@ -1736,7 +1767,7 @@ static float movePinchScale,movePinchScaleOld;
         if ((alertCannotPlay_displayed==0)&&(mLoadIssueMessage)) {
             NSString *alertMsg;
             alertCannotPlay_displayed=1;
-            [self openPopup:NSLocalizedString(@"File cannot be played. Skipping to next playable file.",@"") secmsg:[NSString stringWithFormat:@"%s",mplayer_error_msg] style:1];
+            [self openPopup:NSLocalizedString(@"File cannot be played. Skipping to next playable file.",@"") secmsg:[NSString stringWithFormat:@"%s",mplayer_error_msg] style:POPUP_STYLE_ALERT];
             
             [self play_curEntry:-1];
             
@@ -2134,13 +2165,7 @@ int recording=0;
 //    if (is_macOS) completionHandler(UNNotificationPresentationOptionBanner);
 //    else
 //    {
-//        // iOS 14+ - Use UNNotificationPresentationOptionBanner
-//        if (@available(iOS 14.0, *)) {
 //            completionHandler(UNNotificationPresentationOptionBanner);
-//        } else {
-//            // iOS 10-13 - Use UNNotificationPresentationOptionAlert
-//            completionHandler(UNNotificationPresentationOptionAlert);
-//        }
 //    }
 }
 
@@ -2214,9 +2239,7 @@ int recording=0;
     //content.badge = [NSNumber numberWithInt:1];
     content.body = [NSString stringWithFormat:NSLocalizedString(@"%@",@""),labelModuleName.text];
     //content.sound = [UNNotificationSound defaultSound];
-    if (@available(iOS 15.0, *)) {
-        content.interruptionLevel=UNNotificationInterruptionLevelActive;
-    }
+    content.interruptionLevel=UNNotificationInterruptionLevelActive;
     if (is_macOS) content.interruptionLevel=UNNotificationInterruptionLevelActive;
     
     // Add image attachment
@@ -2434,7 +2457,7 @@ int recording=0;
         if ((alertCannotPlay_displayed==0)&&(mLoadIssueMessage)) {
             NSString *alertMsg;
             alertCannotPlay_displayed=1;
-            [self openPopup:NSLocalizedString(@"File cannot be played. Skipping to next playable file.",@"") secmsg:[NSString stringWithFormat:@"%s",mplayer_error_msg] style:1];
+            [self openPopup:NSLocalizedString(@"File cannot be played. Skipping to next playable file.",@"") secmsg:[NSString stringWithFormat:@"%s",mplayer_error_msg] style:POPUP_STYLE_ALERT];
             
             [self play_curEntry:-1];
             
@@ -3113,7 +3136,7 @@ int recording=0;
 }
 
 - (void)titleTap:(UITapGestureRecognizer *)sender {
-    [self openPopup:labelModuleName.text secmsg:mPlaylist[mPlaylist_pos].mPlaylistFilepath style:0];
+    [self openPopup:labelModuleName.text secmsg:mPlaylist[mPlaylist_pos].mPlaylistFilepath style:POPUP_STYLE_INFO];
 }
 
 //for archive cover
@@ -3297,7 +3320,7 @@ int recording=0;
     if ((alertCannotPlay_displayed==0)&&(mLoadIssueMessage)) {
         NSString *alertMsg;
         alertCannotPlay_displayed=1;
-        [self openPopup:NSLocalizedString(@"File cannot be played. Skipping to next playable file.",@"") secmsg:[NSString stringWithFormat:@"%s",mplayer_error_msg] style:1];
+        [self openPopup:NSLocalizedString(@"File cannot be played. Skipping to next playable file.",@"") secmsg:[NSString stringWithFormat:@"%s",mplayer_error_msg] style:POPUP_STYLE_ALERT];
         
         [self play_curEntry:-1];
         
@@ -4057,8 +4080,6 @@ int recording=0;
                 oglButton.frame = CGRectMake(safe_left, 80, mDevice_ww-safe_left-safe_right, mDevice_hh-230-safe_bottom);
             }
             
-            //cover_view.frame = CGRectMake(mDevice_ww/20, 80+mDevice_hh/20, mDevice_ww-mDevice_ww/10, mDevice_hh-230-mDevice_hh/10-safe_bottom);
-            //cover_viewBG.frame = CGRectMake(0, 0, mDevice_ww, mDevice_hh-230+80+44-safe_bottom);
             cover_viewAll.frame = m_oglView.frame;//CGRectMake(0, 0, mDevice_ww, mDevice_hh-230+80+44-safe_bottom);
             
             cover_view.frame = CGRectMake(cover_viewAll.frame.size.width/20,
@@ -5140,10 +5161,6 @@ void buildPresetDirStructure() {
     
     [_mdzPM_playlist setShuffle:settings[PROJECTM_AutoSwitchPresetsMode].detail.mdz_switch.switch_value];
     
-    const char *texturesSearchPaths[2];
-    NSString *pmBundleDir = [NSString stringWithFormat:@"%@/projectm/assets/textures",[[NSBundle mainBundle] resourcePath]];
-    NSString *pmCustomDir = [NSString stringWithFormat:@"%@/Documents%s/textures",NSHomeDirectory(),PM_ROOT_FOLDER_CUSTOM];
-    
     _pm_fps=settings[GLOB_FXFPS].detail.mdz_switch.switch_value==1?60:30;
 
     projectm_set_window_size(_pm, _pmCanvasWidth, _pmCanvasHeight);
@@ -5170,8 +5187,13 @@ void buildPresetDirStructure() {
     
     
     int textureDirNb=0;
-    if (settings[PROJECTM_BundledPresets].detail.mdz_boolswitch.switch_value) texturesSearchPaths[textureDirNb++]=[pmBundleDir UTF8String];
-    if (settings[PROJECTM_CustomPresets].detail.mdz_boolswitch.switch_value) texturesSearchPaths[textureDirNb++]=[pmCustomDir UTF8String];
+    const char *texturesSearchPaths[4];
+    NSString *pmBundleDirText = [NSString stringWithFormat:@"%@/projectm/assets/textures",[[NSBundle mainBundle] resourcePath]];
+    NSString *pmCustomDirText = [NSString stringWithFormat:@"%@/Documents%s/textures",NSHomeDirectory(),PM_ROOT_FOLDER_CUSTOM];
+    NSString *pmCustomDirSprites = [NSString stringWithFormat:@"%@/Documents%s/sprites",NSHomeDirectory(),PM_ROOT_FOLDER_CUSTOM];
+    texturesSearchPaths[textureDirNb++]=[pmBundleDirText UTF8String];
+    texturesSearchPaths[textureDirNb++]=[pmCustomDirText UTF8String];
+    texturesSearchPaths[textureDirNb++]=[pmCustomDirSprites UTF8String];
     
     projectm_set_texture_search_paths(_pm, (const char **)texturesSearchPaths,textureDirNb);
     
@@ -5213,6 +5235,8 @@ void buildPresetDirStructure() {
     
     [super viewDidLoad];
     
+    _fx_frame_time=0;
+    _fx_frame_timeOverLimitCounter=0;
     deactivateFStemp=0;
     
     mBackground=false;
@@ -5263,24 +5287,16 @@ void buildPresetDirStructure() {
     //NSLocale* locale = [NSLocale autoupdatingCurrentLocale];
     //located_country=[NSString stringWithString:locale.countryCode];
     
-    if (@available(iOS 14.0, *)) {
         if ([NSProcessInfo processInfo].isiOSAppOnMac) {
             is_macOS=1;
             mDeviceType=DEVICE_MACOS;
-        }else{
-            is_macOS=0;
         }
-    }
     
     
-    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"14.0"))
-        if (@available(iOS 14.0, *)) {
             if ([NSProcessInfo processInfo].isiOSAppOnMac) {
                 for (UIScene* scene in UIApplication.sharedApplication.connectedScenes) {
                     if ([scene isKindOfClass:[UIWindowScene class]]) {
                         UIWindowScene* windowScene = (UIWindowScene*) scene;
-                        //windowScene.sizeRestrictions.minimumSize = CGSizeMake(MODIZER_MACM1_WIDTH_MIN,MODIZER_MACM1_HEIGHT_MIN);
-                        //windowScene.sizeRestrictions.maximumSize = CGSizeMake(MODIZER_MACM1_WIDTH_MAX,MODIZER_MACM1_HEIGHT_MAX);
                     }
                 }
                 
@@ -5290,10 +5306,7 @@ void buildPresetDirStructure() {
                 CGRect frame = [modizerWin frame];
                 frame.size.height = MODIZER_MACM1_HEIGHT_MAX;
                 frame.size.width = MODIZER_MACM1_WIDTH_MAX;
-                //[modizerWin setFrame: frame];
-                //[modizerWin setBounds:frame];
             }
-        }
     
     self.navigationController.delegate = self;
     
@@ -5437,9 +5450,7 @@ void buildPresetDirStructure() {
         
         //UIWindow *win=[UIApplication sharedApplication].keyWindow;
         UIWindow *win;
-        if (@available(iOS 13.0, *)) {
             win=[UIApplication sharedApplication].windows.firstObject;
-        } else win=[UIApplication sharedApplication].keyWindow;
         
         
         //if (mainscr.bounds.size.height>mainscr.bounds.size.width) {
@@ -5463,9 +5474,7 @@ void buildPresetDirStructure() {
         mDevice_ww=320;
         UIScreen* mainscr = [UIScreen mainScreen];
         UIWindow *win;
-        if (@available(iOS 13.0, *)) {
-            win=[UIApplication sharedApplication].windows.firstObject;
-        } else win=[UIApplication sharedApplication].keyWindow;
+        win=[UIApplication sharedApplication].windows.firstObject;
         
         
         if (win.bounds.size.height>win.bounds.size.width) {
@@ -6236,26 +6245,15 @@ void buildPresetDirStructure() {
     
     self.navigationController.delegate = self;
     is_macOS=false;
-    if (@available(iOS 14.0, *)) {
         if ([NSProcessInfo processInfo].isiOSAppOnMac) {
             is_macOS=true;
         }else{
             is_macOS=false;
         }
-    }
 //    if (m_displayLink) [m_displayLink invalidate];
     
     [[self navigationController] setNavigationBarHidden:NO animated:NO];
-    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"13.0"))
-        if (@available(iOS 13.0, *)) {
             [[[self navigationController] navigationBar] setBackgroundColor:[UIColor systemBackgroundColor]];
-        }
-    /*CATransition *transition=[CATransition animation];
-     transition.duration=0.2;
-     transition.timingFunction= [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn];
-     [[[self navigationController] navigationBar].layer addAnimation:transition forKey:nil];
-     */
-    //    [[UIDevice currentDevice] systemVersion]
     statusbarHidden=NO;
     [self setNeedsStatusBarAppearanceUpdate];
 }
@@ -6426,11 +6424,12 @@ extern "C" int current_sample;
 void menuInterpolValue(float &curValue,float startValue,float tgtValue) {
     float diff=tgtValue-curValue;
     if (diff>0) {
-        float incr=round(diff/12.0)+2;
+        float incr=round(diff/20.0)+2;
         curValue+=incr;
         if (curValue>tgtValue) curValue=tgtValue;
     } else if (diff<0) {
-        float decr=round(diff/12.0)-2;
+        diff=curValue-startValue;
+        float decr=round(diff/20.0)-2;
         curValue+=decr;
         if (curValue<tgtValue) curValue=tgtValue;
     }
@@ -6527,7 +6526,6 @@ void menuInterpolValue(float &curValue,float startValue,float tgtValue) {
     
     //tgtFrameCnt=0;
     
-    int frameUpdated=frameToUpdate;
     while (frameToUpdate) {
         RenderUtils::UpdateDataMidiFX(tim_notes_cpy[[mplayer getCurrentGenBufferIdx]],clearAudioFXbuffer,mPaused);
         RenderUtils::UpdateDataPiano(tim_notes_cpy[[mplayer getCurrentGenBufferIdx]],clearAudioFXbuffer,mPaused);
@@ -6536,6 +6534,8 @@ void menuInterpolValue(float &curValue,float startValue,float tgtValue) {
     clearAudioFXbuffer=false;
     
     calcFps();
+    
+    CFTimeInterval _fx_start_time=CFAbsoluteTimeGetCurrent();
     
     if (settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value) {
         //cover_viewBG.layer.zPosition=MAXFLOAT-10;
@@ -6652,6 +6652,8 @@ void menuInterpolValue(float &curValue,float startValue,float tgtValue) {
         int sample_count=(settings[GLOB_FXFPS].detail.mdz_switch.switch_value?735:735*2);
         projectm_pcm_add_int16(_pm,(const int16_t*)pmBuffer,sample_count,PROJECTM_STEREO);
         
+        
+        
         if ( (_pmCanvasWidth==(ww*glScaleFactor)) && (_pmCanvasHeight==(hh*glScaleFactor)) ) {
             //Max Quality, screen resolution
             //Render directly to screen
@@ -6662,11 +6664,7 @@ void menuInterpolValue(float &curValue,float startValue,float tgtValue) {
             RenderUtils::startRenderToTexture(_pmCanvasWidth,_pmCanvasHeight);
             projectm_opengl_render_frame_fbo(_pm,mdzRenderbuffer);
             RenderUtils::endRenderToTexture(ww*glScaleFactor,hh*glScaleFactor,0);
-            
-            double pm_frame_time=projectm_get_last_frame_time(_pm);
-            
         }
-        
         
         projectm_set_fps(_pm, m_nAverageFps);
     }
@@ -6933,9 +6931,14 @@ void menuInterpolValue(float &curValue,float startValue,float tgtValue) {
     if (mOglView1Tap) {
         mOglView1Tap=0;
         
-        if (pmenu_show==0) {
-            pmenu_fade=0;
-            pmenu_show=1;
+        if ( (oglTapX>=ww*3/4) && (oglTapY<=hh*1/4) ) {
+            [SettingsGenViewController changeSettingsValue:GLOB_FXSHOWINFO change:1];
+        } else {
+            
+            if (pmenu_show==0) {
+                pmenu_fade=0;
+                pmenu_show=1;
+            }
         }
     }
     
@@ -7759,17 +7762,25 @@ void menuInterpolValue(float &curValue,float startValue,float tgtValue) {
     float cpuUsage=sysMonitor.cpuUsage;
     
     float winsizeX,winsizeY;
-    switch (settings[GLOB_FXSHOWFPS].detail.mdz_switch.switch_value) {
+    static float cur_winSizeX=0;
+    static float cur_winSizeY=0;
+
+    static float startX=0,startY=0;
+    static int switchPrevValue=0;
+    if (switchPrevValue!=settings[GLOB_FXSHOWINFO].detail.mdz_switch.switch_value) {
+        switchPrevValue=settings[GLOB_FXSHOWINFO].detail.mdz_switch.switch_value;
+        startX=cur_winSizeX;
+        startY=cur_winSizeY;
+    }
+    switch (settings[GLOB_FXSHOWINFO].detail.mdz_switch.switch_value) {
         case 0:winsizeX=0;winsizeY=0;break;
-        case 1:winsizeX=80;winsizeY=30;break;
-        case 2:winsizeX=80;winsizeY=70;break;
+        case 1:winsizeX=68;winsizeY=SHOWINFO_SECTION1_SIZE;break;
+        case 2:winsizeX=80;winsizeY=SHOWINFO_SECTION2_SIZE;break;
         case 3:winsizeX=80;winsizeY=hh;break;
         default:winsizeX=0;winsizeY=0;break;
     }
-    static float cur_winSizeX=0;
-    static float cur_winSizeY=0;
-    menuInterpolValue(cur_winSizeX,0,winsizeX);
-    menuInterpolValue(cur_winSizeY,0,winsizeY);
+    menuInterpolValue(cur_winSizeX,startX,winsizeX);
+    menuInterpolValue(cur_winSizeY,startY,winsizeY);
     if ( (cur_winSizeX!=0) || (cur_winSizeY!=0) ) {
         
         ImGui::SetNextWindowPos(ImVec2((ww-cur_winSizeX)*glScaleFactor,0));
@@ -7778,10 +7789,18 @@ void menuInterpolValue(float &curValue,float startValue,float tgtValue) {
         ImGui::PushStyleColor(ImGuiCol_WindowBg,ImVec4(0,0,0,0.5));
         ImGui::PushStyleColor(ImGuiCol_Border,ImVec4(0,0,0,0));
         
-        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.2,1.0,0.1,1.0));
+        float txtAlpha=(SHOWINFO_SECTION1_SIZE-(cur_winSizeY-0))/(SHOWINFO_SECTION1_SIZE);
+        if (txtAlpha<0) txtAlpha=0;
+        if (txtAlpha>1) txtAlpha=1;
+        txtAlpha=1-txtAlpha;
+        float txtAlphaX=cur_winSizeX/68.0;
+        if (txtAlphaX>1) txtAlphaX=1;
+        txtAlphaX*=txtAlphaX;
+        txtAlpha*=txtAlphaX;
+
         
         ImGui::GetStyle().Alpha=1.0;
-        if (font_menu) ImGui::PushFont(font_menu,30.0f*glScaleFactor);
+        if (font_menu) ImGui::PushFont(font_menu,FONTSIZE_SHOWINFO_FPS*glScaleFactor);
         else ImGui::PushFont(nullptr);
         
         ImGui::Begin("Info",0,
@@ -7791,89 +7810,223 @@ void menuInterpolValue(float &curValue,float startValue,float tgtValue) {
         float posx,posy=0;
         ImVec2 sizeText;
         //FPS
-        snprintf(strTmp,32,"%dFPS",m_nAverageFps);
+        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(SHOWINFO_FPS_COLOR,txtAlpha));
+        ImGui::SetCursorPos(ImVec2(2,posy));
+        ImGui::Text("FPS");
+        snprintf(strTmp,32,"%d",m_nAverageFps);
         sizeText=ImGui::CalcTextSize(strTmp);
         posx=sizeText.x+8;
         posy=0;
-        ImGui::SetCursorPos(ImVec2(winsizeX*glScaleFactor-posx,posy));
+        ImGui::SetCursorPos(ImVec2(cur_winSizeX*glScaleFactor-posx,posy));
         ImGui::Text("%s",strTmp);
         posy+=sizeText.y+2;
-        if (settings[GLOB_FXSHOWFPS].detail.mdz_switch.switch_value>1) {
+        if (cur_winSizeY>SHOWINFO_SECTION1_SIZE) {
+            txtAlpha=(SHOWINFO_SECTION2_SIZE-SHOWINFO_SECTION1_SIZE-(cur_winSizeY-SHOWINFO_SECTION1_SIZE))/(SHOWINFO_SECTION2_SIZE-SHOWINFO_SECTION1_SIZE);
+            if (txtAlpha<0) txtAlpha=0;
+            if (txtAlpha>1) txtAlpha=1;
+            txtAlpha=1-txtAlpha;
+            txtAlpha*=txtAlphaX;
+            
             //smaller font
-            if (font_menu) ImGui::PushFont(font_menu,17.0f*glScaleFactor);
+            if (font_menu) ImGui::PushFont(font_menu,FONTSIZE_SHOWINFO_DETAILS*glScaleFactor);
             else ImGui::PushFont(nullptr);
             //CPU
-            snprintf(strTmp,32,"CPU %.2f%%",cpuUsage);
+            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(SHOWINFO_CPU_COLOR,txtAlpha));
+            ImGui::SetCursorPos(ImVec2(2,posy));
+            ImGui::Text("CPU");
+            snprintf(strTmp,32,"%.2f%%",cpuUsage);
             sizeText=ImGui::CalcTextSize(strTmp);
             posx=sizeText.x+8;
-            ImGui::SetCursorPos(ImVec2(winsizeX*glScaleFactor-posx,posy));
+            ImGui::SetCursorPos(ImVec2(cur_winSizeX*glScaleFactor-posx,posy));
             ImGui::Text("%s",strTmp);
-            posy+=sizeText.y+2;
-            //Resolution
-            snprintf(strTmp,32,"%.0fx%.0f",ww*glScaleFactor,hh*glScaleFactor);
-            sizeText=ImGui::CalcTextSize(strTmp);
-            posx=sizeText.x+8;
-            ImGui::SetCursorPos(ImVec2(winsizeX*glScaleFactor-posx,posy));
-            ImGui::Text("%s",strTmp);
+            ImGui::PopStyleColor();
             posy+=sizeText.y+2;
             
-            if (settings[GLOB_FXSHOWFPS].detail.mdz_switch.switch_value>2) {
+            if (cur_winSizeY>SHOWINFO_SECTION2_SIZE) {
+                txtAlpha=(hh-SHOWINFO_SECTION2_SIZE-(cur_winSizeY-SHOWINFO_SECTION2_SIZE))/(hh-SHOWINFO_SECTION2_SIZE);
+                if (txtAlpha<0) txtAlpha=0;
+                if (txtAlpha>1) txtAlpha=1;
+                txtAlpha=1-txtAlpha;
+                txtAlpha*=txtAlphaX;
+                
                 posy+=sizeText.y+8;
-                //Internal PM resolution
-                snprintf(strTmp,32,"ProjectM");
+                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(SHOWINFO_FXVIEW_COLOR,txtAlpha));
+                ImGui::SetCursorPos(ImVec2(2,posy));
+                ImGui::Text("FX View");
+                posy+=sizeText.y+4;
+                ImGui::PopStyleColor();
+                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(SHOWINFO_FXVIEWRES_COLOR,txtAlpha));
+                //Resolution
+                ImGui::Text("R");
+                snprintf(strTmp,32,"%.0fx%.0f",ww*glScaleFactor,hh*glScaleFactor);
                 sizeText=ImGui::CalcTextSize(strTmp);
                 posx=sizeText.x+8;
-                ImGui::SetCursorPos(ImVec2(winsizeX*glScaleFactor-posx,posy));
+                ImGui::SetCursorPos(ImVec2(cur_winSizeX*glScaleFactor-posx,posy));
+                ImGui::Text("%s",strTmp);
+                posy+=sizeText.y+2;
+                //Viewport
+                ImGui::SetCursorPos(ImVec2(2,posy));
+                ImGui::Text("V");
+                snprintf(strTmp,32,"%dx%d",ww,hh);
+                sizeText=ImGui::CalcTextSize(strTmp);
+                posx=sizeText.x+8;
+                ImGui::SetCursorPos(ImVec2(cur_winSizeX*glScaleFactor-posx,posy));
+                ImGui::Text("%s",strTmp);
+                ImGui::PopStyleColor();
+                posy+=sizeText.y+2;
+                
+                float devWW,devHH;
+                CGSize screenSize;
+                for (UIScene *scene in UIApplication.sharedApplication.connectedScenes) {
+                    if ([scene isKindOfClass:[UIWindowScene class]]) {
+                        UIWindowScene *wscene=(UIWindowScene *)scene;
+                        for (UIWindow *win in wscene.windows) {
+                            if (win.keyWindow) {
+                                screenSize=win.screen.bounds.size;
+                            }
+                        }
+                    }
+                }
+                devWW=screenSize.width*glScaleFactor;
+                devHH=screenSize.height*glScaleFactor;
+                
+                posy+=sizeText.y+8;
+                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(SHOWINFO_DEVICE_COLOR,txtAlpha));
+                ImGui::SetCursorPos(ImVec2(2,posy));
+                ImGui::Text("Device");
+                posy+=sizeText.y+4;
+                ImGui::PopStyleColor();
+                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(SHOWINFO_DEVICERES_COLOR,txtAlpha));
+                ImGui::SetCursorPos(ImVec2(2,posy));
+                ImGui::Text("R");
+                snprintf(strTmp,32,"%.0fx%.0f",devWW,devHH);
+                sizeText=ImGui::CalcTextSize(strTmp);
+                posx=sizeText.x+8;
+                ImGui::SetCursorPos(ImVec2(cur_winSizeX*glScaleFactor-posx,posy));
+                ImGui::Text("%s",strTmp);
+                posy+=sizeText.y+2;
+                
+                ImGui::SetCursorPos(ImVec2(2,posy));
+                ImGui::Text("V");
+                snprintf(strTmp,32,"%.0fx%.0f",devWW/glScaleFactor,devHH/glScaleFactor);
+                sizeText=ImGui::CalcTextSize(strTmp);
+                posx=sizeText.x+8;
+                ImGui::SetCursorPos(ImVec2(cur_winSizeX*glScaleFactor-posx,posy));
+                ImGui::Text("%s",strTmp);
+                posy+=sizeText.y+2;
+                ImGui::PopStyleColor();
+                
+                posy+=sizeText.y+8;
+                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(SHOWINFO_PM_COLOR,txtAlpha));
+                //ProjectM info
+                ImGui::SetCursorPos(ImVec2(2,posy));
+                ImGui::Text("ProjectM");
+                posy+=sizeText.y+4;
+                //Internal PM resolution
+                ImGui::PopStyleColor();
+                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(SHOWINFO_PMRES_COLOR,txtAlpha));
+                ImGui::SetCursorPos(ImVec2(2,posy));
+                ImGui::Text("R");
+                snprintf(strTmp,32,"%dx%d",_pmCanvasWidth,_pmCanvasHeight);
+                sizeText=ImGui::CalcTextSize(strTmp);
+                posx=sizeText.x+8;
+                ImGui::SetCursorPos(ImVec2(cur_winSizeX*glScaleFactor-posx,posy));
+                ImGui::Text("%s",strTmp);
+                posy+=sizeText.y+4;
+                ImGui::SetCursorPos(ImVec2(2,posy));
+                ImGui::Text("V");
+                snprintf(strTmp,32,"%dx%d",(int)(_pmCanvasWidth/glScaleFactor),(int)(_pmCanvasHeight/glScaleFactor));
+                sizeText=ImGui::CalcTextSize(strTmp);
+                posx=sizeText.x+8;
+                ImGui::SetCursorPos(ImVec2(cur_winSizeX*glScaleFactor-posx,posy));
                 ImGui::Text("%s",strTmp);
                 posy+=sizeText.y+4;
                 
-                snprintf(strTmp,32,"res %dx%d",_pmCanvasWidth,_pmCanvasHeight);
-                sizeText=ImGui::CalcTextSize(strTmp);
-                posx=sizeText.x+8;
-                ImGui::SetCursorPos(ImVec2(winsizeX*glScaleFactor-posx,posy));
-                ImGui::Text("%s",strTmp);
-                posy+=sizeText.y+4;
-                snprintf(strTmp,32,"mesh %.0fx%.0f",
+                ImGui::SetCursorPos(ImVec2(2,posy));
+                ImGui::Text("Mesh");
+                snprintf(strTmp,32,"%.0fx%.0f",
                          settings[PROJECTM_MeshSizeX].detail.mdz_slider.slider_value,
                          settings[PROJECTM_MeshSizeY].detail.mdz_slider.slider_value);
                 sizeText=ImGui::CalcTextSize(strTmp);
                 posx=sizeText.x+8;
-                ImGui::SetCursorPos(ImVec2(winsizeX*glScaleFactor-posx,posy));
+                ImGui::SetCursorPos(ImVec2(cur_winSizeX*glScaleFactor-posx,posy));
                 ImGui::Text("%s",strTmp);
                 posy+=sizeText.y+4;
                 
                 posy+=sizeText.y+4;
                 //PM audio data
-                snprintf(strTmp,32,"bass %1.2f",bassAttr);
+                ImGui::PopStyleColor();
+                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(SHOWINFO_PMAUDIO_COLOR,txtAlpha));
+                ImGui::SetCursorPos(ImVec2(2,posy));
+                ImGui::Text("Bass");
+                
+                float bassAttr,midAttr,trebAttr,volAttr;
+                bassAttr=midAttr=trebAttr=volAttr=0;;
+                if (_pm) projectm_get_audio_vars(_pm,&bassAttr,&midAttr,&trebAttr,&volAttr);
+
+                
+                snprintf(strTmp,32,"%1.2f",bassAttr);
                 sizeText=ImGui::CalcTextSize(strTmp);
                 posx=sizeText.x+8;
-                ImGui::SetCursorPos(ImVec2(winsizeX*glScaleFactor-posx,posy));
+                ImGui::SetCursorPos(ImVec2(cur_winSizeX*glScaleFactor-posx,posy));
                 ImGui::Text("%s",strTmp);
                 posy+=sizeText.y+2;
                 
-                snprintf(strTmp,32,"mid %1.2f",midAttr);
+                ImGui::SetCursorPos(ImVec2(2,posy));
+                ImGui::Text("Mid");
+                snprintf(strTmp,32,"%1.2f",midAttr);
                 sizeText=ImGui::CalcTextSize(strTmp);
                 posx=sizeText.x+8;
-                ImGui::SetCursorPos(ImVec2(winsizeX*glScaleFactor-posx,posy));
+                ImGui::SetCursorPos(ImVec2(cur_winSizeX*glScaleFactor-posx,posy));
                 ImGui::Text("%s",strTmp);
                 posy+=sizeText.y+2;
                 
-                snprintf(strTmp,32,"treb %1.2f",trebAttr);
+                ImGui::SetCursorPos(ImVec2(2,posy));
+                ImGui::Text("Treb");
+                snprintf(strTmp,32,"%1.2f",trebAttr);
                 sizeText=ImGui::CalcTextSize(strTmp);
                 posx=sizeText.x+8;
-                ImGui::SetCursorPos(ImVec2(winsizeX*glScaleFactor-posx,posy));
+                ImGui::SetCursorPos(ImVec2(cur_winSizeX*glScaleFactor-posx,posy));
                 ImGui::Text("%s",strTmp);
                 posy+=sizeText.y+2;
+                
+                ImGui::SetCursorPos(ImVec2(2,posy));
+                ImGui::Text("Vol");
+                snprintf(strTmp,32,"%1.2f",volAttr);
+                sizeText=ImGui::CalcTextSize(strTmp);
+                posx=sizeText.x+8;
+                ImGui::SetCursorPos(ImVec2(cur_winSizeX*glScaleFactor-posx,posy));
+                ImGui::Text("%s",strTmp);
+                posy+=sizeText.y+2;
+                
+                posy+=sizeText.y+8;
+                //FX Frame info
+                ImGui::PopStyleColor();
+                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(SHOWINFO_FXFRAME_COLOR,txtAlpha));
+                ImGui::SetCursorPos(ImVec2(2,posy));
+                ImGui::Text("FX Frame");
+                posy+=sizeText.y+4;
+                ImGui::PopStyleColor();
+                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(SHOWINFO_FXFRAMEINFO_COLOR,txtAlpha));
+                snprintf(strTmp,32,"%.1fms",_fx_frame_time);
+                sizeText=ImGui::CalcTextSize(strTmp);
+                posx=sizeText.x+8;
+                ImGui::SetCursorPos(ImVec2(cur_winSizeX*glScaleFactor-posx,posy));
+                ImGui::Text("%s",strTmp);
+                posy+=sizeText.y+2;
+                
+                
+                ImGui::PopStyleColor();
                 
             }
             ImGui::PopFont();
         }
-        
+        ImGui::PopStyleColor();
         
         
         ImGui::End();
         ImGui::PopFont();
-        ImGui::PopStyleColor();
+        
         ImGui::PopStyleColor();
         ImGui::PopStyleColor();
     }
@@ -7901,36 +8054,38 @@ void menuInterpolValue(float &curValue,float startValue,float tgtValue) {
             if ((settings[PROJECTM_ShowPresetLabel].detail.mdz_switch.switch_value==2) || ([_mdzPM_playlist getSize]==0)) {
                 _pm_display_name_countdown=_pm_fps*PM_PRESET_DISPLAY_TIMEOUT;
             }
-            
-            const char *pmPresetStr=[_mdzPM_playlist getCurPresetCleanTitle];
+            NSString *pmInfoStr;
+            if ( [_mdzPM_playlist size] && [_mdzPM_Favorites isFavoritePreset:[NSString stringWithUTF8String:[_mdzPM_playlist getCurPresetCleanTitle]]] ) {
+                pmInfoStr=[NSString stringWithFormat:@"%C%C (%d/%d) %s   ",
+                           static_cast<unichar>(FA_HEART),
+                           static_cast<unichar>((settings[PROJECTM_LockPreset].detail.mdz_boolswitch.switch_value?FA_LOCK:FA_UNLOCK)),
+                           [_mdzPM_playlist getPos]+1,
+                           [_mdzPM_playlist size],
+                           [_mdzPM_playlist getCurPresetCleanTitle]];
+            } else {
+                pmInfoStr=[NSString stringWithFormat:@"%C (%d/%d) %s   ",
+                           static_cast<unichar>((settings[PROJECTM_LockPreset].detail.mdz_boolswitch.switch_value?FA_LOCK:FA_UNLOCK)),
+                           [_mdzPM_playlist getPos]+1,
+                           [_mdzPM_playlist size],
+                           [_mdzPM_playlist getCurPresetCleanTitle]];
+            }
+            const char *pmPresetStr=[pmInfoStr UTF8String];
             if (pmPresetStr&&_pm_display_name_countdown) {
                 float alpha_val=(float)(_pm_display_name_countdown*4)/255.0;
                 if (alpha_val>0.8) alpha_val=0.8;
-                
-                ImGui::SetNextWindowPos(ImVec2(0,(hh-24)*glScaleFactor));
-                ImGui::SetNextWindowSize(ImVec2(ww*glScaleFactor,24*glScaleFactor));
-                ImGui::GetStyle().Alpha=alpha_val;
-                if (font_menu) ImGui::PushFont(font_menu,20.0f*glScaleFactor);
+
+                if (font_menu) ImGui::PushFont(font_menu,FONTSIZE_PM_PRESET_INFO_LINE*glScaleFactor);
                 else ImGui::PushFont(nullptr);
+                
+                float textHH=ImGui::GetTextLineHeight()*1.7f;
+                
+                ImGui::SetNextWindowPos(ImVec2(0,(hh-textHH)*glScaleFactor));
+                ImGui::SetNextWindowSize(ImVec2(ww*glScaleFactor,textHH*glScaleFactor));
+                ImGui::GetStyle().Alpha=alpha_val;
                 ImGui::Begin("On screen info",0,ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoScrollbar|ImGuiWindowFlags_NoFocusOnAppearing);
                 ImVec2 pmPresetStr_size=ImGui::CalcTextSize(pmPresetStr);
-                pmPresetStr_size.x+=18;
                 
-                if ( [_mdzPM_playlist size] && [_mdzPM_Favorites isFavoritePreset:[NSString stringWithUTF8String:[_mdzPM_playlist getCurPresetCleanTitle]]] ) {
-                    ImGui::Text("%s%s(%d/%d) %s",
-                                [[NSString stringWithFormat:@"%C", static_cast<unichar>(FA_HEART)] UTF8String],
-                                [[NSString stringWithFormat:@"%C", static_cast<unichar>((settings[PROJECTM_LockPreset].detail.mdz_boolswitch.switch_value?FA_LOCK:FA_UNLOCK))] UTF8String],
-                                [_mdzPM_playlist getPos]+1,[_mdzPM_playlist size],
-                                pmPresetStr);
-                } else {
-                    if ([_mdzPM_playlist size]) {
-                        ImGui::Text("%s(%d/%d) %s",[[NSString stringWithFormat:@"%C", static_cast<unichar>((settings[PROJECTM_LockPreset].detail.mdz_boolswitch.switch_value?FA_LOCK:FA_UNLOCK))] UTF8String],
-                                    [_mdzPM_playlist getPos]+1,[_mdzPM_playlist size],
-                                    pmPresetStr);
-                    } else {
-                        ImGui::Text("%s",pmPresetStr);
-                    }
-                }
+                ImGui::Text("%s",pmPresetStr);
                 
                 ImGui::SetScrollX(_pm_display_scrollx);
                 ImGui::End();
@@ -8107,6 +8262,20 @@ void menuInterpolValue(float &curValue,float startValue,float tgtValue) {
     
     [self presentContextOGL];
     
+    CFTimeInterval _fx_last_time=CFAbsoluteTimeGetCurrent();
+    _fx_frame_time=1000.0f*(double)(_fx_last_time-_fx_start_time);
+    
+    if (_fx_frame_time<PM_FRAMETIME_LIMIT) {
+        if (_fx_frame_timeOverLimitCounter) _fx_frame_timeOverLimitCounter--;
+    } else {
+        _fx_frame_timeOverLimitCounter++;
+        if (_fx_frame_timeOverLimitCounter>PM_FRAMETIME_LIMIT_COUNTERMAX) {
+            settings[PROJECTM_FXONOFF].detail.mdz_boolswitch.switch_value=0;
+            _fx_frame_timeOverLimitCounter=0;
+            [self openPopup:NSLocalizedString(@"FX too slow",@"") secmsg:NSLocalizedString(@"ProjectM FX deactivated. Reduce resolution, mesh size or change to lighter presets.", @"") style:POPUP_STYLE_ALERT];
+        }
+    }
+    
     no_reentrant=0;
     
     if (shouldGoToSettings) {
@@ -8178,10 +8347,10 @@ void menuInterpolValue(float &curValue,float startValue,float tgtValue) {
     
     UIColor *bgcol;
     switch (style){
-        case 0://info
+        case POPUP_STYLE_INFO://info
             bgcol=[UIColor colorWithRed:(float)(0x00)/255.0f green:(float)(0x02)/255.0f blue:(float)(0x41)/255.0f alpha:1.0];
             break;
-        case 1://alert
+        case POPUP_STYLE_ALERT://alert
             bgcol=[UIColor colorWithRed:(float)(0xB0)/255.0f green:(float)(0x02)/255.0f blue:(float)(0x00)/255.0f alpha:1.0];
             break;
     }

@@ -5,6 +5,9 @@
 //  Created by Yohann Magnien David on 10/10/2025.
 //
 
+#define PL_MIN_FONT_SIZE 14
+#define PL_IDEALFONTSIZE_RATIO 22
+
 #include "PlayerMenu.h"
 #include "SettingsGenViewController.h"
 #include "TextureUtils.h"
@@ -74,7 +77,6 @@ enum PMenu_Menu_List {
     MENU_2DSPECTRUM,
     MENU_3DSPECTRUM,
     MENU_3DLANDSCAPE,
-
     MENU_ROOT_MORE,
     MENU_PROJECTM_EXPLORE,
     MENU_INDEX_MAX
@@ -100,6 +102,7 @@ static int menuCpt[16];
 static float global_FXAlpha;
 
 static GLuint txtMenuHandle[16];
+int menuRootColNb=4;
 const char *menuRootLabel[16]={
     NULL,NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
@@ -119,6 +122,7 @@ const unsigned short menuRootLabelFAIcon[16]={
     NULL,NULL,FA_COGS,FA_WINDOW_CLOSE,
 };
 
+int menuMoreColNb=4;
 static GLuint txtMenuMoreHandle[16];
 const char *menuRootMoreLabel[16]={
     NULL,"@sliderFX\nalpha",NULL,NULL,
@@ -140,10 +144,11 @@ const unsigned short menuRootMoreLabelFAIcon[16]={
 };
 char *menuMenuMoreDynLabel[16];
 
+int menuProjectMColNb=4;
 static GLuint txtMenuProjectMHandle[16];
 const char *menuProjectMLabel[16]={
     NULL,NULL,"Show name\ntemp.","Show name",
-    "Default\npresets","Custom\npresets",NULL,"Blend presets",
+    "Bundled\npresets","Custom\npresets",NULL,"Blend presets",
     NULL,NULL,NULL,NULL,
     NULL,NULL,NULL,NULL
 };
@@ -161,21 +166,23 @@ const unsigned short menuProjectMLabelFAIcon[16]={
 };
 char *menuProjectMDynLabel[16];
 
-static GLuint txtMenuProjectMExploreHandle[8];
-const char *menuProjectMExploreLabel[8]={
-    "Select\nall","Clear\nall",NULL,NULL,
-    "Select\nfiltered","Remove\nfiltered",NULL,NULL,
+int menuProjectMExploreColNb=6;
+static GLuint txtMenuProjectMExploreHandle[6*2];
+const char *menuProjectMExploreLabel[6*2]={
+    "Clear\nlist",      "All\nall",         "Expand",   NULL,NULL,NULL,
+    "Add\nfiltered",    "Remove\nfiltered", "Collapse", NULL,NULL,NULL,
 };
-void *menuProjectMExploreVar[8]={
-    NULL,NULL,NULL,NULL,
-    NULL,NULL,NULL,NULL,
+void *menuProjectMExploreVar[6*2]={
+    NULL,NULL,NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,NULL,NULL,NULL,
     
 };
-const unsigned short menuProjectMExploreLabelFAIcon[8]={
-    NULL,NULL,FA_REFRESH,FA_CHECK_CIRCLE,
-    NULL,NULL,FA_ARROW_CIRCLE_LEFT,FA_WINDOW_CLOSE,
+const unsigned short menuProjectMExploreLabelFAIcon[6*2]={
+    NULL,NULL,NULL,NULL,FA_REFRESH,FA_CHECK_CIRCLE,
+    NULL,NULL,NULL,NULL,FA_ARROW_CIRCLE_LEFT,FA_WINDOW_CLOSE,
 };
 
+int menuOscilloColNb=4;
 static GLuint txtMenuOscilloHandle[16];
 const char *menuOscilloLabel[16]={
     NULL,NULL,NULL,NULL,
@@ -197,6 +204,7 @@ const unsigned short menuOscilloLabelFAIcon[16]={
 };
 char *menuOscilloDynLabel[16];
 
+int menu2DSpectrumColNb=4;
 static GLuint txtMenu2DSpectrumHandle[16];
 const char *menu2DSpectrumLabel[16]={
     NULL,NULL,NULL,NULL,
@@ -217,6 +225,7 @@ const unsigned short menu2DSpectrumLabelFAIcon[16]={
     NULL,FA_COGS,FA_ARROW_CIRCLE_LEFT,FA_WINDOW_CLOSE,
 };
 
+int menu3DSpectrumColNb=4;
 static GLuint txtMenu3DSpectrumHandle[16];
 const char *menu3DSpectrumLabel[16]={
     NULL,NULL,NULL,NULL,
@@ -238,6 +247,7 @@ const unsigned short menu3DSpectrumLabelFAIcon[16]={
 };
 char *menu3DSpectrumDynLabel[16];
 
+int menu3DLandscapeColNb=4;
 static GLuint txtMenu3DLandscapeHandle[16];
 const char *menu3DLandscapeLabel[16]={
     NULL,NULL,NULL,NULL,
@@ -259,6 +269,7 @@ const unsigned short menu3DLandscapeLabelFAIcon[16]={
 };
 char *menu3DLandscapeDynLabel[16];
 
+int menuPiano3DColNb=4;
 static GLuint txtMenuPiano3DHandle[16];
 const char *menuPiano3DLabel[16]={
     NULL,NULL,NULL,NULL,
@@ -279,6 +290,7 @@ const unsigned short menuPiano3DLabelFAIcon[16]={
     NULL,FA_COGS,FA_ARROW_CIRCLE_LEFT,FA_WINDOW_CLOSE,
 };
 
+int menuPianoRollColNb=4;
 static GLuint txtMenuPianoRollHandle[16];
 const char *menuPianoRollLabel[16]={
     NULL,NULL,NULL,NULL,
@@ -299,6 +311,7 @@ const unsigned short menuPianoRollLabelFAIcon[16]={
     NULL,FA_COGS,FA_ARROW_CIRCLE_LEFT,FA_WINDOW_CLOSE,
 };
 
+int menuMidiColNb=4;
 static GLuint txtMenuMidiHandle[16];
 const char *menuMidiLabel[16]={
     NULL,NULL,NULL,NULL,
@@ -319,6 +332,7 @@ const unsigned short menuMidiLabelFAIcon[16]={
     NULL,FA_COGS,FA_ARROW_CIRCLE_LEFT,FA_WINDOW_CLOSE,
 };
 
+int menuModPatternColNb=4;
 static GLuint txtMenuModPatternHandle[16];
 const char *menuModPatternLabel[16]={
     NULL,NULL,NULL,NULL,
@@ -385,11 +399,11 @@ int playerGetActivatedCells(int menu_idx) {
         if (settings[PROJECTM_FXONOFF].detail.mdz_boolswitch.switch_value) active_idx|=1<<FXPROJECTM_IDX;
         if (settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value) active_idx|=1<<11;
     } else if (menu_idx==MENU_ROOT_MORE) {
-        if (settings[GLOB_FXSHOWFPS].detail.mdz_switch.switch_value) active_idx|=1<<0;
+        if (settings[GLOB_FXSHOWINFO].detail.mdz_switch.switch_value) active_idx|=1<<0;
         if (settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value) active_idx|=1<<11;
         if (settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value) active_idx|=1<<11;
         
-        menuMenuMoreDynLabel[0]=settings[GLOB_FXSHOWFPS].detail.mdz_switch.switch_labels[settings[GLOB_FXSHOWFPS].detail.mdz_switch.switch_value];
+        menuMenuMoreDynLabel[0]=settings[GLOB_FXSHOWINFO].detail.mdz_switch.switch_labels[settings[GLOB_FXSHOWINFO].detail.mdz_switch.switch_value];
     } else if (menu_idx==MENU_OSCILLO) {
         if (settings[OSCILLO_FXMODE].detail.mdz_switch.switch_value==0) active_idx|=1<<0;
         if (settings[OSCILLO_FXMODE].detail.mdz_switch.switch_value==1) active_idx|=1<<1;
@@ -472,9 +486,9 @@ int playerGetActivatedCells(int menu_idx) {
         if (settings[PROJECTM_LockPreset].detail.mdz_boolswitch.switch_value) active_idx|=1<<10;
         if (settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value) active_idx|=1<<11;
         
-        if (settings[PROJECTM_BundledPresets].detail.mdz_boolswitch.switch_value) menuProjectMDynLabel[8]=(char*)"Select\ndefault presets";
+        if (settings[PROJECTM_BundledPresets].detail.mdz_boolswitch.switch_value) menuProjectMDynLabel[8]=(char*)"Select\nbundled\npresets";
         else menuProjectMDynLabel[8]=NULL;
-        if (settings[PROJECTM_CustomPresets].detail.mdz_boolswitch.switch_value) menuProjectMDynLabel[9]=(char*)"Select\ncustom presets";
+        if (settings[PROJECTM_CustomPresets].detail.mdz_boolswitch.switch_value) menuProjectMDynLabel[9]=(char*)"Select\ncustom\npresets";
         else menuProjectMDynLabel[9]=NULL;
     }
     return active_idx;
@@ -792,7 +806,6 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
     
     float menu_margin=1.0*glScaleFactor;
     float menu_cell_padding=1.0*glScaleFactor;
-    float menu_cells_per_line=4;
     
     menu_win_size=round(fmin(ww*glScaleFactor-2*menu_margin,hh*glScaleFactor-2*menu_margin));
     // Determine menu size, manage exception
@@ -803,9 +816,10 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
         menu_win_sizeH=menu_win_size;
         
     }
+
     
-    cell_size=round((menu_win_size)/menu_cells_per_line)-3*menu_cell_padding;
-    idealFontSize=menu_win_size/40;
+    idealFontSize=menu_win_size/glScaleFactor/PL_IDEALFONTSIZE_RATIO;
+    if (idealFontSize<PL_MIN_FONT_SIZE) idealFontSize=PL_MIN_FONT_SIZE;
     
     
     // Global var mirroring
@@ -845,21 +859,23 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
     if (pMenu_state.menu_idx==MENU_ROOT) {
         //Select right current textures for root menu itemas, based on current settings
         playerRootMenuInitRightItemsTexture();
-        if (ImGui::BeginTable("menu_root",4,flagTable)) {
+        int col_nb=menuRootColNb;
+        if (ImGui::BeginTable("menu_root",col_nb,flagTable)) {
             current_txtMenuHandle=txtMenuHandle;
             currentMenuLabel=menuRootLabel;
             currentMenuLabelFAIcon=menuRootLabelFAIcon;
             currentMenuVar=menuRootVar;
             currentMenuDynLabel=NULL;
+            cell_size=round((menu_win_size)/col_nb)-3*menu_cell_padding;
             for (int r=0;r<4;r++) {
                 ImGui::TableNextRow(0,cell_size+2*menu_cell_padding);
-                for (int c=0;c<4;c++) {
+                for (int c=0;c<col_nb;c++) {
                     ImGui::TableSetColumnIndex(c);
                     
                     bool isActive=activeFx&(1<<(r*4+c));
                     int ret=buildSubMenu(r,
                                          c,
-                                         4,
+                                         col_nb,
                                          isActive,
                                          cell_size,
                                          cell_size,
@@ -932,21 +948,23 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
             ImGui::EndTable();
         }
     } else if (pMenu_state.menu_idx==MENU_ROOT_MORE) {
-        if (ImGui::BeginTable("menu_root_more",4,flagTable)) {
+        int col_nb=menuMoreColNb;
+        if (ImGui::BeginTable("menu_root_more",col_nb,flagTable)) {
             current_txtMenuHandle=txtMenuMoreHandle;
             currentMenuLabel=menuRootMoreLabel;
             currentMenuLabelFAIcon=menuRootMoreLabelFAIcon;
             currentMenuVar=menuRootMoreVar;
             currentMenuDynLabel=menuMenuMoreDynLabel;
+            cell_size=round((menu_win_size)/col_nb)-3*menu_cell_padding;
             for (int r=0;r<4;r++) {
                 ImGui::TableNextRow(0,cell_size+2*menu_cell_padding);
-                for (int c=0;c<4;c++) {
+                for (int c=0;c<col_nb;c++) {
                     ImGui::TableSetColumnIndex(c);
                     
                     bool isActive=activeFx&(1<<(r*4+c));
                     int ret=buildSubMenu(r,
                                          c,
-                                         4,
+                                         col_nb,
                                          isActive,
                                          cell_size,
                                          cell_size,
@@ -958,7 +976,7 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
                     if (ret) {
                         switch (c*16+r) {
                             case 0x00://Show FPS
-                                settings[GLOB_FXSHOWFPS].detail.mdz_switch.switch_value=(settings[GLOB_FXSHOWFPS].detail.mdz_switch.switch_value+1)%settings[GLOB_FXSHOWFPS].detail.mdz_switch.switch_value_nb;
+                                settings[GLOB_FXSHOWINFO].detail.mdz_switch.switch_value=(settings[GLOB_FXSHOWINFO].detail.mdz_switch.switch_value+1)%settings[GLOB_FXSHOWINFO].detail.mdz_switch.switch_value_nb;
                                 break;
                             case 0x10: //FX Alpha
                                 break;
@@ -1002,21 +1020,23 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
             ImGui::EndTable();
         }
     } else if (pMenu_state.menu_idx==MENU_OSCILLO) {
-        if (ImGui::BeginTable("menu_oscillo",4,flagTable)) {
+        int col_nb=menuOscilloColNb;
+        if (ImGui::BeginTable("menu_oscillo",col_nb,flagTable)) {
             current_txtMenuHandle=txtMenuOscilloHandle;
             currentMenuLabel=menuOscilloLabel;
             currentMenuLabelFAIcon=menuOscilloLabelFAIcon;
             currentMenuVar=menuOscilloVar;
             currentMenuDynLabel=menuOscilloDynLabel;
+            cell_size=round((menu_win_size)/col_nb)-3*menu_cell_padding;
             for (int r=0;r<4;r++) {
                 ImGui::TableNextRow(0,cell_size);
-                for (int c=0;c<4;c++) {
+                for (int c=0;c<col_nb;c++) {
                     ImGui::TableSetColumnIndex(c);
                     
                     bool isActive=activeFx&(1<<(r*4+c));
                     int ret=buildSubMenu(r,
                                          c,
-                                         4,
+                                         col_nb,
                                          isActive,
                                          cell_size,
                                          cell_size,
@@ -1086,21 +1106,23 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
             ImGui::EndTable();
         }
     } else if (pMenu_state.menu_idx==MENU_2DSPECTRUM) {
-        if (ImGui::BeginTable("menu_2dspectrum",4,flagTable)) {
+        int col_nb=menu2DSpectrumColNb;
+        if (ImGui::BeginTable("menu_2dspectrum",col_nb,flagTable)) {
             current_txtMenuHandle=txtMenu2DSpectrumHandle;
             currentMenuLabel=menu2DSpectrumLabel;
             currentMenuLabelFAIcon=menu2DSpectrumLabelFAIcon;
             currentMenuVar=menu2DSpectrumVar;
             currentMenuDynLabel=NULL;
+            cell_size=round((menu_win_size)/col_nb)-3*menu_cell_padding;
             for (int r=0;r<4;r++) {
                 ImGui::TableNextRow(0,cell_size);
-                for (int c=0;c<4;c++) {
+                for (int c=0;c<col_nb;c++) {
                     ImGui::TableSetColumnIndex(c);
                     
                     bool isActive=activeFx&(1<<(r*4+c));
                     int ret=buildSubMenu(r,
                                          c,
-                                         4,
+                                         col_nb,
                                          isActive,
                                          cell_size,
                                          cell_size,
@@ -1151,21 +1173,23 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
             ImGui::EndTable();
         }
     } else if (pMenu_state.menu_idx==MENU_3DSPECTRUM) {
-        if (ImGui::BeginTable("menu_3dspectrum",4,flagTable)) {
+        int col_nb=menu3DSpectrumColNb;
+        if (ImGui::BeginTable("menu_3dspectrum",col_nb,flagTable)) {
             current_txtMenuHandle=txtMenu3DSpectrumHandle;
             currentMenuLabel=menu3DSpectrumLabel;
             currentMenuDynLabel=menu3DSpectrumDynLabel;
             currentMenuLabelFAIcon=menu3DSpectrumLabelFAIcon;
             currentMenuVar=menu3DSpectrumVar;
+            cell_size=round((menu_win_size)/col_nb)-3*menu_cell_padding;
             for (int r=0;r<4;r++) {
                 ImGui::TableNextRow(0,cell_size);
-                for (int c=0;c<4;c++) {
+                for (int c=0;c<col_nb;c++) {
                     ImGui::TableSetColumnIndex(c);
                     
                     bool isActive=activeFx&(1<<(r*4+c));
                     int ret=buildSubMenu(r,
                                          c,
-                                         4,
+                                         col_nb,
                                          isActive,
                                          cell_size,
                                          cell_size,
@@ -1221,21 +1245,23 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
             ImGui::EndTable();
         }
     } else if (pMenu_state.menu_idx==MENU_3DLANDSCAPE) {
-        if (ImGui::BeginTable("menu_3dlandscape",4,flagTable)) {
+        int col_nb=menu3DLandscapeColNb;
+        if (ImGui::BeginTable("menu_3dlandscape",col_nb,flagTable)) {
             current_txtMenuHandle=txtMenu3DLandscapeHandle;
             currentMenuLabel=menu3DLandscapeLabel;
             currentMenuDynLabel=menu3DLandscapeDynLabel;
             currentMenuLabelFAIcon=menu3DLandscapeLabelFAIcon;
             currentMenuVar=menu3DLandscapeVar;
+            cell_size=round((menu_win_size)/col_nb)-3*menu_cell_padding;
             for (int r=0;r<4;r++) {
                 ImGui::TableNextRow(0,cell_size);
-                for (int c=0;c<4;c++) {
+                for (int c=0;c<col_nb;c++) {
                     ImGui::TableSetColumnIndex(c);
                     
                     bool isActive=activeFx&(1<<(r*4+c));
                     int ret=buildSubMenu(r,
                                          c,
-                                         4,
+                                         col_nb,
                                          isActive,
                                          cell_size,
                                          cell_size,
@@ -1306,21 +1332,23 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
             ImGui::EndTable();
         }
     } else if (pMenu_state.menu_idx==MENU_PIANOROLL) {
-        if (ImGui::BeginTable("menu_pianoroll",4,flagTable)) {
+        int col_nb=menuPianoRollColNb;
+        if (ImGui::BeginTable("menu_pianoroll",col_nb,flagTable)) {
             current_txtMenuHandle=txtMenuPianoRollHandle;
             currentMenuLabel=menuPianoRollLabel;
             currentMenuLabelFAIcon=menuPianoRollLabelFAIcon;
             currentMenuVar=menuPianoRollVar;
             currentMenuDynLabel=NULL;
+            cell_size=round((menu_win_size)/col_nb)-3*menu_cell_padding;
             for (int r=0;r<4;r++) {
                 ImGui::TableNextRow(0,cell_size);
-                for (int c=0;c<4;c++) {
+                for (int c=0;c<col_nb;c++) {
                     ImGui::TableSetColumnIndex(c);
                     
                     bool isActive=activeFx&(1<<(r*4+c));
                     int ret=buildSubMenu(r,
                                          c,
-                                         4,
+                                         col_nb,
                                          isActive,
                                          cell_size,
                                          cell_size,
@@ -1375,21 +1403,23 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
             ImGui::EndTable();
         }
     } else if (pMenu_state.menu_idx==MENU_PIANO3D) {
-        if (ImGui::BeginTable("menu_piano3d",4,flagTable)) {
+        int col_nb=menuPiano3DColNb;
+        if (ImGui::BeginTable("menu_piano3d",col_nb,flagTable)) {
             current_txtMenuHandle=txtMenuPiano3DHandle;
             currentMenuLabel=menuPiano3DLabel;
             currentMenuLabelFAIcon=menuPiano3DLabelFAIcon;
             currentMenuVar=menuPiano3DVar;
             currentMenuDynLabel=NULL;
+            cell_size=round((menu_win_size)/col_nb)-3*menu_cell_padding;
             for (int r=0;r<4;r++) {
                 ImGui::TableNextRow(0,cell_size);
-                for (int c=0;c<4;c++) {
+                for (int c=0;c<col_nb;c++) {
                     ImGui::TableSetColumnIndex(c);
                     
                     bool isActive=activeFx&(1<<(r*4+c));
                     int ret=buildSubMenu(r,
                                          c,
-                                         4,
+                                         col_nb,
                                          isActive,
                                          cell_size,
                                          cell_size,
@@ -1446,21 +1476,23 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
             ImGui::EndTable();
         }
     } else if (pMenu_state.menu_idx==MENU_MIDIPATTERN) {
-        if (ImGui::BeginTable("menu_midipattern",4,flagTable)) {
+        int col_nb=menuMidiColNb;
+        if (ImGui::BeginTable("menu_midipattern",col_nb,flagTable)) {
             current_txtMenuHandle=txtMenuMidiHandle;
             currentMenuLabel=menuMidiLabel;
             currentMenuLabelFAIcon=menuMidiLabelFAIcon;
             currentMenuVar=menuMidiVar;
             currentMenuDynLabel=NULL;
+            cell_size=round((menu_win_size)/col_nb)-3*menu_cell_padding;
             for (int r=0;r<4;r++) {
                 ImGui::TableNextRow(0,cell_size);
-                for (int c=0;c<4;c++) {
+                for (int c=0;c<col_nb;c++) {
                     ImGui::TableSetColumnIndex(c);
                     
                     bool isActive=activeFx&(1<<(r*4+c));
                     int ret=buildSubMenu(r,
                                          c,
-                                         4,
+                                         col_nb,
                                          isActive,
                                          cell_size,
                                          cell_size,
@@ -1511,21 +1543,23 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
             ImGui::EndTable();
         }
     } else if (pMenu_state.menu_idx==MENU_MODPATTERN) {
-        if (ImGui::BeginTable("menu_modpattern",4,flagTable)) {
+        int col_nb=menuModPatternColNb;
+        if (ImGui::BeginTable("menu_modpattern",col_nb,flagTable)) {
             current_txtMenuHandle=txtMenuModPatternHandle;
             currentMenuLabel=menuModPatternLabel;
             currentMenuDynLabel=menuModPatternDynLabel;
             currentMenuLabelFAIcon=menuModPatternLabelFAIcon;
             currentMenuVar=menuModPatternVar;
+            cell_size=round((menu_win_size)/col_nb)-3*menu_cell_padding;
             for (int r=0;r<4;r++) {
                 ImGui::TableNextRow(0,cell_size);
-                for (int c=0;c<4;c++) {
+                for (int c=0;c<col_nb;c++) {
                     ImGui::TableSetColumnIndex(c);
                     
                     bool isActive=activeFx&(1<<(r*4+c));
                     int ret=buildSubMenu(r,
                                          c,
-                                         4,
+                                         col_nb,
                                          isActive,
                                          cell_size,
                                          cell_size,
@@ -1595,22 +1629,23 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
             ImGui::EndTable();
         }
     } else if (pMenu_state.menu_idx==MENU_PROJECTM) {
-        
-        if (ImGui::BeginTable("menu_ProjectM",4,flagTable)) {
+        int col_nb=menuProjectMColNb;
+        if (ImGui::BeginTable("menu_ProjectM",col_nb,flagTable)) {
             current_txtMenuHandle=txtMenuProjectMHandle;
             currentMenuLabel=menuProjectMLabel;
             currentMenuLabelFAIcon=menuProjectMLabelFAIcon;
             currentMenuVar=menuProjectMVar;
             currentMenuDynLabel=menuProjectMDynLabel;
+            cell_size=round((menu_win_size)/col_nb)-3*menu_cell_padding;
                 for (int r=0;r<4;r++) {
                     ImGui::TableNextRow(0,cell_size);
-                    for (int c=0;c<4;c++) {
+                    for (int c=0;c<col_nb;c++) {
                         ImGui::TableSetColumnIndex(c);
                         
                         bool isActive=activeFx&(1<<(r*4+c));
                         int ret=buildSubMenu(r,
                                              c,
-                                             4,
+                                             col_nb,
                                              isActive,
                                              cell_size,
                                              cell_size,
@@ -1708,43 +1743,45 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
         }
     } else if (pMenu_state.menu_idx==MENU_PROJECTM_EXPLORE) {
         ImGui::Text("Select active %s presets",(pmCurrentPlaylistMode==PM_BUNDLED_PLAYLIST?"bundled":"custom"));
-        if (ImGui::BeginTable("menu_ProjectM_Explore",4,flagTable)) {
+        int col_nb=menuProjectMExploreColNb;
+        if (ImGui::BeginTable("menu_ProjectM_Explore",col_nb,flagTable)) {
             settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value=1;
-            
             current_txtMenuHandle=txtMenuProjectMExploreHandle;
             currentMenuLabel=menuProjectMExploreLabel;
             currentMenuLabelFAIcon=menuProjectMExploreLabelFAIcon;
             currentMenuVar=menuProjectMExploreVar;
             currentMenuDynLabel=NULL;
-            
-            float new_cell_h=ImGui::GetTextLineHeight()*2;
-                
-                for (int r=0;r<2;r++) {
-                    ImGui::TableNextRow(0,new_cell_h);
-                    for (int c=0;c<4;c++) {
-                        ImGui::TableSetColumnIndex(c);
-                        
-                        bool isActive=activeFx&(1<<(r*4+c));
-                        int ret=buildSubMenu(r,
-                                             c,
-                                             4,
-                                             isActive,
-                                             cell_size,
-                                             new_cell_h,
-                                             current_txtMenuHandle,
-                                             currentMenuLabel,
-                                             currentMenuDynLabel,
-                                             currentMenuLabelFAIcon,
-                                             currentMenuVar);
+            cell_size=round((menu_win_size)/col_nb)-3*menu_cell_padding;
+            float new_cell_h=ImGui::GetTextLineHeight()*2.2f;
+            for (int r=0;r<2;r++) {
+                ImGui::TableNextRow(0,new_cell_h);
+                for (int c=0;c<col_nb;c++) {
+                    ImGui::TableSetColumnIndex(c);
+                    
+                    bool isActive=activeFx&(1<<(r*4+c));
+                    int ret=buildSubMenu(r,
+                                         c,
+                                         col_nb,
+                                         isActive,
+                                         cell_size,
+                                         new_cell_h,
+                                         current_txtMenuHandle,
+                                         currentMenuLabel,
+                                         currentMenuDynLabel,
+                                         currentMenuLabelFAIcon,
+                                         currentMenuVar);
                     if (ret) {
                         switch (c*16+r) {
-                            case 0x00: //Select all
-                                pMenu_PMPresetsSelAll(pmCurrentFileNode);
-                                break;
-                            case 0x10: //Clear all
+                            case 0x00: //Clear all
                                 pMenu_PMPresetsRemAll(pmCurrentFileNode);
                                 break;
-                            case 0x20: //Refresh
+                            case 0x10: //Add all
+                                pMenu_PMPresetsSelAll(pmCurrentFileNode);
+                                break;
+                            case 0x20: //Expand
+                                break;
+                            case 0x30:break;
+                            case 0x40: //Refresh
                                 //if custom presets,rescan dir
                                 if (pmCurrentFileNode==pmCustomPresetsFileNode) {
                                     updatePresetCustomDirStructure();
@@ -1753,23 +1790,26 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
                                 [_mdzPM_playlist updateFileNodeStatus:pmCurrentFileNode];
                                 pMenu_PMInitTempData(pmCurrentFileNode);
                                 break;
-                            case 0x30: //Apply
+                            case 0x50: //Apply
                                 pMenu_PMCommitTempData(pmCurrentFileNode);
                                 pmSoftReinit(true);
                                 [_mdzPM_playlist updateFileNodeStatus:pmCurrentFileNode];
                                 pMenu_PMInitTempData(pmCurrentFileNode);
                                 break;
-                            case 0x01: //Select filtered
+                            case 0x01: //Add filtered
                                 pMenu_PMPresetsSelFiltered(pmCurrentFileNode);
                                 break;
                             case 0x11: //Remove filtered
                                 pMenu_PMPresetsRemFiltered(pmCurrentFileNode);
                                 break;
-                            case 0x21: //Back to main menu
+                            case 0x21: //Collapse
+                                break;
+                            case 0x31:break;
+                            case 0x41: //Back to main menu
                                 settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value=fullscreenStatus;
                                 pMenu_state.menu_idx=MENU_PROJECTM;
                                 break;
-                            case 0x31: //Exit
+                            case 0x51: //Exit
                                 settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value=fullscreenStatus;
                                 keepOpened=0;
                                 break;

@@ -8,7 +8,7 @@
 #include "ModizerConstants.H"
 
 #define FONT_MENU_FILE  @"Fonts/Roboto-Medium"
-#define FONT_MENU_FILE_JAP @"Fonts/Mplus1-Regular"
+#define FONT_MENU_FILE_JAP @"Fonts/Mplus1Code-Medium"
 
 #define MAX_LASTCHAR_SIZE 16 //buffer to capture key inputs in UITextfield
 

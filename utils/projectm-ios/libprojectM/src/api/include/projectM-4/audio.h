@@ -98,6 +98,21 @@ PROJECTM_EXPORT void projectm_pcm_add_int16(projectm_handle instance, const int1
 PROJECTM_EXPORT void projectm_pcm_add_uint8(projectm_handle instance, const uint8_t* samples,
                                             unsigned int count, projectm_channels channels);
 
+
+/**
+ * @brief Retrieve audio vars for info display purpose.
+ *
+ *
+ * @param instance The projectM instance handle.
+ * @param bassAttr Attenuated reading of the bass. 1 is normal; below ~0.7 is quiet; above ~1.3 is loud bass
+ * @param midAttr Same for mids (middle frequencies)
+ * @param trebAttr Same for trebles (high frequencies)
+ * @param volAttr Same for volume
+ *
+ * @since modizer fork
+ */
+PROJECTM_EXPORT void projectm_get_audio_vars(projectm_handle instance, float *bassAttr, float *midAttr, float *trebAttr, float *volAttr);
+
 #ifdef __cplusplus
 } // extern "C"
 #endif

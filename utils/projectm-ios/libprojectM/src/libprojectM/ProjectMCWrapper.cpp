@@ -450,3 +450,12 @@ uint32_t projectm_sprite_get_max_sprites(projectm_handle instance)
 
     return projectMInstance->UserSpriteLimit();
 }
+
+void projectm_get_audio_vars(projectm_handle instance, float *bassAttr, float *midAttr, float *trebAttr, float *volAttr)
+{
+    auto projectMInstance = handle_to_instance(instance);
+    *bassAttr = projectMInstance->PCM().GetFrameAudioData().bassAtt;
+    *midAttr = projectMInstance->PCM().GetFrameAudioData().midAtt;
+    *trebAttr = projectMInstance->PCM().GetFrameAudioData().trebAtt;
+    *volAttr = projectMInstance->PCM().GetFrameAudioData().volAtt;
+}

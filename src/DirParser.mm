@@ -198,16 +198,14 @@ typedef struct {
 @end
 
 
-void MDZOnPresetSwitchRequested(bool isHardCut, void* userData)
-{
-    MDZILog("should change preset");
+void MDZOnPresetSwitchRequested(bool isHardCut, void* userData) {
+    MDZILog("should change preset, hard cut %d, userData %s",isHardCut,(userData?"yes":"no"));
     if (userData==NULL) return;
     MDZPlaylist *mdzPL=(__bridge MDZPlaylist *)userData;
-    [mdzPL next:isHardCut];
+    [mdzPL next:!isHardCut];
 }
 
-void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, void* userData)
-{
+void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, void* userData) {
     MDZELog("couldnt switch to preset %s, reason %s",presetFilename,message)
     if (userData==NULL) return;
     MDZPlaylist *mdzPL=(__bridge MDZPlaylist *)userData;

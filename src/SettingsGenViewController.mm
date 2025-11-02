@@ -1688,19 +1688,19 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXLOD].detail.mdz_switch.switch_labels[1]=(char*)"Med";
     settings[GLOB_FXLOD].detail.mdz_switch.switch_labels[2]=(char*)"High";
     
-    SETTINGS_ID_DEF(GLOB_FXSHOWFPS)
-    settings[GLOB_FXSHOWFPS].type=MDZ_SWITCH;
-    settings[GLOB_FXSHOWFPS].label=(char*)"Tech Info";
-    settings[GLOB_FXSHOWFPS].description=(char*)"Show FPS and other infos (CPU, Resolution, ProjectM audio data)";
-    settings[GLOB_FXSHOWFPS].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
-    settings[GLOB_FXSHOWFPS].sub_family=0;
-    settings[GLOB_FXSHOWFPS].detail.mdz_switch.switch_value_nb=4;
-    settings[GLOB_FXSHOWFPS].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_FXSHOWFPS].detail.mdz_switch.switch_value_nb*sizeof(char*));
-    settings[GLOB_FXSHOWFPS].detail.mdz_switch.switch_labels[0]=(char*)"Off";
-    settings[GLOB_FXSHOWFPS].detail.mdz_switch.switch_labels[1]=(char*)"Min";
-    settings[GLOB_FXSHOWFPS].detail.mdz_switch.switch_labels[2]=(char*)"Med";
-    settings[GLOB_FXSHOWFPS].detail.mdz_switch.switch_labels[3]=(char*)"Full";
-    settings[GLOB_FXSHOWFPS].callback=&optVISUChangedC;
+    SETTINGS_ID_DEF(GLOB_FXSHOWINFO)
+    settings[GLOB_FXSHOWINFO].type=MDZ_SWITCH;
+    settings[GLOB_FXSHOWINFO].label=(char*)"Tech Info";
+    settings[GLOB_FXSHOWINFO].description=(char*)"Show FPS and other infos (CPU, Resolution, ProjectM audio data)";
+    settings[GLOB_FXSHOWINFO].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+    settings[GLOB_FXSHOWINFO].sub_family=0;
+    settings[GLOB_FXSHOWINFO].detail.mdz_switch.switch_value_nb=4;
+    settings[GLOB_FXSHOWINFO].detail.mdz_switch.switch_labels=(char**)malloc(settings[GLOB_FXSHOWINFO].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[GLOB_FXSHOWINFO].detail.mdz_switch.switch_labels[0]=(char*)"Off";
+    settings[GLOB_FXSHOWINFO].detail.mdz_switch.switch_labels[1]=(char*)"Min";
+    settings[GLOB_FXSHOWINFO].detail.mdz_switch.switch_labels[2]=(char*)"Med";
+    settings[GLOB_FXSHOWINFO].detail.mdz_switch.switch_labels[3]=(char*)"Full";
+    settings[GLOB_FXSHOWINFO].callback=&optVISUChangedC;
     
     SETTINGS_ID_DEF(GLOB_FXFPS)
     settings[GLOB_FXFPS].type=MDZ_SWITCH;
@@ -1733,7 +1733,7 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_default_value=0;
     settings[GLOB_FXLOD].detail.mdz_switch.switch_default_value=2;
     settings[GLOB_FXFPS].detail.mdz_switch.switch_default_value=1;
-    settings[GLOB_FXSHOWFPS].detail.mdz_switch.switch_default_value=0;
+    settings[GLOB_FXSHOWINFO].detail.mdz_switch.switch_default_value=0;
     
     settings[GLOB_FXSpectrum].detail.mdz_switch.switch_default_value=0;
     settings[GLOB_FXMODPattern].detail.mdz_switch.switch_default_value=0;
