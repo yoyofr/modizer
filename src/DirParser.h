@@ -37,17 +37,19 @@ enum MDZ_PLAYLIST_FNODE_Type {
 @property (nonatomic, assign) int favoriteChildren;
 @property (nonatomic, assign) BOOL shouldPropagateStatus;
 
-@property (nonatomic, assign) unsigned long long fileSize;
-@property (nonatomic, strong) NSDate *modificationDate;
 @property (nonatomic, strong) NSMutableArray<FileNode *> *children;
 
 - (instancetype)initWithPath:(NSString *)localpath root:(NSString *)rootpath type:(uint8_t)presetType;
+- (instancetype)initWithPathIsDir:(NSString *)localpath root:(NSString *)rootpath type:(uint8_t)presetType;
+- (instancetype)initWithPathIsFile:(NSString *)localpath root:(NSString *)rootpath type:(uint8_t)presetType;
 
 - (bool) filterNodes:(NSString *)pattern filterDir:(bool)filterDir;
 - (void) flattenNode:(FileNode *)node selected:(bool)filterSelected favorite:(bool)filterFav intoArray:(NSMutableArray<FileNode *> *)array;
 - (NSArray*) getSelectedPlaylist;
 - (NSArray*) getFavoritePlaylist;
 - (NSString*)getFullPath;
+- (NSString*)getLocalPath;
+- (void) printNodeTree;
 
 
 @end
@@ -138,6 +140,8 @@ enum MDZ_PLAYLIST_FNODE_Type {
 
 - (FileNode *)parseDirectoryAtPath:(NSString *)path type:(uint8_t)type error:(NSError **)error;
 - (FileNode *)parseDirectoryAtPathInternal:(NSString *)path root:(NSString *)rootPath type:(uint8_t)type depth:(NSInteger)depth error:(NSError **)error;
+- (FileNode *)parseFastDirectoryAtPath:(NSString *)path type:(uint8_t)type error:(NSError **)error;
+
 - (NSArray<FileNode *> *)flattenTree:(FileNode *)root;
 
 @end

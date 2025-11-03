@@ -1628,27 +1628,29 @@ static int qsort_CompareArcEntries(const void *entryA, const void *entryB) {
             isDir=[isDirectory boolValue];
             
             if (isDir) { //rdir.location == NSNotFound) {  //assume it is a dir if no "." in file name
-                rdir = [file rangeOfString:@"/" options:NSCaseInsensitiveSearch];
-                if ((rdir.location==NSNotFound)||(mShowSubdir)) {
-                    if (1/*[file compare:@"tmpArchive"]!=NSOrderedSame*/) {
-                        //do not display dir if subdir mode is on
-                        int filtered=mShowSubdir;
-                        if (!filtered) {
-                            if ((mSearch)&&([mSearchText length]>0)) {
-                                filtered=1;
-                                //NSRange r = [file rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
-                                //if (r.location != NSNotFound) {
-                                if ([self searchStringRegExp:mSearchText sourceString:file]) {
-                                    /*if(r.location== 0)*/ filtered=0;
-                                }
-                            }
+                if (![file isEqualToString:@"ProjectM"]) {
+                    rdir = [file rangeOfString:@"/" options:NSCaseInsensitiveSearch];
+                    if ((rdir.location==NSNotFound)||(mShowSubdir)) {
+                        if (1/*[file compare:@"tmpArchive"]!=NSOrderedSame*/) {
+                            //do not display dir if subdir mode is on
+                            int filtered=mShowSubdir;
                             if (!filtered) {
-                                const char *str=[file UTF8String];
-                                int index=0;
-                                if ((str[0]>='A')&&(str[0]<='Z') ) index=(str[0]-'A'+1);
-                                if ((str[0]>='a')&&(str[0]<='z') ) index=(str[0]-'a'+1);
-                                local_entries_count[index]++;
-                                local_nb_entries++;
+                                if ((mSearch)&&([mSearchText length]>0)) {
+                                    filtered=1;
+                                    //NSRange r = [file rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
+                                    //if (r.location != NSNotFound) {
+                                    if ([self searchStringRegExp:mSearchText sourceString:file]) {
+                                        /*if(r.location== 0)*/ filtered=0;
+                                    }
+                                }
+                                if (!filtered) {
+                                    const char *str=[file UTF8String];
+                                    int index=0;
+                                    if ((str[0]>='A')&&(str[0]<='Z') ) index=(str[0]-'A'+1);
+                                    if ((str[0]>='a')&&(str[0]<='z') ) index=(str[0]-'a'+1);
+                                    local_entries_count[index]++;
+                                    local_nb_entries++;
+                                }
                             }
                         }
                     }

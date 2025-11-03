@@ -6565,6 +6565,31 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 11.0;
 				MARKETING_VERSION = 3.12;
+				OTHER_CFLAGS = (
+					"-DLOAD_PROFILE",
+					"-DNDEBUG",
+					"-DMODIZER",
+					"-D",
+					"VGM_USE_MPEG=1",
+					"-D",
+					"VGM_USE_VORBIS=1",
+					"-D",
+					"VGM_USE_FFMPEG=1",
+					"-D",
+					"VGM_USE_ATRAC9=1",
+					"-DNS_BLOCK_ASSERTIONS=1",
+					"-D",
+					LSB_FIRST,
+					"-D",
+					LONG_IS_64BIT,
+					"-DEMU68_MONOLITIC",
+					"-DPRJM_F_SIZE=8",
+					"-DGLES_SILENCE_DEPRECATION",
+					"-DUSE_GLES",
+					"-DPROJECTM_FILESYSTEM_NAMESPACE=std",
+					"-DPROJECTM_FILESYSTEM_INCLUDE=<filesystem>",
+					"-DPROJECTM_USE_THREADS=1",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.yoyofr.modizer;
 				PRODUCT_NAME = modizer;
 				PROVISIONING_PROFILE = "";

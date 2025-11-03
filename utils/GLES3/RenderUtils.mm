@@ -158,7 +158,7 @@ GLuint RenderUtils::LoadShader ( GLenum type, const GLchar *shaderSrc )
    
    // Compile the shader
    glCompileShader ( shader );
-
+    
    // Check the compile status
    glGetShaderiv ( shader, GL_COMPILE_STATUS, &compiled );
 

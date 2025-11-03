@@ -149,7 +149,7 @@ void MilkdropShader::LoadTexturesAndCompile(PresetState& presetState)
     //YOYOFR
     //
     ShaderPreprocessor preProcessor(ShaderLanguage::HLSL);
-    std::string cleanProgram = preProcessor.preprocess(m_preprocessedCode); //To review, in some case it removes correct code
+    std::string cleanProgram = preProcessor.preprocess(m_preprocessedCode);
     m_preprocessedCode = cleanProgram;
     
     HLSLTypeFixer hlslTypeFixer;

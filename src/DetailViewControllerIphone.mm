@@ -5096,7 +5096,7 @@ void updatePresetCustomDirStructure() {
     
     NSString *dirPath = [NSString stringWithFormat:@"%@/Documents%s/presets",NSHomeDirectory(),PM_ROOT_FOLDER_CUSTOM];
     pmCustomPresetsFileNode=nil;
-    pmCustomPresetsFileNode=[dirParser parseDirectoryAtPath:dirPath type:MDZ_PLAYLIST_FNODE_Custom error:&error];
+    pmCustomPresetsFileNode=[dirParser parseFastDirectoryAtPath:dirPath type:MDZ_PLAYLIST_FNODE_Custom error:&error];
     if (error) {
         MDZELog("Cannot parse projectm custom presets")
         pmBundledPresetsFileNode=nil;
@@ -5113,15 +5113,17 @@ void buildPresetDirStructure() {
     NSString *pmCustomDir = [NSString stringWithFormat:@"%@/Documents%s/presets",NSHomeDirectory(),PM_ROOT_FOLDER_CUSTOM];
     
     NSError *error=nil;
+    
     pmBundledPresetsFileNode=nil;
-    pmBundledPresetsFileNode=[dirParser parseDirectoryAtPath:pmBundleDir type:MDZ_PLAYLIST_FNODE_Bundle error:&error];
+    pmBundledPresetsFileNode=[dirParser parseFastDirectoryAtPath:pmBundleDir type:MDZ_PLAYLIST_FNODE_Bundle error:&error];
     if (error) {
         MDZELog("Cannot parse projectm blunded presets")
         pmBundledPresetsFileNode=nil;
     }
     
     pmCustomPresetsFileNode=nil;
-    pmCustomPresetsFileNode=[dirParser parseDirectoryAtPath:pmCustomDir type:MDZ_PLAYLIST_FNODE_Custom error:&error];
+    pmCustomPresetsFileNode=[dirParser parseFastDirectoryAtPath:pmCustomDir type:MDZ_PLAYLIST_FNODE_Custom error:&error];
+    
     if (error) {
         MDZELog("Cannot parse projectm custom presets")
         pmBundledPresetsFileNode=nil;

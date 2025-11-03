@@ -47,27 +47,67 @@ typedef struct {
         
         NSError *error;
         NSFileManager *fm = [NSFileManager defaultManager];
-        NSDictionary *attrs = [fm attributesOfItemAtPath:[_rootpath stringByAppendingString:_localpath] error:&error];
         
-        if (error) {
-            _isMissing=TRUE;
-            MDZELog("FileNode error for %@: %@",_localpath,error)
-        } else {
-            if (attrs) {
-                _fileSize = [attrs fileSize];
-                _modificationDate = [attrs fileModificationDate];
-                
-                BOOL isDir = NO;
-                [fm fileExistsAtPath:[_rootpath stringByAppendingString:_localpath] isDirectory:&isDir];
-                _isDirectory = isDir;
-            }
-        }
+        BOOL isDir = NO;
+        if (![fm fileExistsAtPath:[_rootpath stringByAppendingString:_localpath] isDirectory:&isDir]) _isMissing=true;
+        _isDirectory = isDir;
     }
     return self;
 }
 
+- (instancetype)initWithPathIsFile:(NSString *)localpath root:(NSString *)rootpath type:(uint8_t)presetType {
+    self = [super init];
+    if (self) {
+        _localpath = localpath;
+        _rootpath = rootpath;
+        _name = [_localpath lastPathComponent];
+        _children = nil;
+        _isSelected = TRUE;
+        _selectedChildren = 0;
+        _isFullySelected = FALSE;
+        _shouldPropagateStatus = FALSE;
+        _isFavorite = FALSE;
+        _isMissing = FALSE;
+        _presetType=presetType;
+        
+        _isDirectory = false;
+    }
+    return self;
+}
+
+- (instancetype)initWithPathIsDir:(NSString *)localpath root:(NSString *)rootpath type:(uint8_t)presetType {
+    self = [super init];
+    if (self) {
+        _localpath = localpath;
+        _rootpath = rootpath;
+        _name = [_localpath lastPathComponent];
+        _children = nil;
+        _isSelected = TRUE;
+        _selectedChildren = 0;
+        _isFullySelected = FALSE;
+        _shouldPropagateStatus = FALSE;
+        _isFavorite = FALSE;
+        _isMissing = FALSE;
+        _presetType=presetType;
+        
+        _isDirectory = true;
+    }
+    return self;
+}
+
+- (void) printNodeTree {
+    MDZILog("%@",_localpath)
+    for (FileNode *child in _children) {
+        [child printNodeTree];
+    }
+}
+
 - (NSString*)getFullPath {
     return [_rootpath stringByAppendingString:_localpath];
+}
+
+- (NSString*)getLocalPath {
+    return _localpath;
 }
 
 -(bool)isStringInArray:(NSString *)string array:(NSArray*)arr {
@@ -210,7 +250,7 @@ typedef struct {
     if (!sizeFL) return;
     NSString *flPath=[[orderedFL objectAtIndex:posFL] substringFromIndex:3];
     for (FileNode *node in fnodes) {
-        NSString *filePath=[node.localpath substringFromIndex:2];
+        NSString *filePath=node.localpath;
         if ([filePath isEqualToString:flPath]) {
             //file is matching FL entry, move to next PL entry
             node.isFavorite=true;
@@ -386,7 +426,7 @@ code_4=a=1.0;\n\
         item=[_items objectAtIndex:_position];
         _curEntryLbl = [NSString stringWithFormat:@"(%d/%d) (%c)%@",_position+1,_size,
                         (item.presetType==MDZ_PLAYLIST_FNODE_Bundle?'B':'C'),
-                        item.name];
+                        item.localpath];
     }
 }
 - (void)next:(bool)cut {
@@ -480,7 +520,7 @@ code_4=a=1.0;\n\
     if (_size) {
         const char *filename=[[(FileNode*)[_items objectAtIndex:_position] localpath] UTF8String];
         FileNode *fnode=[_items objectAtIndex:_position];
-        const char *title=[[NSString stringWithFormat:@"(%c)%s",(fnode.presetType==MDZ_PLAYLIST_FNODE_Bundle?'B':'C'),filename+2] UTF8String];
+        const char *title=[[NSString stringWithFormat:@"(%c)%s",(fnode.presetType==MDZ_PLAYLIST_FNODE_Bundle?'B':'C'),filename] UTF8String];
         return title;
     } else {
         return [_curEntryLbl UTF8String];
@@ -491,7 +531,7 @@ code_4=a=1.0;\n\
     if ((index<0)||(index>=_size)) return NULL;
     FileNode *fnode=[_items objectAtIndex:index];
     const char *filename=[[fnode localpath] UTF8String];
-    const char *title=[[NSString stringWithFormat:@"(%c)%s",(fnode.presetType==MDZ_PLAYLIST_FNODE_Bundle?'B':'C'),filename+2] UTF8String];
+    const char *title=[[NSString stringWithFormat:@"(%c)%s",(fnode.presetType==MDZ_PLAYLIST_FNODE_Bundle?'B':'C'),filename] UTF8String];
     return title;
 }
 
@@ -542,11 +582,11 @@ code_4=a=1.0;\n\
 }
 
 - (NSString*)getLocalPathBundle:(NSString*)fullPath {
-    
+    return NULL;
 }
 
 - (NSString*)getFullPathDocument:(NSString*)localPath {
-    
+    return NULL;
 }
 
 - (int)savePlaylist {
@@ -675,6 +715,11 @@ code_4=a=1.0;\n\
     int pos=0;
     for (FileNode *item in _items) {
         if ([str isEqualToString:item.localpath]) {
+            
+            _curEntryLbl = [NSString stringWithFormat:@"(%d/%d) (%c)%@",pos+1,_size,
+                            (item.presetType==MDZ_PLAYLIST_FNODE_Bundle?'B':'C'),
+                            item.localpath];
+            
             break;
         } else pos++;
     }
@@ -700,9 +745,148 @@ code_4=a=1.0;\n\
     return self;
 }
 
+- (FileNode *)parseFastDirectoryAtPath:(NSString *)path type:(uint8_t)type error:(NSError **)error {
+    FileNode *startNode,*currentNode,*childNode;
+    NSMutableArray *dirNodeStack;
+    NSFileManager *fm = [NSFileManager defaultManager];
+    NSArray *dirContent;
+    
+    START_PROFILE
+    
+    startNode=NULL;
+    //List all entries
+    NSURL *directoryURL = [NSURL fileURLWithPath:path];
+    NSDirectoryEnumerator *directoryEnumerator =
+    [fm enumeratorAtURL:directoryURL
+                    includingPropertiesForKeys:@[NSURLPathKey, NSURLIsDirectoryKey]
+                    options:NSDirectoryEnumerationSkipsHiddenFiles/*|NSDirectoryEnumerationSkipsSubdirectoryDescendants*/
+                    errorHandler:nil];
+    dirContent=[directoryEnumerator allObjects];
+    
+    CHECK_PROFILE("dir enum")
+    
+    if ([dirContent count]) {
+        //Create first node
+        startNode = [[FileNode alloc] initWithPathIsDir:@"/" root:path type:type];
+        currentNode = startNode;
+
+        //Sort dir content using path
+        NSArray *sortedDirContent = [dirContent sortedArrayUsingComparator:^(id obj1, id obj2) {
+            NSString *str1;
+            NSString *str2;
+            [(NSURL*)obj1 getResourceValue:&str1 forKey:NSURLPathKey error:nil];
+            [(NSURL*)obj2 getResourceValue:&str2 forKey:NSURLPathKey error:nil];
+            
+            str1=[str1 stringByReplacingOccurrencesOfString:@"/" withString:@"\0"];
+            str2=[str2 stringByReplacingOccurrencesOfString:@"/" withString:@"\0"];
+            return [str1 caseInsensitiveCompare:str2];
+            
+//            int compResult=0;
+//            unichar c1,c2;
+//            int pos=0;
+//            int str1len=[str1 length];
+//            int str2len=[str2 length];
+//            while (1) {
+//                c1=[str1 characterAtIndex:pos];
+//                c2=[str2 characterAtIndex:pos];
+//                if ((c1>='A') && (c1<='Z')) c1=c1+'a'-'A';
+//                else if (c1=='/') c1=1;
+//                if ((c2>='A') && (c2<='Z')) c2=c2+'a'-'A';
+//                else if (c2=='/') c2=1;
+//                compResult=c1-c2;
+//                if (compResult) break;
+//                if (pos>=str1len-1) break;
+//                if (pos>=str2len-1) break;
+//                pos++;
+//            }
+//            
+//            if (compResult<0) return NSOrderedAscending;
+//            else if (compResult>0) return NSOrderedDescending;
+//            return NSOrderedSame;
+            //str1=[str1 stringByReplacingOccurrencesOfString:@"/" withString:@"\0"];
+            //str2=[str2 stringByReplacingOccurrencesOfString:@"/" withString:@"\0"];
+            //return [str1 caseInsensitiveCompare:str2];
+        }];
+        CHECK_PROFILE("dir sort")
+        
+        //Prepare variables
+        NSNumber *isDirectory = nil;
+        NSString *entryPath,*currentLocalPath;
+        int localPathStartPos=[path length];
+        currentLocalPath=@"/";
+        //Stack to keep track of directories
+        dirNodeStack=[[NSMutableArray alloc] init];
+        
+        //Start parsing
+        for (NSURL *entryURL in sortedDirContent) {
+            //Get dir flag, path and name
+            [entryURL getResourceValue:&isDirectory forKey:NSURLIsDirectoryKey error:nil];
+            [entryURL getResourceValue:&entryPath forKey:NSURLPathKey error:nil];
+            
+            MDZILog("%@",[entryPath substringFromIndex:localPathStartPos])
+            
+            if ([isDirectory boolValue]) {
+                //Dir management
+                NSString *childPath=[entryPath substringFromIndex:localPathStartPos];
+                
+                //ensure current node is the right one, if not pop back to the right one
+                NSString *childPathDir=[childPath stringByDeletingLastPathComponent];
+                while (![childPathDir isEqualToString:currentLocalPath]) {
+                    if ([dirNodeStack count]==0) {
+                        MDZFLog("Error in fast parser, no more dir in stack")
+                        return NULL;
+                    }
+                    currentNode=[dirNodeStack lastObject];
+                    currentLocalPath=[currentNode getLocalPath];
+                    [dirNodeStack removeLastObject];
+                }
+                
+                //new dir, push previous one to stack
+                [dirNodeStack addObject:currentNode];
+                
+                
+                childNode = [[FileNode alloc] initWithPathIsDir:childPath root:path type:type];
+                if (currentNode.children==nil) currentNode.children=[NSMutableArray arrayWithObject:childNode];
+                else [currentNode.children addObject:childNode];
+                //and move dir as new current node
+                currentNode=childNode;
+                currentLocalPath=childPath;
+            } else {
+                //File, add it to children if matching the filter
+                bool addToList=true;
+                if (self.filterExt && ![[entryPath pathExtension] isEqualToString:self.filterExt]) addToList=false;
+                
+                if (addToList) {
+                    NSString *childPath=[entryPath substringFromIndex:localPathStartPos];
+                    //ensure current node is the right one, if not pop back to the right one
+                    NSString *childPathDir=[childPath stringByDeletingLastPathComponent];
+                    while (![childPathDir isEqualToString:currentLocalPath]) {
+                        if ([dirNodeStack count]==0) {
+                            MDZFLog("Error in fast parser, no more dir in stack")
+                            return NULL;
+                        }
+                        currentNode=[dirNodeStack lastObject];
+                        currentLocalPath=[currentNode getLocalPath];
+                        [dirNodeStack removeLastObject];
+                    }
+                    
+                    childNode = [[FileNode alloc] initWithPathIsFile:childPath root:path type:type];
+                    if (currentNode.children==nil) currentNode.children=[NSMutableArray arrayWithObject:childNode];
+                    else [currentNode.children addObject:childNode];
+                }
+            }
+        }
+        
+    }
+    CHECK_PROFILE("process")
+    END_PROFILE
+    return startNode;
+}
+
 - (FileNode *)parseDirectoryAtPath:(NSString *)path type:(uint8_t)type error:(NSError **)error {
     // Check if path exists
     NSFileManager *fm = [NSFileManager defaultManager];
+    
     BOOL exists = [fm fileExistsAtPath:path];
     if (!exists) {
         if (error) {
@@ -787,7 +971,7 @@ code_4=a=1.0;\n\
     }
     if ([path characterAtIndex:1]=='C') {
         [_customPresets addObject:path];
-        [_bundlePresets sortUsingComparator:^NSComparisonResult(NSString *str1, NSString *str2) {
+        [_customPresets sortUsingComparator:^NSComparisonResult(NSString *str1, NSString *str2) {
             return [str1 caseInsensitiveCompare:str2];
         }];
     }
@@ -827,7 +1011,7 @@ code_4=a=1.0;\n\
 }
 
 - (void)updateFileNodeStatus:(FileNode*)fnode type:(int)type {
-    [self listFavorites];
+    //[self listFavorites];
     [fnode clearFavorites];
     if ( (type==MDZ_PLAYLIST_FNODE_Bundle) && ([_bundlePresets count]) ) [fnode setFavoritesFromFL:[_bundlePresets array]];
     if ( (type==MDZ_PLAYLIST_FNODE_Custom) && ([_customPresets count]) ) [fnode setFavoritesFromFL:[_customPresets array]];
