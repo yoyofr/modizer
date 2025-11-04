@@ -14,6 +14,7 @@
 #include "../mptrack/TrackerSettings.h"
 #endif //MODPLUG_TRACKER
 #ifndef MODPLUG_NO_FILESAVE
+#include "mpt/io_file/fstream.hpp"
 #include "../common/mptFileIO.h"
 #endif
 #include "../common/misc_util.h"
@@ -33,6 +34,12 @@
 #include "mpt/parse/parse.hpp"
 //#include "mpt/crc/crc.hpp"
 #include "OggStream.h"
+#include <algorithm>
+#ifdef MPT_WITH_FLAC
+#if MPT_PLATFORM_MULTITHREADED && !defined(MPT_LIBCXX_QUIRK_NO_STD_THREAD)
+#include <thread>
+#endif
+#endif
 #ifdef MPT_WITH_OGG
 #if MPT_COMPILER_CLANG
 #pragma clang diagnostic push
@@ -491,7 +498,7 @@ struct FLAC__StreamEncoder_RAII
 
 	static FLAC__StreamEncoderWriteStatus StreamEncoderWriteCallback(const FLAC__StreamEncoder *encoder, const FLAC__byte buffer[], size_t bytes, unsigned samples, unsigned current_frame, void *client_data)
 	{
-		mpt::ofstream & file = *mpt::void_ptr<mpt::ofstream>(client_data);
+		mpt::IO::ofstream & file = *mpt::void_ptr<mpt::IO::ofstream>(client_data);
 		MPT_UNUSED_VARIABLE(encoder);
 		MPT_UNUSED_VARIABLE(samples);
 		MPT_UNUSED_VARIABLE(current_frame);
@@ -503,7 +510,7 @@ struct FLAC__StreamEncoder_RAII
 	}
 	static FLAC__StreamEncoderSeekStatus StreamEncoderSeekCallback(const FLAC__StreamEncoder *encoder, FLAC__uint64 absolute_byte_offset, void *client_data)
 	{
-		mpt::ofstream & file = *mpt::void_ptr<mpt::ofstream>(client_data);
+		mpt::IO::ofstream & file = *mpt::void_ptr<mpt::IO::ofstream>(client_data);
 		MPT_UNUSED_VARIABLE(encoder);
 		if(!mpt::in_range<mpt::IO::Offset>(absolute_byte_offset))
 		{
@@ -517,7 +524,7 @@ struct FLAC__StreamEncoder_RAII
 	}
 	static FLAC__StreamEncoderTellStatus StreamEncoderTellCallback(const FLAC__StreamEncoder *encoder, FLAC__uint64 *absolute_byte_offset, void *client_data)
 	{
-		mpt::ofstream & file = *mpt::void_ptr<mpt::ofstream>(client_data);
+		mpt::IO::ofstream & file = *mpt::void_ptr<mpt::IO::ofstream>(client_data);
 		MPT_UNUSED_VARIABLE(encoder);
 		mpt::IO::Offset pos = mpt::IO::TellWrite(file);
 		if(pos < 0)
@@ -558,7 +565,7 @@ bool CSoundFile::SaveFLACSample(SAMPLEINDEX nSample, std::ostream &f) const
 {
 #ifdef MPT_WITH_FLAC
 	const ModSample &sample = Samples[nSample];
-	if(sample.uFlags[CHN_ADLIB])
+	if(sample.uFlags[CHN_ADLIB] || !sample.HasSampleData())
 		return false;
 
 	FLAC__StreamEncoder_RAII encoder(f);
@@ -639,6 +646,11 @@ bool CSoundFile::SaveFLACSample(SAMPLEINDEX nSample, std::ostream &f) const
 		{
 			chunk.loops[chunk.info.numLoops++].ConvertToWAV(sample.nLoopStart, sample.nLoopEnd, sample.uFlags[CHN_PINGPONGLOOP]);
 			chunk.header.length += sizeof(WAVSampleLoop);
+		} else if(sample.uFlags[CHN_SUSTAINLOOP])
+		{
+			// Invent zero-length loop to distinguish sustain loop from normal loop
+			chunk.loops[chunk.info.numLoops++].ConvertToWAV(0, 0, false);
+			chunk.header.length += sizeof(WAVSampleLoop);
 		}
 
 		const uint32 length = sizeof(RIFFChunk) + chunk.header.length;
@@ -664,7 +676,7 @@ bool CSoundFile::SaveFLACSample(SAMPLEINDEX nSample, std::ostream &f) const
 
 		for(uint32 i = 0; i < std::size(sample.cues); i++)
 		{
-			chunk.cues[i].ConvertToWAV(i, sample.cues[i]);
+			chunk.cues[i] = ConvertToWAVCuePoint(i, sample.cues[i]);
 		}
 
 		const uint32 length = sizeof(RIFFChunk) + chunk.header.length;
@@ -688,6 +700,15 @@ bool CSoundFile::SaveFLACSample(SAMPLEINDEX nSample, std::ostream &f) const
 	FLAC__stream_encoder_set_metadata(encoder, metadata.data(), numBlocks);
 #ifdef MODPLUG_TRACKER
 	FLAC__stream_encoder_set_compression_level(encoder, TrackerSettings::Instance().m_FLACCompressionLevel);
+#if (FLAC_API_VERSION_CURRENT >= 14) && MPT_PLATFORM_MULTITHREADED && !defined(MPT_LIBCXX_QUIRK_NO_STD_THREAD)
+	uint32 threads = TrackerSettings::Instance().m_FLACMultithreading ? static_cast<uint32>(std::max(std::thread::hardware_concurrency(), static_cast<unsigned int>(1))) : static_cast<uint32>(1);
+	// Work-around <https://github.com/xiph/flac/issues/823>.
+	//FLAC__stream_encoder_set_num_threads(encoder, threads);
+	while((FLAC__stream_encoder_set_num_threads(encoder, threads) == FLAC__STREAM_ENCODER_SET_NUM_THREADS_TOO_MANY_THREADS) && (threads > 1))
+	{
+		threads = ((threads > 256) ? 256 : (threads - 1));
+	}
+#endif
 #endif // MODPLUG_TRACKER
 
 	bool success = FLAC__stream_encoder_init_stream(encoder, &FLAC__StreamEncoder_RAII::StreamEncoderWriteCallback, &FLAC__StreamEncoder_RAII::StreamEncoderSeekCallback, &FLAC__StreamEncoder_RAII::StreamEncoderTellCallback, nullptr, &encoder.f) == FLAC__STREAM_ENCODER_INIT_STATUS_OK;

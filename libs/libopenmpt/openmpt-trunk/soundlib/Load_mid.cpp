@@ -12,6 +12,7 @@
 #include "Loaders.h"
 #include "Dlsbank.h"
 #include "MIDIEvents.h"
+#include "mod_specifications.h"
 #ifdef MODPLUG_TRACKER
 #include "../mptrack/TrackerSettings.h"
 #include "../mptrack/Moddoc.h"
@@ -270,9 +271,12 @@ const char *szMidiPercussionNames[61] =
 };
 
 
+static constexpr uint8 NUM_MIDI_CHANNELS = 32;
+
+
 ////////////////////////////////////////////////////////////////////////////////
 // Maps a midi instrument - returns the instrument number in the file
-uint32 CSoundFile::MapMidiInstrument(uint8 program, uint16 bank, uint8 midiChannel, uint8 note, bool isXG, std::bitset<16> drumChns)
+uint32 CSoundFile::MapMidiInstrument(uint8 program, uint16 bank, uint8 midiChannel, uint8 note, bool isXG, std::bitset<NUM_MIDI_CHANNELS> drumChns)
 {
 	ModInstrument *pIns;
 	program &= 0x7F;
@@ -361,6 +365,7 @@ struct TrackState
 	FileReader track;
 	tick_t nextEvent = 0;
 	uint8 command = 0;
+	uint8 midiBaseChannel = 0;
 	bool finished = false;
 };
 
@@ -506,7 +511,7 @@ static CHANNELINDEX FindUnusedChannel(uint8 midiCh, ModCommand::NOTE note, const
 }
 
 
-static void MIDINoteOff(MidiChannelState &midiChn, std::vector<ModChannelState> &modChnStatus, uint8 note, uint8 delay, mpt::span<ModCommand> patRow, std::bitset<16> drumChns)
+static void MIDINoteOff(MidiChannelState &midiChn, std::vector<ModChannelState> &modChnStatus, uint8 note, uint8 delay, mpt::span<ModCommand> patRow, std::bitset<NUM_MIDI_CHANNELS> drumChns)
 {
 	CHANNELINDEX chn = midiChn.noteOn[note];
 	if(chn == CHANNELINDEX_INVALID)
@@ -620,12 +625,11 @@ bool CSoundFile::ReadMID(FileReader &file, ModLoadingFlags loadFlags)
 		return true;
 	}
 
-	InitializeGlobals(MOD_TYPE_MID);
-	InitializeChannels();
+	InitializeGlobals(MOD_TYPE_MID, GetModSpecifications(MOD_TYPE_MPT).channelsMax);
 
 #ifdef MODPLUG_TRACKER
 	const uint32 quantize = Clamp(TrackerSettings::Instance().midiImportQuantize.Get(), 4u, 256u);
-	const ROWINDEX patternLen = Clamp(TrackerSettings::Instance().midiImportPatternLen.Get(), ROWINDEX(1), MAX_PATTERN_ROWS);
+	const ROWINDEX patternLen = Clamp(TrackerSettings::Instance().midiImportPatternLen.Get(), GetModSpecifications().patternRowsMin, GetModSpecifications().patternRowsMax);
 	const uint8 ticksPerRow = Clamp(TrackerSettings::Instance().midiImportTicks.Get(), uint8(2), uint8(16));
 #else
 	const uint32 quantize = 32;		// Must be 4 or higher
@@ -639,22 +643,21 @@ bool CSoundFile::ReadMID(FileReader &file, ModLoadingFlags loadFlags)
 	const ORDERINDEX MPT_MIDI_IMPORT_MAX_ORDERS = MAX_ORDERS;
 #endif
 
-	m_songArtist = U_("MIDI Conversion");
-	m_modFormat.formatName = U_("Standard MIDI File");
+	m_songArtist = UL_("MIDI Conversion");
+	m_modFormat.formatName = UL_("Standard MIDI File");
 	m_modFormat.type = isRIFF ? UL_("rmi") : UL_("mid");
-	m_modFormat.madeWithTracker = U_("Standard MIDI File");
+	m_modFormat.madeWithTracker = UL_("Standard MIDI File");
 	m_modFormat.charset = mpt::Charset::ISO8859_1;
 
 	SetMixLevels(MixLevels::v1_17RC3);
 	m_nTempoMode = TempoMode::Modern;
 	m_SongFlags = SONG_LINEARSLIDES;
-	m_nDefaultTempo.Set(120);
-	m_nDefaultSpeed = ticksPerRow;
-	m_nChannels = MAX_BASECHANNELS;
+	TEMPO tempo{120, 0};
+	Order().SetDefaultTempo(tempo);
+	Order().SetDefaultSpeed(ticksPerRow);
 	m_nDefaultRowsPerBeat = quantize / 4;
 	m_nDefaultRowsPerMeasure = 4 * m_nDefaultRowsPerBeat;
 	m_nSamplePreAmp = m_nVSTiVolume = 32;
-	TEMPO tempo = m_nDefaultTempo;
 	uint16 ppqn = fileHeader.division;
 	if(ppqn & 0x8000)
 	{
@@ -666,13 +669,14 @@ bool CSoundFile::ReadMID(FileReader &file, ModLoadingFlags loadFlags)
 		ppqn = 96;
 	Order().clear();
 
-	MidiChannelState midiChnStatus[16];
-	const CHANNELINDEX tempoChannel = m_nChannels - 2, globalVolChannel = m_nChannels - 1;
+	std::array<MidiChannelState, NUM_MIDI_CHANNELS> midiChnStatus;
+	const CHANNELINDEX tempoChannel = GetNumChannels() - 2, globalVolChannel = GetNumChannels() - 1;
 	const uint16 numTracks = fileHeader.numTracks;
 	std::vector<TrackState> tracks(numTracks);
-	std::vector<ModChannelState> modChnStatus(m_nChannels);
-	std::bitset<16> drumChns;
+	std::vector<ModChannelState> modChnStatus(GetNumChannels());
+	std::bitset<NUM_MIDI_CHANNELS> drumChns;
 	drumChns.set(MIDI_DRUMCHANNEL - 1);
+	drumChns.set(MIDI_DRUMCHANNEL + 15);
 
 	tick_t timeShift = 0;
 	for(auto &track : tracks)
@@ -820,6 +824,9 @@ bool CSoundFile::ReadMID(FileReader &file, ModLoadingFlags loadFlags)
 			case 8: // Patch name
 			case 9: // Port name
 				break;
+			case 0x21: // MIDI port
+				tracks[t].midiBaseChannel = chunk.ReadUint8() * 16u;
+				break;
 			case 0x2F: // End Of Track
 				tracks[t].finished = true;
 				break;
@@ -831,13 +838,21 @@ bool CSoundFile::ReadMID(FileReader &file, ModLoadingFlags loadFlags)
 					TEMPO newTempo(60000000.0 / tempoInt);
 					if(!tick)
 					{
-						m_nDefaultTempo = newTempo;
+						Order().SetDefaultTempo(newTempo);
 					} else if(newTempo != tempo)
 					{
 						patRow[tempoChannel].command = CMD_TEMPO;
 						patRow[tempoChannel].param = mpt::saturate_round<ModCommand::PARAM>(std::max(32.0, newTempo.ToDouble()));
 					}
 					tempo = newTempo;
+				}
+				break;
+			case 0x7F: // Sequencer specific
+				{
+					// Yamaha MIDI port selection
+					uint32 data = chunk.ReadUint32BE();
+					if(chunk.LengthIs(4) && (data & 0xFFFFFF00) == 0x43000100)
+						tracks[t].midiBaseChannel = static_cast<uint8>((data & 0xFF) * 16u);
 				}
 				break;
 
@@ -857,7 +872,7 @@ bool CSoundFile::ReadMID(FileReader &file, ModLoadingFlags loadFlags)
 					data1 = track.ReadUint8();
 				}
 			}
-			uint8 midiCh = command & 0x0F;
+			const uint8 midiCh = ((command & 0x0F) + tracks[t].midiBaseChannel) % NUM_MIDI_CHANNELS;
 
 			switch(command & 0xF0)
 			{
@@ -1079,7 +1094,7 @@ bool CSoundFile::ReadMID(FileReader &file, ModLoadingFlags loadFlags)
 				midiChnStatus[midiCh].SetPitchbend(data1 | (track.ReadUint8() << 7));
 				break;
 			case 0xF0: // General / Immediate
-				switch(midiCh)
+				switch(command & 0x0F)
 				{
 				case MIDIEvents::sysExStart: // SysEx
 				case MIDIEvents::sysExEnd: // SysEx (continued)
@@ -1268,8 +1283,8 @@ bool CSoundFile::ReadMID(FileReader &file, ModLoadingFlags loadFlags)
 	Order.SetSequence(0);
 
 	std::vector<CHANNELINDEX> channels;
-	channels.reserve(m_nChannels);
-	for(CHANNELINDEX i = 0; i < m_nChannels; i++)
+	channels.reserve(GetNumChannels());
+	for(CHANNELINDEX i = 0; i < GetNumChannels(); i++)
 	{
 		if(modChnStatus[i].midiCh != ModChannelState::NOMIDI
 #ifdef MODPLUG_TRACKER
@@ -1304,12 +1319,14 @@ bool CSoundFile::ReadMID(FileReader &file, ModLoadingFlags loadFlags)
 	}
 
 	std::unique_ptr<CDLSBank> cachedBank, embeddedBank;
+	FileReader *bankFile = nullptr;
 
-	if(CDLSBank::IsDLSBank(file.GetOptionalFileName().value_or(P_(""))))
+	if(CDLSBank::IsDLSBank(file))
 	{
 		// Soundfont embedded in MIDI file
 		embeddedBank = std::make_unique<CDLSBank>();
-		embeddedBank->Open(file.GetOptionalFileName().value_or(P_("")));
+		embeddedBank->Open(file);
+		bankFile = &file;
 	} else
 	{
 		// Soundfont with same name as MIDI file
@@ -1337,12 +1354,12 @@ bool CSoundFile::ReadMID(FileReader &file, ModLoadingFlags loadFlags)
 		else if(pIns->nMidiProgram)
 			midiCode = (pIns->nMidiProgram - 1) & 0x7F;
 
-		if(embeddedBank && embeddedBank->FindAndExtract(*this, ins, midiCode >= 0x80))
+		if(embeddedBank && embeddedBank->FindAndExtract(*this, ins, midiCode >= 0x80, bankFile))
 		{
 			continue;
 		}
 
-		const mpt::PathString &midiMapName = midiLib[midiCode];
+		const mpt::PathString &midiMapName = midiLib[midiCode].value_or(P_(""));
 		if(!midiMapName.empty())
 		{
 			// Load from DLS/SF2 Bank

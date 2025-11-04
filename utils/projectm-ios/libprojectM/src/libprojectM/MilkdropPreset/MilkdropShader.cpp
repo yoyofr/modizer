@@ -63,89 +63,205 @@ void MilkdropShader::LoadCode(const std::string& presetShaderCode)
     PreprocessPresetShader(m_preprocessedCode);
 }
 
-void MilkdropShader::LoadTexturesAndCompile(PresetState& presetState)
+void MilkdropShader::LoadTexturesAndCompile(PresetState& presetState,const char *prePcode)
 {
     std::locale loc;
-
-    // Now request the textures and descriptors from the texture manager.
-    for (const auto& name : m_samplerNames)
-    {
-        std::string baseName = name;
-        if (name.length() > 3 && name.at(2) == '_')
+    
+        // Now request the textures and descriptors from the texture manager.
+        for (const auto& name : m_samplerNames)
         {
-            baseName = name.substr(3);
-        }
-
-        std::string lowerCaseName = Utils::ToLower(baseName);
-
-        // The "main" and "blurX" textures are preset-specific and are not managed by TextureManager.
-        if (lowerCaseName == "main")
-        {
-            Renderer::TextureSamplerDescriptor desc(presetState.mainTexture.lock(),
-                                                    presetState.renderContext.textureManager->GetSampler(name),
-                                                    name,
-                                                    "main");
-            m_mainTextureDescriptors.push_back(std::move(desc));
-            continue;
-        }
-
-        // A few presets directly use the (undocumented) sampler name.
-        if (lowerCaseName == "blur1")
-        {
-            UpdateMaxBlurLevel(BlurTexture::BlurLevel::Blur1);
-            continue;
-        }
-        if (lowerCaseName == "blur2")
-        {
-            UpdateMaxBlurLevel(BlurTexture::BlurLevel::Blur2);
-            continue;
-        }
-        if (lowerCaseName == "blur3")
-        {
-            UpdateMaxBlurLevel(BlurTexture::BlurLevel::Blur3);
-            continue;
-        }
-
-        // Random textures need special treatment.
-        if (lowerCaseName.length() >= 6 &&
-            lowerCaseName.substr(0, 4) == "rand" && std::isdigit(lowerCaseName.at(4), loc) && std::isdigit(lowerCaseName.at(5), loc))
-        {
-            // First look up the random texture index in the preset state so the texture matches between warp and composite shaders
-            int randomSlot = -1;
-            try
+            std::string baseName = name;
+            if (name.length() > 3 && name.at(2) == '_')
             {
-                randomSlot = std::stoi(lowerCaseName.substr(4, 2));
+                baseName = name.substr(3);
             }
-            catch (...) // Ignore any conversion errors.
+            
+            std::string lowerCaseName = Utils::ToLower(baseName);
+            
+            // The "main" and "blurX" textures are preset-specific and are not managed by TextureManager.
+            if (lowerCaseName == "main")
             {
-            }
-
-            if (randomSlot >= 0 && randomSlot <= 15)
-            {
-                if (presetState.randomTextureDescriptors.find(randomSlot) != presetState.randomTextureDescriptors.end())
-                {
-                    // Use existing texture descriptor.
-                    m_textureSamplerDescriptors.push_back(presetState.randomTextureDescriptors.at(randomSlot));
-                    continue;
-                }
-
-                // Slot empty, request a new random texture.
-                auto desc = presetState.renderContext.textureManager->GetRandomTexture(name);
-
-                // Also store a copy in preset state!
-                presetState.randomTextureDescriptors.insert({randomSlot, desc});
-
-                m_textureSamplerDescriptors.push_back(std::move(desc));
+                Renderer::TextureSamplerDescriptor desc(presetState.mainTexture.lock(),
+                                                        presetState.renderContext.textureManager->GetSampler(name),
+                                                        name,
+                                                        "main");
+                m_mainTextureDescriptors.push_back(std::move(desc));
                 continue;
             }
-
-            // Fall through if slot number is out of range and treat as normal texture.
+            
+            // A few presets directly use the (undocumented) sampler name.
+            if (lowerCaseName == "blur1")
+            {
+                UpdateMaxBlurLevel(BlurTexture::BlurLevel::Blur1);
+                continue;
+            }
+            if (lowerCaseName == "blur2")
+            {
+                UpdateMaxBlurLevel(BlurTexture::BlurLevel::Blur2);
+                continue;
+            }
+            if (lowerCaseName == "blur3")
+            {
+                UpdateMaxBlurLevel(BlurTexture::BlurLevel::Blur3);
+                continue;
+            }
+            
+            // Random textures need special treatment.
+            if (lowerCaseName.length() >= 6 &&
+                lowerCaseName.substr(0, 4) == "rand" && std::isdigit(lowerCaseName.at(4), loc) && std::isdigit(lowerCaseName.at(5), loc))
+            {
+                // First look up the random texture index in the preset state so the texture matches between warp and composite shaders
+                int randomSlot = -1;
+                try
+                {
+                    randomSlot = std::stoi(lowerCaseName.substr(4, 2));
+                }
+                catch (...) // Ignore any conversion errors.
+                {
+                }
+                
+                if (randomSlot >= 0 && randomSlot <= 15)
+                {
+                    if (presetState.randomTextureDescriptors.find(randomSlot) != presetState.randomTextureDescriptors.end())
+                    {
+                        // Use existing texture descriptor.
+                        m_textureSamplerDescriptors.push_back(presetState.randomTextureDescriptors.at(randomSlot));
+                        continue;
+                    }
+                    
+                    // Slot empty, request a new random texture.
+                    auto desc = presetState.renderContext.textureManager->GetRandomTexture(name);
+                    
+                    // Also store a copy in preset state!
+                    presetState.randomTextureDescriptors.insert({randomSlot, desc});
+                    
+                    m_textureSamplerDescriptors.push_back(std::move(desc));
+                    continue;
+                }
+                
+                // Fall through if slot number is out of range and treat as normal texture.
+            }
+            
+            auto desc = presetState.renderContext.textureManager->GetTexture(name);
+            m_textureSamplerDescriptors.push_back(std::move(desc));
         }
-
-        auto desc = presetState.renderContext.textureManager->GetTexture(name);
-        m_textureSamplerDescriptors.push_back(std::move(desc));
+    //YOYOFR
+    //
+    if (prePcode==NULL) {
+        ShaderPreprocessor preProcessor(ShaderLanguage::HLSL);
+        std::string cleanProgram = preProcessor.preprocess(m_preprocessedCode);
+        m_preprocessedCode = cleanProgram;
+        
+        HLSLTypeFixer hlslTypeFixer;
+        cleanProgram = hlslTypeFixer.autoFix(m_preprocessedCode);
+        m_preprocessedCode = cleanProgram;
+        
+        //    printf("%s\n",m_preprocessedCode.c_str());
+        
+        // Now that we have the textures, transpile the code.
+    } else {
     }
     
+    TranspileHLSLShader(presetState, m_preprocessedCode,prePcode);
+
+    // Update blur texture level if shader was compiled successfully.
+    presetState.blurTexture.SetRequiredBlurLevel(m_maxBlurLevelRequired);
+}
+
+void MilkdropShader::PreLoadTexturesAndCompile(PresetState& presetState)
+{
+    std::locale loc;
+    
+    // Now request the textures and descriptors from the texture manager.
+    std::shared_ptr<Renderer::Sampler> m_dummySampler{std::make_shared<Renderer::Sampler>(GL_CLAMP_TO_EDGE, GL_LINEAR)}; //!< Sampler for preset textures. Uses bilinear
+    std::shared_ptr<Renderer::Texture> m_dummyTexture{std::make_shared<Renderer::Texture>("dummy", 0, GL_TEXTURE_2D, 0, 0, true)}; //!< Sampler for preset
+    //!
+
+        for (const auto& name : m_samplerNames)
+        {
+            std::string baseName = name;
+            if (name.length() > 3 && name.at(2) == '_')
+            {
+                baseName = name.substr(3);
+            }
+            
+            std::string lowerCaseName = Utils::ToLower(baseName);
+            
+            // The "main" and "blurX" textures are preset-specific and are not managed by TextureManager.
+            if (lowerCaseName == "main")
+            {
+                Renderer::TextureSamplerDescriptor desc(m_dummyTexture,
+                                                        m_dummySampler,
+                                                        name,
+                                                        "main");
+                m_mainTextureDescriptors.push_back(std::move(desc));
+                continue;
+            }
+            
+            // A few presets directly use the (undocumented) sampler name.
+            if (lowerCaseName == "blur1")
+            {
+                UpdateMaxBlurLevel(BlurTexture::BlurLevel::Blur1);
+                continue;
+            }
+            if (lowerCaseName == "blur2")
+            {
+                UpdateMaxBlurLevel(BlurTexture::BlurLevel::Blur2);
+                continue;
+            }
+            if (lowerCaseName == "blur3")
+            {
+                UpdateMaxBlurLevel(BlurTexture::BlurLevel::Blur3);
+                continue;
+            }
+            
+            // Random textures need special treatment.
+            /*if (lowerCaseName.length() >= 6 &&
+             lowerCaseName.substr(0, 4) == "rand" && std::isdigit(lowerCaseName.at(4), loc) && std::isdigit(lowerCaseName.at(5), loc))
+             {
+             // First look up the random texture index in the preset state so the texture matches between warp and composite shaders
+             int randomSlot = -1;
+             try
+             {
+             randomSlot = std::stoi(lowerCaseName.substr(4, 2));
+             }
+             catch (...) // Ignore any conversion errors.
+             {
+             }
+             
+             if (randomSlot >= 0 && randomSlot <= 15)
+             {
+             if (presetState.randomTextureDescriptors.find(randomSlot) != presetState.randomTextureDescriptors.end())
+             {
+             // Use existing texture descriptor.
+             m_textureSamplerDescriptors.push_back(presetState.randomTextureDescriptors.at(randomSlot));
+             continue;
+             }
+             
+             // Slot empty, request a new random texture.
+             auto desc = presetState.renderContext.textureManager->GetRandomTexture(name);
+             
+             // Also store a copy in preset state!
+             presetState.randomTextureDescriptors.insert({randomSlot, desc});
+             
+             m_textureSamplerDescriptors.push_back(std::move(desc));
+             continue;
+             }
+             
+             // Fall through if slot number is out of range and treat as normal texture.
+             }*/
+            
+            //auto desc = presetState.renderContext.textureManager->GetTexture(name);
+            //m_textureSamplerDescriptors.push_back(std::move(desc));
+            {
+                // Now request the textures and descriptors from the texture manager.
+                Renderer::TextureSamplerDescriptor desc(m_dummyTexture,
+                                                        m_dummySampler,
+                                                        name,
+                                                        name);
+                m_mainTextureDescriptors.push_back(std::move(desc));
+            }
+        }
     //YOYOFR
     //
     ShaderPreprocessor preProcessor(ShaderLanguage::HLSL);
@@ -159,13 +275,12 @@ void MilkdropShader::LoadTexturesAndCompile(PresetState& presetState)
 //    printf("%s\n",m_preprocessedCode.c_str());
     
     // Now that we have the textures, transpile the code.
-    TranspileHLSLShader(presetState, m_preprocessedCode);
-    
-    
+    TranspileHLSLShaderNoGLCompilation(presetState, m_preprocessedCode);
 
     // Update blur texture level if shader was compiled successfully.
     presetState.blurTexture.SetRequiredBlurLevel(m_maxBlurLevelRequired);
 }
+
 
 void MilkdropShader::LoadVariables(const PresetState& presetState, const PerFrameContext& perFrameContext)
 {
@@ -584,7 +699,115 @@ void MilkdropShader::GetReferencedSamplers(const std::string& program)
     }
 }
 
-void MilkdropShader::TranspileHLSLShader(const PresetState& presetState, std::string& program)
+void MilkdropShader::TranspileHLSLShader(const PresetState& presetState, std::string& program,const char *prePcode)
+{
+    std::string shaderTypeString = "composite";
+    if (m_type == ShaderType::WarpShader)
+    {
+        shaderTypeString = "warp";
+    }
+    
+    std::string codeToCompile;
+    
+    if (prePcode==NULL) {
+        
+        M4::GLSLGenerator generator;
+        M4::Allocator allocator;
+        
+        M4::HLSLTree tree(&allocator);
+        M4::HLSLParser parser(&allocator, &tree);
+        
+        // Preprocess define macros
+        std::string sourcePreprocessed;
+        if (!parser.ApplyPreprocessor("", program.c_str(), program.size(), sourcePreprocessed))
+        {
+            throw Renderer::ShaderException("Error translating HLSL " + shaderTypeString + " shader: Preprocessing failed.\nSource:\n" + program);
+        }
+        
+        // Remove previous shader declarations
+        // ToDo: Quite some presets declare a sampler_state{} struct to change the wrap mode.
+        //       The below code causes invalid syntax as it leaves part of the expression.
+        //       Leaving it in causes HLSLParser to add "sampler_XYZ = sampler2D( <unknown expression> );"
+        //       in the main() function, which is also bad...
+        std::smatch matches;
+        while (std::regex_search(sourcePreprocessed, matches, std::regex("sampler(2D|3D|)(\\s+|\\().*")))
+        {
+            sourcePreprocessed.replace(matches.position(), matches.length(), "");
+        }
+        
+        // Remove previous texsize declarations
+        while (std::regex_search(sourcePreprocessed, matches, std::regex("float4\\s+texsize_.*")))
+        {
+            sourcePreprocessed.replace(matches.position(), matches.length(), "");
+        }
+        
+        // Collect unique samplers and texsize uniforms
+        std::set<std::string> samplerDeclarations;
+        std::set<std::string> texSizeDeclarations;
+        for (const auto& desc : m_mainTextureDescriptors)
+        {
+            samplerDeclarations.insert(desc.SamplerDeclaration());
+            texSizeDeclarations.insert(desc.TexSizeDeclaration());
+        }
+        for (const auto& desc : presetState.blurTexture.GetDescriptorsForBlurLevel(m_maxBlurLevelRequired))
+        {
+            samplerDeclarations.insert(desc.SamplerDeclaration());
+            // No texsize_blur1 etc.
+        }
+        for (const auto& desc : m_textureSamplerDescriptors)
+        {
+            samplerDeclarations.insert(desc.SamplerDeclaration());
+            texSizeDeclarations.insert(desc.TexSizeDeclaration());
+        }
+        
+        // Now insert them on top.
+        for (const auto& texSizeDeclaration : texSizeDeclarations)
+        {
+            sourcePreprocessed.insert(0, texSizeDeclaration);
+        }
+        for (const auto& samplerDeclaration : samplerDeclarations)
+        {
+            sourcePreprocessed.insert(0, samplerDeclaration);
+        }
+        
+        // Transpile from HLSL (aka preset shader aka DirectX shader) to GLSL (aka OpenGL shader lang)
+        // First, parse HLSL into a tree
+        if (!parser.Parse("", sourcePreprocessed.c_str(), sourcePreprocessed.size()))
+        {
+            throw Renderer::ShaderException("Error translating HLSL " + shaderTypeString + " shader: HLSL parsing failed.\nSource:\n" + sourcePreprocessed);
+        }
+        
+        // Then generate GLSL from the resulting parser tree
+        if (!generator.Generate(&tree, M4::GLSLGenerator::Target_FragmentShader,
+                                MilkdropStaticShaders::Get()->GetGlslGeneratorVersion(),
+                                "PS", M4::GLSLGenerator::Options(M4::GLSLGenerator::Flag_AlternateNanPropagation)))
+        {
+            throw Renderer::ShaderException("Error translating HLSL " + shaderTypeString + " shader: GLSL generating failed.\nSource:\n" + sourcePreprocessed);
+        }
+        
+        codeToCompile=generator.GetResult();
+
+        printf("===Code to compile===>\n%s\n",codeToCompile.c_str());
+    } else {
+        codeToCompile=std::string(prePcode);
+    }
+    
+    // Now we have GLSL source for the preset shader program (hopefully it's valid!)
+    // Compile the preset shader fragment shader with the standard vertex shader and cross our fingers.
+    if (m_type == ShaderType::WarpShader)
+    {
+        m_shader.CompileProgram(MilkdropStaticShaders::Get()->GetPresetWarpVertexShader(), codeToCompile);
+        //printf("Warp:\n%s\n",generator.GetResult()); //YOYOFR
+    }
+    else
+    {
+        m_shader.CompileProgram(MilkdropStaticShaders::Get()->GetPresetCompVertexShader(), codeToCompile);
+        
+//        printf("%s\n",generator.GetResult()); //YOYOFR
+    }
+}
+
+void MilkdropShader::TranspileHLSLShaderNoGLCompilation(const PresetState& presetState, std::string& program)
 {
     std::string shaderTypeString = "composite";
     if (m_type == ShaderType::WarpShader)
@@ -666,20 +889,11 @@ void MilkdropShader::TranspileHLSLShader(const PresetState& presetState, std::st
         throw Renderer::ShaderException("Error translating HLSL " + shaderTypeString + " shader: GLSL generating failed.\nSource:\n" + sourcePreprocessed);
     }
     
-    // Now we have GLSL source for the preset shader program (hopefully it's valid!)
-    // Compile the preset shader fragment shader with the standard vertex shader and cross our fingers.
-    if (m_type == ShaderType::WarpShader)
-    {
-        m_shader.CompileProgram(MilkdropStaticShaders::Get()->GetPresetWarpVertexShader(), generator.GetResult());
-        //printf("%s\n",generator.GetResult()); //YOYOFR
-    }
-    else
-    {
-        m_shader.CompileProgram(MilkdropStaticShaders::Get()->GetPresetCompVertexShader(), generator.GetResult());
-        
-//        printf("%s\n",generator.GetResult()); //YOYOFR
-    }
+    m_convertedCode=generator.GetResult();
+
+    //printf("===Code to compile===>\n%s\n",m_convertedCode.c_str());
 }
+
 
 void MilkdropShader::UpdateMaxBlurLevel(BlurTexture::BlurLevel requestedLevel)
 {

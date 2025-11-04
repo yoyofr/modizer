@@ -2,7 +2,7 @@
  * Load_med.cpp
  * ------------
  * Purpose: OctaMED / MED Soundstudio module loader
- * Notes  : Support for synthesized instruments is still missing.
+ * Notes  : (currently none)
  * Authors: OpenMPT Devs
  * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
  */
@@ -84,10 +84,10 @@ struct MMD2Song
 	uint32be flags3;
 	uint16be volAdjust;       // Volume adjust (%)
 	uint16be mixChannels;     // Mixing channels, 0 means 4
-	uint8be  mixEchoType;     // 0 = nothing, 1 = normal, 2 = cross
-	uint8be  mixEchoDepth;    // 1 - 6, 0 = default
+	uint8    mixEchoType;     // 0 = nothing, 1 = normal, 2 = cross
+	uint8    mixEchoDepth;    // 1 - 6, 0 = default
 	uint16be mixEchoLength;   // Echo length in milliseconds
-	int8be   mixStereoSep;    // Stereo separation
+	int8     mixStereoSep;    // Stereo separation
 	char     pad0[223];
 };
 
@@ -101,7 +101,7 @@ struct MMDSong
 	{
 		FLAG_FILTERON   = 0x01,  // The hardware audio filter is on
 		FLAG_JUMPINGON  = 0x02,  // Mouse pointer jumping on
-		FLAG_JUMP8TH    = 0x04,  // ump every 8th line (not in OctaMED Pro)
+		FLAG_JUMP8TH    = 0x04,  // Jump every 8th line (not in OctaMED Pro)
 		FLAG_INSTRSATT  = 0x08,  // sng+samples indicator (not useful in MMDs)
 		FLAG_VOLHEX     = 0x10,  // volumes are HEX
 		FLAG_STSLIDE    = 0x20,  // use ST/NT/PT compatible sliding
@@ -253,6 +253,29 @@ struct MMDPackedSampleHeader
 MPT_BINARY_STRUCT(MMDPackedSampleHeader, 14)
 
 
+struct MMDSynthInstr
+{
+	uint8    defaultDecay;  // Not used in modules
+	char     reserved[3];
+	uint16be loopStart;  // Only for hybrid
+	uint16be loopLength;
+	uint16be volTableLen;
+	uint16be waveTableLen;
+	uint8    volSpeed;
+	uint8    waveSpeed;
+	uint16be numWaveforms;
+	std::array<uint8, 128> volTable;
+	std::array<uint8, 128> waveTable;
+
+	bool IsValid() const
+	{
+		return volTableLen <= 128 && waveTableLen <= 128 && (numWaveforms <= 64 || numWaveforms == 0xFFFF);
+	}
+};
+
+MPT_BINARY_STRUCT(MMDSynthInstr, 272)
+
+
 struct MMDInstrExt
 {
 	enum
@@ -368,10 +391,14 @@ struct MMDDump
 MPT_BINARY_STRUCT(MMDDump, 10)
 
 
-static TEMPO MMDTempoToBPM(uint32 tempo, bool is8Ch, bool bpmMode, uint8 rowsPerBeat)
+static TEMPO MMDTempoToBPM(uint32 tempo, bool is8Ch, bool softwareMixing, bool bpmMode, uint8 rowsPerBeat)
 {
 	if(bpmMode && !is8Ch)
 	{
+		// Observed in OctaMED 5 and MED SoundStudio 1.03 (bug?)
+		if(tempo < 7)
+			return TEMPO(111.5);
+
 		// You would have thought that we could use modern tempo mode here.
 		// Alas, the number of ticks per row still influences the tempo. :(
 		return TEMPO((tempo * rowsPerBeat) / 4.0);
@@ -382,63 +409,97 @@ static TEMPO MMDTempoToBPM(uint32 tempo, bool is8Ch, bool bpmMode, uint8 rowsPer
 		// MED Soundstudio uses these tempos when importing old files
 		static constexpr uint8 tempos[10] = {179, 164, 152, 141, 131, 123, 116, 110, 104, 99};
 		return TEMPO(tempos[tempo - 1], 0);
-	} else if(tempo > 0 && tempo <= 10)
+	} else if(!softwareMixing &&  tempo > 0 && tempo <= 10)
 	{
 		// SoundTracker compatible tempo
 		return TEMPO((6.0 * 1773447.0 / 14500.0) / tempo);
+	} else if(softwareMixing && tempo < 8)
+	{
+		// Observed in MED SoundStudio 1.03 with 1-64ch mixing mode and SPD tempo mode (bug?)
+		return TEMPO(157.86);
 	}
 
 	return TEMPO(tempo / 0.264);
 }
 
 
-static std::pair<EffectCommand, ModCommand::PARAM> ConvertMEDEffect(ModCommand &m, const uint8 command, const bool is8ch, const bool bpmMode, const uint8 rowsPerBeat, const bool volHex)
+struct TranslateMEDPatternContext
 {
-	m.command = CMD_NONE;
+	const int16 transpose;
+	const CHANNELINDEX numTracks;
+	const uint8 version;
+	const uint8 rowsPerBeat;
+	const bool is8Ch : 1;
+	const bool softwareMixing : 1;
+	const bool bpmMode : 1;
+	const bool volHex : 1;
+	const bool vol7bit : 1;
+};
+
+
+static std::pair<EffectCommand, ModCommand::PARAM> ConvertMEDEffect(ModCommand &m, const uint8 command, const uint8 param, const uint8 param2, const TranslateMEDPatternContext ctx)
+{
+	const uint8 nibbleLo = std::min(param, uint8(0x0F));
 	switch(command)
 	{
+	case 0x01:  // Portamento Up (avoid effect memory when importing as XM)
+		if(param)
+			m.SetEffectCommand(CMD_PORTAMENTOUP, param);
+		break;
+	case 0x02:  // Portamento Down (avoid effect memory when importing as XM)
+		if(param)
+			m.SetEffectCommand(CMD_PORTAMENTODOWN, param);
+		break;
 	case 0x04:  // Vibrato (twice as deep as in ProTracker)
-		m.command = CMD_VIBRATO;
-		m.param = (std::min<uint8>(m.param >> 3, 0x0F) << 4) | std::min<uint8>((m.param & 0x0F) * 2, 0x0F);
+		m.SetEffectCommand(CMD_VIBRATO, (param & 0xF0) | std::min<uint8>((param & 0x0F) * 2, 0x0F));
+		break;
+	case 0x05:  // Tone Porta + Volume Slide (avoid effect memory when importing as XM)
+		if(param)
+			m.SetEffectCommand(CMD_TONEPORTAVOL, param);
+		else
+			m.SetEffectCommand(CMD_TONEPORTAMENTO, 0);
+		break;
+	case 0x06:  // Vibrato + Volume Slide (avoid effect memory when importing as XM)
+		if(param)
+			m.SetEffectCommand(CMD_VIBRATOVOL, param);
+		else
+			m.SetEffectCommand(CMD_VIBRATO, 0);
 		break;
 	case 0x08:  // Hold and decay
-		m.command = CMD_NONE;
 		break;
 	case 0x09:  // Set secondary speed
-		if(m.param > 0 && m.param <= 20)
-			m.command = CMD_SPEED;
-		else
-			m.command = CMD_NONE;
+		if(param > 0 && param <= 0x20)
+			m.SetEffectCommand(CMD_SPEED, param);
 		break;
-	case 0x0C:  // Set Volume
-		m.command = CMD_VOLUME;
-		if(!volHex && m.param < 0x99)
-			m.param = static_cast<ModCommand::PARAM>((m.param >> 4) * 10 + (m.param & 0x0F));
-		else if(volHex)
-			m.param = static_cast<ModCommand::PARAM>(((m.param & 0x7F) + 1) / 2);
-		else
-			m.command = CMD_NONE;
+	case 0x0C:  // Set Volume (note: parameters >= 0x80 (only in hex mode?) should set the default instrument volume, which we don't support)
+		if(!ctx.volHex && param < 0x99)
+			m.SetEffectCommand(CMD_VOLUME, static_cast<ModCommand::PARAM>((param >> 4) * 10 + (param & 0x0F)));
+		else if(ctx.volHex && !ctx.vol7bit)
+			m.SetEffectCommand(CMD_VOLUME, static_cast<ModCommand::PARAM>(std::min(param & 0x7F, 64)));
+		else if(ctx.volHex)
+			m.SetEffectCommand(CMD_VOLUME, static_cast<ModCommand::PARAM>(((param & 0x7F) + 1) / 2));
 		break;
 	case 0x0D:
-		m.command = CMD_VOLUMESLIDE;
+		if(param)
+			m.SetEffectCommand(CMD_VOLUMESLIDE, param);
 		break;
-	case 0x0E:  // Synth jump
-		m.command = CMD_NONE;
+	case 0x0E:  // Synth jump / MIDI panning
+		m.SetEffectCommand(CMD_MED_SYNTH_JUMP, param);
 		break;
 	case 0x0F:  // Misc
-		if(m.param == 0)
+		if(param == 0)
 		{
-			m.command = CMD_PATTERNBREAK;
-		} else if(m.param <= 0xF0)
+			m.SetEffectCommand(CMD_PATTERNBREAK, param);
+		} else if(param <= 0xF0)
 		{
 			m.command = CMD_TEMPO;
-			if(m.param < 0x03)
+			if(param < 0x03)
 			{
 				// This appears to be a bug in OctaMED which is not emulated in MED Soundstudio on Windows.
 				m.param = 0x70;
 			} else
 			{
-				uint16 tempo = mpt::saturate_round<uint16>(MMDTempoToBPM(m.param, is8ch, bpmMode, rowsPerBeat).ToDouble());
+				uint16 tempo = mpt::saturate_round<uint16>(MMDTempoToBPM(param, ctx.is8Ch, ctx.softwareMixing, ctx.bpmMode, ctx.rowsPerBeat).ToDouble());
 				if(tempo <= Util::MaxValueOfType(m.param))
 				{
 					m.param = static_cast<ModCommand::PARAM>(tempo);
@@ -448,159 +509,288 @@ static std::pair<EffectCommand, ModCommand::PARAM> ConvertMEDEffect(ModCommand &
 					return {CMD_XPARAM, static_cast<ModCommand::PARAM>(tempo & 0xFF)};
 				}
 			}
-#ifdef MODPLUG_TRACKER
-			if(m.param < 0x20)
-				m.param = 0x20;
-#endif  // MODPLUG_TRACKER
-		} else switch(command)
+		} else switch(param)
 		{
 			case 0xF1:  // Play note twice
-				m.command = CMD_MODCMDEX;
-				m.param = 0x93;
+				m.SetEffectCommand(CMD_MODCMDEX, 0x93);
 				break;
 			case 0xF2:  // Delay note
-				m.command = CMD_MODCMDEX;
-				m.param = 0xD3;
+				m.SetEffectCommand(CMD_MODCMDEX, 0xD3);
 				break;
 			case 0xF3:  // Play note three times
-				m.command = CMD_MODCMDEX;
-				m.param = 0x92;
+				m.SetEffectCommand(CMD_MODCMDEX, 0x92);
 				break;
 			case 0xF8:  // Turn filter off
 			case 0xF9:  // Turn filter on
-				m.command = CMD_MODCMDEX;
-				m.param = 0xF9 - m.param;
+				m.SetEffectCommand(CMD_MODCMDEX, 0xF9 - param);
+				break;
+			case 0xFD:  // Set pitch
+				m.SetEffectCommand(CMD_TONEPORTA_DURATION, 0);
 				break;
 			case 0xFA:  // MIDI pedal on
 			case 0xFB:  // MIDI pedal off
-			case 0xFD:  // Set pitch
 			case 0xFE:  // End of song
-				m.command = CMD_NONE;
 				break;
 			case 0xFF:  // Turn note off
-				m.note = NOTE_NOTECUT;
-				m.command = CMD_NONE;
-				break;
-			default:
-				m.command = CMD_NONE;
+				if(!m.IsNote())
+					m.note = NOTE_NOTECUT;
 				break;
 		}
 		break;
 	case 0x10:  // MIDI message
-		m.command = CMD_MIDI;
-		m.param |= 0x80;
+		m.SetEffectCommand(CMD_MIDI, 0x80 | param);
 		break;
 	case 0x11:  // Slide pitch up
-		m.command = CMD_MODCMDEX;
-		m.param = 0x10 | std::min<uint8>(m.param, 0x0F);
+		m.SetEffectCommand(CMD_MODCMDEX, 0x10 | nibbleLo);
 		break;
 	case 0x12:  // Slide pitch down
-		m.command = CMD_MODCMDEX;
-		m.param = 0x20 | std::min<uint8>(m.param, 0x0F);
+		m.SetEffectCommand(CMD_MODCMDEX, 0x20 | nibbleLo);
 		break;
 	case 0x14:  // Vibrato (ProTracker compatible depth, but faster)
-		m.command = CMD_VIBRATO;
-		m.param = (std::min<uint8>((m.param >> 4) + 1, 0x0F) << 4) | (m.param & 0x0F);
+		m.SetEffectCommand(CMD_VIBRATO, param);
 		break;
 	case 0x15:  // Set finetune
-		m.command = CMD_MODCMDEX;
-		m.param = 0x50 | (m.param & 0x0F);
+		m.SetEffectCommand(CMD_MODCMDEX, 0x50 | (param & 0x0F));
 		break;
 	case 0x16:  // Loop
-		m.command = CMD_MODCMDEX;
-		m.param = 0x60 | std::min<uint8>(m.param, 0x0F);
+		m.SetEffectCommand(CMD_MODCMDEX, 0x60 | nibbleLo);
 		break;
 	case 0x18:  // Stop note
-		m.command = CMD_MODCMDEX;
-		m.param = 0xC0 | std::min<uint8>(m.param, 0x0F);
+		m.SetEffectCommand(CMD_MODCMDEX, 0xC0 | nibbleLo);
 		break;
 	case 0x19:  // Sample Offset
-		m.command = CMD_OFFSET;
+		m.SetEffectCommand(CMD_OFFSET, param);
 		break;
 	case 0x1A:  // Slide volume up once
-		m.command = CMD_MODCMDEX;
-		m.param = 0xA0 | std::min<uint8>(m.param, 0x0F);
+		m.SetEffectCommand(CMD_MODCMDEX, 0xA0 | nibbleLo);
 		break;
 	case 0x1B:  // Slide volume down once
-		m.command = CMD_MODCMDEX;
-		m.param = 0xB0 | std::min<uint8>(m.param, 0x0F);
+		m.SetEffectCommand(CMD_MODCMDEX, 0xB0 | nibbleLo);
 		break;
 	case 0x1C:  // MIDI program
-		if(m.param > 0 && m.param <= 128)
-		{
-			m.command = CMD_MIDI;
-			m.param--;
-		} else
-		{
-			m.command = CMD_NONE;
-		}
+		if(param > 0 && param <= 128)
+			m.SetEffectCommand(CMD_MIDI, param - 1);
 		break;
 	case 0x1D:  // Pattern break (in hex)
-		m.command = CMD_PATTERNBREAK;
+		m.SetEffectCommand(CMD_PATTERNBREAK, param);
 		break;
 	case 0x1E:  // Repeat row
-		m.command = CMD_MODCMDEX;
-		m.param = 0xE0 | std::min<uint8>(m.param, 0x0F);
+		m.SetEffectCommand(CMD_MODCMDEX, 0xE0 | std::min<uint8>(param, 0x0F));
 		break;
 	case 0x1F:  // Note delay and retrigger
 	{
-		if(m.param & 0xF0)
-		{
-			m.command = CMD_MODCMDEX;
-			m.param = 0xD0 | (m.param >> 4);
-		} else if(m.param & 0x0F)
-		{
-			m.command = CMD_MODCMDEX;
-			m.param = 0x90 | m.param;
-		} else
-		{
-			m.command = CMD_NONE;
-		}
+		if(param & 0xF0)
+			m.SetEffectCommand(CMD_MODCMDEX, 0xD0 | (param >> 4));
+		else if(param & 0x0F)
+			m.SetEffectCommand(CMD_MODCMDEX, 0x90 | param);
 		break;
 	}
 	case 0x20:  // Reverse sample + skip samples
-		if(m.param == 0 && m.vol == 0)
+		if(param == 0 && param2 == 0)
 		{
 			if(m.IsNote())
 			{
-				m.command = CMD_S3MCMDEX;
-				m.param = 0x9F;
+				m.SetEffectCommand(CMD_XFINEPORTAUPDOWN, 0x9F);
 			}
 		} else
 		{
 			// Skip given number of samples
-			m.command = CMD_NONE;
 		}
 		break;
 	case 0x29:  // Relative sample offset
-		if(m.vol > 0)
-		{
-			m.command = CMD_OFFSETPERCENTAGE;
-			m.param = mpt::saturate_cast<ModCommand::PARAM>(Util::muldiv_unsigned(m.param, 0x100, m.vol));
-		} else
-		{
-			m.command = CMD_NONE;
-		}
+		if(param2 > 0)
+			m.SetEffectCommand(CMD_OFFSETPERCENTAGE, mpt::saturate_cast<ModCommand::PARAM>(Util::muldiv_unsigned(param, 0x100, param2)));
 		break;
 	case 0x2E:  // Set panning
-		if(m.param <= 0x10 || m.param >= 0xF0)
-		{
-			m.command = CMD_PANNING8;
-			m.param = mpt::saturate_cast<ModCommand::PARAM>(((m.param ^ 0x80) - 0x70) * 8);
-		} else
-		{
-			m.command = CMD_NONE;
-		}
+		if(param <= 0x10 || param >= 0xF0)
+			m.SetEffectCommand(CMD_PANNING8, mpt::saturate_cast<ModCommand::PARAM>(((param ^ 0x80) - 0x70) * 8));
 		break;
 	default:
-		if(command < 0x10)
-			CSoundFile::ConvertModCommand(m, command, m.param);
-		else
-			m.command = CMD_NONE;
+		if((command > 0 || param) && command < 0x10)
+			CSoundFile::ConvertModCommand(m, command, param);
 		break;
 	}
 	return std::make_pair(CMD_NONE, ModCommand::PARAM(0));
 }
+
+
+static bool TranslateMEDPattern(FileReader &file, FileReader &cmdExt, CPattern &pattern, const TranslateMEDPatternContext ctx, const bool isExtraPage)
+{
+	bool needInstruments = false;
+	for(ROWINDEX row = 0; row < pattern.GetNumRows(); row++)
+	{
+		ModCommand *m = pattern.GetpModCommand(row, 0);
+		for(CHANNELINDEX chn = 0; chn < ctx.numTracks; chn++, m++)
+		{
+			auto oldCmd = std::make_pair(m->command, m->param);
+			int note = NOTE_NONE;
+			uint8 cmd = 0, param1 = 0, param2 = 0;
+			if(ctx.version < 1)
+			{
+				const auto [noteInstr, instrCmd, param] = file.ReadArray<uint8, 3>();
+
+				if(noteInstr & 0x3F)
+					note = (noteInstr & 0x3F) + ctx.transpose;
+
+				m->instr = (instrCmd >> 4) | ((noteInstr & 0x80) >> 3) | ((noteInstr & 0x40) >> 1);
+
+				cmd = instrCmd & 0x0F;
+				param1 = param;
+			} else if(isExtraPage)
+			{
+				const auto [command, param] = file.ReadArray<uint8, 2>();
+				param2 = cmdExt.ReadUint8();
+				cmd = command;
+				param1 = param;
+			} else
+			{
+				const auto [noteVal, instr, command, param] = file.ReadArray<uint8, 4>();
+				param2 = cmdExt.ReadUint8();
+
+				if(noteVal & 0x7F)
+					note = (noteVal & 0x7F) + ctx.transpose;
+				else if(noteVal == 0x80)
+					m->note = NOTE_NOTECUT;
+
+				if(instr & 0x3F)
+					m->instr = instr & 0x3F;
+				cmd = command;
+				param1 = param;
+			}
+			// Octave wrapping for 4-channel modules
+			if(note >= NOTE_MIDDLEC + 2 * 12)
+				needInstruments = true;
+
+			// This doesn't happen in MED SoundStudio for Windows... closest we have to be able to identify it is the usage of 7-bit volume
+			if(note > NOTE_MIN + 131 && !ctx.vol7bit)
+				note -= 108;
+			else if(note > NOTE_MAX)
+				note -= mpt::align_down(note - (NOTE_MAX - 11), 12);
+			if(note >= NOTE_MIN)
+				m->note = static_cast<ModCommand::NOTE>(note);
+
+			if(!cmd && !param1)
+				continue;
+			const auto extraCmd = ConvertMEDEffect(*m, cmd, param1, param2, ctx);
+
+			if(oldCmd.first != CMD_NONE && m->command != oldCmd.first)
+			{
+				if(!ModCommand::CombineEffects(m->command, m->param, oldCmd.first, oldCmd.second) && m->volcmd == VOLCMD_NONE)
+					m->FillInTwoCommands(m->command, m->param, oldCmd.first, oldCmd.second, true);
+				// Reset X-Param to 8-bit value if this cell was overwritten with a "useful" effect
+				if(row > 0 && oldCmd.first == CMD_XPARAM && m->command != CMD_XPARAM)
+					pattern.GetpModCommand(row - 1, chn)->param = Util::MaxValueOfType(m->param);
+			}
+			if(extraCmd.first != CMD_NONE)
+			{
+				if(row < (pattern.GetNumRows() - 1))
+					pattern.GetpModCommand(row + 1, chn)->SetEffectCommand(extraCmd);
+				else
+					m->param = Util::MaxValueOfType(m->param);  // No space :(
+			}
+		}
+	}
+	return needInstruments;
+}
+
+
+static void TranslateMEDSynthScript(std::array<uint8, 128> &arr, size_t numEntries, uint8 speed, uint8 hold, uint8 decay, InstrumentSynth::Events &events, bool isVolume)
+{
+	events.push_back(InstrumentSynth::Event::SetStepSpeed(speed, true));
+	if(hold && isVolume)
+		events.push_back(InstrumentSynth::Event::MED_HoldDecay(hold, decay));
+
+	std::map<uint16, uint16> entryFromByte;
+
+	FileReader chunk{mpt::as_span(arr).subspan(0, std::min(arr.size(), numEntries))};
+	while(chunk.CanRead(1))
+	{
+		const uint16 scriptPos = static_cast<uint16>(chunk.GetPosition());
+		entryFromByte[scriptPos] = static_cast<uint16>(events.size());
+		events.push_back(InstrumentSynth::Event::JumpMarker(scriptPos));
+		uint8 b = chunk.ReadUint8();
+		switch(b)
+		{
+		case 0xFF:  // END - End sequence
+		case 0xFB:  // HLT - Halt
+			events.push_back(InstrumentSynth::Event::StopScript());
+			break;
+		case 0xFE:  // JMP - Jump
+			events.push_back(InstrumentSynth::Event::Jump(chunk.ReadUint8()));
+			break;
+		case 0xFD:  // ARE - End arpeggio definition
+			break;
+		case 0xFC:  // ARP - Begin arpeggio definition
+			{
+				size_t firstEvent = events.size();
+				uint8 arpSize = 0;
+				while(chunk.CanRead(1))
+				{
+					b = chunk.ReadUint8();
+					if(b >= 0x80)
+						break;
+					events.push_back(InstrumentSynth::Event::MED_DefineArpeggio(b, 0));
+					arpSize++;
+				}
+				if(arpSize)
+					events[firstEvent].u16 = arpSize;
+			}
+			break;
+		case 0xFA:  // JWV / JWS - Jump waveform / volume sequence
+			events.push_back(InstrumentSynth::Event::MED_JumpScript(isVolume ? 1 : 0, chunk.ReadUint8()));
+			break;
+		case 0xF7:  //  -  / VWF - Set vibrato waveform
+			if(!isVolume)
+				events.push_back(InstrumentSynth::Event::MED_SetEnvelope(chunk.ReadUint8(), true, false));
+			break;
+		case 0xF6:  // EST / RES - ? / reset pitch
+			if(!isVolume)
+				events.push_back(InstrumentSynth::Event::Puma_PitchRamp(0, 0, 0));
+			break;
+		case 0xF5:  // EN2 / VBS - Looping envelope / set vibrato speed
+			if(isVolume)
+				events.push_back(InstrumentSynth::Event::MED_SetEnvelope(chunk.ReadUint8(), true, true));
+			else
+				events.push_back(InstrumentSynth::Event::MED_SetVibratoSpeed(chunk.ReadUint8()));
+			break;
+		case 0xF4:  // EN1 - VBD - One shot envelope / set vibrato depth
+			if(isVolume)
+				events.push_back(InstrumentSynth::Event::MED_SetEnvelope(chunk.ReadUint8(), false, true));
+			else
+				events.push_back(InstrumentSynth::Event::MED_SetVibratoDepth(chunk.ReadUint8()));
+			break;
+		case 0xF3:  // CHU - Change volume / pitch up speed
+			if(isVolume)
+				events.push_back(InstrumentSynth::Event::MED_SetVolumeStep(chunk.ReadUint8()));
+			else
+				events.push_back(InstrumentSynth::Event::MED_SetPeriodStep(chunk.ReadUint8()));
+			break;
+		case 0xF2:  // CHD - Change volume / pitch down speed
+			if(isVolume)
+				events.push_back(InstrumentSynth::Event::MED_SetVolumeStep(-static_cast<int16>(chunk.ReadUint8())));
+			else
+				events.push_back(InstrumentSynth::Event::MED_SetPeriodStep(-static_cast<int16>(chunk.ReadUint8())));
+			break;
+		case 0xF1:  // WAI - Wait
+			events.push_back(InstrumentSynth::Event::Delay(std::max(chunk.ReadUint8(), uint8(1)) - 1));
+			break;
+		case 0xF0:  // SPD - Set Speed
+			events.push_back(InstrumentSynth::Event::SetStepSpeed(chunk.ReadUint8(), false));
+			break;
+		default:
+			if(isVolume && b <= 64)
+				events.push_back(InstrumentSynth::Event::MED_SetVolume(b));
+			else if(!isVolume)
+				events.push_back(InstrumentSynth::Event::MED_SetWaveform(b));
+			break;
+		}
+	}
+	for(auto &event : events)
+	{
+		event.FixupJumpTarget(entryFromByte);
+	}
+}
+
 
 #ifdef MPT_WITH_VST
 static std::wstring ReadMEDStringUTF16BE(FileReader &file)
@@ -719,10 +909,6 @@ bool CSoundFile::ReadMED(FileReader &file, ModLoadingFlags loadFlags)
 	if(loadFlags == onlyVerifyHeader)
 		return true;
 	
-	InitializeGlobals(MOD_TYPE_MED);
-	InitializeChannels();
-	const uint8 version = fileHeader.version - '0';
-
 	file.Seek(fileHeader.songOffset);
 	FileReader sampleHeaderChunk = file.ReadChunk(63 * sizeof(MMD0Sample));
 
@@ -732,16 +918,12 @@ bool CSoundFile::ReadMED(FileReader &file, ModLoadingFlags loadFlags)
 	if(songHeader.numSamples > 63 || songHeader.numBlocks > 0x7FFF)
 		return false;
 
-	MMD0Exp expData{};
-	if(fileHeader.expDataOffset && file.Seek(fileHeader.expDataOffset))
-	{
-		file.ReadStruct(expData);
-	}
-
+	const uint8 version = fileHeader.version - '0';
 	const auto [numChannels, numSongs] = MEDScanNumChannels(file, version);
 	if(numChannels < 1 || numChannels > MAX_BASECHANNELS)
 		return false;
-	m_nChannels = numChannels;
+
+	InitializeGlobals(MOD_TYPE_MED, numChannels);
 
 	// Start with the instruments, as those are shared between songs
 
@@ -756,22 +938,44 @@ bool CSoundFile::ReadMED(FileReader &file, ModLoadingFlags loadFlags)
 	}
 	m_nInstruments = m_nSamples = songHeader.numSamples;
 
+	MMD0Exp expData{};
+	if(fileHeader.expDataOffset && file.Seek(fileHeader.expDataOffset))
+	{
+		file.ReadStruct(expData);
+	}
+
+	FileReader expDataChunk;
+	if(expData.instrExtOffset != 0 && file.Seek(expData.instrExtOffset))
+	{
+		const uint16 entries = std::min<uint16>(expData.instrExtEntries, songHeader.numSamples);
+		expDataChunk = file.ReadChunk(expData.instrExtEntrySize * entries);
+	}
+	FileReader instrInfoChunk;
+	if(expData.instrInfoOffset != 0 && file.Seek(expData.instrInfoOffset))
+	{
+		const uint16 entries = std::min<uint16>(expData.instrInfoEntries, songHeader.numSamples);
+		instrInfoChunk = file.ReadChunk(expData.instrInfoEntrySize * entries);
+	}
+
 	// In MMD0 / MMD1, octave wrapping is not done for synth instruments
 	// - It's required e.g. for automatic terminated to.mmd0 and you got to let the music.mmd1
 	// - starkelsesirap.mmd0 (synth instruments) on the other hand don't need it
 	// In MMD2 / MMD3, the mix flag is used instead.
 	const bool hardwareMixSamples = (version < 2) || (version >= 2 && !(songHeader.flags2 & MMDSong::FLAG2_MIX));
+	m_nMinPeriod = hardwareMixSamples ? (113 * 4) : (55 * 4);
 
 	bool needInstruments = false;
-	bool anySynthInstrs = false;
-#ifdef MPT_WITH_VST
+#ifndef NO_PLUGINS
 	PLUGINDEX numPlugins = 0;
-#endif  // MPT_WITH_VST
+#endif  // !NO_PLUGINS
 	for(SAMPLEINDEX ins = 1, smp = 1; ins <= m_nInstruments; ins++)
 	{
 		if(!AllocateInstrument(ins, smp))
 			return false;
 		ModInstrument &instr = *Instruments[ins];
+
+		MMDInstrExt instrExt{};
+		expDataChunk.ReadStructPartial(instrExt, expData.instrExtEntrySize);
 
 		MMDInstrHeader instrHeader{};
 		FileReader sampleChunk;
@@ -783,6 +987,7 @@ bool CSoundFile::ReadMED(FileReader &file, ModLoadingFlags loadFlags)
 				chunkLength *= 2u;
 			sampleChunk = file.ReadChunk(chunkLength);
 		}
+		std::vector<uint32be> waveformOffsets;  // For synth instruments
 		const bool isSynth = instrHeader.type < 0;
 		const size_t maskedType = static_cast<size_t>(instrHeader.type & MMDInstrHeader::TYPEMASK);
 
@@ -796,7 +1001,7 @@ bool CSoundFile::ReadMED(FileReader &file, ModLoadingFlags loadFlags)
 			if(type == L"VST")
 			{
 				auto &mixPlug = m_MixPlugins[numPlugins];
-				mixPlug = {};
+				mpt::reconstruct(mixPlug);
 				mixPlug.Info.dwPluginId1 = Vst::kEffectMagic;
 				mixPlug.Info.gain = 10;
 				mixPlug.Info.szName = mpt::ToCharset(mpt::Charset::Locale, name);
@@ -811,20 +1016,46 @@ bool CSoundFile::ReadMED(FileReader &file, ModLoadingFlags loadFlags)
 			}
 		} else
 #endif  // MPT_WITH_VST
-		if(isSynth)
+		if(instrHeader.type == MMDInstrHeader::SYNTHETIC || instrHeader.type == MMDInstrHeader::HYBRID)
 		{
-			// TODO: Figure out synth instruments
-			anySynthInstrs = true;
+			needInstruments = true;
+			MMDSynthInstr synthInstr;
+			sampleChunk.ReadStruct(synthInstr);
+			if(!synthInstr.IsValid())
+				return false;
+
+			if(instrHeader.type == MMDInstrHeader::SYNTHETIC)
+				instr.filename = "Synth";
+			else
+				instr.filename = "Hybrid";
+
+			instr.AssignSample(smp);
+			if(instrHeader.type == MMDInstrHeader::SYNTHETIC && version <= 2)
+				instr.Transpose(-24);
+
+			instr.synth.m_scripts.resize(2);
+			TranslateMEDSynthScript(synthInstr.volTable, synthInstr.volTableLen, synthInstr.volSpeed, instrExt.hold, instrExt.decay, instr.synth.m_scripts[0], true);
+			TranslateMEDSynthScript(synthInstr.waveTable, synthInstr.waveTableLen, synthInstr.waveSpeed, instrExt.hold, instrExt.decay, instr.synth.m_scripts[1], false);
+
+			if(synthInstr.numWaveforms <= 64)
+				file.ReadVector(waveformOffsets, synthInstr.numWaveforms);
+		} else if(isSynth)
+		{
 			instr.AssignSample(0);
 		}
 
-		uint8 numSamples = 1;
+		MMD0Sample sampleHeader;
+		sampleHeaderChunk.ReadStruct(sampleHeader);
+		int8 sampleTranspose = sampleHeader.sampleTranspose;
+
+		uint8 numSamples = std::max(uint8(1), static_cast<uint8>(waveformOffsets.size()));
 		static constexpr uint8 SamplesPerType[] = {1, 5, 3, 2, 4, 6, 7};
 		if(!isSynth && maskedType < std::size(SamplesPerType))
 			numSamples = SamplesPerType[maskedType];
 		if(numSamples > 1)
 		{
-			static_assert(MAX_SAMPLES > 63 * 9, "Check IFFOCT multisample code");
+			if(!CanAddMoreSamples(numSamples - 1))
+				continue;
 			m_nSamples += static_cast<SAMPLEINDEX>(numSamples - 1);
 			needInstruments = true;
 			static constexpr uint8 OctSampleMap[][8] =
@@ -848,38 +1079,24 @@ bool CSoundFile::ReadMED(FileReader &file, ModLoadingFlags loadFlags)
 			};
 
 			// TODO: Move octaves so that they align better (C-4 = lowest, we don't have access to the highest four octaves)
-			for(int octave = 4; octave < 10; octave++)
+			if(!isSynth)
 			{
-				for(int note = 0; note < 12; note++)
+				for(int i = 0; i < static_cast<int>(instr.Keyboard.size()); i++)
 				{
-					instr.Keyboard[12 * octave + note] = smp + OctSampleMap[numSamples - 2][octave - 4];
-#if MPT_COMPILER_GCC
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wconversion"
-#endif
-					instr.NoteMap[12 * octave + note] += OctTransposeMap[numSamples - 2][octave - 4];
-#if MPT_COMPILER_GCC
-#pragma GCC diagnostic pop
-#endif
+					int note = i + sampleTranspose;
+					if(note < 0)
+						note = -note % 12;
+					int octave = std::clamp(note / 12 - 4, 0, static_cast<int>(std::size(OctTransposeMap[0]) - 1));
+					instr.Keyboard[i] = smp + OctSampleMap[numSamples - 2][octave];
+					instr.NoteMap[i] = static_cast<uint8>(NOTE_MIN + note + OctTransposeMap[numSamples - 2][octave]);
 				}
+				sampleTranspose = 0;
 			}
 		} else if(maskedType == MMDInstrHeader::EXTSAMPLE)
 		{
 			needInstruments = true;
 			instr.Transpose(-24);
-		} else if(!isSynth && hardwareMixSamples)
-		{
-			for(int octave = 7; octave < 10; octave++)
-			{
-				for(int note = 0; note < 12; note++)
-				{
-					instr.NoteMap[12 * octave + note] -= static_cast<uint8>((octave - 6) * 12);
-				}
-			}
 		}
-
-		MMD0Sample sampleHeader;
-		sampleHeaderChunk.ReadStruct(sampleHeader);
 
 		// midiChannel = 0xFF == midi instrument but with invalid channel, midiChannel = 0x00 == sample-based instrument?
 		if(sampleHeader.midiChannel > 0 && sampleHeader.midiChannel <= 16)
@@ -891,7 +1108,7 @@ bool CSoundFile::ReadMED(FileReader &file, ModLoadingFlags loadFlags)
 			if(!isSynth)
 			{
 				auto &mixPlug = m_MixPlugins[numPlugins];
-				mixPlug = {};
+				mpt::reconstruct(mixPlug);
 				mixPlug.Info.dwPluginId1 = PLUGMAGIC('V', 's', 't', 'P');
 				mixPlug.Info.dwPluginId2 = PLUGMAGIC('M', 'M', 'I', 'D');
 				mixPlug.Info.gain = 10;
@@ -910,18 +1127,23 @@ bool CSoundFile::ReadMED(FileReader &file, ModLoadingFlags loadFlags)
 			instr.nMidiProgram = sampleHeader.midiPreset;
 		}
 
+		if(instr.nMidiChannel == MidiNoChannel)
+		{
+			int offset = NOTE_MIDDLEC + (hardwareMixSamples ? 24 : 36);
+			for(auto &note : instr.NoteMap)
+			{
+				int realNote = note + sampleTranspose;
+				if(realNote >= offset)
+					note -= static_cast<uint8>(mpt::align_down(realNote - offset + 12, 12));
+			}
+		}
+
 		for(SAMPLEINDEX i = 0; i < numSamples; i++)
 		{
 			ModSample &mptSmp = Samples[smp + i];
 			mptSmp.Initialize(MOD_TYPE_MED);
 			mptSmp.nVolume = 4u * std::min<uint8>(sampleHeader.sampleVolume, 64u);
-			mptSmp.RelativeTone = sampleHeader.sampleTranspose;
-		}
-
-		if(isSynth || !(loadFlags & loadSampleData))
-		{
-			smp += numSamples;
-			continue;
+			mptSmp.RelativeTone = sampleTranspose;
 		}
 
 		SampleIO sampleIO(
@@ -933,84 +1155,115 @@ bool CSoundFile::ReadMED(FileReader &file, ModLoadingFlags loadFlags)
 		const bool hasLoop = sampleHeader.loopLength > 1;
 		SmpLength loopStart = sampleHeader.loopStart * 2;
 		SmpLength loopEnd = loopStart + sampleHeader.loopLength * 2;
-
-		SmpLength length = mpt::saturate_cast<SmpLength>(sampleChunk.GetLength());
-		if(instrHeader.type & MMDInstrHeader::S_16)
+		if(isSynth)
 		{
-			sampleIO |= SampleIO::_16bit;
-			length /= 2;
-		}
-		if(instrHeader.type & MMDInstrHeader::STEREO)
-		{
-			sampleIO |= SampleIO::stereoSplit;
-			length /= 2;
-		}
-		if(instrHeader.type & MMDInstrHeader::DELTA)
-		{
-			sampleIO |= SampleIO::deltaPCM;
-		}
-
-		if(numSamples > 1)
-			length = length / ((1u << numSamples) - 1);
-
-		for(SAMPLEINDEX i = 0; i < numSamples; i++)
-		{
-			ModSample &mptSmp = Samples[smp + i];
-
-			mptSmp.nLength = length;
-			sampleIO.ReadSample(mptSmp, sampleChunk);
-
-			if(hasLoop)
+			for(size_t i = 0; i < waveformOffsets.size(); i++)
 			{
-				mptSmp.nLoopStart = loopStart;
-				mptSmp.nLoopEnd = loopEnd;
-				mptSmp.uFlags.set(CHN_LOOP);
+				const uint32 offset = waveformOffsets[i];
+				if(offset <= sizeof(MMDInstrHeader) + sizeof(MMDSynthInstr) || !file.Seek(instrOffsets[ins - 1] + offset))
+					continue;
+				
+				ModSample &mptSmp = Samples[smp + i];
+				if(instrHeader.type == MMDInstrHeader::SYNTHETIC || i > 0)
+				{
+					mptSmp.nLength = file.ReadUint16BE() * 2;
+					mptSmp.nLoopStart = 0;
+					mptSmp.nLoopEnd = mptSmp.nLength;
+					mptSmp.uFlags.set(CHN_LOOP);
+					m_szNames[smp + i] = "Synth";
+				} else
+				{
+					MMDInstrHeader hybridHeader;
+					file.ReadStruct(hybridHeader);
+					if(hybridHeader.type == MMDInstrHeader::SAMPLE)
+					{
+						mptSmp.nLength = hybridHeader.length;
+						if(hasLoop)
+						{
+							mptSmp.nLoopStart = loopStart;
+							mptSmp.nLoopEnd = loopEnd;
+							mptSmp.uFlags.set(CHN_LOOP);
+						}
+					}
+					m_szNames[smp + i] = "Hybrid";
+				}
+				if(loadFlags & loadSampleData)
+					sampleIO.ReadSample(mptSmp, file);
+			}
+		} else
+		{
+
+			SmpLength length = mpt::saturate_cast<SmpLength>(sampleChunk.GetLength());
+			if(instrHeader.type & MMDInstrHeader::S_16)
+			{
+				sampleIO |= SampleIO::_16bit;
+				length /= 2;
+			}
+			if(instrHeader.type & MMDInstrHeader::STEREO)
+			{
+				sampleIO |= SampleIO::stereoSplit;
+				length /= 2;
+				m_SongFlags.reset(SONG_ISAMIGA);  // Amiga resampler does not handle stereo samples
+			}
+			if(instrHeader.type & MMDInstrHeader::DELTA)
+			{
+				sampleIO |= SampleIO::deltaPCM;
 			}
 
-			length *= 2;
-			loopStart *= 2;
-			loopEnd *= 2;
+			if(numSamples > 1)
+				length = length / ((1u << numSamples) - 1);
+
+			for(SAMPLEINDEX i = 0; i < numSamples; i++)
+			{
+				ModSample &mptSmp = Samples[smp + i];
+
+				mptSmp.nLength = length;
+				if(loadFlags & loadSampleData)
+					sampleIO.ReadSample(mptSmp, sampleChunk);
+
+				if(hasLoop)
+				{
+					mptSmp.nLoopStart = loopStart;
+					mptSmp.nLoopEnd = loopEnd;
+					mptSmp.uFlags.set(CHN_LOOP);
+				}
+
+				length *= 2;
+				loopStart *= 2;
+				loopEnd *= 2;
+			}
 		}
 
-		smp += numSamples;
-	}
-
-	if(expData.instrExtOffset != 0 && expData.instrExtEntries != 0 && file.Seek(expData.instrExtOffset))
-	{
-		const uint16 entries = std::min<uint16>(expData.instrExtEntries, songHeader.numSamples);
-		const uint16 size = expData.instrExtEntrySize;
-		for(uint16 i = 0; i < entries; i++)
+		// On to the extended instrument info...
+		if(expDataChunk.IsValid())
 		{
-			MMDInstrExt instrExt;
-			file.ReadStructPartial(instrExt, size);
-
-			ModInstrument &ins = *Instruments[i + 1];
-			if(instrExt.hold)
+			const uint16 size = expData.instrExtEntrySize;
+			if(instrExt.hold && !isSynth)
 			{
-				ins.VolEnv.assign({
+				instr.VolEnv.assign({
 					EnvelopeNode{0u, ENVELOPE_MAX},
 					EnvelopeNode{static_cast<EnvelopeNode::tick_t>(instrExt.hold - 1), ENVELOPE_MAX},
 					EnvelopeNode{static_cast<EnvelopeNode::tick_t>(instrExt.hold + (instrExt.decay ? 64u / instrExt.decay : 0u)), ENVELOPE_MIN},
 				});
 				if(instrExt.hold == 1)
-					ins.VolEnv.erase(ins.VolEnv.begin());
-				ins.nFadeOut = instrExt.decay ? (instrExt.decay * 512) : 32767;
-				ins.VolEnv.dwFlags.set(ENV_ENABLED);
+					instr.VolEnv.erase(instr.VolEnv.begin());
+				instr.nFadeOut = instrExt.decay ? (instrExt.decay * 512) : 32767;
+				instr.VolEnv.dwFlags.set(ENV_ENABLED);
 				needInstruments = true;
 			}
 			if(size > offsetof(MMDInstrExt, defaultPitch) && instrExt.defaultPitch != 0)
 			{
-				ins.NoteMap[24] = instrExt.defaultPitch + NOTE_MIN + 23;
+				instr.NoteMap[24] = instrExt.defaultPitch + NOTE_MIN + 23;
 				needInstruments = true;
 			}
 			if(size > offsetof(MMDInstrExt, volume))
-				ins.nGlobalVol = (instrExt.volume + 1u) / 2u;
+				instr.nGlobalVol = (instrExt.volume + 1u) / 2u;
 			if(size > offsetof(MMDInstrExt, midiBank))
-				ins.wMidiBank = instrExt.midiBank;
+				instr.wMidiBank = instrExt.midiBank;
 #ifdef MPT_WITH_VST
-			if(ins.nMixPlug > 0)
+			if(instr.nMixPlug > 0)
 			{
-				PLUGINDEX plug = ins.nMixPlug - 1;
+				PLUGINDEX plug = instr.nMixPlug - 1;
 				auto &mixPlug = m_MixPlugins[plug];
 				if(mixPlug.Info.dwPluginId2 == PLUGMAGIC('M', 'M', 'I', 'D'))
 				{
@@ -1029,7 +1282,7 @@ bool CSoundFile::ReadMED(FileReader &file, ModLoadingFlags loadFlags)
 							&& otherPlug.Info.dwPluginId2 == mixPlug.Info.dwPluginId2
 							&& otherPlug.pluginData == mixPlug.pluginData)
 						{
-							ins.nMixPlug = p + 1;
+							instr.nMixPlug = p + 1;
 							mixPlug = {};
 							break;
 						}
@@ -1038,37 +1291,46 @@ bool CSoundFile::ReadMED(FileReader &file, ModLoadingFlags loadFlags)
 			}
 #endif  // MPT_WITH_VST
 
-			ModSample &sample = Samples[ins.Keyboard[NOTE_MIDDLEC]];
-			sample.nFineTune = MOD2XMFineTune(instrExt.finetune);
+			loopStart = instrExt.loopStart;
+			loopEnd = instrExt.loopStart + instrExt.loopLength;
+			for(SAMPLEINDEX i = 0; i < numSamples; i++)
+			{
+				ModSample &sample = Samples[smp + i];
+				sample.nFineTune = MOD2XMFineTune(instrExt.finetune);
 
-			if(size > offsetof(MMDInstrExt, loopLength))
-			{
-				sample.nLoopStart = instrExt.loopStart;
-				sample.nLoopEnd = instrExt.loopStart + instrExt.loopLength;
-			}
-			if(size > offsetof(MMDInstrExt, instrFlags))
-			{
-				sample.uFlags.set(CHN_LOOP, (instrExt.instrFlags & MMDInstrExt::SSFLG_LOOP) != 0);
-				sample.uFlags.set(CHN_PINGPONGLOOP, (instrExt.instrFlags & MMDInstrExt::SSFLG_PINGPONG) != 0);
-				if(instrExt.instrFlags & MMDInstrExt::SSFLG_DISABLED)
-					sample.nGlobalVol = 0;
+				if(!isSynth && size > offsetof(MMDInstrExt, loopLength))
+				{
+					sample.nLoopStart = loopStart;
+					sample.nLoopEnd = loopEnd;
+					loopStart *= 2;
+					loopEnd *= 2;
+				}
+				if(size > offsetof(MMDInstrExt, instrFlags))
+				{
+					if(!isSynth)
+					{
+						sample.uFlags.set(CHN_LOOP, (instrExt.instrFlags & MMDInstrExt::SSFLG_LOOP) != 0);
+						sample.uFlags.set(CHN_PINGPONGLOOP, (instrExt.instrFlags & MMDInstrExt::SSFLG_PINGPONG) != 0);
+					}
+					if(instrExt.instrFlags & MMDInstrExt::SSFLG_DISABLED)
+						sample.nGlobalVol = 0;
+				}
 			}
 		}
-	}
-	if(expData.instrInfoOffset != 0 && expData.instrInfoEntries != 0 && file.Seek(expData.instrInfoOffset))
-	{
-		const uint16 entries = std::min<uint16>(expData.instrInfoEntries, songHeader.numSamples);
-		const uint16 size = expData.instrInfoEntrySize;
-		for(uint16 i = 0; i < entries; i++)
+
+		// And even more optional data!
+		if(instrInfoChunk.IsValid())
 		{
 			MMDInstrInfo instrInfo;
-			file.ReadStructPartial(instrInfo, size);
-			Instruments[i + 1]->name = mpt::String::ReadBuf(mpt::String::maybeNullTerminated, instrInfo.name);
-			for(auto smp : Instruments[i + 1]->GetSamples())
+			instrInfoChunk.ReadStructPartial(instrInfo, expData.instrInfoEntrySize);
+			instr.name = mpt::String::ReadBuf(mpt::String::maybeNullTerminated, instrInfo.name);
+			for(SAMPLEINDEX i = 0; i < numSamples; i++)
 			{
-				m_szNames[smp] = Instruments[i + 1]->name;
+				m_szNames[smp + i] = instr.name;
 			}
 		}
+
+		smp += numSamples;
 	}
 
 	// Setup a program change macro for command 1C (even if MIDI plugin is disabled, as otherwise these commands may act as filter commands)
@@ -1104,7 +1366,7 @@ bool CSoundFile::ReadMED(FileReader &file, ModLoadingFlags loadFlags)
 
 			SetupMODPanning(true);
 			// With MED SoundStudio 1.03 it's possible to create MMD1 files with more than 16 channels.
-			const CHANNELINDEX numChannelVols = std::min(m_nChannels, CHANNELINDEX(16));
+			const CHANNELINDEX numChannelVols = std::min(GetNumChannels(), CHANNELINDEX(16));
 			for(CHANNELINDEX chn = 0; chn < numChannelVols; chn++)
 			{
 				ChnSettings[chn].nVolume = std::min<uint8>(songHeader.trackVol[chn], 64);
@@ -1112,10 +1374,10 @@ bool CSoundFile::ReadMED(FileReader &file, ModLoadingFlags loadFlags)
 		} else
 		{
 			const MMD2Song header = songHeader.GetMMD2Song();
-			if(header.numTracks < 1 || header.numTracks > 64 || m_nChannels > 64)
+			if(header.numTracks < 1 || header.numTracks > 64 || GetNumChannels() > 64)
 				return false;
 
-			const bool freePan = (header.flags3 & MMD2Song::FLAG3_FREEPAN);
+			const bool freePan = !hardwareMixSamples && (header.flags3 & MMD2Song::FLAG3_FREEPAN);
 			if(header.volAdjust)
 				preamp = Util::muldivr_unsigned(preamp, std::min<uint16>(header.volAdjust, 800), 100);
 			if (freePan)
@@ -1123,14 +1385,14 @@ bool CSoundFile::ReadMED(FileReader &file, ModLoadingFlags loadFlags)
 
 			if(file.Seek(header.trackVolsOffset))
 			{
-				for(CHANNELINDEX chn = 0; chn < m_nChannels; chn++)
+				for(CHANNELINDEX chn = 0; chn < GetNumChannels(); chn++)
 				{
 					ChnSettings[chn].nVolume = std::min<uint8>(file.ReadUint8(), 64);
 				}
 			}
-			if(header.trackPanOffset && file.Seek(header.trackPanOffset))
+			if((freePan || version > 2) && header.trackPanOffset && file.Seek(header.trackPanOffset))
 			{
-				for(CHANNELINDEX chn = 0; chn < m_nChannels; chn++)
+				for(CHANNELINDEX chn = 0; chn < GetNumChannels(); chn++)
 				{
 					ChnSettings[chn].nPan = static_cast<uint16>((Clamp<int8, int8>(file.ReadInt8(), -16, 16) + 16) * 8);
 				}
@@ -1138,6 +1400,35 @@ bool CSoundFile::ReadMED(FileReader &file, ModLoadingFlags loadFlags)
 			{
 				SetupMODPanning(true);
 			}
+
+#ifndef NO_PLUGINS
+			if((header.mixEchoType == 1 || header.mixEchoType == 2) && numPlugins < MAX_MIXPLUGINS)
+			{
+				// Emulating MED echo using the DMO echo requires to compensate for the differences in initial feedback in the latter.
+				const float feedback = 1.0f / (1 << std::clamp(header.mixEchoDepth, uint8(1), uint8(9)));  // The feedback we want
+				const float initialFeedback = std::sqrt(1.0f - (feedback * feedback));                     // Actual strength of first delay's feedback
+				const float wetFactor = feedback / initialFeedback;                                        // Factor to compensate for this
+				const float delay = (std::max(header.mixEchoLength.get(), uint16(1)) - 1) / 1999.0f;
+				SNDMIXPLUGIN &mixPlug = m_MixPlugins[numPlugins];
+				mpt::reconstruct(mixPlug);
+				memcpy(&mixPlug.Info.dwPluginId1, "OMXD", 4);
+				memcpy(&mixPlug.Info.dwPluginId2, "\x2C\x93\x3E\xEF", 4);
+				mixPlug.Info.routingFlags = SNDMIXPLUGININFO::irApplyToMaster | SNDMIXPLUGININFO::irAutoSuspend;
+				mixPlug.fDryRatio = 1.0f - wetFactor / (wetFactor + 1.0f);
+				mixPlug.Info.gain = 10;
+				mixPlug.Info.szName = "Echo";
+				mixPlug.Info.szLibraryName = "Echo";
+
+				std::array<float32le, 6> params{};
+				params[1] = 1.0f;                       // WetDryMix
+				params[2] = feedback;                   // Feedback
+				params[3] = delay;                      // LeftDelay
+				params[4] = delay;                      // RightDelay
+				params[5] = header.mixEchoType - 1.0f;  // PanDelay
+				mixPlug.pluginData.resize(sizeof(params));
+				memcpy(mixPlug.pluginData.data(), params.data(), sizeof(params));
+			}
+#endif
 
 			std::vector<uint16be> sections;
 			if(!file.Seek(header.sectionTableOffset)
@@ -1158,14 +1449,14 @@ bool CSoundFile::ReadMED(FileReader &file, ModLoadingFlags loadFlags)
 				file.ReadStruct(playSeq);
 
 				if(!order.empty())
-					order.push_back(order.GetIgnoreIndex());
+					order.push_back(PATTERNINDEX_SKIP);
 
+				const size_t orderStart = order.size();
 				size_t readOrders = playSeq.length;
 				if(!file.CanRead(readOrders))
 					LimitMax(readOrders, file.BytesLeft());
 				LimitMax(readOrders, ORDERINDEX_MAX);
 
-				size_t orderStart = order.size();
 				order.reserve(orderStart + readOrders);
 				for(size_t ord = 0; ord < readOrders; ord++)
 				{
@@ -1190,11 +1481,11 @@ bool CSoundFile::ReadMED(FileReader &file, ModLoadingFlags loadFlags)
 							break;
 						if(command.command == MMDPlaySeqCommand::kStop)
 						{
-							order[ord] = order.GetInvalidPatIndex();
+							order[ord] = PATTERNINDEX_INVALID;
 						} else if(command.command == MMDPlaySeqCommand::kJump)
 						{
 							jumpTargets[ord] = chunk.ReadUint16BE();
-							order[ord] = order.GetIgnoreIndex();
+							order[ord] = PATTERNINDEX_SKIP;
 						}
 					}
 				}
@@ -1204,9 +1495,10 @@ bool CSoundFile::ReadMED(FileReader &file, ModLoadingFlags loadFlags)
 		const bool volHex = (songHeader.flags & MMDSong::FLAG_VOLHEX) != 0;
 		const bool is8Ch = (songHeader.flags & MMDSong::FLAG_8CHANNEL) != 0;
 		const bool bpmMode = (songHeader.flags2 & MMDSong::FLAG2_BPM) != 0;
+		const bool softwareMixing = (songHeader.flags2 & MMDSong::FLAG2_MIX) != 0;
 		const uint8 rowsPerBeat = 1 + (songHeader.flags2 & MMDSong::FLAG2_BMASK);
-		m_nDefaultTempo = MMDTempoToBPM(songHeader.defaultTempo, is8Ch, bpmMode, rowsPerBeat);
-		m_nDefaultSpeed = Clamp<uint8, uint8>(songHeader.tempo2, 1, 32);
+		order.SetDefaultTempo(MMDTempoToBPM(songHeader.defaultTempo, is8Ch, softwareMixing, bpmMode, rowsPerBeat));
+		order.SetDefaultSpeed(Clamp<uint8, uint8>(songHeader.tempo2, 1, 32));
 		if(bpmMode)
 		{
 			m_nDefaultRowsPerBeat = rowsPerBeat;
@@ -1217,8 +1509,11 @@ bool CSoundFile::ReadMED(FileReader &file, ModLoadingFlags loadFlags)
 			m_nDefaultGlobalVolume = std::min<uint8>(songHeader.masterVol, 64) * 4;
 		m_nSamplePreAmp = m_nVSTiVolume = preamp;
 
-		// For MED, this affects both volume and pitch slides
 		m_SongFlags.set(SONG_FASTVOLSLIDES, !(songHeader.flags & MMDSong::FLAG_STSLIDE));
+		m_SongFlags.set(SONG_FASTPORTAS, !(songHeader.flags& MMDSong::FLAG_STSLIDE));
+		m_playBehaviour.set(kST3OffsetWithoutInstrument);
+		m_playBehaviour.set(kST3PortaSampleChange);
+		m_playBehaviour.set(kFT2PortaNoNote);
 
 		if(expData.songNameOffset && file.Seek(expData.songNameOffset))
 		{
@@ -1282,7 +1577,7 @@ bool CSoundFile::ReadMED(FileReader &file, ModLoadingFlags loadFlags)
 		// Track Names
 		if(version >= 2 && expData.trackInfoOffset)
 		{
-			for(CHANNELINDEX chn = 0; chn < m_nChannels; chn++)
+			for(CHANNELINDEX chn = 0; chn < GetNumChannels(); chn++)
 			{
 				if(file.Seek(expData.trackInfoOffset + chn * 4)
 				   && file.Seek(file.ReadUint32BE()))
@@ -1323,8 +1618,10 @@ bool CSoundFile::ReadMED(FileReader &file, ModLoadingFlags loadFlags)
 			CHANNELINDEX numTracks;
 			ROWINDEX numRows;
 			std::string patName;
-			int transpose = NOTE_MIN + 47 + songHeader.playTranspose;
-			FileReader cmdExt;
+			int16 transpose = NOTE_MIN + 47 + songHeader.playTranspose;
+			uint16 numPages = 0;
+			FileReader cmdExt, commandPages;
+			bool vol7bit = false;
 
 			if(version < 1)
 			{
@@ -1346,16 +1643,28 @@ bool CSoundFile::ReadMED(FileReader &file, ModLoadingFlags loadFlags)
 					file.Seek(patHeader.blockInfoOffset);
 					MMDBlockInfo blockInfo;
 					file.ReadStruct(blockInfo);
-					if(file.Seek(blockInfo.nameOffset))
+					if(blockInfo.nameLength
+					   && blockInfo.nameOffset
+					   && file.Seek(blockInfo.nameOffset))
 					{
 						// We have now chased four pointers to get this far... lovely format.
 						file.ReadString<mpt::String::maybeNullTerminated>(patName, blockInfo.nameLength);
 					}
+					if(blockInfo.pageTableOffset
+					   && file.Seek(blockInfo.pageTableOffset)
+					   && file.CanRead(8))
+					{
+						numPages = file.ReadUint16BE();
+						file.Skip(2);
+						commandPages = file.ReadChunk(4 * numPages);
+					}
+
 					if(blockInfo.cmdExtTableOffset
 					   && file.Seek(blockInfo.cmdExtTableOffset)
 					   && file.Seek(file.ReadUint32BE()))
 					{
-						cmdExt = file.ReadChunk(numTracks * numRows);
+						vol7bit = true;
+						cmdExt = file.ReadChunk(numTracks * numRows * (1 + numPages));
 					}
 
 					file.Seek(offset);
@@ -1367,70 +1676,22 @@ bool CSoundFile::ReadMED(FileReader &file, ModLoadingFlags loadFlags)
 
 			CPattern &pattern = Patterns[basePattern + pat];
 			pattern.SetName(patName);
-			LimitMax(numTracks, m_nChannels);
+			LimitMax(numTracks, GetNumChannels());
 
-			for(ROWINDEX row = 0; row < numRows; row++)
+			TranslateMEDPatternContext context{transpose, numTracks, version, rowsPerBeat, is8Ch, softwareMixing, bpmMode, volHex, vol7bit};
+			needInstruments |= TranslateMEDPattern(file, cmdExt, pattern, context, false);
+
+			for(uint16 page = 0; page < numPages; page++)
 			{
-				ModCommand *m = pattern.GetpModCommand(row, 0);
-				for(CHANNELINDEX chn = 0; chn < numTracks; chn++, m++)
-				{
-					const auto oldCmd = std::make_pair(m->command, m->param);
-					int note = NOTE_NONE;
-					uint8 cmd = 0;
-					if(version < 1)
-					{
-						const auto [noteInstr, instrCmd, param] = file.ReadArray<uint8, 3>();
-
-						if(noteInstr & 0x3F)
-							note = (noteInstr & 0x3F) + transpose;
-
-						m->instr = (instrCmd >> 4) | ((noteInstr & 0x80) >> 3) | ((noteInstr & 0x40) >> 1);
-
-						cmd = instrCmd & 0x0F;
-						m->param = param;
-					} else
-					{
-						const auto [noteVal, instr, command, param1] = file.ReadArray<uint8, 4>();
-						m->vol = cmdExt.ReadUint8();
-
-						if(noteVal & 0x7F)
-							note = (noteVal & 0x7F) + transpose;
-						else if(noteVal == 0x80)
-							m->note = NOTE_NOTECUT;
-
-						m->instr = instr & 0x3F;
-						cmd = command;
-						m->param = param1;
-					}
-					// Octave wrapping for 4-channel modules (TODO: this should not be set because of synth instruments)
-					if(hardwareMixSamples && note >= NOTE_MIDDLEC + 2 * 12)
-						needInstruments = true;
-
-					if(note >= NOTE_MIN && note <= NOTE_MAX)
-						m->note = static_cast<ModCommand::NOTE>(note);
-					const auto extraCmd = ConvertMEDEffect(*m, cmd, is8Ch, bpmMode, rowsPerBeat, volHex);
-
-					if(oldCmd.first == CMD_XPARAM)
-					{
-						// Restore X-Param if it was overwritten by an empty effect, or restrict to 8-bit value if this cell was overwritten with a "useful" effect
-						if(m->command == CMD_NONE)
-							m->SetEffectCommand(oldCmd);
-						else if(row > 0)
-							pattern.GetpModCommand(row - 1, chn)->param = Util::MaxValueOfType(m->param);
-					}
-					if(extraCmd.first != CMD_NONE)
-					{
-						if(row < (numRows - 1))
-							pattern.GetpModCommand(row + 1, chn)->SetEffectCommand(extraCmd);
-						else
-							m->param = Util::MaxValueOfType(m->param);  // No space :(
-					}
-				}
+				const uint32 pageOffset = commandPages.ReadUint32BE();
+				if(!pageOffset || !file.Seek(pageOffset))
+					continue;
+				TranslateMEDPattern(file, cmdExt, pattern, context, true);
 			}
 		}
 
 		// Fix jump order commands
-		for(const auto & [from, to] : jumpTargets)
+		for(const auto &[from, to] : jumpTargets)
 		{
 			PATTERNINDEX pat;
 			if(from > 0 && order.IsValidPat(from - 1))
@@ -1446,8 +1707,23 @@ bool CSoundFile::ReadMED(FileReader &file, ModLoadingFlags loadFlags)
 				order[from] = pat;
 			}
 			Patterns[pat].WriteEffect(EffectWriter(CMD_POSITIONJUMP, mpt::saturate_cast<ModCommand::PARAM>(to)).Row(Patterns[pat].GetNumRows() - 1).RetryPreviousRow());
-			if(pat >= numPatterns)
-				numPatterns = pat + 1;
+			if(pat >= basePattern && (pat - basePattern) >= numPatterns)
+				numPatterns = static_cast<PATTERNINDEX>(pat - basePattern + 1);
+		}
+
+		if(numSongs > 1)
+		{
+			PATTERNINDEX firstPat = order.EnsureUnique(order.GetFirstValidIndex());
+			if(firstPat != PATTERNINDEX_INVALID)
+			{
+				for(CHANNELINDEX chn = 0; chn < GetNumChannels(); chn++)
+				{
+					Patterns[firstPat].WriteEffect(EffectWriter(CMD_CHANNELVOLUME, static_cast<ModCommand::PARAM>(ChnSettings[chn].nVolume)).Channel(chn).RetryNextRow());
+					Patterns[firstPat].WriteEffect(EffectWriter(CMD_PANNING8, mpt::saturate_cast<ModCommand::PARAM>(ChnSettings[chn].nPan)).Channel(chn).RetryNextRow());
+				}
+				if(firstPat >= basePattern && (firstPat - basePattern) >= numPatterns)
+					numPatterns = static_cast<PATTERNINDEX>(firstPat - basePattern + 1);
+			}
 		}
 
 		basePattern += numPatterns;
@@ -1467,13 +1743,10 @@ bool CSoundFile::ReadMED(FileReader &file, ModLoadingFlags loadFlags)
 		m_nInstruments = 0;
 	}
 
-	if(anySynthInstrs)
-		AddToLog(LogWarning, U_("Synthesized MED instruments are not supported."));
-
 	const mpt::uchar *madeWithTracker = MPT_ULITERAL("");
 	switch(version)
 	{
-	case 0: madeWithTracker = m_nChannels > 4 ? MPT_ULITERAL("OctaMED v2.10 (MMD0)") : MPT_ULITERAL("MED v2 (MMD0)"); break;
+	case 0: madeWithTracker = GetNumChannels() > 4 ? MPT_ULITERAL("OctaMED v2.10 (MMD0)") : MPT_ULITERAL("MED v2 (MMD0)"); break;
 	case 1: madeWithTracker = MPT_ULITERAL("OctaMED v4 (MMD1)"); break;
 	case 2: madeWithTracker = MPT_ULITERAL("OctaMED v5 (MMD2)"); break;
 	case 3: madeWithTracker = MPT_ULITERAL("OctaMED Soundstudio (MMD3)"); break;

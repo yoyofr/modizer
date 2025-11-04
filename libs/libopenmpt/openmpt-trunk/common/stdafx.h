@@ -14,11 +14,7 @@
 
 // has to be first
 #include "openmpt/all/BuildSettings.hpp"
-
-
-#if defined(__MINGW32__) && !defined(__MINGW64__)
-#include <sys/types.h>
-#endif
+#include "openmpt/all/PlatformFixes.hpp"
 
 
 #if defined(MODPLUG_TRACKER)
@@ -63,15 +59,17 @@
 #endif
 
 
-#include "mpt/base/span.hpp"
 #include "mpt/check/compiler.hpp"
 #include "mpt/check/libc.hpp"
+#include "mpt/check/libcxx.hpp"
 #if defined(MPT_WITH_MFC)
 #include "mpt/check/mfc.hpp"
 #endif
 #if MPT_OS_WINDOWS
 #include "mpt/check/windows.hpp"
 #endif
+
+#include "mpt/base/span.hpp"
 #include "mpt/exception/exception.hpp"
 #include "mpt/exception/exception_text.hpp"
 #include "mpt/out_of_memory/out_of_memory.hpp"

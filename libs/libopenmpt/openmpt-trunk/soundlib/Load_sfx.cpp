@@ -54,17 +54,17 @@ MPT_BINARY_STRUCT(SFXOrderHeader, 130)
 struct SFXSampleHeader
 {
 	char     name[22];
-	char     dummy[2];  // Supposedly sample length, but almost always incorrect
+	uint16be oneshotLength;  // For unlooped samples, this is quite frequently 2 bytes shorter than the sample data length (and the last two samples would cause a click to be heard)
 	uint8be  finetune;
 	uint8be  volume;
 	uint16be loopStart;
 	uint16be loopLength;
 
-	// Convert an MOD sample header to OpenMPT's internal sample header.
+	// Convert an SFX sample header to OpenMPT's internal sample header.
 	void ConvertToMPT(ModSample &mptSmp, uint32 length) const
 	{
 		mptSmp.Initialize(MOD_TYPE_MOD);
-		mptSmp.nLength = length;
+		mptSmp.nLength = (loopLength > 1) ? length : (oneshotLength * 2u);
 		mptSmp.nFineTune = MOD2XMFineTune(finetune);
 		mptSmp.nVolume = 4u * std::min(volume.get(), uint8(64));
 
@@ -168,11 +168,11 @@ bool CSoundFile::ReadSFX(FileReader &file, ModLoadingFlags loadFlags)
 	SFXFileHeader fileHeader;
 	if(file.Seek(0x3C) && file.ReadStruct(fileHeader) && fileHeader.IsValid(15))
 	{
-		InitializeGlobals(MOD_TYPE_SFX);
+		InitializeGlobals(MOD_TYPE_SFX, 4);
 		m_nSamples = 15;
 	} else if(file.Seek(0x7C) && file.ReadStruct(fileHeader) && fileHeader.IsValid(31))
 	{
-		InitializeGlobals(MOD_TYPE_SFX);
+		InitializeGlobals(MOD_TYPE_SFX, 4);
 		m_nSamples = 31;
 	} else
 	{
@@ -190,10 +190,9 @@ bool CSoundFile::ReadSFX(FileReader &file, ModLoadingFlags loadFlags)
 	}
 	file.Skip(sizeof(SFXFileHeader));
 
-	m_nChannels = 4;
 	m_nInstruments = 0;
-	m_nDefaultTempo = TEMPO((14565.0 * 122.0) / fileHeader.speed);
-	m_nDefaultSpeed = 6;
+	Order().SetDefaultTempo(TEMPO((14565.0 * 122.0) / fileHeader.speed));
+	Order().SetDefaultSpeed(6);
 	m_nMinPeriod = 14 * 4;
 	m_nMaxPeriod = 3424 * 4;
 	m_nSamplePreAmp = 64;
@@ -434,18 +433,22 @@ bool CSoundFile::ReadSFX(FileReader &file, ModLoadingFlags loadFlags)
 	// Reading samples
 	if(loadFlags & loadSampleData)
 	{
-		for(SAMPLEINDEX smp = 1; smp <= m_nSamples; smp++) if(Samples[smp].nLength)
+		for(SAMPLEINDEX smp = 1; smp <= m_nSamples; smp++)
 		{
+			if(!sampleLen[smp - 1])
+				continue;
+
+			FileReader chunk = file.ReadChunk(sampleLen[smp - 1]);
 			SampleIO(
 				SampleIO::_8bit,
 				SampleIO::mono,
 				SampleIO::littleEndian,
 				SampleIO::signedPCM)
-				.ReadSample(Samples[smp], file);
+				.ReadSample(Samples[smp], chunk);
 		}
 	}
 
-	m_modFormat.formatName = m_nSamples == 15 ? MPT_UFORMAT("SoundFX 1.{}")(version) : U_("SoundFX 2.0 / MultiMedia Sound");
+	m_modFormat.formatName = m_nSamples == 15 ? MPT_UFORMAT("SoundFX 1.{}")(version) : UL_("SoundFX 2.0 / MultiMedia Sound");
 	m_modFormat.type = m_nSamples == 15 ? UL_("sfx") : UL_("sfx2");
 	m_modFormat.charset = mpt::Charset::Amiga_no_C1;
 

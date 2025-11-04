@@ -136,7 +136,7 @@ auto PresetFileParser::GetCode(const std::string& keyPrefix) const -> std::strin
             }
         }
         
-        if (skipCode) break;
+        if (skipCode) continue;
         
         //------------------
         // Permissive mode: allow to merge line together under certain conditions: no comment, no ';' at the end of line, ...

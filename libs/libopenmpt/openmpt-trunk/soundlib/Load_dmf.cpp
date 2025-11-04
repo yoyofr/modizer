@@ -24,7 +24,7 @@ struct DMFFileHeader
 {
 	char   signature[4];  // "DDMF"
 	uint8  version;       // 1 - 7 are beta versions, 8 is the official thing, 10 is xtracker32
-	char   tracker[8];    // "XTRACKER"
+	char   tracker[8];    // "XTRACKER", or "SCREAM 3" when converting from S3M, etc.
 	char   songname[30];
 	char   composer[20];
 	uint8  creationDay;
@@ -346,7 +346,7 @@ static PATTERNINDEX ConvertDMFPattern(FileReader &file, const uint8 fileVersion,
 	// Counters for channel packing (including global track)
 	std::vector<uint8> channelCounter(numChannels + 1, 0);
 
-	for(ROWINDEX row = 0; row < numRows; row++)
+	for(ROWINDEX row = 0; row < numRows && file.CanRead(1); row++)
 	{
 		// Global track info counter reached 0 => read global track data
 		if(channelCounter[0] == 0)
@@ -901,22 +901,6 @@ bool CSoundFile::ReadDMF(FileReader &file, ModLoadingFlags loadFlags)
 		return true;
 	}
 
-	InitializeGlobals(MOD_TYPE_DMF);
-
-	m_modFormat.formatName = MPT_UFORMAT("X-Tracker v{}")(fileHeader.version);
-	m_modFormat.type = U_("dmf");
-	m_modFormat.charset = mpt::Charset::CP437;
-
-	m_songName = mpt::String::ReadBuf(mpt::String::spacePadded, fileHeader.songname);
-	m_songArtist = mpt::ToUnicode(mpt::Charset::CP437, mpt::String::ReadBuf(mpt::String::spacePadded, fileHeader.composer));
-
-	FileHistory mptHistory;
-	mptHistory.loadDate.day = Clamp(fileHeader.creationDay, uint8(1), uint8(31));
-	mptHistory.loadDate.month = Clamp(fileHeader.creationMonth, uint8(1), uint8(12));
-	mptHistory.loadDate.year = 1900 + fileHeader.creationYear;
-	m_FileHistory.clear();
-	m_FileHistory.push_back(mptHistory);
-
 	// Go through all chunks now... cannot use our standard IFF chunk reader here because early X-Tracker versions write some malformed chunk headers... fun code ahead!
 	ChunkReader::ChunkList<DMFChunk> chunks;
 	while(file.CanRead(sizeof(DMFChunk)))
@@ -934,11 +918,52 @@ bool CSoundFile::ReadDMF(FileReader &file, ModLoadingFlags loadFlags)
 		// I don't know when exactly this stopped, but I have no version 5-7 files to check (and no X-Tracker version that writes those versions).
 		// Since this is practically always the last chunk in the file, the following code is safe for those versions, though.
 		else if(fileHeader.version < 8 && chunkHeader.GetID() == DMFChunk::idSMPD)
-			chunkLength = uint32_max;
+			chunkLength = mpt::saturate_cast<uint32>(file.BytesLeft());
 		chunks.chunks.push_back(ChunkReader::Item<DMFChunk>{chunkHeader, file.ReadChunk(chunkLength)});
 		file.Skip(chunkSkip);
 	}
 	FileReader chunk;
+
+	// Read pattern chunk first so that we know how many channels there are
+	chunk = chunks.GetChunk(DMFChunk::idPATT);
+	if(!chunk.IsValid())
+		return false;
+
+	DMFPatterns patHeader;
+	chunk.ReadStruct(patHeader);
+	// First, find out where all of our patterns are...
+	std::vector<FileReader> patternChunks;
+	if(loadFlags & loadPatternData)
+	{
+		patternChunks.resize(patHeader.numPatterns);
+		const uint8 headerSize = fileHeader.version < 3 ? 9 : 8;
+		for(auto &patternChunk : patternChunks)
+		{
+			chunk.Skip(headerSize - sizeof(uint32le));
+			const uint32 patLength = chunk.ReadUint32LE();
+			if(!chunk.CanRead(patLength))
+				return false;
+			chunk.SkipBack(headerSize);
+			patternChunk = chunk.ReadChunk(headerSize + patLength);
+		}
+	}
+
+	InitializeGlobals(MOD_TYPE_DMF, Clamp<uint8, uint8>(patHeader.numTracks, 1, 32) + 1);  // + 1 for global track (used for tempo stuff)
+
+	m_modFormat.formatName = MPT_UFORMAT("Delusion Digital Music Format v{}")(fileHeader.version);
+	m_modFormat.madeWithTracker = fileHeader.version == 10 ? UL_("X-Tracker 32") : UL_("X-Tracker");
+	m_modFormat.type = UL_("dmf");
+	m_modFormat.charset = mpt::Charset::CP437;
+
+	m_songName = mpt::String::ReadBuf(mpt::String::spacePadded, fileHeader.songname);
+	m_songArtist = mpt::ToUnicode(mpt::Charset::CP437, mpt::String::ReadBuf(mpt::String::spacePadded, fileHeader.composer));
+
+	FileHistory mptHistory;
+	mptHistory.loadDate.day = Clamp(fileHeader.creationDay, uint8(1), uint8(31));
+	mptHistory.loadDate.month = Clamp(fileHeader.creationMonth, uint8(1), uint8(12));
+	mptHistory.loadDate.year = 1900 + fileHeader.creationYear;
+	m_FileHistory.clear();
+	m_FileHistory.push_back(mptHistory);
 
 	// Read order list
 	chunk = chunks.GetChunk(DMFChunk::idSEQU);
@@ -955,25 +980,8 @@ bool CSoundFile::ReadDMF(FileReader &file, ModLoadingFlags loadFlags)
 	LimitMax(seqLoopStart, Order().GetLastIndex());
 	LimitMax(seqLoopEnd, Order().GetLastIndex());
 
-	// Read patterns
-	chunk = chunks.GetChunk(DMFChunk::idPATT);
-	if(chunk.IsValid() && (loadFlags & loadPatternData))
+	if(loadFlags & loadPatternData)
 	{
-		DMFPatterns patHeader;
-		chunk.ReadStruct(patHeader);
-		m_nChannels = Clamp<uint8, uint8>(patHeader.numTracks, 1, 32) + 1;	// + 1 for global track (used for tempo stuff)
-
-		// First, find out where all of our patterns are...
-		std::vector<FileReader> patternChunks(patHeader.numPatterns);
-		for(auto &patternChunk : patternChunks)
-		{
-			const uint8 headerSize = fileHeader.version < 3 ? 9 : 8;
-			chunk.Skip(headerSize - sizeof(uint32le));
-			const uint32 patLength = chunk.ReadUint32LE();
-			chunk.SkipBack(headerSize);
-			patternChunk = chunk.ReadChunk(headerSize + patLength);
-		}
-
 		// Now go through the order list and load them.
 		DMFPatternSettings settings(GetNumChannels());
 
@@ -1039,10 +1047,9 @@ bool CSoundFile::ReadDMF(FileReader &file, ModLoadingFlags loadFlags)
 		}
 	}
 
-	InitializeChannels();
 	m_SongFlags = SONG_LINEARSLIDES | SONG_ITCOMPATGXX;  // this will be converted to IT format by MPT. SONG_ITOLDEFFECTS is not set because of tremor and vibrato.
-	m_nDefaultSpeed = 6;
-	m_nDefaultTempo.Set(120);
+	Order().SetDefaultSpeed(6);
+	Order().SetDefaultTempoInt(120);
 	m_nDefaultGlobalVolume = 256;
 	m_nSamplePreAmp = m_nVSTiVolume = 48;
 	m_playBehaviour.set(kApplyOffsetWithoutNote);

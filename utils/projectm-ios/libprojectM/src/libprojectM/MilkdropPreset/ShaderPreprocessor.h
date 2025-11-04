@@ -164,6 +164,8 @@ private:
 
     ShaderLanguage m_language;
     bool m_verbose = false;
+    mutable std::vector<std::string> m_cachedTypes;
+    mutable ShaderLanguage m_cachedTypesLanguage = ShaderLanguage::GLSL;
 };
 
 #endif // SHADER_PREPROCESSOR_H

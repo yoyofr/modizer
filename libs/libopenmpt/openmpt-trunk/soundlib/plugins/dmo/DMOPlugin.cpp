@@ -14,9 +14,9 @@
 
 #include "mpt/base/aligned_array.hpp"
 #if defined(MPT_WITH_DMO)
+#include "DMOPlugin.h"
 #include "mpt/uuid/guid.hpp"
 #include "../../Sndfile.h"
-#include "DMOPlugin.h"
 #include "../PluginManager.h"
 #include <uuids.h>
 #include <medparam.h>
@@ -228,7 +228,7 @@ PlugParamValue DMOPlugin::GetParameter(PlugParamIndex index)
 }
 
 
-void DMOPlugin::SetParameter(PlugParamIndex index, PlugParamValue value)
+void DMOPlugin::SetParameter(PlugParamIndex index, PlugParamValue value, PlayState *, CHANNELINDEX)
 {
 	if(index < GetNumParameters() && m_pParamInfo != nullptr && m_pMediaParams != nullptr)
 	{

@@ -72,7 +72,7 @@ public:
 
 	PlugParamIndex GetNumParameters() const override { return kChorusNumParameters; }
 	PlugParamValue GetParameter(PlugParamIndex index) override;
-	void SetParameter(PlugParamIndex index, PlugParamValue value) override;
+	void SetParameter(PlugParamIndex index, PlugParamValue value, PlayState * = nullptr, CHANNELINDEX = CHANNELINDEX_INVALID) override;
 
 	void Resume() override;
 	void Suspend() override { m_isResumed = false; }
@@ -105,7 +105,7 @@ protected:
 	int32 GetBufferIntOffset(int32 fpOffset) const;
 
 	virtual float WetDryMix() const { return m_param[kChorusWetDryMix]; }
-	virtual bool IsTriangle() const { return m_param[kChorusWaveShape] < 1; }
+	virtual bool IsSquare() const { return m_param[kChorusWaveShape] < 1; }
 	virtual float Depth() const { return m_param[kChorusDepth]; }
 	virtual float Feedback() const { return -99.0f + m_param[kChorusFeedback] * 198.0f; }
 	virtual float Delay() const { return m_param[kChorusDelay] * 20.0f; }

@@ -45,6 +45,19 @@ struct IMFFileHeader
 	uint8le  unused2[8];
 	char     im10[4];         // 'IM10'
 	IMFChannel channels[32];  // Channel settings
+
+	CHANNELINDEX GetNumChannels() const
+	{
+		uint8 detectedChannels = 0;
+		for(uint8 chn = 0; chn < 32; chn++)
+		{
+			if(channels[chn].status < 2)
+				detectedChannels = chn + 1;
+			else if(channels[chn].status > 2)
+				return 0;
+		}
+		return detectedChannels;
+	}
 };
 
 MPT_BINARY_STRUCT(IMFFileHeader, 576)
@@ -177,7 +190,7 @@ struct IMFSample
 	// Convert an IMFSample to OpenMPT's internal sample representation.
 	void ConvertToMPT(ModSample &mptSmp) const
 	{
-		mptSmp.Initialize();
+		mptSmp.Initialize(MOD_TYPE_IMF);
 		mptSmp.filename = mpt::String::ReadBuf(mpt::String::nullTerminated, filename);
 
 		mptSmp.nLength = length;
@@ -365,29 +378,8 @@ static bool ValidateHeader(const IMFFileHeader &fileHeader)
 	   || fileHeader.bpm < 32
 	   || fileHeader.master > 64
 	   || fileHeader.amp < 4
-	   || fileHeader.amp > 127)
-	{
-		return false;
-	}
-	bool channelFound = false;
-	for(const auto &chn : fileHeader.channels)
-	{
-		switch(chn.status)
-		{
-		case 0: // enabled; don't worry about it
-			channelFound = true;
-			break;
-		case 1: // mute
-			channelFound = true;
-			break;
-		case 2: // disabled
-			// nothing
-			break;
-		default: // uhhhh.... freak out
-			return false;
-		}
-	}
-	if(!channelFound)
+	   || fileHeader.amp > 127
+	   || !fileHeader.GetNumChannels())
 	{
 		return false;
 	}
@@ -437,60 +429,48 @@ bool CSoundFile::ReadIMF(FileReader &file, ModLoadingFlags loadFlags)
 		return true;
 	}
 
+	InitializeGlobals(MOD_TYPE_IMF, fileHeader.GetNumChannels());
+
+	m_modFormat.formatName = UL_("Imago Orpheus");
+	m_modFormat.type = UL_("imf");
+	m_modFormat.charset = mpt::Charset::CP437;
+
 	// Read channel configuration
-	std::bitset<32> ignoreChannels; // bit set for each channel that's completely disabled
-	uint8 detectedChannels = 0;
-	for(uint8 chn = 0; chn < 32; chn++)
+	std::bitset<32> ignoreChannels;  // bit set for each channel that's completely disabled
+	uint64 channelMuteStatus = 0;
+	for(CHANNELINDEX chn = 0; chn < GetNumChannels(); chn++)
 	{
-		ChnSettings[chn].Reset();
 		ChnSettings[chn].nPan = static_cast<uint16>(fileHeader.channels[chn].panning * 256 / 255);
-
 		ChnSettings[chn].szName = mpt::String::ReadBuf(mpt::String::nullTerminated, fileHeader.channels[chn].name);
-
+		channelMuteStatus |= static_cast<uint64>(fileHeader.channels[chn].status) << (chn * 2);
 		// TODO: reverb/chorus?
 		switch(fileHeader.channels[chn].status)
 		{
-		case 0: // enabled; don't worry about it
-			detectedChannels = chn + 1;
+		case 0:  // enabled; don't worry about it
 			break;
-		case 1: // mute
+		case 1:  // mute
 			ChnSettings[chn].dwFlags = CHN_MUTE;
-			detectedChannels = chn + 1;
 			break;
-		case 2: // disabled
+		case 2:  // disabled
 			ChnSettings[chn].dwFlags = CHN_MUTE;
 			ignoreChannels[chn] = true;
 			break;
-		default: // uhhhh.... freak out
-			return false;
 		}
 	}
-
-	InitializeGlobals(MOD_TYPE_IMF);
-	m_nChannels = detectedChannels;
-
-	m_modFormat.formatName = U_("Imago Orpheus");
-	m_modFormat.type = U_("imf");
-	m_modFormat.charset = mpt::Charset::CP437;
-
-	//From mikmod: work around an Orpheus bug
-	if(fileHeader.channels[0].status == 0)
+	// BEHIND.IMF: All channels but the first are muted
+	// mikmod refers to this as an Orpheus bug, but I haven't seen any other files like this, so maybe it's just an incorrectly saved file?
+	if(GetNumChannels() == 16 && channelMuteStatus == 0x5555'5554)
 	{
-		CHANNELINDEX chn;
-		for(chn = 1; chn < 16; chn++)
-			if(fileHeader.channels[chn].status != 1)
-				break;
-		if(chn == 16)
-			for(chn = 1; chn < 16; chn++)
-				ChnSettings[chn].dwFlags.reset(CHN_MUTE);
+		for(CHANNELINDEX chn = 1; chn < GetNumChannels(); chn++)
+			ChnSettings[chn].dwFlags.reset(CHN_MUTE);
 	}
 
 	// Song Name
 	m_songName = mpt::String::ReadBuf(mpt::String::nullTerminated, fileHeader.title);
 
 	m_SongFlags.set(SONG_LINEARSLIDES, fileHeader.flags & IMFFileHeader::linearSlides);
-	m_nDefaultSpeed = fileHeader.tempo;
-	m_nDefaultTempo.Set(fileHeader.bpm);
+	Order().SetDefaultSpeed(fileHeader.tempo);
+	Order().SetDefaultTempoInt(fileHeader.bpm);
 	m_nDefaultGlobalVolume = fileHeader.master * 4u;
 	m_nSamplePreAmp = fileHeader.amp;
 
@@ -556,7 +536,7 @@ bool CSoundFile::ReadIMF(FileReader &file, ModLoadingFlags loadFlags)
 				const auto [e1c, e1d, e2c, e2d] = patternChunk.ReadArray<uint8, 4>();  // Command 1, Data 1, Command 2, Data 2
 				const auto [command1, param1] = TranslateIMFEffect(e1c, e1d);
 				const auto [command2, param2] = TranslateIMFEffect(e2c, e2d);
-				m.FillInTwoCommands(command1, param1, command2, param2);
+				m.FillInTwoCommands(command1, param1, command2, param2, true);
 			} else if(mask & 0xC0)
 			{
 				// There's one effect, just stick it in the effect column (unless it's a volume command)

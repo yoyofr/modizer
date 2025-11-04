@@ -22,10 +22,12 @@
 #if !defined(MPT_LIBCXX_QUIRK_NO_CHRONO)
 #include <chrono>
 #endif // !MPT_LIBCXX_QUIRK_NO_CHRONO
+#include <iterator>
 #include <limits>
 #include <memory>
 #include <random>
 #include <string>
+#include <vector>
 
 #include <cmath>
 #include <cstring>
@@ -44,26 +46,26 @@ inline constexpr uint32 DETERMINISTIC_RNG_SEED = 3141592653u; // pi
 
 
 template <typename T>
-struct default_radom_seed_hash {
+struct default_random_seed_hash {
 };
 
 template <>
-struct default_radom_seed_hash<uint8> {
+struct default_random_seed_hash<uint8> {
 	using type = mpt::crc16;
 };
 
 template <>
-struct default_radom_seed_hash<uint16> {
+struct default_random_seed_hash<uint16> {
 	using type = mpt::crc16;
 };
 
 template <>
-struct default_radom_seed_hash<uint32> {
+struct default_random_seed_hash<uint32> {
 	using type = mpt::crc32c;
 };
 
 template <>
-struct default_radom_seed_hash<uint64> {
+struct default_random_seed_hash<uint64> {
 	using type = mpt::crc64_jones;
 };
 
@@ -78,7 +80,7 @@ public:
 		// would be a hash function with proper avalanche characteristics or a block
 		// or stream cipher with any pre-choosen random key and IV. The only aspect we
 		// really need here is whitening of the bits.
-		typename mpt::default_radom_seed_hash<T>::type hash;
+		typename mpt::default_random_seed_hash<T>::type hash;
 
 #if !defined(MPT_LIBCXX_QUIRK_NO_CHRONO)
 		{
@@ -128,7 +130,6 @@ private:
 	std::string token;
 #if !defined(MPT_COMPILER_QUIRK_RANDOM_NO_RANDOM_DEVICE)
 	std::unique_ptr<std::random_device> prd;
-	bool rd_reliable{false};
 #endif // !MPT_COMPILER_QUIRK_RANDOM_NO_RANDOM_DEVICE
 	std::unique_ptr<std::mt19937> rd_fallback;
 
@@ -164,13 +165,12 @@ public:
 #if !defined(MPT_COMPILER_QUIRK_RANDOM_NO_RANDOM_DEVICE)
 		try {
 			prd = std::make_unique<std::random_device>();
-			rd_reliable = ((*prd).entropy() > 0.0);
+			if (!((*prd).entropy() > 0.0)) {
+				init_fallback();
+			}
 		} catch (mpt::out_of_memory e) {
 			mpt::rethrow_out_of_memory(e);
 		} catch (const std::exception &) {
-			rd_reliable = false;
-		}
-		if (!rd_reliable) {
 			init_fallback();
 		}
 #else  // MPT_COMPILER_QUIRK_RANDOM_NO_RANDOM_DEVICE
@@ -182,13 +182,12 @@ public:
 #if !defined(MPT_COMPILER_QUIRK_RANDOM_NO_RANDOM_DEVICE)
 		try {
 			prd = std::make_unique<std::random_device>(token);
-			rd_reliable = ((*prd).entropy() > 0.0);
+			if (!((*prd).entropy() > 0.0)) {
+				init_fallback();
+			}
 		} catch (mpt::out_of_memory e) {
 			mpt::rethrow_out_of_memory(e);
 		} catch (const std::exception &) {
-			rd_reliable = false;
-		}
-		if (!rd_reliable) {
 			init_fallback();
 		}
 #else  // MPT_COMPILER_QUIRK_RANDOM_NO_RANDOM_DEVICE
@@ -239,13 +238,10 @@ public:
 					}
 				}
 			} catch (const std::exception &) {
-				rd_reliable = false;
 				init_fallback();
 			}
-		} else {
-			rd_reliable = false;
 		}
-		if (!rd_reliable) {
+		if (rd_fallback) {
 			// std::random_device is unreliable
 			//  XOR the generated random number with more entropy from the time-seeded
 			// PRNG.
@@ -308,7 +304,7 @@ public:
 };
 
 
-using deterministc_random_device = mpt::prng_random_device<mpt::lcg_musl, mpt::prng_random_device_deterministic_seeder>;
+using deterministic_random_device = mpt::prng_random_device<mpt::lcg_musl, mpt::prng_random_device_deterministic_seeder>;
 
 
 } // namespace MPT_INLINE_NS

@@ -528,7 +528,7 @@ int HLSLTree::GetExpressionValue(HLSLExpression * expression, float values[4])
                 for (int i = 0; i < dim; i++) values[i] = values1[i] / values2[i];
                 return dim;
             case HLSLBinaryOp_Mod:
-                for (int i = 0; i < dim; i++) values[i] = int(values1[i]) % int(values2[i]);
+                for (int i = 0; i < dim; i++) values[i] = fmod(values1[i],values2[i]);// int(values1[i]) % int(values2[i]);
                 return dim;
             default:
                 return 0;

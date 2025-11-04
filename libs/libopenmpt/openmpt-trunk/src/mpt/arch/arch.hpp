@@ -4,6 +4,7 @@
 #define MPT_ARCH_ARCH_HPP
 
 
+#include "mpt/arch/feature_fence.hpp"
 #include "mpt/arch/feature_flags.hpp"
 #include "mpt/arch/x86_amd64.hpp"
 #include "mpt/base/detect.hpp"
@@ -143,7 +144,15 @@ struct info_initializer {
 	}
 };
 
+#if MPT_COMPILER_CLANG
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wglobal-constructors"
+#endif // MPT_COMPILER_CLANG
 inline info_initializer g_info_initializer;
+#if MPT_COMPILER_CLANG
+#pragma clang diagnostic pop
+#endif // MPT_COMPILER_CLANG
+
 
 } // namespace detail
 

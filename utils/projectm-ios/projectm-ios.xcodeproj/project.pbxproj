@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		CC432B522EB3A076007972E0 /* ShaderPreprocessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC432B512EB3A075007972E0 /* ShaderPreprocessor.cpp */; };
+		CC80AE892EB9648100270FF3 /* MilkdropPreset.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC80AE882EB9648100270FF3 /* MilkdropPreset.cpp */; };
+		CC80AE8B2EB9666600270FF3 /* AltMilkdropPreset.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC80AE8A2EB9666600270FF3 /* AltMilkdropPreset.cpp */; };
 		CCABA19B2E93C75B00AF59B0 /* CompilerFunctions.c in Sources */ = {isa = PBXBuildFile; fileRef = CCABA1672E93C75B00AF59B0 /* CompilerFunctions.c */; };
 		CCABA19D2E93C75B00AF59B0 /* HLSLTree.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCABA1442E93C75B00AF59B0 /* HLSLTree.cpp */; };
 		CCABA19E2E93C75B00AF59B0 /* TreeFunctions.c in Sources */ = {isa = PBXBuildFile; fileRef = CCABA1722E93C75B00AF59B0 /* TreeFunctions.c */; };
@@ -84,7 +86,6 @@
 		CCABA2EA2E93C97600AF59B0 /* XYOscillationSpiral.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCABA2072E93C97600AF59B0 /* XYOscillationSpiral.cpp */; };
 		CCABA2EB2E93C97600AF59B0 /* Milkdrop2077WaveFlower.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCABA1F82E93C97600AF59B0 /* Milkdrop2077WaveFlower.cpp */; };
 		CCABA2EC2E93C97600AF59B0 /* CustomShape.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCABA2102E93C97600AF59B0 /* CustomShape.cpp */; };
-		CCABA2ED2E93C97600AF59B0 /* MilkdropPreset.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCABA2202E93C97600AF59B0 /* MilkdropPreset.cpp */; };
 		CCABA2EE2E93C97600AF59B0 /* MilkdropShader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCABA2232E93C97600AF59B0 /* MilkdropShader.cpp */; };
 		CCABA2EF2E93C97600AF59B0 /* MotionVectors.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCABA2272E93C97600AF59B0 /* MotionVectors.cpp */; };
 		CCABA2F02E93C97600AF59B0 /* EvalLibMutex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCABA2152E93C97600AF59B0 /* EvalLibMutex.cpp */; };
@@ -122,6 +123,9 @@
 		CC3B027D2EB69FF50079D537 /* user_sprites.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = user_sprites.h; sourceTree = "<group>"; };
 		CC432B502EB3A059007972E0 /* ShaderPreprocessor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ShaderPreprocessor.h; sourceTree = "<group>"; };
 		CC432B512EB3A075007972E0 /* ShaderPreprocessor.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ShaderPreprocessor.cpp; sourceTree = "<group>"; };
+		CC80AE882EB9648100270FF3 /* MilkdropPreset.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MilkdropPreset.cpp; sourceTree = "<group>"; };
+		CC80AE8A2EB9666600270FF3 /* AltMilkdropPreset.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = AltMilkdropPreset.cpp; sourceTree = "<group>"; };
+		CC80AE8C2EB9667C00270FF3 /* AltMilkdropPreset.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = AltMilkdropPreset.hpp; sourceTree = "<group>"; };
 		CCABA01B2E93C66900AF59B0 /* libprojectm-ios.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libprojectm-ios.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		CCABA02A2E93C75B00AF59B0 /* _features.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = _features.hpp; sourceTree = "<group>"; };
 		CCABA02B2E93C75B00AF59B0 /* _fixes.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = _fixes.hpp; sourceTree = "<group>"; };
@@ -525,7 +529,6 @@
 		CCABA21D2E93C97600AF59B0 /* IdlePreset.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = IdlePreset.hpp; sourceTree = "<group>"; };
 		CCABA21E2E93C97600AF59B0 /* IdlePreset.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = IdlePreset.cpp; sourceTree = "<group>"; };
 		CCABA21F2E93C97600AF59B0 /* MilkdropPreset.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = MilkdropPreset.hpp; sourceTree = "<group>"; };
-		CCABA2202E93C97600AF59B0 /* MilkdropPreset.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MilkdropPreset.cpp; sourceTree = "<group>"; };
 		CCABA2212E93C97600AF59B0 /* MilkdropPresetExceptions.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = MilkdropPresetExceptions.hpp; sourceTree = "<group>"; };
 		CCABA2222E93C97600AF59B0 /* MilkdropShader.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = MilkdropShader.hpp; sourceTree = "<group>"; };
 		CCABA2232E93C97600AF59B0 /* MilkdropShader.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MilkdropShader.cpp; sourceTree = "<group>"; };
@@ -1276,8 +1279,9 @@
 				CCABA2192E93C97600AF59B0 /* Filters.cpp */,
 				CCABA21B2E93C97600AF59B0 /* FinalComposite.cpp */,
 				CCABA21E2E93C97600AF59B0 /* IdlePreset.cpp */,
-				CCABA2202E93C97600AF59B0 /* MilkdropPreset.cpp */,
 				CCABA2232E93C97600AF59B0 /* MilkdropShader.cpp */,
+				CC80AE882EB9648100270FF3 /* MilkdropPreset.cpp */,
+				CC80AE8A2EB9666600270FF3 /* AltMilkdropPreset.cpp */,
 				CCABA3502E93D06300AF59B0 /* MilkdropStaticShaders.cpp */,
 				CCABA2272E93C97600AF59B0 /* MotionVectors.cpp */,
 				CCABA2292E93C97600AF59B0 /* PerFrameContext.cpp */,
@@ -1300,6 +1304,7 @@
 				CCABA21A2E93C97600AF59B0 /* FinalComposite.hpp */,
 				CCABA21D2E93C97600AF59B0 /* IdlePreset.hpp */,
 				CCABA21F2E93C97600AF59B0 /* MilkdropPreset.hpp */,
+				CC80AE8C2EB9667C00270FF3 /* AltMilkdropPreset.hpp */,
 				CCABA2212E93C97600AF59B0 /* MilkdropPresetExceptions.hpp */,
 				CCABA2222E93C97600AF59B0 /* MilkdropShader.hpp */,
 				CCABA34F2E93D06300AF59B0 /* MilkdropStaticShaders.hpp */,
@@ -1587,6 +1592,7 @@
 				CCABA2B22E93C97600AF59B0 /* Texture.cpp in Sources */,
 				CCABA2B32E93C97600AF59B0 /* DarkenCenter.cpp in Sources */,
 				CCABA2B42E93C97600AF59B0 /* Circle.cpp in Sources */,
+				CC80AE892EB9648100270FF3 /* MilkdropPreset.cpp in Sources */,
 				CCABA2B52E93C97600AF59B0 /* MilkdropNoise.cpp in Sources */,
 				CCABA2B62E93C97600AF59B0 /* LineBase.cpp in Sources */,
 				CCF633DA2EB4E50900B90435 /* HLSLTypeFixer.cpp in Sources */,
@@ -1647,7 +1653,6 @@
 				CCABA2EA2E93C97600AF59B0 /* XYOscillationSpiral.cpp in Sources */,
 				CCABA2EB2E93C97600AF59B0 /* Milkdrop2077WaveFlower.cpp in Sources */,
 				CCABA2EC2E93C97600AF59B0 /* CustomShape.cpp in Sources */,
-				CCABA2ED2E93C97600AF59B0 /* MilkdropPreset.cpp in Sources */,
 				CCABA2EE2E93C97600AF59B0 /* MilkdropShader.cpp in Sources */,
 				CCE0263A2E99A7BD008B7070 /* ShaderCache.cpp in Sources */,
 				CCABA2EF2E93C97600AF59B0 /* MotionVectors.cpp in Sources */,
@@ -1664,6 +1669,7 @@
 				CCABA1B22E93C75B00AF59B0 /* projectm-eval.c in Sources */,
 				CCABA1B32E93C75B00AF59B0 /* CodeWriter.cpp in Sources */,
 				CCABA1B52E93C75B00AF59B0 /* Scanner.c in Sources */,
+				CC80AE8B2EB9666600270FF3 /* AltMilkdropPreset.cpp in Sources */,
 				CCABA1B92E93C75B00AF59B0 /* TreeVariables.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1835,7 +1841,7 @@
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = ZV46EUY73C;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -1848,7 +1854,7 @@
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = ZV46EUY73C;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;

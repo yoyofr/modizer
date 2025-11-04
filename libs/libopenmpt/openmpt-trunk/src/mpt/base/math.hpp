@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: BSL-1.0 OR BSD-3-Clause */
 
-#ifndef MPT_BASE_EMPTY_HPP
-#define MPT_BASE_EMPTY_HPP
+#ifndef MPT_BASE_MATH_HPP
+#define MPT_BASE_MATH_HPP
 
 
 
@@ -63,6 +63,28 @@ using std::round;
 #endif // MPT_OS_DJGPP
 
 
+#if MPT_OS_DJGPP
+
+inline long double trunc(const long double val) {
+	return ::truncl(val);
+}
+
+inline double trunc(const double val) {
+	return ::trunc(val);
+}
+
+inline float trunc(const float val) {
+	return ::truncf(val);
+}
+
+#else // !MPT_OS_DJGPP
+
+// C++11 std::trunc
+using std::trunc;
+
+#endif // MPT_OS_DJGPP
+
+
 template <typename T>
 inline T sanitize_nan(T val) {
 	static_assert(std::is_floating_point<T>::value);
@@ -85,4 +107,4 @@ inline T safe_clamp(T v, T lo, T hi) {
 
 
 
-#endif // MPT_BASE_EMPTY_HPP
+#endif // MPT_BASE_MATH_HPP

@@ -38,6 +38,7 @@ public:
 		Win7 = 0x0000000600000001ull,
 		Win8 = 0x0000000600000002ull,
 		Win81 = 0x0000000600000003ull,
+		Win10Pre = 0x0000000600000004ull,
 		Win10 = 0x0000000a00000000ull,
 		WinNewer = Win10 + 1ull
 	};
@@ -130,22 +131,26 @@ public:
 
 	static mpt::osinfo::windows::Version FromSDK() noexcept {
 		// Initialize to used SDK version
-#if MPT_WINNT_AT_LEAST(MPT_WIN_11_22H2)
+#if MPT_WINNT_AT_LEAST(MPT_WIN_11_24H2)
+		return mpt::osinfo::windows::Version(mpt::osinfo::windows::Version::Win10, mpt::osinfo::windows::Version::ServicePack(0, 0), 26100, 0);
+//#elif MPT_WINNT_AT_LEAST(MPT_WIN_11_23H2)
+//		return mpt::osinfo::windows::Version(mpt::osinfo::windows::Version::Win10, mpt::osinfo::windows::Version::ServicePack(0, 0), 22631, 0);
+#elif MPT_WINNT_AT_LEAST(MPT_WIN_11_22H2)
 		return mpt::osinfo::windows::Version(mpt::osinfo::windows::Version::Win10, mpt::osinfo::windows::Version::ServicePack(0, 0), 22621, 0);
 #elif MPT_WINNT_AT_LEAST(MPT_WIN_11) // 21H2
 		return mpt::osinfo::windows::Version(mpt::osinfo::windows::Version::Win10, mpt::osinfo::windows::Version::ServicePack(0, 0), 22000, 0);
-//#elif // 22H2
+//#elif MPT_WINNT_AT_LEAST(MPT_WIN_10_22H2)
 //		return mpt::osinfo::windows::Version(mpt::osinfo::windows::Version::Win10, mpt::osinfo::windows::Version::ServicePack(0, 0), 19045, 0);
-#elif MPT_WINNT_AT_LEAST(MPT_WIN_10_21H2)
-		return mpt::osinfo::windows::Version(mpt::osinfo::windows::Version::Win10, mpt::osinfo::windows::Version::ServicePack(0, 0), 19044, 0);
-//#elif // 21H1
+//#elif MPT_WINNT_AT_LEAST(MPT_WIN_10_21H2)
+//		return mpt::osinfo::windows::Version(mpt::osinfo::windows::Version::Win10, mpt::osinfo::windows::Version::ServicePack(0, 0), 19044, 0);
+//#elif MPT_WINNT_AT_LEAST(MPT_WIN_10_21H1)
 //		return mpt::osinfo::windows::Version(mpt::osinfo::windows::Version::Win10, mpt::osinfo::windows::Version::ServicePack(0, 0), 19043, 0);
-//#elif // 20H2
+//#elif MPT_WINNT_AT_LEAST(MPT_WIN_10_20H2)
 //		return mpt::osinfo::windows::Version(mpt::osinfo::windows::Version::Win10, mpt::osinfo::windows::Version::ServicePack(0, 0), 19042, 0);
 #elif MPT_WINNT_AT_LEAST(MPT_WIN_10_2004)
 		return mpt::osinfo::windows::Version(mpt::osinfo::windows::Version::Win10, mpt::osinfo::windows::Version::ServicePack(0, 0), 19041, 0);
-#elif MPT_WINNT_AT_LEAST(MPT_WIN_10_1909)
-		return mpt::osinfo::windows::Version(mpt::osinfo::windows::Version::Win10, mpt::osinfo::windows::Version::ServicePack(0, 0), 18363, 0);
+//#elif MPT_WINNT_AT_LEAST(MPT_WIN_10_1909)
+//		return mpt::osinfo::windows::Version(mpt::osinfo::windows::Version::Win10, mpt::osinfo::windows::Version::ServicePack(0, 0), 18363, 0);
 #elif MPT_WINNT_AT_LEAST(MPT_WIN_10_1903)
 		return mpt::osinfo::windows::Version(mpt::osinfo::windows::Version::Win10, mpt::osinfo::windows::Version::ServicePack(0, 0), 18362, 0);
 #elif MPT_WINNT_AT_LEAST(MPT_WIN_10_1809)
@@ -162,6 +167,8 @@ public:
 		return mpt::osinfo::windows::Version(mpt::osinfo::windows::Version::Win10, mpt::osinfo::windows::Version::ServicePack(0, 0), 10586, 0);
 #elif MPT_WINNT_AT_LEAST(MPT_WIN_10) // 1507
 		return mpt::osinfo::windows::Version(mpt::osinfo::windows::Version::Win10, mpt::osinfo::windows::Version::ServicePack(0, 0), 10240, 0);
+#elif MPT_WINNT_AT_LEAST(MPT_WIN_10_PRE)
+		return mpt::osinfo::windows::Version(mpt::osinfo::windows::Version::Win10Pre, mpt::osinfo::windows::Version::ServicePack(((NTDDI_VERSION & 0xffffu) >> 8) & 0xffu, ((NTDDI_VERSION & 0xffffu) >> 0) & 0xffu), 0, 0);
 #elif MPT_WINNT_AT_LEAST(MPT_WIN_81)
 		return mpt::osinfo::windows::Version(mpt::osinfo::windows::Version::Win81, mpt::osinfo::windows::Version::ServicePack(((NTDDI_VERSION & 0xffffu) >> 8) & 0xffu, ((NTDDI_VERSION & 0xffffu) >> 0) & 0xffu), 0, 0);
 #elif MPT_WINNT_AT_LEAST(MPT_WIN_8)

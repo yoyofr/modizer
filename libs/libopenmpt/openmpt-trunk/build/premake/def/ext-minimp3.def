@@ -1,5 +1,0 @@
-LIBRARY
-EXPORTS
-;
-mp3dec_init
-mp3dec_decode_frame

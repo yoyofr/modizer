@@ -157,19 +157,17 @@ bool CSoundFile::ReadC67(FileReader &file, ModLoadingFlags loadFlags)
 		}
 	}
 
-	InitializeGlobals(MOD_TYPE_S3M);
-	InitializeChannels();
+	InitializeGlobals(MOD_TYPE_S3M, 4 + 9);
 
-	m_modFormat.formatName = U_("CDFM");
-	m_modFormat.type = U_("c67");
-	m_modFormat.madeWithTracker = U_("Composer 670");
+	m_modFormat.formatName = UL_("CDFM");
+	m_modFormat.type = UL_("c67");
+	m_modFormat.madeWithTracker = UL_("Composer 670");
 	m_modFormat.charset = mpt::Charset::CP437;
 
-	m_nDefaultSpeed = fileHeader.speed;
-	m_nDefaultTempo.Set(143);
+	Order().SetDefaultSpeed(fileHeader.speed);
+	Order().SetDefaultTempoInt(143);
 	Order().SetRestartPos(fileHeader.restartPos);
 	m_nSamples = 64;
-	m_nChannels = 4 + 9;
 	m_playBehaviour.set(kOPLBeatingOscillators);
 	m_SongFlags.set(SONG_IMPORTED);
 

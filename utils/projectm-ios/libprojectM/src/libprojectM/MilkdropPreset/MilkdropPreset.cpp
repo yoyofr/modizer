@@ -72,10 +72,26 @@ void MilkdropPreset::Initialize(const Renderer::RenderContext& renderContext)
     {
         m_state.mainTexture = m_framebuffer.GetColorAttachmentTexture(1, 0);
     }
-
-    m_perPixelMesh.CompileWarpShader(m_state);
-    m_finalComposite.CompileCompositeShader(m_state);
+    if (m_preCodeAvail) {
+        m_perPixelMesh.CompileWarpShader(m_state,m_prePWarpCode);
+        m_finalComposite.CompileCompositeShader(m_state,m_prePCompCode);
+    } else {
+        m_perPixelMesh.CompileWarpShader(m_state);
+        m_finalComposite.CompileCompositeShader(m_state);
+    }
 }
+
+void MilkdropPreset::GetShadersCode(std::string &warpShader,std::string &compShader) {
+    warpShader=std::string(m_state.warpShader);
+    compShader=std::string(m_state.compositeShader);
+}
+
+void MilkdropPreset::SetShadersCode(std::string warpShader,std::string compShader) {
+    m_preCodeAvail=1;
+    m_prePWarpCode=strdup(warpShader.c_str());
+    m_prePCompCode=strdup(compShader.c_str());
+}
+
 
 void MilkdropPreset::RenderFrame(const libprojectM::Audio::FrameAudioData& audioData, const Renderer::RenderContext& renderContext)
 {

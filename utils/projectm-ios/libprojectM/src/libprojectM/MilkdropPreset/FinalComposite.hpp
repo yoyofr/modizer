@@ -29,7 +29,8 @@ public:
      * @brief Loads the required textures and compiles the composite shader.
      * @param presetState The preset state to retrieve the configuration values from.
      */
-    void CompileCompositeShader(PresetState& presetState);
+    void CompileCompositeShader(PresetState& presetState,const char *shader=NULL);
+    void PreCompileCompositeShader(PresetState& presetState);
 
     /**
      * @brief Renders the composite quad with the appropriate effects or shaders.

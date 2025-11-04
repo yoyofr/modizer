@@ -75,6 +75,9 @@ PROJECTM_EXPORT void projectm_destroy(projectm_handle instance);
 PROJECTM_EXPORT void projectm_load_preset_file(projectm_handle instance, const char* filename,
                                                bool smooth_transition);
 
+PROJECTM_EXPORT void projectm_preload_preset_file(projectm_handle instance, const char* filename,const char **warpShader,const char **compShader);
+PROJECTM_EXPORT void projectm_loadpreload_preset_file(projectm_handle instance, const char* filename,const char *warpShader,const char *compShader, bool smoothTransition);
+
 /**
  * @brief Loads a preset from the data pointer.
  *

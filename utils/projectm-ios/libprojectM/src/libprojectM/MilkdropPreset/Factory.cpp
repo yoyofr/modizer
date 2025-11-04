@@ -2,6 +2,7 @@
 
 #include "IdlePreset.hpp"
 #include "MilkdropPreset.hpp"
+#include "AltMilkdropPreset.hpp"
 
 namespace libprojectM {
 namespace MilkdropPreset {
@@ -15,6 +16,14 @@ std::unique_ptr<::libprojectM::Preset> Factory::LoadPresetFromFile(const std::st
         return IdlePresets::allocate();
     }
     else if (protocol == "" || protocol == "file")
+    {
+        return std::make_unique<MilkdropPreset>(path);
+    }
+    else if (protocol == "preload")
+    {
+        return std::make_unique<AltMilkdropPreset>(path);
+    }
+    else if (protocol == "precomp")
     {
         return std::make_unique<MilkdropPreset>(path);
     }

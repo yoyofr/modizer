@@ -736,7 +736,7 @@ void GLSLGenerator::OutputExpression(HLSLExpression* expression, const HLSLType*
 			case HLSLBinaryOp_Sub:          op = " - "; dstType1 = dstType2 = &binaryExpression->expressionType; break;
 			case HLSLBinaryOp_Mul:          op = " * "; dstType1 = dstType2 = &binaryExpression->expressionType; break;
 			case HLSLBinaryOp_Div:          op = " / "; dstType1 = dstType2 = &binaryExpression->expressionType; break;
-            case HLSLBinaryOp_Mod:          op = " % "; dstType1 = dstType2 = &kIntType; break;
+            case HLSLBinaryOp_Mod:          op = " % "; dstType1 = dstType2 = &binaryExpression->expressionType; break;//YOYOFR
 			case HLSLBinaryOp_Less:         op = " < "; dstType1 = dstType2 = commonScalarType(binaryExpression->expression1->expressionType, binaryExpression->expression2->expressionType); break;
 			case HLSLBinaryOp_Greater:      op = " > "; dstType1 = dstType2 = commonScalarType(binaryExpression->expression1->expressionType, binaryExpression->expression2->expressionType); break;
 			case HLSLBinaryOp_LessEqual:    op = " <= "; dstType1 = dstType2 = commonScalarType(binaryExpression->expression1->expressionType, binaryExpression->expression2->expressionType); break;
@@ -756,12 +756,18 @@ void GLSLGenerator::OutputExpression(HLSLExpression* expression, const HLSLType*
 			default:
 				ASSERT(0);
 			}
-            if ((m_version == Version_110 || m_version == Version_120 || m_version == Version_100_ES) && binaryExpression->binaryOp == HLSLBinaryOp_Mod) {
-                m_writer.Write("(int(mod(");
+            //YOYOFR
+            if (/*(m_version == Version_110 || m_version == Version_120 || m_version == Version_100_ES) && */binaryExpression->binaryOp == HLSLBinaryOp_Mod) {
+//                m_writer.Write("(int(mod(");
+//                OutputExpression(binaryExpression->expression1, dstType1);
+//                m_writer.Write(",");
+//                OutputExpression(binaryExpression->expression2, dstType2);
+//                m_writer.Write(")))");
+                m_writer.Write("(mod(");
                 OutputExpression(binaryExpression->expression1, dstType1);
                 m_writer.Write(",");
                 OutputExpression(binaryExpression->expression2, dstType2);
-                m_writer.Write(")))");
+                m_writer.Write("))");
             } else {
                 bool handled = false;
                 if (m_options.flags & Flag_AlternateNanPropagation) {

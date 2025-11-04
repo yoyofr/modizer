@@ -11,8 +11,8 @@
 #include "stdafx.h"
 
 #ifndef NO_PLUGINS
-#include "../../Sndfile.h"
 #include "I3DL2Reverb.h"
+#include "../../Sndfile.h"
 #ifdef MODPLUG_TRACKER
 #include "../../../sounddsp/Reverb.h"
 #endif // MODPLUG_TRACKER
@@ -342,7 +342,7 @@ PlugParamValue I3DL2Reverb::GetParameter(PlugParamIndex index)
 }
 
 
-void I3DL2Reverb::SetParameter(PlugParamIndex index, PlugParamValue value)
+void I3DL2Reverb::SetParameter(PlugParamIndex index, PlugParamValue value, PlayState *, CHANNELINDEX)
 {
 	if(index < kI3DL2ReverbNumParameters)
 	{
@@ -505,7 +505,7 @@ void I3DL2Reverb::RecalculateI3DL2ReverbParams()
 		m_roomFilter = 0.0f;
 	} else
 	{
-		float freq = std::cos(HFReference() * (2.0f * mpt::numbers::pi_v<float>) / m_effectiveSampleRate);
+		float freq = std::min(std::cos(HFReference() * (2.0f * mpt::numbers::pi_v<float>) / m_effectiveSampleRate), 0.9999f);
 		float roomFilter = (freq * (roomHF + roomHF) - 2.0f + std::sqrt(freq * (roomHF * roomHF * freq * 4.0f) + roomHF * 8.0f - roomHF * roomHF * 4.0f - roomHF * freq * 8.0f)) / (roomHF + roomHF - 2.0f);
 		m_roomFilter = Clamp(roomFilter, 0.0f, 1.0f);
 	}

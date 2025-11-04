@@ -95,7 +95,7 @@ public:
 #ifdef MPT_BUILD_FUZZER
 
 //  Use deterministic seeding
-using random_device = deterministc_random_device;
+using random_device = deterministic_random_device;
 
 #else // !MPT_BUILD_FUZZER
 
@@ -127,6 +127,10 @@ using default_prng = mpt::good_prng;
 
 mpt::random_device & global_random_device();
 mpt::thread_safe_prng<mpt::default_prng> & global_prng();
+
+#ifdef MPT_BUILD_FUZZER
+void reinit_global_random();
+#endif  // MPT_BUILD_FUZZER
 
 #if defined(MODPLUG_TRACKER) && !defined(MPT_BUILD_WINESUPPORT)
 void set_global_random_device(mpt::random_device *rd);

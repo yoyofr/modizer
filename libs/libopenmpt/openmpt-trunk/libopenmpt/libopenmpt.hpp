@@ -49,25 +49,25 @@
  *
  * libopenmpt can use 3 different strategies for file I/O.
  *
- * - openmpt::module::module() with any kind of memory buffer as parameter will
- * load the module from the provided memory buffer, which will require loading
- * all data upfront by the library
- * caller.
  * - openmpt::module::module() with a seekable std::istream as parameter will
- * load the module via the stream interface. libopenmpt will not implement an
- * additional buffering layer in this case whih means the callbacks are assumed
- * to be performant even with small i/o sizes.
+ * load the module via the stream interface. This is the recommended strategy.
  * - openmpt::module::module() with an unseekable std::istream as parameter
  * will load the module via the stream interface. libopempt will make an
  * internal copy as it goes along, and sometimes have to pre-cache the whole
  * file in case it needs to know the complete file size. This strategy is
  * intended to be used if the file is located on a high latency network.
+ * - openmpt::module::module() with any kind of memory buffer as parameter will
+ * load the module from the provided memory buffer, which will require loading
+ * all data upfront by the library caller. This strategy has the disadvantage of
+ * requiring all data to be loaded even when the module loading happens to fail
+ * after that. It should only be used when the data has already been loaded into
+ * memory for other reasons.
  *
- * | constructor       | speed  | memory consumption |
- * | ----------------: | :----: | :----------------: |
- * | memory buffer     | <p style="background-color:green" >fast  </p> | <p style="background-color:yellow">medium</p> | 
- * | seekable stream   | <p style="background-color:red"   >slow  </p> | <p style="background-color:green" >low   </p> |
+ * | constructor       | speed | memory consumption |
+ * | ----------------: | :---: | :----------------: |
+ * | seekable stream   | <p style="background-color:yellow">medium</p> | <p style="background-color:green" >low   </p> |
  * | unseekable stream | <p style="background-color:yellow">medium</p> | <p style="background-color:red"   >high  </p> |
+ * | memory buffer     | <p style="background-color:green" >fast  </p> | <p style="background-color:yellow">medium</p> |
  *
  * In all cases, the data or stream passed to the constructor is no longer
  * needed after the openmpt::module has been constructed and can be destroyed
@@ -592,6 +592,26 @@ public:
 	  \since 0.3.0
 	*/
 	LIBOPENMPT_CXX_API_MEMBER std::int32_t get_selected_subsong() const;
+
+	//! Get the restart order of the specified sub-song
+	/*!
+	  \param subsong Index of the sub-song to retrieve the restart position from.
+	  \return The restart order of the specified sub-song. This is the order to which playback returns after the last pattern row of the song has been played.
+	  \throws openmpt::exception Throws an exception derived from openmpt::exception if sub-song is not in range [0,openmpt::module::get_num_subsongs()[
+	  \sa openmpt::module::get_restart_row
+	  \since 0.8.0
+	*/
+	LIBOPENMPT_CXX_API_MEMBER std::int32_t get_restart_order( std::int32_t subsong ) const;
+	//! Get the restart row of the specified sub-song
+	/*!
+	  \param subsong Index of the sub-song to retrieve the restart position from.
+	  \return The restart row of the specified sub-song. This is the first played row of the order to which playback returns after the last pattern row of the song has been played.
+	  \throws openmpt::exception Throws an exception derived from openmpt::exception if sub-song is not in range [0,openmpt::module::get_num_subsongs()[
+	  \sa openmpt::module::get_restart_order
+	  \since 0.8.0
+	*/
+	LIBOPENMPT_CXX_API_MEMBER std::int32_t get_restart_row( std::int32_t subsong ) const;
+
 	//! Set Repeat Count
 	/*!
 	  \param repeat_count Repeat Count
@@ -617,6 +637,16 @@ public:
 	  \remarks The function may return infinity if the pattern data is too complex to evaluate.
 	*/
 	LIBOPENMPT_CXX_API_MEMBER double get_duration_seconds() const;
+
+	//! Get approximate playback time in seconds at given position
+	/*!
+	  \param order The order position at which the time should be retrieved.
+	  \param row The pattern row number at which the time should be retrieved.
+	  \return Approximate playback time in seconds of current sub-song at the start of the given order and row combination. Negative if the position does not exist, or the pattern data is too complex to evaluate.
+	  \remarks If an order / row combination is played multiple times (e.g. due the pattern loops), the first occurence of this position is returned.
+	  \since 0.8.0
+	 */
+	LIBOPENMPT_CXX_API_MEMBER double get_time_at_position( std::int32_t order, std::int32_t row ) const;
 
 	//! Set approximate current song position
 	/*!
@@ -989,12 +1019,63 @@ public:
 	*/
 	LIBOPENMPT_CXX_API_MEMBER std::int32_t get_order_pattern( std::int32_t order ) const;
 
+	//! Check if specified order is a skip ("+++") item
+	/*!
+	  \param order The order index to check.
+	  \return Returns true if the pattern index at the given order position represents a skip item. During playback, this item is ignored and playback resumes at the next order list item.
+	  \sa openmpt::module::is_order_stop_entry, openmpt::module::is_pattern_skip_item
+	  \since 0.8.0
+	*/
+	LIBOPENMPT_CXX_API_MEMBER bool is_order_skip_entry( std::int32_t order ) const ;
+	//! Check if specified pattern index is a skip ("+++") item
+	/*!
+	  \param pattern The pattern index to check.
+	  \return Returns true if the pattern index represents a skip item. During playback, this item is ignored and playback resumes at the next order list item.
+	  \sa openmpt::module::is_pattern_stop_item, openmpt::module::is_order_skip_entry, openmpt::module::get_order_pattern
+	  \since 0.8.0
+	*/
+	LIBOPENMPT_CXX_API_MEMBER bool is_pattern_skip_item( std::int32_t pattern ) const;
+	//! Check if specified order is a stop ("---") item
+	/*!
+	  \param order The order index to check.
+	  \return Returns true if the pattern index at the given order position represents a stop item. When this item is reached, playback continues at the restart position of the current sub-song.
+	  \sa openmpt::module::is_order_skip_entry, openmpt::module::is_pattern_stop_item
+	  \since 0.8.0
+	*/
+	LIBOPENMPT_CXX_API_MEMBER bool is_order_stop_entry( std::int32_t order ) const;
+	//! Check if specified pattern index is a stop ("---") item
+	/*!
+	  \param pattern The pattern index to check.
+	  \return Returns true if the pattern index represents a stop item. When this item is reached, playback continues at the restart position of the current sub-song.
+	  \sa openmpt::module::is_pattern_skip_item, openmpt::module::is_order_stop_entry, openmpt::module::get_order_pattern
+	  \since 0.8.0
+	*/
+	LIBOPENMPT_CXX_API_MEMBER bool is_pattern_stop_item( std::int32_t pattern ) const;
+
 	//! Get the number of rows in a pattern
 	/*!
 	  \param pattern The pattern whose row count should be retrieved.
 	  \return The number of rows in the given pattern. If the pattern does not exist, 0 is returned.
 	*/
 	LIBOPENMPT_CXX_API_MEMBER std::int32_t get_pattern_num_rows( std::int32_t pattern ) const;
+
+	//! Get the rows per beat of a pattern
+	/*!
+	  \param pattern The pattern whose time signature should be retrieved.
+	  \return The rows per beat of the given pattern. If the pattern does not exist or the time signature is not defined, 0 is returned.
+	  \remarks Many module formats lack time signature metadata. In this case, the returned value may be an incorrect estimation.
+	  \since 0.8.0
+	*/
+	LIBOPENMPT_CXX_API_MEMBER std::int32_t get_pattern_rows_per_beat( std::int32_t pattern ) const;
+
+	//! Get the rows per measure of a pattern
+	/*!
+	  \param pattern The pattern whose time signature should be retrieved.
+	  \return The rows per measure of the given pattern. If the pattern does not exist or the time signature is not defined, 0 is returned.
+	  \remarks Many module formats lack time signature metadata. In this case, the returned value may be an incorrect estimation.
+	  \since 0.8.0
+	*/
+	LIBOPENMPT_CXX_API_MEMBER std::int32_t get_pattern_rows_per_measure( std::int32_t pattern ) const;
 
 	//! Get raw pattern content
 	/*!

@@ -12,6 +12,11 @@
 
 
 
+#include "BuildSettingsCompiler.h"
+
+
+
+#include "mpt/base/detect_arch.hpp"
 #include "mpt/base/detect_compiler.hpp"
 #include "mpt/base/detect_os.hpp"
 #include "mpt/base/detect_quirks.hpp"
@@ -79,6 +84,9 @@
 #define ENABLE_TESTS
 #endif
 
+// Enable generation and verification of playback traces
+#define MPT_ENABLE_PLAYBACK_TRACE
+
 // Disable any file saving functionality (not really useful except for the player library)
 //#define MODPLUG_NO_FILESAVE
 
@@ -109,6 +117,10 @@
 #define MPT_ENABLE_ARCH_INTRINSICS
 
 #define MPT_ENABLE_UPDATE
+
+#if defined(MPT_BUILD_DEBUG)
+#define MPT_ENABLE_PLAYBACK_TEST_MENU
+#endif
 
 // Disable unarchiving support
 //#define NO_ARCHIVE_SUPPORT
@@ -148,6 +160,7 @@
 
 #if defined(LIBOPENMPT_BUILD_TEST)
 #define ENABLE_TESTS
+#define MPT_ENABLE_PLAYBACK_TRACE
 #else
 #define MODPLUG_NO_FILESAVE
 #endif
@@ -221,19 +234,19 @@
 #endif
 
 #if defined(MPT_ENABLE_ARCH_INTRINSICS)
-#if MPT_COMPILER_MSVC && defined(_M_IX86)
+#if MPT_ARCH_X86
 
 #define MPT_ENABLE_ARCH_X86
 
-#define MPT_ENABLE_ARCH_INTRINSICS_SSE
-#define MPT_ENABLE_ARCH_INTRINSICS_SSE2
+#define MPT_WANT_ARCH_INTRINSICS_X86_SSE
+#define MPT_WANT_ARCH_INTRINSICS_X86_SSE2
 
-#elif MPT_COMPILER_MSVC && defined(_M_X64)
+#elif MPT_ARCH_AMD64
 
 #define MPT_ENABLE_ARCH_AMD64
 
-#define MPT_ENABLE_ARCH_INTRINSICS_SSE
-#define MPT_ENABLE_ARCH_INTRINSICS_SSE2
+#define MPT_WANT_ARCH_INTRINSICS_X86_SSE
+#define MPT_WANT_ARCH_INTRINSICS_X86_SSE2
 
 #endif // arch
 #endif // MPT_ENABLE_ARCH_INTRINSICS
@@ -318,6 +331,8 @@
 
 #endif
 
+#define MPT_CONFIGURATION_IO_READ_FILEDATA_NO_64BIT
+
 
 
 // platform configuration
@@ -359,46 +374,6 @@
 #define NOBITMAP
 
 #endif // MPT_OS_WINDOWS
-
-
-
-// compiler configuration
-
-#if MPT_COMPILER_MSVC
-
-#pragma warning(default:4800) // Implicit conversion from 'int' to bool. Possible information loss
-
-#pragma warning(disable:4355) // 'this' : used in base member initializer list
-
-// happens for immutable classes (i.e. classes containing const members)
-#pragma warning(disable:4512) // assignment operator could not be generated
-
-#pragma warning(error:4309) // Treat "truncation of constant value"-warning as error.
-#pragma warning(error:4463) // Treat overflow; assigning value to bit-field that can only hold values from low_value to high_value"-warning as error.
-
-#ifdef MPT_BUILD_ANALYZED
-// Disable Visual Studio static analyzer warnings that generate too many false positives in VS2010.
-//#pragma warning(disable:6246)
-//#pragma warning(disable:6262)
-#pragma warning(disable:6297) // 32-bit value is shifted, then cast to 64-bit value.  Results might not be an expected value. 
-#pragma warning(disable:6326) // Potential comparison of a constant with another constant
-//#pragma warning(disable:6385)
-//#pragma warning(disable:6386)
-#endif // MPT_BUILD_ANALYZED
-
-#endif // MPT_COMPILER_MSVC
-
-#if MPT_COMPILER_CLANG
-
-#if defined(MPT_BUILD_MSVC)
-#pragma clang diagnostic warning "-Wimplicit-fallthrough"
-#endif // MPT_BUILD_MSVC
-
-#if defined(MODPLUG_TRACKER)
-#pragma clang diagnostic ignored "-Wunused-local-typedef"
-#endif // MODPLUG_TRACKER
-
-#endif // MPT_COMPILER_CLANG
 
 
 

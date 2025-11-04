@@ -81,6 +81,9 @@ public:
      *                         If set to false, the new preset will be rendered immediately.
      */
     void LoadPresetFile(const std::string& presetFilename, bool smoothTransition);
+    
+    void PreLoadPresetFile(const std::string& presetFilename, const char **warpShader, const char **compShader);
+    void LoadPreLoadPresetFile(const std::string& presetFilename, const char *warpShader, const char *compShader, bool smoothTransition);
 
     /**
      * @brief Loads the given preset data and performs a smooth or immediate transition.

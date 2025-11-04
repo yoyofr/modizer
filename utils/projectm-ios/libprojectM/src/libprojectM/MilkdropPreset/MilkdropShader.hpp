@@ -51,7 +51,8 @@ public:
      * Binds the underlying shader program.
      * @param presetState The preset state to pull the values and textures from.
      */
-    void LoadTexturesAndCompile(PresetState& presetState);
+    void LoadTexturesAndCompile(PresetState& presetState,const char *prePcode=NULL);
+    void PreLoadTexturesAndCompile(PresetState& presetState);
 
     /**
      * @brief Loads all required shader variables into the uniforms.
@@ -66,6 +67,8 @@ public:
      * @return The shader program wrapper.
      */
     auto Shader() -> Renderer::Shader&;
+    
+    std::string m_convertedCode;            //!< The preprocessed preset shader code.
 
 private:
     /**
@@ -85,7 +88,8 @@ private:
      * @param presetState The preset state to pull the blur textures from.
      * @param program The shader to transpile.
      */
-    void TranspileHLSLShader(const PresetState& presetState, std::string& program);
+    void TranspileHLSLShader(const PresetState& presetState, std::string& program,const char *prePcode=NULL);
+    void TranspileHLSLShaderNoGLCompilation(const PresetState& presetState, std::string& program);
 
     /**
      * @brief Updates the requested blur level if higher than before.
@@ -98,6 +102,8 @@ private:
     std::string m_fragmentShaderCode;          //!< The original preset fragment shader code.
     std::string m_preprocessedCode;            //!< The preprocessed preset shader code.
 
+    
+    
     std::set<std::string> m_samplerNames;                                        //!< All sampler names referenced in the shader code.
     std::vector<Renderer::TextureSamplerDescriptor> m_mainTextureDescriptors;              //!< Descriptors for all main texture references.
     std::vector<Renderer::TextureSamplerDescriptor> m_textureSamplerDescriptors;           //!< Descriptors of all referenced samplers in the shader code.

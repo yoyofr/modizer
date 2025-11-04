@@ -98,6 +98,7 @@ extern int move_cursorL,move_cursorR,keyDel;
               [UIKeyCommand keyCommandWithInput:@"n"   modifierFlags:0 action:@selector(keyNPressed)],
               [UIKeyCommand keyCommandWithInput:@"l"   modifierFlags:0 action:@selector(keyLPressed)],
               [UIKeyCommand keyCommandWithInput:@"a"   modifierFlags:0 action:@selector(keyAPressed)],
+              [UIKeyCommand keyCommandWithInput:@"q"   modifierFlags:0 action:@selector(keyQPressed)],
               
               [UIKeyCommand keyCommandWithInput:UIKeyInputEscape   modifierFlags:0 action:@selector(keyESCPressed)],
               [UIKeyCommand keyCommandWithInput:UIKeyInputDelete   modifierFlags:0 action:@selector(keyDeletePressed)],
@@ -229,6 +230,9 @@ extern int move_cursorL,move_cursorR,keyDel;
 }
 - (void)keyDeletePressed{
     [detailViewControllerIphone mdBackAction];
+}
+- (void)keyQPressed {
+    [detailViewControllerIphone mdTestAsyncLoad];
 }
 
 - (UIViewController *) getVisibleViewControllerFrom:(UIViewController *) vc {

@@ -50,7 +50,19 @@
 #elif defined(_MSC_VER)
 
 #define MPT_COMPILER_MSVC 1
-#if (_MSC_VER >= 1938)
+#if (_MSC_VER >= 1944)
+#define MPT_COMPILER_MSVC_VERSION MPT_COMPILER_MAKE_VERSION2(2022, 14)
+#elif (_MSC_VER >= 1943)
+#define MPT_COMPILER_MSVC_VERSION MPT_COMPILER_MAKE_VERSION2(2022, 13)
+#elif (_MSC_VER >= 1942)
+#define MPT_COMPILER_MSVC_VERSION MPT_COMPILER_MAKE_VERSION2(2022, 12)
+#elif (_MSC_VER >= 1941)
+#define MPT_COMPILER_MSVC_VERSION MPT_COMPILER_MAKE_VERSION2(2022, 11)
+#elif (_MSC_VER >= 1940)
+#define MPT_COMPILER_MSVC_VERSION MPT_COMPILER_MAKE_VERSION2(2022, 10)
+#elif (_MSC_VER >= 1939)
+#define MPT_COMPILER_MSVC_VERSION MPT_COMPILER_MAKE_VERSION2(2022, 9)
+#elif (_MSC_VER >= 1938)
 #define MPT_COMPILER_MSVC_VERSION MPT_COMPILER_MAKE_VERSION2(2022, 8)
 #elif (_MSC_VER >= 1937)
 #define MPT_COMPILER_MSVC_VERSION MPT_COMPILER_MAKE_VERSION2(2022, 7)
@@ -159,9 +171,21 @@
 
 
 
-#if MPT_COMPILER_GENERIC || MPT_COMPILER_GCC || MPT_COMPILER_CLANG
+#if MPT_COMPILER_GENERIC
 
-#if (__cplusplus >= 202002)
+#if (__cplusplus >= 202302)
+#define MPT_CXX 23
+#elif (__cplusplus >= 202002)
+#define MPT_CXX 20
+#elif (__cplusplus >= 201703)
+#define MPT_CXX 17
+#endif
+
+#elif MPT_COMPILER_GCC || MPT_COMPILER_CLANG
+
+#if (__cplusplus >= 202302)
+#define MPT_CXX 23
+#elif (__cplusplus >= 202002)
 #if defined(__APPLE__) && MPT_CLANG_BEFORE(13, 0, 0)
 // XCode 12.5 has a really weird mix of Clang and libc++. Just black-list C++20 support for XCode <= 12.
 #define MPT_CXX 17
@@ -170,24 +194,25 @@
 #endif
 #elif (__cplusplus >= 201703)
 #define MPT_CXX 17
-#else
-#define MPT_CXX 17
 #endif
 
 #elif MPT_COMPILER_MSVC
 
-#if MPT_MSVC_AT_LEAST(2019, 10) && (_MSVC_LANG >= 201705)
+#if MPT_MSVC_AT_LEAST(2015, 3)
+#if (_MSVC_LANG >= 202302)
+#define MPT_CXX 23
+#elif (_MSVC_LANG >= 202002)
 #define MPT_CXX 20
 #elif (_MSVC_LANG >= 201703)
 #define MPT_CXX 17
-#else
-#define MPT_CXX 17
+#endif
 #endif
 
-#else
+#endif
 
+// default to C++17
+#ifndef MPT_CXX
 #define MPT_CXX 17
-
 #endif
 
 // MPT_CXX is stricter than just using __cplusplus directly.
@@ -197,6 +222,42 @@
 
 #define MPT_CXX_AT_LEAST(version) (MPT_CXX >= (version))
 #define MPT_CXX_BEFORE(version)   (MPT_CXX < (version))
+
+
+
+// detect compiler quirks
+
+#if MPT_COMPILER_CLANG
+#if defined(__APPLE__)
+#define MPT_COMPILER_QUIRK_APPLE_CLANG
+#endif
+#endif
+
+
+
+// detect compiler setting quirks
+
+#if MPT_COMPILER_GCC
+#if (MPT_GCC_AT_LEAST(14, 0, 0) && MPT_GCC_BEFORE(14, 2, 0)) || (MPT_GCC_AT_LEAST(13, 0, 0) && MPT_GCC_BEFORE(13, 4, 0)) || (MPT_GCC_AT_LEAST(12, 0, 0) && MPT_GCC_BEFORE(12, 5, 0)) || MPT_GCC_BEFORE(12, 0, 0)
+// GCC 14 causes severe miscompilation of inline functions on MinGW.
+// See <https://gcc.gnu.org/bugzilla/show_bug.cgi?id=115049>.
+// Current investigation suggests a general problem with -fipa-ra on non-ELF
+// platforms.
+// As far as we understand the issue, it could possibly also manifest with
+// other inter-procedure-optimizations and with older GCC versions.
+// Fixed in GCC 15
+// (<https://gcc.gnu.org/git/?p=gcc.git;h=5080840d8fbf25a321dd27543a1462d393d338bc>),
+// GCC 14.2
+// (<https://gcc.gnu.org/git/?p=gcc.git;h=747c4b58573ea00419f64293a61537eb69f43307>).
+// GCC 13.4
+// (<https://gcc.gnu.org/git/?p=gcc.git;h=953bf37690d22de956d75c6aef7a9690ad55b9a7>).
+// and GCC 12.5
+// (<https://gcc.gnu.org/git/?p=gcc.git;h=2c5f48a43f26223cb8603b826d7c0d52cdbcfb46>).
+#if !defined(__ELF__)
+#define MPT_COMPILER_SETTING_QUIRK_GCC_BROKEN_IPA
+#endif
+#endif
+#endif
 
 
 

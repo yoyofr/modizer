@@ -27,6 +27,8 @@ int64_t mCurrentSamples,mTgtSamples,mFadeSamplesStart;
 
 int mod_total_length;
 
+bool mdz_ompt_hasReachEnd;//YOYOFR
+
 
 int last_audio_sample=0;
 
@@ -1106,7 +1108,6 @@ static int xmp_order_total;
 }
 static int mod_startPat=-1;
 
-
 //MDX
 static MDX_DATA *mdx;
 static PDX_DATA *pdx;
@@ -2115,7 +2116,7 @@ static short int **buffer_ana;
 static volatile int uadeThread_running,timThread_running;
 static volatile int buffer_ana_gen_ofs,buffer_ana_play_ofs;
 static volatile char *buffer_ana_flag;
-static volatile int64_t *buffer_ana_sample_ofs;
+static volatile int64_t *buffer_ana_sample_ofs,*buffer_ana_cpy_sample_ofs;
 static volatile int bGlobalIsPlaying,bGlobalShouldEnd,bGlobalSeekProgress,bGlobalEndReached,bGlobalSoundGenInProgress,bGlobalSoundHasStarted;
 static volatile int64_t mNeedSeek,mNeedSeekTime;
 
@@ -2694,6 +2695,7 @@ void propertyListenerCallback (void                   *inUserData,              
         
         buffer_ana_flag=(char*)malloc(SOUND_BUFFER_NB*sizeof(char));
         buffer_ana_sample_ofs=(int64_t*)malloc(SOUND_BUFFER_NB*sizeof(int64_t));
+        buffer_ana_cpy_sample_ofs=(int64_t*)malloc(SOUND_BUFFER_NB*sizeof(int64_t));
         buffer_ana=(short int**)malloc(SOUND_BUFFER_NB*sizeof(short int *));
         buffer_ana_cpy=(short int**)malloc(SOUND_BUFFER_NB*sizeof(short int *));
         buffer_ana_subofs=0;
@@ -2702,6 +2704,7 @@ void propertyListenerCallback (void                   *inUserData,              
             buffer_ana_cpy[i]=(short int *)malloc(SOUND_BUFFER_SIZE_SAMPLE*2*2);
             buffer_ana_flag[i]=0;
             buffer_ana_sample_ofs[i]=0;
+            buffer_ana_cpy_sample_ofs[i]=0;
         }
         
         for (int i=0;i<SOUND_MAXVOICES_BUFFER_FX;i++) {
@@ -2951,6 +2954,7 @@ void propertyListenerCallback (void                   *inUserData,              
     free(buffer_ana);
     free((void*)buffer_ana_flag);
     free((void*)buffer_ana_sample_ofs);
+    free((void*)buffer_ana_cpy_sample_ofs);
     free(playRow);
     free(playPattern);
     free(prevPattern);
@@ -3045,6 +3049,7 @@ void propertyListenerCallback (void                   *inUserData,              
     for (int i=0;i<SOUND_BUFFER_NB;i++) {
         buffer_ana_flag[i]=0;
         buffer_ana_sample_ofs[i]=0;
+        buffer_ana_cpy_sample_ofs[i]=0;
         playRow[i]=playPattern[i]=genRow[i]=genPattern[i]=0;
         prevPattern[i]=nextPattern[i]=genPrevPattern[i]=genNextPattern[i]=-1;
         memset(playVolData+i*SOUND_MAXMOD_CHANNELS,0,SOUND_MAXMOD_CHANNELS);
@@ -3055,10 +3060,6 @@ void propertyListenerCallback (void                   *inUserData,              
         memset(tim_notes_cpy[i],0,DEFAULT_VOICES*4);
         tim_voicenb[i]=tim_voicenb_cpy[i]=0;
         
-        if (mod_startPat>=0) {
-            playPattern[i]=mod_startPat;
-            genPattern[i]=mod_startPat;
-        }
     }
     
     sampleVolume=0;
@@ -3076,6 +3077,7 @@ void propertyListenerCallback (void                   *inUserData,              
     
     return 1;
 }
+    
 -(BOOL) iPhoneDrv_LittlePlayStart {
     UInt32 err;
     
@@ -3123,6 +3125,7 @@ void propertyListenerCallback (void                   *inUserData,              
     for (int i=0;i<SOUND_BUFFER_NB;i++) {
         buffer_ana_flag[i]=0;
         buffer_ana_sample_ofs[i]=0;
+        buffer_ana_cpy_sample_ofs[i]=0;
         playRow[i]=playPattern[i]=prevPattern[i]=nextPattern[i]=genRow[i]=genPattern[i]=genPrevPattern[i]=genNextPattern[i]=0;
         memset(playVolData+i*SOUND_MAXMOD_CHANNELS,0,SOUND_MAXMOD_CHANNELS);
         memset(genVolData+i*SOUND_MAXMOD_CHANNELS,0,SOUND_MAXMOD_CHANNELS);
@@ -3134,10 +3137,6 @@ void propertyListenerCallback (void                   *inUserData,              
         memset(m_voice_buff_ana_cpy[i],0,SOUND_BUFFER_SIZE_SAMPLE*SOUND_MAXVOICES_BUFFER_FX);
         tim_voicenb[i]=tim_voicenb_cpy[i]=0;
         
-        if (mod_startPat>=0) {
-            playPattern[i]=mod_startPat;
-            genPattern[i]=mod_startPat;
-        }
     }
     
     sampleVolume=0;
@@ -3190,36 +3189,46 @@ void propertyListenerCallback (void                   *inUserData,              
         if (bGlobalAudioPause==2) skip_queue=1;//return 0;  //End of song
     } else {
         //consume another buffer
-        if (buffer_ana_flag[buffer_ana_play_ofs]) {
+        if (1/* || buffer_ana_flag[buffer_ana_play_ofs]*/) {
             bGlobalSoundHasStarted++;
             if (buffer_ana_flag[buffer_ana_play_ofs]&2) { //changed currentTime
                 //iCurrentTime=mNeedSeekTime;
                 mNeedSeek=0;
                 bGlobalSeekProgress=0;
             }
+            bool noMoreNew=false;
+            if (!buffer_ana_flag[buffer_ana_play_ofs]) noMoreNew=1;
             
             //take into account audio latency for output device
             
             int tgt_ofs=(buffer_ana_play_ofs-[self getLatencyInBuffer:settings[GLOB_AudioLatency].detail.mdz_slider.slider_value])%SOUND_BUFFER_NB;//-;
             while (tgt_ofs<0) tgt_ofs+=SOUND_BUFFER_NB;
             
-            if (mPatternDataAvail) {//Modplug
-                playPattern[buffer_ana_play_ofs]=genPattern[tgt_ofs];
-                playRow[buffer_ana_play_ofs]=genRow[tgt_ofs];
-                prevPattern[buffer_ana_play_ofs]=genPrevPattern[tgt_ofs];
-                nextPattern[buffer_ana_play_ofs]=genNextPattern[tgt_ofs];
+            if (noMoreNew) {
+                playPattern[buffer_ana_play_ofs]=-1;
+                playRow[buffer_ana_play_ofs]=-1;
+                prevPattern[buffer_ana_play_ofs]=-1;
+                nextPattern[buffer_ana_play_ofs]=-1;
                 memcpy(playVolData+buffer_ana_play_ofs*SOUND_MAXMOD_CHANNELS,genVolData+tgt_ofs*SOUND_MAXMOD_CHANNELS,SOUND_MAXMOD_CHANNELS);
-                //				playOffset[buffer_ana_play_ofs]=genOffset[buffer_ana_play_ofs];
+                memset(genVolData+tgt_ofs*SOUND_MAXMOD_CHANNELS,0,SOUND_MAXMOD_CHANNELS);
+            } else {
+                if (mPatternDataAvail) {//Modplug
+                    playPattern[buffer_ana_play_ofs]=genPattern[tgt_ofs];
+                    playRow[buffer_ana_play_ofs]=genRow[tgt_ofs];
+                    prevPattern[buffer_ana_play_ofs]=genPrevPattern[tgt_ofs];
+                    nextPattern[buffer_ana_play_ofs]=genNextPattern[tgt_ofs];
+                    
+                    memcpy(playVolData+buffer_ana_play_ofs*SOUND_MAXMOD_CHANNELS,genVolData+tgt_ofs*SOUND_MAXMOD_CHANNELS,SOUND_MAXMOD_CHANNELS);
+                    memset(genVolData+tgt_ofs*SOUND_MAXMOD_CHANNELS,0,SOUND_MAXMOD_CHANNELS);
+                    //				playOffset[buffer_ana_play_ofs]=genOffset[buffer_ana_play_ofs];
+                }
             }
             if ([self isMidiLikeDataAvailable]) {//Midi like data for some FX (Piano, ...)
                 memcpy(tim_notes_cpy[buffer_ana_play_ofs],tim_notes[tgt_ofs],DEFAULT_VOICES*4);
+                memset(tim_notes[tgt_ofs],0,DEFAULT_VOICES*4);
                 tim_voicenb_cpy[buffer_ana_play_ofs]=tim_voicenb[tgt_ofs];
+                tim_voicenb[tgt_ofs]=0;
             }
-            
-            //iCurrentTime+=1000.0f*SOUND_BUFFER_SIZE_SAMPLE/PLAYBACK_FREQ;
-            //iCurrentTime=buffer_ana_sample_ofs[buffer_ana_play_ofs]*1000/PLAYBACK_FREQ;
-            
-            
             
             /* Panning effect. Turns stereo into mono in a specific degree */
             if (mPanning) {
@@ -3250,36 +3259,46 @@ void propertyListenerCallback (void                   *inUserData,              
             if (isSilent) mdzSilentBufferCount++;
             else mdzSilentBufferCount=0;
             
-            
-            if (sampleVolume<256) {
-                if (optForceMono) {
-                    for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
-                        int val=((short int *)mBuffer->mAudioData)[i*2+1]=((buffer_ana[buffer_ana_play_ofs][i*2]+buffer_ana[buffer_ana_play_ofs][i*2+1])/2)*sampleVolume/256;
-                        ((short int *)mBuffer->mAudioData)[i*2]=val;
-                        ((short int *)mBuffer->mAudioData)[i*2+1]=val;
+            if (buffer_ana_flag[buffer_ana_play_ofs]==0) {
+                for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
+                    ((int *)mBuffer->mAudioData)[i]=last_audio_sample;
+                }
+            } else {
+                if (sampleVolume<256) {
+                    if (optForceMono) {
+                        for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
+                            int val=((short int *)mBuffer->mAudioData)[i*2+1]=((buffer_ana[buffer_ana_play_ofs][i*2]+buffer_ana[buffer_ana_play_ofs][i*2+1])/2)*sampleVolume/256;
+                            ((short int *)mBuffer->mAudioData)[i*2]=val;
+                            ((short int *)mBuffer->mAudioData)[i*2+1]=val;
+                            if (sampleVolume<256) sampleVolume++;
+                        }
+                    } else for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
+                        ((short int *)mBuffer->mAudioData)[i*2]=buffer_ana[buffer_ana_play_ofs][i*2]*sampleVolume/256;
+                        ((short int *)mBuffer->mAudioData)[i*2+1]=buffer_ana[buffer_ana_play_ofs][i*2+1]*sampleVolume/256;
                         if (sampleVolume<256) sampleVolume++;
                     }
-                } else for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
-                    ((short int *)mBuffer->mAudioData)[i*2]=buffer_ana[buffer_ana_play_ofs][i*2]*sampleVolume/256;
-                    ((short int *)mBuffer->mAudioData)[i*2+1]=buffer_ana[buffer_ana_play_ofs][i*2+1]*sampleVolume/256;
-                    if (sampleVolume<256) sampleVolume++;
                 }
-            }
-            else {
-                if (optForceMono) {
-                    for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
-                        int val=((short int *)mBuffer->mAudioData)[i*2+1]=((buffer_ana[buffer_ana_play_ofs][i*2]+buffer_ana[buffer_ana_play_ofs][i*2+1])/2)*sampleVolume/256;
-                        ((short int *)mBuffer->mAudioData)[i*2]=val;
-                        ((short int *)mBuffer->mAudioData)[i*2+1]=val;
-                    }
-                } else memcpy((char*)(mBuffer->mAudioData),buffer_ana[buffer_ana_play_ofs],SOUND_BUFFER_SIZE_SAMPLE*2*2);
+                else {
+                    if (optForceMono) {
+                        for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
+                            int val=((short int *)mBuffer->mAudioData)[i*2+1]=((buffer_ana[buffer_ana_play_ofs][i*2]+buffer_ana[buffer_ana_play_ofs][i*2+1])/2)*sampleVolume/256;
+                            ((short int *)mBuffer->mAudioData)[i*2]=val;
+                            ((short int *)mBuffer->mAudioData)[i*2+1]=val;
+                        }
+                    } else memcpy((char*)(mBuffer->mAudioData),buffer_ana[buffer_ana_play_ofs],SOUND_BUFFER_SIZE_SAMPLE*2*2);
+                }
             }
             
             last_audio_sample=0;//((int *)mBuffer->mAudioData)[SOUND_BUFFER_SIZE_SAMPLE-1];
             
             memcpy(buffer_ana_cpy[buffer_ana_play_ofs],buffer_ana[tgt_ofs],SOUND_BUFFER_SIZE_SAMPLE*2*2);
+            memset(buffer_ana[tgt_ofs],0,SOUND_BUFFER_SIZE_SAMPLE*2*2);
+            
+            buffer_ana_cpy_sample_ofs[buffer_ana_play_ofs]=buffer_ana_sample_ofs[tgt_ofs];
+            buffer_ana_sample_ofs[tgt_ofs]=0;
             
             memcpy(m_voice_buff_ana_cpy[buffer_ana_play_ofs],m_voice_buff_ana[tgt_ofs],SOUND_BUFFER_SIZE_SAMPLE*SOUND_MAXVOICES_BUFFER_FX);
+            memset(m_voice_buff_ana[tgt_ofs],0,SOUND_BUFFER_SIZE_SAMPLE*SOUND_MAXVOICES_BUFFER_FX);
             
             if (bGlobalEndReached && buffer_ana_flag[buffer_ana_play_ofs]&4) { //end reached
                 bGlobalAudioPause=2;
@@ -3350,12 +3369,14 @@ void propertyListenerCallback (void                   *inUserData,              
 
 
 -(int) getCurrentTime {
-    static int64_t lastCnt;
+    //static int64_t lastCnt;
+    int curIdx=[self getCurrentPlayedBufferIdx];
     if (mNeedSeek==2) return mCurrentSamples*1000/PLAYBACK_FREQ;
-    int64_t smplCnt=buffer_ana_sample_ofs[[self getCurrentPlayedBufferIdx]];
-    if (bGlobalEndReached && smplCnt<lastCnt) smplCnt=lastCnt;
-    lastCnt=smplCnt;
-    return round(smplCnt*1000.0f/PLAYBACK_FREQ);
+    int64_t smplCnt=buffer_ana_cpy_sample_ofs[curIdx];
+    //if (bGlobalEndReached && smplCnt<lastCnt) smplCnt=lastCnt;
+    //lastCnt=smplCnt;
+    int result=round(smplCnt*1000.0f/PLAYBACK_FREQ);
+    return result;
 }
 
 -(int) getCurrentPlayedBufferIdx {
@@ -6147,16 +6168,28 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 
                                 nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
                                 mCurrentSamples+=SOUND_BUFFER_SIZE_SAMPLE;
-                                
-                                genPattern[buffer_ana_gen_ofs]=xmp_fi.pattern;
-                                genRow[buffer_ana_gen_ofs]=xmp_fi.row;
-                                
-                                int curPos=xmp_get_position(xmp_ctx);
-                                if ((curPos>0) && (curPos<xmp_order_total)) genPrevPattern[buffer_ana_gen_ofs]=xmp_order[curPos-1];
-                                else genPrevPattern[buffer_ana_gen_ofs]=-1;
-                                
-                                if ((curPos>=0) && ((curPos+1)<xmp_order_total)) genNextPattern[buffer_ana_gen_ofs]=xmp_order[curPos+1];
-                                else genNextPattern[buffer_ana_gen_ofs]=-1;
+                            
+                                static int last_pat,last_row,last_prev,last_next;
+                                if ((xmp_fi.loop_count==0)||(mLoopMode==1)) {
+                                    genPattern[buffer_ana_gen_ofs]=xmp_fi.pattern;
+                                    genRow[buffer_ana_gen_ofs]=xmp_fi.row;
+                                    int curPos=xmp_get_position(xmp_ctx);
+                                    if ((curPos>0) && (curPos<xmp_order_total)) genPrevPattern[buffer_ana_gen_ofs]=xmp_order[curPos-1];
+                                    else genPrevPattern[buffer_ana_gen_ofs]=-1;
+                                    
+                                    if ((curPos>=0) && ((curPos+1)<xmp_order_total)) genNextPattern[buffer_ana_gen_ofs]=xmp_order[curPos+1];
+                                    else genNextPattern[buffer_ana_gen_ofs]=-1;
+                                    
+                                    last_pat=genPattern[buffer_ana_gen_ofs];
+                                    last_row=genRow[buffer_ana_gen_ofs];
+                                    last_prev=genPrevPattern[buffer_ana_gen_ofs];
+                                    last_next=genNextPattern[buffer_ana_gen_ofs];
+                                } else {
+                                    genPattern[buffer_ana_gen_ofs]=last_pat;
+                                    genRow[buffer_ana_gen_ofs]=last_row;
+                                    genPrevPattern[buffer_ana_gen_ofs]=last_prev;
+                                    genNextPattern[buffer_ana_gen_ofs]=last_next;
+                                }
                                 
                                 for (int i=0;i<numChannels;i++) {
                                     int v=xmp_fi.channel_info[i].volume*4;
@@ -6223,18 +6256,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 //reset to 0 buffer
                                 for (int j=0;j<(m_genNumVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?m_genNumVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++)  memset(m_voice_buff[j],0,SOUND_BUFFER_SIZE_SAMPLE);
                             }
-//                            
-//                            genPattern[buffer_ana_gen_ofs]=openmpt_module_get_current_pattern(openmpt_module_ext_get_module(ompt_mod));
-//                            genRow[buffer_ana_gen_ofs]=openmpt_module_get_current_row(openmpt_module_ext_get_module(ompt_mod));
-//                            
-//                            int order_idx=-1;
-//                            int current_order=openmpt_module_get_current_order(openmpt_module_ext_get_module(ompt_mod));
-//                            if (current_order>0) order_idx=openmpt_module_get_order_pattern(openmpt_module_ext_get_module(ompt_mod),current_order-1);
-//                            genPrevPattern[buffer_ana_gen_ofs]=order_idx;
-//                            
-//                            if (current_order<openmpt_module_get_num_orders(openmpt_module_ext_get_module(ompt_mod))) order_idx=openmpt_module_get_order_pattern(openmpt_module_ext_get_module(ompt_mod),current_order+1);
-//                            genNextPattern[buffer_ana_gen_ofs]=order_idx;
-//                            
+                            
                             nbBytes=openmpt_module_read_interleaved_stereo(openmpt_module_ext_get_module(ompt_mod),PLAYBACK_FREQ,SOUND_BUFFER_SIZE_SAMPLE, buffer_ana[buffer_ana_gen_ofs] );
                             if (settings[GLOB_PBRATIO_ONOFF].detail.mdz_boolswitch.switch_value) mCurrentSamples+=nbBytes*settings[GLOB_PBRATIO].detail.mdz_slider.slider_value;
                             else mCurrentSamples+=nbBytes;
@@ -6247,26 +6269,35 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 genVolData[buffer_ana_gen_ofs*SOUND_MAXMOD_CHANNELS+i]=v;
                             }
                             
-                            int order_idx=-1;
-                            int current_order=openmpt_module_get_current_order(openmpt_module_ext_get_module(ompt_mod));
-                            
-                            if (current_order>0) order_idx=openmpt_module_get_order_pattern(openmpt_module_ext_get_module(ompt_mod),current_order-1);
-                            genPrevPattern[buffer_ana_gen_ofs]=order_idx;
-
-                            order_idx=-1;
-                            if (current_order<openmpt_module_get_num_orders(openmpt_module_ext_get_module(ompt_mod))) order_idx=openmpt_module_get_order_pattern(openmpt_module_ext_get_module(ompt_mod),current_order+1);
-                            genNextPattern[buffer_ana_gen_ofs]=order_idx;
-
-                            
-                            genPattern[buffer_ana_gen_ofs]=openmpt_module_get_current_pattern(openmpt_module_ext_get_module(ompt_mod));
-                            genRow[buffer_ana_gen_ofs]=openmpt_module_get_current_row(openmpt_module_ext_get_module(ompt_mod));
+                            static int last_pat,last_row,last_prev,last_next;
+                            if (mdz_ompt_hasReachEnd) {
+                                genPattern[buffer_ana_gen_ofs]=last_pat;
+                                genRow[buffer_ana_gen_ofs]=last_row;
+                                genPrevPattern[buffer_ana_gen_ofs]=last_prev;
+                                genNextPattern[buffer_ana_gen_ofs]=last_next;
+                            } else {
+                                int order_idx=-1;
+                                int current_order=openmpt_module_get_current_order(openmpt_module_ext_get_module(ompt_mod));
+                                
+                                if (current_order>0) order_idx=openmpt_module_get_order_pattern(openmpt_module_ext_get_module(ompt_mod),current_order-1);
+                                genPrevPattern[buffer_ana_gen_ofs]=order_idx;
+                                
+                                order_idx=-1;
+                                if (current_order<openmpt_module_get_num_orders(openmpt_module_ext_get_module(ompt_mod))) order_idx=openmpt_module_get_order_pattern(openmpt_module_ext_get_module(ompt_mod),current_order+1);
+                                genNextPattern[buffer_ana_gen_ofs]=order_idx;
+                                
+                                genPattern[buffer_ana_gen_ofs]=openmpt_module_get_current_pattern(openmpt_module_ext_get_module(ompt_mod));
+                                genRow[buffer_ana_gen_ofs]=openmpt_module_get_current_row(openmpt_module_ext_get_module(ompt_mod));
+                                
+                                last_pat=genPattern[buffer_ana_gen_ofs];
+                                last_row=genRow[buffer_ana_gen_ofs];
+                                last_prev=genPrevPattern[buffer_ana_gen_ofs];
+                                last_next=genNextPattern[buffer_ana_gen_ofs];
+                            }
                             
                             //midi like notes data
                             int voices_idx=0;
                             memset(tim_notes[buffer_ana_gen_ofs],0,DEFAULT_VOICES*4);
-                            
-                            int currentPattern=openmpt_module_get_current_pattern(openmpt_module_ext_get_module(ompt_mod));;
-                            int currentRow=openmpt_module_get_current_row(openmpt_module_ext_get_module(ompt_mod));;
                             
                             for (int j=0; j < m_genNumVoicesChannels; j++) {
                                 if (m_voicesStatus[j]) {
@@ -7009,7 +7040,6 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             
                             //midi like notes data
                             memset(tim_notes[buffer_ana_gen_ofs],0,DEFAULT_VOICES*4);
-                            //int current_mask=(*nsfPlayerConfig)["MASK"];
                             unsigned int voices_idx=0;
                             for (int j=0; j < SID::getNumberUsedChips(); j++)
                             {
@@ -7401,7 +7431,6 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             
                             //midi like notes data
                             memset(tim_notes[buffer_ana_gen_ofs],0,DEFAULT_VOICES*4);
-                            //int current_mask=(*nsfPlayerConfig)["MASK"];
                             unsigned int voices_idx=0;
                             for (int i = 0; i < 3; i++) {
                                 vgm_last_note[i]=atariSndh.getYM2149_Freq(i);
@@ -11520,13 +11549,14 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
         [self ompt_getPattern:i numrows:NULL];
     }
     
-    
     mod_startPat=openmpt_module_get_current_pattern(openmpt_module_ext_get_module(ompt_mod));
     
     for (int i=0;i<SOUND_BUFFER_NB;i++) {
         playPattern[i]=mod_startPat;
         genPattern[i]=mod_startPat;
     }
+    
+    mdz_ompt_hasReachEnd=false;
     
     return 0;
 }

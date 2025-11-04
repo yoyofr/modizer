@@ -40,7 +40,8 @@ public:
      * @brief Loads the required textures and compiles the warp shader.
      * @param presetState The preset state to retrieve the configuration values from.
      */
-    void CompileWarpShader(PresetState& presetState);
+    void CompileWarpShader(PresetState& presetState,const char*shaderCode=NULL);
+    void PreCompileWarpShader(PresetState& presetState);
 
     /**
      * @brief Renders the transformation mesh.

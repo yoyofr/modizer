@@ -5,19 +5,184 @@ Changelog {#changelog}
 For fully detailed change log, please see the source repository directly. This
 is just a high-level summary.
 
-### libopenmpt 0.8.0-pre
+### libopenmpt 0.8.3 (2025-09-06)
 
- *  [**New**] MOD: Can now read modified 8-channel MOD files from the DOS game
-    Aleshar - The World Of Ice.
+ *  [**Bug**] libopenmpt is now compatible with most non-standard builds of
+    libmpg123 which do not by default output signed 16bit PCM.
+ *  [**Bug**] openmpt123: Pausing playback using the space key did not work
+    since 0.8.0.
+ *  [**Bug**] Windows 10 binaries wrongly targeted Windows 11 22H2. They now
+    target Windows 10 2004.
+ *  [**Bug**] in_openmpt: in_openmpt for Windows XP or later did not ever work
+    in Winamp 2.x. We now provide a build specifically for Winamp 2.x in the
+    `Winamp2/` folder inside the `retro.winxp` package. The `retro.win98` build
+    was not affected.
+
+ *  [**Change**] in_openmpt: Modern and legacy builds of in_openmpt now
+    officially only support Winamp 5.x.
+
+ *  IT: Even when the filter cutoff envelope is stopped before its first tick is
+    applied, the filter should still be activated.
+
+ *  mpg123: Update to v1.33.2 (2025-08-05).
+
+### libopenmpt 0.8.2 (2025-07-19)
+
+ *  [**Sec**] Possible out-of-bounds sample data read in a specific combination
+    of reverse sample playback + offset past sample loop. (r23711).
+
+ *  [**Bug**] Fixed pre-C++20 undefined behaviour due to left-shifting negative
+    integer values.
+
+ *  [**New**] `Makefile` now supports DragonFly BSD.
+
+ *  openmpt123: FLAC multithreaded encoding has been enabled for Windows builds
+    (<https://github.com/xiph/flac/pull/822/>).
+
+ *  Since libopenmpt 0.8.0, swapping between samples on the rear channels could
+    introduce a click on the front channels.
+ *  IT: Volume column slides no longer propagate their effect memory to the
+    regular effect column volume slides.
+ *  FC: Allow files with a sequence size of 0 to load (fixes a broken copy of
+    cult.smod).
+
+ *  ogg: Update to v1.3.6 (2025-06-16).
+
+### libopenmpt 0.8.1 (2025-06-14)
+
+ *  [**Bug**] Work-around broken user locale support on Haiku by always assuming
+    UTF8.
+ *  [**Bug**] libopenmpt_test did not build from the MSVC source packages.
+ *  [**Bug**] openmpt123: Allow for converting to libsndfile formats which list
+    the file extension only in the subformat (i.e. MP3 with libsndfile 1.1.0 or
+    later).
+
+ *  [**Change**] `TCB` was added to the list of supported file extensions.
+    ModLand and Fujiology use this extension for TCB Tracker modules, instead of
+    the canonical `MOD` extension.
+
+ *  IT: Fixed various interactions between Note Cut effect and portamentos.
+ *  MED: When triggering a synth note with a Synth Jump command on the same row,
+    the initial speed command was not executed.
+ *  S3M: Old ModPlug Tracker versions allowed to use the 28th character of
+    sample names to be used. Such sample names are now read correctly again.
+
+ *  Building with libmpg123 1.33.0 in PORTABLE_API mode now works.
+
+ *  mpg123: Update to v1.33.0 (2025-06-07).
+ *  miniz: Update to v3.0.2 (2023-01-15).
+
+### libopenmpt 0.8.0 (2025-05-31)
+
+ *  [**New**] Can now read PumaTracker (`PUMA`) modules.
+ *  [**New**] Can now read Face The Music (`FTM`) modules.
+ *  [**New**] Can now read Future Composer (`FC` / `FC13` / `FC14` / `SMOD`)
+    modules.
+ *  [**New**] Can now read Game Music Creator (`GMC`) modules.
+ *  [**New**] Can now read Chuck Biscuits / Black Artist (`CBA`) modules from
+    the Expoze musicdisk by Heretics
+ *  [**New**] Can now read Real Tracker 2 (`RTM`) modules.
+ *  [**New**] Can now read Images Music System (`IMS`) modules.
+ *  [**New**] Can now read ChipTracker (`MOD`) modules.
+ *  [**New**] Can now read TCB Tracker (`MOD`) modules.
+ *  [**New**] Can now read EasyTrax (`ETX`) modules.
+ *  [**New**] Can now load UNIC Tracker v1 (`UNIC`) files.
+ *  [**New**] MED: Synthesized and hybrid instruments are now supported.
+ *  [**New**] GT2: Better support for old "envelopes", in particular adding
+    support for the previously missing tremor / tremolo / vibrato.
+ *  [**New**] NST: His Master's Noise "Mupp" instruments are now supported,
+    as well as command 7 "mega-arp".
+
  *  [**New**] `Makefile CONFIG=djgpp` now supports building LGPL libraries as
     DXE (use `ENABLE_DXE=0` to disable).
+ *  [**New**] New `Makefile` `CONFIG=mingw-w64` option
+    `WINDOWS_CRT=[crtdll,msvcrt,ucrt]` to select the toolchain CRT library.
+ *  [**New**] 32bit ARM builds now support Windows 8 (Windows RT) again.
+ *  [**New**] libopenmpt: New APIs for determining whether order list entrys or
+    pattern indices have a special meaning:
+    `openmpt::module::is_order_skip_entry()`,
+    `openmpt::module::is_pattern_skip_item()`,
+    `openmpt::module::is_order_stop_entry()`,
+    `openmpt::module::is_pattern_stop_item()` (C++), and
+    `openmpt_module_is_order_skip_entry()`,
+    `openmpt_module_is_pattern_skip_item()`,
+    `openmpt_module_is_order_stop_entry()`,
+    `openmpt_module_is_pattern_stop_item()` (C).
+ *  [**New**] libopenmpt: New APIs for retrieving pattern time signature
+    information:
+    `openmpt::module::get_pattern_rows_per_beat()`,
+    `openmpt::module::get_pattern_rows_per_measure()` (C++), and
+    `openmpt_module_get_pattern_rows_per_beat()`,
+    `openmpt_module_get_pattern_rows_per_measure()` (C).
+ *  [**New**] libopenmpt: New APIs for retrieving the restart / loop position:
+    `openmpt::module::get_restart_order()`,
+    `openmpt::module::get_restart_row()` (C++), and
+    `openmpt_module_get_restart_order()`,
+    `openmpt_module_get_restart_row()` (C).
+ *  [**New**] libopenmpt: New API for retrieving the playback time at a given
+    order / row combination:
+    `openmpt::module::get_time_at_position()` (C++), and
+    `openmpt_module_get_time_at_position()` (C).
 
  *  [**Change**] DOS builds now use zlib, libmpg123, libogg, and libvorbis
     instead of miniz, minimp3, and stb_vorbis by default. 
  *  [**Change**] `Makefile CONFIG=djgpp` now sets `ALLOW_LGPL=1` by default.
+ *  [**Change**] `build/download_externals.sh` now verifies the integrity of any
+    downloaded files and uses curl instead of wget.
 
  *  [**Regression**] Support for Emscripten versions older than 3.1.51 has been
     removed.
+ *  [**Regression**] Using `EMSCRIPTEN_PORTS=1` with Emscripten older than
+    3.1.54 now requires additionally specifying `ANCIENT=1`.
+
+ *  When formatting pattern data, effect letters in the volume column are now
+    always formatted correctly, regardless of the module format.
+ *  IT: Various playback fixes.
+ *  IT: When using tone portamento to another sample after the previous sample's
+    sustain loop has been released, the new sample should also not play its
+    sustain loop.
+ *  IT: When triggering an empty instrument note slot, completely ignore the
+    pattern cell - do not reset the currently playing instrument's envelopes,
+    and also don't process any effects - including global ones.
+ *  IT: Offset with instrument number but no note should play offset effect with
+    previous note.
+ *  IT: Fixed various combinations of volume column and effect column portamento
+    effects.
+ *  IT: Implemented a quirk in command Lxx that always executes a portamento
+    down when no tone portamento has been set up before, sometimes causing the
+    target note to be reached immediately, or sliding the note down very subtly.
+ *  IT: Envelope Carry should not be influenced by a previous note-off.
+ *  XM: When a key-off is encountered before auto-vibrato reaches full depth,
+    the depth is reset.
+ *  S3M: Combined slides (Kxy / Lxy) are no longer run on the first tick of a
+    row in files made with Scream Tracker.
+ *  MOD: Groo's "The Ultimate Beeper" now plays like in ProTracker.
+ *  DTM: Portamentos are now also evaluated on the first tick of the row.
+ *  MO3: If multiple sample slots shared the same Ogg Vorbis sample, only one
+    sample slot was loaded.
+ *  MED: Various playback fixes.
+ *  SymMOD: Files containing more than 127 channels are no longer rejected. 
+ *  Better support for automatic slide commands (commands that keep sliding on
+    following rows) in various formats.
+ *  The pattern channel limit was raised from 127 to 192 for some formats.
+
+ *  openmpt123: Multi-threaded encoding is enabled with libFLAC 1.5.0 or newer.
+
+ *  xmp-openmpt: Memory consumption during file loading has been reduced.
+
+ *  zlib: v1.3.1 (2024-01-22).
+ *  mpg123: v1.32.10 (2024-12-14).
+ *  ogg: v1.3.5 (2021-06-04).
+ *  vorbis: v1.3.7 (2020-07-04).
+ *  miniz: v2.2.0 (2021-06-27).
+ *  minimp3: fork
+    <https://github.com/manxorist/minimp3/releases/tag/openmpt-2024-08-15-v4>
+    commit 2116754771b79347ad2f39127abace2a093c383e (2024-08-15).
+ *  stb_vorbis: v1.22 commit 5a0bb8b1c1b1ca3f4e2485f4114c1c8ea021b781
+    (2021-07-12).
+ *  pugixml: v1.15 (2025-01-10).
+ *  flac: v1.5.0 (2025-02-11).
+ *  portaudio: v19.7.0 (2021-04-06).
 
 ### libopenmpt 0.7.0 (2023-04-30)
 
@@ -26,7 +191,8 @@ is just a high-level summary.
  *  [**New**] Can now read a variant of the DSMI AMF format called DMF, as found
     in various DOS games distributed by Webfoot (Tronic, H2O, PowBall, etc.).
  *  [**New**] `DSM` files from Dynamic Studio are now supported.
- *  [**New**] `XMF` files from the DOS game Imperium Galactica are now supported.
+ *  [**New**] `XMF` files from the DOS game Imperium Galactica are now
+    supported.
  *  [**New**] Can now read the hacked MOD format (`DMF`) from the game
     "Apocalypse Abyss".
  *  [**New**] libopenmpt: New APIs for getting the current tempo as a floating
@@ -159,7 +325,8 @@ is just a high-level summary.
     as IMF/ PTM note slides. Tone portamento is now synchronized correctly when
     seeking in DBM, 669 and MED with fast slides (first tick of portamento was
     previously not executed).
- *  The filter cutoff frequency is no longer rounded to integer frequency values.
+ *  The filter cutoff frequency is no longer rounded to integer frequency
+    values.
  *  MED: Tempos higher than 255 BPM can now be imported in pattern data.
  *  MED: MMD1 files with more than 16 channels are now supported.
  *  ULT: Import 8-bit volume commands with full precision.
@@ -168,7 +335,8 @@ is just a high-level summary.
  *  S3M: Better approximation of old "stereo control" SAx command used in
     Purple Motion's PANIC.S3M.
  *  S3M: In ScreamTracker 3.03 and later, OPL notes with tone portamento next to
-    them are delayed until the next row and then the new pitch is used instantly.
+    them are delayed until the next row and then the new pitch is used
+    instantly.
  *  MO3: Envelope sustain was not imported correctly if the source file was an
     XM.
  *  MOD: Lone instrument number with retrigger effect swap sample immediately.

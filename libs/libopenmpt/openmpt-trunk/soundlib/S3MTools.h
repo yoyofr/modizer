@@ -46,13 +46,16 @@ struct S3MFileHeader
 
 		trkAkord          = 0x0208,
 		trkST3_00         = 0x1300,
-		trkST3_20         = 0x1320,
 		trkST3_01         = 0x1301,
+		trkST3_20         = 0x1320,
+		trkIT1_old        = 0x3320,
 		trkIT2_07         = 0x3207,
 		trkIT2_14         = 0x3214,
 		trkBeRoTrackerOld = 0x4100,  // Used from 2004 to 2012
 		trkGraoumfTracker = 0x5447,
+		trkNESMusa        = 0x5700,
 		trkCamoto         = 0xCA00,
+		trkPlayerPRO      = 0x2013,  // PlayerPRO on Intel doesn't byte-swap the tracker ID bytes
 	};
 
 	// Flags
@@ -93,6 +96,17 @@ struct S3MFileHeader
 	uint16le reserved4;
 	uint16le special;          // Pointer to special custom data (unused)
 	uint8le  channels[32];     // Channel setup
+
+	uint8 GetNumChannels() const
+	{
+		uint8 numChannels  = 4;
+		for(uint8 i = 0; i < 32; i++)
+		{
+			if(channels[i] != 0xFF)
+				numChannels = i + 1;
+		}
+		return numChannels;
+	}
 };
 
 MPT_BINARY_STRUCT(S3MFileHeader, 96)

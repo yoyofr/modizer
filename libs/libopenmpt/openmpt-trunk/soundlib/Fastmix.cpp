@@ -83,7 +83,7 @@ struct MixLoopState
 			const bool inSustainLoop = chn.InSustainLoop() && chn.nLoopStart == chn.pModSample->nSustainStart && chn.nLoopEnd == chn.pModSample->nSustainEnd;
 
 			// Do not enable wraparound magic if we're previewing a custom loop!
-			if(inSustainLoop || chn.nLoopEnd == chn.pModSample->nLoopEnd)
+			if(inSustainLoop || (chn.nLoopStart == chn.pModSample->nLoopStart && chn.nLoopEnd == chn.pModSample->nLoopEnd))
 			{
 				SmpLength lookaheadOffset = 3 * InterpolationLookaheadBufferSize + chn.pModSample->nLength - chn.nLoopEnd;
 				if(inSustainLoop)
@@ -104,7 +104,7 @@ struct MixLoopState
 	// Check how many samples can be rendered without encountering loop or sample end, and also update loop position / direction
 	MPT_FORCEINLINE uint32 GetSampleCount(ModChannel &chn, uint32 nSamples) const
 	{
-		int32 nLoopStart = chn.dwFlags[CHN_LOOP] ? chn.nLoopStart : 0;
+		const int32 nLoopStart = chn.dwFlags[CHN_LOOP] ? chn.nLoopStart : 0;
 		SamplePosition nInc = chn.increment;
 
 		if(nSamples <= 0 || nInc.IsZero() || !chn.nLength || !samplePointer)
@@ -234,35 +234,24 @@ struct MixLoopState
 		{
 			if(nPosInt >= lookaheadStart)
 			{
-#if 0
-				const uint32 oldCount = nSmpCount;
-
-				// When going backwards - we can only go back up to lookaheadStart.
-				// When going forwards - read through the whole pre-computed wrap-around buffer if possible.
-				// TODO: ProTracker sample swapping needs hard cut at sample end.
-				int32 samplesToRead = nInc.IsNegative()
-					? (nPosInt - lookaheadStart)
-					//: 2 * InterpolationMaxLookahead - (nPosInt - mixLoopState.lookaheadStart);
-					: (chn.nLoopEnd - nPosInt);
-				//LimitMax(samplesToRead, chn.nLoopEnd - chn.nLoopStart);
-				nSmpCount = SamplesToBufferLength(samplesToRead, chn);
-				Limit(nSmpCount, 1u, oldCount);
-#else
-				if (nInc.IsNegative())
+				if(nInc.IsNegative())
 				{
 					nSmpCount = DistanceToBufferLength(SamplePosition(lookaheadStart, 0), nPos, nInv);
-				} else
+					chn.pCurrentSample = lookaheadPointer;
+				} else if(nPosInt <= chn.nLoopEnd)
 				{
 					nSmpCount = DistanceToBufferLength(nPos, SamplePosition(chn.nLoopEnd, 0), nInv);
+					chn.pCurrentSample = lookaheadPointer;
+				} else
+				{
+					nSmpCount = DistanceToBufferLength(nPos, SamplePosition(chn.nLength, 0), nInv);
 				}
-#endif
-				chn.pCurrentSample = lookaheadPointer;
 				checkDest = false;
 			} else if(chn.dwFlags[CHN_WRAPPED_LOOP] && isAtLoopStart)
 			{
 				// We just restarted the loop, so interpolate correctly after wrapping around
 				nSmpCount = DistanceToBufferLength(nPos, SamplePosition(nLoopStart + InterpolationLookaheadBufferSize, 0), nInv);
-				chn.pCurrentSample = lookaheadPointer + (chn.nLoopEnd - nLoopStart) * chn.pModSample->GetBytesPerSample();
+				chn.pCurrentSample = lookaheadPointer + (chn.nLength - nLoopStart) * chn.pModSample->GetBytesPerSample();
 				checkDest = false;
 			} else if(nInc.IsPositive() && static_cast<SmpLength>(nPosDest) >= lookaheadStart && nSmpCount > 1)
 			{
@@ -312,8 +301,6 @@ struct MixLoopState
 // Render count * number of channels samples
 void CSoundFile::CreateStereoMix(int count)
 {
-	mixsample_t *pOfsL, *pOfsR;
-    
 	if(!count)
 		return;
 
@@ -322,17 +309,57 @@ void CSoundFile::CreateStereoMix(int count)
 	if(m_MixerSettings.gnChannels > 2)
 		StereoFill(MixRearBuffer, count, m_surroundROfsVol, m_surroundLOfsVol);
 
-	CHANNELINDEX nchmixed = 0;
+	// Channels that are actually mixed and not skipped (because they are paused or muted)
+	CHANNELINDEX numChannelsMixed = 0;
 
 	for(uint32 nChn = 0; nChn < m_nMixChannels; nChn++)
 	{
-		ModChannel &chn = m_PlayState.Chn[m_PlayState.ChnMix[nChn]];
+		if(MixChannel(count, m_PlayState.Chn[m_PlayState.ChnMix[nChn]], m_PlayState.ChnMix[nChn], numChannelsMixed < m_MixerSettings.m_nMaxMixChannels))
+			numChannelsMixed++;
+	}
+	m_nMixStat = std::max(m_nMixStat, numChannelsMixed);
+}
 
-		if(!chn.pCurrentSample && !chn.nLOfs && !chn.nROfs)
-			continue;
 
-		pOfsR = &m_dryROfsVol;
-		pOfsL = &m_dryLOfsVol;
+std::pair<mixsample_t *, mixsample_t *> CSoundFile::GetChannelOffsets(const ModChannel &chn, CHANNELINDEX channel)
+{
+	mixsample_t *pOfsR = &m_dryROfsVol;
+	mixsample_t *pOfsL = &m_dryLOfsVol;
+#ifndef NO_REVERB
+	if(((m_MixerSettings.DSPMask & SNDDSP_REVERB) && !chn.dwFlags[CHN_NOREVERB]) || chn.dwFlags[CHN_REVERB])
+	{
+		pOfsR = &m_RvbROfsVol;
+		pOfsL = &m_RvbLOfsVol;
+	}
+#endif
+	if(chn.dwFlags[CHN_SURROUND] && m_MixerSettings.gnChannels > 2)
+	{
+		pOfsR = &m_surroundROfsVol;
+		pOfsL = &m_surroundLOfsVol;
+	}
+	// Look for plugins associated with this implicit tracker channel.
+#ifndef NO_PLUGINS
+	const PLUGINDEX mixPlugin = GetBestPlugin(chn, channel, PrioritiseInstrument, RespectMutes);
+	if((mixPlugin > 0) && (mixPlugin <= MAX_MIXPLUGINS) && m_MixPlugins[mixPlugin - 1].pMixPlugin != nullptr)
+	{
+		// Render into plugin buffer instead of global buffer
+		SNDMIXPLUGINSTATE &mixState = m_MixPlugins[mixPlugin - 1].pMixPlugin->m_MixState;
+		if(mixState.pMixBuffer)
+		{
+			pOfsR = &mixState.nVolDecayR;
+			pOfsL = &mixState.nVolDecayL;
+		}
+	}
+#endif  // NO_PLUGINS
+	return std::make_pair(pOfsL, pOfsR);
+}
+
+
+bool CSoundFile::MixChannel(int count, ModChannel &chn, CHANNELINDEX channel, bool doMix)
+{
+	if(chn.pCurrentSample || chn.nLOfs || chn.nROfs)
+	{
+		auto [pOfsL, pOfsR] = GetChannelOffsets(chn, channel);
 
 		uint32 functionNdx = MixFuncTable::ResamplingModeToMixFlags(static_cast<ResamplingMode>(chn.resamplingMode));
 		if(chn.dwFlags[CHN_16BIT]) functionNdx |= MixFuncTable::ndx16Bit;
@@ -347,30 +374,23 @@ void CSoundFile::CreateStereoMix(int count)
 		{
 			m_Reverb.TouchReverbSendBuffer(ReverbSendBuffer, m_RvbROfsVol, m_RvbLOfsVol, count);
 			pbuffer = ReverbSendBuffer;
-			pOfsR = &m_RvbROfsVol;
-			pOfsL = &m_RvbLOfsVol;
 		}
 #endif
 		if(chn.dwFlags[CHN_SURROUND] && m_MixerSettings.gnChannels > 2)
 		{
 			pbuffer = MixRearBuffer;
-			pOfsR = &m_surroundROfsVol;
-			pOfsL = &m_surroundLOfsVol;
 		}
 
-		//Look for plugins associated with this implicit tracker channel.
+		// Look for plugins associated with this implicit tracker channel.
 #ifndef NO_PLUGINS
-		PLUGINDEX nMixPlugin = GetBestPlugin(m_PlayState, m_PlayState.ChnMix[nChn], PrioritiseInstrument, RespectMutes);
-
-		if ((nMixPlugin > 0) && (nMixPlugin <= MAX_MIXPLUGINS) && m_MixPlugins[nMixPlugin - 1].pMixPlugin != nullptr)
+		const PLUGINDEX mixPlugin = GetBestPlugin(chn, channel, PrioritiseInstrument, RespectMutes);
+		if((mixPlugin > 0) && (mixPlugin <= MAX_MIXPLUGINS) && m_MixPlugins[mixPlugin - 1].pMixPlugin != nullptr)
 		{
 			// Render into plugin buffer instead of global buffer
-			SNDMIXPLUGINSTATE &mixState = m_MixPlugins[nMixPlugin - 1].pMixPlugin->m_MixState;
+			SNDMIXPLUGINSTATE &mixState = m_MixPlugins[mixPlugin - 1].pMixPlugin->m_MixState;
 			if (mixState.pMixBuffer)
 			{
 				pbuffer = mixState.pMixBuffer;
-				pOfsR = &mixState.nVolDecayR;
-				pOfsL = &mixState.nVolDecayL;
 				if (!(mixState.dwFlags & SNDMIXPLUGINSTATE::psfMixReady))
 				{
 					StereoFill(pbuffer, count, *pOfsR, *pOfsL);
@@ -386,13 +406,13 @@ void CSoundFile::CreateStereoMix(int count)
 			*pOfsR += chn.nROfs;
 			*pOfsL += chn.nLOfs;
 			chn.nROfs = chn.nLOfs = 0;
-			continue;
+			return false;
 		}
 
 		MixLoopState mixLoopState(*this, chn);
 
 		////////////////////////////////////////////////////
-		CHANNELINDEX naddmix = 0;
+		bool addToMix = false;
 		int nsamples = count;
 		// Keep mixing this sample until the buffer is filled.
 		do
@@ -419,14 +439,14 @@ void CSoundFile::CreateStereoMix(int count)
 				break;
 			}
 
-			// Should we mix this channel ?
-			if((nchmixed >= m_MixerSettings.m_nMaxMixChannels)				// Too many channels
-				|| (!chn.nRampLength && !(chn.leftVol | chn.rightVol)))		// Channel is completely silent
+			// Should we mix this channel?
+			if(!doMix                                                   // Too many channels
+			   || (!chn.nRampLength && !(chn.leftVol | chn.rightVol)))  // Channel is completely silent
 			{
 				chn.position += chn.increment * nSmpCount;
 				chn.nROfs = chn.nLOfs = 0;
 				pbuffer += nSmpCount * 2;
-				naddmix = 0;
+				addToMix = false;
 			}
 #ifdef MODPLUG_TRACKER
 			else if(m_SamplePlayLengths != nullptr)
@@ -459,15 +479,15 @@ void CSoundFile::CreateStereoMix(int count)
                 //TODO:  MODIZER changes end / YOYOFR
                 
 #ifdef MPT_BUILD_DEBUG
-				//SamplePosition targetpos = chn.position + chn.increment * nSmpCount;
+				SamplePosition targetpos = chn.position + chn.increment * nSmpCount;
 #endif
 				MixFuncTable::Functions[functionNdx | (chn.nRampLength ? MixFuncTable::ndxRamp : 0)](chn, m_Resampler, pbuffer, nSmpCount);
 #ifdef MPT_BUILD_DEBUG
-				//MPT_ASSERT(chn.position.GetUInt() == targetpos.GetUInt());
+				MPT_ASSERT(chn.position.GetUInt() == targetpos.GetUInt());
 #endif
                                 
                 //TODO:  MODIZER changes start / YOYOFR
-                int chn_idx=m_PlayState.ChnMix[nChn];
+                int chn_idx=channel;//m_PlayState.ChnMix[nChn];
                     if (chn_idx<SOUND_MAXVOICES_BUFFER_FX) {
                         int val;
                         for (int ii=0;ii<nSmpCount;ii++) {
@@ -480,7 +500,7 @@ void CSoundFile::CreateStereoMix(int count)
 				chn.nROfs += *(pbufmax - 2);
 				chn.nLOfs += *(pbufmax - 1);
 				pbuffer = pbufmax;
-				naddmix = 1;
+				addToMix = true;
 			}
 
 			nsamples -= nSmpCount;
@@ -506,7 +526,7 @@ void CSoundFile::CreateStereoMix(int count)
 
 			const bool pastLoopEnd = chn.position.GetUInt() >= chn.nLoopEnd && chn.dwFlags[CHN_LOOP];
 			const bool pastSampleEnd = chn.position.GetUInt() >= chn.nLength && !chn.dwFlags[CHN_LOOP] && chn.nLength && !chn.nMasterChn;
-			const bool doSampleSwap = m_playBehaviour[kMODSampleSwap] && chn.nNewIns && chn.nNewIns <= GetNumSamples() && chn.pModSample != &Samples[chn.nNewIns];
+			const bool doSampleSwap = m_playBehaviour[kMODSampleSwap] && chn.swapSampleIndex && chn.swapSampleIndex <= GetNumSamples() && chn.pModSample != &Samples[chn.swapSampleIndex];
 			if((pastLoopEnd || pastSampleEnd) && doSampleSwap)
 			{
 				// ProTracker compatibility: Instrument changes without a note do not happen instantly, but rather when the sample loop has finished playing.
@@ -522,19 +542,23 @@ void CSoundFile::CreateStereoMix(int count)
 					}
 				}
 #endif
-				const ModSample &smp = Samples[chn.nNewIns];
+				const ModSample &smp = Samples[chn.swapSampleIndex];
 				chn.pModSample = &smp;
 				chn.pCurrentSample = smp.samplev();
 				chn.dwFlags = (chn.dwFlags & CHN_CHANNELFLAGS) | smp.uFlags;
-				chn.nLength = smp.uFlags[CHN_LOOP] ? smp.nLoopEnd : 0; // non-looping sample continue in oneshot mode (i.e. they will most probably just play silence)
+				if(smp.uFlags[CHN_LOOP])
+					chn.nLength = smp.nLoopEnd;
+				else if(!m_playBehaviour[kMODOneShotLoops])
+					chn.nLength = smp.nLength;
+				else
+					chn.nLength = 0; // non-looping sample continue in oneshot mode (i.e. they will most probably just play silence)
 				chn.nLoopStart = smp.nLoopStart;
 				chn.nLoopEnd = smp.nLoopEnd;
 				chn.position.SetInt(chn.nLoopStart);
+				chn.swapSampleIndex = 0;
 				mixLoopState.UpdateLookaheadPointers(chn);
 				if(!chn.pCurrentSample)
-				{
 					break;
-				}
 			} else if(pastLoopEnd && !doSampleSwap && m_playBehaviour[kMODOneShotLoops] && chn.nLoopStart == 0)
 			{
 				// ProTracker "oneshot" loops (if loop start is 0, play the whole sample once and then repeat until loop end)
@@ -545,24 +569,16 @@ void CSoundFile::CreateStereoMix(int count)
 
 		// Restore sample pointer in case it got changed through loop wrap-around
 		chn.pCurrentSample = mixLoopState.samplePointer;
-		nchmixed += naddmix;
 	
 #ifndef NO_PLUGINS
-		if(naddmix && nMixPlugin > 0 && nMixPlugin <= MAX_MIXPLUGINS && m_MixPlugins[nMixPlugin - 1].pMixPlugin)
+		if(addToMix && mixPlugin > 0 && mixPlugin <= MAX_MIXPLUGINS && m_MixPlugins[mixPlugin - 1].pMixPlugin)
 		{
-			m_MixPlugins[nMixPlugin - 1].pMixPlugin->ResetSilence();
+			m_MixPlugins[mixPlugin - 1].pMixPlugin->ResetSilence();
 		}
 #endif // NO_PLUGINS
+		return addToMix;
 	}
-    
-    //TODO:  MODIZER changes start / YOYOFR
-    for (int ii=0;ii<SOUND_MAXVOICES_BUFFER_FX;ii++) {
-        m_voice_current_ptr[ii]+=(int64_t)(count)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
-        while ((m_voice_current_ptr[ii]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE) m_voice_current_ptr[ii]-=(SOUND_BUFFER_SIZE_SAMPLE)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
-    }
-    //TODO:  MODIZER changes end / YOYOFR
-    
-	m_nMixStat = std::max(m_nMixStat, nchmixed);
+	return false;
 }
 
 

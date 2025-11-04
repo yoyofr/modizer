@@ -19,10 +19,8 @@
 #include "openmpt/soundbase/MixSample.hpp"
 #include "openmpt/soundbase/MixSampleConvert.hpp"
 
-#ifndef NO_EQ
-#if defined(MPT_ENABLE_ARCH_INTRINSICS_SSE)
+#if defined(MPT_WANT_ARCH_INTRINSICS_X86_SSE)
 #include "../common/mptCPU.h"
-#endif
 #endif
 
 #include <algorithm>
@@ -30,7 +28,10 @@
 
 #include <cstddef>
 
-#if defined(MPT_ENABLE_ARCH_INTRINSICS_SSE)
+#if defined(MPT_WANT_ARCH_INTRINSICS_X86_SSE) && defined(MPT_ARCH_INTRINSICS_X86_SSE)
+#if MPT_COMPILER_MSVC
+#include <intrin.h>
+#endif
 #include <xmmintrin.h>
 #endif
 
@@ -97,10 +98,11 @@ static void EQFilter(Tbuf & buf, const std::array<EQBANDSETTINGS, MAX_EQ_BANDS> 
 template <typename TMixSample>
 void CEQ::ProcessTemplate(TMixSample *frontBuffer, TMixSample *rearBuffer, std::size_t countFrames, std::size_t numChannels)
 {
-#if defined(MPT_ENABLE_ARCH_INTRINSICS_SSE)
+#if defined(MPT_WANT_ARCH_INTRINSICS_X86_SSE) && defined(MPT_ARCH_INTRINSICS_X86_SSE)
 	unsigned int old_csr = 0;
 	if(CPU::HasFeatureSet(CPU::feature::sse) && CPU::HasModesEnabled(CPU::mode::xmm128sse))
 	{
+		mpt::arch::feature_fence_aquire();
 		old_csr = _mm_getcsr();
 		_mm_setcsr((old_csr & ~(_MM_DENORMALS_ZERO_MASK | _MM_FLUSH_ZERO_MASK)) | _MM_DENORMALS_ZERO_ON | _MM_FLUSH_ZERO_ON);
 	}
@@ -119,10 +121,11 @@ void CEQ::ProcessTemplate(TMixSample *frontBuffer, TMixSample *rearBuffer, std::
 		mpt::audio_span_planar_strided<TMixSample> buf{ buffers.data(), 4, countFrames, 2 };
 		EQFilter<4>(buf, m_Bands, m_ChannelState);
 	}
-#if defined(MPT_ENABLE_ARCH_INTRINSICS_SSE)
+#if defined(MPT_WANT_ARCH_INTRINSICS_X86_SSE) && defined(MPT_ARCH_INTRINSICS_X86_SSE)
 	if(CPU::HasFeatureSet(CPU::feature::sse) && CPU::HasModesEnabled(CPU::mode::xmm128sse))
 	{
 		_mm_setcsr(old_csr);
+		mpt::arch::feature_fence_release();
 	}
 #endif
 }

@@ -45,6 +45,12 @@ namespace FileReader {
 
 
 
+// change to show warnings for functions which trigger pre-caching the whole file for unseekable streams
+//#define MPT_FILEREADER_DEPRECATED [[deprecated]]
+#define MPT_FILEREADER_DEPRECATED
+
+
+
 // TFileCursor members begin
 
 template <typename TFileCursor>
@@ -99,21 +105,17 @@ bool HasFastGetLength(const TFileCursor & f) {
 	return f.HasFastGetLength();
 }
 
-#if 0
 // Returns size of the mapped file in bytes.
 template <typename TFileCursor>
-MPT_FILECURSOR_DEPRECATED typename TFileCursor::pos_type GetLength(const TFileCursor & f) {
+MPT_FILEREADER_DEPRECATED typename TFileCursor::pos_type GetLength(const TFileCursor & f) {
 	return f.GetLength();
 }
-#endif
 
-#if 0
 // Return byte count between cursor position and end of file, i.e. how many bytes can still be read.
 template <typename TFileCursor>
-MPT_FILECURSOR_DEPRECATED typename TFileCursor::pos_type BytesLeft(const TFileCursor & f) {
+MPT_FILEREADER_DEPRECATED typename TFileCursor::pos_type BytesLeft(const TFileCursor & f) {
 	return f.BytesLeft();
 }
-#endif
 
 template <typename TFileCursor>
 bool EndOfFile(const TFileCursor & f) {
@@ -265,7 +267,7 @@ template <typename T, std::size_t destSize, typename TFileCursor>
 bool ReadArray(TFileCursor & f, std::array<T, destSize> & destArray) {
 	static_assert(mpt::is_binary_safe<T>::value);
 	if (!f.CanRead(sizeof(destArray))) {
-		destArray.fill(T{});
+		mpt::reset(destArray);
 		return false;
 	}
 	f.ReadRaw(mpt::as_raw_memory(destArray));

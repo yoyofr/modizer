@@ -1,2254 +1,8497 @@
-#
-# libopenmpt and openmpt123 GNU Makefile
-#
-# Authors: Joern Heusipp
-#          OpenMPT Devs
-# 
-# The OpenMPT source code is released under the BSD license.
-# Read LICENSE for more details.
-#
-
-#
-# Supported parameters:
-#
-#
-# Build configuration (provide on each `make` invocation):
-#
-#  CONFIG=[gcc|clang|mingw-w64|emscripten|djgpp] (default: CONFIG=)
-#
-#  Build configurations can override or change defaults of other build options.
-#  See below and in `build/make/` for details.
-#
-#
-# Compiler options (environment variables):
-#
-#  CC
-#  CXX
-#  LD
-#  AR
-#  CPPFLAGS
-#  CXXFLAGS
-#  CFLAGS
-#  LDFLAGS
-#  LDLIBS
-#  ARFLAGS
-#  PKG_CONFIG
-#
-#  CXXSTDLIB_PCLIBSPRIVATE   C++ standard library (or libraries) required for
-#                   static linking. This will be put in the pkg-config file
-#                   libopenmpt.pc Libs.private field and used for nothing else.
-#
-#
-#
-# Build flags (provide on each `make` invocation) (defaults are shown):
-#
-#  DYNLINK=1           Dynamically link examples and openmpt123 against libopenmpt
-#  SHARED_LIB=1        Build shared library
-#  STATIC_LIB=1        Build static library
-#  EXAMPLES=1          Build examples
-#  OPENMPT123=1        Build openmpt123
-#  IN_OPENMPT=0        Build in_openmpt (WinAMP 2.x plugin)
-#  XMP_OPENMPT=0       Build xmp-openmpt (XMPlay plugin)
-#  SHARED_SONAME=1     Set SONAME of shared library
-#  DEBUG=0             Build debug binaries without optimization and with symbols
-#  OPTIMIZE=vectorize  -O3
-#           speed      -O2
-#           size       -Os/-Oz
-#           test       -Og
-#           debug      -O0
-#           none
-#  OPTIMIZE_LTO=0      Build with link-time-optimizations
-#  OPTIMIZE_FASTMATH=0 Use no non-standard-compliant fastmath optimizations
-#                   =1  + use mild non-standard-compliant fastmath optimizations
-#                   =2  + assume no inf/nan
-#                   =3  + set ftz/daz
-#  TEST=1              Include test suite in default target.
-#  ONLY_TEST=0         Only build the test suite.
-#  STRICT=0            Treat warnings as errors.
-#  MODERN=0            Pass more modern compiler options.
-#  NATIVE=0            Optimize for system CPU.
-#  STDCXX=c++17        C++ standard version (default depends on compiler)
-#  STDC=c17            C standard version (default depends on compiler)
-#  ANALYZE=0           Enable static analyzer.
-#  CHECKED=0           Enable run-time assertions.
-#  CHECKED_ADDRESS=0   Enable address sanitizer
-#  CHECKED_UNDEFINED=0 Enable undefined behaviour sanitizer
-#
-#
-# Build flags for libopenmpt (provide on each `make` invocation)
-#  (defaults are 0):
-#
-#  NO_ZLIB=1        Avoid using zlib, even if found
-#  NO_MPG123=1      Avoid using libmpg123, even if found
-#  NO_OGG=1         Avoid using libogg, even if found
-#  NO_VORBIS=1      Avoid using libvorbis, even if found
-#  NO_VORBISFILE=1  Avoid using libvorbisfile, even if found
-#
-#  LOCAL_ZLIB=1        Build local copy of zlib, even if found
-#  LOCAL_MPG123=1      Build local copy of libmpg123, even if found
-#  LOCAL_OGG=1         Build local copy of libogg, even if found
-#  LOCAL_VORBIS=1      Build local copy of libvorbis, even if found
-#
-#  NO_MINIZ=1       Do not fallback to miniz
-#  NO_MINIMP3=1     Do not fallback to minimp3
-#  NO_STBVORBIS=1   Do not fallback to stb_vorbis
-#
-#  USE_ALLEGRO42=1  Use liballegro 4.2 (DJGPP only)
-#
-# Build flags for libopenmpt examples and openmpt123
-#  (provide on each `make` invocation)
-#  (defaults are 0):
-#
-#  NO_PORTAUDIO=1      Avoid using PortAudio, even if found
-#  NO_PORTAUDIOCPP=1   Avoid using PortAudio C++, even if found
-#
-# Build flags for openmpt123 (provide on each `make` invocation)
-#  (defaults are 0):
-#
-#  NO_PULSEAUDIO=1     Avoid using PulseAudio, even if found
-#  NO_SDL2=1           Avoid using SDL2, even if found
-#  NO_FLAC=1           Avoid using FLAC, even if found
-#  NO_SNDFILE=1        Avoid using libsndfile, even if found
-#
-#
-# Install options (provide on each `make install` invocation)
-#
-#  PREFIX   (e.g.:  PREFIX=$HOME/opt, default: PREFIX=/usr/local)
-#  DESTDIR  (e.g.:  DESTDIR=bin/dest, default: DESTDIR=)
-#
-#
-# Verbosity:
-#
-#  QUIET=[0,1]      (default: QUIET=0)
-#  VERBOSE=[0,1,2]  (default: VERBOSE=0)
-#
-#
-# Supported targets:
-#
-#     make clean
-#     make [all]
-#     make doc
-#     make check
-#     make dist
-#     make dist-doc
-#     make install
-#     make install-doc
-#
-
-
-.PHONY: all
-all:
-
-
-INFO       = @echo
-SILENT     = @
-VERYSILENT = @
-
-
-ifeq ($(VERBOSE),2)
-INFO       = @true
-SILENT     = 
-VERYSILENT = 
-endif
-
-ifeq ($(VERBOSE),1)
-INFO       = @true
-SILENT     = 
-VERYSILENT = @
-endif
-
-
-ifeq ($(QUIET),1)
-INFO       = @true
-SILENT     = @
-VERYSILENT = @
-endif
-
-
-# general settings
-
-DYNLINK=1
-SHARED_LIB=1
-STATIC_LIB=1
-EXAMPLES=1
-FUZZ=0
-SHARED_SONAME=1
-DEBUG=0
-OPTIMIZE=vectorize
-OPTIMIZE_LTO=0
-OPTIMIZE_FASTMATH=0
-TEST=1
-ONLY_TEST=0
-SOSUFFIX=.so
-SOSUFFIXWINDOWS=0
-NO_SHARED_LINKER_FLAG=0
-OPENMPT123=1
-IN_OPENMPT=0
-XMP_OPENMPT=0
-MODERN=0
-NATIVE=0
-STRICT=0
-
-FLAVOUR_DIR=
-
-FORCE_UNIX_STYLE_COMMANDS=0
-
-CHECKED=0
-CHECKED_ADDRESS=0
-CHECKED_UNDEFINED=0
-
-REQUIRES_RUNPREFIX=0
-
-
-# get commandline or defaults
-
-CPPFLAGS := $(CPPFLAGS)
-CXXFLAGS := $(CXXFLAGS)
-CFLAGS   := $(CFLAGS)
-LDFLAGS  := $(LDFLAGS)
-LDLIBS   := $(LDLIBS)
-ARFLAGS  := $(ARFLAGS)
-
-PC_LIBS_PRIVATE := $(PC_LIBS_PRIVATE)
-
-PREFIX   := $(PREFIX)
-ifeq ($(PREFIX),)
-PREFIX := /usr/local
-endif
-
-MANDIR ?= $(PREFIX)/share/man
-#DESTDIR := $(DESTDIR)
-#ifeq ($(DESTDIR),)
-#DESTDIR := bin/dest
-#endif
-
-
-# version
-
-include libopenmpt/libopenmpt_version.mk 
-
-LIBOPENMPT_SO_VERSION=$(LIBOPENMPT_LTVER_CURRENT)
-
-
-# host setup
-
-ifneq ($(MSYSTEM)x,x)
-
-HOST=unix
-HOST_FLAVOUR=
-
-TOOLCHAIN_SUFFIX=
-
-CPPCHECK = cppcheck
-
-MKDIR_P = mkdir -p
-RM = rm -f
-RMTREE = rm -rf
-INSTALL = install
-INSTALL_MAKE_DIR = install -d
-INSTALL_DIR = cp -r -v
-FIXPATH = $1
-
-HOST_FLAVOUR=MSYS2
-
-NUMTHREADS:=$(shell nproc)
-
-else ifeq ($(OS),Windows_NT)
-
-HOST=windows
-HOST_FLAVOUR=
-
-TOOLCHAIN_SUFFIX=
-
-CPPCHECK = cppcheck
-
-MKDIR_P = mkdir
-RM = del /q /f
-RMTREE = del /q /f /s
-INSTALL = echo install
-INSTALL_MAKE_DIR = echo install
-INSTALL_DIR = echo install
-FIXPATH = $(subst /,\,$1)
-
-NUMTHREADS:=$(NUMBER_OF_PROCESSORS)
-
-else
-
-HOST=unix
-HOST_FLAVOUR=
-
-TOOLCHAIN_SUFFIX=
-
-CPPCHECK = cppcheck
-
-MKDIR_P = mkdir -p
-RM = rm -f
-RMTREE = rm -rf
-INSTALL = install
-INSTALL_MAKE_DIR = install -d
-INSTALL_DIR = cp -r -v
-FIXPATH = $1
-
-UNAME_S:=$(shell uname -s)
-ifeq ($(UNAME_S),Darwin)
-HOST_FLAVOUR=MACOSX
-endif
-ifeq ($(UNAME_S),Linux)
-HOST_FLAVOUR=LINUX
-endif
-ifeq ($(UNAME_S),NetBSD)
-HOST_FLAVOUR=NETBSD
-endif
-ifeq ($(UNAME_S),FreeBSD)
-HOST_FLAVOUR=FREEBSD
-endif
-ifeq ($(UNAME_S),OpenBSD)
-HOST_FLAVOUR=OPENBSD
-endif
-ifeq ($(UNAME_S),Haiku)
-HOST_FLAVOUR=HAIKU
-endif
-
-ifeq ($(HOST_FLAVOUR),LINUX)
-NUMTHREADS:=$(shell nproc)
-else
-NUMTHREADS:=1
-endif
-
-endif
-
-
-# early build setup
-
-BINDIR_MADE:=$(shell $(MKDIR_P) bin)
-
-
-# compiler setup
-
-PKG_CONFIG ?= pkg-config
-
-ifeq ($(CONFIG)x,x)
-include build/make/config-defaults.mk
-
-else ifeq ($(CONFIG),mingw64-win32)
-$(warning warning: 'CONFIG=mingw64-win32' is deprecated. Use 'CONFIG=mingw-w64 WINDOWS_ARCH=x86' instead.)
-WINDOWS_ARCH=x86
-WINDOWS_FAMILY=
-WINDOWS_VERSION=
-include build/make/config-mingw-w64.mk
-
-else ifeq ($(CONFIG),mingw64-win64)
-$(warning warning: 'CONFIG=mingw64-win64' is deprecated. Use 'CONFIG=mingw-w64 WINDOWS_ARCH=amd64' instead.)
-WINDOWS_ARCH=amd64
-WINDOWS_FAMILY=
-WINDOWS_VERSION=
-include build/make/config-mingw-w64.mk
-
-else ifeq ($(CONFIG),mingw64-winrt-x86)
-$(warning warning: 'CONFIG=mingw64-winrt-x86' is deprecated. Use 'CONFIG=mingw-w64 WINDOWS_ARCH=x86 WINDOWS_FAMILY=pc-app WINDOWS_VERSION=win8' instead.)
-WINDOWS_ARCH=x86
-WINDOWS_FAMILY=pc-app
-WINDOWS_VERSION=win8
-include build/make/config-mingw-w64.mk
-
-else ifeq ($(CONFIG),mingw64-winrt-amd64)
-$(warning warning: 'CONFIG=mingw64-winrt-amd64' is deprecated. Use 'CONFIG=mingw-w64 WINDOWS_ARCH=amd64 WINDOWS_FAMILY=pc-app WINDOWS_VERSION=win8' instead.)
-WINDOWS_ARCH=amd64
-WINDOWS_FAMILY=pc-app
-WINDOWS_VERSION=win8
-include build/make/config-mingw-w64.mk
-
-else
-include build/make/config-$(CONFIG).mk
-
-endif
-
-
-ifeq ($(FORCE_UNIX_STYLE_COMMANDS),1)
-MKDIR_P = mkdir -p
-RM = rm -f
-RMTREE = rm -rf
-endif
-
-
-# build setup
-
-ifeq ($(SOSUFFIXWINDOWS),1)
-LIBOPENMPT_SONAME=libopenmpt-$(LIBOPENMPT_SO_VERSION)$(SOSUFFIX)
-else
-LIBOPENMPT_SONAME=libopenmpt$(SOSUFFIX).$(LIBOPENMPT_SO_VERSION)
-endif
-
-INSTALL_PROGRAM = $(INSTALL) -m 0755
-INSTALL_DATA = $(INSTALL) -m 0644
-INSTALL_LIB = $(INSTALL) -m 0644
-INSTALL_DATA_DIR = $(INSTALL_DIR)
-INSTALL_MAKE_DIR += -m 0755
-
-CPPFLAGS += -Isrc -Icommon -I.
-
-ifeq ($(XMP_OPENMPT),1)
-CPPFLAGS += -Iinclude/pugixml/src
-endif
-
-ifeq ($(MPT_COMPILER_GENERIC),1)
-
-CXXFLAGS += 
-CFLAGS   += 
-LDFLAGS  += 
-LDLIBS   += 
-ARFLAGS  += 
-
-ifeq ($(DEBUG),1)
-CPPFLAGS += -DMPT_BUILD_DEBUG
-CXXFLAGS += -g
-CFLAGS   += -g
-else
-ifneq ($(OPTIMIZE),none)
-CXXFLAGS += -O
-CFLAGS   += -O
-endif
-endif
-
-ifeq ($(CHECKED),1)
-CPPFLAGS += -DMPT_BUILD_CHECKED
-CXXFLAGS += -g
-CFLAGS   += -g
-endif
-
-CXXFLAGS += -Wall
-CFLAGS   += -Wall
-
-else
-
-ifeq ($(MPT_COMPILER_NOVISIBILITY),1)
-CXXFLAGS +=
-CFLAGS   +=
-else
-CXXFLAGS += -fvisibility=hidden
-CFLAGS   += -fvisibility=hidden
-endif
-LDFLAGS  += 
-LDLIBS   += 
-ARFLAGS  += 
-
-ifeq ($(DEBUG),1)
-CPPFLAGS += -DMPT_BUILD_DEBUG
-CXXFLAGS += -g
-CFLAGS   += -g
-else ifeq ($(OPTIMIZE),debug)
-CPPFLAGS += 
-CXXFLAGS += -O0 -fno-omit-frame-pointer
-CFLAGS   += -O0 -fno-omit-frame-pointer
-else ifeq ($(OPTIMIZE),test)
-CPPFLAGS += 
-CXXFLAGS += -Og -fno-omit-frame-pointer
-CFLAGS   += -Og -fno-omit-frame-pointer
-else ifeq ($(OPTIMIZE),size)
-CXXFLAGS += -Os
-CFLAGS   += -Os -fno-strict-aliasing
-LDFLAGS  += 
-ifneq ($(MPT_COMPILER_NOSECTIONS),1)
-CXXFLAGS += -ffunction-sections -fdata-sections
-CFLAGS   += -ffunction-sections -fdata-sections
-endif
-ifneq ($(MPT_COMPILER_NOGCSECTIONS),1)
-LDFLAGS  += -Wl,--gc-sections
-endif
-else ifeq ($(OPTIMIZE),speed)
-CXXFLAGS += -O2
-CFLAGS   += -O2 -fno-strict-aliasing
-ifneq ($(MPT_COMPILER_NOSECTIONS),1)
-CXXFLAGS += -ffunction-sections -fdata-sections
-CFLAGS   += -ffunction-sections -fdata-sections
-endif
-ifneq ($(MPT_COMPILER_NOGCSECTIONS),1)
-LDFLAGS  += -Wl,--gc-sections
-endif
-else ifeq ($(OPTIMIZE),vectorize)
-CXXFLAGS += -O3
-CFLAGS   += -O3 -fno-strict-aliasing
-ifneq ($(MPT_COMPILER_NOSECTIONS),1)
-CXXFLAGS += -ffunction-sections -fdata-sections
-CFLAGS   += -ffunction-sections -fdata-sections
-endif
-ifneq ($(MPT_COMPILER_NOGCSECTIONS),1)
-LDFLAGS  += -Wl,--gc-sections
-endif
-endif
-
-ifeq ($(FASTMATH_STYLE),gcc)
-
-ifeq ($(OPTIMIZE_FASTMATH),3)
-CPPFLAGS += -DMPT_CHECK_CXX_IGNORE_WARNING_FASTMATH -DMPT_CHECK_CXX_IGNORE_WARNING_FINITEMATH
-CXXFLAGS += -ffast-math
-CFLAGS += -ffast-math
-else ifeq ($(OPTIMIZE_FASTMATH),2)
-CPPFLAGS += -DMPT_CHECK_CXX_IGNORE_WARNING_FINITEMATH
-CXXFLAGS += -fno-math-errno
-CXXFLAGS += -ffinite-math-only
-CXXFLAGS += -fno-rounding-math
-CXXFLAGS += -fno-signaling-nans
-CXXFLAGS += -fexcess-precision=fast
-CXXFLAGS += -fcx-limited-range
-CXXFLAGS += -fassociative-math
-CXXFLAGS += -freciprocal-math
-CXXFLAGS += -fno-signed-zeros
-CXXFLAGS += -fno-trapping-math
-CFLAGS += -fno-math-errno
-CFLAGS += -ffinite-math-only
-CFLAGS += -fno-rounding-math
-CFLAGS += -fno-signaling-nans
-CFLAGS += -fexcess-precision=fast
-CFLAGS += -fcx-limited-range
-CFLAGS += -fassociative-math
-CFLAGS += -freciprocal-math
-CFLAGS += -fno-signed-zeros
-CFLAGS += -fno-trapping-math
-else ifeq ($(OPTIMIZE_FASTMATH),1)
-CXXFLAGS += -fno-math-errno
-CXXFLAGS += -fno-rounding-math
-CXXFLAGS += -fno-signaling-nans
-CXXFLAGS += -fexcess-precision=fast
-CXXFLAGS += -fcx-limited-range
-CXXFLAGS += -fassociative-math
-CXXFLAGS += -freciprocal-math
-CXXFLAGS += -fno-signed-zeros
-CXXFLAGS += -fno-trapping-math
-CFLAGS += -fno-math-errno
-CFLAGS += -fno-rounding-math
-CFLAGS += -fno-signaling-nans
-CFLAGS += -fexcess-precision=fast
-CFLAGS += -fcx-limited-range
-CFLAGS += -fassociative-math
-CFLAGS += -freciprocal-math
-CFLAGS += -fno-signed-zeros
-CFLAGS += -fno-trapping-math
-endif
-
-else ifeq ($(FASTMATH_STYLE),clang)
-
-ifeq ($(OPTIMIZE_FASTMATH),3)
-CPPFLAGS += -DMPT_CHECK_CXX_IGNORE_WARNING_FASTMATH -DMPT_CHECK_CXX_IGNORE_WARNING_FINITEMATH
-CXXFLAGS += -ffast-math
-CFLAGS += -ffast-math
-else ifeq ($(OPTIMIZE_FASTMATH),2)
-CPPFLAGS += -DMPT_CHECK_CXX_IGNORE_WARNING_FINITEMATH
-CXXFLAGS += -fno-math-errno
-CXXFLAGS += -ffinite-math-only
-CXXFLAGS += -fno-honor-infinities
-CXXFLAGS += -fno-honor-nans
-CXXFLAGS += -ffp-contract=fast
-CXXFLAGS += -fassociative-math
-CXXFLAGS += -freciprocal-math
-CXXFLAGS += -fno-signed-zeros
-CXXFLAGS += -fno-trapping-math
-CFLAGS += -fno-math-errno
-CFLAGS += -ffinite-math-only
-CFLAGS += -fno-honor-infinities
-CFLAGS += -fno-honor-nans
-CFLAGS += -ffp-contract=fast
-CFLAGS += -fassociative-math
-CFLAGS += -freciprocal-math
-CFLAGS += -fno-signed-zeros
-CFLAGS += -fno-trapping-math
-else ifeq ($(OPTIMIZE_FASTMATH),1)
-CXXFLAGS += -fno-math-errno
-CXXFLAGS += -ffp-contract=fast
-CXXFLAGS += -fassociative-math
-CXXFLAGS += -freciprocal-math
-CXXFLAGS += -fno-signed-zeros
-CXXFLAGS += -fno-trapping-math
-CFLAGS += -fno-math-errno
-CFLAGS += -ffp-contract=fast
-CFLAGS += -fassociative-math
-CFLAGS += -freciprocal-math
-CFLAGS += -fno-signed-zeros
-CFLAGS += -fno-trapping-math
-endif
-
-else
-
-ifeq ($(OPTIMIZE_FASTMATH),3)
-CPPFLAGS += -DMPT_CHECK_CXX_IGNORE_WARNING_FASTMATH -DMPT_CHECK_CXX_IGNORE_WARNING_FINITEMATH
-CXXFLAGS += -ffast-math
-CFLAGS += -ffast-math
-else ifeq ($(OPTIMIZE_FASTMATH),2)
-CPPFLAGS += -DMPT_CHECK_CXX_IGNORE_WARNING_FASTMATH -DMPT_CHECK_CXX_IGNORE_WARNING_FINITEMATH
-CXXFLAGS += -ffast-math
-CFLAGS += -ffast-math
-else ifeq ($(OPTIMIZE_FASTMATH),1)
-CPPFLAGS += -DMPT_CHECK_CXX_IGNORE_WARNING_FASTMATH -DMPT_CHECK_CXX_IGNORE_WARNING_FINITEMATH
-CXXFLAGS += -ffast-math
-CFLAGS += -ffast-math
-endif
-
-endif
-
-ifeq ($(OPTIMIZE_FASTMATH),2)
-CPPFLAGS += -DMPT_CHECK_CXX_IGNORE_WARNING_FASTMATH -DMPT_CHECK_CXX_IGNORE_WARNING_FINITEMATH
-CXXFLAGS += -ffast-math
-CFLAGS   += -ffast-math
-else ifeq ($(OPTIMIZE_FASTMATH),1)
-CPPFLAGS += -DMPT_CHECK_CXX_IGNORE_WARNING_FINITEMATH
-CXXFLAGS += -fassociative-math
-CXXFLAGS += -fcx-limited-range
-CXXFLAGS += -fexcess-precision=fast
-CXXFLAGS += -ffinite-math-only
-CXXFLAGS += -freciprocal-math
-CXXFLAGS += -fno-math-errno
-CXXFLAGS += -fno-rounding-math
-CXXFLAGS += -fno-signaling-nans
-CXXFLAGS += -fno-signed-zeros
-CXXFLAGS += -fno-trapping-math
-CFLAGS += -fassociative-math
-CFLAGS += -fcx-limited-range
-CFLAGS += -fexcess-precision=fast
-CFLAGS += -ffinite-math-only
-CFLAGS += -freciprocal-math
-CFLAGS += -fno-math-errno
-CFLAGS += -fno-rounding-math
-CFLAGS += -fno-signaling-nans
-CFLAGS += -fno-signed-zeros
-CFLAGS += -fno-trapping-math
-endif
-
-ifeq ($(CHECKED),1)
-CPPFLAGS += -DMPT_BUILD_CHECKED
-CXXFLAGS += -g -fno-omit-frame-pointer
-CFLAGS   += -g -fno-omit-frame-pointer
-endif
-
-ifeq ($(FUZZ),1)
-CPPFLAGS +=
-CXXFLAGS += -fno-omit-frame-pointer
-CFLAGS   += -fno-omit-frame-pointer
-endif
-
-CXXFLAGS += -Wall -Wextra -Wpedantic $(CXXFLAGS_WARNINGS)
-CFLAGS   += -Wall -Wextra -Wpedantic $(CFLAGS_WARNINGS)
-LDFLAGS  += $(LDFLAGS_WARNINGS)
-
-endif
-
-ifeq ($(STRICT),1)
-CXXFLAGS += -Werror
-CFLAGS   += -Werror
-endif
-
-ifeq ($(DYNLINK),1)
-LDFLAGS_RPATH += -Wl,-rpath,./bin
-LDFLAGS_LIBOPENMPT += -Lbin
-LDLIBS_LIBOPENMPT  += -lopenmpt
-endif
-
-ifeq ($(HOST),unix)
-
-ifeq ($(IS_CROSS),1)
-else
-ifeq ($(shell help2man --version > /dev/null 2>&1 && echo yes ),yes)
-MPT_WITH_HELP2MAN := 1
-endif
-endif
-
-ifeq ($(shell doxygen --version > /dev/null 2>&1 && echo yes ),yes)
-MPT_WITH_DOXYGEN := 1
-endif
-
-endif
-
-PC_LIBS_PRIVATE += $(CXXSTDLIB_PCLIBSPRIVATE)
-
-ifeq ($(HACK_ARCHIVE_SUPPORT),1)
-NO_ZLIB:=1
-endif
-
-ifeq ($(LOCAL_ZLIB),1)
-CPPFLAGS_ZLIB := -DMPT_WITH_ZLIB
-LDFLAGS_ZLIB  :=
-LDLIBS_ZLIB   :=
-CPPFLAGS_ZLIB += -Iinclude/zlib/
-LOCAL_ZLIB_SOURCES := 
-LOCAL_ZLIB_SOURCES += include/zlib/adler32.c
-LOCAL_ZLIB_SOURCES += include/zlib/compress.c
-LOCAL_ZLIB_SOURCES += include/zlib/crc32.c
-LOCAL_ZLIB_SOURCES += include/zlib/deflate.c
-LOCAL_ZLIB_SOURCES += include/zlib/gzclose.c
-LOCAL_ZLIB_SOURCES += include/zlib/gzlib.c
-LOCAL_ZLIB_SOURCES += include/zlib/gzread.c
-LOCAL_ZLIB_SOURCES += include/zlib/gzwrite.c
-LOCAL_ZLIB_SOURCES += include/zlib/infback.c
-LOCAL_ZLIB_SOURCES += include/zlib/inffast.c
-LOCAL_ZLIB_SOURCES += include/zlib/inflate.c
-LOCAL_ZLIB_SOURCES += include/zlib/inftrees.c
-LOCAL_ZLIB_SOURCES += include/zlib/trees.c
-LOCAL_ZLIB_SOURCES += include/zlib/uncompr.c
-LOCAL_ZLIB_SOURCES += include/zlib/zutil.c
-include/zlib/%$(FLAVOUR_O).o : CFLAGS+=$(CFLAGS_SILENT) -DSTDC -DZ_HAVE_UNISTD_H
-include/zlib/%.test$(FLAVOUR_O).o : CFLAGS+=$(CFLAGS_SILENT) -DSTDC -DZ_HAVE_UNISTD_H
-else
-ifeq ($(NO_ZLIB),1)
-else
-#LDLIBS   += -lz
-ifeq ($(shell $(PKG_CONFIG)$(TOOLCHAIN_SUFFIX) --exists zlib && echo yes),yes)
-CPPFLAGS_ZLIB := $(shell $(PKG_CONFIG)$(TOOLCHAIN_SUFFIX) --cflags-only-I zlib ) -DMPT_WITH_ZLIB
-LDFLAGS_ZLIB  := $(shell $(PKG_CONFIG)$(TOOLCHAIN_SUFFIX) --libs-only-L   zlib ) $(shell $(PKG_CONFIG)$(TOOLCHAIN_SUFFIX) --libs-only-other zlib )
-LDLIBS_ZLIB   := $(shell $(PKG_CONFIG)$(TOOLCHAIN_SUFFIX) --libs-only-l   zlib )
-PC_REQUIRES_ZLIB := zlib
-else
-ifeq ($(FORCE_DEPS),1)
-$(error zlib not found)
-else
-$(warning warning: zlib not found)
-endif
-NO_ZLIB:=1
-endif
-endif
-endif
-
-ifeq ($(LOCAL_MPG123),1)
-
-ifeq ($(ENABLE_DXE),1)
-
-CPPFLAGS_MPG123 := -DMPT_WITH_MPG123 -DMPG123_NO_LARGENAME
-LDFLAGS_MPG123  := 
-LDLIBS_MPG123   :=
-CPPFLAGS_MPG123 += -Iinclude/mpg123/src/include/ -Iinclude/mpg123/ports/makefile/
-MPG123_SOURCES := 
-MPG123_SOURCES += include/mpg123/src/compat/compat.c
-MPG123_SOURCES += include/mpg123/src/compat/compat_str.c
-MPG123_SOURCES += include/mpg123/src/libmpg123/dct64.c
-MPG123_SOURCES += include/mpg123/src/libmpg123/equalizer.c
-MPG123_SOURCES += include/mpg123/src/libmpg123/feature.c
-MPG123_SOURCES += include/mpg123/src/libmpg123/format.c
-MPG123_SOURCES += include/mpg123/src/libmpg123/frame.c
-MPG123_SOURCES += include/mpg123/src/libmpg123/icy.c
-MPG123_SOURCES += include/mpg123/src/libmpg123/icy2utf8.c
-MPG123_SOURCES += include/mpg123/src/libmpg123/id3.c
-MPG123_SOURCES += include/mpg123/src/libmpg123/index.c
-MPG123_SOURCES += include/mpg123/src/libmpg123/layer1.c
-MPG123_SOURCES += include/mpg123/src/libmpg123/layer2.c
-MPG123_SOURCES += include/mpg123/src/libmpg123/layer3.c
-MPG123_SOURCES += include/mpg123/src/libmpg123/lfs_wrap.c
-MPG123_SOURCES += include/mpg123/src/libmpg123/libmpg123.c
-MPG123_SOURCES += include/mpg123/src/libmpg123/ntom.c
-MPG123_SOURCES += include/mpg123/src/libmpg123/optimize.c
-MPG123_SOURCES += include/mpg123/src/libmpg123/parse.c
-MPG123_SOURCES += include/mpg123/src/libmpg123/readers.c
-MPG123_SOURCES += include/mpg123/src/libmpg123/stringbuf.c
-MPG123_SOURCES += include/mpg123/src/libmpg123/synth.c
-MPG123_SOURCES += include/mpg123/src/libmpg123/synth_8bit.c
-MPG123_SOURCES += include/mpg123/src/libmpg123/synth_real.c
-MPG123_SOURCES += include/mpg123/src/libmpg123/synth_s32.c
-MPG123_SOURCES += include/mpg123/src/libmpg123/tabinit.c
-MPG123_OBJECTS += $(MPG123_SOURCES:.c=$(FLAVOUR_O).o)
-MPG123_DEPENDS = $(MPG123_OBJECTS:$(FLAVOUR_O).o=$(FLAVOUR_O).d)
-ALL_OBJECTS += $(MPG123_OBJECTS)
-ALL_DEPENDS += $(MPG123_DEPENDS)
-include/mpg123/src/compat/%$(FLAVOUR_O).o : CFLAGS+=$(CFLAGS_SILENT) -DOPT_GENERIC
-include/mpg123/src/compat/%.test$(FLAVOUR_O).o : CFLAGS+=$(CFLAGS_SILENT) -DOPT_GENERIC
-include/mpg123/src/libmpg123/%$(FLAVOUR_O).o : CFLAGS+=$(CFLAGS_SILENT) -DOPT_GENERIC
-include/mpg123/src/libmpg123/%.test$(FLAVOUR_O).o : CFLAGS+=$(CFLAGS_SILENT) -DOPT_GENERIC
-include/mpg123/src/compat/%$(FLAVOUR_O).o : CPPFLAGS:= -Iinclude/mpg123/src/include/ -Iinclude/mpg123/ports/makefile/ $(CPPFLAGS)
-include/mpg123/src/compat/%.test$(FLAVOUR_O).o : CPPFLAGS:= -Iinclude/mpg123/src/include/ -Iinclude/mpg123/ports/makefile/ $(CPPFLAGS)
-include/mpg123/src/libmpg123/%$(FLAVOUR_O).o : CPPFLAGS:= -Iinclude/mpg123/src/include/ -Iinclude/mpg123/ports/makefile/ $(CPPFLAGS)
-include/mpg123/src/libmpg123/%.test$(FLAVOUR_O).o : CPPFLAGS:= -Iinclude/mpg123/src/include/ -Iinclude/mpg123/ports/makefile/ $(CPPFLAGS)
-LOCAL_MPG123_SOURCES :=
-LOCAL_MPG123_SOURCES +=
-LOCAL_MPG123_OBJECTS :=
-LOCAL_MPG123_OBJECTS +=
-LOCAL_MPG123_LIBS :=
-LOCAL_MPG123_LIBS += bin/$(FLAVOUR_DIR)mpg123.a
-
-bin/$(FLAVOUR_DIR)mpg123.a: $(MPG123_OBJECTS)
-	$(INFO) [DXE] $@
-ifeq ($(NO_SHARED_LINKER_FLAG),1)
-	$(SILENT)PATH="./build/djgpp/bin:${PATH}" $(DXE3GEN) -o bin/$(FLAVOUR_DIR)mpg123$(SOSUFFIX) -Y $@ -U $^ $(MPG123_LDFLAGS) $(SO_LDFLAGS)
-else
-	$(SILENT)PATH="./build/djgpp/bin:${PATH}" $(DXE3GEN) -o bin/$(FLAVOUR_DIR)mpg123$(SOSUFFIX) -Y $@ -U $^ -shared $(MPG123_LDFLAGS) $(SO_LDFLAGS)
-endif
-ifeq ($(SHARED_SONAME),1)
-	$(SILENT)mv bin/$(FLAVOUR_DIR)mpg123$(SOSUFFIX) bin/$(FLAVOUR_DIR)$(MPG123_SONAME)
-	$(SILENT)ln -sf $(MPG123_SONAME) bin/$(FLAVOUR_DIR)mpg123$(SOSUFFIX)
-endif
-
-else
-
-CPPFLAGS_MPG123 := -DMPT_WITH_MPG123 -DMPG123_NO_LARGENAME
-LDFLAGS_MPG123  :=
-LDLIBS_MPG123   := 
-CPPFLAGS_MPG123 += -Iinclude/mpg123/src/include/ -Iinclude/mpg123/ports/makefile/
-LOCAL_MPG123_SOURCES := 
-LOCAL_MPG123_SOURCES += include/mpg123/src/compat/compat.c
-LOCAL_MPG123_SOURCES += include/mpg123/src/compat/compat_str.c
-LOCAL_MPG123_SOURCES += include/mpg123/src/libmpg123/dct64.c
-LOCAL_MPG123_SOURCES += include/mpg123/src/libmpg123/equalizer.c
-LOCAL_MPG123_SOURCES += include/mpg123/src/libmpg123/feature.c
-LOCAL_MPG123_SOURCES += include/mpg123/src/libmpg123/format.c
-LOCAL_MPG123_SOURCES += include/mpg123/src/libmpg123/frame.c
-LOCAL_MPG123_SOURCES += include/mpg123/src/libmpg123/icy.c
-LOCAL_MPG123_SOURCES += include/mpg123/src/libmpg123/icy2utf8.c
-LOCAL_MPG123_SOURCES += include/mpg123/src/libmpg123/id3.c
-LOCAL_MPG123_SOURCES += include/mpg123/src/libmpg123/index.c
-LOCAL_MPG123_SOURCES += include/mpg123/src/libmpg123/layer1.c
-LOCAL_MPG123_SOURCES += include/mpg123/src/libmpg123/layer2.c
-LOCAL_MPG123_SOURCES += include/mpg123/src/libmpg123/layer3.c
-LOCAL_MPG123_SOURCES += include/mpg123/src/libmpg123/lfs_wrap.c
-LOCAL_MPG123_SOURCES += include/mpg123/src/libmpg123/libmpg123.c
-LOCAL_MPG123_SOURCES += include/mpg123/src/libmpg123/ntom.c
-LOCAL_MPG123_SOURCES += include/mpg123/src/libmpg123/optimize.c
-LOCAL_MPG123_SOURCES += include/mpg123/src/libmpg123/parse.c
-LOCAL_MPG123_SOURCES += include/mpg123/src/libmpg123/readers.c
-LOCAL_MPG123_SOURCES += include/mpg123/src/libmpg123/stringbuf.c
-LOCAL_MPG123_SOURCES += include/mpg123/src/libmpg123/synth.c
-LOCAL_MPG123_SOURCES += include/mpg123/src/libmpg123/synth_8bit.c
-LOCAL_MPG123_SOURCES += include/mpg123/src/libmpg123/synth_real.c
-LOCAL_MPG123_SOURCES += include/mpg123/src/libmpg123/synth_s32.c
-LOCAL_MPG123_SOURCES += include/mpg123/src/libmpg123/tabinit.c
-include/mpg123/src/compat/%$(FLAVOUR_O).o : CFLAGS+=$(CFLAGS_SILENT) -DOPT_GENERIC
-include/mpg123/src/compat/%.test$(FLAVOUR_O).o : CFLAGS+=$(CFLAGS_SILENT) -DOPT_GENERIC
-include/mpg123/src/libmpg123/%$(FLAVOUR_O).o : CFLAGS+=$(CFLAGS_SILENT) -DOPT_GENERIC
-include/mpg123/src/libmpg123/%.test$(FLAVOUR_O).o : CFLAGS+=$(CFLAGS_SILENT) -DOPT_GENERIC
-include/mpg123/src/compat/%$(FLAVOUR_O).o : CPPFLAGS:= -Iinclude/mpg123/src/include/ -Iinclude/mpg123/ports/makefile/ $(CPPFLAGS)
-include/mpg123/src/compat/%.test$(FLAVOUR_O).o : CPPFLAGS:= -Iinclude/mpg123/src/include/ -Iinclude/mpg123/ports/makefile/ $(CPPFLAGS)
-include/mpg123/src/libmpg123/%$(FLAVOUR_O).o : CPPFLAGS:= -Iinclude/mpg123/src/include/ -Iinclude/mpg123/ports/makefile/ $(CPPFLAGS)
-include/mpg123/src/libmpg123/%.test$(FLAVOUR_O).o : CPPFLAGS:= -Iinclude/mpg123/src/include/ -Iinclude/mpg123/ports/makefile/ $(CPPFLAGS)
-
-endif
-
-else
-ifeq ($(NO_MPG123),1)
-else
-#LDLIBS   += -lmpg123
-ifeq ($(shell $(PKG_CONFIG)$(TOOLCHAIN_SUFFIX) --exists 'libmpg123 >= 1.14.0' && echo yes),yes)
-CPPFLAGS_MPG123 := $(shell $(PKG_CONFIG)$(TOOLCHAIN_SUFFIX) --cflags-only-I 'libmpg123 >= 1.14.0' ) -DMPT_WITH_MPG123
-LDFLAGS_MPG123  := $(shell $(PKG_CONFIG)$(TOOLCHAIN_SUFFIX) --libs-only-L   'libmpg123 >= 1.14.0' ) $(shell $(PKG_CONFIG)$(TOOLCHAIN_SUFFIX) --libs-only-other 'libmpg123 >= 1.14.0' )
-LDLIBS_MPG123   := $(shell $(PKG_CONFIG)$(TOOLCHAIN_SUFFIX) --libs-only-l   'libmpg123 >= 1.14.0' )
-PC_REQUIRES_MPG123 := libmpg123
-else
-ifeq ($(FORCE_DEPS),1)
-$(error mpg123 not found)
-else
-$(warning warning: mpg123 not found)
-endif
-NO_MPG123:=1
-endif
-endif
-endif
-
-ifeq ($(LOCAL_OGG),1)
-CPPFLAGS_OGG := -DMPT_WITH_OGG
-LDFLAGS_OGG  := 
-LDLIBS_OGG   := 
-CPPFLAGS_OGG += -Iinclude/ogg/include/ -Iinclude/ogg/ports/makefile/
-LOCAL_OGG_SOURCES := 
-LOCAL_OGG_SOURCES += include/ogg/src/bitwise.c
-LOCAL_OGG_SOURCES += include/ogg/src/framing.c
-include/ogg/src/%$(FLAVOUR_O).o : CFLAGS+=$(CFLAGS_SILENT)
-include/ogg/src/%.test$(FLAVOUR_O).o : CFLAGS+=$(CFLAGS_SILENT)
-else
-ifeq ($(NO_OGG),1)
-else
-#LDLIBS   += -logg
-ifeq ($(shell $(PKG_CONFIG)$(TOOLCHAIN_SUFFIX) --exists ogg && echo yes),yes)
-CPPFLAGS_OGG := $(shell $(PKG_CONFIG)$(TOOLCHAIN_SUFFIX) --cflags-only-I ogg ) -DMPT_WITH_OGG
-LDFLAGS_OGG  := $(shell $(PKG_CONFIG)$(TOOLCHAIN_SUFFIX) --libs-only-L   ogg ) $(shell $(PKG_CONFIG)$(TOOLCHAIN_SUFFIX) --libs-only-other ogg )
-LDLIBS_OGG   := $(shell $(PKG_CONFIG)$(TOOLCHAIN_SUFFIX) --libs-only-l   ogg )
-PC_REQUIRES_OGG := ogg
-else
-ifeq ($(FORCE_DEPS),1)
-$(error ogg not found)
-else
-$(warning warning: ogg not found)
-endif
-NO_OGG:=1
-endif
-endif
-endif
-
-ifeq ($(LOCAL_VORBIS),1)
-CPPFLAGS_VORBIS := -DMPT_WITH_VORBIS
-LDFLAGS_VORBIS  := 
-LDLIBS_VORBIS   := 
-CPPFLAGS_VORBIS += -Iinclude/vorbis/include/ -Iinclude/vorbis/lib/
-ifneq ($(MPT_COMPILER_NOALLOCAH),1)
-CPPFLAGS_VORBIS += -DHAVE_ALLOCA_H
-endif
-LOCAL_VORBIS_SOURCES := 
-LOCAL_VORBIS_SOURCES += include/vorbis/lib/analysis.c
-LOCAL_VORBIS_SOURCES += include/vorbis/lib/bitrate.c
-LOCAL_VORBIS_SOURCES += include/vorbis/lib/block.c
-LOCAL_VORBIS_SOURCES += include/vorbis/lib/codebook.c
-LOCAL_VORBIS_SOURCES += include/vorbis/lib/envelope.c
-LOCAL_VORBIS_SOURCES += include/vorbis/lib/floor0.c
-LOCAL_VORBIS_SOURCES += include/vorbis/lib/floor1.c
-LOCAL_VORBIS_SOURCES += include/vorbis/lib/info.c
-LOCAL_VORBIS_SOURCES += include/vorbis/lib/lookup.c
-LOCAL_VORBIS_SOURCES += include/vorbis/lib/lpc.c
-LOCAL_VORBIS_SOURCES += include/vorbis/lib/lsp.c
-LOCAL_VORBIS_SOURCES += include/vorbis/lib/mapping0.c
-LOCAL_VORBIS_SOURCES += include/vorbis/lib/mdct.c
-LOCAL_VORBIS_SOURCES += include/vorbis/lib/psy.c
-LOCAL_VORBIS_SOURCES += include/vorbis/lib/registry.c
-LOCAL_VORBIS_SOURCES += include/vorbis/lib/res0.c
-LOCAL_VORBIS_SOURCES += include/vorbis/lib/sharedbook.c
-LOCAL_VORBIS_SOURCES += include/vorbis/lib/smallft.c
-LOCAL_VORBIS_SOURCES += include/vorbis/lib/synthesis.c
-LOCAL_VORBIS_SOURCES += include/vorbis/lib/vorbisenc.c
-LOCAL_VORBIS_SOURCES += include/vorbis/lib/vorbisfile.c
-LOCAL_VORBIS_SOURCES += include/vorbis/lib/window.c
-include/vorbis/lib/%$(FLAVOUR_O).o : CFLAGS+=$(CFLAGS_SILENT)
-include/vorbis/lib/%.test$(FLAVOUR_O).o : CFLAGS+=$(CFLAGS_SILENT)
-else
-ifeq ($(NO_VORBIS),1)
-else
-#LDLIBS   += -lvorbis
-ifeq ($(shell $(PKG_CONFIG)$(TOOLCHAIN_SUFFIX) --exists vorbis && echo yes),yes)
-CPPFLAGS_VORBIS := $(shell $(PKG_CONFIG)$(TOOLCHAIN_SUFFIX) --cflags-only-I vorbis ) -DMPT_WITH_VORBIS
-LDFLAGS_VORBIS  := $(shell $(PKG_CONFIG)$(TOOLCHAIN_SUFFIX) --libs-only-L   vorbis ) $(shell $(PKG_CONFIG)$(TOOLCHAIN_SUFFIX) --libs-only-other vorbis )
-LDLIBS_VORBIS   := $(shell $(PKG_CONFIG)$(TOOLCHAIN_SUFFIX) --libs-only-l   vorbis )
-PC_REQUIRES_VORBIS := vorbis
-else
-ifeq ($(FORCE_DEPS),1)
-$(error vorbis not found)
-else
-$(warning warning: vorbis not found)
-endif
-NO_VORBIS:=1
-endif
-endif
-endif
-
-ifeq ($(LOCAL_VORBIS),1)
-CPPFLAGS_VORBISFILE := -DMPT_WITH_VORBISFILE
-LDFLAGS_VORBISFILE  := 
-LDLIBS_VORBISFILE   := 
-else
-ifeq ($(NO_VORBISFILE),1)
-else
-#LDLIBS   += -lvorbisfile
-ifeq ($(shell $(PKG_CONFIG)$(TOOLCHAIN_SUFFIX) --exists vorbisfile && echo yes),yes)
-CPPFLAGS_VORBISFILE := $(shell $(PKG_CONFIG)$(TOOLCHAIN_SUFFIX) --cflags-only-I vorbisfile ) -DMPT_WITH_VORBISFILE
-LDFLAGS_VORBISFILE  := $(shell $(PKG_CONFIG)$(TOOLCHAIN_SUFFIX) --libs-only-L   vorbisfile ) $(shell $(PKG_CONFIG)$(TOOLCHAIN_SUFFIX) --libs-only-other vorbisfile )
-LDLIBS_VORBISFILE   := $(shell $(PKG_CONFIG)$(TOOLCHAIN_SUFFIX) --libs-only-l   vorbisfile )
-PC_REQUIRES_VORBISFILE := vorbisfile
-else
-ifeq ($(FORCE_DEPS),1)
-$(error vorbisfile not found)
-else
-$(warning warning: vorbisfile not found)
-endif
-NO_VORBISFILE:=1
-endif
-endif
-endif
-
-ifeq ($(NO_SDL2),1)
-else
-#LDLIBS   += -lsdl2
-ifeq ($(shell $(PKG_CONFIG)$(TOOLCHAIN_SUFFIX) --exists 'sdl2 >= 2.0.4' && echo yes),yes)
-CPPFLAGS_SDL2 := $(shell $(PKG_CONFIG)$(TOOLCHAIN_SUFFIX) --cflags-only-I 'sdl2 >= 2.0.4' ) -DMPT_WITH_SDL2
-LDFLAGS_SDL2  := $(shell $(PKG_CONFIG)$(TOOLCHAIN_SUFFIX) --libs-only-L   'sdl2 >= 2.0.4' ) $(shell $(PKG_CONFIG)$(TOOLCHAIN_SUFFIX) --libs-only-other 'sdl2 >= 2.0.4' )
-LDLIBS_SDL2   := $(shell $(PKG_CONFIG)$(TOOLCHAIN_SUFFIX) --libs-only-l   'sdl2 >= 2.0.4' )
-else
-ifeq ($(FORCE_DEPS),1)
-$(error sdl2 not found)
-else
-$(warning warning: sdl2 not found)
-endif
-NO_SDL2:=1
-endif
-endif
-
-ifeq ($(NO_PORTAUDIO),1)
-else
-#LDLIBS   += -lportaudio
-ifeq ($(shell $(PKG_CONFIG)$(TOOLCHAIN_SUFFIX) --exists portaudio-2.0 && echo yes),yes)
-CPPFLAGS_PORTAUDIO := $(shell $(PKG_CONFIG)$(TOOLCHAIN_SUFFIX) --cflags-only-I portaudio-2.0 ) -DMPT_WITH_PORTAUDIO
-LDFLAGS_PORTAUDIO  := $(shell $(PKG_CONFIG)$(TOOLCHAIN_SUFFIX) --libs-only-L   portaudio-2.0 ) $(shell $(PKG_CONFIG)$(TOOLCHAIN_SUFFIX) --libs-only-other portaudio-2.0 )
-LDLIBS_PORTAUDIO   := $(shell $(PKG_CONFIG)$(TOOLCHAIN_SUFFIX) --libs-only-l   portaudio-2.0 )
-else
-ifeq ($(FORCE_DEPS),1)
-$(error portaudio not found)
-else
-$(warning warning: portaudio not found)
-endif
-NO_PORTAUDIO:=1
-endif
-endif
-
-ifeq ($(NO_PORTAUDIOCPP),1)
-else
-#LDLIBS   += -lportaudiocpp
-ifeq ($(shell $(PKG_CONFIG)$(TOOLCHAIN_SUFFIX) --exists portaudiocpp && echo yes),yes)
-CPPFLAGS_PORTAUDIOCPP := $(shell $(PKG_CONFIG)$(TOOLCHAIN_SUFFIX) --cflags-only-I portaudiocpp ) -DMPT_WITH_PORTAUDIOCPP
-LDFLAGS_PORTAUDIOCPP  := $(shell $(PKG_CONFIG)$(TOOLCHAIN_SUFFIX) --libs-only-L   portaudiocpp ) $(shell $(PKG_CONFIG)$(TOOLCHAIN_SUFFIX) --libs-only-other portaudiocpp )
-LDLIBS_PORTAUDIOCPP   := $(shell $(PKG_CONFIG)$(TOOLCHAIN_SUFFIX) --libs-only-l   portaudiocpp )
-else
-ifeq ($(FORCE_DEPS),1)
-$(error portaudiocpp not found)
-else
-$(warning warning: portaudiocpp not found)
-endif
-NO_PORTAUDIOCPP:=1
-endif
-endif
-
-ifeq ($(NO_PULSEAUDIO),1)
-else
-#LDLIBS   += -lpulse-simple
-ifeq ($(shell $(PKG_CONFIG)$(TOOLCHAIN_SUFFIX) --exists libpulse libpulse-simple && echo yes),yes)
-CPPFLAGS_PULSEAUDIO := $(shell $(PKG_CONFIG)$(TOOLCHAIN_SUFFIX) --cflags-only-I libpulse libpulse-simple ) -DMPT_WITH_PULSEAUDIO
-LDFLAGS_PULSEAUDIO  := $(shell $(PKG_CONFIG)$(TOOLCHAIN_SUFFIX) --libs-only-L   libpulse libpulse-simple ) $(shell $(PKG_CONFIG)$(TOOLCHAIN_SUFFIX) --libs-only-other libpulse libpulse-simple )
-LDLIBS_PULSEAUDIO   := $(shell $(PKG_CONFIG)$(TOOLCHAIN_SUFFIX) --libs-only-l   libpulse libpulse-simple )
-else
-ifeq ($(FORCE_DEPS),1)
-$(error pulseaudio not found)
-else
-$(warning warning: pulseaudio not found)
-endif
-NO_PULSEAUDIO:=1
-endif
-endif
-
-ifeq ($(NO_FLAC),1)
-else
-#LDLIBS   += -lFLAC
-ifeq ($(shell $(PKG_CONFIG)$(TOOLCHAIN_SUFFIX) --exists 'flac >= 1.3.0' && echo yes),yes)
-CPPFLAGS_FLAC := $(shell $(PKG_CONFIG)$(TOOLCHAIN_SUFFIX) --cflags-only-I 'flac >= 1.3.0' ) -DMPT_WITH_FLAC
-LDFLAGS_FLAC  := $(shell $(PKG_CONFIG)$(TOOLCHAIN_SUFFIX) --libs-only-L   'flac >= 1.3.0' ) $(shell $(PKG_CONFIG)$(TOOLCHAIN_SUFFIX) --libs-only-other 'flac >= 1.3.0' )
-LDLIBS_FLAC   := $(shell $(PKG_CONFIG)$(TOOLCHAIN_SUFFIX) --libs-only-l   'flac >= 1.3.0' )
-else
-ifeq ($(FORCE_DEPS),1)
-$(error flac not found)
-else
-$(warning warning: flac not found)
-endif
-NO_FLAC:=1
-endif
-endif
-
-ifeq ($(NO_SNDFILE),1)
-else
-#LDLIBS   += -lsndfile
-ifeq ($(shell $(PKG_CONFIG)$(TOOLCHAIN_SUFFIX) --exists sndfile && echo yes),yes)
-CPPFLAGS_SNDFILE := $(shell $(PKG_CONFIG)$(TOOLCHAIN_SUFFIX) --cflags-only-I   sndfile ) -DMPT_WITH_SNDFILE
-LDFLAGS_SNDFILE  := $(shell $(PKG_CONFIG)$(TOOLCHAIN_SUFFIX) --libs-only-L     sndfile ) $(shell $(PKG_CONFIG)$(TOOLCHAIN_SUFFIX) --libs-only-other sndfile )
-LDLIBS_SNDFILE   := $(shell $(PKG_CONFIG)$(TOOLCHAIN_SUFFIX) --libs-only-l     sndfile )
-else
-ifeq ($(FORCE_DEPS),1)
-$(error sndfile not found)
-else
-$(warning warning: sndfile not found)
-endif
-NO_SNDFILE:=1
-endif
-endif
-
-ifeq ($(USE_ALLEGRO42),1)
-
-CPPFLAGS_ALLEGRO42 := -Iinclude/allegro42/include -DALLEGRO_HAVE_STDINT_H -DLONG_LONG="long long" -DMPT_WITH_ALLEGRO42
-LDFLAGS_ALLEGRO42 :=
-LDLIBS_ALLEGRO42 := include/allegro42/lib/djgpp/liballeg.a
-DEPS_ALLEGRO42 := include/allegro42/lib/djgpp/liballeg.a
-
-include/allegro42/lib/djgpp/liballeg.a:
-	+cd include/allegro42 && ./xmake.sh clean
-	+cd include/allegro42 && ./xmake.sh lib
-
-MISC_OUTPUTS += include/allegro42/lib/djgpp/liballeg.a
-
-endif
-
-
-ifeq ($(HACK_ARCHIVE_SUPPORT),1)
-CPPFLAGS += -DMPT_BUILD_HACK_ARCHIVE_SUPPORT
-endif
-
-CPPCHECK_FLAGS += -j $(NUMTHREADS)
-CPPCHECK_FLAGS += --std=c11 --std=c++17
-CPPCHECK_FLAGS += --quiet
-CPPCHECK_FLAGS += --enable=warning --inline-suppr --template='{file}:{line}: warning: {severity}: {message} [{id}]'
-CPPCHECK_FLAGS += --suppress=missingIncludeSystem
-CPPCHECK_FLAGS += --suppress=uninitMemberVar
-
-CPPCHECK_FLAGS += $(CPPFLAGS)
-CPPFLAGS += $(CPPFLAGS_ZLIB) $(CPPFLAGS_MPG123) $(CPPFLAGS_OGG) $(CPPFLAGS_VORBIS) $(CPPFLAGS_VORBISFILE)
-LDFLAGS += $(LDFLAGS_ZLIB) $(LDFLAGS_MPG123) $(LDFLAGS_OGG) $(LDFLAGS_VORBIS) $(LDFLAGS_VORBISFILE)
-LDLIBS += $(LDLIBS_ZLIB) $(LDLIBS_MPG123) $(LDLIBS_OGG) $(LDLIBS_VORBIS) $(LDLIBS_VORBISFILE)
-
-CPPFLAGS_OPENMPT123 += $(CPPFLAGS_SDL2) $(CPPFLAGS_PORTAUDIO) $(CPPFLAGS_PULSEAUDIO) $(CPPFLAGS_FLAC) $(CPPFLAGS_SNDFILE) $(CPPFLAGS_ALLEGRO42)
-LDFLAGS_OPENMPT123  += $(LDFLAGS_SDL2) $(LDFLAGS_PORTAUDIO) $(LDFLAGS_PULSEAUDIO) $(LDFLAGS_FLAC) $(LDFLAGS_SNDFILE) $(LDFLAGS_ALLEGRO42)
-LDLIBS_OPENMPT123   += $(LDLIBS_SDL2) $(LDLIBS_PORTAUDIO) $(LDLIBS_PULSEAUDIO) $(LDLIBS_FLAC) $(LDLIBS_SNDFILE) $(LDLIBS_ALLEGRO42)
-
-
-%: %$(FLAVOUR_O).o
-	$(INFO) [LD] $@
-	$(SILENT)$(LINK.cc) $^ $(LOADLIBES) $(LDLIBS) -o $@
-
-%$(FLAVOUR_O).o: %.cpp
-	$(INFO) [CXX] $<
-	$(VERYSILENT)$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -M -MT$@ $< > $*$(FLAVOUR_O).d
-	$(SILENT)$(COMPILE.cc) $(OUTPUT_OPTION) $<
-
-%$(FLAVOUR_O).o: %.c
-	$(INFO) [CC] $<
-	$(VERYSILENT)$(CC) $(CFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -M -MT$@ $< > $*$(FLAVOUR_O).d
-	$(SILENT)$(COMPILE.c) $(OUTPUT_OPTION) $<
-
-%.test$(FLAVOUR_O).o: %.cpp
-	$(INFO) [CXX-TEST] $<
-	$(VERYSILENT)$(CXX) -DLIBOPENMPT_BUILD_TEST $(CXXFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -M -MT$@ $< > $*.test$(FLAVOUR_O).d
-	$(SILENT)$(COMPILE.cc) -DLIBOPENMPT_BUILD_TEST $(OUTPUT_OPTION) $<
-
-%.test$(FLAVOUR_O).o: %.c
-	$(INFO) [CC-TEST] $<
-	$(VERYSILENT)$(CC) -DLIBOPENMPT_BUILD_TEST $(CFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -M -MT$@ $< > $*.test$(FLAVOUR_O).d
-	$(SILENT)$(COMPILE.c) -DLIBOPENMPT_BUILD_TEST $(OUTPUT_OPTION) $<
-
-%.tar.gz: %.tar
-	$(INFO) [GZIP] $<
-	$(SILENT)gzip --rsyncable --no-name --best > $@ < $<
-
-
--include build/dist.mk
-DIST_LIBOPENMPT_VERSION_PURE:=$(LIBOPENMPT_VERSION_MAJOR).$(LIBOPENMPT_VERSION_MINOR).$(LIBOPENMPT_VERSION_PATCH)$(LIBOPENMPT_VERSION_PREREL)
-ifeq ($(MPT_SVNVERSION),)
-SVN_INFO:=$(shell svn info . > /dev/null 2>&1 ; echo $$? )
-ifeq ($(SVN_INFO),0)
-# in svn checkout
-MPT_SVNVERSION := $(shell svnversion -n . | tr ':' '-' )
-MPT_SVNURL := $(shell svn info --xml | grep '^<url>' | sed 's/<url>//g' | sed 's/<\/url>//g' )
-MPT_SVNDATE := $(shell svn info --xml | grep '^<date>' | sed 's/<date>//g' | sed 's/<\/date>//g' )
-CPPFLAGS += -D MPT_SVNURL=\"$(MPT_SVNURL)\" -D MPT_SVNVERSION=\"$(MPT_SVNVERSION)\" -D MPT_SVNDATE=\"$(MPT_SVNDATE)\"
-DIST_OPENMPT_VERSION:=r$(MPT_SVNVERSION)
-ifeq ($(LIBOPENMPT_VERSION_PREREL),)
-DIST_LIBOPENMPT_VERSION:=$(LIBOPENMPT_VERSION_MAJOR).$(LIBOPENMPT_VERSION_MINOR).$(LIBOPENMPT_VERSION_PATCH)$(LIBOPENMPT_VERSION_PREREL)+release
-else
-DIST_LIBOPENMPT_VERSION:=$(LIBOPENMPT_VERSION_MAJOR).$(LIBOPENMPT_VERSION_MINOR).$(LIBOPENMPT_VERSION_PATCH)$(LIBOPENMPT_VERSION_PREREL)+r$(MPT_SVNVERSION)
-endif
-else
-GIT_STATUS:=$(shell git status > /dev/null 2>&1 ; echo $$? )
-ifeq ($(GIT_STATUS),0)
-# in git chechout
-MPT_SVNVERSION := $(shell git log --grep=git-svn-id -n 1 | grep git-svn-id | tail -n 1 | tr ' ' '\n' | tail -n 2 | head -n 1 | sed 's/@/ /g' | awk '{print $$2;}' )$(shell if [ $$(git rev-list $$(git log --grep=git-svn-id -n 1 --format=format:'%H')  ^$$(git log -n 1 --format=format:'%H') --count ) -ne 0 ] ; then  echo M ; fi )
-MPT_SVNURL := $(shell git log --grep=git-svn-id -n 1 | grep git-svn-id | tail -n 1 | tr ' ' '\n' | tail -n 2 | head -n 1 | sed 's/@/ /g' | awk '{print $$1;}' )
-MPT_SVNDATE := $(shell git log -n 1 --date=iso --format=format:'%cd' | sed 's/ +0000/Z/g' | tr ' ' 'T' )
-CPPFLAGS += -D MPT_SVNURL=\"$(MPT_SVNURL)\" -D MPT_SVNVERSION=\"$(MPT_SVNVERSION)\" -D MPT_SVNDATE=\"$(MPT_SVNDATE)\"
-DIST_OPENMPT_VERSION:=r$(MPT_SVNVERSION)
-ifeq ($(LIBOPENMPT_VERSION_PREREL),)
-DIST_LIBOPENMPT_VERSION:=$(LIBOPENMPT_VERSION_MAJOR).$(LIBOPENMPT_VERSION_MINOR).$(LIBOPENMPT_VERSION_PATCH)$(LIBOPENMPT_VERSION_PREREL)+release
-else
-DIST_LIBOPENMPT_VERSION:=$(LIBOPENMPT_VERSION_MAJOR).$(LIBOPENMPT_VERSION_MINOR).$(LIBOPENMPT_VERSION_PATCH)$(LIBOPENMPT_VERSION_PREREL)+r$(MPT_SVNVERSION)
-endif
-else
-# not in svn checkout
-DIST_OPENMPT_VERSION:=rUNKNOWN
-ifeq ($(LIBOPENMPT_VERSION_PREREL),)
-DIST_LIBOPENMPT_VERSION:=$(LIBOPENMPT_VERSION_MAJOR).$(LIBOPENMPT_VERSION_MINOR).$(LIBOPENMPT_VERSION_PATCH)$(LIBOPENMPT_VERSION_PREREL)+release
-else
-DIST_LIBOPENMPT_VERSION:=$(LIBOPENMPT_VERSION_MAJOR).$(LIBOPENMPT_VERSION_MINOR).$(LIBOPENMPT_VERSION_PATCH)$(LIBOPENMPT_VERSION_PREREL)+rUNKNOWN
-endif
-endif
-endif
-else
-# in dist package
-DIST_OPENMPT_VERSION:=r$(MPT_SVNVERSION)
-ifeq ($(LIBOPENMPT_VERSION_PREREL),)
-DIST_LIBOPENMPT_VERSION:=$(LIBOPENMPT_VERSION_MAJOR).$(LIBOPENMPT_VERSION_MINOR).$(LIBOPENMPT_VERSION_PATCH)$(LIBOPENMPT_VERSION_PREREL)+release
-else
-DIST_LIBOPENMPT_VERSION:=$(LIBOPENMPT_VERSION_MAJOR).$(LIBOPENMPT_VERSION_MINOR).$(LIBOPENMPT_VERSION_PATCH)$(LIBOPENMPT_VERSION_PREREL)+r$(MPT_SVNVERSION)
-endif
-endif
-DIST_LIBOPENMPT_TARBALL_VERSION:=$(DIST_LIBOPENMPT_VERSION_PURE)
-
-ifeq ($(MPT_SVNVERSION),)
-else
-MPT_SVNREVISION := $(shell echo $(MPT_SVNVERSION) | sed 's/M//g' | sed 's/S//g' | sed 's/P//g' | sed -E 's/([0-9]+)-//g' )
-MPT_SVNDIRTY := $(shell echo $(MPT_SVNVERSION) | grep -v 'M\|S\|P' >/dev/null 2>&1 ; echo $$? )
-MPT_SVNMIXED := $(shell echo $(MPT_SVNVERSION) | grep -v '-' >/dev/null 2>&1; echo $$? )
-endif
-
-
-CPPFLAGS += -DLIBOPENMPT_BUILD
-
-
-COMMON_CXX_SOURCES += \
- $(sort $(wildcard common/*.cpp)) \
- $(sort $(wildcard src/mpt/src/*.cpp)) \
- 
-SOUNDLIB_CXX_SOURCES += \
- $(COMMON_CXX_SOURCES) \
- $(sort $(wildcard soundlib/*.cpp)) \
- $(sort $(wildcard soundlib/plugins/*.cpp)) \
- $(sort $(wildcard soundlib/plugins/dmo/*.cpp)) \
- $(sort $(wildcard sounddsp/*.cpp)) \
- 
-
-ifeq ($(HACK_ARCHIVE_SUPPORT),1)
-SOUNDLIB_CXX_SOURCES += $(sort $(wildcard unarchiver/*.cpp))
-endif
-
-LIBOPENMPT_CXX_SOURCES += \
- $(SOUNDLIB_CXX_SOURCES) \
- $(sort $(wildcard libopenmpt/*.cpp)) \
- 
-include/miniz/miniz$(FLAVOUR_O).o : CFLAGS+=$(CFLAGS_SILENT)
-include/miniz/miniz.test$(FLAVOUR_O).o : CFLAGS+=$(CFLAGS_SILENT)
-ifeq ($(LOCAL_ZLIB),1)
-LIBOPENMPT_C_SOURCES += $(LOCAL_ZLIB_SOURCES)
-LIBOPENMPTTEST_C_SOURCES += $(LOCAL_ZLIB_SOURCES)
-LIBOPENMPT_OBJECTS += $(LOCAL_ZLIB_OBJECTS)
-else
-ifeq ($(NO_ZLIB),1)
-ifeq ($(NO_MINIZ),1)
-else
-LIBOPENMPT_C_SOURCES += include/miniz/miniz.c
-LIBOPENMPTTEST_C_SOURCES += include/miniz/miniz.c
-CPPFLAGS += -DMPT_WITH_MINIZ
-CPPFLAGS += -Iinclude
-endif
-endif
-endif
-
-include/minimp3/minimp3$(FLAVOUR_O).o : CFLAGS+=$(CFLAGS_SILENT)
-include/minimp3/minimp3.test$(FLAVOUR_O).o : CFLAGS+=$(CFLAGS_SILENT)
-ifeq ($(LOCAL_MPG123),1)
-LIBOPENMPT_C_SOURCES += $(LOCAL_MPG123_SOURCES)
-LIBOPENMPTTEST_C_SOURCES += $(LOCAL_MPG123_SOURCES)
-LIBOPENMPT_OBJECTS += $(LOCAL_MPG123_OBJECTS)
-LIBOPENMPT_LIBS += $(LOCAL_MPG123_LIBS)
-else
-ifeq ($(NO_MPG123),1)
-ifeq ($(NO_MINIMP3),1)
-else
-LIBOPENMPT_C_SOURCES += include/minimp3/minimp3.c
-LIBOPENMPTTEST_C_SOURCES += include/minimp3/minimp3.c
-CPPFLAGS += -DMPT_WITH_MINIMP3
-CPPFLAGS += -Iinclude
-endif
-endif
-endif
-
-include/stb_vorbis/stb_vorbis$(FLAVOUR_O).o : CFLAGS+=$(CFLAGS_SILENT)
-include/stb_vorbis/stb_vorbis.test$(FLAVOUR_O).o : CFLAGS+=$(CFLAGS_SILENT)
-ifeq ($(LOCAL_VORBIS),1)
-ifeq ($(LOCAL_OGG),1)
-LIBOPENMPT_C_SOURCES += $(LOCAL_OGG_SOURCES)
-LIBOPENMPTTEST_C_SOURCES += $(LOCAL_OGG_SOURCES)
-LIBOPENMPT_OBJECTS += $(LOCAL_OGG_OBJECTS)
-endif
-LIBOPENMPT_C_SOURCES += $(LOCAL_VORBIS_SOURCES)
-LIBOPENMPTTEST_C_SOURCES += $(LOCAL_VORBIS_SOURCES)
-LIBOPENMPT_OBJECTS += $(LOCAL_VORBIS_OBJECTS)
-else
-ifeq ($(NO_OGG),1)
-ifeq ($(NO_STBVORBIS),1)
-else
-LIBOPENMPT_C_SOURCES += include/stb_vorbis/stb_vorbis.c
-LIBOPENMPTTEST_C_SOURCES += include/stb_vorbis/stb_vorbis.c
-CPPFLAGS += -DMPT_WITH_STBVORBIS -DSTB_VORBIS_NO_PULLDATA_API -DSTB_VORBIS_NO_STDIO
-CPPFLAGS += -Iinclude
-endif
-else
-ifeq ($(NO_VORBIS),1)
-ifeq ($(NO_STBVORBIS),1)
-else
-LIBOPENMPT_C_SOURCES += include/stb_vorbis/stb_vorbis.c
-LIBOPENMPTTEST_C_SOURCES += include/stb_vorbis/stb_vorbis.c
-CPPFLAGS += -DMPT_WITH_STBVORBIS -DSTB_VORBIS_NO_PULLDATA_API -DSTB_VORBIS_NO_STDIO
-CPPFLAGS += -Iinclude
-endif
-else
-ifeq ($(NO_VORBISFILE),1)
-ifeq ($(NO_STBVORBIS),1)
-else
-LIBOPENMPT_C_SOURCES += include/stb_vorbis/stb_vorbis.c
-LIBOPENMPTTEST_C_SOURCES += include/stb_vorbis/stb_vorbis.c
-CPPFLAGS += -DMPT_WITH_STBVORBIS -DSTB_VORBIS_NO_PULLDATA_API -DSTB_VORBIS_NO_STDIO
-CPPFLAGS += -Iinclude
-endif
-else
-endif
-endif
-endif
-endif
-
-LIBOPENMPT_OBJECTS += $(LIBOPENMPT_CXX_SOURCES:.cpp=$(FLAVOUR_O).o) $(LIBOPENMPT_C_SOURCES:.c=$(FLAVOUR_O).o)
-LIBOPENMPT_DEPENDS = $(LIBOPENMPT_OBJECTS:$(FLAVOUR_O).o=$(FLAVOUR_O).d)
-ALL_OBJECTS += $(LIBOPENMPT_OBJECTS)
-ALL_DEPENDS += $(LIBOPENMPT_DEPENDS)
-
-ifeq ($(DYNLINK),1)
-OUTPUT_LIBOPENMPT += bin/$(FLAVOUR_DIR)libopenmpt$(SOSUFFIX)
-else
-OBJECTS_LIBOPENMPT += $(LIBOPENMPT_OBJECTS) $(LIBOPENMPT_LIBS)
-endif
-
-
-INOPENMPT_CXX_SOURCES += \
- libopenmpt/plugin-common/libopenmpt_plugin_gui.cpp \
- libopenmpt/in_openmpt/in_openmpt.cpp \
- 
-
-INOPENMPT_OBJECTS += $(INOPENMPT_CXX_SOURCES:.cpp=$(FLAVOUR_O).o) $(INOPENMPT_C_SOURCES:.c=$(FLAVOUR_O).o)
-INOPENMPT_DEPENDS = $(INOPENMPT_OBJECTS:$(FLAVOUR_O).o=$(FLAVOUR_O).d)
-ALL_OBJECTS += $(INOPENMPT_OBJECTS)
-ALL_DEPENDS += $(INOPENMPT_DEPENDS)
-
-
-XMPOPENMPT_CXX_SOURCES += \
- include/pugixml/src/pugixml.cpp \
- libopenmpt/plugin-common/libopenmpt_plugin_gui.cpp \
- libopenmpt/xmp-openmpt/xmp-openmpt.cpp \
- 
-
-XMPOPENMPT_OBJECTS += $(XMPOPENMPT_CXX_SOURCES:.cpp=$(FLAVOUR_O).o) $(XMPOPENMPT_C_SOURCES:.c=$(FLAVOUR_O).o)
-XMPOPENMPT_DEPENDS = $(XMPOPENMPT_OBJECTS:$(FLAVOUR_O).o=$(FLAVOUR_O).d)
-ALL_OBJECTS += $(XMPOPENMPT_OBJECTS)
-ALL_DEPENDS += $(XMPOPENMPT_DEPENDS)
-
-
-OPENMPT123_CXX_SOURCES += \
- $(sort $(wildcard openmpt123/*.cpp)) \
- 
-OPENMPT123_C_SOURCES += \
- $(sort $(wildcard openmpt123/*.c)) \
- 
-OPENMPT123_OBJECTS += $(OPENMPT123_CXX_SOURCES:.cpp=$(FLAVOUR_O).o) $(OPENMPT123_C_SOURCES:.c=$(FLAVOUR_O).o)
-OPENMPT123_DEPENDS = $(OPENMPT123_OBJECTS:$(FLAVOUR_O).o=$(FLAVOUR_O).d)
-ALL_OBJECTS += $(OPENMPT123_OBJECTS)
-ALL_DEPENDS += $(OPENMPT123_DEPENDS)
-
-
-LIBOPENMPTTEST_CXX_SOURCES += \
- test/libopenmpt_test.cpp \
- $(SOUNDLIB_CXX_SOURCES) \
- test/mpt_tests_base.cpp \
- test/mpt_tests_binary.cpp \
- test/mpt_tests_crc.cpp \
- test/mpt_tests_endian.cpp \
- test/mpt_tests_format.cpp \
- test/mpt_tests_io.cpp \
- test/mpt_tests_parse.cpp \
- test/mpt_tests_random.cpp \
- test/mpt_tests_string.cpp \
- test/mpt_tests_string_transcode.cpp \
- test/mpt_tests_uuid.cpp \
- test/test.cpp \
- test/TestToolsLib.cpp \
- 
-# test/mpt_tests_crypto.cpp \
-# test/mpt_tests_uuid_namespace.cpp \
-
-LIBOPENMPTTEST_C_SOURCES += \
- 
-LIBOPENMPTTEST_OBJECTS = $(LIBOPENMPTTEST_CXX_SOURCES:.cpp=.test$(FLAVOUR_O).o) $(LIBOPENMPTTEST_C_SOURCES:.c=.test$(FLAVOUR_O).o)
-LIBOPENMPTTEST_DEPENDS = $(LIBOPENMPTTEST_CXX_SOURCES:.cpp=.test$(FLAVOUR_O).d) $(LIBOPENMPTTEST_C_SOURCES:.c=.test$(FLAVOUR_O).d)
-ALL_OBJECTS += $(LIBOPENMPTTEST_OBJECTS)
-ALL_DEPENDS += $(LIBOPENMPTTEST_DEPENDS)
-
-
-EXAMPLES_CXX_SOURCES += $(sort $(wildcard examples/*.cpp))
-EXAMPLES_C_SOURCES += $(sort $(wildcard examples/*.c))
-
-EXAMPLES_OBJECTS += $(EXAMPLES_CXX_SOURCES:.cpp=$(FLAVOUR_O).o)
-EXAMPLES_OBJECTS += $(EXAMPLES_C_SOURCES:.c=$(FLAVOUR_O).o)
-EXAMPLES_DEPENDS = $(EXAMPLES_OBJECTS:$(FLAVOUR_O).o=$(FLAVOUR_O).d)
-ALL_OBJECTS += $(EXAMPLES_OBJECTS)
-ALL_DEPENDS += $(EXAMPLES_DEPENDS)
-
-
-FUZZ_CXX_SOURCES += $(sort $(wildcard contrib/fuzzing/*.cpp))
-FUZZ_C_SOURCES += $(sort $(wildcard contrib/fuzzing/*.c))
-
-FUZZ_OBJECTS += $(FUZZ_CXX_SOURCES:.cpp=$(FLAVOUR_O).o)
-FUZZ_OBJECTS += $(FUZZ_C_SOURCES:.c=$(FLAVOUR_O).o)
-FUZZ_DEPENDS = $(FUZZ_OBJECTS:$(FLAVOUR_O).o=$(FLAVOUR_O).d)
-ALL_OBJECTS += $(FUZZ_OBJECTS)
-ALL_DEPENDS += $(FUZZ_DEPENDS)
-
-
-.PHONY: all
-all:
-
--include $(ALL_DEPENDS)
-
-ifeq ($(DYNLINK),1)
-OUTPUTS += bin/$(FLAVOUR_DIR)libopenmpt$(SOSUFFIX)
-endif
-ifeq ($(SHARED_LIB),1)
-OUTPUTS += bin/$(FLAVOUR_DIR)libopenmpt$(SOSUFFIX)
-endif
-ifeq ($(STATIC_LIB),1)
-OUTPUTS += bin/$(FLAVOUR_DIR)libopenmpt.a
-endif
-ifeq ($(IN_OPENMPT),1)
-OUTPUTS += bin/$(FLAVOUR_DIR)in_openmpt$(SOSUFFIX)
-endif
-ifeq ($(XMP_OPENMPT),1)
-OUTPUTS += bin/$(FLAVOUR_DIR)xmp-openmpt$(SOSUFFIX)
-endif
-ifeq ($(OPENMPT123),1)
-OUTPUTS += bin/$(FLAVOUR_DIR)openmpt123$(EXESUFFIX)
-endif
-ifeq ($(EXAMPLES),1)
-ifeq ($(NO_PORTAUDIO),1)
-else
-OUTPUTS += bin/$(FLAVOUR_DIR)libopenmpt_example_c$(EXESUFFIX)
-OUTPUTS += bin/$(FLAVOUR_DIR)libopenmpt_example_c_mem$(EXESUFFIX)
-OUTPUTS += bin/$(FLAVOUR_DIR)libopenmpt_example_c_unsafe$(EXESUFFIX)
-endif
-ifeq ($(NO_PORTAUDIOCPP),1)
-else
-OUTPUTS += bin/$(FLAVOUR_DIR)libopenmpt_example_cxx$(EXESUFFIX)
-endif
-OUTPUTS += bin/$(FLAVOUR_DIR)libopenmpt_example_c_pipe$(EXESUFFIX)
-OUTPUTS += bin/$(FLAVOUR_DIR)libopenmpt_example_c_stdout$(EXESUFFIX)
-OUTPUTS += bin/$(FLAVOUR_DIR)libopenmpt_example_c_probe$(EXESUFFIX)
-endif
-ifeq ($(FUZZ),1)
-OUTPUTS += bin/$(FLAVOUR_DIR)fuzz$(EXESUFFIX)
-endif
-ifeq ($(TEST),1)
-OUTPUTS += bin/$(FLAVOUR_DIR)libopenmpt_test$(EXESUFFIX)
-endif
-ifeq ($(HOST),unix)
-OUTPUTS += bin/$(FLAVOUR_DIR)libopenmpt.pc
-endif
-ifeq ($(OPENMPT123),1)
-ifeq ($(MPT_WITH_HELP2MAN),1)
-OUTPUTS += bin/$(FLAVOUR_DIR)openmpt123.1
-endif
-endif
-ifeq ($(SHARED_SONAME),1)
-LIBOPENMPT_LDFLAGS += -Wl,-soname,$(LIBOPENMPT_SONAME)
-endif
-
-MISC_OUTPUTS += bin/$(FLAVOUR_DIR)empty.cpp
-MISC_OUTPUTS += bin/$(FLAVOUR_DIR)empty.out
-MISC_OUTPUTS += bin/$(FLAVOUR_DIR)openmpt123$(EXESUFFIX).norpath
-MISC_OUTPUTS += bin/$(FLAVOUR_DIR)libopenmpt_example_c$(EXESUFFIX).norpath
-MISC_OUTPUTS += bin/$(FLAVOUR_DIR)libopenmpt_example_c_mem$(EXESUFFIX).norpath
-MISC_OUTPUTS += bin/$(FLAVOUR_DIR)libopenmpt_example_c_probe$(EXESUFFIX).norpath
-MISC_OUTPUTS += bin/$(FLAVOUR_DIR)libopenmpt_example_c_unsafe$(EXESUFFIX).norpath
-MISC_OUTPUTS += bin/$(FLAVOUR_DIR)libopenmpt_example_cxx$(EXESUFFIX).norpath
-MISC_OUTPUTS += bin/$(FLAVOUR_DIR)libopenmpt_example_c_pipe$(EXESUFFIX).norpath
-MISC_OUTPUTS += bin/$(FLAVOUR_DIR)libopenmpt_example_c_stdout$(EXESUFFIX).norpath
-MISC_OUTPUTS += bin/$(FLAVOUR_DIR)libopenmpt$(SOSUFFIX)
-MISC_OUTPUTS += bin/$(FLAVOUR_DIR).docs
-MISC_OUTPUTS += bin/$(FLAVOUR_DIR)libopenmpt_test$(EXESUFFIX)
-MISC_OUTPUTS += bin/$(FLAVOUR_DIR)libopenmpt_test.wasm
-MISC_OUTPUTS += bin/$(FLAVOUR_DIR)libopenmpt_test.wasm.js
-MISC_OUTPUTS += bin/$(FLAVOUR_DIR)libopenmpt_test.js.mem
-MISC_OUTPUTS += bin/$(FLAVOUR_DIR)made.docs
-MISC_OUTPUTS += bin/$(FLAVOUR_DIR)$(LIBOPENMPT_SONAME)
-MISC_OUTPUTS += bin/$(FLAVOUR_DIR)libopenmpt.wasm
-MISC_OUTPUTS += bin/$(FLAVOUR_DIR)libopenmpt.wasm.js
-MISC_OUTPUTS += bin/$(FLAVOUR_DIR)libopenmpt.js.mem
-MISC_OUTPUTS += bin/$(FLAVOUR_DIR)libopenmpt_example_c.wasm 
-MISC_OUTPUTS += bin/$(FLAVOUR_DIR)libopenmpt_example_c.wasm.js
-MISC_OUTPUTS += bin/$(FLAVOUR_DIR)libopenmpt_example_c.js.mem 
-MISC_OUTPUTS += bin/$(FLAVOUR_DIR)libopenmpt_example_c_mem.wasm 
-MISC_OUTPUTS += bin/$(FLAVOUR_DIR)libopenmpt_example_c_mem.wasm.js
-MISC_OUTPUTS += bin/$(FLAVOUR_DIR)libopenmpt_example_c_mem.js.mem 
-MISC_OUTPUTS += bin/$(FLAVOUR_DIR)libopenmpt_example_c_pipe.wasm
-MISC_OUTPUTS += bin/$(FLAVOUR_DIR)libopenmpt_example_c_pipe.wasm.js
-MISC_OUTPUTS += bin/$(FLAVOUR_DIR)libopenmpt_example_c_pipe.js.mem
-MISC_OUTPUTS += bin/$(FLAVOUR_DIR)libopenmpt_example_c_probe.wasm
-MISC_OUTPUTS += bin/$(FLAVOUR_DIR)libopenmpt_example_c_probe.wasm.js
-MISC_OUTPUTS += bin/$(FLAVOUR_DIR)libopenmpt_example_c_probe.js.mem
-MISC_OUTPUTS += bin/$(FLAVOUR_DIR)libopenmpt_example_c_stdout.wasm
-MISC_OUTPUTS += bin/$(FLAVOUR_DIR)libopenmpt_example_c_stdout.wasm.js
-MISC_OUTPUTS += bin/$(FLAVOUR_DIR)libopenmpt_example_c_stdout.js.mem
-MISC_OUTPUTS += bin/$(FLAVOUR_DIR)libopenmpt_example_c_unsafe.wasm
-MISC_OUTPUTS += bin/$(FLAVOUR_DIR)libopenmpt_example_c_unsafe.wasm.js
-MISC_OUTPUTS += bin/$(FLAVOUR_DIR)libopenmpt_example_c_unsafe.js.mem
-MISC_OUTPUTS += bin/$(FLAVOUR_DIR)openmpt.a
-#old
-MISC_OUTPUTS += bin/$(FLAVOUR_DIR)libopenmpt_example_c_safe$(EXESUFFIX)
-MISC_OUTPUTS += bin/$(FLAVOUR_DIR)libopenmpt_example_c_safe$(EXESUFFIX).norpath
-
-MISC_OUTPUTDIRS += bin/$(FLAVOUR_DIR)dest
-MISC_OUTPUTDIRS += bin/$(FLAVOUR_DIR)docs
-
-DIST_OUTPUTS += bin/$(FLAVOUR_DIR)dist.mk
-DIST_OUTPUTS += bin/$(FLAVOUR_DIR)svn_version_dist.h
-DIST_OUTPUTS += bin/$(FLAVOUR_DIR)dist.tar
-DIST_OUTPUTS += bin/$(FLAVOUR_DIR)dist-tar.tar
-DIST_OUTPUTS += bin/$(FLAVOUR_DIR)dist-zip.tar
-DIST_OUTPUTS += bin/$(FLAVOUR_DIR)dist-doc.tar
-DIST_OUTPUTS += bin/$(FLAVOUR_DIR)dist-autotools.tar
-DIST_OUTPUTS += bin/$(FLAVOUR_DIR)dist-js.tar
-DIST_OUTPUTS += bin/$(FLAVOUR_DIR)dist-dos.tar
-DIST_OUTPUTS += bin/$(FLAVOUR_DIR)made.docs
-
-DIST_OUTPUTDIRS += bin/$(FLAVOUR_DIR)dist
-DIST_OUTPUTDIRS += bin/$(FLAVOUR_DIR)dist-doc
-DIST_OUTPUTDIRS += bin/$(FLAVOUR_DIR)dist-tar
-DIST_OUTPUTDIRS += bin/$(FLAVOUR_DIR)dist-zip
-DIST_OUTPUTDIRS += bin/$(FLAVOUR_DIR)dist-autotools
-DIST_OUTPUTDIRS += bin/$(FLAVOUR_DIR)dist-js
-DIST_OUTPUTDIRS += bin/$(FLAVOUR_DIR)dist-dos
-DIST_OUTPUTDIRS += bin/$(FLAVOUR_DIR)docs
-
-
-
-ifeq ($(ONLY_TEST),1)
-all: bin/$(FLAVOUR_DIR)libopenmpt_test$(EXESUFFIX)
-else
-all: $(OUTPUTS)
-endif
-
-.PHONY: docs
-docs: bin/$(FLAVOUR_DIR)made.docs
-
-.PHONY: doc
-doc: bin/$(FLAVOUR_DIR)made.docs
-
-bin/$(FLAVOUR_DIR)made.docs:
-	$(VERYSILENT)mkdir -p bin/$(FLAVOUR_DIR)docs
-	$(INFO) [DOXYGEN] libopenmpt
-ifeq ($(SILENT_DOCS),1)
-	$(SILENT) ( cat libopenmpt/Doxyfile ; echo 'PROJECT_NUMBER = "$(DIST_LIBOPENMPT_VERSION)"' ; echo 'WARN_IF_DOC_ERROR = NO' ) | doxygen -
-else
-	$(SILENT) ( cat libopenmpt/Doxyfile ; echo 'PROJECT_NUMBER = "$(DIST_LIBOPENMPT_VERSION)"' ) | doxygen -
-endif
-	$(VERYSILENT)touch $@
-
-.PHONY: check
-check: test
-
-.PHONY: test
-test: bin/$(FLAVOUR_DIR)libopenmpt_test$(EXESUFFIX)
-ifeq ($(REQUIRES_RUNPREFIX),1)
-	cd bin/$(FLAVOUR_DIR) && $(RUNPREFIX) libopenmpt_test$(EXESUFFIX)
-else
-	bin/$(FLAVOUR_DIR)libopenmpt_test$(EXESUFFIX)
-endif
-
-bin/$(FLAVOUR_DIR)libopenmpt_test$(EXESUFFIX): $(LIBOPENMPTTEST_OBJECTS) $(LIBOPENMPT_LIBS)
-	$(INFO) [LD-TEST] $@
-	$(SILENT)$(LINK.cc) $(LDFLAGS_RPATH) $(TEST_LDFLAGS) $(LIBOPENMPTTEST_OBJECTS) $(LIBOPENMPT_LIBS) $(LOADLIBES) $(LDLIBS) $(LDLIBS_LIBOPENMPTTEST) -o $@
-
-bin/$(FLAVOUR_DIR)libopenmpt.pc:
-	$(INFO) [GEN] $@
-	$(VERYSILENT)rm -rf $@
-	$(VERYSILENT)echo > $@.tmp
-	$(VERYSILENT)echo 'prefix=$(PREFIX)' >> $@.tmp
-	$(VERYSILENT)echo 'exec_prefix=$${prefix}' >> $@.tmp
-	$(VERYSILENT)echo 'libdir=$${exec_prefix}/lib' >> $@.tmp
-	$(VERYSILENT)echo 'includedir=$${prefix}/include' >> $@.tmp
-	$(VERYSILENT)echo '' >> $@.tmp
-	$(VERYSILENT)echo 'Name: libopenmpt' >> $@.tmp
-	$(VERYSILENT)echo 'Description: Tracker module player based on OpenMPT' >> $@.tmp
-	$(VERYSILENT)echo 'Version: $(DIST_LIBOPENMPT_VERSION)' >> $@.tmp
-	$(VERYSILENT)echo 'Requires.private: $(PC_REQUIRES_ZLIB) $(PC_REQUIRES_MPG123) $(PC_REQUIRES_OGG) $(PC_REQUIRES_VORBIS) $(PC_REQUIRES_VORBISFILE)' >> $@.tmp
-	$(VERYSILENT)echo 'Libs: -L$${libdir} -lopenmpt' >> $@.tmp
-	$(VERYSILENT)echo 'Libs.private: $(PC_LIBS_PRIVATE)' >> $@.tmp
-	$(VERYSILENT)echo 'Cflags: -I$${includedir}' >> $@.tmp
-	$(VERYSILENT)mv $@.tmp $@
-
-.PHONY: install
-install: $(OUTPUTS)
-	$(INSTALL_MAKE_DIR) $(DESTDIR)$(PREFIX)/include/libopenmpt
-	$(INSTALL_DATA) libopenmpt/libopenmpt_config.h $(DESTDIR)$(PREFIX)/include/libopenmpt/libopenmpt_config.h
-	$(INSTALL_DATA) libopenmpt/libopenmpt_version.h $(DESTDIR)$(PREFIX)/include/libopenmpt/libopenmpt_version.h
-	$(INSTALL_DATA) libopenmpt/libopenmpt.h $(DESTDIR)$(PREFIX)/include/libopenmpt/libopenmpt.h
-	$(INSTALL_DATA) libopenmpt/libopenmpt_stream_callbacks_buffer.h $(DESTDIR)$(PREFIX)/include/libopenmpt/libopenmpt_stream_callbacks_buffer.h
-	$(INSTALL_DATA) libopenmpt/libopenmpt_stream_callbacks_fd.h $(DESTDIR)$(PREFIX)/include/libopenmpt/libopenmpt_stream_callbacks_fd.h
-	$(INSTALL_DATA) libopenmpt/libopenmpt_stream_callbacks_file.h $(DESTDIR)$(PREFIX)/include/libopenmpt/libopenmpt_stream_callbacks_file.h
-	$(INSTALL_DATA) libopenmpt/libopenmpt_stream_callbacks_file_mingw.h $(DESTDIR)$(PREFIX)/include/libopenmpt/libopenmpt_stream_callbacks_file_mingw.h
-	$(INSTALL_DATA) libopenmpt/libopenmpt_stream_callbacks_file_msvcrt.h $(DESTDIR)$(PREFIX)/include/libopenmpt/libopenmpt_stream_callbacks_file_msvcrt.h
-	$(INSTALL_DATA) libopenmpt/libopenmpt_stream_callbacks_file_posix.h $(DESTDIR)$(PREFIX)/include/libopenmpt/libopenmpt_stream_callbacks_file_posix.h
-	$(INSTALL_DATA) libopenmpt/libopenmpt_stream_callbacks_file_posix_lfs64.h $(DESTDIR)$(PREFIX)/include/libopenmpt/libopenmpt_stream_callbacks_file_posix_lfs64.h
-	$(INSTALL_DATA) libopenmpt/libopenmpt.hpp $(DESTDIR)$(PREFIX)/include/libopenmpt/libopenmpt.hpp
-	$(INSTALL_DATA) libopenmpt/libopenmpt_ext.h $(DESTDIR)$(PREFIX)/include/libopenmpt/libopenmpt_ext.h
-	$(INSTALL_DATA) libopenmpt/libopenmpt_ext.hpp $(DESTDIR)$(PREFIX)/include/libopenmpt/libopenmpt_ext.hpp
-	$(INSTALL_MAKE_DIR) $(DESTDIR)$(PREFIX)/lib/pkgconfig
-	$(INSTALL_DATA) bin/$(FLAVOUR_DIR)libopenmpt.pc $(DESTDIR)$(PREFIX)/lib/pkgconfig/libopenmpt.pc
-ifeq ($(SHARED_LIB),1)
-ifeq ($(SHARED_SONAME),1)
-	$(INSTALL_MAKE_DIR) $(DESTDIR)$(PREFIX)/lib
-	$(INSTALL_LIB) bin/$(FLAVOUR_DIR)$(LIBOPENMPT_SONAME) $(DESTDIR)$(PREFIX)/lib/$(LIBOPENMPT_SONAME)
-	ln -sf $(LIBOPENMPT_SONAME) $(DESTDIR)$(PREFIX)/lib/libopenmpt$(SOSUFFIX)
-else
-	$(INSTALL_MAKE_DIR) $(DESTDIR)$(PREFIX)/lib
-	$(INSTALL_LIB) bin/$(FLAVOUR_DIR)libopenmpt$(SOSUFFIX) $(DESTDIR)$(PREFIX)/lib/libopenmpt$(SOSUFFIX)
-endif
-	$(INSTALL_MAKE_DIR) $(DESTDIR)$(PREFIX)/lib
-endif
-ifeq ($(STATIC_LIB),1)
-	$(INSTALL_MAKE_DIR) $(DESTDIR)$(PREFIX)/lib
-	$(INSTALL_DATA) bin/$(FLAVOUR_DIR)libopenmpt.a $(DESTDIR)$(PREFIX)/lib/libopenmpt.a
-endif
-ifeq ($(OPENMPT123),1)
-	$(INSTALL_MAKE_DIR) $(DESTDIR)$(PREFIX)/bin
-ifeq ($(SHARED_LIB),1)
-	$(INSTALL_PROGRAM) bin/$(FLAVOUR_DIR)openmpt123$(EXESUFFIX).norpath $(DESTDIR)$(PREFIX)/bin/$(FLAVOUR_DIR)openmpt123$(EXESUFFIX)
-else
-	$(INSTALL_PROGRAM) bin/$(FLAVOUR_DIR)openmpt123$(EXESUFFIX) $(DESTDIR)$(PREFIX)/bin/$(FLAVOUR_DIR)openmpt123$(EXESUFFIX)
-endif
-ifeq ($(MPT_WITH_HELP2MAN),1)
-	$(INSTALL_MAKE_DIR) $(DESTDIR)$(MANDIR)/man1
-	$(INSTALL_DATA) bin/$(FLAVOUR_DIR)openmpt123.1 $(DESTDIR)$(MANDIR)/man1/openmpt123.1
-endif
-endif
-	$(INSTALL_MAKE_DIR) $(DESTDIR)$(PREFIX)/share/doc/libopenmpt
-	$(INSTALL_DATA) LICENSE   $(DESTDIR)$(PREFIX)/share/doc/libopenmpt/LICENSE
-	$(INSTALL_DATA) README.md $(DESTDIR)$(PREFIX)/share/doc/libopenmpt/README.md
-	$(INSTALL_MAKE_DIR) $(DESTDIR)$(PREFIX)/share/doc/libopenmpt/examples
-	$(INSTALL_DATA) examples/libopenmpt_example_c.c $(DESTDIR)$(PREFIX)/share/doc/libopenmpt/examples/libopenmpt_example_c.c
-	$(INSTALL_DATA) examples/libopenmpt_example_c_mem.c $(DESTDIR)$(PREFIX)/share/doc/libopenmpt/examples/libopenmpt_example_c_mem.c
-	$(INSTALL_DATA) examples/libopenmpt_example_c_probe.c $(DESTDIR)$(PREFIX)/share/doc/libopenmpt/examples/libopenmpt_example_c_probe.c
-	$(INSTALL_DATA) examples/libopenmpt_example_c_unsafe.c $(DESTDIR)$(PREFIX)/share/doc/libopenmpt/examples/libopenmpt_example_c_unsafe.c
-	$(INSTALL_DATA) examples/libopenmpt_example_c_pipe.c $(DESTDIR)$(PREFIX)/share/doc/libopenmpt/examples/libopenmpt_example_c_pipe.c
-	$(INSTALL_DATA) examples/libopenmpt_example_c_stdout.c $(DESTDIR)$(PREFIX)/share/doc/libopenmpt/examples/libopenmpt_example_c_stdout.c
-	$(INSTALL_DATA) examples/libopenmpt_example_cxx.cpp $(DESTDIR)$(PREFIX)/share/doc/libopenmpt/examples/libopenmpt_example_cxx.cpp
-
-.PHONY: install-doc
-install-doc: bin/$(FLAVOUR_DIR)made.docs
-ifeq ($(MPT_WITH_DOXYGEN),1)
-	$(INSTALL_MAKE_DIR) $(DESTDIR)$(PREFIX)/share/doc/libopenmpt/html/
-	$(INSTALL_DATA_DIR) bin/$(FLAVOUR_DIR)docs/html $(DESTDIR)$(PREFIX)/share/doc/libopenmpt/html
-endif
-
-.PHONY: dist
-dist: bin/$(FLAVOUR_DIR)dist-tar.tar bin/$(FLAVOUR_DIR)dist-zip.tar bin/$(FLAVOUR_DIR)dist-doc.tar
-
-.PHONY: dist-tar
-dist-tar: bin/$(FLAVOUR_DIR)dist-tar.tar
-
-bin/$(FLAVOUR_DIR)dist-tar.tar: bin/$(FLAVOUR_DIR)dist-tar/libopenmpt-$(DIST_LIBOPENMPT_VERSION).makefile.tar.gz
-	rm -rf bin/$(FLAVOUR_DIR)dist-tar.tar
-	cd bin/$(FLAVOUR_DIR)dist-tar/ && rm -rf libopenmpt
-	cd bin/$(FLAVOUR_DIR)dist-tar/ && mkdir -p libopenmpt/src.makefile/$(DIST_LIBOPENMPT_TARBALL_VERSION)/
-	cd bin/$(FLAVOUR_DIR)dist-tar/ && cp libopenmpt-$(DIST_LIBOPENMPT_VERSION).makefile.tar.gz libopenmpt/src.makefile/$(DIST_LIBOPENMPT_TARBALL_VERSION)/
-	cd bin/$(FLAVOUR_DIR)dist-tar/ && tar cv --numeric-owner --owner=0 --group=0 -f ../dist-tar.tar libopenmpt
-
-.PHONY: dist-zip
-dist-zip: bin/$(FLAVOUR_DIR)dist-zip.tar
-
-bin/$(FLAVOUR_DIR)dist-zip.tar: bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION).msvc.zip
-	rm -rf bin/$(FLAVOUR_DIR)dist-zip.tar
-	cd bin/$(FLAVOUR_DIR)dist-zip/ && rm -rf libopenmpt
-	cd bin/$(FLAVOUR_DIR)dist-zip/ && mkdir -p libopenmpt/src.msvc/$(DIST_LIBOPENMPT_TARBALL_VERSION)/
-	cd bin/$(FLAVOUR_DIR)dist-zip/ && cp libopenmpt-$(DIST_LIBOPENMPT_VERSION).msvc.zip libopenmpt/src.msvc/$(DIST_LIBOPENMPT_TARBALL_VERSION)/
-	cd bin/$(FLAVOUR_DIR)dist-zip/ && tar cv --numeric-owner --owner=0 --group=0 -f ../dist-zip.tar libopenmpt
-
-.PHONY: dist-doc
-dist-doc: bin/$(FLAVOUR_DIR)dist-doc.tar
-
-bin/$(FLAVOUR_DIR)dist-doc.tar: bin/$(FLAVOUR_DIR)dist-doc/libopenmpt-$(DIST_LIBOPENMPT_VERSION).doc.tar.gz
-	rm -rf bin/$(FLAVOUR_DIR)dist-doc.tar
-	cd bin/$(FLAVOUR_DIR)dist-doc/ && rm -rf libopenmpt
-	cd bin/$(FLAVOUR_DIR)dist-doc/ && mkdir -p libopenmpt/doc/$(DIST_LIBOPENMPT_TARBALL_VERSION)/
-	cd bin/$(FLAVOUR_DIR)dist-doc/ && cp libopenmpt-$(DIST_LIBOPENMPT_VERSION).doc.tar.gz libopenmpt/doc/$(DIST_LIBOPENMPT_TARBALL_VERSION)/
-	cd bin/$(FLAVOUR_DIR)dist-doc/ && tar cv --numeric-owner --owner=0 --group=0 -f ../dist-doc.tar libopenmpt
-
-.PHONY: dist-js
-dist-js: bin/$(FLAVOUR_DIR)dist-js.tar
-
-bin/$(FLAVOUR_DIR)dist-js.tar: bin/$(FLAVOUR_DIR)dist-js/libopenmpt-$(DIST_LIBOPENMPT_VERSION).dev.js.tar.gz
-	rm -rf bin/$(FLAVOUR_DIR)dist-js.tar
-	cd bin/$(FLAVOUR_DIR)dist-js/ && rm -rf libopenmpt
-	cd bin/$(FLAVOUR_DIR)dist-js/ && mkdir -p libopenmpt/dev.js/$(DIST_LIBOPENMPT_TARBALL_VERSION)/
-	cd bin/$(FLAVOUR_DIR)dist-js/ && cp libopenmpt-$(DIST_LIBOPENMPT_VERSION).dev.js.tar.gz libopenmpt/dev.js/$(DIST_LIBOPENMPT_TARBALL_VERSION)/
-	cd bin/$(FLAVOUR_DIR)dist-js/ && tar cv --numeric-owner --owner=0 --group=0 -f ../dist-js.tar libopenmpt
-
-.PHONY: dist-dos
-dist-dos: bin/$(FLAVOUR_DIR)dist-dos.tar
-
-bin/$(FLAVOUR_DIR)dist-dos.tar: bin/$(FLAVOUR_DIR)dist-dos/libopenmpt-$(DIST_LIBOPENMPT_VERSION).bin.dos.zip
-	rm -rf bin/$(FLAVOUR_DIR)dist-dos.tar
-	cd bin/$(FLAVOUR_DIR)dist-dos/ && rm -rf libopenmpt
-	cd bin/$(FLAVOUR_DIR)dist-dos/ && mkdir -p libopenmpt/bin.dos/$(DIST_LIBOPENMPT_TARBALL_VERSION)/
-	cd bin/$(FLAVOUR_DIR)dist-dos/ && cp libopenmpt-$(DIST_LIBOPENMPT_VERSION).bin.dos.zip libopenmpt/bin.dos/$(DIST_LIBOPENMPT_TARBALL_VERSION)/
-	cd bin/$(FLAVOUR_DIR)dist-dos/ && tar cv --numeric-owner --owner=0 --group=0 -f ../dist-dos.tar libopenmpt
-
-.PHONY: dist-retro-win98
-dist-retro-win98: bin/$(FLAVOUR_DIR)dist-retro-win98.tar
-
-bin/$(FLAVOUR_DIR)dist-retro-win98.tar: bin/$(FLAVOUR_DIR)dist-retro-win98/libopenmpt-$(DIST_LIBOPENMPT_VERSION).bin.retro.win98.zip
-	rm -rf bin/$(FLAVOUR_DIR)dist-retro-win98.tar
-	cd bin/$(FLAVOUR_DIR)dist-retro-win98/ && rm -rf libopenmpt
-	cd bin/$(FLAVOUR_DIR)dist-retro-win98/ && mkdir -p libopenmpt/bin.retro.win98/$(DIST_LIBOPENMPT_TARBALL_VERSION)/
-	cd bin/$(FLAVOUR_DIR)dist-retro-win98/ && cp libopenmpt-$(DIST_LIBOPENMPT_VERSION).bin.retro.win98.zip libopenmpt/bin.retro.win98/$(DIST_LIBOPENMPT_TARBALL_VERSION)/
-	cd bin/$(FLAVOUR_DIR)dist-retro-win98/ && tar cv --numeric-owner --owner=0 --group=0 -f ../dist-retro-win98.tar libopenmpt
-
-.PHONY: dist-retro-win95
-dist-retro-win95: bin/$(FLAVOUR_DIR)dist-retro-win95.tar
-
-bin/$(FLAVOUR_DIR)dist-retro-win95.tar: bin/$(FLAVOUR_DIR)dist-retro-win95/libopenmpt-$(DIST_LIBOPENMPT_VERSION).bin.retro.win95.zip
-	rm -rf bin/$(FLAVOUR_DIR)dist-retro-win95.tar
-	cd bin/$(FLAVOUR_DIR)dist-retro-win95/ && rm -rf libopenmpt
-	cd bin/$(FLAVOUR_DIR)dist-retro-win95/ && mkdir -p libopenmpt/bin.retro.win95/$(DIST_LIBOPENMPT_TARBALL_VERSION)/
-	cd bin/$(FLAVOUR_DIR)dist-retro-win95/ && cp libopenmpt-$(DIST_LIBOPENMPT_VERSION).bin.retro.win95.zip libopenmpt/bin.retro.win95/$(DIST_LIBOPENMPT_TARBALL_VERSION)/
-	cd bin/$(FLAVOUR_DIR)dist-retro-win95/ && tar cv --numeric-owner --owner=0 --group=0 -f ../dist-retro-win95.tar libopenmpt
-
-.PHONY: bin/$(FLAVOUR_DIR)dist.mk
-bin/$(FLAVOUR_DIR)dist.mk:
-	rm -rf $@
-	echo > $@.tmp
-	echo 'MPT_SVNVERSION=$(MPT_SVNVERSION)' >> $@.tmp
-	echo 'MPT_SVNURL=$(MPT_SVNURL)' >> $@.tmp
-	echo 'MPT_SVNDATE=$(MPT_SVNDATE)' >> $@.tmp
-	mv $@.tmp $@
-
-.PHONY: bin/$(FLAVOUR_DIR)svn_version_dist.h
-bin/$(FLAVOUR_DIR)svn_version_dist.h:
-	rm -rf $@
-	echo > $@.tmp
-	echo '#pragma once' >> $@.tmp
-	echo '#define OPENMPT_VERSION_SVNVERSION "$(MPT_SVNVERSION)"' >> $@.tmp
-	echo '#define OPENMPT_VERSION_REVISION $(MPT_SVNREVISION)' >> $@.tmp
-	echo '#define OPENMPT_VERSION_DIRTY $(MPT_SVNDIRTY)' >> $@.tmp
-	echo '#define OPENMPT_VERSION_MIXEDREVISIONS $(MPT_SVNMIXED)' >> $@.tmp
-	echo '#define OPENMPT_VERSION_URL "$(MPT_SVNURL)"' >> $@.tmp
-	echo '#define OPENMPT_VERSION_DATE "$(MPT_SVNDATE)"' >> $@.tmp
-	echo '#define OPENMPT_VERSION_IS_PACKAGE 1' >> $@.tmp
-	echo >> $@.tmp
-	mv $@.tmp $@
-
-.PHONY: bin/$(FLAVOUR_DIR)dist-doc/libopenmpt-$(DIST_LIBOPENMPT_VERSION).doc.tar
-bin/$(FLAVOUR_DIR)dist-doc/libopenmpt-$(DIST_LIBOPENMPT_VERSION).doc.tar: docs
-	mkdir -p bin/$(FLAVOUR_DIR)dist-doc
-	rm -rf bin/$(FLAVOUR_DIR)dist-doc/libopenmpt-$(DIST_LIBOPENMPT_VERSION).doc
-	mkdir -p bin/$(FLAVOUR_DIR)dist-doc/libopenmpt-$(DIST_LIBOPENMPT_VERSION).doc
-	cp -Rv bin/$(FLAVOUR_DIR)docs/html bin/$(FLAVOUR_DIR)dist-doc/libopenmpt-$(DIST_LIBOPENMPT_VERSION).doc/docs
-	cd bin/$(FLAVOUR_DIR)dist-doc/ && tar cv --numeric-owner --owner=0 --group=0 libopenmpt-$(DIST_LIBOPENMPT_VERSION).doc > libopenmpt-$(DIST_LIBOPENMPT_VERSION).doc.tar
-
-.PHONY: bin/$(FLAVOUR_DIR)dist-tar/libopenmpt-$(DIST_LIBOPENMPT_VERSION).makefile.tar
-bin/$(FLAVOUR_DIR)dist-tar/libopenmpt-$(DIST_LIBOPENMPT_VERSION).makefile.tar: bin/$(FLAVOUR_DIR)dist.mk bin/$(FLAVOUR_DIR)svn_version_dist.h
-	mkdir -p bin/$(FLAVOUR_DIR)dist-tar
-	rm -rf bin/$(FLAVOUR_DIR)dist-tar/libopenmpt-$(DIST_LIBOPENMPT_VERSION)
-	mkdir -p bin/$(FLAVOUR_DIR)dist-tar/libopenmpt-$(DIST_LIBOPENMPT_VERSION)
-	mkdir -p bin/$(FLAVOUR_DIR)dist-tar/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/build
-	mkdir -p bin/$(FLAVOUR_DIR)dist-tar/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/doc
-	mkdir -p bin/$(FLAVOUR_DIR)dist-tar/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/include
-	mkdir -p bin/$(FLAVOUR_DIR)dist-tar/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/src
-	mkdir -p bin/$(FLAVOUR_DIR)dist-tar/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/src/mpt
-	mkdir -p bin/$(FLAVOUR_DIR)dist-tar/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/src/openmpt
-	svn export ./LICENSE            bin/$(FLAVOUR_DIR)dist-tar/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/LICENSE
-	svn export ./README.md          bin/$(FLAVOUR_DIR)dist-tar/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/README.md
-	svn export ./Makefile           bin/$(FLAVOUR_DIR)dist-tar/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/Makefile
-	svn export ./.clang-format      bin/$(FLAVOUR_DIR)dist-tar/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/.clang-format
-	svn export ./bin                bin/$(FLAVOUR_DIR)dist-tar/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/bin
-	svn export ./build/download_externals.sh bin/$(FLAVOUR_DIR)dist-tar/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/build/download_externals.sh
-	svn export ./build/android_ndk  bin/$(FLAVOUR_DIR)dist-tar/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/build/android_ndk
-	svn export ./build/djgpp        bin/$(FLAVOUR_DIR)dist-tar/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/build/djgpp
-	svn export ./build/make         bin/$(FLAVOUR_DIR)dist-tar/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/build/make
-	svn export ./build/svn_version  bin/$(FLAVOUR_DIR)dist-tar/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/build/svn_version
-	svn export ./build/xcode-ios    bin/$(FLAVOUR_DIR)dist-tar/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/build/xcode-ios
-	svn export ./build/xcode-macosx bin/$(FLAVOUR_DIR)dist-tar/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/build/xcode-macosx
-	svn export ./common             bin/$(FLAVOUR_DIR)dist-tar/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/common
-	svn export ./doc/contributing.md          bin/$(FLAVOUR_DIR)dist-tar/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/doc/contributing.md
-	svn export ./doc/libopenmpt_styleguide.md bin/$(FLAVOUR_DIR)dist-tar/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/doc/libopenmpt_styleguide.md
-	svn export ./doc/module_formats.md        bin/$(FLAVOUR_DIR)dist-tar/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/doc/module_formats.md
-	svn export ./soundlib           bin/$(FLAVOUR_DIR)dist-tar/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/soundlib
-	svn export ./sounddsp           bin/$(FLAVOUR_DIR)dist-tar/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/sounddsp
-	svn export ./src/mpt/.clang-format bin/$(FLAVOUR_DIR)dist-tar/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/src/mpt/.clang-format
-	svn export ./src/mpt/LICENSE.BSD-3-Clause.txt bin/$(FLAVOUR_DIR)dist-tar/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/src/mpt/LICENSE.BSD-3-Clause.txt
-	svn export ./src/mpt/LICENSE.BSL-1.0.txt bin/$(FLAVOUR_DIR)dist-tar/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/src/mpt/LICENSE.BSL-1.0.txt
-	svn export ./src/mpt/arch           bin/$(FLAVOUR_DIR)dist-tar/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/src/mpt/arch
-	svn export ./src/mpt/audio          bin/$(FLAVOUR_DIR)dist-tar/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/src/mpt/audio
-	svn export ./src/mpt/base           bin/$(FLAVOUR_DIR)dist-tar/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/src/mpt/base
-	svn export ./src/mpt/binary         bin/$(FLAVOUR_DIR)dist-tar/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/src/mpt/binary
-	svn export ./src/mpt/check          bin/$(FLAVOUR_DIR)dist-tar/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/src/mpt/check
-	svn export ./src/mpt/crc            bin/$(FLAVOUR_DIR)dist-tar/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/src/mpt/crc
-	#svn export ./src/mpt/crypto         bin/$(FLAVOUR_DIR)dist-tar/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/src/mpt/crypto
-	svn export ./src/mpt/detect         bin/$(FLAVOUR_DIR)dist-tar/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/src/mpt/detect
-	svn export ./src/mpt/endian         bin/$(FLAVOUR_DIR)dist-tar/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/src/mpt/endian
-	svn export ./src/mpt/environment    bin/$(FLAVOUR_DIR)dist-tar/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/src/mpt/environment
-	svn export ./src/mpt/exception      bin/$(FLAVOUR_DIR)dist-tar/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/src/mpt/exception
-	svn export ./src/mpt/format         bin/$(FLAVOUR_DIR)dist-tar/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/src/mpt/format
-	#svn export ./src/mpt/fs             bin/$(FLAVOUR_DIR)dist-tar/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/src/mpt/fs
-	svn export ./src/mpt/io             bin/$(FLAVOUR_DIR)dist-tar/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/src/mpt/io
-	svn export ./src/mpt/io_file        bin/$(FLAVOUR_DIR)dist-tar/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/src/mpt/io_file
-	svn export ./src/mpt/io_file_adapter bin/$(FLAVOUR_DIR)dist-tar/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/src/mpt/io_file_adapter
-	svn export ./src/mpt/io_file_read   bin/$(FLAVOUR_DIR)dist-tar/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/src/mpt/io_file_read
-	svn export ./src/mpt/io_file_unique bin/$(FLAVOUR_DIR)dist-tar/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/src/mpt/io_file_unique
-	svn export ./src/mpt/io_read        bin/$(FLAVOUR_DIR)dist-tar/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/src/mpt/io_read
-	svn export ./src/mpt/io_write       bin/$(FLAVOUR_DIR)dist-tar/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/src/mpt/io_write
-	#svn export ./src/mpt/json           bin/$(FLAVOUR_DIR)dist-tar/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/src/mpt/json
-	#svn export ./src/mpt/library        bin/$(FLAVOUR_DIR)dist-tar/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/src/mpt/library
-	svn export ./src/mpt/mutex          bin/$(FLAVOUR_DIR)dist-tar/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/src/mpt/mutex
-	svn export ./src/mpt/out_of_memory  bin/$(FLAVOUR_DIR)dist-tar/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/src/mpt/out_of_memory
-	svn export ./src/mpt/osinfo         bin/$(FLAVOUR_DIR)dist-tar/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/src/mpt/osinfo
-	svn export ./src/mpt/parse          bin/$(FLAVOUR_DIR)dist-tar/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/src/mpt/parse
-	svn export ./src/mpt/path           bin/$(FLAVOUR_DIR)dist-tar/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/src/mpt/path
-	svn export ./src/mpt/random         bin/$(FLAVOUR_DIR)dist-tar/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/src/mpt/random
-	svn export ./src/mpt/string         bin/$(FLAVOUR_DIR)dist-tar/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/src/mpt/string
-	svn export ./src/mpt/string_transcode bin/$(FLAVOUR_DIR)dist-tar/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/src/mpt/string_transcode
-	svn export ./src/mpt/system_error   bin/$(FLAVOUR_DIR)dist-tar/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/src/mpt/system_error
-	svn export ./src/mpt/test           bin/$(FLAVOUR_DIR)dist-tar/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/src/mpt/test
-	svn export ./src/mpt/uuid           bin/$(FLAVOUR_DIR)dist-tar/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/src/mpt/uuid
-	#svn export ./src/mpt/uuid_namespace bin/$(FLAVOUR_DIR)dist-tar/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/src/mpt/uuid_namespace
-	svn export ./src/openmpt/all        bin/$(FLAVOUR_DIR)dist-tar/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/src/openmpt/all
-	svn export ./src/openmpt/base       bin/$(FLAVOUR_DIR)dist-tar/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/src/openmpt/base
-	svn export ./src/openmpt/logging    bin/$(FLAVOUR_DIR)dist-tar/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/src/openmpt/logging
-	svn export ./src/openmpt/random     bin/$(FLAVOUR_DIR)dist-tar/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/src/openmpt/random
-	svn export ./src/openmpt/soundbase  bin/$(FLAVOUR_DIR)dist-tar/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/src/openmpt/soundbase
-	svn export ./test               bin/$(FLAVOUR_DIR)dist-tar/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/test
-	rm bin/$(FLAVOUR_DIR)dist-tar/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/test/mpt_tests_crypto.cpp
-	rm bin/$(FLAVOUR_DIR)dist-tar/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/test/mpt_tests_uuid_namespace.cpp
-	svn export ./libopenmpt         bin/$(FLAVOUR_DIR)dist-tar/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/libopenmpt
-	svn export ./examples           bin/$(FLAVOUR_DIR)dist-tar/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/examples
-	svn export ./openmpt123         bin/$(FLAVOUR_DIR)dist-tar/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/openmpt123
-	svn export ./contrib            bin/$(FLAVOUR_DIR)dist-tar/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/contrib
-	svn export ./include/allegro42  bin/$(FLAVOUR_DIR)dist-tar/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/include/allegro42
-	svn export ./include/cwsdpmi    bin/$(FLAVOUR_DIR)dist-tar/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/include/cwsdpmi
-	svn export ./include/minimp3    bin/$(FLAVOUR_DIR)dist-tar/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/include/minimp3
-	svn export ./include/miniz      bin/$(FLAVOUR_DIR)dist-tar/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/include/miniz
-	svn export ./include/stb_vorbis bin/$(FLAVOUR_DIR)dist-tar/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/include/stb_vorbis
-	cp bin/$(FLAVOUR_DIR)dist.mk bin/$(FLAVOUR_DIR)dist-tar/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/build/dist.mk
-	cp bin/$(FLAVOUR_DIR)svn_version_dist.h bin/$(FLAVOUR_DIR)dist-tar/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/build/svn_version/svn_version.h
-	cd bin/$(FLAVOUR_DIR)dist-tar/ && tar cv --numeric-owner --owner=0 --group=0 libopenmpt-$(DIST_LIBOPENMPT_VERSION) > libopenmpt-$(DIST_LIBOPENMPT_VERSION).makefile.tar
-
-.PHONY: bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION).msvc.zip
-bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION).msvc.zip: bin/$(FLAVOUR_DIR)dist.mk bin/$(FLAVOUR_DIR)svn_version_dist.h
-	mkdir -p bin/$(FLAVOUR_DIR)dist-zip
-	rm -rf bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)
-	mkdir -p bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)
-	mkdir -p bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/build
-	mkdir -p bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/build/premake
-	mkdir -p bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/doc
-	mkdir -p bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/include
-	mkdir -p bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/src
-	mkdir -p bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/src/mpt
-	mkdir -p bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/src/openmpt
-	svn export ./LICENSE               bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/LICENSE               --native-eol CRLF
-	svn export ./README.md             bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/README.md             --native-eol CRLF
-	svn export ./Makefile              bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/Makefile              --native-eol CRLF
-	svn export ./.clang-format         bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/.clang-format         --native-eol CRLF
-	svn export ./bin                   bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/bin                   --native-eol CRLF
-	svn export ./build/premake/def            bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/build/premake/def            --native-eol CRLF
-	svn export ./build/premake/inc            bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/build/premake/inc            --native-eol CRLF
-	svn export ./build/premake/lnk            bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/build/premake/lnk            --native-eol CRLF
-	svn export ./build/scriptlib              bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/build/scriptlib              --native-eol CRLF
-	svn export ./build/svn_version            bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/build/svn_version            --native-eol CRLF
-	svn export ./build/vs                     bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/build/vs                     --native-eol CRLF
-	svn export ./build/vs2017winxp            bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/build/vs2017winxp            --native-eol CRLF
-	svn export ./build/vs2019win7             bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/build/vs2019win7             --native-eol CRLF
-	svn export ./build/vs2019win81            bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/build/vs2019win81            --native-eol CRLF
-	svn export ./build/vs2019win10            bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/build/vs2019win10            --native-eol CRLF
-	svn export ./build/vs2019win10uwp         bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/build/vs2019win10uwp         --native-eol CRLF
-	svn export ./build/vs2022win7             bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/build/vs2022win7             --native-eol CRLF
-	svn export ./build/vs2022win81            bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/build/vs2022win81            --native-eol CRLF
-	svn export ./build/vs2022win10            bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/build/vs2022win10            --native-eol CRLF
-	svn export ./build/vs2022win10uwp         bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/build/vs2022win10uwp         --native-eol CRLF
-	svn export ./build/vs2022win10clang       bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/build/vs2022win10clang       --native-eol CRLF
-	svn export ./build/download_externals.cmd bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/build/download_externals.cmd --native-eol CRLF
-	svn export ./common                bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/common                --native-eol CRLF
-	svn export ./doc/contributing.md          bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/doc/contributing.md          --native-eol CRLF
-	svn export ./doc/libopenmpt_styleguide.md bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/doc/libopenmpt_styleguide.md --native-eol CRLF
-	svn export ./doc/module_formats.md        bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/doc/module_formats.md        --native-eol CRLF
-	svn export ./soundlib              bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/soundlib              --native-eol CRLF
-	svn export ./sounddsp              bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/sounddsp              --native-eol CRLF
-	svn export ./src/mpt/.clang-format bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/src/mpt/.clang-format --native-eol CRLF
-	svn export ./src/mpt/LICENSE.BSD-3-Clause.txt bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/src/mpt/LICENSE.BSD-3-Clause.txt --native-eol CRLF
-	svn export ./src/mpt/LICENSE.BSL-1.0.txt bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/src/mpt/LICENSE.BSL-1.0.txt --native-eol CRLF
-	svn export ./src/mpt/arch           bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/src/mpt/arch           --native-eol CRLF
-	svn export ./src/mpt/audio          bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/src/mpt/audio          --native-eol CRLF
-	svn export ./src/mpt/base           bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/src/mpt/base           --native-eol CRLF
-	svn export ./src/mpt/binary         bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/src/mpt/binary         --native-eol CRLF
-	svn export ./src/mpt/check          bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/src/mpt/check          --native-eol CRLF
-	svn export ./src/mpt/crc            bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/src/mpt/crc            --native-eol CRLF
-	#svn export ./src/mpt/crypto         bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/src/mpt/crypto         --native-eol CRLF
-	svn export ./src/mpt/detect         bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/src/mpt/detect         --native-eol CRLF
-	svn export ./src/mpt/endian         bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/src/mpt/endian         --native-eol CRLF
-	svn export ./src/mpt/environment    bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/src/mpt/environment    --native-eol CRLF
-	svn export ./src/mpt/exception      bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/src/mpt/exception      --native-eol CRLF
-	svn export ./src/mpt/format         bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/src/mpt/format         --native-eol CRLF
-	#svn export ./src/mpt/fs             bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/src/mpt/fs             --native-eol CRLF
-	svn export ./src/mpt/io             bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/src/mpt/io             --native-eol CRLF
-	svn export ./src/mpt/io_file        bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/src/mpt/io_file        --native-eol CRLF
-	svn export ./src/mpt/io_file_adapter bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/src/mpt/io_file_adapter --native-eol CRLF
-	svn export ./src/mpt/io_file_read   bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/src/mpt/io_file_read   --native-eol CRLF
-	svn export ./src/mpt/io_file_unique bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/src/mpt/io_file_unique --native-eol CRLF
-	svn export ./src/mpt/io_read        bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/src/mpt/io_read        --native-eol CRLF
-	svn export ./src/mpt/io_write       bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/src/mpt/io_write       --native-eol CRLF
-	#svn export ./src/mpt/json           bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/src/mpt/json           --native-eol CRLF
-	#svn export ./src/mpt/library        bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/src/mpt/library        --native-eol CRLF
-	svn export ./src/mpt/mutex          bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/src/mpt/mutex          --native-eol CRLF
-	svn export ./src/mpt/out_of_memory  bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/src/mpt/out_of_memory  --native-eol CRLF
-	svn export ./src/mpt/osinfo         bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/src/mpt/osinfo         --native-eol CRLF
-	svn export ./src/mpt/parse          bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/src/mpt/parse          --native-eol CRLF
-	svn export ./src/mpt/path           bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/src/mpt/path           --native-eol CRLF
-	svn export ./src/mpt/random         bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/src/mpt/random         --native-eol CRLF
-	svn export ./src/mpt/string         bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/src/mpt/string         --native-eol CRLF
-	svn export ./src/mpt/string_transcode bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/src/mpt/string_transcode --native-eol CRLF
-	svn export ./src/mpt/system_error   bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/src/mpt/system_error   --native-eol CRLF
-	svn export ./src/mpt/test           bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/src/mpt/test           --native-eol CRLF
-	svn export ./src/mpt/uuid           bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/src/mpt/uuid           --native-eol CRLF
-	#svn export ./src/mpt/uuid_namespace bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/src/mpt/uuid_namespace --native-eol CRLF
-	svn export ./src/openmpt/all        bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/src/openmpt/all       --native-eol CRLF
-	svn export ./src/openmpt/base       bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/src/openmpt/base      --native-eol CRLF
-	svn export ./src/openmpt/logging    bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/src/openmpt/logging   --native-eol CRLF
-	svn export ./src/openmpt/random     bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/src/openmpt/random    --native-eol CRLF
-	svn export ./src/openmpt/soundbase  bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/src/openmpt/soundbase --native-eol CRLF
-	svn export ./test                  bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/test                  --native-eol CRLF
-	rm bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/test/mpt_tests_crypto.cpp
-	rm bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/test/mpt_tests_uuid_namespace.cpp
-	svn export ./libopenmpt            bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/libopenmpt            --native-eol CRLF
-	svn export ./examples              bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/examples              --native-eol CRLF
-	svn export ./openmpt123            bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/openmpt123            --native-eol CRLF
-	svn export ./contrib               bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/contrib               --native-eol CRLF
-	svn export ./include/minimp3       bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/include/minimp3       --native-eol CRLF
-	svn export ./include/miniz         bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/include/miniz         --native-eol CRLF
-	svn export ./include/mpg123        bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/include/mpg123        --native-eol CRLF
-	svn export ./include/flac          bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/include/flac          --native-eol CRLF
-	svn export ./include/portaudio     bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/include/portaudio     --native-eol CRLF
-	svn export ./include/ogg           bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/include/ogg           --native-eol CRLF
-	svn export ./include/pugixml       bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/include/pugixml       --native-eol CRLF
-	svn export ./include/stb_vorbis    bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/include/stb_vorbis    --native-eol CRLF
-	svn export ./include/vorbis        bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/include/vorbis        --native-eol CRLF
-	svn export ./include/winamp        bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/include/winamp        --native-eol CRLF
-	svn export ./include/xmplay        bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/include/xmplay        --native-eol CRLF
-	svn export ./include/zlib          bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/include/zlib          --native-eol CRLF
-	cp bin/$(FLAVOUR_DIR)dist.mk bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/build/dist.mk
-	cp bin/$(FLAVOUR_DIR)svn_version_dist.h bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/build/svn_version/svn_version.h
-	cd bin/$(FLAVOUR_DIR)dist-zip/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/ && zip -r ../libopenmpt-$(DIST_LIBOPENMPT_VERSION).msvc.zip --compression-method deflate -9 *
-
-.PHONY: bin/$(FLAVOUR_DIR)dist-zip/OpenMPT-src-$(DIST_OPENMPT_VERSION).zip
-bin/$(FLAVOUR_DIR)dist-zip/OpenMPT-src-$(DIST_OPENMPT_VERSION).zip: bin/$(FLAVOUR_DIR)svn_version_dist.h
-	mkdir -p bin/$(FLAVOUR_DIR)dist-zip
-	rm -rf bin/$(FLAVOUR_DIR)dist-zip/OpenMPT-src-$(DIST_OPENMPT_VERSION)
-	svn export ./ bin/$(FLAVOUR_DIR)dist-zip/OpenMPT-src-$(DIST_OPENMPT_VERSION)/ --native-eol CRLF
-	cp bin/$(FLAVOUR_DIR)svn_version_dist.h bin/$(FLAVOUR_DIR)dist-zip/OpenMPT-src-$(DIST_OPENMPT_VERSION)/common/svn_version_default/svn_version.h
-	cd bin/$(FLAVOUR_DIR)dist-zip/OpenMPT-src-$(DIST_OPENMPT_VERSION)/ && zip -r ../OpenMPT-src-$(DIST_OPENMPT_VERSION).zip --compression-method deflate -9 *
-
-.PHONY: bin/$(FLAVOUR_DIR)dist-js/libopenmpt-$(DIST_LIBOPENMPT_VERSION).dev.js.tar
-bin/$(FLAVOUR_DIR)dist-js/libopenmpt-$(DIST_LIBOPENMPT_VERSION).dev.js.tar:
-	mkdir -p bin/$(FLAVOUR_DIR)dist-js
-	rm -rf                                       bin/$(FLAVOUR_DIR)dist-js/libopenmpt-$(DIST_LIBOPENMPT_VERSION)
-	mkdir -p                                     bin/$(FLAVOUR_DIR)dist-js/libopenmpt-$(DIST_LIBOPENMPT_VERSION)
-	mkdir -p                                     bin/$(FLAVOUR_DIR)dist-js/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/licenses
-	svn export ./LICENSE                         bin/$(FLAVOUR_DIR)dist-js/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/license.txt
-	svn export ./src/mpt/LICENSE.BSD-3-Clause.txt bin/$(FLAVOUR_DIR)dist-js/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/licenses/license.mpt.BSD-3-Clause.txt
-	svn export ./src/mpt/LICENSE.BSL-1.0.txt     bin/$(FLAVOUR_DIR)dist-js/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/licenses/license.mpt.BSL-1.0.txt
-	svn export ./include/minimp3/LICENSE         bin/$(FLAVOUR_DIR)dist-js/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/licenses/license.minimp3.txt
-	svn export ./include/miniz/miniz.c           bin/$(FLAVOUR_DIR)dist-js/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/licenses/license.miniz.txt
-	svn export ./include/stb_vorbis/stb_vorbis.c bin/$(FLAVOUR_DIR)dist-js/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/licenses/license.stb_vorbis.txt
-	mkdir -p                                     bin/$(FLAVOUR_DIR)dist-js/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/bin
-	mkdir -p                                     bin/$(FLAVOUR_DIR)dist-js/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/bin/$(FLAVOUR_DIR)all
-	cp bin/$(FLAVOUR_DIR)stage/all/libopenmpt.js               bin/$(FLAVOUR_DIR)dist-js/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/bin/$(FLAVOUR_DIR)all/libopenmpt.js
-	cp bin/$(FLAVOUR_DIR)stage/all/libopenmpt.js.mem           bin/$(FLAVOUR_DIR)dist-js/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/bin/$(FLAVOUR_DIR)all/libopenmpt.js.mem
-	cp bin/$(FLAVOUR_DIR)stage/all/libopenmpt.wasm             bin/$(FLAVOUR_DIR)dist-js/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/bin/$(FLAVOUR_DIR)all/libopenmpt.wasm
-	cp bin/$(FLAVOUR_DIR)stage/all/libopenmpt.wasm.js          bin/$(FLAVOUR_DIR)dist-js/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/bin/$(FLAVOUR_DIR)all/libopenmpt.wasm.js
-	mkdir -p                                     bin/$(FLAVOUR_DIR)dist-js/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/bin/$(FLAVOUR_DIR)wasm
-	cp bin/$(FLAVOUR_DIR)stage/wasm/libopenmpt.js              bin/$(FLAVOUR_DIR)dist-js/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/bin/$(FLAVOUR_DIR)wasm/libopenmpt.js
-	cp bin/$(FLAVOUR_DIR)stage/wasm/libopenmpt.wasm            bin/$(FLAVOUR_DIR)dist-js/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/bin/$(FLAVOUR_DIR)wasm/libopenmpt.wasm
-	mkdir -p                                     bin/$(FLAVOUR_DIR)dist-js/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/bin/$(FLAVOUR_DIR)js
-	cp bin/$(FLAVOUR_DIR)stage/js/libopenmpt.js                bin/$(FLAVOUR_DIR)dist-js/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/bin/$(FLAVOUR_DIR)js/libopenmpt.js
-	cp bin/$(FLAVOUR_DIR)stage/js/libopenmpt.js.mem            bin/$(FLAVOUR_DIR)dist-js/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/bin/$(FLAVOUR_DIR)js/libopenmpt.js.mem
-	cd bin/$(FLAVOUR_DIR)dist-js/ && tar cv --numeric-owner --owner=0 --group=0 libopenmpt-$(DIST_LIBOPENMPT_VERSION) > libopenmpt-$(DIST_LIBOPENMPT_VERSION).dev.js.tar
-
-.PHONY: bin/$(FLAVOUR_DIR)dist-dos/libopenmpt-$(DIST_LIBOPENMPT_VERSION).bin.dos.zip
-bin/$(FLAVOUR_DIR)dist-dos/libopenmpt-$(DIST_LIBOPENMPT_VERSION).bin.dos.zip:
-	mkdir -p bin/$(FLAVOUR_DIR)dist-dos
-	rm -rf                                       bin/$(FLAVOUR_DIR)dist-dos/libopenmpt-$(DIST_LIBOPENMPT_VERSION)
-	mkdir -p                                     bin/$(FLAVOUR_DIR)dist-dos/libopenmpt-$(DIST_LIBOPENMPT_VERSION)
-	mkdir -p                                     bin/$(FLAVOUR_DIR)dist-dos/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/LICENSES
-	svn export ./LICENSE                         bin/$(FLAVOUR_DIR)dist-dos/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/LICENSE.TXT          --native-eol CRLF
-	svn export ./src/mpt/LICENSE.BSD-3-Clause.txt bin/$(FLAVOUR_DIR)dist-dos/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/LICENSES/MPT_BSD3.TXT --native-eol CRLF
-	svn export ./src/mpt/LICENSE.BSL-1.0.txt     bin/$(FLAVOUR_DIR)dist-dos/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/LICENSES/MPT_BSL1.TXT --native-eol CRLF
-	cp include/allegro42/readme.txt              bin/$(FLAVOUR_DIR)dist-dos/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/LICENSES/ALLEGRO.TXT
-	cp include/cwsdpmi/bin/$(FLAVOUR_DIR)cwsdpmi.doc           bin/$(FLAVOUR_DIR)dist-dos/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/LICENSES/CWSDPMI.TXT
-ifeq ($(ALLOW_LGPL),1)
-	svn export ./include/mpg123/COPYING          bin/$(FLAVOUR_DIR)dist-dos/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/LICENSES/MPG123.TXT   --native-eol CRLF
-	svn export ./include/mpg123/AUTHORS          bin/$(FLAVOUR_DIR)dist-dos/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/LICENSES/MPG123_A.TXT --native-eol CRLF
-	svn export ./include/vorbis/COPYING          bin/$(FLAVOUR_DIR)dist-dos/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/LICENSES/VORBIS.TXT   --native-eol CRLF
-	svn export ./include/zlib/README             bin/$(FLAVOUR_DIR)dist-dos/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/LICENSES/ZLIB.TXT     --native-eol CRLF
-else
-	svn export ./include/minimp3/LICENSE         bin/$(FLAVOUR_DIR)dist-dos/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/LICENSES/MINIMP3.TXT --native-eol CRLF
-	svn export ./include/miniz/miniz.c           bin/$(FLAVOUR_DIR)dist-dos/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/LICENSES/MINIZ.TXT   --native-eol CRLF
-	svn export ./include/stb_vorbis/stb_vorbis.c bin/$(FLAVOUR_DIR)dist-dos/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/LICENSES/STBVORB.TXT --native-eol CRLF
-endif
-	mkdir -p                                     bin/$(FLAVOUR_DIR)dist-dos/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/SRC
-	cp build/externals/csdpmi7s.zip              bin/$(FLAVOUR_DIR)dist-dos/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/SRC/CSDPMI7S.ZIP
-	mkdir -p                                     bin/$(FLAVOUR_DIR)dist-dos/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/BIN
-ifeq ($(ALLOW_LGPL),1)
-ifeq ($(ENABLE_DXE),1)
-	cp bin/$(FLAVOUR_DIR)mpg123.dxe              bin/$(FLAVOUR_DIR)dist-dos/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/BIN/MPG123.DXE
-endif
-endif
-	cp bin/$(FLAVOUR_DIR)openmpt123.exe          bin/$(FLAVOUR_DIR)dist-dos/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/BIN/OMPT123.EXE
-	cp include/cwsdpmi/bin/cwsdpmi.doc           bin/$(FLAVOUR_DIR)dist-dos/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/BIN/CWSDPMI.DOC
-	cp include/cwsdpmi/bin/CWSDPMI.EXE           bin/$(FLAVOUR_DIR)dist-dos/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/BIN/CWSDPMI.EXE
-	cp include/cwsdpmi/bin/CWSDPR0.EXE           bin/$(FLAVOUR_DIR)dist-dos/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/BIN/CWSDPR0.EXE
-	cp include/cwsdpmi/bin/cwsparam.doc          bin/$(FLAVOUR_DIR)dist-dos/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/BIN/CWSPARAM.DOC
-	cp include/cwsdpmi/bin/CWSPARAM.EXE          bin/$(FLAVOUR_DIR)dist-dos/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/BIN/CWSPARAM.EXE
-	cp include/cwsdpmi/bin/CWSDSTUB.EXE          bin/$(FLAVOUR_DIR)dist-dos/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/BIN/CWSDSTUB.EXE
-	cp include/cwsdpmi/bin/CWSDSTR0.EXE          bin/$(FLAVOUR_DIR)dist-dos/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/BIN/CWSDSTR0.EXE
-	cd bin/$(FLAVOUR_DIR)dist-dos/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/ && zip -r ../libopenmpt-$(DIST_LIBOPENMPT_VERSION).bin.dos.zip --compression-method deflate -9 *
-
-.PHONY: bin/$(FLAVOUR_DIR)dist-retro-win98/libopenmpt-$(DIST_LIBOPENMPT_VERSION).bin.retro.win98.zip
-bin/$(FLAVOUR_DIR)dist-retro-win98/libopenmpt-$(DIST_LIBOPENMPT_VERSION).bin.retro.win98.zip:
-	mkdir -p bin/$(FLAVOUR_DIR)dist-retro-win98
-	rm -rf                                       bin/$(FLAVOUR_DIR)dist-retro-win98/libopenmpt-$(DIST_LIBOPENMPT_VERSION)
-	mkdir -p                                     bin/$(FLAVOUR_DIR)dist-retro-win98/libopenmpt-$(DIST_LIBOPENMPT_VERSION)
-	mkdir -p                                     bin/$(FLAVOUR_DIR)dist-retro-win98/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/Licenses
-	svn export ./LICENSE                         bin/$(FLAVOUR_DIR)dist-retro-win98/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/LICENSE.TXT --native-eol CRLF
-	svn export ./doc/libopenmpt/changelog.md     bin/$(FLAVOUR_DIR)dist-retro-win98/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/Changelog.txt --native-eol CRLF
-	svn export ./src/mpt/LICENSE.BSD-3-Clause.txt bin/$(FLAVOUR_DIR)dist-retro-win98/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/Licenses/license.mpt.BSD-3-Clause.txt --native-eol CRLF
-	svn export ./src/mpt/LICENSE.BSL-1.0.txt     bin/$(FLAVOUR_DIR)dist-retro-win98/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/Licenses/license.mpt.BSL-1.0.txt --native-eol CRLF
-ifeq ($(ALLOW_LGPL),1)
-	svn export ./include/mpg123/COPYING          bin/$(FLAVOUR_DIR)dist-retro-win98/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/Licenses/License.mpg123.txt --native-eol CRLF
-	svn export ./include/mpg123/AUTHORS          bin/$(FLAVOUR_DIR)dist-retro-win98/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/Licenses/License.Authors.txt --native-eol CRLF
-	svn export ./include/vorbis/COPYING          bin/$(FLAVOUR_DIR)dist-retro-win98/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/Licenses/License.Vorbis.txt --native-eol CRLF
-	svn export ./include/zlib/README             bin/$(FLAVOUR_DIR)dist-retro-win98/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/Licenses/License.zlib.txt --native-eol CRLF
-else
-	svn export ./include/minimp3/LICENSE         bin/$(FLAVOUR_DIR)dist-retro-win98/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/Licenses/License.minimp3.txt --native-eol CRLF
-	svn export ./include/miniz/miniz.c           bin/$(FLAVOUR_DIR)dist-retro-win98/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/Licenses/License.miniz.txt --native-eol CRLF
-	svn export ./include/stb_vorbis/stb_vorbis.c bin/$(FLAVOUR_DIR)dist-retro-win98/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/Licenses/License.stb_vorbis.txt --native-eol CRLF
-endif
-	mkdir -p                                     bin/$(FLAVOUR_DIR)dist-retro-win98/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/openmpt123
-	cp bin/$(FLAVOUR_DIR)openmpt123.exe                        bin/$(FLAVOUR_DIR)dist-retro-win98/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/openmpt123/openmpt123.exe
-	mkdir -p                                     bin/$(FLAVOUR_DIR)dist-retro-win98/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/XMPlay
-	svn export ./libopenmpt/xmp-openmpt/xmp-openmpt.txt  bin/$(FLAVOUR_DIR)dist-retro-win98/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/XMPlay/xmp-openmpt.txt --native-eol CRLF
-	cp bin/$(FLAVOUR_DIR)xmp-openmpt.dll                       bin/$(FLAVOUR_DIR)dist-retro-win98/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/XMPlay/xmp-openmpt.dll
-	mkdir -p                                     bin/$(FLAVOUR_DIR)dist-retro-win98/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/Winamp
-	svn export ./libopenmpt/in_openmpt/in_openmpt.txt   bin/$(FLAVOUR_DIR)dist-retro-win98/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/Winamp/in_openmpt.txt --native-eol CRLF
-	cp bin/$(FLAVOUR_DIR)in_openmpt.dll                        bin/$(FLAVOUR_DIR)dist-retro-win98/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/Winamp/in_openmpt.dll
-	cd bin/$(FLAVOUR_DIR)dist-retro-win98/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/ && ../../../build/tools/7zip/7z a -tzip -mx=9 ../libopenmpt-$(DIST_LIBOPENMPT_VERSION).bin.retro.win98.zip *
-
-.PHONY: bin/$(FLAVOUR_DIR)dist-retro-win95/libopenmpt-$(DIST_LIBOPENMPT_VERSION).bin.retro.win95.zip
-bin/$(FLAVOUR_DIR)dist-retro-win95/libopenmpt-$(DIST_LIBOPENMPT_VERSION).bin.retro.win95.zip:
-	mkdir -p bin/$(FLAVOUR_DIR)dist-retro-win95
-	rm -rf                                       bin/$(FLAVOUR_DIR)dist-retro-win95/libopenmpt-$(DIST_LIBOPENMPT_VERSION)
-	mkdir -p                                     bin/$(FLAVOUR_DIR)dist-retro-win95/libopenmpt-$(DIST_LIBOPENMPT_VERSION)
-	mkdir -p                                     bin/$(FLAVOUR_DIR)dist-retro-win95/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/Licenses
-	svn export ./LICENSE                         bin/$(FLAVOUR_DIR)dist-retro-win95/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/LICENSE.TXT --native-eol CRLF
-	svn export ./doc/libopenmpt/changelog.md     bin/$(FLAVOUR_DIR)dist-retro-win95/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/Changelog.txt --native-eol CRLF
-	svn export ./src/mpt/LICENSE.BSD-3-Clause.txt bin/$(FLAVOUR_DIR)dist-retro-win95/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/Licenses/license.mpt.BSD-3-Clause.txt --native-eol CRLF
-	svn export ./src/mpt/LICENSE.BSL-1.0.txt     bin/$(FLAVOUR_DIR)dist-retro-win95/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/Licenses/license.mpt.BSL-1.0.txt --native-eol CRLF
-ifeq ($(ALLOW_LGPL),1)
-	svn export ./include/mpg123/COPYING          bin/$(FLAVOUR_DIR)dist-retro-win95/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/Licenses/License.mpg123.txt --native-eol CRLF
-	svn export ./include/mpg123/AUTHORS          bin/$(FLAVOUR_DIR)dist-retro-win95/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/Licenses/License.Authors.txt --native-eol CRLF
-	svn export ./include/vorbis/COPYING          bin/$(FLAVOUR_DIR)dist-retro-win95/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/Licenses/License.Vorbis.txt --native-eol CRLF
-	svn export ./include/zlib/README             bin/$(FLAVOUR_DIR)dist-retro-win95/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/Licenses/License.zlib.txt --native-eol CRLF
-else
-	svn export ./include/minimp3/LICENSE         bin/$(FLAVOUR_DIR)dist-retro-win95/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/Licenses/License.minimp3.txt --native-eol CRLF
-	svn export ./include/miniz/miniz.c           bin/$(FLAVOUR_DIR)dist-retro-win95/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/Licenses/License.miniz.txt --native-eol CRLF
-	svn export ./include/stb_vorbis/stb_vorbis.c bin/$(FLAVOUR_DIR)dist-retro-win95/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/Licenses/License.stb_vorbis.txt --native-eol CRLF
-endif
-	mkdir -p                                     bin/$(FLAVOUR_DIR)dist-retro-win95/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/openmpt123
-	cp bin/$(FLAVOUR_DIR)openmpt123.exe                        bin/$(FLAVOUR_DIR)dist-retro-win95/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/openmpt123/openmpt123.exe
-	#mkdir -p                                     bin/$(FLAVOUR_DIR)dist-retro-win95/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/XMPlay
-	#svn export ./libopenmpt/xmp-openmpt/xmp-openmpt.txt  bin/$(FLAVOUR_DIR)dist-retro-win95/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/XMPlay/xmp-openmpt.txt --native-eol CRLF
-	#cp bin/$(FLAVOUR_DIR)xmp-openmpt.dll                       bin/$(FLAVOUR_DIR)dist-retro-win95/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/XMPlay/xmp-openmpt.dll
-	#mkdir -p                                     bin/$(FLAVOUR_DIR)dist-retro-win95/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/Winamp
-	#svn export ./libopenmpt/in_openmpt/in_openmpt.txt   bin/$(FLAVOUR_DIR)dist-retro-win95/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/Winamp/in_openmpt.txt --native-eol CRLF
-	#cp bin/$(FLAVOUR_DIR)in_openmpt.dll                        bin/$(FLAVOUR_DIR)dist-retro-win95/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/Winamp/in_openmpt.dll
-	cd bin/$(FLAVOUR_DIR)dist-retro-win95/libopenmpt-$(DIST_LIBOPENMPT_VERSION)/ && 7z a -tzip -mx=9 ../libopenmpt-$(DIST_LIBOPENMPT_VERSION).bin.retro.win95.zip *
-
-bin/$(FLAVOUR_DIR)libopenmpt.a: $(LIBOPENMPT_OBJECTS) $(LIBOPENMPT_LIBS)
-	$(INFO) [AR] $@
-	$(SILENT)$(AR) $(ARFLAGS) $@ $^
-
-bin/$(FLAVOUR_DIR)libopenmpt$(SOSUFFIX): $(LIBOPENMPT_OBJECTS) $(LIBOPENMPT_LIBS)
-	$(INFO) [LD] $@
-ifeq ($(NO_SHARED_LINKER_FLAG),1)
-	$(SILENT)$(LINK.cc) $(LIBOPENMPT_LDFLAGS) $(SO_LDFLAGS) $^ $(LOADLIBES) $(LDLIBS) -o $@
-else
-	$(SILENT)$(LINK.cc) -shared $(LIBOPENMPT_LDFLAGS) $(SO_LDFLAGS) $^ $(LOADLIBES) $(LDLIBS) -o $@
-endif
-ifeq ($(SHARED_SONAME),1)
-	$(SILENT)mv bin/$(FLAVOUR_DIR)libopenmpt$(SOSUFFIX) bin/$(FLAVOUR_DIR)$(LIBOPENMPT_SONAME)
-	$(SILENT)ln -sf $(LIBOPENMPT_SONAME) bin/$(FLAVOUR_DIR)libopenmpt$(SOSUFFIX)
-endif
-
-bin/$(FLAVOUR_DIR)openmpt123.1: bin/$(FLAVOUR_DIR)openmpt123$(EXESUFFIX) openmpt123/openmpt123.h2m
-	$(INFO) [HELP2MAN] $@
-	$(SILENT)help2man --no-discard-stderr --no-info --version-option=--man-version --help-option=--man-help --include=openmpt123/openmpt123.h2m $< > $@
-
-bin/$(FLAVOUR_DIR)in_openmpt$(SOSUFFIX): $(INOPENMPT_OBJECTS) $(LIBOPENMPT_OBJECTS) $(LIBOPENMPT_LIBS)
-	$(INFO) [LD] $@
-ifeq ($(NO_SHARED_LINKER_FLAG),1)
-	$(SILENT)$(LINK.cc) $(LIBOPENMPT_LDFLAGS) $(SO_LDFLAGS) $^ $(LOADLIBES) $(LDLIBS) -o $@
-else
-	$(SILENT)$(LINK.cc) -shared $(LIBOPENMPT_LDFLAGS) $(SO_LDFLAGS) $^ $(LOADLIBES) $(LDLIBS) -o $@
-endif
-
-bin/$(FLAVOUR_DIR)xmp-openmpt$(SOSUFFIX): $(XMPOPENMPT_OBJECTS) $(LIBOPENMPT_OBJECTS) $(LIBOPENMPT_LIBS)
-	$(INFO) [LD] $@
-ifeq ($(NO_SHARED_LINKER_FLAG),1)
-	$(SILENT)$(LINK.cc) $(LIBOPENMPT_LDFLAGS) $(SO_LDFLAGS) $^ $(LOADLIBES) $(LDLIBS) -lgdi32 -o $@
-else
-	$(SILENT)$(LINK.cc) -shared $(LIBOPENMPT_LDFLAGS) $(SO_LDFLAGS) $^ $(LOADLIBES) $(LDLIBS) -lgdi32 -o $@
-endif
-
-openmpt123/openmpt123$(FLAVOUR_O).o: openmpt123/openmpt123.cpp
-	$(INFO) [CXX] $<
-	$(VERYSILENT)$(CXX) $(CXXFLAGS) $(CXXFLAGS_OPENMPT123) $(CPPFLAGS) $(CPPFLAGS_OPENMPT123) $(TARGET_ARCH) -M -MT$@ $< > $*$(FLAVOUR_O).d
-	$(SILENT)$(COMPILE.cc) $(CXXFLAGS_OPENMPT123) $(CPPFLAGS_OPENMPT123) $(OUTPUT_OPTION) $<
-bin/$(FLAVOUR_DIR)openmpt123$(EXESUFFIX): $(OPENMPT123_OBJECTS) $(DEPS_ALLEGRO42) $(OBJECTS_LIBOPENMPT) $(OUTPUT_LIBOPENMPT)
-	$(INFO) [LD] $@
-	$(SILENT)$(LINK.cc) $(BIN_LDFLAGS) $(LDFLAGS_LIBOPENMPT) $(LDFLAGS_OPENMPT123) $(OPENMPT123_OBJECTS) $(OBJECTS_LIBOPENMPT) $(LOADLIBES) $(LDLIBS) $(LDLIBS_LIBOPENMPT) $(LDLIBS_OPENMPT123) -o $@
-ifeq ($(HOST),unix)
-ifeq ($(SHARED_LIB),1)
-	$(SILENT)mv $@ $@.norpath
-	$(INFO) [LD] $@
-	$(SILENT)$(LINK.cc) $(BIN_LDFLAGS) $(LDFLAGS_RPATH) $(LDFLAGS_LIBOPENMPT) $(LDFLAGS_OPENMPT123) $(OPENMPT123_OBJECTS) $(OBJECTS_LIBOPENMPT) $(LOADLIBES) $(LDLIBS) $(LDLIBS_LIBOPENMPT) $(LDLIBS_OPENMPT123) -o $@
-endif
-endif
-
-contrib/fuzzing/fuzz$(FLAVOUR_O).o: contrib/fuzzing/fuzz.c
-	$(INFO) [CC] $<
-	$(VERYSILENT)$(CC) $(CFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -M -MT$@ $< > $*$(FLAVOUR_O).d
-	$(SILENT)$(COMPILE.c) $(OUTPUT_OPTION) $<
-bin/$(FLAVOUR_DIR)fuzz$(EXESUFFIX): contrib/fuzzing/fuzz$(FLAVOUR_O).o $(OBJECTS_LIBOPENMPT) $(OUTPUT_LIBOPENMPT)
-	$(INFO) [LD] $@
-	$(SILENT)$(LINK.cc) $(LDFLAGS_LIBOPENMPT) contrib/fuzzing/fuzz$(FLAVOUR_O).o $(OBJECTS_LIBOPENMPT) $(LOADLIBES) $(LDLIBS) $(LDLIBS_LIBOPENMPT) -o $@
-ifeq ($(HOST),unix)
-ifeq ($(SHARED_LIB),1)
-	$(SILENT)mv $@ $@.norpath
-	$(INFO) [LD] $@
-	$(SILENT)$(LINK.cc) $(LDFLAGS_RPATH) $(LDFLAGS_LIBOPENMPT) contrib/fuzzing/fuzz$(FLAVOUR_O).o $(OBJECTS_LIBOPENMPT) $(LOADLIBES) $(LDLIBS) $(LDLIBS_LIBOPENMPT) -o $@
-endif
-endif
-
-examples/libopenmpt_example_c$(FLAVOUR_O).o: examples/libopenmpt_example_c.c
-	$(INFO) [CC] $<
-	$(VERYSILENT)$(CC) $(CFLAGS) $(CFLAGS_PORTAUDIO) $(CPPFLAGS) $(CPPFLAGS_PORTAUDIO) $(TARGET_ARCH) -M -MT$@ $< > $*$(FLAVOUR_O).d
-	$(SILENT)$(COMPILE.c) $(CFLAGS_PORTAUDIO) $(CPPFLAGS_PORTAUDIO) $(OUTPUT_OPTION) $<
-examples/libopenmpt_example_c_mem$(FLAVOUR_O).o: examples/libopenmpt_example_c_mem.c
-	$(INFO) [CC] $<
-	$(VERYSILENT)$(CC) $(CFLAGS) $(CFLAGS_PORTAUDIO) $(CPPFLAGS) $(CPPFLAGS_PORTAUDIO) $(TARGET_ARCH) -M -MT$@ $< > $*$(FLAVOUR_O).d
-	$(SILENT)$(COMPILE.c) $(CFLAGS_PORTAUDIO) $(CPPFLAGS_PORTAUDIO) $(OUTPUT_OPTION) $<
-examples/libopenmpt_example_c_unsafe$(FLAVOUR_O).o: examples/libopenmpt_example_c_unsafe.c
-	$(INFO) [CC] $<
-	$(VERYSILENT)$(CC) $(CFLAGS) $(CFLAGS_PORTAUDIO) $(CPPFLAGS) $(CPPFLAGS_PORTAUDIO) $(TARGET_ARCH) -M -MT$@ $< > $*$(FLAVOUR_O).d
-	$(SILENT)$(COMPILE.c) $(CFLAGS_PORTAUDIO) $(CPPFLAGS_PORTAUDIO) $(OUTPUT_OPTION) $<
-examples/libopenmpt_example_c_pipe$(FLAVOUR_O).o: examples/libopenmpt_example_c_pipe.c
-	$(INFO) [CC] $<
-	$(VERYSILENT)$(CC) $(CFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -M -MT$@ $< > $*$(FLAVOUR_O).d
-	$(SILENT)$(COMPILE.c) $(OUTPUT_OPTION) $<
-examples/libopenmpt_example_c_stdout$(FLAVOUR_O).o: examples/libopenmpt_example_c_stdout.c
-	$(INFO) [CC] $<
-	$(VERYSILENT)$(CC) $(CFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -M -MT$@ $< > $*$(FLAVOUR_O).d
-	$(SILENT)$(COMPILE.c) $(OUTPUT_OPTION) $<
-examples/libopenmpt_example_c_probe$(FLAVOUR_O).o: examples/libopenmpt_example_c_probe.c
-	$(INFO) [CC] $<
-	$(VERYSILENT)$(CC) $(CFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -M -MT$@ $< > $*$(FLAVOUR_O).d
-	$(SILENT)$(COMPILE.c) $(OUTPUT_OPTION) $<
-examples/libopenmpt_example_cxx$(FLAVOUR_O).o: examples/libopenmpt_example_cxx.cpp
-	$(INFO) [CXX] $<
-	$(VERYSILENT)$(CXX) $(CXXFLAGS) $(CXXFLAGS_PORTAUDIOCPP) $(CPPFLAGS) $(CPPFLAGS_PORTAUDIOCPP) $(TARGET_ARCH) -M -MT$@ $< > $*$(FLAVOUR_O).d
-	$(SILENT)$(COMPILE.cc) $(CXXFLAGS_PORTAUDIOCPP) $(CPPFLAGS_PORTAUDIOCPP) $(OUTPUT_OPTION) $<
-bin/$(FLAVOUR_DIR)libopenmpt_example_c$(EXESUFFIX): examples/libopenmpt_example_c$(FLAVOUR_O).o $(OBJECTS_LIBOPENMPT) $(OUTPUT_LIBOPENMPT)
-	$(INFO) [LD] $@
-	$(SILENT)$(LINK.cc) $(BIN_LDFLAGS) $(LDFLAGS_LIBOPENMPT) $(LDFLAGS_PORTAUDIO) examples/libopenmpt_example_c$(FLAVOUR_O).o $(OBJECTS_LIBOPENMPT) $(LOADLIBES) $(LDLIBS) $(LDLIBS_LIBOPENMPT) $(LDLIBS_PORTAUDIO) -o $@
-ifeq ($(HOST),unix)
-ifeq ($(SHARED_LIB),1)
-	$(SILENT)mv $@ $@.norpath
-	$(INFO) [LD] $@
-	$(SILENT)$(LINK.cc) $(BIN_LDFLAGS) $(BIN_LDFLAGS)$(LDFLAGS_RPATH) $(LDFLAGS_LIBOPENMPT) $(LDFLAGS_PORTAUDIO) examples/libopenmpt_example_c$(FLAVOUR_O).o $(OBJECTS_LIBOPENMPT) $(LOADLIBES) $(LDLIBS) $(LDLIBS_LIBOPENMPT) $(LDLIBS_PORTAUDIO) -o $@
-endif
-endif
-bin/$(FLAVOUR_DIR)libopenmpt_example_c_mem$(EXESUFFIX): examples/libopenmpt_example_c_mem$(FLAVOUR_O).o $(OBJECTS_LIBOPENMPT) $(OUTPUT_LIBOPENMPT)
-	$(INFO) [LD] $@
-	$(SILENT)$(LINK.cc) $(BIN_LDFLAGS) $(LDFLAGS_LIBOPENMPT) $(LDFLAGS_PORTAUDIO) examples/libopenmpt_example_c_mem$(FLAVOUR_O).o $(OBJECTS_LIBOPENMPT) $(LOADLIBES) $(LDLIBS) $(LDLIBS_LIBOPENMPT) $(LDLIBS_PORTAUDIO) -o $@
-ifeq ($(HOST),unix)
-ifeq ($(SHARED_LIB),1)
-	$(SILENT)mv $@ $@.norpath
-	$(INFO) [LD] $@
-	$(SILENT)$(LINK.cc) $(BIN_LDFLAGS) $(LDFLAGS_RPATH) $(LDFLAGS_LIBOPENMPT) $(LDFLAGS_PORTAUDIO) examples/libopenmpt_example_c_mem$(FLAVOUR_O).o $(OBJECTS_LIBOPENMPT) $(LOADLIBES) $(LDLIBS) $(LDLIBS_LIBOPENMPT) $(LDLIBS_PORTAUDIO) -o $@
-endif
-endif
-bin/$(FLAVOUR_DIR)libopenmpt_example_c_unsafe$(EXESUFFIX): examples/libopenmpt_example_c_unsafe$(FLAVOUR_O).o $(OBJECTS_LIBOPENMPT) $(OUTPUT_LIBOPENMPT)
-	$(INFO) [LD] $@
-	$(SILENT)$(LINK.cc) $(BIN_LDFLAGS) $(LDFLAGS_LIBOPENMPT) $(LDFLAGS_PORTAUDIO) examples/libopenmpt_example_c_unsafe$(FLAVOUR_O).o $(OBJECTS_LIBOPENMPT) $(LOADLIBES) $(LDLIBS) $(LDLIBS_LIBOPENMPT) $(LDLIBS_PORTAUDIO) -o $@
-ifeq ($(HOST),unix)
-ifeq ($(SHARED_LIB),1)
-	$(SILENT)mv $@ $@.norpath
-	$(INFO) [LD] $@
-	$(SILENT)$(LINK.cc) $(BIN_LDFLAGS) $(LDFLAGS_RPATH) $(LDFLAGS_LIBOPENMPT) $(LDFLAGS_PORTAUDIO) examples/libopenmpt_example_c_unsafe$(FLAVOUR_O).o $(OBJECTS_LIBOPENMPT) $(LOADLIBES) $(LDLIBS) $(LDLIBS_LIBOPENMPT) $(LDLIBS_PORTAUDIO) -o $@
-endif
-endif
-bin/$(FLAVOUR_DIR)libopenmpt_example_c_pipe$(EXESUFFIX): examples/libopenmpt_example_c_pipe$(FLAVOUR_O).o $(OBJECTS_LIBOPENMPT) $(OUTPUT_LIBOPENMPT)
-	$(INFO) [LD] $@
-	$(SILENT)$(LINK.cc) $(BIN_LDFLAGS) $(LDFLAGS_LIBOPENMPT) examples/libopenmpt_example_c_pipe$(FLAVOUR_O).o $(OBJECTS_LIBOPENMPT) $(LOADLIBES) $(LDLIBS) $(LDLIBS_LIBOPENMPT) -o $@
-ifeq ($(HOST),unix)
-ifeq ($(SHARED_LIB),1)
-	$(SILENT)mv $@ $@.norpath
-	$(INFO) [LD] $@
-	$(SILENT)$(LINK.cc) $(BIN_LDFLAGS) $(LDFLAGS_RPATH) $(LDFLAGS_LIBOPENMPT) examples/libopenmpt_example_c_pipe$(FLAVOUR_O).o $(OBJECTS_LIBOPENMPT) $(LOADLIBES) $(LDLIBS) $(LDLIBS_LIBOPENMPT) -o $@
-endif
-endif
-bin/$(FLAVOUR_DIR)libopenmpt_example_c_stdout$(EXESUFFIX): examples/libopenmpt_example_c_stdout$(FLAVOUR_O).o $(OBJECTS_LIBOPENMPT) $(OUTPUT_LIBOPENMPT)
-	$(INFO) [LD] $@
-	$(SILENT)$(LINK.cc) $(BIN_LDFLAGS) $(LDFLAGS_LIBOPENMPT) examples/libopenmpt_example_c_stdout$(FLAVOUR_O).o $(OBJECTS_LIBOPENMPT) $(LOADLIBES) $(LDLIBS) $(LDLIBS_LIBOPENMPT) -o $@
-ifeq ($(HOST),unix)
-ifeq ($(SHARED_LIB),1)
-	$(SILENT)mv $@ $@.norpath
-	$(INFO) [LD] $@
-	$(SILENT)$(LINK.cc) $(BIN_LDFLAGS) $(LDFLAGS_RPATH) $(LDFLAGS_LIBOPENMPT) examples/libopenmpt_example_c_stdout$(FLAVOUR_O).o $(OBJECTS_LIBOPENMPT) $(LOADLIBES) $(LDLIBS) $(LDLIBS_LIBOPENMPT) -o $@
-endif
-endif
-bin/$(FLAVOUR_DIR)libopenmpt_example_c_probe$(EXESUFFIX): examples/libopenmpt_example_c_probe$(FLAVOUR_O).o $(OBJECTS_LIBOPENMPT) $(OUTPUT_LIBOPENMPT)
-	$(INFO) [LD] $@
-	$(SILENT)$(LINK.cc) $(BIN_LDFLAGS) $(LDFLAGS_LIBOPENMPT) examples/libopenmpt_example_c_probe$(FLAVOUR_O).o $(OBJECTS_LIBOPENMPT) $(LOADLIBES) $(LDLIBS) $(LDLIBS_LIBOPENMPT) -o $@
-ifeq ($(HOST),unix)
-ifeq ($(SHARED_LIB),1)
-	$(SILENT)mv $@ $@.norpath
-	$(INFO) [LD] $@
-	$(SILENT)$(LINK.cc) $(BIN_LDFLAGS) $(LDFLAGS_RPATH) $(LDFLAGS_LIBOPENMPT) examples/libopenmpt_example_c_probe$(FLAVOUR_O).o $(OBJECTS_LIBOPENMPT) $(LOADLIBES) $(LDLIBS) $(LDLIBS_LIBOPENMPT) -o $@
-endif
-endif
-bin/$(FLAVOUR_DIR)libopenmpt_example_cxx$(EXESUFFIX): examples/libopenmpt_example_cxx$(FLAVOUR_O).o $(OBJECTS_LIBOPENMPT) $(OUTPUT_LIBOPENMPT)
-	$(INFO) [LD] $@
-	$(SILENT)$(LINK.cc) $(BIN_LDFLAGS) $(LDFLAGS_LIBOPENMPT) $(LDFLAGS_PORTAUDIOCPP) examples/libopenmpt_example_cxx$(FLAVOUR_O).o $(OBJECTS_LIBOPENMPT) $(LOADLIBES) $(LDLIBS) $(LDLIBS_LIBOPENMPT) $(LDLIBS_PORTAUDIOCPP) -o $@
-ifeq ($(HOST),unix)
-ifeq ($(SHARED_LIB),1)
-	$(SILENT)mv $@ $@.norpath
-	$(INFO) [LD] $@
-	$(SILENT)$(LINK.cc) $(BIN_LDFLAGS) $(LDFLAGS_RPATH) $(LDFLAGS_LIBOPENMPT) $(LDFLAGS_PORTAUDIOCPP) examples/libopenmpt_example_cxx$(FLAVOUR_O).o $(OBJECTS_LIBOPENMPT) $(LOADLIBES) $(LDLIBS) $(LDLIBS_LIBOPENMPT) $(LDLIBS_PORTAUDIOCPP) -o $@
-endif
-endif
-
-.PHONY: cppcheck-libopenmpt
-cppcheck-libopenmpt:
-	$(INFO) [CPPCHECK] libopenmpt
-	$(SILENT)$(CPPCHECK) -DCPPCHECK -DMPT_CPPCHECK_CUSTOM $(CPPCHECK_FLAGS) $(CPPCHECK_PLATFORM) --check-config --suppress=unmatchedSuppression $(LIBOPENMPT_CXX_SOURCES) $(LIBOPENMPT_C_SOURCES)
-	$(SILENT)$(CPPCHECK) -DCPPCHECK -DMPT_CPPCHECK_CUSTOM $(CPPCHECK_FLAGS) $(CPPCHECK_PLATFORM) $(LIBOPENMPT_CXX_SOURCES) $(LIBOPENMPT_C_SOURCES)
-
-.PHONY: cppcheck-libopenmpt-test
-cppcheck-libopenmpt-test:
-	$(INFO) [CPPCHECK] libopenmpt-test
-	$(SILENT)$(CPPCHECK) -DCPPCHECK -DMPT_CPPCHECK_CUSTOM $(CPPCHECK_FLAGS) $(CPPCHECK_PLATFORM) -DLIBOPENMPT_BUILD_TEST --check-config --suppress=unmatchedSuppression $(LIBOPENMPTTEST_CXX_SOURCES) $(LIBOPENMPTTEST_C_SOURCES)
-	$(SILENT)$(CPPCHECK) -DCPPCHECK -DMPT_CPPCHECK_CUSTOM $(CPPCHECK_FLAGS) $(CPPCHECK_PLATFORM) -DLIBOPENMPT_BUILD_TEST $(LIBOPENMPTTEST_CXX_SOURCES) $(LIBOPENMPTTEST_C_SOURCES)
-
-.PHONY: cppcheck-openmpt123
-cppcheck-openmpt123:
-	$(INFO) [CPPCHECK] openmpt123
-	$(SILENT)$(CPPCHECK) -DCPPCHECK -DMPT_CPPCHECK_CUSTOM $(CPPCHECK_FLAGS) $(CPPCHECK_PLATFORM) --check-config --suppress=unmatchedSuppression $(OPENMPT123_CXX_SOURCES)
-	$(SILENT)$(CPPCHECK) -DCPPCHECK -DMPT_CPPCHECK_CUSTOM $(CPPCHECK_FLAGS) $(CPPCHECK_PLATFORM) $(OPENMPT123_CXX_SOURCES)
-
-.PHONY: cppcheck
-cppcheck: cppcheck-libopenmpt cppcheck-libopenmpt-test cppcheck-openmpt123
-
-.PHONY: clean
-clean:
-	$(INFO) clean ...
-	$(SILENT)$(RM) $(call FIXPATH,$(OUTPUTS) $(ALL_OBJECTS) $(ALL_DEPENDS) $(MISC_OUTPUTS))
-	$(SILENT)$(RMTREE) $(call FIXPATH,$(MISC_OUTPUTDIRS))
-
-.PHONY: clean-dist
-clean-dist:
-	$(INFO) clean-dist ...
-	$(SILENT)$(RM) $(call FIXPATH,$(DIST_OUTPUTS))
-	$(SILENT)$(RMTREE) $(call FIXPATH,$(DIST_OUTPUTDIRS))
-
-.PHONY: distversion
-distversion:
-	$(SILENT)echo "$(DIST_LIBOPENMPT_VERSION)"
-
-.PHONY: distversion-pure
-distversion-pure:
-	$(SILENT)echo "$(DIST_LIBOPENMPT_VERSION_PURE)"
-
-.PHONY: distversion-tarball
-distversion-tarball:
-	$(SILENT)echo "$(DIST_LIBOPENMPT_TARBALL_VERSION)"
+# Makefile.in generated by automake 1.16.5 from Makefile.am.
+# Makefile.  Generated from Makefile.in by configure.
+
+# Copyright (C) 1994-2021 Free Software Foundation, Inc.
+
+# This Makefile.in is free software; the Free Software Foundation
+# gives unlimited permission to copy and/or distribute it,
+# with or without modifications, as long as this notice is preserved.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY, to the extent permitted by law; without
+# even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+# PARTICULAR PURPOSE.
+
+
+
+
+
+
+
+am__is_gnu_make = { \
+  if test -z '$(MAKELEVEL)'; then \
+    false; \
+  elif test -n '$(MAKE_HOST)'; then \
+    true; \
+  elif test -n '$(MAKE_VERSION)' && test -n '$(CURDIR)'; then \
+    true; \
+  else \
+    false; \
+  fi; \
+}
+am__make_running_with_option = \
+  case $${target_option-} in \
+      ?) ;; \
+      *) echo "am__make_running_with_option: internal error: invalid" \
+              "target option '$${target_option-}' specified" >&2; \
+         exit 1;; \
+  esac; \
+  has_opt=no; \
+  sane_makeflags=$$MAKEFLAGS; \
+  if $(am__is_gnu_make); then \
+    sane_makeflags=$$MFLAGS; \
+  else \
+    case $$MAKEFLAGS in \
+      *\\[\ \	]*) \
+        bs=\\; \
+        sane_makeflags=`printf '%s\n' "$$MAKEFLAGS" \
+          | sed "s/$$bs$$bs[$$bs $$bs	]*//g"`;; \
+    esac; \
+  fi; \
+  skip_next=no; \
+  strip_trailopt () \
+  { \
+    flg=`printf '%s\n' "$$flg" | sed "s/$$1.*$$//"`; \
+  }; \
+  for flg in $$sane_makeflags; do \
+    test $$skip_next = yes && { skip_next=no; continue; }; \
+    case $$flg in \
+      *=*|--*) continue;; \
+        -*I) strip_trailopt 'I'; skip_next=yes;; \
+      -*I?*) strip_trailopt 'I';; \
+        -*O) strip_trailopt 'O'; skip_next=yes;; \
+      -*O?*) strip_trailopt 'O';; \
+        -*l) strip_trailopt 'l'; skip_next=yes;; \
+      -*l?*) strip_trailopt 'l';; \
+      -[dEDm]) skip_next=yes;; \
+      -[JT]) skip_next=yes;; \
+    esac; \
+    case $$flg in \
+      *$$target_option*) has_opt=yes; break;; \
+    esac; \
+  done; \
+  test $$has_opt = yes
+am__make_dryrun = (target_option=n; $(am__make_running_with_option))
+am__make_keepgoing = (target_option=k; $(am__make_running_with_option))
+pkgdatadir = $(datadir)/libopenmpt
+pkgincludedir = $(includedir)/libopenmpt
+pkglibdir = $(libdir)/libopenmpt
+pkglibexecdir = $(libexecdir)/libopenmpt
+am__cd = CDPATH="$${ZSH_VERSION+.}$(PATH_SEPARATOR)" && cd
+install_sh_DATA = $(install_sh) -c -m 644
+install_sh_PROGRAM = $(install_sh) -c
+install_sh_SCRIPT = $(install_sh) -c
+INSTALL_HEADER = $(INSTALL_DATA)
+transform = $(program_transform_name)
+NORMAL_INSTALL = :
+PRE_INSTALL = :
+POST_INSTALL = :
+NORMAL_UNINSTALL = :
+PRE_UNINSTALL = :
+POST_UNINSTALL = :
+build_triplet = aarch64-apple-darwin24.6.0
+host_triplet = aarch64-apple-darwin24.6.0
+bin_PROGRAMS = $(am__EXEEXT_1)
+check_PROGRAMS = $(am__EXEEXT_2) $(am__EXEEXT_3) $(am__EXEEXT_4) \
+	$(am__EXEEXT_5)
+TESTS = libopenmpttest$(EXEEXT)
+am__append_1 = libopenmpt_example_c_pipe \
+	libopenmpt_example_c_probe \
+	libopenmpt_example_c_stdout
+am__append_2 = libopenmpt_example_c \
+	libopenmpt_example_c_mem \
+	libopenmpt_example_c_unsafe
+am__append_3 = libopenmpt_example_cxx
+am__append_4 = libopenmpttest
+am__append_5 = bin/openmpt123
+subdir = .
+ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
+am__aclocal_m4_deps = $(top_srcdir)/m4/ax_cflags_warn_all.m4 \
+	$(top_srcdir)/m4/ax_check_compile_flag.m4 \
+	$(top_srcdir)/m4/ax_compiler_vendor.m4 \
+	$(top_srcdir)/m4/ax_cxx_compile_stdcxx.m4 \
+	$(top_srcdir)/m4/ax_cxx_exceptions.m4 \
+	$(top_srcdir)/m4/ax_cxx_rtti.m4 \
+	$(top_srcdir)/m4/ax_prepend_flag.m4 \
+	$(top_srcdir)/m4/ax_prog_doxygen.m4 \
+	$(top_srcdir)/m4/ax_pthread.m4 \
+	$(top_srcdir)/m4/ax_require_defined.m4 \
+	$(top_srcdir)/m4/libtool.m4 $(top_srcdir)/m4/ltoptions.m4 \
+	$(top_srcdir)/m4/ltsugar.m4 $(top_srcdir)/m4/ltversion.m4 \
+	$(top_srcdir)/m4/lt~obsolete.m4 $(top_srcdir)/m4/pkg.m4 \
+	$(top_srcdir)/configure.ac
+am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
+	$(ACLOCAL_M4)
+DIST_COMMON = $(srcdir)/Makefile.am $(top_srcdir)/configure \
+	$(am__configure_deps) $(dist_doc_DATA) $(nobase_dist_doc_DATA) \
+	$(includelibopenmpt_HEADERS) $(am__DIST_COMMON)
+am__CONFIG_DISTCLEAN_FILES = config.status config.cache config.log \
+ configure.lineno config.status.lineno
+mkinstalldirs = $(install_sh) -d
+CONFIG_CLEAN_FILES = libopenmpt/libopenmpt.pc Doxyfile
+CONFIG_CLEAN_VPATH_FILES =
+am__EXEEXT_1 = bin/openmpt123$(EXEEXT)
+am__installdirs = "$(DESTDIR)$(bindir)" "$(DESTDIR)$(libdir)" \
+	"$(DESTDIR)$(man1dir)" "$(DESTDIR)$(docdir)" \
+	"$(DESTDIR)$(docdir)" "$(DESTDIR)$(pkgconfigdir)" \
+	"$(DESTDIR)$(includelibopenmptdir)"
+am__EXEEXT_2 =  \
+	libopenmpt_example_c_pipe$(EXEEXT) \
+	libopenmpt_example_c_probe$(EXEEXT) \
+	libopenmpt_example_c_stdout$(EXEEXT)
+am__EXEEXT_3 = libopenmpt_example_c$(EXEEXT) \
+	libopenmpt_example_c_mem$(EXEEXT) \
+	libopenmpt_example_c_unsafe$(EXEEXT)
+am__EXEEXT_4 = libopenmpt_example_cxx$(EXEEXT)
+am__EXEEXT_5 = libopenmpttest$(EXEEXT)
+PROGRAMS = $(bin_PROGRAMS)
+am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
+am__vpath_adj = case $$p in \
+    $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
+    *) f=$$p;; \
+  esac;
+am__strip_dir = f=`echo $$p | sed -e 's|^.*/||'`;
+am__install_max = 40
+am__nobase_strip_setup = \
+  srcdirstrip=`echo "$(srcdir)" | sed 's/[].[^$$\\*|]/\\\\&/g'`
+am__nobase_strip = \
+  for p in $$list; do echo "$$p"; done | sed -e "s|$$srcdirstrip/||"
+am__nobase_list = $(am__nobase_strip_setup); \
+  for p in $$list; do echo "$$p $$p"; done | \
+  sed "s| $$srcdirstrip/| |;"' / .*\//!s/ .*/ ./; s,\( .*\)/[^/]*$$,\1,' | \
+  $(AWK) 'BEGIN { files["."] = "" } { files[$$2] = files[$$2] " " $$1; \
+    if (++n[$$2] == $(am__install_max)) \
+      { print $$2, files[$$2]; n[$$2] = 0; files[$$2] = "" } } \
+    END { for (dir in files) print dir, files[dir] }'
+am__base_list = \
+  sed '$$!N;$$!N;$$!N;$$!N;$$!N;$$!N;$$!N;s/\n/ /g' | \
+  sed '$$!N;$$!N;$$!N;$$!N;s/\n/ /g'
+am__uninstall_files_from_dir = { \
+  test -z "$$files" \
+    || { test ! -d "$$dir" && test ! -f "$$dir" && test ! -r "$$dir"; } \
+    || { echo " ( cd '$$dir' && rm -f" $$files ")"; \
+         $(am__cd) "$$dir" && rm -f $$files; }; \
+  }
+LTLIBRARIES = $(lib_LTLIBRARIES)
+am__DEPENDENCIES_1 =
+libopenmpt_la_DEPENDENCIES = $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1)
+am__objects_1 =
+am__dirstamp = $(am__leading_dot)dirstamp
+am__objects_2 = common/libopenmpt_la-ComponentManager.lo \
+	common/libopenmpt_la-Logging.lo \
+	common/libopenmpt_la-mptFileType.lo \
+	common/libopenmpt_la-mptPathString.lo \
+	common/libopenmpt_la-mptRandom.lo \
+	common/libopenmpt_la-mptStringBuffer.lo \
+	common/libopenmpt_la-mptTime.lo \
+	common/libopenmpt_la-Profiler.lo \
+	common/libopenmpt_la-serialization_utils.lo \
+	common/libopenmpt_la-version.lo
+am__objects_3 = soundlib/libopenmpt_la-AudioCriticalSection.lo \
+	soundlib/libopenmpt_la-ContainerMMCMP.lo \
+	soundlib/libopenmpt_la-ContainerPP20.lo \
+	soundlib/libopenmpt_la-ContainerUMX.lo \
+	soundlib/libopenmpt_la-ContainerXPK.lo \
+	soundlib/libopenmpt_la-Dlsbank.lo \
+	soundlib/libopenmpt_la-Fastmix.lo \
+	soundlib/libopenmpt_la-InstrumentExtensions.lo \
+	soundlib/libopenmpt_la-InstrumentSynth.lo \
+	soundlib/libopenmpt_la-ITCompression.lo \
+	soundlib/libopenmpt_la-ITTools.lo \
+	soundlib/libopenmpt_la-Load_667.lo \
+	soundlib/libopenmpt_la-Load_669.lo \
+	soundlib/libopenmpt_la-Load_amf.lo \
+	soundlib/libopenmpt_la-Load_ams.lo \
+	soundlib/libopenmpt_la-Load_c67.lo \
+	soundlib/libopenmpt_la-Load_cba.lo \
+	soundlib/libopenmpt_la-Load_dbm.lo \
+	soundlib/libopenmpt_la-Load_digi.lo \
+	soundlib/libopenmpt_la-Load_dmf.lo \
+	soundlib/libopenmpt_la-Load_dsm.lo \
+	soundlib/libopenmpt_la-Load_dsym.lo \
+	soundlib/libopenmpt_la-Load_dtm.lo \
+	soundlib/libopenmpt_la-Load_etx.lo \
+	soundlib/libopenmpt_la-Load_far.lo \
+	soundlib/libopenmpt_la-Load_fc.lo \
+	soundlib/libopenmpt_la-Load_fmt.lo \
+	soundlib/libopenmpt_la-Load_ftm.lo \
+	soundlib/libopenmpt_la-Load_gdm.lo \
+	soundlib/libopenmpt_la-Load_gmc.lo \
+	soundlib/libopenmpt_la-Load_gt2.lo \
+	soundlib/libopenmpt_la-Load_ice.lo \
+	soundlib/libopenmpt_la-Load_imf.lo \
+	soundlib/libopenmpt_la-Load_ims.lo \
+	soundlib/libopenmpt_la-Load_it.lo \
+	soundlib/libopenmpt_la-Load_itp.lo \
+	soundlib/libopenmpt_la-load_j2b.lo \
+	soundlib/libopenmpt_la-Load_kris.lo \
+	soundlib/libopenmpt_la-Load_mdl.lo \
+	soundlib/libopenmpt_la-Load_med.lo \
+	soundlib/libopenmpt_la-Load_mid.lo \
+	soundlib/libopenmpt_la-Load_mo3.lo \
+	soundlib/libopenmpt_la-Load_mod.lo \
+	soundlib/libopenmpt_la-Load_mt2.lo \
+	soundlib/libopenmpt_la-Load_mtm.lo \
+	soundlib/libopenmpt_la-Load_mus_km.lo \
+	soundlib/libopenmpt_la-Load_okt.lo \
+	soundlib/libopenmpt_la-Load_plm.lo \
+	soundlib/libopenmpt_la-Load_psm.lo \
+	soundlib/libopenmpt_la-Load_pt36.lo \
+	soundlib/libopenmpt_la-Load_ptm.lo \
+	soundlib/libopenmpt_la-Load_puma.lo \
+	soundlib/libopenmpt_la-Load_rtm.lo \
+	soundlib/libopenmpt_la-Load_s3m.lo \
+	soundlib/libopenmpt_la-Load_sfx.lo \
+	soundlib/libopenmpt_la-Load_stk.lo \
+	soundlib/libopenmpt_la-Load_stm.lo \
+	soundlib/libopenmpt_la-Load_stp.lo \
+	soundlib/libopenmpt_la-Load_symmod.lo \
+	soundlib/libopenmpt_la-Load_tcb.lo \
+	soundlib/libopenmpt_la-Load_uax.lo \
+	soundlib/libopenmpt_la-Load_ult.lo \
+	soundlib/libopenmpt_la-Load_unic.lo \
+	soundlib/libopenmpt_la-Load_wav.lo \
+	soundlib/libopenmpt_la-Load_xm.lo \
+	soundlib/libopenmpt_la-Load_xmf.lo \
+	soundlib/libopenmpt_la-Message.lo \
+	soundlib/libopenmpt_la-MIDIEvents.lo \
+	soundlib/libopenmpt_la-MIDIMacroParser.lo \
+	soundlib/libopenmpt_la-MIDIMacros.lo \
+	soundlib/libopenmpt_la-MixerLoops.lo \
+	soundlib/libopenmpt_la-MixerSettings.lo \
+	soundlib/libopenmpt_la-MixFuncTable.lo \
+	soundlib/libopenmpt_la-ModChannel.lo \
+	soundlib/libopenmpt_la-modcommand.lo \
+	soundlib/libopenmpt_la-ModInstrument.lo \
+	soundlib/libopenmpt_la-ModSample.lo \
+	soundlib/libopenmpt_la-ModSequence.lo \
+	soundlib/libopenmpt_la-modsmp_ctrl.lo \
+	soundlib/libopenmpt_la-mod_specifications.lo \
+	soundlib/libopenmpt_la-MODTools.lo \
+	soundlib/libopenmpt_la-MPEGFrame.lo \
+	soundlib/libopenmpt_la-OggStream.lo \
+	soundlib/libopenmpt_la-OPL.lo soundlib/libopenmpt_la-Paula.lo \
+	soundlib/libopenmpt_la-patternContainer.lo \
+	soundlib/libopenmpt_la-pattern.lo \
+	soundlib/libopenmpt_la-PlaybackTest.lo \
+	soundlib/libopenmpt_la-PlayState.lo \
+	soundlib/libopenmpt_la-RowVisitor.lo \
+	soundlib/libopenmpt_la-S3MTools.lo \
+	soundlib/libopenmpt_la-SampleFormats.lo \
+	soundlib/libopenmpt_la-SampleFormatBRR.lo \
+	soundlib/libopenmpt_la-SampleFormatFLAC.lo \
+	soundlib/libopenmpt_la-SampleFormatMediaFoundation.lo \
+	soundlib/libopenmpt_la-SampleFormatMP3.lo \
+	soundlib/libopenmpt_la-SampleFormatOpus.lo \
+	soundlib/libopenmpt_la-SampleFormatSFZ.lo \
+	soundlib/libopenmpt_la-SampleFormatVorbis.lo \
+	soundlib/libopenmpt_la-SampleIO.lo \
+	soundlib/libopenmpt_la-Sndfile.lo \
+	soundlib/libopenmpt_la-Snd_flt.lo \
+	soundlib/libopenmpt_la-Snd_fx.lo \
+	soundlib/libopenmpt_la-Sndmix.lo \
+	soundlib/libopenmpt_la-SoundFilePlayConfig.lo \
+	soundlib/libopenmpt_la-Tables.lo \
+	soundlib/libopenmpt_la-Tagging.lo \
+	soundlib/libopenmpt_la-TinyFFT.lo \
+	soundlib/libopenmpt_la-tuningCollection.lo \
+	soundlib/libopenmpt_la-tuning.lo \
+	soundlib/libopenmpt_la-UMXTools.lo \
+	soundlib/libopenmpt_la-UpgradeModule.lo \
+	soundlib/libopenmpt_la-WAVTools.lo \
+	soundlib/libopenmpt_la-WindowedFIR.lo \
+	soundlib/libopenmpt_la-XMTools.lo \
+	soundlib/plugins/dmo/libopenmpt_la-DMOPlugin.lo \
+	soundlib/plugins/dmo/libopenmpt_la-DMOUtils.lo \
+	soundlib/plugins/dmo/libopenmpt_la-Chorus.lo \
+	soundlib/plugins/dmo/libopenmpt_la-Compressor.lo \
+	soundlib/plugins/dmo/libopenmpt_la-Distortion.lo \
+	soundlib/plugins/dmo/libopenmpt_la-Echo.lo \
+	soundlib/plugins/dmo/libopenmpt_la-Flanger.lo \
+	soundlib/plugins/dmo/libopenmpt_la-Gargle.lo \
+	soundlib/plugins/dmo/libopenmpt_la-I3DL2Reverb.lo \
+	soundlib/plugins/dmo/libopenmpt_la-ParamEq.lo \
+	soundlib/plugins/dmo/libopenmpt_la-WavesReverb.lo \
+	soundlib/plugins/libopenmpt_la-DigiBoosterEcho.lo \
+	soundlib/plugins/libopenmpt_la-LFOPlugin.lo \
+	soundlib/plugins/libopenmpt_la-PluginManager.lo \
+	soundlib/plugins/libopenmpt_la-PlugInterface.lo \
+	soundlib/plugins/libopenmpt_la-SymMODEcho.lo
+am__objects_4 = sounddsp/libopenmpt_la-AGC.lo \
+	sounddsp/libopenmpt_la-DSP.lo sounddsp/libopenmpt_la-EQ.lo \
+	sounddsp/libopenmpt_la-Reverb.lo
+am_libopenmpt_la_OBJECTS = $(am__objects_1) $(am__objects_1) \
+	$(am__objects_2) $(am__objects_3) $(am__objects_4) \
+	libopenmpt/la-libopenmpt_c.lo libopenmpt/la-libopenmpt_cxx.lo \
+	libopenmpt/la-libopenmpt_ext_impl.lo \
+	libopenmpt/la-libopenmpt_impl.lo
+libopenmpt_la_OBJECTS = $(am_libopenmpt_la_OBJECTS)
+AM_V_lt = $(am__v_lt_$(V))
+am__v_lt_ = $(am__v_lt_$(AM_DEFAULT_VERBOSITY))
+am__v_lt_0 = --silent
+am__v_lt_1 = 
+libopenmpt_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
+	$(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) $(libopenmpt_la_LDFLAGS) \
+	$(LDFLAGS) -o $@
+am__bin_openmpt123_SOURCES_DIST = src/mpt/arch/arch.hpp \
+	src/mpt/arch/feature_fence.hpp src/mpt/arch/feature_flags.hpp \
+	src/mpt/arch/x86_amd64.hpp src/mpt/audio/sample.hpp \
+	src/mpt/audio/span.hpp src/mpt/base/algorithm.hpp \
+	src/mpt/base/aligned_array.hpp src/mpt/base/alloc.hpp \
+	src/mpt/base/arithmetic_shift.hpp src/mpt/base/array.hpp \
+	src/mpt/base/bit.hpp src/mpt/base/check_platform.hpp \
+	src/mpt/base/compiletime_warning.hpp \
+	src/mpt/base/constexpr_throw.hpp src/mpt/base/debugging.hpp \
+	src/mpt/base/detect.hpp src/mpt/base/detect_arch.hpp \
+	src/mpt/base/detect_compiler.hpp src/mpt/base/detect_libc.hpp \
+	src/mpt/base/detect_libcxx.hpp src/mpt/base/detect_os.hpp \
+	src/mpt/base/detect_quirks.hpp src/mpt/base/float.hpp \
+	src/mpt/base/integer.hpp src/mpt/base/macros.hpp \
+	src/mpt/base/math.hpp src/mpt/base/memory.hpp \
+	src/mpt/base/namespace.hpp src/mpt/base/numbers.hpp \
+	src/mpt/base/numeric.hpp src/mpt/base/pointer.hpp \
+	src/mpt/base/preprocessor.hpp src/mpt/base/saturate_cast.hpp \
+	src/mpt/base/saturate_round.hpp src/mpt/base/secure.hpp \
+	src/mpt/base/semantic_version.hpp src/mpt/base/size.hpp \
+	src/mpt/base/source_location.hpp src/mpt/base/span.hpp \
+	src/mpt/base/type_traits.hpp src/mpt/base/utility.hpp \
+	src/mpt/base/version.hpp src/mpt/base/wrapping_divide.hpp \
+	src/mpt/binary/base64.hpp src/mpt/binary/base64url.hpp \
+	src/mpt/binary/hex.hpp src/mpt/check/compiler.hpp \
+	src/mpt/check/libc.hpp src/mpt/check/libcxx.hpp \
+	src/mpt/check/mfc.hpp src/mpt/check/windows.hpp \
+	src/mpt/crc/crc.hpp src/mpt/detect/dl.hpp \
+	src/mpt/detect/ltdl.hpp src/mpt/detect/mfc.hpp \
+	src/mpt/detect/nlohmann_json.hpp \
+	src/mpt/endian/floatingpoint.hpp src/mpt/endian/int24.hpp \
+	src/mpt/endian/integer.hpp src/mpt/endian/type_traits.hpp \
+	src/mpt/environment/environment.hpp \
+	src/mpt/exception/exception.hpp \
+	src/mpt/exception/exception_text.hpp \
+	src/mpt/exception/logic_error.hpp \
+	src/mpt/exception/runtime_error.hpp src/mpt/format/concat.hpp \
+	src/mpt/format/default_floatingpoint.hpp \
+	src/mpt/format/default_formatter.hpp \
+	src/mpt/format/default_integer.hpp \
+	src/mpt/format/default_string.hpp src/mpt/format/helpers.hpp \
+	src/mpt/format/join.hpp src/mpt/format/message.hpp \
+	src/mpt/format/message_macros.hpp src/mpt/format/simple.hpp \
+	src/mpt/format/simple_floatingpoint.hpp \
+	src/mpt/format/simple_integer.hpp \
+	src/mpt/format/simple_spec.hpp src/mpt/io/base.hpp \
+	src/mpt/io/io.hpp src/mpt/io/io_span.hpp \
+	src/mpt/io/io_stdstream.hpp src/mpt/io/io_virtual_wrapper.hpp \
+	src/mpt/io_file/fileref.hpp src/mpt/io_file/fstream.hpp \
+	src/mpt/io_file/inputfile.hpp src/mpt/io_file/outputfile.hpp \
+	src/mpt/io_file_adapter/fileadapter.hpp \
+	src/mpt/io_file_read/inputfile_filecursor.hpp \
+	src/mpt/io_file_unique/unique_basename.hpp \
+	src/mpt/io_file_unique/unique_tempfilename.hpp \
+	src/mpt/io_read/callbackstream.hpp \
+	src/mpt/io_read/filecursor.hpp \
+	src/mpt/io_read/filecursor_callbackstream.hpp \
+	src/mpt/io_read/filecursor_filename_traits.hpp \
+	src/mpt/io_read/filecursor_memory.hpp \
+	src/mpt/io_read/filecursor_stdstream.hpp \
+	src/mpt/io_read/filecursor_traits_filedata.hpp \
+	src/mpt/io_read/filecursor_traits_memory.hpp \
+	src/mpt/io_read/filedata.hpp src/mpt/io_read/filedata_base.hpp \
+	src/mpt/io_read/filedata_base_buffered.hpp \
+	src/mpt/io_read/filedata_base_seekable.hpp \
+	src/mpt/io_read/filedata_base_unseekable.hpp \
+	src/mpt/io_read/filedata_base_unseekable_buffer.hpp \
+	src/mpt/io_read/filedata_callbackstream.hpp \
+	src/mpt/io_read/filedata_memory.hpp \
+	src/mpt/io_read/filedata_stdstream.hpp \
+	src/mpt/io_read/filereader.hpp src/mpt/io_write/buffer.hpp \
+	src/mpt/main/main.hpp src/mpt/mutex/mutex.hpp \
+	src/mpt/osinfo/class.hpp src/mpt/osinfo/dos_memory.hpp \
+	src/mpt/osinfo/dos_version.hpp \
+	src/mpt/osinfo/windows_version.hpp \
+	src/mpt/osinfo/windows_wine_version.hpp \
+	src/mpt/out_of_memory/out_of_memory.hpp \
+	src/mpt/parse/parse.hpp src/mpt/parse/split.hpp \
+	src/mpt/path/basic_path.hpp src/mpt/path/native_path.hpp \
+	src/mpt/path/path.hpp src/mpt/path/os_path.hpp \
+	src/mpt/path/os_path_long.hpp src/mpt/random/any_engine.hpp \
+	src/mpt/random/crand.hpp src/mpt/random/default_engines.hpp \
+	src/mpt/random/device.hpp src/mpt/random/engine.hpp \
+	src/mpt/random/engine_lcg.hpp src/mpt/random/random.hpp \
+	src/mpt/random/seed.hpp src/mpt/string/buffer.hpp \
+	src/mpt/string/types.hpp src/mpt/string/utility.hpp \
+	src/mpt/string_transcode/transcode.hpp \
+	src/mpt/string_transcode/macros.hpp \
+	src/mpt/system_error/system_error.hpp src/mpt/test/test.hpp \
+	src/mpt/test/test_macros.hpp src/mpt/uuid/guid.hpp \
+	src/mpt/uuid/uuid.hpp \
+	src/mpt/base/tests/tests_base_arithmetic_shift.hpp \
+	src/mpt/base/tests/tests_base_bit.hpp \
+	src/mpt/base/tests/tests_base_math.hpp \
+	src/mpt/base/tests/tests_base_numeric.hpp \
+	src/mpt/base/tests/tests_base_saturate_cast.hpp \
+	src/mpt/base/tests/tests_base_saturate_round.hpp \
+	src/mpt/base/tests/tests_base_wrapping_divide.hpp \
+	src/mpt/binary/tests/tests_binary.hpp \
+	src/mpt/crc/tests/tests_crc.hpp \
+	src/mpt/endian/tests/tests_endian_floatingpoint.hpp \
+	src/mpt/endian/tests/tests_endian_int24.hpp \
+	src/mpt/endian/tests/tests_endian_integer.hpp \
+	src/mpt/format/tests/tests_format_message.hpp \
+	src/mpt/format/tests/tests_format_simple.hpp \
+	src/mpt/io/tests/tests_io.hpp \
+	src/mpt/parse/tests/tests_parse.hpp \
+	src/mpt/random/tests/tests_random.hpp \
+	src/mpt/string/tests/tests_string_buffer.hpp \
+	src/mpt/string/tests/tests_string_utility.hpp \
+	src/mpt/string_transcode/tests/tests_string_transcode.hpp \
+	src/mpt/uuid/tests/tests_uuid.hpp \
+	openmpt123/openmpt123_allegro42.hpp \
+	openmpt123/openmpt123_config.hpp openmpt123/openmpt123.cpp \
+	openmpt123/openmpt123_exception.hpp \
+	openmpt123/openmpt123_flac.hpp openmpt123/openmpt123.hpp \
+	openmpt123/openmpt123_mmio.hpp \
+	openmpt123/openmpt123_portaudio.hpp \
+	openmpt123/openmpt123_pulseaudio.hpp \
+	openmpt123/openmpt123_raw.hpp openmpt123/openmpt123_sdl2.hpp \
+	openmpt123/openmpt123_sndfile.hpp \
+	openmpt123/openmpt123_stdio.hpp \
+	openmpt123/openmpt123_stdout.hpp \
+	openmpt123/openmpt123_terminal.hpp \
+	openmpt123/openmpt123_waveout.hpp
+am_bin_openmpt123_OBJECTS = $(am__objects_1) \
+	openmpt123/bin_openmpt123-openmpt123.$(OBJEXT)
+bin_openmpt123_OBJECTS = $(am_bin_openmpt123_OBJECTS)
+bin_openmpt123_DEPENDENCIES = libopenmpt.la \
+	$(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1)
+bin_openmpt123_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
+	$(bin_openmpt123_CXXFLAGS) $(CXXFLAGS) $(AM_LDFLAGS) \
+	$(LDFLAGS) -o $@
+am__libopenmpt_example_c_SOURCES_DIST =  \
+	examples/libopenmpt_example_c.c
+am_libopenmpt_example_c_OBJECTS = examples/libopenmpt_example_c-libopenmpt_example_c.$(OBJEXT)
+libopenmpt_example_c_OBJECTS = $(am_libopenmpt_example_c_OBJECTS)
+libopenmpt_example_c_DEPENDENCIES =  \
+	$(lib_LTLIBRARIES) \
+	$(am__DEPENDENCIES_1)
+libopenmpt_example_c_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
+	$(libopenmpt_example_c_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
+	$(LDFLAGS) -o $@
+am__libopenmpt_example_c_mem_SOURCES_DIST =  \
+	examples/libopenmpt_example_c_mem.c
+am_libopenmpt_example_c_mem_OBJECTS = examples/libopenmpt_example_c_mem-libopenmpt_example_c_mem.$(OBJEXT)
+libopenmpt_example_c_mem_OBJECTS =  \
+	$(am_libopenmpt_example_c_mem_OBJECTS)
+libopenmpt_example_c_mem_DEPENDENCIES =  \
+	$(lib_LTLIBRARIES) \
+	$(am__DEPENDENCIES_1)
+libopenmpt_example_c_mem_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
+	$(libopenmpt_example_c_mem_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
+	$(LDFLAGS) -o $@
+am__libopenmpt_example_c_pipe_SOURCES_DIST =  \
+	examples/libopenmpt_example_c_pipe.c
+am_libopenmpt_example_c_pipe_OBJECTS = examples/libopenmpt_example_c_pipe-libopenmpt_example_c_pipe.$(OBJEXT)
+libopenmpt_example_c_pipe_OBJECTS =  \
+	$(am_libopenmpt_example_c_pipe_OBJECTS)
+libopenmpt_example_c_pipe_DEPENDENCIES =  \
+	$(lib_LTLIBRARIES)
+libopenmpt_example_c_pipe_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
+	$(libopenmpt_example_c_pipe_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
+	$(LDFLAGS) -o $@
+am__libopenmpt_example_c_probe_SOURCES_DIST =  \
+	examples/libopenmpt_example_c_probe.c
+am_libopenmpt_example_c_probe_OBJECTS = examples/libopenmpt_example_c_probe-libopenmpt_example_c_probe.$(OBJEXT)
+libopenmpt_example_c_probe_OBJECTS =  \
+	$(am_libopenmpt_example_c_probe_OBJECTS)
+libopenmpt_example_c_probe_DEPENDENCIES =  \
+	$(lib_LTLIBRARIES)
+libopenmpt_example_c_probe_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
+	$(libopenmpt_example_c_probe_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
+	$(LDFLAGS) -o $@
+am__libopenmpt_example_c_stdout_SOURCES_DIST =  \
+	examples/libopenmpt_example_c_stdout.c
+am_libopenmpt_example_c_stdout_OBJECTS = examples/libopenmpt_example_c_stdout-libopenmpt_example_c_stdout.$(OBJEXT)
+libopenmpt_example_c_stdout_OBJECTS =  \
+	$(am_libopenmpt_example_c_stdout_OBJECTS)
+libopenmpt_example_c_stdout_DEPENDENCIES =  \
+	$(lib_LTLIBRARIES)
+libopenmpt_example_c_stdout_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
+	$(libopenmpt_example_c_stdout_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
+	$(LDFLAGS) -o $@
+am__libopenmpt_example_c_unsafe_SOURCES_DIST =  \
+	examples/libopenmpt_example_c_unsafe.c
+am_libopenmpt_example_c_unsafe_OBJECTS = examples/libopenmpt_example_c_unsafe-libopenmpt_example_c_unsafe.$(OBJEXT)
+libopenmpt_example_c_unsafe_OBJECTS =  \
+	$(am_libopenmpt_example_c_unsafe_OBJECTS)
+libopenmpt_example_c_unsafe_DEPENDENCIES =  \
+	$(lib_LTLIBRARIES) \
+	$(am__DEPENDENCIES_1)
+libopenmpt_example_c_unsafe_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
+	$(libopenmpt_example_c_unsafe_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
+	$(LDFLAGS) -o $@
+am__libopenmpt_example_cxx_SOURCES_DIST =  \
+	examples/libopenmpt_example_cxx.cpp
+am_libopenmpt_example_cxx_OBJECTS = examples/libopenmpt_example_cxx-libopenmpt_example_cxx.$(OBJEXT)
+libopenmpt_example_cxx_OBJECTS = $(am_libopenmpt_example_cxx_OBJECTS)
+libopenmpt_example_cxx_DEPENDENCIES = $(lib_LTLIBRARIES) \
+	$(am__DEPENDENCIES_1)
+libopenmpt_example_cxx_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
+	$(libopenmpt_example_cxx_CXXFLAGS) $(CXXFLAGS) $(AM_LDFLAGS) \
+	$(LDFLAGS) -o $@
+am__libopenmpttest_SOURCES_DIST = test/mpt_tests_base.cpp \
+	test/mpt_tests_binary.cpp test/mpt_tests_crc.cpp \
+	test/mpt_tests_endian.cpp test/mpt_tests_format.cpp \
+	test/mpt_tests_io.cpp test/mpt_tests_parse.cpp \
+	test/mpt_tests_random.cpp test/mpt_tests_string.cpp \
+	test/mpt_tests_string_transcode.cpp test/mpt_tests_uuid.cpp \
+	test/test.cpp test/test.h test/TestTools.h \
+	test/TestToolsLib.cpp test/TestToolsLib.h \
+	test/TestToolsTracker.h build/svn_version/svn_version.h \
+	src/mpt/arch/arch.hpp src/mpt/arch/feature_fence.hpp \
+	src/mpt/arch/feature_flags.hpp src/mpt/arch/x86_amd64.hpp \
+	src/mpt/audio/sample.hpp src/mpt/audio/span.hpp \
+	src/mpt/base/algorithm.hpp src/mpt/base/aligned_array.hpp \
+	src/mpt/base/alloc.hpp src/mpt/base/arithmetic_shift.hpp \
+	src/mpt/base/array.hpp src/mpt/base/bit.hpp \
+	src/mpt/base/check_platform.hpp \
+	src/mpt/base/compiletime_warning.hpp \
+	src/mpt/base/constexpr_throw.hpp src/mpt/base/debugging.hpp \
+	src/mpt/base/detect.hpp src/mpt/base/detect_arch.hpp \
+	src/mpt/base/detect_compiler.hpp src/mpt/base/detect_libc.hpp \
+	src/mpt/base/detect_libcxx.hpp src/mpt/base/detect_os.hpp \
+	src/mpt/base/detect_quirks.hpp src/mpt/base/float.hpp \
+	src/mpt/base/integer.hpp src/mpt/base/macros.hpp \
+	src/mpt/base/math.hpp src/mpt/base/memory.hpp \
+	src/mpt/base/namespace.hpp src/mpt/base/numbers.hpp \
+	src/mpt/base/numeric.hpp src/mpt/base/pointer.hpp \
+	src/mpt/base/preprocessor.hpp src/mpt/base/saturate_cast.hpp \
+	src/mpt/base/saturate_round.hpp src/mpt/base/secure.hpp \
+	src/mpt/base/semantic_version.hpp src/mpt/base/size.hpp \
+	src/mpt/base/source_location.hpp src/mpt/base/span.hpp \
+	src/mpt/base/type_traits.hpp src/mpt/base/utility.hpp \
+	src/mpt/base/version.hpp src/mpt/base/wrapping_divide.hpp \
+	src/mpt/binary/base64.hpp src/mpt/binary/base64url.hpp \
+	src/mpt/binary/hex.hpp src/mpt/check/compiler.hpp \
+	src/mpt/check/libc.hpp src/mpt/check/libcxx.hpp \
+	src/mpt/check/mfc.hpp src/mpt/check/windows.hpp \
+	src/mpt/crc/crc.hpp src/mpt/detect/dl.hpp \
+	src/mpt/detect/ltdl.hpp src/mpt/detect/mfc.hpp \
+	src/mpt/detect/nlohmann_json.hpp \
+	src/mpt/endian/floatingpoint.hpp src/mpt/endian/int24.hpp \
+	src/mpt/endian/integer.hpp src/mpt/endian/type_traits.hpp \
+	src/mpt/environment/environment.hpp \
+	src/mpt/exception/exception.hpp \
+	src/mpt/exception/exception_text.hpp \
+	src/mpt/exception/logic_error.hpp \
+	src/mpt/exception/runtime_error.hpp src/mpt/format/concat.hpp \
+	src/mpt/format/default_floatingpoint.hpp \
+	src/mpt/format/default_formatter.hpp \
+	src/mpt/format/default_integer.hpp \
+	src/mpt/format/default_string.hpp src/mpt/format/helpers.hpp \
+	src/mpt/format/join.hpp src/mpt/format/message.hpp \
+	src/mpt/format/message_macros.hpp src/mpt/format/simple.hpp \
+	src/mpt/format/simple_floatingpoint.hpp \
+	src/mpt/format/simple_integer.hpp \
+	src/mpt/format/simple_spec.hpp src/mpt/io/base.hpp \
+	src/mpt/io/io.hpp src/mpt/io/io_span.hpp \
+	src/mpt/io/io_stdstream.hpp src/mpt/io/io_virtual_wrapper.hpp \
+	src/mpt/io_file/fileref.hpp src/mpt/io_file/fstream.hpp \
+	src/mpt/io_file/inputfile.hpp src/mpt/io_file/outputfile.hpp \
+	src/mpt/io_file_adapter/fileadapter.hpp \
+	src/mpt/io_file_read/inputfile_filecursor.hpp \
+	src/mpt/io_file_unique/unique_basename.hpp \
+	src/mpt/io_file_unique/unique_tempfilename.hpp \
+	src/mpt/io_read/callbackstream.hpp \
+	src/mpt/io_read/filecursor.hpp \
+	src/mpt/io_read/filecursor_callbackstream.hpp \
+	src/mpt/io_read/filecursor_filename_traits.hpp \
+	src/mpt/io_read/filecursor_memory.hpp \
+	src/mpt/io_read/filecursor_stdstream.hpp \
+	src/mpt/io_read/filecursor_traits_filedata.hpp \
+	src/mpt/io_read/filecursor_traits_memory.hpp \
+	src/mpt/io_read/filedata.hpp src/mpt/io_read/filedata_base.hpp \
+	src/mpt/io_read/filedata_base_buffered.hpp \
+	src/mpt/io_read/filedata_base_seekable.hpp \
+	src/mpt/io_read/filedata_base_unseekable.hpp \
+	src/mpt/io_read/filedata_base_unseekable_buffer.hpp \
+	src/mpt/io_read/filedata_callbackstream.hpp \
+	src/mpt/io_read/filedata_memory.hpp \
+	src/mpt/io_read/filedata_stdstream.hpp \
+	src/mpt/io_read/filereader.hpp src/mpt/io_write/buffer.hpp \
+	src/mpt/main/main.hpp src/mpt/mutex/mutex.hpp \
+	src/mpt/osinfo/class.hpp src/mpt/osinfo/dos_memory.hpp \
+	src/mpt/osinfo/dos_version.hpp \
+	src/mpt/osinfo/windows_version.hpp \
+	src/mpt/osinfo/windows_wine_version.hpp \
+	src/mpt/out_of_memory/out_of_memory.hpp \
+	src/mpt/parse/parse.hpp src/mpt/parse/split.hpp \
+	src/mpt/path/basic_path.hpp src/mpt/path/native_path.hpp \
+	src/mpt/path/path.hpp src/mpt/path/os_path.hpp \
+	src/mpt/path/os_path_long.hpp src/mpt/random/any_engine.hpp \
+	src/mpt/random/crand.hpp src/mpt/random/default_engines.hpp \
+	src/mpt/random/device.hpp src/mpt/random/engine.hpp \
+	src/mpt/random/engine_lcg.hpp src/mpt/random/random.hpp \
+	src/mpt/random/seed.hpp src/mpt/string/buffer.hpp \
+	src/mpt/string/types.hpp src/mpt/string/utility.hpp \
+	src/mpt/string_transcode/transcode.hpp \
+	src/mpt/string_transcode/macros.hpp \
+	src/mpt/system_error/system_error.hpp src/mpt/test/test.hpp \
+	src/mpt/test/test_macros.hpp src/mpt/uuid/guid.hpp \
+	src/mpt/uuid/uuid.hpp \
+	src/mpt/base/tests/tests_base_arithmetic_shift.hpp \
+	src/mpt/base/tests/tests_base_bit.hpp \
+	src/mpt/base/tests/tests_base_math.hpp \
+	src/mpt/base/tests/tests_base_numeric.hpp \
+	src/mpt/base/tests/tests_base_saturate_cast.hpp \
+	src/mpt/base/tests/tests_base_saturate_round.hpp \
+	src/mpt/base/tests/tests_base_wrapping_divide.hpp \
+	src/mpt/binary/tests/tests_binary.hpp \
+	src/mpt/crc/tests/tests_crc.hpp \
+	src/mpt/endian/tests/tests_endian_floatingpoint.hpp \
+	src/mpt/endian/tests/tests_endian_int24.hpp \
+	src/mpt/endian/tests/tests_endian_integer.hpp \
+	src/mpt/format/tests/tests_format_message.hpp \
+	src/mpt/format/tests/tests_format_simple.hpp \
+	src/mpt/io/tests/tests_io.hpp \
+	src/mpt/parse/tests/tests_parse.hpp \
+	src/mpt/random/tests/tests_random.hpp \
+	src/mpt/string/tests/tests_string_buffer.hpp \
+	src/mpt/string/tests/tests_string_utility.hpp \
+	src/mpt/string_transcode/tests/tests_string_transcode.hpp \
+	src/mpt/uuid/tests/tests_uuid.hpp \
+	src/openmpt/all/BuildSettings.hpp \
+	src/openmpt/all/PlatformFixes.hpp src/openmpt/base/Endian.hpp \
+	src/openmpt/base/FlagSet.hpp src/openmpt/base/Int24.hpp \
+	src/openmpt/base/Types.hpp \
+	src/openmpt/fileformat_base/magic.hpp \
+	src/openmpt/logging/Logger.hpp src/openmpt/random/ModPlug.hpp \
+	src/openmpt/soundbase/Copy.hpp \
+	src/openmpt/soundbase/CopyMix.hpp \
+	src/openmpt/soundbase/Dither.hpp \
+	src/openmpt/soundbase/DitherModPlug.hpp \
+	src/openmpt/soundbase/DitherNone.hpp \
+	src/openmpt/soundbase/DitherSimple.hpp \
+	src/openmpt/soundbase/MixSample.hpp \
+	src/openmpt/soundbase/MixSampleConvert.hpp \
+	src/openmpt/soundbase/SampleClip.hpp \
+	src/openmpt/soundbase/SampleClipFixedPoint.hpp \
+	src/openmpt/soundbase/SampleConvert.hpp \
+	src/openmpt/soundbase/SampleConvertFixedPoint.hpp \
+	src/openmpt/soundbase/SampleDecode.hpp \
+	src/openmpt/soundbase/SampleEncode.hpp \
+	src/openmpt/soundbase/SampleFormat.hpp \
+	src/openmpt/soundfile_data/tags.hpp \
+	src/openmpt/soundfile_data/wav.hpp \
+	src/openmpt/soundfile_write/wav_write.cpp \
+	src/openmpt/soundfile_write/wav_write.hpp \
+	common/BuildSettings.h common/BuildSettingsCompiler.h \
+	common/ComponentManager.cpp common/ComponentManager.h \
+	common/FileReader.h common/FileReaderFwd.h common/GzipWriter.h \
+	common/Logging.cpp common/Logging.h common/misc_util.h \
+	common/mptAssert.h common/mptBaseMacros.h \
+	common/mptBaseTypes.h common/mptBaseUtils.h common/mptCPU.h \
+	common/mptFileIO.h common/mptFileTemporary.h \
+	common/mptFileType.cpp common/mptFileType.h \
+	common/mptPathString.cpp common/mptPathString.h \
+	common/mptRandom.cpp common/mptRandom.h common/mptString.h \
+	common/mptStringBuffer.cpp common/mptStringBuffer.h \
+	common/mptStringFormat.h common/mptTime.cpp common/mptTime.h \
+	common/Profiler.cpp common/Profiler.h \
+	common/serialization_utils.cpp common/serialization_utils.h \
+	common/stdafx.h common/version.cpp common/version.h \
+	common/versionNumber.h soundlib/AudioCriticalSection.cpp \
+	soundlib/AudioCriticalSection.h soundlib/AudioReadTarget.h \
+	soundlib/BitReader.h soundlib/ContainerMMCMP.cpp \
+	soundlib/ContainerPP20.cpp soundlib/ContainerUMX.cpp \
+	soundlib/ContainerXPK.cpp soundlib/Container.h \
+	soundlib/Dlsbank.cpp soundlib/Dlsbank.h soundlib/Fastmix.cpp \
+	soundlib/FloatMixer.h soundlib/InstrumentExtensions.cpp \
+	soundlib/InstrumentSynth.cpp soundlib/InstrumentSynth.h \
+	soundlib/IntMixer.h soundlib/ITCompression.cpp \
+	soundlib/ITCompression.h soundlib/ITTools.cpp \
+	soundlib/ITTools.h soundlib/Load_667.cpp soundlib/Load_669.cpp \
+	soundlib/Load_amf.cpp soundlib/Load_ams.cpp \
+	soundlib/Load_c67.cpp soundlib/Load_cba.cpp \
+	soundlib/Load_dbm.cpp soundlib/Load_digi.cpp \
+	soundlib/Load_dmf.cpp soundlib/Load_dsm.cpp \
+	soundlib/Load_dsym.cpp soundlib/Load_dtm.cpp \
+	soundlib/Loaders.h soundlib/Load_etx.cpp soundlib/Load_far.cpp \
+	soundlib/Load_fc.cpp soundlib/Load_fmt.cpp \
+	soundlib/Load_ftm.cpp soundlib/Load_gdm.cpp \
+	soundlib/Load_gmc.cpp soundlib/Load_gt2.cpp \
+	soundlib/Load_ice.cpp soundlib/Load_imf.cpp \
+	soundlib/Load_ims.cpp soundlib/Load_it.cpp \
+	soundlib/Load_itp.cpp soundlib/load_j2b.cpp \
+	soundlib/Load_kris.cpp soundlib/Load_mdl.cpp \
+	soundlib/Load_med.cpp soundlib/Load_mid.cpp \
+	soundlib/Load_mo3.cpp soundlib/Load_mod.cpp \
+	soundlib/Load_mt2.cpp soundlib/Load_mtm.cpp \
+	soundlib/Load_mus_km.cpp soundlib/Load_okt.cpp \
+	soundlib/Load_plm.cpp soundlib/Load_psm.cpp \
+	soundlib/Load_pt36.cpp soundlib/Load_ptm.cpp \
+	soundlib/Load_puma.cpp soundlib/Load_rtm.cpp \
+	soundlib/Load_s3m.cpp soundlib/Load_sfx.cpp \
+	soundlib/Load_stk.cpp soundlib/Load_stm.cpp \
+	soundlib/Load_stp.cpp soundlib/Load_symmod.cpp \
+	soundlib/Load_tcb.cpp soundlib/Load_uax.cpp \
+	soundlib/Load_ult.cpp soundlib/Load_unic.cpp \
+	soundlib/Load_wav.cpp soundlib/Load_xm.cpp \
+	soundlib/Load_xmf.cpp soundlib/Message.cpp soundlib/Message.h \
+	soundlib/MIDIEvents.cpp soundlib/MIDIEvents.h \
+	soundlib/MIDIMacroParser.cpp soundlib/MIDIMacroParser.h \
+	soundlib/MIDIMacros.cpp soundlib/MIDIMacros.h soundlib/Mixer.h \
+	soundlib/MixerInterface.h soundlib/MixerLoops.cpp \
+	soundlib/MixerLoops.h soundlib/MixerSettings.cpp \
+	soundlib/MixerSettings.h soundlib/MixFuncTable.cpp \
+	soundlib/MixFuncTable.h soundlib/ModChannel.cpp \
+	soundlib/ModChannel.h soundlib/modcommand.cpp \
+	soundlib/modcommand.h soundlib/ModInstrument.cpp \
+	soundlib/ModInstrument.h soundlib/ModSample.cpp \
+	soundlib/ModSample.h soundlib/ModSampleCopy.h \
+	soundlib/ModSequence.cpp soundlib/ModSequence.h \
+	soundlib/modsmp_ctrl.cpp soundlib/modsmp_ctrl.h \
+	soundlib/mod_specifications.cpp soundlib/mod_specifications.h \
+	soundlib/MODTools.cpp soundlib/MODTools.h \
+	soundlib/MPEGFrame.cpp soundlib/MPEGFrame.h \
+	soundlib/OggStream.cpp soundlib/OggStream.h soundlib/opal.h \
+	soundlib/OPL.cpp soundlib/OPL.h soundlib/Paula.cpp \
+	soundlib/Paula.h soundlib/patternContainer.cpp \
+	soundlib/patternContainer.h soundlib/pattern.cpp \
+	soundlib/pattern.h soundlib/PlaybackTest.cpp \
+	soundlib/PlaybackTest.h soundlib/PlayState.cpp \
+	soundlib/PlayState.h soundlib/Resampler.h \
+	soundlib/RowVisitor.cpp soundlib/RowVisitor.h \
+	soundlib/S3MTools.cpp soundlib/S3MTools.h \
+	soundlib/SampleCopy.h soundlib/SampleFormats.cpp \
+	soundlib/SampleFormatBRR.cpp soundlib/SampleFormatFLAC.cpp \
+	soundlib/SampleFormatMediaFoundation.cpp \
+	soundlib/SampleFormatMP3.cpp soundlib/SampleFormatOpus.cpp \
+	soundlib/SampleFormatSFZ.cpp soundlib/SampleFormatVorbis.cpp \
+	soundlib/SampleIO.cpp soundlib/SampleIO.h \
+	soundlib/SampleNormalize.h soundlib/Snd_defs.h \
+	soundlib/Sndfile.cpp soundlib/Sndfile.h soundlib/Snd_flt.cpp \
+	soundlib/Snd_fx.cpp soundlib/Sndmix.cpp \
+	soundlib/SoundFilePlayConfig.cpp \
+	soundlib/SoundFilePlayConfig.h soundlib/Tables.cpp \
+	soundlib/Tables.h soundlib/Tagging.cpp soundlib/Tagging.h \
+	soundlib/TinyFFT.cpp soundlib/TinyFFT.h soundlib/tuningbase.h \
+	soundlib/tuningCollection.cpp soundlib/tuningcollection.h \
+	soundlib/tuning.cpp soundlib/tuning.h soundlib/UMXTools.cpp \
+	soundlib/UMXTools.h soundlib/UpgradeModule.cpp \
+	soundlib/WAVTools.cpp soundlib/WAVTools.h \
+	soundlib/WindowedFIR.cpp soundlib/WindowedFIR.h \
+	soundlib/XMTools.cpp soundlib/XMTools.h \
+	soundlib/plugins/dmo/DMOPlugin.cpp \
+	soundlib/plugins/dmo/DMOPlugin.h \
+	soundlib/plugins/dmo/DMOUtils.cpp \
+	soundlib/plugins/dmo/DMOUtils.h \
+	soundlib/plugins/dmo/Chorus.cpp soundlib/plugins/dmo/Chorus.h \
+	soundlib/plugins/dmo/Compressor.cpp \
+	soundlib/plugins/dmo/Compressor.h \
+	soundlib/plugins/dmo/Distortion.cpp \
+	soundlib/plugins/dmo/Distortion.h \
+	soundlib/plugins/dmo/Echo.cpp soundlib/plugins/dmo/Echo.h \
+	soundlib/plugins/dmo/Flanger.cpp \
+	soundlib/plugins/dmo/Flanger.h soundlib/plugins/dmo/Gargle.cpp \
+	soundlib/plugins/dmo/Gargle.h \
+	soundlib/plugins/dmo/I3DL2Reverb.cpp \
+	soundlib/plugins/dmo/I3DL2Reverb.h \
+	soundlib/plugins/dmo/ParamEq.cpp \
+	soundlib/plugins/dmo/ParamEq.h \
+	soundlib/plugins/dmo/WavesReverb.cpp \
+	soundlib/plugins/dmo/WavesReverb.h \
+	soundlib/plugins/DigiBoosterEcho.cpp \
+	soundlib/plugins/DigiBoosterEcho.h \
+	soundlib/plugins/LFOPlugin.cpp soundlib/plugins/LFOPlugin.h \
+	soundlib/plugins/PluginManager.cpp \
+	soundlib/plugins/PluginManager.h \
+	soundlib/plugins/PluginMixBuffer.h \
+	soundlib/plugins/PluginStructs.h \
+	soundlib/plugins/PlugInterface.cpp \
+	soundlib/plugins/PlugInterface.h \
+	soundlib/plugins/SymMODEcho.cpp soundlib/plugins/SymMODEcho.h \
+	sounddsp/AGC.cpp sounddsp/AGC.h sounddsp/DSP.cpp \
+	sounddsp/DSP.h sounddsp/EQ.cpp sounddsp/EQ.h \
+	sounddsp/Reverb.cpp sounddsp/Reverb.h \
+	libopenmpt/libopenmpt_c.cpp libopenmpt/libopenmpt_cxx.cpp \
+	libopenmpt/libopenmpt_ext_impl.cpp \
+	libopenmpt/libopenmpt_impl.cpp libopenmpt/libopenmpt_config.h \
+	libopenmpt/libopenmpt_ext.h libopenmpt/libopenmpt_ext.hpp \
+	libopenmpt/libopenmpt_ext_impl.hpp libopenmpt/libopenmpt.h \
+	libopenmpt/libopenmpt.hpp libopenmpt/libopenmpt_impl.hpp \
+	libopenmpt/libopenmpt_internal.h \
+	libopenmpt/libopenmpt_stream_callbacks_buffer.h \
+	libopenmpt/libopenmpt_stream_callbacks_fd.h \
+	libopenmpt/libopenmpt_stream_callbacks_file.h \
+	libopenmpt/libopenmpt_stream_callbacks_file_mingw.h \
+	libopenmpt/libopenmpt_stream_callbacks_file_msvcrt.h \
+	libopenmpt/libopenmpt_stream_callbacks_file_posix.h \
+	libopenmpt/libopenmpt_stream_callbacks_file_posix_lfs64.h \
+	libopenmpt/libopenmpt_version.h \
+	libopenmpt/libopenmpt_test/libopenmpt_test.cpp
+am__objects_5 = src/openmpt/soundfile_write/libopenmpttest-wav_write.$(OBJEXT)
+am__objects_6 = common/libopenmpttest-ComponentManager.$(OBJEXT) \
+	common/libopenmpttest-Logging.$(OBJEXT) \
+	common/libopenmpttest-mptFileType.$(OBJEXT) \
+	common/libopenmpttest-mptPathString.$(OBJEXT) \
+	common/libopenmpttest-mptRandom.$(OBJEXT) \
+	common/libopenmpttest-mptStringBuffer.$(OBJEXT) \
+	common/libopenmpttest-mptTime.$(OBJEXT) \
+	common/libopenmpttest-Profiler.$(OBJEXT) \
+	common/libopenmpttest-serialization_utils.$(OBJEXT) \
+	common/libopenmpttest-version.$(OBJEXT)
+am__objects_7 =  \
+	soundlib/libopenmpttest-AudioCriticalSection.$(OBJEXT) \
+	soundlib/libopenmpttest-ContainerMMCMP.$(OBJEXT) \
+	soundlib/libopenmpttest-ContainerPP20.$(OBJEXT) \
+	soundlib/libopenmpttest-ContainerUMX.$(OBJEXT) \
+	soundlib/libopenmpttest-ContainerXPK.$(OBJEXT) \
+	soundlib/libopenmpttest-Dlsbank.$(OBJEXT) \
+	soundlib/libopenmpttest-Fastmix.$(OBJEXT) \
+	soundlib/libopenmpttest-InstrumentExtensions.$(OBJEXT) \
+	soundlib/libopenmpttest-InstrumentSynth.$(OBJEXT) \
+	soundlib/libopenmpttest-ITCompression.$(OBJEXT) \
+	soundlib/libopenmpttest-ITTools.$(OBJEXT) \
+	soundlib/libopenmpttest-Load_667.$(OBJEXT) \
+	soundlib/libopenmpttest-Load_669.$(OBJEXT) \
+	soundlib/libopenmpttest-Load_amf.$(OBJEXT) \
+	soundlib/libopenmpttest-Load_ams.$(OBJEXT) \
+	soundlib/libopenmpttest-Load_c67.$(OBJEXT) \
+	soundlib/libopenmpttest-Load_cba.$(OBJEXT) \
+	soundlib/libopenmpttest-Load_dbm.$(OBJEXT) \
+	soundlib/libopenmpttest-Load_digi.$(OBJEXT) \
+	soundlib/libopenmpttest-Load_dmf.$(OBJEXT) \
+	soundlib/libopenmpttest-Load_dsm.$(OBJEXT) \
+	soundlib/libopenmpttest-Load_dsym.$(OBJEXT) \
+	soundlib/libopenmpttest-Load_dtm.$(OBJEXT) \
+	soundlib/libopenmpttest-Load_etx.$(OBJEXT) \
+	soundlib/libopenmpttest-Load_far.$(OBJEXT) \
+	soundlib/libopenmpttest-Load_fc.$(OBJEXT) \
+	soundlib/libopenmpttest-Load_fmt.$(OBJEXT) \
+	soundlib/libopenmpttest-Load_ftm.$(OBJEXT) \
+	soundlib/libopenmpttest-Load_gdm.$(OBJEXT) \
+	soundlib/libopenmpttest-Load_gmc.$(OBJEXT) \
+	soundlib/libopenmpttest-Load_gt2.$(OBJEXT) \
+	soundlib/libopenmpttest-Load_ice.$(OBJEXT) \
+	soundlib/libopenmpttest-Load_imf.$(OBJEXT) \
+	soundlib/libopenmpttest-Load_ims.$(OBJEXT) \
+	soundlib/libopenmpttest-Load_it.$(OBJEXT) \
+	soundlib/libopenmpttest-Load_itp.$(OBJEXT) \
+	soundlib/libopenmpttest-load_j2b.$(OBJEXT) \
+	soundlib/libopenmpttest-Load_kris.$(OBJEXT) \
+	soundlib/libopenmpttest-Load_mdl.$(OBJEXT) \
+	soundlib/libopenmpttest-Load_med.$(OBJEXT) \
+	soundlib/libopenmpttest-Load_mid.$(OBJEXT) \
+	soundlib/libopenmpttest-Load_mo3.$(OBJEXT) \
+	soundlib/libopenmpttest-Load_mod.$(OBJEXT) \
+	soundlib/libopenmpttest-Load_mt2.$(OBJEXT) \
+	soundlib/libopenmpttest-Load_mtm.$(OBJEXT) \
+	soundlib/libopenmpttest-Load_mus_km.$(OBJEXT) \
+	soundlib/libopenmpttest-Load_okt.$(OBJEXT) \
+	soundlib/libopenmpttest-Load_plm.$(OBJEXT) \
+	soundlib/libopenmpttest-Load_psm.$(OBJEXT) \
+	soundlib/libopenmpttest-Load_pt36.$(OBJEXT) \
+	soundlib/libopenmpttest-Load_ptm.$(OBJEXT) \
+	soundlib/libopenmpttest-Load_puma.$(OBJEXT) \
+	soundlib/libopenmpttest-Load_rtm.$(OBJEXT) \
+	soundlib/libopenmpttest-Load_s3m.$(OBJEXT) \
+	soundlib/libopenmpttest-Load_sfx.$(OBJEXT) \
+	soundlib/libopenmpttest-Load_stk.$(OBJEXT) \
+	soundlib/libopenmpttest-Load_stm.$(OBJEXT) \
+	soundlib/libopenmpttest-Load_stp.$(OBJEXT) \
+	soundlib/libopenmpttest-Load_symmod.$(OBJEXT) \
+	soundlib/libopenmpttest-Load_tcb.$(OBJEXT) \
+	soundlib/libopenmpttest-Load_uax.$(OBJEXT) \
+	soundlib/libopenmpttest-Load_ult.$(OBJEXT) \
+	soundlib/libopenmpttest-Load_unic.$(OBJEXT) \
+	soundlib/libopenmpttest-Load_wav.$(OBJEXT) \
+	soundlib/libopenmpttest-Load_xm.$(OBJEXT) \
+	soundlib/libopenmpttest-Load_xmf.$(OBJEXT) \
+	soundlib/libopenmpttest-Message.$(OBJEXT) \
+	soundlib/libopenmpttest-MIDIEvents.$(OBJEXT) \
+	soundlib/libopenmpttest-MIDIMacroParser.$(OBJEXT) \
+	soundlib/libopenmpttest-MIDIMacros.$(OBJEXT) \
+	soundlib/libopenmpttest-MixerLoops.$(OBJEXT) \
+	soundlib/libopenmpttest-MixerSettings.$(OBJEXT) \
+	soundlib/libopenmpttest-MixFuncTable.$(OBJEXT) \
+	soundlib/libopenmpttest-ModChannel.$(OBJEXT) \
+	soundlib/libopenmpttest-modcommand.$(OBJEXT) \
+	soundlib/libopenmpttest-ModInstrument.$(OBJEXT) \
+	soundlib/libopenmpttest-ModSample.$(OBJEXT) \
+	soundlib/libopenmpttest-ModSequence.$(OBJEXT) \
+	soundlib/libopenmpttest-modsmp_ctrl.$(OBJEXT) \
+	soundlib/libopenmpttest-mod_specifications.$(OBJEXT) \
+	soundlib/libopenmpttest-MODTools.$(OBJEXT) \
+	soundlib/libopenmpttest-MPEGFrame.$(OBJEXT) \
+	soundlib/libopenmpttest-OggStream.$(OBJEXT) \
+	soundlib/libopenmpttest-OPL.$(OBJEXT) \
+	soundlib/libopenmpttest-Paula.$(OBJEXT) \
+	soundlib/libopenmpttest-patternContainer.$(OBJEXT) \
+	soundlib/libopenmpttest-pattern.$(OBJEXT) \
+	soundlib/libopenmpttest-PlaybackTest.$(OBJEXT) \
+	soundlib/libopenmpttest-PlayState.$(OBJEXT) \
+	soundlib/libopenmpttest-RowVisitor.$(OBJEXT) \
+	soundlib/libopenmpttest-S3MTools.$(OBJEXT) \
+	soundlib/libopenmpttest-SampleFormats.$(OBJEXT) \
+	soundlib/libopenmpttest-SampleFormatBRR.$(OBJEXT) \
+	soundlib/libopenmpttest-SampleFormatFLAC.$(OBJEXT) \
+	soundlib/libopenmpttest-SampleFormatMediaFoundation.$(OBJEXT) \
+	soundlib/libopenmpttest-SampleFormatMP3.$(OBJEXT) \
+	soundlib/libopenmpttest-SampleFormatOpus.$(OBJEXT) \
+	soundlib/libopenmpttest-SampleFormatSFZ.$(OBJEXT) \
+	soundlib/libopenmpttest-SampleFormatVorbis.$(OBJEXT) \
+	soundlib/libopenmpttest-SampleIO.$(OBJEXT) \
+	soundlib/libopenmpttest-Sndfile.$(OBJEXT) \
+	soundlib/libopenmpttest-Snd_flt.$(OBJEXT) \
+	soundlib/libopenmpttest-Snd_fx.$(OBJEXT) \
+	soundlib/libopenmpttest-Sndmix.$(OBJEXT) \
+	soundlib/libopenmpttest-SoundFilePlayConfig.$(OBJEXT) \
+	soundlib/libopenmpttest-Tables.$(OBJEXT) \
+	soundlib/libopenmpttest-Tagging.$(OBJEXT) \
+	soundlib/libopenmpttest-TinyFFT.$(OBJEXT) \
+	soundlib/libopenmpttest-tuningCollection.$(OBJEXT) \
+	soundlib/libopenmpttest-tuning.$(OBJEXT) \
+	soundlib/libopenmpttest-UMXTools.$(OBJEXT) \
+	soundlib/libopenmpttest-UpgradeModule.$(OBJEXT) \
+	soundlib/libopenmpttest-WAVTools.$(OBJEXT) \
+	soundlib/libopenmpttest-WindowedFIR.$(OBJEXT) \
+	soundlib/libopenmpttest-XMTools.$(OBJEXT) \
+	soundlib/plugins/dmo/libopenmpttest-DMOPlugin.$(OBJEXT) \
+	soundlib/plugins/dmo/libopenmpttest-DMOUtils.$(OBJEXT) \
+	soundlib/plugins/dmo/libopenmpttest-Chorus.$(OBJEXT) \
+	soundlib/plugins/dmo/libopenmpttest-Compressor.$(OBJEXT) \
+	soundlib/plugins/dmo/libopenmpttest-Distortion.$(OBJEXT) \
+	soundlib/plugins/dmo/libopenmpttest-Echo.$(OBJEXT) \
+	soundlib/plugins/dmo/libopenmpttest-Flanger.$(OBJEXT) \
+	soundlib/plugins/dmo/libopenmpttest-Gargle.$(OBJEXT) \
+	soundlib/plugins/dmo/libopenmpttest-I3DL2Reverb.$(OBJEXT) \
+	soundlib/plugins/dmo/libopenmpttest-ParamEq.$(OBJEXT) \
+	soundlib/plugins/dmo/libopenmpttest-WavesReverb.$(OBJEXT) \
+	soundlib/plugins/libopenmpttest-DigiBoosterEcho.$(OBJEXT) \
+	soundlib/plugins/libopenmpttest-LFOPlugin.$(OBJEXT) \
+	soundlib/plugins/libopenmpttest-PluginManager.$(OBJEXT) \
+	soundlib/plugins/libopenmpttest-PlugInterface.$(OBJEXT) \
+	soundlib/plugins/libopenmpttest-SymMODEcho.$(OBJEXT)
+am__objects_8 = sounddsp/libopenmpttest-AGC.$(OBJEXT) \
+	sounddsp/libopenmpttest-DSP.$(OBJEXT) \
+	sounddsp/libopenmpttest-EQ.$(OBJEXT) \
+	sounddsp/libopenmpttest-Reverb.$(OBJEXT)
+am_libopenmpttest_OBJECTS = test/libopenmpttest-mpt_tests_base.$(OBJEXT) \
+	test/libopenmpttest-mpt_tests_binary.$(OBJEXT) \
+	test/libopenmpttest-mpt_tests_crc.$(OBJEXT) \
+	test/libopenmpttest-mpt_tests_endian.$(OBJEXT) \
+	test/libopenmpttest-mpt_tests_format.$(OBJEXT) \
+	test/libopenmpttest-mpt_tests_io.$(OBJEXT) \
+	test/libopenmpttest-mpt_tests_parse.$(OBJEXT) \
+	test/libopenmpttest-mpt_tests_random.$(OBJEXT) \
+	test/libopenmpttest-mpt_tests_string.$(OBJEXT) \
+	test/libopenmpttest-mpt_tests_string_transcode.$(OBJEXT) \
+	test/libopenmpttest-mpt_tests_uuid.$(OBJEXT) \
+	test/libopenmpttest-test.$(OBJEXT) \
+	test/libopenmpttest-TestToolsLib.$(OBJEXT) \
+	$(am__objects_1) $(am__objects_1) \
+	$(am__objects_5) $(am__objects_6) \
+	$(am__objects_7) $(am__objects_8) \
+	libopenmpt/libopenmpttest-libopenmpt_c.$(OBJEXT) \
+	libopenmpt/libopenmpttest-libopenmpt_cxx.$(OBJEXT) \
+	libopenmpt/libopenmpttest-libopenmpt_ext_impl.$(OBJEXT) \
+	libopenmpt/libopenmpttest-libopenmpt_impl.$(OBJEXT) \
+	libopenmpt/libopenmpt_test/libopenmpttest-libopenmpt_test.$(OBJEXT)
+libopenmpttest_OBJECTS = $(am_libopenmpttest_OBJECTS)
+libopenmpttest_DEPENDENCIES =  \
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1)
+libopenmpttest_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
+	$(libopenmpttest_CXXFLAGS) $(CXXFLAGS) $(AM_LDFLAGS) \
+	$(LDFLAGS) -o $@
+AM_V_P = $(am__v_P_$(V))
+am__v_P_ = $(am__v_P_$(AM_DEFAULT_VERBOSITY))
+am__v_P_0 = false
+am__v_P_1 = :
+AM_V_GEN = $(am__v_GEN_$(V))
+am__v_GEN_ = $(am__v_GEN_$(AM_DEFAULT_VERBOSITY))
+am__v_GEN_0 = @echo "  GEN     " $@;
+am__v_GEN_1 = 
+AM_V_at = $(am__v_at_$(V))
+am__v_at_ = $(am__v_at_$(AM_DEFAULT_VERBOSITY))
+am__v_at_0 = @
+am__v_at_1 = 
+DEFAULT_INCLUDES = -I.
+depcomp = $(SHELL) $(top_srcdir)/build-aux/depcomp
+am__maybe_remake_depfiles = depfiles
+am__depfiles_remade =  \
+	common/$(DEPDIR)/libopenmpt_la-ComponentManager.Plo \
+	common/$(DEPDIR)/libopenmpt_la-Logging.Plo \
+	common/$(DEPDIR)/libopenmpt_la-Profiler.Plo \
+	common/$(DEPDIR)/libopenmpt_la-mptFileType.Plo \
+	common/$(DEPDIR)/libopenmpt_la-mptPathString.Plo \
+	common/$(DEPDIR)/libopenmpt_la-mptRandom.Plo \
+	common/$(DEPDIR)/libopenmpt_la-mptStringBuffer.Plo \
+	common/$(DEPDIR)/libopenmpt_la-mptTime.Plo \
+	common/$(DEPDIR)/libopenmpt_la-serialization_utils.Plo \
+	common/$(DEPDIR)/libopenmpt_la-version.Plo \
+	common/$(DEPDIR)/libopenmpttest-ComponentManager.Po \
+	common/$(DEPDIR)/libopenmpttest-Logging.Po \
+	common/$(DEPDIR)/libopenmpttest-Profiler.Po \
+	common/$(DEPDIR)/libopenmpttest-mptFileType.Po \
+	common/$(DEPDIR)/libopenmpttest-mptPathString.Po \
+	common/$(DEPDIR)/libopenmpttest-mptRandom.Po \
+	common/$(DEPDIR)/libopenmpttest-mptStringBuffer.Po \
+	common/$(DEPDIR)/libopenmpttest-mptTime.Po \
+	common/$(DEPDIR)/libopenmpttest-serialization_utils.Po \
+	common/$(DEPDIR)/libopenmpttest-version.Po \
+	examples/$(DEPDIR)/libopenmpt_example_c-libopenmpt_example_c.Po \
+	examples/$(DEPDIR)/libopenmpt_example_c_mem-libopenmpt_example_c_mem.Po \
+	examples/$(DEPDIR)/libopenmpt_example_c_pipe-libopenmpt_example_c_pipe.Po \
+	examples/$(DEPDIR)/libopenmpt_example_c_probe-libopenmpt_example_c_probe.Po \
+	examples/$(DEPDIR)/libopenmpt_example_c_stdout-libopenmpt_example_c_stdout.Po \
+	examples/$(DEPDIR)/libopenmpt_example_c_unsafe-libopenmpt_example_c_unsafe.Po \
+	examples/$(DEPDIR)/libopenmpt_example_cxx-libopenmpt_example_cxx.Po \
+	libopenmpt/$(DEPDIR)/la-libopenmpt_c.Plo \
+	libopenmpt/$(DEPDIR)/la-libopenmpt_cxx.Plo \
+	libopenmpt/$(DEPDIR)/la-libopenmpt_ext_impl.Plo \
+	libopenmpt/$(DEPDIR)/la-libopenmpt_impl.Plo \
+	libopenmpt/$(DEPDIR)/libopenmpttest-libopenmpt_c.Po \
+	libopenmpt/$(DEPDIR)/libopenmpttest-libopenmpt_cxx.Po \
+	libopenmpt/$(DEPDIR)/libopenmpttest-libopenmpt_ext_impl.Po \
+	libopenmpt/$(DEPDIR)/libopenmpttest-libopenmpt_impl.Po \
+	libopenmpt/libopenmpt_test/$(DEPDIR)/libopenmpttest-libopenmpt_test.Po \
+	openmpt123/$(DEPDIR)/bin_openmpt123-openmpt123.Po \
+	sounddsp/$(DEPDIR)/libopenmpt_la-AGC.Plo \
+	sounddsp/$(DEPDIR)/libopenmpt_la-DSP.Plo \
+	sounddsp/$(DEPDIR)/libopenmpt_la-EQ.Plo \
+	sounddsp/$(DEPDIR)/libopenmpt_la-Reverb.Plo \
+	sounddsp/$(DEPDIR)/libopenmpttest-AGC.Po \
+	sounddsp/$(DEPDIR)/libopenmpttest-DSP.Po \
+	sounddsp/$(DEPDIR)/libopenmpttest-EQ.Po \
+	sounddsp/$(DEPDIR)/libopenmpttest-Reverb.Po \
+	soundlib/$(DEPDIR)/libopenmpt_la-AudioCriticalSection.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-ContainerMMCMP.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-ContainerPP20.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-ContainerUMX.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-ContainerXPK.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-Dlsbank.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-Fastmix.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-ITCompression.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-ITTools.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-InstrumentExtensions.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-InstrumentSynth.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-Load_667.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-Load_669.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-Load_amf.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-Load_ams.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-Load_c67.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-Load_cba.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-Load_dbm.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-Load_digi.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-Load_dmf.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-Load_dsm.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-Load_dsym.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-Load_dtm.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-Load_etx.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-Load_far.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-Load_fc.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-Load_fmt.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-Load_ftm.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-Load_gdm.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-Load_gmc.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-Load_gt2.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-Load_ice.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-Load_imf.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-Load_ims.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-Load_it.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-Load_itp.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-Load_kris.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-Load_mdl.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-Load_med.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-Load_mid.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-Load_mo3.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-Load_mod.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-Load_mt2.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-Load_mtm.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-Load_mus_km.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-Load_okt.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-Load_plm.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-Load_psm.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-Load_pt36.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-Load_ptm.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-Load_puma.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-Load_rtm.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-Load_s3m.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-Load_sfx.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-Load_stk.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-Load_stm.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-Load_stp.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-Load_symmod.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-Load_tcb.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-Load_uax.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-Load_ult.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-Load_unic.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-Load_wav.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-Load_xm.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-Load_xmf.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-MIDIEvents.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-MIDIMacroParser.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-MIDIMacros.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-MODTools.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-MPEGFrame.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-Message.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-MixFuncTable.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-MixerLoops.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-MixerSettings.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-ModChannel.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-ModInstrument.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-ModSample.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-ModSequence.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-OPL.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-OggStream.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-Paula.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-PlayState.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-PlaybackTest.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-RowVisitor.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-S3MTools.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-SampleFormatBRR.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-SampleFormatFLAC.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-SampleFormatMP3.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-SampleFormatMediaFoundation.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-SampleFormatOpus.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-SampleFormatSFZ.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-SampleFormatVorbis.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-SampleFormats.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-SampleIO.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-Snd_flt.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-Snd_fx.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-Sndfile.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-Sndmix.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-SoundFilePlayConfig.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-Tables.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-Tagging.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-TinyFFT.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-UMXTools.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-UpgradeModule.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-WAVTools.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-WindowedFIR.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-XMTools.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-load_j2b.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-mod_specifications.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-modcommand.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-modsmp_ctrl.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-pattern.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-patternContainer.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-tuning.Plo \
+	soundlib/$(DEPDIR)/libopenmpt_la-tuningCollection.Plo \
+	soundlib/$(DEPDIR)/libopenmpttest-AudioCriticalSection.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-ContainerMMCMP.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-ContainerPP20.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-ContainerUMX.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-ContainerXPK.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-Dlsbank.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-Fastmix.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-ITCompression.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-ITTools.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-InstrumentExtensions.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-InstrumentSynth.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-Load_667.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-Load_669.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-Load_amf.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-Load_ams.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-Load_c67.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-Load_cba.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-Load_dbm.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-Load_digi.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-Load_dmf.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-Load_dsm.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-Load_dsym.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-Load_dtm.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-Load_etx.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-Load_far.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-Load_fc.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-Load_fmt.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-Load_ftm.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-Load_gdm.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-Load_gmc.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-Load_gt2.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-Load_ice.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-Load_imf.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-Load_ims.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-Load_it.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-Load_itp.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-Load_kris.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-Load_mdl.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-Load_med.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-Load_mid.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-Load_mo3.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-Load_mod.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-Load_mt2.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-Load_mtm.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-Load_mus_km.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-Load_okt.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-Load_plm.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-Load_psm.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-Load_pt36.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-Load_ptm.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-Load_puma.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-Load_rtm.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-Load_s3m.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-Load_sfx.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-Load_stk.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-Load_stm.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-Load_stp.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-Load_symmod.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-Load_tcb.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-Load_uax.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-Load_ult.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-Load_unic.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-Load_wav.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-Load_xm.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-Load_xmf.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-MIDIEvents.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-MIDIMacroParser.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-MIDIMacros.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-MODTools.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-MPEGFrame.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-Message.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-MixFuncTable.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-MixerLoops.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-MixerSettings.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-ModChannel.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-ModInstrument.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-ModSample.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-ModSequence.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-OPL.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-OggStream.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-Paula.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-PlayState.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-PlaybackTest.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-RowVisitor.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-S3MTools.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-SampleFormatBRR.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-SampleFormatFLAC.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-SampleFormatMP3.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-SampleFormatMediaFoundation.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-SampleFormatOpus.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-SampleFormatSFZ.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-SampleFormatVorbis.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-SampleFormats.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-SampleIO.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-Snd_flt.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-Snd_fx.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-Sndfile.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-Sndmix.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-SoundFilePlayConfig.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-Tables.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-Tagging.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-TinyFFT.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-UMXTools.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-UpgradeModule.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-WAVTools.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-WindowedFIR.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-XMTools.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-load_j2b.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-mod_specifications.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-modcommand.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-modsmp_ctrl.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-pattern.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-patternContainer.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-tuning.Po \
+	soundlib/$(DEPDIR)/libopenmpttest-tuningCollection.Po \
+	soundlib/plugins/$(DEPDIR)/libopenmpt_la-DigiBoosterEcho.Plo \
+	soundlib/plugins/$(DEPDIR)/libopenmpt_la-LFOPlugin.Plo \
+	soundlib/plugins/$(DEPDIR)/libopenmpt_la-PlugInterface.Plo \
+	soundlib/plugins/$(DEPDIR)/libopenmpt_la-PluginManager.Plo \
+	soundlib/plugins/$(DEPDIR)/libopenmpt_la-SymMODEcho.Plo \
+	soundlib/plugins/$(DEPDIR)/libopenmpttest-DigiBoosterEcho.Po \
+	soundlib/plugins/$(DEPDIR)/libopenmpttest-LFOPlugin.Po \
+	soundlib/plugins/$(DEPDIR)/libopenmpttest-PlugInterface.Po \
+	soundlib/plugins/$(DEPDIR)/libopenmpttest-PluginManager.Po \
+	soundlib/plugins/$(DEPDIR)/libopenmpttest-SymMODEcho.Po \
+	soundlib/plugins/dmo/$(DEPDIR)/libopenmpt_la-Chorus.Plo \
+	soundlib/plugins/dmo/$(DEPDIR)/libopenmpt_la-Compressor.Plo \
+	soundlib/plugins/dmo/$(DEPDIR)/libopenmpt_la-DMOPlugin.Plo \
+	soundlib/plugins/dmo/$(DEPDIR)/libopenmpt_la-DMOUtils.Plo \
+	soundlib/plugins/dmo/$(DEPDIR)/libopenmpt_la-Distortion.Plo \
+	soundlib/plugins/dmo/$(DEPDIR)/libopenmpt_la-Echo.Plo \
+	soundlib/plugins/dmo/$(DEPDIR)/libopenmpt_la-Flanger.Plo \
+	soundlib/plugins/dmo/$(DEPDIR)/libopenmpt_la-Gargle.Plo \
+	soundlib/plugins/dmo/$(DEPDIR)/libopenmpt_la-I3DL2Reverb.Plo \
+	soundlib/plugins/dmo/$(DEPDIR)/libopenmpt_la-ParamEq.Plo \
+	soundlib/plugins/dmo/$(DEPDIR)/libopenmpt_la-WavesReverb.Plo \
+	soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-Chorus.Po \
+	soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-Compressor.Po \
+	soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-DMOPlugin.Po \
+	soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-DMOUtils.Po \
+	soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-Distortion.Po \
+	soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-Echo.Po \
+	soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-Flanger.Po \
+	soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-Gargle.Po \
+	soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-I3DL2Reverb.Po \
+	soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-ParamEq.Po \
+	soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-WavesReverb.Po \
+	src/openmpt/soundfile_write/$(DEPDIR)/libopenmpttest-wav_write.Po \
+	test/$(DEPDIR)/libopenmpttest-TestToolsLib.Po \
+	test/$(DEPDIR)/libopenmpttest-mpt_tests_base.Po \
+	test/$(DEPDIR)/libopenmpttest-mpt_tests_binary.Po \
+	test/$(DEPDIR)/libopenmpttest-mpt_tests_crc.Po \
+	test/$(DEPDIR)/libopenmpttest-mpt_tests_endian.Po \
+	test/$(DEPDIR)/libopenmpttest-mpt_tests_format.Po \
+	test/$(DEPDIR)/libopenmpttest-mpt_tests_io.Po \
+	test/$(DEPDIR)/libopenmpttest-mpt_tests_parse.Po \
+	test/$(DEPDIR)/libopenmpttest-mpt_tests_random.Po \
+	test/$(DEPDIR)/libopenmpttest-mpt_tests_string.Po \
+	test/$(DEPDIR)/libopenmpttest-mpt_tests_string_transcode.Po \
+	test/$(DEPDIR)/libopenmpttest-mpt_tests_uuid.Po \
+	test/$(DEPDIR)/libopenmpttest-test.Po
+am__mv = mv -f
+COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
+	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
+LTCOMPILE = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) \
+	$(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) \
+	$(AM_CFLAGS) $(CFLAGS)
+AM_V_CC = $(am__v_CC_$(V))
+am__v_CC_ = $(am__v_CC_$(AM_DEFAULT_VERBOSITY))
+am__v_CC_0 = @echo "  CC      " $@;
+am__v_CC_1 = 
+CCLD = $(CC)
+LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
+	$(AM_LDFLAGS) $(LDFLAGS) -o $@
+AM_V_CCLD = $(am__v_CCLD_$(V))
+am__v_CCLD_ = $(am__v_CCLD_$(AM_DEFAULT_VERBOSITY))
+am__v_CCLD_0 = @echo "  CCLD    " $@;
+am__v_CCLD_1 = 
+CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
+	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
+LTCXXCOMPILE = $(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) \
+	$(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) \
+	$(AM_CXXFLAGS) $(CXXFLAGS)
+AM_V_CXX = $(am__v_CXX_$(V))
+am__v_CXX_ = $(am__v_CXX_$(AM_DEFAULT_VERBOSITY))
+am__v_CXX_0 = @echo "  CXX     " $@;
+am__v_CXX_1 = 
+CXXLD = $(CXX)
+CXXLINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(AM_CXXFLAGS) \
+	$(CXXFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
+AM_V_CXXLD = $(am__v_CXXLD_$(V))
+am__v_CXXLD_ = $(am__v_CXXLD_$(AM_DEFAULT_VERBOSITY))
+am__v_CXXLD_0 = @echo "  CXXLD   " $@;
+am__v_CXXLD_1 = 
+SOURCES = $(libopenmpt_la_SOURCES) $(bin_openmpt123_SOURCES) \
+	$(libopenmpt_example_c_SOURCES) \
+	$(libopenmpt_example_c_mem_SOURCES) \
+	$(libopenmpt_example_c_pipe_SOURCES) \
+	$(libopenmpt_example_c_probe_SOURCES) \
+	$(libopenmpt_example_c_stdout_SOURCES) \
+	$(libopenmpt_example_c_unsafe_SOURCES) \
+	$(libopenmpt_example_cxx_SOURCES) $(libopenmpttest_SOURCES)
+DIST_SOURCES = $(libopenmpt_la_SOURCES) \
+	$(am__bin_openmpt123_SOURCES_DIST) \
+	$(am__libopenmpt_example_c_SOURCES_DIST) \
+	$(am__libopenmpt_example_c_mem_SOURCES_DIST) \
+	$(am__libopenmpt_example_c_pipe_SOURCES_DIST) \
+	$(am__libopenmpt_example_c_probe_SOURCES_DIST) \
+	$(am__libopenmpt_example_c_stdout_SOURCES_DIST) \
+	$(am__libopenmpt_example_c_unsafe_SOURCES_DIST) \
+	$(am__libopenmpt_example_cxx_SOURCES_DIST) \
+	$(am__libopenmpttest_SOURCES_DIST)
+am__can_run_installinfo = \
+  case $$AM_UPDATE_INFO_DIR in \
+    n|no|NO) false;; \
+    *) (install-info --version) >/dev/null 2>&1;; \
+  esac
+man1dir = $(mandir)/man1
+NROFF = nroff
+MANS = $(man1_MANS)
+DATA = $(dist_doc_DATA) $(nobase_dist_doc_DATA) $(pkgconfig_DATA)
+HEADERS = $(includelibopenmpt_HEADERS)
+am__tagged_files = $(HEADERS) $(SOURCES) $(TAGS_FILES) $(LISP)
+# Read a list of newline-separated strings from the standard input,
+# and print each of them once, without duplicates.  Input order is
+# *not* preserved.
+am__uniquify_input = $(AWK) '\
+  BEGIN { nonempty = 0; } \
+  { items[$$0] = 1; nonempty = 1; } \
+  END { if (nonempty) { for (i in items) print i; }; } \
+'
+# Make sure the list of sources is unique.  This is necessary because,
+# e.g., the same source file might be shared among _SOURCES variables
+# for different programs/libraries.
+am__define_uniq_tagged_files = \
+  list='$(am__tagged_files)'; \
+  unique=`for i in $$list; do \
+    if test -f "$$i"; then echo $$i; else echo $(srcdir)/$$i; fi; \
+  done | $(am__uniquify_input)`
+AM_RECURSIVE_TARGETS = cscope check recheck
+am__tty_colors_dummy = \
+  mgn= red= grn= lgn= blu= brg= std=; \
+  am__color_tests=no
+am__tty_colors = { \
+  $(am__tty_colors_dummy); \
+  if test "X$(AM_COLOR_TESTS)" = Xno; then \
+    am__color_tests=no; \
+  elif test "X$(AM_COLOR_TESTS)" = Xalways; then \
+    am__color_tests=yes; \
+  elif test "X$$TERM" != Xdumb && { test -t 1; } 2>/dev/null; then \
+    am__color_tests=yes; \
+  fi; \
+  if test $$am__color_tests = yes; then \
+    red='[0;31m'; \
+    grn='[0;32m'; \
+    lgn='[1;32m'; \
+    blu='[1;34m'; \
+    mgn='[0;35m'; \
+    brg='[1m'; \
+    std='[m'; \
+  fi; \
+}
+am__recheck_rx = ^[ 	]*:recheck:[ 	]*
+am__global_test_result_rx = ^[ 	]*:global-test-result:[ 	]*
+am__copy_in_global_log_rx = ^[ 	]*:copy-in-global-log:[ 	]*
+# A command that, given a newline-separated list of test names on the
+# standard input, print the name of the tests that are to be re-run
+# upon "make recheck".
+am__list_recheck_tests = $(AWK) '{ \
+  recheck = 1; \
+  while ((rc = (getline line < ($$0 ".trs"))) != 0) \
+    { \
+      if (rc < 0) \
+        { \
+          if ((getline line2 < ($$0 ".log")) < 0) \
+	    recheck = 0; \
+          break; \
+        } \
+      else if (line ~ /$(am__recheck_rx)[nN][Oo]/) \
+        { \
+          recheck = 0; \
+          break; \
+        } \
+      else if (line ~ /$(am__recheck_rx)[yY][eE][sS]/) \
+        { \
+          break; \
+        } \
+    }; \
+  if (recheck) \
+    print $$0; \
+  close ($$0 ".trs"); \
+  close ($$0 ".log"); \
+}'
+# A command that, given a newline-separated list of test names on the
+# standard input, create the global log from their .trs and .log files.
+am__create_global_log = $(AWK) ' \
+function fatal(msg) \
+{ \
+  print "fatal: making $@: " msg | "cat >&2"; \
+  exit 1; \
+} \
+function rst_section(header) \
+{ \
+  print header; \
+  len = length(header); \
+  for (i = 1; i <= len; i = i + 1) \
+    printf "="; \
+  printf "\n\n"; \
+} \
+{ \
+  copy_in_global_log = 1; \
+  global_test_result = "RUN"; \
+  while ((rc = (getline line < ($$0 ".trs"))) != 0) \
+    { \
+      if (rc < 0) \
+         fatal("failed to read from " $$0 ".trs"); \
+      if (line ~ /$(am__global_test_result_rx)/) \
+        { \
+          sub("$(am__global_test_result_rx)", "", line); \
+          sub("[ 	]*$$", "", line); \
+          global_test_result = line; \
+        } \
+      else if (line ~ /$(am__copy_in_global_log_rx)[nN][oO]/) \
+        copy_in_global_log = 0; \
+    }; \
+  if (copy_in_global_log) \
+    { \
+      rst_section(global_test_result ": " $$0); \
+      while ((rc = (getline line < ($$0 ".log"))) != 0) \
+      { \
+        if (rc < 0) \
+          fatal("failed to read from " $$0 ".log"); \
+        print line; \
+      }; \
+      printf "\n"; \
+    }; \
+  close ($$0 ".trs"); \
+  close ($$0 ".log"); \
+}'
+# Restructured Text title.
+am__rst_title = { sed 's/.*/   &   /;h;s/./=/g;p;x;s/ *$$//;p;g' && echo; }
+# Solaris 10 'make', and several other traditional 'make' implementations,
+# pass "-e" to $(SHELL), and POSIX 2008 even requires this.  Work around it
+# by disabling -e (using the XSI extension "set +e") if it's set.
+am__sh_e_setup = case $$- in *e*) set +e;; esac
+# Default flags passed to test drivers.
+am__common_driver_flags = \
+  --color-tests "$$am__color_tests" \
+  --enable-hard-errors "$$am__enable_hard_errors" \
+  --expect-failure "$$am__expect_failure"
+# To be inserted before the command running the test.  Creates the
+# directory for the log if needed.  Stores in $dir the directory
+# containing $f, in $tst the test, in $log the log.  Executes the
+# developer- defined test setup AM_TESTS_ENVIRONMENT (if any), and
+# passes TESTS_ENVIRONMENT.  Set up options for the wrapper that
+# will run the test scripts (or their associated LOG_COMPILER, if
+# thy have one).
+am__check_pre = \
+$(am__sh_e_setup);					\
+$(am__vpath_adj_setup) $(am__vpath_adj)			\
+$(am__tty_colors);					\
+srcdir=$(srcdir); export srcdir;			\
+case "$@" in						\
+  */*) am__odir=`echo "./$@" | sed 's|/[^/]*$$||'`;;	\
+    *) am__odir=.;; 					\
+esac;							\
+test "x$$am__odir" = x"." || test -d "$$am__odir" 	\
+  || $(MKDIR_P) "$$am__odir" || exit $$?;		\
+if test -f "./$$f"; then dir=./;			\
+elif test -f "$$f"; then dir=;				\
+else dir="$(srcdir)/"; fi;				\
+tst=$$dir$$f; log='$@'; 				\
+if test -n '$(DISABLE_HARD_ERRORS)'; then		\
+  am__enable_hard_errors=no; 				\
+else							\
+  am__enable_hard_errors=yes; 				\
+fi; 							\
+case " $(XFAIL_TESTS) " in				\
+  *[\ \	]$$f[\ \	]* | *[\ \	]$$dir$$f[\ \	]*) \
+    am__expect_failure=yes;;				\
+  *)							\
+    am__expect_failure=no;;				\
+esac; 							\
+$(AM_TESTS_ENVIRONMENT) $(TESTS_ENVIRONMENT)
+# A shell command to get the names of the tests scripts with any registered
+# extension removed (i.e., equivalently, the names of the test logs, with
+# the '.log' extension removed).  The result is saved in the shell variable
+# '$bases'.  This honors runtime overriding of TESTS and TEST_LOGS.  Sadly,
+# we cannot use something simpler, involving e.g., "$(TEST_LOGS:.log=)",
+# since that might cause problem with VPATH rewrites for suffix-less tests.
+# See also 'test-harness-vpath-rewrite.sh' and 'test-trs-basic.sh'.
+am__set_TESTS_bases = \
+  bases='$(TEST_LOGS)'; \
+  bases=`for i in $$bases; do echo $$i; done | sed 's/\.log$$//'`; \
+  bases=`echo $$bases`
+AM_TESTSUITE_SUMMARY_HEADER = ' for $(PACKAGE_STRING)'
+RECHECK_LOGS = $(TEST_LOGS)
+TEST_SUITE_LOG = test-suite.log
+TEST_EXTENSIONS =  .test
+LOG_DRIVER = $(SHELL) $(top_srcdir)/build-aux/test-driver
+LOG_COMPILE = $(LOG_COMPILER) $(AM_LOG_FLAGS) $(LOG_FLAGS)
+am__set_b = \
+  case '$@' in \
+    */*) \
+      case '$*' in \
+        */*) b='$*';; \
+          *) b=`echo '$@' | sed 's/\.log$$//'`; \
+       esac;; \
+    *) \
+      b='$*';; \
+  esac
+am__test_logs1 = $(TESTS:=.log)
+am__test_logs2 = $(am__test_logs1:.log=.log)
+TEST_LOGS = $(am__test_logs2:.test.log=.log)
+TEST_LOG_DRIVER = $(SHELL) $(top_srcdir)/build-aux/test-driver
+TEST_LOG_COMPILE = $(TEST_LOG_COMPILER) $(AM_TEST_LOG_FLAGS) \
+	$(TEST_LOG_FLAGS)
+am__DIST_COMMON = $(srcdir)/Doxyfile.in $(srcdir)/Makefile.in \
+	$(top_srcdir)/build-aux/ar-lib $(top_srcdir)/build-aux/compile \
+	$(top_srcdir)/build-aux/config.guess \
+	$(top_srcdir)/build-aux/config.sub \
+	$(top_srcdir)/build-aux/depcomp \
+	$(top_srcdir)/build-aux/install-sh \
+	$(top_srcdir)/build-aux/ltmain.sh \
+	$(top_srcdir)/build-aux/missing \
+	$(top_srcdir)/build-aux/test-driver \
+	$(top_srcdir)/libopenmpt/libopenmpt.pc.in README.md \
+	build-aux/ar-lib build-aux/compile build-aux/config.guess \
+	build-aux/config.sub build-aux/depcomp build-aux/install-sh \
+	build-aux/ltmain.sh build-aux/missing
+DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
+distdir = $(PACKAGE)-$(VERSION)
+top_distdir = $(distdir)
+am__remove_distdir = \
+  if test -d "$(distdir)"; then \
+    find "$(distdir)" -type d ! -perm -200 -exec chmod u+w {} ';' \
+      && rm -rf "$(distdir)" \
+      || { sleep 5 && rm -rf "$(distdir)"; }; \
+  else :; fi
+am__post_remove_distdir = $(am__remove_distdir)
+DIST_ARCHIVES = $(distdir).tar.gz
+GZIP_ENV = --best
+DIST_TARGETS = dist-gzip
+# Exists only to be overridden by the user if desired.
+AM_DISTCHECK_DVI_TARGET = dvi
+distuninstallcheck_listfiles = find . -type f -print
+am__distuninstallcheck_listfiles = $(distuninstallcheck_listfiles) \
+  | sed 's|^\./|$(prefix)/|' | grep -v '$(infodir)/dir$$'
+distcleancheck_listfiles = find . -type f -print
+ACLOCAL = ${SHELL} '/Users/yoyofr/Documents/dev/other/libopenmpt-0.8.3+release.autotools/build-aux/missing' aclocal-1.16
+AMTAR = $${TAR-tar}
+AM_DEFAULT_VERBOSITY = 1
+AR = ar
+AUTOCONF = ${SHELL} '/Users/yoyofr/Documents/dev/other/libopenmpt-0.8.3+release.autotools/build-aux/missing' autoconf
+AUTOHEADER = ${SHELL} '/Users/yoyofr/Documents/dev/other/libopenmpt-0.8.3+release.autotools/build-aux/missing' autoheader
+AUTOMAKE = ${SHELL} '/Users/yoyofr/Documents/dev/other/libopenmpt-0.8.3+release.autotools/build-aux/missing' automake-1.16
+AWK = awk
+CC = gcc
+CCDEPMODE = depmode=gcc3
+CFLAGS = -Wall -g -O2
+CPP = gcc -E
+CPPFLAGS = 
+CSCOPE = cscope
+CTAGS = ctags
+CXX = g++ -std=c++23
+CXXCPP = g++ -E -std=c++23
+CXXDEPMODE = depmode=gcc3
+CXXFLAGS = -g -O2
+CXXSTDLIB_PCLIBSPRIVATE = 
+CYGPATH_W = echo
+DEFS = -DPACKAGE_NAME=\"libopenmpt\" -DPACKAGE_TARNAME=\"libopenmpt\" -DPACKAGE_VERSION=\"0.8.3+release.autotools\" -DPACKAGE_STRING=\"libopenmpt\ 0.8.3+release.autotools\" -DPACKAGE_BUGREPORT=\"https://bugs.openmpt.org/\" -DPACKAGE_URL=\"https://lib.openmpt.org/\" -DPACKAGE=\"libopenmpt\" -DVERSION=\"0.8.3+release.autotools\" -DHAVE_STDIO_H=1 -DHAVE_STDLIB_H=1 -DHAVE_STRING_H=1 -DHAVE_INTTYPES_H=1 -DHAVE_STDINT_H=1 -DHAVE_STRINGS_H=1 -DHAVE_SYS_STAT_H=1 -DHAVE_SYS_TYPES_H=1 -DHAVE_UNISTD_H=1 -DHAVE_WCHAR_H=1 -DSTDC_HEADERS=1 -D_ALL_SOURCE=1 -D_DARWIN_C_SOURCE=1 -D_GNU_SOURCE=1 -D_HPUX_ALT_XOPEN_SOCKET_API=1 -D_NETBSD_SOURCE=1 -D_OPENBSD_SOURCE=1 -D_POSIX_PTHREAD_SEMANTICS=1 -D__STDC_WANT_IEC_60559_ATTRIBS_EXT__=1 -D__STDC_WANT_IEC_60559_BFP_EXT__=1 -D__STDC_WANT_IEC_60559_DFP_EXT__=1 -D__STDC_WANT_IEC_60559_FUNCS_EXT__=1 -D__STDC_WANT_IEC_60559_TYPES_EXT__=1 -D__STDC_WANT_LIB_EXT2__=1 -D__STDC_WANT_MATH_SPEC_FUNCS__=1 -D_TANDEM_SOURCE=1 -D__EXTENSIONS__=1 -DHAVE_DLFCN_H=1 -DLT_OBJDIR=\".libs/\" -DHAVE_CXX23=1 -DHAVE_EXCEPTIONS=/\*\*/ -DHAVE_RTTI=/\*\*/ -DHAVE_PTHREAD_PRIO_INHERIT=1 -DMPT_SVNURL=\"https://source.openmpt.org/svn/openmpt/tags/libopenmpt-0.8.3\" -DMPT_SVNVERSION=\"24141\" -DMPT_SVNDATE=\"2025-09-06T13:42:08.986313Z\" -DMPT_PACKAGE=true
+DEPDIR = .deps
+DLLTOOL = false
+DOXYGEN_PAPER_SIZE = 
+DSYMUTIL = dsymutil
+DUMPBIN = 
+DX_CONFIG = Doxyfile
+DX_DOCDIR = doxygen-doc
+DX_DOT = 
+DX_DOXYGEN = /opt/homebrew/bin/doxygen
+DX_DVIPS = 
+DX_EGREP = 
+DX_ENV =  SRCDIR='.' PROJECT='libopenmpt' VERSION='0.8.3+release.autotools' PERL_PATH='/usr/bin/perl' HAVE_DOT='NO' GENERATE_MAN='NO' GENERATE_RTF='NO' GENERATE_XML='NO' GENERATE_HTMLHELP='NO' GENERATE_CHI='NO' GENERATE_HTML='YES' GENERATE_LATEX='NO'
+DX_FLAG_chi = 0
+DX_FLAG_chm = 0
+DX_FLAG_doc = 1
+DX_FLAG_dot = 0
+DX_FLAG_html = 1
+DX_FLAG_man = 0
+DX_FLAG_pdf = 0
+DX_FLAG_ps = 0
+DX_FLAG_rtf = 0
+DX_FLAG_xml = 0
+DX_HHC = 
+DX_LATEX = 
+DX_MAKEINDEX = 
+DX_PDFLATEX = 
+DX_PERL = /usr/bin/perl
+DX_PROJECT = libopenmpt
+ECHO_C = \c
+ECHO_N = 
+ECHO_T = 
+EGREP = /usr/bin/grep -E
+ETAGS = etags
+EXEEXT = 
+FGREP = /usr/bin/grep -F
+FILECMD = file
+FLAC_CFLAGS = -DMPT_WITH_FLAC -I/opt/homebrew/Cellar/flac/1.5.0/include -I/opt/homebrew/Cellar/libogg/1.3.6/include
+FLAC_LIBS = -L/opt/homebrew/Cellar/flac/1.5.0/lib -lFLAC
+GLOBAL_CFLAGS =  -fvisibility=hidden -pthread
+GLOBAL_CPPFLAGS = 
+GLOBAL_CXXFLAGS =  -fvisibility=hidden -pthread
+GREP = /usr/bin/grep
+HAVE_CXX17 = 
+HAVE_CXX20 = 
+HAVE_CXX23 = 1
+INSTALL = /usr/bin/install -c
+INSTALL_DATA = ${INSTALL} -m 644
+INSTALL_PROGRAM = ${INSTALL}
+INSTALL_SCRIPT = ${INSTALL}
+INSTALL_STRIP_PROGRAM = $(install_sh) -c -s
+LD = /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld
+LDFLAGS = 
+LIBOBJS = 
+LIBOPENMPTTEST_WIN32_LIBS = 
+LIBOPENMPT_LIBS_PRIVATE =  
+LIBOPENMPT_LTVER_AGE = 5
+LIBOPENMPT_LTVER_CURRENT = 5
+LIBOPENMPT_LTVER_REVISION = 5
+LIBOPENMPT_REQUIRES_PRIVATE = zlib libmpg123 ogg vorbis vorbisfile
+LIBOPENMPT_WIN32_LIBS = 
+LIBS = -lpthread 
+LIBTOOL = $(SHELL) $(top_builddir)/libtool
+LIPO = lipo
+LN_S = ln -s
+LTLIBOBJS = 
+LT_SYS_LIBRARY_PATH = 
+MAKEINFO = ${SHELL} '/Users/yoyofr/Documents/dev/other/libopenmpt-0.8.3+release.autotools/build-aux/missing' makeinfo
+MANIFEST_TOOL = :
+MKDIR_P = ./build-aux/install-sh -c -d
+MPG123_CFLAGS = -DMPT_WITH_MPG123 -I/opt/homebrew/Cellar/mpg123/1.33.3/include
+MPG123_LIBS = -L/opt/homebrew/Cellar/mpg123/1.33.3/lib -lmpg123
+NM = /usr/bin/nm -B
+NMEDIT = nmedit
+OBJDUMP = objdump
+OBJEXT = o
+OGG_CFLAGS = -DMPT_WITH_OGG -I/opt/homebrew/Cellar/libogg/1.3.6/include
+OGG_LIBS = -L/opt/homebrew/Cellar/libogg/1.3.6/lib -logg
+OPENMPT123_WIN32_LIBS = 
+OTOOL = otool
+OTOOL64 = :
+PACKAGE = libopenmpt
+PACKAGE_BUGREPORT = https://bugs.openmpt.org/
+PACKAGE_NAME = libopenmpt
+PACKAGE_STRING = libopenmpt 0.8.3+release.autotools
+PACKAGE_TARNAME = libopenmpt
+PACKAGE_URL = https://lib.openmpt.org/
+PACKAGE_VERSION = 0.8.3+release.autotools
+PATH_SEPARATOR = :
+PKG_CONFIG = /opt/homebrew/bin/pkg-config
+PKG_CONFIG_LIBDIR = 
+PKG_CONFIG_PATH = 
+PORTAUDIOCPP_CFLAGS = -DMPT_WITH_PORTAUDIOCPP -I/opt/homebrew/Cellar/portaudio/19.7.0/include
+PORTAUDIOCPP_LIBS = -L/opt/homebrew/Cellar/portaudio/19.7.0/lib -lportaudiocpp -lportaudio -framework CoreAudio -framework AudioToolbox -framework AudioUnit -framework CoreFoundation -framework CoreServices
+PORTAUDIO_CFLAGS = -DMPT_WITH_PORTAUDIO -I/opt/homebrew/Cellar/portaudio/19.7.0/include
+PORTAUDIO_LIBS = -L/opt/homebrew/Cellar/portaudio/19.7.0/lib -lportaudio -framework CoreAudio -framework AudioToolbox -framework AudioUnit -framework CoreFoundation -framework CoreServices
+PTHREAD_CC = gcc
+PTHREAD_CFLAGS = -pthread
+PTHREAD_CXX = g++ -std=c++23
+PTHREAD_LIBS = -lpthread
+PULSEAUDIO_CFLAGS = 
+PULSEAUDIO_LIBS = 
+RANLIB = ranlib
+SDL2_CFLAGS = 
+SDL2_LIBS = 
+SED = /usr/bin/sed
+SET_MAKE = 
+SHELL = /bin/sh
+SNDFILE_CFLAGS = -DMPT_WITH_SNDFILE -I/opt/homebrew/Cellar/libsndfile/1.2.2_1/include -I/opt/homebrew/Cellar/flac/1.5.0/include -I/opt/homebrew/Cellar/libvorbis/1.3.7/include -I/opt/homebrew/Cellar/libogg/1.3.6/include -I/opt/homebrew/Cellar/opus/1.5.2/include/opus -I/opt/homebrew/Cellar/mpg123/1.33.3/include
+SNDFILE_LIBS = -L/opt/homebrew/Cellar/libsndfile/1.2.2_1/lib -lsndfile
+STRIP = strip
+VERSION = 0.8.3+release.autotools
+VORBISFILE_CFLAGS = -DMPT_WITH_VORBISFILE -I/opt/homebrew/Cellar/libvorbis/1.3.7/include -I/opt/homebrew/Cellar/libogg/1.3.6/include
+VORBISFILE_LIBS = -L/opt/homebrew/Cellar/libvorbis/1.3.7/lib -lvorbisfile
+VORBIS_CFLAGS = -DMPT_WITH_VORBIS -I/opt/homebrew/Cellar/libvorbis/1.3.7/include -I/opt/homebrew/Cellar/libogg/1.3.6/include
+VORBIS_LIBS = -L/opt/homebrew/Cellar/libvorbis/1.3.7/lib -lvorbis
+WIN32_CFLAGS = 
+WIN32_CONSOLE_CFLAGS = 
+WIN32_CONSOLE_CXXFLAGS = 
+WIN32_CPPFLAGS = 
+WIN32_CXXFLAGS = 
+ZLIB_CFLAGS = -DMPT_WITH_ZLIB 
+ZLIB_LIBS = -lz
+abs_builddir = /Users/yoyofr/Documents/dev/other/libopenmpt-0.8.3+release.autotools
+abs_srcdir = /Users/yoyofr/Documents/dev/other/libopenmpt-0.8.3+release.autotools
+abs_top_builddir = /Users/yoyofr/Documents/dev/other/libopenmpt-0.8.3+release.autotools
+abs_top_srcdir = /Users/yoyofr/Documents/dev/other/libopenmpt-0.8.3+release.autotools
+ac_ct_AR = ar
+ac_ct_CC = gcc
+ac_ct_CXX = g++
+ac_ct_DUMPBIN = 
+am__include = include
+am__leading_dot = .
+am__quote = 
+am__tar = $${TAR-tar} chof - "$$tardir"
+am__untar = $${TAR-tar} xf -
+ax_pthread_config = 
+bindir = ${exec_prefix}/bin
+build = aarch64-apple-darwin24.6.0
+build_alias = 
+build_cpu = aarch64
+build_os = darwin24.6.0
+build_vendor = apple
+builddir = .
+datadir = ${datarootdir}
+datarootdir = ${prefix}/share
+docdir = ${datarootdir}/doc/${PACKAGE_TARNAME}
+dvidir = ${docdir}
+exec_prefix = ${prefix}
+host = aarch64-apple-darwin24.6.0
+host_alias = 
+host_cpu = aarch64
+host_os = darwin24.6.0
+host_vendor = apple
+htmldir = ${docdir}
+includedir = ${prefix}/include
+infodir = ${datarootdir}/info
+install_sh = ${SHELL} /Users/yoyofr/Documents/dev/other/libopenmpt-0.8.3+release.autotools/build-aux/install-sh
+libdir = ${exec_prefix}/lib
+libexecdir = ${exec_prefix}/libexec
+localedir = ${datarootdir}/locale
+localstatedir = ${prefix}/var
+mandir = ${datarootdir}/man
+mkdir_p = $(MKDIR_P)
+oldincludedir = /usr/include
+pdfdir = ${docdir}
+prefix = /usr/local
+program_transform_name = s,x,x,
+psdir = ${docdir}
+runstatedir = ${localstatedir}/run
+sbindir = ${exec_prefix}/sbin
+sharedstatedir = ${prefix}/com
+srcdir = .
+sysconfdir = ${prefix}/etc
+target_alias = 
+top_build_prefix = 
+top_builddir = .
+top_srcdir = .
+ACLOCAL_AMFLAGS = -I m4 --install
+EXTRA_DIST = .clang-format m4/emptydir libopenmpt/libopenmpt.pc.in \
+	LICENSE README.md Doxyfile.in doc/contributing.md \
+	doc/libopenmpt_styleguide.md doc/libopenmpt/changelog.md \
+	doc/libopenmpt/dependencies.md \
+	doc/libopenmpt/gettingstarted.md doc/libopenmpt/index.dox \
+	doc/libopenmpt/packaging.md doc/libopenmpt/tests.md \
+	doc/module_formats.md doc/openmpt_styleguide.md \
+	libopenmpt/.clang-format libopenmpt/libopenmpt_version.mk \
+	openmpt123/.clang-format src/mpt/.clang-format \
+	src/mpt/LICENSE.BSD-3-Clause.txt src/mpt/LICENSE.BSL-1.0.txt \
+	test/test.xm test/test.s3m test/test.mod test/test.mptm \
+	man/openmpt123.1 examples/.clang-format \
+	libopenmpt/bindings/freebasic/libopenmpt.bi \
+	libopenmpt/bindings/freebasic/libopenmpt_ext.bi
+MOSTLYCLEANFILES = $(DX_CLEANFILES)
+dist_doc_DATA = LICENSE README.md
+nobase_dist_doc_DATA = examples/libopenmpt_example_cxx.cpp \
+	examples/libopenmpt_example_c_mem.c \
+	examples/libopenmpt_example_c_unsafe.c \
+	examples/libopenmpt_example_c.c \
+	examples/libopenmpt_example_c_pipe.c \
+	examples/libopenmpt_example_c_probe.c \
+	examples/libopenmpt_example_c_stdout.c
+lib_LTLIBRARIES = libopenmpt.la
+libopenmpt_example_c_pipe_SOURCES = examples/libopenmpt_example_c_pipe.c
+libopenmpt_example_c_probe_SOURCES = examples/libopenmpt_example_c_probe.c
+libopenmpt_example_c_stdout_SOURCES = examples/libopenmpt_example_c_stdout.c
+libopenmpt_example_c_SOURCES = examples/libopenmpt_example_c.c
+libopenmpt_example_c_mem_SOURCES = examples/libopenmpt_example_c_mem.c
+libopenmpt_example_c_unsafe_SOURCES = examples/libopenmpt_example_c_unsafe.c
+libopenmpt_example_cxx_SOURCES = examples/libopenmpt_example_cxx.cpp
+libopenmpt_example_c_pipe_CPPFLAGS = $(WIN32_CPPFLAGS)
+libopenmpt_example_c_probe_CPPFLAGS = $(WIN32_CPPFLAGS)
+libopenmpt_example_c_stdout_CPPFLAGS = $(WIN32_CPPFLAGS)
+libopenmpt_example_c_CPPFLAGS = $(WIN32_CPPFLAGS) $(PORTAUDIO_CFLAGS)
+libopenmpt_example_c_mem_CPPFLAGS = $(WIN32_CPPFLAGS) $(PORTAUDIO_CFLAGS)
+libopenmpt_example_c_unsafe_CPPFLAGS = $(WIN32_CPPFLAGS) $(PORTAUDIO_CFLAGS)
+libopenmpt_example_cxx_CPPFLAGS = $(WIN32_CPPFLAGS) $(PORTAUDIOCPP_CFLAGS)
+libopenmpt_example_c_pipe_CFLAGS = $(GLOBAL_CFLAGS) $(WIN32_CFLAGS) $(WIN32_CONSOLE_CFLAGS)
+libopenmpt_example_c_probe_CFLAGS = $(GLOBAL_CFLAGS) $(WIN32_CFLAGS) $(WIN32_CONSOLE_CFLAGS)
+libopenmpt_example_c_stdout_CFLAGS = $(GLOBAL_CFLAGS) $(WIN32_CFLAGS) $(WIN32_CONSOLE_CFLAGS)
+libopenmpt_example_c_CFLAGS = $(GLOBAL_CFLAGS) $(WIN32_CFLAGS) $(WIN32_CONSOLE_CFLAGS)
+libopenmpt_example_c_mem_CFLAGS = $(GLOBAL_CFLAGS) $(WIN32_CFLAGS) $(WIN32_CONSOLE_CFLAGS)
+libopenmpt_example_c_unsafe_CFLAGS = $(GLOBAL_CFLAGS) $(WIN32_CFLAGS) $(WIN32_CONSOLE_CFLAGS)
+libopenmpt_example_cxx_CXXFLAGS = $(GLOBAL_CXXFLAGS) $(WIN32_CXXFLAGS) $(WIN32_CONSOLE_CXXFLAGS)
+libopenmpt_example_c_pipe_LDADD = $(lib_LTLIBRARIES)
+libopenmpt_example_c_probe_LDADD = $(lib_LTLIBRARIES)
+libopenmpt_example_c_stdout_LDADD = $(lib_LTLIBRARIES)
+libopenmpt_example_c_LDADD = $(lib_LTLIBRARIES) $(PORTAUDIO_LIBS)
+libopenmpt_example_c_mem_LDADD = $(lib_LTLIBRARIES) $(PORTAUDIO_LIBS)
+libopenmpt_example_c_unsafe_LDADD = $(lib_LTLIBRARIES) $(PORTAUDIO_LIBS)
+libopenmpt_example_cxx_LDADD = $(lib_LTLIBRARIES) $(PORTAUDIOCPP_LIBS)
+pkgconfigdir = $(libdir)/pkgconfig
+pkgconfig_DATA = libopenmpt/libopenmpt.pc
+includelibopenmptdir = $(includedir)/libopenmpt
+includelibopenmpt_HEADERS = libopenmpt/libopenmpt.h \
+	libopenmpt/libopenmpt.hpp libopenmpt/libopenmpt_version.h \
+	libopenmpt/libopenmpt_config.h \
+	libopenmpt/libopenmpt_stream_callbacks_buffer.h \
+	libopenmpt/libopenmpt_stream_callbacks_fd.h \
+	libopenmpt/libopenmpt_stream_callbacks_file.h \
+	libopenmpt/libopenmpt_stream_callbacks_file_mingw.h \
+	libopenmpt/libopenmpt_stream_callbacks_file_msvcrt.h \
+	libopenmpt/libopenmpt_stream_callbacks_file_posix.h \
+	libopenmpt/libopenmpt_stream_callbacks_file_posix_lfs64.h \
+	libopenmpt/libopenmpt_ext.h libopenmpt/libopenmpt_ext.hpp
+#MPT_FILES_SRC_MPT += src/mpt/crypto/exception.hpp
+#MPT_FILES_SRC_MPT += src/mpt/crypto/hash.hpp
+#MPT_FILES_SRC_MPT += src/mpt/crypto/jwk.hpp
+#MPT_FILES_SRC_MPT += src/mpt/fs/common_directories.hpp
+#MPT_FILES_SRC_MPT += src/mpt/fs/fs.hpp
+#MPT_FILES_SRC_MPT += src/mpt/json/json.hpp
+#MPT_FILES_SRC_MPT += src/mpt/library/library.hpp
+#MPT_FILES_SRC_MPT += src/mpt/uuid_namespace/uuid_namespace.hpp
+#MPT_FILES_SRC_MPT += src/mpt/crypto/tests/tests_crypto.hpp
+MPT_FILES_SRC_MPT = src/mpt/arch/arch.hpp \
+	src/mpt/arch/feature_fence.hpp src/mpt/arch/feature_flags.hpp \
+	src/mpt/arch/x86_amd64.hpp src/mpt/audio/sample.hpp \
+	src/mpt/audio/span.hpp src/mpt/base/algorithm.hpp \
+	src/mpt/base/aligned_array.hpp src/mpt/base/alloc.hpp \
+	src/mpt/base/arithmetic_shift.hpp src/mpt/base/array.hpp \
+	src/mpt/base/bit.hpp src/mpt/base/check_platform.hpp \
+	src/mpt/base/compiletime_warning.hpp \
+	src/mpt/base/constexpr_throw.hpp src/mpt/base/debugging.hpp \
+	src/mpt/base/detect.hpp src/mpt/base/detect_arch.hpp \
+	src/mpt/base/detect_compiler.hpp src/mpt/base/detect_libc.hpp \
+	src/mpt/base/detect_libcxx.hpp src/mpt/base/detect_os.hpp \
+	src/mpt/base/detect_quirks.hpp src/mpt/base/float.hpp \
+	src/mpt/base/integer.hpp src/mpt/base/macros.hpp \
+	src/mpt/base/math.hpp src/mpt/base/memory.hpp \
+	src/mpt/base/namespace.hpp src/mpt/base/numbers.hpp \
+	src/mpt/base/numeric.hpp src/mpt/base/pointer.hpp \
+	src/mpt/base/preprocessor.hpp src/mpt/base/saturate_cast.hpp \
+	src/mpt/base/saturate_round.hpp src/mpt/base/secure.hpp \
+	src/mpt/base/semantic_version.hpp src/mpt/base/size.hpp \
+	src/mpt/base/source_location.hpp src/mpt/base/span.hpp \
+	src/mpt/base/type_traits.hpp src/mpt/base/utility.hpp \
+	src/mpt/base/version.hpp src/mpt/base/wrapping_divide.hpp \
+	src/mpt/binary/base64.hpp src/mpt/binary/base64url.hpp \
+	src/mpt/binary/hex.hpp src/mpt/check/compiler.hpp \
+	src/mpt/check/libc.hpp src/mpt/check/libcxx.hpp \
+	src/mpt/check/mfc.hpp src/mpt/check/windows.hpp \
+	src/mpt/crc/crc.hpp src/mpt/detect/dl.hpp \
+	src/mpt/detect/ltdl.hpp src/mpt/detect/mfc.hpp \
+	src/mpt/detect/nlohmann_json.hpp \
+	src/mpt/endian/floatingpoint.hpp src/mpt/endian/int24.hpp \
+	src/mpt/endian/integer.hpp src/mpt/endian/type_traits.hpp \
+	src/mpt/environment/environment.hpp \
+	src/mpt/exception/exception.hpp \
+	src/mpt/exception/exception_text.hpp \
+	src/mpt/exception/logic_error.hpp \
+	src/mpt/exception/runtime_error.hpp src/mpt/format/concat.hpp \
+	src/mpt/format/default_floatingpoint.hpp \
+	src/mpt/format/default_formatter.hpp \
+	src/mpt/format/default_integer.hpp \
+	src/mpt/format/default_string.hpp src/mpt/format/helpers.hpp \
+	src/mpt/format/join.hpp src/mpt/format/message.hpp \
+	src/mpt/format/message_macros.hpp src/mpt/format/simple.hpp \
+	src/mpt/format/simple_floatingpoint.hpp \
+	src/mpt/format/simple_integer.hpp \
+	src/mpt/format/simple_spec.hpp src/mpt/io/base.hpp \
+	src/mpt/io/io.hpp src/mpt/io/io_span.hpp \
+	src/mpt/io/io_stdstream.hpp src/mpt/io/io_virtual_wrapper.hpp \
+	src/mpt/io_file/fileref.hpp src/mpt/io_file/fstream.hpp \
+	src/mpt/io_file/inputfile.hpp src/mpt/io_file/outputfile.hpp \
+	src/mpt/io_file_adapter/fileadapter.hpp \
+	src/mpt/io_file_read/inputfile_filecursor.hpp \
+	src/mpt/io_file_unique/unique_basename.hpp \
+	src/mpt/io_file_unique/unique_tempfilename.hpp \
+	src/mpt/io_read/callbackstream.hpp \
+	src/mpt/io_read/filecursor.hpp \
+	src/mpt/io_read/filecursor_callbackstream.hpp \
+	src/mpt/io_read/filecursor_filename_traits.hpp \
+	src/mpt/io_read/filecursor_memory.hpp \
+	src/mpt/io_read/filecursor_stdstream.hpp \
+	src/mpt/io_read/filecursor_traits_filedata.hpp \
+	src/mpt/io_read/filecursor_traits_memory.hpp \
+	src/mpt/io_read/filedata.hpp src/mpt/io_read/filedata_base.hpp \
+	src/mpt/io_read/filedata_base_buffered.hpp \
+	src/mpt/io_read/filedata_base_seekable.hpp \
+	src/mpt/io_read/filedata_base_unseekable.hpp \
+	src/mpt/io_read/filedata_base_unseekable_buffer.hpp \
+	src/mpt/io_read/filedata_callbackstream.hpp \
+	src/mpt/io_read/filedata_memory.hpp \
+	src/mpt/io_read/filedata_stdstream.hpp \
+	src/mpt/io_read/filereader.hpp src/mpt/io_write/buffer.hpp \
+	src/mpt/main/main.hpp src/mpt/mutex/mutex.hpp \
+	src/mpt/osinfo/class.hpp src/mpt/osinfo/dos_memory.hpp \
+	src/mpt/osinfo/dos_version.hpp \
+	src/mpt/osinfo/windows_version.hpp \
+	src/mpt/osinfo/windows_wine_version.hpp \
+	src/mpt/out_of_memory/out_of_memory.hpp \
+	src/mpt/parse/parse.hpp src/mpt/parse/split.hpp \
+	src/mpt/path/basic_path.hpp src/mpt/path/native_path.hpp \
+	src/mpt/path/path.hpp src/mpt/path/os_path.hpp \
+	src/mpt/path/os_path_long.hpp src/mpt/random/any_engine.hpp \
+	src/mpt/random/crand.hpp src/mpt/random/default_engines.hpp \
+	src/mpt/random/device.hpp src/mpt/random/engine.hpp \
+	src/mpt/random/engine_lcg.hpp src/mpt/random/random.hpp \
+	src/mpt/random/seed.hpp src/mpt/string/buffer.hpp \
+	src/mpt/string/types.hpp src/mpt/string/utility.hpp \
+	src/mpt/string_transcode/transcode.hpp \
+	src/mpt/string_transcode/macros.hpp \
+	src/mpt/system_error/system_error.hpp src/mpt/test/test.hpp \
+	src/mpt/test/test_macros.hpp src/mpt/uuid/guid.hpp \
+	src/mpt/uuid/uuid.hpp \
+	src/mpt/base/tests/tests_base_arithmetic_shift.hpp \
+	src/mpt/base/tests/tests_base_bit.hpp \
+	src/mpt/base/tests/tests_base_math.hpp \
+	src/mpt/base/tests/tests_base_numeric.hpp \
+	src/mpt/base/tests/tests_base_saturate_cast.hpp \
+	src/mpt/base/tests/tests_base_saturate_round.hpp \
+	src/mpt/base/tests/tests_base_wrapping_divide.hpp \
+	src/mpt/binary/tests/tests_binary.hpp \
+	src/mpt/crc/tests/tests_crc.hpp \
+	src/mpt/endian/tests/tests_endian_floatingpoint.hpp \
+	src/mpt/endian/tests/tests_endian_int24.hpp \
+	src/mpt/endian/tests/tests_endian_integer.hpp \
+	src/mpt/format/tests/tests_format_message.hpp \
+	src/mpt/format/tests/tests_format_simple.hpp \
+	src/mpt/io/tests/tests_io.hpp \
+	src/mpt/parse/tests/tests_parse.hpp \
+	src/mpt/random/tests/tests_random.hpp \
+	src/mpt/string/tests/tests_string_buffer.hpp \
+	src/mpt/string/tests/tests_string_utility.hpp \
+	src/mpt/string_transcode/tests/tests_string_transcode.hpp \
+	src/mpt/uuid/tests/tests_uuid.hpp
+#MPT_FILES_SRC_MPT += src/mpt/uuid_namespace/tests/tests_uuid_namespace.hpp
+MPT_FILES_SRC_OPENMPT = src/openmpt/all/BuildSettings.hpp \
+	src/openmpt/all/PlatformFixes.hpp src/openmpt/base/Endian.hpp \
+	src/openmpt/base/FlagSet.hpp src/openmpt/base/Int24.hpp \
+	src/openmpt/base/Types.hpp \
+	src/openmpt/fileformat_base/magic.hpp \
+	src/openmpt/logging/Logger.hpp src/openmpt/random/ModPlug.hpp \
+	src/openmpt/soundbase/Copy.hpp \
+	src/openmpt/soundbase/CopyMix.hpp \
+	src/openmpt/soundbase/Dither.hpp \
+	src/openmpt/soundbase/DitherModPlug.hpp \
+	src/openmpt/soundbase/DitherNone.hpp \
+	src/openmpt/soundbase/DitherSimple.hpp \
+	src/openmpt/soundbase/MixSample.hpp \
+	src/openmpt/soundbase/MixSampleConvert.hpp \
+	src/openmpt/soundbase/SampleClip.hpp \
+	src/openmpt/soundbase/SampleClipFixedPoint.hpp \
+	src/openmpt/soundbase/SampleConvert.hpp \
+	src/openmpt/soundbase/SampleConvertFixedPoint.hpp \
+	src/openmpt/soundbase/SampleDecode.hpp \
+	src/openmpt/soundbase/SampleEncode.hpp \
+	src/openmpt/soundbase/SampleFormat.hpp \
+	src/openmpt/soundfile_data/tags.hpp \
+	src/openmpt/soundfile_data/wav.hpp
+MPT_FILES_SRC_OPENMPT_SOUNDFILE_WRITE =  \
+	src/openmpt/soundfile_write/wav_write.cpp \
+	src/openmpt/soundfile_write/wav_write.hpp
+MPT_FILES_COMMON = common/BuildSettings.h \
+	common/BuildSettingsCompiler.h common/ComponentManager.cpp \
+	common/ComponentManager.h common/FileReader.h \
+	common/FileReaderFwd.h common/GzipWriter.h common/Logging.cpp \
+	common/Logging.h common/misc_util.h common/mptAssert.h \
+	common/mptBaseMacros.h common/mptBaseTypes.h \
+	common/mptBaseUtils.h common/mptCPU.h common/mptFileIO.h \
+	common/mptFileTemporary.h common/mptFileType.cpp \
+	common/mptFileType.h common/mptPathString.cpp \
+	common/mptPathString.h common/mptRandom.cpp common/mptRandom.h \
+	common/mptString.h common/mptStringBuffer.cpp \
+	common/mptStringBuffer.h common/mptStringFormat.h \
+	common/mptTime.cpp common/mptTime.h common/Profiler.cpp \
+	common/Profiler.h common/serialization_utils.cpp \
+	common/serialization_utils.h common/stdafx.h \
+	common/version.cpp common/version.h common/versionNumber.h
+MPT_FILES_SOUNDLIB = soundlib/AudioCriticalSection.cpp \
+	soundlib/AudioCriticalSection.h soundlib/AudioReadTarget.h \
+	soundlib/BitReader.h soundlib/ContainerMMCMP.cpp \
+	soundlib/ContainerPP20.cpp soundlib/ContainerUMX.cpp \
+	soundlib/ContainerXPK.cpp soundlib/Container.h \
+	soundlib/Dlsbank.cpp soundlib/Dlsbank.h soundlib/Fastmix.cpp \
+	soundlib/FloatMixer.h soundlib/InstrumentExtensions.cpp \
+	soundlib/InstrumentSynth.cpp soundlib/InstrumentSynth.h \
+	soundlib/IntMixer.h soundlib/ITCompression.cpp \
+	soundlib/ITCompression.h soundlib/ITTools.cpp \
+	soundlib/ITTools.h soundlib/Load_667.cpp soundlib/Load_669.cpp \
+	soundlib/Load_amf.cpp soundlib/Load_ams.cpp \
+	soundlib/Load_c67.cpp soundlib/Load_cba.cpp \
+	soundlib/Load_dbm.cpp soundlib/Load_digi.cpp \
+	soundlib/Load_dmf.cpp soundlib/Load_dsm.cpp \
+	soundlib/Load_dsym.cpp soundlib/Load_dtm.cpp \
+	soundlib/Loaders.h soundlib/Load_etx.cpp soundlib/Load_far.cpp \
+	soundlib/Load_fc.cpp soundlib/Load_fmt.cpp \
+	soundlib/Load_ftm.cpp soundlib/Load_gdm.cpp \
+	soundlib/Load_gmc.cpp soundlib/Load_gt2.cpp \
+	soundlib/Load_ice.cpp soundlib/Load_imf.cpp \
+	soundlib/Load_ims.cpp soundlib/Load_it.cpp \
+	soundlib/Load_itp.cpp soundlib/load_j2b.cpp \
+	soundlib/Load_kris.cpp soundlib/Load_mdl.cpp \
+	soundlib/Load_med.cpp soundlib/Load_mid.cpp \
+	soundlib/Load_mo3.cpp soundlib/Load_mod.cpp \
+	soundlib/Load_mt2.cpp soundlib/Load_mtm.cpp \
+	soundlib/Load_mus_km.cpp soundlib/Load_okt.cpp \
+	soundlib/Load_plm.cpp soundlib/Load_psm.cpp \
+	soundlib/Load_pt36.cpp soundlib/Load_ptm.cpp \
+	soundlib/Load_puma.cpp soundlib/Load_rtm.cpp \
+	soundlib/Load_s3m.cpp soundlib/Load_sfx.cpp \
+	soundlib/Load_stk.cpp soundlib/Load_stm.cpp \
+	soundlib/Load_stp.cpp soundlib/Load_symmod.cpp \
+	soundlib/Load_tcb.cpp soundlib/Load_uax.cpp \
+	soundlib/Load_ult.cpp soundlib/Load_unic.cpp \
+	soundlib/Load_wav.cpp soundlib/Load_xm.cpp \
+	soundlib/Load_xmf.cpp soundlib/Message.cpp soundlib/Message.h \
+	soundlib/MIDIEvents.cpp soundlib/MIDIEvents.h \
+	soundlib/MIDIMacroParser.cpp soundlib/MIDIMacroParser.h \
+	soundlib/MIDIMacros.cpp soundlib/MIDIMacros.h soundlib/Mixer.h \
+	soundlib/MixerInterface.h soundlib/MixerLoops.cpp \
+	soundlib/MixerLoops.h soundlib/MixerSettings.cpp \
+	soundlib/MixerSettings.h soundlib/MixFuncTable.cpp \
+	soundlib/MixFuncTable.h soundlib/ModChannel.cpp \
+	soundlib/ModChannel.h soundlib/modcommand.cpp \
+	soundlib/modcommand.h soundlib/ModInstrument.cpp \
+	soundlib/ModInstrument.h soundlib/ModSample.cpp \
+	soundlib/ModSample.h soundlib/ModSampleCopy.h \
+	soundlib/ModSequence.cpp soundlib/ModSequence.h \
+	soundlib/modsmp_ctrl.cpp soundlib/modsmp_ctrl.h \
+	soundlib/mod_specifications.cpp soundlib/mod_specifications.h \
+	soundlib/MODTools.cpp soundlib/MODTools.h \
+	soundlib/MPEGFrame.cpp soundlib/MPEGFrame.h \
+	soundlib/OggStream.cpp soundlib/OggStream.h soundlib/opal.h \
+	soundlib/OPL.cpp soundlib/OPL.h soundlib/Paula.cpp \
+	soundlib/Paula.h soundlib/patternContainer.cpp \
+	soundlib/patternContainer.h soundlib/pattern.cpp \
+	soundlib/pattern.h soundlib/PlaybackTest.cpp \
+	soundlib/PlaybackTest.h soundlib/PlayState.cpp \
+	soundlib/PlayState.h soundlib/Resampler.h \
+	soundlib/RowVisitor.cpp soundlib/RowVisitor.h \
+	soundlib/S3MTools.cpp soundlib/S3MTools.h \
+	soundlib/SampleCopy.h soundlib/SampleFormats.cpp \
+	soundlib/SampleFormatBRR.cpp soundlib/SampleFormatFLAC.cpp \
+	soundlib/SampleFormatMediaFoundation.cpp \
+	soundlib/SampleFormatMP3.cpp soundlib/SampleFormatOpus.cpp \
+	soundlib/SampleFormatSFZ.cpp soundlib/SampleFormatVorbis.cpp \
+	soundlib/SampleIO.cpp soundlib/SampleIO.h \
+	soundlib/SampleNormalize.h soundlib/Snd_defs.h \
+	soundlib/Sndfile.cpp soundlib/Sndfile.h soundlib/Snd_flt.cpp \
+	soundlib/Snd_fx.cpp soundlib/Sndmix.cpp \
+	soundlib/SoundFilePlayConfig.cpp \
+	soundlib/SoundFilePlayConfig.h soundlib/Tables.cpp \
+	soundlib/Tables.h soundlib/Tagging.cpp soundlib/Tagging.h \
+	soundlib/TinyFFT.cpp soundlib/TinyFFT.h soundlib/tuningbase.h \
+	soundlib/tuningCollection.cpp soundlib/tuningcollection.h \
+	soundlib/tuning.cpp soundlib/tuning.h soundlib/UMXTools.cpp \
+	soundlib/UMXTools.h soundlib/UpgradeModule.cpp \
+	soundlib/WAVTools.cpp soundlib/WAVTools.h \
+	soundlib/WindowedFIR.cpp soundlib/WindowedFIR.h \
+	soundlib/XMTools.cpp soundlib/XMTools.h \
+	soundlib/plugins/dmo/DMOPlugin.cpp \
+	soundlib/plugins/dmo/DMOPlugin.h \
+	soundlib/plugins/dmo/DMOUtils.cpp \
+	soundlib/plugins/dmo/DMOUtils.h \
+	soundlib/plugins/dmo/Chorus.cpp soundlib/plugins/dmo/Chorus.h \
+	soundlib/plugins/dmo/Compressor.cpp \
+	soundlib/plugins/dmo/Compressor.h \
+	soundlib/plugins/dmo/Distortion.cpp \
+	soundlib/plugins/dmo/Distortion.h \
+	soundlib/plugins/dmo/Echo.cpp soundlib/plugins/dmo/Echo.h \
+	soundlib/plugins/dmo/Flanger.cpp \
+	soundlib/plugins/dmo/Flanger.h soundlib/plugins/dmo/Gargle.cpp \
+	soundlib/plugins/dmo/Gargle.h \
+	soundlib/plugins/dmo/I3DL2Reverb.cpp \
+	soundlib/plugins/dmo/I3DL2Reverb.h \
+	soundlib/plugins/dmo/ParamEq.cpp \
+	soundlib/plugins/dmo/ParamEq.h \
+	soundlib/plugins/dmo/WavesReverb.cpp \
+	soundlib/plugins/dmo/WavesReverb.h \
+	soundlib/plugins/DigiBoosterEcho.cpp \
+	soundlib/plugins/DigiBoosterEcho.h \
+	soundlib/plugins/LFOPlugin.cpp soundlib/plugins/LFOPlugin.h \
+	soundlib/plugins/PluginManager.cpp \
+	soundlib/plugins/PluginManager.h \
+	soundlib/plugins/PluginMixBuffer.h \
+	soundlib/plugins/PluginStructs.h \
+	soundlib/plugins/PlugInterface.cpp \
+	soundlib/plugins/PlugInterface.h \
+	soundlib/plugins/SymMODEcho.cpp soundlib/plugins/SymMODEcho.h
+MPT_FILES_SOUNDDSP = sounddsp/AGC.cpp sounddsp/AGC.h sounddsp/DSP.cpp \
+	sounddsp/DSP.h sounddsp/EQ.cpp sounddsp/EQ.h \
+	sounddsp/Reverb.cpp sounddsp/Reverb.h
+libopenmpt_la_LDFLAGS = -version-info $(LIBOPENMPT_LTVER_CURRENT):$(LIBOPENMPT_LTVER_REVISION):$(LIBOPENMPT_LTVER_AGE) -no-undefined
+libopenmpt_la_CPPFLAGS = $(GLOBAL_CPPFLAGS) $(WIN32_CPPFLAGS) \
+	-DLIBOPENMPT_BUILD -I$(srcdir)/ -I$(srcdir)/src \
+	-I$(srcdir)/common $(ZLIB_CFLAGS) $(MPG123_CFLAGS) \
+	$(OGG_CFLAGS) $(VORBIS_CFLAGS) $(VORBISFILE_CFLAGS)
+libopenmpt_la_CXXFLAGS = $(GLOBAL_CXXFLAGS) $(WIN32_CXXFLAGS) \
+	$(ZLIB_CFLAGS) $(MPG123_CFLAGS) $(OGG_CFLAGS) $(VORBIS_CFLAGS) \
+	$(VORBISFILE_CFLAGS)
+libopenmpt_la_CFLAGS = $(GLOBAL_CFLAGS) $(WIN32_CFLAGS) $(ZLIB_CFLAGS) \
+	$(MPG123_CFLAGS) $(OGG_CFLAGS) $(VORBIS_CFLAGS) \
+	$(VORBISFILE_CFLAGS)
+libopenmpt_la_LIBADD = $(ZLIB_LIBS) $(MPG123_LIBS) $(OGG_LIBS) \
+	$(VORBIS_LIBS) $(VORBISFILE_LIBS) $(LIBOPENMPT_WIN32_LIBS)
+libopenmpt_la_SOURCES = build/svn_version/svn_version.h \
+	$(MPT_FILES_SRC_MPT) $(MPT_FILES_SRC_OPENMPT) \
+	$(MPT_FILES_COMMON) $(MPT_FILES_SOUNDBASE) \
+	$(MPT_FILES_SOUNDLIB) $(MPT_FILES_SOUNDDSP) \
+	libopenmpt/libopenmpt_c.cpp libopenmpt/libopenmpt_cxx.cpp \
+	libopenmpt/libopenmpt_ext_impl.cpp \
+	libopenmpt/libopenmpt_impl.cpp libopenmpt/libopenmpt_config.h \
+	libopenmpt/libopenmpt_ext.h libopenmpt/libopenmpt_ext.hpp \
+	libopenmpt/libopenmpt_ext_impl.hpp libopenmpt/libopenmpt.h \
+	libopenmpt/libopenmpt.hpp libopenmpt/libopenmpt_impl.hpp \
+	libopenmpt/libopenmpt_internal.h \
+	libopenmpt/libopenmpt_stream_callbacks_buffer.h \
+	libopenmpt/libopenmpt_stream_callbacks_fd.h \
+	libopenmpt/libopenmpt_stream_callbacks_file.h \
+	libopenmpt/libopenmpt_stream_callbacks_file_mingw.h \
+	libopenmpt/libopenmpt_stream_callbacks_file_msvcrt.h \
+	libopenmpt/libopenmpt_stream_callbacks_file_posix.h \
+	libopenmpt/libopenmpt_stream_callbacks_file_posix_lfs64.h \
+	libopenmpt/libopenmpt_version.h
+libopenmpttest_CPPFLAGS = $(GLOBAL_CPPFLAGS) \
+	$(WIN32_CPPFLAGS) -DLIBOPENMPT_BUILD \
+	-DLIBOPENMPT_BUILD_TEST -I$(srcdir)/ \
+	-I$(srcdir)/src -I$(srcdir)/common \
+	$(ZLIB_CFLAGS) $(MPG123_CFLAGS) \
+	$(OGG_CFLAGS) $(VORBIS_CFLAGS) \
+	$(VORBISFILE_CFLAGS)
+libopenmpttest_CXXFLAGS = $(GLOBAL_CXXFLAGS) \
+	$(WIN32_CXXFLAGS) $(ZLIB_CFLAGS) \
+	$(MPG123_CFLAGS) $(OGG_CFLAGS) \
+	$(VORBIS_CFLAGS) $(VORBISFILE_CFLAGS) \
+	$(WIN32_CONSOLE_CXXFLAGS)
+libopenmpttest_CFLAGS = $(GLOBAL_CFLAGS) \
+	$(WIN32_CFLAGS) $(ZLIB_CFLAGS) \
+	$(MPG123_CFLAGS) $(OGG_CFLAGS) \
+	$(VORBIS_CFLAGS) $(VORBISFILE_CFLAGS) \
+	$(WIN32_CONSOLE_CFLAGS)
+libopenmpttest_LDADD = $(ZLIB_LIBS) $(MPG123_LIBS) \
+	$(OGG_LIBS) $(VORBIS_LIBS) \
+	$(VORBISFILE_LIBS) $(LIBOPENMPT_WIN32_LIBS) \
+	$(LIBOPENMPTTEST_WIN32_LIBS)
+#libopenmpttest_SOURCES += test/mpt_tests_crypto.cpp
+#libopenmpttest_SOURCES += test/mpt_tests_uuid_namespace.cpp
+libopenmpttest_SOURCES = test/mpt_tests_base.cpp \
+	test/mpt_tests_binary.cpp \
+	test/mpt_tests_crc.cpp \
+	test/mpt_tests_endian.cpp \
+	test/mpt_tests_format.cpp \
+	test/mpt_tests_io.cpp \
+	test/mpt_tests_parse.cpp \
+	test/mpt_tests_random.cpp \
+	test/mpt_tests_string.cpp \
+	test/mpt_tests_string_transcode.cpp \
+	test/mpt_tests_uuid.cpp test/test.cpp \
+	test/test.h test/TestTools.h \
+	test/TestToolsLib.cpp test/TestToolsLib.h \
+	test/TestToolsTracker.h \
+	build/svn_version/svn_version.h \
+	$(MPT_FILES_SRC_MPT) \
+	$(MPT_FILES_SRC_OPENMPT) \
+	$(MPT_FILES_SRC_OPENMPT_SOUNDFILE_WRITE) \
+	$(MPT_FILES_COMMON) $(MPT_FILES_SOUNDBASE) \
+	$(MPT_FILES_SOUNDLIB) $(MPT_FILES_SOUNDDSP) \
+	libopenmpt/libopenmpt_c.cpp \
+	libopenmpt/libopenmpt_cxx.cpp \
+	libopenmpt/libopenmpt_ext_impl.cpp \
+	libopenmpt/libopenmpt_impl.cpp \
+	libopenmpt/libopenmpt_config.h \
+	libopenmpt/libopenmpt_ext.h \
+	libopenmpt/libopenmpt_ext.hpp \
+	libopenmpt/libopenmpt_ext_impl.hpp \
+	libopenmpt/libopenmpt.h \
+	libopenmpt/libopenmpt.hpp \
+	libopenmpt/libopenmpt_impl.hpp \
+	libopenmpt/libopenmpt_internal.h \
+	libopenmpt/libopenmpt_stream_callbacks_buffer.h \
+	libopenmpt/libopenmpt_stream_callbacks_fd.h \
+	libopenmpt/libopenmpt_stream_callbacks_file.h \
+	libopenmpt/libopenmpt_stream_callbacks_file_mingw.h \
+	libopenmpt/libopenmpt_stream_callbacks_file_msvcrt.h \
+	libopenmpt/libopenmpt_stream_callbacks_file_posix.h \
+	libopenmpt/libopenmpt_stream_callbacks_file_posix_lfs64.h \
+	libopenmpt/libopenmpt_version.h \
+	libopenmpt/libopenmpt_test/libopenmpt_test.cpp
+bin_openmpt123_CPPFLAGS = $(GLOBAL_CPPFLAGS) \
+	$(WIN32_CPPFLAGS) -I$(srcdir)/src \
+	$(PORTAUDIO_CFLAGS) \
+	$(PULSEAUDIO_CFLAGS) $(SDL2_CFLAGS) \
+	$(SNDFILE_CFLAGS) $(FLAC_CFLAGS)
+bin_openmpt123_CXXFLAGS = $(GLOBAL_CXXFLAGS) \
+	$(WIN32_CXXFLAGS) \
+	$(WIN32_CONSOLE_CXXFLAGS)
+bin_openmpt123_LDADD = libopenmpt.la $(PORTAUDIO_LIBS) $(PULSEAUDIO_LIBS) $(SDL2_LIBS) $(SNDFILE_LIBS) $(FLAC_LIBS) $(OPENMPT123_WIN32_LIBS)
+bin_openmpt123_SOURCES = $(MPT_FILES_SRC_MPT) \
+	openmpt123/openmpt123_allegro42.hpp \
+	openmpt123/openmpt123_config.hpp \
+	openmpt123/openmpt123.cpp \
+	openmpt123/openmpt123_exception.hpp \
+	openmpt123/openmpt123_flac.hpp \
+	openmpt123/openmpt123.hpp \
+	openmpt123/openmpt123_mmio.hpp \
+	openmpt123/openmpt123_portaudio.hpp \
+	openmpt123/openmpt123_pulseaudio.hpp \
+	openmpt123/openmpt123_raw.hpp \
+	openmpt123/openmpt123_sdl2.hpp \
+	openmpt123/openmpt123_sndfile.hpp \
+	openmpt123/openmpt123_stdio.hpp \
+	openmpt123/openmpt123_stdout.hpp \
+	openmpt123/openmpt123_terminal.hpp \
+	openmpt123/openmpt123_waveout.hpp
+man1_MANS = man/openmpt123.1
+all: all-am
+
+.SUFFIXES:
+.SUFFIXES: .c .cpp .lo .log .o .obj .test .test$(EXEEXT) .trs
+am--refresh: Makefile
+	@:
+$(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
+	@for dep in $?; do \
+	  case '$(am__configure_deps)' in \
+	    *$$dep*) \
+	      echo ' cd $(srcdir) && $(AUTOMAKE) --foreign'; \
+	      $(am__cd) $(srcdir) && $(AUTOMAKE) --foreign \
+		&& exit 0; \
+	      exit 1;; \
+	  esac; \
+	done; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign Makefile'; \
+	$(am__cd) $(top_srcdir) && \
+	  $(AUTOMAKE) --foreign Makefile
+Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
+	@case '$?' in \
+	  *config.status*) \
+	    echo ' $(SHELL) ./config.status'; \
+	    $(SHELL) ./config.status;; \
+	  *) \
+	    echo ' cd $(top_builddir) && $(SHELL) ./config.status $@ $(am__maybe_remake_depfiles)'; \
+	    cd $(top_builddir) && $(SHELL) ./config.status $@ $(am__maybe_remake_depfiles);; \
+	esac;
+
+$(top_builddir)/config.status: $(top_srcdir)/configure $(CONFIG_STATUS_DEPENDENCIES)
+	$(SHELL) ./config.status --recheck
+
+$(top_srcdir)/configure:  $(am__configure_deps)
+	$(am__cd) $(srcdir) && $(AUTOCONF)
+$(ACLOCAL_M4):  $(am__aclocal_m4_deps)
+	$(am__cd) $(srcdir) && $(ACLOCAL) $(ACLOCAL_AMFLAGS)
+$(am__aclocal_m4_deps):
+libopenmpt/libopenmpt.pc: $(top_builddir)/config.status $(top_srcdir)/libopenmpt/libopenmpt.pc.in
+	cd $(top_builddir) && $(SHELL) ./config.status $@
+Doxyfile: $(top_builddir)/config.status $(srcdir)/Doxyfile.in
+	cd $(top_builddir) && $(SHELL) ./config.status $@
+install-binPROGRAMS: $(bin_PROGRAMS)
+	@$(NORMAL_INSTALL)
+	@list='$(bin_PROGRAMS)'; test -n "$(bindir)" || list=; \
+	if test -n "$$list"; then \
+	  echo " $(MKDIR_P) '$(DESTDIR)$(bindir)'"; \
+	  $(MKDIR_P) "$(DESTDIR)$(bindir)" || exit 1; \
+	fi; \
+	for p in $$list; do echo "$$p $$p"; done | \
+	sed 's/$(EXEEXT)$$//' | \
+	while read p p1; do if test -f $$p \
+	 || test -f $$p1 \
+	  ; then echo "$$p"; echo "$$p"; else :; fi; \
+	done | \
+	sed -e 'p;s,.*/,,;n;h' \
+	    -e 's|.*|.|' \
+	    -e 'p;x;s,.*/,,;s/$(EXEEXT)$$//;$(transform);s/$$/$(EXEEXT)/' | \
+	sed 'N;N;N;s,\n, ,g' | \
+	$(AWK) 'BEGIN { files["."] = ""; dirs["."] = 1 } \
+	  { d=$$3; if (dirs[d] != 1) { print "d", d; dirs[d] = 1 } \
+	    if ($$2 == $$4) files[d] = files[d] " " $$1; \
+	    else { print "f", $$3 "/" $$4, $$1; } } \
+	  END { for (d in files) print "f", d, files[d] }' | \
+	while read type dir files; do \
+	    if test "$$dir" = .; then dir=; else dir=/$$dir; fi; \
+	    test -z "$$files" || { \
+	    echo " $(INSTALL_PROGRAM_ENV) $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL_PROGRAM) $$files '$(DESTDIR)$(bindir)$$dir'"; \
+	    $(INSTALL_PROGRAM_ENV) $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL_PROGRAM) $$files "$(DESTDIR)$(bindir)$$dir" || exit $$?; \
+	    } \
+	; done
+
+uninstall-binPROGRAMS:
+	@$(NORMAL_UNINSTALL)
+	@list='$(bin_PROGRAMS)'; test -n "$(bindir)" || list=; \
+	files=`for p in $$list; do echo "$$p"; done | \
+	  sed -e 'h;s,^.*/,,;s/$(EXEEXT)$$//;$(transform)' \
+	      -e 's/$$/$(EXEEXT)/' \
+	`; \
+	test -n "$$list" || exit 0; \
+	echo " ( cd '$(DESTDIR)$(bindir)' && rm -f" $$files ")"; \
+	cd "$(DESTDIR)$(bindir)" && rm -f $$files
+
+clean-binPROGRAMS:
+	@list='$(bin_PROGRAMS)'; test -n "$$list" || exit 0; \
+	echo " rm -f" $$list; \
+	rm -f $$list || exit $$?; \
+	test -n "$(EXEEXT)" || exit 0; \
+	list=`for p in $$list; do echo "$$p"; done | sed 's/$(EXEEXT)$$//'`; \
+	echo " rm -f" $$list; \
+	rm -f $$list
+
+clean-checkPROGRAMS:
+	@list='$(check_PROGRAMS)'; test -n "$$list" || exit 0; \
+	echo " rm -f" $$list; \
+	rm -f $$list || exit $$?; \
+	test -n "$(EXEEXT)" || exit 0; \
+	list=`for p in $$list; do echo "$$p"; done | sed 's/$(EXEEXT)$$//'`; \
+	echo " rm -f" $$list; \
+	rm -f $$list
+
+install-libLTLIBRARIES: $(lib_LTLIBRARIES)
+	@$(NORMAL_INSTALL)
+	@list='$(lib_LTLIBRARIES)'; test -n "$(libdir)" || list=; \
+	list2=; for p in $$list; do \
+	  if test -f $$p; then \
+	    list2="$$list2 $$p"; \
+	  else :; fi; \
+	done; \
+	test -z "$$list2" || { \
+	  echo " $(MKDIR_P) '$(DESTDIR)$(libdir)'"; \
+	  $(MKDIR_P) "$(DESTDIR)$(libdir)" || exit 1; \
+	  echo " $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL) $(INSTALL_STRIP_FLAG) $$list2 '$(DESTDIR)$(libdir)'"; \
+	  $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL) $(INSTALL_STRIP_FLAG) $$list2 "$(DESTDIR)$(libdir)"; \
+	}
+
+uninstall-libLTLIBRARIES:
+	@$(NORMAL_UNINSTALL)
+	@list='$(lib_LTLIBRARIES)'; test -n "$(libdir)" || list=; \
+	for p in $$list; do \
+	  $(am__strip_dir) \
+	  echo " $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=uninstall rm -f '$(DESTDIR)$(libdir)/$$f'"; \
+	  $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=uninstall rm -f "$(DESTDIR)$(libdir)/$$f"; \
+	done
+
+clean-libLTLIBRARIES:
+	-test -z "$(lib_LTLIBRARIES)" || rm -f $(lib_LTLIBRARIES)
+	@list='$(lib_LTLIBRARIES)'; \
+	locs=`for p in $$list; do echo $$p; done | \
+	      sed 's|^[^/]*$$|.|; s|/[^/]*$$||; s|$$|/so_locations|' | \
+	      sort -u`; \
+	test -z "$$locs" || { \
+	  echo rm -f $${locs}; \
+	  rm -f $${locs}; \
+	}
+common/$(am__dirstamp):
+	@$(MKDIR_P) common
+	@: > common/$(am__dirstamp)
+common/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) common/$(DEPDIR)
+	@: > common/$(DEPDIR)/$(am__dirstamp)
+common/libopenmpt_la-ComponentManager.lo: common/$(am__dirstamp) \
+	common/$(DEPDIR)/$(am__dirstamp)
+common/libopenmpt_la-Logging.lo: common/$(am__dirstamp) \
+	common/$(DEPDIR)/$(am__dirstamp)
+common/libopenmpt_la-mptFileType.lo: common/$(am__dirstamp) \
+	common/$(DEPDIR)/$(am__dirstamp)
+common/libopenmpt_la-mptPathString.lo: common/$(am__dirstamp) \
+	common/$(DEPDIR)/$(am__dirstamp)
+common/libopenmpt_la-mptRandom.lo: common/$(am__dirstamp) \
+	common/$(DEPDIR)/$(am__dirstamp)
+common/libopenmpt_la-mptStringBuffer.lo: common/$(am__dirstamp) \
+	common/$(DEPDIR)/$(am__dirstamp)
+common/libopenmpt_la-mptTime.lo: common/$(am__dirstamp) \
+	common/$(DEPDIR)/$(am__dirstamp)
+common/libopenmpt_la-Profiler.lo: common/$(am__dirstamp) \
+	common/$(DEPDIR)/$(am__dirstamp)
+common/libopenmpt_la-serialization_utils.lo: common/$(am__dirstamp) \
+	common/$(DEPDIR)/$(am__dirstamp)
+common/libopenmpt_la-version.lo: common/$(am__dirstamp) \
+	common/$(DEPDIR)/$(am__dirstamp)
+soundlib/$(am__dirstamp):
+	@$(MKDIR_P) soundlib
+	@: > soundlib/$(am__dirstamp)
+soundlib/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) soundlib/$(DEPDIR)
+	@: > soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-AudioCriticalSection.lo:  \
+	soundlib/$(am__dirstamp) soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-ContainerMMCMP.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-ContainerPP20.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-ContainerUMX.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-ContainerXPK.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-Dlsbank.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-Fastmix.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-InstrumentExtensions.lo:  \
+	soundlib/$(am__dirstamp) soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-InstrumentSynth.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-ITCompression.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-ITTools.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-Load_667.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-Load_669.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-Load_amf.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-Load_ams.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-Load_c67.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-Load_cba.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-Load_dbm.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-Load_digi.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-Load_dmf.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-Load_dsm.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-Load_dsym.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-Load_dtm.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-Load_etx.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-Load_far.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-Load_fc.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-Load_fmt.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-Load_ftm.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-Load_gdm.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-Load_gmc.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-Load_gt2.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-Load_ice.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-Load_imf.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-Load_ims.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-Load_it.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-Load_itp.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-load_j2b.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-Load_kris.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-Load_mdl.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-Load_med.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-Load_mid.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-Load_mo3.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-Load_mod.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-Load_mt2.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-Load_mtm.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-Load_mus_km.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-Load_okt.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-Load_plm.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-Load_psm.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-Load_pt36.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-Load_ptm.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-Load_puma.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-Load_rtm.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-Load_s3m.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-Load_sfx.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-Load_stk.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-Load_stm.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-Load_stp.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-Load_symmod.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-Load_tcb.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-Load_uax.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-Load_ult.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-Load_unic.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-Load_wav.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-Load_xm.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-Load_xmf.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-Message.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-MIDIEvents.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-MIDIMacroParser.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-MIDIMacros.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-MixerLoops.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-MixerSettings.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-MixFuncTable.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-ModChannel.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-modcommand.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-ModInstrument.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-ModSample.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-ModSequence.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-modsmp_ctrl.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-mod_specifications.lo:  \
+	soundlib/$(am__dirstamp) soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-MODTools.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-MPEGFrame.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-OggStream.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-OPL.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-Paula.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-patternContainer.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-pattern.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-PlaybackTest.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-PlayState.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-RowVisitor.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-S3MTools.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-SampleFormats.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-SampleFormatBRR.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-SampleFormatFLAC.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-SampleFormatMediaFoundation.lo:  \
+	soundlib/$(am__dirstamp) soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-SampleFormatMP3.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-SampleFormatOpus.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-SampleFormatSFZ.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-SampleFormatVorbis.lo:  \
+	soundlib/$(am__dirstamp) soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-SampleIO.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-Sndfile.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-Snd_flt.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-Snd_fx.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-Sndmix.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-SoundFilePlayConfig.lo:  \
+	soundlib/$(am__dirstamp) soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-Tables.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-Tagging.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-TinyFFT.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-tuningCollection.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-tuning.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-UMXTools.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-UpgradeModule.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-WAVTools.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-WindowedFIR.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpt_la-XMTools.lo: soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/plugins/dmo/$(am__dirstamp):
+	@$(MKDIR_P) soundlib/plugins/dmo
+	@: > soundlib/plugins/dmo/$(am__dirstamp)
+soundlib/plugins/dmo/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) soundlib/plugins/dmo/$(DEPDIR)
+	@: > soundlib/plugins/dmo/$(DEPDIR)/$(am__dirstamp)
+soundlib/plugins/dmo/libopenmpt_la-DMOPlugin.lo:  \
+	soundlib/plugins/dmo/$(am__dirstamp) \
+	soundlib/plugins/dmo/$(DEPDIR)/$(am__dirstamp)
+soundlib/plugins/dmo/libopenmpt_la-DMOUtils.lo:  \
+	soundlib/plugins/dmo/$(am__dirstamp) \
+	soundlib/plugins/dmo/$(DEPDIR)/$(am__dirstamp)
+soundlib/plugins/dmo/libopenmpt_la-Chorus.lo:  \
+	soundlib/plugins/dmo/$(am__dirstamp) \
+	soundlib/plugins/dmo/$(DEPDIR)/$(am__dirstamp)
+soundlib/plugins/dmo/libopenmpt_la-Compressor.lo:  \
+	soundlib/plugins/dmo/$(am__dirstamp) \
+	soundlib/plugins/dmo/$(DEPDIR)/$(am__dirstamp)
+soundlib/plugins/dmo/libopenmpt_la-Distortion.lo:  \
+	soundlib/plugins/dmo/$(am__dirstamp) \
+	soundlib/plugins/dmo/$(DEPDIR)/$(am__dirstamp)
+soundlib/plugins/dmo/libopenmpt_la-Echo.lo:  \
+	soundlib/plugins/dmo/$(am__dirstamp) \
+	soundlib/plugins/dmo/$(DEPDIR)/$(am__dirstamp)
+soundlib/plugins/dmo/libopenmpt_la-Flanger.lo:  \
+	soundlib/plugins/dmo/$(am__dirstamp) \
+	soundlib/plugins/dmo/$(DEPDIR)/$(am__dirstamp)
+soundlib/plugins/dmo/libopenmpt_la-Gargle.lo:  \
+	soundlib/plugins/dmo/$(am__dirstamp) \
+	soundlib/plugins/dmo/$(DEPDIR)/$(am__dirstamp)
+soundlib/plugins/dmo/libopenmpt_la-I3DL2Reverb.lo:  \
+	soundlib/plugins/dmo/$(am__dirstamp) \
+	soundlib/plugins/dmo/$(DEPDIR)/$(am__dirstamp)
+soundlib/plugins/dmo/libopenmpt_la-ParamEq.lo:  \
+	soundlib/plugins/dmo/$(am__dirstamp) \
+	soundlib/plugins/dmo/$(DEPDIR)/$(am__dirstamp)
+soundlib/plugins/dmo/libopenmpt_la-WavesReverb.lo:  \
+	soundlib/plugins/dmo/$(am__dirstamp) \
+	soundlib/plugins/dmo/$(DEPDIR)/$(am__dirstamp)
+soundlib/plugins/$(am__dirstamp):
+	@$(MKDIR_P) soundlib/plugins
+	@: > soundlib/plugins/$(am__dirstamp)
+soundlib/plugins/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) soundlib/plugins/$(DEPDIR)
+	@: > soundlib/plugins/$(DEPDIR)/$(am__dirstamp)
+soundlib/plugins/libopenmpt_la-DigiBoosterEcho.lo:  \
+	soundlib/plugins/$(am__dirstamp) \
+	soundlib/plugins/$(DEPDIR)/$(am__dirstamp)
+soundlib/plugins/libopenmpt_la-LFOPlugin.lo:  \
+	soundlib/plugins/$(am__dirstamp) \
+	soundlib/plugins/$(DEPDIR)/$(am__dirstamp)
+soundlib/plugins/libopenmpt_la-PluginManager.lo:  \
+	soundlib/plugins/$(am__dirstamp) \
+	soundlib/plugins/$(DEPDIR)/$(am__dirstamp)
+soundlib/plugins/libopenmpt_la-PlugInterface.lo:  \
+	soundlib/plugins/$(am__dirstamp) \
+	soundlib/plugins/$(DEPDIR)/$(am__dirstamp)
+soundlib/plugins/libopenmpt_la-SymMODEcho.lo:  \
+	soundlib/plugins/$(am__dirstamp) \
+	soundlib/plugins/$(DEPDIR)/$(am__dirstamp)
+sounddsp/$(am__dirstamp):
+	@$(MKDIR_P) sounddsp
+	@: > sounddsp/$(am__dirstamp)
+sounddsp/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) sounddsp/$(DEPDIR)
+	@: > sounddsp/$(DEPDIR)/$(am__dirstamp)
+sounddsp/libopenmpt_la-AGC.lo: sounddsp/$(am__dirstamp) \
+	sounddsp/$(DEPDIR)/$(am__dirstamp)
+sounddsp/libopenmpt_la-DSP.lo: sounddsp/$(am__dirstamp) \
+	sounddsp/$(DEPDIR)/$(am__dirstamp)
+sounddsp/libopenmpt_la-EQ.lo: sounddsp/$(am__dirstamp) \
+	sounddsp/$(DEPDIR)/$(am__dirstamp)
+sounddsp/libopenmpt_la-Reverb.lo: sounddsp/$(am__dirstamp) \
+	sounddsp/$(DEPDIR)/$(am__dirstamp)
+libopenmpt/$(am__dirstamp):
+	@$(MKDIR_P) libopenmpt
+	@: > libopenmpt/$(am__dirstamp)
+libopenmpt/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) libopenmpt/$(DEPDIR)
+	@: > libopenmpt/$(DEPDIR)/$(am__dirstamp)
+libopenmpt/la-libopenmpt_c.lo: libopenmpt/$(am__dirstamp) \
+	libopenmpt/$(DEPDIR)/$(am__dirstamp)
+libopenmpt/la-libopenmpt_cxx.lo: libopenmpt/$(am__dirstamp) \
+	libopenmpt/$(DEPDIR)/$(am__dirstamp)
+libopenmpt/la-libopenmpt_ext_impl.lo: libopenmpt/$(am__dirstamp) \
+	libopenmpt/$(DEPDIR)/$(am__dirstamp)
+libopenmpt/la-libopenmpt_impl.lo: libopenmpt/$(am__dirstamp) \
+	libopenmpt/$(DEPDIR)/$(am__dirstamp)
+
+libopenmpt.la: $(libopenmpt_la_OBJECTS) $(libopenmpt_la_DEPENDENCIES) $(EXTRA_libopenmpt_la_DEPENDENCIES) 
+	$(AM_V_CXXLD)$(libopenmpt_la_LINK) -rpath $(libdir) $(libopenmpt_la_OBJECTS) $(libopenmpt_la_LIBADD) $(LIBS)
+openmpt123/$(am__dirstamp):
+	@$(MKDIR_P) openmpt123
+	@: > openmpt123/$(am__dirstamp)
+openmpt123/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) openmpt123/$(DEPDIR)
+	@: > openmpt123/$(DEPDIR)/$(am__dirstamp)
+openmpt123/bin_openmpt123-openmpt123.$(OBJEXT):  \
+	openmpt123/$(am__dirstamp) \
+	openmpt123/$(DEPDIR)/$(am__dirstamp)
+bin/$(am__dirstamp):
+	@$(MKDIR_P) bin
+	@: > bin/$(am__dirstamp)
+
+bin/openmpt123$(EXEEXT): $(bin_openmpt123_OBJECTS) $(bin_openmpt123_DEPENDENCIES) $(EXTRA_bin_openmpt123_DEPENDENCIES) bin/$(am__dirstamp)
+	@rm -f bin/openmpt123$(EXEEXT)
+	$(AM_V_CXXLD)$(bin_openmpt123_LINK) $(bin_openmpt123_OBJECTS) $(bin_openmpt123_LDADD) $(LIBS)
+examples/$(am__dirstamp):
+	@$(MKDIR_P) examples
+	@: > examples/$(am__dirstamp)
+examples/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) examples/$(DEPDIR)
+	@: > examples/$(DEPDIR)/$(am__dirstamp)
+examples/libopenmpt_example_c-libopenmpt_example_c.$(OBJEXT):  \
+	examples/$(am__dirstamp) examples/$(DEPDIR)/$(am__dirstamp)
+
+libopenmpt_example_c$(EXEEXT): $(libopenmpt_example_c_OBJECTS) $(libopenmpt_example_c_DEPENDENCIES) $(EXTRA_libopenmpt_example_c_DEPENDENCIES) 
+	@rm -f libopenmpt_example_c$(EXEEXT)
+	$(AM_V_CCLD)$(libopenmpt_example_c_LINK) $(libopenmpt_example_c_OBJECTS) $(libopenmpt_example_c_LDADD) $(LIBS)
+examples/libopenmpt_example_c_mem-libopenmpt_example_c_mem.$(OBJEXT):  \
+	examples/$(am__dirstamp) examples/$(DEPDIR)/$(am__dirstamp)
+
+libopenmpt_example_c_mem$(EXEEXT): $(libopenmpt_example_c_mem_OBJECTS) $(libopenmpt_example_c_mem_DEPENDENCIES) $(EXTRA_libopenmpt_example_c_mem_DEPENDENCIES) 
+	@rm -f libopenmpt_example_c_mem$(EXEEXT)
+	$(AM_V_CCLD)$(libopenmpt_example_c_mem_LINK) $(libopenmpt_example_c_mem_OBJECTS) $(libopenmpt_example_c_mem_LDADD) $(LIBS)
+examples/libopenmpt_example_c_pipe-libopenmpt_example_c_pipe.$(OBJEXT):  \
+	examples/$(am__dirstamp) examples/$(DEPDIR)/$(am__dirstamp)
+
+libopenmpt_example_c_pipe$(EXEEXT): $(libopenmpt_example_c_pipe_OBJECTS) $(libopenmpt_example_c_pipe_DEPENDENCIES) $(EXTRA_libopenmpt_example_c_pipe_DEPENDENCIES) 
+	@rm -f libopenmpt_example_c_pipe$(EXEEXT)
+	$(AM_V_CCLD)$(libopenmpt_example_c_pipe_LINK) $(libopenmpt_example_c_pipe_OBJECTS) $(libopenmpt_example_c_pipe_LDADD) $(LIBS)
+examples/libopenmpt_example_c_probe-libopenmpt_example_c_probe.$(OBJEXT):  \
+	examples/$(am__dirstamp) examples/$(DEPDIR)/$(am__dirstamp)
+
+libopenmpt_example_c_probe$(EXEEXT): $(libopenmpt_example_c_probe_OBJECTS) $(libopenmpt_example_c_probe_DEPENDENCIES) $(EXTRA_libopenmpt_example_c_probe_DEPENDENCIES) 
+	@rm -f libopenmpt_example_c_probe$(EXEEXT)
+	$(AM_V_CCLD)$(libopenmpt_example_c_probe_LINK) $(libopenmpt_example_c_probe_OBJECTS) $(libopenmpt_example_c_probe_LDADD) $(LIBS)
+examples/libopenmpt_example_c_stdout-libopenmpt_example_c_stdout.$(OBJEXT):  \
+	examples/$(am__dirstamp) examples/$(DEPDIR)/$(am__dirstamp)
+
+libopenmpt_example_c_stdout$(EXEEXT): $(libopenmpt_example_c_stdout_OBJECTS) $(libopenmpt_example_c_stdout_DEPENDENCIES) $(EXTRA_libopenmpt_example_c_stdout_DEPENDENCIES) 
+	@rm -f libopenmpt_example_c_stdout$(EXEEXT)
+	$(AM_V_CCLD)$(libopenmpt_example_c_stdout_LINK) $(libopenmpt_example_c_stdout_OBJECTS) $(libopenmpt_example_c_stdout_LDADD) $(LIBS)
+examples/libopenmpt_example_c_unsafe-libopenmpt_example_c_unsafe.$(OBJEXT):  \
+	examples/$(am__dirstamp) examples/$(DEPDIR)/$(am__dirstamp)
+
+libopenmpt_example_c_unsafe$(EXEEXT): $(libopenmpt_example_c_unsafe_OBJECTS) $(libopenmpt_example_c_unsafe_DEPENDENCIES) $(EXTRA_libopenmpt_example_c_unsafe_DEPENDENCIES) 
+	@rm -f libopenmpt_example_c_unsafe$(EXEEXT)
+	$(AM_V_CCLD)$(libopenmpt_example_c_unsafe_LINK) $(libopenmpt_example_c_unsafe_OBJECTS) $(libopenmpt_example_c_unsafe_LDADD) $(LIBS)
+examples/libopenmpt_example_cxx-libopenmpt_example_cxx.$(OBJEXT):  \
+	examples/$(am__dirstamp) examples/$(DEPDIR)/$(am__dirstamp)
+
+libopenmpt_example_cxx$(EXEEXT): $(libopenmpt_example_cxx_OBJECTS) $(libopenmpt_example_cxx_DEPENDENCIES) $(EXTRA_libopenmpt_example_cxx_DEPENDENCIES) 
+	@rm -f libopenmpt_example_cxx$(EXEEXT)
+	$(AM_V_CXXLD)$(libopenmpt_example_cxx_LINK) $(libopenmpt_example_cxx_OBJECTS) $(libopenmpt_example_cxx_LDADD) $(LIBS)
+test/$(am__dirstamp):
+	@$(MKDIR_P) test
+	@: > test/$(am__dirstamp)
+test/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) test/$(DEPDIR)
+	@: > test/$(DEPDIR)/$(am__dirstamp)
+test/libopenmpttest-mpt_tests_base.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+test/libopenmpttest-mpt_tests_binary.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+test/libopenmpttest-mpt_tests_crc.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+test/libopenmpttest-mpt_tests_endian.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+test/libopenmpttest-mpt_tests_format.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+test/libopenmpttest-mpt_tests_io.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+test/libopenmpttest-mpt_tests_parse.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+test/libopenmpttest-mpt_tests_random.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+test/libopenmpttest-mpt_tests_string.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+test/libopenmpttest-mpt_tests_string_transcode.$(OBJEXT):  \
+	test/$(am__dirstamp) test/$(DEPDIR)/$(am__dirstamp)
+test/libopenmpttest-mpt_tests_uuid.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+test/libopenmpttest-test.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+test/libopenmpttest-TestToolsLib.$(OBJEXT): test/$(am__dirstamp) \
+	test/$(DEPDIR)/$(am__dirstamp)
+src/openmpt/soundfile_write/$(am__dirstamp):
+	@$(MKDIR_P) src/openmpt/soundfile_write
+	@: > src/openmpt/soundfile_write/$(am__dirstamp)
+src/openmpt/soundfile_write/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) src/openmpt/soundfile_write/$(DEPDIR)
+	@: > src/openmpt/soundfile_write/$(DEPDIR)/$(am__dirstamp)
+src/openmpt/soundfile_write/libopenmpttest-wav_write.$(OBJEXT):  \
+	src/openmpt/soundfile_write/$(am__dirstamp) \
+	src/openmpt/soundfile_write/$(DEPDIR)/$(am__dirstamp)
+common/libopenmpttest-ComponentManager.$(OBJEXT):  \
+	common/$(am__dirstamp) common/$(DEPDIR)/$(am__dirstamp)
+common/libopenmpttest-Logging.$(OBJEXT): common/$(am__dirstamp) \
+	common/$(DEPDIR)/$(am__dirstamp)
+common/libopenmpttest-mptFileType.$(OBJEXT): common/$(am__dirstamp) \
+	common/$(DEPDIR)/$(am__dirstamp)
+common/libopenmpttest-mptPathString.$(OBJEXT): common/$(am__dirstamp) \
+	common/$(DEPDIR)/$(am__dirstamp)
+common/libopenmpttest-mptRandom.$(OBJEXT): common/$(am__dirstamp) \
+	common/$(DEPDIR)/$(am__dirstamp)
+common/libopenmpttest-mptStringBuffer.$(OBJEXT):  \
+	common/$(am__dirstamp) common/$(DEPDIR)/$(am__dirstamp)
+common/libopenmpttest-mptTime.$(OBJEXT): common/$(am__dirstamp) \
+	common/$(DEPDIR)/$(am__dirstamp)
+common/libopenmpttest-Profiler.$(OBJEXT): common/$(am__dirstamp) \
+	common/$(DEPDIR)/$(am__dirstamp)
+common/libopenmpttest-serialization_utils.$(OBJEXT):  \
+	common/$(am__dirstamp) common/$(DEPDIR)/$(am__dirstamp)
+common/libopenmpttest-version.$(OBJEXT): common/$(am__dirstamp) \
+	common/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-AudioCriticalSection.$(OBJEXT):  \
+	soundlib/$(am__dirstamp) soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-ContainerMMCMP.$(OBJEXT):  \
+	soundlib/$(am__dirstamp) soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-ContainerPP20.$(OBJEXT):  \
+	soundlib/$(am__dirstamp) soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-ContainerUMX.$(OBJEXT):  \
+	soundlib/$(am__dirstamp) soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-ContainerXPK.$(OBJEXT):  \
+	soundlib/$(am__dirstamp) soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-Dlsbank.$(OBJEXT): soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-Fastmix.$(OBJEXT): soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-InstrumentExtensions.$(OBJEXT):  \
+	soundlib/$(am__dirstamp) soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-InstrumentSynth.$(OBJEXT):  \
+	soundlib/$(am__dirstamp) soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-ITCompression.$(OBJEXT):  \
+	soundlib/$(am__dirstamp) soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-ITTools.$(OBJEXT): soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-Load_667.$(OBJEXT): soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-Load_669.$(OBJEXT): soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-Load_amf.$(OBJEXT): soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-Load_ams.$(OBJEXT): soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-Load_c67.$(OBJEXT): soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-Load_cba.$(OBJEXT): soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-Load_dbm.$(OBJEXT): soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-Load_digi.$(OBJEXT): soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-Load_dmf.$(OBJEXT): soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-Load_dsm.$(OBJEXT): soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-Load_dsym.$(OBJEXT): soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-Load_dtm.$(OBJEXT): soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-Load_etx.$(OBJEXT): soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-Load_far.$(OBJEXT): soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-Load_fc.$(OBJEXT): soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-Load_fmt.$(OBJEXT): soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-Load_ftm.$(OBJEXT): soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-Load_gdm.$(OBJEXT): soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-Load_gmc.$(OBJEXT): soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-Load_gt2.$(OBJEXT): soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-Load_ice.$(OBJEXT): soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-Load_imf.$(OBJEXT): soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-Load_ims.$(OBJEXT): soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-Load_it.$(OBJEXT): soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-Load_itp.$(OBJEXT): soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-load_j2b.$(OBJEXT): soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-Load_kris.$(OBJEXT): soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-Load_mdl.$(OBJEXT): soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-Load_med.$(OBJEXT): soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-Load_mid.$(OBJEXT): soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-Load_mo3.$(OBJEXT): soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-Load_mod.$(OBJEXT): soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-Load_mt2.$(OBJEXT): soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-Load_mtm.$(OBJEXT): soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-Load_mus_km.$(OBJEXT):  \
+	soundlib/$(am__dirstamp) soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-Load_okt.$(OBJEXT): soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-Load_plm.$(OBJEXT): soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-Load_psm.$(OBJEXT): soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-Load_pt36.$(OBJEXT): soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-Load_ptm.$(OBJEXT): soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-Load_puma.$(OBJEXT): soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-Load_rtm.$(OBJEXT): soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-Load_s3m.$(OBJEXT): soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-Load_sfx.$(OBJEXT): soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-Load_stk.$(OBJEXT): soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-Load_stm.$(OBJEXT): soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-Load_stp.$(OBJEXT): soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-Load_symmod.$(OBJEXT):  \
+	soundlib/$(am__dirstamp) soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-Load_tcb.$(OBJEXT): soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-Load_uax.$(OBJEXT): soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-Load_ult.$(OBJEXT): soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-Load_unic.$(OBJEXT): soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-Load_wav.$(OBJEXT): soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-Load_xm.$(OBJEXT): soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-Load_xmf.$(OBJEXT): soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-Message.$(OBJEXT): soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-MIDIEvents.$(OBJEXT):  \
+	soundlib/$(am__dirstamp) soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-MIDIMacroParser.$(OBJEXT):  \
+	soundlib/$(am__dirstamp) soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-MIDIMacros.$(OBJEXT):  \
+	soundlib/$(am__dirstamp) soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-MixerLoops.$(OBJEXT):  \
+	soundlib/$(am__dirstamp) soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-MixerSettings.$(OBJEXT):  \
+	soundlib/$(am__dirstamp) soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-MixFuncTable.$(OBJEXT):  \
+	soundlib/$(am__dirstamp) soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-ModChannel.$(OBJEXT):  \
+	soundlib/$(am__dirstamp) soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-modcommand.$(OBJEXT):  \
+	soundlib/$(am__dirstamp) soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-ModInstrument.$(OBJEXT):  \
+	soundlib/$(am__dirstamp) soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-ModSample.$(OBJEXT): soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-ModSequence.$(OBJEXT):  \
+	soundlib/$(am__dirstamp) soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-modsmp_ctrl.$(OBJEXT):  \
+	soundlib/$(am__dirstamp) soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-mod_specifications.$(OBJEXT):  \
+	soundlib/$(am__dirstamp) soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-MODTools.$(OBJEXT): soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-MPEGFrame.$(OBJEXT): soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-OggStream.$(OBJEXT): soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-OPL.$(OBJEXT): soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-Paula.$(OBJEXT): soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-patternContainer.$(OBJEXT):  \
+	soundlib/$(am__dirstamp) soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-pattern.$(OBJEXT): soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-PlaybackTest.$(OBJEXT):  \
+	soundlib/$(am__dirstamp) soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-PlayState.$(OBJEXT): soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-RowVisitor.$(OBJEXT):  \
+	soundlib/$(am__dirstamp) soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-S3MTools.$(OBJEXT): soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-SampleFormats.$(OBJEXT):  \
+	soundlib/$(am__dirstamp) soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-SampleFormatBRR.$(OBJEXT):  \
+	soundlib/$(am__dirstamp) soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-SampleFormatFLAC.$(OBJEXT):  \
+	soundlib/$(am__dirstamp) soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-SampleFormatMediaFoundation.$(OBJEXT):  \
+	soundlib/$(am__dirstamp) soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-SampleFormatMP3.$(OBJEXT):  \
+	soundlib/$(am__dirstamp) soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-SampleFormatOpus.$(OBJEXT):  \
+	soundlib/$(am__dirstamp) soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-SampleFormatSFZ.$(OBJEXT):  \
+	soundlib/$(am__dirstamp) soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-SampleFormatVorbis.$(OBJEXT):  \
+	soundlib/$(am__dirstamp) soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-SampleIO.$(OBJEXT): soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-Sndfile.$(OBJEXT): soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-Snd_flt.$(OBJEXT): soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-Snd_fx.$(OBJEXT): soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-Sndmix.$(OBJEXT): soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-SoundFilePlayConfig.$(OBJEXT):  \
+	soundlib/$(am__dirstamp) soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-Tables.$(OBJEXT): soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-Tagging.$(OBJEXT): soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-TinyFFT.$(OBJEXT): soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-tuningCollection.$(OBJEXT):  \
+	soundlib/$(am__dirstamp) soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-tuning.$(OBJEXT): soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-UMXTools.$(OBJEXT): soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-UpgradeModule.$(OBJEXT):  \
+	soundlib/$(am__dirstamp) soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-WAVTools.$(OBJEXT): soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-WindowedFIR.$(OBJEXT):  \
+	soundlib/$(am__dirstamp) soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/libopenmpttest-XMTools.$(OBJEXT): soundlib/$(am__dirstamp) \
+	soundlib/$(DEPDIR)/$(am__dirstamp)
+soundlib/plugins/dmo/libopenmpttest-DMOPlugin.$(OBJEXT):  \
+	soundlib/plugins/dmo/$(am__dirstamp) \
+	soundlib/plugins/dmo/$(DEPDIR)/$(am__dirstamp)
+soundlib/plugins/dmo/libopenmpttest-DMOUtils.$(OBJEXT):  \
+	soundlib/plugins/dmo/$(am__dirstamp) \
+	soundlib/plugins/dmo/$(DEPDIR)/$(am__dirstamp)
+soundlib/plugins/dmo/libopenmpttest-Chorus.$(OBJEXT):  \
+	soundlib/plugins/dmo/$(am__dirstamp) \
+	soundlib/plugins/dmo/$(DEPDIR)/$(am__dirstamp)
+soundlib/plugins/dmo/libopenmpttest-Compressor.$(OBJEXT):  \
+	soundlib/plugins/dmo/$(am__dirstamp) \
+	soundlib/plugins/dmo/$(DEPDIR)/$(am__dirstamp)
+soundlib/plugins/dmo/libopenmpttest-Distortion.$(OBJEXT):  \
+	soundlib/plugins/dmo/$(am__dirstamp) \
+	soundlib/plugins/dmo/$(DEPDIR)/$(am__dirstamp)
+soundlib/plugins/dmo/libopenmpttest-Echo.$(OBJEXT):  \
+	soundlib/plugins/dmo/$(am__dirstamp) \
+	soundlib/plugins/dmo/$(DEPDIR)/$(am__dirstamp)
+soundlib/plugins/dmo/libopenmpttest-Flanger.$(OBJEXT):  \
+	soundlib/plugins/dmo/$(am__dirstamp) \
+	soundlib/plugins/dmo/$(DEPDIR)/$(am__dirstamp)
+soundlib/plugins/dmo/libopenmpttest-Gargle.$(OBJEXT):  \
+	soundlib/plugins/dmo/$(am__dirstamp) \
+	soundlib/plugins/dmo/$(DEPDIR)/$(am__dirstamp)
+soundlib/plugins/dmo/libopenmpttest-I3DL2Reverb.$(OBJEXT):  \
+	soundlib/plugins/dmo/$(am__dirstamp) \
+	soundlib/plugins/dmo/$(DEPDIR)/$(am__dirstamp)
+soundlib/plugins/dmo/libopenmpttest-ParamEq.$(OBJEXT):  \
+	soundlib/plugins/dmo/$(am__dirstamp) \
+	soundlib/plugins/dmo/$(DEPDIR)/$(am__dirstamp)
+soundlib/plugins/dmo/libopenmpttest-WavesReverb.$(OBJEXT):  \
+	soundlib/plugins/dmo/$(am__dirstamp) \
+	soundlib/plugins/dmo/$(DEPDIR)/$(am__dirstamp)
+soundlib/plugins/libopenmpttest-DigiBoosterEcho.$(OBJEXT):  \
+	soundlib/plugins/$(am__dirstamp) \
+	soundlib/plugins/$(DEPDIR)/$(am__dirstamp)
+soundlib/plugins/libopenmpttest-LFOPlugin.$(OBJEXT):  \
+	soundlib/plugins/$(am__dirstamp) \
+	soundlib/plugins/$(DEPDIR)/$(am__dirstamp)
+soundlib/plugins/libopenmpttest-PluginManager.$(OBJEXT):  \
+	soundlib/plugins/$(am__dirstamp) \
+	soundlib/plugins/$(DEPDIR)/$(am__dirstamp)
+soundlib/plugins/libopenmpttest-PlugInterface.$(OBJEXT):  \
+	soundlib/plugins/$(am__dirstamp) \
+	soundlib/plugins/$(DEPDIR)/$(am__dirstamp)
+soundlib/plugins/libopenmpttest-SymMODEcho.$(OBJEXT):  \
+	soundlib/plugins/$(am__dirstamp) \
+	soundlib/plugins/$(DEPDIR)/$(am__dirstamp)
+sounddsp/libopenmpttest-AGC.$(OBJEXT): sounddsp/$(am__dirstamp) \
+	sounddsp/$(DEPDIR)/$(am__dirstamp)
+sounddsp/libopenmpttest-DSP.$(OBJEXT): sounddsp/$(am__dirstamp) \
+	sounddsp/$(DEPDIR)/$(am__dirstamp)
+sounddsp/libopenmpttest-EQ.$(OBJEXT): sounddsp/$(am__dirstamp) \
+	sounddsp/$(DEPDIR)/$(am__dirstamp)
+sounddsp/libopenmpttest-Reverb.$(OBJEXT): sounddsp/$(am__dirstamp) \
+	sounddsp/$(DEPDIR)/$(am__dirstamp)
+libopenmpt/libopenmpttest-libopenmpt_c.$(OBJEXT):  \
+	libopenmpt/$(am__dirstamp) \
+	libopenmpt/$(DEPDIR)/$(am__dirstamp)
+libopenmpt/libopenmpttest-libopenmpt_cxx.$(OBJEXT):  \
+	libopenmpt/$(am__dirstamp) \
+	libopenmpt/$(DEPDIR)/$(am__dirstamp)
+libopenmpt/libopenmpttest-libopenmpt_ext_impl.$(OBJEXT):  \
+	libopenmpt/$(am__dirstamp) \
+	libopenmpt/$(DEPDIR)/$(am__dirstamp)
+libopenmpt/libopenmpttest-libopenmpt_impl.$(OBJEXT):  \
+	libopenmpt/$(am__dirstamp) \
+	libopenmpt/$(DEPDIR)/$(am__dirstamp)
+libopenmpt/libopenmpt_test/$(am__dirstamp):
+	@$(MKDIR_P) libopenmpt/libopenmpt_test
+	@: > libopenmpt/libopenmpt_test/$(am__dirstamp)
+libopenmpt/libopenmpt_test/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) libopenmpt/libopenmpt_test/$(DEPDIR)
+	@: > libopenmpt/libopenmpt_test/$(DEPDIR)/$(am__dirstamp)
+libopenmpt/libopenmpt_test/libopenmpttest-libopenmpt_test.$(OBJEXT):  \
+	libopenmpt/libopenmpt_test/$(am__dirstamp) \
+	libopenmpt/libopenmpt_test/$(DEPDIR)/$(am__dirstamp)
+
+libopenmpttest$(EXEEXT): $(libopenmpttest_OBJECTS) $(libopenmpttest_DEPENDENCIES) $(EXTRA_libopenmpttest_DEPENDENCIES) 
+	@rm -f libopenmpttest$(EXEEXT)
+	$(AM_V_CXXLD)$(libopenmpttest_LINK) $(libopenmpttest_OBJECTS) $(libopenmpttest_LDADD) $(LIBS)
+
+mostlyclean-compile:
+	-rm -f *.$(OBJEXT)
+	-rm -f common/*.$(OBJEXT)
+	-rm -f common/*.lo
+	-rm -f examples/*.$(OBJEXT)
+	-rm -f libopenmpt/*.$(OBJEXT)
+	-rm -f libopenmpt/*.lo
+	-rm -f libopenmpt/libopenmpt_test/*.$(OBJEXT)
+	-rm -f openmpt123/*.$(OBJEXT)
+	-rm -f sounddsp/*.$(OBJEXT)
+	-rm -f sounddsp/*.lo
+	-rm -f soundlib/*.$(OBJEXT)
+	-rm -f soundlib/*.lo
+	-rm -f soundlib/plugins/*.$(OBJEXT)
+	-rm -f soundlib/plugins/*.lo
+	-rm -f soundlib/plugins/dmo/*.$(OBJEXT)
+	-rm -f soundlib/plugins/dmo/*.lo
+	-rm -f src/openmpt/soundfile_write/*.$(OBJEXT)
+	-rm -f test/*.$(OBJEXT)
+
+distclean-compile:
+	-rm -f *.tab.c
+
+include common/$(DEPDIR)/libopenmpt_la-ComponentManager.Plo # am--include-marker
+include common/$(DEPDIR)/libopenmpt_la-Logging.Plo # am--include-marker
+include common/$(DEPDIR)/libopenmpt_la-Profiler.Plo # am--include-marker
+include common/$(DEPDIR)/libopenmpt_la-mptFileType.Plo # am--include-marker
+include common/$(DEPDIR)/libopenmpt_la-mptPathString.Plo # am--include-marker
+include common/$(DEPDIR)/libopenmpt_la-mptRandom.Plo # am--include-marker
+include common/$(DEPDIR)/libopenmpt_la-mptStringBuffer.Plo # am--include-marker
+include common/$(DEPDIR)/libopenmpt_la-mptTime.Plo # am--include-marker
+include common/$(DEPDIR)/libopenmpt_la-serialization_utils.Plo # am--include-marker
+include common/$(DEPDIR)/libopenmpt_la-version.Plo # am--include-marker
+include common/$(DEPDIR)/libopenmpttest-ComponentManager.Po # am--include-marker
+include common/$(DEPDIR)/libopenmpttest-Logging.Po # am--include-marker
+include common/$(DEPDIR)/libopenmpttest-Profiler.Po # am--include-marker
+include common/$(DEPDIR)/libopenmpttest-mptFileType.Po # am--include-marker
+include common/$(DEPDIR)/libopenmpttest-mptPathString.Po # am--include-marker
+include common/$(DEPDIR)/libopenmpttest-mptRandom.Po # am--include-marker
+include common/$(DEPDIR)/libopenmpttest-mptStringBuffer.Po # am--include-marker
+include common/$(DEPDIR)/libopenmpttest-mptTime.Po # am--include-marker
+include common/$(DEPDIR)/libopenmpttest-serialization_utils.Po # am--include-marker
+include common/$(DEPDIR)/libopenmpttest-version.Po # am--include-marker
+include examples/$(DEPDIR)/libopenmpt_example_c-libopenmpt_example_c.Po # am--include-marker
+include examples/$(DEPDIR)/libopenmpt_example_c_mem-libopenmpt_example_c_mem.Po # am--include-marker
+include examples/$(DEPDIR)/libopenmpt_example_c_pipe-libopenmpt_example_c_pipe.Po # am--include-marker
+include examples/$(DEPDIR)/libopenmpt_example_c_probe-libopenmpt_example_c_probe.Po # am--include-marker
+include examples/$(DEPDIR)/libopenmpt_example_c_stdout-libopenmpt_example_c_stdout.Po # am--include-marker
+include examples/$(DEPDIR)/libopenmpt_example_c_unsafe-libopenmpt_example_c_unsafe.Po # am--include-marker
+include examples/$(DEPDIR)/libopenmpt_example_cxx-libopenmpt_example_cxx.Po # am--include-marker
+include libopenmpt/$(DEPDIR)/la-libopenmpt_c.Plo # am--include-marker
+include libopenmpt/$(DEPDIR)/la-libopenmpt_cxx.Plo # am--include-marker
+include libopenmpt/$(DEPDIR)/la-libopenmpt_ext_impl.Plo # am--include-marker
+include libopenmpt/$(DEPDIR)/la-libopenmpt_impl.Plo # am--include-marker
+include libopenmpt/$(DEPDIR)/libopenmpttest-libopenmpt_c.Po # am--include-marker
+include libopenmpt/$(DEPDIR)/libopenmpttest-libopenmpt_cxx.Po # am--include-marker
+include libopenmpt/$(DEPDIR)/libopenmpttest-libopenmpt_ext_impl.Po # am--include-marker
+include libopenmpt/$(DEPDIR)/libopenmpttest-libopenmpt_impl.Po # am--include-marker
+include libopenmpt/libopenmpt_test/$(DEPDIR)/libopenmpttest-libopenmpt_test.Po # am--include-marker
+include openmpt123/$(DEPDIR)/bin_openmpt123-openmpt123.Po # am--include-marker
+include sounddsp/$(DEPDIR)/libopenmpt_la-AGC.Plo # am--include-marker
+include sounddsp/$(DEPDIR)/libopenmpt_la-DSP.Plo # am--include-marker
+include sounddsp/$(DEPDIR)/libopenmpt_la-EQ.Plo # am--include-marker
+include sounddsp/$(DEPDIR)/libopenmpt_la-Reverb.Plo # am--include-marker
+include sounddsp/$(DEPDIR)/libopenmpttest-AGC.Po # am--include-marker
+include sounddsp/$(DEPDIR)/libopenmpttest-DSP.Po # am--include-marker
+include sounddsp/$(DEPDIR)/libopenmpttest-EQ.Po # am--include-marker
+include sounddsp/$(DEPDIR)/libopenmpttest-Reverb.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-AudioCriticalSection.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-ContainerMMCMP.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-ContainerPP20.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-ContainerUMX.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-ContainerXPK.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-Dlsbank.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-Fastmix.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-ITCompression.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-ITTools.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-InstrumentExtensions.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-InstrumentSynth.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-Load_667.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-Load_669.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-Load_amf.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-Load_ams.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-Load_c67.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-Load_cba.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-Load_dbm.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-Load_digi.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-Load_dmf.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-Load_dsm.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-Load_dsym.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-Load_dtm.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-Load_etx.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-Load_far.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-Load_fc.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-Load_fmt.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-Load_ftm.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-Load_gdm.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-Load_gmc.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-Load_gt2.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-Load_ice.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-Load_imf.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-Load_ims.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-Load_it.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-Load_itp.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-Load_kris.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-Load_mdl.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-Load_med.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-Load_mid.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-Load_mo3.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-Load_mod.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-Load_mt2.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-Load_mtm.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-Load_mus_km.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-Load_okt.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-Load_plm.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-Load_psm.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-Load_pt36.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-Load_ptm.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-Load_puma.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-Load_rtm.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-Load_s3m.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-Load_sfx.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-Load_stk.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-Load_stm.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-Load_stp.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-Load_symmod.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-Load_tcb.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-Load_uax.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-Load_ult.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-Load_unic.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-Load_wav.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-Load_xm.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-Load_xmf.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-MIDIEvents.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-MIDIMacroParser.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-MIDIMacros.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-MODTools.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-MPEGFrame.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-Message.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-MixFuncTable.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-MixerLoops.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-MixerSettings.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-ModChannel.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-ModInstrument.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-ModSample.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-ModSequence.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-OPL.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-OggStream.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-Paula.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-PlayState.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-PlaybackTest.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-RowVisitor.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-S3MTools.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-SampleFormatBRR.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-SampleFormatFLAC.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-SampleFormatMP3.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-SampleFormatMediaFoundation.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-SampleFormatOpus.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-SampleFormatSFZ.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-SampleFormatVorbis.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-SampleFormats.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-SampleIO.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-Snd_flt.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-Snd_fx.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-Sndfile.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-Sndmix.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-SoundFilePlayConfig.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-Tables.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-Tagging.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-TinyFFT.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-UMXTools.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-UpgradeModule.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-WAVTools.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-WindowedFIR.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-XMTools.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-load_j2b.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-mod_specifications.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-modcommand.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-modsmp_ctrl.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-pattern.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-patternContainer.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-tuning.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpt_la-tuningCollection.Plo # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-AudioCriticalSection.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-ContainerMMCMP.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-ContainerPP20.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-ContainerUMX.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-ContainerXPK.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-Dlsbank.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-Fastmix.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-ITCompression.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-ITTools.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-InstrumentExtensions.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-InstrumentSynth.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-Load_667.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-Load_669.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-Load_amf.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-Load_ams.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-Load_c67.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-Load_cba.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-Load_dbm.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-Load_digi.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-Load_dmf.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-Load_dsm.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-Load_dsym.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-Load_dtm.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-Load_etx.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-Load_far.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-Load_fc.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-Load_fmt.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-Load_ftm.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-Load_gdm.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-Load_gmc.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-Load_gt2.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-Load_ice.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-Load_imf.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-Load_ims.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-Load_it.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-Load_itp.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-Load_kris.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-Load_mdl.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-Load_med.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-Load_mid.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-Load_mo3.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-Load_mod.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-Load_mt2.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-Load_mtm.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-Load_mus_km.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-Load_okt.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-Load_plm.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-Load_psm.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-Load_pt36.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-Load_ptm.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-Load_puma.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-Load_rtm.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-Load_s3m.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-Load_sfx.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-Load_stk.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-Load_stm.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-Load_stp.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-Load_symmod.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-Load_tcb.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-Load_uax.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-Load_ult.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-Load_unic.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-Load_wav.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-Load_xm.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-Load_xmf.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-MIDIEvents.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-MIDIMacroParser.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-MIDIMacros.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-MODTools.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-MPEGFrame.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-Message.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-MixFuncTable.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-MixerLoops.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-MixerSettings.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-ModChannel.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-ModInstrument.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-ModSample.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-ModSequence.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-OPL.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-OggStream.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-Paula.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-PlayState.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-PlaybackTest.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-RowVisitor.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-S3MTools.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-SampleFormatBRR.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-SampleFormatFLAC.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-SampleFormatMP3.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-SampleFormatMediaFoundation.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-SampleFormatOpus.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-SampleFormatSFZ.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-SampleFormatVorbis.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-SampleFormats.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-SampleIO.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-Snd_flt.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-Snd_fx.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-Sndfile.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-Sndmix.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-SoundFilePlayConfig.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-Tables.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-Tagging.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-TinyFFT.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-UMXTools.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-UpgradeModule.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-WAVTools.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-WindowedFIR.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-XMTools.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-load_j2b.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-mod_specifications.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-modcommand.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-modsmp_ctrl.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-pattern.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-patternContainer.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-tuning.Po # am--include-marker
+include soundlib/$(DEPDIR)/libopenmpttest-tuningCollection.Po # am--include-marker
+include soundlib/plugins/$(DEPDIR)/libopenmpt_la-DigiBoosterEcho.Plo # am--include-marker
+include soundlib/plugins/$(DEPDIR)/libopenmpt_la-LFOPlugin.Plo # am--include-marker
+include soundlib/plugins/$(DEPDIR)/libopenmpt_la-PlugInterface.Plo # am--include-marker
+include soundlib/plugins/$(DEPDIR)/libopenmpt_la-PluginManager.Plo # am--include-marker
+include soundlib/plugins/$(DEPDIR)/libopenmpt_la-SymMODEcho.Plo # am--include-marker
+include soundlib/plugins/$(DEPDIR)/libopenmpttest-DigiBoosterEcho.Po # am--include-marker
+include soundlib/plugins/$(DEPDIR)/libopenmpttest-LFOPlugin.Po # am--include-marker
+include soundlib/plugins/$(DEPDIR)/libopenmpttest-PlugInterface.Po # am--include-marker
+include soundlib/plugins/$(DEPDIR)/libopenmpttest-PluginManager.Po # am--include-marker
+include soundlib/plugins/$(DEPDIR)/libopenmpttest-SymMODEcho.Po # am--include-marker
+include soundlib/plugins/dmo/$(DEPDIR)/libopenmpt_la-Chorus.Plo # am--include-marker
+include soundlib/plugins/dmo/$(DEPDIR)/libopenmpt_la-Compressor.Plo # am--include-marker
+include soundlib/plugins/dmo/$(DEPDIR)/libopenmpt_la-DMOPlugin.Plo # am--include-marker
+include soundlib/plugins/dmo/$(DEPDIR)/libopenmpt_la-DMOUtils.Plo # am--include-marker
+include soundlib/plugins/dmo/$(DEPDIR)/libopenmpt_la-Distortion.Plo # am--include-marker
+include soundlib/plugins/dmo/$(DEPDIR)/libopenmpt_la-Echo.Plo # am--include-marker
+include soundlib/plugins/dmo/$(DEPDIR)/libopenmpt_la-Flanger.Plo # am--include-marker
+include soundlib/plugins/dmo/$(DEPDIR)/libopenmpt_la-Gargle.Plo # am--include-marker
+include soundlib/plugins/dmo/$(DEPDIR)/libopenmpt_la-I3DL2Reverb.Plo # am--include-marker
+include soundlib/plugins/dmo/$(DEPDIR)/libopenmpt_la-ParamEq.Plo # am--include-marker
+include soundlib/plugins/dmo/$(DEPDIR)/libopenmpt_la-WavesReverb.Plo # am--include-marker
+include soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-Chorus.Po # am--include-marker
+include soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-Compressor.Po # am--include-marker
+include soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-DMOPlugin.Po # am--include-marker
+include soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-DMOUtils.Po # am--include-marker
+include soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-Distortion.Po # am--include-marker
+include soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-Echo.Po # am--include-marker
+include soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-Flanger.Po # am--include-marker
+include soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-Gargle.Po # am--include-marker
+include soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-I3DL2Reverb.Po # am--include-marker
+include soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-ParamEq.Po # am--include-marker
+include soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-WavesReverb.Po # am--include-marker
+include src/openmpt/soundfile_write/$(DEPDIR)/libopenmpttest-wav_write.Po # am--include-marker
+include test/$(DEPDIR)/libopenmpttest-TestToolsLib.Po # am--include-marker
+include test/$(DEPDIR)/libopenmpttest-mpt_tests_base.Po # am--include-marker
+include test/$(DEPDIR)/libopenmpttest-mpt_tests_binary.Po # am--include-marker
+include test/$(DEPDIR)/libopenmpttest-mpt_tests_crc.Po # am--include-marker
+include test/$(DEPDIR)/libopenmpttest-mpt_tests_endian.Po # am--include-marker
+include test/$(DEPDIR)/libopenmpttest-mpt_tests_format.Po # am--include-marker
+include test/$(DEPDIR)/libopenmpttest-mpt_tests_io.Po # am--include-marker
+include test/$(DEPDIR)/libopenmpttest-mpt_tests_parse.Po # am--include-marker
+include test/$(DEPDIR)/libopenmpttest-mpt_tests_random.Po # am--include-marker
+include test/$(DEPDIR)/libopenmpttest-mpt_tests_string.Po # am--include-marker
+include test/$(DEPDIR)/libopenmpttest-mpt_tests_string_transcode.Po # am--include-marker
+include test/$(DEPDIR)/libopenmpttest-mpt_tests_uuid.Po # am--include-marker
+include test/$(DEPDIR)/libopenmpttest-test.Po # am--include-marker
+
+$(am__depfiles_remade):
+	@$(MKDIR_P) $(@D)
+	@echo '# dummy' >$@-t && $(am__mv) $@-t $@
+
+am--depfiles: $(am__depfiles_remade)
+
+.c.o:
+	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
+	$(COMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ $< &&\
+	$(am__mv) $$depbase.Tpo $$depbase.Po
+#	$(AM_V_CC)source='$<' object='$@' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
+#	$(AM_V_CC_no)$(COMPILE) -c -o $@ $<
+
+.c.obj:
+	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.obj$$||'`;\
+	$(COMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ `$(CYGPATH_W) '$<'` &&\
+	$(am__mv) $$depbase.Tpo $$depbase.Po
+#	$(AM_V_CC)source='$<' object='$@' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
+#	$(AM_V_CC_no)$(COMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
+
+.c.lo:
+	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.lo$$||'`;\
+	$(LTCOMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ $< &&\
+	$(am__mv) $$depbase.Tpo $$depbase.Plo
+#	$(AM_V_CC)source='$<' object='$@' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
+#	$(AM_V_CC_no)$(LTCOMPILE) -c -o $@ $<
+
+examples/libopenmpt_example_c-libopenmpt_example_c.o: examples/libopenmpt_example_c.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_example_c_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_example_c_CFLAGS) $(CFLAGS) -MT examples/libopenmpt_example_c-libopenmpt_example_c.o -MD -MP -MF examples/$(DEPDIR)/libopenmpt_example_c-libopenmpt_example_c.Tpo -c -o examples/libopenmpt_example_c-libopenmpt_example_c.o `test -f 'examples/libopenmpt_example_c.c' || echo '$(srcdir)/'`examples/libopenmpt_example_c.c
+	$(AM_V_at)$(am__mv) examples/$(DEPDIR)/libopenmpt_example_c-libopenmpt_example_c.Tpo examples/$(DEPDIR)/libopenmpt_example_c-libopenmpt_example_c.Po
+#	$(AM_V_CC)source='examples/libopenmpt_example_c.c' object='examples/libopenmpt_example_c-libopenmpt_example_c.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
+#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_example_c_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_example_c_CFLAGS) $(CFLAGS) -c -o examples/libopenmpt_example_c-libopenmpt_example_c.o `test -f 'examples/libopenmpt_example_c.c' || echo '$(srcdir)/'`examples/libopenmpt_example_c.c
+
+examples/libopenmpt_example_c-libopenmpt_example_c.obj: examples/libopenmpt_example_c.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_example_c_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_example_c_CFLAGS) $(CFLAGS) -MT examples/libopenmpt_example_c-libopenmpt_example_c.obj -MD -MP -MF examples/$(DEPDIR)/libopenmpt_example_c-libopenmpt_example_c.Tpo -c -o examples/libopenmpt_example_c-libopenmpt_example_c.obj `if test -f 'examples/libopenmpt_example_c.c'; then $(CYGPATH_W) 'examples/libopenmpt_example_c.c'; else $(CYGPATH_W) '$(srcdir)/examples/libopenmpt_example_c.c'; fi`
+	$(AM_V_at)$(am__mv) examples/$(DEPDIR)/libopenmpt_example_c-libopenmpt_example_c.Tpo examples/$(DEPDIR)/libopenmpt_example_c-libopenmpt_example_c.Po
+#	$(AM_V_CC)source='examples/libopenmpt_example_c.c' object='examples/libopenmpt_example_c-libopenmpt_example_c.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
+#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_example_c_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_example_c_CFLAGS) $(CFLAGS) -c -o examples/libopenmpt_example_c-libopenmpt_example_c.obj `if test -f 'examples/libopenmpt_example_c.c'; then $(CYGPATH_W) 'examples/libopenmpt_example_c.c'; else $(CYGPATH_W) '$(srcdir)/examples/libopenmpt_example_c.c'; fi`
+
+examples/libopenmpt_example_c_mem-libopenmpt_example_c_mem.o: examples/libopenmpt_example_c_mem.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_example_c_mem_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_example_c_mem_CFLAGS) $(CFLAGS) -MT examples/libopenmpt_example_c_mem-libopenmpt_example_c_mem.o -MD -MP -MF examples/$(DEPDIR)/libopenmpt_example_c_mem-libopenmpt_example_c_mem.Tpo -c -o examples/libopenmpt_example_c_mem-libopenmpt_example_c_mem.o `test -f 'examples/libopenmpt_example_c_mem.c' || echo '$(srcdir)/'`examples/libopenmpt_example_c_mem.c
+	$(AM_V_at)$(am__mv) examples/$(DEPDIR)/libopenmpt_example_c_mem-libopenmpt_example_c_mem.Tpo examples/$(DEPDIR)/libopenmpt_example_c_mem-libopenmpt_example_c_mem.Po
+#	$(AM_V_CC)source='examples/libopenmpt_example_c_mem.c' object='examples/libopenmpt_example_c_mem-libopenmpt_example_c_mem.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
+#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_example_c_mem_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_example_c_mem_CFLAGS) $(CFLAGS) -c -o examples/libopenmpt_example_c_mem-libopenmpt_example_c_mem.o `test -f 'examples/libopenmpt_example_c_mem.c' || echo '$(srcdir)/'`examples/libopenmpt_example_c_mem.c
+
+examples/libopenmpt_example_c_mem-libopenmpt_example_c_mem.obj: examples/libopenmpt_example_c_mem.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_example_c_mem_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_example_c_mem_CFLAGS) $(CFLAGS) -MT examples/libopenmpt_example_c_mem-libopenmpt_example_c_mem.obj -MD -MP -MF examples/$(DEPDIR)/libopenmpt_example_c_mem-libopenmpt_example_c_mem.Tpo -c -o examples/libopenmpt_example_c_mem-libopenmpt_example_c_mem.obj `if test -f 'examples/libopenmpt_example_c_mem.c'; then $(CYGPATH_W) 'examples/libopenmpt_example_c_mem.c'; else $(CYGPATH_W) '$(srcdir)/examples/libopenmpt_example_c_mem.c'; fi`
+	$(AM_V_at)$(am__mv) examples/$(DEPDIR)/libopenmpt_example_c_mem-libopenmpt_example_c_mem.Tpo examples/$(DEPDIR)/libopenmpt_example_c_mem-libopenmpt_example_c_mem.Po
+#	$(AM_V_CC)source='examples/libopenmpt_example_c_mem.c' object='examples/libopenmpt_example_c_mem-libopenmpt_example_c_mem.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
+#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_example_c_mem_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_example_c_mem_CFLAGS) $(CFLAGS) -c -o examples/libopenmpt_example_c_mem-libopenmpt_example_c_mem.obj `if test -f 'examples/libopenmpt_example_c_mem.c'; then $(CYGPATH_W) 'examples/libopenmpt_example_c_mem.c'; else $(CYGPATH_W) '$(srcdir)/examples/libopenmpt_example_c_mem.c'; fi`
+
+examples/libopenmpt_example_c_pipe-libopenmpt_example_c_pipe.o: examples/libopenmpt_example_c_pipe.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_example_c_pipe_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_example_c_pipe_CFLAGS) $(CFLAGS) -MT examples/libopenmpt_example_c_pipe-libopenmpt_example_c_pipe.o -MD -MP -MF examples/$(DEPDIR)/libopenmpt_example_c_pipe-libopenmpt_example_c_pipe.Tpo -c -o examples/libopenmpt_example_c_pipe-libopenmpt_example_c_pipe.o `test -f 'examples/libopenmpt_example_c_pipe.c' || echo '$(srcdir)/'`examples/libopenmpt_example_c_pipe.c
+	$(AM_V_at)$(am__mv) examples/$(DEPDIR)/libopenmpt_example_c_pipe-libopenmpt_example_c_pipe.Tpo examples/$(DEPDIR)/libopenmpt_example_c_pipe-libopenmpt_example_c_pipe.Po
+#	$(AM_V_CC)source='examples/libopenmpt_example_c_pipe.c' object='examples/libopenmpt_example_c_pipe-libopenmpt_example_c_pipe.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
+#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_example_c_pipe_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_example_c_pipe_CFLAGS) $(CFLAGS) -c -o examples/libopenmpt_example_c_pipe-libopenmpt_example_c_pipe.o `test -f 'examples/libopenmpt_example_c_pipe.c' || echo '$(srcdir)/'`examples/libopenmpt_example_c_pipe.c
+
+examples/libopenmpt_example_c_pipe-libopenmpt_example_c_pipe.obj: examples/libopenmpt_example_c_pipe.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_example_c_pipe_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_example_c_pipe_CFLAGS) $(CFLAGS) -MT examples/libopenmpt_example_c_pipe-libopenmpt_example_c_pipe.obj -MD -MP -MF examples/$(DEPDIR)/libopenmpt_example_c_pipe-libopenmpt_example_c_pipe.Tpo -c -o examples/libopenmpt_example_c_pipe-libopenmpt_example_c_pipe.obj `if test -f 'examples/libopenmpt_example_c_pipe.c'; then $(CYGPATH_W) 'examples/libopenmpt_example_c_pipe.c'; else $(CYGPATH_W) '$(srcdir)/examples/libopenmpt_example_c_pipe.c'; fi`
+	$(AM_V_at)$(am__mv) examples/$(DEPDIR)/libopenmpt_example_c_pipe-libopenmpt_example_c_pipe.Tpo examples/$(DEPDIR)/libopenmpt_example_c_pipe-libopenmpt_example_c_pipe.Po
+#	$(AM_V_CC)source='examples/libopenmpt_example_c_pipe.c' object='examples/libopenmpt_example_c_pipe-libopenmpt_example_c_pipe.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
+#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_example_c_pipe_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_example_c_pipe_CFLAGS) $(CFLAGS) -c -o examples/libopenmpt_example_c_pipe-libopenmpt_example_c_pipe.obj `if test -f 'examples/libopenmpt_example_c_pipe.c'; then $(CYGPATH_W) 'examples/libopenmpt_example_c_pipe.c'; else $(CYGPATH_W) '$(srcdir)/examples/libopenmpt_example_c_pipe.c'; fi`
+
+examples/libopenmpt_example_c_probe-libopenmpt_example_c_probe.o: examples/libopenmpt_example_c_probe.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_example_c_probe_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_example_c_probe_CFLAGS) $(CFLAGS) -MT examples/libopenmpt_example_c_probe-libopenmpt_example_c_probe.o -MD -MP -MF examples/$(DEPDIR)/libopenmpt_example_c_probe-libopenmpt_example_c_probe.Tpo -c -o examples/libopenmpt_example_c_probe-libopenmpt_example_c_probe.o `test -f 'examples/libopenmpt_example_c_probe.c' || echo '$(srcdir)/'`examples/libopenmpt_example_c_probe.c
+	$(AM_V_at)$(am__mv) examples/$(DEPDIR)/libopenmpt_example_c_probe-libopenmpt_example_c_probe.Tpo examples/$(DEPDIR)/libopenmpt_example_c_probe-libopenmpt_example_c_probe.Po
+#	$(AM_V_CC)source='examples/libopenmpt_example_c_probe.c' object='examples/libopenmpt_example_c_probe-libopenmpt_example_c_probe.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
+#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_example_c_probe_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_example_c_probe_CFLAGS) $(CFLAGS) -c -o examples/libopenmpt_example_c_probe-libopenmpt_example_c_probe.o `test -f 'examples/libopenmpt_example_c_probe.c' || echo '$(srcdir)/'`examples/libopenmpt_example_c_probe.c
+
+examples/libopenmpt_example_c_probe-libopenmpt_example_c_probe.obj: examples/libopenmpt_example_c_probe.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_example_c_probe_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_example_c_probe_CFLAGS) $(CFLAGS) -MT examples/libopenmpt_example_c_probe-libopenmpt_example_c_probe.obj -MD -MP -MF examples/$(DEPDIR)/libopenmpt_example_c_probe-libopenmpt_example_c_probe.Tpo -c -o examples/libopenmpt_example_c_probe-libopenmpt_example_c_probe.obj `if test -f 'examples/libopenmpt_example_c_probe.c'; then $(CYGPATH_W) 'examples/libopenmpt_example_c_probe.c'; else $(CYGPATH_W) '$(srcdir)/examples/libopenmpt_example_c_probe.c'; fi`
+	$(AM_V_at)$(am__mv) examples/$(DEPDIR)/libopenmpt_example_c_probe-libopenmpt_example_c_probe.Tpo examples/$(DEPDIR)/libopenmpt_example_c_probe-libopenmpt_example_c_probe.Po
+#	$(AM_V_CC)source='examples/libopenmpt_example_c_probe.c' object='examples/libopenmpt_example_c_probe-libopenmpt_example_c_probe.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
+#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_example_c_probe_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_example_c_probe_CFLAGS) $(CFLAGS) -c -o examples/libopenmpt_example_c_probe-libopenmpt_example_c_probe.obj `if test -f 'examples/libopenmpt_example_c_probe.c'; then $(CYGPATH_W) 'examples/libopenmpt_example_c_probe.c'; else $(CYGPATH_W) '$(srcdir)/examples/libopenmpt_example_c_probe.c'; fi`
+
+examples/libopenmpt_example_c_stdout-libopenmpt_example_c_stdout.o: examples/libopenmpt_example_c_stdout.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_example_c_stdout_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_example_c_stdout_CFLAGS) $(CFLAGS) -MT examples/libopenmpt_example_c_stdout-libopenmpt_example_c_stdout.o -MD -MP -MF examples/$(DEPDIR)/libopenmpt_example_c_stdout-libopenmpt_example_c_stdout.Tpo -c -o examples/libopenmpt_example_c_stdout-libopenmpt_example_c_stdout.o `test -f 'examples/libopenmpt_example_c_stdout.c' || echo '$(srcdir)/'`examples/libopenmpt_example_c_stdout.c
+	$(AM_V_at)$(am__mv) examples/$(DEPDIR)/libopenmpt_example_c_stdout-libopenmpt_example_c_stdout.Tpo examples/$(DEPDIR)/libopenmpt_example_c_stdout-libopenmpt_example_c_stdout.Po
+#	$(AM_V_CC)source='examples/libopenmpt_example_c_stdout.c' object='examples/libopenmpt_example_c_stdout-libopenmpt_example_c_stdout.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
+#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_example_c_stdout_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_example_c_stdout_CFLAGS) $(CFLAGS) -c -o examples/libopenmpt_example_c_stdout-libopenmpt_example_c_stdout.o `test -f 'examples/libopenmpt_example_c_stdout.c' || echo '$(srcdir)/'`examples/libopenmpt_example_c_stdout.c
+
+examples/libopenmpt_example_c_stdout-libopenmpt_example_c_stdout.obj: examples/libopenmpt_example_c_stdout.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_example_c_stdout_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_example_c_stdout_CFLAGS) $(CFLAGS) -MT examples/libopenmpt_example_c_stdout-libopenmpt_example_c_stdout.obj -MD -MP -MF examples/$(DEPDIR)/libopenmpt_example_c_stdout-libopenmpt_example_c_stdout.Tpo -c -o examples/libopenmpt_example_c_stdout-libopenmpt_example_c_stdout.obj `if test -f 'examples/libopenmpt_example_c_stdout.c'; then $(CYGPATH_W) 'examples/libopenmpt_example_c_stdout.c'; else $(CYGPATH_W) '$(srcdir)/examples/libopenmpt_example_c_stdout.c'; fi`
+	$(AM_V_at)$(am__mv) examples/$(DEPDIR)/libopenmpt_example_c_stdout-libopenmpt_example_c_stdout.Tpo examples/$(DEPDIR)/libopenmpt_example_c_stdout-libopenmpt_example_c_stdout.Po
+#	$(AM_V_CC)source='examples/libopenmpt_example_c_stdout.c' object='examples/libopenmpt_example_c_stdout-libopenmpt_example_c_stdout.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
+#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_example_c_stdout_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_example_c_stdout_CFLAGS) $(CFLAGS) -c -o examples/libopenmpt_example_c_stdout-libopenmpt_example_c_stdout.obj `if test -f 'examples/libopenmpt_example_c_stdout.c'; then $(CYGPATH_W) 'examples/libopenmpt_example_c_stdout.c'; else $(CYGPATH_W) '$(srcdir)/examples/libopenmpt_example_c_stdout.c'; fi`
+
+examples/libopenmpt_example_c_unsafe-libopenmpt_example_c_unsafe.o: examples/libopenmpt_example_c_unsafe.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_example_c_unsafe_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_example_c_unsafe_CFLAGS) $(CFLAGS) -MT examples/libopenmpt_example_c_unsafe-libopenmpt_example_c_unsafe.o -MD -MP -MF examples/$(DEPDIR)/libopenmpt_example_c_unsafe-libopenmpt_example_c_unsafe.Tpo -c -o examples/libopenmpt_example_c_unsafe-libopenmpt_example_c_unsafe.o `test -f 'examples/libopenmpt_example_c_unsafe.c' || echo '$(srcdir)/'`examples/libopenmpt_example_c_unsafe.c
+	$(AM_V_at)$(am__mv) examples/$(DEPDIR)/libopenmpt_example_c_unsafe-libopenmpt_example_c_unsafe.Tpo examples/$(DEPDIR)/libopenmpt_example_c_unsafe-libopenmpt_example_c_unsafe.Po
+#	$(AM_V_CC)source='examples/libopenmpt_example_c_unsafe.c' object='examples/libopenmpt_example_c_unsafe-libopenmpt_example_c_unsafe.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
+#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_example_c_unsafe_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_example_c_unsafe_CFLAGS) $(CFLAGS) -c -o examples/libopenmpt_example_c_unsafe-libopenmpt_example_c_unsafe.o `test -f 'examples/libopenmpt_example_c_unsafe.c' || echo '$(srcdir)/'`examples/libopenmpt_example_c_unsafe.c
+
+examples/libopenmpt_example_c_unsafe-libopenmpt_example_c_unsafe.obj: examples/libopenmpt_example_c_unsafe.c
+	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_example_c_unsafe_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_example_c_unsafe_CFLAGS) $(CFLAGS) -MT examples/libopenmpt_example_c_unsafe-libopenmpt_example_c_unsafe.obj -MD -MP -MF examples/$(DEPDIR)/libopenmpt_example_c_unsafe-libopenmpt_example_c_unsafe.Tpo -c -o examples/libopenmpt_example_c_unsafe-libopenmpt_example_c_unsafe.obj `if test -f 'examples/libopenmpt_example_c_unsafe.c'; then $(CYGPATH_W) 'examples/libopenmpt_example_c_unsafe.c'; else $(CYGPATH_W) '$(srcdir)/examples/libopenmpt_example_c_unsafe.c'; fi`
+	$(AM_V_at)$(am__mv) examples/$(DEPDIR)/libopenmpt_example_c_unsafe-libopenmpt_example_c_unsafe.Tpo examples/$(DEPDIR)/libopenmpt_example_c_unsafe-libopenmpt_example_c_unsafe.Po
+#	$(AM_V_CC)source='examples/libopenmpt_example_c_unsafe.c' object='examples/libopenmpt_example_c_unsafe-libopenmpt_example_c_unsafe.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
+#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_example_c_unsafe_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_example_c_unsafe_CFLAGS) $(CFLAGS) -c -o examples/libopenmpt_example_c_unsafe-libopenmpt_example_c_unsafe.obj `if test -f 'examples/libopenmpt_example_c_unsafe.c'; then $(CYGPATH_W) 'examples/libopenmpt_example_c_unsafe.c'; else $(CYGPATH_W) '$(srcdir)/examples/libopenmpt_example_c_unsafe.c'; fi`
+
+.cpp.o:
+	$(AM_V_CXX)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
+	$(CXXCOMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ $< &&\
+	$(am__mv) $$depbase.Tpo $$depbase.Po
+#	$(AM_V_CXX)source='$<' object='$@' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXXCOMPILE) -c -o $@ $<
+
+.cpp.obj:
+	$(AM_V_CXX)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.obj$$||'`;\
+	$(CXXCOMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ `$(CYGPATH_W) '$<'` &&\
+	$(am__mv) $$depbase.Tpo $$depbase.Po
+#	$(AM_V_CXX)source='$<' object='$@' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXXCOMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
+
+.cpp.lo:
+	$(AM_V_CXX)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.lo$$||'`;\
+	$(LTCXXCOMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ $< &&\
+	$(am__mv) $$depbase.Tpo $$depbase.Plo
+#	$(AM_V_CXX)source='$<' object='$@' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LTCXXCOMPILE) -c -o $@ $<
+
+common/libopenmpt_la-ComponentManager.lo: common/ComponentManager.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT common/libopenmpt_la-ComponentManager.lo -MD -MP -MF common/$(DEPDIR)/libopenmpt_la-ComponentManager.Tpo -c -o common/libopenmpt_la-ComponentManager.lo `test -f 'common/ComponentManager.cpp' || echo '$(srcdir)/'`common/ComponentManager.cpp
+	$(AM_V_at)$(am__mv) common/$(DEPDIR)/libopenmpt_la-ComponentManager.Tpo common/$(DEPDIR)/libopenmpt_la-ComponentManager.Plo
+#	$(AM_V_CXX)source='common/ComponentManager.cpp' object='common/libopenmpt_la-ComponentManager.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o common/libopenmpt_la-ComponentManager.lo `test -f 'common/ComponentManager.cpp' || echo '$(srcdir)/'`common/ComponentManager.cpp
+
+common/libopenmpt_la-Logging.lo: common/Logging.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT common/libopenmpt_la-Logging.lo -MD -MP -MF common/$(DEPDIR)/libopenmpt_la-Logging.Tpo -c -o common/libopenmpt_la-Logging.lo `test -f 'common/Logging.cpp' || echo '$(srcdir)/'`common/Logging.cpp
+	$(AM_V_at)$(am__mv) common/$(DEPDIR)/libopenmpt_la-Logging.Tpo common/$(DEPDIR)/libopenmpt_la-Logging.Plo
+#	$(AM_V_CXX)source='common/Logging.cpp' object='common/libopenmpt_la-Logging.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o common/libopenmpt_la-Logging.lo `test -f 'common/Logging.cpp' || echo '$(srcdir)/'`common/Logging.cpp
+
+common/libopenmpt_la-mptFileType.lo: common/mptFileType.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT common/libopenmpt_la-mptFileType.lo -MD -MP -MF common/$(DEPDIR)/libopenmpt_la-mptFileType.Tpo -c -o common/libopenmpt_la-mptFileType.lo `test -f 'common/mptFileType.cpp' || echo '$(srcdir)/'`common/mptFileType.cpp
+	$(AM_V_at)$(am__mv) common/$(DEPDIR)/libopenmpt_la-mptFileType.Tpo common/$(DEPDIR)/libopenmpt_la-mptFileType.Plo
+#	$(AM_V_CXX)source='common/mptFileType.cpp' object='common/libopenmpt_la-mptFileType.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o common/libopenmpt_la-mptFileType.lo `test -f 'common/mptFileType.cpp' || echo '$(srcdir)/'`common/mptFileType.cpp
+
+common/libopenmpt_la-mptPathString.lo: common/mptPathString.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT common/libopenmpt_la-mptPathString.lo -MD -MP -MF common/$(DEPDIR)/libopenmpt_la-mptPathString.Tpo -c -o common/libopenmpt_la-mptPathString.lo `test -f 'common/mptPathString.cpp' || echo '$(srcdir)/'`common/mptPathString.cpp
+	$(AM_V_at)$(am__mv) common/$(DEPDIR)/libopenmpt_la-mptPathString.Tpo common/$(DEPDIR)/libopenmpt_la-mptPathString.Plo
+#	$(AM_V_CXX)source='common/mptPathString.cpp' object='common/libopenmpt_la-mptPathString.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o common/libopenmpt_la-mptPathString.lo `test -f 'common/mptPathString.cpp' || echo '$(srcdir)/'`common/mptPathString.cpp
+
+common/libopenmpt_la-mptRandom.lo: common/mptRandom.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT common/libopenmpt_la-mptRandom.lo -MD -MP -MF common/$(DEPDIR)/libopenmpt_la-mptRandom.Tpo -c -o common/libopenmpt_la-mptRandom.lo `test -f 'common/mptRandom.cpp' || echo '$(srcdir)/'`common/mptRandom.cpp
+	$(AM_V_at)$(am__mv) common/$(DEPDIR)/libopenmpt_la-mptRandom.Tpo common/$(DEPDIR)/libopenmpt_la-mptRandom.Plo
+#	$(AM_V_CXX)source='common/mptRandom.cpp' object='common/libopenmpt_la-mptRandom.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o common/libopenmpt_la-mptRandom.lo `test -f 'common/mptRandom.cpp' || echo '$(srcdir)/'`common/mptRandom.cpp
+
+common/libopenmpt_la-mptStringBuffer.lo: common/mptStringBuffer.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT common/libopenmpt_la-mptStringBuffer.lo -MD -MP -MF common/$(DEPDIR)/libopenmpt_la-mptStringBuffer.Tpo -c -o common/libopenmpt_la-mptStringBuffer.lo `test -f 'common/mptStringBuffer.cpp' || echo '$(srcdir)/'`common/mptStringBuffer.cpp
+	$(AM_V_at)$(am__mv) common/$(DEPDIR)/libopenmpt_la-mptStringBuffer.Tpo common/$(DEPDIR)/libopenmpt_la-mptStringBuffer.Plo
+#	$(AM_V_CXX)source='common/mptStringBuffer.cpp' object='common/libopenmpt_la-mptStringBuffer.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o common/libopenmpt_la-mptStringBuffer.lo `test -f 'common/mptStringBuffer.cpp' || echo '$(srcdir)/'`common/mptStringBuffer.cpp
+
+common/libopenmpt_la-mptTime.lo: common/mptTime.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT common/libopenmpt_la-mptTime.lo -MD -MP -MF common/$(DEPDIR)/libopenmpt_la-mptTime.Tpo -c -o common/libopenmpt_la-mptTime.lo `test -f 'common/mptTime.cpp' || echo '$(srcdir)/'`common/mptTime.cpp
+	$(AM_V_at)$(am__mv) common/$(DEPDIR)/libopenmpt_la-mptTime.Tpo common/$(DEPDIR)/libopenmpt_la-mptTime.Plo
+#	$(AM_V_CXX)source='common/mptTime.cpp' object='common/libopenmpt_la-mptTime.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o common/libopenmpt_la-mptTime.lo `test -f 'common/mptTime.cpp' || echo '$(srcdir)/'`common/mptTime.cpp
+
+common/libopenmpt_la-Profiler.lo: common/Profiler.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT common/libopenmpt_la-Profiler.lo -MD -MP -MF common/$(DEPDIR)/libopenmpt_la-Profiler.Tpo -c -o common/libopenmpt_la-Profiler.lo `test -f 'common/Profiler.cpp' || echo '$(srcdir)/'`common/Profiler.cpp
+	$(AM_V_at)$(am__mv) common/$(DEPDIR)/libopenmpt_la-Profiler.Tpo common/$(DEPDIR)/libopenmpt_la-Profiler.Plo
+#	$(AM_V_CXX)source='common/Profiler.cpp' object='common/libopenmpt_la-Profiler.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o common/libopenmpt_la-Profiler.lo `test -f 'common/Profiler.cpp' || echo '$(srcdir)/'`common/Profiler.cpp
+
+common/libopenmpt_la-serialization_utils.lo: common/serialization_utils.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT common/libopenmpt_la-serialization_utils.lo -MD -MP -MF common/$(DEPDIR)/libopenmpt_la-serialization_utils.Tpo -c -o common/libopenmpt_la-serialization_utils.lo `test -f 'common/serialization_utils.cpp' || echo '$(srcdir)/'`common/serialization_utils.cpp
+	$(AM_V_at)$(am__mv) common/$(DEPDIR)/libopenmpt_la-serialization_utils.Tpo common/$(DEPDIR)/libopenmpt_la-serialization_utils.Plo
+#	$(AM_V_CXX)source='common/serialization_utils.cpp' object='common/libopenmpt_la-serialization_utils.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o common/libopenmpt_la-serialization_utils.lo `test -f 'common/serialization_utils.cpp' || echo '$(srcdir)/'`common/serialization_utils.cpp
+
+common/libopenmpt_la-version.lo: common/version.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT common/libopenmpt_la-version.lo -MD -MP -MF common/$(DEPDIR)/libopenmpt_la-version.Tpo -c -o common/libopenmpt_la-version.lo `test -f 'common/version.cpp' || echo '$(srcdir)/'`common/version.cpp
+	$(AM_V_at)$(am__mv) common/$(DEPDIR)/libopenmpt_la-version.Tpo common/$(DEPDIR)/libopenmpt_la-version.Plo
+#	$(AM_V_CXX)source='common/version.cpp' object='common/libopenmpt_la-version.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o common/libopenmpt_la-version.lo `test -f 'common/version.cpp' || echo '$(srcdir)/'`common/version.cpp
+
+soundlib/libopenmpt_la-AudioCriticalSection.lo: soundlib/AudioCriticalSection.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-AudioCriticalSection.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-AudioCriticalSection.Tpo -c -o soundlib/libopenmpt_la-AudioCriticalSection.lo `test -f 'soundlib/AudioCriticalSection.cpp' || echo '$(srcdir)/'`soundlib/AudioCriticalSection.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-AudioCriticalSection.Tpo soundlib/$(DEPDIR)/libopenmpt_la-AudioCriticalSection.Plo
+#	$(AM_V_CXX)source='soundlib/AudioCriticalSection.cpp' object='soundlib/libopenmpt_la-AudioCriticalSection.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-AudioCriticalSection.lo `test -f 'soundlib/AudioCriticalSection.cpp' || echo '$(srcdir)/'`soundlib/AudioCriticalSection.cpp
+
+soundlib/libopenmpt_la-ContainerMMCMP.lo: soundlib/ContainerMMCMP.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-ContainerMMCMP.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-ContainerMMCMP.Tpo -c -o soundlib/libopenmpt_la-ContainerMMCMP.lo `test -f 'soundlib/ContainerMMCMP.cpp' || echo '$(srcdir)/'`soundlib/ContainerMMCMP.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-ContainerMMCMP.Tpo soundlib/$(DEPDIR)/libopenmpt_la-ContainerMMCMP.Plo
+#	$(AM_V_CXX)source='soundlib/ContainerMMCMP.cpp' object='soundlib/libopenmpt_la-ContainerMMCMP.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-ContainerMMCMP.lo `test -f 'soundlib/ContainerMMCMP.cpp' || echo '$(srcdir)/'`soundlib/ContainerMMCMP.cpp
+
+soundlib/libopenmpt_la-ContainerPP20.lo: soundlib/ContainerPP20.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-ContainerPP20.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-ContainerPP20.Tpo -c -o soundlib/libopenmpt_la-ContainerPP20.lo `test -f 'soundlib/ContainerPP20.cpp' || echo '$(srcdir)/'`soundlib/ContainerPP20.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-ContainerPP20.Tpo soundlib/$(DEPDIR)/libopenmpt_la-ContainerPP20.Plo
+#	$(AM_V_CXX)source='soundlib/ContainerPP20.cpp' object='soundlib/libopenmpt_la-ContainerPP20.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-ContainerPP20.lo `test -f 'soundlib/ContainerPP20.cpp' || echo '$(srcdir)/'`soundlib/ContainerPP20.cpp
+
+soundlib/libopenmpt_la-ContainerUMX.lo: soundlib/ContainerUMX.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-ContainerUMX.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-ContainerUMX.Tpo -c -o soundlib/libopenmpt_la-ContainerUMX.lo `test -f 'soundlib/ContainerUMX.cpp' || echo '$(srcdir)/'`soundlib/ContainerUMX.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-ContainerUMX.Tpo soundlib/$(DEPDIR)/libopenmpt_la-ContainerUMX.Plo
+#	$(AM_V_CXX)source='soundlib/ContainerUMX.cpp' object='soundlib/libopenmpt_la-ContainerUMX.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-ContainerUMX.lo `test -f 'soundlib/ContainerUMX.cpp' || echo '$(srcdir)/'`soundlib/ContainerUMX.cpp
+
+soundlib/libopenmpt_la-ContainerXPK.lo: soundlib/ContainerXPK.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-ContainerXPK.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-ContainerXPK.Tpo -c -o soundlib/libopenmpt_la-ContainerXPK.lo `test -f 'soundlib/ContainerXPK.cpp' || echo '$(srcdir)/'`soundlib/ContainerXPK.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-ContainerXPK.Tpo soundlib/$(DEPDIR)/libopenmpt_la-ContainerXPK.Plo
+#	$(AM_V_CXX)source='soundlib/ContainerXPK.cpp' object='soundlib/libopenmpt_la-ContainerXPK.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-ContainerXPK.lo `test -f 'soundlib/ContainerXPK.cpp' || echo '$(srcdir)/'`soundlib/ContainerXPK.cpp
+
+soundlib/libopenmpt_la-Dlsbank.lo: soundlib/Dlsbank.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-Dlsbank.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-Dlsbank.Tpo -c -o soundlib/libopenmpt_la-Dlsbank.lo `test -f 'soundlib/Dlsbank.cpp' || echo '$(srcdir)/'`soundlib/Dlsbank.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-Dlsbank.Tpo soundlib/$(DEPDIR)/libopenmpt_la-Dlsbank.Plo
+#	$(AM_V_CXX)source='soundlib/Dlsbank.cpp' object='soundlib/libopenmpt_la-Dlsbank.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-Dlsbank.lo `test -f 'soundlib/Dlsbank.cpp' || echo '$(srcdir)/'`soundlib/Dlsbank.cpp
+
+soundlib/libopenmpt_la-Fastmix.lo: soundlib/Fastmix.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-Fastmix.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-Fastmix.Tpo -c -o soundlib/libopenmpt_la-Fastmix.lo `test -f 'soundlib/Fastmix.cpp' || echo '$(srcdir)/'`soundlib/Fastmix.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-Fastmix.Tpo soundlib/$(DEPDIR)/libopenmpt_la-Fastmix.Plo
+#	$(AM_V_CXX)source='soundlib/Fastmix.cpp' object='soundlib/libopenmpt_la-Fastmix.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-Fastmix.lo `test -f 'soundlib/Fastmix.cpp' || echo '$(srcdir)/'`soundlib/Fastmix.cpp
+
+soundlib/libopenmpt_la-InstrumentExtensions.lo: soundlib/InstrumentExtensions.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-InstrumentExtensions.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-InstrumentExtensions.Tpo -c -o soundlib/libopenmpt_la-InstrumentExtensions.lo `test -f 'soundlib/InstrumentExtensions.cpp' || echo '$(srcdir)/'`soundlib/InstrumentExtensions.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-InstrumentExtensions.Tpo soundlib/$(DEPDIR)/libopenmpt_la-InstrumentExtensions.Plo
+#	$(AM_V_CXX)source='soundlib/InstrumentExtensions.cpp' object='soundlib/libopenmpt_la-InstrumentExtensions.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-InstrumentExtensions.lo `test -f 'soundlib/InstrumentExtensions.cpp' || echo '$(srcdir)/'`soundlib/InstrumentExtensions.cpp
+
+soundlib/libopenmpt_la-InstrumentSynth.lo: soundlib/InstrumentSynth.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-InstrumentSynth.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-InstrumentSynth.Tpo -c -o soundlib/libopenmpt_la-InstrumentSynth.lo `test -f 'soundlib/InstrumentSynth.cpp' || echo '$(srcdir)/'`soundlib/InstrumentSynth.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-InstrumentSynth.Tpo soundlib/$(DEPDIR)/libopenmpt_la-InstrumentSynth.Plo
+#	$(AM_V_CXX)source='soundlib/InstrumentSynth.cpp' object='soundlib/libopenmpt_la-InstrumentSynth.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-InstrumentSynth.lo `test -f 'soundlib/InstrumentSynth.cpp' || echo '$(srcdir)/'`soundlib/InstrumentSynth.cpp
+
+soundlib/libopenmpt_la-ITCompression.lo: soundlib/ITCompression.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-ITCompression.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-ITCompression.Tpo -c -o soundlib/libopenmpt_la-ITCompression.lo `test -f 'soundlib/ITCompression.cpp' || echo '$(srcdir)/'`soundlib/ITCompression.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-ITCompression.Tpo soundlib/$(DEPDIR)/libopenmpt_la-ITCompression.Plo
+#	$(AM_V_CXX)source='soundlib/ITCompression.cpp' object='soundlib/libopenmpt_la-ITCompression.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-ITCompression.lo `test -f 'soundlib/ITCompression.cpp' || echo '$(srcdir)/'`soundlib/ITCompression.cpp
+
+soundlib/libopenmpt_la-ITTools.lo: soundlib/ITTools.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-ITTools.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-ITTools.Tpo -c -o soundlib/libopenmpt_la-ITTools.lo `test -f 'soundlib/ITTools.cpp' || echo '$(srcdir)/'`soundlib/ITTools.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-ITTools.Tpo soundlib/$(DEPDIR)/libopenmpt_la-ITTools.Plo
+#	$(AM_V_CXX)source='soundlib/ITTools.cpp' object='soundlib/libopenmpt_la-ITTools.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-ITTools.lo `test -f 'soundlib/ITTools.cpp' || echo '$(srcdir)/'`soundlib/ITTools.cpp
+
+soundlib/libopenmpt_la-Load_667.lo: soundlib/Load_667.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-Load_667.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-Load_667.Tpo -c -o soundlib/libopenmpt_la-Load_667.lo `test -f 'soundlib/Load_667.cpp' || echo '$(srcdir)/'`soundlib/Load_667.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-Load_667.Tpo soundlib/$(DEPDIR)/libopenmpt_la-Load_667.Plo
+#	$(AM_V_CXX)source='soundlib/Load_667.cpp' object='soundlib/libopenmpt_la-Load_667.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-Load_667.lo `test -f 'soundlib/Load_667.cpp' || echo '$(srcdir)/'`soundlib/Load_667.cpp
+
+soundlib/libopenmpt_la-Load_669.lo: soundlib/Load_669.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-Load_669.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-Load_669.Tpo -c -o soundlib/libopenmpt_la-Load_669.lo `test -f 'soundlib/Load_669.cpp' || echo '$(srcdir)/'`soundlib/Load_669.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-Load_669.Tpo soundlib/$(DEPDIR)/libopenmpt_la-Load_669.Plo
+#	$(AM_V_CXX)source='soundlib/Load_669.cpp' object='soundlib/libopenmpt_la-Load_669.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-Load_669.lo `test -f 'soundlib/Load_669.cpp' || echo '$(srcdir)/'`soundlib/Load_669.cpp
+
+soundlib/libopenmpt_la-Load_amf.lo: soundlib/Load_amf.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-Load_amf.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-Load_amf.Tpo -c -o soundlib/libopenmpt_la-Load_amf.lo `test -f 'soundlib/Load_amf.cpp' || echo '$(srcdir)/'`soundlib/Load_amf.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-Load_amf.Tpo soundlib/$(DEPDIR)/libopenmpt_la-Load_amf.Plo
+#	$(AM_V_CXX)source='soundlib/Load_amf.cpp' object='soundlib/libopenmpt_la-Load_amf.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-Load_amf.lo `test -f 'soundlib/Load_amf.cpp' || echo '$(srcdir)/'`soundlib/Load_amf.cpp
+
+soundlib/libopenmpt_la-Load_ams.lo: soundlib/Load_ams.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-Load_ams.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-Load_ams.Tpo -c -o soundlib/libopenmpt_la-Load_ams.lo `test -f 'soundlib/Load_ams.cpp' || echo '$(srcdir)/'`soundlib/Load_ams.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-Load_ams.Tpo soundlib/$(DEPDIR)/libopenmpt_la-Load_ams.Plo
+#	$(AM_V_CXX)source='soundlib/Load_ams.cpp' object='soundlib/libopenmpt_la-Load_ams.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-Load_ams.lo `test -f 'soundlib/Load_ams.cpp' || echo '$(srcdir)/'`soundlib/Load_ams.cpp
+
+soundlib/libopenmpt_la-Load_c67.lo: soundlib/Load_c67.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-Load_c67.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-Load_c67.Tpo -c -o soundlib/libopenmpt_la-Load_c67.lo `test -f 'soundlib/Load_c67.cpp' || echo '$(srcdir)/'`soundlib/Load_c67.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-Load_c67.Tpo soundlib/$(DEPDIR)/libopenmpt_la-Load_c67.Plo
+#	$(AM_V_CXX)source='soundlib/Load_c67.cpp' object='soundlib/libopenmpt_la-Load_c67.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-Load_c67.lo `test -f 'soundlib/Load_c67.cpp' || echo '$(srcdir)/'`soundlib/Load_c67.cpp
+
+soundlib/libopenmpt_la-Load_cba.lo: soundlib/Load_cba.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-Load_cba.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-Load_cba.Tpo -c -o soundlib/libopenmpt_la-Load_cba.lo `test -f 'soundlib/Load_cba.cpp' || echo '$(srcdir)/'`soundlib/Load_cba.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-Load_cba.Tpo soundlib/$(DEPDIR)/libopenmpt_la-Load_cba.Plo
+#	$(AM_V_CXX)source='soundlib/Load_cba.cpp' object='soundlib/libopenmpt_la-Load_cba.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-Load_cba.lo `test -f 'soundlib/Load_cba.cpp' || echo '$(srcdir)/'`soundlib/Load_cba.cpp
+
+soundlib/libopenmpt_la-Load_dbm.lo: soundlib/Load_dbm.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-Load_dbm.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-Load_dbm.Tpo -c -o soundlib/libopenmpt_la-Load_dbm.lo `test -f 'soundlib/Load_dbm.cpp' || echo '$(srcdir)/'`soundlib/Load_dbm.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-Load_dbm.Tpo soundlib/$(DEPDIR)/libopenmpt_la-Load_dbm.Plo
+#	$(AM_V_CXX)source='soundlib/Load_dbm.cpp' object='soundlib/libopenmpt_la-Load_dbm.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-Load_dbm.lo `test -f 'soundlib/Load_dbm.cpp' || echo '$(srcdir)/'`soundlib/Load_dbm.cpp
+
+soundlib/libopenmpt_la-Load_digi.lo: soundlib/Load_digi.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-Load_digi.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-Load_digi.Tpo -c -o soundlib/libopenmpt_la-Load_digi.lo `test -f 'soundlib/Load_digi.cpp' || echo '$(srcdir)/'`soundlib/Load_digi.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-Load_digi.Tpo soundlib/$(DEPDIR)/libopenmpt_la-Load_digi.Plo
+#	$(AM_V_CXX)source='soundlib/Load_digi.cpp' object='soundlib/libopenmpt_la-Load_digi.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-Load_digi.lo `test -f 'soundlib/Load_digi.cpp' || echo '$(srcdir)/'`soundlib/Load_digi.cpp
+
+soundlib/libopenmpt_la-Load_dmf.lo: soundlib/Load_dmf.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-Load_dmf.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-Load_dmf.Tpo -c -o soundlib/libopenmpt_la-Load_dmf.lo `test -f 'soundlib/Load_dmf.cpp' || echo '$(srcdir)/'`soundlib/Load_dmf.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-Load_dmf.Tpo soundlib/$(DEPDIR)/libopenmpt_la-Load_dmf.Plo
+#	$(AM_V_CXX)source='soundlib/Load_dmf.cpp' object='soundlib/libopenmpt_la-Load_dmf.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-Load_dmf.lo `test -f 'soundlib/Load_dmf.cpp' || echo '$(srcdir)/'`soundlib/Load_dmf.cpp
+
+soundlib/libopenmpt_la-Load_dsm.lo: soundlib/Load_dsm.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-Load_dsm.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-Load_dsm.Tpo -c -o soundlib/libopenmpt_la-Load_dsm.lo `test -f 'soundlib/Load_dsm.cpp' || echo '$(srcdir)/'`soundlib/Load_dsm.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-Load_dsm.Tpo soundlib/$(DEPDIR)/libopenmpt_la-Load_dsm.Plo
+#	$(AM_V_CXX)source='soundlib/Load_dsm.cpp' object='soundlib/libopenmpt_la-Load_dsm.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-Load_dsm.lo `test -f 'soundlib/Load_dsm.cpp' || echo '$(srcdir)/'`soundlib/Load_dsm.cpp
+
+soundlib/libopenmpt_la-Load_dsym.lo: soundlib/Load_dsym.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-Load_dsym.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-Load_dsym.Tpo -c -o soundlib/libopenmpt_la-Load_dsym.lo `test -f 'soundlib/Load_dsym.cpp' || echo '$(srcdir)/'`soundlib/Load_dsym.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-Load_dsym.Tpo soundlib/$(DEPDIR)/libopenmpt_la-Load_dsym.Plo
+#	$(AM_V_CXX)source='soundlib/Load_dsym.cpp' object='soundlib/libopenmpt_la-Load_dsym.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-Load_dsym.lo `test -f 'soundlib/Load_dsym.cpp' || echo '$(srcdir)/'`soundlib/Load_dsym.cpp
+
+soundlib/libopenmpt_la-Load_dtm.lo: soundlib/Load_dtm.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-Load_dtm.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-Load_dtm.Tpo -c -o soundlib/libopenmpt_la-Load_dtm.lo `test -f 'soundlib/Load_dtm.cpp' || echo '$(srcdir)/'`soundlib/Load_dtm.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-Load_dtm.Tpo soundlib/$(DEPDIR)/libopenmpt_la-Load_dtm.Plo
+#	$(AM_V_CXX)source='soundlib/Load_dtm.cpp' object='soundlib/libopenmpt_la-Load_dtm.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-Load_dtm.lo `test -f 'soundlib/Load_dtm.cpp' || echo '$(srcdir)/'`soundlib/Load_dtm.cpp
+
+soundlib/libopenmpt_la-Load_etx.lo: soundlib/Load_etx.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-Load_etx.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-Load_etx.Tpo -c -o soundlib/libopenmpt_la-Load_etx.lo `test -f 'soundlib/Load_etx.cpp' || echo '$(srcdir)/'`soundlib/Load_etx.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-Load_etx.Tpo soundlib/$(DEPDIR)/libopenmpt_la-Load_etx.Plo
+#	$(AM_V_CXX)source='soundlib/Load_etx.cpp' object='soundlib/libopenmpt_la-Load_etx.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-Load_etx.lo `test -f 'soundlib/Load_etx.cpp' || echo '$(srcdir)/'`soundlib/Load_etx.cpp
+
+soundlib/libopenmpt_la-Load_far.lo: soundlib/Load_far.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-Load_far.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-Load_far.Tpo -c -o soundlib/libopenmpt_la-Load_far.lo `test -f 'soundlib/Load_far.cpp' || echo '$(srcdir)/'`soundlib/Load_far.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-Load_far.Tpo soundlib/$(DEPDIR)/libopenmpt_la-Load_far.Plo
+#	$(AM_V_CXX)source='soundlib/Load_far.cpp' object='soundlib/libopenmpt_la-Load_far.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-Load_far.lo `test -f 'soundlib/Load_far.cpp' || echo '$(srcdir)/'`soundlib/Load_far.cpp
+
+soundlib/libopenmpt_la-Load_fc.lo: soundlib/Load_fc.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-Load_fc.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-Load_fc.Tpo -c -o soundlib/libopenmpt_la-Load_fc.lo `test -f 'soundlib/Load_fc.cpp' || echo '$(srcdir)/'`soundlib/Load_fc.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-Load_fc.Tpo soundlib/$(DEPDIR)/libopenmpt_la-Load_fc.Plo
+#	$(AM_V_CXX)source='soundlib/Load_fc.cpp' object='soundlib/libopenmpt_la-Load_fc.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-Load_fc.lo `test -f 'soundlib/Load_fc.cpp' || echo '$(srcdir)/'`soundlib/Load_fc.cpp
+
+soundlib/libopenmpt_la-Load_fmt.lo: soundlib/Load_fmt.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-Load_fmt.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-Load_fmt.Tpo -c -o soundlib/libopenmpt_la-Load_fmt.lo `test -f 'soundlib/Load_fmt.cpp' || echo '$(srcdir)/'`soundlib/Load_fmt.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-Load_fmt.Tpo soundlib/$(DEPDIR)/libopenmpt_la-Load_fmt.Plo
+#	$(AM_V_CXX)source='soundlib/Load_fmt.cpp' object='soundlib/libopenmpt_la-Load_fmt.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-Load_fmt.lo `test -f 'soundlib/Load_fmt.cpp' || echo '$(srcdir)/'`soundlib/Load_fmt.cpp
+
+soundlib/libopenmpt_la-Load_ftm.lo: soundlib/Load_ftm.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-Load_ftm.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-Load_ftm.Tpo -c -o soundlib/libopenmpt_la-Load_ftm.lo `test -f 'soundlib/Load_ftm.cpp' || echo '$(srcdir)/'`soundlib/Load_ftm.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-Load_ftm.Tpo soundlib/$(DEPDIR)/libopenmpt_la-Load_ftm.Plo
+#	$(AM_V_CXX)source='soundlib/Load_ftm.cpp' object='soundlib/libopenmpt_la-Load_ftm.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-Load_ftm.lo `test -f 'soundlib/Load_ftm.cpp' || echo '$(srcdir)/'`soundlib/Load_ftm.cpp
+
+soundlib/libopenmpt_la-Load_gdm.lo: soundlib/Load_gdm.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-Load_gdm.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-Load_gdm.Tpo -c -o soundlib/libopenmpt_la-Load_gdm.lo `test -f 'soundlib/Load_gdm.cpp' || echo '$(srcdir)/'`soundlib/Load_gdm.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-Load_gdm.Tpo soundlib/$(DEPDIR)/libopenmpt_la-Load_gdm.Plo
+#	$(AM_V_CXX)source='soundlib/Load_gdm.cpp' object='soundlib/libopenmpt_la-Load_gdm.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-Load_gdm.lo `test -f 'soundlib/Load_gdm.cpp' || echo '$(srcdir)/'`soundlib/Load_gdm.cpp
+
+soundlib/libopenmpt_la-Load_gmc.lo: soundlib/Load_gmc.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-Load_gmc.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-Load_gmc.Tpo -c -o soundlib/libopenmpt_la-Load_gmc.lo `test -f 'soundlib/Load_gmc.cpp' || echo '$(srcdir)/'`soundlib/Load_gmc.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-Load_gmc.Tpo soundlib/$(DEPDIR)/libopenmpt_la-Load_gmc.Plo
+#	$(AM_V_CXX)source='soundlib/Load_gmc.cpp' object='soundlib/libopenmpt_la-Load_gmc.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-Load_gmc.lo `test -f 'soundlib/Load_gmc.cpp' || echo '$(srcdir)/'`soundlib/Load_gmc.cpp
+
+soundlib/libopenmpt_la-Load_gt2.lo: soundlib/Load_gt2.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-Load_gt2.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-Load_gt2.Tpo -c -o soundlib/libopenmpt_la-Load_gt2.lo `test -f 'soundlib/Load_gt2.cpp' || echo '$(srcdir)/'`soundlib/Load_gt2.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-Load_gt2.Tpo soundlib/$(DEPDIR)/libopenmpt_la-Load_gt2.Plo
+#	$(AM_V_CXX)source='soundlib/Load_gt2.cpp' object='soundlib/libopenmpt_la-Load_gt2.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-Load_gt2.lo `test -f 'soundlib/Load_gt2.cpp' || echo '$(srcdir)/'`soundlib/Load_gt2.cpp
+
+soundlib/libopenmpt_la-Load_ice.lo: soundlib/Load_ice.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-Load_ice.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-Load_ice.Tpo -c -o soundlib/libopenmpt_la-Load_ice.lo `test -f 'soundlib/Load_ice.cpp' || echo '$(srcdir)/'`soundlib/Load_ice.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-Load_ice.Tpo soundlib/$(DEPDIR)/libopenmpt_la-Load_ice.Plo
+#	$(AM_V_CXX)source='soundlib/Load_ice.cpp' object='soundlib/libopenmpt_la-Load_ice.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-Load_ice.lo `test -f 'soundlib/Load_ice.cpp' || echo '$(srcdir)/'`soundlib/Load_ice.cpp
+
+soundlib/libopenmpt_la-Load_imf.lo: soundlib/Load_imf.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-Load_imf.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-Load_imf.Tpo -c -o soundlib/libopenmpt_la-Load_imf.lo `test -f 'soundlib/Load_imf.cpp' || echo '$(srcdir)/'`soundlib/Load_imf.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-Load_imf.Tpo soundlib/$(DEPDIR)/libopenmpt_la-Load_imf.Plo
+#	$(AM_V_CXX)source='soundlib/Load_imf.cpp' object='soundlib/libopenmpt_la-Load_imf.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-Load_imf.lo `test -f 'soundlib/Load_imf.cpp' || echo '$(srcdir)/'`soundlib/Load_imf.cpp
+
+soundlib/libopenmpt_la-Load_ims.lo: soundlib/Load_ims.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-Load_ims.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-Load_ims.Tpo -c -o soundlib/libopenmpt_la-Load_ims.lo `test -f 'soundlib/Load_ims.cpp' || echo '$(srcdir)/'`soundlib/Load_ims.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-Load_ims.Tpo soundlib/$(DEPDIR)/libopenmpt_la-Load_ims.Plo
+#	$(AM_V_CXX)source='soundlib/Load_ims.cpp' object='soundlib/libopenmpt_la-Load_ims.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-Load_ims.lo `test -f 'soundlib/Load_ims.cpp' || echo '$(srcdir)/'`soundlib/Load_ims.cpp
+
+soundlib/libopenmpt_la-Load_it.lo: soundlib/Load_it.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-Load_it.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-Load_it.Tpo -c -o soundlib/libopenmpt_la-Load_it.lo `test -f 'soundlib/Load_it.cpp' || echo '$(srcdir)/'`soundlib/Load_it.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-Load_it.Tpo soundlib/$(DEPDIR)/libopenmpt_la-Load_it.Plo
+#	$(AM_V_CXX)source='soundlib/Load_it.cpp' object='soundlib/libopenmpt_la-Load_it.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-Load_it.lo `test -f 'soundlib/Load_it.cpp' || echo '$(srcdir)/'`soundlib/Load_it.cpp
+
+soundlib/libopenmpt_la-Load_itp.lo: soundlib/Load_itp.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-Load_itp.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-Load_itp.Tpo -c -o soundlib/libopenmpt_la-Load_itp.lo `test -f 'soundlib/Load_itp.cpp' || echo '$(srcdir)/'`soundlib/Load_itp.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-Load_itp.Tpo soundlib/$(DEPDIR)/libopenmpt_la-Load_itp.Plo
+#	$(AM_V_CXX)source='soundlib/Load_itp.cpp' object='soundlib/libopenmpt_la-Load_itp.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-Load_itp.lo `test -f 'soundlib/Load_itp.cpp' || echo '$(srcdir)/'`soundlib/Load_itp.cpp
+
+soundlib/libopenmpt_la-load_j2b.lo: soundlib/load_j2b.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-load_j2b.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-load_j2b.Tpo -c -o soundlib/libopenmpt_la-load_j2b.lo `test -f 'soundlib/load_j2b.cpp' || echo '$(srcdir)/'`soundlib/load_j2b.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-load_j2b.Tpo soundlib/$(DEPDIR)/libopenmpt_la-load_j2b.Plo
+#	$(AM_V_CXX)source='soundlib/load_j2b.cpp' object='soundlib/libopenmpt_la-load_j2b.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-load_j2b.lo `test -f 'soundlib/load_j2b.cpp' || echo '$(srcdir)/'`soundlib/load_j2b.cpp
+
+soundlib/libopenmpt_la-Load_kris.lo: soundlib/Load_kris.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-Load_kris.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-Load_kris.Tpo -c -o soundlib/libopenmpt_la-Load_kris.lo `test -f 'soundlib/Load_kris.cpp' || echo '$(srcdir)/'`soundlib/Load_kris.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-Load_kris.Tpo soundlib/$(DEPDIR)/libopenmpt_la-Load_kris.Plo
+#	$(AM_V_CXX)source='soundlib/Load_kris.cpp' object='soundlib/libopenmpt_la-Load_kris.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-Load_kris.lo `test -f 'soundlib/Load_kris.cpp' || echo '$(srcdir)/'`soundlib/Load_kris.cpp
+
+soundlib/libopenmpt_la-Load_mdl.lo: soundlib/Load_mdl.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-Load_mdl.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-Load_mdl.Tpo -c -o soundlib/libopenmpt_la-Load_mdl.lo `test -f 'soundlib/Load_mdl.cpp' || echo '$(srcdir)/'`soundlib/Load_mdl.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-Load_mdl.Tpo soundlib/$(DEPDIR)/libopenmpt_la-Load_mdl.Plo
+#	$(AM_V_CXX)source='soundlib/Load_mdl.cpp' object='soundlib/libopenmpt_la-Load_mdl.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-Load_mdl.lo `test -f 'soundlib/Load_mdl.cpp' || echo '$(srcdir)/'`soundlib/Load_mdl.cpp
+
+soundlib/libopenmpt_la-Load_med.lo: soundlib/Load_med.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-Load_med.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-Load_med.Tpo -c -o soundlib/libopenmpt_la-Load_med.lo `test -f 'soundlib/Load_med.cpp' || echo '$(srcdir)/'`soundlib/Load_med.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-Load_med.Tpo soundlib/$(DEPDIR)/libopenmpt_la-Load_med.Plo
+#	$(AM_V_CXX)source='soundlib/Load_med.cpp' object='soundlib/libopenmpt_la-Load_med.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-Load_med.lo `test -f 'soundlib/Load_med.cpp' || echo '$(srcdir)/'`soundlib/Load_med.cpp
+
+soundlib/libopenmpt_la-Load_mid.lo: soundlib/Load_mid.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-Load_mid.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-Load_mid.Tpo -c -o soundlib/libopenmpt_la-Load_mid.lo `test -f 'soundlib/Load_mid.cpp' || echo '$(srcdir)/'`soundlib/Load_mid.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-Load_mid.Tpo soundlib/$(DEPDIR)/libopenmpt_la-Load_mid.Plo
+#	$(AM_V_CXX)source='soundlib/Load_mid.cpp' object='soundlib/libopenmpt_la-Load_mid.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-Load_mid.lo `test -f 'soundlib/Load_mid.cpp' || echo '$(srcdir)/'`soundlib/Load_mid.cpp
+
+soundlib/libopenmpt_la-Load_mo3.lo: soundlib/Load_mo3.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-Load_mo3.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-Load_mo3.Tpo -c -o soundlib/libopenmpt_la-Load_mo3.lo `test -f 'soundlib/Load_mo3.cpp' || echo '$(srcdir)/'`soundlib/Load_mo3.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-Load_mo3.Tpo soundlib/$(DEPDIR)/libopenmpt_la-Load_mo3.Plo
+#	$(AM_V_CXX)source='soundlib/Load_mo3.cpp' object='soundlib/libopenmpt_la-Load_mo3.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-Load_mo3.lo `test -f 'soundlib/Load_mo3.cpp' || echo '$(srcdir)/'`soundlib/Load_mo3.cpp
+
+soundlib/libopenmpt_la-Load_mod.lo: soundlib/Load_mod.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-Load_mod.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-Load_mod.Tpo -c -o soundlib/libopenmpt_la-Load_mod.lo `test -f 'soundlib/Load_mod.cpp' || echo '$(srcdir)/'`soundlib/Load_mod.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-Load_mod.Tpo soundlib/$(DEPDIR)/libopenmpt_la-Load_mod.Plo
+#	$(AM_V_CXX)source='soundlib/Load_mod.cpp' object='soundlib/libopenmpt_la-Load_mod.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-Load_mod.lo `test -f 'soundlib/Load_mod.cpp' || echo '$(srcdir)/'`soundlib/Load_mod.cpp
+
+soundlib/libopenmpt_la-Load_mt2.lo: soundlib/Load_mt2.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-Load_mt2.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-Load_mt2.Tpo -c -o soundlib/libopenmpt_la-Load_mt2.lo `test -f 'soundlib/Load_mt2.cpp' || echo '$(srcdir)/'`soundlib/Load_mt2.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-Load_mt2.Tpo soundlib/$(DEPDIR)/libopenmpt_la-Load_mt2.Plo
+#	$(AM_V_CXX)source='soundlib/Load_mt2.cpp' object='soundlib/libopenmpt_la-Load_mt2.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-Load_mt2.lo `test -f 'soundlib/Load_mt2.cpp' || echo '$(srcdir)/'`soundlib/Load_mt2.cpp
+
+soundlib/libopenmpt_la-Load_mtm.lo: soundlib/Load_mtm.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-Load_mtm.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-Load_mtm.Tpo -c -o soundlib/libopenmpt_la-Load_mtm.lo `test -f 'soundlib/Load_mtm.cpp' || echo '$(srcdir)/'`soundlib/Load_mtm.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-Load_mtm.Tpo soundlib/$(DEPDIR)/libopenmpt_la-Load_mtm.Plo
+#	$(AM_V_CXX)source='soundlib/Load_mtm.cpp' object='soundlib/libopenmpt_la-Load_mtm.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-Load_mtm.lo `test -f 'soundlib/Load_mtm.cpp' || echo '$(srcdir)/'`soundlib/Load_mtm.cpp
+
+soundlib/libopenmpt_la-Load_mus_km.lo: soundlib/Load_mus_km.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-Load_mus_km.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-Load_mus_km.Tpo -c -o soundlib/libopenmpt_la-Load_mus_km.lo `test -f 'soundlib/Load_mus_km.cpp' || echo '$(srcdir)/'`soundlib/Load_mus_km.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-Load_mus_km.Tpo soundlib/$(DEPDIR)/libopenmpt_la-Load_mus_km.Plo
+#	$(AM_V_CXX)source='soundlib/Load_mus_km.cpp' object='soundlib/libopenmpt_la-Load_mus_km.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-Load_mus_km.lo `test -f 'soundlib/Load_mus_km.cpp' || echo '$(srcdir)/'`soundlib/Load_mus_km.cpp
+
+soundlib/libopenmpt_la-Load_okt.lo: soundlib/Load_okt.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-Load_okt.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-Load_okt.Tpo -c -o soundlib/libopenmpt_la-Load_okt.lo `test -f 'soundlib/Load_okt.cpp' || echo '$(srcdir)/'`soundlib/Load_okt.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-Load_okt.Tpo soundlib/$(DEPDIR)/libopenmpt_la-Load_okt.Plo
+#	$(AM_V_CXX)source='soundlib/Load_okt.cpp' object='soundlib/libopenmpt_la-Load_okt.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-Load_okt.lo `test -f 'soundlib/Load_okt.cpp' || echo '$(srcdir)/'`soundlib/Load_okt.cpp
+
+soundlib/libopenmpt_la-Load_plm.lo: soundlib/Load_plm.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-Load_plm.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-Load_plm.Tpo -c -o soundlib/libopenmpt_la-Load_plm.lo `test -f 'soundlib/Load_plm.cpp' || echo '$(srcdir)/'`soundlib/Load_plm.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-Load_plm.Tpo soundlib/$(DEPDIR)/libopenmpt_la-Load_plm.Plo
+#	$(AM_V_CXX)source='soundlib/Load_plm.cpp' object='soundlib/libopenmpt_la-Load_plm.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-Load_plm.lo `test -f 'soundlib/Load_plm.cpp' || echo '$(srcdir)/'`soundlib/Load_plm.cpp
+
+soundlib/libopenmpt_la-Load_psm.lo: soundlib/Load_psm.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-Load_psm.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-Load_psm.Tpo -c -o soundlib/libopenmpt_la-Load_psm.lo `test -f 'soundlib/Load_psm.cpp' || echo '$(srcdir)/'`soundlib/Load_psm.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-Load_psm.Tpo soundlib/$(DEPDIR)/libopenmpt_la-Load_psm.Plo
+#	$(AM_V_CXX)source='soundlib/Load_psm.cpp' object='soundlib/libopenmpt_la-Load_psm.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-Load_psm.lo `test -f 'soundlib/Load_psm.cpp' || echo '$(srcdir)/'`soundlib/Load_psm.cpp
+
+soundlib/libopenmpt_la-Load_pt36.lo: soundlib/Load_pt36.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-Load_pt36.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-Load_pt36.Tpo -c -o soundlib/libopenmpt_la-Load_pt36.lo `test -f 'soundlib/Load_pt36.cpp' || echo '$(srcdir)/'`soundlib/Load_pt36.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-Load_pt36.Tpo soundlib/$(DEPDIR)/libopenmpt_la-Load_pt36.Plo
+#	$(AM_V_CXX)source='soundlib/Load_pt36.cpp' object='soundlib/libopenmpt_la-Load_pt36.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-Load_pt36.lo `test -f 'soundlib/Load_pt36.cpp' || echo '$(srcdir)/'`soundlib/Load_pt36.cpp
+
+soundlib/libopenmpt_la-Load_ptm.lo: soundlib/Load_ptm.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-Load_ptm.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-Load_ptm.Tpo -c -o soundlib/libopenmpt_la-Load_ptm.lo `test -f 'soundlib/Load_ptm.cpp' || echo '$(srcdir)/'`soundlib/Load_ptm.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-Load_ptm.Tpo soundlib/$(DEPDIR)/libopenmpt_la-Load_ptm.Plo
+#	$(AM_V_CXX)source='soundlib/Load_ptm.cpp' object='soundlib/libopenmpt_la-Load_ptm.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-Load_ptm.lo `test -f 'soundlib/Load_ptm.cpp' || echo '$(srcdir)/'`soundlib/Load_ptm.cpp
+
+soundlib/libopenmpt_la-Load_puma.lo: soundlib/Load_puma.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-Load_puma.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-Load_puma.Tpo -c -o soundlib/libopenmpt_la-Load_puma.lo `test -f 'soundlib/Load_puma.cpp' || echo '$(srcdir)/'`soundlib/Load_puma.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-Load_puma.Tpo soundlib/$(DEPDIR)/libopenmpt_la-Load_puma.Plo
+#	$(AM_V_CXX)source='soundlib/Load_puma.cpp' object='soundlib/libopenmpt_la-Load_puma.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-Load_puma.lo `test -f 'soundlib/Load_puma.cpp' || echo '$(srcdir)/'`soundlib/Load_puma.cpp
+
+soundlib/libopenmpt_la-Load_rtm.lo: soundlib/Load_rtm.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-Load_rtm.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-Load_rtm.Tpo -c -o soundlib/libopenmpt_la-Load_rtm.lo `test -f 'soundlib/Load_rtm.cpp' || echo '$(srcdir)/'`soundlib/Load_rtm.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-Load_rtm.Tpo soundlib/$(DEPDIR)/libopenmpt_la-Load_rtm.Plo
+#	$(AM_V_CXX)source='soundlib/Load_rtm.cpp' object='soundlib/libopenmpt_la-Load_rtm.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-Load_rtm.lo `test -f 'soundlib/Load_rtm.cpp' || echo '$(srcdir)/'`soundlib/Load_rtm.cpp
+
+soundlib/libopenmpt_la-Load_s3m.lo: soundlib/Load_s3m.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-Load_s3m.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-Load_s3m.Tpo -c -o soundlib/libopenmpt_la-Load_s3m.lo `test -f 'soundlib/Load_s3m.cpp' || echo '$(srcdir)/'`soundlib/Load_s3m.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-Load_s3m.Tpo soundlib/$(DEPDIR)/libopenmpt_la-Load_s3m.Plo
+#	$(AM_V_CXX)source='soundlib/Load_s3m.cpp' object='soundlib/libopenmpt_la-Load_s3m.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-Load_s3m.lo `test -f 'soundlib/Load_s3m.cpp' || echo '$(srcdir)/'`soundlib/Load_s3m.cpp
+
+soundlib/libopenmpt_la-Load_sfx.lo: soundlib/Load_sfx.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-Load_sfx.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-Load_sfx.Tpo -c -o soundlib/libopenmpt_la-Load_sfx.lo `test -f 'soundlib/Load_sfx.cpp' || echo '$(srcdir)/'`soundlib/Load_sfx.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-Load_sfx.Tpo soundlib/$(DEPDIR)/libopenmpt_la-Load_sfx.Plo
+#	$(AM_V_CXX)source='soundlib/Load_sfx.cpp' object='soundlib/libopenmpt_la-Load_sfx.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-Load_sfx.lo `test -f 'soundlib/Load_sfx.cpp' || echo '$(srcdir)/'`soundlib/Load_sfx.cpp
+
+soundlib/libopenmpt_la-Load_stk.lo: soundlib/Load_stk.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-Load_stk.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-Load_stk.Tpo -c -o soundlib/libopenmpt_la-Load_stk.lo `test -f 'soundlib/Load_stk.cpp' || echo '$(srcdir)/'`soundlib/Load_stk.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-Load_stk.Tpo soundlib/$(DEPDIR)/libopenmpt_la-Load_stk.Plo
+#	$(AM_V_CXX)source='soundlib/Load_stk.cpp' object='soundlib/libopenmpt_la-Load_stk.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-Load_stk.lo `test -f 'soundlib/Load_stk.cpp' || echo '$(srcdir)/'`soundlib/Load_stk.cpp
+
+soundlib/libopenmpt_la-Load_stm.lo: soundlib/Load_stm.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-Load_stm.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-Load_stm.Tpo -c -o soundlib/libopenmpt_la-Load_stm.lo `test -f 'soundlib/Load_stm.cpp' || echo '$(srcdir)/'`soundlib/Load_stm.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-Load_stm.Tpo soundlib/$(DEPDIR)/libopenmpt_la-Load_stm.Plo
+#	$(AM_V_CXX)source='soundlib/Load_stm.cpp' object='soundlib/libopenmpt_la-Load_stm.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-Load_stm.lo `test -f 'soundlib/Load_stm.cpp' || echo '$(srcdir)/'`soundlib/Load_stm.cpp
+
+soundlib/libopenmpt_la-Load_stp.lo: soundlib/Load_stp.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-Load_stp.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-Load_stp.Tpo -c -o soundlib/libopenmpt_la-Load_stp.lo `test -f 'soundlib/Load_stp.cpp' || echo '$(srcdir)/'`soundlib/Load_stp.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-Load_stp.Tpo soundlib/$(DEPDIR)/libopenmpt_la-Load_stp.Plo
+#	$(AM_V_CXX)source='soundlib/Load_stp.cpp' object='soundlib/libopenmpt_la-Load_stp.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-Load_stp.lo `test -f 'soundlib/Load_stp.cpp' || echo '$(srcdir)/'`soundlib/Load_stp.cpp
+
+soundlib/libopenmpt_la-Load_symmod.lo: soundlib/Load_symmod.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-Load_symmod.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-Load_symmod.Tpo -c -o soundlib/libopenmpt_la-Load_symmod.lo `test -f 'soundlib/Load_symmod.cpp' || echo '$(srcdir)/'`soundlib/Load_symmod.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-Load_symmod.Tpo soundlib/$(DEPDIR)/libopenmpt_la-Load_symmod.Plo
+#	$(AM_V_CXX)source='soundlib/Load_symmod.cpp' object='soundlib/libopenmpt_la-Load_symmod.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-Load_symmod.lo `test -f 'soundlib/Load_symmod.cpp' || echo '$(srcdir)/'`soundlib/Load_symmod.cpp
+
+soundlib/libopenmpt_la-Load_tcb.lo: soundlib/Load_tcb.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-Load_tcb.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-Load_tcb.Tpo -c -o soundlib/libopenmpt_la-Load_tcb.lo `test -f 'soundlib/Load_tcb.cpp' || echo '$(srcdir)/'`soundlib/Load_tcb.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-Load_tcb.Tpo soundlib/$(DEPDIR)/libopenmpt_la-Load_tcb.Plo
+#	$(AM_V_CXX)source='soundlib/Load_tcb.cpp' object='soundlib/libopenmpt_la-Load_tcb.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-Load_tcb.lo `test -f 'soundlib/Load_tcb.cpp' || echo '$(srcdir)/'`soundlib/Load_tcb.cpp
+
+soundlib/libopenmpt_la-Load_uax.lo: soundlib/Load_uax.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-Load_uax.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-Load_uax.Tpo -c -o soundlib/libopenmpt_la-Load_uax.lo `test -f 'soundlib/Load_uax.cpp' || echo '$(srcdir)/'`soundlib/Load_uax.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-Load_uax.Tpo soundlib/$(DEPDIR)/libopenmpt_la-Load_uax.Plo
+#	$(AM_V_CXX)source='soundlib/Load_uax.cpp' object='soundlib/libopenmpt_la-Load_uax.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-Load_uax.lo `test -f 'soundlib/Load_uax.cpp' || echo '$(srcdir)/'`soundlib/Load_uax.cpp
+
+soundlib/libopenmpt_la-Load_ult.lo: soundlib/Load_ult.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-Load_ult.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-Load_ult.Tpo -c -o soundlib/libopenmpt_la-Load_ult.lo `test -f 'soundlib/Load_ult.cpp' || echo '$(srcdir)/'`soundlib/Load_ult.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-Load_ult.Tpo soundlib/$(DEPDIR)/libopenmpt_la-Load_ult.Plo
+#	$(AM_V_CXX)source='soundlib/Load_ult.cpp' object='soundlib/libopenmpt_la-Load_ult.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-Load_ult.lo `test -f 'soundlib/Load_ult.cpp' || echo '$(srcdir)/'`soundlib/Load_ult.cpp
+
+soundlib/libopenmpt_la-Load_unic.lo: soundlib/Load_unic.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-Load_unic.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-Load_unic.Tpo -c -o soundlib/libopenmpt_la-Load_unic.lo `test -f 'soundlib/Load_unic.cpp' || echo '$(srcdir)/'`soundlib/Load_unic.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-Load_unic.Tpo soundlib/$(DEPDIR)/libopenmpt_la-Load_unic.Plo
+#	$(AM_V_CXX)source='soundlib/Load_unic.cpp' object='soundlib/libopenmpt_la-Load_unic.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-Load_unic.lo `test -f 'soundlib/Load_unic.cpp' || echo '$(srcdir)/'`soundlib/Load_unic.cpp
+
+soundlib/libopenmpt_la-Load_wav.lo: soundlib/Load_wav.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-Load_wav.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-Load_wav.Tpo -c -o soundlib/libopenmpt_la-Load_wav.lo `test -f 'soundlib/Load_wav.cpp' || echo '$(srcdir)/'`soundlib/Load_wav.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-Load_wav.Tpo soundlib/$(DEPDIR)/libopenmpt_la-Load_wav.Plo
+#	$(AM_V_CXX)source='soundlib/Load_wav.cpp' object='soundlib/libopenmpt_la-Load_wav.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-Load_wav.lo `test -f 'soundlib/Load_wav.cpp' || echo '$(srcdir)/'`soundlib/Load_wav.cpp
+
+soundlib/libopenmpt_la-Load_xm.lo: soundlib/Load_xm.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-Load_xm.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-Load_xm.Tpo -c -o soundlib/libopenmpt_la-Load_xm.lo `test -f 'soundlib/Load_xm.cpp' || echo '$(srcdir)/'`soundlib/Load_xm.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-Load_xm.Tpo soundlib/$(DEPDIR)/libopenmpt_la-Load_xm.Plo
+#	$(AM_V_CXX)source='soundlib/Load_xm.cpp' object='soundlib/libopenmpt_la-Load_xm.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-Load_xm.lo `test -f 'soundlib/Load_xm.cpp' || echo '$(srcdir)/'`soundlib/Load_xm.cpp
+
+soundlib/libopenmpt_la-Load_xmf.lo: soundlib/Load_xmf.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-Load_xmf.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-Load_xmf.Tpo -c -o soundlib/libopenmpt_la-Load_xmf.lo `test -f 'soundlib/Load_xmf.cpp' || echo '$(srcdir)/'`soundlib/Load_xmf.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-Load_xmf.Tpo soundlib/$(DEPDIR)/libopenmpt_la-Load_xmf.Plo
+#	$(AM_V_CXX)source='soundlib/Load_xmf.cpp' object='soundlib/libopenmpt_la-Load_xmf.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-Load_xmf.lo `test -f 'soundlib/Load_xmf.cpp' || echo '$(srcdir)/'`soundlib/Load_xmf.cpp
+
+soundlib/libopenmpt_la-Message.lo: soundlib/Message.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-Message.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-Message.Tpo -c -o soundlib/libopenmpt_la-Message.lo `test -f 'soundlib/Message.cpp' || echo '$(srcdir)/'`soundlib/Message.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-Message.Tpo soundlib/$(DEPDIR)/libopenmpt_la-Message.Plo
+#	$(AM_V_CXX)source='soundlib/Message.cpp' object='soundlib/libopenmpt_la-Message.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-Message.lo `test -f 'soundlib/Message.cpp' || echo '$(srcdir)/'`soundlib/Message.cpp
+
+soundlib/libopenmpt_la-MIDIEvents.lo: soundlib/MIDIEvents.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-MIDIEvents.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-MIDIEvents.Tpo -c -o soundlib/libopenmpt_la-MIDIEvents.lo `test -f 'soundlib/MIDIEvents.cpp' || echo '$(srcdir)/'`soundlib/MIDIEvents.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-MIDIEvents.Tpo soundlib/$(DEPDIR)/libopenmpt_la-MIDIEvents.Plo
+#	$(AM_V_CXX)source='soundlib/MIDIEvents.cpp' object='soundlib/libopenmpt_la-MIDIEvents.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-MIDIEvents.lo `test -f 'soundlib/MIDIEvents.cpp' || echo '$(srcdir)/'`soundlib/MIDIEvents.cpp
+
+soundlib/libopenmpt_la-MIDIMacroParser.lo: soundlib/MIDIMacroParser.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-MIDIMacroParser.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-MIDIMacroParser.Tpo -c -o soundlib/libopenmpt_la-MIDIMacroParser.lo `test -f 'soundlib/MIDIMacroParser.cpp' || echo '$(srcdir)/'`soundlib/MIDIMacroParser.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-MIDIMacroParser.Tpo soundlib/$(DEPDIR)/libopenmpt_la-MIDIMacroParser.Plo
+#	$(AM_V_CXX)source='soundlib/MIDIMacroParser.cpp' object='soundlib/libopenmpt_la-MIDIMacroParser.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-MIDIMacroParser.lo `test -f 'soundlib/MIDIMacroParser.cpp' || echo '$(srcdir)/'`soundlib/MIDIMacroParser.cpp
+
+soundlib/libopenmpt_la-MIDIMacros.lo: soundlib/MIDIMacros.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-MIDIMacros.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-MIDIMacros.Tpo -c -o soundlib/libopenmpt_la-MIDIMacros.lo `test -f 'soundlib/MIDIMacros.cpp' || echo '$(srcdir)/'`soundlib/MIDIMacros.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-MIDIMacros.Tpo soundlib/$(DEPDIR)/libopenmpt_la-MIDIMacros.Plo
+#	$(AM_V_CXX)source='soundlib/MIDIMacros.cpp' object='soundlib/libopenmpt_la-MIDIMacros.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-MIDIMacros.lo `test -f 'soundlib/MIDIMacros.cpp' || echo '$(srcdir)/'`soundlib/MIDIMacros.cpp
+
+soundlib/libopenmpt_la-MixerLoops.lo: soundlib/MixerLoops.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-MixerLoops.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-MixerLoops.Tpo -c -o soundlib/libopenmpt_la-MixerLoops.lo `test -f 'soundlib/MixerLoops.cpp' || echo '$(srcdir)/'`soundlib/MixerLoops.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-MixerLoops.Tpo soundlib/$(DEPDIR)/libopenmpt_la-MixerLoops.Plo
+#	$(AM_V_CXX)source='soundlib/MixerLoops.cpp' object='soundlib/libopenmpt_la-MixerLoops.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-MixerLoops.lo `test -f 'soundlib/MixerLoops.cpp' || echo '$(srcdir)/'`soundlib/MixerLoops.cpp
+
+soundlib/libopenmpt_la-MixerSettings.lo: soundlib/MixerSettings.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-MixerSettings.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-MixerSettings.Tpo -c -o soundlib/libopenmpt_la-MixerSettings.lo `test -f 'soundlib/MixerSettings.cpp' || echo '$(srcdir)/'`soundlib/MixerSettings.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-MixerSettings.Tpo soundlib/$(DEPDIR)/libopenmpt_la-MixerSettings.Plo
+#	$(AM_V_CXX)source='soundlib/MixerSettings.cpp' object='soundlib/libopenmpt_la-MixerSettings.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-MixerSettings.lo `test -f 'soundlib/MixerSettings.cpp' || echo '$(srcdir)/'`soundlib/MixerSettings.cpp
+
+soundlib/libopenmpt_la-MixFuncTable.lo: soundlib/MixFuncTable.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-MixFuncTable.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-MixFuncTable.Tpo -c -o soundlib/libopenmpt_la-MixFuncTable.lo `test -f 'soundlib/MixFuncTable.cpp' || echo '$(srcdir)/'`soundlib/MixFuncTable.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-MixFuncTable.Tpo soundlib/$(DEPDIR)/libopenmpt_la-MixFuncTable.Plo
+#	$(AM_V_CXX)source='soundlib/MixFuncTable.cpp' object='soundlib/libopenmpt_la-MixFuncTable.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-MixFuncTable.lo `test -f 'soundlib/MixFuncTable.cpp' || echo '$(srcdir)/'`soundlib/MixFuncTable.cpp
+
+soundlib/libopenmpt_la-ModChannel.lo: soundlib/ModChannel.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-ModChannel.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-ModChannel.Tpo -c -o soundlib/libopenmpt_la-ModChannel.lo `test -f 'soundlib/ModChannel.cpp' || echo '$(srcdir)/'`soundlib/ModChannel.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-ModChannel.Tpo soundlib/$(DEPDIR)/libopenmpt_la-ModChannel.Plo
+#	$(AM_V_CXX)source='soundlib/ModChannel.cpp' object='soundlib/libopenmpt_la-ModChannel.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-ModChannel.lo `test -f 'soundlib/ModChannel.cpp' || echo '$(srcdir)/'`soundlib/ModChannel.cpp
+
+soundlib/libopenmpt_la-modcommand.lo: soundlib/modcommand.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-modcommand.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-modcommand.Tpo -c -o soundlib/libopenmpt_la-modcommand.lo `test -f 'soundlib/modcommand.cpp' || echo '$(srcdir)/'`soundlib/modcommand.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-modcommand.Tpo soundlib/$(DEPDIR)/libopenmpt_la-modcommand.Plo
+#	$(AM_V_CXX)source='soundlib/modcommand.cpp' object='soundlib/libopenmpt_la-modcommand.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-modcommand.lo `test -f 'soundlib/modcommand.cpp' || echo '$(srcdir)/'`soundlib/modcommand.cpp
+
+soundlib/libopenmpt_la-ModInstrument.lo: soundlib/ModInstrument.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-ModInstrument.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-ModInstrument.Tpo -c -o soundlib/libopenmpt_la-ModInstrument.lo `test -f 'soundlib/ModInstrument.cpp' || echo '$(srcdir)/'`soundlib/ModInstrument.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-ModInstrument.Tpo soundlib/$(DEPDIR)/libopenmpt_la-ModInstrument.Plo
+#	$(AM_V_CXX)source='soundlib/ModInstrument.cpp' object='soundlib/libopenmpt_la-ModInstrument.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-ModInstrument.lo `test -f 'soundlib/ModInstrument.cpp' || echo '$(srcdir)/'`soundlib/ModInstrument.cpp
+
+soundlib/libopenmpt_la-ModSample.lo: soundlib/ModSample.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-ModSample.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-ModSample.Tpo -c -o soundlib/libopenmpt_la-ModSample.lo `test -f 'soundlib/ModSample.cpp' || echo '$(srcdir)/'`soundlib/ModSample.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-ModSample.Tpo soundlib/$(DEPDIR)/libopenmpt_la-ModSample.Plo
+#	$(AM_V_CXX)source='soundlib/ModSample.cpp' object='soundlib/libopenmpt_la-ModSample.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-ModSample.lo `test -f 'soundlib/ModSample.cpp' || echo '$(srcdir)/'`soundlib/ModSample.cpp
+
+soundlib/libopenmpt_la-ModSequence.lo: soundlib/ModSequence.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-ModSequence.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-ModSequence.Tpo -c -o soundlib/libopenmpt_la-ModSequence.lo `test -f 'soundlib/ModSequence.cpp' || echo '$(srcdir)/'`soundlib/ModSequence.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-ModSequence.Tpo soundlib/$(DEPDIR)/libopenmpt_la-ModSequence.Plo
+#	$(AM_V_CXX)source='soundlib/ModSequence.cpp' object='soundlib/libopenmpt_la-ModSequence.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-ModSequence.lo `test -f 'soundlib/ModSequence.cpp' || echo '$(srcdir)/'`soundlib/ModSequence.cpp
+
+soundlib/libopenmpt_la-modsmp_ctrl.lo: soundlib/modsmp_ctrl.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-modsmp_ctrl.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-modsmp_ctrl.Tpo -c -o soundlib/libopenmpt_la-modsmp_ctrl.lo `test -f 'soundlib/modsmp_ctrl.cpp' || echo '$(srcdir)/'`soundlib/modsmp_ctrl.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-modsmp_ctrl.Tpo soundlib/$(DEPDIR)/libopenmpt_la-modsmp_ctrl.Plo
+#	$(AM_V_CXX)source='soundlib/modsmp_ctrl.cpp' object='soundlib/libopenmpt_la-modsmp_ctrl.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-modsmp_ctrl.lo `test -f 'soundlib/modsmp_ctrl.cpp' || echo '$(srcdir)/'`soundlib/modsmp_ctrl.cpp
+
+soundlib/libopenmpt_la-mod_specifications.lo: soundlib/mod_specifications.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-mod_specifications.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-mod_specifications.Tpo -c -o soundlib/libopenmpt_la-mod_specifications.lo `test -f 'soundlib/mod_specifications.cpp' || echo '$(srcdir)/'`soundlib/mod_specifications.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-mod_specifications.Tpo soundlib/$(DEPDIR)/libopenmpt_la-mod_specifications.Plo
+#	$(AM_V_CXX)source='soundlib/mod_specifications.cpp' object='soundlib/libopenmpt_la-mod_specifications.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-mod_specifications.lo `test -f 'soundlib/mod_specifications.cpp' || echo '$(srcdir)/'`soundlib/mod_specifications.cpp
+
+soundlib/libopenmpt_la-MODTools.lo: soundlib/MODTools.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-MODTools.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-MODTools.Tpo -c -o soundlib/libopenmpt_la-MODTools.lo `test -f 'soundlib/MODTools.cpp' || echo '$(srcdir)/'`soundlib/MODTools.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-MODTools.Tpo soundlib/$(DEPDIR)/libopenmpt_la-MODTools.Plo
+#	$(AM_V_CXX)source='soundlib/MODTools.cpp' object='soundlib/libopenmpt_la-MODTools.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-MODTools.lo `test -f 'soundlib/MODTools.cpp' || echo '$(srcdir)/'`soundlib/MODTools.cpp
+
+soundlib/libopenmpt_la-MPEGFrame.lo: soundlib/MPEGFrame.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-MPEGFrame.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-MPEGFrame.Tpo -c -o soundlib/libopenmpt_la-MPEGFrame.lo `test -f 'soundlib/MPEGFrame.cpp' || echo '$(srcdir)/'`soundlib/MPEGFrame.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-MPEGFrame.Tpo soundlib/$(DEPDIR)/libopenmpt_la-MPEGFrame.Plo
+#	$(AM_V_CXX)source='soundlib/MPEGFrame.cpp' object='soundlib/libopenmpt_la-MPEGFrame.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-MPEGFrame.lo `test -f 'soundlib/MPEGFrame.cpp' || echo '$(srcdir)/'`soundlib/MPEGFrame.cpp
+
+soundlib/libopenmpt_la-OggStream.lo: soundlib/OggStream.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-OggStream.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-OggStream.Tpo -c -o soundlib/libopenmpt_la-OggStream.lo `test -f 'soundlib/OggStream.cpp' || echo '$(srcdir)/'`soundlib/OggStream.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-OggStream.Tpo soundlib/$(DEPDIR)/libopenmpt_la-OggStream.Plo
+#	$(AM_V_CXX)source='soundlib/OggStream.cpp' object='soundlib/libopenmpt_la-OggStream.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-OggStream.lo `test -f 'soundlib/OggStream.cpp' || echo '$(srcdir)/'`soundlib/OggStream.cpp
+
+soundlib/libopenmpt_la-OPL.lo: soundlib/OPL.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-OPL.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-OPL.Tpo -c -o soundlib/libopenmpt_la-OPL.lo `test -f 'soundlib/OPL.cpp' || echo '$(srcdir)/'`soundlib/OPL.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-OPL.Tpo soundlib/$(DEPDIR)/libopenmpt_la-OPL.Plo
+#	$(AM_V_CXX)source='soundlib/OPL.cpp' object='soundlib/libopenmpt_la-OPL.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-OPL.lo `test -f 'soundlib/OPL.cpp' || echo '$(srcdir)/'`soundlib/OPL.cpp
+
+soundlib/libopenmpt_la-Paula.lo: soundlib/Paula.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-Paula.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-Paula.Tpo -c -o soundlib/libopenmpt_la-Paula.lo `test -f 'soundlib/Paula.cpp' || echo '$(srcdir)/'`soundlib/Paula.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-Paula.Tpo soundlib/$(DEPDIR)/libopenmpt_la-Paula.Plo
+#	$(AM_V_CXX)source='soundlib/Paula.cpp' object='soundlib/libopenmpt_la-Paula.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-Paula.lo `test -f 'soundlib/Paula.cpp' || echo '$(srcdir)/'`soundlib/Paula.cpp
+
+soundlib/libopenmpt_la-patternContainer.lo: soundlib/patternContainer.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-patternContainer.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-patternContainer.Tpo -c -o soundlib/libopenmpt_la-patternContainer.lo `test -f 'soundlib/patternContainer.cpp' || echo '$(srcdir)/'`soundlib/patternContainer.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-patternContainer.Tpo soundlib/$(DEPDIR)/libopenmpt_la-patternContainer.Plo
+#	$(AM_V_CXX)source='soundlib/patternContainer.cpp' object='soundlib/libopenmpt_la-patternContainer.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-patternContainer.lo `test -f 'soundlib/patternContainer.cpp' || echo '$(srcdir)/'`soundlib/patternContainer.cpp
+
+soundlib/libopenmpt_la-pattern.lo: soundlib/pattern.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-pattern.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-pattern.Tpo -c -o soundlib/libopenmpt_la-pattern.lo `test -f 'soundlib/pattern.cpp' || echo '$(srcdir)/'`soundlib/pattern.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-pattern.Tpo soundlib/$(DEPDIR)/libopenmpt_la-pattern.Plo
+#	$(AM_V_CXX)source='soundlib/pattern.cpp' object='soundlib/libopenmpt_la-pattern.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-pattern.lo `test -f 'soundlib/pattern.cpp' || echo '$(srcdir)/'`soundlib/pattern.cpp
+
+soundlib/libopenmpt_la-PlaybackTest.lo: soundlib/PlaybackTest.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-PlaybackTest.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-PlaybackTest.Tpo -c -o soundlib/libopenmpt_la-PlaybackTest.lo `test -f 'soundlib/PlaybackTest.cpp' || echo '$(srcdir)/'`soundlib/PlaybackTest.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-PlaybackTest.Tpo soundlib/$(DEPDIR)/libopenmpt_la-PlaybackTest.Plo
+#	$(AM_V_CXX)source='soundlib/PlaybackTest.cpp' object='soundlib/libopenmpt_la-PlaybackTest.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-PlaybackTest.lo `test -f 'soundlib/PlaybackTest.cpp' || echo '$(srcdir)/'`soundlib/PlaybackTest.cpp
+
+soundlib/libopenmpt_la-PlayState.lo: soundlib/PlayState.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-PlayState.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-PlayState.Tpo -c -o soundlib/libopenmpt_la-PlayState.lo `test -f 'soundlib/PlayState.cpp' || echo '$(srcdir)/'`soundlib/PlayState.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-PlayState.Tpo soundlib/$(DEPDIR)/libopenmpt_la-PlayState.Plo
+#	$(AM_V_CXX)source='soundlib/PlayState.cpp' object='soundlib/libopenmpt_la-PlayState.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-PlayState.lo `test -f 'soundlib/PlayState.cpp' || echo '$(srcdir)/'`soundlib/PlayState.cpp
+
+soundlib/libopenmpt_la-RowVisitor.lo: soundlib/RowVisitor.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-RowVisitor.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-RowVisitor.Tpo -c -o soundlib/libopenmpt_la-RowVisitor.lo `test -f 'soundlib/RowVisitor.cpp' || echo '$(srcdir)/'`soundlib/RowVisitor.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-RowVisitor.Tpo soundlib/$(DEPDIR)/libopenmpt_la-RowVisitor.Plo
+#	$(AM_V_CXX)source='soundlib/RowVisitor.cpp' object='soundlib/libopenmpt_la-RowVisitor.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-RowVisitor.lo `test -f 'soundlib/RowVisitor.cpp' || echo '$(srcdir)/'`soundlib/RowVisitor.cpp
+
+soundlib/libopenmpt_la-S3MTools.lo: soundlib/S3MTools.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-S3MTools.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-S3MTools.Tpo -c -o soundlib/libopenmpt_la-S3MTools.lo `test -f 'soundlib/S3MTools.cpp' || echo '$(srcdir)/'`soundlib/S3MTools.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-S3MTools.Tpo soundlib/$(DEPDIR)/libopenmpt_la-S3MTools.Plo
+#	$(AM_V_CXX)source='soundlib/S3MTools.cpp' object='soundlib/libopenmpt_la-S3MTools.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-S3MTools.lo `test -f 'soundlib/S3MTools.cpp' || echo '$(srcdir)/'`soundlib/S3MTools.cpp
+
+soundlib/libopenmpt_la-SampleFormats.lo: soundlib/SampleFormats.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-SampleFormats.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-SampleFormats.Tpo -c -o soundlib/libopenmpt_la-SampleFormats.lo `test -f 'soundlib/SampleFormats.cpp' || echo '$(srcdir)/'`soundlib/SampleFormats.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-SampleFormats.Tpo soundlib/$(DEPDIR)/libopenmpt_la-SampleFormats.Plo
+#	$(AM_V_CXX)source='soundlib/SampleFormats.cpp' object='soundlib/libopenmpt_la-SampleFormats.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-SampleFormats.lo `test -f 'soundlib/SampleFormats.cpp' || echo '$(srcdir)/'`soundlib/SampleFormats.cpp
+
+soundlib/libopenmpt_la-SampleFormatBRR.lo: soundlib/SampleFormatBRR.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-SampleFormatBRR.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-SampleFormatBRR.Tpo -c -o soundlib/libopenmpt_la-SampleFormatBRR.lo `test -f 'soundlib/SampleFormatBRR.cpp' || echo '$(srcdir)/'`soundlib/SampleFormatBRR.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-SampleFormatBRR.Tpo soundlib/$(DEPDIR)/libopenmpt_la-SampleFormatBRR.Plo
+#	$(AM_V_CXX)source='soundlib/SampleFormatBRR.cpp' object='soundlib/libopenmpt_la-SampleFormatBRR.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-SampleFormatBRR.lo `test -f 'soundlib/SampleFormatBRR.cpp' || echo '$(srcdir)/'`soundlib/SampleFormatBRR.cpp
+
+soundlib/libopenmpt_la-SampleFormatFLAC.lo: soundlib/SampleFormatFLAC.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-SampleFormatFLAC.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-SampleFormatFLAC.Tpo -c -o soundlib/libopenmpt_la-SampleFormatFLAC.lo `test -f 'soundlib/SampleFormatFLAC.cpp' || echo '$(srcdir)/'`soundlib/SampleFormatFLAC.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-SampleFormatFLAC.Tpo soundlib/$(DEPDIR)/libopenmpt_la-SampleFormatFLAC.Plo
+#	$(AM_V_CXX)source='soundlib/SampleFormatFLAC.cpp' object='soundlib/libopenmpt_la-SampleFormatFLAC.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-SampleFormatFLAC.lo `test -f 'soundlib/SampleFormatFLAC.cpp' || echo '$(srcdir)/'`soundlib/SampleFormatFLAC.cpp
+
+soundlib/libopenmpt_la-SampleFormatMediaFoundation.lo: soundlib/SampleFormatMediaFoundation.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-SampleFormatMediaFoundation.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-SampleFormatMediaFoundation.Tpo -c -o soundlib/libopenmpt_la-SampleFormatMediaFoundation.lo `test -f 'soundlib/SampleFormatMediaFoundation.cpp' || echo '$(srcdir)/'`soundlib/SampleFormatMediaFoundation.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-SampleFormatMediaFoundation.Tpo soundlib/$(DEPDIR)/libopenmpt_la-SampleFormatMediaFoundation.Plo
+#	$(AM_V_CXX)source='soundlib/SampleFormatMediaFoundation.cpp' object='soundlib/libopenmpt_la-SampleFormatMediaFoundation.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-SampleFormatMediaFoundation.lo `test -f 'soundlib/SampleFormatMediaFoundation.cpp' || echo '$(srcdir)/'`soundlib/SampleFormatMediaFoundation.cpp
+
+soundlib/libopenmpt_la-SampleFormatMP3.lo: soundlib/SampleFormatMP3.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-SampleFormatMP3.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-SampleFormatMP3.Tpo -c -o soundlib/libopenmpt_la-SampleFormatMP3.lo `test -f 'soundlib/SampleFormatMP3.cpp' || echo '$(srcdir)/'`soundlib/SampleFormatMP3.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-SampleFormatMP3.Tpo soundlib/$(DEPDIR)/libopenmpt_la-SampleFormatMP3.Plo
+#	$(AM_V_CXX)source='soundlib/SampleFormatMP3.cpp' object='soundlib/libopenmpt_la-SampleFormatMP3.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-SampleFormatMP3.lo `test -f 'soundlib/SampleFormatMP3.cpp' || echo '$(srcdir)/'`soundlib/SampleFormatMP3.cpp
+
+soundlib/libopenmpt_la-SampleFormatOpus.lo: soundlib/SampleFormatOpus.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-SampleFormatOpus.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-SampleFormatOpus.Tpo -c -o soundlib/libopenmpt_la-SampleFormatOpus.lo `test -f 'soundlib/SampleFormatOpus.cpp' || echo '$(srcdir)/'`soundlib/SampleFormatOpus.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-SampleFormatOpus.Tpo soundlib/$(DEPDIR)/libopenmpt_la-SampleFormatOpus.Plo
+#	$(AM_V_CXX)source='soundlib/SampleFormatOpus.cpp' object='soundlib/libopenmpt_la-SampleFormatOpus.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-SampleFormatOpus.lo `test -f 'soundlib/SampleFormatOpus.cpp' || echo '$(srcdir)/'`soundlib/SampleFormatOpus.cpp
+
+soundlib/libopenmpt_la-SampleFormatSFZ.lo: soundlib/SampleFormatSFZ.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-SampleFormatSFZ.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-SampleFormatSFZ.Tpo -c -o soundlib/libopenmpt_la-SampleFormatSFZ.lo `test -f 'soundlib/SampleFormatSFZ.cpp' || echo '$(srcdir)/'`soundlib/SampleFormatSFZ.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-SampleFormatSFZ.Tpo soundlib/$(DEPDIR)/libopenmpt_la-SampleFormatSFZ.Plo
+#	$(AM_V_CXX)source='soundlib/SampleFormatSFZ.cpp' object='soundlib/libopenmpt_la-SampleFormatSFZ.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-SampleFormatSFZ.lo `test -f 'soundlib/SampleFormatSFZ.cpp' || echo '$(srcdir)/'`soundlib/SampleFormatSFZ.cpp
+
+soundlib/libopenmpt_la-SampleFormatVorbis.lo: soundlib/SampleFormatVorbis.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-SampleFormatVorbis.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-SampleFormatVorbis.Tpo -c -o soundlib/libopenmpt_la-SampleFormatVorbis.lo `test -f 'soundlib/SampleFormatVorbis.cpp' || echo '$(srcdir)/'`soundlib/SampleFormatVorbis.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-SampleFormatVorbis.Tpo soundlib/$(DEPDIR)/libopenmpt_la-SampleFormatVorbis.Plo
+#	$(AM_V_CXX)source='soundlib/SampleFormatVorbis.cpp' object='soundlib/libopenmpt_la-SampleFormatVorbis.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-SampleFormatVorbis.lo `test -f 'soundlib/SampleFormatVorbis.cpp' || echo '$(srcdir)/'`soundlib/SampleFormatVorbis.cpp
+
+soundlib/libopenmpt_la-SampleIO.lo: soundlib/SampleIO.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-SampleIO.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-SampleIO.Tpo -c -o soundlib/libopenmpt_la-SampleIO.lo `test -f 'soundlib/SampleIO.cpp' || echo '$(srcdir)/'`soundlib/SampleIO.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-SampleIO.Tpo soundlib/$(DEPDIR)/libopenmpt_la-SampleIO.Plo
+#	$(AM_V_CXX)source='soundlib/SampleIO.cpp' object='soundlib/libopenmpt_la-SampleIO.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-SampleIO.lo `test -f 'soundlib/SampleIO.cpp' || echo '$(srcdir)/'`soundlib/SampleIO.cpp
+
+soundlib/libopenmpt_la-Sndfile.lo: soundlib/Sndfile.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-Sndfile.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-Sndfile.Tpo -c -o soundlib/libopenmpt_la-Sndfile.lo `test -f 'soundlib/Sndfile.cpp' || echo '$(srcdir)/'`soundlib/Sndfile.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-Sndfile.Tpo soundlib/$(DEPDIR)/libopenmpt_la-Sndfile.Plo
+#	$(AM_V_CXX)source='soundlib/Sndfile.cpp' object='soundlib/libopenmpt_la-Sndfile.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-Sndfile.lo `test -f 'soundlib/Sndfile.cpp' || echo '$(srcdir)/'`soundlib/Sndfile.cpp
+
+soundlib/libopenmpt_la-Snd_flt.lo: soundlib/Snd_flt.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-Snd_flt.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-Snd_flt.Tpo -c -o soundlib/libopenmpt_la-Snd_flt.lo `test -f 'soundlib/Snd_flt.cpp' || echo '$(srcdir)/'`soundlib/Snd_flt.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-Snd_flt.Tpo soundlib/$(DEPDIR)/libopenmpt_la-Snd_flt.Plo
+#	$(AM_V_CXX)source='soundlib/Snd_flt.cpp' object='soundlib/libopenmpt_la-Snd_flt.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-Snd_flt.lo `test -f 'soundlib/Snd_flt.cpp' || echo '$(srcdir)/'`soundlib/Snd_flt.cpp
+
+soundlib/libopenmpt_la-Snd_fx.lo: soundlib/Snd_fx.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-Snd_fx.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-Snd_fx.Tpo -c -o soundlib/libopenmpt_la-Snd_fx.lo `test -f 'soundlib/Snd_fx.cpp' || echo '$(srcdir)/'`soundlib/Snd_fx.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-Snd_fx.Tpo soundlib/$(DEPDIR)/libopenmpt_la-Snd_fx.Plo
+#	$(AM_V_CXX)source='soundlib/Snd_fx.cpp' object='soundlib/libopenmpt_la-Snd_fx.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-Snd_fx.lo `test -f 'soundlib/Snd_fx.cpp' || echo '$(srcdir)/'`soundlib/Snd_fx.cpp
+
+soundlib/libopenmpt_la-Sndmix.lo: soundlib/Sndmix.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-Sndmix.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-Sndmix.Tpo -c -o soundlib/libopenmpt_la-Sndmix.lo `test -f 'soundlib/Sndmix.cpp' || echo '$(srcdir)/'`soundlib/Sndmix.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-Sndmix.Tpo soundlib/$(DEPDIR)/libopenmpt_la-Sndmix.Plo
+#	$(AM_V_CXX)source='soundlib/Sndmix.cpp' object='soundlib/libopenmpt_la-Sndmix.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-Sndmix.lo `test -f 'soundlib/Sndmix.cpp' || echo '$(srcdir)/'`soundlib/Sndmix.cpp
+
+soundlib/libopenmpt_la-SoundFilePlayConfig.lo: soundlib/SoundFilePlayConfig.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-SoundFilePlayConfig.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-SoundFilePlayConfig.Tpo -c -o soundlib/libopenmpt_la-SoundFilePlayConfig.lo `test -f 'soundlib/SoundFilePlayConfig.cpp' || echo '$(srcdir)/'`soundlib/SoundFilePlayConfig.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-SoundFilePlayConfig.Tpo soundlib/$(DEPDIR)/libopenmpt_la-SoundFilePlayConfig.Plo
+#	$(AM_V_CXX)source='soundlib/SoundFilePlayConfig.cpp' object='soundlib/libopenmpt_la-SoundFilePlayConfig.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-SoundFilePlayConfig.lo `test -f 'soundlib/SoundFilePlayConfig.cpp' || echo '$(srcdir)/'`soundlib/SoundFilePlayConfig.cpp
+
+soundlib/libopenmpt_la-Tables.lo: soundlib/Tables.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-Tables.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-Tables.Tpo -c -o soundlib/libopenmpt_la-Tables.lo `test -f 'soundlib/Tables.cpp' || echo '$(srcdir)/'`soundlib/Tables.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-Tables.Tpo soundlib/$(DEPDIR)/libopenmpt_la-Tables.Plo
+#	$(AM_V_CXX)source='soundlib/Tables.cpp' object='soundlib/libopenmpt_la-Tables.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-Tables.lo `test -f 'soundlib/Tables.cpp' || echo '$(srcdir)/'`soundlib/Tables.cpp
+
+soundlib/libopenmpt_la-Tagging.lo: soundlib/Tagging.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-Tagging.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-Tagging.Tpo -c -o soundlib/libopenmpt_la-Tagging.lo `test -f 'soundlib/Tagging.cpp' || echo '$(srcdir)/'`soundlib/Tagging.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-Tagging.Tpo soundlib/$(DEPDIR)/libopenmpt_la-Tagging.Plo
+#	$(AM_V_CXX)source='soundlib/Tagging.cpp' object='soundlib/libopenmpt_la-Tagging.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-Tagging.lo `test -f 'soundlib/Tagging.cpp' || echo '$(srcdir)/'`soundlib/Tagging.cpp
+
+soundlib/libopenmpt_la-TinyFFT.lo: soundlib/TinyFFT.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-TinyFFT.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-TinyFFT.Tpo -c -o soundlib/libopenmpt_la-TinyFFT.lo `test -f 'soundlib/TinyFFT.cpp' || echo '$(srcdir)/'`soundlib/TinyFFT.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-TinyFFT.Tpo soundlib/$(DEPDIR)/libopenmpt_la-TinyFFT.Plo
+#	$(AM_V_CXX)source='soundlib/TinyFFT.cpp' object='soundlib/libopenmpt_la-TinyFFT.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-TinyFFT.lo `test -f 'soundlib/TinyFFT.cpp' || echo '$(srcdir)/'`soundlib/TinyFFT.cpp
+
+soundlib/libopenmpt_la-tuningCollection.lo: soundlib/tuningCollection.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-tuningCollection.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-tuningCollection.Tpo -c -o soundlib/libopenmpt_la-tuningCollection.lo `test -f 'soundlib/tuningCollection.cpp' || echo '$(srcdir)/'`soundlib/tuningCollection.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-tuningCollection.Tpo soundlib/$(DEPDIR)/libopenmpt_la-tuningCollection.Plo
+#	$(AM_V_CXX)source='soundlib/tuningCollection.cpp' object='soundlib/libopenmpt_la-tuningCollection.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-tuningCollection.lo `test -f 'soundlib/tuningCollection.cpp' || echo '$(srcdir)/'`soundlib/tuningCollection.cpp
+
+soundlib/libopenmpt_la-tuning.lo: soundlib/tuning.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-tuning.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-tuning.Tpo -c -o soundlib/libopenmpt_la-tuning.lo `test -f 'soundlib/tuning.cpp' || echo '$(srcdir)/'`soundlib/tuning.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-tuning.Tpo soundlib/$(DEPDIR)/libopenmpt_la-tuning.Plo
+#	$(AM_V_CXX)source='soundlib/tuning.cpp' object='soundlib/libopenmpt_la-tuning.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-tuning.lo `test -f 'soundlib/tuning.cpp' || echo '$(srcdir)/'`soundlib/tuning.cpp
+
+soundlib/libopenmpt_la-UMXTools.lo: soundlib/UMXTools.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-UMXTools.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-UMXTools.Tpo -c -o soundlib/libopenmpt_la-UMXTools.lo `test -f 'soundlib/UMXTools.cpp' || echo '$(srcdir)/'`soundlib/UMXTools.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-UMXTools.Tpo soundlib/$(DEPDIR)/libopenmpt_la-UMXTools.Plo
+#	$(AM_V_CXX)source='soundlib/UMXTools.cpp' object='soundlib/libopenmpt_la-UMXTools.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-UMXTools.lo `test -f 'soundlib/UMXTools.cpp' || echo '$(srcdir)/'`soundlib/UMXTools.cpp
+
+soundlib/libopenmpt_la-UpgradeModule.lo: soundlib/UpgradeModule.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-UpgradeModule.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-UpgradeModule.Tpo -c -o soundlib/libopenmpt_la-UpgradeModule.lo `test -f 'soundlib/UpgradeModule.cpp' || echo '$(srcdir)/'`soundlib/UpgradeModule.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-UpgradeModule.Tpo soundlib/$(DEPDIR)/libopenmpt_la-UpgradeModule.Plo
+#	$(AM_V_CXX)source='soundlib/UpgradeModule.cpp' object='soundlib/libopenmpt_la-UpgradeModule.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-UpgradeModule.lo `test -f 'soundlib/UpgradeModule.cpp' || echo '$(srcdir)/'`soundlib/UpgradeModule.cpp
+
+soundlib/libopenmpt_la-WAVTools.lo: soundlib/WAVTools.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-WAVTools.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-WAVTools.Tpo -c -o soundlib/libopenmpt_la-WAVTools.lo `test -f 'soundlib/WAVTools.cpp' || echo '$(srcdir)/'`soundlib/WAVTools.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-WAVTools.Tpo soundlib/$(DEPDIR)/libopenmpt_la-WAVTools.Plo
+#	$(AM_V_CXX)source='soundlib/WAVTools.cpp' object='soundlib/libopenmpt_la-WAVTools.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-WAVTools.lo `test -f 'soundlib/WAVTools.cpp' || echo '$(srcdir)/'`soundlib/WAVTools.cpp
+
+soundlib/libopenmpt_la-WindowedFIR.lo: soundlib/WindowedFIR.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-WindowedFIR.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-WindowedFIR.Tpo -c -o soundlib/libopenmpt_la-WindowedFIR.lo `test -f 'soundlib/WindowedFIR.cpp' || echo '$(srcdir)/'`soundlib/WindowedFIR.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-WindowedFIR.Tpo soundlib/$(DEPDIR)/libopenmpt_la-WindowedFIR.Plo
+#	$(AM_V_CXX)source='soundlib/WindowedFIR.cpp' object='soundlib/libopenmpt_la-WindowedFIR.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-WindowedFIR.lo `test -f 'soundlib/WindowedFIR.cpp' || echo '$(srcdir)/'`soundlib/WindowedFIR.cpp
+
+soundlib/libopenmpt_la-XMTools.lo: soundlib/XMTools.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpt_la-XMTools.lo -MD -MP -MF soundlib/$(DEPDIR)/libopenmpt_la-XMTools.Tpo -c -o soundlib/libopenmpt_la-XMTools.lo `test -f 'soundlib/XMTools.cpp' || echo '$(srcdir)/'`soundlib/XMTools.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpt_la-XMTools.Tpo soundlib/$(DEPDIR)/libopenmpt_la-XMTools.Plo
+#	$(AM_V_CXX)source='soundlib/XMTools.cpp' object='soundlib/libopenmpt_la-XMTools.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpt_la-XMTools.lo `test -f 'soundlib/XMTools.cpp' || echo '$(srcdir)/'`soundlib/XMTools.cpp
+
+soundlib/plugins/dmo/libopenmpt_la-DMOPlugin.lo: soundlib/plugins/dmo/DMOPlugin.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/plugins/dmo/libopenmpt_la-DMOPlugin.lo -MD -MP -MF soundlib/plugins/dmo/$(DEPDIR)/libopenmpt_la-DMOPlugin.Tpo -c -o soundlib/plugins/dmo/libopenmpt_la-DMOPlugin.lo `test -f 'soundlib/plugins/dmo/DMOPlugin.cpp' || echo '$(srcdir)/'`soundlib/plugins/dmo/DMOPlugin.cpp
+	$(AM_V_at)$(am__mv) soundlib/plugins/dmo/$(DEPDIR)/libopenmpt_la-DMOPlugin.Tpo soundlib/plugins/dmo/$(DEPDIR)/libopenmpt_la-DMOPlugin.Plo
+#	$(AM_V_CXX)source='soundlib/plugins/dmo/DMOPlugin.cpp' object='soundlib/plugins/dmo/libopenmpt_la-DMOPlugin.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/plugins/dmo/libopenmpt_la-DMOPlugin.lo `test -f 'soundlib/plugins/dmo/DMOPlugin.cpp' || echo '$(srcdir)/'`soundlib/plugins/dmo/DMOPlugin.cpp
+
+soundlib/plugins/dmo/libopenmpt_la-DMOUtils.lo: soundlib/plugins/dmo/DMOUtils.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/plugins/dmo/libopenmpt_la-DMOUtils.lo -MD -MP -MF soundlib/plugins/dmo/$(DEPDIR)/libopenmpt_la-DMOUtils.Tpo -c -o soundlib/plugins/dmo/libopenmpt_la-DMOUtils.lo `test -f 'soundlib/plugins/dmo/DMOUtils.cpp' || echo '$(srcdir)/'`soundlib/plugins/dmo/DMOUtils.cpp
+	$(AM_V_at)$(am__mv) soundlib/plugins/dmo/$(DEPDIR)/libopenmpt_la-DMOUtils.Tpo soundlib/plugins/dmo/$(DEPDIR)/libopenmpt_la-DMOUtils.Plo
+#	$(AM_V_CXX)source='soundlib/plugins/dmo/DMOUtils.cpp' object='soundlib/plugins/dmo/libopenmpt_la-DMOUtils.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/plugins/dmo/libopenmpt_la-DMOUtils.lo `test -f 'soundlib/plugins/dmo/DMOUtils.cpp' || echo '$(srcdir)/'`soundlib/plugins/dmo/DMOUtils.cpp
+
+soundlib/plugins/dmo/libopenmpt_la-Chorus.lo: soundlib/plugins/dmo/Chorus.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/plugins/dmo/libopenmpt_la-Chorus.lo -MD -MP -MF soundlib/plugins/dmo/$(DEPDIR)/libopenmpt_la-Chorus.Tpo -c -o soundlib/plugins/dmo/libopenmpt_la-Chorus.lo `test -f 'soundlib/plugins/dmo/Chorus.cpp' || echo '$(srcdir)/'`soundlib/plugins/dmo/Chorus.cpp
+	$(AM_V_at)$(am__mv) soundlib/plugins/dmo/$(DEPDIR)/libopenmpt_la-Chorus.Tpo soundlib/plugins/dmo/$(DEPDIR)/libopenmpt_la-Chorus.Plo
+#	$(AM_V_CXX)source='soundlib/plugins/dmo/Chorus.cpp' object='soundlib/plugins/dmo/libopenmpt_la-Chorus.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/plugins/dmo/libopenmpt_la-Chorus.lo `test -f 'soundlib/plugins/dmo/Chorus.cpp' || echo '$(srcdir)/'`soundlib/plugins/dmo/Chorus.cpp
+
+soundlib/plugins/dmo/libopenmpt_la-Compressor.lo: soundlib/plugins/dmo/Compressor.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/plugins/dmo/libopenmpt_la-Compressor.lo -MD -MP -MF soundlib/plugins/dmo/$(DEPDIR)/libopenmpt_la-Compressor.Tpo -c -o soundlib/plugins/dmo/libopenmpt_la-Compressor.lo `test -f 'soundlib/plugins/dmo/Compressor.cpp' || echo '$(srcdir)/'`soundlib/plugins/dmo/Compressor.cpp
+	$(AM_V_at)$(am__mv) soundlib/plugins/dmo/$(DEPDIR)/libopenmpt_la-Compressor.Tpo soundlib/plugins/dmo/$(DEPDIR)/libopenmpt_la-Compressor.Plo
+#	$(AM_V_CXX)source='soundlib/plugins/dmo/Compressor.cpp' object='soundlib/plugins/dmo/libopenmpt_la-Compressor.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/plugins/dmo/libopenmpt_la-Compressor.lo `test -f 'soundlib/plugins/dmo/Compressor.cpp' || echo '$(srcdir)/'`soundlib/plugins/dmo/Compressor.cpp
+
+soundlib/plugins/dmo/libopenmpt_la-Distortion.lo: soundlib/plugins/dmo/Distortion.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/plugins/dmo/libopenmpt_la-Distortion.lo -MD -MP -MF soundlib/plugins/dmo/$(DEPDIR)/libopenmpt_la-Distortion.Tpo -c -o soundlib/plugins/dmo/libopenmpt_la-Distortion.lo `test -f 'soundlib/plugins/dmo/Distortion.cpp' || echo '$(srcdir)/'`soundlib/plugins/dmo/Distortion.cpp
+	$(AM_V_at)$(am__mv) soundlib/plugins/dmo/$(DEPDIR)/libopenmpt_la-Distortion.Tpo soundlib/plugins/dmo/$(DEPDIR)/libopenmpt_la-Distortion.Plo
+#	$(AM_V_CXX)source='soundlib/plugins/dmo/Distortion.cpp' object='soundlib/plugins/dmo/libopenmpt_la-Distortion.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/plugins/dmo/libopenmpt_la-Distortion.lo `test -f 'soundlib/plugins/dmo/Distortion.cpp' || echo '$(srcdir)/'`soundlib/plugins/dmo/Distortion.cpp
+
+soundlib/plugins/dmo/libopenmpt_la-Echo.lo: soundlib/plugins/dmo/Echo.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/plugins/dmo/libopenmpt_la-Echo.lo -MD -MP -MF soundlib/plugins/dmo/$(DEPDIR)/libopenmpt_la-Echo.Tpo -c -o soundlib/plugins/dmo/libopenmpt_la-Echo.lo `test -f 'soundlib/plugins/dmo/Echo.cpp' || echo '$(srcdir)/'`soundlib/plugins/dmo/Echo.cpp
+	$(AM_V_at)$(am__mv) soundlib/plugins/dmo/$(DEPDIR)/libopenmpt_la-Echo.Tpo soundlib/plugins/dmo/$(DEPDIR)/libopenmpt_la-Echo.Plo
+#	$(AM_V_CXX)source='soundlib/plugins/dmo/Echo.cpp' object='soundlib/plugins/dmo/libopenmpt_la-Echo.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/plugins/dmo/libopenmpt_la-Echo.lo `test -f 'soundlib/plugins/dmo/Echo.cpp' || echo '$(srcdir)/'`soundlib/plugins/dmo/Echo.cpp
+
+soundlib/plugins/dmo/libopenmpt_la-Flanger.lo: soundlib/plugins/dmo/Flanger.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/plugins/dmo/libopenmpt_la-Flanger.lo -MD -MP -MF soundlib/plugins/dmo/$(DEPDIR)/libopenmpt_la-Flanger.Tpo -c -o soundlib/plugins/dmo/libopenmpt_la-Flanger.lo `test -f 'soundlib/plugins/dmo/Flanger.cpp' || echo '$(srcdir)/'`soundlib/plugins/dmo/Flanger.cpp
+	$(AM_V_at)$(am__mv) soundlib/plugins/dmo/$(DEPDIR)/libopenmpt_la-Flanger.Tpo soundlib/plugins/dmo/$(DEPDIR)/libopenmpt_la-Flanger.Plo
+#	$(AM_V_CXX)source='soundlib/plugins/dmo/Flanger.cpp' object='soundlib/plugins/dmo/libopenmpt_la-Flanger.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/plugins/dmo/libopenmpt_la-Flanger.lo `test -f 'soundlib/plugins/dmo/Flanger.cpp' || echo '$(srcdir)/'`soundlib/plugins/dmo/Flanger.cpp
+
+soundlib/plugins/dmo/libopenmpt_la-Gargle.lo: soundlib/plugins/dmo/Gargle.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/plugins/dmo/libopenmpt_la-Gargle.lo -MD -MP -MF soundlib/plugins/dmo/$(DEPDIR)/libopenmpt_la-Gargle.Tpo -c -o soundlib/plugins/dmo/libopenmpt_la-Gargle.lo `test -f 'soundlib/plugins/dmo/Gargle.cpp' || echo '$(srcdir)/'`soundlib/plugins/dmo/Gargle.cpp
+	$(AM_V_at)$(am__mv) soundlib/plugins/dmo/$(DEPDIR)/libopenmpt_la-Gargle.Tpo soundlib/plugins/dmo/$(DEPDIR)/libopenmpt_la-Gargle.Plo
+#	$(AM_V_CXX)source='soundlib/plugins/dmo/Gargle.cpp' object='soundlib/plugins/dmo/libopenmpt_la-Gargle.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/plugins/dmo/libopenmpt_la-Gargle.lo `test -f 'soundlib/plugins/dmo/Gargle.cpp' || echo '$(srcdir)/'`soundlib/plugins/dmo/Gargle.cpp
+
+soundlib/plugins/dmo/libopenmpt_la-I3DL2Reverb.lo: soundlib/plugins/dmo/I3DL2Reverb.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/plugins/dmo/libopenmpt_la-I3DL2Reverb.lo -MD -MP -MF soundlib/plugins/dmo/$(DEPDIR)/libopenmpt_la-I3DL2Reverb.Tpo -c -o soundlib/plugins/dmo/libopenmpt_la-I3DL2Reverb.lo `test -f 'soundlib/plugins/dmo/I3DL2Reverb.cpp' || echo '$(srcdir)/'`soundlib/plugins/dmo/I3DL2Reverb.cpp
+	$(AM_V_at)$(am__mv) soundlib/plugins/dmo/$(DEPDIR)/libopenmpt_la-I3DL2Reverb.Tpo soundlib/plugins/dmo/$(DEPDIR)/libopenmpt_la-I3DL2Reverb.Plo
+#	$(AM_V_CXX)source='soundlib/plugins/dmo/I3DL2Reverb.cpp' object='soundlib/plugins/dmo/libopenmpt_la-I3DL2Reverb.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/plugins/dmo/libopenmpt_la-I3DL2Reverb.lo `test -f 'soundlib/plugins/dmo/I3DL2Reverb.cpp' || echo '$(srcdir)/'`soundlib/plugins/dmo/I3DL2Reverb.cpp
+
+soundlib/plugins/dmo/libopenmpt_la-ParamEq.lo: soundlib/plugins/dmo/ParamEq.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/plugins/dmo/libopenmpt_la-ParamEq.lo -MD -MP -MF soundlib/plugins/dmo/$(DEPDIR)/libopenmpt_la-ParamEq.Tpo -c -o soundlib/plugins/dmo/libopenmpt_la-ParamEq.lo `test -f 'soundlib/plugins/dmo/ParamEq.cpp' || echo '$(srcdir)/'`soundlib/plugins/dmo/ParamEq.cpp
+	$(AM_V_at)$(am__mv) soundlib/plugins/dmo/$(DEPDIR)/libopenmpt_la-ParamEq.Tpo soundlib/plugins/dmo/$(DEPDIR)/libopenmpt_la-ParamEq.Plo
+#	$(AM_V_CXX)source='soundlib/plugins/dmo/ParamEq.cpp' object='soundlib/plugins/dmo/libopenmpt_la-ParamEq.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/plugins/dmo/libopenmpt_la-ParamEq.lo `test -f 'soundlib/plugins/dmo/ParamEq.cpp' || echo '$(srcdir)/'`soundlib/plugins/dmo/ParamEq.cpp
+
+soundlib/plugins/dmo/libopenmpt_la-WavesReverb.lo: soundlib/plugins/dmo/WavesReverb.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/plugins/dmo/libopenmpt_la-WavesReverb.lo -MD -MP -MF soundlib/plugins/dmo/$(DEPDIR)/libopenmpt_la-WavesReverb.Tpo -c -o soundlib/plugins/dmo/libopenmpt_la-WavesReverb.lo `test -f 'soundlib/plugins/dmo/WavesReverb.cpp' || echo '$(srcdir)/'`soundlib/plugins/dmo/WavesReverb.cpp
+	$(AM_V_at)$(am__mv) soundlib/plugins/dmo/$(DEPDIR)/libopenmpt_la-WavesReverb.Tpo soundlib/plugins/dmo/$(DEPDIR)/libopenmpt_la-WavesReverb.Plo
+#	$(AM_V_CXX)source='soundlib/plugins/dmo/WavesReverb.cpp' object='soundlib/plugins/dmo/libopenmpt_la-WavesReverb.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/plugins/dmo/libopenmpt_la-WavesReverb.lo `test -f 'soundlib/plugins/dmo/WavesReverb.cpp' || echo '$(srcdir)/'`soundlib/plugins/dmo/WavesReverb.cpp
+
+soundlib/plugins/libopenmpt_la-DigiBoosterEcho.lo: soundlib/plugins/DigiBoosterEcho.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/plugins/libopenmpt_la-DigiBoosterEcho.lo -MD -MP -MF soundlib/plugins/$(DEPDIR)/libopenmpt_la-DigiBoosterEcho.Tpo -c -o soundlib/plugins/libopenmpt_la-DigiBoosterEcho.lo `test -f 'soundlib/plugins/DigiBoosterEcho.cpp' || echo '$(srcdir)/'`soundlib/plugins/DigiBoosterEcho.cpp
+	$(AM_V_at)$(am__mv) soundlib/plugins/$(DEPDIR)/libopenmpt_la-DigiBoosterEcho.Tpo soundlib/plugins/$(DEPDIR)/libopenmpt_la-DigiBoosterEcho.Plo
+#	$(AM_V_CXX)source='soundlib/plugins/DigiBoosterEcho.cpp' object='soundlib/plugins/libopenmpt_la-DigiBoosterEcho.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/plugins/libopenmpt_la-DigiBoosterEcho.lo `test -f 'soundlib/plugins/DigiBoosterEcho.cpp' || echo '$(srcdir)/'`soundlib/plugins/DigiBoosterEcho.cpp
+
+soundlib/plugins/libopenmpt_la-LFOPlugin.lo: soundlib/plugins/LFOPlugin.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/plugins/libopenmpt_la-LFOPlugin.lo -MD -MP -MF soundlib/plugins/$(DEPDIR)/libopenmpt_la-LFOPlugin.Tpo -c -o soundlib/plugins/libopenmpt_la-LFOPlugin.lo `test -f 'soundlib/plugins/LFOPlugin.cpp' || echo '$(srcdir)/'`soundlib/plugins/LFOPlugin.cpp
+	$(AM_V_at)$(am__mv) soundlib/plugins/$(DEPDIR)/libopenmpt_la-LFOPlugin.Tpo soundlib/plugins/$(DEPDIR)/libopenmpt_la-LFOPlugin.Plo
+#	$(AM_V_CXX)source='soundlib/plugins/LFOPlugin.cpp' object='soundlib/plugins/libopenmpt_la-LFOPlugin.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/plugins/libopenmpt_la-LFOPlugin.lo `test -f 'soundlib/plugins/LFOPlugin.cpp' || echo '$(srcdir)/'`soundlib/plugins/LFOPlugin.cpp
+
+soundlib/plugins/libopenmpt_la-PluginManager.lo: soundlib/plugins/PluginManager.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/plugins/libopenmpt_la-PluginManager.lo -MD -MP -MF soundlib/plugins/$(DEPDIR)/libopenmpt_la-PluginManager.Tpo -c -o soundlib/plugins/libopenmpt_la-PluginManager.lo `test -f 'soundlib/plugins/PluginManager.cpp' || echo '$(srcdir)/'`soundlib/plugins/PluginManager.cpp
+	$(AM_V_at)$(am__mv) soundlib/plugins/$(DEPDIR)/libopenmpt_la-PluginManager.Tpo soundlib/plugins/$(DEPDIR)/libopenmpt_la-PluginManager.Plo
+#	$(AM_V_CXX)source='soundlib/plugins/PluginManager.cpp' object='soundlib/plugins/libopenmpt_la-PluginManager.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/plugins/libopenmpt_la-PluginManager.lo `test -f 'soundlib/plugins/PluginManager.cpp' || echo '$(srcdir)/'`soundlib/plugins/PluginManager.cpp
+
+soundlib/plugins/libopenmpt_la-PlugInterface.lo: soundlib/plugins/PlugInterface.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/plugins/libopenmpt_la-PlugInterface.lo -MD -MP -MF soundlib/plugins/$(DEPDIR)/libopenmpt_la-PlugInterface.Tpo -c -o soundlib/plugins/libopenmpt_la-PlugInterface.lo `test -f 'soundlib/plugins/PlugInterface.cpp' || echo '$(srcdir)/'`soundlib/plugins/PlugInterface.cpp
+	$(AM_V_at)$(am__mv) soundlib/plugins/$(DEPDIR)/libopenmpt_la-PlugInterface.Tpo soundlib/plugins/$(DEPDIR)/libopenmpt_la-PlugInterface.Plo
+#	$(AM_V_CXX)source='soundlib/plugins/PlugInterface.cpp' object='soundlib/plugins/libopenmpt_la-PlugInterface.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/plugins/libopenmpt_la-PlugInterface.lo `test -f 'soundlib/plugins/PlugInterface.cpp' || echo '$(srcdir)/'`soundlib/plugins/PlugInterface.cpp
+
+soundlib/plugins/libopenmpt_la-SymMODEcho.lo: soundlib/plugins/SymMODEcho.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT soundlib/plugins/libopenmpt_la-SymMODEcho.lo -MD -MP -MF soundlib/plugins/$(DEPDIR)/libopenmpt_la-SymMODEcho.Tpo -c -o soundlib/plugins/libopenmpt_la-SymMODEcho.lo `test -f 'soundlib/plugins/SymMODEcho.cpp' || echo '$(srcdir)/'`soundlib/plugins/SymMODEcho.cpp
+	$(AM_V_at)$(am__mv) soundlib/plugins/$(DEPDIR)/libopenmpt_la-SymMODEcho.Tpo soundlib/plugins/$(DEPDIR)/libopenmpt_la-SymMODEcho.Plo
+#	$(AM_V_CXX)source='soundlib/plugins/SymMODEcho.cpp' object='soundlib/plugins/libopenmpt_la-SymMODEcho.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/plugins/libopenmpt_la-SymMODEcho.lo `test -f 'soundlib/plugins/SymMODEcho.cpp' || echo '$(srcdir)/'`soundlib/plugins/SymMODEcho.cpp
+
+sounddsp/libopenmpt_la-AGC.lo: sounddsp/AGC.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT sounddsp/libopenmpt_la-AGC.lo -MD -MP -MF sounddsp/$(DEPDIR)/libopenmpt_la-AGC.Tpo -c -o sounddsp/libopenmpt_la-AGC.lo `test -f 'sounddsp/AGC.cpp' || echo '$(srcdir)/'`sounddsp/AGC.cpp
+	$(AM_V_at)$(am__mv) sounddsp/$(DEPDIR)/libopenmpt_la-AGC.Tpo sounddsp/$(DEPDIR)/libopenmpt_la-AGC.Plo
+#	$(AM_V_CXX)source='sounddsp/AGC.cpp' object='sounddsp/libopenmpt_la-AGC.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o sounddsp/libopenmpt_la-AGC.lo `test -f 'sounddsp/AGC.cpp' || echo '$(srcdir)/'`sounddsp/AGC.cpp
+
+sounddsp/libopenmpt_la-DSP.lo: sounddsp/DSP.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT sounddsp/libopenmpt_la-DSP.lo -MD -MP -MF sounddsp/$(DEPDIR)/libopenmpt_la-DSP.Tpo -c -o sounddsp/libopenmpt_la-DSP.lo `test -f 'sounddsp/DSP.cpp' || echo '$(srcdir)/'`sounddsp/DSP.cpp
+	$(AM_V_at)$(am__mv) sounddsp/$(DEPDIR)/libopenmpt_la-DSP.Tpo sounddsp/$(DEPDIR)/libopenmpt_la-DSP.Plo
+#	$(AM_V_CXX)source='sounddsp/DSP.cpp' object='sounddsp/libopenmpt_la-DSP.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o sounddsp/libopenmpt_la-DSP.lo `test -f 'sounddsp/DSP.cpp' || echo '$(srcdir)/'`sounddsp/DSP.cpp
+
+sounddsp/libopenmpt_la-EQ.lo: sounddsp/EQ.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT sounddsp/libopenmpt_la-EQ.lo -MD -MP -MF sounddsp/$(DEPDIR)/libopenmpt_la-EQ.Tpo -c -o sounddsp/libopenmpt_la-EQ.lo `test -f 'sounddsp/EQ.cpp' || echo '$(srcdir)/'`sounddsp/EQ.cpp
+	$(AM_V_at)$(am__mv) sounddsp/$(DEPDIR)/libopenmpt_la-EQ.Tpo sounddsp/$(DEPDIR)/libopenmpt_la-EQ.Plo
+#	$(AM_V_CXX)source='sounddsp/EQ.cpp' object='sounddsp/libopenmpt_la-EQ.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o sounddsp/libopenmpt_la-EQ.lo `test -f 'sounddsp/EQ.cpp' || echo '$(srcdir)/'`sounddsp/EQ.cpp
+
+sounddsp/libopenmpt_la-Reverb.lo: sounddsp/Reverb.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT sounddsp/libopenmpt_la-Reverb.lo -MD -MP -MF sounddsp/$(DEPDIR)/libopenmpt_la-Reverb.Tpo -c -o sounddsp/libopenmpt_la-Reverb.lo `test -f 'sounddsp/Reverb.cpp' || echo '$(srcdir)/'`sounddsp/Reverb.cpp
+	$(AM_V_at)$(am__mv) sounddsp/$(DEPDIR)/libopenmpt_la-Reverb.Tpo sounddsp/$(DEPDIR)/libopenmpt_la-Reverb.Plo
+#	$(AM_V_CXX)source='sounddsp/Reverb.cpp' object='sounddsp/libopenmpt_la-Reverb.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o sounddsp/libopenmpt_la-Reverb.lo `test -f 'sounddsp/Reverb.cpp' || echo '$(srcdir)/'`sounddsp/Reverb.cpp
+
+libopenmpt/la-libopenmpt_c.lo: libopenmpt/libopenmpt_c.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT libopenmpt/la-libopenmpt_c.lo -MD -MP -MF libopenmpt/$(DEPDIR)/la-libopenmpt_c.Tpo -c -o libopenmpt/la-libopenmpt_c.lo `test -f 'libopenmpt/libopenmpt_c.cpp' || echo '$(srcdir)/'`libopenmpt/libopenmpt_c.cpp
+	$(AM_V_at)$(am__mv) libopenmpt/$(DEPDIR)/la-libopenmpt_c.Tpo libopenmpt/$(DEPDIR)/la-libopenmpt_c.Plo
+#	$(AM_V_CXX)source='libopenmpt/libopenmpt_c.cpp' object='libopenmpt/la-libopenmpt_c.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o libopenmpt/la-libopenmpt_c.lo `test -f 'libopenmpt/libopenmpt_c.cpp' || echo '$(srcdir)/'`libopenmpt/libopenmpt_c.cpp
+
+libopenmpt/la-libopenmpt_cxx.lo: libopenmpt/libopenmpt_cxx.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT libopenmpt/la-libopenmpt_cxx.lo -MD -MP -MF libopenmpt/$(DEPDIR)/la-libopenmpt_cxx.Tpo -c -o libopenmpt/la-libopenmpt_cxx.lo `test -f 'libopenmpt/libopenmpt_cxx.cpp' || echo '$(srcdir)/'`libopenmpt/libopenmpt_cxx.cpp
+	$(AM_V_at)$(am__mv) libopenmpt/$(DEPDIR)/la-libopenmpt_cxx.Tpo libopenmpt/$(DEPDIR)/la-libopenmpt_cxx.Plo
+#	$(AM_V_CXX)source='libopenmpt/libopenmpt_cxx.cpp' object='libopenmpt/la-libopenmpt_cxx.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o libopenmpt/la-libopenmpt_cxx.lo `test -f 'libopenmpt/libopenmpt_cxx.cpp' || echo '$(srcdir)/'`libopenmpt/libopenmpt_cxx.cpp
+
+libopenmpt/la-libopenmpt_ext_impl.lo: libopenmpt/libopenmpt_ext_impl.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT libopenmpt/la-libopenmpt_ext_impl.lo -MD -MP -MF libopenmpt/$(DEPDIR)/la-libopenmpt_ext_impl.Tpo -c -o libopenmpt/la-libopenmpt_ext_impl.lo `test -f 'libopenmpt/libopenmpt_ext_impl.cpp' || echo '$(srcdir)/'`libopenmpt/libopenmpt_ext_impl.cpp
+	$(AM_V_at)$(am__mv) libopenmpt/$(DEPDIR)/la-libopenmpt_ext_impl.Tpo libopenmpt/$(DEPDIR)/la-libopenmpt_ext_impl.Plo
+#	$(AM_V_CXX)source='libopenmpt/libopenmpt_ext_impl.cpp' object='libopenmpt/la-libopenmpt_ext_impl.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o libopenmpt/la-libopenmpt_ext_impl.lo `test -f 'libopenmpt/libopenmpt_ext_impl.cpp' || echo '$(srcdir)/'`libopenmpt/libopenmpt_ext_impl.cpp
+
+libopenmpt/la-libopenmpt_impl.lo: libopenmpt/libopenmpt_impl.cpp
+	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -MT libopenmpt/la-libopenmpt_impl.lo -MD -MP -MF libopenmpt/$(DEPDIR)/la-libopenmpt_impl.Tpo -c -o libopenmpt/la-libopenmpt_impl.lo `test -f 'libopenmpt/libopenmpt_impl.cpp' || echo '$(srcdir)/'`libopenmpt/libopenmpt_impl.cpp
+	$(AM_V_at)$(am__mv) libopenmpt/$(DEPDIR)/la-libopenmpt_impl.Tpo libopenmpt/$(DEPDIR)/la-libopenmpt_impl.Plo
+#	$(AM_V_CXX)source='libopenmpt/libopenmpt_impl.cpp' object='libopenmpt/la-libopenmpt_impl.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_la_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_la_CXXFLAGS) $(CXXFLAGS) -c -o libopenmpt/la-libopenmpt_impl.lo `test -f 'libopenmpt/libopenmpt_impl.cpp' || echo '$(srcdir)/'`libopenmpt/libopenmpt_impl.cpp
+
+openmpt123/bin_openmpt123-openmpt123.o: openmpt123/openmpt123.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(bin_openmpt123_CPPFLAGS) $(CPPFLAGS) $(bin_openmpt123_CXXFLAGS) $(CXXFLAGS) -MT openmpt123/bin_openmpt123-openmpt123.o -MD -MP -MF openmpt123/$(DEPDIR)/bin_openmpt123-openmpt123.Tpo -c -o openmpt123/bin_openmpt123-openmpt123.o `test -f 'openmpt123/openmpt123.cpp' || echo '$(srcdir)/'`openmpt123/openmpt123.cpp
+	$(AM_V_at)$(am__mv) openmpt123/$(DEPDIR)/bin_openmpt123-openmpt123.Tpo openmpt123/$(DEPDIR)/bin_openmpt123-openmpt123.Po
+#	$(AM_V_CXX)source='openmpt123/openmpt123.cpp' object='openmpt123/bin_openmpt123-openmpt123.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(bin_openmpt123_CPPFLAGS) $(CPPFLAGS) $(bin_openmpt123_CXXFLAGS) $(CXXFLAGS) -c -o openmpt123/bin_openmpt123-openmpt123.o `test -f 'openmpt123/openmpt123.cpp' || echo '$(srcdir)/'`openmpt123/openmpt123.cpp
+
+openmpt123/bin_openmpt123-openmpt123.obj: openmpt123/openmpt123.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(bin_openmpt123_CPPFLAGS) $(CPPFLAGS) $(bin_openmpt123_CXXFLAGS) $(CXXFLAGS) -MT openmpt123/bin_openmpt123-openmpt123.obj -MD -MP -MF openmpt123/$(DEPDIR)/bin_openmpt123-openmpt123.Tpo -c -o openmpt123/bin_openmpt123-openmpt123.obj `if test -f 'openmpt123/openmpt123.cpp'; then $(CYGPATH_W) 'openmpt123/openmpt123.cpp'; else $(CYGPATH_W) '$(srcdir)/openmpt123/openmpt123.cpp'; fi`
+	$(AM_V_at)$(am__mv) openmpt123/$(DEPDIR)/bin_openmpt123-openmpt123.Tpo openmpt123/$(DEPDIR)/bin_openmpt123-openmpt123.Po
+#	$(AM_V_CXX)source='openmpt123/openmpt123.cpp' object='openmpt123/bin_openmpt123-openmpt123.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(bin_openmpt123_CPPFLAGS) $(CPPFLAGS) $(bin_openmpt123_CXXFLAGS) $(CXXFLAGS) -c -o openmpt123/bin_openmpt123-openmpt123.obj `if test -f 'openmpt123/openmpt123.cpp'; then $(CYGPATH_W) 'openmpt123/openmpt123.cpp'; else $(CYGPATH_W) '$(srcdir)/openmpt123/openmpt123.cpp'; fi`
+
+examples/libopenmpt_example_cxx-libopenmpt_example_cxx.o: examples/libopenmpt_example_cxx.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_example_cxx_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_example_cxx_CXXFLAGS) $(CXXFLAGS) -MT examples/libopenmpt_example_cxx-libopenmpt_example_cxx.o -MD -MP -MF examples/$(DEPDIR)/libopenmpt_example_cxx-libopenmpt_example_cxx.Tpo -c -o examples/libopenmpt_example_cxx-libopenmpt_example_cxx.o `test -f 'examples/libopenmpt_example_cxx.cpp' || echo '$(srcdir)/'`examples/libopenmpt_example_cxx.cpp
+	$(AM_V_at)$(am__mv) examples/$(DEPDIR)/libopenmpt_example_cxx-libopenmpt_example_cxx.Tpo examples/$(DEPDIR)/libopenmpt_example_cxx-libopenmpt_example_cxx.Po
+#	$(AM_V_CXX)source='examples/libopenmpt_example_cxx.cpp' object='examples/libopenmpt_example_cxx-libopenmpt_example_cxx.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_example_cxx_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_example_cxx_CXXFLAGS) $(CXXFLAGS) -c -o examples/libopenmpt_example_cxx-libopenmpt_example_cxx.o `test -f 'examples/libopenmpt_example_cxx.cpp' || echo '$(srcdir)/'`examples/libopenmpt_example_cxx.cpp
+
+examples/libopenmpt_example_cxx-libopenmpt_example_cxx.obj: examples/libopenmpt_example_cxx.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_example_cxx_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_example_cxx_CXXFLAGS) $(CXXFLAGS) -MT examples/libopenmpt_example_cxx-libopenmpt_example_cxx.obj -MD -MP -MF examples/$(DEPDIR)/libopenmpt_example_cxx-libopenmpt_example_cxx.Tpo -c -o examples/libopenmpt_example_cxx-libopenmpt_example_cxx.obj `if test -f 'examples/libopenmpt_example_cxx.cpp'; then $(CYGPATH_W) 'examples/libopenmpt_example_cxx.cpp'; else $(CYGPATH_W) '$(srcdir)/examples/libopenmpt_example_cxx.cpp'; fi`
+	$(AM_V_at)$(am__mv) examples/$(DEPDIR)/libopenmpt_example_cxx-libopenmpt_example_cxx.Tpo examples/$(DEPDIR)/libopenmpt_example_cxx-libopenmpt_example_cxx.Po
+#	$(AM_V_CXX)source='examples/libopenmpt_example_cxx.cpp' object='examples/libopenmpt_example_cxx-libopenmpt_example_cxx.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpt_example_cxx_CPPFLAGS) $(CPPFLAGS) $(libopenmpt_example_cxx_CXXFLAGS) $(CXXFLAGS) -c -o examples/libopenmpt_example_cxx-libopenmpt_example_cxx.obj `if test -f 'examples/libopenmpt_example_cxx.cpp'; then $(CYGPATH_W) 'examples/libopenmpt_example_cxx.cpp'; else $(CYGPATH_W) '$(srcdir)/examples/libopenmpt_example_cxx.cpp'; fi`
+
+test/libopenmpttest-mpt_tests_base.o: test/mpt_tests_base.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT test/libopenmpttest-mpt_tests_base.o -MD -MP -MF test/$(DEPDIR)/libopenmpttest-mpt_tests_base.Tpo -c -o test/libopenmpttest-mpt_tests_base.o `test -f 'test/mpt_tests_base.cpp' || echo '$(srcdir)/'`test/mpt_tests_base.cpp
+	$(AM_V_at)$(am__mv) test/$(DEPDIR)/libopenmpttest-mpt_tests_base.Tpo test/$(DEPDIR)/libopenmpttest-mpt_tests_base.Po
+#	$(AM_V_CXX)source='test/mpt_tests_base.cpp' object='test/libopenmpttest-mpt_tests_base.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o test/libopenmpttest-mpt_tests_base.o `test -f 'test/mpt_tests_base.cpp' || echo '$(srcdir)/'`test/mpt_tests_base.cpp
+
+test/libopenmpttest-mpt_tests_base.obj: test/mpt_tests_base.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT test/libopenmpttest-mpt_tests_base.obj -MD -MP -MF test/$(DEPDIR)/libopenmpttest-mpt_tests_base.Tpo -c -o test/libopenmpttest-mpt_tests_base.obj `if test -f 'test/mpt_tests_base.cpp'; then $(CYGPATH_W) 'test/mpt_tests_base.cpp'; else $(CYGPATH_W) '$(srcdir)/test/mpt_tests_base.cpp'; fi`
+	$(AM_V_at)$(am__mv) test/$(DEPDIR)/libopenmpttest-mpt_tests_base.Tpo test/$(DEPDIR)/libopenmpttest-mpt_tests_base.Po
+#	$(AM_V_CXX)source='test/mpt_tests_base.cpp' object='test/libopenmpttest-mpt_tests_base.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o test/libopenmpttest-mpt_tests_base.obj `if test -f 'test/mpt_tests_base.cpp'; then $(CYGPATH_W) 'test/mpt_tests_base.cpp'; else $(CYGPATH_W) '$(srcdir)/test/mpt_tests_base.cpp'; fi`
+
+test/libopenmpttest-mpt_tests_binary.o: test/mpt_tests_binary.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT test/libopenmpttest-mpt_tests_binary.o -MD -MP -MF test/$(DEPDIR)/libopenmpttest-mpt_tests_binary.Tpo -c -o test/libopenmpttest-mpt_tests_binary.o `test -f 'test/mpt_tests_binary.cpp' || echo '$(srcdir)/'`test/mpt_tests_binary.cpp
+	$(AM_V_at)$(am__mv) test/$(DEPDIR)/libopenmpttest-mpt_tests_binary.Tpo test/$(DEPDIR)/libopenmpttest-mpt_tests_binary.Po
+#	$(AM_V_CXX)source='test/mpt_tests_binary.cpp' object='test/libopenmpttest-mpt_tests_binary.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o test/libopenmpttest-mpt_tests_binary.o `test -f 'test/mpt_tests_binary.cpp' || echo '$(srcdir)/'`test/mpt_tests_binary.cpp
+
+test/libopenmpttest-mpt_tests_binary.obj: test/mpt_tests_binary.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT test/libopenmpttest-mpt_tests_binary.obj -MD -MP -MF test/$(DEPDIR)/libopenmpttest-mpt_tests_binary.Tpo -c -o test/libopenmpttest-mpt_tests_binary.obj `if test -f 'test/mpt_tests_binary.cpp'; then $(CYGPATH_W) 'test/mpt_tests_binary.cpp'; else $(CYGPATH_W) '$(srcdir)/test/mpt_tests_binary.cpp'; fi`
+	$(AM_V_at)$(am__mv) test/$(DEPDIR)/libopenmpttest-mpt_tests_binary.Tpo test/$(DEPDIR)/libopenmpttest-mpt_tests_binary.Po
+#	$(AM_V_CXX)source='test/mpt_tests_binary.cpp' object='test/libopenmpttest-mpt_tests_binary.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o test/libopenmpttest-mpt_tests_binary.obj `if test -f 'test/mpt_tests_binary.cpp'; then $(CYGPATH_W) 'test/mpt_tests_binary.cpp'; else $(CYGPATH_W) '$(srcdir)/test/mpt_tests_binary.cpp'; fi`
+
+test/libopenmpttest-mpt_tests_crc.o: test/mpt_tests_crc.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT test/libopenmpttest-mpt_tests_crc.o -MD -MP -MF test/$(DEPDIR)/libopenmpttest-mpt_tests_crc.Tpo -c -o test/libopenmpttest-mpt_tests_crc.o `test -f 'test/mpt_tests_crc.cpp' || echo '$(srcdir)/'`test/mpt_tests_crc.cpp
+	$(AM_V_at)$(am__mv) test/$(DEPDIR)/libopenmpttest-mpt_tests_crc.Tpo test/$(DEPDIR)/libopenmpttest-mpt_tests_crc.Po
+#	$(AM_V_CXX)source='test/mpt_tests_crc.cpp' object='test/libopenmpttest-mpt_tests_crc.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o test/libopenmpttest-mpt_tests_crc.o `test -f 'test/mpt_tests_crc.cpp' || echo '$(srcdir)/'`test/mpt_tests_crc.cpp
+
+test/libopenmpttest-mpt_tests_crc.obj: test/mpt_tests_crc.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT test/libopenmpttest-mpt_tests_crc.obj -MD -MP -MF test/$(DEPDIR)/libopenmpttest-mpt_tests_crc.Tpo -c -o test/libopenmpttest-mpt_tests_crc.obj `if test -f 'test/mpt_tests_crc.cpp'; then $(CYGPATH_W) 'test/mpt_tests_crc.cpp'; else $(CYGPATH_W) '$(srcdir)/test/mpt_tests_crc.cpp'; fi`
+	$(AM_V_at)$(am__mv) test/$(DEPDIR)/libopenmpttest-mpt_tests_crc.Tpo test/$(DEPDIR)/libopenmpttest-mpt_tests_crc.Po
+#	$(AM_V_CXX)source='test/mpt_tests_crc.cpp' object='test/libopenmpttest-mpt_tests_crc.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o test/libopenmpttest-mpt_tests_crc.obj `if test -f 'test/mpt_tests_crc.cpp'; then $(CYGPATH_W) 'test/mpt_tests_crc.cpp'; else $(CYGPATH_W) '$(srcdir)/test/mpt_tests_crc.cpp'; fi`
+
+test/libopenmpttest-mpt_tests_endian.o: test/mpt_tests_endian.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT test/libopenmpttest-mpt_tests_endian.o -MD -MP -MF test/$(DEPDIR)/libopenmpttest-mpt_tests_endian.Tpo -c -o test/libopenmpttest-mpt_tests_endian.o `test -f 'test/mpt_tests_endian.cpp' || echo '$(srcdir)/'`test/mpt_tests_endian.cpp
+	$(AM_V_at)$(am__mv) test/$(DEPDIR)/libopenmpttest-mpt_tests_endian.Tpo test/$(DEPDIR)/libopenmpttest-mpt_tests_endian.Po
+#	$(AM_V_CXX)source='test/mpt_tests_endian.cpp' object='test/libopenmpttest-mpt_tests_endian.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o test/libopenmpttest-mpt_tests_endian.o `test -f 'test/mpt_tests_endian.cpp' || echo '$(srcdir)/'`test/mpt_tests_endian.cpp
+
+test/libopenmpttest-mpt_tests_endian.obj: test/mpt_tests_endian.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT test/libopenmpttest-mpt_tests_endian.obj -MD -MP -MF test/$(DEPDIR)/libopenmpttest-mpt_tests_endian.Tpo -c -o test/libopenmpttest-mpt_tests_endian.obj `if test -f 'test/mpt_tests_endian.cpp'; then $(CYGPATH_W) 'test/mpt_tests_endian.cpp'; else $(CYGPATH_W) '$(srcdir)/test/mpt_tests_endian.cpp'; fi`
+	$(AM_V_at)$(am__mv) test/$(DEPDIR)/libopenmpttest-mpt_tests_endian.Tpo test/$(DEPDIR)/libopenmpttest-mpt_tests_endian.Po
+#	$(AM_V_CXX)source='test/mpt_tests_endian.cpp' object='test/libopenmpttest-mpt_tests_endian.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o test/libopenmpttest-mpt_tests_endian.obj `if test -f 'test/mpt_tests_endian.cpp'; then $(CYGPATH_W) 'test/mpt_tests_endian.cpp'; else $(CYGPATH_W) '$(srcdir)/test/mpt_tests_endian.cpp'; fi`
+
+test/libopenmpttest-mpt_tests_format.o: test/mpt_tests_format.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT test/libopenmpttest-mpt_tests_format.o -MD -MP -MF test/$(DEPDIR)/libopenmpttest-mpt_tests_format.Tpo -c -o test/libopenmpttest-mpt_tests_format.o `test -f 'test/mpt_tests_format.cpp' || echo '$(srcdir)/'`test/mpt_tests_format.cpp
+	$(AM_V_at)$(am__mv) test/$(DEPDIR)/libopenmpttest-mpt_tests_format.Tpo test/$(DEPDIR)/libopenmpttest-mpt_tests_format.Po
+#	$(AM_V_CXX)source='test/mpt_tests_format.cpp' object='test/libopenmpttest-mpt_tests_format.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o test/libopenmpttest-mpt_tests_format.o `test -f 'test/mpt_tests_format.cpp' || echo '$(srcdir)/'`test/mpt_tests_format.cpp
+
+test/libopenmpttest-mpt_tests_format.obj: test/mpt_tests_format.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT test/libopenmpttest-mpt_tests_format.obj -MD -MP -MF test/$(DEPDIR)/libopenmpttest-mpt_tests_format.Tpo -c -o test/libopenmpttest-mpt_tests_format.obj `if test -f 'test/mpt_tests_format.cpp'; then $(CYGPATH_W) 'test/mpt_tests_format.cpp'; else $(CYGPATH_W) '$(srcdir)/test/mpt_tests_format.cpp'; fi`
+	$(AM_V_at)$(am__mv) test/$(DEPDIR)/libopenmpttest-mpt_tests_format.Tpo test/$(DEPDIR)/libopenmpttest-mpt_tests_format.Po
+#	$(AM_V_CXX)source='test/mpt_tests_format.cpp' object='test/libopenmpttest-mpt_tests_format.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o test/libopenmpttest-mpt_tests_format.obj `if test -f 'test/mpt_tests_format.cpp'; then $(CYGPATH_W) 'test/mpt_tests_format.cpp'; else $(CYGPATH_W) '$(srcdir)/test/mpt_tests_format.cpp'; fi`
+
+test/libopenmpttest-mpt_tests_io.o: test/mpt_tests_io.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT test/libopenmpttest-mpt_tests_io.o -MD -MP -MF test/$(DEPDIR)/libopenmpttest-mpt_tests_io.Tpo -c -o test/libopenmpttest-mpt_tests_io.o `test -f 'test/mpt_tests_io.cpp' || echo '$(srcdir)/'`test/mpt_tests_io.cpp
+	$(AM_V_at)$(am__mv) test/$(DEPDIR)/libopenmpttest-mpt_tests_io.Tpo test/$(DEPDIR)/libopenmpttest-mpt_tests_io.Po
+#	$(AM_V_CXX)source='test/mpt_tests_io.cpp' object='test/libopenmpttest-mpt_tests_io.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o test/libopenmpttest-mpt_tests_io.o `test -f 'test/mpt_tests_io.cpp' || echo '$(srcdir)/'`test/mpt_tests_io.cpp
+
+test/libopenmpttest-mpt_tests_io.obj: test/mpt_tests_io.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT test/libopenmpttest-mpt_tests_io.obj -MD -MP -MF test/$(DEPDIR)/libopenmpttest-mpt_tests_io.Tpo -c -o test/libopenmpttest-mpt_tests_io.obj `if test -f 'test/mpt_tests_io.cpp'; then $(CYGPATH_W) 'test/mpt_tests_io.cpp'; else $(CYGPATH_W) '$(srcdir)/test/mpt_tests_io.cpp'; fi`
+	$(AM_V_at)$(am__mv) test/$(DEPDIR)/libopenmpttest-mpt_tests_io.Tpo test/$(DEPDIR)/libopenmpttest-mpt_tests_io.Po
+#	$(AM_V_CXX)source='test/mpt_tests_io.cpp' object='test/libopenmpttest-mpt_tests_io.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o test/libopenmpttest-mpt_tests_io.obj `if test -f 'test/mpt_tests_io.cpp'; then $(CYGPATH_W) 'test/mpt_tests_io.cpp'; else $(CYGPATH_W) '$(srcdir)/test/mpt_tests_io.cpp'; fi`
+
+test/libopenmpttest-mpt_tests_parse.o: test/mpt_tests_parse.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT test/libopenmpttest-mpt_tests_parse.o -MD -MP -MF test/$(DEPDIR)/libopenmpttest-mpt_tests_parse.Tpo -c -o test/libopenmpttest-mpt_tests_parse.o `test -f 'test/mpt_tests_parse.cpp' || echo '$(srcdir)/'`test/mpt_tests_parse.cpp
+	$(AM_V_at)$(am__mv) test/$(DEPDIR)/libopenmpttest-mpt_tests_parse.Tpo test/$(DEPDIR)/libopenmpttest-mpt_tests_parse.Po
+#	$(AM_V_CXX)source='test/mpt_tests_parse.cpp' object='test/libopenmpttest-mpt_tests_parse.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o test/libopenmpttest-mpt_tests_parse.o `test -f 'test/mpt_tests_parse.cpp' || echo '$(srcdir)/'`test/mpt_tests_parse.cpp
+
+test/libopenmpttest-mpt_tests_parse.obj: test/mpt_tests_parse.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT test/libopenmpttest-mpt_tests_parse.obj -MD -MP -MF test/$(DEPDIR)/libopenmpttest-mpt_tests_parse.Tpo -c -o test/libopenmpttest-mpt_tests_parse.obj `if test -f 'test/mpt_tests_parse.cpp'; then $(CYGPATH_W) 'test/mpt_tests_parse.cpp'; else $(CYGPATH_W) '$(srcdir)/test/mpt_tests_parse.cpp'; fi`
+	$(AM_V_at)$(am__mv) test/$(DEPDIR)/libopenmpttest-mpt_tests_parse.Tpo test/$(DEPDIR)/libopenmpttest-mpt_tests_parse.Po
+#	$(AM_V_CXX)source='test/mpt_tests_parse.cpp' object='test/libopenmpttest-mpt_tests_parse.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o test/libopenmpttest-mpt_tests_parse.obj `if test -f 'test/mpt_tests_parse.cpp'; then $(CYGPATH_W) 'test/mpt_tests_parse.cpp'; else $(CYGPATH_W) '$(srcdir)/test/mpt_tests_parse.cpp'; fi`
+
+test/libopenmpttest-mpt_tests_random.o: test/mpt_tests_random.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT test/libopenmpttest-mpt_tests_random.o -MD -MP -MF test/$(DEPDIR)/libopenmpttest-mpt_tests_random.Tpo -c -o test/libopenmpttest-mpt_tests_random.o `test -f 'test/mpt_tests_random.cpp' || echo '$(srcdir)/'`test/mpt_tests_random.cpp
+	$(AM_V_at)$(am__mv) test/$(DEPDIR)/libopenmpttest-mpt_tests_random.Tpo test/$(DEPDIR)/libopenmpttest-mpt_tests_random.Po
+#	$(AM_V_CXX)source='test/mpt_tests_random.cpp' object='test/libopenmpttest-mpt_tests_random.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o test/libopenmpttest-mpt_tests_random.o `test -f 'test/mpt_tests_random.cpp' || echo '$(srcdir)/'`test/mpt_tests_random.cpp
+
+test/libopenmpttest-mpt_tests_random.obj: test/mpt_tests_random.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT test/libopenmpttest-mpt_tests_random.obj -MD -MP -MF test/$(DEPDIR)/libopenmpttest-mpt_tests_random.Tpo -c -o test/libopenmpttest-mpt_tests_random.obj `if test -f 'test/mpt_tests_random.cpp'; then $(CYGPATH_W) 'test/mpt_tests_random.cpp'; else $(CYGPATH_W) '$(srcdir)/test/mpt_tests_random.cpp'; fi`
+	$(AM_V_at)$(am__mv) test/$(DEPDIR)/libopenmpttest-mpt_tests_random.Tpo test/$(DEPDIR)/libopenmpttest-mpt_tests_random.Po
+#	$(AM_V_CXX)source='test/mpt_tests_random.cpp' object='test/libopenmpttest-mpt_tests_random.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o test/libopenmpttest-mpt_tests_random.obj `if test -f 'test/mpt_tests_random.cpp'; then $(CYGPATH_W) 'test/mpt_tests_random.cpp'; else $(CYGPATH_W) '$(srcdir)/test/mpt_tests_random.cpp'; fi`
+
+test/libopenmpttest-mpt_tests_string.o: test/mpt_tests_string.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT test/libopenmpttest-mpt_tests_string.o -MD -MP -MF test/$(DEPDIR)/libopenmpttest-mpt_tests_string.Tpo -c -o test/libopenmpttest-mpt_tests_string.o `test -f 'test/mpt_tests_string.cpp' || echo '$(srcdir)/'`test/mpt_tests_string.cpp
+	$(AM_V_at)$(am__mv) test/$(DEPDIR)/libopenmpttest-mpt_tests_string.Tpo test/$(DEPDIR)/libopenmpttest-mpt_tests_string.Po
+#	$(AM_V_CXX)source='test/mpt_tests_string.cpp' object='test/libopenmpttest-mpt_tests_string.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o test/libopenmpttest-mpt_tests_string.o `test -f 'test/mpt_tests_string.cpp' || echo '$(srcdir)/'`test/mpt_tests_string.cpp
+
+test/libopenmpttest-mpt_tests_string.obj: test/mpt_tests_string.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT test/libopenmpttest-mpt_tests_string.obj -MD -MP -MF test/$(DEPDIR)/libopenmpttest-mpt_tests_string.Tpo -c -o test/libopenmpttest-mpt_tests_string.obj `if test -f 'test/mpt_tests_string.cpp'; then $(CYGPATH_W) 'test/mpt_tests_string.cpp'; else $(CYGPATH_W) '$(srcdir)/test/mpt_tests_string.cpp'; fi`
+	$(AM_V_at)$(am__mv) test/$(DEPDIR)/libopenmpttest-mpt_tests_string.Tpo test/$(DEPDIR)/libopenmpttest-mpt_tests_string.Po
+#	$(AM_V_CXX)source='test/mpt_tests_string.cpp' object='test/libopenmpttest-mpt_tests_string.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o test/libopenmpttest-mpt_tests_string.obj `if test -f 'test/mpt_tests_string.cpp'; then $(CYGPATH_W) 'test/mpt_tests_string.cpp'; else $(CYGPATH_W) '$(srcdir)/test/mpt_tests_string.cpp'; fi`
+
+test/libopenmpttest-mpt_tests_string_transcode.o: test/mpt_tests_string_transcode.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT test/libopenmpttest-mpt_tests_string_transcode.o -MD -MP -MF test/$(DEPDIR)/libopenmpttest-mpt_tests_string_transcode.Tpo -c -o test/libopenmpttest-mpt_tests_string_transcode.o `test -f 'test/mpt_tests_string_transcode.cpp' || echo '$(srcdir)/'`test/mpt_tests_string_transcode.cpp
+	$(AM_V_at)$(am__mv) test/$(DEPDIR)/libopenmpttest-mpt_tests_string_transcode.Tpo test/$(DEPDIR)/libopenmpttest-mpt_tests_string_transcode.Po
+#	$(AM_V_CXX)source='test/mpt_tests_string_transcode.cpp' object='test/libopenmpttest-mpt_tests_string_transcode.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o test/libopenmpttest-mpt_tests_string_transcode.o `test -f 'test/mpt_tests_string_transcode.cpp' || echo '$(srcdir)/'`test/mpt_tests_string_transcode.cpp
+
+test/libopenmpttest-mpt_tests_string_transcode.obj: test/mpt_tests_string_transcode.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT test/libopenmpttest-mpt_tests_string_transcode.obj -MD -MP -MF test/$(DEPDIR)/libopenmpttest-mpt_tests_string_transcode.Tpo -c -o test/libopenmpttest-mpt_tests_string_transcode.obj `if test -f 'test/mpt_tests_string_transcode.cpp'; then $(CYGPATH_W) 'test/mpt_tests_string_transcode.cpp'; else $(CYGPATH_W) '$(srcdir)/test/mpt_tests_string_transcode.cpp'; fi`
+	$(AM_V_at)$(am__mv) test/$(DEPDIR)/libopenmpttest-mpt_tests_string_transcode.Tpo test/$(DEPDIR)/libopenmpttest-mpt_tests_string_transcode.Po
+#	$(AM_V_CXX)source='test/mpt_tests_string_transcode.cpp' object='test/libopenmpttest-mpt_tests_string_transcode.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o test/libopenmpttest-mpt_tests_string_transcode.obj `if test -f 'test/mpt_tests_string_transcode.cpp'; then $(CYGPATH_W) 'test/mpt_tests_string_transcode.cpp'; else $(CYGPATH_W) '$(srcdir)/test/mpt_tests_string_transcode.cpp'; fi`
+
+test/libopenmpttest-mpt_tests_uuid.o: test/mpt_tests_uuid.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT test/libopenmpttest-mpt_tests_uuid.o -MD -MP -MF test/$(DEPDIR)/libopenmpttest-mpt_tests_uuid.Tpo -c -o test/libopenmpttest-mpt_tests_uuid.o `test -f 'test/mpt_tests_uuid.cpp' || echo '$(srcdir)/'`test/mpt_tests_uuid.cpp
+	$(AM_V_at)$(am__mv) test/$(DEPDIR)/libopenmpttest-mpt_tests_uuid.Tpo test/$(DEPDIR)/libopenmpttest-mpt_tests_uuid.Po
+#	$(AM_V_CXX)source='test/mpt_tests_uuid.cpp' object='test/libopenmpttest-mpt_tests_uuid.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o test/libopenmpttest-mpt_tests_uuid.o `test -f 'test/mpt_tests_uuid.cpp' || echo '$(srcdir)/'`test/mpt_tests_uuid.cpp
+
+test/libopenmpttest-mpt_tests_uuid.obj: test/mpt_tests_uuid.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT test/libopenmpttest-mpt_tests_uuid.obj -MD -MP -MF test/$(DEPDIR)/libopenmpttest-mpt_tests_uuid.Tpo -c -o test/libopenmpttest-mpt_tests_uuid.obj `if test -f 'test/mpt_tests_uuid.cpp'; then $(CYGPATH_W) 'test/mpt_tests_uuid.cpp'; else $(CYGPATH_W) '$(srcdir)/test/mpt_tests_uuid.cpp'; fi`
+	$(AM_V_at)$(am__mv) test/$(DEPDIR)/libopenmpttest-mpt_tests_uuid.Tpo test/$(DEPDIR)/libopenmpttest-mpt_tests_uuid.Po
+#	$(AM_V_CXX)source='test/mpt_tests_uuid.cpp' object='test/libopenmpttest-mpt_tests_uuid.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o test/libopenmpttest-mpt_tests_uuid.obj `if test -f 'test/mpt_tests_uuid.cpp'; then $(CYGPATH_W) 'test/mpt_tests_uuid.cpp'; else $(CYGPATH_W) '$(srcdir)/test/mpt_tests_uuid.cpp'; fi`
+
+test/libopenmpttest-test.o: test/test.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT test/libopenmpttest-test.o -MD -MP -MF test/$(DEPDIR)/libopenmpttest-test.Tpo -c -o test/libopenmpttest-test.o `test -f 'test/test.cpp' || echo '$(srcdir)/'`test/test.cpp
+	$(AM_V_at)$(am__mv) test/$(DEPDIR)/libopenmpttest-test.Tpo test/$(DEPDIR)/libopenmpttest-test.Po
+#	$(AM_V_CXX)source='test/test.cpp' object='test/libopenmpttest-test.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o test/libopenmpttest-test.o `test -f 'test/test.cpp' || echo '$(srcdir)/'`test/test.cpp
+
+test/libopenmpttest-test.obj: test/test.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT test/libopenmpttest-test.obj -MD -MP -MF test/$(DEPDIR)/libopenmpttest-test.Tpo -c -o test/libopenmpttest-test.obj `if test -f 'test/test.cpp'; then $(CYGPATH_W) 'test/test.cpp'; else $(CYGPATH_W) '$(srcdir)/test/test.cpp'; fi`
+	$(AM_V_at)$(am__mv) test/$(DEPDIR)/libopenmpttest-test.Tpo test/$(DEPDIR)/libopenmpttest-test.Po
+#	$(AM_V_CXX)source='test/test.cpp' object='test/libopenmpttest-test.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o test/libopenmpttest-test.obj `if test -f 'test/test.cpp'; then $(CYGPATH_W) 'test/test.cpp'; else $(CYGPATH_W) '$(srcdir)/test/test.cpp'; fi`
+
+test/libopenmpttest-TestToolsLib.o: test/TestToolsLib.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT test/libopenmpttest-TestToolsLib.o -MD -MP -MF test/$(DEPDIR)/libopenmpttest-TestToolsLib.Tpo -c -o test/libopenmpttest-TestToolsLib.o `test -f 'test/TestToolsLib.cpp' || echo '$(srcdir)/'`test/TestToolsLib.cpp
+	$(AM_V_at)$(am__mv) test/$(DEPDIR)/libopenmpttest-TestToolsLib.Tpo test/$(DEPDIR)/libopenmpttest-TestToolsLib.Po
+#	$(AM_V_CXX)source='test/TestToolsLib.cpp' object='test/libopenmpttest-TestToolsLib.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o test/libopenmpttest-TestToolsLib.o `test -f 'test/TestToolsLib.cpp' || echo '$(srcdir)/'`test/TestToolsLib.cpp
+
+test/libopenmpttest-TestToolsLib.obj: test/TestToolsLib.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT test/libopenmpttest-TestToolsLib.obj -MD -MP -MF test/$(DEPDIR)/libopenmpttest-TestToolsLib.Tpo -c -o test/libopenmpttest-TestToolsLib.obj `if test -f 'test/TestToolsLib.cpp'; then $(CYGPATH_W) 'test/TestToolsLib.cpp'; else $(CYGPATH_W) '$(srcdir)/test/TestToolsLib.cpp'; fi`
+	$(AM_V_at)$(am__mv) test/$(DEPDIR)/libopenmpttest-TestToolsLib.Tpo test/$(DEPDIR)/libopenmpttest-TestToolsLib.Po
+#	$(AM_V_CXX)source='test/TestToolsLib.cpp' object='test/libopenmpttest-TestToolsLib.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o test/libopenmpttest-TestToolsLib.obj `if test -f 'test/TestToolsLib.cpp'; then $(CYGPATH_W) 'test/TestToolsLib.cpp'; else $(CYGPATH_W) '$(srcdir)/test/TestToolsLib.cpp'; fi`
+
+src/openmpt/soundfile_write/libopenmpttest-wav_write.o: src/openmpt/soundfile_write/wav_write.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT src/openmpt/soundfile_write/libopenmpttest-wav_write.o -MD -MP -MF src/openmpt/soundfile_write/$(DEPDIR)/libopenmpttest-wav_write.Tpo -c -o src/openmpt/soundfile_write/libopenmpttest-wav_write.o `test -f 'src/openmpt/soundfile_write/wav_write.cpp' || echo '$(srcdir)/'`src/openmpt/soundfile_write/wav_write.cpp
+	$(AM_V_at)$(am__mv) src/openmpt/soundfile_write/$(DEPDIR)/libopenmpttest-wav_write.Tpo src/openmpt/soundfile_write/$(DEPDIR)/libopenmpttest-wav_write.Po
+#	$(AM_V_CXX)source='src/openmpt/soundfile_write/wav_write.cpp' object='src/openmpt/soundfile_write/libopenmpttest-wav_write.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o src/openmpt/soundfile_write/libopenmpttest-wav_write.o `test -f 'src/openmpt/soundfile_write/wav_write.cpp' || echo '$(srcdir)/'`src/openmpt/soundfile_write/wav_write.cpp
+
+src/openmpt/soundfile_write/libopenmpttest-wav_write.obj: src/openmpt/soundfile_write/wav_write.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT src/openmpt/soundfile_write/libopenmpttest-wav_write.obj -MD -MP -MF src/openmpt/soundfile_write/$(DEPDIR)/libopenmpttest-wav_write.Tpo -c -o src/openmpt/soundfile_write/libopenmpttest-wav_write.obj `if test -f 'src/openmpt/soundfile_write/wav_write.cpp'; then $(CYGPATH_W) 'src/openmpt/soundfile_write/wav_write.cpp'; else $(CYGPATH_W) '$(srcdir)/src/openmpt/soundfile_write/wav_write.cpp'; fi`
+	$(AM_V_at)$(am__mv) src/openmpt/soundfile_write/$(DEPDIR)/libopenmpttest-wav_write.Tpo src/openmpt/soundfile_write/$(DEPDIR)/libopenmpttest-wav_write.Po
+#	$(AM_V_CXX)source='src/openmpt/soundfile_write/wav_write.cpp' object='src/openmpt/soundfile_write/libopenmpttest-wav_write.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o src/openmpt/soundfile_write/libopenmpttest-wav_write.obj `if test -f 'src/openmpt/soundfile_write/wav_write.cpp'; then $(CYGPATH_W) 'src/openmpt/soundfile_write/wav_write.cpp'; else $(CYGPATH_W) '$(srcdir)/src/openmpt/soundfile_write/wav_write.cpp'; fi`
+
+common/libopenmpttest-ComponentManager.o: common/ComponentManager.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT common/libopenmpttest-ComponentManager.o -MD -MP -MF common/$(DEPDIR)/libopenmpttest-ComponentManager.Tpo -c -o common/libopenmpttest-ComponentManager.o `test -f 'common/ComponentManager.cpp' || echo '$(srcdir)/'`common/ComponentManager.cpp
+	$(AM_V_at)$(am__mv) common/$(DEPDIR)/libopenmpttest-ComponentManager.Tpo common/$(DEPDIR)/libopenmpttest-ComponentManager.Po
+#	$(AM_V_CXX)source='common/ComponentManager.cpp' object='common/libopenmpttest-ComponentManager.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o common/libopenmpttest-ComponentManager.o `test -f 'common/ComponentManager.cpp' || echo '$(srcdir)/'`common/ComponentManager.cpp
+
+common/libopenmpttest-ComponentManager.obj: common/ComponentManager.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT common/libopenmpttest-ComponentManager.obj -MD -MP -MF common/$(DEPDIR)/libopenmpttest-ComponentManager.Tpo -c -o common/libopenmpttest-ComponentManager.obj `if test -f 'common/ComponentManager.cpp'; then $(CYGPATH_W) 'common/ComponentManager.cpp'; else $(CYGPATH_W) '$(srcdir)/common/ComponentManager.cpp'; fi`
+	$(AM_V_at)$(am__mv) common/$(DEPDIR)/libopenmpttest-ComponentManager.Tpo common/$(DEPDIR)/libopenmpttest-ComponentManager.Po
+#	$(AM_V_CXX)source='common/ComponentManager.cpp' object='common/libopenmpttest-ComponentManager.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o common/libopenmpttest-ComponentManager.obj `if test -f 'common/ComponentManager.cpp'; then $(CYGPATH_W) 'common/ComponentManager.cpp'; else $(CYGPATH_W) '$(srcdir)/common/ComponentManager.cpp'; fi`
+
+common/libopenmpttest-Logging.o: common/Logging.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT common/libopenmpttest-Logging.o -MD -MP -MF common/$(DEPDIR)/libopenmpttest-Logging.Tpo -c -o common/libopenmpttest-Logging.o `test -f 'common/Logging.cpp' || echo '$(srcdir)/'`common/Logging.cpp
+	$(AM_V_at)$(am__mv) common/$(DEPDIR)/libopenmpttest-Logging.Tpo common/$(DEPDIR)/libopenmpttest-Logging.Po
+#	$(AM_V_CXX)source='common/Logging.cpp' object='common/libopenmpttest-Logging.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o common/libopenmpttest-Logging.o `test -f 'common/Logging.cpp' || echo '$(srcdir)/'`common/Logging.cpp
+
+common/libopenmpttest-Logging.obj: common/Logging.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT common/libopenmpttest-Logging.obj -MD -MP -MF common/$(DEPDIR)/libopenmpttest-Logging.Tpo -c -o common/libopenmpttest-Logging.obj `if test -f 'common/Logging.cpp'; then $(CYGPATH_W) 'common/Logging.cpp'; else $(CYGPATH_W) '$(srcdir)/common/Logging.cpp'; fi`
+	$(AM_V_at)$(am__mv) common/$(DEPDIR)/libopenmpttest-Logging.Tpo common/$(DEPDIR)/libopenmpttest-Logging.Po
+#	$(AM_V_CXX)source='common/Logging.cpp' object='common/libopenmpttest-Logging.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o common/libopenmpttest-Logging.obj `if test -f 'common/Logging.cpp'; then $(CYGPATH_W) 'common/Logging.cpp'; else $(CYGPATH_W) '$(srcdir)/common/Logging.cpp'; fi`
+
+common/libopenmpttest-mptFileType.o: common/mptFileType.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT common/libopenmpttest-mptFileType.o -MD -MP -MF common/$(DEPDIR)/libopenmpttest-mptFileType.Tpo -c -o common/libopenmpttest-mptFileType.o `test -f 'common/mptFileType.cpp' || echo '$(srcdir)/'`common/mptFileType.cpp
+	$(AM_V_at)$(am__mv) common/$(DEPDIR)/libopenmpttest-mptFileType.Tpo common/$(DEPDIR)/libopenmpttest-mptFileType.Po
+#	$(AM_V_CXX)source='common/mptFileType.cpp' object='common/libopenmpttest-mptFileType.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o common/libopenmpttest-mptFileType.o `test -f 'common/mptFileType.cpp' || echo '$(srcdir)/'`common/mptFileType.cpp
+
+common/libopenmpttest-mptFileType.obj: common/mptFileType.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT common/libopenmpttest-mptFileType.obj -MD -MP -MF common/$(DEPDIR)/libopenmpttest-mptFileType.Tpo -c -o common/libopenmpttest-mptFileType.obj `if test -f 'common/mptFileType.cpp'; then $(CYGPATH_W) 'common/mptFileType.cpp'; else $(CYGPATH_W) '$(srcdir)/common/mptFileType.cpp'; fi`
+	$(AM_V_at)$(am__mv) common/$(DEPDIR)/libopenmpttest-mptFileType.Tpo common/$(DEPDIR)/libopenmpttest-mptFileType.Po
+#	$(AM_V_CXX)source='common/mptFileType.cpp' object='common/libopenmpttest-mptFileType.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o common/libopenmpttest-mptFileType.obj `if test -f 'common/mptFileType.cpp'; then $(CYGPATH_W) 'common/mptFileType.cpp'; else $(CYGPATH_W) '$(srcdir)/common/mptFileType.cpp'; fi`
+
+common/libopenmpttest-mptPathString.o: common/mptPathString.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT common/libopenmpttest-mptPathString.o -MD -MP -MF common/$(DEPDIR)/libopenmpttest-mptPathString.Tpo -c -o common/libopenmpttest-mptPathString.o `test -f 'common/mptPathString.cpp' || echo '$(srcdir)/'`common/mptPathString.cpp
+	$(AM_V_at)$(am__mv) common/$(DEPDIR)/libopenmpttest-mptPathString.Tpo common/$(DEPDIR)/libopenmpttest-mptPathString.Po
+#	$(AM_V_CXX)source='common/mptPathString.cpp' object='common/libopenmpttest-mptPathString.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o common/libopenmpttest-mptPathString.o `test -f 'common/mptPathString.cpp' || echo '$(srcdir)/'`common/mptPathString.cpp
+
+common/libopenmpttest-mptPathString.obj: common/mptPathString.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT common/libopenmpttest-mptPathString.obj -MD -MP -MF common/$(DEPDIR)/libopenmpttest-mptPathString.Tpo -c -o common/libopenmpttest-mptPathString.obj `if test -f 'common/mptPathString.cpp'; then $(CYGPATH_W) 'common/mptPathString.cpp'; else $(CYGPATH_W) '$(srcdir)/common/mptPathString.cpp'; fi`
+	$(AM_V_at)$(am__mv) common/$(DEPDIR)/libopenmpttest-mptPathString.Tpo common/$(DEPDIR)/libopenmpttest-mptPathString.Po
+#	$(AM_V_CXX)source='common/mptPathString.cpp' object='common/libopenmpttest-mptPathString.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o common/libopenmpttest-mptPathString.obj `if test -f 'common/mptPathString.cpp'; then $(CYGPATH_W) 'common/mptPathString.cpp'; else $(CYGPATH_W) '$(srcdir)/common/mptPathString.cpp'; fi`
+
+common/libopenmpttest-mptRandom.o: common/mptRandom.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT common/libopenmpttest-mptRandom.o -MD -MP -MF common/$(DEPDIR)/libopenmpttest-mptRandom.Tpo -c -o common/libopenmpttest-mptRandom.o `test -f 'common/mptRandom.cpp' || echo '$(srcdir)/'`common/mptRandom.cpp
+	$(AM_V_at)$(am__mv) common/$(DEPDIR)/libopenmpttest-mptRandom.Tpo common/$(DEPDIR)/libopenmpttest-mptRandom.Po
+#	$(AM_V_CXX)source='common/mptRandom.cpp' object='common/libopenmpttest-mptRandom.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o common/libopenmpttest-mptRandom.o `test -f 'common/mptRandom.cpp' || echo '$(srcdir)/'`common/mptRandom.cpp
+
+common/libopenmpttest-mptRandom.obj: common/mptRandom.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT common/libopenmpttest-mptRandom.obj -MD -MP -MF common/$(DEPDIR)/libopenmpttest-mptRandom.Tpo -c -o common/libopenmpttest-mptRandom.obj `if test -f 'common/mptRandom.cpp'; then $(CYGPATH_W) 'common/mptRandom.cpp'; else $(CYGPATH_W) '$(srcdir)/common/mptRandom.cpp'; fi`
+	$(AM_V_at)$(am__mv) common/$(DEPDIR)/libopenmpttest-mptRandom.Tpo common/$(DEPDIR)/libopenmpttest-mptRandom.Po
+#	$(AM_V_CXX)source='common/mptRandom.cpp' object='common/libopenmpttest-mptRandom.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o common/libopenmpttest-mptRandom.obj `if test -f 'common/mptRandom.cpp'; then $(CYGPATH_W) 'common/mptRandom.cpp'; else $(CYGPATH_W) '$(srcdir)/common/mptRandom.cpp'; fi`
+
+common/libopenmpttest-mptStringBuffer.o: common/mptStringBuffer.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT common/libopenmpttest-mptStringBuffer.o -MD -MP -MF common/$(DEPDIR)/libopenmpttest-mptStringBuffer.Tpo -c -o common/libopenmpttest-mptStringBuffer.o `test -f 'common/mptStringBuffer.cpp' || echo '$(srcdir)/'`common/mptStringBuffer.cpp
+	$(AM_V_at)$(am__mv) common/$(DEPDIR)/libopenmpttest-mptStringBuffer.Tpo common/$(DEPDIR)/libopenmpttest-mptStringBuffer.Po
+#	$(AM_V_CXX)source='common/mptStringBuffer.cpp' object='common/libopenmpttest-mptStringBuffer.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o common/libopenmpttest-mptStringBuffer.o `test -f 'common/mptStringBuffer.cpp' || echo '$(srcdir)/'`common/mptStringBuffer.cpp
+
+common/libopenmpttest-mptStringBuffer.obj: common/mptStringBuffer.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT common/libopenmpttest-mptStringBuffer.obj -MD -MP -MF common/$(DEPDIR)/libopenmpttest-mptStringBuffer.Tpo -c -o common/libopenmpttest-mptStringBuffer.obj `if test -f 'common/mptStringBuffer.cpp'; then $(CYGPATH_W) 'common/mptStringBuffer.cpp'; else $(CYGPATH_W) '$(srcdir)/common/mptStringBuffer.cpp'; fi`
+	$(AM_V_at)$(am__mv) common/$(DEPDIR)/libopenmpttest-mptStringBuffer.Tpo common/$(DEPDIR)/libopenmpttest-mptStringBuffer.Po
+#	$(AM_V_CXX)source='common/mptStringBuffer.cpp' object='common/libopenmpttest-mptStringBuffer.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o common/libopenmpttest-mptStringBuffer.obj `if test -f 'common/mptStringBuffer.cpp'; then $(CYGPATH_W) 'common/mptStringBuffer.cpp'; else $(CYGPATH_W) '$(srcdir)/common/mptStringBuffer.cpp'; fi`
+
+common/libopenmpttest-mptTime.o: common/mptTime.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT common/libopenmpttest-mptTime.o -MD -MP -MF common/$(DEPDIR)/libopenmpttest-mptTime.Tpo -c -o common/libopenmpttest-mptTime.o `test -f 'common/mptTime.cpp' || echo '$(srcdir)/'`common/mptTime.cpp
+	$(AM_V_at)$(am__mv) common/$(DEPDIR)/libopenmpttest-mptTime.Tpo common/$(DEPDIR)/libopenmpttest-mptTime.Po
+#	$(AM_V_CXX)source='common/mptTime.cpp' object='common/libopenmpttest-mptTime.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o common/libopenmpttest-mptTime.o `test -f 'common/mptTime.cpp' || echo '$(srcdir)/'`common/mptTime.cpp
+
+common/libopenmpttest-mptTime.obj: common/mptTime.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT common/libopenmpttest-mptTime.obj -MD -MP -MF common/$(DEPDIR)/libopenmpttest-mptTime.Tpo -c -o common/libopenmpttest-mptTime.obj `if test -f 'common/mptTime.cpp'; then $(CYGPATH_W) 'common/mptTime.cpp'; else $(CYGPATH_W) '$(srcdir)/common/mptTime.cpp'; fi`
+	$(AM_V_at)$(am__mv) common/$(DEPDIR)/libopenmpttest-mptTime.Tpo common/$(DEPDIR)/libopenmpttest-mptTime.Po
+#	$(AM_V_CXX)source='common/mptTime.cpp' object='common/libopenmpttest-mptTime.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o common/libopenmpttest-mptTime.obj `if test -f 'common/mptTime.cpp'; then $(CYGPATH_W) 'common/mptTime.cpp'; else $(CYGPATH_W) '$(srcdir)/common/mptTime.cpp'; fi`
+
+common/libopenmpttest-Profiler.o: common/Profiler.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT common/libopenmpttest-Profiler.o -MD -MP -MF common/$(DEPDIR)/libopenmpttest-Profiler.Tpo -c -o common/libopenmpttest-Profiler.o `test -f 'common/Profiler.cpp' || echo '$(srcdir)/'`common/Profiler.cpp
+	$(AM_V_at)$(am__mv) common/$(DEPDIR)/libopenmpttest-Profiler.Tpo common/$(DEPDIR)/libopenmpttest-Profiler.Po
+#	$(AM_V_CXX)source='common/Profiler.cpp' object='common/libopenmpttest-Profiler.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o common/libopenmpttest-Profiler.o `test -f 'common/Profiler.cpp' || echo '$(srcdir)/'`common/Profiler.cpp
+
+common/libopenmpttest-Profiler.obj: common/Profiler.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT common/libopenmpttest-Profiler.obj -MD -MP -MF common/$(DEPDIR)/libopenmpttest-Profiler.Tpo -c -o common/libopenmpttest-Profiler.obj `if test -f 'common/Profiler.cpp'; then $(CYGPATH_W) 'common/Profiler.cpp'; else $(CYGPATH_W) '$(srcdir)/common/Profiler.cpp'; fi`
+	$(AM_V_at)$(am__mv) common/$(DEPDIR)/libopenmpttest-Profiler.Tpo common/$(DEPDIR)/libopenmpttest-Profiler.Po
+#	$(AM_V_CXX)source='common/Profiler.cpp' object='common/libopenmpttest-Profiler.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o common/libopenmpttest-Profiler.obj `if test -f 'common/Profiler.cpp'; then $(CYGPATH_W) 'common/Profiler.cpp'; else $(CYGPATH_W) '$(srcdir)/common/Profiler.cpp'; fi`
+
+common/libopenmpttest-serialization_utils.o: common/serialization_utils.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT common/libopenmpttest-serialization_utils.o -MD -MP -MF common/$(DEPDIR)/libopenmpttest-serialization_utils.Tpo -c -o common/libopenmpttest-serialization_utils.o `test -f 'common/serialization_utils.cpp' || echo '$(srcdir)/'`common/serialization_utils.cpp
+	$(AM_V_at)$(am__mv) common/$(DEPDIR)/libopenmpttest-serialization_utils.Tpo common/$(DEPDIR)/libopenmpttest-serialization_utils.Po
+#	$(AM_V_CXX)source='common/serialization_utils.cpp' object='common/libopenmpttest-serialization_utils.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o common/libopenmpttest-serialization_utils.o `test -f 'common/serialization_utils.cpp' || echo '$(srcdir)/'`common/serialization_utils.cpp
+
+common/libopenmpttest-serialization_utils.obj: common/serialization_utils.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT common/libopenmpttest-serialization_utils.obj -MD -MP -MF common/$(DEPDIR)/libopenmpttest-serialization_utils.Tpo -c -o common/libopenmpttest-serialization_utils.obj `if test -f 'common/serialization_utils.cpp'; then $(CYGPATH_W) 'common/serialization_utils.cpp'; else $(CYGPATH_W) '$(srcdir)/common/serialization_utils.cpp'; fi`
+	$(AM_V_at)$(am__mv) common/$(DEPDIR)/libopenmpttest-serialization_utils.Tpo common/$(DEPDIR)/libopenmpttest-serialization_utils.Po
+#	$(AM_V_CXX)source='common/serialization_utils.cpp' object='common/libopenmpttest-serialization_utils.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o common/libopenmpttest-serialization_utils.obj `if test -f 'common/serialization_utils.cpp'; then $(CYGPATH_W) 'common/serialization_utils.cpp'; else $(CYGPATH_W) '$(srcdir)/common/serialization_utils.cpp'; fi`
+
+common/libopenmpttest-version.o: common/version.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT common/libopenmpttest-version.o -MD -MP -MF common/$(DEPDIR)/libopenmpttest-version.Tpo -c -o common/libopenmpttest-version.o `test -f 'common/version.cpp' || echo '$(srcdir)/'`common/version.cpp
+	$(AM_V_at)$(am__mv) common/$(DEPDIR)/libopenmpttest-version.Tpo common/$(DEPDIR)/libopenmpttest-version.Po
+#	$(AM_V_CXX)source='common/version.cpp' object='common/libopenmpttest-version.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o common/libopenmpttest-version.o `test -f 'common/version.cpp' || echo '$(srcdir)/'`common/version.cpp
+
+common/libopenmpttest-version.obj: common/version.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT common/libopenmpttest-version.obj -MD -MP -MF common/$(DEPDIR)/libopenmpttest-version.Tpo -c -o common/libopenmpttest-version.obj `if test -f 'common/version.cpp'; then $(CYGPATH_W) 'common/version.cpp'; else $(CYGPATH_W) '$(srcdir)/common/version.cpp'; fi`
+	$(AM_V_at)$(am__mv) common/$(DEPDIR)/libopenmpttest-version.Tpo common/$(DEPDIR)/libopenmpttest-version.Po
+#	$(AM_V_CXX)source='common/version.cpp' object='common/libopenmpttest-version.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o common/libopenmpttest-version.obj `if test -f 'common/version.cpp'; then $(CYGPATH_W) 'common/version.cpp'; else $(CYGPATH_W) '$(srcdir)/common/version.cpp'; fi`
+
+soundlib/libopenmpttest-AudioCriticalSection.o: soundlib/AudioCriticalSection.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-AudioCriticalSection.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-AudioCriticalSection.Tpo -c -o soundlib/libopenmpttest-AudioCriticalSection.o `test -f 'soundlib/AudioCriticalSection.cpp' || echo '$(srcdir)/'`soundlib/AudioCriticalSection.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-AudioCriticalSection.Tpo soundlib/$(DEPDIR)/libopenmpttest-AudioCriticalSection.Po
+#	$(AM_V_CXX)source='soundlib/AudioCriticalSection.cpp' object='soundlib/libopenmpttest-AudioCriticalSection.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-AudioCriticalSection.o `test -f 'soundlib/AudioCriticalSection.cpp' || echo '$(srcdir)/'`soundlib/AudioCriticalSection.cpp
+
+soundlib/libopenmpttest-AudioCriticalSection.obj: soundlib/AudioCriticalSection.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-AudioCriticalSection.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-AudioCriticalSection.Tpo -c -o soundlib/libopenmpttest-AudioCriticalSection.obj `if test -f 'soundlib/AudioCriticalSection.cpp'; then $(CYGPATH_W) 'soundlib/AudioCriticalSection.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/AudioCriticalSection.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-AudioCriticalSection.Tpo soundlib/$(DEPDIR)/libopenmpttest-AudioCriticalSection.Po
+#	$(AM_V_CXX)source='soundlib/AudioCriticalSection.cpp' object='soundlib/libopenmpttest-AudioCriticalSection.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-AudioCriticalSection.obj `if test -f 'soundlib/AudioCriticalSection.cpp'; then $(CYGPATH_W) 'soundlib/AudioCriticalSection.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/AudioCriticalSection.cpp'; fi`
+
+soundlib/libopenmpttest-ContainerMMCMP.o: soundlib/ContainerMMCMP.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-ContainerMMCMP.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-ContainerMMCMP.Tpo -c -o soundlib/libopenmpttest-ContainerMMCMP.o `test -f 'soundlib/ContainerMMCMP.cpp' || echo '$(srcdir)/'`soundlib/ContainerMMCMP.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-ContainerMMCMP.Tpo soundlib/$(DEPDIR)/libopenmpttest-ContainerMMCMP.Po
+#	$(AM_V_CXX)source='soundlib/ContainerMMCMP.cpp' object='soundlib/libopenmpttest-ContainerMMCMP.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-ContainerMMCMP.o `test -f 'soundlib/ContainerMMCMP.cpp' || echo '$(srcdir)/'`soundlib/ContainerMMCMP.cpp
+
+soundlib/libopenmpttest-ContainerMMCMP.obj: soundlib/ContainerMMCMP.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-ContainerMMCMP.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-ContainerMMCMP.Tpo -c -o soundlib/libopenmpttest-ContainerMMCMP.obj `if test -f 'soundlib/ContainerMMCMP.cpp'; then $(CYGPATH_W) 'soundlib/ContainerMMCMP.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/ContainerMMCMP.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-ContainerMMCMP.Tpo soundlib/$(DEPDIR)/libopenmpttest-ContainerMMCMP.Po
+#	$(AM_V_CXX)source='soundlib/ContainerMMCMP.cpp' object='soundlib/libopenmpttest-ContainerMMCMP.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-ContainerMMCMP.obj `if test -f 'soundlib/ContainerMMCMP.cpp'; then $(CYGPATH_W) 'soundlib/ContainerMMCMP.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/ContainerMMCMP.cpp'; fi`
+
+soundlib/libopenmpttest-ContainerPP20.o: soundlib/ContainerPP20.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-ContainerPP20.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-ContainerPP20.Tpo -c -o soundlib/libopenmpttest-ContainerPP20.o `test -f 'soundlib/ContainerPP20.cpp' || echo '$(srcdir)/'`soundlib/ContainerPP20.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-ContainerPP20.Tpo soundlib/$(DEPDIR)/libopenmpttest-ContainerPP20.Po
+#	$(AM_V_CXX)source='soundlib/ContainerPP20.cpp' object='soundlib/libopenmpttest-ContainerPP20.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-ContainerPP20.o `test -f 'soundlib/ContainerPP20.cpp' || echo '$(srcdir)/'`soundlib/ContainerPP20.cpp
+
+soundlib/libopenmpttest-ContainerPP20.obj: soundlib/ContainerPP20.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-ContainerPP20.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-ContainerPP20.Tpo -c -o soundlib/libopenmpttest-ContainerPP20.obj `if test -f 'soundlib/ContainerPP20.cpp'; then $(CYGPATH_W) 'soundlib/ContainerPP20.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/ContainerPP20.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-ContainerPP20.Tpo soundlib/$(DEPDIR)/libopenmpttest-ContainerPP20.Po
+#	$(AM_V_CXX)source='soundlib/ContainerPP20.cpp' object='soundlib/libopenmpttest-ContainerPP20.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-ContainerPP20.obj `if test -f 'soundlib/ContainerPP20.cpp'; then $(CYGPATH_W) 'soundlib/ContainerPP20.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/ContainerPP20.cpp'; fi`
+
+soundlib/libopenmpttest-ContainerUMX.o: soundlib/ContainerUMX.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-ContainerUMX.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-ContainerUMX.Tpo -c -o soundlib/libopenmpttest-ContainerUMX.o `test -f 'soundlib/ContainerUMX.cpp' || echo '$(srcdir)/'`soundlib/ContainerUMX.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-ContainerUMX.Tpo soundlib/$(DEPDIR)/libopenmpttest-ContainerUMX.Po
+#	$(AM_V_CXX)source='soundlib/ContainerUMX.cpp' object='soundlib/libopenmpttest-ContainerUMX.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-ContainerUMX.o `test -f 'soundlib/ContainerUMX.cpp' || echo '$(srcdir)/'`soundlib/ContainerUMX.cpp
+
+soundlib/libopenmpttest-ContainerUMX.obj: soundlib/ContainerUMX.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-ContainerUMX.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-ContainerUMX.Tpo -c -o soundlib/libopenmpttest-ContainerUMX.obj `if test -f 'soundlib/ContainerUMX.cpp'; then $(CYGPATH_W) 'soundlib/ContainerUMX.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/ContainerUMX.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-ContainerUMX.Tpo soundlib/$(DEPDIR)/libopenmpttest-ContainerUMX.Po
+#	$(AM_V_CXX)source='soundlib/ContainerUMX.cpp' object='soundlib/libopenmpttest-ContainerUMX.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-ContainerUMX.obj `if test -f 'soundlib/ContainerUMX.cpp'; then $(CYGPATH_W) 'soundlib/ContainerUMX.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/ContainerUMX.cpp'; fi`
+
+soundlib/libopenmpttest-ContainerXPK.o: soundlib/ContainerXPK.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-ContainerXPK.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-ContainerXPK.Tpo -c -o soundlib/libopenmpttest-ContainerXPK.o `test -f 'soundlib/ContainerXPK.cpp' || echo '$(srcdir)/'`soundlib/ContainerXPK.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-ContainerXPK.Tpo soundlib/$(DEPDIR)/libopenmpttest-ContainerXPK.Po
+#	$(AM_V_CXX)source='soundlib/ContainerXPK.cpp' object='soundlib/libopenmpttest-ContainerXPK.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-ContainerXPK.o `test -f 'soundlib/ContainerXPK.cpp' || echo '$(srcdir)/'`soundlib/ContainerXPK.cpp
+
+soundlib/libopenmpttest-ContainerXPK.obj: soundlib/ContainerXPK.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-ContainerXPK.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-ContainerXPK.Tpo -c -o soundlib/libopenmpttest-ContainerXPK.obj `if test -f 'soundlib/ContainerXPK.cpp'; then $(CYGPATH_W) 'soundlib/ContainerXPK.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/ContainerXPK.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-ContainerXPK.Tpo soundlib/$(DEPDIR)/libopenmpttest-ContainerXPK.Po
+#	$(AM_V_CXX)source='soundlib/ContainerXPK.cpp' object='soundlib/libopenmpttest-ContainerXPK.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-ContainerXPK.obj `if test -f 'soundlib/ContainerXPK.cpp'; then $(CYGPATH_W) 'soundlib/ContainerXPK.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/ContainerXPK.cpp'; fi`
+
+soundlib/libopenmpttest-Dlsbank.o: soundlib/Dlsbank.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Dlsbank.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Dlsbank.Tpo -c -o soundlib/libopenmpttest-Dlsbank.o `test -f 'soundlib/Dlsbank.cpp' || echo '$(srcdir)/'`soundlib/Dlsbank.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Dlsbank.Tpo soundlib/$(DEPDIR)/libopenmpttest-Dlsbank.Po
+#	$(AM_V_CXX)source='soundlib/Dlsbank.cpp' object='soundlib/libopenmpttest-Dlsbank.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Dlsbank.o `test -f 'soundlib/Dlsbank.cpp' || echo '$(srcdir)/'`soundlib/Dlsbank.cpp
+
+soundlib/libopenmpttest-Dlsbank.obj: soundlib/Dlsbank.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Dlsbank.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Dlsbank.Tpo -c -o soundlib/libopenmpttest-Dlsbank.obj `if test -f 'soundlib/Dlsbank.cpp'; then $(CYGPATH_W) 'soundlib/Dlsbank.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Dlsbank.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Dlsbank.Tpo soundlib/$(DEPDIR)/libopenmpttest-Dlsbank.Po
+#	$(AM_V_CXX)source='soundlib/Dlsbank.cpp' object='soundlib/libopenmpttest-Dlsbank.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Dlsbank.obj `if test -f 'soundlib/Dlsbank.cpp'; then $(CYGPATH_W) 'soundlib/Dlsbank.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Dlsbank.cpp'; fi`
+
+soundlib/libopenmpttest-Fastmix.o: soundlib/Fastmix.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Fastmix.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Fastmix.Tpo -c -o soundlib/libopenmpttest-Fastmix.o `test -f 'soundlib/Fastmix.cpp' || echo '$(srcdir)/'`soundlib/Fastmix.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Fastmix.Tpo soundlib/$(DEPDIR)/libopenmpttest-Fastmix.Po
+#	$(AM_V_CXX)source='soundlib/Fastmix.cpp' object='soundlib/libopenmpttest-Fastmix.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Fastmix.o `test -f 'soundlib/Fastmix.cpp' || echo '$(srcdir)/'`soundlib/Fastmix.cpp
+
+soundlib/libopenmpttest-Fastmix.obj: soundlib/Fastmix.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Fastmix.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Fastmix.Tpo -c -o soundlib/libopenmpttest-Fastmix.obj `if test -f 'soundlib/Fastmix.cpp'; then $(CYGPATH_W) 'soundlib/Fastmix.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Fastmix.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Fastmix.Tpo soundlib/$(DEPDIR)/libopenmpttest-Fastmix.Po
+#	$(AM_V_CXX)source='soundlib/Fastmix.cpp' object='soundlib/libopenmpttest-Fastmix.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Fastmix.obj `if test -f 'soundlib/Fastmix.cpp'; then $(CYGPATH_W) 'soundlib/Fastmix.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Fastmix.cpp'; fi`
+
+soundlib/libopenmpttest-InstrumentExtensions.o: soundlib/InstrumentExtensions.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-InstrumentExtensions.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-InstrumentExtensions.Tpo -c -o soundlib/libopenmpttest-InstrumentExtensions.o `test -f 'soundlib/InstrumentExtensions.cpp' || echo '$(srcdir)/'`soundlib/InstrumentExtensions.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-InstrumentExtensions.Tpo soundlib/$(DEPDIR)/libopenmpttest-InstrumentExtensions.Po
+#	$(AM_V_CXX)source='soundlib/InstrumentExtensions.cpp' object='soundlib/libopenmpttest-InstrumentExtensions.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-InstrumentExtensions.o `test -f 'soundlib/InstrumentExtensions.cpp' || echo '$(srcdir)/'`soundlib/InstrumentExtensions.cpp
+
+soundlib/libopenmpttest-InstrumentExtensions.obj: soundlib/InstrumentExtensions.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-InstrumentExtensions.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-InstrumentExtensions.Tpo -c -o soundlib/libopenmpttest-InstrumentExtensions.obj `if test -f 'soundlib/InstrumentExtensions.cpp'; then $(CYGPATH_W) 'soundlib/InstrumentExtensions.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/InstrumentExtensions.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-InstrumentExtensions.Tpo soundlib/$(DEPDIR)/libopenmpttest-InstrumentExtensions.Po
+#	$(AM_V_CXX)source='soundlib/InstrumentExtensions.cpp' object='soundlib/libopenmpttest-InstrumentExtensions.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-InstrumentExtensions.obj `if test -f 'soundlib/InstrumentExtensions.cpp'; then $(CYGPATH_W) 'soundlib/InstrumentExtensions.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/InstrumentExtensions.cpp'; fi`
+
+soundlib/libopenmpttest-InstrumentSynth.o: soundlib/InstrumentSynth.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-InstrumentSynth.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-InstrumentSynth.Tpo -c -o soundlib/libopenmpttest-InstrumentSynth.o `test -f 'soundlib/InstrumentSynth.cpp' || echo '$(srcdir)/'`soundlib/InstrumentSynth.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-InstrumentSynth.Tpo soundlib/$(DEPDIR)/libopenmpttest-InstrumentSynth.Po
+#	$(AM_V_CXX)source='soundlib/InstrumentSynth.cpp' object='soundlib/libopenmpttest-InstrumentSynth.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-InstrumentSynth.o `test -f 'soundlib/InstrumentSynth.cpp' || echo '$(srcdir)/'`soundlib/InstrumentSynth.cpp
+
+soundlib/libopenmpttest-InstrumentSynth.obj: soundlib/InstrumentSynth.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-InstrumentSynth.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-InstrumentSynth.Tpo -c -o soundlib/libopenmpttest-InstrumentSynth.obj `if test -f 'soundlib/InstrumentSynth.cpp'; then $(CYGPATH_W) 'soundlib/InstrumentSynth.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/InstrumentSynth.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-InstrumentSynth.Tpo soundlib/$(DEPDIR)/libopenmpttest-InstrumentSynth.Po
+#	$(AM_V_CXX)source='soundlib/InstrumentSynth.cpp' object='soundlib/libopenmpttest-InstrumentSynth.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-InstrumentSynth.obj `if test -f 'soundlib/InstrumentSynth.cpp'; then $(CYGPATH_W) 'soundlib/InstrumentSynth.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/InstrumentSynth.cpp'; fi`
+
+soundlib/libopenmpttest-ITCompression.o: soundlib/ITCompression.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-ITCompression.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-ITCompression.Tpo -c -o soundlib/libopenmpttest-ITCompression.o `test -f 'soundlib/ITCompression.cpp' || echo '$(srcdir)/'`soundlib/ITCompression.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-ITCompression.Tpo soundlib/$(DEPDIR)/libopenmpttest-ITCompression.Po
+#	$(AM_V_CXX)source='soundlib/ITCompression.cpp' object='soundlib/libopenmpttest-ITCompression.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-ITCompression.o `test -f 'soundlib/ITCompression.cpp' || echo '$(srcdir)/'`soundlib/ITCompression.cpp
+
+soundlib/libopenmpttest-ITCompression.obj: soundlib/ITCompression.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-ITCompression.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-ITCompression.Tpo -c -o soundlib/libopenmpttest-ITCompression.obj `if test -f 'soundlib/ITCompression.cpp'; then $(CYGPATH_W) 'soundlib/ITCompression.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/ITCompression.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-ITCompression.Tpo soundlib/$(DEPDIR)/libopenmpttest-ITCompression.Po
+#	$(AM_V_CXX)source='soundlib/ITCompression.cpp' object='soundlib/libopenmpttest-ITCompression.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-ITCompression.obj `if test -f 'soundlib/ITCompression.cpp'; then $(CYGPATH_W) 'soundlib/ITCompression.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/ITCompression.cpp'; fi`
+
+soundlib/libopenmpttest-ITTools.o: soundlib/ITTools.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-ITTools.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-ITTools.Tpo -c -o soundlib/libopenmpttest-ITTools.o `test -f 'soundlib/ITTools.cpp' || echo '$(srcdir)/'`soundlib/ITTools.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-ITTools.Tpo soundlib/$(DEPDIR)/libopenmpttest-ITTools.Po
+#	$(AM_V_CXX)source='soundlib/ITTools.cpp' object='soundlib/libopenmpttest-ITTools.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-ITTools.o `test -f 'soundlib/ITTools.cpp' || echo '$(srcdir)/'`soundlib/ITTools.cpp
+
+soundlib/libopenmpttest-ITTools.obj: soundlib/ITTools.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-ITTools.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-ITTools.Tpo -c -o soundlib/libopenmpttest-ITTools.obj `if test -f 'soundlib/ITTools.cpp'; then $(CYGPATH_W) 'soundlib/ITTools.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/ITTools.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-ITTools.Tpo soundlib/$(DEPDIR)/libopenmpttest-ITTools.Po
+#	$(AM_V_CXX)source='soundlib/ITTools.cpp' object='soundlib/libopenmpttest-ITTools.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-ITTools.obj `if test -f 'soundlib/ITTools.cpp'; then $(CYGPATH_W) 'soundlib/ITTools.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/ITTools.cpp'; fi`
+
+soundlib/libopenmpttest-Load_667.o: soundlib/Load_667.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_667.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_667.Tpo -c -o soundlib/libopenmpttest-Load_667.o `test -f 'soundlib/Load_667.cpp' || echo '$(srcdir)/'`soundlib/Load_667.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_667.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_667.Po
+#	$(AM_V_CXX)source='soundlib/Load_667.cpp' object='soundlib/libopenmpttest-Load_667.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_667.o `test -f 'soundlib/Load_667.cpp' || echo '$(srcdir)/'`soundlib/Load_667.cpp
+
+soundlib/libopenmpttest-Load_667.obj: soundlib/Load_667.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_667.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_667.Tpo -c -o soundlib/libopenmpttest-Load_667.obj `if test -f 'soundlib/Load_667.cpp'; then $(CYGPATH_W) 'soundlib/Load_667.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_667.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_667.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_667.Po
+#	$(AM_V_CXX)source='soundlib/Load_667.cpp' object='soundlib/libopenmpttest-Load_667.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_667.obj `if test -f 'soundlib/Load_667.cpp'; then $(CYGPATH_W) 'soundlib/Load_667.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_667.cpp'; fi`
+
+soundlib/libopenmpttest-Load_669.o: soundlib/Load_669.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_669.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_669.Tpo -c -o soundlib/libopenmpttest-Load_669.o `test -f 'soundlib/Load_669.cpp' || echo '$(srcdir)/'`soundlib/Load_669.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_669.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_669.Po
+#	$(AM_V_CXX)source='soundlib/Load_669.cpp' object='soundlib/libopenmpttest-Load_669.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_669.o `test -f 'soundlib/Load_669.cpp' || echo '$(srcdir)/'`soundlib/Load_669.cpp
+
+soundlib/libopenmpttest-Load_669.obj: soundlib/Load_669.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_669.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_669.Tpo -c -o soundlib/libopenmpttest-Load_669.obj `if test -f 'soundlib/Load_669.cpp'; then $(CYGPATH_W) 'soundlib/Load_669.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_669.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_669.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_669.Po
+#	$(AM_V_CXX)source='soundlib/Load_669.cpp' object='soundlib/libopenmpttest-Load_669.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_669.obj `if test -f 'soundlib/Load_669.cpp'; then $(CYGPATH_W) 'soundlib/Load_669.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_669.cpp'; fi`
+
+soundlib/libopenmpttest-Load_amf.o: soundlib/Load_amf.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_amf.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_amf.Tpo -c -o soundlib/libopenmpttest-Load_amf.o `test -f 'soundlib/Load_amf.cpp' || echo '$(srcdir)/'`soundlib/Load_amf.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_amf.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_amf.Po
+#	$(AM_V_CXX)source='soundlib/Load_amf.cpp' object='soundlib/libopenmpttest-Load_amf.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_amf.o `test -f 'soundlib/Load_amf.cpp' || echo '$(srcdir)/'`soundlib/Load_amf.cpp
+
+soundlib/libopenmpttest-Load_amf.obj: soundlib/Load_amf.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_amf.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_amf.Tpo -c -o soundlib/libopenmpttest-Load_amf.obj `if test -f 'soundlib/Load_amf.cpp'; then $(CYGPATH_W) 'soundlib/Load_amf.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_amf.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_amf.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_amf.Po
+#	$(AM_V_CXX)source='soundlib/Load_amf.cpp' object='soundlib/libopenmpttest-Load_amf.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_amf.obj `if test -f 'soundlib/Load_amf.cpp'; then $(CYGPATH_W) 'soundlib/Load_amf.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_amf.cpp'; fi`
+
+soundlib/libopenmpttest-Load_ams.o: soundlib/Load_ams.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_ams.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_ams.Tpo -c -o soundlib/libopenmpttest-Load_ams.o `test -f 'soundlib/Load_ams.cpp' || echo '$(srcdir)/'`soundlib/Load_ams.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_ams.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_ams.Po
+#	$(AM_V_CXX)source='soundlib/Load_ams.cpp' object='soundlib/libopenmpttest-Load_ams.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_ams.o `test -f 'soundlib/Load_ams.cpp' || echo '$(srcdir)/'`soundlib/Load_ams.cpp
+
+soundlib/libopenmpttest-Load_ams.obj: soundlib/Load_ams.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_ams.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_ams.Tpo -c -o soundlib/libopenmpttest-Load_ams.obj `if test -f 'soundlib/Load_ams.cpp'; then $(CYGPATH_W) 'soundlib/Load_ams.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_ams.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_ams.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_ams.Po
+#	$(AM_V_CXX)source='soundlib/Load_ams.cpp' object='soundlib/libopenmpttest-Load_ams.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_ams.obj `if test -f 'soundlib/Load_ams.cpp'; then $(CYGPATH_W) 'soundlib/Load_ams.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_ams.cpp'; fi`
+
+soundlib/libopenmpttest-Load_c67.o: soundlib/Load_c67.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_c67.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_c67.Tpo -c -o soundlib/libopenmpttest-Load_c67.o `test -f 'soundlib/Load_c67.cpp' || echo '$(srcdir)/'`soundlib/Load_c67.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_c67.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_c67.Po
+#	$(AM_V_CXX)source='soundlib/Load_c67.cpp' object='soundlib/libopenmpttest-Load_c67.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_c67.o `test -f 'soundlib/Load_c67.cpp' || echo '$(srcdir)/'`soundlib/Load_c67.cpp
+
+soundlib/libopenmpttest-Load_c67.obj: soundlib/Load_c67.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_c67.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_c67.Tpo -c -o soundlib/libopenmpttest-Load_c67.obj `if test -f 'soundlib/Load_c67.cpp'; then $(CYGPATH_W) 'soundlib/Load_c67.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_c67.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_c67.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_c67.Po
+#	$(AM_V_CXX)source='soundlib/Load_c67.cpp' object='soundlib/libopenmpttest-Load_c67.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_c67.obj `if test -f 'soundlib/Load_c67.cpp'; then $(CYGPATH_W) 'soundlib/Load_c67.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_c67.cpp'; fi`
+
+soundlib/libopenmpttest-Load_cba.o: soundlib/Load_cba.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_cba.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_cba.Tpo -c -o soundlib/libopenmpttest-Load_cba.o `test -f 'soundlib/Load_cba.cpp' || echo '$(srcdir)/'`soundlib/Load_cba.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_cba.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_cba.Po
+#	$(AM_V_CXX)source='soundlib/Load_cba.cpp' object='soundlib/libopenmpttest-Load_cba.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_cba.o `test -f 'soundlib/Load_cba.cpp' || echo '$(srcdir)/'`soundlib/Load_cba.cpp
+
+soundlib/libopenmpttest-Load_cba.obj: soundlib/Load_cba.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_cba.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_cba.Tpo -c -o soundlib/libopenmpttest-Load_cba.obj `if test -f 'soundlib/Load_cba.cpp'; then $(CYGPATH_W) 'soundlib/Load_cba.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_cba.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_cba.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_cba.Po
+#	$(AM_V_CXX)source='soundlib/Load_cba.cpp' object='soundlib/libopenmpttest-Load_cba.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_cba.obj `if test -f 'soundlib/Load_cba.cpp'; then $(CYGPATH_W) 'soundlib/Load_cba.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_cba.cpp'; fi`
+
+soundlib/libopenmpttest-Load_dbm.o: soundlib/Load_dbm.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_dbm.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_dbm.Tpo -c -o soundlib/libopenmpttest-Load_dbm.o `test -f 'soundlib/Load_dbm.cpp' || echo '$(srcdir)/'`soundlib/Load_dbm.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_dbm.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_dbm.Po
+#	$(AM_V_CXX)source='soundlib/Load_dbm.cpp' object='soundlib/libopenmpttest-Load_dbm.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_dbm.o `test -f 'soundlib/Load_dbm.cpp' || echo '$(srcdir)/'`soundlib/Load_dbm.cpp
+
+soundlib/libopenmpttest-Load_dbm.obj: soundlib/Load_dbm.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_dbm.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_dbm.Tpo -c -o soundlib/libopenmpttest-Load_dbm.obj `if test -f 'soundlib/Load_dbm.cpp'; then $(CYGPATH_W) 'soundlib/Load_dbm.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_dbm.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_dbm.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_dbm.Po
+#	$(AM_V_CXX)source='soundlib/Load_dbm.cpp' object='soundlib/libopenmpttest-Load_dbm.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_dbm.obj `if test -f 'soundlib/Load_dbm.cpp'; then $(CYGPATH_W) 'soundlib/Load_dbm.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_dbm.cpp'; fi`
+
+soundlib/libopenmpttest-Load_digi.o: soundlib/Load_digi.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_digi.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_digi.Tpo -c -o soundlib/libopenmpttest-Load_digi.o `test -f 'soundlib/Load_digi.cpp' || echo '$(srcdir)/'`soundlib/Load_digi.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_digi.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_digi.Po
+#	$(AM_V_CXX)source='soundlib/Load_digi.cpp' object='soundlib/libopenmpttest-Load_digi.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_digi.o `test -f 'soundlib/Load_digi.cpp' || echo '$(srcdir)/'`soundlib/Load_digi.cpp
+
+soundlib/libopenmpttest-Load_digi.obj: soundlib/Load_digi.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_digi.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_digi.Tpo -c -o soundlib/libopenmpttest-Load_digi.obj `if test -f 'soundlib/Load_digi.cpp'; then $(CYGPATH_W) 'soundlib/Load_digi.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_digi.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_digi.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_digi.Po
+#	$(AM_V_CXX)source='soundlib/Load_digi.cpp' object='soundlib/libopenmpttest-Load_digi.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_digi.obj `if test -f 'soundlib/Load_digi.cpp'; then $(CYGPATH_W) 'soundlib/Load_digi.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_digi.cpp'; fi`
+
+soundlib/libopenmpttest-Load_dmf.o: soundlib/Load_dmf.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_dmf.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_dmf.Tpo -c -o soundlib/libopenmpttest-Load_dmf.o `test -f 'soundlib/Load_dmf.cpp' || echo '$(srcdir)/'`soundlib/Load_dmf.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_dmf.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_dmf.Po
+#	$(AM_V_CXX)source='soundlib/Load_dmf.cpp' object='soundlib/libopenmpttest-Load_dmf.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_dmf.o `test -f 'soundlib/Load_dmf.cpp' || echo '$(srcdir)/'`soundlib/Load_dmf.cpp
+
+soundlib/libopenmpttest-Load_dmf.obj: soundlib/Load_dmf.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_dmf.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_dmf.Tpo -c -o soundlib/libopenmpttest-Load_dmf.obj `if test -f 'soundlib/Load_dmf.cpp'; then $(CYGPATH_W) 'soundlib/Load_dmf.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_dmf.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_dmf.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_dmf.Po
+#	$(AM_V_CXX)source='soundlib/Load_dmf.cpp' object='soundlib/libopenmpttest-Load_dmf.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_dmf.obj `if test -f 'soundlib/Load_dmf.cpp'; then $(CYGPATH_W) 'soundlib/Load_dmf.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_dmf.cpp'; fi`
+
+soundlib/libopenmpttest-Load_dsm.o: soundlib/Load_dsm.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_dsm.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_dsm.Tpo -c -o soundlib/libopenmpttest-Load_dsm.o `test -f 'soundlib/Load_dsm.cpp' || echo '$(srcdir)/'`soundlib/Load_dsm.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_dsm.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_dsm.Po
+#	$(AM_V_CXX)source='soundlib/Load_dsm.cpp' object='soundlib/libopenmpttest-Load_dsm.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_dsm.o `test -f 'soundlib/Load_dsm.cpp' || echo '$(srcdir)/'`soundlib/Load_dsm.cpp
+
+soundlib/libopenmpttest-Load_dsm.obj: soundlib/Load_dsm.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_dsm.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_dsm.Tpo -c -o soundlib/libopenmpttest-Load_dsm.obj `if test -f 'soundlib/Load_dsm.cpp'; then $(CYGPATH_W) 'soundlib/Load_dsm.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_dsm.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_dsm.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_dsm.Po
+#	$(AM_V_CXX)source='soundlib/Load_dsm.cpp' object='soundlib/libopenmpttest-Load_dsm.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_dsm.obj `if test -f 'soundlib/Load_dsm.cpp'; then $(CYGPATH_W) 'soundlib/Load_dsm.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_dsm.cpp'; fi`
+
+soundlib/libopenmpttest-Load_dsym.o: soundlib/Load_dsym.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_dsym.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_dsym.Tpo -c -o soundlib/libopenmpttest-Load_dsym.o `test -f 'soundlib/Load_dsym.cpp' || echo '$(srcdir)/'`soundlib/Load_dsym.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_dsym.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_dsym.Po
+#	$(AM_V_CXX)source='soundlib/Load_dsym.cpp' object='soundlib/libopenmpttest-Load_dsym.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_dsym.o `test -f 'soundlib/Load_dsym.cpp' || echo '$(srcdir)/'`soundlib/Load_dsym.cpp
+
+soundlib/libopenmpttest-Load_dsym.obj: soundlib/Load_dsym.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_dsym.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_dsym.Tpo -c -o soundlib/libopenmpttest-Load_dsym.obj `if test -f 'soundlib/Load_dsym.cpp'; then $(CYGPATH_W) 'soundlib/Load_dsym.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_dsym.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_dsym.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_dsym.Po
+#	$(AM_V_CXX)source='soundlib/Load_dsym.cpp' object='soundlib/libopenmpttest-Load_dsym.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_dsym.obj `if test -f 'soundlib/Load_dsym.cpp'; then $(CYGPATH_W) 'soundlib/Load_dsym.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_dsym.cpp'; fi`
+
+soundlib/libopenmpttest-Load_dtm.o: soundlib/Load_dtm.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_dtm.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_dtm.Tpo -c -o soundlib/libopenmpttest-Load_dtm.o `test -f 'soundlib/Load_dtm.cpp' || echo '$(srcdir)/'`soundlib/Load_dtm.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_dtm.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_dtm.Po
+#	$(AM_V_CXX)source='soundlib/Load_dtm.cpp' object='soundlib/libopenmpttest-Load_dtm.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_dtm.o `test -f 'soundlib/Load_dtm.cpp' || echo '$(srcdir)/'`soundlib/Load_dtm.cpp
+
+soundlib/libopenmpttest-Load_dtm.obj: soundlib/Load_dtm.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_dtm.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_dtm.Tpo -c -o soundlib/libopenmpttest-Load_dtm.obj `if test -f 'soundlib/Load_dtm.cpp'; then $(CYGPATH_W) 'soundlib/Load_dtm.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_dtm.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_dtm.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_dtm.Po
+#	$(AM_V_CXX)source='soundlib/Load_dtm.cpp' object='soundlib/libopenmpttest-Load_dtm.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_dtm.obj `if test -f 'soundlib/Load_dtm.cpp'; then $(CYGPATH_W) 'soundlib/Load_dtm.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_dtm.cpp'; fi`
+
+soundlib/libopenmpttest-Load_etx.o: soundlib/Load_etx.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_etx.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_etx.Tpo -c -o soundlib/libopenmpttest-Load_etx.o `test -f 'soundlib/Load_etx.cpp' || echo '$(srcdir)/'`soundlib/Load_etx.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_etx.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_etx.Po
+#	$(AM_V_CXX)source='soundlib/Load_etx.cpp' object='soundlib/libopenmpttest-Load_etx.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_etx.o `test -f 'soundlib/Load_etx.cpp' || echo '$(srcdir)/'`soundlib/Load_etx.cpp
+
+soundlib/libopenmpttest-Load_etx.obj: soundlib/Load_etx.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_etx.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_etx.Tpo -c -o soundlib/libopenmpttest-Load_etx.obj `if test -f 'soundlib/Load_etx.cpp'; then $(CYGPATH_W) 'soundlib/Load_etx.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_etx.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_etx.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_etx.Po
+#	$(AM_V_CXX)source='soundlib/Load_etx.cpp' object='soundlib/libopenmpttest-Load_etx.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_etx.obj `if test -f 'soundlib/Load_etx.cpp'; then $(CYGPATH_W) 'soundlib/Load_etx.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_etx.cpp'; fi`
+
+soundlib/libopenmpttest-Load_far.o: soundlib/Load_far.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_far.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_far.Tpo -c -o soundlib/libopenmpttest-Load_far.o `test -f 'soundlib/Load_far.cpp' || echo '$(srcdir)/'`soundlib/Load_far.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_far.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_far.Po
+#	$(AM_V_CXX)source='soundlib/Load_far.cpp' object='soundlib/libopenmpttest-Load_far.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_far.o `test -f 'soundlib/Load_far.cpp' || echo '$(srcdir)/'`soundlib/Load_far.cpp
+
+soundlib/libopenmpttest-Load_far.obj: soundlib/Load_far.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_far.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_far.Tpo -c -o soundlib/libopenmpttest-Load_far.obj `if test -f 'soundlib/Load_far.cpp'; then $(CYGPATH_W) 'soundlib/Load_far.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_far.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_far.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_far.Po
+#	$(AM_V_CXX)source='soundlib/Load_far.cpp' object='soundlib/libopenmpttest-Load_far.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_far.obj `if test -f 'soundlib/Load_far.cpp'; then $(CYGPATH_W) 'soundlib/Load_far.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_far.cpp'; fi`
+
+soundlib/libopenmpttest-Load_fc.o: soundlib/Load_fc.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_fc.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_fc.Tpo -c -o soundlib/libopenmpttest-Load_fc.o `test -f 'soundlib/Load_fc.cpp' || echo '$(srcdir)/'`soundlib/Load_fc.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_fc.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_fc.Po
+#	$(AM_V_CXX)source='soundlib/Load_fc.cpp' object='soundlib/libopenmpttest-Load_fc.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_fc.o `test -f 'soundlib/Load_fc.cpp' || echo '$(srcdir)/'`soundlib/Load_fc.cpp
+
+soundlib/libopenmpttest-Load_fc.obj: soundlib/Load_fc.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_fc.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_fc.Tpo -c -o soundlib/libopenmpttest-Load_fc.obj `if test -f 'soundlib/Load_fc.cpp'; then $(CYGPATH_W) 'soundlib/Load_fc.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_fc.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_fc.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_fc.Po
+#	$(AM_V_CXX)source='soundlib/Load_fc.cpp' object='soundlib/libopenmpttest-Load_fc.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_fc.obj `if test -f 'soundlib/Load_fc.cpp'; then $(CYGPATH_W) 'soundlib/Load_fc.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_fc.cpp'; fi`
+
+soundlib/libopenmpttest-Load_fmt.o: soundlib/Load_fmt.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_fmt.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_fmt.Tpo -c -o soundlib/libopenmpttest-Load_fmt.o `test -f 'soundlib/Load_fmt.cpp' || echo '$(srcdir)/'`soundlib/Load_fmt.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_fmt.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_fmt.Po
+#	$(AM_V_CXX)source='soundlib/Load_fmt.cpp' object='soundlib/libopenmpttest-Load_fmt.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_fmt.o `test -f 'soundlib/Load_fmt.cpp' || echo '$(srcdir)/'`soundlib/Load_fmt.cpp
+
+soundlib/libopenmpttest-Load_fmt.obj: soundlib/Load_fmt.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_fmt.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_fmt.Tpo -c -o soundlib/libopenmpttest-Load_fmt.obj `if test -f 'soundlib/Load_fmt.cpp'; then $(CYGPATH_W) 'soundlib/Load_fmt.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_fmt.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_fmt.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_fmt.Po
+#	$(AM_V_CXX)source='soundlib/Load_fmt.cpp' object='soundlib/libopenmpttest-Load_fmt.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_fmt.obj `if test -f 'soundlib/Load_fmt.cpp'; then $(CYGPATH_W) 'soundlib/Load_fmt.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_fmt.cpp'; fi`
+
+soundlib/libopenmpttest-Load_ftm.o: soundlib/Load_ftm.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_ftm.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_ftm.Tpo -c -o soundlib/libopenmpttest-Load_ftm.o `test -f 'soundlib/Load_ftm.cpp' || echo '$(srcdir)/'`soundlib/Load_ftm.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_ftm.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_ftm.Po
+#	$(AM_V_CXX)source='soundlib/Load_ftm.cpp' object='soundlib/libopenmpttest-Load_ftm.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_ftm.o `test -f 'soundlib/Load_ftm.cpp' || echo '$(srcdir)/'`soundlib/Load_ftm.cpp
+
+soundlib/libopenmpttest-Load_ftm.obj: soundlib/Load_ftm.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_ftm.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_ftm.Tpo -c -o soundlib/libopenmpttest-Load_ftm.obj `if test -f 'soundlib/Load_ftm.cpp'; then $(CYGPATH_W) 'soundlib/Load_ftm.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_ftm.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_ftm.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_ftm.Po
+#	$(AM_V_CXX)source='soundlib/Load_ftm.cpp' object='soundlib/libopenmpttest-Load_ftm.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_ftm.obj `if test -f 'soundlib/Load_ftm.cpp'; then $(CYGPATH_W) 'soundlib/Load_ftm.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_ftm.cpp'; fi`
+
+soundlib/libopenmpttest-Load_gdm.o: soundlib/Load_gdm.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_gdm.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_gdm.Tpo -c -o soundlib/libopenmpttest-Load_gdm.o `test -f 'soundlib/Load_gdm.cpp' || echo '$(srcdir)/'`soundlib/Load_gdm.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_gdm.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_gdm.Po
+#	$(AM_V_CXX)source='soundlib/Load_gdm.cpp' object='soundlib/libopenmpttest-Load_gdm.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_gdm.o `test -f 'soundlib/Load_gdm.cpp' || echo '$(srcdir)/'`soundlib/Load_gdm.cpp
+
+soundlib/libopenmpttest-Load_gdm.obj: soundlib/Load_gdm.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_gdm.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_gdm.Tpo -c -o soundlib/libopenmpttest-Load_gdm.obj `if test -f 'soundlib/Load_gdm.cpp'; then $(CYGPATH_W) 'soundlib/Load_gdm.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_gdm.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_gdm.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_gdm.Po
+#	$(AM_V_CXX)source='soundlib/Load_gdm.cpp' object='soundlib/libopenmpttest-Load_gdm.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_gdm.obj `if test -f 'soundlib/Load_gdm.cpp'; then $(CYGPATH_W) 'soundlib/Load_gdm.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_gdm.cpp'; fi`
+
+soundlib/libopenmpttest-Load_gmc.o: soundlib/Load_gmc.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_gmc.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_gmc.Tpo -c -o soundlib/libopenmpttest-Load_gmc.o `test -f 'soundlib/Load_gmc.cpp' || echo '$(srcdir)/'`soundlib/Load_gmc.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_gmc.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_gmc.Po
+#	$(AM_V_CXX)source='soundlib/Load_gmc.cpp' object='soundlib/libopenmpttest-Load_gmc.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_gmc.o `test -f 'soundlib/Load_gmc.cpp' || echo '$(srcdir)/'`soundlib/Load_gmc.cpp
+
+soundlib/libopenmpttest-Load_gmc.obj: soundlib/Load_gmc.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_gmc.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_gmc.Tpo -c -o soundlib/libopenmpttest-Load_gmc.obj `if test -f 'soundlib/Load_gmc.cpp'; then $(CYGPATH_W) 'soundlib/Load_gmc.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_gmc.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_gmc.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_gmc.Po
+#	$(AM_V_CXX)source='soundlib/Load_gmc.cpp' object='soundlib/libopenmpttest-Load_gmc.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_gmc.obj `if test -f 'soundlib/Load_gmc.cpp'; then $(CYGPATH_W) 'soundlib/Load_gmc.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_gmc.cpp'; fi`
+
+soundlib/libopenmpttest-Load_gt2.o: soundlib/Load_gt2.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_gt2.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_gt2.Tpo -c -o soundlib/libopenmpttest-Load_gt2.o `test -f 'soundlib/Load_gt2.cpp' || echo '$(srcdir)/'`soundlib/Load_gt2.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_gt2.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_gt2.Po
+#	$(AM_V_CXX)source='soundlib/Load_gt2.cpp' object='soundlib/libopenmpttest-Load_gt2.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_gt2.o `test -f 'soundlib/Load_gt2.cpp' || echo '$(srcdir)/'`soundlib/Load_gt2.cpp
+
+soundlib/libopenmpttest-Load_gt2.obj: soundlib/Load_gt2.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_gt2.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_gt2.Tpo -c -o soundlib/libopenmpttest-Load_gt2.obj `if test -f 'soundlib/Load_gt2.cpp'; then $(CYGPATH_W) 'soundlib/Load_gt2.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_gt2.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_gt2.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_gt2.Po
+#	$(AM_V_CXX)source='soundlib/Load_gt2.cpp' object='soundlib/libopenmpttest-Load_gt2.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_gt2.obj `if test -f 'soundlib/Load_gt2.cpp'; then $(CYGPATH_W) 'soundlib/Load_gt2.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_gt2.cpp'; fi`
+
+soundlib/libopenmpttest-Load_ice.o: soundlib/Load_ice.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_ice.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_ice.Tpo -c -o soundlib/libopenmpttest-Load_ice.o `test -f 'soundlib/Load_ice.cpp' || echo '$(srcdir)/'`soundlib/Load_ice.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_ice.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_ice.Po
+#	$(AM_V_CXX)source='soundlib/Load_ice.cpp' object='soundlib/libopenmpttest-Load_ice.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_ice.o `test -f 'soundlib/Load_ice.cpp' || echo '$(srcdir)/'`soundlib/Load_ice.cpp
+
+soundlib/libopenmpttest-Load_ice.obj: soundlib/Load_ice.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_ice.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_ice.Tpo -c -o soundlib/libopenmpttest-Load_ice.obj `if test -f 'soundlib/Load_ice.cpp'; then $(CYGPATH_W) 'soundlib/Load_ice.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_ice.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_ice.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_ice.Po
+#	$(AM_V_CXX)source='soundlib/Load_ice.cpp' object='soundlib/libopenmpttest-Load_ice.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_ice.obj `if test -f 'soundlib/Load_ice.cpp'; then $(CYGPATH_W) 'soundlib/Load_ice.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_ice.cpp'; fi`
+
+soundlib/libopenmpttest-Load_imf.o: soundlib/Load_imf.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_imf.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_imf.Tpo -c -o soundlib/libopenmpttest-Load_imf.o `test -f 'soundlib/Load_imf.cpp' || echo '$(srcdir)/'`soundlib/Load_imf.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_imf.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_imf.Po
+#	$(AM_V_CXX)source='soundlib/Load_imf.cpp' object='soundlib/libopenmpttest-Load_imf.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_imf.o `test -f 'soundlib/Load_imf.cpp' || echo '$(srcdir)/'`soundlib/Load_imf.cpp
+
+soundlib/libopenmpttest-Load_imf.obj: soundlib/Load_imf.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_imf.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_imf.Tpo -c -o soundlib/libopenmpttest-Load_imf.obj `if test -f 'soundlib/Load_imf.cpp'; then $(CYGPATH_W) 'soundlib/Load_imf.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_imf.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_imf.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_imf.Po
+#	$(AM_V_CXX)source='soundlib/Load_imf.cpp' object='soundlib/libopenmpttest-Load_imf.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_imf.obj `if test -f 'soundlib/Load_imf.cpp'; then $(CYGPATH_W) 'soundlib/Load_imf.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_imf.cpp'; fi`
+
+soundlib/libopenmpttest-Load_ims.o: soundlib/Load_ims.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_ims.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_ims.Tpo -c -o soundlib/libopenmpttest-Load_ims.o `test -f 'soundlib/Load_ims.cpp' || echo '$(srcdir)/'`soundlib/Load_ims.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_ims.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_ims.Po
+#	$(AM_V_CXX)source='soundlib/Load_ims.cpp' object='soundlib/libopenmpttest-Load_ims.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_ims.o `test -f 'soundlib/Load_ims.cpp' || echo '$(srcdir)/'`soundlib/Load_ims.cpp
+
+soundlib/libopenmpttest-Load_ims.obj: soundlib/Load_ims.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_ims.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_ims.Tpo -c -o soundlib/libopenmpttest-Load_ims.obj `if test -f 'soundlib/Load_ims.cpp'; then $(CYGPATH_W) 'soundlib/Load_ims.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_ims.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_ims.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_ims.Po
+#	$(AM_V_CXX)source='soundlib/Load_ims.cpp' object='soundlib/libopenmpttest-Load_ims.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_ims.obj `if test -f 'soundlib/Load_ims.cpp'; then $(CYGPATH_W) 'soundlib/Load_ims.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_ims.cpp'; fi`
+
+soundlib/libopenmpttest-Load_it.o: soundlib/Load_it.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_it.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_it.Tpo -c -o soundlib/libopenmpttest-Load_it.o `test -f 'soundlib/Load_it.cpp' || echo '$(srcdir)/'`soundlib/Load_it.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_it.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_it.Po
+#	$(AM_V_CXX)source='soundlib/Load_it.cpp' object='soundlib/libopenmpttest-Load_it.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_it.o `test -f 'soundlib/Load_it.cpp' || echo '$(srcdir)/'`soundlib/Load_it.cpp
+
+soundlib/libopenmpttest-Load_it.obj: soundlib/Load_it.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_it.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_it.Tpo -c -o soundlib/libopenmpttest-Load_it.obj `if test -f 'soundlib/Load_it.cpp'; then $(CYGPATH_W) 'soundlib/Load_it.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_it.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_it.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_it.Po
+#	$(AM_V_CXX)source='soundlib/Load_it.cpp' object='soundlib/libopenmpttest-Load_it.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_it.obj `if test -f 'soundlib/Load_it.cpp'; then $(CYGPATH_W) 'soundlib/Load_it.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_it.cpp'; fi`
+
+soundlib/libopenmpttest-Load_itp.o: soundlib/Load_itp.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_itp.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_itp.Tpo -c -o soundlib/libopenmpttest-Load_itp.o `test -f 'soundlib/Load_itp.cpp' || echo '$(srcdir)/'`soundlib/Load_itp.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_itp.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_itp.Po
+#	$(AM_V_CXX)source='soundlib/Load_itp.cpp' object='soundlib/libopenmpttest-Load_itp.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_itp.o `test -f 'soundlib/Load_itp.cpp' || echo '$(srcdir)/'`soundlib/Load_itp.cpp
+
+soundlib/libopenmpttest-Load_itp.obj: soundlib/Load_itp.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_itp.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_itp.Tpo -c -o soundlib/libopenmpttest-Load_itp.obj `if test -f 'soundlib/Load_itp.cpp'; then $(CYGPATH_W) 'soundlib/Load_itp.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_itp.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_itp.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_itp.Po
+#	$(AM_V_CXX)source='soundlib/Load_itp.cpp' object='soundlib/libopenmpttest-Load_itp.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_itp.obj `if test -f 'soundlib/Load_itp.cpp'; then $(CYGPATH_W) 'soundlib/Load_itp.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_itp.cpp'; fi`
+
+soundlib/libopenmpttest-load_j2b.o: soundlib/load_j2b.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-load_j2b.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-load_j2b.Tpo -c -o soundlib/libopenmpttest-load_j2b.o `test -f 'soundlib/load_j2b.cpp' || echo '$(srcdir)/'`soundlib/load_j2b.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-load_j2b.Tpo soundlib/$(DEPDIR)/libopenmpttest-load_j2b.Po
+#	$(AM_V_CXX)source='soundlib/load_j2b.cpp' object='soundlib/libopenmpttest-load_j2b.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-load_j2b.o `test -f 'soundlib/load_j2b.cpp' || echo '$(srcdir)/'`soundlib/load_j2b.cpp
+
+soundlib/libopenmpttest-load_j2b.obj: soundlib/load_j2b.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-load_j2b.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-load_j2b.Tpo -c -o soundlib/libopenmpttest-load_j2b.obj `if test -f 'soundlib/load_j2b.cpp'; then $(CYGPATH_W) 'soundlib/load_j2b.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/load_j2b.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-load_j2b.Tpo soundlib/$(DEPDIR)/libopenmpttest-load_j2b.Po
+#	$(AM_V_CXX)source='soundlib/load_j2b.cpp' object='soundlib/libopenmpttest-load_j2b.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-load_j2b.obj `if test -f 'soundlib/load_j2b.cpp'; then $(CYGPATH_W) 'soundlib/load_j2b.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/load_j2b.cpp'; fi`
+
+soundlib/libopenmpttest-Load_kris.o: soundlib/Load_kris.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_kris.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_kris.Tpo -c -o soundlib/libopenmpttest-Load_kris.o `test -f 'soundlib/Load_kris.cpp' || echo '$(srcdir)/'`soundlib/Load_kris.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_kris.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_kris.Po
+#	$(AM_V_CXX)source='soundlib/Load_kris.cpp' object='soundlib/libopenmpttest-Load_kris.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_kris.o `test -f 'soundlib/Load_kris.cpp' || echo '$(srcdir)/'`soundlib/Load_kris.cpp
+
+soundlib/libopenmpttest-Load_kris.obj: soundlib/Load_kris.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_kris.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_kris.Tpo -c -o soundlib/libopenmpttest-Load_kris.obj `if test -f 'soundlib/Load_kris.cpp'; then $(CYGPATH_W) 'soundlib/Load_kris.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_kris.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_kris.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_kris.Po
+#	$(AM_V_CXX)source='soundlib/Load_kris.cpp' object='soundlib/libopenmpttest-Load_kris.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_kris.obj `if test -f 'soundlib/Load_kris.cpp'; then $(CYGPATH_W) 'soundlib/Load_kris.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_kris.cpp'; fi`
+
+soundlib/libopenmpttest-Load_mdl.o: soundlib/Load_mdl.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_mdl.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_mdl.Tpo -c -o soundlib/libopenmpttest-Load_mdl.o `test -f 'soundlib/Load_mdl.cpp' || echo '$(srcdir)/'`soundlib/Load_mdl.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_mdl.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_mdl.Po
+#	$(AM_V_CXX)source='soundlib/Load_mdl.cpp' object='soundlib/libopenmpttest-Load_mdl.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_mdl.o `test -f 'soundlib/Load_mdl.cpp' || echo '$(srcdir)/'`soundlib/Load_mdl.cpp
+
+soundlib/libopenmpttest-Load_mdl.obj: soundlib/Load_mdl.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_mdl.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_mdl.Tpo -c -o soundlib/libopenmpttest-Load_mdl.obj `if test -f 'soundlib/Load_mdl.cpp'; then $(CYGPATH_W) 'soundlib/Load_mdl.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_mdl.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_mdl.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_mdl.Po
+#	$(AM_V_CXX)source='soundlib/Load_mdl.cpp' object='soundlib/libopenmpttest-Load_mdl.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_mdl.obj `if test -f 'soundlib/Load_mdl.cpp'; then $(CYGPATH_W) 'soundlib/Load_mdl.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_mdl.cpp'; fi`
+
+soundlib/libopenmpttest-Load_med.o: soundlib/Load_med.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_med.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_med.Tpo -c -o soundlib/libopenmpttest-Load_med.o `test -f 'soundlib/Load_med.cpp' || echo '$(srcdir)/'`soundlib/Load_med.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_med.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_med.Po
+#	$(AM_V_CXX)source='soundlib/Load_med.cpp' object='soundlib/libopenmpttest-Load_med.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_med.o `test -f 'soundlib/Load_med.cpp' || echo '$(srcdir)/'`soundlib/Load_med.cpp
+
+soundlib/libopenmpttest-Load_med.obj: soundlib/Load_med.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_med.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_med.Tpo -c -o soundlib/libopenmpttest-Load_med.obj `if test -f 'soundlib/Load_med.cpp'; then $(CYGPATH_W) 'soundlib/Load_med.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_med.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_med.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_med.Po
+#	$(AM_V_CXX)source='soundlib/Load_med.cpp' object='soundlib/libopenmpttest-Load_med.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_med.obj `if test -f 'soundlib/Load_med.cpp'; then $(CYGPATH_W) 'soundlib/Load_med.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_med.cpp'; fi`
+
+soundlib/libopenmpttest-Load_mid.o: soundlib/Load_mid.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_mid.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_mid.Tpo -c -o soundlib/libopenmpttest-Load_mid.o `test -f 'soundlib/Load_mid.cpp' || echo '$(srcdir)/'`soundlib/Load_mid.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_mid.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_mid.Po
+#	$(AM_V_CXX)source='soundlib/Load_mid.cpp' object='soundlib/libopenmpttest-Load_mid.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_mid.o `test -f 'soundlib/Load_mid.cpp' || echo '$(srcdir)/'`soundlib/Load_mid.cpp
+
+soundlib/libopenmpttest-Load_mid.obj: soundlib/Load_mid.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_mid.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_mid.Tpo -c -o soundlib/libopenmpttest-Load_mid.obj `if test -f 'soundlib/Load_mid.cpp'; then $(CYGPATH_W) 'soundlib/Load_mid.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_mid.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_mid.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_mid.Po
+#	$(AM_V_CXX)source='soundlib/Load_mid.cpp' object='soundlib/libopenmpttest-Load_mid.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_mid.obj `if test -f 'soundlib/Load_mid.cpp'; then $(CYGPATH_W) 'soundlib/Load_mid.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_mid.cpp'; fi`
+
+soundlib/libopenmpttest-Load_mo3.o: soundlib/Load_mo3.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_mo3.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_mo3.Tpo -c -o soundlib/libopenmpttest-Load_mo3.o `test -f 'soundlib/Load_mo3.cpp' || echo '$(srcdir)/'`soundlib/Load_mo3.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_mo3.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_mo3.Po
+#	$(AM_V_CXX)source='soundlib/Load_mo3.cpp' object='soundlib/libopenmpttest-Load_mo3.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_mo3.o `test -f 'soundlib/Load_mo3.cpp' || echo '$(srcdir)/'`soundlib/Load_mo3.cpp
+
+soundlib/libopenmpttest-Load_mo3.obj: soundlib/Load_mo3.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_mo3.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_mo3.Tpo -c -o soundlib/libopenmpttest-Load_mo3.obj `if test -f 'soundlib/Load_mo3.cpp'; then $(CYGPATH_W) 'soundlib/Load_mo3.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_mo3.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_mo3.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_mo3.Po
+#	$(AM_V_CXX)source='soundlib/Load_mo3.cpp' object='soundlib/libopenmpttest-Load_mo3.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_mo3.obj `if test -f 'soundlib/Load_mo3.cpp'; then $(CYGPATH_W) 'soundlib/Load_mo3.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_mo3.cpp'; fi`
+
+soundlib/libopenmpttest-Load_mod.o: soundlib/Load_mod.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_mod.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_mod.Tpo -c -o soundlib/libopenmpttest-Load_mod.o `test -f 'soundlib/Load_mod.cpp' || echo '$(srcdir)/'`soundlib/Load_mod.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_mod.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_mod.Po
+#	$(AM_V_CXX)source='soundlib/Load_mod.cpp' object='soundlib/libopenmpttest-Load_mod.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_mod.o `test -f 'soundlib/Load_mod.cpp' || echo '$(srcdir)/'`soundlib/Load_mod.cpp
+
+soundlib/libopenmpttest-Load_mod.obj: soundlib/Load_mod.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_mod.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_mod.Tpo -c -o soundlib/libopenmpttest-Load_mod.obj `if test -f 'soundlib/Load_mod.cpp'; then $(CYGPATH_W) 'soundlib/Load_mod.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_mod.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_mod.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_mod.Po
+#	$(AM_V_CXX)source='soundlib/Load_mod.cpp' object='soundlib/libopenmpttest-Load_mod.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_mod.obj `if test -f 'soundlib/Load_mod.cpp'; then $(CYGPATH_W) 'soundlib/Load_mod.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_mod.cpp'; fi`
+
+soundlib/libopenmpttest-Load_mt2.o: soundlib/Load_mt2.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_mt2.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_mt2.Tpo -c -o soundlib/libopenmpttest-Load_mt2.o `test -f 'soundlib/Load_mt2.cpp' || echo '$(srcdir)/'`soundlib/Load_mt2.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_mt2.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_mt2.Po
+#	$(AM_V_CXX)source='soundlib/Load_mt2.cpp' object='soundlib/libopenmpttest-Load_mt2.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_mt2.o `test -f 'soundlib/Load_mt2.cpp' || echo '$(srcdir)/'`soundlib/Load_mt2.cpp
+
+soundlib/libopenmpttest-Load_mt2.obj: soundlib/Load_mt2.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_mt2.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_mt2.Tpo -c -o soundlib/libopenmpttest-Load_mt2.obj `if test -f 'soundlib/Load_mt2.cpp'; then $(CYGPATH_W) 'soundlib/Load_mt2.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_mt2.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_mt2.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_mt2.Po
+#	$(AM_V_CXX)source='soundlib/Load_mt2.cpp' object='soundlib/libopenmpttest-Load_mt2.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_mt2.obj `if test -f 'soundlib/Load_mt2.cpp'; then $(CYGPATH_W) 'soundlib/Load_mt2.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_mt2.cpp'; fi`
+
+soundlib/libopenmpttest-Load_mtm.o: soundlib/Load_mtm.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_mtm.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_mtm.Tpo -c -o soundlib/libopenmpttest-Load_mtm.o `test -f 'soundlib/Load_mtm.cpp' || echo '$(srcdir)/'`soundlib/Load_mtm.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_mtm.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_mtm.Po
+#	$(AM_V_CXX)source='soundlib/Load_mtm.cpp' object='soundlib/libopenmpttest-Load_mtm.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_mtm.o `test -f 'soundlib/Load_mtm.cpp' || echo '$(srcdir)/'`soundlib/Load_mtm.cpp
+
+soundlib/libopenmpttest-Load_mtm.obj: soundlib/Load_mtm.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_mtm.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_mtm.Tpo -c -o soundlib/libopenmpttest-Load_mtm.obj `if test -f 'soundlib/Load_mtm.cpp'; then $(CYGPATH_W) 'soundlib/Load_mtm.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_mtm.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_mtm.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_mtm.Po
+#	$(AM_V_CXX)source='soundlib/Load_mtm.cpp' object='soundlib/libopenmpttest-Load_mtm.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_mtm.obj `if test -f 'soundlib/Load_mtm.cpp'; then $(CYGPATH_W) 'soundlib/Load_mtm.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_mtm.cpp'; fi`
+
+soundlib/libopenmpttest-Load_mus_km.o: soundlib/Load_mus_km.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_mus_km.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_mus_km.Tpo -c -o soundlib/libopenmpttest-Load_mus_km.o `test -f 'soundlib/Load_mus_km.cpp' || echo '$(srcdir)/'`soundlib/Load_mus_km.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_mus_km.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_mus_km.Po
+#	$(AM_V_CXX)source='soundlib/Load_mus_km.cpp' object='soundlib/libopenmpttest-Load_mus_km.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_mus_km.o `test -f 'soundlib/Load_mus_km.cpp' || echo '$(srcdir)/'`soundlib/Load_mus_km.cpp
+
+soundlib/libopenmpttest-Load_mus_km.obj: soundlib/Load_mus_km.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_mus_km.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_mus_km.Tpo -c -o soundlib/libopenmpttest-Load_mus_km.obj `if test -f 'soundlib/Load_mus_km.cpp'; then $(CYGPATH_W) 'soundlib/Load_mus_km.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_mus_km.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_mus_km.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_mus_km.Po
+#	$(AM_V_CXX)source='soundlib/Load_mus_km.cpp' object='soundlib/libopenmpttest-Load_mus_km.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_mus_km.obj `if test -f 'soundlib/Load_mus_km.cpp'; then $(CYGPATH_W) 'soundlib/Load_mus_km.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_mus_km.cpp'; fi`
+
+soundlib/libopenmpttest-Load_okt.o: soundlib/Load_okt.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_okt.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_okt.Tpo -c -o soundlib/libopenmpttest-Load_okt.o `test -f 'soundlib/Load_okt.cpp' || echo '$(srcdir)/'`soundlib/Load_okt.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_okt.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_okt.Po
+#	$(AM_V_CXX)source='soundlib/Load_okt.cpp' object='soundlib/libopenmpttest-Load_okt.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_okt.o `test -f 'soundlib/Load_okt.cpp' || echo '$(srcdir)/'`soundlib/Load_okt.cpp
+
+soundlib/libopenmpttest-Load_okt.obj: soundlib/Load_okt.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_okt.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_okt.Tpo -c -o soundlib/libopenmpttest-Load_okt.obj `if test -f 'soundlib/Load_okt.cpp'; then $(CYGPATH_W) 'soundlib/Load_okt.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_okt.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_okt.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_okt.Po
+#	$(AM_V_CXX)source='soundlib/Load_okt.cpp' object='soundlib/libopenmpttest-Load_okt.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_okt.obj `if test -f 'soundlib/Load_okt.cpp'; then $(CYGPATH_W) 'soundlib/Load_okt.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_okt.cpp'; fi`
+
+soundlib/libopenmpttest-Load_plm.o: soundlib/Load_plm.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_plm.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_plm.Tpo -c -o soundlib/libopenmpttest-Load_plm.o `test -f 'soundlib/Load_plm.cpp' || echo '$(srcdir)/'`soundlib/Load_plm.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_plm.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_plm.Po
+#	$(AM_V_CXX)source='soundlib/Load_plm.cpp' object='soundlib/libopenmpttest-Load_plm.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_plm.o `test -f 'soundlib/Load_plm.cpp' || echo '$(srcdir)/'`soundlib/Load_plm.cpp
+
+soundlib/libopenmpttest-Load_plm.obj: soundlib/Load_plm.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_plm.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_plm.Tpo -c -o soundlib/libopenmpttest-Load_plm.obj `if test -f 'soundlib/Load_plm.cpp'; then $(CYGPATH_W) 'soundlib/Load_plm.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_plm.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_plm.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_plm.Po
+#	$(AM_V_CXX)source='soundlib/Load_plm.cpp' object='soundlib/libopenmpttest-Load_plm.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_plm.obj `if test -f 'soundlib/Load_plm.cpp'; then $(CYGPATH_W) 'soundlib/Load_plm.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_plm.cpp'; fi`
+
+soundlib/libopenmpttest-Load_psm.o: soundlib/Load_psm.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_psm.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_psm.Tpo -c -o soundlib/libopenmpttest-Load_psm.o `test -f 'soundlib/Load_psm.cpp' || echo '$(srcdir)/'`soundlib/Load_psm.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_psm.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_psm.Po
+#	$(AM_V_CXX)source='soundlib/Load_psm.cpp' object='soundlib/libopenmpttest-Load_psm.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_psm.o `test -f 'soundlib/Load_psm.cpp' || echo '$(srcdir)/'`soundlib/Load_psm.cpp
+
+soundlib/libopenmpttest-Load_psm.obj: soundlib/Load_psm.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_psm.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_psm.Tpo -c -o soundlib/libopenmpttest-Load_psm.obj `if test -f 'soundlib/Load_psm.cpp'; then $(CYGPATH_W) 'soundlib/Load_psm.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_psm.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_psm.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_psm.Po
+#	$(AM_V_CXX)source='soundlib/Load_psm.cpp' object='soundlib/libopenmpttest-Load_psm.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_psm.obj `if test -f 'soundlib/Load_psm.cpp'; then $(CYGPATH_W) 'soundlib/Load_psm.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_psm.cpp'; fi`
+
+soundlib/libopenmpttest-Load_pt36.o: soundlib/Load_pt36.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_pt36.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_pt36.Tpo -c -o soundlib/libopenmpttest-Load_pt36.o `test -f 'soundlib/Load_pt36.cpp' || echo '$(srcdir)/'`soundlib/Load_pt36.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_pt36.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_pt36.Po
+#	$(AM_V_CXX)source='soundlib/Load_pt36.cpp' object='soundlib/libopenmpttest-Load_pt36.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_pt36.o `test -f 'soundlib/Load_pt36.cpp' || echo '$(srcdir)/'`soundlib/Load_pt36.cpp
+
+soundlib/libopenmpttest-Load_pt36.obj: soundlib/Load_pt36.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_pt36.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_pt36.Tpo -c -o soundlib/libopenmpttest-Load_pt36.obj `if test -f 'soundlib/Load_pt36.cpp'; then $(CYGPATH_W) 'soundlib/Load_pt36.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_pt36.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_pt36.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_pt36.Po
+#	$(AM_V_CXX)source='soundlib/Load_pt36.cpp' object='soundlib/libopenmpttest-Load_pt36.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_pt36.obj `if test -f 'soundlib/Load_pt36.cpp'; then $(CYGPATH_W) 'soundlib/Load_pt36.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_pt36.cpp'; fi`
+
+soundlib/libopenmpttest-Load_ptm.o: soundlib/Load_ptm.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_ptm.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_ptm.Tpo -c -o soundlib/libopenmpttest-Load_ptm.o `test -f 'soundlib/Load_ptm.cpp' || echo '$(srcdir)/'`soundlib/Load_ptm.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_ptm.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_ptm.Po
+#	$(AM_V_CXX)source='soundlib/Load_ptm.cpp' object='soundlib/libopenmpttest-Load_ptm.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_ptm.o `test -f 'soundlib/Load_ptm.cpp' || echo '$(srcdir)/'`soundlib/Load_ptm.cpp
+
+soundlib/libopenmpttest-Load_ptm.obj: soundlib/Load_ptm.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_ptm.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_ptm.Tpo -c -o soundlib/libopenmpttest-Load_ptm.obj `if test -f 'soundlib/Load_ptm.cpp'; then $(CYGPATH_W) 'soundlib/Load_ptm.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_ptm.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_ptm.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_ptm.Po
+#	$(AM_V_CXX)source='soundlib/Load_ptm.cpp' object='soundlib/libopenmpttest-Load_ptm.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_ptm.obj `if test -f 'soundlib/Load_ptm.cpp'; then $(CYGPATH_W) 'soundlib/Load_ptm.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_ptm.cpp'; fi`
+
+soundlib/libopenmpttest-Load_puma.o: soundlib/Load_puma.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_puma.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_puma.Tpo -c -o soundlib/libopenmpttest-Load_puma.o `test -f 'soundlib/Load_puma.cpp' || echo '$(srcdir)/'`soundlib/Load_puma.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_puma.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_puma.Po
+#	$(AM_V_CXX)source='soundlib/Load_puma.cpp' object='soundlib/libopenmpttest-Load_puma.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_puma.o `test -f 'soundlib/Load_puma.cpp' || echo '$(srcdir)/'`soundlib/Load_puma.cpp
+
+soundlib/libopenmpttest-Load_puma.obj: soundlib/Load_puma.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_puma.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_puma.Tpo -c -o soundlib/libopenmpttest-Load_puma.obj `if test -f 'soundlib/Load_puma.cpp'; then $(CYGPATH_W) 'soundlib/Load_puma.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_puma.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_puma.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_puma.Po
+#	$(AM_V_CXX)source='soundlib/Load_puma.cpp' object='soundlib/libopenmpttest-Load_puma.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_puma.obj `if test -f 'soundlib/Load_puma.cpp'; then $(CYGPATH_W) 'soundlib/Load_puma.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_puma.cpp'; fi`
+
+soundlib/libopenmpttest-Load_rtm.o: soundlib/Load_rtm.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_rtm.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_rtm.Tpo -c -o soundlib/libopenmpttest-Load_rtm.o `test -f 'soundlib/Load_rtm.cpp' || echo '$(srcdir)/'`soundlib/Load_rtm.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_rtm.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_rtm.Po
+#	$(AM_V_CXX)source='soundlib/Load_rtm.cpp' object='soundlib/libopenmpttest-Load_rtm.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_rtm.o `test -f 'soundlib/Load_rtm.cpp' || echo '$(srcdir)/'`soundlib/Load_rtm.cpp
+
+soundlib/libopenmpttest-Load_rtm.obj: soundlib/Load_rtm.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_rtm.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_rtm.Tpo -c -o soundlib/libopenmpttest-Load_rtm.obj `if test -f 'soundlib/Load_rtm.cpp'; then $(CYGPATH_W) 'soundlib/Load_rtm.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_rtm.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_rtm.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_rtm.Po
+#	$(AM_V_CXX)source='soundlib/Load_rtm.cpp' object='soundlib/libopenmpttest-Load_rtm.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_rtm.obj `if test -f 'soundlib/Load_rtm.cpp'; then $(CYGPATH_W) 'soundlib/Load_rtm.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_rtm.cpp'; fi`
+
+soundlib/libopenmpttest-Load_s3m.o: soundlib/Load_s3m.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_s3m.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_s3m.Tpo -c -o soundlib/libopenmpttest-Load_s3m.o `test -f 'soundlib/Load_s3m.cpp' || echo '$(srcdir)/'`soundlib/Load_s3m.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_s3m.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_s3m.Po
+#	$(AM_V_CXX)source='soundlib/Load_s3m.cpp' object='soundlib/libopenmpttest-Load_s3m.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_s3m.o `test -f 'soundlib/Load_s3m.cpp' || echo '$(srcdir)/'`soundlib/Load_s3m.cpp
+
+soundlib/libopenmpttest-Load_s3m.obj: soundlib/Load_s3m.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_s3m.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_s3m.Tpo -c -o soundlib/libopenmpttest-Load_s3m.obj `if test -f 'soundlib/Load_s3m.cpp'; then $(CYGPATH_W) 'soundlib/Load_s3m.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_s3m.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_s3m.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_s3m.Po
+#	$(AM_V_CXX)source='soundlib/Load_s3m.cpp' object='soundlib/libopenmpttest-Load_s3m.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_s3m.obj `if test -f 'soundlib/Load_s3m.cpp'; then $(CYGPATH_W) 'soundlib/Load_s3m.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_s3m.cpp'; fi`
+
+soundlib/libopenmpttest-Load_sfx.o: soundlib/Load_sfx.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_sfx.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_sfx.Tpo -c -o soundlib/libopenmpttest-Load_sfx.o `test -f 'soundlib/Load_sfx.cpp' || echo '$(srcdir)/'`soundlib/Load_sfx.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_sfx.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_sfx.Po
+#	$(AM_V_CXX)source='soundlib/Load_sfx.cpp' object='soundlib/libopenmpttest-Load_sfx.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_sfx.o `test -f 'soundlib/Load_sfx.cpp' || echo '$(srcdir)/'`soundlib/Load_sfx.cpp
+
+soundlib/libopenmpttest-Load_sfx.obj: soundlib/Load_sfx.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_sfx.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_sfx.Tpo -c -o soundlib/libopenmpttest-Load_sfx.obj `if test -f 'soundlib/Load_sfx.cpp'; then $(CYGPATH_W) 'soundlib/Load_sfx.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_sfx.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_sfx.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_sfx.Po
+#	$(AM_V_CXX)source='soundlib/Load_sfx.cpp' object='soundlib/libopenmpttest-Load_sfx.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_sfx.obj `if test -f 'soundlib/Load_sfx.cpp'; then $(CYGPATH_W) 'soundlib/Load_sfx.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_sfx.cpp'; fi`
+
+soundlib/libopenmpttest-Load_stk.o: soundlib/Load_stk.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_stk.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_stk.Tpo -c -o soundlib/libopenmpttest-Load_stk.o `test -f 'soundlib/Load_stk.cpp' || echo '$(srcdir)/'`soundlib/Load_stk.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_stk.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_stk.Po
+#	$(AM_V_CXX)source='soundlib/Load_stk.cpp' object='soundlib/libopenmpttest-Load_stk.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_stk.o `test -f 'soundlib/Load_stk.cpp' || echo '$(srcdir)/'`soundlib/Load_stk.cpp
+
+soundlib/libopenmpttest-Load_stk.obj: soundlib/Load_stk.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_stk.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_stk.Tpo -c -o soundlib/libopenmpttest-Load_stk.obj `if test -f 'soundlib/Load_stk.cpp'; then $(CYGPATH_W) 'soundlib/Load_stk.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_stk.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_stk.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_stk.Po
+#	$(AM_V_CXX)source='soundlib/Load_stk.cpp' object='soundlib/libopenmpttest-Load_stk.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_stk.obj `if test -f 'soundlib/Load_stk.cpp'; then $(CYGPATH_W) 'soundlib/Load_stk.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_stk.cpp'; fi`
+
+soundlib/libopenmpttest-Load_stm.o: soundlib/Load_stm.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_stm.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_stm.Tpo -c -o soundlib/libopenmpttest-Load_stm.o `test -f 'soundlib/Load_stm.cpp' || echo '$(srcdir)/'`soundlib/Load_stm.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_stm.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_stm.Po
+#	$(AM_V_CXX)source='soundlib/Load_stm.cpp' object='soundlib/libopenmpttest-Load_stm.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_stm.o `test -f 'soundlib/Load_stm.cpp' || echo '$(srcdir)/'`soundlib/Load_stm.cpp
+
+soundlib/libopenmpttest-Load_stm.obj: soundlib/Load_stm.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_stm.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_stm.Tpo -c -o soundlib/libopenmpttest-Load_stm.obj `if test -f 'soundlib/Load_stm.cpp'; then $(CYGPATH_W) 'soundlib/Load_stm.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_stm.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_stm.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_stm.Po
+#	$(AM_V_CXX)source='soundlib/Load_stm.cpp' object='soundlib/libopenmpttest-Load_stm.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_stm.obj `if test -f 'soundlib/Load_stm.cpp'; then $(CYGPATH_W) 'soundlib/Load_stm.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_stm.cpp'; fi`
+
+soundlib/libopenmpttest-Load_stp.o: soundlib/Load_stp.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_stp.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_stp.Tpo -c -o soundlib/libopenmpttest-Load_stp.o `test -f 'soundlib/Load_stp.cpp' || echo '$(srcdir)/'`soundlib/Load_stp.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_stp.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_stp.Po
+#	$(AM_V_CXX)source='soundlib/Load_stp.cpp' object='soundlib/libopenmpttest-Load_stp.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_stp.o `test -f 'soundlib/Load_stp.cpp' || echo '$(srcdir)/'`soundlib/Load_stp.cpp
+
+soundlib/libopenmpttest-Load_stp.obj: soundlib/Load_stp.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_stp.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_stp.Tpo -c -o soundlib/libopenmpttest-Load_stp.obj `if test -f 'soundlib/Load_stp.cpp'; then $(CYGPATH_W) 'soundlib/Load_stp.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_stp.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_stp.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_stp.Po
+#	$(AM_V_CXX)source='soundlib/Load_stp.cpp' object='soundlib/libopenmpttest-Load_stp.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_stp.obj `if test -f 'soundlib/Load_stp.cpp'; then $(CYGPATH_W) 'soundlib/Load_stp.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_stp.cpp'; fi`
+
+soundlib/libopenmpttest-Load_symmod.o: soundlib/Load_symmod.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_symmod.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_symmod.Tpo -c -o soundlib/libopenmpttest-Load_symmod.o `test -f 'soundlib/Load_symmod.cpp' || echo '$(srcdir)/'`soundlib/Load_symmod.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_symmod.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_symmod.Po
+#	$(AM_V_CXX)source='soundlib/Load_symmod.cpp' object='soundlib/libopenmpttest-Load_symmod.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_symmod.o `test -f 'soundlib/Load_symmod.cpp' || echo '$(srcdir)/'`soundlib/Load_symmod.cpp
+
+soundlib/libopenmpttest-Load_symmod.obj: soundlib/Load_symmod.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_symmod.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_symmod.Tpo -c -o soundlib/libopenmpttest-Load_symmod.obj `if test -f 'soundlib/Load_symmod.cpp'; then $(CYGPATH_W) 'soundlib/Load_symmod.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_symmod.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_symmod.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_symmod.Po
+#	$(AM_V_CXX)source='soundlib/Load_symmod.cpp' object='soundlib/libopenmpttest-Load_symmod.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_symmod.obj `if test -f 'soundlib/Load_symmod.cpp'; then $(CYGPATH_W) 'soundlib/Load_symmod.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_symmod.cpp'; fi`
+
+soundlib/libopenmpttest-Load_tcb.o: soundlib/Load_tcb.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_tcb.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_tcb.Tpo -c -o soundlib/libopenmpttest-Load_tcb.o `test -f 'soundlib/Load_tcb.cpp' || echo '$(srcdir)/'`soundlib/Load_tcb.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_tcb.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_tcb.Po
+#	$(AM_V_CXX)source='soundlib/Load_tcb.cpp' object='soundlib/libopenmpttest-Load_tcb.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_tcb.o `test -f 'soundlib/Load_tcb.cpp' || echo '$(srcdir)/'`soundlib/Load_tcb.cpp
+
+soundlib/libopenmpttest-Load_tcb.obj: soundlib/Load_tcb.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_tcb.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_tcb.Tpo -c -o soundlib/libopenmpttest-Load_tcb.obj `if test -f 'soundlib/Load_tcb.cpp'; then $(CYGPATH_W) 'soundlib/Load_tcb.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_tcb.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_tcb.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_tcb.Po
+#	$(AM_V_CXX)source='soundlib/Load_tcb.cpp' object='soundlib/libopenmpttest-Load_tcb.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_tcb.obj `if test -f 'soundlib/Load_tcb.cpp'; then $(CYGPATH_W) 'soundlib/Load_tcb.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_tcb.cpp'; fi`
+
+soundlib/libopenmpttest-Load_uax.o: soundlib/Load_uax.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_uax.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_uax.Tpo -c -o soundlib/libopenmpttest-Load_uax.o `test -f 'soundlib/Load_uax.cpp' || echo '$(srcdir)/'`soundlib/Load_uax.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_uax.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_uax.Po
+#	$(AM_V_CXX)source='soundlib/Load_uax.cpp' object='soundlib/libopenmpttest-Load_uax.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_uax.o `test -f 'soundlib/Load_uax.cpp' || echo '$(srcdir)/'`soundlib/Load_uax.cpp
+
+soundlib/libopenmpttest-Load_uax.obj: soundlib/Load_uax.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_uax.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_uax.Tpo -c -o soundlib/libopenmpttest-Load_uax.obj `if test -f 'soundlib/Load_uax.cpp'; then $(CYGPATH_W) 'soundlib/Load_uax.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_uax.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_uax.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_uax.Po
+#	$(AM_V_CXX)source='soundlib/Load_uax.cpp' object='soundlib/libopenmpttest-Load_uax.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_uax.obj `if test -f 'soundlib/Load_uax.cpp'; then $(CYGPATH_W) 'soundlib/Load_uax.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_uax.cpp'; fi`
+
+soundlib/libopenmpttest-Load_ult.o: soundlib/Load_ult.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_ult.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_ult.Tpo -c -o soundlib/libopenmpttest-Load_ult.o `test -f 'soundlib/Load_ult.cpp' || echo '$(srcdir)/'`soundlib/Load_ult.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_ult.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_ult.Po
+#	$(AM_V_CXX)source='soundlib/Load_ult.cpp' object='soundlib/libopenmpttest-Load_ult.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_ult.o `test -f 'soundlib/Load_ult.cpp' || echo '$(srcdir)/'`soundlib/Load_ult.cpp
+
+soundlib/libopenmpttest-Load_ult.obj: soundlib/Load_ult.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_ult.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_ult.Tpo -c -o soundlib/libopenmpttest-Load_ult.obj `if test -f 'soundlib/Load_ult.cpp'; then $(CYGPATH_W) 'soundlib/Load_ult.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_ult.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_ult.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_ult.Po
+#	$(AM_V_CXX)source='soundlib/Load_ult.cpp' object='soundlib/libopenmpttest-Load_ult.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_ult.obj `if test -f 'soundlib/Load_ult.cpp'; then $(CYGPATH_W) 'soundlib/Load_ult.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_ult.cpp'; fi`
+
+soundlib/libopenmpttest-Load_unic.o: soundlib/Load_unic.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_unic.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_unic.Tpo -c -o soundlib/libopenmpttest-Load_unic.o `test -f 'soundlib/Load_unic.cpp' || echo '$(srcdir)/'`soundlib/Load_unic.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_unic.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_unic.Po
+#	$(AM_V_CXX)source='soundlib/Load_unic.cpp' object='soundlib/libopenmpttest-Load_unic.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_unic.o `test -f 'soundlib/Load_unic.cpp' || echo '$(srcdir)/'`soundlib/Load_unic.cpp
+
+soundlib/libopenmpttest-Load_unic.obj: soundlib/Load_unic.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_unic.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_unic.Tpo -c -o soundlib/libopenmpttest-Load_unic.obj `if test -f 'soundlib/Load_unic.cpp'; then $(CYGPATH_W) 'soundlib/Load_unic.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_unic.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_unic.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_unic.Po
+#	$(AM_V_CXX)source='soundlib/Load_unic.cpp' object='soundlib/libopenmpttest-Load_unic.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_unic.obj `if test -f 'soundlib/Load_unic.cpp'; then $(CYGPATH_W) 'soundlib/Load_unic.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_unic.cpp'; fi`
+
+soundlib/libopenmpttest-Load_wav.o: soundlib/Load_wav.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_wav.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_wav.Tpo -c -o soundlib/libopenmpttest-Load_wav.o `test -f 'soundlib/Load_wav.cpp' || echo '$(srcdir)/'`soundlib/Load_wav.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_wav.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_wav.Po
+#	$(AM_V_CXX)source='soundlib/Load_wav.cpp' object='soundlib/libopenmpttest-Load_wav.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_wav.o `test -f 'soundlib/Load_wav.cpp' || echo '$(srcdir)/'`soundlib/Load_wav.cpp
+
+soundlib/libopenmpttest-Load_wav.obj: soundlib/Load_wav.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_wav.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_wav.Tpo -c -o soundlib/libopenmpttest-Load_wav.obj `if test -f 'soundlib/Load_wav.cpp'; then $(CYGPATH_W) 'soundlib/Load_wav.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_wav.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_wav.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_wav.Po
+#	$(AM_V_CXX)source='soundlib/Load_wav.cpp' object='soundlib/libopenmpttest-Load_wav.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_wav.obj `if test -f 'soundlib/Load_wav.cpp'; then $(CYGPATH_W) 'soundlib/Load_wav.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_wav.cpp'; fi`
+
+soundlib/libopenmpttest-Load_xm.o: soundlib/Load_xm.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_xm.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_xm.Tpo -c -o soundlib/libopenmpttest-Load_xm.o `test -f 'soundlib/Load_xm.cpp' || echo '$(srcdir)/'`soundlib/Load_xm.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_xm.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_xm.Po
+#	$(AM_V_CXX)source='soundlib/Load_xm.cpp' object='soundlib/libopenmpttest-Load_xm.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_xm.o `test -f 'soundlib/Load_xm.cpp' || echo '$(srcdir)/'`soundlib/Load_xm.cpp
+
+soundlib/libopenmpttest-Load_xm.obj: soundlib/Load_xm.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_xm.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_xm.Tpo -c -o soundlib/libopenmpttest-Load_xm.obj `if test -f 'soundlib/Load_xm.cpp'; then $(CYGPATH_W) 'soundlib/Load_xm.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_xm.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_xm.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_xm.Po
+#	$(AM_V_CXX)source='soundlib/Load_xm.cpp' object='soundlib/libopenmpttest-Load_xm.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_xm.obj `if test -f 'soundlib/Load_xm.cpp'; then $(CYGPATH_W) 'soundlib/Load_xm.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_xm.cpp'; fi`
+
+soundlib/libopenmpttest-Load_xmf.o: soundlib/Load_xmf.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_xmf.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_xmf.Tpo -c -o soundlib/libopenmpttest-Load_xmf.o `test -f 'soundlib/Load_xmf.cpp' || echo '$(srcdir)/'`soundlib/Load_xmf.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_xmf.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_xmf.Po
+#	$(AM_V_CXX)source='soundlib/Load_xmf.cpp' object='soundlib/libopenmpttest-Load_xmf.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_xmf.o `test -f 'soundlib/Load_xmf.cpp' || echo '$(srcdir)/'`soundlib/Load_xmf.cpp
+
+soundlib/libopenmpttest-Load_xmf.obj: soundlib/Load_xmf.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Load_xmf.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Load_xmf.Tpo -c -o soundlib/libopenmpttest-Load_xmf.obj `if test -f 'soundlib/Load_xmf.cpp'; then $(CYGPATH_W) 'soundlib/Load_xmf.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_xmf.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Load_xmf.Tpo soundlib/$(DEPDIR)/libopenmpttest-Load_xmf.Po
+#	$(AM_V_CXX)source='soundlib/Load_xmf.cpp' object='soundlib/libopenmpttest-Load_xmf.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Load_xmf.obj `if test -f 'soundlib/Load_xmf.cpp'; then $(CYGPATH_W) 'soundlib/Load_xmf.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Load_xmf.cpp'; fi`
+
+soundlib/libopenmpttest-Message.o: soundlib/Message.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Message.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Message.Tpo -c -o soundlib/libopenmpttest-Message.o `test -f 'soundlib/Message.cpp' || echo '$(srcdir)/'`soundlib/Message.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Message.Tpo soundlib/$(DEPDIR)/libopenmpttest-Message.Po
+#	$(AM_V_CXX)source='soundlib/Message.cpp' object='soundlib/libopenmpttest-Message.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Message.o `test -f 'soundlib/Message.cpp' || echo '$(srcdir)/'`soundlib/Message.cpp
+
+soundlib/libopenmpttest-Message.obj: soundlib/Message.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Message.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Message.Tpo -c -o soundlib/libopenmpttest-Message.obj `if test -f 'soundlib/Message.cpp'; then $(CYGPATH_W) 'soundlib/Message.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Message.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Message.Tpo soundlib/$(DEPDIR)/libopenmpttest-Message.Po
+#	$(AM_V_CXX)source='soundlib/Message.cpp' object='soundlib/libopenmpttest-Message.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Message.obj `if test -f 'soundlib/Message.cpp'; then $(CYGPATH_W) 'soundlib/Message.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Message.cpp'; fi`
+
+soundlib/libopenmpttest-MIDIEvents.o: soundlib/MIDIEvents.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-MIDIEvents.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-MIDIEvents.Tpo -c -o soundlib/libopenmpttest-MIDIEvents.o `test -f 'soundlib/MIDIEvents.cpp' || echo '$(srcdir)/'`soundlib/MIDIEvents.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-MIDIEvents.Tpo soundlib/$(DEPDIR)/libopenmpttest-MIDIEvents.Po
+#	$(AM_V_CXX)source='soundlib/MIDIEvents.cpp' object='soundlib/libopenmpttest-MIDIEvents.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-MIDIEvents.o `test -f 'soundlib/MIDIEvents.cpp' || echo '$(srcdir)/'`soundlib/MIDIEvents.cpp
+
+soundlib/libopenmpttest-MIDIEvents.obj: soundlib/MIDIEvents.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-MIDIEvents.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-MIDIEvents.Tpo -c -o soundlib/libopenmpttest-MIDIEvents.obj `if test -f 'soundlib/MIDIEvents.cpp'; then $(CYGPATH_W) 'soundlib/MIDIEvents.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/MIDIEvents.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-MIDIEvents.Tpo soundlib/$(DEPDIR)/libopenmpttest-MIDIEvents.Po
+#	$(AM_V_CXX)source='soundlib/MIDIEvents.cpp' object='soundlib/libopenmpttest-MIDIEvents.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-MIDIEvents.obj `if test -f 'soundlib/MIDIEvents.cpp'; then $(CYGPATH_W) 'soundlib/MIDIEvents.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/MIDIEvents.cpp'; fi`
+
+soundlib/libopenmpttest-MIDIMacroParser.o: soundlib/MIDIMacroParser.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-MIDIMacroParser.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-MIDIMacroParser.Tpo -c -o soundlib/libopenmpttest-MIDIMacroParser.o `test -f 'soundlib/MIDIMacroParser.cpp' || echo '$(srcdir)/'`soundlib/MIDIMacroParser.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-MIDIMacroParser.Tpo soundlib/$(DEPDIR)/libopenmpttest-MIDIMacroParser.Po
+#	$(AM_V_CXX)source='soundlib/MIDIMacroParser.cpp' object='soundlib/libopenmpttest-MIDIMacroParser.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-MIDIMacroParser.o `test -f 'soundlib/MIDIMacroParser.cpp' || echo '$(srcdir)/'`soundlib/MIDIMacroParser.cpp
+
+soundlib/libopenmpttest-MIDIMacroParser.obj: soundlib/MIDIMacroParser.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-MIDIMacroParser.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-MIDIMacroParser.Tpo -c -o soundlib/libopenmpttest-MIDIMacroParser.obj `if test -f 'soundlib/MIDIMacroParser.cpp'; then $(CYGPATH_W) 'soundlib/MIDIMacroParser.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/MIDIMacroParser.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-MIDIMacroParser.Tpo soundlib/$(DEPDIR)/libopenmpttest-MIDIMacroParser.Po
+#	$(AM_V_CXX)source='soundlib/MIDIMacroParser.cpp' object='soundlib/libopenmpttest-MIDIMacroParser.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-MIDIMacroParser.obj `if test -f 'soundlib/MIDIMacroParser.cpp'; then $(CYGPATH_W) 'soundlib/MIDIMacroParser.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/MIDIMacroParser.cpp'; fi`
+
+soundlib/libopenmpttest-MIDIMacros.o: soundlib/MIDIMacros.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-MIDIMacros.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-MIDIMacros.Tpo -c -o soundlib/libopenmpttest-MIDIMacros.o `test -f 'soundlib/MIDIMacros.cpp' || echo '$(srcdir)/'`soundlib/MIDIMacros.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-MIDIMacros.Tpo soundlib/$(DEPDIR)/libopenmpttest-MIDIMacros.Po
+#	$(AM_V_CXX)source='soundlib/MIDIMacros.cpp' object='soundlib/libopenmpttest-MIDIMacros.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-MIDIMacros.o `test -f 'soundlib/MIDIMacros.cpp' || echo '$(srcdir)/'`soundlib/MIDIMacros.cpp
+
+soundlib/libopenmpttest-MIDIMacros.obj: soundlib/MIDIMacros.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-MIDIMacros.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-MIDIMacros.Tpo -c -o soundlib/libopenmpttest-MIDIMacros.obj `if test -f 'soundlib/MIDIMacros.cpp'; then $(CYGPATH_W) 'soundlib/MIDIMacros.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/MIDIMacros.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-MIDIMacros.Tpo soundlib/$(DEPDIR)/libopenmpttest-MIDIMacros.Po
+#	$(AM_V_CXX)source='soundlib/MIDIMacros.cpp' object='soundlib/libopenmpttest-MIDIMacros.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-MIDIMacros.obj `if test -f 'soundlib/MIDIMacros.cpp'; then $(CYGPATH_W) 'soundlib/MIDIMacros.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/MIDIMacros.cpp'; fi`
+
+soundlib/libopenmpttest-MixerLoops.o: soundlib/MixerLoops.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-MixerLoops.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-MixerLoops.Tpo -c -o soundlib/libopenmpttest-MixerLoops.o `test -f 'soundlib/MixerLoops.cpp' || echo '$(srcdir)/'`soundlib/MixerLoops.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-MixerLoops.Tpo soundlib/$(DEPDIR)/libopenmpttest-MixerLoops.Po
+#	$(AM_V_CXX)source='soundlib/MixerLoops.cpp' object='soundlib/libopenmpttest-MixerLoops.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-MixerLoops.o `test -f 'soundlib/MixerLoops.cpp' || echo '$(srcdir)/'`soundlib/MixerLoops.cpp
+
+soundlib/libopenmpttest-MixerLoops.obj: soundlib/MixerLoops.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-MixerLoops.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-MixerLoops.Tpo -c -o soundlib/libopenmpttest-MixerLoops.obj `if test -f 'soundlib/MixerLoops.cpp'; then $(CYGPATH_W) 'soundlib/MixerLoops.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/MixerLoops.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-MixerLoops.Tpo soundlib/$(DEPDIR)/libopenmpttest-MixerLoops.Po
+#	$(AM_V_CXX)source='soundlib/MixerLoops.cpp' object='soundlib/libopenmpttest-MixerLoops.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-MixerLoops.obj `if test -f 'soundlib/MixerLoops.cpp'; then $(CYGPATH_W) 'soundlib/MixerLoops.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/MixerLoops.cpp'; fi`
+
+soundlib/libopenmpttest-MixerSettings.o: soundlib/MixerSettings.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-MixerSettings.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-MixerSettings.Tpo -c -o soundlib/libopenmpttest-MixerSettings.o `test -f 'soundlib/MixerSettings.cpp' || echo '$(srcdir)/'`soundlib/MixerSettings.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-MixerSettings.Tpo soundlib/$(DEPDIR)/libopenmpttest-MixerSettings.Po
+#	$(AM_V_CXX)source='soundlib/MixerSettings.cpp' object='soundlib/libopenmpttest-MixerSettings.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-MixerSettings.o `test -f 'soundlib/MixerSettings.cpp' || echo '$(srcdir)/'`soundlib/MixerSettings.cpp
+
+soundlib/libopenmpttest-MixerSettings.obj: soundlib/MixerSettings.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-MixerSettings.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-MixerSettings.Tpo -c -o soundlib/libopenmpttest-MixerSettings.obj `if test -f 'soundlib/MixerSettings.cpp'; then $(CYGPATH_W) 'soundlib/MixerSettings.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/MixerSettings.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-MixerSettings.Tpo soundlib/$(DEPDIR)/libopenmpttest-MixerSettings.Po
+#	$(AM_V_CXX)source='soundlib/MixerSettings.cpp' object='soundlib/libopenmpttest-MixerSettings.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-MixerSettings.obj `if test -f 'soundlib/MixerSettings.cpp'; then $(CYGPATH_W) 'soundlib/MixerSettings.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/MixerSettings.cpp'; fi`
+
+soundlib/libopenmpttest-MixFuncTable.o: soundlib/MixFuncTable.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-MixFuncTable.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-MixFuncTable.Tpo -c -o soundlib/libopenmpttest-MixFuncTable.o `test -f 'soundlib/MixFuncTable.cpp' || echo '$(srcdir)/'`soundlib/MixFuncTable.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-MixFuncTable.Tpo soundlib/$(DEPDIR)/libopenmpttest-MixFuncTable.Po
+#	$(AM_V_CXX)source='soundlib/MixFuncTable.cpp' object='soundlib/libopenmpttest-MixFuncTable.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-MixFuncTable.o `test -f 'soundlib/MixFuncTable.cpp' || echo '$(srcdir)/'`soundlib/MixFuncTable.cpp
+
+soundlib/libopenmpttest-MixFuncTable.obj: soundlib/MixFuncTable.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-MixFuncTable.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-MixFuncTable.Tpo -c -o soundlib/libopenmpttest-MixFuncTable.obj `if test -f 'soundlib/MixFuncTable.cpp'; then $(CYGPATH_W) 'soundlib/MixFuncTable.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/MixFuncTable.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-MixFuncTable.Tpo soundlib/$(DEPDIR)/libopenmpttest-MixFuncTable.Po
+#	$(AM_V_CXX)source='soundlib/MixFuncTable.cpp' object='soundlib/libopenmpttest-MixFuncTable.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-MixFuncTable.obj `if test -f 'soundlib/MixFuncTable.cpp'; then $(CYGPATH_W) 'soundlib/MixFuncTable.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/MixFuncTable.cpp'; fi`
+
+soundlib/libopenmpttest-ModChannel.o: soundlib/ModChannel.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-ModChannel.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-ModChannel.Tpo -c -o soundlib/libopenmpttest-ModChannel.o `test -f 'soundlib/ModChannel.cpp' || echo '$(srcdir)/'`soundlib/ModChannel.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-ModChannel.Tpo soundlib/$(DEPDIR)/libopenmpttest-ModChannel.Po
+#	$(AM_V_CXX)source='soundlib/ModChannel.cpp' object='soundlib/libopenmpttest-ModChannel.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-ModChannel.o `test -f 'soundlib/ModChannel.cpp' || echo '$(srcdir)/'`soundlib/ModChannel.cpp
+
+soundlib/libopenmpttest-ModChannel.obj: soundlib/ModChannel.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-ModChannel.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-ModChannel.Tpo -c -o soundlib/libopenmpttest-ModChannel.obj `if test -f 'soundlib/ModChannel.cpp'; then $(CYGPATH_W) 'soundlib/ModChannel.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/ModChannel.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-ModChannel.Tpo soundlib/$(DEPDIR)/libopenmpttest-ModChannel.Po
+#	$(AM_V_CXX)source='soundlib/ModChannel.cpp' object='soundlib/libopenmpttest-ModChannel.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-ModChannel.obj `if test -f 'soundlib/ModChannel.cpp'; then $(CYGPATH_W) 'soundlib/ModChannel.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/ModChannel.cpp'; fi`
+
+soundlib/libopenmpttest-modcommand.o: soundlib/modcommand.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-modcommand.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-modcommand.Tpo -c -o soundlib/libopenmpttest-modcommand.o `test -f 'soundlib/modcommand.cpp' || echo '$(srcdir)/'`soundlib/modcommand.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-modcommand.Tpo soundlib/$(DEPDIR)/libopenmpttest-modcommand.Po
+#	$(AM_V_CXX)source='soundlib/modcommand.cpp' object='soundlib/libopenmpttest-modcommand.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-modcommand.o `test -f 'soundlib/modcommand.cpp' || echo '$(srcdir)/'`soundlib/modcommand.cpp
+
+soundlib/libopenmpttest-modcommand.obj: soundlib/modcommand.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-modcommand.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-modcommand.Tpo -c -o soundlib/libopenmpttest-modcommand.obj `if test -f 'soundlib/modcommand.cpp'; then $(CYGPATH_W) 'soundlib/modcommand.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/modcommand.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-modcommand.Tpo soundlib/$(DEPDIR)/libopenmpttest-modcommand.Po
+#	$(AM_V_CXX)source='soundlib/modcommand.cpp' object='soundlib/libopenmpttest-modcommand.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-modcommand.obj `if test -f 'soundlib/modcommand.cpp'; then $(CYGPATH_W) 'soundlib/modcommand.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/modcommand.cpp'; fi`
+
+soundlib/libopenmpttest-ModInstrument.o: soundlib/ModInstrument.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-ModInstrument.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-ModInstrument.Tpo -c -o soundlib/libopenmpttest-ModInstrument.o `test -f 'soundlib/ModInstrument.cpp' || echo '$(srcdir)/'`soundlib/ModInstrument.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-ModInstrument.Tpo soundlib/$(DEPDIR)/libopenmpttest-ModInstrument.Po
+#	$(AM_V_CXX)source='soundlib/ModInstrument.cpp' object='soundlib/libopenmpttest-ModInstrument.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-ModInstrument.o `test -f 'soundlib/ModInstrument.cpp' || echo '$(srcdir)/'`soundlib/ModInstrument.cpp
+
+soundlib/libopenmpttest-ModInstrument.obj: soundlib/ModInstrument.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-ModInstrument.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-ModInstrument.Tpo -c -o soundlib/libopenmpttest-ModInstrument.obj `if test -f 'soundlib/ModInstrument.cpp'; then $(CYGPATH_W) 'soundlib/ModInstrument.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/ModInstrument.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-ModInstrument.Tpo soundlib/$(DEPDIR)/libopenmpttest-ModInstrument.Po
+#	$(AM_V_CXX)source='soundlib/ModInstrument.cpp' object='soundlib/libopenmpttest-ModInstrument.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-ModInstrument.obj `if test -f 'soundlib/ModInstrument.cpp'; then $(CYGPATH_W) 'soundlib/ModInstrument.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/ModInstrument.cpp'; fi`
+
+soundlib/libopenmpttest-ModSample.o: soundlib/ModSample.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-ModSample.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-ModSample.Tpo -c -o soundlib/libopenmpttest-ModSample.o `test -f 'soundlib/ModSample.cpp' || echo '$(srcdir)/'`soundlib/ModSample.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-ModSample.Tpo soundlib/$(DEPDIR)/libopenmpttest-ModSample.Po
+#	$(AM_V_CXX)source='soundlib/ModSample.cpp' object='soundlib/libopenmpttest-ModSample.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-ModSample.o `test -f 'soundlib/ModSample.cpp' || echo '$(srcdir)/'`soundlib/ModSample.cpp
+
+soundlib/libopenmpttest-ModSample.obj: soundlib/ModSample.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-ModSample.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-ModSample.Tpo -c -o soundlib/libopenmpttest-ModSample.obj `if test -f 'soundlib/ModSample.cpp'; then $(CYGPATH_W) 'soundlib/ModSample.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/ModSample.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-ModSample.Tpo soundlib/$(DEPDIR)/libopenmpttest-ModSample.Po
+#	$(AM_V_CXX)source='soundlib/ModSample.cpp' object='soundlib/libopenmpttest-ModSample.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-ModSample.obj `if test -f 'soundlib/ModSample.cpp'; then $(CYGPATH_W) 'soundlib/ModSample.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/ModSample.cpp'; fi`
+
+soundlib/libopenmpttest-ModSequence.o: soundlib/ModSequence.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-ModSequence.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-ModSequence.Tpo -c -o soundlib/libopenmpttest-ModSequence.o `test -f 'soundlib/ModSequence.cpp' || echo '$(srcdir)/'`soundlib/ModSequence.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-ModSequence.Tpo soundlib/$(DEPDIR)/libopenmpttest-ModSequence.Po
+#	$(AM_V_CXX)source='soundlib/ModSequence.cpp' object='soundlib/libopenmpttest-ModSequence.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-ModSequence.o `test -f 'soundlib/ModSequence.cpp' || echo '$(srcdir)/'`soundlib/ModSequence.cpp
+
+soundlib/libopenmpttest-ModSequence.obj: soundlib/ModSequence.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-ModSequence.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-ModSequence.Tpo -c -o soundlib/libopenmpttest-ModSequence.obj `if test -f 'soundlib/ModSequence.cpp'; then $(CYGPATH_W) 'soundlib/ModSequence.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/ModSequence.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-ModSequence.Tpo soundlib/$(DEPDIR)/libopenmpttest-ModSequence.Po
+#	$(AM_V_CXX)source='soundlib/ModSequence.cpp' object='soundlib/libopenmpttest-ModSequence.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-ModSequence.obj `if test -f 'soundlib/ModSequence.cpp'; then $(CYGPATH_W) 'soundlib/ModSequence.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/ModSequence.cpp'; fi`
+
+soundlib/libopenmpttest-modsmp_ctrl.o: soundlib/modsmp_ctrl.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-modsmp_ctrl.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-modsmp_ctrl.Tpo -c -o soundlib/libopenmpttest-modsmp_ctrl.o `test -f 'soundlib/modsmp_ctrl.cpp' || echo '$(srcdir)/'`soundlib/modsmp_ctrl.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-modsmp_ctrl.Tpo soundlib/$(DEPDIR)/libopenmpttest-modsmp_ctrl.Po
+#	$(AM_V_CXX)source='soundlib/modsmp_ctrl.cpp' object='soundlib/libopenmpttest-modsmp_ctrl.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-modsmp_ctrl.o `test -f 'soundlib/modsmp_ctrl.cpp' || echo '$(srcdir)/'`soundlib/modsmp_ctrl.cpp
+
+soundlib/libopenmpttest-modsmp_ctrl.obj: soundlib/modsmp_ctrl.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-modsmp_ctrl.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-modsmp_ctrl.Tpo -c -o soundlib/libopenmpttest-modsmp_ctrl.obj `if test -f 'soundlib/modsmp_ctrl.cpp'; then $(CYGPATH_W) 'soundlib/modsmp_ctrl.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/modsmp_ctrl.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-modsmp_ctrl.Tpo soundlib/$(DEPDIR)/libopenmpttest-modsmp_ctrl.Po
+#	$(AM_V_CXX)source='soundlib/modsmp_ctrl.cpp' object='soundlib/libopenmpttest-modsmp_ctrl.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-modsmp_ctrl.obj `if test -f 'soundlib/modsmp_ctrl.cpp'; then $(CYGPATH_W) 'soundlib/modsmp_ctrl.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/modsmp_ctrl.cpp'; fi`
+
+soundlib/libopenmpttest-mod_specifications.o: soundlib/mod_specifications.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-mod_specifications.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-mod_specifications.Tpo -c -o soundlib/libopenmpttest-mod_specifications.o `test -f 'soundlib/mod_specifications.cpp' || echo '$(srcdir)/'`soundlib/mod_specifications.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-mod_specifications.Tpo soundlib/$(DEPDIR)/libopenmpttest-mod_specifications.Po
+#	$(AM_V_CXX)source='soundlib/mod_specifications.cpp' object='soundlib/libopenmpttest-mod_specifications.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-mod_specifications.o `test -f 'soundlib/mod_specifications.cpp' || echo '$(srcdir)/'`soundlib/mod_specifications.cpp
+
+soundlib/libopenmpttest-mod_specifications.obj: soundlib/mod_specifications.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-mod_specifications.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-mod_specifications.Tpo -c -o soundlib/libopenmpttest-mod_specifications.obj `if test -f 'soundlib/mod_specifications.cpp'; then $(CYGPATH_W) 'soundlib/mod_specifications.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/mod_specifications.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-mod_specifications.Tpo soundlib/$(DEPDIR)/libopenmpttest-mod_specifications.Po
+#	$(AM_V_CXX)source='soundlib/mod_specifications.cpp' object='soundlib/libopenmpttest-mod_specifications.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-mod_specifications.obj `if test -f 'soundlib/mod_specifications.cpp'; then $(CYGPATH_W) 'soundlib/mod_specifications.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/mod_specifications.cpp'; fi`
+
+soundlib/libopenmpttest-MODTools.o: soundlib/MODTools.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-MODTools.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-MODTools.Tpo -c -o soundlib/libopenmpttest-MODTools.o `test -f 'soundlib/MODTools.cpp' || echo '$(srcdir)/'`soundlib/MODTools.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-MODTools.Tpo soundlib/$(DEPDIR)/libopenmpttest-MODTools.Po
+#	$(AM_V_CXX)source='soundlib/MODTools.cpp' object='soundlib/libopenmpttest-MODTools.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-MODTools.o `test -f 'soundlib/MODTools.cpp' || echo '$(srcdir)/'`soundlib/MODTools.cpp
+
+soundlib/libopenmpttest-MODTools.obj: soundlib/MODTools.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-MODTools.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-MODTools.Tpo -c -o soundlib/libopenmpttest-MODTools.obj `if test -f 'soundlib/MODTools.cpp'; then $(CYGPATH_W) 'soundlib/MODTools.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/MODTools.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-MODTools.Tpo soundlib/$(DEPDIR)/libopenmpttest-MODTools.Po
+#	$(AM_V_CXX)source='soundlib/MODTools.cpp' object='soundlib/libopenmpttest-MODTools.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-MODTools.obj `if test -f 'soundlib/MODTools.cpp'; then $(CYGPATH_W) 'soundlib/MODTools.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/MODTools.cpp'; fi`
+
+soundlib/libopenmpttest-MPEGFrame.o: soundlib/MPEGFrame.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-MPEGFrame.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-MPEGFrame.Tpo -c -o soundlib/libopenmpttest-MPEGFrame.o `test -f 'soundlib/MPEGFrame.cpp' || echo '$(srcdir)/'`soundlib/MPEGFrame.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-MPEGFrame.Tpo soundlib/$(DEPDIR)/libopenmpttest-MPEGFrame.Po
+#	$(AM_V_CXX)source='soundlib/MPEGFrame.cpp' object='soundlib/libopenmpttest-MPEGFrame.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-MPEGFrame.o `test -f 'soundlib/MPEGFrame.cpp' || echo '$(srcdir)/'`soundlib/MPEGFrame.cpp
+
+soundlib/libopenmpttest-MPEGFrame.obj: soundlib/MPEGFrame.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-MPEGFrame.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-MPEGFrame.Tpo -c -o soundlib/libopenmpttest-MPEGFrame.obj `if test -f 'soundlib/MPEGFrame.cpp'; then $(CYGPATH_W) 'soundlib/MPEGFrame.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/MPEGFrame.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-MPEGFrame.Tpo soundlib/$(DEPDIR)/libopenmpttest-MPEGFrame.Po
+#	$(AM_V_CXX)source='soundlib/MPEGFrame.cpp' object='soundlib/libopenmpttest-MPEGFrame.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-MPEGFrame.obj `if test -f 'soundlib/MPEGFrame.cpp'; then $(CYGPATH_W) 'soundlib/MPEGFrame.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/MPEGFrame.cpp'; fi`
+
+soundlib/libopenmpttest-OggStream.o: soundlib/OggStream.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-OggStream.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-OggStream.Tpo -c -o soundlib/libopenmpttest-OggStream.o `test -f 'soundlib/OggStream.cpp' || echo '$(srcdir)/'`soundlib/OggStream.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-OggStream.Tpo soundlib/$(DEPDIR)/libopenmpttest-OggStream.Po
+#	$(AM_V_CXX)source='soundlib/OggStream.cpp' object='soundlib/libopenmpttest-OggStream.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-OggStream.o `test -f 'soundlib/OggStream.cpp' || echo '$(srcdir)/'`soundlib/OggStream.cpp
+
+soundlib/libopenmpttest-OggStream.obj: soundlib/OggStream.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-OggStream.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-OggStream.Tpo -c -o soundlib/libopenmpttest-OggStream.obj `if test -f 'soundlib/OggStream.cpp'; then $(CYGPATH_W) 'soundlib/OggStream.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/OggStream.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-OggStream.Tpo soundlib/$(DEPDIR)/libopenmpttest-OggStream.Po
+#	$(AM_V_CXX)source='soundlib/OggStream.cpp' object='soundlib/libopenmpttest-OggStream.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-OggStream.obj `if test -f 'soundlib/OggStream.cpp'; then $(CYGPATH_W) 'soundlib/OggStream.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/OggStream.cpp'; fi`
+
+soundlib/libopenmpttest-OPL.o: soundlib/OPL.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-OPL.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-OPL.Tpo -c -o soundlib/libopenmpttest-OPL.o `test -f 'soundlib/OPL.cpp' || echo '$(srcdir)/'`soundlib/OPL.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-OPL.Tpo soundlib/$(DEPDIR)/libopenmpttest-OPL.Po
+#	$(AM_V_CXX)source='soundlib/OPL.cpp' object='soundlib/libopenmpttest-OPL.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-OPL.o `test -f 'soundlib/OPL.cpp' || echo '$(srcdir)/'`soundlib/OPL.cpp
+
+soundlib/libopenmpttest-OPL.obj: soundlib/OPL.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-OPL.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-OPL.Tpo -c -o soundlib/libopenmpttest-OPL.obj `if test -f 'soundlib/OPL.cpp'; then $(CYGPATH_W) 'soundlib/OPL.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/OPL.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-OPL.Tpo soundlib/$(DEPDIR)/libopenmpttest-OPL.Po
+#	$(AM_V_CXX)source='soundlib/OPL.cpp' object='soundlib/libopenmpttest-OPL.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-OPL.obj `if test -f 'soundlib/OPL.cpp'; then $(CYGPATH_W) 'soundlib/OPL.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/OPL.cpp'; fi`
+
+soundlib/libopenmpttest-Paula.o: soundlib/Paula.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Paula.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Paula.Tpo -c -o soundlib/libopenmpttest-Paula.o `test -f 'soundlib/Paula.cpp' || echo '$(srcdir)/'`soundlib/Paula.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Paula.Tpo soundlib/$(DEPDIR)/libopenmpttest-Paula.Po
+#	$(AM_V_CXX)source='soundlib/Paula.cpp' object='soundlib/libopenmpttest-Paula.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Paula.o `test -f 'soundlib/Paula.cpp' || echo '$(srcdir)/'`soundlib/Paula.cpp
+
+soundlib/libopenmpttest-Paula.obj: soundlib/Paula.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Paula.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Paula.Tpo -c -o soundlib/libopenmpttest-Paula.obj `if test -f 'soundlib/Paula.cpp'; then $(CYGPATH_W) 'soundlib/Paula.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Paula.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Paula.Tpo soundlib/$(DEPDIR)/libopenmpttest-Paula.Po
+#	$(AM_V_CXX)source='soundlib/Paula.cpp' object='soundlib/libopenmpttest-Paula.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Paula.obj `if test -f 'soundlib/Paula.cpp'; then $(CYGPATH_W) 'soundlib/Paula.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Paula.cpp'; fi`
+
+soundlib/libopenmpttest-patternContainer.o: soundlib/patternContainer.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-patternContainer.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-patternContainer.Tpo -c -o soundlib/libopenmpttest-patternContainer.o `test -f 'soundlib/patternContainer.cpp' || echo '$(srcdir)/'`soundlib/patternContainer.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-patternContainer.Tpo soundlib/$(DEPDIR)/libopenmpttest-patternContainer.Po
+#	$(AM_V_CXX)source='soundlib/patternContainer.cpp' object='soundlib/libopenmpttest-patternContainer.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-patternContainer.o `test -f 'soundlib/patternContainer.cpp' || echo '$(srcdir)/'`soundlib/patternContainer.cpp
+
+soundlib/libopenmpttest-patternContainer.obj: soundlib/patternContainer.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-patternContainer.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-patternContainer.Tpo -c -o soundlib/libopenmpttest-patternContainer.obj `if test -f 'soundlib/patternContainer.cpp'; then $(CYGPATH_W) 'soundlib/patternContainer.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/patternContainer.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-patternContainer.Tpo soundlib/$(DEPDIR)/libopenmpttest-patternContainer.Po
+#	$(AM_V_CXX)source='soundlib/patternContainer.cpp' object='soundlib/libopenmpttest-patternContainer.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-patternContainer.obj `if test -f 'soundlib/patternContainer.cpp'; then $(CYGPATH_W) 'soundlib/patternContainer.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/patternContainer.cpp'; fi`
+
+soundlib/libopenmpttest-pattern.o: soundlib/pattern.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-pattern.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-pattern.Tpo -c -o soundlib/libopenmpttest-pattern.o `test -f 'soundlib/pattern.cpp' || echo '$(srcdir)/'`soundlib/pattern.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-pattern.Tpo soundlib/$(DEPDIR)/libopenmpttest-pattern.Po
+#	$(AM_V_CXX)source='soundlib/pattern.cpp' object='soundlib/libopenmpttest-pattern.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-pattern.o `test -f 'soundlib/pattern.cpp' || echo '$(srcdir)/'`soundlib/pattern.cpp
+
+soundlib/libopenmpttest-pattern.obj: soundlib/pattern.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-pattern.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-pattern.Tpo -c -o soundlib/libopenmpttest-pattern.obj `if test -f 'soundlib/pattern.cpp'; then $(CYGPATH_W) 'soundlib/pattern.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/pattern.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-pattern.Tpo soundlib/$(DEPDIR)/libopenmpttest-pattern.Po
+#	$(AM_V_CXX)source='soundlib/pattern.cpp' object='soundlib/libopenmpttest-pattern.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-pattern.obj `if test -f 'soundlib/pattern.cpp'; then $(CYGPATH_W) 'soundlib/pattern.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/pattern.cpp'; fi`
+
+soundlib/libopenmpttest-PlaybackTest.o: soundlib/PlaybackTest.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-PlaybackTest.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-PlaybackTest.Tpo -c -o soundlib/libopenmpttest-PlaybackTest.o `test -f 'soundlib/PlaybackTest.cpp' || echo '$(srcdir)/'`soundlib/PlaybackTest.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-PlaybackTest.Tpo soundlib/$(DEPDIR)/libopenmpttest-PlaybackTest.Po
+#	$(AM_V_CXX)source='soundlib/PlaybackTest.cpp' object='soundlib/libopenmpttest-PlaybackTest.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-PlaybackTest.o `test -f 'soundlib/PlaybackTest.cpp' || echo '$(srcdir)/'`soundlib/PlaybackTest.cpp
+
+soundlib/libopenmpttest-PlaybackTest.obj: soundlib/PlaybackTest.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-PlaybackTest.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-PlaybackTest.Tpo -c -o soundlib/libopenmpttest-PlaybackTest.obj `if test -f 'soundlib/PlaybackTest.cpp'; then $(CYGPATH_W) 'soundlib/PlaybackTest.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/PlaybackTest.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-PlaybackTest.Tpo soundlib/$(DEPDIR)/libopenmpttest-PlaybackTest.Po
+#	$(AM_V_CXX)source='soundlib/PlaybackTest.cpp' object='soundlib/libopenmpttest-PlaybackTest.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-PlaybackTest.obj `if test -f 'soundlib/PlaybackTest.cpp'; then $(CYGPATH_W) 'soundlib/PlaybackTest.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/PlaybackTest.cpp'; fi`
+
+soundlib/libopenmpttest-PlayState.o: soundlib/PlayState.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-PlayState.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-PlayState.Tpo -c -o soundlib/libopenmpttest-PlayState.o `test -f 'soundlib/PlayState.cpp' || echo '$(srcdir)/'`soundlib/PlayState.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-PlayState.Tpo soundlib/$(DEPDIR)/libopenmpttest-PlayState.Po
+#	$(AM_V_CXX)source='soundlib/PlayState.cpp' object='soundlib/libopenmpttest-PlayState.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-PlayState.o `test -f 'soundlib/PlayState.cpp' || echo '$(srcdir)/'`soundlib/PlayState.cpp
+
+soundlib/libopenmpttest-PlayState.obj: soundlib/PlayState.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-PlayState.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-PlayState.Tpo -c -o soundlib/libopenmpttest-PlayState.obj `if test -f 'soundlib/PlayState.cpp'; then $(CYGPATH_W) 'soundlib/PlayState.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/PlayState.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-PlayState.Tpo soundlib/$(DEPDIR)/libopenmpttest-PlayState.Po
+#	$(AM_V_CXX)source='soundlib/PlayState.cpp' object='soundlib/libopenmpttest-PlayState.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-PlayState.obj `if test -f 'soundlib/PlayState.cpp'; then $(CYGPATH_W) 'soundlib/PlayState.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/PlayState.cpp'; fi`
+
+soundlib/libopenmpttest-RowVisitor.o: soundlib/RowVisitor.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-RowVisitor.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-RowVisitor.Tpo -c -o soundlib/libopenmpttest-RowVisitor.o `test -f 'soundlib/RowVisitor.cpp' || echo '$(srcdir)/'`soundlib/RowVisitor.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-RowVisitor.Tpo soundlib/$(DEPDIR)/libopenmpttest-RowVisitor.Po
+#	$(AM_V_CXX)source='soundlib/RowVisitor.cpp' object='soundlib/libopenmpttest-RowVisitor.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-RowVisitor.o `test -f 'soundlib/RowVisitor.cpp' || echo '$(srcdir)/'`soundlib/RowVisitor.cpp
+
+soundlib/libopenmpttest-RowVisitor.obj: soundlib/RowVisitor.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-RowVisitor.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-RowVisitor.Tpo -c -o soundlib/libopenmpttest-RowVisitor.obj `if test -f 'soundlib/RowVisitor.cpp'; then $(CYGPATH_W) 'soundlib/RowVisitor.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/RowVisitor.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-RowVisitor.Tpo soundlib/$(DEPDIR)/libopenmpttest-RowVisitor.Po
+#	$(AM_V_CXX)source='soundlib/RowVisitor.cpp' object='soundlib/libopenmpttest-RowVisitor.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-RowVisitor.obj `if test -f 'soundlib/RowVisitor.cpp'; then $(CYGPATH_W) 'soundlib/RowVisitor.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/RowVisitor.cpp'; fi`
+
+soundlib/libopenmpttest-S3MTools.o: soundlib/S3MTools.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-S3MTools.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-S3MTools.Tpo -c -o soundlib/libopenmpttest-S3MTools.o `test -f 'soundlib/S3MTools.cpp' || echo '$(srcdir)/'`soundlib/S3MTools.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-S3MTools.Tpo soundlib/$(DEPDIR)/libopenmpttest-S3MTools.Po
+#	$(AM_V_CXX)source='soundlib/S3MTools.cpp' object='soundlib/libopenmpttest-S3MTools.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-S3MTools.o `test -f 'soundlib/S3MTools.cpp' || echo '$(srcdir)/'`soundlib/S3MTools.cpp
+
+soundlib/libopenmpttest-S3MTools.obj: soundlib/S3MTools.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-S3MTools.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-S3MTools.Tpo -c -o soundlib/libopenmpttest-S3MTools.obj `if test -f 'soundlib/S3MTools.cpp'; then $(CYGPATH_W) 'soundlib/S3MTools.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/S3MTools.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-S3MTools.Tpo soundlib/$(DEPDIR)/libopenmpttest-S3MTools.Po
+#	$(AM_V_CXX)source='soundlib/S3MTools.cpp' object='soundlib/libopenmpttest-S3MTools.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-S3MTools.obj `if test -f 'soundlib/S3MTools.cpp'; then $(CYGPATH_W) 'soundlib/S3MTools.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/S3MTools.cpp'; fi`
+
+soundlib/libopenmpttest-SampleFormats.o: soundlib/SampleFormats.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-SampleFormats.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-SampleFormats.Tpo -c -o soundlib/libopenmpttest-SampleFormats.o `test -f 'soundlib/SampleFormats.cpp' || echo '$(srcdir)/'`soundlib/SampleFormats.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-SampleFormats.Tpo soundlib/$(DEPDIR)/libopenmpttest-SampleFormats.Po
+#	$(AM_V_CXX)source='soundlib/SampleFormats.cpp' object='soundlib/libopenmpttest-SampleFormats.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-SampleFormats.o `test -f 'soundlib/SampleFormats.cpp' || echo '$(srcdir)/'`soundlib/SampleFormats.cpp
+
+soundlib/libopenmpttest-SampleFormats.obj: soundlib/SampleFormats.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-SampleFormats.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-SampleFormats.Tpo -c -o soundlib/libopenmpttest-SampleFormats.obj `if test -f 'soundlib/SampleFormats.cpp'; then $(CYGPATH_W) 'soundlib/SampleFormats.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/SampleFormats.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-SampleFormats.Tpo soundlib/$(DEPDIR)/libopenmpttest-SampleFormats.Po
+#	$(AM_V_CXX)source='soundlib/SampleFormats.cpp' object='soundlib/libopenmpttest-SampleFormats.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-SampleFormats.obj `if test -f 'soundlib/SampleFormats.cpp'; then $(CYGPATH_W) 'soundlib/SampleFormats.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/SampleFormats.cpp'; fi`
+
+soundlib/libopenmpttest-SampleFormatBRR.o: soundlib/SampleFormatBRR.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-SampleFormatBRR.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-SampleFormatBRR.Tpo -c -o soundlib/libopenmpttest-SampleFormatBRR.o `test -f 'soundlib/SampleFormatBRR.cpp' || echo '$(srcdir)/'`soundlib/SampleFormatBRR.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-SampleFormatBRR.Tpo soundlib/$(DEPDIR)/libopenmpttest-SampleFormatBRR.Po
+#	$(AM_V_CXX)source='soundlib/SampleFormatBRR.cpp' object='soundlib/libopenmpttest-SampleFormatBRR.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-SampleFormatBRR.o `test -f 'soundlib/SampleFormatBRR.cpp' || echo '$(srcdir)/'`soundlib/SampleFormatBRR.cpp
+
+soundlib/libopenmpttest-SampleFormatBRR.obj: soundlib/SampleFormatBRR.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-SampleFormatBRR.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-SampleFormatBRR.Tpo -c -o soundlib/libopenmpttest-SampleFormatBRR.obj `if test -f 'soundlib/SampleFormatBRR.cpp'; then $(CYGPATH_W) 'soundlib/SampleFormatBRR.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/SampleFormatBRR.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-SampleFormatBRR.Tpo soundlib/$(DEPDIR)/libopenmpttest-SampleFormatBRR.Po
+#	$(AM_V_CXX)source='soundlib/SampleFormatBRR.cpp' object='soundlib/libopenmpttest-SampleFormatBRR.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-SampleFormatBRR.obj `if test -f 'soundlib/SampleFormatBRR.cpp'; then $(CYGPATH_W) 'soundlib/SampleFormatBRR.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/SampleFormatBRR.cpp'; fi`
+
+soundlib/libopenmpttest-SampleFormatFLAC.o: soundlib/SampleFormatFLAC.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-SampleFormatFLAC.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-SampleFormatFLAC.Tpo -c -o soundlib/libopenmpttest-SampleFormatFLAC.o `test -f 'soundlib/SampleFormatFLAC.cpp' || echo '$(srcdir)/'`soundlib/SampleFormatFLAC.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-SampleFormatFLAC.Tpo soundlib/$(DEPDIR)/libopenmpttest-SampleFormatFLAC.Po
+#	$(AM_V_CXX)source='soundlib/SampleFormatFLAC.cpp' object='soundlib/libopenmpttest-SampleFormatFLAC.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-SampleFormatFLAC.o `test -f 'soundlib/SampleFormatFLAC.cpp' || echo '$(srcdir)/'`soundlib/SampleFormatFLAC.cpp
+
+soundlib/libopenmpttest-SampleFormatFLAC.obj: soundlib/SampleFormatFLAC.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-SampleFormatFLAC.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-SampleFormatFLAC.Tpo -c -o soundlib/libopenmpttest-SampleFormatFLAC.obj `if test -f 'soundlib/SampleFormatFLAC.cpp'; then $(CYGPATH_W) 'soundlib/SampleFormatFLAC.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/SampleFormatFLAC.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-SampleFormatFLAC.Tpo soundlib/$(DEPDIR)/libopenmpttest-SampleFormatFLAC.Po
+#	$(AM_V_CXX)source='soundlib/SampleFormatFLAC.cpp' object='soundlib/libopenmpttest-SampleFormatFLAC.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-SampleFormatFLAC.obj `if test -f 'soundlib/SampleFormatFLAC.cpp'; then $(CYGPATH_W) 'soundlib/SampleFormatFLAC.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/SampleFormatFLAC.cpp'; fi`
+
+soundlib/libopenmpttest-SampleFormatMediaFoundation.o: soundlib/SampleFormatMediaFoundation.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-SampleFormatMediaFoundation.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-SampleFormatMediaFoundation.Tpo -c -o soundlib/libopenmpttest-SampleFormatMediaFoundation.o `test -f 'soundlib/SampleFormatMediaFoundation.cpp' || echo '$(srcdir)/'`soundlib/SampleFormatMediaFoundation.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-SampleFormatMediaFoundation.Tpo soundlib/$(DEPDIR)/libopenmpttest-SampleFormatMediaFoundation.Po
+#	$(AM_V_CXX)source='soundlib/SampleFormatMediaFoundation.cpp' object='soundlib/libopenmpttest-SampleFormatMediaFoundation.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-SampleFormatMediaFoundation.o `test -f 'soundlib/SampleFormatMediaFoundation.cpp' || echo '$(srcdir)/'`soundlib/SampleFormatMediaFoundation.cpp
+
+soundlib/libopenmpttest-SampleFormatMediaFoundation.obj: soundlib/SampleFormatMediaFoundation.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-SampleFormatMediaFoundation.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-SampleFormatMediaFoundation.Tpo -c -o soundlib/libopenmpttest-SampleFormatMediaFoundation.obj `if test -f 'soundlib/SampleFormatMediaFoundation.cpp'; then $(CYGPATH_W) 'soundlib/SampleFormatMediaFoundation.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/SampleFormatMediaFoundation.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-SampleFormatMediaFoundation.Tpo soundlib/$(DEPDIR)/libopenmpttest-SampleFormatMediaFoundation.Po
+#	$(AM_V_CXX)source='soundlib/SampleFormatMediaFoundation.cpp' object='soundlib/libopenmpttest-SampleFormatMediaFoundation.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-SampleFormatMediaFoundation.obj `if test -f 'soundlib/SampleFormatMediaFoundation.cpp'; then $(CYGPATH_W) 'soundlib/SampleFormatMediaFoundation.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/SampleFormatMediaFoundation.cpp'; fi`
+
+soundlib/libopenmpttest-SampleFormatMP3.o: soundlib/SampleFormatMP3.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-SampleFormatMP3.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-SampleFormatMP3.Tpo -c -o soundlib/libopenmpttest-SampleFormatMP3.o `test -f 'soundlib/SampleFormatMP3.cpp' || echo '$(srcdir)/'`soundlib/SampleFormatMP3.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-SampleFormatMP3.Tpo soundlib/$(DEPDIR)/libopenmpttest-SampleFormatMP3.Po
+#	$(AM_V_CXX)source='soundlib/SampleFormatMP3.cpp' object='soundlib/libopenmpttest-SampleFormatMP3.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-SampleFormatMP3.o `test -f 'soundlib/SampleFormatMP3.cpp' || echo '$(srcdir)/'`soundlib/SampleFormatMP3.cpp
+
+soundlib/libopenmpttest-SampleFormatMP3.obj: soundlib/SampleFormatMP3.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-SampleFormatMP3.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-SampleFormatMP3.Tpo -c -o soundlib/libopenmpttest-SampleFormatMP3.obj `if test -f 'soundlib/SampleFormatMP3.cpp'; then $(CYGPATH_W) 'soundlib/SampleFormatMP3.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/SampleFormatMP3.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-SampleFormatMP3.Tpo soundlib/$(DEPDIR)/libopenmpttest-SampleFormatMP3.Po
+#	$(AM_V_CXX)source='soundlib/SampleFormatMP3.cpp' object='soundlib/libopenmpttest-SampleFormatMP3.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-SampleFormatMP3.obj `if test -f 'soundlib/SampleFormatMP3.cpp'; then $(CYGPATH_W) 'soundlib/SampleFormatMP3.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/SampleFormatMP3.cpp'; fi`
+
+soundlib/libopenmpttest-SampleFormatOpus.o: soundlib/SampleFormatOpus.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-SampleFormatOpus.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-SampleFormatOpus.Tpo -c -o soundlib/libopenmpttest-SampleFormatOpus.o `test -f 'soundlib/SampleFormatOpus.cpp' || echo '$(srcdir)/'`soundlib/SampleFormatOpus.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-SampleFormatOpus.Tpo soundlib/$(DEPDIR)/libopenmpttest-SampleFormatOpus.Po
+#	$(AM_V_CXX)source='soundlib/SampleFormatOpus.cpp' object='soundlib/libopenmpttest-SampleFormatOpus.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-SampleFormatOpus.o `test -f 'soundlib/SampleFormatOpus.cpp' || echo '$(srcdir)/'`soundlib/SampleFormatOpus.cpp
+
+soundlib/libopenmpttest-SampleFormatOpus.obj: soundlib/SampleFormatOpus.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-SampleFormatOpus.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-SampleFormatOpus.Tpo -c -o soundlib/libopenmpttest-SampleFormatOpus.obj `if test -f 'soundlib/SampleFormatOpus.cpp'; then $(CYGPATH_W) 'soundlib/SampleFormatOpus.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/SampleFormatOpus.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-SampleFormatOpus.Tpo soundlib/$(DEPDIR)/libopenmpttest-SampleFormatOpus.Po
+#	$(AM_V_CXX)source='soundlib/SampleFormatOpus.cpp' object='soundlib/libopenmpttest-SampleFormatOpus.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-SampleFormatOpus.obj `if test -f 'soundlib/SampleFormatOpus.cpp'; then $(CYGPATH_W) 'soundlib/SampleFormatOpus.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/SampleFormatOpus.cpp'; fi`
+
+soundlib/libopenmpttest-SampleFormatSFZ.o: soundlib/SampleFormatSFZ.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-SampleFormatSFZ.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-SampleFormatSFZ.Tpo -c -o soundlib/libopenmpttest-SampleFormatSFZ.o `test -f 'soundlib/SampleFormatSFZ.cpp' || echo '$(srcdir)/'`soundlib/SampleFormatSFZ.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-SampleFormatSFZ.Tpo soundlib/$(DEPDIR)/libopenmpttest-SampleFormatSFZ.Po
+#	$(AM_V_CXX)source='soundlib/SampleFormatSFZ.cpp' object='soundlib/libopenmpttest-SampleFormatSFZ.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-SampleFormatSFZ.o `test -f 'soundlib/SampleFormatSFZ.cpp' || echo '$(srcdir)/'`soundlib/SampleFormatSFZ.cpp
+
+soundlib/libopenmpttest-SampleFormatSFZ.obj: soundlib/SampleFormatSFZ.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-SampleFormatSFZ.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-SampleFormatSFZ.Tpo -c -o soundlib/libopenmpttest-SampleFormatSFZ.obj `if test -f 'soundlib/SampleFormatSFZ.cpp'; then $(CYGPATH_W) 'soundlib/SampleFormatSFZ.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/SampleFormatSFZ.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-SampleFormatSFZ.Tpo soundlib/$(DEPDIR)/libopenmpttest-SampleFormatSFZ.Po
+#	$(AM_V_CXX)source='soundlib/SampleFormatSFZ.cpp' object='soundlib/libopenmpttest-SampleFormatSFZ.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-SampleFormatSFZ.obj `if test -f 'soundlib/SampleFormatSFZ.cpp'; then $(CYGPATH_W) 'soundlib/SampleFormatSFZ.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/SampleFormatSFZ.cpp'; fi`
+
+soundlib/libopenmpttest-SampleFormatVorbis.o: soundlib/SampleFormatVorbis.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-SampleFormatVorbis.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-SampleFormatVorbis.Tpo -c -o soundlib/libopenmpttest-SampleFormatVorbis.o `test -f 'soundlib/SampleFormatVorbis.cpp' || echo '$(srcdir)/'`soundlib/SampleFormatVorbis.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-SampleFormatVorbis.Tpo soundlib/$(DEPDIR)/libopenmpttest-SampleFormatVorbis.Po
+#	$(AM_V_CXX)source='soundlib/SampleFormatVorbis.cpp' object='soundlib/libopenmpttest-SampleFormatVorbis.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-SampleFormatVorbis.o `test -f 'soundlib/SampleFormatVorbis.cpp' || echo '$(srcdir)/'`soundlib/SampleFormatVorbis.cpp
+
+soundlib/libopenmpttest-SampleFormatVorbis.obj: soundlib/SampleFormatVorbis.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-SampleFormatVorbis.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-SampleFormatVorbis.Tpo -c -o soundlib/libopenmpttest-SampleFormatVorbis.obj `if test -f 'soundlib/SampleFormatVorbis.cpp'; then $(CYGPATH_W) 'soundlib/SampleFormatVorbis.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/SampleFormatVorbis.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-SampleFormatVorbis.Tpo soundlib/$(DEPDIR)/libopenmpttest-SampleFormatVorbis.Po
+#	$(AM_V_CXX)source='soundlib/SampleFormatVorbis.cpp' object='soundlib/libopenmpttest-SampleFormatVorbis.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-SampleFormatVorbis.obj `if test -f 'soundlib/SampleFormatVorbis.cpp'; then $(CYGPATH_W) 'soundlib/SampleFormatVorbis.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/SampleFormatVorbis.cpp'; fi`
+
+soundlib/libopenmpttest-SampleIO.o: soundlib/SampleIO.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-SampleIO.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-SampleIO.Tpo -c -o soundlib/libopenmpttest-SampleIO.o `test -f 'soundlib/SampleIO.cpp' || echo '$(srcdir)/'`soundlib/SampleIO.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-SampleIO.Tpo soundlib/$(DEPDIR)/libopenmpttest-SampleIO.Po
+#	$(AM_V_CXX)source='soundlib/SampleIO.cpp' object='soundlib/libopenmpttest-SampleIO.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-SampleIO.o `test -f 'soundlib/SampleIO.cpp' || echo '$(srcdir)/'`soundlib/SampleIO.cpp
+
+soundlib/libopenmpttest-SampleIO.obj: soundlib/SampleIO.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-SampleIO.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-SampleIO.Tpo -c -o soundlib/libopenmpttest-SampleIO.obj `if test -f 'soundlib/SampleIO.cpp'; then $(CYGPATH_W) 'soundlib/SampleIO.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/SampleIO.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-SampleIO.Tpo soundlib/$(DEPDIR)/libopenmpttest-SampleIO.Po
+#	$(AM_V_CXX)source='soundlib/SampleIO.cpp' object='soundlib/libopenmpttest-SampleIO.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-SampleIO.obj `if test -f 'soundlib/SampleIO.cpp'; then $(CYGPATH_W) 'soundlib/SampleIO.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/SampleIO.cpp'; fi`
+
+soundlib/libopenmpttest-Sndfile.o: soundlib/Sndfile.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Sndfile.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Sndfile.Tpo -c -o soundlib/libopenmpttest-Sndfile.o `test -f 'soundlib/Sndfile.cpp' || echo '$(srcdir)/'`soundlib/Sndfile.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Sndfile.Tpo soundlib/$(DEPDIR)/libopenmpttest-Sndfile.Po
+#	$(AM_V_CXX)source='soundlib/Sndfile.cpp' object='soundlib/libopenmpttest-Sndfile.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Sndfile.o `test -f 'soundlib/Sndfile.cpp' || echo '$(srcdir)/'`soundlib/Sndfile.cpp
+
+soundlib/libopenmpttest-Sndfile.obj: soundlib/Sndfile.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Sndfile.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Sndfile.Tpo -c -o soundlib/libopenmpttest-Sndfile.obj `if test -f 'soundlib/Sndfile.cpp'; then $(CYGPATH_W) 'soundlib/Sndfile.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Sndfile.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Sndfile.Tpo soundlib/$(DEPDIR)/libopenmpttest-Sndfile.Po
+#	$(AM_V_CXX)source='soundlib/Sndfile.cpp' object='soundlib/libopenmpttest-Sndfile.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Sndfile.obj `if test -f 'soundlib/Sndfile.cpp'; then $(CYGPATH_W) 'soundlib/Sndfile.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Sndfile.cpp'; fi`
+
+soundlib/libopenmpttest-Snd_flt.o: soundlib/Snd_flt.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Snd_flt.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Snd_flt.Tpo -c -o soundlib/libopenmpttest-Snd_flt.o `test -f 'soundlib/Snd_flt.cpp' || echo '$(srcdir)/'`soundlib/Snd_flt.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Snd_flt.Tpo soundlib/$(DEPDIR)/libopenmpttest-Snd_flt.Po
+#	$(AM_V_CXX)source='soundlib/Snd_flt.cpp' object='soundlib/libopenmpttest-Snd_flt.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Snd_flt.o `test -f 'soundlib/Snd_flt.cpp' || echo '$(srcdir)/'`soundlib/Snd_flt.cpp
+
+soundlib/libopenmpttest-Snd_flt.obj: soundlib/Snd_flt.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Snd_flt.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Snd_flt.Tpo -c -o soundlib/libopenmpttest-Snd_flt.obj `if test -f 'soundlib/Snd_flt.cpp'; then $(CYGPATH_W) 'soundlib/Snd_flt.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Snd_flt.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Snd_flt.Tpo soundlib/$(DEPDIR)/libopenmpttest-Snd_flt.Po
+#	$(AM_V_CXX)source='soundlib/Snd_flt.cpp' object='soundlib/libopenmpttest-Snd_flt.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Snd_flt.obj `if test -f 'soundlib/Snd_flt.cpp'; then $(CYGPATH_W) 'soundlib/Snd_flt.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Snd_flt.cpp'; fi`
+
+soundlib/libopenmpttest-Snd_fx.o: soundlib/Snd_fx.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Snd_fx.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Snd_fx.Tpo -c -o soundlib/libopenmpttest-Snd_fx.o `test -f 'soundlib/Snd_fx.cpp' || echo '$(srcdir)/'`soundlib/Snd_fx.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Snd_fx.Tpo soundlib/$(DEPDIR)/libopenmpttest-Snd_fx.Po
+#	$(AM_V_CXX)source='soundlib/Snd_fx.cpp' object='soundlib/libopenmpttest-Snd_fx.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Snd_fx.o `test -f 'soundlib/Snd_fx.cpp' || echo '$(srcdir)/'`soundlib/Snd_fx.cpp
+
+soundlib/libopenmpttest-Snd_fx.obj: soundlib/Snd_fx.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Snd_fx.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Snd_fx.Tpo -c -o soundlib/libopenmpttest-Snd_fx.obj `if test -f 'soundlib/Snd_fx.cpp'; then $(CYGPATH_W) 'soundlib/Snd_fx.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Snd_fx.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Snd_fx.Tpo soundlib/$(DEPDIR)/libopenmpttest-Snd_fx.Po
+#	$(AM_V_CXX)source='soundlib/Snd_fx.cpp' object='soundlib/libopenmpttest-Snd_fx.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Snd_fx.obj `if test -f 'soundlib/Snd_fx.cpp'; then $(CYGPATH_W) 'soundlib/Snd_fx.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Snd_fx.cpp'; fi`
+
+soundlib/libopenmpttest-Sndmix.o: soundlib/Sndmix.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Sndmix.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Sndmix.Tpo -c -o soundlib/libopenmpttest-Sndmix.o `test -f 'soundlib/Sndmix.cpp' || echo '$(srcdir)/'`soundlib/Sndmix.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Sndmix.Tpo soundlib/$(DEPDIR)/libopenmpttest-Sndmix.Po
+#	$(AM_V_CXX)source='soundlib/Sndmix.cpp' object='soundlib/libopenmpttest-Sndmix.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Sndmix.o `test -f 'soundlib/Sndmix.cpp' || echo '$(srcdir)/'`soundlib/Sndmix.cpp
+
+soundlib/libopenmpttest-Sndmix.obj: soundlib/Sndmix.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Sndmix.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Sndmix.Tpo -c -o soundlib/libopenmpttest-Sndmix.obj `if test -f 'soundlib/Sndmix.cpp'; then $(CYGPATH_W) 'soundlib/Sndmix.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Sndmix.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Sndmix.Tpo soundlib/$(DEPDIR)/libopenmpttest-Sndmix.Po
+#	$(AM_V_CXX)source='soundlib/Sndmix.cpp' object='soundlib/libopenmpttest-Sndmix.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Sndmix.obj `if test -f 'soundlib/Sndmix.cpp'; then $(CYGPATH_W) 'soundlib/Sndmix.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Sndmix.cpp'; fi`
+
+soundlib/libopenmpttest-SoundFilePlayConfig.o: soundlib/SoundFilePlayConfig.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-SoundFilePlayConfig.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-SoundFilePlayConfig.Tpo -c -o soundlib/libopenmpttest-SoundFilePlayConfig.o `test -f 'soundlib/SoundFilePlayConfig.cpp' || echo '$(srcdir)/'`soundlib/SoundFilePlayConfig.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-SoundFilePlayConfig.Tpo soundlib/$(DEPDIR)/libopenmpttest-SoundFilePlayConfig.Po
+#	$(AM_V_CXX)source='soundlib/SoundFilePlayConfig.cpp' object='soundlib/libopenmpttest-SoundFilePlayConfig.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-SoundFilePlayConfig.o `test -f 'soundlib/SoundFilePlayConfig.cpp' || echo '$(srcdir)/'`soundlib/SoundFilePlayConfig.cpp
+
+soundlib/libopenmpttest-SoundFilePlayConfig.obj: soundlib/SoundFilePlayConfig.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-SoundFilePlayConfig.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-SoundFilePlayConfig.Tpo -c -o soundlib/libopenmpttest-SoundFilePlayConfig.obj `if test -f 'soundlib/SoundFilePlayConfig.cpp'; then $(CYGPATH_W) 'soundlib/SoundFilePlayConfig.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/SoundFilePlayConfig.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-SoundFilePlayConfig.Tpo soundlib/$(DEPDIR)/libopenmpttest-SoundFilePlayConfig.Po
+#	$(AM_V_CXX)source='soundlib/SoundFilePlayConfig.cpp' object='soundlib/libopenmpttest-SoundFilePlayConfig.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-SoundFilePlayConfig.obj `if test -f 'soundlib/SoundFilePlayConfig.cpp'; then $(CYGPATH_W) 'soundlib/SoundFilePlayConfig.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/SoundFilePlayConfig.cpp'; fi`
+
+soundlib/libopenmpttest-Tables.o: soundlib/Tables.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Tables.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Tables.Tpo -c -o soundlib/libopenmpttest-Tables.o `test -f 'soundlib/Tables.cpp' || echo '$(srcdir)/'`soundlib/Tables.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Tables.Tpo soundlib/$(DEPDIR)/libopenmpttest-Tables.Po
+#	$(AM_V_CXX)source='soundlib/Tables.cpp' object='soundlib/libopenmpttest-Tables.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Tables.o `test -f 'soundlib/Tables.cpp' || echo '$(srcdir)/'`soundlib/Tables.cpp
+
+soundlib/libopenmpttest-Tables.obj: soundlib/Tables.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Tables.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Tables.Tpo -c -o soundlib/libopenmpttest-Tables.obj `if test -f 'soundlib/Tables.cpp'; then $(CYGPATH_W) 'soundlib/Tables.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Tables.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Tables.Tpo soundlib/$(DEPDIR)/libopenmpttest-Tables.Po
+#	$(AM_V_CXX)source='soundlib/Tables.cpp' object='soundlib/libopenmpttest-Tables.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Tables.obj `if test -f 'soundlib/Tables.cpp'; then $(CYGPATH_W) 'soundlib/Tables.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Tables.cpp'; fi`
+
+soundlib/libopenmpttest-Tagging.o: soundlib/Tagging.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Tagging.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Tagging.Tpo -c -o soundlib/libopenmpttest-Tagging.o `test -f 'soundlib/Tagging.cpp' || echo '$(srcdir)/'`soundlib/Tagging.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Tagging.Tpo soundlib/$(DEPDIR)/libopenmpttest-Tagging.Po
+#	$(AM_V_CXX)source='soundlib/Tagging.cpp' object='soundlib/libopenmpttest-Tagging.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Tagging.o `test -f 'soundlib/Tagging.cpp' || echo '$(srcdir)/'`soundlib/Tagging.cpp
+
+soundlib/libopenmpttest-Tagging.obj: soundlib/Tagging.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-Tagging.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-Tagging.Tpo -c -o soundlib/libopenmpttest-Tagging.obj `if test -f 'soundlib/Tagging.cpp'; then $(CYGPATH_W) 'soundlib/Tagging.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Tagging.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-Tagging.Tpo soundlib/$(DEPDIR)/libopenmpttest-Tagging.Po
+#	$(AM_V_CXX)source='soundlib/Tagging.cpp' object='soundlib/libopenmpttest-Tagging.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-Tagging.obj `if test -f 'soundlib/Tagging.cpp'; then $(CYGPATH_W) 'soundlib/Tagging.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/Tagging.cpp'; fi`
+
+soundlib/libopenmpttest-TinyFFT.o: soundlib/TinyFFT.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-TinyFFT.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-TinyFFT.Tpo -c -o soundlib/libopenmpttest-TinyFFT.o `test -f 'soundlib/TinyFFT.cpp' || echo '$(srcdir)/'`soundlib/TinyFFT.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-TinyFFT.Tpo soundlib/$(DEPDIR)/libopenmpttest-TinyFFT.Po
+#	$(AM_V_CXX)source='soundlib/TinyFFT.cpp' object='soundlib/libopenmpttest-TinyFFT.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-TinyFFT.o `test -f 'soundlib/TinyFFT.cpp' || echo '$(srcdir)/'`soundlib/TinyFFT.cpp
+
+soundlib/libopenmpttest-TinyFFT.obj: soundlib/TinyFFT.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-TinyFFT.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-TinyFFT.Tpo -c -o soundlib/libopenmpttest-TinyFFT.obj `if test -f 'soundlib/TinyFFT.cpp'; then $(CYGPATH_W) 'soundlib/TinyFFT.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/TinyFFT.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-TinyFFT.Tpo soundlib/$(DEPDIR)/libopenmpttest-TinyFFT.Po
+#	$(AM_V_CXX)source='soundlib/TinyFFT.cpp' object='soundlib/libopenmpttest-TinyFFT.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-TinyFFT.obj `if test -f 'soundlib/TinyFFT.cpp'; then $(CYGPATH_W) 'soundlib/TinyFFT.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/TinyFFT.cpp'; fi`
+
+soundlib/libopenmpttest-tuningCollection.o: soundlib/tuningCollection.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-tuningCollection.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-tuningCollection.Tpo -c -o soundlib/libopenmpttest-tuningCollection.o `test -f 'soundlib/tuningCollection.cpp' || echo '$(srcdir)/'`soundlib/tuningCollection.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-tuningCollection.Tpo soundlib/$(DEPDIR)/libopenmpttest-tuningCollection.Po
+#	$(AM_V_CXX)source='soundlib/tuningCollection.cpp' object='soundlib/libopenmpttest-tuningCollection.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-tuningCollection.o `test -f 'soundlib/tuningCollection.cpp' || echo '$(srcdir)/'`soundlib/tuningCollection.cpp
+
+soundlib/libopenmpttest-tuningCollection.obj: soundlib/tuningCollection.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-tuningCollection.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-tuningCollection.Tpo -c -o soundlib/libopenmpttest-tuningCollection.obj `if test -f 'soundlib/tuningCollection.cpp'; then $(CYGPATH_W) 'soundlib/tuningCollection.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/tuningCollection.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-tuningCollection.Tpo soundlib/$(DEPDIR)/libopenmpttest-tuningCollection.Po
+#	$(AM_V_CXX)source='soundlib/tuningCollection.cpp' object='soundlib/libopenmpttest-tuningCollection.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-tuningCollection.obj `if test -f 'soundlib/tuningCollection.cpp'; then $(CYGPATH_W) 'soundlib/tuningCollection.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/tuningCollection.cpp'; fi`
+
+soundlib/libopenmpttest-tuning.o: soundlib/tuning.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-tuning.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-tuning.Tpo -c -o soundlib/libopenmpttest-tuning.o `test -f 'soundlib/tuning.cpp' || echo '$(srcdir)/'`soundlib/tuning.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-tuning.Tpo soundlib/$(DEPDIR)/libopenmpttest-tuning.Po
+#	$(AM_V_CXX)source='soundlib/tuning.cpp' object='soundlib/libopenmpttest-tuning.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-tuning.o `test -f 'soundlib/tuning.cpp' || echo '$(srcdir)/'`soundlib/tuning.cpp
+
+soundlib/libopenmpttest-tuning.obj: soundlib/tuning.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-tuning.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-tuning.Tpo -c -o soundlib/libopenmpttest-tuning.obj `if test -f 'soundlib/tuning.cpp'; then $(CYGPATH_W) 'soundlib/tuning.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/tuning.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-tuning.Tpo soundlib/$(DEPDIR)/libopenmpttest-tuning.Po
+#	$(AM_V_CXX)source='soundlib/tuning.cpp' object='soundlib/libopenmpttest-tuning.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-tuning.obj `if test -f 'soundlib/tuning.cpp'; then $(CYGPATH_W) 'soundlib/tuning.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/tuning.cpp'; fi`
+
+soundlib/libopenmpttest-UMXTools.o: soundlib/UMXTools.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-UMXTools.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-UMXTools.Tpo -c -o soundlib/libopenmpttest-UMXTools.o `test -f 'soundlib/UMXTools.cpp' || echo '$(srcdir)/'`soundlib/UMXTools.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-UMXTools.Tpo soundlib/$(DEPDIR)/libopenmpttest-UMXTools.Po
+#	$(AM_V_CXX)source='soundlib/UMXTools.cpp' object='soundlib/libopenmpttest-UMXTools.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-UMXTools.o `test -f 'soundlib/UMXTools.cpp' || echo '$(srcdir)/'`soundlib/UMXTools.cpp
+
+soundlib/libopenmpttest-UMXTools.obj: soundlib/UMXTools.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-UMXTools.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-UMXTools.Tpo -c -o soundlib/libopenmpttest-UMXTools.obj `if test -f 'soundlib/UMXTools.cpp'; then $(CYGPATH_W) 'soundlib/UMXTools.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/UMXTools.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-UMXTools.Tpo soundlib/$(DEPDIR)/libopenmpttest-UMXTools.Po
+#	$(AM_V_CXX)source='soundlib/UMXTools.cpp' object='soundlib/libopenmpttest-UMXTools.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-UMXTools.obj `if test -f 'soundlib/UMXTools.cpp'; then $(CYGPATH_W) 'soundlib/UMXTools.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/UMXTools.cpp'; fi`
+
+soundlib/libopenmpttest-UpgradeModule.o: soundlib/UpgradeModule.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-UpgradeModule.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-UpgradeModule.Tpo -c -o soundlib/libopenmpttest-UpgradeModule.o `test -f 'soundlib/UpgradeModule.cpp' || echo '$(srcdir)/'`soundlib/UpgradeModule.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-UpgradeModule.Tpo soundlib/$(DEPDIR)/libopenmpttest-UpgradeModule.Po
+#	$(AM_V_CXX)source='soundlib/UpgradeModule.cpp' object='soundlib/libopenmpttest-UpgradeModule.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-UpgradeModule.o `test -f 'soundlib/UpgradeModule.cpp' || echo '$(srcdir)/'`soundlib/UpgradeModule.cpp
+
+soundlib/libopenmpttest-UpgradeModule.obj: soundlib/UpgradeModule.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-UpgradeModule.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-UpgradeModule.Tpo -c -o soundlib/libopenmpttest-UpgradeModule.obj `if test -f 'soundlib/UpgradeModule.cpp'; then $(CYGPATH_W) 'soundlib/UpgradeModule.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/UpgradeModule.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-UpgradeModule.Tpo soundlib/$(DEPDIR)/libopenmpttest-UpgradeModule.Po
+#	$(AM_V_CXX)source='soundlib/UpgradeModule.cpp' object='soundlib/libopenmpttest-UpgradeModule.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-UpgradeModule.obj `if test -f 'soundlib/UpgradeModule.cpp'; then $(CYGPATH_W) 'soundlib/UpgradeModule.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/UpgradeModule.cpp'; fi`
+
+soundlib/libopenmpttest-WAVTools.o: soundlib/WAVTools.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-WAVTools.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-WAVTools.Tpo -c -o soundlib/libopenmpttest-WAVTools.o `test -f 'soundlib/WAVTools.cpp' || echo '$(srcdir)/'`soundlib/WAVTools.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-WAVTools.Tpo soundlib/$(DEPDIR)/libopenmpttest-WAVTools.Po
+#	$(AM_V_CXX)source='soundlib/WAVTools.cpp' object='soundlib/libopenmpttest-WAVTools.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-WAVTools.o `test -f 'soundlib/WAVTools.cpp' || echo '$(srcdir)/'`soundlib/WAVTools.cpp
+
+soundlib/libopenmpttest-WAVTools.obj: soundlib/WAVTools.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-WAVTools.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-WAVTools.Tpo -c -o soundlib/libopenmpttest-WAVTools.obj `if test -f 'soundlib/WAVTools.cpp'; then $(CYGPATH_W) 'soundlib/WAVTools.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/WAVTools.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-WAVTools.Tpo soundlib/$(DEPDIR)/libopenmpttest-WAVTools.Po
+#	$(AM_V_CXX)source='soundlib/WAVTools.cpp' object='soundlib/libopenmpttest-WAVTools.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-WAVTools.obj `if test -f 'soundlib/WAVTools.cpp'; then $(CYGPATH_W) 'soundlib/WAVTools.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/WAVTools.cpp'; fi`
+
+soundlib/libopenmpttest-WindowedFIR.o: soundlib/WindowedFIR.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-WindowedFIR.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-WindowedFIR.Tpo -c -o soundlib/libopenmpttest-WindowedFIR.o `test -f 'soundlib/WindowedFIR.cpp' || echo '$(srcdir)/'`soundlib/WindowedFIR.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-WindowedFIR.Tpo soundlib/$(DEPDIR)/libopenmpttest-WindowedFIR.Po
+#	$(AM_V_CXX)source='soundlib/WindowedFIR.cpp' object='soundlib/libopenmpttest-WindowedFIR.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-WindowedFIR.o `test -f 'soundlib/WindowedFIR.cpp' || echo '$(srcdir)/'`soundlib/WindowedFIR.cpp
+
+soundlib/libopenmpttest-WindowedFIR.obj: soundlib/WindowedFIR.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-WindowedFIR.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-WindowedFIR.Tpo -c -o soundlib/libopenmpttest-WindowedFIR.obj `if test -f 'soundlib/WindowedFIR.cpp'; then $(CYGPATH_W) 'soundlib/WindowedFIR.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/WindowedFIR.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-WindowedFIR.Tpo soundlib/$(DEPDIR)/libopenmpttest-WindowedFIR.Po
+#	$(AM_V_CXX)source='soundlib/WindowedFIR.cpp' object='soundlib/libopenmpttest-WindowedFIR.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-WindowedFIR.obj `if test -f 'soundlib/WindowedFIR.cpp'; then $(CYGPATH_W) 'soundlib/WindowedFIR.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/WindowedFIR.cpp'; fi`
+
+soundlib/libopenmpttest-XMTools.o: soundlib/XMTools.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-XMTools.o -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-XMTools.Tpo -c -o soundlib/libopenmpttest-XMTools.o `test -f 'soundlib/XMTools.cpp' || echo '$(srcdir)/'`soundlib/XMTools.cpp
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-XMTools.Tpo soundlib/$(DEPDIR)/libopenmpttest-XMTools.Po
+#	$(AM_V_CXX)source='soundlib/XMTools.cpp' object='soundlib/libopenmpttest-XMTools.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-XMTools.o `test -f 'soundlib/XMTools.cpp' || echo '$(srcdir)/'`soundlib/XMTools.cpp
+
+soundlib/libopenmpttest-XMTools.obj: soundlib/XMTools.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/libopenmpttest-XMTools.obj -MD -MP -MF soundlib/$(DEPDIR)/libopenmpttest-XMTools.Tpo -c -o soundlib/libopenmpttest-XMTools.obj `if test -f 'soundlib/XMTools.cpp'; then $(CYGPATH_W) 'soundlib/XMTools.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/XMTools.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/$(DEPDIR)/libopenmpttest-XMTools.Tpo soundlib/$(DEPDIR)/libopenmpttest-XMTools.Po
+#	$(AM_V_CXX)source='soundlib/XMTools.cpp' object='soundlib/libopenmpttest-XMTools.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/libopenmpttest-XMTools.obj `if test -f 'soundlib/XMTools.cpp'; then $(CYGPATH_W) 'soundlib/XMTools.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/XMTools.cpp'; fi`
+
+soundlib/plugins/dmo/libopenmpttest-DMOPlugin.o: soundlib/plugins/dmo/DMOPlugin.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/plugins/dmo/libopenmpttest-DMOPlugin.o -MD -MP -MF soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-DMOPlugin.Tpo -c -o soundlib/plugins/dmo/libopenmpttest-DMOPlugin.o `test -f 'soundlib/plugins/dmo/DMOPlugin.cpp' || echo '$(srcdir)/'`soundlib/plugins/dmo/DMOPlugin.cpp
+	$(AM_V_at)$(am__mv) soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-DMOPlugin.Tpo soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-DMOPlugin.Po
+#	$(AM_V_CXX)source='soundlib/plugins/dmo/DMOPlugin.cpp' object='soundlib/plugins/dmo/libopenmpttest-DMOPlugin.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/plugins/dmo/libopenmpttest-DMOPlugin.o `test -f 'soundlib/plugins/dmo/DMOPlugin.cpp' || echo '$(srcdir)/'`soundlib/plugins/dmo/DMOPlugin.cpp
+
+soundlib/plugins/dmo/libopenmpttest-DMOPlugin.obj: soundlib/plugins/dmo/DMOPlugin.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/plugins/dmo/libopenmpttest-DMOPlugin.obj -MD -MP -MF soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-DMOPlugin.Tpo -c -o soundlib/plugins/dmo/libopenmpttest-DMOPlugin.obj `if test -f 'soundlib/plugins/dmo/DMOPlugin.cpp'; then $(CYGPATH_W) 'soundlib/plugins/dmo/DMOPlugin.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/plugins/dmo/DMOPlugin.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-DMOPlugin.Tpo soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-DMOPlugin.Po
+#	$(AM_V_CXX)source='soundlib/plugins/dmo/DMOPlugin.cpp' object='soundlib/plugins/dmo/libopenmpttest-DMOPlugin.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/plugins/dmo/libopenmpttest-DMOPlugin.obj `if test -f 'soundlib/plugins/dmo/DMOPlugin.cpp'; then $(CYGPATH_W) 'soundlib/plugins/dmo/DMOPlugin.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/plugins/dmo/DMOPlugin.cpp'; fi`
+
+soundlib/plugins/dmo/libopenmpttest-DMOUtils.o: soundlib/plugins/dmo/DMOUtils.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/plugins/dmo/libopenmpttest-DMOUtils.o -MD -MP -MF soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-DMOUtils.Tpo -c -o soundlib/plugins/dmo/libopenmpttest-DMOUtils.o `test -f 'soundlib/plugins/dmo/DMOUtils.cpp' || echo '$(srcdir)/'`soundlib/plugins/dmo/DMOUtils.cpp
+	$(AM_V_at)$(am__mv) soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-DMOUtils.Tpo soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-DMOUtils.Po
+#	$(AM_V_CXX)source='soundlib/plugins/dmo/DMOUtils.cpp' object='soundlib/plugins/dmo/libopenmpttest-DMOUtils.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/plugins/dmo/libopenmpttest-DMOUtils.o `test -f 'soundlib/plugins/dmo/DMOUtils.cpp' || echo '$(srcdir)/'`soundlib/plugins/dmo/DMOUtils.cpp
+
+soundlib/plugins/dmo/libopenmpttest-DMOUtils.obj: soundlib/plugins/dmo/DMOUtils.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/plugins/dmo/libopenmpttest-DMOUtils.obj -MD -MP -MF soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-DMOUtils.Tpo -c -o soundlib/plugins/dmo/libopenmpttest-DMOUtils.obj `if test -f 'soundlib/plugins/dmo/DMOUtils.cpp'; then $(CYGPATH_W) 'soundlib/plugins/dmo/DMOUtils.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/plugins/dmo/DMOUtils.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-DMOUtils.Tpo soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-DMOUtils.Po
+#	$(AM_V_CXX)source='soundlib/plugins/dmo/DMOUtils.cpp' object='soundlib/plugins/dmo/libopenmpttest-DMOUtils.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/plugins/dmo/libopenmpttest-DMOUtils.obj `if test -f 'soundlib/plugins/dmo/DMOUtils.cpp'; then $(CYGPATH_W) 'soundlib/plugins/dmo/DMOUtils.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/plugins/dmo/DMOUtils.cpp'; fi`
+
+soundlib/plugins/dmo/libopenmpttest-Chorus.o: soundlib/plugins/dmo/Chorus.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/plugins/dmo/libopenmpttest-Chorus.o -MD -MP -MF soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-Chorus.Tpo -c -o soundlib/plugins/dmo/libopenmpttest-Chorus.o `test -f 'soundlib/plugins/dmo/Chorus.cpp' || echo '$(srcdir)/'`soundlib/plugins/dmo/Chorus.cpp
+	$(AM_V_at)$(am__mv) soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-Chorus.Tpo soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-Chorus.Po
+#	$(AM_V_CXX)source='soundlib/plugins/dmo/Chorus.cpp' object='soundlib/plugins/dmo/libopenmpttest-Chorus.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/plugins/dmo/libopenmpttest-Chorus.o `test -f 'soundlib/plugins/dmo/Chorus.cpp' || echo '$(srcdir)/'`soundlib/plugins/dmo/Chorus.cpp
+
+soundlib/plugins/dmo/libopenmpttest-Chorus.obj: soundlib/plugins/dmo/Chorus.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/plugins/dmo/libopenmpttest-Chorus.obj -MD -MP -MF soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-Chorus.Tpo -c -o soundlib/plugins/dmo/libopenmpttest-Chorus.obj `if test -f 'soundlib/plugins/dmo/Chorus.cpp'; then $(CYGPATH_W) 'soundlib/plugins/dmo/Chorus.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/plugins/dmo/Chorus.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-Chorus.Tpo soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-Chorus.Po
+#	$(AM_V_CXX)source='soundlib/plugins/dmo/Chorus.cpp' object='soundlib/plugins/dmo/libopenmpttest-Chorus.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/plugins/dmo/libopenmpttest-Chorus.obj `if test -f 'soundlib/plugins/dmo/Chorus.cpp'; then $(CYGPATH_W) 'soundlib/plugins/dmo/Chorus.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/plugins/dmo/Chorus.cpp'; fi`
+
+soundlib/plugins/dmo/libopenmpttest-Compressor.o: soundlib/plugins/dmo/Compressor.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/plugins/dmo/libopenmpttest-Compressor.o -MD -MP -MF soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-Compressor.Tpo -c -o soundlib/plugins/dmo/libopenmpttest-Compressor.o `test -f 'soundlib/plugins/dmo/Compressor.cpp' || echo '$(srcdir)/'`soundlib/plugins/dmo/Compressor.cpp
+	$(AM_V_at)$(am__mv) soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-Compressor.Tpo soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-Compressor.Po
+#	$(AM_V_CXX)source='soundlib/plugins/dmo/Compressor.cpp' object='soundlib/plugins/dmo/libopenmpttest-Compressor.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/plugins/dmo/libopenmpttest-Compressor.o `test -f 'soundlib/plugins/dmo/Compressor.cpp' || echo '$(srcdir)/'`soundlib/plugins/dmo/Compressor.cpp
+
+soundlib/plugins/dmo/libopenmpttest-Compressor.obj: soundlib/plugins/dmo/Compressor.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/plugins/dmo/libopenmpttest-Compressor.obj -MD -MP -MF soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-Compressor.Tpo -c -o soundlib/plugins/dmo/libopenmpttest-Compressor.obj `if test -f 'soundlib/plugins/dmo/Compressor.cpp'; then $(CYGPATH_W) 'soundlib/plugins/dmo/Compressor.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/plugins/dmo/Compressor.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-Compressor.Tpo soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-Compressor.Po
+#	$(AM_V_CXX)source='soundlib/plugins/dmo/Compressor.cpp' object='soundlib/plugins/dmo/libopenmpttest-Compressor.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/plugins/dmo/libopenmpttest-Compressor.obj `if test -f 'soundlib/plugins/dmo/Compressor.cpp'; then $(CYGPATH_W) 'soundlib/plugins/dmo/Compressor.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/plugins/dmo/Compressor.cpp'; fi`
+
+soundlib/plugins/dmo/libopenmpttest-Distortion.o: soundlib/plugins/dmo/Distortion.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/plugins/dmo/libopenmpttest-Distortion.o -MD -MP -MF soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-Distortion.Tpo -c -o soundlib/plugins/dmo/libopenmpttest-Distortion.o `test -f 'soundlib/plugins/dmo/Distortion.cpp' || echo '$(srcdir)/'`soundlib/plugins/dmo/Distortion.cpp
+	$(AM_V_at)$(am__mv) soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-Distortion.Tpo soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-Distortion.Po
+#	$(AM_V_CXX)source='soundlib/plugins/dmo/Distortion.cpp' object='soundlib/plugins/dmo/libopenmpttest-Distortion.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/plugins/dmo/libopenmpttest-Distortion.o `test -f 'soundlib/plugins/dmo/Distortion.cpp' || echo '$(srcdir)/'`soundlib/plugins/dmo/Distortion.cpp
+
+soundlib/plugins/dmo/libopenmpttest-Distortion.obj: soundlib/plugins/dmo/Distortion.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/plugins/dmo/libopenmpttest-Distortion.obj -MD -MP -MF soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-Distortion.Tpo -c -o soundlib/plugins/dmo/libopenmpttest-Distortion.obj `if test -f 'soundlib/plugins/dmo/Distortion.cpp'; then $(CYGPATH_W) 'soundlib/plugins/dmo/Distortion.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/plugins/dmo/Distortion.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-Distortion.Tpo soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-Distortion.Po
+#	$(AM_V_CXX)source='soundlib/plugins/dmo/Distortion.cpp' object='soundlib/plugins/dmo/libopenmpttest-Distortion.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/plugins/dmo/libopenmpttest-Distortion.obj `if test -f 'soundlib/plugins/dmo/Distortion.cpp'; then $(CYGPATH_W) 'soundlib/plugins/dmo/Distortion.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/plugins/dmo/Distortion.cpp'; fi`
+
+soundlib/plugins/dmo/libopenmpttest-Echo.o: soundlib/plugins/dmo/Echo.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/plugins/dmo/libopenmpttest-Echo.o -MD -MP -MF soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-Echo.Tpo -c -o soundlib/plugins/dmo/libopenmpttest-Echo.o `test -f 'soundlib/plugins/dmo/Echo.cpp' || echo '$(srcdir)/'`soundlib/plugins/dmo/Echo.cpp
+	$(AM_V_at)$(am__mv) soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-Echo.Tpo soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-Echo.Po
+#	$(AM_V_CXX)source='soundlib/plugins/dmo/Echo.cpp' object='soundlib/plugins/dmo/libopenmpttest-Echo.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/plugins/dmo/libopenmpttest-Echo.o `test -f 'soundlib/plugins/dmo/Echo.cpp' || echo '$(srcdir)/'`soundlib/plugins/dmo/Echo.cpp
+
+soundlib/plugins/dmo/libopenmpttest-Echo.obj: soundlib/plugins/dmo/Echo.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/plugins/dmo/libopenmpttest-Echo.obj -MD -MP -MF soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-Echo.Tpo -c -o soundlib/plugins/dmo/libopenmpttest-Echo.obj `if test -f 'soundlib/plugins/dmo/Echo.cpp'; then $(CYGPATH_W) 'soundlib/plugins/dmo/Echo.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/plugins/dmo/Echo.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-Echo.Tpo soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-Echo.Po
+#	$(AM_V_CXX)source='soundlib/plugins/dmo/Echo.cpp' object='soundlib/plugins/dmo/libopenmpttest-Echo.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/plugins/dmo/libopenmpttest-Echo.obj `if test -f 'soundlib/plugins/dmo/Echo.cpp'; then $(CYGPATH_W) 'soundlib/plugins/dmo/Echo.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/plugins/dmo/Echo.cpp'; fi`
+
+soundlib/plugins/dmo/libopenmpttest-Flanger.o: soundlib/plugins/dmo/Flanger.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/plugins/dmo/libopenmpttest-Flanger.o -MD -MP -MF soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-Flanger.Tpo -c -o soundlib/plugins/dmo/libopenmpttest-Flanger.o `test -f 'soundlib/plugins/dmo/Flanger.cpp' || echo '$(srcdir)/'`soundlib/plugins/dmo/Flanger.cpp
+	$(AM_V_at)$(am__mv) soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-Flanger.Tpo soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-Flanger.Po
+#	$(AM_V_CXX)source='soundlib/plugins/dmo/Flanger.cpp' object='soundlib/plugins/dmo/libopenmpttest-Flanger.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/plugins/dmo/libopenmpttest-Flanger.o `test -f 'soundlib/plugins/dmo/Flanger.cpp' || echo '$(srcdir)/'`soundlib/plugins/dmo/Flanger.cpp
+
+soundlib/plugins/dmo/libopenmpttest-Flanger.obj: soundlib/plugins/dmo/Flanger.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/plugins/dmo/libopenmpttest-Flanger.obj -MD -MP -MF soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-Flanger.Tpo -c -o soundlib/plugins/dmo/libopenmpttest-Flanger.obj `if test -f 'soundlib/plugins/dmo/Flanger.cpp'; then $(CYGPATH_W) 'soundlib/plugins/dmo/Flanger.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/plugins/dmo/Flanger.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-Flanger.Tpo soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-Flanger.Po
+#	$(AM_V_CXX)source='soundlib/plugins/dmo/Flanger.cpp' object='soundlib/plugins/dmo/libopenmpttest-Flanger.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/plugins/dmo/libopenmpttest-Flanger.obj `if test -f 'soundlib/plugins/dmo/Flanger.cpp'; then $(CYGPATH_W) 'soundlib/plugins/dmo/Flanger.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/plugins/dmo/Flanger.cpp'; fi`
+
+soundlib/plugins/dmo/libopenmpttest-Gargle.o: soundlib/plugins/dmo/Gargle.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/plugins/dmo/libopenmpttest-Gargle.o -MD -MP -MF soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-Gargle.Tpo -c -o soundlib/plugins/dmo/libopenmpttest-Gargle.o `test -f 'soundlib/plugins/dmo/Gargle.cpp' || echo '$(srcdir)/'`soundlib/plugins/dmo/Gargle.cpp
+	$(AM_V_at)$(am__mv) soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-Gargle.Tpo soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-Gargle.Po
+#	$(AM_V_CXX)source='soundlib/plugins/dmo/Gargle.cpp' object='soundlib/plugins/dmo/libopenmpttest-Gargle.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/plugins/dmo/libopenmpttest-Gargle.o `test -f 'soundlib/plugins/dmo/Gargle.cpp' || echo '$(srcdir)/'`soundlib/plugins/dmo/Gargle.cpp
+
+soundlib/plugins/dmo/libopenmpttest-Gargle.obj: soundlib/plugins/dmo/Gargle.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/plugins/dmo/libopenmpttest-Gargle.obj -MD -MP -MF soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-Gargle.Tpo -c -o soundlib/plugins/dmo/libopenmpttest-Gargle.obj `if test -f 'soundlib/plugins/dmo/Gargle.cpp'; then $(CYGPATH_W) 'soundlib/plugins/dmo/Gargle.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/plugins/dmo/Gargle.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-Gargle.Tpo soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-Gargle.Po
+#	$(AM_V_CXX)source='soundlib/plugins/dmo/Gargle.cpp' object='soundlib/plugins/dmo/libopenmpttest-Gargle.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/plugins/dmo/libopenmpttest-Gargle.obj `if test -f 'soundlib/plugins/dmo/Gargle.cpp'; then $(CYGPATH_W) 'soundlib/plugins/dmo/Gargle.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/plugins/dmo/Gargle.cpp'; fi`
+
+soundlib/plugins/dmo/libopenmpttest-I3DL2Reverb.o: soundlib/plugins/dmo/I3DL2Reverb.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/plugins/dmo/libopenmpttest-I3DL2Reverb.o -MD -MP -MF soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-I3DL2Reverb.Tpo -c -o soundlib/plugins/dmo/libopenmpttest-I3DL2Reverb.o `test -f 'soundlib/plugins/dmo/I3DL2Reverb.cpp' || echo '$(srcdir)/'`soundlib/plugins/dmo/I3DL2Reverb.cpp
+	$(AM_V_at)$(am__mv) soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-I3DL2Reverb.Tpo soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-I3DL2Reverb.Po
+#	$(AM_V_CXX)source='soundlib/plugins/dmo/I3DL2Reverb.cpp' object='soundlib/plugins/dmo/libopenmpttest-I3DL2Reverb.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/plugins/dmo/libopenmpttest-I3DL2Reverb.o `test -f 'soundlib/plugins/dmo/I3DL2Reverb.cpp' || echo '$(srcdir)/'`soundlib/plugins/dmo/I3DL2Reverb.cpp
+
+soundlib/plugins/dmo/libopenmpttest-I3DL2Reverb.obj: soundlib/plugins/dmo/I3DL2Reverb.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/plugins/dmo/libopenmpttest-I3DL2Reverb.obj -MD -MP -MF soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-I3DL2Reverb.Tpo -c -o soundlib/plugins/dmo/libopenmpttest-I3DL2Reverb.obj `if test -f 'soundlib/plugins/dmo/I3DL2Reverb.cpp'; then $(CYGPATH_W) 'soundlib/plugins/dmo/I3DL2Reverb.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/plugins/dmo/I3DL2Reverb.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-I3DL2Reverb.Tpo soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-I3DL2Reverb.Po
+#	$(AM_V_CXX)source='soundlib/plugins/dmo/I3DL2Reverb.cpp' object='soundlib/plugins/dmo/libopenmpttest-I3DL2Reverb.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/plugins/dmo/libopenmpttest-I3DL2Reverb.obj `if test -f 'soundlib/plugins/dmo/I3DL2Reverb.cpp'; then $(CYGPATH_W) 'soundlib/plugins/dmo/I3DL2Reverb.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/plugins/dmo/I3DL2Reverb.cpp'; fi`
+
+soundlib/plugins/dmo/libopenmpttest-ParamEq.o: soundlib/plugins/dmo/ParamEq.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/plugins/dmo/libopenmpttest-ParamEq.o -MD -MP -MF soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-ParamEq.Tpo -c -o soundlib/plugins/dmo/libopenmpttest-ParamEq.o `test -f 'soundlib/plugins/dmo/ParamEq.cpp' || echo '$(srcdir)/'`soundlib/plugins/dmo/ParamEq.cpp
+	$(AM_V_at)$(am__mv) soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-ParamEq.Tpo soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-ParamEq.Po
+#	$(AM_V_CXX)source='soundlib/plugins/dmo/ParamEq.cpp' object='soundlib/plugins/dmo/libopenmpttest-ParamEq.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/plugins/dmo/libopenmpttest-ParamEq.o `test -f 'soundlib/plugins/dmo/ParamEq.cpp' || echo '$(srcdir)/'`soundlib/plugins/dmo/ParamEq.cpp
+
+soundlib/plugins/dmo/libopenmpttest-ParamEq.obj: soundlib/plugins/dmo/ParamEq.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/plugins/dmo/libopenmpttest-ParamEq.obj -MD -MP -MF soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-ParamEq.Tpo -c -o soundlib/plugins/dmo/libopenmpttest-ParamEq.obj `if test -f 'soundlib/plugins/dmo/ParamEq.cpp'; then $(CYGPATH_W) 'soundlib/plugins/dmo/ParamEq.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/plugins/dmo/ParamEq.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-ParamEq.Tpo soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-ParamEq.Po
+#	$(AM_V_CXX)source='soundlib/plugins/dmo/ParamEq.cpp' object='soundlib/plugins/dmo/libopenmpttest-ParamEq.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/plugins/dmo/libopenmpttest-ParamEq.obj `if test -f 'soundlib/plugins/dmo/ParamEq.cpp'; then $(CYGPATH_W) 'soundlib/plugins/dmo/ParamEq.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/plugins/dmo/ParamEq.cpp'; fi`
+
+soundlib/plugins/dmo/libopenmpttest-WavesReverb.o: soundlib/plugins/dmo/WavesReverb.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/plugins/dmo/libopenmpttest-WavesReverb.o -MD -MP -MF soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-WavesReverb.Tpo -c -o soundlib/plugins/dmo/libopenmpttest-WavesReverb.o `test -f 'soundlib/plugins/dmo/WavesReverb.cpp' || echo '$(srcdir)/'`soundlib/plugins/dmo/WavesReverb.cpp
+	$(AM_V_at)$(am__mv) soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-WavesReverb.Tpo soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-WavesReverb.Po
+#	$(AM_V_CXX)source='soundlib/plugins/dmo/WavesReverb.cpp' object='soundlib/plugins/dmo/libopenmpttest-WavesReverb.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/plugins/dmo/libopenmpttest-WavesReverb.o `test -f 'soundlib/plugins/dmo/WavesReverb.cpp' || echo '$(srcdir)/'`soundlib/plugins/dmo/WavesReverb.cpp
+
+soundlib/plugins/dmo/libopenmpttest-WavesReverb.obj: soundlib/plugins/dmo/WavesReverb.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/plugins/dmo/libopenmpttest-WavesReverb.obj -MD -MP -MF soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-WavesReverb.Tpo -c -o soundlib/plugins/dmo/libopenmpttest-WavesReverb.obj `if test -f 'soundlib/plugins/dmo/WavesReverb.cpp'; then $(CYGPATH_W) 'soundlib/plugins/dmo/WavesReverb.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/plugins/dmo/WavesReverb.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-WavesReverb.Tpo soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-WavesReverb.Po
+#	$(AM_V_CXX)source='soundlib/plugins/dmo/WavesReverb.cpp' object='soundlib/plugins/dmo/libopenmpttest-WavesReverb.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/plugins/dmo/libopenmpttest-WavesReverb.obj `if test -f 'soundlib/plugins/dmo/WavesReverb.cpp'; then $(CYGPATH_W) 'soundlib/plugins/dmo/WavesReverb.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/plugins/dmo/WavesReverb.cpp'; fi`
+
+soundlib/plugins/libopenmpttest-DigiBoosterEcho.o: soundlib/plugins/DigiBoosterEcho.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/plugins/libopenmpttest-DigiBoosterEcho.o -MD -MP -MF soundlib/plugins/$(DEPDIR)/libopenmpttest-DigiBoosterEcho.Tpo -c -o soundlib/plugins/libopenmpttest-DigiBoosterEcho.o `test -f 'soundlib/plugins/DigiBoosterEcho.cpp' || echo '$(srcdir)/'`soundlib/plugins/DigiBoosterEcho.cpp
+	$(AM_V_at)$(am__mv) soundlib/plugins/$(DEPDIR)/libopenmpttest-DigiBoosterEcho.Tpo soundlib/plugins/$(DEPDIR)/libopenmpttest-DigiBoosterEcho.Po
+#	$(AM_V_CXX)source='soundlib/plugins/DigiBoosterEcho.cpp' object='soundlib/plugins/libopenmpttest-DigiBoosterEcho.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/plugins/libopenmpttest-DigiBoosterEcho.o `test -f 'soundlib/plugins/DigiBoosterEcho.cpp' || echo '$(srcdir)/'`soundlib/plugins/DigiBoosterEcho.cpp
+
+soundlib/plugins/libopenmpttest-DigiBoosterEcho.obj: soundlib/plugins/DigiBoosterEcho.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/plugins/libopenmpttest-DigiBoosterEcho.obj -MD -MP -MF soundlib/plugins/$(DEPDIR)/libopenmpttest-DigiBoosterEcho.Tpo -c -o soundlib/plugins/libopenmpttest-DigiBoosterEcho.obj `if test -f 'soundlib/plugins/DigiBoosterEcho.cpp'; then $(CYGPATH_W) 'soundlib/plugins/DigiBoosterEcho.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/plugins/DigiBoosterEcho.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/plugins/$(DEPDIR)/libopenmpttest-DigiBoosterEcho.Tpo soundlib/plugins/$(DEPDIR)/libopenmpttest-DigiBoosterEcho.Po
+#	$(AM_V_CXX)source='soundlib/plugins/DigiBoosterEcho.cpp' object='soundlib/plugins/libopenmpttest-DigiBoosterEcho.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/plugins/libopenmpttest-DigiBoosterEcho.obj `if test -f 'soundlib/plugins/DigiBoosterEcho.cpp'; then $(CYGPATH_W) 'soundlib/plugins/DigiBoosterEcho.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/plugins/DigiBoosterEcho.cpp'; fi`
+
+soundlib/plugins/libopenmpttest-LFOPlugin.o: soundlib/plugins/LFOPlugin.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/plugins/libopenmpttest-LFOPlugin.o -MD -MP -MF soundlib/plugins/$(DEPDIR)/libopenmpttest-LFOPlugin.Tpo -c -o soundlib/plugins/libopenmpttest-LFOPlugin.o `test -f 'soundlib/plugins/LFOPlugin.cpp' || echo '$(srcdir)/'`soundlib/plugins/LFOPlugin.cpp
+	$(AM_V_at)$(am__mv) soundlib/plugins/$(DEPDIR)/libopenmpttest-LFOPlugin.Tpo soundlib/plugins/$(DEPDIR)/libopenmpttest-LFOPlugin.Po
+#	$(AM_V_CXX)source='soundlib/plugins/LFOPlugin.cpp' object='soundlib/plugins/libopenmpttest-LFOPlugin.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/plugins/libopenmpttest-LFOPlugin.o `test -f 'soundlib/plugins/LFOPlugin.cpp' || echo '$(srcdir)/'`soundlib/plugins/LFOPlugin.cpp
+
+soundlib/plugins/libopenmpttest-LFOPlugin.obj: soundlib/plugins/LFOPlugin.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/plugins/libopenmpttest-LFOPlugin.obj -MD -MP -MF soundlib/plugins/$(DEPDIR)/libopenmpttest-LFOPlugin.Tpo -c -o soundlib/plugins/libopenmpttest-LFOPlugin.obj `if test -f 'soundlib/plugins/LFOPlugin.cpp'; then $(CYGPATH_W) 'soundlib/plugins/LFOPlugin.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/plugins/LFOPlugin.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/plugins/$(DEPDIR)/libopenmpttest-LFOPlugin.Tpo soundlib/plugins/$(DEPDIR)/libopenmpttest-LFOPlugin.Po
+#	$(AM_V_CXX)source='soundlib/plugins/LFOPlugin.cpp' object='soundlib/plugins/libopenmpttest-LFOPlugin.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/plugins/libopenmpttest-LFOPlugin.obj `if test -f 'soundlib/plugins/LFOPlugin.cpp'; then $(CYGPATH_W) 'soundlib/plugins/LFOPlugin.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/plugins/LFOPlugin.cpp'; fi`
+
+soundlib/plugins/libopenmpttest-PluginManager.o: soundlib/plugins/PluginManager.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/plugins/libopenmpttest-PluginManager.o -MD -MP -MF soundlib/plugins/$(DEPDIR)/libopenmpttest-PluginManager.Tpo -c -o soundlib/plugins/libopenmpttest-PluginManager.o `test -f 'soundlib/plugins/PluginManager.cpp' || echo '$(srcdir)/'`soundlib/plugins/PluginManager.cpp
+	$(AM_V_at)$(am__mv) soundlib/plugins/$(DEPDIR)/libopenmpttest-PluginManager.Tpo soundlib/plugins/$(DEPDIR)/libopenmpttest-PluginManager.Po
+#	$(AM_V_CXX)source='soundlib/plugins/PluginManager.cpp' object='soundlib/plugins/libopenmpttest-PluginManager.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/plugins/libopenmpttest-PluginManager.o `test -f 'soundlib/plugins/PluginManager.cpp' || echo '$(srcdir)/'`soundlib/plugins/PluginManager.cpp
+
+soundlib/plugins/libopenmpttest-PluginManager.obj: soundlib/plugins/PluginManager.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/plugins/libopenmpttest-PluginManager.obj -MD -MP -MF soundlib/plugins/$(DEPDIR)/libopenmpttest-PluginManager.Tpo -c -o soundlib/plugins/libopenmpttest-PluginManager.obj `if test -f 'soundlib/plugins/PluginManager.cpp'; then $(CYGPATH_W) 'soundlib/plugins/PluginManager.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/plugins/PluginManager.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/plugins/$(DEPDIR)/libopenmpttest-PluginManager.Tpo soundlib/plugins/$(DEPDIR)/libopenmpttest-PluginManager.Po
+#	$(AM_V_CXX)source='soundlib/plugins/PluginManager.cpp' object='soundlib/plugins/libopenmpttest-PluginManager.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/plugins/libopenmpttest-PluginManager.obj `if test -f 'soundlib/plugins/PluginManager.cpp'; then $(CYGPATH_W) 'soundlib/plugins/PluginManager.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/plugins/PluginManager.cpp'; fi`
+
+soundlib/plugins/libopenmpttest-PlugInterface.o: soundlib/plugins/PlugInterface.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/plugins/libopenmpttest-PlugInterface.o -MD -MP -MF soundlib/plugins/$(DEPDIR)/libopenmpttest-PlugInterface.Tpo -c -o soundlib/plugins/libopenmpttest-PlugInterface.o `test -f 'soundlib/plugins/PlugInterface.cpp' || echo '$(srcdir)/'`soundlib/plugins/PlugInterface.cpp
+	$(AM_V_at)$(am__mv) soundlib/plugins/$(DEPDIR)/libopenmpttest-PlugInterface.Tpo soundlib/plugins/$(DEPDIR)/libopenmpttest-PlugInterface.Po
+#	$(AM_V_CXX)source='soundlib/plugins/PlugInterface.cpp' object='soundlib/plugins/libopenmpttest-PlugInterface.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/plugins/libopenmpttest-PlugInterface.o `test -f 'soundlib/plugins/PlugInterface.cpp' || echo '$(srcdir)/'`soundlib/plugins/PlugInterface.cpp
+
+soundlib/plugins/libopenmpttest-PlugInterface.obj: soundlib/plugins/PlugInterface.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/plugins/libopenmpttest-PlugInterface.obj -MD -MP -MF soundlib/plugins/$(DEPDIR)/libopenmpttest-PlugInterface.Tpo -c -o soundlib/plugins/libopenmpttest-PlugInterface.obj `if test -f 'soundlib/plugins/PlugInterface.cpp'; then $(CYGPATH_W) 'soundlib/plugins/PlugInterface.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/plugins/PlugInterface.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/plugins/$(DEPDIR)/libopenmpttest-PlugInterface.Tpo soundlib/plugins/$(DEPDIR)/libopenmpttest-PlugInterface.Po
+#	$(AM_V_CXX)source='soundlib/plugins/PlugInterface.cpp' object='soundlib/plugins/libopenmpttest-PlugInterface.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/plugins/libopenmpttest-PlugInterface.obj `if test -f 'soundlib/plugins/PlugInterface.cpp'; then $(CYGPATH_W) 'soundlib/plugins/PlugInterface.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/plugins/PlugInterface.cpp'; fi`
+
+soundlib/plugins/libopenmpttest-SymMODEcho.o: soundlib/plugins/SymMODEcho.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/plugins/libopenmpttest-SymMODEcho.o -MD -MP -MF soundlib/plugins/$(DEPDIR)/libopenmpttest-SymMODEcho.Tpo -c -o soundlib/plugins/libopenmpttest-SymMODEcho.o `test -f 'soundlib/plugins/SymMODEcho.cpp' || echo '$(srcdir)/'`soundlib/plugins/SymMODEcho.cpp
+	$(AM_V_at)$(am__mv) soundlib/plugins/$(DEPDIR)/libopenmpttest-SymMODEcho.Tpo soundlib/plugins/$(DEPDIR)/libopenmpttest-SymMODEcho.Po
+#	$(AM_V_CXX)source='soundlib/plugins/SymMODEcho.cpp' object='soundlib/plugins/libopenmpttest-SymMODEcho.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/plugins/libopenmpttest-SymMODEcho.o `test -f 'soundlib/plugins/SymMODEcho.cpp' || echo '$(srcdir)/'`soundlib/plugins/SymMODEcho.cpp
+
+soundlib/plugins/libopenmpttest-SymMODEcho.obj: soundlib/plugins/SymMODEcho.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT soundlib/plugins/libopenmpttest-SymMODEcho.obj -MD -MP -MF soundlib/plugins/$(DEPDIR)/libopenmpttest-SymMODEcho.Tpo -c -o soundlib/plugins/libopenmpttest-SymMODEcho.obj `if test -f 'soundlib/plugins/SymMODEcho.cpp'; then $(CYGPATH_W) 'soundlib/plugins/SymMODEcho.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/plugins/SymMODEcho.cpp'; fi`
+	$(AM_V_at)$(am__mv) soundlib/plugins/$(DEPDIR)/libopenmpttest-SymMODEcho.Tpo soundlib/plugins/$(DEPDIR)/libopenmpttest-SymMODEcho.Po
+#	$(AM_V_CXX)source='soundlib/plugins/SymMODEcho.cpp' object='soundlib/plugins/libopenmpttest-SymMODEcho.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o soundlib/plugins/libopenmpttest-SymMODEcho.obj `if test -f 'soundlib/plugins/SymMODEcho.cpp'; then $(CYGPATH_W) 'soundlib/plugins/SymMODEcho.cpp'; else $(CYGPATH_W) '$(srcdir)/soundlib/plugins/SymMODEcho.cpp'; fi`
+
+sounddsp/libopenmpttest-AGC.o: sounddsp/AGC.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT sounddsp/libopenmpttest-AGC.o -MD -MP -MF sounddsp/$(DEPDIR)/libopenmpttest-AGC.Tpo -c -o sounddsp/libopenmpttest-AGC.o `test -f 'sounddsp/AGC.cpp' || echo '$(srcdir)/'`sounddsp/AGC.cpp
+	$(AM_V_at)$(am__mv) sounddsp/$(DEPDIR)/libopenmpttest-AGC.Tpo sounddsp/$(DEPDIR)/libopenmpttest-AGC.Po
+#	$(AM_V_CXX)source='sounddsp/AGC.cpp' object='sounddsp/libopenmpttest-AGC.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o sounddsp/libopenmpttest-AGC.o `test -f 'sounddsp/AGC.cpp' || echo '$(srcdir)/'`sounddsp/AGC.cpp
+
+sounddsp/libopenmpttest-AGC.obj: sounddsp/AGC.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT sounddsp/libopenmpttest-AGC.obj -MD -MP -MF sounddsp/$(DEPDIR)/libopenmpttest-AGC.Tpo -c -o sounddsp/libopenmpttest-AGC.obj `if test -f 'sounddsp/AGC.cpp'; then $(CYGPATH_W) 'sounddsp/AGC.cpp'; else $(CYGPATH_W) '$(srcdir)/sounddsp/AGC.cpp'; fi`
+	$(AM_V_at)$(am__mv) sounddsp/$(DEPDIR)/libopenmpttest-AGC.Tpo sounddsp/$(DEPDIR)/libopenmpttest-AGC.Po
+#	$(AM_V_CXX)source='sounddsp/AGC.cpp' object='sounddsp/libopenmpttest-AGC.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o sounddsp/libopenmpttest-AGC.obj `if test -f 'sounddsp/AGC.cpp'; then $(CYGPATH_W) 'sounddsp/AGC.cpp'; else $(CYGPATH_W) '$(srcdir)/sounddsp/AGC.cpp'; fi`
+
+sounddsp/libopenmpttest-DSP.o: sounddsp/DSP.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT sounddsp/libopenmpttest-DSP.o -MD -MP -MF sounddsp/$(DEPDIR)/libopenmpttest-DSP.Tpo -c -o sounddsp/libopenmpttest-DSP.o `test -f 'sounddsp/DSP.cpp' || echo '$(srcdir)/'`sounddsp/DSP.cpp
+	$(AM_V_at)$(am__mv) sounddsp/$(DEPDIR)/libopenmpttest-DSP.Tpo sounddsp/$(DEPDIR)/libopenmpttest-DSP.Po
+#	$(AM_V_CXX)source='sounddsp/DSP.cpp' object='sounddsp/libopenmpttest-DSP.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o sounddsp/libopenmpttest-DSP.o `test -f 'sounddsp/DSP.cpp' || echo '$(srcdir)/'`sounddsp/DSP.cpp
+
+sounddsp/libopenmpttest-DSP.obj: sounddsp/DSP.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT sounddsp/libopenmpttest-DSP.obj -MD -MP -MF sounddsp/$(DEPDIR)/libopenmpttest-DSP.Tpo -c -o sounddsp/libopenmpttest-DSP.obj `if test -f 'sounddsp/DSP.cpp'; then $(CYGPATH_W) 'sounddsp/DSP.cpp'; else $(CYGPATH_W) '$(srcdir)/sounddsp/DSP.cpp'; fi`
+	$(AM_V_at)$(am__mv) sounddsp/$(DEPDIR)/libopenmpttest-DSP.Tpo sounddsp/$(DEPDIR)/libopenmpttest-DSP.Po
+#	$(AM_V_CXX)source='sounddsp/DSP.cpp' object='sounddsp/libopenmpttest-DSP.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o sounddsp/libopenmpttest-DSP.obj `if test -f 'sounddsp/DSP.cpp'; then $(CYGPATH_W) 'sounddsp/DSP.cpp'; else $(CYGPATH_W) '$(srcdir)/sounddsp/DSP.cpp'; fi`
+
+sounddsp/libopenmpttest-EQ.o: sounddsp/EQ.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT sounddsp/libopenmpttest-EQ.o -MD -MP -MF sounddsp/$(DEPDIR)/libopenmpttest-EQ.Tpo -c -o sounddsp/libopenmpttest-EQ.o `test -f 'sounddsp/EQ.cpp' || echo '$(srcdir)/'`sounddsp/EQ.cpp
+	$(AM_V_at)$(am__mv) sounddsp/$(DEPDIR)/libopenmpttest-EQ.Tpo sounddsp/$(DEPDIR)/libopenmpttest-EQ.Po
+#	$(AM_V_CXX)source='sounddsp/EQ.cpp' object='sounddsp/libopenmpttest-EQ.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o sounddsp/libopenmpttest-EQ.o `test -f 'sounddsp/EQ.cpp' || echo '$(srcdir)/'`sounddsp/EQ.cpp
+
+sounddsp/libopenmpttest-EQ.obj: sounddsp/EQ.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT sounddsp/libopenmpttest-EQ.obj -MD -MP -MF sounddsp/$(DEPDIR)/libopenmpttest-EQ.Tpo -c -o sounddsp/libopenmpttest-EQ.obj `if test -f 'sounddsp/EQ.cpp'; then $(CYGPATH_W) 'sounddsp/EQ.cpp'; else $(CYGPATH_W) '$(srcdir)/sounddsp/EQ.cpp'; fi`
+	$(AM_V_at)$(am__mv) sounddsp/$(DEPDIR)/libopenmpttest-EQ.Tpo sounddsp/$(DEPDIR)/libopenmpttest-EQ.Po
+#	$(AM_V_CXX)source='sounddsp/EQ.cpp' object='sounddsp/libopenmpttest-EQ.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o sounddsp/libopenmpttest-EQ.obj `if test -f 'sounddsp/EQ.cpp'; then $(CYGPATH_W) 'sounddsp/EQ.cpp'; else $(CYGPATH_W) '$(srcdir)/sounddsp/EQ.cpp'; fi`
+
+sounddsp/libopenmpttest-Reverb.o: sounddsp/Reverb.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT sounddsp/libopenmpttest-Reverb.o -MD -MP -MF sounddsp/$(DEPDIR)/libopenmpttest-Reverb.Tpo -c -o sounddsp/libopenmpttest-Reverb.o `test -f 'sounddsp/Reverb.cpp' || echo '$(srcdir)/'`sounddsp/Reverb.cpp
+	$(AM_V_at)$(am__mv) sounddsp/$(DEPDIR)/libopenmpttest-Reverb.Tpo sounddsp/$(DEPDIR)/libopenmpttest-Reverb.Po
+#	$(AM_V_CXX)source='sounddsp/Reverb.cpp' object='sounddsp/libopenmpttest-Reverb.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o sounddsp/libopenmpttest-Reverb.o `test -f 'sounddsp/Reverb.cpp' || echo '$(srcdir)/'`sounddsp/Reverb.cpp
+
+sounddsp/libopenmpttest-Reverb.obj: sounddsp/Reverb.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT sounddsp/libopenmpttest-Reverb.obj -MD -MP -MF sounddsp/$(DEPDIR)/libopenmpttest-Reverb.Tpo -c -o sounddsp/libopenmpttest-Reverb.obj `if test -f 'sounddsp/Reverb.cpp'; then $(CYGPATH_W) 'sounddsp/Reverb.cpp'; else $(CYGPATH_W) '$(srcdir)/sounddsp/Reverb.cpp'; fi`
+	$(AM_V_at)$(am__mv) sounddsp/$(DEPDIR)/libopenmpttest-Reverb.Tpo sounddsp/$(DEPDIR)/libopenmpttest-Reverb.Po
+#	$(AM_V_CXX)source='sounddsp/Reverb.cpp' object='sounddsp/libopenmpttest-Reverb.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o sounddsp/libopenmpttest-Reverb.obj `if test -f 'sounddsp/Reverb.cpp'; then $(CYGPATH_W) 'sounddsp/Reverb.cpp'; else $(CYGPATH_W) '$(srcdir)/sounddsp/Reverb.cpp'; fi`
+
+libopenmpt/libopenmpttest-libopenmpt_c.o: libopenmpt/libopenmpt_c.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT libopenmpt/libopenmpttest-libopenmpt_c.o -MD -MP -MF libopenmpt/$(DEPDIR)/libopenmpttest-libopenmpt_c.Tpo -c -o libopenmpt/libopenmpttest-libopenmpt_c.o `test -f 'libopenmpt/libopenmpt_c.cpp' || echo '$(srcdir)/'`libopenmpt/libopenmpt_c.cpp
+	$(AM_V_at)$(am__mv) libopenmpt/$(DEPDIR)/libopenmpttest-libopenmpt_c.Tpo libopenmpt/$(DEPDIR)/libopenmpttest-libopenmpt_c.Po
+#	$(AM_V_CXX)source='libopenmpt/libopenmpt_c.cpp' object='libopenmpt/libopenmpttest-libopenmpt_c.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o libopenmpt/libopenmpttest-libopenmpt_c.o `test -f 'libopenmpt/libopenmpt_c.cpp' || echo '$(srcdir)/'`libopenmpt/libopenmpt_c.cpp
+
+libopenmpt/libopenmpttest-libopenmpt_c.obj: libopenmpt/libopenmpt_c.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT libopenmpt/libopenmpttest-libopenmpt_c.obj -MD -MP -MF libopenmpt/$(DEPDIR)/libopenmpttest-libopenmpt_c.Tpo -c -o libopenmpt/libopenmpttest-libopenmpt_c.obj `if test -f 'libopenmpt/libopenmpt_c.cpp'; then $(CYGPATH_W) 'libopenmpt/libopenmpt_c.cpp'; else $(CYGPATH_W) '$(srcdir)/libopenmpt/libopenmpt_c.cpp'; fi`
+	$(AM_V_at)$(am__mv) libopenmpt/$(DEPDIR)/libopenmpttest-libopenmpt_c.Tpo libopenmpt/$(DEPDIR)/libopenmpttest-libopenmpt_c.Po
+#	$(AM_V_CXX)source='libopenmpt/libopenmpt_c.cpp' object='libopenmpt/libopenmpttest-libopenmpt_c.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o libopenmpt/libopenmpttest-libopenmpt_c.obj `if test -f 'libopenmpt/libopenmpt_c.cpp'; then $(CYGPATH_W) 'libopenmpt/libopenmpt_c.cpp'; else $(CYGPATH_W) '$(srcdir)/libopenmpt/libopenmpt_c.cpp'; fi`
+
+libopenmpt/libopenmpttest-libopenmpt_cxx.o: libopenmpt/libopenmpt_cxx.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT libopenmpt/libopenmpttest-libopenmpt_cxx.o -MD -MP -MF libopenmpt/$(DEPDIR)/libopenmpttest-libopenmpt_cxx.Tpo -c -o libopenmpt/libopenmpttest-libopenmpt_cxx.o `test -f 'libopenmpt/libopenmpt_cxx.cpp' || echo '$(srcdir)/'`libopenmpt/libopenmpt_cxx.cpp
+	$(AM_V_at)$(am__mv) libopenmpt/$(DEPDIR)/libopenmpttest-libopenmpt_cxx.Tpo libopenmpt/$(DEPDIR)/libopenmpttest-libopenmpt_cxx.Po
+#	$(AM_V_CXX)source='libopenmpt/libopenmpt_cxx.cpp' object='libopenmpt/libopenmpttest-libopenmpt_cxx.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o libopenmpt/libopenmpttest-libopenmpt_cxx.o `test -f 'libopenmpt/libopenmpt_cxx.cpp' || echo '$(srcdir)/'`libopenmpt/libopenmpt_cxx.cpp
+
+libopenmpt/libopenmpttest-libopenmpt_cxx.obj: libopenmpt/libopenmpt_cxx.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT libopenmpt/libopenmpttest-libopenmpt_cxx.obj -MD -MP -MF libopenmpt/$(DEPDIR)/libopenmpttest-libopenmpt_cxx.Tpo -c -o libopenmpt/libopenmpttest-libopenmpt_cxx.obj `if test -f 'libopenmpt/libopenmpt_cxx.cpp'; then $(CYGPATH_W) 'libopenmpt/libopenmpt_cxx.cpp'; else $(CYGPATH_W) '$(srcdir)/libopenmpt/libopenmpt_cxx.cpp'; fi`
+	$(AM_V_at)$(am__mv) libopenmpt/$(DEPDIR)/libopenmpttest-libopenmpt_cxx.Tpo libopenmpt/$(DEPDIR)/libopenmpttest-libopenmpt_cxx.Po
+#	$(AM_V_CXX)source='libopenmpt/libopenmpt_cxx.cpp' object='libopenmpt/libopenmpttest-libopenmpt_cxx.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o libopenmpt/libopenmpttest-libopenmpt_cxx.obj `if test -f 'libopenmpt/libopenmpt_cxx.cpp'; then $(CYGPATH_W) 'libopenmpt/libopenmpt_cxx.cpp'; else $(CYGPATH_W) '$(srcdir)/libopenmpt/libopenmpt_cxx.cpp'; fi`
+
+libopenmpt/libopenmpttest-libopenmpt_ext_impl.o: libopenmpt/libopenmpt_ext_impl.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT libopenmpt/libopenmpttest-libopenmpt_ext_impl.o -MD -MP -MF libopenmpt/$(DEPDIR)/libopenmpttest-libopenmpt_ext_impl.Tpo -c -o libopenmpt/libopenmpttest-libopenmpt_ext_impl.o `test -f 'libopenmpt/libopenmpt_ext_impl.cpp' || echo '$(srcdir)/'`libopenmpt/libopenmpt_ext_impl.cpp
+	$(AM_V_at)$(am__mv) libopenmpt/$(DEPDIR)/libopenmpttest-libopenmpt_ext_impl.Tpo libopenmpt/$(DEPDIR)/libopenmpttest-libopenmpt_ext_impl.Po
+#	$(AM_V_CXX)source='libopenmpt/libopenmpt_ext_impl.cpp' object='libopenmpt/libopenmpttest-libopenmpt_ext_impl.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o libopenmpt/libopenmpttest-libopenmpt_ext_impl.o `test -f 'libopenmpt/libopenmpt_ext_impl.cpp' || echo '$(srcdir)/'`libopenmpt/libopenmpt_ext_impl.cpp
+
+libopenmpt/libopenmpttest-libopenmpt_ext_impl.obj: libopenmpt/libopenmpt_ext_impl.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT libopenmpt/libopenmpttest-libopenmpt_ext_impl.obj -MD -MP -MF libopenmpt/$(DEPDIR)/libopenmpttest-libopenmpt_ext_impl.Tpo -c -o libopenmpt/libopenmpttest-libopenmpt_ext_impl.obj `if test -f 'libopenmpt/libopenmpt_ext_impl.cpp'; then $(CYGPATH_W) 'libopenmpt/libopenmpt_ext_impl.cpp'; else $(CYGPATH_W) '$(srcdir)/libopenmpt/libopenmpt_ext_impl.cpp'; fi`
+	$(AM_V_at)$(am__mv) libopenmpt/$(DEPDIR)/libopenmpttest-libopenmpt_ext_impl.Tpo libopenmpt/$(DEPDIR)/libopenmpttest-libopenmpt_ext_impl.Po
+#	$(AM_V_CXX)source='libopenmpt/libopenmpt_ext_impl.cpp' object='libopenmpt/libopenmpttest-libopenmpt_ext_impl.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o libopenmpt/libopenmpttest-libopenmpt_ext_impl.obj `if test -f 'libopenmpt/libopenmpt_ext_impl.cpp'; then $(CYGPATH_W) 'libopenmpt/libopenmpt_ext_impl.cpp'; else $(CYGPATH_W) '$(srcdir)/libopenmpt/libopenmpt_ext_impl.cpp'; fi`
+
+libopenmpt/libopenmpttest-libopenmpt_impl.o: libopenmpt/libopenmpt_impl.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT libopenmpt/libopenmpttest-libopenmpt_impl.o -MD -MP -MF libopenmpt/$(DEPDIR)/libopenmpttest-libopenmpt_impl.Tpo -c -o libopenmpt/libopenmpttest-libopenmpt_impl.o `test -f 'libopenmpt/libopenmpt_impl.cpp' || echo '$(srcdir)/'`libopenmpt/libopenmpt_impl.cpp
+	$(AM_V_at)$(am__mv) libopenmpt/$(DEPDIR)/libopenmpttest-libopenmpt_impl.Tpo libopenmpt/$(DEPDIR)/libopenmpttest-libopenmpt_impl.Po
+#	$(AM_V_CXX)source='libopenmpt/libopenmpt_impl.cpp' object='libopenmpt/libopenmpttest-libopenmpt_impl.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o libopenmpt/libopenmpttest-libopenmpt_impl.o `test -f 'libopenmpt/libopenmpt_impl.cpp' || echo '$(srcdir)/'`libopenmpt/libopenmpt_impl.cpp
+
+libopenmpt/libopenmpttest-libopenmpt_impl.obj: libopenmpt/libopenmpt_impl.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT libopenmpt/libopenmpttest-libopenmpt_impl.obj -MD -MP -MF libopenmpt/$(DEPDIR)/libopenmpttest-libopenmpt_impl.Tpo -c -o libopenmpt/libopenmpttest-libopenmpt_impl.obj `if test -f 'libopenmpt/libopenmpt_impl.cpp'; then $(CYGPATH_W) 'libopenmpt/libopenmpt_impl.cpp'; else $(CYGPATH_W) '$(srcdir)/libopenmpt/libopenmpt_impl.cpp'; fi`
+	$(AM_V_at)$(am__mv) libopenmpt/$(DEPDIR)/libopenmpttest-libopenmpt_impl.Tpo libopenmpt/$(DEPDIR)/libopenmpttest-libopenmpt_impl.Po
+#	$(AM_V_CXX)source='libopenmpt/libopenmpt_impl.cpp' object='libopenmpt/libopenmpttest-libopenmpt_impl.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o libopenmpt/libopenmpttest-libopenmpt_impl.obj `if test -f 'libopenmpt/libopenmpt_impl.cpp'; then $(CYGPATH_W) 'libopenmpt/libopenmpt_impl.cpp'; else $(CYGPATH_W) '$(srcdir)/libopenmpt/libopenmpt_impl.cpp'; fi`
+
+libopenmpt/libopenmpt_test/libopenmpttest-libopenmpt_test.o: libopenmpt/libopenmpt_test/libopenmpt_test.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT libopenmpt/libopenmpt_test/libopenmpttest-libopenmpt_test.o -MD -MP -MF libopenmpt/libopenmpt_test/$(DEPDIR)/libopenmpttest-libopenmpt_test.Tpo -c -o libopenmpt/libopenmpt_test/libopenmpttest-libopenmpt_test.o `test -f 'libopenmpt/libopenmpt_test/libopenmpt_test.cpp' || echo '$(srcdir)/'`libopenmpt/libopenmpt_test/libopenmpt_test.cpp
+	$(AM_V_at)$(am__mv) libopenmpt/libopenmpt_test/$(DEPDIR)/libopenmpttest-libopenmpt_test.Tpo libopenmpt/libopenmpt_test/$(DEPDIR)/libopenmpttest-libopenmpt_test.Po
+#	$(AM_V_CXX)source='libopenmpt/libopenmpt_test/libopenmpt_test.cpp' object='libopenmpt/libopenmpt_test/libopenmpttest-libopenmpt_test.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o libopenmpt/libopenmpt_test/libopenmpttest-libopenmpt_test.o `test -f 'libopenmpt/libopenmpt_test/libopenmpt_test.cpp' || echo '$(srcdir)/'`libopenmpt/libopenmpt_test/libopenmpt_test.cpp
+
+libopenmpt/libopenmpt_test/libopenmpttest-libopenmpt_test.obj: libopenmpt/libopenmpt_test/libopenmpt_test.cpp
+	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -MT libopenmpt/libopenmpt_test/libopenmpttest-libopenmpt_test.obj -MD -MP -MF libopenmpt/libopenmpt_test/$(DEPDIR)/libopenmpttest-libopenmpt_test.Tpo -c -o libopenmpt/libopenmpt_test/libopenmpttest-libopenmpt_test.obj `if test -f 'libopenmpt/libopenmpt_test/libopenmpt_test.cpp'; then $(CYGPATH_W) 'libopenmpt/libopenmpt_test/libopenmpt_test.cpp'; else $(CYGPATH_W) '$(srcdir)/libopenmpt/libopenmpt_test/libopenmpt_test.cpp'; fi`
+	$(AM_V_at)$(am__mv) libopenmpt/libopenmpt_test/$(DEPDIR)/libopenmpttest-libopenmpt_test.Tpo libopenmpt/libopenmpt_test/$(DEPDIR)/libopenmpttest-libopenmpt_test.Po
+#	$(AM_V_CXX)source='libopenmpt/libopenmpt_test/libopenmpt_test.cpp' object='libopenmpt/libopenmpt_test/libopenmpttest-libopenmpt_test.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(AM_V_CXX_no)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libopenmpttest_CPPFLAGS) $(CPPFLAGS) $(libopenmpttest_CXXFLAGS) $(CXXFLAGS) -c -o libopenmpt/libopenmpt_test/libopenmpttest-libopenmpt_test.obj `if test -f 'libopenmpt/libopenmpt_test/libopenmpt_test.cpp'; then $(CYGPATH_W) 'libopenmpt/libopenmpt_test/libopenmpt_test.cpp'; else $(CYGPATH_W) '$(srcdir)/libopenmpt/libopenmpt_test/libopenmpt_test.cpp'; fi`
+
+mostlyclean-libtool:
+	-rm -f *.lo
+
+clean-libtool:
+	-rm -rf .libs _libs
+	-rm -rf bin/.libs bin/_libs
+	-rm -rf common/.libs common/_libs
+	-rm -rf libopenmpt/.libs libopenmpt/_libs
+	-rm -rf sounddsp/.libs sounddsp/_libs
+	-rm -rf soundlib/.libs soundlib/_libs
+	-rm -rf soundlib/plugins/.libs soundlib/plugins/_libs
+	-rm -rf soundlib/plugins/dmo/.libs soundlib/plugins/dmo/_libs
+
+distclean-libtool:
+	-rm -f libtool config.lt
+install-man1: $(man1_MANS)
+	@$(NORMAL_INSTALL)
+	@list1='$(man1_MANS)'; \
+	list2=''; \
+	test -n "$(man1dir)" \
+	  && test -n "`echo $$list1$$list2`" \
+	  || exit 0; \
+	echo " $(MKDIR_P) '$(DESTDIR)$(man1dir)'"; \
+	$(MKDIR_P) "$(DESTDIR)$(man1dir)" || exit 1; \
+	{ for i in $$list1; do echo "$$i"; done;  \
+	if test -n "$$list2"; then \
+	  for i in $$list2; do echo "$$i"; done \
+	    | sed -n '/\.1[a-z]*$$/p'; \
+	fi; \
+	} | while read p; do \
+	  if test -f $$p; then d=; else d="$(srcdir)/"; fi; \
+	  echo "$$d$$p"; echo "$$p"; \
+	done | \
+	sed -e 'n;s,.*/,,;p;h;s,.*\.,,;s,^[^1][0-9a-z]*$$,1,;x' \
+	      -e 's,\.[0-9a-z]*$$,,;$(transform);G;s,\n,.,' | \
+	sed 'N;N;s,\n, ,g' | { \
+	list=; while read file base inst; do \
+	  if test "$$base" = "$$inst"; then list="$$list $$file"; else \
+	    echo " $(INSTALL_DATA) '$$file' '$(DESTDIR)$(man1dir)/$$inst'"; \
+	    $(INSTALL_DATA) "$$file" "$(DESTDIR)$(man1dir)/$$inst" || exit $$?; \
+	  fi; \
+	done; \
+	for i in $$list; do echo "$$i"; done | $(am__base_list) | \
+	while read files; do \
+	  test -z "$$files" || { \
+	    echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(man1dir)'"; \
+	    $(INSTALL_DATA) $$files "$(DESTDIR)$(man1dir)" || exit $$?; }; \
+	done; }
+
+uninstall-man1:
+	@$(NORMAL_UNINSTALL)
+	@list='$(man1_MANS)'; test -n "$(man1dir)" || exit 0; \
+	files=`{ for i in $$list; do echo "$$i"; done; \
+	} | sed -e 's,.*/,,;h;s,.*\.,,;s,^[^1][0-9a-z]*$$,1,;x' \
+	      -e 's,\.[0-9a-z]*$$,,;$(transform);G;s,\n,.,'`; \
+	dir='$(DESTDIR)$(man1dir)'; $(am__uninstall_files_from_dir)
+install-dist_docDATA: $(dist_doc_DATA)
+	@$(NORMAL_INSTALL)
+	@list='$(dist_doc_DATA)'; test -n "$(docdir)" || list=; \
+	if test -n "$$list"; then \
+	  echo " $(MKDIR_P) '$(DESTDIR)$(docdir)'"; \
+	  $(MKDIR_P) "$(DESTDIR)$(docdir)" || exit 1; \
+	fi; \
+	for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  echo "$$d$$p"; \
+	done | $(am__base_list) | \
+	while read files; do \
+	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(docdir)'"; \
+	  $(INSTALL_DATA) $$files "$(DESTDIR)$(docdir)" || exit $$?; \
+	done
+
+uninstall-dist_docDATA:
+	@$(NORMAL_UNINSTALL)
+	@list='$(dist_doc_DATA)'; test -n "$(docdir)" || list=; \
+	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
+	dir='$(DESTDIR)$(docdir)'; $(am__uninstall_files_from_dir)
+install-nobase_dist_docDATA: $(nobase_dist_doc_DATA)
+	@$(NORMAL_INSTALL)
+	@list='$(nobase_dist_doc_DATA)'; test -n "$(docdir)" || list=; \
+	if test -n "$$list"; then \
+	  echo " $(MKDIR_P) '$(DESTDIR)$(docdir)'"; \
+	  $(MKDIR_P) "$(DESTDIR)$(docdir)" || exit 1; \
+	fi; \
+	$(am__nobase_list) | while read dir files; do \
+	  xfiles=; for file in $$files; do \
+	    if test -f "$$file"; then xfiles="$$xfiles $$file"; \
+	    else xfiles="$$xfiles $(srcdir)/$$file"; fi; done; \
+	  test -z "$$xfiles" || { \
+	    test "x$$dir" = x. || { \
+	      echo " $(MKDIR_P) '$(DESTDIR)$(docdir)/$$dir'"; \
+	      $(MKDIR_P) "$(DESTDIR)$(docdir)/$$dir"; }; \
+	    echo " $(INSTALL_DATA) $$xfiles '$(DESTDIR)$(docdir)/$$dir'"; \
+	    $(INSTALL_DATA) $$xfiles "$(DESTDIR)$(docdir)/$$dir" || exit $$?; }; \
+	done
+
+uninstall-nobase_dist_docDATA:
+	@$(NORMAL_UNINSTALL)
+	@list='$(nobase_dist_doc_DATA)'; test -n "$(docdir)" || list=; \
+	$(am__nobase_strip_setup); files=`$(am__nobase_strip)`; \
+	dir='$(DESTDIR)$(docdir)'; $(am__uninstall_files_from_dir)
+install-pkgconfigDATA: $(pkgconfig_DATA)
+	@$(NORMAL_INSTALL)
+	@list='$(pkgconfig_DATA)'; test -n "$(pkgconfigdir)" || list=; \
+	if test -n "$$list"; then \
+	  echo " $(MKDIR_P) '$(DESTDIR)$(pkgconfigdir)'"; \
+	  $(MKDIR_P) "$(DESTDIR)$(pkgconfigdir)" || exit 1; \
+	fi; \
+	for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  echo "$$d$$p"; \
+	done | $(am__base_list) | \
+	while read files; do \
+	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(pkgconfigdir)'"; \
+	  $(INSTALL_DATA) $$files "$(DESTDIR)$(pkgconfigdir)" || exit $$?; \
+	done
+
+uninstall-pkgconfigDATA:
+	@$(NORMAL_UNINSTALL)
+	@list='$(pkgconfig_DATA)'; test -n "$(pkgconfigdir)" || list=; \
+	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
+	dir='$(DESTDIR)$(pkgconfigdir)'; $(am__uninstall_files_from_dir)
+install-includelibopenmptHEADERS: $(includelibopenmpt_HEADERS)
+	@$(NORMAL_INSTALL)
+	@list='$(includelibopenmpt_HEADERS)'; test -n "$(includelibopenmptdir)" || list=; \
+	if test -n "$$list"; then \
+	  echo " $(MKDIR_P) '$(DESTDIR)$(includelibopenmptdir)'"; \
+	  $(MKDIR_P) "$(DESTDIR)$(includelibopenmptdir)" || exit 1; \
+	fi; \
+	for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  echo "$$d$$p"; \
+	done | $(am__base_list) | \
+	while read files; do \
+	  echo " $(INSTALL_HEADER) $$files '$(DESTDIR)$(includelibopenmptdir)'"; \
+	  $(INSTALL_HEADER) $$files "$(DESTDIR)$(includelibopenmptdir)" || exit $$?; \
+	done
+
+uninstall-includelibopenmptHEADERS:
+	@$(NORMAL_UNINSTALL)
+	@list='$(includelibopenmpt_HEADERS)'; test -n "$(includelibopenmptdir)" || list=; \
+	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
+	dir='$(DESTDIR)$(includelibopenmptdir)'; $(am__uninstall_files_from_dir)
+
+ID: $(am__tagged_files)
+	$(am__define_uniq_tagged_files); mkid -fID $$unique
+tags: tags-am
+TAGS: tags
+
+tags-am: $(TAGS_DEPENDENCIES) $(am__tagged_files)
+	set x; \
+	here=`pwd`; \
+	$(am__define_uniq_tagged_files); \
+	shift; \
+	if test -z "$(ETAGS_ARGS)$$*$$unique"; then :; else \
+	  test -n "$$unique" || unique=$$empty_fix; \
+	  if test $$# -gt 0; then \
+	    $(ETAGS) $(ETAGSFLAGS) $(AM_ETAGSFLAGS) $(ETAGS_ARGS) \
+	      "$$@" $$unique; \
+	  else \
+	    $(ETAGS) $(ETAGSFLAGS) $(AM_ETAGSFLAGS) $(ETAGS_ARGS) \
+	      $$unique; \
+	  fi; \
+	fi
+ctags: ctags-am
+
+CTAGS: ctags
+ctags-am: $(TAGS_DEPENDENCIES) $(am__tagged_files)
+	$(am__define_uniq_tagged_files); \
+	test -z "$(CTAGS_ARGS)$$unique" \
+	  || $(CTAGS) $(CTAGSFLAGS) $(AM_CTAGSFLAGS) $(CTAGS_ARGS) \
+	     $$unique
+
+GTAGS:
+	here=`$(am__cd) $(top_builddir) && pwd` \
+	  && $(am__cd) $(top_srcdir) \
+	  && gtags -i $(GTAGS_ARGS) "$$here"
+cscope: cscope.files
+	test ! -s cscope.files \
+	  || $(CSCOPE) -b -q $(AM_CSCOPEFLAGS) $(CSCOPEFLAGS) -i cscope.files $(CSCOPE_ARGS)
+clean-cscope:
+	-rm -f cscope.files
+cscope.files: clean-cscope cscopelist
+cscopelist: cscopelist-am
+
+cscopelist-am: $(am__tagged_files)
+	list='$(am__tagged_files)'; \
+	case "$(srcdir)" in \
+	  [\\/]* | ?:[\\/]*) sdir="$(srcdir)" ;; \
+	  *) sdir=$(subdir)/$(srcdir) ;; \
+	esac; \
+	for i in $$list; do \
+	  if test -f "$$i"; then \
+	    echo "$(subdir)/$$i"; \
+	  else \
+	    echo "$$sdir/$$i"; \
+	  fi; \
+	done >> $(top_builddir)/cscope.files
+
+distclean-tags:
+	-rm -f TAGS ID GTAGS GRTAGS GSYMS GPATH tags
+	-rm -f cscope.out cscope.in.out cscope.po.out cscope.files
+
+# Recover from deleted '.trs' file; this should ensure that
+# "rm -f foo.log; make foo.trs" re-run 'foo.test', and re-create
+# both 'foo.log' and 'foo.trs'.  Break the recipe in two subshells
+# to avoid problems with "make -n".
+.log.trs:
+	rm -f $< $@
+	$(MAKE) $(AM_MAKEFLAGS) $<
+
+# Leading 'am--fnord' is there to ensure the list of targets does not
+# expand to empty, as could happen e.g. with make check TESTS=''.
+am--fnord $(TEST_LOGS) $(TEST_LOGS:.log=.trs): $(am__force_recheck)
+am--force-recheck:
+	@:
+
+$(TEST_SUITE_LOG): $(TEST_LOGS)
+	@$(am__set_TESTS_bases); \
+	am__f_ok () { test -f "$$1" && test -r "$$1"; }; \
+	redo_bases=`for i in $$bases; do \
+	              am__f_ok $$i.trs && am__f_ok $$i.log || echo $$i; \
+	            done`; \
+	if test -n "$$redo_bases"; then \
+	  redo_logs=`for i in $$redo_bases; do echo $$i.log; done`; \
+	  redo_results=`for i in $$redo_bases; do echo $$i.trs; done`; \
+	  if $(am__make_dryrun); then :; else \
+	    rm -f $$redo_logs && rm -f $$redo_results || exit 1; \
+	  fi; \
+	fi; \
+	if test -n "$$am__remaking_logs"; then \
+	  echo "fatal: making $(TEST_SUITE_LOG): possible infinite" \
+	       "recursion detected" >&2; \
+	elif test -n "$$redo_logs"; then \
+	  am__remaking_logs=yes $(MAKE) $(AM_MAKEFLAGS) $$redo_logs; \
+	fi; \
+	if $(am__make_dryrun); then :; else \
+	  st=0;  \
+	  errmsg="fatal: making $(TEST_SUITE_LOG): failed to create"; \
+	  for i in $$redo_bases; do \
+	    test -f $$i.trs && test -r $$i.trs \
+	      || { echo "$$errmsg $$i.trs" >&2; st=1; }; \
+	    test -f $$i.log && test -r $$i.log \
+	      || { echo "$$errmsg $$i.log" >&2; st=1; }; \
+	  done; \
+	  test $$st -eq 0 || exit 1; \
+	fi
+	@$(am__sh_e_setup); $(am__tty_colors); $(am__set_TESTS_bases); \
+	ws='[ 	]'; \
+	results=`for b in $$bases; do echo $$b.trs; done`; \
+	test -n "$$results" || results=/dev/null; \
+	all=`  grep "^$$ws*:test-result:"           $$results | wc -l`; \
+	pass=` grep "^$$ws*:test-result:$$ws*PASS"  $$results | wc -l`; \
+	fail=` grep "^$$ws*:test-result:$$ws*FAIL"  $$results | wc -l`; \
+	skip=` grep "^$$ws*:test-result:$$ws*SKIP"  $$results | wc -l`; \
+	xfail=`grep "^$$ws*:test-result:$$ws*XFAIL" $$results | wc -l`; \
+	xpass=`grep "^$$ws*:test-result:$$ws*XPASS" $$results | wc -l`; \
+	error=`grep "^$$ws*:test-result:$$ws*ERROR" $$results | wc -l`; \
+	if test `expr $$fail + $$xpass + $$error` -eq 0; then \
+	  success=true; \
+	else \
+	  success=false; \
+	fi; \
+	br='==================='; br=$$br$$br$$br$$br; \
+	result_count () \
+	{ \
+	    if test x"$$1" = x"--maybe-color"; then \
+	      maybe_colorize=yes; \
+	    elif test x"$$1" = x"--no-color"; then \
+	      maybe_colorize=no; \
+	    else \
+	      echo "$@: invalid 'result_count' usage" >&2; exit 4; \
+	    fi; \
+	    shift; \
+	    desc=$$1 count=$$2; \
+	    if test $$maybe_colorize = yes && test $$count -gt 0; then \
+	      color_start=$$3 color_end=$$std; \
+	    else \
+	      color_start= color_end=; \
+	    fi; \
+	    echo "$${color_start}# $$desc $$count$${color_end}"; \
+	}; \
+	create_testsuite_report () \
+	{ \
+	  result_count $$1 "TOTAL:" $$all   "$$brg"; \
+	  result_count $$1 "PASS: " $$pass  "$$grn"; \
+	  result_count $$1 "SKIP: " $$skip  "$$blu"; \
+	  result_count $$1 "XFAIL:" $$xfail "$$lgn"; \
+	  result_count $$1 "FAIL: " $$fail  "$$red"; \
+	  result_count $$1 "XPASS:" $$xpass "$$red"; \
+	  result_count $$1 "ERROR:" $$error "$$mgn"; \
+	}; \
+	{								\
+	  echo "$(PACKAGE_STRING): $(subdir)/$(TEST_SUITE_LOG)" |	\
+	    $(am__rst_title);						\
+	  create_testsuite_report --no-color;				\
+	  echo;								\
+	  echo ".. contents:: :depth: 2";				\
+	  echo;								\
+	  for b in $$bases; do echo $$b; done				\
+	    | $(am__create_global_log);					\
+	} >$(TEST_SUITE_LOG).tmp || exit 1;				\
+	mv $(TEST_SUITE_LOG).tmp $(TEST_SUITE_LOG);			\
+	if $$success; then						\
+	  col="$$grn";							\
+	 else								\
+	  col="$$red";							\
+	  test x"$$VERBOSE" = x || cat $(TEST_SUITE_LOG);		\
+	fi;								\
+	echo "$${col}$$br$${std}"; 					\
+	echo "$${col}Testsuite summary"$(AM_TESTSUITE_SUMMARY_HEADER)"$${std}";	\
+	echo "$${col}$$br$${std}"; 					\
+	create_testsuite_report --maybe-color;				\
+	echo "$$col$$br$$std";						\
+	if $$success; then :; else					\
+	  echo "$${col}See $(subdir)/$(TEST_SUITE_LOG)$${std}";		\
+	  if test -n "$(PACKAGE_BUGREPORT)"; then			\
+	    echo "$${col}Please report to $(PACKAGE_BUGREPORT)$${std}";	\
+	  fi;								\
+	  echo "$$col$$br$$std";					\
+	fi;								\
+	$$success || exit 1
+
+check-TESTS: $(check_PROGRAMS)
+	@list='$(RECHECK_LOGS)';           test -z "$$list" || rm -f $$list
+	@list='$(RECHECK_LOGS:.log=.trs)'; test -z "$$list" || rm -f $$list
+	@test -z "$(TEST_SUITE_LOG)" || rm -f $(TEST_SUITE_LOG)
+	@set +e; $(am__set_TESTS_bases); \
+	log_list=`for i in $$bases; do echo $$i.log; done`; \
+	trs_list=`for i in $$bases; do echo $$i.trs; done`; \
+	log_list=`echo $$log_list`; trs_list=`echo $$trs_list`; \
+	$(MAKE) $(AM_MAKEFLAGS) $(TEST_SUITE_LOG) TEST_LOGS="$$log_list"; \
+	exit $$?;
+recheck: all $(check_PROGRAMS)
+	@test -z "$(TEST_SUITE_LOG)" || rm -f $(TEST_SUITE_LOG)
+	@set +e; $(am__set_TESTS_bases); \
+	bases=`for i in $$bases; do echo $$i; done \
+	         | $(am__list_recheck_tests)` || exit 1; \
+	log_list=`for i in $$bases; do echo $$i.log; done`; \
+	log_list=`echo $$log_list`; \
+	$(MAKE) $(AM_MAKEFLAGS) $(TEST_SUITE_LOG) \
+	        am__force_recheck=am--force-recheck \
+	        TEST_LOGS="$$log_list"; \
+	exit $$?
+libopenmpttest.log: libopenmpttest$(EXEEXT)
+	@p='libopenmpttest$(EXEEXT)'; \
+	b='libopenmpttest'; \
+	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
+	--log-file $$b.log --trs-file $$b.trs \
+	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
+	"$$tst" $(AM_TESTS_FD_REDIRECT)
+.test.log:
+	@p='$<'; \
+	$(am__set_b); \
+	$(am__check_pre) $(TEST_LOG_DRIVER) --test-name "$$f" \
+	--log-file $$b.log --trs-file $$b.trs \
+	$(am__common_driver_flags) $(AM_TEST_LOG_DRIVER_FLAGS) $(TEST_LOG_DRIVER_FLAGS) -- $(TEST_LOG_COMPILE) \
+	"$$tst" $(AM_TESTS_FD_REDIRECT)
+#.test$(EXEEXT).log:
+#	@p='$<'; \
+#	$(am__set_b); \
+#	$(am__check_pre) $(TEST_LOG_DRIVER) --test-name "$$f" \
+#	--log-file $$b.log --trs-file $$b.trs \
+#	$(am__common_driver_flags) $(AM_TEST_LOG_DRIVER_FLAGS) $(TEST_LOG_DRIVER_FLAGS) -- $(TEST_LOG_COMPILE) \
+#	"$$tst" $(AM_TESTS_FD_REDIRECT)
+distdir: $(BUILT_SOURCES)
+	$(MAKE) $(AM_MAKEFLAGS) distdir-am
+
+distdir-am: $(DISTFILES)
+	$(am__remove_distdir)
+	test -d "$(distdir)" || mkdir "$(distdir)"
+	@srcdirstrip=`echo "$(srcdir)" | sed 's/[].[^$$\\*]/\\\\&/g'`; \
+	topsrcdirstrip=`echo "$(top_srcdir)" | sed 's/[].[^$$\\*]/\\\\&/g'`; \
+	list='$(DISTFILES)'; \
+	  dist_files=`for file in $$list; do echo $$file; done | \
+	  sed -e "s|^$$srcdirstrip/||;t" \
+	      -e "s|^$$topsrcdirstrip/|$(top_builddir)/|;t"`; \
+	case $$dist_files in \
+	  */*) $(MKDIR_P) `echo "$$dist_files" | \
+			   sed '/\//!d;s|^|$(distdir)/|;s,/[^/]*$$,,' | \
+			   sort -u` ;; \
+	esac; \
+	for file in $$dist_files; do \
+	  if test -f $$file || test -d $$file; then d=.; else d=$(srcdir); fi; \
+	  if test -d $$d/$$file; then \
+	    dir=`echo "/$$file" | sed -e 's,/[^/]*$$,,'`; \
+	    if test -d "$(distdir)/$$file"; then \
+	      find "$(distdir)/$$file" -type d ! -perm -700 -exec chmod u+rwx {} \;; \
+	    fi; \
+	    if test -d $(srcdir)/$$file && test $$d != $(srcdir); then \
+	      cp -fpR $(srcdir)/$$file "$(distdir)$$dir" || exit 1; \
+	      find "$(distdir)/$$file" -type d ! -perm -700 -exec chmod u+rwx {} \;; \
+	    fi; \
+	    cp -fpR $$d/$$file "$(distdir)$$dir" || exit 1; \
+	  else \
+	    test -f "$(distdir)/$$file" \
+	    || cp -p $$d/$$file "$(distdir)/$$file" \
+	    || exit 1; \
+	  fi; \
+	done
+	-test -n "$(am__skip_mode_fix)" \
+	|| find "$(distdir)" -type d ! -perm -755 \
+		-exec chmod u+rwx,go+rx {} \; -o \
+	  ! -type d ! -perm -444 -links 1 -exec chmod a+r {} \; -o \
+	  ! -type d ! -perm -400 -exec chmod a+r {} \; -o \
+	  ! -type d ! -perm -444 -exec $(install_sh) -c -m a+r {} {} \; \
+	|| chmod -R a+r "$(distdir)"
+dist-gzip: distdir
+	tardir=$(distdir) && $(am__tar) | eval GZIP= gzip $(GZIP_ENV) -c >$(distdir).tar.gz
+	$(am__post_remove_distdir)
+
+dist-bzip2: distdir
+	tardir=$(distdir) && $(am__tar) | BZIP2=$${BZIP2--9} bzip2 -c >$(distdir).tar.bz2
+	$(am__post_remove_distdir)
+
+dist-lzip: distdir
+	tardir=$(distdir) && $(am__tar) | lzip -c $${LZIP_OPT--9} >$(distdir).tar.lz
+	$(am__post_remove_distdir)
+
+dist-xz: distdir
+	tardir=$(distdir) && $(am__tar) | XZ_OPT=$${XZ_OPT--e} xz -c >$(distdir).tar.xz
+	$(am__post_remove_distdir)
+
+dist-zstd: distdir
+	tardir=$(distdir) && $(am__tar) | zstd -c $${ZSTD_CLEVEL-$${ZSTD_OPT--19}} >$(distdir).tar.zst
+	$(am__post_remove_distdir)
+
+dist-tarZ: distdir
+	@echo WARNING: "Support for distribution archives compressed with" \
+		       "legacy program 'compress' is deprecated." >&2
+	@echo WARNING: "It will be removed altogether in Automake 2.0" >&2
+	tardir=$(distdir) && $(am__tar) | compress -c >$(distdir).tar.Z
+	$(am__post_remove_distdir)
+
+dist-shar: distdir
+	@echo WARNING: "Support for shar distribution archives is" \
+	               "deprecated." >&2
+	@echo WARNING: "It will be removed altogether in Automake 2.0" >&2
+	shar $(distdir) | eval GZIP= gzip $(GZIP_ENV) -c >$(distdir).shar.gz
+	$(am__post_remove_distdir)
+
+dist-zip: distdir
+	-rm -f $(distdir).zip
+	zip -rq $(distdir).zip $(distdir)
+	$(am__post_remove_distdir)
+
+dist dist-all:
+	$(MAKE) $(AM_MAKEFLAGS) $(DIST_TARGETS) am__post_remove_distdir='@:'
+	$(am__post_remove_distdir)
+
+# This target untars the dist file and tries a VPATH configuration.  Then
+# it guarantees that the distribution is self-contained by making another
+# tarfile.
+distcheck: dist
+	case '$(DIST_ARCHIVES)' in \
+	*.tar.gz*) \
+	  eval GZIP= gzip $(GZIP_ENV) -dc $(distdir).tar.gz | $(am__untar) ;;\
+	*.tar.bz2*) \
+	  bzip2 -dc $(distdir).tar.bz2 | $(am__untar) ;;\
+	*.tar.lz*) \
+	  lzip -dc $(distdir).tar.lz | $(am__untar) ;;\
+	*.tar.xz*) \
+	  xz -dc $(distdir).tar.xz | $(am__untar) ;;\
+	*.tar.Z*) \
+	  uncompress -c $(distdir).tar.Z | $(am__untar) ;;\
+	*.shar.gz*) \
+	  eval GZIP= gzip $(GZIP_ENV) -dc $(distdir).shar.gz | unshar ;;\
+	*.zip*) \
+	  unzip $(distdir).zip ;;\
+	*.tar.zst*) \
+	  zstd -dc $(distdir).tar.zst | $(am__untar) ;;\
+	esac
+	chmod -R a-w $(distdir)
+	chmod u+w $(distdir)
+	mkdir $(distdir)/_build $(distdir)/_build/sub $(distdir)/_inst
+	chmod a-w $(distdir)
+	test -d $(distdir)/_build || exit 0; \
+	dc_install_base=`$(am__cd) $(distdir)/_inst && pwd | sed -e 's,^[^:\\/]:[\\/],/,'` \
+	  && dc_destdir="$${TMPDIR-/tmp}/am-dc-$$$$/" \
+	  && am__cwd=`pwd` \
+	  && $(am__cd) $(distdir)/_build/sub \
+	  && ../../configure \
+	    $(AM_DISTCHECK_CONFIGURE_FLAGS) \
+	    $(DISTCHECK_CONFIGURE_FLAGS) \
+	    --srcdir=../.. --prefix="$$dc_install_base" \
+	  && $(MAKE) $(AM_MAKEFLAGS) \
+	  && $(MAKE) $(AM_MAKEFLAGS) $(AM_DISTCHECK_DVI_TARGET) \
+	  && $(MAKE) $(AM_MAKEFLAGS) check \
+	  && $(MAKE) $(AM_MAKEFLAGS) install \
+	  && $(MAKE) $(AM_MAKEFLAGS) installcheck \
+	  && $(MAKE) $(AM_MAKEFLAGS) uninstall \
+	  && $(MAKE) $(AM_MAKEFLAGS) distuninstallcheck_dir="$$dc_install_base" \
+	        distuninstallcheck \
+	  && chmod -R a-w "$$dc_install_base" \
+	  && ({ \
+	       (cd ../.. && umask 077 && mkdir "$$dc_destdir") \
+	       && $(MAKE) $(AM_MAKEFLAGS) DESTDIR="$$dc_destdir" install \
+	       && $(MAKE) $(AM_MAKEFLAGS) DESTDIR="$$dc_destdir" uninstall \
+	       && $(MAKE) $(AM_MAKEFLAGS) DESTDIR="$$dc_destdir" \
+	            distuninstallcheck_dir="$$dc_destdir" distuninstallcheck; \
+	      } || { rm -rf "$$dc_destdir"; exit 1; }) \
+	  && rm -rf "$$dc_destdir" \
+	  && $(MAKE) $(AM_MAKEFLAGS) dist \
+	  && rm -rf $(DIST_ARCHIVES) \
+	  && $(MAKE) $(AM_MAKEFLAGS) distcleancheck \
+	  && cd "$$am__cwd" \
+	  || exit 1
+	$(am__post_remove_distdir)
+	@(echo "$(distdir) archives ready for distribution: "; \
+	  list='$(DIST_ARCHIVES)'; for i in $$list; do echo $$i; done) | \
+	  sed -e 1h -e 1s/./=/g -e 1p -e 1x -e '$$p' -e '$$x'
+distuninstallcheck:
+	@test -n '$(distuninstallcheck_dir)' || { \
+	  echo 'ERROR: trying to run $@ with an empty' \
+	       '$$(distuninstallcheck_dir)' >&2; \
+	  exit 1; \
+	}; \
+	$(am__cd) '$(distuninstallcheck_dir)' || { \
+	  echo 'ERROR: cannot chdir into $(distuninstallcheck_dir)' >&2; \
+	  exit 1; \
+	}; \
+	test `$(am__distuninstallcheck_listfiles) | wc -l` -eq 0 \
+	   || { echo "ERROR: files left after uninstall:" ; \
+	        if test -n "$(DESTDIR)"; then \
+	          echo "  (check DESTDIR support)"; \
+	        fi ; \
+	        $(distuninstallcheck_listfiles) ; \
+	        exit 1; } >&2
+distcleancheck: distclean
+	@if test '$(srcdir)' = . ; then \
+	  echo "ERROR: distcleancheck can only run from a VPATH build" ; \
+	  exit 1 ; \
+	fi
+	@test `$(distcleancheck_listfiles) | wc -l` -eq 0 \
+	  || { echo "ERROR: files left in build directory after distclean:" ; \
+	       $(distcleancheck_listfiles) ; \
+	       exit 1; } >&2
+check-am: all-am
+	$(MAKE) $(AM_MAKEFLAGS) $(check_PROGRAMS)
+	$(MAKE) $(AM_MAKEFLAGS) check-TESTS
+check: check-am
+all-am: Makefile $(PROGRAMS) $(LTLIBRARIES) $(MANS) $(DATA) $(HEADERS)
+install-binPROGRAMS: install-libLTLIBRARIES
+
+install-checkPROGRAMS: install-libLTLIBRARIES
+
+installdirs:
+	for dir in "$(DESTDIR)$(bindir)" "$(DESTDIR)$(libdir)" "$(DESTDIR)$(man1dir)" "$(DESTDIR)$(docdir)" "$(DESTDIR)$(docdir)" "$(DESTDIR)$(pkgconfigdir)" "$(DESTDIR)$(includelibopenmptdir)"; do \
+	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
+	done
+install: install-am
+install-exec: install-exec-am
+install-data: install-data-am
+uninstall: uninstall-am
+
+install-am: all-am
+	@$(MAKE) $(AM_MAKEFLAGS) install-exec-am install-data-am
+
+installcheck: installcheck-am
+install-strip:
+	if test -z '$(STRIP)'; then \
+	  $(MAKE) $(AM_MAKEFLAGS) INSTALL_PROGRAM="$(INSTALL_STRIP_PROGRAM)" \
+	    install_sh_PROGRAM="$(INSTALL_STRIP_PROGRAM)" INSTALL_STRIP_FLAG=-s \
+	      install; \
+	else \
+	  $(MAKE) $(AM_MAKEFLAGS) INSTALL_PROGRAM="$(INSTALL_STRIP_PROGRAM)" \
+	    install_sh_PROGRAM="$(INSTALL_STRIP_PROGRAM)" INSTALL_STRIP_FLAG=-s \
+	    "INSTALL_PROGRAM_ENV=STRIPPROG='$(STRIP)'" install; \
+	fi
+mostlyclean-generic:
+	-test -z "$(MOSTLYCLEANFILES)" || rm -f $(MOSTLYCLEANFILES)
+	-test -z "$(TEST_LOGS)" || rm -f $(TEST_LOGS)
+	-test -z "$(TEST_LOGS:.log=.trs)" || rm -f $(TEST_LOGS:.log=.trs)
+	-test -z "$(TEST_SUITE_LOG)" || rm -f $(TEST_SUITE_LOG)
+
+clean-generic:
+
+distclean-generic:
+	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
+	-test . = "$(srcdir)" || test -z "$(CONFIG_CLEAN_VPATH_FILES)" || rm -f $(CONFIG_CLEAN_VPATH_FILES)
+	-rm -f bin/$(am__dirstamp)
+	-rm -f common/$(DEPDIR)/$(am__dirstamp)
+	-rm -f common/$(am__dirstamp)
+	-rm -f examples/$(DEPDIR)/$(am__dirstamp)
+	-rm -f examples/$(am__dirstamp)
+	-rm -f libopenmpt/$(DEPDIR)/$(am__dirstamp)
+	-rm -f libopenmpt/$(am__dirstamp)
+	-rm -f libopenmpt/libopenmpt_test/$(DEPDIR)/$(am__dirstamp)
+	-rm -f libopenmpt/libopenmpt_test/$(am__dirstamp)
+	-rm -f openmpt123/$(DEPDIR)/$(am__dirstamp)
+	-rm -f openmpt123/$(am__dirstamp)
+	-rm -f sounddsp/$(DEPDIR)/$(am__dirstamp)
+	-rm -f sounddsp/$(am__dirstamp)
+	-rm -f soundlib/$(DEPDIR)/$(am__dirstamp)
+	-rm -f soundlib/$(am__dirstamp)
+	-rm -f soundlib/plugins/$(DEPDIR)/$(am__dirstamp)
+	-rm -f soundlib/plugins/$(am__dirstamp)
+	-rm -f soundlib/plugins/dmo/$(DEPDIR)/$(am__dirstamp)
+	-rm -f soundlib/plugins/dmo/$(am__dirstamp)
+	-rm -f src/openmpt/soundfile_write/$(DEPDIR)/$(am__dirstamp)
+	-rm -f src/openmpt/soundfile_write/$(am__dirstamp)
+	-rm -f test/$(DEPDIR)/$(am__dirstamp)
+	-rm -f test/$(am__dirstamp)
+
+maintainer-clean-generic:
+	@echo "This command is intended for maintainers to use"
+	@echo "it deletes files that may require special tools to rebuild."
+clean: clean-am
+
+clean-am: clean-binPROGRAMS clean-checkPROGRAMS clean-generic \
+	clean-libLTLIBRARIES clean-libtool mostlyclean-am
+
+distclean: distclean-am
+	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
+		-rm -f common/$(DEPDIR)/libopenmpt_la-ComponentManager.Plo
+	-rm -f common/$(DEPDIR)/libopenmpt_la-Logging.Plo
+	-rm -f common/$(DEPDIR)/libopenmpt_la-Profiler.Plo
+	-rm -f common/$(DEPDIR)/libopenmpt_la-mptFileType.Plo
+	-rm -f common/$(DEPDIR)/libopenmpt_la-mptPathString.Plo
+	-rm -f common/$(DEPDIR)/libopenmpt_la-mptRandom.Plo
+	-rm -f common/$(DEPDIR)/libopenmpt_la-mptStringBuffer.Plo
+	-rm -f common/$(DEPDIR)/libopenmpt_la-mptTime.Plo
+	-rm -f common/$(DEPDIR)/libopenmpt_la-serialization_utils.Plo
+	-rm -f common/$(DEPDIR)/libopenmpt_la-version.Plo
+	-rm -f common/$(DEPDIR)/libopenmpttest-ComponentManager.Po
+	-rm -f common/$(DEPDIR)/libopenmpttest-Logging.Po
+	-rm -f common/$(DEPDIR)/libopenmpttest-Profiler.Po
+	-rm -f common/$(DEPDIR)/libopenmpttest-mptFileType.Po
+	-rm -f common/$(DEPDIR)/libopenmpttest-mptPathString.Po
+	-rm -f common/$(DEPDIR)/libopenmpttest-mptRandom.Po
+	-rm -f common/$(DEPDIR)/libopenmpttest-mptStringBuffer.Po
+	-rm -f common/$(DEPDIR)/libopenmpttest-mptTime.Po
+	-rm -f common/$(DEPDIR)/libopenmpttest-serialization_utils.Po
+	-rm -f common/$(DEPDIR)/libopenmpttest-version.Po
+	-rm -f examples/$(DEPDIR)/libopenmpt_example_c-libopenmpt_example_c.Po
+	-rm -f examples/$(DEPDIR)/libopenmpt_example_c_mem-libopenmpt_example_c_mem.Po
+	-rm -f examples/$(DEPDIR)/libopenmpt_example_c_pipe-libopenmpt_example_c_pipe.Po
+	-rm -f examples/$(DEPDIR)/libopenmpt_example_c_probe-libopenmpt_example_c_probe.Po
+	-rm -f examples/$(DEPDIR)/libopenmpt_example_c_stdout-libopenmpt_example_c_stdout.Po
+	-rm -f examples/$(DEPDIR)/libopenmpt_example_c_unsafe-libopenmpt_example_c_unsafe.Po
+	-rm -f examples/$(DEPDIR)/libopenmpt_example_cxx-libopenmpt_example_cxx.Po
+	-rm -f libopenmpt/$(DEPDIR)/la-libopenmpt_c.Plo
+	-rm -f libopenmpt/$(DEPDIR)/la-libopenmpt_cxx.Plo
+	-rm -f libopenmpt/$(DEPDIR)/la-libopenmpt_ext_impl.Plo
+	-rm -f libopenmpt/$(DEPDIR)/la-libopenmpt_impl.Plo
+	-rm -f libopenmpt/$(DEPDIR)/libopenmpttest-libopenmpt_c.Po
+	-rm -f libopenmpt/$(DEPDIR)/libopenmpttest-libopenmpt_cxx.Po
+	-rm -f libopenmpt/$(DEPDIR)/libopenmpttest-libopenmpt_ext_impl.Po
+	-rm -f libopenmpt/$(DEPDIR)/libopenmpttest-libopenmpt_impl.Po
+	-rm -f libopenmpt/libopenmpt_test/$(DEPDIR)/libopenmpttest-libopenmpt_test.Po
+	-rm -f openmpt123/$(DEPDIR)/bin_openmpt123-openmpt123.Po
+	-rm -f sounddsp/$(DEPDIR)/libopenmpt_la-AGC.Plo
+	-rm -f sounddsp/$(DEPDIR)/libopenmpt_la-DSP.Plo
+	-rm -f sounddsp/$(DEPDIR)/libopenmpt_la-EQ.Plo
+	-rm -f sounddsp/$(DEPDIR)/libopenmpt_la-Reverb.Plo
+	-rm -f sounddsp/$(DEPDIR)/libopenmpttest-AGC.Po
+	-rm -f sounddsp/$(DEPDIR)/libopenmpttest-DSP.Po
+	-rm -f sounddsp/$(DEPDIR)/libopenmpttest-EQ.Po
+	-rm -f sounddsp/$(DEPDIR)/libopenmpttest-Reverb.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-AudioCriticalSection.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-ContainerMMCMP.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-ContainerPP20.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-ContainerUMX.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-ContainerXPK.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Dlsbank.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Fastmix.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-ITCompression.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-ITTools.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-InstrumentExtensions.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-InstrumentSynth.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_667.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_669.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_amf.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_ams.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_c67.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_cba.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_dbm.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_digi.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_dmf.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_dsm.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_dsym.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_dtm.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_etx.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_far.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_fc.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_fmt.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_ftm.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_gdm.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_gmc.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_gt2.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_ice.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_imf.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_ims.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_it.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_itp.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_kris.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_mdl.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_med.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_mid.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_mo3.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_mod.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_mt2.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_mtm.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_mus_km.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_okt.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_plm.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_psm.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_pt36.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_ptm.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_puma.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_rtm.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_s3m.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_sfx.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_stk.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_stm.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_stp.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_symmod.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_tcb.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_uax.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_ult.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_unic.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_wav.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_xm.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_xmf.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-MIDIEvents.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-MIDIMacroParser.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-MIDIMacros.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-MODTools.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-MPEGFrame.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Message.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-MixFuncTable.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-MixerLoops.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-MixerSettings.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-ModChannel.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-ModInstrument.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-ModSample.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-ModSequence.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-OPL.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-OggStream.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Paula.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-PlayState.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-PlaybackTest.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-RowVisitor.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-S3MTools.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-SampleFormatBRR.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-SampleFormatFLAC.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-SampleFormatMP3.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-SampleFormatMediaFoundation.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-SampleFormatOpus.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-SampleFormatSFZ.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-SampleFormatVorbis.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-SampleFormats.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-SampleIO.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Snd_flt.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Snd_fx.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Sndfile.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Sndmix.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-SoundFilePlayConfig.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Tables.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Tagging.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-TinyFFT.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-UMXTools.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-UpgradeModule.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-WAVTools.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-WindowedFIR.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-XMTools.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-load_j2b.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-mod_specifications.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-modcommand.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-modsmp_ctrl.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-pattern.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-patternContainer.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-tuning.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-tuningCollection.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-AudioCriticalSection.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-ContainerMMCMP.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-ContainerPP20.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-ContainerUMX.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-ContainerXPK.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Dlsbank.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Fastmix.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-ITCompression.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-ITTools.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-InstrumentExtensions.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-InstrumentSynth.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_667.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_669.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_amf.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_ams.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_c67.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_cba.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_dbm.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_digi.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_dmf.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_dsm.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_dsym.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_dtm.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_etx.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_far.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_fc.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_fmt.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_ftm.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_gdm.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_gmc.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_gt2.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_ice.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_imf.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_ims.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_it.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_itp.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_kris.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_mdl.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_med.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_mid.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_mo3.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_mod.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_mt2.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_mtm.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_mus_km.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_okt.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_plm.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_psm.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_pt36.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_ptm.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_puma.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_rtm.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_s3m.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_sfx.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_stk.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_stm.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_stp.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_symmod.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_tcb.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_uax.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_ult.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_unic.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_wav.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_xm.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_xmf.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-MIDIEvents.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-MIDIMacroParser.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-MIDIMacros.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-MODTools.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-MPEGFrame.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Message.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-MixFuncTable.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-MixerLoops.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-MixerSettings.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-ModChannel.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-ModInstrument.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-ModSample.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-ModSequence.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-OPL.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-OggStream.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Paula.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-PlayState.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-PlaybackTest.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-RowVisitor.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-S3MTools.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-SampleFormatBRR.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-SampleFormatFLAC.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-SampleFormatMP3.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-SampleFormatMediaFoundation.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-SampleFormatOpus.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-SampleFormatSFZ.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-SampleFormatVorbis.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-SampleFormats.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-SampleIO.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Snd_flt.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Snd_fx.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Sndfile.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Sndmix.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-SoundFilePlayConfig.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Tables.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Tagging.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-TinyFFT.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-UMXTools.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-UpgradeModule.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-WAVTools.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-WindowedFIR.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-XMTools.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-load_j2b.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-mod_specifications.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-modcommand.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-modsmp_ctrl.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-pattern.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-patternContainer.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-tuning.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-tuningCollection.Po
+	-rm -f soundlib/plugins/$(DEPDIR)/libopenmpt_la-DigiBoosterEcho.Plo
+	-rm -f soundlib/plugins/$(DEPDIR)/libopenmpt_la-LFOPlugin.Plo
+	-rm -f soundlib/plugins/$(DEPDIR)/libopenmpt_la-PlugInterface.Plo
+	-rm -f soundlib/plugins/$(DEPDIR)/libopenmpt_la-PluginManager.Plo
+	-rm -f soundlib/plugins/$(DEPDIR)/libopenmpt_la-SymMODEcho.Plo
+	-rm -f soundlib/plugins/$(DEPDIR)/libopenmpttest-DigiBoosterEcho.Po
+	-rm -f soundlib/plugins/$(DEPDIR)/libopenmpttest-LFOPlugin.Po
+	-rm -f soundlib/plugins/$(DEPDIR)/libopenmpttest-PlugInterface.Po
+	-rm -f soundlib/plugins/$(DEPDIR)/libopenmpttest-PluginManager.Po
+	-rm -f soundlib/plugins/$(DEPDIR)/libopenmpttest-SymMODEcho.Po
+	-rm -f soundlib/plugins/dmo/$(DEPDIR)/libopenmpt_la-Chorus.Plo
+	-rm -f soundlib/plugins/dmo/$(DEPDIR)/libopenmpt_la-Compressor.Plo
+	-rm -f soundlib/plugins/dmo/$(DEPDIR)/libopenmpt_la-DMOPlugin.Plo
+	-rm -f soundlib/plugins/dmo/$(DEPDIR)/libopenmpt_la-DMOUtils.Plo
+	-rm -f soundlib/plugins/dmo/$(DEPDIR)/libopenmpt_la-Distortion.Plo
+	-rm -f soundlib/plugins/dmo/$(DEPDIR)/libopenmpt_la-Echo.Plo
+	-rm -f soundlib/plugins/dmo/$(DEPDIR)/libopenmpt_la-Flanger.Plo
+	-rm -f soundlib/plugins/dmo/$(DEPDIR)/libopenmpt_la-Gargle.Plo
+	-rm -f soundlib/plugins/dmo/$(DEPDIR)/libopenmpt_la-I3DL2Reverb.Plo
+	-rm -f soundlib/plugins/dmo/$(DEPDIR)/libopenmpt_la-ParamEq.Plo
+	-rm -f soundlib/plugins/dmo/$(DEPDIR)/libopenmpt_la-WavesReverb.Plo
+	-rm -f soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-Chorus.Po
+	-rm -f soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-Compressor.Po
+	-rm -f soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-DMOPlugin.Po
+	-rm -f soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-DMOUtils.Po
+	-rm -f soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-Distortion.Po
+	-rm -f soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-Echo.Po
+	-rm -f soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-Flanger.Po
+	-rm -f soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-Gargle.Po
+	-rm -f soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-I3DL2Reverb.Po
+	-rm -f soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-ParamEq.Po
+	-rm -f soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-WavesReverb.Po
+	-rm -f src/openmpt/soundfile_write/$(DEPDIR)/libopenmpttest-wav_write.Po
+	-rm -f test/$(DEPDIR)/libopenmpttest-TestToolsLib.Po
+	-rm -f test/$(DEPDIR)/libopenmpttest-mpt_tests_base.Po
+	-rm -f test/$(DEPDIR)/libopenmpttest-mpt_tests_binary.Po
+	-rm -f test/$(DEPDIR)/libopenmpttest-mpt_tests_crc.Po
+	-rm -f test/$(DEPDIR)/libopenmpttest-mpt_tests_endian.Po
+	-rm -f test/$(DEPDIR)/libopenmpttest-mpt_tests_format.Po
+	-rm -f test/$(DEPDIR)/libopenmpttest-mpt_tests_io.Po
+	-rm -f test/$(DEPDIR)/libopenmpttest-mpt_tests_parse.Po
+	-rm -f test/$(DEPDIR)/libopenmpttest-mpt_tests_random.Po
+	-rm -f test/$(DEPDIR)/libopenmpttest-mpt_tests_string.Po
+	-rm -f test/$(DEPDIR)/libopenmpttest-mpt_tests_string_transcode.Po
+	-rm -f test/$(DEPDIR)/libopenmpttest-mpt_tests_uuid.Po
+	-rm -f test/$(DEPDIR)/libopenmpttest-test.Po
+	-rm -f Makefile
+distclean-am: clean-am distclean-compile distclean-generic \
+	distclean-libtool distclean-tags
+
+dvi: dvi-am
+
+dvi-am:
+
+html: html-am
+
+html-am:
+
+info: info-am
+
+info-am:
+
+install-data-am: install-dist_docDATA install-includelibopenmptHEADERS \
+	install-man install-nobase_dist_docDATA install-pkgconfigDATA
+
+install-dvi: install-dvi-am
+
+install-dvi-am:
+
+install-exec-am: install-binPROGRAMS install-libLTLIBRARIES
+
+install-html: install-html-am
+
+install-html-am:
+
+install-info: install-info-am
+
+install-info-am:
+
+install-man: install-man1
+
+install-pdf: install-pdf-am
+
+install-pdf-am:
+
+install-ps: install-ps-am
+
+install-ps-am:
+
+installcheck-am:
+
+maintainer-clean: maintainer-clean-am
+	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
+	-rm -rf $(top_srcdir)/autom4te.cache
+		-rm -f common/$(DEPDIR)/libopenmpt_la-ComponentManager.Plo
+	-rm -f common/$(DEPDIR)/libopenmpt_la-Logging.Plo
+	-rm -f common/$(DEPDIR)/libopenmpt_la-Profiler.Plo
+	-rm -f common/$(DEPDIR)/libopenmpt_la-mptFileType.Plo
+	-rm -f common/$(DEPDIR)/libopenmpt_la-mptPathString.Plo
+	-rm -f common/$(DEPDIR)/libopenmpt_la-mptRandom.Plo
+	-rm -f common/$(DEPDIR)/libopenmpt_la-mptStringBuffer.Plo
+	-rm -f common/$(DEPDIR)/libopenmpt_la-mptTime.Plo
+	-rm -f common/$(DEPDIR)/libopenmpt_la-serialization_utils.Plo
+	-rm -f common/$(DEPDIR)/libopenmpt_la-version.Plo
+	-rm -f common/$(DEPDIR)/libopenmpttest-ComponentManager.Po
+	-rm -f common/$(DEPDIR)/libopenmpttest-Logging.Po
+	-rm -f common/$(DEPDIR)/libopenmpttest-Profiler.Po
+	-rm -f common/$(DEPDIR)/libopenmpttest-mptFileType.Po
+	-rm -f common/$(DEPDIR)/libopenmpttest-mptPathString.Po
+	-rm -f common/$(DEPDIR)/libopenmpttest-mptRandom.Po
+	-rm -f common/$(DEPDIR)/libopenmpttest-mptStringBuffer.Po
+	-rm -f common/$(DEPDIR)/libopenmpttest-mptTime.Po
+	-rm -f common/$(DEPDIR)/libopenmpttest-serialization_utils.Po
+	-rm -f common/$(DEPDIR)/libopenmpttest-version.Po
+	-rm -f examples/$(DEPDIR)/libopenmpt_example_c-libopenmpt_example_c.Po
+	-rm -f examples/$(DEPDIR)/libopenmpt_example_c_mem-libopenmpt_example_c_mem.Po
+	-rm -f examples/$(DEPDIR)/libopenmpt_example_c_pipe-libopenmpt_example_c_pipe.Po
+	-rm -f examples/$(DEPDIR)/libopenmpt_example_c_probe-libopenmpt_example_c_probe.Po
+	-rm -f examples/$(DEPDIR)/libopenmpt_example_c_stdout-libopenmpt_example_c_stdout.Po
+	-rm -f examples/$(DEPDIR)/libopenmpt_example_c_unsafe-libopenmpt_example_c_unsafe.Po
+	-rm -f examples/$(DEPDIR)/libopenmpt_example_cxx-libopenmpt_example_cxx.Po
+	-rm -f libopenmpt/$(DEPDIR)/la-libopenmpt_c.Plo
+	-rm -f libopenmpt/$(DEPDIR)/la-libopenmpt_cxx.Plo
+	-rm -f libopenmpt/$(DEPDIR)/la-libopenmpt_ext_impl.Plo
+	-rm -f libopenmpt/$(DEPDIR)/la-libopenmpt_impl.Plo
+	-rm -f libopenmpt/$(DEPDIR)/libopenmpttest-libopenmpt_c.Po
+	-rm -f libopenmpt/$(DEPDIR)/libopenmpttest-libopenmpt_cxx.Po
+	-rm -f libopenmpt/$(DEPDIR)/libopenmpttest-libopenmpt_ext_impl.Po
+	-rm -f libopenmpt/$(DEPDIR)/libopenmpttest-libopenmpt_impl.Po
+	-rm -f libopenmpt/libopenmpt_test/$(DEPDIR)/libopenmpttest-libopenmpt_test.Po
+	-rm -f openmpt123/$(DEPDIR)/bin_openmpt123-openmpt123.Po
+	-rm -f sounddsp/$(DEPDIR)/libopenmpt_la-AGC.Plo
+	-rm -f sounddsp/$(DEPDIR)/libopenmpt_la-DSP.Plo
+	-rm -f sounddsp/$(DEPDIR)/libopenmpt_la-EQ.Plo
+	-rm -f sounddsp/$(DEPDIR)/libopenmpt_la-Reverb.Plo
+	-rm -f sounddsp/$(DEPDIR)/libopenmpttest-AGC.Po
+	-rm -f sounddsp/$(DEPDIR)/libopenmpttest-DSP.Po
+	-rm -f sounddsp/$(DEPDIR)/libopenmpttest-EQ.Po
+	-rm -f sounddsp/$(DEPDIR)/libopenmpttest-Reverb.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-AudioCriticalSection.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-ContainerMMCMP.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-ContainerPP20.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-ContainerUMX.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-ContainerXPK.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Dlsbank.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Fastmix.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-ITCompression.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-ITTools.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-InstrumentExtensions.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-InstrumentSynth.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_667.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_669.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_amf.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_ams.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_c67.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_cba.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_dbm.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_digi.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_dmf.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_dsm.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_dsym.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_dtm.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_etx.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_far.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_fc.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_fmt.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_ftm.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_gdm.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_gmc.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_gt2.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_ice.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_imf.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_ims.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_it.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_itp.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_kris.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_mdl.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_med.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_mid.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_mo3.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_mod.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_mt2.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_mtm.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_mus_km.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_okt.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_plm.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_psm.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_pt36.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_ptm.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_puma.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_rtm.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_s3m.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_sfx.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_stk.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_stm.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_stp.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_symmod.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_tcb.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_uax.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_ult.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_unic.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_wav.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_xm.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Load_xmf.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-MIDIEvents.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-MIDIMacroParser.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-MIDIMacros.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-MODTools.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-MPEGFrame.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Message.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-MixFuncTable.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-MixerLoops.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-MixerSettings.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-ModChannel.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-ModInstrument.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-ModSample.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-ModSequence.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-OPL.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-OggStream.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Paula.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-PlayState.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-PlaybackTest.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-RowVisitor.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-S3MTools.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-SampleFormatBRR.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-SampleFormatFLAC.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-SampleFormatMP3.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-SampleFormatMediaFoundation.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-SampleFormatOpus.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-SampleFormatSFZ.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-SampleFormatVorbis.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-SampleFormats.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-SampleIO.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Snd_flt.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Snd_fx.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Sndfile.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Sndmix.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-SoundFilePlayConfig.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Tables.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-Tagging.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-TinyFFT.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-UMXTools.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-UpgradeModule.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-WAVTools.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-WindowedFIR.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-XMTools.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-load_j2b.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-mod_specifications.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-modcommand.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-modsmp_ctrl.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-pattern.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-patternContainer.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-tuning.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpt_la-tuningCollection.Plo
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-AudioCriticalSection.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-ContainerMMCMP.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-ContainerPP20.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-ContainerUMX.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-ContainerXPK.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Dlsbank.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Fastmix.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-ITCompression.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-ITTools.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-InstrumentExtensions.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-InstrumentSynth.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_667.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_669.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_amf.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_ams.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_c67.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_cba.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_dbm.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_digi.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_dmf.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_dsm.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_dsym.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_dtm.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_etx.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_far.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_fc.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_fmt.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_ftm.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_gdm.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_gmc.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_gt2.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_ice.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_imf.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_ims.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_it.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_itp.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_kris.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_mdl.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_med.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_mid.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_mo3.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_mod.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_mt2.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_mtm.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_mus_km.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_okt.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_plm.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_psm.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_pt36.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_ptm.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_puma.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_rtm.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_s3m.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_sfx.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_stk.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_stm.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_stp.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_symmod.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_tcb.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_uax.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_ult.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_unic.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_wav.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_xm.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Load_xmf.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-MIDIEvents.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-MIDIMacroParser.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-MIDIMacros.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-MODTools.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-MPEGFrame.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Message.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-MixFuncTable.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-MixerLoops.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-MixerSettings.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-ModChannel.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-ModInstrument.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-ModSample.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-ModSequence.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-OPL.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-OggStream.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Paula.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-PlayState.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-PlaybackTest.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-RowVisitor.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-S3MTools.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-SampleFormatBRR.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-SampleFormatFLAC.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-SampleFormatMP3.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-SampleFormatMediaFoundation.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-SampleFormatOpus.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-SampleFormatSFZ.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-SampleFormatVorbis.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-SampleFormats.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-SampleIO.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Snd_flt.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Snd_fx.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Sndfile.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Sndmix.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-SoundFilePlayConfig.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Tables.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-Tagging.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-TinyFFT.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-UMXTools.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-UpgradeModule.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-WAVTools.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-WindowedFIR.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-XMTools.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-load_j2b.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-mod_specifications.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-modcommand.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-modsmp_ctrl.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-pattern.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-patternContainer.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-tuning.Po
+	-rm -f soundlib/$(DEPDIR)/libopenmpttest-tuningCollection.Po
+	-rm -f soundlib/plugins/$(DEPDIR)/libopenmpt_la-DigiBoosterEcho.Plo
+	-rm -f soundlib/plugins/$(DEPDIR)/libopenmpt_la-LFOPlugin.Plo
+	-rm -f soundlib/plugins/$(DEPDIR)/libopenmpt_la-PlugInterface.Plo
+	-rm -f soundlib/plugins/$(DEPDIR)/libopenmpt_la-PluginManager.Plo
+	-rm -f soundlib/plugins/$(DEPDIR)/libopenmpt_la-SymMODEcho.Plo
+	-rm -f soundlib/plugins/$(DEPDIR)/libopenmpttest-DigiBoosterEcho.Po
+	-rm -f soundlib/plugins/$(DEPDIR)/libopenmpttest-LFOPlugin.Po
+	-rm -f soundlib/plugins/$(DEPDIR)/libopenmpttest-PlugInterface.Po
+	-rm -f soundlib/plugins/$(DEPDIR)/libopenmpttest-PluginManager.Po
+	-rm -f soundlib/plugins/$(DEPDIR)/libopenmpttest-SymMODEcho.Po
+	-rm -f soundlib/plugins/dmo/$(DEPDIR)/libopenmpt_la-Chorus.Plo
+	-rm -f soundlib/plugins/dmo/$(DEPDIR)/libopenmpt_la-Compressor.Plo
+	-rm -f soundlib/plugins/dmo/$(DEPDIR)/libopenmpt_la-DMOPlugin.Plo
+	-rm -f soundlib/plugins/dmo/$(DEPDIR)/libopenmpt_la-DMOUtils.Plo
+	-rm -f soundlib/plugins/dmo/$(DEPDIR)/libopenmpt_la-Distortion.Plo
+	-rm -f soundlib/plugins/dmo/$(DEPDIR)/libopenmpt_la-Echo.Plo
+	-rm -f soundlib/plugins/dmo/$(DEPDIR)/libopenmpt_la-Flanger.Plo
+	-rm -f soundlib/plugins/dmo/$(DEPDIR)/libopenmpt_la-Gargle.Plo
+	-rm -f soundlib/plugins/dmo/$(DEPDIR)/libopenmpt_la-I3DL2Reverb.Plo
+	-rm -f soundlib/plugins/dmo/$(DEPDIR)/libopenmpt_la-ParamEq.Plo
+	-rm -f soundlib/plugins/dmo/$(DEPDIR)/libopenmpt_la-WavesReverb.Plo
+	-rm -f soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-Chorus.Po
+	-rm -f soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-Compressor.Po
+	-rm -f soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-DMOPlugin.Po
+	-rm -f soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-DMOUtils.Po
+	-rm -f soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-Distortion.Po
+	-rm -f soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-Echo.Po
+	-rm -f soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-Flanger.Po
+	-rm -f soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-Gargle.Po
+	-rm -f soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-I3DL2Reverb.Po
+	-rm -f soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-ParamEq.Po
+	-rm -f soundlib/plugins/dmo/$(DEPDIR)/libopenmpttest-WavesReverb.Po
+	-rm -f src/openmpt/soundfile_write/$(DEPDIR)/libopenmpttest-wav_write.Po
+	-rm -f test/$(DEPDIR)/libopenmpttest-TestToolsLib.Po
+	-rm -f test/$(DEPDIR)/libopenmpttest-mpt_tests_base.Po
+	-rm -f test/$(DEPDIR)/libopenmpttest-mpt_tests_binary.Po
+	-rm -f test/$(DEPDIR)/libopenmpttest-mpt_tests_crc.Po
+	-rm -f test/$(DEPDIR)/libopenmpttest-mpt_tests_endian.Po
+	-rm -f test/$(DEPDIR)/libopenmpttest-mpt_tests_format.Po
+	-rm -f test/$(DEPDIR)/libopenmpttest-mpt_tests_io.Po
+	-rm -f test/$(DEPDIR)/libopenmpttest-mpt_tests_parse.Po
+	-rm -f test/$(DEPDIR)/libopenmpttest-mpt_tests_random.Po
+	-rm -f test/$(DEPDIR)/libopenmpttest-mpt_tests_string.Po
+	-rm -f test/$(DEPDIR)/libopenmpttest-mpt_tests_string_transcode.Po
+	-rm -f test/$(DEPDIR)/libopenmpttest-mpt_tests_uuid.Po
+	-rm -f test/$(DEPDIR)/libopenmpttest-test.Po
+	-rm -f Makefile
+maintainer-clean-am: distclean-am maintainer-clean-generic
+
+mostlyclean: mostlyclean-am
+
+mostlyclean-am: mostlyclean-compile mostlyclean-generic \
+	mostlyclean-libtool
+
+pdf: pdf-am
+
+pdf-am:
+
+ps: ps-am
+
+ps-am:
+
+uninstall-am: uninstall-binPROGRAMS uninstall-dist_docDATA \
+	uninstall-includelibopenmptHEADERS uninstall-libLTLIBRARIES \
+	uninstall-man uninstall-nobase_dist_docDATA \
+	uninstall-pkgconfigDATA
+
+uninstall-man: uninstall-man1
+
+.MAKE: check-am install-am install-strip
+
+.PHONY: CTAGS GTAGS TAGS all all-am am--depfiles am--refresh check \
+	check-TESTS check-am clean clean-binPROGRAMS \
+	clean-checkPROGRAMS clean-cscope clean-generic \
+	clean-libLTLIBRARIES clean-libtool cscope cscopelist-am ctags \
+	ctags-am dist dist-all dist-bzip2 dist-gzip dist-lzip \
+	dist-shar dist-tarZ dist-xz dist-zip dist-zstd distcheck \
+	distclean distclean-compile distclean-generic \
+	distclean-libtool distclean-tags distcleancheck distdir \
+	distuninstallcheck dvi dvi-am html html-am info info-am \
+	install install-am install-binPROGRAMS install-data \
+	install-data-am install-dist_docDATA install-dvi \
+	install-dvi-am install-exec install-exec-am install-html \
+	install-html-am install-includelibopenmptHEADERS install-info \
+	install-info-am install-libLTLIBRARIES install-man \
+	install-man1 install-nobase_dist_docDATA install-pdf \
+	install-pdf-am install-pkgconfigDATA install-ps install-ps-am \
+	install-strip installcheck installcheck-am installdirs \
+	maintainer-clean maintainer-clean-generic mostlyclean \
+	mostlyclean-compile mostlyclean-generic mostlyclean-libtool \
+	pdf pdf-am ps ps-am recheck tags tags-am uninstall \
+	uninstall-am uninstall-binPROGRAMS uninstall-dist_docDATA \
+	uninstall-includelibopenmptHEADERS uninstall-libLTLIBRARIES \
+	uninstall-man uninstall-man1 uninstall-nobase_dist_docDATA \
+	uninstall-pkgconfigDATA
+
+.PRECIOUS: Makefile
+
+
+## --------------------------------- ##
+## Format-independent Doxygen rules. ##
+## --------------------------------- ##
+
+## ------------------------------- ##
+## Rules specific for HTML output. ##
+## ------------------------------- ##
+
+DX_CLEAN_HTML = $(DX_DOCDIR)/html\
+                $(DX_DOCDIR)/html
+
+DX_V_DXGEN = $(_DX_v_DXGEN_$(V))
+_DX_v_DXGEN_ = $(_DX_v_DXGEN_$(AM_DEFAULT_VERBOSITY))
+_DX_v_DXGEN_0 = @echo "  DXGEN " $<;
+
+.PHONY: doxygen-run doxygen-doc $(DX_PS_GOAL) $(DX_PDF_GOAL)
+
+.INTERMEDIATE: doxygen-run $(DX_PS_GOAL) $(DX_PDF_GOAL)
+
+doxygen-run: $(DX_DOCDIR)/$(PACKAGE).tag
+
+doxygen-doc: doxygen-run $(DX_PS_GOAL) $(DX_PDF_GOAL)
+
+$(DX_DOCDIR)/$(PACKAGE).tag: $(DX_CONFIG) $(pkginclude_HEADERS)
+	$(AM_V_at)rm -rf $(DX_DOCDIR)
+	$(DX_V_DXGEN)$(DX_ENV) DOCDIR=$(DX_DOCDIR) $(DX_DOXYGEN) $(DX_CONFIG)
+	$(AM_V_at)echo Timestamp >$@
+
+DX_CLEANFILES = \
+	$(DX_DOCDIR)/doxygen_sqlite3.db \
+	$(DX_DOCDIR)/$(PACKAGE).tag \
+	-r \
+	$(DX_CLEAN_HTML) \
+	$(DX_CLEAN_CHM) \
+	$(DX_CLEAN_CHI) \
+	$(DX_CLEAN_MAN) \
+	$(DX_CLEAN_RTF) \
+	$(DX_CLEAN_XML) \
+	$(DX_CLEAN_PS) \
+	$(DX_CLEAN_PDF) \
+	$(DX_CLEAN_LATEX)
+
+# Tell versions [3.59,3.63) of GNU make to not export all variables.
+# Otherwise a system limit (for SysV at least) may be exceeded.
+.NOEXPORT:

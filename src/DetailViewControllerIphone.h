@@ -411,6 +411,8 @@ enum {
 -(void) mdSwitchSpectrumBloom:(int)val;
 -(void) mdSwitchLandscapeBloom:(int)val;
 
+-(void) mdTestAsyncLoad;
+
 -(void) mdShiftMode:(int)active;
 
 -(void) checkNewCover;

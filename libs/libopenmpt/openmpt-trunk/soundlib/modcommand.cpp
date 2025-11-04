@@ -31,7 +31,10 @@ static constexpr EffectType effectTypes[] =
 	EffectType::Normal, EffectType::Normal,  EffectType::Normal, EffectType::Pitch,
 	EffectType::Pitch,  EffectType::Normal,  EffectType::Pitch,  EffectType::Pitch,
 	EffectType::Pitch,  EffectType::Pitch,   EffectType::Normal, EffectType::Normal,
-	EffectType::Normal, EffectType::Normal,  EffectType::Volume
+	EffectType::Normal, EffectType::Normal,  EffectType::Volume, EffectType::Normal,
+	EffectType::Normal, EffectType::Volume,  EffectType::Pitch,  EffectType::Pitch,
+	EffectType::Pitch,  EffectType::Pitch,   EffectType::Pitch,  EffectType::Pitch,
+	EffectType::Volume, EffectType::Volume,
 };
 
 static_assert(std::size(effectTypes) == MAX_EFFECTS);
@@ -248,7 +251,7 @@ void ModCommand::Convert(MODTYPE fromType, MODTYPE toType, const CSoundFile &snd
 
 	/////////////////////////////////////////
 	// Convert MOD / XM to S3M / IT / MPTM
-	if(oldTypeIsMOD_XM && newTypeIsS3M_IT_MPT)
+	if(!oldTypeIsS3M_IT_MPT && newTypeIsS3M_IT_MPT)
 	{
 		switch(command)
 		{
@@ -315,7 +318,7 @@ void ModCommand::Convert(MODTYPE fromType, MODTYPE toType, const CSoundFile &snd
 				command = CMD_S3MCMDEX;
 				if(param == 0)
 					instr = 0;
-				param = 0xD0 | (param & 0x0F);
+				param = 0xD0 | std::min(param, PARAM(0x0F));
 			}
 			break;
 
@@ -339,12 +342,12 @@ void ModCommand::Convert(MODTYPE fromType, MODTYPE toType, const CSoundFile &snd
 		default:
 			break;
 		}
-	} // End if(oldTypeIsMOD_XM && newTypeIsS3M_IT_MPT)
+	} // End if(!oldTypeIsS3M_IT_MPT && newTypeIsS3M_IT_MPT)
 
 
 	/////////////////////////////////////////
 	// Convert S3M / IT / MPTM to MOD / XM
-	else if(oldTypeIsS3M_IT_MPT && newTypeIsMOD_XM)
+	else if(!oldTypeIsMOD_XM && newTypeIsMOD_XM)
 	{
 		if(note == NOTE_NOTECUT)
 		{
@@ -475,7 +478,7 @@ void ModCommand::Convert(MODTYPE fromType, MODTYPE toType, const CSoundFile &snd
 		default:
 			break;
 		}
-	} // End if(oldTypeIsS3M_IT_MPT && newTypeIsMOD_XM)
+	} // End if(!oldTypeIsMOD_XM && newTypeIsMOD_XM)
 
 
 	///////////////////////
@@ -911,11 +914,29 @@ void ModCommand::Convert(MODTYPE fromType, MODTYPE toType, const CSoundFile &snd
 		{
 			param = vol << 3;
 		}
+	} else if(volcmd == VOLCMD_PLAYCONTROL && (vol == 2 || vol == 3) && command == CMD_NONE
+		&& !newSpecs.HasVolCommand(VOLCMD_PLAYCONTROL)
+		&& (newSpecs.HasCommand(CMD_S3MCMDEX) || newSpecs.HasCommand(CMD_XFINEPORTAUPDOWN)))
+	{
+		volcmd = VOLCMD_NONE;
+		param = vol - 2 + 0x9E;
+		if(newSpecs.HasCommand(CMD_S3MCMDEX))
+			command = CMD_S3MCMDEX;
+		else
+			command = CMD_XFINEPORTAUPDOWN;
 	}
+
+	// Offset effect memory is only updated when the command is placed next to a note.
+	if(oldTypeIsXM && command == CMD_OFFSET && !IsNote())
+		command = CMD_NONE;
 
 	if((command == CMD_REVERSEOFFSET || command == CMD_OFFSETPERCENTAGE) && !newSpecs.HasCommand(command))
 	{
 		command = CMD_OFFSET;
+	} else if(command == CMD_HMN_MEGA_ARP && !newSpecs.HasCommand(CMD_HMN_MEGA_ARP))
+	{
+		command = CMD_ARPEGGIO;
+		param = (HisMastersNoiseMegaArp[param & 0x0F][1] << 4) | HisMastersNoiseMegaArp[param & 0x0F][2];
 	}
 
 	if(!newSpecs.HasNote(note))
@@ -942,6 +963,12 @@ bool ModCommand::IsAnyPitchSlide() const
 	case CMD_NOTESLIDEDOWN:
 	case CMD_NOTESLIDEUPRETRIG:
 	case CMD_NOTESLIDEDOWNRETRIG:
+	case CMD_AUTO_PORTAUP:
+	case CMD_AUTO_PORTADOWN:
+	case CMD_AUTO_PORTAUP_FINE:
+	case CMD_AUTO_PORTADOWN_FINE:
+	case CMD_AUTO_PORTAMENTO_FC:
+	case CMD_TONEPORTA_DURATION:
 		return true;
 	case CMD_MODCMDEX:
 	case CMD_XFINEPORTAUPDOWN:
@@ -981,6 +1008,13 @@ bool ModCommand::IsContinousCommand(const CSoundFile &sndFile) const
 	case CMD_NOTESLIDEDOWN:
 	case CMD_NOTESLIDEUPRETRIG:
 	case CMD_NOTESLIDEDOWNRETRIG:
+	case CMD_HMN_MEGA_ARP:
+	case CMD_AUTO_VOLUMESLIDE:
+	case CMD_AUTO_PORTAUP:
+	case CMD_AUTO_PORTADOWN:
+	case CMD_AUTO_PORTAUP_FINE:
+	case CMD_AUTO_PORTADOWN_FINE:
+	case CMD_AUTO_PORTAMENTO_FC:
 		return true;
 	case CMD_PORTAMENTOUP:
 	case CMD_PORTAMENTODOWN:
@@ -1046,6 +1080,7 @@ bool ModCommand::IsSlideUpDownCommand() const
 		case CMD_GLOBALVOLSLIDE:
 		case CMD_CHANNELVOLSLIDE:
 		case CMD_PANNINGSLIDE:
+		case CMD_AUTO_VOLUMESLIDE:
 			return true;
 		default:
 			return false;
@@ -1121,6 +1156,7 @@ bool ModCommand::CommandHasTwoNibbles(COMMAND command)
 	case CMD_NOTESLIDEDOWN:
 	case CMD_NOTESLIDEUPRETRIG:
 	case CMD_NOTESLIDEDOWNRETRIG:
+	case CMD_AUTO_VOLUMESLIDE:
 		return true;
 	default:
 		return false;
@@ -1139,6 +1175,7 @@ size_t ModCommand::GetEffectWeight(COMMAND cmd)
 		CMD_DUMMY,
 		CMD_XPARAM,
 		CMD_SETENVPOSITION,
+		CMD_MED_SYNTH_JUMP,
 		CMD_KEYOFF,
 		CMD_TREMOLO,
 		CMD_FINEVIBRATO,
@@ -1159,8 +1196,14 @@ size_t ModCommand::GetEffectWeight(COMMAND cmd)
 		CMD_NOTESLIDEDOWNRETRIG,
 		CMD_NOTESLIDEDOWN,
 		CMD_PORTAMENTOUP,
+		CMD_AUTO_PORTAMENTO_FC,
+		CMD_AUTO_PORTAUP_FINE,
+		CMD_AUTO_PORTAUP,
 		CMD_PORTAMENTODOWN,
+		CMD_AUTO_PORTADOWN_FINE,
+		CMD_AUTO_PORTADOWN,
 		CMD_VOLUMESLIDE,
+		CMD_AUTO_VOLUMESLIDE,
 		CMD_VIBRATOVOL,
 		CMD_VOLUME,
 		CMD_VOLUME8,
@@ -1170,11 +1213,15 @@ size_t ModCommand::GetEffectWeight(COMMAND cmd)
 		CMD_OFFSET,
 		CMD_TREMOR,
 		CMD_RETRIG,
+		CMD_HMN_MEGA_ARP,
 		CMD_ARPEGGIO,
+		CMD_TONEPORTA_DURATION,
 		CMD_TONEPORTAMENTO,
 		CMD_TONEPORTAVOL,
 		CMD_DBMECHO,
-		CMD_GLOBALVOLSLIDE,
+		CMD_VOLUMEDOWN_DURATION,
+		CMD_VOLUMEDOWN_ETX,
+		CMD_CHANNELVOLSLIDE,
 		CMD_CHANNELVOLUME,
 		CMD_GLOBALVOLSLIDE,
 		CMD_GLOBALVOLUME,
@@ -1193,6 +1240,7 @@ size_t ModCommand::GetEffectWeight(COMMAND cmd)
 		}
 	}
 	// Invalid / unknown command.
+	MPT_ASSERT_NOTREACHED();
 	return 0;
 }
 
@@ -1271,22 +1319,26 @@ std::pair<VolumeCommand, ModCommand::VOL> ModCommand::ConvertToVolCommand(const 
 			return {VOLCMD_FINEVOLDOWN, static_cast<VOL>(param & 0x0F)};
 		break;
 	case CMD_S3MCMDEX:
-		switch(param >> 4)
+		switch(param & 0xF0)
 		{
-		case 0x08:
+		case 0x80:
 			return {VOLCMD_PANNING, static_cast<VOL>(((param & 0x0F) << 2) + 2)};
+		case 0x90:
+			if(param >= 0x9E && force)
+				return {VOLCMD_PLAYCONTROL, static_cast<VOL>(param - 0x9E + 2)};
+			break;
 		default:
 			break;
 		}
 		break;
 	case CMD_MODCMDEX:
-		switch(param >> 4)
+		switch(param & 0xF0)
 		{
-			case 0x08:
+			case 0x80:
 				return {VOLCMD_PANNING, static_cast<VOL>(((param & 0x0F) << 2) + 2)};
-			case 0x0A:
+			case 0xA0:
 				return {VOLCMD_FINEVOLUP, static_cast<VOL>(param & 0x0F)};
-			case 0x0B:
+			case 0xB0:
 				return {VOLCMD_FINEVOLDOWN, static_cast<VOL>(param & 0x0F)};
 			default:
 				break;
@@ -1346,8 +1398,45 @@ bool ModCommand::CombineEffects(EffectCommand &eff1, uint8 &param1, EffectComman
 }
 
 
-std::pair<EffectCommand, ModCommand::PARAM> ModCommand::FillInTwoCommands(EffectCommand effect1, uint8 param1, EffectCommand effect2, uint8 param2)
+std::pair<EffectCommand, ModCommand::PARAM> ModCommand::FillInTwoCommands(EffectCommand effect1, uint8 param1, EffectCommand effect2, uint8 param2, bool allowLowResOffset)
 {
+	if(effect1 == effect2)
+	{
+		// For non-sliding, absolute effects, it doesn't make sense to keep both commands
+		switch(effect1)
+		{
+		case CMD_ARPEGGIO:
+		case CMD_PANNING8:
+		case CMD_OFFSET:
+		case CMD_POSITIONJUMP:
+		case CMD_VOLUME:
+		case CMD_PATTERNBREAK:
+		case CMD_SPEED:
+		case CMD_TEMPO:
+		case CMD_CHANNELVOLUME:
+		case CMD_GLOBALVOLUME:
+		case CMD_KEYOFF:
+		case CMD_SETENVPOSITION:
+		case CMD_MIDI:
+		case CMD_SMOOTHMIDI:
+		case CMD_DELAYCUT:
+		case CMD_FINETUNE:
+		case CMD_FINETUNE_SMOOTH:
+		case CMD_DUMMY:
+		case CMD_REVERSEOFFSET:
+		case CMD_DBMECHO:
+		case CMD_OFFSETPERCENTAGE:
+		case CMD_DIGIREVERSESAMPLE:
+		case CMD_VOLUME8:
+		case CMD_HMN_MEGA_ARP:
+		case CMD_MED_SYNTH_JUMP:
+			effect2 = CMD_NONE;
+			break;
+		default:
+			break;
+		}
+	}
+
 	for(uint8 n = 0; n < 4; n++)
 	{
 		if(auto volCmd = ModCommand::ConvertToVolCommand(effect1, param1, (n > 1)); effect1 == CMD_NONE || volCmd.first != VOLCMD_NONE)
@@ -1365,6 +1454,12 @@ std::pair<EffectCommand, ModCommand::PARAM> ModCommand::FillInTwoCommands(Effect
 	{
 		std::swap(effect1, effect2);
 		std::swap(param1, param2);
+	}
+	if(effect2 == CMD_OFFSET && (allowLowResOffset || param2 == 0))
+	{
+		SetVolumeCommand(VOLCMD_OFFSET, static_cast<ModCommand::VOL>(param2 ? std::max(param2 * 9 / 255, 1) : 0));
+		SetEffectCommand(effect1, param1);
+		return {CMD_NONE, ModCommand::PARAM(0)};
 	}
 	SetVolumeCommand(VOLCMD_NONE, 0);
 	SetEffectCommand(effect2, param2);

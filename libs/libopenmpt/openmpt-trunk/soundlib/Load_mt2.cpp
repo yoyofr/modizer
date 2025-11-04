@@ -447,18 +447,16 @@ bool CSoundFile::ReadMT2(FileReader &file, ModLoadingFlags loadFlags)
 		return true;
 	}
 
-	InitializeGlobals(MOD_TYPE_MT2);
-	InitializeChannels();
+	InitializeGlobals(MOD_TYPE_MT2, fileHeader.numChannels);
 
 	m_modFormat.formatName = MPT_UFORMAT("MadTracker {}.{}")(fileHeader.version >> 8, mpt::ufmt::hex0<2>(fileHeader.version & 0xFF));
-	m_modFormat.type = U_("mt2");
+	m_modFormat.type = UL_("mt2");
 	m_modFormat.madeWithTracker = mpt::ToUnicode(mpt::Charset::Windows1252, mpt::String::ReadBuf(mpt::String::maybeNullTerminated, fileHeader.trackerName));
 	m_modFormat.charset = mpt::Charset::Windows1252;
 
 	m_songName = mpt::String::ReadBuf(mpt::String::maybeNullTerminated, fileHeader.songName);
-	m_nChannels = fileHeader.numChannels;
-	m_nDefaultSpeed = Clamp<uint8, uint8>(fileHeader.ticksPerLine, 1, 31);
-	m_nDefaultTempo.Set(125);
+	Order().SetDefaultSpeed(Clamp<uint8, uint8>(fileHeader.ticksPerLine, 1, 31));
+	Order().SetDefaultTempoInt(125);
 	m_SongFlags = SONG_LINEARSLIDES | SONG_ITCOMPATGXX | SONG_EXFILTERRANGE;
 	m_nInstruments = fileHeader.numInstruments;
 	m_nSamples = fileHeader.numSamples;
@@ -478,11 +476,11 @@ bool CSoundFile::ReadMT2(FileReader &file, ModLoadingFlags loadFlags)
 	FileReader drumData = file.ReadChunk(hasDrumChannels ? sizeof(MT2DrumsData) : 0);
 	FileReader extraData = file.ReadChunk(file.ReadUint32LE());
 
-	const CHANNELINDEX channelsWithoutDrums = m_nChannels;
+	const CHANNELINDEX channelsWithoutDrums = GetNumChannels();
 	static_assert(MAX_BASECHANNELS >= 64 + 8);
 	if(hasDrumChannels)
 	{
-		m_nChannels += 8;
+		ChnSettings.resize(GetNumChannels() + 8);
 	}
 
 	bool hasLegacyTempo = false;
@@ -563,11 +561,11 @@ bool CSoundFile::ReadMT2(FileReader &file, ModLoadingFlags loadFlags)
 	{
 		if(hasLegacyTempo)
 		{
-			m_nDefaultTempo.SetRaw(Util::muldivr(110250, TEMPO::fractFact, fileHeader.samplesPerTick));
+			Order().SetDefaultTempo(TEMPO{}.SetRaw(Util::muldivr(110250, TEMPO::fractFact, fileHeader.samplesPerTick)));
 			m_nTempoMode = TempoMode::Classic;
 		} else
 		{
-			m_nDefaultTempo = TEMPO(44100.0 * 60.0 / (m_nDefaultSpeed * m_nDefaultRowsPerBeat * fileHeader.samplesPerTick));
+			Order().SetDefaultTempo(TEMPO(44100.0 * 60.0 / (Order().GetDefaultSpeed() * m_nDefaultRowsPerBeat * fileHeader.samplesPerTick)));
 			m_nTempoMode = TempoMode::Modern;
 		}
 	}
@@ -589,7 +587,7 @@ bool CSoundFile::ReadMT2(FileReader &file, ModLoadingFlags loadFlags)
 				double d = chunk.ReadDoubleLE();
 				if(d > 0.00000001)
 				{
-					m_nDefaultTempo = TEMPO(44100.0 * 60.0 / (m_nDefaultSpeed * m_nDefaultRowsPerBeat * d));
+					Order().SetDefaultTempo(TEMPO(44100.0 * 60.0 / (Order().GetDefaultSpeed() * m_nDefaultRowsPerBeat * d)));
 				}
 			}
 			break;
@@ -618,7 +616,7 @@ bool CSoundFile::ReadMT2(FileReader &file, ModLoadingFlags loadFlags)
 			break;
 
 		case MagicLE("TRKL"):
-			for(CHANNELINDEX i = 0; i < m_nChannels && chunk.CanRead(1); i++)
+			for(CHANNELINDEX i = 0; i < GetNumChannels() && chunk.CanRead(1); i++)
 			{
 				std::string name;
 				chunk.ReadNullString(name);
@@ -685,12 +683,12 @@ bool CSoundFile::ReadMT2(FileReader &file, ModLoadingFlags loadFlags)
 					if(libraryName.length() > 4 && libraryName[libraryName.length() - 4] == '.')
 					{
 						// Remove ".dll" from library name
-						libraryName.resize(libraryName.length() - 4 );
+						libraryName.resize(libraryName.length() - 4);
 					}
 					mixPlug.Info.szLibraryName = libraryName;
 					mixPlug.Info.dwPluginId1 = Vst::kEffectMagic;
 					mixPlug.Info.dwPluginId2 = vstHeader.fxID;
-					if(vstHeader.track >= m_nChannels)
+					if(vstHeader.track >= GetNumChannels())
 					{
 						mixPlug.SetMasterEffect(true);
 					} else
@@ -843,7 +841,7 @@ bool CSoundFile::ReadMT2(FileReader &file, ModLoadingFlags loadFlags)
 			const ROWINDEX numRows = static_cast<ROWINDEX>(chunk.GetLength() / 32u);
 			for(ROWINDEX row = 0; row < Patterns[writePat].GetNumRows(); row++)
 			{
-				ModCommand *m = Patterns[writePat].GetpModCommand(row, m_nChannels - 8);
+				ModCommand *m = Patterns[writePat].GetpModCommand(row, GetNumChannels() - 8);
 				for(CHANNELINDEX chn = 0; chn < 8; chn++, m++)
 				{
 					*m = ModCommand{};
@@ -875,7 +873,7 @@ bool CSoundFile::ReadMT2(FileReader &file, ModLoadingFlags loadFlags)
 	// Read automation envelopes
 	if(fileHeader.flags & MT2FileHeader::automation)
 	{
-		const uint32 numEnvelopes = ((fileHeader.flags & MT2FileHeader::drumsAutomation) ? m_nChannels : channelsWithoutDrums)
+		const uint32 numEnvelopes = ((fileHeader.flags & MT2FileHeader::drumsAutomation) ? GetNumChannels() : channelsWithoutDrums)
 			+ ((fileHeader.version >= 0x0250) ? numVST : 0)
 			+ ((fileHeader.flags & MT2FileHeader::masterAutomation) ? 1 : 0);
 

@@ -96,7 +96,7 @@ typedef struct {
 }
 
 - (void) printNodeTree {
-    MDZILog("%@",_localpath)
+    MDZILog("%@",_localpath);
     for (FileNode *child in _children) {
         [child printNodeTree];
     }
@@ -278,7 +278,7 @@ void MDZOnPresetSwitchRequested(bool isHardCut, void* userData) {
 }
 
 void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, void* userData) {
-    MDZELog("couldnt switch to preset %s, reason %s",presetFilename,message)
+    MDZELog("couldnt switch to preset %s, reason %s",presetFilename,message);
     if (userData==NULL) return;
     MDZPlaylist *mdzPL=(__bridge MDZPlaylist *)userData;
     mdzPL.lastFailed=true;
@@ -356,6 +356,27 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
     _shuffle=active;
 }
 
+- (void)loadASyncCurrentPreset:(int)pos cut:(bool)cut {
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+        //Load new preset
+        FileNode *item;
+        if (_size) {
+            int retry_counter=0;
+            _warp=NULL;
+            _comp=NULL;
+                _lastFailed=false;
+                item=[_items objectAtIndex:pos];
+                projectm_preload_preset_file(_pmh, [[item getFullPath] UTF8String], &_warp, &_comp);
+        }
+        
+        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+            if (_warp && _comp) {
+                projectm_loadpreload_preset_file(_pmh, [[item getFullPath] UTF8String], _warp, _comp, !cut);
+            }
+        }];
+    });
+}
+
 - (void)loadCurrentPreset:(bool)cut {
     //Load new preset
     FileNode *item;
@@ -364,8 +385,11 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
         while (1) {
             _lastFailed=false;
             item=[_items objectAtIndex:_position];
-            projectm_load_preset_file(_pmh, [[item getFullPath] UTF8String], !cut);
-            //if it hasnt failed, break to continue
+            const char *warp=NULL,*comp=NULL;
+            projectm_load_preset_file(_pmh, [[item getFullPath] UTF8String],!cut);
+            if (warp && comp) MDZILog("Got Warp & Comp shaders code successfully");
+            
+            
             if (!_lastFailed) {
                 /*
 const char *strdata="\
@@ -609,7 +633,7 @@ code_4=a=1.0;\n\
             int strLen=(int)strlen(str);
             if (strLen>1023) {
                 strLen=1023;
-                MDZELog("PM playlist/Saving: too long file path for saving (> 1023)")
+                MDZELog("PM playlist/Saving: too long file path for saving (> 1023)");
             }
             gzwrite(f,&isFav,sizeof(char));
             gzwrite(f,&presetType,sizeof(uint8_t));
@@ -639,12 +663,12 @@ code_4=a=1.0;\n\
         readBytes=gzread(f,&header,sizeof(MDZPlaylist_Header_t));
         
         if (readBytes<sizeof(MDZPlaylist_Header_t)) {
-            MDZELog("PM playlist/Loading: cannot read  file (modizerPresetsPL.pmpl)")
+            MDZELog("PM playlist/Loading: cannot read  file (modizerPresetsPL.pmpl)");
             gzclose(f);
             return -1;
         }
         if (header.version!=MDZ_PMPLAYLIST_VERSION) {
-            MDZELog("PM playlist/Loading: wrong version")
+            MDZELog("PM playlist/Loading: wrong version");
             gzclose(f);
             return -2;
         }
@@ -657,14 +681,14 @@ code_4=a=1.0;\n\
             char isFav;
             readBytes=gzread(f,&isFav,sizeof(char));
             if (readBytes!=sizeof(char)) {
-                MDZELog("PM playlist/Loading: wrong data (isFav) for entry %d, aborting",i)
+                MDZELog("PM playlist/Loading: wrong data (isFav) for entry %d, aborting",i);
                 gzclose(f);
                 return -3;
             }
             uint8_t presetType;
             readBytes=gzread(f,&presetType,sizeof(char));
             if (readBytes!=sizeof(char)) {
-                MDZELog("PM playlist/Loading: wrong data (presetType) for entry %d, aborting",i)
+                MDZELog("PM playlist/Loading: wrong data (presetType) for entry %d, aborting",i);
                 gzclose(f);
                 return -3;
             }
@@ -672,11 +696,11 @@ code_4=a=1.0;\n\
             int strLen;
             readBytes=gzread(f,&strLen,sizeof(int));
             if (strLen>1023) {
-                MDZELog("PM playlist/Loading: too long path string (>1023) for entry %d, limiting",i)
+                MDZELog("PM playlist/Loading: too long path string (>1023) for entry %d, limiting",i);
             }
             readBytes=gzread(f,&str,strLen);
             if (readBytes!=strLen) {
-                MDZELog("PM playlist/Loading: cannot read string data for entry %d, aborting",i)
+                MDZELog("PM playlist/Loading: cannot read string data for entry %d, aborting",i);
                 gzclose(f);
                 return -3;
             }
@@ -698,7 +722,7 @@ code_4=a=1.0;\n\
         gzclose(f);
     }
     if (missing_counter) {
-        MDZILog("PM playlist/Loading: %d entries are missing in filesystem",missing_counter)
+        MDZILog("PM playlist/Loading: %d entries are missing in filesystem",missing_counter);
     }
     _size=(int)[_items count];
     return missing_counter;
@@ -771,42 +795,48 @@ code_4=a=1.0;\n\
         currentNode = startNode;
 
         //Sort dir content using path
-        NSArray *sortedDirContent = [dirContent sortedArrayUsingComparator:^(id obj1, id obj2) {
-            NSString *str1;
-            NSString *str2;
-            [(NSURL*)obj1 getResourceValue:&str1 forKey:NSURLPathKey error:nil];
-            [(NSURL*)obj2 getResourceValue:&str2 forKey:NSURLPathKey error:nil];
-            
-            str1=[str1 stringByReplacingOccurrencesOfString:@"/" withString:@"\0"];
-            str2=[str2 stringByReplacingOccurrencesOfString:@"/" withString:@"\0"];
-            return [str1 caseInsensitiveCompare:str2];
-            
-//            int compResult=0;
-//            unichar c1,c2;
-//            int pos=0;
-//            int str1len=[str1 length];
-//            int str2len=[str2 length];
-//            while (1) {
-//                c1=[str1 characterAtIndex:pos];
-//                c2=[str2 characterAtIndex:pos];
-//                if ((c1>='A') && (c1<='Z')) c1=c1+'a'-'A';
-//                else if (c1=='/') c1=1;
-//                if ((c2>='A') && (c2<='Z')) c2=c2+'a'-'A';
-//                else if (c2=='/') c2=1;
-//                compResult=c1-c2;
-//                if (compResult) break;
-//                if (pos>=str1len-1) break;
-//                if (pos>=str2len-1) break;
-//                pos++;
-//            }
-//            
-//            if (compResult<0) return NSOrderedAscending;
-//            else if (compResult>0) return NSOrderedDescending;
-//            return NSOrderedSame;
-            //str1=[str1 stringByReplacingOccurrencesOfString:@"/" withString:@"\0"];
-            //str2=[str2 stringByReplacingOccurrencesOfString:@"/" withString:@"\0"];
-            //return [str1 caseInsensitiveCompare:str2];
-        }];
+        NSArray *sortedDirContent;
+        if (type==MDZ_PLAYLIST_FNODE_Bundle) {
+            //Bundle preset, can go faster assuming no exotic char in filenames
+            sortedDirContent= [dirContent sortedArrayUsingComparator:^(id obj1, id obj2) {
+                NSString *str1;
+                NSString *str2;
+                [(NSURL*)obj1 getResourceValue:&str1 forKey:NSURLPathKey error:nil];
+                [(NSURL*)obj2 getResourceValue:&str2 forKey:NSURLPathKey error:nil];
+                
+                const char *cstr1=[str1 UTF8String];
+                const char *cstr2=[str2 UTF8String];
+                int compResult=0;
+                char c1,c2;
+                int pos=0;
+                while (1) {
+                    c1=cstr1[pos];
+                    c2=cstr2[pos++];
+                    if ((c1>='A') && (c1<='Z')) c1=c1+'a'-'A';
+                    else if (c1=='/') c1=1;
+                    if ((c2>='A') && (c2<='Z')) c2=c2+'a'-'A';
+                    else if (c2=='/') c2=1;
+                    compResult=c1-c2;
+                    if (compResult) break;
+                    if (!c1 || !c2) break;
+                }
+                if (compResult<0) return NSOrderedAscending;
+                else if (compResult>0) return NSOrderedDescending;
+                return NSOrderedSame;
+            }];
+        } else {
+            sortedDirContent= [dirContent sortedArrayUsingComparator:^(id obj1, id obj2) {
+                NSString *str1;
+                NSString *str2;
+                
+                [(NSURL*)obj1 getResourceValue:&str1 forKey:NSURLPathKey error:nil];
+                [(NSURL*)obj2 getResourceValue:&str2 forKey:NSURLPathKey error:nil];
+                
+                str1=[str1 stringByReplacingOccurrencesOfString:@"/" withString:@"\0"];
+                str2=[str2 stringByReplacingOccurrencesOfString:@"/" withString:@"\0"];
+                return [str1 caseInsensitiveCompare:str2];
+            }];
+        }
         CHECK_PROFILE("dir sort")
         
         //Prepare variables
@@ -823,7 +853,7 @@ code_4=a=1.0;\n\
             [entryURL getResourceValue:&isDirectory forKey:NSURLIsDirectoryKey error:nil];
             [entryURL getResourceValue:&entryPath forKey:NSURLPathKey error:nil];
             
-            MDZILog("%@",[entryPath substringFromIndex:localPathStartPos])
+            //MDZILog("%@",[entryPath substringFromIndex:localPathStartPos]);
             
             if ([isDirectory boolValue]) {
                 //Dir management
@@ -833,7 +863,7 @@ code_4=a=1.0;\n\
                 NSString *childPathDir=[childPath stringByDeletingLastPathComponent];
                 while (![childPathDir isEqualToString:currentLocalPath]) {
                     if ([dirNodeStack count]==0) {
-                        MDZFLog("Error in fast parser, no more dir in stack")
+                        MDZFLog("Error in fast parser, no more dir in stack");
                         return NULL;
                     }
                     currentNode=[dirNodeStack lastObject];
@@ -862,7 +892,7 @@ code_4=a=1.0;\n\
                     NSString *childPathDir=[childPath stringByDeletingLastPathComponent];
                     while (![childPathDir isEqualToString:currentLocalPath]) {
                         if ([dirNodeStack count]==0) {
-                            MDZFLog("Error in fast parser, no more dir in stack")
+                            MDZFLog("Error in fast parser, no more dir in stack");
                             return NULL;
                         }
                         currentNode=[dirNodeStack lastObject];
@@ -1018,17 +1048,17 @@ code_4=a=1.0;\n\
 }
 
 - (void)listFavorites {
-    MDZILog("====================")
-    MDZILog("=== Bundle favorites")
-    MDZILog("====================")
+    MDZILog("====================");
+    MDZILog("=== Bundle favorites");
+    MDZILog("====================");
     for (NSString *str in _bundlePresets) {
-        MDZILog("%@",str)
+        MDZILog("%@",str);
     }
-    MDZILog("====================")
-    MDZILog("=== Custom favorites")
-    MDZILog("====================")
+    MDZILog("====================");
+    MDZILog("=== Custom favorites");
+    MDZILog("====================");
     for (NSString *str in _customPresets) {
-        MDZILog("%@",str)
+        MDZILog("%@",str);
     }
 }
 
@@ -1046,12 +1076,12 @@ code_4=a=1.0;\n\
         readBytes=gzread(f,&header,sizeof(MDZFavorites_Header_t));
         
         if (readBytes<sizeof(MDZFavorites_Header_t)) {
-            MDZELog("PM favorites/Loading: cannot read  file (modizerPresetsPL.pmpl)")
+            MDZELog("PM favorites/Loading: cannot read  file (modizerPresetsPL.pmpl)");
             gzclose(f);
             return -1;
         }
         if (header.version!=MDZ_PMPLAYLIST_VERSION) {
-            MDZELog("PM favorites/Loading: wrong version")
+            MDZELog("PM favorites/Loading: wrong version");
             gzclose(f);
             return -2;
         }
@@ -1064,7 +1094,7 @@ code_4=a=1.0;\n\
             uint8_t presetType;
             readBytes=gzread(f,&presetType,sizeof(char));
             if (readBytes!=sizeof(char)) {
-                MDZELog("PM favorites/Loading: wrong data (presetType) for entry %d, aborting",i)
+                MDZELog("PM favorites/Loading: wrong data (presetType) for entry %d, aborting",i);
                 gzclose(f);
                 return -3;
             }
@@ -1072,11 +1102,11 @@ code_4=a=1.0;\n\
             int strLen;
             readBytes=gzread(f,&strLen,sizeof(int));
             if (strLen>1023) {
-                MDZELog("PM favorites/Loading: too long path string (>1023) for entry %d, limiting",i)
+                MDZELog("PM favorites/Loading: too long path string (>1023) for entry %d, limiting",i);
             }
             readBytes=gzread(f,&str,strLen);
             if (readBytes!=strLen) {
-                MDZELog("PM favorites/Loading: cannot read string data for entry %d, aborting",i)
+                MDZELog("PM favorites/Loading: cannot read string data for entry %d, aborting",i);
                 gzclose(f);
                 return -3;
             }
@@ -1099,7 +1129,7 @@ code_4=a=1.0;\n\
         gzclose(f);
     }
     if (missing_counter) {
-        MDZILog("PM favorites/Loading: %d entries are missing in filesystem",missing_counter)
+        MDZILog("PM favorites/Loading: %d entries are missing in filesystem",missing_counter);
     }
     
     //Sort arrays, in case something went wrong earlier
@@ -1130,7 +1160,7 @@ code_4=a=1.0;\n\
             int strLen=(int)strlen(str);
             if (strLen>1023) {
                 strLen=1023;
-                MDZELog("PM favorites/Saving: too long file path for saving (> 1023)")
+                MDZELog("PM favorites/Saving: too long file path for saving (> 1023)");
             }
             gzwrite(f,&presetType,sizeof(uint8_t));
             gzwrite(f,&strLen,sizeof(int));
@@ -1142,7 +1172,7 @@ code_4=a=1.0;\n\
             int strLen=(int)strlen(str);
             if (strLen>1023) {
                 strLen=1023;
-                MDZELog("PM favorites/Saving: too long file path for saving (> 1023)")
+                MDZELog("PM favorites/Saving: too long file path for saving (> 1023)");
             }
             gzwrite(f,&presetType,sizeof(uint8_t));
             gzwrite(f,&strLen,sizeof(int));

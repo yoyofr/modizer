@@ -69,6 +69,46 @@ void ProjectM::LoadPresetFile(const std::string& presetFilename, bool smoothTran
     }
 }
 
+void ProjectM::PreLoadPresetFile(const std::string& presetFilename, const char **warpShader,const char **compShader)
+{
+    try
+    {
+        m_textureManager->PurgeTextures();
+        //StartPresetTransition(m_presetFactoryManager->CreatePresetFromFile(presetFilename), !smoothTransition);
+        std::unique_ptr<Preset> preloaded_preset=m_presetFactoryManager->CreatePresetFromFile(std::string("preload://")+presetFilename);
+        preloaded_preset->Initialize(GetRenderContext());
+        std::string warpCodeStr;
+        std::string compCodeStr;
+        preloaded_preset->GetShadersCode(warpCodeStr, compCodeStr);
+        *warpShader=strdup(warpCodeStr.c_str());
+        *compShader=strdup(compCodeStr.c_str());
+    }
+    catch (const std::exception& ex)
+    {
+        //PresetSwitchFailedEvent(presetFilename, ex.what());
+    }
+}
+
+void ProjectM::LoadPreLoadPresetFile(const std::string& presetFilename, const char *warpShader,const char *compShader, bool smoothTransition)
+{
+    try
+    {
+        m_textureManager->PurgeTextures();
+        //StartPresetTransition(m_presetFactoryManager->CreatePresetFromFile(presetFilename), !smoothTransition);
+        std::unique_ptr<Preset> preloaded_preset=m_presetFactoryManager->CreatePresetFromFile(std::string("precomp://")+presetFilename);
+        std::string warpCodeStr(warpShader);
+        std::string compCodeStr(compShader);
+        preloaded_preset->SetShadersCode(warpCodeStr, compCodeStr);
+        StartPresetTransition(std::move(preloaded_preset), !smoothTransition);
+    }
+    catch (const std::exception& ex)
+    {
+        //PresetSwitchFailedEvent(presetFilename, ex.what());
+    }
+}
+
+
+
 void ProjectM::LoadPresetData(std::istream& presetData, bool smoothTransition)
 {
     try

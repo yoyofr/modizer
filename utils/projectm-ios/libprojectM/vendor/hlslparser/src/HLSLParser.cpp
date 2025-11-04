@@ -1231,7 +1231,8 @@ static bool GetBinaryOpResultType(HLSLBinaryOp binaryOp, const HLSLType& type1, 
             break;
         }
     case HLSLBinaryOp_Mod:
-        result.baseType = HLSLBaseType_Int;
+        //result.baseType = HLSLBaseType_Int;
+            result.baseType = _binaryOpTypeLookup[type1.baseType - HLSLBaseType_FirstNumeric][type2.baseType - HLSLBaseType_FirstNumeric];
         break;
 
     default:
