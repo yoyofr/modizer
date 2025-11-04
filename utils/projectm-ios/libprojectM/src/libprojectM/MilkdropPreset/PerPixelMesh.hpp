@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Renderer/Mesh.hpp"
+#include "AltPresetState.hpp"
 
 #include <Renderer/Shader.hpp>
 
@@ -41,7 +42,7 @@ public:
      * @param presetState The preset state to retrieve the configuration values from.
      */
     void CompileWarpShader(PresetState& presetState,const char*shaderCode=NULL);
-    void PreCompileWarpShader(PresetState& presetState);
+    void PreCompileWarpShader(AltPresetState& presetState);
 
     /**
      * @brief Renders the transformation mesh.

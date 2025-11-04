@@ -5,6 +5,8 @@
 //  Created by Yohann Magnien David on 26/10/2025.
 //
 
+#define PM_LOAD_MODE_ASYNC
+
 #define MDZ_PMPLAYLIST_VERSION 1
 
 typedef struct {
@@ -27,6 +29,8 @@ typedef struct {
 
 #include "zlib.h"
 
+#include <pthread.h>
+extern pthread_mutex_t pm_mutex;
 
 @implementation FileNode
 
@@ -290,6 +294,7 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
 
 - (instancetype)init:(projectm_handle)pmh name:(NSString*)name {
     self = [super init];
+    _retry_counter=0;
     _items=[[NSMutableArray alloc] init];
     _position=0;
     _playlistName=name;
@@ -313,6 +318,7 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
 
 - (instancetype)initWithArray:(NSArray*)array pmh:(projectm_handle)pmh name:(NSString*)name;{
     self = [super init];
+    _retry_counter=0;
     _items=[NSMutableArray arrayWithArray:array];
     _position=0;
     _playlistName=name;
@@ -333,7 +339,9 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
 }
 
 - (void)loadIdlePreset {
+    pthread_mutex_lock(&pm_mutex);
     projectm_load_preset_file(_pmh,"idle://Geiss & Sperl - Feedback (projectM idle HDR mix).milk",NULL);
+    pthread_mutex_unlock(&pm_mutex);
     _curEntryLbl = [NSString stringWithFormat:@"No preset found. Activate bundled presets or copy milk files in '%s/presets' & images in '%s/textures' folders.",PM_ROOT_FOLDER_CUSTOM,PM_ROOT_FOLDER_CUSTOM];
     
 }
@@ -356,28 +364,59 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
     _shuffle=active;
 }
 
-- (void)loadASyncCurrentPreset:(int)pos cut:(bool)cut {
+- (void)loadASyncCurrentPreset:(bool)cut {
+    pthread_mutex_lock(&pm_mutex);
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
         //Load new preset
         FileNode *item;
-        if (_size) {
-            int retry_counter=0;
-            _warp=NULL;
-            _comp=NULL;
-                _lastFailed=false;
-                item=[_items objectAtIndex:pos];
-                projectm_preload_preset_file(_pmh, [[item getFullPath] UTF8String], &_warp, &_comp);
+        if (self.size) {
+            self.warp=NULL;
+            self.comp=NULL;
+            self.lastFailed=false;
+            item=[self.items objectAtIndex:self.position];
+            projectm_preload_preset_file(self.pmh, [[item getFullPath] UTF8String], &_warp, &_comp);
         }
         
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-            if (_warp && _comp) {
-                projectm_loadpreload_preset_file(_pmh, [[item getFullPath] UTF8String], _warp, _comp, !cut);
+            pthread_mutex_unlock(&pm_mutex);
+            if (!self.lastFailed) {
+                if (self.warp && self.comp) {
+                    START_PROFILE
+                    self.lastFailed=false;
+                    projectm_loadpreload_preset_file(self.pmh, [[item getFullPath] UTF8String], self.warp, self.comp, !cut);
+                    CHECK_PROFILE("preset loaded fast")
+                    END_PROFILE
+                    
+                    if (!self.lastFailed) {
+                        self.retry_counter=0;
+                        FileNode *item=[self.items objectAtIndex:self.position];
+                        self.curEntryLbl = [NSString stringWithFormat:@"(%d/%d) (%c)%@",self.position+1,self.size,
+                                        (item.presetType==MDZ_PLAYLIST_FNODE_Bundle?'B':'C'),
+                                        item.localpath];
+                    }
+                }
+            }
+            if (self.lastFailed) {
+                //Issue with last preset, remove from the list
+                [self remove:self.position];
+                //If list empty, exit
+                if (self.size==0) {
+                    [self loadIdlePreset];
+                    return;
+                }
+                //If too many attempt, exit, to avoid freezing app
+                self.retry_counter++;
+                if (self.retry_counter>MDZ_PLAYLIST_MAX_RETRY) return;
+                [self loadASyncCurrentPreset:cut];
             }
         }];
     });
 }
 
 - (void)loadCurrentPreset:(bool)cut {
+#ifdef PM_LOAD_MODE_ASYNC
+    [self loadASyncCurrentPreset:cut];
+#else
     //Load new preset
     FileNode *item;
     if (_size) {
@@ -385,9 +424,10 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
         while (1) {
             _lastFailed=false;
             item=[_items objectAtIndex:_position];
-            const char *warp=NULL,*comp=NULL;
+            START_PROFILE
             projectm_load_preset_file(_pmh, [[item getFullPath] UTF8String],!cut);
-            if (warp && comp) MDZILog("Got Warp & Comp shaders code successfully");
+            CHECK_PROFILE("preset loaded normal")
+            END_PROFILE
             
             
             if (!_lastFailed) {
@@ -452,6 +492,7 @@ code_4=a=1.0;\n\
                         (item.presetType==MDZ_PLAYLIST_FNODE_Bundle?'B':'C'),
                         item.localpath];
     }
+#endif
 }
 - (void)next:(bool)cut {
     if (!_size) {

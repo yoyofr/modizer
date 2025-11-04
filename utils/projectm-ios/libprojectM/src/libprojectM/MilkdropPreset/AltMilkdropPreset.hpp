@@ -28,13 +28,15 @@
 #include "CustomWaveform.hpp"
 #include "DarkenCenter.hpp"
 #include "Filters.hpp"
-#include "FinalComposite.hpp"
+#include "AltFinalComposite.hpp"
 #include "MotionVectors.hpp"
-#include "PerFrameContext.hpp"
+#include "AltPerFrameContext.hpp"
 #include "PerPixelContext.hpp"
-#include "PerPixelMesh.hpp"
+#include "AltPerPixelMesh.hpp"
 #include "Preset.hpp"
 #include "Waveform.hpp"
+
+#include "AltPresetState.hpp"
 
 #include <Renderer/CopyTexture.hpp>
 #include <Renderer/Framebuffer.hpp>
@@ -119,21 +121,19 @@ private:
     int m_previousFrameBuffer{1};                                     //!< Framebuffer ID of the previous frame.
     std::shared_ptr<Renderer::TextureAttachment> m_motionVectorUVMap; //!< The UV map of the previous frame's warp mesh, used for motion vector reverse propagation.
 
-    PresetState m_state;               //!< Preset state container.
-    PerFrameContext m_perFrameContext; //!< Preset per-frame evaluation code context.
+    AltPresetState m_state;               //!< Preset state container.
+    AltPerFrameContext m_perFrameContext; //!< Preset per-frame evaluation code context.
     PerPixelContext m_perPixelContext; //!< Preset per-pixel/per-vertex evaluation code context.
 
-    PerPixelMesh m_perPixelMesh; //!< The per-pixel/per-vertex mesh, responsible for most of the movement/warp effects in Milkdrop presets.
+    AltPerPixelMesh m_perPixelMesh; //!< The per-pixel/per-vertex mesh, responsible for most of the movement/warp effects in Milkdrop presets.
 
-    MotionVectors m_motionVectors;                                                      //!< Motion vector grid.
-    Waveform m_waveform;                                                                //!< Preset default waveform.
-    std::array<std::unique_ptr<CustomWaveform>, CustomWaveformCount> m_customWaveforms; //!< Custom waveforms in this preset.
-    std::array<std::unique_ptr<CustomShape>, CustomShapeCount> m_customShapes;          //!< Custom shapes in this preset.
-    DarkenCenter m_darkenCenter;                                                        //!< Center darkening effect.
-    Border m_border;                                                                    //!< Inner/outer borders.
-    Renderer::CopyTexture m_flipTexture;                                                //!< Texture flip filter
+//    std::array<std::unique_ptr<CustomWaveform>, CustomWaveformCount> m_customWaveforms; //!< Custom waveforms in this preset.
+//    std::array<std::unique_ptr<CustomShape>, CustomShapeCount> m_customShapes;          //!< Custom shapes in this preset.
+    //DarkenCenter m_darkenCenter;                                                        //!< Center darkening effect.
+    //Border m_border;                                                                    //!< Inner/outer borders.
+    //Renderer::CopyTexture m_flipTexture;                                                //!< Texture flip filter
 
-    FinalComposite m_finalComposite; //!< Final composite shader or filters.
+    AltFinalComposite m_finalComposite; //!< Final composite shader or filters.
 
     bool m_isFirstFrame{true}; //!< Controls drawing the motion vectors starting with the second frame.
 };

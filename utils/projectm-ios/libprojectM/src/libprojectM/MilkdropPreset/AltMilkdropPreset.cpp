@@ -36,10 +36,8 @@ AltMilkdropPreset::AltMilkdropPreset(const std::string& absoluteFilePath)
     : m_absoluteFilePath(absoluteFilePath)
     , m_perFrameContext(m_state.globalMemory, &m_state.globalRegisters)
     , m_perPixelContext(m_state.globalMemory, &m_state.globalRegisters)
-    , m_motionVectors(m_state)
-    , m_waveform(m_state)
-    , m_darkenCenter(m_state)
-    , m_border(m_state)
+    //, m_darkenCenter(m_state)
+    //, m_border(m_state)
 {
     Load(absoluteFilePath);
 }
@@ -47,10 +45,8 @@ AltMilkdropPreset::AltMilkdropPreset(const std::string& absoluteFilePath)
 AltMilkdropPreset::AltMilkdropPreset(std::istream& presetData)
     : m_perFrameContext(m_state.globalMemory, &m_state.globalRegisters)
     , m_perPixelContext(m_state.globalMemory, &m_state.globalRegisters)
-    , m_motionVectors(m_state)
-    , m_waveform(m_state)
-    , m_darkenCenter(m_state)
-    , m_border(m_state)
+    //, m_darkenCenter(m_state)
+    //, m_border(m_state)
 {
     Load(presetData);
 }
@@ -165,20 +161,20 @@ void AltMilkdropPreset::InitializePreset(::libprojectM::PresetFileParser& parsed
     m_perPixelContext.RegisterBuiltinVariables();
 
     // Custom waveforms:
-    for (int i = 0; i < CustomWaveformCount; i++)
-    {
-        auto wave = std::make_unique<CustomWaveform>(m_state);
-        wave->Initialize(parsedFile, i);
-        m_customWaveforms[i] = std::move(wave);
-    }
-
-    // Custom shapes:
-    for (int i = 0; i < CustomShapeCount; i++)
-    {
-        auto shape = std::make_unique<CustomShape>(m_state);
-        shape->Initialize(parsedFile, i);
-        m_customShapes[i] = std::move(shape);
-    }
+//    for (int i = 0; i < CustomWaveformCount; i++)
+//    {
+//        auto wave = std::make_unique<CustomWaveform>(m_state);
+//        wave->Initialize(parsedFile, i);
+//        m_customWaveforms[i] = std::move(wave);
+//    }
+//
+//    // Custom shapes:
+//    for (int i = 0; i < CustomShapeCount; i++)
+//    {
+//        auto shape = std::make_unique<CustomShape>(m_state);
+//        shape->Initialize(parsedFile, i);
+//        m_customShapes[i] = std::move(shape);
+//    }
 
     // Preload shaders
     LoadShaderCode();
@@ -194,17 +190,17 @@ void AltMilkdropPreset::CompileCodeAndRunInitExpressions()
     // Per-vertex code
     m_perPixelContext.CompilePerPixelCode(m_state.perPixelCode);
 
-    for (int i = 0; i < CustomWaveformCount; i++)
-    {
-        auto& wave = m_customWaveforms[i];
-        wave->CompileCodeAndRunInitExpressions(m_perFrameContext);
-    }
-
-    for (int i = 0; i < CustomShapeCount; i++)
-    {
-        auto& shape = m_customShapes[i];
-        shape->CompileCodeAndRunInitExpressions();
-    }
+//    for (int i = 0; i < CustomWaveformCount; i++)
+//    {
+//        auto& wave = m_customWaveforms[i];
+//        wave->CompileCodeAndRunInitExpressions(m_perFrameContext);
+//    }
+//
+//    for (int i = 0; i < CustomShapeCount; i++)
+//    {
+//        auto& shape = m_customShapes[i];
+//        shape->CompileCodeAndRunInitExpressions();
+//    }
 }
 
 void AltMilkdropPreset::LoadShaderCode()

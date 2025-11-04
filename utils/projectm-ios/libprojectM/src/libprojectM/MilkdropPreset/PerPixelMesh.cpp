@@ -97,7 +97,7 @@ void PerPixelMesh::CompileWarpShader(PresetState& presetState,const char*shaderC
     }
 }
 
-void PerPixelMesh::PreCompileWarpShader(PresetState& presetState)
+void PerPixelMesh::PreCompileWarpShader(AltPresetState& presetState)
 {
     if (m_warpShader)
     {

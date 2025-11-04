@@ -168,7 +168,7 @@ void MilkdropShader::LoadTexturesAndCompile(PresetState& presetState,const char 
     presetState.blurTexture.SetRequiredBlurLevel(m_maxBlurLevelRequired);
 }
 
-void MilkdropShader::PreLoadTexturesAndCompile(PresetState& presetState)
+void MilkdropShader::PreLoadTexturesAndCompile(AltPresetState& presetState)
 {
     std::locale loc;
     
@@ -199,21 +199,21 @@ void MilkdropShader::PreLoadTexturesAndCompile(PresetState& presetState)
             }
             
             // A few presets directly use the (undocumented) sampler name.
-            if (lowerCaseName == "blur1")
-            {
-                UpdateMaxBlurLevel(BlurTexture::BlurLevel::Blur1);
-                continue;
-            }
-            if (lowerCaseName == "blur2")
-            {
-                UpdateMaxBlurLevel(BlurTexture::BlurLevel::Blur2);
-                continue;
-            }
-            if (lowerCaseName == "blur3")
-            {
-                UpdateMaxBlurLevel(BlurTexture::BlurLevel::Blur3);
-                continue;
-            }
+//            if (lowerCaseName == "blur1")
+//            {
+//                UpdateMaxBlurLevel(BlurTexture::BlurLevel::Blur1);
+//                continue;
+//            }
+//            if (lowerCaseName == "blur2")
+//            {
+//                UpdateMaxBlurLevel(BlurTexture::BlurLevel::Blur2);
+//                continue;
+//            }
+//            if (lowerCaseName == "blur3")
+//            {
+//                UpdateMaxBlurLevel(BlurTexture::BlurLevel::Blur3);
+//                continue;
+//            }
             
             // Random textures need special treatment.
             /*if (lowerCaseName.length() >= 6 &&
@@ -278,7 +278,7 @@ void MilkdropShader::PreLoadTexturesAndCompile(PresetState& presetState)
     TranspileHLSLShaderNoGLCompilation(presetState, m_preprocessedCode);
 
     // Update blur texture level if shader was compiled successfully.
-    presetState.blurTexture.SetRequiredBlurLevel(m_maxBlurLevelRequired);
+    //presetState.blurTexture.SetRequiredBlurLevel(m_maxBlurLevelRequired);
 }
 
 
@@ -787,7 +787,7 @@ void MilkdropShader::TranspileHLSLShader(const PresetState& presetState, std::st
         
         codeToCompile=generator.GetResult();
 
-        printf("===Code to compile===>\n%s\n",codeToCompile.c_str());
+        //printf("===Code to compile===>\n%s\n",codeToCompile.c_str());
     } else {
         codeToCompile=std::string(prePcode);
     }
@@ -807,7 +807,7 @@ void MilkdropShader::TranspileHLSLShader(const PresetState& presetState, std::st
     }
 }
 
-void MilkdropShader::TranspileHLSLShaderNoGLCompilation(const PresetState& presetState, std::string& program)
+void MilkdropShader::TranspileHLSLShaderNoGLCompilation(const AltPresetState& presetState, std::string& program)
 {
     std::string shaderTypeString = "composite";
     if (m_type == ShaderType::WarpShader)
@@ -853,11 +853,11 @@ void MilkdropShader::TranspileHLSLShaderNoGLCompilation(const PresetState& prese
         samplerDeclarations.insert(desc.SamplerDeclaration());
         texSizeDeclarations.insert(desc.TexSizeDeclaration());
     }
-    for (const auto& desc : presetState.blurTexture.GetDescriptorsForBlurLevel(m_maxBlurLevelRequired))
-    {
-        samplerDeclarations.insert(desc.SamplerDeclaration());
-        // No texsize_blur1 etc.
-    }
+//    for (const auto& desc : presetState.blurTexture.GetDescriptorsForBlurLevel(m_maxBlurLevelRequired))
+//    {
+//        samplerDeclarations.insert(desc.SamplerDeclaration());
+//        // No texsize_blur1 etc.
+//    }
     for (const auto& desc : m_textureSamplerDescriptors)
     {
         samplerDeclarations.insert(desc.SamplerDeclaration());

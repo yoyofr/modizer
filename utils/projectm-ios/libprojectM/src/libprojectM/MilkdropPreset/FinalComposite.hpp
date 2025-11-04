@@ -3,6 +3,7 @@
 #include "Filters.hpp"
 #include "MilkdropShader.hpp"
 #include "VideoEcho.hpp"
+#include "AltPresetState.hpp"
 
 #include <Renderer/Mesh.hpp>
 
@@ -30,7 +31,7 @@ public:
      * @param presetState The preset state to retrieve the configuration values from.
      */
     void CompileCompositeShader(PresetState& presetState,const char *shader=NULL);
-    void PreCompileCompositeShader(PresetState& presetState);
+    void PreCompileCompositeShader(AltPresetState& presetState);
 
     /**
      * @brief Renders the composite quad with the appropriate effects or shaders.

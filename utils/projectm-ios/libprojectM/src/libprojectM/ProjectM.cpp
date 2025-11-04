@@ -85,7 +85,7 @@ void ProjectM::PreLoadPresetFile(const std::string& presetFilename, const char *
     }
     catch (const std::exception& ex)
     {
-        //PresetSwitchFailedEvent(presetFilename, ex.what());
+        PresetSwitchFailedEvent(presetFilename, ex.what());
     }
 }
 
@@ -103,7 +103,7 @@ void ProjectM::LoadPreLoadPresetFile(const std::string& presetFilename, const ch
     }
     catch (const std::exception& ex)
     {
-        //PresetSwitchFailedEvent(presetFilename, ex.what());
+        PresetSwitchFailedEvent(presetFilename, ex.what());
     }
 }
 

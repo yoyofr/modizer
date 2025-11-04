@@ -1340,7 +1340,8 @@ static float movePinchScale,movePinchScaleOld;
     PMenu::playerMenuBack();
 }
 -(void) mdTestAsyncLoad {
-    [_mdzPM_playlist loadASyncCurrentPreset:0 cut:true];
+    int pos=[_mdzPM_playlist getPos];
+    [_mdzPM_playlist loadASyncCurrentPreset:false];
 }
 
 -(void) mdPrevPreset {
@@ -7334,8 +7335,12 @@ void doFramePM(float ww,float hh) {
     if (mOglView1Tap) {
         mOglView1Tap=0;
         
+        if ( (pmenu_show==0) && (oglTapX<=ww*1/4) && (oglTapY<=hh*1/4) ) {
+            [self mdTestAsyncLoad];
+        }
+        
         //If tapping upper right corner and not in menu, activate showinfo panel
-        if ( (pmenu_show==0) && (oglTapX>=ww*3/4) && (oglTapY<=hh*1/4) ) {
+        else if ( (pmenu_show==0) && (oglTapX>=ww*3/4) && (oglTapY<=hh*1/4) ) {
             [SettingsGenViewController changeSettingsValue:GLOB_FXSHOWINFO change:1];
         } else {
             //Activate menu if tap on the rest of the gl view

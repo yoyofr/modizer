@@ -20,6 +20,7 @@ namespace MilkdropPreset {
 
 class PerFrameContext;
 class PresetState;
+class AltPresetState;
 
 /**
  * @brief Holds a warp or composite shader of Milkdrop presets.
@@ -52,7 +53,7 @@ public:
      * @param presetState The preset state to pull the values and textures from.
      */
     void LoadTexturesAndCompile(PresetState& presetState,const char *prePcode=NULL);
-    void PreLoadTexturesAndCompile(PresetState& presetState);
+    void PreLoadTexturesAndCompile(AltPresetState& presetState);
 
     /**
      * @brief Loads all required shader variables into the uniforms.
@@ -89,7 +90,7 @@ private:
      * @param program The shader to transpile.
      */
     void TranspileHLSLShader(const PresetState& presetState, std::string& program,const char *prePcode=NULL);
-    void TranspileHLSLShaderNoGLCompilation(const PresetState& presetState, std::string& program);
+    void TranspileHLSLShaderNoGLCompilation(const AltPresetState& presetState, std::string& program);
 
     /**
      * @brief Updates the requested blur level if higher than before.

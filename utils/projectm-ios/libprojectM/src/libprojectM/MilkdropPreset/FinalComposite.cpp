@@ -111,7 +111,7 @@ void FinalComposite::CompileCompositeShader(PresetState& presetState,const char 
     }
 }
 
-void FinalComposite::PreCompileCompositeShader(PresetState& presetState)
+void FinalComposite::PreCompileCompositeShader(AltPresetState& presetState)
 {
     if (m_compositeShader)
     {

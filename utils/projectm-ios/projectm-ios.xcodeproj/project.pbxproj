@@ -8,6 +8,10 @@
 
 /* Begin PBXBuildFile section */
 		CC432B522EB3A076007972E0 /* ShaderPreprocessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC432B512EB3A075007972E0 /* ShaderPreprocessor.cpp */; };
+		CC53BE072EBA421100B159A3 /* AltFinalComposite.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC53BE062EBA421100B159A3 /* AltFinalComposite.cpp */; };
+		CC53BE0A2EBA4F2800B159A3 /* AltPerPixelMesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC53BE092EBA4F2800B159A3 /* AltPerPixelMesh.cpp */; };
+		CC53BE0D2EBA508E00B159A3 /* AltPresetState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC53BE0C2EBA508E00B159A3 /* AltPresetState.cpp */; };
+		CC53BE102EBA52DD00B159A3 /* AltPerFrameContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC53BE0F2EBA52DD00B159A3 /* AltPerFrameContext.cpp */; };
 		CC80AE892EB9648100270FF3 /* MilkdropPreset.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC80AE882EB9648100270FF3 /* MilkdropPreset.cpp */; };
 		CC80AE8B2EB9666600270FF3 /* AltMilkdropPreset.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC80AE8A2EB9666600270FF3 /* AltMilkdropPreset.cpp */; };
 		CCABA19B2E93C75B00AF59B0 /* CompilerFunctions.c in Sources */ = {isa = PBXBuildFile; fileRef = CCABA1672E93C75B00AF59B0 /* CompilerFunctions.c */; };
@@ -123,6 +127,14 @@
 		CC3B027D2EB69FF50079D537 /* user_sprites.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = user_sprites.h; sourceTree = "<group>"; };
 		CC432B502EB3A059007972E0 /* ShaderPreprocessor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ShaderPreprocessor.h; sourceTree = "<group>"; };
 		CC432B512EB3A075007972E0 /* ShaderPreprocessor.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ShaderPreprocessor.cpp; sourceTree = "<group>"; };
+		CC53BE062EBA421100B159A3 /* AltFinalComposite.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = AltFinalComposite.cpp; sourceTree = "<group>"; };
+		CC53BE082EBA421E00B159A3 /* AltFinalComposite.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = AltFinalComposite.hpp; sourceTree = "<group>"; };
+		CC53BE092EBA4F2800B159A3 /* AltPerPixelMesh.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = AltPerPixelMesh.cpp; sourceTree = "<group>"; };
+		CC53BE0B2EBA4F3400B159A3 /* AltPerPixelMesh.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = AltPerPixelMesh.hpp; sourceTree = "<group>"; };
+		CC53BE0C2EBA508E00B159A3 /* AltPresetState.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = AltPresetState.cpp; sourceTree = "<group>"; };
+		CC53BE0E2EBA509700B159A3 /* AltPresetState.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = AltPresetState.hpp; sourceTree = "<group>"; };
+		CC53BE0F2EBA52DD00B159A3 /* AltPerFrameContext.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = AltPerFrameContext.cpp; sourceTree = "<group>"; };
+		CC53BE112EBA530E00B159A3 /* AltPerFrameContext.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = AltPerFrameContext.hpp; sourceTree = "<group>"; };
 		CC80AE882EB9648100270FF3 /* MilkdropPreset.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MilkdropPreset.cpp; sourceTree = "<group>"; };
 		CC80AE8A2EB9666600270FF3 /* AltMilkdropPreset.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = AltMilkdropPreset.cpp; sourceTree = "<group>"; };
 		CC80AE8C2EB9667C00270FF3 /* AltMilkdropPreset.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = AltMilkdropPreset.hpp; sourceTree = "<group>"; };
@@ -1278,6 +1290,7 @@
 				CCABA2172E93C97600AF59B0 /* Factory.cpp */,
 				CCABA2192E93C97600AF59B0 /* Filters.cpp */,
 				CCABA21B2E93C97600AF59B0 /* FinalComposite.cpp */,
+				CC53BE062EBA421100B159A3 /* AltFinalComposite.cpp */,
 				CCABA21E2E93C97600AF59B0 /* IdlePreset.cpp */,
 				CCABA2232E93C97600AF59B0 /* MilkdropShader.cpp */,
 				CC80AE882EB9648100270FF3 /* MilkdropPreset.cpp */,
@@ -1285,9 +1298,12 @@
 				CCABA3502E93D06300AF59B0 /* MilkdropStaticShaders.cpp */,
 				CCABA2272E93C97600AF59B0 /* MotionVectors.cpp */,
 				CCABA2292E93C97600AF59B0 /* PerFrameContext.cpp */,
+				CC53BE0F2EBA52DD00B159A3 /* AltPerFrameContext.cpp */,
 				CCABA22B2E93C97600AF59B0 /* PerPixelContext.cpp */,
 				CCABA22D2E93C97600AF59B0 /* PerPixelMesh.cpp */,
+				CC53BE092EBA4F2800B159A3 /* AltPerPixelMesh.cpp */,
 				CCABA2312E93C97600AF59B0 /* PresetState.cpp */,
+				CC53BE0C2EBA508E00B159A3 /* AltPresetState.cpp */,
 				CCABA2332E93C97600AF59B0 /* ShapePerFrameContext.cpp */,
 				CCABA2352E93C97600AF59B0 /* VideoEcho.cpp */,
 				CCABA2372E93C97600AF59B0 /* Waveform.cpp */,
@@ -1302,6 +1318,7 @@
 				CCABA2162E93C97600AF59B0 /* Factory.hpp */,
 				CCABA2182E93C97600AF59B0 /* Filters.hpp */,
 				CCABA21A2E93C97600AF59B0 /* FinalComposite.hpp */,
+				CC53BE082EBA421E00B159A3 /* AltFinalComposite.hpp */,
 				CCABA21D2E93C97600AF59B0 /* IdlePreset.hpp */,
 				CCABA21F2E93C97600AF59B0 /* MilkdropPreset.hpp */,
 				CC80AE8C2EB9667C00270FF3 /* AltMilkdropPreset.hpp */,
@@ -1310,9 +1327,12 @@
 				CCABA34F2E93D06300AF59B0 /* MilkdropStaticShaders.hpp */,
 				CCABA2262E93C97600AF59B0 /* MotionVectors.hpp */,
 				CCABA2282E93C97600AF59B0 /* PerFrameContext.hpp */,
+				CC53BE112EBA530E00B159A3 /* AltPerFrameContext.hpp */,
 				CCABA22A2E93C97600AF59B0 /* PerPixelContext.hpp */,
 				CCABA22C2E93C97600AF59B0 /* PerPixelMesh.hpp */,
+				CC53BE0B2EBA4F3400B159A3 /* AltPerPixelMesh.hpp */,
 				CCABA2302E93C97600AF59B0 /* PresetState.hpp */,
+				CC53BE0E2EBA509700B159A3 /* AltPresetState.hpp */,
 				CCABA2322E93C97600AF59B0 /* ShapePerFrameContext.hpp */,
 				CCABA2342E93C97600AF59B0 /* VideoEcho.hpp */,
 				CCABA2362E93C97600AF59B0 /* Waveform.hpp */,
@@ -1587,6 +1607,7 @@
 				CCABA2AD2E93C97600AF59B0 /* PerPixelContext.cpp in Sources */,
 				CCABA2AE2E93C97600AF59B0 /* TextureSamplerDescriptor.cpp in Sources */,
 				CCABA2AF2E93C97600AF59B0 /* BlurTexture.cpp in Sources */,
+				CC53BE0A2EBA4F2800B159A3 /* AltPerPixelMesh.cpp in Sources */,
 				CCABA2B02E93C97600AF59B0 /* SpectrumLine.cpp in Sources */,
 				CCABA2B12E93C97600AF59B0 /* Utils.cpp in Sources */,
 				CCABA2B22E93C97600AF59B0 /* Texture.cpp in Sources */,
@@ -1655,6 +1676,7 @@
 				CCABA2EC2E93C97600AF59B0 /* CustomShape.cpp in Sources */,
 				CCABA2EE2E93C97600AF59B0 /* MilkdropShader.cpp in Sources */,
 				CCE0263A2E99A7BD008B7070 /* ShaderCache.cpp in Sources */,
+				CC53BE0D2EBA508E00B159A3 /* AltPresetState.cpp in Sources */,
 				CCABA2EF2E93C97600AF59B0 /* MotionVectors.cpp in Sources */,
 				CCABA2F02E93C97600AF59B0 /* EvalLibMutex.cpp in Sources */,
 				CCABA3512E93D06300AF59B0 /* MilkdropStaticShaders.cpp in Sources */,
@@ -1663,6 +1685,7 @@
 				CCABA2F32E93C97600AF59B0 /* TimeKeeper.cpp in Sources */,
 				CCABA2F42E93C97600AF59B0 /* Line.cpp in Sources */,
 				CCABA1AB2E93C75B00AF59B0 /* CompileContext.c in Sources */,
+				CC53BE072EBA421100B159A3 /* AltFinalComposite.cpp in Sources */,
 				CCABA1AD2E93C75B00AF59B0 /* ExpressionTree.c in Sources */,
 				CCABA1AE2E93C75B00AF59B0 /* MemoryBuffer.c in Sources */,
 				CCABA1AF2E93C75B00AF59B0 /* Engine.cpp in Sources */,
@@ -1670,6 +1693,7 @@
 				CCABA1B32E93C75B00AF59B0 /* CodeWriter.cpp in Sources */,
 				CCABA1B52E93C75B00AF59B0 /* Scanner.c in Sources */,
 				CC80AE8B2EB9666600270FF3 /* AltMilkdropPreset.cpp in Sources */,
+				CC53BE102EBA52DD00B159A3 /* AltPerFrameContext.cpp in Sources */,
 				CCABA1B92E93C75B00AF59B0 /* TreeVariables.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

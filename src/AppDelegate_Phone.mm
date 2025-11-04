@@ -56,7 +56,7 @@ pthread_mutex_t uade_mutex;
 pthread_mutex_t db_mutex;
 pthread_mutex_t download_mutex;
 pthread_mutex_t play_mutex;
-pthread_mutex_t gl_mutex;
+pthread_mutex_t pm_mutex;
 
 @implementation AppDelegate_Phone
 
@@ -196,7 +196,7 @@ pthread_mutex_t gl_mutex;
 		printf("cannot create play mutex");
 		return NO;
 	}
-    if (pthread_mutex_init(&gl_mutex,NULL)) {
+    if (pthread_mutex_init(&pm_mutex,NULL)) {
         printf("cannot create gl mutex");
         return NO;
     }

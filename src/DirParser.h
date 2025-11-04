@@ -66,6 +66,7 @@ enum MDZ_PLAYLIST_FNODE_Type {
 @property (nonatomic, assign) bool shuffle;
 @property (nonatomic, assign) bool lastFailed;
 @property (nonatomic, assign) const char *warp,*comp;
+@property (nonatomic, assign) int retry_counter;
 
 - (instancetype)init:(projectm_handle)pmh name:(NSString*)name;
 - (instancetype)initWithArray:(NSArray*)array pmh:(projectm_handle)pmh name:(NSString*)name;
@@ -88,7 +89,7 @@ enum MDZ_PLAYLIST_FNODE_Type {
 - (int)getCurType;
 - (int)getSize;
 
-- (void)loadASyncCurrentPreset:(int)pos cut:(bool)cut;
+- (void)loadASyncCurrentPreset:(bool)cut;
 
 - (void)loadCurrentPreset:(bool)cut;
 - (void)loadIdlePreset;
