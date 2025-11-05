@@ -637,7 +637,6 @@ code_4=a=1.0;\n\
     return _size;
 }
 
-
 - (bool)getFavStatus {
     bool ret=false;
     if (_size>0) {

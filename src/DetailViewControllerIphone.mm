@@ -248,6 +248,7 @@ static volatile int alertCannotPlay_displayed;
 
 static int pmenu_fade=0;
 static int pmenu_show=0;
+static int oglv_corner_fade[4];
 
 static 	UIImage *covers_default; // album covers images
 
@@ -6012,6 +6013,7 @@ void pm_perfTest() {
     
     pmenu_fade=0;
     pmenu_show=0;
+    memset(oglv_corner_fade,0,sizeof(oglv_corner_fade));
     
     //	[super viewDidLoad];
     END_PROFILE
@@ -6060,7 +6062,7 @@ void pm_perfTest() {
 
 -(void) enterBackground {
     mBackground=true;
-    if (m_displayLink) m_displayLink.preferredFramesPerSecond = 1;     //if (mHasFocus) [self.navigationController popViewControllerAnimated:YES];
+    if (m_displayLink) m_displayLink.preferredFramesPerSecond = 5;     //if (mHasFocus) [self.navigationController popViewControllerAnimated:YES];
     if (mHasFocus) {
         mShouldHaveFocusAfterBackground=1;
         //[self viewWillDisappear:NO];
@@ -6594,6 +6596,59 @@ void doFramePM(float ww,float hh) {
         projectm_set_fps(_pm, m_nAverageFps);
     }
     /*-------------------------------------------------------------------------------*/
+}
+
+- (void)showGUICorners:(ImVec2)winsize frameToUpdate:(int)frameToUpdate{
+    float ww=winsize.x;
+    float hh=winsize.y;
+    
+    static float cur_winSizeX=ww/4;
+    static float cur_winSizeY=hh/4;
+    
+    float alpha;
+    static int switchPrevValue=0;
+    
+    ImGui::GetStyle().Alpha=1.0;
+    if (font_menu) ImGui::PushFont(font_menu,FONTSIZE_SHOWINFO_FPS*glScaleFactor);
+    else ImGui::PushFont(nullptr);
+    
+    ImGui::SetNextWindowPos(ImVec2(0*glScaleFactor,(hh-cur_winSizeY)*glScaleFactor));
+    ImGui::SetNextWindowSize(ImVec2(cur_winSizeX*glScaleFactor,cur_winSizeY*glScaleFactor));
+    alpha=(float)(oglv_corner_fade[0])/120.0;
+    ImGui::PushStyleColor(ImGuiCol_WindowBg,ImVec4(0,0,0,alpha));
+    ImGui::PushStyleColor(ImGuiCol_Border,ImVec4(0,0,0,0));
+    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0,1.0,1.0,alpha));
+    ImGui::Begin("Tap1win",0,
+                 ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoScrollbar|ImGuiWindowFlags_NoFocusOnAppearing
+                 );
+    ImGui::Text("Previous\npreset");
+    ImGui::End();
+    ImGui::PopStyleColor();
+    ImGui::PopStyleColor();
+    ImGui::PopStyleColor();
+    
+    ImGui::SetNextWindowPos(ImVec2((ww-cur_winSizeX)*glScaleFactor,(hh-cur_winSizeY)*glScaleFactor));
+    ImGui::SetNextWindowSize(ImVec2(cur_winSizeX*glScaleFactor,cur_winSizeY*glScaleFactor));
+    alpha=(float)(oglv_corner_fade[1])/120.0;
+    ImGui::PushStyleColor(ImGuiCol_WindowBg,ImVec4(0,0,0,alpha));
+    ImGui::PushStyleColor(ImGuiCol_Border,ImVec4(0,0,0,0));
+    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0,1.0,1.0,alpha));
+    ImGui::Begin("Tap2win",0,
+                 ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoScrollbar|ImGuiWindowFlags_NoFocusOnAppearing
+                 );
+    ImGui::Text("Next\npreset");
+    ImGui::End();
+    ImGui::PopStyleColor();
+    ImGui::PopStyleColor();
+    ImGui::PopStyleColor();
+    
+    ImGui::PopFont();
+    
+    for (int j=0;j<frameToUpdate;j++) {
+        for (int i=0;i<4;i++) {
+            if (oglv_corner_fade[i]>0) oglv_corner_fade[i]--;
+        }
+    }
 }
 
 - (void)showInfoData:(ImVec2)winsize frameToUpdate:(int)frameToUpdate{
@@ -7334,19 +7389,22 @@ void doFramePM(float ww,float hh) {
         }
     }
     
+    
     //check for click
     if (mOglView1Tap) {
         mOglView1Tap=0;
-        
-        if ( (pmenu_show==0) && (oglTapX<=ww*1/4) && (oglTapY<=hh*3/4) ) {
+        if ( (pmenu_show==0) && (oglTapX<=ww*1/4) && (oglTapY>=hh*3/4) ) {
+            oglv_corner_fade[0]=120;
             [self mdPrevPreset];
-        } else if ( (pmenu_show==0) && (oglTapX>=ww*3/4) && (oglTapY<=hh*3/4) ) {
+        } else if ( (pmenu_show==0) && (oglTapX>=ww*3/4) && (oglTapY>=hh*3/4) ) {
+            oglv_corner_fade[1]=120;
             [self mdNextPreset];
-        }
-        
+        } else if ( (pmenu_show==0) && (oglTapX>=ww*3/4) && (oglTapY<=hh*1/4) ) {
         //If tapping upper right corner and not in menu, activate showinfo panel
-        else if ( (pmenu_show==0) && (oglTapX>=ww*3/4) && (oglTapY<=hh*1/4) ) {
+            oglv_corner_fade[2]=120;
             [SettingsGenViewController changeSettingsValue:GLOB_FXSHOWINFO change:1];
+        }  else if ( (pmenu_show==0) && (oglTapX<=ww*1/4) && (oglTapY<=hh*1/4) ) {
+            oglv_corner_fade[3]=120;
         } else {
             //Activate menu if tap on the rest of the gl view
             if (pmenu_show==0) {
@@ -8389,6 +8447,8 @@ void doFramePM(float ww,float hh) {
         }
         
     }
+    
+    [self showGUICorners:ImVec2(ww,hh) frameToUpdate:frameToUpdate];
     
     [self showInfoData:ImVec2(ww,hh) frameToUpdate:frameToUpdate];
     

@@ -533,7 +533,6 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     UIBarButtonItem *item = [[UIBarButtonItem alloc] initWithImage:[UIImage systemImageNamed:NOW_PLAYING_ICON] style:UIBarButtonItemStylePlain target:self action:@selector(goPlayer)];
     self.navigationItem.rightBarButtonItem = item;
     
-    
     indexTitles = [[NSMutableArray alloc] init];
     [indexTitles addObject:@"{search}"];
     [indexTitles addObject:@"#"];
