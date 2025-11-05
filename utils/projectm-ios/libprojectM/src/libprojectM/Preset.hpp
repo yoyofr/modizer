@@ -20,8 +20,8 @@ public:
      * @param renderContext A render context with the initial data.
      */
     virtual void Initialize(const Renderer::RenderContext& renderContext) = 0;
-    virtual void GetShadersCode(std::string &warpShader,std::string &compShader) = 0;
-    virtual void SetShadersCode(std::string warpShader,std::string compShader) = 0;
+    virtual void GetShadersCode(std::string &warpShader,std::string &compShader,uint32_t *warpP,uint32_t *compP) = 0;
+    virtual void SetShadersCode(std::string warpShader,std::string compShader,uint32_t warpP,uint32_t compP) = 0;
 
     /**
      * @brief Renders the preset into the current framebuffer.

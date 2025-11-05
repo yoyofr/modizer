@@ -74,13 +74,13 @@ void PerPixelMesh::LoadWarpShader(const PresetState& presetState)
     }
 }
 
-void PerPixelMesh::CompileWarpShader(PresetState& presetState,const char*shaderCode)
+void PerPixelMesh::CompileWarpShader(PresetState& presetState,const char*shaderCode,uint32_t shaderP)
 {
     if (m_warpShader)
     {
         try
         {
-            m_warpShader->LoadTexturesAndCompile(presetState,shaderCode);
+            m_warpShader->LoadTexturesAndCompile(presetState,shaderCode,shaderP);
 #ifdef MILKDROP_PRESET_DEBUG
             std::cerr << "[Warp Shader] Successfully compiled warp shader code." << std::endl;
 #endif
@@ -105,6 +105,7 @@ void PerPixelMesh::PreCompileWarpShader(AltPresetState& presetState)
         {
             m_warpShader->PreLoadTexturesAndCompile(presetState);
             presetState.preCwarpShader=m_warpShader->m_convertedCode;
+            presetState.warpP=m_warpShader->m_shaderP;
 #ifdef MILKDROP_PRESET_DEBUG
             std::cerr << "[Warp Shader] Successfully compiled warp shader code." << std::endl;
 #endif

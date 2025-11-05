@@ -51,8 +51,8 @@ int deactivateFStemp;
 
 #define ASCII_MIDDOT "·"
 
-#define PM_HorizontalSwipe_Threshold 160
-#define PM_VerticalSwipe_Threshold 160
+#define PM_HorizontalSwipe_Threshold 120
+#define PM_VerticalSwipe_Threshold 120
 
 #define SELECTOR_TABVIEWCELL_HEIGHT 50
 #define ARCSUB_MODE_NONE 0
@@ -1823,7 +1823,7 @@ static float movePinchScale,movePinchScaleOld;
             if (mpl_upd) {
                 if (!mPaused && !noProgress) {
                     delayUpdate=true;
-                    MDZFLog("pending update %.1f %.1f",(float)itime/1000.0,(float)curSongLength/1000.0);
+                    //MDZFLog("pending update %.1f %.1f",(float)itime/1000.0,(float)curSongLength/1000.0);
                 } else {
                     if (mPaused) MDZFLog("paused");
                     if (noProgress) MDZFLog("no progress");
@@ -5498,12 +5498,15 @@ void pm_perfTest() {
     
     CHECK_PROFILE("various2b")
     
-    UIBarButtonItem *bbitem=[[UIBarButtonItem alloc] initWithTitle:@"" style:UIBarButtonItemStylePlain target:self action:@selector(showPlaylist)];
-    [bbitem setTitleTextAttributes:[NSDictionary dictionaryWithObjectsAndKeys: [UIFont fontWithName:@"FontAwesome" size:22.0], UITextAttributeFont,nil] forState:UIControlStateNormal];
-    unichar tmpChar=0xF0CA;
-    [bbitem setTitle:[NSString stringWithCharacters:&tmpChar length:1]];
-    [self.navigationItem setRightBarButtonItem:bbitem animated:YES];
-    [bbitem setTitlePositionAdjustment:UIOffsetMake(0,1.5) forBarMetrics:UIBarMetricsDefault];
+//    UIBarButtonItem *bbitem=[[UIBarButtonItem alloc] initWithTitle:@"" style:UIBarButtonItemStylePlain target:self action:@selector(showPlaylist)];
+//    [bbitem setTitleTextAttributes:[NSDictionary dictionaryWithObjectsAndKeys: [UIFont fontWithName:@"FontAwesome" size:22.0], UITextAttributeFont,nil] forState:UIControlStateNormal];
+//    unichar tmpChar=0xF0CA;
+//    [bbitem setTitle:[NSString stringWithCharacters:&tmpChar length:1]];
+//    [self.navigationItem setRightBarButtonItem:bbitem animated:YES];
+//    [bbitem setTitlePositionAdjustment:UIOffsetMake(0,1.5) forBarMetrics:UIBarMetricsDefault];
+    
+    UIBarButtonItem *item = [[UIBarButtonItem alloc] initWithImage:[UIImage systemImageNamed:@"music.note.list"] style:UIBarButtonItemStylePlain target:self action:@selector(showPlaylist)];
+    self.navigationItem.rightBarButtonItem = item;
     
     mHasFocus=0;
     mShouldUpdateInfos=0;
@@ -7335,8 +7338,10 @@ void doFramePM(float ww,float hh) {
     if (mOglView1Tap) {
         mOglView1Tap=0;
         
-        if ( (pmenu_show==0) && (oglTapX<=ww*1/4) && (oglTapY<=hh*1/4) ) {
-            [self mdTestAsyncLoad];
+        if ( (pmenu_show==0) && (oglTapX<=ww*1/4) && (oglTapY<=hh*3/4) ) {
+            [self mdPrevPreset];
+        } else if ( (pmenu_show==0) && (oglTapX>=ww*3/4) && (oglTapY<=hh*3/4) ) {
+            [self mdNextPreset];
         }
         
         //If tapping upper right corner and not in menu, activate showinfo panel

@@ -78,8 +78,8 @@ public:
      * @param renderContext The initial render context.
      */
     void Initialize(const Renderer::RenderContext& renderContext) override;
-    void GetShadersCode(std::string &warpShader,std::string &compShader) override;
-    void SetShadersCode(std::string warpShader,std::string compShader) override;
+    void GetShadersCode(std::string &warpShader,std::string &compShader,uint32_t *warpP,uint32_t *compP) override;
+    void SetShadersCode(std::string warpShader,std::string compShader,uint32_t warpP,uint32_t compP) override;
 
     /**
      * @brief Renders the preset.

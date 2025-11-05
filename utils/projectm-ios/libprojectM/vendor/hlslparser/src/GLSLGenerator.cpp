@@ -263,6 +263,8 @@ bool GLSLGenerator::Generate(HLSLTree* tree, Target target, Version version, con
     m_writer.WriteLine(0, "vec3 %s(mat3x4 m, int i) { return vec3( m[0][i], m[1][i], m[2][i] ); }", m_matrixRowFunction);
     m_writer.WriteLine(0, "vec4 %s(mat4 m, int i) { return vec4( m[0][i], m[1][i], m[2][i], m[3][i] ); }", m_matrixRowFunction);
     m_writer.WriteLine(0, "vec4 %s(mat4x3 m, int i) { return vec4( m[0][i], m[1][i], m[2][i], m[3][i] ); }", m_matrixRowFunction);
+    
+    m_writer.WriteLine(0, "int mod(int a,int b) {return int(mod(float(a),float(b)));}");
 
     // Output the special function used to do matrix cast for OpenGL 2.0
     if (m_versionLegacy)

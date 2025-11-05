@@ -25,7 +25,7 @@
 	IBOutlet UIToolbar *toolBar;
 	IBOutlet UIProgressView *progressIndicator;
 	IBOutlet UIBarButtonItem *backButton,*forwardButton;
-	IBOutlet UITextField *addressTestField;
+	IBOutlet UITextField *addressTextField;
 	IBOutlet DownloadViewController *downloadViewController;
 	IBOutlet DetailViewControllerIphone *detailViewController;
     
@@ -59,7 +59,7 @@
 @property (nonatomic,retain) IBOutlet UIToolbar *toolBar;
 @property (nonatomic,retain) IBOutlet UIProgressView *progressIndicator;
 @property (nonatomic,retain) IBOutlet UIBarButtonItem *backButton,*forwardButton;
-@property (nonatomic,retain) IBOutlet UITextField *addressTestField;
+@property (nonatomic,retain) IBOutlet UITextField *addressTextField;
 @property (nonatomic,retain) IBOutlet DownloadViewController *downloadViewController;
 @property (nonatomic,retain) IBOutlet DetailViewControllerIphone *detailViewController;
 @property (nonatomic, retain) WaitingView *waitingView,*waitingViewPlayer;

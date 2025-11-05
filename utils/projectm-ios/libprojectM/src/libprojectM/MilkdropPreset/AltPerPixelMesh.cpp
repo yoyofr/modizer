@@ -82,6 +82,7 @@ void AltPerPixelMesh::PreCompileWarpShader(AltPresetState& presetState)
         {
             m_warpShader->PreLoadTexturesAndCompile(presetState);
             presetState.preCwarpShader=m_warpShader->m_convertedCode;
+            presetState.warpP=m_warpShader->m_shaderP;
 #ifdef MILKDROP_PRESET_DEBUG
             std::cerr << "[Warp Shader] Successfully compiled warp shader code." << std::endl;
 #endif

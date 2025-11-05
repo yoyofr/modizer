@@ -26,35 +26,42 @@ Shader::~Shader()
 }
 
 void Shader::CompileProgram(const std::string& vertexShaderSource,
-                            const std::string& fragmentShaderSource)
+                            const std::string& fragmentShaderSource,
+                            uint32_t shaderP)
 {
-    auto vertexShader = CompileShader(vertexShaderSource, GL_VERTEX_SHADER);
-    auto fragmentShader = CompileShader(fragmentShaderSource, GL_FRAGMENT_SHADER);
-
-    glAttachShader(m_shaderProgram, vertexShader);
-    glAttachShader(m_shaderProgram, fragmentShader);
-
-    glLinkProgram(m_shaderProgram);
-
-    // Shader objects are no longer needed after linking, free the memory.
-    glDetachShader(m_shaderProgram, vertexShader);
-    glDetachShader(m_shaderProgram, fragmentShader);
-    glDeleteShader(vertexShader);
-    glDeleteShader(fragmentShader);
-
-    GLint programLinked;
-    glGetProgramiv(m_shaderProgram, GL_LINK_STATUS, &programLinked);
-    if (programLinked == GL_TRUE)
-    {
-        return;
+    if (!shaderP) {
+        auto vertexShader = CompileShader(vertexShaderSource, GL_VERTEX_SHADER);
+        auto fragmentShader = CompileShader(fragmentShaderSource, GL_FRAGMENT_SHADER);
+        
+        glAttachShader(m_shaderProgram, vertexShader);
+        glAttachShader(m_shaderProgram, fragmentShader);
+        
+        glLinkProgram(m_shaderProgram);
+        
+        // Shader objects are no longer needed after linking, free the memory.
+        glDetachShader(m_shaderProgram, vertexShader);
+        glDetachShader(m_shaderProgram, fragmentShader);
+        glDeleteShader(vertexShader);
+        glDeleteShader(fragmentShader);
+        
+        GLint programLinked;
+        glGetProgramiv(m_shaderProgram, GL_LINK_STATUS, &programLinked);
+        if (programLinked == GL_TRUE)
+        {
+            return;
+        }
+        
+        GLint infoLogLength{};
+        glGetProgramiv(m_shaderProgram, GL_INFO_LOG_LENGTH, &infoLogLength);
+        std::vector<char> message(infoLogLength + 1);
+        glGetProgramInfoLog(m_shaderProgram, infoLogLength, nullptr, message.data());
+        
+        throw ShaderException("Error compiling shader: " + std::string(message.data()));
+    } else {
+        
+        if (m_shaderProgram) glDeleteProgram(m_shaderProgram);
+        m_shaderProgram=shaderP;
     }
-
-    GLint infoLogLength{};
-    glGetProgramiv(m_shaderProgram, GL_INFO_LOG_LENGTH, &infoLogLength);
-    std::vector<char> message(infoLogLength + 1);
-    glGetProgramInfoLog(m_shaderProgram, infoLogLength, nullptr, message.data());
-
-    throw ShaderException("Error compiling shader: " + std::string(message.data()));
 }
 
 bool Shader::Validate(std::string& validationMessage) const

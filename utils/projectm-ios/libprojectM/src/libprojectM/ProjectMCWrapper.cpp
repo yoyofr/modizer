@@ -83,16 +83,16 @@ void projectm_destroy(projectm_handle instance)
     delete projectMInstance;
 }
 
-void projectm_preload_preset_file(projectm_handle instance, const char* filename,const char **warpShader,const char **compShader)
+void projectm_preload_preset_file(projectm_handle instance, const char* filename,const char **warpShader,const char **compShader,uint32_t *warpP,uint32_t *compP)
 {
     auto projectMInstance = handle_to_instance(instance);
-    projectMInstance->PreLoadPresetFile(filename, warpShader, compShader);
+    projectMInstance->PreLoadPresetFile(filename, warpShader, compShader,warpP,compP);
 }
 
-void projectm_loadpreload_preset_file(projectm_handle instance, const char* filename,const char *warpShader,const char *compShader, bool smoothTransition)
+void projectm_loadpreload_preset_file(projectm_handle instance, const char* filename,const char *warpShader,const char *compShader,uint32_t warpP,uint32_t compP, bool smoothTransition)
 {
     auto projectMInstance = handle_to_instance(instance);
-    projectMInstance->LoadPreLoadPresetFile(filename, warpShader, compShader,smoothTransition);
+    projectMInstance->LoadPreLoadPresetFile(filename, warpShader, compShader,warpP,compP,smoothTransition);
 }
 
 

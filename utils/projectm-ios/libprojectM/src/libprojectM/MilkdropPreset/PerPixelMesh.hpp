@@ -41,7 +41,7 @@ public:
      * @brief Loads the required textures and compiles the warp shader.
      * @param presetState The preset state to retrieve the configuration values from.
      */
-    void CompileWarpShader(PresetState& presetState,const char*shaderCode=NULL);
+    void CompileWarpShader(PresetState& presetState,const char*shaderCode=NULL,uint32_t shaderP=NULL);
     void PreCompileWarpShader(AltPresetState& presetState);
 
     /**

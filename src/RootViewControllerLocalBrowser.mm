@@ -530,11 +530,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
         //[currentPath retain];
     }
     
-    UIButton *btn = [[UIButton alloc] initWithFrame: CGRectMake(0, 0, 61, 31)];
-    [btn setBackgroundImage:[UIImage imageNamed:@"nowplaying_fwd.png"] forState:UIControlStateNormal];
-    btn.adjustsImageWhenHighlighted = YES;
-    [btn addTarget:self action:@selector(goPlayer) forControlEvents:UIControlEventTouchUpInside];
-    UIBarButtonItem *item = [[UIBarButtonItem alloc] initWithCustomView: btn];
+    UIBarButtonItem *item = [[UIBarButtonItem alloc] initWithImage:[UIImage systemImageNamed:NOW_PLAYING_ICON] style:UIBarButtonItemStylePlain target:self action:@selector(goPlayer)];
     self.navigationItem.rightBarButtonItem = item;
     
     
@@ -1931,28 +1927,20 @@ static int shouldRestart=1;
     //static int firstcall=0;
     [super viewWillAppear:animated];
     
-    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"14.0"))
-        if (@available(iOS 14.0, *)) {
             if ([NSProcessInfo processInfo].isiOSAppOnMac) {
                 
                 AppDelegate_Phone *main_delegate=(AppDelegate_Phone*)[[UIApplication sharedApplication] delegate];
                 ModizerWin *modizerWin=[main_delegate modizerWin];
                 
-                //CGRect frame = [modizerWin frame];
-                //frame.size.height = MODIZER_MACM1_HEIGHT_MAX;
-                //frame.size.width = MODIZER_MACM1_WIDTH_MAX;
-                //[modizerWin setFrame: frame];
-                //[modizerWin setBounds:frame];
             }
-        }
     
     bool oldmode=darkMode;
     darkMode=false;
     if (self.traitCollection.userInterfaceStyle==UIUserInterfaceStyleDark) darkMode=true;
     if (oldmode!=darkMode) forceReloadCells=true;
     
-    if (darkMode) self.tableView.backgroundColor=[UIColor blackColor];
-    else self.tableView.backgroundColor=[UIColor whiteColor];
+//    if (darkMode) self.tableView.backgroundColor=[UIColor blackColor];
+//    else self.tableView.backgroundColor=[UIColor whiteColor];
     
     [self.sBar setBarStyle:UIBarStyleDefault];
     

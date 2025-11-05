@@ -63,7 +63,7 @@ void MilkdropShader::LoadCode(const std::string& presetShaderCode)
     PreprocessPresetShader(m_preprocessedCode);
 }
 
-void MilkdropShader::LoadTexturesAndCompile(PresetState& presetState,const char *prePcode)
+void MilkdropShader::LoadTexturesAndCompile(PresetState& presetState,const char *prePcode,uint32_t shaderP)
 {
     std::locale loc;
     
@@ -168,14 +168,23 @@ void MilkdropShader::LoadTexturesAndCompile(PresetState& presetState,const char 
     presetState.blurTexture.SetRequiredBlurLevel(m_maxBlurLevelRequired);
 }
 
+void MilkdropShader::StringReplaceAll(std::string& s, const std::string& from, const std::string& to) {
+    if (from.empty()) return;
+    size_t startPos = 0;
+    while ((startPos = s.find(from, startPos)) != std::string::npos) {
+        s.replace(startPos, from.length(), to);
+        startPos += to.length(); // advance past the replaced segment to avoid infinite loop
+    }
+}
+
 void MilkdropShader::PreLoadTexturesAndCompile(AltPresetState& presetState)
 {
     std::locale loc;
     
     // Now request the textures and descriptors from the texture manager.
     std::shared_ptr<Renderer::Sampler> m_dummySampler{std::make_shared<Renderer::Sampler>(GL_CLAMP_TO_EDGE, GL_LINEAR)}; //!< Sampler for preset textures. Uses bilinear
-    std::shared_ptr<Renderer::Texture> m_dummyTexture{std::make_shared<Renderer::Texture>("dummy", 0, GL_TEXTURE_2D, 0, 0, true)}; //!< Sampler for preset
-    //!
+    std::shared_ptr<Renderer::Texture> m_dummyTexture{std::make_shared<Renderer::Texture>("dummy2D", 0, GL_TEXTURE_2D, 0, 0, true)}; //!< Sampler for preset
+    std::shared_ptr<Renderer::Texture> m_dummyTexture3D{std::make_shared<Renderer::Texture>("dummy3D", 0, GL_TEXTURE_3D, 0, 0, true)}; //!< Sampler for preset
 
         for (const auto& name : m_samplerNames)
         {
@@ -216,7 +225,7 @@ void MilkdropShader::PreLoadTexturesAndCompile(AltPresetState& presetState)
 //            }
             
             // Random textures need special treatment.
-            /*if (lowerCaseName.length() >= 6 &&
+            if (lowerCaseName.length() >= 6 &&
              lowerCaseName.substr(0, 4) == "rand" && std::isdigit(lowerCaseName.at(4), loc) && std::isdigit(lowerCaseName.at(5), loc))
              {
              // First look up the random texture index in the preset state so the texture matches between warp and composite shaders
@@ -239,8 +248,14 @@ void MilkdropShader::PreLoadTexturesAndCompile(AltPresetState& presetState)
              }
              
              // Slot empty, request a new random texture.
-             auto desc = presetState.renderContext.textureManager->GetRandomTexture(name);
-             
+             std::string randomName = presetState.renderContext.textureManager->GetRandomTextureNoLoad(name);
+                 Renderer::TextureSamplerDescriptor desc(m_dummyTexture,
+                                                         m_dummySampler,
+                                                         randomName,
+                                                         randomName);
+                 StringReplaceAll(m_preprocessedCode,std::string("sampler_"+name),std::string("sampler_"+randomName));
+                 
+                 
              // Also store a copy in preset state!
              presetState.randomTextureDescriptors.insert({randomSlot, desc});
              
@@ -249,11 +264,18 @@ void MilkdropShader::PreLoadTexturesAndCompile(AltPresetState& presetState)
              }
              
              // Fall through if slot number is out of range and treat as normal texture.
-             }*/
+             }
             
             //auto desc = presetState.renderContext.textureManager->GetTexture(name);
             //m_textureSamplerDescriptors.push_back(std::move(desc));
-            {
+            if (lowerCaseName.substr(0,8) == "noisevol") {
+                // Now request the textures and descriptors from the texture manager.
+                Renderer::TextureSamplerDescriptor desc(m_dummyTexture3D,
+                                                        m_dummySampler,
+                                                        name,
+                                                        name);
+                m_mainTextureDescriptors.push_back(std::move(desc));
+            } else {
                 // Now request the textures and descriptors from the texture manager.
                 Renderer::TextureSamplerDescriptor desc(m_dummyTexture,
                                                         m_dummySampler,
@@ -699,7 +721,7 @@ void MilkdropShader::GetReferencedSamplers(const std::string& program)
     }
 }
 
-void MilkdropShader::TranspileHLSLShader(const PresetState& presetState, std::string& program,const char *prePcode)
+void MilkdropShader::TranspileHLSLShader(const PresetState& presetState, std::string& program,const char *prePcode,uint32_t shaderP)
 {
     std::string shaderTypeString = "composite";
     if (m_type == ShaderType::WarpShader)
@@ -708,6 +730,7 @@ void MilkdropShader::TranspileHLSLShader(const PresetState& presetState, std::st
     }
     
     std::string codeToCompile;
+    GLuint shaderProg=0;
     
     if (prePcode==NULL) {
         
@@ -790,18 +813,19 @@ void MilkdropShader::TranspileHLSLShader(const PresetState& presetState, std::st
         //printf("===Code to compile===>\n%s\n",codeToCompile.c_str());
     } else {
         codeToCompile=std::string(prePcode);
+        shaderProg=shaderP;
     }
     
     // Now we have GLSL source for the preset shader program (hopefully it's valid!)
     // Compile the preset shader fragment shader with the standard vertex shader and cross our fingers.
     if (m_type == ShaderType::WarpShader)
     {
-        m_shader.CompileProgram(MilkdropStaticShaders::Get()->GetPresetWarpVertexShader(), codeToCompile);
+        m_shader.CompileProgram(MilkdropStaticShaders::Get()->GetPresetWarpVertexShader(), codeToCompile,shaderProg);
         //printf("Warp:\n%s\n",generator.GetResult()); //YOYOFR
     }
     else
     {
-        m_shader.CompileProgram(MilkdropStaticShaders::Get()->GetPresetCompVertexShader(), codeToCompile);
+        m_shader.CompileProgram(MilkdropStaticShaders::Get()->GetPresetCompVertexShader(), codeToCompile,shaderProg);
         
 //        printf("%s\n",generator.GetResult()); //YOYOFR
     }
@@ -891,7 +915,22 @@ void MilkdropShader::TranspileHLSLShaderNoGLCompilation(const AltPresetState& pr
     
     m_convertedCode=generator.GetResult();
 
-    //printf("===Code to compile===>\n%s\n",m_convertedCode.c_str());
+    // Now we have GLSL source for the preset shader program (hopefully it's valid!)
+    // Compile the preset shader fragment shader with the standard vertex shader and cross our fingers.
+    if (m_type == ShaderType::WarpShader)
+    {
+        m_shader.CompileProgram(MilkdropStaticShaders::Get()->GetPresetWarpVertexShader(), m_convertedCode);
+        //printf("Warp:\n%s\n",generator.GetResult()); //YOYOFR
+    }
+    else
+    {
+        m_shader.CompileProgram(MilkdropStaticShaders::Get()->GetPresetCompVertexShader(), m_convertedCode);
+        
+        //        printf("%s\n",generator.GetResult()); //YOYOFR
+    }
+    
+    m_shaderP=m_shader.m_shaderProgram;
+    m_shader.m_shaderProgram=0;
 }
 
 

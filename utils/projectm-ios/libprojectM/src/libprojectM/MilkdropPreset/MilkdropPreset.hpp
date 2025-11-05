@@ -76,8 +76,8 @@ public:
      * @param renderContext The initial render context.
      */
     void Initialize(const Renderer::RenderContext& renderContext) override;
-    void GetShadersCode(std::string &warpShader,std::string &compShader) override;
-    void SetShadersCode(std::string warpShader,std::string compShader) override;
+    void GetShadersCode(std::string &warpShader,std::string &compShader,uint32_t *warpP,uint32_t *compP) override;
+    void SetShadersCode(std::string warpShader,std::string compShader,uint32_t warpP,uint32_t compP) override;
     /**
      * @brief Renders the preset.
      * @param audioData The frame audio data.
@@ -113,6 +113,8 @@ private:
     int m_preCodeAvail{0};
     const char* m_prePWarpCode;
     const char* m_prePCompCode;
+    uint32_t m_prePwarpS;
+    uint32_t m_prePcompS;
 
     std::string m_absoluteFilePath; //!< The absolute file path of the MilkdropPreset
     std::string m_absolutePath;     //!< The absolute path of the MilkdropPreset

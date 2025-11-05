@@ -154,7 +154,8 @@ public:
 
     std::string warpShader;      //!< Warp shader code.
     std::string compositeShader; //!< Composite shader code.
-
+    uint32_t warpP,compP;
+    
     std::string preCwarpShader;      //!< Warp shader code.
     std::string preCcompositeShader; //!< Composite shader code.
     

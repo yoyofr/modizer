@@ -66,6 +66,7 @@ enum MDZ_PLAYLIST_FNODE_Type {
 @property (nonatomic, assign) bool shuffle;
 @property (nonatomic, assign) bool lastFailed;
 @property (nonatomic, assign) const char *warp,*comp;
+@property (nonatomic, assign) uint32_t warpP,compP;
 @property (nonatomic, assign) int retry_counter;
 
 - (instancetype)init:(projectm_handle)pmh name:(NSString*)name;

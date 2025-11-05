@@ -12,6 +12,8 @@
 extern os_log_t mdzLog;
 #endif
 
+#define NOW_PLAYING_ICON @"music.note.tv"
+
 #define FONT_BASE_SIZEF 16.0f
 
 #define MDZLog(a, ...) os_log_with_type(mdzLog,a,__VA_ARGS__)

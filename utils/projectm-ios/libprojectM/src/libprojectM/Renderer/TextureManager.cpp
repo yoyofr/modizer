@@ -36,16 +36,18 @@ void TextureManager::SetCurrentPresetPath(const std::string&)
 {
 }
 
-TextureSamplerDescriptor TextureManager::GetTexture(const std::string& fullName)
+TextureSamplerDescriptor TextureManager::GetTexture(const std::string& fullName,bool dontLoad)
 {
     std::string unqualifiedName;
     GLint wrapMode;
     GLint filterMode;
 
     ExtractTextureSettings(fullName, wrapMode, filterMode, unqualifiedName);
-    if (m_textures.find(unqualifiedName) == m_textures.end())
-    {
-        return TryLoadingTexture(fullName);
+    if (!dontLoad) {
+        if (m_textures.find(unqualifiedName) == m_textures.end())
+        {
+            return TryLoadingTexture(fullName);
+        }
     }
 
     return {m_textures[unqualifiedName], m_samplers.at({wrapMode, filterMode}), fullName, unqualifiedName};
@@ -235,7 +237,7 @@ auto TextureManager::LoadTexture(const ScannedFile& file) -> std::shared_ptr<Tex
     return newTexture;
 }
 
-auto TextureManager::GetRandomTexture(const std::string& randomName) -> TextureSamplerDescriptor
+auto TextureManager::GetRandomTexture(const std::string& randomName,bool dontLoad) -> TextureSamplerDescriptor
 {
     std::string selectedFilename;
 
@@ -287,12 +289,71 @@ auto TextureManager::GetRandomTexture(const std::string& randomName) -> TextureS
         return {};
     }
 
+    if (dontLoad) return {nullptr, nullptr, randomName, randomName};
+    
     // Use selected filename to load the texture.
-    auto desc = GetTexture(selectedFilename);
+    auto desc = GetTexture(selectedFilename,dontLoad);
 
     // Create new descriptor with the original "rand00[_prefix]" name.
     return {desc.Texture(), desc.Sampler(), randomName, randomName};
 }
+
+std::string TextureManager::GetRandomTextureNoLoad(const std::string& randomName)
+{
+    std::string selectedFilename;
+
+    std::random_device rndDevice;
+    std::default_random_engine rndEngine(rndDevice());
+
+    ScanTextures();
+
+    std::string lowerCaseName = Utils::ToLower(randomName);
+
+    if (m_scannedTextureFiles.empty())
+    {
+        return {};
+    }
+
+    std::string prefix;
+    if (lowerCaseName.length() > 7 && lowerCaseName.at(6) == '_')
+    {
+        prefix = lowerCaseName.substr(7);
+    }
+
+    if (prefix.empty())
+    {
+        // Just pick a random index.
+        std::uniform_int_distribution<size_t> distribution(0, m_scannedTextureFiles.size() - 1);
+        selectedFilename = m_scannedTextureFiles.at(distribution(rndEngine)).lowerCaseBaseName;
+    }
+    else
+    {
+
+        std::vector<ScannedFile> filteredFiles;
+        auto prefixLength = prefix.length();
+        std::copy_if(m_scannedTextureFiles.begin(), m_scannedTextureFiles.end(),
+                     std::back_inserter(filteredFiles),
+                     [&prefix, prefixLength](const ScannedFile& file) {
+                         return file.lowerCaseBaseName.substr(0, prefixLength) == prefix;
+                     });
+
+        if (!filteredFiles.empty())
+        {
+            std::uniform_int_distribution<size_t> distribution(0, filteredFiles.size() - 1);
+            selectedFilename = filteredFiles.at(distribution(rndEngine)).lowerCaseBaseName;
+        }
+    }
+
+    // If a prefix was set and no file matched, filename can be empty.
+    if (selectedFilename.empty())
+    {
+        return {};
+    }
+
+    return selectedFilename;
+    
+}
+
 
 void TextureManager::AddTextureFile(const std::string& fileName, const std::string& baseName)
 {

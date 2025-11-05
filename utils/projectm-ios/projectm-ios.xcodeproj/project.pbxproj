@@ -1865,6 +1865,18 @@
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = ZV46EUY73C;
+				HEADER_SEARCH_PATHS = (
+					"$(PROJECT_DIR)/libprojectM/vendor/projectm-eval",
+					"$(PROJECT_DIR)/libprojectM/src/libprojectM",
+					"$(PROJECT_DIR)/libprojectM/src/libprojectM/MilkdropPreset",
+					"$(PROJECT_DIR)/libprojectM/vendor",
+					"$(PROJECT_DIR)/libprojectM/src/api/include",
+					"$(PROJECT_DIR)/libprojectM/vendor/projectm-eval/projectm-eval/api",
+					"$(PROJECT_DIR)/libprojectM/src/playlist/api",
+					"$(PROJECT_DIR)/libprojectM/vendor/hlslparser/src",
+					"$(PROJECT_DIR)/libprojectM/vendor/SOIL2/src",
+					"$(PROJECT_DIR)/../MetalANGLE/",
+				);
 				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1878,6 +1890,18 @@
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = ZV46EUY73C;
+				HEADER_SEARCH_PATHS = (
+					"$(PROJECT_DIR)/libprojectM/vendor/projectm-eval",
+					"$(PROJECT_DIR)/libprojectM/src/libprojectM",
+					"$(PROJECT_DIR)/libprojectM/src/libprojectM/MilkdropPreset",
+					"$(PROJECT_DIR)/libprojectM/vendor",
+					"$(PROJECT_DIR)/libprojectM/src/api/include",
+					"$(PROJECT_DIR)/libprojectM/vendor/projectm-eval/projectm-eval/api",
+					"$(PROJECT_DIR)/libprojectM/src/playlist/api",
+					"$(PROJECT_DIR)/libprojectM/vendor/hlslparser/src",
+					"$(PROJECT_DIR)/libprojectM/vendor/SOIL2/src",
+					"$(PROJECT_DIR)/../MetalANGLE/",
+				);
 				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";

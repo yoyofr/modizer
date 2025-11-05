@@ -72,7 +72,7 @@ public:
      * @param fragmentShaderSource The fragment shader source.
      */
     void CompileProgram(const std::string& vertexShaderSource,
-                        const std::string& fragmentShaderSource);
+                        const std::string& fragmentShaderSource,uint32_t shaderP=NULL);
 
     /**
      * @brief Validates that the program can run in the current state.
@@ -178,7 +178,7 @@ public:
      * @return The parsed version, or {0,0} if the version could not be parsed.
      */
     static auto GetShaderLanguageVersion() -> GlslVersion;
-
+    GLuint m_shaderProgram{}; //!< The program ID.
 private:
     /**
      * @brief Compiles a single shader.
@@ -191,7 +191,7 @@ private:
     
     std::string addLineNumbers(const std::string& text, int width = 3);
 
-    GLuint m_shaderProgram{}; //!< The program ID.
+//    GLuint m_shaderProgram{}; //!< The program ID.
 };
 
 } // namespace Renderer

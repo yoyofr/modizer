@@ -120,6 +120,7 @@ void AltFinalComposite::PreCompileCompositeShader(AltPresetState& presetState)
         {
             m_compositeShader->PreLoadTexturesAndCompile(presetState);
             presetState.preCcompositeShader=m_compositeShader->m_convertedCode;
+            presetState.compP=m_compositeShader->m_shaderP;
 #ifdef MILKDROP_PRESET_DEBUG
             std::cerr << "[Composite Shader] Successfully compiled composite shader code." << std::endl;
 #endif

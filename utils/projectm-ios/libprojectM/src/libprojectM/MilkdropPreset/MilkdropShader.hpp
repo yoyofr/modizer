@@ -11,6 +11,7 @@
 
 #include <Renderer/Shader.hpp>
 #include <Renderer/TextureManager.hpp>
+#include "AltPresetState.hpp"
 
 #include <array>
 #include <set>
@@ -52,7 +53,7 @@ public:
      * Binds the underlying shader program.
      * @param presetState The preset state to pull the values and textures from.
      */
-    void LoadTexturesAndCompile(PresetState& presetState,const char *prePcode=NULL);
+    void LoadTexturesAndCompile(PresetState& presetState,const char *prePcode=NULL,uint32_t shaderP=NULL);
     void PreLoadTexturesAndCompile(AltPresetState& presetState);
 
     /**
@@ -69,7 +70,8 @@ public:
      */
     auto Shader() -> Renderer::Shader&;
     
-    std::string m_convertedCode;            //!< The preprocessed preset shader code.
+    std::string m_convertedCode;
+    GLuint m_shaderP;
 
 private:
     /**
@@ -89,9 +91,9 @@ private:
      * @param presetState The preset state to pull the blur textures from.
      * @param program The shader to transpile.
      */
-    void TranspileHLSLShader(const PresetState& presetState, std::string& program,const char *prePcode=NULL);
+    void TranspileHLSLShader(const PresetState& presetState, std::string& program,const char *prePcode=NULL,uint32_t shaderP=NULL);
     void TranspileHLSLShaderNoGLCompilation(const AltPresetState& presetState, std::string& program);
-
+    void StringReplaceAll(std::string& s, const std::string& from, const std::string& to);
     /**
      * @brief Updates the requested blur level if higher than before.
      * Also adds the required samplers.

@@ -14,7 +14,7 @@ public:
 	void	Reset(uint32_t hostReplayRate, uint32_t ymClock = 2000000);
 	void	WritePort(uint8_t port, uint8_t value);
 	uint8_t ReadPort(uint8_t port) const;
-	int16_t	ComputeNextSample(uint32_t* pSampleDebugInfo = NULL);
+	int16_t	ComputeNextSample(uint32_t* pSampleDebugInfo = nullptr);
 	void	InsideTimerIrq(bool inside);
 
     int getYM2149_Freq(int channel);//YOYOFR
@@ -55,3 +55,4 @@ private:
 	bool		m_insideTimerIrq;
 	bool		m_edgeNeedReset[3];
 };
+

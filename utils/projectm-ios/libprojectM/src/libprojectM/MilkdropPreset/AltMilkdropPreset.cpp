@@ -73,12 +73,14 @@ void AltMilkdropPreset::Initialize(const Renderer::RenderContext& renderContext)
     m_finalComposite.PreCompileCompositeShader(m_state);
 }
 
-void AltMilkdropPreset::GetShadersCode(std::string &warpShader,std::string &compShader) {
+void AltMilkdropPreset::GetShadersCode(std::string &warpShader,std::string &compShader,uint32_t *warpP,uint32_t *compP) {
     warpShader=std::string(m_state.preCwarpShader);
     compShader=std::string(m_state.preCcompositeShader);
+    *warpP=m_state.warpP;
+    *compP=m_state.compP;
 }
 
-void AltMilkdropPreset::SetShadersCode(std::string warpShader,std::string compShader) {
+void AltMilkdropPreset::SetShadersCode(std::string warpShader,std::string compShader,uint32_t warpP,uint32_t compP) {
 }
 
 void AltMilkdropPreset::RenderFrame(const libprojectM::Audio::FrameAudioData& audioData, const Renderer::RenderContext& renderContext)

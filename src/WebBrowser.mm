@@ -44,7 +44,7 @@ int found_img;
 static UIAlertView *alertChooseName;
 
 
-@synthesize webView,progressIndicator,backButton,forwardButton,downloadViewController,addressTestField;
+@synthesize webView,progressIndicator,backButton,forwardButton,downloadViewController,addressTextField;
 @synthesize detailViewController,toolBar;
 @synthesize infoDownloadView,infoDownloadLbl;
 
@@ -125,14 +125,14 @@ static UIAlertView *alertChooseName;
 
 -(IBAction) newBookmark:(id)sender {
     if (custom_url_count<MAX_CUSTOM_URL) {
-        if ([addressTestField.text length]) {
+        if ([addressTextField.text length]) {
             NSString *tmpStr;
-            if ([addressTestField.text length]>24) tmpStr=[NSString stringWithFormat:@"%@...",[addressTestField.text substringToIndex:24-3]];
-            else tmpStr=[NSString stringWithString:addressTestField.text];
+            if ([addressTextField.text length]>24) tmpStr=[NSString stringWithFormat:@"%@...",[addressTextField.text substringToIndex:24-3]];
+            else tmpStr=[NSString stringWithString:addressTextField.text];
             alertChooseName=[[UIAlertView alloc] initWithTitle:[NSString stringWithFormat:@"Enter Bookmark name for %@",tmpStr] message:nil delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:@"Ok",nil];
             [alertChooseName setAlertViewStyle:UIAlertViewStylePlainTextInput];
             UITextField *tf=[alertChooseName textFieldAtIndex:0];
-            tf.text=addressTestField.text;
+            tf.text=addressTextField.text;
             [alertChooseName show];
         }
     } else {
@@ -233,33 +233,33 @@ static UIAlertView *alertChooseName;
     [button setImage:[UIImage imageNamed:@"bb_refresh.png"] forState:UIControlStateNormal];
     button.imageEdgeInsets = UIEdgeInsetsMake(0, -4, 0, 4);
     [button addTarget:self action:@selector(refresh:) forControlEvents:UIControlEventTouchUpInside];
-    addressTestField.rightView = button;
-    addressTestField.rightViewMode = UITextFieldViewModeUnlessEditing;
+    addressTextField.rightView = button;
+    addressTextField.rightViewMode = UITextFieldViewModeUnlessEditing;
     
 }
 
 - (BOOL)textFieldShouldReturn:(UITextField *)textField {
 	[textField resignFirstResponder];
 	
-	if ([addressTestField.text caseInsensitiveCompare:@""]==NSOrderedSame) [self loadHome];
+	if ([addressTextField.text caseInsensitiveCompare:@""]==NSOrderedSame) [self loadHome];
 	else {
 		int doGoogleSearch=0;
-		NSRange r0 = [addressTestField.text rangeOfString:@"." options:NSCaseInsensitiveSearch];
+		NSRange r0 = [addressTextField.text rangeOfString:@"." options:NSCaseInsensitiveSearch];
 		if (r0.location == NSNotFound) {
-			NSRange r0 = [addressTestField.text rangeOfString:@"localhost" options:NSCaseInsensitiveSearch];
+			NSRange r0 = [addressTextField.text rangeOfString:@"localhost" options:NSCaseInsensitiveSearch];
 			if (r0.location == NSNotFound) doGoogleSearch=1;
 		}
 		if (doGoogleSearch) {
-            addressTestField.text=[NSString stringWithFormat:@"http://www.google.com/search?ie=UTF-8&q=%@",[addressTestField.text stringByReplacingOccurrencesOfString:@" " withString:@"+" options:0 range:NSMakeRange(0,[addressTestField.text length])]];
+            addressTextField.text=[NSString stringWithFormat:@"http://www.google.com/search?ie=UTF-8&q=%@",[addressTextField.text stringByReplacingOccurrencesOfString:@" " withString:@"+" options:0 range:NSMakeRange(0,[addressTextField.text length])]];
 		} else {				
-			NSRange r1 = [addressTestField.text rangeOfString:@"http://" options:NSCaseInsensitiveSearch];
-			NSRange r2 = [addressTestField.text rangeOfString:@"https://" options:NSCaseInsensitiveSearch];
-			NSRange r3 = [addressTestField.text rangeOfString:@"ftp://" options:NSCaseInsensitiveSearch];
+			NSRange r1 = [addressTextField.text rangeOfString:@"http://" options:NSCaseInsensitiveSearch];
+			NSRange r2 = [addressTextField.text rangeOfString:@"https://" options:NSCaseInsensitiveSearch];
+			NSRange r3 = [addressTextField.text rangeOfString:@"ftp://" options:NSCaseInsensitiveSearch];
 			if ((r1.location == NSNotFound)&&(r2.location == NSNotFound)&&(r3.location == NSNotFound)) {
-				addressTestField.text=[NSString stringWithFormat:@"http://%@",addressTestField.text];
+				addressTextField.text=[NSString stringWithFormat:@"http://%@",addressTextField.text];
 			}
 		}
-		[webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:addressTestField.text]]];
+		[webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:addressTextField.text]]];
 	}
 	return NO;
 }
@@ -292,8 +292,8 @@ static UIAlertView *alertChooseName;
     if (currentMode==WEB_MODE) { //save WEB url
         //if (lastURL) [lastURL release];
         lastURL=nil;
-        if (addressTestField.text==nil) lastURL=nil;
-        else lastURL=[[NSString alloc] initWithString:addressTestField.text];        
+        if (addressTextField.text==nil) lastURL=nil;
+        else lastURL=[[NSString alloc] initWithString:addressTextField.text];        
     }
     currentMode=WCHARTS_MODE;
     loadStatus=TO_LOAD;
@@ -309,8 +309,8 @@ static UIAlertView *alertChooseName;
     if (currentMode==WEB_MODE) { //save WEB url
         //if (lastURL) [lastURL release];
         lastURL=nil;
-        if (addressTestField.text==nil) lastURL=nil;
-        else lastURL=[[NSString alloc] initWithString:addressTestField.text];
+        if (addressTextField.text==nil) lastURL=nil;
+        else lastURL=[[NSString alloc] initWithString:addressTextField.text];
     }
     currentMode=GUIDE_MODE;
     loadStatus=TO_LOAD;
@@ -336,10 +336,10 @@ static UIAlertView *alertChooseName;
     }
 	
 	if (lastURL) {
-        addressTestField.text=[NSString stringWithString:lastURL];
+        addressTextField.text=[NSString stringWithString:lastURL];
         //[lastURL autorelease];
     } else {[self loadHome];loadStatus=LOADED;}
-//	if ([addressTestField.text caseInsensitiveCompare:@""]==NSOrderedSame) [self loadHome];
+//	if ([addressTextField.text caseInsensitiveCompare:@""]==NSOrderedSame) [self loadHome];
 //	else {
 //		[webView loadHTMLString:EMPTY_PAGE baseURL:nil];
 //	}
@@ -348,17 +348,17 @@ static UIAlertView *alertChooseName;
 -(void)goToURL:(NSString*)address {
     loadStatus=TO_LOAD;
     currentMode=WEB_MODE;
-    addressTestField.text=address;
+    addressTextField.text=address;
     
-    [self textFieldShouldReturn:addressTestField];
+    [self textFieldShouldReturn:addressTextField];
 }
 
 -(void)goToURLwithLoad:(NSString*)address {
     loadStatus=TO_LOAD;
     currentMode=WEB_MODE;
-    addressTestField.text=address;
+    addressTextField.text=address;
     
-    [self textFieldShouldReturn:addressTestField];
+    [self textFieldShouldReturn:addressTextField];
     
     //    toolBar.hidden=FALSE;
     CGSize cursize=[self currentSize];
@@ -379,7 +379,7 @@ static UIAlertView *alertChooseName;
                                                                               pathForResource:@"browser_home" ofType:@"html"]isDirectory:NO]]];
     
 //	[webView loadHTMLString:html baseURL:nil];
-    addressTestField.text=@"";
+    addressTextField.text=@"";
 }
 
 
@@ -403,8 +403,8 @@ static UIAlertView *alertChooseName;
     if (alertView==alertChooseName) {
         if (buttonIndex==1) {
         UITextField *name = [alertView textFieldAtIndex:0];
-        //custom_URL[custom_url_count]=[[NSString alloc] initWithString:addressTestField.text];
-            [custom_URL addObject:[[NSString alloc] initWithString:addressTestField.text]];
+        //custom_URL[custom_url_count]=[[NSString alloc] initWithString:addressTextField.text];
+            [custom_URL addObject:[[NSString alloc] initWithString:addressTextField.text]];
 		//custom_URL_name[custom_url_count]=[[NSString alloc] initWithString:name.text];
             [custom_URL_name addObject:[[NSString alloc] initWithString:name.text]];
 		custom_url_count++;
@@ -874,12 +874,12 @@ static UIAlertView *alertChooseName;
         (navigationAction.navigationType==WKNavigationTypeReload)||
         (navigationAction.navigationType==WKNavigationTypeBackForward)) {
         
-        addressTestField.text=[[navigationAction.request URL] absoluteString];
-        if ([addressTestField.text caseInsensitiveCompare:@"about:blank"]==NSOrderedSame) addressTestField.text=@"";
+        addressTextField.text=[[navigationAction.request URL] absoluteString];
+        if ([addressTextField.text caseInsensitiveCompare:@"about:blank"]==NSOrderedSame) addressTextField.text=@"";
         
-        //[self textFieldShouldReturn:addressTestField];
+        //[self textFieldShouldReturn:addressTextField];
         
-        //[webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:addressTestField.text]]];
+        //[webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:addressTextField.text]]];
         
     }
     
@@ -908,8 +908,8 @@ didCommitNavigation:(WKNavigation *)navigation {
     [button setImage:[UIImage imageNamed:@"bb_stop.png"] forState:UIControlStateNormal];
     button.imageEdgeInsets = UIEdgeInsetsMake(0, -4, 0, 4);
     [button addTarget:self action:@selector(stopLoading:) forControlEvents:UIControlEventTouchUpInside];
-    addressTestField.rightView = button;
-    addressTestField.rightViewMode = UITextFieldViewModeUnlessEditing;
+    addressTextField.rightView = button;
+    addressTextField.rightViewMode = UITextFieldViewModeUnlessEditing;
     button=nil;
     
     //update back/forward buttons
@@ -941,8 +941,8 @@ didFinishNavigation:(WKNavigation *)navigation {
     [button setImage:[UIImage imageNamed:@"bb_refresh.png"] forState:UIControlStateNormal];
     button.imageEdgeInsets = UIEdgeInsetsMake(0, -4, 0, 4);
     [button addTarget:self action:@selector(refresh:) forControlEvents:UIControlEventTouchUpInside];
-    addressTestField.rightView = button;
-    addressTestField.rightViewMode = UITextFieldViewModeUnlessEditing;
+    addressTextField.rightView = button;
+    addressTextField.rightViewMode = UITextFieldViewModeUnlessEditing;
     
 //	[activityIndicator stopAnimating];
     [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
@@ -968,36 +968,36 @@ didFinishNavigation:(WKNavigation *)navigation {
             }
             
             [webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:urlString]]];
-            addressTestField.text=urlString;
+            addressTextField.text=urlString;
         } else if (currentMode==GUIDE_MODE) {
             loadStatus=LOADED;
             NSString *urlString=[NSString stringWithFormat:@"%@/%@?Device=%s",STATISTICS_URL,USERGUIDE_URL,(detailViewController.mDeviceType==1?"iPad":"iPhone")];
             [webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:urlString]]];
-            addressTestField.text=urlString;
+            addressTextField.text=urlString;
         } else if (currentMode==WEB_MODE) {
             loadStatus=LOADED;
             
 			int doGoogleSearch=0;
 			[webView loadHTMLString:EMPTY_PAGE baseURL:nil];
-			NSRange r0 = [addressTestField.text rangeOfString:@"." options:NSCaseInsensitiveSearch];
+			NSRange r0 = [addressTextField.text rangeOfString:@"." options:NSCaseInsensitiveSearch];
 			if (r0.location == NSNotFound) {
-				NSRange r0 = [addressTestField.text rangeOfString:@"localhost" options:NSCaseInsensitiveSearch];
+				NSRange r0 = [addressTextField.text rangeOfString:@"localhost" options:NSCaseInsensitiveSearch];
 				if (r0.location == NSNotFound) doGoogleSearch=1;
 			}
 			if (doGoogleSearch) {
-				addressTestField.text=[NSString stringWithFormat:@"http://www.google.com/search?ie=UTF-8&q=%@",[addressTestField.text stringByReplacingOccurrencesOfString:@" " withString:@"+" options:0 range:NSMakeRange(0,[addressTestField.text length])]];
+				addressTextField.text=[NSString stringWithFormat:@"http://www.google.com/search?ie=UTF-8&q=%@",[addressTextField.text stringByReplacingOccurrencesOfString:@" " withString:@"+" options:0 range:NSMakeRange(0,[addressTextField.text length])]];
 			} else {				
-				NSRange r1 = [addressTestField.text rangeOfString:@"http://" options:NSCaseInsensitiveSearch];
-				NSRange r2 = [addressTestField.text rangeOfString:@"https://" options:NSCaseInsensitiveSearch];
-				NSRange r3 = [addressTestField.text rangeOfString:@"ftp://" options:NSCaseInsensitiveSearch];
+				NSRange r1 = [addressTextField.text rangeOfString:@"http://" options:NSCaseInsensitiveSearch];
+				NSRange r2 = [addressTextField.text rangeOfString:@"https://" options:NSCaseInsensitiveSearch];
+				NSRange r3 = [addressTextField.text rangeOfString:@"ftp://" options:NSCaseInsensitiveSearch];
 				if ((r1.location == NSNotFound)&&(r2.location == NSNotFound)&&(r3.location == NSNotFound)) {
-					addressTestField.text=[NSString stringWithFormat:@"http://%@",addressTestField.text];
+					addressTextField.text=[NSString stringWithFormat:@"http://%@",addressTextField.text];
 				}
 			}
             //if (lastURL) [lastURL release];
             lastURL=nil;
-            lastURL=[[NSString alloc] initWithString:addressTestField.text];
-			[webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:addressTestField.text]]];
+            lastURL=[[NSString alloc] initWithString:addressTextField.text];
+			[webView loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:addressTextField.text]]];
 		}
     }
 }
@@ -1292,8 +1292,8 @@ didFinishNavigation:(WKNavigation *)navigation {
     [self.view addConstraint:[NSLayoutConstraint constraintWithItem:waitingView attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:self.view attribute:NSLayoutAttributeCenterX multiplier:1.0 constant:0]];
     [self.view addConstraint:[NSLayoutConstraint constraintWithItem:waitingView attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:self.view attribute:NSLayoutAttributeCenterY multiplier:1.0 constant:0]];
     
-    views = NSDictionaryOfVariableBindings(addressTestField);
-    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[addressTestField(32)]" options:0 metrics:nil views:views]];
+    views = NSDictionaryOfVariableBindings(addressTextField);
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[addressTextField(32)]" options:0 metrics:nil views:views]];
     //adressfield
     
     waitingViewPlayer = [[WaitingView alloc] init];
@@ -1309,21 +1309,21 @@ didFinishNavigation:(WKNavigation *)navigation {
     [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:waitingViewPlayer attribute:NSLayoutAttributeCenterX multiplier:1.0 constant:0]];
     [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:waitingViewPlayer attribute:NSLayoutAttributeCenterY multiplier:1.0 constant:0]];
     
-    addressTestField.translatesAutoresizingMaskIntoConstraints=false;
+    addressTextField.translatesAutoresizingMaskIntoConstraints=false;
     progressIndicator.translatesAutoresizingMaskIntoConstraints=false;
     toolBar.translatesAutoresizingMaskIntoConstraints=false;
     
     CGFloat statusbarHeight;
     CGSize statusBarSize = [[UIApplication sharedApplication] statusBarFrame].size;
     statusbarHeight=MIN(statusBarSize.width, statusBarSize.height);
-    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:addressTestField attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:self.view attribute:NSLayoutAttributeWidth multiplier:0.96 constant:0]];
-    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:addressTestField attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:self.view attribute:NSLayoutAttributeCenterX multiplier:1.0 constant:0]];
-    topConstraint=[NSLayoutConstraint constraintWithItem:addressTestField attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:self.view attribute:NSLayoutAttributeTop multiplier:1.0 constant:statusbarHeight];
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:addressTextField attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:self.view attribute:NSLayoutAttributeWidth multiplier:0.96 constant:0]];
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:addressTextField attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:self.view attribute:NSLayoutAttributeCenterX multiplier:1.0 constant:0]];
+    topConstraint=[NSLayoutConstraint constraintWithItem:addressTextField attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:self.view attribute:NSLayoutAttributeTop multiplier:1.0 constant:statusbarHeight];
     [self.view addConstraint:topConstraint];
     
     //progressbar
     [self.view addConstraint:[NSLayoutConstraint constraintWithItem:progressIndicator attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:self.view attribute:NSLayoutAttributeWidth multiplier:1.0 constant:0]];
-    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:progressIndicator attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:addressTestField attribute:NSLayoutAttributeBottom multiplier:1.0 constant:0]];
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:progressIndicator attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:addressTextField attribute:NSLayoutAttributeBottom multiplier:1.0 constant:0]];
     
     //toolbar
     [self.view addConstraint:[NSLayoutConstraint constraintWithItem:toolBar attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:self.view attribute:NSLayoutAttributeWidth multiplier:1.0 constant:0]];
@@ -1366,11 +1366,7 @@ didFinishNavigation:(WKNavigation *)navigation {
     
 	//self.hidesBottomBarWhenPushed = YES;
     
-    UIButton *btn = [[UIButton alloc] initWithFrame: CGRectMake(0, 0, 61, 31)];
-    [btn setBackgroundImage:[UIImage imageNamed:@"nowplaying_fwd.png"] forState:UIControlStateNormal];
-    btn.adjustsImageWhenHighlighted = YES;
-    [btn addTarget:self action:@selector(goPlayer) forControlEvents:UIControlEventTouchUpInside];
-    UIBarButtonItem *item = [[UIBarButtonItem alloc] initWithCustomView: btn];
+    UIBarButtonItem *item = [[UIBarButtonItem alloc] initWithImage:[UIImage systemImageNamed:NOW_PLAYING_ICON] style:UIBarButtonItemStylePlain target:self action:@selector(goPlayer)];
     self.navigationItem.rightBarButtonItem = item;
 	
 	
@@ -1378,8 +1374,8 @@ didFinishNavigation:(WKNavigation *)navigation {
     [button setImage:[UIImage imageNamed:@"bb_refresh.png"] forState:UIControlStateNormal];
     button.imageEdgeInsets = UIEdgeInsetsMake(0, -4, 0, 4);
     [button addTarget:self action:@selector(refresh:) forControlEvents:UIControlEventTouchUpInside];
-    addressTestField.rightView = button;
-    addressTestField.rightViewMode = UITextFieldViewModeUnlessEditing;
+    addressTextField.rightView = button;
+    addressTextField.rightViewMode = UITextFieldViewModeUnlessEditing;
     //[button release];
 	
 	[[infoDownloadView layer] setCornerRadius:5.0];
@@ -1454,7 +1450,7 @@ shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherG
     statusbarHeight=MIN(statusBarSize.width, statusBarSize.height);
     
     if (topConstraint) [self.view removeConstraint:topConstraint];
-    topConstraint=[NSLayoutConstraint constraintWithItem:addressTestField attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:self.view attribute:NSLayoutAttributeTop multiplier:1.0 constant:statusbarHeight];
+    topConstraint=[NSLayoutConstraint constraintWithItem:addressTextField attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:self.view attribute:NSLayoutAttributeTop multiplier:1.0 constant:statusbarHeight];
     [self.view addConstraint:topConstraint];
     
     [super viewWillLayoutSubviews];

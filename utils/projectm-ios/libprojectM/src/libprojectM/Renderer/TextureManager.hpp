@@ -34,7 +34,7 @@ public:
      * @param fullName
      * @return
      */
-    auto GetTexture(const std::string& fullName) -> TextureSamplerDescriptor;
+    auto GetTexture(const std::string& fullName,bool dontLoad=false) -> TextureSamplerDescriptor;
 
     /**
      * @brief Returns a random texture descriptor, optionally using a prefix (after the `randXX_` name).
@@ -42,7 +42,8 @@ public:
      * @param randomName The filename prefix to filter. If empty, all available textures are matches. Case-insensitive.
      * @return A texture descriptor with the random texture and a default sampler, or an empty sampler if no texture could be matched.
      */
-    auto GetRandomTexture(const std::string& randomName) -> TextureSamplerDescriptor;
+    auto GetRandomTexture(const std::string& randomName,bool dontLoad=false) -> TextureSamplerDescriptor;
+    std::string GetRandomTextureNoLoad(const std::string& randomName);
 
     /**
      * @brief Returns a sampler for the given name.

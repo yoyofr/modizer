@@ -151,6 +151,7 @@ public:
 
     std::string preCwarpShader;      //!< Warp shader code.
     std::string preCcompositeShader; //!< Composite shader code.
+    uint32_t warpP,compP;
     
     std::weak_ptr<Renderer::Shader> untexturedShader; //!< Shader used to draw untextured primitives, e.g. waveforms.
     std::weak_ptr<Renderer::Shader> texturedShader;   //!< Shader used to draw textured primitives, e.g. textured shapes and the warp mesh.

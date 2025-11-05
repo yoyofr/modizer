@@ -154,6 +154,7 @@ auto PresetFileParser::GetCode(const std::string& keyPrefix) const -> std::strin
                 if ((line.find("//")==std::string::npos) &&
                     (line.find("/*")==std::string::npos) &&
                     (line.find("*/")==std::string::npos) &&
+                    !( (line.at(pos-3)=='e')&&(line.at(pos-2)=='l')&&(line.at(pos-1)=='s')&&(line.at(pos)=='e') ) &&
                     (line.at(0)!='#') &&
                     (last_char!=';') &&
                     (last_char!='(') &&

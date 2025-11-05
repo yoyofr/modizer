@@ -43,8 +43,7 @@
 
 #if defined( SOIL_GLES2 )
 	#ifdef SOIL_PLATFORM_IOS
-		#include <OpenGLES/ES2/gl.h>
-		#include <OpenGLES/ES2/glext.h>
+        #include <GLES3/gl3.h>
 	#else
 		#include <GLES2/gl2.h>
 		#include <GLES2/gl2ext.h>

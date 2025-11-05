@@ -12,8 +12,9 @@
 
 #ifdef __APPLE__
 #ifdef USE_GLES //YOYOFR
-#include <OpenGLES/ES3/gl.h> //YOYOFR
-#include <OpenGLES/ES3/glext.h>  //YOYOFR
+//#include <OpenGLES/ES3/gl.h> //YOYOFR
+//#include <OpenGLES/ES3/glext.h>  //YOYOFR
+# include <GLES3/gl3.h>
 #else
 # include <OpenGL/gl3.h>
 # include <OpenGL/gl3ext.h>
