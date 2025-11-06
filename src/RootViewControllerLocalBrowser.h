@@ -46,9 +46,7 @@
     
     NSProgress *extractProgress;
     
-    UIAlertView *alertRename;
-    int renameFile,renameSec,renameIdx;
-    int createFolder;
+    int renameSec,renameIdx;
 
 	
 	IBOutlet UISearchBar *sBar;
@@ -109,8 +107,6 @@
 
 @property (nonatomic, retain) NSFileManager *mFileMngr;
 @property (nonatomic, retain) CMPopTipView *popTipView;
-
-@property (nonatomic, retain) UIAlertView *alertRename;
 
 -(IBAction)goPlayer;
 

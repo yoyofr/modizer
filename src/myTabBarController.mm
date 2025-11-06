@@ -15,6 +15,8 @@
 
 #import "CarPlayAndRemoteManagement.h"
 
+#import "SceneDelegate.h"
+
 
 extern int shiftPressedL,shiftPressedR;
 extern int move_cursorL,move_cursorR,keyDel;
@@ -120,6 +122,18 @@ extern int move_cursorL,move_cursorR,keyDel;
     return nil;
 }
 
+- (SceneDelegate *)currentSceneDelegate {
+    UIWindowScene *windowScene = nil;
+    for (UIScene *scene in UIApplication.sharedApplication.connectedScenes) {
+        if ([scene isKindOfClass:[UIWindowScene class]]) {
+            UIWindowScene *ws = (UIWindowScene *)scene;
+                windowScene = ws;
+                break;
+        }
+    }
+    return (SceneDelegate *)windowScene.delegate;
+}
+
 - (void)registerVCinAppDelegate {
     AppDelegate_Phone *appDelegate = (AppDelegate_Phone *)[[UIApplication sharedApplication] delegate];
     appDelegate.detailViewControlleriPhone = detailViewControllerIphone;
@@ -127,6 +141,13 @@ extern int move_cursorL,move_cursorR,keyDel;
     appDelegate.tabBarC = self;
     appDelegate.playlistVC = playlistVC;
     appDelegate.downloadVC = downloadVC;
+        
+    SceneDelegate *sceneDelegate = [self currentSceneDelegate];
+    sceneDelegate.detailViewControlleriPhone = detailViewControllerIphone;
+    sceneDelegate.rootViewControlleriPhone = rootViewControllerIphone;
+    sceneDelegate.tabBarController = self;
+    sceneDelegate.playlistVC = playlistVC;
+    sceneDelegate.downloadVC =downloadVC;
 }
 
 - (void)viewDidLoad {
@@ -229,19 +250,142 @@ extern int move_cursorL,move_cursorR,keyDel;
             break;
         }
     }
-    UIWindow *window = windowScene.windows.firstObject;
-    CGRect frame = [window frame];
-    animatedLaunchVC=[[AnimatedLaunchVC alloc] initWithNibName:@"AnimatedLaunch" bundle:[NSBundle mainBundle]];
-    animatedLaunchVC.view.frame=/*self.view.*/frame;
-    animatedLaunchVC.localBrowserVC=rootViewControllerIphone;
+    
+    
+    
     //Faster loading for debug
 #ifdef DEBUG_MODIZER
-    [window addSubview:[animatedLaunchVC view]];
+    //[window addSubview:[animatedLaunchVC view]];
 #else
-    [window addSubview:[animatedLaunchVC view]];
+//    [window addSubview:[animatedLaunchVC view]];
 #endif
     
     END_PROFILE
+}
+
+- (void)showAnimatedLaunchOverlay {
+    if (self.animatedLaunchVC != nil) { return; }
+
+    AnimatedLaunchVC *vc = [[AnimatedLaunchVC alloc] initWithNibName:@"AnimatedLaunch" bundle:[NSBundle mainBundle]];
+    vc.localBrowserVC = self.rootViewControllerIphone;
+
+    [self addChildViewController:vc];
+
+    // Forward appearance to child
+    [vc beginAppearanceTransition:YES animated:NO];
+
+    vc.view.frame = self.view.bounds;
+    vc.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    vc.view.alpha = 1.0;
+    [self.view addSubview:vc.view];
+
+    // Finish forwarding
+    [vc endAppearanceTransition];
+
+    [vc didMoveToParentViewController:self];
+
+    self.animatedLaunchVC = vc;
+}
+- (void)hideAnimatedLaunchOverlay {
+    if (!self.animatedLaunchVC) { return; }
+
+    [self.animatedLaunchVC willMoveToParentViewController:nil];
+
+    // Forward disappearance to child
+    [self.animatedLaunchVC beginAppearanceTransition:NO animated:YES];
+
+    [self.animatedLaunchVC.view removeFromSuperview];
+
+    // Finish forwarding
+    [self.animatedLaunchVC endAppearanceTransition];
+
+    [self.animatedLaunchVC removeFromParentViewController];
+    self.animatedLaunchVC = nil;
+}
+- (void)viewDidAppear:(BOOL)animated {
+    static bool firstcall=true;
+    
+    if (firstcall) {
+        firstcall=false;
+        
+//        // Create and configure the animated launch VC
+//        self.animatedLaunchVC = [[AnimatedLaunchVC alloc] initWithNibName:@"AnimatedLaunch" bundle:[NSBundle mainBundle]];
+//        self.animatedLaunchVC.modalPresentationStyle = UIModalPresentationFullScreen;
+//        self.animatedLaunchVC.localBrowserVC = self.rootViewControllerIphone;
+        // Present it over the tab bar
+        //[self presentViewController:self.animatedLaunchVC animated:NO completion:^{
+            // Optionally kick off your animation here and dismiss when done
+            // [self.animatedLaunchVC startAnimationWithCompletion:^{
+            //     [self dismissViewControllerAnimated:YES completion:nil];
+            // }];
+//        }];
+       
+       
+        [self showAnimatedLaunchOverlay];
+    }
+}
+
+-(void) openURL:(NSURL *)url {
+    if ([url isFileURL]) {
+        NSString *filepath;
+        filepath=[url path];
+        
+        NSString *imported_filepath;
+        NSError *err;
+        NSFileManager *mFileMngr=[[NSFileManager alloc] init];
+        
+        [mFileMngr createDirectoryAtPath:[NSHomeDirectory() stringByAppendingPathComponent:@"Documents/Downloads"] withIntermediateDirectories:true attributes:NULL error:NULL];
+        
+        imported_filepath=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:@"Documents/Downloads"],[filepath lastPathComponent]];
+        //////////////////
+        ///Get access
+        if ([url startAccessingSecurityScopedResource]) {
+            ////////////////////
+            //Download from icould if required
+            
+            NSNumber *isDownloadedValue = NULL;
+            if ([mFileMngr isUbiquitousItemAtURL:url]) {
+                BOOL success = [url getResourceValue:&isDownloadedValue forKey:NSURLUbiquitousItemIsDownloadedKey error:NULL];
+                if (success && ![isDownloadedValue boolValue]) {
+                    [[NSFileManager defaultManager] startDownloadingUbiquitousItemAtURL:url error:NULL];
+                    
+                    
+                    //                    UIAlertView *alertDownloading = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Warning",@"") message:NSLocalizedString(@"File is not available locally.\nTrigerring download from iCloud, please check in 'Files' application.",@"") delegate:self cancelButtonTitle:NSLocalizedString(@"Close",@"") otherButtonTitles:nil];
+                    //                    if (alertDownloading) [alertDownloading show];
+                    UIAlertController *alertDownloading = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Warning",@"")
+                                                                                              message:NSLocalizedString(@"File is not available locally.\nTrigerring download from iCloud, please check in 'Files' application.",@"")
+                                                                                       preferredStyle:UIAlertControllerStyleAlert];
+                    UIAlertAction* closeAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Close",@"") style:UIAlertActionStyleCancel
+                                                                        handler:^(UIAlertAction * action) {
+                    }];
+                    [alertDownloading addAction:closeAction];
+                    [self presentViewController:alertDownloading animated:YES completion:nil];
+                    
+                    //return YES;
+                }
+            }
+            
+            if ([mFileMngr copyItemAtPath:filepath toPath:imported_filepath error:&err]) {
+                [rootViewControllerIphone refreshViewAfterDownload];
+            } else {
+            }
+            [url stopAccessingSecurityScopedResource];
+        } else  {
+        }
+        
+        NSString *shortfilepath=imported_filepath=[NSString stringWithFormat:@"Documents/Downloads/%@",[filepath lastPathComponent]];
+
+        t_playlist *pl;
+        pl=(t_playlist*)calloc(1,sizeof(t_playlist));
+        
+        pl->nb_entries=1;
+        pl->entries[0].label=[shortfilepath lastPathComponent];
+        pl->entries[0].fullpath=shortfilepath;
+        pl->entries[0].ratings=-1;
+        pl->entries[0].playcounts=0;
+        [detailViewControllerIphone play_listmodules:pl start_index:0];
+        free(pl);
+    }
 }
 
 #pragma mark - Key Commands

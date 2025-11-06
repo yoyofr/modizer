@@ -64,46 +64,41 @@
         window = [UIApplication sharedApplication].keyWindow;
     }
     
+    for (UIOpenURLContext *ctx in connectionOptions.URLContexts) {
+        NSURL *url = ctx.URL;
+        // Route the URL to your content handler / player
+        // e.g., [detailViewControlleriPhone openURL:url];
+        
+    }
+    
     //[self pushViewController:animatedLaunchVC animated:YES];
 }
 
 - (void)sceneDidDisconnect:(UIScene *)scene {
     // Called as the scene is being released by the system.
-    [SettingsGenViewController backupSettings];
-    [detailViewControlleriPhone saveSettings];
-    [downloadVC backupDownloadList];
-    [detailViewControlleriPhone updateFlagOnExit];
-    
 }
 
 - (void)sceneDidBecomeActive:(UIScene *)scene {
     // Called when the scene has moved from an inactive state to an active state.
-    if ([[UIApplication sharedApplication] respondsToSelector:@selector(endReceivingRemoteControlEvents)]) {
-    //    [[UIApplication sharedApplication] endReceivingRemoteControlEvents];
-        [detailViewControlleriPhone enterForeground];
-    }
 }
 
 - (void)sceneWillResignActive:(UIScene *)scene {
     // Called when the scene will move from an active state to an inactive state.
-    if ([[UIApplication sharedApplication] respondsToSelector:@selector(beginReceivingRemoteControlEvents)]) {
-        [detailViewControlleriPhone enterBackground];
-    //    [modizerWin becomeFirstResponder];
-    //    [[UIApplication sharedApplication] beginReceivingRemoteControlEvents];
-    }
 }
 
 - (void)sceneWillEnterForeground:(UIScene *)scene {
     // Called as the scene transitions from the background to the foreground.
-    //AppDelegate_Phone *appDelegate = (AppDelegate_Phone *)[UIApplication sharedApplication].delegate;
-    if (downloadVC) {
-        [downloadVC refreshDownloadCountBadge];
-    }
 }
 
 - (void)sceneDidEnterBackground:(UIScene *)scene {
     // Called as the scene transitions from the foreground to the background.
-    [downloadVC refreshDownloadCountBadge];
+}
+
+- (void)scene:(UIScene *)scene openURLContexts:(NSSet<UIOpenURLContext *> *)URLContexts {
+    for (UIOpenURLContext *ctx in URLContexts) {
+        NSURL *url = ctx.URL;
+        [tabBarController openURL:url];
+    }
 }
 
 @end

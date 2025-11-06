@@ -56,5 +56,6 @@
 @property (nonatomic, retain) AnimatedLaunchVC *animatedLaunchVC;
 @property (nonatomic, retain) CarPlayAndRemoteManagement *cpMngt;
 
+-(void) openURL:(NSURL *)url;
 
 @end

@@ -471,7 +471,8 @@ int qsortVGMR_entries_rating_or_entries(const void *entryA, const void *entryB) 
                     NSArray *arr_details=[doc searchWithXPathQuery:@"/html/body//div[@class='result row']//a[@class='download']/small/text()"];
                     NSArray *arr_name=[doc searchWithXPathQuery:@"/html/body//div[@class='result row']//img/@alt"];
                     NSArray *arr_img=[doc searchWithXPathQuery:@"/html/body//div[@class='result row']//img/@src"];
-                    NSArray *arr_companies=[doc searchWithXPathQuery:@"/html/body//div[@class='result row']//tr[@class='publishers']//a[last()]/text()"];
+                    //NSArray *arr_companies=[doc searchWithXPathQuery:@"/html/body//div[@class='result row']//tr[@class='publishers']//a[last()]/text()"];
+                    NSArray *arr_companies=[doc searchWithXPathQuery:@"/html/body//div[@class='result row']//tr[@class='publishers']/td"];
                     //NSArray *arr_systems=[doc searchWithXPathQuery:@"/html/body//div[@class='result row']//tr[@class='systems']//a[1]/text()"];
                     NSArray *arr_systems=[doc searchWithXPathQuery:@"/html/body//div[@class='result row']//tr[@class='systems']/td"];
                     NSArray *arr_chips=[doc searchWithXPathQuery:@"/html/body//div[@class='result row']//tr[@class='chips']/td"];
@@ -492,10 +493,21 @@ int qsortVGMR_entries_rating_or_entries(const void *entryA, const void *entryB) 
                             el=[arr_details objectAtIndex:j];
                             we[we_index].file_details=[NSString stringWithString:[el raw]];
                             
-                            if ([arr_companies count]>j) {
-                                el=[arr_companies objectAtIndex:j];
-                                we[we_index].file_company=[NSString stringWithString:[el raw]];
-                            } else we[we_index].file_company=nil;
+//                            if ([arr_companies count]>j) {
+//                                el=[arr_companies objectAtIndex:j];
+//                                we[we_index].file_company=[NSString stringWithString:[el raw]];
+//                            } else we[we_index].file_company=nil;
+                            el=[arr_companies objectAtIndex:j];
+                            NSString *compagny=nil;
+                            if ([el hasChildren]) {
+                                NSArray *el_ar=[el childrenWithTagName:@"a"];
+                                for (int ii=0;ii<[el_ar count];ii++) {
+                                    TFHppleElement *ela=[el_ar objectAtIndex:ii];
+                                    if (compagny) compagny=[NSString stringWithFormat:@"%@,%@",compagny,[ela text]];
+                                    else compagny=[NSString stringWithFormat:@"%@",[ela text]];
+                                }
+                            }
+                            we[we_index].file_company=[NSString stringWithFormat:@"%@",compagny];
                             
 //                            if ([arr_systems count]>j) {
 //                                el=[arr_systems objectAtIndex:j];
@@ -738,7 +750,8 @@ int qsortVGMR_entries_rating_or_entries(const void *entryA, const void *entryB) 
             NSArray *arr_details=[doc searchWithXPathQuery:@"/html/body//div[@class='result row']//a[@class='download']/small/text()"];
             NSArray *arr_name=[doc searchWithXPathQuery:@"/html/body//div[@class='result row']//img/@alt"];
             NSArray *arr_img=[doc searchWithXPathQuery:@"/html/body//div[@class='result row']//img/@src"];
-            NSArray *arr_companies=[doc searchWithXPathQuery:@"/html/body//div[@class='result row']//tr[@class='publishers']//a[last()]/text()"];
+            //NSArray *arr_companies=[doc searchWithXPathQuery:@"/html/body//div[@class='result row']//tr[@class='publishers']//a[last()]/text()"];
+            NSArray *arr_companies=[doc searchWithXPathQuery:@"/html/body//div[@class='result row']//tr[@class='publishers']//td"];
 //            NSArray *arr_systems=[doc searchWithXPathQuery:@"/html/body//div[@class='result row']//tr[@class='systems']//a[1]/text()"];
             NSArray *arr_systems=[doc searchWithXPathQuery:@"/html/body//div[@class='result row']//tr[@class='systems']//td"];
             NSArray *arr_chips=[doc searchWithXPathQuery:@"/html/body//div[@class='result row']//tr[@class='chips']/td"];
@@ -759,8 +772,19 @@ int qsortVGMR_entries_rating_or_entries(const void *entryA, const void *entryB) 
                     el=[arr_details objectAtIndex:j];
                     we[we_index].file_details=[NSString stringWithString:[el raw]];
                     
+//                    el=[arr_companies objectAtIndex:j];
+//                    we[we_index].file_company=[NSString stringWithString:[el raw]];
                     el=[arr_companies objectAtIndex:j];
-                    we[we_index].file_company=[NSString stringWithString:[el raw]];
+                    NSString *compagny=nil;
+                    if ([el hasChildren]) {
+                        NSArray *el_ar=[el childrenWithTagName:@"a"];
+                        for (int ii=0;ii<[el_ar count];ii++) {
+                            TFHppleElement *ela=[el_ar objectAtIndex:ii];
+                            if (compagny) compagny=[NSString stringWithFormat:@"%@,%@",compagny,[ela text]];
+                            else compagny=[NSString stringWithFormat:@"%@",[ela text]];
+                        }
+                    }
+                    we[we_index].file_company=[NSString stringWithFormat:@"%@",compagny];
                     
 //                    el=[arr_systems objectAtIndex:j];
 //                    we[we_index].file_systems=[NSString stringWithString:[el raw]];

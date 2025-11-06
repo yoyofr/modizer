@@ -61,7 +61,6 @@ extern volatile t_settings settings[MAX_SETTINGS];
 @synthesize childController;
 @synthesize mSearchText;
 @synthesize popTipView;
-@synthesize alertRename;
 @synthesize waitingView,waitingViewExtract,waitingViewPlayer;
 
 #pragma mark -
@@ -344,88 +343,6 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     return self;
 }
 
-- (void) alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
-    if (mDatabaseCreationInProgress) {
-        [self recreateDB];
-        [self showAlertMsg:NSLocalizedString(@"Info",@"") message:NSLocalizedString(@"Database created.",@"")];
-    }
-    if (renameFile) {
-        renameFile=0;
-        if (buttonIndex==1) {
-            t_local_browse_entry **cur_local_entries=(search_local?search_local_entries:local_entries);
-            UITextField *tf=[alertView textFieldAtIndex:0];
-            if (cur_local_entries[renameSec][renameIdx].label) cur_local_entries[renameSec][renameIdx].label=nil;
-            
-            NSString *curPath,*tgtPath;
-            
-            curPath=[ModizFileHelper getFullPathForFilePath:cur_local_entries[renameSec][renameIdx].fullpath];
-            tgtPath=[ModizFileHelper getFullPathForFilePath:cur_local_entries[renameSec][renameIdx].fullpath];
-            
-            tgtPath=[[tgtPath stringByDeletingLastPathComponent] stringByAppendingPathComponent:tf.text];
-            
-            NSError *err;
-            mFileMngr.delegate=self;
-            if ([mFileMngr moveItemAtPath:curPath toPath:tgtPath error:&err]==NO) {
-                MDZELog("Issue %d while renaming file %@",(int)(err.code),curPath);
-            } else {
-                cur_local_entries[renameSec][renameIdx].label=[[NSString alloc] initWithString:tf.text];
-                
-                //[cur_local_entries[renameSec][renameIdx].fullpath release];
-                cur_local_entries[renameSec][renameIdx].fullpath=[[NSString alloc] initWithString:tgtPath];
-                if (mSearch) {
-                    mSearch=0;
-                    [self listLocalFiles];
-                    mSearch=1;
-                }
-                shouldFillKeys=1;
-                [self fillKeys];
-                
-                [self.tableView reloadData];
-            }
-            //tf.text=[NSString stringWithString:cur_local_entries[section][indexPath.row].fullpath];
-        }
-    }
-    if (createFolder) {
-        createFolder=0;
-        if (buttonIndex==1) {
-            UITextField *tf=[alertView textFieldAtIndex:0];
-            
-            NSString *newPath;
-            newPath=[[ModizFileHelper getFullPathForFilePath:currentPath] stringByAppendingPathComponent:tf.text];
-            
-            NSError *err;
-            if ([mFileMngr createDirectoryAtPath:newPath withIntermediateDirectories:YES attributes:nil error:&err]==NO) {
-                MDZELog("Issue %d while create folder %@",(int)(err.code),newPath);
-                [self showAlertMsg:NSLocalizedString(@"Warning",@"") message:[NSString stringWithFormat:NSLocalizedString(@"Issue %d while creating folder\n%@",@""),err.code,newPath]];
-            } else {
-                [ModizFileHelper addSkipBackupAttributeToItemAtPath:newPath];
-                
-                if (mSearch) {
-                    mSearch=0;
-                    [self listLocalFiles];
-                    mSearch=1;
-                }
-                [self listLocalFiles];
-                
-                [self.tableView reloadData];
-            }
-            //tf.text=[NSString stringWithString:cur_local_entries[section][indexPath.row].fullpath];
-        }
-    }
-    
-    
-}
-
-- (BOOL) alertViewShouldEnableFirstOtherButton:(UIAlertView *)alertView
-{
-    NSString *inputText = [[alertView textFieldAtIndex:0] text];
-    if( [inputText length] >= 1 ) {
-        return YES;
-    } else {
-        return NO;
-    }
-}
-
 - (NSString *)machine {
     size_t size;
     
@@ -667,9 +584,6 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     
     
     [super viewDidLoad];
-    renameFile=0;
-    createFolder=0;
-    
     
     // Initialize the refresh control.
     self.tableView.refreshControl = [[UIRefreshControl alloc] init];
@@ -2397,7 +2311,6 @@ As a consequence, some entries might disappear from existing playlist.\n\
                 t_local_browse_entry **cur_local_entries=(search_local?search_local_entries:local_entries);
                 int section=indexPath.section-2;
                 //rename
-                renameFile=1;
                 renameSec=section;renameIdx=indexPath.row;
                 
                 if ([cutpaste_filesrcpath compare:cur_local_entries[section][indexPath.row].fullpath]==NSOrderedSame) {
@@ -2406,11 +2319,54 @@ As a consequence, some entries might disappear from existing playlist.\n\
                     cutpaste_filesrcpath=nil;
                 }
                 
-                alertRename=[[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Enter new name",@"") message:nil delegate:self cancelButtonTitle:NSLocalizedString(@"Cancel",@"") otherButtonTitles:NSLocalizedString(@"Ok",@""),nil];
-                [alertRename setAlertViewStyle:UIAlertViewStylePlainTextInput];
-                UITextField *tf=[alertRename textFieldAtIndex:0];
-                tf.text=[NSString stringWithString:cur_local_entries[section][indexPath.row].label];
-                [alertRename show];
+                UIAlertController *alertC = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Enter new name",@"")
+                                                                                message:nil
+                                                                         preferredStyle:UIAlertControllerStyleAlert];
+                __weak UIAlertController *weakAlert = alertC;
+                [alertC addTextFieldWithConfigurationHandler:^(UITextField *textField) {
+                    textField.placeholder = [NSString stringWithString:cur_local_entries[section][indexPath.row].label];
+                }];
+                
+                UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel",@"") style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+                    
+                }];
+                [alertC addAction:cancelAction];
+                
+                UIAlertAction *saveAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Rename",@"") style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+                    UITextField *tf = weakAlert.textFields.firstObject;
+                    t_local_browse_entry **cur_local_entries=(search_local?search_local_entries:local_entries);
+                    if (cur_local_entries[renameSec][renameIdx].label) cur_local_entries[renameSec][renameIdx].label=nil;
+                    
+                    NSString *curPath,*tgtPath;
+                    
+                    curPath=[ModizFileHelper getFullPathForFilePath:cur_local_entries[renameSec][renameIdx].fullpath];
+                    tgtPath=[ModizFileHelper getFullPathForFilePath:cur_local_entries[renameSec][renameIdx].fullpath];
+                    
+                    tgtPath=[[tgtPath stringByDeletingLastPathComponent] stringByAppendingPathComponent:tf.text];
+                    
+                    NSError *err;
+                    mFileMngr.delegate=self;
+                    if ([mFileMngr moveItemAtPath:curPath toPath:tgtPath error:&err]==NO) {
+                        MDZELog("Issue %d while renaming file %@",(int)(err.code),curPath);
+                    } else {
+                        cur_local_entries[renameSec][renameIdx].label=[[NSString alloc] initWithString:tf.text];
+                        
+                        //[cur_local_entries[renameSec][renameIdx].fullpath release];
+                        cur_local_entries[renameSec][renameIdx].fullpath=[[NSString alloc] initWithString:tgtPath];
+                        if (mSearch) {
+                            mSearch=0;
+                            [self listLocalFiles];
+                            mSearch=1;
+                        }
+                        shouldFillKeys=1;
+                        [self fillKeys];
+                        
+                        [self.tableView reloadData];
+                    }
+                }];
+                [alertC addAction:saveAction];
+                
+                [self showAlert:alertC];
                 
                 break;
             }
@@ -2471,13 +2427,46 @@ As a consequence, some entries might disappear from existing playlist.\n\
 - (void)slideTableViewCell:(SESlideTableViewCell*)cell didTriggerRightButton:(NSInteger)buttonIndex {
     if ([cell.reuseIdentifier compare:@"CellH"]==NSOrderedSame) {
         //Header => New Folder
-        createFolder=1;
         
-        alertRename=[[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Enter folder name",@"") message:nil delegate:self cancelButtonTitle:NSLocalizedString(@"Cancel",@"") otherButtonTitles:NSLocalizedString(@"Ok",@""),nil];
-        [alertRename setAlertViewStyle:UIAlertViewStylePlainTextInput];
-        UITextField *tf=[alertRename textFieldAtIndex:0];
-        tf.text=[NSString stringWithString:NSLocalizedString(@"New folder",@"")];
-        [alertRename show];
+        UIAlertController *alertC = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Enter folder name",@"")
+                                                                        message:nil
+                                                                 preferredStyle:UIAlertControllerStyleAlert];
+        __weak UIAlertController *weakAlert = alertC;
+        [alertC addTextFieldWithConfigurationHandler:^(UITextField *textField) {
+            textField.placeholder = [NSString stringWithString:NSLocalizedString(@"New folder",@"")];;
+        }];
+        
+        UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel",@"") style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+            
+        }];
+        [alertC addAction:cancelAction];
+        
+        UIAlertAction *saveAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Create",@"") style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+            UITextField *tf = weakAlert.textFields.firstObject;
+            
+            NSString *newPath;
+            newPath=[[ModizFileHelper getFullPathForFilePath:currentPath] stringByAppendingPathComponent:tf.text];
+            
+            NSError *err;
+            if ([mFileMngr createDirectoryAtPath:newPath withIntermediateDirectories:YES attributes:nil error:&err]==NO) {
+                MDZELog("Issue %d while create folder %@",(int)(err.code),newPath);
+                [self showAlertMsg:NSLocalizedString(@"Warning",@"") message:[NSString stringWithFormat:NSLocalizedString(@"Issue %d while creating folder\n%@",@""),err.code,newPath]];
+            } else {
+                [ModizFileHelper addSkipBackupAttributeToItemAtPath:newPath];
+                
+                if (mSearch) {
+                    mSearch=0;
+                    [self listLocalFiles];
+                    mSearch=1;
+                }
+                [self listLocalFiles];
+                
+                [self.tableView reloadData];
+            }
+        }];
+        [alertC addAction:saveAction];
+        
+        [self showAlert:alertC];
     } else {
         //File or Directory => Delete
         
