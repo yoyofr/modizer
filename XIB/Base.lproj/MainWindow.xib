@@ -42,17 +42,15 @@
             <tabBar key="tabBar" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translucent="NO" id="10">
                 <rect key="frame" x="0.0" y="519" width="320" height="49"/>
                 <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
-                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                 <tabBarAppearance key="standardAppearance"/>
             </tabBar>
             <viewControllers>
                 <navigationController definesPresentationContext="YES" modalTransitionStyle="flipHorizontal" id="49">
                     <extendedEdge key="edgesForExtendedLayout"/>
                     <tabBarItem key="tabBarItem" title="Library" image="music.note.square.stack.fill" catalog="system" id="53" userLabel="Tab Bar Item - Library"/>
-                    <navigationBar key="navigationBar" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translucent="NO" id="51">
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="Wfm-mE-nS4">
                         <rect key="frame" x="0.0" y="0.0" width="1000" height="1000"/>
                         <autoresizingMask key="autoresizingMask"/>
-                        <navigationBarAppearance key="standardAppearance"/>
                     </navigationBar>
                     <viewControllers>
                         <viewController title="Browse" modalTransitionStyle="flipHorizontal" id="1979" customClass="RootViewControllerLocalBrowser">
@@ -64,14 +62,8 @@
                                 <rect key="frame" x="0.0" y="0.0" width="375" height="541"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <subviews>
-                                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" image="1237346308.jpg" id="dha-O7-vH1">
-                                        <rect key="frame" x="0.0" y="-16" width="375" height="573"/>
-                                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                        <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                    </imageView>
-                                    <tableView clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" preservesSuperviewLayoutMargins="YES" layoutMarginsFollowReadableWidth="YES" alwaysBounceVertical="YES" style="plain" separatorStyle="none" rowHeight="40" sectionHeaderHeight="22" sectionFooterHeight="22" translatesAutoresizingMaskIntoConstraints="NO" id="1985">
+                                    <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" style="plain" separatorStyle="none" rowHeight="40" sectionHeaderHeight="22" sectionFooterHeight="22" translatesAutoresizingMaskIntoConstraints="NO" id="1985">
                                         <rect key="frame" x="0.0" y="0.0" width="375" height="541"/>
-                                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                         <viewLayoutGuide key="contentLayoutGuide" id="Jlw-Pn-rlr"/>
                                         <viewLayoutGuide key="frameLayoutGuide" id="pe2-co-CV3"/>
@@ -91,6 +83,12 @@
                                 </subviews>
                                 <viewLayoutGuide key="safeArea" id="a2I-Gn-AXe"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                <constraints>
+                                    <constraint firstItem="1985" firstAttribute="top" secondItem="a2I-Gn-AXe" secondAttribute="top" id="4yR-3j-f45"/>
+                                    <constraint firstItem="1985" firstAttribute="bottom" secondItem="a2I-Gn-AXe" secondAttribute="bottom" id="MEc-Fh-rgc"/>
+                                    <constraint firstItem="1985" firstAttribute="leading" secondItem="a2I-Gn-AXe" secondAttribute="leading" id="XdW-6g-vBf"/>
+                                    <constraint firstItem="1985" firstAttribute="centerX" secondItem="1984" secondAttribute="centerX" id="ekL-1L-NdX"/>
+                                </constraints>
                             </view>
                             <extendedEdge key="edgesForExtendedLayout"/>
                             <navigationItem key="navigationItem" title="Library" id="1980"/>
@@ -106,10 +104,9 @@
                 <navigationController definesPresentationContext="YES" modalTransitionStyle="flipHorizontal" id="1892" userLabel="Navigation Controller - Playlist">
                     <extendedEdge key="edgesForExtendedLayout"/>
                     <tabBarItem key="tabBarItem" title="Playlists" image="music.note.list" catalog="system" id="1896" userLabel="Tab Bar Item - Playlists"/>
-                    <navigationBar key="navigationBar" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translucent="NO" id="1893">
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="jVf-pV-O8n">
                         <rect key="frame" x="0.0" y="0.0" width="1000" height="1000"/>
                         <autoresizingMask key="autoresizingMask"/>
-                        <navigationBarAppearance key="standardAppearance"/>
                     </navigationBar>
                     <viewControllers>
                         <viewController title="Playlists" modalTransitionStyle="flipHorizontal" id="1954" customClass="RootViewControllerPlaylist">
@@ -117,19 +114,16 @@
                                 <viewControllerLayoutGuide type="top" id="byp-Ja-jNa"/>
                                 <viewControllerLayoutGuide type="bottom" id="cyz-3o-0H6"/>
                             </layoutGuides>
-                            <view key="view" clipsSubviews="YES" contentMode="scaleToFill" id="1956">
+                            <view key="view" clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" layoutMarginsFollowReadableWidth="YES" id="1956">
                                 <rect key="frame" x="0.0" y="0.0" width="375" height="541"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <subviews>
-                                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" image="1237346308.jpg" id="sQr-Jh-As6">
-                                        <rect key="frame" x="0.0" y="-16" width="375" height="573"/>
-                                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                        <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                    </imageView>
-                                    <tableView clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" alwaysBounceVertical="YES" style="plain" separatorStyle="none" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" translatesAutoresizingMaskIntoConstraints="NO" id="1965">
+                                    <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" style="plain" separatorStyle="none" rowHeight="40" sectionHeaderHeight="22" sectionFooterHeight="22" translatesAutoresizingMaskIntoConstraints="NO" id="1965">
                                         <rect key="frame" x="0.0" y="0.0" width="375" height="541"/>
-                                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" constant="375" id="3ZR-4I-xH3"/>
+                                        </constraints>
                                         <connections>
                                             <outlet property="dataSource" destination="1954" id="1966"/>
                                             <outlet property="delegate" destination="1954" id="1967"/>
@@ -138,6 +132,12 @@
                                 </subviews>
                                 <viewLayoutGuide key="safeArea" id="zKT-lV-0W2"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                <constraints>
+                                    <constraint firstItem="1965" firstAttribute="centerX" secondItem="1956" secondAttribute="centerX" id="8O6-zn-8ZN"/>
+                                    <constraint firstItem="1965" firstAttribute="bottom" secondItem="zKT-lV-0W2" secondAttribute="bottom" id="BR0-Gx-oKP"/>
+                                    <constraint firstItem="1965" firstAttribute="leading" secondItem="zKT-lV-0W2" secondAttribute="leading" id="NdH-S4-6Ri"/>
+                                    <constraint firstItem="1965" firstAttribute="top" secondItem="zKT-lV-0W2" secondAttribute="top" id="jxc-Bi-lXB"/>
+                                </constraints>
                             </view>
                             <extendedEdge key="edgesForExtendedLayout"/>
                             <navigationItem key="navigationItem" title="Playlists" id="1955"/>
@@ -152,10 +152,9 @@
                 <navigationController definesPresentationContext="YES" modalTransitionStyle="flipHorizontal" id="1897" userLabel="Navigation Controller - Online">
                     <extendedEdge key="edgesForExtendedLayout"/>
                     <tabBarItem key="tabBarItem" title="Online" image="network" catalog="system" id="1901"/>
-                    <navigationBar key="navigationBar" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translucent="NO" id="1898">
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="fYQ-EU-Y2k">
                         <rect key="frame" x="0.0" y="0.0" width="1000" height="1000"/>
                         <autoresizingMask key="autoresizingMask"/>
-                        <navigationBarAppearance key="standardAppearance"/>
                     </navigationBar>
                     <viewControllers>
                         <viewController modalTransitionStyle="flipHorizontal" id="1934" customClass="OnlineViewController">
@@ -167,14 +166,8 @@
                                 <rect key="frame" x="0.0" y="0.0" width="375" height="541"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <subviews>
-                                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" image="1237346308.jpg" id="Bbj-lf-MAX">
-                                        <rect key="frame" x="0.0" y="-16" width="375" height="573"/>
-                                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                        <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                    </imageView>
-                                    <tableView clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" alwaysBounceVertical="YES" style="plain" separatorStyle="none" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" translatesAutoresizingMaskIntoConstraints="NO" id="1942">
+                                    <tableView clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" layoutMarginsFollowReadableWidth="YES" alwaysBounceVertical="YES" style="plain" separatorStyle="none" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" translatesAutoresizingMaskIntoConstraints="NO" id="1942">
                                         <rect key="frame" x="0.0" y="0.0" width="375" height="541"/>
-                                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                         <color key="backgroundColor" red="0.94997608420000001" green="0.94997608420000001" blue="0.94997608420000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         <connections>
                                             <outlet property="dataSource" destination="1934" id="1943"/>
@@ -184,6 +177,12 @@
                                 </subviews>
                                 <viewLayoutGuide key="safeArea" id="3xo-p6-QjQ"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                <constraints>
+                                    <constraint firstItem="1942" firstAttribute="centerX" secondItem="1936" secondAttribute="centerX" id="Bac-wD-EEt"/>
+                                    <constraint firstItem="1942" firstAttribute="bottom" secondItem="3xo-p6-QjQ" secondAttribute="bottom" id="aVI-qa-LUR"/>
+                                    <constraint firstItem="1942" firstAttribute="top" secondItem="3xo-p6-QjQ" secondAttribute="top" id="fSL-Bj-njx"/>
+                                    <constraint firstItem="1942" firstAttribute="leading" secondItem="3xo-p6-QjQ" secondAttribute="leading" id="uce-Kc-0qq"/>
+                                </constraints>
                             </view>
                             <extendedEdge key="edgesForExtendedLayout"/>
                             <navigationItem key="navigationItem" title="Online" id="1935"/>
@@ -197,14 +196,11 @@
                         </viewController>
                     </viewControllers>
                 </navigationController>
-                <navigationController title="Search" modalTransitionStyle="flipHorizontal" id="682" userLabel="Search">
-                    <extendedEdge key="edgesForExtendedLayout"/>
-                    <tabBarItem key="tabBarItem" systemItem="search" id="EWy-Ra-Bcy"/>
-                    <toolbarItems/>
-                    <navigationBar key="navigationBar" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translucent="NO" id="686">
-                        <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
+                <navigationController id="22d-kZ-pOp" userLabel="Search">
+                    <tabBarItem key="tabBarItem" systemItem="search" id="dFt-V6-Yv1"/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="fvj-dj-3ti">
+                        <rect key="frame" x="0.0" y="0.0" width="1000" height="1000"/>
                         <autoresizingMask key="autoresizingMask"/>
-                        <navigationBarAppearance key="standardAppearance"/>
                     </navigationBar>
                     <viewControllers>
                         <viewController modalTransitionStyle="flipHorizontal" id="684" customClass="SearchViewController">
@@ -216,14 +212,8 @@
                                 <rect key="frame" x="0.0" y="0.0" width="375" height="541"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <subviews>
-                                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" image="1237346308.jpg" id="ucP-DQ-k4m">
-                                        <rect key="frame" x="0.0" y="-16" width="375" height="573"/>
-                                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                        <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                    </imageView>
-                                    <tableView clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" alwaysBounceVertical="YES" style="plain" separatorStyle="none" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" translatesAutoresizingMaskIntoConstraints="NO" id="722">
+                                    <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" style="plain" separatorStyle="none" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" translatesAutoresizingMaskIntoConstraints="NO" id="722">
                                         <rect key="frame" x="0.0" y="0.0" width="375" height="541"/>
-                                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                         <searchBar key="tableHeaderView" contentMode="redraw" barStyle="black" id="716">
                                             <rect key="frame" x="0.0" y="0.0" width="375" height="44"/>
@@ -238,20 +228,20 @@
                                             <outlet property="delegate" destination="684" id="726"/>
                                         </connections>
                                     </tableView>
-                                    <view hidden="YES" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="747" userLabel="progress">
+                                    <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="747" userLabel="progress">
                                         <rect key="frame" x="0.0" y="0.0" width="375" height="541"/>
-                                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                         <subviews>
-                                            <activityIndicatorView opaque="NO" contentMode="scaleToFill" fixedFrame="YES" animating="YES" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="746">
+                                            <activityIndicatorView opaque="NO" contentMode="scaleToFill" animating="YES" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="746">
                                                 <rect key="frame" x="137" y="97" width="37" height="37"/>
-                                                <autoresizingMask key="autoresizingMask"/>
                                             </activityIndicatorView>
-                                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" fixedFrame="YES" text="Search in progress..." lineBreakMode="tailTruncation" minimumFontSize="10" translatesAutoresizingMaskIntoConstraints="NO" id="748" userLabel="searchLabel">
-                                                <rect key="frame" x="36" y="142" width="240" height="41"/>
-                                                <autoresizingMask key="autoresizingMask"/>
+                                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Search in progress..." lineBreakMode="tailTruncation" minimumFontSize="10" translatesAutoresizingMaskIntoConstraints="NO" id="748" userLabel="searchLabel">
+                                                <rect key="frame" x="36" y="142" width="239" height="41"/>
                                                 <accessibility key="accessibilityConfiguration">
                                                     <accessibilityTraits key="traits" none="YES"/>
                                                 </accessibility>
+                                                <constraints>
+                                                    <constraint firstAttribute="height" constant="41" id="6vG-3h-Axn"/>
+                                                </constraints>
                                                 <fontDescription key="fontDescription" name="Helvetica-Bold" family="Helvetica" pointSize="24"/>
                                                 <color key="textColor" red="0.99668461084365845" green="0.85349971055984497" blue="0.77930885553359985" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                 <nil key="highlightedColor"/>
@@ -260,10 +250,28 @@
                                             </label>
                                         </subviews>
                                         <color key="backgroundColor" red="0.01420286763459444" green="0.0" blue="2.4540675440221094e-05" alpha="0.75" colorSpace="custom" customColorSpace="sRGB"/>
+                                        <constraints>
+                                            <constraint firstItem="748" firstAttribute="leading" secondItem="747" secondAttribute="leading" constant="36" id="OW5-Ks-TKZ"/>
+                                            <constraint firstItem="748" firstAttribute="top" secondItem="747" secondAttribute="top" constant="142" id="Paa-P0-g6K"/>
+                                            <constraint firstItem="748" firstAttribute="top" secondItem="746" secondAttribute="bottom" constant="8" id="RiS-Lp-jfd"/>
+                                            <constraint firstItem="748" firstAttribute="centerX" secondItem="746" secondAttribute="centerX" id="xBx-d1-Sy5"/>
+                                        </constraints>
                                     </view>
                                 </subviews>
                                 <viewLayoutGuide key="safeArea" id="tIb-b2-rFY"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                <constraints>
+                                    <constraint firstItem="747" firstAttribute="top" secondItem="tIb-b2-rFY" secondAttribute="top" id="4oR-27-VqO"/>
+                                    <constraint firstItem="747" firstAttribute="trailing" secondItem="722" secondAttribute="trailing" id="4t3-1C-pqN"/>
+                                    <constraint firstItem="722" firstAttribute="leading" secondItem="tIb-b2-rFY" secondAttribute="leading" id="IPk-4d-c5h"/>
+                                    <constraint firstItem="747" firstAttribute="bottom" secondItem="722" secondAttribute="bottom" id="PgM-sP-fG2"/>
+                                    <constraint firstItem="747" firstAttribute="leading" secondItem="722" secondAttribute="leading" id="S9f-y3-YS7"/>
+                                    <constraint firstItem="747" firstAttribute="centerX" secondItem="715" secondAttribute="centerX" id="XL1-8h-gg1"/>
+                                    <constraint firstItem="747" firstAttribute="bottom" secondItem="tIb-b2-rFY" secondAttribute="bottom" id="Ym9-c3-POZ"/>
+                                    <constraint firstItem="722" firstAttribute="centerX" secondItem="715" secondAttribute="centerX" id="Ypf-Ea-iC8"/>
+                                    <constraint firstItem="747" firstAttribute="leading" secondItem="tIb-b2-rFY" secondAttribute="leading" id="dce-Rg-nOY"/>
+                                    <constraint firstItem="747" firstAttribute="top" secondItem="722" secondAttribute="top" id="yuZ-hR-jGS"/>
+                                </constraints>
                             </view>
                             <extendedEdge key="edgesForExtendedLayout"/>
                             <toolbarItems/>
@@ -282,10 +290,9 @@
                 <navigationController definesPresentationContext="YES" modalTransitionStyle="flipHorizontal" id="1902" userLabel="Navigation Controller - More">
                     <extendedEdge key="edgesForExtendedLayout"/>
                     <tabBarItem key="tabBarItem" systemItem="more" id="1906"/>
-                    <navigationBar key="navigationBar" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translucent="NO" id="1903">
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="mjj-Mv-Gvb">
                         <rect key="frame" x="0.0" y="0.0" width="1000" height="1000"/>
                         <autoresizingMask key="autoresizingMask"/>
-                        <navigationBarAppearance key="standardAppearance"/>
                     </navigationBar>
                     <viewControllers>
                         <viewController title="More" modalTransitionStyle="flipHorizontal" id="2018" customClass="MoreViewController">
@@ -297,14 +304,8 @@
                                 <rect key="frame" x="0.0" y="0.0" width="375" height="541"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <subviews>
-                                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" image="1237346308.jpg" id="G7r-Zh-rDi">
-                                        <rect key="frame" x="0.0" y="-16" width="375" height="573"/>
-                                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                        <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                    </imageView>
-                                    <tableView clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" alwaysBounceVertical="YES" style="plain" separatorStyle="none" rowHeight="40" sectionHeaderHeight="18" sectionFooterHeight="0.0" translatesAutoresizingMaskIntoConstraints="NO" id="2021">
+                                    <tableView clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" layoutMarginsFollowReadableWidth="YES" alwaysBounceVertical="YES" style="plain" separatorStyle="none" rowHeight="40" sectionHeaderHeight="18" sectionFooterHeight="0.0" translatesAutoresizingMaskIntoConstraints="NO" id="2021">
                                         <rect key="frame" x="0.0" y="0.0" width="375" height="541"/>
-                                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                         <color key="backgroundColor" red="0.94997608420000001" green="0.94997608420000001" blue="0.94997608420000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         <connections>
                                             <outlet property="dataSource" destination="2018" id="2023"/>
@@ -314,6 +315,12 @@
                                 </subviews>
                                 <viewLayoutGuide key="safeArea" id="Wc3-Ix-kEC"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                <constraints>
+                                    <constraint firstItem="2021" firstAttribute="centerX" secondItem="2020" secondAttribute="centerX" id="ItD-um-yv8"/>
+                                    <constraint firstItem="2021" firstAttribute="bottom" secondItem="Wc3-Ix-kEC" secondAttribute="bottom" id="g76-ha-Xnt"/>
+                                    <constraint firstItem="2021" firstAttribute="top" secondItem="Wc3-Ix-kEC" secondAttribute="top" id="m2R-Ka-RFM"/>
+                                    <constraint firstItem="2021" firstAttribute="leading" secondItem="Wc3-Ix-kEC" secondAttribute="leading" id="pDg-YH-i97"/>
+                                </constraints>
                             </view>
                             <extendedEdge key="edgesForExtendedLayout"/>
                             <navigationItem key="navigationItem" title="More" id="2019"/>
@@ -341,10 +348,6 @@
                 <rect key="frame" x="0.0" y="0.0" width="320" height="326"/>
                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                 <subviews>
-                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" image="1237346308.jpg" translatesAutoresizingMaskIntoConstraints="NO" id="X7f-i5-f7a">
-                        <rect key="frame" x="0.0" y="0.0" width="320" height="326"/>
-                        <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMaxX="YES" flexibleMinY="YES" heightSizable="YES" flexibleMaxY="YES"/>
-                    </imageView>
                     <view clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="442" userLabel="main view">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="460"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
@@ -953,7 +956,7 @@
                     </view>
                 </subviews>
                 <viewLayoutGuide key="safeArea" id="Skn-Jh-snX"/>
-                <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
+                <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
             </view>
             <extendedEdge key="edgesForExtendedLayout"/>
             <toolbarItems/>
@@ -1090,7 +1093,6 @@
                     </button>
                 </subviews>
                 <viewLayoutGuide key="safeArea" id="ePH-Kf-jsN"/>
-                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
             </view>
             <extendedEdge key="edgesForExtendedLayout"/>
             <toolbarItems/>
@@ -1199,7 +1201,6 @@
                     </view>
                 </subviews>
                 <viewLayoutGuide key="safeArea" id="8fe-KC-8aS"/>
-                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
             </view>
             <extendedEdge key="edgesForExtendedLayout"/>
             <toolbarItems/>
@@ -1225,9 +1226,10 @@
                 <rect key="frame" x="0.0" y="0.0" width="320" height="432"/>
                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                 <subviews>
-                    <imageView userInteractionEnabled="NO" contentMode="redraw" fixedFrame="YES" image="modizer_logo.png" adjustsImageSizeForAccessibilityContentSizeCategory="YES" translatesAutoresizingMaskIntoConstraints="NO" id="1472">
+                    <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" fixedFrame="YES" image="modizer_logo.png" adjustsImageSizeForAccessibilityContentSizeCategory="YES" translatesAutoresizingMaskIntoConstraints="NO" id="1472">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="80"/>
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                        <color key="backgroundColor" red="0.3073730469" green="0.06781005859" blue="0.2218017578" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                     </imageView>
                     <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" editable="NO" textAlignment="natural" id="MNh-QD-BfJ">
                         <rect key="frame" x="0.0" y="81" width="320" height="351"/>
@@ -1286,7 +1288,6 @@ Internet accesses to the Modland, HVSC &amp; ASMA libraries are provided as an a
                     </textView>
                 </subviews>
                 <viewLayoutGuide key="safeArea" id="oqM-p6-NS0"/>
-                <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                 <accessibility key="accessibilityConfiguration">
                     <accessibilityTraits key="traits" allowsDirectInteraction="YES"/>
                     <bool key="isElement" value="YES"/>
@@ -1312,7 +1313,6 @@ Internet accesses to the Modland, HVSC &amp; ASMA libraries are provided as an a
         <image name="05-shuffle-green.png" width="26" height="26"/>
         <image name="05-shuffle.png" width="26" height="26"/>
         <image name="05-shuffleone-green.png" width="26" height="26"/>
-        <image name="1237346308.jpg" width="320" height="480"/>
         <image name="bb_caret-left.png" width="24" height="24"/>
         <image name="bb_caret-right.png" width="24" height="24"/>
         <image name="bb_home.png" width="24" height="24"/>

@@ -112,7 +112,9 @@
     //self.animation.anchorPoint = CGPointMake(0.5, 0.0);
    // [self.animation setRotationVector:1 :0 :0];
     
-    [animation animateView:self.view completion:^{[self.localBrowserVC modizerIsLaunched];}];
+    [animation animateView:self.view completion:^{
+        [self.localBrowserVC modizerIsLaunched];
+    }];
 }
 
 -(void)viewDidDisappear:(BOOL)animated {

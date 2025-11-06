@@ -41,9 +41,6 @@ int cover_expectedContentLength;
 NSString *cover_url_string,*cover_currentPlayFilepath;
 int found_img;
 
-static UIAlertView *alertChooseName;
-
-
 @synthesize webView,progressIndicator,backButton,forwardButton,downloadViewController,addressTextField;
 @synthesize detailViewController,toolBar;
 @synthesize infoDownloadView,infoDownloadLbl;
@@ -88,12 +85,12 @@ static UIAlertView *alertChooseName;
     
 }
 
+#include "AlertsCommonFunctions.h"
+
 -(IBAction) goPlayer {
     if (detailViewController.mPlaylist_size) [self.navigationController pushViewController:detailViewController animated:YES];
     else {
-        UIAlertView *nofileplaying=[[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Warning",@"")
-                                                               message:NSLocalizedString(@"Nothing currently playing. Please select a file.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
-        [nofileplaying show];
+        [self showAlertMsg:NSLocalizedString(@"Warning",@"") message:NSLocalizedString(@"Nothing currently playing. Please select a file.",@"")];
     }
 }
 
@@ -129,11 +126,33 @@ static UIAlertView *alertChooseName;
             NSString *tmpStr;
             if ([addressTextField.text length]>24) tmpStr=[NSString stringWithFormat:@"%@...",[addressTextField.text substringToIndex:24-3]];
             else tmpStr=[NSString stringWithString:addressTextField.text];
-            alertChooseName=[[UIAlertView alloc] initWithTitle:[NSString stringWithFormat:@"Enter Bookmark name for %@",tmpStr] message:nil delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:@"Ok",nil];
-            [alertChooseName setAlertViewStyle:UIAlertViewStylePlainTextInput];
-            UITextField *tf=[alertChooseName textFieldAtIndex:0];
-            tf.text=addressTextField.text;
-            [alertChooseName show];
+            
+            
+            UIAlertController *alertC = [UIAlertController alertControllerWithTitle:[NSString stringWithFormat:@"Enter Bookmark name for %@",tmpStr]
+                                                                            message:nil
+                                                                     preferredStyle:UIAlertControllerStyleAlert];
+            __weak UIAlertController *weakAlert = alertC;
+            [alertC addTextFieldWithConfigurationHandler:^(UITextField *textField) {
+                textField.placeholder = addressTextField.text;
+            }];
+            
+            UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel",@"") style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+                
+            }];
+            [alertC addAction:cancelAction];
+            
+            UIAlertAction *saveAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Save",@"") style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+                UITextField *name = weakAlert.textFields.firstObject;
+                [self.custom_URL addObject:[[NSString alloc] initWithString:self.addressTextField.text]];
+                [self.custom_URL_name addObject:[[NSString alloc] initWithString:name.text]];
+                self.custom_url_count++;
+                [self saveBookmarks];
+                [self openPopup:@"Bookmark updated"];
+            }];
+            [alertC addAction:saveAction];
+            
+            [self showAlert:alertC];
+            
         }
     } else {
         UIAlertController *msgAlert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Warning",@"")
@@ -380,67 +399,6 @@ static UIAlertView *alertChooseName;
     
 //	[webView loadHTMLString:html baseURL:nil];
     addressTextField.text=@"";
-}
-
-
-- (BOOL)alertViewShouldEnableFirstOtherButton:(UIAlertView *)alertView {
-    if (alertView==alertChooseName) {
-        NSString *inputText = [[alertView textFieldAtIndex:0] text];
-        if( [inputText length] >= 1 ) {
-            return YES;
-        } else {
-            return NO;
-        }
-    } else return YES;
-}
-
-
-- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
-    int do_save=0;
-    NSString *filename;
-    NSError *err;
-    
-    if (alertView==alertChooseName) {
-        if (buttonIndex==1) {
-        UITextField *name = [alertView textFieldAtIndex:0];
-        //custom_URL[custom_url_count]=[[NSString alloc] initWithString:addressTextField.text];
-            [custom_URL addObject:[[NSString alloc] initWithString:addressTextField.text]];
-		//custom_URL_name[custom_url_count]=[[NSString alloc] initWithString:name.text];
-            [custom_URL_name addObject:[[NSString alloc] initWithString:name.text]];
-		custom_url_count++;
-		[self saveBookmarks];
-		[self openPopup:@"Bookmark updated"];
-        } else return;
-
-    } else {
-    if (detailViewController.mPlaylist_size==0) return;
-    
-	if (buttonIndex==1) { //save as folder cover
-        if (found_img==1) filename=[NSString stringWithFormat:@"%@/folder.jpg",[cover_currentPlayFilepath stringByDeletingLastPathComponent]];
-        if (found_img==2) filename=[NSString stringWithFormat:@"%@/folder.png",[cover_currentPlayFilepath stringByDeletingLastPathComponent]];
-        if (found_img==3) filename=[NSString stringWithFormat:@"%@/folder.gif",[cover_currentPlayFilepath stringByDeletingLastPathComponent]];
-        NSFileManager *mFileMngr=[[NSFileManager alloc] init];
-        [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@/folder.jpg",NSHomeDirectory(),[cover_currentPlayFilepath stringByDeletingLastPathComponent]] error:&err];
-        [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@/folder.png",NSHomeDirectory(),[cover_currentPlayFilepath stringByDeletingLastPathComponent]] error:&err];
-        [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@/folder.gif",NSHomeDirectory(),[cover_currentPlayFilepath stringByDeletingLastPathComponent]] error:&err];
-        do_save=1;
-	} else if (buttonIndex==2) { //save as file cover
-        
-        if (found_img==1) filename=[NSString stringWithFormat:@"%@.jpg",[cover_currentPlayFilepath stringByDeletingPathExtension]];
-        if (found_img==2) filename=[NSString stringWithFormat:@"%@.png",[cover_currentPlayFilepath stringByDeletingPathExtension]];
-        if (found_img==3) filename=[NSString stringWithFormat:@"%@.gif",[cover_currentPlayFilepath stringByDeletingPathExtension]];
-        NSFileManager *mFileMngr=[[NSFileManager alloc] init];
-        [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@.jpg",NSHomeDirectory(),[cover_currentPlayFilepath stringByDeletingPathExtension]] error:&err];
-        [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@.png",NSHomeDirectory(),[cover_currentPlayFilepath stringByDeletingPathExtension]] error:&err];
-        [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@.gif",NSHomeDirectory(),[cover_currentPlayFilepath stringByDeletingPathExtension]] error:&err];
-        do_save=1;
-	}
-    if (do_save) {
-        [self openPopup: [NSString stringWithFormat:@"Downloading : %@",[filename lastPathComponent] ]];
-        [downloadViewController addURLImageToDownloadList:cover_url_string fileName:filename filesize:cover_expectedContentLength];
-    }
-    //[cover_url_string autorelease];
-    }
 }
 
 
@@ -1203,7 +1161,7 @@ didFinishNavigation:(WKNavigation *)navigation {
                 
                 UIAlertAction* saveCoverFolderAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"CoverFolder",@"") style:UIAlertActionStyleDefault
                                                                               handler:^(UIAlertAction * action) {
-                    if (detailViewController.mPlaylist_size) {
+                    if (self->detailViewController.mPlaylist_size) {
                         NSString *filename;
                         NSError *err;
                         filename=[NSString stringWithFormat:@"%@/folder.png",[cover_currentPlayFilepath stringByDeletingLastPathComponent]];
@@ -1256,9 +1214,45 @@ didFinishNavigation:(WKNavigation *)navigation {
     
 }
 
+- (id)findChildOfClass:(Class)cls inTabBarController:(UITabBarController *)tbc {
+    for (UIViewController *vc in tbc.viewControllers) {
+        // Unwrap nav controllers if present
+        UIViewController *candidate = vc;
+        if ([vc isKindOfClass:[UINavigationController class]]) {
+            candidate = ((UINavigationController *)vc).viewControllers.firstObject;
+        }
+        if ([candidate isKindOfClass:cls]) {
+            return candidate;
+        }
+    }
+    return nil;
+}
+
+
+
+-(void) loadControllers {
+    // With automatic storyboard loading, the window and root VC are created by UIKit.
+    UIWindow *window=[UIApplication sharedApplication].windows.firstObject;
+    if (!window) {
+        // Fallback to keyWindow if needed
+        window = [UIApplication sharedApplication].keyWindow;
+    }
+    UITabBarController *tbc = (UITabBarController *)window.rootViewController;
+    if (![tbc isKindOfClass:[UITabBarController class]]) {
+        NSLog(@"[SceneDelegate] Unexpected root VC: %@", NSStringFromClass([window.rootViewController class]));
+        return;
+    }
+    // Resolve specific child controllers
+    self.detailViewController = [self findChildOfClass:[DetailViewControllerIphone class] inTabBarController:tbc];
+    self.downloadViewController = [self findChildOfClass:[DownloadViewController class] inTabBarController:tbc];
+}
+
+
 // Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
 - (void)viewDidLoad {
     START_PROFILE
+    
+    [self loadControllers];
     
     self.navigationController.delegate = self;
     

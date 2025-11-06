@@ -27,25 +27,24 @@ extern volatile t_settings settings[MAX_SETTINGS];
 @synthesize detailViewController,tableView,aboutVC,rootVC,downloadViewController;
 
 #include "MiniPlayerImplementTableView.h"
+#include "AlertsCommonFunctions.h"
 
 -(IBAction) goPlayer {
     if (detailViewController.mPlaylist_size) [self.navigationController pushViewController:detailViewController animated:YES];
     else {
-        UIAlertView *nofileplaying=[[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Warning",@"")
-                                                               message:NSLocalizedString(@"Nothing currently playing. Please select a file.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
-        [nofileplaying show];
+        [self showAlertMsg:NSLocalizedString(@"Warning",@"") message:NSLocalizedString(@"Nothing currently playing. Please select a file.",@"")];
     }
 }
 
 
-- (id)initWithStyle:(UITableViewStyle)style
-{
-    self = [super initWithStyle:style];
-    if (self) {
-        // Custom initialization
-    }
-    return self;
-}
+//- (id)initWithStyle:(UITableViewStyle)style
+//{
+//    self = [super initWithStyle:style];
+//    if (self) {
+//        // Custom initialization
+//    }
+//    return self;
+//}
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 // WaitingView methods
@@ -64,10 +63,46 @@ extern volatile t_settings settings[MAX_SETTINGS];
     [super viewDidDisappear:animated];
 }
 
+- (id)findChildOfClass:(Class)cls inTabBarController:(UITabBarController *)tbc {
+    for (UIViewController *vc in tbc.viewControllers) {
+        // Unwrap nav controllers if present
+        UIViewController *candidate = vc;
+        if ([vc isKindOfClass:[UINavigationController class]]) {
+            candidate = ((UINavigationController *)vc).viewControllers.firstObject;
+        }
+        if ([candidate isKindOfClass:cls]) {
+            return candidate;
+        }
+    }
+    return nil;
+}
+
+-(void) loadControllers {
+    // With automatic storyboard loading, the window and root VC are created by UIKit.
+    UIWindow *window=[UIApplication sharedApplication].windows.firstObject;
+    if (!window) {
+        // Fallback to keyWindow if needed
+        window = [UIApplication sharedApplication].keyWindow;
+    }
+    UITabBarController *tbc = (UITabBarController *)window.rootViewController;
+    if (![tbc isKindOfClass:[UITabBarController class]]) {
+        NSLog(@"[SceneDelegate] Unexpected root VC: %@", NSStringFromClass([window.rootViewController class]));
+        return;
+    }
+    // Resolve specific child controllers
+    self.downloadViewController = [self findChildOfClass:[DownloadViewController class] inTabBarController:tbc];
+    self.detailViewController = [self findChildOfClass:[DetailViewControllerIphone class] inTabBarController:tbc];
+    self.aboutVC = [self findChildOfClass:[AboutViewController class] inTabBarController:tbc];
+    self.rootVC = [self findChildOfClass:[RootViewControllerLocalBrowser class] inTabBarController:tbc];
+}
+
+
 - (void)viewDidLoad
 {
     START_PROFILE
     [super viewDidLoad];
+    
+    [self loadControllers];
     
     wasMiniPlayerOn=([detailViewController mPlaylist_size]>0?true:false);
     miniplayerVC=nil;
@@ -140,7 +175,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
 
 - (void)viewWillAppear:(BOOL)animated {
     
-    [self.navigationController.navigationBar setBarStyle:UIBarStyleDefault];
+//    [self.navigationController.navigationBar setBarStyle:UIBarStyleDefault];
     //[[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];
     
     self.navigationController.delegate = self;
@@ -449,7 +484,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
         case 0://About
             //AboutViewController *aboutVC = [[[AboutViewController alloc]  initWithNibName:@"AboutViewController" bundle:[NSBundle mainBundle]] autorelease];
             // And push the window
-            aboutVC.view.frame=self.view.frame;
+            //aboutVC.view.frame=self.view.frame;
             [self.navigationController pushViewController:aboutVC animated:YES];
             break;
         case 1://Mail support
@@ -478,7 +513,20 @@ extern volatile t_settings settings[MAX_SETTINGS];
             settingsVC=[[SettingsGenViewController alloc] initWithNibName:@"SettingsViewController" bundle:[NSBundle mainBundle]];
             settingsVC->detailViewController=detailViewController;
             settingsVC.title=NSLocalizedString(@"General Settings",@"");
-            settingsVC.view.frame=self.view.frame;
+            //settingsVC.view.frame=self.view.frame;
+            // Ensure proper layout under navigation/tab bars
+        {
+            SettingsGenViewController *childController=settingsVC;
+            if ([childController respondsToSelector:@selector(setEdgesForExtendedLayout:)]) {
+                childController.edgesForExtendedLayout = UIRectEdgeNone;
+                childController.extendedLayoutIncludesOpaqueBars = NO;
+            }
+            if ([childController isKindOfClass:[UITableViewController class]]) {
+                ((UITableViewController *)childController).tableView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentAutomatic;
+            } else if ([childController.view isKindOfClass:[UIScrollView class]]) {
+                ((UIScrollView *)childController.view).contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentAutomatic;
+            }
+        }
             [self.navigationController pushViewController:settingsVC animated:YES];
             break;
         case 3://Maintenance
@@ -486,11 +534,24 @@ extern volatile t_settings settings[MAX_SETTINGS];
             mntVC->detailViewController=detailViewController;
             mntVC->rootVC=rootVC;
             mntVC.title=NSLocalizedString(@"Maintenance",@"");
-            mntVC.view.frame=self.view.frame;
+        {
+            SettingsMaintenanceViewController *childController=mntVC;
+            // Ensure proper layout under navigation/tab bars
+            if ([childController respondsToSelector:@selector(setEdgesForExtendedLayout:)]) {
+                childController.edgesForExtendedLayout = UIRectEdgeNone;
+                childController.extendedLayoutIncludesOpaqueBars = NO;
+            }
+            if ([childController isKindOfClass:[UITableViewController class]]) {
+                ((UITableViewController *)childController).tableView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentAutomatic;
+            } else if ([childController.view isKindOfClass:[UIScrollView class]]) {
+                ((UIScrollView *)childController.view).contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentAutomatic;
+            }
+        }
+            //mntVC.view.frame=self.view.frame;
             [self.navigationController pushViewController:mntVC animated:YES];
             break;
         case 4://downloads
-            downloadViewController.view.frame=self.view.frame;
+            //downloadViewController.view.frame=self.view.frame;
             [self.navigationController pushViewController:downloadViewController animated:YES];
             break;
             

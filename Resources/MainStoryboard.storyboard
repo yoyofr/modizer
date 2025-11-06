@@ -24,10 +24,6 @@
                         <navigationController definesPresentationContext="YES" modalTransitionStyle="flipHorizontal" id="1A6-SS-akt">
                             <extendedEdge key="edgesForExtendedLayout"/>
                             <tabBarItem key="tabBarItem" title="Library" image="bb_music.png" id="6iy-8A-G6k"/>
-                            <navigationBar key="navigationBar" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translucent="NO" id="gdW-dl-tIi">
-                                <rect key="frame" x="0.0" y="0.0" width="1000" height="1000"/>
-                                <autoresizingMask key="autoresizingMask"/>
-                            </navigationBar>
                             <viewControllers>
                                 <viewController title="Browse" modalTransitionStyle="flipHorizontal" id="FtG-r6-Yc9" customClass="RootViewControllerLocalBrowser">
                                     <layoutGuides>
@@ -76,10 +72,6 @@
                         <navigationController definesPresentationContext="YES" modalTransitionStyle="flipHorizontal" id="eg6-C5-AB7" userLabel="Navigation Controller - Playlist">
                             <extendedEdge key="edgesForExtendedLayout"/>
                             <tabBarItem key="tabBarItem" title="Playlists" image="bb_list.png" id="CHS-El-nxB" userLabel="Tab Bar Item - Playlists"/>
-                            <navigationBar key="navigationBar" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translucent="NO" id="XqW-jc-H1p">
-                                <rect key="frame" x="0.0" y="0.0" width="1000" height="1000"/>
-                                <autoresizingMask key="autoresizingMask"/>
-                            </navigationBar>
                             <viewControllers>
                                 <viewController title="Playlists" modalTransitionStyle="flipHorizontal" id="usO-OC-nnl" customClass="RootViewControllerPlaylist">
                                     <layoutGuides>
@@ -115,10 +107,6 @@
                         <navigationController definesPresentationContext="YES" modalTransitionStyle="flipHorizontal" id="o8K-hf-mKH" userLabel="Navigation Controller - Online">
                             <extendedEdge key="edgesForExtendedLayout"/>
                             <tabBarItem key="tabBarItem" title="Online" image="bb_download.png" id="w3n-aW-aRa"/>
-                            <navigationBar key="navigationBar" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translucent="NO" id="bq6-2A-HIo">
-                                <rect key="frame" x="0.0" y="0.0" width="1000" height="1000"/>
-                                <autoresizingMask key="autoresizingMask"/>
-                            </navigationBar>
                             <viewControllers>
                                 <viewController modalTransitionStyle="flipHorizontal" id="zmg-XS-IBc" customClass="OnlineViewController">
                                     <layoutGuides>
@@ -155,10 +143,6 @@
                             <extendedEdge key="edgesForExtendedLayout"/>
                             <tabBarItem key="tabBarItem" systemItem="search" id="f2S-Qa-OfJ"/>
                             <toolbarItems/>
-                            <navigationBar key="navigationBar" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translucent="NO" id="kmt-OJ-atr">
-                                <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
-                                <autoresizingMask key="autoresizingMask"/>
-                            </navigationBar>
                             <viewControllers>
                                 <viewController modalTransitionStyle="flipHorizontal" id="Vw9-Fr-NKn" customClass="SearchViewController">
                                     <layoutGuides>
@@ -233,10 +217,6 @@
                         <navigationController definesPresentationContext="YES" modalTransitionStyle="flipHorizontal" id="qvQ-rx-peZ" userLabel="Navigation Controller - More">
                             <extendedEdge key="edgesForExtendedLayout"/>
                             <tabBarItem key="tabBarItem" systemItem="more" id="AOa-xk-eCF"/>
-                            <navigationBar key="navigationBar" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translucent="NO" id="Guw-eB-PKI">
-                                <rect key="frame" x="0.0" y="0.0" width="1000" height="1000"/>
-                                <autoresizingMask key="autoresizingMask"/>
-                            </navigationBar>
                             <viewControllers>
                                 <viewController title="More" modalTransitionStyle="flipHorizontal" id="voE-UI-Sph" customClass="MoreViewController">
                                     <layoutGuides>

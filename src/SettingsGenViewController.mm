@@ -3658,10 +3658,45 @@ void optNSFPLAYChangedC(id param) {
 /////////////////////////////////////////////////////////////////////////////////////////////
 
 
+- (id)findChildOfClass:(Class)cls inTabBarController:(UITabBarController *)tbc {
+    for (UIViewController *vc in tbc.viewControllers) {
+        // Unwrap nav controllers if present
+        UIViewController *candidate = vc;
+        if ([vc isKindOfClass:[UINavigationController class]]) {
+            candidate = ((UINavigationController *)vc).viewControllers.firstObject;
+        }
+        if ([candidate isKindOfClass:cls]) {
+            return candidate;
+        }
+    }
+    return nil;
+}
+
+
+
+-(void) loadControllers {
+    // With automatic storyboard loading, the window and root VC are created by UIKit.
+    UIWindow *window=[UIApplication sharedApplication].windows.firstObject;
+    if (!window) {
+        // Fallback to keyWindow if needed
+        window = [UIApplication sharedApplication].keyWindow;
+    }
+    UITabBarController *tbc = (UITabBarController *)window.rootViewController;
+    if (![tbc isKindOfClass:[UITabBarController class]]) {
+        NSLog(@"[SceneDelegate] Unexpected root VC: %@", NSStringFromClass([window.rootViewController class]));
+        return;
+    }
+    // Resolve specific child controllers
+    if (!self.detailViewController) self.detailViewController = [self findChildOfClass:[DetailViewControllerIphone class] inTabBarController:tbc];
+}
+
+
 - (void)viewDidLoad
 {
     START_PROFILE
     [super viewDidLoad];
+    
+    [self loadControllers];
     
     dictActionBtn=[NSMutableDictionary dictionaryWithCapacity:64];
     
@@ -3752,7 +3787,7 @@ void optNSFPLAYChangedC(id param) {
 
 - (void)viewWillAppear:(BOOL)animated {
     
-    [self.navigationController.navigationBar setBarStyle:UIBarStyleDefault];
+//    [self.navigationController.navigationBar setBarStyle:UIBarStyleDefault];
     //[[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];
     
     self.navigationController.delegate = self;
@@ -4753,7 +4788,18 @@ void optNSFPLAYChangedC(id param) {
         settingsVC->detailViewController=detailViewController;
         settingsVC.title=NSLocalizedString(([NSString stringWithUTF8String:settings[cur_settings_idx[indexPath.section]].label]),@"");
         settingsVC->current_family=settings[cur_settings_idx[indexPath.section]].sub_family;
-        settingsVC.view.frame=self.view.frame;
+//        settingsVC.view.frame=self.view.frame;
+        // Ensure proper layout under navigation/tab bars
+        SettingsGenViewController *childController=settingsVC;
+        if ([childController respondsToSelector:@selector(setEdgesForExtendedLayout:)]) {
+            childController.edgesForExtendedLayout = UIRectEdgeNone;
+            childController.extendedLayoutIncludesOpaqueBars = NO;
+        }
+        if ([childController isKindOfClass:[UITableViewController class]]) {
+            ((UITableViewController *)childController).tableView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentAutomatic;
+        } else if ([childController.view isKindOfClass:[UIScrollView class]]) {
+            ((UIScrollView *)childController.view).contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentAutomatic;
+        }
         [self.navigationController pushViewController:settingsVC animated:YES];
     }
 }

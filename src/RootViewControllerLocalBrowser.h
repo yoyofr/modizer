@@ -90,10 +90,10 @@
 	int mCurrentWinAskedDownload;
 @public    
     int browse_depth;
-    IBOutlet DetailViewControllerIphone *detailViewController;	
+    DetailViewControllerIphone *detailViewController;
 }
 
-@property (nonatomic, retain) IBOutlet DetailViewControllerIphone *detailViewController;
+@property (nonatomic, retain) DetailViewControllerIphone *detailViewController;
 @property (nonatomic, retain) UIViewController *childController;
 //@property (nonatomic, retain) UIRefreshControl *refreshControl;
 @property (nonatomic, retain) IBOutlet UITableView *tableView;

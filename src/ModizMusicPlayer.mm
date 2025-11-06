@@ -7922,31 +7922,12 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
         
         dispatch_async(dispatch_get_main_queue(), ^(void){
             //Run UI Updates
-            //            UIViewController *vc = [self visibleViewController:[UIApplication sharedApplication].keyWindow.rootViewController];
-            //            mdz_safe_execute_sel(vc,@selector(setProgressWaiting:),[NSNumber numberWithDouble:progress.fractionCompleted])
             [detailViewControllerIphone setProgressWaiting:[NSNumber numberWithDouble:progress.fractionCompleted]];
             if (progress.fractionCompleted>=1.0f) {
                 [detailViewControllerIphone setProgressWaiting:[NSNumber numberWithDouble:1]];
-                //mdz_safe_execute_sel(vc,@selector(hideWaiting),nil)
-                //mdz_safe_execute_sel(vc,@selector(hideWaitingProgress),nil)
-                //mdz_safe_execute_sel(vc,@selector(setProgressWaiting),progress.fractionCompleted)
             }
         });
         
-        //        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-        //            UIViewController *vc = [self visibleViewController:[UIApplication sharedApplication].keyWindow.rootViewController];
-        //            mdz_safe_execute_sel(vc,@selector(setProgressWaiting:),[NSNumber numberWithDouble:progress.fractionCompleted])
-        //            //mdz_safe_execute_sel(vc,@selector(hideWaiting),nil)
-        //            //[self.waitingView setProgress:progress.fractionCompleted];
-        //            if (progress.fractionCompleted>=1.0f) {
-        //                mdz_safe_execute_sel(vc,@selector(hideWaiting),nil)
-        //                mdz_safe_execute_sel(vc,@selector(hideWaitingProgress),nil)
-        //                //mdz_safe_execute_sel(vc,@selector(setProgressWaiting),progress.fractionCompleted)
-        ////                [self hideWaiting];
-        ////                [self hideWaitingProgress];
-        ////                [self.tableView setUserInteractionEnabled:true];
-        //            }
-        //        }];
     } else {
         [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
     }
@@ -8522,15 +8503,9 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
         
         if (tmp_mod_name) free(tmp_mod_name);
         
-        if (mdx->pdx_name) {
             if (strlen(mdx->pdx_name) && (mdx->haspdx==0)) {
                 snprintf(mod_message,MAX_STIL_DATA_LENGTH*2,"%sMissing PDX file: %s\n",mod_message,mdx->pdx_name);
-                NSString *alertMsg=[NSString stringWithFormat:NSLocalizedString(@"Missing PDX file: %s",@""),mdx->pdx_name];
-                UIAlertView *alertMissingPDX = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Warning",@"")
-                                                                          message:alertMsg delegate:self cancelButtonTitle:NSLocalizedString(@"Close",@"") otherButtonTitles:nil];
-                [alertMissingPDX show];
             }
-        }
         
         mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
         //Loop
@@ -13748,47 +13723,6 @@ extern bool icloud_available;
         }
     } else fullFilePath=[NSHomeDirectory() stringByAppendingPathComponent:_filePath];
     return fullFilePath;
-}
-
-
-
-- (UIViewController *)visibleViewController:(UIViewController *)rootViewController
-{
-    if ([rootViewController isKindOfClass:[UITabBarController class]])
-    {
-        UIViewController *selectedViewController = ((UITabBarController *)rootViewController).selectedViewController;
-        
-        return [self visibleViewController:selectedViewController];
-    }
-    if ([rootViewController isKindOfClass:[UINavigationController class]])
-    {
-        UIViewController *lastViewController = [[((UINavigationController *)rootViewController) viewControllers] lastObject];
-        
-        return [self visibleViewController:lastViewController];
-    }
-    
-    if (rootViewController.presentedViewController == nil)
-    {
-        return rootViewController;
-    }
-    if ([rootViewController.presentedViewController isKindOfClass:[UINavigationController class]])
-    {
-        UINavigationController *navigationController = (UINavigationController *)rootViewController.presentedViewController;
-        UIViewController *lastViewController = [[navigationController viewControllers] lastObject];
-        
-        return [self visibleViewController:lastViewController];
-    }
-    if ([rootViewController.presentedViewController isKindOfClass:[UITabBarController class]])
-    {
-        UITabBarController *tabBarController = (UITabBarController *)rootViewController.presentedViewController;
-        UIViewController *selectedViewController = tabBarController.selectedViewController;
-        
-        return [self visibleViewController:selectedViewController];
-    }
-    
-    UIViewController *presentedViewController = (UIViewController *)rootViewController.presentedViewController;
-    
-    return [self visibleViewController:presentedViewController];
 }
 
 -(void) updateCurSubSongPlayed:(int)idx {

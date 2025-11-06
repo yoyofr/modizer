@@ -87,9 +87,6 @@ extern volatile t_settings settings[MAX_SETTINGS];
 #include "PlaylistCommonFunctions.h"
 
 
-- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
-}
-
 -(void)handleLongPress:(UILongPressGestureRecognizer *)gestureRecognizer {
     CGPoint p = [gestureRecognizer locationInView:self.tableView];
     
@@ -149,11 +146,45 @@ extern volatile t_settings settings[MAX_SETTINGS];
     self.popTipView = nil;
 }
 
+- (id)findChildOfClass:(Class)cls inTabBarController:(UITabBarController *)tbc {
+    for (UIViewController *vc in tbc.viewControllers) {
+        // Unwrap nav controllers if present
+        UIViewController *candidate = vc;
+        if ([vc isKindOfClass:[UINavigationController class]]) {
+            candidate = ((UINavigationController *)vc).viewControllers.firstObject;
+        }
+        if ([candidate isKindOfClass:cls]) {
+            return candidate;
+        }
+    }
+    return nil;
+}
+
+
+
+-(void) loadControllers {
+    // With automatic storyboard loading, the window and root VC are created by UIKit.
+    UIWindow *window=[UIApplication sharedApplication].windows.firstObject;
+    if (!window) {
+        // Fallback to keyWindow if needed
+        window = [UIApplication sharedApplication].keyWindow;
+    }
+    UITabBarController *tbc = (UITabBarController *)window.rootViewController;
+    if (![tbc isKindOfClass:[UITabBarController class]]) {
+        NSLog(@"[SceneDelegate] Unexpected root VC: %@", NSStringFromClass([window.rootViewController class]));
+        return;
+    }
+    // Resolve specific child controllers
+    if (!self.downloadViewController) self.downloadViewController = [self findChildOfClass:[DownloadViewController class] inTabBarController:tbc];
+    if (!self.detailViewController) self.detailViewController = [self findChildOfClass:[DetailViewControllerIphone class] inTabBarController:tbc];
+}
 
 
 - (void)viewDidLoad {
     START_PROFILE
 	childController=NULL;
+    
+    [self loadControllers];
     
     dictActionBtn=[NSMutableDictionary dictionaryWithCapacity:64];
     
@@ -1598,7 +1629,7 @@ END_PROFILE
 }
 
 -(void) viewWillAppear:(BOOL)animated {
-    [self.navigationController.navigationBar setBarStyle:UIBarStyleDefault];
+//    [self.navigationController.navigationBar setBarStyle:UIBarStyleDefault];
     [self.sBar setBarStyle:UIBarStyleDefault];
     //[[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];
     
@@ -2548,9 +2579,7 @@ END_PROFILE
         }
     }
     else {
-        UIAlertView *nofileplaying=[[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Warning",@"")
-                                                               message:NSLocalizedString(@"Nothing currently playing. Please select a file.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
-        [nofileplaying show];
+        [self showAlertMsg:NSLocalizedString(@"Warning",@"") message:NSLocalizedString(@"Nothing currently playing. Please select a file.",@"")];
     }
 }
 
@@ -2738,7 +2767,17 @@ END_PROFILE
             ((RootViewControllerMODLAND*)childController)->browse_depth = browse_depth+1;
             ((RootViewControllerMODLAND*)childController)->detailViewController=detailViewController;
             ((RootViewControllerMODLAND*)childController)->downloadViewController=downloadViewController;
-            childController.view.frame=self.view.frame;
+//            childController.view.frame=self.view.frame;
+        // Ensure proper layout under navigation/tab bars
+        if ([childController respondsToSelector:@selector(setEdgesForExtendedLayout:)]) {
+            childController.edgesForExtendedLayout = UIRectEdgeNone;
+            childController.extendedLayoutIncludesOpaqueBars = NO;
+        }
+        if ([childController isKindOfClass:[UITableViewController class]]) {
+            ((UITableViewController *)childController).tableView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentAutomatic;
+        } else if ([childController.view isKindOfClass:[UIScrollView class]]) {
+            ((UIScrollView *)childController.view).contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentAutomatic;
+        }
             // And push the window
             [self.navigationController pushViewController:childController animated:YES];	
             keys=nil;
@@ -2767,7 +2806,17 @@ END_PROFILE
                 ((RootViewControllerMODLAND*)childController)->modland_browse_mode=modland_browse_mode;
                 ((RootViewControllerMODLAND*)childController)->detailViewController=detailViewController;
                 ((RootViewControllerMODLAND*)childController)->downloadViewController=downloadViewController;
-                childController.view.frame=self.view.frame;
+//                childController.view.frame=self.view.frame;
+                // Ensure proper layout under navigation/tab bars
+                if ([childController respondsToSelector:@selector(setEdgesForExtendedLayout:)]) {
+                    childController.edgesForExtendedLayout = UIRectEdgeNone;
+                    childController.extendedLayoutIncludesOpaqueBars = NO;
+                }
+                if ([childController isKindOfClass:[UITableViewController class]]) {
+                    ((UITableViewController *)childController).tableView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentAutomatic;
+                } else if ([childController.view isKindOfClass:[UIScrollView class]]) {
+                    ((UIScrollView *)childController.view).contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentAutomatic;
+                }
                 // And push the window
                 [self.navigationController pushViewController:childController animated:YES];
                 
@@ -2834,7 +2883,17 @@ END_PROFILE
                     
                     ((RootViewControllerMODLAND*)childController)->detailViewController=detailViewController;
                     ((RootViewControllerMODLAND*)childController)->downloadViewController=downloadViewController;
-                    childController.view.frame=self.view.frame;
+//                    childController.view.frame=self.view.frame;
+                    // Ensure proper layout under navigation/tab bars
+                    if ([childController respondsToSelector:@selector(setEdgesForExtendedLayout:)]) {
+                        childController.edgesForExtendedLayout = UIRectEdgeNone;
+                        childController.extendedLayoutIncludesOpaqueBars = NO;
+                    }
+                    if ([childController isKindOfClass:[UITableViewController class]]) {
+                        ((UITableViewController *)childController).tableView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentAutomatic;
+                    } else if ([childController.view isKindOfClass:[UIScrollView class]]) {
+                        ((UIScrollView *)childController.view).contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentAutomatic;
+                    }
                     // And push the window
                     [self.navigationController pushViewController:childController animated:YES];
                     
@@ -2928,7 +2987,17 @@ END_PROFILE
                             
                             ((RootViewControllerMODLAND*)childController)->detailViewController=detailViewController;
                             ((RootViewControllerMODLAND*)childController)->downloadViewController=downloadViewController;
-                            childController.view.frame=self.view.frame;
+//                            childController.view.frame=self.view.frame;
+                            // Ensure proper layout under navigation/tab bars
+                            if ([childController respondsToSelector:@selector(setEdgesForExtendedLayout:)]) {
+                                childController.edgesForExtendedLayout = UIRectEdgeNone;
+                                childController.extendedLayoutIncludesOpaqueBars = NO;
+                            }
+                            if ([childController isKindOfClass:[UITableViewController class]]) {
+                                ((UITableViewController *)childController).tableView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentAutomatic;
+                            } else if ([childController.view isKindOfClass:[UIScrollView class]]) {
+                                ((UIScrollView *)childController.view).contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentAutomatic;
+                            }
                             // And push the window
                             [self.navigationController pushViewController:childController animated:YES];
                             

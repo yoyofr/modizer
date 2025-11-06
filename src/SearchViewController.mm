@@ -46,6 +46,8 @@ static NSFileManager *mFileMngr;
 #pragma mark Miniplayer functions
 #include "MiniPlayerImplementTableView.h"
 
+#include "AlertsCommonFunctions.h"
+
 -(IBAction)goPlayer {
     if (detailViewController.mPlaylist_size) {
         if (detailViewController) {
@@ -74,9 +76,7 @@ static NSFileManager *mFileMngr;
         }
     }
     else {
-        UIAlertView *nofileplaying=[[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Warning",@"")
-                                                              message:NSLocalizedString(@"Nothing currently playing. Please select a file.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
-        [nofileplaying show];
+        [self showAlertMsg:NSLocalizedString(@"Warning",@"") message:NSLocalizedString(@"Nothing currently playing. Please select a file.",@"")];
     }
 }
 
@@ -150,10 +150,46 @@ static NSFileManager *mFileMngr;
 #include "WaitingViewCommonMethods.h"
 /////////////////////////////////////////////////////////////////////////////////////////////
 
+- (id)findChildOfClass:(Class)cls inTabBarController:(UITabBarController *)tbc {
+    for (UIViewController *vc in tbc.viewControllers) {
+        // Unwrap nav controllers if present
+        UIViewController *candidate = vc;
+        if ([vc isKindOfClass:[UINavigationController class]]) {
+            candidate = ((UINavigationController *)vc).viewControllers.firstObject;
+        }
+        if ([candidate isKindOfClass:cls]) {
+            return candidate;
+        }
+    }
+    return nil;
+}
+
+
+
+-(void) loadControllers {
+    // With automatic storyboard loading, the window and root VC are created by UIKit.
+    UIWindow *window=[UIApplication sharedApplication].windows.firstObject;
+    if (!window) {
+        // Fallback to keyWindow if needed
+        window = [UIApplication sharedApplication].keyWindow;
+    }
+    UITabBarController *tbc = (UITabBarController *)window.rootViewController;
+    if (![tbc isKindOfClass:[UITabBarController class]]) {
+        NSLog(@"[SceneDelegate] Unexpected root VC: %@", NSStringFromClass([window.rootViewController class]));
+        return;
+    }
+    // Resolve specific child controllers
+    self.downloadViewController = [self findChildOfClass:[DownloadViewController class] inTabBarController:tbc];
+    self.detailViewController = [self findChildOfClass:[DetailViewControllerIphone class] inTabBarController:tbc];
+    self.rootViewControllerIphone = [self findChildOfClass:[RootViewControllerLocalBrowser class] inTabBarController:tbc];
+}
+
 
 // Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
 - (void)viewDidLoad {
     START_PROFILE
+    
+    [self loadControllers];
     
     dictActionBtn=[NSMutableDictionary dictionaryWithCapacity:64];
     
@@ -275,7 +311,7 @@ END_PROFILE
 }
 
 - (void)viewWillAppear:(BOOL)animated {
-    [self.navigationController.navigationBar setBarStyle:UIBarStyleDefault];
+//    [self.navigationController.navigationBar setBarStyle:UIBarStyleDefault];
     [self.sBar setBarStyle:UIBarStyleDefault];
     //[[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];
     
@@ -933,12 +969,10 @@ END_PROFILE
 
 -(void) doSearch:(int)search_mode {
     if ([mSearchText length]<2) {
-        UIAlertView *alertSearchMinChar = [[UIAlertView alloc] initWithTitle:@"Info" message:NSLocalizedString(@"Please enter at least 2 characters for your search.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
-        [alertSearchMinChar show];
+        [self showAlertMsg:NSLocalizedString(@"Info",@"") message:NSLocalizedString(@"Please enter at least 2 characters for your search.",@"")];
         
     } if (!(modland_searchOn+playlist_searchOn+local_searchOn+HVSC_searchOn+ASMA_searchOn)) {
-        UIAlertView *alertSearchMinChar = [[UIAlertView alloc] initWithTitle:@"Info" message:NSLocalizedString(@"Please activate at least 1 section for your search.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
-        [alertSearchMinChar show];
+        [self showAlertMsg:NSLocalizedString(@"Info",@"") message:NSLocalizedString(@"Please activate at least 1 section for your search.",@"")];
         
     } else {
         tooMuchDB=tooMuchDBHVSC=tooMuchDBASMA=tooMuchPL=tooMuchLO=0;
@@ -1964,10 +1998,6 @@ END_PROFILE
     }
     
     return cell;
-}
-
-- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
-    
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {

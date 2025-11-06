@@ -173,7 +173,17 @@ int qsort_ComparePlaylistEntriesRevFP(const void *entryA, const void *entryB) {
             ((RootViewControllerPlaylist*)childController)->detailViewController=detailViewController;
             ((RootViewControllerPlaylist*)childController)->playlist=playlist;
             ((RootViewControllerPlaylist*)childController)->mFreePlaylist=0;
-            childController.view.frame=self.view.frame;
+//            childController.view.frame=self.view.frame;
+            // Ensure proper layout under navigation/tab bars
+            if ([childController respondsToSelector:@selector(setEdgesForExtendedLayout:)]) {
+                childController.edgesForExtendedLayout = UIRectEdgeNone;
+                childController.extendedLayoutIncludesOpaqueBars = NO;
+            }
+            if ([childController isKindOfClass:[UITableViewController class]]) {
+                ((UITableViewController *)childController).tableView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentAutomatic;
+            } else if ([childController.view isKindOfClass:[UIScrollView class]]) {
+                ((UIScrollView *)childController.view).contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentAutomatic;
+            }
             keys=nil;
             list=nil;
             
@@ -497,10 +507,41 @@ int qsort_ComparePlaylistEntriesRevFP(const void *entryA, const void *entryB) {
     self.popTipView = nil;
 }
 
+- (id)findChildOfClass:(Class)cls inTabBarController:(UITabBarController *)tbc {
+    for (UIViewController *vc in tbc.viewControllers) {
+        // Unwrap nav controllers if present
+        UIViewController *candidate = vc;
+        if ([vc isKindOfClass:[UINavigationController class]]) {
+            candidate = ((UINavigationController *)vc).viewControllers.firstObject;
+        }
+        if ([candidate isKindOfClass:cls]) {
+            return candidate;
+        }
+    }
+    return nil;
+}
+
+- (void)loadControllers {
+    // With automatic storyboard loading, the window and root VC are created by UIKit.
+    UIWindow *window=[UIApplication sharedApplication].windows.firstObject;
+    if (!window) {
+        // Fallback to keyWindow if needed
+        window = [UIApplication sharedApplication].keyWindow;
+    }
+    UITabBarController *tbc = (UITabBarController *)window.rootViewController;
+    if (![tbc isKindOfClass:[UITabBarController class]]) {
+        NSLog(@"[SceneDelegate] Unexpected root VC: %@", NSStringFromClass([window.rootViewController class]));
+        return;
+    }
+    // Resolve specific child controllers
+    if (!self.detailViewController) self.detailViewController = [self findChildOfClass:[DetailViewControllerIphone class] inTabBarController:tbc];
+}
 
 - (void)viewDidLoad {
     START_PROFILE
     childController=NULL;
+    
+    [self loadControllers];
     
     dictActionBtn=[NSMutableDictionary dictionaryWithCapacity:64];
     
@@ -2336,7 +2377,7 @@ int getPlaylistStatsDBmod(t_playlist *pl) {
 }
 
 -(void) viewWillAppear:(BOOL)animated {
-    [self.navigationController.navigationBar setBarStyle:UIBarStyleDefault];
+//    [self.navigationController.navigationBar setBarStyle:UIBarStyleDefault];
     [self.sBar setBarStyle:UIBarStyleDefault];
     //[[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];
     
@@ -3575,7 +3616,17 @@ int getPlaylistStatsDBmod(t_playlist *pl) {
             ((RootViewControllerPlaylist*)childController)->playlist=playlist;
             ((RootViewControllerPlaylist*)childController)->integrated_playlist=INTEGRATED_PLAYLIST_NOWPLAYING;
             ((RootViewControllerPlaylist*)childController)->mFreePlaylist=0;
-            childController.view.frame=self.view.frame;
+//            childController.view.frame=self.view.frame;
+            // Ensure proper layout under navigation/tab bars
+            if ([childController respondsToSelector:@selector(setEdgesForExtendedLayout:)]) {
+                childController.edgesForExtendedLayout = UIRectEdgeNone;
+                childController.extendedLayoutIncludesOpaqueBars = NO;
+            }
+            if ([childController isKindOfClass:[UITableViewController class]]) {
+                ((UITableViewController *)childController).tableView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentAutomatic;
+            } else if ([childController.view isKindOfClass:[UIScrollView class]]) {
+                ((UIScrollView *)childController.view).contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentAutomatic;
+            }
             keys=nil;
             list=nil;
             
@@ -3610,7 +3661,17 @@ int getPlaylistStatsDBmod(t_playlist *pl) {
             ((RootViewControllerPlaylist*)childController)->playlist=playlist;
             ((RootViewControllerPlaylist*)childController)->integrated_playlist=INTEGRATED_PLAYLIST_RANDOM;
             ((RootViewControllerPlaylist*)childController)->mFreePlaylist=0;
-            childController.view.frame=self.view.frame;
+//            childController.view.frame=self.view.frame;
+            // Ensure proper layout under navigation/tab bars
+            if ([childController respondsToSelector:@selector(setEdgesForExtendedLayout:)]) {
+                childController.edgesForExtendedLayout = UIRectEdgeNone;
+                childController.extendedLayoutIncludesOpaqueBars = NO;
+            }
+            if ([childController isKindOfClass:[UITableViewController class]]) {
+                ((UITableViewController *)childController).tableView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentAutomatic;
+            } else if ([childController.view isKindOfClass:[UIScrollView class]]) {
+                ((UIScrollView *)childController.view).contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentAutomatic;
+            }
             keys=nil;
             list=nil;
             
@@ -3633,7 +3694,17 @@ int getPlaylistStatsDBmod(t_playlist *pl) {
             ((RootViewControllerPlaylist*)childController)->playlist=playlist;
             ((RootViewControllerPlaylist*)childController)->integrated_playlist=INTEGRATED_PLAYLIST_MOSTPLAYED;
             ((RootViewControllerPlaylist*)childController)->mFreePlaylist=0;
-            childController.view.frame=self.view.frame;
+//            childController.view.frame=self.view.frame;
+            // Ensure proper layout under navigation/tab bars
+            if ([childController respondsToSelector:@selector(setEdgesForExtendedLayout:)]) {
+                childController.edgesForExtendedLayout = UIRectEdgeNone;
+                childController.extendedLayoutIncludesOpaqueBars = NO;
+            }
+            if ([childController isKindOfClass:[UITableViewController class]]) {
+                ((UITableViewController *)childController).tableView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentAutomatic;
+            } else if ([childController.view isKindOfClass:[UIScrollView class]]) {
+                ((UIScrollView *)childController.view).contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentAutomatic;
+            }
             keys=nil;
             list=nil;
             
@@ -3656,7 +3727,17 @@ int getPlaylistStatsDBmod(t_playlist *pl) {
             ((RootViewControllerPlaylist*)childController)->playlist=playlist;
             ((RootViewControllerPlaylist*)childController)->integrated_playlist=INTEGRATED_PLAYLIST_FAVORITES;
             ((RootViewControllerPlaylist*)childController)->mFreePlaylist=0;
-            childController.view.frame=self.view.frame;
+//            childController.view.frame=self.view.frame;
+            // Ensure proper layout under navigation/tab bars
+            if ([childController respondsToSelector:@selector(setEdgesForExtendedLayout:)]) {
+                childController.edgesForExtendedLayout = UIRectEdgeNone;
+                childController.extendedLayoutIncludesOpaqueBars = NO;
+            }
+            if ([childController isKindOfClass:[UITableViewController class]]) {
+                ((UITableViewController *)childController).tableView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentAutomatic;
+            } else if ([childController.view isKindOfClass:[UIScrollView class]]) {
+                ((UIScrollView *)childController.view).contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentAutomatic;
+            }
             keys=nil;
             list=nil;
             
@@ -3676,7 +3757,17 @@ int getPlaylistStatsDBmod(t_playlist *pl) {
             ((RootViewControllerPlaylist*)childController)->detailViewController=detailViewController;
             ((RootViewControllerPlaylist*)childController)->playlist=playlist;
             ((RootViewControllerPlaylist*)childController)->mFreePlaylist=0;
-            childController.view.frame=self.view.frame;
+//            childController.view.frame=self.view.frame;
+            // Ensure proper layout under navigation/tab bars
+            if ([childController respondsToSelector:@selector(setEdgesForExtendedLayout:)]) {
+                childController.edgesForExtendedLayout = UIRectEdgeNone;
+                childController.extendedLayoutIncludesOpaqueBars = NO;
+            }
+            if ([childController isKindOfClass:[UITableViewController class]]) {
+                ((UITableViewController *)childController).tableView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentAutomatic;
+            } else if ([childController.view isKindOfClass:[UIScrollView class]]) {
+                ((UIScrollView *)childController.view).contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentAutomatic;
+            }
             keys=nil;
             list=nil;
             
@@ -3711,7 +3802,17 @@ int getPlaylistStatsDBmod(t_playlist *pl) {
                 ((RootViewControllerPlaylist*)childController)->playlist=playlist;
                 ((RootViewControllerPlaylist*)childController)->show_playlist=0;
                 ((RootViewControllerPlaylist*)childController)->mFreePlaylist=0;
-                childController.view.frame=self.view.frame;
+//                childController.view.frame=self.view.frame;
+                // Ensure proper layout under navigation/tab bars
+                if ([childController respondsToSelector:@selector(setEdgesForExtendedLayout:)]) {
+                    childController.edgesForExtendedLayout = UIRectEdgeNone;
+                    childController.extendedLayoutIncludesOpaqueBars = NO;
+                }
+                if ([childController isKindOfClass:[UITableViewController class]]) {
+                    ((UITableViewController *)childController).tableView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentAutomatic;
+                } else if ([childController.view isKindOfClass:[UIScrollView class]]) {
+                    ((UIScrollView *)childController.view).contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentAutomatic;
+                }
                 // And push the window
                 [self.navigationController pushViewController:childController animated:YES];
             } else if (row==1 ){ //playlist actions
@@ -3912,7 +4013,17 @@ int getPlaylistStatsDBmod(t_playlist *pl) {
                     ((RootViewControllerPlaylist*)childController)->detailViewController=detailViewController;
                     ((RootViewControllerPlaylist*)childController)->playlist=playlist;
                     ((RootViewControllerPlaylist*)childController)->mFreePlaylist=0;
-                    childController.view.frame=self.view.frame;
+//                    childController.view.frame=self.view.frame;
+                    // Ensure proper layout under navigation/tab bars
+                    if ([childController respondsToSelector:@selector(setEdgesForExtendedLayout:)]) {
+                        childController.edgesForExtendedLayout = UIRectEdgeNone;
+                        childController.extendedLayoutIncludesOpaqueBars = NO;
+                    }
+                    if ([childController isKindOfClass:[UITableViewController class]]) {
+                        ((UITableViewController *)childController).tableView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentAutomatic;
+                    } else if ([childController.view isKindOfClass:[UIScrollView class]]) {
+                        ((UIScrollView *)childController.view).contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentAutomatic;
+                    }
                     // And push the window
                     [self.navigationController pushViewController:childController animated:YES];
                     
@@ -3937,7 +4048,17 @@ int getPlaylistStatsDBmod(t_playlist *pl) {
                     ((RootViewControllerPlaylist*)childController)->detailViewController=detailViewController;
                     ((RootViewControllerPlaylist*)childController)->playlist=playlist;
                     ((RootViewControllerPlaylist*)childController)->mFreePlaylist=0;
-                    childController.view.frame=self.view.frame;
+//                    childController.view.frame=self.view.frame;
+                    // Ensure proper layout under navigation/tab bars
+                    if ([childController respondsToSelector:@selector(setEdgesForExtendedLayout:)]) {
+                        childController.edgesForExtendedLayout = UIRectEdgeNone;
+                        childController.extendedLayoutIncludesOpaqueBars = NO;
+                    }
+                    if ([childController isKindOfClass:[UITableViewController class]]) {
+                        ((UITableViewController *)childController).tableView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentAutomatic;
+                    } else if ([childController.view isKindOfClass:[UIScrollView class]]) {
+                        ((UIScrollView *)childController.view).contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentAutomatic;
+                    }
                     // And push the window
                     [self.navigationController pushViewController:childController animated:YES];
                     

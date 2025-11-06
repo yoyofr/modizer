@@ -14,7 +14,7 @@
 #import "MiniPlayerVC.h"
 #import "WaitingView.h"
 
-@interface SettingsMaintenanceViewController : UIViewController <UINavigationControllerDelegate,UIAlertViewDelegate> {
+@interface SettingsMaintenanceViewController : UIViewController <UINavigationControllerDelegate> {
     IBOutlet UITableView *tableView;
     WaitingView *waitingView,*waitingViewPlayer;
     NSTimer *repeatingTimer;

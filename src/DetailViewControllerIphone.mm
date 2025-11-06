@@ -282,7 +282,7 @@ static int updMPNowCnt=0;
 @synthesize is_macOS;
 @synthesize cover_view,cover_viewBG,cover_viewAll,gifAnimation;
 //@synthesize locManager;
-@synthesize sc_allowPopup,infoMsgView,infoMsgLbl,infoSecMsgLbl;
+@synthesize infoMsgView,infoMsgLbl,infoSecMsgLbl;
 @synthesize mIsPlaying,mPaused,mplayer,mPlaylist;
 @synthesize labelModuleLength, labelTime, labelModuleSize,textMessage,labelNumChannels,labelModuleType,labelSeeking,labelLibName;
 @synthesize buttonLoopTitleSel,buttonLoopList,buttonLoopListSel,buttonShuffle,buttonShuffleSel,buttonShuffleOneSel,btnLoopInf;
@@ -934,8 +934,7 @@ bool sysMonitorIsActive;
             [msgAlert addAction:userAction];
         }
     }
-    
-    [self showAlert:msgAlert];
+    [self presentViewController:msgAlert animated:YES completion:nil];
 }
 
 
@@ -2618,8 +2617,7 @@ int recording=0;
     
     if ([array count]>=MAX_PL_ENTRIES) {
         NSString *msg_str=[NSString stringWithFormat:NSLocalizedString(@"Too much entries! Playlist will be limited to %d first entries.",@""),MAX_PL_ENTRIES];
-        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Warning",@"") message:msg_str delegate:self cancelButtonTitle:NSLocalizedString(@"Close",@"") otherButtonTitles:nil];
-        [alert show];
+        [self showAlertMsg:NSLocalizedString(@"Warning",@"") message:msg_str];
         limitPl=1;
         //		return;
     }
@@ -2677,8 +2675,7 @@ int recording=0;
     
     if (pl->nb_entries>=MAX_PL_ENTRIES) {
         NSString *msg_str=[NSString stringWithFormat:NSLocalizedString(@"Too much entries! Playlist will be limited to %d first entries.",@""),MAX_PL_ENTRIES];
-        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Warning",@"") message:msg_str delegate:self cancelButtonTitle:NSLocalizedString(@"Close",@"") otherButtonTitles:nil];
-        [alert show];
+        [self showAlertMsg:NSLocalizedString(@"Warning",@"") message:msg_str];
         limitPl=1;
         //		return;
     }
@@ -2753,8 +2750,7 @@ int recording=0;
     
     if (mPlaylist_size+add_entries_nb>=MAX_PL_ENTRIES) {
         NSString *msg_str=[NSString stringWithFormat:NSLocalizedString(@"Too much entries! Playlist will be limited to %d first entries.",@""),MAX_PL_ENTRIES];
-        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Warning",@"") message:msg_str delegate:self cancelButtonTitle:NSLocalizedString(@"Close",@"") otherButtonTitles:nil];
-        [alert show];
+        [self showAlertMsg:NSLocalizedString(@"Warning",@"") message:msg_str];
         return 0;
     }
     
@@ -2844,8 +2840,7 @@ int recording=0;
     signed char avg_rating;
     if (mPlaylist_size>=MAX_PL_ENTRIES) {
         NSString *msg_str=[NSString stringWithFormat:NSLocalizedString(@"Too much entries! Playlist will be limited to %d first entries.",@""),MAX_PL_ENTRIES];
-        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Warning",@"") message:msg_str delegate:self cancelButtonTitle:NSLocalizedString(@"Close",@"") otherButtonTitles:nil];
-        [alert show];
+        [self showAlertMsg:NSLocalizedString(@"Warning",@"") message:msg_str];
         return 0;
     }
     coverflow_needredraw=1;
@@ -5321,6 +5316,9 @@ void pm_perfTest() {
     _fx_frame_timeOverLimitCounter=0;
     deactivateFStemp=0;
     
+    //reset timer
+    tgtFrameStartTime=0;
+    //update displayLink refresh
     mBackground=false;
     
     sysMonitor=[[SysMonitoring alloc] init];
@@ -5382,12 +5380,12 @@ void pm_perfTest() {
                     }
                 }
                 
-                AppDelegate_Phone *main_delegate=(AppDelegate_Phone*)[[UIApplication sharedApplication] delegate];
-                ModizerWin *modizerWin=[main_delegate modizerWin];
-                
-                CGRect frame = [modizerWin frame];
-                frame.size.height = MODIZER_MACM1_HEIGHT_MAX;
-                frame.size.width = MODIZER_MACM1_WIDTH_MAX;
+//                AppDelegate_Phone *main_delegate=(AppDelegate_Phone*)[[UIApplication sharedApplication] delegate];
+//                ModizerWin *modizerWin=[main_delegate modizerWin];
+//                
+//                CGRect frame = [modizerWin frame];
+//                frame.size.height = MODIZER_MACM1_HEIGHT_MAX;
+//                frame.size.width = MODIZER_MACM1_WIDTH_MAX;
             }
     
     self.navigationController.delegate = self;
@@ -5995,7 +5993,8 @@ void pm_perfTest() {
     for (int i=0;i<mPlaylist_size;i++) mPlaylist[i].cover_flag=-1;
     
     [self.view bringSubviewToFront:infoMsgView];
-    
+
+    //update displayLink refresh
     //    m_displayLink=nil;
         m_displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(doFrame)];
         m_displayLink.preferredFramesPerSecond = (settings[GLOB_FXFPS].detail.mdz_switch.switch_value?60:30); //60 or 30 fps depending on device speed iPhone
@@ -6073,7 +6072,10 @@ void pm_perfTest() {
     if (mShouldHaveFocusAfterBackground) {
         //[self viewWillAppear:YES];
     }
+    //reset timer
+    tgtFrameStartTime=0;
     mBackground=false;
+    //update displayLink refresh
     if (m_displayLink) m_displayLink.preferredFramesPerSecond = (settings[GLOB_FXFPS].detail.mdz_switch.switch_value?60:30); //60 or 30 fps depending on device speed iPhone
 }
 
@@ -6275,8 +6277,20 @@ void pm_perfTest() {
         }
         [self willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)orientationHV duration:0];
     }
-    [[[self navigationController] navigationBar] setBarStyle:UIBarStyleBlack];
-    [[[self navigationController] navigationBar] setBackgroundColor:[UIColor clearColor]];
+    
+//    [[[self navigationController] navigationBar] setBarStyle:UIBarStyleBlack];
+//    [[[self navigationController] navigationBar] setBackgroundColor:[UIColor clearColor]];
+//    [self setNeedsStatusBarAppearanceUpdate];
+    self.previousAppearance = self.navigationController.navigationBar.standardAppearance;
+            // Set black appearance
+            UINavigationBarAppearance *appearance = [[UINavigationBarAppearance alloc] init];
+            [appearance configureWithOpaqueBackground];
+            appearance.backgroundColor = [UIColor blackColor];
+            appearance.titleTextAttributes = @{NSForegroundColorAttributeName: [UIColor whiteColor]};
+            
+            self.navigationController.navigationBar.standardAppearance = appearance;
+            self.navigationController.navigationBar.scrollEdgeAppearance = appearance;
+            self.navigationController.navigationBar.compactAppearance = appearance;
     
     MIDIFX_OFS=(settings[GLOB_FXFPS].detail.mdz_switch.switch_value?MIDIFX_OFS_60FPS:MIDIFX_OFS_30FPS);
     
@@ -6330,9 +6344,15 @@ void pm_perfTest() {
 //    if (m_displayLink) [m_displayLink invalidate];
     
     [[self navigationController] setNavigationBarHidden:NO animated:NO];
-            [[[self navigationController] navigationBar] setBackgroundColor:[UIColor systemBackgroundColor]];
+    
+    if (self.previousAppearance) {
+           self.navigationController.navigationBar.standardAppearance = self.previousAppearance;
+           self.navigationController.navigationBar.scrollEdgeAppearance = self.previousAppearance;
+           self.navigationController.navigationBar.compactAppearance = self.previousAppearance;
+    }
+//    [[[self navigationController] navigationBar] setBackgroundColor:[UIColor systemBackgroundColor]];
     statusbarHidden=NO;
-    [self setNeedsStatusBarAppearanceUpdate];
+//    [self setNeedsStatusBarAppearanceUpdate];
 }
 
 - (UIImage *)imageFromView:(UIView *)view {
@@ -8511,7 +8531,18 @@ void doFramePM(float ww,float hh) {
                 break;
         }
         
-        settingsVC.view.frame=self.view.frame;
+//        settingsVC.view.frame=self.view.frame;
+        SettingsGenViewController *childController=settingsVC;
+        if ([childController respondsToSelector:@selector(setEdgesForExtendedLayout:)]) {
+            childController.edgesForExtendedLayout = UIRectEdgeNone;
+            childController.extendedLayoutIncludesOpaqueBars = NO;
+        }
+        if ([childController isKindOfClass:[UITableViewController class]]) {
+            ((UITableViewController *)childController).tableView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentAutomatic;
+        } else if ([childController.view isKindOfClass:[UIScrollView class]]) {
+            ((UIScrollView *)childController.view).contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentAutomatic;
+        }
+        
         [self.navigationController pushViewController:settingsVC animated:YES];
     }
 }

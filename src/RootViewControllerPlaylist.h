@@ -82,12 +82,12 @@
     int browse_depth;
     int integrated_playlist;
     int mDetailPlayerMode;
-    IBOutlet DetailViewControllerIphone *detailViewController;
+    DetailViewControllerIphone *detailViewController;
     int currentPlayedEntry;
 }
 
 @property (nonatomic, retain) NSFileManager *mFileMngr;
-@property (nonatomic, retain) IBOutlet DetailViewControllerIphone *detailViewController;
+@property (nonatomic, retain) DetailViewControllerIphone *detailViewController;
 @property (nonatomic, retain) IBOutlet UIViewController *childController;
 @property (nonatomic, retain) IBOutlet UITableView *tableView;
 @property (nonatomic, retain) IBOutlet UISearchBar *sBar;

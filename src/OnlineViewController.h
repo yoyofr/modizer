@@ -23,11 +23,11 @@
 #import "MiniPlayerVC.h"
 #import "WaitingView.h"
 
-@interface OnlineViewController : UITableViewController <UINavigationControllerDelegate>{
+@interface OnlineViewController : UIViewController <UINavigationControllerDelegate>{
     
-    IBOutlet DownloadViewController *downloadViewController;
-    IBOutlet WebBrowser *webBrowser;
-    IBOutlet DetailViewControllerIphone *detailViewController;
+    DownloadViewController *downloadViewController;
+    WebBrowser *webBrowser;
+    DetailViewControllerIphone *detailViewController;
     IBOutlet UITableView *tableView;
     
     WaitingView *waitingView,*waitingViewPlayer;
@@ -44,9 +44,9 @@
     UIViewController *collectionViewController;
 }
 
-@property (nonatomic, retain) IBOutlet DownloadViewController *downloadViewController;
-@property (nonatomic, retain) IBOutlet WebBrowser *webBrowser;
-@property (nonatomic, retain) IBOutlet DetailViewControllerIphone *detailViewController;
+@property (nonatomic, retain) DownloadViewController *downloadViewController;
+@property (nonatomic, retain) WebBrowser *webBrowser;
+@property (nonatomic, retain) DetailViewControllerIphone *detailViewController;
 @property (nonatomic, retain) IBOutlet UITableView *tableView;
 @property (nonatomic, retain) UIViewController *collectionViewController;
 @property (nonatomic) int mNbMODLANDFileEntries,mNbHVSCFileEntries,mNbASMAFileEntries;

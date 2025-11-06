@@ -92,10 +92,6 @@ enum {
     bool bRSactive;
     int isRecordingScreen; //0: not recording, 1: record, 2: record & stop at song end
     
-    //Options
-	IBOutlet UISegmentedControl *sc_allowPopup;
-	///////////////////////
-    
     bool statusbarHidden;
     
     //CoverFlow
@@ -288,6 +284,9 @@ enum {
 
 -(IBAction) oglButtonPushed;
 
+@property (nonatomic, strong) UINavigationBarAppearance *previousAppearance API_AVAILABLE(ios(13.0));
+@property (nonatomic) UIBarStyle previousBarStyle;
+
 @property int mHasFocus,mPaused;
 @property int mPlaylist_size,mPlaylist_pos,mDeviceType;
 @property char is_macOS;
@@ -300,7 +299,6 @@ enum {
 //@property (retain) CLLocationManager *locManager;
 @property (nonatomic, retain) IBOutlet UIView *infoMsgView;
 @property (nonatomic, retain) IBOutlet UILabel *infoMsgLbl,*infoSecMsgLbl;
-@property (nonatomic, retain) IBOutlet UISegmentedControl *sc_allowPopup;
 @property (nonatomic, retain) IBOutlet UIButton *btnChangeTime;
 @property (nonatomic, retain) IBOutlet UIView *mainView,*infoView;
 @property (nonatomic, retain) IBOutlet UIButton *mainRating5,*mainRating5off;
@@ -322,9 +320,6 @@ enum {
 @property (nonatomic, retain) IBOutlet UIBarButtonItem *playBarSubRewind,*playBarSubFFwd,*pauseBarSubRewind,*pauseBarSubFFwd;
 @property (nonatomic, retain) IBOutlet OBSlider *sliderProgressModule;
 @property (nonatomic, retain) IBOutlet UITextView *textMessage;
-
-@property (nonatomic, retain) IBOutlet UISegmentedControl *sc_ADPLUG_opltype;
-
 
 @property (nonatomic, retain) IBOutlet UIImageView *cover_view,*cover_viewBG;
 @property (nonatomic, retain) IBOutlet UIView *cover_viewAll;

@@ -10,6 +10,7 @@
 
 #import <UserNotifications/UserNotifications.h>
 #import "AppDelegate_Phone.h"
+#import "SceneDelegate.h"
 #import <MediaPlayer/MediaPlayer.h>
 
 #import "ModizerWin.h"
@@ -60,14 +61,14 @@ pthread_mutex_t pm_mutex;
 
 @implementation AppDelegate_Phone
 
-@synthesize modizerWin,tabBarController, rootViewControlleriPhone, detailViewControlleriPhone,playlistVC,downloadVC;
-@synthesize cpMngt;
+@synthesize tabBarC, rootViewControlleriPhone, detailViewControlleriPhone,playlistVC,downloadVC;
+//@synthesize cpMngt;
 
 
 - (BOOL)addSkipBackupAttributeToItemAtURL
 {
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-    NSString *documentsDirectory = [paths objectAtIndex:0];    
+    NSString *documentsDirectory = [paths objectAtIndex:0];
     const char* filePath = [documentsDirectory UTF8String];
     
     const char* attrName = "com.apple.MobileBackup";
@@ -112,12 +113,12 @@ pthread_mutex_t pm_mutex;
 }
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-	// Override point for customization after application launch
-	//
+    // Override point for customization after application launch
+    //
     START_PROFILE
 #ifdef GEN_EXT_LIST
     [self getSupportedExtensionList];
-#endif            
+#endif
     NSFileManager *mFileMngr=[[NSFileManager alloc] init];
     
     
@@ -152,88 +153,64 @@ pthread_mutex_t pm_mutex;
     [mFileMngr createDirectoryAtPath:[NSHomeDirectory() stringByAppendingPathComponent:[NSString stringWithFormat:@"/Documents%s",SHADER_CACHE_DIR]] withIntermediateDirectories:true attributes:NULL error:NULL];
         
     
-    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"14.0"))
-    if (@available(iOS 14.0, *)) {
-        if ([NSProcessInfo processInfo].isiOSAppOnMac) {
-            for (UIScene* scene in UIApplication.sharedApplication.connectedScenes) {
-                if ([scene isKindOfClass:[UIWindowScene class]]) {
-                    UIWindowScene* windowScene = (UIWindowScene*) scene;
-                    windowScene.sizeRestrictions.minimumSize = CGSizeMake(MODIZER_MACM1_WIDTH_MIN,MODIZER_MACM1_HEIGHT_MIN);
-                    windowScene.sizeRestrictions.maximumSize = CGSizeMake(MODIZER_MACM1_WIDTH_MAX,MODIZER_MACM1_HEIGHT_MAX);
-                }
-            }
-        }else{
-            //not on macos
-        }
-    }
+    // REMOVED: Mac Catalyst window size code - now handled in SceneDelegate
+    // The window setup is now handled in SceneDelegate's scene:willConnectToSession:
     
-    //[SettingsGenViewController loadSettings];
-    //[SettingsGenViewController restoreSettings];
- 
     snprintf(homedirectory,sizeof(homedirectory),"%s",[[NSHomeDirectory() stringByAppendingPathComponent:@"modizer.app"] UTF8String]);
     
     snprintf(bundledirectory,sizeof(bundledirectory),"%s",[[[NSBundle mainBundle] bundlePath] UTF8String]);
     
-	UIDevice* device = [UIDevice currentDevice];
-	backgroundSupported = NO;
-	if ([device respondsToSelector:@selector(isMultitaskingSupported)]) backgroundSupported = device.
+    UIDevice* device = [UIDevice currentDevice];
+    backgroundSupported = NO;
+    if ([device respondsToSelector:@selector(isMultitaskingSupported)]) backgroundSupported = device.
         multitaskingSupported;
-	
     
-	if (pthread_mutex_init(&uade_mutex,NULL)) {
-		printf("cannot create uade mutex");
-		return NO;
-	}
-	if (pthread_mutex_init(&db_mutex,NULL)) {
-		printf("cannot create db mutex");
-		return NO;
-	}
-	if (pthread_mutex_init(&download_mutex,NULL)) {
-		printf("cannot create download mutex");
-		return NO;
-	}
-	if (pthread_mutex_init(&play_mutex,NULL)) {
-		printf("cannot create play mutex");
-		return NO;
-	}
+    
+    if (pthread_mutex_init(&uade_mutex,NULL)) {
+        printf("cannot create uade mutex");
+        return NO;
+    }
+    if (pthread_mutex_init(&db_mutex,NULL)) {
+        printf("cannot create db mutex");
+        return NO;
+    }
+    if (pthread_mutex_init(&download_mutex,NULL)) {
+        printf("cannot create download mutex");
+        return NO;
+    }
+    if (pthread_mutex_init(&play_mutex,NULL)) {
+        printf("cannot create play mutex");
+        return NO;
+    }
     if (pthread_mutex_init(&pm_mutex,NULL)) {
         printf("cannot create gl mutex");
         return NO;
     }
-	//sqlite3_enable_shared_cache(1);
-	
+    //sqlite3_enable_shared_cache(1);
+    
 
     //battery: if charging, disable idleTimer
-    [[UIDevice currentDevice] setBatteryMonitoringEnabled:YES];    
+    [[UIDevice currentDevice] setBatteryMonitoringEnabled:YES];
     [self batteryChanged:nil];
     
-    [rootViewControlleriPhone createEditableCopyOfDatabaseIfNeeded:FALSE quiet:0];
+    //[rootViewControlleriPhone createEditableCopyOfDatabaseIfNeeded:FALSE quiet:0];
     
-   if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"14.0"))
-    if (@available(iOS 14.0, *)) {
-        if ([NSProcessInfo processInfo].isiOSAppOnMac) {
-            //CGRect frame = [modizerWin frame];
-            //frame.size.height = MODIZER_MACM1_HEIGHT_MAX;
-            //frame.size.width = MODIZER_MACM1_WIDTH_MAX;
-            //[modizerWin setFrame: frame];
-            //[modizerWin setBounds:frame];
-        }
-    }
-    modizerWin.rootViewController=(UITabBarController*)tabBarController;
-	[modizerWin addSubview:[(UITabBarController*)tabBarController view]];
-	[modizerWin makeKeyAndVisible];
-    tabBarController.tabBar.items[4].badgeValue=nil;
-//    playlistVC->browse_depth=0;
-//    playlistVC->detailViewController=detailViewControlleriPhone;
+    // REMOVED: All window setup code (lines 212-284 from original)
+    // This is now handled in SceneDelegate's scene:willConnectToSession:
+    // Including:
+    // - modizerWin.rootViewController setup
+    // - [modizerWin addSubview:...]
+    // - [modizerWin makeKeyAndVisible]
+    // - tabBarController badge setup
+    // - remote control setup
+    // - battery notifications
+    // - CarPlay initialization
+    // - AnimatedLaunchVC setup
     
-    if ([[UIApplication sharedApplication] respondsToSelector:@selector(beginReceivingRemoteControlEvents)]) {
-		[detailViewControlleriPhone enterBackground];
-		[modizerWin becomeFirstResponder];
-		//[[UIApplication sharedApplication] beginReceivingRemoteControlEvents];
-	}	
+    // Battery notifications are still needed here
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(batteryChanged:) name:@"UIDeviceBatteryLevelDidChangeNotification" object:[UIDevice currentDevice]];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(batteryChanged:) name:@"UIDeviceBatteryStateDidChangeNotification" object:[UIDevice currentDevice]];
-        
+    
     
     if (launchOptions) {
     /*NSURL *url = (NSURL *)[launchOptions valueForKey:UIApplicationLaunchOptionsURLKey];
@@ -260,42 +237,12 @@ pthread_mutex_t pm_mutex;
         }*/
     }
 
-	if (detailViewControlleriPhone.mPlaylist_size) {		
-		//[detailViewControlleriPhone play_restart];  //Playlist not empty ; try to restart
-	}
-    
-    cpMngt=[[CarPlayAndRemoteManagement alloc] init];
-    cpMngt.detailViewController=detailViewControlleriPhone;
-    cpMngt.rootVCLocalB=rootViewControlleriPhone;
-    [cpMngt initCarPlayAndRemote];
-    
-    CGRect frame = [modizerWin frame];
-    animatedLaunchVC=[[AnimatedLaunchVC alloc] initWithNibName:@"AnimatedLaunch" bundle:[NSBundle mainBundle]];
-    animatedLaunchVC.view.frame=/*self.view.*/frame;
-    animatedLaunchVC.localBrowserVC=rootViewControlleriPhone;
-    
     //[downloadVC refreshDownloadCountBadge];
     
-    //Faster loading for debug
-#ifdef DEBUG_MODIZER
     
-#else
-    [modizerWin addSubview:[animatedLaunchVC view]];
-#endif
-    
-    //[self pushViewController:animatedLaunchVC animated:YES];
     [[UILabel appearanceWhenContainedInInstancesOfClasses:@[[UIAlertController class]]] setNumberOfLines:2];
     [[UILabel appearanceWhenContainedInInstancesOfClasses:@[[UIAlertController class]]] setLineBreakMode:NSLineBreakByWordWrapping];//NSLineBreakByCharWrapping];
     //[[UILabel appearanceWhenContainedInInstancesOfClasses:@[[UIAlertController class]]] setFont:[UIFont systemFontOfSize:6.0]];
-    
-    
-    UNUserNotificationCenter* center = [UNUserNotificationCenter currentNotificationCenter];
-    center.delegate=detailViewControlleriPhone;
-    [center requestAuthorizationWithOptions:UNAuthorizationOptionAlert completionHandler:^(BOOL granted, NSError * _Nullable error) {
-        if (!granted) mdzNotificationAllowed=false;
-        else mdzNotificationAllowed=true;
-    }];
-    
     
     
     END_PROFILE
@@ -331,7 +278,7 @@ pthread_mutex_t pm_mutex;
                     
                     return YES;
                 }
-            }            
+            }
             
             if ([mFileMngr copyItemAtPath:filepath toPath:imported_filepath error:&err]) {
                 [rootViewControlleriPhone refreshViewAfterDownload];
@@ -354,7 +301,6 @@ pthread_mutex_t pm_mutex;
         [detailViewControlleriPhone play_listmodules:pl start_index:0];
         free(pl);
         return YES;
-        
     }
     return NO;
 }
@@ -377,9 +323,9 @@ pthread_mutex_t pm_mutex;
 
 - (void)applicationWillTerminate:(UIApplication *)application {
     [SettingsGenViewController backupSettings];
-	[detailViewControlleriPhone saveSettings];
+    [detailViewControlleriPhone saveSettings];
     [downloadVC backupDownloadList];
-	[detailViewControlleriPhone updateFlagOnExit];
+    [detailViewControlleriPhone updateFlagOnExit];
     
     [self removeAllNotifications];
     [self cleanupTempData];
@@ -390,12 +336,12 @@ pthread_mutex_t pm_mutex;
 }
 
 - (void)applicationDidBecomeActive:(UIApplication *)application {
-	if ([[UIApplication sharedApplication] respondsToSelector:@selector(endReceivingRemoteControlEvents)]) {
-	//	[[UIApplication sharedApplication] endReceivingRemoteControlEvents];
-		[detailViewControlleriPhone enterForeground];
-	}
+    if ([[UIApplication sharedApplication] respondsToSelector:@selector(endReceivingRemoteControlEvents)]) {
+    //    [[UIApplication sharedApplication] endReceivingRemoteControlEvents];
+        [detailViewControlleriPhone enterForeground];
+    }
     
-//    [downloadVC restoreDownloadList];
+    [downloadVC restoreDownloadList];
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application {
@@ -403,30 +349,22 @@ pthread_mutex_t pm_mutex;
      Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
      Use this method to pause ongoing tasks, disable timers, and throttle down OpenGL ES frame rates. Games should use this method to pause the game.
      */
-	if ([[UIApplication sharedApplication] respondsToSelector:@selector(beginReceivingRemoteControlEvents)]) {
-		[detailViewControlleriPhone enterBackground];
-	//	[modizerWin becomeFirstResponder];
-	//	[[UIApplication sharedApplication] beginReceivingRemoteControlEvents];
-	}
+    if ([[UIApplication sharedApplication] respondsToSelector:@selector(beginReceivingRemoteControlEvents)]) {
+        [detailViewControlleriPhone enterBackground];
+//        [tabBarC becomeFirstResponder];
+//        [[UIApplication sharedApplication] beginReceivingRemoteControlEvents];
+    }
 
     // Ensure that settings are saved if closed by OS after resigning active
 //    [SettingsGenViewController backupSettings];
 //    [detailViewControlleriPhone saveSettings];
 //    [downloadVC backupDownloadList];
-//	[detailViewControlleriPhone updateFlagOnExit];
+//    [detailViewControlleriPhone updateFlagOnExit];
 }
 
 - (void)applicationDidEnterBackground:(UIApplication *)application {
-//	[SettingsGenViewController backupSettings];
-//	[detailViewControlleriPhone saveSettings];
-//	//if (backgroundSupported==NO) return;
-//	if (( (detailViewControlleriPhone.mPaused)&&(settings[GLOB_BackgroundMode].detail.mdz_switch.switch_value==1) )||
-//		  (settings[GLOB_BackgroundMode].detail.mdz_switch.switch_value==0) ) {
-//		//exit app if not playing anything
-//        [detailViewControlleriPhone updateFlagOnExit];
-//        [downloadVC backupDownloadList];
-//		exit(0);
-//	}
+//    [SettingsGenViewController backupSettings];
+//    [detailViewControlleriPhone saveSettings];
 }
 
 - (void)openFeature:(NSString *)feature {
@@ -447,23 +385,53 @@ continueUserActivity:(NSUserActivity *)userActivity
 }
 
 - (void)didReceiveMemoryWarning
-{ 
-	// default behavior is to release the view if it doesn't have a superview.
-	
-	// remember to clean up anything outside of this view's scope, such as
-	// data cached in the class instance and other global data.
-    MDZELog("received a memory warning...");
+{
+    // default behavior is to release the view if it doesn't have a superview.
+    
+    // remember to clean up anything outside of this view's scope, such as
+    // data cached in the class instance and other global data.
+//    MDZELog("received a memory warning...");
     [SettingsGenViewController backupSettings];
     [detailViewControlleriPhone saveSettings];
-    //[downloadVC backupDownloadList];
-	//[super didReceiveMemoryWarning];
+//    [downloadVC backupDownloadList];
+    //[super didReceiveMemoryWarning];
 }
 
 - (void)dealloc {
     //[modizerWin release];
-    modizerWin=nil;
+    //modizerWin=nil;
     //[super dealloc];
 }
 
+- (void)buildMenuWithBuilder:(id<UIMenuBuilder>)builder API_AVAILABLE(ios(13.0)) {
+    if (builder.system != UIMenuSystem.mainSystem) {
+        return;
+    }
+    
+    [super buildMenuWithBuilder:builder];
+    
+    // Remove problematic auto-generated menus
+    [builder removeMenuForIdentifier:UIMenuServices];
+    [builder removeMenuForIdentifier:UIMenuSpelling];
+    [builder removeMenuForIdentifier:UIMenuSubstitutions];
+    [builder removeMenuForIdentifier:UIMenuTransformations];
+    [builder removeMenuForIdentifier:UIMenuSpeech];
+}
+
+#pragma mark - UISceneSession Lifecycle
+
+- (UISceneConfiguration *)application:(UIApplication *)application configurationForConnectingSceneSession:(UISceneSession *)connectingSceneSession options:(UISceneConnectionOptions *)options {
+    // Called when a new scene session is being created.
+    // Use this method to select a configuration to create the new scene with.
+    UISceneConfiguration *config = [[UISceneConfiguration alloc] initWithName:@"Default Configuration" sessionRole:connectingSceneSession.role];
+    config.delegateClass = [SceneDelegate class];
+    return config;
+}
+
+- (void)application:(UIApplication *)application didDiscardSceneSessions:(NSSet<UISceneSession *> *)sceneSessions {
+    // Called when the user discards a scene session.
+    // If any sessions were discarded while the application was not running, this will be called shortly after application:didFinishLaunchingWithOptions.
+    // Use this method to release any resources that were specific to the discarded scenes, as they will not return.
+}
 
 @end

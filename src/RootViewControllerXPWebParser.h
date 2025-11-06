@@ -110,8 +110,8 @@ extern volatile t_settings settings[MAX_SETTINGS];
 @public
     int browse_depth;
     bool has_letter_index;
-    IBOutlet DetailViewControllerIphone *detailViewController;
-    IBOutlet DownloadViewController *downloadViewController;
+    DetailViewControllerIphone *detailViewController;
+    DownloadViewController *downloadViewController;
     NSString *mWebBaseURL;
     char category;
     
@@ -119,8 +119,8 @@ extern volatile t_settings settings[MAX_SETTINGS];
 
 @property (nonatomic, retain) NSFileManager *mFileMngr;
 @property (nonatomic, retain) NSTimer *repeatingTimer;
-@property (nonatomic, retain) IBOutlet DetailViewControllerIphone *detailViewController;
-@property (nonatomic, retain) IBOutlet DownloadViewController *downloadViewController;
+@property (nonatomic, retain) DetailViewControllerIphone *detailViewController;
+@property (nonatomic, retain) DownloadViewController *downloadViewController;
 @property (nonatomic, retain) IBOutlet UIViewController *childController;
 @property (nonatomic, retain) IBOutlet UITableView *tableView;
 @property (nonatomic, retain) IBOutlet UISearchBar *sBar;

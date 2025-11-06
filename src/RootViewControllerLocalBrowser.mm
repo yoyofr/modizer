@@ -316,14 +316,10 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     
     if (quiet) [self recreateDB];
     else {
-        UIAlertView *alert1;
-        if (forceInit) alert1 = [[UIAlertView alloc] initWithTitle:@"Info"
-                                                           message:NSLocalizedString(@"Database will now be recreated. Please validate & wait.",@"") delegate:self cancelButtonTitle:@"Recreate DB" otherButtonTitles:nil];
+        if (forceInit) [self showAlertMsg:NSLocalizedString(@"Info",@"") message:NSLocalizedString(@"Database will now be recreated. Please validate & wait.",@"")];
         else {
             if (wrongversion) {
-                alert1 = [[UIAlertView alloc] initWithTitle:@"Info" message:
-                          [NSString stringWithFormat:NSLocalizedString(@"Old database version: %d.%d. Will update to %d.%d. Please validate & wait.",@""),maj,min,VERSION_MAJOR,VERSION_MINOR] delegate:self cancelButtonTitle:@"Update DB" otherButtonTitles:nil];
-                [alert1 show];
+                [self showAlertMsg:NSLocalizedString(@"Info",@"") message:[NSString stringWithFormat:NSLocalizedString(@"Old database version: %d.%d. Will update to %d.%d. Please validate & wait.",@""),maj,min,VERSION_MAJOR,VERSION_MINOR]];
             }
             else  {
                 //USer database missing, create it
@@ -351,8 +347,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
 - (void) alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
     if (mDatabaseCreationInProgress) {
         [self recreateDB];
-        UIAlertView *alert2 = [[UIAlertView alloc] initWithTitle:@"Info" message:NSLocalizedString(@"Database created.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
-        [alert2 show];
+        [self showAlertMsg:NSLocalizedString(@"Info",@"") message:NSLocalizedString(@"Database created.",@"")];
     }
     if (renameFile) {
         renameFile=0;
@@ -372,8 +367,6 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
             mFileMngr.delegate=self;
             if ([mFileMngr moveItemAtPath:curPath toPath:tgtPath error:&err]==NO) {
                 MDZELog("Issue %d while renaming file %@",(int)(err.code),curPath);
-                //UIAlertView *removeAlert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Warning",@"") message:[NSString stringWithFormat:NSLocalizedString(@"Issue %d while trying to renamefile.\n%@",@""),err.code,err.localizedDescription] delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
-                //[removeAlert show];
             } else {
                 cur_local_entries[renameSec][renameIdx].label=[[NSString alloc] initWithString:tf.text];
                 
@@ -403,8 +396,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
             NSError *err;
             if ([mFileMngr createDirectoryAtPath:newPath withIntermediateDirectories:YES attributes:nil error:&err]==NO) {
                 MDZELog("Issue %d while create folder %@",(int)(err.code),newPath);
-                UIAlertView *removeAlert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Warning",@"") message:[NSString stringWithFormat:NSLocalizedString(@"Issue %d while creating folder\n%@",@""),err.code,newPath] delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
-                [removeAlert show];
+                [self showAlertMsg:NSLocalizedString(@"Warning",@"") message:[NSString stringWithFormat:NSLocalizedString(@"Issue %d while creating folder\n%@",@""),err.code,newPath]];
             } else {
                 [ModizFileHelper addSkipBackupAttributeToItemAtPath:newPath];
                 
@@ -469,9 +461,41 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     }
 }
 
+- (id)findChildOfClass:(Class)cls inTabBarController:(UITabBarController *)tbc {
+    for (UIViewController *vc in tbc.viewControllers) {
+        // Unwrap nav controllers if present
+        UIViewController *candidate = vc;
+        if ([vc isKindOfClass:[UINavigationController class]]) {
+            candidate = ((UINavigationController *)vc).viewControllers.firstObject;
+        }
+        if ([candidate isKindOfClass:cls]) {
+            return candidate;
+        }
+    }
+    return nil;
+}
+
+-(void) loadControllers {
+    // With automatic storyboard loading, the window and root VC are created by UIKit.
+    UIWindow *window=[UIApplication sharedApplication].windows.firstObject;
+    if (!window) {
+        // Fallback to keyWindow if needed
+        window = [UIApplication sharedApplication].keyWindow;
+    }
+    UITabBarController *tbc = (UITabBarController *)window.rootViewController;
+    if (![tbc isKindOfClass:[UITabBarController class]]) {
+        NSLog(@"[SceneDelegate] Unexpected root VC: %@", NSStringFromClass([window.rootViewController class]));
+        return;
+    }
+    // Resolve specific child controllers
+    if (!self.detailViewController) self.detailViewController = [self findChildOfClass:[DetailViewControllerIphone class] inTabBarController:tbc];
+}
+
 - (void)viewDidLoad {
     START_PROFILE
     childController=nil;
+
+    [self loadControllers];
     
     cutpaste_initiated=0;
     
@@ -1040,12 +1064,10 @@ static int qsort_CompareArcEntries(const void *entryA, const void *entryB) {
                     local_entries_data=(t_local_browse_entry *)calloc(local_nb_entries_limit,sizeof(t_local_browse_entry));
                     if (local_entries_data==NULL) {
                         //show alert : cannot list
-                        UIAlertView *memAlert = [[UIAlertView alloc] initWithTitle:@"Info" message:NSLocalizedString(@"Browser not enough mem.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
-                        [memAlert show];
+                        [self showAlertMsg:NSLocalizedString(@"Warning",@"") message:NSLocalizedString(@"Browser not enough mem.",@"")];
                     } else {
                         //show alert : limited list
-                        UIAlertView *memAlert = [[UIAlertView alloc] initWithTitle:@"Info" message:NSLocalizedString(@"Browser not enough mem. Limited.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
-                        [memAlert show];
+                        [self showAlertMsg:NSLocalizedString(@"Warning",@"") message:NSLocalizedString(@"Browser not enough mem. Limited.",@"")];
                         local_nb_entries=local_nb_entries_limit;
                     }
                 } else local_nb_entries_limit=0;
@@ -1221,12 +1243,10 @@ static int qsort_CompareArcEntries(const void *entryA, const void *entryB) {
                 local_entries_data=(t_local_browse_entry *)calloc(local_nb_entries_limit,sizeof(t_local_browse_entry));
                 if (local_entries_data==NULL) {
                     //show alert : cannot list
-                    UIAlertView *memAlert = [[UIAlertView alloc] initWithTitle:@"Info" message:NSLocalizedString(@"Browser not enough mem.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
-                    [memAlert show];
+                    [self showAlertMsg:NSLocalizedString(@"Warning",@"") message:NSLocalizedString(@"Browser not enough mem.",@"")];
                 } else {
                     //show alert : limited list
-                    UIAlertView *memAlert = [[UIAlertView alloc] initWithTitle:@"Info" message:NSLocalizedString(@"Browser not enough mem. Limited.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
-                    [memAlert show];
+                    [self showAlertMsg:NSLocalizedString(@"Warning",@"") message:NSLocalizedString(@"Browser not enough mem. Limited.",@"")];
                     local_nb_entries=local_nb_entries_limit;
                 }
             } else local_nb_entries_limit=0;
@@ -1422,12 +1442,10 @@ static int qsort_CompareArcEntries(const void *entryA, const void *entryB) {
                 local_entries_data=(t_local_browse_entry *)calloc(local_nb_entries_limit,sizeof(t_local_browse_entry));
                 if (local_entries_data==NULL) {
                     //show alert : cannot list
-                    UIAlertView *memAlert = [[UIAlertView alloc] initWithTitle:@"Info" message:NSLocalizedString(@"Browser not enough mem.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
-                    [memAlert show];
+                    [self showAlertMsg:NSLocalizedString(@"Warning",@"") message:NSLocalizedString(@"Browser not enough mem.",@"")];
                 } else {
                     //show alert : limited list
-                    UIAlertView *memAlert = [[UIAlertView alloc] initWithTitle:@"Info" message:NSLocalizedString(@"Browser not enough mem. Limited.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
-                    [memAlert show];
+                    [self showAlertMsg:NSLocalizedString(@"Warning",@"") message:NSLocalizedString(@"Browser not enough mem. Limited.",@"")];
                     local_nb_entries=local_nb_entries_limit;
                 }
             } else local_nb_entries_limit=0;
@@ -1704,12 +1722,10 @@ static int qsort_CompareArcEntries(const void *entryA, const void *entryB) {
                 local_entries_data=(t_local_browse_entry *)calloc(local_nb_entries_limit,sizeof(t_local_browse_entry));
                 if (local_entries_data==NULL) {
                     //show alert : cannot list
-                    UIAlertView *memAlert = [[UIAlertView alloc] initWithTitle:@"Info" message:NSLocalizedString(@"Browser not enough mem.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
-                    [memAlert show];
+                    [self showAlertMsg:NSLocalizedString(@"Warning",@"") message:NSLocalizedString(@"Browser not enough mem.",@"")];
                 } else {
                     //show alert : limited list
-                    UIAlertView *memAlert = [[UIAlertView alloc] initWithTitle:@"Info" message:NSLocalizedString(@"Browser not enough mem. Limited.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
-                    [memAlert show];
+                    [self showAlertMsg:NSLocalizedString(@"Warning",@"") message:NSLocalizedString(@"Browser not enough mem. Limited.",@"")];
                     local_nb_entries=local_nb_entries_limit;
                 }
             } else local_nb_entries_limit=0;
@@ -1747,34 +1763,36 @@ static int qsort_CompareArcEntries(const void *entryA, const void *entryB) {
                     
                     
                     if (isDir) { //rdir.location == NSNotFound) {  //assume it is a dir if no "." in file name
-                        rdir = [file rangeOfString:@"/" options:NSCaseInsensitiveSearch];
-                        if ((rdir.location==NSNotFound)||(mShowSubdir)) {
-                            if (1/*[file compare:@"tmpArchive"]!=NSOrderedSame*/) {
-                                //do not display dir if subdir mode is on
-                                int filtered=mShowSubdir;
-                                if (!filtered) {
-                                    if ((mSearch)&&([mSearchText length]>0)) {
-                                        filtered=1;
-                                        //NSRange r = [file rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
-                                        //if (r.location != NSNotFound) {
-                                        if ([self searchStringRegExp:mSearchText sourceString:file]) {
-                                            /*if(r.location== 0)*/ filtered=0;
-                                        }
-                                    }
+                        if (![file isEqualToString:@"ProjectM"]) {
+                            rdir = [file rangeOfString:@"/" options:NSCaseInsensitiveSearch];
+                            if ((rdir.location==NSNotFound)||(mShowSubdir)) {
+                                if (1/*[file compare:@"tmpArchive"]!=NSOrderedSame*/) {
+                                    //do not display dir if subdir mode is on
+                                    int filtered=mShowSubdir;
                                     if (!filtered) {
-                                        const char *str=[file UTF8String];
-                                        int index=0;
-                                        if ((str[0]>='A')&&(str[0]<='Z') ) index=(str[0]-'A'+1);
-                                        if ((str[0]>='a')&&(str[0]<='z') ) index=(str[0]-'a'+1);
-                                        local_entries[index][local_entries_count[index]].type=0;
-                                        
-                                        local_entries[index][local_entries_count[index]].label=[[NSString alloc] initWithString:file];
-                                        
-                                        local_entries[index][local_entries_count[index]].fullpath=[[NSString alloc] initWithFormat:@"%@/%@",currentPath,file];
-                                        local_entries_count[index]++;
-                                        if (local_nb_entries_limit) {
-                                            local_nb_entries_limit--;
-                                            if (!local_nb_entries_limit) shouldStop=1;
+                                        if ((mSearch)&&([mSearchText length]>0)) {
+                                            filtered=1;
+                                            //NSRange r = [file rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
+                                            //if (r.location != NSNotFound) {
+                                            if ([self searchStringRegExp:mSearchText sourceString:file]) {
+                                                /*if(r.location== 0)*/ filtered=0;
+                                            }
+                                        }
+                                        if (!filtered) {
+                                            const char *str=[file UTF8String];
+                                            int index=0;
+                                            if ((str[0]>='A')&&(str[0]<='Z') ) index=(str[0]-'A'+1);
+                                            if ((str[0]>='a')&&(str[0]<='z') ) index=(str[0]-'a'+1);
+                                            local_entries[index][local_entries_count[index]].type=0;
+                                            
+                                            local_entries[index][local_entries_count[index]].label=[[NSString alloc] initWithString:file];
+                                            
+                                            local_entries[index][local_entries_count[index]].fullpath=[[NSString alloc] initWithFormat:@"%@/%@",currentPath,file];
+                                            local_entries_count[index]++;
+                                            if (local_nb_entries_limit) {
+                                                local_nb_entries_limit--;
+                                                if (!local_nb_entries_limit) shouldStop=1;
+                                            }
                                         }
                                     }
                                 }
@@ -1926,13 +1944,6 @@ static int shouldRestart=1;
     //static int firstcall=0;
     [super viewWillAppear:animated];
     
-            if ([NSProcessInfo processInfo].isiOSAppOnMac) {
-                
-                AppDelegate_Phone *main_delegate=(AppDelegate_Phone*)[[UIApplication sharedApplication] delegate];
-                ModizerWin *modizerWin=[main_delegate modizerWin];
-                
-            }
-    
     bool oldmode=darkMode;
     darkMode=false;
     if (self.traitCollection.userInterfaceStyle==UIUserInterfaceStyleDark) darkMode=true;
@@ -1944,7 +1955,7 @@ static int shouldRestart=1;
     [self.sBar setBarStyle:UIBarStyleDefault];
     
     self.navigationController.delegate = self;
-    [[[self navigationController] navigationBar] setBarStyle:UIBarStyleDefault];
+//    [[[self navigationController] navigationBar] setBarStyle:UIBarStyleDefault];
     [[self navigationController] setNavigationBarHidden:NO animated:YES];
     [self.navigationController setNeedsStatusBarAppearanceUpdate];
     
@@ -2362,8 +2373,7 @@ As a consequence, some entries might disappear from existing playlist.\n\
             mFileMngr.delegate=self;
             if ([mFileMngr moveItemAtPath:sourcePath toPath:destPath error:&err]!=YES) {
                 MDZELog("Issue %d while moving: %@",(int)(err.code),cutpaste_filesrcpath);
-                UIAlertView *moveAlert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Warning",@"") message:[NSString stringWithFormat:NSLocalizedString(@"Issue %d while moving: %@.\n%@",@""),err.code,cutpaste_filesrcpath] delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
-                [moveAlert show];
+                [self showAlertMsg:NSLocalizedString(@"Warning",@"") message:[NSString stringWithFormat:NSLocalizedString(@"Issue %d while moving: %@.\n%@",@""),err.code,cutpaste_filesrcpath]];
             } else {
                 //[cutpaste_filesrcpath release];
                 cutpaste_filesrcpath=nil;
@@ -2376,8 +2386,7 @@ As a consequence, some entries might disappear from existing playlist.\n\
             }
         } else {
             //Alert msg => nothing to Paste
-            UIAlertView *pasteAlert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Warning",@"") message:NSLocalizedString(@"Nothing to paste",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
-            [pasteAlert show];
+            [self showAlertMsg:NSLocalizedString(@"Warning",@"") message:NSLocalizedString(@"Nothing to paste",@"")];
         }
     } else {
         //File or Directory
@@ -2443,8 +2452,7 @@ As a consequence, some entries might disappear from existing playlist.\n\
                     
                     //[self.tableView reloadData];
                 } else {
-                    UIAlertView *cannotExtractAlert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Warning",@"") message:NSLocalizedString(@"No file to extract or not supported archive format.\n",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
-                    [cannotExtractAlert show];
+                    [self showAlertMsg:NSLocalizedString(@"Warning",@"") message:NSLocalizedString(@"No file to extract or not supported archive format.\n",@"")];
                 }
                 //[self hideWaiting];
                 break;
@@ -2490,8 +2498,7 @@ As a consequence, some entries might disappear from existing playlist.\n\
         
         if ([mFileMngr removeItemAtPath:fullpath error:&err]!=YES) {
             MDZELog("Issue %d while removing: %@",(int)(err.code),fullpath);
-            UIAlertView *removeAlert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Warning",@"") message:[NSString stringWithFormat:NSLocalizedString(@"Issue %d while trying to delete entry.\n%@",@""),err.code,err.localizedDescription] delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
-            [removeAlert show];
+            [self showAlertMsg:NSLocalizedString(@"Warning",@"") message:[NSString stringWithFormat:NSLocalizedString(@"Issue %d while trying to delete entry.\n%@",@""),err.code,err.localizedDescription]];
         } else {
             if (cur_local_entries[section][indexPath.row].type==0) { //Dir
                 DBHelper::deleteStatsDirDB(fullpath);
@@ -3020,8 +3027,7 @@ As a consequence, some entries might disappear from existing playlist.\n\
         
         if ([mFileMngr removeItemAtPath:fullpath error:&err]!=YES) {
             MDZELog("Issue %d while removing: %@",(int)(err.code),fullpath);
-            UIAlertView *removeAlert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Warning",@"") message:[NSString stringWithFormat:NSLocalizedString(@"Issue %d while trying to delete entry.\n%@",@""),err.code,err.localizedDescription] delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
-            [removeAlert show];
+            [self showAlertMsg:NSLocalizedString(@"Warning",@"") message:[NSString stringWithFormat:NSLocalizedString(@"Issue %d while trying to delete entry.\n%@",@""),err.code,err.localizedDescription]];
         } else {
             if (cur_local_entries[section][indexPath.row].type==0) { //Dir
                 DBHelper::deleteStatsDirDB(fullpath);
@@ -3160,9 +3166,7 @@ As a consequence, some entries might disappear from existing playlist.\n\
         }
     }
     else {
-        UIAlertView *nofileplaying=[[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Warning",@"")
-                                                              message:NSLocalizedString(@"Nothing currently playing. Please select a file.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
-        [nofileplaying show];
+        [self showAlertMsg:NSLocalizedString(@"Warning",@"") message:NSLocalizedString(@"Nothing currently playing. Please select a file.",@"")];
     }
     //    [self hideWaiting];
 }
@@ -3458,7 +3462,17 @@ As a consequence, some entries might disappear from existing playlist.\n\
                 ((RootViewControllerLocalBrowser*)childController)->browse_depth = browse_depth+1;
                 ((RootViewControllerLocalBrowser*)childController)->detailViewController=detailViewController;
                 
-                childController.view.frame=self.view.frame;
+//                childController.view.frame=self.view.frame;
+                // Ensure proper layout under navigation/tab bars
+                if ([childController respondsToSelector:@selector(setEdgesForExtendedLayout:)]) {
+                    childController.edgesForExtendedLayout = UIRectEdgeNone;
+                    childController.extendedLayoutIncludesOpaqueBars = NO;
+                }
+                if ([childController isKindOfClass:[UITableViewController class]]) {
+                    ((UITableViewController *)childController).tableView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentAutomatic;
+                } else if ([childController.view isKindOfClass:[UIScrollView class]]) {
+                    ((UIScrollView *)childController.view).contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentAutomatic;
+                }
                 // And push the window
                 [self.navigationController pushViewController:childController animated:YES];
                 
@@ -3494,7 +3508,19 @@ As a consequence, some entries might disappear from existing playlist.\n\
             ((RootViewControllerLocalBrowser*)childController)->icloud_folder_mode=icloud_folder_mode;
             ((RootViewControllerLocalBrowser*)childController)->browse_depth = browse_depth+1;
             ((RootViewControllerLocalBrowser*)childController)->detailViewController=detailViewController;
-            childController.view.frame=self.view.frame;
+            //childController.view.frame=self.view.frame;
+            
+            // Ensure proper layout under navigation/tab bars
+            if ([childController respondsToSelector:@selector(setEdgesForExtendedLayout:)]) {
+                childController.edgesForExtendedLayout = UIRectEdgeNone;
+                childController.extendedLayoutIncludesOpaqueBars = NO;
+            }
+            if ([childController isKindOfClass:[UITableViewController class]]) {
+                ((UITableViewController *)childController).tableView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentAutomatic;
+            } else if ([childController.view isKindOfClass:[UIScrollView class]]) {
+                ((UIScrollView *)childController.view).contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentAutomatic;
+            }
+            
             // And push the window
             [self.navigationController pushViewController:childController animated:YES];
             
@@ -3525,7 +3551,17 @@ As a consequence, some entries might disappear from existing playlist.\n\
             ((RootViewControllerLocalBrowser*)childController)->currentPath = newPath;
             ((RootViewControllerLocalBrowser*)childController)->browse_depth = browse_depth+1;
             ((RootViewControllerLocalBrowser*)childController)->detailViewController=detailViewController;
-            childController.view.frame=self.view.frame;
+//            childController.view.frame=self.view.frame;
+            // Ensure proper layout under navigation/tab bars
+            if ([childController respondsToSelector:@selector(setEdgesForExtendedLayout:)]) {
+                childController.edgesForExtendedLayout = UIRectEdgeNone;
+                childController.extendedLayoutIncludesOpaqueBars = NO;
+            }
+            if ([childController isKindOfClass:[UITableViewController class]]) {
+                ((UITableViewController *)childController).tableView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentAutomatic;
+            } else if ([childController.view isKindOfClass:[UIScrollView class]]) {
+                ((UIScrollView *)childController.view).contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentAutomatic;
+            }
             // And push the window
             [self.navigationController pushViewController:childController animated:YES];
             

@@ -24,13 +24,12 @@ extern volatile t_settings settings[MAX_SETTINGS];
 @synthesize waitingView,waitingViewPlayer;
 
 #include "MiniPlayerImplementTableView.h"
+#include "AlertsCommonFunctions.h"
 
 -(IBAction) goPlayer {
     if (detailViewController.mPlaylist_size) [self.navigationController pushViewController:detailViewController animated:YES];
     else {
-        UIAlertView *nofileplaying=[[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Warning",@"")
-                                                               message:NSLocalizedString(@"Nothing currently playing. Please select a file.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
-        [nofileplaying show];
+        [self showAlertMsg:NSLocalizedString(@"Warning",@"") message:NSLocalizedString(@"Nothing currently playing. Please select a file.",@"")];
     }
 }
 
@@ -296,17 +295,17 @@ extern volatile t_settings settings[MAX_SETTINGS];
     return custom_url_count;
 }
 
--(void) showAlert:(UIAlertController*)alertC {
-    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone) { //if iPhone
-        [self presentViewController:alertC animated:YES completion:nil];
-    } else { //if iPad
-        alertC.modalPresentationStyle = UIModalPresentationPopover;
-        alertC.popoverPresentationController.sourceView = self.view;
-        alertC.popoverPresentationController.sourceRect = CGRectMake(self.view.frame.size.width/3, self.view.frame.size.height/2, 0, 0);
-        alertC.popoverPresentationController.permittedArrowDirections=0;
-        [self presentViewController:alertC animated:YES completion:nil];
-    }
-}
+//-(void) showAlert:(UIAlertController*)alertC {
+//    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone) { //if iPhone
+//        [self presentViewController:alertC animated:YES completion:nil];
+//    } else { //if iPad
+//        alertC.modalPresentationStyle = UIModalPresentationPopover;
+//        alertC.popoverPresentationController.sourceView = self.view;
+//        alertC.popoverPresentationController.sourceRect = CGRectMake(self.view.frame.size.width/3, self.view.frame.size.height/2, 0, 0);
+//        alertC.popoverPresentationController.permittedArrowDirections=0;
+//        [self presentViewController:alertC animated:YES completion:nil];
+//    }
+//}
 
 - (void)slideTableViewCell:(SESlideTableViewCell*)cell didTriggerLeftButton:(NSInteger)buttonIndex {
     

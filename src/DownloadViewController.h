@@ -30,11 +30,11 @@
 @class MoreViewController;
 
 @interface DownloadViewController : UIViewController <UITableViewDelegate,NSStreamDelegate> {
-	IBOutlet DetailViewControllerIphone *detailViewController;
-	IBOutlet RootViewControllerLocalBrowser *rootViewController;
-    IBOutlet OnlineViewController *onlineVC;
-    IBOutlet MoreViewController *moreVC;
-	IBOutlet SearchViewController *searchViewController;
+    DetailViewControllerIphone *detailViewController;
+    RootViewControllerLocalBrowser *rootViewController;
+    OnlineViewController *onlineVC;
+    MoreViewController *moreVC;
+    SearchViewController *searchViewController;
 	IBOutlet UITableView *tableView;
 	IBOutlet BButton *btnCancel,*btnSuspend,*btnResume,*btnClear;
     
@@ -97,11 +97,11 @@
 -(void) checkIfShouldAddFile:(NSString*)localPath fileName:(NSString*)fileName;
 -(int) isPlayableFile:(NSString*)file;
 
-@property (nonatomic, retain) IBOutlet DetailViewControllerIphone *detailViewController;
-@property (nonatomic, retain) IBOutlet RootViewControllerLocalBrowser *rootViewController;
-@property (nonatomic, retain) IBOutlet SearchViewController *searchViewController;
-@property (nonatomic, retain) IBOutlet OnlineViewController *onlineVC;
-@property (nonatomic, retain) IBOutlet MoreViewController *moreVC;
+@property (nonatomic, retain) DetailViewControllerIphone *detailViewController;
+@property (nonatomic, retain) RootViewControllerLocalBrowser *rootViewController;
+@property (nonatomic, retain) SearchViewController *searchViewController;
+@property (nonatomic, retain) OnlineViewController *onlineVC;
+@property (nonatomic, retain) MoreViewController *moreVC;
 @property (nonatomic, retain) IBOutlet UILabel *downloadLabelName,*downloadLabelSize;
 @property (nonatomic, retain) IBOutlet UIProgressView *downloadPrgView;
 @property (nonatomic, retain) IBOutlet UITabBarItem *barItem;

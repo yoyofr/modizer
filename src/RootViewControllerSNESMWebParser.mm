@@ -1137,7 +1137,17 @@ int qsortSNESM_entries_rating_or_entries(const void *entryA, const void *entryB)
         ((RootViewControllerSNESMWebParser*)childController)->downloadViewController=downloadViewController;
         ((RootViewControllerSNESMWebParser*)childController)->mWebBaseURL=cur_db_entries[section][indexPath.row].URL;
         
-        childController.view.frame=self.view.frame;
+//        childController.view.frame=self.view.frame;
+        // Ensure proper layout under navigation/tab bars
+        if ([childController respondsToSelector:@selector(setEdgesForExtendedLayout:)]) {
+            childController.edgesForExtendedLayout = UIRectEdgeNone;
+            childController.extendedLayoutIncludesOpaqueBars = NO;
+        }
+        if ([childController isKindOfClass:[UITableViewController class]]) {
+            ((UITableViewController *)childController).tableView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentAutomatic;
+        } else if ([childController.view isKindOfClass:[UIScrollView class]]) {
+            ((UIScrollView *)childController.view).contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentAutomatic;
+        }
         // And push the window
         [self.navigationController pushViewController:childController animated:YES];
     }

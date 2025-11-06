@@ -26,8 +26,8 @@
 	IBOutlet UIProgressView *progressIndicator;
 	IBOutlet UIBarButtonItem *backButton,*forwardButton;
 	IBOutlet UITextField *addressTextField;
-	IBOutlet DownloadViewController *downloadViewController;
-	IBOutlet DetailViewControllerIphone *detailViewController;
+    DownloadViewController *downloadViewController;
+    DetailViewControllerIphone *detailViewController;
     
     WaitingView *waitingView,*waitingViewPlayer;
     NSTimer *repeatingTimer;
@@ -60,8 +60,8 @@
 @property (nonatomic,retain) IBOutlet UIProgressView *progressIndicator;
 @property (nonatomic,retain) IBOutlet UIBarButtonItem *backButton,*forwardButton;
 @property (nonatomic,retain) IBOutlet UITextField *addressTextField;
-@property (nonatomic,retain) IBOutlet DownloadViewController *downloadViewController;
-@property (nonatomic,retain) IBOutlet DetailViewControllerIphone *detailViewController;
+@property (nonatomic,retain) DownloadViewController *downloadViewController;
+@property (nonatomic,retain) DetailViewControllerIphone *detailViewController;
 @property (nonatomic, retain) WaitingView *waitingView,*waitingViewPlayer;
 
 -(IBAction) goPlayer;

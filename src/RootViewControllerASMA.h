@@ -79,15 +79,15 @@
     int mCurrentWinAskedDownload;
 @public    
     int browse_depth;
-    IBOutlet DetailViewControllerIphone *detailViewController;	
-    IBOutlet DownloadViewController *downloadViewController;
+    DetailViewControllerIphone *detailViewController;
+    DownloadViewController *downloadViewController;
     
 }
 
 @property (nonatomic, retain) NSFileManager *mFileMngr;
 
-@property (nonatomic, retain) IBOutlet DetailViewControllerIphone *detailViewController;
-@property (nonatomic, retain) IBOutlet DownloadViewController *downloadViewController;
+@property (nonatomic, retain) DetailViewControllerIphone *detailViewController;
+@property (nonatomic, retain) DownloadViewController *downloadViewController;
 @property (nonatomic, retain) IBOutlet UIViewController *childController;
 @property (nonatomic, retain) IBOutlet UITableView *tableView;
 @property (nonatomic, retain) IBOutlet UISearchBar *sBar;

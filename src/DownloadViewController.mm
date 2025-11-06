@@ -280,10 +280,46 @@ MDZELog("gzread error str for FTP entry %d",i); \
     [super viewDidDisappear:animated];
 }
 
+- (id)findChildOfClass:(Class)cls inTabBarController:(UITabBarController *)tbc {
+    for (UIViewController *vc in tbc.viewControllers) {
+        // Unwrap nav controllers if present
+        UIViewController *candidate = vc;
+        if ([vc isKindOfClass:[UINavigationController class]]) {
+            candidate = ((UINavigationController *)vc).viewControllers.firstObject;
+        }
+        if ([candidate isKindOfClass:cls]) {
+            return candidate;
+        }
+    }
+    return nil;
+}
+
+- (void)loadControllers {
+    // With automatic storyboard loading, the window and root VC are created by UIKit.
+    UIWindow *window=[UIApplication sharedApplication].windows.firstObject;
+    if (!window) {
+        // Fallback to keyWindow if needed
+        window = [UIApplication sharedApplication].keyWindow;
+    }
+    UITabBarController *tbc = (UITabBarController *)window.rootViewController;
+    if (![tbc isKindOfClass:[UITabBarController class]]) {
+        NSLog(@"[SceneDelegate] Unexpected root VC: %@", NSStringFromClass([window.rootViewController class]));
+        return;
+    }
+    // Resolve specific child controllers
+    self.detailViewController = [self findChildOfClass:[DetailViewControllerIphone class] inTabBarController:tbc];
+    self.rootViewController = [self findChildOfClass:[RootViewControllerLocalBrowser class] inTabBarController:tbc];
+    self.searchViewController = [self findChildOfClass:[SearchViewController class] inTabBarController:tbc];
+    self.onlineVC = [self findChildOfClass:[OnlineViewController class] inTabBarController:tbc];
+    self.moreVC = [self findChildOfClass:[MoreViewController class] inTabBarController:tbc];
+}
+
 
 // Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
 - (void)viewDidLoad {
 	START_PROFILE
+    
+    [self loadControllers];
     
     forceReloadCells=false;
     darkMode=false;
@@ -409,7 +445,7 @@ MDZELog("gzread error str for FTP entry %d",i); \
 }
 
 - (void)viewWillAppear:(BOOL)animated {
-    [self.navigationController.navigationBar setBarStyle:UIBarStyleDefault];
+//    [self.navigationController.navigationBar setBarStyle:UIBarStyleDefault];
     //[[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];
     
     [self hideWaiting];

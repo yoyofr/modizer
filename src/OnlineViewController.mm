@@ -72,14 +72,14 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
 
 #include "MiniPlayerImplementTableView.h"
 
-- (id)initWithStyle:(UITableViewStyle)style
-{
-    self = [super initWithStyle:style];
-    if (self) {
-        // Custom initialization
-    }
-    return self;
-}
+//- (id)initWithStyle:(UITableViewStyle)style
+//{
+//    self = [super initWithStyle:style];
+//    if (self) {
+//        // Custom initialization
+//    }
+//    return self;
+//}
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 // WaitingView methods
@@ -100,10 +100,46 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
     [super viewDidDisappear:animated];
 }
 
+- (id)findChildOfClass:(Class)cls inTabBarController:(UITabBarController *)tbc {
+    for (UIViewController *vc in tbc.viewControllers) {
+        // Unwrap nav controllers if present
+        UIViewController *candidate = vc;
+        if ([vc isKindOfClass:[UINavigationController class]]) {
+            candidate = ((UINavigationController *)vc).viewControllers.firstObject;
+        }
+        if ([candidate isKindOfClass:cls]) {
+            return candidate;
+        }
+    }
+    return nil;
+}
+
+
+-(void) loadControllers {
+    // With automatic storyboard loading, the window and root VC are created by UIKit.
+    UIWindow *window=[UIApplication sharedApplication].windows.firstObject;
+    if (!window) {
+        // Fallback to keyWindow if needed
+        window = [UIApplication sharedApplication].keyWindow;
+    }
+    UITabBarController *tbc = (UITabBarController *)window.rootViewController;
+    if (![tbc isKindOfClass:[UITabBarController class]]) {
+        NSLog(@"[SceneDelegate] Unexpected root VC: %@", NSStringFromClass([window.rootViewController class]));
+        return;
+    }
+    // Resolve specific child controllers
+    if (!self.downloadViewController) self.downloadViewController = [self findChildOfClass:[DownloadViewController class] inTabBarController:tbc];
+    if (!self.detailViewController) self.detailViewController = [self findChildOfClass:[DetailViewControllerIphone class] inTabBarController:tbc];
+    if (!self.webBrowser) self.webBrowser = [self findChildOfClass:[WebBrowser class] inTabBarController:tbc];
+}
+
+
 - (void)viewDidLoad
 {
     START_PROFILE
     [super viewDidLoad];
+    
+    [self loadControllers];
     
     self.navigationController.delegate = self;
     
@@ -196,7 +232,7 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
 
 
 -(void) viewWillAppear:(BOOL)animated {
-    [self.navigationController.navigationBar setBarStyle:UIBarStyleDefault];
+//    [self.navigationController.navigationBar setBarStyle:UIBarStyleDefault];
     //[[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];
     
     self.navigationController.delegate = self;
@@ -257,9 +293,7 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
 -(IBAction) goPlayer {
     if (detailViewController.mPlaylist_size) [self.navigationController pushViewController:detailViewController animated:YES];
     else {
-        UIAlertView *nofileplaying=[[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Warning",@"")
-                                                              message:NSLocalizedString(@"Nothing currently playing. Please select a file.",@"") delegate:self cancelButtonTitle:@"Close" otherButtonTitles:nil];
-        [nofileplaying show];
+        [self showAlertMsg:NSLocalizedString(@"Warning",@"") message:NSLocalizedString(@"Nothing currently playing. Please select a file.",@"")];
     }
     
 }
@@ -573,6 +607,19 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
 
 #pragma mark - Table view delegate
 
+- (void)adjustFrame:(UIViewController*)childController {
+    // Ensure proper layout under navigation/tab bars
+    if ([childController respondsToSelector:@selector(setEdgesForExtendedLayout:)]) {
+        childController.edgesForExtendedLayout = UIRectEdgeNone;
+        childController.extendedLayoutIncludesOpaqueBars = NO;
+    }
+    if ([childController isKindOfClass:[UITableViewController class]]) {
+        ((UITableViewController *)childController).tableView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentAutomatic;
+    } else if ([childController.view isKindOfClass:[UIScrollView class]]) {
+        ((UIScrollView *)childController.view).contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentAutomatic;
+    }
+}
+
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     Reachability* reach;
@@ -589,7 +636,8 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
                     ((RootViewControllerMODLAND*)collectionViewController)->browse_depth = 1;
                     ((RootViewControllerMODLAND*)collectionViewController)->detailViewController=detailViewController;
                     ((RootViewControllerMODLAND*)collectionViewController)->downloadViewController=downloadViewController;
-                    collectionViewController.view.frame=self.view.frame;
+//                    collectionViewController.view.frame=self.view.frame;
+                    [self adjustFrame:collectionViewController];
                     // And push the window
                     [self.navigationController pushViewController:collectionViewController animated:YES];
                     break;
@@ -601,7 +649,8 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
                     ((RootViewControllerHVSC*)collectionViewController)->browse_depth = 1;
                     ((RootViewControllerHVSC*)collectionViewController)->detailViewController=detailViewController;
                     ((RootViewControllerHVSC*)collectionViewController)->downloadViewController=downloadViewController;
-                    collectionViewController.view.frame=self.view.frame;
+//                    collectionViewController.view.frame=self.view.frame;
+                    [self adjustFrame:collectionViewController];
                     // And push the window
                     [self.navigationController pushViewController:collectionViewController animated:YES];
                     break;
@@ -613,7 +662,8 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
                     ((RootViewControllerASMA*)collectionViewController)->browse_depth = 1;
                     ((RootViewControllerASMA*)collectionViewController)->detailViewController=detailViewController;
                     ((RootViewControllerASMA*)collectionViewController)->downloadViewController=downloadViewController;
-                    collectionViewController.view.frame=self.view.frame;
+//                    collectionViewController.view.frame=self.view.frame;
+                    [self adjustFrame:collectionViewController];
                     // And push the window
                     [self.navigationController pushViewController:collectionViewController animated:YES];
                     break;
@@ -629,7 +679,8 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
                         ((RootViewControllerJoshWWebParser*)collectionViewController)->detailViewController=detailViewController;
                         ((RootViewControllerJoshWWebParser*)collectionViewController)->downloadViewController=downloadViewController;
                         
-                        collectionViewController.view.frame=self.view.frame;
+//                        collectionViewController.view.frame=self.view.frame;
+                        [self adjustFrame:collectionViewController];
                         // And push the window
                         [self.navigationController pushViewController:collectionViewController animated:YES];
                     } else {
@@ -649,7 +700,8 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
                         ((RootViewControllerVGMRWebParser*)collectionViewController)->detailViewController=detailViewController;
                         ((RootViewControllerVGMRWebParser*)collectionViewController)->downloadViewController=downloadViewController;
                         
-                        collectionViewController.view.frame=self.view.frame;
+//                        collectionViewController.view.frame=self.view.frame;
+                        [self adjustFrame:collectionViewController];
                         // And push the window
                         [self.navigationController pushViewController:collectionViewController animated:YES];
                     } else {
@@ -666,7 +718,8 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
 //                    ((RootViewControllerP2612WebParser*)collectionViewController)->detailViewController=detailViewController;
 //                    ((RootViewControllerP2612WebParser*)collectionViewController)->downloadViewController=downloadViewController;
 //                    
-//                    collectionViewController.view.frame=self.view.frame;
+//                    //collectionViewController.view.frame=self.view.frame;
+//                    [self adjustFrame:collectionViewController];
 //                    // And push the window
 //                    [self.navigationController pushViewController:collectionViewController animated:YES];
 //                    break;
@@ -684,7 +737,8 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
                         ((RootViewControllerSNESMWebParser*)collectionViewController)->detailViewController=detailViewController;
                         ((RootViewControllerSNESMWebParser*)collectionViewController)->downloadViewController=downloadViewController;
                         
-                        collectionViewController.view.frame=self.view.frame;
+//                        collectionViewController.view.frame=self.view.frame;
+                        [self adjustFrame:collectionViewController];
                         // And push the window
                         [self.navigationController pushViewController:collectionViewController animated:YES];
                     } else {
@@ -705,7 +759,8 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
                         ((RootViewControllerSMSPWebParser*)collectionViewController)->detailViewController=detailViewController;
                         ((RootViewControllerSMSPWebParser*)collectionViewController)->downloadViewController=downloadViewController;
                         
-                        collectionViewController.view.frame=self.view.frame;
+//                        collectionViewController.view.frame=self.view.frame;
+                        [self adjustFrame:collectionViewController];
                         // And push the window
                         [self.navigationController pushViewController:collectionViewController animated:YES];
                     } else {
@@ -725,7 +780,8 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
                         ((RootViewControllerZXArtWebParser*)collectionViewController)->detailViewController=detailViewController;
                         ((RootViewControllerZXArtWebParser*)collectionViewController)->downloadViewController=downloadViewController;
                         
-                        collectionViewController.view.frame=self.view.frame;
+//                        collectionViewController.view.frame=self.view.frame;
+                        [self adjustFrame:collectionViewController];
                         // And push the window
                         [self.navigationController pushViewController:collectionViewController animated:YES];
                     } else {

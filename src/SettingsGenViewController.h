@@ -457,12 +457,12 @@ typedef struct {
     bool forceReloadCells;
 
 @public
-    IBOutlet DetailViewControllerIphone *detailViewController;
+    DetailViewControllerIphone *detailViewController;
     int current_family;
 }
 
 @property (nonatomic,retain) IBOutlet TPKeyboardAvoidingTableView *tableView;
-@property (nonatomic,retain) IBOutlet DetailViewControllerIphone *detailViewController;
+@property (nonatomic,retain) DetailViewControllerIphone *detailViewController;
 
 @property (nonatomic, retain) CMPopTipView *popTipView;
 @property (nonatomic, retain) WaitingView *waitingView,*waitingViewPlayer;

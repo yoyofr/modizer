@@ -14,7 +14,7 @@
 @class DetailViewControllerIphone;
 
 @interface AboutViewController : UIViewController <UITextViewDelegate> {
-	IBOutlet DetailViewControllerIphone *detailViewController;
+    DetailViewControllerIphone *detailViewController;
 	IBOutlet UITextView *textView;
     
     bool darkMode;    
@@ -25,7 +25,7 @@
     WaitingView *waitingView,*waitingViewPlayer;
     NSTimer *repeatingTimer;
 }
-@property (nonatomic, retain) IBOutlet DetailViewControllerIphone *detailViewController;
+@property (nonatomic, retain) DetailViewControllerIphone *detailViewController;
 @property (nonatomic, retain) IBOutlet UITextView *textView;
 
 -(IBAction) goPlayer;

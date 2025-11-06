@@ -66,9 +66,9 @@ typedef struct {
 } t_dbASMA_browse_entryS;
 
 @interface SearchViewController : UIViewController <UITableViewDelegate,UISearchBarDelegate,UIGestureRecognizerDelegate,CMPopTipViewDelegate>  {
-	IBOutlet DetailViewControllerIphone *detailViewController;
-	IBOutlet DownloadViewController *downloadViewController;
-	IBOutlet RootViewControllerLocalBrowser *rootViewControllerIphone;
+    DetailViewControllerIphone *detailViewController;
+    DownloadViewController *downloadViewController;
+    RootViewControllerLocalBrowser *rootViewControllerIphone;
 	IBOutlet UITableView *tableView;
 	IBOutlet UISearchBar *sBar;
 	IBOutlet UIView *searchPrgView;
@@ -89,7 +89,6 @@ typedef struct {
     bool forceReloadCells;
 
 	
-	UIAlertView *alertDownload;
 	NSString *mSearchText;
 	int	mSearch;
 	
@@ -119,9 +118,9 @@ typedef struct {
 
 }
 
-@property (nonatomic, retain) IBOutlet DetailViewControllerIphone *detailViewController;
-@property (nonatomic, retain) IBOutlet DownloadViewController *downloadViewController;
-@property (nonatomic, retain) IBOutlet RootViewControllerLocalBrowser *rootViewControllerIphone;
+@property (nonatomic, retain) DetailViewControllerIphone *detailViewController;
+@property (nonatomic, retain) DownloadViewController *downloadViewController;
+@property (nonatomic, retain) RootViewControllerLocalBrowser *rootViewControllerIphone;
 @property (nonatomic, retain) IBOutlet UITableView *tableView;
 @property (nonatomic, retain) IBOutlet UISearchBar *sBar;
 @property (nonatomic, retain) IBOutlet UIView *searchPrgView;

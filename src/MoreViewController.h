@@ -19,11 +19,13 @@
 
 
 @class DownloadViewController;
-@interface MoreViewController : UITableViewController <UINavigationControllerDelegate>{
-    IBOutlet DownloadViewController *downloadViewController;
-    IBOutlet DetailViewControllerIphone *detailViewController;
+@interface MoreViewController : UIViewController <UINavigationControllerDelegate>{
+    DownloadViewController *downloadViewController;
+    DetailViewControllerIphone *detailViewController;
+    RootViewControllerLocalBrowser *rootVC;
+    AboutViewController *aboutVC;
+    
     IBOutlet UITableView *tableView;
-    IBOutlet AboutViewController *aboutVC;
     
     MiniPlayerVC *miniplayerVC;
     bool wasMiniPlayerOn;
@@ -34,13 +36,14 @@
     bool darkMode;
     bool forceReloadCells;
     
-    IBOutlet RootViewControllerLocalBrowser *rootVC;
+    
 }
-@property (nonatomic, retain) IBOutlet DownloadViewController *downloadViewController;
-@property (nonatomic, retain) IBOutlet DetailViewControllerIphone *detailViewController;
+@property (nonatomic, retain) DownloadViewController *downloadViewController;
+@property (nonatomic, retain) DetailViewControllerIphone *detailViewController;
+@property (nonatomic, retain) AboutViewController *aboutVC;
+@property (nonatomic, retain) RootViewControllerLocalBrowser *rootVC;
+
 @property (nonatomic, retain) IBOutlet UITableView *tableView;
-@property (nonatomic, retain) IBOutlet AboutViewController *aboutVC;
-@property (nonatomic, retain) IBOutlet RootViewControllerLocalBrowser *rootVC;
 
 -(IBAction) goPlayer;
 -(void) refreshViewAfterDownload;

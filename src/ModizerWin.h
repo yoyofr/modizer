@@ -13,8 +13,11 @@
 @class DetailViewControllerIphone;
 
 @interface ModizerWin : UIWindow  {
-	IBOutlet DetailViewControllerIphone *detailViewControllerIphone;
+    DetailViewControllerIphone *detailViewControllerIphone;
 }
-@property (nonatomic, retain) IBOutlet DetailViewControllerIphone *detailViewControllerIphone;
+@property (nonatomic, retain) DetailViewControllerIphone *detailViewControllerIphone;
+
+// Scene-based initializer for iOS 13+
+- (instancetype)initWithWindowScene:(UIWindowScene *)windowScene NS_AVAILABLE_IOS(13.0);
 
 @end

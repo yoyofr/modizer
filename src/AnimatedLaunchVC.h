@@ -25,9 +25,5 @@
 @property (nonatomic, strong) SONFillAnimation *animation;
 @property bool animationDone;
 
-//@property (nonatomic, retain) DetailViewControllerIphone *detailVC;
-
-//-(void) refreshCoverLabels;
-
 @end
 
