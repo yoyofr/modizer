@@ -7,7 +7,7 @@
 //
 //#define PM_TEST_LOAD 64
 
-
+#define MDZ_PLAYPAUSE_BARS_HEIGHT (44)
 
 #define PM_FRAMETIME_LIMIT (1000.0f/10.0f) // max allowed frame time in ms, if regularly above, PM will be deactivated
 #define PM_FRAMETIME_LIMIT_WEAK 100 //Max slow frames allowed for 'weak' mode
@@ -4126,13 +4126,13 @@ int recording=0;
             
             if (is_macOS) {
                 mainView.frame = CGRectMake(0, 0, mDevice_ww, mDevice_hh);
-                m_oglView.frame = CGRectMake(safe_left, 80, mDevice_ww-safe_left-safe_right, mDevice_hh-230+36);
-                oglButton.frame = CGRectMake(safe_left, 80, mDevice_ww-safe_left-safe_right, mDevice_hh-230+36);
+                m_oglView.frame = CGRectMake(safe_left, 80, mDevice_ww-safe_left-safe_right, mDevice_hh-230+36+44-MDZ_PLAYPAUSE_BARS_HEIGHT);
+                oglButton.frame = CGRectMake(safe_left, 80, mDevice_ww-safe_left-safe_right, mDevice_hh-230+36+44-MDZ_PLAYPAUSE_BARS_HEIGHT);
             } else{
                 mainView.frame = CGRectMake(0, 0, mDevice_ww, mDevice_hh-20-42);
-                m_oglView.frame = CGRectMake(safe_left, 80, mDevice_ww-safe_left-safe_right, mDevice_hh-230-safe_bottom);
+                m_oglView.frame = CGRectMake(safe_left, 80, mDevice_ww-safe_left-safe_right, mDevice_hh-230-safe_bottom+44-MDZ_PLAYPAUSE_BARS_HEIGHT);
                 if (gifAnimation) gifAnimation.frame = CGRectMake(0, 0,cover_view.frame.size.width,cover_view.frame.size.height);
-                oglButton.frame = CGRectMake(safe_left, 80, mDevice_ww-safe_left-safe_right, mDevice_hh-230-safe_bottom);
+                oglButton.frame = CGRectMake(safe_left, 80, mDevice_ww-safe_left-safe_right, mDevice_hh-230-safe_bottom+44-MDZ_PLAYPAUSE_BARS_HEIGHT);
             }
             
             cover_viewAll.frame = m_oglView.frame;//CGRectMake(0, 0, mDevice_ww, mDevice_hh-230+80+44-safe_bottom);
@@ -4377,13 +4377,13 @@ int recording=0;
                 
                 if (is_macOS) {
                     mainView.frame = CGRectMake(0.0, 0, mDevice_hh, mDevice_ww-yofs);
-                    m_oglView.frame = CGRectMake(safe_left, 82, mDevice_hh-safe_left-safe_right, mDevice_ww-82-safe_bottom-yofs);
-                    oglButton.frame = CGRectMake(safe_left, 82, mDevice_hh-safe_left-safe_right, mDevice_ww-82-safe_bottom-yofs);
+                    m_oglView.frame = CGRectMake(safe_left, 82, mDevice_hh-safe_left-safe_right, mDevice_ww-82-safe_bottom-yofs+44-MDZ_PLAYPAUSE_BARS_HEIGHT);
+                    oglButton.frame = CGRectMake(safe_left, 82, mDevice_hh-safe_left-safe_right, mDevice_ww-82-safe_bottom-yofs+44-MDZ_PLAYPAUSE_BARS_HEIGHT);
                     
                 } else {
                     mainView.frame = CGRectMake(0.0, 0, mDevice_hh, mDevice_ww-yofs);
-                    m_oglView.frame = CGRectMake(safe_left, 82, mDevice_hh-safe_left-safe_right, mDevice_ww-82-safe_bottom-yofs);
-                    oglButton.frame = CGRectMake(safe_left, 82, mDevice_hh-safe_left-safe_right, mDevice_ww-82-safe_bottom-yofs);
+                    m_oglView.frame = CGRectMake(safe_left, 82, mDevice_hh-safe_left-safe_right, mDevice_ww-82-safe_bottom-yofs+44-MDZ_PLAYPAUSE_BARS_HEIGHT);
+                    oglButton.frame = CGRectMake(safe_left, 82, mDevice_hh-safe_left-safe_right, mDevice_ww-82-safe_bottom-yofs+44-MDZ_PLAYPAUSE_BARS_HEIGHT);
                     
                 }
                 
@@ -4449,27 +4449,42 @@ int recording=0;
     return YES;
 }
 
+
 -(void)updateBarPos {
     if ((orientationHV==UIInterfaceOrientationPortrait)||(orientationHV==UIInterfaceOrientationPortraitUpsideDown)) {
-        
+        float y_ofs;
         if (is_macOS) {
-            playBar.frame =  CGRectMake(0, mDevice_hh-(playBar.hidden?0:108+6), mDevice_ww, 44+2);
-            pauseBar.frame =  CGRectMake(0, mDevice_hh-(pauseBar.hidden?0:108+6), mDevice_ww, 44+2);
-            playBarSub.frame =  CGRectMake(0, mDevice_hh-(playBarSub.hidden?0:108+6), mDevice_ww, 44+2);
-            pauseBarSub.frame =  CGRectMake(0, mDevice_hh-(pauseBarSub.hidden?0:108+6), mDevice_ww, 44+2);
+            
+            y_ofs=m_oglView.frame.origin.y+m_oglView.frame.size.height+(MDZ_PLAYPAUSE_BARS_HEIGHT-44)/2;
+            
+            playBar.frame = CGRectMake(0, y_ofs, mDevice_ww, 44);
+            pauseBar.frame = CGRectMake(0, y_ofs, mDevice_ww, 44);
+            playBarSub.frame = CGRectMake(0, y_ofs, mDevice_ww, 44);
+            pauseBarSub.frame = CGRectMake(0, y_ofs, mDevice_ww, 44);
+//            playBar.frame =  CGRectMake(0, mDevice_hh-(playBar.hidden?0:y_ofs), mDevice_ww, 44);
+//            pauseBar.frame =  CGRectMake(0, mDevice_hh-(pauseBar.hidden?0:y_ofs), mDevice_ww, 44);
+//            playBarSub.frame =  CGRectMake(0, mDevice_hh-(playBarSub.hidden?0:y_ofs), mDevice_ww, 44);
+//            pauseBarSub.frame =  CGRectMake(0, mDevice_hh-(pauseBarSub.hidden?0:y_ofs), mDevice_ww, 44);
         } else {
-            playBar.frame =  CGRectMake(0, mDevice_hh-(playBar.hidden?0:108+42)-safe_bottom, mDevice_ww, 44);
-            pauseBar.frame =  CGRectMake(0, mDevice_hh-(pauseBar.hidden?0:108+42)-safe_bottom, mDevice_ww, 44);
-            playBarSub.frame =  CGRectMake(0, mDevice_hh-(playBarSub.hidden?0:108+42)-safe_bottom, mDevice_ww, 44);
-            pauseBarSub.frame =  CGRectMake(0, mDevice_hh-(pauseBarSub.hidden?0:108+42)-safe_bottom, mDevice_ww, 44);
+            y_ofs=m_oglView.frame.origin.y+m_oglView.frame.size.height+(MDZ_PLAYPAUSE_BARS_HEIGHT-44)/2;
+            playBar.frame = CGRectMake(0, y_ofs, mDevice_ww, 44);
+            pauseBar.frame = CGRectMake(0, y_ofs, mDevice_ww, 44);
+            playBarSub.frame = CGRectMake(0, y_ofs, mDevice_ww, 44);
+            pauseBarSub.frame = CGRectMake(0, y_ofs, mDevice_ww, 44);
+//            playBar.frame =  CGRectMake(0, mDevice_hh-(playBar.hidden?0:y_ofs)-safe_bottom, mDevice_ww, 44);
+//            pauseBar.frame =  CGRectMake(0, mDevice_hh-(pauseBar.hidden?0:y_ofs)-safe_bottom, mDevice_ww, 44);
+//            playBarSub.frame =  CGRectMake(0, mDevice_hh-(playBarSub.hidden?0:y_ofs)-safe_bottom, mDevice_ww, 44);
+//            pauseBarSub.frame =  CGRectMake(0, mDevice_hh-(pauseBarSub.hidden?0:y_ofs)-safe_bottom, mDevice_ww, 44);
         }
     } else {
         int xofs=24*5+36*3+10;
-        playBar.frame = CGRectMake(0, 40, mDevice_hh-xofs, 44); //mDevice_hh-(playBar.hidden?0:375)
-        pauseBar.frame = CGRectMake(0, 40, mDevice_hh-xofs, 44);
-        playBarSub.frame =  CGRectMake(0, 40, mDevice_hh-xofs, 44);
-        pauseBarSub.frame =  CGRectMake(0, 40, mDevice_hh-xofs, 44);
+        float y_ofs=40+(MDZ_PLAYPAUSE_BARS_HEIGHT-44)/2;
+        playBar.frame = CGRectMake(0, y_ofs, mDevice_hh-xofs, 44); //mDevice_hh-(playBar.hidden?0:375)
+        pauseBar.frame = CGRectMake(0, y_ofs, mDevice_hh-xofs, 44);
+        playBarSub.frame =  CGRectMake(0, y_ofs, mDevice_hh-xofs, 44);
+        pauseBarSub.frame =  CGRectMake(0, y_ofs, mDevice_hh-xofs, 44);
     }
+    
 }
 
 
@@ -5469,6 +5484,17 @@ void pm_perfTest() {
                                                              initWithTarget:self
                                                              action:@selector(longPressNextSubArc:)];
     
+    //build various bars
+    UIBarButtonItem *itemPause = [[UIBarButtonItem alloc] initWithImage:[UIImage systemImageNamed:@"pause"] style:UIBarButtonItemStylePlain target:self action:@selector(pausePushed:)];
+    UIBarButtonItem *itemPrev = [[UIBarButtonItem alloc] initWithImage:[UIImage systemImageNamed:@"backward.end"] style:UIBarButtonItemStylePlain target:self action:@selector(playPrev)];
+    UIBarButtonItem *itemNext = [[UIBarButtonItem alloc] initWithImage:[UIImage systemImageNamed:@"forward.end"] style:UIBarButtonItemStylePlain target:self action:@selector(playNext)];
+    
+    UIBarButtonItem *flexSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace primaryAction:NULL];
+    
+    NSArray *buttonItems = [NSArray arrayWithObjects:flexSpace,itemPrev,flexSpace,itemPause,flexSpace,itemNext,flexSpace,nil];
+    [pauseBar setItems:buttonItems];
+    
+    
     [pauseBarSub layoutIfNeeded];
     [playBarSub layoutIfNeeded];
     
@@ -5937,6 +5963,9 @@ void pm_perfTest() {
     self.playBar.hidden=NO;
     self.pauseBarSub.hidden=YES;
     self.playBarSub.hidden=YES;
+    
+    // Fix truncated system icons in toolbar buttons
+    
     [self updateBarPos];
     mplayer.bGlobalAudioPause=1;
     //init mod player var

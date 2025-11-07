@@ -114,7 +114,7 @@
     
     [animation animateView:self.view completion:^{
         [self.localBrowserVC modizerIsLaunched];
-        [self dismissViewControllerAnimated:YES completion:nil];
+        [self removeFromParentViewController];
     }];
 }
 

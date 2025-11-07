@@ -96,10 +96,10 @@
             </objects>
             <point key="canvasLocation" x="-4225" y="-746"/>
         </scene>
-        <!--Navigation Controller - Playlist-->
+        <!--Playlist-->
         <scene sceneID="oCr-pd-iFC">
             <objects>
-                <navigationController definesPresentationContext="YES" modalTransitionStyle="flipHorizontal" id="GRq-gq-psk" userLabel="Navigation Controller - Playlist" sceneMemberID="viewController">
+                <navigationController definesPresentationContext="YES" modalTransitionStyle="flipHorizontal" id="GRq-gq-psk" userLabel="Playlist" sceneMemberID="viewController">
                     <extendedEdge key="edgesForExtendedLayout"/>
                     <tabBarItem key="tabBarItem" title="Playlists" image="music.note.list" catalog="system" id="CSl-7t-Tff" userLabel="Tab Bar Item - Playlists"/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="3Re-1V-ixf">
@@ -150,10 +150,10 @@
             </objects>
             <point key="canvasLocation" x="-4224" y="3"/>
         </scene>
-        <!--Navigation Controller - Online-->
+        <!--Online-->
         <scene sceneID="jI2-io-nDP">
             <objects>
-                <navigationController definesPresentationContext="YES" modalTransitionStyle="flipHorizontal" id="ffP-ih-OlZ" userLabel="Navigation Controller - Online" sceneMemberID="viewController">
+                <navigationController definesPresentationContext="YES" modalTransitionStyle="flipHorizontal" id="ffP-ih-OlZ" userLabel="Online" sceneMemberID="viewController">
                     <extendedEdge key="edgesForExtendedLayout"/>
                     <tabBarItem key="tabBarItem" title="Online" image="network" catalog="system" id="cvV-hj-6A0"/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="t7y-3i-mo1">
@@ -297,10 +297,10 @@
             </objects>
             <point key="canvasLocation" x="-3385" y="3"/>
         </scene>
-        <!--Navigation Controller - More-->
+        <!--More-->
         <scene sceneID="7bP-JM-i3k">
             <objects>
-                <navigationController definesPresentationContext="YES" modalTransitionStyle="flipHorizontal" id="sQg-RX-gmt" userLabel="Navigation Controller - More" sceneMemberID="viewController">
+                <navigationController definesPresentationContext="YES" modalTransitionStyle="flipHorizontal" id="sQg-RX-gmt" userLabel="More" sceneMemberID="viewController">
                     <extendedEdge key="edgesForExtendedLayout"/>
                     <tabBarItem key="tabBarItem" systemItem="more" id="747-U9-IfJ"/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="ARb-Gt-FGt">
@@ -614,7 +614,7 @@
                                             <action selector="showEQ" destination="MWm-br-vsJ" eventType="touchUpInside" id="N2H-pG-cLd"/>
                                         </connections>
                                     </button>
-                                    <toolbar clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" barStyle="blackTranslucent" translatesAutoresizingMaskIntoConstraints="NO" id="aSH-6M-Dyc" userLabel="Pause_commands">
+                                    <toolbar clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" translucent="NO" translatesAutoresizingMaskIntoConstraints="NO" id="aSH-6M-Dyc" userLabel="Pause_commands">
                                         <rect key="frame" x="0.0" y="330" width="320" height="44"/>
                                         <autoresizingMask key="autoresizingMask" widthSizable="YES"/>
                                         <items>

@@ -91,14 +91,14 @@ extern int move_cursorL,move_cursorR,keyDel;
     //    return UIInterfaceOrientationMaskAllButUpsideDown;
 }
 
-- (BOOL)shouldAutorotate {
-    [self shouldAutorotateToInterfaceOrientation:self.interfaceOrientation];
-    return YES;
-}
-
-- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
-	return YES;
-}
+//- (BOOL)shouldAutorotate {
+//    [self shouldAutorotateToInterfaceOrientation:self.interfaceOrientation];
+//    return YES;
+//}
+//
+//- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
+//	return YES;
+//}
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
@@ -269,15 +269,28 @@ extern int move_cursorL,move_cursorR,keyDel;
     AnimatedLaunchVC *vc = [[AnimatedLaunchVC alloc] initWithNibName:@"AnimatedLaunch" bundle:[NSBundle mainBundle]];
     vc.localBrowserVC = self.rootViewControllerIphone;
 
-    [self addChildViewController:vc];
-
+    // Load the view first
+    [vc loadViewIfNeeded];
+    
     // Forward appearance to child
     [vc beginAppearanceTransition:YES animated:NO];
 
-    vc.view.frame = self.view.bounds;
-    vc.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-    vc.view.alpha = 1.0;
-    [self.view addSubview:vc.view];
+    // Try adding to window for guaranteed top-level display
+    UIWindow *window = self.view.window;
+    if (window) {
+        vc.view.frame = window.bounds;
+        vc.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+        vc.view.alpha = 1.0;
+        
+        [window addSubview:vc.view];
+    } else {
+        // Fallback to self.view if window not available yet
+        vc.view.frame = self.view.bounds;
+        vc.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+        vc.view.alpha = 1.0;
+        [self.view addSubview:vc.view];
+        [self.view bringSubviewToFront:vc.view];
+    }
 
     // Finish forwarding
     [vc endAppearanceTransition];
@@ -286,41 +299,45 @@ extern int move_cursorL,move_cursorR,keyDel;
 
     self.animatedLaunchVC = vc;
 }
-- (void)hideAnimatedLaunchOverlay {
-    if (!self.animatedLaunchVC) { return; }
-
-    [self.animatedLaunchVC willMoveToParentViewController:nil];
-
-    // Forward disappearance to child
-    [self.animatedLaunchVC beginAppearanceTransition:NO animated:YES];
-
-    [self.animatedLaunchVC.view removeFromSuperview];
-
-    // Finish forwarding
-    [self.animatedLaunchVC endAppearanceTransition];
-
-    [self.animatedLaunchVC removeFromParentViewController];
-    self.animatedLaunchVC = nil;
-}
+//- (void)hideAnimatedLaunchOverlay {
+//    if (!self.animatedLaunchVC) { return; }
+//
+//    [self.animatedLaunchVC willMoveToParentViewController:nil];
+//
+//    // Forward disappearance to child
+//    [self.animatedLaunchVC beginAppearanceTransition:NO animated:YES];
+//
+//    [UIView animateWithDuration:0.3 animations:^{
+//        self.animatedLaunchVC.view.alpha = 0.0;
+//    } completion:^(BOOL finished) {
+//        [self.animatedLaunchVC.view removeFromSuperview];
+//        
+//        // Finish forwarding
+//        [self.animatedLaunchVC endAppearanceTransition];
+//        
+//        [self.animatedLaunchVC removeFromParentViewController];
+//        self.animatedLaunchVC = nil;
+//    }];
+//}
 - (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    
     static bool firstcall=true;
     
     if (firstcall) {
         firstcall=false;
         
-//        // Create and configure the animated launch VC
-//        self.animatedLaunchVC = [[AnimatedLaunchVC alloc] initWithNibName:@"AnimatedLaunch" bundle:[NSBundle mainBundle]];
-//        self.animatedLaunchVC.modalPresentationStyle = UIModalPresentationFullScreen;
-//        self.animatedLaunchVC.localBrowserVC = self.rootViewControllerIphone;
-        // Present it over the tab bar
-        //[self presentViewController:self.animatedLaunchVC animated:NO completion:^{
-            // Optionally kick off your animation here and dismiss when done
-            // [self.animatedLaunchVC startAnimationWithCompletion:^{
-            //     [self dismissViewControllerAnimated:YES completion:nil];
-            // }];
-//        }];
-       
-       
+        // Force layout of all visible views first
+        [self.view layoutIfNeeded];
+        
+        // Let the table views fully load their data
+        if ([self.selectedViewController isKindOfClass:[UINavigationController class]]) {
+            UINavigationController *nav = (UINavigationController *)self.selectedViewController;
+            [nav.topViewController.view layoutIfNeeded];
+        } else {
+            [self.selectedViewController.view layoutIfNeeded];
+        }
+        
         [self showAnimatedLaunchOverlay];
     }
 }

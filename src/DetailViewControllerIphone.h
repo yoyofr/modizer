@@ -249,6 +249,7 @@ enum {
 -(void) checkGLViewCanDisplay;
 
 -(void)updateBarPos;
+-(void)fixToolbarButtonIcons;
 
 -(void)saveSettings;
 -(void)loadSettings:(int)safe_mode;
