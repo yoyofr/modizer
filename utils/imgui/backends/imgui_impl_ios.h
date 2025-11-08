@@ -27,6 +27,7 @@ struct ImGuiIOSEvent {
     int tap_nb;
     int pos_x,pos_y;
     int delta_x,delta_y;
+    //int wheel_x,wheel_y;
 };
 #endif
 
@@ -36,6 +37,7 @@ enum ImGuiIOSEventType {
     IMGUI_IOS_Event_None,
     IMGUI_IOS_Event_Tap_1,
     IMGUI_IOS_Event_MouseMove,
+    //IMGUI_IOS_Event_MouseWheel,
     IMGUI_IOS_Event_Swipe
 };
 #endif

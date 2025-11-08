@@ -171,20 +171,20 @@ unsigned short menuProjectMLabelFAIcon[16]={
 };
 char *menuProjectMDynLabel[16];
 
-int menuProjectMExploreColNb=6;
-static GLuint txtMenuProjectMExploreHandle[6*2];
-const char *menuProjectMExploreLabel[6*2]={
-    "Clear\nall",      "Select\nall",         "Favorites",   "Expand",NULL,NULL,
-    "Select\nlisted",    "Remove\nlisted", "Selected",           "Collapse",NULL,NULL,
+int menuProjectMExploreColNb=7;
+static GLuint txtMenuProjectMExploreHandle[7*2];
+const char *menuProjectMExploreLabel[7*2]={
+    "Clear\nall",      "Select\nall",         "Favorites",   "Expand",NULL,NULL,NULL,
+    "Select\nlisted",    "Remove\nlisted", "Selected",           "Collapse",NULL,NULL,NULL,
 };
-void *menuProjectMExploreVar[6*2]={
-    NULL,NULL,NULL,NULL,NULL,NULL,
-    NULL,NULL,NULL,NULL,NULL,NULL,
+void *menuProjectMExploreVar[7*2]={
+    NULL,NULL,NULL,NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,NULL,NULL,NULL,NULL,
     
 };
-unsigned short menuProjectMExploreLabelFAIcon[6*2]={
-    NULL,NULL,NULL,NULL,FA_REFRESH,FA_CHECK_CIRCLE,
-    NULL,NULL,NULL,NULL,FA_ARROW_CIRCLE_LEFT,FA_WINDOW_CLOSE,
+unsigned short menuProjectMExploreLabelFAIcon[7*2]={
+    NULL,NULL,NULL,NULL,NULL,FA_REFRESH,FA_CHECK_CIRCLE,
+    NULL,NULL,NULL,NULL,NULL,FA_ARROW_CIRCLE_LEFT,FA_WINDOW_CLOSE,
 };
 
 int menuOscilloColNb=4;
@@ -1792,7 +1792,9 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
                             case 0x30: //Expand
                                 expandCollapseMode=1;
                                 break;
-                            case 0x40: //Refresh
+                            case 0x40: //TBD
+                                break;
+                            case 0x50: //Refresh
                                 //if custom presets,rescan dir
                                 if (pmCurrentFileNode==pmCustomPresetsFileNode) {
                                     updatePresetCustomDirStructure();
@@ -1805,7 +1807,7 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
                                 
                                 pMenu_PMInitTempData(pmCurrentFileNode);
                                 break;
-                            case 0x50: //Apply
+                            case 0x60: //Apply
                                 pMenu_PMCommitTempData(pmCurrentFileNode);
                                 pmSoftReinit(true);
                                 [_mdzPM_playlist updateFileNodeStatus:pmCurrentFileNode];
@@ -1823,11 +1825,14 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
                             case 0x31: //Collapse
                                 expandCollapseMode=2;
                                 break;
-                            case 0x41: //Back to main menu
+                            case 0x41: //TBD
+                                expandCollapseMode=2;
+                                break;
+                            case 0x51: //Back to main menu
                                 settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value=fullscreenStatus;
                                 pMenu_state.menu_idx=MENU_PROJECTM;
                                 break;
-                            case 0x51: //Exit
+                            case 0x61: //Exit
                                 settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value=fullscreenStatus;
                                 keepOpened=0;
                                 break;

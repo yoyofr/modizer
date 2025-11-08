@@ -5881,6 +5881,8 @@ void pm_perfTest() {
     // Set required taps and number of touches
     [glViewPanGesture setMinimumNumberOfTouches:1];
     [glViewPanGesture setMaximumNumberOfTouches:1];
+    
+    glViewPanGesture.allowedScrollTypesMask = UIScrollTypeMaskAll;
     // Add the gesture to the view
     [m_oglView addGestureRecognizer:glViewPanGesture];
     
@@ -5889,6 +5891,8 @@ void pm_perfTest() {
     // Set required taps and number of touches
     [glViewPan2Gesture setMinimumNumberOfTouches:2];
     [glViewPan2Gesture setMaximumNumberOfTouches:2];
+    
+    glViewPan2Gesture.allowedScrollTypesMask = UIScrollTypeMaskAll;
     // Add the gesture to the view
     [m_oglView addGestureRecognizer:glViewPan2Gesture];
     
@@ -6532,6 +6536,7 @@ static int mOglView1Tap=0;
         movePx2Old=movePx2;
         movePy2Old=movePy2;
     }
+    
 }
 
 -(void) glViewPinchGesture:(UIPinchGestureRecognizer *)gestureRecognizer {
@@ -6674,8 +6679,8 @@ void doFramePM(float ww,float hh) {
     float ww=winsize.x;
     float hh=winsize.y;
     
-    static float cur_winSizeX=ww/4;
-    static float cur_winSizeY=hh/4;
+    static float cur_winSizeX=ww/5;
+    static float cur_winSizeY=hh/5;
     
     float alpha;
     static int switchPrevValue=0;
@@ -6684,36 +6689,41 @@ void doFramePM(float ww,float hh) {
     if (font_menu) ImGui::PushFont(font_menu,FONTSIZE_SHOWINFO_FPS*glScaleFactor);
     else ImGui::PushFont(nullptr);
     
-    ImGui::SetNextWindowPos(ImVec2(0*glScaleFactor,(hh-cur_winSizeY)*glScaleFactor));
-    ImGui::SetNextWindowSize(ImVec2(cur_winSizeX*glScaleFactor,cur_winSizeY*glScaleFactor));
-    alpha=(float)(oglv_corner_fade[0])/120.0;
-    ImGui::PushStyleColor(ImGuiCol_WindowBg,ImVec4(0,0,0,alpha));
-    ImGui::PushStyleColor(ImGuiCol_Border,ImVec4(0,0,0,0));
-    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0,1.0,1.0,alpha));
-    ImGui::Begin("Tap1win",0,
-                 ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoScrollbar|ImGuiWindowFlags_NoFocusOnAppearing
-                 );
-    ImGui::Text("Previous\npreset");
-    ImGui::End();
-    ImGui::PopStyleColor();
-    ImGui::PopStyleColor();
-    ImGui::PopStyleColor();
-    
-    ImGui::SetNextWindowPos(ImVec2((ww-cur_winSizeX)*glScaleFactor,(hh-cur_winSizeY)*glScaleFactor));
-    ImGui::SetNextWindowSize(ImVec2(cur_winSizeX*glScaleFactor,cur_winSizeY*glScaleFactor));
-    alpha=(float)(oglv_corner_fade[1])/120.0;
-    ImGui::PushStyleColor(ImGuiCol_WindowBg,ImVec4(0,0,0,alpha));
-    ImGui::PushStyleColor(ImGuiCol_Border,ImVec4(0,0,0,0));
-    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0,1.0,1.0,alpha));
-    ImGui::Begin("Tap2win",0,
-                 ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoScrollbar|ImGuiWindowFlags_NoFocusOnAppearing
-                 );
-    ImGui::Text("Next\npreset");
-    ImGui::End();
-    ImGui::PopStyleColor();
-    ImGui::PopStyleColor();
-    ImGui::PopStyleColor();
-    
+    char strButton[32];
+    float posX,posY;
+    for (int i=0;i<4;i++) {
+        switch (i) {
+            case 0:
+                posX=0;posY=(hh-cur_winSizeY)*glScaleFactor;
+                snprintf(strButton,32,"Prev\npreset");
+                break;
+            case 1:
+                posX=(ww-cur_winSizeX)*glScaleFactor;posY=(hh-cur_winSizeY)*glScaleFactor;
+                snprintf(strButton,32,"Next\npreset");
+                break;
+            case 2:
+                break;
+            case 3:
+                break;
+        }
+        ImGui::SetNextWindowPos(ImVec2(posX,posY));
+        ImGui::SetNextWindowSize(ImVec2(cur_winSizeX*glScaleFactor,cur_winSizeY*glScaleFactor));
+        alpha=(float)(oglv_corner_fade[i])/60.0;
+        if (alpha>1) alpha=1;
+        ImGui::PushStyleColor(ImGuiCol_WindowBg,ImVec4(0,0,0,alpha));
+        ImGui::PushStyleColor(ImGuiCol_Border,ImVec4(0,0,0,0));
+        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0,1.0,1.0,alpha));
+        char strId[8];
+        snprintf(strId,8,"TapWin%d",i);
+        ImGui::Begin(strId,0,
+                     ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoScrollbar|ImGuiWindowFlags_NoFocusOnAppearing
+                     );
+        ImGui::Text("%s",strButton);
+        ImGui::End();
+        ImGui::PopStyleColor();
+        ImGui::PopStyleColor();
+        ImGui::PopStyleColor();
+    }
     ImGui::PopFont();
     
     for (int j=0;j<frameToUpdate;j++) {
@@ -7466,17 +7476,20 @@ void doFramePM(float ww,float hh) {
     if (mOglView1Tap) {
         mOglView1Tap=0;
         if ( (pmenu_show==0) && (oglTapX<=ww*1/4) && (oglTapY>=hh*3/4) ) {
-            oglv_corner_fade[0]=120;
+            //tapping down left corner and not in menu, move to next ProjecTM preset
+            oglv_corner_fade[0]=60;
             [self mdPrevPreset];
         } else if ( (pmenu_show==0) && (oglTapX>=ww*3/4) && (oglTapY>=hh*3/4) ) {
-            oglv_corner_fade[1]=120;
+            //tapping down right corner and not in menu, move to next ProjecTM preset
+            oglv_corner_fade[1]=60;
             [self mdNextPreset];
         } else if ( (pmenu_show==0) && (oglTapX>=ww*3/4) && (oglTapY<=hh*1/4) ) {
-        //If tapping upper right corner and not in menu, activate showinfo panel
-            oglv_corner_fade[2]=120;
+            //tapping upper right corner and not in menu, activate showinfo panel
+            oglv_corner_fade[2]=60;
             [SettingsGenViewController changeSettingsValue:GLOB_FXSHOWINFO change:1];
         }  else if ( (pmenu_show==0) && (oglTapX<=ww*1/4) && (oglTapY<=hh*1/4) ) {
-            oglv_corner_fade[3]=120;
+            //tapping upper left corner and not in menu, to be defined
+            oglv_corner_fade[3]=60;
         } else {
             //Activate menu if tap on the rest of the gl view
             if (pmenu_show==0) {

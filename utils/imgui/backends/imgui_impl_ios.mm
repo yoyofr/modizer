@@ -136,12 +136,19 @@ void ImGui_ImplIOS_UpdateEvent(ImGuiIOSEvent *event)
         io.AddMouseButtonEvent(0, true);
         mouseEventOnHold=0;
     } else if (currentEvent.event_type==IMGUI_IOS_Event_MouseMove) {
+        MDZILog("mouse move: %d %d",currentEvent.pos_x,currentEvent.pos_y);
         io.AddMouseSourceEvent(ImGuiMouseSource_Mouse);//TouchScreen);
         io.AddMousePosEvent((float)(currentEvent.pos_x), (float)(currentEvent.pos_y));
         io.AddMouseButtonEvent(0, true);
         mouseEventOnHold=0;
         mouseMoveInProgress=true;
-    } else if (!mouseEventOnHold) {
+    }/* else if (currentEvent.event_type==IMGUI_IOS_Event_MouseWheel) {
+        io.AddMouseSourceEvent(ImGuiMouseSource_Mouse);//TouchScreen);
+        io.AddMouseWheelEvent((float)(currentEvent.wheel_x), (float)(currentEvent.wheel_y));
+        //io.AddMouseButtonEvent(0, true);
+        //mouseEventOnHold=0;
+        //mouseMoveInProgress=true;
+    } */else if (!mouseEventOnHold) {
         io.AddMouseButtonEvent(0, false);
         io.AddMouseSourceEvent(ImGuiMouseSource_Mouse);//TouchScreen);
         io.AddMousePosEvent((float)(-1), (float)(-1));

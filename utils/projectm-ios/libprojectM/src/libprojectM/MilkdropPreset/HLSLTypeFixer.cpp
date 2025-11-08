@@ -416,7 +416,7 @@ std::string HLSLTypeFixer::fixIntegerDivision(const std::string& hlslCode, const
     
     // Fix int_var / integer_literal
     for (const auto& intVar : m_intVariables) {
-        std::regex divRegex("\\b(" + intVar + ")\\s*/\\s*(\\d+)(?![\\d\\.fF])");
+        std::regex divRegex("\\b(" + intVar + ")\\s*/\\s*(\\d+)(?![\\d\\.fFeE\\w])");
         
         std::string replacement = options.addFloatSuffix ?
             "(float)$1 / $2.0f" : "(float)$1 / $2.0";
@@ -506,6 +506,12 @@ std::string HLSLTypeFixer::fixIntegerDivision(const std::string& hlslCode, const
             
             // Skip if part of a decimal number (preceded by dot)
             if (matchPos > 0 && result[matchPos - 1] == '.') {
+                searchStart = match.suffix().first;
+                continue;
+            }
+            
+            // Skip if preceded by letter or underscore (part of variable name like q15)
+            if (matchPos > 0 && (isalpha(result[matchPos - 1]) || result[matchPos - 1] == '_')) {
                 searchStart = match.suffix().first;
                 continue;
             }
