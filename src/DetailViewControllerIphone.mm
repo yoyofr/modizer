@@ -290,7 +290,7 @@ static int updMPNowCnt=0;
 @synthesize sliderProgressModule;
 @synthesize detailView,commandViewU,playlistPos;
 @synthesize playBar,pauseBar,playBarSub,pauseBarSub;
-@synthesize playBarSubRewind,playBarSubFFwd,pauseBarSubRewind,pauseBarSubFFwd;
+
 @synthesize mainView,infoView;
 @synthesize mainRating5,mainRating5off;
 @synthesize mHasFocus,mScaleFactor;
@@ -4381,7 +4381,7 @@ int recording=0;
                     oglButton.frame = CGRectMake(safe_left, 82, mDevice_hh-safe_left-safe_right, mDevice_ww-82-safe_bottom-yofs+44-MDZ_PLAYPAUSE_BARS_HEIGHT);
                     
                 } else {
-                    mainView.frame = CGRectMake(0.0, 0, mDevice_hh, mDevice_ww-yofs);
+                    mainView.frame = CGRectMake(0.0, 30, mDevice_hh, mDevice_ww-yofs);
                     m_oglView.frame = CGRectMake(safe_left, 82, mDevice_hh-safe_left-safe_right, mDevice_ww-82-safe_bottom-yofs+44-MDZ_PLAYPAUSE_BARS_HEIGHT);
                     oglButton.frame = CGRectMake(safe_left, 82, mDevice_hh-safe_left-safe_right, mDevice_ww-82-safe_bottom-yofs+44-MDZ_PLAYPAUSE_BARS_HEIGHT);
                     
@@ -5321,6 +5321,61 @@ void pm_perfTest() {
     modPatternLineSize=0;
 }
 
+- (void) buildCommandBars {
+    
+    // When creating your bar button items with SF Symbols:
+    UIImageSymbolConfiguration *config = [UIImageSymbolConfiguration configurationWithPointSize:20.0
+                                                                                          weight:UIImageSymbolWeightRegular
+                                                                                           scale:UIImageSymbolScaleMedium];
+    UIImage *playImage = [UIImage systemImageNamed:@"play.fill" withConfiguration:config];
+    UIImage *pauseImage = [UIImage systemImageNamed:@"pause.fill" withConfiguration:config];
+    UIImage *nextImage = [UIImage systemImageNamed:@"forward.end.fill" withConfiguration:config];
+    UIImage *nextSubImage = [UIImage systemImageNamed:@"forward.fill" withConfiguration:config];
+    UIImage *prevImage = [UIImage systemImageNamed:@"backward.end.fill" withConfiguration:config];
+    UIImage *prevSubImage = [UIImage systemImageNamed:@"backward.fill" withConfiguration:config];
+    
+    
+    UIBarButtonItem *itemPause = [[UIBarButtonItem alloc] initWithImage:pauseImage style:UIBarButtonItemStylePlain target:self action:@selector(pausePushed:)];
+    
+    UIBarButtonItem *itemPlay = [[UIBarButtonItem alloc] initWithImage:playImage style:UIBarButtonItemStylePlain target:self action:@selector(playPushed:)];
+    
+    UIBarButtonItem *itemPrev = [[UIBarButtonItem alloc] initWithImage:prevImage style:UIBarButtonItemStylePlain target:self action:@selector(playPrev)];
+    
+    UIBarButtonItem *itemPrevSub = [[UIBarButtonItem alloc] initWithImage:prevSubImage style:UIBarButtonItemStylePlain target:self action:@selector(playPrevSub)];
+    
+    UIBarButtonItem *itemNext = [[UIBarButtonItem alloc] initWithImage:nextImage style:UIBarButtonItemStylePlain target:self action:@selector(playNext)];
+    
+    UIBarButtonItem *itemNextSub = [[UIBarButtonItem alloc] initWithImage:nextSubImage style:UIBarButtonItemStylePlain target:self action:@selector(playNextSub)];
+    
+    UIBarButtonItem *flexSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace primaryAction:NULL];
+    
+    UILongPressGestureRecognizer *longPressPaPrevSGesture = [[UILongPressGestureRecognizer alloc]
+                                                             initWithTarget:self
+                                                             action:@selector(longPressPrevSubArc:)];
+    UILongPressGestureRecognizer *longPressPaNextSGesture = [[UILongPressGestureRecognizer alloc]
+                                                             initWithTarget:self
+                                                             action:@selector(longPressNextSubArc:)];
+    
+    if ([[itemPrevSub valueForKey:@"view"] respondsToSelector:@selector(addGestureRecognizer:)]) {
+        [[itemPrevSub valueForKey:@"view"] addGestureRecognizer:longPressPaPrevSGesture];
+    }
+    if ([[itemNextSub valueForKey:@"view"] respondsToSelector:@selector(addGestureRecognizer:)]) {
+        [[itemNextSub valueForKey:@"view"] addGestureRecognizer:longPressPaNextSGesture];
+    }
+    
+    NSArray *buttonItems = [NSArray arrayWithObjects:flexSpace,itemPrev,flexSpace,itemPause,flexSpace,itemNext,flexSpace,nil];
+    [pauseBar setItems:buttonItems];
+    
+    buttonItems = [NSArray arrayWithObjects:flexSpace,itemPrev,flexSpace,itemPlay,flexSpace,itemNext,flexSpace,nil];
+    [playBar setItems:buttonItems];
+    
+    buttonItems = [NSArray arrayWithObjects:flexSpace,itemPrev,flexSpace,itemPrevSub,flexSpace,itemPause,flexSpace,itemNextSub,flexSpace,itemNext,flexSpace,nil];
+    [pauseBarSub setItems:buttonItems];
+    
+    buttonItems = [NSArray arrayWithObjects:flexSpace,itemPrev,flexSpace,itemPrevSub,flexSpace,itemPlay,flexSpace,itemNextSub,flexSpace,itemNext,flexSpace,nil];
+    [playBarSub setItems:buttonItems];
+}
+
 // Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
 - (void)viewDidLoad {
     START_PROFILE
@@ -5471,45 +5526,13 @@ void pm_perfTest() {
     [UIView setAnimationDelegate:self];
     [UIView setAnimationDidStopSelector:@selector(animationDidStop:finished:context:)];
     
-    UILongPressGestureRecognizer *longPressPaPrevSGesture = [[UILongPressGestureRecognizer alloc]
-                                                             initWithTarget:self
-                                                             action:@selector(longPressPrevSubArc:)];
-    UILongPressGestureRecognizer *longPressPaNextSGesture = [[UILongPressGestureRecognizer alloc]
-                                                             initWithTarget:self
-                                                             action:@selector(longPressNextSubArc:)];
-    UILongPressGestureRecognizer *longPressPlPrevSGesture = [[UILongPressGestureRecognizer alloc]
-                                                             initWithTarget:self
-                                                             action:@selector(longPressPrevSubArc:)];
-    UILongPressGestureRecognizer *longPressPlNextSGesture = [[UILongPressGestureRecognizer alloc]
-                                                             initWithTarget:self
-                                                             action:@selector(longPressNextSubArc:)];
     
     //build various bars
-    UIBarButtonItem *itemPause = [[UIBarButtonItem alloc] initWithImage:[UIImage systemImageNamed:@"pause"] style:UIBarButtonItemStylePlain target:self action:@selector(pausePushed:)];
-    UIBarButtonItem *itemPrev = [[UIBarButtonItem alloc] initWithImage:[UIImage systemImageNamed:@"backward.end"] style:UIBarButtonItemStylePlain target:self action:@selector(playPrev)];
-    UIBarButtonItem *itemNext = [[UIBarButtonItem alloc] initWithImage:[UIImage systemImageNamed:@"forward.end"] style:UIBarButtonItemStylePlain target:self action:@selector(playNext)];
-    
-    UIBarButtonItem *flexSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace primaryAction:NULL];
-    
-    NSArray *buttonItems = [NSArray arrayWithObjects:flexSpace,itemPrev,flexSpace,itemPause,flexSpace,itemNext,flexSpace,nil];
-    [pauseBar setItems:buttonItems];
-    
+    [self buildCommandBars];
     
     [pauseBarSub layoutIfNeeded];
     [playBarSub layoutIfNeeded];
     
-    if ([[playBarSubRewind valueForKey:@"view"] respondsToSelector:@selector(addGestureRecognizer:)]) {
-        [[playBarSubRewind valueForKey:@"view"] addGestureRecognizer:longPressPlPrevSGesture];
-    }
-    if ([[playBarSubFFwd valueForKey:@"view"] respondsToSelector:@selector(addGestureRecognizer:)]) {
-        [[playBarSubFFwd valueForKey:@"view"] addGestureRecognizer:longPressPlNextSGesture];
-    }
-    if ([[pauseBarSubRewind valueForKey:@"view"] respondsToSelector:@selector(addGestureRecognizer:)]) {
-        [[pauseBarSubRewind valueForKey:@"view"] addGestureRecognizer:longPressPaPrevSGesture];
-    }
-    if ([[pauseBarSubFFwd valueForKey:@"view"] respondsToSelector:@selector(addGestureRecognizer:)]) {
-        [[pauseBarSubFFwd valueForKey:@"view"] addGestureRecognizer:longPressPaNextSGesture];
-    }
     
     labelModuleName.userInteractionEnabled = YES;
     UITapGestureRecognizer *tapGesture =

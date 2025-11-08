@@ -185,6 +185,12 @@ void HLSLTypeFixer::detectIntegerInFloatContext(const std::string& hlslCode, std
         size_t pos = match.position() + (searchStart - hlslCode.cbegin());
         
         if (!isInComment(hlslCode, pos) && !isInString(hlslCode, pos)) {
+            // Check if preceded by a letter or underscore (part of variable name like q15)
+            if (pos > 0 && (isalpha(hlslCode[pos - 1]) || hlslCode[pos - 1] == '_')) {
+                searchStart = match.suffix().first;
+                continue;
+            }
+            
             // Check if preceded by a dot (part of decimal number)
             if (pos > 0 && hlslCode[pos - 1] == '.') {
                 searchStart = match.suffix().first;
@@ -306,8 +312,14 @@ void HLSLTypeFixer::detectIntegerInVectorConstructor(const std::string& hlslCode
                 std::string::const_iterator argStart(args.cbegin());
                 
                 while (std::regex_search(argStart, args.cend(), intMatch, intLitRegex)) {
-                    // Check if this integer is preceded by a dot
+                    // Check if this integer is preceded by a letter or underscore (part of variable name)
                     size_t relativePos = intMatch.position() + (argStart - args.cbegin());
+                    if (relativePos > 0 && (isalpha(args[relativePos - 1]) || args[relativePos - 1] == '_')) {
+                        argStart = intMatch.suffix().first;
+                        continue;
+                    }
+                    
+                    // Check if this integer is preceded by a dot
                     if (relativePos > 0 && args[relativePos - 1] == '.') {
                         argStart = intMatch.suffix().first;
                         continue;
@@ -412,14 +424,140 @@ std::string HLSLTypeFixer::fixIntegerDivision(const std::string& hlslCode, const
         result = std::regex_replace(result, divRegex, replacement);
     }
     
+    // Fix float_literal / int_var (handles cases like 1.0/anz*n)
+    // This pattern matches division where float is divided by int variable
+    for (const auto& intVar : m_intVariables) {
+        // Pattern: float_literal / int_var (with optional whitespace)
+        std::regex floatDivIntRegex("(\\d+\\.\\d*[fF]?|\\d+[fF])\\s*/\\s*\\b(" + intVar + ")\\b(?!\\s*\\()");
+        
+        // Need manual replacement to handle multiplication after division
+        std::string temp;
+        std::smatch match;
+        auto searchStart = result.cbegin();
+        size_t lastPos = 0;
+        
+        while (std::regex_search(searchStart, result.cend(), match, floatDivIntRegex)) {
+            size_t matchPos = match.position() + (searchStart - result.cbegin());
+            
+            // Check if not in comment or string
+            if (isInComment(result, matchPos) || isInString(result, matchPos)) {
+                searchStart = match.suffix().first;
+                continue;
+            }
+            
+            // Check if the int variable is already casted
+            std::string matchStr = match[0].str();
+            if (matchStr.find("(float)") != std::string::npos || 
+                matchStr.find("(int)") != std::string::npos) {
+                searchStart = match.suffix().first;
+                continue;
+            }
+            
+            // Check what comes after the division
+            size_t endPos = matchPos + match.length();
+            bool hasMultAfter = false;
+            
+            if (endPos < result.length()) {
+                size_t checkPos = endPos;
+                // Skip whitespace
+                while (checkPos < result.length() && isspace(result[checkPos])) {
+                    checkPos++;
+                }
+                // Check if followed by multiplication
+                if (checkPos < result.length() && result[checkPos] == '*') {
+                    hasMultAfter = true;
+                }
+            }
+            
+            temp += result.substr(lastPos, matchPos - lastPos);
+            
+            if (hasMultAfter) {
+                // If there's multiplication after, wrap the division in parentheses to maintain precedence
+                temp += "(" + match[1].str() + " / (float)" + match[2].str() + ")";
+            } else {
+                // No multiplication after, simple cast
+                temp += match[1].str() + " / (float)" + match[2].str();
+            }
+            
+            lastPos = matchPos + match.length();
+            searchStart = match.suffix().first;
+        }
+        temp += result.substr(lastPos);
+        result = temp;
+    }
+    
+    // Fix integer_literal / int_var (handles cases like 1/anz*n)
+    for (const auto& intVar : m_intVariables) {
+        std::regex intDivIntRegex("(\\d+)(?![\\d\\.fFeE])\\s*/\\s*\\b(" + intVar + ")\\b(?!\\s*\\()");
+        
+        std::string temp;
+        std::smatch match;
+        auto searchStart = result.cbegin();
+        size_t lastPos = 0;
+        
+        while (std::regex_search(searchStart, result.cend(), match, intDivIntRegex)) {
+            size_t matchPos = match.position() + (searchStart - result.cbegin());
+            
+            // Check if not in comment or string
+            if (isInComment(result, matchPos) || isInString(result, matchPos)) {
+                searchStart = match.suffix().first;
+                continue;
+            }
+            
+            // Skip if part of a decimal number (preceded by dot)
+            if (matchPos > 0 && result[matchPos - 1] == '.') {
+                searchStart = match.suffix().first;
+                continue;
+            }
+            
+            // Check if already casted
+            std::string matchStr = match[0].str();
+            if (matchStr.find("(float)") != std::string::npos) {
+                searchStart = match.suffix().first;
+                continue;
+            }
+            
+            // Check what comes after
+            size_t endPos = matchPos + match.length();
+            bool hasMultAfter = false;
+            
+            if (endPos < result.length()) {
+                size_t checkPos = endPos;
+                while (checkPos < result.length() && isspace(result[checkPos])) {
+                    checkPos++;
+                }
+                if (checkPos < result.length() && result[checkPos] == '*') {
+                    hasMultAfter = true;
+                }
+            }
+            
+            temp += result.substr(lastPos, matchPos - lastPos);
+            
+            std::string suffix = options.addFloatSuffix ? ".0f" : ".0";
+            
+            if (hasMultAfter) {
+                // Wrap to maintain precedence
+                temp += "(" + match[1].str() + suffix + " / (float)" + match[2].str() + ")";
+            } else {
+                temp += match[1].str() + suffix + " / (float)" + match[2].str();
+            }
+            
+            lastPos = matchPos + match.length();
+            searchStart = match.suffix().first;
+        }
+        temp += result.substr(lastPos);
+        result = temp;
+    }
+    
     return result;
 }
 
 std::string HLSLTypeFixer::fixIntegerLiterals(const std::string& hlslCode, const HLSLFixOptions& options) {
     std::string result = hlslCode;
     
-    // Fix integer literals in arithmetic operations (excluding scientific notation)
-    std::regex intAfterOpRegex("([+\\-*/,\\(])\\s*(\\d+)(?![\\d\\.fFeE])");
+    // Fix integer literals in arithmetic operations (excluding scientific notation and variable names)
+    // Use word boundary to ensure we're matching standalone integers
+    std::regex intAfterOpRegex("([+\\-*/,\\(])\\s*(\\d+)(?![\\d\\.fFeE\\w])");
     
     std::string suffix = options.addFloatSuffix ? ".0f" : ".0";
     
@@ -496,9 +634,9 @@ std::string HLSLTypeFixer::fixVectorConstructors(const std::string& hlslCode, co
             result += temp.substr(lastPos, matchPos - lastPos);
             result += match[1].str();
             
-            // Fix integers in the arguments (excluding scientific notation)
+            // Fix integers in the arguments (excluding scientific notation and variable names)
             std::string args = match[2].str();
-            std::regex intRegex("\\b(\\d+)(?![\\d\\.fFeE])");
+            std::regex intRegex("\\b(\\d+)(?![\\d\\.fFeE\\w])");
             
             // Manual replacement to check for preceding dots and scientific notation
             std::string fixedArgs;
@@ -511,6 +649,14 @@ std::string HLSLTypeFixer::fixVectorConstructors(const std::string& hlslCode, co
                 
                 // Check if preceded by dot
                 if (intMatchPos > 0 && args[intMatchPos - 1] == '.') {
+                    fixedArgs += args.substr(argLastPos, intMatchPos + intMatch.length() - argLastPos);
+                    argLastPos = intMatchPos + intMatch.length();
+                    argStart = intMatch.suffix().first;
+                    continue;
+                }
+                
+                // Check if preceded by letter or underscore (part of variable name)
+                if (intMatchPos > 0 && (isalpha(args[intMatchPos - 1]) || args[intMatchPos - 1] == '_')) {
                     fixedArgs += args.substr(argLastPos, intMatchPos + intMatch.length() - argLastPos);
                     argLastPos = intMatchPos + intMatch.length();
                     argStart = intMatch.suffix().first;

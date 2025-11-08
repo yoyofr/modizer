@@ -57,6 +57,18 @@ public:
     [[nodiscard]] std::string fixComplexForLoops(const std::string& shaderSource);
 
     /**
+     * Rename keywords when used as variable names
+     * Example: "float sample = ..." becomes "float sample_var = ..."
+     * @param shaderSource The shader source code
+     * @param keywords List of keywords to rename when used as variables
+     * @param suffix Suffix to append to renamed variables (default: "_var")
+     * @return The processed shader source with renamed variables
+     */
+    [[nodiscard]] std::string renameKeywordsAsVariables(const std::string& shaderSource, 
+                                                         const std::vector<std::string>& keywords,
+                                                         const std::string& suffix = "_var");
+
+    /**
      * Apply all preprocessing steps
      * @param shaderSource The shader source code
      * @return The fully processed shader source
@@ -161,6 +173,22 @@ private:
      * Parse a for loop header and extract its components
      */
     [[nodiscard]] std::optional<ComplexForLoopInfo> parseForLoopHeader(const std::string& source, size_t forPos) const;
+
+    struct KeywordUsageInfo {
+        std::string keyword;
+        std::string newName;
+        size_t declarationStart;
+        size_t declarationEnd;
+        std::vector<std::pair<size_t, size_t>> usages;  // Positions where keyword is used as variable
+    };
+
+    /**
+     * Detect keywords used as variable names
+     */
+    [[nodiscard]] std::vector<KeywordUsageInfo> detectKeywordUsages(
+        const std::string& source,
+        const std::vector<std::string>& keywords,
+        const std::string& suffix);
 
     ShaderLanguage m_language;
     bool m_verbose = false;

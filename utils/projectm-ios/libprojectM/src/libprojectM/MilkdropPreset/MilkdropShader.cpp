@@ -286,6 +286,7 @@ void MilkdropShader::PreLoadTexturesAndCompile(AltPresetState& presetState)
         }
     //YOYOFR
     //
+    printf("Before:\n%s\n",m_preprocessedCode.c_str());
     ShaderPreprocessor preProcessor(ShaderLanguage::HLSL);
     std::string cleanProgram = preProcessor.preprocess(m_preprocessedCode);
     m_preprocessedCode = cleanProgram;
@@ -294,10 +295,10 @@ void MilkdropShader::PreLoadTexturesAndCompile(AltPresetState& presetState)
     cleanProgram = hlslTypeFixer.autoFix(m_preprocessedCode);
     m_preprocessedCode = cleanProgram;
     
-//    printf("%s\n",m_preprocessedCode.c_str());
+    printf("After:\n%s\n",m_preprocessedCode.c_str());
     
     // Now that we have the textures, transpile the code.
-    TranspileHLSLShaderNoGLCompilation(presetState, m_preprocessedCode);
+    TranspileHLSLShaderPreCompilation(presetState, m_preprocessedCode);
 
     // Update blur texture level if shader was compiled successfully.
     //presetState.blurTexture.SetRequiredBlurLevel(m_maxBlurLevelRequired);
@@ -831,7 +832,7 @@ void MilkdropShader::TranspileHLSLShader(const PresetState& presetState, std::st
     }
 }
 
-void MilkdropShader::TranspileHLSLShaderNoGLCompilation(const AltPresetState& presetState, std::string& program)
+void MilkdropShader::TranspileHLSLShaderPreCompilation(const AltPresetState& presetState, std::string& program)
 {
     std::string shaderTypeString = "composite";
     if (m_type == ShaderType::WarpShader)
@@ -914,6 +915,8 @@ void MilkdropShader::TranspileHLSLShaderNoGLCompilation(const AltPresetState& pr
     }
     
     m_convertedCode=generator.GetResult();
+    
+    printf("converted code:\n%s\n",m_convertedCode.c_str());
 
     // Now we have GLSL source for the preset shader program (hopefully it's valid!)
     // Compile the preset shader fragment shader with the standard vertex shader and cross our fingers.

@@ -284,6 +284,156 @@ std::string ShaderPreprocessor::removeCommentsAndStrings(const std::string& sour
     return result;
 }
 
+std::string ShaderPreprocessor::renameKeywordsAsVariables(const std::string& shaderSource,
+                                                          const std::vector<std::string>& keywords,
+                                                          const std::string& suffix) {
+    if (keywords.empty()) {
+        return shaderSource;
+    }
+    
+    std::vector<KeywordUsageInfo> keywordUsages = detectKeywordUsages(shaderSource, keywords, suffix);
+    
+    if (keywordUsages.empty()) {
+        return shaderSource;
+    }
+    
+    std::string result = shaderSource;
+    int offset = 0;
+    
+    // Process in reverse order to maintain correct indices
+    for (auto it = keywordUsages.rbegin(); it != keywordUsages.rend(); ++it) {
+        const auto& usage = *it;
+        int localOffset = 0;
+        
+        // First, rename the declaration
+        size_t declStart = usage.declarationStart + offset;
+        size_t declEnd = usage.declarationEnd + offset;
+        std::string declaration = result.substr(declStart, declEnd - declStart);
+        
+        // Find the keyword in the declaration and replace it
+        size_t keywordPos = declaration.find(usage.keyword);
+        if (keywordPos != std::string::npos) {
+            // Make sure it's a whole word
+            bool isWordStart = (keywordPos == 0 || !std::isalnum(declaration[keywordPos - 1]) && declaration[keywordPos - 1] != '_');
+            bool isWordEnd = (keywordPos + usage.keyword.length() >= declaration.length() ||
+                            !std::isalnum(declaration[keywordPos + usage.keyword.length()]) &&
+                            declaration[keywordPos + usage.keyword.length()] != '_');
+            
+            if (isWordStart && isWordEnd) {
+                declaration.replace(keywordPos, usage.keyword.length(), usage.newName);
+                result.replace(declStart, declEnd - declStart, declaration);
+                localOffset = static_cast<int>(usage.newName.length()) - static_cast<int>(usage.keyword.length());
+            }
+        }
+        
+        // Now replace all usages after the declaration
+        size_t searchStart = declEnd + localOffset;
+        std::string remainingCode = result.substr(searchStart);
+        
+        size_t pos = 0;
+        while (pos < remainingCode.length()) {
+            pos = remainingCode.find(usage.keyword, pos);
+            if (pos == std::string::npos) break;
+            
+            // Check if it's a whole word
+            bool isWordStart = (pos == 0 || !std::isalnum(remainingCode[pos - 1]) && remainingCode[pos - 1] != '_');
+            bool isWordEnd = (pos + usage.keyword.length() >= remainingCode.length() ||
+                            !std::isalnum(remainingCode[pos + usage.keyword.length()]) &&
+                            remainingCode[pos + usage.keyword.length()] != '_');
+            
+            if (isWordStart && isWordEnd) {
+                remainingCode.replace(pos, usage.keyword.length(), usage.newName);
+                localOffset += static_cast<int>(usage.newName.length()) - static_cast<int>(usage.keyword.length());
+                pos += usage.newName.length();
+            } else {
+                pos += usage.keyword.length();
+            }
+        }
+        
+        result.replace(searchStart, result.length() - searchStart, remainingCode);
+        offset += localOffset;
+    }
+    
+    return result;
+}
+
+std::vector<ShaderPreprocessor::KeywordUsageInfo> ShaderPreprocessor::detectKeywordUsages(
+    const std::string& source,
+    const std::vector<std::string>& keywords,
+    const std::string& suffix) {
+    
+    std::vector<KeywordUsageInfo> usages;
+    usages.reserve(keywords.size());
+    
+    std::vector<std::string> types = getShaderTypes();
+    
+    // For each keyword, look for variable declarations
+    for (const auto& keyword : keywords) {
+        // Look for patterns like: <type> <keyword> = ...;
+        for (const auto& type : types) {
+            size_t pos = 0;
+            while ((pos = source.find(type, pos)) != std::string::npos) {
+                // Check if type is a whole word
+                if (pos > 0 && (std::isalnum(source[pos - 1]) || source[pos - 1] == '_')) {
+                    pos += type.length();
+                    continue;
+                }
+                
+                size_t afterType = pos + type.length();
+                if (afterType < source.length() && (std::isalnum(source[afterType]) || source[afterType] == '_')) {
+                    pos += type.length();
+                    continue;
+                }
+                
+                // Skip whitespace
+                while (afterType < source.length() && std::isspace(source[afterType])) {
+                    ++afterType;
+                }
+                
+                // Check if next word is our keyword
+                if (afterType + keyword.length() <= source.length() &&
+                    source.substr(afterType, keyword.length()) == keyword) {
+                    
+                    size_t afterKeyword = afterType + keyword.length();
+                    
+                    // Make sure keyword is a whole word
+                    if (afterKeyword < source.length() && (std::isalnum(source[afterKeyword]) || source[afterKeyword] == '_')) {
+                        pos += type.length();
+                        continue;
+                    }
+                    
+                    // Skip whitespace
+                    while (afterKeyword < source.length() && std::isspace(source[afterKeyword])) {
+                        ++afterKeyword;
+                    }
+                    
+                    // Check for = sign (variable declaration)
+                    if (afterKeyword < source.length() && source[afterKeyword] == '=') {
+                        // Find the semicolon
+                        size_t semicolon = source.find(';', afterKeyword);
+                        if (semicolon != std::string::npos) {
+                            KeywordUsageInfo info;
+                            info.keyword = keyword;
+                            info.newName = keyword + suffix;
+                            info.declarationStart = pos;
+                            info.declarationEnd = semicolon + 1;
+                            
+                            usages.push_back(std::move(info));
+                            
+                            pos = semicolon + 1;
+                            continue;
+                        }
+                    }
+                }
+                
+                pos += type.length();
+            }
+        }
+    }
+    
+    return usages;
+}
+
 std::string ShaderPreprocessor::preprocess(const std::string& shaderSource) {
     std::string result = shaderSource;
     
@@ -408,7 +558,13 @@ std::string ShaderPreprocessor::preprocess(const std::string& shaderSource) {
         ++pos;
     }
     
-    // Step 5: Fix complex for loops
+    // Step 5: Rename keywords used as variables (HLSL-specific)
+    if (m_language == ShaderLanguage::HLSL) {
+        std::vector<std::string> hlslKeywords = {"sample"};
+        result = renameKeywordsAsVariables(result, hlslKeywords, "_var");
+    }
+    
+    // Step 6: Fix complex for loops
     bool foundComplexLoop = true;
     int iterationCount = 0;
     

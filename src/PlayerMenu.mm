@@ -8,6 +8,10 @@
 #define PL_MIN_FONT_SIZE 14
 #define PL_IDEALFONTSIZE_RATIO 22
 
+#define PMENU_PMEXPLORE_FAV_FLAG 1
+#define PMENU_PMEXPLORE_SEL_FLAG 2
+
+
 #include "PlayerMenu.h"
 #include "SettingsGenViewController.h"
 #include "TextureUtils.h"
@@ -170,8 +174,8 @@ char *menuProjectMDynLabel[16];
 int menuProjectMExploreColNb=6;
 static GLuint txtMenuProjectMExploreHandle[6*2];
 const char *menuProjectMExploreLabel[6*2]={
-    "Clear\nlist",      "Add\nall",         "Favorites",   "Expand",NULL,NULL,
-    "Add\nfiltered",    "Remove\nfiltered", NULL,           "Collapse",NULL,NULL,
+    "Clear\nall",      "Select\nall",         "Favorites",   "Expand",NULL,NULL,
+    "Select\nlisted",    "Remove\nlisted", "Selected",           "Collapse",NULL,NULL,
 };
 void *menuProjectMExploreVar[6*2]={
     NULL,NULL,NULL,NULL,NULL,NULL,
@@ -363,11 +367,11 @@ struct {
 
 int pMenu_PMUpdateSelStatus(FileNode *fnode,bool propagateStatus,bool selStatus);
 int pMenu_PMUpdateFavStatus(FileNode *fnode,bool propagateStatus,bool favStatus);
-int pMenu_PMbuildDirTree(FileNode *fileNode, int idx,bool filter,int updExpandCollapse,int favoritesMode);
+int pMenu_PMbuildDirTree(FileNode *fileNode, int idx,bool filter,int updExpandCollapse,int selectedMode);
 int pMenu_PMPresetsSelAll(FileNode *fnode);
 int pMenu_PMPresetsRemAll(FileNode *fnode);
-int pMenu_PMPresetsSelFiltered(FileNode *fnode,int favoritesMode,bool filterMode);
-int pMenu_PMPresetsRemFiltered(FileNode *fnode,int favoritesMode,bool filterMode);
+int pMenu_PMPresetsSelFiltered(FileNode *fnode,int selectedMode,bool filterMode);
+int pMenu_PMPresetsRemFiltered(FileNode *fnode,int selectedMode,bool filterMode);
 void pMenu_PMInitTempData(FileNode *fnode);
 void pMenu_PMCommitTempData(FileNode *fnode);
 
@@ -798,7 +802,7 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
     char **currentMenuDynLabel;
     unsigned short *currentMenuLabelFAIcon;
     void **currentMenuVar;
-    static int favoritesMode=0;
+    static int selectedMode=0;
     
     cpt++;
     for (int i=0;i<16;i++) {
@@ -1702,7 +1706,7 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
                                     pmCurrentPlaylistMode=PM_BUNDLED_PLAYLIST;
                                     pmCurrentFileNode=pmBundledPresetsFileNode;
                                     pMenu_PMInitTempData(pmCurrentFileNode);
-                                    favoritesMode=0;
+                                    selectedMode=0;
                                     pMenu_state.menu_idx=MENU_PROJECTM_EXPLORE;
                                 }
                                 break;
@@ -1713,7 +1717,7 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
                                     pmCurrentPlaylistMode=PM_CUSTOM_PLAYLIST;
                                     pmCurrentFileNode=pmCustomPresetsFileNode;
                                     pMenu_PMInitTempData(pmCurrentFileNode);
-                                    favoritesMode=0;
+                                    selectedMode=0;
                                     pMenu_state.menu_idx=MENU_PROJECTM_EXPLORE;
                                 }
                                 break;
@@ -1744,8 +1748,8 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
         }
     } else if (pMenu_state.menu_idx==MENU_PROJECTM_EXPLORE) {
         int expandCollapseMode=0;
-        
-        if (favoritesMode) activeFx|=1<<2;
+        if (selectedMode&PMENU_PMEXPLORE_FAV_FLAG) activeFx|=1<<2;
+        if (selectedMode&PMENU_PMEXPLORE_SEL_FLAG) activeFx|=1<<6;
         ImGui::Text("Select active %s presets",(pmCurrentPlaylistMode==PM_BUNDLED_PLAYLIST?"bundled":"custom"));
         int col_nb=menuProjectMExploreColNb;
         if (ImGui::BeginTable("menu_ProjectM_Explore",col_nb,flagTable)) {
@@ -1783,8 +1787,7 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
                                 pMenu_PMPresetsSelAll(pmCurrentFileNode);
                                 break;
                             case 0x20: //Favorites
-                                if (favoritesMode) favoritesMode=0;
-                                else favoritesMode=1;
+                                selectedMode^=1<<0;
                                 break;
                             case 0x30: //Expand
                                 expandCollapseMode=1;
@@ -1809,12 +1812,13 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
                                 pMenu_PMInitTempData(pmCurrentFileNode);
                                 break;
                             case 0x01: //Add filtered
-                                pMenu_PMPresetsSelFiltered(pmCurrentFileNode,favoritesMode,pmFileNodeFilter[0]);
+                                pMenu_PMPresetsSelFiltered(pmCurrentFileNode,selectedMode,pmFileNodeFilter[0]);
                                 break;
                             case 0x11: //Remove filtered
-                                pMenu_PMPresetsRemFiltered(pmCurrentFileNode,favoritesMode,pmFileNodeFilter[0]);
+                                pMenu_PMPresetsRemFiltered(pmCurrentFileNode,selectedMode,pmFileNodeFilter[0]);
                                 break;
-                            case 0x21:
+                            case 0x21: //Current selection
+                                selectedMode^=1<<1;
                                 break;
                             case 0x31: //Collapse
                                 expandCollapseMode=2;
@@ -1857,7 +1861,7 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
             
             ImGui::PushStyleColor(ImGuiCol_Header, ImVec4(0.5f,0.4f,1.0f,0.9f));
             
-            index=pMenu_PMbuildDirTree(pmCurrentFileNode,index,filter,expandCollapseMode,favoritesMode);
+            index=pMenu_PMbuildDirTree(pmCurrentFileNode,index,filter,expandCollapseMode,selectedMode);
             expandCollapseMode=0;  //Reset flag
             
             ImGui::PopStyleColor();
@@ -1890,9 +1894,9 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
     return keepOpened;
 }
 
-int pMenu_PMbuildDirTree(FileNode *fileNode, int idx,bool filter,int updExpandCollapse,int favoritesMode) {
+int pMenu_PMbuildDirTree(FileNode *fileNode, int idx,bool filter,int updExpandCollapse,int selectedMode) {
     int flags_default=ImGuiTreeNodeFlags_SpanFullWidth;
-    if (filter||favoritesMode) {
+    if (filter||selectedMode) {
         //open all nodes by default
         flags_default|=ImGuiTreeNodeFlags_DefaultOpen;
     }
@@ -1904,8 +1908,11 @@ int pMenu_PMbuildDirTree(FileNode *fileNode, int idx,bool filter,int updExpandCo
             if (filter) {
                 if (!child.isMatchingFilter) skipentry=true;
             }
-            if (favoritesMode) {
+            if (selectedMode&PMENU_PMEXPLORE_FAV_FLAG) {
                 if (!child.isFavorite_Temp) skipentry=true;
+            }
+            if (selectedMode&PMENU_PMEXPLORE_SEL_FLAG) {
+                if (!child.isSelected_Temp) skipentry=true;
             }
             
             if (!skipentry) {
@@ -1951,7 +1958,7 @@ int pMenu_PMbuildDirTree(FileNode *fileNode, int idx,bool filter,int updExpandCo
                     child.shouldPropagateStatus=TRUE;
                 }
                 if (node_open) {
-                    idx=pMenu_PMbuildDirTree(child,idx,filter,updExpandCollapse,favoritesMode);
+                    idx=pMenu_PMbuildDirTree(child,idx,filter,updExpandCollapse,selectedMode);
                     ImGui::TreePop();
                 }
             }
@@ -1961,9 +1968,13 @@ int pMenu_PMbuildDirTree(FileNode *fileNode, int idx,bool filter,int updExpandCo
             if (filter) {
                 if (!child.isMatchingFilter) skipentry=true;
             }
-            if (favoritesMode) {
+            if (selectedMode&PMENU_PMEXPLORE_FAV_FLAG) {
                 if (!child.isFavorite_Temp) skipentry=true;
             }
+            if (selectedMode&PMENU_PMEXPLORE_SEL_FLAG) {
+                if (!child.isSelected_Temp) skipentry=true;
+            }
+            
             if (!skipentry) {
                 //Matching filter, if any
                 int flags=flags_default|ImGuiTreeNodeFlags_Leaf;
@@ -2110,37 +2121,43 @@ int pMenu_PMPresetsRemAll(FileNode *fnode) {
     }
     return ret;
 }
-int pMenu_PMPresetsSelFiltered(FileNode *fnode,int favoritesMode,bool filterMode){
+int pMenu_PMPresetsSelFiltered(FileNode *fnode,int selectedMode,bool filterMode){
     int ret=0;
     bool filterCheck;
     if (!filterMode) filterCheck=true;
     else filterCheck=fnode.isMatchingFilter;
     bool favCheck;
-    if (!favoritesMode) favCheck=true;
+    if (!(selectedMode&PMENU_PMEXPLORE_FAV_FLAG)) favCheck=true;
     else favCheck=fnode.isFavorite;
-    if (filterCheck && favCheck) {
+    bool selCheck;
+    if (!(selectedMode&PMENU_PMEXPLORE_SEL_FLAG)) selCheck=true;
+    else selCheck=fnode.isSelected;
+    if (filterCheck && favCheck && selCheck) {
         fnode.isSelected_Temp=true;
         ret++;
     }
     for (FileNode *child in fnode.children) {
-        ret+=pMenu_PMPresetsSelFiltered(child,favoritesMode,filterMode);
+        ret+=pMenu_PMPresetsSelFiltered(child,selectedMode,filterMode);
     }
     return ret;
 }
-int pMenu_PMPresetsRemFiltered(FileNode *fnode,int favoritesMode,bool filterMode) {
+int pMenu_PMPresetsRemFiltered(FileNode *fnode,int selectedMode,bool filterMode) {
     int ret=0;
     bool filterCheck;
     if (!filterMode) filterCheck=true;
     else filterCheck=fnode.isMatchingFilter;
     bool favCheck;
-    if (!favoritesMode) favCheck=true;
+    if (!(selectedMode&PMENU_PMEXPLORE_FAV_FLAG)) favCheck=true;
     else favCheck=fnode.isFavorite;
-    if (filterCheck && favCheck) {
+    bool selCheck;
+    if (!(selectedMode&PMENU_PMEXPLORE_SEL_FLAG)) selCheck=true;
+    else selCheck=fnode.isSelected;
+    if (filterCheck && favCheck && selCheck) {
         fnode.isSelected_Temp=false;
         ret++;
     }
     for (FileNode *child in fnode.children) {
-        ret+=pMenu_PMPresetsRemFiltered(child,favoritesMode,filterMode);
+        ret+=pMenu_PMPresetsRemFiltered(child,selectedMode,filterMode);
     }
     return ret;
 }

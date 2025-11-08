@@ -137,8 +137,6 @@ enum {
 	IBOutlet UIButton *mainRating5,*mainRating5off;
     IBOutlet UIButton *btnAddToPl;
 	IBOutlet UIToolbar *playBar,*pauseBar,*playBarSub,*pauseBarSub;
-    IBOutlet UIBarButtonItem *playBarSubRewind,*playBarSubFFwd;
-    IBOutlet UIBarButtonItem *pauseBarSubRewind,*pauseBarSubFFwd;
     
     IBOutlet OBSlider *sliderProgressModule;
     
@@ -318,7 +316,7 @@ enum {
 @property (nonatomic, retain) IBOutlet BButton *btnShowArcList,*btnShowSubSong,*btnShowVoices,*btnRecordScreen;
 @property (nonatomic, retain) IBOutlet UIButton *buttonLoopTitleSel,*buttonLoopList,*buttonLoopListSel,*buttonShuffle,*buttonShuffleSel,*buttonShuffleOneSel,*btnLoopInf;
 @property (nonatomic, retain) IBOutlet UIToolbar *playBar,*pauseBar,*playBarSub,*pauseBarSub;
-@property (nonatomic, retain) IBOutlet UIBarButtonItem *playBarSubRewind,*playBarSubFFwd,*pauseBarSubRewind,*pauseBarSubFFwd;
+
 @property (nonatomic, retain) IBOutlet OBSlider *sliderProgressModule;
 @property (nonatomic, retain) IBOutlet UITextView *textMessage;
 
@@ -337,8 +335,6 @@ enum {
 
 
 - (void)titleTap:(UITapGestureRecognizer *)sender;
-
--(void)initMetal;
 
 -(void) pushedRatingCommon:(signed char)rating;
 -(void) hidePopup;

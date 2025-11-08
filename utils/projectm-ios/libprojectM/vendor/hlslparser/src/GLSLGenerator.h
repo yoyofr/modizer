@@ -131,7 +131,7 @@ private:
 
 private:
 
-    static const int    s_numReservedWords = 9;
+    static const int    s_numReservedWords = 10;
     static const char*  s_reservedWord[s_numReservedWords];
 
     CodeWriter          m_writer;
@@ -168,6 +168,7 @@ private:
     char                m_acosFunction[64];
     char                m_asinFunction[64];
     char                m_tanhFunction[64];
+    char                m_fracFunction[64];
     char                m_altMultFunction[64];
 
     bool                m_error;

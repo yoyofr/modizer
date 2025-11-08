@@ -300,10 +300,13 @@ void HLSLTokenizer::Next(const bool EOLSkipping)
     {
         if (strcmp(_reservedWords[i], m_identifier) == 0)
         {
+//            printf("id: %s\n",m_identifier);
             m_token = 256 + i;
             return;
         }
     }
+    
+//    printf("sym: %s\n",m_identifier);
 
     m_token = HLSLToken_Identifier;
 

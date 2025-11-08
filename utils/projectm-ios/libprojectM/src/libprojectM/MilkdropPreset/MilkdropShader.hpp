@@ -92,7 +92,7 @@ private:
      * @param program The shader to transpile.
      */
     void TranspileHLSLShader(const PresetState& presetState, std::string& program,const char *prePcode=NULL,uint32_t shaderP=NULL);
-    void TranspileHLSLShaderNoGLCompilation(const AltPresetState& presetState, std::string& program);
+    void TranspileHLSLShaderPreCompilation(const AltPresetState& presetState, std::string& program);
     void StringReplaceAll(std::string& s, const std::string& from, const std::string& to);
     /**
      * @brief Updates the requested blur level if higher than before.

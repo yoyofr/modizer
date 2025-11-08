@@ -117,10 +117,10 @@
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <subviews>
                                     <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="40" sectionHeaderHeight="22" sectionFooterHeight="22" translatesAutoresizingMaskIntoConstraints="NO" id="mte-ht-Ev6">
-                                        <rect key="frame" x="0.0" y="0.0" width="375" height="563"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="393" height="563"/>
                                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                         <constraints>
-                                            <constraint firstAttribute="width" constant="375" id="Z2K-NI-Wqc"/>
+                                            <constraint firstAttribute="width" constant="393" id="Z2K-NI-Wqc"/>
                                         </constraints>
                                         <connections>
                                             <outlet property="dataSource" destination="WUp-pw-saM" id="LH5-3p-4AG"/>
@@ -352,7 +352,7 @@
             <objects>
                 <viewController title="File" modalTransitionStyle="flipHorizontal" id="MWm-br-vsJ" userLabel="Player Controller" customClass="DetailViewControllerIphone" sceneMemberID="viewController">
                     <view key="view" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" id="XGt-lY-Lxe" userLabel="PlayerView">
-                        <rect key="frame" x="0.0" y="0.0" width="320" height="225"/>
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="545"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <view clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ouT-6C-btl" userLabel="main view">
@@ -617,52 +617,12 @@
                                     <toolbar clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" translucent="NO" translatesAutoresizingMaskIntoConstraints="NO" id="aSH-6M-Dyc" userLabel="Pause_commands">
                                         <rect key="frame" x="0.0" y="330" width="320" height="44"/>
                                         <autoresizingMask key="autoresizingMask" widthSizable="YES"/>
-                                        <items>
-                                            <barButtonItem enabled="NO" systemItem="flexibleSpace" id="eYr-Wu-B6l"/>
-                                            <barButtonItem style="plain" systemItem="rewind" id="IZS-uR-DX1">
-                                                <connections>
-                                                    <action selector="playPrev" destination="MWm-br-vsJ" id="Nz7-Mf-6cl"/>
-                                                </connections>
-                                            </barButtonItem>
-                                            <barButtonItem enabled="NO" style="plain" systemItem="flexibleSpace" id="QMm-y0-p19"/>
-                                            <barButtonItem style="plain" systemItem="pause" id="jSe-Xs-DXR">
-                                                <connections>
-                                                    <action selector="pausePushed:" destination="MWm-br-vsJ" id="FjD-gR-Kc0"/>
-                                                </connections>
-                                            </barButtonItem>
-                                            <barButtonItem enabled="NO" style="plain" systemItem="flexibleSpace" id="zyd-ge-EZW"/>
-                                            <barButtonItem style="plain" systemItem="fastForward" id="wFW-dp-36M">
-                                                <connections>
-                                                    <action selector="playNext" destination="MWm-br-vsJ" id="mQ9-VS-V10"/>
-                                                </connections>
-                                            </barButtonItem>
-                                            <barButtonItem enabled="NO" systemItem="flexibleSpace" id="hgx-NJ-naV"/>
-                                        </items>
+                                        <items/>
                                     </toolbar>
                                     <toolbar clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" barStyle="blackTranslucent" translatesAutoresizingMaskIntoConstraints="NO" id="q24-HU-Ltg" userLabel="Play_commands">
                                         <rect key="frame" x="0.0" y="330" width="320" height="44"/>
                                         <autoresizingMask key="autoresizingMask" widthSizable="YES"/>
-                                        <items>
-                                            <barButtonItem enabled="NO" systemItem="flexibleSpace" id="0zp-xB-Ows"/>
-                                            <barButtonItem style="plain" systemItem="rewind" id="5lX-BR-b3o">
-                                                <connections>
-                                                    <action selector="playPrev" destination="MWm-br-vsJ" id="2wv-nM-cON"/>
-                                                </connections>
-                                            </barButtonItem>
-                                            <barButtonItem enabled="NO" style="plain" systemItem="flexibleSpace" id="BkT-Q3-nK9"/>
-                                            <barButtonItem style="plain" systemItem="play" id="wb9-of-rWy">
-                                                <connections>
-                                                    <action selector="playPushed:" destination="MWm-br-vsJ" id="yWt-f6-NLN"/>
-                                                </connections>
-                                            </barButtonItem>
-                                            <barButtonItem enabled="NO" style="plain" systemItem="flexibleSpace" id="hfw-Ec-fyB"/>
-                                            <barButtonItem style="plain" systemItem="fastForward" id="OZg-iV-Rl4">
-                                                <connections>
-                                                    <action selector="playNext" destination="MWm-br-vsJ" id="ZWe-Ud-7cr"/>
-                                                </connections>
-                                            </barButtonItem>
-                                            <barButtonItem enabled="NO" systemItem="flexibleSpace" id="MNb-7J-XfD"/>
-                                        </items>
+                                        <items/>
                                     </toolbar>
                                     <toolbar clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" barStyle="blackTranslucent" translatesAutoresizingMaskIntoConstraints="NO" id="SJd-Kt-HOH" userLabel="Play_commands_subsongs">
                                         <rect key="frame" x="0.0" y="330" width="320" height="44"/>
@@ -935,11 +895,11 @@
                                 <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.75" colorSpace="custom" customColorSpace="sRGB"/>
                             </view>
                             <view userInteractionEnabled="NO" alpha="0.69999998807907104" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="6ag-zj-MHf" userLabel="Info Msg Player">
-                                <rect key="frame" x="0.0" y="54" width="320" height="140"/>
+                                <rect key="frame" x="0.0" y="257" width="393" height="140"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
                                 <subviews>
                                     <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" fixedFrame="YES" text="Label...................." textAlignment="center" lineBreakMode="wordWrap" numberOfLines="4" minimumFontSize="16" translatesAutoresizingMaskIntoConstraints="NO" id="Pju-ZE-qPM" userLabel="Pri Msg Label">
-                                        <rect key="frame" x="10" y="4" width="300" height="56"/>
+                                        <rect key="frame" x="10" y="4" width="373" height="56"/>
                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                         <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
                                         <fontDescription key="fontDescription" name="Helvetica-Bold" family="Helvetica" pointSize="18"/>
@@ -949,7 +909,7 @@
                                         <size key="shadowOffset" width="1" height="2"/>
                                     </label>
                                     <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" fixedFrame="YES" text="Label...................." lineBreakMode="characterWrap" numberOfLines="4" minimumFontSize="8" translatesAutoresizingMaskIntoConstraints="NO" id="3m3-1K-1ZU" userLabel="Sec Msg Label">
-                                        <rect key="frame" x="10" y="60" width="300" height="80"/>
+                                        <rect key="frame" x="10" y="60" width="373" height="80"/>
                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                         <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
                                         <fontDescription key="fontDescription" name="Helvetica" family="Helvetica" pointSize="14"/>
@@ -971,7 +931,7 @@
                     <navigationItem key="navigationItem" id="6ar-LO-7hy"/>
                     <simulatedNavigationBarMetrics key="simulatedTopBarMetrics" prompted="NO"/>
                     <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
-                    <size key="freeformSize" width="320" height="480"/>
+                    <size key="freeformSize" width="393" height="800"/>
                     <connections>
                         <outlet property="backInfo" destination="1IT-VZ-bgF" id="kaH-L9-jrP"/>
                         <outlet property="btnAddToPl" destination="i6j-qO-A9D" id="ZqA-lh-1xD"/>
@@ -1014,12 +974,8 @@
                         <outlet property="oglButton" destination="944-4Q-LrI" id="k6E-EP-KHq"/>
                         <outlet property="pauseBar" destination="aSH-6M-Dyc" id="wUb-qf-FH6"/>
                         <outlet property="pauseBarSub" destination="25k-BO-KCz" id="mAa-m6-hft"/>
-                        <outlet property="pauseBarSubFFwd" destination="Jh4-2O-d7G" id="ykJ-bW-2Ye"/>
-                        <outlet property="pauseBarSubRewind" destination="ead-82-G2A" id="NvJ-g2-ZO5"/>
                         <outlet property="playBar" destination="q24-HU-Ltg" id="pRQ-ko-3a6"/>
                         <outlet property="playBarSub" destination="SJd-Kt-HOH" id="t5F-yY-hce"/>
-                        <outlet property="playBarSubFFwd" destination="htu-Vn-uYf" id="nfn-1q-p5l"/>
-                        <outlet property="playBarSubRewind" destination="PZT-kb-IFy" id="p20-C9-CvN"/>
                         <outlet property="playlistPos" destination="Am9-4x-E75" id="Dvf-GD-1d3"/>
                         <outlet property="sliderProgressModule" destination="K16-3y-EpA" id="0Hq-pd-13f"/>
                         <outlet property="textMessage" destination="tJX-bM-u5H" id="Frm-ED-CyU"/>
@@ -1358,7 +1314,7 @@ Internet accesses to the Modland, HVSC &amp; ASMA libraries are provided as an a
             <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
         <systemColor name="secondarySystemBackgroundColor">
-            <color red="0.94901960780000005" green="0.94901960780000005" blue="0.96862745100000003" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.94901960784313721" green="0.94901960784313721" blue="0.96862745098039216" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>

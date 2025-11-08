@@ -3357,6 +3357,8 @@ bool HLSLParser::Parse(const char* fileName, const char* buffer, size_t length)
 {
     HLSLRoot* root = m_tree->GetRoot();
     HLSLStatement* lastStatement = NULL;
+    
+//    printf("got:\n%s\n",buffer);
 
     m_tokenizer = HLSLTokenizer(fileName, buffer, length);
     while (!Accept(HLSLToken_EndOfStream))

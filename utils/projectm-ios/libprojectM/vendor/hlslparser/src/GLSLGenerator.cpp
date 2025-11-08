@@ -41,6 +41,7 @@ const char* GLSLGenerator::s_reservedWord[] =
         "dFdy",
         "filter",
 		"main",
+        "sample"
     };
 
 static const char* GetTypeName(const HLSLType& type)
@@ -142,6 +143,7 @@ GLSLGenerator::GLSLGenerator() :
     m_acosFunction[0]           = 0;
     m_asinFunction[0]           = 0;
     m_tanhFunction[0]           = 0;
+    m_fracFunction[0]           = 0;
     m_altMultFunction[0]        = 0;
     m_outputPosition            = false;
     m_outputTargets             = 0;
@@ -174,6 +176,7 @@ bool GLSLGenerator::Generate(HLSLTree* tree, Target target, Version version, con
 	ChooseUniqueName( "asin", m_asinFunction, sizeof( m_asinFunction ) );
     ChooseUniqueName( "tanh", m_tanhFunction, sizeof( m_tanhFunction ) );
 	ChooseUniqueName( "mult", m_altMultFunction, sizeof( m_altMultFunction ) );
+    ChooseUniqueName( "frac", m_fracFunction, sizeof( m_fracFunction ) );
 
     for (int i = 0; i < s_numReservedWords; ++i)
     {
@@ -430,9 +433,16 @@ bool GLSLGenerator::Generate(HLSLTree* tree, Target target, Version version, con
     if (m_tree->NeedsFunction("tanh"))
     {
         m_writer.WriteLine(0, "float %s(float x) { float ret; float eVec = exp(x*-2.0); ret = (1.0-eVec)/(1.0+eVec); return ret; }", m_tanhFunction);
-        m_writer.WriteLine(0, "vec2 %s(vec2 x) {  vec2 ret; vec2 eVec = exp(x*-2.0); ret = (1.0-eVec)/(1.0+eVec); return ret; }", m_tanhFunction, m_tanhFunction, m_tanhFunction);
-        m_writer.WriteLine(0, "vec3 %s(vec3 x) { vec3 ret; vec3 eVec = exp(x*-2.0); ret = (1.0-eVec)/(1.0+eVec); return ret; }", m_tanhFunction, m_tanhFunction, m_tanhFunction, m_tanhFunction);
-        m_writer.WriteLine(0, "vec4 %s(vec4 x) { vec4 ret; vec4 eVec = exp(x*-2.0); ret = (1.0-eVec)/(1.0+eVec); return ret; }", m_tanhFunction, m_tanhFunction, m_tanhFunction, m_tanhFunction, m_tanhFunction);
+        m_writer.WriteLine(0, "vec2 %s(vec2 x) {  vec2 ret; vec2 eVec = exp(x*-2.0); ret = (1.0-eVec)/(1.0+eVec); return ret; }", m_tanhFunction);
+        m_writer.WriteLine(0, "vec3 %s(vec3 x) { vec3 ret; vec3 eVec = exp(x*-2.0); ret = (1.0-eVec)/(1.0+eVec); return ret; }", m_tanhFunction);
+        m_writer.WriteLine(0, "vec4 %s(vec4 x) { vec4 ret; vec4 eVec = exp(x*-2.0); ret = (1.0-eVec)/(1.0+eVec); return ret; }", m_tanhFunction);
+    }
+    if (m_tree->NeedsFunction("frac"))
+    {
+        m_writer.WriteLine(0, "float %s(float x) { float ret; ret = x - floor(x); return ret; }", m_fracFunction);
+        m_writer.WriteLine(0, "vec2 %s(vec2 x) {  vec2 ret; ret = x - floor(x);  return ret; }", m_fracFunction);
+        m_writer.WriteLine(0, "vec3 %s(vec3 x) { vec3 ret; ret = x - floor(x); return ret; }", m_fracFunction);
+        m_writer.WriteLine(0, "vec4 %s(vec4 x) { vec4 ret; ret = x - floor(x); return ret; }", m_fracFunction);
     }
 
     if (m_options.flags & Flag_AlternateNanPropagation) {
@@ -1152,10 +1162,10 @@ void GLSLGenerator::OutputIdentifier(const char* name)
     {
         name = "mix";
     }
-    else if (String_Equal(name, "frac"))
-    {
-        name = "fract";
-    }
+//    else if (String_Equal(name, "frac"))
+//    {
+//        name = "fract";
+//    }
     else if (String_Equal(name, "ddx"))
     {
         name = "dFdx";
@@ -1179,6 +1189,10 @@ void GLSLGenerator::OutputIdentifier(const char* name)
     else if (String_Equal(name, "tanh"))
     {
         name = m_tanhFunction;
+    }
+    else if (String_Equal(name, "frac"))
+    {
+        name = m_fracFunction;
     }
     else
     {
