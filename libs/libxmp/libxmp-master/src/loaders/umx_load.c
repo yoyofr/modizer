@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2018 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2024 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -22,16 +22,6 @@
 
 #include <stddef.h> /* offsetof() */
 #include "loader.h"
-
-#ifdef _WIN32
-#undef strcasecmp
-#define strcasecmp _stricmp
-#endif
-
-extern const struct format_loader libxmp_loader_xm;
-extern const struct format_loader libxmp_loader_it;
-extern const struct format_loader libxmp_loader_s3m;
-extern const struct format_loader libxmp_loader_mod;
 
 static int umx_test (HIO_HANDLE *, char *, const int);
 static int umx_load (struct module_data *, HIO_HANDLE *, const int);
@@ -87,7 +77,7 @@ typedef int _check_hdrsize[2 * (offsetof(struct upkg_hdr, gen) == UPKG_HDR_SIZE)
 #define UMUSIC_WAV	4
 #define UMUSIC_MP2	5
 
-static const char *mustype[] = {
+static const char *const mustype[] = {
 	"IT", "S3M", "XM", "MOD",
 	"WAV", "MP2", NULL
 };
@@ -138,6 +128,7 @@ static int get_objtype (HIO_HANDLE *f, int32 ofs, int type)
 {
 	char sig[16];
 _retry:
+	memset(sig, 0, sizeof(sig));
 	hio_seek(f, ofs, SEEK_SET);
 	hio_read(sig, 16, 1, f);
 	if (type == UMUSIC_IT) {
@@ -219,13 +210,13 @@ static int read_typname(HIO_HANDLE *f, const struct upkg_hdr *hdr,
 	char buf[64];
 
 	if (idx >= hdr->name_count) return -1;
-	buf[63] = '\0';
+	memset(buf, 0, 64);
 	for (i = 0, l = 0; i <= idx; i++) {
-		hio_seek(f, hdr->name_offset + l, SEEK_SET);
-		hio_read(buf, 1, 63, f);
+		if (hio_seek(f, hdr->name_offset + l, SEEK_SET) < 0) return -1;
+		if (!hio_read(buf, 1, 63, f)) return -1;
 		if (hdr->file_version >= 64) {
 			s = *(signed char *)buf; /* numchars *including* terminator */
-			if (s <= 0 || s > 64) return -1;
+			if (s <= 0) return -1;
 			l += s + 5;	/* 1 for buf[0], 4 for int32 name_flags */
 		} else {
 			l += (long)strlen(buf);
@@ -235,6 +226,16 @@ static int read_typname(HIO_HANDLE *f, const struct upkg_hdr *hdr,
 
 	strcpy(out, (hdr->file_version >= 64)? &buf[1] : buf);
 	return 0;
+}
+
+static void umx_strupr(char *str)
+{
+	while (*str) {
+		if (*str >= 'a' && *str <= 'z') {
+		    *str -= ('a' - 'A');
+		}
+		str++;
+	}
 }
 
 static int probe_umx   (HIO_HANDLE *f, const struct upkg_hdr *hdr,
@@ -247,6 +248,13 @@ static int probe_umx   (HIO_HANDLE *f, const struct upkg_hdr *hdr,
 
 	idx = 0;
 	fsiz = hio_size(f);
+
+	if (hdr->name_offset	>= fsiz ||
+	    hdr->export_offset	>= fsiz ||
+	    hdr->import_offset	>= fsiz) {
+		D_(D_INFO "UMX: Illegal values in header.\n");
+		return -1;
+	}
 
 	/* Find the offset and size of the first IT, S3M or XM
 	 * by parsing the exports table. The umx files should
@@ -272,8 +280,9 @@ static int probe_umx   (HIO_HANDLE *f, const struct upkg_hdr *hdr,
 	if (s <= 0 || s > fsiz - pos) return -1;
 
 	if (read_typname(f, hdr, t, buf) < 0) return -1;
+	umx_strupr(buf);
 	for (i = 0; mustype[i] != NULL; i++) {
-		if (!strcasecmp(buf, mustype[i])) {
+		if (!strcmp(buf, mustype[i])) {
 			t = i;
 			break;
 		}
@@ -303,15 +312,18 @@ static int32 probe_header (HIO_HANDLE *f, struct upkg_hdr *hdr)
 		return -1;
 	}
 	if (hdr->name_count	< 0	||
-	    hdr->name_offset	< 0	||
 	    hdr->export_count	< 0	||
-	    hdr->export_offset	< 0	||
 	    hdr->import_count	< 0	||
-	    hdr->import_offset	< 0	) {
-		D_(D_INFO "UMX: Negative values in header\n");
+	    hdr->name_offset	< 36	||
+	    hdr->export_offset	< 36	||
+	    hdr->import_offset	< 36) {
+		D_(D_INFO "UMX: Illegal values in header.\n");
 		return -1;
 	}
 
+#if 1 /* no need being overzealous */
+	return 0;
+#else
 	switch (hdr->file_version) {
 	case 35: case 37:	/* Unreal beta - */
 	case 40: case 41:				/* 1998 */
@@ -330,6 +342,7 @@ static int32 probe_header (HIO_HANDLE *f, struct upkg_hdr *hdr)
 
 	D_(D_INFO "UMX: Unknown upkg version %d\n", hdr->file_version);
 	return -1;
+#endif /* #if 0  */
 }
 
 static int process_upkg (HIO_HANDLE *f, int32 *ofs, int32 *objsize)
@@ -337,9 +350,7 @@ static int process_upkg (HIO_HANDLE *f, int32 *ofs, int32 *objsize)
 	struct upkg_hdr header;
 
 	memset(&header, 0, sizeof(header));
-	if (probe_header(f, &header) < 0)
-		return -1;
-
+	if (probe_header(f, &header) < 0) return -1;
 	return probe_umx(f, &header, ofs, objsize);
 }
 

@@ -1,6 +1,8 @@
 #ifndef LIBXMP_PAULA_H
 #define LIBXMP_PAULA_H
 
+#include "common.h"
+
 /* 131072 to 0, 2048 entries */
 #define PAULA_HZ 3546895
 #define MINIMUM_INTERVAL 16
@@ -15,7 +17,7 @@ struct blep_state {
 };
 
 struct paula_state {
-	/* the instantenous value of Paula output */
+	/* the instantaneous value of Paula output */
 	int16 global_output_level;
 
 	/* count of simultaneous bleps to keep track of */
@@ -31,7 +33,10 @@ struct paula_state {
 	double fdiv;
 };
 
+LIBXMP_BEGIN_DECLS
 
 void	libxmp_paula_init	(struct context_data *, struct paula_state *);
+
+LIBXMP_END_DECLS
 
 #endif /* !LIBXMP_PAULA_H */

@@ -1,15 +1,26 @@
-dnl AC_CONFIG_AUX_DIR(scripts)
-AC_INIT
+m4_define([libxmp_VERSION_MAJOR_m4], [4])
+m4_define([libxmp_VERSION_MINOR_m4], [6])
+m4_define([libxmp_VERSION_PATCH_m4], [3])
+m4_define([libxmp_VERSION_m4], libxmp_VERSION_MAJOR_m4[.]libxmp_VERSION_MINOR_m4[.]libxmp_VERSION_PATCH_m4)
+
+AC_PREREQ(2.60)
+AC_INIT([libxmp],libxmp_VERSION_m4)
 AC_ARG_ENABLE(depackers, [  --disable-depackers     Don't build depackers])
 AC_ARG_ENABLE(prowizard, [  --disable-prowizard     Don't build ProWizard])
 AC_ARG_ENABLE(static,    [  --enable-static         Build static library])
 AC_ARG_ENABLE(shared,    [  --disable-shared        Don't build shared library])
+AC_ARG_ENABLE(lite,      [  --enable-lite           Build lite version of the library])
+AC_ARG_ENABLE(it,        [  --disable-it            Disable IT format in libxmp-lite])
 AC_SUBST(LD_VERSCRIPT)
+AC_SUBST(LIBM)
 AC_SUBST(DARWIN_VERSION)
 AC_CANONICAL_HOST
 AC_PROG_CC
-AC_PROG_INSTALL
+LT_PATH_LD
+AC_CHECK_TOOL(AR, [ar], [:])
 AC_PROG_RANLIB
+AC_PROG_INSTALL
+
 AC_C_BIGENDIAN
 
 dnl XMP_TRY_COMPILE(<message>,<cache-var>,<flags>,<program>,<ifyes>,<ifno>)
@@ -49,13 +60,14 @@ darwin*)
     CFLAGS="${CFLAGS} -fno-common"
   fi
   ;;
-cygwin* | *djgpp | mint* | amigaos* |aros* | morphos*)
+cygwin* | *djgpp | emx* | mint* | amigaos* | aros* | morphos*)
   enable_static=yes
   enable_shared=no
   ;;
 esac
 
 AC_CHECK_DEFINED(__clang__)
+AC_CHECK_DEFINED(__cplusplus)
 
 case "${host_os}" in
 dnl Skip this on platforms where it is just simply busted.
@@ -73,20 +85,28 @@ dnl Skip this on platforms where it is just simply busted.
 esac
 
 if test "${enable_static}" = yes; then
-  AC_SUBST(STATIC,static)
+  STATIC="static"
+  if test "${enable_lite}" = yes; then
+     STATIC="$STATIC static-lite"
+  fi
+  AC_SUBST(STATIC)
 fi
 if test "${enable_shared}" != no; then
   AC_CHECK_DEFINED(_WIN32,[
-    AC_SUBST(SHARED,dll)
+    SHARED="dll"
     CFLAGS_SHARED="-DBUILDING_DLL"
   ],[
     CFLAGS_SHARED="-fPIC"
     AC_CHECK_DEFINED(__APPLE__,[
-      AC_SUBST(SHARED,dylib)
+      SHARED="dylib"
     ],[
-      AC_SUBST(SHARED,shared)
+      SHARED="shared"
     ])
   ])
+  if test "${enable_lite}" = yes; then
+     SHARED="$SHARED $SHARED-lite"
+  fi
+  AC_SUBST(SHARED)
   AC_SUBST(CFLAGS_SHARED)
 fi
 
@@ -96,9 +116,59 @@ XMP_TRY_COMPILE(whether compiler understands -Wall,
   int main(void){return 0;}],
   CFLAGS="${CFLAGS} -Wall")
 
+XMP_TRY_COMPILE(whether compiler understands -Wextra,
+  ac_cv_c_flag_w_extra,
+  -Wextra,[
+  int main(void){return 0;}],
+  CFLAGS="${CFLAGS} -Wextra")
+
+XMP_TRY_COMPILE(whether compiler understands -Wunused-parameter,
+  ac_cv_c_flag_w_unused_parameter,
+  -Wunused-parameter,[
+  int main(void){return 0;}],
+  CFLAGS="${CFLAGS} -Wno-unused-parameter")
+
+XMP_TRY_COMPILE(whether compiler understands -Wsign-compare,
+  ac_cv_c_flag_w_sign_compare,
+  -Wsign-compare,[
+  int main(void){return 0;}],
+  CFLAGS="${CFLAGS} -Wno-sign-compare")
+
+XMP_TRY_COMPILE(whether compiler understands -Wwrite-strings,
+  ac_cv_c_flag_w_write_strings,
+  -Wwrite-strings,[
+  int main(void){return 0;}],
+  CFLAGS="${CFLAGS} -Wwrite-strings")
+
+if test "$ac_cv_defined___cplusplus" = "no"; then
+  XMP_TRY_COMPILE(whether compiler understands -Wdeclaration-after-statement,
+    ac_cv_c_flag_w_declaration_after_statement,
+    -Wdeclaration-after-statement,[
+    int main(void){return 0;}],
+    CFLAGS="${CFLAGS} -Wdeclaration-after-statement")
+
+  XMP_TRY_COMPILE(whether compiler understands -Wmissing-prototypes,
+    ac_cv_c_flag_w_missing_prototypes,
+    -Wmissing-prototypes,[
+    int main(void){return 0;}],
+    CFLAGS="${CFLAGS} -Wmissing-prototypes")
+
+  XMP_TRY_COMPILE(whether compiler understands -Wstrict-prototypes,
+    ac_cv_c_flag_w_strict_prototypes,
+    -Wstrict-prototypes,[
+    int main(void){return 0;}],
+    CFLAGS="${CFLAGS} -Wstrict-prototypes")
+fi
+
+XMP_TRY_COMPILE(whether compiler understands -Wundef,
+  ac_cv_c_flag_w_undef,
+  -Wundef,[
+  int main(void){return 0;}],
+  CFLAGS="${CFLAGS} -Wundef")
+
 old_CFLAGS="${CFLAGS}"
 XMP_TRY_COMPILE(whether compiler understands -Werror,
-  ac_cv_c_flag_w_all,
+  ac_cv_c_flag_w_error,
   -Werror,[
   int main(void){return 0;}],
   CFLAGS="${CFLAGS} -Werror")
@@ -111,24 +181,60 @@ XMP_TRY_COMPILE(whether compiler understands -xldscope=hidden,
   [XMP_TRY_COMPILE(whether compiler understands -fvisibility=hidden,
     ac_cv_c_flag_f_visibility_hidden,
     -fvisibility=hidden,[
-    __attribute__((visibility("default"))) void foo(void) {}],
-    [CFLAGS="${old_CFLAGS} -fvisibility=hidden -DXMP_SYM_VISIBILITY"
-    LD_VERSCRIPT="-Wl,--version-script,libxmp.map"],
-    [CFLAGS="${old_CFLAGS}"])]
-  )
-dnl we want symbol -fvisibility for elf targets, however it works
-dnl with darwin/macho too.  other than that, windows, dos, os/2,
-dnl amiga do not want it:  for any such targets, the -Werror switch
-dnl is should fail the above check, but it does not.  adding the
-dnl manual test below for that, instead.
+__attribute__((visibility("default"))) int foo(void);
+__attribute__((visibility("hidden")))  int bar(void);
+int foo(void) { return 0; }
+int bar(void) { return 1; }])]
+)
+
 case $host_os in
     mingw*|cygwin*|emx*|*djgpp|amigaos*|aros*|morphos*)
-	CFLAGS="${old_CFLAGS}"
 	if test $ac_cv_c_flag_f_visibility_hidden = yes; then
-	  AC_MSG_NOTICE([ignoring -fvisibility flags for $host_os])
+	   AC_MSG_NOTICE([ignoring -fvisibility flags for $host_os])
 	fi
+	ac_cv_c_flag_f_visibility_hidden=no
 	;;
 esac
+
+have_versioned_symbols=no
+if test $ac_cv_c_flag_f_visibility_hidden = no; then
+   CFLAGS="${old_CFLAGS}"
+else
+   CFLAGS="${old_CFLAGS} -fvisibility=hidden -DXMP_SYM_VISIBILITY"
+
+   if test $lt_cv_prog_gnu_ld = yes; then
+      case "${host_os}" in
+        emscripten*|beos*|atheos*|*mint)
+          ;;
+        *) if test "${enable_shared}" != no; then
+              have_versioned_symbols=yes
+              CFLAGS_SHARED="${CFLAGS_SHARED} -DUSE_VERSIONED_SYMBOLS=1"
+         fi
+         LD_VERSCRIPT="-Wl,--version-script,libxmp.map"
+         ;;
+      esac
+   fi
+
+   old_CFLAGS="${CFLAGS}"
+   if test $ac_cv_c_flag_w_error = yes; then
+      CFLAGS="${CFLAGS} -Werror"
+   fi
+   XMP_TRY_COMPILE(whether compiler understands attribute externally_visible,
+    ac_cv_c_attribute_visibility_external,[],[
+__attribute__((visibility("default"),externally_visible)) int foo(void);
+int foo(void) { return 0; }],
+    [CFLAGS="${old_CFLAGS} -DHAVE_EXTERNAL_VISIBILITY"],
+    [CFLAGS="${old_CFLAGS}"])
+
+   XMP_TRY_COMPILE(whether compiler understands attribute __symver__,
+    ac_cv_c_attribute_symver,[-Werror=attributes],[
+void foo(void) __attribute__((__symver__("foo@bar")));],
+    [CFLAGS="${CFLAGS} -DHAVE_ATTRIBUTE_SYMVER"],
+    [CFLAGS="${CFLAGS}"])
+fi
+
+AC_MSG_CHECKING(whether to enable versioned symbols support)
+AC_MSG_RESULT($have_versioned_symbols)
 
 dnl for clang
 XMP_TRY_COMPILE(whether compiler understands -Wunknown-warning-option,
@@ -137,23 +243,10 @@ XMP_TRY_COMPILE(whether compiler understands -Wunknown-warning-option,
   int main(void){return 0;}],
   CFLAGS="${CFLAGS} -Wno-unknown-warning-option")
 
-XMP_TRY_COMPILE(whether compiler understands -Wunused-but-set-variable,
-  ac_cv_c_flag_w_unused_but_set_variable,
-  -Wunused-but-set-variable,[
-  int main(void){return 0;}],
-  CFLAGS="${CFLAGS} -Wno-unused-but-set-variable")
-
-XMP_TRY_COMPILE(whether compiler understands -Wunused-result,
-  ac_cv_c_flag_w_unused_result,
-  -Wunused-result,[
-  int main(void){return 0;}],
-  CFLAGS="${CFLAGS} -Wno-unused-result")
-
-XMP_TRY_COMPILE(whether compiler understands -Warray-bounds,
-  ac_cv_c_flag_w_array_bounds,
-  -Warray-bounds,[
-  int main(void){return 0;}],
-  CFLAGS="${CFLAGS} -Wno-array-bounds")
+if test "${enable_lite}" = yes &&\
+   test "${enable_it}" = no; then
+  CFLAGS="${CFLAGS} -DLIBXMP_CORE_DISABLE_IT"
+fi
 
 if test "${enable_depackers}" != no; then
   DEPACKER_OBJS='$(DEPACKER_OBJS)'
@@ -169,25 +262,60 @@ else
 fi
 AC_SUBST(PROWIZARD_OBJS)
 
-XMP_TRY_COMPILE(whether alloca() needs alloca.h,
-  ac_cv_c_flag_w_have_alloca_h,,[
-  #include <alloca.h>
-  int main(void){return 0;}],
-  AC_DEFINE(HAVE_ALLOCA_H, 1, [ ]))
-
-old_LIBS="${LIBS}"
-AC_CHECK_LIB(m,pow)
-dnl -lm not needed with darwin and mingw.
-dnl -lm not needed with djgpp either: c89 math funcs are in libc.a,
-dnl       we do just fine without the c99 ones.
+LIBM=
 case "${host_os}" in
-darwin*|*djgpp|mingw*)
-  LIBS="${old_LIBS}"
+dnl These systems don't have libm or don't need it (list based on libtool)
+mingw*|darwin*|cygwin*|haiku*|beos*|cegcc*|pw32*)
+  ;;
+dnl djgpp has all c89 math funcs in libc.a
+*djgpp)
+  ;;
+*) AC_CHECK_LIB(m, ceil, LIBM="-lm")
+  LIBS="${LIBS} ${LIBM}"
   ;;
 esac
-AC_CHECK_HEADERS(dirent.h)
-AC_CHECK_FUNCS(popen mkstemp fnmatch umask round powf)
+AC_CHECK_FUNCS(powf)
+
+AC_MSG_CHECKING(for dirent)
+AC_LINK_IFELSE([AC_LANG_PROGRAM([[#include <dirent.h>]], [[
+  DIR *dirp = opendir(".");
+  struct dirent *d = readdir(dirp);
+  (void)d; closedir(dirp);]])],
+ [have_dirent=yes
+  AC_DEFINE(HAVE_DIRENT,1,[ ])],
+ [have_dirent=no])
+AC_MSG_RESULT($have_dirent)
+
+AC_CHECK_FUNCS(popen mkstemp fnmatch umask)
+dnl fork, execv & co don't work with djgpp
+case "${host_os}" in
+*djgpp|mingw*|riscos*)
+  ;;
+*) AC_CHECK_FUNCS(wait pipe fork execvp dup2)
+  ;;
+esac
+
+case "${host_os}" in
+amigaos*|aros*|morphos*)
+  AC_CHECK_HEADERS(proto/xfdmaster.h)
+  ;;
+esac
+
+# FIXME: Make out-of-tree builds work.
+CPPFLAGS="$CPPFLAGS -Iinclude"
+CPPFLAGS="$CPPFLAGS -D_REENTRANT"
+
+AC_SUBST([libxmp_VERSION_MAJOR],libxmp_VERSION_MAJOR_m4)
+AC_SUBST([libxmp_VERSION_MINOR],libxmp_VERSION_MINOR_m4)
+AC_SUBST([libxmp_VERSION_PATCH],libxmp_VERSION_PATCH_m4)
+AC_SUBST([libxmp_VERSION],libxmp_VERSION_m4)
+AC_SUBST([libxmplite_VERSION],libxmp_VERSION_m4)
 
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([libxmp.pc])
+AC_CONFIG_FILES([libxmp-config-version.cmake.autotools])
+if test "${enable_lite}" = yes; then
+   AC_CONFIG_FILES([libxmp-lite.pc:src/lite/libxmp-lite.pc.in])
+   AC_CONFIG_FILES([libxmp-lite-config-version.cmake.autotools:src/lite/libxmp-lite-config-version.cmake.autotools.in])
+fi
 AC_OUTPUT

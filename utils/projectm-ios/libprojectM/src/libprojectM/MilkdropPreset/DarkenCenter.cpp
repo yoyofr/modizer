@@ -42,7 +42,7 @@ void DarkenCenter::Draw()
     auto shader = m_presetState.untexturedShader.lock();
     shader->Bind();
     shader->SetUniformMat4x4("vertex_transformation", PresetState::orthogonalProjection);
-    shader->SetUniformFloat(("vertex_point_size", 1.0);
+    shader->SetUniformFloat("vertex_point_size", 1.0);
 
     m_mesh.Draw();
 

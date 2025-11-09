@@ -1,14 +1,35 @@
-/*
- * The Player common decoding
+/* ProWizard
  * Copyright (C) 1998 Sylvain "Asle" Chipaux
  * Copyright (C) 2006-2013 Sylvain "Asle" Chipaux
+ * Modified by Claudio Matsuoka
+ * Modified in 2021-2024 by Alice Rowan
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
+/*
+ * The Player common decoding
  *
  * Code consolidated from depackers for different versions of The Player.
  * Original code by Sylvain Chipaux, modified for xmp by Claudio Matsuoka.
  */
 
-#include <string.h>
-#include <stdlib.h>
 #include "prowiz.h"
 
 
@@ -38,7 +59,8 @@ static uint8 set_event(uint8 *x, uint8 c1, uint8 c2, uint8 c3)
 	return b;
 }
 
-#define track(p,c,r) tdata[((int)(p) * 4 + (c)) * 512 + (r) * 4]
+/* #define track(p,c,r) tdata[((int)(p) * 4 + (c)) * 512 + (r) * 4] */
+#define track(p,c,r) tdata[(int)(p) * 1024 + (r) * 16 + (c) * 4]
 
 
 static int decode_pattern(HIO_HANDLE *in, int npat, uint8 *tdata, int taddr[128][4])
@@ -113,7 +135,7 @@ static int decode_pattern(HIO_HANDLE *in, int npat, uint8 *tdata, int taddr[128]
 		    lines = c2;
 		    hio_seek(in, -(((int)c3 << 8) + c4), SEEK_CUR);
 
-		    for (l = 0; l <= lines; l++, k++) {
+		    for (l = 0; l <= lines && k < 64; l++, k++) {
 			x = &track(i, j, k);
 
 			c1 = hio_read8(in);
@@ -153,6 +175,9 @@ static int decode_pattern(HIO_HANDLE *in, int npat, uint8 *tdata, int taddr[128]
 				set_event(x, c1, c2, c3);
 			    }
 			}
+
+			if (k >= 64)
+			    break;
 
 			x = &track(i, j, k);
 			set_event(x, c1, c2, c3);
@@ -198,15 +223,15 @@ static int theplayer_depack(HIO_HANDLE *in, FILE *out, int version)
     /*uint8 pack = 0;*/
     int taddr[128][4];
     int sdata_addr = 0;
-    int ssize = 0;
-    int i, j, k;
+    /* int ssize = 0; */
+    int i, j;
     int smp_size[31];
     int saddr[31];
     /*int unpacked_ssize;*/
     int val;
     uint8 buf[1024];
 
-    if ((tdata = calloc(512, 256)) == NULL) {
+    if ((tdata = (uint8 *)calloc(512, 256)) == NULL) {
 	return -1;
     }
 
@@ -274,7 +299,7 @@ static int theplayer_depack(HIO_HANDLE *in, FILE *out, int version)
 	        saddr[i] = saddr[i - 1] + smp_size[i - 1];
             }
 	    smp_size[i] = j * 2;
-	    ssize += smp_size[i];
+	    /*ssize += smp_size[i];*/
 	}
 	j = smp_size[i] / 2;
 
@@ -328,6 +353,8 @@ static int theplayer_depack(HIO_HANDLE *in, FILE *out, int version)
     }
 
     /* write pattern data */
+    fwrite(tdata, 1024, npat, out);
+    /*
     for (i = 0; i < npat; i++) {
 	memset(buf, 0, sizeof(buf));
 	for (j = 0; j < 64; j++) {
@@ -336,14 +363,14 @@ static int theplayer_depack(HIO_HANDLE *in, FILE *out, int version)
 	}
 	fwrite(buf, 1024, 1, out);
     }
+    */
 
     free(tdata);
 
     /* read and write sample data */
     for (i = 0; i < nins; i++) {
 	hio_seek(in, sdata_addr + saddr[i], SEEK_SET);
-	smp_buffer = malloc(smp_size[i]);
-	memset(smp_buffer, 0, smp_size[i]);
+	smp_buffer = (signed char *) calloc(1, smp_size[i]);
 	hio_read(smp_buffer, smp_size[i], 1, in);
 	if (delta == 1) {
 	    for (j = 1; j < smp_size[i]; j++) {
@@ -430,20 +457,20 @@ static int theplayer_test(const uint8 *data, char *t, int s, int version)
 
 	/* test pattern table */
 	len = 0;
-	while (1) {
+	while (len < 128) {
 		int pat = data[num_ins * 6 + 4 + num_pat * 8 + len];
 
-		if (pat == 0xff || len >= 128)
+		if (pat == 0xff)
 			break;
 
 		if (version >= 0x60) {
 			if (pat > num_pat - 1)
 				return -1;
 		} else {
-                	if (pat & 0x01)
-                       		return -1;
+			if (pat & 0x01)
+				return -1;
 
-                	if (pat > num_pat * 2)
+			if (pat > num_pat * 2)
 				return -1;
 		}
 
@@ -484,7 +511,6 @@ static int theplayer_test(const uint8 *data, char *t, int s, int version)
 }
 
 
-
 static int depack_p50a(HIO_HANDLE *in, FILE *out)
 {
 	return theplayer_depack(in, out, 0x50);
@@ -502,7 +528,6 @@ const struct pw_format pw_p50a = {
 };
 
 
-
 static int depack_p60a(HIO_HANDLE *in, FILE *out)
 {
 	return theplayer_depack(in, out, 0x60);
@@ -518,10 +543,6 @@ const struct pw_format pw_p60a = {
 	test_p60a,
 	depack_p60a
 };
-
-
-
-
 
 
 #if 0
@@ -638,7 +659,7 @@ void testP60A_pack (void)
 	/* test pattern table */
 	l = 0;
 	o = 0;
-	/* first, test if we dont oversize the input file */
+	/* first, test if we don't oversize the input file */
 	if ((k * 6 + 8 + m * 8) > in_size) {
 /*printf ( "8,0 Start:%ld\n" , start );*/
 		Test = BAD;
@@ -708,4 +729,3 @@ void testP60A_pack (void)
 	Test = GOOD;
 }
 #endif
-

@@ -1,14 +1,3 @@
-
-Libxmp 4.5 API documentation
-============================
-
-.. contents:: `Contents`
-   :depth: 3
-
-.. raw:: pdf
-
-    PageBreak
-
 Introduction
 ------------
 
@@ -371,6 +360,52 @@ int xmp_test_module_from_file(FILE \*f, struct xmp_test_info \*test_info)
     and uncompression failed, or ``-XMP_ERROR_SYSTEM`` in case of system error
     (the system error code is set in ``errno``).
 
+.. _xmp_test_module_from_callbacks():
+
+int xmp_test_module_from_callbacks(void \*priv, struct xmp_callbacks callbacks, struct xmp_test_info \*test_info)
+`````````````````````````````````````````````````````````````````````````````````````````````````````````````````
+
+  *[Added in libxmp 4.5]* Test if a module from a custom stream is a valid
+  module. Testing custom streams does not affect the current player context
+  or any currently loaded module.
+
+  **Parameters:**
+    :priv: pointer to the custom stream. Multi-file modules
+      or compressed modules can't be tested using this function.
+      This should not be NULL.
+
+    :callbacks: struct specifying stream callbacks for the custom stream.
+      These callbacks should behave as close to ``fread``/``fseek``/``ftell``/``fclose``
+      as possible, and ``seek_func`` must be capable of seeking to ``SEEK_END``.
+      The ``close_func`` is optional, but all other functions must be provided.
+      If a ``close_func`` is provided, the stream will be closed once testing
+      has finished or upon returning an error code.
+      ``struct xmp_callbacks`` is defined as::
+
+        struct xmp_callbacks {
+            unsigned long (*read_func)(void *dest, unsigned long len,
+                                       unsigned long nmemb, void *priv);
+            int           (*seek_func)(void *priv, long offset, int whence);
+            long          (*tell_func)(void *priv);
+            int           (*close_func)(void *priv);
+        };
+
+    :test_info: NULL, or a pointer to a structure used to retrieve the
+      module title and format if the memory buffer is a valid module.
+
+      ``struct xmp_test_info`` is defined as::
+
+        struct xmp_test_info {
+            char name[XMP_NAME_SIZE];      /* Module title */
+            char type[XMP_NAME_SIZE];      /* Module format */
+        };
+
+  **Returns:**
+    0 if the custom stream is a valid module, or a negative error code
+    in case of error. Error codes can be ``-XMP_ERROR_FORMAT`` in case of an
+    unrecognized file format or ``-XMP_ERROR_SYSTEM`` in case of system error
+    (the system error code is set in ``errno``).
+
 .. _xmp_load_module():
 
 int xmp_load_module(xmp_context c, char \*path)
@@ -439,6 +474,44 @@ int xmp_load_module_from_file(xmp_context c, FILE \*f, long size)
     file loading failed, or ``-XMP_ERROR_SYSTEM`` in case of system error
     (the system error code is set in ``errno``).
 
+.. _xmp_load_module_from_callbacks():
+
+int xmp_load_module_from_callbacks(xmp_context c, void \*priv, struct xmp_callbacks callbacks)
+``````````````````````````````````````````````````````````````````````````````````````````````
+
+  *[Added in libxmp 4.5]* Load a module from a custom stream into the specified
+  player context.
+
+  **Parameters:**
+    :c: the player context handle.
+
+    :priv: pointer to the custom stream. Multi-file modules
+      or compressed modules can't be loaded using this function.
+      This should not be NULL.
+
+    :callbacks: struct specifying stream callbacks for the custom stream.
+      These callbacks should behave as close to ``fread``/``fseek``/``ftell``/``fclose``
+      as possible, and ``seek_func`` must be capable of seeking to ``SEEK_END``.
+      The ``close_func`` is optional, but all other functions must be provided.
+      If a ``close_func`` is provided, the stream will be closed once loading
+      has finished or upon returning an error code.
+      ``struct xmp_callbacks`` is defined as::
+
+        struct xmp_callbacks {
+            unsigned long (*read_func)(void *dest, unsigned long len,
+                                       unsigned long nmemb, void *priv);
+            int           (*seek_func)(void *priv, long offset, int whence);
+            long          (*tell_func)(void *priv);
+            int           (*close_func)(void *priv);
+        };
+
+  **Returns:**
+    0 if successful, or a negative error code in case of error.
+    Error codes can be ``-XMP_ERROR_FORMAT`` in case of an unrecognized file
+    format, ``-XMP_ERROR_LOAD`` if the file format was recognized but the
+    file loading failed, or ``-XMP_ERROR_SYSTEM`` in case of system error
+    (the system error code is set in ``errno``).
+
 .. _xmp_release_module():
 
 void xmp_release_module(xmp_context c)
@@ -457,7 +530,8 @@ void xmp_scan_module(xmp_context c)
   Scan the loaded module for sequences and timing. Scanning is automatically
   performed by `xmp_load_module()`_ and this function should be called only
   if `xmp_set_player()`_ is used to change player timing (with parameter
-  ``XMP_PLAYER_VBLANK``) in libxmp 4.0.2 or older.
+  ``XMP_PLAYER_VBLANK``) in libxmp 4.0.2 or older, or if
+  `xmp_set_tempo_factor()`_ is used to change the base tempo factor.
 
   **Parameters:**
     :c: the player context handle.
@@ -637,6 +711,9 @@ void xmp_get_frame_info(xmp_context c, struct xmp_frame_info \*info)
       `xmp_play_frame()`_ is called. Fields ``buffer`` and ``buffer_size``
       contain the pointer to the sound buffer PCM data and its size. The
       buffer size will be no larger than ``XMP_MAX_FRAMESIZE``.
+      Fields ``time``, ``total_time``, and ``frame_time`` are based on the
+      base tempo factor set when the module was last scanned (see
+      `xmp_set_tempo_factor()`_ and `xmp_scan_module()`_).
 
 .. _xmp_end_player():
 
@@ -661,13 +738,16 @@ int xmp_next_position(xmp_context c)
 ````````````````````````````````````
 
   Skip replay to the start of the next position.
+  If the module was stopped with ``xmp_stop_module``, this operation
+  restarts the module at position 0. If the module is restarting
+  at position 0, this operation does nothing.
 
   **Parameters:**
     :c: the player context handle.
 
   **Returns:**
-    The new position index, or ``-XMP_ERROR_STATE`` if the player is not
-    in playing state.
+    The new position index, -1 if the module is restarting at position
+    0, or ``-XMP_ERROR_STATE`` if the player is not in playing state.
 
 .. _xmp_prev_position():
 
@@ -675,6 +755,9 @@ int xmp_prev_position(xmp_context c)
 ````````````````````````````````````
 
   Skip replay to the start of the previous position.
+  If the module was stopped with ``xmp_stop_module``, is restarting at
+  position 0, or if the previous position is part of a different sequence,
+  this operation does nothing.
 
   **Parameters:**
     :c: the player context handle.
@@ -689,6 +772,8 @@ int xmp_set_position(xmp_context c, int pos)
 ````````````````````````````````````````````
 
   Skip replay to the start of the given position.
+  If the module was stopped with ``xmp_stop_module``, this operation
+  will restart the module at the destination position.
 
   **Parameters:**
     :c: the player context handle.
@@ -696,8 +781,9 @@ int xmp_set_position(xmp_context c, int pos)
     :pos: the position index to set.
 
   **Returns:**
-    The new position index, ``-XMP_ERROR_INVALID`` of the new position is
-    invalid or ``-XMP_ERROR_STATE`` if the player is not in playing state.
+    The new position index, -1 if the module is restarting at
+    position 0, ``-XMP_ERROR_INVALID`` of the new position is invalid,
+    or ``-XMP_ERROR_STATE`` if the player is not in playing state.
 
 .. _xmp_set_row():
 
@@ -720,7 +806,16 @@ int xmp_set_row(xmp_context c, int row)
 int xmp_set_tempo_factor(xmp_context c, double val)
 ```````````````````````````````````````````````````
 
-  *[Added in libxmp 4.5]* Modify the replay tempo multiplier.
+  *[Added in libxmp 4.5]* Modify the current base tempo multiplier.
+  This value is a property of the currently loaded module, not of
+  the player: the default value of the tempo factor is ``1.0``
+  for most modules, ``0.264`` for MED/OctaMED tempo mode modules,
+  ``4.0 / rows_per_beat`` for MED/OctaMED BPM mode modules, and
+  roughly ``0.401373`` for Farandole Composer modules.
+
+  This function does not recalculate the playback times returned by
+  `xmp_get_frame_info()`_. To recalculate these times, call
+  `xmp_scan_module()`_ after setting the tempo factor.
 
   **Parameters:**
     :c: the player context handle.
@@ -728,7 +823,8 @@ int xmp_set_tempo_factor(xmp_context c, double val)
     :val: the new multiplier.
 
   **Returns:**
-    0 on success, or -1 if value is invalid.
+    0 on success, -1 if value is invalid, or ``-XMP_ERROR_STATE`` if
+    the player is not in the playing state.
 
 .. _xmp_stop_module():
 
@@ -778,7 +874,7 @@ int xmp_channel_mute(xmp_context c, int chn, int status)
 
     :chn: the channel to mute or unmute.
 
-    :status: 0 to mute channel, 1 to unmute or -1 to query the
+    :status: 0 to mute channel, 1 to unmute, 2 the inverse of the current channel status, or -1 to query the
       current channel status.
 
   **Returns:**
@@ -845,13 +941,15 @@ int xmp_set_instrument_path(xmp_context c, char \*path)
 ```````````````````````````````````````````````````````
 
   Set the path to retrieve external instruments or samples. Used by some
-  formats (such as MED2) to read sample files from a different directory
-  in the filesystem.
+  formats (such as Protracker song files, ST2 song files, and MED2) to
+  read sample files from a different directory in the filesystem.
 
   **Parameters:**
     :c: the player context handle.
 
     :path: the path to retrieve instrument files.
+      A value of ``NULL`` will unset the instrument path.
+      Prior to 4.6.1, this function crashes when ``path`` is ``NULL``.
 
   **Returns:**
     0 if the instrument path was correctly set, or ``-XMP_ERROR_SYSTEM``
@@ -1256,7 +1354,7 @@ int xmp_smix_release_sample(xmp_context c, int num)
 void xmp_end_smix(xmp_context c)
 ````````````````````````````````
 
-  Deinitialize and resease memory used by the external sample mixer subsystem.
+  Deinitialize and release memory used by the external sample mixer subsystem.
 
   **Parameters:**
     :c: the player context handle.

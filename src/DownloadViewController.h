@@ -73,7 +73,7 @@
 	IBOutlet UILabel *downloadLabelName,*downloadLabelSize;
 	IBOutlet UIProgressView *downloadPrgView;
 	
-	IBOutlet UITabBarItem *barItem;
+    UITabBarItem *barItem;
 @public
     int mFTPDownloadQueueDepth;
     int mURLDownloadQueueDepth;
@@ -104,7 +104,7 @@
 @property (nonatomic, retain) MoreViewController *moreVC;
 @property (nonatomic, retain) IBOutlet UILabel *downloadLabelName,*downloadLabelSize;
 @property (nonatomic, retain) IBOutlet UIProgressView *downloadPrgView;
-@property (nonatomic, retain) IBOutlet UITabBarItem *barItem;
+@property (nonatomic, retain) UITabBarItem *barItem;
 @property (nonatomic, retain) IBOutlet UITableView *tableView;
 @property (nonatomic, retain) IBOutlet BButton *btnCancel,*btnSuspend,*btnResume,*btnClear;
 
@@ -124,6 +124,7 @@
 - (int)restoreDownloadList;
 
 - (void)refreshDownloadCountBadge;
+- (int)getDownloadQueueSize;
 
 //-(void)play_listmodules:(t_playlist*)pl start_index:(int)index;
 //-(void)play_listmodules:(NSArray *)array start_index:(int)index path:(NSArray *)arrayFilepaths;

@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2018 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2024 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -21,13 +21,7 @@
  */
 
 #include "loader.h"
-#include "period.h"
-
-#ifndef __amigaos4__
-typedef uint8 BYTE;
-typedef uint16 WORD;
-#endif
-typedef uint32 DWORD;
+#include "../period.h"
 
 /* Data structures from the specification of the RTM format version 1.10 by
  * Arnaud Hasenfratz
@@ -38,34 +32,34 @@ struct ObjectHeader {
 	char rc;		/* 0x20 */
 	char name[32];		/* object name */
 	char eof;		/* "\x1A" */
-	WORD version;		/* version of the format (actual : 0x110) */
-	WORD headerSize;	/* object header size */
+	uint16 version;		/* version of the format (actual : 0x110) */
+	uint16 headerSize;	/* object header size */
 };
 
 struct RTMMHeader {		/* Real Tracker Music Module */
 	char software[20];	/* software used for saving the module */
 	char composer[32];
-	WORD flags;		/* song flags */
+	uint16 flags;		/* song flags */
 				/* bit 0 : linear table,
 				   bit 1 : track names present */
-	BYTE ntrack;		/* number of tracks */
-	BYTE ninstr;		/* number of instruments */
-	WORD nposition;		/* number of positions */
-	WORD npattern;		/* number of patterns */
-	BYTE speed;		/* initial speed */
-	BYTE tempo;		/* initial tempo */
-	char panning[32];	/* initial pannings (for S3M compatibility) */
-	DWORD extraDataSize;	/* length of data after the header */
+	uint8 ntrack;		/* number of tracks */
+	uint8 ninstr;		/* number of instruments */
+	uint16 nposition;	/* number of positions */
+	uint16 npattern;	/* number of patterns */
+	uint8 speed;		/* initial speed */
+	uint8 tempo;		/* initial tempo */
+	int8 panning[32];	/* initial pannings (for S3M compatibility) */
+	uint32 extraDataSize;	/* length of data after the header */
 
 /* version 1.12 */
 	char originalName[32];
 };
 
 struct RTNDHeader {		/* Real Tracker Note Data */
-	WORD flags;		/* Always 1 */
-	BYTE ntrack;
-	WORD nrows;
-	DWORD datasize;		/* Size of packed data */
+	uint16 flags;		/* Always 1 */
+	uint8 ntrack;
+	uint16 nrows;
+	uint32 datasize;	/* Size of packed data */
 };
 
 struct EnvelopePoint {
@@ -74,55 +68,55 @@ struct EnvelopePoint {
 };
 
 struct Envelope {
-	BYTE npoint;
+	uint8 npoint;
 	struct EnvelopePoint point[12];
-	BYTE sustain;
-	BYTE loopstart;
-	BYTE loopend;
-	WORD flags;		/* bit 0 : enable envelope,
+	uint8 sustain;
+	uint8 loopstart;
+	uint8 loopend;
+	uint16 flags;		/* bit 0 : enable envelope,
 				   bit 1 : sustain, bit 2 : loop */
 };
 
 struct RTINHeader {		/* Real Tracker Instrument */
-	BYTE nsample;
-	WORD flags;		/* bit 0 : default panning enabled
+	uint8 nsample;
+	uint16 flags;		/* bit 0 : default panning enabled
 				   bit 1 : mute samples */
-	BYTE table[120];	/* sample number for each note */
+	uint8 table[120];	/* sample number for each note */
 	struct Envelope volumeEnv;
 	struct Envelope panningEnv;
-	char vibflg;		/* vibrato type */
-	char vibsweep;		/* vibrato sweep */
-	char vibdepth;		/* vibrato depth */
-	char vibrate;		/* vibrato rate */
-	WORD volfade;
+	int8 vibflg;		/* vibrato type */
+	int8 vibsweep;		/* vibrato sweep */
+	int8 vibdepth;		/* vibrato depth */
+	int8 vibrate;		/* vibrato rate */
+	uint16 volfade;
 
 /* version 1.10 */
-	BYTE midiPort;
-	BYTE midiChannel;
-	BYTE midiProgram;
-	BYTE midiEnable;
+	uint8 midiPort;
+	uint8 midiChannel;
+	uint8 midiProgram;
+	uint8 midiEnable;
 
 /* version 1.12 */
-	char midiTranspose;
-	BYTE midiBenderRange;
-	BYTE midiBaseVolume;
-	char midiUseVelocity;
+	int8 midiTranspose;
+	uint8 midiBenderRange;
+	uint8 midiBaseVolume;
+	int8 midiUseVelocity;
 };
 
 struct RTSMHeader {		/* Real Tracker Sample */
-	WORD flags;		/* bit 1 : 16 bits,
+	uint16 flags;		/* bit 1 : 16 bits,
 				   bit 2 : delta encoded (always) */
-	BYTE basevolume;
-	BYTE defaultvolume;
-	DWORD length;
-	BYTE loop;		/* =0:no loop, =1:forward loop,
+	uint8 basevolume;
+	uint8 defaultvolume;
+	uint32 length;
+	uint8 loop;		/* =0:no loop, =1:forward loop,
 				   =2:bi-directional loop */
-	BYTE reserved[3];
-	DWORD loopbegin;
-	DWORD loopend;
-	DWORD basefreq;
-	BYTE basenote;
-	char panning;		/* Panning from -64 to 64 */
+	uint8 reserved[3];
+	uint32 loopbegin;
+	uint32 loopend;
+	uint32 basefreq;
+	uint8 basenote;
+	int8 panning;		/* Panning from -64 to 64 */
 };
 
 
@@ -213,7 +207,7 @@ static int rtm_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	rh.extraDataSize = hio_read32l(f);
 
 	/* Sanity check */
-	if (rh.nposition > 255 || rh.ntrack > 32 || rh.npattern > 255) {
+	if (hio_error(f) || rh.nposition > 255 || rh.ntrack > 32 || rh.npattern > 255) {
 		return -1;
 	}
 
@@ -473,10 +467,21 @@ static int rtm_load(struct module_data *m, HIO_HANDLE *f, const int start)
 			sub->xpo += 48 - rs.basenote;
 			sub->vol = rs.defaultvolume * rs.basevolume / 0x40;
 			sub->pan = 0x80 + rs.panning * 2;
-			sub->vwf = ri.vibflg;
-			sub->vde = ri.vibdepth << 2;
-			sub->vra = ri.vibrate;
-			sub->vsw = ri.vibsweep;
+			/* Autovibrato oddities:
+			 * Wave:  TODO: 0 sine, 1 square, 2 ramp down, 3 ramp up
+			 *        All invalid values are also ramp up.
+			 * Depth: the UI limits it 0-15, but higher values
+			 *        work. Negatives are very broken.
+			 * Rate:  the UI limits 0-63; but higher and negative
+			 *        values actually work how you would expect!
+			 *        Rate is half as fast as libxmp currently.
+			 * Sweep: the UI limits 0-255 but loads as signed.
+			 *        During playback, it is treated as unsigned.
+			 */
+			sub->vwf = MIN((uint8)ri.vibflg, 3);
+			sub->vde = MAX(ri.vibdepth, 0) << 2;
+			sub->vra = (ri.vibrate + (ri.vibrate > 0)) >> 1;
+			sub->vsw = (uint8)ri.vibsweep;
 			sub->sid = smpnum;
 
 			if (smpnum >= mod->smp) {

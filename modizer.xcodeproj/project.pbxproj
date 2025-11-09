@@ -757,6 +757,7 @@
 		CC8369A22B623D740035A4DA /* KUVO - Say goodbye (6ch) (2023).pt3 in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CC8369982B6199410035A4DA /* KUVO - Say goodbye (6ch) (2023).pt3 */; };
 		CC8369A32B623D740035A4DA /* Pator - Last Minute Accident (2023) (speccy.pl party 2023.1, 1).pt3 in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CC8369992B6199410035A4DA /* Pator - Last Minute Accident (2023) (speccy.pl party 2023.1, 1).pt3 */; };
 		CC8369A42B623D740035A4DA /* Sauron - OOOPS!.pt3 in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CC83699A2B6199410035A4DA /* Sauron - OOOPS!.pt3 */; };
+		CC89C83F2EC0F875000A110A /* libxmp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 59805449262F21CA00BB0309 /* libxmp.a */; };
 		CC8A8D4317F9FF5500A56E0C /* Icon-76.png in Resources */ = {isa = PBXBuildFile; fileRef = CC8A8D3C17F9FF5500A56E0C /* Icon-76.png */; };
 		CC8A8D4417F9FF5500A56E0C /* Icon-120.png in Resources */ = {isa = PBXBuildFile; fileRef = CC8A8D3D17F9FF5500A56E0C /* Icon-120.png */; };
 		CC8A8D4517F9FF5500A56E0C /* Icon-144.png in Resources */ = {isa = PBXBuildFile; fileRef = CC8A8D3E17F9FF5500A56E0C /* Icon-144.png */; };
@@ -2806,6 +2807,7 @@
 				CC1638EF2B7CF898003323FD /* liblibnsfplay.a in Frameworks */,
 				59C22AB525BC8C5E003FEDBF /* libxml2.tbd in Frameworks */,
 				CC02DD422BA3187200ED5992 /* CoreImage.framework in Frameworks */,
+				CC89C83F2EC0F875000A110A /* libxmp.a in Frameworks */,
 				59C22AB825BC8CFF003FEDBF /* Security.framework in Frameworks */,
 				CC5C709D17CD1D7900DC7197 /* Accelerate.framework in Frameworks */,
 				1D60589F0D05DD5A006BFB54 /* Foundation.framework in Frameworks */,

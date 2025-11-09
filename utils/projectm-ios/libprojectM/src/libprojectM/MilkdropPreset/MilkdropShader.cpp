@@ -563,7 +563,7 @@ void MilkdropShader::PreprocessPresetShader(std::string& program)
     found = program.rfind('}');
     if (found != std::string::npos)
     {
-        program.replace(int(found), 1, "_return_value = float4(ret.xyz, 1.0);\n"
+        program.replace(int(found), 1, "_return_value = float4(ret.xyz, _vDiffuse.w);\n"
                                        "}\n");
     }
     else

@@ -2,6 +2,10 @@
 #pragma error_messages (off,E_EMPTY_TRANSLATION_UNIT)
 #endif
 
+#include "common.h"
+
+#if !(defined(LIBXMP_NO_PROWIZARD) && defined(LIBXMP_NO_DEPACKERS))
+
 #ifndef HAVE_MKSTEMP
 
 /*
@@ -37,57 +41,66 @@
  * SUCH DAMAGE.
  */
 
-#include <string.h>
+#ifdef _WIN32
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#include <windows.h>
+#include <io.h>
+#include <process.h>
+#elif defined(__WATCOMC__)
+#include <io.h>
+#else
 #include <unistd.h>
+#endif
+
 #include <fcntl.h>
 #include <errno.h>
 
-#ifdef _MSC_VER
-#include <process.h>
-#define getpid _getpid
+#ifdef _WIN32
 #define open _open
 #endif
-
 #ifndef O_BINARY
 #define O_BINARY 0
 #endif
 
-int mkstemp(char *template)
+int mkstemp(char *pattern)
 {
 	int start, i;
 #ifdef _WIN32
-	int   val;
+	int val = GetCurrentProcessId();
 #else
-	pid_t val;
+	pid_t val = getpid();
 #endif
 
-	val = getpid();
-	start = strlen(template) - 1;
+	start = strlen(pattern) - 1;
 
-	while (template[start] == 'X') {
-		template[start] = '0' + val % 10;
+	while (pattern[start] == 'X') {
+		pattern[start] = '0' + val % 10;
 		val /= 10;
 		start--;
 	}
 
 	do {
 		int fd;
-		fd = open(template, O_RDWR | O_CREAT | O_EXCL | O_BINARY, 0600);
+		fd = open(pattern, O_RDWR | O_CREAT | O_EXCL | O_BINARY, 0600);
 		if (fd >= 0 || errno != EEXIST)
 			return fd;
 		i = start + 1;
 		do {
-			if (template[i] == 0)
+			if (pattern[i] == 0)
 				return -1;
-			template[i]++;
-			if (template[i] == '9' + 1)
-				template[i] = 'a';
-			if (template[i] <= 'z')
+			pattern[i]++;
+			if (pattern[i] == '9' + 1)
+				pattern[i] = 'a';
+			if (pattern[i] <= 'z')
 				break;
-			template[i] = 'a';
+			pattern[i] = 'a';
 			i++;
 		} while (1);
 	} while (1);
 }
+
+#endif
 
 #endif

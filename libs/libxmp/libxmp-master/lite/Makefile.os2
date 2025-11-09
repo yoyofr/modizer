@@ -1,17 +1,21 @@
 # Makefile for OS/2 using Watcom compiler.
 #
 # wmake -f Makefile.os2
-# - builds libxmp.dll and its import lib (libxmp.lib)
+# - builds libxmplt.dll and its import lib (libxmplt.lib)
 #
 # wmake -f Makefile.os2 target=static
-# - builds the static library xmp_static.lib
+# - builds the static library xmplite_static.lib
+#
+# To disable Impulse Tracker support :
+#	wmake -f Makefile.os2 DISABLE_IT=1
 #
 !ifndef target
 target = dll
 !endif
 
 CC = wcc386
-SYSTEM = os2v2_dll
+SYSTEM = os2v2
+TARGET_OS2=yes
 
 CFLAGS = -zq -bt=os2 -bm -fp5 -fpi87 -mf -oeatxh -w4 -ei -zp8
 # newer OpenWatcom versions enable W303 by default.
@@ -19,6 +23,18 @@ CFLAGS += -wcd=303
 # -5s  :  Pentium stack calling conventions.
 # -5r  :  Pentium register calling conventions.
 CFLAGS += -5s
-CFLAGS += -I"src/os2" -I"$(%WATCOM)/h/os2"
+CFLAGS += -I"$(%WATCOM)/h/os2" -I"$(%WATCOM)/h"
 
 !include watcom.mif
+
+$(LNKFILE):
+	@echo Creating linker file: $@
+	@%create $@
+	@%append $@ SYSTEM os2v2_dll INITINSTANCE TERMINSTANCE
+	@%append $@ NAME $(DLLNAME)
+	@for %i in ($(OBJS)) do @%append $@ FILE %i
+	@%append $@ OPTION QUIET
+	@%append $@ OPTION MANYAUTODATA
+	@%append $@ OPTION IMPF=$(EXPNAME)
+	@%append $@ OPTION MAP=$(MAPNAME)
+	@%append $@ OPTION SHOWDEAD

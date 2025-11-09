@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2018 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2025 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -20,9 +20,9 @@
  * THE SOFTWARE.
  */
 
-#include <limits.h>
 #include "loader.h"
-#include "period.h"
+#include "../path.h"
+#include "../period.h"
 
 #define STM_TYPE_SONG	0x01
 #define STM_TYPE_MODULE	0x02
@@ -88,19 +88,33 @@ const struct format_loader libxmp_loader_stm = {
 static int stm_test(HIO_HANDLE * f, char *t, const int start)
 {
 	uint8 buf[8];
+	uint16 version;
 
 	hio_seek(f, start + 20, SEEK_SET);
 	if (hio_read(buf, 1, 8, f) < 8)
 		return -1;
 
-	if (libxmp_test_name(buf, 8))	/* Tracker name should be ASCII */
+	if (libxmp_test_name(buf, 8, 0))	/* Tracker name should be ASCII */
 		return -1;
 
-	if (hio_read8(f) != 0x1a)
+	/* EOF should be 0x1a. putup10.stm and putup11.stm have 2 instead. */
+	buf[0] = hio_read8(f);
+	if (buf[0] != 0x1a && buf[0] != 0x02)
 		return -1;
 
 	if (hio_read8(f) > STM_TYPE_MODULE)
 		return -1;
+
+	buf[0] = hio_read8(f);
+	buf[1] = hio_read8(f);
+	version = (100 * buf[0]) + buf[1];
+
+	if (version != 110 &&
+	    version != 200 && version != 210 &&
+	    version != 220 && version != 221) {
+		D_(D_CRIT "Unknown version: %d", version);
+		return -1;
+	}
 
 	hio_seek(f, start + 60, SEEK_SET);
 	if (hio_read(buf, 1, 4, f) < 4)
@@ -151,7 +165,9 @@ static int stm_load(struct module_data *m, HIO_HANDLE * f, const int start)
 	struct stm_file_header sfh;
 	uint8 b;
 	uint16 version;
-	int i, j;
+	int blank_pattern = 0;
+	int stored_patterns;
+	int i, j, k;
 
 	LOAD_INIT();
 
@@ -176,7 +192,7 @@ static int stm_load(struct module_data *m, HIO_HANDLE * f, const int start)
 		sfh.sub.v2.tempo = hio_read8(f);	/* Playback tempo */
 		sfh.sub.v2.patterns = hio_read8(f);	/* Number of patterns */
 		sfh.sub.v2.gvol = hio_read8(f);		/* Global volume */
-		hio_read(&sfh.sub.v2.rsvd2, 13, 1, f);	/* Reserved */
+		hio_read(sfh.sub.v2.rsvd2, 13, 1, f);	/* Reserved */
 		mod->chn = 4;
 		mod->pat = sfh.sub.v2.patterns;
 		mod->spd = (version < 221) ? LSN(sfh.sub.v2.tempo / 10) : MSN(sfh.sub.v2.tempo);
@@ -216,7 +232,7 @@ static int stm_load(struct module_data *m, HIO_HANDLE * f, const int start)
 	}
 
 	for (i = 0; i < mod->ins; i++) {
-		hio_read(&sfh.ins[i].name, 12, 1, f);	/* Instrument name */
+		hio_read(sfh.ins[i].name, 12, 1, f);	/* Instrument name */
 		sfh.ins[i].id = hio_read8(f);		/* Id=0 */
 		sfh.ins[i].idisk = hio_read8(f);	/* Instrument disk */
 		sfh.ins[i].rsvd1 = hio_read16l(f);	/* Reserved */
@@ -234,7 +250,6 @@ static int stm_load(struct module_data *m, HIO_HANDLE * f, const int start)
 		return -1;
 	}
 
-	mod->trk = mod->pat * mod->chn;
 	mod->smp = mod->ins;
 	m->c4rate = C4_NTSC_RATE;
 
@@ -285,10 +300,24 @@ static int stm_load(struct module_data *m, HIO_HANDLE * f, const int start)
 	if (hio_read(mod->xxo, 1, mod->len, f) < mod->len)
 		return -1;
 
-	for (i = 0; i < mod->len; i++)
-		if (mod->xxo[i] >= mod->pat)
+	for (i = 0; i < mod->len; i++) {
+		if (mod->xxo[i] >= 99) {
 			break;
+		}
+		/* Patterns >= the pattern count are valid blank patterns.
+		 * Examples: jimmy.stm, Rauno/dogs.stm, Skaven/hevijanis istu maas.stm.
+		 * Patterns >= 64 have undefined behavior in Screamtracker 2.
+		 */
+		if (mod->xxo[i] >= mod->pat) {
+			mod->xxo[i] = mod->pat;
+			blank_pattern = 1;
+		}
+	}
+	stored_patterns = mod->pat;
+	if(blank_pattern)
+		mod->pat++;
 
+	mod->trk = mod->pat * mod->chn;
 	mod->len = i;
 
 	D_(D_INFO "Module length: %d", mod->len);
@@ -297,27 +326,32 @@ static int stm_load(struct module_data *m, HIO_HANDLE * f, const int start)
 		return -1;
 
 	/* Read and convert patterns */
-	D_(D_INFO "Stored patterns: %d", mod->pat);
+	D_(D_INFO "Stored patterns: %d", stored_patterns);
 
-	for (i = 0; i < mod->pat; i++) {
+	if(blank_pattern) {
+		if (libxmp_alloc_pattern_tracks(mod, stored_patterns, 64) < 0)
+			return -1;
+	}
+
+	for (i = 0; i < stored_patterns; i++) {
 		if (libxmp_alloc_pattern_tracks(mod, i, 64) < 0)
 			return -1;
 
 		if (hio_error(f))
 			return -1;
 
-		for (j = 0; j < 64 * mod->chn; j++) {
-			event = &EVENT(i, j % mod->chn, j / mod->chn);
-			b = hio_read8(f);
-			memset(event, 0, sizeof(struct xmp_event));
-			switch (b) {
-			case 251:
-			case 252:
-				break; /* Empty note */
-			case 253:
-				event->note = XMP_KEY_OFF;
-				break; /* Key off */
-			default:
+		for (j = 0; j < 64; j++) {
+			for (k = 0; k < mod->chn; k++) {
+				event = &EVENT(i, k, j);
+				b = hio_read8(f);
+				if (b == 251 || b == 252)
+					continue; /* Empty note */
+
+				if (b == 253) {
+					event->note = XMP_KEY_OFF;
+					continue;  /* Key off */
+				}
+
 				if (b == 254)
 					event->note = XMP_KEY_OFF;
 				else if (b == 255)
@@ -364,25 +398,27 @@ static int stm_load(struct module_data *m, HIO_HANDLE * f, const int start)
 
 		if (sfh.type == STM_TYPE_SONG) {
 			HIO_HANDLE *s;
-			char sn[PATH_MAX];
+			struct libxmp_path sp;
 			char tmpname[32];
 			const char *instname = mod->xxi[i].name;
 
-			if (!instname[0] || !m->dirname)
+			if (libxmp_copy_name_for_fopen(tmpname, instname, 32) != 0)
 				continue;
 
-			if (libxmp_copy_name_for_fopen(tmpname, instname, 32))
+			libxmp_path_init(&sp);
+			if (libxmp_find_instrument_file(m, &sp, tmpname) != 0)
 				continue;
 
-			snprintf(sn, PATH_MAX, "%s%s", m->dirname, tmpname);
+			s = hio_open(sp.path, "rb");
+			libxmp_path_free(&sp);
+			if (s == NULL)
+				continue;
 
-			if ((s = hio_open(sn, "rb"))) {
-				if (libxmp_load_sample(m, s, SAMPLE_FLAG_UNS, &mod->xxs[i], NULL) < 0) {
-					hio_close(s);
-					return -1;
-				}
+			if (libxmp_load_sample(m, s, SAMPLE_FLAG_UNS, &mod->xxs[i], NULL) < 0) {
 				hio_close(s);
+				return -1;
 			}
+			hio_close(s);
 		} else {
 			hio_seek(f, start + (sfh.ins[i].rsvd1 << 4), SEEK_SET);
 			if (libxmp_load_sample(m, f, 0, &mod->xxs[i], NULL) < 0)

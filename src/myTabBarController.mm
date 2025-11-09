@@ -195,7 +195,10 @@ extern int move_cursorL,move_cursorR,keyDel;
         [WebBrowser class],
         // [MoreViewController class]
     ];
-
+    
+    self.downloadVC.barItem=moreVC.navigationController.tabBarItem;
+    [self.downloadVC refreshDownloadCountBadge];
+    
     NSMutableArray<UIViewController *> *filteredTabs = [NSMutableArray array];
     for (UIViewController *vc in self.viewControllers) {
         BOOL shouldExclude = NO;

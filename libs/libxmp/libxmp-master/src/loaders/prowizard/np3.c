@@ -1,16 +1,36 @@
+/* ProWizard
+ * Copyright (C) 1998 Asle / ReDoX
+ * Modified in 2006,2007,2014,2015 by Claudio Matsuoka
+ * Modified in 2021 by Alice Rowan
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
 /*
- * NoisePacker_v3.c   Copyright (C) 1998 Asle / ReDoX
+ * NoisePacker_v3.c
  *
  * Converts NoisePacked MODs back to ptk
  * Last revision : 26/11/1999 by Sylvain "Asle" Chipaux
  *                 reduced to only one FREAD.
  *                 Speed-up and Binary smaller.
- *
- * Modified in 2006,2007,2014,2015 by Claudio Matsuoka
  */
 
-#include <string.h>
-#include <stdlib.h>
 #include "prowiz.h"
 
 
@@ -101,7 +121,7 @@ static int depack_np3(HIO_HANDLE *in, FILE *out)
 
 			hio_seek(in, trk_start + trk_addr[i][3 - j], SEEK_SET);
 			for (k = 0; k < 64; k++) {
-				int x = k * 16 + j * 4;
+				x = k * 16 + j * 4;
 
 				if ((c1 = hio_read8(in)) >= 0x80) {
 					k += (0x100 - c1) - 1;
@@ -168,6 +188,7 @@ static int depack_np3(HIO_HANDLE *in, FILE *out)
 static int test_np3(const uint8 *data, char *t, int s)
 {
 	int num_ins, ssize, hdr_size, ptab_size, trk_size, max_pptr;
+	int errcount = 0;
 	int i;
 
 	PW_REQUEST_DATA(s, 10);
@@ -254,18 +275,23 @@ static int test_np3(const uint8 *data, char *t, int s)
 
 		/* si note trop grande et si effet = A */
 		if (d[0] > 0x49 || (d[1] & 0x0f) == 0x0a)
-			return -1;
+			errcount++;
 
 		/* si effet D et arg > 0x40 */
 		if ((d[1] & 0x0f) == 0x0d && d[2] > 0x40)
-			return -1;
+			errcount++;
 
 		/* sample nbr > ce qui est defini au debut ? */
 		if ((((d[0] << 4) & 0x10) | ((d[1] >> 4) & 0x0f)) > num_ins)
-			return -1;
+			errcount++;
 
 		/* all is empty ?!? ... cannot be ! */
 		if (d[0] == 0 && d[1] == 0 && d[2] == 0 && i < (trk_size - 3))
+			errcount++;
+
+		/* Shadow Fighter np3.title and np3.ingame_12 both have a
+		 * single wrong instrument value. */
+		if (errcount > 1)
 			return -1;
 
 		i += 2;

@@ -6,7 +6,7 @@
 //
 
 #define PL_MIN_FONT_SIZE 14
-#define PL_IDEALFONTSIZE_RATIO 22
+#define PL_IDEALFONTSIZE_RATIO 26
 
 #define PMENU_PMEXPLORE_FAV_FLAG 1
 #define PMENU_PMEXPLORE_SEL_FLAG 2
@@ -1861,6 +1861,12 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
             ImGui::SameLine();
             ImGui::InputText("Filter", pmFileNodeFilter, 64);
             
+            
+            float browserFontSize=idealFontSize*0.8f;
+            if (browserFontSize<PL_MIN_FONT_SIZE) browserFontSize=PL_MIN_FONT_SIZE;
+            if (font_menu) ImGui::PushFont(font_menu,idealFontSize*glScaleFactor);
+            else ImGui::PushFont(nullptr);
+            
             ImVec2 pos=ImGui::GetCursorPos();
             ImGui::BeginChild("Modizer menu pm explore subwin",ImVec2(menu_win_size,menu_win_sizeH-pos.y));
             
@@ -1901,6 +1907,7 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
             }
             
             ImGui::EndChild();
+            ImGui::PopFont();
         }
     }
     

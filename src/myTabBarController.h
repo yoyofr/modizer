@@ -40,6 +40,7 @@
     AnimatedLaunchVC *animatedLaunchVC;
     
     CarPlayAndRemoteManagement *cpMngt;
+    
 }
 
 @property (nonatomic, retain) DetailViewControllerIphone *detailViewControllerIphone;

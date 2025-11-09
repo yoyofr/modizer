@@ -1,41 +1,97 @@
-CFLAGS += -DHAVE_ALLOCA_H -DHAVE_FNMATCH -DHAVE_MKSTEMP -DHAVE_UMASK -DLIBXMP_CORE_PLAYER -DLIBXMP_NO_PROWIZARD -DLIBXMP_NO_DEPACKERS
+!ifeq DISABLE_IT 1
+CFLAGS += -DLIBXMP_CORE_DISABLE_IT
+!endif
+CFLAGS += -DLIBXMP_CORE_PLAYER -DHAVE_FNMATCH -DHAVE_MKSTEMP -DHAVE_UMASK
 #CFLAGS += -DDEBUG
-CFLAGS += -I"include/libxmp-lite" -Isrc
+CFLAGS += -I"include/libxmp-lite"
 
 DLLFLAGS=-bd -DBUILDING_DLL
+STATICFLAGS=-DLIBXMP_STATIC
 
-DLLNAME=libxmp.dll
-EXPNAME=libxmp.exp
-LIBNAME=libxmp.lib
-LIBSTATIC=xmp_static.lib
+!ifeq TARGET_OS2 yes
+DLLNAME=libxmplt.dll
+LIBNAME=libxmplt.lib
+!else
+DLLNAME=libxmp-lite.dll
+LIBNAME=libxmp-lite.lib
+!endif
+LNKFILE=libxmplt.lnk
+EXPNAME=xmp-lite.exp
+# Note: not libxmp.map...
+MAPNAME=xmp-lite.map
+LIBSTATIC=xmplite_static.lib
+LBCFILE=libxmplt.lbc
+
+TESTNAME=libxmp-test.exe
 
 !ifeq target static
+CFLAGS += $(STATICFLAGS)
+LIBFLAGS=$(CFLAGS)
 BLD_TARGET=$(LIBSTATIC)
+BLD_LIB=$(LIBSTATIC)
 !else
-CFLAGS+= $(DLLFLAGS)
+LIBFLAGS=$(CFLAGS) $(DLLFLAGS)
 BLD_TARGET=$(DLLNAME)
+BLD_LIB=$(LIBNAME)
 !endif
 
 OBJS=@OBJS@
-
-#.SUFFIXES: .obj .c
-
-.c: src;src/loaders
-.c.obj:
-	$(CC) $(CFLAGS) -fo=$^@ $<
+TEST_OBJS=test/md5.obj test/test.obj
 
 all: $(BLD_TARGET)
 
+#.SUFFIXES: .obj .c
+
+.c: src;src/loaders;test
+.c.obj:
+	$(CC) $(LIBFLAGS) -fo=$^@ $<
+
+test/md5.obj: src/md5.c
+	$(CC) $(CFLAGS) -fo=$^@ $<
+
+test/test.obj: test/test.c
+	$(CC) $(CFLAGS) -fo=$^@ $<
+
 # rely on symbol name, not ordinal: -irn switch of wlib is default, but -inn is not.
-$(DLLNAME): $(OBJS)
-	wlink NAM $@ SYSTEM $(SYSTEM) INITINSTANCE TERMINSTANCE OP QUIET FIL {$(OBJS)} OPTION IMPF=$(EXPNAME)
+$(DLLNAME) $(LIBNAME) $(EXPNAME): $(OBJS) $(LNKFILE)
+	wlink @$(LNKFILE)
 	wlib -q -b -n -c -pa -s -t -zld -ii -io -inn $(LIBNAME) +$(DLLNAME)
 
-$(LIBSTATIC): $(OBJS)
-	wlib -q -b -n -c -pa -s -t -zld -ii -io $@ $(OBJS)
+$(LIBSTATIC): $(OBJS) $(LBCFILE)
+	wlib -q -b -n -c -pa -s -t -zld -ii -io $@ @$(LBCFILE)
+
+test/$(TESTNAME): $(BLD_LIB) $(TEST_OBJS)
+	wlink NAM test/$(TESTNAME) SYSTEM $(SYSTEM) OP QUIET LIBR {$(BLD_LIB)} FIL {$(TEST_OBJS)}
+
+check-build: test/$(TESTNAME) .symbolic
+!ifneq target static
+	$(CMD_CP) $(DLLNAME) test
+!endif
+
+!ifdef __UNIX__
+check: check-build .symbolic
+	cd test && ./$(TESTNAME)
+!else
+check: check-build .symbolic
+	cd test & $(TESTNAME)
+!endif
 
 clean: .symbolic
 	rm -f $(OBJS)
+	rm -f $(TEST_OBJS)
 
 distclean: clean .symbolic
-	rm -f $(DLLNAME) $(EXPNAME) $(LIBNAME) $(LIBSTATIC)
+	rm -f *.err *.lnk *.lbc
+	rm -f $(DLLNAME) $(EXPNAME) $(MAPNAME) $(LIBNAME) $(LIBSTATIC) test/$(DLLNAME) test/$(TESTNAME)
+
+!ifdef __UNIX__
+CMD_CP=cp
+!else
+CMD_CP=copy
+!endif
+
+$(LBCFILE):
+	@echo Creating wlib commands file: $@
+	@%create $@
+	@for %i in ($(OBJS)) do @%append $@ +%i
+

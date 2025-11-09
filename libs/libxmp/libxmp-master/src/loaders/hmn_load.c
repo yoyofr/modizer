@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2018 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2023 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -22,8 +22,8 @@
 
 #include "loader.h"
 #include "mod.h"
-#include "period.h"
-#include "hmn_extras.h"
+#include "../period.h"
+#include "../hmn_extras.h"
 
 /*
  * From http://www.livet.se/mahoney/:
@@ -273,6 +273,8 @@ static int hmn_load(struct module_data *m, HIO_HANDLE * f, const int start)
 		}
 	}
 
+	/* Noisetracker does not support CIA timing (Glue Master/muppenkorva.mod) */
+	m->quirk |= QUIRK_NOBPM;
 	m->period_type = PERIOD_MODRNG;
 
 	/* Load samples */

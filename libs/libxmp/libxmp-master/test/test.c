@@ -1,10 +1,30 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "md5.h"
+#include "../src/md5.h"
 #include "xmp.h"
 
-static inline int is_big_endian() {
+#ifndef LIBXMP_CORE_DISABLE_IT
+
+#ifdef LIBXMP_NO_DEPACKERS
+#define TEST_IT_FILE "test.it"
+#else
+#define TEST_IT_FILE "test.itz"
+#endif
+#define TEST_PLAY_TIME	4800
+#define TEST_MD5_IEEE	"0fb814a84db24a21d93851cbeebe2a98"
+#define TEST_MD5_X87	"97eb1ff2bb3ee8252133cdee90fb162d"
+
+#else /* !LIBXMP_CORE_DISABLE_IT */
+
+#define TEST_IT_FILE	"test.xm"
+#define TEST_PLAY_TIME	8000
+#define TEST_MD5_IEEE	"089e2fcddb8989d04d5004876d642139"
+#define TEST_MD5_X87	"089e2fcddb8989d04d5004876d642139"
+
+#endif
+
+static inline int is_big_endian(void) {
 	unsigned short w = 0x00ff;
 	return (*(char *)&w == 0x00);
 }
@@ -23,13 +43,15 @@ static void convert_endian(unsigned char *p, int l)
 	}
 }
 
-static int compare_md5(unsigned char *d, char *digest)
+static int compare_md5(const unsigned char *d, const char *digest)
 {
 	int i;
 
-	/*for (i = 0; i < 16 ; i++)
+	/*
+	for (i = 0; i < 16 ; i++)
 		printf("%02x", d[i]);
-	printf("\n");*/
+	printf("\n");
+	*/
 
 	for (i = 0; i < 16 && *digest; i++, digest += 2) {
 		char hex[3];
@@ -44,7 +66,7 @@ static int compare_md5(unsigned char *d, char *digest)
 	return 0;
 }
 
-int main()
+int main(void)
 {
 	int ret;
 	xmp_context c;
@@ -57,15 +79,15 @@ int main()
 	if (c == NULL)
 		goto err;
 
-	ret = xmp_load_module(c, "test.itz");
+	ret = xmp_load_module(c, TEST_IT_FILE);
 	if (ret != 0) {
 		printf("can't load module\n");
 		goto err;
 	}
 
 	xmp_get_frame_info(c, &info);
-	if (info.total_time != 4800) {
-		printf("estimated replay time error\n");
+	if (info.total_time != TEST_PLAY_TIME) {
+		printf("estimated replay time error: %d\n", info.total_time);
 		goto err;
 	}
 
@@ -88,9 +110,9 @@ int main()
 		time += info.frame_time;
 
 		if (is_big_endian())
-			convert_endian(info.buffer, info.buffer_size >> 1);
+			convert_endian((unsigned char *)info.buffer, info.buffer_size >> 1);
 
-		MD5Update(&ctx, info.buffer, info.buffer_size);
+		MD5Update(&ctx, (unsigned char *)info.buffer, info.buffer_size);
 
 		printf(".");
 		fflush(stdout);
@@ -98,13 +120,18 @@ int main()
 
 	MD5Final(digest, &ctx);
 
-	if (compare_md5(digest, "769a03855bac202597a581a8628424d5") < 0) {
+	/*
+	  x87 floating point results in a very slightly different output from
+	  SSE and other floating point implementations, so check two hashes.
+	 */
+	if (compare_md5(digest, TEST_MD5_IEEE) < 0 &&
+	    compare_md5(digest, TEST_MD5_X87) < 0) {
 		printf("rendering error\n");
 		goto err;
 	}
 
-	if (time / 1000 != info.total_time) {
-		printf("replay time error\n");
+	if ((time + 500) / 1000 != info.total_time) {
+		printf("replay time error: %ld\n", time);
 		goto err;
 	}
 

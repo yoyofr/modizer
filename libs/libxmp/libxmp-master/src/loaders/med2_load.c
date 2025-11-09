@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2018 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2025 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -24,13 +24,9 @@
  * MED 1.12 is in Fish disk #255
  */
 
-#ifdef __native_client__
-#include <sys/syslimits.h>
-#else
-#include <limits.h>
-#endif
+#include "med.h"
 #include "loader.h"
-#include "period.h"
+#include "../period.h"
 
 #define MAGIC_MED2	MAGIC4('M','E','D',2)
 
@@ -49,13 +45,12 @@ static int med2_test(HIO_HANDLE *f, char *t, const int start)
 	if (hio_read32b(f) !=  MAGIC_MED2)
 		return -1;
 
-        libxmp_read_title(f, t, 0);
+	libxmp_read_title(f, t, 0);
 
-        return 0;
+	return 0;
 }
 
-
-int med2_load(struct module_data *m, HIO_HANDLE *f, const int start)
+static int med2_load(struct module_data *m, HIO_HANDLE *f, const int start)
 {
 	struct xmp_module *mod = &m->mod;
 	int i, j, k;
@@ -78,8 +73,10 @@ int med2_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	/* read instrument names */
 	hio_read(buf, 1, 40, f);	/* skip 0 */
 	for (i = 0; i < 31; i++) {
-		hio_read(buf, 1, 40, f);
-		libxmp_instrument_name(mod, i, buf, 32);
+		if (hio_read(buf, 1, 40, f) != 40)
+			return -1;
+
+		libxmp_instrument_name(mod, i, buf, 40);
 		if (libxmp_alloc_subinstrument(mod, i, 1) < 0)
 			return -1;
 	}
@@ -125,7 +122,9 @@ int med2_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		return -1;
 	}
 
-	mod->spd = 192 / k;
+	mod->spd = 6;
+	mod->bpm = k;
+	m->time_factor = MED_TIME_FACTOR;
 
 	hio_read16b(f);			/* flags */
 	sliding = hio_read16b(f);	/* sliding */
@@ -174,7 +173,7 @@ int med2_load(struct module_data *m, HIO_HANDLE *f, const int start)
 					event->fxt = FX_VOLSLIDE;
 					break;
 				case 0x0f:
-					event->fxt = 192 / event->fxt;
+					event->fxt = FX_S3M_BPM;
 					break;
 				}
 			}
@@ -186,46 +185,9 @@ int med2_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	D_(D_INFO "Instruments    : %d ", mod->ins);
 
 	for (i = 0; i < 31; i++) {
-		char path[PATH_MAX];
-		char ins_path[256];
-		char name[256];
-		HIO_HANDLE *s = NULL;
-		int found;
-
-		libxmp_get_instrument_path(m, ins_path, 256);
-		found = libxmp_check_filename_case(ins_path,
-					mod->xxi[i].name, name, 256);
-
-		if (found) {
-			snprintf(path, PATH_MAX, "%s/%s", ins_path, name);
-			if ((s = hio_open(path,"rb")) != NULL) {
-				mod->xxs[i].len = hio_size(s);
-			}
-		}
-
-		if (mod->xxs[i].len > 0) {
-			mod->xxi[i].nsm = 1;
-		}
-
-		if (!strlen(mod->xxi[i].name) && !mod->xxs[i].len) {
-			if (s != NULL) {
-				hio_close(s);
-			}
-			continue;
-		}
-
-		D_(D_INFO "[%2X] %-32.32s %04x %04x %04x %c V%02x",
-			i, mod->xxi[i].name, mod->xxs[i].len, mod->xxs[i].lps,
-			mod->xxs[i].lpe,
-			mod->xxs[i].flg & XMP_SAMPLE_LOOP ? 'L' : ' ',
-			mod->xxi[i].sub[0].vol);
-
-		if (s != NULL) {
-			int ret = libxmp_load_sample(m, s, 0, &mod->xxs[i], NULL);
-			hio_close(s);
-			if (ret < 0) {
-				return -1;
-			}
+		if (med_load_external_instrument(f, m, i)) {
+			D_(D_CRIT "error loading instrument %d", i);
+			return -1;
 		}
 	}
 

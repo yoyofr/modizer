@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2018 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2024 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -25,7 +25,7 @@
  */
 
 #include "loader.h"
-#include "period.h"
+#include "../period.h"
 
 
 #define IMF_EOR		0x00
@@ -33,6 +33,12 @@
 #define IMF_NI_FOLLOW	0x20
 #define IMF_FX_FOLLOWS	0x80
 #define IMF_F2_FOLLOWS	0x40
+
+/* Sample flags */
+#define IMF_SAMPLE_LOOP		0x01
+#define IMF_SAMPLE_BIDI		0x02
+#define IMF_SAMPLE_16BIT	0x04
+#define IMF_SAMPLE_DEFPAN	0x08
 
 struct imf_channel {
 	char name[12];		/* Channelname (ASCIIZ-String, max 11 chars) */
@@ -101,6 +107,8 @@ struct imf_sample {
 
 #define MAGIC_IM10	MAGIC4('I','M','1','0')
 #define MAGIC_II10	MAGIC4('I','I','1','0')
+#define MAGIC_IS10	MAGIC4('I','S','1','0')
+#define MAGIC_IW10	MAGIC4('I','W','1','0') /* leaving all behind.imf */
 
 static int imf_test (HIO_HANDLE *, char *, const int);
 static int imf_load (struct module_data *, HIO_HANDLE *, const int);
@@ -268,10 +276,10 @@ static int imf_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
     for (i = 0; i < 32; i++) {
 	hio_read(ih.chn[i].name, 12, 1, f);
-	ih.chn[i].status = hio_read8(f);
-	ih.chn[i].pan = hio_read8(f);
 	ih.chn[i].chorus = hio_read8(f);
 	ih.chn[i].reverb = hio_read8(f);
+	ih.chn[i].pan = hio_read8(f);
+	ih.chn[i].status = hio_read8(f);
     }
 
     if (hio_read(ih.pos, 256, 1, f) < 1) {
@@ -302,7 +310,8 @@ static int imf_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
     mod->chn = 0;
     for (i = 0; i < 32; i++) {
-	if (ih.chn[i].status == 0x00)
+	/* 0=enabled; 1=muted, but still processed; 2=disabled.*/
+	if (ih.chn[i].status >= 2)
 	    continue;
 
 	mod->chn = i + 1;
@@ -337,7 +346,7 @@ static int imf_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 	pat_len = hio_read16l(f) - 4;
 
-        rows = hio_read16l(f);
+	rows = hio_read16l(f);
 
 	/* Sanity check */
 	if (rows > 256) {
@@ -369,7 +378,7 @@ static int imf_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		n = hio_read8(f);
 		switch (n) {
 		case 255:
-		case 160:	/* ??!? */
+		case 160:	/* ?! */
 		    n = XMP_KEY_OFF;
 		    break;	/* Key off */
 		default:
@@ -431,12 +440,17 @@ static int imf_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	if (ii.nsm > 255)
 	    return -1;
 
-	if (ii.magic != MAGIC_II10)
+	/* Imago Orpheus may emit blank instruments with a signature
+	 * of four nuls. Found in "leaving all behind.imf" by Karsten Koch. */
+	if (ii.magic != MAGIC_II10 && ii.magic != 0) {
+	    D_(D_CRIT "unknown instrument %d magic %08x @ %ld", i,
+	       ii.magic, hio_tell(f));
 	    return -2;
+	}
 
 	xxi->nsm = ii.nsm;
 
-        if (xxi->nsm > 0) {
+	if (xxi->nsm > 0) {
 	    if (libxmp_alloc_subinstrument(mod, i, xxi->nsm) < 0)
 		return -1;
 	}
@@ -470,8 +484,8 @@ static int imf_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	}
 
 	for (j = 0; j < ii.nsm; j++, smp_num++) {
-            struct xmp_subinstrument *sub = &xxi->sub[j];
-            struct xmp_sample *xxs = &mod->xxs[smp_num];
+	    struct xmp_subinstrument *sub = &xxi->sub[j];
+	    struct xmp_sample *xxs = &mod->xxs[smp_num];
 	    int sid;
 
 	    hio_read(is.name, 13, 1, f);
@@ -489,27 +503,44 @@ static int imf_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	    is.dram = hio_read32l(f);
 	    is.magic = hio_read32b(f);
 
-            /* Sanity check */
-            if (is.len > 0x100000 || is.lps > 0x100000 || is.lpe > 0x100000)
+	    if (is.magic != MAGIC_IS10 && is.magic != MAGIC_IW10) {
+		D_(D_CRIT "unknown sample %d:%d magic %08x @ %ld", i, j,
+		   is.magic, hio_tell(f));
+		return -1;
+	    }
+
+	    /* Sanity check */
+	    if (is.len > 0x100000 || is.lps > 0x100000 || is.lpe > 0x100000)
 		return -1;
 
 	    sub->sid = smp_num;
 	    sub->vol = is.vol;
-	    sub->pan = is.pan;
+	    sub->pan = (is.flg & IMF_SAMPLE_DEFPAN) ? is.pan : -1;
 	    xxs->len = is.len;
 	    xxs->lps = is.lps;
 	    xxs->lpe = is.lpe;
-	    xxs->flg = is.flg & 1 ? XMP_SAMPLE_LOOP : 0;
+	    xxs->flg = 0;
 
-	    if (is.flg & 4) {
+	    if (is.flg & IMF_SAMPLE_LOOP) {
+		xxs->flg |= XMP_SAMPLE_LOOP;
+	    }
+	    if (is.flg & IMF_SAMPLE_BIDI) {
+		xxs->flg |= XMP_SAMPLE_LOOP_BIDIR;
+	    }
+	    if (is.flg & IMF_SAMPLE_16BIT) {
 	        xxs->flg |= XMP_SAMPLE_16BIT;
 	        xxs->len >>= 1;
 	        xxs->lps >>= 1;
 	        xxs->lpe >>= 1;
 	    }
 
-	    D_(D_INFO "  %02x: %05x %05x %05x %5d",
-		    j, is.len, is.lps, is.lpe, is.rate);
+	    D_(D_INFO "  %02x: %05x %05x %05x %5d %c%c%c%c %2s",
+		    j, is.len, is.lps, is.lpe, is.rate,
+		    (is.flg & IMF_SAMPLE_LOOP)   ? 'L' : '.',
+		    (is.flg & IMF_SAMPLE_BIDI)   ? 'B' : '.',
+		    (is.flg & IMF_SAMPLE_16BIT)  ? '+' : '.',
+		    (is.flg & IMF_SAMPLE_DEFPAN) ? 'P' : '.',
+		    (is.magic == MAGIC_IS10) ? "IS" : "IW");
 
 	    libxmp_c2spd_to_note(is.rate, &sub->xpo, &sub->fin);
 
@@ -523,18 +554,24 @@ static int imf_load(struct module_data *m, HIO_HANDLE *f, const int start)
     }
 
     mod->smp = smp_num;
-    mod->xxs = realloc(mod->xxs, sizeof (struct xmp_sample) * mod->smp);
+    mod->xxs = (struct xmp_sample *) realloc(mod->xxs, sizeof(struct xmp_sample) * mod->smp);
     if (mod->xxs == NULL) {
         return -1;
     }
-    m->xtra = realloc(m->xtra, sizeof (struct extra_sample_data) * mod->smp);
+    m->xtra = (struct extra_sample_data *) realloc(m->xtra, sizeof(struct extra_sample_data) * mod->smp);
     if (m->xtra == NULL) {
         return -1;
     }
 
     m->c4rate = C4_NTSC_RATE;
     m->quirk |= QUIRK_FILTER | QUIRKS_ST3 | QUIRK_ARPMEM;
+    m->flow_mode = FLOW_MODE_ORPHEUS;
     m->read_event_type = READ_EVENT_ST3;
+
+    m->gvol = ih.vol;
+    m->mvol = ih.amp;
+    m->mvolbase = 48;
+    CLAMP(m->mvol, 4, 127);
 
     return 0;
 }

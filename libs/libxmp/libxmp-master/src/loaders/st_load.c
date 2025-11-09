@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2018 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2022 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -24,10 +24,9 @@
  * written by Michael Schwendt <sidplay@geocities.com>
  */
 
-#include <ctype.h>
 #include "loader.h"
 #include "mod.h"
-#include "period.h"
+#include "../period.h"
 
 static int st_test(HIO_HANDLE *, char *, const int);
 static int st_load(struct module_data *, HIO_HANDLE *, const int);
@@ -38,19 +37,37 @@ const struct format_loader libxmp_loader_st = {
 	st_load
 };
 
+/* musanx.mod contains 22 period and instrument errors */
+#define ST_MAX_PATTERN_ERRORS 22
+/* Allow some degree of sample truncation for ST modules.
+ * The worst known module currently is u2.mod with 7% truncation. */
+#define ST_TRUNCATION_LIMIT   93
+
 static const int period[] = {
 	856, 808, 762, 720, 678, 640, 604, 570, 538, 508, 480, 453,
 	428, 404, 381, 360, 339, 320, 302, 285, 269, 254, 240, 226,
 	214, 202, 190, 180, 170, 160, 151, 143, 135, 127, 120, 113,
+	/* Off-by-one period values found in blueberry.mod, snd.mod,
+	 * quite a lot.mod, sweet dreams.mod, and bar----fringdus.mod */
+	763, 679, 641, 571, 539, 509, 429, 340, 321, 300, 286, 270,
+	227, 191, 162,
 	-1
 };
+
+static int st_expected_size(int smp_size, int pat)
+{
+	return 600 + smp_size + 1024 * pat;
+}
 
 static int st_test(HIO_HANDLE *f, char *t, const int start)
 {
 	int i, j, k;
-	int pat, ins, smp_size;
+	int pat, pat_short, ins, smp_size;
 	struct st_header mh;
-	uint8 mod_event[4];
+	uint8 pat_buf[1024];
+	uint8 *mod_event;
+	int pattern_errors;
+	int test_flags = TEST_NAME_IGNORE_AFTER_CR;
 	long size;
 
 	size = hio_size(f);
@@ -63,7 +80,14 @@ static int st_test(HIO_HANDLE *f, char *t, const int start)
 
 	hio_seek(f, start, SEEK_SET);
 	hio_read(mh.name, 1, 20, f);
-	if (libxmp_test_name(mh.name, 20) < 0) {
+	/* The Super Ski 2 modules have unusual "SONG\x13\x88" names. */
+	if (mh.name[5] == 0x88) {
+		mh.name[5] = 'X';
+		if (mh.name[4] == 0x13)
+			mh.name[4] = 'X';
+	}
+	if (libxmp_test_name(mh.name, 20, 0) < 0) {
+		D_(D_CRIT "bad module name; not ST");
 		return -1;
 	}
 
@@ -79,23 +103,40 @@ static int st_test(HIO_HANDLE *f, char *t, const int start)
 	mh.restart = hio_read8(f);
 	hio_read(mh.order, 1, 128, f);
 
-	for (pat = i = 0; i < 128; i++) {
+	for (pat = pat_short = i = 0; i < 128; i++) {
 		if (mh.order[i] > 0x7f)
 			return -1;
-		if (mh.order[i] > pat)
+		if (mh.order[i] > pat) {
 			pat = mh.order[i];
+			if (i < mh.len)
+				pat_short = pat;
+		}
 	}
 	pat++;
+	pat_short++;
 
-	if (pat > 0x7f || mh.len == 0 || mh.len > 0x7f)
+	if (pat > 0x7f || mh.len == 0 || mh.len > 0x80)
 		return -1;
 
 	for (i = 0; i < 15; i++) {
+		smp_size += 2 * mh.ins[i].size;
+
+		/* pennylane.mod and heymusic-sssexremix.mod have unusual
+		 * values after the \0. */
+		if (i == 0 &&
+		    (!memcmp(mh.ins[i].name, "funbass\0\r", 9) ||
+		     !memcmp(mh.ins[i].name, "st-69:baseline\0R\0\0\xA5", 17))) {
+			D_(D_INFO "ignoring junk name values after \\0");
+			test_flags |= TEST_NAME_IGNORE_AFTER_0;
+		}
+
 		/* Crepequs.mod has random values in first byte */
 		mh.ins[i].name[0] = 'X';
 
-		if (libxmp_test_name(mh.ins[i].name, 22) < 0)
+		if (libxmp_test_name(mh.ins[i].name, 22, test_flags) < 0) {
+			D_(D_CRIT "bad instrument name %d; not ST", i);
 			return -1;
+		}
 
 		if (mh.ins[i].volume > 0x40)
 			return -1;
@@ -121,6 +162,14 @@ static int st_test(HIO_HANDLE *f, char *t, const int start)
 		 *    return -1;
 		 */
 
+		/* Bad rip of fin-nv1.mod has this unused instrument. */
+		if (mh.ins[i].size == 0 &&
+		    mh.ins[i].loop_start == 4462 &&
+		    mh.ins[i].loop_size == 2078) {
+			D_(D_INFO "ignoring bad instrument for fin-nv1.mod");
+			continue;
+		}
+
 		if ((mh.ins[i].loop_start >> 1) > mh.ins[i].size)
 			return -1;
 
@@ -130,30 +179,39 @@ static int st_test(HIO_HANDLE *f, char *t, const int start)
 
 		if (mh.ins[i].size == 0 && mh.ins[i].loop_start > 0)
 			return -1;
-
-		smp_size += 2 * mh.ins[i].size;
 	}
 
 	if (smp_size < 8) {
 		return -1;
 	}
 
-	for (ins = i = 0; i < pat; i++) {
-		for (j = 0; j < (64 * 4); j++) {
-			int p, s;
+	/* If the file size is correct when counting only patterns prior to the
+	 * module length, use the shorter count. This quirk is found in some
+	 * ST modules, most of them authored by Jean Baudlot. See razor-1911.mod,
+	 * the Operation Wolf soundtrack, or the Bad Dudes soundtrack.
+	 */
+	if (size < st_expected_size(smp_size, pat) &&
+	    size == st_expected_size(smp_size, pat_short)) {
+		D_(D_INFO "ST pattern list probably quirked, ignoring patterns past len");
+		pat = pat_short;
+	}
 
-			if (hio_read(mod_event, 1, 4, f) < 4) {
-				return -1;
-			}
+	pattern_errors = 0;
+	for (ins = i = 0; i < pat; i++) {
+		if (hio_read(pat_buf, 1, 1024, f) < 1024) {
+			D_(D_CRIT "read error at pattern %d; not ST", i);
+			return -1;
+		}
+		mod_event = pat_buf;
+		for (j = 0; j < (64 * 4); j++, mod_event += 4) {
+			int p, s;
 
 			s = (mod_event[0] & 0xf0) | MSN(mod_event[2]);
 
 			if (s > 15) {	/* sample number > 15 */
-				/* cant.mod has this invalid sample number */
-				if (!(s == 64 && i == 3 && j == 183)) {
-					D_(D_CRIT "%d/%d/%d: invalid sample number: %d", i, j / 4, j % 4, s);
-					return -1;
-				}
+				D_(D_INFO "%d/%d/%d: invalid sample number: %d", i, j / 4, j % 4, s);
+				if ((++pattern_errors) > ST_MAX_PATTERN_ERRORS)
+					goto bad_pattern_data;
 			}
 
 			if (s > ins) {	/* find highest used sample */
@@ -166,35 +224,29 @@ static int st_test(HIO_HANDLE *f, char *t, const int start)
 				continue;
 			}
 
-			/* another special check for cant.mod */
-			if (p == 3792 && i == 3 && j == 183) {
-				continue;
-			}
-
-			/* used in Karsten Obarski's blueberry.mod */
-			if (p == 162) {
-				continue;
-			}
-
 			for (k = 0; period[k] >= 0; k++) {
 				if (p == period[k])
 					break;
 			}
 			if (period[k] < 0) {
-				D_(D_CRIT "%d/%d/%d: invalid period", i, j / 4, j % 4);
-				return -1;
+				D_(D_INFO "%d/%d/%d: invalid period: %d", i, j / 4, j % 4, p);
+				if ((++pattern_errors) > ST_MAX_PATTERN_ERRORS)
+					goto bad_pattern_data;
 			}
 		}
 	}
 
 	/* Check if file was cut before any unused samples */
-	if (size < 600 + pat * 1024 + smp_size) {
-		int ss;
+	if (size < st_expected_size(smp_size, pat)) {
+		int ss, limit;
 		for (ss = i = 0; i < 15 && i < ins; i++) {
 			ss += 2 * mh.ins[i].size;
 		}
 
-		if (size < 600 + pat * 1024 + ss) {
+		limit = st_expected_size(ss, pat) * ST_TRUNCATION_LIMIT / 100;
+		if (size < limit) {
+			D_(D_CRIT "expected size %d, minimum allowed size %d, real size %ld, diff %ld",
+			 st_expected_size(smp_size, pat), limit, size, size - limit);
 			return -1;
 		}
 	}
@@ -203,31 +255,33 @@ static int st_test(HIO_HANDLE *f, char *t, const int start)
 	libxmp_read_title(f, t, 20);
 
 	return 0;
+
+bad_pattern_data:
+	D_(D_CRIT "too many pattern errors; not ST: %d", pattern_errors);
+	return -1;
 }
 
 static int st_load(struct module_data *m, HIO_HANDLE *f, const int start)
 {
 	struct xmp_module *mod = &m->mod;
 	int i, j;
-	int smp_size;
-	struct xmp_event ev, *event;
+	struct xmp_event *event;
 	struct st_header mh;
-	uint8 mod_event[4];
+	uint8 pat_buf[1024];
+	uint8 *mod_event;
 	int ust = 1;
 	/* int lps_mult = m->fetch & XMP_CTL_FIXLOOP ? 1 : 2; */
 	const char *modtype;
 	int fxused;
-	int pos;
-	int used_ins;		/* Number of samples actually used */
+	int smp_size, pat_short;
 	long size;
 
 	LOAD_INIT();
 
-	size = hio_size(f);
-
 	mod->chn = 4;
 	mod->ins = 15;
 	mod->smp = mod->ins;
+
 	smp_size = 0;
 
 	hio_read(mh.name, 1, 20, f);
@@ -238,6 +292,7 @@ static int st_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		mh.ins[i].volume = hio_read8(f);
 		mh.ins[i].loop_start = hio_read16b(f);
 		mh.ins[i].loop_size = hio_read16b(f);
+		smp_size += 2 * mh.ins[i].size;
 	}
 	mh.len = hio_read8(f);
 	mh.restart = hio_read8(f);
@@ -254,11 +309,24 @@ static int st_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 	memcpy(mod->xxo, mh.order, 128);
 
-	for (i = 0; i < 128; i++) {
-		if (mod->xxo[i] > mod->pat)
+	for (pat_short = i = 0; i < 128; i++) {
+		if (mod->xxo[i] > mod->pat) {
 			mod->pat = mod->xxo[i];
+			if (i < mh.len)
+				pat_short = mod->pat;
+		}
 	}
 	mod->pat++;
+	pat_short++;
+
+	/* If the file size is correct when counting only patterns prior to the
+	 * module length, use the shorter count. See test function for info.
+	 */
+	size = hio_size(f);
+	if (size < st_expected_size(smp_size, mod->pat) &&
+	    size == st_expected_size(smp_size, pat_short)) {
+		mod->pat = pat_short;
+	}
 
 	for (i = 0; i < mod->ins; i++) {
 		/* UST: Volume word does not contain a "Finetuning" value in its
@@ -278,8 +346,6 @@ static int st_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		    || mh.ins[i].loop_size > 0x1387) {
 			ust = 0;
 		}
-
-		smp_size += 2 * mh.ins[i].size;
 	}
 
 	if (libxmp_init_instrument(m) < 0) {
@@ -315,37 +381,49 @@ static int st_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 	strncpy(mod->name, (char *)mh.name, 20);
 
-	/* Scan patterns for tracker detection */
+	if (libxmp_init_pattern(mod) < 0) {
+		return -1;
+	}
+
+	/* Load and convert patterns */
+	/* Also scan patterns for tracker detection */
 	fxused = 0;
-	pos = hio_tell(f);
+
+	D_(D_INFO "Stored patterns: %d", mod->pat);
 
 	for (i = 0; i < mod->pat; i++) {
-		for (j = 0; j < (64 * mod->chn); j++) {
-			hio_read(mod_event, 1, 4, f);
+		if (libxmp_alloc_pattern_tracks(mod, i, 64) < 0)
+			return -1;
 
-			libxmp_decode_protracker_event(&ev, mod_event);
+		if (hio_read(pat_buf, 1, 1024, f) < 1024)
+			return -1;
 
-			if (ev.fxt)
-				fxused |= 1 << ev.fxt;
-			else if (ev.fxp)
+		mod_event = pat_buf;
+		for (j = 0; j < (64 * 4); j++, mod_event += 4) {
+			event = &EVENT(i, j % 4, j / 4);
+			libxmp_decode_protracker_event(event, mod_event);
+
+			if (event->fxt)
+				fxused |= 1 << event->fxt;
+			else if (event->fxp)
 				fxused |= 1;
 
 			/* UST: Only effects 1 (arpeggio) and 2 (pitchbend) are
 			 * available.
 			 */
-			if (ev.fxt && ev.fxt != 1 && ev.fxt != 2)
+			if (event->fxt && event->fxt != 1 && event->fxt != 2)
 				ust = 0;
 
 			/* Karsten Obarski's sleepwalk uses arpeggio 30 and 40 */
-			if (ev.fxt == 1) {	/* unlikely arpeggio */
-				if (ev.fxp == 0x00)
+			if (event->fxt == 1) {	/* unlikely arpeggio */
+				if (event->fxp == 0x00)
 					ust = 0;
 				/*if ((ev.fxp & 0x0f) == 0 || (ev.fxp & 0xf0) == 0)
 				   ust = 0; */
 			}
 
-			if (ev.fxt == 2) {  /* bend up and down at same time? */
-				if ((ev.fxp & 0x0f) != 0 && (ev.fxp & 0xf0) != 0)
+			if (event->fxt == 2) {  /* bend up and down at same time? */
+				if ((event->fxp & 0x0f) != 0 && (event->fxp & 0xf0) != 0)
 					ust = 0;
 			}
 		}
@@ -368,34 +446,6 @@ static int st_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	snprintf(mod->type, XMP_NAME_SIZE, "%s", modtype);
 
 	MODULE_INFO();
-
-	if (hio_seek(f, start + pos, SEEK_SET) < 0) {
-		return -1;
-	}
-
-	if (libxmp_init_pattern(mod) < 0) {
-		return -1;
-	}
-
-	/* Load and convert patterns */
-
-	D_(D_INFO "Stored patterns: %d", mod->pat);
-
-	used_ins = 0;
-	for (i = 0; i < mod->pat; i++) {
-		if (libxmp_alloc_pattern_tracks(mod, i, 64) < 0)
-			return -1;
-
-		for (j = 0; j < (64 * mod->chn); j++) {
-			event = &EVENT(i, j % mod->chn, j / mod->chn);
-			hio_read(mod_event, 1, 4, f);
-
-			libxmp_decode_protracker_event(event, mod_event);
-
-			if (ev.ins > used_ins)
-				used_ins = ev.ins;
-		}
-	}
 
 	for (i = 0; i < mod->ins; i++) {
 		D_(D_INFO "[%2X] %-22.22s %04x %04x %04x %c V%02x %+d",
@@ -420,8 +470,8 @@ static int st_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 		/* Fix effects (arpeggio and pitchbending) */
 		for (i = 0; i < mod->pat; i++) {
-			for (j = 0; j < (64 * mod->chn); j++) {
-				event = &EVENT(i, j % mod->chn, j / mod->chn);
+			for (j = 0; j < (64 * 4); j++) {
+				event = &EVENT(i, j % 4, j / 4);
 				if (event->fxt == 1)
 					event->fxt = 0;
 				else if (event->fxt == 2

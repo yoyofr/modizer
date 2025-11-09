@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2018 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2025 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -20,35 +20,48 @@
  * THE SOFTWARE.
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include "common.h"
-#include "list.h"
+#include "../common.h"
 #include "iff.h"
 
 #include "loader.h"
 
+struct iff_info {
+	char id[4];
+	iff_loader loader;
+	struct iff_info *next;
+};
+
 struct iff_data {
-	struct list_head iff_list;
+	struct iff_info *head;
+	struct iff_info *tail;
 	unsigned id_size;
 	unsigned flags;
 };
 
-static int iff_process(iff_handle opaque, struct module_data *m, char *id, long size,
+static void iff_append(struct iff_data *data, struct iff_info *i)
+{
+	if (data->head && data->tail) {
+		data->tail->next = i;
+		data->tail = i;
+	} else {
+		data->head = i;
+		data->tail = i;
+	}
+}
+
+static int iff_process(iff_handle opaque, struct module_data *m, char *id, uint32 size,
 		HIO_HANDLE *f, void *parm)
 {
 	struct iff_data *data = (struct iff_data *)opaque;
-	struct list_head *tmp;
 	struct iff_info *i;
-	int pos;
+	long pos;
 
 	pos = hio_tell(f);
+	D_(D_INFO "chunk offset: %ld", pos);
 
-	list_for_each(tmp, &data->iff_list) {
-		i = list_entry(tmp, struct iff_info, list);
+	for (i = data->head; i; i = i->next) {
 		if (id && !memcmp(id, i->id, data->id_size)) {
-			D_(D_WARN "Load IFF chunk %s (%ld) @%d", id, size, pos);
+			D_(D_WARN "Load IFF chunk %s (%u) @%ld", id, (unsigned)size, pos);
 			if (size > IFF_MAX_CHUNK_SIZE) {
 				return -1;
 			}
@@ -59,8 +72,15 @@ static int iff_process(iff_handle opaque, struct module_data *m, char *id, long 
 		}
 	}
 
+#if LONG_MAX <= 2147483647L
+	/* TODO: hio_seek doesn't support 64-bit values. */
+	if (pos < 0 || pos + (int64)size > LONG_MAX) {
+		return 1;
+	}
+#endif
 	if (hio_seek(f, pos + size, SEEK_SET) < 0) {
-		return -1;
+		/* IFF container issue--exit without error. */
+		return 1;
 	}
 
 	return 0;
@@ -69,12 +89,12 @@ static int iff_process(iff_handle opaque, struct module_data *m, char *id, long 
 static int iff_chunk(iff_handle opaque, struct module_data *m, HIO_HANDLE *f, void *parm)
 {
 	struct iff_data *data = (struct iff_data *)opaque;
-	unsigned size;
+	uint32 size;
 	char id[17] = "";
 
 	D_(D_INFO "chunk id size: %d", data->id_size);
 	if (hio_read(id, 1, data->id_size, f) != data->id_size) {
-		(void)hio_error(f);	/* clear error flag */
+		/* End of file or IFF container issue--exit without error. */
 		return 1;
 	}
 	D_(D_INFO "chunk id: [%s]", id);
@@ -96,16 +116,18 @@ static int iff_chunk(iff_handle opaque, struct module_data *m, HIO_HANDLE *f, vo
 	} else {
 		size = hio_read32b(f);
 	}
-	D_(D_INFO "size: %d", size);
+	D_(D_INFO "chunk size: %u", (unsigned)size);
 
 	if (hio_error(f)) {
-		return -1;
+		/* IFF container issue--exit without error. */
+		return 1;
 	}
 
 	if (data->flags & IFF_CHUNK_ALIGN2) {
 		/* Sanity check */
 		if (size > 0xfffffffe) {
-			return -1;
+			/* IFF container issue--exit without error. */
+			return 1;
 		}
 		size = (size + 1) & ~1;
 	}
@@ -113,12 +135,15 @@ static int iff_chunk(iff_handle opaque, struct module_data *m, HIO_HANDLE *f, vo
 	if (data->flags & IFF_CHUNK_ALIGN4) {
 		/* Sanity check */
 		if (size > 0xfffffffc) {
-			return -1;
+			/* IFF container issue--exit without error. */
+			return 1;
 		}
 		size = (size + 3) & ~3;
 	}
 
-	if (data->flags & IFF_FULL_CHUNK_SIZE) {
+	/* PT 3.6 hack: this does not seem to ever apply to "PTDT".
+	 * This broke several modules (city lights.pt36, acid phase.pt36) */
+	if ((data->flags & IFF_FULL_CHUNK_SIZE) && memcmp(id, "PTDT", 4)) {
 		if (size < data->id_size + 4)
 			return -1;
 		size -= data->id_size + 4;
@@ -127,16 +152,16 @@ static int iff_chunk(iff_handle opaque, struct module_data *m, HIO_HANDLE *f, vo
 	return iff_process(opaque, m, id, size, f, parm);
 }
 
-iff_handle libxmp_iff_new()
+iff_handle libxmp_iff_new(void)
 {
 	struct iff_data *data;
 
-	data = malloc(sizeof(struct iff_data));
+	data = (struct iff_data *) malloc(sizeof(struct iff_data));
 	if (data == NULL) {
 		return NULL;
 	}
 
-	INIT_LIST_HEAD(&data->iff_list);
+	data->head = data->tail = NULL;
 	data->id_size = 4;
 	data->flags = 0;
 
@@ -149,47 +174,50 @@ int libxmp_iff_load(iff_handle opaque, struct module_data *m, HIO_HANDLE *f, voi
 
 	while (!hio_eof(f)) {
 		ret = iff_chunk(opaque, m, f, parm);
-
 		if (ret > 0)
 			break;
-
 		if (ret < 0)
 			return -1;
 	}
 
+	/* Reached end of file, or there was an IFF structural issue.
+	 * Either way, clear the error flag to allow loading to continue. */
+	(void)hio_error(f);
 	return 0;
 }
 
-int libxmp_iff_register(iff_handle opaque, const char *id,
-	int (*loader)(struct module_data *, int, HIO_HANDLE *, void *))
+int libxmp_iff_register(iff_handle opaque, const char *id, iff_loader loader)
 {
 	struct iff_data *data = (struct iff_data *)opaque;
 	struct iff_info *f;
+	int i = 0;
 
-	f = malloc(sizeof(struct iff_info));
+	f = (struct iff_info *) malloc(sizeof(struct iff_info));
 	if (f == NULL)
 		return -1;
 
-	strncpy(f->id, id, 4);
+	/* Note: previously was an strncpy */
+	for (; i < 4 && id && id[i]; i++)
+		f->id[i] = id[i];
+	for (; i < 4; i++)
+		f->id[i] = '\0';
+
 	f->loader = loader;
+	f->next = NULL;
 
-	list_add_tail(&f->list, &data->iff_list);
-
+	iff_append(data, f);
 	return 0;
 }
 
 void libxmp_iff_release(iff_handle opaque)
 {
 	struct iff_data *data = (struct iff_data *)opaque;
-	struct list_head *tmp;
 	struct iff_info *i;
 
-	/* can't use list_for_each, we free the node before incrementing */
-	for (tmp = (&data->iff_list)->next; tmp != (&data->iff_list);) {
-		i = list_entry(tmp, struct iff_info, list);
-		list_del(&i->list);
-		tmp = tmp->next;
+	for (i = data->head; i; ) {
+		struct iff_info *tmp = i->next;
 		free(i);
+		i = tmp;
 	}
 
 	free(data);

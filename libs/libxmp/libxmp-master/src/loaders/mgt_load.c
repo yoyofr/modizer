@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2018 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2024 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -21,7 +21,7 @@
  */
 
 #include "loader.h"
-#include "period.h"
+#include "../period.h"
 
 #define MAGIC_MGT	MAGIC4(0x00,'M','G','T')
 #define MAGIC_MCS	MAGIC4(0xbd,'M','C','S')
@@ -61,7 +61,7 @@ static int mgt_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	struct xmp_event *event;
 	int i, j;
 	int ver;
-	int sng_ptr, seq_ptr, ins_ptr, pat_ptr, trk_ptr, smp_ptr;
+	int sng_ptr, seq_ptr, ins_ptr, pat_ptr, trk_ptr;
 	int sdata[64];
 
 	LOAD_INIT();
@@ -91,7 +91,7 @@ static int mgt_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	ins_ptr = hio_read32b(f);
 	pat_ptr = hio_read32b(f);
 	trk_ptr = hio_read32b(f);
-	smp_ptr = hio_read32b(f);
+	hio_read32b(f);			/* sample offset */
 	hio_read32b(f);			/* total smp len */
 	hio_read32b(f);			/* unpacked trk size */
 
@@ -196,6 +196,12 @@ static int mgt_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 	/* Tracks */
 
+	/* Sanity check */
+	if (trk_ptr >= hio_size(f)) {
+		D_(D_CRIT "track pointer past EOF, can't load tracks");
+		return -1;
+	}
+
 	for (i = 1; i < mod->trk; i++) {
 		int offset, rows;
 		uint8 b;
@@ -215,7 +221,11 @@ static int mgt_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 		//printf("\n=== Track %d ===\n\n", i);
 		for (j = 0; j < rows; j++) {
-			uint8 note, f2p;
+			uint8 note;
+			/* TODO libxmp can't really support the wide effect
+			 * params Megatracker uses right now, but less bad
+			 * conversions of certain effects could be attempted. */
+			/* uint8 f2p ;*/
 
 			b = hio_read8(f);
 			j += b & 0x03;
@@ -237,7 +247,7 @@ static int mgt_load(struct module_data *m, HIO_HANDLE *f, const int start)
 			if (b & 0x40)
 				event->fxp = hio_read8(f);
 			if (b & 0x80)
-				f2p = hio_read8(f);
+				/*f2p =*/ hio_read8(f);
 
 			if (note == 1)
 				event->note = XMP_KEY_OFF;
@@ -248,13 +258,13 @@ static int mgt_load(struct module_data *m, HIO_HANDLE *f, const int start)
 			if (event->fxt < 0x10)
 				/* like amiga */ ;
 			else switch (event->fxt) {
-			case 0x13: 
-			case 0x14: 
-			case 0x15: 
-			case 0x17: 
-			case 0x1c: 
-			case 0x1d: 
-			case 0x1e: 
+			case 0x13:
+			case 0x14:
+			case 0x15:
+			case 0x17:
+			case 0x1c:
+			case 0x1d:
+			case 0x1e:
 				event->fxt = FX_EXTENDED;
 				event->fxp = ((event->fxt & 0x0f) << 4) |
 							(event->fxp & 0x0f);
@@ -324,8 +334,8 @@ static int mgt_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 	/* Extra track */
 	if (mod->trk > 0) {
-		mod->xxt[0] = calloc(sizeof(struct xmp_track) +
-			sizeof(struct xmp_event) * 64 - 1, 1);
+		mod->xxt[0] = (struct xmp_track *) calloc(1, sizeof(struct xmp_track) +
+							     sizeof(struct xmp_event) * 64 - 1);
 		mod->xxt[0]->rows = 64;
 	}
 

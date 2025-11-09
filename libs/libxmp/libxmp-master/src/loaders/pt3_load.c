@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2018 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2025 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -20,7 +20,6 @@
  * THE SOFTWARE.
  */
 
-#include <stdio.h>
 #include "loader.h"
 #include "mod.h"
 #include "iff.h"
@@ -80,7 +79,7 @@ struct local_data {
 	int has_ptdt;
 };
 
-static int get_info(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
+static int get_info(struct module_data *m, uint32 size, HIO_HANDLE *f, void *parm)
 {
 	struct xmp_module *mod = &m->mod;
 	struct local_data *data = (struct local_data *)parm;
@@ -98,7 +97,7 @@ static int get_info(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 	mod->len = hio_read16b(f);
 	mod->pat = hio_read16b(f);
 	mod->gvl = hio_read16b(f);
-	mod->bpm = hio_read16b(f);
+	mod->bpm = hio_read16b(f);	/* Not clamped by Protracker 3.6 */
 	/*flags =*/ hio_read16b(f);
 	/*day   =*/ hio_read16b(f);
 	/*month =*/ hio_read16b(f);
@@ -124,16 +123,17 @@ static int get_info(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 	return 0;
 }
 
-static int get_cmnt(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
+static int get_cmnt(struct module_data *m, uint32 size, HIO_HANDLE *f, void *parm)
 {
-	D_(D_INFO "Comment size: %d", size);
+	D_(D_INFO "Comment size: %u", (unsigned)size);
 
 	return 0;
 }
 
-static int get_ptdt(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
+static int get_ptdt(struct module_data *m, uint32 size, HIO_HANDLE *f, void *parm)
 {
 	struct local_data *data = (struct local_data *)parm;
+	long pos, pos2;
 
 	/* Sanity check */
 	if(data->has_ptdt) {
@@ -141,8 +141,30 @@ static int get_ptdt(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 	}
 	data->has_ptdt = 1;
 
+	pos = hio_tell(f);
 	ptdt_load(m, f, 0);
 
+	/* Check total loaded length.
+	 * NOTE: some Protracker 3.6 files lie about the length of the PTDT
+	 * chunk due to what appears to be a bug--files with samples of length
+	 * 64k or greater will be undercounted in the chunk length by 65536. */
+	pos2 = hio_tell(f);
+	if (pos < pos2) {
+		int adjust = 0;
+		int i;
+
+		for (i = 0; i < m->mod.smp; i++) {
+			if (m->mod.xxs[i].len >= 65536) {
+				adjust += 65536;
+			}
+		}
+		if (pos2 - pos - adjust < 0 ||
+		    pos2 - pos - adjust != (int64)size) {
+			D_(D_WARN "PTDT length check failed: "
+			   "length %ld - adjust %d != %u (report this)",
+			   pos2 - pos, adjust, (unsigned)size);
+		}
+	}
 	return 0;
 }
 
@@ -163,7 +185,8 @@ static int pt3_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	hio_read32b(f);		/* VERS */
 	hio_read32b(f);		/* VERS size */
 
-	hio_read(buf, 1, 10, f);
+	if (hio_read(buf, 1, 10, f) < 10)
+		return -1;
 	libxmp_set_type(m, "%-6.6s IFFMODL", buf + 4);
 
 	handle = libxmp_iff_new();

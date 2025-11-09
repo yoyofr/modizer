@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2018 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2021 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -141,7 +141,7 @@ static int c669_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
     MODULE_INFO();
 
-    m->comment = malloc(109);
+    m->comment = (char *) malloc(109);
     memcpy(m->comment, sfh.message, 108);
     m->comment[108] = 0;
 

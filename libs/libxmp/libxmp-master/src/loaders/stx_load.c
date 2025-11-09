@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2018 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2022 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -36,13 +36,13 @@
 
 #include "loader.h"
 #include "s3m.h"
-#include "period.h"
+#include "../period.h"
 
 struct stx_file_header {
 	uint8 name[20];		/* Song name */
 	uint8 magic[8];		/* !Scream! */
 	uint16 psize;		/* Pattern 0 size? */
-	uint16 unknown1;	/* ??!? */
+	uint16 unknown1;	/* ?! */
 	uint16 pp_pat;		/* Pointer to pattern table */
 	uint16 pp_ins;		/* Pattern to instrument table */
 	uint16 pp_chn;		/* Pointer to channel table (?) */
@@ -201,16 +201,15 @@ static int stx_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	if (bmod2stm)
 		libxmp_set_type(m, "BMOD2STM STX");
 	else
-		snprintf(mod->type, XMP_NAME_SIZE, "STM2STX 1.%d",
-			 broken ? 0 : 1);
+		snprintf(mod->type, XMP_NAME_SIZE, "STM2STX 1.%d", broken ? 0 : 1);
 
 	MODULE_INFO();
 
-	pp_pat = calloc(2, mod->pat);
+	pp_pat = (uint16 *) calloc(mod->pat, sizeof(uint16));
 	if (pp_pat == NULL)
 		goto err;
 
-	pp_ins = calloc(2, mod->ins);
+	pp_ins = (uint16 *) calloc(mod->ins, sizeof(uint16));
 	if (pp_ins == NULL)
 		goto err2;
 
@@ -237,7 +236,6 @@ static int stx_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		goto err3;
 
 	/* Read and convert instruments and samples */
-
 	for (i = 0; i < mod->ins; i++) {
 		if (libxmp_alloc_subinstrument(mod, i, 1) < 0)
 			goto err3;
@@ -287,7 +285,7 @@ static int stx_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		   mod->xxi[i].sub[0].vol, sih.c2spd);
 
 		libxmp_c2spd_to_note(sih.c2spd, &mod->xxi[i].sub[0].xpo,
-			      &mod->xxi[i].sub[0].fin);
+				      &mod->xxi[i].sub[0].fin);
 	}
 
 	if (libxmp_init_pattern(mod) < 0)

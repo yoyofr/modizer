@@ -1,18 +1,271 @@
 Stable versions
 ---------------
 
-4.5.0 ():
+4.6.4 (?):
 	Changes by Alice Rowan:
+	- Add support for Pack-Ice ("Ice!", "ICE!") depacking.
+	- Add support for Software Visions DMF (Apocalypse Abyss MOD variant).
+	- Replace kernel list helper in iff.c with custom list management
+	  to fix numerous otherwise unfixable KallistiOS redefinition warnings.
+	- All internal module time/duration calculations are now in doubles
+	  (fixes off-by-one module time on final tick of some modules).
+	- IFF format loading is now more permissive toward errors in the IFF
+	  tag structure, fixing some broken modules that would load for 64-bit
+	  Linux builds but not for Windows.
+
+4.6.3 (20250511):
+	Changes by Alice Rowan:
+	- Fix crashes when xmp_set_position is used to set a negative position.
+	  Negative positions now correctly return -XMP_ERROR_INVALID.
+	- Fix crashes when xmp_set_row is used to set a negative row.
+	  Negative positions now correctly return -XMP_ERROR_INVALID.
+	- Fix hangs when xmp_prev_position is used on the first position of
+	  a sequence which is preceded by an S3M/IT skip marker.
+	- Fix out-of-bounds reads when xmp_next_position is used at the end of
+	  a 256 position module.
+	- Fix hangs when seeking to an end-of-module marker caused by these
+	  positions getting assigned a non-existent sequence.
+	- Document xmp_set_position/xmp_next_position/xmp_prev_position
+	  interactions with xmp_stop_module/xmp_restart_module.
+	- Fix stack underflow in Pha Packer loader (CVE-2025-47256).
+	- Slight performance improvements for the Oktalyzer and SFX loaders.
+	- Fix broken conversion of ProRunner 2.0 pattern data.
+	- xmp_set_tempo_factor no longer alters frame time calculation for
+	  xmp_get_frame_info. Frame time is now updated to account for the
+	  new time factor after calling xmp_scan_module.
+	- Fix loading XMs with some types of harmless pattern truncation.
+	  See: Jazztiz/ta-da-da-da.xm, Sonic (UK)/phuture.xm, et al.
+	- Fix Poly Tracker pattern break hex parameter.
+	- Fix Digital Tracker broken instrument finetune.
+	- Fix Digital Tracker 2.03 position jump effect for 4 channel DTMs.
+	- Fix pattern loop jump interactions with same row pattern jump/break:
+	  Scream Tracker 3.03b+; Impulse Tracker 1.00 to 1.06 IT;
+	  Impulse Tracker 2.00+ IT/S3M; Modplug Tracker 1.16 IT/XM/S3M;
+	  Imago Orpheus IMF/S3M; Liquid Tracker LIQ/S3M; Poly Tracker;
+	  Digital Tracker <=2.02 DTM/MOD; Digital Tracker 2.03 (partial);
+	  Digital Tracker 1.9 (partial); Octalyser.
+	Changes by Thomas Neumann:
+	- Fix the pattern loop effect in Astroidea XMF loader.
+	- Fix loading of Extreme Pinball modules.
+
+4.6.2 (20250224):
+	Changes by Alice Rowan:
+	- Fix MED effect 1Fxy (delay and retrigger). The new implementation
+	  supports both delay and retrigger at the same time and repeats.
+	- Fix MED effect FF3 (revert change from 4.6.1). The buggy version
+	  of this effect prior to OctaMED v5 is not currently supported.
+	- Fix MED3 and MED4 time factor and tempos 1-10.
+	- Fix MED4 effect 9xx (set speed).
+	- Add support for MED3 and MED4 song files.
+	- Better MED MMD tracker version fingerprinting.
+	- Fix loading external instruments from the current directory.
+	Changes by Thomas Neumann:
+	- Fix oxm modules with empty samples (e.g.: The Four Ages.oxm)
+	- Fix some modules would be misidentified as Scream Tracker 2.
+	- Handle IT modules with edit history but no midi configuration
+	Changes by Ozkan Sezer:
+	- Revert a bad CVE fix to the miniz inflate code
+	- Add missing HAVE_DIRENT definition to Android makefile.
+
+4.6.1 (20250101):
+	Changes by Claudio Matsuoka:
+	- The full library is now under MIT license
+	Changes by Alice Rowan:
+	- Add stereo sample loading support for IT, S3M, XM, MED, LIQ, and
+	  Digital Tracker (partial).
+	- Add sample preamplification to filter mixers for high sample rates.
+	- Add support for Ultra Tracker tempo commands.
+	- Load Ultra Tracker comments instead of skipping them.
+	- Implement support for Protracker instrument swapping.
+	- Implement retrigger effects for MED, OctaMED, and Liquid Tracker
+	  where only one retrigger occurs. Liquid Tracker (new format) and
+	  Digital Symphony now allow retrigger values larger than 15.
+	- Fix XM envelope sustain points that exist on a zero-length loop.
+	- Fix XM extra fine portamento effect memory.
+	- Fix XM portamento up and portamento down memory (only for modules
+	  where FT2 bug compatibility is enabled, for now).
+	- Fix loading edge case STMs with an EOF byte of 2.
+	- Fix loading Imago Orpheus modules with null instrument magic
+	  strings, bidirectional samples, and disabled default panning.
+	- Faster IT loading by buffering pattern, sample, and comment reads.
+	- Fix loop detection edge cases broken by S3M/IT marker scan bugs.
+	- Add fix for IT break to module scan (was missed in libxmp 4.5.0.)
+	- Fix restart position for >64k sample and Digital Tracker MODs.
+	- Reset Invert Loop position when a new instrument is encountered.
+	- MOD: make presence of invert loop override tracker ID guesses.
+	  M.K. modules within Amiga limits which use EFx invert loop are
+	  now IDed as Protracker.
+	- Multiple Digital Tracker bug fixes:
+	  * Support for loading Digital Tracker 2.03 DTMs (MOD patterns).
+	  * Support for loading Digital Tracker 1.9 DTMs (VERS/SV19).
+	  * Better Digital Tracker version fingerprinting.
+	  * Fix Digital Tracker 2.03 global sample rate and bit depth fields.
+	  * Fix Digital Tracker 2.04 pattern note loading (was off-by-one).
+	  * Fix Digital Tracker instrument loops (loop end was off-by-one).
+	  * Allow patterns up to 396 rows in Digital Home Studio DTMs.
+	  * Support for Digital Tracker 1.9 "MIDI note" transpose.
+	  * Simulate Digital Tracker effects bugs where possible.
+	  * Fix loading of Digital Tracker module names (not always 32 bytes).
+	- Liquid Tracker bug fixes:
+	  * [Old] Fix loading of module and instrument names (fixes the old
+	    format version of WASTETIM.LIQ).
+	  * [Old] Fix loading of instrument lengths/loops (32-bit, not 16-bit).
+	  * [Old] Fix loading of pattern notes and volumes (off-by-one).
+	  * [Old] Fix initial panning.
+	  * [Old] Most effects are now supported. H70/H6A is not yet supported.
+	    Fxx, if it was ever implemented, is not yet supported.
+	  * [New] Fixed Pan Control, Retrigger, Global Volume effects, and
+	    vibrato/tremolo waveform 3. P70/P6A is not yet supported.
+	  * [New] Fix incorrect bounding of notes that caused several LIQs
+	    to fail to load.
+	  * [New] Fix loading of pattern volumes (off-by-one).
+	  * [New] 16-bit samples with loops no longer cause a failed load.
+	  * [New] Fix loading of instrument global volumes.
+	  * [New] Add support for ping pong loops.
+	  * [New] Fix initial channel volume/pan tables for 0.00 LIQs.
+	  * [New] Support channel volume and instrument global volume gain
+	    functionality by doubling the mix volume once for each (4x total).
+	  * [Both] Stopped incorrectly applying QUIRK_S3MLOOP, QUIRK_VOLPDN,
+	    QUIRK_S3MRTG, and QUIRK_MARKER.
+	- Fix loading of Poly Tracker (PTM) empty sample names.
+	- Fix Real Tracker loader on targets where char is unsigned by default.
+	- Fix out-of-bounds reads in His Master's Noise Mupp instruments.
+	- Fix slow ProWizard testing.
+	- Fix Paula mixer state leak after changing XMP_PLAYER_MODE.
+	- Replace rand() with a built-in reentrant alternative.
+	- xmp_set_tempo_factor now returns -XMP_ERROR_STATE when called prior
+	  to xmp_start_player (instead of causing crashes).
+	- Fix mixer crashes caused by previously valid tempo factors after
+	  sample rate or BPM changes.
+	- Passing NULL to xmp_set_instrument_path() now unsets the instrument
+	  path instead of crashing.
+	- Merge song file instrument path detection routines.
+	- Fix module scan pattern delay counting.
+	- Add compatibility for non-standard Pattern Loop implementations:
+	  Scream Tracker 3.01b; Scream Tracker 3.03b+; Impulse Tracker 1.00;
+	  Impulse Tracker 1.04 to 2.09; Modplug Tracker 1.16; Digital Tracker
+	  <=2.04; Digital Tracker 1.9; Octalyser; Imago Orpheus; Liquid Tracker;
+	  Poly Tracker. (MOD, FT2, and IT 2.10+ were already supported.)
+	- Fixed numerous defects found by fuzzing.
+	Changes by Thomas Neumann:
+	- Fix XM envelope handling
+	- Bug fixes to DSMI loader
+	- Fix 16-bit sample check in MultiTracker loader
+	- Fix finetune in MultiTracker loader
+	- Fix XM restart position, so that it is possible to play
+	 "10 Days Of Abstinence.xm"
+	Changes by Saga Musix:
+	- S3M: Detect PlayerPRO, Velvet Studio and old MPT versions
+	Changes by ds-sloth:
+	- Optimize scan code for common case of no effects
+	Changes by Misty De Méo:
+	- Filter off html files when reading archives.
+	Changes by Ozkan Sezer:
+	- Change lha depacker to use a stripped down version of lhasa.
+	- Merge several CVE fixes to depackers stb_vorbis backend.
+	- Make the lite version buildable from git or full distribution.
+	- Build system fixes and clean-ups. Misc code clean-ups.
+
+4.6.0 (20230615):
+	Changes by Alice Rowan:
+	- Add Astroidea XMF format loader.
+	- Implement S3M and IT mix volume.
+	- Add IT MIDI macro filter effects support.
+	- Fix for IT filter cutoff 127 on new note behavior.
+	- Add missing IT filter clamp to mixer loops.
+	- Fix IT duplicate note check to use the key prior to transpose.
+	- Fix multiple IT playback bugs affecting, e.g. Atomic Playboy.
+	- Fix IT tone portamento and offset.
+	- Fix reverse sustain loop release bug, add IT effect S9F support.
+	- Add Modplug ADPCM4 support for Impulse Tracker modules.
+	- Improve anticlick performance and fix anticlick filter volume bug.
+	- IT fade envelope reset should only affect volume envelope.
+	- Fix Impulse Tracker envelope and fadeout order.
+	- Replace bidirectional loop unrolling with reverse sample rendering.
+	- Fix crash when xmp_set_row() is used on an IT end marker.
+	- Fix NNA and tone portamento interaction with sample changes.
+	- Add compatibility for Modplug Tracker preamp scaling.
+	- Add tracker detection for ModPlug Tracker XMs, pre-alpha ITs.
+	- New Protracker CIA and VBlank timing detection routine.
+	- Fix detection for TakeTracker TDZx MODs.
+	- Fix loading of Digital Tracker FA0x MODs.
+	- Fix ASYLUM Music Format restart byte.
+	- Fix >1MB S3M modules relying on the sample segment high byte.
+	- New MIT-licensed Digital Symphony LZW decoder.
+	- Add support for Digital Symphony sigma-delta samples.
+	- Fix Digital Symphony effects and pattern loading issues.
+	- Fix support for most Farandole Composer effects.
+	- Implement Ultra Tracker tone portamento.
+	- Multiple OctaMED fixes and support for MMDC packed modules.
+	- Fix MED Soundstudio 2 default note events.
+	- Fix MTM tempo effect and FX_SPEED scan bugs.
+	- Add MTM module tempo mode detection and comments support.
+	- Multiple fixes and updates for ST modules.
+	- Move interpolation wraparound handling out of sample loader.
+	- Don't increment voice position by step value at loop/tick end.
+	- Several loading performance improvements.
+	- Allow up to 255 sequences to be scanned.
+	- Allow xmp_smix_play functions to play key off, cut and fade events.
+	- Allow loading MED2 samples from the module directory.
+	- Fix misc. bugs in the MASI 16 loader.
+	- Fix heap corruption in Coconizer loader with invalid sequences.
+	- Fix MMCMP literal block unpacking.
+	- Fix bad seeking behavior in MMCMP compressed blocks.
+	- New permissive licensed Amiga LZX and ARC/ArcFS depackers.
+	- Update XZ depacker with an MIT reimplementation.
+	- Fixed numerous defects found by fuzzing.
+	Changes by Saga Musix:
+	- Fix MMD0 pattern loader to honor play transpose setting.
+	Changes by Vitaly Novichkov:
+	- Cmake build system support.
+	Changes by Anonymous Maarten:
+	- Cmake and autotools build system updates.
+	Changes by Ozkan Sezer:
+	- Galaxy Music System loading no longer needs including depackers
+	  to inflate MUSE container.
+	- Cleanups and refactoring of platform-specific code.
+	- Multiple code cleanups.
+	- Build system fixes and clean-ups.
+	Changes by Claudio Matsuoka:
+	- Fix linkage with gcc when versioned symbols and LTO are enabled.
+	Changes by Cameron Cawley:
+	- Integrate the OXM depacker with the XM loader.
+	- Change several depackers to work without using a temporary file.
+	- Replace inflate code with permissive licensed miniz.
+	- Update the bzip2 depacker code to a newer 0BSD-licensed version.
+	- Update to latest version of stb_vorbis depacker.
+	- Several code and build system clean-ups.
+	Changes by Clownacy:
+	- Fixes and cleanups for C++ compatibility.
+	Changes by Chris Young:
+	- Relicense XFD decruncher under MIT.
+	Changes by Denis Barkar:
+	- Fix compilation for UWP platform.
+
+4.5.0 (20210606):
+	Changes by Alice Rowan:
+	- xmp_load_module_from_callbacks and xmp_test_module_from_callbacks
+	  added to api
 	- fix xmp_set_position et al. when used during loops, pattern delay
 	- make xmp_set_position() consistently clear pattern break/jump vars
+	- avoid shell command injection when calling external unmo3 or unrar
 	- fix volume event handling for FAR modules
 	- fix GDM loader to correctly handle empty notes
 	- fix GDM fine effects
+	- fix incorrect handling of GDM speed effect
+	- implement GDM surround effect
+	- add support for DSMI 0.8 and 0.9 AMF modules
+	- fix incorrect DSMI AMF volume and note 0x7f handling
+	- fix DSMI AMF track 0 remapping bug
+	- fix DSMI AMF speed effect and pan command conversions
+	- fix IMAGO Orpheus channel panning and status values
 	- fix S3M ADPCM4 samples
-	- fix OctaMED 'tracker compatibility' tempos
+	- fix OctaMED 'tracker compatibility' tempos, more accurate OctaMED
+	  8-channel mode BPM tables.
 	- ignore MED volume/slide effects with param of 0, fix speed bound.
 	- improve MOD loader checks for Mod's Grave WOW files
 	- fix Schism Tracker version date calculation
+	- fix MED2 BPM handling
 	- fix MED modules with pattern lengths > 256
 	- fix MED instrument corruption
 	- allow up to 512 rows in X-Tracker patterns
@@ -35,7 +288,7 @@ Stable versions
 	Changes by viiri:
 	- fix samples corruption in STM modules
 	- support more versions of STM modules
-	Changes by Ozkan Sezer:
+	Changes by Özkan Sezer:
 	- add new xmp_syserrno call to the api
 	- xmp_get_format_list() now returns const char* const*, not char**
 	  (no ABI change)
@@ -75,6 +328,8 @@ Stable versions
 	- fix mute status on player creation
 	Changes by Cameron Cawley:
 	- fix sanity check in Digital Symphony loader
+	- fix and enable the Coconizer loader
+	- support compiling for Windows with OpenWatcom
 	Changes by Ghabry:
 	- add xmp_test_module_from_memory and xmp_test_module_from_file
 	  calls to api
@@ -161,7 +416,7 @@ Stable versions
 	- add frequency-based "period" mode
 	- add support to IT sample sustain loop
 	- limit Oktalyzer modules to MOD note range
-	- remove broken synth chip and Adlib emulation suport
+	- remove broken synth chip and Adlib emulation support
 	- code refactoring and cleanup
 
 4.3.13 (20160417):
@@ -542,7 +797,7 @@ Stable versions
 	Other changes:
 	- fix double free in module loaded from memory (by Arnaud Troël)
 	- fix old Soundtracker sample loops (reported by Dennis Lindroos)
-	- fix Win64 portability issues (reported by Ozkan Sezer)
+	- fix Win64 portability issues (reported by Özkan Sezer)
 	- fix OctaMED 3 octave limit for sampled instruments
 	- fix OctaMED hold/decay event support
 	- fix OctaMED vibrato effect depth
@@ -788,7 +1043,7 @@ Stable versions
 	- fix AMF volume slide effect
 	- fix AMF track allocation
 	- fix OpenBSD driver configuration
-	- fix patern delay + pattern break command (reported by The Welder)
+	- fix pattern delay + pattern break command (reported by The Welder)
 	- fix memory leaks found by cppcheck (reported by Paul Wise)
 	- fix XM note cut on invalid instrument (reported by Benjamin Shadwick)
 	- fix invalid memory access in case of mismatched track/pattern lengths
@@ -862,7 +1117,7 @@ Stable versions
 	- code cleanup and optimizations
 	- Android port using NDK
 	- fix time echoback event for MED
-	- fix module time count not reseting at new module
+	- fix module time count not resetting at new module
 	- make zipfile detection stricter (by Solomon Peachy)
 	- fix DSMI loader volume event (by Solomon Peachy)
 	- initialize formats only once
@@ -891,7 +1146,7 @@ Stable versions
 	- better handling of corrupted modules
 	- load Real Tracker RTMM 1.12 modules (tested with odyssey.rtm)
 	- fix tuning of Real Tracker modules
-	- fix Real Tracker patern decoding
+	- fix Real Tracker pattern decoding
 	- fix segfault in modules with 0 orders or 0 channels
 	- fix loading of MED4 module patterns with less than 32 lines
 	- fix memory leak when loading corrupt MED4 files
@@ -1568,7 +1823,7 @@ Stable versions
 	- Channel 1 to 10 mute/unmute keys changed
 	- cfg.mode -1 bias removed
 	- --ignoreff option removed
-	- Reserved & unsed fields removed from structures
+	- Reserved & unused fields removed from structures
 	- S3M tremor effect implemented
 	- XM keyoff effect implemented
 	- Experimental (untested) SGI driver
@@ -1645,7 +1900,7 @@ Stable versions
 	- Support for Oktalyzer 7 bit samples
 	- Support for IFF modules and variations
 	- S3M arpeggio kludge removed
-	- S3M module length adjusted discarding 0xff paterns
+	- S3M module length adjusted discarding 0xff patterns
 	- S3M set tempo/BPM effect adjusted
 	- XM envelope loop bug fixed ("Shooting Star" plays correctly)
 	- XM 16 bit sample conversion bug fixed ("Hyperdrive" plays correctly)
@@ -1866,5 +2121,3 @@ Development (unreleased) versions
 
 0.05 and before:
 	- Lots of changes.
-
-

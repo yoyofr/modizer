@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2018 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2025 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -20,11 +20,9 @@
  * THE SOFTWARE.
  */
 
-#include <unistd.h>
-#include <limits.h>
 #include "loader.h"
 #include "iff.h"
-#include "period.h"
+#include "../period.h"
 
 /* Galaxy Music System 4.0 module file loader
  *
@@ -42,7 +40,7 @@ const struct format_loader libxmp_loader_gal4 = {
 
 static int gal4_test(HIO_HANDLE *f, char *t, const int start)
 {
-        if (hio_read32b(f) != MAGIC4('R', 'I', 'F', 'F'))
+	if (hio_read32b(f) != MAGIC4('R', 'I', 'F', 'F'))
 		return -1;
 
 	hio_read32b(f);
@@ -63,13 +61,14 @@ struct local_data {
     int snum;
 };
 
-static int get_main(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
+static int get_main(struct module_data *m, uint32 size, HIO_HANDLE *f, void *parm)
 {
 	struct xmp_module *mod = &m->mod;
 	char buf[64];
 	int flags;
 
-	hio_read(buf, 1, 64, f);
+	if (hio_read(buf, 1, 64, f) < 64)
+		return -1;
 	strncpy(mod->name, buf, 63);	/* ensure string terminator */
 	mod->name[63] = '\0';
 	libxmp_set_type(m, "Galaxy Music System 4.0");
@@ -92,7 +91,7 @@ static int get_main(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 	return 0;
 }
 
-static int get_ordr(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
+static int get_ordr(struct module_data *m, uint32 size, HIO_HANDLE *f, void *parm)
 {
 	struct xmp_module *mod = &m->mod;
 	int i;
@@ -109,7 +108,7 @@ static int get_ordr(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 	return 0;
 }
 
-static int get_patt_cnt(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
+static int get_patt_cnt(struct module_data *m, uint32 size, HIO_HANDLE *f, void *parm)
 {
 	struct xmp_module *mod = &m->mod;
 	int i;
@@ -122,7 +121,7 @@ static int get_patt_cnt(struct module_data *m, int size, HIO_HANDLE *f, void *pa
 	return 0;
 }
 
-static int get_inst_cnt(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
+static int get_inst_cnt(struct module_data *m, uint32 size, HIO_HANDLE *f, void *parm)
 {
 	struct xmp_module *mod = &m->mod;
 	int i;
@@ -144,7 +143,7 @@ static int get_inst_cnt(struct module_data *m, int size, HIO_HANDLE *f, void *pa
 	return 0;
 }
 
-static int get_patt(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
+static int get_patt(struct module_data *m, uint32 size, HIO_HANDLE *f, void *parm)
 {
 	struct xmp_module *mod = &m->mod;
 	struct xmp_event *event, dummy;
@@ -214,13 +213,13 @@ static int get_patt(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 	return 9;
 }
 
-static int get_inst(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
+static int get_inst(struct module_data *m, uint32 size, HIO_HANDLE *f, void *parm)
 {
 	struct xmp_module *mod = &m->mod;
 	struct local_data *data = (struct local_data *)parm;
 	int i, j;
 	int srate, finetune, flags;
-	int val, vwf, vra, vde, vsw, fade;
+	int val, vwf, vra, vde, vsw /*, fade*/;
 	uint8 buf[30];
 
 	hio_read8(f);		/* 00 */
@@ -283,7 +282,10 @@ static int get_inst(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 	if (mod->xxi[i].pei.npt <= 0 || mod->xxi[i].pei.npt > MIN(10, XMP_MAX_ENV_POINTS))
 		mod->xxi[i].pei.flg &= ~XMP_ENVELOPE_ON;
 
-	hio_read(buf, 1, 30, f);		/* volume envelope points */;
+	if (hio_read(buf, 1, 30, f) < 30) {	/* volume envelope points */
+		D_(D_CRIT "read error at vol env %d", i);
+		return -1;
+	}
 	for (j = 0; j < mod->xxi[i].aei.npt; j++) {
 		if (j >= 10) {
 			break;
@@ -292,7 +294,10 @@ static int get_inst(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 		mod->xxi[i].aei.data[j * 2 + 1] = buf[j * 3 + 2];
 	}
 
-	hio_read(buf, 1, 30, f);		/* pan envelope points */;
+	if (hio_read(buf, 1, 30, f) < 30) {	/* pan envelope points */
+		D_(D_CRIT "read error at pan env %d", i);
+		return -1;
+	}
 	for (j = 0; j < mod->xxi[i].pei.npt; j++) {
 		if (j >= 10) {
 			break;
@@ -301,7 +306,7 @@ static int get_inst(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 		mod->xxi[i].pei.data[j * 2 + 1] = buf[j * 3 + 2];
 	}
 
-	fade = hio_read8(f);		/* fadeout - 0x80->0x02 0x310->0x0c */
+	/*fade =*/ hio_read8(f);	/* fadeout - 0x80->0x02 0x310->0x0c */
 	hio_read8(f);			/* unknown */
 
 	D_(D_INFO "[%2X] %-28.28s  %2d ", i, mod->xxi[i].name, mod->xxi[i].nsm);

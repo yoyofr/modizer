@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2018 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2024 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -20,6 +20,9 @@
  * THE SOFTWARE.
  */
 
+#ifndef LIBXMP_LOADERS_S3M_H
+#define LIBXMP_LOADERS_S3M_H
+
 /* S3M packed pattern macros */
 #define S3M_EOR		0	/* End of row */
 #define S3M_CH_MASK	0x1f	/* Channel */
@@ -27,10 +30,16 @@
 #define S3M_VOL_FOLLOWS	0x40	/* Volume follows */
 #define S3M_FX_FOLLOWS	0x80	/* Effect and parameter follow */
 
+/* S3M mix volume macros */
+#define S3M_MV_VOLUME	0x7f	/* Module mix volume, typically 16 to 127 */
+#define S3M_MV_STEREO	0x80	/* Module is stereo if set, otherwise mono */
+
 /* S3M channel info macros */
 #define S3M_CH_ON	0x80	/* Psi says it's bit 8, I'll assume bit 7 */
 #define S3M_CH_OFF	0xff
-#define S3M_CH_PAN	0x7f	/* Left/Right */
+#define S3M_CH_NUMBER	0x1f
+#define S3M_CH_RIGHT	0x08
+#define S3M_CH_ADLIB	0x10
 
 /* S3M channel pan macros */
 #define S3M_PAN_SET	0x20
@@ -54,6 +63,11 @@
 #define S3M_INST_ATOM	0x05
 #define S3M_INST_ACYM	0x06
 #define S3M_INST_AHIHAT	0x07
+
+/* S3M sample flags */
+#define S3M_SAMP_LOOP	0x01
+#define S3M_SAMP_STEREO	0x02
+#define S3M_SAMP_16BIT	0x04
 
 struct s3m_file_header {
 	uint8 name[28];		/* Song name */
@@ -79,7 +93,8 @@ struct s3m_file_header {
 };
 
 struct s3m_instrument_header {
-	uint8 dosname[13];	/* DOS file name */
+	uint8 dosname[12];	/* DOS file name */
+	uint8 memseg_hi;	/* High byte of sample pointer */
 	uint16 memseg;		/* Pointer to sample data */
 	uint32 length;		/* Length */
 	uint32 loopbeg;		/* Loop begin */
@@ -113,4 +128,4 @@ struct s3m_adlib_header {
 	uint32 magic;		/* 'SCRI' */
 };
 #endif
-
+#endif  /* LIBXMP_LOADERS_S3M_H */

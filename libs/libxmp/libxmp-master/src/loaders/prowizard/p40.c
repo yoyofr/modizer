@@ -1,13 +1,33 @@
+/* ProWizard
+ * Copyright (C) 1997 Asle / ReDoX
+ * Copyright (C) 2007 Claudio Matsuoka
+ * Modified in 2021, 2023 by Alice Rowan.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
 /*
- * The_Player_4.0.c   Copyright (C) 1997 Asle / ReDoX
- *                    Copyright (C) 2007 Claudio Matsuoka
- *                    Modified in 2021 by Alice Rowan.
+ * The_Player_4.0.c
  *
  * The Player 4.0a and 4.0b to Protracker.
  */
 
-#include <string.h>
-#include <stdlib.h>
 #include "prowiz.h"
 
 #define MAGIC_P40A	MAGIC4('P','4','0','A')
@@ -22,12 +42,14 @@ static int set_event(uint8 *x, uint8 c1, uint8 c2, uint8 c3)
 
 	mynote = c1 & 0x7f;
 
-	if (PTK_IS_VALID_NOTE(mynote / 2)) {
-		*x++ = ((c1 << 4) & 0x10) | ptk_table[mynote / 2][0];
-		*x++ = ptk_table[mynote / 2][1];
-	} else {
-		return -1;
+	/* The Player 4.x may have junk data after Dxx, just dummy bad events
+	 * for now. Observed in Lost Vikings p4x.ingame3 and p4x.title */
+	if (!PTK_IS_VALID_NOTE(mynote / 2)) {
+		mynote = c1 = c2 = c3 = 0;
 	}
+
+	*x++ = ((c1 << 4) & 0x10) | ptk_table[mynote / 2][0];
+	*x++ = ptk_table[mynote / 2][1];
 
 	b = c2 & 0x0f;
 	if (b == 0x08)
@@ -60,11 +82,12 @@ static int depack_p4x(HIO_HANDLE *in, FILE *out)
 {
 	uint8 c1, c2, c3, c4, c5;
 	uint8 tmp[1024];
-	uint8 len, npat, nsmp;
+	uint8 len, nsmp;
 	uint8 *tdata;
 	uint16 track_addr[128][4];
+	long in_size;
 	int trkdat_ofs, trktab_ofs, smp_ofs;
-	int ssize = 0;
+	/* int ssize = 0; */
 	int SampleAddress[31];
 	int SampleSize[31];
 	int i, j, k, l, a, b, c;
@@ -89,7 +112,7 @@ static int depack_p4x(HIO_HANDLE *in, FILE *out)
 	}
 #endif
 
-	npat = hio_read8(in);		/* read Real number of pattern */
+	hio_read8(in);			/* read Real number of pattern */
 	len = hio_read8(in);		/* read number of patterns in list */
 
 	/* Sanity check */
@@ -105,11 +128,17 @@ static int depack_p4x(HIO_HANDLE *in, FILE *out)
 	}
 
 	hio_read8(in);			/* bypass empty byte */
-	trkdat_ofs = hio_read32b(in);	/* read track data address */
-	trktab_ofs = hio_read32b(in);	/* read track table address */
-	smp_ofs = hio_read32b(in);	/* read sample data address */
+	trkdat_ofs = hio_read32b(in) + 4;	/* read track data address */
+	trktab_ofs = hio_read32b(in) + 4;	/* read track table address */
+	smp_ofs = hio_read32b(in) + 4;		/* read sample data address */
 
-	if (hio_error(in)) {
+	/* Addresses count starting from after the magic string. */
+	if (hio_error(in) || trkdat_ofs < 4 || trktab_ofs < 4 || smp_ofs < 4) {
+		return -1;
+	}
+
+	in_size = hio_size(in);
+	if (trkdat_ofs >= in_size || trktab_ofs >= in_size || smp_ofs >= in_size) {
 		return -1;
 	}
 
@@ -121,7 +150,7 @@ static int depack_p4x(HIO_HANDLE *in, FILE *out)
 		SampleAddress[i] = ins.addr;
 		ins.size = hio_read16b(in);		/* sample size */
 		SampleSize[i] = ins.size * 2;
-		ssize += SampleSize[i];
+		/* ssize += SampleSize[i]; */
 		ins.loop_addr = hio_read32b(in);	/* loop start */
 		ins.loop_size = hio_read16b(in);	/* loop size */
 		ins.fine = 0;
@@ -131,6 +160,12 @@ static int depack_p4x(HIO_HANDLE *in, FILE *out)
 		ins.vol = hio_read8(in);		/* read vol */
 		if (id == MAGIC_P41A)
 			ins.fine = hio_read16b(in);	/* finetune */
+
+		/* Sanity check */
+		if (ins.addr < 0 || ins.loop_addr < 0 || ins.loop_addr < ins.addr ||
+		    ins.addr > in_size - smp_ofs) {
+			return -1;
+		}
 
 		/* writing now */
 		pw_write_zero(out, 22);			/* sample name */
@@ -150,7 +185,7 @@ static int depack_p4x(HIO_HANDLE *in, FILE *out)
 	write8(out, len);		/* write size of pattern list */
 	write8(out, 0x7f);		/* write noisetracker byte */
 
-	hio_seek(in, trktab_ofs + 4, SEEK_SET);
+	hio_seek(in, trktab_ofs, SEEK_SET);
 
 	for (c1 = 0; c1 < len; c1++)	/* write pattern list */
 		write8(out, c1);
@@ -161,12 +196,12 @@ static int depack_p4x(HIO_HANDLE *in, FILE *out)
 
 	for (i = 0; i < len; i++) {	/* read all track addresses */
 		for (j = 0; j < 4; j++)
-			track_addr[i][j] = hio_read16b(in) + trkdat_ofs + 4;
+			track_addr[i][j] = hio_read16b(in) + trkdat_ofs;
 	}
 
-	hio_seek(in, trkdat_ofs + 4, SEEK_SET);
+	hio_seek(in, trkdat_ofs, SEEK_SET);
 
-	if ((tdata = calloc(512, 256)) == NULL) {
+	if ((tdata = (uint8 *)calloc(512, 256)) == NULL) {
 		return -1;
 	}
 
@@ -175,13 +210,14 @@ static int depack_p4x(HIO_HANDLE *in, FILE *out)
 			hio_seek(in, track_addr[i][j], SEEK_SET);
 
 			for (k = 0; k < 64; k++) {
+				uint8 *tr;
 				c1 = hio_read8(in);
 				c2 = hio_read8(in);
 				c3 = hio_read8(in);
 				c4 = hio_read8(in);
 
 				if (c1 != 0x80) {
-					uint8 *tr = &track(i, j, k);
+					tr = &track(i, j, k);
 					if (hio_error(in) || set_event(tr, c1, c2, c3) < 0)
 						goto err;
 
@@ -190,9 +226,11 @@ static int depack_p4x(HIO_HANDLE *in, FILE *out)
 					if (c4 > 0x7f) {
 						k++;
 						for (l = 256; l > c4; l--) {
-							tr = &track(i, j, k);
+							/* Runs may extend beyond end of track */
 							if (k >= 64)
-								goto err;
+								break;
+
+							tr = &track(i, j, k);
 
 							set_event(tr, c1, c2, c3);
 							k++;
@@ -207,18 +245,22 @@ static int depack_p4x(HIO_HANDLE *in, FILE *out)
 				}
 
 				c5 = c2;
-				b = (c3 << 8) + c4 + trkdat_ofs + 4;
+				b = (c3 << 8) + c4 + trkdat_ofs;
 
 				hio_seek(in, b, SEEK_SET);
 
 				for (c = 0; c <= c5; c++) {
-					uint8 *tr = &track(i, j, k);
+					/* This may extend beyond end of track */
+					if (k >= 64)
+						break;
+
+					tr = &track(i, j, k);
 					c1 = hio_read8(in);
 					c2 = hio_read8(in);
 					c3 = hio_read8(in);
 					c4 = hio_read8(in);
 
-					if (hio_error(in) || k >= 64 || set_event(tr, c1, c2, c3) < 0)
+					if (hio_error(in) || set_event(tr, c1, c2, c3) < 0)
 						goto err;
 
 					if ((c4 > 0x00) && (c4 < 0x80))
@@ -226,9 +268,11 @@ static int depack_p4x(HIO_HANDLE *in, FILE *out)
 					if (c4 > 0x7f) {
 						k++;
 						for (l = 256; l > c4; l--) {
-							tr = &track(i, j, k);
+							/* Runs may extend beyond end of track */
 							if (k >= 64)
-								goto err;
+								break;
+
+							tr = &track(i, j, k);
 
 							set_event(tr, c1, c2, c3);
 							k++;
@@ -265,6 +309,9 @@ static int depack_p4x(HIO_HANDLE *in, FILE *out)
 		hio_seek(in, SampleAddress[i] + smp_ofs, SEEK_SET);
 		pw_move_data(out, in, SampleSize[i]);
 	}
+
+	/* Clear error indicator -- Lost Vikings p4x.ingame2 has a sample at EOF */
+	hio_error(in);
 
 	free(tdata);
 	return 0;

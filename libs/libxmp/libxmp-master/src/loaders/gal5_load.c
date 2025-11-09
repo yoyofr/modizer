@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2018 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2025 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -20,11 +20,9 @@
  * THE SOFTWARE.
  */
 
-#include <unistd.h>
-#include <limits.h>
 #include "loader.h"
 #include "iff.h"
-#include "period.h"
+#include "../period.h"
 
 /* Galaxy Music System 5.0 module file loader
  *
@@ -67,14 +65,15 @@ static int gal5_test(HIO_HANDLE *f, char *t, const int start)
 	return 0;
 }
 
-static int get_init(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
+static int get_init(struct module_data *m, uint32 size, HIO_HANDLE *f, void *parm)
 {
 	struct xmp_module *mod = &m->mod;
 	struct local_data *data = (struct local_data *)parm;
 	char buf[64];
 	int flags;
 
-	hio_read(buf, 1, 64, f);
+	if (hio_read(buf, 1, 64, f) < 64)
+		return -1;
 	strncpy(mod->name, buf, 63);	/* ensure string terminator */
 	mod->name[63] = '\0';
 	libxmp_set_type(m, "Galaxy Music System 5.0");
@@ -87,7 +86,11 @@ static int get_init(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 	hio_read16l(f);		/* unknown - 0x01c5 */
 	hio_read16l(f);		/* unknown - 0xff00 */
 	hio_read8(f);		/* unknown - 0x80 */
-	hio_read(data->chn_pan, 1, 64, f);
+
+	if (hio_read(data->chn_pan, 1, 64, f) != 64) {
+		D_(D_CRIT "error reading INIT");
+		return -1;
+	}
 
 	/* Sanity check */
 	if (mod->chn > XMP_MAX_CHANNELS)
@@ -96,7 +99,7 @@ static int get_init(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 	return 0;
 }
 
-static int get_ordr(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
+static int get_ordr(struct module_data *m, uint32 size, HIO_HANDLE *f, void *parm)
 {
 	struct xmp_module *mod = &m->mod;
 	int i;
@@ -110,7 +113,7 @@ static int get_ordr(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 	return 0;
 }
 
-static int get_patt_cnt(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
+static int get_patt_cnt(struct module_data *m, uint32 size, HIO_HANDLE *f, void *parm)
 {
 	struct xmp_module *mod = &m->mod;
 	int i;
@@ -123,7 +126,7 @@ static int get_patt_cnt(struct module_data *m, int size, HIO_HANDLE *f, void *pa
 	return 0;
 }
 
-static int get_inst_cnt(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
+static int get_inst_cnt(struct module_data *m, uint32 size, HIO_HANDLE *f, void *parm)
 {
 	struct xmp_module *mod = &m->mod;
 	int i;
@@ -142,7 +145,7 @@ static int get_inst_cnt(struct module_data *m, int size, HIO_HANDLE *f, void *pa
 	return 0;
 }
 
-static int get_patt(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
+static int get_patt(struct module_data *m, uint32 size, HIO_HANDLE *f, void *parm)
 {
 	struct xmp_module *mod = &m->mod;
 	struct xmp_event *event, dummy;
@@ -211,7 +214,7 @@ static int get_patt(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 	return 0;
 }
 
-static int get_inst(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
+static int get_inst(struct module_data *m, uint32 size, HIO_HANDLE *f, void *parm)
 {
 	struct xmp_module *mod = &m->mod;
 	int i, srate, finetune, flags;

@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2018 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2024 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -20,13 +20,6 @@
  * THE SOFTWARE.
  */
 
-#include <stdlib.h>
-#include <stddef.h>
-#include <limits.h>
-#ifndef LIBXMP_CORE_PLAYER
-#include <sys/types.h>
-#include <sys/stat.h>
-#endif
 #include "common.h"
 #include "memio.h"
 
@@ -39,7 +32,7 @@ static inline ptrdiff_t CAN_READ(MFILE *m)
 int mgetc(MFILE *m)
 {
 	if (CAN_READ(m) >= 1)
-		return *(uint8 *)(m->start + m->pos++);
+		return *(const uint8 *)(m->start + m->pos++);
 	return EOF;
 }
 
@@ -53,13 +46,16 @@ size_t mread(void *buf, size_t size, size_t num, MFILE *m)
 	}
 
 	if (should_read > can_read) {
-		should_read = can_read;
+		memcpy(buf, m->start + m->pos, can_read);
+		m->pos += can_read;
+
+		return can_read / size;
+	} else {
+		memcpy(buf, m->start + m->pos, should_read);
+		m->pos += should_read;
+
+		return num;
 	}
-
-	memcpy(buf, m->start + m->pos, should_read);
-	m->pos += should_read;
-
-	return should_read / size;
 }
 
 
@@ -96,23 +92,42 @@ int meof(MFILE *m)
 	return CAN_READ(m) <= 0;
 }
 
-MFILE *mopen(const void *ptr, long size)
+MFILE *mopen(void *ptr, long size, int free_after_use)
 {
 	MFILE *m;
 
-	m = (MFILE *)malloc(sizeof (MFILE));
+	m = (MFILE *) malloc(sizeof(MFILE));
 	if (m == NULL)
 		return NULL;
 
-	m->start = ptr;
+	m->start = (const unsigned char *)ptr;
 	m->pos = 0;
 	m->size = size;
+	m->ptr_free = free_after_use ? ptr : NULL;
+
+	return m;
+}
+
+MFILE *mcopen(const void *ptr, long size)
+{
+	MFILE *m;
+
+	m = (MFILE *) malloc(sizeof(MFILE));
+	if (m == NULL)
+		return NULL;
+
+	m->start = (const unsigned char *)ptr;
+	m->pos = 0;
+	m->size = size;
+	m->ptr_free = NULL;
 
 	return m;
 }
 
 int mclose(MFILE *m)
 {
+	if (m->ptr_free)
+		free(m->ptr_free);
 	free(m);
 	return 0;
 }

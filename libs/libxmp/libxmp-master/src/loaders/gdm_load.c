@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2018 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2024 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -26,7 +26,7 @@
  */
 
 #include "loader.h"
-#include "period.h"
+#include "../period.h"
 
 #define MAGIC_GDM	MAGIC4('G','D','M',0xfe)
 #define MAGIC_GMFS	MAGIC4('G','M','F','S')
@@ -58,7 +58,7 @@ static int gdm_test(HIO_HANDLE *f, char *t, const int start)
 
 
 
-void fix_effect(uint8 *fxt, uint8 *fxp)
+static void gdm_translate_effect(uint8 *fxt, uint8 *fxp)
 {
 	int h, l;
 	switch (*fxt) {
@@ -80,8 +80,7 @@ void fix_effect(uint8 *fxt, uint8 *fxp)
 	case 0x0a:
 	case 0x0b:
 	case 0x0c:
-	case 0x0d:
-	case 0x0f:			/* same as protracker */
+	case 0x0d:			/* same as protracker */
 		break;
 	case 0x0e:
 		/* Convert some extended effects to their S3M equivalents. This is
@@ -124,6 +123,9 @@ void fix_effect(uint8 *fxt, uint8 *fxp)
 				break;
 		}
 		break;
+	case 0x0f:			/* set speed */
+		*fxt = FX_S3M_SPEED;
+		break;
 	case 0x10:			/* arpeggio */
 		*fxt = FX_S3M_ARPEGGIO;
 		break;
@@ -141,6 +143,17 @@ void fix_effect(uint8 *fxt, uint8 *fxp)
 		break;
 	case 0x1e:			/* special misc */
 		switch (MSN(*fxp)) {
+		case 0x0:		/* sample control */
+			if (LSN(*fxp) == 1) { /* enable surround */
+				/* This is the only sample control effect
+				 * that 2GDM emits. BWSB ignores it,
+				 * but supporting it is harmless. */
+				*fxt = FX_SURROUND;
+				*fxp = 1;
+			} else {
+				*fxt = *fxp = 0;
+			}
+			break;
 		case 0x8:		/* set pan position */
 			*fxt = FX_EXTENDED;
 			break;
@@ -189,7 +202,10 @@ static int gdm_load(struct module_data *m, HIO_HANDLE *f, const int start)
 					vermaj, vermin, tvmaj, tvmin);
 	}
 
-	hio_read(panmap, 32, 1, f);
+	if (hio_read(panmap, 32, 1, f) == 0) {
+		D_(D_CRIT "error reading header");
+		return -1;
+	}
 	for (i = 0; i < 32; i++) {
 		if (panmap[i] == 255) {
 			panmap[i] = 8;
@@ -399,13 +415,13 @@ static int gdm_load(struct module_data *m, HIO_HANDLE *f, const int start)
 						event->fxt = k & 0x1f;
 						event->fxp = hio_read8(f);
 						len--;
-						fix_effect(&event->fxt, &event->fxp);
+						gdm_translate_effect(&event->fxt, &event->fxp);
 						break;
 					case 1:
 						event->f2t = k & 0x1f;
 						event->f2p = hio_read8(f);
 						len--;
-						fix_effect(&event->f2t, &event->f2p);
+						gdm_translate_effect(&event->f2t, &event->f2p);
 						break;
 					case 2:
 						hio_read8(f);
@@ -428,6 +444,11 @@ static int gdm_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	}
 
 	m->quirk |= QUIRK_ARPMEM | QUIRK_FINEFX;
+
+	/* BWSB actually gets several aspects of this wrong, but this
+	 * seems to be the intent. No original GDMs exist so it's not
+	 * likely there's a reason to simulate its mistakes here. */
+	m->flow_mode = FLOW_MODE_ST3_321;
 
 	return 0;
 }

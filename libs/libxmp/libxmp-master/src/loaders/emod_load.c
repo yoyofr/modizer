@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2018 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2025 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -20,7 +20,6 @@
  * THE SOFTWARE.
  */
 
-#include <stdio.h>
 #include "loader.h"
 #include "iff.h"
 
@@ -64,7 +63,7 @@ struct local_data {
 	int has_8smp;
 };
 
-static int get_emic(struct module_data *m, int size, HIO_HANDLE * f, void *parm)
+static int get_emic(struct module_data *m, uint32 size, HIO_HANDLE * f, void *parm)
 {
 	struct xmp_module *mod = &m->mod;
 	struct local_data *data = (struct local_data *)parm;
@@ -96,6 +95,7 @@ static int get_emic(struct module_data *m, int size, HIO_HANDLE * f, void *parm)
 		struct xmp_instrument *xxi = &mod->xxi[i];
 		struct xmp_sample *xxs = &mod->xxs[i];
 		struct xmp_subinstrument *sub;
+		uint8 name[20];
 
 		if (libxmp_alloc_subinstrument(mod, i, 1) < 0)
 			return -1;
@@ -105,7 +105,9 @@ static int get_emic(struct module_data *m, int size, HIO_HANDLE * f, void *parm)
 		hio_read8(f);	/* num */
 		sub->vol = hio_read8(f);
 		xxs->len = 2 * hio_read16b(f);
-		hio_read(xxi->name, 1, 20, f);
+		if (hio_read(name, 1, 20, f) < 20)
+			return -1;
+		libxmp_instrument_name(mod, i, name, 20);
 		xxs->flg = hio_read8(f) & 1 ? XMP_SAMPLE_LOOP : 0;
 		sub->fin = hio_read8s(f) << 4;
 		xxs->lps = 2 * hio_read16b(f);
@@ -151,7 +153,7 @@ static int get_emic(struct module_data *m, int size, HIO_HANDLE * f, void *parm)
 	return 0;
 }
 
-static int get_patt(struct module_data *m, int size, HIO_HANDLE * f, void *parm)
+static int get_patt(struct module_data *m, uint32 size, HIO_HANDLE * f, void *parm)
 {
 	struct xmp_module *mod = &m->mod;
 	struct local_data *data = (struct local_data *)parm;
@@ -200,7 +202,7 @@ static int get_patt(struct module_data *m, int size, HIO_HANDLE * f, void *parm)
 	return 0;
 }
 
-static int get_8smp(struct module_data *m, int size, HIO_HANDLE * f, void *parm)
+static int get_8smp(struct module_data *m, uint32 size, HIO_HANDLE * f, void *parm)
 {
 	struct xmp_module *mod = &m->mod;
 	struct local_data *data = (struct local_data *)parm;

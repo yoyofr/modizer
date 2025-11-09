@@ -2,7 +2,7 @@
  * Based on the public domain version by Olivier Lapicque
  * Rewritten for libxmp by Claudio Matsuoka
  *
- * Copyright (C) 2012 Claudio Matsuoka
+ * Copyright (C) 2012-2024 Claudio Matsuoka
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -23,14 +23,24 @@
  * THE SOFTWARE.
  */
 
+#include "common.h"
+
 #ifndef LIBXMP_CORE_DISABLE_IT
 #include <math.h>
 #include "xmp.h"
-#include "common.h"
+#include "player.h"
 #include "mixer.h"
 
-
-/* LUT for 2 * damping factor */
+/*
+ * LUT for 2 * damping factor
+ *
+ * Formula for the table:
+ *
+ *    resonance_table[i] = pow(10.0, -((24.0 / 128.0) * i) / 20.0);
+ * or
+ *    resonance_table[i] = pow(10.0, -3.0 * i / 320.0);
+ *
+ */
 static const float resonance_table[128] = {
         1.0000000000000000f, 0.9786446094512940f, 0.9577452540397644f, 0.9372922182083130f,
         0.9172759056091309f, 0.8976871371269226f, 0.8785166740417481f, 0.8597555756568909f,
@@ -68,9 +78,10 @@ static const float resonance_table[128] = {
 
 
 #if !defined(HAVE_POWF) || defined(__DJGPP__) || defined(__WATCOMC__)
-#define powf pow /* Watcom doesn't have powf. DJGPP have a C-only implementation in libm. */
+/* Watcom doesn't have powf. DJGPP have a C-only implementation in libm. */
+#undef powf
+#define powf(f1_,f2_) (float)pow((f1_),(f2_))
 #endif
-
 
 /*
  * Simple 2-poles resonant filter

@@ -15,6 +15,8 @@
         miniplayerVC=nil;
         
         self.tableView.frame=CGRectMake(0,self.tableView.frame.origin.y,self.tableView.frame.size.width,self.tableView.frame.size.height+48);
+        [self.view setNeedsLayout];
+        [self.view layoutIfNeeded];
         [tableView reloadData];
     }
 }
@@ -57,6 +59,13 @@
     [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:miniplayerVC.view attribute:NSLayoutAttributeBottom multiplier:1.0 constant:-adjust_y]];
     
     self.tableView.frame=CGRectMake(0,self.tableView.frame.origin.y,self.tableView.frame.size.width,self.tableView.frame.size.height-48+adjust_y);
+    
+    
+    self.tableView.contentInset = UIEdgeInsetsMake(0, 0, 48 - adjust_y, 0);
+    self.tableView.scrollIndicatorInsets = self.tableView.contentInset;
+    
+    [self.view setNeedsLayout];
+    [self.view layoutIfNeeded];
     [tableView reloadData];    
 }
 

@@ -1,15 +1,35 @@
+/* ProWizard
+ * Copyright (C) 1997 Asle / ReDoX
+ * Modified in 2006,2007,2014 by Claudio Matsuoka
+ * Modified in 2021 by Alice Rowan
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
 /*
- * Heatseeker_mc1.0.c   Copyright (C) 1997 Asle / ReDoX
+ * Heatseeker_mc1.0.c
  *
  * Converts back to ptk Heatseeker packed MODs
  *
  * Asle's note: There's a good job ! .. gosh !.
- *
- * Modified in 2006,2007,2014 by Claudio Matsuoka
  */
 
-#include <string.h>
-#include <stdlib.h>
 #include "prowiz.h"
 
 
@@ -81,7 +101,7 @@ static int depack_crb(HIO_HANDLE *in, FILE *out)
 
 					hio_seek(in, taddr[m >> 2], SEEK_SET);
 					for (m = 0; m < 64; m++) {
-						int x = m * 16 + j * 4;
+						x = m * 16 + j * 4;
 
 						c1 = hio_read8(in);
 						if (c1 == 0x80) {
@@ -183,7 +203,9 @@ static int test_crb(const uint8 *data, char *t, int s)
 				const uint8 *d = data + 378 + idx;
 				/* Slow... */
 				if (idx >= init_data) {
-					PW_REQUEST_DATA(s, 378 + idx + 4);
+					/* 1 event per track left minimum */
+					int left = 4 * 4 * (max - i - 1);
+					PW_REQUEST_DATA(s, 378 + idx + left + 4);
 				}
 				switch (d[0] & 0xC0) {
 				case 0x00:

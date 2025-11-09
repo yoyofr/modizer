@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2018 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2025 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -26,7 +26,7 @@
 
 #include "loader.h"
 #include "iff.h"
-#include "period.h"
+#include "../period.h"
 
 #define MAGIC_DBM0	MAGIC4('D','B','M','0')
 
@@ -79,7 +79,45 @@ struct dbm_envelope {
 };
 
 
-static int get_info(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
+static void dbm_translate_effect(struct xmp_event *event, uint8 *fxt, uint8 *fxp)
+{
+	switch (*fxt) {
+	case 0x0e:
+		switch (MSN(*fxp)) {
+		case 0x3:	/* Play from backward */
+			/* TODO: this is supposed to play the sample in
+			 * reverse only once, then forward. */
+			if (event->note) {
+				*fxt = FX_REVERSE;
+				*fxp = 1;
+			} else {
+				*fxt = *fxp = 0;
+			}
+			break;
+		case 0x4:	/* Turn off sound in channel */
+			*fxt = FX_EXTENDED;
+			*fxp = (EX_CUT << 4);
+			break;
+		case 0x5:	/* Turn on/off channel */
+			/* In DigiBooster Pro, this is tied to
+			 * the channel mute toggle in the UI. */
+			*fxt = FX_TRK_VOL;
+			*fxp = *fxp ? 0x40 : 0x00;
+			break;
+		}
+		break;
+
+	case 0x1c:		/* Set Real BPM */
+		*fxt = FX_S3M_BPM;
+		break;
+
+	default:
+		if (*fxt > 0x1c)
+			*fxt = *fxp = 0;
+	}
+}
+
+static int get_info(struct module_data *m, uint32 size, HIO_HANDLE *f, void *parm)
 {
 	struct xmp_module *mod = &m->mod;
 	struct local_data *data = (struct local_data *)parm;
@@ -138,7 +176,7 @@ static int get_info(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 	return -1;
 }
 
-static int get_song(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
+static int get_song(struct module_data *m, uint32 size, HIO_HANDLE *f, void *parm)
 {
 	struct xmp_module *mod = &m->mod;
 	struct local_data *data = (struct local_data *)parm;
@@ -168,7 +206,7 @@ static int get_song(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 	return 0;
 }
 
-static int get_inst(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
+static int get_inst(struct module_data *m, uint32 size, HIO_HANDLE *f, void *parm)
 {
 	struct xmp_module *mod = &m->mod;
 	struct local_data *data = (struct local_data *)parm;
@@ -177,7 +215,7 @@ static int get_inst(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 	uint8 buffer[50];
 
 	/* Sanity check */
-	if (data->have_inst || size < 50 * mod->ins) {
+	if (data->have_inst || (int64)size < 50 * mod->ins) {
 		return -1;
 	}
 	data->have_inst = 1;
@@ -189,7 +227,9 @@ static int get_inst(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 		if (libxmp_alloc_subinstrument(mod, i, 1) < 0)
 			return -1;
 
-		hio_read(buffer, 30, 1, f);
+		if (hio_read(buffer, 30, 1, f) == 0)
+			return -1;
+
 		libxmp_instrument_name(mod, i, buffer, 30);
 		snum = hio_read16b(f);
 		if (snum == 0 || snum > mod->smp) {
@@ -220,7 +260,7 @@ static int get_inst(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 	return 0;
 }
 
-static int get_patt(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
+static int get_patt(struct module_data *m, uint32 size, HIO_HANDLE *f, void *parm)
 {
 	struct xmp_module *mod = &m->mod;
 	struct local_data *data = (struct local_data *)parm;
@@ -260,11 +300,11 @@ static int get_patt(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 
 		while (sz > 0) {
 			//printf("  offset=%x,  sz = %d, ", hio_tell(f), sz);
+			--sz;
 			c = hio_read8(f);
 			if (hio_error(f))
 				return -1;
 
-			if (--sz <= 0) break;
 			//printf("c = %02x\n", c);
 
 			if (c == 0) {
@@ -273,8 +313,8 @@ static int get_patt(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 			}
 			c--;
 
+			if (--sz < 0) break;
 			n = hio_read8(f);
-			if (--sz <= 0) break;
 			//printf("    n = %d\n", n);
 
 			if (c >= mod->chn || r >= mod->xxp[i]->rows) {
@@ -285,50 +325,35 @@ static int get_patt(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 
 			memset(event, 0, sizeof (struct xmp_event));
 
-			if (n & 0x01) {
+			if ((n & 0x01) && (--sz >= 0)) {
 				x = hio_read8(f);
 				event->note = 13 + MSN(x) * 12 + LSN(x);
-				if (--sz <= 0) break;
 			}
-			if (n & 0x02) {
+			if ((n & 0x02) && (--sz >= 0)) {
 				event->ins = hio_read8(f);
-				if (--sz <= 0) break;
 			}
-			if (n & 0x04) {
+			if ((n & 0x04) && (--sz >= 0)) {
 				event->fxt = hio_read8(f);
-				if (--sz <= 0) break;
 			}
-			if (n & 0x08) {
+			if ((n & 0x08) && (--sz >= 0)) {
 				event->fxp = hio_read8(f);
-				if (--sz <= 0) break;
 			}
-			if (n & 0x10) {
+			if ((n & 0x10) && (--sz >= 0)) {
 				event->f2t = hio_read8(f);
-				if (--sz <= 0) break;
 			}
-			if (n & 0x20) {
+			if ((n & 0x20) && (--sz >= 0)) {
 				event->f2p = hio_read8(f);
-				if (--sz <= 0) break;
 			}
 
-			if (event->fxt == 0x1c)
-				event->fxt = FX_S3M_BPM;
-
-			if (event->fxt > 0x1c)
-				event->fxt = event->f2p = 0;
-
-			if (event->f2t == 0x1c)
-				event->f2t = FX_S3M_BPM;
-
-			if (event->f2t > 0x1c)
-				event->f2t = event->f2p = 0;
+			dbm_translate_effect(event, &event->fxt, &event->fxp);
+			dbm_translate_effect(event, &event->f2t, &event->f2p);
 		}
 	}
 
 	return 0;
 }
 
-static int get_smpl(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
+static int get_smpl(struct module_data *m, uint32 size, HIO_HANDLE *f, void *parm)
 {
 	struct xmp_module *mod = &m->mod;
 	struct local_data *data = (struct local_data *)parm;
@@ -407,7 +432,7 @@ static int read_envelope(struct xmp_module *mod, struct dbm_envelope *env, HIO_H
 	return 0;
 }
 
-static int get_venv(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
+static int get_venv(struct module_data *m, uint32 size, HIO_HANDLE *f, void *parm)
 {
 	struct xmp_module *mod = &m->mod;
 	struct local_data *data = (struct local_data *)parm;
@@ -444,7 +469,7 @@ static int get_venv(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
 	return 0;
 }
 
-static int get_penv(struct module_data *m, int size, HIO_HANDLE *f, void *parm)
+static int get_penv(struct module_data *m, uint32 size, HIO_HANDLE *f, void *parm)
 {
 	struct xmp_module *mod = &m->mod;
 	struct local_data *data = (struct local_data *)parm;
@@ -507,7 +532,8 @@ static int dbm_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	data.min_version = version & 0xFF;
 
 	hio_seek(f, 10, SEEK_CUR);
-	hio_read(name, 1, 44, f);
+	if (hio_read(name, 1, 44, f) < 44)
+		return -1;
 	name[44] = '\0';
 
 	handle = libxmp_iff_new();

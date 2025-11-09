@@ -1,13 +1,33 @@
-/*
- * ProPacker_v1.0 Copyright (C) 1997 Asle / ReDoX
- *
- * Converts back to ptk ProPacker v1 MODs
- *
+/* ProWizard
+ * Copyright (C) 1997 Asle / ReDoX
  * Modified in 2016 by Claudio Matsuoka
+ * Modified in 2021 by Alice Rowan
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
  */
 
-#include <string.h>
-#include <stdlib.h>
+/*
+ * ProPacker_v1.0
+ *
+ * Converts back to ptk ProPacker v1 MODs
+ */
+
 #include "prowiz.h"
 
 static int depack_pp10(HIO_HANDLE *in, FILE *out)
@@ -45,7 +65,7 @@ static int depack_pp10(HIO_HANDLE *in, FILE *out)
 		}
 	}
 
-	len = hio_read8(in);			/* pattern table lenght */
+	len = hio_read8(in);			/* pattern table length */
 	write8(out, len);
 
 	c1 = hio_read8(in);			/* Noisetracker byte */

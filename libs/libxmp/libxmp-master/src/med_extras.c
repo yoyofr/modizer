@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2018 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2024 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -20,11 +20,11 @@
  * THE SOFTWARE.
  */
 
-#include <stdlib.h>
 #include "common.h"
 #include "player.h"
 #include "virtual.h"
 #include "effects.h"
+#include "extras.h"
 #include "med_extras.h"
 
 #ifdef __SUNPRO_C
@@ -53,10 +53,12 @@
  *	0xf0	    SPD		Set speed
  */
 
-#define VT me->vol_table[xc->ins][ce->vp++]
-#define WT me->wav_table[xc->ins][ce->wp++]
+#define VT ((ce->vp >= 0 && ce->vp < ie->vtlen) ? me->vol_table[xc->ins][ce->vp++] : 0xff)
+#define WT ((ce->wp >= 0 && ce->wp < ie->wtlen) ? me->wav_table[xc->ins][ce->wp++] : 0xff)
 #define VT_SKIP ce->vp++
 #define WT_SKIP ce->wp++
+
+#define ARP(idx) ((idx) < ie->wtlen ? me->wav_table[xc->ins][(idx)] : 0xfd)
 
 
 static const int sine[32] = {
@@ -68,7 +70,7 @@ static const int sine[32] = {
 
 int libxmp_med_change_period(struct context_data *ctx, struct channel_data *xc)
 {
-	struct med_channel_extras *ce = xc->extra;
+	struct med_channel_extras *ce = (struct med_channel_extras *)xc->extra;
 	int vib;
 
 	/* Vibrato */
@@ -94,8 +96,10 @@ int libxmp_med_change_period(struct context_data *ctx, struct channel_data *xc)
 int libxmp_med_linear_bend(struct context_data *ctx, struct channel_data *xc)
 {
 	struct module_data *m = &ctx->m;
-	struct med_module_extras *me = m->extra;
-	struct med_channel_extras *ce = xc->extra;
+	struct xmp_instrument *xxi = &m->mod.xxi[xc->ins];
+	struct med_module_extras *me = (struct med_module_extras *)m->extra;
+	struct med_channel_extras *ce = (struct med_channel_extras *)xc->extra;
+	struct med_instrument_extras *ie = MED_INSTRUMENT_EXTRAS(*xxi);
 	int arp;
 
 	/* Arpeggio */
@@ -103,14 +107,15 @@ int libxmp_med_linear_bend(struct context_data *ctx, struct channel_data *xc)
 	if (ce->arp == 0)
 		return 0;
 
-	if (me->wav_table[xc->ins][ce->arp] == 0xfd) /* empty arpeggio */
+	if (ARP(ce->arp) == 0xfd) /* empty arpeggio */
 		return 0;
 
-	arp = me->wav_table[xc->ins][ce->aidx++];
+	arp = ARP(ce->aidx);
 	if (arp == 0xfd) {
 		ce->aidx = ce->arp;
-		arp = me->wav_table[xc->ins][ce->aidx++];
+		arp = ARP(ce->aidx);
 	}
+	ce->aidx++;
 
 	return (100 << 7) * arp;
 }
@@ -121,6 +126,7 @@ void libxmp_med_play_extras(struct context_data *ctx, struct channel_data *xc, i
 	struct module_data *m = &ctx->m;
 	struct player_data *p = &ctx->p;
 	struct xmp_module *mod = &m->mod;
+	struct xmp_instrument *xxi = &m->mod.xxi[xc->ins];
 	struct med_module_extras *me;
 	struct med_channel_extras *ce;
 	struct med_instrument_extras *ie;
@@ -132,7 +138,7 @@ void libxmp_med_play_extras(struct context_data *ctx, struct channel_data *xc, i
 
 	me = (struct med_module_extras *)m->extra;
 	ce = (struct med_channel_extras *)xc->extra;
-	ie = MED_INSTRUMENT_EXTRAS(m->mod.xxi[xc->ins]);
+	ie = MED_INSTRUMENT_EXTRAS(*xxi);
 
 	/* Handle hold/decay */
 
@@ -142,7 +148,7 @@ void libxmp_med_play_extras(struct context_data *ctx, struct channel_data *xc, i
 	 * FX_MED_HOLD effect and ce->hold set to 1. On the last row, see
 	 * if ce->hold_count is set (meaning that a note was held) and
 	 * ce->hold is 0 (meaning that it's not held anymore). Then
-	 * procceed with normal frame counting until decay.
+	 * proceed with normal frame counting until decay.
 	 */
 
 	if (ce->hold_count) {		/* was held in the past */
@@ -208,7 +214,6 @@ void libxmp_med_play_extras(struct context_data *ctx, struct channel_data *xc, i
 			ce->vp = temp;
 			loop = 1;
 			goto next_vt;
-			break;
 		case 0xfa:	/* JWS */
 			jws = VT;
 			break;
@@ -237,10 +242,9 @@ void libxmp_med_play_extras(struct context_data *ctx, struct channel_data *xc, i
 		}
 
 	    skip_vol:
-
 		/* volume envelope */
-		if (ce->env_wav >= 0) {
-			int sid = mod->xxi[xc->ins].sub[ce->env_wav].sid;
+		if (ce->env_wav >= 0 && ce->env_wav < xxi->nsm) {
+			int sid = xxi->sub[ce->env_wav].sid;
 			struct xmp_sample *xxs = &mod->xxs[sid];
 			if (xxs->len == 0x80) {		/* sanity check */
 				ce->volume = ((int8)xxs->data[ce->env_idx] + 0x80) >> 2;
@@ -269,8 +273,6 @@ void libxmp_med_play_extras(struct context_data *ctx, struct channel_data *xc, i
 
 	    next_wt:
 		switch (b = WT) {
-			struct xmp_instrument *xxi;
-
 		case 0xff:	/* END */
 		case 0xfb:	/* HLT */
 			ce->wp--;
@@ -290,7 +292,7 @@ void libxmp_med_play_extras(struct context_data *ctx, struct channel_data *xc, i
 			break;
 		case 0xfc:	/* ARP */
 			ce->arp = ce->aidx = ce->wp++;
-			while (WT != 0xfd) ;
+			while (b != 0xfd && b != 0xff) b = WT;
 			break;
 		case 0xfa:	/* JVS */
 			jvs = WT;
@@ -320,7 +322,6 @@ void libxmp_med_play_extras(struct context_data *ctx, struct channel_data *xc, i
 			ce->ws = WT;
 			break;
 		default:
-			xxi = &m->mod.xxi[xc->ins];
 			if (b < xxi->nsm && xxi->sub[b].sid != xc->smp) {
 				xc->smp = xxi->sub[b].sid;
 				libxmp_virt_setsmp(ctx, chn, xc->smp);
@@ -328,7 +329,6 @@ void libxmp_med_play_extras(struct context_data *ctx, struct channel_data *xc, i
 		}
 
 	    skip_wav:
-
 		xc->period += ce->wv;
 	}
 
@@ -345,7 +345,7 @@ void libxmp_med_play_extras(struct context_data *ctx, struct channel_data *xc, i
 
 int libxmp_med_new_instrument_extras(struct xmp_instrument *xxi)
 {
-	xxi->extra = calloc(1, sizeof(struct med_instrument_extras));
+	xxi->extra = calloc (1, sizeof(struct med_instrument_extras));
 	if (xxi->extra == NULL)
 		return -1;
 	MED_INSTRUMENT_EXTRAS((*xxi))->magic = MED_EXTRAS_MAGIC;
@@ -386,10 +386,10 @@ int libxmp_med_new_module_extras(struct module_data *m)
 
 	me = (struct med_module_extras *)m->extra;
 
-        me->vol_table = calloc(sizeof(uint8 *), mod->ins);
+	me->vol_table = (uint8 **) calloc(mod->ins, sizeof(uint8 *));
 	if (me->vol_table == NULL)
 		return -1;
-        me->wav_table = calloc(sizeof(uint8 *), mod->ins);
+	me->wav_table = (uint8 **) calloc(mod->ins, sizeof(uint8 *));
 	if (me->wav_table == NULL)
 		return -1;
 
@@ -404,7 +404,7 @@ void libxmp_med_release_module_extras(struct module_data *m)
 
 	me = (struct med_module_extras *)m->extra;
 
-        if (me->vol_table) {
+	if (me->vol_table) {
 		for (i = 0; i < mod->ins; i++)
 			free(me->vol_table[i]);
 		free(me->vol_table);
@@ -414,7 +414,7 @@ void libxmp_med_release_module_extras(struct module_data *m)
 		for (i = 0; i < mod->ins; i++)
 			free(me->wav_table[i]);
 		free(me->wav_table);
-        }
+	}
 
 	free(m->extra);
 	m->extra = NULL;
@@ -424,7 +424,7 @@ void libxmp_med_extras_process_fx(struct context_data *ctx, struct channel_data 
 			int chn, uint8 note, uint8 fxt, uint8 fxp, int fnum)
 {
 	switch (fxt) {
-        case FX_MED_HOLD:
+	case FX_MED_HOLD:
 		MED_CHANNEL_EXTRAS((*xc))->hold_count++;
 		MED_CHANNEL_EXTRAS((*xc))->hold = 1;
 		break;

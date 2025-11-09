@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2018 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2025 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -25,8 +25,8 @@
  * from ftp://ftp.funet.fi/pub/amiga/fish/301-400/ff349
  */
 
-#include <assert.h>
 #include "loader.h"
+#include "med.h"
 
 #define MAGIC_MED3	MAGIC4('M','E','D',3)
 
@@ -61,7 +61,6 @@ static int med3_test(HIO_HANDLE *f, char *t, const int start)
 #define M0F_LINEMSK10	0x20
 #define M0F_FXMSK00	0x40
 #define M0F_FXMSK10	0x80
-
 
 
 /*
@@ -107,7 +106,7 @@ static int unpack_block(struct module_data *m, uint16 bnum, uint8 *from, uint16 
 	int i, j, trkn = mod->chn;
 
 	/*from += 16;*/
-	patbuf = to = calloc(3, 4 * 64);
+	patbuf = to = (uint8 *) calloc(3, 4 * 64);
 	if (to == NULL) {
 		goto err;
 	}
@@ -202,25 +201,30 @@ static int unpack_block(struct module_data *m, uint16 bnum, uint8 *from, uint16 
 				event->fxt = FX_VOLSLIDE;
 				break;
 			case 0x0f:	/* tempo/break */
-				if (event->fxp == 0)
+				if (event->fxp == 0) {
 					event->fxt = FX_BREAK;
-				if (event->fxp == 0xff) {
+				} else if (event->fxp == 0xff) {
 					event->fxp = event->fxt = 0;
 					event->vol = 1;
 				} else if (event->fxp == 0xfe) {
 					event->fxp = event->fxt = 0;
 				} else if (event->fxp == 0xf1) {
+					/* Retrigger once on tick 3 */
 					event->fxt = FX_EXTENDED;
 					event->fxp = (EX_RETRIG << 4) | 3;
 				} else if (event->fxp == 0xf2) {
-					event->fxt = FX_EXTENDED;
-					event->fxp = (EX_CUT << 4) | 3;
-				} else if (event->fxp == 0xf3) {
+					/* Delay until tick 3 */
 					event->fxt = FX_EXTENDED;
 					event->fxp = (EX_DELAY << 4) | 3;
-				} else if (event->fxp > 10) {
+				} else if (event->fxp == 0xf3) {
+					/* Retrigger every 2 ticks (TODO: buggy) */
+					event->fxt = FX_MED_RETRIG;
+					event->fxp = 0x02;
+				} else if (event->fxp <= 0xf0) {
 					event->fxt = FX_S3M_BPM;
-					event->fxp = 125 * event->fxp / 33;
+					event->fxp = mmd_convert_tempo(event->fxp, 0, 0);
+				} else {
+					event->fxt = event->fxp = 0;
 				}
 				break;
 			default:
@@ -246,6 +250,8 @@ static int med3_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	int i, j;
 	uint32 mask;
 	int transp, sliding;
+	int tempo;
+	int flags;
 
 	LOAD_INIT();
 
@@ -307,16 +313,16 @@ static int med3_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		return -1;
 
 	hio_read(mod->xxo, 1, mod->len, f);
-	mod->spd = hio_read16b(f);
-	if (mod->spd > 10) {
-		mod->bpm = 125 * mod->spd / 33;
-		mod->spd = 6;
-	}
+	tempo = hio_read16b(f);
 	transp = hio_read8s(f);
-	hio_read8(f);			/* flags */
+	flags = hio_read8(f);		/* flags */
 	sliding = hio_read16b(f);	/* sliding */
 	hio_read32b(f);			/* jumping mask */
 	hio_seek(f, 16, SEEK_CUR);	/* rgb */
+
+	mod->spd = 6;
+	mod->bpm = mmd_convert_tempo(tempo, 0, 0);
+	m->time_factor = MED_TIME_FACTOR;
 
 	/* read midi channels */
 	mask = hio_read32b(f);
@@ -331,12 +337,13 @@ static int med3_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		if (mask & MASK)
 			hio_read8(f);
 	}
-	
+
 	MODULE_INFO();
 
 	D_(D_INFO "Sliding: %d", sliding);
 	D_(D_INFO "Play transpose: %d", transp);
 
+	m->quirk |= QUIRK_RTONCE; /* FF1 */
 	if (sliding == 6)
 		m->quirk |= QUIRK_VSALL | QUIRK_PBALL;
 
@@ -351,17 +358,20 @@ static int med3_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
 	for (i = 0; i < mod->pat; i++) {
 		uint32 *conv;
-		uint8 b, tracks;
+		uint8 b;
+		/*uint8 tracks;*/
 		uint16 convsz;
 
 		if (libxmp_alloc_pattern_tracks(mod, i, 64) < 0)
 			return -1;
 
-		tracks = hio_read8(f);
+		/* TODO: not clear if this should be respected. Later MED
+		 * formats are capable of having different track counts. */
+		/*tracks =*/ hio_read8(f);
 
 		b = hio_read8(f);
 		convsz = hio_read16b(f);
-		conv = calloc(1, convsz + 16);
+		conv = (uint32 *) calloc(1, convsz + 16);
 		if (conv == NULL)
 			return -1;
 
@@ -415,6 +425,16 @@ static int med3_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		if (~mask & MASK)
 			continue;
 
+		if (~flags & FLAG_INSTRSATT) {
+			/* Song file */
+			if (med_load_external_instrument(f, m, i)) {
+				D_(D_CRIT "error loading instrument %d", i);
+				return -1;
+			}
+			continue;
+		}
+
+		/* Module file */
 		mod->xxi[i].nsm = 1;
 		mod->xxs[i].len = hio_read32b(f);
 

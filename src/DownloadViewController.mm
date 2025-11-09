@@ -417,6 +417,11 @@ MDZELog("gzread error str for FTP entry %d",i); \
 	END_PROFILE
 }
 
+- (int)getDownloadQueueSize {
+    return (self.mFTPDownloadQueueDepth+self.mURLDownloadQueueDepth);
+}
+
+
 - (void)refreshDownloadCountBadge {
     dispatch_async(dispatch_get_main_queue(), ^{
         if (self.mFTPDownloadQueueDepth+self.mURLDownloadQueueDepth) self.barItem.badgeValue=[NSString stringWithFormat:@"%d",(int)(self.mFTPDownloadQueueDepth+self.mURLDownloadQueueDepth)];

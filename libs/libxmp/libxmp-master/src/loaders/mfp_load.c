@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2018 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2025 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -27,14 +27,7 @@
  */
 
 #include "loader.h"
-#include <sys/types.h>
-#include <sys/stat.h>
-#ifdef __native_client__
-#include <sys/syslimits.h>
-#else
-#include <limits.h>
-#endif
-#include <unistd.h>
+#include "../path.h"
 
 static int mfp_test(HIO_HANDLE *, char *, const int);
 static int mfp_load(struct module_data *, HIO_HANDLE *, const int);
@@ -104,8 +97,7 @@ static int mfp_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	struct xmp_module *mod = &m->mod;
 	int i, j, k, x, y;
 	struct xmp_event *event;
-	struct stat st;
-	char smp_filename[PATH_MAX];
+	struct libxmp_path sp;
 	HIO_HANDLE *s;
 	int size1 /*, size2*/;
 	int pat_addr, pat_table[128][4];
@@ -144,11 +136,11 @@ static int mfp_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		if (mod->xxs[i].len > 0)
 			mod->xxi[i].nsm = 1;
 
-               	D_(D_INFO "[%2X] %04x %04x %04x %c V%02x %+d",
-                       	i, mod->xxs[i].len, mod->xxs[i].lps,
-                       	mod->xxs[i].lpe,
+		D_(D_INFO "[%2X] %04x %04x %04x %c V%02x %+d",
+			i, mod->xxs[i].len, mod->xxs[i].lps,
+			mod->xxs[i].lpe,
 			loop_size > 1 ? 'L' : ' ',
-                       	mod->xxi[i].sub[0].vol, mod->xxi[i].sub[0].fin >> 4);
+			mod->xxi[i].sub[0].vol, mod->xxi[i].sub[0].fin >> 4);
 	}
 
 	mod->len = mod->pat = hio_read8(f);
@@ -215,35 +207,41 @@ static int mfp_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	/* Read samples */
 	D_(D_INFO "Loading samples: %d", mod->ins);
 
+	libxmp_path_init(&sp);
+
 	/* first check smp.filename */
 	if (strlen(m->basename) < 5 || m->basename[3] != '.') {
-		fprintf(stderr, "libxmp: invalid filename %s\n", m->basename);
+		D_(D_CRIT "invalid filename %s", m->basename);
 		goto err;
 	}
 
 	m->basename[0] = 's';
 	m->basename[1] = 'm';
 	m->basename[2] = 'p';
-	snprintf(smp_filename, PATH_MAX, "%s%s", m->dirname, m->basename);
-	if (stat(smp_filename, &st) < 0) {
+
+	if (libxmp_path_join(&sp, m->dirname, m->basename) != 0) {
+		D_(D_CRIT "failed to join path %s", m->basename);
+		goto err;
+	}
+
+	if ((s = hio_open(sp.path, "rb")) == NULL) {
 		/* handle .set filenames like in Kid Chaos*/
-		char *x;
 		if (strchr(m->basename, '-')) {
-			x = strrchr(smp_filename, '-');
-			if (x != NULL)
-				strcpy(x, ".set");
+			char *p = strrchr(sp.path, '-');
+			if (p != NULL) {
+				size_t ppos = p - sp.path;
+				if (libxmp_path_suffix_at(&sp, ppos, ".set") != 0) {
+					D_(D_CRIT "failed to append .set");
+					goto err;
+				}
+			}
 		}
-		if (stat(smp_filename, &st) < 0) {
-			fprintf(stderr, "libxmp: missing file %s\n",
-								smp_filename);
+		if ((s = hio_open(sp.path, "rb")) == NULL) {
+			D_(D_CRIT "can't open sample file %s", sp.path);
 			goto err;
 		}
 	}
-	if ((s = hio_open(smp_filename, "rb")) == NULL) {
-		fprintf(stderr, "libxmp: can't open sample file %s\n",
-								smp_filename);
-		goto err;
-	}
+	libxmp_path_free(&sp);
 
 	for (i = 0; i < mod->ins; i++) {
 		if (libxmp_load_sample(m, s, SAMPLE_FLAG_FULLREP,
@@ -260,6 +258,7 @@ static int mfp_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	return 0;
 
     err:
+	libxmp_path_free(&sp);
 	for (i = 0; i < mod->ins; i++) {
 		mod->xxi[i].nsm = 0;
 		memset(&mod->xxs[i], 0, sizeof(struct xmp_sample));

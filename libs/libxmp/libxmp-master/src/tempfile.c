@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2018 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2024 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -24,23 +24,36 @@
 #pragma error_messages (off,E_EMPTY_TRANSLATION_UNIT)
 #endif
 
-#ifndef LIBXMP_CORE_PLAYER
+#include "common.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <limits.h>
+#if !(defined(LIBXMP_NO_PROWIZARD) && defined(LIBXMP_NO_DEPACKERS))
+
+#if defined(_WIN32) || defined(_DOS) || defined(__OS2__) || defined(__EMX__)
+#include <io.h>
+#else
 #include <unistd.h>
-
+#endif
 #ifdef HAVE_UMASK
+#include <sys/types.h>
 #include <sys/stat.h>
 #endif
 
-#include "common.h" /* for libxmp_snprintf */
+#if defined(_MSC_VER) ||  defined(__WATCOMC__) || defined(__EMX__)
+#define XMP_MAXPATH _MAX_PATH
+#elif defined(PATH_MAX)
+#define XMP_MAXPATH  PATH_MAX
+#else
+#define XMP_MAXPATH  1024
+#endif
+
 #include "tempfile.h"
 
 #ifdef _WIN32
 
+#define fdopen _fdopen
+#define close _close
+#define unlink _unlink
+#define umask _umask
 int mkstemp(char *);
 
 static int get_temp_dir(char *buf, size_t size)
@@ -51,7 +64,7 @@ static int get_temp_dir(char *buf, size_t size)
 	return 0;
 }
 
-#elif defined(__OS2__)
+#elif defined(__OS2__) || defined(__EMX__)
 
 static int get_temp_dir(char *buf, size_t size)
 {
@@ -61,11 +74,11 @@ static int get_temp_dir(char *buf, size_t size)
 	return 0;
 }
 
-#elif defined(__MSDOS__)
+#elif defined(__MSDOS__) || defined(_DOS)
 
 static int get_temp_dir(char *buf, size_t size)
 {
-	strcpy(buf, "C:\\"); /* size-safe against PATH_MAX */
+	strcpy(buf, "C:\\"); /* size-safe against XMP_MAXPATH */
 	return 0;
 }
 
@@ -73,7 +86,7 @@ static int get_temp_dir(char *buf, size_t size)
 
 static int get_temp_dir(char *buf, size_t size)
 {
-	strcpy(buf, "T:"); /* size-safe against PATH_MAX */
+	strcpy(buf, "T:"); /* size-safe against XMP_MAXPATH */
 	return 0;
 }
 
@@ -118,16 +131,16 @@ static int get_temp_dir(char *buf, size_t size)
 
 
 FILE *make_temp_file(char **filename) {
-	char tmp[PATH_MAX];
+	char tmp[XMP_MAXPATH];
 	FILE *temp;
 	int fd;
 
-	if (get_temp_dir(tmp, PATH_MAX) < 0)
+	if (get_temp_dir(tmp, XMP_MAXPATH) < 0)
 		return NULL;
 
-	strncat(tmp, "xmp_XXXXXX", PATH_MAX - 10);
+	strncat(tmp, "xmp_XXXXXX", XMP_MAXPATH - 10);
 
-	if ((*filename = strdup(tmp)) == NULL)
+	if ((*filename = libxmp_strdup(tmp)) == NULL)
 		goto err;
 
 #ifdef HAVE_UMASK

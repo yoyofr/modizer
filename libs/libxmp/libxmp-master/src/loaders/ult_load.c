@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2018 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2024 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -30,7 +30,7 @@
  */
 
 #include "loader.h"
-#include "period.h"
+#include "../period.h"
 
 
 static int ult_test (HIO_HANDLE *, char *, const int);
@@ -49,7 +49,7 @@ static int ult_test(HIO_HANDLE *f, char *t, const int start)
     if (hio_read(buf, 1, 15, f) < 15)
 	return -1;
 
-    if (memcmp(buf, "MAS_UTrack_V000", 14))
+    if (memcmp(buf, "MAS_UTrack_V00", 14))
 	return -1;
 
     if (buf[14] < '1' || buf[14] > '4')
@@ -60,8 +60,6 @@ static int ult_test(HIO_HANDLE *f, char *t, const int start)
     return 0;
 }
 
-
-#define KEEP_TONEPORTA 32	/* Rows to keep portamento effect */
 
 struct ult_header {
     uint8 magic[15];		/* 'MAS_UTrack_V00x' */
@@ -84,7 +82,7 @@ struct ult_instrument {
     uint32 sizeend;
     uint8 volume;		/* Volume (log; ver >= 1.4 linear) */
     uint8 bidiloop;		/* Sample loop flags */
-    uint16 finetune;		/* Finetune */
+    int16 finetune;		/* Finetune */
     uint16 c2spd;		/* C2 frequency */
 };
 
@@ -97,6 +95,34 @@ struct ult_event {
 };
 
 
+static void ult_translate_effect(uint8 *fxt, uint8 *fxp)
+{
+    switch (*fxt) {
+    case 0x03:			/* Tone portamento */
+	*fxt = FX_ULT_TPORTA;
+	break;
+    case 0x05:			/* 'Special' effect */
+    case 0x06:			/* Reserved */
+	*fxt = *fxp = 0;
+	break;
+    case 0x0b:			/* Pan */
+	*fxt = FX_SETPAN;
+	*fxp <<= 4;
+	break;
+    case 0x09:			/* Sample offset */
+/* TODO: fine sample offset (requires new effect or 2 more effect lanes) */
+	*fxp <<= 2;
+	break;
+    case 0x0f:			/* Speed/BPM */
+	/* 00:    default speed (6)/BPM (125)
+	 * 01-2f: set speed
+	 * 30-ff: set BPM
+	 */
+	*fxt = FX_ULT_TEMPO;
+	break;
+    }
+}
+
 static int ult_load(struct module_data *m, HIO_HANDLE *f, const int start)
 {
     struct xmp_module *mod = &m->mod;
@@ -108,7 +134,6 @@ static int ult_load(struct module_data *m, HIO_HANDLE *f, const int start)
     struct ult_event ue;
     const char *verstr[4] = { "< 1.4", "1.4", "1.5", "1.6" };
 
-    int keep_porta1 = 0, keep_porta2 = 0;
     uint8 x8;
 
     LOAD_INIT();
@@ -121,13 +146,26 @@ static int ult_load(struct module_data *m, HIO_HANDLE *f, const int start)
 
     strncpy(mod->name, (char *)ufh.name, 32);
     mod->name[32] = '\0';
-    libxmp_set_type(m, "Ultra Tracker %s ULT V%04d", verstr[ver - 1], ver);
+    libxmp_set_type(m, "Ultra Tracker %s ULT V%03d", verstr[ver - 1], ver);
 
     m->c4rate = C4_NTSC_RATE;
 
     MODULE_INFO();
 
-    hio_seek(f, ufh.msgsize * 32, SEEK_CUR);
+    if (ufh.msgsize > 0) {
+	if ((m->comment = (char *)malloc(ufh.msgsize * 33)) != NULL) {
+	    char *pos = m->comment;
+	    for (i = 0; i < (int)ufh.msgsize; i++) {
+		if (hio_read(pos, 1, 32, f) < 32)
+		    return -1;
+		pos[32] = '\n';
+		pos += 33;
+	    }
+	    *(--pos) = '\0';
+	} else {
+	    hio_seek(f, ufh.msgsize * 32, SEEK_CUR);
+	}
+    }
 
     mod->ins = mod->smp = hio_read8(f);
     /* mod->flg |= XXM_FLG_LINEAR; */
@@ -151,18 +189,25 @@ static int ult_load(struct module_data *m, HIO_HANDLE *f, const int start)
 	uih.sizeend = hio_read32l(f);
 	uih.volume = hio_read8(f);
 	uih.bidiloop = hio_read8(f);
+	uih.c2spd = (ver >= 4) ? hio_read16l(f) : 0; /* Incorrect in ult_form.txt */
 	uih.finetune = hio_read16l(f);
-	uih.c2spd = ver < 4 ? 0 : hio_read16l(f);
 	if (hio_error(f)) {
 	    D_(D_CRIT "read error at instrument %d", i);
 	    return -1;
 	}
 
-	if (ver > 3) {			/* Incorrect in ult_form.txt */
-	    uih.c2spd ^= uih.finetune;
-	    uih.finetune ^= uih.c2spd;
-	    uih.c2spd ^= uih.finetune;
+	/* Sanity check:
+	 * "[SizeStart] seems to tell UT how to load the sample into the GUS's
+	 * onboard memory." The maximum supported GUS RAM is 16 MB (PnP).
+	 * Samples also can't cross 256k boundaries. In practice it seems like
+	 * nothing ever goes over 1 MB, the maximum on most GUS cards.
+	 */
+	if (uih.sizestart > uih.sizeend || uih.sizeend > (16 << 20) ||
+	    uih.sizeend - uih.sizestart > (256 << 10)) {
+	    D_(D_CRIT "invalid sample %d sizestart/sizeend", i);
+	    return -1;
 	}
+
 	mod->xxs[i].len = uih.sizeend - uih.sizestart;
 	mod->xxs[i].lps = uih.loop_start;
 	mod->xxs[i].lpe = uih.loopend;
@@ -304,58 +349,8 @@ static int ult_load(struct module_data *m, HIO_HANDLE *f, const int start)
 		event->fxp = ue.fxp;
 		event->f2p = ue.f2p;
 
-		switch (event->fxt) {
-		case 0x00:		/* <mumble> */
-		    if (event->fxp)
-			keep_porta1 = 0;
-		    if (keep_porta1) {
-			event->fxt = 0x03;
-			keep_porta1--;
-		    }
-		    break;
-		case 0x03:		/* Portamento kludge */
-		    keep_porta1 = KEEP_TONEPORTA;
-		    break;
-		case 0x05:		/* 'Special' effect */
-		case 0x06:		/* Reserved */
-		    event->fxt = event->fxp = 0;
-		    break;
-		case 0x0b:		/* Pan */
-		    event->fxt = FX_SETPAN;
-		    event->fxp <<= 4;
-		    break;
-		case 0x09:		/* Sample offset */
-/* TODO: fine sample offset */
-		    event->fxp <<= 2;
-		    break;
-		}
-
-		switch (event->f2t) {
-		case 0x00:		/* <mumble> */
-		    if (event->f2p)
-			keep_porta2 = 0;
-		    if (keep_porta2) {
-			event->f2t = 0x03;
-			keep_porta2--;
-		    }
-		    break;
-		case 0x03:		/* Portamento kludge */
-		    keep_porta2 = KEEP_TONEPORTA;
-		    break;
-		case 0x05:		/* 'Special' effect */
-		case 0x06:		/* Reserved */
-		    event->f2t = event->f2p = 0;
-		    break;
-		case 0x0b:		/* Pan */
-		    event->f2t = FX_SETPAN;
-		    event->f2p <<= 4;
-		    break;
-		case 0x09:		/* Sample offset */
-/* TODO: fine sample offset */
-		    event->f2p <<= 2;
-		    break;
-		}
-
+		ult_translate_effect(&event->fxt, &event->fxp);
+		ult_translate_effect(&event->f2t, &event->f2p);
 	    }
 	}
     }

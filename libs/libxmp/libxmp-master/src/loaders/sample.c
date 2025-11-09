@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2018 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2024 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -20,11 +20,10 @@
  * THE SOFTWARE.
  */
 
-#include "common.h"
+#include "../common.h"
 #include "loader.h"
 
 #ifndef LIBXMP_CORE_PLAYER
-
 /*
  * From the Audio File Formats (version 2.5)
  * Submitted-by: Guido van Rossum <guido@cwi.nl>
@@ -55,7 +54,6 @@ static const int8 vdic_table[128] = {
 	/* 120 */	 95,  98, 103, 109, 114, 120, 126, 127
 };
 
-
 /* Convert 7 bit samples to 8 bit */
 static void convert_7bit_to_8bit(uint8 *p, int l)
 {
@@ -68,13 +66,13 @@ static void convert_7bit_to_8bit(uint8 *p, int l)
 static void convert_vidc_to_linear(uint8 *p, int l)
 {
 	int i;
+	int8 amp;
 	uint8 x;
 
 	for (i = 0; i < l; i++) {
 		x = p[i];
-		p[i] = vdic_table[x >> 1];
-		if (x & 0x01)
-			p[i] *= -1;
+		amp = vdic_table[x >> 1];
+		p[i] = (uint8)((x & 0x01) ? -amp : amp);
 	}
 }
 
@@ -95,24 +93,30 @@ static void adpcm4_decoder(uint8 *inp, uint8 *outp, char *tab, int len)
 		*outp++ = delta;
 	}
 }
-
 #endif
 
 /* Convert differential to absolute sample data */
-static void convert_delta(uint8 *p, int l, int r)
+static void convert_delta(uint8 *p, int frames, int is_16bit, int channels)
 {
 	uint16 *w = (uint16 *)p;
-	uint16 abs = 0;
+	uint16 absval;
+	int chn, i;
 
-	if (r) {
-		for (; l--;) {
-			abs = *w + abs;
-			*w++ = abs;
+	if (is_16bit) {
+		for (chn = 0; chn < channels; chn++) {
+			absval = 0;
+			for (i = 0; i < frames; i++) {
+				absval = *w + absval;
+				*w++ = absval;
+			}
 		}
 	} else {
-		for (; l--;) {
-			abs = *p + abs;
-			*p++ = (uint8) abs;
+		for (chn = 0; chn < channels; chn++) {
+			absval = 0;
+			for (i = 0; i < frames; i++) {
+				absval = *p + absval;
+				*p++ = (uint8) absval;
+			}
 		}
 	}
 }
@@ -127,7 +131,7 @@ static void convert_signal(uint8 *p, int l, int r)
 			*w += 0x8000;
 	} else {
 		for (; l--; p++)
-			*p += (char)0x80;	/* cast needed by MSVC++ */
+			*p += (unsigned char)0x80;
 	}
 }
 
@@ -145,51 +149,30 @@ static void convert_endian(uint8 *p, int l)
 	}
 }
 
-#if 0
-/* Downmix stereo samples to mono */
-static void convert_stereo_to_mono(uint8 *p, int l, int r)
+/* Convert non-interleaved stereo to interleaved stereo.
+ * Due to tracker quirks this should be done after delta decoding, etc. */
+static void convert_stereo_interleaved(void * LIBXMP_RESTRICT _out,
+ const void *in, int frames, int is_16bit)
 {
-	int16 *b = (int16 *)p;
 	int i;
 
-	if (r) {
-		l /= 2;
-		for (i = 0; i < l; i++)
-			b[i] = (b[i * 2] + b[i * 2 + 1]) / 2;
-	} else {
-		for (i = 0; i < l; i++)
-			p[i] = (p[i * 2] + p[i * 2 + 1]) / 2;
-	}
-}
-#endif
+	if (is_16bit) {
+		const int16 *in_l = (const int16 *)in;
+		const int16 *in_r = in_l + frames;
+		int16 *out = (int16 *)_out;
 
-static void unroll_loop(struct xmp_sample *xxs)
-{
-	int8 *s8;
-	int16 *s16;
-	int start, loop_size;
-	int i;
-
-	s16 = (int16 *)xxs->data;
-	s8 = (int8 *)xxs->data;
-
-	if (xxs->len > xxs->lpe) {
-		start = xxs->lpe;
-	} else {
-		start = xxs->len;
-	}
-
-	loop_size = xxs->lpe - xxs->lps;
-
-	if (xxs->flg & XMP_SAMPLE_16BIT) {
-		s16 += start;
-		for (i = 0; i < loop_size; i++) {
-			*(s16 + i) = *(s16 - i - 1);
+		for (i = 0; i < frames; i++) {
+			*(out++) = *(in_l++);
+			*(out++) = *(in_r++);
 		}
 	} else {
-		s8 += start;
-		for (i = 0; i < loop_size; i++) {
-			*(s8 + i) = *(s8 - i - 1);
+		const uint8 *in_l = (const uint8 *)in;
+		const uint8 *in_r = in_l + frames;
+		uint8 *out = (uint8 *)_out;
+
+		for (i = 0; i < frames; i++) {
+			*(out++) = *(in_l++);
+			*(out++) = *(in_r++);
 		}
 	}
 }
@@ -197,7 +180,11 @@ static void unroll_loop(struct xmp_sample *xxs)
 
 int libxmp_load_sample(struct module_data *m, HIO_HANDLE *f, int flags, struct xmp_sample *xxs, const void *buffer)
 {
-	int bytelen, extralen, unroll_extralen, i;
+	unsigned char *tmp = NULL;
+	unsigned char *dest;
+	int channels = 1;
+	int framelen;
+	int bytelen, extralen, i;
 
 #ifndef LIBXMP_CORE_PLAYER
 	/* Adlib FM patches */
@@ -225,10 +212,31 @@ int libxmp_load_sample(struct module_data *m, HIO_HANDLE *f, int flags, struct x
 		return 0;
 	}
 
+	/* Patches with samples
+	 * Allocate extra sample for interpolation.
+	 */
+	bytelen = xxs->len;
+	framelen = 1;
+	extralen = 4;
+
+	if (xxs->flg & XMP_SAMPLE_16BIT) {
+		bytelen *= 2;
+		extralen *= 2;
+		framelen *= 2;
+	}
+	if (xxs->flg & XMP_SAMPLE_STEREO) {
+		bytelen *= 2;
+		extralen *= 2;
+		framelen *= 2;
+		channels = 2;
+	}
+
 	/* If this sample starts at or after EOF, skip it entirely.
 	 */
 	if (~flags & SAMPLE_FLAG_NOLOAD) {
 		long file_pos, file_len;
+		long remaining = 0;
+		long over = 0;
 		if (!f) {
 			return 0;
 		}
@@ -239,10 +247,37 @@ int libxmp_load_sample(struct module_data *m, HIO_HANDLE *f, int flags, struct x
 			return 0;
 		}
 		/* If this sample goes past EOF, truncate it. */
-		if (file_pos + xxs->len > file_len && (~flags & SAMPLE_FLAG_ADPCM)) {
+		remaining = file_len - file_pos;
+#ifndef LIBXMP_CORE_PLAYER
+		if (flags & SAMPLE_FLAG_ADPCM) {
+			long bound = 16 + ((bytelen + 1) >> 1);
+			if (remaining < 16) {
+				D_(D_WARN "ignoring truncated ADPCM sample");
+				return 0;
+			}
+			if (bound > remaining) {
+				over = bound - remaining;
+				bytelen = (remaining - 16) << 1;
+			}
+		} else
+#endif
+		if (bytelen > remaining) {
+			over = bytelen - remaining;
+			bytelen = remaining;
+		}
+
+		if (over) {
 			D_(D_WARN "sample would extend %ld bytes past EOF; truncating to %ld",
-				file_pos + xxs->len - file_len, file_len - file_pos);
-			xxs->len = file_len - file_pos;
+				over, remaining);
+
+			/* Trim extra bytes non-aligned to sample frame. */
+			bytelen -= bytelen & (framelen - 1);
+
+			xxs->len = bytelen;
+			if (xxs->flg & XMP_SAMPLE_16BIT)
+				xxs->len >>= 1;
+			if (xxs->flg & XMP_SAMPLE_STEREO)
+				xxs->len >>= 1;
 		}
 	}
 
@@ -259,47 +294,41 @@ int libxmp_load_sample(struct module_data *m, HIO_HANDLE *f, int flags, struct x
 		xxs->flg &= ~(XMP_SAMPLE_LOOP | XMP_SAMPLE_LOOP_BIDIR);
 	}
 
-	/* Patches with samples
-	 * Allocate extra sample for interpolation.
-	 */
-	bytelen = xxs->len;
-	extralen = 4;
-	unroll_extralen = 0;
-
-	/* Disable birectional loop flag if sample is not looped
+	/* Disable bidirectional loop flag if sample is not looped
 	 */
 	if (xxs->flg & XMP_SAMPLE_LOOP_BIDIR) {
 		if (~xxs->flg & XMP_SAMPLE_LOOP)
 			xxs->flg &= ~XMP_SAMPLE_LOOP_BIDIR;
 	}
-	/* Unroll bidirectional loops
-	 */
-	if (xxs->flg & XMP_SAMPLE_LOOP_BIDIR) {
-		unroll_extralen = (xxs->lpe - xxs->lps) -
-				(xxs->len - xxs->lpe);
-
-		if (unroll_extralen < 0) {
-			unroll_extralen = 0;
-		}
-	}
-
-	if (xxs->flg & XMP_SAMPLE_16BIT) {
-		bytelen *= 2;
-		extralen *= 2;
-		unroll_extralen *= 2;
+	if (xxs->flg & XMP_SAMPLE_SLOOP_BIDIR) {
+		if (~xxs->flg & XMP_SAMPLE_SLOOP)
+			xxs->flg &= ~XMP_SAMPLE_SLOOP_BIDIR;
 	}
 
 	/* add guard bytes before the buffer for higher order interpolation */
-	xxs->data = malloc(bytelen + extralen + unroll_extralen + 4);
+	xxs->data = (unsigned char *) malloc(bytelen + extralen + 4);
 	if (xxs->data == NULL) {
 		goto err;
 	}
 
 	*(uint32 *)xxs->data = 0;
 	xxs->data += 4;
+	dest = xxs->data;
+
+	/* If this is a non-interleaved stereo sample, most conversions need
+	 * to occur in an intermediate buffer prior to interleaving. Most
+	 * formats supporting stereo samples use non-interleaved stereo.
+	 */
+	if ((xxs->flg & XMP_SAMPLE_STEREO) && (~flags & SAMPLE_FLAG_INTERLEAVED)) {
+		tmp = (unsigned char *) malloc(bytelen);
+		if (!tmp)
+			goto err2;
+
+		dest = tmp;
+	}
 
 	if (flags & SAMPLE_FLAG_NOLOAD) {
-		memcpy(xxs->data, buffer, bytelen);
+		memcpy(dest, buffer, bytelen);
 	} else
 #ifndef LIBXMP_CORE_PLAYER
 	if (flags & SAMPLE_FLAG_ADPCM) {
@@ -309,24 +338,24 @@ int libxmp_load_sample(struct module_data *m, HIO_HANDLE *f, int flags, struct x
 		if (hio_read(table, 1, 16, f) != 16) {
 			goto err2;
 		}
-		if (hio_read(xxs->data + x2, 1, x2, f) != x2) {
+		if (hio_read(dest + x2, 1, x2, f) != x2) {
 			goto err2;
 		}
-		adpcm4_decoder((uint8 *)xxs->data + x2,
-			       (uint8 *)xxs->data, table, bytelen);
+		adpcm4_decoder((uint8 *)dest + x2,
+			       (uint8 *)dest, table, bytelen);
 	} else
 #endif
 	{
-		int x = hio_read(xxs->data, 1, bytelen, f);
+		int x = hio_read(dest, 1, bytelen, f);
 		if (x != bytelen) {
 			D_(D_WARN "short read (%d) in sample load", x - bytelen);
-			memset(xxs->data + x, 0, bytelen - x);
+			memset(dest + x, 0, bytelen - x);
 		}
 	}
 
 #ifndef LIBXMP_CORE_PLAYER
 	if (flags & SAMPLE_FLAG_7BIT) {
-		convert_7bit_to_8bit(xxs->data, xxs->len);
+		convert_7bit_to_8bit(dest, xxs->len * channels);
 	}
 #endif
 
@@ -334,44 +363,41 @@ int libxmp_load_sample(struct module_data *m, HIO_HANDLE *f, int flags, struct x
 	if (xxs->flg & XMP_SAMPLE_16BIT) {
 #ifdef WORDS_BIGENDIAN
 		if (~flags & SAMPLE_FLAG_BIGEND)
-			convert_endian(xxs->data, xxs->len);
+			convert_endian(dest, xxs->len * channels);
 #else
 		if (flags & SAMPLE_FLAG_BIGEND)
-			convert_endian(xxs->data, xxs->len);
+			convert_endian(dest, xxs->len * channels);
 #endif
 	}
 
 	/* Convert delta samples */
 	if (flags & SAMPLE_FLAG_DIFF) {
-		convert_delta(xxs->data, xxs->len, xxs->flg & XMP_SAMPLE_16BIT);
+		convert_delta(dest, xxs->len, xxs->flg & XMP_SAMPLE_16BIT, channels);
 	} else if (flags & SAMPLE_FLAG_8BDIFF) {
 		int len = xxs->len;
 		if (xxs->flg & XMP_SAMPLE_16BIT) {
 			len *= 2;
 		}
-		convert_delta(xxs->data, len, 0);
+		convert_delta(dest, len, 0, channels);
 	}
 
 	/* Convert samples to signed */
 	if (flags & SAMPLE_FLAG_UNS) {
-		convert_signal(xxs->data, xxs->len,
+		convert_signal(dest, xxs->len * channels,
 				xxs->flg & XMP_SAMPLE_16BIT);
 	}
 
-#if 0
-	/* Downmix stereo samples */
-	if (flags & SAMPLE_FLAG_STEREO) {
-		convert_stereo_to_mono(xxs->data, xxs->len,
-					xxs->flg & XMP_SAMPLE_16BIT);
-		xxs->len /= 2;
+#ifndef LIBXMP_CORE_PLAYER
+	if (flags & SAMPLE_FLAG_VIDC) {
+		convert_vidc_to_linear(dest, xxs->len * channels);
 	}
 #endif
 
-#ifndef LIBXMP_CORE_PLAYER
-	if (flags & SAMPLE_FLAG_VIDC) {
-		convert_vidc_to_linear(xxs->data, xxs->len);
+	/* Done converting individual samples; convert to interleaved. */
+	if ((xxs->flg & XMP_SAMPLE_STEREO) && (~flags & SAMPLE_FLAG_INTERLEAVED)) {
+		convert_stereo_interleaved(xxs->data, dest, xxs->len,
+					   xxs->flg & XMP_SAMPLE_16BIT);
 	}
-#endif
 
 	/* Check for full loop samples */
 	if (flags & SAMPLE_FLAG_FULLREP) {
@@ -379,67 +405,30 @@ int libxmp_load_sample(struct module_data *m, HIO_HANDLE *f, int flags, struct x
 		xxs->flg |= XMP_SAMPLE_LOOP_FULL;
 	}
 
-	/* Unroll bidirectional loops */
-	if (xxs->flg & XMP_SAMPLE_LOOP_BIDIR) {
-		unroll_loop(xxs);
-		bytelen += unroll_extralen;
-	}
-
 	/* Add extra samples at end */
-	if (xxs->flg & XMP_SAMPLE_16BIT) {
-		for (i = 0; i < 8; i++) {
-			xxs->data[bytelen + i] = xxs->data[bytelen - 2 + i];
-		}
-	} else {
-		for (i = 0; i < 4; i++) {
-			xxs->data[bytelen + i] = xxs->data[bytelen - 1 + i];
-		}
+	for (i = 0; i < extralen; i++) {
+		xxs->data[bytelen + i] = xxs->data[bytelen - framelen + i];
 	}
 
 	/* Add extra samples at start */
-	if (xxs->flg & XMP_SAMPLE_16BIT) {
-		xxs->data[-2] = xxs->data[0];
-		xxs->data[-1] = xxs->data[1];
-	} else {
-		xxs->data[-1] = xxs->data[0];
+	for (i = -1; i >= -4; i--) {
+		xxs->data[i] = xxs->data[framelen + i];
 	}
 
-	/* Fix sample at loop */
-	if (xxs->flg & XMP_SAMPLE_LOOP) {
-		int lpe = xxs->lpe;
-		int lps = xxs->lps;
-
-		if (xxs->flg & XMP_SAMPLE_LOOP_BIDIR) {
-			lpe += lpe - lps;
-		}
-
-		if (xxs->flg & XMP_SAMPLE_16BIT) {
-			lpe <<= 1;
-			lps <<= 1;
-			for (i = 0; i < 8; i++) {
-				xxs->data[lpe + i] = xxs->data[lps + i];
-			}
-		} else {
-			for (i = 0; i < 4; i++) {
-				xxs->data[lpe + i] = xxs->data[lps + i];
-			}
-		}
-	}
-
+	free(tmp);
 	return 0;
 
-#ifndef LIBXMP_CORE_PLAYER
     err2:
 	libxmp_free_sample(xxs);
-#endif
+	free(tmp);
     err:
 	return -1;
 }
 
 void libxmp_free_sample(struct xmp_sample *s)
 {
-    if (s->data) {
-	free(s->data - 4);
-	s->data = NULL;		/* prevent double free in PCM load error */
-    }
+	if (s->data) {
+		free(s->data - 4);
+		s->data = NULL;		/* prevent double free in PCM load error */
+	}
 }

@@ -4809,6 +4809,7 @@ void optNSFPLAYChangedC(id param) {
         } else if ([childController.view isKindOfClass:[UIScrollView class]]) {
             ((UIScrollView *)childController.view).contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentAutomatic;
         }
+
         [self.navigationController pushViewController:settingsVC animated:YES];
     }
 }

@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2018 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2024 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -24,7 +24,7 @@
  * Tue, 30 Jun 1998 20:23:11 +0200
  * Reported by John v/d Kamp <blade_@dds.nl>:
  * I have this song from Purple Motion called wcharts.s3m, the global
- * volume was set to 0, creating a devide by 0 error in xmp. There should
+ * volume was set to 0, creating a divide by 0 error in xmp. There should
  * be an extra test if it's 0 or not.
  *
  * Claudio's fix: global volume ignored
@@ -58,22 +58,9 @@
  * starting at pos12, caused by pitchbending effect F25.
  */
 
-/*
- * From: Ralf Hoffmann <ralf@boomerangsworld.de>
- * Date: Wed, 26 Sep 2007 17:12:41 +0200
- * ftp://ftp.scenesp.org/pub/compilations/modplanet/normal/bonuscd/artists/
- * Iq/return%20of%20litmus.s3m doesn't start playing, just uses 100% cpu,
- * the number of patterns is unusually high
- *
- * Claudio's fix: this module seems to be a bad conversion, bad rip or
- * simply corrupted since it has many instances of 0x87 instead of 0x00
- * in the module and instrument headers. I'm adding a simple workaround
- * to be able to load/play the module as is, see the fix87() macro below.
- */
-
 #include "loader.h"
 #include "s3m.h"
-#include "period.h"
+#include "../period.h"
 
 #define MAGIC_SCRM	MAGIC4('S','C','R','M')
 #define MAGIC_SCRI	MAGIC4('S','C','R','I')
@@ -106,11 +93,6 @@ static int s3m_test(HIO_HANDLE *f, char *t, const int start)
 
 #define NONE		0xff
 #define FX_S3M_EXTENDED	0xfe
-
-#define fix87(x) do { \
-	int i; for (i = 0; i < sizeof(x); i++) { \
-		if (*((uint8 *)&x + i) == 0x87) *((uint8 *)&x + i) = 0; } \
-	} while (0)
 
 /* Effect conversion table */
 static const uint8 fx[27] = {
@@ -232,12 +214,12 @@ static int s3m_load(struct module_data *m, HIO_HANDLE * f, const int start)
 #ifndef LIBXMP_CORE_PLAYER
 	struct s3m_adlib_header sah;
 	char tracker_name[40];
-	int quirk87 = 0;
 #endif
 	int pat_len;
 	uint8 n, b;
 	uint16 *pp_ins;			/* Parapointers to instruments */
 	uint16 *pp_pat;			/* Parapointers to patterns */
+	int stereo;
 	int ret;
 	uint8 buf[96]
 
@@ -279,26 +261,14 @@ static int s3m_load(struct module_data *m, HIO_HANDLE * f, const int start)
 		goto err;
 	}
 
-#ifndef LIBXMP_CORE_PLAYER
-	/* S3M anomaly in return_of_litmus.s3m */
-	if (sfh.version == 0x1301 && sfh.name[27] == 0x87)
-		quirk87 = 1;
-
-	if (quirk87) {
-		fix87(sfh.name);
-		fix87(sfh.patnum);
-		fix87(sfh.flags);
-	}
-#endif
-
 	libxmp_copy_adjust(mod->name, sfh.name, 28);
 
-	pp_ins = calloc(2, sfh.insnum);
+	pp_ins = (uint16 *) calloc(sfh.insnum, sizeof(uint16));
 	if (pp_ins == NULL) {
 		goto err;
 	}
 
-	pp_pat = calloc(2, sfh.patnum);
+	pp_pat = (uint16 *) calloc(sfh.patnum, sizeof(uint16));
 	if (pp_pat == NULL) {
 		goto err2;
 	}
@@ -314,15 +284,49 @@ static int s3m_load(struct module_data *m, HIO_HANDLE * f, const int start)
 	mod->bpm = sfh.it;
 	mod->chn = 0;
 
+	/* Mix volume and stereo flag conversion (reported by Saga Musix).
+	 * 1) Old format uses mix volume 0-7, and the stereo flag is 0x10.
+	 * 2) Newer ST3s unconditionally convert MV 0x02 and 0x12 to 0x20.
+	 */
+	m->mvolbase = 48;
+
+	if (sfh.ffi == 1) {
+		m->mvol = ((sfh.mv & 0xf) + 1) * 0x10;
+		stereo = sfh.mv & 0x10;
+		CLAMP(m->mvol, 0x10, 0x7f);
+
+	} else if (sfh.mv == 0x02 || sfh.mv == 0x12) {
+		m->mvol = 0x20;
+		stereo = sfh.mv & 0x10;
+
+	} else {
+		m->mvol = sfh.mv & S3M_MV_VOLUME;
+		stereo = sfh.mv & S3M_MV_STEREO;
+
+		if (m->mvol == 0) {
+			m->mvol = 48;		/* Default is 48 */
+		} else if (m->mvol < 16) {
+			m->mvol = 16;		/* Minimum is 16 */
+		}
+	}
+
+	/* "Note that in stereo, the mastermul is internally multiplied by
+	 * 11/8 inside the player since there is generally more room in the
+	 * output stream." Do the inverse to affect fewer modules. */
+	if (!stereo) {
+		m->mvol = m->mvol * 8 / 11;
+	}
+
 	for (i = 0; i < 32; i++) {
+		int x;
 		if (sfh.chset[i] == S3M_CH_OFF)
 			continue;
 
 		mod->chn = i + 1;
 
-		if (sfh.mv & 0x80) {	/* stereo */
-			int x = sfh.chset[i] & S3M_CH_PAN;
-			mod->xxc[i].pan = (x & 0x0f) < 8 ? 0x30 : 0xc0;
+		x = sfh.chset[i] & S3M_CH_NUMBER;
+		if (stereo && x < S3M_CH_ADLIB) {
+			mod->xxc[i].pan = x < S3M_CH_RIGHT ? 0x30 : 0xc0;
 		} else {
 			mod->xxc[i].pan = 0x80;
 		}
@@ -373,17 +377,17 @@ static int s3m_load(struct module_data *m, HIO_HANDLE * f, const int start)
 
 	/* Default pan positions */
 
-	for (i = 0, sfh.dp -= 0xfc; !sfh.dp /* && n */  && (i < 32); i++) {
-		uint8 x = hio_read8(f);
-		if (x & S3M_PAN_SET) {
-			mod->xxc[i].pan = (x << 4) & 0xff;
-		} else {
-			mod->xxc[i].pan =
-			    sfh.mv % 0x80 ? 0x30 + 0xa0 * (i & 1) : 0x80;
+	if (sfh.dp == 0xfc) {
+		for (i = 0; i < 32; i++) {
+			uint8 x = hio_read8(f);
+			if (x & S3M_PAN_SET) {
+				mod->xxc[i].pan = (x << 4) & 0xff;
+			}
 		}
 	}
 
 	m->c4rate = C4_NTSC_RATE;
+	m->flow_mode = FLOW_MODE_ST3_321;
 
 	if (sfh.version == 0x1300) {
 		m->quirk |= QUIRK_VSALL;
@@ -392,15 +396,40 @@ static int s3m_load(struct module_data *m, HIO_HANDLE * f, const int start)
 #ifndef LIBXMP_CORE_PLAYER
 	switch (sfh.version >> 12) {
 	case 1:
-		snprintf(tracker_name, 40, "Scream Tracker %d.%02x",
-			 (sfh.version & 0x0f00) >> 8, sfh.version & 0xff);
-		m->quirk |= QUIRK_ST3BUGS;
+		if (sfh.version == 0x1320 && sfh.special == 0 && (sfh.ordnum & 0x0f) == 0 && sfh.uc == 0 && (sfh.flags & ~0x50) == 0 && sfh.dp == 0xfc) {
+			if ((sfh.mv & 0x80) != 0) {
+				strcpy(tracker_name, "ModPlug Tracker / OpenMPT 1.17");
+			} else {
+				/* MPT 1.0 alpha5 doesn't set the stereo flag, but MPT 1.0 alpha6 does. */
+				strcpy(tracker_name, "ModPlug Tracker 1.0 alpha");
+			}
+			m->flow_mode = FLOW_MODE_MPT_116;
+		} else if(sfh.version == 0x1320 && sfh.special == 0 && sfh.uc == 0 && sfh.flags == 0 && sfh.dp == 0) {
+			if (sfh.gv == 64 && sfh.mv == 48) {
+				strcpy(tracker_name, "PlayerPRO");
+			} else { // Always stereo
+				strcpy(tracker_name, "Velvet Studio");
+			}
+		} else {
+			snprintf(tracker_name, 40, "Scream Tracker %d.%02x",
+				 (sfh.version & 0x0f00) >> 8, sfh.version & 0xff);
+			m->quirk |= QUIRK_ST3BUGS;
+			if (sfh.version < 0x1303) {
+				m->flow_mode = FLOW_MODE_ST3_301;
+			}
+		}
 		break;
 	case 2:
-		snprintf(tracker_name, 40, "Imago Orpheus %d.%02x",
-			 (sfh.version & 0x0f00) >> 8, sfh.version & 0xff);
+		if (sfh.version == 0x2013) {
+			strcpy(tracker_name, "PlayerPRO"); /* PlayerPRO on Intel doesn't byte-swap the tracker ID bytes */
+		} else {
+			snprintf(tracker_name, 40, "Imago Orpheus %d.%02x",
+				 (sfh.version & 0x0f00) >> 8, sfh.version & 0xff);
+			m->flow_mode = FLOW_MODE_ORPHEUS;
+		}
 		break;
 	case 3:
+		m->flow_mode = FLOW_MODE_IT_210;
 		if (sfh.version == 0x3216) {
 			strcpy(tracker_name, "Impulse Tracker 2.14v3");
 		} else if (sfh.version == 0x3217) {
@@ -412,8 +441,15 @@ static int s3m_load(struct module_data *m, HIO_HANDLE * f, const int start)
 		}
 		break;
 	case 5:
-		snprintf(tracker_name, 40, "OpenMPT %d.%02x",
-			 (sfh.version & 0x0f00) >> 8, sfh.version & 0xff);
+		if (sfh.version == 0x5447) {
+			strcpy(tracker_name, "Graoumf Tracker");
+		} else if (sfh.rsvd2[0] || sfh.rsvd2[1]) {
+			snprintf(tracker_name, 40, "OpenMPT %d.%02x.%02x.%02x",
+				 (sfh.version & 0x0f00) >> 8, sfh.version & 0xff, sfh.rsvd2[1], sfh.rsvd2[0]);
+		} else {
+			snprintf(tracker_name, 40, "OpenMPT %d.%02x",
+				 (sfh.version & 0x0f00) >> 8, sfh.version & 0xff);
+		}
 		m->quirk |= QUIRK_ST3BUGS;
 		break;
 	case 4:
@@ -503,8 +539,8 @@ static int s3m_load(struct module_data *m, HIO_HANDLE * f, const int start)
 		}
 	}
 
-	D_(D_INFO "Stereo enabled: %s", sfh.mv & 0x80 ? "yes" : "no");
-	D_(D_INFO "Pan settings: %s", sfh.dp ? "no" : "yes");
+	D_(D_INFO "Stereo enabled: %s", stereo ? "yes" : "no");
+	D_(D_INFO "Pan settings: %s", (sfh.dp == 0xfc) ? "yes" : "no");
 
 	if (libxmp_init_instrument(m) < 0)
 		goto err3;
@@ -518,8 +554,9 @@ static int s3m_load(struct module_data *m, HIO_HANDLE * f, const int start)
 		struct xmp_sample *xxs = &mod->xxs[i];
 		struct xmp_subinstrument *sub;
 		int load_sample_flags;
+		uint32 sample_segment;
 
-		xxi->sub = calloc(sizeof(struct xmp_subinstrument), 1);
+		xxi->sub = (struct xmp_subinstrument *) calloc(1, sizeof(struct xmp_subinstrument));
 		if (xxi->sub == NULL) {
 			goto err3;
 		}
@@ -558,9 +595,7 @@ static int s3m_load(struct module_data *m, HIO_HANDLE * f, const int start)
 			sub->vol = sah.vol;
 			libxmp_c2spd_to_note(sah.c2spd, &sub->xpo, &sub->fin);
 			sub->xpo += 12;
-			ret =
-			    libxmp_load_sample(m, f, SAMPLE_FLAG_ADLIB, xxs,
-					(char *)sah.reg);
+			ret = libxmp_load_sample(m, f, SAMPLE_FLAG_ADLIB, xxs, (char *)sah.reg);
 			if (ret < 0)
 				goto err3;
 
@@ -572,7 +607,8 @@ static int s3m_load(struct module_data *m, HIO_HANDLE * f, const int start)
 #endif
 		}
 
-		memcpy(sih.dosname, buf + 1, 13);	/* DOS file name */
+		memcpy(sih.dosname, buf + 1, 12);	/* DOS file name */
+		sih.memseg_hi = buf[13];		/* High byte of sample pointer */
 		sih.memseg = readmem16l(buf + 14);	/* Pointer to sample data */
 		sih.length = readmem32l(buf + 16);	/* Length */
 
@@ -599,23 +635,18 @@ static int s3m_load(struct module_data *m, HIO_HANDLE * f, const int start)
 			D_(D_CRIT "error: instrument magic");
 			goto err3;
 		}
-#ifndef LIBXMP_CORE_PLAYER
-		if (quirk87) {
-			fix87(sih.length);
-			fix87(sih.loopbeg);
-			fix87(sih.loopend);
-			fix87(sih.flags);
-		}
-#endif
 
 		xxs->len = sih.length;
 		xxi->nsm = sih.length > 0 ? 1 : 0;
 		xxs->lps = sih.loopbeg;
 		xxs->lpe = sih.loopend;
 
-		xxs->flg = sih.flags & 1 ? XMP_SAMPLE_LOOP : 0;
+		xxs->flg = (sih.flags & S3M_SAMP_LOOP) ? XMP_SAMPLE_LOOP : 0;
 
-		if (sih.flags & 4) {
+		if (sih.flags & S3M_SAMP_STEREO) {
+			xxs->flg |= XMP_SAMPLE_STEREO;
+		}
+		if (sih.flags & S3M_SAMP_16BIT) {
 			xxs->flg |= XMP_SAMPLE_16BIT;
 		}
 
@@ -629,15 +660,18 @@ static int s3m_load(struct module_data *m, HIO_HANDLE * f, const int start)
 
 		libxmp_instrument_name(mod, i, sih.name, 28);
 
-		D_(D_INFO "[%2X] %-28.28s %04x%c%04x %04x %c V%02x %5d",
+		D_(D_INFO "[%2X] %-28.28s %04x%c%c %04x %04x %c V%02x %5d",
 		   i, mod->xxi[i].name, mod->xxs[i].len,
 		   xxs->flg & XMP_SAMPLE_16BIT ? '+' : ' ',
+		   xxs->flg & XMP_SAMPLE_STEREO ? 's' : ' ',
 		   xxs->lps, mod->xxs[i].lpe,
 		   xxs->flg & XMP_SAMPLE_LOOP ? 'L' : ' ', sub->vol, sih.c2spd);
 
 		libxmp_c2spd_to_note(sih.c2spd, &sub->xpo, &sub->fin);
 
-		if (hio_seek(f, start + 16L * sih.memseg, SEEK_SET) < 0) {
+		sample_segment = sih.memseg + ((uint32)sih.memseg_hi << 16);
+
+		if (hio_seek(f, start + 16L * sample_segment, SEEK_SET) < 0) {
 			goto err3;
 		}
 

@@ -1,7 +1,5 @@
 /* public domain decompress code */
 
-#include <stdio.h>
-#include <string.h>
 #include "depacker.h"
 
 #define	MAGIC_1		31	/* First byte of compressed file */
@@ -52,7 +50,7 @@ static int test_compress(unsigned char *b)
  * with those of the compress() routine.  See the definitions above.
  */
 
-static int decrunch_compress(FILE * in, FILE * out)
+static int decrunch_compress(HIO_HANDLE * in, void ** out, long * outlen)
 {
 	char_type *stackp;
 	code_int code;
@@ -62,6 +60,7 @@ static int decrunch_compress(FILE * in, FILE * out)
 	int inbits;
 	int posbits;
 	int outpos;
+	int outsize;
 	int insize;
 	int bitmask;
 	code_int free_ent;
@@ -73,15 +72,16 @@ static int decrunch_compress(FILE * in, FILE * out)
 	int block_mode;
 	int i;
 
-	long bytes_in;			/* Total number of byte from input */
+	/*long bytes_in;*/		/* Total number of byte from input */
 	/*long bytes_out;*/		/* Total number of byte to output */
 	char_type inbuf[IBUFSIZ + 64];	/* Input buffer */
-	char_type outbuf[OBUFSIZ + 2048];/* Output buffer */
+	char_type *outbuf;		/* Output buffer */
+	char_type *tmp;
 	count_int htab[HSIZE];
 	unsigned short codetab[HSIZE];
 
 	insize = 0;
-	rsize = fread(inbuf, 1, IBUFSIZ, in);
+	rsize = hio_read(inbuf, 1, IBUFSIZ, in);
 	insize += rsize;
 
 	if (insize < 3 || inbuf[0] != MAGIC_1 || inbuf[1] != MAGIC_2) {
@@ -92,7 +92,7 @@ static int decrunch_compress(FILE * in, FILE * out)
 	block_mode = inbuf[2] & BLOCK_MODE;
 	maxmaxcode = MAXCODE(maxbits);
 
-	if (maxbits > BITS) {
+	if (maxbits < INIT_BITS || maxbits > BITS) {
 		/*fprintf(stderr,
 		   "%s: compressed with %d bits, can only handle %d bits\n",
 		   (*ifname != '\0' ? ifname : "stdin"), maxbits, BITS);
@@ -100,12 +100,13 @@ static int decrunch_compress(FILE * in, FILE * out)
 		return -1;
 	}
 
-	bytes_in = insize;
+	/*bytes_in = insize;*/
 	maxcode = MAXCODE(n_bits = INIT_BITS) - 1;
 	bitmask = (1 << n_bits) - 1;
 	oldcode = -1;
 	finchar = 0;
 	outpos = 0;
+	outsize = OBUFSIZ;
 	posbits = 3 << 3;
 
 	free_ent = ((block_mode) ? FIRST : 256);
@@ -116,26 +117,33 @@ static int decrunch_compress(FILE * in, FILE * out)
 	for (code = 255; code >= 0; --code)
 		tab_suffixof(code) = (char_type) code;
 
+	outbuf = (char_type *) malloc(outsize + 2048);
+	if (!outbuf) {
+		return -1;
+	}
+
 	do {
 	      resetbuf:;
 		{
-			int i;
+			int idx;
 			int e;
 			int o;
 
 			o = posbits >> 3;
 			e = o <= insize ? insize - o : 0;
 
-			for (i = 0; i < e; ++i)
-				inbuf[i] = inbuf[i + o];
+			for (idx = 0; idx < e; ++idx)
+				inbuf[idx] = inbuf[idx + o];
 
 			insize = e;
 			posbits = 0;
 		}
 
 		if (insize < sizeof(inbuf) - IBUFSIZ) {
-			if ((rsize = fread(inbuf + insize, 1, IBUFSIZ, in)) < 0)
+			if ((rsize = hio_read(inbuf + insize, 1, IBUFSIZ, in)) < 0) {
+				free(outbuf);
 				return -1;
+			}
 
 			insize += rsize;
 		}
@@ -164,10 +172,13 @@ static int decrunch_compress(FILE * in, FILE * out)
 
 			if (oldcode == -1) {
 				if (code >= 256) {
+					/*
 					fprintf(stderr, "oldcode:-1 code:%i\n",
 						(int)(code));
 					fprintf(stderr, "uncompress: corrupt input\n");
+					*/
 					/* abort_compress(); */
+					free(outbuf);
 					return -1;
 				}
 				outbuf[outpos++] = (char_type)(finchar = (int)(oldcode = code));
@@ -199,10 +210,12 @@ static int decrunch_compress(FILE * in, FILE * out)
 						"insize:%d posbits:%d inbuf:%02X %02X %02X %02X %02X (%d)\n",
 						insize, posbits, p[-1], p[0],
 						p[1], p[2], p[3],
-						(posbits & 07));*/
+						(posbits & 07));
 					fprintf(stderr,
 						"uncompress: corrupt input\n");
+					*/
 					/* abort_compress(); */
+					free(outbuf);
 					return -1;
 				}
 
@@ -219,23 +232,25 @@ static int decrunch_compress(FILE * in, FILE * out)
 
 			/* And put them out in forward order */
 
-			if (outpos + (i = (de_stack - stackp)) >= OBUFSIZ) {
+			if (outpos + (i = (de_stack - stackp)) >= outsize) {
 				do {
-					if (i > OBUFSIZ - outpos)
-						i = OBUFSIZ - outpos;
+					if (i > outsize - outpos)
+						i = outsize - outpos;
 
 					if (i > 0) {
 						memcpy(outbuf + outpos, stackp, i);
 						outpos += i;
 					}
 
-					if (outpos >= OBUFSIZ) {
-						if (fwrite(outbuf, 1, outpos, out) != outpos) {
-							return -1;
-							/*write_error(); */
-						}
+					if (outpos >= outsize) {
+						outsize += OBUFSIZ;
 
-						outpos = 0;
+						tmp = (char_type *) realloc(outbuf, outsize + 2048);
+						if (!tmp) {
+							free(outbuf);
+							return -1;
+						}
+						outbuf = tmp;
 					}
 					stackp += i;
 				}
@@ -254,17 +269,21 @@ static int decrunch_compress(FILE * in, FILE * out)
 			oldcode = incode;	/* Remember previous code.      */
 		}
 
-		bytes_in += rsize;
+		/* bytes_in += rsize; */
 	}
 	while (rsize > 0);
 
-	if (outpos > 0 && fwrite(outbuf, 1, outpos, out) != outpos)
-		return -1;
+	if ((tmp = (char_type *) realloc(outbuf, outpos)) != NULL)
+		outbuf = tmp;
+
+	*out = outbuf;
+	*outlen = outpos;
 
 	return 0;
 }
 
-struct depacker libxmp_depacker_compress = {
+const struct depacker libxmp_depacker_compress = {
 	test_compress,
+	NULL,
 	decrunch_compress
 };

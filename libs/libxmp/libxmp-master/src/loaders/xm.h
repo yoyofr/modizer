@@ -14,11 +14,11 @@
 #define XM_LOOP_FORWARD 1
 #define XM_LOOP_PINGPONG 2
 #define XM_SAMPLE_16BIT 0x10
+#define XM_SAMPLE_STEREO 0x20
 #define XM_ENVELOPE_ON 0x01
 #define XM_ENVELOPE_SUSTAIN 0x02
 #define XM_ENVELOPE_LOOP 0x04
 #define XM_LINEAR_PERIOD_MODE 0x01
-
 
 struct xm_file_header {
 	uint8 id[17];		/* ID text: "Extended module: " */
@@ -27,7 +27,7 @@ struct xm_file_header {
 	uint8 tracker[20];	/* Tracker name */
 	uint16 version;		/* Version number, minor-major */
 	uint32 headersz;	/* Header size */
-	uint16 songlen;		/* Song length (in patten order table) */
+	uint16 songlen;		/* Song length (in pattern order table) */
 	uint16 restart;		/* Restart position */
 	uint16 channels;	/* Number of channels (2,4,6,8,10,...,32) */
 	uint16 patterns;	/* Number of patterns (max 256) */
@@ -98,4 +98,4 @@ struct xm_event {
 	uint8 fx_parm;		/* Effect parameter */
 };
 
-#endif
+#endif  /* LIBXMP_LOADERS_XM_H */

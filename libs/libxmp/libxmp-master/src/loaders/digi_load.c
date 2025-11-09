@@ -1,5 +1,5 @@
 /* Extended Module Player
- * Copyright (C) 1996-2018 Claudio Matsuoka and Hipolito Carraro Jr
+ * Copyright (C) 1996-2022 Claudio Matsuoka and Hipolito Carraro Jr
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -73,7 +73,7 @@ struct digi_header {
     uint8 ver;			/* Version hi-nibble.lo-nibble */
     uint8 chn;			/* Number of channels */
     uint8 pack;			/* PackEnable */
-    uint8 unknown[19];		/* ??!? */
+    uint8 unknown[19];		/* ?! */
     uint8 pat;			/* Number of patterns */
     uint8 len;			/* Song length */
     uint8 ord[128];		/* Orders */

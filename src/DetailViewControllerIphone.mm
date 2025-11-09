@@ -7554,7 +7554,7 @@ void doFramePM(float ww,float hh) {
     //check for click
     if (mOglView1Tap) {
         mOglView1Tap=0;
-        MDZILog("ww %d hh %d oglTapX %f oglTapY %f",ww,hh,oglTapX,oglTapY);
+        //MDZILog("ww %d hh %d oglTapX %f oglTapY %f",ww,hh,oglTapX,oglTapY);
         if ( (pmenu_show==0) && (oglTapX<=ww*1/5) && (oglTapY>=hh*4/5) ) {
             //tapping down left corner and not in menu, move to next ProjecTM preset
             oglv_corner_fade[0]=30;

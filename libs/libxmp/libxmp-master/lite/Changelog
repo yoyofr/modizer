@@ -1,7 +1,108 @@
 Stable versions
 ---------------
 
-4.5.0 ():
+4.6.4 (?):
+	Changes by Alice Rowan:
+	- All internal module time/duration calculations are now in doubles
+	  (fixes off-by-one module time on final tick of some modules).
+
+4.6.3 (20250511):
+	Changes by Alice Rowan:
+	- Fix crashes when xmp_set_position is used to set a negative position.
+	  Negative positions now correctly return -XMP_ERROR_INVALID.
+	- Fix crashes when xmp_set_row is used to set a negative row.
+	  Negative positions now correctly return -XMP_ERROR_INVALID.
+	- Fix hangs when xmp_prev_position is used on the first position of
+	  a sequence which is preceded by an S3M/IT skip marker.
+	- Fix out-of-bounds reads when xmp_next_position is used at the end of
+	  a 256 position module.
+	- Fix hangs when seeking to an end-of-module marker caused by these
+	  positions getting assigned a non-existent sequence.
+	- Document xmp_set_position/xmp_next_position/xmp_prev_position
+	  interactions with xmp_stop_module/xmp_restart_module.
+	- xmp_set_tempo_factor no longer alters frame time calculation for
+	  xmp_get_frame_info. Frame time is now updated to account for the
+	  new time factor after calling xmp_scan_module.
+	- Fix loading XMs with some types of harmless pattern truncation.
+	  See: Jazztiz/ta-da-da-da.xm, Sonic (UK)/phuture.xm, et al.
+	- Fix pattern loop jump interactions with same row pattern jump/break
+	  for Scream Tracker 3.03b+ S3Ms and Impulse Tracker ITs.
+
+4.6.2 (20250224):
+	
+
+4.6.1 (20250101):
+	Changes by Alice Rowan:
+	- Add stereo sample loading support for IT, S3M, XM.
+	- Add sample preamplification to filter mixers for high sample rates.
+	- Implement support for Protracker instrument swapping.
+	- Fix XM envelope sustain points that exist on a zero-length loop.
+	- Fix XM extra fine portamento effect memory.
+	- Fix XM portamento up and portamento down memory (only for modules
+	  where FT2 bug compatibility is enabled, for now).
+	- Faster IT loading by buffering pattern, sample, and comment reads.
+	- Fix loop detection edge cases broken by S3M/IT marker scan bugs.
+	- Add fix for IT break to module scan (was missed in libxmp 4.5.0.)
+	- Fix restart position for >64k sample and Digital Tracker MODs.
+	- Replace rand() with a built-in reentrant alternative.
+	- Fix Paula mixer state leak after changing XMP_PLAYER_MODE.
+	- xmp_set_tempo_factor now returns -XMP_ERROR_STATE when called prior
+	  to xmp_start_player (instead of causing crashes).
+	- Fix mixer crashes caused by previously valid tempo factors after
+	  sample rate or BPM changes.
+	- Passing NULL to xmp_set_instrument_path() now unsets the instrument
+	  path instead of crashing.
+	- Fix module scan pattern delay counting.
+	- Add compatibility for non-standard IT Pattern Loop implementations.
+	- Fixed numerous defects found by fuzzing.
+	Changes by Thomas Neumann:
+	- Fix XM envelope handling
+	- Fix XM restart position, so that it is possible to play
+	 "10 Days Of Abstinence.xm"
+	Changes by ds-sloth:
+	- Optimize scan code for common case of no effects
+	Changes by Ozkan Sezer:
+	- Build system fixes and clean-ups. Misc code clean-ups.
+
+4.6.0 (20230615):
+	Changes by Alice Rowan:
+	- Implement S3M and IT mix volume.
+	- Add IT MIDI macro filter effects support.
+	- Fix for IT filter cutoff 127 on new note behavior.
+	- Add missing IT filter clamp to mixer loops.
+	- Fix IT duplicate note check to use the key prior to transpose.
+	- Fix multiple IT playback bugs affecting, e.g. Atomic Playboy.
+	- Fix IT tone portamento and offset.
+	- Fix reverse sustain loop release bug, add IT effect S9F support.
+	- Add Modplug ADPCM4 support for Impulse Tracker modules.
+	- Improve anticlick performance and fix anticlick filter volume bug.
+	- IT fade envelope reset should only affect volume envelope.
+	- Fix Impulse Tracker envelope and fadeout order.
+	- Replace bidirectional loop unrolling with reverse sample rendering.
+	- Fix crash when xmp_set_row() is used on an IT end marker.
+	- Fix NNA and tone portamento interaction with sample changes.
+	- Fix detection for TakeTracker TDZx MODs.
+	- Fix >1MB S3M modules relying on the sample segment high byte.
+	- Move interpolation wraparound handling out of sample loader.
+	- Don't increment voice position by step value at loop/tick end.
+	- Several loading performance improvements.
+	- Allow up to 255 sequences to be scanned.
+	- Allow xmp_smix_play functions to play key off, cut and fade events.
+	- Fixed numerous defects found by fuzzing.
+	Changes by Vitaly Novichkov:
+	- Cmake build system support.
+	Changes by Ozkan Sezer:
+	- Cleanups and refactoring of platform-specific code.
+	- Multiple code cleanups.
+	- Build system fixes and clean-ups.
+	Changes by Claudio Matsuoka:
+	- Fix linkage with gcc when versioned symbols and LTO are enabled.
+	Changes by Cameron Cawley:
+	- Several code and build system clean-ups.
+	Changes by Clownacy:
+	- Fixes and cleanups for C++ compatibility.
+
+4.5.0 (20210606):
 	- fix xmp_set_position et al. when used during loops, pattern delay
 	- make xmp_set_position() consistently clear pattern break/jump vars
 	- xmp_get_format_list() now returns const char* const*, not char**
@@ -11,7 +112,7 @@ Stable versions
 	  (no ABI change)
 	- xmp_load_module_from_memory() now accepts a const void* memory
 	  param (no ABI change)
-	- xmp_load_module_from_memory no longer accepts sizes <= 0.
+	- xmp_load_module_from_memory() no longer accepts sizes <= 0.
 	- explicitly document that callers of xmp_load_module_from_file()
 	  are responsible for closing their own file.
 	- remove nonportable use of fdopen in xmp_load_module_from_file()
@@ -31,6 +132,8 @@ Stable versions
 	- add xmp_test_module_from_memory and xmp_test_module_from_file
 	  calls to api
 	- add new xmp_syserrno call to the api
+	- xmp_load_module_from_callbacks and xmp_test_module_from_callbacks
+	  added to api
 	- fix IT pattern delay volume reset bug (read row events only
 	  once per row)
 	- IT: T00 now repeats previous slide
@@ -56,6 +159,7 @@ Stable versions
 	- fix compatibility with old gcc, mingw, djgpp
 	- fix warnings in configure script
 	- fix Watcom C build on OS/2
+	- support compiling for Windows with OpenWatcom
 	- fix Amiga build
 	- fix Emscripten builds
 	- fix linkage errors with MSVC debug builds
@@ -112,7 +216,7 @@ Stable versions
 	- fix S3M set pan effect (reported by Hai Shalom and Johannes Schultz)
 	- code refactoring and cleanup
 
-4.3.12 (20150305):
+4.3.12 (20160305):
 	Fix bugs caught in the OpenMPT test cases:
 	- fix IT note off with instrument
 	- fix IT note recover after cut
@@ -159,8 +263,8 @@ Stable versions
 	- prevent division by zero in memory I/O
 	Other changes:
 	- fix IT envelope release + fadeout (reported by NoSuck)
-	- fix IT autovibrato depth (reported by Travis Evans)
 	- fix tone portamento target setting (reported by Georgy Lomsadze)
+	- fix IT autovibrato depth (reported by Travis Evans)
 	- disable ST3 sample size limit (reported by Jochen Goernitz)
 
 4.3.9 (20150623):
@@ -286,7 +390,7 @@ Stable versions
 	- fix module titles and instrument names in Mac OS X
 	- fix row delay initialization on new module
 
-4.3.0 (20140927):
+4.3.0 (20140926):
 	- rebranded as libxmp-lite
 	- build from the same source tree as the full libxmp
 	- fix fine volume slide memory
@@ -333,7 +437,7 @@ Stable versions
 	- minor Visual C++ port fixes
 	- add Visual C++ nmake Makefile
 	- fix double free in module loaded from memory (by Arnaud Troël)
-	- fix Win64 portability issues (reported by Ozkan Sezer)
+	- fix Win64 portability issues (reported by Özkan Sezer)
 	- fix IT tempo slide effect
 	- generate Android NDK static libraries
 
