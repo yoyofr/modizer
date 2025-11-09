@@ -26,10 +26,6 @@
 // Compiler specifics.
 #define HAVE_BUILTIN_EXPECT 1
 
-#ifndef M_PI
-#  define M_PI    3.14159265358979323846
-#endif
-
 // Branch prediction macros, lifted off the Linux kernel.
 #if RESID_BRANCH_HINTS && HAVE_BUILTIN_EXPECT
 #  define likely(x)      __builtin_expect(!!(x), 1)
@@ -53,7 +49,7 @@ extern "C"
 #ifndef __VERSION_CC__
 extern const char* residfp_version_string;
 #else
-const char* residfp_version_string = "2.7.0";
+const char* residfp_version_string = "2.15.2";
 #endif
 }
 

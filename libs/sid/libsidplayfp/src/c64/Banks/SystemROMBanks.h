@@ -39,9 +39,7 @@ namespace libsidplayfp
 template <int N>
 class romBank : public Bank
 {
-#ifdef HAVE_CXX11
     static_assert((N != 0) && ((N & (N - 1)) == 0), "N must be a power of two");
-#endif
 
 protected:
     /// The ROM array
@@ -67,7 +65,7 @@ public:
     /**
      * Copy content from source buffer.
      */
-    void set(const uint8_t* source) { if (source != nullptr) memcpy(rom, source, N); }
+    void set(const uint8_t* source) { if (source != nullptr) std::memcpy(rom, source, N); }
 
     /**
      * Writing to ROM is a no-op.
@@ -161,17 +159,17 @@ public:
         romBank<0x2000>::set(basic);
 
         // Backup BASIC Warm Start
-        memcpy(trap, getPtr(0xa7ae), sizeof(trap));
+        std::memcpy(trap, getPtr(0xa7ae), sizeof(trap));
 
-        memcpy(subTune, getPtr(0xbf53), sizeof(subTune));
+        std::memcpy(subTune, getPtr(0xbf53), sizeof(subTune));
     }
 
     void reset()
     {
         // Restore original BASIC Warm Start
-        memcpy(getPtr(0xa7ae), trap, sizeof(trap));
+        std::memcpy(getPtr(0xa7ae), trap, sizeof(trap));
 
-        memcpy(getPtr(0xbf53), subTune, sizeof(subTune));
+        std::memcpy(getPtr(0xbf53), subTune, sizeof(subTune));
     }
 
     /**

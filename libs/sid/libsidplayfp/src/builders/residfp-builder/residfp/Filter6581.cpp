@@ -24,8 +24,29 @@
 
 #include "Integrator6581.h"
 
+#include <cassert>
+
 namespace reSIDfp
 {
+
+int Filter6581::solveIntegrators()
+{
+    Vbp = hpIntegrator.solve(Vhp);
+    Vlp = bpIntegrator.solve(Vbp);
+
+    int Vfilt = 0;
+    if (lp) Vfilt += Vlp;
+    if (bp) Vfilt += Vbp;
+    if (hp) Vfilt += Vhp;
+
+    // The filter input resistors are slightly bigger than the voice ones
+    // Scale the values accordingly
+    constexpr int filterGain = static_cast<int>(0.93 * (1 << 12));
+    // Scaling unsigned values adds a DC offset
+    constexpr int offset = 32767 * ((1 << 12) - filterGain);
+    assert(Vfilt >= 0);
+    return (Vfilt * filterGain + offset) >> 12;
+}
 
 Filter6581::~Filter6581()
 {
@@ -35,8 +56,8 @@ Filter6581::~Filter6581()
 void Filter6581::updateCenterFrequency()
 {
     const unsigned short Vw = f0_dac[getFC()];
-    static_cast<Integrator6581*>(hpIntegrator)->setVw(Vw);
-    static_cast<Integrator6581*>(bpIntegrator)->setVw(Vw);
+    hpIntegrator.setVw(Vw);
+    bpIntegrator.setVw(Vw);
 }
 
 void Filter6581::setFilterCurve(double curvePosition)

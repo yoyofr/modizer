@@ -179,19 +179,18 @@ private:
     const unsigned short nVt;
     const unsigned short nVmin;
 
-    const FilterModelConfig6581* fmc;
+    FilterModelConfig6581& fmc;
 
 public:
-    Integrator6581(const FilterModelConfig6581* fmc,
-               double WL_snake) :
-        wlSnake(WL_snake),
+    Integrator6581(FilterModelConfig6581& fmc) :
+        wlSnake(fmc.getWL_snake()),
 #ifdef SLOPE_FACTOR
         n(1.4),
 #endif
         nVddt_Vw_2(0),
-        nVddt(fmc->getNormalizedValue(fmc->getVddt())),
-        nVt(fmc->getNormalizedValue(fmc->getVth())),
-        nVmin(fmc->getNVmin()),
+        nVddt(fmc.getNormalizedValue(fmc.getVddt())),
+        nVt(fmc.getNormalizedValue(fmc.getVth())),
+        nVmin(fmc.getNVmin()),
         fmc(fmc) {}
 
     void setVw(unsigned short Vw) { nVddt_Vw_2 = ((nVddt - Vw) * (nVddt - Vw)) >> 1; }

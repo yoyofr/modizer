@@ -30,8 +30,8 @@ namespace libsidplayfp
 class iniParser
 {
 private:
-    typedef std::map<std::string, std::string> keys_t;
-    typedef std::map<std::string, keys_t> sections_t;
+    using keys_t = std::map<std::string, std::string>;
+    using sections_t = std::map<std::string, keys_t>;
 
 private:
     sections_t sections;

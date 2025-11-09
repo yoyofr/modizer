@@ -23,7 +23,8 @@
 #define COLORRAMBANK_H
 
 #include <stdint.h>
-#include <cstring>
+#include <algorithm>
+#include <iterator>
 
 #include "Bank.h"
 
@@ -47,7 +48,7 @@ private:
 public:
     void reset()
     {
-         memset(ram, 0, sizeof(ram));
+         std::fill(std::begin(ram), std::end(ram), 0);
     }
 
     void poke(uint_least16_t address, uint8_t value) override

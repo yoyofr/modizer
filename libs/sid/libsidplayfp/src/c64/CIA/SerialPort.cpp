@@ -56,19 +56,6 @@ void SerialPort::syncCntHistory()
     }
 }
 
-void SerialPort::startSdr()
-{
-    eventScheduler.schedule(startSdrEvent, 1);
-}
-
-void SerialPort::doStartSdr()
-{
-    if (!loaded)
-        loaded = true;
-    else
-        pending = true;
-}
-
 void SerialPort::switchSerialDirection(bool input)
 {
     syncCntHistory();

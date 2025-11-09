@@ -1,7 +1,7 @@
 /*
  * This file is part of libsidplayfp, a SID player engine.
  *
- * Copyright 2011-2022 Leandro Nini <drfiemost@users.sourceforge.net>
+ * Copyright 2011-2025 Leandro Nini <drfiemost@users.sourceforge.net>
  * Copyright 2007-2010 Antti Lankila
  * Copyright 2004 Dag Lem <resid@nimrod.no>
  *
@@ -23,13 +23,9 @@
 #ifndef VOICE_H
 #define VOICE_H
 
-#include <memory>
-
 #include "siddefs-fp.h"
 #include "WaveformGenerator.h"
 #include "EnvelopeGenerator.h"
-
-#include "sidcxx11.h"
 
 namespace reSIDfp
 {
@@ -40,9 +36,9 @@ namespace reSIDfp
 class Voice
 {
 private:
-    std::unique_ptr<WaveformGenerator> const waveformGenerator;
+    WaveformGenerator waveformGenerator;
 
-    std::unique_ptr<EnvelopeGenerator> const envelopeGenerator;
+    EnvelopeGenerator envelopeGenerator;
 
     /// The DAC LUT for analog waveform output
     float* wavDAC; //-V730_NOINIT this is initialized in the SID constructor
@@ -63,26 +59,18 @@ public:
      *
      * Ideal range [-2048*255, 2047*255].
      *
-     * @param ringModulator Ring-modulator for waveform
      * @return the voice analog output
      */
     RESID_INLINE
-    float output(const WaveformGenerator* ringModulator) const
+    float output()
     {
-        unsigned int const wav = waveformGenerator->output(ringModulator);
-        unsigned int const env = envelopeGenerator->output();
+        unsigned int const wav = waveformGenerator.output();
+        unsigned int const env = envelopeGenerator.output();
 
         // DAC imperfections are emulated by using the digital output
         // as an index into a DAC lookup table.
         return wavDAC[wav] * envDAC[env];
     }
-
-    /**
-     * Constructor.
-     */
-    Voice() :
-        waveformGenerator(new WaveformGenerator()),
-        envelopeGenerator(new EnvelopeGenerator()) {}
 
     /**
      * Set the analog DAC emulation for waveform generator.
@@ -100,9 +88,19 @@ public:
      */
     void setEnvDAC(float* dac) { envDAC = dac; }
 
-    WaveformGenerator* wave() const { return waveformGenerator.get(); }
+    /**
+     * Set the modulator voice.
+     *
+     * @param modulator Ring-modulator for waveform
+     */
+    void setOtherVoices(Voice& prev, Voice& next)
+    {
+        waveformGenerator.setOtherWaveforms(prev.wave(), next.wave());
+    }
 
-    EnvelopeGenerator* envelope() const { return envelopeGenerator.get(); }
+    WaveformGenerator* wave() { return &waveformGenerator; }
+
+    EnvelopeGenerator* envelope() { return &envelopeGenerator; }
 
     /**
      * Write control register.
@@ -111,8 +109,8 @@ public:
      */
     void writeCONTROL_REG(unsigned char control)
     {
-        waveformGenerator->writeCONTROL_REG(control);
-        envelopeGenerator->writeCONTROL_REG(control);
+        waveformGenerator.writeCONTROL_REG(control);
+        envelopeGenerator.writeCONTROL_REG(control);
     }
 
     /**
@@ -120,8 +118,8 @@ public:
      */
     void reset()
     {
-        waveformGenerator->reset();
-        envelopeGenerator->reset();
+        waveformGenerator.reset();
+        envelopeGenerator.reset();
     }
 };
 

@@ -1,7 +1,7 @@
 /*
  * This file is part of libsidplayfp, a SID player engine.
  *
- * Copyright 2011-2019 Leandro Nini <drfiemost@users.sourceforge.net>
+ * Copyright 2011-2024 Leandro Nini <drfiemost@users.sourceforge.net>
  * Copyright 2007-2010 Antti Lankila
  * Copyright 2000-2001 Simon White
  *
@@ -23,8 +23,6 @@
 #ifndef SIDEMU_H
 #define SIDEMU_H
 
-#include <string>
-
 #include "sidplayfp/SidConfig.h"
 #include "sidplayfp/siddefs.h"
 #include "Event.h"
@@ -34,6 +32,8 @@
 
 #include "sidcxx11.h"
 
+#include <string>
+#include <bitset>
 
 class sidbuilder;
 
@@ -45,15 +45,6 @@ namespace libsidplayfp
  */
 class sidemu : public c64sid
 {
-public:
-    /**
-     * Buffer size. 5000 is roughly 5 ms at 96 kHz
-     */
-    enum
-    {
-        OUTPUTBUFFERSIZE = 5000
-    };
-
 private:
     sidbuilder* const m_builder;
 
@@ -63,31 +54,39 @@ protected:
     static const char ERR_INVALID_CHIP[];
 
 protected:
-    EventScheduler *eventScheduler;
+    EventScheduler *eventScheduler = nullptr;
 
-    event_clock_t m_accessClk;
+    event_clock_t m_accessClk = 0;
 
     /// The sample buffer
-    short *m_buffer;
+    short *m_buffer = nullptr;
 
     /// Current position in buffer
-    int m_bufferpos;
+    int m_bufferpos = 0;
 
-    bool m_status;
-    bool isLocked;
+    bool m_status = true;
+    bool isLocked = false;
+
+    bool isFilterDisabled = false;
+
+    /// Flags for muted voices
+    std::bitset<4> isMuted;
 
     std::string m_error;
+
+protected:
+    virtual void write(uint_least8_t addr, uint8_t data) = 0;
+
+    void writeReg(uint_least8_t addr, uint8_t data) override final;
 
 public:
     sidemu(sidbuilder *builder) :
         m_builder(builder),
-        eventScheduler(nullptr),
-        m_buffer(nullptr),
-        m_bufferpos(0),
-        m_status(true),
-        isLocked(false),
-        m_error("N/A") {}
-    virtual ~sidemu() {}
+        m_error("N/A")
+    {
+        isMuted.reset();
+    }
+    ~sidemu() override = default;
 
     /**
      * Clock the SID chip.
@@ -105,11 +104,19 @@ public:
     virtual void unlock();
 
     // Standard SID functions
-    
+
     /**
      * Mute/unmute voice.
+     *
+     * @param voice SID voice channels from 0 to 2, or 3 for samples
+     * @param mute true to mute channel
      */
-    virtual void voice(unsigned int num, bool mute) = 0;
+    void voice(unsigned int voice, bool mute);
+
+    /**
+     * Enable/disable filter.
+     */
+    void filter(bool enable);
 
     /**
      * Set SID model.

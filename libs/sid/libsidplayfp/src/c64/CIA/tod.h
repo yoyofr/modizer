@@ -74,7 +74,7 @@ private:
 
     inline void updateCounters();
 
-    void event();
+    void event() override;
 
 public:
     Tod(EventScheduler &scheduler, MOS652X &parent, uint8_t regs[0x10]) :

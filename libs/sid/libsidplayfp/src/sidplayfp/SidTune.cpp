@@ -44,7 +44,7 @@ const char* defaultFileNameExt[] =
     // credit lines of a MUS/STR pair).
     ".str", ".STR", ".mus", ".MUS",
     // End.
-    0
+    nullptr
 };
 
 const char** SidTune::fileNameExtensions = defaultFileNameExt;

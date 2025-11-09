@@ -48,8 +48,6 @@ private:
 
     uint8_t busValue;
 
-    bool muted[3];
-
     SidConfig::sid_model_t runmodel;
 
 private:
@@ -60,7 +58,7 @@ public:
 
 public:
     exSID(sidbuilder *builder);
-    ~exSID();
+    ~exSID() override;
 
     bool getStatus() const { return m_status; }
 
@@ -75,8 +73,6 @@ public:
 
     void model(SidConfig::sid_model_t model, bool digiboost) override;
 
-    void voice(unsigned int num, bool mute) override;
-
     void filter(bool) {}
 
     void sampling(float systemclock, float freq,
@@ -84,10 +80,6 @@ public:
 
     // exSID specific
     void flush();
-
-    // Must lock the SID before using the standard functions.
-    bool lock(EventScheduler *env) override;
-    void unlock() override;
 };
 
 }

@@ -36,7 +36,7 @@
 
 #include "sidcxx11.h"
 
-#include <string.h>
+#include <cstring>
 
 namespace libsidplayfp
 {
@@ -53,10 +53,17 @@ private:
     EventScheduler &eventScheduler;
 
     /// CPU port signals
-    bool loram, hiram, charen;
+    //@{
+    bool loram = false;
+    bool hiram = false;
+    bool charen = false;
+    //@}
+
+    friend uint8_t readIO(MMU &self, uint_least16_t addr);
+    using ReadFunc = uint8_t (*)(MMU &self, uint_least16_t addr);
 
     /// CPU read memory mapping in 4k chunks
-    Bank* cpuReadMap[16];
+    ReadFunc cpuReadMap[16];
 
     /// CPU write memory mapping in 4k chunks
     Bank* cpuWriteMap[16];
@@ -80,7 +87,7 @@ private:
     ZeroRAMBank zeroRAMBank;
 
     /// random seed
-    mutable unsigned int seed;
+    mutable unsigned int seed = 3686734;
 
 private:
     void setCpuPort(uint8_t state) override;
@@ -108,11 +115,11 @@ public:
 
     void fillRam(uint_least16_t start, uint8_t value, unsigned int size) override
     {
-        memset(ramBank.ram+start, value, size);
+        std::memset(ramBank.ram+start, value, size);
     }
     void fillRam(uint_least16_t start, const uint8_t* source, unsigned int size) override
     {
-        memcpy(ramBank.ram+start, source, size);
+        std::memcpy(ramBank.ram+start, source, size);
     }
 
     // SID specific hacks
@@ -128,7 +135,7 @@ public:
      * @param addr the address where to read from
      * @return value at address
      */
-    uint8_t cpuRead(uint_least16_t addr) const { return cpuReadMap[addr >> 12]->peek(addr); }
+    uint8_t cpuRead(uint_least16_t addr) { return (cpuReadMap[addr >> 12])(*this, addr); }
 
     /**
      * Access memory as seen by CPU.

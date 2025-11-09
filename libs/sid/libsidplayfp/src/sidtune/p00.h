@@ -45,12 +45,12 @@ public:
      */
     static SidTuneBase* load(const char *fileName, buffer_t& dataBuf);
 
-    virtual ~p00() {}
+    ~p00() override = default;
 
 private:
     // prevent copying
-    p00(const p00&);
-    p00& operator=(p00&);
+    p00(const p00&) = delete;
+    p00& operator=(p00&) = delete;
 };
 
 }

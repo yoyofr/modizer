@@ -48,6 +48,15 @@ namespace MOS6510Debug
 }
 #endif
 
+class CPUDataBus
+{
+public:
+  virtual ~CPUDataBus() = default;
+
+  virtual uint8_t cpuRead(uint_least16_t addr) =0;
+
+  virtual void cpuWrite(uint_least16_t addr, uint8_t data) =0;
+};
 
 /**
  * Cycle-exact 6502/6510 emulation core.
@@ -73,28 +82,31 @@ private:
      * Need to be larger than about 0x103 << 3,
      * but can't be min/max for Integer type.
      */
-    static const int MAX = 65536;
+    static constexpr int MAX = 65536;
 
     /// Stack page location
-    static const uint8_t SP_PAGE = 0x01;
+    static constexpr uint8_t SP_PAGE = 0x01;
 
 public:
     /// Status register interrupt bit.
-    static const int SR_INTERRUPT = 2;
+    static constexpr int SR_INTERRUPT = 2;
 
 private:
     struct ProcessorCycle
     {
-        void (MOS6510::*func)();
+        void (*func)(MOS6510&);
         bool nosteal;
         ProcessorCycle() :
-            func(0),
+            func(nullptr),
             nosteal(false) {}
     };
 
 private:
     /// Event scheduler
     EventScheduler &eventScheduler;
+
+    /// Data bus
+    CPUDataBus &dataBus;
 
     /// Current instruction and subcycle within instruction
     int cycleCount;
@@ -150,17 +162,17 @@ private:
     struct ProcessorCycle instrTable[0x101 << 3];
 
 private:
-    /// Represents an instruction subcycle that writes
-    EventCallback<MOS6510> m_nosteal;
-
-    /// Represents an instruction subcycle that reads
-    EventCallback<MOS6510> m_steal;
-
-    EventCallback<MOS6510> clearInt;
-
     void eventWithoutSteals();
     void eventWithSteals();
     void removeIRQ();
+
+    /// Represents an instruction subcycle that writes
+    FastEventCallback<MOS6510, &MOS6510::eventWithoutSteals> m_nosteal;
+
+    /// Represents an instruction subcycle that reads
+    FastEventCallback<MOS6510, &MOS6510::eventWithSteals> m_steal;
+
+    FastEventCallback<MOS6510, &MOS6510::removeIRQ> clearInt;
 
     inline void Initialise();
 
@@ -297,27 +309,13 @@ private:
 
     inline void buildInstructionTable();
 
-protected:
-    MOS6510(EventScheduler &scheduler);
-    ~MOS6510() {}
-
-    /**
-     * Get data from system environment.
-     *
-     * @param address
-     * @return data byte CPU requested
-     */
-    virtual uint8_t cpuRead(uint_least16_t addr) =0;
-
-    /**
-     * Write data to system environment.
-     *
-     * @param address
-     * @param data
-     */
-    virtual void cpuWrite(uint_least16_t addr, uint8_t data) =0;
-
 public:
+    MOS6510(EventScheduler &scheduler, CPUDataBus& bus);
+
+    inline uint8_t cpuRead(uint_least16_t addr) { return dataBus.cpuRead(addr); }
+
+    inline void cpuWrite(uint_least16_t addr, uint8_t data) { dataBus.cpuWrite(addr, data); }
+
     void reset();
 
     static const char *credits();

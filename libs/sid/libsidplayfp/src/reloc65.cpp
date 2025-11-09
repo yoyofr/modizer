@@ -27,7 +27,7 @@
 #include "sidplayfp/siddefs.h"
 
 /// 16 bit header
-const int HEADER_SIZE = (8 + 9 * 2);
+constexpr int HEADER_SIZE = (8 + 9 * 2);
 
 /// Magic number
 const unsigned char o65hdr[] = {1, 0, 'o', '6', '5'};
@@ -99,7 +99,7 @@ bool reloc65::reloc(unsigned char **buf, int *fsize)
 {
     unsigned char *tmpBuf = *buf;
 
-    if (memcmp(tmpBuf, o65hdr, 5) != 0)
+    if (std::memcmp(tmpBuf, o65hdr, 5) != 0)
     {
         return false;
     }

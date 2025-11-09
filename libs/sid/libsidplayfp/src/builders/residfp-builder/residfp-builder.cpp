@@ -1,7 +1,7 @@
 /*
  * This file is part of libsidplayfp, a SID player engine.
  *
- * Copyright 2011-2013 Leandro Nini <drfiemost@users.sourceforge.net>
+ * Copyright 2011-2024 Leandro Nini <drfiemost@users.sourceforge.net>
  * Copyright 2007-2010 Antti Lankila
  * Copyright 2001 Simon White
  *
@@ -68,25 +68,30 @@ const char *ReSIDfpBuilder::credits() const
 
 void ReSIDfpBuilder::filter(bool enable)
 {
-    std::for_each(sidobjs.begin(), sidobjs.end(), applyParameter<libsidplayfp::ReSIDfp, bool>(&libsidplayfp::ReSIDfp::filter, enable));
+    for (libsidplayfp::sidemu* e: sidobjs)
+        static_cast<libsidplayfp::ReSIDfp*>(e)->filter(enable);
 }
 
 void ReSIDfpBuilder::filter6581Curve(double filterCurve)
 {
-    std::for_each(sidobjs.begin(), sidobjs.end(), applyParameter<libsidplayfp::ReSIDfp, double>(&libsidplayfp::ReSIDfp::filter6581Curve, filterCurve));
+    for (libsidplayfp::sidemu* e: sidobjs)
+        static_cast<libsidplayfp::ReSIDfp*>(e)->filter6581Curve(filterCurve);
 }
 
 void ReSIDfpBuilder::filter6581Range(double filterRange)
 {
-    std::for_each(sidobjs.begin(), sidobjs.end(), applyParameter<libsidplayfp::ReSIDfp, double>(&libsidplayfp::ReSIDfp::filter6581Range, filterRange));
+    for (libsidplayfp::sidemu* e: sidobjs)
+        static_cast<libsidplayfp::ReSIDfp*>(e)->filter6581Range(filterRange);
 }
 
 void ReSIDfpBuilder::filter8580Curve(double filterCurve)
 {
-    std::for_each(sidobjs.begin(), sidobjs.end(), applyParameter<libsidplayfp::ReSIDfp, double>(&libsidplayfp::ReSIDfp::filter8580Curve, filterCurve));
+    for (libsidplayfp::sidemu* e: sidobjs)
+        static_cast<libsidplayfp::ReSIDfp*>(e)->filter8580Curve(filterCurve);
 }
 
 void ReSIDfpBuilder::combinedWaveformsStrength(SidConfig::sid_cw_t cws)
 {
-    std::for_each(sidobjs.begin(), sidobjs.end(), applyParameter<libsidplayfp::ReSIDfp, SidConfig::sid_cw_t>(&libsidplayfp::ReSIDfp::combinedWaveforms, cws));
+    for (libsidplayfp::sidemu* e: sidobjs)
+        static_cast<libsidplayfp::ReSIDfp*>(e)->combinedWaveforms(cws);
 }

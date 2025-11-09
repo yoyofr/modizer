@@ -1,7 +1,7 @@
 /*
  * This file is part of libsidplayfp, a SID player engine.
  *
- * Copyright 2011-2022 Leandro Nini <drfiemost@users.sourceforge.net>
+ * Copyright 2011-2025 Leandro Nini <drfiemost@users.sourceforge.net>
  * Copyright 2007-2010 Antti Lankila
  * Copyright 2000-2001 Simon White
  *
@@ -61,6 +61,21 @@ uint_least32_t sidplayfp::play(short *buffer, uint_least32_t count)
     return sidplayer.play(buffer, count);
 }
 
+void sidplayfp::buffers(short** buffers) const
+{
+    sidplayer.buffers(buffers);
+}
+
+int sidplayfp::play(unsigned int cycles)
+{
+    return sidplayer.play(cycles);
+}
+
+bool sidplayfp::reset()
+{
+    return sidplayer.reset();
+}
+
 bool sidplayfp::load(SidTune *tune)
 {
     return sidplayer.load(tune);
@@ -96,6 +111,11 @@ void sidplayfp::mute(unsigned int sidNum, unsigned int voice, bool enable)
     sidplayer.mute(sidNum, voice, enable);
 }
 
+void sidplayfp::filter(unsigned int sidNum, bool enable)
+{
+    sidplayer.filter(sidNum, enable);
+}
+
 void sidplayfp::debug(bool enable, FILE *out)
 {
     sidplayer.debug(enable, out);
@@ -125,4 +145,19 @@ uint_least16_t sidplayfp::getCia1TimerA() const
 bool sidplayfp::getSidStatus(unsigned int sidNum, uint8_t regs[32])
 {
     return sidplayer.getSidStatus(sidNum, regs);
+}
+
+unsigned int sidplayfp::installedSIDs() const
+{
+    return sidplayer.installedSIDs();
+}
+
+void sidplayfp::initMixer(bool stereo)
+{
+    return sidplayer.initMixer(stereo);
+}
+
+unsigned int sidplayfp::mix(short *buffer, unsigned int samples)
+{
+    return sidplayer.mix(buffer, samples);
 }

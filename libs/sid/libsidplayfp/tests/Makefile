@@ -85,8 +85,8 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-build_triplet = aarch64-apple-darwin23.4.0
-host_triplet = aarch64-apple-darwin23.4.0
+build_triplet = aarch64-apple-darwin25.1.0
+host_triplet = aarch64-apple-darwin25.1.0
 #TESTS = TestEnvelopeGenerator$(EXEEXT) \
 #	TestWaveformGenerator$(EXEEXT) \
 #	TestSpline$(EXEEXT) TestDac$(EXEEXT) \
@@ -95,15 +95,17 @@ host_triplet = aarch64-apple-darwin23.4.0
 #check_PROGRAMS = $(am__EXEEXT_1)
 subdir = tests
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
-am__aclocal_m4_deps = $(top_srcdir)/src/builders/exsid-builder/driver/m4/ax_pthread.m4 \
+am__aclocal_m4_deps = $(top_srcdir)/m4/ax_append_compile_flags.m4 \
+	$(top_srcdir)/m4/ax_append_flag.m4 \
 	$(top_srcdir)/m4/ax_check_compile_flag.m4 \
 	$(top_srcdir)/m4/ax_cxx_compile_stdcxx.m4 \
-	$(top_srcdir)/m4/ax_cxx_compile_stdcxx_11.m4 \
-	$(top_srcdir)/m4/ax_cxx_compile_stdcxx_14.m4 \
-	$(top_srcdir)/m4/ax_cxx_compile_stdcxx_17.m4 \
+	$(top_srcdir)/m4/ax_pthread.m4 \
+	$(top_srcdir)/m4/ax_require_defined.m4 \
 	$(top_srcdir)/m4/libtool.m4 $(top_srcdir)/m4/ltoptions.m4 \
 	$(top_srcdir)/m4/ltsugar.m4 $(top_srcdir)/m4/ltversion.m4 \
-	$(top_srcdir)/m4/lt~obsolete.m4 $(top_srcdir)/configure.ac
+	$(top_srcdir)/m4/lt~obsolete.m4 \
+	$(top_srcdir)/m4/sid_x86_simd_supports.m4 \
+	$(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 DIST_COMMON = $(srcdir)/Makefile.am $(am__DIST_COMMON)
@@ -444,14 +446,14 @@ am__DIST_COMMON = $(srcdir)/Makefile.in \
 	$(top_srcdir)/build-aux/depcomp \
 	$(top_srcdir)/build-aux/test-driver
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
-ACLOCAL = ${SHELL} '/Users/yoyofr/Downloads/libsidplayfp-2.7.0/build-aux/missing' aclocal-1.16
+ACLOCAL = ${SHELL} '/Users/yoyofr/Documents/dev/other/libsidplayfp-2.15.2/build-aux/missing' aclocal-1.16
 AMTAR = $${TAR-tar}
 AM_DEFAULT_VERBOSITY = 1
 AR = ar
 AS = as
-AUTOCONF = ${SHELL} '/Users/yoyofr/Downloads/libsidplayfp-2.7.0/build-aux/missing' autoconf
-AUTOHEADER = ${SHELL} '/Users/yoyofr/Downloads/libsidplayfp-2.7.0/build-aux/missing' autoheader
-AUTOMAKE = ${SHELL} '/Users/yoyofr/Downloads/libsidplayfp-2.7.0/build-aux/missing' automake-1.16
+AUTOCONF = ${SHELL} '/Users/yoyofr/Documents/dev/other/libsidplayfp-2.15.2/build-aux/missing' autoconf
+AUTOHEADER = ${SHELL} '/Users/yoyofr/Documents/dev/other/libsidplayfp-2.15.2/build-aux/missing' autoheader
+AUTOMAKE = ${SHELL} '/Users/yoyofr/Documents/dev/other/libsidplayfp-2.15.2/build-aux/missing' automake-1.16
 AWK = awk
 CC = gcc
 CCDEPMODE = depmode=gcc3
@@ -460,10 +462,10 @@ CPP = gcc -E
 CPPFLAGS = 
 CSCOPE = cscope
 CTAGS = ctags
-CXX = g++ -std=c++17
-CXXCPP = g++ -E -std=c++17
+CXX = g++ -std=c++23
+CXXCPP = g++ -E -std=c++23
 CXXDEPMODE = depmode=gcc3
-CXXFLAGS = -g -O2
+CXXFLAGS = -g -O2 -fvisibility=hidden -fvisibility-inlines-hidden
 CYGPATH_W = echo
 DEFS = -DHAVE_CONFIG_H
 DEPDIR = .deps
@@ -481,13 +483,16 @@ EXEEXT =
 EXSID_CFLAGS = 
 EXSID_LIBS = 
 FGREP = /usr/bin/grep -F
+FILECMD = file
 FTDI_CFLAGS = 
 GREP = /usr/bin/grep
 HAVE_BOOL = 1
 HAVE_BUILTIN_EXPECT = 1
 HAVE_CXX11 = 
 HAVE_CXX14 = 
-HAVE_CXX17 = 1
+HAVE_CXX17 = 
+HAVE_CXX20 = 
+HAVE_CXX23 = 1
 HAVE_LOG1P = 1
 INSTALL = /usr/bin/install -c
 INSTALL_DATA = ${INSTALL} -m 644
@@ -496,21 +501,21 @@ INSTALL_SCRIPT = ${INSTALL}
 INSTALL_STRIP_PROGRAM = $(install_sh) -c -s
 LD = /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld
 LDFLAGS = 
-LIBGCRYPT_CFLAGS = 
-LIBGCRYPT_LIBS = 
+LIBGCRYPT_CFLAGS = -I/opt/homebrew/Cellar/libgcrypt/1.11.2/include -I/opt/homebrew/opt/libgpg-error/include
+LIBGCRYPT_LIBS = -L/opt/homebrew/Cellar/libgcrypt/1.11.2/lib -lgcrypt
 LIBOBJS = 
 LIBS = 
-LIBSIDPLAYVERSION = 10:30:4
-LIBSTILVIEWVERSION = 0:4:0
+LIBSIDPLAYVERSION = 12:43:6
+LIBSTILVIEWVERSION = 0:6:0
 LIBTOOL = $(SHELL) $(top_builddir)/libtool
-LIB_LEVEL = 0
+LIB_LEVEL = 2
 LIB_MAJOR = 2
-LIB_MINOR = 7
+LIB_MINOR = 15
 LIPO = lipo
 LN_S = ln -s
 LTLIBOBJS = 
 LT_SYS_LIBRARY_PATH = 
-MAKEINFO = ${SHELL} '/Users/yoyofr/Downloads/libsidplayfp-2.7.0/build-aux/missing' makeinfo
+MAKEINFO = ${SHELL} '/Users/yoyofr/Documents/dev/other/libsidplayfp-2.15.2/build-aux/missing' makeinfo
 MANIFEST_TOOL = :
 MKDIR_P = .././build-aux/install-sh -c -d
 NEW_8580_FILTER = 1
@@ -519,24 +524,25 @@ NMEDIT = nmedit
 OBJDUMP = objdump
 OBJEXT = o
 OD = 
-OPENMP_CXXFLAGS = 
 OTOOL = otool
 OTOOL64 = :
 PACKAGE = libsidplayfp
 PACKAGE_BUGREPORT = 
 PACKAGE_NAME = libsidplayfp
-PACKAGE_STRING = libsidplayfp 2.7.0
+PACKAGE_STRING = libsidplayfp 2.15.2
 PACKAGE_TARNAME = libsidplayfp
 PACKAGE_URL = https://github.com/libsidplayfp/libsidplayfp/
-PACKAGE_VERSION = 2.7.0
+PACKAGE_VERSION = 2.15.2
 PATH_SEPARATOR = :
 PKG_CONFIG = /opt/homebrew/bin/pkg-config
 PKG_CONFIG_LIBDIR = 
 PKG_CONFIG_PATH = 
-PTHREAD_CC = 
-PTHREAD_CFLAGS = 
-PTHREAD_LIBS = 
+PTHREAD_CC = gcc
+PTHREAD_CFLAGS = -pthread
+PTHREAD_CXX = g++ -std=c++23
+PTHREAD_LIBS = -lpthread
 RANLIB = ranlib
+RESIDFP_CXXFLAGS = -ffast-math -fno-unsafe-math-optimizations
 RESID_BRANCH_HINTS = 1
 RESID_INLINE = inline
 RESID_INLINING = 1
@@ -544,14 +550,12 @@ SED = /usr/bin/sed
 SET_MAKE = 
 SHELL = /bin/sh
 STRIP = strip
-UNITTEST_CFLAGS = 
-UNITTEST_LIBS = 
-VERSION = 2.7.0
+VERSION = 2.15.2
 XA = 
-abs_builddir = /Users/yoyofr/Downloads/libsidplayfp-2.7.0/tests
-abs_srcdir = /Users/yoyofr/Downloads/libsidplayfp-2.7.0/tests
-abs_top_builddir = /Users/yoyofr/Downloads/libsidplayfp-2.7.0
-abs_top_srcdir = /Users/yoyofr/Downloads/libsidplayfp-2.7.0
+abs_builddir = /Users/yoyofr/Documents/dev/other/libsidplayfp-2.15.2/tests
+abs_srcdir = /Users/yoyofr/Documents/dev/other/libsidplayfp-2.15.2/tests
+abs_top_builddir = /Users/yoyofr/Documents/dev/other/libsidplayfp-2.15.2
+abs_top_srcdir = /Users/yoyofr/Documents/dev/other/libsidplayfp-2.15.2
 ac_ct_AR = ar
 ac_ct_CC = gcc
 ac_ct_CXX = g++
@@ -563,10 +567,10 @@ am__tar = $${TAR-tar} chof - "$$tardir"
 am__untar = $${TAR-tar} xf -
 ax_pthread_config = 
 bindir = ${exec_prefix}/bin
-build = aarch64-apple-darwin23.4.0
+build = aarch64-apple-darwin25.1.0
 build_alias = 
 build_cpu = aarch64
-build_os = darwin23.4.0
+build_os = darwin25.1.0
 build_vendor = apple
 builddir = .
 datadir = ${datarootdir}
@@ -575,15 +579,15 @@ debug_flags = -DNDEBUG
 docdir = ${datarootdir}/doc/${PACKAGE_TARNAME}
 dvidir = ${docdir}
 exec_prefix = ${prefix}
-host = aarch64-apple-darwin23.4.0
+host = aarch64-apple-darwin25.1.0
 host_alias = 
 host_cpu = aarch64
-host_os = darwin23.4.0
+host_os = darwin25.1.0
 host_vendor = apple
 htmldir = ${docdir}
 includedir = ${prefix}/include
 infodir = ${datarootdir}/info
-install_sh = ${SHELL} /Users/yoyofr/Downloads/libsidplayfp-2.7.0/build-aux/install-sh
+install_sh = ${SHELL} /Users/yoyofr/Documents/dev/other/libsidplayfp-2.15.2/build-aux/install-sh
 libdir = ${exec_prefix}/lib
 libexecdir = ${exec_prefix}/libexec
 localedir = ${datarootdir}/locale
@@ -605,12 +609,11 @@ top_build_prefix = ../
 top_builddir = ..
 top_srcdir = ..
 AUTOMAKE_OPTIONS = foreign subdir-objects
+EXTRA_DIST = utpp
 #AM_CPPFLAGS = \
 #-I$(top_srcdir)/src \
-#-I$(top_builddir)/src/builders/residfp-builder/residfp \
-#$(UNITTEST_CFLAGS)
+#-I$(top_builddir)/src/builders/residfp-builder/residfp
 
-#AM_LDFLAGS = $(UNITTEST_LIBS)
 #TestEnvelopeGenerator_SOURCES = \
 #Main.cpp \
 #TestEnvelopeGenerator.cpp

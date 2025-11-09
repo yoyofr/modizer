@@ -1,14 +1,13 @@
 
 AUTOMAKE_OPTIONS = foreign subdir-objects
 
+EXTRA_DIST = utpp
+
 if ENABLE_TEST
 
 AM_CPPFLAGS = \
 -I$(top_srcdir)/src \
--I$(top_builddir)/src/builders/residfp-builder/residfp \
-$(UNITTEST_CFLAGS)
-
-AM_LDFLAGS = $(UNITTEST_LIBS)
+-I$(top_builddir)/src/builders/residfp-builder/residfp
 
 TESTS = \
 TestEnvelopeGenerator \

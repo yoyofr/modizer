@@ -77,8 +77,8 @@ private:
      * even was aware of what happens.
      */
     //@{
-    static event_clock_t const C64_CPU6510_DATA_PORT_FALL_OFF_CYCLES =  350000;
-    static event_clock_t const C64_CPU8500_DATA_PORT_FALL_OFF_CYCLES = 1500000; // Curently unused
+    static constexpr event_clock_t C64_CPU6510_DATA_PORT_FALL_OFF_CYCLES =  350000;
+    static constexpr event_clock_t C64_CPU8500_DATA_PORT_FALL_OFF_CYCLES = 1500000; // Curently unused
     //@}
 
 private:

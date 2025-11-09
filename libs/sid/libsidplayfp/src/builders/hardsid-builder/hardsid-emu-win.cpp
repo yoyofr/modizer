@@ -122,14 +122,6 @@ void HardSID::reset(uint8_t volume)
         eventScheduler->schedule(*this, HARDSID_DELAY_CYCLES, EVENT_CLOCK_PHI1);
 }
 
-void HardSID::voice(unsigned int num, bool mute)
-{
-    if (hsid2.Version >= HSID_VERSION_207)
-        hsid2.Mute2((BYTE) m_instance, (BYTE) num, (BOOL) mute, FALSE);
-    else
-        hsid2.Mute((BYTE) m_instance, (BYTE) num, (BOOL) mute);
-}
-
 // Set execution environment and lock sid to it
 bool HardSID::lock(EventScheduler *env)
 {

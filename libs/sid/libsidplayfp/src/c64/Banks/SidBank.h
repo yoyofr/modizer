@@ -50,7 +50,7 @@ public:
 
     void reset()
     {
-        sid->reset(0xf);
+        sid->reset();
     }
 
     uint8_t peek(uint_least16_t addr) override

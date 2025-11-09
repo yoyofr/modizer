@@ -5,7 +5,7 @@ includedir=${prefix}/include
 
 Name: libsidplayfp
 Description: C64 cycle exact stereo sidplayer library.
-Version: 2.7.0
-Libs.private:  
-Libs: -L${libdir} -lsidplayfp 
-Cflags: -I${includedir} 
+Version: 2.15.2
+Libs.private: -L/opt/homebrew/Cellar/libgcrypt/1.11.2/lib -lgcrypt  -lpthread
+Libs: -L${libdir} -lsidplayfp
+Cflags: -I${includedir}

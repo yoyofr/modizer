@@ -63,22 +63,22 @@ protected:
     EventScheduler &eventScheduler;
 
     /// Clock when clear was called last
-    event_clock_t last_clear;
-    event_clock_t last_set;
+    event_clock_t last_clear = 0;
+    event_clock_t last_set = 0;
 
     /// Interrupt control register
-    uint8_t icr;
+    uint8_t icr = 0;
 
     /// Interrupt data register
-    uint8_t idr;
+    uint8_t idr = 0;
 
-    uint8_t idrTemp;
+    uint8_t idrTemp = 0;
 
     /// Have we already scheduled CIA->CPU interrupt transition?
-    bool scheduled;
+    bool scheduled = false;
 
     /// is the irq pin asserted?
-    bool asserted;
+    bool asserted = false;
 
 private:
     EventCallback<InterruptSource> interruptEvent;
@@ -126,12 +126,6 @@ protected:
     InterruptSource(EventScheduler &scheduler, MOS652X &parent) :
         parent(parent),
         eventScheduler(scheduler),
-        last_clear(0),
-        last_set(0),
-        icr(0),
-        idr(0),
-        scheduled(false),
-        asserted(false),
         interruptEvent("CIA Interrupt", *this, &InterruptSource::interrupt),
         updateIdrEvent("CIA update ICR", *this, &InterruptSource::updateIdr),
         setIrqEvent("CIA set IRQ", *this, &InterruptSource::setIrq),
@@ -158,7 +152,7 @@ protected:
     bool isTriggered(uint8_t interruptMask);
 
 public:
-    virtual ~InterruptSource() {}
+    virtual ~InterruptSource() = default;
 
     /**
      * Trigger an interrupt.

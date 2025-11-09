@@ -118,8 +118,6 @@ private:
     static const unsigned int voices;
     static       unsigned int sid;
 
-    // Must stay in this order
-    bool           muted[HARDSID_VOICES];
     unsigned int   m_instance;
 
 private:
@@ -144,8 +142,6 @@ public:
     void clock() override;
 
     void model(SidConfig::sid_model_t, bool digiboost) override {}
-
-    void voice(unsigned int num, bool mute) override;
 
     // HardSID specific
     void flush();

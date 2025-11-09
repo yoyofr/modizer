@@ -1,7 +1,7 @@
 /*
  * This file is part of libsidplayfp, a SID player engine.
  *
- * Copyright 2011-2013 Leandro Nini <drfiemost@users.sourceforge.net>
+ * Copyright 2011-2024 Leandro Nini <drfiemost@users.sourceforge.net>
  * Copyright 2007-2010 Antti Lankila
  * Copyright 2001 Simon White
  *
@@ -67,10 +67,12 @@ const char *ReSIDBuilder::credits() const
 
 void ReSIDBuilder::filter(bool enable)
 {
-    std::for_each(sidobjs.begin(), sidobjs.end(), applyParameter<libsidplayfp::ReSID, bool>(&libsidplayfp::ReSID::filter, enable));
+    for (libsidplayfp::sidemu* e: sidobjs)
+        static_cast<libsidplayfp::ReSID*>(e)->filter(enable);
 }
 
 void ReSIDBuilder::bias(double dac_bias)
 {
-    std::for_each(sidobjs.begin(), sidobjs.end(), applyParameter<libsidplayfp::ReSID, double>(&libsidplayfp::ReSID::bias, dac_bias));
+    for (libsidplayfp::sidemu* e: sidobjs)
+        static_cast<libsidplayfp::ReSID*>(e)->bias(dac_bias);
 }

@@ -1,7 +1,7 @@
 /*
  * This file is part of libsidplayfp, a SID player engine.
  *
- * Copyright 2012-2014 Leandro Nini <drfiemost@users.sourceforge.net>
+ * Copyright 2012-2024 Leandro Nini <drfiemost@users.sourceforge.net>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,7 +23,6 @@
 
 #include "Bank.h"
 #include <vector>
-#include <algorithm>
 
 #include "c64/c64sid.h"
 
@@ -38,14 +37,14 @@ namespace libsidplayfp
 class ExtraSidBank final : public Bank
 {
 private:
-    typedef std::vector<c64sid*> sids_t;
+    using sids_t = std::vector<c64sid*>;
 
 private:
     /**
      * Size of mapping table. Each 32 bytes another SID chip base address
      * can be assigned to.
      */
-    static const int MAPPER_SIZE = 8;
+    static constexpr int MAPPER_SIZE = 8;
 
 private:
     /**
@@ -58,16 +57,15 @@ private:
     sids_t sids;
 
 private:
-    static void resetSID(sids_t::value_type &e) { e->reset(0xf); }
-
     static unsigned int mapperIndex(int address) { return address >> 5 & (MAPPER_SIZE - 1); }
 
 public:
-    virtual ~ExtraSidBank() {}
+    virtual ~ExtraSidBank() = default;
 
     void reset()
     {
-        std::for_each(sids.begin(), sids.end(), resetSID);
+        for (c64sid* sid: sids)
+            sid->reset();
     }
 
     void resetSIDMapper(Bank *bank)
@@ -97,6 +95,8 @@ public:
         sids.push_back(s);
         mapper[mapperIndex(address)] = s;
     }
+
+    unsigned int installedSIDs() const { return sids.size(); }
 };
 
 }

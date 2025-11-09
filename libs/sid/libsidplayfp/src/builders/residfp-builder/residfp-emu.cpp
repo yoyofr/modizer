@@ -25,6 +25,7 @@
 #include <sstream>
 #include <string>
 #include <algorithm>
+#include <cmath>
 
 #include "residfp/siddefs-fp.h"
 #include "sidplayfp/siddefs.h"
@@ -53,7 +54,6 @@ ReSIDfp::ReSIDfp(sidbuilder *builder) :
     sidemu(builder),
     m_sid(*(new reSIDfp::SID))
 {
-    m_buffer = new short[OUTPUTBUFFERSIZE];
     reset(0);
 }
 
@@ -130,8 +130,7 @@ void ReSIDfp::sampling(float systemclock, float freq,
 
     try
     {
-        const int halfFreq = (freq > 44000) ? 20000 : 9 * freq / 20;
-        m_sid.setSamplingParameters(systemclock, sampleMethod, freq, halfFreq);
+        m_sid.setSamplingParameters(systemclock, sampleMethod, freq);
     }
     catch (reSIDfp::SIDError const &)
     {
@@ -140,6 +139,12 @@ void ReSIDfp::sampling(float systemclock, float freq,
         return;
     }
 
+    if (m_buffer)
+        delete[] m_buffer;
+
+    // 20ms buffer
+    const int buffersize = std::ceil((freq / 1000.f) * 20.f);
+    m_buffer = new short[buffersize];
     m_status = true;
 }
 

@@ -23,9 +23,9 @@
 #ifndef FILTER6581_H
 #define FILTER6581_H
 
-#include "Integrator.h"
 #include "Filter.h"
 #include "FilterModelConfig6581.h"
+#include "Integrator6581.h"
 
 #include "sidcxx11.h"
 
@@ -105,7 +105,7 @@ class Integrator6581;
  *     |   |   |   v1       |    |   |                               |
  * D0  |   |   |   \ ---R8--+    |   |   +---------------------------+
  *     |   |   |   |             |   |   |
- *     R6  R6  R6  R6            R6  R6  R6
+ *     R6  R6  R6  R6            R6* R6* R6*
  *     |   |   |   | $18         |   |   |  $18
  *     |    \  |   | D7: 1=open   \   \   \ D6 - D4: 0=open
  *     |   |   |   |             |   |   |
@@ -140,6 +140,7 @@ class Integrator6581;
  *
  *     R2  ~  2.0*R1
  *     R6  ~  6.0*R1
+ *     R6* ~  1.07*R6
  *     R8  ~  8.0*R1
  *     R24 ~ 24.0*R1
  *
@@ -319,6 +320,12 @@ class Integrator6581;
 class Filter6581 final : public Filter
 {
 private:
+    /// VCR + associated capacitor connected to highpass output.
+    Integrator6581 hpIntegrator;
+
+    /// VCR + associated capacitor connected to bandpass output.
+    Integrator6581 bpIntegrator;
+
     const unsigned short* f0_dac;
 
 protected:
@@ -327,13 +334,17 @@ protected:
      */
     void updateCenterFrequency() override;
 
+    int solveIntegrators() override;
+
 public:
     Filter6581() :
-        Filter(FilterModelConfig6581::getInstance()),
+        Filter(*FilterModelConfig6581::getInstance()),
+        hpIntegrator(*FilterModelConfig6581::getInstance()),
+        bpIntegrator(*FilterModelConfig6581::getInstance()),
         f0_dac(FilterModelConfig6581::getInstance()->getDAC(0.5))
     {}
 
-    ~Filter6581();
+    ~Filter6581() override;
 
     /**
      * Set filter curve type based on single parameter.

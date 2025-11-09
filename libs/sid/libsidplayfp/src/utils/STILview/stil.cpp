@@ -44,7 +44,7 @@ using namespace std;
 
 const ios_base::openmode STILopenFlags = ios::in | ios::binary;
 
-const float VERSION_NO = 3.0f;
+constexpr float VERSION_NO = 3.0f;
 
 #define CERR_STIL_DEBUG if (STIL_DEBUG) cerr << "Line #" << __LINE__ << " STIL::"
 
@@ -282,7 +282,7 @@ STIL::getAbsEntry(const char *absPathToEntry, int tuneNo, STILField field)
     {
         CERR_STIL_DEBUG << "HVSC baseDir is not yet set!" << endl;
         lastError = STIL_OPEN;
-        return NULL;
+        return nullptr;
     }
 
     // Determine if the baseDir is in the given pathname.
@@ -291,7 +291,7 @@ STIL::getAbsEntry(const char *absPathToEntry, int tuneNo, STILField field)
     {
         CERR_STIL_DEBUG << "getAbsEntry() failed: baseDir=" << baseDir << ", absPath=" << absPathToEntry << endl;
         lastError = WRONG_DIR;
-        return NULL;
+        return nullptr;
     }
 
 
@@ -312,7 +312,7 @@ STIL::getEntry(const char *relPathToEntry, int tuneNo, STILField field)
     {
         CERR_STIL_DEBUG << "HVSC baseDir is not yet set!" << endl;
         lastError = STIL_OPEN;
-        return NULL;
+        return nullptr;
     }
 
     const size_t relPathToEntryLen = strlen(relPathToEntry);
@@ -323,7 +323,7 @@ STIL::getEntry(const char *relPathToEntry, int tuneNo, STILField field)
     {
         CERR_STIL_DEBUG << "getEntry() section-global comment was asked for - failed" << endl;
         lastError = WRONG_ENTRY;
-        return NULL;
+        return nullptr;
     }
 
     if (STILVersion < 2.59f)
@@ -356,7 +356,7 @@ STIL::getEntry(const char *relPathToEntry, int tuneNo, STILField field)
         {
             CERR_STIL_DEBUG << "getEntry() open failed for stilFile" << endl;
             lastError = STIL_OPEN;
-            return NULL;
+            return nullptr;
         }
 
         CERR_STIL_DEBUG << "getEntry() open succeeded for stilFile" << endl;
@@ -377,7 +377,7 @@ STIL::getEntry(const char *relPathToEntry, int tuneNo, STILField field)
     }
 
     // Put the requested field into the result string.
-    return getField(resultEntry, entrybuf.c_str(), tuneNo, field) ? resultEntry.c_str() : NULL;
+    return getField(resultEntry, entrybuf.c_str(), tuneNo, field) ? resultEntry.c_str() : nullptr;
 }
 
 const char *
@@ -391,7 +391,7 @@ STIL::getAbsBug(const char *absPathToEntry, int tuneNo)
     {
         CERR_STIL_DEBUG << "HVSC baseDir is not yet set!" << endl;
         lastError = BUG_OPEN;
-        return NULL;
+        return nullptr;
     }
 
     // Determine if the baseDir is in the given pathname.
@@ -400,7 +400,7 @@ STIL::getAbsBug(const char *absPathToEntry, int tuneNo)
     {
         CERR_STIL_DEBUG << "getAbsBug() failed: baseDir=" << baseDir << ", absPath=" << absPathToEntry << endl;
         lastError = WRONG_DIR;
-        return NULL;
+        return nullptr;
     }
 
     string tempDir(absPathToEntry + baseDir.size());
@@ -420,7 +420,7 @@ STIL::getBug(const char *relPathToEntry, int tuneNo)
     {
         CERR_STIL_DEBUG << "HVSC baseDir is not yet set!" << endl;
         lastError = BUG_OPEN;
-        return NULL;
+        return nullptr;
     }
 
     // Older version of STIL is detected.
@@ -456,7 +456,7 @@ STIL::getBug(const char *relPathToEntry, int tuneNo)
         {
             CERR_STIL_DEBUG << "getBug() open failed for bugFile" << endl;
             lastError = BUG_OPEN;
-            return NULL;
+            return nullptr;
         }
 
         CERR_STIL_DEBUG << "getBug() open succeeded for bugFile" << endl;
@@ -477,7 +477,7 @@ STIL::getBug(const char *relPathToEntry, int tuneNo)
     }
 
     // Put the requested field into the result string.
-    return getField(resultBug, bugbuf.c_str(), tuneNo) ? resultBug.c_str() : NULL;
+    return getField(resultBug, bugbuf.c_str(), tuneNo) ? resultBug.c_str() : nullptr;
 }
 
 const char *
@@ -491,7 +491,7 @@ STIL::getAbsGlobalComment(const char *absPathToEntry)
     {
         CERR_STIL_DEBUG << "HVSC baseDir is not yet set!" << endl;
         lastError = STIL_OPEN;
-        return NULL;
+        return nullptr;
     }
 
     // Determine if the baseDir is in the given pathname.
@@ -500,7 +500,7 @@ STIL::getAbsGlobalComment(const char *absPathToEntry)
     {
         CERR_STIL_DEBUG << "getAbsGC() failed: baseDir=" << baseDir << ", absPath=" << absPathToEntry << endl;
         lastError = WRONG_DIR;
-        return NULL;
+        return nullptr;
     }
 
     string tempDir(absPathToEntry + baseDir.size());
@@ -520,17 +520,17 @@ STIL::getGlobalComment(const char *relPathToEntry)
     {
         CERR_STIL_DEBUG << "HVSC baseDir is not yet set!" << endl;
         lastError = STIL_OPEN;
-        return NULL;
+        return nullptr;
     }
 
     // Save the dirpath.
 
     const char *lastSlash = strrchr(relPathToEntry, '/');
 
-    if (lastSlash == NULL)
+    if (lastSlash == nullptr)
     {
         lastError = WRONG_DIR;
-        return NULL;
+        return nullptr;
     }
 
     const size_t pathLen = lastSlash - relPathToEntry + 1;
@@ -560,7 +560,7 @@ STIL::getGlobalComment(const char *relPathToEntry)
         {
             CERR_STIL_DEBUG << "getGC() open failed for stilFile" << endl;
             lastError = STIL_OPEN;
-            return NULL;
+            return nullptr;
         }
 
         if (positionToEntry(dir.c_str(), stilFile, stilDirs) == false)
@@ -586,7 +586,7 @@ STIL::getGlobalComment(const char *relPathToEntry)
     const size_t temp = globalbuf.find_first_of('\n') + 1;
 
     // Check whether this is a NULL entry or not.
-    return temp != globalbuf.size() ? globalbuf.c_str() + temp : NULL;
+    return temp != globalbuf.size() ? globalbuf.c_str() + temp : nullptr;
 }
 
 //////// PRIVATE
@@ -745,7 +745,7 @@ STIL::positionToEntry(const char *entryStr, ifstream &inFile, dirList &dirs)
 
     // If no slash was found, something is screwed up in the entryStr.
 
-    if (chrptr == NULL)
+    if (chrptr == nullptr)
     {
         return false;
     }
@@ -872,12 +872,12 @@ STIL::getField(string &result, const char *buffer, int tuneNo, STILField field)
 
     // This is a tune designation only if the previous char was
     // a newline (ie. if the "(#" is on the beginning of a line).
-    if ((firstTuneNo != NULL) && (*(firstTuneNo - 1) != '\n'))
+    if ((firstTuneNo != nullptr) && (*(firstTuneNo - 1) != '\n'))
     {
-        firstTuneNo = NULL;
+        firstTuneNo = nullptr;
     }
 
-    if (firstTuneNo == NULL)
+    if (firstTuneNo == nullptr)
     {
         //-------------------//
         // SINGLE TUNE ENTRY //
@@ -886,22 +886,22 @@ STIL::getField(string &result, const char *buffer, int tuneNo, STILField field)
         // Is the first thing in this STIL entry the COMMENT?
 
         const char *temp = strstr(start, _COMMENT_STR);
-        const char *temp2 = NULL;
+        const char *temp2 = nullptr;
 
         // Search for other potential fields beyond the COMMENT.
         if (temp == start)
         {
             temp2 = strstr(start, _NAME_STR);
 
-            if (temp2 == NULL)
+            if (temp2 == nullptr)
             {
                 temp2 = strstr(start, _AUTHOR_STR);
 
-                if (temp2 == NULL)
+                if (temp2 == nullptr)
                 {
                     temp2 = strstr(start, _TITLE_STR);
 
-                    if (temp2 == NULL)
+                    if (temp2 == nullptr)
                     {
                         temp2 = strstr(start, _ARTIST_STR);
                     }
@@ -915,7 +915,7 @@ STIL::getField(string &result, const char *buffer, int tuneNo, STILField field)
 
             CERR_STIL_DEBUG << "getField() single-tune entry, COMMENT only" << endl;
 
-            if ((tuneNo == 0) && ((field == all) || ((field == comment) && (temp2 == NULL))))
+            if ((tuneNo == 0) && ((field == all) || ((field == comment) && (temp2 == nullptr))))
             {
                 // Simply copy the stuff in.
                 result.append(start);
@@ -931,7 +931,7 @@ STIL::getField(string &result, const char *buffer, int tuneNo, STILField field)
                 return true;
             }
 
-            else if ((tuneNo == 1) && (temp2 != NULL))
+            else if ((tuneNo == 1) && (temp2 != nullptr))
             {
                 // A specific field was asked for.
 
@@ -1031,7 +1031,7 @@ STIL::getField(string &result, const char *buffer, int tuneNo, STILField field)
         tuneNoStr[7] = '\0';
         const char *myTuneNo = strstr(start, tuneNoStr);
 
-        if (myTuneNo != NULL)
+        if (myTuneNo != nullptr)
         {
             // We found the requested tune number.
             // Set the pointer beyond it.
@@ -1041,7 +1041,7 @@ STIL::getField(string &result, const char *buffer, int tuneNo, STILField field)
 
             const char *nextTuneNo = strstr(myTuneNo, "\n(#");
 
-            if (nextTuneNo == NULL)
+            if (nextTuneNo == nullptr)
             {
                 // There is no next one - set pointer to end of entry.
                 nextTuneNo = start + strlen(start);
@@ -1079,7 +1079,7 @@ STIL::getOneField(string &result, const char *start, const char *end, STILField 
 
     CERR_STIL_DEBUG << "getOneField() called, start=" << start << ", rest=" << field << endl;
 
-    const char *temp = NULL;
+    const char *temp = nullptr;
 
     switch (field)
     {
@@ -1114,7 +1114,7 @@ STIL::getOneField(string &result, const char *start, const char *end, STILField 
     // If the field was not found or it is not in between 'start'
     // and 'end', it is declared a failure.
 
-    if ((temp == NULL) || (temp < start) || (temp > end))
+    if ((temp == nullptr) || (temp < start) || (temp > end))
     {
         return false;
     }
@@ -1130,29 +1130,29 @@ STIL::getOneField(string &result, const char *start, const char *end, STILField 
 
     // If any of these fields is beyond 'end', they are ignored.
 
-    if ((nextName != NULL) && (nextName >= end))
+    if ((nextName != nullptr) && (nextName >= end))
     {
-        nextName = NULL;
+        nextName = nullptr;
     }
 
-    if ((nextAuthor != NULL) && (nextAuthor >= end))
+    if ((nextAuthor != nullptr) && (nextAuthor >= end))
     {
-        nextAuthor = NULL;
+        nextAuthor = nullptr;
     }
 
-    if ((nextTitle != NULL) && (nextTitle >= end))
+    if ((nextTitle != nullptr) && (nextTitle >= end))
     {
-        nextTitle = NULL;
+        nextTitle = nullptr;
     }
 
-    if ((nextArtist != NULL) && (nextArtist >= end))
+    if ((nextArtist != nullptr) && (nextArtist >= end))
     {
-        nextArtist = NULL;
+        nextArtist = nullptr;
     }
 
-    if ((nextComment != NULL) && (nextComment >= end))
+    if ((nextComment != nullptr) && (nextComment >= end))
     {
-        nextComment = NULL;
+        nextComment = nullptr;
     }
 
     // Now determine which one is the closest to our field - that one
@@ -1160,43 +1160,43 @@ STIL::getOneField(string &result, const char *start, const char *end, STILField 
 
     const char *nextField = nextName;
 
-    if (nextField == NULL)
+    if (nextField == nullptr)
     {
         nextField = nextAuthor;
     }
-    else if ((nextAuthor != NULL) && (nextAuthor < nextField))
+    else if ((nextAuthor != nullptr) && (nextAuthor < nextField))
     {
         nextField = nextAuthor;
     }
 
-    if (nextField == NULL)
+    if (nextField == nullptr)
     {
         nextField = nextTitle;
     }
-    else if ((nextTitle != NULL) && (nextTitle < nextField))
+    else if ((nextTitle != nullptr) && (nextTitle < nextField))
     {
         nextField = nextTitle;
     }
 
-    if (nextField == NULL)
+    if (nextField == nullptr)
     {
         nextField = nextArtist;
     }
-    else if ((nextArtist != NULL) && (nextArtist < nextField))
+    else if ((nextArtist != nullptr) && (nextArtist < nextField))
     {
         nextField = nextArtist;
     }
 
-    if (nextField == NULL)
+    if (nextField == nullptr)
     {
         nextField = nextComment;
     }
-    else if ((nextComment != NULL) && (nextComment < nextField))
+    else if ((nextComment != nullptr) && (nextComment < nextField))
     {
         nextField = nextComment;
     }
 
-    if (nextField == NULL)
+    if (nextField == nullptr)
     {
         nextField = end;
     }

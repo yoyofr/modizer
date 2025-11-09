@@ -60,11 +60,11 @@ public:
         uint8_t byte = 0x00;
         for (int j=0x0000; j<0x10000; j+=0x4000)
         {
-            memset(ram+j, byte, 0x4000);
+            std::memset(ram+j, byte, 0x4000);
             byte = ~byte;
             for (int i = 0x02; i < 0x4000; i += 0x08)
             {
-                memset(ram+j+i, byte, 0x04);
+                std::memset(ram+j+i, byte, 0x04);
             }
         }
     }

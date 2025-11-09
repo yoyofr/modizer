@@ -82,7 +82,7 @@ private:
      *
      * https://en.wikipedia.org/wiki/Subthreshold_conduction
      */
-    double const leakage;
+    double leakage;
 
     /// analog values
     double * const dac;
@@ -112,7 +112,7 @@ public:
      * @param input the digital input
      * @return the analog output value
      */
-    double getOutput(unsigned int input) const;
+    double getOutput(unsigned int input, bool saturate=false) const;
 };
 
 } // namespace reSIDfp

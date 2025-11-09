@@ -54,12 +54,12 @@ public:
 
     uint8_t peek(uint_least16_t addr) override
     {
-        return map[addr >> 8 & 0xf]->peek(addr);
+        return map[(addr >> 8) & 0xf]->peek(addr);
     }
 
     void poke(uint_least16_t addr, uint8_t data) override
     {
-        map[addr >> 8 & 0xf]->poke(addr, data);
+        map[(addr >> 8) & 0xf]->poke(addr, data);
     }
 };
 

@@ -41,7 +41,7 @@ namespace libsidplayfp
 const char ERR_PSIDDRV_NO_SPACE[]  = "ERROR: No space to install psid driver in C64 ram";
 const char ERR_PSIDDRV_RELOC[]     = "ERROR: Failed whilst relocating psid driver";
 
-uint8_t psid_driver[] =
+const uint8_t PSID_DRIVER[] =
 {
 #  include "psiddrv.bin"
 };
@@ -185,8 +185,9 @@ bool psiddrv::drvReloc()
     // Place psid driver into ram
     const uint_least16_t relocAddr = relocStartPage << 8;
 
-    reloc_driver = psid_driver;
-    reloc_size   = sizeof(psid_driver);
+    psid_driver.assign(std::begin(PSID_DRIVER), std::end(PSID_DRIVER));
+    reloc_driver = psid_driver.data();
+    reloc_size   = psid_driver.size();
 
     reloc65 relocator(relocAddr - 10);
     if (!relocator.reloc(&reloc_driver, &reloc_size))
@@ -262,9 +263,6 @@ void psiddrv::install(sidmemory& mem, uint8_t video) const
     mem.writeMemWord(pos, m_tuneInfo->playAddr());
     pos += 2;
 
-    mem.writeMemWord(pos, m_powerOnDelay);
-    pos += 2;
- 
     // Set init address io bank value
     mem.writeMemByte(pos, iomap(m_tuneInfo->initAddr()));
     pos++;

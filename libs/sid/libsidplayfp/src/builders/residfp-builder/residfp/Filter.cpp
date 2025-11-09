@@ -27,9 +27,30 @@
 namespace reSIDfp
 {
 
+static constexpr int summerIdx[5] =
+{
+    FilterModelConfig::summer_offset<0>::value,
+    FilterModelConfig::summer_offset<1>::value,
+    FilterModelConfig::summer_offset<2>::value,
+    FilterModelConfig::summer_offset<3>::value,
+    FilterModelConfig::summer_offset<4>::value
+};
+
+static constexpr int mixerIdx[8] =
+{
+    FilterModelConfig::mixer_offset<0>::value,
+    FilterModelConfig::mixer_offset<1>::value,
+    FilterModelConfig::mixer_offset<2>::value,
+    FilterModelConfig::mixer_offset<3>::value,
+    FilterModelConfig::mixer_offset<4>::value,
+    FilterModelConfig::mixer_offset<5>::value,
+    FilterModelConfig::mixer_offset<6>::value,
+    FilterModelConfig::mixer_offset<7>::value
+};
+
 void Filter::updateMixing()
 {
-    currentVolume = volume[vol];
+    currentVolume = volume + (vol * (1<<16));
 
     unsigned int Nsum = 0;
     unsigned int Nmix = 0;
@@ -42,13 +63,13 @@ void Filter::updateMixing()
 
     (filtE ? Nsum : Nmix)++;
 
-    currentSummer = summer[Nsum];
+    currentSummer = summer + summerIdx[Nsum];
 
     if (lp) Nmix++;
     if (bp) Nmix++;
     if (hp) Nmix++;
 
-    currentMixer = mixer[Nmix];
+    currentMixer = mixer + mixerIdx[Nmix];
 }
 
 void Filter::writeFC_LO(unsigned char fc_lo)
@@ -91,42 +112,14 @@ void Filter::writeMODE_VOL(unsigned char mode_vol)
     updateMixing();
 }
 
-Filter::Filter(FilterModelConfig* fmc) :
-    fmc(fmc),
-    mixer(fmc->getMixer()),
-    summer(fmc->getSummer()),
-    resonance(fmc->getResonance()),
-    volume(fmc->getVolume()),
-    hpIntegrator(fmc->buildIntegrator()),
-    bpIntegrator(fmc->buildIntegrator()),
-    currentMixer(nullptr),
-    currentSummer(nullptr),
-    currentResonance(nullptr),
-    currentVolume(nullptr),
-    Vhp(0),
-    Vbp(0),
-    Vlp(0),
-    Ve(0),
-    fc(0),
-    filt1(false),
-    filt2(false),
-    filt3(false),
-    filtE(false),
-    voice3off(false),
-    hp(false),
-    bp(false),
-    lp(false),
-    vol(0),
-    enabled(true),
-    filt(0)
+Filter::Filter(FilterModelConfig& fmc) :
+    mixer(fmc.getMixer()),
+    summer(fmc.getSummer()),
+    resonance(fmc.getResonance()),
+    volume(fmc.getVolume()),
+    fmc(fmc)
 {
     input(0);
-}
-
-Filter::~Filter()
-{
-    delete hpIntegrator;
-    delete bpIntegrator;
 }
 
 void Filter::enable(bool enable)

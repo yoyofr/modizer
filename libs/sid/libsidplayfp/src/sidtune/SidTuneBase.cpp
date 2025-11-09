@@ -86,19 +86,13 @@ const char CHR_tab[256] =
 };
 
 /// The Commodore 64 memory size
-const uint_least32_t MAX_MEMORY = 65536;
+constexpr uint_least32_t MAX_MEMORY = 65536;
 
 /// C64KB + LOAD + PSID
-const uint_least32_t MAX_FILELEN = MAX_MEMORY + 2 + 0x7C;
+constexpr uint_least32_t MAX_FILELEN = MAX_MEMORY + 2 + 0x7C;
 
 /// Minimum load address for real c64 only tunes
-const uint_least16_t SIDTUNE_R64_MIN_LOAD_ADDR = 0x07e8;
-
-SidTuneBase* SidTuneBase::load(const char* fileName, const char **fileNameExt,
-                 bool separatorIsSlash)
-{
-    return load(nullptr, fileName, fileNameExt, separatorIsSlash);
-}
+constexpr uint_least16_t SIDTUNE_R64_MIN_LOAD_ADDR = 0x07e8;
 
 SidTuneBase* SidTuneBase::load(LoaderFunc loader, const char* fileName,
                  const char **fileNameExt, bool separatorIsSlash)
@@ -112,22 +106,6 @@ SidTuneBase* SidTuneBase::load(LoaderFunc loader, const char* fileName,
         return getFromStdIn();
 #endif
     return getFromFiles(loader, fileName, fileNameExt, separatorIsSlash);
-}
-
-SidTuneBase* SidTuneBase::read(const uint_least8_t* sourceBuffer, uint_least32_t bufferLen)
-{
-    return getFromBuffer(sourceBuffer, bufferLen);
-}
-
-const SidTuneInfo* SidTuneBase::getInfo() const
-{
-    return info.get();
-}
-
-const SidTuneInfo* SidTuneBase::getInfo(unsigned int songNum)
-{
-    selectSong(songNum);
-    return info.get();
 }
 
 unsigned int SidTuneBase::selectSong(unsigned int selectedSong)
@@ -361,11 +339,6 @@ void SidTuneBase::createNewFileName(std::string& destString,
 }
 
 // Initializing the object based upon what we find in the specified file.
-
-SidTuneBase* SidTuneBase::getFromFiles(const char* fileName, const char **fileNameExtensions, bool separatorIsSlash)
-{
-    return getFromFiles(nullptr, fileName, fileNameExtensions, separatorIsSlash);
-}
 
 SidTuneBase* SidTuneBase::getFromFiles(LoaderFunc loader, const char* fileName, const char **fileNameExtensions, bool separatorIsSlash)
 {

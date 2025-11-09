@@ -147,6 +147,9 @@ public:
 
   double clock_frequency;
 
+  // Used to amplify the output by scaleFactor/2 to get an adequate playback volume
+  int scaleFactor;
+
   enum {
     // Resampling constants.
     // The error in interpolated lookup is bounded by 1.234/L^2,

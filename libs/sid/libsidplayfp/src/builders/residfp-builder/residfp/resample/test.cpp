@@ -35,6 +35,10 @@
 #  define unique_ptr auto_ptr
 #endif
 
+#ifndef M_PI
+#  define M_PI    3.14159265358979323846
+#endif
+
 /**
  * Simple sin waveform in, power output measurement function.
  * It would be far better to use FFT.
@@ -44,7 +48,7 @@ int main(int, const char*[])
     const double RATE = 985248.4;
     const int RINGSIZE = 2048;
 
-    std::unique_ptr<reSIDfp::TwoPassSincResampler> r(reSIDfp::TwoPassSincResampler::create(RATE, 48000.0, 20000.0));
+    std::unique_ptr<reSIDfp::TwoPassSincResampler> r(reSIDfp::TwoPassSincResampler::create(RATE, 48000.0));
 
     std::map<double, double> results;
     clock_t start = clock();
@@ -53,21 +57,21 @@ int main(int, const char*[])
     {
         /* prefill resampler buffer */
         int k = 0;
-        double omega = 2 * M_PI * freq / RATE;
+        double omega = 2. * M_PI * freq / RATE;
 
         for (int j = 0; j < RINGSIZE; j ++)
         {
-            int signal = static_cast<int>(32768.0 * sin(k++ * omega) * sqrt(2));
+            int signal = static_cast<int>(32768.0 * std::sin(k++ * omega) * std::sqrt(2.));
             r->input(signal);
         }
 
         int n = 0;
-        float pwr = 0;
+        float pwr = 0.f;
 
         /* Now, during measurement stage, put 100 cycles of waveform through filter. */
         for (int j = 0; j < 100000; j ++)
         {
-            int signal = static_cast<int>(32768.0 * sin(k++ * omega) * sqrt(2));
+            int signal = static_cast<int>(32768.0 * std::sin(k++ * omega) * std::sqrt(2));
 
             if (r->input(signal))
             {
@@ -77,7 +81,7 @@ int main(int, const char*[])
             }
         }
 
-        results.insert(std::make_pair(freq, 10 * log10(pwr / n)));
+        results.insert(std::make_pair(freq, 10. * std::log10(pwr / n)));
     }
 
     clock_t end = clock();

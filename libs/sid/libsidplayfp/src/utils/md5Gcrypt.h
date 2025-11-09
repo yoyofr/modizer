@@ -41,7 +41,7 @@ private:
 public:
     md5Gcrypt()
     {
-        if (gcry_check_version(GCRYPT_VERSION) == 0)
+        if (gcry_check_version(GCRYPT_VERSION) == nullptr)
             throw md5Error();
 
         // Disable secure memory.
@@ -56,7 +56,7 @@ public:
             throw md5Error();
     }
 
-    ~md5Gcrypt() { gcry_md_close(hd); }
+    ~md5Gcrypt() override { gcry_md_close(hd); }
 
     void append(const void* data, int nbytes) override { gcry_md_write(hd, data, nbytes); }
 

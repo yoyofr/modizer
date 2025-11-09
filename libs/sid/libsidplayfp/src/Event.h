@@ -29,7 +29,7 @@
 namespace libsidplayfp
 {
 
-typedef int_fast64_t event_clock_t;
+using event_clock_t = int_fast64_t;
 
 
 /**
@@ -72,7 +72,7 @@ public:
     const char* name() const { return m_name; }
 
 protected:
-    ~Event() {}
+    ~Event() = default;
 };
 
 }

@@ -23,7 +23,8 @@
 
 #include "mos652x.h"
 
-#include <cstring>
+#include <algorithm>
+#include <iterator>
 
 #include "sidendian.h"
 
@@ -144,7 +145,7 @@ void MOS652X::handleSerialPort()
 
 void MOS652X::reset()
 {
-    memset(regs, 0, sizeof(regs));
+    std::fill(std::begin(regs), std::end(regs), 0);
 
     serialPort.reset();
 
@@ -322,12 +323,12 @@ void MOS652X::setModel(model_t model)
 {
     switch (model)
     {
-    case MOS6526W4485:
-    case MOS6526:
-        serialPort.setModel4485(model == MOS6526W4485);
+    case model_t::MOS6526W4485:
+    case model_t::MOS6526:
+        serialPort.setModel4485(model == model_t::MOS6526W4485);
         interruptSource.reset(new InterruptSource6526(eventScheduler, *this));
         break;
-    case MOS8521:
+    case model_t::MOS8521:
         serialPort.setModel4485(false);
         interruptSource.reset(new InterruptSource8521(eventScheduler, *this));
         break;

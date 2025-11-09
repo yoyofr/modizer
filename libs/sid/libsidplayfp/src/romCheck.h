@@ -37,7 +37,7 @@ namespace libsidplayfp
 class romCheck
 {
 private:
-    typedef std::map<std::string, const char*> md5map;
+    using md5map = std::map<std::string, const char*>;
 
 private:
     /**
@@ -57,7 +57,7 @@ private:
     unsigned int m_size;
 
 private:
-    romCheck();
+    romCheck() = delete;
 
     /**
      * Calculate the md5 digest.

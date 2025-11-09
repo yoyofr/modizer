@@ -45,39 +45,39 @@ namespace libsidplayfp
 class MOS656X : private Event
 {
 public:
-    typedef enum
+    enum class model_t
     {
         MOS6567R56A = 0  ///< OLD NTSC CHIP
         ,MOS6567R8       ///< NTSC-M
         ,MOS6569         ///< PAL-B
         ,MOS6572         ///< PAL-N
         ,MOS6573         ///< PAL-M
-    } model_t;
+    };
 
 private:
-    typedef event_clock_t (MOS656X::*ClockFunc)();
+    using ClockFunc = event_clock_t (MOS656X::*)();
 
-    typedef struct
+    using model_data_t = struct
     {
         unsigned int rasterLines;
         unsigned int cyclesPerLine;
         ClockFunc clock;
-    } model_data_t;
+    };
 
 private:
     static const model_data_t modelData[];
 
     /// raster IRQ flag
-    static const int IRQ_RASTER = 1 << 0;
+    static constexpr int IRQ_RASTER = 1 << 0;
 
     /// Light-Pen IRQ flag
-    static const int IRQ_LIGHTPEN = 1 << 3;
+    static constexpr int IRQ_LIGHTPEN = 1 << 3;
 
     /// First line when we check for bad lines
-    static const unsigned int FIRST_DMA_LINE = 0x30;
+    static constexpr unsigned int FIRST_DMA_LINE = 0x30;
 
     /// Last line when we check for bad lines
-    static const unsigned int LAST_DMA_LINE = 0xf7;
+    static constexpr unsigned int LAST_DMA_LINE = 0xf7;
 
 private:
     /// Current model clock function.
@@ -125,14 +125,14 @@ private:
     /// masks for the IRQ flags
     uint8_t irqMask;
 
+    /// memory for chip registers
+    uint8_t regs[0x40] = {0};
+
     /// Light pen
     Lightpen lp;
 
     /// the 8 sprites data
     Sprites sprites;
-
-    /// memory for chip registers
-    uint8_t regs[0x40];
 
     EventCallback<MOS656X> badLineStateChangeEvent;
 
@@ -314,7 +314,7 @@ private:
 
 protected:
     MOS656X(EventScheduler &scheduler);
-    ~MOS656X() {}
+    ~MOS656X() = default;
 
     // Environment Interface
     virtual void interrupt(bool state) = 0;

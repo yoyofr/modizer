@@ -39,7 +39,7 @@ public:
     virtual event_clock_t getPhi2Time() const =0;
 
 protected:
-    ~PLA() {}
+    ~PLA() = default;
 };
 
 }

@@ -95,15 +95,17 @@ host_triplet = @host@
 @ENABLE_TEST_TRUE@check_PROGRAMS = $(am__EXEEXT_1)
 subdir = tests
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
-am__aclocal_m4_deps = $(top_srcdir)/src/builders/exsid-builder/driver/m4/ax_pthread.m4 \
+am__aclocal_m4_deps = $(top_srcdir)/m4/ax_append_compile_flags.m4 \
+	$(top_srcdir)/m4/ax_append_flag.m4 \
 	$(top_srcdir)/m4/ax_check_compile_flag.m4 \
 	$(top_srcdir)/m4/ax_cxx_compile_stdcxx.m4 \
-	$(top_srcdir)/m4/ax_cxx_compile_stdcxx_11.m4 \
-	$(top_srcdir)/m4/ax_cxx_compile_stdcxx_14.m4 \
-	$(top_srcdir)/m4/ax_cxx_compile_stdcxx_17.m4 \
+	$(top_srcdir)/m4/ax_pthread.m4 \
+	$(top_srcdir)/m4/ax_require_defined.m4 \
 	$(top_srcdir)/m4/libtool.m4 $(top_srcdir)/m4/ltoptions.m4 \
 	$(top_srcdir)/m4/ltsugar.m4 $(top_srcdir)/m4/ltversion.m4 \
-	$(top_srcdir)/m4/lt~obsolete.m4 $(top_srcdir)/configure.ac
+	$(top_srcdir)/m4/lt~obsolete.m4 \
+	$(top_srcdir)/m4/sid_x86_simd_supports.m4 \
+	$(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 DIST_COMMON = $(srcdir)/Makefile.am $(am__DIST_COMMON)
@@ -481,6 +483,7 @@ EXEEXT = @EXEEXT@
 EXSID_CFLAGS = @EXSID_CFLAGS@
 EXSID_LIBS = @EXSID_LIBS@
 FGREP = @FGREP@
+FILECMD = @FILECMD@
 FTDI_CFLAGS = @FTDI_CFLAGS@
 GREP = @GREP@
 HAVE_BOOL = @HAVE_BOOL@
@@ -488,6 +491,8 @@ HAVE_BUILTIN_EXPECT = @HAVE_BUILTIN_EXPECT@
 HAVE_CXX11 = @HAVE_CXX11@
 HAVE_CXX14 = @HAVE_CXX14@
 HAVE_CXX17 = @HAVE_CXX17@
+HAVE_CXX20 = @HAVE_CXX20@
+HAVE_CXX23 = @HAVE_CXX23@
 HAVE_LOG1P = @HAVE_LOG1P@
 INSTALL = @INSTALL@
 INSTALL_DATA = @INSTALL_DATA@
@@ -519,7 +524,6 @@ NMEDIT = @NMEDIT@
 OBJDUMP = @OBJDUMP@
 OBJEXT = @OBJEXT@
 OD = @OD@
-OPENMP_CXXFLAGS = @OPENMP_CXXFLAGS@
 OTOOL = @OTOOL@
 OTOOL64 = @OTOOL64@
 PACKAGE = @PACKAGE@
@@ -535,8 +539,10 @@ PKG_CONFIG_LIBDIR = @PKG_CONFIG_LIBDIR@
 PKG_CONFIG_PATH = @PKG_CONFIG_PATH@
 PTHREAD_CC = @PTHREAD_CC@
 PTHREAD_CFLAGS = @PTHREAD_CFLAGS@
+PTHREAD_CXX = @PTHREAD_CXX@
 PTHREAD_LIBS = @PTHREAD_LIBS@
 RANLIB = @RANLIB@
+RESIDFP_CXXFLAGS = @RESIDFP_CXXFLAGS@
 RESID_BRANCH_HINTS = @RESID_BRANCH_HINTS@
 RESID_INLINE = @RESID_INLINE@
 RESID_INLINING = @RESID_INLINING@
@@ -544,8 +550,6 @@ SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 STRIP = @STRIP@
-UNITTEST_CFLAGS = @UNITTEST_CFLAGS@
-UNITTEST_LIBS = @UNITTEST_LIBS@
 VERSION = @VERSION@
 XA = @XA@
 abs_builddir = @abs_builddir@
@@ -605,12 +609,11 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 AUTOMAKE_OPTIONS = foreign subdir-objects
+EXTRA_DIST = utpp
 @ENABLE_TEST_TRUE@AM_CPPFLAGS = \
 @ENABLE_TEST_TRUE@-I$(top_srcdir)/src \
-@ENABLE_TEST_TRUE@-I$(top_builddir)/src/builders/residfp-builder/residfp \
-@ENABLE_TEST_TRUE@$(UNITTEST_CFLAGS)
+@ENABLE_TEST_TRUE@-I$(top_builddir)/src/builders/residfp-builder/residfp
 
-@ENABLE_TEST_TRUE@AM_LDFLAGS = $(UNITTEST_LIBS)
 @ENABLE_TEST_TRUE@TestEnvelopeGenerator_SOURCES = \
 @ENABLE_TEST_TRUE@Main.cpp \
 @ENABLE_TEST_TRUE@TestEnvelopeGenerator.cpp

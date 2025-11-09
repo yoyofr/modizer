@@ -33,14 +33,12 @@ namespace reSIDfp
  * @param res the resistance value in Ohms
  * @param cap the capacitance value in Farads
  */
-inline double getRC(double res, double cap)
+constexpr inline double getRC(double res, double cap)
 {
     return res * cap;
 }
 
-ExternalFilter::ExternalFilter() :
-    w0lp_1_s7(0),
-    w0hp_1_s17(0)
+ExternalFilter::ExternalFilter()
 {
     reset();
 }

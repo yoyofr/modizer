@@ -22,9 +22,9 @@
 
 #include "p00.h"
 
-#include <stdint.h>
-#include <cstring>
 #include <cctype>
+#include <cstdint>
+#include <cstring>
 #include <memory>
 
 #include "sidplayfp/SidTuneInfo.h"
@@ -35,8 +35,8 @@
 namespace libsidplayfp
 {
 
-#define X00_ID_LEN   8
-#define X00_NAME_LEN 17
+constexpr int X00_ID_LEN = 8;
+constexpr int X00_NAME_LEN = 17;
 
 // File format from PC64. PC64 automatically generates
 // the filename from the cbm name (16 to 8 conversion)
@@ -60,14 +60,14 @@ struct X00Header
                                 // should be 0 for all other types
 };
 
-typedef enum
+enum class X00Format
 {
-    X00_DEL,
-    X00_SEQ,
-    X00_PRG,
-    X00_USR,
-    X00_REL
-} X00Format;
+    DEL,
+    SEQ,
+    PRG,
+    USR,
+    REL
+};
 
 // Format strings
 const char TXT_FORMAT_DEL[] = "Unsupported tape image file (DEL)";
@@ -97,23 +97,23 @@ SidTuneBase* p00::load(const char *fileName, buffer_t& dataBuf)
     switch (toupper(ext[1]))
     {
     case 'D':
-        type   = X00_DEL;
+        type   = X00Format::DEL;
         format = TXT_FORMAT_DEL;
         break;
     case 'S':
-        type   = X00_SEQ;
+        type   = X00Format::SEQ;
         format = TXT_FORMAT_SEQ;
         break;
     case 'P':
-        type   = X00_PRG;
+        type   = X00Format::PRG;
         format = TXT_FORMAT_PRG;
         break;
     case 'U':
-        type   = X00_USR;
+        type   = X00Format::USR;
         format = TXT_FORMAT_USR;
         break;
     case 'R':
-        type   = X00_REL;
+        type   = X00Format::REL;
         format = TXT_FORMAT_REL;
         break;
     default:
@@ -126,15 +126,15 @@ SidTuneBase* p00::load(const char *fileName, buffer_t& dataBuf)
         return nullptr;
 
     X00Header pHeader;
-    memcpy(pHeader.id, &dataBuf[0], X00_ID_LEN);
-    memcpy(pHeader.name, &dataBuf[X00_ID_LEN], X00_NAME_LEN);
+    std::memcpy(pHeader.id, &dataBuf[0], X00_ID_LEN);
+    std::memcpy(pHeader.name, &dataBuf[X00_ID_LEN], X00_NAME_LEN);
     pHeader.length = dataBuf[X00_ID_LEN + X00_NAME_LEN];
 
     if (strcmp(pHeader.id, P00_ID))
         return nullptr;
 
     // File types current supported
-    if (type != X00_PRG)
+    if (type != X00Format::PRG)
         throw loadError("Not a PRG inside X00");
 
     if (bufLen < sizeof(X00Header) + 2)

@@ -34,15 +34,15 @@
 #include "SidInfoImpl.h"
 #include "sidrandom.h"
 #include "mixer.h"
+#include "simpleMixer.h"
 #include "c64/c64.h"
 
 #ifdef HAVE_CONFIG_H
 #  include "config.h"
 #endif
 
-#ifdef HAVE_CXX11
-#  include <atomic>
-#endif
+#include <atomic>
+#include <memory>
 #include <vector>
 
 class SidTune;
@@ -56,12 +56,12 @@ namespace libsidplayfp
 class Player
 {
 private:
-    typedef enum
+    enum class state_t
     {
         STOPPED,
         PLAYING,
         STOPPING
-    } state_t;
+    };
 
 private:
     /// Commodore 64 emulator
@@ -82,16 +82,16 @@ private:
     /// Error message
     const char *m_errorString;
 
-#ifndef HAVE_CXX11
-    volatile state_t m_isPlaying;
-#else
     std::atomic<state_t> m_isPlaying;
-#endif
 
     sidrandom m_rand;
 
+    uint_least32_t m_startTime = 0;
+
     /// PAL/NTSC switch value
     uint8_t videoSwitch;
+
+    std::unique_ptr<SimpleMixer> m_simpleMixer;
 
 private:
     /**
@@ -137,7 +137,7 @@ private:
 
 public:
     Player();
-    ~Player() {}
+    ~Player() = default;
 
     const SidConfig &config() const { return m_cfg; }
 
@@ -151,15 +151,21 @@ public:
 
     uint_least32_t play(short *buffer, uint_least32_t samples);
 
-    bool isPlaying() const { return m_isPlaying != STOPPED; }
+    void buffers(short** buffers) const;
+
+    int play(unsigned int cycles);
+
+    bool isPlaying() const { return m_isPlaying != state_t::STOPPED; }
 
     void stop();
 
-    uint_least32_t timeMs() const { return m_c64.getTimeMs(); }
+    uint_least32_t timeMs() const { return m_c64.getTimeMs() - m_startTime; }
 
     void debug(const bool enable, FILE *out) { m_c64.debug(enable, out); }
 
     void mute(unsigned int sidNum, unsigned int voice, bool enable);
+
+    void filter(unsigned int sidNum, bool enable);
 
     const char *error() const { return m_errorString; }
 
@@ -170,6 +176,14 @@ public:
     uint_least16_t getCia1TimerA() const { return m_c64.getCia1TimerA(); }
 
     bool getSidStatus(unsigned int sidNum, uint8_t regs[32]);
+
+    unsigned int installedSIDs() const { return m_c64.installedSIDs(); }
+
+    void initMixer(bool stereo);
+
+    unsigned int mix(short *buffer, unsigned int samples);
+
+    bool reset();
 };
 
 }

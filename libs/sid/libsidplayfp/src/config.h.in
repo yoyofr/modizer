@@ -6,9 +6,6 @@
 /* Define for threaded driver */
 #undef EXSID_THREADED
 
-/* Define to 1 if you have the <arm_neon.h> header file. */
-#undef HAVE_ARM_NEON_H
-
 /* define if the compiler supports basic C++11 syntax */
 #undef HAVE_CXX11
 
@@ -18,11 +15,14 @@
 /* define if the compiler supports basic C++17 syntax */
 #undef HAVE_CXX17
 
+/* define if the compiler supports basic C++20 syntax */
+#undef HAVE_CXX20
+
+/* define if the compiler supports basic C++23 syntax */
+#undef HAVE_CXX23
+
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #undef HAVE_DLFCN_H
-
-/* Define to 1 if you have the <emmintrin.h> header file. */
-#undef HAVE_EMMINTRIN_H
 
 /* Define to 1 if you have libexsid (-lexsid). */
 #undef HAVE_EXSID
@@ -42,8 +42,8 @@
 /* Define to 1 if you have libgcrypt (-lgcrypt). */
 #undef HAVE_LIBGCRYPT
 
-/* Define to 1 if you have the <mmintrin.h> header file. */
-#undef HAVE_MMINTRIN_H
+/* Define if you have POSIX threads libraries and header files. */
+#undef HAVE_PTHREAD
 
 /* Define to 1 if you have pthread.h */
 #undef HAVE_PTHREAD_H

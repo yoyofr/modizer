@@ -52,11 +52,11 @@ protected:
 
     void setPlayerAddress();
 
-    virtual void acceptSidTune(const char* dataFileName, const char* infoFileName,
+    void acceptSidTune(const char* dataFileName, const char* infoFileName,
                                 buffer_t& buf, bool isSlashedFileName) override;
 
 public:
-    virtual ~MUS() {}
+    ~MUS() override = default;
 
     static SidTuneBase* load(buffer_t& dataBuf, bool init = false);
     static SidTuneBase* load(buffer_t& musBuf,
@@ -64,12 +64,12 @@ public:
                                 uint_least32_t fileOffset,
                                 bool init = false);
 
-    virtual void placeSidTuneInC64mem(sidmemory& mem) override;
+    void placeSidTuneInC64mem(sidmemory& mem) override;
 
 private:
     // prevent copying
-    MUS(const MUS&);
-    MUS& operator=(MUS&);
+    MUS(const MUS&) = delete;
+    MUS& operator=(MUS&) = delete;
 };
 
 }

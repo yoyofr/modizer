@@ -1,3 +1,107 @@
+2.15.2 2025-11-02
+* Fix building with pre c++20 standards (#214)
+* Fixed crash in SidDatabase parser (#217)
+
+
+
+2.15.1 2025-09-19
+* resid/residfp: remove accidental DC offset (#205)
+* residfp: clock voice 3 even if muted (#211)
+* resid: fix silenced tunes (#212)
+* fixed load performance regression (#207)
+
+
+
+2.15.0 2025-06-29
+* Compile with fast math, without unsafe optimizations
+* residfp: reworked the SIMD support, removed the intrinsics code leaving the compiler vectorize the loop
+* Extended the new play API
+* Marked old play API functions as deprecated
+
+
+
+2.14.0 2025-05-11
+* Rough approximation of MDAC saturation for the 6581 (#177) (#185)
+* New play API for client side mixing (#41) (#184)
+* Minor fixes and optimizations
+
+
+
+2.13.1 2025-04-25
+* Fix build with inlining disabled (#181)
+* Add missing files to the tarball (#182)
+* Update exsid driver
+* Fixed an uninitialized warning
+
+
+
+2.13.0 2025-04-13
+* Add support for c++23 where available
+* Reworked power on delay (#82)
+* Correctly link to pthread library (#179)
+* Add proper compiler flag when enabling sse4 (#172)
+* resid/residfp: Use more bits for the 8580 filter cutoff (VICE bug 2098)
+* resid: reduce aliasing noise (VICE bug 2116)
+
+
+
+2.12.0 2024-12-01
+* Better mixing for multi chip tunes (#167)
+* residfp: fixed voice sync when a saw-combined waveform is selected (#169)
+* residfp: updated CW parameters
+* resid: properly adjusted 8580 Vref value
+* switched to UTPP for unit tests (#170)
+
+
+
+2.11.0 2024-11-03
+* Remove buffer size limit from mixer (fixes #159)
+* residfp: avoid quantization noise (#156)
+* residfp: implemented 6581 DC drift (#155)
+* residfp: properly adjusted 8580 Vref value
+
+
+
+2.10.1 2024-10-20
+* residfp: fix digiboost (#157)
+* residfp: fix combined waveforms (#160)
+
+
+
+2.10.0 2024-10-06
+* Add support for c++20 where available
+* residfp: retuned cw parameters after measuring waves RMS (#143)
+* residfp: code refactoring and minor performance optimizations (#145)
+* resid/residfp: scale down filter inputs in the mixer for 6581 (#139)
+* Centralized handling of muted voices and allow muting samples (#136)
+* new API to toggle the filter and deprecated sidplayfp::filter
+
+
+
+2.9.0 2024-08-12
+* residfp: use c++11 threads for building filter tables (#92)
+* residfp: code modernization and minor performance optimizations
+* Performance optimizations (#133, #137)
+
+
+
+2.8.0 2024-06-09
+* Optimized event scheduler (#131)
+* Stop pretendig we support pre-c++11 compilers (#130)
+* Fixed thread unsafety for psid_driver (#132)
+* residfp: do not cache resampling tables (#91)
+* resid/residfp: tuned oscillator leakage
+
+
+
+2.7.1 2024-05-19
+* Sync resid with upstream
+* Make strong CWs the default (#127)
+* Downtune the leakage parameter a bit (#126)
+* Fix UBSan complaint abount uninitialized var 'is6581'
+
+
+
 2.7.0 2024-03-29
 * residfp: refactor residfp filter (#109)
 * residfp: added ability to adjust the uCox parameter at runtime (#101)

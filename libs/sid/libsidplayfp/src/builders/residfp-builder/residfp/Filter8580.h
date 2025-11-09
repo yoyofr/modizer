@@ -277,6 +277,12 @@ class Integrator8580;
 class Filter8580 final : public Filter
 {
 private:
+    /// VCR + associated capacitor connected to highpass output.
+    Integrator8580 hpIntegrator;
+
+    /// VCR + associated capacitor connected to bandpass output.
+    Integrator8580 bpIntegrator;
+
     double cp;
 
 protected:
@@ -285,14 +291,18 @@ protected:
      */
     void updateCenterFrequency() override;
 
+    int solveIntegrators() override;
+
 public:
     Filter8580() :
-        Filter(FilterModelConfig8580::getInstance())
+        Filter(*FilterModelConfig8580::getInstance()),
+        hpIntegrator(*FilterModelConfig8580::getInstance()),
+        bpIntegrator(*FilterModelConfig8580::getInstance())
     {
         setFilterCurve(0.5);
     }
 
-    ~Filter8580();
+    ~Filter8580() override;
 
     /**
      * Set filter curve type based on single parameter.

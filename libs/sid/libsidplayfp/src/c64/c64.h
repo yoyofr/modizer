@@ -72,24 +72,24 @@ class sidmemory;
 class c64 final : private c64env
 {
 public:
-    typedef enum
+    using model_t = enum
     {
         PAL_B = 0     ///< PAL C64
         ,NTSC_M       ///< NTSC C64
         ,OLD_NTSC_M   ///< Old NTSC C64
         ,PAL_N        ///< C64 Drean
         ,PAL_M        ///< C64 Brasil
-    } model_t;
+    };
 
-    typedef enum
+    using cia_model_t = enum
     {
         OLD = 0     ///< Old CIA
         ,NEW        ///< New CIA
         ,OLD_4485   ///< Old CIA, special batch labeled 4485
-    } cia_model_t;
+    };
 
 private:
-    typedef std::map<int, ExtraSidBank*> sidBankMap_t;
+    using sidBankMap_t = std::map<int, ExtraSidBank*>;
 
 private:
     /// System clock frequency
@@ -103,9 +103,6 @@ private:
 
     /// System event context
     EventScheduler eventScheduler;
-
-    /// CPU
-    c64cpu cpu;
 
     /// CIA1
     c64cia1 cia1;
@@ -134,26 +131,18 @@ private:
     /// MMU chip
     MMU mmu;
 
+    /// CPUBus
+    c64cpubus cpubus;
+
+    /// CPU
+    MOS6510 cpu;
+
 private:
     static double getCpuFreq(model_t model);
 
+    static void deleteSids(sidBankMap_t &extraSidBanks);
+
 private:
-    /**
-     * Access memory as seen by CPU.
-     *
-     * @param addr the address where to read from
-     * @return value at address
-     */
-    uint8_t cpuRead(uint_least16_t addr) override { return mmu.cpuRead(addr); }
-
-    /**
-     * Access memory as seen by CPU.
-     *
-     * @param addr the address where to write to
-     * @param data the value to write
-     */
-    void cpuWrite(uint_least16_t addr, uint8_t data) override { mmu.cpuWrite(addr, data); }
-
     /**
      * IRQ trigger signal.
      *
@@ -271,6 +260,8 @@ public:
     sidmemory& getMemInterface() { return mmu; }
 
     uint_least16_t getCia1TimerA() const { return cia1.getTimerA(); }
+
+    unsigned int installedSIDs() const;
 };
 
 void c64::interruptIRQ(bool state)

@@ -1,7 +1,9 @@
 3.0
 * wrap everything into a library namespace (?)
-* require c++11 (?)
-* add API to allow mixing client side
+* hide virtual functions in sidbuilder class
+* do not require call to sidbuilder::create
+* drop hardsid support
+* drop resid
 
 
 someday/maybe:
@@ -10,4 +12,3 @@ someday/maybe:
 * relocate only psid tunes (?)
 * add SIDid support
 * implement support for mus data embedded in psid files
-* test hardsid support

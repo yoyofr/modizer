@@ -1,7 +1,7 @@
 /*
  * This file is part of libsidplayfp, a SID player engine.
  *
- * Copyright 2011-2024 Leandro Nini <drfiemost@users.sourceforge.net>
+ * Copyright 2011-2025 Leandro Nini <drfiemost@users.sourceforge.net>
  * Copyright 2007-2010 Antti Lankila
  * Copyright 2004,2010 Dag Lem <resid@nimrod.no>
  *
@@ -27,8 +27,10 @@
 namespace reSIDfp
 {
 
+constexpr double MOSFET_LEAKAGE_6581 = 0.0075;
+constexpr double MOSFET_LEAKAGE_8580 = 0.0035;
+
 Dac::Dac(unsigned int bits) :
-    leakage(0.01),
     dac(new double[bits]),
     dacLength(bits)
 {}
@@ -38,7 +40,7 @@ Dac::~Dac()
     delete [] dac;
 }
 
-double Dac::getOutput(unsigned int input) const
+double Dac::getOutput(unsigned int input, bool saturate) const
 {
     double dacValue = 0.;
 
@@ -48,6 +50,22 @@ double Dac::getOutput(unsigned int input) const
         dacValue += transistor_on ? dac[i] : dac[i] * leakage;
     }
 
+    /*
+     * Rough attempt at modeling the MDAC saturation for the 6581.
+     * Things are actually more complex, the saturation is likely
+     * caused by the two NMOS source followers, one at the output
+     * of the waveform DAC and the second at the output of the MDAC.
+     * The buffers are also supposed to introduce a DC offset.
+     * As a first step we use a cubic model for saturation and
+     * apply it only at the waveform output, providing a decent
+     * result without any runtime overhead.
+     */
+    if (saturate)
+    {
+        static constexpr double GAIN = 1.1;
+        static constexpr double SAT = 1.1;
+        dacValue = GAIN*dacValue + (1. - GAIN)*SAT*dacValue*dacValue*dacValue;
+    }
     return dacValue;
 }
 
@@ -60,6 +78,8 @@ void Dac::kinkedDac(ChipModel chipModel)
 
     // 6581 DACs are not terminated by a 2R resistor
     const bool term = chipModel == MOS8580;
+
+    leakage = chipModel == MOS6581 ? MOSFET_LEAKAGE_6581 : MOSFET_LEAKAGE_8580;
 
     double Vsum = 0.;
 

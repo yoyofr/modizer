@@ -53,7 +53,7 @@ private:
         constexpr double b = 1. / a;
 
         double value = static_cast<double>(x - threshold) / max_val;
-        value = t + a * tanh(b * value);
+        value = t + a * std::tanh(b * value);
         return static_cast<int>(value * max_val);
     }
 
@@ -76,7 +76,7 @@ protected:
     Resampler() {}
 
 public:
-    virtual ~Resampler() {}
+    virtual ~Resampler() = default;
 
     /**
      * Input a sample into resampler. Output "true" when resampler is ready with new sample.
@@ -91,7 +91,7 @@ public:
      *
      * @return resampled sample
      */
-    short getOutput(int scaleFactor) const
+    inline short getOutput(int scaleFactor) const
     {
         const int out = (scaleFactor * output()) / 2;
         return softClip(out);

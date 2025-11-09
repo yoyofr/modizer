@@ -43,12 +43,12 @@ public:
      */
     static SidTuneBase* load(const char *fileName, buffer_t& dataBuf);
 
-    virtual ~prg() {}
+    ~prg() override = default;
 
 private:
     // prevent copying
-    prg(const prg&);
-    prg& operator=(prg&);
+    prg(const prg&) = delete;
+    prg& operator=(prg&) = delete;
 };
 
 }

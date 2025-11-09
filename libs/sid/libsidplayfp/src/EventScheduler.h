@@ -37,11 +37,11 @@ namespace libsidplayfp
  * and PHI2 to CPU activity. For any clock, PHI1s are before
  * PHI2s.
  */
-typedef enum
+using event_phase_t = enum
 {
     EVENT_CLOCK_PHI1 = 0,
     EVENT_CLOCK_PHI2 = 1
-} event_phase_t;
+};
 
 
 /**
@@ -62,10 +62,10 @@ class EventScheduler
 {
 private:
     /// The first event of the chain.
-    Event *firstEvent;
+    Event *firstEvent = nullptr;
 
     /// EventScheduler's current clock.
-    event_clock_t currentTime;
+    event_clock_t currentTime = 0;
 
 private:
     /**
@@ -90,10 +90,6 @@ private:
     }
 
 public:
-    EventScheduler() :
-        firstEvent(nullptr),
-        currentTime(0) {}
-
     /**
      * Add event to pending queue.
      *

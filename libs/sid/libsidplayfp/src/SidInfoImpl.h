@@ -1,7 +1,7 @@
 /*
  * This file is part of libsidplayfp, a SID player engine.
  *
- *  Copyright 2011-2015 Leandro Nini
+ *  Copyright 2011-2024 Leandro Nini
  *  Copyright 2007-2010 Antti Lankila
  *  Copyright 2000 Simon White
  *
@@ -52,9 +52,16 @@
 class SidInfoImpl final : public SidInfo
 {
 public:
-    const std::string m_name;
-    const std::string m_version;
-    std::vector<std::string> m_credits;
+    const std::string m_name { PACKAGE_NAME };
+    const std::string m_version { PACKAGE_VERSION };
+    std::vector<std::string> m_credits
+    {
+        PACKAGE_NAME " V" PACKAGE_VERSION " Engine:\n"
+            "\tCopyright (C) 2000 Simon White\n"
+            "\tCopyright (C) 2007-2010 Antti Lankila\n"
+            "\tCopyright (C) 2010-2024 Leandro Nini\n"
+            "\t" PACKAGE_URL "\n"
+    };
 
     std::string m_speedString;
 
@@ -62,36 +69,22 @@ public:
     std::string m_basicDesc;
     std::string m_chargenDesc;
 
-    const unsigned int m_maxsids;
+    const unsigned int m_maxsids = libsidplayfp::Mixer::MAX_SIDS;
 
-    unsigned int m_channels;
+    unsigned int m_channels = 1;
 
-    uint_least16_t m_driverAddr;
-    uint_least16_t m_driverLength;
+    uint_least16_t m_driverAddr = 0;
+    uint_least16_t m_driverLength = 0;
 
-    uint_least16_t m_powerOnDelay;
+    uint_least16_t m_powerOnDelay = 0;
 
 private:
     // prevent copying
-    SidInfoImpl(const SidInfoImpl&);
-    SidInfoImpl& operator=(SidInfoImpl&);
+    SidInfoImpl(const SidInfoImpl&) = delete;
+    SidInfoImpl& operator=(SidInfoImpl&) = delete;
 
 public:
-    SidInfoImpl() :
-        m_name(PACKAGE_NAME),
-        m_version(PACKAGE_VERSION),
-        m_maxsids(libsidplayfp::Mixer::MAX_SIDS),
-        m_channels(1),
-        m_driverAddr(0),
-        m_driverLength(0),
-        m_powerOnDelay(0)
-    {
-        m_credits.push_back(PACKAGE_NAME " V" PACKAGE_VERSION " Engine:\n"
-            "\tCopyright (C) 2000 Simon White\n"
-            "\tCopyright (C) 2007-2010 Antti Lankila\n"
-            "\tCopyright (C) 2010-2015 Leandro Nini\n"
-            "\t" PACKAGE_URL "\n");
-    }
+    SidInfoImpl() {}
 
     const char *getName() const override { return m_name.c_str(); }
     const char *getVersion() const override { return m_version.c_str(); }

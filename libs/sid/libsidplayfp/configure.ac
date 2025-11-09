@@ -1,6 +1,6 @@
 m4_define([lib_major], [2])
-m4_define([lib_minor], [7])
-m4_define([lib_level], [0])
+m4_define([lib_minor], [15])
+m4_define([lib_level], [2])
 m4_define([lib_version], [lib_major.lib_minor.lib_level])
 
 AC_PREREQ([2.62])
@@ -37,17 +37,27 @@ AC_PROG_CXX
 dnl Use C++ for tests.
 AC_LANG([C++])
 
-AX_CXX_COMPILE_STDCXX_17([noext], [optional])
-AS_IF([test $ax_cv_cxx_compile_cxx17__std_cpp17 != "yes"], [
-    AX_CXX_COMPILE_STDCXX_14([noext], [optional])
-    AS_IF([test $ax_cv_cxx_compile_cxx14__std_cpp14 != "yes"],
-        AX_CXX_COMPILE_STDCXX_11([noext], [optional])
-    )
+
+AX_CXX_COMPILE_STDCXX([23], [noext], [optional])
+AS_IF([test $ax_cv_cxx_compile_cxx23__std_cpp23 != "yes"], [
+    AX_CXX_COMPILE_STDCXX([20], [noext], [optional])
+    AS_IF([test $ax_cv_cxx_compile_cxx20__std_cpp20 != "yes"], [
+        AX_CXX_COMPILE_STDCXX([17], [noext], [optional])
+        AS_IF([test $ax_cv_cxx_compile_cxx17__std_cpp17 != "yes"], [
+            AX_CXX_COMPILE_STDCXX([14], [noext], [optional])
+            AS_IF([test $ax_cv_cxx_compile_cxx14__std_cpp14 != "yes"],
+                [AX_CXX_COMPILE_STDCXX([11], [noext], [mandatory])]
+            )
+        ])
+    ])
 ])
 
 dnl check for hidden visibility support
-AX_CHECK_COMPILE_FLAG([-fvisibility=hidden -fvisibility-inlines-hidden], [has_visibility=yes], [has_visibility=no])
-AM_CONDITIONAL([HAVE_VISIBILITY], [test "x$has_visibility" = xyes])
+AX_APPEND_COMPILE_FLAGS([-fvisibility=hidden -fvisibility-inlines-hidden])
+
+dnl enable fast math
+AX_APPEND_COMPILE_FLAGS([-ffast-math -fno-unsafe-math-optimizations], [RESIDFP_CXXFLAGS])
+AC_SUBST([RESIDFP_CXXFLAGS])
 
 dnl Checks for typedefs, structures, and compiler characteristics.
 AC_C_BIGENDIAN
@@ -66,8 +76,6 @@ AS_IF([test $ac_cv_sizeof_int -lt 4],
 AS_IF([test "x${ac_cv_header_stdint_h}" != "xyes"],
   [AC_MSG_ERROR([Required header stdint.h not found])]
 )
-
-AC_OPENMP
 
 dnl Checks for non-standard functions.
 
@@ -90,6 +98,8 @@ AC_CACHE_CHECK([for od that supports -w], [ac_cv_path_OD],
 )
 AC_SUBST([OD], [$ac_cv_path_OD])
 
+AX_PTHREAD([], [AC_MSG_ERROR("pthreads not found")])
+
 dnl libtool-style version-info number
 #
 # https://autotools.io/libtool/version.html
@@ -100,13 +110,13 @@ dnl libtool-style version-info number
 #
 # Increase the age value only if the changes made to the ABI are backward compatible.
 
-LIBSIDPLAYCUR=10
-LIBSIDPLAYREV=30
-LIBSIDPLAYAGE=4
+LIBSIDPLAYCUR=12
+LIBSIDPLAYREV=43
+LIBSIDPLAYAGE=6
 LIBSIDPLAYVERSION=$LIBSIDPLAYCUR:$LIBSIDPLAYREV:$LIBSIDPLAYAGE
 
 LIBSTILVIEWCUR=0
-LIBSTILVIEWREV=4
+LIBSTILVIEWREV=6
 LIBSTILVIEWAGE=0
 LIBSTILVIEWVERSION=$LIBSTILVIEWCUR:$LIBSTILVIEWREV:$LIBSTILVIEWAGE
 
@@ -140,31 +150,27 @@ AS_IF([test x"$enable_inline" != "xno"],
   [RESID_INLINE=""; RESID_INLINING=0]
 )
 
+dnl define compiler flag to enable SIMD instructions, not required if -march or -mcpu is defined
 AC_ARG_WITH(
     [simd],
-    [AS_HELP_STRING([--with-simd], [Build with SIMD optimizations [@<:@sse2/mmx/neon/none, default=none@:>@]])],
+    [AS_HELP_STRING([--with-simd], [Build with SIMD optimizations [@<:@mmx/sse2/sse4/avx2/avx512f/none, default=none@:>@]])],
     [],
     [with_simd=none]
 )
 
 AS_IF([test x"$with_simd" != xnone],
-    # Testing for intrinsic headers requires compiler
-    # support activated by specific flags.
-    # These are most likely defined in CXXFLAGS
-    # but AC_CHECK_HEADERS uses only CPPFLAGS
-    # so we need a workaround.
-    [saveCPPFLAGS=$CPPFLAGS
-    CPPFLAGS="$CPPFLAGS $CXXFLAGS"
-
-    AS_CASE([$with_simd],
-        [sse2], [AC_CHECK_HEADERS([emmintrin.h])],
-        [mmx],  [AC_CHECK_HEADERS([mmintrin.h])],
-        [neon], [AC_CHECK_HEADERS([arm_neon.h])],
+    [AS_CASE([$with_simd],
+        [mmx], [SID_X86_SIMD_SUPPORTS([mmx])],
+        [sse2], [SID_X86_SIMD_SUPPORTS([sse2])],
+        [sse4], [SID_X86_SIMD_SUPPORTS([sse4])],
+        [avx2], [SID_X86_SIMD_SUPPORTS([avx2])],
+        [avx512f], [SID_X86_SIMD_SUPPORTS([avx512f])],
         [AC_MSG_ERROR([Unrecognized SIMD specified])]
-    )
-
-    CPPFLAGS=$saveCPPFLAGS]
+    )]
 )
+
+dnl gcc needs this flag to enable vectorization
+AX_APPEND_COMPILE_FLAGS([-ftree-loop-vectorize])
 
 AC_CACHE_CHECK([for working bool], ac_cv_cxx_bool,
 [AC_COMPILE_IFELSE(
@@ -237,10 +243,11 @@ AC_ARG_ENABLE([testsuite],
 )
 
 AS_IF([test "x$enable_testsuite" != xno],
-  AC_DEFINE_UNQUOTED([VICE_TESTSUITE],
+  [AC_DEFINE_UNQUOTED([VICE_TESTSUITE],
     ["$enable_testsuite"],
     [Path to VICE testsuite.]
   )
+  AC_CONFIG_LINKS([test/testsuite.sh:test/testsuite.sh test/testlist:test/testlist])]
 )
 
 AM_CONDITIONAL([TESTSUITE], [test "x$enable_testsuite" != xno])
@@ -254,12 +261,6 @@ AC_ARG_ENABLE([tests],
   )],
   [],
   [enable_tests=no]
-)
-
-AS_IF([test "x$enable_tests" != "xno"],
-  [[echo Enabling unit tests]
-    PKG_CHECK_MODULES(UNITTEST, [UnitTest++])
-  ]
 )
 
 AM_CONDITIONAL([ENABLE_TEST], [test x$enable_tests = xyes])
@@ -352,7 +353,6 @@ AS_IF([test "x$build_exsid_driver" = xyes],
 
 eval loadable_shrext=$shrext_cmds
 AC_DEFINE_UNQUOTED([SHLIBEXT], ["${loadable_shrext}"], [Shared library extension])
-
 
 AC_CONFIG_FILES([
 Makefile

@@ -14,13 +14,13 @@
  *                                                                         *
  ***************************************************************************/
 
-#include <stdio.h>
-#include <cstring>
-#include <string>
-#include <memory>
-#include <sstream>
 #include <algorithm>
+#include <cstdio>
+#include <cstring>
+#include <memory>
 #include <new>
+#include <sstream>
+#include <string>
 
 #include "exsid.h"
 #include "exsid-emu.h"
@@ -102,11 +102,12 @@ const char *exSIDBuilder::credits() const
 
 void exSIDBuilder::flush()
 {
-    for (emuset_t::iterator it=sidobjs.begin(); it != sidobjs.end(); ++it)
-        static_cast<libsidplayfp::exSID*>(*it)->flush();
+    for (libsidplayfp::sidemu* e: sidobjs)
+        static_cast<libsidplayfp::exSID*>(e)->flush();
 }
 
 void exSIDBuilder::filter (bool enable)
 {
-    std::for_each(sidobjs.begin(), sidobjs.end(), applyParameter<libsidplayfp::exSID, bool>(&libsidplayfp::exSID::filter, enable));
+    for (libsidplayfp::sidemu* e: sidobjs)
+        static_cast<libsidplayfp::exSID*>(e)->filter(enable);
 }

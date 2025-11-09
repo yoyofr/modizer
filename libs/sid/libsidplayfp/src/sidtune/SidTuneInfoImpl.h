@@ -81,8 +81,8 @@ public:
     bool m_fixLoad;
 
 private:    // prevent copying
-    SidTuneInfoImpl(const SidTuneInfoImpl&);
-    SidTuneInfoImpl& operator=(SidTuneInfoImpl&);
+    SidTuneInfoImpl(const SidTuneInfoImpl&) = delete;
+    SidTuneInfoImpl& operator=(SidTuneInfoImpl&) = delete;
 
 public:
     SidTuneInfoImpl() :

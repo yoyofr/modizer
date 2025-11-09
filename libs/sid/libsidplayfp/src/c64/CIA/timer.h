@@ -42,22 +42,22 @@ class MOS652X;
 class Timer : private Event
 {
 protected:
-    static const int_least32_t CIAT_CR_START   = 0x01;
-    static const int_least32_t CIAT_STEP       = 0x04;
-    static const int_least32_t CIAT_CR_ONESHOT = 0x08;
-    static const int_least32_t CIAT_CR_FLOAD   = 0x10;
-    static const int_least32_t CIAT_PHI2IN     = 0x20;
-    static const int_least32_t CIAT_CR_MASK    = CIAT_CR_START | CIAT_CR_ONESHOT | CIAT_CR_FLOAD | CIAT_PHI2IN;
+    static constexpr int_least32_t CIAT_CR_START   = 0x01;
+    static constexpr int_least32_t CIAT_STEP       = 0x04;
+    static constexpr int_least32_t CIAT_CR_ONESHOT = 0x08;
+    static constexpr int_least32_t CIAT_CR_FLOAD   = 0x10;
+    static constexpr int_least32_t CIAT_PHI2IN     = 0x20;
+    static constexpr int_least32_t CIAT_CR_MASK    = CIAT_CR_START | CIAT_CR_ONESHOT | CIAT_CR_FLOAD | CIAT_PHI2IN;
 
-    static const int_least32_t CIAT_COUNT2     = 0x100;
-    static const int_least32_t CIAT_COUNT3     = 0x200;
+    static constexpr int_least32_t CIAT_COUNT2     = 0x100;
+    static constexpr int_least32_t CIAT_COUNT3     = 0x200;
 
-    static const int_least32_t CIAT_ONESHOT0   = 0x08 << 8;
-    static const int_least32_t CIAT_ONESHOT    = 0x08 << 16;
-    static const int_least32_t CIAT_LOAD1      = 0x10 << 8;
-    static const int_least32_t CIAT_LOAD       = 0x10 << 16;
+    static constexpr int_least32_t CIAT_ONESHOT0   = 0x08 << 8;
+    static constexpr int_least32_t CIAT_ONESHOT    = 0x08 << 16;
+    static constexpr int_least32_t CIAT_LOAD1      = 0x10 << 8;
+    static constexpr int_least32_t CIAT_LOAD       = 0x10 << 16;
 
-    static const int_least32_t CIAT_OUT        = 0x80000000;
+    static constexpr int_least32_t CIAT_OUT        = 0x80000000;
 
 private:
     EventCallback<Timer> m_cycleSkippingEvent;
@@ -76,23 +76,23 @@ private:
     event_clock_t ciaEventPauseTime;
 
     /// PB6/PB7 Flipflop to signal underflows.
-    bool pbToggle;
+    bool pbToggle = false;
 
     /// Current timer value.
-    uint_least16_t timer;
+    uint_least16_t timer = 0;
 
     /// Timer start value (Latch).
-    uint_least16_t latch;
+    uint_least16_t latch = 0;
 
     /// Copy of regs[CRA/B]
-    uint8_t lastControlValue;
+    uint8_t lastControlValue = 0;
 
 protected:
     /// Pointer to the MOS6526 which this Timer belongs to.
     MOS652X &parent;
 
     /// CRA/CRB control register / state.
-    int_least32_t state;
+    int_least32_t state = 0;
 
 private:
     /**
@@ -139,12 +139,7 @@ protected:
         Event(name),
         m_cycleSkippingEvent("Skip CIA clock decrement cycles", *this, &Timer::cycleSkippingEvent),
         eventScheduler(scheduler),
-        pbToggle(false),
-        timer(0),
-        latch(0),
-        lastControlValue(0),
-        parent(parent),
-        state(0) {}
+        parent(parent) {}
 
 public:
     /**

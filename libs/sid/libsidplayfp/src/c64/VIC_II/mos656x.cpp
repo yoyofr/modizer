@@ -31,7 +31,9 @@
 
 #include "mos656x.h"
 
-#include <cstring>
+#include <type_traits>
+#include <algorithm>
+#include <iterator>
 
 #include "sidendian.h"
 
@@ -39,9 +41,9 @@ namespace libsidplayfp
 {
 
 /// Cycle # at which the VIC takes the bus in a bad line (BA goes low).
-const unsigned int VICII_FETCH_CYCLE = 11;
+constexpr unsigned int VICII_FETCH_CYCLE = 11;
 
-const unsigned int VICII_SCREEN_TEXTCOLS = 40;
+constexpr unsigned int VICII_SCREEN_TEXTCOLS = 40;
 
 const MOS656X::model_data_t MOS656X::modelData[] =
 {
@@ -71,7 +73,7 @@ MOS656X::MOS656X(EventScheduler &scheduler) :
     rasterYIRQEdgeDetectorEvent("RasterY changed", *this, &MOS656X::rasterYIRQEdgeDetector),
     lightpenTriggerEvent("Trigger lightpen", *this, &MOS656X::lightpenTrigger)
 {
-    chip(MOS6569);
+    chip(model_t::MOS6569);
 }
 
 void MOS656X::reset()
@@ -88,7 +90,7 @@ void MOS656X::reset()
     vblanking           = false;
     lpAsserted          = false;
 
-    memset(regs, 0, sizeof(regs));
+    std::fill(std::begin(regs), std::end(regs), 0);
 
     lp.reset();
     sprites.reset();
@@ -99,9 +101,15 @@ void MOS656X::reset()
 
 void MOS656X::chip(model_t model)
 {
-    maxRasters    = modelData[model].rasterLines;
-    cyclesPerLine = modelData[model].cyclesPerLine;
-    clock         = modelData[model].clock;
+#ifdef HAVE_CXX14
+    const auto model_idx = static_cast<std::underlying_type_t<model_t>>(model);
+#else
+    const auto model_idx = static_cast<typename std::underlying_type<model_t>::type>(model);
+#endif
+
+    maxRasters    = modelData[model_idx].rasterLines;
+    cyclesPerLine = modelData[model_idx].cyclesPerLine;
+    clock         = modelData[model_idx].clock;
 
     lp.setScreenSize(maxRasters, cyclesPerLine);
 

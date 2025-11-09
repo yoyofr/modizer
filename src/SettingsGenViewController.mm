@@ -3373,7 +3373,7 @@ void optNSFPLAYChangedC(id param) {
     settings[SID_MODEL].detail.mdz_switch.switch_labels[1]=(char*)"6581";
     settings[SID_MODEL].detail.mdz_switch.switch_labels[2]=(char*)"8580";
     
-    settings[SID_Engine].detail.mdz_boolswitch.switch_default_value=1;
+    settings[SID_Engine].detail.mdz_switch.switch_default_value=1;
     settings[SID_Interpolation].detail.mdz_switch.switch_default_value=2;
     settings[SID_Filter].detail.mdz_boolswitch.switch_default_value=1;
     settings[SID_SecondSIDOn].detail.mdz_switch.switch_default_value=0;

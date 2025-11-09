@@ -159,12 +159,12 @@ class MOS652X
     friend class Tod;
 
 public:
-    typedef enum
+    enum class model_t
     {
         MOS6526 = 0     ///< Old CIA model, interrupts are delayed by 1 clock
         ,MOS8521        ///< New CIA model
         ,MOS6526W4485   ///< A batch of old CIA model with unique serial port behavior
-    } model_t;
+    };
 
 private:
     static const char *credit;

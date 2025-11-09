@@ -294,6 +294,8 @@ static void * _exSID_thread_output(void * arg)
 				_xSusleep(delay);
 		}
 	}
+
+	return NULL;	// silence warnings
 }
 #endif	// EXSID_THREADED
 

@@ -24,7 +24,9 @@
 #define FILTERMODELCONFIG_H
 
 #include <algorithm>
+#include <random>
 #include <cassert>
+#include <climits>
 
 #include "OpAmp.h"
 #include "Spline.h"
@@ -34,21 +36,76 @@
 namespace reSIDfp
 {
 
-class Integrator;
-
 class FilterModelConfig
 {
+public:
+    // The highpass summer has 2 - 6 inputs (bandpass, lowpass, and 0 - 4 voices).
+    template<int i>
+    struct summer_offset
+    {
+        static constexpr int value = summer_offset<i - 1>::value + ((2 + i - 1) << 16);
+    };
+
+    // The mixer has 0 - 7 inputs (0 - 4 voices and 0 - 3 filter outputs).
+    template<int i>
+    struct mixer_offset
+    {
+        static constexpr int value = mixer_offset<i - 1>::value + ((i - 1) << 16);
+    };
+
+protected:
+    static inline unsigned short to_ushort_dither(double x, double d_noise)
+    {
+        const int tmp = static_cast<int>(x + d_noise);
+        assert((tmp >= 0) && (tmp <= USHRT_MAX));
+        return static_cast<unsigned short>(tmp);
+    }
+
+    static inline unsigned short to_ushort(double x)
+    {
+        return to_ushort_dither(x, 0.5);
+    }
+
+private:
+    /*
+     * Hack to add quick dither when converting values from float to int
+     * and avoid quantization noise.
+     * Hopefully this can be removed the day we move all the analog part
+     * processing to floats.
+     *
+     * Not sure about the effect of using such small buffer of numbers
+     * since the random sequence repeats every 1024 values but for
+     * now it seems to do the job.
+     */
+    class Randomnoise
+    {
+    private:
+        double buffer[1024];
+        mutable int index = 0;
+    public:
+        Randomnoise()
+        {
+            std::uniform_real_distribution<double> unif(0., 1.);
+            std::default_random_engine re;
+            for (int i=0; i<1024; i++)
+                buffer[i] = unif(re);
+        }
+        double getNoise() const { index = (index + 1) & 0x3ff; return buffer[index]; }
+    };
+
 protected:
     /// Capacitor value.
     const double C;
 
     /// Transistor parameters.
     //@{
-    const double Vdd;
+    /// Thermal voltage: Ut = kT/q = 8.61734315e-5*T ~ 26mV
+    static constexpr double Ut = 26.0e-3;
+
+    const double Vdd;           ///< Positive supply voltage
     const double Vth;           ///< Threshold voltage
-    const double Ut;            ///< Thermal voltage: Ut = kT/q = 8.61734315e-5*T ~ 26mV
-    double uCox;                ///< Transconductance coefficient: u*Cox
     const double Vddt;          ///< Vdd - Vth
+    double uCox;                ///< Transconductance coefficient: u*Cox
     //@}
 
     // Derived stuff
@@ -58,46 +115,46 @@ protected:
     /// Fixed point scaling for 16 bit op-amp output.
     const double N16;
 
+    const double voice_voltage_range;
+
     /// Current factor coefficient for op-amp integrators.
     double currFactorCoeff;
 
-    const double voice_voltage_range;
-    const double voice_DC_voltage;
-
     /// Lookup tables for gain and summer op-amps in output stage / filter.
     //@{
-    unsigned short* mixer[8];       //-V730_NOINIT this is initialized in the derived class constructor
-    unsigned short* summer[5];      //-V730_NOINIT this is initialized in the derived class constructor
-    unsigned short* volume[16];   //-V730_NOINIT this is initialized in the derived class constructor
-    unsigned short* resonance[16];   //-V730_NOINIT this is initialized in the derived class constructor
+    unsigned short* mixer;          //-V730_NOINIT this is initialized in the derived class constructor
+    unsigned short* summer;         //-V730_NOINIT this is initialized in the derived class constructor
+    unsigned short* volume;         //-V730_NOINIT this is initialized in the derived class constructor
+    unsigned short* resonance;      //-V730_NOINIT this is initialized in the derived class constructor
     //@}
 
     /// Reverse op-amp transfer function.
     unsigned short opamp_rev[1 << 16]; //-V730_NOINIT this is initialized in the derived class constructor
 
 private:
-    FilterModelConfig (const FilterModelConfig&) DELETE;
-    FilterModelConfig& operator= (const FilterModelConfig&) DELETE;
+    Randomnoise rnd;
 
-    inline double getVoiceVoltage(float value) const
+private:
+    FilterModelConfig(const FilterModelConfig&) = delete;
+    FilterModelConfig& operator= (const FilterModelConfig&) = delete;
+
+    inline double getVoiceVoltage(float value, unsigned int env) const
     {
-        return value * voice_voltage_range + voice_DC_voltage;
+        return value * voice_voltage_range + getVoiceDC(env);
     }
 
 protected:
     /**
      * @param vvr voice voltage range
-     * @param vdv voice DC voltage
      * @param c   capacitor value
-     * @param vdd Vdd
+     * @param vdd Vdd supply voltage
      * @param vth threshold voltage
      * @param ucox u*Cox
-     * @param ominv opamp min voltage
-     * @param omaxv opamp max voltage
+     * @param opamp_voltage opamp voltage array
+     * @param opamp_size opamp voltage array size
      */
     FilterModelConfig(
         double vvr,
-        double vdv,
         double c,
         double vdd,
         double vth,
@@ -110,6 +167,8 @@ protected:
 
     void setUCox(double new_uCox);
 
+    virtual double getVoiceDC(unsigned int env) const = 0;
+
     /**
      * The filter summer operates at n ~ 1, and has 5 fundamentally different
      * input configurations (2 - 6 input "resistors").
@@ -121,18 +180,21 @@ protected:
      */
     inline void buildSummerTable(const OpAmp& opampModel)
     {
+        const double r_N16 = 1. / N16;
+
+        int idx = 0;
         for (int i = 0; i < 5; i++)
         {
             const int idiv = 2 + i;        // 2 - 6 input "resistors".
             const int size = idiv << 16;
             const double n = idiv;
+            const double r_idiv = 1. / idiv;
             opampModel.reset();
-            summer[i] = new unsigned short[size];
 
             for (int vi = 0; vi < size; vi++)
             {
-                const double vin = vmin + vi / N16 / idiv; /* vmin .. vmax */
-                summer[i][vi] = getNormalizedValue(opampModel.solve(n, vin));
+                const double vin = vmin + vi * r_N16 * r_idiv; /* vmin .. vmax */
+                summer[idx++] = getNormalizedValue(opampModel.solve(n, vin));
             }
         }
     }
@@ -147,18 +209,21 @@ protected:
      */
     inline void buildMixerTable(const OpAmp& opampModel, double nRatio)
     {
+        const double r_N16 = 1. / N16;
+
+        int idx = 0;
         for (int i = 0; i < 8; i++)
         {
             const int idiv = (i == 0) ? 1 : i;
             const int size = (i == 0) ? 1 : i << 16;
             const double n = i * nRatio;
+            const double r_idiv = 1. / idiv;
             opampModel.reset();
-            mixer[i] = new unsigned short[size];
 
             for (int vi = 0; vi < size; vi++)
             {
-                const double vin = vmin + vi / N16 / idiv; /* vmin .. vmax */
-                mixer[i][vi] = getNormalizedValue(opampModel.solve(n, vin));
+                const double vin = vmin + vi * r_N16 * r_idiv; /* vmin .. vmax */
+                mixer[idx++] = getNormalizedValue(opampModel.solve(n, vin));
             }
         }
     }
@@ -172,17 +237,19 @@ protected:
      */
     inline void buildVolumeTable(const OpAmp& opampModel, double nDivisor)
     {
+        const double r_N16 = 1. / N16;
+
+        int idx = 0;
         for (int n8 = 0; n8 < 16; n8++)
         {
-            const int size = 1 << 16;
+            constexpr int size = 1 << 16;
             const double n = n8 / nDivisor;
             opampModel.reset();
-            volume[n8] = new unsigned short[size];
 
             for (int vi = 0; vi < size; vi++)
             {
-                const double vin = vmin + vi / N16; /* vmin .. vmax */
-                volume[n8][vi] = getNormalizedValue(opampModel.solve(n, vin));
+                const double vin = vmin + vi * r_N16; /* vmin .. vmax */
+                volume[idx++] = getNormalizedValue(opampModel.solve(n, vin));
             }
         }
     }
@@ -196,58 +263,72 @@ protected:
      */
     inline void buildResonanceTable(const OpAmp& opampModel, const double resonance_n[16])
     {
+        const double r_N16 = 1. / N16;
+
+        int idx = 0;
         for (int n8 = 0; n8 < 16; n8++)
         {
-            const int size = 1 << 16;
+            constexpr int size = 1 << 16;
             opampModel.reset();
-            resonance[n8] = new unsigned short[size];
 
             for (int vi = 0; vi < size; vi++)
             {
-                const double vin = vmin + vi / N16; /* vmin .. vmax */
-                resonance[n8][vi] = getNormalizedValue(opampModel.solve(resonance_n[n8], vin));
+                const double vin = vmin + vi * r_N16; /* vmin .. vmax */
+                resonance[idx++] = getNormalizedValue(opampModel.solve(resonance_n[n8], vin));
             }
         }
     }
 
 public:
-    unsigned short** getVolume() { return volume; }
-    unsigned short** getResonance() { return resonance; }
-    unsigned short** getSummer() { return summer; }
-    unsigned short** getMixer() { return mixer; }
-
-    virtual Integrator* buildIntegrator() = 0;
+    unsigned short* getVolume() { return volume; }
+    unsigned short* getResonance() { return resonance; }
+    unsigned short* getSummer() { return summer; }
+    unsigned short* getMixer() { return mixer; }
 
     inline unsigned short getOpampRev(int i) const { return opamp_rev[i]; }
     inline double getVddt() const { return Vddt; }
     inline double getVth() const { return Vth; }
 
     // helper functions
+
     inline unsigned short getNormalizedValue(double value) const
     {
-        const double tmp = N16 * (value - vmin);
-        assert(tmp > -0.5 && tmp < 65535.5);
-        return static_cast<unsigned short>(tmp + 0.5);
+        return to_ushort_dither(N16 * (value - vmin), rnd.getNoise());
     }
 
+    template<int N>
     inline unsigned short getNormalizedCurrentFactor(double wl) const
     {
-        const double tmp = (1 << 13) * currFactorCoeff * wl;
-        assert(tmp > -0.5 && tmp < 65535.5);
-        return static_cast<unsigned short>(tmp + 0.5);
+        return to_ushort((1 << N) * currFactorCoeff * wl);
     }
 
     inline unsigned short getNVmin() const
     {
-        const double tmp = N16 * vmin;
-        assert(tmp > -0.5 && tmp < 65535.5);
-        return static_cast<unsigned short>(tmp + 0.5);
+        return to_ushort(N16 * vmin);
     }
 
-    inline int getNormalizedVoice(float value) const
+    inline int getNormalizedVoice(float value, unsigned int env) const
     {
-        return static_cast<int>(getNormalizedValue(getVoiceVoltage(value)));
+        return static_cast<int>(getNormalizedValue(getVoiceVoltage(value, env)));
     }
+};
+
+template<>
+struct FilterModelConfig::summer_offset<0>
+{
+    static constexpr int value = 0;
+};
+
+template<>
+struct FilterModelConfig::mixer_offset<1>
+{
+    static constexpr int value = 1;
+};
+
+template<>
+struct FilterModelConfig::mixer_offset<0>
+{
+    static constexpr int value = 0;
 };
 
 } // namespace reSIDfp

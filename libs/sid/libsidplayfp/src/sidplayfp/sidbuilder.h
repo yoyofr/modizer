@@ -1,7 +1,7 @@
 /*
  * This file is part of libsidplayfp, a SID player engine.
  *
- * Copyright 2011-2019 Leandro Nini <drfiemost@users.sourceforge.net>
+ * Copyright 2011-2024 Leandro Nini <drfiemost@users.sourceforge.net>
  * Copyright 2007-2010 Antti Lankila
  * Copyright 2000-2001 Simon White
  *
@@ -51,24 +51,6 @@ protected:
     emuset_t sidobjs;
 
     bool m_status;
-
-protected:
-    /**
-     * Utility class for setting emu parameters in builders.
-     */
-    template<class Temu, typename Tparam>
-    class applyParameter
-    {
-    protected:
-        Tparam m_param;
-        void (Temu::*m_method)(Tparam);
-
-    public:
-        applyParameter(void (Temu::*method)(Tparam), Tparam param) :
-            m_param(param),
-            m_method(method) {}
-        void operator() (libsidplayfp::sidemu *e) { (static_cast<Temu*>(e)->*m_method)(m_param); }
-    };
 
 public:
     sidbuilder(const char * const name) :
@@ -153,7 +135,9 @@ public:
      * Toggle sid filter emulation.
      *
      * @param enable true = enable, false = disable
+     * @deprecated use #sidplayfp.filter
      */
+    SID_DEPRECATED
     virtual void filter(bool enable) = 0;
 };
 

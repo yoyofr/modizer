@@ -58,10 +58,10 @@ private:
     unsigned short nVgt;
     unsigned short n_dac;
 
-    const FilterModelConfig8580* fmc;
+    FilterModelConfig8580& fmc;
 
 public:
-    Integrator8580(const FilterModelConfig8580* fmc) :
+    Integrator8580(FilterModelConfig8580& fmc) :
         fmc(fmc)
     {
         setV(1.5);
@@ -73,8 +73,7 @@ public:
     void setFc(double wl)
     {
         // Normalized current factor, 1 cycle at 1MHz.
-        // Fit in 5 bits.
-        n_dac = fmc->getNormalizedCurrentFactor(wl);
+        n_dac = fmc.getNormalizedCurrentFactor<17>(wl);
     }
 
     /**
@@ -83,14 +82,14 @@ public:
     void setV(double v)
     {
         // Gate voltage is controlled by the switched capacitor voltage divider
-        // Ua = Ue * v = 4.76v  1<v<2
+        // Ua = Ue * v = 4.75v  1<v<2
         assert(v > 1.0 && v < 2.0);
-        const double Vg = 4.76 * v;
-        const double Vgt = Vg - fmc->getVth();
+        const double Vg = fmc.getVref() * v;
+        const double Vgt = Vg - fmc.getVth();
 
         // Vg - Vth, normalized so that translated values can be subtracted:
         // Vgt - x = (Vgt - t) - (x - t)
-        nVgt = fmc->getNormalizedValue(Vgt);
+        nVgt = fmc.getNormalizedValue(Vgt);
     }
 
     int solve(int vi) const override;

@@ -36,7 +36,7 @@ class NullSid final : public c64sid
 {
 private:
     NullSid() {}
-    virtual ~NullSid() {}
+    ~NullSid() override = default;
 
 public:
     /**
@@ -50,7 +50,7 @@ public:
 
     void reset(uint8_t) override {}
 
-    void write(uint_least8_t, uint8_t) override {}
+    void writeReg(uint_least8_t, uint8_t) override {}
     uint8_t read(uint_least8_t) override { return 0xff; }
 };
 

@@ -100,15 +100,17 @@ host_triplet = @host@
 @TESTSUITE_TRUE@	src/builders/residfp-builder/residfp/resample/test$(EXEEXT)
 subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
-am__aclocal_m4_deps = $(top_srcdir)/src/builders/exsid-builder/driver/m4/ax_pthread.m4 \
+am__aclocal_m4_deps = $(top_srcdir)/m4/ax_append_compile_flags.m4 \
+	$(top_srcdir)/m4/ax_append_flag.m4 \
 	$(top_srcdir)/m4/ax_check_compile_flag.m4 \
 	$(top_srcdir)/m4/ax_cxx_compile_stdcxx.m4 \
-	$(top_srcdir)/m4/ax_cxx_compile_stdcxx_11.m4 \
-	$(top_srcdir)/m4/ax_cxx_compile_stdcxx_14.m4 \
-	$(top_srcdir)/m4/ax_cxx_compile_stdcxx_17.m4 \
+	$(top_srcdir)/m4/ax_pthread.m4 \
+	$(top_srcdir)/m4/ax_require_defined.m4 \
 	$(top_srcdir)/m4/libtool.m4 $(top_srcdir)/m4/ltoptions.m4 \
 	$(top_srcdir)/m4/ltsugar.m4 $(top_srcdir)/m4/ltversion.m4 \
-	$(top_srcdir)/m4/lt~obsolete.m4 $(top_srcdir)/configure.ac
+	$(top_srcdir)/m4/lt~obsolete.m4 \
+	$(top_srcdir)/m4/sid_x86_simd_supports.m4 \
+	$(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 DIST_COMMON = $(srcdir)/Makefile.am $(top_srcdir)/configure \
@@ -127,7 +129,7 @@ CONFIG_CLEAN_FILES = Doxyfile libsidplayfp.pc libstilview.pc \
 	src/sidplayfp/sidversion.h \
 	src/builders/residfp-builder/residfp/siddefs-fp.h \
 	src/builders/resid-builder/resid/siddefs.h
-CONFIG_CLEAN_VPATH_FILES =
+CONFIG_CLEAN_VPATH_FILES = test/testsuite.sh test/testlist
 @MINGW32_FALSE@@TESTSUITE_TRUE@am__EXEEXT_1 = test/demo$(EXEEXT)
 PROGRAMS = $(noinst_PROGRAMS)
 am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
@@ -264,39 +266,46 @@ am_src_builders_residfp_builder_libsidplayfp_residfp_la_OBJECTS =  \
 src_builders_residfp_builder_libsidplayfp_residfp_la_OBJECTS = $(am_src_builders_residfp_builder_libsidplayfp_residfp_la_OBJECTS)
 src_builders_residfp_builder_residfp_libresidfp_la_LIBADD =
 am_src_builders_residfp_builder_residfp_libresidfp_la_OBJECTS =  \
-	src/builders/residfp-builder/residfp/Dac.lo \
-	src/builders/residfp-builder/residfp/EnvelopeGenerator.lo \
-	src/builders/residfp-builder/residfp/ExternalFilter.lo \
-	src/builders/residfp-builder/residfp/Filter.lo \
-	src/builders/residfp-builder/residfp/Filter6581.lo \
-	src/builders/residfp-builder/residfp/Filter8580.lo \
-	src/builders/residfp-builder/residfp/FilterModelConfig.lo \
-	src/builders/residfp-builder/residfp/FilterModelConfig6581.lo \
-	src/builders/residfp-builder/residfp/FilterModelConfig8580.lo \
-	src/builders/residfp-builder/residfp/Integrator6581.lo \
-	src/builders/residfp-builder/residfp/Integrator8580.lo \
-	src/builders/residfp-builder/residfp/OpAmp.lo \
-	src/builders/residfp-builder/residfp/SID.lo \
-	src/builders/residfp-builder/residfp/Spline.lo \
-	src/builders/residfp-builder/residfp/WaveformCalculator.lo \
-	src/builders/residfp-builder/residfp/WaveformGenerator.lo \
-	src/builders/residfp-builder/residfp/resample/SincResampler.lo \
-	src/builders/residfp-builder/residfp/version.lo
+	src/builders/residfp-builder/residfp/libresidfp_la-Dac.lo \
+	src/builders/residfp-builder/residfp/libresidfp_la-EnvelopeGenerator.lo \
+	src/builders/residfp-builder/residfp/libresidfp_la-ExternalFilter.lo \
+	src/builders/residfp-builder/residfp/libresidfp_la-Filter.lo \
+	src/builders/residfp-builder/residfp/libresidfp_la-Filter6581.lo \
+	src/builders/residfp-builder/residfp/libresidfp_la-Filter8580.lo \
+	src/builders/residfp-builder/residfp/libresidfp_la-FilterModelConfig.lo \
+	src/builders/residfp-builder/residfp/libresidfp_la-FilterModelConfig6581.lo \
+	src/builders/residfp-builder/residfp/libresidfp_la-FilterModelConfig8580.lo \
+	src/builders/residfp-builder/residfp/libresidfp_la-Integrator6581.lo \
+	src/builders/residfp-builder/residfp/libresidfp_la-Integrator8580.lo \
+	src/builders/residfp-builder/residfp/libresidfp_la-OpAmp.lo \
+	src/builders/residfp-builder/residfp/libresidfp_la-SID.lo \
+	src/builders/residfp-builder/residfp/libresidfp_la-Spline.lo \
+	src/builders/residfp-builder/residfp/libresidfp_la-WaveformCalculator.lo \
+	src/builders/residfp-builder/residfp/libresidfp_la-WaveformGenerator.lo \
+	src/builders/residfp-builder/residfp/resample/libresidfp_la-SincResampler.lo \
+	src/builders/residfp-builder/residfp/libresidfp_la-version.lo
 src_builders_residfp_builder_residfp_libresidfp_la_OBJECTS = $(am_src_builders_residfp_builder_residfp_libresidfp_la_OBJECTS)
+src_builders_residfp_builder_residfp_libresidfp_la_LINK = $(LIBTOOL) \
+	$(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
+	--mode=link $(CXXLD) \
+	$(src_builders_residfp_builder_residfp_libresidfp_la_CXXFLAGS) \
+	$(CXXFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
 src_libsidplayfp_la_DEPENDENCIES =  \
 	src/builders/residfp-builder/libsidplayfp-residfp.la \
 	src/builders/resid-builder/libsidplayfp-resid.la \
-	$(am__DEPENDENCIES_1) $(am__append_3) $(am__append_4)
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) $(am__append_3) \
+	$(am__append_4)
 am__src_libsidplayfp_la_SOURCES_DIST = src/Event.h src/EventCallback.h \
 	src/EventScheduler.cpp src/EventScheduler.h src/player.cpp \
 	src/player.h src/psiddrv.cpp src/psiddrv.h src/psiddrv.bin \
 	src/mixer.cpp src/mixer.h src/poweron.bin src/reloc65.cpp \
 	src/reloc65.h src/sidcxx11.h src/sidmd5.h src/sidmemory.h \
-	src/SidInfoImpl.h src/romCheck.h src/sidemu.cpp src/sidemu.h \
-	src/sidendian.h src/sidrandom.h src/stringutils.h \
-	src/c64/Banks/Bank.h src/c64/c64cpu.h src/c64/c64cia.h \
-	src/c64/c64env.h src/c64/c64sid.h src/c64/c64vic.h \
-	src/c64/c64.cpp src/c64/c64.h src/c64/mmu.cpp src/c64/mmu.h \
+	src/SidInfoImpl.h src/simpleMixer.cpp src/simpleMixer.h \
+	src/romCheck.h src/sidemu.cpp src/sidemu.h src/sidendian.h \
+	src/sidrandom.h src/stringutils.h src/c64/Banks/Bank.h \
+	src/c64/c64cpu.h src/c64/c64cia.h src/c64/c64env.h \
+	src/c64/c64sid.h src/c64/c64vic.h src/c64/c64.cpp \
+	src/c64/c64.h src/c64/mmu.cpp src/c64/mmu.h \
 	src/c64/Banks/ColorRAMBank.h \
 	src/c64/Banks/DisconnectedBusBank.h \
 	src/c64/Banks/ExtraSidBank.h src/c64/Banks/IOBank.h \
@@ -333,6 +342,7 @@ am_src_libsidplayfp_la_OBJECTS =  \
 	src/libsidplayfp_la-EventScheduler.lo \
 	src/libsidplayfp_la-player.lo src/libsidplayfp_la-psiddrv.lo \
 	src/libsidplayfp_la-mixer.lo src/libsidplayfp_la-reloc65.lo \
+	src/libsidplayfp_la-simpleMixer.lo \
 	src/libsidplayfp_la-sidemu.lo src/c64/libsidplayfp_la-c64.lo \
 	src/c64/libsidplayfp_la-mmu.lo \
 	src/c64/VIC_II/libsidplayfp_la-mos656x.lo \
@@ -406,6 +416,7 @@ am__depfiles_remade =  \
 	src/$(DEPDIR)/libsidplayfp_la-psiddrv.Plo \
 	src/$(DEPDIR)/libsidplayfp_la-reloc65.Plo \
 	src/$(DEPDIR)/libsidplayfp_la-sidemu.Plo \
+	src/$(DEPDIR)/libsidplayfp_la-simpleMixer.Plo \
 	src/builders/exsid-builder/$(DEPDIR)/exsid-builder.Plo \
 	src/builders/exsid-builder/$(DEPDIR)/exsid-emu.Plo \
 	src/builders/exsid-builder/driver/$(DEPDIR)/exSID.Plo \
@@ -427,24 +438,24 @@ am__depfiles_remade =  \
 	src/builders/resid-builder/resid/$(DEPDIR)/libresid_la-wave.Plo \
 	src/builders/residfp-builder/$(DEPDIR)/residfp-builder.Plo \
 	src/builders/residfp-builder/$(DEPDIR)/residfp-emu.Plo \
-	src/builders/residfp-builder/residfp/$(DEPDIR)/Dac.Plo \
-	src/builders/residfp-builder/residfp/$(DEPDIR)/EnvelopeGenerator.Plo \
-	src/builders/residfp-builder/residfp/$(DEPDIR)/ExternalFilter.Plo \
-	src/builders/residfp-builder/residfp/$(DEPDIR)/Filter.Plo \
-	src/builders/residfp-builder/residfp/$(DEPDIR)/Filter6581.Plo \
-	src/builders/residfp-builder/residfp/$(DEPDIR)/Filter8580.Plo \
-	src/builders/residfp-builder/residfp/$(DEPDIR)/FilterModelConfig.Plo \
-	src/builders/residfp-builder/residfp/$(DEPDIR)/FilterModelConfig6581.Plo \
-	src/builders/residfp-builder/residfp/$(DEPDIR)/FilterModelConfig8580.Plo \
-	src/builders/residfp-builder/residfp/$(DEPDIR)/Integrator6581.Plo \
-	src/builders/residfp-builder/residfp/$(DEPDIR)/Integrator8580.Plo \
-	src/builders/residfp-builder/residfp/$(DEPDIR)/OpAmp.Plo \
-	src/builders/residfp-builder/residfp/$(DEPDIR)/SID.Plo \
-	src/builders/residfp-builder/residfp/$(DEPDIR)/Spline.Plo \
-	src/builders/residfp-builder/residfp/$(DEPDIR)/WaveformCalculator.Plo \
-	src/builders/residfp-builder/residfp/$(DEPDIR)/WaveformGenerator.Plo \
-	src/builders/residfp-builder/residfp/$(DEPDIR)/version.Plo \
-	src/builders/residfp-builder/residfp/resample/$(DEPDIR)/SincResampler.Plo \
+	src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-Dac.Plo \
+	src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-EnvelopeGenerator.Plo \
+	src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-ExternalFilter.Plo \
+	src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-Filter.Plo \
+	src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-Filter6581.Plo \
+	src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-Filter8580.Plo \
+	src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-FilterModelConfig.Plo \
+	src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-FilterModelConfig6581.Plo \
+	src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-FilterModelConfig8580.Plo \
+	src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-Integrator6581.Plo \
+	src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-Integrator8580.Plo \
+	src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-OpAmp.Plo \
+	src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-SID.Plo \
+	src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-Spline.Plo \
+	src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-WaveformCalculator.Plo \
+	src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-WaveformGenerator.Plo \
+	src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-version.Plo \
+	src/builders/residfp-builder/residfp/resample/$(DEPDIR)/libresidfp_la-SincResampler.Plo \
 	src/builders/residfp-builder/residfp/resample/$(DEPDIR)/test.Po \
 	src/c64/$(DEPDIR)/libsidplayfp_la-c64.Plo \
 	src/c64/$(DEPDIR)/libsidplayfp_la-mmu.Plo \
@@ -592,10 +603,11 @@ am__DIST_COMMON = $(srcdir)/Doxyfile.in $(srcdir)/Makefile.in \
 	$(top_srcdir)/src/builders/resid-builder/resid/siddefs.h.in \
 	$(top_srcdir)/src/builders/residfp-builder/residfp/siddefs-fp.h.in \
 	$(top_srcdir)/src/config.h.in \
-	$(top_srcdir)/src/sidplayfp/sidversion.h.in AUTHORS COPYING \
-	NEWS README TODO build-aux/compile build-aux/config.guess \
-	build-aux/config.sub build-aux/depcomp build-aux/install-sh \
-	build-aux/ltmain.sh build-aux/missing
+	$(top_srcdir)/src/sidplayfp/sidversion.h.in \
+	$(top_srcdir)/test/testlist $(top_srcdir)/test/testsuite.sh \
+	AUTHORS COPYING NEWS README TODO build-aux/compile \
+	build-aux/config.guess build-aux/config.sub build-aux/depcomp \
+	build-aux/install-sh build-aux/ltmain.sh build-aux/missing
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 distdir = $(PACKAGE)-$(VERSION)
 top_distdir = $(distdir)
@@ -677,6 +689,7 @@ EXEEXT = @EXEEXT@
 EXSID_CFLAGS = @EXSID_CFLAGS@
 EXSID_LIBS = @EXSID_LIBS@
 FGREP = @FGREP@
+FILECMD = @FILECMD@
 FTDI_CFLAGS = @FTDI_CFLAGS@
 GREP = @GREP@
 HAVE_BOOL = @HAVE_BOOL@
@@ -684,6 +697,8 @@ HAVE_BUILTIN_EXPECT = @HAVE_BUILTIN_EXPECT@
 HAVE_CXX11 = @HAVE_CXX11@
 HAVE_CXX14 = @HAVE_CXX14@
 HAVE_CXX17 = @HAVE_CXX17@
+HAVE_CXX20 = @HAVE_CXX20@
+HAVE_CXX23 = @HAVE_CXX23@
 HAVE_LOG1P = @HAVE_LOG1P@
 INSTALL = @INSTALL@
 INSTALL_DATA = @INSTALL_DATA@
@@ -715,7 +730,6 @@ NMEDIT = @NMEDIT@
 OBJDUMP = @OBJDUMP@
 OBJEXT = @OBJEXT@
 OD = @OD@
-OPENMP_CXXFLAGS = @OPENMP_CXXFLAGS@
 OTOOL = @OTOOL@
 OTOOL64 = @OTOOL64@
 PACKAGE = @PACKAGE@
@@ -731,8 +745,10 @@ PKG_CONFIG_LIBDIR = @PKG_CONFIG_LIBDIR@
 PKG_CONFIG_PATH = @PKG_CONFIG_PATH@
 PTHREAD_CC = @PTHREAD_CC@
 PTHREAD_CFLAGS = @PTHREAD_CFLAGS@
+PTHREAD_CXX = @PTHREAD_CXX@
 PTHREAD_LIBS = @PTHREAD_LIBS@
 RANLIB = @RANLIB@
+RESIDFP_CXXFLAGS = @RESIDFP_CXXFLAGS@
 RESID_BRANCH_HINTS = @RESID_BRANCH_HINTS@
 RESID_INLINE = @RESID_INLINE@
 RESID_INLINING = @RESID_INLINING@
@@ -740,8 +756,6 @@ SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 STRIP = @STRIP@
-UNITTEST_CFLAGS = @UNITTEST_CFLAGS@
-UNITTEST_LIBS = @UNITTEST_LIBS@
 VERSION = @VERSION@
 XA = @XA@
 abs_builddir = @abs_builddir@
@@ -803,10 +817,9 @@ top_srcdir = @top_srcdir@
 ACLOCAL_AMFLAGS = -I m4
 AUTOMAKE_OPTIONS = foreign subdir-objects
 SUBDIRS = tests
-DISTCHECK_CONFIGURE_FLAGS = --enable-tests
+AM_DISTCHECK_CONFIGURE_FLAGS = --enable-tests
 @MINGW32_TRUE@W32_CPPFLAGS = -DWIN32_LEAN_AND_MEAN
 @MINGW32_TRUE@W32_LDFLAGS = -no-undefined
-@HAVE_VISIBILITY_TRUE@VISIBILITY_CXXFLAGS = -fvisibility=hidden -fvisibility-inlines-hidden
 AM_CPPFLAGS = -I $(top_builddir)/src/builders/residfp-builder \
 -I $(top_builddir)/src/builders/residfp-builder/residfp \
 -I $(top_builddir)/src/builders/resid-builder \
@@ -820,7 +833,6 @@ $(PTHREAD_CFLAGS) \
 $(FTDI_CFLAGS) \
 @debug_flags@
 
-AM_CXXFLAGS = $(VISIBILITY_CXXFLAGS) $(OPENMP_CXXFLAGS)
 
 #=========================================================
 EXTRA_DIST = \
@@ -842,6 +854,8 @@ src/builders/resid-builder/resid/THANKS \
 src/builders/resid-builder/resid/TODO \
 src/builders/resid-builder/resid/filter8580new.cc \
 src/builders/resid-builder/resid/filter8580new.h \
+src/builders/exsid-builder/driver/docs \
+src/builders/exsid-builder/driver/m4 \
 $(noinst_DATA) \
 $(noinst_SCRIPTS) \
 test/testsuite.sh \
@@ -891,6 +905,8 @@ src/sidcxx11.h \
 src/sidmd5.h \
 src/sidmemory.h \
 src/SidInfoImpl.h \
+src/simpleMixer.cpp \
+src/simpleMixer.h \
 src/romCheck.h \
 src/sidemu.cpp \
 src/sidemu.h \
@@ -986,7 +1002,8 @@ src/sidplayfp/sidversion.h
 src_libsidplayfp_la_LIBADD =  \
 	src/builders/residfp-builder/libsidplayfp-residfp.la \
 	src/builders/resid-builder/libsidplayfp-resid.la \
-	$(LIBGCRYPT_LIBS) $(am__append_3) $(am__append_4)
+	$(LIBGCRYPT_LIBS) $(PTHREAD_LIBS) $(am__append_3) \
+	$(am__append_4)
 src_libsidplayfp_la_CPPFLAGS = $(LIBGCRYPT_CFLAGS) $(AM_CPPFLAGS)
 
 #=========================================================
@@ -1035,6 +1052,9 @@ src/builders/residfp-builder/residfp/resample/SincResampler.h \
 src/builders/residfp-builder/residfp/resample/TwoPassSincResampler.h \
 src/builders/residfp-builder/residfp/version.cc
 
+src_builders_residfp_builder_residfp_libresidfp_la_CXXFLAGS = \
+@RESIDFP_CXXFLAGS@
+
 
 #=========================================================
 # resid
@@ -1082,6 +1102,9 @@ src/builders/resid-builder/resid/wave8580_P_T.dat \
 src/builders/resid-builder/resid/wave8580__ST.dat
 
 noinst_SCRIPTS = src/builders/resid-builder/resid/samp2src.pl
+src_builders_residfpII_builder_residfpII_libresidfpII_la_CXXFLAGS = \
+@RESIDFP_CXXFLAGS@
+
 
 #=========================================================
 # builders
@@ -1420,52 +1443,52 @@ src/builders/residfp-builder/residfp/$(am__dirstamp):
 src/builders/residfp-builder/residfp/$(DEPDIR)/$(am__dirstamp):
 	@$(MKDIR_P) src/builders/residfp-builder/residfp/$(DEPDIR)
 	@: > src/builders/residfp-builder/residfp/$(DEPDIR)/$(am__dirstamp)
-src/builders/residfp-builder/residfp/Dac.lo:  \
+src/builders/residfp-builder/residfp/libresidfp_la-Dac.lo:  \
 	src/builders/residfp-builder/residfp/$(am__dirstamp) \
 	src/builders/residfp-builder/residfp/$(DEPDIR)/$(am__dirstamp)
-src/builders/residfp-builder/residfp/EnvelopeGenerator.lo:  \
+src/builders/residfp-builder/residfp/libresidfp_la-EnvelopeGenerator.lo:  \
 	src/builders/residfp-builder/residfp/$(am__dirstamp) \
 	src/builders/residfp-builder/residfp/$(DEPDIR)/$(am__dirstamp)
-src/builders/residfp-builder/residfp/ExternalFilter.lo:  \
+src/builders/residfp-builder/residfp/libresidfp_la-ExternalFilter.lo:  \
 	src/builders/residfp-builder/residfp/$(am__dirstamp) \
 	src/builders/residfp-builder/residfp/$(DEPDIR)/$(am__dirstamp)
-src/builders/residfp-builder/residfp/Filter.lo:  \
+src/builders/residfp-builder/residfp/libresidfp_la-Filter.lo:  \
 	src/builders/residfp-builder/residfp/$(am__dirstamp) \
 	src/builders/residfp-builder/residfp/$(DEPDIR)/$(am__dirstamp)
-src/builders/residfp-builder/residfp/Filter6581.lo:  \
+src/builders/residfp-builder/residfp/libresidfp_la-Filter6581.lo:  \
 	src/builders/residfp-builder/residfp/$(am__dirstamp) \
 	src/builders/residfp-builder/residfp/$(DEPDIR)/$(am__dirstamp)
-src/builders/residfp-builder/residfp/Filter8580.lo:  \
+src/builders/residfp-builder/residfp/libresidfp_la-Filter8580.lo:  \
 	src/builders/residfp-builder/residfp/$(am__dirstamp) \
 	src/builders/residfp-builder/residfp/$(DEPDIR)/$(am__dirstamp)
-src/builders/residfp-builder/residfp/FilterModelConfig.lo:  \
+src/builders/residfp-builder/residfp/libresidfp_la-FilterModelConfig.lo:  \
 	src/builders/residfp-builder/residfp/$(am__dirstamp) \
 	src/builders/residfp-builder/residfp/$(DEPDIR)/$(am__dirstamp)
-src/builders/residfp-builder/residfp/FilterModelConfig6581.lo:  \
+src/builders/residfp-builder/residfp/libresidfp_la-FilterModelConfig6581.lo:  \
 	src/builders/residfp-builder/residfp/$(am__dirstamp) \
 	src/builders/residfp-builder/residfp/$(DEPDIR)/$(am__dirstamp)
-src/builders/residfp-builder/residfp/FilterModelConfig8580.lo:  \
+src/builders/residfp-builder/residfp/libresidfp_la-FilterModelConfig8580.lo:  \
 	src/builders/residfp-builder/residfp/$(am__dirstamp) \
 	src/builders/residfp-builder/residfp/$(DEPDIR)/$(am__dirstamp)
-src/builders/residfp-builder/residfp/Integrator6581.lo:  \
+src/builders/residfp-builder/residfp/libresidfp_la-Integrator6581.lo:  \
 	src/builders/residfp-builder/residfp/$(am__dirstamp) \
 	src/builders/residfp-builder/residfp/$(DEPDIR)/$(am__dirstamp)
-src/builders/residfp-builder/residfp/Integrator8580.lo:  \
+src/builders/residfp-builder/residfp/libresidfp_la-Integrator8580.lo:  \
 	src/builders/residfp-builder/residfp/$(am__dirstamp) \
 	src/builders/residfp-builder/residfp/$(DEPDIR)/$(am__dirstamp)
-src/builders/residfp-builder/residfp/OpAmp.lo:  \
+src/builders/residfp-builder/residfp/libresidfp_la-OpAmp.lo:  \
 	src/builders/residfp-builder/residfp/$(am__dirstamp) \
 	src/builders/residfp-builder/residfp/$(DEPDIR)/$(am__dirstamp)
-src/builders/residfp-builder/residfp/SID.lo:  \
+src/builders/residfp-builder/residfp/libresidfp_la-SID.lo:  \
 	src/builders/residfp-builder/residfp/$(am__dirstamp) \
 	src/builders/residfp-builder/residfp/$(DEPDIR)/$(am__dirstamp)
-src/builders/residfp-builder/residfp/Spline.lo:  \
+src/builders/residfp-builder/residfp/libresidfp_la-Spline.lo:  \
 	src/builders/residfp-builder/residfp/$(am__dirstamp) \
 	src/builders/residfp-builder/residfp/$(DEPDIR)/$(am__dirstamp)
-src/builders/residfp-builder/residfp/WaveformCalculator.lo:  \
+src/builders/residfp-builder/residfp/libresidfp_la-WaveformCalculator.lo:  \
 	src/builders/residfp-builder/residfp/$(am__dirstamp) \
 	src/builders/residfp-builder/residfp/$(DEPDIR)/$(am__dirstamp)
-src/builders/residfp-builder/residfp/WaveformGenerator.lo:  \
+src/builders/residfp-builder/residfp/libresidfp_la-WaveformGenerator.lo:  \
 	src/builders/residfp-builder/residfp/$(am__dirstamp) \
 	src/builders/residfp-builder/residfp/$(DEPDIR)/$(am__dirstamp)
 src/builders/residfp-builder/residfp/resample/$(am__dirstamp):
@@ -1474,15 +1497,15 @@ src/builders/residfp-builder/residfp/resample/$(am__dirstamp):
 src/builders/residfp-builder/residfp/resample/$(DEPDIR)/$(am__dirstamp):
 	@$(MKDIR_P) src/builders/residfp-builder/residfp/resample/$(DEPDIR)
 	@: > src/builders/residfp-builder/residfp/resample/$(DEPDIR)/$(am__dirstamp)
-src/builders/residfp-builder/residfp/resample/SincResampler.lo:  \
+src/builders/residfp-builder/residfp/resample/libresidfp_la-SincResampler.lo:  \
 	src/builders/residfp-builder/residfp/resample/$(am__dirstamp) \
 	src/builders/residfp-builder/residfp/resample/$(DEPDIR)/$(am__dirstamp)
-src/builders/residfp-builder/residfp/version.lo:  \
+src/builders/residfp-builder/residfp/libresidfp_la-version.lo:  \
 	src/builders/residfp-builder/residfp/$(am__dirstamp) \
 	src/builders/residfp-builder/residfp/$(DEPDIR)/$(am__dirstamp)
 
 src/builders/residfp-builder/residfp/libresidfp.la: $(src_builders_residfp_builder_residfp_libresidfp_la_OBJECTS) $(src_builders_residfp_builder_residfp_libresidfp_la_DEPENDENCIES) $(EXTRA_src_builders_residfp_builder_residfp_libresidfp_la_DEPENDENCIES) src/builders/residfp-builder/residfp/$(am__dirstamp)
-	$(AM_V_CXXLD)$(CXXLINK)  $(src_builders_residfp_builder_residfp_libresidfp_la_OBJECTS) $(src_builders_residfp_builder_residfp_libresidfp_la_LIBADD) $(LIBS)
+	$(AM_V_CXXLD)$(src_builders_residfp_builder_residfp_libresidfp_la_LINK)  $(src_builders_residfp_builder_residfp_libresidfp_la_OBJECTS) $(src_builders_residfp_builder_residfp_libresidfp_la_LIBADD) $(LIBS)
 src/$(am__dirstamp):
 	@$(MKDIR_P) src
 	@: > src/$(am__dirstamp)
@@ -1498,6 +1521,8 @@ src/libsidplayfp_la-psiddrv.lo: src/$(am__dirstamp) \
 src/libsidplayfp_la-mixer.lo: src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 src/libsidplayfp_la-reloc65.lo: src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
+src/libsidplayfp_la-simpleMixer.lo: src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 src/libsidplayfp_la-sidemu.lo: src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
@@ -1701,6 +1726,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libsidplayfp_la-psiddrv.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libsidplayfp_la-reloc65.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libsidplayfp_la-sidemu.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libsidplayfp_la-simpleMixer.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/builders/exsid-builder/$(DEPDIR)/exsid-builder.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/builders/exsid-builder/$(DEPDIR)/exsid-emu.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/builders/exsid-builder/driver/$(DEPDIR)/exSID.Plo@am__quote@ # am--include-marker
@@ -1722,24 +1748,24 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/builders/resid-builder/resid/$(DEPDIR)/libresid_la-wave.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/builders/residfp-builder/$(DEPDIR)/residfp-builder.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/builders/residfp-builder/$(DEPDIR)/residfp-emu.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@src/builders/residfp-builder/residfp/$(DEPDIR)/Dac.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@src/builders/residfp-builder/residfp/$(DEPDIR)/EnvelopeGenerator.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@src/builders/residfp-builder/residfp/$(DEPDIR)/ExternalFilter.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@src/builders/residfp-builder/residfp/$(DEPDIR)/Filter.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@src/builders/residfp-builder/residfp/$(DEPDIR)/Filter6581.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@src/builders/residfp-builder/residfp/$(DEPDIR)/Filter8580.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@src/builders/residfp-builder/residfp/$(DEPDIR)/FilterModelConfig.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@src/builders/residfp-builder/residfp/$(DEPDIR)/FilterModelConfig6581.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@src/builders/residfp-builder/residfp/$(DEPDIR)/FilterModelConfig8580.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@src/builders/residfp-builder/residfp/$(DEPDIR)/Integrator6581.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@src/builders/residfp-builder/residfp/$(DEPDIR)/Integrator8580.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@src/builders/residfp-builder/residfp/$(DEPDIR)/OpAmp.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@src/builders/residfp-builder/residfp/$(DEPDIR)/SID.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@src/builders/residfp-builder/residfp/$(DEPDIR)/Spline.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@src/builders/residfp-builder/residfp/$(DEPDIR)/WaveformCalculator.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@src/builders/residfp-builder/residfp/$(DEPDIR)/WaveformGenerator.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@src/builders/residfp-builder/residfp/$(DEPDIR)/version.Plo@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@src/builders/residfp-builder/residfp/resample/$(DEPDIR)/SincResampler.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-Dac.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-EnvelopeGenerator.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-ExternalFilter.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-Filter.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-Filter6581.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-Filter8580.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-FilterModelConfig.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-FilterModelConfig6581.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-FilterModelConfig8580.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-Integrator6581.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-Integrator8580.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-OpAmp.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-SID.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-Spline.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-WaveformCalculator.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-WaveformGenerator.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-version.Plo@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@src/builders/residfp-builder/residfp/resample/$(DEPDIR)/libresidfp_la-SincResampler.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/builders/residfp-builder/residfp/resample/$(DEPDIR)/test.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/c64/$(DEPDIR)/libsidplayfp_la-c64.Plo@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/c64/$(DEPDIR)/libsidplayfp_la-mmu.Plo@am__quote@ # am--include-marker
@@ -1895,6 +1921,132 @@ src/builders/resid-builder/resid/libresid_la-filter8580new.lo: src/builders/resi
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(src_builders_resid_builder_resid_libresid_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/builders/resid-builder/resid/libresid_la-filter8580new.lo `test -f 'src/builders/resid-builder/resid/filter8580new.cc' || echo '$(srcdir)/'`src/builders/resid-builder/resid/filter8580new.cc
 
+src/builders/residfp-builder/residfp/libresidfp_la-Dac.lo: src/builders/residfp-builder/residfp/Dac.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(src_builders_residfp_builder_residfp_libresidfp_la_CXXFLAGS) $(CXXFLAGS) -MT src/builders/residfp-builder/residfp/libresidfp_la-Dac.lo -MD -MP -MF src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-Dac.Tpo -c -o src/builders/residfp-builder/residfp/libresidfp_la-Dac.lo `test -f 'src/builders/residfp-builder/residfp/Dac.cpp' || echo '$(srcdir)/'`src/builders/residfp-builder/residfp/Dac.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-Dac.Tpo src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-Dac.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/builders/residfp-builder/residfp/Dac.cpp' object='src/builders/residfp-builder/residfp/libresidfp_la-Dac.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(src_builders_residfp_builder_residfp_libresidfp_la_CXXFLAGS) $(CXXFLAGS) -c -o src/builders/residfp-builder/residfp/libresidfp_la-Dac.lo `test -f 'src/builders/residfp-builder/residfp/Dac.cpp' || echo '$(srcdir)/'`src/builders/residfp-builder/residfp/Dac.cpp
+
+src/builders/residfp-builder/residfp/libresidfp_la-EnvelopeGenerator.lo: src/builders/residfp-builder/residfp/EnvelopeGenerator.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(src_builders_residfp_builder_residfp_libresidfp_la_CXXFLAGS) $(CXXFLAGS) -MT src/builders/residfp-builder/residfp/libresidfp_la-EnvelopeGenerator.lo -MD -MP -MF src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-EnvelopeGenerator.Tpo -c -o src/builders/residfp-builder/residfp/libresidfp_la-EnvelopeGenerator.lo `test -f 'src/builders/residfp-builder/residfp/EnvelopeGenerator.cpp' || echo '$(srcdir)/'`src/builders/residfp-builder/residfp/EnvelopeGenerator.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-EnvelopeGenerator.Tpo src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-EnvelopeGenerator.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/builders/residfp-builder/residfp/EnvelopeGenerator.cpp' object='src/builders/residfp-builder/residfp/libresidfp_la-EnvelopeGenerator.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(src_builders_residfp_builder_residfp_libresidfp_la_CXXFLAGS) $(CXXFLAGS) -c -o src/builders/residfp-builder/residfp/libresidfp_la-EnvelopeGenerator.lo `test -f 'src/builders/residfp-builder/residfp/EnvelopeGenerator.cpp' || echo '$(srcdir)/'`src/builders/residfp-builder/residfp/EnvelopeGenerator.cpp
+
+src/builders/residfp-builder/residfp/libresidfp_la-ExternalFilter.lo: src/builders/residfp-builder/residfp/ExternalFilter.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(src_builders_residfp_builder_residfp_libresidfp_la_CXXFLAGS) $(CXXFLAGS) -MT src/builders/residfp-builder/residfp/libresidfp_la-ExternalFilter.lo -MD -MP -MF src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-ExternalFilter.Tpo -c -o src/builders/residfp-builder/residfp/libresidfp_la-ExternalFilter.lo `test -f 'src/builders/residfp-builder/residfp/ExternalFilter.cpp' || echo '$(srcdir)/'`src/builders/residfp-builder/residfp/ExternalFilter.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-ExternalFilter.Tpo src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-ExternalFilter.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/builders/residfp-builder/residfp/ExternalFilter.cpp' object='src/builders/residfp-builder/residfp/libresidfp_la-ExternalFilter.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(src_builders_residfp_builder_residfp_libresidfp_la_CXXFLAGS) $(CXXFLAGS) -c -o src/builders/residfp-builder/residfp/libresidfp_la-ExternalFilter.lo `test -f 'src/builders/residfp-builder/residfp/ExternalFilter.cpp' || echo '$(srcdir)/'`src/builders/residfp-builder/residfp/ExternalFilter.cpp
+
+src/builders/residfp-builder/residfp/libresidfp_la-Filter.lo: src/builders/residfp-builder/residfp/Filter.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(src_builders_residfp_builder_residfp_libresidfp_la_CXXFLAGS) $(CXXFLAGS) -MT src/builders/residfp-builder/residfp/libresidfp_la-Filter.lo -MD -MP -MF src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-Filter.Tpo -c -o src/builders/residfp-builder/residfp/libresidfp_la-Filter.lo `test -f 'src/builders/residfp-builder/residfp/Filter.cpp' || echo '$(srcdir)/'`src/builders/residfp-builder/residfp/Filter.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-Filter.Tpo src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-Filter.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/builders/residfp-builder/residfp/Filter.cpp' object='src/builders/residfp-builder/residfp/libresidfp_la-Filter.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(src_builders_residfp_builder_residfp_libresidfp_la_CXXFLAGS) $(CXXFLAGS) -c -o src/builders/residfp-builder/residfp/libresidfp_la-Filter.lo `test -f 'src/builders/residfp-builder/residfp/Filter.cpp' || echo '$(srcdir)/'`src/builders/residfp-builder/residfp/Filter.cpp
+
+src/builders/residfp-builder/residfp/libresidfp_la-Filter6581.lo: src/builders/residfp-builder/residfp/Filter6581.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(src_builders_residfp_builder_residfp_libresidfp_la_CXXFLAGS) $(CXXFLAGS) -MT src/builders/residfp-builder/residfp/libresidfp_la-Filter6581.lo -MD -MP -MF src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-Filter6581.Tpo -c -o src/builders/residfp-builder/residfp/libresidfp_la-Filter6581.lo `test -f 'src/builders/residfp-builder/residfp/Filter6581.cpp' || echo '$(srcdir)/'`src/builders/residfp-builder/residfp/Filter6581.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-Filter6581.Tpo src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-Filter6581.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/builders/residfp-builder/residfp/Filter6581.cpp' object='src/builders/residfp-builder/residfp/libresidfp_la-Filter6581.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(src_builders_residfp_builder_residfp_libresidfp_la_CXXFLAGS) $(CXXFLAGS) -c -o src/builders/residfp-builder/residfp/libresidfp_la-Filter6581.lo `test -f 'src/builders/residfp-builder/residfp/Filter6581.cpp' || echo '$(srcdir)/'`src/builders/residfp-builder/residfp/Filter6581.cpp
+
+src/builders/residfp-builder/residfp/libresidfp_la-Filter8580.lo: src/builders/residfp-builder/residfp/Filter8580.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(src_builders_residfp_builder_residfp_libresidfp_la_CXXFLAGS) $(CXXFLAGS) -MT src/builders/residfp-builder/residfp/libresidfp_la-Filter8580.lo -MD -MP -MF src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-Filter8580.Tpo -c -o src/builders/residfp-builder/residfp/libresidfp_la-Filter8580.lo `test -f 'src/builders/residfp-builder/residfp/Filter8580.cpp' || echo '$(srcdir)/'`src/builders/residfp-builder/residfp/Filter8580.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-Filter8580.Tpo src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-Filter8580.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/builders/residfp-builder/residfp/Filter8580.cpp' object='src/builders/residfp-builder/residfp/libresidfp_la-Filter8580.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(src_builders_residfp_builder_residfp_libresidfp_la_CXXFLAGS) $(CXXFLAGS) -c -o src/builders/residfp-builder/residfp/libresidfp_la-Filter8580.lo `test -f 'src/builders/residfp-builder/residfp/Filter8580.cpp' || echo '$(srcdir)/'`src/builders/residfp-builder/residfp/Filter8580.cpp
+
+src/builders/residfp-builder/residfp/libresidfp_la-FilterModelConfig.lo: src/builders/residfp-builder/residfp/FilterModelConfig.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(src_builders_residfp_builder_residfp_libresidfp_la_CXXFLAGS) $(CXXFLAGS) -MT src/builders/residfp-builder/residfp/libresidfp_la-FilterModelConfig.lo -MD -MP -MF src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-FilterModelConfig.Tpo -c -o src/builders/residfp-builder/residfp/libresidfp_la-FilterModelConfig.lo `test -f 'src/builders/residfp-builder/residfp/FilterModelConfig.cpp' || echo '$(srcdir)/'`src/builders/residfp-builder/residfp/FilterModelConfig.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-FilterModelConfig.Tpo src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-FilterModelConfig.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/builders/residfp-builder/residfp/FilterModelConfig.cpp' object='src/builders/residfp-builder/residfp/libresidfp_la-FilterModelConfig.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(src_builders_residfp_builder_residfp_libresidfp_la_CXXFLAGS) $(CXXFLAGS) -c -o src/builders/residfp-builder/residfp/libresidfp_la-FilterModelConfig.lo `test -f 'src/builders/residfp-builder/residfp/FilterModelConfig.cpp' || echo '$(srcdir)/'`src/builders/residfp-builder/residfp/FilterModelConfig.cpp
+
+src/builders/residfp-builder/residfp/libresidfp_la-FilterModelConfig6581.lo: src/builders/residfp-builder/residfp/FilterModelConfig6581.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(src_builders_residfp_builder_residfp_libresidfp_la_CXXFLAGS) $(CXXFLAGS) -MT src/builders/residfp-builder/residfp/libresidfp_la-FilterModelConfig6581.lo -MD -MP -MF src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-FilterModelConfig6581.Tpo -c -o src/builders/residfp-builder/residfp/libresidfp_la-FilterModelConfig6581.lo `test -f 'src/builders/residfp-builder/residfp/FilterModelConfig6581.cpp' || echo '$(srcdir)/'`src/builders/residfp-builder/residfp/FilterModelConfig6581.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-FilterModelConfig6581.Tpo src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-FilterModelConfig6581.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/builders/residfp-builder/residfp/FilterModelConfig6581.cpp' object='src/builders/residfp-builder/residfp/libresidfp_la-FilterModelConfig6581.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(src_builders_residfp_builder_residfp_libresidfp_la_CXXFLAGS) $(CXXFLAGS) -c -o src/builders/residfp-builder/residfp/libresidfp_la-FilterModelConfig6581.lo `test -f 'src/builders/residfp-builder/residfp/FilterModelConfig6581.cpp' || echo '$(srcdir)/'`src/builders/residfp-builder/residfp/FilterModelConfig6581.cpp
+
+src/builders/residfp-builder/residfp/libresidfp_la-FilterModelConfig8580.lo: src/builders/residfp-builder/residfp/FilterModelConfig8580.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(src_builders_residfp_builder_residfp_libresidfp_la_CXXFLAGS) $(CXXFLAGS) -MT src/builders/residfp-builder/residfp/libresidfp_la-FilterModelConfig8580.lo -MD -MP -MF src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-FilterModelConfig8580.Tpo -c -o src/builders/residfp-builder/residfp/libresidfp_la-FilterModelConfig8580.lo `test -f 'src/builders/residfp-builder/residfp/FilterModelConfig8580.cpp' || echo '$(srcdir)/'`src/builders/residfp-builder/residfp/FilterModelConfig8580.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-FilterModelConfig8580.Tpo src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-FilterModelConfig8580.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/builders/residfp-builder/residfp/FilterModelConfig8580.cpp' object='src/builders/residfp-builder/residfp/libresidfp_la-FilterModelConfig8580.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(src_builders_residfp_builder_residfp_libresidfp_la_CXXFLAGS) $(CXXFLAGS) -c -o src/builders/residfp-builder/residfp/libresidfp_la-FilterModelConfig8580.lo `test -f 'src/builders/residfp-builder/residfp/FilterModelConfig8580.cpp' || echo '$(srcdir)/'`src/builders/residfp-builder/residfp/FilterModelConfig8580.cpp
+
+src/builders/residfp-builder/residfp/libresidfp_la-Integrator6581.lo: src/builders/residfp-builder/residfp/Integrator6581.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(src_builders_residfp_builder_residfp_libresidfp_la_CXXFLAGS) $(CXXFLAGS) -MT src/builders/residfp-builder/residfp/libresidfp_la-Integrator6581.lo -MD -MP -MF src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-Integrator6581.Tpo -c -o src/builders/residfp-builder/residfp/libresidfp_la-Integrator6581.lo `test -f 'src/builders/residfp-builder/residfp/Integrator6581.cpp' || echo '$(srcdir)/'`src/builders/residfp-builder/residfp/Integrator6581.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-Integrator6581.Tpo src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-Integrator6581.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/builders/residfp-builder/residfp/Integrator6581.cpp' object='src/builders/residfp-builder/residfp/libresidfp_la-Integrator6581.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(src_builders_residfp_builder_residfp_libresidfp_la_CXXFLAGS) $(CXXFLAGS) -c -o src/builders/residfp-builder/residfp/libresidfp_la-Integrator6581.lo `test -f 'src/builders/residfp-builder/residfp/Integrator6581.cpp' || echo '$(srcdir)/'`src/builders/residfp-builder/residfp/Integrator6581.cpp
+
+src/builders/residfp-builder/residfp/libresidfp_la-Integrator8580.lo: src/builders/residfp-builder/residfp/Integrator8580.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(src_builders_residfp_builder_residfp_libresidfp_la_CXXFLAGS) $(CXXFLAGS) -MT src/builders/residfp-builder/residfp/libresidfp_la-Integrator8580.lo -MD -MP -MF src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-Integrator8580.Tpo -c -o src/builders/residfp-builder/residfp/libresidfp_la-Integrator8580.lo `test -f 'src/builders/residfp-builder/residfp/Integrator8580.cpp' || echo '$(srcdir)/'`src/builders/residfp-builder/residfp/Integrator8580.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-Integrator8580.Tpo src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-Integrator8580.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/builders/residfp-builder/residfp/Integrator8580.cpp' object='src/builders/residfp-builder/residfp/libresidfp_la-Integrator8580.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(src_builders_residfp_builder_residfp_libresidfp_la_CXXFLAGS) $(CXXFLAGS) -c -o src/builders/residfp-builder/residfp/libresidfp_la-Integrator8580.lo `test -f 'src/builders/residfp-builder/residfp/Integrator8580.cpp' || echo '$(srcdir)/'`src/builders/residfp-builder/residfp/Integrator8580.cpp
+
+src/builders/residfp-builder/residfp/libresidfp_la-OpAmp.lo: src/builders/residfp-builder/residfp/OpAmp.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(src_builders_residfp_builder_residfp_libresidfp_la_CXXFLAGS) $(CXXFLAGS) -MT src/builders/residfp-builder/residfp/libresidfp_la-OpAmp.lo -MD -MP -MF src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-OpAmp.Tpo -c -o src/builders/residfp-builder/residfp/libresidfp_la-OpAmp.lo `test -f 'src/builders/residfp-builder/residfp/OpAmp.cpp' || echo '$(srcdir)/'`src/builders/residfp-builder/residfp/OpAmp.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-OpAmp.Tpo src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-OpAmp.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/builders/residfp-builder/residfp/OpAmp.cpp' object='src/builders/residfp-builder/residfp/libresidfp_la-OpAmp.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(src_builders_residfp_builder_residfp_libresidfp_la_CXXFLAGS) $(CXXFLAGS) -c -o src/builders/residfp-builder/residfp/libresidfp_la-OpAmp.lo `test -f 'src/builders/residfp-builder/residfp/OpAmp.cpp' || echo '$(srcdir)/'`src/builders/residfp-builder/residfp/OpAmp.cpp
+
+src/builders/residfp-builder/residfp/libresidfp_la-SID.lo: src/builders/residfp-builder/residfp/SID.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(src_builders_residfp_builder_residfp_libresidfp_la_CXXFLAGS) $(CXXFLAGS) -MT src/builders/residfp-builder/residfp/libresidfp_la-SID.lo -MD -MP -MF src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-SID.Tpo -c -o src/builders/residfp-builder/residfp/libresidfp_la-SID.lo `test -f 'src/builders/residfp-builder/residfp/SID.cpp' || echo '$(srcdir)/'`src/builders/residfp-builder/residfp/SID.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-SID.Tpo src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-SID.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/builders/residfp-builder/residfp/SID.cpp' object='src/builders/residfp-builder/residfp/libresidfp_la-SID.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(src_builders_residfp_builder_residfp_libresidfp_la_CXXFLAGS) $(CXXFLAGS) -c -o src/builders/residfp-builder/residfp/libresidfp_la-SID.lo `test -f 'src/builders/residfp-builder/residfp/SID.cpp' || echo '$(srcdir)/'`src/builders/residfp-builder/residfp/SID.cpp
+
+src/builders/residfp-builder/residfp/libresidfp_la-Spline.lo: src/builders/residfp-builder/residfp/Spline.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(src_builders_residfp_builder_residfp_libresidfp_la_CXXFLAGS) $(CXXFLAGS) -MT src/builders/residfp-builder/residfp/libresidfp_la-Spline.lo -MD -MP -MF src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-Spline.Tpo -c -o src/builders/residfp-builder/residfp/libresidfp_la-Spline.lo `test -f 'src/builders/residfp-builder/residfp/Spline.cpp' || echo '$(srcdir)/'`src/builders/residfp-builder/residfp/Spline.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-Spline.Tpo src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-Spline.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/builders/residfp-builder/residfp/Spline.cpp' object='src/builders/residfp-builder/residfp/libresidfp_la-Spline.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(src_builders_residfp_builder_residfp_libresidfp_la_CXXFLAGS) $(CXXFLAGS) -c -o src/builders/residfp-builder/residfp/libresidfp_la-Spline.lo `test -f 'src/builders/residfp-builder/residfp/Spline.cpp' || echo '$(srcdir)/'`src/builders/residfp-builder/residfp/Spline.cpp
+
+src/builders/residfp-builder/residfp/libresidfp_la-WaveformCalculator.lo: src/builders/residfp-builder/residfp/WaveformCalculator.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(src_builders_residfp_builder_residfp_libresidfp_la_CXXFLAGS) $(CXXFLAGS) -MT src/builders/residfp-builder/residfp/libresidfp_la-WaveformCalculator.lo -MD -MP -MF src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-WaveformCalculator.Tpo -c -o src/builders/residfp-builder/residfp/libresidfp_la-WaveformCalculator.lo `test -f 'src/builders/residfp-builder/residfp/WaveformCalculator.cpp' || echo '$(srcdir)/'`src/builders/residfp-builder/residfp/WaveformCalculator.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-WaveformCalculator.Tpo src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-WaveformCalculator.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/builders/residfp-builder/residfp/WaveformCalculator.cpp' object='src/builders/residfp-builder/residfp/libresidfp_la-WaveformCalculator.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(src_builders_residfp_builder_residfp_libresidfp_la_CXXFLAGS) $(CXXFLAGS) -c -o src/builders/residfp-builder/residfp/libresidfp_la-WaveformCalculator.lo `test -f 'src/builders/residfp-builder/residfp/WaveformCalculator.cpp' || echo '$(srcdir)/'`src/builders/residfp-builder/residfp/WaveformCalculator.cpp
+
+src/builders/residfp-builder/residfp/libresidfp_la-WaveformGenerator.lo: src/builders/residfp-builder/residfp/WaveformGenerator.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(src_builders_residfp_builder_residfp_libresidfp_la_CXXFLAGS) $(CXXFLAGS) -MT src/builders/residfp-builder/residfp/libresidfp_la-WaveformGenerator.lo -MD -MP -MF src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-WaveformGenerator.Tpo -c -o src/builders/residfp-builder/residfp/libresidfp_la-WaveformGenerator.lo `test -f 'src/builders/residfp-builder/residfp/WaveformGenerator.cpp' || echo '$(srcdir)/'`src/builders/residfp-builder/residfp/WaveformGenerator.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-WaveformGenerator.Tpo src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-WaveformGenerator.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/builders/residfp-builder/residfp/WaveformGenerator.cpp' object='src/builders/residfp-builder/residfp/libresidfp_la-WaveformGenerator.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(src_builders_residfp_builder_residfp_libresidfp_la_CXXFLAGS) $(CXXFLAGS) -c -o src/builders/residfp-builder/residfp/libresidfp_la-WaveformGenerator.lo `test -f 'src/builders/residfp-builder/residfp/WaveformGenerator.cpp' || echo '$(srcdir)/'`src/builders/residfp-builder/residfp/WaveformGenerator.cpp
+
+src/builders/residfp-builder/residfp/resample/libresidfp_la-SincResampler.lo: src/builders/residfp-builder/residfp/resample/SincResampler.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(src_builders_residfp_builder_residfp_libresidfp_la_CXXFLAGS) $(CXXFLAGS) -MT src/builders/residfp-builder/residfp/resample/libresidfp_la-SincResampler.lo -MD -MP -MF src/builders/residfp-builder/residfp/resample/$(DEPDIR)/libresidfp_la-SincResampler.Tpo -c -o src/builders/residfp-builder/residfp/resample/libresidfp_la-SincResampler.lo `test -f 'src/builders/residfp-builder/residfp/resample/SincResampler.cpp' || echo '$(srcdir)/'`src/builders/residfp-builder/residfp/resample/SincResampler.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/builders/residfp-builder/residfp/resample/$(DEPDIR)/libresidfp_la-SincResampler.Tpo src/builders/residfp-builder/residfp/resample/$(DEPDIR)/libresidfp_la-SincResampler.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/builders/residfp-builder/residfp/resample/SincResampler.cpp' object='src/builders/residfp-builder/residfp/resample/libresidfp_la-SincResampler.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(src_builders_residfp_builder_residfp_libresidfp_la_CXXFLAGS) $(CXXFLAGS) -c -o src/builders/residfp-builder/residfp/resample/libresidfp_la-SincResampler.lo `test -f 'src/builders/residfp-builder/residfp/resample/SincResampler.cpp' || echo '$(srcdir)/'`src/builders/residfp-builder/residfp/resample/SincResampler.cpp
+
+src/builders/residfp-builder/residfp/libresidfp_la-version.lo: src/builders/residfp-builder/residfp/version.cc
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(src_builders_residfp_builder_residfp_libresidfp_la_CXXFLAGS) $(CXXFLAGS) -MT src/builders/residfp-builder/residfp/libresidfp_la-version.lo -MD -MP -MF src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-version.Tpo -c -o src/builders/residfp-builder/residfp/libresidfp_la-version.lo `test -f 'src/builders/residfp-builder/residfp/version.cc' || echo '$(srcdir)/'`src/builders/residfp-builder/residfp/version.cc
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-version.Tpo src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-version.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/builders/residfp-builder/residfp/version.cc' object='src/builders/residfp-builder/residfp/libresidfp_la-version.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(src_builders_residfp_builder_residfp_libresidfp_la_CXXFLAGS) $(CXXFLAGS) -c -o src/builders/residfp-builder/residfp/libresidfp_la-version.lo `test -f 'src/builders/residfp-builder/residfp/version.cc' || echo '$(srcdir)/'`src/builders/residfp-builder/residfp/version.cc
+
 src/libsidplayfp_la-EventScheduler.lo: src/EventScheduler.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(src_libsidplayfp_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/libsidplayfp_la-EventScheduler.lo -MD -MP -MF src/$(DEPDIR)/libsidplayfp_la-EventScheduler.Tpo -c -o src/libsidplayfp_la-EventScheduler.lo `test -f 'src/EventScheduler.cpp' || echo '$(srcdir)/'`src/EventScheduler.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/libsidplayfp_la-EventScheduler.Tpo src/$(DEPDIR)/libsidplayfp_la-EventScheduler.Plo
@@ -1929,6 +2081,13 @@ src/libsidplayfp_la-reloc65.lo: src/reloc65.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/reloc65.cpp' object='src/libsidplayfp_la-reloc65.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(src_libsidplayfp_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/libsidplayfp_la-reloc65.lo `test -f 'src/reloc65.cpp' || echo '$(srcdir)/'`src/reloc65.cpp
+
+src/libsidplayfp_la-simpleMixer.lo: src/simpleMixer.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(src_libsidplayfp_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/libsidplayfp_la-simpleMixer.lo -MD -MP -MF src/$(DEPDIR)/libsidplayfp_la-simpleMixer.Tpo -c -o src/libsidplayfp_la-simpleMixer.lo `test -f 'src/simpleMixer.cpp' || echo '$(srcdir)/'`src/simpleMixer.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/libsidplayfp_la-simpleMixer.Tpo src/$(DEPDIR)/libsidplayfp_la-simpleMixer.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='src/simpleMixer.cpp' object='src/libsidplayfp_la-simpleMixer.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(src_libsidplayfp_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o src/libsidplayfp_la-simpleMixer.lo `test -f 'src/simpleMixer.cpp' || echo '$(srcdir)/'`src/simpleMixer.cpp
 
 src/libsidplayfp_la-sidemu.lo: src/sidemu.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(src_libsidplayfp_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT src/libsidplayfp_la-sidemu.lo -MD -MP -MF src/$(DEPDIR)/libsidplayfp_la-sidemu.Tpo -c -o src/libsidplayfp_la-sidemu.lo `test -f 'src/sidemu.cpp' || echo '$(srcdir)/'`src/sidemu.cpp
@@ -2737,6 +2896,7 @@ distclean: distclean-recursive
 	-rm -f src/$(DEPDIR)/libsidplayfp_la-psiddrv.Plo
 	-rm -f src/$(DEPDIR)/libsidplayfp_la-reloc65.Plo
 	-rm -f src/$(DEPDIR)/libsidplayfp_la-sidemu.Plo
+	-rm -f src/$(DEPDIR)/libsidplayfp_la-simpleMixer.Plo
 	-rm -f src/builders/exsid-builder/$(DEPDIR)/exsid-builder.Plo
 	-rm -f src/builders/exsid-builder/$(DEPDIR)/exsid-emu.Plo
 	-rm -f src/builders/exsid-builder/driver/$(DEPDIR)/exSID.Plo
@@ -2758,24 +2918,24 @@ distclean: distclean-recursive
 	-rm -f src/builders/resid-builder/resid/$(DEPDIR)/libresid_la-wave.Plo
 	-rm -f src/builders/residfp-builder/$(DEPDIR)/residfp-builder.Plo
 	-rm -f src/builders/residfp-builder/$(DEPDIR)/residfp-emu.Plo
-	-rm -f src/builders/residfp-builder/residfp/$(DEPDIR)/Dac.Plo
-	-rm -f src/builders/residfp-builder/residfp/$(DEPDIR)/EnvelopeGenerator.Plo
-	-rm -f src/builders/residfp-builder/residfp/$(DEPDIR)/ExternalFilter.Plo
-	-rm -f src/builders/residfp-builder/residfp/$(DEPDIR)/Filter.Plo
-	-rm -f src/builders/residfp-builder/residfp/$(DEPDIR)/Filter6581.Plo
-	-rm -f src/builders/residfp-builder/residfp/$(DEPDIR)/Filter8580.Plo
-	-rm -f src/builders/residfp-builder/residfp/$(DEPDIR)/FilterModelConfig.Plo
-	-rm -f src/builders/residfp-builder/residfp/$(DEPDIR)/FilterModelConfig6581.Plo
-	-rm -f src/builders/residfp-builder/residfp/$(DEPDIR)/FilterModelConfig8580.Plo
-	-rm -f src/builders/residfp-builder/residfp/$(DEPDIR)/Integrator6581.Plo
-	-rm -f src/builders/residfp-builder/residfp/$(DEPDIR)/Integrator8580.Plo
-	-rm -f src/builders/residfp-builder/residfp/$(DEPDIR)/OpAmp.Plo
-	-rm -f src/builders/residfp-builder/residfp/$(DEPDIR)/SID.Plo
-	-rm -f src/builders/residfp-builder/residfp/$(DEPDIR)/Spline.Plo
-	-rm -f src/builders/residfp-builder/residfp/$(DEPDIR)/WaveformCalculator.Plo
-	-rm -f src/builders/residfp-builder/residfp/$(DEPDIR)/WaveformGenerator.Plo
-	-rm -f src/builders/residfp-builder/residfp/$(DEPDIR)/version.Plo
-	-rm -f src/builders/residfp-builder/residfp/resample/$(DEPDIR)/SincResampler.Plo
+	-rm -f src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-Dac.Plo
+	-rm -f src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-EnvelopeGenerator.Plo
+	-rm -f src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-ExternalFilter.Plo
+	-rm -f src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-Filter.Plo
+	-rm -f src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-Filter6581.Plo
+	-rm -f src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-Filter8580.Plo
+	-rm -f src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-FilterModelConfig.Plo
+	-rm -f src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-FilterModelConfig6581.Plo
+	-rm -f src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-FilterModelConfig8580.Plo
+	-rm -f src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-Integrator6581.Plo
+	-rm -f src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-Integrator8580.Plo
+	-rm -f src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-OpAmp.Plo
+	-rm -f src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-SID.Plo
+	-rm -f src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-Spline.Plo
+	-rm -f src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-WaveformCalculator.Plo
+	-rm -f src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-WaveformGenerator.Plo
+	-rm -f src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-version.Plo
+	-rm -f src/builders/residfp-builder/residfp/resample/$(DEPDIR)/libresidfp_la-SincResampler.Plo
 	-rm -f src/builders/residfp-builder/residfp/resample/$(DEPDIR)/test.Po
 	-rm -f src/c64/$(DEPDIR)/libsidplayfp_la-c64.Plo
 	-rm -f src/c64/$(DEPDIR)/libsidplayfp_la-mmu.Plo
@@ -2866,6 +3026,7 @@ maintainer-clean: maintainer-clean-recursive
 	-rm -f src/$(DEPDIR)/libsidplayfp_la-psiddrv.Plo
 	-rm -f src/$(DEPDIR)/libsidplayfp_la-reloc65.Plo
 	-rm -f src/$(DEPDIR)/libsidplayfp_la-sidemu.Plo
+	-rm -f src/$(DEPDIR)/libsidplayfp_la-simpleMixer.Plo
 	-rm -f src/builders/exsid-builder/$(DEPDIR)/exsid-builder.Plo
 	-rm -f src/builders/exsid-builder/$(DEPDIR)/exsid-emu.Plo
 	-rm -f src/builders/exsid-builder/driver/$(DEPDIR)/exSID.Plo
@@ -2887,24 +3048,24 @@ maintainer-clean: maintainer-clean-recursive
 	-rm -f src/builders/resid-builder/resid/$(DEPDIR)/libresid_la-wave.Plo
 	-rm -f src/builders/residfp-builder/$(DEPDIR)/residfp-builder.Plo
 	-rm -f src/builders/residfp-builder/$(DEPDIR)/residfp-emu.Plo
-	-rm -f src/builders/residfp-builder/residfp/$(DEPDIR)/Dac.Plo
-	-rm -f src/builders/residfp-builder/residfp/$(DEPDIR)/EnvelopeGenerator.Plo
-	-rm -f src/builders/residfp-builder/residfp/$(DEPDIR)/ExternalFilter.Plo
-	-rm -f src/builders/residfp-builder/residfp/$(DEPDIR)/Filter.Plo
-	-rm -f src/builders/residfp-builder/residfp/$(DEPDIR)/Filter6581.Plo
-	-rm -f src/builders/residfp-builder/residfp/$(DEPDIR)/Filter8580.Plo
-	-rm -f src/builders/residfp-builder/residfp/$(DEPDIR)/FilterModelConfig.Plo
-	-rm -f src/builders/residfp-builder/residfp/$(DEPDIR)/FilterModelConfig6581.Plo
-	-rm -f src/builders/residfp-builder/residfp/$(DEPDIR)/FilterModelConfig8580.Plo
-	-rm -f src/builders/residfp-builder/residfp/$(DEPDIR)/Integrator6581.Plo
-	-rm -f src/builders/residfp-builder/residfp/$(DEPDIR)/Integrator8580.Plo
-	-rm -f src/builders/residfp-builder/residfp/$(DEPDIR)/OpAmp.Plo
-	-rm -f src/builders/residfp-builder/residfp/$(DEPDIR)/SID.Plo
-	-rm -f src/builders/residfp-builder/residfp/$(DEPDIR)/Spline.Plo
-	-rm -f src/builders/residfp-builder/residfp/$(DEPDIR)/WaveformCalculator.Plo
-	-rm -f src/builders/residfp-builder/residfp/$(DEPDIR)/WaveformGenerator.Plo
-	-rm -f src/builders/residfp-builder/residfp/$(DEPDIR)/version.Plo
-	-rm -f src/builders/residfp-builder/residfp/resample/$(DEPDIR)/SincResampler.Plo
+	-rm -f src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-Dac.Plo
+	-rm -f src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-EnvelopeGenerator.Plo
+	-rm -f src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-ExternalFilter.Plo
+	-rm -f src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-Filter.Plo
+	-rm -f src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-Filter6581.Plo
+	-rm -f src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-Filter8580.Plo
+	-rm -f src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-FilterModelConfig.Plo
+	-rm -f src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-FilterModelConfig6581.Plo
+	-rm -f src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-FilterModelConfig8580.Plo
+	-rm -f src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-Integrator6581.Plo
+	-rm -f src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-Integrator8580.Plo
+	-rm -f src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-OpAmp.Plo
+	-rm -f src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-SID.Plo
+	-rm -f src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-Spline.Plo
+	-rm -f src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-WaveformCalculator.Plo
+	-rm -f src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-WaveformGenerator.Plo
+	-rm -f src/builders/residfp-builder/residfp/$(DEPDIR)/libresidfp_la-version.Plo
+	-rm -f src/builders/residfp-builder/residfp/resample/$(DEPDIR)/libresidfp_la-SincResampler.Plo
 	-rm -f src/builders/residfp-builder/residfp/resample/$(DEPDIR)/test.Po
 	-rm -f src/c64/$(DEPDIR)/libsidplayfp_la-c64.Plo
 	-rm -f src/c64/$(DEPDIR)/libsidplayfp_la-mmu.Plo

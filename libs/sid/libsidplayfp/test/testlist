@@ -245,6 +245,36 @@ general/Lorenz-2.15/src/trap12
 general/Lorenz-2.15/src/trap13
 general/Lorenz-2.15/src/trap14
 general/Lorenz-2.15/src/trap15
+general/Lorenz-2.15/src/trap1ane
+general/Lorenz-2.15/src/trap2ane
+general/Lorenz-2.15/src/trap3ane
+general/Lorenz-2.15/src/trap4ane
+general/Lorenz-2.15/src/trap5ane
+general/Lorenz-2.15/src/trap6ane
+general/Lorenz-2.15/src/trap7ane
+general/Lorenz-2.15/src/trap8ane
+general/Lorenz-2.15/src/trap9ane
+general/Lorenz-2.15/src/trap10ane
+general/Lorenz-2.15/src/trap11ane
+general/Lorenz-2.15/src/trap12ane
+general/Lorenz-2.15/src/trap13ane
+general/Lorenz-2.15/src/trap14ane
+general/Lorenz-2.15/src/trap15ane
+general/Lorenz-2.15/src/trap1lxa
+general/Lorenz-2.15/src/trap2lxa
+general/Lorenz-2.15/src/trap3lxa
+general/Lorenz-2.15/src/trap4lxa
+general/Lorenz-2.15/src/trap5lxa
+general/Lorenz-2.15/src/trap6lxa
+general/Lorenz-2.15/src/trap7lxa
+general/Lorenz-2.15/src/trap8lxa
+general/Lorenz-2.15/src/trap9lxa
+general/Lorenz-2.15/src/trap10lxa
+general/Lorenz-2.15/src/trap11lxa
+general/Lorenz-2.15/src/trap12lxa
+general/Lorenz-2.15/src/trap13lxa
+general/Lorenz-2.15/src/trap14lxa
+general/Lorenz-2.15/src/trap15lxa
 general/Lorenz-2.15/src/trap16
 general/Lorenz-2.15/src/trap17
 general/Lorenz-2.15/src/branchwrap
@@ -597,6 +627,9 @@ interrupts/irqdma/test7b
 interrupts/irqdummy/irqdummy
 interrupts/irqnmi/irqnmi-old                         --cia old
 interrupts/irqnmi/irqnmi-new                         --cia new
+interrupts/irqnoack/ackcia
+interrupts/irqnoack/ackcia2
+interrupts/irqnoack/ackcia3
 ### SID
 SID/busvalue/busvalue                                --sid old
 SID/detect/detect-1-old                              --sid old

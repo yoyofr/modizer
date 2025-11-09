@@ -26,9 +26,8 @@
 
 #include <stdint.h>
 
-#include <cstring>
-
-#define SPRITES 8
+#include <algorithm>
+#include <iterator>
 
 namespace libsidplayfp
 {
@@ -39,6 +38,8 @@ namespace libsidplayfp
 class Sprites
 {
 private:
+    static constexpr unsigned int SPRITES = 8;
+
     const uint8_t &enable, &y_expansion;
 
     uint8_t exp_flop;
@@ -56,8 +57,8 @@ public:
         exp_flop = 0xff;
         dma = 0;
 
-        memset(mc_base, 0, sizeof(mc_base));
-        memset(mc, 0, sizeof(mc));
+        std::fill(std::begin(mc_base), std::end(mc_base), 0);
+        std::fill(std::begin(mc), std::end(mc), 0);
     }
 
     /**

@@ -22,6 +22,7 @@
 #define PSIDDRV_H
 
 #include <stdint.h>
+#include <vector>
 
 class SidTuneInfo;
 
@@ -36,13 +37,12 @@ private:
     const SidTuneInfo *m_tuneInfo;
     const char *m_errorString;
 
+    std::vector<uint8_t> psid_driver;
     uint8_t *reloc_driver;
     int      reloc_size;
 
     uint_least16_t m_driverAddr;
     uint_least16_t m_driverLength;
-
-    uint_least16_t m_powerOnDelay;
 
 private:
     /**
@@ -55,15 +55,7 @@ private:
 
 public:
     psiddrv(const SidTuneInfo *tuneInfo) :
-        m_tuneInfo(tuneInfo),
-        m_powerOnDelay(0) {}
-
-    /**
-     * Set the power on delay cycles.
-     *
-     * @param delay the delay
-     */
-    void powerOnDelay(uint_least16_t delay) { m_powerOnDelay = delay; }
+        m_tuneInfo(tuneInfo) {}
 
     /**
      * Relocate the driver.

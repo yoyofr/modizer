@@ -18,8 +18,7 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "UnitTest++/UnitTest++.h"
-#include "UnitTest++/TestReporter.h"
+#include "utpp/utpp.h"
 
 #include "../src/sidplayfp/SidTune.h"
 #include "../src/sidplayfp/SidTuneInfo.h"

@@ -18,11 +18,10 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "UnitTest++/UnitTest++.h"
-#include "UnitTest++/TestReporterStdout.h"
+#include "utpp/utpp.h"
 
 
-int main(int, char const *[])
+TEST_MAIN(int, char const *[])
 {
     return UnitTest::RunAllTests();
 }

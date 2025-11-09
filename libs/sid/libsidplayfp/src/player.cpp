@@ -1,7 +1,7 @@
 /*
  * This file is part of libsidplayfp, a SID player engine.
  *
- * Copyright 2011-2023 Leandro Nini <drfiemost@users.sourceforge.net>
+ * Copyright 2011-2025 Leandro Nini <drfiemost@users.sourceforge.net>
  * Copyright 2007-2010 Antti Lankila
  * Copyright 2000-2001 Simon White
  *
@@ -32,13 +32,14 @@
 
 #include "sidcxx11.h"
 
+#include <ctime>
+
 //YOYOFR
 extern "C" {
 #include "../../../../src/ModizerVoicesData.h"
 char sid_firstcall[MAXSID_CHIPS];
 }
 //YOYOFR
-
 
 namespace libsidplayfp
 {
@@ -77,8 +78,8 @@ Player::Player() :
     // Set default settings for system
     m_tune(nullptr),
     m_errorString(ERR_NA),
-    m_isPlaying(STOPPED),
-    m_rand((unsigned int)::time(0))
+    m_isPlaying(state_t::STOPPED),
+    m_rand((unsigned int)std::time(nullptr))
 {
     // We need at least some minimal interrupt handling
     m_c64.getMemInterface().setKernal(nullptr);
@@ -134,14 +135,14 @@ bool Player::fastForward(unsigned int percent)
 
 void Player::initialise()
 {
-    m_isPlaying = STOPPED;
+    m_isPlaying = state_t::STOPPED;
 
     m_c64.reset();
 
     const SidTuneInfo* tuneInfo = m_tune->getInfo();
 
     const uint_least32_t size = static_cast<uint_least32_t>(tuneInfo->loadAddr()) + tuneInfo->c64dataLen() - 1;
-    if (size > 0xffff)
+    if (size > 0xffff) UNLIKELY
     {
         throw configError(ERR_UNSUPPORTED_SIZE);
     }
@@ -153,9 +154,19 @@ void Player::initialise()
         powerOnDelay = (uint_least16_t)((m_rand.next() >> 3) & SidConfig::MAX_POWER_ON_DELAY);
     }
 
+    powerOnDelay += 8000;
+
+    // Run for ~ [25000,50000] cycles
+    for (int i = 0; i < powerOnDelay; i++)
+    {
+        for (int j = 0; j < 3; j++)
+            m_c64.clock();
+        m_mixer.clockChips();
+        m_mixer.resetBufs();
+    }
+
     psiddrv driver(m_tune->getInfo());
-    driver.powerOnDelay(powerOnDelay);
-    if (!driver.drvReloc())
+    if (!driver.drvReloc()) UNLIKELY
     {
         throw configError(driver.errorString());
     }
@@ -166,28 +177,39 @@ void Player::initialise()
 
     driver.install(m_c64.getMemInterface(), videoSwitch);
 
-    if (!m_tune->placeSidTuneInC64mem(m_c64.getMemInterface()))
+    if (!m_tune->placeSidTuneInC64mem(m_c64.getMemInterface())) UNLIKELY
     {
         throw configError(m_tune->statusString());
     }
 
     m_c64.resetCpu();
+
+    m_startTime = m_c64.getTimeMs();
+#if 0
+    // Run for some cycles until the initialization routine is done
+    for (int j = 0; j < 50; j++)
+        m_c64.clock();
+
+    m_mixer.clockChips();
+    m_mixer.resetBufs();
+#endif
 }
 
 bool Player::load(SidTune *tune)
 {
     m_tune = tune;
 
-    if (tune != nullptr)
+    if (tune != nullptr) UNLIKELY
     {
         // Must re-configure on fly for stereo support!
-        if (!config(m_cfg, true))
+        if (!config(m_cfg, true)) UNLIKELY
         {
             // Failed configuration with new tune, reject it
             m_tune = nullptr;
             return false;
         }
     }
+
     return true;
 }
 
@@ -198,30 +220,117 @@ void Player::mute(unsigned int sidNum, unsigned int voice, bool enable)
         s->voice(voice, enable);
 }
 
+void Player::filter(unsigned int sidNum, bool enable)
+{
+    sidemu *s = m_mixer.getSid(sidNum);
+    if (s != nullptr)
+        s->filter(enable);
+}
+
+void Player::initMixer(bool stereo)
+{
+    short* bufs[Mixer::MAX_SIDS];
+    buffers(bufs);
+    m_simpleMixer.reset(new SimpleMixer(stereo, bufs, installedSIDs()));
+}
+
+unsigned int Player::mix(short *buffer, unsigned int samples)
+{
+    return m_simpleMixer->doMix(buffer, samples);
+}
+
+void Player::buffers(short** buffers) const
+{
+    for (unsigned int i = 0; i < Mixer::MAX_SIDS; i++)
+    {
+        sidemu *s = m_mixer.getSid(i);
+        buffers[i] = s ? s->buffer() : nullptr;
+    }
+}
+
+int Player::play(unsigned int cycles)
+{
+    // Make sure a tune is loaded
+    if (m_tune == nullptr) UNLIKELY
+    {
+        m_errorString = "No tune loaded";
+        return -1;
+    }
+
+    // Limit to roughly 20ms
+    constexpr unsigned int max_cycles = 20000;
+    if (cycles > max_cycles)
+    {
+        cycles = max_cycles;
+    }
+
+    try
+    {
+        for (unsigned int i = 0; i < cycles; i++)
+            m_c64.clock();
+
+        int sampleCount = 0;
+        for (unsigned int i = 0; i < Mixer::MAX_SIDS; i++)
+        {
+            sidemu *s = m_mixer.getSid(i);
+            if (s)
+            {
+                // clock the chip and get the buffer
+                // buffersize is expected to be the same
+                // for all chips
+                s->clock();
+                sampleCount = s->bufferpos();
+                // Reset the buffer
+                s->bufferpos(0);
+            }
+        }
+        return sampleCount;
+    }
+    catch (MOS6510::haltInstruction const &)
+    {
+        m_errorString = "Illegal instruction executed";
+        return -1;
+    }
+}
+
+bool Player::reset()
+{
+    try
+    {
+        initialise();
+        return true;
+    }
+    catch (configError const &) {
+        return false;
+    }
+}
+
 /**
  * @throws MOS6510::haltInstruction
  */
 void Player::run(unsigned int events)
 {
-    for (unsigned int i = 0; m_isPlaying && i < events; i++)
+    for (unsigned int i = 0; (m_isPlaying != state_t::STOPPED) && (i < events); i++)
         m_c64.clock();
 }
 
 uint_least32_t Player::play(short *buffer, uint_least32_t count)
 {
+    static constexpr unsigned int CYCLES = 3000;
+    
     //YOYOFR
     int count_org=count;
     //YOYOFR
-    
+
     // Make sure a tune is loaded
     if (m_tune == nullptr)
         return 0;
 
     // Start the player loop
-    if (m_isPlaying == STOPPED)
-        m_isPlaying = PLAYING;
+    if (m_isPlaying == state_t::STOPPED)
+        m_isPlaying = state_t::PLAYING;
 
-    if (m_isPlaying == PLAYING)
+    if (m_isPlaying == state_t::PLAYING)
     {
         try
         {
@@ -235,21 +344,31 @@ uint_least32_t Player::play(short *buffer, uint_least32_t count)
                     count = 0;
 
                     // Clock chips and mix into output buffer
-                    while (m_isPlaying && m_mixer.notFinished())
+                    while ((m_isPlaying != state_t::STOPPED) && m_mixer.notFinished())
                     {
                         //YOYOFR
-                        if (m_mixer.samplesReady()<count_org) {
-                            memset(vgm_last_note,0,sizeof(vgm_last_note));
-                            memset(vgm_last_vol,0,sizeof(vgm_last_vol));
-                            memset(sid_firstcall,1,sizeof(sid_firstcall));
-                            
-                            run(sidemu::OUTPUTBUFFERSIZE);
-                            
-                            m_mixer.clockChips();
-                        } else {
-                            //printf("smpl: %d\n",m_mixer.samplesReady());
-                        }
-                        //YOYOFR
+                        memset(vgm_last_note,0,sizeof(vgm_last_note));
+                        memset(vgm_last_vol,0,sizeof(vgm_last_vol));
+                        memset(sid_firstcall,1,sizeof(sid_firstcall));
+                        if (!m_mixer.wait())
+                            run(CYCLES);
+                        
+                        m_mixer.clockChips();
+                        //                        if (m_mixer.samplesReady()<count_org) {
+                        //                            memset(vgm_last_note,0,sizeof(vgm_last_note));
+                        //                            memset(vgm_last_vol,0,sizeof(vgm_last_vol));
+                        //                            memset(sid_firstcall,1,sizeof(sid_firstcall));
+                        //                          
+                        //                            if (!m_mixer.wait())
+                        //                            run(CYCLES);
+                        //                            
+                        //                            m_mixer.clockChips();
+                        //                        } else {
+                        //                            //printf("smpl: %d\n",m_mixer.samplesReady());
+                        //                        }
+                        //                        //YOYOFR
+                        
+                        
                         m_mixer.doMix();
                     }
                     count = m_mixer.samplesGenerated();
@@ -258,9 +377,9 @@ uint_least32_t Player::play(short *buffer, uint_least32_t count)
                 {
                     // Clock chips and discard buffers
                     int size = m_c64.getMainCpuSpeed() / m_cfg.frequency;
-                    while (m_isPlaying && --size)
+                    while ((m_isPlaying != state_t::STOPPED) && --size)
                     {
-                        run(sidemu::OUTPUTBUFFERSIZE);
+                        run(CYCLES);
 
                         m_mixer.clockChips();
                         m_mixer.resetBufs();
@@ -271,32 +390,32 @@ uint_least32_t Player::play(short *buffer, uint_least32_t count)
             {
                 // Clock the machine
                 int size = m_c64.getMainCpuSpeed() / m_cfg.frequency;
-                while (m_isPlaying && --size)
+                while ((m_isPlaying != state_t::STOPPED) && --size)
                 {
-                    run(sidemu::OUTPUTBUFFERSIZE);
+                    run(CYCLES);
                 }
             }
         }
         catch (MOS6510::haltInstruction const &)
         {
             m_errorString = "Illegal instruction executed";
-            m_isPlaying = STOPPING;
+            m_isPlaying = state_t::STOPPING;
         }
         catch (Mixer::badBufferSize const &)
         {
             m_errorString = "Bad buffer size";
-            m_isPlaying = STOPPING;
+            m_isPlaying = state_t::STOPPING;
         }
     }
 
-    if (m_isPlaying == STOPPING)
+    if (m_isPlaying == state_t::STOPPING)
     {
         try
         {
             initialise();
         }
         catch (configError const &) {}
-        m_isPlaying = STOPPED;
+        m_isPlaying = state_t::STOPPED;
     }
 
     return count;
@@ -304,9 +423,9 @@ uint_least32_t Player::play(short *buffer, uint_least32_t count)
 
 void Player::stop()
 {
-    if (m_tune != nullptr && m_isPlaying == PLAYING)
+    if ((m_tune != nullptr) && (m_isPlaying == state_t::PLAYING))
     {
-        m_isPlaying = STOPPING;
+        m_isPlaying = state_t::STOPPING;
     }
 }
 
@@ -329,8 +448,8 @@ bool Player::config(const SidConfig &cfg, bool force)
         return true;
     }
 
-    // Check for base sampling frequency
-    if (cfg.frequency < 8000)
+    // Check for a sane sampling frequency
+    if ((cfg.frequency < 8000) || (cfg.frequency > 192000)) UNLIKELY
     {
         m_errorString = ERR_UNSUPPORTED_FREQ;
         return false;
@@ -376,8 +495,9 @@ bool Player::config(const SidConfig &cfg, bool force)
         }
         catch (configError const &e)
         {
+            sidRelease();
             m_errorString = e.message();
-            m_cfg.sidEmulation = 0;
+            m_cfg.sidEmulation = nullptr;
             if (&m_cfg != &cfg)
             {
                 config(m_cfg);
@@ -390,7 +510,6 @@ bool Player::config(const SidConfig &cfg, bool force)
     m_info.m_channels = isStereo ? 2 : 1;
 
     m_mixer.setStereo(isStereo);
-    m_mixer.setSamplerate(cfg.frequency);
     m_mixer.setVolume(cfg.leftVolume, cfg.rightVolume);
 
     // Update Configuration
@@ -409,7 +528,7 @@ c64::model_t Player::c64model(SidConfig::c64_model_t defaultModel, bool forced)
     c64::model_t model;
 
     // Use preferred speed if forced or if song speed is unknown
-    if (forced || clockSpeed == SidTuneInfo::CLOCK_UNKNOWN || clockSpeed == SidTuneInfo::CLOCK_ANY)
+    if (forced || (clockSpeed == SidTuneInfo::CLOCK_UNKNOWN) || (clockSpeed == SidTuneInfo::CLOCK_ANY))
     {
         switch (defaultModel)
         {
@@ -553,7 +672,7 @@ void Player::sidCreate(sidbuilder *builder, SidConfig::sid_model_t defaultModel,
         // Setup base SID
         const SidConfig::sid_model_t userModel = getSidModel(tuneInfo->sidModel(0), defaultModel, forced);
         sidemu *s = builder->lock(m_c64.getEventScheduler(), userModel, digiboost);
-        if (!builder->getStatus())
+        if (!builder->getStatus()) UNLIKELY
         {
             throw configError(builder->error());
         }
@@ -575,12 +694,12 @@ void Player::sidCreate(sidbuilder *builder, SidConfig::sid_model_t defaultModel,
                 const SidConfig::sid_model_t userModel = getSidModel(tuneInfo->sidModel(i+1), defaultModel, forced);
 
                 sidemu *s = builder->lock(m_c64.getEventScheduler(), userModel, digiboost);
-                if (!builder->getStatus())
+                if (!builder->getStatus()) UNLIKELY
                 {
                     throw configError(builder->error());
                 }
 
-                if (!m_c64.addExtraSid(s, extraSidAddresses[i]))
+                if (!m_c64.addExtraSid(s, extraSidAddresses[i])) UNLIKELY
                     throw configError(ERR_UNSUPPORTED_SID_ADDR);
 
                 m_mixer.addSid(s);

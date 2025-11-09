@@ -29,6 +29,16 @@ AC_LANG([C++])
 
 AC_CANONICAL_HOST
 
+AC_MSG_CHECKING([for debugging])
+AC_ARG_ENABLE(debug, [AS_HELP_STRING([--enable-debug], [whether to enable asserts (default is no)])],
+ [], [enable_debug=no])
+
+AS_IF([test "x$enable_debug" = "xno"],
+  [AC_MSG_RESULT([build without asserts]); RESID_CPPFLAGS="-DNDEBUG"],
+  [AC_MSG_RESULT([build with asserts]); RESID_CPPFLAGS=""]
+)
+AC_SUBST(RESID_CPPFLAGS)
+
 dnl Enable inlining.
 AC_ARG_ENABLE([inline],
   [AC_HELP_STRING([--enable-inline],

@@ -35,7 +35,7 @@ template< class This >
 class EventCallback final : public Event
 {
 private:
-    typedef void (This::*Callback) ();
+    using Callback = void (This::*)();
 
 private:
     This &m_this;
@@ -49,6 +49,22 @@ public:
         Event(name),
         m_this(object),
         m_callback(callback)
+    {}
+};
+
+template< class This, void(This::*Callback)() >
+class FastEventCallback final : public Event
+{
+private:
+    This &m_this;
+
+private:
+    void event() override { (m_this.*Callback)(); }
+
+public:
+    FastEventCallback(const char* const name, This &object) :
+       Event(name),
+       m_this(object)
     {}
 };
 

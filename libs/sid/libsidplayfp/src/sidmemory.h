@@ -114,7 +114,7 @@ public:
     //@}
 
 protected:
-    ~sidmemory() {}
+    ~sidmemory() = default;
 };
 
 }

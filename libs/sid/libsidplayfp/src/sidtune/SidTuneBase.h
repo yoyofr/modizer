@@ -60,20 +60,20 @@ public:
 class SidTuneBase
 {
 protected:
-    typedef std::vector<uint8_t> buffer_t;
+    using buffer_t = std::vector<uint8_t>;
 
 protected:
     /// Also PSID file format limit.
-    static const unsigned int MAX_SONGS = 256;
+    static constexpr unsigned int MAX_SONGS = 256;
 
     // Generic error messages
     static const char ERR_TRUNCATED[];
     static const char ERR_INVALID[];
 
 public:  // ----------------------------------------------------------------
-    virtual ~SidTuneBase() {}
+    virtual ~SidTuneBase() = default;
 
-    typedef void (*LoaderFunc)(const char* fileName, buffer_t& bufferRef);
+    using LoaderFunc = void (*)(const char* fileName, buffer_t& bufferRef);
 
     /**
      * Load a sidtune from a file.
@@ -91,7 +91,10 @@ public:  // ----------------------------------------------------------------
      * @return the sid tune
      * @throw loadError
      */
-    static SidTuneBase* load(const char* fileName, const char **fileNameExt, bool separatorIsSlash);
+    static SidTuneBase* load(const char* fileName, const char **fileNameExt, bool separatorIsSlash)
+    {
+        return load(nullptr, fileName, fileNameExt, separatorIsSlash);
+    }
 
     /**
      * Load a sidtune from a file, using a file access callback.
@@ -118,7 +121,10 @@ public:  // ----------------------------------------------------------------
      * @return the sid tune
      * @throw loadError
      */
-    static SidTuneBase* read(const uint_least8_t* sourceBuffer, uint_least32_t bufferLen);
+    static SidTuneBase* read(const uint_least8_t* sourceBuffer, uint_least32_t bufferLen)
+    {
+        return getFromBuffer(sourceBuffer, bufferLen);
+    }
 
     /**
      * Select sub-song (0 = default starting song)
@@ -132,7 +138,7 @@ public:  // ----------------------------------------------------------------
     /**
      * Retrieve sub-song specific information.
      */
-    const SidTuneInfo* getInfo() const;
+    const SidTuneInfo* getInfo() const { return info.get(); }
 
     /**
      * Select sub-song (0 = default starting song)
@@ -140,7 +146,11 @@ public:  // ----------------------------------------------------------------
      *
      * @param songNum
      */
-    const SidTuneInfo* getInfo(unsigned int songNum);
+    const SidTuneInfo* getInfo(unsigned int songNum)
+    {
+        selectSong(songNum);
+        return info.get();
+    }
 
     /**
      * Copy sidtune into C64 memory (64 KB).
@@ -253,8 +263,12 @@ private:  // ---------------------------------------------------------------
 #if !defined(SIDTUNE_NO_STDIN_LOADER)
     static SidTuneBase* getFromStdIn();
 #endif
-    static SidTuneBase* getFromFiles(const char* name, const char **fileNameExtensions, bool separatorIsSlash);
-    static SidTuneBase* getFromFiles(LoaderFunc loader, const char* name, const char **fileNameExtensions, bool separatorIsSlash);
+    static SidTuneBase* getFromFiles(const char* fileName, const char **fileNameExtensions, bool separatorIsSlash)
+    {
+        return getFromFiles(nullptr, fileName, fileNameExtensions, separatorIsSlash);
+    }
+
+    static SidTuneBase* getFromFiles(LoaderFunc loader, const char* fileName, const char **fileNameExtensions, bool separatorIsSlash);
 
     /**
      * Try to retrieve single-file sidtune from specified buffer.
@@ -273,8 +287,8 @@ private:  // ---------------------------------------------------------------
 
 private:
     // prevent copying
-    SidTuneBase(const SidTuneBase&);
-    SidTuneBase& operator=(SidTuneBase&);
+    SidTuneBase(const SidTuneBase&) = delete;
+    SidTuneBase& operator=(SidTuneBase&) = delete;
 };
 
 }

@@ -51,12 +51,13 @@ const char TXT_FORMAT_STR[]        = "C64 Stereo Sidplayer format (MUS+STR)";
 const char ERR_2ND_INVALID[]       = "SIDTUNE ERROR: 2nd file contains invalid data";
 const char ERR_SIZE_EXCEEDED[]     = "SIDTUNE ERROR: Total file size too large";
 
-static const uint_least16_t SIDTUNE_MUS_HLT_CMD = 0x14F;
+constexpr uint_least16_t SIDTUNE_MUS_HLT_CMD = 0x14F;
 
-static const uint_least16_t SIDTUNE_MUS_DATA_ADDR  = 0x0900;
-static const uint_least16_t SIDTUNE_SID2_BASE_ADDR = 0xd500;
+constexpr uint_least16_t SIDTUNE_MUS_DATA_ADDR  = 0x0900;
+constexpr uint_least16_t SIDTUNE_SID2_BASE_ADDR = 0xd500;
 
-const int o65headersize = 27;
+constexpr int o65headersize = 27;
+
 const uint8_t* player1 = sidplayer1 + o65headersize;
 const uint8_t* player2 = sidplayer2 + o65headersize;
 const size_t player1size = sizeof(sidplayer1) - o65headersize;

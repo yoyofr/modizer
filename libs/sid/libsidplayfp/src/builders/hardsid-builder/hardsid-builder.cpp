@@ -131,13 +131,14 @@ const char *HardSIDBuilder::credits() const
 
 void HardSIDBuilder::flush()
 {
-    for (emuset_t::iterator it=sidobjs.begin(); it != sidobjs.end(); ++it)
-        static_cast<libsidplayfp::HardSID*>(*it)->flush();
+    for (libsidplayfp::sidemu* e: sidobjs)
+        static_cast<libsidplayfp::HardSID*>(e)->flush();
 }
 
 void HardSIDBuilder::filter(bool enable)
 {
-    std::for_each(sidobjs.begin(), sidobjs.end(), applyParameter<libsidplayfp::HardSID, bool>(&libsidplayfp::HardSID::filter, enable));
+    for (libsidplayfp::sidemu* e: sidobjs)
+        static_cast<libsidplayfp::HardSID*>(e)->filter(enable);
 }
 
 #ifdef _WIN32

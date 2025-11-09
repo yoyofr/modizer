@@ -1,7 +1,7 @@
 /*
  * This file is part of libsidplayfp, a SID player engine.
  *
- * Copyright 2011-2020 Leandro Nini <drfiemost@users.sourceforge.net>
+ * Copyright 2011-2025 Leandro Nini <drfiemost@users.sourceforge.net>
  * Copyright 2007-2010 Antti Lankila
  * Copyright 2004 Dag Lem <resid@nimrod.no>
  *
@@ -40,8 +40,6 @@ namespace reSIDfp
  * acts as a high-pass filter with a cutoff dependent on the attached audio
  * equipment impedance. Here we suppose an impedance of 10kOhm resulting
  * in a 3 dB attenuation at 1.6Hz.
- * To operate properly the 6581 audio output needs a pull-down resistor
- * (1KOhm recommended, not needed on 8580)
  *
  * ~~~
  *                                 9/12V
@@ -53,15 +51,18 @@ namespace reSIDfp
  *          |        |  pF    +-C----o-----C-----+ 10k
  *                             470   |           |
  *         GND      GND         pF   R 1K        | amp
- *          *                   *    |           +-----
+ *          *                   **   |           +-----
  *
  *                                  GND
  * ~~~
  *
  * The STC networks are connected with a [BJT] based [common collector]
  * used as a voltage follower (featuring a 2SC1815 NPN transistor).
- * * The C64c board additionally includes a [bootstrap] condenser to increase
- * the input impedance of the common collector.
+ *
+ * * To operate properly the 6581 audio output needs a pull-down resistor
+ *   (1KOhm recommended, not needed on 8580)
+ * ** The C64c board additionally includes a [bootstrap] condenser to increase
+ *    the input impedance of the common collector.
  *
  * [BJT]: https://en.wikipedia.org/wiki/Bipolar_junction_transistor
  * [common collector]: https://en.wikipedia.org/wiki/Common_collector
@@ -78,17 +79,17 @@ private:
     //YOYOFR
     int Vlp2,Vhp2;
     //YOYOFR
-    
-    
-    int w0lp_1_s7;
 
-    int w0hp_1_s17;
+    int w0lp_1_s7 = 0;
+
+    int w0hp_1_s17 = 0;
 
 public:
     /**
      * SID clocking.
      *
-     * @param input
+     * @param input input sample, signed 16 bit
+     * @return filtered sample, signed 16 bit
      */
     int clock(int input);
 
@@ -121,23 +122,19 @@ RESID_INLINE
 int ExternalFilter::clock(int input)
 {
     //TODO:  MODIZER changes start / YOYOFR
-    /*const int Vi = (input<<11) - (1 << (11+15));
-     const int dVlp = (w0lp_1_s7 * (Vi - Vlp) >> 7);
-     const int dVhp = (w0hp_1_s17 * (Vlp - Vhp) >> 17);
-     Vlp += dVlp;
-     Vhp += dVhp;
-     return (Vlp - Vhp) >> 11;*/
+//    const int Vi = input << 11;
+//    const int dVlp = (w0lp_1_s7 * (Vi - Vlp) >> 7);
+//    const int dVhp = (w0hp_1_s17 * (Vlp - Vhp) >> 17);
     
-    int Vi = (input<<11) - (1 << (11+15));
+    int Vi = input << 11;
     int dVlp = (w0lp_1_s7 * (Vi - Vlp) >> 7);
     int dVhp = (w0hp_1_s17 * (Vlp - Vhp) >> 17);
     Vlp += dVlp;
     Vhp += dVhp;
     
-    
     int ret=(Vlp - Vhp) >> 11;
     
-    Vi = (sid_v4<<11) - (1 << (11+15));
+    Vi = (sid_v4<<11);
     dVlp = (w0lp_1_s7 * (Vi - Vlp2) >> 7);
     dVhp = (w0hp_1_s17 * (Vlp2 - Vhp2) >> 17);
     Vlp2 += dVlp;
@@ -147,6 +144,7 @@ int ExternalFilter::clock(int input)
     
     return ret;
     //TODO:  MODIZER changes end / YOYOFR
+    //return (Vlp - Vhp) >> 11;
 }
 
 } // namespace reSIDfp

@@ -110,8 +110,8 @@ static int (* _ftdi_usb_open_desc)(void *, int, int, const char *, const char *)
 
 // callbacks for FTD2XX
 #ifdef	HAVE_FTD2XX
-static int (*_FT_Write)(void *, LPVOID, int, unsigned int *);
-static int (*_FT_Read)(void *, LPVOID, int, unsigned int *);
+static int (*_FT_Write)(void *, LPVOID, int, LPDWORD);
+static int (*_FT_Read)(void *, LPVOID, int, LPDWORD);
 static int (*_FT_OpenEx)(const char *, int, void **);
 static int (*_FT_ResetDevice)(void *);
 static int (*_FT_SetBaudRate)(void *, int);
@@ -252,7 +252,7 @@ int xSfw_dlopen()
 dlfail:
 	xsdbg("dlsym error: %s", dlerrorstr);
 	_xSfw_free_errstr(dlerrorstr);
-	xSfw_dlclose(dlhandle);
+	xSfw_dlclose();
 	return -1;
 }
 

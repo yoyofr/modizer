@@ -50,7 +50,6 @@ playnum     .byte 0
 speed       .byte 0
 initvec     .word 0
 playvec     .word 0
-rndwait     .word 0
 initiomap   .byte 0
 playiomap   .byte 0
 video       .byte 0
@@ -115,24 +114,14 @@ vicinit     stx $d011
 
             ; don't override default irq handler for RSIDs
             lda initiomap
-            beq delay
+            beq irqinit
 
             ; if play address, override default irq vector so
             ; we reach our routine to handle play routine
             lda playiomap
-            beq delay
+            beq irqinit
             ldx #<irqjob
             stx $0314
-
-            ; simulate time before user loads tune
-delay       ldx rndwait
-            ldy rndwait+1
-            inx
-            iny
-wait        dex
-            bne wait
-            dey
-            bne wait
 
             ; 0 indicates VIC timing (PSIDs only)
             ; else it's from CIA

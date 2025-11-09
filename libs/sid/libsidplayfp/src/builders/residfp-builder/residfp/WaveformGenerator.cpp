@@ -1,7 +1,7 @@
 /*
  * This file is part of libsidplayfp, a SID player engine.
  *
- * Copyright 2011-2023 Leandro Nini <drfiemost@users.sourceforge.net>
+ * Copyright 2011-2025 Leandro Nini <drfiemost@users.sourceforge.net>
  * Copyright 2007-2010 Antti Lankila
  * Copyright 2004 Dag Lem <resid@nimrod.no>
  *
@@ -40,13 +40,13 @@ namespace reSIDfp
  * and [VICE Bug #1128](http://sourceforge.net/p/vice-emu/bugs/1128/)
  */
 // ~95ms
-const unsigned int FLOATING_OUTPUT_TTL_6581R3  =   54000;
-const unsigned int FLOATING_OUTPUT_FADE_6581R3 =    1400;
+constexpr unsigned int FLOATING_OUTPUT_TTL_6581R3  =   54000;
+constexpr unsigned int FLOATING_OUTPUT_FADE_6581R3 =    1400;
 // ~1s
-const unsigned int FLOATING_OUTPUT_TTL_6581R4  = 1000000;
+constexpr unsigned int FLOATING_OUTPUT_TTL_6581R4  = 1000000;
 // ~1s
-const unsigned int FLOATING_OUTPUT_TTL_8580R5  =  800000;
-const unsigned int FLOATING_OUTPUT_FADE_8580R5 =   50000;
+constexpr unsigned int FLOATING_OUTPUT_TTL_8580R5  =  800000;
+constexpr unsigned int FLOATING_OUTPUT_FADE_8580R5 =   50000;
 
 /**
  * Number of cycles after which the shift register is reset
@@ -58,15 +58,15 @@ const unsigned int FLOATING_OUTPUT_FADE_8580R5 =   50000;
  * only the big difference between the old and new models.
  */
 // ~210ms
-const unsigned int SHIFT_REGISTER_RESET_6581R3 =   50000;
-const unsigned int SHIFT_REGISTER_FADE_6581R3  =   15000;
+constexpr unsigned int SHIFT_REGISTER_RESET_6581R3 =   50000;
+constexpr unsigned int SHIFT_REGISTER_FADE_6581R3  =   15000;
 // ~2.15s
-const unsigned int SHIFT_REGISTER_RESET_6581R4 = 2150000;
+constexpr unsigned int SHIFT_REGISTER_RESET_6581R4 = 2150000;
 // ~2.8s
-const unsigned int SHIFT_REGISTER_RESET_8580R5 =  986000;
-const unsigned int SHIFT_REGISTER_FADE_8580R5  =  314300;
+constexpr unsigned int SHIFT_REGISTER_RESET_8580R5 =  986000;
+constexpr unsigned int SHIFT_REGISTER_FADE_8580R5  =  314300;
 
-const unsigned int shift_mask =
+constexpr unsigned int shift_mask =
     ~(
         (1u <<  2) |  // Bit 20
         (1u <<  4) |  // Bit 18
@@ -335,14 +335,14 @@ void WaveformGenerator::setPulldownModels(matrix_t* models)
     model_pulldown = models;
 }
 
-void WaveformGenerator::synchronize(WaveformGenerator* syncDest, const WaveformGenerator* syncSource) const
+void WaveformGenerator::synchronize() const
 {
     // A special case occurs when a sync source is synced itself on the same
     // cycle as when its MSB is set high. In this case the destination will
     // not be synced. This has been verified by sampling OSC3.
-    if (unlikely(msb_rising) && syncDest->sync && !(sync && syncSource->msb_rising))
+    if (unlikely(msb_rising) && nextVoice->sync && !(sync && prevVoice->msb_rising))
     {
-        syncDest->accumulator = 0;
+        nextVoice->accumulator = 0;
     }
 }
 

@@ -120,8 +120,6 @@ HardSID::~HardSID()
 
 void HardSID::reset(uint8_t volume)
 {
-    for (unsigned int i= 0; i < voices; i++)
-        muted[i] = false;
     ioctl(m_handle, HSID_IOCTL_RESET, volume);
     m_accessClk = 0;
     if (eventScheduler != nullptr)
@@ -177,19 +175,6 @@ void HardSID::write(uint_least8_t addr, uint8_t data)
         | (data & 0xff);
 
     ::write(m_handle, &packet, sizeof(packet));
-}
-
-void HardSID::voice(unsigned int num, bool mute)
-{
-    // Only have 3 voices!
-    if (num >= voices)
-        return;
-    muted[num] = mute;
-
-    int cmute = 0;
-    for (unsigned int i = 0; i < voices; i++)
-        cmute |= (muted[i] << i);
-    ioctl(m_handle, HSID_IOCTL_MUTE, cmute);
 }
 
 void HardSID::event()

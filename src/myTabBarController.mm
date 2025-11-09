@@ -159,7 +159,7 @@ extern int move_cursorL,move_cursorR,keyDel;
     
     if (@available(iOS 18.0, *)) {
         if (UIDevice.currentDevice.userInterfaceIdiom == UIUserInterfaceIdiomPad) {
-            self.traitOverrides.horizontalSizeClass = UIUserInterfaceSizeClassCompact;
+            self.traitOverrides.horizontalSizeClass = UIUserInterfaceSizeClassRegular;
         }
     }
     
