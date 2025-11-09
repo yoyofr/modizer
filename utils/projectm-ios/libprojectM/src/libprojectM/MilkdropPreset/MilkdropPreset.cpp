@@ -140,7 +140,7 @@ void MilkdropPreset::RenderFrame(const libprojectM::Audio::FrameAudioData& audio
     // Remove the u/v texture from the framebuffer.
     m_framebuffer.RemoveColorAttachment(m_currentFrameBuffer, 1);
 
-//    // Update blur textures
+    // Update blur textures
 //    {
 //        const auto warpedImage = m_framebuffer.GetColorAttachmentTexture(m_currentFrameBuffer, 0);
 //        assert(warpedImage.get());
@@ -172,6 +172,7 @@ void MilkdropPreset::RenderFrame(const libprojectM::Audio::FrameAudioData& audio
         m_state.blurTexture.Update(*warpedImage, m_perFrameContext);
     }
 
+    
     // y-flip the image for final compositing again
     m_flipTexture.Draw(m_framebuffer.GetColorAttachmentTexture(m_currentFrameBuffer, 0), nullptr, true, false);
     m_state.mainTexture = m_flipTexture.Texture();

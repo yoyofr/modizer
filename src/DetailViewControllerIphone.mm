@@ -1031,9 +1031,11 @@ static float modPatternLineSize,modPatternWindowSize;
 static int _shiftModeOn;
 static float oglTapX=0,oglTapY=0,movePx=0,movePy=0,movePxMOD=0,movePyMOD=0,movePxOld=0,movePyOld=0,movePxPM=0,movePyPM=0;
 static float movePxPMenu=0,movePyPMenu=0;
+static float posMouseX=0,posMouseY=0;
+static float moveWheelXPMenu,moveWheelYPMenu=0;
 static float startPx=0,startPy=0;
 static int movePMnomore=0;
-static int panGesture1Tap;
+static int panGesture1Tap,panGestureWheel,panGestureHover;
 static float movePxMID=0,movePyMID=0,movePinchScaleFXMID=0;
 static float movePxPRoll=0,movePyPRoll=0,movePinchScaleFXPRoll=0;
 static float movePxFXPiano=0,movePyFXPiano=0,movePx2FXPiano=0,movePy2FXPiano=0,movePinchScaleFXPiano=0;
@@ -5901,7 +5903,9 @@ void pm_perfTest() {
     // Add the gesture to the view
     [m_oglView addGestureRecognizer:glViewPinchGesture];
     
-    //[glViewOneFingerOneTap requireGestureRecognizerToFail : glViewOneFingerTwoTaps];
+    UIHoverGestureRecognizer *glHoverGesture = [[UIHoverGestureRecognizer alloc] initWithTarget:self action:@selector(glViewHoverHesture:)];
+    [m_oglView addGestureRecognizer:glHoverGesture];
+    
     
     //BButton
     [btnShowVoices setStyle:BButtonStyleBootstrapV2];
@@ -6357,6 +6361,8 @@ void pm_perfTest() {
     movePxPRoll=movePyPRoll=0;
     movePMnomore=0;
     
+    panGestureHover=panGestureWheel=panGesture1Tap=0;
+    
     tgtFrameCnt=0;
 }
 
@@ -6481,8 +6487,6 @@ static int mOglView1Tap=0;
         case UIGestureRecognizerStateChanged:
             break;
         default:
-            //MDZILog("reco");
-            //mOglView1Tap=1;
             mOglView1Tap=1;
             break;
     }
@@ -6496,15 +6500,16 @@ static int mOglView1Tap=0;
     if (_shiftModeOn) {
         [self glViewPan2Gesture:gestureRecognizer];
     } else {
-        CGPoint starting_pt;
+        static CGPoint last_pt;
         CGPoint pt=[gestureRecognizer translationInView:m_oglView];
+        CGPoint start_pt=[gestureRecognizer locationInView:m_oglView];
         movePx=pt.x;
         movePy=pt.y;
         switch (gestureRecognizer.state) {
             case UIGestureRecognizerStateBegan:
-                starting_pt=[gestureRecognizer locationOfTouch:0 inView:m_oglView];
-                startPx=starting_pt.x;
-                startPy=starting_pt.y;
+                last_pt=pt;
+                startPx=start_pt.x;
+                startPy=start_pt.y;
                 
                 panGesture1Tap=1;
                 movePxOld=movePx;
@@ -6516,6 +6521,11 @@ static int mOglView1Tap=0;
                 break;
             case UIGestureRecognizerStateChanged:
                 panGesture1Tap=2;
+                if (pmenu_show) {
+                    movePxPMenu+=pt.x-last_pt.x;
+                    movePyPMenu+=pt.y-last_pt.y;
+                }
+                last_pt=pt;
                 break;
             default:
                 panGesture1Tap=0;
@@ -6528,15 +6538,56 @@ static int mOglView1Tap=0;
     }
 }
 
+-(void) glViewHoverHesture:(UIHoverGestureRecognizer *)gestureRecognizer {
+    CGPoint pt=[gestureRecognizer locationInView:m_oglView];
+    posMouseX=round(pt.x);
+    posMouseY=round(pt.y);
+    switch (gestureRecognizer.state) {
+        case UIGestureRecognizerStateBegan:
+            panGestureHover=1;
+            break;
+        case UIGestureRecognizerStateChanged:
+            panGestureHover=2;
+            break;
+        default:
+            panGestureHover=0;
+            break;
+    }
+}
+
 -(void) glViewPan2Gesture:(UIPanGestureRecognizer *)gestureRecognizer {
+    static CGPoint last_pt;
     CGPoint pt=[gestureRecognizer translationInView:m_oglView];
+    CGPoint start_pt=[gestureRecognizer locationInView:m_oglView];
     movePx2=pt.x;
     movePy2=pt.y;
-    if (gestureRecognizer.state==UIGestureRecognizerStateBegan) {
-        movePx2Old=movePx2;
-        movePy2Old=movePy2;
+    switch (gestureRecognizer.state) {
+        case UIGestureRecognizerStateBegan:
+            startPx=start_pt.x;
+            startPy=start_pt.y;
+            movePx=0;
+            movePy=0;
+            last_pt=pt;
+            
+            movePx2Old=movePx2;
+            movePy2Old=movePy2;
+            
+            panGestureWheel=1;
+            moveWheelXPMenu=0;
+            moveWheelYPMenu=0;
+            break;
+        case UIGestureRecognizerStateChanged:
+            panGestureWheel=2;
+            if (pmenu_show) {
+                moveWheelXPMenu+=pt.x-last_pt.x;
+                moveWheelYPMenu+=pt.y-last_pt.y;
+            }
+            last_pt=pt;
+            break;
+        default:
+            panGestureWheel=0;
+            break;
     }
-    
 }
 
 -(void) glViewPinchGesture:(UIPinchGestureRecognizer *)gestureRecognizer {
@@ -7184,17 +7235,42 @@ void doFramePM(float ww,float hh) {
     
     ImGuiIOSEvent imgui_event;
     imgui_event.event_type=IMGUI_IOS_Event_None;
+    if (panGestureHover) {
+        static float oldPosX=-1,oldPosY=-1;
+        if ( (oldPosX!=posMouseX) || (oldPosY!=posMouseY) ) {
+            imgui_event.event_type=IMGUI_IOS_Event_MouseMove;
+            imgui_event.pos_x=posMouseX*glScaleFactor;
+            imgui_event.pos_y=posMouseY*glScaleFactor;
+        }
+        oldPosX=posMouseX;oldPosY=posMouseY;
+    }
     if (mOglView1Tap) {
+        MDZILog("send 1 Tap event");
         imgui_event.event_type=IMGUI_IOS_Event_Tap_1;
         imgui_event.pos_x=oglTapX*glScaleFactor;
         imgui_event.pos_y=oglTapY*glScaleFactor;
         //projectm_touch(_pm, imgui_event.pos_x,imgui_event.pos_y, 1, PROJECTM_TOUCH_TYPE_RANDOM);
     }
     if (panGesture1Tap) {
-        imgui_event.event_type=IMGUI_IOS_Event_MouseMove;
+        
+        imgui_event.event_type=IMGUI_IOS_Event_MouseDrag;
         imgui_event.pos_x=(movePx+startPx)*glScaleFactor;
         imgui_event.pos_y=(movePy+startPy)*glScaleFactor;
         //projectm_touch_drag(_pm, imgui_event.pos_x,imgui_event.pos_y, 1);
+    }
+    if ( (moveWheelXPMenu!=0)||(moveWheelYPMenu) ) {
+        imgui_event.event_type=IMGUI_IOS_Event_MouseWheel;
+        imgui_event.pos_x=(movePx+startPx)*glScaleFactor;
+        imgui_event.pos_y=(movePy+startPy)*glScaleFactor;
+        imgui_event.wheel_x=moveWheelXPMenu/1024.0;
+        imgui_event.wheel_y=moveWheelYPMenu/1024.0;
+        
+        if (panGestureWheel==0) {
+            moveWheelXPMenu=moveWheelXPMenu*0.94f;
+            moveWheelYPMenu=moveWheelYPMenu*0.94f;
+            if (fabs(moveWheelXPMenu)<10.0f) moveWheelXPMenu=0;
+            if (fabs(moveWheelYPMenu)<10.0f) moveWheelYPMenu=0;
+        }
     }
     
         
@@ -7215,8 +7291,8 @@ void doFramePM(float ww,float hh) {
     /*-------------------------------------------------------------------------------*/
     
     if (pmenu_show) {
-        movePxPMenu+=movePx-movePxOld;
-        movePyPMenu+=movePy-movePyOld;
+        //movePxPMenu+=movePx-movePxOld;
+        //movePyPMenu+=movePy-movePyOld;
     }
     
     if ((pmenu_show==0)&&[SettingsGenViewController isFXActive:PROJECTM_FXONOFF]) {

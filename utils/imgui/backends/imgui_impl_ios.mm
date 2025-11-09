@@ -121,7 +121,9 @@ void ImGui_ImplIOS_Shutdown()
 
 void ImGui_ImplIOS_UpdateEvent(ImGuiIOSEvent *event)
 {
+    static float lastMouseX=-1,lastMouseY=-1;
     static int mouseEventOnHold=0;
+    static int mouseShouldReleaseLeftClick=0;
     if (event) {
         currentEvent=*event;
     }
@@ -131,27 +133,45 @@ void ImGui_ImplIOS_UpdateEvent(ImGuiIOSEvent *event)
     
     mouseMoveInProgress=false;
     if (currentEvent.event_type==IMGUI_IOS_Event_Tap_1) {
+//        MDZILog("tap1 at %f %f",currentEvent.pos_x,currentEvent.pos_y);
+//        MDZILog("left click pressed");
         io.AddMouseSourceEvent(ImGuiMouseSource_Mouse);//TouchScreen);
-        io.AddMousePosEvent((float)(currentEvent.pos_x), (float)(currentEvent.pos_y));
+        io.AddMousePosEvent(currentEvent.pos_x,currentEvent.pos_y);
         io.AddMouseButtonEvent(0, true);
+        mouseShouldReleaseLeftClick=1;
         mouseEventOnHold=0;
     } else if (currentEvent.event_type==IMGUI_IOS_Event_MouseMove) {
-        MDZILog("mouse move: %d %d",currentEvent.pos_x,currentEvent.pos_y);
+//        MDZILog("move at %f %f",currentEvent.pos_x,currentEvent.pos_y);
         io.AddMouseSourceEvent(ImGuiMouseSource_Mouse);//TouchScreen);
-        io.AddMousePosEvent((float)(currentEvent.pos_x), (float)(currentEvent.pos_y));
-        io.AddMouseButtonEvent(0, true);
+        io.AddMousePosEvent(currentEvent.pos_x,currentEvent.pos_y);
+        lastMouseX=currentEvent.pos_x;
+        lastMouseY=currentEvent.pos_y;
         mouseEventOnHold=0;
         mouseMoveInProgress=true;
-    }/* else if (currentEvent.event_type==IMGUI_IOS_Event_MouseWheel) {
+    }  else if (currentEvent.event_type==IMGUI_IOS_Event_MouseDrag) {
+//        MDZILog("drag at %f %f",currentEvent.pos_x,currentEvent.pos_y);
         io.AddMouseSourceEvent(ImGuiMouseSource_Mouse);//TouchScreen);
-        io.AddMouseWheelEvent((float)(currentEvent.wheel_x), (float)(currentEvent.wheel_y));
-        //io.AddMouseButtonEvent(0, true);
-        //mouseEventOnHold=0;
+        io.AddMousePosEvent(currentEvent.pos_x,currentEvent.pos_y);
+        io.AddMouseButtonEvent(0, true);
+        mouseShouldReleaseLeftClick=1;
+        mouseEventOnHold=0;
+        mouseMoveInProgress=true;
+    } else if (currentEvent.event_type==IMGUI_IOS_Event_MouseWheel) {
+//        MDZILog("wheel %f %f at %f %f",currentEvent.wheel_x,currentEvent.wheel_y,currentEvent.pos_x,currentEvent.pos_y);
+        io.AddMouseSourceEvent(ImGuiMouseSource_Mouse);//TouchScreen);
+        io.AddMouseWheelEvent(currentEvent.wheel_x, currentEvent.wheel_y);
+        io.AddMousePosEvent(currentEvent.pos_x,currentEvent.pos_y);
+        mouseEventOnHold=0;
         //mouseMoveInProgress=true;
-    } */else if (!mouseEventOnHold) {
-        io.AddMouseButtonEvent(0, false);
-        io.AddMouseSourceEvent(ImGuiMouseSource_Mouse);//TouchScreen);
-        io.AddMousePosEvent((float)(-1), (float)(-1));
+    } else if (!mouseEventOnHold) {
+//        MDZILog("Mouse event end");
+        if (mouseShouldReleaseLeftClick) {
+//            MDZILog("left click release");
+            io.AddMouseSourceEvent(ImGuiMouseSource_Mouse);//TouchScreen);
+            io.AddMouseButtonEvent(0, false);
+            io.AddMousePosEvent(lastMouseX, lastMouseY);
+            mouseShouldReleaseLeftClick=0;
+        }
         mouseEventOnHold=1;
     }
     

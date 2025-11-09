@@ -286,7 +286,7 @@ void MilkdropShader::PreLoadTexturesAndCompile(AltPresetState& presetState)
         }
     //YOYOFR
     //
-    printf("Before:\n%s\n",m_preprocessedCode.c_str());
+//    printf("Before:\n%s\n",m_preprocessedCode.c_str());
     ShaderPreprocessor preProcessor(ShaderLanguage::HLSL);
     std::string cleanProgram = preProcessor.preprocess(m_preprocessedCode);
     m_preprocessedCode = cleanProgram;
@@ -295,7 +295,7 @@ void MilkdropShader::PreLoadTexturesAndCompile(AltPresetState& presetState)
     cleanProgram = hlslTypeFixer.autoFix(m_preprocessedCode);
     m_preprocessedCode = cleanProgram;
     
-    printf("After:\n%s\n",m_preprocessedCode.c_str());
+//    printf("After:\n%s\n",m_preprocessedCode.c_str());
     
     // Now that we have the textures, transpile the code.
     TranspileHLSLShaderPreCompilation(presetState, m_preprocessedCode);
@@ -916,7 +916,7 @@ void MilkdropShader::TranspileHLSLShaderPreCompilation(const AltPresetState& pre
     
     m_convertedCode=generator.GetResult();
     
-    printf("converted code:\n%s\n",m_convertedCode.c_str());
+//    printf("converted code:\n%s\n",m_convertedCode.c_str());
 
     // Now we have GLSL source for the preset shader program (hopefully it's valid!)
     // Compile the preset shader fragment shader with the standard vertex shader and cross our fingers.

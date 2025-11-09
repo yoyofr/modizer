@@ -168,7 +168,6 @@ private:
     char                m_acosFunction[64];
     char                m_asinFunction[64];
     char                m_tanhFunction[64];
-    char                m_fracFunction[64];
     char                m_altMultFunction[64];
 
     bool                m_error;

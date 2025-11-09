@@ -67,7 +67,9 @@ extern void pmSoftReinit(bool forceReloadPlaylist);
 namespace PMenu {
 
 ImVec4 colorBtnTextInactive=ImVec4(0.25f,0.2f,0.5f,0.9f);
+ImVec4 colorBtnTextInactiveH=ImVec4(0.8f,0.7f,0.9f,0.9f);
 ImVec4 colorBtnTextActive=ImVec4(0.5f,0.4f,1.0f,0.9f);
+ImVec4 colorBtnTextActiveH=ImVec4(1.0f,0.8f,1.0f,0.9f);
 
 static bool pMenu_isInitialized=false;
 
@@ -718,11 +720,21 @@ int buildSubMenu(int r,
     ImVec2 uv0(0,0);ImVec2 uv1(1,1);ImVec4 bg_col(0,0,0,0.0f);ImVec4 tint_col(0.4,0.4,0.4,0.8f);
     if (isActive) {//Active
         tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
-        if (current_txtMenuHandle[celIdx]) ImGui::PushStyleColor(ImGuiCol_Button,ImVec4(0.0,0.0,0.0,0.0f));
-        else ImGui::PushStyleColor(ImGuiCol_Button,colorBtnTextActive);
+        if (current_txtMenuHandle[celIdx]) {
+            ImGui::PushStyleColor(ImGuiCol_Button,ImVec4(0.0,0.0,0.0,0.0f));
+            ImGui::PushStyleColor(ImGuiCol_ButtonHovered,ImVec4(1.0,1.0,1.0,0.5f));
+        } else {
+            ImGui::PushStyleColor(ImGuiCol_Button,colorBtnTextActive);
+            ImGui::PushStyleColor(ImGuiCol_ButtonHovered,colorBtnTextActiveH);
+        }
     } else { //Inactive
-        if (current_txtMenuHandle[celIdx]) ImGui::PushStyleColor(ImGuiCol_Button,ImVec4(0.0,0.0,0.0,0.6f));
-        else ImGui::PushStyleColor(ImGuiCol_Button,colorBtnTextInactive);
+        if (current_txtMenuHandle[celIdx]) {
+            ImGui::PushStyleColor(ImGuiCol_Button,ImVec4(0.0,0.0,0.0,0.6f));
+            ImGui::PushStyleColor(ImGuiCol_ButtonHovered,ImVec4(1.0,1.0,1.0,0.3f));
+        } else {
+            ImGui::PushStyleColor(ImGuiCol_Button,colorBtnTextInactive);
+            ImGui::PushStyleColor(ImGuiCol_ButtonHovered,colorBtnTextInactiveH);
+        }
     }
     ImVec2 cur_pos=ImGui::GetCursorPos();
     if (current_txtMenuHandle[celIdx]) { //Image Button
@@ -778,6 +790,7 @@ int buildSubMenu(int r,
         
         ImGui::PopID();
     }
+    ImGui::PopStyleColor();
     ImGui::PopStyleColor();
     return ret;
 }
@@ -1871,16 +1884,21 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
             
             ImGui::PopStyleColor();
             
-            menu_scrollX[pMenu_state.menu_idx]-=panX;
-            if (menu_scrollX[pMenu_state.menu_idx]<0) menu_scrollX[pMenu_state.menu_idx]=0;
-            if (menu_scrollX[pMenu_state.menu_idx]>ImGui::GetScrollMaxX()) menu_scrollX[pMenu_state.menu_idx]=ImGui::GetScrollMaxX();
-            
-            menu_scrollY[pMenu_state.menu_idx]-=panY;
-            if (menu_scrollY[pMenu_state.menu_idx]>ImGui::GetScrollMaxY()) menu_scrollY[pMenu_state.menu_idx]=ImGui::GetScrollMaxY();
-            if (menu_scrollY[pMenu_state.menu_idx]<0) menu_scrollY[pMenu_state.menu_idx]=0;
-            
-            ImGui::SetScrollX(menu_scrollX[pMenu_state.menu_idx]*glScaleFactor);
-            ImGui::SetScrollY(menu_scrollY[pMenu_state.menu_idx]*glScaleFactor);
+            if (mouseMoveInProgress) {
+                menu_scrollX[pMenu_state.menu_idx]-=panX;
+                if (menu_scrollX[pMenu_state.menu_idx]<0) menu_scrollX[pMenu_state.menu_idx]=0;
+                if (menu_scrollX[pMenu_state.menu_idx]>ImGui::GetScrollMaxX()) menu_scrollX[pMenu_state.menu_idx]=ImGui::GetScrollMaxX();
+                
+                menu_scrollY[pMenu_state.menu_idx]-=panY;
+                if (menu_scrollY[pMenu_state.menu_idx]>ImGui::GetScrollMaxY()) menu_scrollY[pMenu_state.menu_idx]=ImGui::GetScrollMaxY();
+                if (menu_scrollY[pMenu_state.menu_idx]<0) menu_scrollY[pMenu_state.menu_idx]=0;
+                
+                ImGui::SetScrollX(menu_scrollX[pMenu_state.menu_idx]*glScaleFactor);
+                ImGui::SetScrollY(menu_scrollY[pMenu_state.menu_idx]*glScaleFactor);
+            } else {
+                menu_scrollX[pMenu_state.menu_idx]=ImGui::GetScrollX()/glScaleFactor;
+                menu_scrollY[pMenu_state.menu_idx]=ImGui::GetScrollY()/glScaleFactor;
+            }
             
             ImGui::EndChild();
         }
