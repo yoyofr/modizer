@@ -19,6 +19,9 @@
  *
  */
 
+//YOYOFR
+extern int mdz_pmBlurAfterAudio;
+
 #include "MilkdropPreset.hpp"
 
 #include "Factory.hpp"
@@ -140,12 +143,14 @@ void MilkdropPreset::RenderFrame(const libprojectM::Audio::FrameAudioData& audio
     // Remove the u/v texture from the framebuffer.
     m_framebuffer.RemoveColorAttachment(m_currentFrameBuffer, 1);
 
+    //YOYOFR
     // Update blur textures
-//    {
-//        const auto warpedImage = m_framebuffer.GetColorAttachmentTexture(m_currentFrameBuffer, 0);
-//        assert(warpedImage.get());
-//        m_state.blurTexture.Update(*warpedImage, m_perFrameContext);
-//    }
+    if (!mdz_pmBlurAfterAudio)
+    {
+        const auto warpedImage = m_framebuffer.GetColorAttachmentTexture(m_currentFrameBuffer, 0);
+        assert(warpedImage.get());
+        m_state.blurTexture.Update(*warpedImage, m_perFrameContext);
+    }
 
     // Draw audio-data-related stuff
     for (auto& shape : m_customShapes)
@@ -165,7 +170,9 @@ void MilkdropPreset::RenderFrame(const libprojectM::Audio::FrameAudioData& audio
     }
     m_border.Draw(m_perFrameContext);
     
+    //YOYOFR
     // Update blur textures
+    if (mdz_pmBlurAfterAudio)
     {
         const auto warpedImage = m_framebuffer.GetColorAttachmentTexture(m_currentFrameBuffer, 0);
         assert(warpedImage.get());

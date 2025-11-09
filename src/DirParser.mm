@@ -128,7 +128,7 @@ extern pthread_mutex_t pm_mutex;
 - (bool)filterNodes:(NSString *)pattern filterDir:(bool)filterDir {
     bool result=false;
     
-    NSArray *filterStrings=[pattern componentsSeparatedByString:@" "];
+    NSArray *filterStrings=[[pattern stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]] componentsSeparatedByString:@" "];
     
     if (filterDir) {
         // Filter dir like files

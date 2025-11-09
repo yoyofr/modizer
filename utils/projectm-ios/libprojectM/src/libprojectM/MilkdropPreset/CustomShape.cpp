@@ -198,6 +198,7 @@ void CustomShape::Draw()
             auto shader = m_presetState.untexturedShader.lock();
             shader->Bind();
             shader->SetUniformMat4x4("vertex_transformation", PresetState::orthogonalProjection);
+            shader->SetUniformFloat("vertex_point_size", 1.0);
         }
 
         m_fillMesh.Indices().Resize(sides + 2);
@@ -223,6 +224,7 @@ void CustomShape::Draw()
             auto shader = m_presetState.untexturedShader.lock();
             shader->Bind();
             shader->SetUniformMat4x4("vertex_transformation", PresetState::orthogonalProjection);
+            shader->SetUniformFloat("vertex_point_size", 1.0);
 
             m_outlineMesh.Bind();
 

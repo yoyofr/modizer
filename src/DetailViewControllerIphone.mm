@@ -41,7 +41,7 @@
 
 extern unsigned int mdzRenderbuffer;
 
-int mdz_pmMilkPermissiveEvalCode;
+int mdz_pmMilkPermissiveEvalCode,mdz_pmBlurAfterAudio;
 
 extern float camera_posX,camera_posY,camera_posZ;
 extern float camera_lookX,camera_lookY,camera_lookZ;
@@ -5326,9 +5326,9 @@ void pm_perfTest() {
 - (void) buildCommandBars {
     
     // When creating your bar button items with SF Symbols:
-    UIImageSymbolConfiguration *config = [UIImageSymbolConfiguration configurationWithPointSize:20.0
-                                                                                          weight:UIImageSymbolWeightRegular
-                                                                                           scale:UIImageSymbolScaleMedium];
+    UIImageSymbolConfiguration *config = [UIImageSymbolConfiguration configurationWithPointSize:22.0
+                                                                                          weight:UIImageSymbolWeightThin
+                                                                                           scale:UIImageSymbolScaleLarge];
     UIImage *playImage = [UIImage systemImageNamed:@"play.fill" withConfiguration:config];
     UIImage *pauseImage = [UIImage systemImageNamed:@"pause.fill" withConfiguration:config];
     UIImage *nextImage = [UIImage systemImageNamed:@"forward.end.fill" withConfiguration:config];
@@ -6708,6 +6708,7 @@ void doFramePM(float ww,float hh) {
         projectm_pcm_add_int16(_pm,(const int16_t*)pmBuffer,sample_count,PROJECTM_STEREO);
         
         
+        mdz_pmBlurAfterAudio=settings[PROJECTM_BlurAfterAudioMode].detail.mdz_boolswitch.switch_value;
         
         if ( (_pmCanvasWidth==(ww*glScaleFactor)) && (_pmCanvasHeight==(hh*glScaleFactor)) ) {
             //Max Quality, screen resolution
@@ -6753,13 +6754,16 @@ void doFramePM(float ww,float hh) {
                 snprintf(strButton,32,"Next\npreset");
                 break;
             case 2:
+                posX=(ww-cur_winSizeX)*glScaleFactor;posY=0*glScaleFactor;
+                snprintf(strButton,32,"Info HUD\nswitch mode");
                 break;
             case 3:
+                posX=0*glScaleFactor;posY=0*glScaleFactor;
                 break;
         }
         ImGui::SetNextWindowPos(ImVec2(posX,posY));
         ImGui::SetNextWindowSize(ImVec2(cur_winSizeX*glScaleFactor,cur_winSizeY*glScaleFactor));
-        alpha=(float)(oglv_corner_fade[i])/60.0;
+        alpha=(float)(oglv_corner_fade[i])/30.0*0.5;
         if (alpha>1) alpha=1;
         ImGui::PushStyleColor(ImGuiCol_WindowBg,ImVec4(0,0,0,alpha));
         ImGui::PushStyleColor(ImGuiCol_Border,ImVec4(0,0,0,0));
@@ -7245,7 +7249,6 @@ void doFramePM(float ww,float hh) {
         oldPosX=posMouseX;oldPosY=posMouseY;
     }
     if (mOglView1Tap) {
-        MDZILog("send 1 Tap event");
         imgui_event.event_type=IMGUI_IOS_Event_Tap_1;
         imgui_event.pos_x=oglTapX*glScaleFactor;
         imgui_event.pos_y=oglTapY*glScaleFactor;
@@ -7551,21 +7554,22 @@ void doFramePM(float ww,float hh) {
     //check for click
     if (mOglView1Tap) {
         mOglView1Tap=0;
-        if ( (pmenu_show==0) && (oglTapX<=ww*1/4) && (oglTapY>=hh*3/4) ) {
+        MDZILog("ww %d hh %d oglTapX %f oglTapY %f",ww,hh,oglTapX,oglTapY);
+        if ( (pmenu_show==0) && (oglTapX<=ww*1/5) && (oglTapY>=hh*4/5) ) {
             //tapping down left corner and not in menu, move to next ProjecTM preset
-            oglv_corner_fade[0]=60;
+            oglv_corner_fade[0]=30;
             [self mdPrevPreset];
-        } else if ( (pmenu_show==0) && (oglTapX>=ww*3/4) && (oglTapY>=hh*3/4) ) {
+        } else if ( (pmenu_show==0) && (oglTapX>=ww*4/5) && (oglTapY>=hh*4/5) ) {
             //tapping down right corner and not in menu, move to next ProjecTM preset
-            oglv_corner_fade[1]=60;
+            oglv_corner_fade[1]=30;
             [self mdNextPreset];
-        } else if ( (pmenu_show==0) && (oglTapX>=ww*3/4) && (oglTapY<=hh*1/4) ) {
+        } else if ( (pmenu_show==0) && (oglTapX>=ww*4/5) && (oglTapY<=hh*1/5) ) {
             //tapping upper right corner and not in menu, activate showinfo panel
-            oglv_corner_fade[2]=60;
+            oglv_corner_fade[2]=30;
             [SettingsGenViewController changeSettingsValue:GLOB_FXSHOWINFO change:1];
-        }  else if ( (pmenu_show==0) && (oglTapX<=ww*1/4) && (oglTapY<=hh*1/4) ) {
+        }  else if ( (pmenu_show==0) && (oglTapX<=ww*1/5) && (oglTapY<=hh*1/5) ) {
             //tapping upper left corner and not in menu, to be defined
-            oglv_corner_fade[3]=60;
+            oglv_corner_fade[3]=30;
         } else {
             //Activate menu if tap on the rest of the gl view
             if (pmenu_show==0) {
@@ -8443,7 +8447,12 @@ void doFramePM(float ww,float hh) {
                 ImGui::Begin("On screen info",0,ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoScrollbar|ImGuiWindowFlags_NoFocusOnAppearing);
                 ImVec2 pmPresetStr_size=ImGui::CalcTextSize(pmPresetStr);
                 
-                ImGui::Text("%s",pmPresetStr);
+                //if fullscreen or landscape orientation, add padding to cope with safe/zone / rounded borders
+                if ( (settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value) || (ww>hh) ) {
+                    ImGui::Text("     %s     ",pmPresetStr);
+                } else {
+                    ImGui::Text("%s",pmPresetStr);
+                }
                 
                 ImGui::SetScrollX(_pm_display_scrollx);
                 ImGui::End();
