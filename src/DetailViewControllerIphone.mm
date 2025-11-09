@@ -6773,6 +6773,11 @@ void doFramePM(float ww,float hh) {
         ImGui::Begin(strId,0,
                      ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoScrollbar|ImGuiWindowFlags_NoFocusOnAppearing
                      );
+        float text_width=ImGui::CalcTextSize(strButton).x;
+        float text_height=ImGui::GetTextLineHeightWithSpacing();
+        
+        ImGui::SetCursorPos(ImVec2( (cur_winSizeX*glScaleFactor-text_width)/2, (cur_winSizeY*glScaleFactor-text_height)/2 ) );
+        
         ImGui::Text("%s",strButton);
         ImGui::End();
         ImGui::PopStyleColor();
@@ -8439,7 +8444,7 @@ void doFramePM(float ww,float hh) {
                 if (font_menu) ImGui::PushFont(font_menu,FONTSIZE_PM_PRESET_INFO_LINE*glScaleFactor);
                 else ImGui::PushFont(nullptr);
                 
-                float textHH=ImGui::GetTextLineHeight()/glScaleFactor+6.0;
+                float textHH=ImGui::GetTextLineHeightWithSpacing()/glScaleFactor+6.0;
                 
                 ImGui::SetNextWindowPos(ImVec2(0,(hh-textHH)*glScaleFactor));
                 ImGui::SetNextWindowSize(ImVec2(ww*glScaleFactor,textHH*glScaleFactor));
