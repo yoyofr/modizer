@@ -382,7 +382,7 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
             
             if (!self.lastFailed) {
                 if (self.warp && self.comp) {
-                    MDZILog("warpP %d compP %d",self.warpP,self.compP);
+                    //MDZILog("warpP %d compP %d",self.warpP,self.compP);
                     START_PROFILE
                     self.lastFailed=false;
                     projectm_loadpreload_preset_file(self.pmh, [[item getFullPath] UTF8String], self.warp, self.comp,self.warpP, self.compP, !cut);

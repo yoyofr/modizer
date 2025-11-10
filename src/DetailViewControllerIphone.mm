@@ -22,6 +22,7 @@
 #define FONTSIZE_PM_PRESET_INFO_LINE 18
 #define FONTSIZE_SHOWINFO_FPS 24
 #define FONTSIZE_SHOWINFO_DETAILS 16
+#define FONTSIZE_FX_FS_INFO_LINE 22
 
 #define SHOWINFO_FPS_COLOR 0.2,1.0,0.1
 #define SHOWINFO_CPU_COLOR 83.0/255.0,182.0/255.0,235.0/255.0
@@ -155,6 +156,12 @@ MDZFavorites *_mdzPM_Favorites;
 bool _pm_playlist_loadBundled,_pm_playlist_loadCustom;
 NSString *pmCurPresetFile;
 int _pm_display_name_countdown;
+
+int _mdz_FS_display_songinfo_countdown;
+NSString *_mdz_FS_display_songinfo_title;
+NSString *_mdz_FS_display_songinfo_artist;
+NSString *_mdz_FS_display_songinfo_sub;
+
 float _pm_display_scrollx=0;
 int _pm_display_scroll_direction=1;
 int _pm_display_scroll_pause=0;
@@ -1870,6 +1877,8 @@ static float movePinchScale,movePinchScaleOld;
                     {
                         if ([mplayer getModFileTitleOrNull]) labelModuleName.text=[NSString stringWithFormat:@"%@ /%@",[mplayer getModFileTitle],[mplayer getModName]];
                         else labelModuleName.text=[NSString stringWithFormat:@"%@",[mplayer getModName]];
+                        
+                        [self refreshFXFSLabels];
                     }
                     lblCurrentSongCFlow.text=labelModuleName.text;
                 }
@@ -3105,6 +3114,8 @@ int recording=0;
     }
     lblCurrentSongCFlow.text=labelModuleName.text;
     
+    [self refreshFXFSLabels];
+    
     self.navigationItem.titleView=labelModuleName;
     self.navigationItem.title=labelModuleName.text;
     
@@ -3485,6 +3496,9 @@ int recording=0;
         else labelModuleName.text=[NSString stringWithFormat:@"%@",[mplayer getModName]];
     }
     lblCurrentSongCFlow.text=labelModuleName.text;
+    
+    [self refreshFXFSLabels];
+    
     self.navigationItem.titleView=labelModuleName;
     self.navigationItem.title=labelModuleName.text;
     
@@ -3942,6 +3956,9 @@ int recording=0;
         else labelModuleName.text=[NSString stringWithFormat:@"%@",[mplayer getModName]];
     }
     lblCurrentSongCFlow.text=labelModuleName.text;
+    
+    [self refreshFXFSLabels];
+    
     self.navigationItem.titleView=labelModuleName;
     self.navigationItem.title=labelModuleName.text;
     
@@ -6074,6 +6091,8 @@ void pm_perfTest() {
     pmenu_show=0;
     memset(oglv_corner_fade,0,sizeof(oglv_corner_fade));
     
+    _mdz_FS_display_songinfo_countdown=0;
+    
     //	[super viewDidLoad];
     END_PROFILE
     
@@ -7085,6 +7104,37 @@ void doFramePM(float ww,float hh) {
         ImGui::PopStyleColor();
     }
 }
+
+
+-(void) refreshFXFSLabels {
+    if ([mplayer isPlaying]) {
+        
+        int fps=(settings[GLOB_FXFPS].detail.mdz_switch.switch_value?30:60);
+        _mdz_FS_display_songinfo_countdown=fps*FX_FS_SONGINFO_TIMEOUT;
+        
+        _mdz_FS_display_songinfo_title=[mplayer getModFileTitle];
+        _mdz_FS_display_songinfo_artist=[mplayer artist];
+        if ([mplayer isArchive]&&([mplayer getArcEntriesCnt]>1)) {
+            //archive with multiple files
+            if (mplayer.mod_subsongs>1) {
+                //and also subsongs
+                _mdz_FS_display_songinfo_sub=[NSString stringWithFormat:@"(%d/%d)(%d/%d) %@",[mplayer getArcIndex]+1,[mplayer getArcEntriesCnt],mplayer.mod_currentsub-mplayer.mod_minsub+1,mplayer.mod_subsongs,[mplayer getModName]];
+            } else {
+                //no subsong
+                _mdz_FS_display_songinfo_sub=[NSString stringWithFormat:@"(%d/%d) %@",[mplayer getArcIndex]+1,[mplayer getArcEntriesCnt],[mplayer getModName]];
+            }
+        } else {
+            if (mplayer.mod_subsongs>1) {
+                //subsongs
+                _mdz_FS_display_songinfo_sub=[NSString stringWithFormat:@"(%d/%d) %@",mplayer.mod_currentsub-mplayer.mod_minsub+1,mplayer.mod_subsongs,[mplayer getModName]];
+            } else {
+                //no subsong
+                _mdz_FS_display_songinfo_sub=[NSString stringWithFormat:@"%@",[mplayer getModName]];
+            }
+        }
+    }
+}
+
 
 - (void)doFrame {
     static int no_reentrant=0;
@@ -8407,6 +8457,118 @@ void doFramePM(float ww,float hh) {
             sysMonitorIsActive=false;
         }
     }*/
+    
+    //-------------------------------------
+    // Song info
+    //-------------------------------------
+    if (settings[GLOB_FX_FS_DISPLAYSONGINFO].detail.mdz_boolswitch.switch_value && settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value &&_mdz_FS_display_songinfo_countdown) {
+        static int char_count[3]={0,0,0};
+        if (char_count[0]<64) char_count[0]++;
+        if ( (char_count[1]<64) && (char_count[0]>8) ) char_count[1]++;
+        if ( (char_count[2]<64) && (char_count[1]>8) ) char_count[2]++;
+        
+        char strLine[3][64];
+        
+        if (_mdz_FS_display_songinfo_title!=nil) snprintf(strLine[0],char_count[0],"%s",[_mdz_FS_display_songinfo_title UTF8String]);
+        else strLine[0][0]=0;
+        if (_mdz_FS_display_songinfo_sub!=nil) snprintf(strLine[1],char_count[1],"%s",[_mdz_FS_display_songinfo_sub UTF8String]);
+        else strLine[1][0]=0;
+        if (_mdz_FS_display_songinfo_artist!=nil) snprintf(strLine[2],char_count[2],"%s",[_mdz_FS_display_songinfo_artist UTF8String]);
+        else strLine[2][0]=0;
+        
+        float alpha_val=(float)(_mdz_FS_display_songinfo_countdown*4)/64.0;
+        if (alpha_val>0.8) alpha_val=0.8;
+        
+        ImGui::PushStyleColor(ImGuiCol_WindowBg,ImVec4(0,0,0,0.4));
+        ImGui::PushStyleColor(ImGuiCol_Border,ImVec4(0,0,0,0));
+        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0,1.0,1.0,alpha_val));
+
+        if (font_menu) ImGui::PushFont(font_menu,FONTSIZE_FX_FS_INFO_LINE*glScaleFactor);
+        else ImGui::PushFont(nullptr);
+        
+        float textHH=ImGui::GetTextLineHeightWithSpacing()/glScaleFactor;
+        float pos_x,pos_y;
+        ImVec2 str_size;
+        
+        ImVec2 str_size_max;
+        str_size=ImGui::CalcTextSize(strLine[0]);
+        if (str_size.x>str_size_max.x) str_size_max=str_size;
+        str_size=ImGui::CalcTextSize(strLine[1]);
+        if (str_size.x>str_size_max.x) str_size_max=str_size;
+        str_size=ImGui::CalcTextSize(strLine[2]);
+        if (str_size.x>str_size_max.x) str_size_max=str_size;
+        
+        switch (settings[GLOB_FX_FS_DISPLAYSONGINFO].detail.mdz_boolswitch.switch_value) {
+            default:
+            case 1: //TL
+                pos_x=0;
+                pos_y=(safe_top)*glScaleFactor;
+                break;
+            case 2: //TR
+                pos_x=(ww-str_size.x-4)*glScaleFactor;
+                pos_y=(safe_top)*glScaleFactor;
+                break;
+            case 3: //Center
+                pos_x=round((ww-str_size.x)/2.0*glScaleFactor);
+                pos_y=round((hh-textHH)/2.0*glScaleFactor);
+                break;
+            case 4: //BL
+                pos_x=0;
+                pos_y=(hh-textHH*3-safe_bottom)*glScaleFactor;
+                break;
+            case 5: //BR
+                pos_x=(ww-str_size.x-4)*glScaleFactor;
+                pos_y=(hh-textHH*3-safe_bottom)*glScaleFactor;
+                break;
+        }
+        ImGui::SetNextWindowPos(ImVec2(pos_x,pos_y));
+        ImGui::SetNextWindowSize(ImVec2((str_size_max.x+4)*glScaleFactor,3*textHH*glScaleFactor));
+        ImGui::GetStyle().Alpha=alpha_val;
+        ImGui::Begin("On screen music info",0,ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoScrollbar|ImGuiWindowFlags_NoFocusOnAppearing);
+        
+        for (int i=0;i<3;i++) {
+            str_size=ImGui::CalcTextSize(strLine[i]);
+            
+            switch (settings[GLOB_FX_FS_DISPLAYSONGINFO].detail.mdz_boolswitch.switch_value) {
+                default:
+                case 1: //TL
+                    pos_x=0;
+                    pos_y=(safe_top+textHH*i)*glScaleFactor;
+                    break;
+                case 2: //TR
+                    pos_x=(ww-str_size.x-4)*glScaleFactor;
+                    pos_y=(safe_top+textHH*i)*glScaleFactor;
+                    break;
+                case 3: //Center
+                    pos_x=round((ww-str_size.x)/2.0*glScaleFactor);
+                    pos_y=round((hh+textHH*(i-1))/2.0*glScaleFactor);
+                    break;
+                case 4: //BL
+                    pos_x=0;
+                    pos_y=(hh+textHH*(i-3)-safe_bottom)*glScaleFactor;
+                    break;
+                case 5: //BR
+                    pos_x=(ww-str_size.x-4)*glScaleFactor;
+                    pos_y=(hh+textHH*(i-3)-safe_bottom)*glScaleFactor;
+                    break;
+            }
+            ImGui::Text("%s",strLine[i]);
+        }
+        ImGui::End();
+        ImGui::PopFont();
+        
+        ImGui::PopStyleColor();
+        ImGui::PopStyleColor();
+        ImGui::PopStyleColor();
+        
+        if (_mdz_FS_display_songinfo_countdown) _mdz_FS_display_songinfo_countdown--;
+        if (!_mdz_FS_display_songinfo_countdown) {
+            char_count[0]=0;
+            char_count[1]=0;
+            char_count[2]=0;
+        }
+    }
+    
     //-------------------------------------
     // ProjectM preset name display
     //-------------------------------------

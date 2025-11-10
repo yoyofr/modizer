@@ -105,6 +105,8 @@ extern int move_cursorL,move_cursorR,keyDel;
     self.navigationController.delegate = self;
     
     [self setNeedsStatusBarAppearanceUpdate];
+    
+    [self showAnimatedLaunchOverlay];
 }
 
 - (id)findChildOfClass:(Class)cls {
@@ -254,8 +256,6 @@ extern int move_cursorL,move_cursorR,keyDel;
         }
     }
     
-    
-    
     //Faster loading for debug
 #ifdef DEBUG_MODIZER
     //[window addSubview:[animatedLaunchVC view]];
@@ -341,7 +341,7 @@ extern int move_cursorL,move_cursorR,keyDel;
             [self.selectedViewController.view layoutIfNeeded];
         }
         
-        [self showAnimatedLaunchOverlay];
+        //[self showAnimatedLaunchOverlay];
     }
 }
 

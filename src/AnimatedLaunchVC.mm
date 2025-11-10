@@ -26,7 +26,21 @@
     START_PROFILE
     [super viewDidLoad];
     
-    UIWindow *win=[UIApplication sharedApplication].keyWindow;
+    //UIWindow *win=[UIApplication sharedApplication].keyWindow;
+    // With automatic storyboard loading, the window and root VC are created by UIKit.
+    UIWindowScene *windowScene = nil;
+    for (UIScene *scene in UIApplication.sharedApplication.connectedScenes) {
+        if ([scene isKindOfClass:[UIWindowScene class]]) {
+            UIWindowScene *ws = (UIWindowScene *)scene;
+                windowScene = ws;
+                break;
+        }
+    }
+    UIWindow *win = windowScene.windows.firstObject;
+    if (!win) {
+        // Fallback to keyWindow if needed
+        win = [UIApplication sharedApplication].keyWindow;
+    }
     
     // Do any additional setup after loading the view.
     int rows=round(win.bounds.size.height/ANIMATION_GRID_CELL_SIZE);

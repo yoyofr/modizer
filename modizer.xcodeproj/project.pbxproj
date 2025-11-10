@@ -758,6 +758,7 @@
 		CC8369A32B623D740035A4DA /* Pator - Last Minute Accident (2023) (speccy.pl party 2023.1, 1).pt3 in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CC8369992B6199410035A4DA /* Pator - Last Minute Accident (2023) (speccy.pl party 2023.1, 1).pt3 */; };
 		CC8369A42B623D740035A4DA /* Sauron - OOOPS!.pt3 in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CC83699A2B6199410035A4DA /* Sauron - OOOPS!.pt3 */; };
 		CC89C83F2EC0F875000A110A /* libxmp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 59805449262F21CA00BB0309 /* libxmp.a */; };
+		CC89CB252EC14FDB000A110A /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = CC89CB242EC14FDB000A110A /* LaunchScreen.storyboard */; };
 		CC8A8D4317F9FF5500A56E0C /* Icon-76.png in Resources */ = {isa = PBXBuildFile; fileRef = CC8A8D3C17F9FF5500A56E0C /* Icon-76.png */; };
 		CC8A8D4417F9FF5500A56E0C /* Icon-120.png in Resources */ = {isa = PBXBuildFile; fileRef = CC8A8D3D17F9FF5500A56E0C /* Icon-120.png */; };
 		CC8A8D4517F9FF5500A56E0C /* Icon-144.png in Resources */ = {isa = PBXBuildFile; fileRef = CC8A8D3E17F9FF5500A56E0C /* Icon-144.png */; };
@@ -2442,6 +2443,7 @@
 		CC83699A2B6199410035A4DA /* Sauron - OOOPS!.pt3 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Sauron - OOOPS!.pt3"; sourceTree = "<group>"; };
 		CC836A552B6322770035A4DA /* libatariaudio.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libatariaudio.xcodeproj; path = libatariaudio/libatariaudio.xcodeproj; sourceTree = "<group>"; };
 		CC88D1131270AF200004EBBE /* modizer-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "modizer-Info.plist"; sourceTree = "<group>"; };
+		CC89CB242EC14FDB000A110A /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 		CC8A8D3C17F9FF5500A56E0C /* Icon-76.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon-76.png"; sourceTree = "<group>"; };
 		CC8A8D3D17F9FF5500A56E0C /* Icon-120.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon-120.png"; sourceTree = "<group>"; };
 		CC8A8D3E17F9FF5500A56E0C /* Icon-144.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon-144.png"; sourceTree = "<group>"; };
@@ -3286,6 +3288,7 @@
 			isa = PBXGroup;
 			children = (
 				33ABE5B617B23DF900AE0EA1 /* BookmarksViewController.xib */,
+				CC89CB242EC14FDB000A110A /* LaunchScreen.storyboard */,
 				CC4208BF2EBCACC3006EED3A /* Main.storyboard */,
 				CC6CBDEE17DBE380006DCBC7 /* EQViewController.xib */,
 				33B7AD0E17C75A8B00C1E404 /* MaintenanceViewController.xib */,
@@ -6036,6 +6039,7 @@
 				CC1E636C120423DF000A8A4E /* MugicianII in Resources */,
 				CC1E636D120423DF000A8A4E /* MultiMedia_Sound in Resources */,
 				CC1E636E120423DF000A8A4E /* MusicAssembler in Resources */,
+				CC89CB252EC14FDB000A110A /* LaunchScreen.storyboard in Resources */,
 				CC1E636F120423DF000A8A4E /* MusiclineEditor in Resources */,
 				CC1E6370120423DF000A8A4E /* MusicMaker-4V in Resources */,
 				CC1E6371120423DF000A8A4E /* MusicMaker-8V in Resources */,

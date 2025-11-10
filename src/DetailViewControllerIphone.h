@@ -413,4 +413,6 @@ enum {
 -(void) switchFX:(int)fxNb change:(int)val;
 -(void) changeSettingsValue:(int)settingsIdx change:(float)value;
 
+-(void) refreshFXFSLabels;
+
 @end

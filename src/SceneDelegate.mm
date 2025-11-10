@@ -70,8 +70,6 @@
         // e.g., [detailViewControlleriPhone openURL:url];
         
     }
-    
-    //[self pushViewController:animatedLaunchVC animated:YES];
 }
 
 - (void)sceneDidDisconnect:(UIScene *)scene {
