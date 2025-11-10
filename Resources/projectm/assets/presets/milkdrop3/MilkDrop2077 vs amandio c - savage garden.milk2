@@ -1,0 +1,304 @@
+Created with MILKDROP 3.21 on 21/09/2023 at 01:04:47
+https://twitter.com/MilkDrop2077
+
+blending_pattern=snail2
+blending_progress=0.44
+blending_direction=-1
+random_1=0.278320
+random_2=0.010434
+random_3=0.710705
+random_4=0.716396
+random_5=0.850000
+
+[PRESET1_BEGIN]
+NAME=MilkDrop2077 - NeonAngel vs Flexi - Sparky's Fractal Textures 3b
+MILKDROP_PRESET_VERSION=201
+PSVERSION=2
+PSVERSION_WARP=2
+PSVERSION_COMP=2
+[preset00]
+fRating=4.000
+fGammaAdj=2.700
+fDecay=0.980
+fVideoEchoZoom=2.000
+fVideoEchoAlpha=0.000
+nVideoEchoOrientation=0
+nWaveMode=6
+bAdditiveWaves=1
+bWaveDots=1
+bWaveThick=0
+bModWaveAlphaByVolume=0
+bMaximizeWaveColor=0
+bTexWrap=0
+bDarkenCenter=0
+bRedBlueStereo=0
+bBrighten=0
+bDarken=0
+bSolarize=0
+bInvert=0
+fWaveAlpha=0.004
+fWaveScale=0.653
+fWaveSmoothing=0.900
+fWaveParam=0.000
+fModWaveAlphaStart=0.500
+fModWaveAlphaEnd=1.000
+fWarpAnimSpeed=1.000
+fWarpScale=1.331
+fZoomExponent=1.00000
+fShader=0.000
+zoom=0.99951
+rot=0.00000
+cx=0.500
+cy=0.500
+dx=0.00000
+dy=0.00000
+warp=0.01000
+sx=1.00000
+sy=1.00000
+wave_r=1.000
+wave_g=1.000
+wave_b=0.100
+wave_x=0.500
+wave_y=0.500
+ob_size=0.500
+ob_r=0.010
+ob_g=0.000
+ob_b=0.000
+ob_a=0.000
+ib_size=0.260
+ib_r=0.250
+ib_g=0.250
+ib_b=0.250
+ib_a=0.000
+nMotionVectorsX=25.600
+nMotionVectorsY=14.400
+mv_dx=0.000
+mv_dy=0.000
+mv_l=1.000
+mv_r=1.000
+mv_g=1.000
+mv_b=1.000
+mv_a=0.000
+b1n=0.000
+b2n=0.000
+b3n=0.000
+b1x=1.000
+b2x=1.000
+b3x=1.000
+b1ed=0.250
+warp_1=`shader_body
+warp_2=`{
+warp_3=`float2 uv_m = 1.0 - abs( frac( uv * 0.5 ) * 2.0 - 1.0 ); // Eo.S' mirror code
+warp_4=`ret.x = tex2D( sampler_fc_main, uv_m ).z; // first julia fractal iteration
+warp_5=`ret.y = lerp(lerp(tex2D( sampler_fc_main, uv_m ).x, ret.x,0.5), 
+warp_6=`             GetPixel(uv_orig).y,
+warp_7=`             0.75); // 75% of motion blur to the green channel
+warp_8=`
+warp_9=`
+warp_10=`float2 d = texsize.zw*6;
+warp_11=`float2 uv_z = (uv_orig-0.5)*0.998 + 0.5; // a small dose of zoom-in
+warp_12=`float3 dx = ( GetBlur1(uv_z + float2(1,0)*d) - GetBlur1(uv_z-float2(1,0)*d) );
+warp_13=`float3 dy = ( GetBlur1(uv_z + float2(0,1)*d) - GetBlur1(uv_z-float2(0,1)*d) );
+warp_14=`uv_z -=float2(dx.z,dy.z)*texsize.zw*2; //shortening of the nebulous matter
+warp_15=`ret.z = max((tex2d(sampler_fc_main,uv_m).x-0.5)*3*saturate(1-length(uv_orig-0.5)*3.2), // feeded by the inner of the red channel
+warp_16=`             tex2d(sampler_fc_main,uv_z).z);
+warp_17=`ret.z += (tex2d(sampler_fc_main,uv_z).z - GetBlur1(saturate(uv_z)).z)*0.02; // sort of geiss' skin dot code
+warp_18=`}
+comp_1=`float z;
+comp_2=`float3 ret1, neu, mus;
+comp_3=`float2 rs,rs2,uv1,uv2, uv3,uv4,uv6,dz,dz1;
+comp_4=`shader_body
+comp_5=`{
+comp_6=`float2 uv2;
+comp_7=`//uv = (uv-0.5) * aspect.xy;    
+comp_8=`dz = 0;
+comp_9=`
+comp_10=`float2 hor = float2(texsize.z,0);
+comp_11=`float2 ver = float2(0,texsize.w);
+comp_12=`
+comp_13=`float dist = 1;
+comp_14=`float inten = 1;
+comp_15=`ret1 = 0;
+comp_16=`int anz = 3;
+comp_17=`int n = 0;
+comp_18=`uv4 = (uv+.01);
+comp_19=`    dz.x = lum(GetPixel(uv4+hor)- GetPixel (uv4-hor));
+comp_20=`    dz.y = lum(GetPixel(uv4+ver)- GetPixel (uv4-ver));
+comp_21=`
+comp_22=`mus = GetPixel(uv+.0*dz)+.0;
+comp_23=`
+comp_24=`uv2 = uv-.5;
+comp_25=`dz = 0;
+comp_26=`while (n <= anz) {
+comp_27=`    dist = 1-frac(1.0/anz*n+time/2); //evtl sqrt !;
+comp_28=`
+comp_29=`    inten =  sqrt(dist)*(1-dist)*2;
+comp_30=`    uv3 = 2*uv2*dist +.5;
+comp_31=`//    uv3 *= aspect.yx;
+comp_32=`    uv3 = frac (uv3);
+comp_33=`    neu = GetPixel(uv3)+GetBlur1(uv3);
+comp_34=`    ret1 = max(ret1,neu*inten);
+comp_35=`n++;
+comp_36=`}
+comp_37=`
+comp_38=`
+comp_39=`ret = ret1.bgr*(.5+mus)  +  3*mus*(.1+ret1);
+comp_40=`//ret = GetPixel(uv_orig)*2;
+comp_41=`}
+[PRESET1_END]
+
+[PRESET2_BEGIN]
+NAME=amandio c - savage garden sdfx
+[preset00]
+fRating=1.000
+fGammaAdj=1.630
+fDecay=1.000
+fVideoEchoZoom=0.907
+fVideoEchoAlpha=0.000
+nVideoEchoOrientation=1
+nWaveMode=6
+bAdditiveWaves=0
+bWaveDots=0
+bWaveThick=1
+bModWaveAlphaByVolume=0
+bMaximizeWaveColor=1
+bTexWrap=0
+bDarkenCenter=0
+bRedBlueStereo=0
+bBrighten=1
+bDarken=0
+bSolarize=0
+bInvert=0
+fWaveAlpha=0.000
+fWaveScale=0.000
+fWaveSmoothing=0.500
+fWaveParam=0.000
+fModWaveAlphaStart=0.500
+fModWaveAlphaEnd=1.000
+fWarpAnimSpeed=1.000
+fWarpScale=1.000
+fZoomExponent=1.00000
+fShader=0.000
+zoom=1.00000
+rot=0.00000
+cx=0.500
+cy=0.500
+dx=0.00000
+dy=0.00000
+warp=0.00000
+sx=1.00000
+sy=1.00000
+wave_r=0.500
+wave_g=0.500
+wave_b=0.500
+wave_x=0.500
+wave_y=0.500
+ob_size=0.000
+ob_r=1.000
+ob_g=1.000
+ob_b=1.000
+ob_a=1.000
+ib_size=0.002
+ib_r=0.000
+ib_g=0.000
+ib_b=0.000
+ib_a=0.000
+nMotionVectorsX=64.000
+nMotionVectorsY=48.000
+mv_dx=0.000
+mv_dy=0.000
+mv_l=0.000
+mv_r=1.000
+mv_g=1.000
+mv_b=1.000
+mv_a=0.000
+b1n=0.000
+b2n=0.000
+b3n=0.000
+b1x=1.000
+b2x=1.000
+b3x=1.000
+b1ed=0.250
+shapecode_0_enabled=1
+shapecode_0_sides=20
+shapecode_0_additive=0
+shapecode_0_thickOutline=0
+shapecode_0_textured=0
+shapecode_0_num_inst=11
+shapecode_0_x=0.550
+shapecode_0_y=0.500
+shapecode_0_rad=0.13031
+shapecode_0_ang=0.00000
+shapecode_0_tex_ang=0.00000
+shapecode_0_tex_zoom=0.27705
+shapecode_0_r=0.000
+shapecode_0_g=0.000
+shapecode_0_b=0.000
+shapecode_0_a=0.500
+shapecode_0_r2=0.000
+shapecode_0_g2=0.000
+shapecode_0_b2=0.000
+shapecode_0_a2=0.000
+shapecode_0_border_r=0.000
+shapecode_0_border_g=0.700
+shapecode_0_border_b=0.100
+shapecode_0_border_a=0.000
+shape_0_per_frame1=x= rand(1);
+shape_0_per_frame2=y= rand(1);
+shapecode_1_enabled=1
+shapecode_1_sides=20
+shapecode_1_additive=1
+shapecode_1_thickOutline=0
+shapecode_1_textured=0
+shapecode_1_num_inst=1024
+shapecode_1_x=0.500
+shapecode_1_y=0.500
+shapecode_1_rad=0.04963
+shapecode_1_ang=0.00000
+shapecode_1_tex_ang=4.08407
+shapecode_1_tex_zoom=5.76110
+shapecode_1_r=0.000
+shapecode_1_g=0.000
+shapecode_1_b=0.000
+shapecode_1_a=1.000
+shapecode_1_r2=0.000
+shapecode_1_g2=0.000
+shapecode_1_b2=0.000
+shapecode_1_a2=0.000
+shapecode_1_border_r=1.000
+shapecode_1_border_g=0.700
+shapecode_1_border_b=0.100
+shapecode_1_border_a=0.000
+shape_1_per_frame1=i= 1+instance;        c= i>1;
+shape_1_per_frame2=
+shape_1_per_frame3=
+shape_1_per_frame4=p += q3*(sin(i*q1)-cos(i*q2))/i+q2;     p *= c;
+shape_1_per_frame5=
+shape_1_per_frame6=x1 += sin(p*q4);      x1 *= c;
+shape_1_per_frame7=y1 += cos(p);         y1 *= c;
+shape_1_per_frame8=
+shape_1_per_frame9=
+shape_1_per_frame10=z=.005;
+shape_1_per_frame11=x= z*x1/q8 + q5;
+shape_1_per_frame12=y= z*y1    + q6;      
+shape_1_per_frame13=
+shape_1_per_frame14=
+shape_1_per_frame15=r= q7;
+shape_1_per_frame16=g= r*r;
+shape_1_per_frame17=b= .3*g;
+shape_1_per_frame18=
+shape_1_per_frame19=
+shape_1_per_frame20=rad = .005;
+per_frame_1=
+per_frame_2=q1= rand(500);  
+per_frame_3=q2= rand(500);  
+per_frame_4=q3= rand(500);  
+per_frame_5=q4= pow(-1,q3%2);
+per_frame_6=
+per_frame_7=q5= rand(1);
+per_frame_8=q6= rand(1);
+per_frame_9=q7= rand(1);
+per_frame_10=
+per_frame_11=q8=aspecty;       
+per_frame_12=
+[PRESET2_END]

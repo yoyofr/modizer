@@ -1,0 +1,114 @@
+MILKDROP_PRESET_VERSION=201
+PSVERSION=3
+PSVERSION_WARP=3
+PSVERSION_COMP=2
+[preset00]
+fRating=4.000
+fGammaAdj=1.460
+fDecay=0.935
+fVideoEchoZoom=1.007
+fVideoEchoAlpha=0.500
+nVideoEchoOrientation=2
+nWaveMode=5
+bAdditiveWaves=0
+bWaveDots=1
+bWaveThick=0
+bModWaveAlphaByVolume=0
+bMaximizeWaveColor=0
+bTexWrap=1
+bDarkenCenter=0
+bRedBlueStereo=0
+bBrighten=1
+bDarken=1
+bSolarize=0
+bInvert=0
+fWaveAlpha=0.001
+fWaveScale=0.012
+fWaveSmoothing=0.900
+fWaveParam=0.000
+fModWaveAlphaStart=0.750
+fModWaveAlphaEnd=0.950
+fWarpAnimSpeed=0.498
+fWarpScale=100.000
+fZoomExponent=1.00183
+fShader=1.000
+zoom=0.99815
+rot=0.00000
+cx=0.500
+cy=0.500
+dx=0.00000
+dy=0.00000
+warp=0.01000
+sx=1.00180
+sy=0.99990
+wave_r=0.500
+wave_g=0.400
+wave_b=0.300
+wave_x=0.500
+wave_y=0.500
+ob_size=0.000
+ob_r=0.360
+ob_g=0.290
+ob_b=0.290
+ob_a=1.000
+ib_size=0.000
+ib_r=1.000
+ib_g=0.000
+ib_b=1.000
+ib_a=1.000
+nMotionVectorsX=64.000
+nMotionVectorsY=48.000
+mv_dx=0.000
+mv_dy=0.000
+mv_l=1.000
+mv_r=0.390
+mv_g=0.440
+mv_b=0.900
+mv_a=0.000
+b1n=0.000
+b2n=0.000
+b3n=0.000
+b1x=1.000
+b2x=1.000
+b3x=1.000
+b1ed=0.250
+per_frame_1=decay=.6;
+per_frame_2=wave_a=0;
+per_frame_3=zoom=1;
+per_frame_4=warp=0;
+per_frame_5=
+per_frame_6=q5=aspectx;
+per_frame_7=q6=aspecty;
+per_frame_8=
+per_frame_9=
+per_frame_10=bt=bt+bass/fps;
+per_frame_11=q1=bt;
+warp_1=`shader_body
+warp_2=`{
+warp_3=`    // Calculate polar coordinates
+warp_4=`    float2 R = float2(texsize.x, texsize.y);
+warp_5=`    float2 p = uv_orig * R * 2.0 - R;
+warp_6=`    
+warp_7=`    // Dynamic rotation speed based on bass (cubic easing for stronger response)
+warp_8=`    float bassBoost = pow(bass_att, 3.0); // More aggressive acceleration
+warp_9=`    float rotationSpeed = 0.79 * (1.0 + bassBoost/32);
+warp_10=`    
+warp_11=`    // Angle calculation with bass-accelerated animation
+warp_12=`    float angle = atan2(p.x, p.y) - time * rotationSpeed;
+warp_13=`    
+warp_14=`    // Enhanced color wave pattern with bass-reactive intensity
+warp_15=`    float4 color = (0.6 + 0.6 * cos(angle + float4(0, 23, 21, 0))) 
+warp_16=`                 * (0.02 + 0.01) / abs(length(p)/R.y - 0.5);
+warp_17=`    
+warp_18=`    // Boosted audio reactivity - affects both brightness and saturation
+warp_19=`    color.rgb *= 1.0 + 0.3 * bass_att;
+warp_20=`    //color.rgb = lerp(color.rgb, color.rgb * 1.5, bass_att); // Extra punch
+warp_21=`    
+warp_22=`    ret = saturate(color); // Ensure colors stay in valid range
+warp_23=`}
+comp_1=`shader_body
+comp_2=`{
+comp_3=`ret = tex2D(sampler_main, uv).xyz;
+comp_4=`ret*=1.2;
+comp_5=`ret-=0.1;
+comp_6=`}

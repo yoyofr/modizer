@@ -22,6 +22,8 @@ typedef struct {
     char name[64];
 } MDZFavorites_Header_t;
 
+extern bool _pmPresetNewLoaded;
+
 #define MDZ_PLAYLIST_MAX_RETRY 32
 
 #import "DirParser.h"
@@ -343,6 +345,7 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
     projectm_load_preset_file(_pmh,"idle://Geiss & Sperl - Feedback (projectM idle HDR mix).milk",NULL);
     pthread_mutex_unlock(&pm_mutex);
     _curEntryLbl = [NSString stringWithFormat:@"No preset found. Activate bundled presets or copy milk files in '%s/presets' & images in '%s/textures' folders.",PM_ROOT_FOLDER_CUSTOM,PM_ROOT_FOLDER_CUSTOM];
+    _pmPresetNewLoaded=true;
     
 }
 
@@ -390,6 +393,7 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
                     END_PROFILE
                     
                     if (!self.lastFailed) {
+                        _pmPresetNewLoaded=true;
                         self.retry_counter=0;
                         FileNode *item=[self.items objectAtIndex:self.position];
                         self.curEntryLbl = [NSString stringWithFormat:@"(%d/%d) (%c)%@",self.position+1,self.size,
@@ -439,6 +443,7 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
             
             
             if (!_lastFailed) {
+                _pmPresetNewLoaded=true;
                 /*
 const char *strdata="\
 img=MilkDrop3_024\n\

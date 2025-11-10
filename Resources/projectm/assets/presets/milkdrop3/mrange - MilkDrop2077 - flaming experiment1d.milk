@@ -1,0 +1,332 @@
+MILKDROP_PRESET_VERSION=201
+PSVERSION=4
+PSVERSION_WARP=4
+PSVERSION_COMP=3
+[preset00]
+fRating=5.000
+fGammaAdj=1.460
+fDecay=0.935
+fVideoEchoZoom=1.007
+fVideoEchoAlpha=0.500
+nVideoEchoOrientation=2
+nWaveMode=6
+bAdditiveWaves=1
+bWaveDots=0
+bWaveThick=1
+bModWaveAlphaByVolume=0
+bMaximizeWaveColor=0
+bTexWrap=0
+bDarkenCenter=0
+bRedBlueStereo=0
+bBrighten=1
+bDarken=1
+bSolarize=0
+bInvert=0
+fWaveAlpha=3.200
+fWaveScale=1.768
+fWaveSmoothing=0.630
+fWaveParam=-1.000
+fModWaveAlphaStart=0.710
+fModWaveAlphaEnd=1.300
+fWarpAnimSpeed=1.459
+fWarpScale=2.007
+fZoomExponent=1.00000
+fShader=1.000
+zoom=0.99990
+rot=0.00000
+cx=0.500
+cy=0.500
+dx=0.00000
+dy=0.00000
+warp=0.01000
+sx=0.99990
+sy=1.00000
+wave_r=1.000
+wave_g=1.000
+wave_b=1.000
+wave_x=0.500
+wave_y=0.500
+ob_size=0.105
+ob_r=0.000
+ob_g=0.000
+ob_b=0.000
+ob_a=0.000
+ib_size=0.010
+ib_r=0.700
+ib_g=0.000
+ib_b=1.000
+ib_a=0.000
+nMotionVectorsX=64.000
+nMotionVectorsY=1.248
+mv_dx=0.000
+mv_dy=0.000
+mv_l=5.000
+mv_r=1.000
+mv_g=1.000
+mv_b=0.000
+mv_a=0.000
+b1n=0.000
+b2n=0.000
+b3n=0.000
+b1x=1.000
+b2x=1.000
+b3x=1.000
+b1ed=0.250
+per_frame_init_1=n = 0;
+per_frame_init_2=loop (100000,megabuf(n)=0;gmegabuf(n)=0;n += 1;);
+per_frame_init_3=
+per_frame_init_4=//rand chain
+per_frame_init_5=n = 90000; t=0; loop (5000, t+= (2+cos(n/21))/5; megabuf(n)= sin(t)*0.5; n+= 1);
+per_frame_init_6=
+per_frame_init_7=
+per_frame_init_8=fov = 1; reg05 = fov;
+per_frame_init_9=maxstrings = 150;
+per_frame_init_10=maxssize   = 37; //Pkte pro String
+per_frame_init_11=maxpts     = 1600;
+per_frame_init_12=maxshapes  = 300;
+per_frame_init_13=pfree = maxpts; //freie Pkte
+per_frame_init_14=sfree = maxstrings;  //freie Strings
+per_frame_init_15=
+per_frame_init_16=recsize = 8; reg01 = recsize; //pro Punkt
+per_frame_init_17=dist0 =  0.8; reg02 = dist0;
+per_frame_init_18=pi=3.1416;
+per_frame_init_19=
+per_frame_init_20=
+per_frame_init_21=//bei 0 starten die String-Inforecords
+per_frame_init_22=//0 : Age
+per_frame_init_23=//1 : start index
+per_frame_init_24=//2 : Len
+per_frame_init_25=//3: Alive
+per_frame_init_26=//4,5,6: dx0,dy0,dz0
+per_frame_init_27=
+per_frame_init_28=//bei 5000 starten die Punkt-records
+per_frame_init_29=//es folgen die ppstring Punkte; pro punkt
+per_frame_init_30=  //0..2: Pos. x,y,z
+per_frame_init_31=// ende pro punkt
+per_frame_init_32=
+per_frame_init_33=//2D-Records in gmegabuf
+per_frame_init_34=  //0..2: Pos. x,y,z
+per_frame_init_35=  //3: rad
+per_frame_init_36=  //5: a
+per_frame_init_37=  //6: mask
+per_frame_init_38=
+per_frame_init_39=//Shape-Records in gmegabuf, optional
+per_frame_init_40=  //0..2: r0, theta, phi
+per_frame_init_41=  //3: speed
+per_frame_init_42=  //4,5,6: x,y,z
+per_frame_init_43=  //
+per_frame_init_44=sPtr = 0;
+per_frame_init_45=r01 = rand(12);
+per_frame_init_46=r02 = rand(12);
+per_frame_1=dt = 1/fps;
+per_frame_2=vol = sqrt (bass_att+mid_att+treb_att)/3; vol_ = vol_*0.9 + 0.1*vol; gf = 0.35*vol/maxssize;
+per_frame_3=prog += vol*30*dt; 
+per_frame_4=
+per_frame_5=// Count sfree and pfree; pfree = len=0
+per_frame_6=s = 0; sfree = maxstrings; pfree = maxpts;
+per_frame_7=loop (maxstrings, ibase = s*recsize; if (megabuf(ibase+3) > 0, sfree -=1; pfree -=megabuf(ibase+2), 0); s+= 1);
+per_frame_8=
+per_frame_9=s = 0; loop (maxstrings, //NEW STRING ?
+per_frame_10=  ibase = s*recsize;
+per_frame_11=  if ((megabuf(ibase+3)==0) && (vol > vol_*1) && (rand(100) < 20),
+per_frame_12=    sfree -= 1;
+per_frame_13=    tht = rand(1)*(2.9 + (vol>vol_*1.7)); phi = (rand(1)-0.5)*4+pi/2;;
+per_frame_14=    pbase = 5000 + (s*maxssize)*recsize; //erster Punkt startet bei 0
+per_frame_15=    megabuf (ibase  ) = 0;//Age
+per_frame_16=    megabuf (ibase+1) = 0;//start ind
+per_frame_17=    megabuf (ibase+2) = 0;//len  
+per_frame_18=    megabuf (ibase+3) = 1;// am Leben
+per_frame_19=    megabuf (ibase+4) = sin(tht)*cos(phi);
+per_frame_20=    megabuf (ibase+5) = sin(tht)*sin(phi);
+per_frame_21=    megabuf (ibase+6) = -abs(cos(tht)); 
+per_frame_22=  ,0); //END NEW STRING
+per_frame_23=s+=1;);
+per_frame_24=
+per_frame_25=s = 0; loop (maxstrings, //GROW and SHRINK
+per_frame_26=  ibase = s*recsize;
+per_frame_27=  if (megabuf(ibase+3) > 0, //am Leben ?
+per_frame_28=    megabuf(ibase  ) += dt*rand(2) ; //Age
+per_frame_29=//EXPAND
+per_frame_30=    age   = megabuf (ibase);
+per_frame_31=    start = megabuf (ibase+1);
+per_frame_32=    len   = megabuf (ibase+2);
+per_frame_33=    newpts = int (5*vol*maxssize/40*(age < 0.7)) ; 
+per_frame_34=    newpts = max (0, min (newpts, min (pfree,maxssize-start-len))); 
+per_frame_35=    dx0 = megabuf (ibase+4);
+per_frame_36=    dy0 = megabuf (ibase+5);
+per_frame_37=    dz0 = megabuf (ibase+6);
+per_frame_38=    p = start+len;
+per_frame_39=    loop (newpts,
+per_frame_40=      pbase  = 5000 + (p+s*maxssize)*recsize;
+per_frame_41=k1 = if (s%3==0, p, (p-start-len)*16)+3+s/16;
+per_frame_42=if (frame%5==0,k1 = 20*vol,0);
+per_frame_43=//k1 = max(k1,p);
+per_frame_44=      megabuf (pbase) = k1*dx0*gf; megabuf (pbase+1) = k1*dy0*gf; megabuf (pbase+2) = k1*dz0*gf;      
+per_frame_45=      p+=1; ); 
+per_frame_46=    megabuf(ibase +2) += newpts;  len   = megabuf (ibase+2);  pfree -= newpts;
+per_frame_47=//SHRINK
+per_frame_48=    ivol = if (vol<0.35,3, if (vol<0.5,2,1));
+per_frame_49=    delpts = min ((megabuf(ibase)>.7),len) * (frame%ivol==0);
+per_frame_50=    megabuf(ibase+1) = (megabuf(ibase+1)+delpts); 
+per_frame_51=    megabuf(ibase+2) -= delpts;  pfree += delpts;
+per_frame_52=    if (megabuf(ibase+2) <= 0, megabuf(ibase+3)=0, 0);
+per_frame_53=  ,0);
+per_frame_54=s+=1);
+per_frame_55=
+per_frame_56=//MOVE
+per_frame_57=s = 0; loop (maxstrings,
+per_frame_58=  ibase = s*recsize;  start = megabuf (ibase+1); len = megabuf (ibase+2);
+per_frame_59=  if (len > 0, 
+per_frame_60=    p=start; i=0;
+per_frame_61=    loop (len,
+per_frame_62=      pbase  = 5000 + (p%maxssize+s*maxssize)*recsize;
+per_frame_63=      scale = pow(i/len,2)*0.005 ;
+per_frame_64=      r1 = pow(megabuf(pbase),2)+pow(megabuf(pbase+1),2)+pow(megabuf(pbase+2),2);
+per_frame_65=      scale *= min(sqrt(r1)*10,1) ; //##mit vol skalieren
+per_frame_66=      p1 = 5000-int(3*p+prog);
+per_frame_67=      megabuf (pbase)   += megabuf(90000+(p1+s*57)%5000)*scale;      
+per_frame_68=      megabuf (pbase+1) += megabuf(90000+(p1+s*91)%5000)*scale;      
+per_frame_69=      megabuf (pbase+2) += megabuf(90000+(p1+s*113)%5000)*scale;       
+per_frame_70=      p+=1; i+=1;   ); 
+per_frame_71=
+per_frame_72=//STRAIGHTEN
+per_frame_73=    p=start+1; smooth = 8;
+per_frame_74=    sz = 1/(1.93+smooth);
+per_frame_75=    loop (len-2,
+per_frame_76=      pbase  =  5000 + (p    +s*maxssize)*recsize;
+per_frame_77=      pbase1  = 5000 + ((p-1)+s*maxssize)*recsize;
+per_frame_78=      pbase2  = 5000 + ((p+1)+s*maxssize)*recsize;
+per_frame_79=      megabuf (pbase  ) = (smooth*megabuf(pbase  ) +megabuf(pbase1  )+megabuf(pbase2 ))*sz;      
+per_frame_80=      megabuf (pbase+1) = (smooth*megabuf(pbase+1) +megabuf(pbase1+1)+megabuf(pbase2+1))*sz;      
+per_frame_81=      megabuf (pbase+2) = (smooth*megabuf(pbase+2) +megabuf(pbase1+2)+megabuf(pbase2+2))*sz;      
+per_frame_82=     p+=1; ); 
+per_frame_83=
+per_frame_84=  ,0);
+per_frame_85=s+=1);
+per_frame_86=
+per_frame_87=//Projektion waves
+per_frame_88=n=0; loop (maxpts, gmegabuf(n+6)=0; n+=recsize); 
+per_frame_89=s = 0; i = 0;
+per_frame_90=loop (maxstrings,
+per_frame_91=  ibase = s*recsize;
+per_frame_92=  start = megabuf (ibase+1);
+per_frame_93=  len   = megabuf (ibase+2);
+per_frame_94=  p = start;  j=0;
+per_frame_95=//  if (len==0, len=-1, 0);
+per_frame_96=  loop (len+1, //ersten Pkt verdoppeln wegen waves
+per_frame_97=    pbase = 5000 + (p%maxssize + s*maxssize)*recsize;
+per_frame_98=    z    = megabuf (pbase+2)+dist0;
+per_frame_99=    gmegabuf (i*recsize)   = megabuf(pbase  );    
+per_frame_100=    gmegabuf (i*recsize+1) = megabuf(pbase+1);    
+per_frame_101=    gmegabuf (i*recsize+2) = z;    
+per_frame_102=    gmegabuf (i*recsize+3) = if (z>0, 0.027/z, 0) ;    //rad
+per_frame_103=    gmegabuf (i*recsize+5) = 1; //a
+per_frame_104=    gmegabuf (i*recsize+6) = (z>0.3)*(j>1) * (j<len-1); //mask
+per_frame_105=    if (j>1, p += 1,0);  i += 1; j+=1;
+per_frame_106=  );  
+per_frame_107=  s+=1;
+per_frame_108=);
+per_frame_109=
+per_frame_110=//Vol delay chain 
+per_frame_111=tvol = tvol*0.8 + 0.2*(vol-vol_);
+per_frame_112=n = 50030; loop (30, gmegabuf (n) = gmegabuf (n-1); n -= 1; ); gmegabuf (50000) = tvol;
+per_frame_113=
+per_frame_114=
+per_frame_115=dec = if (vol>pvol,0.5, 1-dt*40*0.05);
+per_frame_116=pvol = pvol*dec + vol*(1-dec);
+per_frame_117=q1 = pvol;
+per_frame_118=
+per_frame_119=//Zentrum
+per_frame_120=q10 = 0.5; 
+per_frame_121=q11 = 0.5;
+per_frame_122=q32 = aspecty;
+per_frame_123=
+per_frame_124=q3 = gmegabuf(50000)+1; 
+per_frame_125=q4 = gmegabuf(50005)+1; 
+per_frame_126=
+per_frame_127=//planet pos
+per_frame_128=t1 = time/12 +r01;
+per_frame_129=q15 = 0.5-0.35*tan(t1);
+per_frame_130=//q16 = 0.5- (0.05+0.24*cos(t1) * (0.7+0.3*sin(t1/7))); 
+per_frame_131=
+per_frame_132=q8 = (1.7+sin(time*.02+r02))*.16;
+per_frame_133=q9 = (1.7+sin(time*.0157-r02))*.16;
+per_frame_134=
+per_frame_135=bal = min(0.85,max(0.15,bal+ dt*0.1 * atan(treb -bass - (bal-0.5)*0.1)));
+per_frame_136=q12 = bal;
+per_frame_137=
+per_frame_138=monitor = q12;
+warp_1=`shader_body{
+warp_2=`
+warp_3=`//Shader from https://www.shadertoy.com/view/wX33zX
+warp_4=`//Ported to MilkDrop by MilkDrop2077
+warp_5=`//license: CC0 
+warp_6=`
+warp_7=`    float3 o = float3(0,0,0);
+warp_8=`    float t = time*3;
+warp_9=`    float2 r = float2(1.0, 1.0/aspect.x);
+warp_10=`    
+warp_11=`    for(float i=0.0, z=0.0, d=0.0, j=0.0; i<34.0; i+=1.0) {
+warp_12=`        // Ray setup
+warp_13=`        float2 centered_uv = (uv-0.5)*r*1.5;
+warp_14=`        float3 p = z*normalize(float3(centered_uv,1.0));
+warp_15=`        p.z -= 4.0;
+warp_16=`        float3 P = p;
+warp_17=`        
+warp_18=`        // Space transformation
+warp_19=`        float angle = P.y*P.y/4.0 + 3.0*P.y - t;
+warp_20=`        float2x2 rot = float2x2(cos(angle), -sin(angle), sin(angle), cos(angle));
+warp_21=`        p.xz = float2(p.x*rot[0][0] + p.z*rot[0][1], p.x*rot[1][0] + p.z*rot[1][1]);
+warp_22=`        p.x += sin(0.1*t - p.x);
+warp_23=`        
+warp_24=`        // Turbulence (fractal noise)
+warp_25=`        float turbulence = 12.0;
+warp_26=`        for(j=8.0; j>5.0; j-=1.0) {
+warp_27=`            turbulence /= 0.8+q1;
+warp_28=`            p += 0.1*(p.y+2.0)*cos(p.zxy*turbulence - 3.0*t)/turbulence;
+warp_29=`        }
+warp_30=`        
+warp_31=`        // Distance field
+warp_32=`        j = length(p-P);
+warp_33=`        p = abs(p*2);
+warp_34=`        d = abs(min(
+warp_35=`            max(p.z-0.1, p.x-1.0-0.3*P.y),
+warp_36=`            max(p.x-0.2, p.z-1.0-0.3*P.y)
+warp_37=`        )) + 9e-3;
+warp_38=`        
+warp_39=`        // Color calculation
+warp_40=`        float3 P_color = 1.0 + sin(0.5 + j - P.y + P.z + float3(2,3,4));
+warp_41=`        
+warp_42=`        // Volumetric rendering
+warp_43=`        o += P_color.x/d * P_color;
+warp_44=`        
+warp_45=`        // Ray marching step
+warp_46=`        z += d/8.0;
+warp_47=`    }
+warp_48=`    
+warp_49=`    // Tone mapping with music reactivity
+warp_50=`    float brightness = 0.8 + 0.2*bass_att;
+warp_51=`    ret = float4(tanh(o/2e3 * brightness), 1.0);
+warp_52=`}
+comp_1=`shader_body
+comp_2=`{//MilkDrop3 Rotate Mode:
+comp_3=`uv = uv.yx;
+comp_4=`
+comp_5=`    float2 d = texsize.zw*4;
+comp_6=`    float3 dx = ( GetBlur1(uv+float2(1,0)*d)-GetBlur1(uv-float2(1,0)*d) );
+comp_7=`    float3 dy = ( GetBlur1(uv+float2(0,1)*d)-GetBlur1(uv-float2(0,1)*d) );
+comp_8=`float2 uv_bg = uv - float2(dx.y,dy.y)*texsize.zw*16;
+comp_9=`ret = (GetBlur2(uv_bg)-GetBlur1(uv_bg)*1+GetPixel(uv_bg)*0.9 + (-dx.y + dy.y)*0.4).y*0.8*float3(1,1.1,1.2);
+comp_10=`
+comp_11=`float2 uv_m = uv - float2(dx.x,dy.x)*texsize.zw*8;
+comp_12=`ret = lerp(ret, 2*float3(0,0.5,1), GetBlur3(uv_m - float2(dx.y,dy.y)*0.4).x*0.4);
+comp_13=`ret = lerp(ret, 2*float3(0.5,1,1), GetBlur2(uv_m - float2(dx.y,dy.y)*0.2).x*0.4);
+comp_14=`ret = lerp(ret, 2*float3(1,1,0.8), GetBlur1(uv_m - float2(dx.y,dy.y)*0.1).x*0.2);
+comp_15=`//ret = lerp(ret, float3(0.5,0,1), GetPixel(uv_m).x*0.4);
+comp_16=`//MilkDrop3 Color Mode:
+comp_17=`ret /= float3(0.0,-3.0,-1.6);
+comp_18=`//MilkDrop3 Blow Mode:
+comp_19=`float3 avg_col = GetBlur2(uv);ret = abs(avg_col - ret)*2;
+comp_20=`//MilkDrop3 Burn Mode:
+comp_21=`ret = lerp(ret,2,GetPixel(uv).z*1.36);
+comp_22=`}

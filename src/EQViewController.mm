@@ -297,22 +297,11 @@ extern BOOL nvdsp_EQ;
     [self recomputeFrames];
 }
 
-/*
-- (NSUInteger)supportedInterfaceOrientations {
-    return UIInterfaceOrientationMaskAll;
-}
-*/
-/*
-- (BOOL)shouldAutorotate {
-    [self shouldAutorotateToInterfaceOrientation:self.interfaceOrientation];
-    return TRUE;
-}
-*/
-- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
-    [self recomputeFrames];
-    [self.view setNeedsDisplay];
-	return YES;
-}
+//- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
+//    [self recomputeFrames];
+//    [self.view setNeedsDisplay];
+//	return YES;
+//}
 
 - (void)dealloc {
     //[super dealloc];

@@ -1,0 +1,139 @@
+MILKDROP_PRESET_VERSION=201
+PSVERSION=3
+PSVERSION_WARP=3
+PSVERSION_COMP=3
+[preset00]
+fRating=4.000
+fGammaAdj=1.460
+fDecay=0.935
+fVideoEchoZoom=1.007
+fVideoEchoAlpha=0.500
+nVideoEchoOrientation=2
+nWaveMode=5
+bAdditiveWaves=0
+bWaveDots=0
+bWaveThick=1
+bModWaveAlphaByVolume=0
+bMaximizeWaveColor=1
+bTexWrap=1
+bDarkenCenter=0
+bRedBlueStereo=0
+bBrighten=1
+bDarken=1
+bSolarize=0
+bInvert=0
+fWaveAlpha=0.001
+fWaveScale=2.385
+fWaveSmoothing=0.900
+fWaveParam=0.000
+fModWaveAlphaStart=0.710
+fModWaveAlphaEnd=1.300
+fWarpAnimSpeed=1.000
+fWarpScale=1.331
+fZoomExponent=1.00000
+fShader=1.000
+zoom=0.99950
+rot=0.00000
+cx=0.500
+cy=0.500
+dx=0.00000
+dy=0.00000
+warp=0.00900
+sx=1.00000
+sy=1.00000
+wave_r=0.100
+wave_g=0.300
+wave_b=0.500
+wave_x=0.500
+wave_y=0.500
+ob_size=0.500
+ob_r=0.010
+ob_g=0.000
+ob_b=0.000
+ob_a=0.000
+ib_size=0.260
+ib_r=0.250
+ib_g=0.250
+ib_b=0.250
+ib_a=0.000
+nMotionVectorsX=0.000
+nMotionVectorsY=0.000
+mv_dx=0.000
+mv_dy=0.000
+mv_l=1.000
+mv_r=1.000
+mv_g=0.910
+mv_b=0.710
+mv_a=0.000
+b1n=0.000
+b2n=0.000
+b3n=0.000
+b1x=1.000
+b2x=1.000
+b3x=1.000
+b1ed=0.250
+warp_1=`shader_body
+warp_2=`{
+warp_3=`    #define PI2 6.28318530718
+warp_4=`    #define MAX_ITER 5
+warp_5=`    #define INV_MAX_ITER 0.2  // 1.0/MAX_ITER
+warp_6=`    
+warp_7=`    const float time2 = time * 0.02;
+warp_8=`    uv = uv_orig;
+warp_9=`    
+warp_10=`    // Pattern coordinates - optimized to remove fmod when not needed
+warp_11=`    const float2 p = uv * PI2 - 250.0;
+warp_12=`    float2 i = p;
+warp_13=`    float c = 1.0;
+warp_14=`    const float brightness = 0.005;
+warp_15=`    const float invBrightness = 200.0;  // 1.0/brightness
+warp_16=`    
+warp_17=`    // Precompute time components
+warp_18=`    const float t0 = time2;
+warp_19=`    const float t1 = time2 + time;
+warp_20=`    
+warp_21=`    // Fractal iteration loop - unrolled and optimized
+warp_22=`    for (int n = 0; n < MAX_ITER; n++) {
+warp_23=`        const float t = t0 * (1.0 - (3.5 / (float(n)+1.0)));
+warp_24=`        const float sin_t = sin(t);
+warp_25=`        const float cos_t = cos(t);
+warp_26=`        
+warp_27=`        // Update i with optimized trig operations
+warp_28=`        const float2 i_plus_t = i + t;
+warp_29=`        const float2 i_minus_t = i - t;
+warp_30=`        
+warp_31=`        i.x = p.x + cos_t*cos(i_minus_t.x) - sin_t*sin(i_minus_t.x) 
+warp_32=`                   + sin_t*cos(i_plus_t.y) + cos_t*sin(i_plus_t.y);
+warp_33=`        i.y = p.y + sin_t*cos(i_minus_t.y) - cos_t*sin(i_minus_t.y) 
+warp_34=`                   + cos_t*cos(i_plus_t.x) - sin_t*sin(i_plus_t.x);
+warp_35=`        
+warp_36=`        // Optimized denominator calculations
+warp_37=`        const float sin_ixt = sin(i.x + t);
+warp_38=`        const float cos_iyt = cos(i.y + t);
+warp_39=`        const float denom = sin_ixt * invBrightness;
+warp_40=`        const float denom2 = cos_iyt * invBrightness;
+warp_41=`        
+warp_42=`        // Optimized length calculation
+warp_43=`        const float2 pd = float2(p.x/denom, p.y/denom2);
+warp_44=`        c += rsqrt(dot(pd, pd));  // Faster than 1.0/length()
+warp_45=`    }
+warp_46=`    
+warp_47=`    // Post-processing
+warp_48=`    c *= INV_MAX_ITER;  // Faster than division
+warp_49=`    c = 1.17 - pow(c, 1.4);
+warp_50=`    const float3 colour = pow(abs(c), 8.0);
+warp_51=`    ret = float4(colour, 1.0);
+warp_52=`}
+comp_1=`
+comp_2=`shader_body {
+comp_3=`
+comp_4=`    //Don't drink and drive, take LSD and teleport
+comp_5=`    ret = tex2D(sampler_main, uv).xyz;
+comp_6=`    
+comp_7=`    // Time-varying color using cosine waves
+comp_8=`    float3 col = 0.8 + 0.5 * cos(time/15 + float3(uv.x, uv.y, uv.x) + float3(0, 2, 4));
+comp_9=`    
+comp_10=`    // Output final color mixing with the old frame
+comp_11=`    ret = ret * 1.5 * float4(col, 1.0);
+comp_12=`
+comp_13=`}

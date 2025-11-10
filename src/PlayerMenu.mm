@@ -60,7 +60,7 @@ extern ImFont *font_menu_icon;
 extern ImFont  *font_tracker[FONT_TRACKER_NB];
 int font_idx;
 extern volatile t_settings settings[MAX_SETTINGS];
-extern bool _pmPresetHasChanged;
+extern bool _pmPresetUpdateDisplayInfo;
 
 extern void pmSoftReinit(bool forceReloadPlaylist);
 
@@ -1689,7 +1689,7 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
                                 if (settings[PROJECTM_ShowPresetLabel].detail.mdz_switch.switch_value==2) settings[PROJECTM_ShowPresetLabel].detail.mdz_switch.switch_value=0;
                                 else {
                                     settings[PROJECTM_ShowPresetLabel].detail.mdz_switch.switch_value=2;
-                                    _pmPresetHasChanged=true; //Force a (re)display
+                                    _pmPresetUpdateDisplayInfo=true; //Force a (re)display
                                 }
                                 pmSoftReinit(false);
                                 break;
@@ -1883,7 +1883,7 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
             //update fav status consistency / tree
             pMenu_PMUpdateFavStatus(pmCurrentFileNode,FALSE,FALSE);
             
-            ImGui::PushStyleColor(ImGuiCol_Header, ImVec4(0.5f,0.4f,1.0f,0.9f));
+            ImGui::PushStyleColor(ImGuiCol_Header, ImVec4(0.25f,0.2f,0.5f,0.9f));
             
             index=pMenu_PMbuildDirTree(pmCurrentFileNode,index,filter,expandCollapseMode,selectedMode);
             expandCollapseMode=0;  //Reset flag
@@ -1951,7 +1951,7 @@ int pMenu_PMbuildDirTree(FileNode *fileNode, int idx,bool filter,int updExpandCo
                 
                 if (child.isSelected_Temp) flags|=ImGuiTreeNodeFlags_Selected;
                 
-                if ( !child.isFullySelected ) ImGui::PushStyleColor(ImGuiCol_Header, ImVec4(0.25f,0.2f,0.5f,0.9f));
+                if ( !child.isFullySelected ) ImGui::PushStyleColor(ImGuiCol_Header, ImVec4(0.2f,0.2f,0.3f,0.9f));
                 
                 switch (updExpandCollapse) {
                     default:

@@ -1,0 +1,192 @@
+MILKDROP_PRESET_VERSION=201
+PSVERSION=3
+PSVERSION_WARP=3
+PSVERSION_COMP=2
+[preset00]
+fRating=4.000
+fGammaAdj=1.460
+fDecay=0.935
+fVideoEchoZoom=1.007
+fVideoEchoAlpha=0.500
+nVideoEchoOrientation=2
+nWaveMode=1
+bAdditiveWaves=0
+bWaveDots=0
+bWaveThick=1
+bModWaveAlphaByVolume=0
+bMaximizeWaveColor=0
+bTexWrap=1
+bDarkenCenter=0
+bRedBlueStereo=0
+bBrighten=1
+bDarken=1
+bSolarize=0
+bInvert=0
+fWaveAlpha=0.004
+fWaveScale=0.037
+fWaveSmoothing=0.000
+fWaveParam=-0.440
+fModWaveAlphaStart=1.000
+fModWaveAlphaEnd=1.000
+fWarpAnimSpeed=1.000
+fWarpScale=1.331
+fZoomExponent=1.00000
+fShader=1.000
+zoom=0.99950
+rot=0.00000
+cx=0.500
+cy=0.500
+dx=0.00000
+dy=0.00000
+warp=0.00900
+sx=1.00000
+sy=1.00000
+wave_r=1.000
+wave_g=1.000
+wave_b=1.000
+wave_x=0.500
+wave_y=0.040
+ob_size=0.500
+ob_r=0.010
+ob_g=0.000
+ob_b=0.000
+ob_a=0.000
+ib_size=0.260
+ib_r=0.250
+ib_g=0.250
+ib_b=0.250
+ib_a=0.000
+nMotionVectorsX=64.000
+nMotionVectorsY=48.000
+mv_dx=0.000
+mv_dy=0.000
+mv_l=0.000
+mv_r=1.000
+mv_g=1.000
+mv_b=0.000
+mv_a=0.000
+b1n=0.000
+b2n=0.000
+b3n=0.000
+b1x=1.000
+b2x=1.000
+b3x=1.000
+b1ed=0.250
+shapecode_0_enabled=1
+shapecode_0_sides=30
+shapecode_0_additive=0
+shapecode_0_thickOutline=0
+shapecode_0_textured=1
+shapecode_0_num_inst=1
+shapecode_0_x=0.500
+shapecode_0_y=0.500
+shapecode_0_rad=2.45310
+shapecode_0_ang=3.20442
+shapecode_0_tex_ang=0.00000
+shapecode_0_tex_zoom=0.74187
+shapecode_0_r=0.000
+shapecode_0_g=1.000
+shapecode_0_b=1.000
+shapecode_0_a=0.620
+shapecode_0_r2=1.000
+shapecode_0_g2=1.000
+shapecode_0_b2=1.000
+shapecode_0_a2=0.000
+shapecode_0_border_r=1.000
+shapecode_0_border_g=1.000
+shapecode_0_border_b=1.000
+shapecode_0_border_a=0.000
+shape_0_per_frame1=tex_ang=.03*time;
+warp_1=`shader_body
+warp_2=`{
+warp_3=`    #define PI2 6.28318530718
+warp_4=`    #define MAX_ITER 5
+warp_5=`    #define INV_MAX_ITER 0.2  // 1.0/MAX_ITER
+warp_6=`    
+warp_7=`    const float time2 = time * 0.05;
+warp_8=`    uv = uv_orig;
+warp_9=`    
+warp_10=`    // Pattern coordinates - optimized to remove fmod when not needed
+warp_11=`    const float2 p = uv * PI2 - 250.0;
+warp_12=`    float2 i = p;
+warp_13=`    float c = 1.0;
+warp_14=`    const float brightness = 0.005;
+warp_15=`    const float invBrightness = 200.0;  // 1.0/brightness
+warp_16=`    
+warp_17=`    // Precompute time components
+warp_18=`    const float t0 = time2;
+warp_19=`    const float t1 = time2 + time;
+warp_20=`    
+warp_21=`    // Fractal iteration loop - unrolled and optimized
+warp_22=`    for (int n = 0; n < MAX_ITER; n++) {
+warp_23=`        const float t = t0 * (1.0 - (3.5 / (float(n)+1.0)));
+warp_24=`        const float sin_t = sin(t);
+warp_25=`        const float cos_t = cos(t);
+warp_26=`        
+warp_27=`        // Update i with optimized trig operations
+warp_28=`        const float2 i_plus_t = i + t;
+warp_29=`        const float2 i_minus_t = i - t;
+warp_30=`        
+warp_31=`        i.x = p.x + cos_t*cos(i_minus_t.x) - sin_t*sin(i_minus_t.x) 
+warp_32=`                   + sin_t*cos(i_plus_t.y) + cos_t*sin(i_plus_t.y);
+warp_33=`        i.y = p.y + sin_t*cos(i_minus_t.y) - cos_t*sin(i_minus_t.y) 
+warp_34=`                   + cos_t*cos(i_plus_t.x) - sin_t*sin(i_plus_t.x)+time;
+warp_35=`        
+warp_36=`        // Optimized denominator calculations
+warp_37=`        const float sin_ixt = sin(i.x + t);
+warp_38=`        const float cos_iyt = cos(i.y + t);
+warp_39=`        const float denom = sin_ixt * invBrightness;
+warp_40=`        const float denom2 = cos_iyt * invBrightness;
+warp_41=`        
+warp_42=`        // Optimized length calculation
+warp_43=`        const float2 pd = float2(p.x/denom, p.y/denom2);
+warp_44=`        c += rsqrt(dot(pd, pd));  // Faster than 1.0/length()
+warp_45=`    }
+warp_46=`    
+warp_47=`    // Post-processing
+warp_48=`    c *= INV_MAX_ITER;  // Faster than division
+warp_49=`    c = 1.17 - pow(c, 1.4);
+warp_50=`    const float3 colour = pow(abs(c), 8.0);
+warp_51=`    ret = float4(colour, 1.0);
+warp_52=`}
+comp_1=`shader_body
+comp_2=`{
+comp_3=`  //MilkDrop2077 shader using claude AI
+comp_4=`
+comp_5=`  // Heart shape using standard mathematical formula
+comp_6=`  float2 uv2 = uv - 0.5;
+comp_7=`  uv2.x *= texsize.x/texsize.y;  // correct aspect ratio
+comp_8=`  
+comp_9=`  // Scale and flip the coordinates
+comp_10=`  uv2.y = -uv2.y;
+comp_11=`  uv2 *= 2.5;
+comp_12=`  
+comp_13=`  // Standard heart formula
+comp_14=`  float2 q = float2(uv2.x, uv2.y - sqrt(abs(uv2.x))*0.5);
+comp_15=`  float d = length(q) - 0.5 + 0.15*sin(time);
+comp_16=`  
+comp_17=`  // Create a soft glow effect
+comp_18=`  float glow = 0.05/abs(d);
+comp_19=`  glow = saturate(glow);
+comp_20=`  
+comp_21=`  // Basic colors from the texture
+comp_22=`  float3 base = tex2D(sampler_main, uv).xyz;
+comp_23=`  
+comp_24=`  // Add the heart with color
+comp_25=`  float3 heartColor = float3(0.8, 0.1, 0.3);  // red heart
+comp_26=`  heartColor *= 1.0 + 0.2*sin(time);  // pulsing effect
+comp_27=`  
+comp_28=`  // Combine everything
+comp_29=`  ret = base*1.3 + glow*1.5 * heartColor*bass_att;
+comp_30=`  
+comp_31=`  // Add some radial glow from the center
+comp_32=` // float center_glow = 0.02/length(uv2);
+comp_33=` // ret += center_glow * float3(1,0.7,0.8) * 0.5;
+comp_34=`  
+comp_35=`  // Ensure we don't exceed valid color ranges
+comp_36=`  ret = saturate(ret);
+comp_37=`
+comp_38=`//MilkDrop3 Burn Mode:
+comp_39=`//ret = lerp(ret,1,GetPixel(uv).z*1.25);
+comp_40=`ret-=0.05;
+comp_41=`}

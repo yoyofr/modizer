@@ -1,0 +1,172 @@
+MILKDROP_PRESET_VERSION=300
+PSVERSION=2
+PSVERSION_WARP=2
+PSVERSION_COMP=2
+[preset00]
+fRating=4.000
+fGammaAdj=1.000
+fDecay=0.900
+fVideoEchoZoom=1.000
+fVideoEchoAlpha=0.500
+nVideoEchoOrientation=1
+nWaveMode=7
+bAdditiveWaves=0
+bWaveDots=0
+bWaveThick=1
+bModWaveAlphaByVolume=1
+bMaximizeWaveColor=1
+bTexWrap=1
+bDarkenCenter=0
+bRedBlueStereo=0
+bBrighten=0
+bDarken=0
+bSolarize=0
+bInvert=1
+fWaveAlpha=0.303
+fWaveScale=1.719
+fWaveSmoothing=0.522
+fWaveParam=0.000
+fModWaveAlphaStart=0.950
+fModWaveAlphaEnd=1.470
+fWarpAnimSpeed=1.000
+fWarpScale=2.853
+fZoomExponent=1.00000
+fShader=0.000
+zoom=1.10000
+rot=0.00000
+cx=0.500
+cy=0.500
+dx=0.00500
+dy=0.00000
+warp=0.01163
+sx=1.00000
+sy=1.00000
+wave_r=0.600
+wave_g=0.700
+wave_b=1.000
+wave_x=0.425
+wave_y=0.500
+ob_size=0.010
+ob_r=0.000
+ob_g=0.000
+ob_b=0.000
+ob_a=0.000
+ib_size=0.010
+ib_r=0.250
+ib_g=0.230
+ib_b=0.235
+ib_a=0.000
+nMotionVectorsX=12.000
+nMotionVectorsY=9.000
+mv_dx=0.000
+mv_dy=0.000
+mv_l=0.900
+mv_r=1.000
+mv_g=1.000
+mv_b=1.000
+mv_a=0.000
+b1n=0.000
+b2n=0.000
+b3n=0.000
+b1x=1.000
+b2x=1.000
+b3x=1.000
+b1ed=0.250
+per_frame_1=dx=0;
+per_frame_2=warp=0;
+per_frame_3=rot=sin(time*3.14*20)*0.002;
+per_frame_4=monitor=bass;
+per_frame_5=q3=int(rand(1000))/1000;
+per_frame_6=q2=q3+int(rand(1000))/4000;
+per_frame_7=all=(bass_att+treb_att+mid_att)/20+all;
+per_frame_8=wave_r=q3*0.1+sin(all*0.6)*0.9;
+per_frame_9=wave_g=sin(4*sin(all*1.0));
+per_frame_10=wave_b=sin(cos(all*1.11)*4);
+per_pixel_1=dy=cos(time*555)*above(bass_att,1)*above(y,q3)*below(y,q2);
+per_pixel_2=dx=cos(time*555)*above(treb,1)*above(x,q3)*below(x,q2);
+per_pixel_3=zoom=above(x,q3)*above(y,q3)*below(x,q2)*below(y,q2)*0.21+1;
+per_pixel_4=
+per_pixel_5=
+warp_1=`shader_body
+warp_2=`{
+warp_3=`    float2 scale = float2(1280,1024)*texsize.zw; // 1280x1024 : the resolution i modelled this shader with
+warp_4=`    float1 d = 0.005;
+warp_5=`    float1 dx = ( GetBlur2(uv + float2(d,0)) - GetBlur2(uv-float2(d,0)) ).x*scale.x;
+warp_6=`    float1 dy = ( GetBlur2(uv + float2(0,d)) - GetBlur2(uv-float2(0,d)) ).x*scale.y;
+warp_7=`    float1 dxb = ( GetBlur2(uv + float2(d,0)) - GetBlur2(uv-float2(d,0)) ).x*scale.x;
+warp_8=`    float1 dyb = ( GetBlur2(uv + float2(0,d)) - GetBlur2(uv-float2(0,d)) ).x*scale.y;
+warp_9=`    float2 my_uv = uv - float2(dx,dy)*0.01 + float2(dxb,dyb)*0.003;
+warp_10=`
+warp_11=`
+warp_12=`
+warp_13=`    float2 v = 0.01;
+warp_14=`    ret.x = tex2D( sampler_fw_main, my_uv -floor(my_uv)*0).x;
+warp_15=`
+warp_16=`    
+warp_17=`    ret.x += (ret.x - GetBlur3(uv).x)*.1;
+warp_18=`    ret.x -= 0.01;
+warp_19=`
+warp_20=`
+warp_21=`//--------------------------------
+warp_22=`
+warp_23=`    my_uv = uv + float2(dy,-dx)*0.05*(1.2-GetBlur3(uv).y);
+warp_24=`
+warp_25=`
+warp_26=`
+warp_27=`    v = 0.01;
+warp_28=`    ret.z = tex2D( sampler_fw_main, my_uv).z;
+warp_29=`    
+warp_30=`    ret.z += (ret.z - GetBlur1(uv).z)*length(my_uv-uv)*180/length(scale);
+warp_31=`    ret.z *= 0.8;
+warp_32=`    ret.z -= 0.01;
+warp_33=`
+warp_34=`
+warp_35=`
+warp_36=`//--------------------------------
+warp_37=`
+warp_38=`    d = 0.01;
+warp_39=`    my_uv = float2(-dy,dx)*0.045;
+warp_40=`
+warp_41=`    dx = ( GetBlur2(uv + float2(d,0)) - GetBlur2(uv-float2(d,0)) ).y*scale.x;
+warp_42=`    dy = ( GetBlur2(uv + float2(0,d)) - GetBlur2(uv-float2(0,d)) ).y*scale.y;
+warp_43=`    my_uv += uv - float2(dx,dy)*0.03;
+warp_44=`    v = 0.01;
+warp_45=`    ret.y =tex2D( sampler_fw_main, my_uv).y;
+warp_46=`    ret.y += (ret.y - GetBlur3(my_uv).y)*0.1 - 0.01;
+warp_47=`    
+warp_48=`    
+warp_49=`
+warp_50=`    
+warp_51=`    
+warp_52=`//ret = 0;
+warp_53=`}
+comp_1=`shader_body
+comp_2=`{
+comp_3=`ret = lerp(GetBlur2(uv),GetPixel(uv),0.44);
+comp_4=`
+comp_5=`ret = (ret.y-ret.x*0.5)*lerp(float3(2.4,2.7,2.8),1,ret.x)*2.4;
+comp_6=`//MilkDrop3 Burn Mode:
+comp_7=`ret = lerp(ret,2,GetPixel(uv).z*1.36);
+comp_8=`//MilkDrop3 Solarize Mode:
+comp_9=`ret = ret*(1-ret)*4;
+comp_10=`}
+
+[SPRITE1_BEGIN]
+SpriteName=sprites\Mandala3.png
+SpriteColorKey=0x000000
+SpriteLayer=0
+SpriteBlend=4
+SpriteAlpha=0.500000
+SpriteBurn=1
+SpriteX=0.000000
+SpriteY=0.000000
+SpriteSX=-0.440000
+SpriteSY=-0.440000
+SpriteRot=2.000000
+SpriteSpeed=0.100000
+SpriteRepeatX=1.000000
+SpriteRepeatY=1.000000
+code_1=new_scale=1.0+0.02*bass_att;
+code_2=sx=new_scale;
+code_3=sy=new_scale;
+[SPRITE1_END]

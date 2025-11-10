@@ -1,0 +1,186 @@
+MILKDROP_PRESET_VERSION=201
+PSVERSION=4
+PSVERSION_WARP=4
+PSVERSION_COMP=2
+[preset00]
+fRating=5.000
+fGammaAdj=1.460
+fDecay=0.935
+fVideoEchoZoom=1.007
+fVideoEchoAlpha=0.500
+nVideoEchoOrientation=2
+nWaveMode=15
+bAdditiveWaves=1
+bWaveDots=0
+bWaveThick=1
+bModWaveAlphaByVolume=0
+bMaximizeWaveColor=1
+bTexWrap=0
+bDarkenCenter=0
+bRedBlueStereo=0
+bBrighten=1
+bDarken=1
+bSolarize=0
+bInvert=0
+fWaveAlpha=0.001
+fWaveScale=0.625
+fWaveSmoothing=0.900
+fWaveParam=0.000
+fModWaveAlphaStart=0.880
+fModWaveAlphaEnd=1.980
+fWarpAnimSpeed=1.459
+fWarpScale=2.007
+fZoomExponent=1.00000
+fShader=1.000
+zoom=0.99990
+rot=0.00000
+cx=0.500
+cy=0.500
+dx=0.00000
+dy=0.00000
+warp=0.01000
+sx=0.99990
+sy=1.00000
+wave_r=0.000
+wave_g=0.000
+wave_b=0.000
+wave_x=0.500
+wave_y=0.500
+ob_size=0.000
+ob_r=0.000
+ob_g=0.000
+ob_b=0.000
+ob_a=1.000
+ib_size=0.000
+ib_r=0.000
+ib_g=0.000
+ib_b=0.000
+ib_a=0.000
+nMotionVectorsX=64.000
+nMotionVectorsY=48.000
+mv_dx=0.000
+mv_dy=0.000
+mv_l=1.000
+mv_r=1.060
+mv_g=1.000
+mv_b=0.819
+mv_a=0.000
+b1n=0.000
+b2n=0.000
+b3n=0.000
+b1x=1.000
+b2x=1.000
+b3x=1.000
+b1ed=0.250
+per_frame_init_1=n = 0;
+per_frame_init_2=loop (100000,megabuf(n)=0;gmegabuf(n)=0;n += 1;);
+per_frame_init_3=
+per_frame_init_4=posx = rand(10); posy = rand(10);
+per_frame_init_5=ranx = rand (1); rany = rand(1);
+per_frame_init_6=ranh = rand(10);
+per_frame_init_7=t0 = time;
+per_frame_init_8=st = 0.5; st_=0.5;
+per_frame_1=st = max (0, st-0.2/fps);
+per_frame_2=dec = 1-0.5/fps;
+per_frame_3=st_ = st_* (dec) + (1-dec)*st;
+per_frame_4=
+per_frame_5=//dir
+per_frame_6=dir = 0.7*sin(time*.0162+rany*6);
+per_frame_7=q2 = dir+0.5; 
+per_frame_8=q3 = sin(dir);
+per_frame_9=q4 = cos(dir);
+per_frame_10=
+per_frame_11=//scaling plane
+per_frame_12=q7 = 0.002;
+per_frame_13=
+per_frame_14=//movement
+per_frame_15=posx = time*0.0003;
+per_frame_16=posy = time*0.004;
+per_frame_17=q10 = posx;
+per_frame_18=q11 = posy;
+per_frame_19=
+per_frame_20=//start ran for warp mod 
+per_frame_21=q15 = ranx;
+per_frame_22=q16 = rany;
+per_frame_23=
+per_frame_24=test = (t0-time)*0.047-3.14/2;
+per_frame_25=view = 0.7 + min(1, max (-1, 2*sin(test)))*0.17;
+per_frame_26=
+per_frame_27=//Alti
+per_frame_28=q8 = 4 + 3* sin(test) + (view-0.55)*16;
+per_frame_29=
+per_frame_30=//hory (Kippung)
+per_frame_31=q6 = view * (1-st_) + st_*2;
+per_frame_32=
+per_frame_33=//q6  = 0.55;
+per_frame_34=monitor = view;
+warp_1=`//Shader by Altunenes
+warp_2=`//https://www.shadertoy.com/view/w33GRl
+warp_3=`//Ported to MilkDrop by MilkDrop2077
+warp_4=`
+warp_5=`// Noise function
+warp_6=`float n(float2 p) {
+warp_7=`   return sin(p.x*3.0+sin(p.y*2.7))*cos(p.y*1.1+cos(p.x*2.3));
+warp_8=`}
+warp_9=`
+warp_10=`// Fractal function
+warp_11=`float f(float3 p) {
+warp_12=`    float v = 0.0, a = 1.0;
+warp_13=`    for(int i=0; i<7; i++) {
+warp_14=`       v += n(p.xy+p.z*0.5)*a;
+warp_15=`       p *= 2.0;
+warp_16=`       a *= 0.5;
+warp_17=`    }
+warp_18=`    return v;
+warp_19=`}
+warp_20=`
+warp_21=`shader_body {
+warp_22=`    // Initialize output
+warp_23=`    ret = float4(0, 0, 0, 1);
+warp_24=`
+warp_25=`    // Coordinate setup with aspect ratio correction
+warp_26=`    float aspect = aspect.x/aspect.y;
+warp_27=`    uv = (uv.xy-0.5)*float2(aspect,1.0);
+warp_28=`    float3 o = float3(0,0,0);
+warp_29=`    float z = 0.0, d = 0.0, t = time;
+warp_30=`    float N = 0.0;
+warp_31=`
+warp_32=`    // Raymarching loop
+warp_33=`    for(int i=0; i<50; i++) {
+warp_34=`        // Ray setup
+warp_35=`        float3 p = z*normalize(float3(uv.x, uv.y, 1.0));
+warp_36=`        p.z += t;
+warp_37=`
+warp_38=`        // Rotation matrix inspired by mrange's work
+warp_39=`        float angle = p.z;
+warp_40=`        float2x2 R = float2x2(cos(angle), -sin(angle),
+warp_41=`                             sin(angle), cos(angle));
+warp_42=`        p.xy = mul(p.xy, R);
+warp_43=`
+warp_44=`        // Fractal evaluation
+warp_45=`        N = f(p+q1/2 + t*0.1)*q3;
+warp_46=`        d = length(p.xy)-1.0+N*0.3;
+warp_47=`        p.z = fmod(p.z,4.0+cos(q1))-3.0;
+warp_48=`        d = abs(d)+0.01;
+warp_49=`
+warp_50=`        // Color composition
+warp_51=`        float3 c = float3(0.1,0.3,0.8)/(length(p.xy+N+bass_att)*0.5);
+warp_52=`        c += float3(bass_att*0.6,0.4,0.2)/(length(p.xz+N)*0.5);
+warp_53=`        c += float3(1.0,1.0,2.0)*(0.5+0.5*sin(N*1.0+t));
+warp_54=`
+warp_55=`        // Accumulate color with falloff
+warp_56=`        o += c/d*0.12;
+warp_57=`        z += d*0.6;
+warp_58=`    }
+warp_59=`
+warp_60=`    // Final color processing
+warp_61=`    ret.rgb = tanh(o*0.001);
+warp_62=`}
+comp_1=`shader_body
+comp_2=`{
+comp_3=`    ret = tex2D(sampler_main, uv).xyz;
+comp_4=`ret*=2;
+comp_5=`//ret-=0.2;
+comp_6=`//MilkDrop3 Rainbow Mode:
+comp_7=`ret *= 1*normalize ((tex2D (sampler_noise_hq,(uv+q4/2)/6)));
+comp_8=`}

@@ -285,7 +285,7 @@ enum MDZ_SETTINGS {
         PROJECTM_HardCutSensitivity,
         PROJECTM_BeatSensitivity,
         PROJECTM_PermmissiveMode,
-        PROJECTM_BlurAfterAudioMode,
+        //PROJECTM_BlurAfterAudioMode,
         
         
         MDZ_SETTINGS_FAMILY_OSCILLO,

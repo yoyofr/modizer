@@ -1,0 +1,359 @@
+Created with MILKDROP 3.21 on 21/10/2023 at 00:22:54
+https://twitter.com/MilkDrop2077
+
+blending_pattern=cercle
+blending_progress=0.41
+blending_direction=-1
+random_1=0.282791
+random_2=0.239431
+random_3=0.659621
+random_4=0.910569
+random_5=0.378997
+
+[PRESET1_BEGIN]
+NAME=MilkDrop2077 - amandio c - Plasma
+MILKDROP_PRESET_VERSION=201
+PSVERSION=2
+PSVERSION_WARP=2
+PSVERSION_COMP=2
+[preset00]
+fRating=3.000
+fGammaAdj=2.000
+fDecay=1.000
+fVideoEchoZoom=1.000
+fVideoEchoAlpha=0.000
+nVideoEchoOrientation=1
+nWaveMode=5
+bAdditiveWaves=0
+bWaveDots=0
+bWaveThick=0
+bModWaveAlphaByVolume=1
+bMaximizeWaveColor=1
+bTexWrap=1
+bDarkenCenter=0
+bRedBlueStereo=0
+bBrighten=0
+bDarken=0
+bSolarize=0
+bInvert=0
+fWaveAlpha=0.207
+fWaveScale=0.010
+fWaveSmoothing=0.000
+fWaveParam=0.240
+fModWaveAlphaStart=0.750
+fModWaveAlphaEnd=1.170
+fWarpAnimSpeed=1.000
+fWarpScale=5.921
+fZoomExponent=11.56276
+fShader=0.000
+zoom=1.05971
+rot=0.00000
+cx=0.500
+cy=0.500
+dx=0.00000
+dy=0.00000
+warp=0.17690
+sx=1.00000
+sy=1.00000
+wave_r=1.000
+wave_g=1.000
+wave_b=1.000
+wave_x=0.500
+wave_y=0.500
+ob_size=0.000
+ob_r=0.000
+ob_g=0.000
+ob_b=0.000
+ob_a=1.000
+ib_size=0.000
+ib_r=0.250
+ib_g=0.250
+ib_b=0.250
+ib_a=0.000
+nMotionVectorsX=64.000
+nMotionVectorsY=48.000
+mv_dx=0.000
+mv_dy=0.000
+mv_l=0.000
+mv_r=0.350
+mv_g=0.350
+mv_b=0.350
+mv_a=0.000
+b1n=0.000
+b2n=0.000
+b3n=0.000
+b1x=0.970
+b2x=0.780
+b3x=0.790
+b1ed=0.310
+per_frame_init_1=q11 = 0.5/asin(1);
+per_frame_1=wave_a = 0;
+per_frame_2=//warp = 0;
+per_frame_3=zoom = 1;
+per_frame_4=bb = bb*0.99 + bass*0.02;
+per_frame_5=mm = mm*0.99 + mid*0.02;
+per_frame_6=tt = tt*0.99 + treb*0.02;
+per_frame_7=
+per_frame_8=mx = max(max(bb,mm),tt);
+per_frame_9=mn = min(min(bb,mm),tt);
+per_frame_10=
+per_frame_11=h1 = (bb-mn)/(mx-mn);
+per_frame_12=h2 = (mm-mn)/(mx-mn);
+per_frame_13=h3 = (tt-mn)/(mx-mn);
+per_frame_14=
+per_frame_15=v = 0.15/fps;
+per_frame_16=bm = bm + (h1-h2)*v;
+per_frame_17=mt = mt + (h2-h3)*v;
+per_frame_18=bt = bt + (h1-h3)*v;
+per_frame_19=
+per_frame_20=w = bm*2;
+per_frame_21=q3 = sin(w);
+per_frame_22=q4 = cos(w);
+per_frame_23=
+per_frame_24=
+per_frame_25=q10 = bm;
+per_frame_26=q11 = mt;
+per_frame_27=q12 = bt;
+warp_1=`#define tex sampler_Pattern_002
+warp_2=`sampler tex;
+warp_3=`
+warp_4=`shader_body
+warp_5=`{
+warp_6=`
+warp_7=`float2 xy1=0;
+warp_8=`float2 xymod=uv-.5;
+warp_9=`
+warp_10=`xy1.x=sin(time/3)*xymod.x-cos(time/3)*xymod.y/3;
+warp_11=`xy1.y=cos(time/3)*xymod.x+sin(time/3)*xymod.y;
+warp_12=`
+warp_13=`uv=xy1+aspect.xy;
+warp_14=`
+warp_15=`ret = tex2D(tex, uv ).xyz;
+warp_16=`
+warp_17=`}
+comp_1=`shader_body
+comp_2=`{float str=0.24;
+comp_3=`//ret=tex2D(sampler_main,uv).zyx;
+comp_4=`ret=GetPixel(uv);
+comp_5=`float2 newuv;
+comp_6=`float3 m[3];
+comp_7=`m[0]=GetPixel(uv-(0.44-ret.xy)*str);
+comp_8=`m[1]=GetPixel(uv-(0.38-ret.yz)*str);
+comp_9=`m[2]=GetPixel(uv-(0.59-ret.xz)*str);
+comp_10=`//ret=float3(0.1,2.9,0.5),lum(m[1]),lum(m[2])); //MilkDrop2077 color mod
+comp_11=`ret=(m[0]*m[1]*m[2])*1.2;
+comp_12=`ret=ret*GetBlur2(uv);
+comp_13=`ret/=0.23;
+comp_14=`//MilkDrop3 Color Mode:
+comp_15=`ret /= float3(2.2,1.5,1.2);
+comp_16=`//MilkDrop3 Solarize Mode:
+comp_17=`ret = ret*(1-ret)*4;
+comp_18=`//MilkDrop3 Brightness Mode:
+comp_19=`ret *= 1.6;
+comp_20=`}
+[PRESET1_END]
+
+[PRESET2_BEGIN]
+NAME=MilkDrop2077.R115 cope - the drain to heaven 7
+MILKDROP_PRESET_VERSION=201
+PSVERSION=3
+PSVERSION_WARP=2
+PSVERSION_COMP=3
+[preset00]
+fRating=5.000
+fGammaAdj=1.140
+fDecay=1.000
+fVideoEchoZoom=1.000
+fVideoEchoAlpha=0.000
+nVideoEchoOrientation=0
+nWaveMode=8
+bAdditiveWaves=0
+bWaveDots=0
+bWaveThick=1
+bModWaveAlphaByVolume=0
+bMaximizeWaveColor=0
+bTexWrap=0
+bDarkenCenter=0
+bRedBlueStereo=0
+bBrighten=0
+bDarken=1
+bSolarize=0
+bInvert=0
+fWaveAlpha=1.170
+fWaveScale=0.797
+fWaveSmoothing=0.000
+fWaveParam=0.000
+fModWaveAlphaStart=0.710
+fModWaveAlphaEnd=1.300
+fWarpAnimSpeed=1.000
+fWarpScale=1.331
+fZoomExponent=0.99950
+fShader=0.000
+zoom=0.99980
+rot=0.01000
+cx=0.500
+cy=0.500
+dx=0.00000
+dy=-0.00800
+warp=0.01000
+sx=1.00980
+sy=1.00000
+wave_r=0.500
+wave_g=0.500
+wave_b=0.500
+wave_x=0.900
+wave_y=0.500
+ob_size=0.005
+ob_r=0.000
+ob_g=0.000
+ob_b=0.000
+ob_a=0.800
+ib_size=0.000
+ib_r=0.000
+ib_g=0.000
+ib_b=0.000
+ib_a=1.000
+nMotionVectorsX=44.800
+nMotionVectorsY=38.400
+mv_dx=0.000
+mv_dy=0.000
+mv_l=5.000
+mv_r=1.000
+mv_g=0.910
+mv_b=0.710
+mv_a=0.000
+b1n=0.000
+b2n=0.000
+b3n=0.000
+b1x=1.000
+b2x=1.000
+b3x=1.000
+b1ed=0.250
+shapecode_0_enabled=1
+shapecode_0_sides=40
+shapecode_0_additive=1
+shapecode_0_thickOutline=0
+shapecode_0_textured=0
+shapecode_0_num_inst=4
+shapecode_0_x=0.500
+shapecode_0_y=0.505
+shapecode_0_rad=0.10000
+shapecode_0_ang=0.00000
+shapecode_0_tex_ang=0.00000
+shapecode_0_tex_zoom=0.96000
+shapecode_0_r=1.140
+shapecode_0_g=1.000
+shapecode_0_b=1.000
+shapecode_0_a=1.000
+shapecode_0_r2=0.000
+shapecode_0_g2=0.000
+shapecode_0_b2=0.000
+shapecode_0_a2=0.000
+shapecode_0_border_r=1.000
+shapecode_0_border_g=0.940
+shapecode_0_border_b=1.000
+shapecode_0_border_a=0.000
+shape_0_per_frame1=x = 0.5 + 0.225*sin(time /instance*0.7);
+shape_0_per_frame2=y = 0.54 + 0.36*cos(time /instance*0.62);
+shape_0_per_frame3=x = x- 0.4*x*sin(time);
+shape_0_per_frame4=y = y- 0.44*y*cos(time);
+shape_0_per_frame5=
+shape_0_per_frame6=
+shape_0_per_frame7=
+shape_0_per_frame8=rad = rad*mid_att;
+shape_0_per_frame9=r = 0.5 + 0.5*sin(frame*0.5);
+shape_0_per_frame10=b = 0.66 + 0.66*sin(frame*0.66 + 2.2615);
+shape_0_per_frame11=g = 0.5 + 0.5*sin(frame*0.5 + 4.188);
+shape_0_per_frame12=
+per_frame_1=wave_r = wave_r + 0.3*sin(vol*50)/3;
+per_frame_2=wave_b = wave_b + 0.3*sin(vol*20)/3;
+per_frame_3=wave_g = wave_g + 0.5*sin(vol*35)/3;
+per_frame_4=
+per_frame_5=
+per_frame_6=q8=wave_r/3;
+per_frame_7=q7=wave_b/3;
+per_frame_8=q6=wave_g/3;
+per_frame_9=
+per_frame_10=wr = 0.5+0.4*(0.6*sin(time*0.2) + 0.4*sin(0.18*time));
+per_frame_11=wb = 0.5+0.4*(0.6*sin(time*0.6) + 0.4*sin(0.15*time));
+per_frame_12=wg = 0.5+0.4*(0.6*sin(time*0.34) + 0.4*sin(0.14*time));
+per_frame_13=
+per_frame_14=monitor=wg;
+per_frame_15=q10=wr;
+per_frame_16=q11=wb;
+per_frame_17=q12=wg;
+per_frame_18=q18 = 0.007*sin(time*0.01);
+per_frame_19=q17 = -0.007*sin(time*0.0254);
+per_frame_20=q2=bass_thresh;
+per_frame_21=
+per_frame_22=vol=(bass+mid+treb)*0.25;
+per_frame_23=vol=vol*vol;
+per_frame_24=q3=vol/3;
+per_frame_25=
+per_frame_26=warp=0;
+warp_1=`shader_body
+warp_2=`{
+warp_3=`
+warp_4=`
+warp_5=`    float3 rc = GetPixel(uv)+GetBlur1(uv);//+GetPixel(uv);
+warp_6=`    uv = uv-float2(0,1);
+warp_7=`    float2 ruv = 0.5 + (uv-0.5)*(1+(rc.y*0.03));  
+warp_8=`
+warp_9=`    ruv = frac(float2(ruv.x+pow(rc.x,0), ruv.y+pow(rc.x, 0.0015)));
+warp_10=`    
+warp_11=`    float3 noise3 = tex2D(sampler_noise_lq, uv_orig*texsize.xy*texsize_noise_lq.zw+rand_frame.xy);
+warp_12=`    noise3 *= frac(q15)/3;
+warp_13=`    noise3 = lerp(noise3, float3(0,0,0), frac(q3*0.5));
+warp_14=`
+warp_15=`    ret = tex2D(sampler_main, float2(ruv.x, ruv.y)).xyz;
+warp_16=`    
+warp_17=`    float3 noise2 = lerp(noise3,float3(q10,q11,q12), ret.x);    
+warp_18=`    
+warp_19=`    ret += saturate(cross((ret), (noise2)));
+warp_20=`    ret *= 1.03; 
+warp_21=`    
+warp_22=`
+warp_23=`}
+comp_1=`sampler sampler_pw_noise_lq;
+comp_2=`float3 ret1;
+comp_3=`float2 zz, uv0, uv1,uv2,uv3,uv4;
+comp_4=`float smask;
+comp_5=`
+comp_6=`float aTan2(float y, float x) {float angle;	 float abs_y = abs(y);
+comp_7=`if (x >= 0) {float r = (x - abs_y) / (x + abs_y); angle = 1-r;} 
+comp_8=`else {float r = (x + abs_y) / (abs_y - x); angle = 3-r; }	
+comp_9=`angle = angle * .25;
+comp_10=`return y < 0 ? -angle : angle;}
+comp_11=`
+comp_12=`shader_body { ;
+comp_13=`uv0 = uv;
+comp_14=`uv1 = (uv-.5)*aspect.xy;
+comp_15=`
+comp_16=`uv1 = (uv - .5) * aspect.xy;    
+comp_17=`float stars = 0; float dist, inten;
+comp_18=`int n = 1;
+comp_19=`int anz = 4;
+comp_20=`while (n <= anz) {
+comp_21=`  dist = (1-frac(1.0/anz*n+.10*time)) * (1-.2*rad);
+comp_22=`  inten =  (1-dist);
+comp_23=`  uv3 = (uv1+float2(q1,q2));
+comp_24=`   uv4 = 64*dist*uv3;
+comp_25=`  smask = (tex2D (sampler_pw_noise_lq,uv4/256)).g-.9;
+comp_26=`  stars += max(stars,saturate(inten*(0.11/length(abs(frac(uv4)-0.47))*smask)));
+comp_27=`n++;
+comp_28=`}
+comp_29=`uv2 = uv1 - float2(q5,q6);
+comp_30=`float beat = (mid - 0.45) * (mid > 0.45)*2;
+comp_31=`float flash = .01/(length(uv2))*min(3,pow(beat,1));
+comp_32=`flash *= flash/(abs(frac(3*aTan2(uv2.x,uv2.y)+time*2)-.5));
+comp_33=`ret1 = max(GetPixel(uv0)*2,GetBlur2(uv0)*2);
+comp_34=`//ret = saturate(0.022/length(sin(uv3)))*float3(0.2,2.6,0.1); //MilkDrop2077 color mod
+comp_35=`ret += saturate(pow(stars,2));
+comp_36=`ret *= saturate(1-2*lum(ret1));
+comp_37=`ret +=  ret1;
+comp_38=`ret -= 0.1;
+comp_39=`//ret += 2*saturate(flash)*float3(2.2,2.9,0.7); //MilkDrop2077 color mod
+comp_40=`ret /= float3(2.0,2.9,2.3);
+comp_41=`ret*=1.4;
+comp_42=`}
+[PRESET2_END]

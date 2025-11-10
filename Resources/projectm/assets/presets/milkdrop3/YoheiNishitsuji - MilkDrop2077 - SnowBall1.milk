@@ -1,0 +1,123 @@
+MILKDROP_PRESET_VERSION=201
+PSVERSION=4
+PSVERSION_WARP=4
+PSVERSION_COMP=3
+[preset00]
+fRating=4.000
+fGammaAdj=1.460
+fDecay=0.935
+fVideoEchoZoom=1.007
+fVideoEchoAlpha=0.500
+nVideoEchoOrientation=2
+nWaveMode=6
+bAdditiveWaves=1
+bWaveDots=0
+bWaveThick=1
+bModWaveAlphaByVolume=0
+bMaximizeWaveColor=0
+bTexWrap=1
+bDarkenCenter=0
+bRedBlueStereo=0
+bBrighten=1
+bDarken=1
+bSolarize=0
+bInvert=0
+fWaveAlpha=3.200
+fWaveScale=1.768
+fWaveSmoothing=0.630
+fWaveParam=0.000
+fModWaveAlphaStart=0.710
+fModWaveAlphaEnd=1.300
+fWarpAnimSpeed=1.459
+fWarpScale=2.007
+fZoomExponent=1.00000
+fShader=1.000
+zoom=0.99990
+rot=0.00000
+cx=0.500
+cy=0.500
+dx=0.00000
+dy=0.00000
+warp=0.01000
+sx=0.99990
+sy=1.00000
+wave_r=0.200
+wave_g=0.500
+wave_b=0.900
+wave_x=0.500
+wave_y=0.500
+ob_size=0.000
+ob_r=1.000
+ob_g=0.000
+ob_b=1.000
+ob_a=1.000
+ib_size=0.260
+ib_r=0.250
+ib_g=0.250
+ib_b=0.250
+ib_a=0.000
+nMotionVectorsX=12.000
+nMotionVectorsY=9.000
+mv_dx=0.000
+mv_dy=0.000
+mv_l=0.900
+mv_r=1.000
+mv_g=1.000
+mv_b=1.000
+mv_a=0.000
+b1n=0.000
+b2n=0.000
+b3n=0.000
+b1x=1.000
+b2x=1.000
+b3x=1.000
+b1ed=0.250
+warp_1=`shader_body{
+warp_2=`
+warp_3=`//Shader from https://x.com/YoheiNishitsuji/status/1923362809569837131
+warp_4=`//Ported to MilkDrop by MilkDrop2077
+warp_5=`
+warp_6=`    float aspect = aspect.x / aspect.y;
+warp_7=`    float2 u = (uv - 0.5) * float2(aspect, 1.0) * 4.0;
+warp_8=`    float4 o = float4(0.0, 0.0, 0.0, 0.0);
+warp_9=`    float t = time;
+warp_10=`    float g = 0.0;
+warp_11=`    
+warp_12=`    for(float i = 0.0; i < 99.0; i += 1.0) {
+warp_13=`        float3 p = float3(u.x, u.y, g - 6.0);
+warp_14=`        float3 A = float3(0.0, 9.0, -3.0)/9.5;
+warp_15=`        p.y += 1.0;
+warp_16=`        
+warp_17=`        // 3D rotation
+warp_18=`        p = A * dot(p+p, A) - p - 0.14*cross(p, A);
+warp_19=`        
+warp_20=`        // 2D rotation
+warp_21=`        float2x2 rot = float2x2(
+warp_22=`            cos(t*0.3), -sin(t*0.3),
+warp_23=`            sin(t*0.3), cos(t*0.3)
+warp_24=`        );
+warp_25=`        p.xz = mul(p.xz, rot);
+warp_26=`        
+warp_27=`        float s = 6.0;
+warp_28=`        float e;
+warp_29=`        
+warp_30=`        // Fractal iteration
+warp_31=`        for(int j = 0; j < 12; j++) {
+warp_32=`            e = 16.0 / dot(p, p);
+warp_33=`            s *= e;
+warp_34=`            p = float3(0.0, 4.03, -1.0) - abs(abs(p)*e - float3(3.0, 4.0, 3.0));
+warp_35=`        }
+warp_36=`        
+warp_37=`        g += 0.3 * p.y*p.y / s;
+warp_38=`        o += (log2(s) - g*0.8) / 700.0 * float4(0.9, 1.0, 1.0, 0.0);
+warp_39=`    }
+warp_40=`    
+warp_41=`    ret = float4(tanh(o.x), tanh(o.y), tanh(o.z), 1.0);
+warp_42=`}
+comp_1=`shader_body
+comp_2=`{
+comp_3=`    ret = tex2D(sampler_main, uv).xyz;
+comp_4=`    ret *= 1.28; //gamma
+comp_5=`    ret *= hue_shader; //old hue shader effect
+comp_6=`    ret *= ret; //darken
+comp_7=`}

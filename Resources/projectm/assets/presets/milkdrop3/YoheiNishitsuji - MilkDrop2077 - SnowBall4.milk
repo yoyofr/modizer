@@ -1,0 +1,221 @@
+MILKDROP_PRESET_VERSION=201
+PSVERSION=4
+PSVERSION_WARP=4
+PSVERSION_COMP=3
+[preset00]
+fRating=5.000
+fGammaAdj=1.460
+fDecay=0.935
+fVideoEchoZoom=1.007
+fVideoEchoAlpha=0.500
+nVideoEchoOrientation=2
+nWaveMode=7
+bAdditiveWaves=0
+bWaveDots=0
+bWaveThick=0
+bModWaveAlphaByVolume=0
+bMaximizeWaveColor=0
+bTexWrap=1
+bDarkenCenter=0
+bRedBlueStereo=0
+bBrighten=1
+bDarken=1
+bSolarize=0
+bInvert=0
+fWaveAlpha=0.005
+fWaveScale=0.167
+fWaveSmoothing=0.000
+fWaveParam=0.000
+fModWaveAlphaStart=1.000
+fModWaveAlphaEnd=1.000
+fWarpAnimSpeed=1.000
+fWarpScale=1.331
+fZoomExponent=1.00000
+fShader=1.000
+zoom=13.29089
+rot=0.00000
+cx=0.500
+cy=0.500
+dx=-0.28000
+dy=-0.32000
+warp=0.01000
+sx=1.00000
+sy=1.00000
+wave_r=1.000
+wave_g=1.000
+wave_b=1.000
+wave_x=0.950
+wave_y=1.000
+ob_size=0.000
+ob_r=0.000
+ob_g=0.000
+ob_b=0.000
+ob_a=1.000
+ib_size=0.000
+ib_r=0.010
+ib_g=0.000
+ib_b=0.000
+ib_a=1.000
+nMotionVectorsX=64.000
+nMotionVectorsY=48.000
+mv_dx=0.000
+mv_dy=0.000
+mv_l=0.000
+mv_r=1.000
+mv_g=1.000
+mv_b=0.000
+mv_a=0.000
+b1n=0.000
+b2n=0.000
+b3n=0.000
+b1x=1.000
+b2x=1.000
+b3x=1.000
+b1ed=0.250
+wavecode_0_enabled=1
+wavecode_0_samples=41
+wavecode_0_sep=0
+wavecode_0_bSpectrum=0
+wavecode_0_bUseDots=1
+wavecode_0_bDrawThick=0
+wavecode_0_bAdditive=1
+wavecode_0_scaling=0.01000
+wavecode_0_smoothing=0.00000
+wavecode_0_r=1.000
+wavecode_0_g=0.000
+wavecode_0_b=1.000
+wavecode_0_a=1.000
+wave_0_init1=t8 = 1;
+wave_0_init2=t1 = q5;
+wave_0_per_point1=x = int(rand(1001))*.001;
+wave_0_per_point2=y = int(rand(1001))*.001;
+wave_0_per_point3=
+wave_0_per_point4=//r = int(rand(1001))*.001;
+wave_0_per_point5=g=above(int(rand(1001))*.001,.9)*.5;
+wave_0_per_point6=b = 0;
+wave_0_per_point7=r = 0;
+wave_0_per_point8=
+shapecode_0_enabled=1
+shapecode_0_sides=84
+shapecode_0_additive=1
+shapecode_0_thickOutline=1
+shapecode_0_textured=0
+shapecode_0_num_inst=1
+shapecode_0_x=0.500
+shapecode_0_y=0.500
+shapecode_0_rad=0.16777
+shapecode_0_ang=0.00000
+shapecode_0_tex_ang=0.00000
+shapecode_0_tex_zoom=0.50330
+shapecode_0_r=0.000
+shapecode_0_g=0.000
+shapecode_0_b=0.200
+shapecode_0_a=0.600
+shapecode_0_r2=0.000
+shapecode_0_g2=0.000
+shapecode_0_b2=0.000
+shapecode_0_a2=0.000
+shapecode_0_border_r=1.000
+shapecode_0_border_g=1.000
+shapecode_0_border_b=1.000
+shapecode_0_border_a=0.000
+shape_0_init1=vx = 0;
+shape_0_init2=vy = 0;
+shape_0_per_frame1=ti = time*.3;
+shape_0_per_frame2=x = .5 + .34*sin(ti);
+shape_0_per_frame3=y = .5 + .34*cos(ti);
+shape_0_per_frame4=
+shape_0_per_frame5=rad = rad + bass;
+shape_0_per_frame6=
+shape_0_per_frame7=ti = time*2.3;
+shape_0_per_frame8=x = x + .1*sin(ti);
+shape_0_per_frame9=y = y + .1*cos(ti);
+per_frame_init_1=
+per_frame_init_2=zoom=1;
+per_frame_init_3=xpos=0;
+per_frame_init_4=ypos=0;
+per_frame_1=decay=1;
+per_frame_2=
+per_frame_3=vol= (bass+mid+treb)*0.55;
+per_frame_4=vol=vol;
+per_frame_5=
+per_frame_6=
+per_frame_7=mv_r = 0.5 + 0.4*sin(time*1.324);
+per_frame_8=mv_g = 0.5 + 0.4*cos(time*1.371);
+per_frame_9=
+per_frame_10=
+per_frame_11=
+per_frame_12=
+per_frame_13=zoom=.9;
+per_frame_14=
+per_frame_15=musictime=musictime+vol;
+per_frame_16=q4=0.5;
+per_frame_17=q5=0.5;
+per_frame_18=
+per_frame_19=//dx=sin(musictime*0.1)*0.07;
+per_frame_20=//dy=cos(musictime*0.069)*0.07;
+per_frame_21=
+per_frame_22=
+per_frame_23=
+per_frame_24=
+per_frame_25=monitor=rot;
+per_pixel_1=rd=sqrt( sqr( (x-0.5-q4)*1.7) + sqr( (y-0.5+q5)*1.2 ) );
+per_pixel_2=cx=0.5+q4/3;
+per_pixel_3=cy=0.5-q5/3;
+per_pixel_4=
+per_pixel_5=zoom=(rd/rd);
+per_pixel_6=rot=(rd/rd)+sin(time/5);
+warp_1=`shader_body{
+warp_2=`
+warp_3=`//Shader from https://x.com/YoheiNishitsuji/status/1923362809569837131
+warp_4=`//Ported to MilkDrop by MilkDrop2077
+warp_5=`
+warp_6=`    float aspect = aspect.x / aspect.y;
+warp_7=`    float2 u = (uv - 0.5) * float2(aspect, 1.0) * 2.0;
+warp_8=`    float4 o = float4(0.0, 0.0, 0.0, 0.0);
+warp_9=`    float t = time;
+warp_10=`    float g = 0.0;
+warp_11=`    
+warp_12=`    for(float i = 0.0; i < 99.0; i += 1.0) {
+warp_13=`        float3 p = float3(4.5 * u.x, 4.5 * u.y, g - 7.0);
+warp_14=`        float3 A = float3(0.0, 9.0, -3.0)/9.5;
+warp_15=`        p.y += 1.0;
+warp_16=`        
+warp_17=`        // 3D rotation
+warp_18=`        p = A * dot(p+p, A) - p - 0.14*cross(p, A);
+warp_19=`        
+warp_20=`        // 2D rotation on ZY plane
+warp_21=`        float angle = t * 0.92;
+warp_22=`        float2x2 rot = float2x2(
+warp_23=`            cos(angle), -sin(angle),
+warp_24=`            sin(angle), cos(angle)
+warp_25=`        );
+warp_26=`        p.zy = mul(p.zy, rot);
+warp_27=`        
+warp_28=`        float s = 6.0;
+warp_29=`        float e;
+warp_30=`        
+warp_31=`        // Modified fractal iteration with time-based variation
+warp_32=`        for(float j = 0.0; j < 7.0; j += 1.0) {
+warp_33=`            e = 18.0 / dot(p, p);
+warp_34=`            s *= e;
+warp_35=`            float xSize = 3.0 + 2.5 * sin(t * 0.5);
+warp_36=`            p = float3(0.0, 4.213, 0.0) - abs(abs(p)*e - float3(xSize, 4.0, 3.0));
+warp_37=`        }
+warp_38=`        
+warp_39=`        g += 0.2 * p.y * p.y / s;
+warp_40=`        o += (log2(s) - g * 0.7) / 700.0 * float4(0.9, 1.0, 1.0, 0.0);
+warp_41=`    }
+warp_42=`    
+warp_43=`    ret = float4(tanh(o.x * 2.0), tanh(o.y * 2.0), tanh(o.z * 2.0), 1.0);
+warp_44=`}
+comp_1=`shader_body
+comp_2=`{//MilkDrop3 Multiplicate Mode:
+comp_3=`uv = 1- abs( frac((uv-.5)*1.5 * 0.5 ) * 2 - 1.0 );
+comp_4=`
+comp_5=`ret = GetPixel(uv);
+comp_6=`//MilkDrop3 Solarize Mode:
+comp_7=`ret = ret*(1-ret)*4;
+comp_8=`//MilkDrop3 Invert Mode:
+comp_9=`ret = 1 - ret;
+comp_10=`}

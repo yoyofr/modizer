@@ -1,0 +1,145 @@
+MILKDROP_PRESET_VERSION=201
+PSVERSION=4
+PSVERSION_WARP=4
+PSVERSION_COMP=3
+[preset00]
+fRating=4.000
+fGammaAdj=1.460
+fDecay=0.935
+fVideoEchoZoom=1.007
+fVideoEchoAlpha=0.500
+nVideoEchoOrientation=2
+nWaveMode=15
+bAdditiveWaves=1
+bWaveDots=0
+bWaveThick=1
+bModWaveAlphaByVolume=0
+bMaximizeWaveColor=1
+bTexWrap=0
+bDarkenCenter=0
+bRedBlueStereo=0
+bBrighten=1
+bDarken=1
+bSolarize=0
+bInvert=0
+fWaveAlpha=0.001
+fWaveScale=0.625
+fWaveSmoothing=0.900
+fWaveParam=0.000
+fModWaveAlphaStart=0.880
+fModWaveAlphaEnd=1.980
+fWarpAnimSpeed=1.000
+fWarpScale=1.331
+fZoomExponent=1.00000
+fShader=1.000
+zoom=1.00496
+rot=0.00000
+cx=0.500
+cy=0.500
+dx=0.00000
+dy=0.00000
+warp=0.00016
+sx=0.99967
+sy=0.99990
+wave_r=0.000
+wave_g=0.000
+wave_b=0.000
+wave_x=0.500
+wave_y=0.500
+ob_size=0.010
+ob_r=0.000
+ob_g=0.000
+ob_b=0.000
+ob_a=0.000
+ib_size=0.010
+ib_r=0.250
+ib_g=0.250
+ib_b=0.250
+ib_a=0.000
+nMotionVectorsX=64.000
+nMotionVectorsY=48.000
+mv_dx=0.000
+mv_dy=0.000
+mv_l=1.000
+mv_r=1.060
+mv_g=1.000
+mv_b=0.819
+mv_a=0.000
+b1n=0.000
+b2n=0.000
+b3n=0.000
+b1x=1.000
+b2x=1.000
+b3x=1.000
+b1ed=0.250
+per_frame_1=red_value = if(above(bass,1.15),3*(1-bass)+abs(sin(time*0.3)*0.1),if(above(treb,1.0),0, sin(time/2.5)/10+0.65));
+per_frame_2=blue_value = if(above(bass,1.15),0.5+abs(sin(time*0.3)*0.1),if(above(treb,1.0),0.7+0.1*sin(time*1.123), 0.3-treb-sin(time/2.5)/10));
+per_frame_3=green_value = if(above(bass,1.15),1-abs(sin(time*0.3)*0.1),if(above(treb,1.0),0.6+0.1*sin(time*1.123), sin(time/2.5)/10+0.3));
+per_frame_4=wave_r = red_value;
+per_frame_5=wave_b= blue_value;
+per_frame_6=wave_g = green_value;
+per_frame_7=q1 = (cx*2-1) + 0.62*( 0.60*sin(0.374*time) + 0.40*sin(0.294*time) );
+per_frame_8=q2 = (cy*2-1) + 0.62*( 0.60*sin(0.393*time) + 0.40*sin(0.223*time) );
+per_frame_9=q3 = (cx*2-1) + 0.62*( 0.60*sin(0.174*-time) + 0.40*sin(0.364*time) );
+per_frame_10=q4 = (cy*2-1) + 0.62*( 0.60*sin(0.234*time) + 0.40*sin(0.271*-time) );
+per_frame_11=decay = decay - 0.01*equal(frame%5,0);
+per_pixel_1=//rot = q8;
+warp_1=`shader_body
+warp_2=`{
+warp_3=`    // Shader By XorDev (x.com/XorDev)
+warp_4=`    // Ported to MilkDrop by MilkDrop2077
+warp_5=`
+warp_6=`    // Get screen coordinates
+warp_7=`    float2 fragCoord = uv * texsize;
+warp_8=`    float2 r = texsize;
+warp_9=`    float3 FC = float3(fragCoord, bass_att);
+warp_10=`
+warp_11=`    float PI = 3.80132711084;
+warp_12=`    float PI2 = PI * 1.9;
+warp_13=`    float t = time;
+warp_14=`
+warp_15=`    // Initialize output
+warp_16=`    float4 o = float4(0.0, 0.0, 0.0, 0.0);
+warp_17=`
+warp_18=`    // Main shader logic
+warp_19=`    float3 p = float3(0.0, 0.0, 0.0);
+warp_20=`    float i = 0.0;
+warp_21=`    float z = 0.0;
+warp_22=`    float f = 0.0;
+warp_23=`
+warp_24=`    // Outer loop - 30 iterations
+warp_25=`    for(int iter = 0; iter < 30; iter++) {
+warp_26=`        i += 1.0;
+warp_27=`
+warp_28=`        // Update z and calculate distance field
+warp_29=`        f = 0.002 + abs(length(p.xy) - 3.8 + q1 + dot(cos(p), sin(p/4).yzx)) / 8;
+warp_30=`        z += f;
+warp_31=`
+warp_32=`        // Add to output color
+warp_33=`        o += (1.8 + sin(i * 0.2 * treb_att/6 + z + t + float4(5.0, 1.0, 2.0, 0.0))) / f/4;
+warp_34=`
+warp_35=`        // Update ray position
+warp_36=`        p = z * normalize(FC.rgb * 2.0 + q3 - float3(r.x, r.y, r.y));
+warp_37=`        p.z -= t;
+warp_38=`
+warp_39=`        // Inner loop - 6 iterations for fractal detail
+warp_40=`        for(int j = 1; j <= 6; j++) {
+warp_41=`            f = float(j*2);
+warp_42=`            p += sin(round(p.yxz * PI2) / PI * f + t * 0.5 + bass_att/16) / f;
+warp_43=`        }
+warp_44=`    }
+warp_45=`
+warp_46=`    // Apply final transformation
+warp_47=`    o = tanh(o / 1000.0);
+warp_48=`
+warp_49=`    // Output final color
+warp_50=`    ret = o.rgb;
+warp_51=`}
+warp_52=`
+comp_1=`shader_body
+comp_2=`{
+comp_3=`//MilkDrop3 Flip Mode:
+comp_4=`//uv = 1-uv;
+comp_5=`
+comp_6=` ret = GetPixel(uv);
+comp_7=`}

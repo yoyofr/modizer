@@ -1,0 +1,222 @@
+MILKDROP_PRESET_VERSION=201
+PSVERSION=3
+PSVERSION_WARP=3
+PSVERSION_COMP=3
+[preset00]
+fRating=5.000
+fGammaAdj=1.460
+fDecay=0.935
+fVideoEchoZoom=1.007
+fVideoEchoAlpha=0.500
+nVideoEchoOrientation=2
+nWaveMode=7
+bAdditiveWaves=1
+bWaveDots=0
+bWaveThick=1
+bModWaveAlphaByVolume=0
+bMaximizeWaveColor=0
+bTexWrap=1
+bDarkenCenter=0
+bRedBlueStereo=0
+bBrighten=1
+bDarken=1
+bSolarize=0
+bInvert=0
+fWaveAlpha=3.200
+fWaveScale=1.768
+fWaveSmoothing=0.630
+fWaveParam=0.000
+fModWaveAlphaStart=0.710
+fModWaveAlphaEnd=1.300
+fWarpAnimSpeed=1.000
+fWarpScale=1.000
+fZoomExponent=1.00000
+fShader=1.000
+zoom=1.00000
+rot=0.00000
+cx=0.500
+cy=0.500
+dx=0.00000
+dy=0.00000
+warp=1.00000
+sx=1.00000
+sy=1.00000
+wave_r=1.000
+wave_g=1.000
+wave_b=1.000
+wave_x=0.500
+wave_y=0.500
+ob_size=0.005
+ob_r=0.000
+ob_g=0.000
+ob_b=0.000
+ob_a=0.000
+ib_size=0.010
+ib_r=0.250
+ib_g=0.250
+ib_b=0.250
+ib_a=0.000
+nMotionVectorsX=64.000
+nMotionVectorsY=1.248
+mv_dx=0.000
+mv_dy=0.000
+mv_l=5.000
+mv_r=1.000
+mv_g=1.000
+mv_b=0.000
+mv_a=0.000
+b1n=0.000
+b2n=0.000
+b3n=0.000
+b1x=1.000
+b2x=1.000
+b3x=1.000
+b1ed=0.250
+wavecode_0_enabled=1
+wavecode_0_samples=512
+wavecode_0_sep=0
+wavecode_0_bSpectrum=0
+wavecode_0_bUseDots=1
+wavecode_0_bDrawThick=1
+wavecode_0_bAdditive=0
+wavecode_0_scaling=1.00000
+wavecode_0_smoothing=0.50000
+wavecode_0_r=1.000
+wavecode_0_g=1.000
+wavecode_0_b=1.000
+wavecode_0_a=1.000
+wave_0_per_frame1=advance=advance+ 0.005;
+wave_0_per_frame2=advance=if( above(advance,2) , 0, advance);
+wave_0_per_frame3=t1=advance
+wave_0_per_point1=s=sample*6.28;
+wave_0_per_point2=
+wave_0_per_point3=//plot random x position via function of sample pos;
+wave_0_per_point4=xp=sin(s)+sin(s*0.14)+sin(s*32.3)+sin(s*9.8);
+wave_0_per_point5=xp=xp*0.20;
+wave_0_per_point6=
+wave_0_per_point7=//plot random y position via function of sample pos;
+wave_0_per_point8=yp=cos(s)+sin(s*0.24)+cos(s*17.4)+sin(s*37.7);
+wave_0_per_point9=yp=yp*0.20;
+wave_0_per_point10=
+wave_0_per_point11=//plot random z position via function of sample pos;
+wave_0_per_point12=zp=cos(s)+cos(s*5.24)+cos(s*47.4)+cos(s*27.7);
+wave_0_per_point13=zp=zp*0.25;
+wave_0_per_point14=
+wave_0_per_point15=//pull stars toward screen
+wave_0_per_point16=zp=zp + 1 - t1;
+wave_0_per_point17=
+wave_0_per_point18=//correct when below 0
+wave_0_per_point19=zp=if( below(zp,0) , zp+2 , zp );
+wave_0_per_point20=
+wave_0_per_point21=//darken far stars
+wave_0_per_point22=a=(1 - zp*0.5);
+wave_0_per_point23=
+wave_0_per_point24=zp=zp*0.7;
+wave_0_per_point25=
+wave_0_per_point26=x_screen=xp/zp + 0.5;
+wave_0_per_point27=y_screen=yp/zp + 0.5;
+wave_0_per_point28=
+wave_0_per_point29=x=x_screen;
+wave_0_per_point30=y=y_screen;
+wave_0_per_point31=
+wave_0_per_point32=r=1;
+wave_0_per_point33=g=1;
+wave_0_per_point34=b=1;
+shapecode_0_enabled=1
+shapecode_0_sides=20
+shapecode_0_additive=1
+shapecode_0_thickOutline=1
+shapecode_0_textured=0
+shapecode_0_num_inst=444
+shapecode_0_x=0.800
+shapecode_0_y=0.500
+shapecode_0_rad=0.12821
+shapecode_0_ang=0.00000
+shapecode_0_tex_ang=0.00000
+shapecode_0_tex_zoom=5.42791
+shapecode_0_r=0.000
+shapecode_0_g=0.000
+shapecode_0_b=1.000
+shapecode_0_a=0.200
+shapecode_0_r2=0.000
+shapecode_0_g2=0.000
+shapecode_0_b2=0.500
+shapecode_0_a2=0.000
+shapecode_0_border_r=1.000
+shapecode_0_border_g=1.000
+shapecode_0_border_b=1.000
+shapecode_0_border_a=0.000
+shape_0_init1=i=0;
+shape_0_init2=loop (1024,
+shape_0_init3=  z=rand(1)+.1;
+shape_0_init4=  megabuf(i+2) = z;
+shape_0_init5=  megabuf(i)  = (rand(1)-0.5)/z;
+shape_0_init6=  megabuf(i+1)= (rand(1)-.5)/z;
+shape_0_init7=i+=3;);
+shape_0_per_frame1=i=instance;
+shape_0_per_frame2=k1 = i/num_inst;
+shape_0_per_frame3=zmax = 7;
+shape_0_per_frame4=speed=.15;
+shape_0_per_frame5=
+shape_0_per_frame6=z=megabuf(3*i+2);
+shape_0_per_frame7=x = megabuf(3*i)/z+.5;
+shape_0_per_frame8=y = megabuf(3*i+1)/z*reg32+0.5;
+shape_0_per_frame9=
+shape_0_per_frame10=rad = .022/(z*zmax)*reg32 ;
+shape_0_per_frame11=
+shape_0_per_frame12=out=(x>1)||(x<0)||(y>1)||(y<0)||(z<0);
+shape_0_per_frame13=if (out,
+shape_0_per_frame14=  megabuf(3*i)= (rand(2)-1); //x
+shape_0_per_frame15=  megabuf(3*i+1)=(rand(2)-1); //y
+shape_0_per_frame16=  megabuf(3*i+2)=1;
+shape_0_per_frame17=,
+shape_0_per_frame18=  megabuf(i*3+2)-=speed/fps;
+shape_0_per_frame19=);
+shape_0_per_frame20=
+shape_0_per_frame21=a=1-pow(z,4);
+shape_0_per_frame22=a*=0.6;
+per_frame_init_1=bassc=0;
+per_frame_init_2=midc=0;
+per_frame_init_3=mcount=0;
+per_frame_init_4=bcount=0;
+per_frame_1=decay = 12.9;
+per_frame_2=warp = 0.1;
+per_frame_3=
+per_frame_4=bassc = if(above(bass,bassc),bassc + bass*.07,bassc-.03);
+per_frame_5=midc = if(above(mid,midc),midc + mid*.07,midc-.03);
+per_frame_6=trebc = if(above(treb,trebc),trebc + treb*.07,trebc-.03);
+per_frame_7=
+per_frame_8=q1 = bassc;
+per_frame_9=q2 = midc;
+per_frame_10=q3 = trebc;
+warp_1=`shader_body{
+warp_2=`    //Created By MilkDrop2077  
+warp_3=` 
+warp_4=`    // Relative position to ring light (left side)
+warp_5=`    float2 ring_coord = (uv_orig - float2(0.5, 0.5)) * aspect.xy*1.3;
+warp_6=`    
+warp_7=`    // Compute SDF distance to ring
+warp_8=`    float outer_dist = abs(length(ring_coord) - 0.4+q1*0.03);
+warp_9=`    float middle_dist = abs(length(ring_coord) - 0.3+q2*0.04);
+warp_10=`    float inner_dist = abs(length(ring_coord) - 0.2+q3*0.03);
+warp_11=`        
+warp_12=`    // Light intensity vectors
+warp_13=`    float4 primary_glow = float4(0.9, 10.0, 10.0, 1.0);
+warp_14=`    float4 secondary_glow = float4(0.2, 0.4, 2.0, 1.0); 
+warp_15=`    float4 accent_glow = float4(10, 0.2, 0.2, 1.0); 
+warp_16=`    
+warp_17=`    // Combine lights with smooth attenuation
+warp_18=`    float4 final_color = primary_glow / (primary_glow + outer_dist*512.0) 
+warp_19=`                       + secondary_glow / (secondary_glow + middle_dist*512.0) 
+warp_20=`                       + accent_glow / (accent_glow + inner_dist*512.0);
+warp_21=`    
+warp_22=`    // Soft clip to prevent oversaturation
+warp_23=`    final_color = 1.0 - exp(-final_color * 2.5);
+warp_24=`    
+warp_25=`    // Output with full alpha
+warp_26=`    ret = saturate(final_color);
+warp_27=`}
+comp_1=`shader_body
+comp_2=`{
+comp_3=`    ret = GetPixel(uv);
+comp_4=`}

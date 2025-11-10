@@ -1868,13 +1868,13 @@ void optNSFPLAYChangedC(id param) {
     settings[PROJECTM_PermmissiveMode].sub_family=0;
     settings[PROJECTM_PermmissiveMode].callback=&optPROJECTMChangedC;
     
-    SETTINGS_ID_DEF(PROJECTM_BlurAfterAudioMode)
-    settings[PROJECTM_BlurAfterAudioMode].type=MDZ_BOOLSWITCH;
-    settings[PROJECTM_BlurAfterAudioMode].label=(char*)"Update Blur after audio";
-    settings[PROJECTM_BlurAfterAudioMode].description=(char*)"Update blur textures after drawning audio related data.";
-    settings[PROJECTM_BlurAfterAudioMode].family=MDZ_SETTINGS_FAMILY_PROJECTM;
-    settings[PROJECTM_BlurAfterAudioMode].sub_family=0;
-    settings[PROJECTM_BlurAfterAudioMode].callback=&optPROJECTMChangedC;
+//    SETTINGS_ID_DEF(PROJECTM_BlurAfterAudioMode)
+//    settings[PROJECTM_BlurAfterAudioMode].type=MDZ_BOOLSWITCH;
+//    settings[PROJECTM_BlurAfterAudioMode].label=(char*)"Update Blur after audio";
+//    settings[PROJECTM_BlurAfterAudioMode].description=(char*)"Update blur textures after drawning audio related data.";
+//    settings[PROJECTM_BlurAfterAudioMode].family=MDZ_SETTINGS_FAMILY_PROJECTM;
+//    settings[PROJECTM_BlurAfterAudioMode].sub_family=0;
+//    settings[PROJECTM_BlurAfterAudioMode].callback=&optPROJECTMChangedC;
     
     SETTINGS_ID_DEF(PROJECTM_TimeBetweenPreset)
     settings[PROJECTM_TimeBetweenPreset].label=(char*)"Time between presets";
@@ -1977,7 +1977,7 @@ void optNSFPLAYChangedC(id param) {
     settings[PROJECTM_LockPreset].detail.mdz_boolswitch.switch_default_value=0;
     settings[PROJECTM_BlendPresets].detail.mdz_boolswitch.switch_default_value=1;
     settings[PROJECTM_PermmissiveMode].detail.mdz_boolswitch.switch_default_value=1;
-    settings[PROJECTM_BlurAfterAudioMode].detail.mdz_boolswitch.switch_default_value=1;
+//    settings[PROJECTM_BlurAfterAudioMode].detail.mdz_boolswitch.switch_default_value=1;
     settings[PROJECTM_TimeBetweenPreset].detail.mdz_slider.slider_default_value=15.0;
     settings[PROJECTM_BlendTime].detail.mdz_slider.slider_default_value=2.7;
     settings[PROJECTM_BundledPresets].detail.mdz_boolswitch.switch_default_value=1;

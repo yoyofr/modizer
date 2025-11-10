@@ -472,6 +472,7 @@ extern int move_cursorL,move_cursorR,keyDel;
               [UIKeyCommand keyCommandWithInput:@"à"   modifierFlags:UIKeyModifierAlternate action:@selector(key0AltPressed)],
               
               [UIKeyCommand keyCommandWithInput:@"i"   modifierFlags:0 action:@selector(keyIPressed)],
+              [UIKeyCommand keyCommandWithInput:@"i"   modifierFlags:UIKeyModifierAlternate action:@selector(keyIAltPressed)],
               [UIKeyCommand keyCommandWithInput:@"e"   modifierFlags:0 action:@selector(keyEPressed)],
               [UIKeyCommand keyCommandWithInput:@"f"   modifierFlags:0 action:@selector(keyFPressed)],
               [UIKeyCommand keyCommandWithInput:@"f"   modifierFlags:UIKeyModifierAlternate action:@selector(keyFAltPressed)],
@@ -573,6 +574,9 @@ extern int move_cursorL,move_cursorR,keyDel;
 - (void)keyBPressed{
     [detailViewControllerIphone mdSwitchFixedBar];
 }
+- (void)keyIPressed{
+    [detailViewControllerIphone mdShowMusicInfo];
+}
 - (void)keyMPressed{
     [detailViewControllerIphone mdSwitchSpectrumBloom:1];
 }
@@ -603,7 +607,7 @@ extern int move_cursorL,move_cursorR,keyDel;
 - (void)keyTAltPressed{
     [detailViewControllerIphone mdSwitchModPatternTheme:-1];
 }
-- (void)keyIPressed{
+- (void)keyIAltPressed{
     [detailViewControllerIphone mdInfoFX];
 }
 - (void)keyEPressed{

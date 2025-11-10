@@ -1,0 +1,111 @@
+MILKDROP_PRESET_VERSION=201
+PSVERSION=3
+PSVERSION_WARP=3
+PSVERSION_COMP=3
+[preset00]
+fRating=4.000
+fGammaAdj=1.460
+fDecay=0.935
+fVideoEchoZoom=1.007
+fVideoEchoAlpha=0.500
+nVideoEchoOrientation=2
+nWaveMode=7
+bAdditiveWaves=0
+bWaveDots=0
+bWaveThick=1
+bModWaveAlphaByVolume=1
+bMaximizeWaveColor=1
+bTexWrap=0
+bDarkenCenter=0
+bRedBlueStereo=0
+bBrighten=1
+bDarken=1
+bSolarize=0
+bInvert=0
+fWaveAlpha=0.303
+fWaveScale=2.911
+fWaveSmoothing=0.900
+fWaveParam=0.000
+fModWaveAlphaStart=1.110
+fModWaveAlphaEnd=1.230
+fWarpAnimSpeed=0.010
+fWarpScale=0.009
+fZoomExponent=1.00000
+fShader=1.000
+zoom=1.00000
+rot=0.00000
+cx=0.465
+cy=0.500
+dx=0.00000
+dy=0.00000
+warp=0.00960
+sx=1.00000
+sy=1.00000
+wave_r=0.500
+wave_g=0.500
+wave_b=0.800
+wave_x=0.500
+wave_y=0.500
+ob_size=0.000
+ob_r=0.123
+ob_g=0.000
+ob_b=0.100
+ob_a=0.000
+ib_size=0.000
+ib_r=0.000
+ib_g=0.000
+ib_b=0.000
+ib_a=0.000
+nMotionVectorsX=12.000
+nMotionVectorsY=9.000
+mv_dx=0.000
+mv_dy=0.000
+mv_l=0.900
+mv_r=1.000
+mv_g=1.000
+mv_b=1.000
+mv_a=0.000
+b1n=0.000
+b2n=0.000
+b3n=0.000
+b1x=1.000
+b2x=1.000
+b3x=1.000
+b1ed=0.250
+warp_1=`shader_body
+warp_2=`{
+warp_3=`    //MilkDrop2077  
+warp_4=`    float2 uvTrue = uv_orig;
+warp_5=`    uv = uvTrue.y - 0.5+(sin(time)/15);
+warp_6=`    
+warp_7=`    // Create the glowing wave pattern
+warp_8=`    float glowWidth = 1.0 - pow(abs(uv + sin(uvTrue.x * (5.0+(cos(time))) + time+(sin(time)/3))/5.0), 0.13);
+warp_9=`    
+warp_10=`    // Color with red emphasis
+warp_11=`    float3 color = float3(glowWidth * 1.8, glowWidth, glowWidth);
+warp_12=`    
+warp_13=`    // Apply gamma correction and output
+warp_14=`    ret = float4(pow(color, 2.5), 1.0);
+warp_15=`}
+comp_1=`sampler sampler_pw_noise_lq;
+comp_2=`float2 uv1,uv2,uv4,dz,uvw;
+comp_3=`
+comp_4=`shader_body
+comp_5=`{
+comp_6=`uv1=mul (uv-0.5, float2x2(cos(q5),-sin(q5),sin(q5),cos(q5)));
+comp_7=`float z=1/(uv1.y);
+comp_8=`float2 uv2 = float2 (uv1.x*z,z)*.25;
+comp_9=`float2 water = tex2D(sampler_noise_mq,uv2/2+float2(0,time/2))/z;
+comp_10=`
+comp_11=`uvw= uv1*float2 (1,.5)+0.5+water*0.2*(z>0);
+comp_12=`uvw = frac (uvw);
+comp_13=`
+comp_14=`ret = (GetPixel(uv) + GetBlur3(uv) * (0.5+abs(uv1.y)*3));
+comp_15=`ret += saturate (1-2*lum(ret)) * pow(GetBlur1(uvw),2)*saturate(.4/z)*64*saturate(1-rad);
+comp_16=`ret *= 1.1;
+comp_17=`
+comp_18=`uv=1-uv;
+comp_19=`uv1=(uv-.5)*aspect.xy;
+comp_20=`ret += 0.01+(bass_att/64)/length(uv1-0.25);
+comp_21=`ret-=0.05;
+comp_22=`}

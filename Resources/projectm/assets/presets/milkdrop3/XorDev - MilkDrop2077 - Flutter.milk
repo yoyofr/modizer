@@ -1,0 +1,128 @@
+MILKDROP_PRESET_VERSION=201
+PSVERSION=4
+PSVERSION_WARP=4
+PSVERSION_COMP=3
+[preset00]
+fRating=5.000
+fGammaAdj=1.460
+fDecay=0.935
+fVideoEchoZoom=1.007
+fVideoEchoAlpha=0.500
+nVideoEchoOrientation=2
+nWaveMode=15
+bAdditiveWaves=1
+bWaveDots=0
+bWaveThick=1
+bModWaveAlphaByVolume=0
+bMaximizeWaveColor=1
+bTexWrap=1
+bDarkenCenter=0
+bRedBlueStereo=0
+bBrighten=1
+bDarken=1
+bSolarize=0
+bInvert=0
+fWaveAlpha=0.001
+fWaveScale=0.625
+fWaveSmoothing=0.900
+fWaveParam=0.000
+fModWaveAlphaStart=0.880
+fModWaveAlphaEnd=1.980
+fWarpAnimSpeed=1.459
+fWarpScale=2.007
+fZoomExponent=1.00000
+fShader=1.000
+zoom=0.99990
+rot=0.00000
+cx=0.500
+cy=0.500
+dx=0.00000
+dy=0.00000
+warp=0.01000
+sx=0.99990
+sy=1.00000
+wave_r=0.000
+wave_g=0.000
+wave_b=0.000
+wave_x=0.500
+wave_y=0.500
+ob_size=0.000
+ob_r=1.000
+ob_g=0.000
+ob_b=1.000
+ob_a=1.000
+ib_size=0.260
+ib_r=0.250
+ib_g=0.250
+ib_b=0.250
+ib_a=0.000
+nMotionVectorsX=64.000
+nMotionVectorsY=48.000
+mv_dx=0.000
+mv_dy=0.000
+mv_l=1.000
+mv_r=1.060
+mv_g=1.000
+mv_b=0.819
+mv_a=0.000
+b1n=0.000
+b2n=0.000
+b3n=0.000
+b1x=1.000
+b2x=1.000
+b3x=1.000
+b1ed=0.250
+warp_1=`shader_body
+warp_2=`{
+warp_3=`    //Shader By XorDev (x.com/XorDev), ported to MilkDrop by MilkDrop2077
+warp_4=`
+warp_5=`    // Get screen coordinates
+warp_6=`    float2 fragCoord = uv * texsize;
+warp_7=`    float2 r = texsize;
+warp_8=`    float3 FC = float3(fragCoord, 1.0);
+warp_9=`
+warp_10=`    float t = time;
+warp_11=`
+warp_12=`    // Initialize output
+warp_13=`    float4 o = float4(0.0, 0.0, 0.0, 0.0);
+warp_14=`
+warp_15=`    // Main shader logic
+warp_16=`    float3 p = float3(0.0, 0.0, 0.0);
+warp_17=`    float i = 0.0;
+warp_18=`    float z = 0.0;
+warp_19=`    float f = 0.0;
+warp_20=`
+warp_21=`    // Outer loop - 50 iterations
+warp_22=`    for(int iter = 0; iter < 50; iter++) {
+warp_23=`        i += 1.0;
+warp_24=`
+warp_25=`        // Update z and calculate distance field
+warp_26=`        f = 0.003 + 0.1 * abs(length(p) - 5.0);
+warp_27=`        z += f;
+warp_28=`
+warp_29=`        // Add to output color (RGB channels only)
+warp_30=`        o.rgb += (p / z + 0.8) / f;
+warp_31=`
+warp_32=`        // Update ray position
+warp_33=`        p = z * (FC.rgb * 2.0 - float3(r.x, r.y, r.y)) / r.y;
+warp_34=`        p.z += 9.0;
+warp_35=`
+warp_36=`        // Inner loop - 7 iterations for fractal detail
+warp_37=`        for(int j = 1; j <= 7; j++) {
+warp_38=`            f = float(j);
+warp_39=`            p += sin(round(p.zxy / 0.1) * 0.1 * f - t) / f;
+warp_40=`        }
+warp_41=`    }
+warp_42=`
+warp_43=`    // Apply final transformation
+warp_44=`    o = tanh(o / 2000.0);
+warp_45=`
+warp_46=`    // Output final color
+warp_47=`    ret = o.rgb;
+warp_48=`}
+comp_1=`shader_body
+comp_2=`{//MilkDrop3 Flip Mode:
+comp_3=`//uv = 1-uv;
+comp_4=`
+comp_5=` ret = GetPixel(uv);
+comp_6=`}

@@ -1,0 +1,310 @@
+MILKDROP_PRESET_VERSION=201
+PSVERSION=4
+PSVERSION_WARP=4
+PSVERSION_COMP=3
+[preset00]
+fRating=5.000
+fGammaAdj=1.460
+fDecay=0.935
+fVideoEchoZoom=1.007
+fVideoEchoAlpha=0.500
+nVideoEchoOrientation=2
+nWaveMode=5
+bAdditiveWaves=0
+bWaveDots=0
+bWaveThick=0
+bModWaveAlphaByVolume=1
+bMaximizeWaveColor=1
+bTexWrap=1
+bDarkenCenter=0
+bRedBlueStereo=0
+bBrighten=1
+bDarken=1
+bSolarize=0
+bInvert=0
+fWaveAlpha=0.207
+fWaveScale=0.010
+fWaveSmoothing=0.000
+fWaveParam=0.240
+fModWaveAlphaStart=0.750
+fModWaveAlphaEnd=1.170
+fWarpAnimSpeed=1.459
+fWarpScale=2.007
+fZoomExponent=1.00000
+fShader=1.000
+zoom=0.99990
+rot=0.00000
+cx=0.500
+cy=0.500
+dx=0.00000
+dy=0.00000
+warp=0.01000
+sx=0.99990
+sy=1.00000
+wave_r=1.000
+wave_g=1.000
+wave_b=1.000
+wave_x=0.500
+wave_y=0.500
+ob_size=0.000
+ob_r=0.100
+ob_g=0.100
+ob_b=0.200
+ob_a=1.000
+ib_size=0.000
+ib_r=0.250
+ib_g=0.250
+ib_b=0.250
+ib_a=0.000
+nMotionVectorsX=64.000
+nMotionVectorsY=48.000
+mv_dx=0.000
+mv_dy=0.000
+mv_l=0.000
+mv_r=0.350
+mv_g=0.350
+mv_b=0.350
+mv_a=0.000
+b1n=0.000
+b2n=0.000
+b3n=0.000
+b1x=1.000
+b2x=1.000
+b3x=1.000
+b1ed=0.250
+shapecode_0_enabled=1
+shapecode_0_sides=4
+shapecode_0_additive=0
+shapecode_0_thickOutline=0
+shapecode_0_textured=1
+shapecode_0_num_inst=2
+shapecode_0_x=0.500
+shapecode_0_y=0.500
+shapecode_0_rad=3.59495
+shapecode_0_ang=0.00000
+shapecode_0_tex_ang=0.00000
+shapecode_0_tex_zoom=2.35308
+shapecode_0_r=1.000
+shapecode_0_g=1.000
+shapecode_0_b=1.000
+shapecode_0_a=0.000
+shapecode_0_r2=1.000
+shapecode_0_g2=1.000
+shapecode_0_b2=1.000
+shapecode_0_a2=1.000
+shapecode_0_border_r=1.000
+shapecode_0_border_g=1.000
+shapecode_0_border_b=1.000
+shapecode_0_border_a=0.000
+shapecode_1_enabled=1
+shapecode_1_sides=4
+shapecode_1_additive=0
+shapecode_1_thickOutline=0
+shapecode_1_textured=1
+shapecode_1_num_inst=1
+shapecode_1_x=0.500
+shapecode_1_y=0.500
+shapecode_1_rad=4.38652
+shapecode_1_ang=0.00000
+shapecode_1_tex_ang=0.00000
+shapecode_1_tex_zoom=4.81699
+shapecode_1_r=1.000
+shapecode_1_g=1.000
+shapecode_1_b=1.000
+shapecode_1_a=0.000
+shapecode_1_r2=1.000
+shapecode_1_g2=1.000
+shapecode_1_b2=1.000
+shapecode_1_a2=1.000
+shapecode_1_border_r=1.000
+shapecode_1_border_g=1.000
+shapecode_1_border_b=1.000
+shapecode_1_border_a=0.000
+shapecode_2_enabled=1
+shapecode_2_sides=4
+shapecode_2_additive=1
+shapecode_2_thickOutline=0
+shapecode_2_textured=1
+shapecode_2_num_inst=1
+shapecode_2_x=0.500
+shapecode_2_y=0.500
+shapecode_2_rad=2.66718
+shapecode_2_ang=0.00000
+shapecode_2_tex_ang=0.00000
+shapecode_2_tex_zoom=1.00000
+shapecode_2_r=1.000
+shapecode_2_g=1.000
+shapecode_2_b=1.000
+shapecode_2_a=0.000
+shapecode_2_r2=1.000
+shapecode_2_g2=1.000
+shapecode_2_b2=1.000
+shapecode_2_a2=0.100
+shapecode_2_border_r=1.000
+shapecode_2_border_g=1.000
+shapecode_2_border_b=1.000
+shapecode_2_border_a=0.000
+shapecode_3_enabled=1
+shapecode_3_sides=4
+shapecode_3_additive=0
+shapecode_3_thickOutline=0
+shapecode_3_textured=1
+shapecode_3_num_inst=1
+shapecode_3_x=0.500
+shapecode_3_y=0.500
+shapecode_3_rad=3.59495
+shapecode_3_ang=0.00000
+shapecode_3_tex_ang=0.00000
+shapecode_3_tex_zoom=5.99577
+shapecode_3_r=1.000
+shapecode_3_g=1.000
+shapecode_3_b=1.000
+shapecode_3_a=0.000
+shapecode_3_r2=1.000
+shapecode_3_g2=1.000
+shapecode_3_b2=1.000
+shapecode_3_a2=1.000
+shapecode_3_border_r=1.000
+shapecode_3_border_g=1.000
+shapecode_3_border_b=1.000
+shapecode_3_border_a=0.000
+per_frame_init_1=n=0;loop(20000,megabuf(n)=gmegabuf(n)=0;n+=1);
+per_frame_init_2=tr1=rand(6);
+per_frame_init_3=tr2=rand(6);
+per_frame_init_4=tr3=rand(6);
+per_frame_init_5=tr4=rand(6);
+per_frame_init_6=att=1+rand(20);
+per_frame_init_7=lire=0.3+.4*rand(1);
+per_frame_init_8=reg04=1; reg05=1.3;
+per_frame_init_9=reg11=.5; reg12=0.8; reg13=0;
+per_frame_init_10=reg40=.5+rand(1)/2; reg41=.5+rand(1)/2; reg42=0.5+rand(1)/2;
+per_frame_init_11=reg50=0;
+per_frame_init_12=show4=0;
+per_frame_init_13=t_trig=time;
+per_frame_1=dt=1/fps; dec_m = 1-5*dt; dec_s = 1-1*dt; 
+per_frame_2=
+per_frame_3=vol = (bass+mid+treb)/3;
+per_frame_4=vol_ = vol_*dec_m + (1-dec_m)*vol;
+per_frame_5=vol_2 = vol_2*dec_m + (1-dec_m)*vol_;
+per_frame_6=if (vol>peak*8, ib=1; peak=vol, ib=0);
+per_frame_7=peak = peak*dec_m;
+per_frame_8=idx  += ib;
+per_frame_9=idx2 += (idx%8==0)*ib;
+per_frame_10=q24=ib;
+per_frame_11=if(reg15, 
+per_frame_12=  q3=sin(idx*1.56*1.5)*0.1*min(1,mid);
+per_frame_13=  q4=cos(idx*1.56*1.5)*0.1*min(1,mid);
+per_frame_14=,
+per_frame_15=  tr1+=(bass>1.3)*dt*5;
+per_frame_16=  tr2+=(treb>1.3)*dt*7;
+per_frame_17=  q3=sin(tr1)*0.08;
+per_frame_18=  q4=sin(tr2)*0.08;
+per_frame_19=);
+per_frame_20=
+per_frame_21=//ctrl copy shape and warp
+per_frame_22=tr4+=(2+mid)*dt*0.05;
+per_frame_23=reg03 = max(0,min(1,0.7+2*sin(tr4)));
+per_frame_24=if (band(reg03==0,ib),reg04=0.3+rand(5); reg05=1+.5*rand(1);,0);
+per_frame_25=reg10 = max(0,min(1,1.3+1.5*cos(tr4*1.33)));
+per_frame_26=if (band(reg10==0,ib),reg11=0.3+rand(5); reg12=0.7+0.25*rand(1); reg13=0.1+rand(1)*0.7,0); //rot, zoom, ezoom
+per_frame_27=q10=reg10;
+per_frame_28=//attr ctrl
+per_frame_29=reg50=min(20,max(0,reg50-1));
+per_frame_30=ctrig=(reg50>4)&&(time-t_trig>1); //close shape trigger
+per_frame_31=if(ctrig, 
+per_frame_32=//  reg50=0;
+per_frame_33=  t_trig=time;
+per_frame_34=  att = (att+rand(22)+.5)/2;
+per_frame_35=  lire= 0.35+rand(1)*.3;
+per_frame_36=   show4=(rand(1)>0.7);
+per_frame_37=,0);
+per_frame_38=blow=reg50*dt;
+per_frame_39=reg15=(reg03+reg10)<0.5;
+per_frame_40=reg20=att;
+per_frame_41=reg21=lire;
+per_frame_42=
+per_frame_43=//increase draw to center
+per_frame_44=reg22= if (blow<=0, max(-3,-max(0,time-t_trig-15)*0.02)*dt, min(1,blow)*dt);
+per_frame_45=reg44=show4;
+per_frame_46=
+per_frame_47=//red. shape 2
+per_frame_48=reg06=reg03*0.8;
+per_frame_49=
+per_frame_50=//colors
+per_frame_51=tc=time*2;
+per_frame_52=reg40=.7+.2*sin(tc*.17);
+per_frame_53=reg41=.7+.2*sin(tc*.13);
+per_frame_54=reg42=.7+.2*sin(tc*.10);
+per_frame_55=
+per_frame_56=//speed
+per_frame_57=reg45=0.35;
+per_frame_58=reg46=1+0.5*sin(time*0.183);
+per_frame_59=
+per_frame_60=//xtra copy in comp
+per_frame_61=q27=2*max(0,min(1,-1+2*sin(time*0.09)));
+per_frame_62=
+per_frame_63=reg32=aspecty;
+per_frame_64=monitor = 0*int(reg50)+reg22;
+per_frame_65=monitor = lire+int(1000*att);
+per_frame_66=
+per_frame_67=
+per_pixel_1=rot  = reg11;
+per_pixel_2=zoom = reg12+reg13*rad;
+per_pixel_3=
+warp_1=`shader_body
+warp_2=`{
+warp_3=`    // Shader By XorDev (x.com/XorDev)
+warp_4=`    // Ported to MilkDrop by MilkDrop2077
+warp_5=`
+warp_6=`    // Get screen coordinates
+warp_7=`    float2 fragCoord = uv * texsize;
+warp_8=`    float2 r = texsize;
+warp_9=`    float3 FC = float3(fragCoord, 1.0);
+warp_10=`
+warp_11=`    float t = time;
+warp_12=`
+warp_13=`    // Initialize output
+warp_14=`    float4 o = float4(0.0, 0.0, 0.0, 0.0);
+warp_15=`
+warp_16=`    // Main shader logic
+warp_17=`    float3 p = float3(0.0, 0.0, 0.0);
+warp_18=`    float i = 0.0;
+warp_19=`    float z = 0.0;
+warp_20=`    float f = 0.0;
+warp_21=`
+warp_22=`    // Outer loop - 40 iterations
+warp_23=`    for(int iter = 0; iter < 40; iter++) {
+warp_24=`        i += 1.0;
+warp_25=`
+warp_26=`        // Update z and calculate distance field
+warp_27=`        f = 0.003 + abs(length(p.xy) + dot(cos(p), sin(p / 0.6).yzx) - 5.0) / 7.0;
+warp_28=`        z += f;
+warp_29=`
+warp_30=`        // Add to output color (GRB channel swizzle: green, red, blue)
+warp_31=`        o.grb += (1.5 - p / z) / f;
+warp_32=`
+warp_33=`        // Update ray position
+warp_34=`        p = z * (FC.rgb * 2.0 - float3(r.x, r.y, r.y)) / r.y;
+warp_35=`        p.z -= t;
+warp_36=`
+warp_37=`        // Inner loop - 6 iterations for fractal detail
+warp_38=`        for(int j = 1; j <= 6; j++) {
+warp_39=`            f = float(j);
+warp_40=`            p += sin(round(p * 6.0) / 6.0 * f - t * q3) / f;
+warp_41=`        }
+warp_42=`    }
+warp_43=`
+warp_44=`    // Apply final transformation
+warp_45=`    o = tanh(o / 3000.0);
+warp_46=`
+warp_47=`    // Output final color
+warp_48=`    ret = o.rgb;
+warp_49=`}
+comp_1=`shader_body
+comp_2=`{
+comp_3=`ret = lerp(GetBlur2(uv),GetPixel(uv),0.4);
+comp_4=`
+comp_5=`ret = (ret.y-ret.x*0.5)*lerp(float3(2.1,1.4,0.1),1,ret.x)*2.4;
+comp_6=`//MilkDrop3 Color Mode:
+comp_7=`ret /= float3(0.6,1.2,-1.1);
+comp_8=`}

@@ -1,0 +1,241 @@
+MILKDROP_PRESET_VERSION=201
+PSVERSION=4
+PSVERSION_WARP=4
+PSVERSION_COMP=3
+[preset00]
+fRating=5.000
+fGammaAdj=1.880
+fDecay=0.500
+fVideoEchoZoom=1.000
+fVideoEchoAlpha=0.500
+nVideoEchoOrientation=3
+nWaveMode=9
+bAdditiveWaves=0
+bWaveDots=0
+bWaveThick=0
+bModWaveAlphaByVolume=0
+bMaximizeWaveColor=1
+bTexWrap=1
+bDarkenCenter=0
+bRedBlueStereo=0
+bBrighten=0
+bDarken=1
+bSolarize=0
+bInvert=0
+fWaveAlpha=0.800
+fWaveScale=1.000
+fWaveSmoothing=0.750
+fWaveParam=0.000
+fModWaveAlphaStart=0.750
+fModWaveAlphaEnd=0.950
+fWarpAnimSpeed=1.459
+fWarpScale=2.007
+fZoomExponent=1.00000
+fShader=0.300
+zoom=0.99990
+rot=0.00000
+cx=0.500
+cy=0.500
+dx=0.00000
+dy=0.00000
+warp=0.00909
+sx=0.99990
+sy=1.00000
+wave_r=0.000
+wave_g=0.000
+wave_b=0.000
+wave_x=0.000
+wave_y=0.000
+ob_size=0.050
+ob_r=0.800
+ob_g=1.000
+ob_b=1.000
+ob_a=0.000
+ib_size=0.000
+ib_r=0.000
+ib_g=0.000
+ib_b=0.000
+ib_a=0.000
+nMotionVectorsX=12.000
+nMotionVectorsY=9.000
+mv_dx=0.000
+mv_dy=0.000
+mv_l=0.900
+mv_r=1.000
+mv_g=1.000
+mv_b=1.000
+mv_a=0.000
+b1n=0.000
+b2n=0.000
+b3n=0.000
+b1x=0.800
+b2x=0.700
+b3x=1.000
+b1ed=0.250
+per_frame_init_1=zo=1; zo_=0.6; zo__=0.92; tstart=time;
+per_frame_init_2=t1=rand(6); t2=rand(6);
+per_frame_1=dt=1/fps; dec_m = 1-2*dt; dec_s = 1-0.5*dt; 
+per_frame_2=vol = (2*bass_att+mid_att+treb_att)/3;
+per_frame_3=
+per_frame_4=p = progress;
+per_frame_5=trest = if (p==0,100000, (time-tstart)*(1-p)/p);
+per_frame_6=
+per_frame_7=v = max(0,vol);
+per_frame_8=dec = if (v>vol_,1-1*dt,1-0.25*dt);
+per_frame_9=vol_= vol_*dec+(1-dec)*v;
+per_frame_10=spd = vol_*dt * (0.5+zo__)/4;
+per_frame_11=
+per_frame_12=isb = above(vol, pk) * (time>t0+.5);
+per_frame_13=if (isb,t0=time; pk=vol*3,Pk*=dec_s);
+per_frame_14=bi += isb;
+per_frame_15=
+per_frame_16=sw = isb&&(rand(1)>0.7)&&(time-ts>8);
+per_frame_17=if (sw,ts=time,0);
+per_frame_18=zo = 2;
+per_frame_19=zo_ += 2;
+per_frame_20=zo__ = 1;
+per_frame_21=
+per_frame_22=
+per_frame_23=if (isb&&(bi%2==0),r1 = rand(2)-1,0);
+per_frame_24=if (isb&&(bi%3==0),r2 = rand(2)-1,0);
+per_frame_25=if (isb&&(bi%5==2),r3 = rand(12)-1,0);
+per_frame_26=
+per_frame_27=r1a += atan(150*(r1-r1a))*spd*.01;
+per_frame_28=r2a += atan(150*(r2-r2a))*spd*.01;
+per_frame_29=r3a += atan(150*(r3-r3a))*spd*.01;
+per_frame_30=
+per_frame_31=r1b = r1b*dec_m + (1-dec_m)*r1a;
+per_frame_32=r2b = r2b*dec_m + (1-dec_m)*r2a;
+per_frame_33=r3b = r3b*dec_m + (1-dec_m)*r3a;
+per_frame_34=r1c = r1c*dec_m + (1-dec_m)*r1b;
+per_frame_35=r2c = r2c*dec_m + (1-dec_m)*r2b;
+per_frame_36=r3c = r3c*dec_m + (1-dec_m)*r3b;
+per_frame_37=
+per_frame_38=s1 += (1+r1c)*spd;
+per_frame_39=s2 += (r2c)*spd;
+per_frame_40=s3 += (1+r2c)*spd;
+per_frame_41=
+per_frame_42=q1=r1c;
+per_frame_43=q2=r2c;
+per_frame_44=q3=r3c;
+per_frame_45=q4=(q1-q2)*0.2;
+per_frame_46=q5=s1;
+per_frame_47=q6=s2;
+per_frame_48=q7=s3*4;
+per_frame_49=q8=(s2+s3)*12;
+per_frame_50=q10 = zo__;
+per_frame_51=
+per_frame_52=q12 = 0.2; //front-back light
+per_frame_53=tr = tr*dec_m + (1-dec_m)*trest/5;
+per_frame_54=q20 = max(0,min(1,tr)); //fade - does not work
+per_frame_55=
+per_frame_56=//colors
+per_frame_57=t1 += spd*0.12;
+per_frame_58=t2 += spd*0.07;
+per_frame_59=q21 = 1.5 + 0.3*sin(t1);
+per_frame_60=q22 = 1 + 0.3*sin(t2); 
+per_frame_61=monitor = t1;
+warp_1=`#define sat saturate
+warp_2=`sampler sampler_pw_noise_lq;
+warp_3=`float dr, smask, stripe, h, dist;
+warp_4=`float2 uv1, uv2, uv3, uv4, uv5, uv6;
+warp_5=`float3 lea, noise, ret1, struc, neu;
+warp_6=`
+warp_7=`float aTan2(float y, float x) {
+warp_8=`    float angle;
+warp_9=`    float abs_y = abs(y);
+warp_10=`    float r;
+warp_11=`    if (x >= 0) { r = 1 - (x - abs_y) / (x + abs_y); }
+warp_12=`    else { r = 3 - (x + abs_y) / (abs_y - x); }
+warp_13=`    return (y < 0 ? -r : r) / 4;
+warp_14=`}
+warp_15=`
+warp_16=`shader_body {
+warp_17=`    float2 uv1 = (uv - 0.5 + 0.2 * q2) * aspect.xy;
+warp_18=`    lea = 0;
+warp_19=`    int anz = 4;
+warp_20=`    for (float n = anz; n > 0; n--) {
+warp_21=`        dist = (1.5 + q2) * 0.33 * n / 6;
+warp_22=`        uv4 = 256 * (dist * uv1) * q10;
+warp_23=`
+warp_24=`        float aa = (1.0 + q3 / 2) * n / anz + q1 * (12 + uv1.x * 0) /2;
+warp_25=`        uv4 = mul(uv4, float2x2(cos(aa), -sin(aa), sin(aa), cos(aa)));
+warp_26=`        stripe = (16 - 0.8 * abs(floor(uv4.x)));
+warp_27=`        uv4.y += stripe/2 * q5 + (16 - stripe) * q6 - 8.0 * n;
+warp_28=`
+warp_29=`        noise = tex2D(sampler_pw_noise_lq, uv4 / 256);
+warp_30=`        smask = sat(64 * (noise.b - (0.88 - (stripe / 36) * 0.1))); // Keep provided density
+warp_31=`
+warp_32=`        aa = (noise.g - 0.5) * q8;
+warp_33=`        uv5 = mul(frac(uv4) - 0.5, float2x2(cos(aa), -sin(aa), sin(aa), cos(aa)));
+warp_34=`
+warp_35=`        dr = (abs(sin(uv4.y * 0.5 + 2 * q7 * noise.r)));
+warp_36=`        uv5.x *= 1.7; // Keep provided stretch horizontally
+warp_37=`        uv5.y *= 2.4; // Keep provided compression vertically
+warp_38=`
+warp_39=`        struc = tex2D(sampler_noise_hq, 0.5 * aTan2(uv5.x, uv5.y + 0.4)) - 0.5;
+warp_40=`        uv6 = uv5;
+warp_41=`        uv5 += struc * n * 0.20 * (noise.r);
+warp_42=`        h = smask * sat(8 - 12 * length(uv5)); // Keep provided intensity
+warp_43=`
+warp_44=`        // Modified: White, pinkish, and red petal colors
+warp_45=`        float color_sel = noise.r; // Use noise to select color
+warp_46=`        float3 petal_color;
+warp_47=`        if (color_sel < 0.33) {
+warp_48=`            petal_color = float3(1.0, 1.0, 1.0); // White
+warp_49=`        } else if (color_sel < 0.66) {
+warp_50=`            petal_color = float3(1.0, 0.8, 0.85); // Pinkish
+warp_51=`        } else {
+warp_52=`            petal_color = float3(1.0, 0.5, 0.5); // Red
+warp_53=`        }
+warp_54=`        neu = h * petal_color * (0.8 + 0.2 * noise.g); // Vary brightness with noise
+warp_55=`
+warp_56=`        lea = lerp(lea, neu, h);
+warp_57=`    }
+warp_58=`
+warp_59=`    ret = lea; // Keep original output
+warp_60=`}
+comp_1=`sampler sampler_pw_noise_lq;
+comp_2=`float3 ret1;
+comp_3=`float2 zz, uv0, uv1,uv2,uv3,uv4;
+comp_4=`float smask;
+comp_5=`
+comp_6=`float aTan2(float y, float x) {float angle;	 float abs_y = abs(y);
+comp_7=`if (x >= 0) {float r = (x - abs_y) / (x + abs_y); angle = 1-r;} 
+comp_8=`else {float r = (x + abs_y) / (abs_y - x); angle = 3-r; }	
+comp_9=`angle = angle * .25;
+comp_10=`return y < 0 ? -angle : angle;}
+comp_11=`
+comp_12=`shader_body {//MilkDrop3 Flip Mode:
+comp_13=`uv = 1-uv;
+comp_14=` ;
+comp_15=`uv0 = uv;
+comp_16=`uv1 = (uv-.5)*aspect.xy;
+comp_17=`
+comp_18=`uv1 = (uv - .5) * aspect.xy;    
+comp_19=`float stars = 0; float dist, inten;
+comp_20=`int n = 1;
+comp_21=`int anz = 4;
+comp_22=`while (n <= anz) {
+comp_23=`  dist = (1-frac(1.0/anz*n+.10*time)) * (1-.2*rad);
+comp_24=`  inten =  (1-dist);
+comp_25=`  uv3 = (uv1+float2(q1,q2));
+comp_26=`   uv4 = 64*dist*uv3;
+comp_27=`  smask = (tex2D (sampler_pw_noise_lq,uv4/256)).g-.9;
+comp_28=`  stars += max(stars,saturate(inten*(0.11/length(abs(frac(uv4)-0.47))*smask)));
+comp_29=`n++;
+comp_30=`}
+comp_31=`uv2 = uv1 - float2(q5,q6);
+comp_32=`float beat = (mid - 0.45) * (mid > 0.45)*2;
+comp_33=`float flash = .01/(length(uv2))*min(3,pow(beat,1));
+comp_34=`flash *= flash/(abs(frac(3*aTan2(uv2.x,uv2.y)+time*2)-.5));
+comp_35=`ret1 = max(GetPixel(uv0)*2,GetBlur2(uv0)*2);
+comp_36=`//ret = saturate(0.022/length(sin(uv3)))*float3(0.2,2.6,0.1); //MilkDrop2077 color mod
+comp_37=`ret += saturate(pow(stars,2));
+comp_38=`ret *= saturate(1-2*lum(ret1));
+comp_39=`ret +=  ret1;
+comp_40=`ret -= 0.1;
+comp_41=`//ret += 2*saturate(flash)*float3(2.2,2.9,0.7); //MilkDrop2077 color mod
+comp_42=`//MilkDrop3 Color Mode:
+comp_43=`ret /= float3(1.0,1.4,0.7);
+comp_44=`}

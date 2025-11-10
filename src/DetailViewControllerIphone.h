@@ -402,6 +402,7 @@ enum {
 -(void) mdSwitchFixedBar;
 -(void) mdSwitchSpectrumBloom:(int)val;
 -(void) mdSwitchLandscapeBloom:(int)val;
+-(void) mdShowMusicInfo;
 
 -(void) mdTestAsyncLoad;
 

@@ -1,0 +1,214 @@
+MILKDROP_PRESET_VERSION=201
+PSVERSION=3
+PSVERSION_WARP=2
+PSVERSION_COMP=3
+[preset00]
+fRating=4.000
+fGammaAdj=1.460
+fDecay=0.935
+fVideoEchoZoom=1.007
+fVideoEchoAlpha=0.500
+nVideoEchoOrientation=2
+nWaveMode=7
+bAdditiveWaves=1
+bWaveDots=0
+bWaveThick=1
+bModWaveAlphaByVolume=0
+bMaximizeWaveColor=0
+bTexWrap=1
+bDarkenCenter=0
+bRedBlueStereo=0
+bBrighten=1
+bDarken=1
+bSolarize=0
+bInvert=0
+fWaveAlpha=3.200
+fWaveScale=1.768
+fWaveSmoothing=0.630
+fWaveParam=0.000
+fModWaveAlphaStart=0.710
+fModWaveAlphaEnd=1.300
+fWarpAnimSpeed=1.000
+fWarpScale=1.331
+fZoomExponent=1.00000
+fShader=1.000
+zoom=0.99951
+rot=0.00000
+cx=0.500
+cy=0.500
+dx=0.00000
+dy=0.00000
+warp=0.01000
+sx=1.00000
+sy=1.00000
+wave_r=1.000
+wave_g=1.000
+wave_b=1.000
+wave_x=0.500
+wave_y=0.500
+ob_size=0.500
+ob_r=0.010
+ob_g=0.000
+ob_b=0.000
+ob_a=0.000
+ib_size=0.260
+ib_r=0.250
+ib_g=0.250
+ib_b=0.250
+ib_a=0.000
+nMotionVectorsX=64.000
+nMotionVectorsY=1.248
+mv_dx=0.000
+mv_dy=0.000
+mv_l=5.000
+mv_r=1.000
+mv_g=1.000
+mv_b=0.000
+mv_a=0.000
+b1n=0.000
+b2n=0.000
+b3n=0.000
+b1x=1.000
+b2x=1.000
+b3x=1.000
+b1ed=0.250
+wavecode_0_enabled=1
+wavecode_0_samples=512
+wavecode_0_sep=0
+wavecode_0_bSpectrum=0
+wavecode_0_bUseDots=1
+wavecode_0_bDrawThick=1
+wavecode_0_bAdditive=0
+wavecode_0_scaling=1.00000
+wavecode_0_smoothing=0.50000
+wavecode_0_r=1.000
+wavecode_0_g=1.000
+wavecode_0_b=1.000
+wavecode_0_a=1.000
+wave_0_per_frame1=advance=advance+ 0.005;
+wave_0_per_frame2=advance=if( above(advance,2) , 0, advance);
+wave_0_per_frame3=t1=advance
+wave_0_per_point1=s=sample*6.28;
+wave_0_per_point2=
+wave_0_per_point3=//plot random x position via function of sample pos;
+wave_0_per_point4=xp=sin(s)+sin(s*0.14)+sin(s*32.3)+sin(s*9.8);
+wave_0_per_point5=xp=xp*0.20;
+wave_0_per_point6=
+wave_0_per_point7=//plot random y position via function of sample pos;
+wave_0_per_point8=yp=cos(s)+sin(s*0.24)+cos(s*17.4)+sin(s*37.7);
+wave_0_per_point9=yp=yp*0.20;
+wave_0_per_point10=
+wave_0_per_point11=//plot random z position via function of sample pos;
+wave_0_per_point12=zp=cos(s)+cos(s*5.24)+cos(s*47.4)+cos(s*27.7);
+wave_0_per_point13=zp=zp*0.25;
+wave_0_per_point14=
+wave_0_per_point15=//pull stars toward screen
+wave_0_per_point16=zp=zp + 1 - t1;
+wave_0_per_point17=
+wave_0_per_point18=//correct when below 0
+wave_0_per_point19=zp=if( below(zp,0) , zp+2 , zp );
+wave_0_per_point20=
+wave_0_per_point21=//darken far stars
+wave_0_per_point22=a=(1 - zp*0.5);
+wave_0_per_point23=
+wave_0_per_point24=zp=zp*0.7;
+wave_0_per_point25=
+wave_0_per_point26=x_screen=xp/zp + 0.5;
+wave_0_per_point27=y_screen=yp/zp + 0.5;
+wave_0_per_point28=
+wave_0_per_point29=x=x_screen;
+wave_0_per_point30=y=y_screen;
+wave_0_per_point31=
+wave_0_per_point32=r=1;
+wave_0_per_point33=g=1;
+wave_0_per_point34=b=1;
+shapecode_0_enabled=1
+shapecode_0_sides=20
+shapecode_0_additive=1
+shapecode_0_thickOutline=1
+shapecode_0_textured=0
+shapecode_0_num_inst=444
+shapecode_0_x=0.800
+shapecode_0_y=0.500
+shapecode_0_rad=0.12821
+shapecode_0_ang=0.00000
+shapecode_0_tex_ang=0.00000
+shapecode_0_tex_zoom=5.42791
+shapecode_0_r=0.000
+shapecode_0_g=0.000
+shapecode_0_b=1.000
+shapecode_0_a=0.200
+shapecode_0_r2=0.000
+shapecode_0_g2=0.000
+shapecode_0_b2=0.500
+shapecode_0_a2=0.000
+shapecode_0_border_r=1.000
+shapecode_0_border_g=1.000
+shapecode_0_border_b=1.000
+shapecode_0_border_a=0.000
+shape_0_init1=i=0;
+shape_0_init2=loop (1024,
+shape_0_init3=  z=rand(1)+.1;
+shape_0_init4=  megabuf(i+2) = z;
+shape_0_init5=  megabuf(i)  = (rand(1)-0.5)/z;
+shape_0_init6=  megabuf(i+1)= (rand(1)-.5)/z;
+shape_0_init7=i+=3;);
+shape_0_per_frame1=i=instance;
+shape_0_per_frame2=k1 = i/num_inst;
+shape_0_per_frame3=zmax = 7;
+shape_0_per_frame4=speed=.15;
+shape_0_per_frame5=
+shape_0_per_frame6=z=megabuf(3*i+2);
+shape_0_per_frame7=x = megabuf(3*i)/z+.5;
+shape_0_per_frame8=y = megabuf(3*i+1)/z*reg32+0.5;
+shape_0_per_frame9=
+shape_0_per_frame10=rad = .022/(z*zmax)*reg32 ;
+shape_0_per_frame11=
+shape_0_per_frame12=out=(x>1)||(x<0)||(y>1)||(y<0)||(z<0);
+shape_0_per_frame13=if (out,
+shape_0_per_frame14=  megabuf(3*i)= (rand(2)-1); //x
+shape_0_per_frame15=  megabuf(3*i+1)=(rand(2)-1); //y
+shape_0_per_frame16=  megabuf(3*i+2)=1;
+shape_0_per_frame17=,
+shape_0_per_frame18=  megabuf(i*3+2)-=speed/fps;
+shape_0_per_frame19=);
+shape_0_per_frame20=
+shape_0_per_frame21=a=1-pow(z,4);
+shape_0_per_frame22=a*=0.6;
+warp_1=`shader_body
+warp_2=`{
+warp_3=`    //Shader By XorDev (x.com/XorDev), ported to MilkDrop by MilkDrop2077
+warp_4=`  
+warp_5=`    // Calculate aspect ratio correction
+warp_6=`    float aspect = aspect.x / aspect.y;
+warp_7=`    float2 aspect_scale = float2(aspect, 1.0);
+warp_8=`    
+warp_9=`    // Center and scale UVs
+warp_10=`    float2 uv_centered = (uv - 0.5) * 1.8;
+warp_11=`    float2 p = uv_centered * aspect_scale;
+warp_12=`    
+warp_13=`    // Add rotation (time-based)
+warp_14=`    float angle = time * 0.05; // Rotation speed (0.5 radians per second)
+warp_15=`    float sin_rot = sin(angle);
+warp_16=`    float cos_rot = cos(angle);
+warp_17=`    p = float2(
+warp_18=`        p.x * cos_rot - p.y * sin_rot,
+warp_19=`        p.x * sin_rot + p.y * cos_rot
+warp_20=`    );
+warp_21=`    
+warp_22=`    // Distance function with rotation
+warp_23=`    float d = length(p) - 0.5 + 0.01 / (p.x + p.y);
+warp_24=`    
+warp_25=`    // Glow effect
+warp_26=`    float o = 0.1 / abs(d);
+warp_27=`    
+warp_28=`    // Output
+warp_29=`    ret = float3(o, o, o);
+warp_30=`}
+comp_1=`shader_body
+comp_2=`{
+comp_3=`    ret = tex2D(sampler_main, uv).xyz;
+comp_4=`    ret *= 1.28; //gamma
+comp_5=`    ret *= hue_shader; //old hue shader effect
+comp_6=`    ret *= ret; //darken
+comp_7=`}

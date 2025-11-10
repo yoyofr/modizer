@@ -1,0 +1,136 @@
+MILKDROP_PRESET_VERSION=300
+PSVERSION=2
+PSVERSION_WARP=2
+PSVERSION_COMP=2
+[preset00]
+fRating=1.000
+fGammaAdj=2.700
+fDecay=0.980
+fVideoEchoZoom=2.000
+fVideoEchoAlpha=0.000
+nVideoEchoOrientation=0
+nWaveMode=5
+bAdditiveWaves=1
+bWaveDots=1
+bWaveThick=0
+bModWaveAlphaByVolume=0
+bMaximizeWaveColor=1
+bTexWrap=1
+bDarkenCenter=0
+bRedBlueStereo=0
+bBrighten=0
+bDarken=0
+bSolarize=0
+bInvert=0
+fWaveAlpha=3.300
+fWaveScale=1.694
+fWaveSmoothing=0.900
+fWaveParam=0.000
+fModWaveAlphaStart=0.750
+fModWaveAlphaEnd=0.950
+fWarpAnimSpeed=1.000
+fWarpScale=1.772
+fZoomExponent=1.00100
+fShader=0.000
+zoom=1.00700
+rot=-0.02000
+cx=0.500
+cy=0.500
+dx=0.00000
+dy=0.00000
+warp=0.00000
+sx=1.00000
+sy=1.00000
+wave_r=0.500
+wave_g=0.500
+wave_b=0.800
+wave_x=0.500
+wave_y=0.500
+ob_size=0.010
+ob_r=0.000
+ob_g=0.000
+ob_b=0.000
+ob_a=0.000
+ib_size=0.010
+ib_r=0.250
+ib_g=0.250
+ib_b=0.250
+ib_a=0.000
+nMotionVectorsX=12.000
+nMotionVectorsY=9.000
+mv_dx=0.000
+mv_dy=0.000
+mv_l=0.900
+mv_r=1.000
+mv_g=1.000
+mv_b=1.000
+mv_a=0.000
+b1n=0.000
+b2n=0.000
+b3n=0.000
+b1x=1.000
+b2x=1.000
+b3x=1.000
+b1ed=0.250
+per_frame_1=wave_x = wave_x + 0.2*( 0.60*sin(2.121*time) + 0.5*sin(1.621*time) );
+per_frame_2=wave_y = wave_y + 0.2*( 0.60*sin(1.742*time) + 0.5*sin(2.322*time) );
+per_frame_3=wave_r = wave_r + 0.200*( 0.60*sin(0.823*time) + 0.40*sin(0.916*time) );
+per_frame_4=wave_g = wave_g + 0.500*( 0.60*sin(0.900*time) + 0.40*sin(1.023*time) );
+per_frame_5=wave_b = wave_b + 0.500*( 0.60*sin(0.808*time) + 0.40*sin(0.949*time) );
+per_pixel_1=zoom = zoom + 0.01 * ( sin(2*cos(3*(sqrt(2)-rad)*ang)) + 1 );
+per_pixel_2=rot = 0.012;
+warp_1=`shader_body
+warp_2=`{
+warp_3=`    ret = tex2D( sampler_main, uv ).xyz;
+warp_4=`
+warp_5=`    // ERROR DIFFUSION DITHER - looks great
+warp_6=`    float2 dither_uv = uv_orig*texsize.xy*texsize_noise_lq.zw + rand_frame.xy;
+warp_7=`    ret += (tex2D(sampler_noise_lq, dither_uv).xyz-0.5)/256.0*3;
+warp_8=`
+warp_9=`    // darken over time
+warp_10=`    //ret -= 0.004;
+warp_11=`    //ret *= 0.99;
+warp_12=`    //ret *= 0.97 + 0.03*saturate( length(uv - uv_orig)*200 );  // center only
+warp_13=`    ret = frac(ret - 0.005);
+warp_14=`}
+warp_15=`
+comp_1=`sampler sampler_MilkDrop3_002b;  // loads clouds.jpg (or .tga, etc)
+comp_2=`
+comp_3=`shader_body         
+comp_4=`{
+comp_5=`    ret = tex2D(sampler_main, uv).xyz +
+comp_6=`              GetBlur2(uv)
+comp_7=`          ;
+comp_8=`
+comp_9=`    ret = tex2D( sampler_MilkDrop3_002b, 
+comp_10=`                     ret.xy*(0.1 + 0.7*rand_preset.x*rand_preset.y) 
+comp_11=`                     + uv*float2(1,-1)*aspect.xy
+comp_12=`                   ).xyz;
+comp_13=`
+comp_14=`    //ret *= 1.333; // a little bit of overbright
+comp_15=`
+comp_16=`}
+comp_17=`
+
+[SPRITE1_BEGIN]
+SpriteName=sprites\Jello1.png
+SpriteColorKey=0x000000
+SpriteLayer=0
+SpriteBlend=7
+SpriteAlpha=1.000000
+SpriteBurn=1
+SpriteX=0.000000
+SpriteY=0.000000
+SpriteSX=-0.800000
+SpriteSY=-0.800000
+SpriteRot=1.000000
+SpriteSpeed=1.500000
+SpriteRepeatX=1.000000
+SpriteRepeatY=1.000000
+code_1=new_scale=1.0+0.05*bass_att;
+code_2=sx=new_scale;
+code_3=sy=new_scale;
+code_4=x=0.5+0.008+0.083*sin(time*1.9);
+code_5=y=0.5+0.008+0.083*cos(time*1.9);
+code_6=a=1.0;
+[SPRITE1_END]

@@ -1,0 +1,164 @@
+MILKDROP_PRESET_VERSION=201
+PSVERSION=4
+PSVERSION_WARP=4
+PSVERSION_COMP=2
+[preset00]
+fRating=5.000
+fGammaAdj=1.460
+fDecay=0.935
+fVideoEchoZoom=1.007
+fVideoEchoAlpha=0.500
+nVideoEchoOrientation=2
+nWaveMode=15
+bAdditiveWaves=1
+bWaveDots=0
+bWaveThick=1
+bModWaveAlphaByVolume=0
+bMaximizeWaveColor=1
+bTexWrap=0
+bDarkenCenter=0
+bRedBlueStereo=0
+bBrighten=1
+bDarken=1
+bSolarize=0
+bInvert=0
+fWaveAlpha=0.001
+fWaveScale=0.625
+fWaveSmoothing=0.900
+fWaveParam=0.000
+fModWaveAlphaStart=0.880
+fModWaveAlphaEnd=1.980
+fWarpAnimSpeed=0.010
+fWarpScale=0.010
+fZoomExponent=1.00000
+fShader=1.000
+zoom=1.00000
+rot=0.00000
+cx=0.500
+cy=0.500
+dx=0.00000
+dy=0.00000
+warp=0.01000
+sx=1.00000
+sy=1.00000
+wave_r=0.000
+wave_g=0.000
+wave_b=0.000
+wave_x=0.500
+wave_y=0.500
+ob_size=0.005
+ob_r=0.470
+ob_g=0.310
+ob_b=0.380
+ob_a=0.000
+ib_size=0.010
+ib_r=0.000
+ib_g=0.000
+ib_b=0.000
+ib_a=0.000
+nMotionVectorsX=64.000
+nMotionVectorsY=48.000
+mv_dx=0.000
+mv_dy=0.000
+mv_l=1.000
+mv_r=1.060
+mv_g=1.000
+mv_b=0.819
+mv_a=0.000
+b1n=0.000
+b2n=0.000
+b3n=0.000
+b1x=1.000
+b2x=1.000
+b3x=1.000
+b1ed=0.250
+per_frame_init_1=
+per_frame_init_2=nut=0;
+per_frame_init_3=
+per_frame_init_4=
+per_frame_init_5=wvr=0;
+per_frame_init_6=decay=0;
+per_frame_init_7=dcsp=0
+per_frame_init_8=
+per_frame_1=decay=0.99;
+per_frame_2=zoom=1.000;
+per_frame_3=speed=0.920;
+per_frame_4=speedinv=1-speed;
+per_frame_5=q1=(qa*speed + bass*speedinv);
+per_frame_6=q2=(qb*speed + mid *speedinv);
+per_frame_7=q3=(qc*speed + treb*speedinv);
+per_frame_8=qa=q1;
+per_frame_9=qb=q2;
+per_frame_10=qc=q3
+warp_1=`shader_body
+warp_2=`{
+warp_3=`    //Shader By XorDev (x.com/XorDev), ported to MilkDrop by MilkDrop2077
+warp_4=`
+warp_5=`    // Get screen coordinates
+warp_6=`    float2 fragCoord = uv * texsize;
+warp_7=`    float2 r = texsize;
+warp_8=`    float3 FC = float3(fragCoord, 0.7);
+warp_9=`
+warp_10=`    float t = time;
+warp_11=`
+warp_12=`    // Initialize output
+warp_13=`    float4 o = float4(0.0, 0.0, 0.0, 0.0);
+warp_14=`
+warp_15=`    // Main shader logic
+warp_16=`    float3 p = float3(0.0, 0.0, 0.0);
+warp_17=`    float i = 0.0;
+warp_18=`    float z = 0.0;
+warp_19=`    float f = 0.0;
+warp_20=`
+warp_21=`    // Outer loop - 50 iterations
+warp_22=`    for(int iter = 0; iter < 50; iter++) {
+warp_23=`        i += bass_att;
+warp_24=`
+warp_25=`        // Update z and calculate distance field
+warp_26=`        f = 0.0052 + 0.08 * abs(length(p) - 5.7);
+warp_27=`        z += f;
+warp_28=`
+warp_29=`        // Add to output color (RGB channels only)
+warp_30=`        o.rgb += (p / z + q2) / f;
+warp_31=`
+warp_32=`        // Update ray position
+warp_33=`        p = z * (FC.rgb * 2.0 - float3(r.x, r.y, r.y)) / r.y;
+warp_34=`        p.z += 9.0;
+warp_35=`
+warp_36=`        // Inner loop - 7 iterations for fractal detail
+warp_37=`        for(int j = 1; j <= 7; j++) {
+warp_38=`            f = float(j);
+warp_39=`            p += sin(round(p.zxy / 0.02) * 0.02 * f - t) / f;
+warp_40=`        }
+warp_41=`    }
+warp_42=`
+warp_43=`    // Apply final transformation
+warp_44=`    o = tanh(o / 2420);
+warp_45=`
+warp_46=`    // Output final color
+warp_47=`    ret = o.rgb;
+warp_48=`}
+warp_49=`
+comp_1=`sampler sampler_devboxb;
+comp_2=`sampler sampler_suff5;
+comp_3=`shader_body
+comp_4=`{//MilkDrop3 Flip Mode:
+comp_5=`uv = 1-uv;
+comp_6=`
+comp_7=`float t = time; // set velocity here
+comp_8=`float2 c = (uv-0.5)*aspect.wz;
+comp_9=`float1 ang_hq = atan2(c.x,c.y);
+comp_10=`float2 spiral = float2(ang_hq*q11*4+t,aspect.w*log(length(c))+ang_hq*q11-t);
+comp_11=`//spiral = 0.5 + (0.5 - abs( frac( spiral * 0.5 ) * 2.0 - 1.0 ))*0.83; // mirror
+comp_12=`spiral = 0.5 - (0.5 - frac(spiral))*0.866; // mirror
+comp_13=`uv = 0.5 + (uv-0.5)*0.88;
+comp_14=`    ret = tex2D(sampler_main, uv).xyz;
+comp_15=`    ret *= 1.00; //gamma
+comp_16=` ret = lerp(GetPixel(uv).y*float3(0.6,0,0),lerp(1,float3(1,0,0),GetBlur1(uv).y),GetPixel(uv).x*0.6);
+comp_17=`// ret = lerp(ret,float3(1,0,0),GetPixel(spiral).y*bass*0.5);
+comp_18=`// ret = lerp(ret,1,GetPixel(spiral).x*treb*0.25);
+comp_19=`//MilkDrop3 Solarize Mode:
+comp_20=`ret = ret*(1-ret)*4;
+comp_21=`//MilkDrop3 Invert Mode:
+comp_22=`ret = 1 - ret;
+comp_23=`}

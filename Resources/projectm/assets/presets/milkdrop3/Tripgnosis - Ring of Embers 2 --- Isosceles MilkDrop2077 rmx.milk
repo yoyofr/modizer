@@ -1,0 +1,149 @@
+MILKDROP_PRESET_VERSION=300
+PSVERSION=2
+PSVERSION_WARP=2
+PSVERSION_COMP=2
+[preset00]
+fRating=5.000
+fGammaAdj=2.000
+fDecay=0.942
+fVideoEchoZoom=1.007
+fVideoEchoAlpha=0.500
+nVideoEchoOrientation=1
+nWaveMode=0
+bAdditiveWaves=1
+bWaveDots=0
+bWaveThick=0
+bModWaveAlphaByVolume=0
+bMaximizeWaveColor=1
+bTexWrap=1
+bDarkenCenter=0
+bRedBlueStereo=0
+bBrighten=0
+bDarken=0
+bSolarize=0
+bInvert=0
+fWaveAlpha=1.028
+fWaveScale=0.880
+fWaveSmoothing=0.000
+fWaveParam=0.280
+fModWaveAlphaStart=0.950
+fModWaveAlphaEnd=0.750
+fWarpAnimSpeed=1.000
+fWarpScale=1.000
+fZoomExponent=0.31218
+fShader=0.000
+zoom=0.98020
+rot=0.00000
+cx=0.500
+cy=0.500
+dx=0.00000
+dy=0.00000
+warp=0.01000
+sx=1.02010
+sy=1.02010
+wave_r=0.500
+wave_g=0.500
+wave_b=0.500
+wave_x=0.500
+wave_y=0.500
+ob_size=0.007
+ob_r=0.000
+ob_g=0.000
+ob_b=0.000
+ob_a=0.000
+ib_size=0.260
+ib_r=0.250
+ib_g=0.250
+ib_b=0.250
+ib_a=0.000
+nMotionVectorsX=12.000
+nMotionVectorsY=9.000
+mv_dx=0.000
+mv_dy=0.000
+mv_l=0.900
+mv_r=1.000
+mv_g=1.000
+mv_b=1.000
+mv_a=0.000
+b1n=0.000
+b2n=0.000
+b3n=0.000
+b1x=1.000
+b2x=1.000
+b3x=1.000
+b1ed=0.250
+per_frame_1=movement = movement + 0.01*(bass+bass_att) + 0.001*pow(bass+1,3);
+per_frame_2=q1 = movement;
+per_frame_3=monitor =q1;
+warp_1=`shader_body
+warp_2=`{
+warp_3=`  // sample previous frame
+warp_4=`  ret = tex2D( sampler_pw_main, uv ).xyz;
+warp_5=`
+warp_6=`  float n;
+warp_7=`  float2 d = texsize.zw*1;
+warp_8=`  n  = saturate(tex2D(sampler_pw_main, uv+d*float2( 1, 1)).x*999);
+warp_9=`  n += saturate(tex2D(sampler_pw_main, uv+d*float2( 1, 0)).x*999);
+warp_10=`  n += saturate(tex2D(sampler_pw_main, uv+d*float2( 1,-1)).x*999);
+warp_11=`  n += saturate(tex2D(sampler_pw_main, uv+d*float2( 0, 1)).x*999);
+warp_12=`  n += saturate(tex2D(sampler_pw_main, uv+d*float2( 0,-1)).x*999);
+warp_13=`  n += saturate(tex2D(sampler_pw_main, uv+d*float2(-1, 1)).x*999);
+warp_14=`  n += saturate(tex2D(sampler_pw_main, uv+d*float2(-1, 0)).x*999);
+warp_15=`  n += saturate(tex2D(sampler_pw_main, uv+d*float2(-1,-1)).x*999);
+warp_16=`  
+warp_17=`  if (n < 1.5)
+warp_18=`    ret = 0;
+warp_19=`  if (n > 3.5)
+warp_20=`    ret = 0;
+warp_21=`  if (ret.x < 0.1 && abs(n-3) < 0.5)
+warp_22=`    ret = 1;
+warp_23=`
+warp_24=`  // darken (decay) over time
+warp_25=` // ret = (ret - 0.016)*0.985;
+warp_26=`}
+comp_1=`shader_body
+comp_2=`{
+comp_3=`    // use 3D noise 
+comp_4=`    float3 uvw = float3(uv*8, 0.3);
+comp_5=`    //uvw = mul(uvw, rot_s2);
+comp_6=`    uvw.z += time*0.3;
+comp_7=`
+comp_8=`    // sample a high-quality 3D noise volume!
+comp_9=`    float4 N = tex3D(sampler_noisevol_hq, uvw);
+comp_10=`
+comp_11=`    float2 uv2 = uv;
+comp_12=`    uv2 += (N.xy*2-1)*texsize.zw*3;
+comp_13=`
+comp_14=`    ret = tex2D(sampler_main, uv2).xyz;
+comp_15=`    ret += GetBlur1(uv)*0.4;
+comp_16=` 
+comp_17=`    // palettize:
+comp_18=`    ret = pow(ret, float3(0.5, 0.8, 1.7));
+comp_19=`   
+comp_20=`    //ret.xyz *= 2; // a little bit of overbright
+comp_21=`//MilkDrop3 Color Mode:
+comp_22=`ret /= float3(-1.2,-1.1,-0.3);
+comp_23=`//MilkDrop3 Blow Mode:
+comp_24=`float3 avg_col = GetBlur2(uv);ret = abs(avg_col - ret)*2;
+comp_25=`}
+
+[SPRITE1_BEGIN]
+SpriteName=sprites\Organoids1.jpg
+SpriteColorKey=0x000000
+SpriteLayer=0
+SpriteBlend=9
+SpriteAlpha=1.000000
+SpriteBurn=1
+SpriteX=0.000000
+SpriteY=0.000000
+SpriteSX=1.480000
+SpriteSY=1.480000
+SpriteRot=1.000000
+SpriteSpeed=0.040000
+SpriteRepeatX=1.000000
+SpriteRepeatY=1.000000
+code_1=new_scale=1.0+0.1*sin(time*0.5);
+code_2=sx=new_scale;
+code_3=sy=new_scale;
+code_4=a=0.1*bass*2;
+[SPRITE1_END]

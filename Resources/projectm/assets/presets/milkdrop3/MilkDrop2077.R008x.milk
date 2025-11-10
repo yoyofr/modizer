@@ -1,0 +1,158 @@
+MILKDROP_PRESET_VERSION=201
+PSVERSION=3
+PSVERSION_WARP=2
+PSVERSION_COMP=3
+[preset00]
+fRating=5.000000
+fGammaAdj=1.980
+fDecay=0.500
+fVideoEchoZoom=0.952
+fVideoEchoAlpha=0.500
+nVideoEchoOrientation=3
+nWaveMode=0
+bAdditiveWaves=0
+bWaveDots=0
+bWaveThick=1
+bModWaveAlphaByVolume=0
+bMaximizeWaveColor=0
+bTexWrap=1
+bDarkenCenter=0
+bRedBlueStereo=0
+bBrighten=0
+bDarken=1
+bSolarize=0
+bInvert=0
+fWaveAlpha=0.001
+fWaveScale=0.010
+fWaveSmoothing=0.270
+fWaveParam=-0.380
+fModWaveAlphaStart=0.710
+fModWaveAlphaEnd=1.300
+fWarpAnimSpeed=1.200
+fWarpScale=0.940
+fZoomExponent=3.04777
+fShader=0.000
+zoom=1.01730
+rot=0.00000
+cx=0.500
+cy=0.500
+dx=0.00000
+dy=0.00000
+warp=0.01605
+sx=1.00000
+sy=1.00000
+wave_r=1.000
+wave_g=1.000
+wave_b=1.000
+wave_x=0.500
+wave_y=0.560
+ob_size=0.000
+ob_r=0.000
+ob_g=0.000
+ob_b=0.000
+ob_a=1.000
+ib_size=0.010
+ib_r=0.250
+ib_g=0.250
+ib_b=0.192
+ib_a=0.000
+nMotionVectorsX=64.000
+nMotionVectorsY=48.000
+mv_dx=0.000
+mv_dy=0.000
+mv_l=0.850
+mv_r=0.500
+mv_g=0.500
+mv_b=0.500
+mv_a=0.000
+b1n=0.000
+b2n=0.000
+b3n=0.000
+b1x=1.000
+b2x=1.000
+b3x=1.000
+b1ed=0.000
+wavecode_0_enabled=1
+wavecode_0_samples=512
+wavecode_0_sep=0
+wavecode_0_bSpectrum=0
+wavecode_0_bUseDots=0
+wavecode_0_bDrawThick=0
+wavecode_0_bAdditive=0
+wavecode_0_scaling=1.00000
+wavecode_0_smoothing=0.50000
+wavecode_0_r=1.000
+wavecode_0_g=1.000
+wavecode_0_b=1.000
+wavecode_0_a=1.000
+wave_0_per_point1=x = .5 + (bass*.2)*sin(sample*2*(time*10*treb));
+wave_0_per_point2=y = .5 + (bass*.2)*cos(sample*2*(time*10*treb));
+wave_0_per_point3=r = 1 + .5*sin(sample*.10+(time*10*bass));
+wave_0_per_point4=g = 1 + .5*sin(sample*2+(time*50*treb));
+wave_0_per_point5=b = 1 + .5*sin(sample*5+(time*20*mid));
+wave_0_per_point6=a = r;
+per_frame_1=dec_med = pow (0.9, 30/fps);
+per_frame_2=dec_slow = pow (1.148, 30/fps);
+per_frame_3=beat = max (max (bass, mid), treb); 
+per_frame_4=avg = avg*dec_slow + beat*(1-dec_slow);
+per_frame_5=is_beat = above(beat, 0.53+avg+peak) * above (time, t0+.2);
+per_frame_6=t0 = is_beat*time + (1-is_beat)*t0;
+per_frame_7=peak = is_beat * beat + (1-is_beat)*peak*dec_med;
+per_frame_8=index = (index + is_beat) %2;
+per_frame_9=
+per_frame_10=
+per_frame_11=d_x = if(is_beat, (int(rand(2000))-1000)*0.001 , d_x);
+per_frame_12=d_y = if(is_beat, (int(rand(2000))-1000)*0.001 , d_y);
+per_frame_13=r = if(is_beat, (int(rand(2000))-1000)*0.0008 , r);
+per_frame_14=z = if(is_beat, int(rand(1000))*0.001 , z);
+per_frame_15=zoom = 1.03 + z*0.06;
+per_frame_16=rot = r*0.06;
+per_frame_17=dx = d_x*0.008;
+per_frame_18=dy = d_y*0.01;
+per_frame_19=q1 = 1;
+per_frame_20=
+per_frame_21=q23 = int(rand(1000))/1000;
+per_frame_22=q24 = int(rand(1000))/1000;
+per_frame_23=q25 = (int(rand(1000))/1000)*6.28;
+per_frame_24=q26 = q25 - 3.611;
+per_frame_25=q27 = (int(rand(1000))/12000)+0.04;
+per_frame_26=
+per_frame_27=q28 = int(rand(1000))/1000;
+per_frame_28=q29 = int(rand(1000))/1000;
+per_frame_29=q30 = (int(rand(1000))/1000)*6.468;
+per_frame_30=q31 = q30 - 3.14;
+per_frame_31=q32 = (int(rand(1000))/14000)+0.04;
+per_frame_32=
+per_frame_33=vol=bass+treb+mid;
+per_frame_34=q30=vol*2;
+per_frame_35=q3=vol*4;
+per_frame_36=q1=.5;q2=.5;
+warp_1=`shader_body
+warp_2=`{
+warp_3=`    float2 v = normalize(uv-uv_orig);
+warp_4=`    uv = uv_orig + v*texsize.zw*5;
+warp_5=`
+warp_6=`    // sample previous frame
+warp_7=`    ret = tex2D( sampler_main, uv ).xyz;
+warp_8=`    
+warp_9=`    // darken over time
+warp_10=`    ret *= 0.97; //or try: ret -= 0.0269;
+warp_11=`}
+comp_1=`shader_body
+comp_2=`{
+comp_3=`float3 rnd = tex2D(sampler_noise_lq, rand_frame.xy + uv*texsize.xy*texsize_noise_lq.zw)*2-1;
+comp_4=`
+comp_5=`ret = GetPixel(uv);
+comp_6=`
+comp_7=`float2 d = texsize.zw * 8;
+comp_8=`float3 dx = ( GetBlur1(uv + float2(1,0)*d) - GetBlur1(uv-float2(1,0)*d) );
+comp_9=`float3 dy = ( GetBlur1(uv + float2(0,1)*d) - GetBlur1(uv-float2(0,1)*d) );
+comp_10=`
+comp_11=`uv -= float2(lum(dx),lum(dy))*texsize.zw*32;
+comp_12=`
+comp_13=`
+comp_14=`ret = pow(abs(GetBlur3(uv+rnd.xy*texsize.zw*5)*2-GetPixel(uv))*1.6,2)*0.9;
+comp_15=`
+comp_16=`//MilkDrop3 Solarize Mode:
+comp_17=`ret = ret*(1-ret)*4;
+comp_18=`}

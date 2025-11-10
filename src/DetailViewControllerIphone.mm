@@ -42,7 +42,7 @@
 
 extern unsigned int mdzRenderbuffer;
 
-int mdz_pmMilkPermissiveEvalCode,mdz_pmBlurAfterAudio;
+int mdz_pmMilkPermissiveEvalCode;//,mdz_pmBlurAfterAudio;
 
 extern float camera_posX,camera_posY,camera_posZ;
 extern float camera_lookX,camera_lookY,camera_lookZ;
@@ -157,7 +157,8 @@ bool _pm_playlist_loadBundled,_pm_playlist_loadCustom;
 NSString *pmCurPresetFile;
 int _pm_display_name_countdown;
 
-int _mdz_FS_display_songinfo_countdown;
+int _mdz_FS_display_songinfo_countdown,_mdz_FS_display_cursorLine;
+int _mdz_FS_display_songinfo_char_count[3]={1,1,1};
 NSString *_mdz_FS_display_songinfo_title;
 NSString *_mdz_FS_display_songinfo_artist;
 NSString *_mdz_FS_display_songinfo_sub;
@@ -165,7 +166,8 @@ NSString *_mdz_FS_display_songinfo_sub;
 float _pm_display_scrollx=0;
 int _pm_display_scroll_direction=1;
 int _pm_display_scroll_pause=0;
-bool _pmPresetHasChanged;
+bool _pmPresetUpdateDisplayInfo;
+bool _pmPresetNewLoaded;
 //
 static int _pm_fps=60;
 static int meshX=32,meshY=24;
@@ -1364,9 +1366,7 @@ static float movePinchScale,movePinchScaleOld;
 }
 -(void) mdInfoFX {
     if (_pmIsInitialized && _pm && settings[PROJECTM_FXONOFF].detail.mdz_boolswitch.switch_value) {
-        _pm_display_scrollx=0;
-        _pm_display_scroll_direction=1;
-        _pm_display_name_countdown=_pm_fps*PM_PRESET_DISPLAY_TIMEOUT;
+        _pmPresetUpdateDisplayInfo=true;
     }
 }
 -(void) mdShiftMode:(int)active {
@@ -1418,14 +1418,7 @@ static float movePinchScale,movePinchScaleOld;
                     added=true;
                 }
             }
-            if (added) {
-                [self openPopup:NSLocalizedString(@"Preset added to favorites",@"") secmsg:[NSString stringWithFormat:@"%s",title] style:POPUP_STYLE_INFO];
-            } else {
-                [self openPopup:NSLocalizedString(@"Preset removed from favorites",@"") secmsg:[NSString stringWithFormat:@"%s",title] style:POPUP_STYLE_INFO];
-            }
-            //projectm_playlist_free_string(title);
-            
-            _pm_display_name_countdown=_pm_fps*PM_PRESET_DISPLAY_TIMEOUT;
+            _pmPresetUpdateDisplayInfo=true;
         }
         
         
@@ -1439,23 +1432,14 @@ static float movePinchScale,movePinchScaleOld;
         int index=[_mdzPM_playlist getPos];
         title = [_mdzPM_playlist getCurPresetCleanTitle];
         if (title) {
-            char *tmp_str=(char*)malloc(strlen(title)+32);
-            snprintf(tmp_str,strlen(title)+32,"(%d/%d) %s",index+1,[_mdzPM_playlist getSize],title);
-            
             if (settings[PROJECTM_LockPreset].detail.mdz_boolswitch.switch_value) {
                 projectm_set_preset_locked(_pm, false);
                 settings[PROJECTM_LockPreset].detail.mdz_boolswitch.switch_value=0;
-                [self openPopup:NSLocalizedString(@"Preset unlocked",@"") secmsg:[NSString stringWithFormat:@"%s",title] style:POPUP_STYLE_INFO];
             } else {
                 projectm_set_preset_locked(_pm, true);
                 settings[PROJECTM_LockPreset].detail.mdz_boolswitch.switch_value=1;
-                [self openPopup:NSLocalizedString(@"Preset locked",@"") secmsg:[NSString stringWithFormat:@"%s",title] style:POPUP_STYLE_INFO];
             }
-            
-            free(tmp_str);
-            //projectm_playlist_free_string(title);
-            
-            _pm_display_name_countdown=_pm_fps*PM_PRESET_DISPLAY_TIMEOUT;
+            _pmPresetUpdateDisplayInfo=true;
         }
         
         
@@ -1516,7 +1500,7 @@ static float movePinchScale,movePinchScaleOld;
             [self checkGLViewCanDisplay];
         }
     }
-    [self shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)orientationHV];
+    [self mdzUpdateUI:(UIInterfaceOrientation)orientationHV];
 }
 
 - (IBAction)backPushed:(id)sender {
@@ -2117,14 +2101,14 @@ int recording=0;
     infoIsFullscreen=1;
     infoZoom.hidden=YES;
     infoUnzoom.hidden=NO;
-    [self shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)orientationHV];
+    [self mdzUpdateUI:(UIInterfaceOrientation)orientationHV];
 }
 - (IBAction)infoNormal {
     infoIsFullscreen=0;
     infoZoom.hidden=NO;
     infoUnzoom.hidden=YES;
     mainView.hidden=NO;
-    [self shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)orientationHV];
+    [self mdzUpdateUI:(UIInterfaceOrientation)orientationHV];
 }
 
 - (IBAction)showInfo {
@@ -4062,22 +4046,21 @@ int recording=0;
 }
 
 - (BOOL)shouldAutorotate {
-    //[self shouldAutorotateToInterfaceOrientation:self.interfaceOrientation];
     return YES;
 }
 
-- (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration {
-    
-    [super willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
-    //[self updateLayoutsForCurrentOrientation:toInterfaceOrientation view:self.navigationController.view.superview.superview];
-    [self shouldAutorotateToInterfaceOrientation:toInterfaceOrientation];
-}
-
 // Ensure that the view controller supports rotation and that the split view can therefore show in both portrait and landscape.
-- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
+- (BOOL)mdzUpdateUI:(UIInterfaceOrientation)interfaceOrientation {
     orientationHV=interfaceOrientation;
     
-    if (eqVC) [eqVC shouldAutorotateToInterfaceOrientation:interfaceOrientation];
+    safe_bottom=[[UIApplication sharedApplication] keyWindow].safeAreaInsets.bottom;
+    safe_top=[[UIApplication sharedApplication] keyWindow].safeAreaInsets.top;
+    safe_left=[[UIApplication sharedApplication] keyWindow].safeAreaInsets.left;
+    safe_right=[[UIApplication sharedApplication] keyWindow].safeAreaInsets.right;
+    
+    //MDZILog("safe: b%f t%f l%f r%f orientation: %d",safe_bottom,safe_top,safe_left,safe_right,(int)interfaceOrientation);
+    
+    //if (eqVC) [eqVC shouldAutorotateToInterfaceOrientation:interfaceOrientation];
     
     if ((interfaceOrientation==UIInterfaceOrientationPortrait)||(interfaceOrientation==UIInterfaceOrientationPortraitUpsideDown)) {
         //        waitingView.transform=CGAffineTransformMakeRotation(interfaceOrientation==UIInterfaceOrientationPortrait?0:M_PI);
@@ -4517,12 +4500,7 @@ int recording=0;
 /**************************************************/
 /**************************************************/
 /* User Defined Variables */
-GLfloat angle;           /* Used To Rotate The Helix */
-GLfloat vertices[4][3];  /* Holds Float Info For 4 Sets Of Vertices */
-GLfloat vertColor[4][4];  /* Holds Float Info For 4 Sets Of Vertices */
-GLfloat texcoords[4][2]; /* Holds Float Info For 4 Sets Of Texture coordinates. */
-GLfloat normalData[3];       /* An Array To Store The Normal Data */
-//GLuint  BlurTexture,FxTexture;     /* An Unsigned Int To Store The Texture Number */
+GLfloat angle;
 
 GLuint txtbackgroundImage;
 GLsizei txtbackgroundImageWidth,txtbackgroundImageHeight;
@@ -5173,7 +5151,6 @@ void pmSoftReinit(bool forceReloadPlaylist) {
             if (_mdzPM_playlist.shuffle) [_mdzPM_playlist next:false];
             else [_mdzPM_playlist setPos:0 cut:false];
         }
-        _pmPresetHasChanged=true;
     }
 }
 
@@ -5309,11 +5286,11 @@ void pm_perfTest() {
         if (_pm_playlist_loadCustom) [_mdzPM_playlist addItems:[pmCustomPresetsFileNode getSelectedPlaylist]];
     }
     
-    _pmPresetHasChanged=false;
+    _pmPresetUpdateDisplayInfo=false;
     _pm_display_name_countdown=0;
     
     if ((_pm_shouldRestartAt>=0) &&(_pm_shouldRestartAt<[_mdzPM_playlist getSize])) {
-        MDZILog("restart pm preset idx: %d",_pm_shouldRestartAt);
+//        MDZILog("restart pm preset idx: %d",_pm_shouldRestartAt);
         [_mdzPM_playlist setPos:_pm_shouldRestartAt cut:true];
     } else {
         [_mdzPM_playlist setPos:0 cut:true];
@@ -5321,9 +5298,6 @@ void pm_perfTest() {
     //reset idx
     _pm_shouldRestartAt=-1;
     _pmIsInitialized=true;
-    
-    
-    _pmPresetHasChanged=true;
     
 #ifdef PM_TEST_LOAD
     pm_perfTest();
@@ -6048,6 +6022,7 @@ void pm_perfTest() {
     _pmCanvasWidth=m_oglView.frame.size.width*glScaleFactor/_pmScaleFactor;
     _pmCanvasHeight=m_oglView.frame.size.height*glScaleFactor/_pmScaleFactor;
     
+    _pmPresetNewLoaded=false;
     
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
         //--------------------------------//
@@ -6159,7 +6134,7 @@ void pm_perfTest() {
 }
 
 - (void)viewWillLayoutSubviews {
-    [self shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)orientationHV];
+    [self mdzUpdateUI:(UIInterfaceOrientation)orientationHV];
     
     //AppDelegate_Phone *app_delegate=(AppDelegate_Phone *)[[UIApplication sharedApplication] delegate];
     //CGRect frame = [[app_delegate modizerWin] frame];
@@ -6199,7 +6174,7 @@ void pm_perfTest() {
         }
     }
     
-    [self shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)orientationHV];
+    [self mdzUpdateUI:(UIInterfaceOrientation)orientationHV];
     
     //Should recompute bg texture after resize
     shouldUpdateCoverTexture=1;
@@ -6349,17 +6324,14 @@ void pm_perfTest() {
     [self updateBarPos];
     //Hack to allow UIToolbar to be set up correctly
     if (((UIInterfaceOrientation)orientationHV==UIInterfaceOrientationPortrait) || ((UIInterfaceOrientation)orientationHV==UIInterfaceOrientationPortraitUpsideDown) ) {
-        [self willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)orientationHV duration:0];
+        [self mdzUpdateUI:(UIInterfaceOrientation)orientationHV];
     } else {
         if (coverflow.hidden==FALSE) {
             [[self navigationController] setNavigationBarHidden:YES animated:NO];
         }
-        [self willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)orientationHV duration:0];
+        [self mdzUpdateUI:(UIInterfaceOrientation)orientationHV];
     }
     
-//    [[[self navigationController] navigationBar] setBarStyle:UIBarStyleBlack];
-//    [[[self navigationController] navigationBar] setBackgroundColor:[UIColor clearColor]];
-//    [self setNeedsStatusBarAppearanceUpdate];
     self.previousAppearance = self.navigationController.navigationBar.standardAppearance;
             // Set black appearance
             UINavigationBarAppearance *appearance = [[UINavigationBarAppearance alloc] init];
@@ -6374,7 +6346,7 @@ void pm_perfTest() {
     MIDIFX_OFS=(settings[GLOB_FXFPS].detail.mdz_switch.switch_value?MIDIFX_OFS_60FPS:MIDIFX_OFS_30FPS);
     
     _pm_fps=settings[GLOB_FXFPS].detail.mdz_switch.switch_value==1?60:30;
-    if (settings[PROJECTM_ShowPresetLabel].detail.mdz_switch.switch_value==2) _pmPresetHasChanged=true; //Force a (re)display
+    if (settings[PROJECTM_ShowPresetLabel].detail.mdz_switch.switch_value==2) _pmPresetUpdateDisplayInfo=true; //Force a (re)display
     
     movePxMID=movePyMID=0;
     movePxPRoll=movePyPRoll=0;
@@ -6727,7 +6699,7 @@ void doFramePM(float ww,float hh) {
         projectm_pcm_add_int16(_pm,(const int16_t*)pmBuffer,sample_count,PROJECTM_STEREO);
         
         
-        mdz_pmBlurAfterAudio=settings[PROJECTM_BlurAfterAudioMode].detail.mdz_boolswitch.switch_value;
+//        mdz_pmBlurAfterAudio=settings[PROJECTM_BlurAfterAudioMode].detail.mdz_boolswitch.switch_value;
         
         if ( (_pmCanvasWidth==(ww*glScaleFactor)) && (_pmCanvasHeight==(hh*glScaleFactor)) ) {
             //Max Quality, screen resolution
@@ -6778,6 +6750,7 @@ void doFramePM(float ww,float hh) {
                 break;
             case 3:
                 posX=0*glScaleFactor;posY=0*glScaleFactor;
+                snprintf(strButton,32,"Music\ninfo");
                 break;
         }
         ImGui::SetNextWindowPos(ImVec2(posX,posY));
@@ -6839,13 +6812,27 @@ void doFramePM(float ww,float hh) {
         case 3:winsizeX=80;winsizeY=hh;break;
         default:winsizeX=0;winsizeY=0;break;
     }
+    
+    if (settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value) {
+        if (winsizeY>(hh-safe_top-safe_bottom)) winsizeY=(hh-safe_top-safe_bottom);
+    }
+    
     for (int i=0;i<frameToUpdate;i++) {
         menuInterpolValue(cur_winSizeX,startX,winsizeX);
         menuInterpolValue(cur_winSizeY,startY,winsizeY);
     }
     if ( (cur_winSizeX!=0) || (cur_winSizeY!=0) ) {
+        char strTmp[32];
+        float posx,posy;
+        ImVec2 sizeText;
+        posx=0;
+        posy=0;
+        if (settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value) {
+            posx+=safe_right;
+            posy+=safe_top;
+        }
         
-        ImGui::SetNextWindowPos(ImVec2((ww-cur_winSizeX)*glScaleFactor,0));
+        ImGui::SetNextWindowPos(ImVec2((ww-cur_winSizeX-posx)*glScaleFactor,posy*glScaleFactor));
         ImGui::SetNextWindowSize(ImVec2(cur_winSizeX*glScaleFactor,cur_winSizeY*glScaleFactor));
         
         ImGui::PushStyleColor(ImGuiCol_WindowBg,ImVec4(0,0,0,0.5));
@@ -6868,10 +6855,9 @@ void doFramePM(float ww,float hh) {
         ImGui::Begin("Info",0,
                      ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoScrollbar|ImGuiWindowFlags_NoFocusOnAppearing
                      );
-        char strTmp[32];
-        float posx,posy=0;
-        ImVec2 sizeText;
+        
         //FPS
+        posy=0;
         ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(SHOWINFO_FPS_COLOR,txtAlpha));
         ImGui::SetCursorPos(ImVec2(2,posy));
         ImGui::Text("FPS");
@@ -7105,12 +7091,21 @@ void doFramePM(float ww,float hh) {
     }
 }
 
+-(void) mdShowMusicInfo {
+    [self refreshFXFSLabels];
+}
 
 -(void) refreshFXFSLabels {
     if ([mplayer isPlaying]) {
         
         int fps=(settings[GLOB_FXFPS].detail.mdz_switch.switch_value?30:60);
         _mdz_FS_display_songinfo_countdown=fps*FX_FS_SONGINFO_TIMEOUT;
+        
+        _mdz_FS_display_songinfo_char_count[0]=1;
+        _mdz_FS_display_songinfo_char_count[1]=1;
+        _mdz_FS_display_songinfo_char_count[2]=1;
+        
+        _mdz_FS_display_cursorLine=0;
         
         _mdz_FS_display_songinfo_title=[mplayer getModFileTitle];
         _mdz_FS_display_songinfo_artist=[mplayer artist];
@@ -7173,6 +7168,8 @@ void doFramePM(float ww,float hh) {
         return;
     }
     no_reentrant=1;
+    
+    framecpt++;
     
     if (shouldUpdateCoverTexture) {
         // Generate new texture / current background view
@@ -7417,7 +7414,9 @@ void doFramePM(float ww,float hh) {
                 movePyPM=0;
                 movePMnomore=1;
 
-                if ([_mdzPM_playlist getSize]) [_mdzPM_playlist next:false];
+                if ([_mdzPM_playlist getSize]) {
+                    [_mdzPM_playlist next:false];
+                }
             }
             
             if (movePyPM>PM_VerticalSwipe_Threshold) {
@@ -7623,7 +7622,8 @@ void doFramePM(float ww,float hh) {
             oglv_corner_fade[2]=30;
             [SettingsGenViewController changeSettingsValue:GLOB_FXSHOWINFO change:1];
         }  else if ( (pmenu_show==0) && (oglTapX<=ww*1/5) && (oglTapY<=hh*1/5) ) {
-            //tapping upper left corner and not in menu, to be defined
+            //tapping upper left corner and not in menu, display music info
+            [self refreshFXFSLabels];
             oglv_corner_fade[3]=30;
         } else {
             //Activate menu if tap on the rest of the gl view
@@ -8461,20 +8461,28 @@ void doFramePM(float ww,float hh) {
     //-------------------------------------
     // Song info
     //-------------------------------------
-    if (settings[GLOB_FX_FS_DISPLAYSONGINFO].detail.mdz_boolswitch.switch_value && settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value &&_mdz_FS_display_songinfo_countdown) {
-        static int char_count[3]={0,0,0};
-        if (char_count[0]<64) char_count[0]++;
-        if ( (char_count[1]<64) && (char_count[0]>8) ) char_count[1]++;
-        if ( (char_count[2]<64) && (char_count[1]>8) ) char_count[2]++;
-        
+    if (settings[GLOB_FX_FS_DISPLAYSONGINFO].detail.mdz_boolswitch.switch_value && /*settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value &&*/
+        _mdz_FS_display_songinfo_countdown) {
         char strLine[3][64];
         
-        if (_mdz_FS_display_songinfo_title!=nil) snprintf(strLine[0],char_count[0],"%s",[_mdz_FS_display_songinfo_title UTF8String]);
+        if (_mdz_FS_display_songinfo_title!=nil) snprintf(strLine[0],64,"%s ",[_mdz_FS_display_songinfo_title UTF8String]);
         else strLine[0][0]=0;
-        if (_mdz_FS_display_songinfo_sub!=nil) snprintf(strLine[1],char_count[1],"%s",[_mdz_FS_display_songinfo_sub UTF8String]);
+        if (_mdz_FS_display_songinfo_sub!=nil) snprintf(strLine[1],64,"%s ",[_mdz_FS_display_songinfo_sub UTF8String]);
         else strLine[1][0]=0;
-        if (_mdz_FS_display_songinfo_artist!=nil) snprintf(strLine[2],char_count[2],"%s",[_mdz_FS_display_songinfo_artist UTF8String]);
+        if (_mdz_FS_display_songinfo_artist!=nil) snprintf(strLine[2],64,"%s ",[_mdz_FS_display_songinfo_artist UTF8String]);
         else strLine[2][0]=0;
+        
+        for (int j=0;j<frameToUpdate;j++) {
+            if (_mdz_FS_display_songinfo_char_count[0]<64) {
+                if (_mdz_FS_display_songinfo_countdown&1) _mdz_FS_display_songinfo_char_count[0]++;
+            }
+            if ( (_mdz_FS_display_songinfo_char_count[1]<64) && (_mdz_FS_display_songinfo_char_count[0]>=(strlen(strLine[0])+4)) ) { if (_mdz_FS_display_songinfo_countdown&1) _mdz_FS_display_songinfo_char_count[1]++;
+                if (strlen(strLine[1])>1) _mdz_FS_display_cursorLine=1;
+            }
+            if ( (_mdz_FS_display_songinfo_char_count[2]<64) && (_mdz_FS_display_songinfo_char_count[1]>=(strlen(strLine[1])+4)) ) { if (_mdz_FS_display_songinfo_countdown&1) _mdz_FS_display_songinfo_char_count[2]++;
+                if (strlen(strLine[2])>1) _mdz_FS_display_cursorLine=2;
+            }
+        }
         
         float alpha_val=(float)(_mdz_FS_display_songinfo_countdown*4)/64.0;
         if (alpha_val>0.9) alpha_val=0.9;
@@ -8498,29 +8506,45 @@ void doFramePM(float ww,float hh) {
         str_size=ImGui::CalcTextSize(strLine[2]);
         if (str_size.x>str_size_max.x) str_size_max=str_size;
         
+        if (_mdz_FS_display_songinfo_title!=nil) snprintf(strLine[0],_mdz_FS_display_songinfo_char_count[0],"%s",[_mdz_FS_display_songinfo_title UTF8String]);
+        else strLine[0][0]=0;
+        if (_mdz_FS_display_songinfo_sub!=nil) snprintf(strLine[1],_mdz_FS_display_songinfo_char_count[1],"%s",[_mdz_FS_display_songinfo_sub UTF8String]);
+        else strLine[1][0]=0;
+        if (_mdz_FS_display_songinfo_artist!=nil) snprintf(strLine[2],_mdz_FS_display_songinfo_char_count[2],"%s",[_mdz_FS_display_songinfo_artist UTF8String]);
+        else strLine[2][0]=0;
         
         str_size_max.x=str_size_max.x/glScaleFactor;
+        float safe_adjust_top=0;
+        float safe_adjust_bottom=0;
+        float safe_adjust_left=0;
+        float safe_adjust_right=8;
+        if (settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value) {
+            safe_adjust_top=safe_top;
+            safe_adjust_bottom=safe_bottom;
+            safe_adjust_left=safe_left;
+            safe_adjust_right=safe_right;
+        }
         switch (settings[GLOB_FX_FS_DISPLAYSONGINFO].detail.mdz_boolswitch.switch_value) {
             default:
             case 1: //TL
-                pos_x=0;
-                pos_y=(safe_top)*glScaleFactor;
+                pos_x=safe_adjust_left*glScaleFactor;
+                pos_y=(safe_adjust_top+0*textHH)*glScaleFactor;
                 break;
             case 2: //TR
-                pos_x=(ww-str_size_max.x-4)*glScaleFactor;
-                pos_y=(safe_top)*glScaleFactor;
+                pos_x=(ww-str_size_max.x-safe_adjust_right)*glScaleFactor;
+                pos_y=(safe_adjust_top+0*textHH)*glScaleFactor;
                 break;
             case 3: //Center
                 pos_x=round((ww-str_size_max.x)/2.0*glScaleFactor);
                 pos_y=round((hh-textHH)/2.0*glScaleFactor);
                 break;
             case 4: //BL
-                pos_x=0;
-                pos_y=(hh-textHH*3-safe_bottom)*glScaleFactor;
+                pos_x=safe_adjust_left*glScaleFactor;
+                pos_y=(hh-textHH*3-1*textHH-safe_adjust_bottom)*glScaleFactor;
                 break;
             case 5: //BR
-                pos_x=(ww-str_size_max.x-4)*glScaleFactor;
-                pos_y=(hh-textHH*3-safe_bottom)*glScaleFactor;
+                pos_x=(ww-str_size_max.x-safe_adjust_right)*glScaleFactor;
+                pos_y=(hh-textHH*3-1*textHH-safe_adjust_bottom)*glScaleFactor;
                 break;
         }
         ImGui::SetNextWindowPos(ImVec2(pos_x,pos_y));
@@ -8529,32 +8553,10 @@ void doFramePM(float ww,float hh) {
         ImGui::Begin("On screen music info",0,ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoScrollbar|ImGuiWindowFlags_NoFocusOnAppearing);
         
         for (int i=0;i<3;i++) {
-            str_size=ImGui::CalcTextSize(strLine[i]);
-            
-            switch (settings[GLOB_FX_FS_DISPLAYSONGINFO].detail.mdz_boolswitch.switch_value) {
-                default:
-                case 1: //TL
-                    pos_x=0;
-                    pos_y=(safe_top+textHH*i)*glScaleFactor;
-                    break;
-                case 2: //TR
-                    pos_x=(ww-str_size.x-4)*glScaleFactor;
-                    pos_y=(safe_top+textHH*i)*glScaleFactor;
-                    break;
-                case 3: //Center
-                    pos_x=round((ww-str_size.x)/2.0*glScaleFactor);
-                    pos_y=round((hh+textHH*(i-1))/2.0*glScaleFactor);
-                    break;
-                case 4: //BL
-                    pos_x=0;
-                    pos_y=(hh+textHH*(i-3)-safe_bottom)*glScaleFactor;
-                    break;
-                case 5: //BR
-                    pos_x=(ww-str_size.x-4)*glScaleFactor;
-                    pos_y=(hh+textHH*(i-3)-safe_bottom)*glScaleFactor;
-                    break;
-            }
-            ImGui::Text("%s",strLine[i]);
+            if (_mdz_FS_display_cursorLine==i) {
+                if ((framecpt%32)>=10) ImGui::Text("%s_",strLine[i]);
+                else ImGui::Text("%s",strLine[i]);
+            } else ImGui::Text("%s",strLine[i]);
         }
         ImGui::End();
         ImGui::PopFont();
@@ -8563,11 +8565,13 @@ void doFramePM(float ww,float hh) {
         ImGui::PopStyleColor();
         ImGui::PopStyleColor();
         
-        if (_mdz_FS_display_songinfo_countdown) _mdz_FS_display_songinfo_countdown--;
-        if (!_mdz_FS_display_songinfo_countdown) {
-            char_count[0]=0;
-            char_count[1]=0;
-            char_count[2]=0;
+        for (int j=0;j<frameToUpdate;j++) {
+            if (_mdz_FS_display_songinfo_countdown) _mdz_FS_display_songinfo_countdown--;
+            if (!_mdz_FS_display_songinfo_countdown) {
+                _mdz_FS_display_songinfo_char_count[0]=1;
+                _mdz_FS_display_songinfo_char_count[1]=1;
+                _mdz_FS_display_songinfo_char_count[2]=1;
+            }
         }
     }
     
@@ -8578,8 +8582,15 @@ void doFramePM(float ww,float hh) {
         if (_pmIsInitialized && _pm) {
             //float x,y,w,h;
             
-            if (_pmPresetHasChanged) {
-                _pmPresetHasChanged=false;
+//            MDZILog("safe %f %f",safe_top,safe_bottom);
+            
+            if (_pmPresetNewLoaded) {
+                _pmPresetUpdateDisplayInfo=true;
+                _pmPresetNewLoaded=false;
+            }
+            
+            if (_pmPresetUpdateDisplayInfo) {
+                _pmPresetUpdateDisplayInfo=false;
                 _pm_display_scrollx=0;
                 _pm_display_scroll_direction=1;
                 _pm_display_name_countdown=_pm_fps*PM_PRESET_DISPLAY_TIMEOUT;
@@ -8610,7 +8621,10 @@ void doFramePM(float ww,float hh) {
                 
                 float textHH=ImGui::GetTextLineHeightWithSpacing()/glScaleFactor+6.0;
                 
-                ImGui::SetNextWindowPos(ImVec2(0,(hh-textHH)*glScaleFactor));
+                float pos_y=hh-textHH;
+                if (settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value) pos_y-=safe_bottom;
+                pos_y*=glScaleFactor;
+                ImGui::SetNextWindowPos(ImVec2(0,pos_y));
                 ImGui::SetNextWindowSize(ImVec2(ww*glScaleFactor,textHH*glScaleFactor));
                 ImGui::GetStyle().Alpha=alpha_val;
                 ImGui::Begin("On screen info",0,ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoScrollbar|ImGuiWindowFlags_NoFocusOnAppearing);
@@ -8627,24 +8641,26 @@ void doFramePM(float ww,float hh) {
                 ImGui::End();
                 ImGui::PopFont();
                 
-                if ((settings[PROJECTM_ShowPresetLabel].detail.mdz_switch.switch_value==1)&&_pm_display_name_countdown) _pm_display_name_countdown--;
-                
-                if (_pm_display_scroll_pause) _pm_display_scroll_pause--;
-                else {
-                    if (_pm_display_scroll_direction==1) {
-                        if (m_oglView.frame.size.width*glScaleFactor+_pm_display_scrollx<pmPresetStr_size.x) _pm_display_scrollx+=2;
-                        else {
-                            if (_pm_display_scrollx>0) {
-                                _pm_display_scroll_direction=-1;
+                for (int j=0;j<frameToUpdate;j++) {
+                    if ((settings[PROJECTM_ShowPresetLabel].detail.mdz_switch.switch_value==1)&&_pm_display_name_countdown) _pm_display_name_countdown--;
+                    
+                    if (_pm_display_scroll_pause) _pm_display_scroll_pause--;
+                    else {
+                        if (_pm_display_scroll_direction==1) {
+                            if (m_oglView.frame.size.width*glScaleFactor+_pm_display_scrollx<pmPresetStr_size.x) _pm_display_scrollx+=2;
+                            else {
+                                if (_pm_display_scrollx>0) {
+                                    _pm_display_scroll_direction=-1;
+                                    _pm_display_scroll_pause=_pm_fps*1.5;
+                                }
+                            }
+                        } else {
+                            if (_pm_display_scrollx>0) _pm_display_scrollx-=2;
+                            else {
+                                _pm_display_scrollx=0;
+                                _pm_display_scroll_direction=1;
                                 _pm_display_scroll_pause=_pm_fps*1.5;
                             }
-                        }
-                    } else {
-                        if (_pm_display_scrollx>0) _pm_display_scrollx-=2;
-                        else {
-                            _pm_display_scrollx=0;
-                            _pm_display_scroll_direction=1;
-                            _pm_display_scroll_pause=_pm_fps*1.5;
                         }
                     }
                 }
@@ -8766,7 +8782,7 @@ void doFramePM(float ww,float hh) {
             if (settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value) {
                 settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value=0;
                 oglViewFullscreenChanged=1;
-                [self shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)orientationHV];
+                [self mdzUpdateUI:(UIInterfaceOrientation)orientationHV];
             }
         } else if (ret==0) {
             pmenu_show=0;
@@ -8780,7 +8796,7 @@ void doFramePM(float ww,float hh) {
         //specific case for fullscreen switch change
         if (settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value!=isFullscreen) {
             
-            [self shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)orientationHV];
+            [self mdzUpdateUI:(UIInterfaceOrientation)orientationHV];
             shouldUpdateCoverTexture=1;
             oglViewFullscreenChanged=1;
         }
@@ -8825,7 +8841,7 @@ void doFramePM(float ww,float hh) {
         if (settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value) {
             oglViewFullscreenChanged=1;
             deactivateFStemp=1;
-            [self shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)orientationHV];
+            [self mdzUpdateUI:(UIInterfaceOrientation)orientationHV];
             
         }
         
@@ -9385,7 +9401,7 @@ void doFramePM(float ww,float hh) {
         
         settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value=1;
         oglViewFullscreenChanged=1;
-        [self shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)orientationHV];
+        [self mdzUpdateUI:(UIInterfaceOrientation)orientationHV];
         
         [recorder startRecordingWithHandler:^(NSError *error) {
             if(error) {
@@ -9415,7 +9431,7 @@ void doFramePM(float ww,float hh) {
         
         settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value=1;
         oglViewFullscreenChanged=1;
-        [self shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)orientationHV];
+        [self mdzUpdateUI:(UIInterfaceOrientation)orientationHV];
         
         [recorder startRecordingWithHandler:^(NSError *error) {
             if(error) {

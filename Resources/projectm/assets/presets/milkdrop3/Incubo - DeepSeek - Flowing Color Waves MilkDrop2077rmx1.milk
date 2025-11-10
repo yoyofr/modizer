@@ -1,0 +1,302 @@
+MILKDROP_PRESET_VERSION=201
+PSVERSION=3
+PSVERSION_WARP=3
+PSVERSION_COMP=2
+[preset00]
+fRating=5.000
+fGammaAdj=1.000
+fDecay=0.980
+fVideoEchoZoom=1.000
+fVideoEchoAlpha=0.000
+nVideoEchoOrientation=0
+nWaveMode=5
+bAdditiveWaves=0
+bWaveDots=1
+bWaveThick=1
+bModWaveAlphaByVolume=0
+bMaximizeWaveColor=1
+bTexWrap=1
+bDarkenCenter=0
+bRedBlueStereo=0
+bBrighten=1
+bDarken=0
+bSolarize=0
+bInvert=0
+fWaveAlpha=0.711
+fWaveScale=0.024
+fWaveSmoothing=0.540
+fWaveParam=0.000
+fModWaveAlphaStart=0.710
+fModWaveAlphaEnd=1.300
+fWarpAnimSpeed=1.000
+fWarpScale=1.331
+fZoomExponent=1.00000
+fShader=0.000
+zoom=13.29089
+rot=0.00000
+cx=0.500
+cy=0.500
+dx=-0.28000
+dy=-0.32000
+warp=0.00909
+sx=1.00000
+sy=1.00000
+wave_r=0.290
+wave_g=0.460
+wave_b=0.730
+wave_x=0.500
+wave_y=1.000
+ob_size=0.000
+ob_r=0.000
+ob_g=0.000
+ob_b=0.000
+ob_a=1.000
+ib_size=0.000
+ib_r=1.000
+ib_g=0.000
+ib_b=0.000
+ib_a=1.000
+nMotionVectorsX=32.000
+nMotionVectorsY=28.800
+mv_dx=0.000
+mv_dy=0.000
+mv_l=0.100
+mv_r=0.400
+mv_g=0.400
+mv_b=0.900
+mv_a=0.000
+b1n=0.000
+b2n=0.000
+b3n=0.000
+b1x=1.000
+b2x=1.000
+b3x=1.000
+b1ed=0.250
+shapecode_0_enabled=1
+shapecode_0_sides=4
+shapecode_0_additive=1
+shapecode_0_thickOutline=1
+shapecode_0_textured=1
+shapecode_0_num_inst=2
+shapecode_0_x=0.400
+shapecode_0_y=0.500
+shapecode_0_rad=0.80790
+shapecode_0_ang=6.28319
+shapecode_0_tex_ang=1.25664
+shapecode_0_tex_zoom=0.33460
+shapecode_0_r=0.600
+shapecode_0_g=0.600
+shapecode_0_b=0.600
+shapecode_0_a=1.000
+shapecode_0_r2=0.000
+shapecode_0_g2=0.000
+shapecode_0_b2=0.000
+shapecode_0_a2=0.000
+shapecode_0_border_r=1.000
+shapecode_0_border_g=1.000
+shapecode_0_border_b=1.000
+shapecode_0_border_a=0.000
+shape_0_per_frame1=r = r + 0.300*(0.60*sin(1.22*time) + 0.4*sin(0.888*time));
+shape_0_per_frame2=g = g + 0.300*(0.60*sin(0.90*time) + 0.4*sin(1.100*time));
+shape_0_per_frame3=b = b + 0.300*(0.60*sin(1.12*time) + 0.4*sin(0.98*time));
+shape_0_per_frame4=
+shape_0_per_frame5=rad = rad + equal(q2,2)*0.5;
+shape_0_per_frame6=
+shape_0_per_frame7=y = y - 0.1*q6;
+shapecode_1_enabled=1
+shapecode_1_sides=4
+shapecode_1_additive=1
+shapecode_1_thickOutline=0
+shapecode_1_textured=1
+shapecode_1_num_inst=2
+shapecode_1_x=0.500
+shapecode_1_y=0.500
+shapecode_1_rad=0.33003
+shapecode_1_ang=5.65480
+shapecode_1_tex_ang=1.25650
+shapecode_1_tex_zoom=0.40830
+shapecode_1_r=0.600
+shapecode_1_g=0.600
+shapecode_1_b=0.600
+shapecode_1_a=1.000
+shapecode_1_r2=0.000
+shapecode_1_g2=0.000
+shapecode_1_b2=0.000
+shapecode_1_a2=0.000
+shapecode_1_border_r=1.000
+shapecode_1_border_g=1.000
+shapecode_1_border_b=1.000
+shapecode_1_border_a=0.000
+shape_1_per_frame1=r = r + 0.300*(0.60*sin(2.52*time) + 0.4*sin(2.588*time));
+shape_1_per_frame2=g = g + 0.300*(0.60*sin(2.70*time) + 0.4*sin(2.700*time));
+shape_1_per_frame3=b = b + 0.300*(0.60*sin(2.32*time) + 0.4*sin(2.180*time));
+shape_1_per_frame4=
+shape_1_per_frame5=rad = rad + equal(q2,2)*0.5;
+shape_1_per_frame6=
+shape_1_per_frame7=y = y - 0.15*q6;
+shape_1_per_frame8=
+shapecode_2_enabled=1
+shapecode_2_sides=4
+shapecode_2_additive=1
+shapecode_2_thickOutline=0
+shapecode_2_textured=1
+shapecode_2_num_inst=2
+shapecode_2_x=0.400
+shapecode_2_y=0.400
+shapecode_2_rad=0.33000
+shapecode_2_ang=4.39820
+shapecode_2_tex_ang=1.25650
+shapecode_2_tex_zoom=0.40836
+shapecode_2_r=0.600
+shapecode_2_g=0.600
+shapecode_2_b=0.600
+shapecode_2_a=1.000
+shapecode_2_r2=0.000
+shapecode_2_g2=0.000
+shapecode_2_b2=0.000
+shapecode_2_a2=0.000
+shapecode_2_border_r=1.000
+shapecode_2_border_g=1.000
+shapecode_2_border_b=1.000
+shapecode_2_border_a=0.000
+shape_2_per_frame1=r = r + 0.300*(0.60*sin(3.22*time) + 0.4*sin(3.888*time));
+shape_2_per_frame2=g = g + 0.300*(0.60*sin(3.90*time) + 0.4*sin(3.100*time));
+shape_2_per_frame3=b = b + 0.300*(0.60*sin(3.12*time) + 0.4*sin(3.980*time));
+shape_2_per_frame4=
+shape_2_per_frame5=rad = rad + equal(q2,2)*0.5;
+shape_2_per_frame6=
+shape_2_per_frame7=y = y - 0.1*q6;
+shapecode_3_enabled=1
+shapecode_3_sides=4
+shapecode_3_additive=1
+shapecode_3_thickOutline=0
+shapecode_3_textured=1
+shapecode_3_num_inst=1
+shapecode_3_x=0.500
+shapecode_3_y=0.400
+shapecode_3_rad=0.33000
+shapecode_3_ang=3.76990
+shapecode_3_tex_ang=0.00000
+shapecode_3_tex_zoom=0.40836
+shapecode_3_r=0.600
+shapecode_3_g=0.600
+shapecode_3_b=0.600
+shapecode_3_a=1.000
+shapecode_3_r2=0.000
+shapecode_3_g2=0.000
+shapecode_3_b2=0.000
+shapecode_3_a2=0.000
+shapecode_3_border_r=1.000
+shapecode_3_border_g=1.000
+shapecode_3_border_b=1.000
+shapecode_3_border_a=0.000
+shape_3_per_frame1=r = r + 0.300*(0.60*sin(4.22*time) + 0.4*sin(4.888*time));
+shape_3_per_frame2=g = g + 0.300*(0.60*sin(4.90*time) + 0.4*sin(4.100*time));
+shape_3_per_frame3=b = b + 0.300*(0.60*sin(4.12*time) + 0.4*sin(4.980*time));
+shape_3_per_frame4=
+shape_3_per_frame5=rad = rad + equal(q2,2)*1;
+shape_3_per_frame6=
+shape_3_per_frame7=y = y - 0.1*q6;
+shape_3_per_frame8=
+per_frame_init_1=zoom=1;
+per_frame_init_2=xpos=0;
+per_frame_init_3=ypos=0;
+per_frame_1=decay=1;
+per_frame_2=
+per_frame_3=//vol= (bass+mid+treb)*0.55;
+per_frame_4=vol=vol;
+per_frame_5=
+per_frame_6=
+per_frame_7=mv_r = 0.5 + 0.4*sin(time*1.324);
+per_frame_8=mv_g = 0.5 + 0.4*cos(time*1.371);
+per_frame_9=
+per_frame_10=
+per_frame_11=
+per_frame_12=
+per_frame_13=zoom=1;
+per_frame_14=
+per_frame_15=musictime=musictime+vol;
+per_frame_16=q4=sin(musictime*0.02)*0.3;
+per_frame_17=q5=sin(musictime*0.01)*0.3;
+per_frame_18=
+per_frame_19=dx=sin(musictime*0.1)*0.01;
+per_frame_20=dy=tan(musictime*0.069)*0.01;
+per_frame_21=
+per_frame_22=
+per_frame_23=
+per_frame_24=
+per_frame_25=monitor=rot*ang;
+per_frame_26=
+per_frame_27=db = db*0.98 + bass*0.2;
+per_frame_28=bb = bb + db*0.1;
+per_frame_29=
+per_frame_30=dt = dt*0.98 + treb*0.2;
+per_frame_31=tt = tt + dt*0.1;
+per_frame_32=
+per_frame_33=dm = dm*0.98 + mid*0.2;
+per_frame_34=mm = mm + dm*0.1;
+per_frame_35=
+per_frame_36=
+per_frame_37=w = (bb-tt)*0.4;
+per_frame_38=q11 = sin(w);
+per_frame_39=q12 = tan(w);
+per_frame_40=q13 = 0.5 + sin((bb-mm)*0.1)*0.25; // cx
+per_frame_41=q14 = 0.5 + sin((tt-mm)*0.1)*0.25; // cy
+per_frame_42=q15 = 4;
+per_frame_43=q16 = 0.06;
+per_frame_44=q17 = tan(-w);
+per_frame_45=q18 = cos(-w);
+per_pixel_1=da=.13133;//+sin(time/17) /10;
+per_pixel_2=nh=2;
+per_pixel_3=nh2=1;
+per_pixel_4=myx=(-int(x*nh)+x*nh-.4);
+per_pixel_5=myy=(-int(y*nh2)+y*nh2-.5);//+sin(time/11) /22);
+per_pixel_6=
+per_pixel_7=myx=sin(x*6.28+time/1.6);
+per_pixel_8=myy=sin(y*6.28+time/9);
+per_pixel_9=
+per_pixel_10=//myy = y*.5-.35;///+sin(time/8)/40;
+per_pixel_11=//myx = x*1-.5;
+per_pixel_12=dx = da*(2*myx*myy);
+per_pixel_13=dy = da*((myy*myy) - (myx*myx));
+warp_1=`shader_body
+warp_2=`{
+warp_3=`uv = uv.xy - 0.5;
+warp_4=`//uv.x *= aspect_ratio;
+warp_5=`
+warp_6=`float dist = length(uv) * 3;
+warp_7=`float angle = atan2(uv.y, uv.x);
+warp_8=`float t = time * 0.75;
+warp_9=`
+warp_10=`float3 color = 0;
+warp_11=`for(int i=0; i<3; i++) {
+warp_12=`    float fi = float(i)*0.3;
+warp_13=`    float wave = sin(dist * 4 - t*4 + fi) * 0.5;
+warp_14=`    wave += sin(angle*3 + t*2 + fi) * 0.3;
+warp_15=`    wave += sin((dist*2 + angle*2) - t*3 + fi) * 0.2;
+warp_16=`    
+warp_17=`    color[i] = 0.7 / (0.1 + abs(wave)) * (1 - dist*0.3);
+warp_18=`}
+warp_19=`
+warp_20=`color = lerp(color, color.gbr, sin(t)*0.3 + 0.3);
+warp_21=`color *= .1 + vol/22;
+warp_22=`
+warp_23=`ret = float4(color * (0.8 + 0.3*sin(t + uv.x*5)),1);
+warp_24=`}
+comp_1=`shader_body
+comp_2=`{
+comp_3=`
+comp_4=`    float2 uv_echo = (uv - 0.5)*1.000*float2(-1,-1) + 0.5;
+comp_5=`    ret = lerp( tex2D(sampler_main, uv).xyz, 
+comp_6=`                tex2D(sampler_main, uv_echo).xyz, 
+comp_7=`                0.50 
+comp_8=`              ); //video echo
+comp_9=`    ret *= 2.00; //gamma
+comp_10=`    float3 retish = 1 - ret*(1-ret); //solarize
+comp_11=`    ret = GetBlur3(uv) + GetBlur3(uv_echo) + ret*2;
+comp_12=`//MilkDrop3 Shadows Mode:
+comp_13=`ret += pow(tex2D(sampler_main,float2(uv.x,1-uv.y)).yyy+tex2D(sampler_main,1-uv).yyy,float3(1,2,3));
+comp_14=`ret-=0.2;
+comp_15=`//MilkDrop3 Color Mode:
+comp_16=`ret *= float3(0.4,0.5,0.9);
+comp_17=`}

@@ -1,0 +1,588 @@
+Created with MILKDROP 3.30 on 21/02/2024 at 23:39:41
+https://twitter.com/MilkDrop2077
+
+sprite=1
+blending_pattern=cercle
+blending_progress=0.41
+blending_direction=1
+random_1=0.991192
+random_2=0.969106
+random_3=0.522222
+random_4=0.160163
+random_5=0.935637
+
+[PRESET1_BEGIN]
+NAME=MilkDrop2077.R042 fire4
+MILKDROP_PRESET_VERSION=201
+PSVERSION=3
+PSVERSION_WARP=2
+PSVERSION_COMP=3
+[preset00]
+fRating=3.000
+fGammaAdj=2.000
+fDecay=0.980
+fVideoEchoZoom=2.000
+fVideoEchoAlpha=0.000
+nVideoEchoOrientation=0
+nWaveMode=15
+bAdditiveWaves=1
+bWaveDots=0
+bWaveThick=1
+bModWaveAlphaByVolume=0
+bMaximizeWaveColor=1
+bTexWrap=0
+bDarkenCenter=0
+bRedBlueStereo=0
+bBrighten=0
+bDarken=0
+bSolarize=0
+bInvert=0
+fWaveAlpha=100.000
+fWaveScale=6.773
+fWaveSmoothing=0.000
+fWaveParam=-0.200
+fModWaveAlphaStart=1.000
+fModWaveAlphaEnd=1.482
+fWarpAnimSpeed=1.000
+fWarpScale=1.000
+fZoomExponent=1.00000
+fShader=0.000
+zoom=1.00000
+rot=0.00000
+cx=0.500
+cy=0.500
+dx=0.00000
+dy=0.00000
+warp=0.00000
+sx=1.00000
+sy=1.00000
+wave_r=0.395
+wave_g=0.500
+wave_b=0.550
+wave_x=0.680
+wave_y=0.380
+ob_size=0.000
+ob_r=0.000
+ob_g=0.000
+ob_b=0.000
+ob_a=1.000
+ib_size=0.000
+ib_r=0.100
+ib_g=0.100
+ib_b=0.100
+ib_a=0.200
+nMotionVectorsX=14.280
+nMotionVectorsY=9.000
+mv_dx=0.000
+mv_dy=0.000
+mv_l=0.900
+mv_r=1.000
+mv_g=1.000
+mv_b=1.000
+mv_a=0.000
+b1n=0.000
+b2n=0.000
+b3n=0.000
+b1x=0.980
+b2x=1.060
+b3x=1.000
+b1ed=0.250
+per_frame_init_1=p1 = 0; p2 = 0; x1 = 0 ; y1 = 0; t1 = 0;
+per_frame_init_2=shapes = 820;
+per_frame_init_3=frm = (rand(10) >= 5);
+per_frame_1=dec_m = pow (0.8, 30/fps);
+per_frame_2=dec_s = pow (0.9, 30/fps);
+per_frame_3=vol = (bass+mid+treb)/3; 
+per_frame_4=vol_ = dec_m * vol_ + (1-dec_m)*vol;
+per_frame_5=avg = avg*dec_s + vol*(1-dec_s);
+per_frame_6=is_beat = above(vol, 1*avg+2*peak) * above (time, t0+.2);
+per_frame_7=t0 = is_beat*time + (1-is_beat)*t0;
+per_frame_8=peak = is_beat * vol + (1-is_beat)*peak*dec_m;
+per_frame_9=index = (index + is_beat) %8;
+per_frame_10=index2 = (index2 + is_beat*bnot(index)) %8;
+per_frame_11=
+per_frame_12=trig = is_beat*(index==0);
+per_frame_13=t1 = t1+trig; 
+per_frame_14=
+per_frame_15=ran1 = dec_m * ran1 + (1-dec_m)*cos(3.14/6*t1);
+per_frame_16=ran2 = dec_m * ran2 + (1-dec_m)*sin(3.14/6*t1);
+per_frame_17=ran3 = dec_m * ran3 + (1-dec_m)*sin(3.14/5*t1);
+per_frame_18=q1 = ran1; q2 = ran2; q3 = ran3;
+per_frame_19=
+per_frame_20=n = 0; 
+per_frame_21=p1 *= .9; p2 = 0; p3 = 0;
+per_frame_22=mx = 0; my = 0; mz = 0;
+per_frame_23=vol2 = min(vol,2);
+per_frame_24=vol2 = sqrt(vol);
+per_frame_25=k5 = 1 / (rand(10)+.2); 
+per_frame_26=loop (shapes,
+per_frame_27=  sa = n/shapes;
+per_frame_28=  p1 =  p1+.15*sin(sa*(vol-1)*200+time*.1)*vol;   
+per_frame_29=  p2 = p2-p1*vol*k5;
+per_frame_30=  x1 += sin(p2)*sa*.006*vol;
+per_frame_31=  y1 += cos(p2)*sa*.006*vol;
+per_frame_32=  z1 += cos(p1*.03)*.005*vol;
+per_frame_33=
+per_frame_34=mx += x1; my += y1; mz += z1;
+per_frame_35=x1 = atan(x1/16)*16;
+per_frame_36=y1 = atan(y1/16)*16;
+per_frame_37=z1 = atan(z1/16)*16;
+per_frame_38=//z1 = 1;
+per_frame_39=  gmegabuf(n*4) =   x1;
+per_frame_40=  gmegabuf(n*4+1) = y1;
+per_frame_41=  gmegabuf(n*4+2) = z1;
+per_frame_42=  n +=1;
+per_frame_43=);
+per_frame_44=
+per_frame_45=trel = trel + vol_/fps*.3;
+per_frame_46=q4 = min(max(0,4*sin(trel)),1)*-.2;
+per_frame_47=mzoom = if(trig,.1*vol2*(rand(10)>=3),mzoom);
+per_frame_48=mzoom_ = mzoom_*dec_m + (1-dec_m)*mzoom;
+per_frame_49=q4 = mzoom_;
+per_frame_50=q5 = vol >= vol_;
+per_frame_51=
+per_frame_52=monitor = q5;
+per_frame_53=q6=aspecty; 
+per_frame_54=q27 = index;
+per_frame_55=q28 = index2;
+per_frame_56=q24 = is_beat;
+per_frame_57=q30 = min(1,.05/mzoom);;
+per_frame_58=
+per_frame_59=trig1 = is_beat*(index%2);
+per_frame_60=pk = if (trig1,1,pk*dec_m);
+per_frame_61=ran5 = if(trig1, rand(1), ran5);
+per_frame_62=
+per_frame_63=q22 = pk * pk * (frame%2);
+per_frame_64=q22 = pk==1;
+per_frame_65=q23 = ran5;
+per_frame_66=
+per_pixel_1=x1 = x-0.5*abs(q1); y1 = y-.5*abs(q2);
+per_pixel_2=k1 = q3/2; 
+per_pixel_3=len = sqrt(pow(x1,3)*k1-pow(y1,3)*(1-k1))-.05;
+per_pixel_4=zoom = 1 + (len)*q4; 
+per_pixel_5=dx = 0.0 * q1* (y-.5);
+per_pixel_6=dy = 0.0 * q2* (x-.5);
+per_pixel_7=
+per_pixel_8=
+per_pixel_9=warp = 0.0;
+per_pixel_10=
+per_pixel_11=rot = (x1-y1)*.01*q1;
+warp_1=`shader_body
+warp_2=`{
+warp_3=`    // PAINTERLY EFFECT:
+warp_4=`    float2 t = 0.0005 + 0.045*saturate(float2(bass,treb)-1);
+warp_5=`    float2 uv2 = uv;
+warp_6=`    float2 delta2 = texsize.zw*float2(1,1);
+warp_7=`    float3 blurry_color = tex2D( sampler_main, 
+warp_8=`        lerp(uv,uv_orig,-1) + delta2 ).xyz;
+warp_9=`    float2 v = (blurry_color.xy-0.37) * t;
+warp_10=`      //uv2 += v;
+warp_11=`      // instead, add a rotated version:
+warp_12=`      uv2.x += v.x*q1 + v.y*q2;
+warp_13=`      uv2.y += v.x*q2 - v.y*q1;
+warp_14=`
+warp_15=`    // sample previous frame
+warp_16=`    ret = tex2D( sampler_main, uv2 ).xyz;
+warp_17=`
+warp_18=`    // darken over time
+warp_19=`    ret -= 0.006;    
+warp_20=`}
+comp_1=`shader_body
+comp_2=`{
+comp_3=`//MilkDrop3 Flip Mode:
+comp_4=`uv = 1-uv;
+comp_5=`
+comp_6=`
+comp_7=`
+comp_8=`
+comp_9=`
+comp_10=`//MilkDrop3 Rotate Mode:
+comp_11=`uv = uv.xy;
+comp_12=`
+comp_13=`
+comp_14=`    float2 d = texsize.zw*4;
+comp_15=`    float1 dx = ( GetBlur1(uv+float2(1,0)*d)-GetBlur1(uv-float2(1,0)*d) ).y;
+comp_16=`    float1 dy = ( GetBlur1(uv+float2(0,1)*d)-GetBlur1(uv-float2(0,1)*d) ).y;
+comp_17=`    float2 uv_y = uv-float2(dx,dy)*.7;
+comp_18=`
+comp_19=`ret = lerp(float3(2.6,2,2)*tex2D(sampler_fc_main, uv_y).x,
+comp_20=`                              float3(2.6,2,3), GetBlur1(uv).y*0.05);
+comp_21=`
+comp_22=`ret = lerp(ret,float3(-.2,-0.2,-0.3),GetPixel(uv).z);
+comp_23=`
+comp_24=`//MilkDrop3 Invert Mode:
+comp_25=`ret = 1 - ret;
+comp_26=`//MilkDrop3 Color Mode:
+comp_27=`ret /= float3(2.9,2.6,2.5);
+comp_28=`//MilkDrop3 Blow Mode:
+comp_29=`float3 avg_col = GetBlur2(uv);ret = abs(avg_col - ret)*2;
+comp_30=`//MilkDrop3 SoftColor Mode:
+comp_31=`ret += float3(-0.2,0.1,0.3);
+comp_32=`}
+[PRESET1_END]
+
+[PRESET2_BEGIN]
+NAME=martin - on air 004
+MILKDROP_PRESET_VERSION=201
+PSVERSION=3
+PSVERSION_WARP=3
+PSVERSION_COMP=3
+[preset00]
+fRating=4.000
+fGammaAdj=1.980
+fDecay=0.500
+fVideoEchoZoom=1.000
+fVideoEchoAlpha=0.500
+nVideoEchoOrientation=3
+nWaveMode=0
+bAdditiveWaves=1
+bWaveDots=0
+bWaveThick=1
+bModWaveAlphaByVolume=1
+bMaximizeWaveColor=0
+bTexWrap=1
+bDarkenCenter=0
+bRedBlueStereo=0
+bBrighten=0
+bDarken=1
+bSolarize=0
+bInvert=0
+fWaveAlpha=0.020
+fWaveScale=0.450
+fWaveSmoothing=0.000
+fWaveParam=-0.260
+fModWaveAlphaStart=0.400
+fModWaveAlphaEnd=1.000
+fWarpAnimSpeed=1.459
+fWarpScale=2.007
+fZoomExponent=1.00000
+fShader=0.000
+zoom=0.99990
+rot=0.00000
+cx=0.500
+cy=0.500
+dx=0.00000
+dy=0.00000
+warp=0.01000
+sx=0.99990
+sy=1.00000
+wave_r=0.000
+wave_g=0.000
+wave_b=0.000
+wave_x=0.500
+wave_y=0.500
+ob_size=0.000
+ob_r=0.000
+ob_g=0.000
+ob_b=0.000
+ob_a=0.200
+ib_size=0.150
+ib_r=0.300
+ib_g=0.000
+ib_b=0.000
+ib_a=0.000
+nMotionVectorsX=12.000
+nMotionVectorsY=9.000
+mv_dx=0.000
+mv_dy=0.000
+mv_l=0.900
+mv_r=1.000
+mv_g=1.000
+mv_b=1.000
+mv_a=0.000
+b1n=0.000
+b2n=0.000
+b3n=0.000
+b1x=1.000
+b2x=1.000
+b3x=1.000
+b1ed=0.000
+wavecode_0_enabled=1
+wavecode_0_samples=450
+wavecode_0_sep=0
+wavecode_0_bSpectrum=0
+wavecode_0_bUseDots=1
+wavecode_0_bDrawThick=0
+wavecode_0_bAdditive=1
+wavecode_0_scaling=1.00000
+wavecode_0_smoothing=0.50000
+wavecode_0_r=1.000
+wavecode_0_g=0.700
+wavecode_0_b=0.700
+wavecode_0_a=0.000
+wave_0_per_point1=i=t1;
+wave_0_per_point2=speed=.02;
+wave_0_per_point3=
+wave_0_per_point4=z=megabuf(3*i+2);
+wave_0_per_point5=x = megabuf(3*i)/z+.5;
+wave_0_per_point6=y = megabuf(3*i+1)/z*reg32+0.5;
+wave_0_per_point7=
+wave_0_per_point8=out=(x>1)||(x<0)||(y>1)||(y<0)||(z<0);
+wave_0_per_point9=if (out,
+wave_0_per_point10=  megabuf(3*i)= (rand(2)-1)/8; //x
+wave_0_per_point11=  megabuf(3*i+1)=(rand(2)-1)/8; //y
+wave_0_per_point12=  megabuf(3*i+2)=rand(1);
+wave_0_per_point13=,
+wave_0_per_point14=  megabuf(i*3+2)-=speed/fps;
+wave_0_per_point15=);
+wave_0_per_point16=
+wave_0_per_point17=a=(1-pow(z,1))/2;
+wave_0_per_point18=t1+=1;
+wavecode_1_enabled=1
+wavecode_1_samples=512
+wavecode_1_sep=0
+wavecode_1_bSpectrum=0
+wavecode_1_bUseDots=1
+wavecode_1_bDrawThick=1
+wavecode_1_bAdditive=1
+wavecode_1_scaling=1.00000
+wavecode_1_smoothing=0.50000
+wavecode_1_r=1.000
+wavecode_1_g=1.000
+wavecode_1_b=1.000
+wavecode_1_a=0.000
+wave_1_per_point1=i=t1;
+wave_1_per_point2=speed=.06;
+wave_1_per_point3=
+wave_1_per_point4=z=megabuf(3*i+2);
+wave_1_per_point5=x = megabuf(3*i)/z+.5;
+wave_1_per_point6=y = megabuf(3*i+1)/z*reg32+0.15;
+wave_1_per_point7=
+wave_1_per_point8=out=(x>1)||(x<0)||(y>1)||(y<0)||(z<0);
+wave_1_per_point9=if (out,
+wave_1_per_point10=  megabuf(3*i)= (rand(2)-1)/8; //x
+wave_1_per_point11=  megabuf(3*i+1)=(rand(2)-1)/8; //y
+wave_1_per_point12=  megabuf(3*i+2)=rand(1);
+wave_1_per_point13=,
+wave_1_per_point14=  megabuf(i*3+2)-=speed/50;
+wave_1_per_point15=);
+wave_1_per_point16=
+wave_1_per_point17=a=(1-pow(z,1))/2;
+wave_1_per_point18=t1+=1;
+shapecode_0_enabled=1
+shapecode_0_sides=9
+shapecode_0_additive=0
+shapecode_0_thickOutline=0
+shapecode_0_textured=0
+shapecode_0_num_inst=800
+shapecode_0_x=0.500
+shapecode_0_y=0.500
+shapecode_0_rad=0.22167
+shapecode_0_ang=0.00000
+shapecode_0_tex_ang=0.00000
+shapecode_0_tex_zoom=1.48886
+shapecode_0_r=1.000
+shapecode_0_g=1.000
+shapecode_0_b=1.000
+shapecode_0_a=0.500
+shapecode_0_r2=0.200
+shapecode_0_g2=0.200
+shapecode_0_b2=0.200
+shapecode_0_a2=0.000
+shapecode_0_border_r=1.000
+shapecode_0_border_g=1.000
+shapecode_0_border_b=1.000
+shapecode_0_border_a=0.000
+shape_0_init1=i=0; loop (5000, z=rand(1); megabuf(i)=(rand(1)-.5)*z; megabuf(i+1)=(rand(1)-.5)*z; megabuf(i+2)=z; i+= 8);
+shape_0_per_frame1=i=instance;
+shape_0_per_frame2=if (i==0, t10 += (.5+bass_att)/fps; t20 += (.5+treb_att)/fps, 0);
+shape_0_per_frame3=k1 = i/num_inst;
+shape_0_per_frame4=n=8*i;
+shape_0_per_frame5=
+shape_0_per_frame6=z = megabuf(n+2);
+shape_0_per_frame7=x = megabuf(n)/z+.5;
+shape_0_per_frame8=y = megabuf(n+1)/z*reg32+0.5;
+shape_0_per_frame9=dec=1-2/fps; 
+shape_0_per_frame10=sp = 1;
+shape_0_per_frame11=out=(x>1)||(x<0)||(y>1)||(y<0)||(z<0.01)||(z>1);
+shape_0_per_frame12=if (out,
+shape_0_per_frame13=  px0=px0*dec+(1-dec)*(sin(t10*sp)) *.15;
+shape_0_per_frame14=  py0=py0*dec+(1-dec)*(cos(t20*sp)) *.15;
+shape_0_per_frame15=  pz0=pz0*dec+(1-dec)*min(1,1/mid_att);
+shape_0_per_frame16=
+shape_0_per_frame17=  r01=(rand(1)-.5)*(rand(1)-.5)*bass_att;
+shape_0_per_frame18=  r02=(rand(1)-.5)*(rand(1)-.5)*mid_att;
+shape_0_per_frame19=  r03=(rand(1)-.5)*(rand(1)-.5)*treb_att;
+shape_0_per_frame20=
+shape_0_per_frame21=  k=.1*mid_att;
+shape_0_per_frame22=  px=px0 * (1+k*r01);  
+shape_0_per_frame23=  py=py0 * (1+k*r02);  
+shape_0_per_frame24=  pz=pz0 * (1-k*abs(r03/2));;
+shape_0_per_frame25=
+shape_0_per_frame26=  megabuf(n)= px;   
+shape_0_per_frame27=  megabuf(n+1)=py; 
+shape_0_per_frame28=  megabuf(n+2)=pz0;
+shape_0_per_frame29=  megabuf(n+3)=0.6+0.3*sin(px*9);
+shape_0_per_frame30=  megabuf(n+4)=0.6+0.3*sin(py*9);
+shape_0_per_frame31=  megabuf(n+5)=0.6+0.3*sin((py-px)*12);
+shape_0_per_frame32=,
+shape_0_per_frame33=  z=megabuf(n+2)-=reg50/fps;
+shape_0_per_frame34=
+shape_0_per_frame35=  d0 = reg26*z +reg25/(max (0.05,z));
+shape_0_per_frame36=  zx=.025*sin (reg20*k1+t10*.17+reg41)*d0;
+shape_0_per_frame37=  zy=.025*sin (reg21*k1+t20*.13+reg42)*d0;
+shape_0_per_frame38=  k4=q3/fps;
+shape_0_per_frame39=  megabuf(n)   -= (megabuf(n)  -zx)*k4;
+shape_0_per_frame40=  megabuf(n+1) -= (megabuf(n+1)-zy)*k4;
+shape_0_per_frame41=
+shape_0_per_frame42=);
+shape_0_per_frame43=z=megabuf(n+2);
+shape_0_per_frame44=r=r2=megabuf(n+3);
+shape_0_per_frame45=g=g2=megabuf(n+4);
+shape_0_per_frame46=b=b2=megabuf(n+5);
+shape_0_per_frame47=rad = min(0.1,.003/max(0.01,z)*reg32) ;
+shape_0_per_frame48=a=(1-pow(z,4))*.8; a2=a/4;
+shape_0_per_frame49=rad *= 1+ (z<.99)*min(1,z*3)*exp(-24*abs(z-q30))*2*(1+treb_att);  //auch k1 statt z
+shape_0_per_frame50=rad = min (rad,0.1);
+shape_0_per_frame51=//rad *= 1+ exp(-24*abs(k1-q30))*2*(1+treb_att);  //auch k1 statt z
+shape_0_per_frame52=reg99=out;
+shape_0_per_frame53=additive = i%7==0;
+shapecode_1_enabled=1
+shapecode_1_sides=20
+shapecode_1_additive=0
+shapecode_1_thickOutline=0
+shapecode_1_textured=0
+shapecode_1_num_inst=20
+shapecode_1_x=0.500
+shapecode_1_y=0.500
+shapecode_1_rad=0.04511
+shapecode_1_ang=0.00000
+shapecode_1_tex_ang=0.00000
+shapecode_1_tex_zoom=0.90529
+shapecode_1_r=1.000
+shapecode_1_g=1.000
+shapecode_1_b=1.000
+shapecode_1_a=1.000
+shapecode_1_r2=0.100
+shapecode_1_g2=0.100
+shapecode_1_b2=0.100
+shapecode_1_a2=0.200
+shapecode_1_border_r=1.000
+shapecode_1_border_g=1.000
+shapecode_1_border_b=1.000
+shapecode_1_border_a=0.000
+shape_1_init1=n=0; loop(500, 
+shape_1_init2=  megabuf(i)=rand(1)-.5;
+shape_1_init3=  megabuf(i+1)=rand(1)-.5;
+shape_1_init4=  megabuf(i+2)= rand(4);
+shape_1_init5=  megabuf(i+3)= rand(4);
+shape_1_init6=i+=4);
+shape_1_init7=if (i%4==0, r=r2=g=g2=b=b2=0;a=a2=1;,0);
+shape_1_per_frame1=i=instance; n=i*4;
+shape_1_per_frame2=k1 = i/num_inst;
+shape_1_per_frame3=blk = i%8==0;
+shape_1_per_frame4=megabuf(n+2)-=.1*(1-blk/2)/fps;
+shape_1_per_frame5=if (megabuf(n+2)<0, 
+shape_1_per_frame6=  megabuf(n)  = rand(1)-.5;
+shape_1_per_frame7=  megabuf(n+1)=rand(1)-.5;
+shape_1_per_frame8=  megabuf(n+2)=4;
+shape_1_per_frame9=  megabuf(n+3)=1+rand(2);;
+shape_1_per_frame10=,0);
+shape_1_per_frame11=z=megabuf(n+2);
+shape_1_per_frame12=x = megabuf(n)/z/2+.5;
+shape_1_per_frame13=y = megabuf(n+1)/z/2+.5;
+shape_1_per_frame14=rad = .004/z*reg32 *megabuf(n+3);
+shape_1_per_frame15=a = min(1,1/pow(z,.2));
+shape_1_per_frame16=a2=a/4;
+shape_1_per_frame17=
+shape_1_per_frame18=
+shape_1_per_frame19=if (blk,r=r2=g=g2=b=b2=0;a=a2=1;rad*=2;,0);
+per_frame_init_1=n = 0; loop (10000, megabuf(n)=gmegabuf(n)=0; n +=1; );
+per_frame_init_2=r1=3; r2=8; r5=1; r6=1; r7=2;s1=r1; s2=r2; ; reg25=3; reg26=3; ramp=1;
+per_frame_init_3=
+per_frame_1=dt = min (1/fps,0.1); dec_m = 1 - 4*dt; dec_s = 1 - dt;
+per_frame_2=vol =  (2*bass+mid+treb)/4 ;
+per_frame_3=vol_ = vol_*dec_m + (1-dec_m)*vol; exc = vol-vol_;
+per_frame_4=vol__*vol__*dec_m + (1-dec_m)*vol_;
+per_frame_5=beat = (vol>vol2) && (time-t0>2);
+per_frame_6=if (beat, vol2=vol*80; t0=time; ramp=1; idx+=1, ramp=max(0,ramp-dt/2)); 
+per_frame_7=vol2 *= dec_s;
+per_frame_8=if (idx%5<2, ramp2=-5, if(beat,if(rand(1)>.7,ramp2=0,0),0); ramp2 = min(23,ramp2+6*dt));
+per_frame_9=
+per_frame_10=
+per_frame_11=pu1 += (ramp>0.5)*abs(sin(time*.23))*dt;
+per_frame_12=pu2 += (ramp>0.5)*abs(cos(time*.29))*dt;
+per_frame_13=
+per_frame_14=if (beat && (idx%3==0), 
+per_frame_15=  r1 = rand(15)+1; 
+per_frame_16=  r2 = rand(15)+1; 
+per_frame_17=  r5 = rand(8); 
+per_frame_18=  r6 = rand(4); 
+per_frame_19=  r7 = rand(1)*rand(1)+.1;
+per_frame_20= ,0);
+per_frame_21=
+per_frame_22=s1 = s1*dec_s + (1-dec_s)*r1;
+per_frame_23=s2 = s2*dec_s + (1-dec_s)*r2;
+per_frame_24=reg20=s1;
+per_frame_25=reg21=s2;
+per_frame_26=reg25 = reg25*dec_m + (1-dec_m)*r5;
+per_frame_27=reg26 = reg26*dec_m + (1-dec_m)*r6;
+per_frame_28=reg40=pu1; reg41=pu2;
+per_frame_29=q10=sin(tr*6.28);
+per_frame_30=q11 = tr;
+per_frame_31=q25=min(2,(max(0,vol-vol_-1)))*0.02;
+per_frame_32=q30=1-ramp;
+per_frame_33=reg32 = aspecty;
+per_frame_34=reg50 = max(0.1, min(1,vol_*1.2))*.4;
+per_frame_35=trr += max(0,mid-mid_att)*dt*44;
+per_frame_36=q1=trr;
+per_frame_37=q2=ramp2;
+per_frame_38=
+per_frame_39=s7 = s7*dec_s + (1-dec_s)*r7;
+per_frame_40=q3= s7;
+per_frame_41=tp+=6*dt; 
+per_frame_42=q4=max(0,cos(tp*2*3.14));
+per_frame_43=monitor = q3;
+per_pixel_1=zoom=1.01; rot = 0.0;
+warp_1=`shader_body {
+warp_2=`ret = min (0.4,GetBlur2(uv))*0.85 * (1-lum(GetBlur1(uv))*0.1);
+warp_3=`ret = max(ret,GetBlur2((uv-.5)*.25+.5)*.12);
+warp_4=`
+warp_5=`float tx = time*12;
+warp_6=`float2 uv3 = uv-.5-.7*float2(sin(tx),cos(tx))-.0*(tex2D(sampler_noise_lq,uv/8+rand_frame).r-.5);
+warp_7=`ret += q25/length(uv3)* saturate(sin(+8*atan2(uv3.y,uv3.x)))*(roam_cos+1) ;
+warp_8=`
+warp_9=`}
+comp_1=`sampler sampler_pw_noise_lq;
+comp_2=`float2 uv1,uv2,uv4,dz,uvw;
+comp_3=`
+comp_4=`shader_body
+comp_5=`{
+comp_6=`uv1=mul (uv-0.5, float2x2(cos(q5),-sin(q5),sin(q5),cos(q5)));
+comp_7=`float z=1/(uv1.y);
+comp_8=`float2 uv2 = float2 (uv1.x*z,z)*.25;
+comp_9=`float2 water = tex2D(sampler_noise_mq,uv2/2+float2(0,time/2))/z;
+comp_10=`
+comp_11=`uvw= uv1*float2 (1,.5)+0.5+water*0.2*(z>0);
+comp_12=`uvw = frac (uvw);
+comp_13=`
+comp_14=`ret = (GetPixel(uv) + GetBlur2(uv) * (0.75+abs(uv1.y)*3));
+comp_15=`ret += saturate (1-2*lum(ret)) * pow(GetBlur1(uvw),2)*saturate(.4/z)*64*saturate(1-rad);
+comp_16=`ret *= 1.1;
+comp_17=`
+comp_18=`uv=1-uv;
+comp_19=`uv1=(uv-.5)*aspect.xy;
+comp_20=`ret += 0.01/length(uv1-.2);
+comp_21=`
+comp_22=`}
+[PRESET2_END]
+
+[SPRITE1_BEGIN]
+SpriteName=sprites\pea.png
+SpriteColorKey=0x000000
+SpriteLayer=0
+SpriteBlend=4
+SpriteAlpha=0.250000
+SpriteBurn=1
+SpriteX=0.000000
+SpriteY=0.000000
+SpriteSX=-0.680000
+SpriteSY=-0.680000
+SpriteRot=1.000000
+SpriteSpeed=0.200000
+SpriteRepeatX=1.000000
+SpriteRepeatY=1.000000
+code_1=new_scale=1.0+0.05*bass_att;
+code_2=sx=new_scale;
+code_3=sy=new_scale;
+[SPRITE1_END]
