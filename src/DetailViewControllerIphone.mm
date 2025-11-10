@@ -22,7 +22,7 @@
 #define FONTSIZE_PM_PRESET_INFO_LINE 18
 #define FONTSIZE_SHOWINFO_FPS 24
 #define FONTSIZE_SHOWINFO_DETAILS 16
-#define FONTSIZE_FX_FS_INFO_LINE 22
+#define FONTSIZE_FX_FS_INFO_LINE 26
 
 #define SHOWINFO_FPS_COLOR 0.2,1.0,0.1
 #define SHOWINFO_CPU_COLOR 83.0/255.0,182.0/255.0,235.0/255.0
@@ -8477,11 +8477,11 @@ void doFramePM(float ww,float hh) {
         else strLine[2][0]=0;
         
         float alpha_val=(float)(_mdz_FS_display_songinfo_countdown*4)/64.0;
-        if (alpha_val>0.8) alpha_val=0.8;
+        if (alpha_val>0.9) alpha_val=0.9;
         
-        ImGui::PushStyleColor(ImGuiCol_WindowBg,ImVec4(0,0,0,0.4));
+        ImGui::PushStyleColor(ImGuiCol_WindowBg,ImVec4(0,0,0,0.6));
         ImGui::PushStyleColor(ImGuiCol_Border,ImVec4(0,0,0,0));
-        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0,1.0,1.0,alpha_val));
+        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.00,0.95,1.0,alpha_val));
 
         if (font_menu) ImGui::PushFont(font_menu,FONTSIZE_FX_FS_INFO_LINE*glScaleFactor);
         else ImGui::PushFont(nullptr);
@@ -8498,6 +8498,8 @@ void doFramePM(float ww,float hh) {
         str_size=ImGui::CalcTextSize(strLine[2]);
         if (str_size.x>str_size_max.x) str_size_max=str_size;
         
+        
+        str_size_max.x=str_size_max.x/glScaleFactor;
         switch (settings[GLOB_FX_FS_DISPLAYSONGINFO].detail.mdz_boolswitch.switch_value) {
             default:
             case 1: //TL
@@ -8505,11 +8507,11 @@ void doFramePM(float ww,float hh) {
                 pos_y=(safe_top)*glScaleFactor;
                 break;
             case 2: //TR
-                pos_x=(ww-str_size.x-4)*glScaleFactor;
+                pos_x=(ww-str_size_max.x-4)*glScaleFactor;
                 pos_y=(safe_top)*glScaleFactor;
                 break;
             case 3: //Center
-                pos_x=round((ww-str_size.x)/2.0*glScaleFactor);
+                pos_x=round((ww-str_size_max.x)/2.0*glScaleFactor);
                 pos_y=round((hh-textHH)/2.0*glScaleFactor);
                 break;
             case 4: //BL
@@ -8517,7 +8519,7 @@ void doFramePM(float ww,float hh) {
                 pos_y=(hh-textHH*3-safe_bottom)*glScaleFactor;
                 break;
             case 5: //BR
-                pos_x=(ww-str_size.x-4)*glScaleFactor;
+                pos_x=(ww-str_size_max.x-4)*glScaleFactor;
                 pos_y=(hh-textHH*3-safe_bottom)*glScaleFactor;
                 break;
         }
