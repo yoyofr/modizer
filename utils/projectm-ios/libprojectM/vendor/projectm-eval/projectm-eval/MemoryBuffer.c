@@ -1,5 +1,6 @@
 #include "MemoryBuffer.h"
 
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -61,7 +62,7 @@ void prjm_eval_memory_free(projectm_eval_mem_buffer buffer)
     projectm_eval_memory_host_unlock_mutex();
 }
 
-void prjm_eval_memory_free_block(projectm_eval_mem_buffer buffer, int block)
+void prjm_eval_memory_free_block(projectm_eval_mem_buffer buffer, int32_t block)
 {
     if (block < 0)
     {
@@ -75,7 +76,7 @@ void prjm_eval_memory_free_block(projectm_eval_mem_buffer buffer, int block)
     }
 }
 
-PRJM_EVAL_F* prjm_eval_memory_allocate(projectm_eval_mem_buffer buffer, int index)
+PRJM_EVAL_F* prjm_eval_memory_allocate(projectm_eval_mem_buffer buffer, int32_t index)
 {
     int block;
     if (!buffer)
@@ -115,9 +116,9 @@ PRJM_EVAL_F* prjm_eval_memory_copy(projectm_eval_mem_buffer buffer,
                                    PRJM_EVAL_F* len)
 {
     // Add 0.0001 to avoid using the wrong index due to tiny float rounding errors.
-    int offset_dest = (int) (*dest + 0.0001);
-    int offset_src = (int) (*src + 0.0001);
-    int count = (int) (*len + 0.0001);
+    int32_t offset_dest = (int32_t) (*dest + 0.0001);
+    int32_t offset_src = (int32_t) (*src + 0.0001);
+    int32_t count = (int32_t) (*len + 0.0001);
 
     // Trim to front if an offset is less than zero.
     if (offset_src < 0)
@@ -138,10 +139,10 @@ PRJM_EVAL_F* prjm_eval_memory_copy(projectm_eval_mem_buffer buffer,
 
     while (count > 0)
     {
-        int copy_length = count;
+        int32_t copy_length = count;
 
-        int max_dst_len = PRJM_EVAL_MEM_ITEMSPERBLOCK - (offset_dest & (PRJM_EVAL_MEM_ITEMSPERBLOCK - 1));
-        int max_src_len = PRJM_EVAL_MEM_ITEMSPERBLOCK - (offset_src & (PRJM_EVAL_MEM_ITEMSPERBLOCK - 1));
+        int32_t max_dst_len = PRJM_EVAL_MEM_ITEMSPERBLOCK - (offset_dest & (PRJM_EVAL_MEM_ITEMSPERBLOCK - 1));
+        int32_t max_src_len = PRJM_EVAL_MEM_ITEMSPERBLOCK - (offset_src & (PRJM_EVAL_MEM_ITEMSPERBLOCK - 1));
 
         if (offset_dest >= PRJM_EVAL_MEM_BLOCKS * PRJM_EVAL_MEM_ITEMSPERBLOCK ||
             offset_src >= PRJM_EVAL_MEM_BLOCKS * PRJM_EVAL_MEM_ITEMSPERBLOCK)
@@ -185,8 +186,8 @@ PRJM_EVAL_F* prjm_eval_memory_set(projectm_eval_mem_buffer buffer,
                                   PRJM_EVAL_F* len)
 {
     // Add 0.0001 to avoid using the wrong index due to tiny float rounding errors.
-    int offset_dest = (int) (*dest + 0.0001);
-    int count = (int) (*len + 0.0001);
+    int32_t offset_dest = (int32_t) (*dest + 0.0001);
+    int32_t count = (int32_t) (*len + 0.0001);
 
     // Trim to front
     if (offset_dest < 0)
@@ -219,7 +220,7 @@ PRJM_EVAL_F* prjm_eval_memory_set(projectm_eval_mem_buffer buffer,
             break;
         }
 
-        int block_count = PRJM_EVAL_MEM_ITEMSPERBLOCK - (offset_dest & (PRJM_EVAL_MEM_ITEMSPERBLOCK - 1));
+        int32_t block_count = PRJM_EVAL_MEM_ITEMSPERBLOCK - (offset_dest & (PRJM_EVAL_MEM_ITEMSPERBLOCK - 1));
         if (block_count > count)
         {
             block_count = count;

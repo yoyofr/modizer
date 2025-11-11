@@ -7,6 +7,7 @@
 #include "Compiler.h"
 
 #include <stdio.h>
+#include <stdint.h>
 
 #define YY_NO_UNISTD_H
 #define YY_STDINIT

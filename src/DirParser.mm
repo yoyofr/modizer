@@ -425,6 +425,77 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
     });
 }
 
+- (void)loadASyncPreset:(FileNode*)item cut:(bool)cut {
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+        //Load new preset
+        if (self.size) {
+            self.warp=NULL;
+            self.comp=NULL;
+            self.lastFailed=false;
+            pthread_mutex_lock(&pm_mutex);
+            projectm_preload_preset_file(self.pmh, [[item getFullPath] UTF8String], &self->_warp, &self->_comp,&self->_warpP, &self->_compP);
+            pthread_mutex_unlock(&pm_mutex);
+        }
+        
+        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+            
+            if (!self.lastFailed) {
+                if (self.warp && self.comp) {
+                    //MDZILog("warpP %d compP %d",self.warpP,self.compP);
+                    START_PROFILE
+                    self.lastFailed=false;
+                    projectm_loadpreload_preset_file(self.pmh, [[item getFullPath] UTF8String], self.warp, self.comp,self.warpP, self.compP, !cut);
+                    CHECK_PROFILE("preset loaded fast")
+                    END_PROFILE
+                    
+                    if (!self.lastFailed) {
+                        _pmPresetNewLoaded=true;
+                        self.retry_counter=0;
+                        self.curEntryLbl = [NSString stringWithFormat:@"(%c)%@",
+                                        (item.presetType==MDZ_PLAYLIST_FNODE_Bundle?'B':'C'),
+                                        item.localpath];
+                    }
+                }
+            }
+            //free the mem allocated by strdup
+            if (self.warp) free((void*)self.warp);
+            if (self.comp) free((void*)self.comp);
+            self.warp=NULL;self.comp=NULL;
+            //if it has failed, remove from list and try another one.
+            //if list is empty, load idle preset
+            if (self.lastFailed) {
+                //Issue with last preset, remove from the list
+            }
+        }];
+    });
+}
+
+- (void)loadPreset:(FileNode*)file cut:(bool)cut {
+#ifdef PM_LOAD_MODE_ASYNC
+    [self loadASyncPreset:file cut:cut];
+#else
+    //Load new preset
+            _lastFailed=false;
+            START_PROFILE
+            projectm_load_preset_file(_pmh, [[file getFullPath] UTF8String],!cut);
+            CHECK_PROFILE("preset loaded normal")
+            END_PROFILE
+            
+            
+            if (!_lastFailed) {
+                _pmPresetNewLoaded=true;
+            }
+        }
+    }
+    
+        _curEntryLbl = [NSString stringWithFormat:@"(%c)%@",
+                        (item.presetType==MDZ_PLAYLIST_FNODE_Bundle?'B':'C'),
+                        item.localpath];
+    }
+#endif
+}
+
+
 - (void)loadCurrentPreset:(bool)cut {
 #ifdef PM_LOAD_MODE_ASYNC
     [self loadASyncCurrentPreset:cut];

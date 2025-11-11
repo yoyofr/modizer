@@ -3,6 +3,7 @@
 #include "Compiler.h"
 
 #include <stdio.h>
+#include <stdint.h>
 
 #define YY_NO_UNISTD_H
 #define YY_STDINIT
@@ -755,8 +756,8 @@ static void yynoreturn yy_fatal_error ( const char* msg , yyscan_t yyscanner );
 	yyg->yy_hold_char = *yy_cp; \
 	*yy_cp = '\0'; \
 	yyg->yy_c_buf_p = yy_cp;
-#define YY_NUM_RULES 51
-#define YY_END_OF_BUFFER 52
+#define YY_NUM_RULES 52
+#define YY_END_OF_BUFFER 53
 /* This struct is not used in this scanner,
    but its presence is necessary. */
 struct yy_trans_info
@@ -766,14 +767,14 @@ struct yy_trans_info
 	};
 static const flex_int16_t yy_accept[80] =
     {   0,
-        0,    0,    0,    0,    0,    0,   52,   50,   49,   49,
-       39,   50,   35,   37,   41,   42,   33,   31,   47,   32,
-       50,   34,   13,   46,   48,   29,   40,   30,   45,   14,
-       14,   43,   44,   36,   38,   51,    3,   51,    6,    5,
-       26,    0,   10,    0,    0,   17,   28,   19,   21,   15,
-       16,   13,    1,    4,   20,   13,   13,    0,   24,   23,
-       25,   14,   14,   22,   18,   27,    2,    0,    0,    9,
-        7,   13,    0,   13,   14,    8,   11,   12,    0
+        0,    0,    0,    0,    0,    0,   53,   51,   50,   50,
+       40,   51,   36,   38,   42,   43,   34,   32,   48,   33,
+       51,   35,   13,   47,   49,   30,   41,   31,   46,   15,
+       15,   44,   45,   37,   39,   52,    3,   52,    6,    5,
+       27,    0,   10,    0,    0,   18,   29,   20,   22,   16,
+       17,   13,    1,    4,   21,   13,   13,    0,   25,   24,
+       26,   15,   15,   23,   19,   28,    2,    0,    0,    9,
+        7,   13,    0,   13,   15,    8,   11,   12,    0
     } ;
 
 static const YY_CHAR yy_ec[256] =
@@ -889,11 +890,11 @@ static const flex_int16_t yy_chk[169] =
 
 
 /* Table of booleans, true if rule could match eol. */
-static const flex_int32_t yy_rule_can_match_eol[52] =
+static const flex_int32_t yy_rule_can_match_eol[53] =
     {   0,
 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0,     };
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0,     };
 
 /* The intent behind this definition is that it'll catch
  * any uses of REJECT which flex missed.
@@ -1446,6 +1447,13 @@ YY_RULE_SETUP
 case 14:
 YY_RULE_SETUP
 {
+                        yylval->NUM = (PRJM_EVAL_F)atoi(yytext);
+                        return NUM;
+                    }
+	YY_BREAK
+case 15:
+YY_RULE_SETUP
+{
                         if (prjm_eval_compiler_name_is_function(cctx, yytext))
                         {
                             yylval->FUNC = strdup(yytext);
@@ -1456,156 +1464,156 @@ YY_RULE_SETUP
                     }
 	YY_BREAK
 /* Operators */
-case 15:
+case 16:
 YY_RULE_SETUP
 { return ADDOP; }
 	YY_BREAK
-case 16:
+case 17:
 YY_RULE_SETUP
 { return SUBOP; }
 	YY_BREAK
-case 17:
+case 18:
 YY_RULE_SETUP
 { return MODOP; }
 	YY_BREAK
-case 18:
+case 19:
 YY_RULE_SETUP
 { return OROP; }
 	YY_BREAK
-case 19:
+case 20:
 YY_RULE_SETUP
 { return ANDOP; }
 	YY_BREAK
-case 20:
+case 21:
 YY_RULE_SETUP
 { return DIVOP; }
 	YY_BREAK
-case 21:
+case 22:
 YY_RULE_SETUP
 { return MULOP; }
 	YY_BREAK
-case 22:
+case 23:
 YY_RULE_SETUP
 { return POWOP; }
 	YY_BREAK
-case 23:
+case 24:
 YY_RULE_SETUP
 { return EQUAL; }
 	YY_BREAK
-case 24:
+case 25:
 YY_RULE_SETUP
 { return BELEQ; }
 	YY_BREAK
-case 25:
+case 26:
 YY_RULE_SETUP
 { return ABOEQ; }
 	YY_BREAK
-case 26:
+case 27:
 YY_RULE_SETUP
 { return NOTEQ; }
 	YY_BREAK
-case 27:
+case 28:
 YY_RULE_SETUP
 { return BOOLOR; }
 	YY_BREAK
-case 28:
+case 29:
 YY_RULE_SETUP
 { return BOOLAND; }
 	YY_BREAK
-case 29:
+case 30:
 YY_RULE_SETUP
 { return '<'; }
 	YY_BREAK
-case 30:
+case 31:
 YY_RULE_SETUP
 { return '>'; }
 	YY_BREAK
-case 31:
+case 32:
 YY_RULE_SETUP
 { return '+'; }
 	YY_BREAK
-case 32:
+case 33:
 YY_RULE_SETUP
 { return '-'; }
 	YY_BREAK
-case 33:
+case 34:
 YY_RULE_SETUP
 { return '*'; }
 	YY_BREAK
-case 34:
+case 35:
 YY_RULE_SETUP
 { return '/'; }
 	YY_BREAK
-case 35:
+case 36:
 YY_RULE_SETUP
 { return '%'; }
 	YY_BREAK
-case 36:
+case 37:
 YY_RULE_SETUP
 { return '^'; }
 	YY_BREAK
-case 37:
+case 38:
 YY_RULE_SETUP
 { return '&'; }
 	YY_BREAK
-case 38:
+case 39:
 YY_RULE_SETUP
 { return '|'; }
 	YY_BREAK
-case 39:
+case 40:
 YY_RULE_SETUP
 { return '!'; }
 	YY_BREAK
-case 40:
+case 41:
 YY_RULE_SETUP
 { return '='; }
 	YY_BREAK
 /* Syntactic elements */
-case 41:
+case 42:
 YY_RULE_SETUP
 { return '('; }
 	YY_BREAK
-case 42:
+case 43:
 YY_RULE_SETUP
 { return ')'; }
 	YY_BREAK
-case 43:
+case 44:
 YY_RULE_SETUP
 { return '['; }
 	YY_BREAK
-case 44:
+case 45:
 YY_RULE_SETUP
 { return ']'; }
 	YY_BREAK
-case 45:
+case 46:
 YY_RULE_SETUP
 { return '?'; }
 	YY_BREAK
-case 46:
+case 47:
 YY_RULE_SETUP
 { return ':'; }
 	YY_BREAK
-case 47:
+case 48:
 YY_RULE_SETUP
 { return ','; }
 	YY_BREAK
 /* Expression terminator */
-case 48:
+case 49:
 YY_RULE_SETUP
 { return ';'; }
 	YY_BREAK
 /* Ignored whitespace */
-case 49:
-/* rule 49 can match eol */
+case 50:
+/* rule 50 can match eol */
 YY_RULE_SETUP
 { }
 	YY_BREAK
 /* All other tokens are invalid */
-case 50:
+case 51:
 YY_RULE_SETUP
 { return PRJM_EVAL_UNDEF; }
 	YY_BREAK
-case 51:
+case 52:
 YY_RULE_SETUP
 ECHO;
 	YY_BREAK

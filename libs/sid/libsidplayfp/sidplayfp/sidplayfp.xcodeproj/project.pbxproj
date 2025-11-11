@@ -146,7 +146,6 @@
 		59BE8CBB26000D8000414A42 /* reloc65.h in Headers */ = {isa = PBXBuildFile; fileRef = 59BE8BD626000D8000414A42 /* reloc65.h */; };
 		59BE8CBC26000D8000414A42 /* EventScheduler.h in Headers */ = {isa = PBXBuildFile; fileRef = 59BE8BD826000D8000414A42 /* EventScheduler.h */; };
 		59BE8CBD26000D8000414A42 /* sidrandom.h in Headers */ = {isa = PBXBuildFile; fileRef = 59BE8BD926000D8000414A42 /* sidrandom.h */; };
-		59BE8CBE26000D8000414A42 /* mixer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 59BE8BDA26000D8000414A42 /* mixer.cpp */; };
 		59BE8CBF26000D8000414A42 /* player.h in Headers */ = {isa = PBXBuildFile; fileRef = 59BE8BDB26000D8000414A42 /* player.h */; };
 		59BE8CC026000D8000414A42 /* md5Factory.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 59BE8BDE26000D8000414A42 /* md5Factory.cpp */; };
 		59BE8CC126000D8000414A42 /* MD5.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 59BE8BE026000D8000414A42 /* MD5.cpp */; };
@@ -186,6 +185,9 @@
 		59BE8CE326000D8000414A42 /* sidendian.h in Headers */ = {isa = PBXBuildFile; fileRef = 59BE8C1C26000D8000414A42 /* sidendian.h */; };
 		59BE8CE426000D8000414A42 /* EventCallback.h in Headers */ = {isa = PBXBuildFile; fileRef = 59BE8C1D26000D8000414A42 /* EventCallback.h */; };
 		59BE8CE526000D8000414A42 /* sidcxx11.h in Headers */ = {isa = PBXBuildFile; fileRef = 59BE8C1E26000D8000414A42 /* sidcxx11.h */; };
+		CC141AC42EC3A6000084391A /* mixer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 59BE8BDA26000D8000414A42 /* mixer.cpp */; };
+		CC141AC72EC3A6550084391A /* simpleMixer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC141AC62EC3A6550084391A /* simpleMixer.cpp */; };
+		CC141AC82EC3A6550084391A /* simpleMixer.h in Headers */ = {isa = PBXBuildFile; fileRef = CC141AC52EC3A6550084391A /* simpleMixer.h */; };
 		CC2978DC2B86828800BBBC8C /* mos652x.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC2978DA2B86828800BBBC8C /* mos652x.cpp */; };
 		CC2978DD2B86828800BBBC8C /* mos652x.h in Headers */ = {isa = PBXBuildFile; fileRef = CC2978DB2B86828800BBBC8C /* mos652x.h */; };
 		CC2978DF2B8682AC00BBBC8C /* pla.h in Headers */ = {isa = PBXBuildFile; fileRef = CC2978DE2B8682AC00BBBC8C /* pla.h */; };
@@ -390,6 +392,8 @@
 		59BE8C1C26000D8000414A42 /* sidendian.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sidendian.h; sourceTree = "<group>"; };
 		59BE8C1D26000D8000414A42 /* EventCallback.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EventCallback.h; sourceTree = "<group>"; };
 		59BE8C1E26000D8000414A42 /* sidcxx11.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sidcxx11.h; sourceTree = "<group>"; };
+		CC141AC52EC3A6550084391A /* simpleMixer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = simpleMixer.h; sourceTree = "<group>"; };
+		CC141AC62EC3A6550084391A /* simpleMixer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = simpleMixer.cpp; sourceTree = "<group>"; };
 		CC2978DA2B86828800BBBC8C /* mos652x.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = mos652x.cpp; sourceTree = "<group>"; };
 		CC2978DB2B86828800BBBC8C /* mos652x.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mos652x.h; sourceTree = "<group>"; };
 		CC2978DE2B8682AC00BBBC8C /* pla.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = pla.h; sourceTree = "<group>"; };
@@ -453,6 +457,8 @@
 				59BE8BD826000D8000414A42 /* EventScheduler.h */,
 				59BE8BDA26000D8000414A42 /* mixer.cpp */,
 				59BE8C1026000D8000414A42 /* mixer.h */,
+				CC141AC52EC3A6550084391A /* simpleMixer.h */,
+				CC141AC62EC3A6550084391A /* simpleMixer.cpp */,
 				59BE8B0726000D8000414A42 /* player.cpp */,
 				59BE8BDB26000D8000414A42 /* player.h */,
 				59BE8B0826000D8000414A42 /* poweron.bin */,
@@ -848,6 +854,7 @@
 				59BE8CBB26000D8000414A42 /* reloc65.h in Headers */,
 				59BE8C6E26000D8000414A42 /* envelope.h in Headers */,
 				59BE8C6F26000D8000414A42 /* wave6581_P_T.h in Headers */,
+				CC141AC82EC3A6550084391A /* simpleMixer.h in Headers */,
 				59BE8ABD2600063B00414A42 /* sidplayfp-Prefix.pch in Headers */,
 				59BE8CCD26000D8000414A42 /* iniParser.h in Headers */,
 				59BE8C9926000D8000414A42 /* FilterModelConfig8580.h in Headers */,
@@ -977,12 +984,12 @@
 				59BE8CAE26000D8000414A42 /* SidTuneBase.cpp in Sources */,
 				59BE8C7B26000D8000414A42 /* resid-emu.cpp in Sources */,
 				59BE8C8A26000D8000414A42 /* WaveformGenerator.cpp in Sources */,
+				CC141AC42EC3A6000084391A /* mixer.cpp in Sources */,
 				59BE8CC026000D8000414A42 /* md5Factory.cpp in Sources */,
 				59BE8C2526000D8000414A42 /* mos656x.cpp in Sources */,
 				59BE8CD526000D8000414A42 /* sidplayfp.cpp in Sources */,
 				59BE8C3026000D8000414A42 /* c64.cpp in Sources */,
 				59BE8CA626000D8000414A42 /* version.cc in Sources */,
-				59BE8CBE26000D8000414A42 /* mixer.cpp in Sources */,
 				59BE8CB926000D8000414A42 /* sidemu.cpp in Sources */,
 				59BE8C6626000D8000414A42 /* sid.cc in Sources */,
 				59BE8C5E26000D8000414A42 /* envelope.cc in Sources */,
@@ -993,6 +1000,7 @@
 				CC2978DC2B86828800BBBC8C /* mos652x.cpp in Sources */,
 				59BE8CC726000D8000414A42 /* iniParser.cpp in Sources */,
 				59BE8C9726000D8000414A42 /* ExternalFilter.cpp in Sources */,
+				CC141AC72EC3A6550084391A /* simpleMixer.cpp in Sources */,
 				59BE8C9826000D8000414A42 /* FilterModelConfig8580.cpp in Sources */,
 				59BE8CB526000D8000414A42 /* prg.cpp in Sources */,
 				59BE8C3726000D8000414A42 /* tod.cpp in Sources */,
@@ -1122,6 +1130,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = "";
 				OTHER_CPLUSPLUSFLAGS = (
 					"$(OTHER_CFLAGS)",
@@ -1144,6 +1153,7 @@
 				DSTROOT = /tmp/sidplayfp.dst;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "sidplayfp-Prefix.pch";
+				GCC_PREPROCESSOR_DEFINITIONS = "";
 				GCC_THUMB_SUPPORT = NO;
 				GCC_VERSION = "";
 				INSTALL_PATH = "";

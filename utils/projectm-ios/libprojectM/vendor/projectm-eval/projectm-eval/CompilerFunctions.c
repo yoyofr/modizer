@@ -1,5 +1,6 @@
 #include "CompilerFunctions.h"
 
+#include "ExpressionTree.h"
 #include "TreeFunctions.h"
 #include "TreeVariables.h"
 

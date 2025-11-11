@@ -5,7 +5,8 @@
 #pragma once
 
 #include "CompilerTypes.h"
-#include "ExpressionTree.h"
+
+#include <stdint.h>
 
 /**
  * @brief Returns the list with the built-in function table.
@@ -13,7 +14,7 @@
  * @param list A pointer which will receive the list reference.
  * @param count The number of elements inserted into the list.
  */
-void prjm_eval_intrinsic_functions(prjm_eval_intrinsic_function_list_ptr list, int* count);
+void prjm_eval_intrinsic_functions(prjm_eval_intrinsic_function_list_ptr list, uint32_t* count);
 
 /**
  * @brief Abbreviates parser function declaration.

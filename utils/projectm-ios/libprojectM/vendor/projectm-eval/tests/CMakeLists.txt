@@ -7,6 +7,8 @@ add_executable(projectM_EvalLib_Test
         PrecedenceTest.cpp
         PrecedenceTest.hpp
         Stubs.cpp
+        SyntaxTest.cpp
+        SyntaxTest.hpp
         TreeFunctionsTest.cpp
         )
 

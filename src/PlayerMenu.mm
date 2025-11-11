@@ -6,6 +6,7 @@
 //
 
 #define PL_MIN_FONT_SIZE 14
+#define PL_MIN_BROWSE_FONT_SIZE 18
 #define PL_IDEALFONTSIZE_RATIO 26
 
 #define PMENU_PMEXPLORE_FAV_FLAG 1
@@ -65,6 +66,9 @@ extern bool _pmPresetUpdateDisplayInfo;
 extern void pmSoftReinit(bool forceReloadPlaylist);
 
 namespace PMenu {
+
+ImVec4 pMenu_browser_selectedLine = ImVec4(0.4f,0.3f,0.7f,0.7f);
+ImVec4 pMenu_browser_partiallySelectedLine = ImVec4(0.3f,0.3f,0.5f,0.6f);
 
 ImVec4 colorBtnTextInactive=ImVec4(0.25f,0.2f,0.5f,0.9f);
 ImVec4 colorBtnTextInactiveH=ImVec4(0.8f,0.7f,0.9f,0.9f);
@@ -1863,7 +1867,7 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
             
             
             float browserFontSize=idealFontSize*0.8f;
-            if (browserFontSize<PL_MIN_FONT_SIZE) browserFontSize=PL_MIN_FONT_SIZE;
+            if (browserFontSize<PL_MIN_BROWSE_FONT_SIZE) browserFontSize=PL_MIN_BROWSE_FONT_SIZE;
             if (font_menu) ImGui::PushFont(font_menu,idealFontSize*glScaleFactor);
             else ImGui::PushFont(nullptr);
             
@@ -1883,7 +1887,7 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
             //update fav status consistency / tree
             pMenu_PMUpdateFavStatus(pmCurrentFileNode,FALSE,FALSE);
             
-            ImGui::PushStyleColor(ImGuiCol_Header, ImVec4(0.25f,0.2f,0.5f,0.9f));
+            ImGui::PushStyleColor(ImGuiCol_Header, pMenu_browser_selectedLine);
             
             index=pMenu_PMbuildDirTree(pmCurrentFileNode,index,filter,expandCollapseMode,selectedMode);
             expandCollapseMode=0;  //Reset flag
@@ -1951,7 +1955,7 @@ int pMenu_PMbuildDirTree(FileNode *fileNode, int idx,bool filter,int updExpandCo
                 
                 if (child.isSelected_Temp) flags|=ImGuiTreeNodeFlags_Selected;
                 
-                if ( !child.isFullySelected ) ImGui::PushStyleColor(ImGuiCol_Header, ImVec4(0.2f,0.2f,0.3f,0.9f));
+                if ( !child.isFullySelected ) ImGui::PushStyleColor(ImGuiCol_Header, pMenu_browser_partiallySelectedLine);
                 
                 switch (updExpandCollapse) {
                     default:
@@ -2021,6 +2025,11 @@ int pMenu_PMbuildDirTree(FileNode *fileNode, int idx,bool filter,int updExpandCo
                 if (!mouseMoveInProgress && ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen()) {
                     child.isSelected_Temp=!child.isSelected_Temp;
                 }
+                
+                if ( ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0) ) {
+                    [_mdzPM_playlist loadPreset:child cut:true];
+                }
+                
                 if (node_open) {
                     ImGui::TreePop();
                 }

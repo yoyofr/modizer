@@ -1,5 +1,9 @@
 #include "TreeFunctionsTest.hpp"
 
+extern "C" {
+#include <projectm-eval/ExpressionTree.h>
+}
+
 #include <cmath>
 
 #ifdef _MSC_VER
@@ -17,7 +21,7 @@
 
 prjm_eval_variable_def_t* TreeFunctions::FindVariable(const char* name)
 {
-    for (const auto var: m_variables)
+    for (const auto var : m_variables)
     {
         if (strcasecmp(name, var->name) == 0)
         {
@@ -49,8 +53,8 @@ prjm_eval_exptreenode_t* TreeFunctions::CreateEmptyNode(int argCount)
     auto* node = reinterpret_cast<prjm_eval_exptreenode_t*>(calloc(1, sizeof(prjm_eval_exptreenode_t)));
     if (argCount > 0)
     {
-        node->args = reinterpret_cast<prjm_eval_exptreenode_t**>( calloc(argCount + 1,
-                                                                         sizeof(prjm_eval_exptreenode_t*)));
+        node->args = reinterpret_cast<prjm_eval_exptreenode_t**>(calloc(argCount + 1,
+                                                                        sizeof(prjm_eval_exptreenode_t*)));
     }
     return node;
 }
@@ -85,13 +89,13 @@ void TreeFunctions::SetUp()
 
 void TreeFunctions::TearDown()
 {
-    for (auto node: m_treeNodes)
+    for (auto node : m_treeNodes)
     {
         prjm_eval_destroy_exptreenode(node);
     }
     m_treeNodes.clear();
 
-    for (const auto var: m_variables)
+    for (const auto var : m_variables)
     {
         free(var->name); // alloc'd via C malloc/strdup!
         delete var;
@@ -105,7 +109,6 @@ void TreeFunctions::TearDown()
     }
 
     Test::TearDown();
-
 }
 
 
@@ -139,7 +142,6 @@ TEST_F(TreeFunctions, Variable)
 
 TEST_F(TreeFunctions, ExecuteList)
 {
-
     // Expression list ("x = -50; y = 50;")
     prjm_eval_variable_def_t* var1;
     auto* varNode1 = CreateVariableNode("x", 5.f, &var1);
@@ -1586,7 +1588,7 @@ TEST_F(TreeFunctions, SineFunction)
 
     var->value = M_PI_2;
     sinNode->func(sinNode, &valuePointer);
-    EXPECT_PRJM_F_EQ(*valuePointer,  1.0) << "sin($PI/2)";
+    EXPECT_PRJM_F_EQ(*valuePointer, 1.0) << "sin($PI/2)";
 
     var->value = -M_PI_2;
     sinNode->func(sinNode, &valuePointer);
@@ -1614,7 +1616,7 @@ TEST_F(TreeFunctions, CosineFunction)
     // Results for cos(PI/2) are close to 0, but too far for GTest to see as equal (~6e-17)
     var->value = M_PI;
     cosNode->func(cosNode, &valuePointer);
-    EXPECT_PRJM_F_EQ(*valuePointer,  -1.0) << "cos($PI/2)";
+    EXPECT_PRJM_F_EQ(*valuePointer, -1.0) << "cos($PI/2)";
 
     var->value = -M_PI;
     cosNode->func(cosNode, &valuePointer);
@@ -1641,7 +1643,7 @@ TEST_F(TreeFunctions, TangentFunction)
 
     var->value = M_PI_4;
     tanNode->func(tanNode, &valuePointer);
-    EXPECT_PRJM_F_EQ(*valuePointer,  1.0) << "tan($PI/4)";
+    EXPECT_PRJM_F_EQ(*valuePointer, 1.0) << "tan($PI/4)";
 
     var->value = -M_PI_4;
     tanNode->func(tanNode, &valuePointer);
@@ -1668,7 +1670,7 @@ TEST_F(TreeFunctions, ArcSineFunction)
 
     var->value = 1.0;
     asinNode->func(asinNode, &valuePointer);
-    EXPECT_PRJM_F_EQ(*valuePointer,  M_PI_2) << "asin(1.0)";
+    EXPECT_PRJM_F_EQ(*valuePointer, M_PI_2) << "asin(1.0)";
 
     var->value = -1.0;
     asinNode->func(asinNode, &valuePointer);
@@ -1703,7 +1705,7 @@ TEST_F(TreeFunctions, ArcCosineFunction)
 
     var->value = 1.0;
     acosNode->func(acosNode, &valuePointer);
-    EXPECT_PRJM_F_EQ(*valuePointer,  0.0) << "acos(1.0)";
+    EXPECT_PRJM_F_EQ(*valuePointer, 0.0) << "acos(1.0)";
 
     var->value = -1.0;
     acosNode->func(acosNode, &valuePointer);
@@ -2045,7 +2047,6 @@ TEST_F(TreeFunctions, SigmoidalFunction)
     var2->value = 1.0;
     sigmoidalNode->func(sigmoidalNode, &valuePointer);
     EXPECT_PRJM_F_EQ(*valuePointer, 0.0) << "sigmoid(-100000, 1)";
-
 }
 
 TEST_F(TreeFunctions, SquareFunction)
@@ -2099,11 +2100,10 @@ TEST_F(TreeFunctions, SquareFunction)
     var->value = 3.402823466E+34f;
 #else
     // 10^8 below max value for a double
-    var->value =  1.7976931348623157E+300;
+    var->value = 1.7976931348623157E+300;
 #endif
     sqrNode->func(sqrNode, &valuePointer);
     EXPECT_PRJM_F_EQ(*valuePointer, INFINITY) << "sqr(" << var->value << ")";
-
 }
 
 TEST_F(TreeFunctions, AbsoluteFunction)
@@ -2163,7 +2163,6 @@ TEST_F(TreeFunctions, MinimumFunction)
     var2->value = 100000.0;
     minNode->func(minNode, &valuePointer);
     EXPECT_PRJM_F_EQ(*valuePointer, -100000.0) << "min(-100000, 100000)";
-
 }
 
 TEST_F(TreeFunctions, MaximumFunction)
@@ -2196,7 +2195,6 @@ TEST_F(TreeFunctions, MaximumFunction)
     var2->value = 100000.0;
     maxNode->func(maxNode, &valuePointer);
     EXPECT_PRJM_F_EQ(*valuePointer, 100000.0) << "max(-100000, 100000)";
-
 }
 
 TEST_F(TreeFunctions, SignFunction)
@@ -2296,5 +2294,4 @@ TEST_F(TreeFunctions, InverseSquareRootFunction)
     var1->value = -1.0;
     invsqrtNode->func(invsqrtNode, &valuePointer);
     EXPECT_PRJM_F_EQ(*valuePointer, -INFINITY) << "invsqrt(-1.0)";
-
 }

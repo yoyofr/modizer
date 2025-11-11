@@ -90,9 +90,13 @@ enum MDZ_PLAYLIST_FNODE_Type {
 - (int)getCurType;
 - (int)getSize;
 
-- (void)loadASyncCurrentPreset:(bool)cut;
 
+- (void)loadASyncPreset:(FileNode*)item cut:(bool)cut;
+- (void)loadPreset:(FileNode*)item cut:(bool)cut;
+
+- (void)loadASyncCurrentPreset:(bool)cut;
 - (void)loadCurrentPreset:(bool)cut;
+
 - (void)loadIdlePreset;
 - (const char *)getPresetCleanTitle:(int)index;
 - (const char *)getCurPresetCleanTitle;

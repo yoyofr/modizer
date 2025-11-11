@@ -4115,11 +4115,7 @@ int recording=0;
             int yofs=self.navigationItem.titleView.frame.size.height;
             if (is_macOS) yofs+=0;
             
-            safe_bottom=[[UIApplication sharedApplication] keyWindow].safeAreaInsets.bottom;
-            safe_top=[[UIApplication sharedApplication] keyWindow].safeAreaInsets.top;
-            safe_left=[[UIApplication sharedApplication] keyWindow].safeAreaInsets.left;
-            safe_right=[[UIApplication sharedApplication] keyWindow].safeAreaInsets.right;
-            if (safe_bottom>0) safe_bottom+=20;
+            //if (safe_bottom>0) safe_bottom+=20;
             
             if (is_macOS) {
                 mainView.frame = CGRectMake(0, 0, mDevice_ww, mDevice_hh);
@@ -4366,11 +4362,7 @@ int recording=0;
                 int yofs=self.navigationItem.titleView.frame.size.height;
                 if (is_macOS) yofs+=30;
                 
-                safe_bottom=[[UIApplication sharedApplication] keyWindow].safeAreaInsets.bottom;
-                safe_top=[[UIApplication sharedApplication] keyWindow].safeAreaInsets.top;
-                safe_left=[[UIApplication sharedApplication] keyWindow].safeAreaInsets.left;
-                safe_right=[[UIApplication sharedApplication] keyWindow].safeAreaInsets.right;
-                if (safe_bottom>0) safe_bottom+=20;
+                //if (safe_bottom>0) safe_bottom+=20;
                 
                 if (is_macOS) {
                     mainView.frame = CGRectMake(0.0, 0, mDevice_hh, mDevice_ww-yofs);
@@ -5328,16 +5320,23 @@ void pm_perfTest() {
 
 - (void) buildCommandBars {
     
+    // IMPORTANT: Set tint color for toolbar buttons (makes template images visible)
+    UIColor *tintColor = [UIColor whiteColor]; // Change to your preferred color
+    pauseBar.tintColor = tintColor;
+    playBar.tintColor = tintColor;
+    pauseBarSub.tintColor = tintColor;
+    playBarSub.tintColor = tintColor;
+    
     // When creating your bar button items with SF Symbols:
     UIImageSymbolConfiguration *config = [UIImageSymbolConfiguration configurationWithPointSize:22.0
-                                                                                          weight:UIImageSymbolWeightThin
-                                                                                           scale:UIImageSymbolScaleLarge];
-    UIImage *playImage = [UIImage systemImageNamed:@"play.fill" withConfiguration:config];
-    UIImage *pauseImage = [UIImage systemImageNamed:@"pause.fill" withConfiguration:config];
-    UIImage *nextImage = [UIImage systemImageNamed:@"forward.end.fill" withConfiguration:config];
-    UIImage *nextSubImage = [UIImage systemImageNamed:@"forward.fill" withConfiguration:config];
-    UIImage *prevImage = [UIImage systemImageNamed:@"backward.end.fill" withConfiguration:config];
-    UIImage *prevSubImage = [UIImage systemImageNamed:@"backward.fill" withConfiguration:config];
+                                                                                         weight:UIImageSymbolWeightRegular
+                                                                                          scale:UIImageSymbolScaleUnspecified];
+    UIImage *playImage = [UIImage systemImageNamed:@"play.fill"];// withConfiguration:config];
+    UIImage *pauseImage = [UIImage systemImageNamed:@"pause.fill"];// withConfiguration:config];
+    UIImage *nextImage = [UIImage systemImageNamed:@"forward.end.fill"];// withConfiguration:config];
+    UIImage *nextSubImage = [UIImage systemImageNamed:@"forward.fill"];// withConfiguration:config];
+    UIImage *prevImage = [UIImage systemImageNamed:@"backward.end.fill"];// withConfiguration:config];
+    UIImage *prevSubImage = [UIImage systemImageNamed:@"backward.fill"];// withConfiguration:config];
     
     
     UIBarButtonItem *itemPause = [[UIBarButtonItem alloc] initWithImage:pauseImage style:UIBarButtonItemStylePlain target:self action:@selector(pausePushed:)];
@@ -5379,21 +5378,6 @@ void pm_perfTest() {
     
     buttonItems = [NSArray arrayWithObjects:flexSpace,itemPrev,flexSpace,itemPrevSub,flexSpace,itemPlay,flexSpace,itemNextSub,flexSpace,itemNext,flexSpace,nil];
     [playBarSub setItems:buttonItems];
-}
-
--(UIWindow*) getWindow {
-    for (UIScene *scene in UIApplication.sharedApplication.connectedScenes) {
-        if ([scene isKindOfClass:[UIWindowScene class]]) {
-            UIWindowScene *wscene=(UIWindowScene *)scene;
-            for (UIWindow *win in wscene.windows) {
-                if (win.keyWindow) {
-                    return win;
-                }
-            }
-        }
-    }
-    //fallback
-    return [UIApplication sharedApplication].windows.firstObject;
 }
 
 -(void) getScreenSize:(float*)scaleFactor width:(float *)devWW height:(float*)devHH {
@@ -5483,9 +5467,26 @@ void pm_perfTest() {
         mDeviceType=DEVICE_MACOS;
     }
     
+    
+    if ([NSProcessInfo processInfo].isiOSAppOnMac) {
+        for (UIScene* scene in UIApplication.sharedApplication.connectedScenes) {
+            if ([scene isKindOfClass:[UIWindowScene class]]) {
+                UIWindowScene* windowScene = (UIWindowScene*) scene;
+            }
+        }
+        
+        //                AppDelegate_Phone *main_delegate=(AppDelegate_Phone*)[[UIApplication sharedApplication] delegate];
+        //                ModizerWin *modizerWin=[main_delegate modizerWin];
+        //
+        //                CGRect frame = [modizerWin frame];
+        //                frame.size.height = MODIZER_MACM1_HEIGHT_MAX;
+        //                frame.size.width = MODIZER_MACM1_WIDTH_MAX;
+    }
+    
     self.navigationController.delegate = self;
     
     statusbarHidden=false;
+    
     alertTableView=nil;
     
     forceReloadCells=false;
@@ -5554,8 +5555,8 @@ void pm_perfTest() {
     //build various bars
     [self buildCommandBars];
     
-    [pauseBarSub layoutIfNeeded];
-    [playBarSub layoutIfNeeded];
+//    [pauseBarSub layoutIfNeeded];
+//    [playBarSub layoutIfNeeded];
     
     
     labelModuleName.userInteractionEnabled = YES;
@@ -5592,54 +5593,41 @@ void pm_perfTest() {
     
     CHECK_PROFILE("various2")
     
-    if (safe_bottom>0) safe_bottom+=20;
+    //if (safe_bottom>0) safe_bottom+=20;
     
-    if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad) {
+    if ([UIDevice currentDevice].userInterfaceIdiom == UIUserInterfaceIdiomPad) {
         if (!is_macOS) mDeviceType=DEVICE_IPAD; //ipad
         else mDeviceType=DEVICE_MACOS;
-        UIScreen* mainscr = [UIScreen mainScreen];
         
-        //UIWindow *win=[UIApplication sharedApplication].keyWindow;
-        UIWindow *win;
-        //win=[UIApplication sharedApplication].windows.firstObject;
-        win=[self getWindow];
+        [self getScreenSize:&mScaleFactor width:&mDevice_ww height:&mDevice_hh];
         
-        
-        //if (mainscr.bounds.size.height>mainscr.bounds.size.width) {
-        if (win.bounds.size.height>win.bounds.size.width) {
-            mDevice_hh=win.bounds.size.height;
-            mDevice_ww=win.bounds.size.width;
-            orientationHV=UIInterfaceOrientationPortrait; //(int)[[UIDevice currentDevice]orientation];
+        if (mDevice_hh>mDevice_ww) {
+            orientationHV=UIInterfaceOrientationPortrait;
         } else {
-            mDevice_ww=win.bounds.size.height;
-            mDevice_hh=win.bounds.size.width;
-            orientationHV=UIInterfaceOrientationLandscapeLeft; //(int)[[UIDevice currentDevice]orientation];
+            float tmp;
+            tmp=mDevice_hh;
+            mDevice_hh=mDevice_ww;
+            mDevice_ww=tmp;
+            orientationHV=UIInterfaceOrientationLandscapeLeft;
         }
         
-        mScaleFactor=mainscr.scale;
         if (mScaleFactor>=2) {
             if (!is_macOS) mDeviceType=DEVICE_IPAD_RETINA;
         }
     } else {
         mDeviceType=DEVICE_IPHONE; //iphone
-        mDevice_hh=480;
-        mDevice_ww=320;
-        UIScreen* mainscr = [UIScreen mainScreen];
-        UIWindow *win;
-        //win=[UIApplication sharedApplication].windows.firstObject;
-        win=[self getWindow];
         
+        [self getScreenSize:&mScaleFactor width:&mDevice_ww height:&mDevice_hh];
         
-        if (win.bounds.size.height>win.bounds.size.width) {
-            mDevice_hh=win.bounds.size.height;
-            mDevice_ww=win.bounds.size.width;
-            orientationHV=UIInterfaceOrientationPortrait; //(int)[[UIDevice currentDevice]orientation];
+        if (mDevice_hh>mDevice_ww) {
+            orientationHV=UIInterfaceOrientationPortrait;
         } else {
-            mDevice_ww=win.bounds.size.height;
-            mDevice_hh=win.bounds.size.width;
-            orientationHV=UIInterfaceOrientationLandscapeLeft; //(int)[[UIDevice currentDevice]orientation];
+            float tmp;
+            tmp=mDevice_hh;
+            mDevice_hh=mDevice_ww;
+            mDevice_ww=tmp;
+            orientationHV=UIInterfaceOrientationLandscapeLeft;
         }
-        mScaleFactor=mainscr.scale;
         
         if (mScaleFactor>=2) mDeviceType=DEVICE_IPHONE_RETINA;
         
@@ -5670,7 +5658,7 @@ void pm_perfTest() {
     coverflow.dataSource = self;
     coverflow.hidden=TRUE;
     
-    if([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad){
+    if([UIDevice currentDevice].userInterfaceIdiom == UIUserInterfaceIdiomPad){
         coverflow.coverSpacing = 160;
         coverflow.coverSize = CGSizeMake(400, 400);
         coverflow.frame=CGRectMake(0,0,mDevice_hh,mDevice_ww-20);
@@ -6191,7 +6179,7 @@ void pm_perfTest() {
     labelModuleName.frame=CGRectMake(0,0,size.width-128,40);
     
     
-    if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad) {
+    if ([UIDevice currentDevice].userInterfaceIdiom == UIUserInterfaceIdiomPad) {
         if (size.height>size.width) {
             mDevice_hh=size.height+(!deactivateFStemp && settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value?0:68);
             mDevice_ww=size.width;
@@ -6227,48 +6215,37 @@ void pm_perfTest() {
     deactivateFStemp=0;
     
     
-    if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad) {
-        //ipad
-        UIScreen* mainscr = [UIScreen mainScreen];
+    if ([UIDevice currentDevice].userInterfaceIdiom == UIUserInterfaceIdiomPad) {
+        //if (!is_macOS) mDeviceType=1; //ipad
         
-        UIWindow *win;//=[UIApplication sharedApplication].keyWindow;
-        win=[self getWindow];
+        [self getScreenSize:&mScaleFactor width:&mDevice_ww height:&mDevice_hh];
         
         //if (mainscr.bounds.size.height>mainscr.bounds.size.width) {
-        if (win.bounds.size.height>win.bounds.size.width) {
-            mDevice_hh=win.bounds.size.height;
-            mDevice_ww=win.bounds.size.width;
+        if (mDevice_hh>mDevice_ww) {
             orientationHV=UIInterfaceOrientationPortrait; //(int)[[UIDevice currentDevice]orientation];
         } else {
-            mDevice_ww=win.bounds.size.height;//-(is_macOS?60:0);
-            mDevice_hh=win.bounds.size.width;
+            float tmp;
+            tmp=mDevice_hh;
+            mDevice_hh=mDevice_ww;
+            mDevice_ww=tmp;
             orientationHV=UIInterfaceOrientationLandscapeLeft; //(int)[[UIDevice currentDevice]orientation];
         }
     } else {
         //iphone
-        mDevice_hh=480;
-        mDevice_ww=320;
-        UIScreen* mainscr = [UIScreen mainScreen];
-        UIWindow *win;//=[UIApplication sharedApplication].keyWindow;
-        win=[self getWindow];
-        if (win.bounds.size.height>win.bounds.size.width) {
-            mDevice_hh=win.bounds.size.height;
-            mDevice_ww=win.bounds.size.width;
+        
+        [self getScreenSize:&mScaleFactor width:&mDevice_ww height:&mDevice_hh];
+        
+        if (mDevice_hh>mDevice_ww) {
             orientationHV=UIInterfaceOrientationPortrait; //(int)[[UIDevice currentDevice]orientation];
         } else {
-            mDevice_ww=win.bounds.size.height;
-            mDevice_hh=win.bounds.size.width;
+            float tmp;
+            tmp=mDevice_hh;
+            mDevice_hh=mDevice_ww;
+            mDevice_ww=tmp;
             orientationHV=UIInterfaceOrientationLandscapeLeft; //(int)[[UIDevice currentDevice]orientation];
         }
-        mScaleFactor=mainscr.scale;
-        
-        //if (mScaleFactor>=2) mDeviceType=2;
     }
     
-    safe_bottom=[[UIApplication sharedApplication] keyWindow].safeAreaInsets.bottom;
-    safe_top=[[UIApplication sharedApplication] keyWindow].safeAreaInsets.top;
-    safe_left=[[UIApplication sharedApplication] keyWindow].safeAreaInsets.left;
-    safe_right=[[UIApplication sharedApplication] keyWindow].safeAreaInsets.right;
     
     
     if (safe_bottom>0) safe_bottom+=20;

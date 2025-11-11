@@ -1889,7 +1889,7 @@
 					"$(PROJECT_DIR)/libprojectM/vendor/SOIL2/src",
 					"$(PROJECT_DIR)/../MetalANGLE/",
 				);
-				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.5;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -1914,7 +1914,7 @@
 					"$(PROJECT_DIR)/libprojectM/vendor/SOIL2/src",
 					"$(PROJECT_DIR)/../MetalANGLE/",
 				);
-				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.5;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;

@@ -10,6 +10,11 @@
 #include <assert.h>
 #include <stdint.h>
 
+#if PRJM_F_SIZE == 4
+typedef int32_t PRJM_EVAL_I;
+#else
+typedef int64_t PRJM_EVAL_I;
+#endif
 /**
  * @brief projectM-EvalLib intrinsic Function table.
  * Contains all predefined functions and information about their invocation. Most functions beginning
@@ -151,7 +156,7 @@ static const PRJM_EVAL_F close_factor_low = 1e-300;
 #define UPPER_MASK 0x80000000UL /* most significant w-r bits */
 #define LOWER_MASK 0x7fffffffUL /* least significant r bits */
 
-void prjm_eval_intrinsic_functions(prjm_eval_intrinsic_function_list_ptr list, int* count)
+void prjm_eval_intrinsic_functions(prjm_eval_intrinsic_function_list_ptr list, uint32_t* count)
 {
     *count = sizeof(intrinsic_function_table) / sizeof(prjm_eval_function_def_t);
     *list = intrinsic_function_table;
@@ -265,14 +270,14 @@ prjm_eval_function_decl(execute_loop)
     PRJM_EVAL_F* value_ptr = &ctx->value;
     invoke_arg(0, &value_ptr);
 
-    int loop_count_int = (int) (*value_ptr);
+    PRJM_EVAL_I loop_count_int = (PRJM_EVAL_I) (*value_ptr);
     /* Limit execution count */
     if (loop_count_int > MAX_LOOP_COUNT)
     {
         loop_count_int = MAX_LOOP_COUNT;
     }
 
-    for (int i = 0; i < loop_count_int; i++)
+    for (PRJM_EVAL_I i = 0; i < loop_count_int; i++)
     {
         ctx->value = .0;
         value_ptr = &ctx->value;
@@ -288,7 +293,7 @@ prjm_eval_function_decl(execute_while)
 
     ctx->value = .0;
     PRJM_EVAL_F* value_ptr = &ctx->value;
-    int loop_count_int = MAX_LOOP_COUNT;
+    PRJM_EVAL_I loop_count_int = MAX_LOOP_COUNT;
     do
     {
         invoke_arg(0, &value_ptr);
@@ -361,7 +366,7 @@ prjm_eval_function_decl(mem)
     invoke_arg(0, &index_ptr);
 
     // Add 0.0001 to avoid using the wrong index due to tiny float rounding errors.
-    PRJM_EVAL_F* mem_addr = prjm_eval_memory_allocate(ctx->memory_buffer, (int) (*index_ptr + 0.0001));
+    PRJM_EVAL_F* mem_addr = prjm_eval_memory_allocate(ctx->memory_buffer, (int32_t) (*index_ptr + 0.0001));
     if (mem_addr)
     {
         assign_ret_ref(mem_addr);
@@ -379,7 +384,7 @@ prjm_eval_function_decl(freembuf)
     invoke_arg(0, ret_val);
 
     // Add 0.0001 to avoid using the wrong index due to tiny float rounding errors.
-    prjm_eval_memory_free_block(ctx->memory_buffer, (int) (**ret_val + 0.0001));
+    prjm_eval_memory_free_block(ctx->memory_buffer, (int32_t) (**ret_val + 0.0001));
 }
 
 prjm_eval_function_decl(memcpy)
@@ -601,13 +606,13 @@ prjm_eval_function_decl(mod)
     invoke_arg(0, &val1_ptr);
     invoke_arg(1, &val2_ptr);
 
-    int divisor = (int) *val2_ptr;
+    PRJM_EVAL_I divisor = (PRJM_EVAL_I) *val2_ptr;
     if (divisor == 0)
     {
         assign_ret_val(0.0);
         return;
     }
-    assign_ret_val((PRJM_EVAL_F) ((int) *val1_ptr % divisor));
+    assign_ret_val((PRJM_EVAL_F) ((PRJM_EVAL_I) *val1_ptr % divisor));
 }
 
 prjm_eval_function_decl(boolean_and_op)
@@ -776,7 +781,7 @@ prjm_eval_function_decl(bitwise_or_op)
     invoke_arg(0, ret_val);
     invoke_arg(1, &val2_ptr);
 
-    assign_ret_val((PRJM_EVAL_F) ((int)(**ret_val) | (int)(*val2_ptr)));
+    assign_ret_val((PRJM_EVAL_F) ((PRJM_EVAL_I)(**ret_val) | (PRJM_EVAL_I)(*val2_ptr)));
 }
 
 prjm_eval_function_decl(bitwise_or)
@@ -791,7 +796,7 @@ prjm_eval_function_decl(bitwise_or)
     invoke_arg(0, &val1_ptr);
     invoke_arg(1, &val2_ptr);
 
-    assign_ret_val((PRJM_EVAL_F) ((int)(*val1_ptr) | (int)(*val2_ptr)));
+    assign_ret_val((PRJM_EVAL_F) ((PRJM_EVAL_I)(*val1_ptr) | (PRJM_EVAL_I)(*val2_ptr)));
 }
 
 prjm_eval_function_decl(bitwise_and_op)
@@ -804,7 +809,7 @@ prjm_eval_function_decl(bitwise_and_op)
     invoke_arg(0, ret_val);
     invoke_arg(1, &val2_ptr);
 
-    assign_ret_val((PRJM_EVAL_F) ((int)(**ret_val) & (int)(*val2_ptr)));
+    assign_ret_val((PRJM_EVAL_F) ((PRJM_EVAL_I)(**ret_val) & (PRJM_EVAL_I)(*val2_ptr)));
 }
 
 prjm_eval_function_decl(bitwise_and)
@@ -819,7 +824,7 @@ prjm_eval_function_decl(bitwise_and)
     invoke_arg(0, &val1_ptr);
     invoke_arg(1, &val2_ptr);
 
-    assign_ret_val((PRJM_EVAL_F) ((int)(*val1_ptr) & (int)(*val2_ptr)));
+    assign_ret_val((PRJM_EVAL_F) ((PRJM_EVAL_I)(*val1_ptr) & (PRJM_EVAL_I)(*val2_ptr)));
 }
 
 prjm_eval_function_decl(mod_op)
@@ -832,13 +837,13 @@ prjm_eval_function_decl(mod_op)
     invoke_arg(0, ret_val);
     invoke_arg(1, &val2_ptr);
 
-    int divisor = (int) *val2_ptr;
+    PRJM_EVAL_I divisor = (PRJM_EVAL_I) *val2_ptr;
     if (divisor == 0)
     {
         assign_ret_val(0.0);
         return;
     }
-    assign_ret_val((PRJM_EVAL_F) ((int)(**ret_val) % divisor));
+    assign_ret_val((PRJM_EVAL_F) ((PRJM_EVAL_I)(**ret_val) % divisor));
 }
 
 prjm_eval_function_decl(pow_op)

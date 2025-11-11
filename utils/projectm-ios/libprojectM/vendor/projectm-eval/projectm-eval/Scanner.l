@@ -14,6 +14,7 @@
 #include "Compiler.h"
 
 #include <stdio.h>
+#include <stdint.h>
 
 #define YY_NO_UNISTD_H
 #define YY_STDINIT
@@ -41,6 +42,7 @@ HEX             [0-9a-fA-F]
 SIGN            [+-]
 EXPO            [eE]{SIGN}?{DIGIT}+
 FLOAT           ({DIGIT}+|{DIGIT}+\.{DIGIT}*|{DIGIT}*\.{DIGIT}+){EXPO}?
+INT             {DIGIT}+
 NAME            [_a-zA-Z][_a-zA-Z0-9]*
 
 %%
@@ -67,8 +69,12 @@ NAME            [_a-zA-Z][_a-zA-Z0-9]*
 
 (?i:gmem)           { return GMEM; }
 
-{FLOAT}            {
+{FLOAT}             {
                         yylval->NUM = atof(yytext);
+                        return NUM;
+                    }
+{INT}               {
+                        yylval->NUM = (PRJM_EVAL_F)atoi(yytext);
                         return NUM;
                     }
 {NAME}              {
