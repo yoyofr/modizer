@@ -4116,7 +4116,7 @@ int recording=0;
             if (coverflow) coverflow.frame=CGRectMake(0,0,mDevice_hh,mDevice_ww-20);
             
             int yofs=self.navigationItem.titleView.frame.size.height;
-            if (is_macOS) yofs+=0;
+            if (is_macOS) yofs+=40;
             
             // Use self.view.safeAreaInsets for more reliable results, especially on iOS 15
             safe_bottom=self.view.safeAreaInsets.bottom;
@@ -4126,9 +4126,9 @@ int recording=0;
 //            if (safe_bottom>0) safe_bottom+=20;
             
             if (is_macOS) {
-                mainView.frame = CGRectMake(0, 0, mDevice_ww, mDevice_hh);
-                m_oglView.frame = CGRectMake(safe_left, 80, mDevice_ww-safe_left-safe_right, mDevice_hh-230+36);
-                oglButton.frame = CGRectMake(safe_left, 80, mDevice_ww-safe_left-safe_right, mDevice_hh-230+36);
+                mainView.frame = CGRectMake(0, 0, mDevice_ww, mDevice_hh-yofs);
+                m_oglView.frame = CGRectMake(safe_left, 80, mDevice_ww-safe_left-safe_right, mDevice_hh-230+36-yofs);
+                oglButton.frame = CGRectMake(safe_left, 80, mDevice_ww-safe_left-safe_right, mDevice_hh-230+36-yofs);
             } else{
                 mainView.frame = CGRectMake(0, 0, mDevice_ww, mDevice_hh-20-42);
                 m_oglView.frame = CGRectMake(safe_left, 80, mDevice_ww-safe_left-safe_right, mDevice_hh-230+42-safe_bottom);
@@ -4368,7 +4368,7 @@ int recording=0;
                 if (coverflow) coverflow.frame=CGRectMake(0,0,mDevice_hh,mDevice_ww-20);
                 
                 int yofs=self.navigationItem.titleView.frame.size.height;
-                if (is_macOS) yofs+=30;
+                if (is_macOS) yofs+=104;
                 else yofs+=12;
                 
                 // Use self.view.safeAreaInsets for more reliable results, especially on iOS 15
@@ -5579,6 +5579,8 @@ void pm_perfTest() {
     [playBarSub layoutIfNeeded];
     
     
+    
+    
     labelModuleName.userInteractionEnabled = YES;
     UITapGestureRecognizer *tapGesture =
     [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(titleTap:)];
@@ -5901,6 +5903,7 @@ void pm_perfTest() {
     
     CHECK_PROFILE("musicplayer")
     
+    m_oglView.multipleTouchEnabled = true;
     
     // Create gesture recognizer
     UITapGestureRecognizer *glViewOneFingerOneTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(glViewOneFingerOneTap:)];
@@ -6591,6 +6594,11 @@ static int mOglView1Tap=0;
     
 }
 
+- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+    moveWheelXPMenu=0;
+    moveWheelYPMenu=0;
+}
+
 -(void) glViewOneFingerOneTap:(UITapGestureRecognizer *)gestureRecognizer {
     moveWheelXPMenu=0;
     moveWheelYPMenu=0;
@@ -6630,8 +6638,9 @@ static int mOglView1Tap=0;
                 startPy=start_pt.y;
                 
                 //Stop wheel base move if still active
-                moveWheelXPMenu=0;
-                moveWheelYPMenu=0;
+//                panGestureWheel=1;
+//                moveWheelXPMenu=0;
+//                moveWheelYPMenu=0;
                 
                 panGesture1Tap=1;
                 movePxOld=movePx;
@@ -6647,6 +6656,11 @@ static int mOglView1Tap=0;
                     movePxPMenu+=pt.x-last_pt.x;
                     movePyPMenu+=pt.y-last_pt.y;
                 }
+//                panGestureWheel=2;
+//                if (pmenu_show) {
+//                    moveWheelXPMenu+=pt.x-last_pt.x;
+//                    moveWheelYPMenu+=pt.y-last_pt.y;
+//                }
                 last_pt=pt;
                 break;
             default:
@@ -6655,6 +6669,7 @@ static int mOglView1Tap=0;
                 movePxPM=0;movePyPM=0;
                 movePxPMenu=0;movePyPMenu=0;
                 movePMnomore=0;
+//                panGestureWheel=0;
                 break;
         }
     }
@@ -8642,7 +8657,7 @@ void doFramePM(float ww,float hh) {
         ImGui::PushStyleColor(ImGuiCol_Border,ImVec4(0,0,0,0));
         ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.00,0.95,1.0,alpha_val));
 
-        float font_size=ww/50;
+        float font_size=ww/30;
         if (font_size<FONTSIZE_FX_FS_INFO_LINE) font_size=FONTSIZE_FX_FS_INFO_LINE;
         if (font_menu) ImGui::PushFont(font_menu,font_size*glScaleFactor);
         else ImGui::PushFont(nullptr);
@@ -8693,11 +8708,11 @@ void doFramePM(float ww,float hh) {
                 break;
             case 4: //BL
                 pos_x=safe_adjust_left*glScaleFactor;
-                pos_y=(hh-textHH*3-1*textHH-safe_adjust_bottom)*glScaleFactor;
+                pos_y=(hh-textHH*3-2*textHH-safe_adjust_bottom)*glScaleFactor;
                 break;
             case 5: //BR
                 pos_x=(ww-str_size_max.x-safe_adjust_right)*glScaleFactor;
-                pos_y=(hh-textHH*3-1*textHH-safe_adjust_bottom)*glScaleFactor;
+                pos_y=(hh-textHH*3-2*textHH-safe_adjust_bottom)*glScaleFactor;
                 break;
         }
         ImGui::SetNextWindowPos(ImVec2(pos_x,pos_y));
