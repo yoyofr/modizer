@@ -6,7 +6,7 @@
 //
 
 #define PL_MIN_FONT_SIZE 14
-#define PL_MIN_BROWSE_FONT_SIZE 18
+#define PL_MIN_BROWSE_FONT_SIZE 22
 #define PL_IDEALFONTSIZE_RATIO 26
 
 #define PMENU_PMEXPLORE_FAV_FLAG 1
@@ -1868,7 +1868,7 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
             
             float browserFontSize=idealFontSize*0.8f;
             if (browserFontSize<PL_MIN_BROWSE_FONT_SIZE) browserFontSize=PL_MIN_BROWSE_FONT_SIZE;
-            if (font_menu) ImGui::PushFont(font_menu,idealFontSize*glScaleFactor);
+            if (font_menu) ImGui::PushFont(font_menu,browserFontSize*glScaleFactor);
             else ImGui::PushFont(nullptr);
             
             ImVec2 pos=ImGui::GetCursorPos();

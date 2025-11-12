@@ -7,11 +7,13 @@
 //
 //#define PM_TEST_LOAD 64
 
-#define MDZ_PLAYPAUSE_BARS_HEIGHT (44)
-
 #define PM_FRAMETIME_LIMIT (1000.0f/10.0f) // max allowed frame time in ms, if regularly above, PM will be deactivated
 #define PM_FRAMETIME_LIMIT_WEAK 100 //Max slow frames allowed for 'weak' mode
 #define PM_FRAMETIME_LIMIT_STRONG 10 //Max slow frames allowed for 'strong' mode
+
+#define PM_PRESET_DISPLAY_TIMEOUT 6 //Display time in seconds of preset's name when in temporary display mode
+#define FX_FS_SONGINFO_TIMEOUT 4 //Display time in seconds of song info data in fullscreen mode
+#define MDZ_FX_SONGINFO_MAXCHAR 80
 
 #define POPUP_STYLE_INFO 0
 #define POPUP_STYLE_ALERT 1
@@ -22,7 +24,7 @@
 #define FONTSIZE_PM_PRESET_INFO_LINE 18
 #define FONTSIZE_SHOWINFO_FPS 24
 #define FONTSIZE_SHOWINFO_DETAILS 16
-#define FONTSIZE_FX_FS_INFO_LINE 26
+#define FONTSIZE_FX_FS_INFO_LINE 12
 
 #define SHOWINFO_FPS_COLOR 0.2,1.0,0.1
 #define SHOWINFO_CPU_COLOR 83.0/255.0,182.0/255.0,235.0/255.0
@@ -1367,6 +1369,7 @@ static float movePinchScale,movePinchScaleOld;
 -(void) mdInfoFX {
     if (_pmIsInitialized && _pm && settings[PROJECTM_FXONOFF].detail.mdz_boolswitch.switch_value) {
         _pmPresetUpdateDisplayInfo=true;
+        _pm_display_scroll_pause=_pm_fps*1.5;
     }
 }
 -(void) mdShiftMode:(int)active {
@@ -1419,9 +1422,8 @@ static float movePinchScale,movePinchScaleOld;
                 }
             }
             _pmPresetUpdateDisplayInfo=true;
+            _pm_display_scroll_pause=_pm_fps*1.5;
         }
-        
-        
     }
 }
 
@@ -1440,6 +1442,7 @@ static float movePinchScale,movePinchScaleOld;
                 settings[PROJECTM_LockPreset].detail.mdz_boolswitch.switch_value=1;
             }
             _pmPresetUpdateDisplayInfo=true;
+            _pm_display_scroll_pause=_pm_fps*1.5;
         }
         
         
@@ -4115,21 +4118,22 @@ int recording=0;
             int yofs=self.navigationItem.titleView.frame.size.height;
             if (is_macOS) yofs+=0;
             
-            safe_bottom=[[UIApplication sharedApplication] keyWindow].safeAreaInsets.bottom;
-            safe_top=[[UIApplication sharedApplication] keyWindow].safeAreaInsets.top;
-            safe_left=[[UIApplication sharedApplication] keyWindow].safeAreaInsets.left;
-            safe_right=[[UIApplication sharedApplication] keyWindow].safeAreaInsets.right;
-            if (safe_bottom>0) safe_bottom+=20;
+            // Use self.view.safeAreaInsets for more reliable results, especially on iOS 15
+            safe_bottom=self.view.safeAreaInsets.bottom;
+            safe_top=self.view.safeAreaInsets.top;
+            safe_left=self.view.safeAreaInsets.left;
+            safe_right=self.view.safeAreaInsets.right;
+//            if (safe_bottom>0) safe_bottom+=20;
             
             if (is_macOS) {
                 mainView.frame = CGRectMake(0, 0, mDevice_ww, mDevice_hh);
-                m_oglView.frame = CGRectMake(safe_left, 80, mDevice_ww-safe_left-safe_right, mDevice_hh-230+36+44-MDZ_PLAYPAUSE_BARS_HEIGHT);
-                oglButton.frame = CGRectMake(safe_left, 80, mDevice_ww-safe_left-safe_right, mDevice_hh-230+36+44-MDZ_PLAYPAUSE_BARS_HEIGHT);
+                m_oglView.frame = CGRectMake(safe_left, 80, mDevice_ww-safe_left-safe_right, mDevice_hh-230+36);
+                oglButton.frame = CGRectMake(safe_left, 80, mDevice_ww-safe_left-safe_right, mDevice_hh-230+36);
             } else{
                 mainView.frame = CGRectMake(0, 0, mDevice_ww, mDevice_hh-20-42);
-                m_oglView.frame = CGRectMake(safe_left, 80, mDevice_ww-safe_left-safe_right, mDevice_hh-230-safe_bottom+44-MDZ_PLAYPAUSE_BARS_HEIGHT);
+                m_oglView.frame = CGRectMake(safe_left, 80, mDevice_ww-safe_left-safe_right, mDevice_hh-230+42-safe_bottom);
                 if (gifAnimation) gifAnimation.frame = CGRectMake(0, 0,cover_view.frame.size.width,cover_view.frame.size.height);
-                oglButton.frame = CGRectMake(safe_left, 80, mDevice_ww-safe_left-safe_right, mDevice_hh-230-safe_bottom+44-MDZ_PLAYPAUSE_BARS_HEIGHT);
+                oglButton.frame = CGRectMake(safe_left, 80, mDevice_ww-safe_left-safe_right, mDevice_hh-230+42-safe_bottom);
             }
             
             cover_viewAll.frame = m_oglView.frame;//CGRectMake(0, 0, mDevice_ww, mDevice_hh-230+80+44-safe_bottom);
@@ -4365,22 +4369,24 @@ int recording=0;
                 
                 int yofs=self.navigationItem.titleView.frame.size.height;
                 if (is_macOS) yofs+=30;
+                else yofs+=12;
                 
-                safe_bottom=[[UIApplication sharedApplication] keyWindow].safeAreaInsets.bottom;
-                safe_top=[[UIApplication sharedApplication] keyWindow].safeAreaInsets.top;
-                safe_left=[[UIApplication sharedApplication] keyWindow].safeAreaInsets.left;
-                safe_right=[[UIApplication sharedApplication] keyWindow].safeAreaInsets.right;
-                if (safe_bottom>0) safe_bottom+=20;
+                // Use self.view.safeAreaInsets for more reliable results, especially on iOS 15
+                safe_bottom=self.view.safeAreaInsets.bottom;
+                safe_top=self.view.safeAreaInsets.top;
+                safe_left=self.view.safeAreaInsets.left;
+                safe_right=self.view.safeAreaInsets.right;
+//                if (safe_bottom>0) safe_bottom+=20;
                 
                 if (is_macOS) {
                     mainView.frame = CGRectMake(0.0, 0, mDevice_hh, mDevice_ww-yofs);
-                    m_oglView.frame = CGRectMake(safe_left, 82, mDevice_hh-safe_left-safe_right, mDevice_ww-82-safe_bottom-yofs+44-MDZ_PLAYPAUSE_BARS_HEIGHT);
-                    oglButton.frame = CGRectMake(safe_left, 82, mDevice_hh-safe_left-safe_right, mDevice_ww-82-safe_bottom-yofs+44-MDZ_PLAYPAUSE_BARS_HEIGHT);
+                    m_oglView.frame = CGRectMake(safe_left, 82, mDevice_hh-safe_left-safe_right, mDevice_ww-82-safe_bottom-yofs);
+                    oglButton.frame = CGRectMake(safe_left, 82, mDevice_hh-safe_left-safe_right, mDevice_ww-82-safe_bottom-yofs);
                     
                 } else {
                     mainView.frame = CGRectMake(0.0, 30, mDevice_hh, mDevice_ww-yofs);
-                    m_oglView.frame = CGRectMake(safe_left, 82, mDevice_hh-safe_left-safe_right, mDevice_ww-82-safe_bottom-yofs+44-MDZ_PLAYPAUSE_BARS_HEIGHT);
-                    oglButton.frame = CGRectMake(safe_left, 82, mDevice_hh-safe_left-safe_right, mDevice_ww-82-safe_bottom-yofs+44-MDZ_PLAYPAUSE_BARS_HEIGHT);
+                    m_oglView.frame = CGRectMake(safe_left, 82, mDevice_hh-safe_left-safe_right, mDevice_ww-82-safe_bottom-yofs);
+                    oglButton.frame = CGRectMake(safe_left, 82, mDevice_hh-safe_left-safe_right, mDevice_ww-82-safe_bottom-yofs);
                     
                 }
                 
@@ -4452,7 +4458,7 @@ int recording=0;
         float y_ofs;
         if (is_macOS) {
             
-            y_ofs=m_oglView.frame.origin.y+m_oglView.frame.size.height+(MDZ_PLAYPAUSE_BARS_HEIGHT-44)/2;
+            y_ofs=m_oglView.frame.origin.y+m_oglView.frame.size.height;
             
 //            playBar.translatesAutoresizingMaskIntoConstraints = YES;
 //            pauseBar.translatesAutoresizingMaskIntoConstraints = YES;
@@ -4468,7 +4474,7 @@ int recording=0;
             //            playBarSub.frame =  CGRectMake(0, mDevice_hh-(playBarSub.hidden?0:y_ofs), mDevice_ww, 44);
             //            pauseBarSub.frame =  CGRectMake(0, mDevice_hh-(pauseBarSub.hidden?0:y_ofs), mDevice_ww, 44);
         } else {
-            y_ofs=m_oglView.frame.origin.y+m_oglView.frame.size.height+(MDZ_PLAYPAUSE_BARS_HEIGHT-44)/2;
+            y_ofs=m_oglView.frame.origin.y+m_oglView.frame.size.height;
             
 //            playBar.translatesAutoresizingMaskIntoConstraints = YES;
 //            pauseBar.translatesAutoresizingMaskIntoConstraints = YES;
@@ -4486,7 +4492,7 @@ int recording=0;
         }
     } else {
         int xofs=24*5+36*3+10;
-        float y_ofs=40+(MDZ_PLAYPAUSE_BARS_HEIGHT-44)/2;
+        float y_ofs=40;
         
 //        playBar.translatesAutoresizingMaskIntoConstraints = YES;
 //        pauseBar.translatesAutoresizingMaskIntoConstraints = YES;
@@ -5086,6 +5092,10 @@ GLsizei txtbackgroundImageWidth,txtbackgroundImageHeight;
     glViewport(0, 0, m_oglView.frame.size.width*glScaleFactor, m_oglView.frame.size.height*glScaleFactor);
 }
 -(void) setupOGLView {
+    //Ensure the view doesn't have width or height = 0
+    if ( (m_oglView.frame.size.height==0) || (m_oglView.frame.size.width==0) ) {
+        m_oglView.frame = CGRectMake(0,0,64,64);
+    }
     MGLLayer *oglLayer = (MGLLayer *)m_oglView.layer;
     // Set the layer's scale factor as you wish
     //    oglLayer.retainedBacking = YES;
@@ -5326,59 +5336,70 @@ void pm_perfTest() {
     modPatternLineSize=0;
 }
 
-- (void) buildCommandBars {
+- (void) buildCommandBar:(UIToolbar *)bar isPause:(bool)isPause isSub:(bool)isSub {
     
     // When creating your bar button items with SF Symbols:
     UIImageSymbolConfiguration *config = [UIImageSymbolConfiguration configurationWithPointSize:22.0
                                                                                           weight:UIImageSymbolWeightThin
                                                                                            scale:UIImageSymbolScaleLarge];
-    UIImage *playImage = [UIImage systemImageNamed:@"play.fill" withConfiguration:config];
-    UIImage *pauseImage = [UIImage systemImageNamed:@"pause.fill" withConfiguration:config];
+    
+    
+    UIImage *playPauseImage;
+    if (!isPause) playPauseImage = [UIImage systemImageNamed:@"play.fill" withConfiguration:config];
+    else playPauseImage = [UIImage systemImageNamed:@"pause.fill" withConfiguration:config];
     UIImage *nextImage = [UIImage systemImageNamed:@"forward.end.fill" withConfiguration:config];
-    UIImage *nextSubImage = [UIImage systemImageNamed:@"forward.fill" withConfiguration:config];
     UIImage *prevImage = [UIImage systemImageNamed:@"backward.end.fill" withConfiguration:config];
-    UIImage *prevSubImage = [UIImage systemImageNamed:@"backward.fill" withConfiguration:config];
+    UIImage *nextSubImage=nil;
+    UIImage *prevSubImage=nil;
+    if (isSub) {
+        nextSubImage = [UIImage systemImageNamed:@"forward.fill" withConfiguration:config];
+        prevSubImage = [UIImage systemImageNamed:@"backward.fill" withConfiguration:config];
+    }
     
     
-    UIBarButtonItem *itemPause = [[UIBarButtonItem alloc] initWithImage:pauseImage style:UIBarButtonItemStylePlain target:self action:@selector(pausePushed:)];
-    
-    UIBarButtonItem *itemPlay = [[UIBarButtonItem alloc] initWithImage:playImage style:UIBarButtonItemStylePlain target:self action:@selector(playPushed:)];
+    UIBarButtonItem *itemPlayPause = [[UIBarButtonItem alloc] initWithImage:playPauseImage style:UIBarButtonItemStylePlain target:self action:(isPause?@selector(pausePushed:):@selector(playPushed:))];
     
     UIBarButtonItem *itemPrev = [[UIBarButtonItem alloc] initWithImage:prevImage style:UIBarButtonItemStylePlain target:self action:@selector(playPrev)];
     
-    UIBarButtonItem *itemPrevSub = [[UIBarButtonItem alloc] initWithImage:prevSubImage style:UIBarButtonItemStylePlain target:self action:@selector(playPrevSub)];
-    
     UIBarButtonItem *itemNext = [[UIBarButtonItem alloc] initWithImage:nextImage style:UIBarButtonItemStylePlain target:self action:@selector(playNext)];
-    
-    UIBarButtonItem *itemNextSub = [[UIBarButtonItem alloc] initWithImage:nextSubImage style:UIBarButtonItemStylePlain target:self action:@selector(playNextSub)];
+
+    UIBarButtonItem *itemPrevSub=nil;
+    UIBarButtonItem *itemNextSub=nil;
+    if (isSub) {
+        itemPrevSub = [[UIBarButtonItem alloc] initWithImage:prevSubImage style:UIBarButtonItemStylePlain target:self action:@selector(playPrevSub)];
+        itemNextSub = [[UIBarButtonItem alloc] initWithImage:nextSubImage style:UIBarButtonItemStylePlain target:self action:@selector(playNextSub)];
+        
+        UILongPressGestureRecognizer *longPressPaPrevSGesture = [[UILongPressGestureRecognizer alloc]
+                                                                 initWithTarget:self
+                                                                 action:@selector(longPressPrevSubArc:)];
+        UILongPressGestureRecognizer *longPressPaNextSGesture = [[UILongPressGestureRecognizer alloc]
+                                                                 initWithTarget:self
+                                                                 action:@selector(longPressNextSubArc:)];
+        
+        if ([[itemPrevSub valueForKey:@"view"] respondsToSelector:@selector(addGestureRecognizer:)]) {
+            [[itemPrevSub valueForKey:@"view"] addGestureRecognizer:longPressPaPrevSGesture];
+        }
+        if ([[itemNextSub valueForKey:@"view"] respondsToSelector:@selector(addGestureRecognizer:)]) {
+            [[itemNextSub valueForKey:@"view"] addGestureRecognizer:longPressPaNextSGesture];
+        }
+    }
     
     UIBarButtonItem *flexSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace primaryAction:NULL];
     
-    UILongPressGestureRecognizer *longPressPaPrevSGesture = [[UILongPressGestureRecognizer alloc]
-                                                             initWithTarget:self
-                                                             action:@selector(longPressPrevSubArc:)];
-    UILongPressGestureRecognizer *longPressPaNextSGesture = [[UILongPressGestureRecognizer alloc]
-                                                             initWithTarget:self
-                                                             action:@selector(longPressNextSubArc:)];
-    
-    if ([[itemPrevSub valueForKey:@"view"] respondsToSelector:@selector(addGestureRecognizer:)]) {
-        [[itemPrevSub valueForKey:@"view"] addGestureRecognizer:longPressPaPrevSGesture];
+    NSArray *buttonItems;
+    if (isSub) {
+        buttonItems = [NSArray arrayWithObjects:flexSpace,itemPrev,flexSpace,itemPrevSub,flexSpace,itemPlayPause,flexSpace,itemNextSub,flexSpace,itemNext,flexSpace,nil];
+    } else {
+        buttonItems = [NSArray arrayWithObjects:flexSpace,itemPrev,flexSpace,itemPlayPause,flexSpace,itemNext,flexSpace,nil];
     }
-    if ([[itemNextSub valueForKey:@"view"] respondsToSelector:@selector(addGestureRecognizer:)]) {
-        [[itemNextSub valueForKey:@"view"] addGestureRecognizer:longPressPaNextSGesture];
-    }
-    
-    NSArray *buttonItems = [NSArray arrayWithObjects:flexSpace,itemPrev,flexSpace,itemPause,flexSpace,itemNext,flexSpace,nil];
-    [pauseBar setItems:buttonItems];
-    
-    buttonItems = [NSArray arrayWithObjects:flexSpace,itemPrev,flexSpace,itemPlay,flexSpace,itemNext,flexSpace,nil];
-    [playBar setItems:buttonItems];
-    
-    buttonItems = [NSArray arrayWithObjects:flexSpace,itemPrev,flexSpace,itemPrevSub,flexSpace,itemPause,flexSpace,itemNextSub,flexSpace,itemNext,flexSpace,nil];
-    [pauseBarSub setItems:buttonItems];
-    
-    buttonItems = [NSArray arrayWithObjects:flexSpace,itemPrev,flexSpace,itemPrevSub,flexSpace,itemPlay,flexSpace,itemNextSub,flexSpace,itemNext,flexSpace,nil];
-    [playBarSub setItems:buttonItems];
+    [bar setItems:buttonItems];
+}
+
+- (void) buildCommandBars {
+    [self buildCommandBar:pauseBar isPause:true isSub:false];
+    [self buildCommandBar:playBar isPause:false isSub:false];
+    [self buildCommandBar:pauseBarSub isPause:true isSub:true];
+    [self buildCommandBar:playBarSub isPause:false isSub:true];
 }
 
 -(UIWindow*) getWindow {
@@ -5592,7 +5613,7 @@ void pm_perfTest() {
     
     CHECK_PROFILE("various2")
     
-    if (safe_bottom>0) safe_bottom+=20;
+//    if (safe_bottom>0) safe_bottom+=20;
     
     if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad) {
         if (!is_macOS) mDeviceType=DEVICE_IPAD; //ipad
@@ -6163,6 +6184,44 @@ void pm_perfTest() {
 }
 
 - (void)viewWillLayoutSubviews {
+    // Update safe area insets from the view itself, which is more reliable than keyWindow
+    // especially on iOS 15 where keyWindow may not have correct insets during initial layout
+    safe_bottom = self.view.safeAreaInsets.bottom;
+    safe_top = self.view.safeAreaInsets.top;
+    safe_left = self.view.safeAreaInsets.left;
+    safe_right = self.view.safeAreaInsets.right;
+    
+//    if (safe_bottom>0) safe_bottom+=20;
+    
+    UIWindow *win;//=[UIApplication sharedApplication].keyWindow;
+    win=[self getWindow];
+    
+    // Update device dimensions and orientation based on current view bounds
+    // This ensures we always have the correct dimensions when layout is triggered
+    CGSize viewSize = win.bounds.size;// self.view.bounds.size;
+    if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad) {
+        if (viewSize.height>viewSize.width) {
+            mDevice_hh=viewSize.height+(!deactivateFStemp && settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value?0:68);
+            mDevice_ww=viewSize.width;
+            orientationHV=UIInterfaceOrientationPortrait;
+        } else {
+            mDevice_ww=viewSize.height+(!deactivateFStemp && settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value?0:68);
+            mDevice_hh=viewSize.width;
+            orientationHV=UIInterfaceOrientationLandscapeLeft;
+        }
+    } else {
+        // iPhone
+        if (viewSize.height>viewSize.width) {
+            mDevice_hh=viewSize.height;
+            mDevice_ww=viewSize.width;
+            orientationHV=UIInterfaceOrientationPortrait;
+        } else {
+            mDevice_ww=viewSize.height;
+            mDevice_hh=viewSize.width;
+            orientationHV=UIInterfaceOrientationLandscapeLeft;
+        }
+    }
+    
     [self mdzUpdateUI:(UIInterfaceOrientation)orientationHV];
     
     //AppDelegate_Phone *app_delegate=(AppDelegate_Phone *)[[UIApplication sharedApplication] delegate];
@@ -6190,7 +6249,8 @@ void pm_perfTest() {
     
     labelModuleName.frame=CGRectMake(0,0,size.width-128,40);
     
-    
+    // Update device dimensions for both iPad AND iPhone
+    // This was previously only updating for iPad, causing rotation issues on iPhone (especially iOS 15.5)
     if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad) {
         if (size.height>size.width) {
             mDevice_hh=size.height+(!deactivateFStemp && settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value?0:68);
@@ -6200,6 +6260,17 @@ void pm_perfTest() {
             mDevice_ww=size.height+(!deactivateFStemp && settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value?0:68);
             mDevice_hh=size.width;
             orientationHV=UIInterfaceOrientationLandscapeLeft; //(int)[[UIDevice currentDevice]orientation];
+        }
+    } else {
+        // iPhone: update dimensions based on new size
+        if (size.height>size.width) {
+            mDevice_hh=size.height;
+            mDevice_ww=size.width;
+            orientationHV=UIInterfaceOrientationPortrait;
+        } else {
+            mDevice_ww=size.height;
+            mDevice_hh=size.width;
+            orientationHV=UIInterfaceOrientationLandscapeLeft;
         }
     }
     
@@ -6265,13 +6336,15 @@ void pm_perfTest() {
         //if (mScaleFactor>=2) mDeviceType=2;
     }
     
-    safe_bottom=[[UIApplication sharedApplication] keyWindow].safeAreaInsets.bottom;
-    safe_top=[[UIApplication sharedApplication] keyWindow].safeAreaInsets.top;
-    safe_left=[[UIApplication sharedApplication] keyWindow].safeAreaInsets.left;
-    safe_right=[[UIApplication sharedApplication] keyWindow].safeAreaInsets.right;
+    // Use self.view.safeAreaInsets for more reliable results, especially on iOS 15
+    // where keyWindow may not have correct safe area insets at this point in the lifecycle
+    safe_bottom=self.view.safeAreaInsets.bottom;
+    safe_top=self.view.safeAreaInsets.top;
+    safe_left=self.view.safeAreaInsets.left;
+    safe_right=self.view.safeAreaInsets.right;
     
     
-    if (safe_bottom>0) safe_bottom+=20;
+//    if (safe_bottom>0) safe_bottom+=20;
     
     
     bool oldmode=darkMode;
@@ -7671,19 +7744,19 @@ void doFramePM(float ww,float hh) {
     if (mOglView1Tap) {
         mOglView1Tap=0;
         //MDZILog("ww %d hh %d oglTapX %f oglTapY %f",ww,hh,oglTapX,oglTapY);
-        if ( (pmenu_show==0) && (oglTapX<=ww*1/5) && (oglTapY>=hh*4/5) ) {
+        if ( (pmenu_show==0) && (oglTapX<=ww*1/4) && (oglTapY>=hh*3/4) ) {
             //tapping down left corner and not in menu, move to next ProjecTM preset
             oglv_corner_fade[0]=30;
             [self mdPrevPreset];
-        } else if ( (pmenu_show==0) && (oglTapX>=ww*4/5) && (oglTapY>=hh*4/5) ) {
+        } else if ( (pmenu_show==0) && (oglTapX>=ww*3/4) && (oglTapY>=hh*3/4) ) {
             //tapping down right corner and not in menu, move to next ProjecTM preset
             oglv_corner_fade[1]=30;
             [self mdNextPreset];
-        } else if ( (pmenu_show==0) && (oglTapX>=ww*4/5) && (oglTapY<=hh*1/5) ) {
+        } else if ( (pmenu_show==0) && (oglTapX>=ww*3/4) && (oglTapY<=hh*1/4) ) {
             //tapping upper right corner and not in menu, activate showinfo panel
             oglv_corner_fade[2]=30;
             [SettingsGenViewController changeSettingsValue:GLOB_FXSHOWINFO change:1];
-        }  else if ( (pmenu_show==0) && (oglTapX<=ww*1/5) && (oglTapY<=hh*1/5) ) {
+        }  else if ( (pmenu_show==0) && (oglTapX<=ww*1/4) && (oglTapY<=hh*1/4) ) {
             //tapping upper left corner and not in menu, display music info
             [self refreshFXFSLabels];
             oglv_corner_fade[3]=30;
@@ -8525,8 +8598,9 @@ void doFramePM(float ww,float hh) {
     //-------------------------------------
     if (settings[GLOB_FX_FS_DISPLAYSONGINFO].detail.mdz_boolswitch.switch_value && /*settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value &&*/
         _mdz_FS_display_songinfo_countdown) {
-#define MDZ_FX_SONGINFO_MAXCHAR 80
+
         char strLine[3][MDZ_FX_SONGINFO_MAXCHAR];
+        static int cursorCpt=0;
         
         if (_mdz_FS_display_songinfo_title!=nil) snprintf(strLine[0],MDZ_FX_SONGINFO_MAXCHAR,"%sX",[_mdz_FS_display_songinfo_title UTF8String]);
         else strLine[0][0]=0;
@@ -8537,16 +8611,30 @@ void doFramePM(float ww,float hh) {
         
         for (int j=0;j<frameToUpdate;j++) {
             if (_mdz_FS_display_songinfo_char_count[0]<MDZ_FX_SONGINFO_MAXCHAR) {
-                if (_mdz_FS_display_songinfo_countdown&1) _mdz_FS_display_songinfo_char_count[0]++;
+                if (cursorCpt&1) _mdz_FS_display_songinfo_char_count[0]++;
             }
-            if ( (_mdz_FS_display_songinfo_char_count[1]<MDZ_FX_SONGINFO_MAXCHAR) && (_mdz_FS_display_songinfo_char_count[0]>=(strlen(strLine[0])+4)) ) { if (_mdz_FS_display_songinfo_countdown&1) _mdz_FS_display_songinfo_char_count[1]++;
+            if ( (_mdz_FS_display_songinfo_char_count[1]<MDZ_FX_SONGINFO_MAXCHAR) &&
+                 ( (_mdz_FS_display_songinfo_char_count[0]>=(strlen(strLine[0])+4)) ||
+                   (_mdz_FS_display_songinfo_char_count[0]==MDZ_FX_SONGINFO_MAXCHAR) ) )  {
+                if (cursorCpt&1) _mdz_FS_display_songinfo_char_count[1]++;
                 if (strlen(strLine[1])>1) _mdz_FS_display_cursorLine=1;
             }
-            if ( (_mdz_FS_display_songinfo_char_count[2]<MDZ_FX_SONGINFO_MAXCHAR) && (_mdz_FS_display_songinfo_char_count[1]>=(strlen(strLine[1])+4)) ) { if (_mdz_FS_display_songinfo_countdown&1) _mdz_FS_display_songinfo_char_count[2]++;
+            if ( (_mdz_FS_display_songinfo_char_count[2]<MDZ_FX_SONGINFO_MAXCHAR) &&
+                ( (_mdz_FS_display_songinfo_char_count[1]>=(strlen(strLine[1])+4)) ||
+                  (_mdz_FS_display_songinfo_char_count[1]==MDZ_FX_SONGINFO_MAXCHAR) ) )  {
+                if (cursorCpt&1) _mdz_FS_display_songinfo_char_count[2]++;
                 if (strlen(strLine[2])>1) _mdz_FS_display_cursorLine=2;
             }
+            cursorCpt++;
         }
         
+        bool allIsVisible=false;
+        if ( (_mdz_FS_display_songinfo_char_count[0]>=strlen(strLine[0])) &&
+            (_mdz_FS_display_songinfo_char_count[1]>=strlen(strLine[1])) &&
+            (_mdz_FS_display_songinfo_char_count[2]>=strlen(strLine[2])) ) {
+            allIsVisible=true;
+        }
+            
         float alpha_val=(float)(_mdz_FS_display_songinfo_countdown*4)/64.0;
         if (alpha_val>0.9) alpha_val=0.9;
         
@@ -8554,7 +8642,9 @@ void doFramePM(float ww,float hh) {
         ImGui::PushStyleColor(ImGuiCol_Border,ImVec4(0,0,0,0));
         ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.00,0.95,1.0,alpha_val));
 
-        if (font_menu) ImGui::PushFont(font_menu,FONTSIZE_FX_FS_INFO_LINE*glScaleFactor);
+        float font_size=ww/50;
+        if (font_size<FONTSIZE_FX_FS_INFO_LINE) font_size=FONTSIZE_FX_FS_INFO_LINE;
+        if (font_menu) ImGui::PushFont(font_menu,font_size*glScaleFactor);
         else ImGui::PushFont(nullptr);
         
         float textHH=ImGui::GetTextLineHeightWithSpacing()/glScaleFactor;
@@ -8611,7 +8701,7 @@ void doFramePM(float ww,float hh) {
                 break;
         }
         ImGui::SetNextWindowPos(ImVec2(pos_x,pos_y));
-        ImGui::SetNextWindowSize(ImVec2((str_size_max.x+4)*glScaleFactor,3*textHH*glScaleFactor));
+        ImGui::SetNextWindowSize(ImVec2((str_size_max.x+4)*glScaleFactor,3.5*textHH*glScaleFactor));
         ImGui::GetStyle().Alpha=alpha_val;
         ImGui::Begin("On screen music info",0,ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoScrollbar|ImGuiWindowFlags_NoFocusOnAppearing);
         
@@ -8628,12 +8718,14 @@ void doFramePM(float ww,float hh) {
         ImGui::PopStyleColor();
         ImGui::PopStyleColor();
         
-        for (int j=0;j<frameToUpdate;j++) {
-            if (_mdz_FS_display_songinfo_countdown) _mdz_FS_display_songinfo_countdown--;
-            if (!_mdz_FS_display_songinfo_countdown) {
-                _mdz_FS_display_songinfo_char_count[0]=1;
-                _mdz_FS_display_songinfo_char_count[1]=1;
-                _mdz_FS_display_songinfo_char_count[2]=1;
+        if (allIsVisible) {
+            for (int j=0;j<frameToUpdate;j++) {
+                if (_mdz_FS_display_songinfo_countdown) _mdz_FS_display_songinfo_countdown--;
+                if (!_mdz_FS_display_songinfo_countdown) {
+                    _mdz_FS_display_songinfo_char_count[0]=1;
+                    _mdz_FS_display_songinfo_char_count[1]=1;
+                    _mdz_FS_display_songinfo_char_count[2]=1;
+                }
             }
         }
     }

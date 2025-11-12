@@ -142,8 +142,6 @@ extern void *LoadingProgressObserverContext;
 
 #define PM_BUFFER_SIZE 735*2 //ProjectM sound buffer size.
 #define PM_ROOT_FOLDER_CUSTOM "/ProjectM"
-#define PM_PRESET_DISPLAY_TIMEOUT 5 //Display time in seconds of preset's name when in temporary display mode
-#define FX_FS_SONGINFO_TIMEOUT 8 //Display time in seconds of song info data in fullscreen mode
 
 #define SHADER_CACHE_DIR "/.shadercache"
 
