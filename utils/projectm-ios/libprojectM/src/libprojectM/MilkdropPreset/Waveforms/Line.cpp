@@ -23,7 +23,7 @@ void Line::GenerateVertices(const PresetState& presetState, const PerFrameContex
     {
         m_wave1Vertices[i] = {
             m_edgeX + m_distanceX * static_cast<float>(i) + m_perpetualDX * 0.25f * m_pcmDataL[i + m_sampleOffset],
-            m_edgeY + m_distanceY * static_cast<float>(i) + m_perpetualDY * 0.25f * m_pcmDataL[i + m_sampleOffset]};
+            -(m_edgeY + m_distanceY * static_cast<float>(i) + m_perpetualDY * 0.25f * m_pcmDataL[i + m_sampleOffset])};
     }
 }
 
