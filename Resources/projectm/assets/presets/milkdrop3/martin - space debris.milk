@@ -435,5 +435,5 @@ comp_54=`ret += !tube * exp(-3/sig/tube0*abs(uv2.y))*(col+0.5)*sig;
 comp_55=`
 comp_56=`ret += .1*dotmask*(1-dots/4);//*GetBlur1(uvb).r*41;
 comp_57=`
-comp_58=`ret = 0;//GetPixel(uv);
+comp_58=`//ret = GetPixel(uv);
 comp_59=`}

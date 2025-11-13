@@ -433,6 +433,7 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
             self.comp=NULL;
             self.lastFailed=false;
             pthread_mutex_lock(&pm_mutex);
+            MDZILog("loading: %@",[item getFullPath]);
             projectm_preload_preset_file(self.pmh, [[item getFullPath] UTF8String], &self->_warp, &self->_comp,&self->_warpP, &self->_compP);
             pthread_mutex_unlock(&pm_mutex);
         }
@@ -475,22 +476,17 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
     [self loadASyncPreset:file cut:cut];
 #else
     //Load new preset
-            _lastFailed=false;
-            START_PROFILE
-            projectm_load_preset_file(_pmh, [[file getFullPath] UTF8String],!cut);
-            CHECK_PROFILE("preset loaded normal")
-            END_PROFILE
-            
-            
-            if (!_lastFailed) {
-                _pmPresetNewLoaded=true;
-            }
-        }
-    }
+    _lastFailed=false;
+    START_PROFILE
+    projectm_load_preset_file(_pmh, [[file getFullPath] UTF8String],!cut);
+    CHECK_PROFILE("preset loaded normal")
+    END_PROFILE
     
+    if (!_lastFailed) {
+        _pmPresetNewLoaded=true;
         _curEntryLbl = [NSString stringWithFormat:@"(%c)%@",
-                        (item.presetType==MDZ_PLAYLIST_FNODE_Bundle?'B':'C'),
-                        item.localpath];
+                        (file.presetType==MDZ_PLAYLIST_FNODE_Bundle?'B':'C'),
+                        file.localpath];
     }
 #endif
 }

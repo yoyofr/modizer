@@ -124,6 +124,7 @@ void MilkdropPreset::RenderFrame(const libprojectM::Audio::FrameAudioData& audio
     // Only do it after drawing one frame after init or resize.
     if (!m_isFirstFrame)
     {
+        //MotionVectors already swap the Y coordinate
         m_motionVectors.Draw(m_perFrameContext, m_motionVectorUVMap->Texture());
     }
 
@@ -143,7 +144,6 @@ void MilkdropPreset::RenderFrame(const libprojectM::Audio::FrameAudioData& audio
     // Remove the u/v texture from the framebuffer.
     m_framebuffer.RemoveColorAttachment(m_currentFrameBuffer, 1);
 
-    //YOYOFR: should use previous frame
     // Update blur textures
     const auto warpedImage = m_framebuffer.GetColorAttachmentTexture(m_previousFrameBuffer, 0);
     assert(warpedImage.get());

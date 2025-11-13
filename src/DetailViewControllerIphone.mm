@@ -1044,6 +1044,7 @@ static float oglTapX=0,oglTapY=0,movePx=0,movePy=0,movePxMOD=0,movePyMOD=0,moveP
 static float movePxPMenu=0,movePyPMenu=0;
 static float posMouseX=0,posMouseY=0;
 static float moveWheelXPMenu,moveWheelYPMenu=0;
+static float movePreWheelXPMenu,movePreWheelYPMenu=0;
 static float startPx=0,startPy=0;
 static int movePMnomore=0;
 static int panGesture1Tap,panGestureWheel,panGestureHover;
@@ -4115,8 +4116,17 @@ int recording=0;
             
             if (coverflow) coverflow.frame=CGRectMake(0,0,mDevice_hh,mDevice_ww-20);
             
-            int yofs=self.navigationItem.titleView.frame.size.height;
-            if (is_macOS) yofs+=40;
+            float yofs;//=self.navigationItem.titleView.frame.size.height;
+            //if (is_macOS) yofs+=70+42;
+            CGPoint pt;
+            if (is_macOS) {
+                pt=[self.view convertPoint:self.view.frame.origin toView:[UIApplication sharedApplication].keyWindow.rootViewController.view];
+            } else {
+                pt=[self.view convertPoint:self.mainView.frame.origin toView:[UIApplication sharedApplication].keyWindow.rootViewController.view];
+            }
+            
+//            MDZILog("yo: %f",pt.y);
+            yofs=pt.y;
             
             // Use self.view.safeAreaInsets for more reliable results, especially on iOS 15
             safe_bottom=self.view.safeAreaInsets.bottom;
@@ -4127,13 +4137,13 @@ int recording=0;
             
             if (is_macOS) {
                 mainView.frame = CGRectMake(0, 0, mDevice_ww, mDevice_hh-yofs);
-                m_oglView.frame = CGRectMake(safe_left, 80, mDevice_ww-safe_left-safe_right, mDevice_hh-230+36-yofs);
-                oglButton.frame = CGRectMake(safe_left, 80, mDevice_ww-safe_left-safe_right, mDevice_hh-230+36-yofs);
+                m_oglView.frame = CGRectMake(safe_left, 80, mDevice_ww-safe_left-safe_right, mDevice_hh-yofs-80-44-safe_bottom);
+                oglButton.frame = CGRectMake(safe_left, 80, mDevice_ww-safe_left-safe_right, mDevice_hh-yofs-80-44-safe_bottom);
             } else{
-                mainView.frame = CGRectMake(0, 0, mDevice_ww, mDevice_hh-20-42);
-                m_oglView.frame = CGRectMake(safe_left, 80, mDevice_ww-safe_left-safe_right, mDevice_hh-230+42-safe_bottom);
+                mainView.frame = CGRectMake(0, 0, mDevice_ww, mDevice_hh-yofs);
+                m_oglView.frame = CGRectMake(safe_left, 80, mDevice_ww-safe_left-safe_right, mDevice_hh-yofs-80-44-safe_bottom);
+                oglButton.frame = CGRectMake(safe_left, 80, mDevice_ww-safe_left-safe_right, mDevice_hh-yofs-80-44-safe_bottom);
                 if (gifAnimation) gifAnimation.frame = CGRectMake(0, 0,cover_view.frame.size.width,cover_view.frame.size.height);
-                oglButton.frame = CGRectMake(safe_left, 80, mDevice_ww-safe_left-safe_right, mDevice_hh-230+42-safe_bottom);
             }
             
             cover_viewAll.frame = m_oglView.frame;//CGRectMake(0, 0, mDevice_ww, mDevice_hh-230+80+44-safe_bottom);
@@ -4367,9 +4377,19 @@ int recording=0;
                 
                 if (coverflow) coverflow.frame=CGRectMake(0,0,mDevice_hh,mDevice_ww-20);
                 
-                int yofs=self.navigationItem.titleView.frame.size.height;
-                if (is_macOS) yofs+=104;
-                else yofs+=12;
+//                int yofs=self.navigationItem.titleView.frame.size.height;
+//                if (is_macOS) yofs+=104;
+//                else yofs+=12;
+                
+                float yofs;
+                CGPoint pt;
+                if (is_macOS) {
+                    pt=[self.view convertPoint:self.view.frame.origin toView:[UIApplication sharedApplication].keyWindow.rootViewController.view];
+                } else {
+                    pt=[self.view convertPoint:self.mainView.frame.origin toView:[UIApplication sharedApplication].keyWindow.rootViewController.view];
+                }
+//                MDZILog("yo: %f",pt.y);
+                yofs=pt.y;
                 
                 // Use self.view.safeAreaInsets for more reliable results, especially on iOS 15
                 safe_bottom=self.view.safeAreaInsets.bottom;
@@ -4460,44 +4480,22 @@ int recording=0;
             
             y_ofs=m_oglView.frame.origin.y+m_oglView.frame.size.height;
             
-//            playBar.translatesAutoresizingMaskIntoConstraints = YES;
-//            pauseBar.translatesAutoresizingMaskIntoConstraints = YES;
-//            playBarSub.translatesAutoresizingMaskIntoConstraints = YES;
-//            pauseBarSub.translatesAutoresizingMaskIntoConstraints = YES;
-            
             playBar.frame = CGRectMake(0, y_ofs, mDevice_ww, 44);
             pauseBar.frame = CGRectMake(0, y_ofs, mDevice_ww, 44);
             playBarSub.frame = CGRectMake(0, y_ofs, mDevice_ww, 44);
             pauseBarSub.frame = CGRectMake(0, y_ofs, mDevice_ww, 44);
-            //            playBar.frame =  CGRectMake(0, mDevice_hh-(playBar.hidden?0:y_ofs), mDevice_ww, 44);
-            //            pauseBar.frame =  CGRectMake(0, mDevice_hh-(pauseBar.hidden?0:y_ofs), mDevice_ww, 44);
-            //            playBarSub.frame =  CGRectMake(0, mDevice_hh-(playBarSub.hidden?0:y_ofs), mDevice_ww, 44);
-            //            pauseBarSub.frame =  CGRectMake(0, mDevice_hh-(pauseBarSub.hidden?0:y_ofs), mDevice_ww, 44);
         } else {
             y_ofs=m_oglView.frame.origin.y+m_oglView.frame.size.height;
             
-//            playBar.translatesAutoresizingMaskIntoConstraints = YES;
-//            pauseBar.translatesAutoresizingMaskIntoConstraints = YES;
-//            playBarSub.translatesAutoresizingMaskIntoConstraints = YES;
-//            pauseBarSub.translatesAutoresizingMaskIntoConstraints = YES;
-            
             playBar.frame = CGRectMake(0, y_ofs, mDevice_ww, 44);
             pauseBar.frame = CGRectMake(0, y_ofs, mDevice_ww, 44);
             playBarSub.frame = CGRectMake(0, y_ofs, mDevice_ww, 44);
             pauseBarSub.frame = CGRectMake(0, y_ofs, mDevice_ww, 44);
-            //            playBar.frame =  CGRectMake(0, mDevice_hh-(playBar.hidden?0:y_ofs)-safe_bottom, mDevice_ww, 44);
-            //            pauseBar.frame =  CGRectMake(0, mDevice_hh-(pauseBar.hidden?0:y_ofs)-safe_bottom, mDevice_ww, 44);
-            //            playBarSub.frame =  CGRectMake(0, mDevice_hh-(playBarSub.hidden?0:y_ofs)-safe_bottom, mDevice_ww, 44);
-            //            pauseBarSub.frame =  CGRectMake(0, mDevice_hh-(pauseBarSub.hidden?0:y_ofs)-safe_bottom, mDevice_ww, 44);
+            
         }
     } else {
         int xofs=24*5+36*3+10;
         float y_ofs=40;
-        
-//        playBar.translatesAutoresizingMaskIntoConstraints = YES;
-//        pauseBar.translatesAutoresizingMaskIntoConstraints = YES;
-//        playBarSub.translatesAutoresizingMaskIntoConstraints = YES;
-//        pauseBarSub.translatesAutoresizingMaskIntoConstraints = YES;
         
         playBar.frame = CGRectMake(0, y_ofs, mDevice_hh-xofs, 44); //mDevice_hh-(playBar.hidden?0:375)
         pauseBar.frame = CGRectMake(0, y_ofs, mDevice_hh-xofs, 44);
@@ -5084,6 +5082,7 @@ GLsizei txtbackgroundImageWidth,txtbackgroundImageHeight;
 }
 -(void) presentContextOGL {
     MGLLayer *oglLayer = (MGLLayer *)m_oglView.layer;
+    
     [m_oglContext present:oglLayer];
 }
 -(void) setContextOGL {
@@ -5102,6 +5101,15 @@ GLsizei txtbackgroundImageWidth,txtbackgroundImageHeight;
     oglLayer.contentsScale = [[UIScreen mainScreen] scale];
     glScaleFactor=[[UIScreen mainScreen] scale];
     
+    //[oglLayer setPresentsWithTransaction:true];
+    
+    //to avoid flickering issue / rest of UI widgets
+    oglLayer.drawsAsynchronously = YES;
+    oglLayer.shouldRasterize = NO;
+    oglLayer.opaque=YES;
+    oglLayer.allowsGroupOpacity=NO;
+    
+    
     // Create OpenGL context
     m_oglContext = [[MGLContext alloc] initWithAPI:kMGLRenderingAPIOpenGLES3];
     if (!m_oglContext || ![MGLContext setCurrentContext:m_oglContext]) {
@@ -5115,6 +5123,7 @@ GLsizei txtbackgroundImageWidth,txtbackgroundImageHeight;
     m_oglView.drawableStencilFormat = MGLDrawableStencilFormatNone;
     // Enable multisampling
     m_oglView.drawableMultisample = MGLDrawableMultisampleNone;
+    
     
     
 }
@@ -5184,7 +5193,12 @@ void updatePresetCustomDirStructure() {
     
     NSError *error;
     
-    NSString *dirPath = [NSString stringWithFormat:@"%@/Documents%s/presets",NSHomeDirectory(),PM_ROOT_FOLDER_CUSTOM];
+    NSString *canonicalHomePath;
+    [[[NSURL fileURLWithPath:NSHomeDirectory()] URLByResolvingSymlinksInPath] getResourceValue:&canonicalHomePath forKey:NSURLCanonicalPathKey error:nil];
+    MDZILog("path: %@",canonicalHomePath);
+    NSString *dirPath = [NSString stringWithFormat:@"%@/Documents%s/presets",canonicalHomePath,PM_ROOT_FOLDER_CUSTOM];
+    MDZILog("dirPath: %@",dirPath);
+    
     pmCustomPresetsFileNode=nil;
     pmCustomPresetsFileNode=[dirParser parseFastDirectoryAtPath:dirPath type:MDZ_PLAYLIST_FNODE_Custom error:&error];
     if (error) {
@@ -5200,7 +5214,15 @@ void buildPresetDirStructure() {
     dirParser.filterExt = @"milk";
     
     NSString *pmBundleDir = [NSString stringWithFormat:@"%@/projectm/assets/presets",[[NSBundle mainBundle] resourcePath]];
-    NSString *pmCustomDir = [NSString stringWithFormat:@"%@/Documents%s/presets",NSHomeDirectory(),PM_ROOT_FOLDER_CUSTOM];
+    
+    
+    NSString *canonicalHomePath;
+    [[[NSURL fileURLWithPath:NSHomeDirectory()] URLByResolvingSymlinksInPath] getResourceValue:&canonicalHomePath forKey:NSURLCanonicalPathKey error:nil];
+    MDZILog("path: %@",canonicalHomePath);
+    NSString *pmCustomDir = [NSString stringWithFormat:@"%@/Documents%s/presets",canonicalHomePath,PM_ROOT_FOLDER_CUSTOM];
+    MDZILog("pmCustomDir: %@",pmCustomDir);
+    
+    //NSString *pmCustomDir = [NSString stringWithFormat:@"%@/Documents%s/presets",NSHomeDirectory(),PM_ROOT_FOLDER_CUSTOM];
     
     NSError *error=nil;
     
@@ -5393,6 +5415,12 @@ void pm_perfTest() {
         buttonItems = [NSArray arrayWithObjects:flexSpace,itemPrev,flexSpace,itemPlayPause,flexSpace,itemNext,flexSpace,nil];
     }
     [bar setItems:buttonItems];
+    
+    //to avoid flickering issue / metal view
+    bar.layer.opaque = YES;
+    bar.layer.shouldRasterize = YES;
+    bar.layer.rasterizationScale = mScaleFactor;
+    bar.layer.drawsAsynchronously = YES;
 }
 
 - (void) buildCommandBars {
@@ -5444,6 +5472,61 @@ void pm_perfTest() {
     
     [super viewDidLoad];
     
+    //    if (safe_bottom>0) safe_bottom+=20;
+    mScaleFactor=1.0f;
+        if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad) {
+            if (!is_macOS) mDeviceType=DEVICE_IPAD; //ipad
+            else mDeviceType=DEVICE_MACOS;
+            UIScreen* mainscr = [UIScreen mainScreen];
+            
+            //UIWindow *win=[UIApplication sharedApplication].keyWindow;
+            UIWindow *win;
+            //win=[UIApplication sharedApplication].windows.firstObject;
+            win=[self getWindow];
+            
+            
+            //if (mainscr.bounds.size.height>mainscr.bounds.size.width) {
+            if (win.bounds.size.height>win.bounds.size.width) {
+                mDevice_hh=win.bounds.size.height;
+                mDevice_ww=win.bounds.size.width;
+                orientationHV=UIInterfaceOrientationPortrait; //(int)[[UIDevice currentDevice]orientation];
+            } else {
+                mDevice_ww=win.bounds.size.height;
+                mDevice_hh=win.bounds.size.width;
+                orientationHV=UIInterfaceOrientationLandscapeLeft; //(int)[[UIDevice currentDevice]orientation];
+            }
+            
+            mScaleFactor=mainscr.scale;
+            if (mScaleFactor>=2) {
+                if (!is_macOS) mDeviceType=DEVICE_IPAD_RETINA;
+            }
+        } else {
+            mDeviceType=DEVICE_IPHONE; //iphone
+            mDevice_hh=480;
+            mDevice_ww=320;
+            UIScreen* mainscr = [UIScreen mainScreen];
+            UIWindow *win;
+            //win=[UIApplication sharedApplication].windows.firstObject;
+            win=[self getWindow];
+            
+            
+            if (win.bounds.size.height>win.bounds.size.width) {
+                mDevice_hh=win.bounds.size.height;
+                mDevice_ww=win.bounds.size.width;
+                orientationHV=UIInterfaceOrientationPortrait; //(int)[[UIDevice currentDevice]orientation];
+            } else {
+                mDevice_ww=win.bounds.size.height;
+                mDevice_hh=win.bounds.size.width;
+                orientationHV=UIInterfaceOrientationLandscapeLeft; //(int)[[UIDevice currentDevice]orientation];
+            }
+            mScaleFactor=mainscr.scale;
+            
+            if (mScaleFactor>=2) mDeviceType=DEVICE_IPHONE_RETINA;
+            
+        }
+        [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(orientationDidChange:) name:UIDeviceOrientationDidChangeNotification object:nil];
+
+    
     _fx_frame_time=0;
     _fx_frame_timeOverLimitCounter=0;
     deactivateFStemp=0;
@@ -5490,8 +5573,6 @@ void pm_perfTest() {
     [imGui_impl_ios initTF:m_oglView];
     
     CHECK_PROFILE("ImGUI")
-    
-    
     
     //--------------------------------//
     mSendStatTimer=0;
@@ -5575,12 +5656,6 @@ void pm_perfTest() {
     //build various bars
     [self buildCommandBars];
     
-    [pauseBarSub layoutIfNeeded];
-    [playBarSub layoutIfNeeded];
-    
-    
-    
-    
     labelModuleName.userInteractionEnabled = YES;
     UITapGestureRecognizer *tapGesture =
     [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(titleTap:)];
@@ -5606,7 +5681,7 @@ void pm_perfTest() {
     mHasFocus=0;
     mShouldUpdateInfos=0;
     mPaused=1;
-    mScaleFactor=1.0f;
+    
     
     //reset idle timer to settings value
     [[UIApplication sharedApplication] setIdleTimerDisabled:settings[GLOB_NoScreenAutoLock].detail.mdz_boolswitch.switch_value];
@@ -5615,59 +5690,6 @@ void pm_perfTest() {
     
     CHECK_PROFILE("various2")
     
-//    if (safe_bottom>0) safe_bottom+=20;
-    
-    if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad) {
-        if (!is_macOS) mDeviceType=DEVICE_IPAD; //ipad
-        else mDeviceType=DEVICE_MACOS;
-        UIScreen* mainscr = [UIScreen mainScreen];
-        
-        //UIWindow *win=[UIApplication sharedApplication].keyWindow;
-        UIWindow *win;
-        //win=[UIApplication sharedApplication].windows.firstObject;
-        win=[self getWindow];
-        
-        
-        //if (mainscr.bounds.size.height>mainscr.bounds.size.width) {
-        if (win.bounds.size.height>win.bounds.size.width) {
-            mDevice_hh=win.bounds.size.height;
-            mDevice_ww=win.bounds.size.width;
-            orientationHV=UIInterfaceOrientationPortrait; //(int)[[UIDevice currentDevice]orientation];
-        } else {
-            mDevice_ww=win.bounds.size.height;
-            mDevice_hh=win.bounds.size.width;
-            orientationHV=UIInterfaceOrientationLandscapeLeft; //(int)[[UIDevice currentDevice]orientation];
-        }
-        
-        mScaleFactor=mainscr.scale;
-        if (mScaleFactor>=2) {
-            if (!is_macOS) mDeviceType=DEVICE_IPAD_RETINA;
-        }
-    } else {
-        mDeviceType=DEVICE_IPHONE; //iphone
-        mDevice_hh=480;
-        mDevice_ww=320;
-        UIScreen* mainscr = [UIScreen mainScreen];
-        UIWindow *win;
-        //win=[UIApplication sharedApplication].windows.firstObject;
-        win=[self getWindow];
-        
-        
-        if (win.bounds.size.height>win.bounds.size.width) {
-            mDevice_hh=win.bounds.size.height;
-            mDevice_ww=win.bounds.size.width;
-            orientationHV=UIInterfaceOrientationPortrait; //(int)[[UIDevice currentDevice]orientation];
-        } else {
-            mDevice_ww=win.bounds.size.height;
-            mDevice_hh=win.bounds.size.width;
-            orientationHV=UIInterfaceOrientationLandscapeLeft; //(int)[[UIDevice currentDevice]orientation];
-        }
-        mScaleFactor=mainscr.scale;
-        
-        if (mScaleFactor>=2) mDeviceType=DEVICE_IPHONE_RETINA;
-        
-    }
-    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(orientationDidChange:) name:UIDeviceOrientationDidChangeNotification object:nil];
     
     
     CHECK_PROFILE("various3")
@@ -5947,7 +5969,7 @@ void pm_perfTest() {
     // Add the gesture to the view
     [m_oglView addGestureRecognizer:glViewPinchGesture];
     
-    UIHoverGestureRecognizer *glHoverGesture = [[UIHoverGestureRecognizer alloc] initWithTarget:self action:@selector(glViewHoverHesture:)];
+    UIHoverGestureRecognizer *glHoverGesture = [[UIHoverGestureRecognizer alloc] initWithTarget:self action:@selector(glViewHoverGesture:)];
     [m_oglView addGestureRecognizer:glHoverGesture];
     
     
@@ -6076,6 +6098,8 @@ void pm_perfTest() {
     _pmCanvasHeight=m_oglView.frame.size.height*glScaleFactor/_pmScaleFactor;
     
     _pmPresetNewLoaded=false;
+    
+//    buildPresetDirStructure();
     
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
         //--------------------------------//
@@ -6579,11 +6603,13 @@ void pm_perfTest() {
 
 static int mOglView1Tap=0;
 -(void) glViewTwoFingersTouch:(UITapGestureRecognizer *)gestureRecognizer {
-    MDZILog("touch 2 fingers");
-    moveWheelXPMenu=0;
-    moveWheelYPMenu=0;
+    //MDZILog("touch 2 fingers");
+    
     switch (gestureRecognizer.state) {
         case UIGestureRecognizerStateBegan:
+            //MDZILog("reset wheel 2 fingers touch start");
+            moveWheelXPMenu=0;
+            moveWheelYPMenu=0;
             break;
         case UIGestureRecognizerStateChanged:
             break;
@@ -6602,6 +6628,7 @@ static int mOglView1Tap=0;
 -(void) glViewOneFingerOneTap:(UITapGestureRecognizer *)gestureRecognizer {
     moveWheelXPMenu=0;
     moveWheelYPMenu=0;
+//    MDZILog("reset wheel onetap");
     switch (gestureRecognizer.state) {
         case UIGestureRecognizerStateBegan:
             //Stop wheel base move if still active
@@ -6621,8 +6648,6 @@ static int mOglView1Tap=0;
 }
 
 -(void) glViewPanGesture:(UIPanGestureRecognizer *)gestureRecognizer {
-    moveWheelXPMenu=0;
-    moveWheelYPMenu=0;
     if (_shiftModeOn) {
         [self glViewPan2Gesture:gestureRecognizer];
     } else {
@@ -6639,8 +6664,10 @@ static int mOglView1Tap=0;
                 
                 //Stop wheel base move if still active
 //                panGestureWheel=1;
-//                moveWheelXPMenu=0;
-//                moveWheelYPMenu=0;
+                moveWheelXPMenu=0;
+                moveWheelYPMenu=0;
+                
+//                MDZILog("reset wheel Pan start");
                 
                 panGesture1Tap=1;
                 movePxOld=movePx;
@@ -6649,6 +6676,8 @@ static int mOglView1Tap=0;
                 movePxPM=0;movePyPM=0;
                 movePxPMenu=0;movePyPMenu=0;
                 movePMnomore=0;
+                movePreWheelXPMenu=0;
+                movePreWheelYPMenu=0;
                 break;
             case UIGestureRecognizerStateChanged:
                 panGesture1Tap=2;
@@ -6657,13 +6686,25 @@ static int mOglView1Tap=0;
                     movePyPMenu+=pt.y-last_pt.y;
                 }
 //                panGestureWheel=2;
-//                if (pmenu_show) {
-//                    moveWheelXPMenu+=pt.x-last_pt.x;
-//                    moveWheelYPMenu+=pt.y-last_pt.y;
-//                }
+                if (pmenu_show) {
+                    movePreWheelXPMenu=pt.x-last_pt.x;
+                    movePreWheelYPMenu=pt.y-last_pt.y;
+                }
                 last_pt=pt;
                 break;
             default:
+                if (pmenu_show) {
+                    MDZILog("Wheel last: %f %f",movePreWheelXPMenu,movePreWheelYPMenu);
+//                    movePreWheelXPMenu=pt.x-last_pt.x;
+//                    movePreWheelYPMenu=pt.y-last_pt.y;
+//                    last_pt=pt;
+                    
+                    if (is_macOS) {
+                    } else {
+                        moveWheelXPMenu=movePreWheelXPMenu*10;
+                        moveWheelYPMenu=movePreWheelYPMenu*10;
+                    }
+                }
                 panGesture1Tap=0;
                 //Also reset tracking variables related to "swipe" like gesture
                 movePxPM=0;movePyPM=0;
@@ -6675,15 +6716,19 @@ static int mOglView1Tap=0;
     }
 }
 
--(void) glViewHoverHesture:(UIHoverGestureRecognizer *)gestureRecognizer {
-    moveWheelXPMenu=0;
-    moveWheelYPMenu=0;
+-(void) glViewHoverGesture:(UIHoverGestureRecognizer *)gestureRecognizer {
     CGPoint pt=[gestureRecognizer locationInView:m_oglView];
     posMouseX=round(pt.x);
     posMouseY=round(pt.y);
+    
+    moveWheelXPMenu=0;
+    moveWheelYPMenu=0;
+//    MDZILog("reset wheel Hover");
+    
     switch (gestureRecognizer.state) {
         case UIGestureRecognizerStateBegan:
             panGestureHover=1;
+            
             break;
         case UIGestureRecognizerStateChanged:
             panGestureHover=2;
@@ -6714,6 +6759,9 @@ static int mOglView1Tap=0;
             panGestureWheel=1;
             moveWheelXPMenu=0;
             moveWheelYPMenu=0;
+            
+//            MDZILog("reset wheel Pan2 start");
+            
             break;
         case UIGestureRecognizerStateChanged:
             panGestureWheel=2;
@@ -6730,12 +6778,14 @@ static int mOglView1Tap=0;
 }
 
 -(void) glViewPinchGesture:(UIPinchGestureRecognizer *)gestureRecognizer {
-    moveWheelXPMenu=0;
-    moveWheelYPMenu=0;
     CGFloat scale=gestureRecognizer.scale;
     movePinchScale=scale;
     if (gestureRecognizer.state==UIGestureRecognizerStateBegan) {
         movePinchScaleOld=movePinchScale;
+        
+//        MDZILog("reset wheel Pinch start");
+        moveWheelXPMenu=0;
+        moveWheelYPMenu=0;
     }
 }
 
@@ -8973,7 +9023,7 @@ void doFramePM(float ww,float hh) {
         
     }
     
-    [self showGUICorners:ImVec2(ww,hh) frameToUpdate:frameToUpdate];
+    //[self showGUICorners:ImVec2(ww,hh) frameToUpdate:frameToUpdate];
     
     [self showInfoData:ImVec2(ww,hh) frameToUpdate:frameToUpdate];
     
