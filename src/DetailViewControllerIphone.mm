@@ -15,6 +15,8 @@
 #define FX_FS_SONGINFO_TIMEOUT 4 //Display time in seconds of song info data in fullscreen mode
 #define MDZ_FX_SONGINFO_MAXCHAR 80
 
+#define FX_FS_GUIMESSAGE_TIMEOUT 2
+
 #define POPUP_STYLE_INFO 0
 #define POPUP_STYLE_ALERT 1
 
@@ -25,6 +27,7 @@
 #define FONTSIZE_SHOWINFO_FPS 24
 #define FONTSIZE_SHOWINFO_DETAILS 16
 #define FONTSIZE_FX_FS_INFO_LINE 12
+#define FONTSIZE_GUIMSESSAGE 20
 
 #define SHOWINFO_FPS_COLOR 0.2,1.0,0.1
 #define SHOWINFO_CPU_COLOR 83.0/255.0,182.0/255.0,235.0/255.0
@@ -161,6 +164,9 @@ int _pm_display_name_countdown;
 
 int _mdz_FS_display_songinfo_countdown,_mdz_FS_display_cursorLine;
 int _mdz_FS_display_songinfo_char_count[3]={1,1,1};
+float _mdz_FX_GuiMessage_fade,_mdz_FX_GuiMessage_fadeMax;
+char _mdz_FX_GuiMessageStr[64];
+
 NSString *_mdz_FS_display_songinfo_title;
 NSString *_mdz_FS_display_songinfo_artist;
 NSString *_mdz_FS_display_songinfo_sub;
@@ -1402,6 +1408,60 @@ static float movePinchScale,movePinchScaleOld;
     [SettingsGenViewController changeSettingsValue:GLOB_FXMODPattern_FontSize change:val];
 }
 
+-(void) newGuiMessage:(NSString*)msg {
+    if (msg==nil) return;
+    snprintf(_mdz_FX_GuiMessageStr,64,"%s",[msg UTF8String]);
+    int fps=(settings[GLOB_FXFPS].detail.mdz_switch.switch_value?30:60);
+    _mdz_FX_GuiMessage_fade=fps*FX_FS_GUIMESSAGE_TIMEOUT;
+    _mdz_FX_GuiMessage_fadeMax=_mdz_FX_GuiMessage_fade;
+}
+
+-(void) showGuiMessage:(ImVec2)size frameToUpdate:(int)frameToUpdate {
+    if (!_mdz_FX_GuiMessage_fade) return;
+    if (!strlen(_mdz_FX_GuiMessageStr)) return;
+    
+    float alpha;
+    
+    ImGui::GetStyle().Alpha=1.0;
+    
+    float zoomfact=2.0-2.0*pow(_mdz_FX_GuiMessage_fade/_mdz_FX_GuiMessage_fadeMax,3.0);
+    if (zoomfact<0) zoomfact=0;
+    if (zoomfact>1) zoomfact=1;
+    float font_size=round( FONTSIZE_GUIMSESSAGE*( 1 + pow(sin(zoomfact*3.14159),2) ) );
+    if (font_size>60) font_size=60;
+    
+    if (font_menu) ImGui::PushFont(font_menu,font_size*glScaleFactor);
+    else ImGui::PushFont(nullptr);
+    
+    float posY=0;
+    float posX;
+    ImVec2 textSize=ImGui::CalcTextSize(_mdz_FX_GuiMessageStr);
+    posX=round((size.x*glScaleFactor-textSize.x-16*glScaleFactor)/2.0);
+    ImGui::SetNextWindowPos(ImVec2(posX,posY));
+    ImGui::SetNextWindowSize(ImVec2((textSize.x+16*glScaleFactor),(textSize.y+6*glScaleFactor)));
+    
+    alpha=(float)(_mdz_FX_GuiMessage_fade)/30.0;
+    if (alpha>1) alpha=1;
+    ImGui::PushStyleColor(ImGuiCol_WindowBg,ImVec4(0,0,0,0));
+    ImGui::PushStyleColor(ImGuiCol_Border,ImVec4(0,0,0,0));
+    ImGui::Begin("GUI_msg",0,
+                 ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoScrollbar|ImGuiWindowFlags_NoFocusOnAppearing
+                 );
+    
+    ImGui::SetCursorPos(ImVec2((0*posX+9*glScaleFactor), 4*glScaleFactor) );
+    ImGui::TextColored(ImVec4(0.0,0.0,0.0,alpha),"%s",_mdz_FX_GuiMessageStr);
+    
+    ImGui::SetCursorPos(ImVec2((0*posX+8*glScaleFactor), 3*glScaleFactor) );
+    ImGui::TextColored(ImVec4(1.0,1.0,1.0,alpha),"%s",_mdz_FX_GuiMessageStr);
+    ImGui::End();
+    ImGui::PopStyleColor();
+    ImGui::PopStyleColor();
+    ImGui::PopFont();
+    
+    for (int i=0;i<frameToUpdate;i++) {
+        if (_mdz_FX_GuiMessage_fade>0) _mdz_FX_GuiMessage_fade--;
+    }
+}
 
 -(void) mdChangeFavoriteStatusPreset:(int)val {
     if (_pmIsInitialized && _pm) {
@@ -1422,6 +1482,14 @@ static float movePinchScale,movePinchScaleOld;
                     added=true;
                 }
             }
+            if (added) {
+                //[self newGuiMessage:NSLocalizedString(@"Added to favorites",@"")];
+                [self newGuiMessage:[NSString stringWithFormat:@"%C",static_cast<unichar>(FA_HEART)]];
+                
+            } else {
+                //[self newGuiMessage:NSLocalizedString(@"Removed from favorites",@"")];
+                [self newGuiMessage:[NSString stringWithFormat:@"%C",static_cast<unichar>(FA_HEART_O)]];
+            }
             _pmPresetUpdateDisplayInfo=true;
             _pm_display_scroll_pause=_pm_fps*1.5;
         }
@@ -1438,9 +1506,13 @@ static float movePinchScale,movePinchScaleOld;
             if (settings[PROJECTM_LockPreset].detail.mdz_boolswitch.switch_value) {
                 projectm_set_preset_locked(_pm, false);
                 settings[PROJECTM_LockPreset].detail.mdz_boolswitch.switch_value=0;
+                //[self newGuiMessage:NSLocalizedString(@"Preset unlocked",@"")];
+                [self newGuiMessage:[NSString stringWithFormat:@"%C",static_cast<unichar>(FA_UNLOCK)]];
             } else {
                 projectm_set_preset_locked(_pm, true);
                 settings[PROJECTM_LockPreset].detail.mdz_boolswitch.switch_value=1;
+                //[self newGuiMessage:NSLocalizedString(@"Locked",@"")];
+                [self newGuiMessage:[NSString stringWithFormat:@"%C",static_cast<unichar>(FA_LOCK)]];
             }
             _pmPresetUpdateDisplayInfo=true;
             _pm_display_scroll_pause=_pm_fps*1.5;
@@ -6144,6 +6216,8 @@ void pm_perfTest() {
     memset(oglv_corner_fade,0,sizeof(oglv_corner_fade));
     
     _mdz_FS_display_songinfo_countdown=0;
+    _mdz_FX_GuiMessageStr[0]=0;
+    _mdz_FX_GuiMessage_fade=0;
     
     //	[super viewDidLoad];
     END_PROFILE
@@ -9026,6 +9100,8 @@ void doFramePM(float ww,float hh) {
     //[self showGUICorners:ImVec2(ww,hh) frameToUpdate:frameToUpdate];
     
     [self showInfoData:ImVec2(ww,hh) frameToUpdate:frameToUpdate];
+    
+    [self showGuiMessage:ImVec2(ww,hh) frameToUpdate:frameToUpdate];
     
     //-----------------------------------
     // ImGui

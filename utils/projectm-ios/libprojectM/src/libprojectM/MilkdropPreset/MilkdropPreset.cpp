@@ -19,9 +19,6 @@
  *
  */
 
-//YOYOFR
-extern int mdz_pmBlurAfterAudio;
-
 #include "MilkdropPreset.hpp"
 
 #include "Factory.hpp"

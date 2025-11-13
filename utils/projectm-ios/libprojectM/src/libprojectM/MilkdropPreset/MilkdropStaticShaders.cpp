@@ -541,9 +541,7 @@ uniform float vertex_point_size;
 out vec4 fragment_color;
 
 void main(){
-    vec2 pos=vertex_position.xy;
-//pos.y=-pos.y;
-    gl_Position = vertex_transformation * vec4(pos, 0.0, 1.0);
+    gl_Position = vertex_transformation * vec4(vertex_position, 0.0, 1.0);
     gl_PointSize = vertex_point_size;
     fragment_color = vertex_color;
 }
