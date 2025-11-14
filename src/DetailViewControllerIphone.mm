@@ -27,7 +27,7 @@
 #define FONTSIZE_SHOWINFO_FPS 24
 #define FONTSIZE_SHOWINFO_DETAILS 16
 #define FONTSIZE_FX_FS_INFO_LINE 12
-#define FONTSIZE_GUIMSESSAGE 20
+#define FONTSIZE_GUIMSESSAGE 40
 
 #define SHOWINFO_FPS_COLOR 0.2,1.0,0.1
 #define SHOWINFO_CPU_COLOR 83.0/255.0,182.0/255.0,235.0/255.0
@@ -1428,7 +1428,6 @@ static float movePinchScale,movePinchScaleOld;
     if (zoomfact<0) zoomfact=0;
     if (zoomfact>1) zoomfact=1;
     float font_size=round( FONTSIZE_GUIMSESSAGE*( 1 + pow(sin(zoomfact*3.14159),2) ) );
-    if (font_size>60) font_size=60;
     
     if (font_menu) ImGui::PushFont(font_menu,font_size*glScaleFactor);
     else ImGui::PushFont(nullptr);

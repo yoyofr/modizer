@@ -41,7 +41,7 @@ extern pthread_mutex_t pm_mutex;
     if (self) {
         _localpath = localpath;
         _rootpath = rootpath;
-        _name = [_localpath lastPathComponent];
+        _name = [[_localpath lastPathComponent] stringByDeletingPathExtension];
         _children = nil;
         _isSelected = TRUE;
         _selectedChildren = 0;
@@ -66,7 +66,7 @@ extern pthread_mutex_t pm_mutex;
     if (self) {
         _localpath = localpath;
         _rootpath = rootpath;
-        _name = [_localpath lastPathComponent];
+        _name = [[_localpath lastPathComponent] stringByDeletingPathExtension];
         _children = nil;
         _isSelected = TRUE;
         _selectedChildren = 0;
@@ -86,7 +86,7 @@ extern pthread_mutex_t pm_mutex;
     if (self) {
         _localpath = localpath;
         _rootpath = rootpath;
-        _name = [_localpath lastPathComponent];
+        _name = [[_localpath lastPathComponent] stringByDeletingPathExtension];
         _children = nil;
         _isSelected = TRUE;
         _selectedChildren = 0;

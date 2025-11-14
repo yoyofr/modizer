@@ -12,6 +12,8 @@
 #define PMENU_PMEXPLORE_FAV_FLAG 1
 #define PMENU_PMEXPLORE_SEL_FLAG 2
 
+#define PMENU_EXPLORER_MIN_STRING_LENGTH 32
+
 
 #include "PlayerMenu.h"
 #include "SettingsGenViewController.h"
@@ -1936,6 +1938,43 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
     return keepOpened;
 }
 
+std::string TruncateText(const std::string& p_text, float p_truncated_width) {
+    std::string truncated_text = p_text;
+
+    const float text_width =
+            ImGui::CalcTextSize(p_text.c_str(), nullptr, true).x;
+
+    if (text_width > p_truncated_width) {
+        constexpr const char* ELLIPSIS = "...";
+        const float ellipsis_size = ImGui::CalcTextSize(ELLIPSIS).x;
+
+        int visible_chars = 0;
+        for (size_t i = 0; i < p_text.size(); i++) {
+            const float current_width = ImGui::CalcTextSize(
+                    p_text.substr(0, i).c_str(), nullptr, true)
+                                                .x;
+            if (current_width + ellipsis_size > p_truncated_width) {
+                break;
+            }
+
+            visible_chars = i;
+        }
+
+        //truncated_text = (p_text.substr(0, visible_chars) + ELLIPSIS).c_str();
+        int visible_chars_left=floor(visible_chars/2);
+        int visible_chars_right=ceil(visible_chars/2);
+        truncated_text = (p_text.substr(0, visible_chars_left) + ELLIPSIS + p_text.substr(p_text.length()-visible_chars_right, visible_chars_right)).c_str();
+    }
+
+    return truncated_text;
+}
+
+NSString *limitStrSize(NSString *str,float width) {
+    std::string tmpStr=std::string([str UTF8String]);
+    std::string truncStr=TruncateText(tmpStr,width);
+    return [NSString stringWithUTF8String:truncStr.c_str()];
+}
+
 int pMenu_PMbuildDirTree(FileNode *fileNode, int idx,bool filter,int updExpandCollapse,int selectedMode) {
     int flags_default=ImGuiTreeNodeFlags_SpanFullWidth;
     if (filter||selectedMode) {
@@ -1981,7 +2020,7 @@ int pMenu_PMbuildDirTree(FileNode *fileNode, int idx,bool filter,int updExpandCo
                     if (child.isFullyFavorite) strNode=[NSString stringWithFormat:@"%C%@",static_cast<unichar>(FA_HEART),[child name]];
                     else strNode=[NSString stringWithFormat:@"%C%@",static_cast<unichar>(FA_HEART_O),[child name]];
                 }
-                else strNode=[NSString stringWithFormat:@"%@",[child name]];
+                else strNode=[NSString stringWithString:[child name]];
                 
                 bool node_open=ImGui::TreeNodeEx((void*)(intptr_t)idx++, flags, " ");
                 
@@ -1999,6 +2038,11 @@ int pMenu_PMbuildDirTree(FileNode *fileNode, int idx,bool filter,int updExpandCo
                 }
                 
                 ImGui::SameLine();
+                
+                ImVec2 cpos=ImGui::GetCursorPos();
+                ImVec2 wsize=ImGui::GetWindowSize();
+                strNode=limitStrSize(strNode,wsize.x-cpos.x-16*glScaleFactor);
+                
                 if (child.isFullySelected) ImGui::TextColored(pMenu_browser_selectedLineText, "%s",[strNode UTF8String]);
                 else if (child.isSelected_Temp) ImGui::TextColored(pMenu_browser_partiallySelectedLineText, "%s",[strNode UTF8String]);
                 else ImGui::TextColored(pMenu_browser_notSelectedLineText,"%s",[strNode UTF8String]);
@@ -2049,7 +2093,6 @@ int pMenu_PMbuildDirTree(FileNode *fileNode, int idx,bool filter,int updExpandCo
                 ImGui::SameLine();
                 //If clicking the button, do no register click for the node
                 if (ImGui::Button(faicon_with_pre_suf(" ",FA_PLAY_CIRCLE_O," "))) {
-                    //MDZILog("clicked on %s",[strNode UTF8String]);
                     [_mdzPM_playlist loadPreset:child cut:true];
                     shouldUpdateSel=false;
                 }
@@ -2060,6 +2103,11 @@ int pMenu_PMbuildDirTree(FileNode *fileNode, int idx,bool filter,int updExpandCo
                 
                 if (shouldUpdateSel) child.isSelected_Temp=!child.isSelected_Temp;
                 ImGui::SameLine();
+                
+                ImVec2 cpos=ImGui::GetCursorPos();
+                ImVec2 wsize=ImGui::GetWindowSize();
+                strNode=limitStrSize(strNode,wsize.x-cpos.x-8*glScaleFactor);
+                
                 if (child.isSelected_Temp) ImGui::TextColored(pMenu_browser_selectedLineText, "%s",[strNode UTF8String]);
                 else ImGui::TextColored(pMenu_browser_notSelectedLineText,"%s",[strNode UTF8String]);
                 
