@@ -584,10 +584,16 @@ prjm_eval_function_decl(div)
 
     invoke_arg(0, &val1_ptr);
     invoke_arg(1, &val2_ptr);
+    
+    if ((*val1_ptr) == 0) {
+        assign_ret_val(0.0);
+        return;
+    }
 
     if(fabs(*val2_ptr) < close_factor_low)
     {
-        assign_ret_val(0.0);
+        if (*val1_ptr>0) assign_ret_val(MAXFLOAT);
+        else assign_ret_val(-MAXFLOAT);
         return;
     }
 

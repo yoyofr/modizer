@@ -786,11 +786,64 @@ void GLSLGenerator::OutputExpression(HLSLExpression* expression, const HLSLType*
                 }
 
                 if (!handled) {
-                    m_writer.Write("(");
-                    OutputExpression(binaryExpression->expression1, dstType1);
-                    m_writer.Write("%s", op);
-                    OutputExpression(binaryExpression->expression2, dstType2);
-                    m_writer.Write(")");
+                    //Specific case of accessing part of a matrix with a vector to assign / multiply / add / divide...
+                    HLSLExpression* expression=binaryExpression->expression1;
+                    //Check if it is a matrix
+                    if (expression->nodeType == HLSLNodeType_ArrayAccess)
+                    {
+                        HLSLArrayAccess* arrayAccess = static_cast<HLSLArrayAccess*>(expression);
+                        
+                        //check if assigning a vector
+                        if (!arrayAccess->array->expressionType.array &&
+                            IsMatrixType(arrayAccess->array->expressionType.baseType) )
+                        {
+                            if ( (!strcmp(op," = ")) ||
+                                 (!strcmp(op," *= "))  ||
+                                 (!strcmp(op," /= "))  ||
+                                 (!strcmp(op," += "))  ||
+                                 (!strcmp(op," -= ")) ) {
+                                //Set a matrix component
+                                int expression2_components=0;
+                                switch (binaryExpression->expression2->expressionType.baseType) {
+                                    case HLSLBaseType_Float:
+                                        expression2_components=1;
+                                        break;
+                                    case HLSLBaseType_Float2:
+                                        expression2_components=2;
+                                        break;
+                                    case HLSLBaseType_Float3:
+                                        expression2_components=3;
+                                        break;
+                                    case HLSLBaseType_Float4:
+                                        expression2_components=4;
+                                        break;
+                                }
+                                if (expression2_components) {
+                                    
+                                    for (int ii=0;ii<expression2_components;ii++) {
+                                        OutputExpression(arrayAccess->array);
+                                        m_writer.Write("[%d]",ii);
+                                        m_writer.Write("[");
+                                        OutputExpression(arrayAccess->index);
+                                        m_writer.Write("]");
+                                        m_writer.Write("%s",op);
+                                        OutputExpression(binaryExpression->expression2, dstType2);
+                                        m_writer.Write("[%d];",ii);
+                                    }
+                                    handled=true;
+                                }
+                            }
+                        }
+                    }
+                    
+                    if (!handled)
+                    {
+                        m_writer.Write("(");
+                        OutputExpression(binaryExpression->expression1, dstType1);
+                        m_writer.Write("%s", op);
+                        OutputExpression(binaryExpression->expression2, dstType2);
+                        m_writer.Write(")");
+                    }
                 }
             }
 		}
