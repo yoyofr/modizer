@@ -102,8 +102,10 @@ auto PresetFileParser::GetCode(const std::string& keyPrefix) const -> std::strin
         {
             line.erase(0, 1);
         }
-        
+
         //YOYOFR
+        bool removeEndl=false;
+#if 0
         //------------------
         //Manage comment
         //------------------
@@ -141,7 +143,7 @@ auto PresetFileParser::GetCode(const std::string& keyPrefix) const -> std::strin
         //------------------
         // Permissive mode: allow to merge line together under certain conditions: no comment, no ';' at the end of line, ...
         // Allow several milk preset to compile as the code is sometime broken on 2 lines in the middle of a litteral
-        bool removeEndl=false;
+        
         if (mdz_pmMilkPermissiveEvalCode) {
             //Check if last char is a ';'
             int pos=(int)line.length()-1;
@@ -167,6 +169,7 @@ auto PresetFileParser::GetCode(const std::string& keyPrefix) const -> std::strin
                 }
             }
         }
+#endif
         if (removeEndl) code << line;
         else code << line << std::endl;
         //
