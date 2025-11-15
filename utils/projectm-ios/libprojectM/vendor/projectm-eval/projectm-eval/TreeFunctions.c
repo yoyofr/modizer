@@ -590,8 +590,10 @@ prjm_eval_function_decl(div)
         return;
     }
 
-    if(fabs(*val2_ptr) < close_factor_low)
+    if(fabs(*val2_ptr) == 0) // < close_factor_low)
     {
+//        assign_ret_val(0.0);
+//        return;
         if (*val1_ptr>0) assign_ret_val(MAXFLOAT);
         else assign_ret_val(-MAXFLOAT);
         return;

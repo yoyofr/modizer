@@ -531,11 +531,11 @@ void MilkdropShader::PreprocessPresetShader(std::string& program)
     {
         if (m_type == ShaderType::WarpShader)
         {
-            program.replace(int(found), 11, "void PS(float4 _vDiffuse : COLOR, float4 _uv : TEXCOORD0, float2 _rad_ang : TEXCOORD1, out float4 _return_value : COLOR0, out float4 _mv_tex_coords : COLOR1)\n");
+            program.replace(int(found), 11, "\nvoid PS(float4 _vDiffuse : COLOR, float4 _uv : TEXCOORD0, float2 _rad_ang : TEXCOORD1, out float4 _return_value : COLOR0, out float4 _mv_tex_coords : COLOR1)\n");
         }
         else
         {
-            program.replace(int(found), 11, "void PS(float4 _vDiffuse : COLOR, float2 _uv : TEXCOORD0, float2 _rad_ang : TEXCOORD1, out float4 _return_value : COLOR)\n");
+            program.replace(int(found), 11, "\nvoid PS(float4 _vDiffuse : COLOR, float2 _uv : TEXCOORD0, float2 _rad_ang : TEXCOORD1, out float4 _return_value : COLOR)\n");
         }
     }
     else
