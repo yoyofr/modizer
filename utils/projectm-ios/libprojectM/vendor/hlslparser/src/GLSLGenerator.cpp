@@ -1218,6 +1218,10 @@ void GLSLGenerator::OutputIdentifier(const char* name)
     {
         name = "dFdy";
     }
+    else if (String_Equal(name, "fwidth"))
+    {
+        name = "fwidth";
+    }
     else if (String_Equal(name, "modf"))
     {
         name = m_modfFunction;
