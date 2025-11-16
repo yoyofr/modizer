@@ -6,6 +6,7 @@
 //
 
 #include "ShaderPreprocessor.h"
+#include <HLSLTypeFixer.h>
 #include <regex>
 #include <algorithm>
 #include <iostream>
@@ -236,6 +237,7 @@ std::string ShaderPreprocessor::removeCommentsAndStrings(const std::string& sour
         if (!inString && !inComment && c == '/' && next == '/') {
             inLineComment = true;
             result += ' ';
+            result += ' ';  // Add space for second '/' too
             ++i;
             continue;
         }
@@ -253,6 +255,7 @@ std::string ShaderPreprocessor::removeCommentsAndStrings(const std::string& sour
         if (!inString && !inLineComment && c == '/' && next == '*') {
             inComment = true;
             result += ' ';
+            result += ' ';  // Add space for '*' too
             ++i;
             continue;
         }
@@ -261,6 +264,7 @@ std::string ShaderPreprocessor::removeCommentsAndStrings(const std::string& sour
             if (c == '*' && next == '/') {
                 inComment = false;
                 result += ' ';
+                result += ' ';  // Add space for '/' too
                 ++i;
             } else {
                 result += (c == '\n') ? '\n' : ' ';
@@ -434,10 +438,476 @@ std::vector<ShaderPreprocessor::KeywordUsageInfo> ShaderPreprocessor::detectKeyw
     return usages;
 }
 
+std::vector<ShaderPreprocessor::ArrayInitializerInfo> ShaderPreprocessor::detectArrayInitializers(const std::string& source) {
+    std::vector<ArrayInitializerInfo> arrayInits;
+    
+    // Pattern to match: [static] [const] <type> <name>[<size>] = <type>[<size>]{...};
+    std::vector<std::string> types = getShaderTypes();
+    
+    size_t pos = 0;
+    while (pos < source.length()) {
+        // Look for array declarations with initializers
+        // Start by finding the equals sign followed by brace initializer
+        size_t equalsPos = source.find('=', pos);
+        if (equalsPos == std::string::npos) break;
+        
+        // Look for opening brace after equals
+        size_t searchPos = equalsPos + 1;
+        while (searchPos < source.length() && std::isspace(source[searchPos])) {
+            ++searchPos;
+        }
+        
+        // Check if we have array initializer syntax: type[size]{
+        bool hasArrayInit = false;
+        size_t bracePos = std::string::npos;
+        
+        // Look for pattern: type[size]{
+        size_t checkPos = searchPos;
+        while (checkPos < source.length()) {
+            if (source[checkPos] == '{') {
+                bracePos = checkPos;
+                hasArrayInit = true;
+                break;
+            } else if (source[checkPos] == ';' || source[checkPos] == '\n') {
+                break;
+            }
+            ++checkPos;
+        }
+        
+        if (!hasArrayInit || bracePos == std::string::npos) {
+            pos = equalsPos + 1;
+            continue;
+        }
+        
+        // Find the matching closing brace
+        int braceDepth = 1;
+        size_t closeBracePos = bracePos + 1;
+        while (closeBracePos < source.length() && braceDepth > 0) {
+            if (source[closeBracePos] == '{') ++braceDepth;
+            else if (source[closeBracePos] == '}') --braceDepth;
+            ++closeBracePos;
+        }
+        
+        if (braceDepth != 0) {
+            pos = equalsPos + 1;
+            continue;
+        }
+        
+        // Find the semicolon
+        size_t semicolonPos = closeBracePos;
+        while (semicolonPos < source.length() && std::isspace(source[semicolonPos])) {
+            ++semicolonPos;
+        }
+        if (semicolonPos >= source.length() || source[semicolonPos] != ';') {
+            pos = equalsPos + 1;
+            continue;
+        }
+        
+        // Now work backwards to find the declaration
+        // Format: [static] [const] type name[size]
+        size_t declStart = equalsPos;
+        while (declStart > 0 && (std::isspace(source[declStart - 1]) || source[declStart - 1] == ']')) {
+            --declStart;
+        }
+        
+        // Find the array size
+        size_t closeBracketPos = declStart;
+        if (closeBracketPos > 0 && source[closeBracketPos] == ']') {
+            // Already at ]
+        } else {
+            // Find ]
+            while (closeBracketPos < equalsPos && source[closeBracketPos] != ']') {
+                ++closeBracketPos;
+            }
+            if (closeBracketPos >= equalsPos) {
+                pos = equalsPos + 1;
+                continue;
+            }
+        }
+        
+        // Find the opening bracket
+        size_t openBracketPos = closeBracketPos;
+        while (openBracketPos > 0 && source[openBracketPos] != '[') {
+            --openBracketPos;
+        }
+        
+        if (source[openBracketPos] != '[') {
+            pos = equalsPos + 1;
+            continue;
+        }
+        
+        std::string arraySize = source.substr(openBracketPos + 1, closeBracketPos - openBracketPos - 1);
+        // Trim whitespace
+        arraySize.erase(0, arraySize.find_first_not_of(" \t\n\r"));
+        arraySize.erase(arraySize.find_last_not_of(" \t\n\r") + 1);
+        
+        // Find array name
+        size_t nameEnd = openBracketPos;
+        while (nameEnd > 0 && std::isspace(source[nameEnd - 1])) {
+            --nameEnd;
+        }
+        
+        size_t nameStart = nameEnd;
+        while (nameStart > 0 && (std::isalnum(source[nameStart - 1]) || source[nameStart - 1] == '_')) {
+            --nameStart;
+        }
+        
+        std::string arrayName = source.substr(nameStart, nameEnd - nameStart);
+        
+        // Find type end (before any keywords like const/static)
+        size_t typeEnd = nameStart;
+        while (typeEnd > 0 && std::isspace(source[typeEnd - 1])) {
+            --typeEnd;
+        }
+        
+        // Find where the actual type word ends (working backwards)
+        size_t typeWordEnd = typeEnd;
+        size_t typeWordStart = typeWordEnd;
+        while (typeWordStart > 0 && (std::isalnum(source[typeWordStart - 1]) || source[typeWordStart - 1] == '_')) {
+            --typeWordStart;
+        }
+        
+        // Extract the type (this is the actual type like "float", not including static/const)
+        std::string arrayType = source.substr(typeWordStart, typeWordEnd - typeWordStart);
+        
+        // Now check for const keyword (working backwards from the type)
+        bool isConst = false;
+        size_t beforeType = typeWordStart;
+        while (beforeType > 0 && std::isspace(source[beforeType - 1])) {
+            --beforeType;
+        }
+        
+        if (beforeType >= 5) {
+            std::string possibleConst = source.substr(beforeType - 5, 5);
+            if (possibleConst == "const") {
+                isConst = true;
+                beforeType -= 5;
+                // Skip whitespace before const
+                while (beforeType > 0 && std::isspace(source[beforeType - 1])) {
+                    --beforeType;
+                }
+            }
+        }
+        
+        // Check for static keyword (before const)
+        bool isStatic = false;
+        if (beforeType >= 6) {
+            std::string possibleStatic = source.substr(beforeType - 6, 6);
+            if (possibleStatic == "static") {
+                isStatic = true;
+                beforeType -= 6;
+            }
+        }
+        
+        // Find declaration start
+        // If we have static/const, start from before them; otherwise start from the type
+        if (isStatic || isConst) {
+            declStart = beforeType;
+        } else {
+            declStart = typeWordStart;
+        }
+        
+        // Trim leading whitespace from the line
+        while (declStart > 0 && (source[declStart - 1] == ' ' || source[declStart - 1] == '\t')) {
+            --declStart;
+        }
+        
+        // Parse initializer values
+        std::vector<std::string> initValues;
+        std::string initContent = source.substr(bracePos + 1, closeBracePos - bracePos - 2);
+        
+        // Split by commas (respecting nested parentheses and braces)
+        size_t valueStart = 0;
+        int depth = 0;
+        for (size_t i = 0; i < initContent.length(); ++i) {
+            char c = initContent[i];
+            if (c == '(' || c == '{') {
+                ++depth;
+            } else if (c == ')' || c == '}') {
+                --depth;
+            } else if (c == ',' && depth == 0) {
+                std::string value = initContent.substr(valueStart, i - valueStart);
+                // Trim whitespace
+                value.erase(0, value.find_first_not_of(" \t\n\r"));
+                value.erase(value.find_last_not_of(" \t\n\r") + 1);
+                if (!value.empty()) {
+                    initValues.push_back(value);
+                }
+                valueStart = i + 1;
+            }
+        }
+        
+        // Don't forget the last value
+        if (valueStart < initContent.length()) {
+            std::string value = initContent.substr(valueStart);
+            value.erase(0, value.find_first_not_of(" \t\n\r"));
+            value.erase(value.find_last_not_of(" \t\n\r") + 1);
+            if (!value.empty()) {
+                initValues.push_back(value);
+            }
+        }
+        
+        ArrayInitializerInfo info;
+        info.arrayType = arrayType;
+        info.arrayName = arrayName;
+        info.arraySize = arraySize;
+        info.initializerValues = initValues;
+        info.declarationStart = declStart;
+        info.declarationEnd = semicolonPos + 1;
+        info.isStatic = isStatic;
+        info.isConst = isConst;
+        
+        // Check if we need to expand vector types (float4, float3, float2, etc.)
+        // This happens when array size doesn't match initializer count
+        try {
+            size_t expectedSize = std::stoul(arraySize);
+            if (initValues.size() < expectedSize && initValues.size() > 0) {
+                // We might need to expand vectors
+                // Calculate how many components each initializer should expand to
+                size_t expansionFactor = expectedSize / initValues.size();
+                
+                // Only expand if it's a perfect division and makes sense (2, 3, or 4 components)
+                if (expectedSize % initValues.size() == 0 && 
+                    (expansionFactor == 2 || expansionFactor == 3 || expansionFactor == 4)) {
+                    
+                    // Expand each initializer value with swizzles
+                    std::vector<std::string> expandedValues;
+                    const char* swizzles[] = {"x", "y", "z", "w"};
+                    
+                    for (const auto& value : initValues) {
+                        for (size_t i = 0; i < expansionFactor; ++i) {
+                            // Check if the value already has a swizzle or is a simple scalar
+                            // For now, assume it needs expansion and add .x, .y, .z, .w
+                            std::string expandedValue = "(" + value + ")." + swizzles[i];
+                            expandedValues.push_back(expandedValue);
+                        }
+                    }
+                    
+                    info.initializerValues = expandedValues;
+                }
+            }
+        } catch (...) {
+            // If we can't parse the array size, proceed with original values
+        }
+        
+        arrayInits.push_back(info);
+        
+        pos = semicolonPos + 1;
+    }
+    
+    return arrayInits;
+}
+
+std::string ShaderPreprocessor::fixArrayInitializers(const std::string& shaderSource) {
+    std::vector<ArrayInitializerInfo> arrayInits = detectArrayInitializers(shaderSource);
+    
+    if (arrayInits.empty()) {
+        return shaderSource;
+    }
+    
+    std::string result = shaderSource;
+    
+    // We need to:
+    // 1. Replace the array declaration with a simple declaration (no static/const, no initializer)
+    // 2. Find "void PS(" function and insert assignments after the opening brace
+    
+    // First, collect all the assignments we need to make
+    std::string allAssignments;
+    
+    // Process in reverse order to maintain correct positions
+    for (auto it = arrayInits.rbegin(); it != arrayInits.rend(); ++it) {
+        const auto& info = *it;
+        
+        // Create the new simple declaration (without static/const and initializer)
+        std::string newDeclaration = info.arrayType + " " + info.arrayName + "[" + info.arraySize + "];\n";
+        
+        // Create assignments for each initializer value
+        std::string assignments;
+        for (size_t i = 0; i < info.initializerValues.size(); ++i) {
+            assignments += info.arrayName + "[" + std::to_string(i) + "]=" + info.initializerValues[i] + ";\n";
+        }
+        
+        // Prepend to collected assignments (since we're processing in reverse)
+        allAssignments = assignments + allAssignments;
+        
+        // Replace the declaration in the source
+        result.replace(info.declarationStart, info.declarationEnd - info.declarationStart, newDeclaration);
+    }
+    
+    // Now find "void PS(" function and insert assignments after its opening brace
+    // Pattern: void PS(...) { or void PS(...)\n{
+    size_t psFuncPos = result.find("void PS(");
+    if (psFuncPos != std::string::npos) {
+        // Find the opening brace after the function signature
+        size_t searchPos = psFuncPos + 8; // Skip "void PS("
+        
+        // Find the closing parenthesis of the parameter list
+        int parenDepth = 1;
+        while (searchPos < result.length() && parenDepth > 0) {
+            if (result[searchPos] == '(') {
+                ++parenDepth;
+            } else if (result[searchPos] == ')') {
+                --parenDepth;
+            }
+            ++searchPos;
+        }
+        
+        // Now find the opening brace
+        while (searchPos < result.length() && result[searchPos] != '{') {
+            ++searchPos;
+        }
+        
+        if (searchPos < result.length() && result[searchPos] == '{') {
+            // Insert assignments right after the opening brace
+            result.insert(searchPos + 1, "\n" + allAssignments);
+        }
+    }
+    
+    return result;
+}
+
+std::string ShaderPreprocessor::fixModuloParentheses(const std::string& shaderSource) {
+    std::string result = shaderSource;
+    
+    // Look for patterns like: identifier%number/something or identifier%number*something
+    // where the modulo operation should be parenthesized
+    
+    bool foundIssue = true;
+    int maxIterations = 100;
+    int iteration = 0;
+    
+    while (foundIssue && iteration < maxIterations) {
+        foundIssue = false;
+        iteration++;
+        
+        // Create cleaned version to avoid issues with comments
+        std::string cleaned = removeCommentsAndStrings(result);
+        
+        if (cleaned.length() != result.length()) {
+            if (m_verbose) {
+                std::cout << "Error: length mismatch in fixModuloParentheses!" << std::endl;
+            }
+            break;
+        }
+        
+        for (size_t i = 0; i < cleaned.length(); ++i) {
+            if (cleaned[i] != '%') {
+                continue;
+            }
+            
+            // Found modulo operator, check if it needs parentheses
+            // Look backwards for the left operand
+            size_t leftEnd = i;
+            if (leftEnd == 0) continue;
+            
+            // Skip back past any whitespace
+            size_t leftPos = leftEnd - 1;
+            while (leftPos > 0 && std::isspace(cleaned[leftPos])) {
+                --leftPos;
+            }
+            
+            // If we hit a closing paren, this expression is already parenthesized
+            if (cleaned[leftPos] == ')') {
+                continue;
+            }
+            
+            // Find the start of the left operand (identifier or number)
+            size_t leftStart = leftPos;
+            while (leftStart > 0 && (std::isalnum(cleaned[leftStart - 1]) || cleaned[leftStart - 1] == '_' || cleaned[leftStart - 1] == '.')) {
+                --leftStart;
+            }
+            
+            // Look forward for the right operand
+            size_t rightStart = i + 1;
+            while (rightStart < cleaned.length() && std::isspace(cleaned[rightStart])) {
+                ++rightStart;
+            }
+            
+            if (rightStart >= cleaned.length()) {
+                continue;
+            }
+            
+            // Find the end of the right operand
+            size_t rightEnd = rightStart;
+            while (rightEnd < cleaned.length() && (std::isalnum(cleaned[rightEnd]) || cleaned[rightEnd] == '_' || cleaned[rightEnd] == '.')) {
+                ++rightEnd;
+            }
+            
+            if (rightEnd >= cleaned.length()) {
+                continue;
+            }
+            
+            // Skip whitespace after right operand
+            size_t afterRight = rightEnd;
+            while (afterRight < cleaned.length() && std::isspace(cleaned[afterRight])) {
+                ++afterRight;
+            }
+            
+            if (afterRight >= cleaned.length()) {
+                continue;
+            }
+            
+            // Check if the next operator is / or * (lower precedence than %)
+            // In these cases, we need to add parentheses
+            char nextOp = cleaned[afterRight];
+            if (nextOp == '/' || nextOp == '*') {
+                // Check what comes before the left operand
+                // We want to add parentheses only if it's not already parenthesized
+                char beforeChar = (leftStart > 0) ? cleaned[leftStart - 1] : ' ';
+                
+                // Don't add parentheses if already inside parentheses or at start of expression
+                if (beforeChar == '(') {
+                    continue;
+                }
+                
+                if (m_verbose) {
+                    std::cout << "Found unparenthesized modulo at position " << i << std::endl;
+                    if (leftStart >= 5 && rightEnd + 10 < result.length()) {
+                        std::cout << "  Context: " << result.substr(leftStart - 5, rightEnd - leftStart + 15) << std::endl;
+                    }
+                }
+                
+                // Add closing parenthesis after right operand
+                result.insert(rightEnd, ")");
+                
+                // Add opening parenthesis before left operand
+                result.insert(leftStart, "(");
+                
+                foundIssue = true;
+                
+                if (m_verbose) {
+                    std::cout << "  Added parentheses around modulo operation" << std::endl;
+                    if (leftStart >= 5 && rightEnd + 10 < result.length()) {
+                        std::cout << "  Result: " << result.substr(leftStart - 5, rightEnd - leftStart + 17) << std::endl;
+                    }
+                }
+                
+                // Start over after making a change
+                break;
+            }
+        }
+    }
+    
+    if (m_verbose && iteration >= maxIterations) {
+        std::cout << "Warning: fixModuloParentheses reached max iterations" << std::endl;
+    }
+    
+    return result;
+}
+
 std::string ShaderPreprocessor::preprocess(const std::string& shaderSource) {
     std::string result = shaderSource;
     
-    // Step 1: Remove invalid functions
+    // Step 0: Process #define directives (expand macros and remove directives)
+    result = processDefines(result);
+    
+    
+    // Step 1: Fix array initializers (must be done early, before shader_body transformations)
+    if (m_language == ShaderLanguage::HLSL) {
+        result = fixArrayInitializers(result);
+    }
+    
+    // Step 2: Remove invalid functions
     std::vector<FunctionInfo> functions = extractFunctions(result);
     for (auto it = functions.rbegin(); it != functions.rend(); ++it) {
         if (it->shouldReturnValue && !it->hasReturn) {
@@ -445,7 +915,7 @@ std::string ShaderPreprocessor::preprocess(const std::string& shaderSource) {
         }
     }
     
-    // Step 2: Fix variable shadowing
+    // Step 3: Fix variable shadowing
     std::vector<ShadowingInfo> shadowingCases = detectShadowing(result);
     
     if (!shadowingCases.empty()) {
@@ -499,7 +969,7 @@ std::string ShaderPreprocessor::preprocess(const std::string& shaderSource) {
         }
     }
     
-    // Step 3: Fix division by zero
+    // Step 4: Fix division by zero
     std::vector<ForLoopInfo> dangerousLoops = detectDivisionByZeroInLoops(result);
     
     if (!dangerousLoops.empty()) {
@@ -534,37 +1004,43 @@ std::string ShaderPreprocessor::preprocess(const std::string& shaderSource) {
         }
     }
     
-    // Step 4: Clean preprocessor directives
-    size_t pos = 0;
-    while (pos < result.length()) {
-        if (pos == 0 || result[pos - 1] == '\n') {
-            if (result[pos] == '#') {
-                size_t spaceStart = pos + 1;
-                size_t spaceEnd = spaceStart;
-                
-                while (spaceEnd < result.length() &&
-                       (result[spaceEnd] == ' ' || result[spaceEnd] == '\t')) {
-                    ++spaceEnd;
-                }
-                
-                if (spaceEnd > spaceStart) {
-                    result.erase(spaceStart, spaceEnd - spaceStart);
-                }
-                
-                pos = result.find('\n', pos);
-                if (pos == std::string::npos) break;
-            }
-        }
-        ++pos;
-    }
+    // Step 4.5: Remove redundant parentheses
+    result = removeRedundantParentheses(result);
     
-    // Step 5: Rename keywords used as variables (HLSL-specific)
+    // Step 4.6: Add missing parentheses around modulo operations
+    result = fixModuloParentheses(result);
+    
+    // Step 5: Clean preprocessor directives
+//    size_t pos = 0;
+//    while (pos < result.length()) {
+//        if (pos == 0 || result[pos - 1] == '\n') {
+//            if (result[pos] == '#') {
+//                size_t spaceStart = pos + 1;
+//                size_t spaceEnd = spaceStart;
+//                
+//                while (spaceEnd < result.length() &&
+//                       (result[spaceEnd] == ' ' || result[spaceEnd] == '\t')) {
+//                    ++spaceEnd;
+//                }
+//                
+//                if (spaceEnd > spaceStart) {
+//                    result.erase(spaceStart, spaceEnd - spaceStart);
+//                }
+//                
+//                pos = result.find('\n', pos);
+//                if (pos == std::string::npos) break;
+//            }
+//        }
+//        ++pos;
+//    }
+    
+    // Step 6: Rename keywords used as variables (HLSL-specific)
     if (m_language == ShaderLanguage::HLSL) {
         std::vector<std::string> hlslKeywords = {"sample"};
         result = renameKeywordsAsVariables(result, hlslKeywords, "_var");
     }
     
-    // Step 6: Fix complex for loops
+    // Step 7: Fix complex for loops
     bool foundComplexLoop = true;
     int iterationCount = 0;
     
@@ -705,6 +1181,12 @@ std::string ShaderPreprocessor::preprocess(const std::string& shaderSource) {
         }
         
         result.replace(loop.forStart, loop.bodyEnd - loop.forStart, replacement);
+    }
+    
+    // Step 8: Apply HLSLTypeFixer as final step (HLSL-specific)
+    if (m_language == ShaderLanguage::HLSL) {
+        HLSLTypeFixer hlslTypeFixer;
+        result = hlslTypeFixer.autoFix(result);
     }
     
     return result;
@@ -1287,4 +1769,511 @@ std::vector<std::string> ShaderPreprocessor::getShaderTypes() const {
     }
     
     return m_cachedTypes;
+}
+
+std::string ShaderPreprocessor::removeRedundantParentheses(const std::string& shaderSource) {
+    std::string result = shaderSource;
+    
+    // We'll look for patterns like (function_name(...)) where the outer parentheses are redundant
+    // This is done by identifying opening parentheses followed by an identifier and another opening paren
+    
+    bool foundRedundancy = true;
+    int maxIterations = 100; // Prevent infinite loops
+    int iteration = 0;
+    
+    while (foundRedundancy && iteration < maxIterations) {
+        foundRedundancy = false;
+        iteration++;
+        
+        // Create cleaned version each iteration since result changes
+        std::string cleaned = removeCommentsAndStrings(result);
+        
+        // Safety check: lengths must match
+        if (cleaned.length() != result.length()) {
+            if (m_verbose) {
+                std::cout << "Error: cleaned (" << cleaned.length() << ") and result (" 
+                          << result.length() << ") length mismatch!" << std::endl;
+            }
+            break;
+        }
+        
+        for (size_t i = 0; i < cleaned.length(); ++i) {
+            if (cleaned[i] != '(') {
+                continue;
+            }
+            
+            // Found opening paren, check what follows
+            size_t pos = i + 1;
+            
+            // Skip whitespace
+            while (pos < cleaned.length() && std::isspace(cleaned[pos])) {
+                ++pos;
+            }
+            
+            if (pos >= cleaned.length()) {
+                break;
+            }
+            
+            // If the next character is another opening paren, skip this
+            // This avoids patterns like (( ... )) which are more complex
+            if (cleaned[pos] == '(') {
+                if (m_verbose) {
+                    std::cout << "  Skipping: found nested '(' at position " << pos << std::endl;
+                }
+                continue;
+            }
+            
+            // Check if we have an identifier (function name or type cast)
+            size_t identStart = pos;
+            while (pos < cleaned.length() && (std::isalnum(cleaned[pos]) || cleaned[pos] == '_')) {
+                ++pos;
+            }
+            
+            if (pos == identStart) {
+                // No identifier found
+                continue;
+            }
+            
+            std::string identifier = cleaned.substr(identStart, pos - identStart);
+            
+            // Skip whitespace after identifier
+            while (pos < cleaned.length() && std::isspace(cleaned[pos])) {
+                ++pos;
+            }
+            
+            if (pos >= cleaned.length() || cleaned[pos] != '(') {
+                // Not a function call or cast
+                continue;
+            }
+            
+            // Found function call/cast, now find its matching closing paren
+            int depth = 1;
+            size_t funcStart = pos;
+            ++pos;
+            
+            while (pos < cleaned.length() && depth > 0) {
+                if (cleaned[pos] == '(') {
+                    ++depth;
+                } else if (cleaned[pos] == ')') {
+                    --depth;
+                }
+                ++pos;
+            }
+            
+            if (depth != 0) {
+                // Unbalanced parentheses
+                continue;
+            }
+            
+            size_t funcEnd = pos - 1; // Position of the function's closing paren
+            
+            // Skip whitespace after function call
+            while (pos < cleaned.length() && std::isspace(cleaned[pos])) {
+                ++pos;
+            }
+            
+            if (pos >= cleaned.length() || cleaned[pos] != ')') {
+                // No matching outer closing paren
+                continue;
+            }
+            
+            // Now check if the outer parentheses are redundant
+            // They are redundant if:
+            // 1. They wrap a single function call/cast
+            // 2. The outer closing paren directly follows the function closing paren (with optional whitespace)
+            
+            // Check what comes before the outer opening paren
+            bool isRedundant = false;
+            
+            if (i > 0) {
+                size_t beforePos = i - 1;
+                while (beforePos > 0 && std::isspace(cleaned[beforePos])) {
+                    --beforePos;
+                }
+                
+                char beforeChar = cleaned[beforePos];
+                
+                // Redundant if preceded by operators like =, +, -, *, /, %, &, |, ^, <, >, !, etc.
+                // or by opening paren, comma, semicolon
+                if (beforeChar == '=' || beforeChar == '+' || beforeChar == '-' || 
+                    beforeChar == '*' || beforeChar == '/' || beforeChar == '%' ||
+                    beforeChar == '&' || beforeChar == '|' || beforeChar == '^' ||
+                    beforeChar == '<' || beforeChar == '>' || beforeChar == '!' ||
+                    beforeChar == '(' || beforeChar == ',' || beforeChar == ';' ||
+                    beforeChar == '{' || beforeChar == '[') {
+                    isRedundant = true;
+                }
+            } else {
+                // At start of file
+                isRedundant = true;
+            }
+            
+            if (isRedundant) {
+                if (m_verbose) {
+                    std::cout << "Found redundant parentheses around: " << identifier << "() at positions " 
+                              << i << " and " << pos << std::endl;
+                    if (i >= 5 && i + 25 < result.length()) {
+                        std::cout << "  Before: " << result.substr(i-5, 25) << std::endl;
+                    }
+                }
+                
+                // Verify the characters at these positions are actually parentheses
+                if (pos >= result.length() || result[pos] != ')') {
+                    if (m_verbose) {
+                        std::cout << "  Error: Expected ')' at position " << pos << std::endl;
+                    }
+                    continue;
+                }
+                if (i >= result.length() || result[i] != '(') {
+                    if (m_verbose) {
+                        std::cout << "  Error: Expected '(' at position " << i << std::endl;
+                    }
+                    continue;
+                }
+                
+                // Remove the redundant parentheses from the RESULT string
+                // IMPORTANT: Remove from back to front to preserve indices
+                // Remove outer closing paren first (at position pos)
+                result.erase(pos, 1);
+                
+                // Then remove outer opening paren (at position i)
+                result.erase(i, 1);
+                
+                foundRedundancy = true;
+                
+                if (m_verbose) {
+                    if (i >= 5 && i + 23 < result.length()) {
+                        std::cout << "  After:  " << result.substr(i-5, 23) << std::endl;
+                    }
+                    std::cout << "  Removed parentheses successfully." << std::endl;
+                }
+                
+                // Start over from the beginning after making a change
+                break;
+            }
+        }
+    }
+    
+    if (m_verbose && iteration >= maxIterations) {
+        std::cout << "Warning: removeRedundantParentheses reached max iterations" << std::endl;
+    }
+    
+    return result;
+}
+
+std::vector<ShaderPreprocessor::DefineInfo> ShaderPreprocessor::detectDefines(const std::string& source) {
+    std::vector<DefineInfo> defines;
+    
+    size_t pos = 0;
+    while (pos < source.length()) {
+        // Look for #define at the start of a line
+        if (pos == 0 || source[pos - 1] == '\n') {
+            // Skip whitespace at beginning of line
+            size_t lineStart = pos;
+            while (pos < source.length() && (source[pos] == ' ' || source[pos] == '\t')) {
+                ++pos;
+            }
+            
+            // Check for #define
+            if (pos + 7 <= source.length() && source.substr(pos, 7) == "#define") {
+                size_t defineStart = lineStart;
+                pos += 7;
+                
+                // Check that #define is followed by whitespace
+                if (pos < source.length() && (source[pos] == ' ' || source[pos] == '\t')) {
+                    // Skip whitespace after #define
+                    while (pos < source.length() && (source[pos] == ' ' || source[pos] == '\t')) {
+                        ++pos;
+                    }
+                    
+                    // Extract macro name
+                    size_t nameStart = pos;
+                    while (pos < source.length() && 
+                           (std::isalnum(source[pos]) || source[pos] == '_')) {
+                        ++pos;
+                    }
+                    
+                    if (pos > nameStart) {
+                        std::string macroName = source.substr(nameStart, pos - nameStart);
+                        
+                        // Check if this is a function-like macro (has parameters)
+                        bool isFunctionLike = false;
+                        std::vector<std::string> parameters;
+                        
+                        // Check immediately after macro name (no space) for '('
+                        if (pos < source.length() && source[pos] == '(') {
+                            isFunctionLike = true;
+                            ++pos; // Skip opening paren
+                            
+                            // Parse parameters
+                            size_t paramStart = pos;
+                            while (pos < source.length() && source[pos] != ')') {
+                                if (source[pos] == ',') {
+                                    std::string param = source.substr(paramStart, pos - paramStart);
+                                    // Trim whitespace
+                                    param.erase(0, param.find_first_not_of(" \t"));
+                                    param.erase(param.find_last_not_of(" \t") + 1);
+                                    if (!param.empty()) {
+                                        parameters.push_back(param);
+                                    }
+                                    ++pos;
+                                    paramStart = pos;
+                                } else {
+                                    ++pos;
+                                }
+                            }
+                            
+                            // Get last parameter
+                            if (pos > paramStart) {
+                                std::string param = source.substr(paramStart, pos - paramStart);
+                                param.erase(0, param.find_first_not_of(" \t"));
+                                param.erase(param.find_last_not_of(" \t") + 1);
+                                if (!param.empty()) {
+                                    parameters.push_back(param);
+                                }
+                            }
+                            
+                            if (pos < source.length() && source[pos] == ')') {
+                                ++pos; // Skip closing paren
+                            }
+                        }
+                        
+                        // Skip whitespace after macro name (or parameter list)
+                        while (pos < source.length() && (source[pos] == ' ' || source[pos] == '\t')) {
+                            ++pos;
+                        }
+                        
+                        // Extract macro value (everything until end of line)
+                        size_t valueStart = pos;
+                        while (pos < source.length() && source[pos] != '\n' && source[pos] != '\r') {
+                            ++pos;
+                        }
+                        
+                        std::string macroValue = source.substr(valueStart, pos - valueStart);
+                        
+                        // Trim trailing whitespace from macro value
+                        while (!macroValue.empty() && 
+                               (macroValue.back() == ' ' || macroValue.back() == '\t')) {
+                            macroValue.pop_back();
+                        }
+                        
+                        // The directive ends at the end of line content (NOT including the newline)
+                        // We want to keep the newline to preserve line structure
+                        size_t defineEnd = pos;
+                        
+                        DefineInfo info;
+                        info.macroName = macroName;
+                        info.macroValue = macroValue;
+                        info.directiveStart = defineStart;
+                        info.directiveEnd = defineEnd;
+                        info.isFunctionLike = isFunctionLike;
+                        info.parameters = parameters;
+                        
+                        // Skip past the newline for the next iteration
+                        if (pos < source.length() && source[pos] == '\r') {
+                            ++pos;
+                        }
+                        if (pos < source.length() && source[pos] == '\n') {
+                            ++pos;
+                        }
+                        
+                        defines.push_back(std::move(info));
+                        
+                        continue;
+                    }
+                }
+            }
+        }
+        ++pos;
+    }
+    
+    return defines;
+}
+
+std::string ShaderPreprocessor::processDefines(const std::string& shaderSource) {
+    std::vector<DefineInfo> defines = detectDefines(shaderSource);
+    
+    if (defines.empty()) {
+        return shaderSource;
+    }
+    
+    if (m_verbose) {
+        std::cout << "Found " << defines.size() << " #define directive(s)" << std::endl;
+    }
+    
+    // First pass: Remove all #define directives in reverse order
+    std::string result = shaderSource;
+    for (auto it = defines.rbegin(); it != defines.rend(); ++it) {
+        const auto& define = *it;
+        
+        if (m_verbose) {
+            std::cout << "Removing #define directive: " << define.macroName;
+            if (define.isFunctionLike) {
+                std::cout << "(";
+                for (size_t i = 0; i < define.parameters.size(); ++i) {
+                    if (i > 0) std::cout << ",";
+                    std::cout << define.parameters[i];
+                }
+                std::cout << ")";
+            }
+            std::cout << std::endl;
+            std::cout << "  Position: " << define.directiveStart << " to " << define.directiveEnd << std::endl;
+        }
+        
+        result.erase(define.directiveStart, define.directiveEnd - define.directiveStart);
+    }
+    
+    // Second pass: Replace all macro occurrences
+    // Process in reverse order so that if one macro name contains another, 
+    // the longer one gets replaced first
+    for (auto it = defines.rbegin(); it != defines.rend(); ++it) {
+        const auto& define = *it;
+        
+        if (m_verbose) {
+            std::cout << "Replacing macro: " << define.macroName;
+            if (define.isFunctionLike) {
+                std::cout << "(...) -> " << define.macroValue << std::endl;
+            } else {
+                std::cout << " -> " << define.macroValue << std::endl;
+            }
+        }
+        
+        size_t searchPos = 0;
+        int replacementCount = 0;
+        
+        while (searchPos < result.length()) {
+            size_t foundPos = result.find(define.macroName, searchPos);
+            if (foundPos == std::string::npos) {
+                break;
+            }
+            
+            // Check if this is a whole word (not part of another identifier)
+            bool isWordStart = (foundPos == 0 || 
+                               (!std::isalnum(result[foundPos - 1]) && result[foundPos - 1] != '_'));
+            bool isWordEnd = (foundPos + define.macroName.length() >= result.length() ||
+                             (!std::isalnum(result[foundPos + define.macroName.length()]) && 
+                              result[foundPos + define.macroName.length()] != '_'));
+            
+            if (isWordStart && isWordEnd) {
+                // For function-like macros, we need to parse the arguments
+                if (define.isFunctionLike) {
+                    // Check if followed by '('
+                    size_t parenPos = foundPos + define.macroName.length();
+                    while (parenPos < result.length() && std::isspace(result[parenPos])) {
+                        ++parenPos;
+                    }
+                    
+                    if (parenPos >= result.length() || result[parenPos] != '(') {
+                        // Not a function call, skip
+                        searchPos = foundPos + define.macroName.length();
+                        continue;
+                    }
+                    
+                    // Parse arguments
+                    std::vector<std::string> arguments;
+                    size_t argStart = parenPos + 1;
+                    size_t argPos = argStart;
+                    int parenDepth = 1;
+                    
+                    while (argPos < result.length() && parenDepth > 0) {
+                        if (result[argPos] == '(') {
+                            ++parenDepth;
+                        } else if (result[argPos] == ')') {
+                            --parenDepth;
+                            if (parenDepth == 0) {
+                                // End of argument list
+                                std::string arg = result.substr(argStart, argPos - argStart);
+                                // Trim whitespace
+                                arg.erase(0, arg.find_first_not_of(" \t"));
+                                arg.erase(arg.find_last_not_of(" \t") + 1);
+                                if (!arg.empty()) {
+                                    arguments.push_back(arg);
+                                }
+                                break;
+                            }
+                        } else if (result[argPos] == ',' && parenDepth == 1) {
+                            // End of this argument
+                            std::string arg = result.substr(argStart, argPos - argStart);
+                            arg.erase(0, arg.find_first_not_of(" \t"));
+                            arg.erase(arg.find_last_not_of(" \t") + 1);
+                            if (!arg.empty()) {
+                                arguments.push_back(arg);
+                            }
+                            argStart = argPos + 1;
+                        }
+                        ++argPos;
+                    }
+                    
+                    if (parenDepth != 0) {
+                        // Unbalanced parentheses, skip
+                        searchPos = foundPos + define.macroName.length();
+                        continue;
+                    }
+                    
+                    // Expand the macro with the arguments
+                    std::string expandedValue = define.macroValue;
+                    
+                    // Replace each parameter with its corresponding argument
+                    for (size_t i = 0; i < define.parameters.size() && i < arguments.size(); ++i) {
+                        const std::string& param = define.parameters[i];
+                        const std::string& arg = arguments[i];
+                        
+                        // Replace all occurrences of this parameter in the expanded value
+                        size_t paramPos = 0;
+                        while (paramPos < expandedValue.length()) {
+                            paramPos = expandedValue.find(param, paramPos);
+                            if (paramPos == std::string::npos) {
+                                break;
+                            }
+                            
+                            // Check if it's a whole word
+                            bool paramWordStart = (paramPos == 0 || 
+                                                   (!std::isalnum(expandedValue[paramPos - 1]) && 
+                                                    expandedValue[paramPos - 1] != '_'));
+                            bool paramWordEnd = (paramPos + param.length() >= expandedValue.length() ||
+                                                (!std::isalnum(expandedValue[paramPos + param.length()]) && 
+                                                 expandedValue[paramPos + param.length()] != '_'));
+                            
+                            if (paramWordStart && paramWordEnd) {
+                                expandedValue.replace(paramPos, param.length(), arg);
+                                paramPos += arg.length();
+                            } else {
+                                paramPos += param.length();
+                            }
+                        }
+                    }
+                    
+                    if (m_verbose) {
+                        std::cout << "  Replacing at position " << foundPos 
+                                  << " (function call with " << arguments.size() << " arguments)" << std::endl;
+                    }
+                    
+                    // Replace the entire macro call with the expanded value
+                    result.replace(foundPos, argPos + 1 - foundPos, expandedValue);
+                    replacementCount++;
+                    
+                    searchPos = foundPos + expandedValue.length();
+                } else {
+                    // Simple text replacement
+                    if (m_verbose) {
+                        std::cout << "  Replacing at position " << foundPos << std::endl;
+                    }
+                    
+                    result.replace(foundPos, define.macroName.length(), define.macroValue);
+                    replacementCount++;
+                    
+                    // Move search position forward past the replacement
+                    searchPos = foundPos + define.macroValue.length();
+                }
+            } else {
+                searchPos = foundPos + define.macroName.length();
+            }
+        }
+        
+        if (m_verbose) {
+            std::cout << "  Made " << replacementCount << " replacement(s)" << std::endl;
+        }
+    }
+    
+    return result;
 }

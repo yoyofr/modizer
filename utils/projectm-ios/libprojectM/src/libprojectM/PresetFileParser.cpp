@@ -105,7 +105,7 @@ auto PresetFileParser::GetCode(const std::string& keyPrefix) const -> std::strin
 
         //YOYOFR
         bool removeEndl=false;
-#if 0
+#if 1
         //------------------
         //Manage comment
         //------------------

@@ -1937,7 +1937,7 @@ bool HLSLParser::ParseStatement(HLSLStatement*& statement, const HLSLType& retur
     if (Accept(',')) {
         return true;
     }
-
+    
     return Expect(';');
 }
 
@@ -3404,6 +3404,7 @@ bool HLSLParser::ParsePreprocessorDefine()
     if (m_tokenizer.GetToken() == HLSLToken_Identifier)
     {
         macroName = m_tree->AddString( m_tokenizer.GetIdentifier() );
+        //printf("got macro: %s\n",macroName);
     }
     else
     {

@@ -266,7 +266,7 @@ pthread_mutex_t pm_mutex;
     // Remove all pending notifications
     [center removeAllPendingNotificationRequests];
     
-    MDZDLog("All notifications removed");
+    //MDZDLog("All notifications removed");
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application {

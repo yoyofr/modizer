@@ -295,6 +295,8 @@ void HLSLTokenizer::Next(const bool EOLSkipping)
     memcpy(m_identifier, start, length);
     m_identifier[length] = 0;
     
+    //printf("identif: %s\n",m_identifier);
+    
     const int numReservedWords = sizeof(_reservedWords) / sizeof(const char*);
     for (int i = 0; i < numReservedWords; ++i)
     {

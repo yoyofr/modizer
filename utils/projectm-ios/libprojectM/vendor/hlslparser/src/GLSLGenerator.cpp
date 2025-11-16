@@ -260,10 +260,15 @@ bool GLSLGenerator::Generate(HLSLTree* tree, Target target, Version version, con
 
     // Output the special function used to access rows in a matrix.
     m_writer.WriteLine(0, "vec2 %s(mat2 m, int i) { return vec2( m[0][i], m[1][i] ); }", m_matrixRowFunction);
+    m_writer.WriteLine(0, "vec2 %s(mat2 m, float i_float) { int i=int(i_float); return vec2( m[0][i], m[1][i] ); }", m_matrixRowFunction);
     m_writer.WriteLine(0, "vec3 %s(mat3 m, int i) { return vec3( m[0][i], m[1][i], m[2][i] ); }", m_matrixRowFunction);
+    m_writer.WriteLine(0, "vec3 %s(mat3 m, float i_float) { int i=int(i_float); return vec3( m[0][i], m[1][i], m[2][i] ); }", m_matrixRowFunction);
     m_writer.WriteLine(0, "vec3 %s(mat3x4 m, int i) { return vec3( m[0][i], m[1][i], m[2][i] ); }", m_matrixRowFunction);
+    m_writer.WriteLine(0, "vec3 %s(mat3x4 m, float i_float) { int i=int(i_float); return vec3( m[0][i], m[1][i], m[2][i] ); }", m_matrixRowFunction);
     m_writer.WriteLine(0, "vec4 %s(mat4 m, int i) { return vec4( m[0][i], m[1][i], m[2][i], m[3][i] ); }", m_matrixRowFunction);
+    m_writer.WriteLine(0, "vec4 %s(mat4 m, float i_float) { int i=int(i_float); return vec4( m[0][i], m[1][i], m[2][i], m[3][i] ); }", m_matrixRowFunction);
     m_writer.WriteLine(0, "vec4 %s(mat4x3 m, int i) { return vec4( m[0][i], m[1][i], m[2][i], m[3][i] ); }", m_matrixRowFunction);
+    m_writer.WriteLine(0, "vec4 %s(mat4x3 m, float i_float) { int i=int(i_float); return vec4( m[0][i], m[1][i], m[2][i], m[3][i] ); }", m_matrixRowFunction);
     
     m_writer.WriteLine(0, "int mod(int a,int b) {return int(mod(float(a),float(b)));}");
 
@@ -1019,13 +1024,13 @@ void GLSLGenerator::OutputExpression(HLSLExpression* expression, const HLSLType*
                 return;
             }
             m_writer.Write("clamp(");
-            OutputExpression(argument[0]);
             HLSLBaseType baseType = argument[0]->expressionType.baseType;
             switch (baseType) {
             case HLSLBaseType_Float:
             case HLSLBaseType_Float2:
             case HLSLBaseType_Float3:
             case HLSLBaseType_Float4:
+                OutputExpression(argument[0]);
                 m_writer.Write(", 0.0, 1.0)");
                 break;
 
@@ -1037,9 +1042,14 @@ void GLSLGenerator::OutputExpression(HLSLExpression* expression, const HLSLType*
             case HLSLBaseType_Uint2:
             case HLSLBaseType_Uint3:
             case HLSLBaseType_Uint4:
+                OutputExpression(argument[0]);
                 m_writer.Write(", 0, 1)");
                 break;
-
+            case HLSLBaseType_Bool:
+                m_writer.Write("int(");
+                OutputExpression(argument[0]);
+                m_writer.Write("), 0, 1)");
+                break;
             default:
                 Error("saturate unhandled type: %s", GetTypeName(argument[0]->expressionType));
                 break;
@@ -1217,10 +1227,6 @@ void GLSLGenerator::OutputIdentifier(const char* name)
     else if (String_Equal(name, "ddy"))
     {
         name = "dFdy";
-    }
-    else if (String_Equal(name, "fwidth"))
-    {
-        name = "fwidth";
     }
     else if (String_Equal(name, "modf"))
     {

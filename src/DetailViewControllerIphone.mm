@@ -1052,6 +1052,7 @@ static float posMouseX=0,posMouseY=0;
 static float moveWheelXPMenu,moveWheelYPMenu=0;
 static float movePreWheelXPMenu,movePreWheelYPMenu=0;
 static float startPx=0,startPy=0;
+static float posPx=0,posPy=0;
 static int movePMnomore=0;
 static int panGesture1Tap,panGestureWheel,panGestureHover;
 static float movePxMID=0,movePyMID=0,movePinchScaleFXMID=0;
@@ -5172,7 +5173,7 @@ GLsizei txtbackgroundImageWidth,txtbackgroundImageHeight;
     oglLayer.contentsScale = [[UIScreen mainScreen] scale];
     glScaleFactor=[[UIScreen mainScreen] scale];
     
-    //[oglLayer setPresentsWithTransaction:true];
+    [oglLayer setPresentsWithTransaction:false];
     
     //to avoid flickering issue / rest of UI widgets
     oglLayer.drawsAsynchronously = YES;
@@ -5266,9 +5267,7 @@ void updatePresetCustomDirStructure() {
     
     NSString *canonicalHomePath;
     [[[NSURL fileURLWithPath:NSHomeDirectory()] URLByResolvingSymlinksInPath] getResourceValue:&canonicalHomePath forKey:NSURLCanonicalPathKey error:nil];
-    MDZILog("path: %@",canonicalHomePath);
     NSString *dirPath = [NSString stringWithFormat:@"%@/Documents%s/presets",canonicalHomePath,PM_ROOT_FOLDER_CUSTOM];
-    MDZILog("dirPath: %@",dirPath);
     
     pmCustomPresetsFileNode=nil;
     pmCustomPresetsFileNode=[dirParser parseFastDirectoryAtPath:dirPath type:MDZ_PLAYLIST_FNODE_Custom error:&error];
@@ -5284,14 +5283,12 @@ void buildPresetDirStructure() {
     dirParser.maxDepth = 5;
     dirParser.filterExt = @"milk";
     
+    NSString *canonicalHomePath;
+    
     NSString *pmBundleDir = [NSString stringWithFormat:@"%@/projectm/assets/presets",[[NSBundle mainBundle] resourcePath]];
     
-    
-    NSString *canonicalHomePath;
     [[[NSURL fileURLWithPath:NSHomeDirectory()] URLByResolvingSymlinksInPath] getResourceValue:&canonicalHomePath forKey:NSURLCanonicalPathKey error:nil];
-    MDZILog("path: %@",canonicalHomePath);
     NSString *pmCustomDir = [NSString stringWithFormat:@"%@/Documents%s/presets",canonicalHomePath,PM_ROOT_FOLDER_CUSTOM];
-    MDZILog("pmCustomDir: %@",pmCustomDir);
     
     //NSString *pmCustomDir = [NSString stringWithFormat:@"%@/Documents%s/presets",NSHomeDirectory(),PM_ROOT_FOLDER_CUSTOM];
     
@@ -5358,6 +5355,11 @@ void pm_perfTest() {
     
     _pm_fps=settings[GLOB_FXFPS].detail.mdz_switch.switch_value==1?60:30;
     
+    
+    
+    if (_pmCanvasWidth<512) _pmCanvasWidth=512;
+    if (_pmCanvasHeight<512) _pmCanvasHeight=512;
+    
     projectm_set_window_size(_pm, _pmCanvasWidth, _pmCanvasHeight);
     projectm_set_fps(_pm, _pm_fps);
     
@@ -5404,6 +5406,7 @@ void pm_perfTest() {
     _pmPresetUpdateDisplayInfo=false;
     _pm_display_name_countdown=0;
     
+//    [_mdzPM_playlist loadIdlePreset];
     if ((_pm_shouldRestartAt>=0) &&(_pm_shouldRestartAt<[_mdzPM_playlist getSize])) {
         //        MDZILog("restart pm preset idx: %d",_pm_shouldRestartAt);
         [_mdzPM_playlist setPos:_pm_shouldRestartAt cut:true];
@@ -5422,6 +5425,7 @@ void pm_perfTest() {
 - (void) reinitVisuVars {
     movePx=movePy=movePxOld=movePyOld=0;
     startPx=startPy=0;
+    posPx=posPy=0;
     movePx2=movePy2=movePx2Old=movePy2Old=0;
     movePinchScale=movePinchScaleOld=0;
     sliderProgressModuleEdit=0;
@@ -5616,6 +5620,7 @@ void pm_perfTest() {
     //--------------------------------//
     [self setupOGLView];
     [self setContextOGL];
+    m_nAverageFps=0;
     //--------------------------------//
     // Texture for background view
     //--------------------------------//
@@ -6163,14 +6168,10 @@ void pm_perfTest() {
     //---------------------------------
     _pmIsInitialized=false;
     
-    float _pmScaleFactor=1<<settings[PROJECTM_Quality].detail.mdz_switch.switch_value;;
-    
+    _pmPresetNewLoaded=false;
+    float _pmScaleFactor=1<<settings[PROJECTM_Quality].detail.mdz_switch.switch_value;
     _pmCanvasWidth=m_oglView.frame.size.width*glScaleFactor/_pmScaleFactor;
     _pmCanvasHeight=m_oglView.frame.size.height*glScaleFactor/_pmScaleFactor;
-    
-    _pmPresetNewLoaded=false;
-    
-//    buildPresetDirStructure();
     
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
         //--------------------------------//
@@ -6187,6 +6188,7 @@ void pm_perfTest() {
         END_PROFILE
         //
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+            
         }];
     });
     
@@ -6680,7 +6682,7 @@ static int mOglView1Tap=0;
     
     switch (gestureRecognizer.state) {
         case UIGestureRecognizerStateBegan:
-            //MDZILog("reset wheel 2 fingers touch start");
+//            MDZILog("reset wheel 2 fingers touch start");
             moveWheelXPMenu=0;
             moveWheelYPMenu=0;
             break;
@@ -6694,6 +6696,7 @@ static int mOglView1Tap=0;
 }
 
 - (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+//    MDZILog("reset wheel touches began");
     moveWheelXPMenu=0;
     moveWheelYPMenu=0;
 }
@@ -6735,6 +6738,9 @@ static int mOglView1Tap=0;
                 startPx=start_pt.x;
                 startPy=start_pt.y;
                 
+                posPx=start_pt.x;
+                posPy=start_pt.y;
+                
                 //Stop wheel base move if still active
 //                panGestureWheel=1;
                 moveWheelXPMenu=0;
@@ -6767,12 +6773,14 @@ static int mOglView1Tap=0;
                 break;
             default:
                 if (pmenu_show) {
-                    MDZILog("Wheel last: %f %f",movePreWheelXPMenu,movePreWheelYPMenu);
+//                    MDZILog("Wheel last: %f %f",movePreWheelXPMenu,movePreWheelYPMenu);
 //                    movePreWheelXPMenu=pt.x-last_pt.x;
 //                    movePreWheelYPMenu=pt.y-last_pt.y;
 //                    last_pt=pt;
                     
                     if (is_macOS) {
+                        moveWheelXPMenu=movePreWheelXPMenu*5;
+                        moveWheelYPMenu=movePreWheelYPMenu*5;
                     } else {
                         moveWheelXPMenu=movePreWheelXPMenu*10;
                         moveWheelYPMenu=movePreWheelYPMenu*10;
@@ -6813,6 +6821,8 @@ static int mOglView1Tap=0;
 }
 
 -(void) glViewPan2Gesture:(UIPanGestureRecognizer *)gestureRecognizer {
+    [self glViewPanGesture:gestureRecognizer];
+    return;
     static CGPoint last_pt;
     CGPoint pt=[gestureRecognizer translationInView:m_oglView];
     CGPoint start_pt=[gestureRecognizer locationInView:m_oglView];
@@ -6822,6 +6832,8 @@ static int mOglView1Tap=0;
         case UIGestureRecognizerStateBegan:
             startPx=start_pt.x;
             startPy=start_pt.y;
+            posPx=start_pt.x;
+            posPy=start_pt.y;
             movePx=0;
             movePy=0;
             last_pt=pt;
@@ -6971,7 +6983,6 @@ void doFramePM(float ww,float hh) {
         int sample_count=(settings[GLOB_FXFPS].detail.mdz_switch.switch_value?735:735*2);
         projectm_pcm_add_int16(_pm,(const int16_t*)pmBuffer,sample_count,PROJECTM_STEREO);
         
-        
 //        mdz_pmBlurAfterAudio=settings[PROJECTM_BlurAfterAudioMode].detail.mdz_boolswitch.switch_value;
         
         if ( (_pmCanvasWidth==(ww*glScaleFactor)) && (_pmCanvasHeight==(hh*glScaleFactor)) ) {
@@ -6986,7 +6997,7 @@ void doFramePM(float ww,float hh) {
             RenderUtils::endRenderToTextureBasic(ww*glScaleFactor,hh*glScaleFactor,1.0);
         }
         
-        projectm_set_fps(_pm, m_nAverageFps);
+        projectm_set_fps(_pm, (m_nAverageFps>0?m_nAverageFps:60));
     }
     /*-------------------------------------------------------------------------------*/
 }
@@ -7588,10 +7599,12 @@ void doFramePM(float ww,float hh) {
     }
     if ( moveWheelYPMenu||moveWheelXPMenu ) {
         imgui_event.event_type=IMGUI_IOS_Event_MouseWheel;
-        imgui_event.pos_x=(movePx+startPx)*glScaleFactor;
-        imgui_event.pos_y=(movePy+startPy)*glScaleFactor;
+        imgui_event.pos_x=posPx*glScaleFactor;
+        imgui_event.pos_y=posPy*glScaleFactor;
         imgui_event.wheel_x=moveWheelXPMenu/1024.0;
         imgui_event.wheel_y=moveWheelYPMenu/1024.0;
+        
+        //MDZILog("send wheel move %f %f at pos %f %f",imgui_event.wheel_x,imgui_event.wheel_y,imgui_event.pos_x,imgui_event.pos_y);
         
         if (panGestureWheel==0) {
             moveWheelXPMenu=moveWheelXPMenu*0.95f;
@@ -9100,6 +9113,10 @@ void doFramePM(float ww,float hh) {
     
     [self showInfoData:ImVec2(ww,hh) frameToUpdate:frameToUpdate];
     
+//    if (_mdzPM_playlist.lastFailed) {
+//        [self newGuiMessage:[NSString stringWithFormat:@"%C",static_cast<unichar>(FA_EXCLAMATION_TRIANGLE)]];
+//        //_mdzPM_playlist.lastFailed=false;
+//    }
     [self showGuiMessage:ImVec2(ww,hh) frameToUpdate:frameToUpdate];
     
     //-----------------------------------

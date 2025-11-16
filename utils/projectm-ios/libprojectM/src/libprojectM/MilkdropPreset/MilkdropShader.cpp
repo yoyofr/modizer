@@ -8,7 +8,6 @@
 
 #include <GLSLGenerator.h>
 #include <HLSLParser.h>
-#include <HLSLTypeFixer.h>
 #include <iostream>
 
 //YOYOFR
@@ -149,19 +148,10 @@ void MilkdropShader::LoadTexturesAndCompile(PresetState& presetState,const char 
     //
     if (prePcode==NULL) {
         ShaderPreprocessor preProcessor(ShaderLanguage::HLSL);
-        std::string cleanProgram = preProcessor.preprocess(m_preprocessedCode);
-        m_preprocessedCode = cleanProgram;
-        
-        HLSLTypeFixer hlslTypeFixer;
-        cleanProgram = hlslTypeFixer.autoFix(m_preprocessedCode);
-        m_preprocessedCode = cleanProgram;
-        
+        m_preprocessedCode = preProcessor.preprocess(m_preprocessedCode);
         //    printf("%s\n",m_preprocessedCode.c_str());
-        
-        // Now that we have the textures, transpile the code.
     } else {
     }
-    
     TranspileHLSLShader(presetState, m_preprocessedCode,prePcode);
 
     // Update blur texture level if shader was compiled successfully.
@@ -286,20 +276,14 @@ void MilkdropShader::PreLoadTexturesAndCompile(AltPresetState& presetState)
         }
     //YOYOFR
     //
-//    printf("Before:\n%s\n",m_preprocessedCode.c_str());
+    //printf("Before:\n%s\n",m_preprocessedCode.c_str());
     ShaderPreprocessor preProcessor(ShaderLanguage::HLSL);
-    std::string cleanProgram = preProcessor.preprocess(m_preprocessedCode);
-    m_preprocessedCode = cleanProgram;
-    
-    HLSLTypeFixer hlslTypeFixer;
-    cleanProgram = hlslTypeFixer.autoFix(m_preprocessedCode);
-    m_preprocessedCode = cleanProgram;
-    
-//    printf("After:\n%s\n",m_preprocessedCode.c_str());
+    //preProcessor.setVerbose(true);
+    m_preprocessedCode = preProcessor.preprocess(m_preprocessedCode);
+    //printf("After:\n%s\n",m_preprocessedCode.c_str());
     
     // Now that we have the textures, transpile the code.
     TranspileHLSLShaderPreCompilation(presetState, m_preprocessedCode);
-
     // Update blur texture level if shader was compiled successfully.
     //presetState.blurTexture.SetRequiredBlurLevel(m_maxBlurLevelRequired);
 }

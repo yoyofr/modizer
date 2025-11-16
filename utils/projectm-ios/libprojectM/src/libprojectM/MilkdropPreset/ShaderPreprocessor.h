@@ -69,6 +69,31 @@ public:
                                                          const std::string& suffix = "_var");
 
     /**
+     * Remove redundant parentheses around expressions
+     * Example: "(int(uv3.x*32-12))*0.023" becomes "int(uv3.x*32-12)*0.023"
+     * @param shaderSource The shader source code
+     * @return The processed shader source with redundant parentheses removed
+     */
+    [[nodiscard]] std::string removeRedundantParentheses(const std::string& shaderSource);
+
+    /**
+     * Add missing parentheses around modulo operations
+     * Example: "uv *= 1-q28%2/4;" becomes "uv *= 1-(q28%2)/4;"
+     * @param shaderSource The shader source code
+     * @return The processed shader source with parentheses added around modulo operations
+     */
+    [[nodiscard]] std::string fixModuloParentheses(const std::string& shaderSource);
+
+    /**
+     * Process #define directives and expand macros
+     * Example: #define go if (r2.w>0) {ret1=r2;}
+     * All occurrences of "go" will be replaced with the macro expansion
+     * @param shaderSource The shader source code
+     * @return The processed shader source with macros expanded and #define directives removed
+     */
+    [[nodiscard]] std::string processDefines(const std::string& shaderSource);
+
+    /**
      * Apply all preprocessing steps
      * @param shaderSource The shader source code
      * @return The fully processed shader source
@@ -189,6 +214,44 @@ private:
         const std::string& source,
         const std::vector<std::string>& keywords,
         const std::string& suffix);
+
+    struct DefineInfo {
+        std::string macroName;
+        std::string macroValue;
+        size_t directiveStart;  // Start of the #define line
+        size_t directiveEnd;    // End of the #define line (including newline)
+        bool isFunctionLike = false;  // True if macro has parameters
+        std::vector<std::string> parameters;  // Parameter names for function-like macros
+    };
+
+    /**
+     * Detect and extract all #define directives
+     */
+    [[nodiscard]] std::vector<DefineInfo> detectDefines(const std::string& source);
+
+    struct ArrayInitializerInfo {
+        std::string arrayType;        // e.g., "float"
+        std::string arrayName;        // e.g., "maxh"
+        std::string arraySize;        // e.g., "16"
+        std::vector<std::string> initializerValues;  // e.g., {"floor(_qa)", "floor(_qb)", ...}
+        size_t declarationStart;
+        size_t declarationEnd;
+        bool isStatic;
+        bool isConst;
+    };
+
+    /**
+     * Detect array declarations with initializers that need to be converted to assignments
+     * Example: static const float maxh[16] = float[16]{floor(_qa), floor(_qb), ...};
+     */
+    [[nodiscard]] std::vector<ArrayInitializerInfo> detectArrayInitializers(const std::string& source);
+
+    /**
+     * Fix array initializers by converting them to declarations + assignments
+     * @param shaderSource The shader source code
+     * @return The processed shader source with array initializers fixed
+     */
+    [[nodiscard]] std::string fixArrayInitializers(const std::string& shaderSource);
 
     ShaderLanguage m_language;
     bool m_verbose = false;

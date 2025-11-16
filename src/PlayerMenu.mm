@@ -2092,7 +2092,7 @@ int pMenu_PMbuildDirTree(FileNode *fileNode, int idx,bool filter,int updExpandCo
                 
                 ImGui::SameLine();
                 //If clicking the button, do no register click for the node
-                if (ImGui::Button(faicon_with_pre_suf(" ",FA_PLAY_CIRCLE_O," "))) {
+                if (ImGui::Button(faicon_with_pre_suf(" ",FA_BINOCULARS," "))) {
                     [_mdzPM_playlist loadPreset:child cut:true];
                     shouldUpdateSel=false;
                 }

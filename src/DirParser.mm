@@ -370,15 +370,15 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
 - (void)loadASyncCurrentPreset:(bool)cut {
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
         //Load new preset
+        pthread_mutex_lock(&pm_mutex);
         FileNode *item;
         if (self.size) {
             self.warp=NULL;
             self.comp=NULL;
             self.lastFailed=false;
             item=[self.items objectAtIndex:self.position];
-            pthread_mutex_lock(&pm_mutex);
             projectm_preload_preset_file(self.pmh, [[item getFullPath] UTF8String], &self->_warp, &self->_comp,&self->_warpP, &self->_compP);
-            pthread_mutex_unlock(&pm_mutex);
+            //pthread_mutex_unlock(&pm_mutex);
         }
         
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
@@ -388,7 +388,9 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
                     //MDZILog("warpP %d compP %d",self.warpP,self.compP);
                     START_PROFILE
                     self.lastFailed=false;
+                    //pthread_mutex_lock(&pm_mutex);
                     projectm_loadpreload_preset_file(self.pmh, [[item getFullPath] UTF8String], self.warp, self.comp,self.warpP, self.compP, !cut);
+                    
                     CHECK_PROFILE("preset loaded fast")
                     END_PROFILE
                     
@@ -406,21 +408,24 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
             if (self.warp) free((void*)self.warp);
             if (self.comp) free((void*)self.comp);
             self.warp=NULL;self.comp=NULL;
+            
+            pthread_mutex_unlock(&pm_mutex);
             //if it has failed, remove from list and try another one.
             //if list is empty, load idle preset
             if (self.lastFailed) {
-                //Issue with last preset, remove from the list
-                [self remove:self.position];
-                //If list empty, exit
-                if (self.size==0) {
-                    [self loadIdlePreset];
-                    return;
-                }
-                //If too many attempt, exit, to avoid freezing app
-                self.retry_counter++;
-                if (self.retry_counter>MDZ_PLAYLIST_MAX_RETRY) return;
-                [self loadASyncCurrentPreset:cut];
+//                //Issue with last preset, remove from the list
+//                [self remove:self.position];
+//                //If list empty, exit
+//                if (self.size==0) {
+//                    [self loadIdlePreset];
+//                    return;
+//                }
+//                //If too many attempt, exit, to avoid freezing app
+//                self.retry_counter++;
+//                if (self.retry_counter>MDZ_PLAYLIST_MAX_RETRY) return;
+//                [self loadASyncCurrentPreset:cut];
             }
+            
         }];
     });
 }
@@ -428,14 +433,14 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
 - (void)loadASyncPreset:(FileNode*)item cut:(bool)cut {
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
         //Load new preset
+        pthread_mutex_lock(&pm_mutex);
         if (self.size) {
             self.warp=NULL;
             self.comp=NULL;
             self.lastFailed=false;
-            pthread_mutex_lock(&pm_mutex);
+            
             MDZILog("loading: %@",[item getFullPath]);
             projectm_preload_preset_file(self.pmh, [[item getFullPath] UTF8String], &self->_warp, &self->_comp,&self->_warpP, &self->_compP);
-            pthread_mutex_unlock(&pm_mutex);
         }
         
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
@@ -462,6 +467,7 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
             if (self.warp) free((void*)self.warp);
             if (self.comp) free((void*)self.comp);
             self.warp=NULL;self.comp=NULL;
+            pthread_mutex_unlock(&pm_mutex);
             //if it has failed, remove from list and try another one.
             //if list is empty, load idle preset
             if (self.lastFailed) {
@@ -554,6 +560,7 @@ code_4=a=1.0;\n\
 //                projectm_sprite_create(_pmh,"milkdrop",strdata);
                 break;
             }
+            break;  //TO REVIEW
             //Issue with last preset, remove from the list
             [self remove:_position];
             //If list empty, exit
