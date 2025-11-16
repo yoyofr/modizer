@@ -442,8 +442,8 @@ void main() {
     float v = pos.y * aspectY * 0.5 * zoom2Inverse + 0.5;
 
     // original UV coordinates
-    vec2 uv_original = vec2(pos.x * 0.5 + 0.5 + texelOffset.x,
-                            pos.y * 0.5 + 0.5 + texelOffset.y);
+    vec2 uv_original = vec2(pos.x * 0.5 + 0.5 /* + texelOffset.x*/,
+                            pos.y * 0.5 + 0.5 /* + texelOffset.y*/);
 
     // Stretch on X, Y
     u = (u - warp_center.x) / stretch.x + warp_center.x;

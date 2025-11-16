@@ -187,7 +187,9 @@ void PerPixelMesh::InitializeMesh(const PresetState& presetState)
             vertices[vertexIndex] = {x, y};
 
             // Milkdrop uses sqrtf, but hypotf is probably safer.
-            m_radiusAngleBuffer[vertexIndex].radius = hypotf(x * aspectX, y * aspectY);
+            //*rad = sqrtf(px*px+py*py) / sqrtf(m_fAspectX*m_fAspectX+m_fAspectY*m_fAspectY);
+            m_radiusAngleBuffer[vertexIndex].radius = sqrtf(x*x+y*y)/sqrtf(aspectX*aspectX+aspectY*aspectY);  //hypotf(x * aspectX, y * aspectY);
+            
             if (gridY == m_gridSizeY / 2 && gridX == m_gridSizeX / 2)
             {
                 m_radiusAngleBuffer[vertexIndex].angle = 0.0f;
@@ -195,7 +197,55 @@ void PerPixelMesh::InitializeMesh(const PresetState& presetState)
             else
             {
                 m_radiusAngleBuffer[vertexIndex].angle = atan2f(y * aspectY, x * aspectX);
+                
+                if (m_radiusAngleBuffer[vertexIndex].angle < 0)
+                    m_radiusAngleBuffer[vertexIndex].angle += 6.2831853071796f;
             }
+            
+            if (gridX==m_gridSizeX/2-1) {
+                if (gridY < m_gridSizeY/2-1)
+                    m_radiusAngleBuffer[vertexIndex].angle = 3.1415926535898f*1.5f;
+                else if (gridY == m_gridSizeY/2-1)
+                    m_radiusAngleBuffer[vertexIndex].angle = 3.1415926535898f*1.25f;
+                else if (gridY == m_gridSizeY/2)
+                    m_radiusAngleBuffer[vertexIndex].angle = 3.1415926535898f*0.75f;
+                else
+                    m_radiusAngleBuffer[vertexIndex].angle = 3.1415926535898f*0.5f;
+            }
+            else if (gridX==m_gridSizeX/2) {
+                if (gridY < m_gridSizeY/2-1)
+                    m_radiusAngleBuffer[vertexIndex].angle = 3.1415926535898f*1.5f;
+                else if (gridY == m_gridSizeY/2-1)
+                    m_radiusAngleBuffer[vertexIndex].angle = 3.1415926535898f*1.75f;
+                else if (gridY == m_gridSizeY/2)
+                    m_radiusAngleBuffer[vertexIndex].angle = 3.1415926535898f*0.25f;
+                else
+                    m_radiusAngleBuffer[vertexIndex].angle = 3.1415926535898f*0.5f;
+            }
+            else if (gridY==m_gridSizeY/2-1) {
+                if (gridX < m_gridSizeX/2-1)
+                    m_radiusAngleBuffer[vertexIndex].angle = 3.1415926535898f*1.0f;
+                else if (gridX == m_gridSizeX/2-1)
+                    m_radiusAngleBuffer[vertexIndex].angle = 3.1415926535898f*1.25f;
+                else if (gridX == m_gridSizeX/2)
+                    m_radiusAngleBuffer[vertexIndex].angle = 3.1415926535898f*1.75f;
+                else
+                    m_radiusAngleBuffer[vertexIndex].angle = 3.1415926535898f*2.0f;
+            }
+            else if (gridY==m_gridSizeY/2) {
+                if (gridX < m_gridSizeX/2-1)
+                    m_radiusAngleBuffer[vertexIndex].angle = 3.1415926535898f*1.0f;
+                else if (gridX == m_gridSizeX/2-1)
+                    m_radiusAngleBuffer[vertexIndex].angle = 3.1415926535898f*0.75f;
+                else if (gridX == m_gridSizeX/2)
+                    m_radiusAngleBuffer[vertexIndex].angle = 3.1415926535898f*0.25f;
+                else
+                    m_radiusAngleBuffer[vertexIndex].angle = 3.1415926535898f*0.0f;
+            }
+            
+            
+            
+            
 
             vertexIndex++;
         }

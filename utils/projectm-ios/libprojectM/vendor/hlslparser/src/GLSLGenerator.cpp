@@ -1099,11 +1099,42 @@ void GLSLGenerator::OutputExpression(HLSLExpression* expression, const HLSLType*
              * as expected on some drivers but not others, so we add
              * the abs() call for compatibility across drivers.
              */
-            m_writer.Write("pow(abs(");
-            OutputExpression(argument[0], &functionCall->function->returnType);
-            m_writer.Write("),");
-            OutputExpression(argument[1], &functionCall->function->returnType);
-            m_writer.Write(")");
+            /* YOYOFR: add specific case where argument1 is '1', in this case replace by arg 0
+             */
+            if (argument[1]->nodeType==HLSLNodeType_LiteralExpression) {
+                HLSLLiteralExpression* literalExpression = static_cast<HLSLLiteralExpression*>(argument[1]);
+                float value=0.0;
+                bool found=false;
+                switch (literalExpression->type) {
+                    case HLSLBaseType_Float:
+                        value=literalExpression->fValue;
+                        found=true;
+                        break;
+                    case HLSLBaseType_Int:
+                    case HLSLBaseType_Uint:
+                        value=literalExpression->iValue;
+                        found=true;
+                        break;
+                    case HLSLBaseType_Bool:
+                        value=literalExpression->bValue;
+                        found=true;
+                        break;
+                    default:break;
+                }
+                if (found && (value==1.0)) {
+                    m_writer.Write("(");
+                    OutputExpression(argument[0], &functionCall->function->returnType);
+                    m_writer.Write(")");
+                    handled = true;
+                }
+            }
+            if (!handled) {
+                m_writer.Write("pow(abs(");
+                OutputExpression(argument[0], &functionCall->function->returnType);
+                m_writer.Write("),");
+                OutputExpression(argument[1], &functionCall->function->returnType);
+                m_writer.Write(")");
+            }
             handled = true;
         }
         else if (String_Equal(functionName, "ldexp"))
