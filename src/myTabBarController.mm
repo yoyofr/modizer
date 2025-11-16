@@ -14,7 +14,7 @@
 #import "ModizerTypes.h"
 
 #import "CarPlayAndRemoteManagement.h"
-
+#import "WelcomeVC.h"
 #import "SceneDelegate.h"
 
 
@@ -23,6 +23,7 @@ extern int move_cursorL,move_cursorR,keyDel;
 
 @implementation myTabBarController
 
+@synthesize welcomePages;
 @synthesize detailViewControllerIphone;
 @synthesize playlistVC;
 @synthesize rootViewControllerIphone;
@@ -256,6 +257,29 @@ extern int move_cursorL,move_cursorR,keyDel;
         }
     }
     
+    welcomePage1=[[WelcomeVC alloc] initWithNibName:@"WelcomeView" bundle:[NSBundle mainBundle]];
+    welcomePage2=[[WelcomeVC alloc] initWithNibName:@"WelcomeView" bundle:[NSBundle mainBundle]];
+    welcomePage3=[[WelcomeVC alloc] initWithNibName:@"WelcomeView" bundle:[NSBundle mainBundle]];
+    
+    [welcomePage1 loadViewIfNeeded];
+    [welcomePage2 loadViewIfNeeded];
+    [welcomePage3 loadViewIfNeeded];
+    welcomePage1.topLabel.text=@"Welcome";
+    welcomePage2.topLabel.text=@"to";
+    welcomePage3.topLabel.text=@"Modizer";
+    
+    [welcomePage1.exitBtn addTarget:self action:@selector(exitWelcomePages) forControlEvents:UIControlEventTouchUpInside];
+    [welcomePage2.exitBtn addTarget:self action:@selector(exitWelcomePages) forControlEvents:UIControlEventTouchUpInside];
+    [welcomePage3.exitBtn addTarget:self action:@selector(exitWelcomePages) forControlEvents:UIControlEventTouchUpInside];
+    
+    self.welcomePages= @[welcomePage1,welcomePage2,welcomePage3];
+    
+    myPVC=[[UIPageViewController alloc] initWithTransitionStyle:UIPageViewControllerTransitionStyleScroll navigationOrientation:UIPageViewControllerNavigationOrientationHorizontal options:NULL];
+    welcomePageIndex=0;
+    [myPVC setViewControllers:@[welcomePages[0]] direction:UIPageViewControllerNavigationDirectionForward animated:YES completion:nil];
+    
+    myPVC.dataSource=self;
+    myPVC.delegate=self;
     //Faster loading for debug
 #ifdef DEBUG_MODIZER
     //[window addSubview:[animatedLaunchVC view]];
@@ -264,6 +288,50 @@ extern int move_cursorL,move_cursorR,keyDel;
 #endif
     
     END_PROFILE
+}
+
+- (void)presentWelcomePages {
+    if (myPVC) {
+        [self presentViewController:myPVC animated:YES completion:nil];
+    }
+}
+
+- (void)exitWelcomePages {
+    [myPVC dismissViewControllerAnimated:true completion:^{
+    }];
+}
+
+- (nullable UIViewController *)pageViewController:(UIPageViewController *)pageViewController viewControllerBeforeViewController:(UIViewController *)viewController {
+    WelcomeVC *last_item=NULL;
+    for (WelcomeVC *item in self.welcomePages) {
+        if (item==viewController) {
+            break;
+        }
+        last_item=item;
+    }
+    return last_item;
+}
+- (nullable UIViewController *)pageViewController:(UIPageViewController *)pageViewController viewControllerAfterViewController:(UIViewController *)viewController {
+    WelcomeVC *last_item=NULL;
+    WelcomeVC *next_item=NULL;
+    for (WelcomeVC *item in self.welcomePages) {
+        if (last_item==viewController) {
+            next_item=item;
+            break;
+        }
+        last_item=item;
+    }
+    return next_item;
+}
+
+- (NSInteger)presentationCountForPageViewController:(UIPageViewController *)pageViewController {
+    // The number of items reflected in the page indicator.
+    return 3;
+}
+
+- (NSInteger)presentationIndexForPageViewController:(UIPageViewController *)pageViewController {
+    // The selected item reflected in the page indicator.
+    return 0;
 }
 
 - (void)showAnimatedLaunchOverlay {
@@ -343,6 +411,8 @@ extern int move_cursorL,move_cursorR,keyDel;
         
         //[self showAnimatedLaunchOverlay];
     }
+    [self presentWelcomePages];
+    
 }
 
 -(void) openURL:(NSURL *)url {

@@ -24,8 +24,9 @@
 @class AboutViewController;
 
 @class AnimatedLaunchVC;
+@class WelcomeVC;
 
-@interface myTabBarController : UITabBarController <UINavigationControllerDelegate,UITabBarDelegate> {
+@interface myTabBarController : UITabBarController <UINavigationControllerDelegate,UITabBarDelegate,UIPageViewControllerDataSource,UIPageViewControllerDelegate> {
     DetailViewControllerIphone *detailViewControllerIphone;
     RootViewControllerPlaylist *playlistVC;
     RootViewControllerLocalBrowser *rootViewControllerIphone;
@@ -40,8 +41,16 @@
     AnimatedLaunchVC *animatedLaunchVC;
     
     CarPlayAndRemoteManagement *cpMngt;
-    
+        
+    int welcomePageIndex;
+    NSArray *welcomePages;
+    UIPageViewController *myPVC;
+    WelcomeVC *welcomePage1,*welcomePage2,*welcomePage3;
 }
+@property (nonatomic, retain) NSArray *welcomePages;
+@property (nonatomic, retain) WelcomeVC *welcomePage1,*welcomePage2,*welcomePage3;
+@property (nonatomic, assign) int welcomePageIndex;
+@property (nonatomic, retain) UIPageViewController *myPVC;
 
 @property (nonatomic, retain) DetailViewControllerIphone *detailViewControllerIphone;
 @property (nonatomic, retain) RootViewControllerLocalBrowser *rootViewControllerIphone;

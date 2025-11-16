@@ -831,6 +831,8 @@
 		CCBF101A1221788200E8DE4E /* Ymload.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCBF100B1221788200E8DE4E /* Ymload.cpp */; };
 		CCBF101B1221788200E8DE4E /* YmMusic.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCBF100D1221788200E8DE4E /* YmMusic.cpp */; };
 		CCBF101C1221788200E8DE4E /* YmUserInterface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCBF10101221788200E8DE4E /* YmUserInterface.cpp */; };
+		CCBF26E42ECA89F00039936C /* WelcomeView.xib in Resources */ = {isa = PBXBuildFile; fileRef = CCBF26E32ECA89F00039936C /* WelcomeView.xib */; };
+		CCBF27112ECA8EB40039936C /* WelcomeVC.m in Sources */ = {isa = PBXBuildFile; fileRef = CCBF27102ECA8EB40039936C /* WelcomeVC.m */; };
 		CCBFC9A32EAA146300014B5D /* OSLog.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CCBFC9A22EAA146300014B5D /* OSLog.framework */; };
 		CCC3A3C32BE77F8700710980 /* libliblzma_mdz.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CCC3A1C72BE77E6A00710980 /* libliblzma_mdz.a */; };
 		CCC543F72B89F46B00E97EC1 /* libadplug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CCC541BB2B89DD1800E97EC1 /* libadplug.a */; };
@@ -2663,6 +2665,9 @@
 		CCBF100E1221788200E8DE4E /* YmMusic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YmMusic.h; sourceTree = "<group>"; };
 		CCBF100F1221788200E8DE4E /* YmTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = YmTypes.h; sourceTree = "<group>"; };
 		CCBF10101221788200E8DE4E /* YmUserInterface.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = YmUserInterface.cpp; sourceTree = "<group>"; };
+		CCBF26E32ECA89F00039936C /* WelcomeView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = WelcomeView.xib; sourceTree = "<group>"; };
+		CCBF270F2ECA8EB40039936C /* WelcomeVC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WelcomeVC.h; sourceTree = "<group>"; };
+		CCBF27102ECA8EB40039936C /* WelcomeVC.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WelcomeVC.m; sourceTree = "<group>"; };
 		CCBFC9A22EAA146300014B5D /* OSLog.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OSLog.framework; path = System/Library/Frameworks/OSLog.framework; sourceTree = SDKROOT; };
 		CCC3A1C22BE77E6A00710980 /* liblzma_mdz.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = liblzma_mdz.xcodeproj; path = liblzma_mdz/liblzma_mdz.xcodeproj; sourceTree = "<group>"; };
 		CCC541B62B89DD1700E97EC1 /* adplug.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = adplug.xcodeproj; path = adplug/adplug.xcodeproj; sourceTree = "<group>"; };
@@ -3296,6 +3301,7 @@
 				337FF18617A9D18900CE0A28 /* PlaylistViewController.xib */,
 				33F6A93E17B99FB8002369E7 /* SettingsViewController.xib */,
 				59A65C752624E9B700BC99D1 /* VoicesViewController.xib */,
+				CCBF26E32ECA89F00039936C /* WelcomeView.xib */,
 			);
 			path = XIB;
 			sourceTree = "<group>";
@@ -3775,6 +3781,8 @@
 			isa = PBXGroup;
 			children = (
 				337FA728124288FA00DDD352 /* AboutViewController.h */,
+				CCBF270F2ECA8EB40039936C /* WelcomeVC.h */,
+				CCBF27102ECA8EB40039936C /* WelcomeVC.m */,
 				337FA729124288FA00DDD352 /* AboutViewController.mm */,
 				CCE8D7492B8D68FD0076D8C0 /* AnimatedLaunchVC.h */,
 				CCE8D7482B8D68FD0076D8C0 /* AnimatedLaunchVC.mm */,
@@ -6030,6 +6038,7 @@
 				CCB8D99417F62A18008E6A45 /* txtMenu2b_2x.png in Resources */,
 				CCB8D97217F61AEA008E6A45 /* txtMenu2a_2x.png in Resources */,
 				CC1E6366120423DF000A8A4E /* MED in Resources */,
+				CCBF26E42ECA89F00039936C /* WelcomeView.xib in Resources */,
 				CC1E6367120423DF000A8A4E /* Medley in Resources */,
 				CC1E6368120423DF000A8A4E /* MIDI-Loriciel in Resources */,
 				CC1E6369120423DF000A8A4E /* MikeDavies in Resources */,
@@ -6288,6 +6297,7 @@
 				591D8E4B25DC63620013E19F /* bit_allocation.c in Sources */,
 				CC8368E52B57CA9B0035A4DA /* string68.c in Sources */,
 				CCFDC53617DB105500C6692C /* NVAllpassFilter.m in Sources */,
+				CCBF27112ECA8EB40039936C /* WelcomeVC.m in Sources */,
 				CC8368E32B57CA9B0035A4DA /* endian68.c in Sources */,
 				59C22A1E25B992D9003FEDBF /* AFNetworkReachabilityManager.m in Sources */,
 				CCFDC53A17DB105500C6692C /* NVHighShelvingFilter.m in Sources */,

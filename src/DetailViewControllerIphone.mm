@@ -1354,8 +1354,8 @@ static float movePinchScale,movePinchScaleOld;
         pmenu_show=1;
         pmenu_fade=0;
     } else {
-        pmenu_show=-1;
-        pmenu_fade=0;
+        pmenu_show=-0;
+        //pmenu_fade=0;
     }
 }
 -(void) mdBackAction {
@@ -9076,17 +9076,16 @@ void doFramePM(float ww,float hh) {
     //-------------------------------------
     // 3D Landscape, 3D Spectrum, 3D Piano
     //-------------------------------------
-    
-    
+        
     if (pmenu_show) {
         if (pmenu_fade<255) {
-            pmenu_fade+=16;//48;
+            pmenu_fade+=32*frameToUpdate;//48;
             /*			pmenu_fade+=(255-pmenu_fade)/3;*/
             if (pmenu_fade>255) pmenu_fade=255;
         }
     } else {
         if (pmenu_fade>0) {
-            pmenu_fade-=16;//48;
+            pmenu_fade-=32*frameToUpdate;//48;
             /*			pmenu_fade-=(255+32-pmenu_fade)/3;*/
             if (pmenu_fade<0) pmenu_fade=0;
         }
@@ -9105,7 +9104,7 @@ void doFramePM(float ww,float hh) {
         if (ret<0) {
             mOglViewIsHidden=YES;
             pmenu_show=0;
-            pmenu_fade=0;
+            //pmenu_fade=0;
             if (settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value) {
                 settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value=0;
                 oglViewFullscreenChanged=1;
@@ -9113,7 +9112,7 @@ void doFramePM(float ww,float hh) {
             }
         } else if (ret==0) {
             pmenu_show=0;
-            pmenu_fade=0;
+            //pmenu_fade=0;
         } else if (ret>0) {
             if (ret==2) shouldGoToSettings=1; //Visu
             else if (ret==3) shouldGoToSettings=2; //Oscillo
