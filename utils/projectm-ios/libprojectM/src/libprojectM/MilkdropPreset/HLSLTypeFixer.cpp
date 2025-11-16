@@ -824,152 +824,60 @@ std::string HLSLTypeFixer::fixIntegerAssignmentsFromFloatExpressions(const std::
             std::cout << var << " ";
         }
         std::cout << std::endl;
-        std::cout << "Float variables found: ";
-        for (const auto& var : m_floatVariables) {
-            std::cout << var << " ";
-        }
-        std::cout << std::endl;
     }
     
-    // Process all int variables and fix their assignments
-    // We'll repeatedly search the entire result until no more changes are made
-    bool madeChanges = true;
-    int maxIterations = 100; // Prevent infinite loops
-    int iteration = 0;
-    
-    while (madeChanges && iteration < maxIterations) {
-        madeChanges = false;
-        iteration++;
+    // Process all int variables and wrap their assignments with int()
+    // This is simpler and safer than trying to detect "float expressions"
+    for (const auto& intVar : m_intVariables) {
+        // Look for: int_var = expression;
+        std::regex assignmentRegex("\\b(" + intVar + ")\\s*=\\s*([^;]+);");
         
-        if (m_verbose) {
-            std::cout << "\n=== Iteration " << iteration << " ===" << std::endl;
-        }
+        std::string temp;
+        std::smatch match;
+        auto searchStart = result.cbegin();
+        size_t lastPos = 0;
         
-        // Try to fix each integer variable
-        for (const auto& intVar : m_intVariables) {
+        while (std::regex_search(searchStart, result.cend(), match, assignmentRegex)) {
+            size_t matchPos = match.position() + (searchStart - result.cbegin());
+            
+            // Check if not in comment or string
+            if (isInComment(result, matchPos) || isInString(result, matchPos)) {
+                searchStart = match.suffix().first;
+                continue;
+            }
+            
+            std::string expression = match[2].str();
+            
+            // Trim whitespace from expression
+            size_t exprStart = expression.find_first_not_of(" \t\n\r");
+            size_t exprEnd = expression.find_last_not_of(" \t\n\r");
+            if (exprStart != std::string::npos && exprEnd != std::string::npos) {
+                expression = expression.substr(exprStart, exprEnd - exprStart + 1);
+            }
+            
+            // Check if expression already has int() cast at the beginning
+            if (expression.find("int(") == 0) {
+                // Already has int() cast, skip
+                temp += result.substr(lastPos, matchPos + match.length() - lastPos);
+                lastPos = matchPos + match.length();
+                searchStart = match.suffix().first;
+                continue;
+            }
+            
             if (m_verbose) {
-                std::cout << "Checking variable: " << intVar << std::endl;
+                std::cout << "Wrapping assignment: " << intVar << " = " << expression << std::endl;
             }
             
-            // Look for: int_var = expression;
-            std::regex assignmentRegex("\\b(" + intVar + ")\\s*=\\s*([^;]+);");
+            // Build the replacement with int() wrapper
+            temp += result.substr(lastPos, matchPos - lastPos);
+            temp += intVar + " = int(" + expression + ");";
+            lastPos = matchPos + match.length();
             
-            std::smatch match;
-            if (std::regex_search(result, match, assignmentRegex)) {
-                size_t matchPos = match.position();
-                
-                if (m_verbose) {
-                    std::cout << "  Found assignment at position " << matchPos << std::endl;
-                }
-                
-                // Check if not in comment or string
-                if (isInComment(result, matchPos) || isInString(result, matchPos)) {
-                    if (m_verbose) {
-                        std::cout << "  Skipping (in comment or string)" << std::endl;
-                    }
-                    continue;
-                }
-                
-                std::string expression = match[2].str();
-                
-                if (m_verbose) {
-                    std::cout << "  Expression: " << expression << std::endl;
-                }
-                
-                // Check if expression already has int() cast
-                if (expression.find("int(") == 0) {
-                    if (m_verbose) {
-                        std::cout << "  Skipping (already has int() cast)" << std::endl;
-                    }
-                    continue;
-                }
-                
-                // Detect if this is a float expression
-                bool isFloatExpression = false;
-                
-                // Check for comparison operators used in arithmetic context
-                // Pattern: (comparison) * (comparison)
-                bool hasComparison = (expression.find(">=") != std::string::npos ||
-                                     expression.find("<=") != std::string::npos ||
-                                     expression.find("==") != std::string::npos ||
-                                     expression.find("!=") != std::string::npos ||
-                                     expression.find(">") != std::string::npos ||
-                                     expression.find("<") != std::string::npos);
-                
-                if (m_verbose) {
-                    std::cout << "  Has comparison: " << (hasComparison ? "yes" : "no") << std::endl;
-                }
-                
-                if (hasComparison) {
-                    // Check if there's multiplication (indicating boolean arithmetic)
-                    bool hasMult = (expression.find("*") != std::string::npos);
-                    
-                    if (m_verbose) {
-                        std::cout << "  Has multiplication: " << (hasMult ? "yes" : "no") << std::endl;
-                    }
-                    
-                    if (hasMult) {
-                        // This looks like: (a >= b) * (c <= d) or similar
-                        // Verify that it involves float variables or float operations
-                        bool hasFloatContext = false;
-                        
-                        // Check for dot access (float member access like pq.x)
-                        if (expression.find(".") != std::string::npos) {
-                            hasFloatContext = true;
-                            if (m_verbose) {
-                                std::cout << "  Has float context (dot notation)" << std::endl;
-                            }
-                        }
-                        
-                        // Check for float variable names
-                        if (!hasFloatContext) {
-                            for (const auto& floatVar : m_floatVariables) {
-                                if (expression.find(floatVar) != std::string::npos) {
-                                    hasFloatContext = true;
-                                    if (m_verbose) {
-                                        std::cout << "  Has float context (float variable: " << floatVar << ")" << std::endl;
-                                    }
-                                    break;
-                                }
-                            }
-                        }
-                        
-                        if (hasFloatContext) {
-                            isFloatExpression = true;
-                        }
-                    }
-                }
-                
-                if (isFloatExpression) {
-                    if (m_verbose) {
-                        std::cout << "  -> FIXING: " << intVar << " = " << expression << std::endl;
-                    }
-                    
-                    // Build the replacement
-                    std::string replacement = intVar + " = int(" + expression + ");";
-                    
-                    // Replace in result
-                    result = result.substr(0, matchPos) + replacement + 
-                             result.substr(matchPos + match.length());
-                    
-                    madeChanges = true;
-                    // Break out of the variable loop to restart from the beginning
-                    break;
-                } else {
-                    if (m_verbose) {
-                        std::cout << "  Not a float expression, skipping" << std::endl;
-                    }
-                }
-            } else {
-                if (m_verbose) {
-                    std::cout << "  No assignment found" << std::endl;
-                }
-            }
+            searchStart = match.suffix().first;
         }
-    }
-    
-    if (m_verbose && iteration >= maxIterations) {
-        std::cout << "Warning: fixIntegerAssignmentsFromFloatExpressions reached max iterations" << std::endl;
+        
+        temp += result.substr(lastPos);
+        result = temp;
     }
     
     return result;

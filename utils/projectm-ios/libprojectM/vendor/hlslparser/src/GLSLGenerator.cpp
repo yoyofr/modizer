@@ -460,6 +460,8 @@ bool GLSLGenerator::Generate(HLSLTree* tree, Target target, Version version, con
         m_writer.WriteLine(0, "float %s(float x, float y) { if (x == 0.0 || y == 0.0) { return 0.0; } else { return (x * y); } }", m_altMultFunction);
         m_writer.WriteLine(0, "vec2 %s(vec2 x, vec2 y) { return vec2(%s(x.x, y.x), %s(x.y, y.y)); }", m_altMultFunction, m_altMultFunction, m_altMultFunction);
         m_writer.WriteLine(0, "vec3 %s(vec3 x, vec3 y) { return vec3(%s(x.x, y.x), %s(x.y, y.y), %s(x.z, y.z)); }", m_altMultFunction, m_altMultFunction, m_altMultFunction, m_altMultFunction);
+        m_writer.WriteLine(0, "vec3 %s(vec3 x, float y) { return x*y; }", m_altMultFunction);
+        m_writer.WriteLine(0, "vec3 %s(float x, vec3 y) { return x*y; }", m_altMultFunction);
         m_writer.WriteLine(0, "ivec3 %s(ivec3 x, ivec3 y) { return ivec3(%s(x.x, y.x), %s(x.y, y.y), %s(x.z, y.z)); }", m_altMultFunction, m_altMultFunction, m_altMultFunction, m_altMultFunction); //YOYOFR
         m_writer.WriteLine(0, "vec4 %s(vec4 x, vec4 y) { return vec4(%s(x.x, y.x), %s(x.y, y.y), %s(x.z, y.z), %s(x.w, y.w)); }", m_altMultFunction, m_altMultFunction, m_altMultFunction, m_altMultFunction, m_altMultFunction);
         // For matrix multiplication just perform the multiplication

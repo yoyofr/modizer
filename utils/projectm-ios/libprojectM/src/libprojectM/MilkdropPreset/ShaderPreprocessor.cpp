@@ -1183,6 +1183,9 @@ std::string ShaderPreprocessor::preprocess(const std::string& shaderSource) {
         result.replace(loop.forStart, loop.bodyEnd - loop.forStart, replacement);
     }
     
+    // Step 7.5: Fix empty for loop initializers and increments
+    result = fixEmptyForLoopParts(result);
+    
     // Step 8: Apply HLSLTypeFixer as final step (HLSL-specific)
     if (m_language == ShaderLanguage::HLSL) {
         HLSLTypeFixer hlslTypeFixer;
@@ -2088,6 +2091,118 @@ std::vector<ShaderPreprocessor::DefineInfo> ShaderPreprocessor::detectDefines(co
     }
     
     return defines;
+}
+
+std::string ShaderPreprocessor::fixEmptyForLoopParts(const std::string& shaderSource) {
+    std::string result = shaderSource;
+    
+    // Look for for loops with empty initialization or increment
+    size_t pos = 0;
+    while (pos < result.length()) {
+        size_t forPos = result.find("for", pos);
+        if (forPos == std::string::npos) break;
+        
+        // Check if it's a whole word
+        bool isWordStart = (forPos == 0 || (!std::isalnum(result[forPos - 1]) && result[forPos - 1] != '_'));
+        bool isWordEnd = (forPos + 3 >= result.length() || (!std::isalnum(result[forPos + 3]) && result[forPos + 3] != '_'));
+        
+        if (!isWordStart || !isWordEnd) {
+            pos = forPos + 3;
+            continue;
+        }
+        
+        // Find opening parenthesis
+        size_t openParen = forPos + 3;
+        while (openParen < result.length() && std::isspace(result[openParen])) ++openParen;
+        
+        if (openParen >= result.length() || result[openParen] != '(') {
+            pos = forPos + 3;
+            continue;
+        }
+        
+        // Find the two semicolons
+        size_t firstSemicolon = std::string::npos;
+        size_t secondSemicolon = std::string::npos;
+        int parenDepth = 1;
+        size_t searchPos = openParen + 1;
+        
+        while (searchPos < result.length() && parenDepth > 0) {
+            if (result[searchPos] == '(') {
+                ++parenDepth;
+            } else if (result[searchPos] == ')') {
+                --parenDepth;
+                if (parenDepth == 0) {
+                    break;
+                }
+            } else if (result[searchPos] == ';' && parenDepth == 1) {
+                if (firstSemicolon == std::string::npos) {
+                    firstSemicolon = searchPos;
+                } else if (secondSemicolon == std::string::npos) {
+                    secondSemicolon = searchPos;
+                }
+            }
+            ++searchPos;
+        }
+        
+        if (firstSemicolon == std::string::npos || secondSemicolon == std::string::npos || parenDepth != 0) {
+            pos = forPos + 3;
+            continue;
+        }
+        
+        size_t closeParen = searchPos;
+        
+        // Check initialization part (between openParen and firstSemicolon)
+        std::string initPart = result.substr(openParen + 1, firstSemicolon - openParen - 1);
+        // Trim whitespace
+        size_t initStart = initPart.find_first_not_of(" \t\n\r");
+        size_t initEnd = initPart.find_last_not_of(" \t\n\r");
+        bool initEmpty = (initStart == std::string::npos || initEnd == std::string::npos);
+        
+        // Check increment part (between secondSemicolon and closeParen)
+        std::string incrPart = result.substr(secondSemicolon + 1, closeParen - secondSemicolon - 1);
+        // Trim whitespace
+        size_t incrStart = incrPart.find_first_not_of(" \t\n\r");
+        size_t incrEnd = incrPart.find_last_not_of(" \t\n\r");
+        bool incrEmpty = (incrStart == std::string::npos || incrEnd == std::string::npos);
+        
+        if (initEmpty || incrEmpty) {
+            if (m_verbose) {
+                std::cout << "Fixing empty for loop parts at position " << forPos << std::endl;
+                std::cout << "  Init empty: " << (initEmpty ? "yes" : "no") << std::endl;
+                std::cout << "  Incr empty: " << (incrEmpty ? "yes" : "no") << std::endl;
+            }
+            
+            // Build the new for header
+            std::string newInit = initEmpty ? "1" : initPart;
+            if (!initEmpty && initStart != std::string::npos && initEnd != std::string::npos) {
+                newInit = initPart.substr(initStart, initEnd - initStart + 1);
+            }
+            
+            std::string condPart = result.substr(firstSemicolon + 1, secondSemicolon - firstSemicolon - 1);
+            // Trim condition whitespace
+            size_t condStart = condPart.find_first_not_of(" \t\n\r");
+            size_t condEnd = condPart.find_last_not_of(" \t\n\r");
+            std::string newCond = (condStart != std::string::npos && condEnd != std::string::npos) ?
+                                  condPart.substr(condStart, condEnd - condStart + 1) : condPart;
+            
+            std::string newIncr = incrEmpty ? "1" : incrPart;
+            if (!incrEmpty && incrStart != std::string::npos && incrEnd != std::string::npos) {
+                newIncr = incrPart.substr(incrStart, incrEnd - incrStart + 1);
+            }
+            
+            std::string newForHeader = "for (" + newInit + ";" + newCond + ";" + newIncr + ")";
+            
+            // Replace just the for header
+            result.replace(forPos, closeParen + 1 - forPos, newForHeader);
+            
+            // Continue from after the replacement
+            pos = forPos + newForHeader.length();
+        } else {
+            pos = closeParen + 1;
+        }
+    }
+    
+    return result;
 }
 
 std::string ShaderPreprocessor::processDefines(const std::string& shaderSource) {

@@ -79,6 +79,7 @@ enum MDZ_PLAYLIST_FNODE_Type {
 - (void)last:(bool)cut;
 - (int)getPos;
 - (void)setPos:(int)pos cut:(bool)cut;
+- (void)moveTo:(FileNode*)node cut:(bool)cut;
 - (void)remove:(int)index;
 - (void)removeCurEntry;
 - (void)loadCurEntry;
@@ -87,6 +88,7 @@ enum MDZ_PLAYLIST_FNODE_Type {
 - (const char*)getPath:(int)index;
 - (const char*)getCurLabel;
 - (const char*)getCurFullpath;
+- (NSString*)getCurFullpathNS;
 - (int)getCurType;
 - (int)getSize;
 

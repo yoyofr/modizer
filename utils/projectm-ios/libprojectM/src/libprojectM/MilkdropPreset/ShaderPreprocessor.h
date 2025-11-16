@@ -253,6 +253,14 @@ private:
      */
     [[nodiscard]] std::string fixArrayInitializers(const std::string& shaderSource);
 
+    /**
+     * Fix empty for loop initializers and increments by replacing with "1"
+     * Example: for (;i<10;) -> for (1;i<10;1)
+     * @param shaderSource The shader source code
+     * @return The processed shader source with empty for loop parts fixed
+     */
+    [[nodiscard]] std::string fixEmptyForLoopParts(const std::string& shaderSource);
+
     ShaderLanguage m_language;
     bool m_verbose = false;
     mutable std::vector<std::string> m_cachedTypes;

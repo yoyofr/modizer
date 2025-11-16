@@ -661,6 +661,15 @@ code_4=a=1.0;\n\
     if (_size==0) [self loadIdlePreset];
     [self loadCurrentPreset:true];
 }
+- (void)moveTo:(FileNode*)node cut:(bool)cut {
+    for (int i=0;i<[self.items count];i++) {
+        FileNode *item=[self.items objectAtIndex:i];
+        if ([node.name isEqualToString:item.name]) {
+            [self setPos:i cut:cut];
+            break;
+        }
+    }
+}
 
 - (void)clear {
     [_items removeAllObjects];
@@ -710,6 +719,12 @@ code_4=a=1.0;\n\
     if (_size==0) return NULL;
     FileNode *item=[_items objectAtIndex:_position];
     return [item.localpath UTF8String];
+}
+
+- (NSString*)getCurFullpathNS {
+    if (_size==0) return NULL;
+    FileNode *item=[_items objectAtIndex:_position];
+    return item.localpath;
 }
 
 - (int)getSize {

@@ -265,6 +265,7 @@ static volatile int alertCannotPlay_displayed;
 
 static int pmenu_fade=0;
 static int pmenu_show=0;
+extern int pMenu_fullscreenStatus;
 static int oglv_corner_fade[4];
 
 static 	UIImage *covers_default; // album covers images
@@ -1353,7 +1354,7 @@ static float movePinchScale,movePinchScaleOld;
         pmenu_show=1;
         pmenu_fade=0;
     } else {
-        pmenu_show=0;
+        pmenu_show=-1;
         pmenu_fade=0;
     }
 }
@@ -1432,6 +1433,7 @@ static float movePinchScale,movePinchScaleOld;
     
     if (font_menu) ImGui::PushFont(font_menu,font_size*glScaleFactor);
     else ImGui::PushFont(nullptr);
+
     
     float posY=0;
     float posX;
@@ -1448,15 +1450,26 @@ static float movePinchScale,movePinchScaleOld;
                  ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoScrollbar|ImGuiWindowFlags_NoFocusOnAppearing
                  );
     
-    ImGui::SetCursorPos(ImVec2((0*posX+9*glScaleFactor), 4*glScaleFactor) );
+    if (font_menu) ImGui::PushFont(font_menu,(font_size+3)*glScaleFactor);
+    else ImGui::PushFont(nullptr);
+    
+    ImGui::SetCursorPos(ImVec2((0*posX+(8-1)*glScaleFactor), (3-1)*glScaleFactor) );
     ImGui::TextColored(ImVec4(0.0,0.0,0.0,alpha),"%s",_mdz_FX_GuiMessageStr);
+    
+    ImGui::PopFont();
+    
     
     ImGui::SetCursorPos(ImVec2((0*posX+8*glScaleFactor), 3*glScaleFactor) );
     ImGui::TextColored(ImVec4(1.0,1.0,1.0,alpha),"%s",_mdz_FX_GuiMessageStr);
+    
+    
+    
     ImGui::End();
     ImGui::PopStyleColor();
     ImGui::PopStyleColor();
+    
     ImGui::PopFont();
+    
     
     for (int i=0;i<frameToUpdate;i++) {
         if (_mdz_FX_GuiMessage_fade>0) _mdz_FX_GuiMessage_fade--;
@@ -1484,11 +1497,11 @@ static float movePinchScale,movePinchScaleOld;
             }
             if (added) {
                 //[self newGuiMessage:NSLocalizedString(@"Added to favorites",@"")];
-                [self newGuiMessage:[NSString stringWithFormat:@"%C",static_cast<unichar>(FA_HEART)]];
+                [self newGuiMessage:[NSString stringWithFormat:@"%C",static_cast<unichar>(FA_STAR)]];
                 
             } else {
                 //[self newGuiMessage:NSLocalizedString(@"Removed from favorites",@"")];
-                [self newGuiMessage:[NSString stringWithFormat:@"%C",static_cast<unichar>(FA_HEART_O)]];
+                [self newGuiMessage:[NSString stringWithFormat:@"%C",static_cast<unichar>(FA_STAR_O)]];
             }
             _pmPresetUpdateDisplayInfo=true;
             _pm_display_scroll_pause=_pm_fps*1.5;
@@ -1567,6 +1580,8 @@ static float movePinchScale,movePinchScaleOld;
 
 - (void)oglViewSwitchFS {
     settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value=!(settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value);
+    pMenu_fullscreenStatus=settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value;
+    
     oglViewFullscreenChanged=1;
     shouldUpdateCoverTexture=1;
     
@@ -7006,14 +7021,12 @@ void doFramePM(float ww,float hh) {
     float ww=winsize.x;
     float hh=winsize.y;
     
-    static float cur_winSizeX=ww/5;
-    static float cur_winSizeY=hh/5;
-    
+    float cur_winSizeX=ww/4;
+    float cur_winSizeY=hh/4;
     float alpha;
-    static int switchPrevValue=0;
     
     ImGui::GetStyle().Alpha=1.0;
-    if (font_menu) ImGui::PushFont(font_menu,FONTSIZE_SHOWINFO_FPS*glScaleFactor);
+    if (font_menu) ImGui::PushFont(font_menu,FONTSIZE_GUIMSESSAGE*glScaleFactor);
     else ImGui::PushFont(nullptr);
     
     char strButton[32];
@@ -7021,20 +7034,20 @@ void doFramePM(float ww,float hh) {
     for (int i=0;i<4;i++) {
         switch (i) {
             case 0:
-                posX=0;posY=(hh-cur_winSizeY)*glScaleFactor;
-                snprintf(strButton,32,"Prev\npreset");
+                posX=0*glScaleFactor;posY=(hh-cur_winSizeY)*glScaleFactor;
+                snprintf(strButton,32,"%s",[[NSString stringWithFormat:@"%C",static_cast<unichar>(FA_CHEVRON_LEFT)] UTF8String]);
                 break;
             case 1:
                 posX=(ww-cur_winSizeX)*glScaleFactor;posY=(hh-cur_winSizeY)*glScaleFactor;
-                snprintf(strButton,32,"Next\npreset");
+                snprintf(strButton,32,"%s",[[NSString stringWithFormat:@"%C",static_cast<unichar>(FA_CHEVRON_RIGHT)] UTF8String]);
                 break;
             case 2:
                 posX=(ww-cur_winSizeX)*glScaleFactor;posY=0*glScaleFactor;
-                snprintf(strButton,32,"Info HUD\nswitch mode");
+                snprintf(strButton,32,"%s",[[NSString stringWithFormat:@"%C",static_cast<unichar>(FA_MICROCHIP)] UTF8String]);
                 break;
             case 3:
                 posX=0*glScaleFactor;posY=0*glScaleFactor;
-                snprintf(strButton,32,"Music\ninfo");
+                snprintf(strButton,32,"%s",[[NSString stringWithFormat:@"%C",static_cast<unichar>(FA_INFO)] UTF8String]);
                 break;
         }
         ImGui::SetNextWindowPos(ImVec2(posX,posY));
@@ -8909,7 +8922,7 @@ void doFramePM(float ww,float hh) {
             NSString *pmInfoStr;
             if ( [_mdzPM_playlist size] && [_mdzPM_Favorites isFavoritePreset:[NSString stringWithUTF8String:[_mdzPM_playlist getCurPresetCleanTitle]]] ) {
                 pmInfoStr=[NSString stringWithFormat:@"%C%C %s   ",
-                           static_cast<unichar>(FA_HEART),
+                           static_cast<unichar>(FA_STAR),
                            static_cast<unichar>((settings[PROJECTM_LockPreset].detail.mdz_boolswitch.switch_value?FA_LOCK:FA_UNLOCK)),
                            [_mdzPM_playlist getCurLabel]];
             } else {
@@ -9059,13 +9072,13 @@ void doFramePM(float ww,float hh) {
     
     if (pmenu_show) {
         if (pmenu_fade<255) {
-            pmenu_fade+=48;//48;
+            pmenu_fade+=16;//48;
             /*			pmenu_fade+=(255-pmenu_fade)/3;*/
             if (pmenu_fade>255) pmenu_fade=255;
         }
     } else {
         if (pmenu_fade>0) {
-            pmenu_fade-=48;//48;
+            pmenu_fade-=16;//48;
             /*			pmenu_fade-=(255+32-pmenu_fade)/3;*/
             if (pmenu_fade<0) pmenu_fade=0;
         }
@@ -9079,7 +9092,7 @@ void doFramePM(float ww,float hh) {
         //specific case for fullscreen switch change
         bool isFullscreen=settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value;
         
-        int ret=PMenu::playerShowMenu(ww,hh,glScaleFactor,fadelev,movePxPMenu,movePyPMenu);
+        int ret=PMenu::playerShowMenu(ww,hh,glScaleFactor,fadelev,movePxPMenu,movePyPMenu,pmenu_show);
         movePxPMenu=movePyPMenu=0;
         if (ret<0) {
             mOglViewIsHidden=YES;
@@ -9109,8 +9122,7 @@ void doFramePM(float ww,float hh) {
         
     }
     
-    //[self showGUICorners:ImVec2(ww,hh) frameToUpdate:frameToUpdate];
-    
+    [self showGUICorners:ImVec2(ww,hh) frameToUpdate:frameToUpdate];
     [self showInfoData:ImVec2(ww,hh) frameToUpdate:frameToUpdate];
     
 //    if (_mdzPM_playlist.lastFailed) {

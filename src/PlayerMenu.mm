@@ -29,6 +29,7 @@ extern MDZPlaylist *_mdzPM_playlist;
 extern MDZFavorites *_mdzPM_Favorites;
 
 FileNode *pmCurrentFileNode;
+NSString *pMenu_currentPM_entry;
 char pmFileNodeFilter[64];
 static float idealFontSize;
 extern int mouseMoveInProgress;
@@ -44,7 +45,7 @@ extern float glScaleFactor;
 #define faicon(a) [[NSString stringWithFormat:@"%C", static_cast<unichar>(a)] UTF8String]
 #define faicon_with_pre_suf(pre,a,suf) [[NSString stringWithFormat:@"%s%C%s",pre, static_cast<unichar>(a),suf] UTF8String]
 
-static int fullscreenStatus;
+int pMenu_fullscreenStatus;
 
 #define MENU_BACKGROUND_ALPHA 0.7f
 
@@ -77,6 +78,9 @@ ImVec4 pMenu_browser_notSelectedLineText = ImVec4(0.5,0.5,0.5,1.0);
 ImVec4 pMenu_browser_selectedLineText = ImVec4(0.9,0.9,0.9,1.0);//242.0/255.0,165.0/255.0,95.0/255.0,1.0);
 ImVec4 pMenu_browser_partiallySelectedLineText = ImVec4(214.0/255.0,202.0/255.0,134.0/255.0,1.0);
 
+ImVec4 pMenu_browser_notSelectedLineTextPlaying = ImVec4(0.5,0.2,0.5,1.0);
+ImVec4 pMenu_browser_selectedLineTextPlaying = ImVec4(0.9,0.5,0.9,1.0);//242.0/255.0,165.0/255.0,95.0/255.0,1.0);
+ImVec4 pMenu_browser_partiallySelectedLineTextPlaying = ImVec4(214.0/255.0,102.0/255.0,134.0/255.0,1.0);
 
 ImVec4 colorBtnTextInactive=ImVec4(0.25f,0.2f,0.5f,0.9f);
 ImVec4 colorBtnTextInactiveH=ImVec4(0.8f,0.7f,0.9f,0.9f);
@@ -814,7 +818,7 @@ int buildSubMenu(int r,
 //   return 0 if it has been closed
 //   return 1 if it is to be kept open
 //------------------------------------------------------
-int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float panX,float panY) {
+int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float panX,float panY,int menushow) {
     static int cpt=0;
     if (!pMenu_isInitialized) return 0;
     int keepOpened=1;
@@ -914,6 +918,7 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
                                          currentMenuDynLabel,
                                          currentMenuLabelFAIcon,
                                          currentMenuVar);
+                    if ((menushow==-1)&&((c*16+r)==0x33)) ret=1; //force exit
                     if (ret) {
                         switch (c*16+r) {
                             case 0x00:
@@ -1003,6 +1008,7 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
                                          currentMenuDynLabel,
                                          currentMenuLabelFAIcon,
                                          currentMenuVar);
+                    if ((menushow==-1)&&((c*16+r)==0x33)) ret=1; //force exit
                     if (ret) {
                         switch (c*16+r) {
                             case 0x00://Show FPS
@@ -1075,6 +1081,7 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
                                          currentMenuDynLabel,
                                          currentMenuLabelFAIcon,
                                          currentMenuVar);
+                    if ((menushow==-1)&&((c*16+r)==0x33)) ret=1; //force exit
                     if (ret) {
                         switch (c*16+r) {
                             case 0x00: //Oscillo OFF
@@ -1161,6 +1168,7 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
                                          currentMenuDynLabel,
                                          currentMenuLabelFAIcon,
                                          currentMenuVar);
+                    if ((menushow==-1)&&((c*16+r)==0x33)) ret=1; //force exit
                     if (ret) {
                         switch (c*16+r) {
                             case 0x00: //2dSpectrum OFF
@@ -1228,6 +1236,7 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
                                          currentMenuDynLabel,
                                          currentMenuLabelFAIcon,
                                          currentMenuVar);
+                    if ((menushow==-1)&&((c*16+r)==0x33)) ret=1; //force exit
                     if (ret) {
                         switch (c*16+r) {
                             case 0x00: //3dSpectrum OFF
@@ -1300,6 +1309,7 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
                                          currentMenuDynLabel,
                                          currentMenuLabelFAIcon,
                                          currentMenuVar);
+                    if ((menushow==-1)&&((c*16+r)==0x33)) ret=1; //force exit
                     if (ret) {
                         switch (c*16+r) {
                             case 0x00: //3DLandscape off
@@ -1387,6 +1397,7 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
                                          currentMenuDynLabel,
                                          currentMenuLabelFAIcon,
                                          currentMenuVar);
+                    if ((menushow==-1)&&((c*16+r)==0x33)) ret=1; //force exit
                     if (ret) {
                         switch (c*16+r) {
                             case 0x00:
@@ -1458,6 +1469,7 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
                                          currentMenuDynLabel,
                                          currentMenuLabelFAIcon,
                                          currentMenuVar);
+                    if ((menushow==-1)&&((c*16+r)==0x33)) ret=1; //force exit
                     if (ret) {
                         switch (c*16+r) {
                             case 0x00:
@@ -1531,6 +1543,7 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
                                          currentMenuDynLabel,
                                          currentMenuLabelFAIcon,
                                          currentMenuVar);
+                    if ((menushow==-1)&&((c*16+r)==0x33)) ret=1; //force exit
                     if (ret) {
                         switch (c*16+r) {
                             case 0x00: //Off
@@ -1598,6 +1611,7 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
                                          currentMenuDynLabel,
                                          currentMenuLabelFAIcon,
                                          currentMenuVar);
+                    if ((menushow==-1)&&((c*16+r)==0x33)) ret=1; //force exit
                     if (ret) {
                         switch (c*16+r) {
                             case 0x00: //off
@@ -1684,6 +1698,7 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
                                              currentMenuDynLabel,
                                              currentMenuLabelFAIcon,
                                              currentMenuVar);
+                        if ((menushow==-1)&&((c*16+r)==0x33)) ret=1; //force exit
                     if (ret) {
                         switch (c*16+r) {
                             case 0x00: //PROJECTM OFF
@@ -1726,7 +1741,7 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
                                 break;
                             case 0x02://Bundled presets playlist editor
                                 if (settings[PROJECTM_BundledPresets].detail.mdz_boolswitch.switch_value) {
-                                    fullscreenStatus=settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value;
+                                    pMenu_fullscreenStatus=settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value;
                                     settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value=1;
                                     pmCurrentPlaylistMode=PM_BUNDLED_PLAYLIST;
                                     pmCurrentFileNode=pmBundledPresetsFileNode;
@@ -1737,7 +1752,7 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
                                 break;
                             case 0x12://Custom presets playlist editor
                                 if (settings[PROJECTM_CustomPresets].detail.mdz_boolswitch.switch_value) {
-                                    fullscreenStatus=settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value;
+                                    pMenu_fullscreenStatus=settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value;
                                     settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value=1;
                                     pmCurrentPlaylistMode=PM_CUSTOM_PLAYLIST;
                                     pmCurrentFileNode=pmCustomPresetsFileNode;
@@ -1774,7 +1789,7 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
     } else if (pMenu_state.menu_idx==MENU_PROJECTM_EXPLORE) {
         int expandCollapseMode=0;
         if (selectedMode&PMENU_PMEXPLORE_FAV_FLAG) activeFx|=1<<2;
-        if (selectedMode&PMENU_PMEXPLORE_SEL_FLAG) activeFx|=1<<6;
+        if (selectedMode&PMENU_PMEXPLORE_SEL_FLAG) activeFx|=1<<8;
         ImGui::Text("Select active %s presets",(pmCurrentPlaylistMode==PM_BUNDLED_PLAYLIST?"bundled":"custom"));
         int col_nb=menuProjectMExploreColNb;
         if (ImGui::BeginTable("menu_ProjectM_Explore",col_nb,flagTable)) {
@@ -1803,6 +1818,7 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
                                          currentMenuDynLabel,
                                          currentMenuLabelFAIcon,
                                          currentMenuVar);
+                    if ((menushow==-1)&&((c*16+r)==0x61)) ret=1; //force exit
                     if (ret) {
                         switch (c*16+r) {
                             case 0x00: //Clear all
@@ -1854,11 +1870,11 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
                                 expandCollapseMode=2;
                                 break;
                             case 0x51: //Back to main menu
-                                settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value=fullscreenStatus;
+                                settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value=pMenu_fullscreenStatus;
                                 pMenu_state.menu_idx=MENU_PROJECTM;
                                 break;
                             case 0x61: //Exit
-                                settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value=fullscreenStatus;
+                                settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value=pMenu_fullscreenStatus;
                                 keepOpened=0;
                                 break;
                         }
@@ -1898,6 +1914,8 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
             pMenu_PMUpdateFavStatus(pmCurrentFileNode,FALSE,FALSE);
             
             ImGui::PushStyleColor(ImGuiCol_Header, ImVec4(0,0,0,0));
+            
+            pMenu_currentPM_entry=[_mdzPM_playlist getCurFullpathNS];
             
             index=pMenu_PMbuildDirTree(pmCurrentFileNode,index,filter,expandCollapseMode,selectedMode);
             expandCollapseMode=0;  //Reset flag
@@ -2017,10 +2035,10 @@ int pMenu_PMbuildDirTree(FileNode *fileNode, int idx,bool filter,int updExpandCo
                 
                 NSString *strNode;
                 if (child.isFavorite_Temp) {
-                    if (child.isFullyFavorite) strNode=[NSString stringWithFormat:@"%C%@",static_cast<unichar>(FA_HEART),[child name]];
-                    else strNode=[NSString stringWithFormat:@"%C%@",static_cast<unichar>(FA_HEART_O),[child name]];
-                }
-                else strNode=[NSString stringWithString:[child name]];
+                    if (child.isFullyFavorite) strNode=[NSString stringWithFormat:@"%C%@",static_cast<unichar>(FA_STAR),[child name]];
+                else strNode=[NSString stringWithFormat:@"%C%@",static_cast<unichar>(FA_STAR_HALF),[child name]];
+                } else strNode=[NSString stringWithFormat:@"%C%@",static_cast<unichar>(FA_STAR_O),[child name]];
+                //else strNode=[NSString stringWithString:[child name]];
                 
                 bool node_open=ImGui::TreeNodeEx((void*)(intptr_t)idx++, flags, " ");
                 
@@ -2077,9 +2095,12 @@ int pMenu_PMbuildDirTree(FileNode *fileNode, int idx,bool filter,int updExpandCo
                 
                 NSString *strNode;
                 if (child.isFavorite_Temp) {
-                    strNode=[NSString stringWithFormat:@"%C%@",static_cast<unichar>(FA_HEART),[child name]];
+                    strNode=[NSString stringWithFormat:@"%C%@",static_cast<unichar>(FA_STAR),[child name]];
                 }
-                else strNode=[NSString stringWithFormat:@"%@",[child name]];
+                else {
+                    strNode=[NSString stringWithFormat:@"%C%@",static_cast<unichar>(FA_STAR_O),[child name]];
+                }
+                    //strNode=[NSString stringWithFormat:@"%@",[child name]];
                 
                 bool node_open=ImGui::TreeNodeEx((void*)(intptr_t)idx++, flags|ImGuiTreeNodeFlags_AllowOverlap, " ");
                 bool shouldUpdateSel=false;
@@ -2092,13 +2113,26 @@ int pMenu_PMbuildDirTree(FileNode *fileNode, int idx,bool filter,int updExpandCo
                 
                 ImGui::SameLine();
                 //If clicking the button, do no register click for the node
-                if (ImGui::Button(faicon_with_pre_suf(" ",FA_BINOCULARS," "))) {
+                if (ImGui::Button(faicon_with_pre_suf(" ",FA_EYE," "))) {
                     [_mdzPM_playlist loadPreset:child cut:true];
                     shouldUpdateSel=false;
                 }
                 //If still above button, do no register click for the node
                 if ( ImGui::IsItemHovered()  ) {
                     shouldUpdateSel=false;
+                }
+                
+                ImGui::SameLine();
+                if (child.isSelected) {
+                    //If clicking the button, do no register click for the node
+                    if (ImGui::Button(faicon_with_pre_suf(" ",FA_HAND_O_RIGHT," "))) {
+                        [_mdzPM_playlist moveTo:child cut:true];
+                        shouldUpdateSel=false;
+                    }
+                    //If still above button, do no register click for the node
+                    if ( ImGui::IsItemHovered()  ) {
+                        shouldUpdateSel=false;
+                    }
                 }
                 
                 if (shouldUpdateSel) child.isSelected_Temp=!child.isSelected_Temp;
@@ -2108,8 +2142,13 @@ int pMenu_PMbuildDirTree(FileNode *fileNode, int idx,bool filter,int updExpandCo
                 ImVec2 wsize=ImGui::GetWindowSize();
                 strNode=limitStrSize(strNode,wsize.x-cpos.x-8*glScaleFactor);
                 
-                if (child.isSelected_Temp) ImGui::TextColored(pMenu_browser_selectedLineText, "%s",[strNode UTF8String]);
-                else ImGui::TextColored(pMenu_browser_notSelectedLineText,"%s",[strNode UTF8String]);
+                if ([pMenu_currentPM_entry isEqualToString:child.localpath]) {
+                    if (child.isSelected_Temp) ImGui::TextColored(pMenu_browser_selectedLineTextPlaying, "%s",[strNode UTF8String]);
+                    else ImGui::TextColored(pMenu_browser_notSelectedLineTextPlaying,"%s",[strNode UTF8String]);
+                } else {
+                    if (child.isSelected_Temp) ImGui::TextColored(pMenu_browser_selectedLineText, "%s",[strNode UTF8String]);
+                    else ImGui::TextColored(pMenu_browser_notSelectedLineText,"%s",[strNode UTF8String]);
+                }
                 
                 if (node_open) {
                     ImGui::TreePop();
