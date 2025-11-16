@@ -1477,7 +1477,7 @@ static float movePinchScale,movePinchScaleOld;
 }
 
 -(void) mdChangeFavoriteStatusPreset:(int)val {
-    if (_pmIsInitialized && _pm) {
+    if (_pmIsInitialized && _pm && (pmenu_show==0)) {
         const char *title;
         title = [_mdzPM_playlist getCurPresetCleanTitle];
         if (title) {

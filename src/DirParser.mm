@@ -262,7 +262,7 @@ extern pthread_mutex_t pm_mutex;
             node.isFavorite=true;
             posFL++;
             if (posFL>=sizeFL) break;
-            flPath=[orderedFL objectAtIndex:posFL];
+            flPath=[[orderedFL objectAtIndex:posFL] substringFromIndex:3];
         } else while ([filePath  caseInsensitiveCompare:flPath]==NSOrderedDescending){
             //file is after fl entry, move fl entry to next one
             posFL++;
@@ -1138,13 +1138,21 @@ code_4=a=1.0;\n\
     if ([path characterAtIndex:1]=='B') {
         [_bundlePresets addObject:path];
         [_bundlePresets sortUsingComparator:^NSComparisonResult(NSString *str1, NSString *str2) {
-            return [str1 caseInsensitiveCompare:str2];
+            NSString *strtmp1;
+            NSString *strtmp2;
+            strtmp1=[str1 stringByReplacingOccurrencesOfString:@"/" withString:@"\0"];
+            strtmp2=[str2 stringByReplacingOccurrencesOfString:@"/" withString:@"\0"];
+            return [strtmp1 caseInsensitiveCompare:strtmp2];
         }];
     }
     if ([path characterAtIndex:1]=='C') {
         [_customPresets addObject:path];
         [_customPresets sortUsingComparator:^NSComparisonResult(NSString *str1, NSString *str2) {
-            return [str1 caseInsensitiveCompare:str2];
+            NSString *strtmp1;
+            NSString *strtmp2;
+            strtmp1=[str1 stringByReplacingOccurrencesOfString:@"/" withString:@"\0"];
+            strtmp2=[str2 stringByReplacingOccurrencesOfString:@"/" withString:@"\0"];
+            return [strtmp1 caseInsensitiveCompare:strtmp2];
         }];
     }
 }

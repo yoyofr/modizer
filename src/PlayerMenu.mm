@@ -87,6 +87,11 @@ ImVec4 colorBtnTextInactiveH=ImVec4(0.8f,0.7f,0.9f,0.9f);
 ImVec4 colorBtnTextActive=ImVec4(0.5f,0.4f,1.0f,0.9f);
 ImVec4 colorBtnTextActiveH=ImVec4(1.0f,0.8f,1.0f,0.9f);
 
+ImVec4 pMenu_browser_isFav=ImVec4(0.4,0.1,0.2,0.8f);
+ImVec4 pMenu_browser_isFavH=ImVec4(0.8,0.2,0.4,0.8f);
+ImVec4 pMenu_browser_quickAccessButton=ImVec4(0.2,0.2,0.3,0.8f);
+ImVec4 pMenu_browser_quickAccessButtonH=ImVec4(0.4,0.4,0.6,0.8f);
+
 static bool pMenu_isInitialized=false;
 
 enum PMenu_Menu_List {
@@ -1789,7 +1794,7 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
     } else if (pMenu_state.menu_idx==MENU_PROJECTM_EXPLORE) {
         int expandCollapseMode=0;
         if (selectedMode&PMENU_PMEXPLORE_FAV_FLAG) activeFx|=1<<2;
-        if (selectedMode&PMENU_PMEXPLORE_SEL_FLAG) activeFx|=1<<8;
+        if (selectedMode&PMENU_PMEXPLORE_SEL_FLAG) activeFx|=1<<9;
         ImGui::Text("Select active %s presets",(pmCurrentPlaylistMode==PM_BUNDLED_PLAYLIST?"bundled":"custom"));
         int col_nb=menuProjectMExploreColNb;
         if (ImGui::BeginTable("menu_ProjectM_Explore",col_nb,flagTable)) {
@@ -1806,7 +1811,7 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
                 for (int c=0;c<col_nb;c++) {
                     ImGui::TableSetColumnIndex(c);
                     
-                    bool isActive=activeFx&(1<<(r*4+c));
+                    bool isActive=activeFx&(1<<(r*col_nb+c));
                     int ret=buildSubMenu(r,
                                          c,
                                          col_nb,
@@ -1843,8 +1848,8 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
                                 }
                                 [_mdzPM_playlist updateFileNodeStatus:pmCurrentFileNode];
                                 
-                                if (pmCurrentFileNode==pmCustomPresetsFileNode) [_mdzPM_Favorites updateFileNodeStatus:pmCurrentFileNode type:1];
-                                else [_mdzPM_Favorites updateFileNodeStatus:pmCurrentFileNode type:0];
+                                if (pmCurrentFileNode==pmCustomPresetsFileNode) [_mdzPM_Favorites updateFileNodeStatus:pmCurrentFileNode type:MDZ_PLAYLIST_FNODE_Custom];
+                                else [_mdzPM_Favorites updateFileNodeStatus:pmCurrentFileNode type:MDZ_PLAYLIST_FNODE_Bundle];
                                 
                                 pMenu_PMInitTempData(pmCurrentFileNode);
                                 break;
@@ -1852,6 +1857,9 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
                                 pMenu_PMCommitTempData(pmCurrentFileNode);
                                 pmSoftReinit(true);
                                 [_mdzPM_playlist updateFileNodeStatus:pmCurrentFileNode];
+                                if (pmCurrentFileNode==pmCustomPresetsFileNode) [_mdzPM_Favorites updateFileNodeStatus:pmCurrentFileNode type:MDZ_PLAYLIST_FNODE_Custom];
+                                else [_mdzPM_Favorites updateFileNodeStatus:pmCurrentFileNode type:MDZ_PLAYLIST_FNODE_Bundle];
+                                
                                 pMenu_PMInitTempData(pmCurrentFileNode);
                                 break;
                             case 0x01: //Add filtered
@@ -1914,12 +1922,16 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
             pMenu_PMUpdateFavStatus(pmCurrentFileNode,FALSE,FALSE);
             
             ImGui::PushStyleColor(ImGuiCol_Header, ImVec4(0,0,0,0));
+            ImGui::PushStyleColor(ImGuiCol_Button,pMenu_browser_quickAccessButton);
+            ImGui::PushStyleColor(ImGuiCol_ButtonHovered,pMenu_browser_quickAccessButtonH);
             
             pMenu_currentPM_entry=[_mdzPM_playlist getCurFullpathNS];
             
             index=pMenu_PMbuildDirTree(pmCurrentFileNode,index,filter,expandCollapseMode,selectedMode);
             expandCollapseMode=0;  //Reset flag
             
+            ImGui::PopStyleColor();
+            ImGui::PopStyleColor();
             ImGui::PopStyleColor();
             
             if (mouseMoveInProgress) {
@@ -2036,7 +2048,7 @@ int pMenu_PMbuildDirTree(FileNode *fileNode, int idx,bool filter,int updExpandCo
                 NSString *strNode;
                 if (child.isFavorite_Temp) {
                     if (child.isFullyFavorite) strNode=[NSString stringWithFormat:@"%C%@",static_cast<unichar>(FA_STAR),[child name]];
-                else strNode=[NSString stringWithFormat:@"%C%@",static_cast<unichar>(FA_STAR_HALF),[child name]];
+                else strNode=[NSString stringWithFormat:@"%C%@",static_cast<unichar>(FA_STAR_HALF_O),[child name]];
                 } else strNode=[NSString stringWithFormat:@"%C%@",static_cast<unichar>(FA_STAR_O),[child name]];
                 //else strNode=[NSString stringWithString:[child name]];
                 
@@ -2094,13 +2106,7 @@ int pMenu_PMbuildDirTree(FileNode *fileNode, int idx,bool filter,int updExpandCo
                 
                 
                 NSString *strNode;
-                if (child.isFavorite_Temp) {
-                    strNode=[NSString stringWithFormat:@"%C%@",static_cast<unichar>(FA_STAR),[child name]];
-                }
-                else {
-                    strNode=[NSString stringWithFormat:@"%C%@",static_cast<unichar>(FA_STAR_O),[child name]];
-                }
-                    //strNode=[NSString stringWithFormat:@"%@",[child name]];
+                strNode=[NSString stringWithFormat:@"%@",[child name]];
                 
                 bool node_open=ImGui::TreeNodeEx((void*)(intptr_t)idx++, flags|ImGuiTreeNodeFlags_AllowOverlap, " ");
                 bool shouldUpdateSel=false;
@@ -2112,6 +2118,9 @@ int pMenu_PMbuildDirTree(FileNode *fileNode, int idx,bool filter,int updExpandCo
                 }
                 
                 ImGui::SameLine();
+                ImVec2 curPos=ImGui::GetCursorPos();
+                curPos.x=2;
+                ImGui::SetCursorPos(curPos);
                 //If clicking the button, do no register click for the node
                 if (ImGui::Button(faicon_with_pre_suf(" ",FA_EYE," "))) {
                     [_mdzPM_playlist loadPreset:child cut:true];
@@ -2128,6 +2137,39 @@ int pMenu_PMbuildDirTree(FileNode *fileNode, int idx,bool filter,int updExpandCo
                     if (ImGui::Button(faicon_with_pre_suf(" ",FA_HAND_O_RIGHT," "))) {
                         [_mdzPM_playlist moveTo:child cut:true];
                         shouldUpdateSel=false;
+                    }
+                    //If still above button, do no register click for the node
+                    if ( ImGui::IsItemHovered()  ) {
+                        shouldUpdateSel=false;
+                    }
+                }
+                
+                ImGui::SameLine();
+                if (child.isFavorite_Temp) {
+                    //If clicking the button, do no register click for the node
+                    ImGui::PushStyleColor(ImGuiCol_Button,pMenu_browser_isFav);
+                    ImGui::PushStyleColor(ImGuiCol_ButtonHovered,pMenu_browser_isFavH);
+                    if (ImGui::Button(faicon_with_pre_suf(" ",FA_STAR," "))) {
+                        shouldUpdateSel=false;
+                        child.isFavorite_Temp=0;
+                        NSString *title=[NSString stringWithFormat:@"(%c)%@",(child.presetType==MDZ_PLAYLIST_FNODE_Bundle?'B':'C'),child.localpath];
+                        //MDZILog("removing %@",title);
+                        [_mdzPM_Favorites remFavoritePreset:title];
+                    }
+                    ImGui::PopStyleColor();
+                    ImGui::PopStyleColor();
+                    //If still above button, do no register click for the node
+                    if ( ImGui::IsItemHovered()  ) {
+                        shouldUpdateSel=false;
+                    }
+                } else {
+                    //If clicking the button, do no register click for the node
+                    if (ImGui::Button(faicon_with_pre_suf(" ",FA_STAR_O," "))) {
+                        shouldUpdateSel=false;
+                        child.isFavorite_Temp=1;
+                        NSString *title=[NSString stringWithFormat:@"(%c)%@",(child.presetType==MDZ_PLAYLIST_FNODE_Bundle?'B':'C'),child.localpath];
+                        //MDZILog("adding %@",title);
+                        [_mdzPM_Favorites addFavoritePreset:title];
                     }
                     //If still above button, do no register click for the node
                     if ( ImGui::IsItemHovered()  ) {
@@ -2329,8 +2371,8 @@ void pMenu_PMInitTempData(FileNode *fnode) {
 
 void pMenu_PMCommitTempData(FileNode *fnode) {
     fnode.isSelected=fnode.isSelected_Temp;
+    fnode.isFavorite=fnode.isFavorite_Temp;
     for (FileNode *child in fnode.children) pMenu_PMCommitTempData(child);
 }
-
 
 }
