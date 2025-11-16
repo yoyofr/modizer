@@ -213,23 +213,31 @@ extern pthread_mutex_t pm_mutex;
         [self flattenFileNode:child intoArray:array];
     }
 }
-- (void)setSelectedFromPL:(NSArray *)plNodes {
+- (void)setSelectedFromPL:(NSArray *)plNodes{
     int plSize;
-    //1st get all paths in an array
+    //1st get all paths in an array, filter by preset type (bundle/custom)
     NSMutableArray *pathsPL=[NSMutableArray arrayWithCapacity:[plNodes count]];
     for (FileNode *node in plNodes) {
-        [pathsPL addObject:node.localpath];
+        if (node.presetType==self.presetType) [pathsPL addObject:node.localpath];
     }
     //Sort it and remove potential duplicates
-    NSOrderedSet *orderedPL=[NSOrderedSet orderedSetWithArray:pathsPL];
+    //NSOrderedSet *orderedPL=[NSOrderedSet orderedSetWithArray:pathsPL];
+    
+    [pathsPL sortUsingComparator:^NSComparisonResult(NSString *str1, NSString *str2) {
+        NSString *strtmp1;
+        NSString *strtmp2;
+        strtmp1=[str1 stringByReplacingOccurrencesOfString:@"/" withString:@"\0"];
+        strtmp2=[str2 stringByReplacingOccurrencesOfString:@"/" withString:@"\0"];
+        return [strtmp1 caseInsensitiveCompare:strtmp2];
+    }];
     
     //Build an array of FileNode to update
     NSArray *fnodes=[self getFilesArray];
     
     int posPL=0;
-    int sizePL=(int)[orderedPL count];
+    int sizePL=(int)[pathsPL count];
     if (!sizePL) return;
-    NSString *plPath=[orderedPL objectAtIndex:posPL];
+    NSString *plPath=[pathsPL objectAtIndex:posPL];
     for (FileNode *node in fnodes) {
         NSString *filePath=node.localpath;
         if ([filePath isEqualToString:plPath]) {
@@ -237,12 +245,12 @@ extern pthread_mutex_t pm_mutex;
             node.isSelected=true;
             posPL++;
             if (posPL>=sizePL) break;
-            plPath=[orderedPL objectAtIndex:posPL];
+            plPath=[pathsPL objectAtIndex:posPL];
         } else while ([filePath  caseInsensitiveCompare:plPath]==NSOrderedDescending){
             //file is after pl entry, move pl entry to next one
             posPL++;
             if (posPL>=sizePL) break;
-            plPath=[orderedPL objectAtIndex:posPL];
+            plPath=[pathsPL objectAtIndex:posPL];
         }
     }
 }
@@ -721,6 +729,12 @@ code_4=a=1.0;\n\
     return [item.localpath UTF8String];
 }
 
+- (int)getCurType {
+    if (_size==0) return -1;
+    FileNode *item=[_items objectAtIndex:_position];
+    return item.presetType;
+}
+
 - (NSString*)getCurFullpathNS {
     if (_size==0) return NULL;
     FileNode *item=[_items objectAtIndex:_position];
@@ -875,12 +889,12 @@ code_4=a=1.0;\n\
     if (_size) [fnode setSelectedFromPL:_items];
 }
 
-- (bool)setPosForPreset:(const char*)localPath {
+- (bool)setPosForPreset:(const char*)localPath type:(int)type{
     bool ret=false;
     NSString *str=[NSString stringWithUTF8String:localPath];
     int pos=0;
     for (FileNode *item in _items) {
-        if ([str isEqualToString:item.localpath]) {
+        if ( ([str isEqualToString:item.localpath]) && (item.presetType==type)) {
             
             _curEntryLbl = [NSString stringWithFormat:@"(%d/%d) (%c)%@",pos+1,_size,
                             (item.presetType==MDZ_PLAYLIST_FNODE_Bundle?'B':'C'),

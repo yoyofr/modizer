@@ -5219,7 +5219,11 @@ void pmSoftReinit(bool forceReloadPlaylist) {
     if (!_pm) return;
     
     const char *curPresetLocalPath=NULL;
-    if ([_mdzPM_playlist getSize]) curPresetLocalPath=[_mdzPM_playlist getCurFullpath];
+    int curPresetType=NULL;
+    if ([_mdzPM_playlist getSize]) {
+        curPresetLocalPath=[_mdzPM_playlist getCurFullpath];
+        curPresetType=[_mdzPM_playlist getCurType];
+    }
     
     //projectm_playlist_set_shuffle(_pm_playlist, settings[PROJECTM_AutoSwitchPresetsMode].detail.mdz_switch.switch_value);
     [_mdzPM_playlist setShuffle:settings[PROJECTM_AutoSwitchPresetsMode].detail.mdz_switch.switch_value];
@@ -5263,7 +5267,7 @@ void pmSoftReinit(bool forceReloadPlaylist) {
         
         //try to restart from same preset
         bool found_pos=false;
-        if (curPresetLocalPath) found_pos=[_mdzPM_playlist setPosForPreset:curPresetLocalPath];
+        if (curPresetLocalPath) found_pos=[_mdzPM_playlist setPosForPreset:curPresetLocalPath type:curPresetType];
         if (!found_pos) {
             //Wasn't able to keep same preset, have to restart
             if (_mdzPM_playlist.shuffle) [_mdzPM_playlist next:false];
@@ -6836,8 +6840,10 @@ static int mOglView1Tap=0;
 }
 
 -(void) glViewPan2Gesture:(UIPanGestureRecognizer *)gestureRecognizer {
-    [self glViewPanGesture:gestureRecognizer];
-    return;
+    if (!_shiftModeOn) {
+        [self glViewPanGesture:gestureRecognizer];
+        return;
+    }
     static CGPoint last_pt;
     CGPoint pt=[gestureRecognizer translationInView:m_oglView];
     CGPoint start_pt=[gestureRecognizer locationInView:m_oglView];
@@ -7922,8 +7928,10 @@ void doFramePM(float ww,float hh) {
             [SettingsGenViewController changeSettingsValue:GLOB_FXSHOWINFO change:1];
         }  else if ( (pmenu_show==0) && (oglTapX<=ww*1/4) && (oglTapY<=hh*1/4) ) {
             //tapping upper left corner and not in menu, display music info
+            //also display if needed preset info
             [self refreshFXFSLabels];
             oglv_corner_fade[3]=30;
+            _pm_display_name_countdown=_pm_fps*PM_PRESET_DISPLAY_TIMEOUT;
         } else {
             //Activate menu if tap on the rest of the gl view
             if (pmenu_show==0) {

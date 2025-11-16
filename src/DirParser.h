@@ -88,6 +88,7 @@ enum MDZ_PLAYLIST_FNODE_Type {
 - (const char*)getPath:(int)index;
 - (const char*)getCurLabel;
 - (const char*)getCurFullpath;
+- (int)getCurType;
 - (NSString*)getCurFullpathNS;
 - (int)getCurType;
 - (int)getSize;
@@ -122,7 +123,7 @@ enum MDZ_PLAYLIST_FNODE_Type {
 - (int)loadPlaylist;
 
 - (void)updateFileNodeStatus:(FileNode*)fnode;
-- (bool)setPosForPreset:(const char*)localPath;
+- (bool)setPosForPreset:(const char*)localPath type:(int)type;
 
 @end
 

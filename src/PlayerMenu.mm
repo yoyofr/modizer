@@ -33,6 +33,7 @@ NSString *pMenu_currentPM_entry;
 char pmFileNodeFilter[64];
 static float idealFontSize;
 extern int mouseMoveInProgress;
+float browserFontSize,browserFontWidth;
 
 extern void updatePresetCustomDirStructure();
 
@@ -1891,11 +1892,12 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
             }
             ImGui::EndTable();
             
-            float browserFontSize=idealFontSize*0.8f;
+            browserFontSize=idealFontSize*0.8f;
             if (browserFontSize<PL_MIN_BROWSE_FONT_SIZE) browserFontSize=PL_MIN_BROWSE_FONT_SIZE;
             if (font_menu) ImGui::PushFont(font_menu,browserFontSize*glScaleFactor);
             else ImGui::PushFont(nullptr);
             
+            browserFontWidth=ImGui::CalcTextSize("abcdefgh").x/8.0;
             
             if (ImGui::Button("X")) {
                 pmFileNodeFilter[0]=0;
@@ -1999,10 +2001,20 @@ std::string TruncateText(const std::string& p_text, float p_truncated_width) {
     return truncated_text;
 }
 
-NSString *limitStrSize(NSString *str,float width) {
-    std::string tmpStr=std::string([str UTF8String]);
-    std::string truncStr=TruncateText(tmpStr,width);
-    return [NSString stringWithUTF8String:truncStr.c_str()];
+NSString *limitStrSize(NSString *str,int width) {
+    //std::string tmpStr=std::string([str UTF8String]);
+    //std::string truncStr=TruncateText(tmpStr,width);
+    //return [NSString stringWithUTF8String:truncStr.c_str()];
+    if ([str length]<3) return str;
+    if ([str length]>width) {
+        int middle=width/2;
+        int left=middle-1;
+        int right=middle+1;
+        NSString *strLeft=[str substringToIndex:middle-1];
+        NSString *strRight=[str substringToIndex:middle+1];
+        return [NSString stringWithFormat:@"%@...%@",strLeft,strRight];
+    }
+    return str;
 }
 
 int pMenu_PMbuildDirTree(FileNode *fileNode, int idx,bool filter,int updExpandCollapse,int selectedMode) {
@@ -2071,7 +2083,8 @@ int pMenu_PMbuildDirTree(FileNode *fileNode, int idx,bool filter,int updExpandCo
                 
                 ImVec2 cpos=ImGui::GetCursorPos();
                 ImVec2 wsize=ImGui::GetWindowSize();
-                strNode=limitStrSize(strNode,wsize.x-cpos.x-16*glScaleFactor);
+                int max_char=(wsize.x-cpos.x-8*glScaleFactor)/browserFontWidth;
+                strNode=limitStrSize(strNode,max_char);
                 
                 if (child.isFullySelected) ImGui::TextColored(pMenu_browser_selectedLineText, "%s",[strNode UTF8String]);
                 else if (child.isSelected_Temp) ImGui::TextColored(pMenu_browser_partiallySelectedLineText, "%s",[strNode UTF8String]);
@@ -2102,8 +2115,6 @@ int pMenu_PMbuildDirTree(FileNode *fileNode, int idx,bool filter,int updExpandCo
                 if (child.isSelected_Temp) {
                     flags|=ImGuiTreeNodeFlags_Selected;
                 }
-                
-                
                 
                 NSString *strNode;
                 strNode=[NSString stringWithFormat:@"%@",[child name]];
@@ -2182,7 +2193,8 @@ int pMenu_PMbuildDirTree(FileNode *fileNode, int idx,bool filter,int updExpandCo
                 
                 ImVec2 cpos=ImGui::GetCursorPos();
                 ImVec2 wsize=ImGui::GetWindowSize();
-                strNode=limitStrSize(strNode,wsize.x-cpos.x-8*glScaleFactor);
+                int max_char=(wsize.x-cpos.x-8*glScaleFactor)/browserFontWidth;
+                strNode=limitStrSize(strNode,max_char);
                 
                 if ([pMenu_currentPM_entry isEqualToString:child.localpath]) {
                     if (child.isSelected_Temp) ImGui::TextColored(pMenu_browser_selectedLineTextPlaying, "%s",[strNode UTF8String]);
