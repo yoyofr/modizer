@@ -40,6 +40,7 @@ struct HLSLFixOptions {
     bool autoFixIntegerLiterals = true;
     bool autoFixVectorConstructors = false;
     bool castIntVariables = true;
+    bool fixIntAssignmentsFromFloatExpressions = true; // Fix int = float_expression
     bool addFloatSuffix = false;      // Use 1.0f instead of 1.0 (HLSL prefers 'f')
     bool preserveFormatting = true;
     bool fixMatrixConstructors = false; // Fix matrix constructors too
@@ -97,6 +98,7 @@ private:
     std::string fixIntegerLiterals(const std::string& hlslCode, const HLSLFixOptions& options);
     std::string fixVectorConstructors(const std::string& hlslCode, const HLSLFixOptions& options);
     std::string fixIntegerVariables(const std::string& hlslCode, const HLSLFixOptions& options);
+    std::string fixIntegerAssignmentsFromFloatExpressions(const std::string& hlslCode, const HLSLFixOptions& options);
     
     void calculateLineColumn(const std::string& code, size_t position, size_t& line, size_t& column);
     std::string getContext(const std::string& code, size_t position, size_t contextLength = 40);

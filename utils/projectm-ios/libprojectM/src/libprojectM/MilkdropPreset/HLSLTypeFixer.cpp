@@ -118,14 +118,49 @@ void HLSLTypeFixer::findIntegerVariables(const std::string& hlslCode) {
     
     // Find integer variable declarations
     for (const auto& intType : HLSL_INT_TYPES) {
-        std::regex intVarRegex("\\b" + intType + "\\s+(\\w+)\\s*[=;,:]");
+        // Match: type varname followed by =, ;, ,, or :
+        std::regex intVarRegex("\\b" + intType + "\\s+([\\w,\\s]+)[;]");
         std::smatch match;
         std::string::const_iterator searchStart(hlslCode.cbegin());
         
         while (std::regex_search(searchStart, hlslCode.cend(), match, intVarRegex)) {
             size_t pos = match.position() + (searchStart - hlslCode.cbegin());
             if (!isInComment(hlslCode, pos) && !isInString(hlslCode, pos)) {
-                m_intVariables.insert(match[1].str());
+                // Parse the variable list (may have multiple comma-separated variables)
+                std::string varList = match[1].str();
+                
+                // Split by comma
+                size_t varPos = 0;
+                std::string currentVar;
+                for (size_t i = 0; i <= varList.length(); ++i) {
+                    if (i == varList.length() || varList[i] == ',') {
+                        if (!currentVar.empty()) {
+                            // Trim whitespace
+                            size_t start = currentVar.find_first_not_of(" \t\n\r");
+                            size_t end = currentVar.find_last_not_of(" \t\n\r");
+                            if (start != std::string::npos && end != std::string::npos) {
+                                std::string trimmedVar = currentVar.substr(start, end - start + 1);
+                                // Remove any initialization (e.g., "var = value")
+                                size_t equalsPos = trimmedVar.find('=');
+                                if (equalsPos != std::string::npos) {
+                                    trimmedVar = trimmedVar.substr(0, equalsPos);
+                                    // Trim again after removing initialization
+                                    start = trimmedVar.find_first_not_of(" \t\n\r");
+                                    end = trimmedVar.find_last_not_of(" \t\n\r");
+                                    if (start != std::string::npos && end != std::string::npos) {
+                                        trimmedVar = trimmedVar.substr(start, end - start + 1);
+                                    }
+                                }
+                                if (!trimmedVar.empty()) {
+                                    m_intVariables.insert(trimmedVar);
+                                }
+                            }
+                            currentVar.clear();
+                        }
+                    } else {
+                        currentVar += varList[i];
+                    }
+                }
             }
             searchStart = match.suffix().first;
         }
@@ -133,14 +168,48 @@ void HLSLTypeFixer::findIntegerVariables(const std::string& hlslCode) {
     
     // Find float variable declarations
     for (const auto& floatType : HLSL_FLOAT_TYPES) {
-        std::regex floatVarRegex("\\b" + floatType + "\\s+(\\w+)\\s*[=;,:]");
+        std::regex floatVarRegex("\\b" + floatType + "\\s+([\\w,\\s]+)[;]");
         std::smatch match;
         std::string::const_iterator searchStart(hlslCode.cbegin());
         
         while (std::regex_search(searchStart, hlslCode.cend(), match, floatVarRegex)) {
             size_t pos = match.position() + (searchStart - hlslCode.cbegin());
             if (!isInComment(hlslCode, pos) && !isInString(hlslCode, pos)) {
-                m_floatVariables.insert(match[1].str());
+                // Parse the variable list (may have multiple comma-separated variables)
+                std::string varList = match[1].str();
+                
+                // Split by comma
+                size_t varPos = 0;
+                std::string currentVar;
+                for (size_t i = 0; i <= varList.length(); ++i) {
+                    if (i == varList.length() || varList[i] == ',') {
+                        if (!currentVar.empty()) {
+                            // Trim whitespace
+                            size_t start = currentVar.find_first_not_of(" \t\n\r");
+                            size_t end = currentVar.find_last_not_of(" \t\n\r");
+                            if (start != std::string::npos && end != std::string::npos) {
+                                std::string trimmedVar = currentVar.substr(start, end - start + 1);
+                                // Remove any initialization (e.g., "var = value")
+                                size_t equalsPos = trimmedVar.find('=');
+                                if (equalsPos != std::string::npos) {
+                                    trimmedVar = trimmedVar.substr(0, equalsPos);
+                                    // Trim again after removing initialization
+                                    start = trimmedVar.find_first_not_of(" \t\n\r");
+                                    end = trimmedVar.find_last_not_of(" \t\n\r");
+                                    if (start != std::string::npos && end != std::string::npos) {
+                                        trimmedVar = trimmedVar.substr(start, end - start + 1);
+                                    }
+                                }
+                                if (!trimmedVar.empty()) {
+                                    m_floatVariables.insert(trimmedVar);
+                                }
+                            }
+                            currentVar.clear();
+                        }
+                    } else {
+                        currentVar += varList[i];
+                    }
+                }
             }
             searchStart = match.suffix().first;
         }
@@ -745,6 +814,167 @@ std::string HLSLTypeFixer::fixIntegerVariables(const std::string& hlslCode, cons
     return result;
 }
 
+std::string HLSLTypeFixer::fixIntegerAssignmentsFromFloatExpressions(const std::string& hlslCode, const HLSLFixOptions& options) {
+    std::string result = hlslCode;
+    
+    if (m_verbose) {
+        std::cout << "\n=== fixIntegerAssignmentsFromFloatExpressions ===" << std::endl;
+        std::cout << "Integer variables found: ";
+        for (const auto& var : m_intVariables) {
+            std::cout << var << " ";
+        }
+        std::cout << std::endl;
+        std::cout << "Float variables found: ";
+        for (const auto& var : m_floatVariables) {
+            std::cout << var << " ";
+        }
+        std::cout << std::endl;
+    }
+    
+    // Process all int variables and fix their assignments
+    // We'll repeatedly search the entire result until no more changes are made
+    bool madeChanges = true;
+    int maxIterations = 100; // Prevent infinite loops
+    int iteration = 0;
+    
+    while (madeChanges && iteration < maxIterations) {
+        madeChanges = false;
+        iteration++;
+        
+        if (m_verbose) {
+            std::cout << "\n=== Iteration " << iteration << " ===" << std::endl;
+        }
+        
+        // Try to fix each integer variable
+        for (const auto& intVar : m_intVariables) {
+            if (m_verbose) {
+                std::cout << "Checking variable: " << intVar << std::endl;
+            }
+            
+            // Look for: int_var = expression;
+            std::regex assignmentRegex("\\b(" + intVar + ")\\s*=\\s*([^;]+);");
+            
+            std::smatch match;
+            if (std::regex_search(result, match, assignmentRegex)) {
+                size_t matchPos = match.position();
+                
+                if (m_verbose) {
+                    std::cout << "  Found assignment at position " << matchPos << std::endl;
+                }
+                
+                // Check if not in comment or string
+                if (isInComment(result, matchPos) || isInString(result, matchPos)) {
+                    if (m_verbose) {
+                        std::cout << "  Skipping (in comment or string)" << std::endl;
+                    }
+                    continue;
+                }
+                
+                std::string expression = match[2].str();
+                
+                if (m_verbose) {
+                    std::cout << "  Expression: " << expression << std::endl;
+                }
+                
+                // Check if expression already has int() cast
+                if (expression.find("int(") == 0) {
+                    if (m_verbose) {
+                        std::cout << "  Skipping (already has int() cast)" << std::endl;
+                    }
+                    continue;
+                }
+                
+                // Detect if this is a float expression
+                bool isFloatExpression = false;
+                
+                // Check for comparison operators used in arithmetic context
+                // Pattern: (comparison) * (comparison)
+                bool hasComparison = (expression.find(">=") != std::string::npos ||
+                                     expression.find("<=") != std::string::npos ||
+                                     expression.find("==") != std::string::npos ||
+                                     expression.find("!=") != std::string::npos ||
+                                     expression.find(">") != std::string::npos ||
+                                     expression.find("<") != std::string::npos);
+                
+                if (m_verbose) {
+                    std::cout << "  Has comparison: " << (hasComparison ? "yes" : "no") << std::endl;
+                }
+                
+                if (hasComparison) {
+                    // Check if there's multiplication (indicating boolean arithmetic)
+                    bool hasMult = (expression.find("*") != std::string::npos);
+                    
+                    if (m_verbose) {
+                        std::cout << "  Has multiplication: " << (hasMult ? "yes" : "no") << std::endl;
+                    }
+                    
+                    if (hasMult) {
+                        // This looks like: (a >= b) * (c <= d) or similar
+                        // Verify that it involves float variables or float operations
+                        bool hasFloatContext = false;
+                        
+                        // Check for dot access (float member access like pq.x)
+                        if (expression.find(".") != std::string::npos) {
+                            hasFloatContext = true;
+                            if (m_verbose) {
+                                std::cout << "  Has float context (dot notation)" << std::endl;
+                            }
+                        }
+                        
+                        // Check for float variable names
+                        if (!hasFloatContext) {
+                            for (const auto& floatVar : m_floatVariables) {
+                                if (expression.find(floatVar) != std::string::npos) {
+                                    hasFloatContext = true;
+                                    if (m_verbose) {
+                                        std::cout << "  Has float context (float variable: " << floatVar << ")" << std::endl;
+                                    }
+                                    break;
+                                }
+                            }
+                        }
+                        
+                        if (hasFloatContext) {
+                            isFloatExpression = true;
+                        }
+                    }
+                }
+                
+                if (isFloatExpression) {
+                    if (m_verbose) {
+                        std::cout << "  -> FIXING: " << intVar << " = " << expression << std::endl;
+                    }
+                    
+                    // Build the replacement
+                    std::string replacement = intVar + " = int(" + expression + ");";
+                    
+                    // Replace in result
+                    result = result.substr(0, matchPos) + replacement + 
+                             result.substr(matchPos + match.length());
+                    
+                    madeChanges = true;
+                    // Break out of the variable loop to restart from the beginning
+                    break;
+                } else {
+                    if (m_verbose) {
+                        std::cout << "  Not a float expression, skipping" << std::endl;
+                    }
+                }
+            } else {
+                if (m_verbose) {
+                    std::cout << "  No assignment found" << std::endl;
+                }
+            }
+        }
+    }
+    
+    if (m_verbose && iteration >= maxIterations) {
+        std::cout << "Warning: fixIntegerAssignmentsFromFloatExpressions reached max iterations" << std::endl;
+    }
+    
+    return result;
+}
+
 std::string HLSLTypeFixer::autoFix(const std::string& hlslCode, const HLSLFixOptions& options) {
     std::string result = hlslCode;
     
@@ -765,6 +995,11 @@ std::string HLSLTypeFixer::autoFix(const std::string& hlslCode, const HLSLFixOpt
     
     if (options.autoFixIntegerLiterals) {
         result = fixIntegerLiterals(result, options);
+    }
+    
+    // Fix int assignments from float expressions (enabled by default)
+    if (options.fixIntAssignmentsFromFloatExpressions) {
+        result = fixIntegerAssignmentsFromFloatExpressions(result, options);
     }
     
     return result;

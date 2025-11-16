@@ -124,6 +124,7 @@
 
 /* Begin PBXFileReference section */
 		CC08C3A62EA983D100A0F15F /* fast_float.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fast_float.h; path = fast_float/fast_float.h; sourceTree = "<group>"; };
+		CC09C24A2ECA1D5B00BD53CE /* test_int_assignment_fix.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = test_int_assignment_fix.cpp; sourceTree = "<group>"; };
 		CC3B027D2EB69FF50079D537 /* user_sprites.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = user_sprites.h; sourceTree = "<group>"; };
 		CC432B502EB3A059007972E0 /* ShaderPreprocessor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ShaderPreprocessor.h; sourceTree = "<group>"; };
 		CC432B512EB3A075007972E0 /* ShaderPreprocessor.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ShaderPreprocessor.cpp; sourceTree = "<group>"; };
@@ -1303,6 +1304,7 @@
 				CCABA2312E93C97600AF59B0 /* PresetState.cpp */,
 				CC432B512EB3A075007972E0 /* ShaderPreprocessor.cpp */,
 				CCABA2332E93C97600AF59B0 /* ShapePerFrameContext.cpp */,
+				CC09C24A2ECA1D5B00BD53CE /* test_int_assignment_fix.cpp */,
 				CCABA2352E93C97600AF59B0 /* VideoEcho.cpp */,
 				CCABA2372E93C97600AF59B0 /* Waveform.cpp */,
 				CCABA23A2E93C97600AF59B0 /* WaveformPerFrameContext.cpp */,
