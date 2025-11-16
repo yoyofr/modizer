@@ -144,7 +144,9 @@ auto PresetFileParser::GetCode(const std::string& keyPrefix) const -> std::strin
         // Permissive mode: allow to merge line together under certain conditions: no comment, no ';' at the end of line, ...
         // Allow several milk preset to compile as the code is sometime broken on 2 lines in the middle of a litteral
         
-        if (mdz_pmMilkPermissiveEvalCode) {
+        if (mdz_pmMilkPermissiveEvalCode &&
+            (keyPrefix!=std::string("warp_")) &&
+            (keyPrefix!=std::string("comp_"))) {
             //Check if last char is a ';'
             int pos=(int)line.length()-1;
             while (pos>=0) {
