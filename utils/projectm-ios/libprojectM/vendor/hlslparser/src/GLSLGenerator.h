@@ -78,7 +78,7 @@ private:
     };
 
     void OutputExpressionList(HLSLExpression* expression, HLSLArgument* argument = NULL);
-    void OutputExpression(HLSLExpression* expression, const HLSLType* dstType = NULL);
+    void OutputExpression(HLSLExpression* expression, const HLSLType* dstType = NULL, bool matrixNoFunctionCall=false);
     void OutputIdentifier(const char* name);
     void OutputArguments(HLSLArgument* argument);
     

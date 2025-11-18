@@ -137,6 +137,67 @@ void CodeWriter::WriteLineTagged(int indent, const char* fileName, int lineNumbe
     va_end(args);        
 }
 
+void CodeWriter::SwapLastIndexes(void)
+{
+    // Search backward through the buffer for the pattern: [xxx][yyy]
+    // We need to find the last occurrence of two consecutive bracket pairs
+    
+    size_t pos = m_buffer.length();
+    
+    // Find the last ']'
+    while (pos > 0)
+    {
+        --pos;
+        if (m_buffer[pos] == ']')
+        {
+            // Found the last ']', now find its matching '['
+            size_t secondClose = pos;
+            size_t secondOpen = m_buffer.rfind('[', secondClose);
+            
+            if (secondOpen == std::string::npos || secondOpen == 0)
+                return;
+            
+            // Extract the second index
+            std::string secondIndex = m_buffer.substr(secondOpen + 1, secondClose - secondOpen - 1);
+            
+            // Now look for the first bracket pair before this one
+            size_t firstClose = secondOpen - 1;
+            
+            // Skip any whitespace between the two bracket pairs
+            while (firstClose > 0 && (m_buffer[firstClose] == ' ' || m_buffer[firstClose] == '\t'))
+            {
+                --firstClose;
+            }
+            
+            if (firstClose == 0 || m_buffer[firstClose] != ']')
+                return;
+            
+            // Find the matching '[' for the first pair
+            size_t firstOpen = m_buffer.rfind('[', firstClose);
+            
+            if (firstOpen == std::string::npos)
+                return;
+            
+            // Extract the first index
+            std::string firstIndex = m_buffer.substr(firstOpen + 1, firstClose - firstOpen - 1);
+            
+            // Now swap the indices
+            // Replace the first index with the second
+            m_buffer.replace(firstOpen + 1, firstIndex.length(), secondIndex);
+            
+            // Recalculate positions since the string length may have changed
+            size_t lengthDiff = secondIndex.length() - firstIndex.length();
+            secondOpen += lengthDiff;
+            secondClose += lengthDiff;
+            
+            // Replace the second index with the first
+            m_buffer.replace(secondOpen + 1, secondIndex.length(), firstIndex);
+            
+            return;
+        }
+    }
+}
+
 const char* CodeWriter::GetResult() const
 {
     return m_buffer.c_str();

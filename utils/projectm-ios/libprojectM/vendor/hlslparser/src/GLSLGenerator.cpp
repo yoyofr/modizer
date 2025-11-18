@@ -597,7 +597,7 @@ const HLSLType* commonScalarType(const HLSLType& lhs, const HLSLType& rhs)
     return NULL;
 }
 
-void GLSLGenerator::OutputExpression(HLSLExpression* expression, const HLSLType* dstType)
+void GLSLGenerator::OutputExpression(HLSLExpression* expression, const HLSLType* dstType,bool matrixNoFunctionCall)
 {
 
     bool cast = dstType != NULL && !GetCanImplicitCast(expression->expressionType, *dstType);
@@ -821,32 +821,42 @@ void GLSLGenerator::OutputExpression(HLSLExpression* expression, const HLSLType*
                                  (!strcmp(op," += "))  ||
                                  (!strcmp(op," -= ")) ) {
                                 //Set a matrix component
-                                int expression2_components=0;
-                                switch (binaryExpression->expression2->expressionType.baseType) {
+                                int expression1_components=0;
+                                switch (binaryExpression->expression1->expressionType.baseType) {
                                     case HLSLBaseType_Float:
-                                        expression2_components=1;
+                                        expression1_components=1;
                                         break;
                                     case HLSLBaseType_Float2:
-                                        expression2_components=2;
+                                        expression1_components=2;
                                         break;
                                     case HLSLBaseType_Float3:
-                                        expression2_components=3;
+                                        expression1_components=3;
                                         break;
                                     case HLSLBaseType_Float4:
-                                        expression2_components=4;
+                                        expression1_components=4;
+                                        break;
+                                    default:
                                         break;
                                 }
-                                if (expression2_components) {
-                                    
-                                    for (int ii=0;ii<expression2_components;ii++) {
+                                if (expression1_components) {
+                                    if (expression1_components==1) {
                                         OutputExpression(arrayAccess->array);
-                                        m_writer.Write("[%d]",ii);
                                         m_writer.Write("[");
                                         OutputExpression(arrayAccess->index);
                                         m_writer.Write("]");
                                         m_writer.Write("%s",op);
                                         OutputExpression(binaryExpression->expression2, dstType2);
-                                        m_writer.Write("[%d];",ii);
+                                    } else {
+                                        for (int ii=0;ii<expression1_components;ii++) {
+                                            OutputExpression(arrayAccess->array);
+                                            m_writer.Write("[%d]",ii);
+                                            m_writer.Write("[");
+                                            OutputExpression(arrayAccess->index);
+                                            m_writer.Write("]");
+                                            m_writer.Write("%s",op);
+                                            OutputExpression(binaryExpression->expression2, dstType2);
+                                            m_writer.Write("[%d];",ii);
+                                        }
                                     }
                                     handled=true;
                                 }
@@ -857,7 +867,7 @@ void GLSLGenerator::OutputExpression(HLSLExpression* expression, const HLSLType*
                     if (!handled)
                     {
                         m_writer.Write("(");
-                        OutputExpression(binaryExpression->expression1, dstType1);
+                        OutputExpression(binaryExpression->expression1, dstType1,true);
                         m_writer.Write("%s", op);
                         OutputExpression(binaryExpression->expression2, dstType2);
                         m_writer.Write(")");
@@ -972,20 +982,29 @@ void GLSLGenerator::OutputExpression(HLSLExpression* expression, const HLSLType*
         {
             // GLSL access a matrix as m[c][r] while HLSL is m[r][c], so use our
             // special row access function to convert.
-            m_writer.Write("%s(", m_matrixRowFunction);
-            OutputExpression(arrayAccess->array);
-            m_writer.Write(",");
-            OutputExpression(arrayAccess->index);
-            m_writer.Write(")");
+            if (matrixNoFunctionCall) {
+                OutputExpression(arrayAccess->array);
+                m_writer.Write("[");
+                OutputExpression(arrayAccess->index);
+                m_writer.Write("]");
+            } else {
+                m_writer.Write("%s(", m_matrixRowFunction);
+                OutputExpression(arrayAccess->array);
+                m_writer.Write(",");
+                OutputExpression(arrayAccess->index);
+                m_writer.Write(")");
+            }
         }
         else
         {
             // Array subscript operator in GLSL requires an explicit int parameter
             const HLSLType& intType = HLSLType(HLSLBaseType_Int);
-            OutputExpression(arrayAccess->array);
+            OutputExpression(arrayAccess->array,NULL,matrixNoFunctionCall);
             m_writer.Write("[");
             OutputExpression(arrayAccess->index, &intType);
             m_writer.Write("]");
+            //now needs to swap the 2 indexes [a][b] -> [b][a]
+            m_writer.SwapLastIndexes();
         }
 
     }
