@@ -918,6 +918,15 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_StatsUpload].type=MDZ_BOOLSWITCH;
     settings[GLOB_StatsUpload].detail.mdz_boolswitch.switch_value=1;
     
+    SETTINGS_ID_DEF(GLOB_ShowWelcome)
+    settings[GLOB_ShowWelcome].label=(char*)"Show Welcome screen";
+    settings[GLOB_ShowWelcome].description=NULL;
+    settings[GLOB_ShowWelcome].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER;
+    settings[GLOB_ShowWelcome].sub_family=0;
+    settings[GLOB_ShowWelcome].callback=&optGLOBALChangedC;
+    settings[GLOB_ShowWelcome].type=MDZ_BOOLSWITCH;
+    settings[GLOB_ShowWelcome].detail.mdz_boolswitch.switch_value=1;
+    
     //Not used in modern iOS (13+)
 //    SETTINGS_ID_DEF(GLOB_BackgroundMode)
 //    settings[GLOB_BackgroundMode].type=MDZ_SWITCH;
@@ -1172,6 +1181,7 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_default_value=1;
     settings[GLOB_TitleFilename].detail.mdz_boolswitch.switch_default_value=0;
     settings[GLOB_StatsUpload].detail.mdz_boolswitch.switch_default_value=1;
+    settings[GLOB_ShowWelcome].detail.mdz_boolswitch.switch_default_value=1;
 //    settings[GLOB_BackgroundMode].detail.mdz_switch.switch_default_value=2;
     settings[GLOB_EnqueueMode].detail.mdz_switch.switch_default_value=2;
     settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_default_value=0;
@@ -1405,21 +1415,21 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXAlpha].detail.mdz_slider.slider_min_value=0.3f;
     settings[GLOB_FXAlpha].detail.mdz_slider.slider_max_value=1.0f;
     
-    SETTINGS_ID_DEF(GLOB_FX_FS_DISPLAYSONGINFO)
-    settings[GLOB_FX_FS_DISPLAYSONGINFO].type=MDZ_SWITCH;
-    settings[GLOB_FX_FS_DISPLAYSONGINFO].label=(char*)"Display song info";
-    settings[GLOB_FX_FS_DISPLAYSONGINFO].description=(char*)"When in fulllscreen, display song info when it changes. TL is Top Left, DR is Bottom Right, C is Center.";
-    settings[GLOB_FX_FS_DISPLAYSONGINFO].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
-    settings[GLOB_FX_FS_DISPLAYSONGINFO].sub_family=0;
-    settings[GLOB_FX_FS_DISPLAYSONGINFO].callback=&optVISUChangedC;
-    settings[GLOB_FX_FS_DISPLAYSONGINFO].detail.mdz_switch.switch_value_nb=6;
-    settings[GLOB_FX_FS_DISPLAYSONGINFO].detail.mdz_switch.switch_labels=(char**)calloc(1,settings[GLOB_FX_FS_DISPLAYSONGINFO].detail.mdz_switch.switch_value_nb*sizeof(char*));
-    settings[GLOB_FX_FS_DISPLAYSONGINFO].detail.mdz_switch.switch_labels[0]=(char*)"Off";
-    settings[GLOB_FX_FS_DISPLAYSONGINFO].detail.mdz_switch.switch_labels[1]=(char*)"TL";
-    settings[GLOB_FX_FS_DISPLAYSONGINFO].detail.mdz_switch.switch_labels[2]=(char*)"TR";
-    settings[GLOB_FX_FS_DISPLAYSONGINFO].detail.mdz_switch.switch_labels[3]=(char*)"C";
-    settings[GLOB_FX_FS_DISPLAYSONGINFO].detail.mdz_switch.switch_labels[4]=(char*)"BL";
-    settings[GLOB_FX_FS_DISPLAYSONGINFO].detail.mdz_switch.switch_labels[5]=(char*)"BR";
+    SETTINGS_ID_DEF(GLOB_FX_DISPLAYSONGINFO)
+    settings[GLOB_FX_DISPLAYSONGINFO].type=MDZ_SWITCH;
+    settings[GLOB_FX_DISPLAYSONGINFO].label=(char*)"Display song info";
+    settings[GLOB_FX_DISPLAYSONGINFO].description=(char*)"When in fulllscreen, display song info when it changes. TL is Top Left, DR is Bottom Right, C is Center.";
+    settings[GLOB_FX_DISPLAYSONGINFO].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+    settings[GLOB_FX_DISPLAYSONGINFO].sub_family=0;
+    settings[GLOB_FX_DISPLAYSONGINFO].callback=&optVISUChangedC;
+    settings[GLOB_FX_DISPLAYSONGINFO].detail.mdz_switch.switch_value_nb=6;
+    settings[GLOB_FX_DISPLAYSONGINFO].detail.mdz_switch.switch_labels=(char**)calloc(1,settings[GLOB_FX_DISPLAYSONGINFO].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[GLOB_FX_DISPLAYSONGINFO].detail.mdz_switch.switch_labels[0]=(char*)"Off";
+    settings[GLOB_FX_DISPLAYSONGINFO].detail.mdz_switch.switch_labels[1]=(char*)"TL";
+    settings[GLOB_FX_DISPLAYSONGINFO].detail.mdz_switch.switch_labels[2]=(char*)"TR";
+    settings[GLOB_FX_DISPLAYSONGINFO].detail.mdz_switch.switch_labels[3]=(char*)"C";
+    settings[GLOB_FX_DISPLAYSONGINFO].detail.mdz_switch.switch_labels[4]=(char*)"BL";
+    settings[GLOB_FX_DISPLAYSONGINFO].detail.mdz_switch.switch_labels[5]=(char*)"BR";
     
     
     SETTINGS_ID_DEF(GLOB_FX_LIMIT_SLOWFX)
@@ -1766,7 +1776,7 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXSHOWINFO].detail.mdz_switch.switch_default_value=0;
     
     
-    settings[GLOB_FX_FS_DISPLAYSONGINFO].detail.mdz_switch.switch_default_value=1;
+    settings[GLOB_FX_DISPLAYSONGINFO].detail.mdz_switch.switch_default_value=1;
     settings[GLOB_FX_LIMIT_SLOWFX].detail.mdz_switch.switch_default_value=2;
     settings[GLOB_FXSpectrum].detail.mdz_switch.switch_default_value=0;
     settings[GLOB_FXMODPattern].detail.mdz_switch.switch_default_value=0;

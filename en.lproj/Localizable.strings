@@ -242,3 +242,8 @@
 
 "Silence Detection"="Silence Detection";
 "Stop song if silent for more than selected number of seconds. 0: off"="Stop song if silent for more than selected number of seconds. 0: off";
+
+/* Donation */
+"Thank You! ❤️"="Thank You! ❤️";
+"Send a tip to Modizer"="Send a tip to Modizer";
+"Support Modizer development"="Support Modizer development";

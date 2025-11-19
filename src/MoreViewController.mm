@@ -10,6 +10,7 @@
 #import "MoreViewController.h"
 #import "SettingsGenViewController.h"
 #import "ModizerConstants.h"
+#import "TipsViewController.h"
 
 #import "TTFadeAnimator.h"
 
@@ -237,7 +238,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
     // Return the number of rows in the section.
-    return 5;
+    return 6;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -389,14 +390,18 @@ extern volatile t_settings settings[MAX_SETTINGS];
             bottomLabel.text=NSLocalizedString(@"Contact support by email",@"");
             break;
         case 2:
+            topLabel.text=NSLocalizedString(@"Send a tip to Modizer",@"");
+            bottomLabel.text=NSLocalizedString(@"Support Modizer development",@"");
+            break;
+        case 3:
             topLabel.text=NSLocalizedString(@"Settings",@"");
             bottomLabel.text=NSLocalizedString(@"Global, Visu, FTP & Plugins",@"");
             break;
-        case 3:
+        case 4:
             topLabel.text=NSLocalizedString(@"Maintenance",@"");
             bottomLabel.text=NSLocalizedString(@"Clean DB, Reset ratings, ...",@"");
             break;
-        case 4: //downloads
+        case 5: //downloads
         {
             topLabel.text=NSLocalizedString(@"Downloads",@"");
             int download_queue=downloadViewController.mFTPDownloadQueueDepth+downloadViewController.mURLDownloadQueueDepth;
@@ -490,9 +495,9 @@ extern volatile t_settings settings[MAX_SETTINGS];
         case 1://Mail support
         {
             BOOL isiOSAppOnMac = false;
-            if (@available(iOS 14.0, *)) {
-                isiOSAppOnMac = [NSProcessInfo processInfo].isiOSAppOnMac;
-            }
+            
+            isiOSAppOnMac = [NSProcessInfo processInfo].isiOSAppOnMac;
+            
             
             NSString *strSystemDetails=[NSString stringWithFormat:@"model:%@\nsystem name:%@\nsystem version:%@\nPref language:%@\nMac M1:%s\nModizer version:%s.%s\n",[self machine],[[UIDevice currentDevice] systemName],[[UIDevice currentDevice] systemVersion],[[NSLocale preferredLanguages] objectAtIndex:0],(isiOSAppOnMac?"Yes":"No"),VERSION_MAJOR_STR,VERSION_MINOR_STR];
             //get device model, ios version, language settings, modizer version
@@ -501,35 +506,37 @@ extern volatile t_settings settings[MAX_SETTINGS];
             NSString * encodedString = [strmail stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLFragmentAllowedCharacterSet]];
             UIApplication *application = [UIApplication sharedApplication];
             
-            if (@available(iOS 10.0, *)) {
-                [application openURL:[NSURL URLWithString: encodedString] options:@{} completionHandler:nil];
-            } else {
-                [application openURL:[NSURL URLWithString: encodedString]];
-            }
-            
+            [application openURL:[NSURL URLWithString: encodedString] options:@{} completionHandler:nil];
         }
             break;
-        case 2://Settings
+        case 2:{//Tips
+            TipsViewController *tipsVC = [[TipsViewController alloc] init];
+            UINavigationController *navController = [[UINavigationController alloc] initWithRootViewController:tipsVC];
+            [self presentViewController:navController animated:YES completion:nil];
+            break;
+        }
+        case 3:{//Settings
             settingsVC=[[SettingsGenViewController alloc] initWithNibName:@"SettingsViewController" bundle:[NSBundle mainBundle]];
             settingsVC->detailViewController=detailViewController;
             settingsVC.title=NSLocalizedString(@"General Settings",@"");
             //settingsVC.view.frame=self.view.frame;
             // Ensure proper layout under navigation/tab bars
-        {
-            SettingsGenViewController *childController=settingsVC;
-            if ([childController respondsToSelector:@selector(setEdgesForExtendedLayout:)]) {
-                childController.edgesForExtendedLayout = UIRectEdgeNone;
-                childController.extendedLayoutIncludesOpaqueBars = NO;
+            {
+                SettingsGenViewController *childController=settingsVC;
+                if ([childController respondsToSelector:@selector(setEdgesForExtendedLayout:)]) {
+                    childController.edgesForExtendedLayout = UIRectEdgeNone;
+                    childController.extendedLayoutIncludesOpaqueBars = NO;
+                }
+                if ([childController isKindOfClass:[UITableViewController class]]) {
+                    ((UITableViewController *)childController).tableView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentAutomatic;
+                } else if ([childController.view isKindOfClass:[UIScrollView class]]) {
+                    ((UIScrollView *)childController.view).contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentAutomatic;
+                }
             }
-            if ([childController isKindOfClass:[UITableViewController class]]) {
-                ((UITableViewController *)childController).tableView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentAutomatic;
-            } else if ([childController.view isKindOfClass:[UIScrollView class]]) {
-                ((UIScrollView *)childController.view).contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentAutomatic;
-            }
-        }
             [self.navigationController pushViewController:settingsVC animated:YES];
             break;
-        case 3://Maintenance
+        }
+        case 4://Maintenance
             mntVC=[[SettingsMaintenanceViewController alloc] initWithNibName:@"MaintenanceViewController" bundle:[NSBundle mainBundle]];
             mntVC->detailViewController=detailViewController;
             mntVC->rootVC=rootVC;
@@ -550,7 +557,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
             //mntVC.view.frame=self.view.frame;
             [self.navigationController pushViewController:mntVC animated:YES];
             break;
-        case 4://downloads
+        case 5://downloads
             //downloadViewController.view.frame=self.view.frame;
             [self.navigationController pushViewController:downloadViewController animated:YES];
             break;

@@ -48,6 +48,8 @@
 extern unsigned int mdzRenderbuffer;
 
 int mdz_pmMilkPermissiveEvalCode;//,mdz_pmBlurAfterAudio;
+int mdz_pmTexturesSearchPathsNb;
+const char *mdz_pmTexturesSearchPaths[5];
 
 extern float camera_posX,camera_posY,camera_posZ;
 extern float camera_lookX,camera_lookY,camera_lookZ;
@@ -162,14 +164,14 @@ bool _pm_playlist_loadBundled,_pm_playlist_loadCustom;
 NSString *pmCurPresetFile;
 int _pm_display_name_countdown;
 
-int _mdz_FS_display_songinfo_countdown,_mdz_FS_display_cursorLine;
-int _mdz_FS_display_songinfo_char_count[3]={1,1,1};
+int _mdz_display_songinfo_countdown,_mdz_FS_display_cursorLine;
+int _mdz_display_songinfo_char_count[3]={1,1,1};
 float _mdz_FX_GuiMessage_fade,_mdz_FX_GuiMessage_fadeMax;
 char _mdz_FX_GuiMessageStr[64];
 
-NSString *_mdz_FS_display_songinfo_title;
-NSString *_mdz_FS_display_songinfo_artist;
-NSString *_mdz_FS_display_songinfo_sub;
+NSString *_mdz_display_songinfo_title;
+NSString *_mdz_display_songinfo_artist;
+NSString *_mdz_display_songinfo_sub;
 
 float _pm_display_scrollx=0;
 int _pm_display_scroll_direction=1;
@@ -1418,6 +1420,144 @@ static float movePinchScale,movePinchScaleOld;
     _mdz_FX_GuiMessage_fadeMax=_mdz_FX_GuiMessage_fade;
 }
 
+-(void) showSongInfo:(ImVec2)size frameToUpdate:(int)frameToUpdate {
+    static int framecpt=0;
+    char strLine[3][MDZ_FX_SONGINFO_MAXCHAR];
+    static int cursorCpt=0;
+    float ww=size.x;
+    float hh=size.y;
+    
+    if (_mdz_display_songinfo_title!=nil) snprintf(strLine[0],MDZ_FX_SONGINFO_MAXCHAR,"%sX",[_mdz_display_songinfo_title UTF8String]);
+    else strLine[0][0]=0;
+    if (_mdz_display_songinfo_sub!=nil) snprintf(strLine[1],MDZ_FX_SONGINFO_MAXCHAR,"%sX",[_mdz_display_songinfo_sub UTF8String]);
+    else strLine[1][0]=0;
+    if (_mdz_display_songinfo_artist!=nil) snprintf(strLine[2],MDZ_FX_SONGINFO_MAXCHAR,"%sX",[_mdz_display_songinfo_artist UTF8String]);
+    else strLine[2][0]=0;
+    
+    for (int j=0;j<frameToUpdate;j++) {
+        if (_mdz_display_songinfo_char_count[0]<MDZ_FX_SONGINFO_MAXCHAR) {
+            if (cursorCpt&1) _mdz_display_songinfo_char_count[0]++;
+        }
+        if ( (_mdz_display_songinfo_char_count[1]<MDZ_FX_SONGINFO_MAXCHAR) &&
+            ( (_mdz_display_songinfo_char_count[0]>=(strlen(strLine[0])+4)) ||
+             (_mdz_display_songinfo_char_count[0]==MDZ_FX_SONGINFO_MAXCHAR) ) )  {
+            if (cursorCpt&1) _mdz_display_songinfo_char_count[1]++;
+            if (strlen(strLine[1])>1) _mdz_FS_display_cursorLine=1;
+        }
+        if ( (_mdz_display_songinfo_char_count[2]<MDZ_FX_SONGINFO_MAXCHAR) &&
+            ( (_mdz_display_songinfo_char_count[1]>=(strlen(strLine[1])+4)) ||
+             (_mdz_display_songinfo_char_count[1]==MDZ_FX_SONGINFO_MAXCHAR) ) )  {
+            if (cursorCpt&1) _mdz_display_songinfo_char_count[2]++;
+            if (strlen(strLine[2])>1) _mdz_FS_display_cursorLine=2;
+        }
+        cursorCpt++;
+    }
+    
+    bool allIsVisible=false;
+    if ( (_mdz_display_songinfo_char_count[0]>=strlen(strLine[0])) &&
+        (_mdz_display_songinfo_char_count[1]>=strlen(strLine[1])) &&
+        (_mdz_display_songinfo_char_count[2]>=strlen(strLine[2])) ) {
+        allIsVisible=true;
+    }
+    
+    float alpha_val=(float)(_mdz_display_songinfo_countdown*4)/64.0;
+    if (alpha_val>0.6) alpha_val=0.6;
+    float alpha_txt=alpha_val*2;
+    if (alpha_txt>1.0) alpha_txt=1.0;
+    
+    ImGui::PushStyleColor(ImGuiCol_WindowBg,ImVec4(0,0,0,alpha_val));
+    ImGui::PushStyleColor(ImGuiCol_Border,ImVec4(0,0,0,0));
+    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0,1.0,1.0,alpha_txt));
+    
+    float font_size=ww/30;
+    if (font_size<FONTSIZE_FX_FS_INFO_LINE) font_size=FONTSIZE_FX_FS_INFO_LINE;
+    if (font_menu) ImGui::PushFont(font_menu,font_size*glScaleFactor);
+    else ImGui::PushFont(nullptr);
+    
+    float textHH=ImGui::GetTextLineHeightWithSpacing()/glScaleFactor;
+    float pos_x,pos_y;
+    ImVec2 str_size;
+    
+    ImVec2 str_size_max;
+    str_size=ImGui::CalcTextSize(strLine[0]);
+    if (str_size.x>str_size_max.x) str_size_max=str_size;
+    str_size=ImGui::CalcTextSize(strLine[1]);
+    if (str_size.x>str_size_max.x) str_size_max=str_size;
+    str_size=ImGui::CalcTextSize(strLine[2]);
+    if (str_size.x>str_size_max.x) str_size_max=str_size;
+    
+    if (_mdz_display_songinfo_title!=nil) snprintf(strLine[0],_mdz_display_songinfo_char_count[0],"%s",[_mdz_display_songinfo_title UTF8String]);
+    else strLine[0][0]=0;
+    if (_mdz_display_songinfo_sub!=nil) snprintf(strLine[1],_mdz_display_songinfo_char_count[1],"%s",[_mdz_display_songinfo_sub UTF8String]);
+    else strLine[1][0]=0;
+    if (_mdz_display_songinfo_artist!=nil) snprintf(strLine[2],_mdz_display_songinfo_char_count[2],"%s",[_mdz_display_songinfo_artist UTF8String]);
+    else strLine[2][0]=0;
+    
+    str_size_max.x=str_size_max.x/glScaleFactor;
+    float safe_adjust_top=0;
+    float safe_adjust_bottom=0;
+    float safe_adjust_left=0;
+    float safe_adjust_right=8;
+    if (settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value) {
+        safe_adjust_top=safe_top;
+        safe_adjust_bottom=safe_bottom;
+        safe_adjust_left=safe_left;
+        safe_adjust_right=safe_right;
+    }
+    switch (settings[GLOB_FX_DISPLAYSONGINFO].detail.mdz_boolswitch.switch_value) {
+        default:
+        case 1: //TL
+            pos_x=safe_adjust_left*glScaleFactor;
+            pos_y=(safe_adjust_top+0*textHH)*glScaleFactor;
+            break;
+        case 2: //TR
+            pos_x=(ww-str_size_max.x-safe_adjust_right)*glScaleFactor;
+            pos_y=(safe_adjust_top+0*textHH)*glScaleFactor;
+            break;
+        case 3: //Center
+            pos_x=round((ww-str_size_max.x)/2.0*glScaleFactor);
+            pos_y=round((hh-textHH)/2.0*glScaleFactor);
+            break;
+        case 4: //BL
+            pos_x=safe_adjust_left*glScaleFactor;
+            pos_y=(hh-textHH*3-2*textHH-safe_adjust_bottom)*glScaleFactor;
+            break;
+        case 5: //BR
+            pos_x=(ww-str_size_max.x-safe_adjust_right)*glScaleFactor;
+            pos_y=(hh-textHH*3-2*textHH-safe_adjust_bottom)*glScaleFactor;
+            break;
+    }
+    ImGui::SetNextWindowPos(ImVec2(pos_x,pos_y));
+    ImGui::SetNextWindowSize(ImVec2((str_size_max.x+4)*glScaleFactor,3.5*textHH*glScaleFactor));
+    ImGui::GetStyle().Alpha=1.0;
+    ImGui::Begin("On screen music info",0,ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoScrollbar|ImGuiWindowFlags_NoFocusOnAppearing);
+    
+    for (int i=0;i<3;i++) {
+        if (_mdz_FS_display_cursorLine==i) {
+            if ((framecpt%32)>=10) ImGui::Text("%s_",strLine[i]);
+            else ImGui::Text("%s",strLine[i]);
+        } else ImGui::Text("%s",strLine[i]);
+    }
+    ImGui::End();
+    ImGui::PopFont();
+    
+    ImGui::PopStyleColor();
+    ImGui::PopStyleColor();
+    ImGui::PopStyleColor();
+    
+    if (allIsVisible) {
+        for (int j=0;j<frameToUpdate;j++) {
+            if (_mdz_display_songinfo_countdown) _mdz_display_songinfo_countdown--;
+            if (!_mdz_display_songinfo_countdown) {
+                _mdz_display_songinfo_char_count[0]=1;
+                _mdz_display_songinfo_char_count[1]=1;
+                _mdz_display_songinfo_char_count[2]=1;
+            }
+        }
+    }
+    framecpt++;
+}
+
 -(void) showGuiMessage:(ImVec2)size frameToUpdate:(int)frameToUpdate {
     if (!_mdz_FX_GuiMessage_fade) return;
     if (!strlen(_mdz_FX_GuiMessageStr)) return;
@@ -1486,12 +1626,14 @@ static float movePinchScale,movePinchScaleOld;
             bool added=false;
             if (val==1) {
                 [_mdzPM_Favorites addFavoritePreset:strName];
+                [_mdzPM_Favorites addFavStatusFor:strName bundleFN:pmBundledPresetsFileNode customFN:pmCustomPresetsFileNode];
                 added=true;
             } else if (val==-1) [_mdzPM_Favorites remFavoritePreset:strName];
             else if (val==0) {
                 if ([_mdzPM_Favorites isFavoritePreset:strName]) [_mdzPM_Favorites remFavoritePreset:strName];
                 else {
                     [_mdzPM_Favorites addFavoritePreset:strName];
+                    [_mdzPM_Favorites addFavStatusFor:strName bundleFN:pmBundledPresetsFileNode customFN:pmCustomPresetsFileNode];
                     added=true;
                 }
             }
@@ -4865,7 +5007,7 @@ GLsizei txtbackgroundImageWidth,txtbackgroundImageHeight;
     
     valNb=[[NSNumber alloc] initWithInt:VERSION_MAJOR];
     [prefs setObject:valNb forKey:@"VERSION_MAJOR"];
-    valNb=[[NSNumber alloc] initWithInt:VERSION_MINOR];
+    valNb=[[NSNumber alloc] initWithInt:(VERSION_MINOR-1)];
     [prefs setObject:valNb forKey:@"VERSION_MINOR"];
     
     ///////////////////////////////////
@@ -5402,16 +5544,16 @@ void pm_perfTest() {
     projectm_set_beat_sensitivity(_pm, settings[PROJECTM_BeatSensitivity].detail.mdz_slider.slider_value);
     
     
-    int textureDirNb=0;
-    const char *texturesSearchPaths[4];
     NSString *pmBundleDirText = [NSString stringWithFormat:@"%@/projectm/assets/textures",[[NSBundle mainBundle] resourcePath]];
     NSString *pmCustomDirText = [NSString stringWithFormat:@"%@/Documents%s/textures",NSHomeDirectory(),PM_ROOT_FOLDER_CUSTOM];
     NSString *pmCustomDirSprites = [NSString stringWithFormat:@"%@/Documents%s/sprites",NSHomeDirectory(),PM_ROOT_FOLDER_CUSTOM];
-    texturesSearchPaths[textureDirNb++]=[pmBundleDirText UTF8String];
-    texturesSearchPaths[textureDirNb++]=[pmCustomDirText UTF8String];
-    texturesSearchPaths[textureDirNb++]=[pmCustomDirSprites UTF8String];
     
-    projectm_set_texture_search_paths(_pm, (const char **)texturesSearchPaths,textureDirNb);
+    mdz_pmTexturesSearchPathsNb=0;
+    mdz_pmTexturesSearchPaths[mdz_pmTexturesSearchPathsNb++]=[pmBundleDirText UTF8String];
+    mdz_pmTexturesSearchPaths[mdz_pmTexturesSearchPathsNb++]=[pmCustomDirText UTF8String];
+    mdz_pmTexturesSearchPaths[mdz_pmTexturesSearchPathsNb++]=[pmCustomDirSprites UTF8String];
+    
+    projectm_set_texture_search_paths(_pm, (const char **)mdz_pmTexturesSearchPaths,mdz_pmTexturesSearchPathsNb);
     
     _pm_playlist_loadBundled=settings[PROJECTM_BundledPresets].detail.mdz_boolswitch.switch_value;
     _pm_playlist_loadCustom=settings[PROJECTM_CustomPresets].detail.mdz_boolswitch.switch_value;
@@ -6235,7 +6377,7 @@ void pm_perfTest() {
     pmenu_show=0;
     memset(oglv_corner_fade,0,sizeof(oglv_corner_fade));
     
-    _mdz_FS_display_songinfo_countdown=0;
+    _mdz_display_songinfo_countdown=0;
     _mdz_FX_GuiMessageStr[0]=0;
     _mdz_FX_GuiMessage_fade=0;
     
@@ -7402,32 +7544,32 @@ void doFramePM(float ww,float hh) {
     if ([mplayer isPlaying]) {
         
         int fps=(settings[GLOB_FXFPS].detail.mdz_switch.switch_value?30:60);
-        _mdz_FS_display_songinfo_countdown=fps*FX_FS_SONGINFO_TIMEOUT;
+        _mdz_display_songinfo_countdown=fps*FX_FS_SONGINFO_TIMEOUT;
         
-        _mdz_FS_display_songinfo_char_count[0]=1;
-        _mdz_FS_display_songinfo_char_count[1]=1;
-        _mdz_FS_display_songinfo_char_count[2]=1;
+        _mdz_display_songinfo_char_count[0]=1;
+        _mdz_display_songinfo_char_count[1]=1;
+        _mdz_display_songinfo_char_count[2]=1;
         
         _mdz_FS_display_cursorLine=0;
         
-        _mdz_FS_display_songinfo_title=[mplayer getModFileTitle];
-        _mdz_FS_display_songinfo_artist=[mplayer artist];
+        _mdz_display_songinfo_title=[mplayer getModFileTitle];
+        _mdz_display_songinfo_artist=[mplayer artist];
         if ([mplayer isArchive]&&([mplayer getArcEntriesCnt]>1)) {
             //archive with multiple files
             if (mplayer.mod_subsongs>1) {
                 //and also subsongs
-                _mdz_FS_display_songinfo_sub=[NSString stringWithFormat:@"(%d/%d)(%d/%d) %@",[mplayer getArcIndex]+1,[mplayer getArcEntriesCnt],mplayer.mod_currentsub-mplayer.mod_minsub+1,mplayer.mod_subsongs,[mplayer getModName]];
+                _mdz_display_songinfo_sub=[NSString stringWithFormat:@"(%d/%d)(%d/%d) %@",[mplayer getArcIndex]+1,[mplayer getArcEntriesCnt],mplayer.mod_currentsub-mplayer.mod_minsub+1,mplayer.mod_subsongs,[mplayer getModName]];
             } else {
                 //no subsong
-                _mdz_FS_display_songinfo_sub=[NSString stringWithFormat:@"(%d/%d) %@",[mplayer getArcIndex]+1,[mplayer getArcEntriesCnt],[mplayer getModName]];
+                _mdz_display_songinfo_sub=[NSString stringWithFormat:@"(%d/%d) %@",[mplayer getArcIndex]+1,[mplayer getArcEntriesCnt],[mplayer getModName]];
             }
         } else {
             if (mplayer.mod_subsongs>1) {
                 //subsongs
-                _mdz_FS_display_songinfo_sub=[NSString stringWithFormat:@"(%d/%d) %@",mplayer.mod_currentsub-mplayer.mod_minsub+1,mplayer.mod_subsongs,[mplayer getModName]];
+                _mdz_display_songinfo_sub=[NSString stringWithFormat:@"(%d/%d) %@",mplayer.mod_currentsub-mplayer.mod_minsub+1,mplayer.mod_subsongs,[mplayer getModName]];
             } else {
                 //no subsong
-                _mdz_FS_display_songinfo_sub=[NSString stringWithFormat:@"%@",[mplayer getModName]];
+                _mdz_display_songinfo_sub=[NSString stringWithFormat:@"%@",[mplayer getModName]];
             }
         }
     }
@@ -8768,139 +8910,7 @@ void doFramePM(float ww,float hh) {
     //-------------------------------------
     // Song info
     //-------------------------------------
-    if (settings[GLOB_FX_FS_DISPLAYSONGINFO].detail.mdz_boolswitch.switch_value && /*settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value &&*/
-        _mdz_FS_display_songinfo_countdown) {
-
-        char strLine[3][MDZ_FX_SONGINFO_MAXCHAR];
-        static int cursorCpt=0;
-        
-        if (_mdz_FS_display_songinfo_title!=nil) snprintf(strLine[0],MDZ_FX_SONGINFO_MAXCHAR,"%sX",[_mdz_FS_display_songinfo_title UTF8String]);
-        else strLine[0][0]=0;
-        if (_mdz_FS_display_songinfo_sub!=nil) snprintf(strLine[1],MDZ_FX_SONGINFO_MAXCHAR,"%sX",[_mdz_FS_display_songinfo_sub UTF8String]);
-        else strLine[1][0]=0;
-        if (_mdz_FS_display_songinfo_artist!=nil) snprintf(strLine[2],MDZ_FX_SONGINFO_MAXCHAR,"%sX",[_mdz_FS_display_songinfo_artist UTF8String]);
-        else strLine[2][0]=0;
-        
-        for (int j=0;j<frameToUpdate;j++) {
-            if (_mdz_FS_display_songinfo_char_count[0]<MDZ_FX_SONGINFO_MAXCHAR) {
-                if (cursorCpt&1) _mdz_FS_display_songinfo_char_count[0]++;
-            }
-            if ( (_mdz_FS_display_songinfo_char_count[1]<MDZ_FX_SONGINFO_MAXCHAR) &&
-                 ( (_mdz_FS_display_songinfo_char_count[0]>=(strlen(strLine[0])+4)) ||
-                   (_mdz_FS_display_songinfo_char_count[0]==MDZ_FX_SONGINFO_MAXCHAR) ) )  {
-                if (cursorCpt&1) _mdz_FS_display_songinfo_char_count[1]++;
-                if (strlen(strLine[1])>1) _mdz_FS_display_cursorLine=1;
-            }
-            if ( (_mdz_FS_display_songinfo_char_count[2]<MDZ_FX_SONGINFO_MAXCHAR) &&
-                ( (_mdz_FS_display_songinfo_char_count[1]>=(strlen(strLine[1])+4)) ||
-                  (_mdz_FS_display_songinfo_char_count[1]==MDZ_FX_SONGINFO_MAXCHAR) ) )  {
-                if (cursorCpt&1) _mdz_FS_display_songinfo_char_count[2]++;
-                if (strlen(strLine[2])>1) _mdz_FS_display_cursorLine=2;
-            }
-            cursorCpt++;
-        }
-        
-        bool allIsVisible=false;
-        if ( (_mdz_FS_display_songinfo_char_count[0]>=strlen(strLine[0])) &&
-            (_mdz_FS_display_songinfo_char_count[1]>=strlen(strLine[1])) &&
-            (_mdz_FS_display_songinfo_char_count[2]>=strlen(strLine[2])) ) {
-            allIsVisible=true;
-        }
-            
-        float alpha_val=(float)(_mdz_FS_display_songinfo_countdown*4)/64.0;
-        if (alpha_val>0.9) alpha_val=0.9;
-        
-        ImGui::PushStyleColor(ImGuiCol_WindowBg,ImVec4(0,0,0,0.6));
-        ImGui::PushStyleColor(ImGuiCol_Border,ImVec4(0,0,0,0));
-        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.00,0.95,1.0,alpha_val));
-
-        float font_size=ww/30;
-        if (font_size<FONTSIZE_FX_FS_INFO_LINE) font_size=FONTSIZE_FX_FS_INFO_LINE;
-        if (font_menu) ImGui::PushFont(font_menu,font_size*glScaleFactor);
-        else ImGui::PushFont(nullptr);
-        
-        float textHH=ImGui::GetTextLineHeightWithSpacing()/glScaleFactor;
-        float pos_x,pos_y;
-        ImVec2 str_size;
-        
-        ImVec2 str_size_max;
-        str_size=ImGui::CalcTextSize(strLine[0]);
-        if (str_size.x>str_size_max.x) str_size_max=str_size;
-        str_size=ImGui::CalcTextSize(strLine[1]);
-        if (str_size.x>str_size_max.x) str_size_max=str_size;
-        str_size=ImGui::CalcTextSize(strLine[2]);
-        if (str_size.x>str_size_max.x) str_size_max=str_size;
-        
-        if (_mdz_FS_display_songinfo_title!=nil) snprintf(strLine[0],_mdz_FS_display_songinfo_char_count[0],"%s",[_mdz_FS_display_songinfo_title UTF8String]);
-        else strLine[0][0]=0;
-        if (_mdz_FS_display_songinfo_sub!=nil) snprintf(strLine[1],_mdz_FS_display_songinfo_char_count[1],"%s",[_mdz_FS_display_songinfo_sub UTF8String]);
-        else strLine[1][0]=0;
-        if (_mdz_FS_display_songinfo_artist!=nil) snprintf(strLine[2],_mdz_FS_display_songinfo_char_count[2],"%s",[_mdz_FS_display_songinfo_artist UTF8String]);
-        else strLine[2][0]=0;
-        
-        str_size_max.x=str_size_max.x/glScaleFactor;
-        float safe_adjust_top=0;
-        float safe_adjust_bottom=0;
-        float safe_adjust_left=0;
-        float safe_adjust_right=8;
-        if (settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value) {
-            safe_adjust_top=safe_top;
-            safe_adjust_bottom=safe_bottom;
-            safe_adjust_left=safe_left;
-            safe_adjust_right=safe_right;
-        }
-        switch (settings[GLOB_FX_FS_DISPLAYSONGINFO].detail.mdz_boolswitch.switch_value) {
-            default:
-            case 1: //TL
-                pos_x=safe_adjust_left*glScaleFactor;
-                pos_y=(safe_adjust_top+0*textHH)*glScaleFactor;
-                break;
-            case 2: //TR
-                pos_x=(ww-str_size_max.x-safe_adjust_right)*glScaleFactor;
-                pos_y=(safe_adjust_top+0*textHH)*glScaleFactor;
-                break;
-            case 3: //Center
-                pos_x=round((ww-str_size_max.x)/2.0*glScaleFactor);
-                pos_y=round((hh-textHH)/2.0*glScaleFactor);
-                break;
-            case 4: //BL
-                pos_x=safe_adjust_left*glScaleFactor;
-                pos_y=(hh-textHH*3-2*textHH-safe_adjust_bottom)*glScaleFactor;
-                break;
-            case 5: //BR
-                pos_x=(ww-str_size_max.x-safe_adjust_right)*glScaleFactor;
-                pos_y=(hh-textHH*3-2*textHH-safe_adjust_bottom)*glScaleFactor;
-                break;
-        }
-        ImGui::SetNextWindowPos(ImVec2(pos_x,pos_y));
-        ImGui::SetNextWindowSize(ImVec2((str_size_max.x+4)*glScaleFactor,3.5*textHH*glScaleFactor));
-        ImGui::GetStyle().Alpha=alpha_val;
-        ImGui::Begin("On screen music info",0,ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoScrollbar|ImGuiWindowFlags_NoFocusOnAppearing);
-        
-        for (int i=0;i<3;i++) {
-            if (_mdz_FS_display_cursorLine==i) {
-                if ((framecpt%32)>=10) ImGui::Text("%s_",strLine[i]);
-                else ImGui::Text("%s",strLine[i]);
-            } else ImGui::Text("%s",strLine[i]);
-        }
-        ImGui::End();
-        ImGui::PopFont();
-        
-        ImGui::PopStyleColor();
-        ImGui::PopStyleColor();
-        ImGui::PopStyleColor();
-        
-        if (allIsVisible) {
-            for (int j=0;j<frameToUpdate;j++) {
-                if (_mdz_FS_display_songinfo_countdown) _mdz_FS_display_songinfo_countdown--;
-                if (!_mdz_FS_display_songinfo_countdown) {
-                    _mdz_FS_display_songinfo_char_count[0]=1;
-                    _mdz_FS_display_songinfo_char_count[1]=1;
-                    _mdz_FS_display_songinfo_char_count[2]=1;
-                }
-            }
-        }
-    }
+    if (settings[GLOB_FX_DISPLAYSONGINFO].detail.mdz_boolswitch.switch_value && _mdz_display_songinfo_countdown) [self showSongInfo:ImVec2(ww,hh) frameToUpdate:frameToUpdate];
     
     //-------------------------------------
     // ProjectM preset name display

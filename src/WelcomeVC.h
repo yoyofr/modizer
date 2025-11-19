@@ -11,15 +11,19 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface WelcomeVC : UIViewController {
     IBOutlet UIButton *exitBtn;
-    
+    IBOutlet UIButton *leftBtn,*rightBtn;
     IBOutlet UILabel *topLabel;
-    IBOutlet UIImageView *image;
+    IBOutlet UIImageView *imageView1;
+    IBOutlet UIImageView *imageView2;
+    IBOutlet UIImageView *imageView3;
+    IBOutlet UIImageView *imageView4;
     IBOutlet UILabel *messageLabel;
 }
 
 @property (nonatomic, retain) IBOutlet UIButton *exitBtn;
+@property (nonatomic, retain) IBOutlet UIButton *leftBtn,*rightBtn;
 @property (nonatomic, retain) IBOutlet UILabel *topLabel;
-@property (nonatomic, retain) IBOutlet UIImageView *image;
+@property (nonatomic, retain) IBOutlet UIImageView *imageView1,*imageView2,*imageView3,*imageView4;
 @property (nonatomic, retain) IBOutlet UILabel *messageLabel;
 
 @end

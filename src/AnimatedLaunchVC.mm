@@ -7,6 +7,7 @@
 
 #import <Foundation/Foundation.h>
 #import "AnimatedLaunchVC.h"
+#import "myTabBarController.h"
 
 #define ANIMATION_GRID_CELL_SIZE 64
 #define RADIAN(x) x*M_PI/180.0f
@@ -27,7 +28,7 @@
     [super viewDidLoad];
     
     //UIWindow *win=[UIApplication sharedApplication].keyWindow;
-    // With automatic storyboard loading, the window and root VC are created by UIKit.
+    //With automatic storyboard loading, the window and root VC are created by UIKit.
     UIWindowScene *windowScene = nil;
     for (UIScene *scene in UIApplication.sharedApplication.connectedScenes) {
         if ([scene isKindOfClass:[UIWindowScene class]]) {
@@ -129,6 +130,7 @@
     [animation animateView:self.view completion:^{
         [self.localBrowserVC modizerIsLaunched];
         [self removeFromParentViewController];
+        [self.tabVC presentWelcomePages];
     }];
 }
 

@@ -34,6 +34,10 @@ extern bool _pmPresetNewLoaded;
 #include <pthread.h>
 extern pthread_mutex_t pm_mutex;
 
+extern int mdz_pmTexturesSearchPathsNb;
+extern const char *mdz_pmTexturesSearchPaths[5];
+
+
 @implementation FileNode
 
 - (instancetype)initWithPath:(NSString *)localpath root:(NSString *)rootpath type:(uint8_t)presetType {
@@ -376,18 +380,22 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
 }
 
 - (void)loadASyncCurrentPreset:(bool)cut {
+    FileNode *item;
+    if (self.size==0) return;
+    item=[self.items objectAtIndex:self.position];
+    //update texture seach paths to include preset dir
+    mdz_pmTexturesSearchPaths[mdz_pmTexturesSearchPathsNb]=[[[item getFullPath] stringByDeletingLastPathComponent] UTF8String];
+    projectm_set_texture_search_paths(self.pmh, (const char **)mdz_pmTexturesSearchPaths,mdz_pmTexturesSearchPathsNb+1);
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
         //Load new preset
         pthread_mutex_lock(&pm_mutex);
-        FileNode *item;
-        if (self.size) {
+        
             self.warp=NULL;
             self.comp=NULL;
             self.lastFailed=false;
-            item=[self.items objectAtIndex:self.position];
+            
             projectm_preload_preset_file(self.pmh, [[item getFullPath] UTF8String], &self->_warp, &self->_comp,&self->_warpP, &self->_compP);
             //pthread_mutex_unlock(&pm_mutex);
-        }
         
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
             
@@ -397,6 +405,7 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
                     START_PROFILE
                     self.lastFailed=false;
                     //pthread_mutex_lock(&pm_mutex);
+                    
                     projectm_loadpreload_preset_file(self.pmh, [[item getFullPath] UTF8String], self.warp, self.comp,self.warpP, self.compP, !cut);
                     
                     CHECK_PROFILE("preset loaded fast")
@@ -448,6 +457,11 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
             self.lastFailed=false;
             
             MDZILog("loading: %@",[item getFullPath]);
+            
+            //update texture seach paths to include preset dir
+            mdz_pmTexturesSearchPaths[mdz_pmTexturesSearchPathsNb]=[[[item getFullPath] stringByDeletingLastPathComponent] UTF8String];
+            projectm_set_texture_search_paths(self.pmh, (const char **)mdz_pmTexturesSearchPaths,mdz_pmTexturesSearchPathsNb+1);
+            
             projectm_preload_preset_file(self.pmh, [[item getFullPath] UTF8String], &self->_warp, &self->_comp,&self->_warpP, &self->_compP);
         }
         
@@ -492,6 +506,11 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
     //Load new preset
     _lastFailed=false;
     START_PROFILE
+    
+    //update texture seach paths to include preset dir
+    mdz_pmTexturesSearchPaths[mdz_pmTexturesSearchPathsNb]=[[[file getFullPath] stringByDeletingLastPathComponent] UTF8String];
+    projectm_set_texture_search_paths(_pmh, (const char **)mdz_pmTexturesSearchPaths,mdz_pmTexturesSearchPathsNb+1);
+    
     projectm_load_preset_file(_pmh, [[file getFullPath] UTF8String],!cut);
     CHECK_PROFILE("preset loaded normal")
     END_PROFILE
@@ -518,6 +537,11 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
             _lastFailed=false;
             item=[_items objectAtIndex:_position];
             START_PROFILE
+            
+            //update texture seach paths to include preset dir
+            mdz_pmTexturesSearchPaths[mdz_pmTexturesSearchPathsNb]=[[[item getFullPath] stringByDeletingLastPathComponent] UTF8String];
+            projectm_set_texture_search_paths(_pmh, (const char **)mdz_pmTexturesSearchPaths,mdz_pmTexturesSearchPathsNb+1);
+            
             projectm_load_preset_file(_pmh, [[item getFullPath] UTF8String],!cut);
             CHECK_PROFILE("preset loaded normal")
             END_PROFILE
@@ -1145,6 +1169,60 @@ code_4=a=1.0;\n\
     _customPresets=[[NSMutableOrderedSet alloc] init];
     return self;
 }
+
+- (void)addFavStatusFor:(NSString*)name bundleFN:(FileNode*)bundleFN customFN:(FileNode*)customFN {
+    if (name==nil) return;
+    if ([name length]<4) return;
+    if ([name characterAtIndex:1]=='B') {
+        //Look for the entry in bundleFN
+        NSString *filename=[name substringFromIndex:3];
+        for (FileNode *item in bundleFN.children) {
+            if ([item.name isEqualToString:filename]) {
+                //found it
+                item.isFavorite=true;
+                break;
+            }
+        }
+    }
+    if ([name characterAtIndex:1]=='C') {
+        //Look for the entry in customFN
+        NSString *filename=[name substringFromIndex:3];
+        for (FileNode *item in customFN.children) {
+            if ([item.name isEqualToString:filename]) {
+                //found it
+                item.isFavorite=true;
+                break;
+            }
+        }
+    }
+}
+- (void)remFavStatusFor:(NSString*)name bundleFN:(FileNode*)bundleFN customFN:(FileNode*)customFN {
+    if (name==nil) return;
+    if ([name length]<4) return;
+    if ([name characterAtIndex:1]=='B') {
+        //Look for the entry in bundleFN
+        NSString *filename=[name substringFromIndex:3];
+        for (FileNode *item in bundleFN.children) {
+            if ([item.name isEqualToString:filename]) {
+                //found it
+                item.isFavorite=false;
+                break;
+            }
+        }
+    }
+    if ([name characterAtIndex:1]=='C') {
+        //Look for the entry in customFN
+        NSString *filename=[name substringFromIndex:3];
+        for (FileNode *item in customFN.children) {
+            if ([item.name isEqualToString:filename]) {
+                //found it
+                item.isFavorite=false;
+                break;
+            }
+        }
+    }
+}
+
 
 - (void)addFavoritePreset:(NSString *)path {
     if (path==nil) return;

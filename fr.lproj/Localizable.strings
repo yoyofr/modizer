@@ -875,3 +875,13 @@
 
 "Silence Detection"="Détection des silences";
 "Stop song if silent for more than selected number of seconds. 0: off"="Stop le morceau si silencieux plus longtemps que le nombre de secondes sélectionné. 0: off";
+
+/* Donation */
+"Thank You! ❤️"="Merci! ❤️";
+"Send a tip to Modizer"="Envoyer un pourboire à Modizer";
+"Support Modizer development"="Supporter le développement de Modizer";
+
+//
+"Skip"="Passer";
+"Modizer %d.%d - Welcome"="Modizer %d.%d - Bienvenue";
+

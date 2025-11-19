@@ -139,6 +139,8 @@ enum MDZ_PLAYLIST_FNODE_Type {
 - (int)favoritesBundleSize;
 - (int)favoritesCustomSize;
 - (void)updateFileNodeStatus:(FileNode*)fnode type:(int)type;
+- (void)addFavStatusFor:(NSString*)name bundleFN:(FileNode*)bundleFN customFN:(FileNode*)customFN;
+- (void)remFavStatusFor:(NSString*)name bundleFN:(FileNode*)bundleFN customFN:(FileNode*)customFN;
 
 - (int)loadFavorites;
 - (int)saveFavorites;

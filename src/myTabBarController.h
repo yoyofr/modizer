@@ -45,10 +45,10 @@
     int welcomePageIndex;
     NSArray *welcomePages;
     UIPageViewController *myPVC;
-    WelcomeVC *welcomePage1,*welcomePage2,*welcomePage3;
+    WelcomeVC *welcomePage1,*welcomePage2,*welcomePage3,*welcomePage4;
 }
 @property (nonatomic, retain) NSArray *welcomePages;
-@property (nonatomic, retain) WelcomeVC *welcomePage1,*welcomePage2,*welcomePage3;
+@property (nonatomic, retain) WelcomeVC *welcomePage1,*welcomePage2,*welcomePage3,*welcomePage4;
 @property (nonatomic, assign) int welcomePageIndex;
 @property (nonatomic, retain) UIPageViewController *myPVC;
 
@@ -67,5 +67,6 @@
 @property (nonatomic, retain) CarPlayAndRemoteManagement *cpMngt;
 
 -(void) openURL:(NSURL *)url;
+-(void) presentWelcomePages;
 
 @end

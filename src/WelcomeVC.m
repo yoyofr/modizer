@@ -12,8 +12,9 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation WelcomeVC
 
 @synthesize exitBtn;
+@synthesize leftBtn,rightBtn;
 @synthesize topLabel,messageLabel;
-@synthesize image;
+@synthesize imageView1,imageView2,imageView3,imageView4;
 
 @end
 

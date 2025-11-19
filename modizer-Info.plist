@@ -420,6 +420,8 @@
 	<key>UIAppFonts</key>
 	<array>
 		<string>FontAwesome.ttf</string>
+		<string>Fonts/Orbitron-Regular.ttf</string>
+		<string>Fonts/Montserrat-Regular.ttf</string>
 	</array>
 	<key>UIApplicationSceneManifest</key>
 	<dict>

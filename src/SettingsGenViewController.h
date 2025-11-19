@@ -89,6 +89,7 @@ enum MDZ_SETTINGS {
     GLOB_CoverFlow,
     GLOB_RecreateSamplesFolder,
     GLOB_StatsUpload,
+    GLOB_ShowWelcome,
     
     MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER_PRIORITY,
     GLOB_Default2SFPlayer,
@@ -265,7 +266,7 @@ enum MDZ_SETTINGS {
     GLOB_FXSHOWINFO,
     GLOB_FXLOD,
     GLOB_FX_LIMIT_SLOWFX,
-    GLOB_FX_FS_DISPLAYSONGINFO,
+    GLOB_FX_DISPLAYSONGINFO,
         MDZ_SETTINGS_FAMILY_PROJECTM,
         PROJECTM_FXONOFF,
         PROJECTM_Quality,

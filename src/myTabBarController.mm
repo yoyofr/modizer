@@ -16,6 +16,7 @@
 #import "CarPlayAndRemoteManagement.h"
 #import "WelcomeVC.h"
 #import "SceneDelegate.h"
+#import "StoreManager.h"
 
 
 extern int shiftPressedL,shiftPressedR;
@@ -92,15 +93,6 @@ extern int move_cursorL,move_cursorR,keyDel;
     //    return UIInterfaceOrientationMaskAllButUpsideDown;
 }
 
-//- (BOOL)shouldAutorotate {
-//    [self shouldAutorotateToInterfaceOrientation:self.interfaceOrientation];
-//    return YES;
-//}
-//
-//- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
-//	return YES;
-//}
-
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     self.navigationController.delegate = self;
@@ -153,6 +145,143 @@ extern int move_cursorL,move_cursorR,keyDel;
     sceneDelegate.downloadVC =downloadVC;
 }
 
+- (void)goToNextWelcomePage {
+    if (welcomePageIndex >= [self.welcomePages count] - 1) {
+        // Already on last page
+        return;
+    }
+    welcomePageIndex++;
+    [myPVC setViewControllers:@[self.welcomePages[welcomePageIndex]]
+                    direction:UIPageViewControllerNavigationDirectionForward
+                     animated:YES
+                   completion:nil];
+}
+
+- (void)goToPreviousWelcomePage {
+    if (welcomePageIndex <= 0) {
+        // Already on first page
+        return;
+    }
+    welcomePageIndex--;
+    [myPVC setViewControllers:@[self.welcomePages[welcomePageIndex]]
+                    direction:UIPageViewControllerNavigationDirectionReverse
+                     animated:YES
+                   completion:nil];
+}
+
+- (void)goToWelcomePageAtIndex:(NSInteger)index {
+    if (index < 0 || index >= [self.welcomePages count]) {
+        return;
+    }
+    UIPageViewControllerNavigationDirection direction =
+        (index > welcomePageIndex) ? UIPageViewControllerNavigationDirectionForward
+                                   : UIPageViewControllerNavigationDirectionReverse;
+    welcomePageIndex = index;
+    [myPVC setViewControllers:@[self.welcomePages[index]]
+                    direction:direction
+                     animated:YES
+                   completion:nil];
+}
+
+- (void) setupWelcomePages {
+    welcomePage1=[[WelcomeVC alloc] initWithNibName:@"WelcomeView_1Image" bundle:[NSBundle mainBundle]];
+    welcomePage2=[[WelcomeVC alloc] initWithNibName:@"WelcomeView_2Images" bundle:[NSBundle mainBundle]];
+    welcomePage3=[[WelcomeVC alloc] initWithNibName:@"WelcomeView_4Images" bundle:[NSBundle mainBundle]];
+    welcomePage4=[[WelcomeVC alloc] initWithNibName:@"WelcomeView_1Image" bundle:[NSBundle mainBundle]];
+    
+    [welcomePage1 loadViewIfNeeded];
+    [welcomePage2 loadViewIfNeeded];
+    [welcomePage3 loadViewIfNeeded];
+    [welcomePage4 loadViewIfNeeded];
+    
+    //Page 1
+    welcomePage1.topLabel.text=NSLocalizedString(
+@"Welcome to Modizer!\n",@"");
+    welcomePage1.topLabel.font = [UIFont fontWithName:@"Orbitron-Regular" size:20];
+    welcomePage1.imageView1.image = [UIImage imageNamed:@"welcome_localBrowser.png"];
+    welcomePage1.leftBtn.hidden=true;
+    welcomePage1.rightBtn.hidden=false;
+    [welcomePage1.rightBtn addTarget:self action:@selector(goToNextWelcomePage) forControlEvents:UIControlEventTouchUpInside];
+    [welcomePage1.exitBtn setTitle:NSLocalizedString(@"Skip",@"") forState:UIControlStateNormal];
+    welcomePage1.messageLabel.text=NSLocalizedString(@""
+"Your gateway to retro and tracker music.\n"
+"Power up your device with legendary game tunes, iconic tracker modules,and timeless chiptune classics.",@"");
+    welcomePage1.messageLabel.font = [UIFont fontWithName:@"Montserrat-Regular" size:14];
+    
+    //Page 2
+    welcomePage2.topLabel.text=NSLocalizedString(@"Level up your library",@"");
+    welcomePage2.topLabel.font = [UIFont fontWithName:@"Orbitron-Regular" size:20];
+    welcomePage2.imageView1.image = [UIImage imageNamed:@"welcome_online.png"];
+    welcomePage2.imageView2.image = [UIImage imageNamed:@"welcome_playlist.png"];
+    welcomePage2.leftBtn.hidden=false;
+    welcomePage2.rightBtn.hidden=false;
+    [welcomePage2.leftBtn addTarget:self action:@selector(goToPreviousWelcomePage) forControlEvents:UIControlEventTouchUpInside];
+    [welcomePage2.rightBtn addTarget:self action:@selector(goToNextWelcomePage) forControlEvents:UIControlEventTouchUpInside];
+    [welcomePage2.exitBtn setTitle:NSLocalizedString(@"Skip",@"") forState:UIControlStateNormal];
+    welcomePage2.messageLabel.text=NSLocalizedString(@""
+"Browse and stream from online catalogs, to complete your own collections. Build, edit, and listen to playlists effortlessly.",@"");
+    welcomePage2.messageLabel.font = [UIFont fontWithName:@"Montserrat-Regular" size:14];
+    
+    //Page 3
+    welcomePage3.topLabel.text=NSLocalizedString(@"Sound meets visuals.",@"");
+    welcomePage3.topLabel.font = [UIFont fontWithName:@"Orbitron-Regular" size:20];
+    welcomePage3.imageView1.image = [UIImage imageNamed:@"welcome_playerView1.png"];
+    welcomePage3.imageView2.image = [UIImage imageNamed:@"welcome_playerView2.png"];
+    welcomePage3.imageView3.image = [UIImage imageNamed:@"welcome_playerView3.png"];
+    welcomePage3.imageView4.image = [UIImage imageNamed:@"welcome_playerView4.png"];
+    welcomePage3.leftBtn.hidden=false;
+    welcomePage3.rightBtn.hidden=false;
+    [welcomePage3.leftBtn addTarget:self action:@selector(goToPreviousWelcomePage) forControlEvents:UIControlEventTouchUpInside];
+    [welcomePage3.rightBtn addTarget:self action:@selector(goToNextWelcomePage) forControlEvents:UIControlEventTouchUpInside];
+    [welcomePage3.exitBtn setTitle:NSLocalizedString(@"Skip",@"") forState:UIControlStateNormal];
+    welcomePage3.messageLabel.text=NSLocalizedString(@""
+"Unlock classic oscilloscope looks, spectrum bars, piano rolls, trackers view and modern FX based on ProjectM/Milkdrop. Let Modizer paint each track with motion and color.",@"");
+    welcomePage3.messageLabel.font = [UIFont fontWithName:@"Montserrat-Regular" size:14];
+    
+    //Page 4
+    welcomePage4.topLabel.text=NSLocalizedString(@"Made with passion,\noffered for free.",@"");
+    welcomePage4.topLabel.font = [UIFont fontWithName:@"Orbitron-Regular" size:20];
+    welcomePage4.imageView1.image = [UIImage imageNamed:@"welcome_more.png"];
+    welcomePage4.leftBtn.hidden=false;
+    welcomePage4.rightBtn.hidden=true;
+    [welcomePage4.leftBtn addTarget:self action:@selector(goToPreviousWelcomePage) forControlEvents:UIControlEventTouchUpInside];
+    [welcomePage4.exitBtn setTitle:NSLocalizedString(@"Close",@"") forState:UIControlStateNormal];
+    welcomePage4.messageLabel.text=NSLocalizedString(@""
+"If you enjoy the app, tips are a great way to support its ongoing development. Thank you for helping keep Modizer alive and evolving.",@"");
+    welcomePage4.messageLabel.font = [UIFont fontWithName:@"Montserrat-Regular" size:14];
+    
+    [welcomePage1.exitBtn addTarget:self action:@selector(exitWelcomePages) forControlEvents:UIControlEventTouchUpInside];
+    [welcomePage2.exitBtn addTarget:self action:@selector(exitWelcomePages) forControlEvents:UIControlEventTouchUpInside];
+    [welcomePage3.exitBtn addTarget:self action:@selector(exitWelcomePages) forControlEvents:UIControlEventTouchUpInside];
+    [welcomePage4.exitBtn addTarget:self action:@selector(exitWelcomePages) forControlEvents:UIControlEventTouchUpInside];
+    
+    self.welcomePages= @[welcomePage1,welcomePage2,welcomePage3,welcomePage4];
+    
+    myPVC=[[UIPageViewController alloc] initWithTransitionStyle:UIPageViewControllerTransitionStyleScroll navigationOrientation:UIPageViewControllerNavigationOrientationHorizontal options:NULL];
+    welcomePageIndex=0;
+    [myPVC setViewControllers:@[welcomePages[welcomePageIndex]] direction:UIPageViewControllerNavigationDirectionForward animated:YES completion:nil];
+    
+    myPVC.dataSource=self;
+    myPVC.delegate=self;
+}
+
+- (void)enablePageControlTaps {
+    for (UIView *view in myPVC.view.subviews) {
+        if ([view isKindOfClass:[UIPageControl class]]) {
+            UIPageControl *pageControl = (UIPageControl *)view;
+            pageControl.userInteractionEnabled = YES;
+            [pageControl addTarget:self action:@selector(pageControlTapped:) forControlEvents:UIControlEventValueChanged];
+            break;
+        }
+    }
+}
+
+- (void)pageControlTapped:(UIPageControl *)pageControl {
+    NSInteger targetPage = pageControl.currentPage;
+    [self goToWelcomePageAtIndex:targetPage];
+}
+
+
 - (void)viewDidLoad {
     START_PROFILE
 	[super viewDidLoad];
@@ -198,6 +327,15 @@ extern int move_cursorL,move_cursorR,keyDel;
         [WebBrowser class],
         // [MoreViewController class]
     ];
+    
+    //Initiate storeManager
+    [StoreManager sharedManager];
+    
+    //check if new version
+    if (detailViewControllerIphone.not_expected_version) {
+        //show Welcome Screen
+        settings[GLOB_ShowWelcome].detail.mdz_boolswitch.switch_value=1;
+    }
     
     self.downloadVC.barItem=moreVC.navigationController.tabBarItem;
     [self.downloadVC refreshDownloadCountBadge];
@@ -257,29 +395,8 @@ extern int move_cursorL,move_cursorR,keyDel;
         }
     }
     
-    welcomePage1=[[WelcomeVC alloc] initWithNibName:@"WelcomeView" bundle:[NSBundle mainBundle]];
-    welcomePage2=[[WelcomeVC alloc] initWithNibName:@"WelcomeView" bundle:[NSBundle mainBundle]];
-    welcomePage3=[[WelcomeVC alloc] initWithNibName:@"WelcomeView" bundle:[NSBundle mainBundle]];
+    [self setupWelcomePages];
     
-    [welcomePage1 loadViewIfNeeded];
-    [welcomePage2 loadViewIfNeeded];
-    [welcomePage3 loadViewIfNeeded];
-    welcomePage1.topLabel.text=@"Welcome";
-    welcomePage2.topLabel.text=@"to";
-    welcomePage3.topLabel.text=@"Modizer";
-    
-    [welcomePage1.exitBtn addTarget:self action:@selector(exitWelcomePages) forControlEvents:UIControlEventTouchUpInside];
-    [welcomePage2.exitBtn addTarget:self action:@selector(exitWelcomePages) forControlEvents:UIControlEventTouchUpInside];
-    [welcomePage3.exitBtn addTarget:self action:@selector(exitWelcomePages) forControlEvents:UIControlEventTouchUpInside];
-    
-    self.welcomePages= @[welcomePage1,welcomePage2,welcomePage3];
-    
-    myPVC=[[UIPageViewController alloc] initWithTransitionStyle:UIPageViewControllerTransitionStyleScroll navigationOrientation:UIPageViewControllerNavigationOrientationHorizontal options:NULL];
-    welcomePageIndex=0;
-    [myPVC setViewControllers:@[welcomePages[0]] direction:UIPageViewControllerNavigationDirectionForward animated:YES completion:nil];
-    
-    myPVC.dataSource=self;
-    myPVC.delegate=self;
     //Faster loading for debug
 #ifdef DEBUG_MODIZER
     //[window addSubview:[animatedLaunchVC view]];
@@ -291,8 +408,14 @@ extern int move_cursorL,move_cursorR,keyDel;
 }
 
 - (void)presentWelcomePages {
+    if (!settings[GLOB_ShowWelcome].detail.mdz_boolswitch.switch_value) return;
     if (myPVC) {
-        [self presentViewController:myPVC animated:YES completion:nil];
+        [self presentViewController:myPVC animated:NO completion:^{
+            // Enable page control taps after presentation
+            [self enablePageControlTaps];
+        }];
+        //only show it once
+        settings[GLOB_ShowWelcome].detail.mdz_boolswitch.switch_value=0;
     }
 }
 
@@ -326,12 +449,23 @@ extern int move_cursorL,move_cursorR,keyDel;
 
 - (NSInteger)presentationCountForPageViewController:(UIPageViewController *)pageViewController {
     // The number of items reflected in the page indicator.
-    return 3;
+    return 4;
 }
 
 - (NSInteger)presentationIndexForPageViewController:(UIPageViewController *)pageViewController {
     // The selected item reflected in the page indicator.
-    return 0;
+    return welcomePageIndex;
+}
+
+- (void)pageViewController:(UIPageViewController *)pageViewController 
+        didFinishAnimating:(BOOL)finished 
+   previousViewControllers:(NSArray<UIViewController *> *)previousViewControllers 
+       transitionCompleted:(BOOL)completed {
+    
+    if (completed) {
+        UIViewController *currentVC = pageViewController.viewControllers.firstObject;
+        welcomePageIndex = [self.welcomePages indexOfObject:currentVC];
+    }
 }
 
 - (void)showAnimatedLaunchOverlay {
@@ -339,7 +473,8 @@ extern int move_cursorL,move_cursorR,keyDel;
 
     AnimatedLaunchVC *vc = [[AnimatedLaunchVC alloc] initWithNibName:@"AnimatedLaunch" bundle:[NSBundle mainBundle]];
     vc.localBrowserVC = self.rootViewControllerIphone;
-
+    vc.tabVC = self;
+    
     // Load the view first
     [vc loadViewIfNeeded];
     
@@ -411,7 +546,7 @@ extern int move_cursorL,move_cursorR,keyDel;
         
         //[self showAnimatedLaunchOverlay];
     }
-    [self presentWelcomePages];
+    
     
 }
 

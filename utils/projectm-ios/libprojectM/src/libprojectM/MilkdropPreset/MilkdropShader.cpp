@@ -900,7 +900,7 @@ void MilkdropShader::TranspileHLSLShaderPreCompilation(const AltPresetState& pre
     
     m_convertedCode=generator.GetResult();
     
-    printf("converted code:\n%s\n",m_convertedCode.c_str());
+    //printf("converted code:\n%s\n",m_convertedCode.c_str());
 
     // Now we have GLSL source for the preset shader program (hopefully it's valid!)
     // Compile the preset shader fragment shader with the standard vertex shader and cross our fingers.
