@@ -197,7 +197,7 @@ extern int move_cursorL,move_cursorR,keyDel;
     //Page 1
     welcomePage1.topLabel.text=NSLocalizedString(
 @"Welcome to Modizer!\n",@"");
-    welcomePage1.topLabel.font = [UIFont fontWithName:@"Orbitron-Regular" size:20];
+    welcomePage1.topLabel.font = [UIFont fontWithName:@"Orbitron-Regular" size:24];
     welcomePage1.imageView1.image = [UIImage imageNamed:@"welcome_localBrowser.png"];
     welcomePage1.leftBtn.hidden=true;
     welcomePage1.rightBtn.hidden=false;
@@ -210,7 +210,7 @@ extern int move_cursorL,move_cursorR,keyDel;
     
     //Page 2
     welcomePage2.topLabel.text=NSLocalizedString(@"Level up your library",@"");
-    welcomePage2.topLabel.font = [UIFont fontWithName:@"Orbitron-Regular" size:20];
+    welcomePage2.topLabel.font = [UIFont fontWithName:@"Orbitron-Regular" size:24];
     welcomePage2.imageView1.image = [UIImage imageNamed:@"welcome_online.png"];
     welcomePage2.imageView2.image = [UIImage imageNamed:@"welcome_playlist.png"];
     welcomePage2.leftBtn.hidden=false;
@@ -219,12 +219,12 @@ extern int move_cursorL,move_cursorR,keyDel;
     [welcomePage2.rightBtn addTarget:self action:@selector(goToNextWelcomePage) forControlEvents:UIControlEventTouchUpInside];
     [welcomePage2.exitBtn setTitle:NSLocalizedString(@"Skip",@"") forState:UIControlStateNormal];
     welcomePage2.messageLabel.text=NSLocalizedString(@""
-"Browse and stream from online catalogs, to complete your own collections. Build, edit, and listen to playlists effortlessly.",@"");
+"Browse and stream from online catalogs, to complete your own collections.\nBuild, edit, and listen to playlists effortlessly.",@"");
     welcomePage2.messageLabel.font = [UIFont fontWithName:@"Montserrat-Regular" size:14];
     
     //Page 3
     welcomePage3.topLabel.text=NSLocalizedString(@"Sound meets visuals.",@"");
-    welcomePage3.topLabel.font = [UIFont fontWithName:@"Orbitron-Regular" size:20];
+    welcomePage3.topLabel.font = [UIFont fontWithName:@"Orbitron-Regular" size:24];
     welcomePage3.imageView1.image = [UIImage imageNamed:@"welcome_playerView1.png"];
     welcomePage3.imageView2.image = [UIImage imageNamed:@"welcome_playerView2.png"];
     welcomePage3.imageView3.image = [UIImage imageNamed:@"welcome_playerView3.png"];
@@ -235,19 +235,19 @@ extern int move_cursorL,move_cursorR,keyDel;
     [welcomePage3.rightBtn addTarget:self action:@selector(goToNextWelcomePage) forControlEvents:UIControlEventTouchUpInside];
     [welcomePage3.exitBtn setTitle:NSLocalizedString(@"Skip",@"") forState:UIControlStateNormal];
     welcomePage3.messageLabel.text=NSLocalizedString(@""
-"Unlock classic oscilloscope looks, spectrum bars, piano rolls, trackers view and modern FX based on ProjectM/Milkdrop. Let Modizer paint each track with motion and color.",@"");
+"Unlock classic oscilloscope looks, spectrum bars, piano rolls, trackers view and modern FX based on ProjectM/Milkdrop.\nLet Modizer paint each track with motion and color.",@"");
     welcomePage3.messageLabel.font = [UIFont fontWithName:@"Montserrat-Regular" size:14];
     
     //Page 4
     welcomePage4.topLabel.text=NSLocalizedString(@"Made with passion,\noffered for free.",@"");
-    welcomePage4.topLabel.font = [UIFont fontWithName:@"Orbitron-Regular" size:20];
+    welcomePage4.topLabel.font = [UIFont fontWithName:@"Orbitron-Regular" size:24];
     welcomePage4.imageView1.image = [UIImage imageNamed:@"welcome_more.png"];
     welcomePage4.leftBtn.hidden=false;
     welcomePage4.rightBtn.hidden=true;
     [welcomePage4.leftBtn addTarget:self action:@selector(goToPreviousWelcomePage) forControlEvents:UIControlEventTouchUpInside];
     [welcomePage4.exitBtn setTitle:NSLocalizedString(@"Close",@"") forState:UIControlStateNormal];
     welcomePage4.messageLabel.text=NSLocalizedString(@""
-"If you enjoy the app, tips are a great way to support its ongoing development. Thank you for helping keep Modizer alive and evolving.",@"");
+"If you enjoy the app, tips are a great way to support its ongoing development.\nThank you for helping keep Modizer alive and evolving.",@"");
     welcomePage4.messageLabel.font = [UIFont fontWithName:@"Montserrat-Regular" size:14];
     
     [welcomePage1.exitBtn addTarget:self action:@selector(exitWelcomePages) forControlEvents:UIControlEventTouchUpInside];
@@ -408,7 +408,7 @@ extern int move_cursorL,move_cursorR,keyDel;
 }
 
 - (void)presentWelcomePages {
-    if (!settings[GLOB_ShowWelcome].detail.mdz_boolswitch.switch_value) return;
+    //if (!settings[GLOB_ShowWelcome].detail.mdz_boolswitch.switch_value) return;
     if (myPVC) {
         [self presentViewController:myPVC animated:NO completion:^{
             // Enable page control taps after presentation

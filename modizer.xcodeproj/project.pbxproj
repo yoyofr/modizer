@@ -759,8 +759,8 @@
 		CC8369A42B623D740035A4DA /* Sauron - OOOPS!.pt3 in Copy Files-Samples Demoscene */ = {isa = PBXBuildFile; fileRef = CC83699A2B6199410035A4DA /* Sauron - OOOPS!.pt3 */; };
 		CC84AC952ECB31560047656F /* StoreManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = CCBF272C2ECB2DD80039936C /* StoreManager.mm */; };
 		CC84ACC12ECD0E050047656F /* Fonts in Resources */ = {isa = PBXBuildFile; fileRef = CC9331932EA28B7B00CB0503 /* Fonts */; };
-		CC84ACC32ECD37580047656F /* WelcomeView_2Images.xib in Resources */ = {isa = PBXBuildFile; fileRef = CC84ACC22ECD37580047656F /* WelcomeView_2Images.xib */; };
-		CC84ACC52ECD3AB70047656F /* WelcomeView_4Images.xib in Resources */ = {isa = PBXBuildFile; fileRef = CC84ACC42ECD3AB70047656F /* WelcomeView_4Images.xib */; };
+		CC84ACC72ECD9F250047656F /* WelcomeView_2Images.xib in Resources */ = {isa = PBXBuildFile; fileRef = CC84ACC62ECD9F250047656F /* WelcomeView_2Images.xib */; };
+		CC84ACC92ECE07940047656F /* WelcomeView_4Images.xib in Resources */ = {isa = PBXBuildFile; fileRef = CC84ACC82ECE07940047656F /* WelcomeView_4Images.xib */; };
 		CC89C83F2EC0F875000A110A /* libxmp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 59805449262F21CA00BB0309 /* libxmp.a */; };
 		CC89CB252EC14FDB000A110A /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = CC89CB242EC14FDB000A110A /* LaunchScreen.storyboard */; };
 		CC8A8D4317F9FF5500A56E0C /* Icon-76.png in Resources */ = {isa = PBXBuildFile; fileRef = CC8A8D3C17F9FF5500A56E0C /* Icon-76.png */; };
@@ -836,8 +836,6 @@
 		CCBF101C1221788200E8DE4E /* YmUserInterface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCBF10101221788200E8DE4E /* YmUserInterface.cpp */; };
 		CCBF26E42ECA89F00039936C /* WelcomeView_1Image.xib in Resources */ = {isa = PBXBuildFile; fileRef = CCBF26E32ECA89F00039936C /* WelcomeView_1Image.xib */; };
 		CCBF27112ECA8EB40039936C /* WelcomeVC.m in Sources */ = {isa = PBXBuildFile; fileRef = CCBF27102ECA8EB40039936C /* WelcomeVC.m */; };
-		CCBF27282ECB1EFF0039936C /* WelcomeView_2ImagesB.xib in Resources */ = {isa = PBXBuildFile; fileRef = CCBF27272ECB1EFF0039936C /* WelcomeView_2ImagesB.xib */; };
-		CCBF272A2ECB1F2C0039936C /* WelcomeView_4ImagesB.xib in Resources */ = {isa = PBXBuildFile; fileRef = CCBF27292ECB1F2C0039936C /* WelcomeView_4ImagesB.xib */; };
 		CCBF272F2ECB2EE00039936C /* TipsViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = CCBF272E2ECB2EDE0039936C /* TipsViewController.mm */; };
 		CCBF27312ECB2F690039936C /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CCBF27302ECB2F680039936C /* StoreKit.framework */; };
 		CCBFC9A32EAA146300014B5D /* OSLog.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CCBFC9A22EAA146300014B5D /* OSLog.framework */; };
@@ -2451,8 +2449,8 @@
 		CC8369992B6199410035A4DA /* Pator - Last Minute Accident (2023) (speccy.pl party 2023.1, 1).pt3 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Pator - Last Minute Accident (2023) (speccy.pl party 2023.1, 1).pt3"; sourceTree = "<group>"; };
 		CC83699A2B6199410035A4DA /* Sauron - OOOPS!.pt3 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Sauron - OOOPS!.pt3"; sourceTree = "<group>"; };
 		CC836A552B6322770035A4DA /* libatariaudio.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libatariaudio.xcodeproj; path = libatariaudio/libatariaudio.xcodeproj; sourceTree = "<group>"; };
-		CC84ACC22ECD37580047656F /* WelcomeView_2Images.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = WelcomeView_2Images.xib; sourceTree = "<group>"; };
-		CC84ACC42ECD3AB70047656F /* WelcomeView_4Images.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = WelcomeView_4Images.xib; sourceTree = "<group>"; };
+		CC84ACC62ECD9F250047656F /* WelcomeView_2Images.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = WelcomeView_2Images.xib; sourceTree = "<group>"; };
+		CC84ACC82ECE07940047656F /* WelcomeView_4Images.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = WelcomeView_4Images.xib; sourceTree = "<group>"; };
 		CC88D1131270AF200004EBBE /* modizer-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "modizer-Info.plist"; sourceTree = "<group>"; };
 		CC89CB242EC14FDB000A110A /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 		CC8A8D3C17F9FF5500A56E0C /* Icon-76.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon-76.png"; sourceTree = "<group>"; };
@@ -2677,8 +2675,6 @@
 		CCBF26E32ECA89F00039936C /* WelcomeView_1Image.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = WelcomeView_1Image.xib; sourceTree = "<group>"; };
 		CCBF270F2ECA8EB40039936C /* WelcomeVC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WelcomeVC.h; sourceTree = "<group>"; };
 		CCBF27102ECA8EB40039936C /* WelcomeVC.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WelcomeVC.m; sourceTree = "<group>"; };
-		CCBF27272ECB1EFF0039936C /* WelcomeView_2ImagesB.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = WelcomeView_2ImagesB.xib; sourceTree = "<group>"; };
-		CCBF27292ECB1F2C0039936C /* WelcomeView_4ImagesB.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = WelcomeView_4ImagesB.xib; sourceTree = "<group>"; };
 		CCBF272B2ECB2DB00039936C /* StoreManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = StoreManager.h; sourceTree = "<group>"; };
 		CCBF272C2ECB2DD80039936C /* StoreManager.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = StoreManager.mm; sourceTree = "<group>"; };
 		CCBF272D2ECB2EB10039936C /* TipsViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TipsViewController.h; sourceTree = "<group>"; };
@@ -3321,10 +3317,8 @@
 				33F6A93E17B99FB8002369E7 /* SettingsViewController.xib */,
 				59A65C752624E9B700BC99D1 /* VoicesViewController.xib */,
 				CCBF26E32ECA89F00039936C /* WelcomeView_1Image.xib */,
-				CC84ACC22ECD37580047656F /* WelcomeView_2Images.xib */,
-				CC84ACC42ECD3AB70047656F /* WelcomeView_4Images.xib */,
-				CCBF27272ECB1EFF0039936C /* WelcomeView_2ImagesB.xib */,
-				CCBF27292ECB1F2C0039936C /* WelcomeView_4ImagesB.xib */,
+				CC84ACC62ECD9F250047656F /* WelcomeView_2Images.xib */,
+				CC84ACC82ECE07940047656F /* WelcomeView_4Images.xib */,
 			);
 			path = XIB;
 			sourceTree = "<group>";
@@ -6021,13 +6015,13 @@
 				CC1E6341120423DF000A8A4E /* FredGray in Resources */,
 				CC1E6342120423DF000A8A4E /* FutureComposer-BSI in Resources */,
 				59909B551E3E20A300C629AA /* tabview_gradient40Green@2x.png in Resources */,
+				CC84ACC72ECD9F250047656F /* WelcomeView_2Images.xib in Resources */,
 				CC1E6343120423DF000A8A4E /* FutureComposer1.3 in Resources */,
 				598051EF262E1EBB00BB0309 /* KB--fr-08_the_product-loader.v2mz in Resources */,
 				CC1E6344120423DF000A8A4E /* FutureComposer1.4 in Resources */,
 				59BE93AC2600D3F500414A42 /* c1541.rom in Resources */,
 				59A665331E4B04E700EB110E /* txtMenu2d_2x.png in Resources */,
 				CC1E6345120423DF000A8A4E /* FuturePlayer in Resources */,
-				CCBF272A2ECB1F2C0039936C /* WelcomeView_4ImagesB.xib in Resources */,
 				CC9CE1562E96F77000725D15 /* projectm in Resources */,
 				CC1E6346120423DF000A8A4E /* GlueMon in Resources */,
 				CC1E6347120423DF000A8A4E /* HowieDavies in Resources */,
@@ -6075,7 +6069,6 @@
 				CC1E6369120423DF000A8A4E /* MikeDavies in Resources */,
 				CC17F07F1AC87866006C1E82 /* Images-2.xcassets in Resources */,
 				CC1E636A120423DF000A8A4E /* MMDC in Resources */,
-				CC84ACC52ECD3AB70047656F /* WelcomeView_4Images.xib in Resources */,
 				CC1E636B120423DF000A8A4E /* Mugician in Resources */,
 				CC1E636C120423DF000A8A4E /* MugicianII in Resources */,
 				CC1E636D120423DF000A8A4E /* MultiMedia_Sound in Resources */,
@@ -6124,7 +6117,6 @@
 				CC1E6392120423E0000A8A4E /* SonixMusicDriver in Resources */,
 				CCB8D9A417F62A18008E6A45 /* txtMenu11c_2x.png in Resources */,
 				CC1E6393120423E0000A8A4E /* Sound-FX in Resources */,
-				CC84ACC32ECD37580047656F /* WelcomeView_2Images.xib in Resources */,
 				59909B651E3E81AD00C629AA /* tabview_gradient40Gray@2x.png in Resources */,
 				CC1E6394120423E0000A8A4E /* SoundControl in Resources */,
 				CC1E6395120423E0000A8A4E /* SoundFactory in Resources */,
@@ -6172,6 +6164,7 @@
 				59CA1B4625BF6FD40010B6A5 /* modizer_icon.icns in Resources */,
 				59805482262F7D8300BB0309 /* heart-filled.png in Resources */,
 				CC8A8D4817F9FF5500A56E0C /* Icon-Small-80.png in Resources */,
+				CC84ACC92ECE07940047656F /* WelcomeView_4Images.xib in Resources */,
 				CC1E63B4120423E0000A8A4E /* UltimateSoundtracker in Resources */,
 				5988EC8C2630AACC005F2D23 /* heart-half-filled.png in Resources */,
 				CC8A8D4417F9FF5500A56E0C /* Icon-120.png in Resources */,
@@ -6279,7 +6272,6 @@
 				CCB8D9A317F62A18008E6A45 /* txtMenu11a_2x.png in Resources */,
 				33ABE58B17B0E65500AE0EA1 /* bb_list@2x.png in Resources */,
 				33ABE58C17B0E65500AE0EA1 /* bb_music.png in Resources */,
-				CCBF27282ECB1EFF0039936C /* WelcomeView_2ImagesB.xib in Resources */,
 				33ABE58D17B0E65500AE0EA1 /* bb_music@2x.png in Resources */,
 				33ABE59417B0E87D00AE0EA1 /* bb_caret-right.png in Resources */,
 				33ABE59517B0E87D00AE0EA1 /* bb_caret-left.png in Resources */,
