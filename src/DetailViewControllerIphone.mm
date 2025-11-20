@@ -1371,7 +1371,7 @@ static float movePinchScale,movePinchScaleOld;
 -(void) mdPrevPreset {
     if (_mdzPM_playlist==nil) return;
     if (settings[PROJECTM_AutoSwitchPresetsMode].detail.mdz_switch.switch_value) [_mdzPM_playlist last:false];
-    else [_mdzPM_playlist prev:false];
+    else [_mdzPM_playlist last:false];
 }
 -(void) mdNextPreset {
     if ( _mdzPM_playlist==nil) return;
@@ -7854,7 +7854,7 @@ void doFramePM(float ww,float hh) {
                 movePMnomore=1;
                 if ([_mdzPM_playlist getSize]) {
                     if (settings[PROJECTM_AutoSwitchPresetsMode].detail.mdz_switch.switch_value) [_mdzPM_playlist last:false];
-                    else [_mdzPM_playlist prev:false];
+                    else [_mdzPM_playlist last:false];
                 }
             } else if (movePxPM<-PM_HorizontalSwipe_Threshold) {
                 movePxPM=0;

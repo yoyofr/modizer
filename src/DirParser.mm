@@ -4,9 +4,14 @@
 //
 //  Created by Yohann Magnien David on 26/10/2025.
 //
-
+ 
+//flag to activate optimized version, not blocking rendering.
+//load presets in 2 steps,
+// 1. compiles the shader in a background thread (no opengl calls except compiling shader)
+// 2. second initialize opengl rendering stuff and load textures
 #define PM_LOAD_MODE_ASYNC
 
+#define MDZ_PLAYLIST_MAX_RETRY 32
 #define MDZ_PMPLAYLIST_VERSION 1
 
 typedef struct {
@@ -23,8 +28,6 @@ typedef struct {
 } MDZFavorites_Header_t;
 
 extern bool _pmPresetNewLoaded;
-
-#define MDZ_PLAYLIST_MAX_RETRY 32
 
 #import "DirParser.h"
 #import "ModizerConstants.h"
@@ -365,7 +368,7 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
     _items=[NSMutableArray arrayWithArray:array];
     _position=0;
     _size=(int)[_items count];
-    _history=[[NSMutableArray alloc] init];
+    [_history removeAllObjects];
 }
 
 - (void)addItems:(NSArray*)array {
@@ -430,17 +433,17 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
             //if it has failed, remove from list and try another one.
             //if list is empty, load idle preset
             if (self.lastFailed) {
-//                //Issue with last preset, remove from the list
-//                [self remove:self.position];
-//                //If list empty, exit
-//                if (self.size==0) {
-//                    [self loadIdlePreset];
-//                    return;
-//                }
-//                //If too many attempt, exit, to avoid freezing app
-//                self.retry_counter++;
-//                if (self.retry_counter>MDZ_PLAYLIST_MAX_RETRY) return;
-//                [self loadASyncCurrentPreset:cut];
+                //Issue with last preset, remove from the list
+                [self remove:self.position];
+                //If list empty, exit
+                if (self.size==0) {
+                    [self loadIdlePreset];
+                    return;
+                }
+                //If too many attempt, exit, to avoid freezing app
+                self.retry_counter++;
+                if (self.retry_counter>MDZ_PLAYLIST_MAX_RETRY) return;
+                [self loadASyncCurrentPreset:cut];
             }
             
         }];
@@ -618,6 +621,8 @@ code_4=a=1.0;\n\
         [self loadIdlePreset];
         return;
     }
+    //Store to history
+    [_history addObject:[NSNumber numberWithInt:_position]];
     if (_shuffle) {
         _position=arc4random_uniform(_size);
     } else {
@@ -632,14 +637,19 @@ code_4=a=1.0;\n\
         [self loadIdlePreset];
         return;
     }
-    if (_shuffle) {
-        _position=arc4random_uniform(_size);
+    //Is there something in history ?
+    if ([_history count]) {
+        //yes, we use it and remove entry
+        _position = [(NSNumber*)[_history lastObject] intValue];
+        [_history removeLastObject];
+        //ensure position is valid
+        if (_position<0) _position=0;
+        if (_position>=_size) _position=_size-1;
+        
+        [self loadCurrentPreset:cut];
     } else {
-        if (_position>0) _position--;
-        else _position=_size-1;
+        //nothing in history, do nothing
     }
-    
-    [self loadCurrentPreset:cut];
 }
 
 - (void)prev:(bool)cut {
@@ -647,6 +657,8 @@ code_4=a=1.0;\n\
         [self loadIdlePreset];
         return;
     }
+    //Store to history
+    [_history addObject:[NSNumber numberWithInt:_position]];
     if (_shuffle) {
         _position=arc4random_uniform(_size);
     } else {
