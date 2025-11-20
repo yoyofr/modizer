@@ -183,6 +183,75 @@ extern int move_cursorL,move_cursorR,keyDel;
                    completion:nil];
 }
 
+- (UIImage *)createScanlinePattern:(CGSize)size {
+    // Create scanline pattern
+    UIGraphicsBeginImageContextWithOptions(size, NO, 0.0);
+    CGContextRef context = UIGraphicsGetCurrentContext();
+    
+    // Draw scanlines
+    CGFloat scanlineHeight = 1.0; // Height of each scanline
+    CGFloat scanlineSpacing = 2.0; // Distance between scanlines
+    
+    for (CGFloat y = 0; y < size.height; y += scanlineSpacing) {
+        CGContextSetFillColorWithColor(context, [UIColor colorWithWhite:0.0 alpha:0.45].CGColor);
+        CGContextFillRect(context, CGRectMake(0, y, size.width, scanlineHeight));
+    }
+    
+    UIImage *scanlineImage = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    
+    return scanlineImage;
+}
+
+- (void)applyGradientToLabel:(UILabel *)label {
+    // Remove any existing gradient layers
+    for (CALayer *layer in label.layer.sublayers.copy) {
+        if ([layer isKindOfClass:[CAGradientLayer class]]) {
+            [layer removeFromSuperlayer];
+        }
+    }
+    
+    // Create gradient layer
+    CAGradientLayer *gradientLayer = [CAGradientLayer layer];
+    gradientLayer.frame = label.bounds;
+
+#define COL1 0xFF4FB3
+#define COL2 0xC44CFF
+#define COL3 0x4AA8FF
+    
+#define RED(x) (((x>>16)&0xFF)/255.0)
+#define GREEN(x) (((x>>8)&0xFF)/255.0)
+#define BLUE(x) (((x>>0)&0xFF)/255.0)
+    // Define gradient colors (adjust these to your preference)
+    gradientLayer.colors = @[
+        (id)[UIColor colorWithRed:RED(COL1) green:GREEN(COL1) blue:BLUE(COL1) alpha:1.0].CGColor,
+        (id)[UIColor colorWithRed:RED(COL2) green:GREEN(COL2) blue:BLUE(COL2) alpha:1.0].CGColor,
+        (id)[UIColor colorWithRed:RED(COL3) green:GREEN(COL3) blue:BLUE(COL3) alpha:1.0].CGColor,
+    ];
+
+    
+    // Set gradient direction (0,0 to 1,0 = left to right, 0,0 to 0,1 = top to bottom)
+    gradientLayer.startPoint = CGPointMake(0.0, 0.0);
+    gradientLayer.endPoint = CGPointMake(1.0, 1.0);
+    
+    // Render the gradient into an image
+    UIGraphicsBeginImageContextWithOptions(label.bounds.size, NO, 0.0);
+    CGContextRef context = UIGraphicsGetCurrentContext();
+    
+    // Draw gradient
+    [gradientLayer renderInContext:context];
+    
+    // Overlay scanlines
+    UIImage *scanlineImage = [self createScanlinePattern:label.bounds.size];
+    [scanlineImage drawInRect:CGRectMake(0, 0, label.bounds.size.width, label.bounds.size.height) blendMode:kCGBlendModeMultiply alpha:1.0];
+    
+    UIImage *finalImage = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    
+    // Apply gradient + scanlines as text color
+    label.textColor = [UIColor colorWithPatternImage:finalImage];
+}
+
 - (void) setupWelcomePages {
     welcomePage1=[[WelcomeVC alloc] initWithNibName:@"WelcomeView_1Image" bundle:[NSBundle mainBundle]];
     welcomePage2=[[WelcomeVC alloc] initWithNibName:@"WelcomeView_2Images" bundle:[NSBundle mainBundle]];
@@ -206,7 +275,7 @@ extern int move_cursorL,move_cursorR,keyDel;
     welcomePage1.messageLabel.text=NSLocalizedString(@""
 "Your gateway to retro and tracker music.\n"
 "Power up your device with legendary game tunes, iconic tracker modules,and timeless chiptune classics.",@"");
-    welcomePage1.messageLabel.font = [UIFont fontWithName:@"Montserrat-Regular" size:14];
+    welcomePage1.messageLabel.font = [UIFont fontWithName:@"Montserrat-Regular" size:16];
     
     //Page 2
     welcomePage2.topLabel.text=NSLocalizedString(@"Level up your library",@"");
@@ -220,7 +289,7 @@ extern int move_cursorL,move_cursorR,keyDel;
     [welcomePage2.exitBtn setTitle:NSLocalizedString(@"Skip",@"") forState:UIControlStateNormal];
     welcomePage2.messageLabel.text=NSLocalizedString(@""
 "Browse and stream from online catalogs, to complete your own collections.\nBuild, edit, and listen to playlists effortlessly.",@"");
-    welcomePage2.messageLabel.font = [UIFont fontWithName:@"Montserrat-Regular" size:14];
+    welcomePage2.messageLabel.font = [UIFont fontWithName:@"Montserrat-Regular" size:16];
     
     //Page 3
     welcomePage3.topLabel.text=NSLocalizedString(@"Sound meets visuals.",@"");
@@ -236,7 +305,7 @@ extern int move_cursorL,move_cursorR,keyDel;
     [welcomePage3.exitBtn setTitle:NSLocalizedString(@"Skip",@"") forState:UIControlStateNormal];
     welcomePage3.messageLabel.text=NSLocalizedString(@""
 "Unlock classic oscilloscope looks, spectrum bars, piano rolls, trackers view and modern FX based on ProjectM/Milkdrop.\nLet Modizer paint each track with motion and color.",@"");
-    welcomePage3.messageLabel.font = [UIFont fontWithName:@"Montserrat-Regular" size:14];
+    welcomePage3.messageLabel.font = [UIFont fontWithName:@"Montserrat-Regular" size:16];
     
     //Page 4
     welcomePage4.topLabel.text=NSLocalizedString(@"Made with passion,\noffered for free.",@"");
@@ -248,7 +317,7 @@ extern int move_cursorL,move_cursorR,keyDel;
     [welcomePage4.exitBtn setTitle:NSLocalizedString(@"Close",@"") forState:UIControlStateNormal];
     welcomePage4.messageLabel.text=NSLocalizedString(@""
 "If you enjoy the app, tips are a great way to support its ongoing development.\nThank you for helping keep Modizer alive and evolving.",@"");
-    welcomePage4.messageLabel.font = [UIFont fontWithName:@"Montserrat-Regular" size:14];
+    welcomePage4.messageLabel.font = [UIFont fontWithName:@"Montserrat-Regular" size:16];
     
     [welcomePage1.exitBtn addTarget:self action:@selector(exitWelcomePages) forControlEvents:UIControlEventTouchUpInside];
     [welcomePage2.exitBtn addTarget:self action:@selector(exitWelcomePages) forControlEvents:UIControlEventTouchUpInside];
@@ -263,6 +332,14 @@ extern int move_cursorL,move_cursorR,keyDel;
     
     myPVC.dataSource=self;
     myPVC.delegate=self;
+    
+    // Apply gradients after layout
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self applyGradientToLabel:self->welcomePage1.topLabel];
+        [self applyGradientToLabel:self->welcomePage2.topLabel];
+        [self applyGradientToLabel:self->welcomePage3.topLabel];
+        [self applyGradientToLabel:self->welcomePage4.topLabel];
+    });
 }
 
 - (void)enablePageControlTaps {
@@ -288,6 +365,36 @@ extern int move_cursorL,move_cursorR,keyDel;
     self.navigationController.delegate = self;
     
     //self.view.backgroundColor = [UIColor clearColor];
+    
+    // iOS 15+ Fix: Configure appearance for tab bar and navigation bar
+    if (@available(iOS 15.0, *)) {
+        // Configure Tab Bar Appearance
+        UITabBarAppearance *tabBarAppearance = [[UITabBarAppearance alloc] init];
+        [tabBarAppearance configureWithDefaultBackground];
+        
+        // You can customize colors here if needed:
+        // tabBarAppearance.backgroundColor = [UIColor systemBackgroundColor];
+        
+        self.tabBar.standardAppearance = tabBarAppearance;
+        self.tabBar.scrollEdgeAppearance = tabBarAppearance;
+        
+        // Configure Navigation Bar Appearance for all child navigation controllers
+        UINavigationBarAppearance *navBarAppearance = [[UINavigationBarAppearance alloc] init];
+        [navBarAppearance configureWithDefaultBackground];
+        
+        // You can customize colors here if needed:
+        // navBarAppearance.backgroundColor = [UIColor systemBackgroundColor];
+        
+        // Apply to all navigation controllers in tabs
+        for (UIViewController *vc in self.viewControllers) {
+            if ([vc isKindOfClass:[UINavigationController class]]) {
+                UINavigationController *nav = (UINavigationController *)vc;
+                nav.navigationBar.standardAppearance = navBarAppearance;
+                nav.navigationBar.scrollEdgeAppearance = navBarAppearance;
+                nav.navigationBar.compactAppearance = navBarAppearance;
+            }
+        }
+    }
     
     if (@available(iOS 18.0, *)) {
         if (UIDevice.currentDevice.userInterfaceIdiom == UIUserInterfaceIdiomPad) {
@@ -363,6 +470,20 @@ extern int move_cursorL,move_cursorR,keyDel;
     }
     [self setViewControllers:filteredTabs animated:NO];
     
+    // iOS 15+ Fix: Reapply navigation bar appearance after setting view controllers
+    if (@available(iOS 15.0, *)) {
+        UINavigationBarAppearance *navBarAppearance = [[UINavigationBarAppearance alloc] init];
+        [navBarAppearance configureWithDefaultBackground];
+        
+        for (UIViewController *vc in filteredTabs) {
+            if ([vc isKindOfClass:[UINavigationController class]]) {
+                UINavigationController *nav = (UINavigationController *)vc;
+                nav.navigationBar.standardAppearance = navBarAppearance;
+                nav.navigationBar.scrollEdgeAppearance = navBarAppearance;
+                nav.navigationBar.compactAppearance = navBarAppearance;
+            }
+        }
+    }
     
     // Perform initial setup that previously lived in AppDelegate
     [self.rootViewControllerIphone createEditableCopyOfDatabaseIfNeeded:FALSE quiet:0];
@@ -409,6 +530,12 @@ extern int move_cursorL,move_cursorR,keyDel;
 
 - (void)presentWelcomePages {
     //if (!settings[GLOB_ShowWelcome].detail.mdz_boolswitch.switch_value) return;
+    
+    // Don't present if already presenting or presented
+    if (myPVC.presentingViewController != nil || myPVC.isBeingPresented) {
+        return;
+    }
+    
     if (myPVC) {
         [self presentViewController:myPVC animated:NO completion:^{
             // Enable page control taps after presentation

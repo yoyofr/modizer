@@ -45,10 +45,10 @@ extern os_log_t mdzLog;
 #ifndef MODIZER_CONSTANTS_H
 #define MODIZER_CONSTANTS_H
 
-#define VERSION_MAJOR 3
-#define VERSION_MAJOR_STR "3"
-#define VERSION_MINOR 12
-#define VERSION_MINOR_STR "12"
+#define VERSION_MAJOR 4
+#define VERSION_MAJOR_STR "4"
+#define VERSION_MINOR 0
+#define VERSION_MINOR_STR "0"
 
 #ifdef DEBUG_MODIZER
 #else

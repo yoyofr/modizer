@@ -182,7 +182,7 @@
                     <buttonConfiguration key="configuration" style="plain" image="chevron.right" catalog="system"/>
                 </button>
                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" text="Blablablaldkmfkdlmskfmsfkmlkfmlskfmfsfdfdfdflfkdlfdklkfldkfldkfldkldkfldskflsmfksmlfksmkfmskf" textAlignment="natural" lineBreakMode="wordWrap" numberOfLines="6" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="RTw-Y6-T4v" userLabel="Message">
-                    <rect key="frame" x="40" y="704" width="313" height="80"/>
+                    <rect key="frame" x="10" y="704" width="373" height="80"/>
                     <constraints>
                         <constraint firstAttribute="height" constant="100" id="DGV-sX-HIS"/>
                     </constraints>
@@ -195,7 +195,7 @@
             <color key="backgroundColor" systemColor="systemBackgroundColor"/>
             <constraints>
                 <constraint firstItem="xLf-St-a04" firstAttribute="trailing" secondItem="vUN-kp-3ea" secondAttribute="trailing" id="4o1-fl-uAx"/>
-                <constraint firstItem="yUr-JZ-iTi" firstAttribute="leading" secondItem="RTw-Y6-T4v" secondAttribute="trailing" id="4pM-UZ-GXN"/>
+                <constraint firstItem="yUr-JZ-iTi" firstAttribute="leading" secondItem="RTw-Y6-T4v" secondAttribute="trailing" constant="-30" id="4pM-UZ-GXN"/>
                 <constraint firstItem="xLf-St-a04" firstAttribute="leading" secondItem="rIf-LP-tux" secondAttribute="trailing" id="6YJ-BY-4uy"/>
                 <constraint firstItem="rIf-LP-tux" firstAttribute="leading" secondItem="3mw-SG-QpB" secondAttribute="trailing" constant="-20" id="Agf-Nb-nkl"/>
                 <constraint firstItem="RTw-Y6-T4v" firstAttribute="bottom" secondItem="vUN-kp-3ea" secondAttribute="bottom" id="Brq-Nx-RmK"/>
@@ -203,7 +203,7 @@
                 <constraint firstItem="rIf-LP-tux" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" constant="10" id="IPe-4C-imY"/>
                 <constraint firstItem="RTw-Y6-T4v" firstAttribute="top" secondItem="12s-JS-SNb" secondAttribute="bottom" id="Ocy-Vp-Y0g"/>
                 <constraint firstItem="RTw-Y6-T4v" firstAttribute="top" secondItem="yUr-JZ-iTi" secondAttribute="bottom" id="Qct-ZT-Qpm"/>
-                <constraint firstItem="RTw-Y6-T4v" firstAttribute="leading" secondItem="3mw-SG-QpB" secondAttribute="trailing" id="WVt-ve-iCU"/>
+                <constraint firstItem="RTw-Y6-T4v" firstAttribute="leading" secondItem="3mw-SG-QpB" secondAttribute="trailing" constant="-30" id="WVt-ve-iCU"/>
                 <constraint firstItem="yUr-JZ-iTi" firstAttribute="trailing" secondItem="vUN-kp-3ea" secondAttribute="trailing" id="h0Z-HH-0oL"/>
                 <constraint firstItem="12s-JS-SNb" firstAttribute="centerX" secondItem="iN0-l3-epB" secondAttribute="centerX" id="k14-gI-2ZE"/>
                 <constraint firstItem="RTw-Y6-T4v" firstAttribute="top" secondItem="3mw-SG-QpB" secondAttribute="bottom" id="mX7-xU-9ks"/>
