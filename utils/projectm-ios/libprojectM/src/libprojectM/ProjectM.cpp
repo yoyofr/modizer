@@ -35,6 +35,8 @@
 
 #include <UserSprites/SpriteManager.hpp>
 
+#include <filesystem>
+
 namespace libprojectM {
 
 ProjectM::ProjectM()
@@ -60,6 +62,9 @@ void ProjectM::LoadPresetFile(const std::string& presetFilename, bool smoothTran
 {
     try
     {
+        const auto curPresetDir = std::filesystem::path{ presetFilename }.parent_path().string();
+        m_textureManager->SetCurrentPresetPath(curPresetDir);
+        
         m_textureManager->PurgeTextures();
         StartPresetTransition(m_presetFactoryManager->CreatePresetFromFile(presetFilename), !smoothTransition);
     }
@@ -73,6 +78,9 @@ void ProjectM::PreLoadPresetFile(const std::string& presetFilename, const char *
 {
     try
     {
+        const auto curPresetDir = std::filesystem::path{ presetFilename }.parent_path().string();
+        m_textureManager->SetCurrentPresetPath(curPresetDir);
+        
         m_textureManager->PurgeTextures();
         //StartPresetTransition(m_presetFactoryManager->CreatePresetFromFile(presetFilename), !smoothTransition);
         std::unique_ptr<Preset> preloaded_preset=m_presetFactoryManager->CreatePresetFromFile(std::string("preload://")+presetFilename);
@@ -96,6 +104,9 @@ void ProjectM::LoadPreLoadPresetFile(const std::string& presetFilename, const ch
 {
     try
     {
+        const auto curPresetDir = std::filesystem::path{ presetFilename }.parent_path().string();
+        m_textureManager->SetCurrentPresetPath(curPresetDir);
+        
         m_textureManager->PurgeTextures();
         //StartPresetTransition(m_presetFactoryManager->CreatePresetFromFile(presetFilename), !smoothTransition);
         std::unique_ptr<Preset> preloaded_preset=m_presetFactoryManager->CreatePresetFromFile(std::string("precomp://")+presetFilename);

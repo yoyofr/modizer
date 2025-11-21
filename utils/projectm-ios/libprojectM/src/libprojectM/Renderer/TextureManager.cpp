@@ -30,10 +30,12 @@ TextureManager::TextureManager(const std::vector<std::string>& textureSearchPath
     , m_placeholderTexture(std::make_shared<Texture>("placeholder", 1, 1, false))
 {
     Preload();
+    m_currentPresetDir=std::string("");
 }
 
-void TextureManager::SetCurrentPresetPath(const std::string&)
+void TextureManager::SetCurrentPresetPath(const std::string&currentPath)
 {
+    m_currentPresetDir=currentPath;
 }
 
 TextureSamplerDescriptor TextureManager::GetTexture(const std::string& fullName,bool dontLoad)
@@ -431,11 +433,17 @@ void TextureManager::ScanTextures()
 {
     if (!m_filesScanned)
     {
-        FileScanner fileScanner = FileScanner(m_textureSearchPaths, m_extensions);
+        //add current presetDir if available to search paths
+        std::vector<std::string> searchPaths;
+        searchPaths=m_textureSearchPaths;
+        if (m_currentPresetDir!=std::string("")) searchPaths.emplace_back(m_currentPresetDir);
+        
+        FileScanner fileScanner = FileScanner(searchPaths, m_extensions);
 
         using namespace std::placeholders;
         fileScanner.Scan(std::bind(&TextureManager::AddTextureFile, this, _1, _2));
         m_filesScanned = true;
+        
     }
 }
 
