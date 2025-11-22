@@ -556,6 +556,7 @@ out vec4 fragment_border;
 
 void main(){
     gl_Position = vertex_transformation * vec4(vertex_position, 0.0, 1.0);
+    gl_Position.z = vertex_border.w;
     fragment_color = vertex_color;
     fragment_texture = vertex_texture;
     fragment_border = vertex_border;
@@ -626,6 +627,7 @@ out vec4 fragment_border;
 
 void main(){
     gl_Position = vertex_transformation * vec4(vertex_position, 0.0, 1.0);
+    gl_Position.z = vertex_border.w;
     gl_PointSize = vertex_point_size;
     fragment_color = vertex_color;
     fragment_border = vertex_border;

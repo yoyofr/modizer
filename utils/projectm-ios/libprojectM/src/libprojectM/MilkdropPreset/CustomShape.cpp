@@ -91,6 +91,7 @@ void CustomShape::Draw()
     Renderer::BlendMode::SetBlendActive(true);
 
 #ifdef CUSTOMSHAPE_FAST_RENDER
+    glDisable(GL_DEPTH_TEST);
     /*
      * New render, target is to draw with minimum calls
      * currently only one call but change of key attributes isn't fully managed
@@ -207,7 +208,7 @@ void CustomShape::Draw()
                                                                static_cast<float>(*m_perFrameContext.border_b),
                                                                static_cast<float>(*m_perFrameContext.border_a),
                                                                0.0,
-                                                               static_cast<float>(*m_perFrameContext.thick));
+                                                               static_cast<float>(instance)*0.0001);
 
         // x = f*255.0 & 0xFF = (f*255.0) % 256
         // f' = x/255.0 = f % (256/255)
@@ -242,7 +243,7 @@ void CustomShape::Draw()
                                                                    static_cast<float>(*m_perFrameContext.border_b),
                                                                    static_cast<float>(*m_perFrameContext.border_a),
                                                                    borderFactor,
-                                                                   static_cast<float>(*m_perFrameContext.thick));
+                                                                   static_cast<float>(instance)*0.0001);
         }
 
         // Duplicate last vertex.
@@ -254,7 +255,7 @@ void CustomShape::Draw()
                                                                static_cast<float>(*m_perFrameContext.border_b),
                                                                static_cast<float>(*m_perFrameContext.border_a),
                                                                borderFactor,
-                                                               static_cast<float>(*m_perFrameContext.thick));
+                                                               static_cast<float>(instance)*0.0001);
 
         if (m_fillMesh.UseUV())
         {

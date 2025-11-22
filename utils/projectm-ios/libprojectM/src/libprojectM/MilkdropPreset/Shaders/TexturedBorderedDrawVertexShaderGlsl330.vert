@@ -1,0 +1,20 @@
+precision mediump float;
+
+layout(location = 0) in vec2 vertex_position;
+layout(location = 1) in vec4 vertex_color;
+layout(location = 2) in vec2 vertex_texture;
+layout(location = 8) in vec4 vertex_border;
+
+uniform mat4 vertex_transformation;
+
+out vec4 fragment_color;
+out vec2 fragment_texture;
+out vec4 fragment_border;
+
+void main(){
+    gl_Position = vertex_transformation * vec4(vertex_position, 0.0, 1.0);
+    gl_Position.z = vertex_border.w;
+    fragment_color = vertex_color;
+    fragment_texture = vertex_texture;
+    fragment_border = vertex_border;
+}
