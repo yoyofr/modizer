@@ -45,7 +45,7 @@
 #define SHOWINFO_FXFRAME_COLOR 223.0/255.0,176.0/255.0,173.0/255.0
 #define SHOWINFO_FXFRAMEINFO_COLOR 253.0/255.0,253.0/255.0,253.0/255.0
 
-int varCheck[8];
+float varCheck[4];
 
 extern unsigned int mdzRenderbuffer;
 
@@ -7522,8 +7522,22 @@ void doFramePM(float ww,float hh) {
                 ImGui::Text("%s",strTmp);
                 posy+=sizeText.y+2;
                 
-                posy+=sizeText.y+8;
-                snprintf(strTmp,32,"%d %d %d %d",varCheck[0],varCheck[1],varCheck[2],varCheck[3]);
+                posy+=sizeText.y+6;
+                //Debug info
+                ImGui::PopStyleColor();
+                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(SHOWINFO_FXFRAME_COLOR,txtAlpha));
+                ImGui::SetCursorPos(ImVec2(2,posy));
+                ImGui::Text("Debug info");
+                posy+=sizeText.y+4;
+                ImGui::PopStyleColor();
+                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(SHOWINFO_FXFRAMEINFO_COLOR,txtAlpha));
+                snprintf(strTmp,32,"%.3f %.3f",varCheck[0],varCheck[1]);
+                sizeText=ImGui::CalcTextSize(strTmp);
+                posx=sizeText.x+8;
+                ImGui::SetCursorPos(ImVec2(cur_winSizeX*glScaleFactor-posx,posy));
+                ImGui::Text("%s",strTmp);
+                posy+=sizeText.y+2;
+                snprintf(strTmp,32,"%.3f %.3f",varCheck[2],varCheck[3]);
                 sizeText=ImGui::CalcTextSize(strTmp);
                 posx=sizeText.x+8;
                 ImGui::SetCursorPos(ImVec2(cur_winSizeX*glScaleFactor-posx,posy));

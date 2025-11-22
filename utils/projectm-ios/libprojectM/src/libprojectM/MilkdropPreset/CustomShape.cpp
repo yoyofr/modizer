@@ -79,51 +79,29 @@ void CustomShape::CompileCodeAndRunInitExpressions()
     m_perFrameContext.CompilePerFrameCode(m_presetState.customShapePerFrameCode[m_index], *this);
 }
 
-void CustomShape::Draw()
-{
-    static constexpr float pi = 3.141592653589793f;
+void CustomShape::FlushDraw(bool render) {
+    // Additive Drawing or Overwrite
+    Renderer::BlendMode::SetBlendFunction(Renderer::BlendMode::Function::SourceAlpha,
+                                          static_cast<int>(*m_perFrameContext.additive) != 0
+                                              ? Renderer::BlendMode::Function::One
+                                              : Renderer::BlendMode::Function::OneMinusSourceAlpha);
 
-    if (!m_enabled)
-    {
-        return;
+    if (render) {
+        m_fillMesh.Update();
+        m_fillMesh.Draw();
     }
+    glBindTexture(GL_TEXTURE_2D, 0);
+    Renderer::Sampler::Unbind(0);
+}
 
-    Renderer::BlendMode::SetBlendActive(true);
-
-#ifdef CUSTOMSHAPE_FAST_RENDER
-    glDisable(GL_DEPTH_TEST);
-    /*
-     * New render, target is to draw with minimum calls
-     * currently only one call but change of key attributes isn't fully managed
-     * in particular if texture mode is switch in the middle, same for additive mode, ...
-     * to be further enhanced
-     * currently managed:
-     *  - change of border attributes (r,g,b,a, thickness)
-     *  - change of number of sides
-     */
-    
-    auto& vertexData = m_fillMesh.Vertices();
-    auto& colorData = m_fillMesh.Colors();
-    auto& borderData = m_fillMesh.Borders();
-    
-    m_fillMesh.SetUseBorder(true);
+void CustomShape::InitDraw(float &textureAspectY) {
     m_fillMesh.SetUseUV(static_cast<int>(*m_perFrameContext.textured) != 0);
-    
-    //max is 100 sides per instance
-    if (m_fillMesh.VertexCount()<102*m_instances) {
-        m_fillMesh.SetVertexCount(102*m_instances);
-    }
-    
-    auto textureAspectY = m_presetState.renderContext.aspectY;
-    
-    std::shared_ptr<Renderer::Shader> shader;
-    
     if (m_fillMesh.UseUV())
     {
-        shader = m_presetState.texturedBorderedShader.lock();
-        shader->Bind();
-        shader->SetUniformMat4x4("vertex_transformation", PresetState::orthogonalProjection);
-        shader->SetUniformInt("texture_sampler", 0);
+        m_shader = m_presetState.texturedBorderedShader.lock();
+        m_shader->Bind();
+        m_shader->SetUniformMat4x4("vertex_transformation", PresetState::orthogonalProjection);
+        m_shader->SetUniformInt("texture_sampler", 0);
         
         // Textured shape, either main texture or texture from "image" key
         
@@ -137,7 +115,7 @@ void CustomShape::Draw()
             auto desc = m_presetState.renderContext.textureManager->GetTexture(m_image);
             if (!desc.Empty())
             {
-                desc.Bind(0, *shader);
+                desc.Bind(0, *m_shader);
                 textureAspectY = 1.0f;
             }
             else
@@ -154,21 +132,80 @@ void CustomShape::Draw()
     else
     {
         // Untextured (creates a color gradient: center=r/g/b/a to border=r2/b2/g2/a2)
-        shader = m_presetState.untexturedBorderedShader.lock();
-        shader->Bind();
-        shader->SetUniformMat4x4("vertex_transformation", PresetState::orthogonalProjection);
-        shader->SetUniformFloat("vertex_point_size", 1.0);
+        m_shader = m_presetState.untexturedBorderedShader.lock();
+        m_shader->Bind();
+        m_shader->SetUniformMat4x4("vertex_transformation", PresetState::orthogonalProjection);
+        m_shader->SetUniformFloat("vertex_point_size", 1.0);
     }
+}
+
+void CustomShape::Draw()
+{
+    static constexpr float pi = 3.141592653589793f;
+
+    if (!m_enabled)
+    {
+        return;
+    }
+
+    Renderer::BlendMode::SetBlendActive(true);
+
+#ifdef CUSTOMSHAPE_FAST_RENDER
+    /*
+     * New render, target is to draw with minimum calls
+     * currently managed:
+     *  - change of border attributes (r,g,b,a, thickness)
+     *  - change of number of sides
+     *  - change of additive mode
+     *  - change of texture mode
+     */
+    
+    glDisable(GL_DEPTH_TEST);
+    
+    auto& vertexData = m_fillMesh.Vertices();
+    auto& colorData = m_fillMesh.Colors();
+    auto& borderData = m_fillMesh.Borders();
+    float textureAspectY = m_presetState.renderContext.aspectY;
+    
+    
+    //max is 100 sides per instance
+    if (m_fillMesh.VertexCount()<102*m_instances) {
+        m_fillMesh.SetVertexCount(102*m_instances);
+    }
+    
+    m_fillMesh.SetUseBorder(true);
     
     int vertexIdx=0;
     int totalSides=0;
     int indicesIdx=0;
     int instanceStartIdx=0;
     
+    InitDraw(textureAspectY);
+    
+    bool textureMode=(static_cast<int>(*m_perFrameContext.textured) != 0);
+    bool additiveMode=(static_cast<int>(*m_perFrameContext.additive) != 0);
+    
     for (int instance = 0; instance < m_instances; instance++)
     {
         m_perFrameContext.LoadStateVariables(m_presetState, *this, instance);
         m_perFrameContext.ExecutePerFrameCode();
+        
+        bool curTextureMode=(static_cast<int>(*m_perFrameContext.textured) != 0);
+        bool curAdditiveMode=(static_cast<int>(*m_perFrameContext.additive) != 0);
+        if ((curTextureMode!=textureMode) || (curAdditiveMode!=additiveMode) ) {
+            //Change of texture mode or additive mode
+            //1st render any pending instance
+            FlushDraw((indicesIdx>0));
+            vertexIdx=0;
+            totalSides=0;
+            indicesIdx=0;
+            instanceStartIdx=0;
+            //2nd reinit render
+            InitDraw(textureAspectY);
+            //3rd keep track of current modes
+            textureMode=curTextureMode;
+            additiveMode=curAdditiveMode;
+        }
         
         float borderFactor;
         float thick,thickX,thickY,thickAdd;
@@ -291,18 +328,7 @@ void CustomShape::Draw()
         vertexIdx+=sides+2;
 
     }
-    
-    // Additive Drawing or Overwrite
-    Renderer::BlendMode::SetBlendFunction(Renderer::BlendMode::Function::SourceAlpha,
-                                          static_cast<int>(*m_perFrameContext.additive) != 0
-                                              ? Renderer::BlendMode::Function::One
-                                              : Renderer::BlendMode::Function::OneMinusSourceAlpha);
-
-    m_fillMesh.Update();
-    m_fillMesh.Draw();
-
-    glBindTexture(GL_TEXTURE_2D, 0);
-    Renderer::Sampler::Unbind(0);
+    FlushDraw((indicesIdx>0));
 #else
     for (int instance = 0; instance < m_instances; instance++)
     {

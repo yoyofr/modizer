@@ -45,6 +45,20 @@ public:
     void Draw();
 
 private:
+    /**
+     * @brief Intermediary rendering for fast render, needed if a key attribute change and shader or blending mode needs to be updated.
+     * @param render Indicates if there is actually something to draw
+     */
+    void FlushDraw(bool render);
+    
+    /**
+     * @brief Init rendering for fast render, select right shader and init key variables
+     * @param textureAspectY The texture aspect Y
+     */
+    void InitDraw(float &textureAspectY);
+    
+    std::shared_ptr<Renderer::Shader> m_shader; //!< The shader used for rendering
+    
     Renderer::Mesh m_outlineMesh; //!< The shape's border/outline mesh.
     Renderer::Mesh m_fillMesh; //!< The shape's color/texture mesh.
 
