@@ -12,17 +12,20 @@ Mesh::Mesh(VertexBufferUsage usage)
     : m_vertices(usage)
     , m_colors(usage)
     , m_textureUVs(usage)
+    , m_borders(usage)
     , m_indices(usage)
 {
     Initialize();
 }
 
-Mesh::Mesh(VertexBufferUsage usage, bool useColor, bool useTextureUVs)
+Mesh::Mesh(VertexBufferUsage usage, bool useColor, bool useTextureUVs, bool useBorders)
     : m_useColorAttributes(useColor)
     , m_useUVAttributes(useTextureUVs)
+    , m_useBorderAttributes(useBorders)
     , m_vertices(usage)
     , m_colors(usage)
     , m_textureUVs(usage)
+    , m_borders(usage)
     , m_indices(usage)
 {
     Initialize();
@@ -40,6 +43,11 @@ void Mesh::SetVertexCount(uint32_t vertexCount)
     if (m_useUVAttributes)
     {
         m_textureUVs.Resize(vertexCount);
+    }
+    
+    if (m_useBorderAttributes)
+    {
+        m_borders.Resize(vertexCount);
     }
 }
 
@@ -69,6 +77,20 @@ void Mesh::SetUseUV(bool useUV)
     }
 }
 
+void Mesh::SetUseBorder(bool useBorder)
+{
+    m_useBorderAttributes = useBorder;
+    if (m_useBorderAttributes)
+    {
+        m_borders.Resize(m_vertices.Size());
+    }
+    else
+    {
+        m_borders.Resize(0);
+    }
+}
+
+
 auto Mesh::Indices() -> VertexIndexArray&
 {
     return m_indices;
@@ -97,9 +119,11 @@ void Mesh::Update()
     m_vertices.Update();
     m_colors.Update();
     m_textureUVs.Update();
+    m_borders.Update();
 
     VertexBuffer<class Color>::SetEnableAttributeArray(1, m_useColorAttributes);
     VertexBuffer<TextureUV>::SetEnableAttributeArray(2, m_useUVAttributes);
+    VertexBuffer<class Color>::SetEnableAttributeArray(8, m_useBorderAttributes);
 
     m_indices.Update();
 }
@@ -158,6 +182,7 @@ void Mesh::Initialize()
     m_vertices.InitializeAttributePointer(0);
     m_colors.InitializeAttributePointer(1);
     m_textureUVs.InitializeAttributePointer(2);
+    m_borders.InitializeAttributePointer(8);
 
     VertexBuffer<Point>::SetEnableAttributeArray(0, true);
 

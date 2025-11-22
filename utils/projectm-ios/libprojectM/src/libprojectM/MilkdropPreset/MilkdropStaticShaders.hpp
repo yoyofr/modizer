@@ -54,8 +54,12 @@ public:
     std::string GetPresetWarpVertexShader();
     std::string GetTexturedDrawFragmentShader();
     std::string GetTexturedDrawVertexShader();
+    std::string GetTexturedBorderedDrawFragmentShader();
+    std::string GetTexturedBorderedDrawVertexShader();
     std::string GetUntexturedDrawFragmentShader();
     std::string GetUntexturedDrawVertexShader();
+    std::string GetUntexturedBorderedDrawFragmentShader();
+    std::string GetUntexturedBorderedDrawVertexShader();
 
 
 private:

@@ -1,3 +1,5 @@
+#define CUSTOMSHAPE_FAST_RENDER
+
 #include "CustomShape.hpp"
 
 #include "PresetFileParser.hpp"
@@ -20,7 +22,12 @@ CustomShape::CustomShape(PresetState& presetState)
     m_outlineMesh.SetRenderPrimitiveType(Renderer::Mesh::PrimitiveType::LineLoop);
 
     m_fillMesh.SetVertexCount(102);
+#ifdef CUSTOMSHAPE_FAST_RENDER
+    m_fillMesh.SetRenderPrimitiveType(Renderer::Mesh::PrimitiveType::Triangles);
+#else
     m_fillMesh.SetRenderPrimitiveType(Renderer::Mesh::PrimitiveType::TriangleFan);
+#endif
+    
 
     m_perFrameContext.RegisterBuiltinVariables();
 }
@@ -83,6 +90,219 @@ void CustomShape::Draw()
 
     Renderer::BlendMode::SetBlendActive(true);
 
+#ifdef CUSTOMSHAPE_FAST_RENDER
+    /*
+     * New render, target is to draw with minimum calls
+     * currently only one call but change of key attributes isn't fully managed
+     * in particular if texture mode is switch in the middle, same for additive mode, ...
+     * to be further enhanced
+     * currently managed:
+     *  - change of border attributes (r,g,b,a, thickness)
+     *  - change of number of sides
+     */
+    
+    auto& vertexData = m_fillMesh.Vertices();
+    auto& colorData = m_fillMesh.Colors();
+    auto& borderData = m_fillMesh.Borders();
+    
+    m_fillMesh.SetUseBorder(true);
+    m_fillMesh.SetUseUV(static_cast<int>(*m_perFrameContext.textured) != 0);
+    
+    //max is 100 sides per instance
+    if (m_fillMesh.VertexCount()<102*m_instances) {
+        m_fillMesh.SetVertexCount(102*m_instances);
+    }
+    
+    auto textureAspectY = m_presetState.renderContext.aspectY;
+    
+    std::shared_ptr<Renderer::Shader> shader;
+    
+    if (m_fillMesh.UseUV())
+    {
+        shader = m_presetState.texturedBorderedShader.lock();
+        shader->Bind();
+        shader->SetUniformMat4x4("vertex_transformation", PresetState::orthogonalProjection);
+        shader->SetUniformInt("texture_sampler", 0);
+        
+        // Textured shape, either main texture or texture from "image" key
+        
+        if (m_image.empty())
+        {
+            assert(!m_presetState.mainTexture.expired());
+            m_presetState.mainTexture.lock()->Bind(0);
+        }
+        else
+        {
+            auto desc = m_presetState.renderContext.textureManager->GetTexture(m_image);
+            if (!desc.Empty())
+            {
+                desc.Bind(0, *shader);
+                textureAspectY = 1.0f;
+            }
+            else
+            {
+                // No texture found, fall back to main texture.
+                assert(!m_presetState.mainTexture.expired());
+                m_presetState.mainTexture.lock()->Bind(0);
+            }
+        }
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    }
+    else
+    {
+        // Untextured (creates a color gradient: center=r/g/b/a to border=r2/b2/g2/a2)
+        shader = m_presetState.untexturedBorderedShader.lock();
+        shader->Bind();
+        shader->SetUniformMat4x4("vertex_transformation", PresetState::orthogonalProjection);
+        shader->SetUniformFloat("vertex_point_size", 1.0);
+    }
+    
+    int vertexIdx=0;
+    int totalSides=0;
+    int indicesIdx=0;
+    int instanceStartIdx=0;
+    
+    for (int instance = 0; instance < m_instances; instance++)
+    {
+        m_perFrameContext.LoadStateVariables(m_presetState, *this, instance);
+        m_perFrameContext.ExecutePerFrameCode();
+        
+        float borderFactor;
+        float thick,thickX,thickY,thickAdd;
+        if (*m_perFrameContext.border_a > 0.0001f) {
+            //compute / thickness
+            thick=1.0;
+            if (static_cast<float>(*m_perFrameContext.thick)>0) thick=4.0;
+            
+            thickX=thick/static_cast<float>(m_presetState.renderContext.viewportSizeX);
+            thickY=thick/static_cast<float>(m_presetState.renderContext.viewportSizeY);
+            thickAdd=sqrtf(thickX*thickX+thickY*thickY);
+            
+            borderFactor=(static_cast<float>(*m_perFrameContext.rad)+thickAdd)/static_cast<float>(*m_perFrameContext.rad);
+        } else {
+            borderFactor=0.0;
+            thick=0.0;
+            thickX=thickY=thickAdd=0;
+        }
+        
+        
+        
+        int sides = static_cast<int>(*m_perFrameContext.sides);
+        if (sides < 3)
+        {
+            sides = 3;
+        }
+        if (sides > 100)
+        {
+            sides = 100;
+        }
+
+        vertexData[vertexIdx] = Renderer::Point(static_cast<float>(*m_perFrameContext.x * 2.0 - 1.0),
+                                        static_cast<float>(*m_perFrameContext.y * -2.0 + 1.0));
+        
+        borderData[vertexIdx] = Renderer::BorderData(static_cast<float>(*m_perFrameContext.border_r),
+                                                               static_cast<float>(*m_perFrameContext.border_g),
+                                                               static_cast<float>(*m_perFrameContext.border_b),
+                                                               static_cast<float>(*m_perFrameContext.border_a),
+                                                               0.0,
+                                                               static_cast<float>(*m_perFrameContext.thick));
+
+        // x = f*255.0 & 0xFF = (f*255.0) % 256
+        // f' = x/255.0 = f % (256/255)
+        // 1.0 -> 255 (0xFF)
+        // 2.0 -> 254 (0xFE)
+        // -1.0 -> 0x01
+
+        colorData[vertexIdx] = Renderer::Color::Modulo(Renderer::Color(static_cast<float>(*m_perFrameContext.r),
+                                                               static_cast<float>(*m_perFrameContext.g),
+                                                               static_cast<float>(*m_perFrameContext.b),
+                                                               static_cast<float>(*m_perFrameContext.a)));
+
+        colorData[vertexIdx+1] = Renderer::Color::Modulo(Renderer::Color(static_cast<float>(*m_perFrameContext.r2),
+                                                               static_cast<float>(*m_perFrameContext.g2),
+                                                               static_cast<float>(*m_perFrameContext.b2),
+                                                               static_cast<float>(*m_perFrameContext.a2)));
+
+        for (int i = 1; i < sides + 1; i++)
+        {
+            const float cornerProgress = static_cast<float>(i - 1) / static_cast<float>(sides);
+            const float angle = cornerProgress * pi * 2.0f + static_cast<float>(*m_perFrameContext.ang) + pi * 0.25f;
+
+            // Todo: There's still some issue with aspect ratio here, as everything gets squashed horizontally if Y > x.
+            vertexData[vertexIdx+i] = Renderer::Point(vertexData[vertexIdx].X() + (static_cast<float>(*m_perFrameContext.rad)+thickAdd) * cosf(angle) * m_presetState.renderContext.aspectY,
+                                            vertexData[vertexIdx].Y() + (static_cast<float>(*m_perFrameContext.rad)+thickAdd) * sinf(angle));
+
+            colorData[vertexIdx+i] = colorData[vertexIdx+1];
+            
+            
+            borderData[vertexIdx+i] = Renderer::BorderData(static_cast<float>(*m_perFrameContext.border_r),
+                                                                   static_cast<float>(*m_perFrameContext.border_g),
+                                                                   static_cast<float>(*m_perFrameContext.border_b),
+                                                                   static_cast<float>(*m_perFrameContext.border_a),
+                                                                   borderFactor,
+                                                                   static_cast<float>(*m_perFrameContext.thick));
+        }
+
+        // Duplicate last vertex.
+        vertexData[vertexIdx + sides + 1] = vertexData[vertexIdx+1];
+        colorData[vertexIdx + sides + 1] = colorData[vertexIdx+1];
+        
+        borderData[vertexIdx + sides + 1] = Renderer::BorderData(static_cast<float>(*m_perFrameContext.border_r),
+                                                               static_cast<float>(*m_perFrameContext.border_g),
+                                                               static_cast<float>(*m_perFrameContext.border_b),
+                                                               static_cast<float>(*m_perFrameContext.border_a),
+                                                               borderFactor,
+                                                               static_cast<float>(*m_perFrameContext.thick));
+
+        if (m_fillMesh.UseUV())
+        {
+            auto& uvs = m_fillMesh.UVs();
+            uvs[vertexIdx+0] = Renderer::TextureUV(0.5f, 0.5f);
+
+            for (int i = 1; i < sides + 1; i++)
+            {
+                const float cornerProgress = static_cast<float>(i - 1) / static_cast<float>(sides);
+                const float angle = cornerProgress * pi * 2.0f + static_cast<float>(*m_perFrameContext.tex_ang) + pi * 0.25f;
+
+                uvs[vertexIdx+i] = Renderer::TextureUV(0.5f + 0.5f * cosf(angle) / static_cast<float>(*m_perFrameContext.tex_zoom) * textureAspectY,
+                                             1.0f - (0.5f - 0.5f * sinf(angle) / static_cast<float>(*m_perFrameContext.tex_zoom))); // Vertical flip required!
+            }
+
+            uvs[vertexIdx+sides + 1] = uvs[vertexIdx+1];
+        }
+        
+        
+        totalSides+=sides;
+        //now adjust indices as we will draw with triangles and not triangles fan
+        m_fillMesh.Indices().Resize(totalSides*3);
+        auto& indices=m_fillMesh.Indices();
+        
+        for (int j=1;j<(sides+1);j++) {
+            indices[indicesIdx++]=instanceStartIdx;
+            indices[indicesIdx++]=instanceStartIdx+j;
+            indices[indicesIdx++]=instanceStartIdx+j+1;
+        }
+        instanceStartIdx+=sides+2;
+        
+
+        vertexIdx+=sides+2;
+
+    }
+    
+    // Additive Drawing or Overwrite
+    Renderer::BlendMode::SetBlendFunction(Renderer::BlendMode::Function::SourceAlpha,
+                                          static_cast<int>(*m_perFrameContext.additive) != 0
+                                              ? Renderer::BlendMode::Function::One
+                                              : Renderer::BlendMode::Function::OneMinusSourceAlpha);
+
+    m_fillMesh.Update();
+    m_fillMesh.Draw();
+
+    glBindTexture(GL_TEXTURE_2D, 0);
+    Renderer::Sampler::Unbind(0);
+#else
     for (int instance = 0; instance < m_instances; instance++)
     {
         m_perFrameContext.LoadStateVariables(m_presetState, *this, instance);
@@ -280,6 +500,7 @@ void CustomShape::Draw()
             }
         }
     }
+#endif
 
     Renderer::Mesh::Unbind();
     Renderer::Shader::Unbind();

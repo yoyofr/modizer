@@ -517,6 +517,52 @@ void main(){
 }
 )";
 
+static std::string kTexturedBorderedDrawFragmentShaderGlsl330 = R"(
+precision mediump float;
+
+in vec4 fragment_color;
+in vec2 fragment_texture;
+in vec4 fragment_border;
+
+uniform sampler2D texture_sampler;
+
+out vec4 color;
+
+void main(){
+    if (fragment_border.z>=1.0) {
+        color.r = float(((int(fragment_border.x))>>8)&0xFF)/255.0;
+        color.g = float(((int(fragment_border.x))>>0)&0xFF)/255.0;
+        color.b = float(((int(fragment_border.y))>>8)&0xFF)/255.0;
+        color.a = float(((int(fragment_border.y))>>0)&0xFF)/255.0;
+    } else {
+        color = fragment_color * texture(texture_sampler, fragment_texture.st);
+    }
+}
+)";
+
+static std::string kTexturedBorderedDrawVertexShaderGlsl330 = R"(
+precision mediump float;
+
+layout(location = 0) in vec2 vertex_position;
+layout(location = 1) in vec4 vertex_color;
+layout(location = 2) in vec2 vertex_texture;
+layout(location = 8) in vec4 vertex_border;
+
+uniform mat4 vertex_transformation;
+
+out vec4 fragment_color;
+out vec2 fragment_texture;
+out vec4 fragment_border;
+
+void main(){
+    gl_Position = vertex_transformation * vec4(vertex_position, 0.0, 1.0);
+    fragment_color = vertex_color;
+    fragment_texture = vertex_texture;
+    fragment_border = vertex_border;
+}
+)";
+
+
 static std::string kUntexturedDrawFragmentShaderGlsl330 = R"(
 precision mediump float;
 
@@ -544,6 +590,45 @@ void main(){
     gl_Position = vertex_transformation * vec4(vertex_position, 0.0, 1.0);
     gl_PointSize = vertex_point_size;
     fragment_color = vertex_color;
+}
+)";
+
+static std::string kUntexturedBorderedDrawFragmentShaderGlsl330 = R"(
+precision mediump float;
+
+in vec4 fragment_color;
+in vec4 fragment_border;
+
+out vec4 color;
+
+void main(){
+    if (fragment_border.z>=1.0) {
+            color.r = float(((int(fragment_border.x))>>8)&0xFF)/255.0;
+            color.g = float(((int(fragment_border.x))>>0)&0xFF)/255.0;
+            color.b = float(((int(fragment_border.y))>>8)&0xFF)/255.0;
+            color.a = float(((int(fragment_border.y))>>0)&0xFF)/255.0;
+    } else color = fragment_color;
+}
+)";
+
+static std::string kUntexturedBorderedDrawVertexShaderGlsl330 = R"(
+precision mediump float;
+
+layout(location = 0) in vec2 vertex_position;
+layout(location = 1) in vec4 vertex_color;
+layout(location = 8) in vec4 vertex_border;
+
+uniform mat4 vertex_transformation;
+uniform float vertex_point_size;
+
+out vec4 fragment_color;
+out vec4 fragment_border;
+
+void main(){
+    gl_Position = vertex_transformation * vec4(vertex_position, 0.0, 1.0);
+    gl_PointSize = vertex_point_size;
+    fragment_color = vertex_color;
+    fragment_border = vertex_border;
 }
 )";
 
@@ -603,8 +688,12 @@ DECLARE_SHADER_ACCESSOR(PresetWarpFragmentShader);
 DECLARE_SHADER_ACCESSOR(PresetWarpVertexShader);
 DECLARE_SHADER_ACCESSOR(TexturedDrawFragmentShader);
 DECLARE_SHADER_ACCESSOR(TexturedDrawVertexShader);
+DECLARE_SHADER_ACCESSOR(TexturedBorderedDrawFragmentShader);
+DECLARE_SHADER_ACCESSOR(TexturedBorderedDrawVertexShader);
 DECLARE_SHADER_ACCESSOR(UntexturedDrawFragmentShader);
 DECLARE_SHADER_ACCESSOR(UntexturedDrawVertexShader);
+DECLARE_SHADER_ACCESSOR(UntexturedBorderedDrawFragmentShader);
+DECLARE_SHADER_ACCESSOR(UntexturedBorderedDrawVertexShader);
 
 
 } // namespace MilkdropPreset

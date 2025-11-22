@@ -96,7 +96,7 @@ void Shader::Unbind()
     glUseProgram(0);
 }
 
-void Shader::SetUniformFloat(const char* uniform, float value) const
+void Shader::   SetUniformFloat(const char* uniform, float value) const
 {
     auto location = glGetUniformLocation(m_shaderProgram, uniform);
     if (location < 0)

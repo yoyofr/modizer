@@ -17,23 +17,7 @@ namespace MilkdropPreset {
 static std::string const defaultCompositeShader = "shader_body\n{\nret = tex2D(sampler_main, uv).xyz;\n}";
 
 AltFinalComposite::AltFinalComposite()
-//    : m_compositeMesh(Renderer::VertexBufferUsage::StreamDraw, true, true)
 {
-//    m_compositeMesh.SetRenderPrimitiveType(Renderer::Mesh::PrimitiveType::Triangles);
-
-    // Add attribute array for radius and angle information to the mesh.
-//    m_compositeMesh.Bind();
-//    m_radiusAngle.Bind();
-//    m_radiusAngle.Resize(vertexCount);
-//    m_radiusAngle.InitializeAttributePointer(3);
-//    Renderer::VertexBuffer<Renderer::Point>::SetEnableAttributeArray(3, true);
-
-    // Pre-allocate vertex and index buffers
-//    m_compositeMesh.SetVertexCount(vertexCount);
-//    m_compositeMesh.Indices().Resize(indexCount);
-//    m_compositeMesh.Update();
-//
-//    Renderer::Mesh::Unbind();
 }
 
 void AltFinalComposite::LoadCompositeShader(const AltPresetState& presetState)
