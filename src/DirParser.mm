@@ -9,6 +9,7 @@
 //load presets in 2 steps,
 // 1. compiles the shader in a background thread (no opengl calls except compiling shader)
 // 2. second initialize opengl rendering stuff and load textures
+
 #define PM_LOAD_MODE_ASYNC
 
 #define MDZ_PLAYLIST_MAX_RETRY 32
@@ -36,10 +37,6 @@ extern bool _pmPresetNewLoaded;
 
 #include <pthread.h>
 extern pthread_mutex_t pm_mutex;
-
-extern int mdz_pmTexturesSearchPathsNb;
-extern const char *mdz_pmTexturesSearchPaths[5];
-
 
 @implementation FileNode
 
@@ -386,9 +383,6 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
     FileNode *item;
     if (self.size==0) return;
     item=[self.items objectAtIndex:self.position];
-    //update texture seach paths to include preset dir
-    mdz_pmTexturesSearchPaths[mdz_pmTexturesSearchPathsNb]=[[[item getFullPath] stringByDeletingLastPathComponent] UTF8String];
-    projectm_set_texture_search_paths(self.pmh, (const char **)mdz_pmTexturesSearchPaths,mdz_pmTexturesSearchPathsNb+1);
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
         //Load new preset
         pthread_mutex_lock(&pm_mutex);
@@ -461,10 +455,6 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
             
             MDZILog("loading: %@",[item getFullPath]);
             
-            //update texture seach paths to include preset dir
-            mdz_pmTexturesSearchPaths[mdz_pmTexturesSearchPathsNb]=[[[item getFullPath] stringByDeletingLastPathComponent] UTF8String];
-            projectm_set_texture_search_paths(self.pmh, (const char **)mdz_pmTexturesSearchPaths,mdz_pmTexturesSearchPathsNb+1);
-            
             projectm_preload_preset_file(self.pmh, [[item getFullPath] UTF8String], &self->_warp, &self->_comp,&self->_warpP, &self->_compP);
         }
         
@@ -510,10 +500,6 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
     _lastFailed=false;
     START_PROFILE
     
-    //update texture seach paths to include preset dir
-    mdz_pmTexturesSearchPaths[mdz_pmTexturesSearchPathsNb]=[[[file getFullPath] stringByDeletingLastPathComponent] UTF8String];
-    projectm_set_texture_search_paths(_pmh, (const char **)mdz_pmTexturesSearchPaths,mdz_pmTexturesSearchPathsNb+1);
-    
     projectm_load_preset_file(_pmh, [[file getFullPath] UTF8String],!cut);
     CHECK_PROFILE("preset loaded normal")
     END_PROFILE
@@ -540,10 +526,6 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
             _lastFailed=false;
             item=[_items objectAtIndex:_position];
             START_PROFILE
-            
-            //update texture seach paths to include preset dir
-            mdz_pmTexturesSearchPaths[mdz_pmTexturesSearchPathsNb]=[[[item getFullPath] stringByDeletingLastPathComponent] UTF8String];
-            projectm_set_texture_search_paths(_pmh, (const char **)mdz_pmTexturesSearchPaths,mdz_pmTexturesSearchPathsNb+1);
             
             projectm_load_preset_file(_pmh, [[item getFullPath] UTF8String],!cut);
             CHECK_PROFILE("preset loaded normal")
@@ -648,7 +630,8 @@ code_4=a=1.0;\n\
         
         [self loadCurrentPreset:cut];
     } else {
-        //nothing in history, do nothing
+        //nothing in history, do prev
+        [self prev:cut];
     }
 }
 
@@ -657,8 +640,6 @@ code_4=a=1.0;\n\
         [self loadIdlePreset];
         return;
     }
-    //Store to history
-    [_history addObject:[NSNumber numberWithInt:_position]];
     if (_shuffle) {
         _position=arc4random_uniform(_size);
     } else {

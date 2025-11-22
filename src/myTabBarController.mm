@@ -529,7 +529,8 @@ extern int move_cursorL,move_cursorR,keyDel;
 }
 
 - (void)presentWelcomePages {
-    //if (!settings[GLOB_ShowWelcome].detail.mdz_boolswitch.switch_value) return;
+    return;
+    if (!settings[GLOB_ShowWelcome].detail.mdz_boolswitch.switch_value) return;
     
     // Don't present if already presenting or presented
     if (myPVC.presentingViewController != nil || myPVC.isBeingPresented) {

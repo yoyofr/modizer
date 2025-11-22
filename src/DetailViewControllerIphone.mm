@@ -45,6 +45,8 @@
 #define SHOWINFO_FXFRAME_COLOR 223.0/255.0,176.0/255.0,173.0/255.0
 #define SHOWINFO_FXFRAMEINFO_COLOR 253.0/255.0,253.0/255.0,253.0/255.0
 
+int varCheck[8];
+
 extern unsigned int mdzRenderbuffer;
 
 int mdz_pmMilkPermissiveEvalCode;//,mdz_pmBlurAfterAudio;
@@ -7514,6 +7516,14 @@ void doFramePM(float ww,float hh) {
                 ImGui::SetCursorPos(ImVec2(2,posy));
                 ImGui::Text("Slow");
                 snprintf(strTmp,32,"%d",_fx_frame_timeOverLimitCounter);
+                sizeText=ImGui::CalcTextSize(strTmp);
+                posx=sizeText.x+8;
+                ImGui::SetCursorPos(ImVec2(cur_winSizeX*glScaleFactor-posx,posy));
+                ImGui::Text("%s",strTmp);
+                posy+=sizeText.y+2;
+                
+                posy+=sizeText.y+8;
+                snprintf(strTmp,32,"%d %d %d %d",varCheck[0],varCheck[1],varCheck[2],varCheck[3]);
                 sizeText=ImGui::CalcTextSize(strTmp);
                 posx=sizeText.x+8;
                 ImGui::SetCursorPos(ImVec2(cur_winSizeX*glScaleFactor-posx,posy));

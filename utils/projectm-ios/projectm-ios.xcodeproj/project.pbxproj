@@ -139,6 +139,7 @@
 		CC80AE882EB9648100270FF3 /* MilkdropPreset.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MilkdropPreset.cpp; sourceTree = "<group>"; };
 		CC80AE8A2EB9666600270FF3 /* AltMilkdropPreset.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = AltMilkdropPreset.cpp; sourceTree = "<group>"; };
 		CC80AE8C2EB9667C00270FF3 /* AltMilkdropPreset.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = AltMilkdropPreset.hpp; sourceTree = "<group>"; };
+		CCA0E3A82ED1E93F00F42840 /* BorderData.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = BorderData.hpp; sourceTree = "<group>"; };
 		CCABA01B2E93C66900AF59B0 /* libprojectm-ios.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libprojectm-ios.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		CCABA02A2E93C75B00AF59B0 /* _features.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = _features.hpp; sourceTree = "<group>"; };
 		CCABA02B2E93C75B00AF59B0 /* _fixes.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = _fixes.hpp; sourceTree = "<group>"; };
@@ -1372,6 +1373,7 @@
 				CCCB39772EB0457300FE6091 /* BlendMode.hpp */,
 				CCCB39782EB0457300FE6091 /* BlendMode.cpp */,
 				CCCB39792EB0457300FE6091 /* Color.hpp */,
+				CCA0E3A82ED1E93F00F42840 /* BorderData.hpp */,
 				CCCB397A2EB0457300FE6091 /* Mesh.hpp */,
 				CCCB397B2EB0457300FE6091 /* Mesh.cpp */,
 				CCCB397C2EB0457300FE6091 /* Point.hpp */,
@@ -1766,6 +1768,8 @@
 					"$(PROJECT_DIR)/libprojectM/src/playlist/api",
 					"$(PROJECT_DIR)/libprojectM/vendor/hlslparser/src",
 					"$(PROJECT_DIR)/libprojectM/vendor/SOIL2/src",
+					"$(PROJECT_DIR)/../MetalANGLE/",
+					"$(PROJECT_DIR)/libprojectM/vendor/projectm-eval/projectm-eval/",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
@@ -1826,6 +1830,7 @@
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = "compiler-default";
 				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = s;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
@@ -1842,6 +1847,8 @@
 					"$(PROJECT_DIR)/libprojectM/src/playlist/api",
 					"$(PROJECT_DIR)/libprojectM/vendor/hlslparser/src",
 					"$(PROJECT_DIR)/libprojectM/vendor/SOIL2/src",
+					"$(PROJECT_DIR)/../MetalANGLE/",
+					"$(PROJECT_DIR)/libprojectM/vendor/projectm-eval/projectm-eval/",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
@@ -1867,18 +1874,6 @@
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = ZV46EUY73C;
-				HEADER_SEARCH_PATHS = (
-					"$(PROJECT_DIR)/libprojectM/vendor/projectm-eval",
-					"$(PROJECT_DIR)/libprojectM/src/libprojectM",
-					"$(PROJECT_DIR)/libprojectM/src/libprojectM/MilkdropPreset",
-					"$(PROJECT_DIR)/libprojectM/vendor",
-					"$(PROJECT_DIR)/libprojectM/src/api/include",
-					"$(PROJECT_DIR)/libprojectM/vendor/projectm-eval/projectm-eval/api",
-					"$(PROJECT_DIR)/libprojectM/src/playlist/api",
-					"$(PROJECT_DIR)/libprojectM/vendor/hlslparser/src",
-					"$(PROJECT_DIR)/libprojectM/vendor/SOIL2/src",
-					"$(PROJECT_DIR)/../MetalANGLE/",
-				);
 				IPHONEOS_DEPLOYMENT_TARGET = 15.5;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1892,18 +1887,6 @@
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = ZV46EUY73C;
-				HEADER_SEARCH_PATHS = (
-					"$(PROJECT_DIR)/libprojectM/vendor/projectm-eval",
-					"$(PROJECT_DIR)/libprojectM/src/libprojectM",
-					"$(PROJECT_DIR)/libprojectM/src/libprojectM/MilkdropPreset",
-					"$(PROJECT_DIR)/libprojectM/vendor",
-					"$(PROJECT_DIR)/libprojectM/src/api/include",
-					"$(PROJECT_DIR)/libprojectM/vendor/projectm-eval/projectm-eval/api",
-					"$(PROJECT_DIR)/libprojectM/src/playlist/api",
-					"$(PROJECT_DIR)/libprojectM/vendor/hlslparser/src",
-					"$(PROJECT_DIR)/libprojectM/vendor/SOIL2/src",
-					"$(PROJECT_DIR)/../MetalANGLE/",
-				);
 				IPHONEOS_DEPLOYMENT_TARGET = 15.5;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";

@@ -1906,7 +1906,7 @@ void optNSFPLAYChangedC(id param) {
     settings[PROJECTM_BlendTime].type=MDZ_SLIDER_CONTINUOUS;
     settings[PROJECTM_BlendTime].detail.mdz_slider.slider_digits=1;
     settings[PROJECTM_BlendTime].detail.mdz_slider.slider_min_value=0.5;
-    settings[PROJECTM_BlendTime].detail.mdz_slider.slider_max_value=5;
+    settings[PROJECTM_BlendTime].detail.mdz_slider.slider_max_value=10;
     
     
     SETTINGS_ID_DEF(PROJECTM_MeshSizeX)
