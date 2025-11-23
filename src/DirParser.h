@@ -68,7 +68,7 @@ enum MDZ_PLAYLIST_FNODE_Type {
 @property (nonatomic, assign) uint32_t warpP,compP;
 @property (nonatomic, assign) uint32_t nextWarpP,nextCompP;
 @property (nonatomic, strong) NSString *nextFilepath;
-@property (nonatomic, assign) int retry_counter;
+@property (nonatomic, assign) int retry_counter,retry_preLoadcounter;
 
 - (instancetype)init:(projectm_handle)pmh name:(NSString*)name;
 - (instancetype)initWithArray:(NSArray*)array pmh:(projectm_handle)pmh name:(NSString*)name;

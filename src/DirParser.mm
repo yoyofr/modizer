@@ -13,6 +13,7 @@
 #define PM_LOAD_MODE_ASYNC
 
 #define MDZ_PLAYLIST_MAX_RETRY 32
+#define MDZ_PLAYLIST_MAX_PRELOAD_RETRY 4
 #define MDZ_PMPLAYLIST_VERSION 1
 
 typedef struct {
@@ -289,11 +290,13 @@ extern pthread_mutex_t pm_mutex;
 
 @end
 
+int moveToNextPresetRequest;
 
 void MDZOnPresetSwitchRequested(bool isHardCut, void* userData) {
     //MDZILog("should change preset, hard cut %d, userData %s",isHardCut,(userData?"yes":"no"));
     if (userData==NULL) return;
     MDZPlaylist *mdzPL=(__bridge MDZPlaylist *)userData;
+    moveToNextPresetRequest=1;
     [mdzPL next:isHardCut];
 }
 
@@ -310,7 +313,9 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
 
 - (instancetype)init:(projectm_handle)pmh name:(NSString*)name {
     self = [super init];
+    moveToNextPresetRequest=0;
     _retry_counter=0;
+    _retry_preLoadcounter=0;
     _items=[[NSMutableArray alloc] init];
     _position=0;
     _nextPosition=-1;
@@ -337,7 +342,9 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
 
 - (instancetype)initWithArray:(NSArray*)array pmh:(projectm_handle)pmh name:(NSString*)name;{
     self = [super init];
+    moveToNextPresetRequest=0;
     _retry_counter=0;
+    _retry_preLoadcounter=0;
     _items=[NSMutableArray arrayWithArray:array];
     _position=0;
     _nextPosition=-1;
@@ -410,32 +417,38 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
         if (self.size) {
             self.nextFilepath=[NSString stringWithString:[item getFullPath] ];
             self.lastFailed=false;
-            MDZILog("compiling next preset");
-            
             projectm_preload_preset_file(self.pmh, [[item getFullPath] UTF8String], &self->_nextWarpP, &self->_nextCompP);
-            MDZILog("done");
         }
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+            pthread_mutex_unlock(&pm_mutex);
             if (!self.lastFailed) {
                 if (self.nextWarpP && self.nextCompP) {
-                    MDZILog("compiling next preset: ok");
+                    MDZILog("compiling next preset: ok | warp %d comp %d",self.nextWarpP,self.nextCompP);
+                    self.retry_preLoadcounter=0;
                 } else {
-                    MDZFLog("compiling next preset: ko");
+                    MDZFLog("compiling next preset: ko | warp %d comp %d",self.nextWarpP,self.nextCompP);
+                    //Clean if warp or comp program was compiled
+                    [self releaseNextPreset];
+                    //Try to reload
+                    MDZILog("retry");
+                    self.retry_preLoadcounter++;
+                    if (self.retry_preLoadcounter<MDZ_PLAYLIST_MAX_PRELOAD_RETRY) [self preloadNextPreset:item];
                 }
             }
-            pthread_mutex_unlock(&pm_mutex);
         }];
     });
 }
 
 - (void)loadASyncCurrentPreset:(bool)cut {
     FileNode *item;
-    if (self.size==0) return;
+    if (self.size==0) {
+        moveToNextPresetRequest=0;
+        return;
+    }
     item=[self.items objectAtIndex:self.position];
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
         //Load new preset
         pthread_mutex_lock(&pm_mutex);
-        MDZILog("load new preset, fast mode");
         if ((self.nextWarpP && self.nextCompP && [self.nextFilepath isEqualToString:[item getFullPath]])) {
             self.warpP=self.nextWarpP;
             self.compP=self.nextCompP;
@@ -450,14 +463,14 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
             self.lastFailed=false;
             
             projectm_preload_preset_file(self.pmh, [[item getFullPath] UTF8String], &self->_warpP, &self->_compP);
-            MDZILog("done");
         }
         
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
             
             if (!self.lastFailed) {
                 if (self.warpP && self.compP) {
-                    MDZILog("preload ok, warpP %d compP %d",self.warpP,self.compP);
+                    moveToNextPresetRequest=0;
+                    //MDZILog("preload ok, warpP %d compP %d",self.warpP,self.compP);
                     START_PROFILE
                     self.lastFailed=false;
                     //pthread_mutex_lock(&pm_mutex);
@@ -475,7 +488,7 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
                                         (item.presetType==MDZ_PLAYLIST_FNODE_Bundle?'B':'C'),
                                         item.localpath];
                     }
-                }
+                } else self.lastFailed=true;
             }
             //free the mem allocated by strdup
             pthread_mutex_unlock(&pm_mutex);
@@ -486,15 +499,19 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
                 [self remove:self.position];
                 //If list empty, exit
                 if (self.size==0) {
+                    moveToNextPresetRequest=0;
                     [self loadIdlePreset];
                     return;
                 }
                 //If too many attempt, exit, to avoid freezing app
                 self.retry_counter++;
-                if (self.retry_counter>MDZ_PLAYLIST_MAX_RETRY) return;
+                if (self.retry_counter>MDZ_PLAYLIST_MAX_RETRY) {
+                    moveToNextPresetRequest=0;
+                    MDZFLog("Critical issue, cannot move to next projectm presets");
+                    return;
+                }
                 [self loadASyncCurrentPreset:cut];
             }
-            
         }];
     });
 }
@@ -537,7 +554,7 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
             //if it has failed, remove from list and try another one.
             //if list is empty, load idle preset
             if (self.lastFailed) {
-                //Issue with last preset, remove from the list
+                //Cannot load preset, do nothing as this method isn't use to move to next one
             }
         }];
     });
@@ -584,6 +601,7 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
             
             
             if (!_lastFailed) {
+                moveToNextPresetRequest=0;
                 _pmPresetNewLoaded=true;
                 /*
 const char *strdata="\
@@ -640,6 +658,7 @@ code_4=a=1.0;\n\
     }
     
     if (_size==0) {
+        moveToNextPresetRequest=0;
         [self loadIdlePreset];
     } else {
         item=[_items objectAtIndex:_position];
@@ -670,6 +689,7 @@ code_4=a=1.0;\n\
 
 - (void)next:(bool)cut {
     if (!_size) {
+        moveToNextPresetRequest=0;
         [self loadIdlePreset];
         return;
     }
