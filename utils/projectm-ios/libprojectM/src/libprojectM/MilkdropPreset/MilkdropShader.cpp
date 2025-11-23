@@ -10,9 +10,7 @@
 #include <HLSLParser.h>
 #include <iostream>
 
-//YOYOFR
-#include "ShaderPreprocessor.h"
-//
+#include "ShaderPreprocessor.h" //YOYOFR
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/mat4x4.hpp>
@@ -144,14 +142,7 @@ void MilkdropShader::LoadTexturesAndCompile(PresetState& presetState,const char 
             auto desc = presetState.renderContext.textureManager->GetTexture(name);
             m_textureSamplerDescriptors.push_back(std::move(desc));
         }
-    //YOYOFR
-    //
-    if (prePcode==NULL) {
-        ShaderPreprocessor preProcessor(ShaderLanguage::HLSL);
-        m_preprocessedCode = preProcessor.preprocess(m_preprocessedCode);
-        //    printf("%s\n",m_preprocessedCode.c_str());
-    } else {
-    }
+    
     TranspileHLSLShader(presetState, m_preprocessedCode,prePcode);
 
     // Update blur texture level if shader was compiled successfully.
@@ -274,13 +265,6 @@ void MilkdropShader::PreLoadTexturesAndCompile(AltPresetState& presetState)
                 m_mainTextureDescriptors.push_back(std::move(desc));
             }
         }
-    //YOYOFR
-    //
-   // printf("Before:\n%s\n",m_preprocessedCode.c_str());
-    ShaderPreprocessor preProcessor(ShaderLanguage::HLSL);
-    //preProcessor.setVerbose(true);
-    m_preprocessedCode = preProcessor.preprocess(m_preprocessedCode);
-   // printf("After:\n%s\n",m_preprocessedCode.c_str());
     
     // Now that we have the textures, transpile the code.
     TranspileHLSLShaderPreCompilation(presetState, m_preprocessedCode);
@@ -725,6 +709,10 @@ void MilkdropShader::TranspileHLSLShader(const PresetState& presetState, std::st
         M4::HLSLTree tree(&allocator);
         M4::HLSLParser parser(&allocator, &tree);
         
+        // YOYOFR: Preprocess HLSL program to ease conversion
+        ShaderPreprocessor preProcessor(ShaderLanguage::HLSL);
+        m_preprocessedCode = preProcessor.preprocess(m_preprocessedCode);
+        
         // Preprocess define macros
         std::string sourcePreprocessed;
         if (!parser.ApplyPreprocessor("", program.c_str(), program.size(), sourcePreprocessed))
@@ -795,7 +783,6 @@ void MilkdropShader::TranspileHLSLShader(const PresetState& presetState, std::st
         
         codeToCompile=generator.GetResult();
 
-        //printf("===Code to compile===>\n%s\n",codeToCompile.c_str());
     } else {
         codeToCompile=std::string(prePcode);
         shaderProg=shaderP;
@@ -806,13 +793,10 @@ void MilkdropShader::TranspileHLSLShader(const PresetState& presetState, std::st
     if (m_type == ShaderType::WarpShader)
     {
         m_shader.CompileProgram(MilkdropStaticShaders::Get()->GetPresetWarpVertexShader(), codeToCompile,shaderProg);
-        //printf("Warp:\n%s\n",generator.GetResult()); //YOYOFR
     }
     else
     {
         m_shader.CompileProgram(MilkdropStaticShaders::Get()->GetPresetCompVertexShader(), codeToCompile,shaderProg);
-        
-//        printf("%s\n",generator.GetResult()); //YOYOFR
     }
 }
 
@@ -829,6 +813,10 @@ void MilkdropShader::TranspileHLSLShaderPreCompilation(const AltPresetState& pre
 
     M4::HLSLTree tree(&allocator);
     M4::HLSLParser parser(&allocator, &tree);
+    
+    // YOYOFR: Preprocess HLSL program to ease conversion
+    ShaderPreprocessor preProcessor(ShaderLanguage::HLSL);
+    m_preprocessedCode = preProcessor.preprocess(m_preprocessedCode);
 
     // Preprocess define macros
     std::string sourcePreprocessed;
@@ -900,20 +888,15 @@ void MilkdropShader::TranspileHLSLShaderPreCompilation(const AltPresetState& pre
     
     m_convertedCode=generator.GetResult();
     
-    //printf("converted code:\n%s\n",m_convertedCode.c_str());
-
     // Now we have GLSL source for the preset shader program (hopefully it's valid!)
     // Compile the preset shader fragment shader with the standard vertex shader and cross our fingers.
     if (m_type == ShaderType::WarpShader)
     {
         m_shader.CompileProgram(MilkdropStaticShaders::Get()->GetPresetWarpVertexShader(), m_convertedCode);
-        //printf("Warp:\n%s\n",generator.GetResult()); //YOYOFR
     }
     else
     {
         m_shader.CompileProgram(MilkdropStaticShaders::Get()->GetPresetCompVertexShader(), m_convertedCode);
-        
-        //        printf("%s\n",generator.GetResult()); //YOYOFR
     }
     
     m_shaderP=m_shader.m_shaderProgram;

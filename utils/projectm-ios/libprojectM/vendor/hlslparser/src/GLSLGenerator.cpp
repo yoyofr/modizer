@@ -1131,7 +1131,8 @@ void GLSLGenerator::OutputExpression(HLSLExpression* expression, const HLSLType*
              * as expected on some drivers but not others, so we add
              * the abs() call for compatibility across drivers.
              */
-            /* YOYOFR: add specific case where argument1 is '1', in this case replace by arg 0
+            /* YOYOFR: add specific cases where argument1 is '1', in this case replace by arg 0
+                        and where argument2 is an integer, in this case no need to take abs(argument1)
              */
             if (argument[1]->nodeType==HLSLNodeType_LiteralExpression) {
                 HLSLLiteralExpression* literalExpression = static_cast<HLSLLiteralExpression*>(argument[1]);
@@ -1156,6 +1157,13 @@ void GLSLGenerator::OutputExpression(HLSLExpression* expression, const HLSLType*
                 if (found && (value==1.0)) {
                     m_writer.Write("(");
                     OutputExpression(argument[0], &functionCall->function->returnType);
+                    m_writer.Write(")");
+                    handled = true;
+                } else if (found && (int(value)==value)) {
+                    m_writer.Write("pow(");
+                    OutputExpression(argument[0], &functionCall->function->returnType);
+                    m_writer.Write(",");
+                    OutputExpression(argument[1], &functionCall->function->returnType);
                     m_writer.Write(")");
                     handled = true;
                 }

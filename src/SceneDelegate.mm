@@ -48,15 +48,12 @@
     UIWindowScene *windowScene = (UIWindowScene *)scene;
     
     // Set window size restrictions for Mac Catalyst
-    if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"14.0")) {
-        if (@available(iOS 14.0, *)) {
-            if ([NSProcessInfo processInfo].isiOSAppOnMac) {
-                windowScene.sizeRestrictions.minimumSize = CGSizeMake(MODIZER_MACM1_WIDTH_MIN, MODIZER_MACM1_HEIGHT_MIN);
-                windowScene.sizeRestrictions.maximumSize = CGSizeMake(MODIZER_MACM1_WIDTH_MAX, MODIZER_MACM1_HEIGHT_MAX);
-            }
-        }
+    if ([NSProcessInfo processInfo].isiOSAppOnMac) {
+        windowScene.sizeRestrictions.minimumSize = CGSizeMake(MODIZER_MACM1_WIDTH_MIN, MODIZER_MACM1_HEIGHT_MIN);
+        windowScene.sizeRestrictions.maximumSize = CGSizeMake(MODIZER_MACM1_WIDTH_MAX, MODIZER_MACM1_HEIGHT_MAX);
+        windowScene.sizeRestrictions.allowsFullScreen = YES;
     }
-
+    
     // With automatic storyboard loading, the window and root VC are created by UIKit.
     UIWindow *window = windowScene.windows.firstObject;
     if (!window) {

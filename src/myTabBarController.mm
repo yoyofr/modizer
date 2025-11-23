@@ -909,6 +909,10 @@ extern int move_cursorL,move_cursorR,keyDel;
 }
 - (void)keyIPressed{
     [detailViewControllerIphone mdShowMusicInfo];
+    [detailViewControllerIphone mdInfoFX];
+}
+- (void)keyIAltPressed{
+    
 }
 - (void)keyMPressed{
     [detailViewControllerIphone mdSwitchSpectrumBloom:1];
@@ -939,9 +943,6 @@ extern int move_cursorL,move_cursorR,keyDel;
 }
 - (void)keyTAltPressed{
     [detailViewControllerIphone mdSwitchModPatternTheme:-1];
-}
-- (void)keyIAltPressed{
-    [detailViewControllerIphone mdInfoFX];
 }
 - (void)keyEPressed{
     [detailViewControllerIphone oglButtonPushed];

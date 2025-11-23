@@ -1571,7 +1571,7 @@ static float movePinchScale,movePinchScaleOld;
     float zoomfact=2.0-2.0*pow(_mdz_FX_GuiMessage_fade/_mdz_FX_GuiMessage_fadeMax,3.0);
     if (zoomfact<0) zoomfact=0;
     if (zoomfact>1) zoomfact=1;
-    float font_size=round( FONTSIZE_GUIMSESSAGE*( 1 + pow(sin(zoomfact*3.14159),2) ) );
+    float font_size=round( FONTSIZE_GUIMSESSAGE*( 1 + 4.0*pow(sin(zoomfact*3.14159),2) ) );
     
     if (font_menu) ImGui::PushFont(font_menu,font_size*glScaleFactor);
     else ImGui::PushFont(nullptr);
@@ -8097,7 +8097,7 @@ void doFramePM(float ww,float hh) {
             //also display if needed preset info
             [self refreshFXFSLabels];
             oglv_corner_fade[3]=30;
-            _pm_display_name_countdown=_pm_fps*PM_PRESET_DISPLAY_TIMEOUT;
+            _pmPresetUpdateDisplayInfo=true;
         } else {
             //Activate menu if tap on the rest of the gl view
             if (pmenu_show==0) {
@@ -9008,7 +9008,7 @@ void doFramePM(float ww,float hh) {
                     if (_pm_display_scroll_pause) _pm_display_scroll_pause--;
                     else {
                         if (_pm_display_scroll_direction==1) {
-                            if (m_oglView.frame.size.width*glScaleFactor+_pm_display_scrollx<pmPresetStr_size.x) _pm_display_scrollx+=2;
+                            if (m_oglView.frame.size.width*glScaleFactor+_pm_display_scrollx<pmPresetStr_size.x) _pm_display_scrollx+=3;
                             else {
                                 if (_pm_display_scrollx>0) {
                                     _pm_display_scroll_direction=-1;
@@ -9016,7 +9016,7 @@ void doFramePM(float ww,float hh) {
                                 }
                             }
                         } else {
-                            if (_pm_display_scrollx>0) _pm_display_scrollx-=2;
+                            if (_pm_display_scrollx>0) _pm_display_scrollx-=3;
                             else {
                                 _pm_display_scrollx=0;
                                 _pm_display_scroll_direction=1;
