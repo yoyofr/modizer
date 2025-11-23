@@ -30,7 +30,7 @@ public:
      * @brief Loads the required textures and compiles the composite shader.
      * @param presetState The preset state to retrieve the configuration values from.
      */
-    void CompileCompositeShader(PresetState& presetState,const char *shader=NULL,uint32_t shaderP=NULL);
+    void CompileCompositeShader(PresetState& presetState,uint32_t shaderP=0);
     void PreCompileCompositeShader(AltPresetState& presetState);
 
     /**

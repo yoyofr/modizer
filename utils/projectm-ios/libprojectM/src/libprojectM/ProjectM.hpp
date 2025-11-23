@@ -82,8 +82,8 @@ public:
      */
     void LoadPresetFile(const std::string& presetFilename, bool smoothTransition);
     
-    void PreLoadPresetFile(const std::string& presetFilename, const char **warpShader, const char **compShader,uint32_t *warpP,uint32_t *compP);
-    void LoadPreLoadPresetFile(const std::string& presetFilename, const char *warpShader, const char *compShader,uint32_t warpP,uint32_t compP, bool smoothTransition);
+    void PreLoadPresetFile(const std::string& presetFilename,uint32_t *warpP,uint32_t *compP);
+    void LoadPreLoadPresetFile(const std::string& presetFilename,uint32_t warpP,uint32_t compP, bool smoothTransition);
 
     /**
      * @brief Loads the given preset data and performs a smooth or immediate transition.

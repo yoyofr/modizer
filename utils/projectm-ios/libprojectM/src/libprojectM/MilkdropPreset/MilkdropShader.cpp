@@ -60,7 +60,7 @@ void MilkdropShader::LoadCode(const std::string& presetShaderCode)
     PreprocessPresetShader(m_preprocessedCode);
 }
 
-void MilkdropShader::LoadTexturesAndCompile(PresetState& presetState,const char *prePcode,uint32_t shaderP)
+void MilkdropShader::LoadTexturesAndCompile(PresetState& presetState,uint32_t shaderP)
 {
     std::locale loc;
     
@@ -143,7 +143,7 @@ void MilkdropShader::LoadTexturesAndCompile(PresetState& presetState,const char 
             m_textureSamplerDescriptors.push_back(std::move(desc));
         }
     
-    TranspileHLSLShader(presetState, m_preprocessedCode,prePcode);
+    TranspileHLSLShader(presetState, m_preprocessedCode,shaderP);
 
     // Update blur texture level if shader was compiled successfully.
     presetState.blurTexture.SetRequiredBlurLevel(m_maxBlurLevelRequired);
@@ -690,7 +690,7 @@ void MilkdropShader::GetReferencedSamplers(const std::string& program)
     }
 }
 
-void MilkdropShader::TranspileHLSLShader(const PresetState& presetState, std::string& program,const char *prePcode,uint32_t shaderP)
+void MilkdropShader::TranspileHLSLShader(const PresetState& presetState, std::string& program,uint32_t shaderP)
 {
     std::string shaderTypeString = "composite";
     if (m_type == ShaderType::WarpShader)
@@ -701,7 +701,7 @@ void MilkdropShader::TranspileHLSLShader(const PresetState& presetState, std::st
     std::string codeToCompile;
     GLuint shaderProg=0;
     
-    if (prePcode==NULL) {
+    if (shaderP==0) {
         
         M4::GLSLGenerator generator;
         M4::Allocator allocator;
@@ -784,7 +784,6 @@ void MilkdropShader::TranspileHLSLShader(const PresetState& presetState, std::st
         codeToCompile=generator.GetResult();
 
     } else {
-        codeToCompile=std::string(prePcode);
         shaderProg=shaderP;
     }
     

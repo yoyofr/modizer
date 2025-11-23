@@ -274,8 +274,9 @@ enum {
 -(void) enterForeground;
 
 
-- (IBAction)sliderProgressModuleTest:(id)sender;
-- (IBAction)sliderProgressModuleValueChanged:(id)sender;
+- (IBAction)sliderProgressValueChanged:(id)sender;
+- (IBAction)sliderProgressEndChange:(id)sender;
+- (IBAction)sliderProgressBeginChange:(id)sender;
 - (IBAction)playPushed:(id)sender;
 - (IBAction)pausePushed:(id)sender;
 

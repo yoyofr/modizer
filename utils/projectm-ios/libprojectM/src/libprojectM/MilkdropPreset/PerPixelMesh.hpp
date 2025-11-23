@@ -41,13 +41,13 @@ public:
      * @brief Loads the required textures and compiles the warp shader.
      * @param presetState The preset state to retrieve the configuration values from.
      */
-    void CompileWarpShader(PresetState& presetState,const char*shaderCode=NULL,uint32_t shaderP=NULL);
+    void CompileWarpShader(PresetState& presetState,uint32_t shaderP=0);
     void PreCompileWarpShader(AltPresetState& presetState);
 
     /**
      * @brief Renders the transformation mesh.
      * @param presetState The preset state to retrieve the configuration values from.
-     * @param presetPerFrameContext The per-frame context to retrieve the initial vars from.
+     * @param perFrameContext The per-frame context to retrieve the initial vars from.
      * @param perPixelContext The per-pixel code context to use.
      */
     void Draw(const PresetState& presetState,

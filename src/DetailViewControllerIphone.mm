@@ -1575,7 +1575,7 @@ static float movePinchScale,movePinchScaleOld;
     
     if (font_menu) ImGui::PushFont(font_menu,font_size*glScaleFactor);
     else ImGui::PushFont(nullptr);
-
+    
     
     float posY=0;
     float posX;
@@ -1791,10 +1791,14 @@ static float movePinchScale,movePinchScaleOld;
     return;
 }
 
-- (IBAction)sliderProgressModuleTest:(id)sender {
-    int slider_time;
-    sliderProgressModuleChanged=1;
+- (IBAction)sliderProgressBeginChange:(id)sender {
     sliderProgressModuleEdit=1;
+}
+
+- (IBAction)sliderProgressValueChanged:(id)sender {
+    int slider_time;
+    //sliderProgressModuleChanged=1;
+    
     if (curSongLength>0) slider_time=(int)(sliderProgressModule.value*(float)(curSongLength-1));
     
     if (display_length_mode&&(curSongLength>0)) {
@@ -1804,6 +1808,23 @@ static float movePinchScale,movePinchScaleOld;
     }
     return;
 }
+
+- (IBAction)sliderProgressEndChange:(id)sender {
+    int64_t curTime=0;
+    if (curSongLength>0) curTime=(int64_t)(sliderProgressModule.value*(float)(curSongLength-1));
+    else return;
+    
+    if (mPaused) [self playPushed:self];
+    
+    [mplayer Seek:curTime];
+    
+    if (display_length_mode&&(curSongLength>0)) labelTime.text=[NSString stringWithFormat:@"-%.2d:%.2d", ((curSongLength-[mplayer getCurrentTime])/1000)/60,((curSongLength-[mplayer getCurrentTime])/1000)%60];
+    else labelTime.text=[NSString stringWithFormat:@"%.2d:%.2d", ([mplayer getCurrentTime]/1000)/60,([mplayer getCurrentTime]/1000)%60];
+    sliderProgressModuleChanged=0;
+    sliderProgressModuleEdit=0;
+    return;
+}
+
 
 -(void) jumpSeekFwd {
     int64_t itime=[mplayer getCurrentTime];
@@ -1819,27 +1840,20 @@ static float movePinchScale,movePinchScaleOld;
 }
 
 -(void) seek:(NSNumber*)seekTime {
-    //    int curTime;
-    //    if (curSongLength>0) curTime=(int)(sliderProgressModule.value*(float)(curSongLength-1));
-    //
-    //    if (display_length_mode&&(curSongLength>0)) labelTime.text=[NSString stringWithFormat:@"-%.2d:%.2d", ((curSongLength-[mplayer getCurrentTime])/1000)/60,((curSongLength-[mplayer getCurrentTime])/1000)%60];
-    //    else labelTime.text=[NSString stringWithFormat:@"%.2d:%.2d", ([mplayer getCurrentTime]/1000)/60,([mplayer getCurrentTime]/1000)%60];
-    //    //sliderProgressModuleChanged=0;
-    //    //sliderProgressModuleEdit=0;
-    
     int64_t curTime;
     if (curSongLength>0) curTime=[seekTime intValue];//(int)(sliderProgressModule.value*(float)(curSongLength-1));
+    else return;
+    
+    MDZILog("seek %d",(int)(curTime/1000));
     
     if (mPaused) [self playPushed:self];
     
     [mplayer Seek:curTime];
     
-    
     if (display_length_mode&&(curSongLength>0)) labelTime.text=[NSString stringWithFormat:@"-%.2d:%.2d", ((curSongLength-[mplayer getCurrentTime])/1000)/60,((curSongLength-[mplayer getCurrentTime])/1000)%60];
     else labelTime.text=[NSString stringWithFormat:@"%.2d:%.2d", ([mplayer getCurrentTime]/1000)/60,([mplayer getCurrentTime]/1000)%60];
-    sliderProgressModuleChanged=0;
-    sliderProgressModuleEdit=0;
-    return;
+//    sliderProgressModuleChanged=0;
+//    sliderProgressModuleEdit=0;
     
     return;
 }
@@ -1951,22 +1965,6 @@ static float movePinchScale,movePinchScaleOld;
 }
 
 
-- (IBAction)sliderProgressModuleValueChanged:(id)sender {
-    int64_t curTime;
-    if (curSongLength>0) curTime=(int)(sliderProgressModule.value*(float)(curSongLength-1));
-    
-    if (mPaused) [self playPushed:self];
-    
-    [mplayer Seek:curTime];
-    
-    
-    if (display_length_mode&&(curSongLength>0)) labelTime.text=[NSString stringWithFormat:@"-%.2d:%.2d", ((curSongLength-[mplayer getCurrentTime])/1000)/60,((curSongLength-[mplayer getCurrentTime])/1000)%60];
-    else labelTime.text=[NSString stringWithFormat:@"%.2d:%.2d", ([mplayer getCurrentTime]/1000)/60,([mplayer getCurrentTime]/1000)%60];
-    sliderProgressModuleChanged=0;
-    sliderProgressModuleEdit=0;
-    return;
-}
-
 -(IBAction) changeTimeDisplay {
     display_length_mode^=1;
 }
@@ -2046,9 +2044,10 @@ static float movePinchScale,movePinchScaleOld;
      */
     //MDZILog("time update %.1f %.1f noprog:%d",(float)itime/1000.0,(float)curSongLength/1000.0,noProgress);
     bool delayUpdate=false;
-    if (curSongLength>3000) {
-        if ((itime>curSongLength-3000)&&(itime<curSongLength-100)) {
-            if (mpl_upd) {
+    if (mpl_upd) {
+        if (curSongLength>3000) {
+            if ((itime>curSongLength-3000)&&(itime<curSongLength-100)) {
+                
                 if (!mPaused && !noProgress) {
                     delayUpdate=true;
                     //MDZFLog("pending update %.1f %.1f",(float)itime/1000.0,(float)curSongLength/1000.0);
@@ -2172,6 +2171,7 @@ static float movePinchScale,movePinchScaleOld;
     if ((curSongLength>0)&&(itime>curSongLength)) // if gone too far, limit
         itime=curSongLength;
     
+    
     /*
      If slider isn't being updated, update UI elements / progress
      */
@@ -2184,6 +2184,7 @@ static float movePinchScale,movePinchScaleOld;
             
             if (curSongLength>0) {
                 if (display_length_mode) labelTime.text=[NSString stringWithFormat:@"-%.2d:%.2d", ((curSongLength-itime)/1000)/60,((curSongLength-itime)/1000)%60];
+//                MDZILog("itime: %d",int(itime));
                 sliderProgressModule.value=(float)(itime)/(float)(curSongLength);
                 
                 lblTimeFCflow.text=[NSString stringWithFormat:@"%@ | %.2d:%.2d - %.2d:%.2d",playlistPos.text, ([mplayer getCurrentTime]/1000)/60,([mplayer getCurrentTime]/1000)%60,(curSongLength/1000)/60,(curSongLength/1000)%60];
@@ -5586,6 +5587,7 @@ void pm_perfTest() {
 }
 
 - (void) reinitVisuVars {
+    //MDZILog("reset var");
     movePx=movePy=movePxOld=movePyOld=0;
     startPx=startPy=0;
     posPx=posPy=0;

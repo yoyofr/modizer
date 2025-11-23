@@ -61,12 +61,13 @@ enum MDZ_PLAYLIST_FNODE_Type {
 @property (nonatomic, strong) NSString *curEntryLbl;
 @property (nonatomic, strong) NSString *playlistName;
 @property (nonatomic, assign) projectm_handle pmh;
-@property (nonatomic, assign) int position;
+@property (nonatomic, assign) int position,nextPosition;
 @property (nonatomic, assign) int size;
 @property (nonatomic, assign) bool shuffle;
 @property (nonatomic, assign) bool lastFailed;
-@property (nonatomic, assign) const char *warp,*comp;
 @property (nonatomic, assign) uint32_t warpP,compP;
+@property (nonatomic, assign) uint32_t nextWarpP,nextCompP;
+@property (nonatomic, strong) NSString *nextFilepath;
 @property (nonatomic, assign) int retry_counter;
 
 - (instancetype)init:(projectm_handle)pmh name:(NSString*)name;

@@ -2207,6 +2207,7 @@ static int tim_output_data(char *buf, int32 nbytes) {
         
         if ((mNeedSeek==2)&&(tim_pending_seek==-1)) {
             mNeedSeek=3;
+            mdzSilentBufferCount=0;
             buffer_ana_flag[buffer_ana_gen_ofs]|=2;
             mCurrentSamples=mNeedSeekTime*PLAYBACK_FREQ/1000;
             
@@ -3471,6 +3472,7 @@ void mdx_update(unsigned char *data,int len,int end_reached) {
         
         if ((mNeedSeek==2)&&(seek_needed==-1)) {
             mNeedSeek=3;
+            mdzSilentBufferCount=0;
             buffer_ana_flag[buffer_ana_gen_ofs]|=2;
             mCurrentSamples=mNeedSeekTime*PLAYBACK_FREQ/1000;
             
@@ -3619,6 +3621,7 @@ extern "C" {
             
             if ((mNeedSeek==2)&&(seek_needed==-1)) {
                 mNeedSeek=3;
+                mdzSilentBufferCount=0;
                 buffer_ana_flag[buffer_ana_gen_ofs]|=2;
                 mCurrentSamples=mNeedSeekTime*PLAYBACK_FREQ/1000;
                 
@@ -3692,6 +3695,7 @@ void gsf_update(unsigned char* pSound,int lBytes) {
         
         if ((mNeedSeek==2)&&(seek_needed==-1)) {
             mNeedSeek=3;
+            mdzSilentBufferCount=0;
             buffer_ana_flag[buffer_ana_gen_ofs]|=2;
             mCurrentSamples=mNeedSeekTime*PLAYBACK_FREQ/1000;
             
@@ -4596,6 +4600,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     mNeedSeek=3;
                                 }
                             } else if (mNeedSeek==3) {
+                                mdzSilentBufferCount=0;
                                 dispatch_sync(dispatch_get_main_queue(), ^(void){
                                     [detailViewControllerIphone hideWaiting];
                                     [detailViewControllerIphone hideWaitingCancel];
@@ -4872,7 +4877,6 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     }
                                 }
                                 mSIDSeekInProgress=0;
-                                
                                 //restore playback ratio change if needed
                                 [self optGENPBRatio];
                             }
@@ -5546,6 +5550,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     
                                     dispatch_sync(dispatch_get_main_queue(), ^(void){
                                         //Run UI Updates
+                                        mCurrentSamples=xSFPlayer->currentSample;
                                         [detailViewControllerIphone setProgressWaiting:[NSNumber numberWithFloat: (float)(xSFPlayer->currentSample-mStartPosSamples)/(mSeekSamples-mStartPosSamples)]];
                                     });
                                     if ([detailViewControllerIphone isCancelPending]) {
@@ -5562,6 +5567,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     
                                     dispatch_sync(dispatch_get_main_queue(), ^(void){
                                         //Run UI Updates
+                                        mCurrentSamples=xSFPlayer->currentSample;
                                         [detailViewControllerIphone setProgressWaiting:[NSNumber numberWithFloat: (float)(xSFPlayer->currentSample-mStartPosSamples)/(mSeekSamples-mStartPosSamples)]];
                                     });
                                     if ([detailViewControllerIphone isCancelPending]) {
@@ -5593,6 +5599,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     
                                     dispatch_sync(dispatch_get_main_queue(), ^(void){
                                         //Run UI Updates
+                                        mCurrentSamples=mVGMSTREAM_decode_pos_samples;
                                         [detailViewControllerIphone setProgressWaiting:[NSNumber numberWithFloat: (float)(mVGMSTREAM_decode_pos_samples-mStartPosSamples)/(mSeekSamples-mStartPosSamples)]];
                                     });
                                     if ([detailViewControllerIphone isCancelPending]) {
@@ -5609,7 +5616,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 [detailViewControllerIphone hideWaitingCancel];
                             });
                             
-                            
+                            mdzSilentBufferCount=0;
                         }
                         if (moveToSubSong) {
                             mod_currentsub=moveToSubSongIndex;
@@ -7104,6 +7111,10 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                         if (mPlayType==MMP_SIDPLAY) { //SID
                             
                             nbBytes=mSidEmuEngine->play(buffer_ana[buffer_ana_gen_ofs],SOUND_BUFFER_SIZE_SAMPLE*2*1)*2;
+                            
+                            if (nbBytes==0) {
+                                MDZILog("sid 0");
+                            }
                             if (settings[GLOB_PBRATIO_ONOFF].detail.mdz_boolswitch.switch_value) mCurrentSamples+=nbBytes/4*settings[GLOB_PBRATIO].detail.mdz_slider.slider_value;
                             else mCurrentSamples+=nbBytes/4;
                             //copy voice data for oscillo view
@@ -16421,7 +16432,6 @@ extern "C" void adjust_amplification(void);
     mNeedSeekTime=seek_time;
     iCurrentTime=mNeedSeekTime;
     mNeedSeek=1;
-    
 }
 
 

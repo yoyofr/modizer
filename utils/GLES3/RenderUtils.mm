@@ -390,6 +390,10 @@ GLUserData* RenderUtils::InitProgram(char *vsfile,char *fsfile) {
     return userData;
 }
 
+void RenderUtils::releaseProgram(int prgId) {
+    if (prgId>0) glDeleteProgram(prgId);
+}
+
 void RenderUtils::ShutdownProgram(GLUserData *userData) {
     if (userData) free(userData);
 }

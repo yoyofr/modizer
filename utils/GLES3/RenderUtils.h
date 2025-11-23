@@ -236,6 +236,7 @@ int buildQuad(LineVertexF *pts,
                   int r3,int g3,int b3,int a3,
                   int r4,int g4,int b4,int a4,int ww,int hh);
 
+void releaseProgram(int prgId);
 
 }
 

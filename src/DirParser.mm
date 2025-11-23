@@ -35,6 +35,8 @@ extern bool _pmPresetNewLoaded;
 
 #include "zlib.h"
 
+#include "RenderUtils.h"
+
 #include <pthread.h>
 extern pthread_mutex_t pm_mutex;
 
@@ -311,11 +313,14 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
     _retry_counter=0;
     _items=[[NSMutableArray alloc] init];
     _position=0;
+    _nextPosition=-1;
     _playlistName=name;
     _size=(int)[_items count];
     _shuffle=false;
     _history=[[NSMutableArray alloc] init];
     _pmh=pmh;
+    _compP=0; _nextCompP=0;
+    _warpP=0; _nextWarpP=0;
     _curEntryLbl = @"";
     [self loadIdlePreset];
     
@@ -335,6 +340,7 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
     _retry_counter=0;
     _items=[NSMutableArray arrayWithArray:array];
     _position=0;
+    _nextPosition=-1;
     _playlistName=name;
     _size=(int)[_items count];
     _shuffle=false;
@@ -364,6 +370,7 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
 - (void)setItems:(NSArray*)array {
     _items=[NSMutableArray arrayWithArray:array];
     _position=0;
+    _nextPosition=-1;
     _size=(int)[_items count];
     [_history removeAllObjects];
 }
@@ -371,12 +378,54 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
 - (void)addItems:(NSArray*)array {
     [_items addObjectsFromArray:array];
     _position=0;
+    _nextPosition=-1;
     _size=(int)[_items count];
 }
 
 
 - (void)setShuffle:(bool)active {
-    _shuffle=active;
+    if (active!=_shuffle) {
+        _shuffle=active;
+        //change of mode, recompute next position but don't change current one
+        [self computeNext:false];
+        //preload the one coming after
+        [self releaseNextPreset];
+        if ((_nextPosition>=0)&&(_nextPosition<_size)) [self preloadNextPreset:[_items objectAtIndex:_nextPosition]];
+    }
+}
+
+- (void)releaseNextPreset {
+    if (self.nextCompP) RenderUtils::releaseProgram(self.nextCompP);
+    self.nextCompP=0;
+    if (self.nextWarpP) RenderUtils::releaseProgram(self.nextWarpP);
+    self.nextWarpP=0;
+    self.nextFilepath=nil;
+}
+
+- (void)preloadNextPreset:(FileNode*)item {
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+        //Load new preset
+        pthread_mutex_lock(&pm_mutex);
+        [self releaseNextPreset];
+        if (self.size) {
+            self.nextFilepath=[NSString stringWithString:[item getFullPath] ];
+            self.lastFailed=false;
+            MDZILog("compiling next preset");
+            
+            projectm_preload_preset_file(self.pmh, [[item getFullPath] UTF8String], &self->_nextWarpP, &self->_nextCompP);
+            MDZILog("done");
+        }
+        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+            if (!self.lastFailed) {
+                if (self.nextWarpP && self.nextCompP) {
+                    MDZILog("compiling next preset: ok");
+                } else {
+                    MDZFLog("compiling next preset: ko");
+                }
+            }
+            pthread_mutex_unlock(&pm_mutex);
+        }];
+    });
 }
 
 - (void)loadASyncCurrentPreset:(bool)cut {
@@ -386,24 +435,34 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
         //Load new preset
         pthread_mutex_lock(&pm_mutex);
-        
-            self.warp=NULL;
-            self.comp=NULL;
+        MDZILog("load new preset, fast mode");
+        if ((self.nextWarpP && self.nextCompP && [self.nextFilepath isEqualToString:[item getFullPath]])) {
+            self.warpP=self.nextWarpP;
+            self.compP=self.nextCompP;
+            self.nextFilepath=nil;
+            self.nextWarpP=0;
+            self.nextCompP=0;
+            self.lastFailed=false;
+            MDZILog("shortcut, already compiled");
+        } else {
+            self.warpP=0;
+            self.compP=0;
             self.lastFailed=false;
             
-            projectm_preload_preset_file(self.pmh, [[item getFullPath] UTF8String], &self->_warp, &self->_comp,&self->_warpP, &self->_compP);
-            //pthread_mutex_unlock(&pm_mutex);
+            projectm_preload_preset_file(self.pmh, [[item getFullPath] UTF8String], &self->_warpP, &self->_compP);
+            MDZILog("done");
+        }
         
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
             
             if (!self.lastFailed) {
-                if (self.warp && self.comp) {
-                    //MDZILog("warpP %d compP %d",self.warpP,self.compP);
+                if (self.warpP && self.compP) {
+                    MDZILog("preload ok, warpP %d compP %d",self.warpP,self.compP);
                     START_PROFILE
                     self.lastFailed=false;
                     //pthread_mutex_lock(&pm_mutex);
                     
-                    projectm_loadpreload_preset_file(self.pmh, [[item getFullPath] UTF8String], self.warp, self.comp,self.warpP, self.compP, !cut);
+                    projectm_loadpreload_preset_file(self.pmh, [[item getFullPath] UTF8String], self.warpP, self.compP, !cut);
                     
                     CHECK_PROFILE("preset loaded fast")
                     END_PROFILE
@@ -419,10 +478,6 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
                 }
             }
             //free the mem allocated by strdup
-            if (self.warp) free((void*)self.warp);
-            if (self.comp) free((void*)self.comp);
-            self.warp=NULL;self.comp=NULL;
-            
             pthread_mutex_unlock(&pm_mutex);
             //if it has failed, remove from list and try another one.
             //if list is empty, load idle preset
@@ -449,23 +504,23 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
         //Load new preset
         pthread_mutex_lock(&pm_mutex);
         if (self.size) {
-            self.warp=NULL;
-            self.comp=NULL;
+            self.warpP=0;
+            self.compP=0;
             self.lastFailed=false;
             
             MDZILog("loading: %@",[item getFullPath]);
             
-            projectm_preload_preset_file(self.pmh, [[item getFullPath] UTF8String], &self->_warp, &self->_comp,&self->_warpP, &self->_compP);
+            projectm_preload_preset_file(self.pmh, [[item getFullPath] UTF8String], &self->_warpP, &self->_compP);
         }
         
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
             
             if (!self.lastFailed) {
-                if (self.warp && self.comp) {
+                if (self.warpP && self.compP) {
                     //MDZILog("warpP %d compP %d",self.warpP,self.compP);
                     START_PROFILE
                     self.lastFailed=false;
-                    projectm_loadpreload_preset_file(self.pmh, [[item getFullPath] UTF8String], self.warp, self.comp,self.warpP, self.compP, !cut);
+                    projectm_loadpreload_preset_file(self.pmh, [[item getFullPath] UTF8String], self.warpP, self.compP, !cut);
                     CHECK_PROFILE("preset loaded fast")
                     END_PROFILE
                     
@@ -478,10 +533,6 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
                     }
                 }
             }
-            //free the mem allocated by strdup
-            if (self.warp) free((void*)self.warp);
-            if (self.comp) free((void*)self.comp);
-            self.warp=NULL;self.comp=NULL;
             pthread_mutex_unlock(&pm_mutex);
             //if it has failed, remove from list and try another one.
             //if list is empty, load idle preset
@@ -598,6 +649,25 @@ code_4=a=1.0;\n\
     }
 #endif
 }
+
+- (void)computeNext:(bool)movePosition {
+    if (_shuffle) {
+        if (movePosition) {
+            if (_nextPosition>=0) _position=_nextPosition;
+            else _position=arc4random_uniform(_size);
+        }
+        _nextPosition=arc4random_uniform(_size);
+    } else {
+        if (movePosition) {
+            if (_nextPosition>=0) _position=_nextPosition;
+            else _position++;
+            if (_position>=_size) _position=0;
+        }
+        _nextPosition=_position+1;
+        if (_nextPosition>=_size) _nextPosition=0;
+    }
+}
+
 - (void)next:(bool)cut {
     if (!_size) {
         [self loadIdlePreset];
@@ -605,13 +675,12 @@ code_4=a=1.0;\n\
     }
     //Store to history
     [_history addObject:[NSNumber numberWithInt:_position]];
-    if (_shuffle) {
-        _position=arc4random_uniform(_size);
-    } else {
-        _position++;
-        if (_position>=_size) _position=0;
-    }
+    //update position to next one and compute the following one
+    [self computeNext:true];
+    //load next preset
     [self loadCurrentPreset:cut];
+    //preload the one coming after
+    if ((_nextPosition>=0)&&(_nextPosition<_size)) [self preloadNextPreset:[_items objectAtIndex:_nextPosition]];
 }
 
 - (void)last:(bool)cut {
@@ -629,6 +698,9 @@ code_4=a=1.0;\n\
         if (_position>=_size) _position=_size-1;
         
         [self loadCurrentPreset:cut];
+        [self computeNext:false];
+        [self releaseNextPreset];
+        if ((_nextPosition>=0)&&(_nextPosition<_size)) [self preloadNextPreset:[_items objectAtIndex:_nextPosition]];
     } else {
         //nothing in history, do prev
         [self prev:cut];
@@ -648,6 +720,9 @@ code_4=a=1.0;\n\
     }
     
     [self loadCurrentPreset:cut];
+    [self computeNext:false];
+    [self releaseNextPreset];
+    if ((_nextPosition>=0)&&(_nextPosition<_size)) [self preloadNextPreset:[_items objectAtIndex:_nextPosition]];
 }
 
 - (int)getPos {
@@ -662,10 +737,15 @@ code_4=a=1.0;\n\
     if (pos<_size) _position=pos;
     
     [self loadCurrentPreset:cut];
+    [self computeNext:false];
+    [self releaseNextPreset];
+    if ((_nextPosition>=0)&&(_nextPosition<_size)) [self preloadNextPreset:[_items objectAtIndex:_nextPosition]];
 }
 
 - (void)remove:(int)index {
     if ((index<0)||(index>=_size)) return;
+    
+    _nextPosition=-1;
         
     [_items removeObjectAtIndex:index];
     _size--;
@@ -685,6 +765,9 @@ code_4=a=1.0;\n\
 - (void)loadCurEntry {
     if (_size==0) [self loadIdlePreset];
     [self loadCurrentPreset:true];
+    [self computeNext:false];
+    [self releaseNextPreset];
+    if ((_nextPosition>=0)&&(_nextPosition<_size)) [self preloadNextPreset:[_items objectAtIndex:_nextPosition]];
 }
 - (void)moveTo:(FileNode*)node cut:(bool)cut {
     for (int i=0;i<[self.items count];i++) {
@@ -700,6 +783,7 @@ code_4=a=1.0;\n\
     [_items removeAllObjects];
     _size=0;
     _position=0;
+    _nextPosition=-1;
 }
 
 - (const char *)getCurPresetCleanTitle {
@@ -898,6 +982,7 @@ code_4=a=1.0;\n\
         MDZILog("PM playlist/Loading: %d entries are missing in filesystem",missing_counter);
     }
     _size=(int)[_items count];
+    _nextPosition=-1;
     return missing_counter;
 }
 

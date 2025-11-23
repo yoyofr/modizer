@@ -84,13 +84,13 @@ void FinalComposite::LoadCompositeShader(const PresetState& presetState)
     }
 }
 
-void FinalComposite::CompileCompositeShader(PresetState& presetState,const char *shader,uint32_t shaderP)
+void FinalComposite::CompileCompositeShader(PresetState& presetState,uint32_t shaderP)
 {
     if (m_compositeShader)
     {
         try
         {
-            m_compositeShader->LoadTexturesAndCompile(presetState,shader,shaderP);
+            m_compositeShader->LoadTexturesAndCompile(presetState,shaderP);
 #ifdef MILKDROP_PRESET_DEBUG
             std::cerr << "[Composite Shader] Successfully compiled composite shader code." << std::endl;
 #endif

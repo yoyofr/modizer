@@ -691,10 +691,10 @@
                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
                                         <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.40000000000000002" colorSpace="custom" customColorSpace="sRGB"/>
                                         <connections>
-                                            <action selector="sliderProgressModuleTest:" destination="MWm-br-vsJ" eventType="touchDragInside" id="MiS-Vi-cdi"/>
-                                            <action selector="sliderProgressModuleTest:" destination="MWm-br-vsJ" eventType="valueChanged" id="p3c-Wp-Y9O"/>
-                                            <action selector="sliderProgressModuleValueChanged:" destination="MWm-br-vsJ" eventType="touchUpInside" id="G7q-qw-UIv"/>
-                                            <action selector="sliderProgressModuleValueChanged:" destination="MWm-br-vsJ" eventType="touchUpOutside" id="KLY-hX-NPi"/>
+                                            <action selector="sliderProgressBeginChange:" destination="MWm-br-vsJ" eventType="touchDown" id="vjG-L1-NHG"/>
+                                            <action selector="sliderProgressEndChange:" destination="MWm-br-vsJ" eventType="touchUpInside" id="3Ou-F5-HE6"/>
+                                            <action selector="sliderProgressEndChange:" destination="MWm-br-vsJ" eventType="touchUpOutside" id="zRz-Qw-f5M"/>
+                                            <action selector="sliderProgressValueChanged:" destination="MWm-br-vsJ" eventType="valueChanged" id="om2-Yh-YQe"/>
                                         </connections>
                                     </slider>
                                     <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" fixedFrame="YES" text="" lineBreakMode="tailTruncation" minimumFontSize="10" translatesAutoresizingMaskIntoConstraints="NO" id="Pi6-pG-GZv" userLabel="Seek info">
