@@ -187,6 +187,8 @@ float glScaleFactor=1.0;
 
 static bool mBackground;
 
+
+
 //--------------------------------------------------
 // ImGui
 //--------------------------------------------------
@@ -347,6 +349,7 @@ bool sysMonitorIsActive;
     //[self play_curEntry:(int)row+mplayer.mod_minsub];
     [mplayer playGoToSub:(int)row+mplayer.mod_minsub];
     clearAudioFXbuffer=true;
+    _seekRequested=-1;
     
     if (settings[GLOB_Notification].detail.mdz_switch.switch_value==2) {
         [self sendNotifPlayedTitle];
@@ -503,6 +506,7 @@ bool sysMonitorIsActive;
     [self play_loadArchiveModule];
     [self hideWaiting];
     clearAudioFXbuffer=true;
+    _seekRequested=-1;
     
     if (settings[GLOB_Notification].detail.mdz_switch.switch_value==2) {
         [self sendNotifPlayedTitle];
@@ -1817,6 +1821,7 @@ static float movePinchScale,movePinchScaleOld;
     if (mPaused) [self playPushed:self];
     
     [mplayer Seek:curTime];
+    _seekRequested=curTime;
     
     if (display_length_mode&&(curSongLength>0)) labelTime.text=[NSString stringWithFormat:@"-%.2d:%.2d", ((curSongLength-[mplayer getCurrentTime])/1000)/60,((curSongLength-[mplayer getCurrentTime])/1000)%60];
     else labelTime.text=[NSString stringWithFormat:@"%.2d:%.2d", ([mplayer getCurrentTime]/1000)/60,([mplayer getCurrentTime]/1000)%60];
@@ -1830,6 +1835,7 @@ static float movePinchScale,movePinchScaleOld;
     int64_t itime=[mplayer getCurrentTime];
     itime+=10000;
     [mplayer Seek:itime];
+    _seekRequested=itime;
 }
 
 -(void) jumpSeekBwd {
@@ -1837,6 +1843,7 @@ static float movePinchScale,movePinchScaleOld;
     itime-=10000;
     if (itime<0) itime=0;
     [mplayer Seek:itime];
+    _seekRequested=itime;
 }
 
 -(void) seek:(NSNumber*)seekTime {
@@ -1849,6 +1856,7 @@ static float movePinchScale,movePinchScaleOld;
     if (mPaused) [self playPushed:self];
     
     [mplayer Seek:curTime];
+    _seekRequested=curTime;
     
     if (display_length_mode&&(curSongLength>0)) labelTime.text=[NSString stringWithFormat:@"-%.2d:%.2d", ((curSongLength-[mplayer getCurrentTime])/1000)/60,((curSongLength-[mplayer getCurrentTime])/1000)%60];
     else labelTime.text=[NSString stringWithFormat:@"%.2d:%.2d", ([mplayer getCurrentTime]/1000)/60,([mplayer getCurrentTime]/1000)%60];
@@ -1983,7 +1991,7 @@ static float movePinchScale,movePinchScaleOld;
     int itime=[mplayer getCurrentTime];
     if (itime==last_itime) {
         noProgressCnt++;
-        if (noProgressCnt>5) noProgress=true; //5 is 1 second
+        if (noProgressCnt>2) noProgress=true; //5 is 1 second
     } else noProgressCnt=0;
     last_itime=itime;
     
@@ -2176,20 +2184,41 @@ static float movePinchScale,movePinchScaleOld;
      If slider isn't being updated, update UI elements / progress
      */
     if (!sliderProgressModuleEdit) {
-        if (noProgress && mIsPlaying && !mPaused) {
-            labelTime.text=NSLocalizedString(@"Buffering", @"");
-            lblTimeFCflow.text=NSLocalizedString(@"Buffering", @"");
-        } else {
-            labelTime.text=[NSString stringWithFormat:@"%.2d:%.2d", ([mplayer getCurrentTime]/1000)/60,([mplayer getCurrentTime]/1000)%60];
-            
-            if (curSongLength>0) {
-                if (display_length_mode) labelTime.text=[NSString stringWithFormat:@"-%.2d:%.2d", ((curSongLength-itime)/1000)/60,((curSongLength-itime)/1000)%60];
-//                MDZILog("itime: %d",int(itime));
-                sliderProgressModule.value=(float)(itime)/(float)(curSongLength);
-                
-                lblTimeFCflow.text=[NSString stringWithFormat:@"%@ | %.2d:%.2d - %.2d:%.2d",playlistPos.text, ([mplayer getCurrentTime]/1000)/60,([mplayer getCurrentTime]/1000)%60,(curSongLength/1000)/60,(curSongLength/1000)%60];
+        
+        if (_seekRequested) {
+            static int64_t last_time_diff=0xFFFFFFFFFFFFFF;
+            int64_t time_diff=abs(itime-_seekRequested);
+            if (time_diff<1000) {
+                _seekRequested=-1;
+                last_time_diff=0xFFFFFFFFFFFFFF;
             } else {
-                lblTimeFCflow.text=[NSString stringWithFormat:@"%@ | %.2d:%.2d",playlistPos.text, ([mplayer getCurrentTime]/1000)/60,([mplayer getCurrentTime]/1000)%60];
+                int64_t ctime=_seekRequested;
+                labelTime.text=NSLocalizedString(@"Seeking", @"");
+                lblTimeFCflow.text=NSLocalizedString(@"Seeking", @"");
+                if ( (time_diff<last_time_diff) && (itime<=_seekRequested) ) ctime=itime;
+                if (time_diff<last_time_diff) last_time_diff=time_diff;
+                
+                sliderProgressModule.value=(float)(ctime)/(float)(curSongLength);
+            }
+        }
+        
+        if (_seekRequested==-1) {
+            
+            if (noProgress && mIsPlaying && !mPaused) {
+                labelTime.text=NSLocalizedString(@"Buffering", @"");
+                lblTimeFCflow.text=NSLocalizedString(@"Buffering", @"");
+            } else {
+                labelTime.text=[NSString stringWithFormat:@"%.2d:%.2d", ([mplayer getCurrentTime]/1000)/60,([mplayer getCurrentTime]/1000)%60];
+                
+                if (curSongLength>0) {
+                    if (display_length_mode) labelTime.text=[NSString stringWithFormat:@"-%.2d:%.2d", ((curSongLength-itime)/1000)/60,((curSongLength-itime)/1000)%60];
+                    //                MDZILog("itime: %d",int(itime));
+                    sliderProgressModule.value=(float)(itime)/(float)(curSongLength);
+                    
+                    lblTimeFCflow.text=[NSString stringWithFormat:@"%@ | %.2d:%.2d - %.2d:%.2d",playlistPos.text, ([mplayer getCurrentTime]/1000)/60,([mplayer getCurrentTime]/1000)%60,(curSongLength/1000)/60,(curSongLength/1000)%60];
+                } else {
+                    lblTimeFCflow.text=[NSString stringWithFormat:@"%@ | %.2d:%.2d",playlistPos.text, ([mplayer getCurrentTime]/1000)/60,([mplayer getCurrentTime]/1000)%60];
+                }
             }
         }
     }
@@ -2393,6 +2422,7 @@ int recording=0;
     if ([mplayer getCurrentTime]>=MIN_DELAY_PREV_ENTRY) {//if more than MIN_DELAY_PREV_ENTRY milliseconds are elapsed, restart current track
         [self restartCurrent];
         clearAudioFXbuffer=true;
+        _seekRequested=-1;
         
         if (settings[GLOB_Notification].detail.mdz_switch.switch_value==2) {
             [self sendNotifPlayedTitle];
@@ -2410,6 +2440,7 @@ int recording=0;
             [self hideWaiting];
         }
         clearAudioFXbuffer=true;
+        _seekRequested=-1;
         
         if (settings[GLOB_Notification].detail.mdz_switch.switch_value==2) {
             [self sendNotifPlayedTitle];
@@ -2432,6 +2463,7 @@ int recording=0;
                 } else [self playPrev];
             }
             clearAudioFXbuffer=true;
+            _seekRequested=-1;
             
             if (settings[GLOB_Notification].detail.mdz_switch.switch_value==2) {
                 [self sendNotifPlayedTitle];
@@ -2577,6 +2609,7 @@ int recording=0;
     if (mShuffle==1) {
         [self playNext];
         clearAudioFXbuffer=true;
+        _seekRequested=-1;
         
         if (settings[GLOB_Notification].detail.mdz_switch.switch_value==2) {
             [self sendNotifPlayedTitle];
@@ -2609,6 +2642,7 @@ int recording=0;
                 } else [self playNext]; //not an archive, next entry
             } else {
                 clearAudioFXbuffer=true;
+                _seekRequested=-1;
                 
                 if (settings[GLOB_Notification].detail.mdz_switch.switch_value==2) {
                     [self sendNotifPlayedTitle];
@@ -2636,6 +2670,7 @@ int recording=0;
             }
         }
         clearAudioFXbuffer=true;
+        _seekRequested=-1;
         
         if (settings[GLOB_Notification].detail.mdz_switch.switch_value==2) {
             [self sendNotifPlayedTitle];
@@ -2659,6 +2694,7 @@ int recording=0;
             }
         }
         clearAudioFXbuffer=true;
+        _seekRequested=-1;
         
         if (settings[GLOB_Notification].detail.mdz_switch.switch_value==2) {
             [self sendNotifPlayedTitle];
@@ -2691,6 +2727,7 @@ int recording=0;
     no_reentrant=true;
     if ([self play_nextEntry]) {
         clearAudioFXbuffer=true;
+        _seekRequested=-1;
     }
     
     no_reentrant=false;
@@ -2703,9 +2740,11 @@ int recording=0;
     if ([mplayer getCurrentTime]>=MIN_DELAY_PREV_ENTRY) {//if more than MIN_DELAY_PREV_ENTRY milliseconds are elapsed, restart current track
         [self play_curEntry:-1];
         clearAudioFXbuffer=true;
+        _seekRequested=-1;
         
     } else if ([self play_prevEntry]) {
         clearAudioFXbuffer=true;
+        _seekRequested=-1;
     }
     
     no_reentrant=false;
@@ -2889,6 +2928,7 @@ int recording=0;
     
     [self play_curEntry:-1];
     clearAudioFXbuffer=true;
+    _seekRequested=-1;
     
     if (settings[GLOB_Notification].detail.mdz_switch.switch_value==2) {
         [self sendNotifPlayedTitle];
@@ -2949,6 +2989,7 @@ int recording=0;
     [self play_curEntry:-1];
     
     clearAudioFXbuffer=true;
+    _seekRequested=-1;
     
     //    if (settings[GLOB_Notification].detail.mdz_switch.switch_value==2) {
     //        [self sendNotifPlayedTitle];
@@ -3132,6 +3173,7 @@ int recording=0;
         [self play_curEntry:-1];
         playLaunched=1;
         clearAudioFXbuffer=true;
+        _seekRequested=-1;
         
         if (settings[GLOB_Notification].detail.mdz_switch.switch_value==2) {
             [self sendNotifPlayedTitle];
@@ -3142,6 +3184,7 @@ int recording=0;
         [self play_curEntry:-1];
         playLaunched=1;
         clearAudioFXbuffer=true;
+        _seekRequested=-1;
         
         if (settings[GLOB_Notification].detail.mdz_switch.switch_value==2) {
             [self sendNotifPlayedTitle];
@@ -3416,6 +3459,7 @@ int recording=0;
     }
     
     clearAudioFXbuffer=true;
+    _seekRequested=-1;
     
     if (settings[GLOB_Notification].detail.mdz_switch.switch_value==2) {
         [self sendNotifPlayedTitle];
@@ -3578,6 +3622,9 @@ int recording=0;
 }
 
 -(void) cancelPushed {
+    if (_seekRequested>=0) {
+        _seekRequested=[mplayer getCurrentSamplesPos];
+    }
     if (loadRequestInProgress) {
         mplayer.extractPendingCancel=true;
         [waitingView hideCancel];
@@ -3800,6 +3847,7 @@ int recording=0;
     mRestart=0;
     
     clearAudioFXbuffer=true;
+    _seekRequested=-1;
     
     if (mPaused==false) {
         if (settings[GLOB_Notification].detail.mdz_switch.switch_value>0) {
@@ -3813,6 +3861,8 @@ int recording=0;
     int subsong_filepath=-1;
     NSString *filePathClean=[ModizFileHelper getFullCleanFilePath:filePath arcidx_ptr:&arcidx_filepath subsong_ptr:&subsong_filepath];
     if (filePathClean==nil) return -1;
+    
+    _seekRequested=-1;
     
     mOnlyCurrentSubEntry=0;
     mOnlyCurrentEntry=0;
@@ -6273,14 +6323,7 @@ void pm_perfTest() {
     prollfx_length=MAX_MIDIFX_LENGTH;
     
     clearAudioFXbuffer=true;
-    
-    //    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);       /* Black Background        */
-    //    glClearDepthf(1.0f);                        /* Depth Buffer Setup      */
-    //    glDepthFunc(GL_LEQUAL);   /* The Type Of Depth Testing (Less Or Equal) */
-    //    glEnable(GL_DEPTH_TEST);  /* Enable Depth Testing                      */
-    //    /* Set Perspective Calculations To Most Accurate */
-    //    glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_FASTEST);//GL_NICEST);
-    
+    _seekRequested=-1;
     
     CHECK_PROFILE("various8")
     PMenu::playerMenuInit();

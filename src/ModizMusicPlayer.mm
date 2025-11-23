@@ -3368,6 +3368,9 @@ void propertyListenerCallback (void                   *inUserData,              
     return buffer_to_compensate;
 }
 
+-(int64_t) getCurrentSamplesPos {
+    return mCurrentSamples*1000/PLAYBACK_FREQ;
+}
 
 -(int) getCurrentTime {
     //static int64_t lastCnt;
@@ -7112,9 +7115,6 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             
                             nbBytes=mSidEmuEngine->play(buffer_ana[buffer_ana_gen_ofs],SOUND_BUFFER_SIZE_SAMPLE*2*1)*2;
                             
-                            if (nbBytes==0) {
-                                MDZILog("sid 0");
-                            }
                             if (settings[GLOB_PBRATIO_ONOFF].detail.mdz_boolswitch.switch_value) mCurrentSamples+=nbBytes/4*settings[GLOB_PBRATIO].detail.mdz_slider.slider_value;
                             else mCurrentSamples+=nbBytes/4;
                             //copy voice data for oscillo view

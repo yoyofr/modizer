@@ -327,6 +327,7 @@ enum {
 
 @property int mOnlyCurrentEntry;
 @property int mOnlyCurrentSubEntry;
+@property int64_t seekRequested;
 
 -(IBAction) changeTimeDisplay;
 

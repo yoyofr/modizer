@@ -446,4 +446,6 @@ extern "C" {
 -(int) getLatencyInBuffer:(double)latency;
 -(bool) isMidiLikeDataAvailable;
 
+-(int64_t) getCurrentSamplesPos;
+
 @end
