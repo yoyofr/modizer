@@ -464,7 +464,7 @@ struct driver_pmd {
 };
 
 bool pmd_load(struct driver_pmd *pmd, uint8_t *data, uint16_t datalen);
-void pmd_init(struct fmdriver_work *work, struct driver_pmd *pmd);
+void fmpmd_init(struct fmdriver_work *work, struct driver_pmd *pmd);
 bool pmd_ppc_load(struct fmdriver_work *work, uint8_t *data, size_t datalen);
 #ifdef __cplusplus
 }

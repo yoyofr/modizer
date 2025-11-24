@@ -23,7 +23,7 @@
 #endif // NO_PLUGINS
 #include "OPL.h"
 
-extern bool mdz_ompt_hasReachEnd=true;//YOYOFR
+extern bool mdz_ompt_hasReachEnd;//YOYOFR
 
 OPENMPT_NAMESPACE_BEGIN
 

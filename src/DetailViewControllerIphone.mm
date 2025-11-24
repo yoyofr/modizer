@@ -85,6 +85,10 @@ FileNode *pmCustomPresetsFileNode;
 
 extern BOOL nvdsp_EQ;
 
+#if TARGET_OS_MACCATALYST
+#import <Cocoa/Cocoa.h>
+#endif
+
 #import <mach/mach.h>
 #import <mach/mach_host.h>
 #import "FFTAccelerate.h"
@@ -5756,7 +5760,6 @@ void pm_perfTest() {
     if (devHH) *devHH=screenSize.height;
 }
 
-
 // Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
 - (void)viewDidLoad {
     START_PROFILE
@@ -6434,6 +6437,62 @@ void pm_perfTest() {
     
 }
 
+#if TARGET_OS_MACCATALYST
+
+- (void)mouseDidMove:(UIGestureRecognizer *)gesture {
+    // Montrer le curseur
+    [NSCursor unhide];
+    
+    // Annuler le timer précédent
+    [self.mouseHideTimer invalidate];
+    
+    // Créer un nouveau timer pour cacher après 2 secondes d'inactivité
+    self.mouseHideTimer = [NSTimer scheduledTimerWithTimeInterval:2.0
+                                                           target:self
+                                                         selector:@selector(hideCursor)
+                                                         userInfo:nil
+                                                          repeats:NO];
+}
+
+
+- (BOOL)isFullscreen {
+    if (@available(iOS 13.0, *)) {
+        UIWindowScene *windowScene = (UIWindowScene *)self.view.window.windowScene;
+        if (windowScene) {
+            // Sur Catalyst, utiliser directement les dimensions de la fenêtre
+            // et vérifier via la titlebar visibility
+            
+            CGRect windowFrame = windowScene.coordinateSpace.bounds;
+            
+            // Méthode 1: Vérifier si on a une titlebar cachée (iOS 16+)
+//            if (@available(iOS 16.0, *)) {
+//                if (windowScene.titlebar) {
+//                    BOOL titlebarHidden = (windowScene.titlebar.titleVisibility == UITitlebarTitleVisibilityHidden);
+//                    MDZILog("fs: titlebar hidden=%d", titlebarHidden);
+//                    return titlebarHidden;
+//                }
+//            }
+            
+            // Méthode 2: Comparer avec la taille maximale disponible
+            // En plein écran, la fenêtre devrait être > 1500pts de large sur un écran standard
+            BOOL likelyFullscreen = (windowFrame.size.width > 1500.0 &&
+                                     windowFrame.size.height > 1000.0);
+            
+            MDZILog("fs: window=%f x %f, likely fullscreen=%d",
+                    windowFrame.size.width, windowFrame.size.height, likelyFullscreen);
+            
+            return likelyFullscreen;
+        }
+    }
+    return NO;
+}
+
+- (void)hideCursor {
+    if ([self isFullscreen]) [NSCursor hide];
+}
+
+#endif
+
 - (void)dealloc {
     [waitingView removeFromSuperview];
     //[waitingView release];
@@ -7004,6 +7063,21 @@ static int mOglView1Tap=0;
                 break;
         }
     }
+    
+#if TARGET_OS_MACCATALYST
+    // Montrer le curseur
+        [NSCursor unhide];
+        
+        // Annuler le timer précédent
+        [self.mouseHideTimer invalidate];
+        
+        // Créer un nouveau timer pour cacher après 2 secondes d'inactivité
+        self.mouseHideTimer = [NSTimer scheduledTimerWithTimeInterval:2.0
+                                                               target:self
+                                                             selector:@selector(hideCursor)
+                                                             userInfo:nil
+                                                              repeats:NO];
+#endif
 }
 
 -(void) glViewHoverGesture:(UIHoverGestureRecognizer *)gestureRecognizer {
@@ -7027,6 +7101,21 @@ static int mOglView1Tap=0;
             panGestureHover=0;
             break;
     }
+    
+#if TARGET_OS_MACCATALYST
+    // Montrer le curseur
+        [NSCursor unhide];
+        
+        // Annuler le timer précédent
+        [self.mouseHideTimer invalidate];
+        
+        // Créer un nouveau timer pour cacher après 2 secondes d'inactivité
+        self.mouseHideTimer = [NSTimer scheduledTimerWithTimeInterval:2.0
+                                                               target:self
+                                                             selector:@selector(hideCursor)
+                                                             userInfo:nil
+                                                              repeats:NO];
+#endif
 }
 
 -(void) glViewPan2Gesture:(UIPanGestureRecognizer *)gestureRecognizer {

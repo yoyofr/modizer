@@ -146,7 +146,7 @@ extern "C" int SPU_ChangeSoundCore(NDS_state *state, int coreid, int buffersize)
 	}
 
 	//If the user picked the dummy core, disable the user spu
-	if(state->SNDCore == &SNDDummy)
+	if(state->SNDCore == &vioSNDDummy)
 		return 0;
 
 	//If the core wasnt found in the list for some reason, disable the user spu
@@ -1025,7 +1025,7 @@ void SNDDummyMuteAudio(NDS_state *);
 void SNDDummyUnMuteAudio(NDS_state *);
 void SNDDummySetVolume(NDS_state *, int volume);
 
-SoundInterface_struct SNDDummy = {
+SoundInterface_struct vioSNDDummy = {
 	SNDCORE_DUMMY,
 	"Dummy Sound Interface",
 	SNDDummyInit,

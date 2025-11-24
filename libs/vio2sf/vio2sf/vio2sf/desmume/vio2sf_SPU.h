@@ -105,7 +105,7 @@ typedef struct SoundInterface_struct
    void (*SetVolume)(NDS_state *, int volume);
 } SoundInterface_struct;
 
-extern SoundInterface_struct SNDDummy;
+extern SoundInterface_struct vioSNDDummy;
 extern SoundInterface_struct SNDFile;
 
 static bool resampler_initialized = false;

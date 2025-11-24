@@ -220,13 +220,13 @@ void fmplayer_file_load(struct fmdriver_work *work, struct fmplayer_file *fmfile
       struct driver_pmd *pmddup = pmd_dup(&fmfile->driver.pmd);
       if (pmddup) {
         dummy_work_init(&dwork, &dopna);
-        pmd_init(&dwork, pmddup);
+        fmpmd_init(&dwork, pmddup);
         calc_loop(&dwork, loopcnt);
         pmd_free(pmddup);
         work->loop_timerb_cnt = dwork.loop_timerb_cnt;
       }
     }
-    pmd_init(work, &fmfile->driver.pmd);
+          fmpmd_init(work, &fmfile->driver.pmd);
     loadppc(work, fmfile);
     work->pcmerror[1] = loadpmdppz(work, fmfile, 0, fmfile->driver.pmd.ppzfile);
     work->pcmerror[2] = loadpmdppz(work, fmfile, 1, fmfile->driver.pmd.ppzfile2);

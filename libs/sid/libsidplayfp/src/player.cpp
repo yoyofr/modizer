@@ -37,7 +37,7 @@
 //YOYOFR
 extern "C" {
 #include "../../../../src/ModizerVoicesData.h"
-char sid_firstcall[MAXSID_CHIPS];
+extern char sid_firstcall[MAXSID_CHIPS];
 }
 //YOYOFR
 

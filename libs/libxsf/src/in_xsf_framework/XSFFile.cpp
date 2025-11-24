@@ -321,7 +321,7 @@ unsigned long XSFFile::GetFadeMS(unsigned long defaultFade) const
 	return fade;
 }
 
-double XSFFile::GetVolume(VolumeType preferredVolumeType, PeakType preferredPeakType) const
+double XSFFile::GetVolume(XSFVolumeType preferredVolumeType, PeakType preferredPeakType) const
 {
 	if (preferredVolumeType == VOLUMETYPE_NONE)
 		return 1.0;

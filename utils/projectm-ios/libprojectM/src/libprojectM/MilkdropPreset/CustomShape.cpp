@@ -79,7 +79,7 @@ void CustomShape::CompileCodeAndRunInitExpressions()
     m_perFrameContext.CompilePerFrameCode(m_presetState.customShapePerFrameCode[m_index], *this);
 }
 
-void CustomShape::FlushDraw(bool render) {
+void CustomShape::FlushDraw(bool render,bool changeShader) {
     // Additive Drawing or Overwrite
     Renderer::BlendMode::SetBlendFunction(Renderer::BlendMode::Function::SourceAlpha,
                                           static_cast<int>(*m_perFrameContext.additive) != 0
@@ -90,11 +90,14 @@ void CustomShape::FlushDraw(bool render) {
         m_fillMesh.Update();
         m_fillMesh.Draw();
     }
-    glBindTexture(GL_TEXTURE_2D, 0);
-    Renderer::Sampler::Unbind(0);
+    if (changeShader) {
+        glBindTexture(GL_TEXTURE_2D, 0);
+        Renderer::Sampler::Unbind(0);
+    }
 }
 
-void CustomShape::InitDraw(float &textureAspectY) {
+void CustomShape::InitDraw(float &textureAspectY,bool changeShader) {
+    if (!changeShader) return;
     m_fillMesh.SetUseUV(static_cast<int>(*m_perFrameContext.textured) != 0);
     if (m_fillMesh.UseUV())
     {
@@ -180,7 +183,7 @@ void CustomShape::Draw()
     int indicesIdx=0;
     int instanceStartIdx=0;
     
-    InitDraw(textureAspectY);
+    InitDraw(textureAspectY,true);
     
     bool textureMode=(static_cast<int>(*m_perFrameContext.textured) != 0);
     bool additiveMode=(static_cast<int>(*m_perFrameContext.additive) != 0);
@@ -195,13 +198,16 @@ void CustomShape::Draw()
         if ((curTextureMode!=textureMode) || (curAdditiveMode!=additiveMode) ) {
             //Change of texture mode or additive mode
             //1st render any pending instance
-            FlushDraw((indicesIdx>0));
+            bool changeShader=false;
+            if (curTextureMode!=textureMode) changeShader=true;
+            
+            FlushDraw((indicesIdx>0),changeShader);
             vertexIdx=0;
             totalSides=0;
             indicesIdx=0;
             instanceStartIdx=0;
             //2nd reinit render
-            InitDraw(textureAspectY);
+            InitDraw(textureAspectY,changeShader);
             //3rd keep track of current modes
             textureMode=curTextureMode;
             additiveMode=curAdditiveMode;
@@ -328,7 +334,7 @@ void CustomShape::Draw()
         vertexIdx+=sides+2;
 
     }
-    FlushDraw((indicesIdx>0));
+    FlushDraw((indicesIdx>0),false);
 #else
     for (int instance = 0; instance < m_instances; instance++)
     {

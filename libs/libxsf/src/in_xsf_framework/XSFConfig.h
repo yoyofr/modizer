@@ -16,7 +16,7 @@ class XSFConfig
 {
 protected:
 	double volume;
-	VolumeType volumeType;
+    XSFVolumeType volumeType;
 	PeakType peakType;
 	unsigned sampleRate;
 	std::string titleFormat;
@@ -33,7 +33,7 @@ public:
 	static bool initPlayInfinitely;
 	static std::string initSkipSilenceOnStartSec, initDetectSilenceSec, initDefaultLength, initDefaultFade, initTitleFormat;
 	static double initVolume;
-	static VolumeType initVolumeType;
+	static XSFVolumeType initVolumeType;
 	static PeakType initPeakType;
 	// These are not defined in XSFConfig.cpp, they should be defined in your own config's source.
 	static unsigned initSampleRate;
@@ -54,7 +54,7 @@ public:
 	unsigned long GetDefaultLength() const;
 	unsigned long GetDefaultFade() const;
 	double GetVolume() const;
-	VolumeType GetVolumeType() const;
+    XSFVolumeType GetVolumeType() const;
 	PeakType GetPeakType() const;
 	const std::string &GetTitleFormat() const;
 };

@@ -343,7 +343,7 @@ extern "C" {
 #include "../../../../src/ModizerVoicesData.h"
 extern char mSIDSeekInProgress;
 extern void* m_sid_chipId[MAXSID_CHIPS];
-char sid_firstcall[MAXSID_CHIPS];
+extern char sid_firstcall[MAXSID_CHIPS];
 }
 //TODO:  MODIZER changes end / YOYOFR
 

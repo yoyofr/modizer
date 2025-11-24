@@ -212,6 +212,7 @@ enum {
 @property bool bRSactive;
 @property (retain,nonatomic) UIImage *cover_img,*default_cover;
 @property (retain,nonatomic) WaitingView *waitingView;
+@property (nonatomic, strong) NSTimer *mouseHideTimer;
 
 @property int not_expected_version;
 

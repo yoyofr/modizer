@@ -4,8 +4,8 @@ binary-path:     '/Users/yoyofr/Library/Developer/Xcode/DerivedData/OpenGLES-ctl
 relocations:
   - { offset: 0x33, size: 0x8, addend: 0x0, symName: _MetalANGLE_ios13VersionString, symObjAddr: 0x0, symBinAddr: 0x3A6780, symSize: 0x0 }
   - { offset: 0x67, size: 0x8, addend: 0x0, symName: _MetalANGLE_ios13VersionNumber, symObjAddr: 0x38, symBinAddr: 0x3A67B8, symSize: 0x0 }
-  - { offset: 0xBC, size: 0x8, addend: 0x0, symName: __ZL20gGlobalDisplayHolder, symObjAddr: 0x2EE0, symBinAddr: 0x58A960, symSize: 0x0 }
-  - { offset: 0x13A, size: 0x8, addend: 0x0, symName: __ZL15gDefaultDisplay, symObjAddr: 0x2EE8, symBinAddr: 0x58A968, symSize: 0x0 }
+  - { offset: 0xBC, size: 0x8, addend: 0x0, symName: __ZL20gGlobalDisplayHolder, symObjAddr: 0x2E80, symBinAddr: 0x58A960, symSize: 0x0 }
+  - { offset: 0x13A, size: 0x8, addend: 0x0, symName: __ZL15gDefaultDisplay, symObjAddr: 0x2E88, symBinAddr: 0x58A968, symSize: 0x0 }
   - { offset: 0x1D0, size: 0x8, addend: 0x0, symName: '-[EGLDisplayHolder init]', symObjAddr: 0x0, symBinAddr: 0xF40, symSize: 0x114 }
   - { offset: 0x348, size: 0x8, addend: 0x0, symName: '-[EGLDisplayHolder dealloc]', symObjAddr: 0x114, symBinAddr: 0x1054, symSize: 0x7C }
   - { offset: 0x396, size: 0x8, addend: 0x0, symName: '-[EGLDisplayHolder eglDisplay]', symObjAddr: 0x1A0, symBinAddr: 0x10E0, symSize: 0x8 }
@@ -171,11 +171,11 @@ relocations:
   - { offset: 0xD8E01, size: 0x8, addend: 0x0, symName: __ZN2gl10TranslatexEiii, symObjAddr: 0x4B3C, symBinAddr: 0x9F1C, symSize: 0xE4 }
   - { offset: 0xD8FF2, size: 0x8, addend: 0x0, symName: __ZN2gl13VertexPointerEijiPKv, symObjAddr: 0x4C20, symBinAddr: 0xA000, symSize: 0x178 }
   - { offset: 0x1293EF, size: 0x8, addend: 0x0, symName: __ZN3egl14GetGlobalMutexEv, symObjAddr: 0x0, symBinAddr: 0xA178, symSize: 0x6C }
-  - { offset: 0x12940E, size: 0x8, addend: 0x0, symName: __ZN2gl22gSingleThreadedContextE, symObjAddr: 0x2070B0, symBinAddr: 0x598458, symSize: 0x0 }
-  - { offset: 0x13FF07, size: 0x8, addend: 0x0, symName: __ZN2gl23gIsMultiThreadedContextE, symObjAddr: 0x2070B8, symBinAddr: 0x598460, symSize: 0x0 }
-  - { offset: 0x140AC4, size: 0x8, addend: 0x0, symName: __ZN3egl12_GLOBAL__N_17g_MutexE, symObjAddr: 0x2070C8, symBinAddr: 0x58A978, symSize: 0x0 }
+  - { offset: 0x12940E, size: 0x8, addend: 0x0, symName: __ZN2gl22gSingleThreadedContextE, symObjAddr: 0x206C00, symBinAddr: 0x598458, symSize: 0x0 }
+  - { offset: 0x13FF07, size: 0x8, addend: 0x0, symName: __ZN2gl23gIsMultiThreadedContextE, symObjAddr: 0x206C08, symBinAddr: 0x598460, symSize: 0x0 }
+  - { offset: 0x140AC4, size: 0x8, addend: 0x0, symName: __ZN3egl12_GLOBAL__N_17g_MutexE, symObjAddr: 0x206C18, symBinAddr: 0x58A978, symSize: 0x0 }
   - { offset: 0x140ADD, size: 0x8, addend: 0x0, symName: __ZN3egl12_GLOBAL__N_19threadTLSE, symObjAddr: 0x4B8, symBinAddr: 0x5525E8, symSize: 0x0 }
-  - { offset: 0x140AF6, size: 0x8, addend: 0x0, symName: __ZN3egl12_GLOBAL__N_17g_DebugE, symObjAddr: 0x2070C0, symBinAddr: 0x58A970, symSize: 0x0 }
+  - { offset: 0x140AF6, size: 0x8, addend: 0x0, symName: __ZN3egl12_GLOBAL__N_17g_DebugE, symObjAddr: 0x206C10, symBinAddr: 0x58A970, symSize: 0x0 }
   - { offset: 0x140C0B, size: 0x8, addend: 0x0, symName: __ZN3egl14GetGlobalMutexEv, symObjAddr: 0x0, symBinAddr: 0xA178, symSize: 0x6C }
   - { offset: 0x140E32, size: 0x8, addend: 0x0, symName: __ZN3egl16GetCurrentThreadEv, symObjAddr: 0x6C, symBinAddr: 0xA1E4, symSize: 0xC8 }
   - { offset: 0x140F11, size: 0x8, addend: 0x0, symName: __ZN3egl8GetDebugEv, symObjAddr: 0x134, symBinAddr: 0xA2AC, symSize: 0x34 }
@@ -4157,7 +4157,7 @@ relocations:
   - { offset: 0x41FE33, size: 0x8, addend: 0x0, symName: _eglDupNativeFenceFDANDROID, symObjAddr: 0x158, symBinAddr: 0x4F030, symSize: 0x4 }
   - { offset: 0x4227BA, size: 0x8, addend: 0x0, symName: __ZN12_GLOBAL__N_110CurrentTLSEv, symObjAddr: 0x664, symBinAddr: 0x4F688, symSize: 0x60 }
   - { offset: 0x4227E4, size: 0x8, addend: 0x0, symName: __ZZN12_GLOBAL__N_110CurrentTLSEvE8sKeyOnce, symObjAddr: 0x1778, symBinAddr: 0x557F18, symSize: 0x0 }
-  - { offset: 0x422854, size: 0x8, addend: 0x0, symName: __ZN12_GLOBAL__N_118gThreadSpecificKeyE, symObjAddr: 0x1FEA8, symBinAddr: 0x58A980, symSize: 0x0 }
+  - { offset: 0x422854, size: 0x8, addend: 0x0, symName: __ZN12_GLOBAL__N_118gThreadSpecificKeyE, symObjAddr: 0x1FDA8, symBinAddr: 0x58A980, symSize: 0x0 }
   - { offset: 0x422890, size: 0x8, addend: 0x0, symName: __ZN12_GLOBAL__N_116CreateEGLContextEPv15MGLRenderingAPIS0_, symObjAddr: 0x254, symBinAddr: 0x4F278, symSize: 0x1B0 }
   - { offset: 0x422D02, size: 0x8, addend: 0x0, symName: __ZN12_GLOBAL__N_119ThreadTLSDestructorEPv, symObjAddr: 0xBF0, symBinAddr: 0x4FC14, symSize: 0x38 }
   - { offset: 0x426125, size: 0x8, addend: 0x0, symName: __ZNSt3__119__allocate_at_leastB8ne200100INS_9allocatorIiEEEENS_19__allocation_resultINS_16allocator_traitsIT_E7pointerEEERS5_m, symObjAddr: 0xB0C, symBinAddr: 0x4FB30, symSize: 0x34 }

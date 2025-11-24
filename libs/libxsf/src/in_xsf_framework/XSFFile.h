@@ -12,7 +12,7 @@
 #include "convert.h"
 #include "TagList.h"
 
-enum VolumeType
+enum XSFVolumeType
 {
 	VOLUMETYPE_NONE,
 	VOLUMETYPE_VOLUME,
@@ -61,7 +61,7 @@ public:
 	}
 	unsigned long GetLengthMS(unsigned long defaultLength) const;
 	unsigned long GetFadeMS(unsigned long defaultFade) const;
-	double GetVolume(VolumeType preferredVolumeType, PeakType preferredPeakType) const;
+	double GetVolume(XSFVolumeType preferredVolumeType, PeakType preferredPeakType) const;
 	std::string GetFormattedTitle(const std::string &format) const;
 	std::string GetFilename() const;
 	std::string GetFilenameWithoutPath() const;

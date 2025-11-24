@@ -6013,7 +6013,7 @@ static const char *pmd_get_comment(struct fmdriver_work *work, int line) {
   return str;
 }
 
-void pmd_init(struct fmdriver_work *work,
+void fmpmd_init(struct fmdriver_work *work,
               struct driver_pmd *pmd) {
   // TODO: reset ppz8
 

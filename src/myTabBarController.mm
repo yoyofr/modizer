@@ -529,7 +529,6 @@ extern int move_cursorL,move_cursorR,keyDel;
 }
 
 - (void)presentWelcomePages {
-    return;
     if (!settings[GLOB_ShowWelcome].detail.mdz_boolswitch.switch_value) return;
     
     // Don't present if already presenting or presented

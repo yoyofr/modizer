@@ -17,7 +17,7 @@ std::string XSFConfig::initDefaultLength = "1:55";
 std::string XSFConfig::initDefaultFade = "5";
 std::string XSFConfig::initTitleFormat = "%game%[ - [%disc%.]%track%] - %title%";
 double XSFConfig::initVolume = 1.0;
-VolumeType XSFConfig::initVolumeType = VOLUMETYPE_REPLAYGAIN_ALBUM;
+XSFVolumeType XSFConfig::initVolumeType = VOLUMETYPE_REPLAYGAIN_ALBUM;
 PeakType XSFConfig::initPeakType = PEAKTYPE_REPLAYGAIN_TRACK;
 
 XSFConfig::XSFConfig() : playInfinitely(false), skipSilenceOnStartSec(0), detectSilenceSec(0), defaultLength(0), defaultFade(0), volume(0.0), volumeType(VOLUMETYPE_NONE), peakType(PEAKTYPE_NONE),
@@ -39,7 +39,7 @@ void XSFConfig::LoadConfig()
     this->defaultLength = 115000;//=ConvertFuncs::StringToMS(this->configIO->GetValue("DefaultLength", XSFConfig::initDefaultLength));
     this->defaultFade = 5000;//ConvertFuncs::StringToMS(this->configIO->GetValue("DefaultFade", XSFConfig::initDefaultFade));
     this->volume = 1.0;//this->configIO->GetValue("Volume", XSFConfig::initVolume);
-    this->volumeType = VOLUMETYPE_REPLAYGAIN_ALBUM;//static_cast<VolumeType>(this->configIO->GetValue("VolumeType", static_cast<int>(XSFConfig::initVolumeType)));
+    this->volumeType = VOLUMETYPE_REPLAYGAIN_ALBUM;//static_cast<XSFVolumeType>(this->configIO->GetValue("VolumeType", static_cast<int>(XSFConfig::initVolumeType)));
     this->peakType = PEAKTYPE_REPLAYGAIN_TRACK;//static_cast<PeakType>(this->configIO->GetValue("PeakType", static_cast<int>(XSFConfig::initPeakType)));
     this->sampleRate = 44100;//this->configIO->GetValue("SampleRate", XSFConfig::initSampleRate);
     this->titleFormat = "%game%[ - [%disc%.]%track%] - %title%";//this->configIO->GetValue("TitleFormat", XSFConfig::initTitleFormat);
@@ -104,7 +104,7 @@ double XSFConfig::GetVolume() const
 	return this->volume;
 }
 
-VolumeType XSFConfig::GetVolumeType() const
+XSFVolumeType XSFConfig::GetVolumeType() const
 {
 	return this->volumeType;
 }

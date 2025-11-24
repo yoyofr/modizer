@@ -722,10 +722,10 @@
                                             <action selector="oglButtonPushed" destination="MWm-br-vsJ" eventType="touchUpInside" id="Htd-YP-b1z"/>
                                         </connections>
                                     </button>
-                                    <glkView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" enableSetNeedsDisplay="NO" id="7Y3-Oh-CbD" userLabel="Ogl View" customClass="MGLKView">
-                                        <rect key="frame" x="0.0" y="0.0" width="320" height="128"/>
-                                        <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxX="YES" heightSizable="YES" flexibleMaxY="YES"/>
-                                    </glkView>
+                                    <mtkView contentMode="scaleToFill" fixedFrame="YES" colorPixelFormat="BGRA8Unorm" depthStencilPixelFormat="Depth32Float" translatesAutoresizingMaskIntoConstraints="NO" id="TDc-52-1Hl" customClass="MGLKView">
+                                        <rect key="frame" x="40" y="166" width="240" height="128"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                    </mtkView>
                                 </subviews>
                                 <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </view>
@@ -907,7 +907,7 @@
                         <outlet property="labelNumChannels" destination="PcV-Qx-N35" id="0JV-53-qUN"/>
                         <outlet property="labelSeeking" destination="Pi6-pG-GZv" id="GEY-PD-iTD"/>
                         <outlet property="labelTime" destination="jMv-JX-mB8" id="4YJ-aq-LNK"/>
-                        <outlet property="m_oglView" destination="7Y3-Oh-CbD" id="tdB-a3-VVS"/>
+                        <outlet property="m_oglView" destination="TDc-52-1Hl" id="h2j-R9-Otk"/>
                         <outlet property="mainRating5" destination="Tve-wB-sNH" id="h3p-BD-gOE"/>
                         <outlet property="mainRating5off" destination="bvi-Gp-gQo" id="kTt-hr-fAg"/>
                         <outlet property="mainView" destination="ouT-6C-btl" id="Q74-l6-Dw7"/>

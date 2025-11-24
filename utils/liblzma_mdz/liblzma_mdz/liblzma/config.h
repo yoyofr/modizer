@@ -16,7 +16,7 @@
 
 #include <TargetConditionals.h>
 
-#if TARGET_OS_SIMULATOR
+#if TARGET_OS_SIMULATOR || TARGET_OS_MACCATALYST
 #else
 #define HAVE_ARM64_CRC32 1
 #endif

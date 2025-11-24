@@ -51,7 +51,7 @@ static char * my_strdup(const char * s)
 	return r;
 }
 
-const char * strrpbrk(const char * s, const char * accept)
+const char * vio_strrpbrk(const char * s, const char * accept)
 {
 	const char * start;
 
@@ -134,7 +134,7 @@ int vio_psf_load(const char * uri, const vio_psf_file_callbacks * file_callbacks
 		return -1;
 	}
 
-	file_name = strrpbrk(uri, file_callbacks->path_separators);
+	file_name = vio_strrpbrk(uri, file_callbacks->path_separators);
 
 	if (file_name)
 	{
