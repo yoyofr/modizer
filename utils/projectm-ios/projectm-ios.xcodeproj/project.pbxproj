@@ -139,11 +139,8 @@
 		CC80AE882EB9648100270FF3 /* MilkdropPreset.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MilkdropPreset.cpp; sourceTree = "<group>"; };
 		CC80AE8A2EB9666600270FF3 /* AltMilkdropPreset.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = AltMilkdropPreset.cpp; sourceTree = "<group>"; };
 		CC80AE8C2EB9667C00270FF3 /* AltMilkdropPreset.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = AltMilkdropPreset.hpp; sourceTree = "<group>"; };
-		CCA0E3A82ED1E93F00F42840 /* BorderData.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = BorderData.hpp; sourceTree = "<group>"; };
 		CCA0E3A92ED21D9F00F42840 /* TexturedBorderedDrawFragmentShaderGlsl330.frag */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = TexturedBorderedDrawFragmentShaderGlsl330.frag; sourceTree = "<group>"; };
 		CCA0E3AA2ED21D9F00F42840 /* TexturedBorderedDrawVertexShaderGlsl330.vert */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = TexturedBorderedDrawVertexShaderGlsl330.vert; sourceTree = "<group>"; };
-		CCA0E3AB2ED21D9F00F42840 /* UntexturedBorderedDrawFragmentShaderGlsl330.frag */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = UntexturedBorderedDrawFragmentShaderGlsl330.frag; sourceTree = "<group>"; };
-		CCA0E3AC2ED21D9F00F42840 /* UntexturedBorderedDrawVertexShaderGlsl330.vert */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.glsl; path = UntexturedBorderedDrawVertexShaderGlsl330.vert; sourceTree = "<group>"; };
 		CCABA01B2E93C66900AF59B0 /* libprojectm-ios.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libprojectm-ios.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		CCABA02A2E93C75B00AF59B0 /* _features.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = _features.hpp; sourceTree = "<group>"; };
 		CCABA02B2E93C75B00AF59B0 /* _fixes.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = _fixes.hpp; sourceTree = "<group>"; };
@@ -1233,8 +1230,6 @@
 				CCABA1E12E93C97600AF59B0 /* UntexturedDrawVertexShaderGlsl330.vert */,
 				CCA0E3A92ED21D9F00F42840 /* TexturedBorderedDrawFragmentShaderGlsl330.frag */,
 				CCA0E3AA2ED21D9F00F42840 /* TexturedBorderedDrawVertexShaderGlsl330.vert */,
-				CCA0E3AB2ED21D9F00F42840 /* UntexturedBorderedDrawFragmentShaderGlsl330.frag */,
-				CCA0E3AC2ED21D9F00F42840 /* UntexturedBorderedDrawVertexShaderGlsl330.vert */,
 			);
 			path = Shaders;
 			sourceTree = "<group>";
@@ -1381,7 +1376,6 @@
 				CCCB39772EB0457300FE6091 /* BlendMode.hpp */,
 				CCCB39782EB0457300FE6091 /* BlendMode.cpp */,
 				CCCB39792EB0457300FE6091 /* Color.hpp */,
-				CCA0E3A82ED1E93F00F42840 /* BorderData.hpp */,
 				CCCB397A2EB0457300FE6091 /* Mesh.hpp */,
 				CCCB397B2EB0457300FE6091 /* Mesh.cpp */,
 				CCCB397C2EB0457300FE6091 /* Point.hpp */,

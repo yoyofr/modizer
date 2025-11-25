@@ -59,19 +59,6 @@ private:
             glVertexAttribPointer(attributeIndex, sizeof(BorderData_RenderMode) / sizeof(float), GL_FLOAT, GL_FALSE, sizeof(BorderData_RenderMode), nullptr);
         }
     };
-
-    
-    /**
-     * @brief Intermediary rendering for fast render, needed if a key attribute change and shader or blending mode needs to be updated.
-     * @param render Indicates if there is actually something to draw
-     */
-    void FlushDraw(bool render,bool changeShader);
-    
-    /**
-     * @brief Init rendering for fast render, select right shader and init key variables
-     * @param textureAspectY The texture aspect Y
-     */
-    void InitDraw(float &textureAspectY,bool changeShader);
     
     std::shared_ptr<Renderer::Shader> m_shader; //!< The shader used for rendering
     
