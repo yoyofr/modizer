@@ -5387,8 +5387,6 @@ GLsizei txtbackgroundImageWidth,txtbackgroundImageHeight;
     oglLayer.contentsScale = [[UIScreen mainScreen] scale];
     glScaleFactor=[[UIScreen mainScreen] scale];
     
-    [oglLayer setPresentsWithTransaction:false];
-    
     //to avoid flickering issue / rest of UI widgets
     oglLayer.drawsAsynchronously = YES;
     oglLayer.shouldRasterize = NO;

@@ -10,6 +10,8 @@ set(SHADER_FILES
         Shaders/PresetShaderHeaderGlsl330.inc
         Shaders/PresetWarpFragmentShaderGlsl330.frag
         Shaders/PresetWarpVertexShaderGlsl330.vert
+        Shaders/TexturedBorderedDrawFragmentShaderGlsl330.frag
+        Shaders/TexturedBorderedDrawVertexShaderGlsl330.vert
         Shaders/TexturedDrawFragmentShaderGlsl330.frag
         Shaders/TexturedDrawVertexShaderGlsl330.vert
         Shaders/UntexturedDrawFragmentShaderGlsl330.frag

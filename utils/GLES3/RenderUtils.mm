@@ -266,6 +266,10 @@ GLuint RenderUtils::LoadShaderFromFile ( GLenum type, const char *shaderFile )
 int RenderUtils::RenderInit() {
     renderIsInit=false;
     
+    // Vérifie si l'extension est disponible
+//    NSString *extensions = [NSString stringWithUTF8String:(char *)glGetString(GL_EXTENSIONS)];
+//    MDZILog("gl ext: %@",[extensions stringByReplacingOccurrencesOfString:@" " withString:@"\n"]);
+    
         userData_lightRender3D=InitProgram((char*)[[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/MDZShaders/Vertex3DLight.glsl"]  UTF8String],
                                            (char*)[[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/MDZShaders/Fragment3DLight.glsl"] UTF8String]);
         
@@ -385,7 +389,6 @@ GLUserData* RenderUtils::InitProgram(char *vsfile,char *fsfile) {
     userData->modelLoc = glGetUniformLocation ( userData->programObject, "u_model" );
     userData->viewLoc = glGetUniformLocation ( userData->programObject, "u_view" );
     userData->projectionLoc = glGetUniformLocation ( userData->programObject, "u_projection" );
-    
     
     return userData;
 }

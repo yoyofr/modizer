@@ -26,7 +26,11 @@
 @class AnimatedLaunchVC;
 @class WelcomeVC;
 
+#if TARGET_OS_MACCATALYST
+@interface myTabBarController : UITabBarController <UINavigationControllerDelegate,UITabBarDelegate,UIPageViewControllerDataSource,UIPageViewControllerDelegate,NSToolbarDelegate,UICollectionViewDelegate,UISplitViewControllerDelegate> {
+#else
 @interface myTabBarController : UITabBarController <UINavigationControllerDelegate,UITabBarDelegate,UIPageViewControllerDataSource,UIPageViewControllerDelegate> {
+#endif
     DetailViewControllerIphone *detailViewControllerIphone;
     RootViewControllerPlaylist *playlistVC;
     RootViewControllerLocalBrowser *rootViewControllerIphone;
@@ -46,6 +50,11 @@
     NSArray *welcomePages;
     UIPageViewController *myPVC;
     WelcomeVC *welcomePage1,*welcomePage2,*welcomePage3,*welcomePage4;
+    
+#if TARGET_OS_MACCATALYST
+    UISplitViewController *catalystSplitViewController;
+    UICollectionViewDiffableDataSource *sidebarDataSource;
+#endif
 }
 @property (nonatomic, retain) NSArray *welcomePages;
 @property (nonatomic, retain) WelcomeVC *welcomePage1,*welcomePage2,*welcomePage3,*welcomePage4;
@@ -65,6 +74,11 @@
 
 @property (nonatomic, retain) AnimatedLaunchVC *animatedLaunchVC;
 @property (nonatomic, retain) CarPlayAndRemoteManagement *cpMngt;
+
+#if TARGET_OS_MACCATALYST
+@property (nonatomic, retain) UISplitViewController *catalystSplitViewController;
+@property (nonatomic, retain) UICollectionViewDiffableDataSource *sidebarDataSource;
+#endif
 
 -(void) openURL:(NSURL *)url;
 -(void) presentWelcomePages;

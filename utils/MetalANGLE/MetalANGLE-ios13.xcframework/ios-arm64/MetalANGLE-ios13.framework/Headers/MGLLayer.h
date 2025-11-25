@@ -62,9 +62,6 @@ typedef enum MGLDrawableMultisample : int
 // Doing so will reduce performance and increase memory usage.
 @property(nonatomic) BOOL retainedBacking;
 
-//YOYOFR
-- (void)setPresentsWithTransaction:(BOOL)val;
-
 // Present the content of OpenGL backed framebuffer on screen as soon as possible.
 - (BOOL)present;
 

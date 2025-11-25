@@ -5,7 +5,6 @@
 
 
 #include <Renderer/Color.hpp>
-#include <Renderer/BorderData.hpp>
 #include <Renderer/Point.hpp>
 #include <Renderer/TextureUV.hpp>
 #include <Renderer/VertexBuffer.hpp>
@@ -71,9 +70,8 @@ public:
      * @param usage The buffer usage hint.
      * @param useColor If true, the color attribute array will be enabled by default.
      * @param useTextureUVs If true, the texture coordinate attribute array will be enabled by default.
-     * @param useBorders If true, the border data attribute array will be enabled by default.
      */
-    Mesh(VertexBufferUsage usage, bool useColor, bool useTextureUVs, bool useBorders=false);
+    Mesh(VertexBufferUsage usage, bool useColor, bool useTextureUVs);
 
     /**
      * Default destructor.
@@ -302,74 +300,6 @@ public:
     void SetUseUV(bool useUV);
     
     /**
-     * Returns a constant reference to the internal border data buffer.
-     * @return A constant reference to the internal border data buffer.
-     */
-    auto Borders() const -> const VertexBuffer<class BorderData>&
-    {
-        return m_borders;
-    }
-
-    /**
-     * Returns a reference to the internal border data buffer.
-     * @return A writeable reference to the internal border data buffer.
-     */
-    auto Borders() -> VertexBuffer<class BorderData>&
-    {
-        return m_borders;
-    }
-
-    /**
-     * Returns a BorderData instance with the border data of a vertex at the given index.
-     * @throws std::out_of_range thrown if the index is out of range.
-     * @param index The index of the vertex border data to retrieve.
-     * @return A constant reference to the vertex border data at the given index.
-     */
-    auto BorderData(uint32_t index) const -> const class BorderData&
-    {
-        return m_borders[index];
-    }
-
-    /**
-     * Returns a BorderData instance with the border data of a vertex at the given index.
-     * @throws std::out_of_range thrown if the index is out of range.
-     * @param index The index of the vertex border data to retrieve.
-     * @return A writeable reference to the vertex border data at the given index.
-     */
-    auto BorderData(uint32_t index) -> class BorderData&
-    {
-        return m_borders[index];
-    }
-
-    /**
-     * Set a given index to new border data.
-     * @param index The index of the vertex border data to set.
-     * @param border The new border data data to set at the given index.
-     */
-    void SetBorder(uint32_t index, const class BorderData& border)
-    {
-        m_borders[index] = border;
-    }
-
-    /**
-     * Returns whether the border data attribute array (index 8) is enabled.
-     * @return true if the border data attribute array is enabled, false if not.
-     */
-    auto UseBorder() const -> bool
-    {
-        return m_useBorderAttributes;
-    }
-
-    /**
-     * @brief Enables or disables the use of the border data attribute array (index 8).
-     * When enabling the array, the border data buffer is resized to the size of the position buffer.
-     * When disabling the array, the border data buffer is cleared.
-     * @note Disabling the border data attribute array does NOT free any previously allocated GPU buffer memory.
-     * @param useBorder true to enable the border data attribute array, false to disable it.
-     */
-    void SetUseBorder(bool useBorder);
-
-    /**
      * Returns a reference to the vertex index buffer.
      * @return A writeable reference to the vertex index buffer.
      */
@@ -418,14 +348,12 @@ private:
 
     bool m_useColorAttributes{false}; //!< If true, the color attribute array is enabled and populated.
     bool m_useUVAttributes{false};    //!< If true, the UV attribute array is enabled and populated.
-    bool m_useBorderAttributes{false};    //!< If true, the UV attribute array is enabled and populated.
     //!
     VertexArray m_vertexArray; //!< The vertex array object used to store all data of the mesh.
 
     VertexBuffer<Point> m_vertices;       //!< The vertex coordinates.
     VertexBuffer<class Color> m_colors;   //!< Vertex color values.
     VertexBuffer<TextureUV> m_textureUVs; //!< Vertex texture coordinates.
-    VertexBuffer<class BorderData> m_borders; //!< Vertex border data.
     //!
     VertexIndexArray m_indices; //!< The vertex indices used for rendering.
 };

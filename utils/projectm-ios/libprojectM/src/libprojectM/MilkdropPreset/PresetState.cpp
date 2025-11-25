@@ -174,16 +174,6 @@ void PresetState::LoadShaders()
     }
     untexturedShader = untexturedShaderShared;
     
-    auto untexturedBorderedShaderShared = renderContext.shaderCache->Get("milkdrop_generic_untexturedBordered");
-    if (!untexturedBorderedShaderShared)
-    {
-        untexturedBorderedShaderShared = std::make_shared<Renderer::Shader>();
-        untexturedBorderedShaderShared->CompileProgram(staticShaders->GetUntexturedBorderedDrawVertexShader(),
-                                        staticShaders->GetUntexturedBorderedDrawFragmentShader());
-        renderContext.shaderCache->Insert("milkdrop_generic_untexturedBordered", untexturedBorderedShaderShared);
-    }
-    untexturedBorderedShader = untexturedBorderedShaderShared;
-
     auto texturedShaderShared = renderContext.shaderCache->Get("milkdrop_generic_textured");
     if (!texturedShaderShared)
     {

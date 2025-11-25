@@ -24,6 +24,10 @@ CustomShape::CustomShape(PresetState& presetState)
     m_fillMesh.SetVertexCount(102);
 #ifdef CUSTOMSHAPE_FAST_RENDER
     m_fillMesh.SetRenderPrimitiveType(Renderer::Mesh::PrimitiveType::Triangles);
+    m_BorderData_RenderMode.Bind();
+    m_BorderData_RenderMode.InitializeAttributePointer(8);
+    Renderer::VertexBuffer<Renderer::Point>::SetEnableAttributeArray(8, true);
+    Renderer::Mesh::Unbind();
 #else
     m_fillMesh.SetRenderPrimitiveType(Renderer::Mesh::PrimitiveType::TriangleFan);
 #endif
@@ -80,27 +84,56 @@ void CustomShape::CompileCodeAndRunInitExpressions()
 }
 
 void CustomShape::FlushDraw(bool render,bool changeShader) {
-    // Additive Drawing or Overwrite
-    Renderer::BlendMode::SetBlendFunction(Renderer::BlendMode::Function::SourceAlpha,
-                                          static_cast<int>(*m_perFrameContext.additive) != 0
-                                              ? Renderer::BlendMode::Function::One
-                                              : Renderer::BlendMode::Function::OneMinusSourceAlpha);
-
-    if (render) {
-        m_fillMesh.Update();
-        m_fillMesh.Draw();
-    }
-    if (changeShader) {
-        glBindTexture(GL_TEXTURE_2D, 0);
-        Renderer::Sampler::Unbind(0);
-    }
+    
 }
 
 void CustomShape::InitDraw(float &textureAspectY,bool changeShader) {
-    if (!changeShader) return;
-    m_fillMesh.SetUseUV(static_cast<int>(*m_perFrameContext.textured) != 0);
-    if (m_fillMesh.UseUV())
+    
+}
+
+void CustomShape::Draw()
+{
+    static constexpr float pi = 3.141592653589793f;
+
+    if (!m_enabled)
     {
+        return;
+    }
+
+    Renderer::BlendMode::SetBlendActive(false);
+
+#ifdef CUSTOMSHAPE_FAST_RENDER
+    /*
+     * New render draw with 1 call
+     * manage all cases with 1 shader:
+     *  - change of border attributes (r,g,b,a, thickness)
+     *  - change of number of sides
+     *  - change of additive mode
+     *  - change of texture mode
+     *
+     * Blending managed directly in shader using framebuffer fetch extension
+     */
+    
+    glDisable(GL_DEPTH_TEST);
+    
+    auto& vertexData = m_fillMesh.Vertices();
+    auto& colorData = m_fillMesh.Colors();
+    float textureAspectY = m_presetState.renderContext.aspectY;
+    
+    
+    //max is 100 sides per instance
+    if (m_fillMesh.VertexCount()<102*m_instances) {
+        m_fillMesh.SetVertexCount(102*m_instances);
+    }
+    
+    m_BorderData_RenderMode.Resize(102*m_instances);
+    
+    int vertexIdx=0;
+    int totalSides=0;
+    int indicesIdx=0;
+    int instanceStartIdx=0;
+    
+    m_fillMesh.SetUseUV(true); //static_cast<int>(*m_perFrameContext.textured) != 0);
         m_shader = m_presetState.texturedBorderedShader.lock();
         m_shader->Bind();
         m_shader->SetUniformMat4x4("vertex_transformation", PresetState::orthogonalProjection);
@@ -131,59 +164,6 @@ void CustomShape::InitDraw(float &textureAspectY,bool changeShader) {
 
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    }
-    else
-    {
-        // Untextured (creates a color gradient: center=r/g/b/a to border=r2/b2/g2/a2)
-        m_shader = m_presetState.untexturedBorderedShader.lock();
-        m_shader->Bind();
-        m_shader->SetUniformMat4x4("vertex_transformation", PresetState::orthogonalProjection);
-        m_shader->SetUniformFloat("vertex_point_size", 1.0);
-    }
-}
-
-void CustomShape::Draw()
-{
-    static constexpr float pi = 3.141592653589793f;
-
-    if (!m_enabled)
-    {
-        return;
-    }
-
-    Renderer::BlendMode::SetBlendActive(true);
-
-#ifdef CUSTOMSHAPE_FAST_RENDER
-    /*
-     * New render, target is to draw with minimum calls
-     * currently managed:
-     *  - change of border attributes (r,g,b,a, thickness)
-     *  - change of number of sides
-     *  - change of additive mode
-     *  - change of texture mode
-     */
-    
-    glDisable(GL_DEPTH_TEST);
-    
-    auto& vertexData = m_fillMesh.Vertices();
-    auto& colorData = m_fillMesh.Colors();
-    auto& borderData = m_fillMesh.Borders();
-    float textureAspectY = m_presetState.renderContext.aspectY;
-    
-    
-    //max is 100 sides per instance
-    if (m_fillMesh.VertexCount()<102*m_instances) {
-        m_fillMesh.SetVertexCount(102*m_instances);
-    }
-    
-    m_fillMesh.SetUseBorder(true);
-    
-    int vertexIdx=0;
-    int totalSides=0;
-    int indicesIdx=0;
-    int instanceStartIdx=0;
-    
-    InitDraw(textureAspectY,true);
     
     bool textureMode=(static_cast<int>(*m_perFrameContext.textured) != 0);
     bool additiveMode=(static_cast<int>(*m_perFrameContext.additive) != 0);
@@ -195,23 +175,6 @@ void CustomShape::Draw()
         
         bool curTextureMode=(static_cast<int>(*m_perFrameContext.textured) != 0);
         bool curAdditiveMode=(static_cast<int>(*m_perFrameContext.additive) != 0);
-        if ((curTextureMode!=textureMode) || (curAdditiveMode!=additiveMode) ) {
-            //Change of texture mode or additive mode
-            //1st render any pending instance
-            bool changeShader=false;
-            if (curTextureMode!=textureMode) changeShader=true;
-            
-            FlushDraw((indicesIdx>0),changeShader);
-            vertexIdx=0;
-            totalSides=0;
-            indicesIdx=0;
-            instanceStartIdx=0;
-            //2nd reinit render
-            InitDraw(textureAspectY,changeShader);
-            //3rd keep track of current modes
-            textureMode=curTextureMode;
-            additiveMode=curAdditiveMode;
-        }
         
         float borderFactor;
         float thick,thickX,thickY,thickAdd;
@@ -246,12 +209,22 @@ void CustomShape::Draw()
         vertexData[vertexIdx] = Renderer::Point(static_cast<float>(*m_perFrameContext.x * 2.0 - 1.0),
                                         static_cast<float>(*m_perFrameContext.y * -2.0 + 1.0));
         
-        borderData[vertexIdx] = Renderer::BorderData(static_cast<float>(*m_perFrameContext.border_r),
-                                                               static_cast<float>(*m_perFrameContext.border_g),
-                                                               static_cast<float>(*m_perFrameContext.border_b),
-                                                               static_cast<float>(*m_perFrameContext.border_a),
-                                                               0.0,
-                                                               static_cast<float>(instance)*0.0001);
+        m_BorderData_RenderMode[vertexIdx].rgb =(int)(static_cast<float>(*m_perFrameContext.border_r)*255.0)<<16|
+                                                (int)(static_cast<float>(*m_perFrameContext.border_g)*255.0)<<8|
+                                                (int)(static_cast<float>(*m_perFrameContext.border_b)*255.0)<<0;
+        m_BorderData_RenderMode[vertexIdx].a_flags =(int)(static_cast<float>(*m_perFrameContext.border_a)*255.0)<<0|
+                                                    (curAdditiveMode?0x100:0)|
+                                                    (curTextureMode?0x200:0);
+        m_BorderData_RenderMode[vertexIdx].borderFlag=0.0;
+        m_BorderData_RenderMode[vertexIdx].zOrder=static_cast<float>(instance)*0.0001;
+//        Renderer::BorderData(static_cast<float>(*m_perFrameContext.border_r),
+//                                                     static_cast<float>(*m_perFrameContext.border_g),
+//                                                     static_cast<float>(*m_perFrameContext.border_b),
+//                                                     static_cast<float>(*m_perFrameContext.border_a),
+//                                                     0.0,
+//                                                     static_cast<float>(instance)*0.0001,
+//                                                     curAdditiveMode,
+//                                                     curTextureMode);
 
         // x = f*255.0 & 0xFF = (f*255.0) % 256
         // f' = x/255.0 = f % (256/255)
@@ -281,24 +254,44 @@ void CustomShape::Draw()
             colorData[vertexIdx+i] = colorData[vertexIdx+1];
             
             
-            borderData[vertexIdx+i] = Renderer::BorderData(static_cast<float>(*m_perFrameContext.border_r),
-                                                                   static_cast<float>(*m_perFrameContext.border_g),
-                                                                   static_cast<float>(*m_perFrameContext.border_b),
-                                                                   static_cast<float>(*m_perFrameContext.border_a),
-                                                                   borderFactor,
-                                                                   static_cast<float>(instance)*0.0001);
+            m_BorderData_RenderMode[vertexIdx+i].rgb =(int)(static_cast<float>(*m_perFrameContext.border_r)*255.0)<<16|
+                                                    (int)(static_cast<float>(*m_perFrameContext.border_g)*255.0)<<8|
+                                                    (int)(static_cast<float>(*m_perFrameContext.border_b)*255.0)<<0;
+            m_BorderData_RenderMode[vertexIdx+i].a_flags =(int)(static_cast<float>(*m_perFrameContext.border_a)*255.0)<<0|
+                                                        (curAdditiveMode?0x100:0)|
+                                                        (curTextureMode?0x200:0);
+            m_BorderData_RenderMode[vertexIdx+i].borderFlag=borderFactor;
+            m_BorderData_RenderMode[vertexIdx+i].zOrder=static_cast<float>(instance)*0.0001;
+//            borderData[vertexIdx+i] = Renderer::BorderData(static_cast<float>(*m_perFrameContext.border_r),
+//                                                           static_cast<float>(*m_perFrameContext.border_g),
+//                                                           static_cast<float>(*m_perFrameContext.border_b),
+//                                                           static_cast<float>(*m_perFrameContext.border_a),
+//                                                           borderFactor,
+//                                                           static_cast<float>(instance)*0.0001,
+//                                                           curAdditiveMode,
+//                                                           curTextureMode);
         }
 
         // Duplicate last vertex.
         vertexData[vertexIdx + sides + 1] = vertexData[vertexIdx+1];
         colorData[vertexIdx + sides + 1] = colorData[vertexIdx+1];
         
-        borderData[vertexIdx + sides + 1] = Renderer::BorderData(static_cast<float>(*m_perFrameContext.border_r),
-                                                               static_cast<float>(*m_perFrameContext.border_g),
-                                                               static_cast<float>(*m_perFrameContext.border_b),
-                                                               static_cast<float>(*m_perFrameContext.border_a),
-                                                               borderFactor,
-                                                               static_cast<float>(instance)*0.0001);
+//        borderData[vertexIdx + sides + 1] = Renderer::BorderData(static_cast<float>(*m_perFrameContext.border_r),
+//                                                               static_cast<float>(*m_perFrameContext.border_g),
+//                                                               static_cast<float>(*m_perFrameContext.border_b),
+//                                                               static_cast<float>(*m_perFrameContext.border_a),
+//                                                               borderFactor,
+//                                                               static_cast<float>(instance)*0.0001,
+//                                                               curAdditiveMode,
+//                                                               curTextureMode);
+        m_BorderData_RenderMode[vertexIdx + sides + 1].rgb =(int)(static_cast<float>(*m_perFrameContext.border_r)*255.0)<<16|
+                                                (int)(static_cast<float>(*m_perFrameContext.border_g)*255.0)<<8|
+                                                (int)(static_cast<float>(*m_perFrameContext.border_b)*255.0)<<0;
+        m_BorderData_RenderMode[vertexIdx + sides + 1].a_flags =(int)(static_cast<float>(*m_perFrameContext.border_a)*255.0)<<0|
+                                                    (curAdditiveMode?0x100:0)|
+                                                    (curTextureMode?0x200:0);
+        m_BorderData_RenderMode[vertexIdx + sides + 1].borderFlag=borderFactor;
+        m_BorderData_RenderMode[vertexIdx + sides + 1].zOrder=static_cast<float>(instance)*0.0001;
 
         if (m_fillMesh.UseUV())
         {
@@ -334,7 +327,12 @@ void CustomShape::Draw()
         vertexIdx+=sides+2;
 
     }
-    FlushDraw((indicesIdx>0),false);
+    m_fillMesh.Update();
+    m_BorderData_RenderMode.Update();
+    m_fillMesh.Draw();
+    
+    glBindTexture(GL_TEXTURE_2D, 0);
+    Renderer::Sampler::Unbind(0);
 #else
     for (int instance = 0; instance < m_instances; instance++)
     {

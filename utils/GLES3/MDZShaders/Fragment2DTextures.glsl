@@ -2,7 +2,6 @@
 precision mediump float;
 
 in vec2 v_textCoord;
-
 out vec4 outColor;
 
 uniform sampler2D u_curTexture;

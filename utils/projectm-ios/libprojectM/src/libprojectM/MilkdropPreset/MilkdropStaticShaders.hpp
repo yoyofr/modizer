@@ -58,9 +58,7 @@ public:
     std::string GetTexturedBorderedDrawVertexShader();
     std::string GetUntexturedDrawFragmentShader();
     std::string GetUntexturedDrawVertexShader();
-    std::string GetUntexturedBorderedDrawFragmentShader();
-    std::string GetUntexturedBorderedDrawVertexShader();
-
+    
 
 private:
     /**

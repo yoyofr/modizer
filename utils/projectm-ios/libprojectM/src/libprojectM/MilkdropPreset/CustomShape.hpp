@@ -46,6 +46,22 @@ public:
 
 private:
     /**
+     * Vertex attributes for border and rendering mode (texture, additive mode).
+     */
+    struct BorderData_RenderMode {
+        float rgb{};
+        float a_flags{};
+        float borderFlag{};
+        float zOrder{};
+
+        static void InitializeAttributePointer(uint32_t attributeIndex)
+        {
+            glVertexAttribPointer(attributeIndex, sizeof(BorderData_RenderMode) / sizeof(float), GL_FLOAT, GL_FALSE, sizeof(BorderData_RenderMode), nullptr);
+        }
+    };
+
+    
+    /**
      * @brief Intermediary rendering for fast render, needed if a key attribute change and shader or blending mode needs to be updated.
      * @param render Indicates if there is actually something to draw
      */
@@ -102,6 +118,8 @@ private:
 
     PresetState& m_presetState; //!< The global preset state.
     ShapePerFrameContext m_perFrameContext;
+    
+    Renderer::VertexBuffer<BorderData_RenderMode> m_BorderData_RenderMode{Renderer::VertexBufferUsage::StreamDraw};  //!< Vertex attribute buffer for radius and angle values.
 
     friend class ShapePerFrameContext;
 };

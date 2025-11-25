@@ -359,6 +359,7 @@ extern int move_cursorL,move_cursorR,keyDel;
 }
 
 
+
 - (void)viewDidLoad {
     START_PROFILE
 	[super viewDidLoad];
