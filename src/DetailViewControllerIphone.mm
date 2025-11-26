@@ -4411,7 +4411,7 @@ int recording=0;
                 pt=[self.view convertPoint:self.mainView.frame.origin toView:[UIApplication sharedApplication].keyWindow.rootViewController.view];
             }
             
-//            MDZILog("yo: %f",pt.y);
+            MDZILog("yo: %f",pt.y);
             yofs=pt.y;
             
             // Use self.view.safeAreaInsets for more reliable results, especially on iOS 15
@@ -5555,6 +5555,9 @@ void pm_perfTest() {
     // Try to load existing save
     [_mdzPM_playlist loadPlaylist];
     
+    // Launch background thread
+    [_mdzPM_playlist loadingBackgroundThread];
+    
     // Allocate Favorites
     _mdzPM_Favorites=[[MDZFavorites alloc] init];
     [_mdzPM_Favorites loadFavorites];
@@ -5874,9 +5877,14 @@ void pm_perfTest() {
     //located_country=[NSString stringWithString:locale.countryCode];
     
     if ([NSProcessInfo processInfo].isiOSAppOnMac) {
-        is_macOS=1;
+        is_macOS=true;
         mDeviceType=DEVICE_MACOS;
     }
+#if TARGET_OS_MACCATALYST
+    is_macOS=true;
+    mDeviceType=DEVICE_MACOS;
+#endif
+
     
     self.navigationController.delegate = self;
     
@@ -6867,6 +6875,9 @@ void pm_perfTest() {
     }else{
         is_macOS=false;
     }
+#if TARGET_OS_MACCATALYST
+    is_macOS=true;
+#endif
     //    if (m_displayLink) [m_displayLink invalidate];
     
     [[self navigationController] setNavigationBarHidden:NO animated:NO];

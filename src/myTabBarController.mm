@@ -402,6 +402,8 @@ extern int move_cursorL,move_cursorR,keyDel;
             self.traitOverrides.horizontalSizeClass = UIUserInterfaceSizeClassCompact;//UIUserInterfaceSizeClassRegular;
         }
     }
+#if TARGET_OS_MACCATALYST
+#endif
     
     // Resolve detailViewControllerIphone
     self.rootViewControllerIphone = [self findChildOfClass:[RootViewControllerLocalBrowser class]];
