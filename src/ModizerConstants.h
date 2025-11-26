@@ -64,9 +64,9 @@ extern void *LoadingProgressObserverContext;
 #define mdz_safe_delete(x) if(x) {delete x;x=NULL;}
 #define mdz_safe_execute_sel(cont,sel,arg) if ([cont respondsToSelector:sel]) [cont performSelectorOnMainThread:sel withObject:arg waitUntilDone:NO];
 
-#define MODIZER_MACM1_WIDTH_MIN 380
+#define MODIZER_MACM1_WIDTH_MIN 300
 #define MODIZER_MACM1_WIDTH_MAX 10000 //1920*2
-#define MODIZER_MACM1_HEIGHT_MIN  390
+#define MODIZER_MACM1_HEIGHT_MIN  310
 #define MODIZER_MACM1_HEIGHT_MAX 10000 //1200*2
 
 #define ACTION_COLOR_RED ((float)(0xD5)/255.0)

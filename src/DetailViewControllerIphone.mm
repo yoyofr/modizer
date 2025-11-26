@@ -72,7 +72,7 @@ static int current_selmode;
 int MIDIFX_OFS;
 
 #include <pthread.h>
-extern pthread_mutex_t db_mutex;
+extern pthread_mutex_t db_mutex,gl_mutex;
 
 #import "SysMonitoring.h"
 
@@ -1538,16 +1538,31 @@ static float movePinchScale,movePinchScaleOld;
             break;
     }
     ImGui::SetNextWindowPos(ImVec2(pos_x,pos_y));
-    ImGui::SetNextWindowSize(ImVec2((str_size_max.x+4)*glScaleFactor,3.5*textHH*glScaleFactor));
+    ImGui::SetNextWindowSize(ImVec2((str_size_max.x+4+3.0*textHH)*glScaleFactor,3.5*textHH*glScaleFactor));
     ImGui::GetStyle().Alpha=1.0;
     ImGui::Begin("On screen music info",0,ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoScrollbar|ImGuiWindowFlags_NoFocusOnAppearing);
     
+    ImVec2 cur_pos=ImGui::GetCursorPos();
+    
     for (int i=0;i<3;i++) {
+        if (coverAvailable) {
+            ImVec2 new_cur_pos=ImGui::GetCursorPos();
+            new_cur_pos.x+=textHH*3.0*glScaleFactor;
+            ImGui::SetCursorPos(new_cur_pos);
+        }
+        
         if (_mdz_FS_display_cursorLine==i) {
             if ((framecpt%32)>=10) ImGui::Text("%s_",strLine[i]);
             else ImGui::Text("%s",strLine[i]);
         } else ImGui::Text("%s",strLine[i]);
     }
+    
+    if (coverAvailable) {
+        ImGui::SetCursorPos(cur_pos);
+        ImGui::Image(txtCoverImg, ImVec2(3.0*textHH*glScaleFactor,3.0*textHH*glScaleFactor));
+    }
+
+    
     ImGui::End();
     ImGui::PopFont();
     
@@ -3498,6 +3513,7 @@ int recording=0;
     pathFileImgJPEG=[NSHomeDirectory() stringByAppendingFormat:@"/%@.jpeg",[filePath stringByDeletingPathExtension]];
     pathFileImgGIF=[NSHomeDirectory() stringByAppendingFormat:@"/%@.gif",[filePath stringByDeletingPathExtension]];
     
+    coverAvailable=false;
     cover_img=nil;
     //    cover_img=[UIImage imageWithData:[NSData dataWithContentsOfFile:pathFolderImgPNG]];
     if (gifAnimation) [gifAnimation removeFromSuperview];
@@ -3597,15 +3613,8 @@ int recording=0;
     }
     
     if (cover_img==nil) {
-        //generate default cover, use black image
-        /*CGSize size = CGSizeMake(64, 64);
-         UIGraphicsBeginImageContextWithOptions(size, YES, 0);
-         [[UIColor blackColor] setFill];
-         UIRectFill(CGRectMake(0, 0, size.width, size.height));
-         UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
-         UIGraphicsEndImageContext();*/
         cover_img=default_cover;
-    }
+    } else coverAvailable=true;
     
     if (cover_img) {
         if (mScaleFactor!=1) cover_img = [[UIImage alloc] initWithCGImage:cover_img.CGImage scale:mScaleFactor orientation:UIImageOrientationUp];
@@ -4411,7 +4420,7 @@ int recording=0;
                 pt=[self.view convertPoint:self.mainView.frame.origin toView:[UIApplication sharedApplication].keyWindow.rootViewController.view];
             }
             
-            MDZILog("yo: %f",pt.y);
+            //MDZILog("yo: %f",pt.y);
             yofs=pt.y;
             
             // Use self.view.safeAreaInsets for more reliable results, especially on iOS 15
@@ -4420,6 +4429,7 @@ int recording=0;
             safe_left=self.view.safeAreaInsets.left;
             safe_right=self.view.safeAreaInsets.right;
 //            if (safe_bottom>0) safe_bottom+=20;
+            //MDZILog("safe: %f %f %f %f",safe_bottom,safe_top,safe_left,safe_right);
             
             if (is_macOS) {
                 mainView.frame = CGRectMake(0, 0, mDevice_ww, mDevice_hh-yofs);
@@ -4674,8 +4684,12 @@ int recording=0;
                 } else {
                     pt=[self.view convertPoint:self.mainView.frame.origin toView:[UIApplication sharedApplication].keyWindow.rootViewController.view];
                 }
-//                MDZILog("yo: %f",pt.y);
+//                MDZILog("yo: %f / %f",pt.y,mDevice_ww);
                 yofs=pt.y;
+                
+                if (is_macOS) {
+                    yofs-=28;
+                }
                 
                 // Use self.view.safeAreaInsets for more reliable results, especially on iOS 15
                 safe_bottom=self.view.safeAreaInsets.bottom;
@@ -4683,6 +4697,7 @@ int recording=0;
                 safe_left=self.view.safeAreaInsets.left;
                 safe_right=self.view.safeAreaInsets.right;
 //                if (safe_bottom>0) safe_bottom+=20;
+//                MDZILog("safe: %f %f %f %f",safe_bottom,safe_top,safe_left,safe_right);
                 
                 if (is_macOS) {
                     mainView.frame = CGRectMake(0.0, 0, mDevice_hh, mDevice_ww-yofs);
@@ -4804,8 +4819,9 @@ int recording=0;
 /* User Defined Variables */
 GLfloat angle;
 
-GLuint txtbackgroundImage;
-GLsizei txtbackgroundImageWidth,txtbackgroundImageHeight;
+GLuint txtBGImage,txtCoverImg;
+bool coverAvailable;
+//GLsizei txtBGImageWidth,txtBGImageHeight;
 
 /**************************************************/
 
@@ -5555,9 +5571,6 @@ void pm_perfTest() {
     // Try to load existing save
     [_mdzPM_playlist loadPlaylist];
     
-    // Launch background thread
-    [_mdzPM_playlist loadingBackgroundThread];
-    
     // Allocate Favorites
     _mdzPM_Favorites=[[MDZFavorites alloc] init];
     [_mdzPM_Favorites loadFavorites];
@@ -5844,8 +5857,11 @@ void pm_perfTest() {
     //--------------------------------//
     // Texture for background view
     //--------------------------------//
-    txtbackgroundImage=0;
-    glGenTextures(1, &txtbackgroundImage);
+    txtBGImage=0;
+    txtCoverImg=0;
+    coverAvailable=false;
+    glGenTextures(1, &txtBGImage);
+    glGenTextures(1, &txtCoverImg);
     
     CHECK_PROFILE("openGL")
     
@@ -6484,8 +6500,7 @@ void pm_perfTest() {
             BOOL likelyFullscreen = (windowFrame.size.width > 1500.0 &&
                                      windowFrame.size.height > 1000.0);
             
-            MDZILog("fs: window=%f x %f, likely fullscreen=%d",
-                    windowFrame.size.width, windowFrame.size.height, likelyFullscreen);
+//            MDZILog("fs: window=%f x %f, likely fullscreen=%d",windowFrame.size.width, windowFrame.size.height, likelyFullscreen);
             
             return likelyFullscreen;
         }
@@ -6901,11 +6916,51 @@ void pm_perfTest() {
     return image;
 }
 
+-(void) generateCoverTexture {
+    
+    if (cover_img) {
+        if (txtCoverImg) {
+            //glDeleteTextures(1,&txtBGImage);
+        }
+        
+        CGSize sizeOfImage = [cover_img size];
+        CGFloat scaleOfImage = [cover_img scale];
+        CGSize pixelSizeOfImage = CGSizeMake(scaleOfImage * sizeOfImage.width, scaleOfImage * sizeOfImage.height);
+        
+        //create context
+        GLubyte * textureData = (GLubyte *)malloc(pixelSizeOfImage.width * pixelSizeOfImage.height * 4 * sizeof(GLubyte));
+        CGContextRef tmpContext = CGBitmapContextCreate(textureData, pixelSizeOfImage.width, pixelSizeOfImage.height, 8, pixelSizeOfImage.width * 4, CGImageGetColorSpace(backgroundImage.CGImage), kCGImageAlphaPremultipliedLast);
+        
+        //draw image into context
+        CGContextDrawImage(tmpContext, CGRectMake(0.0, 0.0, pixelSizeOfImage.width, pixelSizeOfImage.height), cover_img.CGImage);
+        
+//        txtCoverImgWidth=pixelSizeOfImage.width;
+//        txtCoverImgHeight=pixelSizeOfImage.height;
+        
+        glBindTexture(GL_TEXTURE_2D, txtCoverImg);
+        
+        //create texture
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, pixelSizeOfImage.width, pixelSizeOfImage.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, textureData);
+        
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        
+        //        glGenerateMipmap(GL_TEXTURE_2D);
+        //glActiveTexture(GL_TEXTURE0);
+        
+        free(textureData);
+        CGContextRelease(tmpContext);
+    }
+}
+
+
 -(void) generateBGTexture {
     backgroundImage=[self imageFromView:self.cover_viewAll];
     //backgroundImage=self.cover_img;
     if (backgroundImage) {
-        if (txtbackgroundImage) {
+        if (txtBGImage) {
             //glDeleteTextures(1,&txtbackgroundImage);
         }
         
@@ -6920,10 +6975,10 @@ void pm_perfTest() {
         //draw image into context
         CGContextDrawImage(tmpContext, CGRectMake(0.0, 0.0, pixelSizeOfImage.width, pixelSizeOfImage.height), backgroundImage.CGImage);
         
-        txtbackgroundImageWidth=pixelSizeOfImage.width;
-        txtbackgroundImageHeight=pixelSizeOfImage.height;
+//        txtBGImageWidth=pixelSizeOfImage.width;
+//        txtBGImageHeight=pixelSizeOfImage.height;
         
-        glBindTexture(GL_TEXTURE_2D, txtbackgroundImage);
+        glBindTexture(GL_TEXTURE_2D, txtBGImage);
         
         //create texture
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, pixelSizeOfImage.width, pixelSizeOfImage.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, textureData);
@@ -6948,6 +7003,8 @@ void pm_perfTest() {
     
     nowplayingPL=nil;
     
+    //Force an update of song info to display in gl view
+    [self refreshFXFSLabels];
     
     //
     [super viewDidAppear:animated];
@@ -7787,6 +7844,7 @@ void doFramePM(float ww,float hh) {
     if (shouldUpdateCoverTexture) {
         // Generate new texture / current background view
         [self generateBGTexture];
+        [self generateCoverTexture];
         shouldUpdateCoverTexture=0;
     }
     
@@ -7855,6 +7913,7 @@ void doFramePM(float ww,float hh) {
         m_oglView.layer.zPosition=3;
     }
     
+    //pthread_mutex_lock(&gl_mutex);
     [self setContextOGL];
     glClearColor(0.0f, 0.0f , 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
@@ -7952,7 +8011,7 @@ void doFramePM(float ww,float hh) {
     glBindVertexArray(0);
     //also unbind the array buffer
     glBindBuffer(GL_ARRAY_BUFFER, 0);
-    RenderUtils::DrawTexture(ww, hh, txtbackgroundImage, 1.0f-fxalpha,1);
+    RenderUtils::DrawTexture(ww, hh, txtBGImage, 1.0f-fxalpha,1);
     
     /*-------------------------------------------------------------------------------*/
     /*  ProjectM render */
@@ -9278,6 +9337,7 @@ void doFramePM(float ww,float hh) {
         bool isFullscreen=settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value;
         
         int ret=PMenu::playerShowMenu(ww,hh,glScaleFactor,fadelev,movePxPMenu,movePyPMenu,pmenu_show);
+        
         movePxPMenu=movePyPMenu=0;
         if (ret<0) {
             mOglViewIsHidden=YES;
@@ -9290,7 +9350,7 @@ void doFramePM(float ww,float hh) {
             }
         } else if (ret==0) {
             pmenu_show=0;
-            //pmenu_fade=0;
+            pmenu_fade=0;
         } else if (ret>0) {
             if (ret==2) shouldGoToSettings=1; //Visu
             else if (ret==3) shouldGoToSettings=2; //Oscillo
@@ -9299,12 +9359,10 @@ void doFramePM(float ww,float hh) {
         
         //specific case for fullscreen switch change
         if (settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value!=isFullscreen) {
-            
-            [self mdzUpdateUI:(UIInterfaceOrientation)orientationHV];
             shouldUpdateCoverTexture=1;
             oglViewFullscreenChanged=1;
+            [self mdzUpdateUI:(UIInterfaceOrientation)orientationHV];
         }
-        
     }
     
     [self showGUICorners:ImVec2(ww,hh) frameToUpdate:frameToUpdate];
@@ -9323,6 +9381,7 @@ void doFramePM(float ww,float hh) {
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());    
     
     [self presentContextOGL];
+    //pthread_mutex_unlock(&gl_mutex);
     
     CFTimeInterval _fx_last_time=CFAbsoluteTimeGetCurrent();
     _fx_frame_time=1000.0f*(double)(_fx_last_time-_fx_start_time);

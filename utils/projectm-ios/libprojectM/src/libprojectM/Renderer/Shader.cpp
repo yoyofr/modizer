@@ -8,6 +8,9 @@
 #include <regex>
 #include <optional>
 
+//YOYOFR
+#include <pthread.h>
+extern pthread_mutex_t pm_mutex,gl_mutex;
 
 namespace libprojectM {
 namespace Renderer {
@@ -30,13 +33,23 @@ void Shader::CompileProgram(const std::string& vertexShaderSource,
                             uint32_t shaderP)
 {
     if (!shaderP) {
+        //YOYOFR
+        pthread_mutex_lock(&gl_mutex);
         auto vertexShader = CompileShader(vertexShaderSource, GL_VERTEX_SHADER);
-        auto fragmentShader = CompileShader(fragmentShaderSource, GL_FRAGMENT_SHADER);
+        pthread_mutex_unlock(&gl_mutex);
         
+        pthread_mutex_lock(&gl_mutex);
+        auto fragmentShader = CompileShader(fragmentShaderSource, GL_FRAGMENT_SHADER);
+        pthread_mutex_unlock(&gl_mutex);
+        
+        
+        pthread_mutex_lock(&gl_mutex);
         glAttachShader(m_shaderProgram, vertexShader);
         glAttachShader(m_shaderProgram, fragmentShader);
-        
         glLinkProgram(m_shaderProgram);
+        pthread_mutex_unlock(&gl_mutex);
+        
+        
         
         // Shader objects are no longer needed after linking, free the memory.
         glDetachShader(m_shaderProgram, vertexShader);

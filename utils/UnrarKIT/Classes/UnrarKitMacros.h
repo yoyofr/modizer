@@ -74,7 +74,11 @@ extern BOOL unrarkitIsAtLeast10_13SDK; // Declared in URKArchive.m
 
 #define URKLog(format, ...)      os_log(unrarkit_log, format, ##__VA_ARGS__);
 #define URKLogInfo(format, ...)  os_log_info(unrarkit_log, format, ##__VA_ARGS__);
+#if DEBUG
 #define URKLogDebug(format, ...) os_log_debug(unrarkit_log, format, ##__VA_ARGS__);
+#else
+#define URKLogDebug(format, ...) 
+#endif
 
 
 #define URKLogError(format, ...) \

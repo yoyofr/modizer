@@ -69,9 +69,7 @@ enum MDZ_PLAYLIST_FNODE_Type {
 @property (nonatomic, assign) uint32_t warpP,compP;
 @property (nonatomic, assign) uint32_t nextWarpP,nextCompP;
 @property (nonatomic, strong) NSString *nextFilepath;
-@property (nonatomic, strong) FileNode *nextItem;
 @property (nonatomic, assign) int retry_counter,retry_preLoadcounter;
-@property (nonatomic, assign) int loadingCommand;
 
 - (instancetype)init:(projectm_handle)pmh name:(NSString*)name;
 - (instancetype)initWithArray:(NSArray*)array pmh:(projectm_handle)pmh name:(NSString*)name;
@@ -94,12 +92,8 @@ enum MDZ_PLAYLIST_FNODE_Type {
 - (const char*)getCurFullpath;
 - (int)getCurType;
 - (NSString*)getCurFullpathNS;
-- (int)getCurType;
 - (int)getSize;
 
-
-- (void)loadingBackgroundThread;
-- (void)stopBackgroundThread;
 
 - (void)loadASyncPreset:(FileNode*)item cut:(bool)cut;
 - (void)loadPreset:(FileNode*)item cut:(bool)cut;

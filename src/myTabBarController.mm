@@ -365,6 +365,7 @@ extern int move_cursorL,move_cursorR,keyDel;
 	[super viewDidLoad];
     self.navigationController.delegate = self;
     
+    
     //self.view.backgroundColor = [UIColor clearColor];
     
     // iOS 15+ Fix: Configure appearance for tab bar and navigation bar
@@ -402,8 +403,6 @@ extern int move_cursorL,move_cursorR,keyDel;
             self.traitOverrides.horizontalSizeClass = UIUserInterfaceSizeClassCompact;//UIUserInterfaceSizeClassRegular;
         }
     }
-#if TARGET_OS_MACCATALYST
-#endif
     
     // Resolve detailViewControllerIphone
     self.rootViewControllerIphone = [self findChildOfClass:[RootViewControllerLocalBrowser class]];
@@ -527,6 +526,8 @@ extern int move_cursorL,move_cursorR,keyDel;
 #else
 //    [window addSubview:[animatedLaunchVC view]];
 #endif
+    
+    
     
     END_PROFILE
 }
@@ -657,6 +658,8 @@ extern int move_cursorL,move_cursorR,keyDel;
 //}
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
+    
+
     
     static bool firstcall=true;
     

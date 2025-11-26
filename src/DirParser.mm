@@ -39,7 +39,7 @@ extern bool _pmPresetNewLoaded;
 #include "RenderUtils.h"
 
 #include <pthread.h>
-extern pthread_mutex_t pm_mutex;
+extern pthread_mutex_t pm_mutex,gl_mutex;
 
 @implementation FileNode
 
@@ -410,7 +410,10 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
 }
 
 - (void)preloadNextPreset:(FileNode*)item {
+//    MGLContext *mainContext=[MGLContext currentContext];
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+//        MGLContext *sharedContext= [[MGLContext alloc] initWithAPI:mainContext.API sharegroup:mainContext.sharegroup];
+//        [MGLContext setCurrentContext:sharedContext];
         //Load new preset
         pthread_mutex_lock(&pm_mutex);
         [self releaseNextPreset];
@@ -419,6 +422,10 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
             self.lastFailed=false;
             projectm_preload_preset_file(self.pmh, [[item getFullPath] UTF8String], &self->_nextWarpP, &self->_nextCompP);
         }
+        
+//        glFlush();
+//        [MGLContext setCurrentContext:nil];
+        
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
             pthread_mutex_unlock(&pm_mutex);
             if (!self.lastFailed) {
@@ -440,6 +447,9 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
 }
 
 - (void)loadASyncCurrentPreset:(bool)cut {
+    
+//    MGLContext *mainContext=[MGLContext currentContext];
+    
     FileNode *item;
     if (self.size==0) {
         moveToNextPresetRequest=0;
@@ -447,6 +457,8 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
     }
     item=[self.items objectAtIndex:self.position];
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+//        MGLContext *sharedContext= [[MGLContext alloc] initWithAPI:mainContext.API sharegroup:mainContext.sharegroup];
+//        [MGLContext setCurrentContext:sharedContext];
         //Load new preset
         pthread_mutex_lock(&pm_mutex);
         if ((self.nextWarpP && self.nextCompP && [self.nextFilepath isEqualToString:[item getFullPath]])) {
@@ -464,6 +476,9 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
             
             projectm_preload_preset_file(self.pmh, [[item getFullPath] UTF8String], &self->_warpP, &self->_compP);
         }
+        
+//        glFlush();
+//        [MGLContext setCurrentContext:nil];
         
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
             
@@ -517,7 +532,11 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
 }
 
 - (void)loadASyncPreset:(FileNode*)item cut:(bool)cut {
+//    MGLContext *mainContext=[MGLContext currentContext];
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+//        MGLContext *sharedContext= [[MGLContext alloc] initWithAPI:mainContext.API sharegroup:mainContext.sharegroup];
+//        [MGLContext setCurrentContext:sharedContext];
+        
         //Load new preset
         pthread_mutex_lock(&pm_mutex);
         if (self.size) {
@@ -529,6 +548,10 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
             
             projectm_preload_preset_file(self.pmh, [[item getFullPath] UTF8String], &self->_warpP, &self->_compP);
         }
+        
+//        glFlush();
+//        [MGLContext setCurrentContext:nil];
+        
         
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
             
