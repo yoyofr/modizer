@@ -361,6 +361,8 @@ GLuint Shader::CompileShader(const std::string& source, GLenum type)
     }
     std::string error_message=message.data()+std::string("\n")+logStr;
     
+    printf("%s\n",error_message.c_str());
+    
 
     throw ShaderException("Error compiling shader: " + std::string(error_message));
 }

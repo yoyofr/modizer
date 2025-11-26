@@ -5064,7 +5064,7 @@ GLsizei txtbackgroundImageWidth,txtbackgroundImageHeight;
     
     valNb=[[NSNumber alloc] initWithInt:VERSION_MAJOR];
     [prefs setObject:valNb forKey:@"VERSION_MAJOR"];
-    valNb=[[NSNumber alloc] initWithInt:(VERSION_MINOR-1)];
+    valNb=[[NSNumber alloc] initWithInt:VERSION_MINOR];
     [prefs setObject:valNb forKey:@"VERSION_MINOR"];
     
     ///////////////////////////////////

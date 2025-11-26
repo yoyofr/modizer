@@ -46,17 +46,41 @@ public:
 
 private:
     /**
-     * Vertex attributes for border and rendering mode (texture, additive mode).
+     * Vertex attributes for border color.
      */
-    struct BorderData_RenderMode {
-        float rgb{};
-        float a_flags{};
+    struct BorderColor {
+        float r{};
+        float g{};
+        float b{};
+        float a{};
+
+        static void InitializeAttributePointer(uint32_t attributeIndex)
+        {
+            glVertexAttribPointer(attributeIndex, sizeof(BorderColor) / sizeof(float), GL_FLOAT, GL_FALSE, sizeof(BorderColor), nullptr);
+        }
+    };
+    /**
+     * Vertex attributes for border flag.
+     */
+    struct BorderFlag {
         float borderFlag{};
+
+        static void InitializeAttributePointer(uint32_t attributeIndex)
+        {
+            glVertexAttribPointer(attributeIndex, sizeof(BorderFlag) / sizeof(float), GL_FLOAT, GL_FALSE, sizeof(BorderFlag), nullptr);
+        }
+    };
+    /**
+     * Vertex attributes for zOrder and rendering mode (texture, additive mode).
+     */
+    struct RenderData {
+        float additive{};
+        float textured{};
         float zOrder{};
 
         static void InitializeAttributePointer(uint32_t attributeIndex)
         {
-            glVertexAttribPointer(attributeIndex, sizeof(BorderData_RenderMode) / sizeof(float), GL_FLOAT, GL_FALSE, sizeof(BorderData_RenderMode), nullptr);
+            glVertexAttribPointer(attributeIndex, sizeof(RenderData) / sizeof(float), GL_FLOAT, GL_FALSE, sizeof(RenderData), nullptr);
         }
     };
     
@@ -106,8 +130,9 @@ private:
     PresetState& m_presetState; //!< The global preset state.
     ShapePerFrameContext m_perFrameContext;
     
-    Renderer::VertexBuffer<BorderData_RenderMode> m_BorderData_RenderMode{Renderer::VertexBufferUsage::StreamDraw};  //!< Vertex attribute buffer for radius and angle values.
-
+    Renderer::VertexBuffer<BorderColor> m_borderColor;//{Renderer::VertexBufferUsage::StreamDraw};  //!< Vertex attribute buffer for border color.
+    Renderer::VertexBuffer<BorderFlag> m_borderFlag;//{Renderer::VertexBufferUsage::StreamDraw};  //!< Vertex attribute buffer for z order and border flag.
+    Renderer::VertexBuffer<RenderData> m_renderData;//{Renderer::VertexBufferUsage::StreamDraw};  //!< Vertex attribute buffer for render mode (texture, additive) and zOrder.
     friend class ShapePerFrameContext;
 };
 

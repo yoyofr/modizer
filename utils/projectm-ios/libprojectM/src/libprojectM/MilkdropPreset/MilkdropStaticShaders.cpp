@@ -524,7 +524,9 @@ precision mediump float;
 
 in vec4 fragment_color;
 in vec2 fragment_texture;
-in vec4 fragment_border;
+flat in vec4 fragment_borderColor;
+flat in vec2 fragment_renderFlag;
+in float fragment_borderFlag;
 
 uniform sampler2D texture_sampler;
 
@@ -532,20 +534,17 @@ layout(location = 0) inout vec4 color;
 
 void main(){
     vec4 newColor;
-    int frag_border_y_int=int(fragment_border.y);
-    bool isAdditive=(frag_border_y_int&0x100)!=0;
-    bool isTexture=(frag_border_y_int&0x200)!=0;
-    if (fragment_border.z>=1.0) {
-            newColor.r = float(((int(fragment_border.x))>>16)&0xFF)/255.0;
-            newColor.g = float(((int(fragment_border.x))>>8)&0xFF)/255.0;
-            newColor.b = float(((int(fragment_border.x))>>0)&0xFF)/255.0;
-            newColor.a = float((frag_border_y_int>>0)&0xFF)/255.0;
+    // Are we on the border ?
+    if (fragment_borderFlag>=1.0) {
+            newColor = fragment_borderColor;
     } else {
-        if (isTexture) newColor = fragment_color * texture(texture_sampler, fragment_texture.st);
-        else newColor=fragment_color;
+        // do we have texture active ?
+        if (fragment_renderFlag.y==1.0) newColor = fragment_color * texture(texture_sampler, fragment_texture.st);
+        else newColor=fragment_color;        
     }
-    if (isAdditive) color=newColor*newColor.a + color;
-    else color=newColor*newColor.a + color*(1.0 - newColor.a);
+    // additive mode or not ?
+    if (fragment_renderFlag.x==1.0) color=0.0*newColor*newColor.a + color; //SRC_ALPHA / ONE
+    else color=newColor*newColor.a + color*(1.0 - newColor.a); //SRC_ALPHA / ONE_MINUS_SRC_ALPHA
 }
 )";
 
@@ -555,20 +554,29 @@ precision mediump float;
 layout(location = 0) in vec2 vertex_position;
 layout(location = 1) in vec4 vertex_color;
 layout(location = 2) in vec2 vertex_texture;
-layout(location = 8) in vec4 vertex_border;
+
+layout(location = 3) in vec4 vertex_borderColor;
+layout(location = 4) in vec3 vertex_renderData;
+layout(location = 5) in float vertex_borderFlag;
 
 uniform mat4 vertex_transformation;
 
 out vec4 fragment_color;
 out vec2 fragment_texture;
-out vec4 fragment_border;
+flat out vec4 fragment_borderColor;
+flat out vec2 fragment_renderFlag;
+out float fragment_borderFlag;
 
 void main(){
     gl_Position = vertex_transformation * vec4(vertex_position, 0.0, 1.0);
-    gl_Position.z = vertex_border.w;
+    gl_Position.z = vertex_renderData.z;  // zOrder to ensure shape elements are drawn in right order
+
     fragment_color = vertex_color;
     fragment_texture = vertex_texture;
-    fragment_border = vertex_border;
+
+    fragment_borderColor = vertex_borderColor;
+    fragment_renderFlag =  vec2(vertex_renderData.x,vertex_renderData.y); // additive & texture flags
+    fragment_borderFlag = vertex_borderFlag;
 }
 )";
 
