@@ -524,8 +524,8 @@ precision mediump float;
 
 in vec4 fragment_color;
 in vec2 fragment_texture;
-flat in vec4 fragment_borderColor;
-flat in vec2 fragment_renderFlag;
+in vec4 fragment_borderColor;
+in vec2 fragment_renderFlag;
 in float fragment_borderFlag;
 
 uniform sampler2D texture_sampler;
@@ -543,7 +543,7 @@ void main(){
         else newColor=fragment_color;        
     }
     // additive mode or not ?
-    if (fragment_renderFlag.x==1.0) color=0.0*newColor*newColor.a + color; //SRC_ALPHA / ONE
+    if (fragment_renderFlag.x==1.0) color=newColor*newColor.a + color; //SRC_ALPHA / ONE
     else color=newColor*newColor.a + color*(1.0 - newColor.a); //SRC_ALPHA / ONE_MINUS_SRC_ALPHA
 }
 )";
@@ -563,8 +563,8 @@ uniform mat4 vertex_transformation;
 
 out vec4 fragment_color;
 out vec2 fragment_texture;
-flat out vec4 fragment_borderColor;
-flat out vec2 fragment_renderFlag;
+out vec4 fragment_borderColor;
+out vec2 fragment_renderFlag;
 out float fragment_borderFlag;
 
 void main(){
@@ -575,7 +575,7 @@ void main(){
     fragment_texture = vertex_texture;
 
     fragment_borderColor = vertex_borderColor;
-    fragment_renderFlag =  vec2(vertex_renderData.x,vertex_renderData.y); // additive & texture flags
+    fragment_renderFlag = vec2(vertex_renderData.x,vertex_renderData.y); // additive & texture flags
     fragment_borderFlag = vertex_borderFlag;
 }
 )";
