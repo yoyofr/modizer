@@ -5,6 +5,8 @@
 //  Created by Yohann Magnien David on 10/10/2025.
 //
 
+extern float varCheck[4];
+
 #define PL_MIN_FONT_SIZE 14
 #define PL_MIN_BROWSE_FONT_SIZE 32
 #define PL_IDEALFONTSIZE_RATIO 26
@@ -42,6 +44,8 @@ extern void updatePresetCustomDirStructure();
 int pmCurrentPlaylistMode;
 
 extern float glScaleFactor;
+
+int pMenu_TreeNodeLines;
 
 #define faicon(a) [[NSString stringWithFormat:@"%C", static_cast<unichar>(a)] UTF8String]
 #define faicon_with_pre_suf(pre,a,suf) [[NSString stringWithFormat:@"%s%C%s",pre, static_cast<unichar>(a),suf] UTF8String]
@@ -391,7 +395,7 @@ struct {
 
 int pMenu_PMUpdateSelStatus(FileNode *fnode,bool propagateStatus,bool selStatus);
 int pMenu_PMUpdateFavStatus(FileNode *fnode,bool propagateStatus,bool favStatus);
-int pMenu_PMbuildDirTree(FileNode *fileNode, int idx,bool filter,int updExpandCollapse,int selectedMode);
+int pMenu_PMbuildDirTree(FileNode *fileNode, int idx,bool filter,int updExpandCollapse,int selectedMode,float drawMinY,float drawMaxY,float drawLineHeight);
 int pMenu_PMPresetsSelAll(FileNode *fnode);
 int pMenu_PMPresetsRemAll(FileNode *fnode);
 int pMenu_PMPresetsSelFiltered(FileNode *fnode,int selectedMode,bool filterMode);
@@ -1908,7 +1912,8 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
             
             
             ImVec2 pos=ImGui::GetCursorPos();
-            ImGui::BeginChild("Modizer menu pm explore subwin",ImVec2(menu_win_size,menu_win_sizeH-pos.y));
+            float winTreeNodeHeight=menu_win_sizeH-pos.y;
+            ImGui::BeginChild("Modizer menu pm explore subwin",ImVec2(menu_win_size,winTreeNodeHeight));
             
             int index=0;
             bool filter=false;
@@ -1929,7 +1934,17 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
             
             pMenu_currentPM_entry=[_mdzPM_playlist getCurFullpathNS];
             
-            index=pMenu_PMbuildDirTree(pmCurrentFileNode,index,filter,expandCollapseMode,selectedMode);
+            float drawLineHeight=ImGui::GetTextLineHeightWithSpacing();
+            float drawMinY=ImGui::GetScrollY()-drawLineHeight;
+            float drawMaxY=drawMinY+winTreeNodeHeight+drawLineHeight;
+            
+            varCheck[0]=drawMinY;
+            varCheck[1]=drawMaxY;
+
+            
+            
+            pMenu_TreeNodeLines=0;
+            index=pMenu_PMbuildDirTree(pmCurrentFileNode,index,filter,expandCollapseMode,selectedMode,drawMinY,drawMaxY,drawLineHeight);
             expandCollapseMode=0;  //Reset flag
             
             ImGui::PopStyleColor();
@@ -2017,7 +2032,7 @@ NSString *limitStrSize(NSString *str,int width) {
     return str;
 }
 
-int pMenu_PMbuildDirTree(FileNode *fileNode, int idx,bool filter,int updExpandCollapse,int selectedMode) {
+int pMenu_PMbuildDirTree(FileNode *fileNode, int idx,bool filter,int updExpandCollapse,int selectedMode,float drawMinY,float drawMaxY,float drawLineHeight) {
     int flags_default=ImGuiTreeNodeFlags_SpanFullWidth;
     if (filter||selectedMode) {
         //open all nodes by default
@@ -2039,6 +2054,14 @@ int pMenu_PMbuildDirTree(FileNode *fileNode, int idx,bool filter,int updExpandCo
             }
             
             if (!skipentry) {
+                //increase number of lines counter
+                pMenu_TreeNodeLines++;
+                
+                float yPos=ImGui::GetCursorPosY();
+                bool isVisible=(yPos>=drawMinY)&&(yPos<=drawMaxY);
+                
+                if (isVisible) {
+                
                 //Matching filter, if any
                 int flags=flags_default|ImGuiTreeNodeFlags_OpenOnArrow;
                 
@@ -2057,6 +2080,8 @@ int pMenu_PMbuildDirTree(FileNode *fileNode, int idx,bool filter,int updExpandCo
                         break;
                 }
                 
+                
+                
                 NSString *strNode;
                 if (child.isFavorite_Temp) {
                     if (child.isFullyFavorite) strNode=[NSString stringWithFormat:@"%C%@",static_cast<unichar>(FA_STAR),[child name]];
@@ -2064,8 +2089,8 @@ int pMenu_PMbuildDirTree(FileNode *fileNode, int idx,bool filter,int updExpandCo
                 } else strNode=[NSString stringWithFormat:@"%C%@",static_cast<unichar>(FA_STAR_O),[child name]];
                 //else strNode=[NSString stringWithString:[child name]];
                 
-                bool node_open=ImGui::TreeNodeEx((void*)(intptr_t)idx++, flags, " ");
-                
+                bool node_open=ImGui::TreeNodeEx((void*)(intptr_t)idx++, flags, "");
+                                
 //                if ( !child.isFullySelected ) ImGui::PopStyleColor();
                 
                 if (!mouseMoveInProgress && ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen()) {
@@ -2079,21 +2104,45 @@ int pMenu_PMbuildDirTree(FileNode *fileNode, int idx,bool filter,int updExpandCo
                     child.shouldPropagateStatus=TRUE;
                 }
                 
-                ImGui::SameLine();
                 
-                ImVec2 cpos=ImGui::GetCursorPos();
-                ImVec2 wsize=ImGui::GetWindowSize();
-                int max_char=(wsize.x-cpos.x-8*glScaleFactor)/browserFontWidth;
-                strNode=limitStrSize(strNode,max_char);
-                
-                if (child.isFullySelected) ImGui::TextColored(pMenu_browser_selectedLineText, "%s",[strNode UTF8String]);
-                else if (child.isSelected_Temp) ImGui::TextColored(pMenu_browser_partiallySelectedLineText, "%s",[strNode UTF8String]);
-                else ImGui::TextColored(pMenu_browser_notSelectedLineText,"%s",[strNode UTF8String]);
-                
-                if (node_open) {
-                    idx=pMenu_PMbuildDirTree(child,idx,filter,updExpandCollapse,selectedMode);
-                    ImGui::TreePop();
+                    
+                    ImGui::SameLine();
+                    
+                    ImVec2 cpos=ImGui::GetCursorPos();
+                    ImVec2 wsize=ImGui::GetWindowSize();
+                    int max_char=(wsize.x-cpos.x-8*glScaleFactor)/browserFontWidth;
+                    strNode=limitStrSize(strNode,max_char);
+                    
+                    if (child.isFullySelected) ImGui::TextColored(pMenu_browser_selectedLineText, "%s",[strNode UTF8String]);
+                    else if (child.isSelected_Temp) ImGui::TextColored(pMenu_browser_partiallySelectedLineText, "%s",[strNode UTF8String]);
+                    else ImGui::TextColored(pMenu_browser_notSelectedLineText,"%s",[strNode UTF8String]);
+                    
+                    if (node_open) {
+                        idx=pMenu_PMbuildDirTree(child,idx,filter,updExpandCollapse,selectedMode,drawMinY,drawMaxY,drawLineHeight);
+                        ImGui::TreePop();
+                    }
+                } else {
+                    //ImGui::Text(" ");
+                    ImGui::Dummy(ImVec2(10.0f,drawLineHeight));
+                    //Matching filter, if any
+                    
+                    switch (updExpandCollapse) {
+                        default:
+                        case 0:break;
+                        case 1: //expand
+                            ImGui::SetNextItemOpen(true);
+                            break;
+                        case 2: //collapse
+                            ImGui::SetNextItemOpen(false);
+                            break;
+                    }
+                    bool node_open=ImGui::TreeNodeEx((void*)(intptr_t)idx++, 0, "");
+                    if (node_open) {
+                        idx=pMenu_PMbuildDirTree(child,idx,filter,updExpandCollapse,selectedMode,drawMinY,drawMaxY,drawLineHeight);
+                        ImGui::TreePop();
+                    }
                 }
+                
             }
         } else {
             // File
@@ -2109,103 +2158,116 @@ int pMenu_PMbuildDirTree(FileNode *fileNode, int idx,bool filter,int updExpandCo
             }
             
             if (!skipentry) {
+                pMenu_TreeNodeLines++;
+                
+                float yPos=ImGui::GetCursorPosY();
+                bool isVisible=(yPos>=drawMinY)&&(yPos<=drawMaxY);
+                
                 //Matching filter, if any
                 int flags=flags_default|ImGuiTreeNodeFlags_Leaf;
                 
                 if (child.isSelected_Temp) {
                     flags|=ImGuiTreeNodeFlags_Selected;
                 }
+                if (isVisible) {
+                    NSString *strNode;
+                    strNode=[NSString stringWithFormat:@"%@",[child name]];
+                    
+                    bool node_open=ImGui::TreeNodeEx((void*)(intptr_t)idx++, flags|ImGuiTreeNodeFlags_AllowOverlap, " ");
+                    bool shouldUpdateSel=false;
+                    if (!mouseMoveInProgress && ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen()) {
+                        shouldUpdateSel=true;
+                    }
+                    if ( ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0) ) {
+                        //                    [_mdzPM_playlist loadPreset:child cut:true];
+                    }
+                    
+                    
                 
-                NSString *strNode;
-                strNode=[NSString stringWithFormat:@"%@",[child name]];
                 
-                bool node_open=ImGui::TreeNodeEx((void*)(intptr_t)idx++, flags|ImGuiTreeNodeFlags_AllowOverlap, " ");
-                bool shouldUpdateSel=false;
-                if (!mouseMoveInProgress && ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen()) {
-                    shouldUpdateSel=true;
-                }
-                if ( ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(0) ) {
-//                    [_mdzPM_playlist loadPreset:child cut:true];
-                }
-                
-                ImGui::SameLine();
-                ImVec2 curPos=ImGui::GetCursorPos();
-                curPos.x=2;
-                ImGui::SetCursorPos(curPos);
-                //If clicking the button, do no register click for the node
-                if (ImGui::Button(faicon_with_pre_suf(" ",FA_EYE," "))) {
-                    [_mdzPM_playlist loadPreset:child cut:true];
-                    shouldUpdateSel=false;
-                }
-                //If still above button, do no register click for the node
-                if ( ImGui::IsItemHovered()  ) {
-                    shouldUpdateSel=false;
-                }
-                
-                ImGui::SameLine();
-                if (child.isSelected) {
+                    ImGui::SameLine();
+                    ImVec2 curPos=ImGui::GetCursorPos();
+                    curPos.x=2;
+                    ImGui::SetCursorPos(curPos);
                     //If clicking the button, do no register click for the node
-                    if (ImGui::Button(faicon_with_pre_suf(" ",FA_HAND_O_RIGHT," "))) {
-                        [_mdzPM_playlist moveTo:child cut:true];
+                    if (ImGui::Button(faicon_with_pre_suf(" ",FA_EYE," "))) {
+                        [_mdzPM_playlist loadPreset:child cut:true];
                         shouldUpdateSel=false;
                     }
                     //If still above button, do no register click for the node
                     if ( ImGui::IsItemHovered()  ) {
                         shouldUpdateSel=false;
                     }
-                }
-                
-                ImGui::SameLine();
-                if (child.isFavorite_Temp) {
-                    //If clicking the button, do no register click for the node
-                    ImGui::PushStyleColor(ImGuiCol_Button,pMenu_browser_isFav);
-                    ImGui::PushStyleColor(ImGuiCol_ButtonHovered,pMenu_browser_isFavH);
-                    if (ImGui::Button(faicon_with_pre_suf(" ",FA_STAR," "))) {
-                        shouldUpdateSel=false;
-                        child.isFavorite_Temp=0;
-                        NSString *title=[NSString stringWithFormat:@"(%c)%@",(child.presetType==MDZ_PLAYLIST_FNODE_Bundle?'B':'C'),child.localpath];
-                        //MDZILog("removing %@",title);
-                        [_mdzPM_Favorites remFavoritePreset:title];
+                    
+                    ImGui::SameLine();
+                    if (child.isSelected) {
+                        //If clicking the button, do no register click for the node
+                        if (ImGui::Button(faicon_with_pre_suf(" ",FA_HAND_O_RIGHT," "))) {
+                            [_mdzPM_playlist moveTo:child cut:true];
+                            shouldUpdateSel=false;
+                        }
+                        //If still above button, do no register click for the node
+                        if ( ImGui::IsItemHovered()  ) {
+                            shouldUpdateSel=false;
+                        }
                     }
-                    ImGui::PopStyleColor();
-                    ImGui::PopStyleColor();
-                    //If still above button, do no register click for the node
-                    if ( ImGui::IsItemHovered()  ) {
-                        shouldUpdateSel=false;
+                    
+                    ImGui::SameLine();
+                    if (child.isFavorite_Temp) {
+                        //If clicking the button, do no register click for the node
+                        ImGui::PushStyleColor(ImGuiCol_Button,pMenu_browser_isFav);
+                        ImGui::PushStyleColor(ImGuiCol_ButtonHovered,pMenu_browser_isFavH);
+                        if (ImGui::Button(faicon_with_pre_suf(" ",FA_STAR," "))) {
+                            shouldUpdateSel=false;
+                            child.isFavorite_Temp=0;
+                            NSString *title=[NSString stringWithFormat:@"(%c)%@",(child.presetType==MDZ_PLAYLIST_FNODE_Bundle?'B':'C'),child.localpath];
+                            //MDZILog("removing %@",title);
+                            [_mdzPM_Favorites remFavoritePreset:title];
+                        }
+                        ImGui::PopStyleColor();
+                        ImGui::PopStyleColor();
+                        //If still above button, do no register click for the node
+                        if ( ImGui::IsItemHovered()  ) {
+                            shouldUpdateSel=false;
+                        }
+                    } else {
+                        //If clicking the button, do no register click for the node
+                        if (ImGui::Button(faicon_with_pre_suf(" ",FA_STAR_O," "))) {
+                            shouldUpdateSel=false;
+                            child.isFavorite_Temp=1;
+                            NSString *title=[NSString stringWithFormat:@"(%c)%@",(child.presetType==MDZ_PLAYLIST_FNODE_Bundle?'B':'C'),child.localpath];
+                            //MDZILog("adding %@",title);
+                            [_mdzPM_Favorites addFavoritePreset:title];
+                        }
+                        //If still above button, do no register click for the node
+                        if ( ImGui::IsItemHovered()  ) {
+                            shouldUpdateSel=false;
+                        }
+                    }
+                    
+                    if (shouldUpdateSel) child.isSelected_Temp=!child.isSelected_Temp;
+                    ImGui::SameLine();
+                    
+                    ImVec2 cpos=ImGui::GetCursorPos();
+                    ImVec2 wsize=ImGui::GetWindowSize();
+                    int max_char=(wsize.x-cpos.x-8*glScaleFactor)/browserFontWidth;
+                    strNode=limitStrSize(strNode,max_char);
+                    
+                    if ([pMenu_currentPM_entry isEqualToString:child.localpath]) {
+                        if (child.isSelected_Temp) ImGui::TextColored(pMenu_browser_selectedLineTextPlaying, "%s",[strNode UTF8String]);
+                        else ImGui::TextColored(pMenu_browser_notSelectedLineTextPlaying,"%s",[strNode UTF8String]);
+                    } else {
+                        if (child.isSelected_Temp) ImGui::TextColored(pMenu_browser_selectedLineText, "%s",[strNode UTF8String]);
+                        else ImGui::TextColored(pMenu_browser_notSelectedLineText,"%s",[strNode UTF8String]);
+                    }
+                    
+                    if (node_open) {
+                        ImGui::TreePop();
                     }
                 } else {
-                    //If clicking the button, do no register click for the node
-                    if (ImGui::Button(faicon_with_pre_suf(" ",FA_STAR_O," "))) {
-                        shouldUpdateSel=false;
-                        child.isFavorite_Temp=1;
-                        NSString *title=[NSString stringWithFormat:@"(%c)%@",(child.presetType==MDZ_PLAYLIST_FNODE_Bundle?'B':'C'),child.localpath];
-                        //MDZILog("adding %@",title);
-                        [_mdzPM_Favorites addFavoritePreset:title];
-                    }
-                    //If still above button, do no register click for the node
-                    if ( ImGui::IsItemHovered()  ) {
-                        shouldUpdateSel=false;
-                    }
-                }
-                
-                if (shouldUpdateSel) child.isSelected_Temp=!child.isSelected_Temp;
-                ImGui::SameLine();
-                
-                ImVec2 cpos=ImGui::GetCursorPos();
-                ImVec2 wsize=ImGui::GetWindowSize();
-                int max_char=(wsize.x-cpos.x-8*glScaleFactor)/browserFontWidth;
-                strNode=limitStrSize(strNode,max_char);
-                
-                if ([pMenu_currentPM_entry isEqualToString:child.localpath]) {
-                    if (child.isSelected_Temp) ImGui::TextColored(pMenu_browser_selectedLineTextPlaying, "%s",[strNode UTF8String]);
-                    else ImGui::TextColored(pMenu_browser_notSelectedLineTextPlaying,"%s",[strNode UTF8String]);
-                } else {
-                    if (child.isSelected_Temp) ImGui::TextColored(pMenu_browser_selectedLineText, "%s",[strNode UTF8String]);
-                    else ImGui::TextColored(pMenu_browser_notSelectedLineText,"%s",[strNode UTF8String]);
-                }
-                
-                if (node_open) {
-                    ImGui::TreePop();
+                    //ImGui::Text(" ");
+                    ImGui::Dummy(ImVec2(10.0f,drawLineHeight));
+                    idx++;
                 }
             }
         }

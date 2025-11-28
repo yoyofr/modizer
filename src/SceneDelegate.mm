@@ -96,4 +96,18 @@
     }
 }
 
+#pragma mark - mac catalyst menu
+- (void)buildMenuWithBuilder:(id<UIMenuBuilder>)builder {
+    if (builder.system != UIMenuSystem.mainSystem) {
+        return;
+    }
+    
+    // Supprimer des menus existants
+    [builder removeMenuForIdentifier:UIMenuFormat];
+    [builder removeMenuForIdentifier:UIMenuToolbar];
+    
+    // Ou supprimer des commandes spécifiques
+    [builder removeMenuForIdentifier:UIMenuPreferences];
+}
+
 @end

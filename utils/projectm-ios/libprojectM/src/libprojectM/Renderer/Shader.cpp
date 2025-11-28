@@ -10,7 +10,6 @@
 
 //YOYOFR
 #include <pthread.h>
-extern pthread_mutex_t pm_mutex,gl_mutex;
 extern mach_port_t mdzMainThreadId;
 
 namespace libprojectM {
@@ -40,20 +39,14 @@ void Shader::CompileProgram(const std::string& vertexShaderSource,
         bool mainThread=false;
         if (tid==mdzMainThreadId) mainThread=true;
         
-        if (!mainThread) pthread_mutex_lock(&gl_mutex);
         auto vertexShader = CompileShader(vertexShaderSource, GL_VERTEX_SHADER);
-        if (!mainThread) pthread_mutex_unlock(&gl_mutex);
         
-        if (!mainThread) pthread_mutex_lock(&gl_mutex);
         auto fragmentShader = CompileShader(fragmentShaderSource, GL_FRAGMENT_SHADER);
-        if (!mainThread) pthread_mutex_unlock(&gl_mutex);
         
         
-        if (!mainThread) pthread_mutex_lock(&gl_mutex);
         glAttachShader(m_shaderProgram, vertexShader);
         glAttachShader(m_shaderProgram, fragmentShader);
         glLinkProgram(m_shaderProgram);
-        if (!mainThread) pthread_mutex_unlock(&gl_mutex);
         
         
         
@@ -63,6 +56,10 @@ void Shader::CompileProgram(const std::string& vertexShaderSource,
         glDeleteShader(vertexShader);
         glDeleteShader(fragmentShader);
         
+        //if precompiling (not main thread)
+        //do not check linkage status to let the // thread work
+        if (!mainThread) return;
+            
         GLint programLinked;
         glGetProgramiv(m_shaderProgram, GL_LINK_STATUS, &programLinked);
         if (programLinked == GL_TRUE)
@@ -77,9 +74,23 @@ void Shader::CompileProgram(const std::string& vertexShaderSource,
         
         throw ShaderException("Error compiling shader: " + std::string(message.data()));
     } else {
-        
         if (m_shaderProgram) glDeleteProgram(m_shaderProgram);
         m_shaderProgram=shaderP;
+        
+        //YOYOFR: check linkage status at last step
+        GLint programLinked;
+        glGetProgramiv(m_shaderProgram, GL_LINK_STATUS, &programLinked);
+        if (programLinked == GL_TRUE)
+        {
+            return;
+        }
+        
+        GLint infoLogLength{};
+        glGetProgramiv(m_shaderProgram, GL_INFO_LOG_LENGTH, &infoLogLength);
+        std::vector<char> message(infoLogLength + 1);
+        glGetProgramInfoLog(m_shaderProgram, infoLogLength, nullptr, message.data());
+        
+        throw ShaderException("Error compiling shader: " + std::string(message.data()));
     }
 }
 

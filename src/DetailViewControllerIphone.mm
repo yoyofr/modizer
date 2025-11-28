@@ -11,8 +11,8 @@
 #define PM_FRAMETIME_LIMIT_WEAK 100 //Max slow frames allowed for 'weak' mode
 #define PM_FRAMETIME_LIMIT_STRONG 10 //Max slow frames allowed for 'strong' mode
 
-#define PM_PRESET_DISPLAY_TIMEOUT 6 //Display time in seconds of preset's name when in temporary display mode
-#define FX_FS_SONGINFO_TIMEOUT 4 //Display time in seconds of song info data in fullscreen mode
+#define PM_PRESET_DISPLAY_TIMEOUT 10 //Display time in seconds of preset's name when in temporary display mode
+#define FX_FS_SONGINFO_TIMEOUT 6 //Display time in seconds of song info data in fullscreen mode
 #define MDZ_FX_SONGINFO_MAXCHAR 80
 
 #define FX_FS_GUIMESSAGE_TIMEOUT 2
@@ -1432,7 +1432,7 @@ static float movePinchScale,movePinchScaleOld;
 -(void) newGuiMessage:(NSString*)msg {
     if (msg==nil) return;
     snprintf(_mdz_FX_GuiMessageStr,64,"%s",[msg UTF8String]);
-    int fps=(settings[GLOB_FXFPS].detail.mdz_switch.switch_value?30:60);
+    int fps=(settings[GLOB_FXFPS].detail.mdz_switch.switch_value?60:30);
     _mdz_FX_GuiMessage_fade=fps*FX_FS_GUIMESSAGE_TIMEOUT;
     _mdz_FX_GuiMessage_fadeMax=_mdz_FX_GuiMessage_fade;
 }
@@ -5592,7 +5592,7 @@ void pm_perfTest() {
     
     [_mdzPM_playlist setShuffle:settings[PROJECTM_AutoSwitchPresetsMode].detail.mdz_switch.switch_value];
     
-    _pm_fps=settings[GLOB_FXFPS].detail.mdz_switch.switch_value==1?60:30;
+    _pm_fps=settings[GLOB_FXFPS].detail.mdz_switch.switch_value?60:30;
     
     
     
@@ -6851,7 +6851,7 @@ void pm_perfTest() {
     
     MIDIFX_OFS=(settings[GLOB_FXFPS].detail.mdz_switch.switch_value?MIDIFX_OFS_60FPS:MIDIFX_OFS_30FPS);
     
-    _pm_fps=settings[GLOB_FXFPS].detail.mdz_switch.switch_value==1?60:30;
+    _pm_fps=settings[GLOB_FXFPS].detail.mdz_switch.switch_value?60:30;
     if (settings[PROJECTM_ShowPresetLabel].detail.mdz_switch.switch_value==2) _pmPresetUpdateDisplayInfo=true; //Force a (re)display
     
     movePxMID=movePyMID=0;
@@ -7711,7 +7711,7 @@ void doFramePM(float ww,float hh) {
                 ImGui::Text("%s",strTmp);
                 posy+=sizeText.y+2;
                 
-#ifdef DEBUG
+#ifndef NDEBUG
                 posy+=sizeText.y+6;
                 //Debug info
                 ImGui::PopStyleColor();
@@ -7721,18 +7721,14 @@ void doFramePM(float ww,float hh) {
                 posy+=sizeText.y+4;
                 ImGui::PopStyleColor();
                 ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(SHOWINFO_FXFRAMEINFO_COLOR,txtAlpha));
-                snprintf(strTmp,32,"%.3f %.3f",varCheck[0],varCheck[1]);
-                sizeText=ImGui::CalcTextSize(strTmp);
-                posx=sizeText.x+8;
-                ImGui::SetCursorPos(ImVec2(cur_winSizeX*glScaleFactor-posx,posy));
-                ImGui::Text("%s",strTmp);
-                posy+=sizeText.y+2;
-                snprintf(strTmp,32,"%.3f %.3f",varCheck[2],varCheck[3]);
-                sizeText=ImGui::CalcTextSize(strTmp);
-                posx=sizeText.x+8;
-                ImGui::SetCursorPos(ImVec2(cur_winSizeX*glScaleFactor-posx,posy));
-                ImGui::Text("%s",strTmp);
-                posy+=sizeText.y+2;
+                for (int i=0;i<4;i++) {
+                    snprintf(strTmp,32,"%.3f",varCheck[i]);
+                    sizeText=ImGui::CalcTextSize(strTmp);
+                    posx=sizeText.x+8;
+                    ImGui::SetCursorPos(ImVec2(cur_winSizeX*glScaleFactor-posx,posy));
+                    ImGui::Text("%s",strTmp);
+                    posy+=sizeText.y+2;
+                }
 #endif
                 
                 ImGui::PopStyleColor();
@@ -7758,7 +7754,7 @@ void doFramePM(float ww,float hh) {
 -(void) refreshFXFSLabels {
     if ([mplayer isPlaying]) {
         
-        int fps=(settings[GLOB_FXFPS].detail.mdz_switch.switch_value?30:60);
+        int fps=(settings[GLOB_FXFPS].detail.mdz_switch.switch_value?60:30);
         _mdz_display_songinfo_countdown=fps*FX_FS_SONGINFO_TIMEOUT;
         
         _mdz_display_songinfo_char_count[0]=1;
