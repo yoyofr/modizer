@@ -1938,11 +1938,6 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
             float drawMinY=ImGui::GetScrollY()-drawLineHeight;
             float drawMaxY=drawMinY+winTreeNodeHeight+drawLineHeight;
             
-            varCheck[0]=drawMinY;
-            varCheck[1]=drawMaxY;
-
-            
-            
             pMenu_TreeNodeLines=0;
             index=pMenu_PMbuildDirTree(pmCurrentFileNode,index,filter,expandCollapseMode,selectedMode,drawMinY,drawMaxY,drawLineHeight);
             expandCollapseMode=0;  //Reset flag
@@ -2060,8 +2055,6 @@ int pMenu_PMbuildDirTree(FileNode *fileNode, int idx,bool filter,int updExpandCo
                 float yPos=ImGui::GetCursorPosY();
                 bool isVisible=(yPos>=drawMinY)&&(yPos<=drawMaxY);
                 
-                if (isVisible) {
-                
                 //Matching filter, if any
                 int flags=flags_default|ImGuiTreeNodeFlags_OpenOnArrow;
                 
@@ -2080,31 +2073,27 @@ int pMenu_PMbuildDirTree(FileNode *fileNode, int idx,bool filter,int updExpandCo
                         break;
                 }
                 
-                
-                
-                NSString *strNode;
-                if (child.isFavorite_Temp) {
-                    if (child.isFullyFavorite) strNode=[NSString stringWithFormat:@"%C%@",static_cast<unichar>(FA_STAR),[child name]];
-                else strNode=[NSString stringWithFormat:@"%C%@",static_cast<unichar>(FA_STAR_HALF_O),[child name]];
-                } else strNode=[NSString stringWithFormat:@"%C%@",static_cast<unichar>(FA_STAR_O),[child name]];
-                //else strNode=[NSString stringWithString:[child name]];
-                
                 bool node_open=ImGui::TreeNodeEx((void*)(intptr_t)idx++, flags, "");
-                                
-//                if ( !child.isFullySelected ) ImGui::PopStyleColor();
-                
-                if (!mouseMoveInProgress && ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen()) {
-                    //Click detected
-                    //if selected and not fully, force fully
-                    //if not remove selected status
-                    if (child.isSelected_Temp) {
-                        if (child.isFullySelected) child.isSelected_Temp=FALSE;
-                        else child.isSelected_Temp=TRUE;
-                    } else child.isSelected_Temp=TRUE;
-                    child.shouldPropagateStatus=TRUE;
-                }
-                
-                
+                if (isVisible) {
+                    
+                    NSString *strNode;
+                    if (child.isFavorite_Temp) {
+                        if (child.isFullyFavorite) strNode=[NSString stringWithFormat:@"%C%@",static_cast<unichar>(FA_STAR),[child name]];
+                        else strNode=[NSString stringWithFormat:@"%C%@",static_cast<unichar>(FA_STAR_HALF_O),[child name]];
+                    } else strNode=[NSString stringWithFormat:@"%C%@",static_cast<unichar>(FA_STAR_O),[child name]];
+                    
+                    if (!mouseMoveInProgress && ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen()) {
+                        //Click detected
+                        //if selected and not fully, force fully
+                        //if not remove selected status
+                        if (child.isSelected_Temp) {
+                            if (child.isFullySelected) child.isSelected_Temp=FALSE;
+                            else child.isSelected_Temp=TRUE;
+                        } else child.isSelected_Temp=TRUE;
+                        child.shouldPropagateStatus=TRUE;
+                    }
+                    
+                    
                     
                     ImGui::SameLine();
                     
@@ -2123,20 +2112,8 @@ int pMenu_PMbuildDirTree(FileNode *fileNode, int idx,bool filter,int updExpandCo
                     }
                 } else {
                     //ImGui::Text(" ");
-                    ImGui::Dummy(ImVec2(10.0f,drawLineHeight));
+                    //ImGui::Dummy(ImVec2(10.0f,drawLineHeight));
                     //Matching filter, if any
-                    
-                    switch (updExpandCollapse) {
-                        default:
-                        case 0:break;
-                        case 1: //expand
-                            ImGui::SetNextItemOpen(true);
-                            break;
-                        case 2: //collapse
-                            ImGui::SetNextItemOpen(false);
-                            break;
-                    }
-                    bool node_open=ImGui::TreeNodeEx((void*)(intptr_t)idx++, 0, "");
                     if (node_open) {
                         idx=pMenu_PMbuildDirTree(child,idx,filter,updExpandCollapse,selectedMode,drawMinY,drawMaxY,drawLineHeight);
                         ImGui::TreePop();
@@ -2169,6 +2146,7 @@ int pMenu_PMbuildDirTree(FileNode *fileNode, int idx,bool filter,int updExpandCo
                 if (child.isSelected_Temp) {
                     flags|=ImGuiTreeNodeFlags_Selected;
                 }
+                
                 if (isVisible) {
                     NSString *strNode;
                     strNode=[NSString stringWithFormat:@"%@",[child name]];

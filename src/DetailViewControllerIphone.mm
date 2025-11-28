@@ -7117,7 +7117,7 @@ static int mOglView1Tap=0;
                 break;
             default:
                 if (pmenu_show) {
-//                    MDZILog("Wheel last: %f %f",movePreWheelXPMenu,movePreWheelYPMenu);
+                    MDZILog("Wheel last: %f %f",movePreWheelXPMenu,movePreWheelYPMenu);
 //                    movePreWheelXPMenu=pt.x-last_pt.x;
 //                    movePreWheelYPMenu=pt.y-last_pt.y;
 //                    last_pt=pt;
@@ -7195,10 +7195,10 @@ static int mOglView1Tap=0;
 }
 
 -(void) glViewPan2Gesture:(UIPanGestureRecognizer *)gestureRecognizer {
-    if (!_shiftModeOn) {
-        [self glViewPanGesture:gestureRecognizer];
-        return;
-    }
+//    if (!_shiftModeOn) {
+//        [self glViewPanGesture:gestureRecognizer];
+//        return;
+//    }
     static CGPoint last_pt;
     CGPoint pt=[gestureRecognizer translationInView:m_oglView];
     CGPoint start_pt=[gestureRecognizer locationInView:m_oglView];
@@ -7221,18 +7221,20 @@ static int mOglView1Tap=0;
             moveWheelXPMenu=0;
             moveWheelYPMenu=0;
             
-//            MDZILog("reset wheel Pan2 start");
+            MDZILog("reset wheel Pan2 start");
             
             break;
         case UIGestureRecognizerStateChanged:
             panGestureWheel=2;
             if (pmenu_show) {
-                moveWheelXPMenu+=pt.x-last_pt.x;
-                moveWheelYPMenu+=pt.y-last_pt.y;
+                moveWheelXPMenu=pt.x-last_pt.x;
+                moveWheelYPMenu=pt.y-last_pt.y;
+                MDZILog("pan2 set pt %f %f",moveWheelXPMenu,moveWheelYPMenu);
             }
             last_pt=pt;
             break;
         default:
+            MDZILog("other");
             panGestureWheel=0;
             break;
     }
@@ -7975,18 +7977,21 @@ void doFramePM(float ww,float hh) {
         imgui_event.event_type=IMGUI_IOS_Event_MouseWheel;
         imgui_event.pos_x=posPx*glScaleFactor;
         imgui_event.pos_y=posPy*glScaleFactor;
-        imgui_event.wheel_x=moveWheelXPMenu/1024.0;
-        imgui_event.wheel_y=moveWheelYPMenu/1024.0;
+        imgui_event.wheel_x=moveWheelXPMenu/200.0;
+        imgui_event.wheel_y=moveWheelYPMenu/200.0;
         
         //MDZILog("send wheel move %f %f at pos %f %f",imgui_event.wheel_x,imgui_event.wheel_y,imgui_event.pos_x,imgui_event.pos_y);
         
-        if (panGestureWheel==0) {
-            moveWheelXPMenu=moveWheelXPMenu*0.95f;
-            moveWheelYPMenu=moveWheelYPMenu*0.95f;
-            if (fabs(moveWheelXPMenu)<20.0f) moveWheelXPMenu=0;
-            if (fabs(moveWheelYPMenu)<20.0f) moveWheelYPMenu=0;
-        }
+        //if (panGestureWheel==0) {
+            moveWheelXPMenu=moveWheelXPMenu*0.94f;
+            moveWheelYPMenu=moveWheelYPMenu*0.94f;
+            if (fabs(moveWheelXPMenu)<2.0f) moveWheelXPMenu=0;
+            if (fabs(moveWheelYPMenu)<2.0f) moveWheelYPMenu=0;
+        //}
     }
+    varCheck[0]=imgui_event.event_type;
+    varCheck[1]=imgui_event.pos_y;
+    varCheck[2]=imgui_event.wheel_y;
     
         
     ImGui_ImplIOS_NewFrame(ww*glScaleFactor,hh*glScaleFactor,1,&imgui_event);
