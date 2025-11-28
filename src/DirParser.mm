@@ -56,6 +56,7 @@ extern pthread_mutex_t pm_mutex,gl_mutex;
         _shouldPropagateStatus = FALSE;
         _isFavorite = FALSE;
         _isMissing = FALSE;
+        _entries = 0;
         _presetType=presetType;
         
         NSError *error;
@@ -81,6 +82,7 @@ extern pthread_mutex_t pm_mutex,gl_mutex;
         _shouldPropagateStatus = FALSE;
         _isFavorite = FALSE;
         _isMissing = FALSE;
+        _entries = 0;
         _presetType=presetType;
         
         _isDirectory = false;
@@ -101,6 +103,7 @@ extern pthread_mutex_t pm_mutex,gl_mutex;
         _shouldPropagateStatus = FALSE;
         _isFavorite = FALSE;
         _isMissing = FALSE;
+        _entries = 0;
         _presetType=presetType;
         
         _isDirectory = true;
@@ -430,7 +433,7 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
             pthread_mutex_unlock(&pm_mutex);
             if (!self.lastFailed) {
                 if (self.nextWarpP && self.nextCompP) {
-                    MDZILog("compiling next preset: ok | warp %d comp %d",self.nextWarpP,self.nextCompP);
+                    //MDZILog("compiling next preset: ok | warp %d comp %d",self.nextWarpP,self.nextCompP);
                     self.retry_preLoadcounter=0;
                 } else {
                     MDZFLog("compiling next preset: ko | warp %d comp %d",self.nextWarpP,self.nextCompP);
@@ -468,7 +471,7 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
             self.nextWarpP=0;
             self.nextCompP=0;
             self.lastFailed=false;
-            MDZILog("shortcut, already compiled");
+            //MDZILog("shortcut, already compiled");
         } else {
             self.warpP=0;
             self.compP=0;
@@ -1143,7 +1146,7 @@ code_4=a=1.0;\n\
         //Prepare variables
         NSNumber *isDirectory = nil;
         NSString *entryPath,*currentLocalPath;
-        int localPathStartPos=[path length];
+        int localPathStartPos=(int)[path length];
         currentLocalPath=@"/";
         //Stack to keep track of directories
         dirNodeStack=[[NSMutableArray alloc] init];
@@ -1167,7 +1170,9 @@ code_4=a=1.0;\n\
                         MDZFLog("Error in fast parser, no more dir in stack");
                         return NULL;
                     }
+                    int entries_tmp=currentNode.entries;
                     currentNode=[dirNodeStack lastObject];
+                    currentNode.entries+=entries_tmp;
                     currentLocalPath=[currentNode getLocalPath];
                     [dirNodeStack removeLastObject];
                 }
@@ -1196,7 +1201,9 @@ code_4=a=1.0;\n\
                             MDZFLog("Error in fast parser, no more dir in stack");
                             return NULL;
                         }
+                        int entries_tmp=currentNode.entries;
                         currentNode=[dirNodeStack lastObject];
+                        currentNode.entries+=entries_tmp;
                         currentLocalPath=[currentNode getLocalPath];
                         [dirNodeStack removeLastObject];
                     }
@@ -1204,68 +1211,87 @@ code_4=a=1.0;\n\
                     childNode = [[FileNode alloc] initWithPathIsFile:childPath root:path type:type];
                     if (currentNode.children==nil) currentNode.children=[NSMutableArray arrayWithObject:childNode];
                     else [currentNode.children addObject:childNode];
+                    
+                    currentNode.entries++;
                 }
             }
         }
         
     }
     CHECK_PROFILE("process")
+    [self removeEmptyNodes:startNode];
+    CHECK_PROFILE("remove empty nodes")
+    
     END_PROFILE
     return startNode;
 }
 
-- (FileNode *)parseDirectoryAtPath:(NSString *)path type:(uint8_t)type error:(NSError **)error {
-    // Check if path exists
-    NSFileManager *fm = [NSFileManager defaultManager];
-    
-    BOOL exists = [fm fileExistsAtPath:path];
-    if (!exists) {
-        if (error) {
-            *error = [NSError errorWithDomain:NSCocoaErrorDomain
-                                         code:NSFileReadNoSuchFileError
-                                     userInfo:@{NSLocalizedDescriptionKey: @"Path does not exist"}];
+-(void) removeEmptyNodes:(FileNode*)item {
+    if (item.isDirectory==false) return;
+    if (item==nil) return;
+    for (FileNode *node in item.children) {
+        if (node.isDirectory) {
+            if (node.entries==0) {
+                MDZFLog("removing empty dir %@",node.localpath);
+                [item.children removeObject:node];
+            }
+            else [self removeEmptyNodes:node];
         }
-        return nil;
     }
-    
-    return [self parseDirectoryAtPathInternal:@"/." root:path type:type depth:0 error:error];
 }
 
-- (FileNode *)parseDirectoryAtPathInternal:(NSString *)path root:(NSString *)rootPath type:(uint8_t)type depth:(NSInteger)depth error:(NSError **)error {
-    NSFileManager *fm = [NSFileManager defaultManager];
-    
-    FileNode *node = [[FileNode alloc] initWithPath:path root:rootPath type:type];
-    // If it's a file or we've reached max depth, return the node
-    if (!node.isDirectory || (self.maxDepth >= 0 && depth >= self.maxDepth)) {
-        if (self.filterExt && [[node.name pathExtension] caseInsensitiveCompare:self.filterExt]) return nil;
-        return node;
-    }
-    
-    // Get directory contents
-    NSArray *contents = [fm contentsOfDirectoryAtPath:[rootPath stringByAppendingString:path] error:error];
-    if (!contents) {
-        return node; // Return node even if we can't read contents
-    }
-    
-    // Sort contents alphabetically
-    contents = [contents sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
-    
-    for (NSString *item in contents) {
-        // Skip hidden files if specified
-        if (!self.includeHiddenFiles && [item hasPrefix:@"."]) {
-            continue;
-        }
-        
-        NSString *itemPath = [path stringByAppendingPathComponent:item];
-        FileNode *childNode = [self parseDirectoryAtPathInternal:itemPath root:rootPath type:type depth:depth + 1 error:nil];
-        
-        if (childNode) {
-            if (node.children==nil) node.children=[NSMutableArray array];
-            [node.children addObject:childNode];
-        }
-    }
-    return node;
-}
+//- (FileNode *)parseDirectoryAtPath:(NSString *)path type:(uint8_t)type error:(NSError **)error {
+//    // Check if path exists
+//    NSFileManager *fm = [NSFileManager defaultManager];
+//    
+//    BOOL exists = [fm fileExistsAtPath:path];
+//    if (!exists) {
+//        if (error) {
+//            *error = [NSError errorWithDomain:NSCocoaErrorDomain
+//                                         code:NSFileReadNoSuchFileError
+//                                     userInfo:@{NSLocalizedDescriptionKey: @"Path does not exist"}];
+//        }
+//        return nil;
+//    }
+//    
+//    return [self parseDirectoryAtPathInternal:@"/." root:path type:type depth:0 error:error];
+//}
+//
+//- (FileNode *)parseDirectoryAtPathInternal:(NSString *)path root:(NSString *)rootPath type:(uint8_t)type depth:(NSInteger)depth error:(NSError **)error {
+//    NSFileManager *fm = [NSFileManager defaultManager];
+//    
+//    FileNode *node = [[FileNode alloc] initWithPath:path root:rootPath type:type];
+//    // If it's a file or we've reached max depth, return the node
+//    if (!node.isDirectory || (self.maxDepth >= 0 && depth >= self.maxDepth)) {
+//        if (self.filterExt && [[node.name pathExtension] caseInsensitiveCompare:self.filterExt]) return nil;
+//        return node;
+//    }
+//    
+//    // Get directory contents
+//    NSArray *contents = [fm contentsOfDirectoryAtPath:[rootPath stringByAppendingString:path] error:error];
+//    if (!contents) {
+//        return node; // Return node even if we can't read contents
+//    }
+//    
+//    // Sort contents alphabetically
+//    contents = [contents sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
+//    
+//    for (NSString *item in contents) {
+//        // Skip hidden files if specified
+//        if (!self.includeHiddenFiles && [item hasPrefix:@"."]) {
+//            continue;
+//        }
+//        
+//        NSString *itemPath = [path stringByAppendingPathComponent:item];
+//        FileNode *childNode = [self parseDirectoryAtPathInternal:itemPath root:rootPath type:type depth:depth + 1 error:nil];
+//        
+//        if (childNode) {
+//            if (node.children==nil) node.children=[NSMutableArray array];
+//            [node.children addObject:childNode];
+//        }
+//    }
+//    return node;
+//}
 
 - (NSArray<FileNode *> *)flattenTree:(FileNode *)root {
     NSMutableArray<FileNode *> *result = [NSMutableArray array];

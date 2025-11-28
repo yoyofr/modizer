@@ -27,6 +27,7 @@ enum MDZ_PLAYLIST_FNODE_Type {
 @property (nonatomic, assign) BOOL isMissing;
 @property (nonatomic, assign) BOOL isFavorite;
 @property (nonatomic, assign) uint8_t presetType; //bundle or custom
+@property (nonatomic, assign) int entries; //entries number, including subdirectories content
 
 // Temp tech data for the menu/explorer
 @property (nonatomic, assign) BOOL isSelected_Temp;
@@ -51,7 +52,6 @@ enum MDZ_PLAYLIST_FNODE_Type {
 - (NSString*)getFullPath;
 - (NSString*)getLocalPath;
 - (void) printNodeTree;
-
 
 @end
 
@@ -154,8 +154,8 @@ enum MDZ_PLAYLIST_FNODE_Type {
 @property (nonatomic, strong) NSString *filterExt;
 @property (nonatomic, assign) NSInteger maxDepth;
 
-- (FileNode *)parseDirectoryAtPath:(NSString *)path type:(uint8_t)type error:(NSError **)error;
-- (FileNode *)parseDirectoryAtPathInternal:(NSString *)path root:(NSString *)rootPath type:(uint8_t)type depth:(NSInteger)depth error:(NSError **)error;
+//- (FileNode *)parseDirectoryAtPath:(NSString *)path type:(uint8_t)type error:(NSError **)error;
+//- (FileNode *)parseDirectoryAtPathInternal:(NSString *)path root:(NSString *)rootPath type:(uint8_t)type depth:(NSInteger)depth error:(NSError **)error;
 - (FileNode *)parseFastDirectoryAtPath:(NSString *)path type:(uint8_t)type error:(NSError **)error;
 
 - (NSArray<FileNode *> *)flattenTree:(FileNode *)root;

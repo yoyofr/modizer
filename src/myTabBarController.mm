@@ -750,6 +750,11 @@ extern int move_cursorL,move_cursorR,keyDel;
 
 - (NSArray *)keyCommands
 {
+    UIKeyCommand *tabCommand = [UIKeyCommand keyCommandWithInput:@"\t"  modifierFlags:0 action:@selector(keyTabPressed)];
+    if (@available(iOS 15.0, *)) {
+        tabCommand.wantsPriorityOverSystemBehavior = YES;
+    }
+
     return @[ [UIKeyCommand keyCommandWithInput:UIKeyInputLeftArrow  modifierFlags:0 action:@selector(leftPressed)],
               [UIKeyCommand keyCommandWithInput:UIKeyInputRightArrow   modifierFlags:0 action:@selector(rightPressed)],
               [UIKeyCommand keyCommandWithInput:UIKeyInputLeftArrow   modifierFlags:UIKeyModifierAlternate action:@selector(leftAltPressed)],
@@ -837,7 +842,7 @@ extern int move_cursorL,move_cursorR,keyDel;
               
               [UIKeyCommand keyCommandWithInput:UIKeyInputEscape   modifierFlags:0 action:@selector(keyESCPressed)],
               [UIKeyCommand keyCommandWithInput:UIKeyInputDelete   modifierFlags:0 action:@selector(keyDeletePressed)],
-              [UIKeyCommand keyCommandWithInput:@"\t"  modifierFlags:0 action:@selector(keyTabPressed)],];
+              tabCommand,];
     
 }
 

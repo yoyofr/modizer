@@ -11,6 +11,7 @@
 //YOYOFR
 #include <pthread.h>
 extern pthread_mutex_t pm_mutex,gl_mutex;
+extern mach_port_t mdzMainThreadId;
 
 namespace libprojectM {
 namespace Renderer {
@@ -34,20 +35,25 @@ void Shader::CompileProgram(const std::string& vertexShaderSource,
 {
     if (!shaderP) {
         //YOYOFR
-        pthread_mutex_lock(&gl_mutex);
+        mach_port_t tid = pthread_mach_thread_np(pthread_self());
+        
+        bool mainThread=false;
+        if (tid==mdzMainThreadId) mainThread=true;
+        
+        if (!mainThread) pthread_mutex_lock(&gl_mutex);
         auto vertexShader = CompileShader(vertexShaderSource, GL_VERTEX_SHADER);
-        pthread_mutex_unlock(&gl_mutex);
+        if (!mainThread) pthread_mutex_unlock(&gl_mutex);
         
-        pthread_mutex_lock(&gl_mutex);
+        if (!mainThread) pthread_mutex_lock(&gl_mutex);
         auto fragmentShader = CompileShader(fragmentShaderSource, GL_FRAGMENT_SHADER);
-        pthread_mutex_unlock(&gl_mutex);
+        if (!mainThread) pthread_mutex_unlock(&gl_mutex);
         
         
-        pthread_mutex_lock(&gl_mutex);
+        if (!mainThread) pthread_mutex_lock(&gl_mutex);
         glAttachShader(m_shaderProgram, vertexShader);
         glAttachShader(m_shaderProgram, fragmentShader);
         glLinkProgram(m_shaderProgram);
-        pthread_mutex_unlock(&gl_mutex);
+        if (!mainThread) pthread_mutex_unlock(&gl_mutex);
         
         
         

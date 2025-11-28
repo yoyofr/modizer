@@ -27,6 +27,7 @@
 #define FONTSIZE_SHOWINFO_FPS 24
 #define FONTSIZE_SHOWINFO_DETAILS 16
 #define FONTSIZE_FX_FS_INFO_LINE 12
+#define FONTSIZE_FX_FS_INFO_LINE_DIVIDER 42
 #define FONTSIZE_GUIMSESSAGE 40
 
 #define SHOWINFO_FPS_COLOR 0.2,1.0,0.1
@@ -73,6 +74,7 @@ int MIDIFX_OFS;
 
 #include <pthread.h>
 extern pthread_mutex_t db_mutex,gl_mutex;
+mach_port_t mdzMainThreadId;
 
 #import "SysMonitoring.h"
 
@@ -190,6 +192,7 @@ static int meshX=32,meshY=24;
 float glScaleFactor=1.0;
 
 static bool mBackground;
+static bool mBackground_oglViewWasHidden;
 
 
 
@@ -1371,7 +1374,11 @@ static float movePinchScale,movePinchScaleOld;
     }
 }
 -(void) mdBackAction {
-    PMenu::playerMenuBack();
+    if (pmenu_show) {
+        PMenu::playerMenuBack();
+    } else {
+        [self.navigationController popViewControllerAnimated:YES];
+    }
 }
 -(void) mdTestAsyncLoad {
     int pos=[_mdzPM_playlist getPos];
@@ -1479,7 +1486,7 @@ static float movePinchScale,movePinchScaleOld;
     ImGui::PushStyleColor(ImGuiCol_Border,ImVec4(0,0,0,0));
     ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0,1.0,1.0,alpha_txt));
     
-    float font_size=ww/30;
+    float font_size=ww/FONTSIZE_FX_FS_INFO_LINE_DIVIDER;
     if (font_size<FONTSIZE_FX_FS_INFO_LINE) font_size=FONTSIZE_FX_FS_INFO_LINE;
     if (font_menu) ImGui::PushFont(font_menu,font_size*glScaleFactor);
     else ImGui::PushFont(nullptr);
@@ -6556,6 +6563,8 @@ void pm_perfTest() {
 
 -(void) enterBackground {
     mBackground=true;
+    mBackground_oglViewWasHidden=m_oglView.hidden;
+    m_oglView.hidden=true;
     if (m_displayLink) m_displayLink.preferredFramesPerSecond = 5;     //if (mHasFocus) [self.navigationController popViewControllerAnimated:YES];
     if (mHasFocus) {
         mShouldHaveFocusAfterBackground=1;
@@ -6570,6 +6579,7 @@ void pm_perfTest() {
     //reset timer
     tgtFrameStartTime=0;
     mBackground=false;
+    m_oglView.hidden=mBackground_oglViewWasHidden;
     //update displayLink refresh
     if (m_displayLink) m_displayLink.preferredFramesPerSecond = (settings[GLOB_FXFPS].detail.mdz_switch.switch_value?60:30); //60 or 30 fps depending on device speed iPhone
 }
@@ -7318,6 +7328,8 @@ void menuInterpolValue(float &curValue,float startValue,float tgtValue) {
 void doFramePM(float ww,float hh) {
     if (!_pmIsInitialized) return; //PRojectM might still be initializing and calling some opengl stuff from background thread
     
+    mdzMainThreadId = pthread_mach_thread_np(pthread_self());
+    
     /*-------------------------------------------------------------------------------*/
     /*  ProjectM render */
     /*-------------------------------------------------------------------------------*/
@@ -7576,15 +7588,6 @@ void doFramePM(float ww,float hh) {
                 ImGui::SetCursorPos(ImVec2(cur_winSizeX*glScaleFactor-posx,posy));
                 ImGui::Text("%s",strTmp);
                 posy+=sizeText.y+2;
-                
-                ImGui::SetCursorPos(ImVec2(2,posy));
-                ImGui::Text("V");
-                snprintf(strTmp,32,"%.0fx%.0f",devWW/glScaleFactor,devHH/glScaleFactor);
-                sizeText=ImGui::CalcTextSize(strTmp);
-                posx=sizeText.x+8;
-                ImGui::SetCursorPos(ImVec2(cur_winSizeX*glScaleFactor-posx,posy));
-                ImGui::Text("%s",strTmp);
-                posy+=sizeText.y+2;
                 ImGui::PopStyleColor();
                 
                 posy+=sizeText.y+6;
@@ -7595,6 +7598,7 @@ void doFramePM(float ww,float hh) {
                 ImGui::PopStyleColor();
                 ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(SHOWINFO_FXVIEWRES_COLOR,txtAlpha));
                 //Resolution
+                ImGui::SetCursorPos(ImVec2(2,posy));
                 ImGui::Text("R");
                 snprintf(strTmp,32,"%.0fx%.0f",ww*glScaleFactor,hh*glScaleFactor);
                 sizeText=ImGui::CalcTextSize(strTmp);
@@ -7602,16 +7606,7 @@ void doFramePM(float ww,float hh) {
                 ImGui::SetCursorPos(ImVec2(cur_winSizeX*glScaleFactor-posx,posy));
                 ImGui::Text("%s",strTmp);
                 posy+=sizeText.y+2;
-                //Viewport
-                ImGui::SetCursorPos(ImVec2(2,posy));
-                ImGui::Text("V");
-                snprintf(strTmp,32,"%.0fx%.0f",ww,hh);
-                sizeText=ImGui::CalcTextSize(strTmp);
-                posx=sizeText.x+8;
-                ImGui::SetCursorPos(ImVec2(cur_winSizeX*glScaleFactor-posx,posy));
-                ImGui::Text("%s",strTmp);
                 ImGui::PopStyleColor();
-                posy+=sizeText.y+2;
                 
                 posy+=sizeText.y+6;
                 ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(SHOWINFO_PM_COLOR,txtAlpha));
@@ -7621,18 +7616,11 @@ void doFramePM(float ww,float hh) {
                 posy+=sizeText.y+4;
                 //Internal PM resolution
                 ImGui::PopStyleColor();
+                
                 ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(SHOWINFO_PMRES_COLOR,txtAlpha));
                 ImGui::SetCursorPos(ImVec2(2,posy));
                 ImGui::Text("R");
                 snprintf(strTmp,32,"%dx%d",_pmCanvasWidth,_pmCanvasHeight);
-                sizeText=ImGui::CalcTextSize(strTmp);
-                posx=sizeText.x+8;
-                ImGui::SetCursorPos(ImVec2(cur_winSizeX*glScaleFactor-posx,posy));
-                ImGui::Text("%s",strTmp);
-                posy+=sizeText.y+4;
-                ImGui::SetCursorPos(ImVec2(2,posy));
-                ImGui::Text("V");
-                snprintf(strTmp,32,"%dx%d",(int)(_pmCanvasWidth/glScaleFactor),(int)(_pmCanvasHeight/glScaleFactor));
                 sizeText=ImGui::CalcTextSize(strTmp);
                 posx=sizeText.x+8;
                 ImGui::SetCursorPos(ImVec2(cur_winSizeX*glScaleFactor-posx,posy));
@@ -7723,6 +7711,7 @@ void doFramePM(float ww,float hh) {
                 ImGui::Text("%s",strTmp);
                 posy+=sizeText.y+2;
                 
+#ifdef DEBUG
                 posy+=sizeText.y+6;
                 //Debug info
                 ImGui::PopStyleColor();
@@ -7744,6 +7733,7 @@ void doFramePM(float ww,float hh) {
                 ImGui::SetCursorPos(ImVec2(cur_winSizeX*glScaleFactor-posx,posy));
                 ImGui::Text("%s",strTmp);
                 posy+=sizeText.y+2;
+#endif
                 
                 ImGui::PopStyleColor();
                 
@@ -7913,7 +7903,7 @@ void doFramePM(float ww,float hh) {
         m_oglView.layer.zPosition=3;
     }
     
-    //pthread_mutex_lock(&gl_mutex);
+    pthread_mutex_lock(&gl_mutex);
     [self setContextOGL];
     glClearColor(0.0f, 0.0f , 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
@@ -9381,7 +9371,7 @@ void doFramePM(float ww,float hh) {
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());    
     
     [self presentContextOGL];
-    //pthread_mutex_unlock(&gl_mutex);
+    pthread_mutex_unlock(&gl_mutex);
     
     CFTimeInterval _fx_last_time=CFAbsoluteTimeGetCurrent();
     _fx_frame_time=1000.0f*(double)(_fx_last_time-_fx_start_time);
