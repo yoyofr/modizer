@@ -774,6 +774,7 @@
 		CC84ACC12ECD0E050047656F /* Fonts in Resources */ = {isa = PBXBuildFile; fileRef = CC9331932EA28B7B00CB0503 /* Fonts */; };
 		CC84ACC72ECD9F250047656F /* WelcomeView_2Images.xib in Resources */ = {isa = PBXBuildFile; fileRef = CC84ACC62ECD9F250047656F /* WelcomeView_2Images.xib */; };
 		CC84ACC92ECE07940047656F /* WelcomeView_4Images.xib in Resources */ = {isa = PBXBuildFile; fileRef = CC84ACC82ECE07940047656F /* WelcomeView_4Images.xib */; };
+		CC88FB8C2EDAF0B900717901 /* Credits.html in Resources */ = {isa = PBXBuildFile; fileRef = CC88FB8A2EDAF01E00717901 /* Credits.html */; };
 		CC89C83F2EC0F875000A110A /* libxmp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 59805449262F21CA00BB0309 /* libxmp.a */; };
 		CC89CB252EC14FDB000A110A /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = CC89CB242EC14FDB000A110A /* LaunchScreen.storyboard */; };
 		CC8A8D4317F9FF5500A56E0C /* Icon-76.png in Resources */ = {isa = PBXBuildFile; fileRef = CC8A8D3C17F9FF5500A56E0C /* Icon-76.png */; };
@@ -2455,6 +2456,7 @@
 		CC84ACC62ECD9F250047656F /* WelcomeView_2Images.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = WelcomeView_2Images.xib; sourceTree = "<group>"; };
 		CC84ACC82ECE07940047656F /* WelcomeView_4Images.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = WelcomeView_4Images.xib; sourceTree = "<group>"; };
 		CC88D1131270AF200004EBBE /* modizer-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "modizer-Info.plist"; sourceTree = "<group>"; };
+		CC88FB8A2EDAF01E00717901 /* Credits.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = Credits.html; sourceTree = "<group>"; };
 		CC89CB242EC14FDB000A110A /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 		CC8A8D3C17F9FF5500A56E0C /* Icon-76.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon-76.png"; sourceTree = "<group>"; };
 		CC8A8D3D17F9FF5500A56E0C /* Icon-120.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon-120.png"; sourceTree = "<group>"; };
@@ -3918,6 +3920,7 @@
 		CC1E5A161200B3B8000A8A4E /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				CC88FB8A2EDAF01E00717901 /* Credits.html */,
 				CCBF271D2ECB1A460039936C /* WelcomePages */,
 				CC9331932EA28B7B00CB0503 /* Fonts */,
 				CC9CE1552E96F68100725D15 /* projectm */,
@@ -5885,6 +5888,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CC88FB8C2EDAF0B900717901 /* Credits.html in Resources */,
 				CC02EC551AB5B37000979E38 /* merlin_gold.sf2 in Resources */,
 				CC02EC541AB5B35600979E38 /* timidity.cfg in Resources */,
 				59909B511E3E204E00C629AA /* tabview_gradient40Orange@2x.png in Resources */,

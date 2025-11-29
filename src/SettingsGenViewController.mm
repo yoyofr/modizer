@@ -1470,6 +1470,18 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXMODPattern].detail.mdz_switch.switch_labels[2]=(char*)"2";
     settings[GLOB_FXMODPattern].detail.mdz_switch.switch_labels[3]=(char*)"3";
     
+    
+    SETTINGS_ID_DEF(GLOB_FXMODPattern_BGAlpha)
+    settings[GLOB_FXMODPattern_BGAlpha].label=(char*)"Patterns BG Alpha";
+    settings[GLOB_FXMODPattern_BGAlpha].description=(char*)"Opacity of mod patterns view";
+    settings[GLOB_FXMODPattern_BGAlpha].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+    settings[GLOB_FXMODPattern_BGAlpha].sub_family=0;
+    settings[GLOB_FXMODPattern_BGAlpha].callback=&optVISUChangedC;
+    settings[GLOB_FXMODPattern_BGAlpha].type=MDZ_SLIDER_CONTINUOUS;
+    settings[GLOB_FXMODPattern_BGAlpha].detail.mdz_slider.slider_digits=100;
+    settings[GLOB_FXMODPattern_BGAlpha].detail.mdz_slider.slider_min_value=0.0f;
+    settings[GLOB_FXMODPattern_BGAlpha].detail.mdz_slider.slider_max_value=0.9f;
+    
     SETTINGS_ID_DEF(GLOB_FXMODPattern_Theme)
     settings[GLOB_FXMODPattern_Theme].type=MDZ_SWITCH;
     settings[GLOB_FXMODPattern_Theme].label=(char*)"MOD Color Theme";
@@ -1780,6 +1792,7 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FX_LIMIT_SLOWFX].detail.mdz_switch.switch_default_value=2;
     settings[GLOB_FXSpectrum].detail.mdz_switch.switch_default_value=0;
     settings[GLOB_FXMODPattern].detail.mdz_switch.switch_default_value=0;
+    settings[GLOB_FXMODPattern_BGAlpha].detail.mdz_slider.slider_default_value=0.3;
     settings[GLOB_FXMODPattern_CurrentLineMode].detail.mdz_switch.switch_default_value=0;
     settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_default_value=0;
     settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_default_value=1;

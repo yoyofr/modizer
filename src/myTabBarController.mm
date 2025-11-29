@@ -470,6 +470,8 @@ extern NSMutableArray *mac_key_pressed,*mac_key_released;
             [filteredTabs addObject:vc];
         }
     }
+    
+    
     [self setViewControllers:filteredTabs animated:NO];
     
     // iOS 15+ Fix: Reapply navigation bar appearance after setting view controllers
@@ -527,10 +529,49 @@ extern NSMutableArray *mac_key_pressed,*mac_key_released;
 //    [window addSubview:[animatedLaunchVC view]];
 #endif
     
-    
-    
+#if TARGET_OS_MACCATALYST
+    // Hide the tab bar on Mac Catalyst
+    self.tabBar.hidden = YES;
+
+    // Move tab bar completely off-screen
+    self.tabBar.frame = CGRectZero;
+    self.tabBar.translucent = NO;
+
+    // Ensure view controllers extend under all edges
+    for (UIViewController *vc in self.viewControllers) {
+        if ([vc isKindOfClass:[UINavigationController class]]) {
+            UINavigationController *nav = (UINavigationController *)vc;
+            for (UIViewController *childVC in nav.viewControllers) {
+                childVC.edgesForExtendedLayout = UIRectEdgeAll;
+                childVC.extendedLayoutIncludesOpaqueBars = YES;
+            }
+        } else {
+            vc.edgesForExtendedLayout = UIRectEdgeAll;
+            vc.extendedLayoutIncludesOpaqueBars = YES;
+        }
+    }
+#endif
+
     END_PROFILE
 }
+
+#if TARGET_OS_MACCATALYST
+- (void)setSelectedViewController:(UIViewController *)selectedViewController {
+    [super setSelectedViewController:selectedViewController];
+
+    // Force layout update
+    [self.view setNeedsLayout];
+    [self.view layoutIfNeeded];
+}
+
+- (void)setSelectedIndex:(NSUInteger)selectedIndex {
+    [super setSelectedIndex:selectedIndex];
+
+    // Force layout update
+    [self.view setNeedsLayout];
+    [self.view layoutIfNeeded];
+}
+#endif
 
 - (void)presentWelcomePages {
     if (!settings[GLOB_ShowWelcome].detail.mdz_boolswitch.switch_value) return;

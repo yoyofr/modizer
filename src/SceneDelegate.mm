@@ -50,8 +50,21 @@
     if ([NSProcessInfo processInfo].isiOSAppOnMac) {
         windowScene.sizeRestrictions.minimumSize = CGSizeMake(MODIZER_MACM1_WIDTH_MIN, MODIZER_MACM1_HEIGHT_MIN);
         windowScene.sizeRestrictions.maximumSize = CGSizeMake(MODIZER_MACM1_WIDTH_MAX, MODIZER_MACM1_HEIGHT_MAX);
-        windowScene.sizeRestrictions.allowsFullScreen = YES;
+        if (@available(macCatalyst 16.0, *)) {
+            windowScene.sizeRestrictions.allowsFullScreen = YES;
+        } else {
+            // Fallback on earlier versions
+        }
     }
+#if TARGET_OS_MACCATALYST
+    windowScene.sizeRestrictions.minimumSize = CGSizeMake(MODIZER_MACM1_WIDTH_MIN, MODIZER_MACM1_HEIGHT_MIN);
+    windowScene.sizeRestrictions.maximumSize = CGSizeMake(MODIZER_MACM1_WIDTH_MAX, MODIZER_MACM1_HEIGHT_MAX);
+    if (@available(macCatalyst 16.0, *)) {
+        windowScene.sizeRestrictions.allowsFullScreen = YES;
+    } else {
+        // Fallback on earlier versions
+    }
+#endif
     
     // With automatic storyboard loading, the window and root VC are created by UIKit.
     UIWindow *window = windowScene.windows.firstObject;

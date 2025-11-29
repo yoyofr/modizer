@@ -8628,7 +8628,7 @@ void doFramePM(float ww,float hh) {
                 }
                 
                 ImGui::GetStyle().Alpha=1.0f;
-                ImGui::PushStyleColor(ImGuiCol_WindowBg,ImVec4(0,0,0,0));
+                ImGui::PushStyleColor(ImGuiCol_WindowBg,ImVec4(0,0,0,settings[GLOB_FXMODPattern_BGAlpha].detail.mdz_slider.slider_value));
                 ImGui::PushStyleColor(ImGuiCol_Border,ImVec4(0,0,0,0));
                 
                 int cur_font=settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_value;

@@ -358,7 +358,7 @@ void ImGui_ImplIOS_UpdateEvent(ImGuiIOSEvent *event)
             NSNumber *nb=[mac_key_pressed objectAtIndex:0];
             int key=[nb intValue];
             ImGuiKey imkey=ImGui_ImplIOS_KeyCodeToImGuiKey(key);
-            MDZILog("press: %d",imkey);
+//            MDZILog("press: %d",imkey);
             io.AddKeyEvent(imkey,true);
             
             ImGuiKey imkeyMod=ImGui_ImplIOS_KeyCodeToKeyModCode(imkey);
@@ -370,7 +370,7 @@ void ImGui_ImplIOS_UpdateEvent(ImGuiIOSEvent *event)
             NSNumber *nb=[mac_key_released objectAtIndex:0];
             int key=[nb intValue];
             ImGuiKey imkey=ImGui_ImplIOS_KeyCodeToImGuiKey(key);
-            MDZILog("release: %d",imkey);
+//            MDZILog("release: %d",imkey);
             io.AddKeyEvent(imkey,false);
             
             ImGuiKey imkeyMod=ImGui_ImplIOS_KeyCodeToKeyModCode(imkey);

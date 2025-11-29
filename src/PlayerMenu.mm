@@ -132,7 +132,7 @@ float menu_scrollY[MENU_INDEX_MAX];
 static GLuint txtShineFx;
 static int menuCpt[16];
 
-static float global_FXAlpha;
+static float global_FXAlpha,global_MODPatOpacity;
 
 static GLuint txtMenuHandle[16];
 int menuRootColNb=4;
@@ -158,7 +158,7 @@ unsigned short menuRootLabelFAIcon[16]={
 int menuMoreColNb=4;
 static GLuint txtMenuMoreHandle[16];
 const char *menuRootMoreLabel[16]={
-    NULL,"@sliderFX\nalpha",NULL,NULL,
+    NULL,"@sliderFX\nalpha|30|100",NULL,NULL,
     NULL,NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
@@ -370,13 +370,13 @@ static GLuint txtMenuModPatternHandle[16];
 const char *menuModPatternLabel[16]={
     NULL,NULL,NULL,NULL,
     "Volume\nbars",NULL,NULL,"Fixed bar",
-    NULL,NULL,NULL,NULL,
+    NULL,"@sliderBG\nopacity|0|90",NULL,NULL,
     NULL,NULL,NULL,NULL,
 };
 void *menuModPatternVar[16]={
     NULL,NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
-    NULL,NULL,NULL,NULL,
+    NULL,&global_MODPatOpacity,NULL,NULL,
     NULL,NULL,NULL,NULL,
 };
 unsigned short menuModPatternLabelFAIcon[16]={
@@ -783,15 +783,41 @@ int buildSubMenu(int r,
     } else if (currentMenuLabel[celIdx]) { //Text Button
         ImGui::PushID((celIdx)*4+0);
         if (strstr(currentMenuLabel[celIdx],"@slider")) {
+            char strName[64];
+            const char *strStart=currentMenuLabel[celIdx]+strlen("@slider");
+            int i=0;
+            float minVal=0,maxVal=100;
+            strName[0]=0;
+            //Parse string to get label, minval, maxval
+            //format: @sliderLABEL|minval|maxval
+            while (strStart[i]) {
+                if (strStart[i]=='|') {
+                    snprintf(strName,i+1,"%s",strStart);
+                    minVal=atof(strStart+i+1);
+                    i++;
+                    while (strStart[i]) {
+                        if (strStart[i]=='|') {
+                            maxVal=atof(strStart+i+1);
+                            break;
+                        }
+                        i++;
+                    }
+                    break;
+                }
+                i++;
+                if (i>=64) break;
+            }
+            
+            
                 cur_pos=ImGui::GetCursorPos();
                 cur_pos.y+=(cell_sizeH/4);
                 ImGui::SetCursorPos(cur_pos);
-                ImGui::LabelText("", "%s",currentMenuLabel[celIdx]+strlen("@slider"));
+                ImGui::LabelText("", "%s",strName);
                 cur_pos.x+=(cell_size-1.5*cell_size/3);
                 cur_pos.y-=(cell_sizeH/4);
                 ImGui::SetCursorPos(cur_pos);
                 ImGui::PushStyleVar(ImGuiStyleVar_GrabMinSize, cell_sizeH/5);
-                ImGui::VSliderFloat("",ImVec2(cell_size/3,cell_sizeH*4/4),  (float*)(currentMenuVar[celIdx]), 30.0f, 100.0f,"%.0f%%");
+                ImGui::VSliderFloat("",ImVec2(cell_size/3,cell_sizeH*4/4),  (float*)(currentMenuVar[celIdx]), minVal, maxVal,"%.0f%%");
                 ImGui::PopStyleVar();
         } else {
             if (isActive) {
@@ -868,6 +894,9 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
     
     // Global var mirroring
     global_FXAlpha=settings[GLOB_FXAlpha].detail.mdz_slider.slider_value*100;
+    
+    // Mod pattern opacity
+    global_MODPatOpacity=settings[GLOB_FXMODPattern_BGAlpha].detail.mdz_slider.slider_value*100;
     
     // Root window, full screen
     ImGui::SetNextWindowPos(ImVec2(menu_margin,menu_margin));
@@ -1975,7 +2004,8 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
     ImGui::PopStyleColor();
     
     //Global var mirroring
-    settings[GLOB_FXAlpha].detail.mdz_slider.slider_value=global_FXAlpha/100;
+    settings[GLOB_FXAlpha].detail.mdz_slider.slider_value=global_FXAlpha/100.0;
+    settings[GLOB_FXMODPattern_BGAlpha].detail.mdz_slider.slider_value=global_MODPatOpacity/100.0;
     
     return keepOpened;
 }

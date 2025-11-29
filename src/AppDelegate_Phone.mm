@@ -380,36 +380,36 @@ continueUserActivity:(NSUserActivity *)userActivity
     // Récupérer le menu View
         UIMenu *viewMenu = [builder menuForIdentifier:UIMenuView];
         
-        if (viewMenu) {
-            NSMutableArray *newChildren = [NSMutableArray array];
+    if (viewMenu) {
+        NSMutableArray *newChildren = [NSMutableArray array];
+        
+        for (UIMenuElement *element in viewMenu.children) {
+            BOOL shouldKeep = YES;
             
-            for (UIMenuElement *element in viewMenu.children) {
-                BOOL shouldKeep = YES;
-                
-                // Vérifier si c'est un UIMenu (sous-menu)
-                if ([element isKindOfClass:[UIMenu class]]) {
-                    UIMenu *submenu = (UIMenu *)element;
-                    if ([submenu.identifier isEqual:UIMenuSidebar]) {
-                        shouldKeep = NO;
-                    }
-                }
-                // Vérifier si c'est un UICommand (commande)
-//                else if ([element isKindOfClass:[UICommand class]]) {
-//                    UICommand *command = (UICommand *)element;
-//                    // Comparer par action ou title si pas d'identifier
-//                    if (command.action == @selector(toggleFullScreen:)) {
-//                        shouldKeep = NO;
-//                    }
-//                }
-                
-                if (shouldKeep) {
-                    [newChildren addObject:element];
+            // Vérifier si c'est un UIMenu (sous-menu)
+            if ([element isKindOfClass:[UIMenu class]]) {
+                UIMenu *submenu = (UIMenu *)element;
+                if ([submenu.identifier isEqual:UIMenuSidebar]) {
+                    shouldKeep = NO;
                 }
             }
+            // Vérifier si c'est un UICommand (commande)
+            //                else if ([element isKindOfClass:[UICommand class]]) {
+            //                    UICommand *command = (UICommand *)element;
+            //                    // Comparer par action ou title si pas d'identifier
+            //                    if (command.action == @selector(toggleFullScreen:)) {
+            //                        shouldKeep = NO;
+            //                    }
+            //                }
             
-            UIMenu *newViewMenu = [viewMenu menuByReplacingChildren:newChildren];
-            [builder replaceMenuForIdentifier:UIMenuView withMenu:newViewMenu];
+            if (shouldKeep) {
+                [newChildren addObject:element];
+            }
         }
+        
+        UIMenu *newViewMenu = [viewMenu menuByReplacingChildren:newChildren];
+        [builder replaceMenuForIdentifier:UIMenuView withMenu:newViewMenu];
+    }
 }
 
 #pragma mark - UISceneSession Lifecycle
@@ -426,6 +426,20 @@ continueUserActivity:(NSUserActivity *)userActivity
     // Called when the user discards a scene session.
     // If any sessions were discarded while the application was not running, this will be called shortly after application:didFinishLaunchingWithOptions.
     // Use this method to release any resources that were specific to the discarded scenes, as they will not return.
+}
+
+#pragma mark - Menu / about
+- (void)showAbout:(id)sender {
+    // Afficher ta fenêtre About personnalisée
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"About Modizer",@"")
+                                                                   message:
+                                [NSString stringWithFormat:NSLocalizedString(@"Version %d.%d\n© Yohann Magnirn",@""),VERSION_MAJOR,VERSION_MINOR]
+                                                            preferredStyle:UIAlertControllerStyleAlert];
+    [alert addAction:[UIAlertAction actionWithTitle:@"OK"
+                                              style:UIAlertActionStyleDefault
+                                            handler:nil]];
+    
+    [self.window.rootViewController presentViewController:alert animated:YES completion:nil];
 }
 
 @end

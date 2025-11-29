@@ -309,6 +309,7 @@ enum MDZ_SETTINGS {
         OSCILLO_MULTI_COLOR08,
     
     GLOB_FXMODPattern,
+    GLOB_FXMODPattern_BGAlpha,
     GLOB_FXMODPattern_VolBar,
     GLOB_FXMODPattern_CurrentLineMode,
     GLOB_FXMODPattern_Font,
