@@ -12,13 +12,19 @@
 extern os_log_t mdzLog;
 #endif
 
+#define MDZ_MACOS_BUNDLE 1 //when building for local usage as it might not be validated / appstore
+
 #define NOW_PLAYING_ICON @"music.note.tv"
 
 #define FONT_BASE_SIZEF 16.0f
 
 #define MDZLog(a, ...) os_log_with_type(mdzLog,a,__VA_ARGS__)
 #define MDZILog(...) os_log_with_type(mdzLog,OS_LOG_TYPE_INFO,__VA_ARGS__)
+#ifdef NDEBUG
+#define MDZDLog(...)
+#else
 #define MDZDLog(...) os_log_with_type(mdzLog,OS_LOG_TYPE_DEBUG,__VA_ARGS__)
+#endif
 #define MDZELog(...) os_log_with_type(mdzLog,OS_LOG_TYPE_ERROR,__VA_ARGS__)
 #define MDZFLog(...) os_log_with_type(mdzLog,OS_LOG_TYPE_FAULT,__VA_ARGS__)
 

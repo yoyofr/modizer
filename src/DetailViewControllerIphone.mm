@@ -12,7 +12,7 @@
 #define PM_FRAMETIME_LIMIT_STRONG 10 //Max slow frames allowed for 'strong' mode
 
 #define PM_PRESET_DISPLAY_TIMEOUT 10 //Display time in seconds of preset's name when in temporary display mode
-#define FX_FS_SONGINFO_TIMEOUT 6 //Display time in seconds of song info data in fullscreen mode
+#define FX_FS_SONGINFO_TIMEOUT 5 //Display time in seconds of song info data in fullscreen mode
 #define MDZ_FX_SONGINFO_MAXCHAR 80
 
 #define FX_FS_GUIMESSAGE_TIMEOUT 2
@@ -5585,7 +5585,7 @@ void pm_perfTest() {
     _mdzPM_Favorites=[[MDZFavorites alloc] init];
     [_mdzPM_Favorites loadFavorites];
     
-    MDZILog("loaded pl, entries nb: %d",[_mdzPM_playlist getSize]);
+    MDZDLog("loaded pl, entries nb: %d",[_mdzPM_playlist getSize]);
     if ([_mdzPM_playlist getSize]) {
         [_mdzPM_playlist updateFileNodeStatus:pmBundledPresetsFileNode];
         [_mdzPM_playlist updateFileNodeStatus:pmCustomPresetsFileNode];

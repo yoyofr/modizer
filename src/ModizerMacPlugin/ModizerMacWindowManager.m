@@ -8,6 +8,8 @@
 #import <Foundation/Foundation.h>
 #import <AppKit/AppKit.h>
 
+#import "../ModizerConstants.h"
+
 @interface ModizerMacWindowManager : NSObject
 + (void)setAlwaysOnTop:(BOOL)enabled;
 + (void)enableAlwaysOnTop;
@@ -17,6 +19,7 @@
 @implementation ModizerMacWindowManager
 
 + (void)setAlwaysOnTop:(BOOL)enabled {
+#if MDZ_MACOS_BUNDLE
     NSArray *windows = [NSApp windows];
     
     for (NSWindow *window in windows) {
@@ -33,6 +36,7 @@
             [window setCollectionBehavior:NSWindowCollectionBehaviorDefault];
         }
     }
+#endif
 }
 
 + (void)enableAlwaysOnTop {
@@ -45,7 +49,7 @@
 
 // Auto-load quand le bundle est chargé
 + (void)load {
-    NSLog(@"ModizerMacWindowPlugin loaded");
+    //NSLog(@"ModizerMacWindowPlugin loaded");
 }
 
 @end

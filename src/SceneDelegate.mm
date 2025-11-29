@@ -80,6 +80,7 @@
         
     }
     
+#if MDZ_MACOS_BUNDLE
 #if TARGET_OS_MACCATALYST
     // Restaurer l'état sauvegardé
         self.isWindowFloating = [[NSUserDefaults standardUserDefaults] boolForKey:@"WindowFloating"];
@@ -94,9 +95,10 @@
         }
     }
 #endif
-    
+#endif
 }
 
+#if MDZ_MACOS_BUNDLE
 #if TARGET_OS_MACCATALYST
 - (void)loadMacPlugin {
     NSBundle *mainBundle = [NSBundle mainBundle];
@@ -108,7 +110,7 @@
     NSString *pluginsDir = [[mainBundle bundlePath] stringByAppendingPathComponent:@"Contents/PlugIns"];
     pluginPath = [pluginsDir stringByAppendingPathComponent:@"ModizerMacWindowPlugin.bundle"];
     
-    NSLog(@"Looking for plugin at: %@", pluginPath);
+    //(@"Looking for plugin at: %@", pluginPath);
     
     if (![[NSFileManager defaultManager] fileExistsAtPath:pluginPath]) {
         NSLog(@"❌ Plugin not found at: %@", pluginPath);
@@ -122,19 +124,19 @@
     }
     
     if ([[NSFileManager defaultManager] fileExistsAtPath:pluginPath]) {
-        NSLog(@"✅ Plugin found at: %@", pluginPath);
+        //NSLog(@"✅ Plugin found at: %@", pluginPath);
         
         NSBundle *pluginBundle = [NSBundle bundleWithPath:pluginPath];
         
         if (pluginBundle) {
             NSError *error = nil;
             if ([pluginBundle loadAndReturnError:&error]) {
-                NSLog(@"✅ Plugin loaded successfully");
+                //NSLog(@"✅ Plugin loaded successfully");
                 
                 // Vérifier que la classe existe
                 Class macWindowManager = NSClassFromString(@"ModizerMacWindowManager");
                 if (macWindowManager) {
-                    NSLog(@"✅ ModizerMacWindowManager class found!");
+//                    NSLog(@"✅ ModizerMacWindowManager class found!");
                 } else {
                     NSLog(@"❌ ModizerMacWindowManager class not found");
                 }
@@ -148,8 +150,8 @@
         NSLog(@"❌ Plugin file does not exist at: %@", pluginPath);
         
         // Debug : lister ce qui est dans PlugIns
-        NSArray *contents = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:pluginsDir error:nil];
-        NSLog(@"Contents of PlugIns directory: %@", contents);
+//        NSArray *contents = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:pluginsDir error:nil];
+//        NSLog(@"Contents of PlugIns directory: %@", contents);
     }
 }
 - (void)toggleAlwaysOnTop {
@@ -172,7 +174,7 @@
             [invocation setArgument:&_isWindowFloating atIndex:2];
             [invocation invoke];
             
-            NSLog(@"Window floating: %@", self.isWindowFloating ? @"ON" : @"OFF");
+            //NSLog(@"Window floating: %@", self.isWindowFloating ? @"ON" : @"OFF");
         }
     } else {
         NSLog(@"❌ ModizerMacWindowManager class not found");
@@ -195,7 +197,7 @@
     }
 }
 #endif
-
+#endif
 
 - (void)sceneDidDisconnect:(UIScene *)scene {
     // Called as the scene is being released by the system.

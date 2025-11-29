@@ -1232,7 +1232,7 @@ code_4=a=1.0;\n\
     for (FileNode *node in item.children) {
         if (node.isDirectory) {
             if (node.entries==0) {
-                MDZFLog("removing empty dir %@",node.localpath);
+                //MDZILog("removing empty dir %@",node.localpath);
                 [item.children removeObject:node];
             }
             else [self removeEmptyNodes:node];

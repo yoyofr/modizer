@@ -408,6 +408,7 @@ continueUserActivity:(NSUserActivity *)userActivity
                 [newChildren addObject:element];
             }
         }
+#if MDZ_MACOS_BUNDLE
         UIWindowScene *windowScene = (UIWindowScene *)[UIApplication.sharedApplication.connectedScenes.allObjects firstObject];
         SceneDelegate *sceneDelegate = (SceneDelegate*)windowScene.delegate;
         // Utiliser UIKeyCommand au lieu de UICommand pour pouvoir spécifier un input
@@ -433,7 +434,7 @@ continueUserActivity:(NSUserActivity *)userActivity
 
         //[builder insertSiblingMenu:floatMenu afterMenuForIdentifier:UIMenuWindow];
         [newChildren addObject:floatMenu];
-        
+#endif
         UIMenu *newViewMenu = [viewMenu menuByReplacingChildren:newChildren];
         [builder replaceMenuForIdentifier:UIMenuView withMenu:newViewMenu];
     }
@@ -443,6 +444,7 @@ continueUserActivity:(NSUserActivity *)userActivity
 #endif
 }
 
+#if MDZ_MACOS_BUNDLE
 #if TARGET_OS_MACCATALYST
 -(void) toggleAlwaysOnTop {
     UIWindowScene *windowScene = (UIWindowScene *)[UIApplication.sharedApplication.connectedScenes.allObjects firstObject];
@@ -452,6 +454,7 @@ continueUserActivity:(NSUserActivity *)userActivity
     // Rebuild menu
     [[UIMenuSystem mainSystem] setNeedsRebuild];
 }
+#endif
 #endif
 
 #pragma mark - UISceneSession Lifecycle
