@@ -19,8 +19,8 @@
 #import "StoreManager.h"
 
 
-extern int shiftPressedL,shiftPressedR;
-extern int move_cursorL,move_cursorR,keyDel;
+extern NSMutableArray *mac_key_pressed,*mac_key_released;
+
 
 @implementation myTabBarController
 
@@ -723,16 +723,21 @@ extern int move_cursorL,move_cursorR,keyDel;
                 }
             }
             
+#if TARGET_OS_MACCATALYST
+#else
             if ([mFileMngr copyItemAtPath:filepath toPath:imported_filepath error:&err]) {
                 [rootViewControllerIphone refreshViewAfterDownload];
             } else {
             }
+#endif
             [url stopAccessingSecurityScopedResource];
         } else  {
         }
-        
+#if TARGET_OS_MACCATALYST
+        NSString *shortfilepath=filepath;
+#else
         NSString *shortfilepath=imported_filepath=[NSString stringWithFormat:@"Documents/Downloads/%@",[filepath lastPathComponent]];
-
+#endif
         t_playlist *pl;
         pl=(t_playlist*)calloc(1,sizeof(t_playlist));
         
@@ -1061,55 +1066,45 @@ extern int move_cursorL,move_cursorR,keyDel;
 
 - (void)pressesEnded:(NSSet<UIPress *> *)presses withEvent:(UIPressesEvent *)event {
     bool _dontForwardEvent=false;
-    if (@available(iOS 13.4, *)) {
-        for (UIPress *press in presses) {
-            UIKey *key=press.key;
-            if (key.keyCode==UIKeyboardHIDUsageKeyboardRightShift) {
-                [detailViewControllerIphone mdShiftMode:0];
-                shiftPressedR=1;
-            }
-            if (key.keyCode==UIKeyboardHIDUsageKeyboardLeftShift) {
-                shiftPressedL=1;
-            }
-            if (key.keyCode==UIKeyboardHIDUsageKeyboardRightArrow) {
-                move_cursorR=1;
-            }
-            if (key.keyCode==UIKeyboardHIDUsageKeyboardLeftArrow) {
-                move_cursorL=1;
-            }
-            if (key.keyCode==UIKeyboardHIDUsageKeyboardDeleteForward) {
-                keyDel=1;
-            }
+    for (UIPress *press in presses) {
+        UIKey *key=press.key;
+        if (key.keyCode==UIKeyboardHIDUsageKeyboardRightShift) {
+            [detailViewControllerIphone mdShiftMode:0];
         }
+        //MDZILog("adding release of %d",(int)key.keyCode);
+        [mac_key_released addObject:[NSNumber numberWithInt:(int)key.keyCode]];
     }
     if (!_dontForwardEvent) [super pressesEnded:presses withEvent:event];
 }
+
 - (void)pressesBegan:(NSSet<UIPress *> *)presses
            withEvent:(UIPressesEvent *)event {
     bool _dontForwardEvent=false;
-    if (@available(iOS 13.4, *)) {
-        for (UIPress *press in presses) {
-            UIKey *key=press.key;
-            if (key.keyCode==UIKeyboardHIDUsageKeyboardRightShift) {
-                [detailViewControllerIphone mdShiftMode:1];
-                shiftPressedR=2;
-            }
-            if (key.keyCode==UIKeyboardHIDUsageKeyboardLeftShift) {
-                shiftPressedL=2;
-            }
-            if (key.keyCode==UIKeyboardHIDUsageKeyboardRightArrow) {
-                move_cursorR=2;
-            }
-            if (key.keyCode==UIKeyboardHIDUsageKeyboardLeftArrow) {
-                move_cursorL=2;
-            }
-            if (key.keyCode==UIKeyboardHIDUsageKeyboardDeleteForward) {
-                keyDel=2;
-            }
+    for (UIPress *press in presses) {
+        UIKey *key=press.key;
+        if (key.keyCode==UIKeyboardHIDUsageKeyboardRightShift) {
+            [detailViewControllerIphone mdShiftMode:1];
         }
+        //MDZILog("adding press of %d",(int)key.keyCode);
+        [mac_key_pressed addObject:[NSNumber numberWithInt:(int)key.keyCode]];
     }
     if (!_dontForwardEvent) [super pressesBegan:presses withEvent:event];
 }
+
+- (void)pressesCancelled:(NSSet<UIPress *> *)presses withEvent:(UIPressesEvent *)event {
+    // Traiter comme un release
+    bool _dontForwardEvent=false;
+    for (UIPress *press in presses) {
+        UIKey *key=press.key;
+        if (key.keyCode==UIKeyboardHIDUsageKeyboardRightShift) {
+            [detailViewControllerIphone mdShiftMode:0];
+        }
+        //MDZILog("adding cancel of %d",(int)key.keyCode);
+        [mac_key_released addObject:[NSNumber numberWithInt:(int)key.keyCode]];
+    }
+    if (!_dontForwardEvent) [super pressesCancelled:presses withEvent:event];
+}
+
 #pragma mark - Remote Control
 
 - (void)remoteControlReceivedWithEvent:(UIEvent *)event {

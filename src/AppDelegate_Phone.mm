@@ -13,7 +13,6 @@
 #import "SceneDelegate.h"
 #import <MediaPlayer/MediaPlayer.h>
 
-#import "ModizerWin.h"
 #import "RootViewControllerLocalBrowser.h"
 #import "DetailViewControllerIphone.h"
 #import "RootViewControllerPlaylist.h"
@@ -369,6 +368,48 @@ continueUserActivity:(NSUserActivity *)userActivity
     [builder removeMenuForIdentifier:UIMenuSubstitutions];
     [builder removeMenuForIdentifier:UIMenuTransformations];
     [builder removeMenuForIdentifier:UIMenuSpeech];
+    
+    // Supprimer des menus existants
+    [builder removeMenuForIdentifier:UIMenuFormat];
+    [builder removeMenuForIdentifier:UIMenuToolbar];
+    [builder removeMenuForIdentifier:UIMenuEdit];
+    
+    // Ou supprimer des commandes spécifiques
+    //[builder removeMenuForIdentifier:UIMenuPreferences];
+    
+    // Récupérer le menu View
+        UIMenu *viewMenu = [builder menuForIdentifier:UIMenuView];
+        
+        if (viewMenu) {
+            NSMutableArray *newChildren = [NSMutableArray array];
+            
+            for (UIMenuElement *element in viewMenu.children) {
+                BOOL shouldKeep = YES;
+                
+                // Vérifier si c'est un UIMenu (sous-menu)
+                if ([element isKindOfClass:[UIMenu class]]) {
+                    UIMenu *submenu = (UIMenu *)element;
+                    if ([submenu.identifier isEqual:UIMenuSidebar]) {
+                        shouldKeep = NO;
+                    }
+                }
+                // Vérifier si c'est un UICommand (commande)
+//                else if ([element isKindOfClass:[UICommand class]]) {
+//                    UICommand *command = (UICommand *)element;
+//                    // Comparer par action ou title si pas d'identifier
+//                    if (command.action == @selector(toggleFullScreen:)) {
+//                        shouldKeep = NO;
+//                    }
+//                }
+                
+                if (shouldKeep) {
+                    [newChildren addObject:element];
+                }
+            }
+            
+            UIMenu *newViewMenu = [viewMenu menuByReplacingChildren:newChildren];
+            [builder replaceMenuForIdentifier:UIMenuView withMenu:newViewMenu];
+        }
 }
 
 #pragma mark - UISceneSession Lifecycle

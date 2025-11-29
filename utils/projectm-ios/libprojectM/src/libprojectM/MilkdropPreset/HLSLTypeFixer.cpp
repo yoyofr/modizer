@@ -830,7 +830,8 @@ std::string HLSLTypeFixer::fixIntegerAssignmentsFromFloatExpressions(const std::
     // This is simpler and safer than trying to detect "float expressions"
     for (const auto& intVar : m_intVariables) {
         // Look for: int_var = expression;
-        std::regex assignmentRegex("\\b(" + intVar + ")\\s*=\\s*([^;]+);");
+        // Use negative lookahead (?!=) to avoid matching ==, !=, <=, >=, etc.
+        std::regex assignmentRegex("\\b(" + intVar + ")\\s*=(?![=<>!])\\s*([^;]+);");
         
         std::string temp;
         std::smatch match;

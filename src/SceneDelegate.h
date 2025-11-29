@@ -8,7 +8,6 @@
 
 #import <UIKit/UIKit.h>
 
-@class ModizerWin;
 @class RootViewControllerLocalBrowser;
 @class DetailViewControllerIphone;
 @class RootViewControllerPlaylist;
@@ -19,7 +18,6 @@
 
 @interface SceneDelegate : UIResponder <UIWindowSceneDelegate> {
     UIWindow *window;
-         ModizerWin *modizerWin;
          myTabBarController *tabBarController;
          RootViewControllerLocalBrowser *rootViewControlleriPhone;
          DetailViewControllerIphone *detailViewControlleriPhone;
@@ -29,7 +27,6 @@
 }
 
 @property (strong, nonatomic) UIWindow *window;
-@property (nonatomic, retain)  ModizerWin *modizerWin;
 @property (nonatomic, retain)  RootViewControllerLocalBrowser *rootViewControlleriPhone;
 @property (nonatomic, retain)  RootViewControllerPlaylist *playlistVC;
 @property (nonatomic, retain)  DetailViewControllerIphone *detailViewControlleriPhone;

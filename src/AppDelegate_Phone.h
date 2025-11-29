@@ -11,7 +11,6 @@
 #import "ModizerConstants.h"
 #import "AnimatedLaunchVC.h"
 
-@class ModizerWin;
 @class RootViewControllerLocalBrowser;
 @class DetailViewControllerIphone;
 @class RootViewControllerPlaylist;
@@ -23,7 +22,6 @@
 @interface AppDelegate_Phone : UIResponder <UIApplicationDelegate> {
     AnimatedLaunchVC *animatedLaunchVC;
     
-//    IBOutlet ModizerWin *modizerWin;
     RootViewControllerLocalBrowser *rootViewControlleriPhone;
     DetailViewControllerIphone *detailViewControlleriPhone;
     RootViewControllerPlaylist *playlistVC;
@@ -35,8 +33,6 @@
     UIBackgroundTaskIdentifier bgTask;
 }
 
-//@property (nonatomic, retain) IBOutlet UIWindow *window;
-//@property (nonatomic, retain) IBOutlet ModizerWin *modizerWin;
 @property (nonatomic, retain) RootViewControllerLocalBrowser *rootViewControlleriPhone;
 @property (nonatomic, retain) RootViewControllerPlaylist *playlistVC;
 @property (nonatomic, retain) DetailViewControllerIphone *detailViewControlleriPhone;

@@ -63,7 +63,17 @@ std::vector<ShaderPreprocessor::FunctionInfo> ShaderPreprocessor::extractFunctio
             pos = openParen + 1;
             continue;
         }
-        
+
+        // Get the function name
+        std::string functionName = source.substr(nameStart, nameEnd - nameStart);
+
+        // Skip control flow keywords (if, while, for, switch, etc.)
+        if (functionName == "if" || functionName == "while" || functionName == "for" ||
+            functionName == "switch" || functionName == "do") {
+            pos = openParen + 1;
+            continue;
+        }
+
         // Find the return type (work backwards from function name)
         size_t typeEnd = nameStart;
         while (typeEnd > 0 && std::isspace(source[typeEnd - 1])) --typeEnd;
@@ -897,16 +907,16 @@ std::string ShaderPreprocessor::fixModuloParentheses(const std::string& shaderSo
 
 std::string ShaderPreprocessor::preprocess(const std::string& shaderSource) {
     std::string result = shaderSource;
-    
+
     // Step 0: Process #define directives (expand macros and remove directives)
     result = processDefines(result);
-    
-    
+
+
     // Step 1: Fix array initializers (must be done early, before shader_body transformations)
     if (m_language == ShaderLanguage::HLSL) {
         result = fixArrayInitializers(result);
     }
-    
+
     // Step 2: Remove invalid functions
     std::vector<FunctionInfo> functions = extractFunctions(result);
     for (auto it = functions.rbegin(); it != functions.rend(); ++it) {
@@ -914,7 +924,7 @@ std::string ShaderPreprocessor::preprocess(const std::string& shaderSource) {
             result.erase(it->startPos, it->length);
         }
     }
-    
+
     // Step 3: Fix variable shadowing
     std::vector<ShadowingInfo> shadowingCases = detectShadowing(result);
     
@@ -1006,7 +1016,7 @@ std::string ShaderPreprocessor::preprocess(const std::string& shaderSource) {
     
     // Step 4.5: Remove redundant parentheses
     result = removeRedundantParentheses(result);
-    
+
     // Step 4.6: Add missing parentheses around modulo operations
     result = fixModuloParentheses(result);
     
@@ -1185,13 +1195,13 @@ std::string ShaderPreprocessor::preprocess(const std::string& shaderSource) {
     
     // Step 7.5: Fix empty for loop initializers and increments
     result = fixEmptyForLoopParts(result);
-    
+
     // Step 8: Apply HLSLTypeFixer as final step (HLSL-specific)
     if (m_language == ShaderLanguage::HLSL) {
         HLSLTypeFixer hlslTypeFixer;
         result = hlslTypeFixer.autoFix(result);
     }
-    
+
     return result;
 }
 

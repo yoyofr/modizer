@@ -44,9 +44,12 @@ enum ImGuiIOSEventType {
 #endif
 
 
-IMGUI_IMPL_API bool     ImGui_ImplIOS_Init();
-IMGUI_IMPL_API void     ImGui_ImplIOS_Shutdown();
-IMGUI_IMPL_API void     ImGui_ImplIOS_NewFrame(float w,float h,float scale,ImGuiIOSEvent *event);
+IMGUI_IMPL_API bool ImGui_ImplIOS_Init();
+IMGUI_IMPL_API void ImGui_ImplIOS_Shutdown();
+IMGUI_IMPL_API void ImGui_ImplIOS_NewFrame(float w,float h,float scale);
+IMGUI_IMPL_API void ImGui_ImplIOS_UpdateEvent(ImGuiIOSEvent *event);
+IMGUI_IMPL_API void ImGui_ImplIOS_ResetKeyMouse();
+
 void ImGui_ImplIOS_UpdateEvent(ImGuiIOSEvent *event);
 void ImGui_ImplIOS_ResetTapPos();
 

@@ -188,7 +188,7 @@ static void ImGui_ImplSDL2_SetClipboardText(ImGuiContext*, const char* text)
 }
 
 // Note: native IME will only display if user calls SDL_SetHint(SDL_HINT_IME_SHOW_UI, "1") _before_ SDL_CreateWindow().
-static void ImGui_ImplSDL2_PlatformSetImeData(ImGuiContext*, ImGuiViewport*, ImGuiPlatformImeData* data)
+static void ImGui_ImplSDL2_PlatformSetImeData(ImGuiContext*, ImGuiViewport*, ImGuiPlatformImeData* data)ImGui_ImplIOS_GetClipboardText
 {
     if (data->WantVisible)
     {

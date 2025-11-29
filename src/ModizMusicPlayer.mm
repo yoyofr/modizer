@@ -13728,6 +13728,7 @@ extern bool icloud_available;
     
     if ([_filePath length]>2) {
         if (([_filePath characterAtIndex:0]=='/')&&([_filePath characterAtIndex:1]=='/')) fullFilePath=[_filePath substringFromIndex:2];
+        else if ([_filePath characterAtIndex:0]=='/') fullFilePath=[NSString stringWithString:_filePath];
         else {
             if (icloud_available && ([_filePath containsString:[icloudURL path]])) fullFilePath=[NSString stringWithString:_filePath];
             else fullFilePath=[NSHomeDirectory() stringByAppendingPathComponent:_filePath];

@@ -8,7 +8,6 @@
 
 #import "SceneDelegate.h"
 #import "AppDelegate_Phone.h"
-#import "ModizerWin.h"
 #import "myTabBarController.h"
 #import "RootViewControllerLocalBrowser.h"
 #import "DetailViewControllerIphone.h"
@@ -21,7 +20,7 @@
 
 @implementation SceneDelegate
 
-@synthesize modizerWin,tabBarController, rootViewControlleriPhone, detailViewControlleriPhone,playlistVC,downloadVC;
+@synthesize tabBarController, rootViewControlleriPhone, detailViewControlleriPhone,playlistVC,downloadVC;
 
 #pragma mark - Helpers
 
@@ -96,18 +95,5 @@
     }
 }
 
-#pragma mark - mac catalyst menu
-- (void)buildMenuWithBuilder:(id<UIMenuBuilder>)builder {
-    if (builder.system != UIMenuSystem.mainSystem) {
-        return;
-    }
-    
-    // Supprimer des menus existants
-    [builder removeMenuForIdentifier:UIMenuFormat];
-    [builder removeMenuForIdentifier:UIMenuToolbar];
-    
-    // Ou supprimer des commandes spécifiques
-    [builder removeMenuForIdentifier:UIMenuPreferences];
-}
 
 @end

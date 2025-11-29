@@ -5,9 +5,9 @@ CXXFLAGS = -std=c++17 -Wall -Wextra -I.
 LDFLAGS =
 
 # Source files
-SRCS = test_int_assignment_fix.cpp ShaderPreprocessor.cpp HLSLTypeFixer.cpp
+SRCS = test_conv.cpp ShaderPreprocessor.cpp HLSLTypeFixer.cpp
 OBJS = $(SRCS:.cpp=.o)
-TARGET = test_int_assignment_fix
+TARGET = test_conv
 
 # Default target
 all: $(TARGET)

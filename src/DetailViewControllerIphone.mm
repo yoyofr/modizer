@@ -99,7 +99,6 @@ static float *fft_frequency,*fft_time,*fft_frequencyAvg;
 static int *fft_freqAvgCount;
 
 #import "AppDelegate_Phone.h"
-#import "ModizerWin.h"
 
 #import "ModizFileHelper.h"
 
@@ -202,6 +201,8 @@ static bool mBackground_oglViewWasHidden;
 #include "../utils/imgui/imgui.h"
 #include "../utils/imgui/backends/imgui_impl_ios.h"
 #include "../utils/imgui/backends/imgui_impl_opengl3.h"
+
+extern NSMutableArray *mac_key_pressed,*mac_key_released;
 
 #include "MDZFontAwesome.h"
 
@@ -1377,6 +1378,11 @@ static float movePinchScale,movePinchScaleOld;
     if (pmenu_show) {
         PMenu::playerMenuBack();
     } else {
+        //Ensure all keys are processed
+//        ImGuiIOSEvent imgui_event;
+//        imgui_event.event_type=IMGUI_IOS_Event_None;
+//        ImGui_ImplIOS_UpdateEvent(&imgui_event);
+//        
         [self.navigationController popViewControllerAnimated:YES];
     }
 }
@@ -6861,6 +6867,11 @@ void pm_perfTest() {
     panGestureHover=panGestureWheel=panGesture1Tap=0;
     
     tgtFrameCnt=0;
+    
+    //clean key status as changing VC loses track of key pressed/released
+    [mac_key_released removeAllObjects];
+    [mac_key_pressed removeAllObjects];
+    ImGui_ImplIOS_ResetKeyMouse();
 }
 
 - (void)checkNewCover {
@@ -7221,7 +7232,7 @@ static int mOglView1Tap=0;
             moveWheelXPMenu=0;
             moveWheelYPMenu=0;
             
-            MDZILog("reset wheel Pan2 start");
+            //MDZILog("reset wheel Pan2 start");
             
             break;
         case UIGestureRecognizerStateChanged:
@@ -7229,12 +7240,12 @@ static int mOglView1Tap=0;
             if (pmenu_show) {
                 moveWheelXPMenu=pt.x-last_pt.x;
                 moveWheelYPMenu=pt.y-last_pt.y;
-                MDZILog("pan2 set pt %f %f",moveWheelXPMenu,moveWheelYPMenu);
+                //MDZILog("pan2 set pt %f %f",moveWheelXPMenu,moveWheelYPMenu);
             }
             last_pt=pt;
             break;
         default:
-            MDZILog("other");
+            //MDZILog("other");
             panGestureWheel=0;
             break;
     }
@@ -7994,7 +8005,8 @@ void doFramePM(float ww,float hh) {
     varCheck[2]=imgui_event.wheel_y;
     
         
-    ImGui_ImplIOS_NewFrame(ww*glScaleFactor,hh*glScaleFactor,1,&imgui_event);
+    ImGui_ImplIOS_NewFrame(ww*glScaleFactor,hh*glScaleFactor,1);
+    ImGui_ImplIOS_UpdateEvent(&imgui_event);
     ImGui_ImplOpenGL3_NewFrame();
     ImGui::NewFrame();
     

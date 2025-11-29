@@ -40,7 +40,6 @@ static volatile int mPopupAnimation=0;
 
 #import "RootViewControllerLocalBrowser.h"
 #import "AppDelegate_Phone.h"
-#import "ModizerWin.h"
 #import "DetailViewControllerIphone.h"
 #import "QuartzCore/CAAnimation.h"
 #import "SettingsGenViewController.h"
