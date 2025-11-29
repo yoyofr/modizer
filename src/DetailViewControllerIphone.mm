@@ -358,10 +358,17 @@ bool sysMonitorIsActive;
     [mplayer playGoToSub:(int)row+mplayer.mod_minsub];
     clearAudioFXbuffer=true;
     _seekRequested=-1;
-    
-    if (settings[GLOB_Notification].detail.mdz_switch.switch_value==2) {
-        [self sendNotifPlayedTitle];
-    }
+
+    double delayInSeconds = 0.5;
+    dispatch_time_t delay = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
+
+    dispatch_after(delay, dispatch_get_main_queue(), ^{
+        // Code to run after 2 seconds
+        if (settings[GLOB_Notification].detail.mdz_switch.switch_value==2) {
+            [self sendNotifPlayedTitle];
+        }
+
+    });
 }
 
 -(void) cancelSubSel {
@@ -515,11 +522,6 @@ bool sysMonitorIsActive;
     [self hideWaiting];
     clearAudioFXbuffer=true;
     _seekRequested=-1;
-    
-    if (settings[GLOB_Notification].detail.mdz_switch.switch_value==2) {
-        [self sendNotifPlayedTitle];
-    }
-    //self.outputLabel.text = [self.data objectAtIndex:row];
 }
 
 -(void) cancelArcSel {
@@ -2959,9 +2961,9 @@ int recording=0;
     clearAudioFXbuffer=true;
     _seekRequested=-1;
     
-    if (settings[GLOB_Notification].detail.mdz_switch.switch_value==2) {
-        [self sendNotifPlayedTitle];
-    }
+//    if (settings[GLOB_Notification].detail.mdz_switch.switch_value==2) {
+//        [self sendNotifPlayedTitle];
+//    }
     
     [self refreshCurrentVC];
 }
@@ -3204,9 +3206,9 @@ int recording=0;
         clearAudioFXbuffer=true;
         _seekRequested=-1;
         
-        if (settings[GLOB_Notification].detail.mdz_switch.switch_value==2) {
-            [self sendNotifPlayedTitle];
-        }
+//        if (settings[GLOB_Notification].detail.mdz_switch.switch_value==2) {
+//            [self sendNotifPlayedTitle];
+//        }
     }
     if ((!forcenoplay)&&(settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==2)) {//Enqueue & play
         mPlaylist_pos=added_pos;
@@ -3215,9 +3217,9 @@ int recording=0;
         clearAudioFXbuffer=true;
         _seekRequested=-1;
         
-        if (settings[GLOB_Notification].detail.mdz_switch.switch_value==2) {
-            [self sendNotifPlayedTitle];
-        }
+//        if (settings[GLOB_Notification].detail.mdz_switch.switch_value==2) {
+//            [self sendNotifPlayedTitle];
+//        }
     }
     
     [self refreshCurrentVC];

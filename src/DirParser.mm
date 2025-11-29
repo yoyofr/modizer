@@ -1229,11 +1229,16 @@ code_4=a=1.0;\n\
 -(void) removeEmptyNodes:(FileNode*)item {
     if (item.isDirectory==false) return;
     if (item==nil) return;
-    for (FileNode *node in item.children) {
+    int node_nb=[item.children count];
+    for (int i=0;i<node_nb;i++) {
+        FileNode *node=[item.children objectAtIndex:i];
         if (node.isDirectory) {
             if (node.entries==0) {
                 //MDZILog("removing empty dir %@",node.localpath);
-                [item.children removeObject:node];
+                [item.children removeObjectAtIndex:i];
+                node_nb--;
+                i--;
+                if (node_nb==0) break;
             }
             else [self removeEmptyNodes:node];
         }

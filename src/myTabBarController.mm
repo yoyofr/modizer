@@ -533,21 +533,15 @@ extern NSMutableArray *mac_key_pressed,*mac_key_released;
     // Hide the tab bar on Mac Catalyst
     self.tabBar.hidden = YES;
 
-    // Move tab bar completely off-screen
+    // Move tab bar completely off-screen - this makes the view controllers use the full space
     self.tabBar.frame = CGRectZero;
     self.tabBar.translucent = NO;
 
-    // Ensure view controllers extend under all edges
+    // Set navigation controller delegates to handle pushed view controllers
     for (UIViewController *vc in self.viewControllers) {
         if ([vc isKindOfClass:[UINavigationController class]]) {
             UINavigationController *nav = (UINavigationController *)vc;
-            for (UIViewController *childVC in nav.viewControllers) {
-                childVC.edgesForExtendedLayout = UIRectEdgeAll;
-                childVC.extendedLayoutIncludesOpaqueBars = YES;
-            }
-        } else {
-            vc.edgesForExtendedLayout = UIRectEdgeAll;
-            vc.extendedLayoutIncludesOpaqueBars = YES;
+            nav.delegate = self;
         }
     }
 #endif
@@ -556,20 +550,30 @@ extern NSMutableArray *mac_key_pressed,*mac_key_released;
 }
 
 #if TARGET_OS_MACCATALYST
+- (void)viewDidLayoutSubviews {
+    [super viewDidLayoutSubviews];
+
+    // Continuously enforce tab bar at zero frame during all layout passes
+    self.tabBar.hidden = YES;
+    self.tabBar.frame = CGRectZero;
+}
+#endif
+
+#if TARGET_OS_MACCATALYST
 - (void)setSelectedViewController:(UIViewController *)selectedViewController {
     [super setSelectedViewController:selectedViewController];
 
-    // Force layout update
-    [self.view setNeedsLayout];
-    [self.view layoutIfNeeded];
+    // Keep tab bar hidden and at zero frame
+    self.tabBar.hidden = YES;
+    self.tabBar.frame = CGRectZero;
 }
 
 - (void)setSelectedIndex:(NSUInteger)selectedIndex {
     [super setSelectedIndex:selectedIndex];
 
-    // Force layout update
-    [self.view setNeedsLayout];
-    [self.view layoutIfNeeded];
+    // Keep tab bar hidden and at zero frame
+    self.tabBar.hidden = YES;
+    self.tabBar.frame = CGRectZero;
 }
 #endif
 
@@ -1209,6 +1213,19 @@ extern NSMutableArray *mac_key_pressed,*mac_key_released;
     UIEventSubtypeRemoteControlEndSeekingForward    = 109,*/
 }
 
+
+#pragma mark - UINavigationControllerDelegate
+
+#if TARGET_OS_MACCATALYST
+- (void)navigationController:(UINavigationController *)navigationController
+       willShowViewController:(UIViewController *)viewController
+                     animated:(BOOL)animated {
+    // Ensure the tab bar stays hidden and at zero frame
+    // This is the key to making child view controllers use the full space
+    self.tabBar.hidden = YES;
+    self.tabBar.frame = CGRectZero;
+}
+#endif
 
 - (BOOL)canBecomeFirstResponder {
     return YES;
