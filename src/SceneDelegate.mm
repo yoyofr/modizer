@@ -79,7 +79,123 @@
         // e.g., [detailViewControlleriPhone openURL:url];
         
     }
+    
+#if TARGET_OS_MACCATALYST
+    // Restaurer l'état sauvegardé
+        self.isWindowFloating = [[NSUserDefaults standardUserDefaults] boolForKey:@"WindowFloating"];
+    
+    [self loadMacPlugin];
+    
+    // Appliquer l'état au démarrage
+    if (self.isWindowFloating) {
+        Class macWindowManager = NSClassFromString(@"ModizerMacWindowManager");
+        if (macWindowManager) {
+            [macWindowManager performSelector:NSSelectorFromString(@"enableAlwaysOnTop")];
+        }
+    }
+#endif
+    
 }
+
+#if TARGET_OS_MACCATALYST
+- (void)loadMacPlugin {
+    NSBundle *mainBundle = [NSBundle mainBundle];
+    
+    // Sur Mac Catalyst, le chemin est différent
+    NSString *pluginPath = nil;
+    
+    // Méthode 1 : Chercher dans Contents/PlugIns
+    NSString *pluginsDir = [[mainBundle bundlePath] stringByAppendingPathComponent:@"Contents/PlugIns"];
+    pluginPath = [pluginsDir stringByAppendingPathComponent:@"ModizerMacWindowPlugin.bundle"];
+    
+    NSLog(@"Looking for plugin at: %@", pluginPath);
+    
+    if (![[NSFileManager defaultManager] fileExistsAtPath:pluginPath]) {
+        NSLog(@"❌ Plugin not found at: %@", pluginPath);
+        
+        // Méthode 2 : Chercher avec builtInPlugInsPath
+        NSURL *pluginsURL = [mainBundle builtInPlugInsURL];
+        if (pluginsURL) {
+            pluginPath = [[pluginsURL path] stringByAppendingPathComponent:@"ModizerMacWindowPlugin.bundle"];
+            NSLog(@"Trying builtInPlugInsURL: %@", pluginPath);
+        }
+    }
+    
+    if ([[NSFileManager defaultManager] fileExistsAtPath:pluginPath]) {
+        NSLog(@"✅ Plugin found at: %@", pluginPath);
+        
+        NSBundle *pluginBundle = [NSBundle bundleWithPath:pluginPath];
+        
+        if (pluginBundle) {
+            NSError *error = nil;
+            if ([pluginBundle loadAndReturnError:&error]) {
+                NSLog(@"✅ Plugin loaded successfully");
+                
+                // Vérifier que la classe existe
+                Class macWindowManager = NSClassFromString(@"ModizerMacWindowManager");
+                if (macWindowManager) {
+                    NSLog(@"✅ ModizerMacWindowManager class found!");
+                } else {
+                    NSLog(@"❌ ModizerMacWindowManager class not found");
+                }
+            } else {
+                NSLog(@"❌ Failed to load plugin: %@", error);
+            }
+        } else {
+            NSLog(@"❌ Could not create bundle from path");
+        }
+    } else {
+        NSLog(@"❌ Plugin file does not exist at: %@", pluginPath);
+        
+        // Debug : lister ce qui est dans PlugIns
+        NSArray *contents = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:pluginsDir error:nil];
+        NSLog(@"Contents of PlugIns directory: %@", contents);
+    }
+}
+- (void)toggleAlwaysOnTop {
+    self.isWindowFloating = !self.isWindowFloating;
+    
+    // Sauvegarder l'état
+        [[NSUserDefaults standardUserDefaults] setBool:self.isWindowFloating forKey:@"WindowFloating"];
+        
+    
+    Class macWindowManager = NSClassFromString(@"ModizerMacWindowManager");
+    if (macWindowManager) {
+        SEL selector = NSSelectorFromString(@"setAlwaysOnTop:");
+        
+        if ([macWindowManager respondsToSelector:selector]) {
+            // Utiliser NSInvocation pour passer un BOOL
+            NSMethodSignature *signature = [macWindowManager methodSignatureForSelector:selector];
+            NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:signature];
+            [invocation setTarget:macWindowManager];
+            [invocation setSelector:selector];
+            [invocation setArgument:&_isWindowFloating atIndex:2];
+            [invocation invoke];
+            
+            NSLog(@"Window floating: %@", self.isWindowFloating ? @"ON" : @"OFF");
+        }
+    } else {
+        NSLog(@"❌ ModizerMacWindowManager class not found");
+    }
+}
+
+- (void)enableAlwaysOnTop {
+    Class macWindowManager = NSClassFromString(@"ModizerMacWindowManager");
+    if (macWindowManager) {
+        [macWindowManager performSelector:NSSelectorFromString(@"enableAlwaysOnTop")];
+        self.isWindowFloating = YES;
+    }
+}
+
+- (void)disableAlwaysOnTop {
+    Class macWindowManager = NSClassFromString(@"ModizerMacWindowManager");
+    if (macWindowManager) {
+        [macWindowManager performSelector:NSSelectorFromString(@"disableAlwaysOnTop")];
+        self.isWindowFloating = NO;
+    }
+}
+#endif
+
 
 - (void)sceneDidDisconnect:(UIScene *)scene {
     // Called as the scene is being released by the system.

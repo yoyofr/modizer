@@ -5,34 +5,372 @@
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
-            font-size: 11px;
+            font-size: 9px;
             color: #333;
-            margin: 10px;
+            margin: 0;
+            padding: 8px;
+            line-height: 1.3;
+            position: relative;
+            overflow-x: hidden;
+            background: linear-gradient(135deg,
+                rgba(100, 120, 200, 0.08) 0%,
+                rgba(150, 100, 180, 0.08) 50%,
+                rgba(100, 120, 200, 0.08) 100%);
         }
-        h1 {
-            font-size: 14px;
-            font-weight: bold;
+        
+        /* Effet d'ondes en arrière-plan avec CSS */
+        body::before {
+            content: '';
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background:
+                radial-gradient(circle at 20% 50%, rgba(100, 150, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(150, 100, 200, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 20%, rgba(120, 180, 220, 0.08) 0%, transparent 50%);
+            z-index: -1;
+            animation: float 20s ease-in-out infinite;
         }
+        
+        @keyframes float {
+            0%, 100% {
+                transform: translate(0, 0) rotate(0deg);
+            }
+            33% {
+                transform: translate(30px, -30px) rotate(5deg);
+            }
+            66% {
+                transform: translate(-20px, 20px) rotate(-5deg);
+            }
+        }
+        
+        .content {
+            position: relative;
+            z-index: 1;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 8px;
+            padding: 8px;
+        }
+        
+        .tagline {
+            font-size: 11px;
+            font-weight: 500;
+            color: #555;
+            text-align: center;
+            margin: 0 0 16px 0;
+            background: linear-gradient(90deg, #4a5fb8, #7b4fa8, #4a5fb8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        h2 {
+            font-size: 10px;
+            font-weight: 600;
+            margin: 10px 0 5px 0;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 2px;
+            background: linear-gradient(90deg, #666, #999);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .library-item {
+            margin-bottom: 4px;
+        }
+        
+        .library-name {
+            font-weight: 600;
+            color: #000;
+            font-size: 9px;
+        }
+        
+        .library-desc {
+            color: #666;
+            font-size: 8px;
+            display: block;
+            margin-left: 8px;
+        }
+        
         a {
             color: #0066cc;
+            text-decoration: none;
+        }
+        
+        a:hover {
+            text-decoration: underline;
+        }
+        
+        .footer {
+            margin-top: 10px;
+            padding-top: 6px;
+            border-top: 1px solid #ddd;
+            font-size: 8px;
+            color: #666;
+            text-align: center;
         }
     </style>
 </head>
 <body>
-    <h1>Modizer</h1>
-    <p>Music Player & Visualizer</p>
-    
-    <p>Version 1.0</p>
-    
-    <p>Developped by Yohann Magnien</p>
-    
-    <h2>Thanks</h2>
-    <ul>
-        <li>BASS library</li>
-        <li>UADE</li>
-        <li>Milkdrop</li>
-    </ul>
-    
-    <p><a href="https://modizer.app">https://modizer.app</a></p>
+    <div class="content">
+        <div class="tagline">Music Player & Visualizer</div>
+        
+        <h2>Playback Libraries</h2>
+        
+        <div class="library-item">
+            <span class="library-name">Adplug</span>
+            <span class="library-desc">AdLib/OPL2 FM synthesis music player</span>
+        </div>
+        
+        <div class="library-item">
+            <span class="library-name">ASAP</span>
+            <span class="library-desc">Another Slight Atari Player for SAP, CMC, MPT formats</span>
+        </div>
+        
+        <div class="library-item">
+            <span class="library-name">AtariAudio</span>
+            <span class="library-desc">Atari 8-bit computer music formats</span>
+        </div>
+        
+        <div class="library-item">
+            <span class="library-name">Eupmini</span>
+            <span class="library-desc">EUP sound driver for PC-98 systems</span>
+        </div>
+        
+        <div class="library-item">
+            <span class="library-name">ffmpeg/mpg123/vorbis</span>
+            <span class="library-desc">Standard audio formats (MP3, OGG, FLAC, etc.)</span>
+        </div>
+        
+        <div class="library-item">
+            <span class="library-name">Game Music Emu</span>
+            <span class="library-desc">NSF, SPC, GYM, VGM video game music formats</span>
+        </div>
+        
+        <div class="library-item">
+            <span class="library-name">FMPmini</span>
+            <span class="library-desc">FMP sound driver for PC-98 FM synthesis</span>
+        </div>
+        
+        <div class="library-item">
+            <span class="library-name">HighlyExperimental</span>
+            <span class="library-desc">PlayStation (PSF) sound format player</span>
+        </div>
+        
+        <div class="library-item">
+            <span class="library-name">HighlyQuixotic</span>
+            <span class="library-desc">Capcom QSound (QSF) arcade sound format</span>
+        </div>
+        
+        <div class="library-item">
+            <span class="library-name">HighlyTheoretical</span>
+            <span class="library-desc">SEGA Saturn (SSF) sound format player</span>
+        </div>
+        
+        <div class="library-item">
+            <span class="library-name">AHX/Hively Tracker</span>
+            <span class="library-desc">Amiga synthesizer tracker formats</span>
+        </div>
+        
+        <div class="library-item">
+            <span class="library-name">LazyUSF</span>
+            <span class="library-desc">Nintendo 64 (USF) sound format player</span>
+        </div>
+        
+        <div class="library-item">
+            <span class="library-name">Libvgm</span>
+            <span class="library-desc">Video Game Music (VGM/VGZ) format player</span>
+        </div>
+        
+        <div class="library-item">
+            <span class="library-name">mdxmini</span>
+            <span class="library-desc">Sharp X68000 MDX music format</span>
+        </div>
+        
+        <div class="library-item">
+            <span class="library-name">NSFPlay</span>
+            <span class="library-desc">Nintendo Entertainment System sound format</span>
+        </div>
+        
+        <div class="library-item">
+            <span class="library-name">libopenmpt</span>
+            <span class="library-desc">OpenMPT, IT, XM, S3M, MOD tracker formats</span>
+        </div>
+        
+        <div class="library-item">
+            <span class="library-name">PlayGSF</span>
+            <span class="library-desc">Game Boy Advance (GSF) sound format</span>
+        </div>
+        
+        <div class="library-item">
+            <span class="library-name">Pmdmini</span>
+            <span class="library-desc">PMD sound driver for PC-98 music</span>
+        </div>
+        
+        <div class="library-item">
+            <span class="library-name">PxTone / Organya</span>
+            <span class="library-desc">PxTone and Organya music formats</span>
+        </div>
+        
+        <div class="library-item">
+            <span class="library-name">PT3Player</span>
+            <span class="library-desc">ProTracker 3 for ZX Spectrum AY music</span>
+        </div>
+        
+        <div class="library-item">
+            <span class="library-name">SC68</span>
+            <span class="library-desc">Atari ST and Amiga SNDH music player</span>
+        </div>
+        
+        <div class="library-item">
+            <span class="library-name">Sidplayfp</span>
+            <span class="library-desc">Commodore 64 SID chip music emulator</span>
+        </div>
+        
+        <div class="library-item">
+            <span class="library-name">Snes9x/snsf</span>
+            <span class="library-desc">Super Nintendo (SPC/SNSF) sound format</span>
+        </div>
+        
+        <div class="library-item">
+            <span class="library-name">ST-Sound</span>
+            <span class="library-desc">Atari ST YM2149 sound chip emulator</span>
+        </div>
+        
+        <div class="library-item">
+            <span class="library-name">Timidity++</span>
+            <span class="library-desc">MIDI file software synthesizer</span>
+        </div>
+        
+        <div class="library-item">
+            <span class="library-name">UADE</span>
+            <span class="library-desc">Unix Amiga Delitracker music player</span>
+        </div>
+        
+        <div class="library-item">
+            <span class="library-name">XSF (2SF, NCSF)</span>
+            <span class="library-desc">Nintendo DS and Gameboy Color sound formats</span>
+        </div>
+        
+        <div class="library-item">
+            <span class="library-name">libXMP</span>
+            <span class="library-desc">Extended Module Player for tracker formats</span>
+        </div>
+        
+        <div class="library-item">
+            <span class="library-name">V2M tinyplayer</span>
+            <span class="library-desc">Farbrausch V2 synthesizer music</span>
+        </div>
+        
+        <div class="library-item">
+            <span class="library-name">VGMStream</span>
+            <span class="library-desc">Game audio format decoder (500+ formats)</span>
+        </div>
+        
+        <div class="library-item">
+            <span class="library-name">VIO2SF</span>
+            <span class="library-desc">Nintendo DS (2SF) sound format player</span>
+        </div>
+        
+        <div class="library-item">
+            <span class="library-name">WebSID</span>
+            <span class="library-desc">Browser-based Commodore 64 SID player</span>
+        </div>
+        
+        <div class="library-item">
+            <span class="library-name">ZXTune</span>
+            <span class="library-desc">ZX Spectrum and other 8-bit music formats</span>
+        </div>
+        
+        <h2>Other Libraries</h2>
+        
+        <div class="library-item">
+            <span class="library-name">ASIHTTPRequest</span>
+            <span class="library-desc">Easy to use wrapper around CFNetwork API</span>
+        </div>
+        
+        <div class="library-item">
+            <span class="library-name">BButton</span>
+            <span class="library-desc">Customizable UIButton subclass for iOS</span>
+        </div>
+        
+        <div class="library-item">
+            <span class="library-name">CBAutoScrollLabel</span>
+            <span class="library-desc">Auto-scrolling UILabel for long text</span>
+        </div>
+        
+        <div class="library-item">
+            <span class="library-name">CMPopTipView</span>
+            <span class="library-desc">Custom popup tooltip view for iOS</span>
+        </div>
+        
+        <div class="library-item">
+            <span class="library-name">Dear ImGui</span>
+            <span class="library-desc">Bloat-free immediate mode GUI library with custom iOS backend</span>
+        </div>
+        
+        <div class="library-item">
+            <span class="library-name">GDataXML-HTML</span>
+            <span class="library-desc">XML and HTML parsing library for iOS</span>
+        </div>
+        
+        <div class="library-item">
+            <span class="library-name">libarchive</span>
+            <span class="library-desc">Multi-format archive and compression library</span>
+        </div>
+        
+        <div class="library-item">
+            <span class="library-name">Libsamplerate</span>
+            <span class="library-desc">High-quality audio sample rate converter</span>
+        </div>
+        
+        <div class="library-item">
+            <span class="library-name">MetalANGLE</span>
+            <span class="library-desc">OpenGL ES 3.0 to Metal translation layer</span>
+        </div>
+        
+        <div class="library-item">
+            <span class="library-name">MSColorPicker</span>
+            <span class="library-desc">Color picker component for iOS</span>
+        </div>
+        
+        <div class="library-item">
+            <span class="library-name">NVDSP</span>
+            <span class="library-desc">Digital signal processing library</span>
+        </div>
+        
+        <div class="library-item">
+            <span class="library-name">ProjectM</span>
+            <span class="library-desc">Advanced open-source Milkdrop music visualizer</span>
+        </div>
+        
+        <div class="library-item">
+            <span class="library-name">SARUnArchiveANY</span>
+            <span class="library-desc">Universal archive extraction library</span>
+        </div>
+        
+        <div class="library-item">
+            <span class="library-name">SESlideTableViewCell</span>
+            <span class="library-desc">Swipeable table view cell for iOS</span>
+        </div>
+        
+        <div class="library-item">
+            <span class="library-name">TapkuLibrary</span>
+            <span class="library-desc">Collection of iOS UI components</span>
+        </div>
+        
+        <div class="library-item">
+            <span class="library-name">UnrarKIT</span>
+            <span class="library-desc">RAR archive extraction for iOS/macOS</span>
+        </div>
+        
+        <div class="footer">
+            © 2025 Yohann Magnien / YoyoFR<br>
+            <a href="https://modizer.app">modizer.app</a>
+        </div>
+    </div>
 </body>
 </html>

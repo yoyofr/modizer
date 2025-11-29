@@ -2643,9 +2643,6 @@ int recording=0;
         clearAudioFXbuffer=true;
         _seekRequested=-1;
         
-        if (settings[GLOB_Notification].detail.mdz_switch.switch_value==2) {
-            [self sendNotifPlayedTitle];
-        }
         no_reentrant=false;
         return;
     }

@@ -248,6 +248,7 @@ pthread_mutex_t gl_mutex;
     [[UILabel appearanceWhenContainedInInstancesOfClasses:@[[UIAlertController class]]] setLineBreakMode:NSLineBreakByWordWrapping];//NSLineBreakByCharWrapping];
     //[[UILabel appearanceWhenContainedInInstancesOfClasses:@[[UIAlertController class]]] setFont:[UIFont systemFontOfSize:6.0]];
     
+        return YES;
     
     END_PROFILE
     return YES;
@@ -361,6 +362,7 @@ continueUserActivity:(NSUserActivity *)userActivity
     }
     
     [super buildMenuWithBuilder:builder];
+#if TARGET_OS_MACCATALYST
     
     // Remove problematic auto-generated menus
     [builder removeMenuForIdentifier:UIMenuServices];
@@ -406,11 +408,51 @@ continueUserActivity:(NSUserActivity *)userActivity
                 [newChildren addObject:element];
             }
         }
+        UIWindowScene *windowScene = (UIWindowScene *)[UIApplication.sharedApplication.connectedScenes.allObjects firstObject];
+        SceneDelegate *sceneDelegate = (SceneDelegate*)windowScene.delegate;
+        // Utiliser UIKeyCommand au lieu de UICommand pour pouvoir spécifier un input
+        UIKeyCommand *floatCommand = [UIKeyCommand commandWithTitle:NSLocalizedString(@"Always on top",@"")
+                                                                  image:nil
+                                                                 action:@selector(toggleAlwaysOnTop)
+                                                                  input:@"t"  // Minuscule
+                                                          modifierFlags:UIKeyModifierCommand  // Pas de modificateurs
+                                                           propertyList:nil];
+            
+            // Ajouter attributes pour Fn (fonction key)
+            floatCommand.wantsPriorityOverSystemBehavior = YES;
+            
+            // État avec checkmark
+            floatCommand.state = sceneDelegate.isWindowFloating ? UIMenuElementStateOn : UIMenuElementStateOff;
+            
+        
+        UIMenu *floatMenu = [UIMenu menuWithTitle:@""
+                                            image:nil
+                                       identifier:@"com.modizer.float"
+                                          options:UIMenuOptionsDisplayInline
+                                         children:@[floatCommand]];
+
+        //[builder insertSiblingMenu:floatMenu afterMenuForIdentifier:UIMenuWindow];
+        [newChildren addObject:floatMenu];
         
         UIMenu *newViewMenu = [viewMenu menuByReplacingChildren:newChildren];
         [builder replaceMenuForIdentifier:UIMenuView withMenu:newViewMenu];
     }
+    
+    //
+    
+#endif
 }
+
+#if TARGET_OS_MACCATALYST
+-(void) toggleAlwaysOnTop {
+    UIWindowScene *windowScene = (UIWindowScene *)[UIApplication.sharedApplication.connectedScenes.allObjects firstObject];
+    SceneDelegate *sceneDelegate = (SceneDelegate*)windowScene.delegate;
+    [sceneDelegate toggleAlwaysOnTop];
+    
+    // Rebuild menu
+    [[UIMenuSystem mainSystem] setNeedsRebuild];
+}
+#endif
 
 #pragma mark - UISceneSession Lifecycle
 
@@ -433,7 +475,7 @@ continueUserActivity:(NSUserActivity *)userActivity
     // Afficher ta fenêtre About personnalisée
     UIAlertController *alert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"About Modizer",@"")
                                                                    message:
-                                [NSString stringWithFormat:NSLocalizedString(@"Version %d.%d\n© Yohann Magnirn",@""),VERSION_MAJOR,VERSION_MINOR]
+                                [NSString stringWithFormat:NSLocalizedString(@"Version %d.%d\n© Yohann Magnien / YoyoFR",@""),VERSION_MAJOR,VERSION_MINOR]
                                                             preferredStyle:UIAlertControllerStyleAlert];
     [alert addAction:[UIAlertAction actionWithTitle:@"OK"
                                               style:UIAlertActionStyleDefault

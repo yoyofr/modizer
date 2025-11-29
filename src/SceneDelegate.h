@@ -27,6 +27,8 @@
 }
 
 @property (strong, nonatomic) UIWindow *window;
+@property (nonatomic, assign) BOOL isWindowFloating;
+
 @property (nonatomic, retain)  RootViewControllerLocalBrowser *rootViewControlleriPhone;
 @property (nonatomic, retain)  RootViewControllerPlaylist *playlistVC;
 @property (nonatomic, retain)  DetailViewControllerIphone *detailViewControlleriPhone;
@@ -35,5 +37,9 @@
 
 @property (nonatomic, retain) AnimatedLaunchVC *animatedLaunchVC;
 @property (nonatomic, retain) CarPlayAndRemoteManagement *cpMngt;
+
+#if TARGET_OS_MACCATALYST
+- (void)toggleAlwaysOnTop;
+#endif
 
 @end
