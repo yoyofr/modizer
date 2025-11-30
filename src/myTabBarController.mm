@@ -1103,8 +1103,8 @@ extern NSMutableArray *mac_key_pressed,*mac_key_released;
     [self rightAltPressed];
 }
 -(void)spacePressed {
-    if (detailViewControllerIphone.mPaused) [detailViewControllerIphone playPushed:nil];
-    else [detailViewControllerIphone pausePushed:nil];
+    if (detailViewControllerIphone.mPaused) [detailViewControllerIphone playPushed];
+    else [detailViewControllerIphone pausePushed];
 }
 
 #pragma mark - Press Events

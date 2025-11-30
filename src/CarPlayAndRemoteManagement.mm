@@ -121,20 +121,20 @@
         
     [cmdCenter.playCommand setEnabled:YES];
     [cmdCenter.playCommand addTargetWithHandler:^MPRemoteCommandHandlerStatus(MPRemoteCommandEvent * _Nonnull event) {
-        [self.detailViewController performSelectorOnMainThread:@selector(playPushed:) withObject:nil waitUntilDone:YES];
+        [self.detailViewController performSelectorOnMainThread:@selector(playPushed) withObject:nil waitUntilDone:YES];
         [self.detailViewController performSelectorOnMainThread:@selector(updMediaCenter) withObject:nil waitUntilDone:YES];
         return MPRemoteCommandHandlerStatusSuccess;
     }];
     [cmdCenter.pauseCommand setEnabled:YES];
     [cmdCenter.pauseCommand addTargetWithHandler:^MPRemoteCommandHandlerStatus(MPRemoteCommandEvent * _Nonnull event) {
-        [self.detailViewController performSelectorOnMainThread:@selector(pausePushed:) withObject:nil waitUntilDone:YES];
+        [self.detailViewController performSelectorOnMainThread:@selector(pausePushed) withObject:nil waitUntilDone:YES];
         [self.detailViewController performSelectorOnMainThread:@selector(updMediaCenter) withObject:nil waitUntilDone:YES];
         return MPRemoteCommandHandlerStatusSuccess;
     }];
     [cmdCenter.togglePlayPauseCommand setEnabled:YES];
     [cmdCenter.togglePlayPauseCommand addTargetWithHandler:^MPRemoteCommandHandlerStatus(MPRemoteCommandEvent * _Nonnull event) {
-        if (self.detailViewController.mPaused) [self.detailViewController performSelectorOnMainThread:@selector(playPushed:) withObject:nil waitUntilDone:YES];
-        else [self.detailViewController performSelectorOnMainThread:@selector(pausePushed:) withObject:nil waitUntilDone:YES];
+        if (self.detailViewController.mPaused) [self.detailViewController performSelectorOnMainThread:@selector(playPushed) withObject:nil waitUntilDone:YES];
+        else [self.detailViewController performSelectorOnMainThread:@selector(pausePushed) withObject:nil waitUntilDone:YES];
                 
         [self.detailViewController performSelectorOnMainThread:@selector(updMediaCenter) withObject:nil waitUntilDone:YES];
         return MPRemoteCommandHandlerStatusSuccess;
@@ -356,7 +356,7 @@
         }
         
         [detailViewController play_listmodules:playlist start_index:0];
-        [detailViewController playPushed:nil];
+        [detailViewController playPushed];
         
         mdz_safe_free(playlist);
     }
@@ -380,7 +380,7 @@
         }
         
         [detailViewController play_listmodules:playlist start_index:0];
-        [detailViewController playPushed:nil];
+        [detailViewController playPushed];
         
         mdz_safe_free(playlist);
     }
@@ -404,7 +404,7 @@
         }
         
         [detailViewController play_listmodules:playlist start_index:0];
-        [detailViewController playPushed:nil];
+        [detailViewController playPushed];
         
         mdz_safe_free(playlist);
     }
@@ -428,7 +428,7 @@
         }
         
         [detailViewController play_listmodules:playlist start_index:0];
-        [detailViewController playPushed:nil];
+        [detailViewController playPushed];
         
         mdz_safe_free(playlist);
     }
@@ -438,7 +438,7 @@
     MPContentItem *item=(MPContentItem*)[plArray objectAtIndex:indexPath.section];
     if ([item.identifier isEqualToString:@"pl_NP"]) {
         //Now playing
-        [self.detailViewController performSelectorOnMainThread:@selector(playPushed:) withObject:nil waitUntilDone:YES];
+        [self.detailViewController performSelectorOnMainThread:@selector(playPushed) withObject:nil waitUntilDone:YES];
     } else if ([item.identifier isEqualToString:@"pl_MP"]) {
         //Most played
         [self performSelectorOnMainThread:@selector(launchMostPlayedPL) withObject:nil waitUntilDone:YES];

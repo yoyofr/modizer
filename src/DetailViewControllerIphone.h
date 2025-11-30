@@ -278,8 +278,8 @@ enum {
 - (IBAction)sliderProgressValueChanged:(id)sender;
 - (IBAction)sliderProgressEndChange:(id)sender;
 - (IBAction)sliderProgressBeginChange:(id)sender;
-- (IBAction)playPushed:(id)sender;
-- (IBAction)pausePushed:(id)sender;
+- (IBAction)playPushed;
+- (IBAction)pausePushed;
 
 - (void) settingsChanged:(int)scope;
 

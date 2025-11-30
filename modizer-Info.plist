@@ -405,6 +405,8 @@
 	</dict>
 	<key>NSHumanReadableCopyright</key>
 	<string></string>
+	<key>NSSiriUsageDescription</key>
+	<string>Control Modizer with Siri</string>
 	<key>NSUbiquitousContainers</key>
 	<dict>
 		<key>iCloud.com.yoyofr.modizer</key>

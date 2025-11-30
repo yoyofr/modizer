@@ -1375,24 +1375,7 @@ static float movePinchScale,movePinchScaleOld;
 
 - (IBAction)changeLoopMode {
     mLoopMode++;
-    if (mLoopMode==3) mLoopMode=0;
-    switch (mLoopMode) {
-        case 0:
-            buttonLoopList.hidden=NO;
-            buttonLoopListSel.hidden=YES;
-            buttonLoopTitleSel.hidden=YES;
-            break;
-        case 1:
-            buttonLoopList.hidden=YES;
-            buttonLoopListSel.hidden=NO;
-            buttonLoopTitleSel.hidden=YES;
-            break;
-        case 2:
-            buttonLoopList.hidden=YES;
-            buttonLoopListSel.hidden=YES;
-            buttonLoopTitleSel.hidden=NO;
-            break;
-    }
+    [self setLoopMode:mLoopMode];
 }
 
 - (IBAction)shuffle {
@@ -1819,7 +1802,7 @@ static float movePinchScale,movePinchScaleOld;
     [[self navigationController] popViewControllerAnimated:YES];
 }
 
-- (IBAction)playPushed:(id)sender {
+- (IBAction)playPushed {
     mPaused=0;
     if (mIsPlaying) {
         if (btnPlayCFlow.hidden==NO) {
@@ -1844,7 +1827,7 @@ static float movePinchScale,movePinchScaleOld;
     }
     return;
 }
-- (IBAction)pausePushed:(id)sender {
+- (IBAction)pausePushed {
     mPaused=1;
     if (mIsPlaying) {
         if (btnPauseCFlow.hidden==NO) {
@@ -1890,7 +1873,7 @@ static float movePinchScale,movePinchScaleOld;
     if (curSongLength>0) curTime=(int64_t)(sliderProgressModule.value*(float)(curSongLength-1));
     else return;
     
-    if (mPaused) [self playPushed:self];
+    if (mPaused) [self playPushed];
     
     [mplayer Seek:curTime];
     _seekRequested=curTime;
@@ -1925,7 +1908,7 @@ static float movePinchScale,movePinchScaleOld;
     
     MDZILog("seek %d",(int)(curTime/1000));
     
-    if (mPaused) [self playPushed:self];
+    if (mPaused) [self playPushed];
     
     [mplayer Seek:curTime];
     _seekRequested=curTime;
@@ -2478,7 +2461,7 @@ int recording=0;
         //restart
         if (mplayer.mod_subsongs>1) [mplayer playGoToSub:mplayer.mod_currentsub];
         else [self play_curEntry:-1];
-        if (mPaused) [self playPushed:nil];
+        if (mPaused) [self playPushed];
         [self refreshCurrentVC];
     }
 }
@@ -2517,7 +2500,7 @@ int recording=0;
         if (settings[GLOB_Notification].detail.mdz_switch.switch_value==2) {
             [self sendNotifPlayedTitle];
         }
-        if (mPaused) [self playPushed:nil];
+        if (mPaused) [self playPushed];
         [self refreshCurrentVC];
     } else {
         if ((mplayer.mod_subsongs>1)&&(mOnlyCurrentSubEntry==0)) {
@@ -2541,7 +2524,7 @@ int recording=0;
                 [self sendNotifPlayedTitle];
             }
         } else [self playPrev];
-        if (mPaused) [self playPushed:nil];
+        if (mPaused) [self playPushed];
         [self refreshCurrentVC];
     }
     no_reentrant=false;
@@ -2718,7 +2701,7 @@ int recording=0;
                 }
             }
         } else [self playNext]; //not an archive, next entry
-        if (mPaused) [self playPushed:nil];
+        if (mPaused) [self playPushed];
         [self refreshCurrentVC];
     }
     no_reentrant=false;
@@ -5737,7 +5720,7 @@ void pm_perfTest() {
     }
     
     
-    UIBarButtonItem *itemPlayPause = [[UIBarButtonItem alloc] initWithImage:playPauseImage style:UIBarButtonItemStylePlain target:self action:(isPause?@selector(pausePushed:):@selector(playPushed:))];
+    UIBarButtonItem *itemPlayPause = [[UIBarButtonItem alloc] initWithImage:playPauseImage style:UIBarButtonItemStylePlain target:self action:(isPause?@selector(pausePushed):@selector(playPushed))];
     
     UIBarButtonItem *itemPrev = [[UIBarButtonItem alloc] initWithImage:prevImage style:UIBarButtonItemStylePlain target:self action:@selector(playPrev)];
     
@@ -6125,11 +6108,11 @@ void pm_perfTest() {
     
     [btnPlayCFlow setImage:[UIImage imageNamed:@"video_play.png"] forState:UIControlStateNormal];
     [btnPlayCFlow setImage:[UIImage imageNamed:@"video_play_h.png"] forState:UIControlStateHighlighted];
-    [btnPlayCFlow addTarget: self action: @selector(playPushed:) forControlEvents: UIControlEventTouchUpInside];
+    [btnPlayCFlow addTarget: self action: @selector(playPushed) forControlEvents: UIControlEventTouchUpInside];
     
     [btnPauseCFlow setImage:[UIImage imageNamed:@"video_pause.png"] forState:UIControlStateNormal];
     [btnPauseCFlow setImage:[UIImage imageNamed:@"video_pause_h.png"] forState:UIControlStateHighlighted];
-    [btnPauseCFlow addTarget: self action: @selector(pausePushed:) forControlEvents: UIControlEventTouchUpInside];
+    [btnPauseCFlow addTarget: self action: @selector(pausePushed) forControlEvents: UIControlEventTouchUpInside];
     
     [btnPrevCFlow setImage:[UIImage imageNamed:@"video_previous.png"] forState:UIControlStateNormal];
     [btnPrevCFlow setImage:[UIImage imageNamed:@"video_previous_h.png"] forState:UIControlStateHighlighted];
@@ -10097,7 +10080,7 @@ void doFramePM(float ww,float hh) {
         
         if(previewViewController)
         {
-            [self pausePushed:NULL];
+            [self pausePushed];
             previewViewController.previewControllerDelegate = self;
             previewViewController.modalPresentationStyle = UIModalPresentationFullScreen;
             [self presentViewController:previewViewController animated:YES completion:nil];

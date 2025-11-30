@@ -901,3 +901,6 @@
 //App intent
 "Get Now Playing"="Récupérer la lecture en cours";
 
+"unknown_title" = "Titre inconnu";
+"unknown_album" = "Album inconnu";
+"now_playing_format" = "Lecture: %@ de %@";

@@ -36,19 +36,11 @@ class ModizerPlayerBridge {
     }
 
     func play() {
-        musicPlayer?.perform(NSSelectorFromString("Play"))
+        detailViewController?.perform(NSSelectorFromString("playPushed"))
     }
 
-    func pause(_ paused: Bool) {
-        guard let player = musicPlayer as? NSObject else { return }
-
-        let selector = NSSelectorFromString("Pause:")
-        guard player.responds(to: selector) else { return }
-
-        let method = player.method(for: selector)
-        typealias MethodType = @convention(c) (NSObject, Selector, Bool) -> Void
-        let implementation = unsafeBitCast(method, to: MethodType.self)
-        implementation(player, selector, paused)
+    func pause() {
+        detailViewController?.perform(NSSelectorFromString("pausePushed"))
     }
 
     func stop() {
@@ -145,6 +137,44 @@ class ModizerPlayerBridge {
 
         return result
     }
+    
+    func getCurrentSongAlbum() -> String {
+        guard let player = musicPlayer as? NSObject else {
+            return "Unknown"
+        }
+
+        let selector = NSSelectorFromString("getModName")
+        guard player.responds(to: selector) else { return "Unknown" }
+
+        let method = player.method(for: selector)
+        typealias MethodType = @convention(c) (NSObject, Selector) -> Unmanaged<AnyObject>?
+        let implementation = unsafeBitCast(method, to: MethodType.self)
+
+        guard let result = implementation(player, selector)?.takeUnretainedValue() as? String else {
+            return "Unknown"
+        }
+
+        return result
+    }
+    
+    func getCurrentSongArtist() -> String {
+        guard let player = musicPlayer as? NSObject else {
+            return "Unknown"
+        }
+
+        let selector = NSSelectorFromString("artist")
+        guard player.responds(to: selector) else { return "Unknown" }
+
+        let method = player.method(for: selector)
+        typealias MethodType = @convention(c) (NSObject, Selector) -> Unmanaged<AnyObject>?
+        let implementation = unsafeBitCast(method, to: MethodType.self)
+
+        guard let result = implementation(player, selector)?.takeUnretainedValue() as? String else {
+            return "Unknown"
+        }
+
+        return result
+    }
 
     func isPlaying() -> Bool {
         guard let player = musicPlayer as? NSObject else {
@@ -184,6 +214,10 @@ class ModizerPlayerBridge {
         typealias MethodType = @convention(c) (NSObject, Selector, Int32) -> Void
         let implementation = unsafeBitCast(method, to: MethodType.self)
         implementation(detailVC, selector, Int32(mode))
+    }
+    
+    func toggleLoopMode() {
+        detailViewController?.perform(NSSelectorFromString("changeLoopMode"))
     }
     
     func toggleShuffle() {
@@ -295,7 +329,7 @@ struct PauseIntent: AppIntent {
 
     @MainActor
     func perform() async throws -> some IntentResult {
-        ModizerPlayerBridge.shared.pause(true)
+        ModizerPlayerBridge.shared.pause()
         return .result()
     }
 }
@@ -453,6 +487,20 @@ struct ToggleShuffleIntent: AppIntent {
     }
 }
 
+// MARK: - Toggle Loop Mode Intent
+@available(iOS 16.0, *)
+struct ToggleLoopModeIntent: AppIntent {
+    static let title: LocalizedStringResource = "Toggle Loop Mode"
+    static let description = IntentDescription("Toggles loop mode in Modizer.")
+    static let openAppWhenRun: Bool = false
+
+    @MainActor
+    func perform() async throws -> some IntentResult {
+        ModizerPlayerBridge.shared.toggleLoopMode()
+        return .result()
+    }
+}
+
 // MARK: - Get Now Playing Intent
 @available(iOS 16.0, *)
 struct GetNowPlayingIntent: AppIntent {
@@ -461,19 +509,34 @@ struct GetNowPlayingIntent: AppIntent {
     static let openAppWhenRun: Bool = false
 
     @MainActor
-    func perform() async throws -> some IntentResult & ReturnsValue<String> {
+    func perform() async throws -> some IntentResult & ReturnsValue<String> & ProvidesDialog {
         let title = ModizerPlayerBridge.shared.getCurrentSongTitle()
+        let album = ModizerPlayerBridge.shared.getCurrentSongAlbum()
+        let artist = ModizerPlayerBridge.shared.getCurrentSongArtist()
         let isPlaying = ModizerPlayerBridge.shared.isPlaying()
         let currentTime = ModizerPlayerBridge.shared.getCurrentTime()
         let totalTime = ModizerPlayerBridge.shared.getSongLength()
 
         let status = isPlaying ? "Playing" : "Paused"
         let info = """
-        \(status): \(title)
+        \(status): \(title) from \(album)
         Time: \(currentTime)s / \(totalTime)s
         """
+        // Localized speakable summary with fallbacks
+        let unknownTitle = NSLocalizedString("unknown_title", tableName: nil, bundle: .main, value: "Titre inconnu", comment: "Fallback when the current song title is unknown")
+        let unknownAlbum = NSLocalizedString("unknown_album", tableName: nil, bundle: .main, value: "Album inconnu", comment: "Fallback when the current album is unknown")
+        let safeTitle = title.isEmpty ? unknownTitle : title
+        let safeAlbum = album.isEmpty ? unknownAlbum : album
+        let format = NSLocalizedString("now_playing_format", tableName: nil, bundle: .main, value: "Lecture: %@ de %@", comment: "Spoken summary: Now playing <title> from <album>")
+        let speakableInfo = String.localizedStringWithFormat(format, safeTitle, safeAlbum)
+        
+        // Demander explicitement à Siri d’énoncer le résultat
+        return .result(
+            value: info,
+            dialog: IntentDialog("\(speakableInfo)")
+        )
 
-        return .result(value: info)
+        //return .result(value: info)
     }
 }
 
@@ -545,9 +608,13 @@ struct ModizerShortcuts: AppShortcutsProvider {
             AppShortcut(
                 intent: PlayIntent(),
                 phrases: [
+                    //English
                     "Play in \(.applicationName)",
                     "Start playing \(.applicationName)",
-                    "Resume \(.applicationName)"
+                    "Resume \(.applicationName)",
+                    //French
+                    "Lecture dans \(.applicationName)",
+                    "Reprend la lecture dans \(.applicationName)"
                 ],
                 shortTitle: "Play",
                 systemImageName: "play.fill"
@@ -555,8 +622,12 @@ struct ModizerShortcuts: AppShortcutsProvider {
             AppShortcut(
                 intent: PauseIntent(),
                 phrases: [
+                    //English
                     "Pause \(.applicationName)",
-                    "Pause music in \(.applicationName)"
+                    "Pause music in \(.applicationName)",
+                    //French
+                    "Pause dans \(.applicationName)",
+                    "Pause la musique dans \(.applicationName)"
                 ],
                 shortTitle: "Pause",
                 systemImageName: "pause.fill"
@@ -564,8 +635,11 @@ struct ModizerShortcuts: AppShortcutsProvider {
             AppShortcut(
                 intent: StopIntent(),
                 phrases: [
+                    //English
                     "Stop \(.applicationName)",
-                    "Stop music in \(.applicationName)"
+                    "Stop music in \(.applicationName)",
+                    //French
+                    "Stop la musique dans \(.applicationName)"
                 ],
                 shortTitle: "Stop",
                 systemImageName: "stop.fill"
@@ -573,9 +647,13 @@ struct ModizerShortcuts: AppShortcutsProvider {
             AppShortcut(
                 intent: NextSongIntent(),
                 phrases: [
+                    //English
                     "Next song in \(.applicationName)",
                     "Skip to next in \(.applicationName)",
-                    "Play next in \(.applicationName)"
+                    "Play next in \(.applicationName)",
+                    //French
+                    "Morceau suivant dans \(.applicationName)",
+                    "Piste suivante dans \(.applicationName)",
                 ],
                 shortTitle: "Next Song",
                 systemImageName: "forward.fill"
@@ -583,19 +661,52 @@ struct ModizerShortcuts: AppShortcutsProvider {
             AppShortcut(
                 intent: PreviousSongIntent(),
                 phrases: [
+                    //English
                     "Previous song in \(.applicationName)",
                     "Go back in \(.applicationName)",
-                    "Play previous in \(.applicationName)"
+                    "Play previous in \(.applicationName)",
+                    //French
+                    "Morceau précdent dans \(.applicationName)",
+                    "Piste précdente dans \(.applicationName)",
                 ],
                 shortTitle: "Previous Song",
                 systemImageName: "backward.fill"
             ),
             AppShortcut(
+                intent: ToggleShuffleIntent(),
+                phrases: [
+                    //English
+                    "Toggle shuffle mode in \(.applicationName)",
+                    "Change shuffle mode in \(.applicationName)",
+                    //French
+                    "Change le mode aléatoire dans \(.applicationName)",
+                    "Change le shuffle mode dans \(.applicationName)"
+                ],
+                shortTitle: "Toggle Shuffle",
+                systemImageName: "shuffle"
+            ),
+            AppShortcut(
+                intent: ToggleLoopModeIntent(),
+                phrases: [
+                    //English
+                    "Change loop mode in \(.applicationName)",
+                    //French
+                    "Change le mode répétition dans \(.applicationName)",
+                ],
+                shortTitle: "Toggle Loop Mode",
+                systemImageName: "repeat"
+            ),
+            AppShortcut(
                 intent: GetNowPlayingIntent(),
                 phrases: [
+                    //English
                     "What's playing in \(.applicationName)",
                     "Current song in \(.applicationName)",
-                    "Now playing in \(.applicationName)"
+                    "Now playing in \(.applicationName)",
+                    //French
+                    "Quel est le morceau dans \(.applicationName)",
+                    "Quel est le titre en cours dans \(.applicationName)",
+                    "Titre en cours dans \(.applicationName)"
                 ],
                 shortTitle: "Now Playing",
                 systemImageName: "music.note"
@@ -603,9 +714,14 @@ struct ModizerShortcuts: AppShortcutsProvider {
             AppShortcut(
                 intent: GetPlaylistsIntent(),
                 phrases: [
+                    //English
                     "Show my playlists in \(.applicationName)",
                     "List playlists in \(.applicationName)",
-                    "Get playlists from \(.applicationName)"
+                    "Get playlists from \(.applicationName)",
+                    //French
+                    "Montre moi les playlists dans \(.applicationName)",
+                    "Liste les playlists dans \(.applicationName)",
+                    "Quelles sont les playlists dans \(.applicationName)"
                 ],
                 shortTitle: "Get Playlists",
                 systemImageName: "music.note.list"
@@ -613,3 +729,4 @@ struct ModizerShortcuts: AppShortcutsProvider {
         ]
     }
 }
+

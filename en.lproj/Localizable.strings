@@ -247,3 +247,7 @@
 "Thank You! ❤️"="Thank You! ❤️";
 "Send a tip to Modizer"="Send a tip to Modizer";
 "Support Modizer development"="Support Modizer development";
+
+"unknown_title" = "Unknown title";
+"unknown_album" = "Unknown album";
+"now_playing_format" = "Playing: %@ from %@";

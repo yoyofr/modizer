@@ -113,11 +113,11 @@ int gesture_move_file_min_trans;
 }
 
 -(void) pushedPlay {
-    [detailVC playPushed:nil];
+    [detailVC playPushed];
 }
 
 -(void) pushedPause {
-    [detailVC pausePushed:nil];
+    [detailVC pausePushed];
 }
 
 -(void) pushedTime {
