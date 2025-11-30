@@ -16422,7 +16422,8 @@ extern "C" void adjust_amplification(void);
     if (mPlayType==MMP_STSOUND) {
         if (ymMusicIsSeekable(ymMusic)==YMFALSE) return;
     }
-    
+
+    if (seek_time<0) seek_time=0;
     if (iModuleLength>0) {
         if (seek_time>iModuleLength-SEEK_START_MARGIN_FROM_END) {
             seek_time=iModuleLength-SEEK_START_MARGIN_FROM_END;

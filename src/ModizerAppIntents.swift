@@ -40,7 +40,15 @@ class ModizerPlayerBridge {
     }
 
     func pause(_ paused: Bool) {
-        musicPlayer?.perform(NSSelectorFromString("Pause:"), with: paused)
+        guard let player = musicPlayer as? NSObject else { return }
+
+        let selector = NSSelectorFromString("Pause:")
+        guard player.responds(to: selector) else { return }
+
+        let method = player.method(for: selector)
+        typealias MethodType = @convention(c) (NSObject, Selector, Bool) -> Void
+        let implementation = unsafeBitCast(method, to: MethodType.self)
+        implementation(player, selector, paused)
     }
 
     func stop() {
@@ -64,53 +72,134 @@ class ModizerPlayerBridge {
     }
 
     func playSubsong(index: Int) {
-        musicPlayer?.perform(NSSelectorFromString("playGoToSub:"), with: Int32(index))
+        guard let player = musicPlayer as? NSObject else { return }
+
+        let selector = NSSelectorFromString("playGoToSub:")
+        guard player.responds(to: selector) else { return }
+
+        let method = player.method(for: selector)
+        typealias MethodType = @convention(c) (NSObject, Selector, Int32) -> Void
+        let implementation = unsafeBitCast(method, to: MethodType.self)
+        implementation(player, selector, Int32(index))
     }
 
     func seek(to position: Int64) {
-        let positionValue = NSNumber(value: position)
-        musicPlayer?.perform(NSSelectorFromString("Seek:"), with: positionValue)
+        guard let player = musicPlayer as? NSObject else { return }
+
+        let selector = NSSelectorFromString("Seek:")
+        guard player.responds(to: selector) else { return }
+
+        let method = player.method(for: selector)
+        typealias MethodType = @convention(c) (NSObject, Selector, Int64) -> Void
+        let implementation = unsafeBitCast(method, to: MethodType.self)
+        implementation(player, selector, position)
     }
 
     func getCurrentTime() -> Int {
-        guard let player = musicPlayer as? NSObject,
-              let result = player.perform(NSSelectorFromString("getCurrentTime")) else {
+        guard let player = musicPlayer as? NSObject else {
             return 0
         }
-        return Int(result.toOpaque().assumingMemoryBound(to: Int32.self).pointee)
+
+        let selector = NSSelectorFromString("getCurrentTime")
+        guard player.responds(to: selector) else { return 0 }
+
+        let method = player.method(for: selector)
+        typealias MethodType = @convention(c) (NSObject, Selector) -> Int32
+        let implementation = unsafeBitCast(method, to: MethodType.self)
+        let result = implementation(player, selector)
+
+        return Int(result/1000)
     }
 
     func getSongLength() -> Int {
-        guard let player = musicPlayer as? NSObject,
-              let result = player.perform(NSSelectorFromString("getSongLength")) else {
+        guard let player = musicPlayer as? NSObject else {
             return 0
         }
-        return Int(result.toOpaque().assumingMemoryBound(to: Int32.self).pointee)
+
+        let selector = NSSelectorFromString("getSongLength")
+        guard player.responds(to: selector) else { return 0 }
+
+        let method = player.method(for: selector)
+        typealias MethodType = @convention(c) (NSObject, Selector) -> Int32
+        let implementation = unsafeBitCast(method, to: MethodType.self)
+        let result = implementation(player, selector)
+
+        return Int(result/1000)
     }
 
     func getCurrentSongTitle() -> String {
-        guard let player = musicPlayer as? NSObject,
-              let result = player.perform(NSSelectorFromString("getModFileTitleOrNull")),
-              let title = result.takeUnretainedValue() as? String else {
+        guard let player = musicPlayer as? NSObject else {
             return "Unknown"
         }
-        return title
+
+        let selector = NSSelectorFromString("getModFileTitle")
+        guard player.responds(to: selector) else { return "Unknown" }
+
+        let method = player.method(for: selector)
+        typealias MethodType = @convention(c) (NSObject, Selector) -> Unmanaged<AnyObject>?
+        let implementation = unsafeBitCast(method, to: MethodType.self)
+
+        guard let result = implementation(player, selector)?.takeUnretainedValue() as? String else {
+            return "Unknown"
+        }
+
+        return result
     }
 
     func isPlaying() -> Bool {
-        guard let player = musicPlayer as? NSObject,
-              let result = player.perform(NSSelectorFromString("isPlaying")) else {
+        guard let player = musicPlayer as? NSObject else {
             return false
         }
-        return result.toOpaque().assumingMemoryBound(to: Bool.self).pointee
+
+        let selector = NSSelectorFromString("isPlaying")
+        guard player.responds(to: selector) else { return false }
+
+        let method = player.method(for: selector)
+        typealias MethodType = @convention(c) (NSObject, Selector) -> Bool
+        let implementation = unsafeBitCast(method, to: MethodType.self)
+        let result = implementation(player, selector)
+
+        return result
+    }
+
+    func setInfiniteLoopMode(_ mode: Int) {
+        guard let detailVC = detailViewController as? NSObject else { return }
+
+        let selector = NSSelectorFromString("setLoopInf:")
+        guard detailVC.responds(to: selector) else { return }
+
+        let method = detailVC.method(for: selector)
+        typealias MethodType = @convention(c) (NSObject, Selector, Int32) -> Void
+        let implementation = unsafeBitCast(method, to: MethodType.self)
+        implementation(detailVC, selector, Int32(mode))
     }
 
     func setLoopMode(_ mode: Int) {
-        musicPlayer?.perform(NSSelectorFromString("setLoopInf:"), with: Int32(mode))
-    }
+        guard let detailVC = detailViewController as? NSObject else { return }
 
+        let selector = NSSelectorFromString("setLoopMode:")
+        guard detailVC.responds(to: selector) else { return }
+
+        let method = detailVC.method(for: selector)
+        typealias MethodType = @convention(c) (NSObject, Selector, Int32) -> Void
+        let implementation = unsafeBitCast(method, to: MethodType.self)
+        implementation(detailVC, selector, Int32(mode))
+    }
+    
     func toggleShuffle() {
         detailViewController?.perform(NSSelectorFromString("shuffle"))
+    }
+    
+    func setShuffleMode(_ mode: Int) {
+        guard let detailVC = detailViewController as? NSObject else { return }
+
+        let selector = NSSelectorFromString("setShuffleMode:")
+        guard detailVC.responds(to: selector) else { return }
+
+        let method = detailVC.method(for: selector)
+        typealias MethodType = @convention(c) (NSObject, Selector, Int32) -> Void
+        let implementation = unsafeBitCast(method, to: MethodType.self)
+        implementation(detailVC, selector, Int32(mode))
     }
 
     func getShuffleState() -> Int {
@@ -120,6 +209,67 @@ class ModizerPlayerBridge {
         }
         return Int(shuffleState)
     }
+
+    // MARK: - Playlist Methods
+
+    func getAvailablePlaylists() -> [(id: Int, name: String, size: Int)] {
+        // Use runtime lookup to access ModizerPlaylistBridge
+        guard let bridgeClass = NSClassFromString("ModizerPlaylistBridge") as? NSObject.Type else {
+            return []
+        }
+
+        guard let bridge = bridgeClass.perform(NSSelectorFromString("sharedInstance"))?.takeUnretainedValue() as? NSObject else {
+            return []
+        }
+
+        let selector = NSSelectorFromString("getAvailablePlaylists")
+        guard bridge.responds(to: selector),
+              let result = bridge.perform(selector)?.takeUnretainedValue() as? [AnyObject] else {
+            return []
+        }
+
+        return result.compactMap { playlistObj in
+            guard let playlist = playlistObj as? NSObject,
+                  let id = playlist.value(forKey: "playlistId") as? Int32,
+                  let name = playlist.value(forKey: "playlistName") as? String,
+                  let size = playlist.value(forKey: "playlistSize") as? Int32 else {
+                return nil
+            }
+            return (id: Int(id), name: name, size: Int(size))
+        }
+    }
+
+    func playPlaylist(playlistId: Int, startIndex: Int = 0) -> Bool {
+        guard let bridgeClass = NSClassFromString("ModizerPlaylistBridge") as? NSObject.Type,
+              let bridge = bridgeClass.perform(NSSelectorFromString("sharedInstance"))?.takeUnretainedValue() as? NSObject else {
+            return false
+        }
+
+        let selector = NSSelectorFromString("playPlaylistWithId:startIndex:")
+        guard bridge.responds(to: selector) else { return false }
+
+        let method = bridge.method(for: selector)
+        typealias MethodType = @convention(c) (NSObject, Selector, Int32, Int32) -> Bool
+        let implementation = unsafeBitCast(method, to: MethodType.self)
+
+        return implementation(bridge, selector, Int32(playlistId), Int32(startIndex))
+    }
+
+    func playPlaylist(playlistName: String, startIndex: Int = 0) -> Bool {
+        guard let bridgeClass = NSClassFromString("ModizerPlaylistBridge") as? NSObject.Type,
+              let bridge = bridgeClass.perform(NSSelectorFromString("sharedInstance"))?.takeUnretainedValue() as? NSObject else {
+            return false
+        }
+
+        let selector = NSSelectorFromString("playPlaylistWithName:startIndex:")
+        guard bridge.responds(to: selector) else { return false }
+
+        let method = bridge.method(for: selector)
+        typealias MethodType = @convention(c) (NSObject, Selector, NSString, Int32) -> Bool
+        let implementation = unsafeBitCast(method, to: MethodType.self)
+
+        return implementation(bridge, selector, playlistName as NSString, Int32(startIndex))
+    }
 }
 
 // MARK: - Play Intent
@@ -127,7 +277,7 @@ class ModizerPlayerBridge {
 struct PlayIntent: AppIntent {
     static let title: LocalizedStringResource = "Play"
     static let description = IntentDescription("Starts playing music in Modizer.")
-    static let openAppWhenRun: Bool = true
+    static let openAppWhenRun: Bool = false
 
     @MainActor
     func perform() async throws -> some IntentResult {
@@ -238,19 +388,53 @@ struct SeekIntent: AppIntent {
     }
 }
 
-// MARK: - Toggle Repeat Intent
+// MARK: - Set Infinite Loop Intent
 @available(iOS 16.0, *)
-struct ToggleRepeatIntent: AppIntent {
-    static let title: LocalizedStringResource = "Toggle Repeat"
-    static let description = IntentDescription("Toggles repeat/loop mode in Modizer.")
+struct SetInfiniteLoopIntent: AppIntent {
+    static let title: LocalizedStringResource = "Set Infinite Loop"
+    static let description = IntentDescription("Set the infinite loop mode in Modizer.")
     static let openAppWhenRun: Bool = false
 
-    @Parameter(title: "Repeat Mode", description: "0: off, 1: infinite loop", default: 1)
+    @Parameter(title: "Infinite Loop Mode", description: "0: off, 1: infinite loop", default: 1)
+    var mode: Int
+
+    @MainActor
+    func perform() async throws -> some IntentResult {
+        ModizerPlayerBridge.shared.setInfiniteLoopMode(mode)
+        return .result()
+    }
+}
+
+// MARK: - Set Repeat Mode Intent
+@available(iOS 16.0, *)
+struct SetLoopModeIntent: AppIntent {
+    static let title: LocalizedStringResource = "Set Loop Mode"
+    static let description = IntentDescription("Set the loop mode in Modizer.")
+    static let openAppWhenRun: Bool = false
+
+    @Parameter(title: "Repeat Mode", description: "0: off, 1: loop current title, 2: loop playlist", default: 1)
     var mode: Int
 
     @MainActor
     func perform() async throws -> some IntentResult {
         ModizerPlayerBridge.shared.setLoopMode(mode)
+        return .result()
+    }
+}
+
+// MARK: - Set Shuffle Mode Intent
+@available(iOS 16.0, *)
+struct SetShuffleModeIntent: AppIntent {
+    static let title: LocalizedStringResource = "Set Shuffle Mode"
+    static let description = IntentDescription("Set the shuffle mode in Modizer.")
+    static let openAppWhenRun: Bool = false
+
+    @Parameter(title: "Shuffle Mode", description: "0: off, 1: choose only one title if file has subsongs or is an archive, 2: play all titles of a given file", default: 1)
+    var mode: Int
+
+    @MainActor
+    func perform() async throws -> some IntentResult {
+        ModizerPlayerBridge.shared.setShuffleMode(mode)
         return .result()
     }
 }
@@ -293,6 +477,29 @@ struct GetNowPlayingIntent: AppIntent {
     }
 }
 
+// MARK: - Get Playlists Intent
+@available(iOS 16.0, *)
+struct GetPlaylistsIntent: AppIntent {
+    static let title: LocalizedStringResource = "Get Playlists"
+    static let description = IntentDescription("Gets the list of available playlists in Modizer.")
+    static let openAppWhenRun: Bool = false
+
+    @MainActor
+    func perform() async throws -> some IntentResult & ReturnsValue<String> {
+        let playlists = ModizerPlayerBridge.shared.getAvailablePlaylists()
+
+        if playlists.isEmpty {
+            return .result(value: "No playlists found")
+        }
+
+        let playlistList = playlists.map { playlist in
+            "\(playlist.name) (ID: \(playlist.id), \(playlist.size) songs)"
+        }.joined(separator: "\n")
+
+        return .result(value: "Available playlists:\n\(playlistList)")
+    }
+}
+
 // MARK: - Play Playlist Intent
 @available(iOS 16.0, *)
 struct PlayPlaylistIntent: AppIntent {
@@ -303,13 +510,30 @@ struct PlayPlaylistIntent: AppIntent {
     @Parameter(title: "Playlist Name", description: "The name of the playlist to play")
     var playlistName: String
 
+    @Parameter(title: "Start Index", description: "The index of the song to start playing from (0-based)", default: 0)
+    var startIndex: Int
+
     @MainActor
     func perform() async throws -> some IntentResult {
-        // This would need access to the playlist controller
-        // Will need to implement based on Modizer's playlist architecture
-        let activity = NSUserActivity(activityType: "com.yoyofr.modizer.playPlaylist")
-        activity.userInfo = ["playlistName": playlistName]
-        return .result()
+        let success = ModizerPlayerBridge.shared.playPlaylist(playlistName: playlistName, startIndex: startIndex)
+
+        if success {
+            return .result()
+        } else {
+            throw PlaylistError.playlistNotFound
+        }
+    }
+}
+
+@available(iOS 16.0, *)
+enum PlaylistError: Error, CustomLocalizedStringResourceConvertible {
+    case playlistNotFound
+
+    var localizedStringResource: LocalizedStringResource {
+        switch self {
+        case .playlistNotFound:
+            return "Playlist not found. Use 'Get Playlists' to see available playlists."
+        }
     }
 }
 

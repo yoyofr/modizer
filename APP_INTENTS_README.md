@@ -96,13 +96,25 @@ Ce document décrit les App Intents disponibles dans Modizer pour Shortcuts et S
   - Ajouter l'action "Get Now Playing"
   - Utiliser le résultat dans d'autres actions (affichage, notification, etc.)
 
-### 6. Playlists (À implémenter)
+### 6. Playlists
+
+#### Get Playlists
+- **Description** : Obtient la liste de toutes les playlists disponibles
+- **Usage Shortcuts** :
+  - Ajouter l'action "Get Playlists"
+  - Le résultat affiche la liste avec : Nom (ID, nombre de chansons)
+- **Retour** : Liste formatée des playlists disponibles
 
 #### Play Playlist
-- **Description** : Joue une playlist spécifique
+- **Description** : Joue une playlist spécifique par son nom
 - **Paramètres** :
-  - `playlistName` (String) : Nom de la playlist
-- **Note** : Cette fonctionnalité nécessite une implémentation supplémentaire côté playlist
+  - `playlistName` (String) : Nom exact de la playlist
+  - `startIndex` (Int) : Index de démarrage (par défaut: 0)
+- **Usage Shortcuts** :
+  - Ajouter l'action "Play Playlist"
+  - Entrer le nom exact de la playlist (utiliser "Get Playlists" pour voir les noms)
+  - Optionnellement, spécifier l'index de départ
+- **Note** : Le nom doit correspondre exactement à celui retourné par "Get Playlists"
 
 ## Exemples d'utilisation dans Shortcuts
 
@@ -136,6 +148,21 @@ Ce document décrit les App Intents disponibles dans Modizer pour Shortcuts et S
    - Déclencheur : Heure (ex: 7h00 tous les jours de la semaine)
    - Action : Lancer le raccourci "Musique du matin"
 
+### Exemple 5 : Lancer une playlist spécifique
+1. Créer un nouveau raccourci "Ma playlist préférée"
+2. Ajouter l'action "Play Playlist" depuis Modizer
+3. Configurer :
+   - Playlist Name : "Favorites" (ou le nom de votre playlist)
+   - Start Index : 0
+4. Le raccourci peut être lancé depuis Siri : "Lancer ma playlist préférée"
+
+### Exemple 6 : Découvrir ses playlists
+1. Créer un nouveau raccourci "Mes playlists"
+2. Ajouter les actions :
+   - "Get Playlists" depuis Modizer
+   - "Afficher le résultat"
+3. Exécuter pour voir toutes vos playlists disponibles
+
 ## Notes techniques
 
 ### Architecture
@@ -164,9 +191,20 @@ Pour ajouter un nouvel intent :
 - Pour tester avec Siri, utiliser les phrases suggérées dans les `AppShortcut`
 - Utiliser les logs Xcode pour déboguer les appels d'intents
 
+## Fichiers créés
+
+### Objective-C Bridge
+- **ModizerPlaylistBridge.h/.m** : Bridge Objective-C pour faciliter l'accès aux playlists depuis Swift
+  - `ModizerPlaylistInfo` : Classe pour représenter les informations d'une playlist
+  - `ModizerPlaylistBridge` : Singleton pour gérer les opérations de playlist
+  - Méthodes :
+    - `getAvailablePlaylists` : Récupère toutes les playlists
+    - `playPlaylistWithId:startIndex:` : Lance une playlist par ID
+    - `playPlaylistWithName:startIndex:` : Lance une playlist par nom
+
 ## Limitations actuelles
 
-1. **Playlists** : L'intent "Play Playlist" nécessite une implémentation supplémentaire pour accéder au contrôleur de playlists
+1. **Playlists** : Les playlists sont chargées via un bridge Objective-C - le nom doit correspondre exactement
 2. **Shuffle** : Le toggle shuffle est implémenté mais peut nécessiter des ajustements selon le comportement désiré
 3. **Seek** : La conversion position/temps est en millisecondes côté player
 

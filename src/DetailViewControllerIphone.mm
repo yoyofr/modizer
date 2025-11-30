@@ -650,8 +650,8 @@ bool sysMonitorIsActive;
     buttonLoopTitleSel.hidden=YES;
 }
 
--(IBAction)pushedLoopInf {
-    if (mplayer.mLoopMode==0) {
+-(void)setLoopInf:(int)mode {
+    if (mode==1) {
         [mplayer setLoopInf:1];
         [btnLoopInf setTitleColor:[UIColor colorWithRed:0.3f green:0.5f blue:1.0f alpha:1.0f] forState:UIControlStateNormal];
         if ([mplayer isPlaying]) {
@@ -681,6 +681,15 @@ bool sysMonitorIsActive;
                 if (subIdx) [mplayer playGoToSub:subIdx];
             }
         }
+    }
+}
+
+
+-(IBAction)pushedLoopInf {
+    if (mplayer.mLoopMode==0) {
+        [self setLoopInf:1];
+    } else  {
+        [self setLoopInf:0];
     }
 }
 
@@ -1316,6 +1325,54 @@ static float movePinchScale,movePinchScaleOld;
     }
 }
 
+- (void)setShuffleMode:(int)mode {
+    mShuffle=mode%3;
+    if (mShuffle<0) mShuffle=0;
+    switch (mShuffle) {
+        case 0: //sequential mode
+            [mplayer setArchiveSubShuffle:NO];
+            buttonShuffle.hidden=NO;
+            buttonShuffleSel.hidden=YES;
+            buttonShuffleOneSel.hidden=YES;
+            break;
+        case 1: //random mode playing whole sub entries
+            [mplayer setArchiveSubShuffle:TRUE];
+            buttonShuffle.hidden=YES;
+            buttonShuffleSel.hidden=YES;
+            buttonShuffleOneSel.hidden=NO;
+            break;
+        case 2: //full random mode, only picking 1 entry / file
+            [mplayer setArchiveSubShuffle:TRUE];
+            buttonShuffle.hidden=YES;
+            buttonShuffleSel.hidden=NO;
+            buttonShuffleOneSel.hidden=YES;
+            break;
+    }
+}
+
+- (void)setLoopMode:(int)mode {
+    mLoopMode=mode%3;
+    if (mLoopMode<0) mLoopMode=0;
+    switch (mLoopMode) {
+        case 0:
+            buttonLoopList.hidden=NO;
+            buttonLoopListSel.hidden=YES;
+            buttonLoopTitleSel.hidden=YES;
+            break;
+        case 1:
+            buttonLoopList.hidden=YES;
+            buttonLoopListSel.hidden=NO;
+            buttonLoopTitleSel.hidden=YES;
+            break;
+        case 2:
+            buttonLoopList.hidden=YES;
+            buttonLoopListSel.hidden=YES;
+            buttonLoopTitleSel.hidden=NO;
+            break;
+    }
+}
+
+
 - (IBAction)changeLoopMode {
     mLoopMode++;
     if (mLoopMode==3) mLoopMode=0;
@@ -1340,26 +1397,7 @@ static float movePinchScale,movePinchScaleOld;
 
 - (IBAction)shuffle {
     mShuffle=(mShuffle+1)%3;
-    switch (mShuffle) {
-        case 0: //sequential mode
-            [mplayer setArchiveSubShuffle:NO];
-            buttonShuffle.hidden=NO;
-            buttonShuffleSel.hidden=YES;
-            buttonShuffleOneSel.hidden=YES;
-            break;
-        case 1: //random mode playing whole sub entries
-            [mplayer setArchiveSubShuffle:TRUE];
-            buttonShuffle.hidden=YES;
-            buttonShuffleSel.hidden=YES;
-            buttonShuffleOneSel.hidden=NO;
-            break;
-        case 2: //full random mode, only picking 1 entry / file
-            [mplayer setArchiveSubShuffle:TRUE];
-            buttonShuffle.hidden=YES;
-            buttonShuffleSel.hidden=NO;
-            buttonShuffleOneSel.hidden=YES;
-            break;
-    }
+    [self setShuffleMode:mShuffle];
 }
 
 -(void) mdOpenCloseMenu {

@@ -897,3 +897,7 @@
 "Unlock classic oscilloscope looks, spectrum bars, piano rolls, trackers view and modern FX based on ProjectM/Milkdrop.\nLet Modizer paint each track with motion and color."="Découvrez l'oscilloscope classique, les spectrums bars, le piano roll, la vue tracker et des effets modernes basés sur ProjectM/Milkdrop.\nLaissez Modizer peindre chaque morceau avec du mouvement et des couleurs.";
 "Made with passion,\noffered for free."="Créé avec passion,\noffert gratuitement.";
 "If you enjoy the app, tips are a great way to support its ongoing development.\nThank you for helping keep Modizer alive and evolving."="Si vous appréciez l'application, les pourboires sont un excellent moyen de soutenir son développement continu.\nMerci de contribuer à maintenir Modizer vivant et en évolution.";
+
+//App intent
+"Get Now Playing"="Récupérer la lecture en cours";
+
