@@ -541,58 +541,75 @@ enum PlaylistError: Error, CustomLocalizedStringResourceConvertible {
 @available(iOS 16.0, *)
 struct ModizerShortcuts: AppShortcutsProvider {
     static var appShortcuts: [AppShortcut] {
-        AppShortcut(
-            intent: PlayIntent(),
-            phrases: [
-                "Play in \(.applicationName)",
-                "Start playing \(.applicationName)",
-                "Resume \(.applicationName)"
-            ],
-            shortTitle: "Play",
-            systemImageName: "play.fill"
-        )
-
-        AppShortcut(
-            intent: PauseIntent(),
-            phrases: [
-                "Pause \(.applicationName)",
-                "Pause music in \(.applicationName)"
-            ],
-            shortTitle: "Pause",
-            systemImageName: "pause.fill"
-        )
-
-        AppShortcut(
-            intent: NextSongIntent(),
-            phrases: [
-                "Next song in \(.applicationName)",
-                "Skip to next in \(.applicationName)",
-                "Play next in \(.applicationName)"
-            ],
-            shortTitle: "Next Song",
-            systemImageName: "forward.fill"
-        )
-
-        AppShortcut(
-            intent: PreviousSongIntent(),
-            phrases: [
-                "Previous song in \(.applicationName)",
-                "Go back in \(.applicationName)",
-                "Play previous in \(.applicationName)"
-            ],
-            shortTitle: "Previous Song",
-            systemImageName: "backward.fill"
-        )
-
-        AppShortcut(
-            intent: GetNowPlayingIntent(),
-            phrases: [
-                "What's playing in \(.applicationName)",
-                "Current song in \(.applicationName)",
-                "Now playing in \(.applicationName)"
-            ],
-            shortTitle: "Now Playing",
-            systemImageName: "music.note"
-        )
+        return [
+            AppShortcut(
+                intent: PlayIntent(),
+                phrases: [
+                    "Play in \(.applicationName)",
+                    "Start playing \(.applicationName)",
+                    "Resume \(.applicationName)"
+                ],
+                shortTitle: "Play",
+                systemImageName: "play.fill"
+            ),
+            AppShortcut(
+                intent: PauseIntent(),
+                phrases: [
+                    "Pause \(.applicationName)",
+                    "Pause music in \(.applicationName)"
+                ],
+                shortTitle: "Pause",
+                systemImageName: "pause.fill"
+            ),
+            AppShortcut(
+                intent: StopIntent(),
+                phrases: [
+                    "Stop \(.applicationName)",
+                    "Stop music in \(.applicationName)"
+                ],
+                shortTitle: "Stop",
+                systemImageName: "stop.fill"
+            ),
+            AppShortcut(
+                intent: NextSongIntent(),
+                phrases: [
+                    "Next song in \(.applicationName)",
+                    "Skip to next in \(.applicationName)",
+                    "Play next in \(.applicationName)"
+                ],
+                shortTitle: "Next Song",
+                systemImageName: "forward.fill"
+            ),
+            AppShortcut(
+                intent: PreviousSongIntent(),
+                phrases: [
+                    "Previous song in \(.applicationName)",
+                    "Go back in \(.applicationName)",
+                    "Play previous in \(.applicationName)"
+                ],
+                shortTitle: "Previous Song",
+                systemImageName: "backward.fill"
+            ),
+            AppShortcut(
+                intent: GetNowPlayingIntent(),
+                phrases: [
+                    "What's playing in \(.applicationName)",
+                    "Current song in \(.applicationName)",
+                    "Now playing in \(.applicationName)"
+                ],
+                shortTitle: "Now Playing",
+                systemImageName: "music.note"
+            ),
+            AppShortcut(
+                intent: GetPlaylistsIntent(),
+                phrases: [
+                    "Show my playlists in \(.applicationName)",
+                    "List playlists in \(.applicationName)",
+                    "Get playlists from \(.applicationName)"
+                ],
+                shortTitle: "Get Playlists",
+                systemImageName: "music.note.list"
+            )
+        ]
     }
 }
