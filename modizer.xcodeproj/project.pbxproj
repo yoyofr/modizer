@@ -872,6 +872,7 @@
 		CCD0D08B2B6A73D200C0F71E /* liblibpt3.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CC8369832B5DCF8E0035A4DA /* liblibpt3.a */; };
 		CCD0D08C2B6A73D800C0F71E /* liblibatariaudio.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CC836A5A2B6322780035A4DA /* liblibatariaudio.a */; };
 		CCD4631E123CB8F600D063FE /* main.mm in Sources */ = {isa = PBXBuildFile; fileRef = CCD4631D123CB8F600D063FE /* main.mm */; };
+		CCD6491A2EDBB89600FC5925 /* ModizerAppIntents.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCD649172EDBB89600FC5925 /* ModizerAppIntents.swift */; };
 		CCD791721219FC6B0063D0E7 /* unzoom.png in Resources */ = {isa = PBXBuildFile; fileRef = CCD791701219FC6B0063D0E7 /* unzoom.png */; };
 		CCD791731219FC6B0063D0E7 /* zoom.png in Resources */ = {isa = PBXBuildFile; fileRef = CCD791711219FC6B0063D0E7 /* zoom.png */; };
 		CCDC905D2BBA97E30049CA0D /* libgbsplay.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CC07A8832BB952EA0052DE82 /* libgbsplay.a */; };
@@ -2728,6 +2729,7 @@
 		CCCFB6BF2BFA3EAE0026F1F7 /* RootViewControllerZXArtWebParser.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RootViewControllerZXArtWebParser.mm; sourceTree = "<group>"; };
 		CCD00F801209EAF5002A1D61 /* mini_cancel.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = mini_cancel.png; sourceTree = "<group>"; };
 		CCD4631D123CB8F600D063FE /* main.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = main.mm; sourceTree = "<group>"; };
+		CCD649172EDBB89600FC5925 /* ModizerAppIntents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModizerAppIntents.swift; sourceTree = "<group>"; };
 		CCD791701219FC6B0063D0E7 /* unzoom.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = unzoom.png; sourceTree = "<group>"; };
 		CCD791711219FC6B0063D0E7 /* zoom.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = zoom.png; sourceTree = "<group>"; };
 		CCE0263D2E9A60E3008B7070 /* gloss.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = gloss.png; sourceTree = "<group>"; };
@@ -3905,6 +3907,7 @@
 				59A65C912625F3DB00BC99D1 /* WaitingView.m */,
 				33ABE5B317B2364C00AE0EA1 /* WB_BookmarksViewController.h */,
 				33ABE5B417B2364C00AE0EA1 /* WB_BookmarksViewController.mm */,
+				CCD649172EDBB89600FC5925 /* ModizerAppIntents.swift */,
 				CC1E623912041177000A8A4E /* WebBrowser.h */,
 				CCBF272B2ECB2DB00039936C /* StoreManager.h */,
 				CCBF272C2ECB2DD80039936C /* StoreManager.mm */,
@@ -6416,6 +6419,7 @@
 				CC8368ED2B57CA9B0035A4DA /* replay68.c in Sources */,
 				CC1E5D241200B3B8000A8A4E /* ioapi.c in Sources */,
 				CC1E5D251200B3B8000A8A4E /* unzip.c in Sources */,
+				CCD6491A2EDBB89600FC5925 /* ModizerAppIntents.swift in Sources */,
 				CC83686E2B57CA9A0035A4DA /* unice68_unpack.c in Sources */,
 				CC83695F2B57CCC80035A4DA /* emu68.c in Sources */,
 				591D8E4125DC63620013E19F /* huffCodes.c in Sources */,

@@ -7117,6 +7117,8 @@ static int mOglView1Tap=0;
                 if (pmenu_show) {
                     movePxPMenu+=pt.x-last_pt.x;
                     movePyPMenu+=pt.y-last_pt.y;
+                    posPx=start_pt.x;
+                    posPy=start_pt.y;
                 }
 //                panGestureWheel=2;
                 if (pmenu_show) {
@@ -7127,17 +7129,20 @@ static int mOglView1Tap=0;
                 break;
             default:
                 if (pmenu_show) {
-                    MDZILog("Wheel last: %f %f",movePreWheelXPMenu,movePreWheelYPMenu);
+//                    MDZILog("Wheel last: %f %f",movePreWheelXPMenu,movePreWheelYPMenu);
 //                    movePreWheelXPMenu=pt.x-last_pt.x;
 //                    movePreWheelYPMenu=pt.y-last_pt.y;
 //                    last_pt=pt;
                     
+                    
                     if (is_macOS) {
-                        moveWheelXPMenu=movePreWheelXPMenu*5;
-                        moveWheelYPMenu=movePreWheelYPMenu*5;
+//                        moveWheelXPMenu=movePreWheelXPMenu*5;
+//                        moveWheelYPMenu=movePreWheelYPMenu*5;
                     } else {
                         moveWheelXPMenu=movePreWheelXPMenu*10;
                         moveWheelYPMenu=movePreWheelYPMenu*10;
+                        posPx=start_pt.x;
+                        posPy=start_pt.y;
                     }
                 }
                 panGesture1Tap=0;
@@ -8626,8 +8631,13 @@ void doFramePM(float ww,float hh) {
                         break;
                 }
                 
+                if (settings[GLOB_FXMODPattern_BGAlpha].detail.mdz_slider.slider_value>0) {
+                    //Darken the background
+                    RenderUtils::DarkenScreen(0, 0, ww, hh, settings[GLOB_FXMODPattern_BGAlpha].detail.mdz_slider.slider_value*255.0);
+                }
+                
                 ImGui::GetStyle().Alpha=1.0f;
-                ImGui::PushStyleColor(ImGuiCol_WindowBg,ImVec4(0,0,0,settings[GLOB_FXMODPattern_BGAlpha].detail.mdz_slider.slider_value));
+                ImGui::PushStyleColor(ImGuiCol_WindowBg,ImVec4(0,0,0,0));
                 ImGui::PushStyleColor(ImGuiCol_Border,ImVec4(0,0,0,0));
                 
                 int cur_font=settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_value;
@@ -8714,9 +8724,10 @@ void doFramePM(float ww,float hh) {
                         float startx=(ImGui::CalcTextSize("9999").x);
                         modPatternWindowSize=ww*glScaleFactor-startx;
                         
+                        
                         ImGui::SetNextWindowPos(ImVec2(0,0));
                         ImGui::SetNextWindowSize(ImVec2(startx,hh*glScaleFactor));
-                        ImGui::Begin("ModPatternWin1",0,ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|
+                        ImGui::Begin("ModPatternWin_LinesCol",0,ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|
                                      ImGuiWindowFlags_NoScrollbar|
                                      ImGuiWindowFlags_NoFocusOnAppearing);
                         

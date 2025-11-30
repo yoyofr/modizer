@@ -238,6 +238,8 @@ int buildQuad(LineVertexF *pts,
 
 void releaseProgram(int prgId);
 
+void DarkenScreen(int x,int y,int width,int height,int a, int r=0,int g=0,int b=0);
+
 }
 
 

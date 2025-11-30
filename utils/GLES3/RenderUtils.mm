@@ -449,7 +449,6 @@ void RenderUtils::DrawTexture(uint ww,uint hh,GLuint textureIdx,float alpha,bool
     
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    
     glDisable(GL_CULL_FACE);
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_STENCIL_TEST);
@@ -497,6 +496,51 @@ void RenderUtils::DrawTexture(uint ww,uint hh,GLuint textureIdx,float alpha,bool
     glRestoreState();
 }
 
+void RenderUtils::DarkenScreen(int x,int y,int width,int height,int a, int r,int g,int b) {
+    if (!renderIsInit) return;
+    
+    glUseProgram(userData_simpleRender2D->programObject);
+    
+    GLuint positionAttribHandle = glGetAttribLocation(userData_simpleRender2D->programObject, "a_position");
+    GLuint colorAttribHandle    = glGetAttribLocation(userData_simpleRender2D->programObject, "a_color");
+    
+    //Save opengl state
+    glDumpState();
+    
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glDisable(GL_CULL_FACE);
+    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_STENCIL_TEST);
+    
+    LineVertexF pts[6];
+    int count=0;
+    
+    count+=RenderUtils::buildQuad(&(pts[count]),
+                                  x,       y,
+                                  x+width, y,
+                                  x+width, y+height,
+                                  x      , y+height,
+                                  r,g,b,a,
+                                  r,g,b,a,
+                                  r,g,b,a,
+                                  r,g,b,a,
+                                  width,height);
+    
+    // Load the vertex data
+    glVertexAttribPointer ( positionAttribHandle, 3, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(pts[0].x) );
+    glVertexAttribPointer ( colorAttribHandle, 4, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(pts[0].r) );
+    
+    // enable data buffers for shader
+    glEnableVertexAttribArray ( positionAttribHandle );
+    glEnableVertexAttribArray ( colorAttribHandle );
+    
+    // Load the uniforms
+    glDrawArrays(GL_TRIANGLES,0,count);
+    
+    glRestoreState();
+}
+
 void RenderUtils::DrawTextureBasic(uint ww,uint hh,GLuint textureIdx,float alpha,bool reversed) {
     // Use the program object
     if (!renderIsInit) return;
@@ -517,7 +561,6 @@ void RenderUtils::DrawTextureBasic(uint ww,uint hh,GLuint textureIdx,float alpha
     
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    
     glDisable(GL_CULL_FACE);
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_STENCIL_TEST);
@@ -649,7 +692,6 @@ void RenderUtils::DrawTextureBlend(uint ww,uint hh,GLuint textOrigIdx,GLuint tex
     
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    
     glDisable(GL_CULL_FACE);
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_STENCIL_TEST);
@@ -1676,10 +1718,6 @@ void RenderUtils::DrawChanLayout(uint _ww,uint _hh,int display_note_mode,int cha
     
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-//    glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-    
-    glEnable(GL_BLEND);
-    
     glDisable(GL_CULL_FACE);
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_STENCIL_TEST);
@@ -1720,8 +1758,6 @@ void RenderUtils::DrawChanLayoutAfter(uint _ww,uint _hh,int display_note_mode,in
     
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-//    glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-    
     glDisable(GL_CULL_FACE);
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_STENCIL_TEST);
@@ -2222,9 +2258,6 @@ void RenderUtils::DrawSpectrum2D(short int *spectrumDataL,short int *spectrumDat
     GLuint colorAttribHandle    = glGetAttribLocation(userData_simpleRender2D->programObject, "a_color");
     
     glDisable(GL_BLEND);
-//    glEnable(GL_BLEND);
-//    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    
     glDisable(GL_CULL_FACE);
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_STENCIL_TEST);
@@ -2431,7 +2464,6 @@ void RenderUtils::DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrum
     
     glEnable(GL_BLEND);
     glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-    
     glDisable(GL_CULL_FACE);
     // Enable depth test
     glEnable(GL_DEPTH_TEST);
@@ -4246,7 +4278,6 @@ void RenderUtils::DrawPiano3D(uint ww,uint hh,int automove,float posx,float posy
     
     glEnable(GL_BLEND);
     glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-    
     glDisable(GL_CULL_FACE);
     // Enable depth test
     glEnable(GL_DEPTH_TEST);
@@ -4561,20 +4592,6 @@ vertices[3][2]=z-key_lengthBL*6/5; \
 glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);  \
 }
     
-    //    glEnable(GL_BLEND);
-    //    glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-    //glDisable(GL_DEPTH_TEST);
-    
-    /* Begin Drawing Quads, setup vertex array pointer */
-//    glVertexPointer(3, GL_FLOAT, 0, vertices);
-//    glColorPointer(4, GL_FLOAT, 0, vertColor);
-//    
-//    /* Enable Vertex Pointer */
-//    glEnableClientState(GL_VERTEX_ARRAY);
-//    glEnableClientState(GL_COLOR_ARRAY);
-    
-    
-    
     //draw piano
     vertColor[0][3]=vertColor[1][3]=vertColor[2][3]=vertColor[3][3]=1.0f;
     int white_idx=0;
@@ -4754,7 +4771,6 @@ void RenderUtils::DrawPiano3DWithNotesWall(uint ww,uint hh,int automove,float po
     
     glEnable(GL_BLEND);
     glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-    
     glDisable(GL_CULL_FACE);
     // Enable depth test
     glEnable(GL_DEPTH_TEST);
@@ -5256,10 +5272,6 @@ void RenderUtils::DrawPiano3DWithNotesWall(uint ww,uint hh,int automove,float po
         }
         piano_ofs++;
     }
-    
-    //    glDisable(GL_DEPTH_TEST);
-    //    glEnable(GL_BLEND);
-    //    glBlendFunc(GL_ONE,GL_ONE);
     
     vertColor[0][3]=vertColor[1][3]=vertColor[2][3]=vertColor[3][3]=1.0f;
     
@@ -5884,10 +5896,6 @@ void RenderUtils::DrawMidiFX(uint ww,uint hh,int horiz_vert,float note_display_r
     glDrawArrays(GL_TRIANGLES, 0, index);
     
     //////////////////////////////////////////////
-    
-    //    glEnable(GL_BLEND);
-    //    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    
     
     //current playing line
     //    230,76,153
@@ -6714,7 +6722,6 @@ void RenderUtils::DrawPianoRollFX(uint ww,uint hh,int horiz_vert,float note_disp
     
     glEnable(GL_BLEND);
     glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-    
     glDisable(GL_CULL_FACE);
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_STENCIL_TEST);
@@ -7089,13 +7096,9 @@ void RenderUtils::DrawPianoRollFX(uint ww,uint hh,int horiz_vert,float note_disp
     
     //////////////////////////////////////////////
     
-    //    glEnable(GL_BLEND);
-    //    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    
     glDisable(GL_BLEND);
     
     memset(voices_posX,0,sizeof(voices_posX));
-    
     
     free(ptsB);
     
@@ -7119,7 +7122,6 @@ void RenderUtils::DrawPianoRollSynthesiaFX(uint ww,uint hh,int horiz_vert,float 
     
     glEnable(GL_BLEND);
     glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-    
     glDisable(GL_CULL_FACE);
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_STENCIL_TEST);
@@ -7943,10 +7945,9 @@ void RenderUtils::DrawPianoRollSynthesiaFX(uint ww,uint hh,int horiz_vert,float 
     }
     glDrawArrays(GL_TRIANGLES, 0, index);
     
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+//    glEnable(GL_BLEND);
+//    glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
     index=0;
-    
     glDisable(GL_BLEND);
     
     memset(voices_posX,0,sizeof(voices_posX));
