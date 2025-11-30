@@ -1429,7 +1429,10 @@ shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherG
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
+#if TARGET_OS_MACCATALYST
+#else
     [self.navigationController setNavigationBarHidden:NO animated:YES];
+#endif
     [super viewWillDisappear:animated];
 }
 
@@ -1463,7 +1466,10 @@ shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherG
     
     self.navigationController.delegate = self;
     
+#if TARGET_OS_MACCATALYST
+#else
     [self.navigationController setNavigationBarHidden:YES animated:YES];
+#endif
     
     CGFloat safe_top=0;
     safe_top=[[UIApplication sharedApplication] keyWindow].safeAreaInsets.top;

@@ -2176,7 +2176,7 @@ static int tim_output_data(char *buf, int32 nbytes) {
         int i,voices,vol;
         memset(tim_notes[buffer_ana_gen_ofs],0,DEFAULT_VOICES*4);
         for(i = voices = 0; i < upper_voices; i++) {
-            if ( (voice[i].status == VOICE_ON)||(voice[i].status == VOICE_SUSTAINED) ){
+            if ( (voice[i].status == VOICE_ON)/*||(voice[i].status == VOICE_SUSTAINED) */){
                 vol=(voice[i].left_mix+voice[i].right_mix);//((int)(voice[i].envelope_volume>>24)<<16)|
                 if (vol<0) vol=-vol;
                 vol=vol>>3;
@@ -3750,6 +3750,7 @@ void gsf_update(unsigned char* pSound,int lBytes) {
         snprintf(tim_config_file_path,sizeof(tim_config_file_path),"%s/timidity.cfg",tim_force_soundfont_path);
     } else {
         //timidity
+        tim_init((char*)[[NSString stringWithFormat:@"%@",[[NSBundle mainBundle] resourcePath]] UTF8String]);
         tim_init((char*)[[NSHomeDirectory() stringByAppendingPathComponent:@"modizer.app/timidity"] UTF8String]);
         tim_init((char*)[[NSHomeDirectory() stringByAppendingPathComponent:@"Documents"] UTF8String]);
         snprintf(tim_config_file_path,sizeof(tim_config_file_path),"%s",(char*)[[NSHomeDirectory() stringByAppendingPathComponent:@"Documents/timidity.cfg"] UTF8String]);
@@ -11739,6 +11740,7 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
             snprintf(tim_config_file_path,sizeof(tim_config_file_path),"%s/timidity.cfg",tim_force_soundfont_path);
         } else {
             //timidity
+            tim_init((char*)[[NSString stringWithFormat:@"%@",[[NSBundle mainBundle] resourcePath]] UTF8String]);
             tim_init((char*)[[NSHomeDirectory() stringByAppendingPathComponent:@"modizer.app/timidity"] UTF8String]);
             tim_init((char*)[[NSHomeDirectory() stringByAppendingPathComponent:@"Documents"] UTF8String]);
             snprintf(tim_config_file_path,sizeof(tim_config_file_path),"%s",(char*)[[NSHomeDirectory() stringByAppendingPathComponent:@"Documents/timidity.cfg"] UTF8String]);
