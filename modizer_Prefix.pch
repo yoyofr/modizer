@@ -20,7 +20,10 @@
 
 #else
 
+#if TARGET_OS_MACCATALYST
+#else
 #define ARCH_MIN_ARM_NEON 1
+#endif
 
 #endif
 

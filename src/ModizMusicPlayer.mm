@@ -1942,12 +1942,12 @@ int snsf_loader(void * context, const uint8_t * exe, size_t exe_size,
     return 0;
 }
 
-
-
-
 //LAZY USF
+#if TARGET_OS_MACCATALYST
+#else
 #ifdef ARCH_MIN_ARM_NEON
 #include <arm_neon.h>
+#endif
 #endif
 
 #include "usf/usf.h"

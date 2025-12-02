@@ -34,8 +34,12 @@
 #ifdef ARCH_MIN_SSE2
 #include <emmintrin.h>
 #endif
+
+#if TARGET_OS_MACCATALYST
+#else
 #ifdef ARCH_MIN_ARM_NEON
 #include <arm_neon.h>
+#endif
 #endif
 
 typedef unsigned char byte;
