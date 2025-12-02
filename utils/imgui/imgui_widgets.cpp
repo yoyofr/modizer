@@ -1774,6 +1774,37 @@ void ImGui::TextAttr(const char* fmt, ...) {
     va_end(args);
 }
 
+//YOYOFR
+void ImGui::TextAttrZoom(float glyph_zoom, const char* fmt, ...) {
+    ImGuiWindow* window = GetCurrentWindow();
+    if (window->SkipItems)
+        return;
+
+    ImGuiContext& g = *GImGui;
+
+    va_list args;
+    va_start(args, fmt);
+    const char *text, *text_end;
+    ImFormatStringToTempBufferV(&text, &text_end, fmt, args);
+
+    // Calculate text size with normal font size for layout
+    const ImVec2 text_pos(window->DC.CursorPos.x, window->DC.CursorPos.y + window->DC.CurrLineTextBaseOffset);
+    const ImVec2 text_size = CalcTextSize(text, text_end, false, 0.0f, ImGuiTextFlags_ParseColors);
+
+    ImRect bb(text_pos, text_pos + text_size);
+    ItemSize(text_size, 0.0f);
+    if (!ItemAdd(bb, 0))
+    {
+        va_end(args);
+        return;
+    }
+
+    // Render with zoomed glyphs
+    RenderTextWrappedZoom(bb.Min, text, text_end, 0.0f, glyph_zoom, ImGuiTextFlags_ParseColors);
+
+    va_end(args);
+}
+
 
 // Using 'hover_visibility_delay' allows us to hide the highlight and mouse cursor for a short time, which can be convenient to reduce visual noise.
 bool ImGui::SplitterBehavior(const ImRect& bb, ImGuiID id, ImGuiAxis axis, float* size1, float* size2, float min_size1, float min_size2, float hover_extend, float hover_visibility_delay, ImU32 bg_col)

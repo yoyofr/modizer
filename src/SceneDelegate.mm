@@ -80,7 +80,7 @@
         
     }
     
-#if MDZ_MACOS_BUNDLE
+#ifdef MDZ_MACOS_WINDOW_AOT
 #if TARGET_OS_MACCATALYST
     // Restaurer l'état sauvegardé
         self.isWindowFloating = [[NSUserDefaults standardUserDefaults] boolForKey:@"WindowFloating"];
@@ -98,7 +98,7 @@
 #endif
 }
 
-#if MDZ_MACOS_BUNDLE
+#ifdef MDZ_MACOS_WINDOW_AOT
 #if TARGET_OS_MACCATALYST
 - (void)loadMacPlugin {
     NSBundle *mainBundle = [NSBundle mainBundle];

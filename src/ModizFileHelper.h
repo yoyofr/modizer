@@ -19,7 +19,7 @@
 +(bool) isABrowsableArchive:(NSString*)cpath;
 +(NSMutableArray*)buildListSupportFileType:(t_filetypeList)ftype;
 
-+(int) isAcceptedFile:(NSString*)_filePath no_aux_file:(int)no_aux_file;
++(int) isAcceptedFile:(NSString*)_filePath no_aux_file:(int)no_aux_file rar_rsn_mode:(bool)rar_rsn_mode;
 +(int) isPlayableFile:(NSString*)file;
 +(int) isSingleFileType:(NSString*)_filePath;
 +(int) scanarchive:(const char *)path filesList_ptr:(char***)filesList_ptr filesCount_ptr:(int*)filesCount_ptr ;

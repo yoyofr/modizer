@@ -408,7 +408,7 @@ continueUserActivity:(NSUserActivity *)userActivity
                 [newChildren addObject:element];
             }
         }
-#if MDZ_MACOS_BUNDLE
+#ifdef MDZ_MACOS_WINDOW_AOT
         UIWindowScene *windowScene = (UIWindowScene *)[UIApplication.sharedApplication.connectedScenes.allObjects firstObject];
         SceneDelegate *sceneDelegate = (SceneDelegate*)windowScene.delegate;
         // Utiliser UIKeyCommand au lieu de UICommand pour pouvoir spécifier un input
@@ -444,7 +444,7 @@ continueUserActivity:(NSUserActivity *)userActivity
 #endif
 }
 
-#if MDZ_MACOS_BUNDLE
+#ifdef MDZ_MACOS_WINDOW_AOT
 #if TARGET_OS_MACCATALYST
 -(void) toggleAlwaysOnTop {
     UIWindowScene *windowScene = (UIWindowScene *)[UIApplication.sharedApplication.connectedScenes.allObjects firstObject];

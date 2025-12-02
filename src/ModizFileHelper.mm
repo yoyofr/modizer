@@ -431,7 +431,7 @@ extern bool icloud_available;
     return 0;
 }
 
-+(int) isAcceptedFile:(NSString*)_filePath no_aux_file:(int)no_aux_file {
++(int) isAcceptedFile:(NSString*)_filePath no_aux_file:(int)no_aux_file rar_rsn_mode:(bool)rar_rsn_mode {
     NSArray *filetype_extMDX=(no_aux_file?[SUPPORTED_FILETYPE_MDX componentsSeparatedByString:@","]:[SUPPORTED_FILETYPE_MDX_EXT componentsSeparatedByString:@","]);
     NSArray *filetype_extPMD=(no_aux_file?[SUPPORTED_FILETYPE_PMD componentsSeparatedByString:@","]:[SUPPORTED_FILETYPE_PMD_EXT componentsSeparatedByString:@","]);
     NSArray *filetype_extFMP=(no_aux_file?[SUPPORTED_FILETYPE_FMP componentsSeparatedByString:@","]:[SUPPORTED_FILETYPE_FMP_EXT componentsSeparatedByString:@","]);
@@ -834,6 +834,10 @@ extern bool icloud_available;
                 
             }
     }
+    //Specifc Snes RSN/RAR archive, filter  out info.txt file
+    if (found && rar_rsn_mode) {
+        if ([[_filePath lastPathComponent] caseInsensitiveCompare:@"info.txt"]==NSOrderedSame) found=0;
+    }
     
     return found;
 }
@@ -927,7 +931,7 @@ extern bool icloud_available;
         NSString *file;
         NSMutableArray *filesList=[[NSMutableArray alloc] init];
         for (file in filesInArchive) {
-            if ([ModizFileHelper isAcceptedFile:file no_aux_file:1]) {
+            if ([ModizFileHelper isAcceptedFile:file no_aux_file:1 rar_rsn_mode:true]) {
                 found++;
                 [filesList addObject:file];
             }
@@ -959,7 +963,7 @@ extern bool icloud_available;
             r=archive_read_next_header(a, &entry);
             if ((r!=ARCHIVE_OK)&&(r!=ARCHIVE_WARN)) break;
             file=[ModizFileHelper getCorrectFileName:path archive:a entry:entry];
-            if ([ModizFileHelper isAcceptedFile:file no_aux_file:1]) {
+            if ([ModizFileHelper isAcceptedFile:file no_aux_file:1  rar_rsn_mode:false]) {
                 found++;
                 [filesList addObject:file];
             }
@@ -1115,7 +1119,7 @@ extern bool icloud_available;
                     break;
                 }
                 
-                if ([ModizFileHelper isAcceptedFile:[ModizFileHelper getCorrectFileName:[archivePathNS UTF8String] archive:a entry:entry] no_aux_file:0]) {
+                if ([ModizFileHelper isAcceptedFile:[ModizFileHelper getCorrectFileName:[archivePathNS UTF8String] archive:a entry:entry] no_aux_file:0 rar_rsn_mode:false]) {
                     
                     extractFilename=[NSString stringWithFormat:@"%@/%@",extractPathNS,[ModizFileHelper getCorrectFileName:archivePath archive:a entry:entry]];
                     extractPathFile=[extractFilename stringByDeletingLastPathComponent];
@@ -1146,7 +1150,7 @@ extern bool icloud_available;
                         
                         fclose(f);
                         
-                        if ([ModizFileHelper isAcceptedFile:[ModizFileHelper getCorrectFileName:archivePath archive:a entry:entry] no_aux_file:1]) {
+                        if ([ModizFileHelper isAcceptedFile:[ModizFileHelper getCorrectFileName:archivePath archive:a entry:entry] no_aux_file:1 rar_rsn_mode:false]) {
                             idx++;
                         }
                     }

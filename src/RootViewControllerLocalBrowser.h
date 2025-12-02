@@ -86,7 +86,9 @@
     
 	int mClickedPrimAction;
 	int mCurrentWinAskedDownload;
-@public    
+    
+    bool noCellAction;
+@public
     int browse_depth;
     DetailViewControllerIphone *detailViewController;
 }

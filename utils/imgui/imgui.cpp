@@ -3814,6 +3814,121 @@ void ImGui::RenderTextWrapped(ImVec2 pos, const char* text, const char* text_end
     }
 }
 
+//YOYOFR
+void ImGui::RenderTextWrappedZoom(ImVec2 pos, const char* text, const char* text_end, float wrap_width, float glyph_zoom, int textFlags)
+{
+    ImGuiContext& g = *GImGui;
+    ImGuiWindow* window = g.CurrentWindow;
+
+    if (!text_end)
+        text_end = text + ImStrlen(text); // FIXME-OPT
+
+    if (text != text_end)
+    {
+        // cannot be wrapping at this point for colored text; split up draw calls from colored section to colored section
+        IM_ASSERT(wrap_width == 0.0f);
+
+        // Clamp glyph_zoom to reasonable range
+        glyph_zoom = ImClamp(glyph_zoom, 0.5f, 3.0f);
+
+        if (!(textFlags & ImGuiTextFlags_ParseColors)) {
+            // Simple case: no color parsing, render character by character with zoom
+            const float normal_font_size = g.FontSize;
+            const float zoomed_font_size = normal_font_size * glyph_zoom;
+            const float glyph_offset_y = (zoomed_font_size - normal_font_size) * 0.5f; // Center vertically
+
+            ImU32 currentColor = GetColorU32(ImGuiCol_Text);
+            const char* s = text;
+            while (s < text_end) {
+                // Get single character
+                unsigned int c = (unsigned int)*s;
+                const char* char_end = s + 1;
+                if (c >= 0x80)
+                    char_end = s + ImTextCharFromUtf8(&c, s, text_end);
+
+                // Calculate normal advance
+                const float char_width = CalcTextSize(s, char_end).x;
+
+                // Render with zoomed size but offset to center
+                const float glyph_offset_x = (char_width * glyph_zoom - char_width) * 0.5f;
+                window->DrawList->AddText(g.Font, zoomed_font_size,
+                    ImVec2(pos.x - glyph_offset_x, pos.y - glyph_offset_y),
+                    currentColor, s, char_end, wrap_width);
+
+                // Advance by normal width
+                pos.x += char_width;
+                s = char_end;
+            }
+
+            if (g.LogEnabled)
+                LogRenderedText(&pos, text, text_end);
+        } else {
+            // Parse colors like in RenderTextWrapped
+            ImU32 currentColor = GetColorU32(ImGuiCol_Text);
+            auto toVal = [](char a) -> int { if (a >= '0' && a <= '9') return a - '0'; if (a >= 'a' && a <= 'f') return 10 + a - 'a'; return 10 + a - 'A'; };
+            auto toByte = [&](char a) -> int { return (int)toVal(a)  * 17; };
+            auto toByte2 = [&](char a, char b) -> int { return (int)toVal(a) * 16 + (int)toVal(b); };
+
+            const float normal_font_size = g.FontSize;
+            const float zoomed_font_size = normal_font_size * glyph_zoom;
+            const float glyph_offset_y = (zoomed_font_size - normal_font_size) * 0.5f;
+
+            while (text < text_end) {
+                // scan until next color block
+                const char* s = text;
+                while (s < text_end) {
+                    if (s[0] == '{' && s < text_end - 1 && s[1] == '#') {
+                        break;
+                    }
+                    ++s;
+                }
+
+                // render with current color, character by character with zoom
+                if (s != text) {
+                    const char* char_s = text;
+                    while (char_s < s) {
+                        // Get single character
+                        unsigned int c = (unsigned int)*char_s;
+                        const char* char_end = char_s + 1;
+                        if (c >= 0x80)
+                            char_end = char_s + ImTextCharFromUtf8(&c, char_s, s);
+
+                        // Calculate normal advance
+                        const float char_width = CalcTextSize(char_s, char_end).x;
+
+                        // Render with zoomed size but offset to center
+                        const float glyph_offset_x = (char_width * glyph_zoom - char_width) * 0.5f;
+                        window->DrawList->AddText(g.Font, zoomed_font_size,
+                            ImVec2(pos.x - glyph_offset_x, pos.y - glyph_offset_y),
+                            currentColor, char_s, char_end, wrap_width);
+
+                        // Advance by normal width
+                        pos.x += char_width;
+                        char_s = char_end;
+                    }
+                }
+
+                // handle color change
+                s += 2; // skip over "{#"
+                const char* color = s;
+                while (s < text_end && *s != '}')
+                    ++s;
+                if (s == text_end)
+                    break;
+                const int colorSpecLength = s - color;
+                switch (colorSpecLength) {
+                    case 3: currentColor = ImColor(toByte(color[0]), toByte(color[1]), toByte(color[2]), 255); break;
+                    case 4: currentColor = ImColor(toByte(color[0]), toByte(color[1]), toByte(color[2]), toByte(color[3])); break;
+                    case 6: currentColor = ImColor(toByte2(color[0], color[1]), toByte2(color[2], color[3]), toByte2(color[4], color[5]), 255); break;
+                    case 8: currentColor = ImColor(toByte2(color[0], color[1]), toByte2(color[2], color[3]), toByte2(color[4], color[5]), toByte2(color[6], color[7])); break;
+                    default: break;
+                }
+                text = s + 1;
+            }
+        }
+    }
+}
+
 // Default clip_rect uses (pos_min,pos_max)
 // Handle clipping on CPU immediately (vs typically let the GPU clip the triangles that are overlapping the clipping rectangle edges)
 // FIXME-OPT: Since we have or calculate text_size we could coarse clip whole block immediately, especially for text above draw_list->DrawList.

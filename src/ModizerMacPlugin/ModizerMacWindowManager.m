@@ -19,7 +19,7 @@
 @implementation ModizerMacWindowManager
 
 + (void)setAlwaysOnTop:(BOOL)enabled {
-#if MDZ_MACOS_BUNDLE
+#ifdef MDZ_MACOS_WINDOW_AOT
     NSArray *windows = [NSApp windows];
     
     for (NSWindow *window in windows) {

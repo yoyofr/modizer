@@ -624,6 +624,7 @@ namespace ImGui
 
 //YOYOFR
     IMGUI_API void          TextAttr(const char* fmt, ...);                                 IM_FMTARGS(1); // non wrapped, colorized, e.g. "{#fff}white or {#0000ff}blue, or {#fff8} for 0.5 alpha"
+    IMGUI_API void          TextAttrZoom(float glyph_zoom, const char* fmt, ...);           IM_FMTARGS(2); // same as TextAttr but with glyph zoom (1.0-2.0), zooms glyphs without changing character spacing
 
     // Widgets: Main
     // - Most widgets return true when the value has been changed or when pressed/selected

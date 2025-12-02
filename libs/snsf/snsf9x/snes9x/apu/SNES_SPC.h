@@ -273,7 +273,7 @@ private:
 		uint8_t unused [0x40];
 		uint8_t ipl_rom [0x40];
 	};
-
+    
 	static char const signature [signature_size + 1];
 	
 	void save_regs( uint8_t out [reg_count] );

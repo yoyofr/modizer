@@ -26,7 +26,7 @@
 #define FONTSIZE_PM_PRESET_INFO_LINE 18
 #define FONTSIZE_SHOWINFO_FPS 24
 #define FONTSIZE_SHOWINFO_DETAILS 16
-#define FONTSIZE_FX_FS_INFO_LINE 12
+#define FONTSIZE_FX_FS_INFO_LINE 14
 #define FONTSIZE_FX_FS_INFO_LINE_DIVIDER 42
 #define FONTSIZE_GUIMSESSAGE 40
 
@@ -448,51 +448,68 @@ bool sysMonitorIsActive;
     //containerView.layer.shadowOffset = CGSizeMake(2.0,2.0);
     //containerView.layer.shadowOpacity = 1.0;
     //containerView.layer.shadowRadius = 2;
-    
+
     alertTableView.layer.cornerRadius = 10;
     alertTableView.layer.masksToBounds = true;
+    alertTableView.translatesAutoresizingMaskIntoConstraints = NO;
     [containerView addSubview:alertTableView];
-    
+
     alertTableView.delegate = self;
     alertTableView.dataSource = self;
     alertTableView.tableFooterView = [[UIView alloc]initWithFrame:CGRectZero];
     alertTableView.rowHeight=SELECTOR_TABVIEWCELL_HEIGHT;
     alertTableView.sectionHeaderHeight=32;
-    
+
     [alertTableView setSeparatorStyle:UITableViewCellSeparatorStyleSingleLine];
     [alertTableView setTag:kAlertTableViewTag];
+
+    containerView.translatesAutoresizingMaskIntoConstraints = NO;
     [controller.view addSubview:containerView];// alertTableView];
-    
-    
+
+
     [controller.view bringSubviewToFront:containerView];//alertTableView];
     [controller.view setUserInteractionEnabled:YES];
     [alertTableView setUserInteractionEnabled:YES];
     [alertTableView setAllowsSelection:YES];
-    
-    BButton *cancel_btn= [[BButton alloc] initWithFrame:CGRectMake(self.view.frame.size.width/2-100,
-                                                                   10,
-                                                                   200,
-                                                                   
-                                                                   30)];
+
+    BButton *cancel_btn= [[BButton alloc] initWithFrame:CGRectMake(0, 0, 200, 30)];
     [cancel_btn setType:BButtonTypePrimary];
     [cancel_btn removeTarget:self action:NULL forControlEvents:UIControlEventTouchUpInside];
     [cancel_btn addTarget:self action:@selector(cancelSubSel) forControlEvents:UIControlEventTouchUpInside];
     [cancel_btn setTitle:NSLocalizedString(@"Cancel", @"Cancel Action") forState:UIControlStateNormal];
-    [controller.view addSubview:cancel_btn];
-    
-    NSDictionary * buttonDic = NSDictionaryOfVariableBindings(cancel_btn);
     cancel_btn.translatesAutoresizingMaskIntoConstraints = NO;
+    [controller.view addSubview:cancel_btn];
+
+    NSDictionary * viewsDic = NSDictionaryOfVariableBindings(cancel_btn, containerView);
+
+    // Contraintes horizontales pour le containerView
+    NSArray * hConstraintsContainer = [NSLayoutConstraint constraintsWithVisualFormat:@"H:|[containerView]|"
+                                                                              options:0
+                                                                              metrics:nil
+                                                                                views:viewsDic];
+    [controller.view addConstraints:hConstraintsContainer];
+
+    // Contraintes horizontales pour le bouton
     NSArray * hConstraints = [NSLayoutConstraint constraintsWithVisualFormat:@"H:|-50-[cancel_btn]-50-|"
                                                                      options:0
                                                                      metrics:nil
-                                                                       views:buttonDic];
+                                                                       views:viewsDic];
     [controller.view addConstraints:hConstraints];
-    
-    NSArray * vConstraints = [NSLayoutConstraint constraintsWithVisualFormat:@"V:[cancel_btn(50)]-16-|"
+
+    // Contraintes verticales pour positionner containerView en haut et cancel_btn en bas
+    NSArray * vConstraints = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|-16-[containerView]-8-[cancel_btn(50)]-16-|"
                                                                      options:0
                                                                      metrics:nil
-                                                                       views:buttonDic];
+                                                                       views:viewsDic];
     [controller.view addConstraints:vConstraints];
+
+    // Contraintes pour alertTableView à l'intérieur de containerView
+    [NSLayoutConstraint activateConstraints:@[
+        [alertTableView.topAnchor constraintEqualToAnchor:containerView.topAnchor],
+        [alertTableView.bottomAnchor constraintEqualToAnchor:containerView.bottomAnchor],
+        [alertTableView.leadingAnchor constraintEqualToAnchor:containerView.leadingAnchor],
+        [alertTableView.trailingAnchor constraintEqualToAnchor:containerView.trailingAnchor]
+    ]];
     
     [self presentViewController:controller animated:YES completion:^{
         NSIndexPath *indexPath = [NSIndexPath indexPathForRow:mplayer.mod_currentsub-mplayer.mod_minsub inSection:0];
@@ -564,7 +581,7 @@ bool sysMonitorIsActive;
     controller.modalPresentationStyle=UIModalPresentationPopover;
     
     //alertTableView  = [[UITableView alloc] initWithFrame:recttv];
-    
+
     UIView *containerView=[[UIView alloc] initWithFrame:recttv];
     //self.tableView = UITableView(frame: containerView.bounds, style: .plain)
     alertTableView  = [[UITableView alloc] initWithFrame:containerView.bounds];
@@ -573,53 +590,70 @@ bool sysMonitorIsActive;
     //containerView.layer.shadowOffset = CGSizeMake(2.0,2.0);
     //containerView.layer.shadowOpacity = 1.0;
     //containerView.layer.shadowRadius = 2;
-    
+
     alertTableView.layer.cornerRadius = 10;
     alertTableView.layer.masksToBounds = true;
+    alertTableView.translatesAutoresizingMaskIntoConstraints = NO;
     [containerView addSubview:alertTableView];
-    
+
     alertTableView.delegate = self;
     alertTableView.dataSource = self;
     alertTableView.tableFooterView = [[UIView alloc]initWithFrame:CGRectZero];
     alertTableView.rowHeight=SELECTOR_TABVIEWCELL_HEIGHT;
     alertTableView.sectionHeaderHeight=32;
-    
+
     [alertTableView setSeparatorStyle:UITableViewCellSeparatorStyleSingleLine];
     [alertTableView setTag:kAlertTableViewTag];
+
+    containerView.translatesAutoresizingMaskIntoConstraints = NO;
     [controller.view addSubview:containerView];// alertTableView];
-    
-    
+
+
     [controller.view bringSubviewToFront:containerView];//alertTableView];
     [controller.view setUserInteractionEnabled:YES];
     [alertTableView setUserInteractionEnabled:YES];
     [alertTableView setAllowsSelection:YES];
-    
-    
-    
-    BButton *cancel_btn= [[BButton alloc] initWithFrame:CGRectMake(self.view.frame.size.width/2-100,
-                                                                   10,
-                                                                   200,
-                                                                   
-                                                                   30)];
+
+
+
+    BButton *cancel_btn= [[BButton alloc] initWithFrame:CGRectMake(0, 0, 200, 30)];
     [cancel_btn setType:BButtonTypePrimary];
     [cancel_btn removeTarget:self action:NULL forControlEvents:UIControlEventTouchUpInside];
     [cancel_btn addTarget:self action:@selector(cancelArcSel) forControlEvents:UIControlEventTouchUpInside];
     [cancel_btn setTitle:NSLocalizedString(@"Cancel", @"Cancel Action") forState:UIControlStateNormal];
-    [controller.view addSubview:cancel_btn];
-    
-    NSDictionary * buttonDic = NSDictionaryOfVariableBindings(cancel_btn);
     cancel_btn.translatesAutoresizingMaskIntoConstraints = NO;
+    [controller.view addSubview:cancel_btn];
+
+    NSDictionary * viewsDic = NSDictionaryOfVariableBindings(cancel_btn, containerView);
+
+    // Contraintes horizontales pour le containerView
+    NSArray * hConstraintsContainer = [NSLayoutConstraint constraintsWithVisualFormat:@"H:|[containerView]|"
+                                                                              options:0
+                                                                              metrics:nil
+                                                                                views:viewsDic];
+    [controller.view addConstraints:hConstraintsContainer];
+
+    // Contraintes horizontales pour le bouton
     NSArray * hConstraints = [NSLayoutConstraint constraintsWithVisualFormat:@"H:|-50-[cancel_btn]-50-|"
                                                                      options:0
                                                                      metrics:nil
-                                                                       views:buttonDic];
+                                                                       views:viewsDic];
     [controller.view addConstraints:hConstraints];
-    
-    NSArray * vConstraints = [NSLayoutConstraint constraintsWithVisualFormat:@"V:[cancel_btn(50)]-16-|"
+
+    // Contraintes verticales pour positionner containerView en haut et cancel_btn en bas
+    NSArray * vConstraints = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|-16-[containerView]-8-[cancel_btn(50)]-16-|"
                                                                      options:0
                                                                      metrics:nil
-                                                                       views:buttonDic];
+                                                                       views:viewsDic];
     [controller.view addConstraints:vConstraints];
+
+    // Contraintes pour alertTableView à l'intérieur de containerView
+    [NSLayoutConstraint activateConstraints:@[
+        [alertTableView.topAnchor constraintEqualToAnchor:containerView.topAnchor],
+        [alertTableView.bottomAnchor constraintEqualToAnchor:containerView.bottomAnchor],
+        [alertTableView.leadingAnchor constraintEqualToAnchor:containerView.leadingAnchor],
+        [alertTableView.trailingAnchor constraintEqualToAnchor:containerView.trailingAnchor]
+    ]];
     
     [self presentViewController:controller animated:YES completion:^{
         NSIndexPath *indexPath = [NSIndexPath indexPathForRow:[mplayer getArcIndex] inSection:0];
@@ -7853,7 +7887,6 @@ void doFramePM(float ww,float hh) {
     int frameToUpdate=0;
     int shouldGoToSettings=0;
     
-    if (mBackground) return;
     
     if (!_pmIsInitialized) return; //PRojectM might still be initializing and calling some opengl stuff from background thread
     
@@ -7877,22 +7910,6 @@ void doFramePM(float ww,float hh) {
     //check if view is really visible
     bool isVisible=false;
     if (self.view.window) isVisible=true;
-    
-    if (self.mainView.hidden||m_oglView.hidden||(coverflow.hidden==FALSE)||(isVisible==false)) {
-        no_reentrant=0;
-        return;
-    }
-    
-//    if (!mFont || !mFontMenu ) {
-//        no_reentrant=0;
-//        return;
-//    }
-    fxalpha=settings[GLOB_FXAlpha].detail.mdz_slider.slider_value;
-    if (settings[GLOB_FX3DSpectrumBloom].detail.mdz_switch.switch_value) {
-        //if bloom is on, fx alpha should be minimum 0.9f
-        //fxalpha=fmax(fxalpha,0.9f);
-    }
-    //m_oglView.alpha=fxalpha;
     
     //get ogl view dimension
     ww=m_oglView.frame.size.width;
@@ -7923,6 +7940,24 @@ void doFramePM(float ww,float hh) {
     
     calcFps();
     
+    if (mBackground) return;
+    
+    
+    if (self.mainView.hidden||m_oglView.hidden||(coverflow.hidden==FALSE)||(isVisible==false)) {
+        no_reentrant=0;
+        return;
+    }
+    
+//    if (!mFont || !mFontMenu ) {
+//        no_reentrant=0;
+//        return;
+//    }
+    fxalpha=settings[GLOB_FXAlpha].detail.mdz_slider.slider_value;
+    if (settings[GLOB_FX3DSpectrumBloom].detail.mdz_switch.switch_value) {
+        //if bloom is on, fx alpha should be minimum 0.9f
+        //fxalpha=fmax(fxalpha,0.9f);
+    }
+    //m_oglView.alpha=fxalpha;
     
     
     if (settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value) {
@@ -8798,13 +8833,8 @@ void doFramePM(float ww,float hh) {
                             }
                             
                             if ((i==currentRow)&&(modpat_curTheme->theme_flag&MDZ_THEMEFLAG_HighlightZoom)) {
-                                cursorPos.y+=font_ofsY*0.3f*glScaleFactor;
-                                cursorPos.x+=font_ofsX*0.3f*glScaleFactor;
-                                cursorPos.y-=fontSize*0.15f*glScaleFactor;
                                 ImGui::SetCursorPos(cursorPos);
-                                ImGui::PushFont(font_trackerH[cur_font],(fontSize*glScaleFactor*1.5f));
-                                ImGui::TextAttr("{#%02X%02X%02X}%s",colR,colG,colB,str_prefix);
-                                ImGui::PopFont();
+                                ImGui::TextAttrZoom(1.4f,"{#%02X%02X%02X}%s",colR,colG,colB,str_prefix);
                             } else {
                                 ImGui::SetCursorPos(cursorPos);
                                 ImGui::TextAttr("{#%02X%02X%02X}%s",colR,colG,colB,str_prefix);
@@ -9075,13 +9105,8 @@ void doFramePM(float ww,float hh) {
                             cursorPos.x=font_ofsX*glScaleFactor;
                             
                             if ((i==currentRow)&&(modpat_curTheme->theme_flag&MDZ_THEMEFLAG_HighlightZoom)) {
-                                cursorPos.y-=font_ofsY*0.3f*glScaleFactor;
-                                cursorPos.x-=font_ofsX*0.3f*glScaleFactor;
-                                cursorPos.y-=fontSize*0.15f*glScaleFactor;
                                 ImGui::SetCursorPos(cursorPos);
-                                ImGui::PushFont(font_trackerH[cur_font],(fontSize*glScaleFactor*1.5f));
-                                ImGui::TextAttr("%s",str_data);
-                                ImGui::PopFont();
+                                ImGui::TextAttrZoom(1.4f,"%s",str_data);
                             } else {
                                 ImGui::SetCursorPos(cursorPos);
                                 ImGui::TextAttr("%s",str_data);

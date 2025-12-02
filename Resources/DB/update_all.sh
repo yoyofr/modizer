@@ -6,6 +6,9 @@ curl https://ftp.modland.com/allmods.zip --output allmods.zip
 echo unzipping
 echo ...
 unzip allmods.zip
+echo removing HVSC
+grep -v "\tHVSC/" allmods.txt > tmp.txt
+mv tmp.txt allmods.txt
 echo converting
 echo ...
 ./conv_modland.sh allmods.txt

@@ -1,7 +1,7 @@
 ﻿##############################################################################
 #
 #  STIL v3.9 - SAP Tune Information List
-#  Total number of entries: 1759
+#  Total number of entries: 1763
 #
 ##############################################################################
 
@@ -4844,12 +4844,18 @@ COMMENT: Soundtrack from the 'COINV-20' intro which won at Atari Area 24h
  ARTIST: Unknown
 COMMENT: 3rd place at Atari Area 24h 'Black Lamp' music compo.
 
+/Composers/Sychowicz_Lukasz/Demons_Bath.sap
+COMMENT: 2nd place at Silly Venture 2025 Winter Edition music compo.
+
 /Composers/Sychowicz_Lukasz/Drab.sap
 COMMENT: Soundtrack from the one-kilobyte intro which won at the Forever Party
          in 2003.
 
 /Composers/Sychowicz_Lukasz/Draka.sap
 COMMENT: Inspired by /Composers/Adam_Gilmore/Draconus.sap
+
+/Composers/Sychowicz_Lukasz/Easy_Money.sap
+COMMENT: 1st place at Silly Venture 2025 Winter Edition music compo.
 
 /Composers/Sychowicz_Lukasz/Glikol.sap
 COMMENT: 3rd place at Lato Ludzików 2002 music compo.
@@ -4863,6 +4869,10 @@ COMMENT: Music from the game 'Ketchup' released by Sikor Soft in 1996.
 
 /Composers/Sychowicz_Lukasz/Gwoopie_Yes_Them.sap
 COMMENT: 1st place at Forever 6 music compo.
+
+/Composers/Sychowicz_Lukasz/Half_a_Little.sap
+COMMENT: Soundtrack from the demo 'Rerzóged' which won at Silly Venture 2025
+         Winter Edition.
 
 /Composers/Sychowicz_Lukasz/Hypnotic.sap
 COMMENT: 1st place at Intel Outside 4 music compo.
@@ -4976,6 +4986,9 @@ COMMENT: 5th place at QuaST party 1996 music compo.
 
 /Composers/Sychowicz_Lukasz/Trance_of_Garnek.sap
 COMMENT: Silesian Atari Open party 1995 music compo entry.
+
+/Composers/Sychowicz_Lukasz/Yatzeck_Platzeck_v32.sap
+COMMENT: 3rd place at Silly Venture 2025 Winter Edition music compo.
 
 /Composers/Sychowicz_Lukasz/Yoomp.sap
 COMMENT: Music from the game 'Yoomp!' released in 2007.

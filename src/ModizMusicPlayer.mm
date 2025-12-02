@@ -66,6 +66,9 @@ int pmd_real_tracks_used;
 signed char pmd_system_voice_idx[3];  //FM, SSG, PPZ
 signed char pmd_system_voice_nb[3];  //FM, SSG, PPZ
 
+//SPC parser
+#include "SPCTagParser.h"
+
 //PxTone & Organya
 #include "pxtnService.h"
 #include "pxtnError.h"
@@ -7945,7 +7948,6 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
     }
 }
 
-
 -(int) extractToPath:(const char *)archivePath path:(const char *)extractPath isRestarting:(bool)isRestarting {
     int ret=0;
     //[ModizFileHelper scanarchive:archivePath filesList_ptr:&mdz_ArchiveFilesList filesCount_ptr:&mdz_ArchiveFilesCnt];
@@ -7969,37 +7971,6 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
     [NSThread sleepForTimeInterval:0.1]; //required when extracting a .rar or .rsn as it seems it goes too fast and prevent 1st file to be read/played
     // }
     return ret;
-}
-
--(NSString*) getArcEntryFilename:(const char *)path index:(int)idx {
-    struct archive *a = archive_read_new();
-    struct archive_entry *entry;
-    int r;
-    NSString *result=NULL;
-    
-    archive_read_support_filter_all(a);
-    archive_read_support_format_raw(a);
-    archive_read_support_format_all(a);
-    r = archive_read_open_filename(a, path, 16384);
-    
-    if (r==ARCHIVE_OK) {
-        for (;;) {
-            r = archive_read_next_header(a, &entry);
-            if (r!=ARCHIVE_OK) break;
-            NSString *tmp_filename=[ModizFileHelper getCorrectFileName:path archive:a entry:entry];
-            
-            if ([ModizFileHelper isAcceptedFile:tmp_filename no_aux_file:1]) {
-                if (!idx) {
-                    result=tmp_filename;
-                    break;
-                }
-                idx--;
-            }
-        }
-    }
-    
-    r = archive_read_free(a);
-    return result;
 }
 
 //*****************************************
@@ -8304,7 +8275,6 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
         DBHelper::updateFileStatsDBmod([[ModizFileHelper getFilePathFromDocuments:mod_loadmodule_filepath] lastPathComponent],[ModizFileHelper getFilePathFromDocuments:mod_loadmodule_filepath],-1,-1,-1,mod_total_length,numChannels,mod_subsongs);
     }
 }
-
 
 -(int) mmp_gsfLoad:(NSString*)filePath {  //GSF
     mPlayType=MMP_GSF;
@@ -13953,6 +13923,7 @@ extern bool icloud_available;
                     filePath=[self getFullFilePath:_filePath];
                     snprintf(mod_filename,1024,"%s / %s",archive_filename,[[[filePath lastPathComponent] stringByDeletingPathExtension] UTF8String]);
                     
+                    
                     if (mdz_IsArchive && mdz_ArchiveFilesCnt) {
                         mdz_ArchiveEntryPlayed=(int*)malloc(mdz_ArchiveFilesCnt*sizeof(int));
                         memset(mdz_ArchiveEntryPlayed,0,mdz_ArchiveFilesCnt*sizeof(int));
@@ -16507,6 +16478,23 @@ extern "C" void adjust_amplification(void);
 }
 -(NSString*) getArcEntryTitle:(int)arc_index {
     if ((arc_index>=0)&&(arc_index<mdz_ArchiveFilesCnt)) {
+        NSString *arcEntryName=[NSString stringWithUTF8String:mdz_ArchiveFilesList[arc_index]];
+        //check if spc file
+        if ([[[arcEntryName pathExtension] lowercaseString] isEqualToString:@"spc"]) {
+            SPCTag tag;
+            NSString *_filePath=[NSString stringWithFormat:@"tmp/tmpArchive/%@",arcEntryName];
+            if ([SPCTagParser parseTagsFromFile:_filePath tag:&tag]) {
+                NSString *ret=[NSString stringWithFormat:@"%.3d-%s",arc_index,tag.songName];
+
+                 if (tag.hasXID6) {
+//                     double loopSec = [SPCTagParser ticksToSeconds:tag.loopLength];
+                 }
+
+                 [SPCTagParser freeTag:&tag]; // Libérer la mémoire
+                return ret;
+             }
+        }
+        
         return [NSString stringWithUTF8String:mdz_ArchiveFilesList[arc_index]];
         //return [NSString stringWithFormat:@"%s",mdz_ArchiveFilesListAlias[arc_index]];
     } else return @"";

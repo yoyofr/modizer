@@ -115,7 +115,7 @@ bool ImGui_ImplIOS_Init()
         font_cfg.OversampleV = 1;
         
         font_trackerH[i] = io.Fonts->AddFontFromFileTTF([[[NSBundle mainBundle] pathForResource:[NSString stringWithFormat:@"Fonts/%s",font_trackerName[i][0]] ofType: @"ttf"] UTF8String],
-                                                        (16.0f*glScaleFactor*1.5f),
+                                                        int(16.0f*glScaleFactor*1.4f),
                                                         &font_cfg, io.Fonts->GetGlyphRangesDefault());
         IM_ASSERT(font_trackerH[i] != NULL);
     }

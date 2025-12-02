@@ -595,6 +595,8 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     
     //tableView.refreshControl=refreshControl;
     
+    noCellAction=false;
+    
 END_PROFILE
 }
 
@@ -795,7 +797,6 @@ static int qsort_CompareArcEntries(const void *entryA, const void *entryB) {
     int browseType;
     int shouldStop=0;
     static bool no_reentrant=false;
-    NSRange r;
     
     if (no_reentrant) return;
     no_reentrant=true;
@@ -821,6 +822,8 @@ static int qsort_CompareArcEntries(const void *entryA, const void *entryB) {
             }
         }
     }
+    
+    if (browseType>0) noCellAction=true;
     
     // in case of search, do not ask DB again => duplicate already found entries & filter them
     search_local=0;
@@ -2580,8 +2583,11 @@ As a consequence, some entries might disappear from existing playlist.\n\
             cell = [[SESlideTableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:    CellIdentifier];
             cell.delegate = self;
             
-            [cell addLeftButtonWithText:NSLocalizedString(@"Rename",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_RENAME_COL_R green:MDZ_RENAME_COL_G blue:MDZ_RENAME_COL_B alpha:1.0]];
-            [cell addLeftButtonWithText:NSLocalizedString(@"Cut",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_CUT_COL_R green:MDZ_CUT_COL_G blue:MDZ_CUT_COL_B alpha:1.0]];
+            if (noCellAction==false) {
+                [cell addLeftButtonWithText:NSLocalizedString(@"Rename",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_RENAME_COL_R green:MDZ_RENAME_COL_G blue:MDZ_RENAME_COL_B alpha:1.0]];
+                [cell addLeftButtonWithText:NSLocalizedString(@"Cut",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_CUT_COL_R green:MDZ_CUT_COL_G blue:MDZ_CUT_COL_B alpha:1.0]];
+            }
+            
             if (self.tableView.refreshControl.isRefreshing==false) {
                 
                 if ((cur_local_entries[indexPath.section-2][indexPath.row].type&16)&&((cur_local_entries[indexPath.section-2][indexPath.row].type&15)==2)) { //need to confirm if true archive
@@ -2589,19 +2595,22 @@ As a consequence, some entries might disappear from existing playlist.\n\
                     if ([ModizFileHelper isABrowsableArchive:[ModizFileHelper getFullPathForFilePath:cur_local_entries[indexPath.section-2][indexPath.row].fullpath]]) cur_local_entries[indexPath.section-2][indexPath.row].type=2;
                     else cur_local_entries[indexPath.section-2][indexPath.row].type=1;
                 }
-                
-                if (cur_local_entries[indexPath.section-2][indexPath.row].type==2) {
-                    [cell addLeftButtonWithText:NSLocalizedString(@"Extract",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_EXTRACT_COL_R green:MDZ_EXTRACT_COL_G blue:MDZ_EXTRACT_COL_B alpha:1.0]];
+                if (noCellAction==false) {
+                    if (cur_local_entries[indexPath.section-2][indexPath.row].type==2) {
+                        [cell addLeftButtonWithText:NSLocalizedString(@"Extract",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_EXTRACT_COL_R green:MDZ_EXTRACT_COL_G blue:MDZ_EXTRACT_COL_B alpha:1.0]];
+                    }
                 }
             }
-            [cell addRightButtonWithText:NSLocalizedString(@"Delete",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor redColor]];
+            if (noCellAction==false) {
+                [cell addRightButtonWithText:NSLocalizedString(@"Delete",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor redColor]];
+            }
         } else {
             cell = [[SESlideTableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:    CellIdentifierHeader];
             cell.delegate = self;
-            
-            [cell addLeftButtonWithText:NSLocalizedString(@"Paste",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_PASTE_COL_R green:MDZ_PASTE_COL_G blue:MDZ_PASTE_COL_B alpha:1]];
-            [cell addRightButtonWithText:NSLocalizedString(@"New folder",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_NEWFOLDER_COL_R green:MDZ_NEWFOLDER_COL_G blue:MDZ_NEWFOLDER_COL_B alpha:1]];
-            
+            if (noCellAction==false) {
+                [cell addLeftButtonWithText:NSLocalizedString(@"Paste",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_PASTE_COL_R green:MDZ_PASTE_COL_G blue:MDZ_PASTE_COL_B alpha:1]];
+                [cell addRightButtonWithText:NSLocalizedString(@"New folder",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_NEWFOLDER_COL_R green:MDZ_NEWFOLDER_COL_G blue:MDZ_NEWFOLDER_COL_B alpha:1]];
+            }
             
         }
         
@@ -2691,9 +2700,10 @@ As a consequence, some entries might disappear from existing playlist.\n\
         [cell removeAllRightButtons];
         
         if (indexPath.section>1) {
-            
-            [cell addLeftButtonWithText:NSLocalizedString(@"Rename",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_RENAME_COL_R green:MDZ_RENAME_COL_G blue:MDZ_RENAME_COL_B alpha:1.0]];
-            [cell addLeftButtonWithText:NSLocalizedString(@"Cut",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_CUT_COL_R green:MDZ_CUT_COL_G blue:MDZ_CUT_COL_B alpha:1.0]];
+            if (noCellAction==false) {
+                [cell addLeftButtonWithText:NSLocalizedString(@"Rename",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_RENAME_COL_R green:MDZ_RENAME_COL_G blue:MDZ_RENAME_COL_B alpha:1.0]];
+                [cell addLeftButtonWithText:NSLocalizedString(@"Cut",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_CUT_COL_R green:MDZ_CUT_COL_G blue:MDZ_CUT_COL_B alpha:1.0]];
+            }
             
             if (self.tableView.refreshControl.isRefreshing==false) {
                 if ((cur_local_entries[indexPath.section-2][indexPath.row].type&16)&&((cur_local_entries[indexPath.section-2][indexPath.row].type&15)==2)) { //need to confirm if true archive
@@ -2701,17 +2711,20 @@ As a consequence, some entries might disappear from existing playlist.\n\
                     else cur_local_entries[indexPath.section-2][indexPath.row].type=1;
                 }
                 
-                if (cur_local_entries[indexPath.section-2][indexPath.row].type==2) {
-                    [cell addLeftButtonWithText:NSLocalizedString(@"Extract",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_EXTRACT_COL_R green:MDZ_EXTRACT_COL_G blue:MDZ_EXTRACT_COL_B alpha:1.0]];
+                if (noCellAction==false) {
+                    if (cur_local_entries[indexPath.section-2][indexPath.row].type==2) {
+                        [cell addLeftButtonWithText:NSLocalizedString(@"Extract",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_EXTRACT_COL_R green:MDZ_EXTRACT_COL_G blue:MDZ_EXTRACT_COL_B alpha:1.0]];
+                    }
+                    if (noCellAction==false) {
+                        [cell addRightButtonWithText:NSLocalizedString(@"Delete",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor redColor]];
+                    }
                 }
-                
-                [cell addRightButtonWithText:NSLocalizedString(@"Delete",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor redColor]];
             }
         } else {
-            [cell addLeftButtonWithText:NSLocalizedString(@"Paste",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_PASTE_COL_R green:MDZ_PASTE_COL_G blue:MDZ_PASTE_COL_B alpha:1.0]];
-            [cell addRightButtonWithText:NSLocalizedString(@"New folder",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_NEWFOLDER_COL_R green:MDZ_NEWFOLDER_COL_G blue:MDZ_NEWFOLDER_COL_B alpha:1]];
-            
-            
+            if (noCellAction==false) {
+                [cell addLeftButtonWithText:NSLocalizedString(@"Paste",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_PASTE_COL_R green:MDZ_PASTE_COL_G blue:MDZ_PASTE_COL_B alpha:1.0]];
+                [cell addRightButtonWithText:NSLocalizedString(@"New folder",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_NEWFOLDER_COL_R green:MDZ_NEWFOLDER_COL_G blue:MDZ_NEWFOLDER_COL_B alpha:1]];
+            }
         }
     }
     actionView.hidden=TRUE;
