@@ -776,7 +776,6 @@
 		CC84ACC72ECD9F250047656F /* WelcomeView_2Images.xib in Resources */ = {isa = PBXBuildFile; fileRef = CC84ACC62ECD9F250047656F /* WelcomeView_2Images.xib */; };
 		CC84ACC92ECE07940047656F /* WelcomeView_4Images.xib in Resources */ = {isa = PBXBuildFile; fileRef = CC84ACC82ECE07940047656F /* WelcomeView_4Images.xib */; };
 		CC88FB8C2EDAF0B900717901 /* Credits.html in Resources */ = {isa = PBXBuildFile; fileRef = CC88FB8A2EDAF01E00717901 /* Credits.html */; };
-		CC88FBA02EDB2F8000717901 /* ModizerMacWindowPlugin.bundle in Copy Plugin Bundle */ = {isa = PBXBuildFile; fileRef = CC88FB912EDB2CD100717901 /* ModizerMacWindowPlugin.bundle */; platformFilter = maccatalyst; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		CC89C83F2EC0F875000A110A /* libxmp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 59805449262F21CA00BB0309 /* libxmp.a */; };
 		CC89CB252EC14FDB000A110A /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = CC89CB242EC14FDB000A110A /* LaunchScreen.storyboard */; };
 		CC8A8D4317F9FF5500A56E0C /* Icon-76.png in Resources */ = {isa = PBXBuildFile; fileRef = CC8A8D3C17F9FF5500A56E0C /* Icon-76.png */; };
@@ -1055,13 +1054,6 @@
 			remoteGlobalIDString = CC07A86C2BB951D60052DE82;
 			remoteInfo = gbsplay;
 		};
-		CC0D98872EDB305200D272E9 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = CC88FB902EDB2CD100717901;
-			remoteInfo = ModizerMacWindowPlugin;
-		};
 		CC1638562B7CDF92003323FD /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = CC1638522B7CDF91003323FD /* libnsfplay.xcodeproj */;
@@ -1335,17 +1327,6 @@
 			files = (
 			);
 			name = "Embed Foundation Extensions";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		CC88FB9F2EDB2F5B00717901 /* Copy Plugin Bundle */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 13;
-			files = (
-				CC88FBA02EDB2F8000717901 /* ModizerMacWindowPlugin.bundle in Copy Plugin Bundle */,
-			);
-			name = "Copy Plugin Bundle";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		CC9167F617F00CD30012E2C1 /* Copy Files-Samples Demoscene */ = {
@@ -5429,13 +5410,11 @@
 				CC9167F817F00D210012E2C1 /* Copy Files-Samples Classical */,
 				CC767DBE1AB627A300689B58 /* Embed Foundation Extensions */,
 				CCC53BFD2B8933BE00E97EC1 /* Copy Files-Frameworks */,
-				CC88FB9F2EDB2F5B00717901 /* Copy Plugin Bundle */,
 			);
 			buildRules = (
 				CC2CF9DF2EBF47B30045F738 /* PBXBuildRule */,
 			);
 			dependencies = (
-				CC0D98882EDB305200D272E9 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				CC88FB962EDB2D0600717901 /* ModizerMacPlugin */,
@@ -6607,15 +6586,6 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
-/* Begin PBXTargetDependency section */
-		CC0D98882EDB305200D272E9 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			platformFilter = maccatalyst;
-			target = CC88FB902EDB2CD100717901 /* ModizerMacWindowPlugin */;
-			targetProxy = CC0D98872EDB305200D272E9 /* PBXContainerItemProxy */;
-		};
-/* End PBXTargetDependency section */
-
 /* Begin PBXVariantGroup section */
 		CCAE594E17ECABD2007638B9 /* Localizable.strings */ = {
 			isa = PBXVariantGroup;
@@ -6656,8 +6626,7 @@
 				GCC_VERSION = "";
 				INFOPLIST_KEY_CFBundleDisplayName = Modizer;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.music";
-				IPHONEOS_DEPLOYMENT_TARGET = 15.5;
-				MACOSX_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				MARKETING_VERSION = 4.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.yoyofr.modizer;
 				PRODUCT_NAME = modizer;
@@ -6668,6 +6637,7 @@
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = YES;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -6698,8 +6668,7 @@
 				GCC_VERSION = "";
 				INFOPLIST_KEY_CFBundleDisplayName = Modizer;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.music";
-				IPHONEOS_DEPLOYMENT_TARGET = 15.5;
-				MACOSX_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				MARKETING_VERSION = 4.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.yoyofr.modizer;
 				PRODUCT_NAME = modizer;
@@ -6710,6 +6679,7 @@
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = YES;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
@@ -6782,7 +6752,7 @@
 				INFOPLIST_FILE = "modizer-info.plist";
 				"INFOPLIST_FILE[sdk=iphone*]" = "modizer-info.plist";
 				"INFOPLIST_FILE[sdk=macosx*]" = "modizer-info-catalyst.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=iphone*]" = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
@@ -6792,6 +6762,7 @@
 					"$(PROJECT_DIR)/utils/imgui/examples/libs/glfw/lib-vc2010-64",
 				);
 				LINK_WITH_STANDARD_LIBRARIES = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.6;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = (
 					"-DMDZ_MACOS_WINDOW_AOT",
@@ -6939,7 +6910,7 @@
 				INFOPLIST_FILE = "modizer-info.plist";
 				"INFOPLIST_FILE[sdk=iphone*]" = "modizer-info.plist";
 				"INFOPLIST_FILE[sdk=macosx*]" = "modizer-info-catalyst.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=iphone*]" = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
@@ -6949,6 +6920,7 @@
 					"$(PROJECT_DIR)/utils/imgui/examples/libs/glfw/lib-vc2010-64",
 				);
 				LINK_WITH_STANDARD_LIBRARIES = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.6;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = (
 					"-DMDZ_MACOS_WINDOW_AOT",
@@ -7097,7 +7069,7 @@
 				INFOPLIST_FILE = "modizer-info.plist";
 				"INFOPLIST_FILE[sdk=iphone*]" = "modizer-info.plist";
 				"INFOPLIST_FILE[sdk=macosx*]" = "modizer-info-catalyst.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=iphone*]" = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
@@ -7107,6 +7079,7 @@
 					"$(PROJECT_DIR)/utils/imgui/examples/libs/glfw/lib-vc2010-64",
 				);
 				LINK_WITH_STANDARD_LIBRARIES = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.6;
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = (
 					"-DNDEBUG",
@@ -7218,8 +7191,7 @@
 				GCC_VERSION = "";
 				INFOPLIST_KEY_CFBundleDisplayName = Modizer;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.music";
-				IPHONEOS_DEPLOYMENT_TARGET = 15.5;
-				MACOSX_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				MARKETING_VERSION = 4.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.yoyofr.modizer;
 				PRODUCT_NAME = modizer;
@@ -7231,6 +7203,7 @@
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = YES;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
