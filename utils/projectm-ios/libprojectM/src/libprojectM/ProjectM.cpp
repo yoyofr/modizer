@@ -155,6 +155,11 @@ void ProjectM::RenderFrame(uint32_t targetFramebufferObject /*= 0*/)
     // Update and retrieve audio data
     m_audioStorage.UpdateFrameAudioData(m_timeKeeper->SecondsSinceLastFrame(), m_frameCount);
     auto audioData = m_audioStorage.GetFrameAudioData();
+    
+    // If preset is locked, reset timer if progress has reached 1.0
+    if (m_presetLocked) {
+        if (m_timeKeeper->PresetProgressA() >= 1.0 ) m_timeKeeper->StartPreset();
+    }
 
     // Check if the preset isn't locked, and we've not already notified the user
     if (!m_presetChangeNotified)

@@ -748,10 +748,10 @@ END_PROFILE
                 [self reloadNowPlaying];
                 break;
             case INTEGRATED_PLAYLIST_FAVORITES:
-                [self loadFavoritesList];
+                [self loadFavoritesList:playlist];
                 break;
             case INTEGRATED_PLAYLIST_MOSTPLAYED:
-                [self loadMostPlayedList];
+                [self loadMostPlayedList:playlist];
                 break;
             case INTEGRATED_PLAYLIST_RANDOM:
                 //no real refresh needed
@@ -2134,7 +2134,7 @@ END_PROFILE
     return pl_entries;
 }
 
--(void) loadFavoritesList{
+-(void) loadFavoritesList:(t_playlist*)playlist {
     NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
     sqlite3 *db;
     
@@ -2185,7 +2185,7 @@ END_PROFILE
     pthread_mutex_unlock(&db_mutex);
 }
 
--(void) loadMostPlayedList{
+-(void) loadMostPlayedList:(t_playlist*)playlist{
     NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
     sqlite3 *db;
     playlist->nb_entries=0;
@@ -2671,7 +2671,7 @@ int getPlaylistStatsDBmod(t_playlist *pl) {
                                                    playlist->entries[indexPath.row-1].fullpath,
                                                    playcount,rating,avg_rating);
                     
-                    [self loadMostPlayedList];
+                    [self loadMostPlayedList:playlist];
                     
                     forceReloadCells=true;
                     [self.tableView reloadData];
@@ -2687,7 +2687,7 @@ int getPlaylistStatsDBmod(t_playlist *pl) {
                                                    playlist->entries[indexPath.row-1].fullpath,
                                                    playcount,rating,avg_rating);
                     
-                    [self loadFavoritesList];
+                    [self loadFavoritesList:playlist];
                     forceReloadCells=true;
                     [self.tableView reloadData];
                     //[self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
@@ -3141,7 +3141,7 @@ int getPlaylistStatsDBmod(t_playlist *pl) {
                 DBHelper::updateFileStatsDBmod(playlist->entries[indexPath.row-rowofs].label,
                                                playlist->entries[indexPath.row-rowofs].fullpath,
                                                playcount,rating,avg_rating);
-                [self loadMostPlayedList];
+                [self loadMostPlayedList:playlist];
                 [self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
             } else if (integrated_playlist==INTEGRATED_PLAYLIST_FAVORITES) {  //favorites: reset rating
                 short int playcount;
@@ -3152,7 +3152,7 @@ int getPlaylistStatsDBmod(t_playlist *pl) {
                 DBHelper::updateFileStatsDBmod(playlist->entries[indexPath.row-rowofs].label,
                                                playlist->entries[indexPath.row-rowofs].fullpath,
                                                playcount,rating,avg_rating);
-                [self loadFavoritesList];
+                [self loadFavoritesList:playlist];
                 [self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
             } else {
                 playlist->entries[indexPath.row-rowofs].label=nil;
@@ -3398,12 +3398,12 @@ int getPlaylistStatsDBmod(t_playlist *pl) {
                     playlist->entries[i].ratings=-1;
                 }
             } else if (indexPath.row==3) {
-                [self loadMostPlayedList];
-                playlist->playlist_name=[[NSString alloc] initWithFormat:@"Most played"];
+                [self loadMostPlayedList:playlist];
+                playlist->playlist_name=[[NSString alloc] initWithFormat:NSLocalizedString(@"Most played",@"")];
                 playlist->playlist_id=nil;
             } else if (indexPath.row==4) {
-                [self loadFavoritesList];
-                playlist->playlist_name=[[NSString alloc] initWithFormat:@"Favorites"];
+                [self loadFavoritesList:playlist];
+                playlist->playlist_name=[[NSString alloc] initWithFormat:NSLocalizedString(@"Favorites",@"")];
                 playlist->playlist_id=nil;
             } else [self loadPlayListsFromDB:[list objectAtIndex:(indexPath.row-5)] intoPlaylist:playlist];
             
@@ -3679,7 +3679,7 @@ int getPlaylistStatsDBmod(t_playlist *pl) {
             [self.navigationController pushViewController:childController animated:YES];
         }
         if (indexPath.row==3) { //most played
-            [self loadMostPlayedList];
+            [self loadMostPlayedList:playlist];
             playlist->playlist_name=[[NSString alloc] initWithFormat:NSLocalizedString(@"Most played",@"")];
             playlist->playlist_id=nil;
             
@@ -3712,7 +3712,7 @@ int getPlaylistStatsDBmod(t_playlist *pl) {
             [self.navigationController pushViewController:childController animated:YES];
         }
         if (indexPath.row==4) { //favorites
-            [self loadFavoritesList];
+            [self loadFavoritesList:playlist];
             playlist->playlist_name=[[NSString alloc] initWithFormat:NSLocalizedString(@"Favorites",@"")];
             playlist->playlist_id=nil;
             

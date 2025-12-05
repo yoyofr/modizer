@@ -1964,14 +1964,14 @@ static float movePinchScale,movePinchScaleOld;
     if (no_reetrant) return;
     no_reetrant=true;
     MPNowPlayingInfoCenter *infoCenter = [MPNowPlayingInfoCenter defaultCenter];
-    
+
     MPRemoteCommandCenter *cmdCenter=[MPRemoteCommandCenter sharedCommandCenter];
-    
+
     if (artwork==nil) {
         if (cover_img) artwork=[[MPMediaItemArtwork alloc] initWithImage:cover_img];
         else artwork=[[MPMediaItemArtwork alloc] initWithImage:default_cover];
     }
-    
+
     if (mPlaylist_size) {
         NSString *artist=mplayer.artist;
         NSString *album=mplayer.album;
@@ -1979,7 +1979,7 @@ static float movePinchScale,movePinchScaleOld;
         
         if ([mplayer getModFileTitle]) title=[NSString stringWithFormat:@"%@ /%@",[mplayer getModFileTitle],[mplayer getModName]];
         else title=[NSString stringWithFormat:@"%@",[mplayer getModName]];
-        
+
         //if (is_macOS) {
         if (mIsPlaying) {
             if (mPaused) infoCenter.playbackState=MPNowPlayingPlaybackStatePaused;
@@ -1999,7 +1999,26 @@ static float movePinchScale,movePinchScaleOld;
             [cmdCenter.playCommand setEnabled:YES];
             [cmdCenter.pauseCommand setEnabled:NO];
         }
-        
+
+        // Update shuffle and repeat state for CarPlay
+        if (mShuffle) {
+            cmdCenter.changeShuffleModeCommand.currentShuffleType = MPShuffleTypeItems;
+        } else {
+            cmdCenter.changeShuffleModeCommand.currentShuffleType = MPShuffleTypeOff;
+        }
+
+        switch (mLoopMode) {
+            case 0:
+                cmdCenter.changeRepeatModeCommand.currentRepeatType = MPRepeatTypeOff;
+                break;
+            case 1:
+                cmdCenter.changeRepeatModeCommand.currentRepeatType = MPRepeatTypeAll;
+                break;
+            case 2:
+                cmdCenter.changeRepeatModeCommand.currentRepeatType = MPRepeatTypeOne;
+                break;
+        }
+
         infoCenter.nowPlayingInfo = [NSMutableDictionary dictionaryWithObjectsAndKeys:
                                      title,
                                      MPMediaItemPropertyTitle,
@@ -9395,7 +9414,7 @@ void doFramePM(float ww,float hh) {
         //specific case for fullscreen switch change
         bool isFullscreen=settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value;
         
-        int ret=PMenu::playerShowMenu(ww,hh,glScaleFactor,fadelev,movePxPMenu,movePyPMenu,pmenu_show);
+        int ret=PMenu::playerShowMenu(ww,hh,safe_top,safe_bottom,safe_left,safe_right,glScaleFactor,fadelev,movePxPMenu,movePyPMenu,pmenu_show);
         
         movePxPMenu=movePyPMenu=0;
         if (ret<0) {

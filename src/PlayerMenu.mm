@@ -8,7 +8,7 @@
 extern float varCheck[4];
 
 #define PL_MIN_FONT_SIZE 14
-#define PL_MIN_BROWSE_FONT_SIZE 32
+#define PL_MIN_BROWSE_FONT_SIZE 24 //32
 #define PL_IDEALFONTSIZE_RATIO 26
 
 #define PMENU_PMEXPLORE_FAV_FLAG 1
@@ -854,7 +854,7 @@ int buildSubMenu(int r,
 //   return 0 if it has been closed
 //   return 1 if it is to be kept open
 //------------------------------------------------------
-int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float panX,float panY,int menushow) {
+int playerShowMenu(float ww,float hh,float safe_top,float safe_bottom,float safe_left,float safe_right,float glScaleFactor,float fadelev,float panX,float panY,int menushow) {
     static int cpt=0;
     if (!pMenu_isInitialized) return 0;
     int keepOpened=1;
@@ -877,18 +877,19 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
     float menu_margin=1.0*glScaleFactor;
     float menu_cell_padding=1.0*glScaleFactor;
     
-    menu_win_size=round(fmin(ww*glScaleFactor-2*menu_margin,hh*glScaleFactor-2*menu_margin));
+    //menu_win_size=round(fmin(ww*glScaleFactor-2*menu_margin,hh*glScaleFactor-2*menu_margin));
+    float tgt_menu_win_size=round(fmin(ww*glScaleFactor-2*menu_margin,hh*glScaleFactor-2*menu_margin));
+    menu_win_size=round(ww*glScaleFactor-2*menu_margin);
     // Determine menu size, manage exception
     //------------------------------------------------
     if (pMenu_state.menu_idx==MENU_PROJECTM_EXPLORE) {
         menu_win_sizeH=(hh*0.9f)*glScaleFactor;
     } else {
-        menu_win_sizeH=menu_win_size;
+        menu_win_sizeH=tgt_menu_win_size;
         
     }
 
-    
-    idealFontSize=menu_win_size/glScaleFactor/PL_IDEALFONTSIZE_RATIO;
+    idealFontSize=tgt_menu_win_size/glScaleFactor/PL_IDEALFONTSIZE_RATIO;
     if (idealFontSize<PL_MIN_FONT_SIZE) idealFontSize=PL_MIN_FONT_SIZE;
     
     
@@ -925,7 +926,7 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
     
     
     if (font_menu) ImGui::PushFont(font_menu,idealFontSize*glScaleFactor);
-    else ImGui::PushFont(nullptr);//,18*menu_win_size/512);
+    else ImGui::PushFont(nullptr);//,18*tgt_menu_win_size/512);
     
     int activeFx=playerGetActivatedCells(pMenu_state.menu_idx);
     
@@ -933,13 +934,16 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
         //Select right current textures for root menu itemas, based on current settings
         playerRootMenuInitRightItemsTexture();
         int col_nb=menuRootColNb;
-        if (ImGui::BeginTable("menu_root",col_nb,flagTable)) {
+        ImVec2 cpos=ImGui::GetCursorPos();
+        cpos.x=(menu_win_size-tgt_menu_win_size)/2;
+        ImGui::SetCursorPos(cpos);
+        if (ImGui::BeginTable("menu_root",col_nb,flagTable,ImVec2(tgt_menu_win_size,menu_win_sizeH))) {
             current_txtMenuHandle=txtMenuHandle;
             currentMenuLabel=menuRootLabel;
             currentMenuLabelFAIcon=menuRootLabelFAIcon;
             currentMenuVar=menuRootVar;
             currentMenuDynLabel=NULL;
-            cell_size=round((menu_win_size)/col_nb)-3*menu_cell_padding;
+            cell_size=round((tgt_menu_win_size)/col_nb)-3*menu_cell_padding;
             for (int r=0;r<4;r++) {
                 ImGui::TableNextRow(0,cell_size+2*menu_cell_padding);
                 for (int c=0;c<col_nb;c++) {
@@ -1023,13 +1027,16 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
         }
     } else if (pMenu_state.menu_idx==MENU_ROOT_MORE) {
         int col_nb=menuMoreColNb;
-        if (ImGui::BeginTable("menu_root_more",col_nb,flagTable)) {
+        ImVec2 cpos=ImGui::GetCursorPos();
+        cpos.x=(menu_win_size-tgt_menu_win_size)/2;
+        ImGui::SetCursorPos(cpos);
+        if (ImGui::BeginTable("menu_root_more",col_nb,flagTable,ImVec2(tgt_menu_win_size,menu_win_sizeH))) {
             current_txtMenuHandle=txtMenuMoreHandle;
             currentMenuLabel=menuRootMoreLabel;
             currentMenuLabelFAIcon=menuRootMoreLabelFAIcon;
             currentMenuVar=menuRootMoreVar;
             currentMenuDynLabel=menuMenuMoreDynLabel;
-            cell_size=round((menu_win_size)/col_nb)-3*menu_cell_padding;
+            cell_size=round((tgt_menu_win_size)/col_nb)-3*menu_cell_padding;
             for (int r=0;r<4;r++) {
                 ImGui::TableNextRow(0,cell_size+2*menu_cell_padding);
                 for (int c=0;c<col_nb;c++) {
@@ -1096,13 +1103,16 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
         }
     } else if (pMenu_state.menu_idx==MENU_OSCILLO) {
         int col_nb=menuOscilloColNb;
-        if (ImGui::BeginTable("menu_oscillo",col_nb,flagTable)) {
+        ImVec2 cpos=ImGui::GetCursorPos();
+        cpos.x=(menu_win_size-tgt_menu_win_size)/2;
+        ImGui::SetCursorPos(cpos);
+        if (ImGui::BeginTable("menu_oscillo",col_nb,flagTable,ImVec2(tgt_menu_win_size,menu_win_sizeH))) {
             current_txtMenuHandle=txtMenuOscilloHandle;
             currentMenuLabel=menuOscilloLabel;
             currentMenuLabelFAIcon=menuOscilloLabelFAIcon;
             currentMenuVar=menuOscilloVar;
             currentMenuDynLabel=menuOscilloDynLabel;
-            cell_size=round((menu_win_size)/col_nb)-3*menu_cell_padding;
+            cell_size=round((tgt_menu_win_size)/col_nb)-3*menu_cell_padding;
             for (int r=0;r<4;r++) {
                 ImGui::TableNextRow(0,cell_size);
                 for (int c=0;c<col_nb;c++) {
@@ -1183,13 +1193,16 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
         }
     } else if (pMenu_state.menu_idx==MENU_2DSPECTRUM) {
         int col_nb=menu2DSpectrumColNb;
-        if (ImGui::BeginTable("menu_2dspectrum",col_nb,flagTable)) {
+        ImVec2 cpos=ImGui::GetCursorPos();
+        cpos.x=(menu_win_size-tgt_menu_win_size)/2;
+        ImGui::SetCursorPos(cpos);
+        if (ImGui::BeginTable("menu_2dspectrum",col_nb,flagTable,ImVec2(tgt_menu_win_size,menu_win_sizeH))) {
             current_txtMenuHandle=txtMenu2DSpectrumHandle;
             currentMenuLabel=menu2DSpectrumLabel;
             currentMenuLabelFAIcon=menu2DSpectrumLabelFAIcon;
             currentMenuVar=menu2DSpectrumVar;
             currentMenuDynLabel=NULL;
-            cell_size=round((menu_win_size)/col_nb)-3*menu_cell_padding;
+            cell_size=round((tgt_menu_win_size)/col_nb)-3*menu_cell_padding;
             for (int r=0;r<4;r++) {
                 ImGui::TableNextRow(0,cell_size);
                 for (int c=0;c<col_nb;c++) {
@@ -1251,13 +1264,16 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
         }
     } else if (pMenu_state.menu_idx==MENU_3DSPECTRUM) {
         int col_nb=menu3DSpectrumColNb;
-        if (ImGui::BeginTable("menu_3dspectrum",col_nb,flagTable)) {
+        ImVec2 cpos=ImGui::GetCursorPos();
+        cpos.x=(menu_win_size-tgt_menu_win_size)/2;
+        ImGui::SetCursorPos(cpos);
+        if (ImGui::BeginTable("menu_3dspectrum",col_nb,flagTable,ImVec2(tgt_menu_win_size,menu_win_sizeH))) {
             current_txtMenuHandle=txtMenu3DSpectrumHandle;
             currentMenuLabel=menu3DSpectrumLabel;
             currentMenuDynLabel=menu3DSpectrumDynLabel;
             currentMenuLabelFAIcon=menu3DSpectrumLabelFAIcon;
             currentMenuVar=menu3DSpectrumVar;
-            cell_size=round((menu_win_size)/col_nb)-3*menu_cell_padding;
+            cell_size=round((tgt_menu_win_size)/col_nb)-3*menu_cell_padding;
             for (int r=0;r<4;r++) {
                 ImGui::TableNextRow(0,cell_size);
                 for (int c=0;c<col_nb;c++) {
@@ -1324,13 +1340,16 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
         }
     } else if (pMenu_state.menu_idx==MENU_3DLANDSCAPE) {
         int col_nb=menu3DLandscapeColNb;
-        if (ImGui::BeginTable("menu_3dlandscape",col_nb,flagTable)) {
+        ImVec2 cpos=ImGui::GetCursorPos();
+        cpos.x=(menu_win_size-tgt_menu_win_size)/2;
+        ImGui::SetCursorPos(cpos);
+        if (ImGui::BeginTable("menu_3dlandscape",col_nb,flagTable,ImVec2(tgt_menu_win_size,menu_win_sizeH))) {
             current_txtMenuHandle=txtMenu3DLandscapeHandle;
             currentMenuLabel=menu3DLandscapeLabel;
             currentMenuDynLabel=menu3DLandscapeDynLabel;
             currentMenuLabelFAIcon=menu3DLandscapeLabelFAIcon;
             currentMenuVar=menu3DLandscapeVar;
-            cell_size=round((menu_win_size)/col_nb)-3*menu_cell_padding;
+            cell_size=round((tgt_menu_win_size)/col_nb)-3*menu_cell_padding;
             for (int r=0;r<4;r++) {
                 ImGui::TableNextRow(0,cell_size);
                 for (int c=0;c<col_nb;c++) {
@@ -1412,13 +1431,16 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
         }
     } else if (pMenu_state.menu_idx==MENU_PIANOROLL) {
         int col_nb=menuPianoRollColNb;
-        if (ImGui::BeginTable("menu_pianoroll",col_nb,flagTable)) {
+        ImVec2 cpos=ImGui::GetCursorPos();
+        cpos.x=(menu_win_size-tgt_menu_win_size)/2;
+        ImGui::SetCursorPos(cpos);
+        if (ImGui::BeginTable("menu_pianoroll",col_nb,flagTable,ImVec2(tgt_menu_win_size,menu_win_sizeH))) {
             current_txtMenuHandle=txtMenuPianoRollHandle;
             currentMenuLabel=menuPianoRollLabel;
             currentMenuLabelFAIcon=menuPianoRollLabelFAIcon;
             currentMenuVar=menuPianoRollVar;
             currentMenuDynLabel=NULL;
-            cell_size=round((menu_win_size)/col_nb)-3*menu_cell_padding;
+            cell_size=round((tgt_menu_win_size)/col_nb)-3*menu_cell_padding;
             for (int r=0;r<4;r++) {
                 ImGui::TableNextRow(0,cell_size);
                 for (int c=0;c<col_nb;c++) {
@@ -1484,13 +1506,16 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
         }
     } else if (pMenu_state.menu_idx==MENU_PIANO3D) {
         int col_nb=menuPiano3DColNb;
-        if (ImGui::BeginTable("menu_piano3d",col_nb,flagTable)) {
+        ImVec2 cpos=ImGui::GetCursorPos();
+        cpos.x=(menu_win_size-tgt_menu_win_size)/2;
+        ImGui::SetCursorPos(cpos);
+        if (ImGui::BeginTable("menu_piano3d",col_nb,flagTable,ImVec2(tgt_menu_win_size,menu_win_sizeH))) {
             current_txtMenuHandle=txtMenuPiano3DHandle;
             currentMenuLabel=menuPiano3DLabel;
             currentMenuLabelFAIcon=menuPiano3DLabelFAIcon;
             currentMenuVar=menuPiano3DVar;
             currentMenuDynLabel=NULL;
-            cell_size=round((menu_win_size)/col_nb)-3*menu_cell_padding;
+            cell_size=round((tgt_menu_win_size)/col_nb)-3*menu_cell_padding;
             for (int r=0;r<4;r++) {
                 ImGui::TableNextRow(0,cell_size);
                 for (int c=0;c<col_nb;c++) {
@@ -1558,13 +1583,16 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
         }
     } else if (pMenu_state.menu_idx==MENU_MIDIPATTERN) {
         int col_nb=menuMidiColNb;
-        if (ImGui::BeginTable("menu_midipattern",col_nb,flagTable)) {
+        ImVec2 cpos=ImGui::GetCursorPos();
+        cpos.x=(menu_win_size-tgt_menu_win_size)/2;
+        ImGui::SetCursorPos(cpos);
+        if (ImGui::BeginTable("menu_midipattern",col_nb,flagTable,ImVec2(tgt_menu_win_size,menu_win_sizeH))) {
             current_txtMenuHandle=txtMenuMidiHandle;
             currentMenuLabel=menuMidiLabel;
             currentMenuLabelFAIcon=menuMidiLabelFAIcon;
             currentMenuVar=menuMidiVar;
             currentMenuDynLabel=NULL;
-            cell_size=round((menu_win_size)/col_nb)-3*menu_cell_padding;
+            cell_size=round((tgt_menu_win_size)/col_nb)-3*menu_cell_padding;
             for (int r=0;r<4;r++) {
                 ImGui::TableNextRow(0,cell_size);
                 for (int c=0;c<col_nb;c++) {
@@ -1626,13 +1654,16 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
         }
     } else if (pMenu_state.menu_idx==MENU_MODPATTERN) {
         int col_nb=menuModPatternColNb;
-        if (ImGui::BeginTable("menu_modpattern",col_nb,flagTable)) {
+        ImVec2 cpos=ImGui::GetCursorPos();
+        cpos.x=(menu_win_size-tgt_menu_win_size)/2;
+        ImGui::SetCursorPos(cpos);
+        if (ImGui::BeginTable("menu_modpattern",col_nb,flagTable,ImVec2(tgt_menu_win_size,menu_win_sizeH))) {
             current_txtMenuHandle=txtMenuModPatternHandle;
             currentMenuLabel=menuModPatternLabel;
             currentMenuDynLabel=menuModPatternDynLabel;
             currentMenuLabelFAIcon=menuModPatternLabelFAIcon;
             currentMenuVar=menuModPatternVar;
-            cell_size=round((menu_win_size)/col_nb)-3*menu_cell_padding;
+            cell_size=round((tgt_menu_win_size)/col_nb)-3*menu_cell_padding;
             for (int r=0;r<4;r++) {
                 ImGui::TableNextRow(0,cell_size);
                 for (int c=0;c<col_nb;c++) {
@@ -1713,13 +1744,16 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
         }
     } else if (pMenu_state.menu_idx==MENU_PROJECTM) {
         int col_nb=menuProjectMColNb;
-        if (ImGui::BeginTable("menu_ProjectM",col_nb,flagTable)) {
+        ImVec2 cpos=ImGui::GetCursorPos();
+        cpos.x=(menu_win_size-tgt_menu_win_size)/2;
+        ImGui::SetCursorPos(cpos);
+        if (ImGui::BeginTable("menu_ProjectM",col_nb,flagTable,ImVec2(tgt_menu_win_size,menu_win_sizeH))) {
             current_txtMenuHandle=txtMenuProjectMHandle;
             currentMenuLabel=menuProjectMLabel;
             currentMenuLabelFAIcon=menuProjectMLabelFAIcon;
             currentMenuVar=menuProjectMVar;
             currentMenuDynLabel=menuProjectMDynLabel;
-            cell_size=round((menu_win_size)/col_nb)-3*menu_cell_padding;
+            cell_size=round((tgt_menu_win_size)/col_nb)-3*menu_cell_padding;
                 for (int r=0;r<4;r++) {
                     ImGui::TableNextRow(0,cell_size);
                     for (int c=0;c<col_nb;c++) {
@@ -1826,19 +1860,28 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
             ImGui::EndTable();
         }
     } else if (pMenu_state.menu_idx==MENU_PROJECTM_EXPLORE) {
+        int col_nb=menuProjectMExploreColNb;
+        ImVec2 cpos=ImGui::GetCursorPos();
+        cpos.x=(menu_win_size-tgt_menu_win_size-safe_left-safe_right)/2+safe_left;
+        ImGui::SetCursorPos(cpos);
+        
         int expandCollapseMode=0;
         if (selectedMode&PMENU_PMEXPLORE_FAV_FLAG) activeFx|=1<<2;
         if (selectedMode&PMENU_PMEXPLORE_SEL_FLAG) activeFx|=1<<9;
         ImGui::Text("Select active %s presets",(pmCurrentPlaylistMode==PM_BUNDLED_PLAYLIST?"bundled":"custom"));
-        int col_nb=menuProjectMExploreColNb;
-        if (ImGui::BeginTable("menu_ProjectM_Explore",col_nb,flagTable)) {
+        
+        cpos=ImGui::GetCursorPos();
+        cpos.x=(menu_win_size-tgt_menu_win_size-safe_left-safe_right)/2+safe_left;
+        ImGui::SetCursorPos(cpos);
+        
+        if (ImGui::BeginTable("menu_ProjectM_Explore",col_nb,flagTable/*,ImVec2(tgt_menu_win_size,menu_win_sizeH)*/)) {
             settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value=1;
             current_txtMenuHandle=txtMenuProjectMExploreHandle;
             currentMenuLabel=menuProjectMExploreLabel;
             currentMenuLabelFAIcon=menuProjectMExploreLabelFAIcon;
             currentMenuVar=menuProjectMExploreVar;
             currentMenuDynLabel=NULL;
-            cell_size=round((menu_win_size)/col_nb)-3*menu_cell_padding;
+            cell_size=round((tgt_menu_win_size)/col_nb)-3*menu_cell_padding;
             float new_cell_h=ImGui::GetTextLineHeight()*2.2f;
             for (int r=0;r<2;r++) {
                 ImGui::TableNextRow(0,new_cell_h);
@@ -1924,6 +1967,7 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
                 }
             }
             ImGui::EndTable();
+
             
             browserFontSize=idealFontSize*0.8f;
             if (browserFontSize<PL_MIN_BROWSE_FONT_SIZE) browserFontSize=PL_MIN_BROWSE_FONT_SIZE;
@@ -1938,11 +1982,10 @@ int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float pan
             ImGui::SameLine();
             ImGui::InputText("Filter", pmFileNodeFilter, 64);
             
-            
-            
             ImVec2 pos=ImGui::GetCursorPos();
             float winTreeNodeHeight=menu_win_sizeH-pos.y;
-            ImGui::BeginChild("Modizer menu pm explore subwin",ImVec2(menu_win_size,winTreeNodeHeight));
+            cpos.x+=safe_left;
+            ImGui::BeginChild("Modizer menu pm explore subwin",ImVec2(menu_win_size-safe_left-safe_right,winTreeNodeHeight));
             
             int index=0;
             bool filter=false;

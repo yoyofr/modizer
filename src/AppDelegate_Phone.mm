@@ -462,6 +462,25 @@ continueUserActivity:(NSUserActivity *)userActivity
 - (UISceneConfiguration *)application:(UIApplication *)application configurationForConnectingSceneSession:(UISceneSession *)connectingSceneSession options:(UISceneConnectionOptions *)options {
     // Called when a new scene session is being created.
     // Use this method to select a configuration to create the new scene with.
+
+    NSLog(@"[AppDelegate] ===== NEW SCENE CONNECTING =====");
+    NSLog(@"[AppDelegate] Scene role: '%@'", connectingSceneSession.role);
+    NSLog(@"[AppDelegate] Session: %@", connectingSceneSession);
+    NSLog(@"[AppDelegate] Scene class: %@", NSStringFromClass([connectingSceneSession.configuration.sceneClass class]));
+
+    // Check if this is a CarPlay scene - try matching the role string
+    if ([connectingSceneSession.role containsString:@"CarPlay"] ||
+        [connectingSceneSession.role containsString:@"CPTemplate"]) {
+        NSLog(@"[AppDelegate] *** DETECTED CARPLAY SCENE ***");
+        UISceneConfiguration *config = [[UISceneConfiguration alloc] initWithName:@"CarPlay Configuration" sessionRole:connectingSceneSession.role];
+        config.delegateClass = NSClassFromString(@"MDZCarPlaySceneDelegate");
+        config.sceneClass = NSClassFromString(@"CPTemplateApplicationScene");
+        NSLog(@"[AppDelegate] Created CarPlay config with delegate: %@", config.delegateClass);
+        return config;
+    }
+
+    // Default configuration for main window scene
+    NSLog(@"[AppDelegate] Creating default window scene configuration");
     UISceneConfiguration *config = [[UISceneConfiguration alloc] initWithName:@"Default Configuration" sessionRole:connectingSceneSession.role];
     config.delegateClass = [SceneDelegate class];
     return config;

@@ -7,6 +7,7 @@
 
 #import "CarPlayAndRemoteManagement.h"
 #import "DetailViewControllerIphone.h"
+#import "MDZCarPlaySceneDelegate.h"
 
 #include <pthread.h>
 
@@ -14,11 +15,31 @@
 
 @synthesize detailViewController;
 @synthesize rootVCLocalB;
+@synthesize carPlaySceneDelegate;
 
 -(void) flushMainLoop {
     [[NSRunLoop mainRunLoop] runUntilDate:[NSDate date]];
 //    NSDate* futureDate = [NSDate dateWithTimeInterval:0.001f sinceDate:[NSDate date]];
 //    [[NSRunLoop currentRunLoop] runUntilDate:futureDate];
+}
+
+-(void) updatePlaybackProgress {
+    // Update the Now Playing info for progress bar updates
+    [detailViewController updMediaCenter];
+
+    // Check if track position has changed and update playlist display if needed
+    static int lastPlaylistPos = -1;
+    static int lastPlaylistSize = -1;
+
+    int currentPos = detailViewController.mPlaylist_pos;
+    int currentSize = detailViewController.mPlaylist_size;
+
+    // Only refresh the template if track position or playlist size changed
+    if (currentPos != lastPlaylistPos || currentSize != lastPlaylistSize) {
+        lastPlaylistPos = currentPos;
+        lastPlaylistSize = currentSize;
+        [self refreshMPItems];
+    }
 }
 
 -(void) refreshMPItems {
@@ -37,6 +58,12 @@
             if ([detailViewController.mplayer isPaused]) [contMngr setNowPlayingIdentifiers:[NSArray arrayWithObject:@""]];
             else [contMngr setNowPlayingIdentifiers:[NSArray arrayWithObject:@"pl_NP"]];
         }
+    }
+
+    // Update the modern CarPlay template if available
+    // This is only called when the playlist actually changes, not every second
+    if (self.carPlaySceneDelegate) {
+        [self.carPlaySceneDelegate updatePlaylistsDisplay];
     }
 }
 
@@ -259,9 +286,10 @@
         else [contMngr setNowPlayingIdentifiers:[NSArray arrayWithObject:@"pl_NP"]];
     }
 
-    
-    repeatingTimer = [NSTimer scheduledTimerWithTimeInterval: 1.0f target:self selector:@selector(refreshMPItems) userInfo:nil repeats: YES]; //1 times/second
-    
+
+    // Timer for updating playback progress without refreshing the UI
+    repeatingTimer = [NSTimer scheduledTimerWithTimeInterval: 1.0f target:self selector:@selector(updatePlaybackProgress) userInfo:nil repeats: YES];
+
     return TRUE;
 }
 

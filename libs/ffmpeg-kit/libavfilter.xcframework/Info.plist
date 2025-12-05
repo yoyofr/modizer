@@ -7,6 +7,8 @@
 		<dict>
 			<key>BinaryPath</key>
 			<string>libavfilter.framework/libavfilter</string>
+			<key>DebugSymbolsPath</key>
+			<string>dSYMs</string>
 			<key>LibraryIdentifier</key>
 			<string>ios-arm64_x86_64-simulator</string>
 			<key>LibraryPath</key>
@@ -24,6 +26,8 @@
 		<dict>
 			<key>BinaryPath</key>
 			<string>libavfilter.framework/libavfilter</string>
+			<key>DebugSymbolsPath</key>
+			<string>dSYMs</string>
 			<key>LibraryIdentifier</key>
 			<string>ios-arm64_arm64e</string>
 			<key>LibraryPath</key>
@@ -39,6 +43,8 @@
 		<dict>
 			<key>BinaryPath</key>
 			<string>libavfilter.framework/Versions/A/libavfilter</string>
+			<key>DebugSymbolsPath</key>
+			<string>dSYMs</string>
 			<key>LibraryIdentifier</key>
 			<string>ios-arm64_x86_64-maccatalyst</string>
 			<key>LibraryPath</key>

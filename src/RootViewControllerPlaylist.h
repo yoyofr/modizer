@@ -111,9 +111,11 @@
 
 -(bool) removeFromPlaylistDB:(NSString*)id_playlist fullPath:(NSString*)fullpath;
 
--(void) loadFavoritesList;
--(void) loadMostPlayedList;
+-(void) loadFavoritesList:(t_playlist*)playlist;
+-(void) loadMostPlayedList:(t_playlist*)playlist;
 -(void) reloadNowPlaying;
+
+-(int) loadLocalFilesRandomPL:(NSMutableArray*)labels fullpaths:(NSMutableArray*)fullpaths;
 
 
 -(bool) addToPlaylistDB:(NSString*)id_playlist label:(NSString *)label fullPath:(NSString *)fullPath;

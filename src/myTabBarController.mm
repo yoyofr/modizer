@@ -804,15 +804,49 @@ extern NSMutableArray *mac_key_pressed,*mac_key_released;
     if (@available(iOS 15.0, *)) {
         tabCommand.wantsPriorityOverSystemBehavior = YES;
     }
+    
+    UIKeyCommand *leftCommand = [UIKeyCommand keyCommandWithInput:UIKeyInputLeftArrow modifierFlags:0 action:@selector(leftPressed)];
+    if (@available(iOS 15.0, *)) {
+        leftCommand.wantsPriorityOverSystemBehavior = YES;
+    }
+    UIKeyCommand *rightCommand = [UIKeyCommand keyCommandWithInput:UIKeyInputRightArrow modifierFlags:0 action:@selector(rightPressed)];
+    if (@available(iOS 15.0, *)) {
+        rightCommand.wantsPriorityOverSystemBehavior = YES;
+    }
+    UIKeyCommand *leftAltCommand = [UIKeyCommand keyCommandWithInput:UIKeyInputLeftArrow modifierFlags:UIKeyModifierAlternate action:@selector(leftAltPressed)];
+    if (@available(iOS 15.0, *)) {
+        leftAltCommand.wantsPriorityOverSystemBehavior = YES;
+    }
+    UIKeyCommand *rightAltCommand = [UIKeyCommand keyCommandWithInput:UIKeyInputRightArrow modifierFlags:UIKeyModifierAlternate action:@selector(rightAltPressed)];
+    if (@available(iOS 15.0, *)) {
+        rightAltCommand.wantsPriorityOverSystemBehavior = YES;
+    }
+    UIKeyCommand *leftCmdCommand = [UIKeyCommand keyCommandWithInput:UIKeyInputLeftArrow modifierFlags:UIKeyModifierCommand action:@selector(leftCmdPressed)];
+    if (@available(iOS 15.0, *)) {
+        leftCmdCommand.wantsPriorityOverSystemBehavior = YES;
+    }
+    UIKeyCommand *rightCmdCommand = [UIKeyCommand keyCommandWithInput:UIKeyInputRightArrow modifierFlags:UIKeyModifierCommand action:@selector(rightCmdPressed)];
+    if (@available(iOS 15.0, *)) {
+        rightCmdCommand.wantsPriorityOverSystemBehavior = YES;
+    }
+    UIKeyCommand *upCommand = [UIKeyCommand keyCommandWithInput:UIKeyInputUpArrow modifierFlags:0 action:@selector(upPressed)];
+    if (@available(iOS 15.0, *)) {
+        upCommand.wantsPriorityOverSystemBehavior = YES;
+    }
+    UIKeyCommand *downCommand = [UIKeyCommand keyCommandWithInput:UIKeyInputDownArrow modifierFlags:0 action:@selector(downPressed)];
+    if (@available(iOS 15.0, *)) {
+        downCommand.wantsPriorityOverSystemBehavior = YES;
+    }
 
-    return @[ [UIKeyCommand keyCommandWithInput:UIKeyInputLeftArrow  modifierFlags:0 action:@selector(leftPressed)],
-              [UIKeyCommand keyCommandWithInput:UIKeyInputRightArrow   modifierFlags:0 action:@selector(rightPressed)],
-              [UIKeyCommand keyCommandWithInput:UIKeyInputLeftArrow   modifierFlags:UIKeyModifierAlternate action:@selector(leftAltPressed)],
-              [UIKeyCommand keyCommandWithInput:UIKeyInputRightArrow   modifierFlags:UIKeyModifierAlternate action:@selector(rightAltPressed)],
-              [UIKeyCommand keyCommandWithInput:UIKeyInputLeftArrow   modifierFlags:UIKeyModifierCommand action:@selector(leftCmdPressed)],
-              [UIKeyCommand keyCommandWithInput:UIKeyInputRightArrow   modifierFlags:UIKeyModifierCommand action:@selector(rightCmdPressed)],
-              [UIKeyCommand keyCommandWithInput:UIKeyInputUpArrow   modifierFlags:0 action:@selector(upPressed)],
-              [UIKeyCommand keyCommandWithInput:UIKeyInputDownArrow   modifierFlags:0 action:@selector(downPressed)],
+    return @[leftCommand,rightCommand,leftAltCommand,rightAltCommand,leftCmdCommand,rightCmdCommand,upCommand,downCommand,
+//                [UIKeyCommand keyCommandWithInput:UIKeyInputLeftArrow  modifierFlags:0 action:@selector(leftPressed)],
+//              [UIKeyCommand keyCommandWithInput:UIKeyInputRightArrow   modifierFlags:0 action:@selector(rightPressed)],
+//              [UIKeyCommand keyCommandWithInput:UIKeyInputLeftArrow   modifierFlags:UIKeyModifierAlternate action:@selector(leftAltPressed)],
+//              [UIKeyCommand keyCommandWithInput:UIKeyInputRightArrow   modifierFlags:UIKeyModifierAlternate action:@selector(rightAltPressed)],
+//              [UIKeyCommand keyCommandWithInput:UIKeyInputLeftArrow   modifierFlags:UIKeyModifierCommand action:@selector(leftCmdPressed)],
+//              [UIKeyCommand keyCommandWithInput:UIKeyInputRightArrow   modifierFlags:UIKeyModifierCommand action:@selector(rightCmdPressed)],
+//              [UIKeyCommand keyCommandWithInput:UIKeyInputUpArrow   modifierFlags:0 action:@selector(upPressed)],
+//              [UIKeyCommand keyCommandWithInput:UIKeyInputDownArrow   modifierFlags:0 action:@selector(downPressed)],
               
               [UIKeyCommand keyCommandWithInput:@"1"   modifierFlags:0 action:@selector(key1Pressed)],
               [UIKeyCommand keyCommandWithInput:@"&"   modifierFlags:0 action:@selector(key1Pressed)],

@@ -1,0 +1,5 @@
+---
+triple:          'x86_64-apple-darwin'
+binary-path:     '/Users/yoyofr/Documents/dev/ffmpeg-kit/prebuilt/bundle-apple-framework-iphonesimulator/ffmpegkit.framework/ffmpegkit'
+relocations:     []
+...

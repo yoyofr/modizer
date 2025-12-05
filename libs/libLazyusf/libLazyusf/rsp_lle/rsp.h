@@ -35,12 +35,17 @@
 #include <emmintrin.h>
 #endif
 
-#if TARGET_OS_MACCATALYST
-#else
+#ifdef __ARM_NEON
+#define ARCH_MIN_ARM_NEON 1
+#endif
+
+
+//#if TARGET_OS_MACCATALYST
+//#else
 #ifdef ARCH_MIN_ARM_NEON
 #include <arm_neon.h>
 #endif
-#endif
+//#endif
 
 typedef unsigned char byte;
 

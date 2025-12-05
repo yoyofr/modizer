@@ -28,6 +28,10 @@ NS_ASSUME_NONNULL_BEGIN
 /// Play a playlist by its name
 - (BOOL)playPlaylistWithName:(NSString *)playlistName startIndex:(int)startIndex;
 
+/// Play a builtin playlist by its ID
+/// playlistId: -1 is random picks, -2 is most played, -3 is favorites
+- (BOOL)playBuiltinPlaylistWithId:(int)playlistId startIndex:(int)startIndex;
+
 @end
 
 NS_ASSUME_NONNULL_END

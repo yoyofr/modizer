@@ -90,7 +90,6 @@ double TimeKeeper::PresetProgressA()
     {
         return 1.0;
     }
-
     return std::min((m_currentTime - m_presetTimeA) / m_presetDurationA, 1.0);
 }
 

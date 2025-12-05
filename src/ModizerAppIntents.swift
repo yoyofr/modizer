@@ -288,6 +288,22 @@ class ModizerPlayerBridge {
 
         return implementation(bridge, selector, Int32(playlistId), Int32(startIndex))
     }
+    
+    func playBuiltinPlaylist(playlistId: Int, startIndex: Int = 0) -> Bool {
+        guard let bridgeClass = NSClassFromString("ModizerPlaylistBridge") as? NSObject.Type,
+              let bridge = bridgeClass.perform(NSSelectorFromString("sharedInstance"))?.takeUnretainedValue() as? NSObject else {
+            return false
+        }
+
+        let selector = NSSelectorFromString("playBuiltinPlaylistWithId:startIndex:")
+        guard bridge.responds(to: selector) else { return false }
+
+        let method = bridge.method(for: selector)
+        typealias MethodType = @convention(c) (NSObject, Selector, Int32, Int32) -> Bool
+        let implementation = unsafeBitCast(method, to: MethodType.self)
+
+        return implementation(bridge, selector, Int32(playlistId), Int32(startIndex))
+    }
 
     // MARK: - Fuzzy Matching Helper
 
@@ -803,6 +819,48 @@ struct GetPlaylistsIntent: AppIntent {
         }.joined(separator: "\n")
 
         return .result(value: "Available playlists:\n\(playlistList)")
+    }
+}
+
+// MARK: - Play random picks Playlist Intent
+@available(iOS 16.0, *)
+struct PlayRandomPicksIntent: AppIntent {
+    static let title: LocalizedStringResource = "Play some music"
+    static let description = IntentDescription("Random picks from available local titles in Modizer.")
+    static let openAppWhenRun: Bool = false
+
+    @MainActor
+    func perform() async throws -> some IntentResult {
+        ModizerPlayerBridge.shared.playBuiltinPlaylist(playlistId: -1)
+        return .result()
+    }
+}
+
+// MARK: - Play most played Playlist Intent
+@available(iOS 16.0, *)
+struct PlayMostPlayedIntent: AppIntent {
+    static let title: LocalizedStringResource = "Play most played"
+    static let description = IntentDescription("Most played titles from available local titles in Modizer.")
+    static let openAppWhenRun: Bool = false
+
+    @MainActor
+    func perform() async throws -> some IntentResult {
+        ModizerPlayerBridge.shared.playBuiltinPlaylist(playlistId: -2)
+        return .result()
+    }
+}
+
+// MARK: - Play favorites Playlist Intent
+@available(iOS 16.0, *)
+struct PlayFavoritesIntent: AppIntent {
+    static let title: LocalizedStringResource = "Play favorites"
+    static let description = IntentDescription("Favorites titles from available local titles in Modizer.")
+    static let openAppWhenRun: Bool = false
+
+    @MainActor
+    func perform() async throws -> some IntentResult {
+        ModizerPlayerBridge.shared.playBuiltinPlaylist(playlistId: -3)
+        return .result()
     }
 }
 

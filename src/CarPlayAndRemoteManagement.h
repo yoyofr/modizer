@@ -16,17 +16,19 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @class DetailViewControllerIphone;
+@class MDZCarPlaySceneDelegate;
 
 @interface CarPlayAndRemoteManagement : NSObject <MPPlayableContentDataSource,MPPlayableContentDelegate> {
     DetailViewControllerIphone *detailViewController;
     RootViewControllerLocalBrowser *rootVCLocalB;
-    
+
     NSMutableArray *plArray;
     NSTimer *repeatingTimer;
 }
 
 @property (nonatomic, retain) DetailViewControllerIphone *detailViewController;
 @property (nonatomic, retain) RootViewControllerLocalBrowser *rootVCLocalB;
+@property (nonatomic, weak) MDZCarPlaySceneDelegate *carPlaySceneDelegate;
 
 -(bool) initCarPlayAndRemote;
 

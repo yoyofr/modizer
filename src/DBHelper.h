@@ -17,8 +17,8 @@ typedef struct {
 	signed char cover_flag;
 } t_plPlaylist_entry;
 
-
-namespace DBHelper 
+#ifdef __cplusplus
+namespace DBHelper
 {
 	int getFileStatsDBmod(NSString *fullpath,short int *playcount,signed char *rating,signed char *avg_rating,int *song_length=NULL,char *channels_nb=NULL,int *songs=NULL);
     int getRating(NSString *filePath,int arcidx,int subidx);
@@ -41,5 +41,6 @@ namespace DBHelper
 
     int cleanDB();
 }
+#endif
 
 #endif

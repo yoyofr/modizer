@@ -21,7 +21,7 @@ void playerMenuInit();
 
 void playerMenuShutdown();
 
-int playerShowMenu(float ww,float hh,float glScaleFactor,float fadelev,float panX,float panY,int menushow);
+int playerShowMenu(float ww,float hh,float safe_top,float safe_bottom,float safe_left,float safe_right,float glScaleFactor,float fadelev,float panX,float panY,int menushow);
 
 void playerMenuBack();
 
