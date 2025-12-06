@@ -65,7 +65,7 @@ int pMenu_fullscreenStatus;
 
 
 extern float mdz_font_size[4];
-extern ImFont *font_menu;
+extern ImFont *font_menu,*font_menu_mono;
 extern ImFont *font_menu_icon;
 extern ImFont  *font_tracker[FONT_TRACKER_NB];
 int font_idx;
@@ -859,7 +859,7 @@ int playerShowMenu(float ww,float hh,float safe_top,float safe_bottom,float safe
     if (!pMenu_isInitialized) return 0;
     int keepOpened=1;
     float menu_win_size;
-    float menu_win_sizeH;;
+    float menu_win_sizeH;
     ImVec2 menu_win_pos;
     float cell_size;
     GLuint *current_txtMenuHandle;
@@ -1862,7 +1862,7 @@ int playerShowMenu(float ww,float hh,float safe_top,float safe_bottom,float safe
     } else if (pMenu_state.menu_idx==MENU_PROJECTM_EXPLORE) {
         int col_nb=menuProjectMExploreColNb;
         ImVec2 cpos=ImGui::GetCursorPos();
-        cpos.x=(menu_win_size-tgt_menu_win_size-safe_left-safe_right)/2+safe_left;
+        cpos.x=(menu_win_size-tgt_menu_win_size-(safe_left+safe_right)*glScaleFactor)/2+safe_left*glScaleFactor;
         ImGui::SetCursorPos(cpos);
         
         int expandCollapseMode=0;
@@ -1871,7 +1871,7 @@ int playerShowMenu(float ww,float hh,float safe_top,float safe_bottom,float safe
         ImGui::Text("Select active %s presets",(pmCurrentPlaylistMode==PM_BUNDLED_PLAYLIST?"bundled":"custom"));
         
         cpos=ImGui::GetCursorPos();
-        cpos.x=(menu_win_size-tgt_menu_win_size-safe_left-safe_right)/2+safe_left;
+        cpos.x=(menu_win_size-tgt_menu_win_size-(safe_left+safe_right)*glScaleFactor)/2+safe_left*glScaleFactor;
         ImGui::SetCursorPos(cpos);
         
         if (ImGui::BeginTable("menu_ProjectM_Explore",col_nb,flagTable/*,ImVec2(tgt_menu_win_size,menu_win_sizeH)*/)) {
@@ -1976,16 +1976,21 @@ int playerShowMenu(float ww,float hh,float safe_top,float safe_bottom,float safe
             
             browserFontWidth=ImGui::CalcTextSize("abcdefgh").x/8.0;
             
+            cpos=ImGui::GetCursorPos();
+            cpos.x+=safe_left*glScaleFactor;
+            ImGui::SetCursorPos(cpos);
+            
             if (ImGui::Button("X")) {
                 pmFileNodeFilter[0]=0;
             }
             ImGui::SameLine();
             ImGui::InputText("Filter", pmFileNodeFilter, 64);
             
-            ImVec2 pos=ImGui::GetCursorPos();
-            float winTreeNodeHeight=menu_win_sizeH-pos.y;
-            cpos.x+=safe_left;
-            ImGui::BeginChild("Modizer menu pm explore subwin",ImVec2(menu_win_size-safe_left-safe_right,winTreeNodeHeight));
+            cpos=ImGui::GetCursorPos();
+            float winTreeNodeHeight=menu_win_sizeH-cpos.y;
+            cpos.x+=safe_left*glScaleFactor;
+            ImGui::SetCursorPos(cpos);
+            ImGui::BeginChild("Modizer menu pm explore subwin",ImVec2(menu_win_size-(safe_left+safe_right)*glScaleFactor,winTreeNodeHeight));
             
             int index=0;
             bool filter=false;
@@ -2084,18 +2089,68 @@ std::string TruncateText(const std::string& p_text, float p_truncated_width) {
     return truncated_text;
 }
 
-NSString *limitStrSize(NSString *str,int width) {
+NSMutableDictionary *strTrimmer=nil;
+NSMutableDictionary *strTrimmerIncr=nil;
+
+NSString *limitStrSize(NSString *str,int width,float *pix_ofs) {
+    if (str==nil) return nil;
     //std::string tmpStr=std::string([str UTF8String]);
     //std::string truncStr=TruncateText(tmpStr,width);
     //return [NSString stringWithUTF8String:truncStr.c_str()];
     if ([str length]<3) return str;
+    
     if ([str length]>width) {
-        int middle=width/2;
-        int left=middle-1;
-        int right=middle+1;
-        NSString *strLeft=[str substringToIndex:middle-1];
-        NSString *strRight=[str substringToIndex:middle+1];
-        return [NSString stringWithFormat:@"%@...%@",strLeft,strRight];
+        
+        if (strTrimmer==nil) {
+            strTrimmer=[[NSMutableDictionary alloc] init];
+            strTrimmerIncr=[[NSMutableDictionary alloc] init];
+        }
+        NSNumber *scrollPos,*scrollIncr;
+        float pos,incr;
+        scrollPos=[strTrimmer objectForKey:str];
+        scrollIncr=[strTrimmerIncr objectForKey:str];
+        if (scrollPos==nil) {
+            scrollPos=[NSNumber numberWithFloat:-2.0f];
+            scrollIncr=[NSNumber numberWithFloat:1.0f/20.0f];
+        }
+        pos=[scrollPos floatValue];
+        incr=[scrollIncr floatValue];
+        
+        NSString *result=[str substringFromIndex:max(int(pos),0)];
+        if (pix_ofs && (pos>0)) *pix_ofs=pos-(int)pos;
+        
+        if ([result length]>=width) {
+            result=[result substringToIndex:width];
+            pos+=incr;
+            if (pos<-6.0f) {
+               pos=-0.0f;
+               incr=1.0f/20.0f;
+           }
+        } else {
+            if (pos>0) {
+                if (incr>0) {
+                    //reached max, small pause by adding small incr
+                    incr+=1.0/20.0;
+                    //if pause is over, reverse incr
+                    if (incr>=6.0) incr=-1.0f/20.0f;
+                } else {
+                    pos+=incr;
+                }
+            }
+        }
+        scrollPos=[NSNumber numberWithFloat:pos];
+        scrollIncr=[NSNumber numberWithFloat:incr];
+        
+        [strTrimmer setObject:scrollPos forKey:str];
+        [strTrimmerIncr setObject:scrollIncr forKey:str];
+        
+        return result;
+//        int middle=width/2;
+//        int left=middle-1;
+//        int right=middle+1;
+//        NSString *strLeft=[str substringToIndex:middle-1];
+//        NSString *strRight=[str substringToIndex:middle+1];
+//        return [NSString stringWithFormat:@"%@...%@",strLeft,strRight];
     }
     return str;
 }
@@ -2151,9 +2206,9 @@ int pMenu_PMbuildDirTree(FileNode *fileNode, int idx,bool filter,int updExpandCo
                     
                     NSString *strNode;
                     if (child.isFavorite_Temp) {
-                        if (child.isFullyFavorite) strNode=[NSString stringWithFormat:@"%C%@",static_cast<unichar>(FA_STAR),[child name]];
-                        else strNode=[NSString stringWithFormat:@"%C%@",static_cast<unichar>(FA_STAR_HALF_O),[child name]];
-                    } else strNode=[NSString stringWithFormat:@"%C%@",static_cast<unichar>(FA_STAR_O),[child name]];
+                        if (child.isFullyFavorite) strNode=[NSString stringWithFormat:@"%C%@  ",static_cast<unichar>(FA_STAR),[child name]];
+                        else strNode=[NSString stringWithFormat:@"%C%@  ",static_cast<unichar>(FA_STAR_HALF_O),[child name]];
+                    } else strNode=[NSString stringWithFormat:@"%C%@  ",static_cast<unichar>(FA_STAR_O),[child name]];
                     
                     if (!mouseMoveInProgress && ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen()) {
                         //Click detected
@@ -2172,12 +2227,23 @@ int pMenu_PMbuildDirTree(FileNode *fileNode, int idx,bool filter,int updExpandCo
                     
                     ImVec2 cpos=ImGui::GetCursorPos();
                     ImVec2 wsize=ImGui::GetWindowSize();
-                    int max_char=(wsize.x-cpos.x-8*glScaleFactor)/browserFontWidth;
-                    strNode=limitStrSize(strNode,max_char);
+                    int max_char=(wsize.x-cpos.x+1*browserFontWidth)/browserFontWidth;
+                    float pix_ofs=0;
+                    strNode=limitStrSize(strNode,max_char,&pix_ofs);
+                    
+                    ImGui::PushClipRect(cpos, ImVec2(wsize.x,cpos.y+wsize.y), true);
+                    cpos.x-=pix_ofs*browserFontWidth;
+                    ImGui::SetCursorPos(cpos);
+                    
+                    if (font_menu_mono) ImGui::PushFont(font_menu_mono,browserFontSize*glScaleFactor);
+                    else ImGui::PushFont(nullptr);
                     
                     if (child.isFullySelected) ImGui::TextColored(pMenu_browser_selectedLineText, "%s",[strNode UTF8String]);
                     else if (child.isSelected_Temp) ImGui::TextColored(pMenu_browser_partiallySelectedLineText, "%s",[strNode UTF8String]);
                     else ImGui::TextColored(pMenu_browser_notSelectedLineText,"%s",[strNode UTF8String]);
+                    
+                    ImGui::PopClipRect();
+                    ImGui::PopFont();
                     
                     if (node_open) {
                         idx=pMenu_PMbuildDirTree(child,idx,filter,updExpandCollapse,selectedMode,drawMinY,drawMaxY,drawLineHeight);
@@ -2222,7 +2288,7 @@ int pMenu_PMbuildDirTree(FileNode *fileNode, int idx,bool filter,int updExpandCo
                 
                 if (isVisible) {
                     NSString *strNode;
-                    strNode=[NSString stringWithFormat:@"%@",[child name]];
+                    strNode=[NSString stringWithFormat:@"%@  ",[child name]];
                     
                     bool node_open=ImGui::TreeNodeEx((void*)(intptr_t)idx++, flags|ImGuiTreeNodeFlags_AllowOverlap, " ");
                     bool shouldUpdateSel=false;
@@ -2301,8 +2367,17 @@ int pMenu_PMbuildDirTree(FileNode *fileNode, int idx,bool filter,int updExpandCo
                     
                     ImVec2 cpos=ImGui::GetCursorPos();
                     ImVec2 wsize=ImGui::GetWindowSize();
-                    int max_char=(wsize.x-cpos.x-8*glScaleFactor)/browserFontWidth;
-                    strNode=limitStrSize(strNode,max_char);
+                    int max_char=(wsize.x-cpos.x+1*browserFontWidth)/browserFontWidth;
+                    float pix_ofs=0;
+                    strNode=limitStrSize(strNode,max_char,&pix_ofs);
+                    
+                    ImGui::PushClipRect(cpos, ImVec2(wsize.x,cpos.y+wsize.y), true);
+                                        
+                    cpos.x-=pix_ofs*browserFontWidth;
+                    ImGui::SetCursorPos(cpos);
+                    
+                    if (font_menu_mono) ImGui::PushFont(font_menu_mono,browserFontSize*glScaleFactor);
+                    else ImGui::PushFont(nullptr);
                     
                     if ([pMenu_currentPM_entry isEqualToString:child.localpath]) {
                         if (child.isSelected_Temp) ImGui::TextColored(pMenu_browser_selectedLineTextPlaying, "%s",[strNode UTF8String]);
@@ -2311,6 +2386,8 @@ int pMenu_PMbuildDirTree(FileNode *fileNode, int idx,bool filter,int updExpandCo
                         if (child.isSelected_Temp) ImGui::TextColored(pMenu_browser_selectedLineText, "%s",[strNode UTF8String]);
                         else ImGui::TextColored(pMenu_browser_notSelectedLineText,"%s",[strNode UTF8String]);
                     }
+                    ImGui::PopClipRect();
+                    ImGui::PopFont();
                     
                     if (node_open) {
                         ImGui::TreePop();

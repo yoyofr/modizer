@@ -9,7 +9,7 @@
 
 #import <UIKit/UIKit.h>
 
-#define FONT_MENU_FILE  @"Fonts/Roboto-Medium"
+#define FONT_MENU_FILE_MONO  @"Fonts/Mplus1Code-Regular"
 #define FONT_MENU_FILE_JAP @"Fonts/Mplus1-Medium"
 
 #define MAX_LASTCHAR_SIZE 16 //buffer to capture key inputs in UITextfield
@@ -28,7 +28,8 @@ NSMutableArray *mac_key_pressed,*mac_key_released;
 float mdz_font_size[4]={10,15,22,30};
 //ImFont *font_icon[4];
 ImFont  *font_menu;
-ImFont  *font_menu_icon;
+ImFont  *font_menu_mono;
+ImFont  *font_menu_icon,*font_menu_icon_mono;
 ImFont  *font_tracker[FONT_TRACKER_NB];
 ImFont  *font_trackerH[FONT_TRACKER_NB];
 
@@ -75,9 +76,8 @@ bool ImGui_ImplIOS_Init()
     
     currentEvent.event_type=IMGUI_IOS_Event_None;
     
-    font_menu=io.Fonts->AddFontFromFileTTF([[[NSBundle mainBundle] pathForResource:FONT_MENU_FILE_JAP ofType: @"ttf"] UTF8String], 16.0f*glScaleFactor, NULL, io.Fonts->GetGlyphRangesJapanese());
-    IM_ASSERT(font_menu != NULL);
-    
+    font_menu_mono=io.Fonts->AddFontFromFileTTF([[[NSBundle mainBundle] pathForResource:FONT_MENU_FILE_MONO ofType: @"ttf"] UTF8String], 16.0f*glScaleFactor, NULL, io.Fonts->GetGlyphRangesJapanese());
+    IM_ASSERT(font_menu_mono != NULL);
     ImFontConfig icons_config = ImFontConfig();
     icons_config.MergeMode = true;
     icons_config.PixelSnapH = true;
@@ -90,6 +90,21 @@ bool ImGui_ImplIOS_Init()
           ICON_MIN_FA, ICON_MAX_FA,
           0,
       };
+    font_menu_icon_mono=io.Fonts->AddFontFromFileTTF([[[NSBundle mainBundle] pathForResource:@"Fonts/fontawesome-webfont" ofType: @"ttf"] UTF8String], 10.0f*glScaleFactor, &icons_config, ranges);
+    IM_ASSERT(font_menu_icon_mono != NULL);
+    
+    
+    font_menu=io.Fonts->AddFontFromFileTTF([[[NSBundle mainBundle] pathForResource:FONT_MENU_FILE_JAP ofType: @"ttf"] UTF8String], 16.0f*glScaleFactor, NULL, io.Fonts->GetGlyphRangesJapanese());
+    IM_ASSERT(font_menu != NULL);
+    
+    icons_config = ImFontConfig();
+    icons_config.MergeMode = true;
+    icons_config.PixelSnapH = true;
+    icons_config.OversampleH = 1;
+    icons_config.OversampleV = 1;
+    icons_config.GlyphOffset.y = -4;
+    icons_config.GlyphExtraAdvanceX = 1;
+    
     font_menu_icon=io.Fonts->AddFontFromFileTTF([[[NSBundle mainBundle] pathForResource:@"Fonts/fontawesome-webfont" ofType: @"ttf"] UTF8String], 10.0f*glScaleFactor, &icons_config, ranges);
     IM_ASSERT(font_menu_icon != NULL);
     
