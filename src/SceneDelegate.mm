@@ -18,6 +18,8 @@
 #import "ModizerConstants.h"
 #import "ModizerTypes.h"
 
+bool mdz_macos_AOTplugin=false;
+
 @implementation SceneDelegate
 
 @synthesize tabBarController, rootViewControlleriPhone, detailViewControlleriPhone,playlistVC,downloadVC;
@@ -137,6 +139,9 @@
                 Class macWindowManager = NSClassFromString(@"ModizerMacWindowManager");
                 if (macWindowManager) {
 //                    NSLog(@"✅ ModizerMacWindowManager class found!");
+                    mdz_macos_AOTplugin=true;
+                    // Rebuild menu
+                    [[UIMenuSystem mainSystem] setNeedsRebuild];
                 } else {
                     NSLog(@"❌ ModizerMacWindowManager class not found");
                 }

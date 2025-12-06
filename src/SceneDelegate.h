@@ -40,6 +40,8 @@
 
 #if TARGET_OS_MACCATALYST
 - (void)toggleAlwaysOnTop;
+- (void)enableAlwaysOnTop;
+- (void)disableAlwaysOnTop;
 #endif
 
 @end

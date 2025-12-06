@@ -2227,11 +2227,13 @@ int pMenu_PMbuildDirTree(FileNode *fileNode, int idx,bool filter,int updExpandCo
                     
                     ImVec2 cpos=ImGui::GetCursorPos();
                     ImVec2 wsize=ImGui::GetWindowSize();
-                    int max_char=(wsize.x-cpos.x+1*browserFontWidth)/browserFontWidth;
+                    int max_char=(wsize.x-cpos.x+0*browserFontWidth)/browserFontWidth;
                     float pix_ofs=0;
                     strNode=limitStrSize(strNode,max_char,&pix_ofs);
                     
-                    ImGui::PushClipRect(cpos, ImVec2(wsize.x,cpos.y+wsize.y), true);
+                    ImVec2 gpos=ImGui::GetCursorScreenPos();
+                    ImGui::PushClipRect(gpos, ImVec2(wsize.x,gpos.y+drawLineHeight), true);
+                    
                     cpos.x-=pix_ofs*browserFontWidth;
                     ImGui::SetCursorPos(cpos);
                     
@@ -2367,11 +2369,12 @@ int pMenu_PMbuildDirTree(FileNode *fileNode, int idx,bool filter,int updExpandCo
                     
                     ImVec2 cpos=ImGui::GetCursorPos();
                     ImVec2 wsize=ImGui::GetWindowSize();
-                    int max_char=(wsize.x-cpos.x+1*browserFontWidth)/browserFontWidth;
+                    int max_char=(wsize.x-cpos.x-1*browserFontWidth)/browserFontWidth;
                     float pix_ofs=0;
                     strNode=limitStrSize(strNode,max_char,&pix_ofs);
                     
-                    ImGui::PushClipRect(cpos, ImVec2(wsize.x,cpos.y+wsize.y), true);
+                    ImVec2 gpos=ImGui::GetCursorScreenPos();
+                    ImGui::PushClipRect(gpos, ImVec2(wsize.x-browserFontWidth,gpos.y+drawLineHeight), true);
                                         
                     cpos.x-=pix_ofs*browserFontWidth;
                     ImGui::SetCursorPos(cpos);

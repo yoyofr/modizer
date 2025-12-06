@@ -29,6 +29,7 @@
 //GLOBAL VAR
 void *ExtractProgressObserverContext = &ExtractProgressObserverContext;
 void *LoadingProgressObserverContext = &LoadingProgressObserverContext;
+extern bool mdz_macos_AOTplugin;
 //
 
 //#import <AVFoundation/AVFoundation.h>
@@ -409,10 +410,11 @@ continueUserActivity:(NSUserActivity *)userActivity
             }
         }
 #ifdef MDZ_MACOS_WINDOW_AOT
-        UIWindowScene *windowScene = (UIWindowScene *)[UIApplication.sharedApplication.connectedScenes.allObjects firstObject];
-        SceneDelegate *sceneDelegate = (SceneDelegate*)windowScene.delegate;
-        // Utiliser UIKeyCommand au lieu de UICommand pour pouvoir spécifier un input
-        UIKeyCommand *floatCommand = [UIKeyCommand commandWithTitle:NSLocalizedString(@"Always on top",@"")
+        if (mdz_macos_AOTplugin) {
+            UIWindowScene *windowScene = (UIWindowScene *)[UIApplication.sharedApplication.connectedScenes.allObjects firstObject];
+            SceneDelegate *sceneDelegate = (SceneDelegate*)windowScene.delegate;
+            // Utiliser UIKeyCommand au lieu de UICommand pour pouvoir spécifier un input
+            UIKeyCommand *floatCommand = [UIKeyCommand commandWithTitle:NSLocalizedString(@"Always on top",@"")
                                                                   image:nil
                                                                  action:@selector(toggleAlwaysOnTop)
                                                                   input:@"t"  // Minuscule
@@ -425,15 +427,19 @@ continueUserActivity:(NSUserActivity *)userActivity
             // État avec checkmark
             floatCommand.state = sceneDelegate.isWindowFloating ? UIMenuElementStateOn : UIMenuElementStateOff;
             
-        
-        UIMenu *floatMenu = [UIMenu menuWithTitle:@""
-                                            image:nil
-                                       identifier:@"com.modizer.float"
-                                          options:UIMenuOptionsDisplayInline
-                                         children:@[floatCommand]];
-
-        //[builder insertSiblingMenu:floatMenu afterMenuForIdentifier:UIMenuWindow];
-        [newChildren addObject:floatMenu];
+            if (sceneDelegate.isWindowFloating) [sceneDelegate enableAlwaysOnTop];
+            else [sceneDelegate disableAlwaysOnTop];
+            
+            
+            UIMenu *floatMenu = [UIMenu menuWithTitle:@""
+                                                image:nil
+                                           identifier:@"com.modizer.float"
+                                              options:UIMenuOptionsDisplayInline
+                                             children:@[floatCommand]];
+            
+            //[builder insertSiblingMenu:floatMenu afterMenuForIdentifier:UIMenuWindow];
+            [newChildren addObject:floatMenu];
+        }
 #endif
         UIMenu *newViewMenu = [viewMenu menuByReplacingChildren:newChildren];
         [builder replaceMenuForIdentifier:UIMenuView withMenu:newViewMenu];
