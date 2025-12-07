@@ -102,7 +102,7 @@
             <objects>
                 <navigationController definesPresentationContext="YES" modalTransitionStyle="flipHorizontal" id="GRq-gq-psk" userLabel="Playlist" sceneMemberID="viewController">
                     <extendedEdge key="edgesForExtendedLayout"/>
-                    <tabBarItem key="tabBarItem" title="Playlists" image="music.note.list" catalog="system" id="CSl-7t-Tff" userLabel="Tab Bar Item - Playlists"/>
+                    <tabBarItem key="tabBarItem" title="Playlist" image="music.note.list" catalog="system" id="CSl-7t-Tff" userLabel="Tab Bar Item - Playlists"/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" translucent="NO" id="3Re-1V-ixf">
                         <rect key="frame" x="0.0" y="-54" width="393" height="54"/>
                         <autoresizingMask key="autoresizingMask"/>
@@ -1155,7 +1155,7 @@
                                 <rect key="frame" x="0.0" y="81" width="320" height="268"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
-                                <mutableString key="text">v4.0 © Yohann Magnien / YoyoFR
+                                <string key="text">v4.0 © Yohann Magnien / YoyoFR
 
 Contact: mailto:modizerhelp@gmail.com
 Web: https://modizer.app
@@ -1198,10 +1198,11 @@ Integrated player libs:
 - ZXTune
 
 Disclaimer:
-Internet accesses to the Modland, HVSC &amp; ASMA libraries are provided as an as-is service, guarantee for availability and/or functionality is not given. Use this application at your own risk.</mutableString>
+Internet accesses to the Modland, HVSC &amp; ASMA libraries are provided as an as-is service, guarantee for availability and/or functionality is not given. Use this application at your own risk.</string>
                                 <color key="textColor" systemColor="labelColor"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                                <dataDetectorType key="dataDetectorTypes" link="YES"/>
                                 <connections>
                                     <outlet property="delegate" destination="xV0-Ez-trt" id="oQk-kx-Vpc"/>
                                 </connections>

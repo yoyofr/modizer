@@ -9,6 +9,7 @@
 
 #import "myTabBarController.h"
 #import "TTFadeAnimator.h"
+#import "MDZFontAwesome.h"
 
 #import "ModizerConstants.h"
 #import "ModizerTypes.h"
@@ -304,7 +305,7 @@ extern NSMutableArray *mac_key_pressed,*mac_key_released;
     [welcomePage3.rightBtn addTarget:self action:@selector(goToNextWelcomePage) forControlEvents:UIControlEventTouchUpInside];
     [welcomePage3.exitBtn setTitle:NSLocalizedString(@"Skip",@"") forState:UIControlStateNormal];
     welcomePage3.messageLabel.text=NSLocalizedString(@""
-"Unlock classic oscilloscope looks, spectrum bars, piano rolls, trackers view and modern FX based on ProjectM/Milkdrop.\nLet Modizer paint each track with motion and color.",@"");
+"Unlock classic oscilloscope looks, spectrum bars, piano rolls, trackers view and ProjectM/Milkdrop FX. Let Modizer paint each track with motion and color.",@"");
     welcomePage3.messageLabel.font = [UIFont fontWithName:@"Montserrat-Regular" size:16];
     
     //Page 4
@@ -427,6 +428,8 @@ extern NSMutableArray *mac_key_pressed,*mac_key_released;
     [self.downloadVC loadViewIfNeeded];
     [self.aboutVC loadViewIfNeeded];
     
+
+    
     // Build a filtered list of tab view controllers by class
     NSArray<Class> *excludedClasses = @[
         // List classes to exclude here, e.g.:
@@ -470,7 +473,6 @@ extern NSMutableArray *mac_key_pressed,*mac_key_released;
             [filteredTabs addObject:vc];
         }
     }
-    
     
     [self setViewControllers:filteredTabs animated:NO];
     
@@ -1085,11 +1087,16 @@ extern NSMutableArray *mac_key_pressed,*mac_key_released;
     return [self getVisibleViewControllerFrom:rootViewController];
 }*/
 
-- (void)keyTabPressed{
+-(void) goToPlayerView {
     UIViewController *currentVC=[self visibleViewController:self];
     if (currentVC) {
         if ([currentVC respondsToSelector:@selector(goPlayer)]) [currentVC performSelector:@selector(goPlayer)];
     }
+}
+
+
+- (void)keyTabPressed{
+    [self goToPlayerView];
 }
 
 -(void)leftPressed {

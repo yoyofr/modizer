@@ -411,11 +411,13 @@ enum {
 
 -(void) mdShiftMode:(int)active;
 
+-(void) mdSetFX:(int)fxIdx value:(int)value;
+
 -(void) checkNewCover;
 -(void) sendNotifPlayedTitle;
 
 -(void) switchFX:(int)fxNb change:(int)val;
--(void) changeSettingsValue:(int)settingsIdx change:(float)value;
+-(void) changeSettingsValue:(int)settingsIdx value:(float)value;
 
 -(void) refreshFXFSLabels;
 

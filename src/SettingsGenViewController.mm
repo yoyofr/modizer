@@ -2491,7 +2491,7 @@ void optNSFPLAYChangedC(id param) {
     /////////////////////////////////////
     SETTINGS_ID_DEF(MDZ_SETTINGS_FAMILY_OMPT)
     settings[MDZ_SETTINGS_FAMILY_OMPT].type=MDZ_FAMILY;
-    settings[MDZ_SETTINGS_FAMILY_OMPT].label=(char*)"OpenMPT";
+    settings[MDZ_SETTINGS_FAMILY_OMPT].label=(char*)"Libopenmpt";
     settings[MDZ_SETTINGS_FAMILY_OMPT].description=NULL;
     settings[MDZ_SETTINGS_FAMILY_OMPT].family=MDZ_SETTINGS_FAMILY_PLUGINS;
     settings[MDZ_SETTINGS_FAMILY_OMPT].sub_family=MDZ_SETTINGS_FAMILY_OMPT;
@@ -5254,6 +5254,33 @@ void optNSFPLAYChangedC(id param) {
             break;
     }
 }
+
++ (void) setSettingsValue:(int)settingsIdx value:(float)value {
+    if (settingsIdx<0) return;
+    if (settingsIdx>=MAX_SETTINGS) return;
+    
+    switch (settings[settingsIdx].type) {
+        case MDZ_SWITCH:
+            if (value<0) value=0;
+            settings[settingsIdx].detail.mdz_switch.switch_value=((int)value)%(settings[settingsIdx].detail.mdz_switch.switch_value_nb);
+            break;
+        case MDZ_BOOLSWITCH:
+            settings[settingsIdx].detail.mdz_boolswitch.switch_value=(value?true:false);
+            break;
+        case MDZ_SLIDER_DISCRETE:
+        case MDZ_SLIDER_DISCRETE_EVEN:
+        case MDZ_SLIDER_DISCRETE_TIME:
+        case MDZ_SLIDER_DISCRETE_TIME_LONG:
+        case MDZ_SLIDER_CONTINUOUS:
+            value=fmax(value,settings[settingsIdx].detail.mdz_slider.slider_min_value);
+            value=fmin(value,settings[settingsIdx].detail.mdz_slider.slider_max_value);
+            settings[settingsIdx].detail.mdz_slider.slider_value=value;
+            break;
+        default:
+            break;
+    }
+}
+
 
 + (bool) isFXActive:(int)settingsIdx {
     if (settingsIdx<0) return false;

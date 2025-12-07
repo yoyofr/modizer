@@ -479,6 +479,7 @@ typedef struct {
 + (void) oscilloGenSystemColor:(int)_mode color_idx:(int)color_idx color_buffer:(unsigned int*)color_buffer;
 + (void) pianomidiGenSystemColor:(int)_mode color_idx:(int)color_idx color_buffer:(unsigned int*)color_buffer;
 + (void) changeSettingsValue:(int)settingsIdx change:(float)value;
++ (void) setSettingsValue:(int)settingsIdx value:(float)value;
 + (bool) isFXActive:(int)settingsIdx;
 
 + (void) FTPcheckStatus;

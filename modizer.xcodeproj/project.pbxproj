@@ -685,7 +685,6 @@
 		CC3F531C2ED3C0A6004D7908 /* libavutil.xcframework in Copy Files-Frameworks */ = {isa = PBXBuildFile; fileRef = CC3F530C2ED3C028004D7908 /* libavutil.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		CC3F531D2ED3C0A6004D7908 /* libswresample.xcframework in Copy Files-Frameworks */ = {isa = PBXBuildFile; fileRef = CC3F530D2ED3C028004D7908 /* libswresample.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		CC3F531E2ED3C0A6004D7908 /* libswscale.xcframework in Copy Files-Frameworks */ = {isa = PBXBuildFile; fileRef = CC3F530E2ED3C028004D7908 /* libswscale.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		CC4208C02EBCACC3006EED3A /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = CC4208BF2EBCACC3006EED3A /* Main.storyboard */; };
 		CC47A4AF2BF0B85700472202 /* liblibwonderswan.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CC47A4762BF024F400472202 /* liblibwonderswan.a */; };
 		CC47EA542BF21FD000472202 /* liblibzxtune.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CC47A4CF2BF1FB3500472202 /* liblibzxtune.a */; };
 		CC4884AC2B7A609100BCFFCC /* 05-shuffleone-green.png in Resources */ = {isa = PBXBuildFile; fileRef = CC4884AA2B7A609100BCFFCC /* 05-shuffleone-green.png */; };
@@ -1419,7 +1418,6 @@
 		CCBE629A2EE2DD44000FDD7E /* tl_tab.dat in Resources */ = {isa = PBXBuildFile; fileRef = 3370BBF3124A853F00691400 /* tl_tab.dat */; };
 		CCBE629B2EE2DD44000FDD7E /* rating0.png in Resources */ = {isa = PBXBuildFile; fileRef = CCCE26D512588EA100741F5A /* rating0.png */; };
 		CCBE629C2EE2DD44000FDD7E /* previous.png in Resources */ = {isa = PBXBuildFile; fileRef = CC7E810112698C29006EF083 /* previous.png */; };
-		CCBE629D2EE2DD44000FDD7E /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = CC4208BF2EBCACC3006EED3A /* Main.storyboard */; };
 		CCBE629E2EE2DD44000FDD7E /* databaseMAIN.modizerdb in Resources */ = {isa = PBXBuildFile; fileRef = CC7FC83D126B707200156FB3 /* databaseMAIN.modizerdb */; };
 		CCBE629F2EE2DD44000FDD7E /* database.modizerdb in Resources */ = {isa = PBXBuildFile; fileRef = CC7FC85B126B760400156FB3 /* database.modizerdb */; };
 		CCBE62A02EE2DD44000FDD7E /* adplug.db in Resources */ = {isa = PBXBuildFile; fileRef = 337D3ED4137B094F00270218 /* adplug.db */; };
@@ -1777,6 +1775,8 @@
 		CCD791721219FC6B0063D0E7 /* unzoom.png in Resources */ = {isa = PBXBuildFile; fileRef = CCD791701219FC6B0063D0E7 /* unzoom.png */; };
 		CCD791731219FC6B0063D0E7 /* zoom.png in Resources */ = {isa = PBXBuildFile; fileRef = CCD791711219FC6B0063D0E7 /* zoom.png */; };
 		CCDC905D2BBA97E30049CA0D /* libgbsplay.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CC07A8832BB952EA0052DE82 /* libgbsplay.a */; };
+		CCDF02E72EE5817900FC15AA /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = CCDF02E62EE5817800FC15AA /* Main.storyboard */; };
+		CCDF02E82EE5817900FC15AA /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = CCDF02E62EE5817800FC15AA /* Main.storyboard */; };
 		CCE0263E2E9A60E3008B7070 /* gloss.png in Resources */ = {isa = PBXBuildFile; fileRef = CCE0263D2E9A60E3008B7070 /* gloss.png */; };
 		CCE026552E9C4F18008B7070 /* txtMenu5d_2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CCE026542E9C4F18008B7070 /* txtMenu5d_2x.png */; };
 		CCE827AA2B9B951500F1F2AD /* libwebsid.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CCE8D9BA2B929CE00076D8C0 /* libwebsid.a */; };
@@ -3420,7 +3420,6 @@
 		CC3F530C2ED3C028004D7908 /* libavutil.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = libavutil.xcframework; sourceTree = "<group>"; };
 		CC3F530D2ED3C028004D7908 /* libswresample.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = libswresample.xcframework; sourceTree = "<group>"; };
 		CC3F530E2ED3C028004D7908 /* libswscale.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = libswscale.xcframework; sourceTree = "<group>"; };
-		CC4208BF2EBCACC3006EED3A /* Main.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
 		CC47A4712BF024F300472202 /* libwonderswan.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libwonderswan.xcodeproj; path = libwonderswan/libwonderswan.xcodeproj; sourceTree = "<group>"; };
 		CC47A4CA2BF1FB3500472202 /* libzxtune.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libzxtune.xcodeproj; path = libzxtune/libzxtune.xcodeproj; sourceTree = "<group>"; };
 		CC4884AA2B7A609100BCFFCC /* 05-shuffleone-green.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "05-shuffleone-green.png"; sourceTree = "<group>"; };
@@ -3929,6 +3928,8 @@
 		CCD649462EDC5F1A00FC5925 /* ModizerPlaylistBridge.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ModizerPlaylistBridge.mm; sourceTree = "<group>"; };
 		CCD791701219FC6B0063D0E7 /* unzoom.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = unzoom.png; sourceTree = "<group>"; };
 		CCD791711219FC6B0063D0E7 /* zoom.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = zoom.png; sourceTree = "<group>"; };
+		CCDF02E52EE5817800FC15AA /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		CCDF02E92EE5817900FC15AA /* mul */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; name = mul; path = mul.lproj/Main.xcstrings; sourceTree = "<group>"; };
 		CCE0263D2E9A60E3008B7070 /* gloss.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = gloss.png; sourceTree = "<group>"; };
 		CCE026542E9C4F18008B7070 /* txtMenu5d_2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu5d_2x.png; sourceTree = "<group>"; };
 		CCE352A02B79704200E06DE1 /* libopenmpt-modizer.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = "libopenmpt-modizer.xcodeproj"; path = "libs/libopenmpt/libopenmpt-modizer/libopenmpt-modizer.xcodeproj"; sourceTree = "<group>"; };
@@ -4656,7 +4657,7 @@
 			children = (
 				33ABE5B617B23DF900AE0EA1 /* BookmarksViewController.xib */,
 				CC89CB242EC14FDB000A110A /* LaunchScreen.storyboard */,
-				CC4208BF2EBCACC3006EED3A /* Main.storyboard */,
+				CCDF02E62EE5817800FC15AA /* Main.storyboard */,
 				CC6CBDEE17DBE380006DCBC7 /* EQViewController.xib */,
 				33B7AD0E17C75A8B00C1E404 /* MaintenanceViewController.xib */,
 				CCE8D7442B8D67460076D8C0 /* AnimatedLaunch.xib */,
@@ -7626,7 +7627,7 @@
 				3370BC15124A853F00691400 /* tl_tab.dat in Resources */,
 				CCCE26D612588EA100741F5A /* rating0.png in Resources */,
 				CC7E810212698C29006EF083 /* previous.png in Resources */,
-				CC4208C02EBCACC3006EED3A /* Main.storyboard in Resources */,
+				CCDF02E72EE5817900FC15AA /* Main.storyboard in Resources */,
 				CC7FC83F126B707300156FB3 /* databaseMAIN.modizerdb in Resources */,
 				CC7FC85C126B760400156FB3 /* database.modizerdb in Resources */,
 				337D3ED5137B094F00270218 /* adplug.db in Resources */,
@@ -8051,7 +8052,7 @@
 				CCBE629A2EE2DD44000FDD7E /* tl_tab.dat in Resources */,
 				CCBE629B2EE2DD44000FDD7E /* rating0.png in Resources */,
 				CCBE629C2EE2DD44000FDD7E /* previous.png in Resources */,
-				CCBE629D2EE2DD44000FDD7E /* Main.storyboard in Resources */,
+				CCDF02E82EE5817900FC15AA /* Main.storyboard in Resources */,
 				CCBE629E2EE2DD44000FDD7E /* databaseMAIN.modizerdb in Resources */,
 				CCBE629F2EE2DD44000FDD7E /* database.modizerdb in Resources */,
 				CCBE62A02EE2DD44000FDD7E /* adplug.db in Resources */,
@@ -8576,6 +8577,15 @@
 			name = Localizable.strings;
 			sourceTree = "<group>";
 		};
+		CCDF02E62EE5817800FC15AA /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				CCDF02E52EE5817800FC15AA /* Base */,
+				CCDF02E92EE5817900FC15AA /* mul */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
@@ -8589,7 +8599,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 4.0.0;
+				CURRENT_PROJECT_VERSION = 4.0.3;
 				ENABLE_HARDENED_RUNTIME = NO;
 				"ENABLE_HARDENED_RUNTIME[sdk=macosx*]" = YES;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -8632,7 +8642,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 4.0.0;
+				CURRENT_PROJECT_VERSION = 4.0.3;
 				ENABLE_HARDENED_RUNTIME = NO;
 				"ENABLE_HARDENED_RUNTIME[sdk=macosx*]" = YES;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -9157,7 +9167,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = YES;
-				CURRENT_PROJECT_VERSION = 4.0.0;
+				CURRENT_PROJECT_VERSION = 4.0.3;
 				ENABLE_HARDENED_RUNTIME = NO;
 				"ENABLE_HARDENED_RUNTIME[sdk=macosx*]" = YES;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -9332,7 +9342,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 4.0.0;
+				CURRENT_PROJECT_VERSION = 4.0.3;
 				ENABLE_HARDENED_RUNTIME = NO;
 				"ENABLE_HARDENED_RUNTIME[sdk=macosx*]" = YES;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -9375,7 +9385,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 4.0.0;
+				CURRENT_PROJECT_VERSION = 4.0.3;
 				ENABLE_HARDENED_RUNTIME = NO;
 				"ENABLE_HARDENED_RUNTIME[sdk=macosx*]" = YES;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -9418,7 +9428,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = YES;
-				CURRENT_PROJECT_VERSION = 4.0.0;
+				CURRENT_PROJECT_VERSION = 4.0.3;
 				ENABLE_HARDENED_RUNTIME = NO;
 				"ENABLE_HARDENED_RUNTIME[sdk=macosx*]" = YES;
 				FRAMEWORK_SEARCH_PATHS = (

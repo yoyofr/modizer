@@ -876,6 +876,8 @@
 "Silence Detection"="Détection des silences";
 "Stop song if silent for more than selected number of seconds. 0: off"="Stop le morceau si silencieux plus longtemps que le nombre de secondes sélectionné. 0: off";
 
+"Library"="Bibliothèque";
+
 /* Donation */
 "Thank You! ❤️"="Merci! ❤️";
 "Send a tip to Modizer"="Envoyer un pourboire à Modizer";
@@ -890,11 +892,11 @@
 
 /* Welcome pages */
 "Welcome to Modizer!\n"="Bienvenue sur Modizer !\n";
-"Your gateway to retro and tracker music.\nPower up your device with legendary game tunes, iconic tracker modules,and timeless chiptune classics."="Votre portail vers la musique rétro et les trackers.\nDonnez vie à votre appareil avec des musiques légendaires de jeux vidéo, des modules  iconiques et des classiques intemporels de la demoscene.";
+"Your gateway to retro and tracker music.\nPower up your device with legendary game tunes, iconic tracker modules,and timeless chiptune classics."="Votre portail vers la musique rétro et les trackers. Donnez vie à votre appareil avec des musiques légendaires de jeux vidéo, des modules iconiques et des classiques intemporels de la demoscene.";
 "Level up your library"="Enrichissez votre bibliothèque";
 "Browse and stream from online catalogs, to complete your own collections.\nBuild, edit, and listen to playlists effortlessly."="Parcourez et écoutez les catalogues en ligne pour compléter vos collections.\nCréez, modifiez et écoutez vos playlists sans effort.";
 "Sound meets visuals."="Le son rencontre le visuel.";
-"Unlock classic oscilloscope looks, spectrum bars, piano rolls, trackers view and modern FX based on ProjectM/Milkdrop.\nLet Modizer paint each track with motion and color."="Découvrez l'oscilloscope classique, les spectrums bars, le piano roll, la vue tracker et des effets modernes basés sur ProjectM/Milkdrop.\nLaissez Modizer peindre chaque morceau avec du mouvement et des couleurs.";
+"Unlock classic oscilloscope looks, spectrum bars, piano rolls, trackers view and ProjectM/Milkdrop FX. Let Modizer paint each track with motion and color."="Découvrez l'oscilloscope, les spectrums bars, le piano roll, la vue tracker et les effets ProjectM/Milkdrop. Laissez Modizer peindre chaque morceau avec du mouvement et des couleurs.";
 "Made with passion,\noffered for free."="Créé avec passion,\noffert gratuitement.";
 "If you enjoy the app, tips are a great way to support its ongoing development.\nThank you for helping keep Modizer alive and evolving."="Si vous appréciez l'application, les pourboires sont un excellent moyen de soutenir son développement continu.\nMerci de contribuer à maintenir Modizer vivant et en évolution.";
 
@@ -903,4 +905,6 @@
 
 "unknown_title" = "Titre inconnu";
 "unknown_album" = "Album inconnu";
-"now_playing_format" = "Lecture: %@ de %@";
+"now_playing_format" = "Lecture de %@ de %@";
+
+"Which playlist would you like to play?"="Quelle playlist voulez-vous jouer?";

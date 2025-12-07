@@ -214,7 +214,7 @@
         }
     } else if (playlistId==-3) { //Favorites
         
-        [playlistVC loadMostPlayedList:playlist];
+        [playlistVC loadFavoritesList:playlist];
         playlist->playlist_name=[[NSString alloc] initWithFormat:NSLocalizedString(@"Favorites",@"")];
         playlist->playlist_id=nil;
         

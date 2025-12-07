@@ -424,6 +424,7 @@
 		<string>FontAwesome.ttf</string>
 		<string>Fonts/Orbitron-Regular.ttf</string>
 		<string>Fonts/Montserrat-Regular.ttf</string>
+		<string>Fonts/fontawesome-webfont.ttf</string>
 	</array>
 	<key>UIApplicationSupportsCarPlay</key>
 	<true/>

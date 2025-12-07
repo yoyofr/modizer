@@ -1466,6 +1466,43 @@ static float movePinchScale,movePinchScaleOld;
 -(void) mdShiftMode:(int)active {
     _shiftModeOn=active;
 }
+
+-(void) mdSetFX:(int)fxIdx value:(int)value {
+    switch (fxIdx) {
+        case 0:
+            [SettingsGenViewController setSettingsValue:GLOB_FXFullscreen value:value];
+            [self oglUpdateFSStatus];
+            break;
+        case 1:
+            [SettingsGenViewController setSettingsValue:PROJECTM_FXONOFF value:value];
+            break;
+        case 2:
+            [SettingsGenViewController setSettingsValue:OSCILLO_FXMODE value:value];
+            break;
+        case 3:
+            [SettingsGenViewController setSettingsValue:GLOB_FXPianoRoll value:value];
+            break;
+        case 4:
+            [SettingsGenViewController setSettingsValue:GLOB_FXPiano3D value:value];
+            break;
+        case 5:
+            [SettingsGenViewController setSettingsValue:GLOB_FXMIDIPattern value:value];
+            break;
+        case 6:
+            [SettingsGenViewController setSettingsValue:GLOB_FXMODPattern value:value];
+            break;
+        case 7:
+            [SettingsGenViewController setSettingsValue:GLOB_FXSpectrum value:value];
+            break;
+        case 8:
+            [SettingsGenViewController setSettingsValue:GLOB_FX3DSpectrum value:value];
+            break;
+        case 9:
+            [SettingsGenViewController setSettingsValue:GLOB_FX3DLandscape value:value];
+            break;
+    }
+}
+
 -(void) mdSwitchSpectrumBloom:(int)val {
     [SettingsGenViewController changeSettingsValue:GLOB_FX3DSpectrumBloom change:val];
     
@@ -1815,8 +1852,7 @@ static float movePinchScale,movePinchScaleOld;
     [self settingsChanged:SETTINGS_VISU];
 }
 
-- (void)oglViewSwitchFS {
-    settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value=!(settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value);
+-(void)oglUpdateFSStatus {
     pMenu_fullscreenStatus=settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value;
     
     oglViewFullscreenChanged=1;
@@ -1829,6 +1865,11 @@ static float movePinchScale,movePinchScaleOld;
         }
     }
     [self mdzUpdateUI:(UIInterfaceOrientation)orientationHV];
+}
+
+- (void)oglViewSwitchFS {
+    settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value=!(settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value);
+    [self oglUpdateFSStatus];
 }
 
 - (IBAction)backPushed:(id)sender {
