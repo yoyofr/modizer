@@ -406,7 +406,6 @@
 		59B9997C25CFE5690071E144 /* UIColor+BButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 33ABE5AE17B17A5100AE0EA1 /* UIColor+BButton.m */; };
 		59B9997E25CFE56D0071E144 /* NSString+FontAwesome.m in Sources */ = {isa = PBXBuildFile; fileRef = 33ABE5AA17B17A5100AE0EA1 /* NSString+FontAwesome.m */; };
 		59B9998025CFE5700071E144 /* BButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 33ABE5A817B17A5100AE0EA1 /* BButton.m */; };
-		59B9998D25CFE6160071E144 /* libTapkuLibrary.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 59B9998825CFE5F50071E144 /* libTapkuLibrary.a */; };
 		59B9999625CFE6890071E144 /* SESlideTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 59B9999525CFE6890071E144 /* SESlideTableViewCell.m */; };
 		59BDE88B260F675D00FB0C69 /* libhighlyexperimental.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 59BDE7DF260F650C00FB0C69 /* libhighlyexperimental.a */; };
 		59BDE96D260FE5A500FB0C69 /* libHighlyQuixotic.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 59BDE95B260FE33100FB0C69 /* libHighlyQuixotic.a */; };
@@ -1065,7 +1064,6 @@
 		CCBE61382EE2DD44000FDD7E /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 5966D0FE25CFEFED00520777 /* libsqlite3.tbd */; };
 		CCBE61392EE2DD44000FDD7E /* liblibxsf.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 592862BF1E2D4D7A00A08A4E /* liblibxsf.a */; };
 		CCBE613A2EE2DD44000FDD7E /* MetalKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CC4FB2F52E8EA80F00B3E56F /* MetalKit.framework */; };
-		CCBE613B2EE2DD44000FDD7E /* libTapkuLibrary.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 59B9998825CFE5F50071E144 /* libTapkuLibrary.a */; };
 		CCBE613C2EE2DD44000FDD7E /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5905362025DBDB0500AA548E /* CoreVideo.framework */; };
 		CCBE613D2EE2DD44000FDD7E /* libgsf.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 59C6800C25CFCF2A001595B7 /* libgsf.a */; };
 		CCBE613E2EE2DD44000FDD7E /* libuade.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 59392A0E25CF5E04009281DC /* libuade.a */; };
@@ -1880,13 +1878,6 @@
 			proxyType = 2;
 			remoteGlobalIDString = 5980522F262F0B8000BB0309;
 			remoteInfo = xmp;
-		};
-		59B9998725CFE5F50071E144 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 33C7396B13A0AC210012221C /* TapkuLibrary.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = D2AAC07E0554694100DB518D;
-			remoteInfo = TapkuLibrary;
 		};
 		59BDE7DE260F650C00FB0C69 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -2860,7 +2851,6 @@
 		33C722D51691F882001D77A5 /* 02-redo-green@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "02-redo-green@2x.png"; sourceTree = "<group>"; };
 		33C722D61691F882001D77A5 /* 03-loopback-green@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "03-loopback-green@2x.png"; sourceTree = "<group>"; };
 		33C722D71691F882001D77A5 /* 03-loopback@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "03-loopback@2x.png"; sourceTree = "<group>"; };
-		33C7396B13A0AC210012221C /* TapkuLibrary.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = TapkuLibrary.xcodeproj; sourceTree = "<group>"; };
 		33C7397D13A2137A0012221C /* default_art.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = default_art.png; sourceTree = "<group>"; };
 		33CA193C14079ADB00CBEF9B /* gme.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = gme.xcodeproj; sourceTree = "<group>"; };
 		33CA194514079AEC00CBEF9B /* gme.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = gme.h; path = ../libGME/gme/gme.h; sourceTree = "<group>"; };
@@ -3104,7 +3094,6 @@
 		59A65CA92627808000BC99D1 /* MiniPlayerImplementNoTableView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MiniPlayerImplementNoTableView.h; sourceTree = "<group>"; };
 		59A6652F1E4B04E700EB110E /* txtMenu2d_2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu2d_2x.png; sourceTree = "<group>"; };
 		59A665311E4B04E700EB110E /* txtMenu2e_2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu2e_2x.png; sourceTree = "<group>"; };
-		59B9998B25CFE6030071E144 /* TapkuLibrary.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TapkuLibrary.h; path = TapkuLibrary/TapkuLibrary.h; sourceTree = "<group>"; };
 		59B9999425CFE6890071E144 /* SESlideTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SESlideTableViewCell.h; path = lib/SESlideTableViewCell.h; sourceTree = "<group>"; };
 		59B9999525CFE6890071E144 /* SESlideTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SESlideTableViewCell.m; path = lib/SESlideTableViewCell.m; sourceTree = "<group>"; };
 		59BB9F01261B03DE00DB5D6C /* ModizerVoicesData.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ModizerVoicesData.h; sourceTree = "<group>"; };
@@ -4070,7 +4059,6 @@
 				5966D0FF25CFEFED00520777 /* libsqlite3.tbd in Frameworks */,
 				5966D0BC25CFEE0100520777 /* liblibxsf.a in Frameworks */,
 				CC4FC8762E8EBF8100B3E56F /* MetalKit.framework in Frameworks */,
-				59B9998D25CFE6160071E144 /* libTapkuLibrary.a in Frameworks */,
 				5905362125DBDB0500AA548E /* CoreVideo.framework in Frameworks */,
 				5966D0BB25CFEDFC00520777 /* libgsf.a in Frameworks */,
 				59392A1A25CF610C009281DC /* libuade.a in Frameworks */,
@@ -4162,7 +4150,6 @@
 				CCBE61382EE2DD44000FDD7E /* libsqlite3.tbd in Frameworks */,
 				CCBE61392EE2DD44000FDD7E /* liblibxsf.a in Frameworks */,
 				CCBE613A2EE2DD44000FDD7E /* MetalKit.framework in Frameworks */,
-				CCBE613B2EE2DD44000FDD7E /* libTapkuLibrary.a in Frameworks */,
 				CCBE613C2EE2DD44000FDD7E /* CoreVideo.framework in Frameworks */,
 				CCBE613D2EE2DD44000FDD7E /* libgsf.a in Frameworks */,
 				CCBE613E2EE2DD44000FDD7E /* libuade.a in Frameworks */,
@@ -4445,15 +4432,6 @@
 				33BB80CE14D4679B00EA4B32 /* OBSlider.m */,
 			);
 			path = OBSlider;
-			sourceTree = "<group>";
-		};
-		33C7395613A0AA700012221C /* tapkulib */ = {
-			isa = PBXGroup;
-			children = (
-				59B9998B25CFE6030071E144 /* TapkuLibrary.h */,
-				33C7396B13A0AC210012221C /* TapkuLibrary.xcodeproj */,
-			);
-			path = tapkulib;
 			sourceTree = "<group>";
 		};
 		591054D125EAC21F00A194FF /* snsf */ = {
@@ -4888,7 +4866,6 @@
 				59C22A2F25B99ACA003FEDBF /* Reachability */,
 				59B9995125CFE2A00071E144 /* Resample */,
 				59517DE61E40778D00FAA0BF /* SESlideTableViewCell */,
-				33C7395613A0AA700012221C /* tapkulib */,
 				59A65C9E26277C4D00BC99D1 /* Transitions */,
 				CC1E5B131200B3B8000A8A4E /* unzip */,
 			);
@@ -4901,14 +4878,6 @@
 				CC19620E1B66BCD600778A3E /* Resample.xcodeproj */,
 			);
 			path = Resample;
-			sourceTree = "<group>";
-		};
-		59B9998425CFE5F40071E144 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				59B9998825CFE5F50071E144 /* libTapkuLibrary.a */,
-			);
-			name = Products;
 			sourceTree = "<group>";
 		};
 		59BDE7B4260F650C00FB0C69 /* highlyexperimental */ = {
@@ -6964,10 +6933,6 @@
 					ProjectRef = 591054D525EAC21F00A194FF /* snsf.xcodeproj */;
 				},
 				{
-					ProductGroup = 59B9998425CFE5F40071E144 /* Products */;
-					ProjectRef = 33C7396B13A0AC210012221C /* TapkuLibrary.xcodeproj */;
-				},
-				{
 					ProductGroup = 59C6800325CFCF2A001595B7 /* Products */;
 					ProjectRef = 33BA705E1407A12F0099E943 /* tim.xcodeproj */;
 				},
@@ -7061,13 +7026,6 @@
 			fileType = archive.ar;
 			path = libxmp.a;
 			remoteRef = 59805448262F21CA00BB0309 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		59B9998825CFE5F50071E144 /* libTapkuLibrary.a */ = {
-			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = libTapkuLibrary.a;
-			remoteRef = 59B9998725CFE5F50071E144 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		59BDE7DF260F650C00FB0C69 /* libhighlyexperimental.a */ = {

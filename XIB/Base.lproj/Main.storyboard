@@ -53,9 +53,9 @@
                             </layoutGuides>
                             <view key="view" clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" layoutMarginsFollowReadableWidth="YES" id="Haf-Ol-JUz">
                                 <rect key="frame" x="0.0" y="0.0" width="393" height="563"/>
-                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMaxX="YES" flexibleMinY="YES" heightSizable="YES" flexibleMaxY="YES"/>
                                 <subviews>
-                                    <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="40" sectionHeaderHeight="22" sectionFooterHeight="22" translatesAutoresizingMaskIntoConstraints="NO" id="8fh-8x-VO8">
+                                    <tableView clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" layoutMarginsFollowReadableWidth="YES" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="40" sectionHeaderHeight="22" sectionFooterHeight="22" translatesAutoresizingMaskIntoConstraints="NO" id="8fh-8x-VO8">
                                         <rect key="frame" x="0.0" y="0.0" width="393" height="563"/>
                                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                         <viewLayoutGuide key="contentLayoutGuide" id="6ku-LG-wdw"/>
@@ -80,6 +80,7 @@
                                     <constraint firstItem="8fh-8x-VO8" firstAttribute="leading" secondItem="Bwc-6t-Fw3" secondAttribute="leading" id="MAI-Eg-Pva"/>
                                     <constraint firstItem="8fh-8x-VO8" firstAttribute="bottom" secondItem="Bwc-6t-Fw3" secondAttribute="bottom" id="Sju-fE-BOh"/>
                                     <constraint firstItem="8fh-8x-VO8" firstAttribute="centerX" secondItem="Haf-Ol-JUz" secondAttribute="centerX" id="Vic-u9-bu3"/>
+                                    <constraint firstItem="8fh-8x-VO8" firstAttribute="trailing" secondItem="Bwc-6t-Fw3" secondAttribute="trailing" id="fVl-Lr-rJ6"/>
                                     <constraint firstItem="8fh-8x-VO8" firstAttribute="top" secondItem="Bwc-6t-Fw3" secondAttribute="top" id="kVJ-vv-1ka"/>
                                 </constraints>
                             </view>
@@ -131,6 +132,7 @@
                                 <constraints>
                                     <constraint firstItem="mte-ht-Ev6" firstAttribute="centerX" secondItem="a19-Qd-CSk" secondAttribute="centerX" id="1cJ-6L-YcL"/>
                                     <constraint firstItem="mte-ht-Ev6" firstAttribute="leading" secondItem="lIb-Q7-D9d" secondAttribute="leading" id="Ie3-5Y-laE"/>
+                                    <constraint firstItem="mte-ht-Ev6" firstAttribute="trailing" secondItem="lIb-Q7-D9d" secondAttribute="trailing" id="REl-TO-hXU"/>
                                     <constraint firstItem="mte-ht-Ev6" firstAttribute="bottom" secondItem="lIb-Q7-D9d" secondAttribute="bottom" id="bUB-Zt-jVY"/>
                                     <constraint firstItem="mte-ht-Ev6" firstAttribute="top" secondItem="lIb-Q7-D9d" secondAttribute="top" id="fzV-wN-ByY"/>
                                 </constraints>
@@ -182,6 +184,7 @@
                                 <constraints>
                                     <constraint firstItem="SyA-DC-hhd" firstAttribute="leading" secondItem="qHW-Nc-CAR" secondAttribute="leading" id="0Zb-31-2N5"/>
                                     <constraint firstItem="SyA-DC-hhd" firstAttribute="bottom" secondItem="qHW-Nc-CAR" secondAttribute="bottom" id="ahe-ct-0hf"/>
+                                    <constraint firstItem="SyA-DC-hhd" firstAttribute="trailing" secondItem="qHW-Nc-CAR" secondAttribute="trailing" id="cSK-Mh-L3r"/>
                                     <constraint firstItem="SyA-DC-hhd" firstAttribute="top" secondItem="qHW-Nc-CAR" secondAttribute="top" id="dg9-uR-XQf"/>
                                     <constraint firstItem="SyA-DC-hhd" firstAttribute="centerX" secondItem="ai9-RI-3ow" secondAttribute="centerX" id="gep-KQ-v3i"/>
                                 </constraints>
@@ -238,14 +241,19 @@
                                         <rect key="frame" x="0.0" y="0.0" width="393" height="563"/>
                                         <subviews>
                                             <activityIndicatorView opaque="NO" contentMode="scaleToFill" animating="YES" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="kcH-vI-flk">
-                                                <rect key="frame" x="137" y="97" width="37" height="37"/>
+                                                <rect key="frame" x="178" y="216" width="37" height="37"/>
+                                                <constraints>
+                                                    <constraint firstAttribute="height" constant="37" id="LPl-c6-VHQ"/>
+                                                    <constraint firstAttribute="width" constant="37" id="Y4J-Gv-n7j"/>
+                                                </constraints>
                                             </activityIndicatorView>
                                             <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Search in progress..." lineBreakMode="tailTruncation" minimumFontSize="10" translatesAutoresizingMaskIntoConstraints="NO" id="RRX-8o-b1m" userLabel="searchLabel">
-                                                <rect key="frame" x="36" y="142" width="239" height="41"/>
+                                                <rect key="frame" x="71.666666666666686" y="261" width="250" height="41"/>
                                                 <accessibility key="accessibilityConfiguration">
                                                     <accessibilityTraits key="traits" none="YES"/>
                                                 </accessibility>
                                                 <constraints>
+                                                    <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="250" id="GyI-0B-Ahy"/>
                                                     <constraint firstAttribute="height" constant="41" id="Y6A-Bn-zEg"/>
                                                 </constraints>
                                                 <fontDescription key="fontDescription" name="Helvetica-Bold" family="Helvetica" pointSize="24"/>
@@ -257,26 +265,26 @@
                                         </subviews>
                                         <color key="backgroundColor" red="0.014202867629999999" green="0.0" blue="2.4540675440000001e-05" alpha="0.75" colorSpace="custom" customColorSpace="sRGB"/>
                                         <constraints>
-                                            <constraint firstItem="RRX-8o-b1m" firstAttribute="leading" secondItem="r33-SH-xXX" secondAttribute="leading" constant="36" id="A0N-rI-uAx"/>
                                             <constraint firstItem="RRX-8o-b1m" firstAttribute="top" secondItem="kcH-vI-flk" secondAttribute="bottom" constant="8" id="Mim-kt-QCp"/>
-                                            <constraint firstItem="RRX-8o-b1m" firstAttribute="top" secondItem="r33-SH-xXX" secondAttribute="top" constant="142" id="dm5-Hn-Bb9"/>
+                                            <constraint firstItem="kcH-vI-flk" firstAttribute="centerX" secondItem="r33-SH-xXX" secondAttribute="centerX" id="hOi-oc-dHE"/>
                                             <constraint firstItem="RRX-8o-b1m" firstAttribute="centerX" secondItem="kcH-vI-flk" secondAttribute="centerX" id="lmx-tG-Fnc"/>
+                                            <constraint firstItem="RRX-8o-b1m" firstAttribute="centerY" secondItem="r33-SH-xXX" secondAttribute="centerY" id="qls-1I-a02"/>
                                         </constraints>
                                     </view>
                                 </subviews>
                                 <viewLayoutGuide key="safeArea" id="OPM-Xg-J5W"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                 <constraints>
-                                    <constraint firstItem="r33-SH-xXX" firstAttribute="top" secondItem="PPD-w7-C4Q" secondAttribute="top" id="7Fa-xj-dSM"/>
                                     <constraint firstItem="r33-SH-xXX" firstAttribute="top" secondItem="OPM-Xg-J5W" secondAttribute="top" id="I3a-aW-JCv"/>
+                                    <constraint firstItem="r33-SH-xXX" firstAttribute="trailing" secondItem="OPM-Xg-J5W" secondAttribute="trailing" id="Nrf-9r-scH"/>
+                                    <constraint firstItem="PPD-w7-C4Q" firstAttribute="bottom" secondItem="r33-SH-xXX" secondAttribute="bottom" id="QiX-Ft-rPg"/>
                                     <constraint firstItem="r33-SH-xXX" firstAttribute="bottom" secondItem="OPM-Xg-J5W" secondAttribute="bottom" id="QmE-US-wVh"/>
                                     <constraint firstItem="r33-SH-xXX" firstAttribute="centerX" secondItem="fSE-A8-pcY" secondAttribute="centerX" id="SF1-5E-YTq"/>
-                                    <constraint firstItem="r33-SH-xXX" firstAttribute="leading" secondItem="OPM-Xg-J5W" secondAttribute="leading" id="abH-Ip-e6f"/>
                                     <constraint firstItem="PPD-w7-C4Q" firstAttribute="centerX" secondItem="fSE-A8-pcY" secondAttribute="centerX" id="cdl-cw-ToM"/>
-                                    <constraint firstItem="r33-SH-xXX" firstAttribute="leading" secondItem="PPD-w7-C4Q" secondAttribute="leading" id="cnV-Iq-Kck"/>
-                                    <constraint firstItem="r33-SH-xXX" firstAttribute="bottom" secondItem="PPD-w7-C4Q" secondAttribute="bottom" id="hNR-Um-ckd"/>
-                                    <constraint firstItem="r33-SH-xXX" firstAttribute="trailing" secondItem="PPD-w7-C4Q" secondAttribute="trailing" id="mM2-b8-5sr"/>
+                                    <constraint firstItem="r33-SH-xXX" firstAttribute="leading" secondItem="OPM-Xg-J5W" secondAttribute="leading" id="p97-OY-nJK"/>
+                                    <constraint firstItem="PPD-w7-C4Q" firstAttribute="trailing" secondItem="OPM-Xg-J5W" secondAttribute="trailing" id="rfT-d4-9ia"/>
                                     <constraint firstItem="PPD-w7-C4Q" firstAttribute="leading" secondItem="OPM-Xg-J5W" secondAttribute="leading" id="wYT-mR-TVg"/>
+                                    <constraint firstItem="PPD-w7-C4Q" firstAttribute="top" secondItem="r33-SH-xXX" secondAttribute="top" id="yKv-wC-eX2"/>
                                 </constraints>
                             </view>
                             <extendedEdge key="edgesForExtendedLayout"/>
@@ -329,6 +337,7 @@
                                 <constraints>
                                     <constraint firstItem="PWX-uv-g3O" firstAttribute="top" secondItem="ZzT-hS-EOJ" secondAttribute="top" id="Kxn-K7-7nV"/>
                                     <constraint firstItem="PWX-uv-g3O" firstAttribute="bottom" secondItem="ZzT-hS-EOJ" secondAttribute="bottom" id="LYd-1y-PIt"/>
+                                    <constraint firstItem="PWX-uv-g3O" firstAttribute="trailing" secondItem="ZzT-hS-EOJ" secondAttribute="trailing" id="PI8-VP-3p3"/>
                                     <constraint firstItem="PWX-uv-g3O" firstAttribute="centerX" secondItem="Qa1-JV-OZT" secondAttribute="centerX" id="nfo-Bj-Mcb"/>
                                     <constraint firstItem="PWX-uv-g3O" firstAttribute="leading" secondItem="ZzT-hS-EOJ" secondAttribute="leading" id="no2-gG-A8w"/>
                                 </constraints>
@@ -357,7 +366,7 @@
                                 <rect key="frame" x="0.0" y="0.0" width="320" height="460"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <subviews>
-                                    <view hidden="YES" clipsSubviews="YES" contentMode="scaleAspectFill" id="JHe-hW-zzZ" userLabel="CoverViewAll">
+                                    <view hidden="YES" clipsSubviews="YES" contentMode="scaleAspectFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="JHe-hW-zzZ" userLabel="CoverViewAll">
                                         <rect key="frame" x="0.0" y="0.0" width="320" height="128"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <subviews>
@@ -733,7 +742,7 @@
                             </view>
                             <view hidden="YES" clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ZjM-UK-yeM" userLabel="Infos view">
                                 <rect key="frame" x="0.0" y="124" width="320" height="146"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxY="YES"/>
                                 <subviews>
                                     <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="qVZ-zm-vvG" userLabel="Fullscreen-zoom">
                                         <rect key="frame" x="234" y="0.0" width="32" height="32"/>
@@ -1179,7 +1188,7 @@ Integrated player libs:
 - LazyUSF
 - Libvgm
 - Mdxplay
-- NSFPlay 
+- NSFPlay
 - OpenMPT
 - PlayGSF
 - Pmdmini

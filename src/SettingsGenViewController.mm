@@ -980,15 +980,6 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_AfterDownloadAction].detail.mdz_switch.switch_labels[1]=(char*)"Enqueue";
     settings[GLOB_AfterDownloadAction].detail.mdz_switch.switch_labels[2]=(char*)"Play";
     
-    SETTINGS_ID_DEF(GLOB_CoverFlow)
-    settings[GLOB_CoverFlow].label=(char*)"Coverflow";
-    settings[GLOB_CoverFlow].description=NULL;
-    settings[GLOB_CoverFlow].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER;
-    settings[GLOB_CoverFlow].sub_family=0;
-    settings[GLOB_CoverFlow].callback=&optGLOBALChangedC;
-    settings[GLOB_CoverFlow].type=MDZ_BOOLSWITCH;
-    settings[GLOB_CoverFlow].detail.mdz_boolswitch.switch_value=0;
-    
     SETTINGS_ID_DEF(GLOB_RecreateSamplesFolder)
     settings[GLOB_RecreateSamplesFolder].label=(char*)"Auto. restore Samples folder";
     settings[GLOB_RecreateSamplesFolder].description=NULL;
@@ -1186,7 +1177,6 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_EnqueueMode].detail.mdz_switch.switch_default_value=2;
     settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_default_value=0;
     settings[GLOB_AfterDownloadAction].detail.mdz_switch.switch_default_value=1;
-    settings[GLOB_CoverFlow].detail.mdz_boolswitch.switch_default_value=0;
     settings[GLOB_RecreateSamplesFolder].detail.mdz_boolswitch.switch_default_value=1;
     
     

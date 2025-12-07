@@ -86,7 +86,6 @@ enum MDZ_SETTINGS {
     //GLOB_BackgroundMode,
     GLOB_TruncateNameMode,
     GLOB_TitleFilename,
-    GLOB_CoverFlow,
     GLOB_RecreateSamplesFolder,
     GLOB_StatsUpload,
     GLOB_ShowWelcome,
