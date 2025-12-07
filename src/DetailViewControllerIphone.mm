@@ -6818,7 +6818,6 @@ void pm_perfTest() {
     
     deactivateFStemp=0;
     
-    
     if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad) {
         //ipad
         UIScreen* mainscr = [UIScreen mainScreen];
@@ -6986,6 +6985,24 @@ void pm_perfTest() {
     [mac_key_released removeAllObjects];
     [mac_key_pressed removeAllObjects];
     ImGui_ImplIOS_ResetKeyMouse();
+    
+    //Display reminder / access to FX view
+    [self oglButtonMessage];
+}
+
+- (void)oglButtonMessage {
+    //reset attributes
+    oglButton.titleLabel.alpha=1.0;
+    oglButton.transform = CGAffineTransformIdentity; // Reset transform first
+    [UIView animateWithDuration:1.0 delay:1.0 options:0
+                     animations:^{
+        //fade out & zoom
+        self.oglButton.titleLabel.alpha=0.0;
+        self.oglButton.transform = CGAffineTransformMakeScale(1.5, 1.5); // Zoom to 150%
+        } completion:^(BOOL finished) {
+            //reset transfo
+            self.oglButton.transform = CGAffineTransformIdentity; // Reset transform first
+        }];
 }
 
 - (void)checkNewCover {
@@ -7946,7 +7963,6 @@ void doFramePM(float ww,float hh) {
     float fxalpha;
     int frameToUpdate=0;
     int shouldGoToSettings=0;
-    
     
     if (!_pmIsInitialized) return; //PRojectM might still be initializing and calling some opengl stuff from background thread
     

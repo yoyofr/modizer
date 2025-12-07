@@ -61,6 +61,24 @@
         }
       }
     },
+    "944-4Q-LrI.normalTitle" : {
+      "comment" : "Class = \"UIButton\"; normalTitle = \"Tap to activate FX\"; ObjectID = \"944-4Q-LrI\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Tap to activate FX"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Toucher pour activer les FX"
+          }
+        }
+      }
+    },
     "AYl-JB-O45.title" : {
       "comment" : "Class = \"UINavigationItem\"; title = \"Internet\"; ObjectID = \"AYl-JB-O45\";",
       "extractionState" : "extracted_with_value",

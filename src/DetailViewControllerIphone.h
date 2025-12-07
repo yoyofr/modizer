@@ -421,4 +421,6 @@ enum {
 
 -(void) refreshFXFSLabels;
 
+-(void) oglButtonMessage;
+
 @end
