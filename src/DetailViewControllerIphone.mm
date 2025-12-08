@@ -4533,14 +4533,12 @@ int recording=0;
                     oglButton.frame = CGRectMake(0, 82, mDevice_hh-safe_left-safe_right, mDevice_ww-82-safe_bottom-yofs);
                     
                 } else {
-                    mainView.frame = CGRectMake(0.0, 30, mDevice_hh, mDevice_ww-yofs);
-                    m_oglView.frame = CGRectMake(safe_left, 82, mDevice_hh-safe_left-safe_right, mDevice_ww-82-safe_bottom-yofs);
-                    oglButton.frame = CGRectMake(safe_left, 82, mDevice_hh-safe_left-safe_right, mDevice_ww-82-safe_bottom-yofs);
+                    mainView.frame = CGRectMake(safe_left, 28, mDevice_hh-safe_left-safe_right, mDevice_ww-yofs);
+                    m_oglView.frame = CGRectMake(0, 82, mDevice_hh-safe_left-safe_right, mDevice_ww-82-0*safe_bottom-yofs);
+                    oglButton.frame = CGRectMake(0, 82, mDevice_hh-safe_left-safe_right, mDevice_ww-82-0*safe_bottom-yofs);
                     
                 }
                 
-                //                cover_view.frame = CGRectMake(0.0+mDevice_hh/20, 82+mDevice_ww/20, mDevice_hh-mDevice_hh/10, mDevice_ww-82-mDevice_ww/10-safe_bottom-yofs);
-                //cover_viewBG.frame = CGRectMake(0.0, 0, mDevice_hh, mDevice_ww-82+82-safe_bottom-yofs);
                 cover_viewAll.frame = m_oglView.frame;//CGRectMake(0.0, 0, mDevice_hh, mDevice_ww-82+82-safe_bottom-yofs);
                 cover_view.frame = CGRectMake(cover_viewAll.frame.size.width/20,
                                               cover_viewAll.frame.size.height/20,
@@ -4554,7 +4552,7 @@ int recording=0;
                 if (bShowVC) voicesVC.view.frame=CGRectMake(mainView.frame.origin.x,m_oglView.frame.origin.y,mainView.frame.size.width,m_oglView.frame.size.height);
                 
                 if (infoIsFullscreen) infoView.frame = CGRectMake(mainView.frame.origin.x, 0, mainView.frame.size.width, mDevice_ww-20-30);
-                else infoView.frame = CGRectMake(mainView.frame.origin.x, 82, mainView.frame.size.width, mDevice_ww-82-30-safe_bottom);
+                else infoView.frame = CGRectMake(mainView.frame.origin.x, 82, mainView.frame.size.width, mDevice_ww-82-30-0*safe_bottom);
                 
                 int xofs=mDevice_hh-(24*5+36*3+8)-safe_left-safe_right;
                 yofs=10;
