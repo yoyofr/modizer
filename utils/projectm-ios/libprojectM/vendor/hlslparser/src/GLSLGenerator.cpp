@@ -175,6 +175,8 @@ bool GLSLGenerator::Generate(HLSLTree* tree, Target target, Version version, con
 	ChooseUniqueName( "asin", m_asinFunction, sizeof( m_asinFunction ) );
     ChooseUniqueName( "tanh", m_tanhFunction, sizeof( m_tanhFunction ) );
 	ChooseUniqueName( "mult", m_altMultFunction, sizeof( m_altMultFunction ) );
+    ChooseUniqueName( "all", m_allFunction, sizeof( m_allFunction ) );
+    ChooseUniqueName( "any", m_anyFunction, sizeof( m_anyFunction ) );
 
     for (int i = 0; i < s_numReservedWords; ++i)
     {
@@ -495,6 +497,68 @@ bool GLSLGenerator::Generate(HLSLTree* tree, Target target, Version version, con
             m_writer.WriteLine(0, "void %s(%s x, out %s s, out %s c) { s = sin(x); c = cos(x); }", m_sinCosFunction,
                 floatTypes[i], floatTypes[i], floatTypes[i]);
         }
+    }
+    
+    if (m_tree->NeedsFunction("all"))
+    {
+        /*
+         * all function in GLSL ES only covers bvec
+         */
+        m_writer.WriteLine(0, "bool %s(float f) { return (f!=0.0); }",m_allFunction);
+        m_writer.WriteLine(0, "bool %s(vec2 f) { return (f.x!=0.0)&&(f.y!=0.0); }",m_allFunction);
+        m_writer.WriteLine(0, "bool %s(vec3 f) { return (f.x!=0.0)&&(f.y!=0.0)&&(f.z!=0.0); }",m_allFunction);
+        m_writer.WriteLine(0, "bool %s(vec4 f) { return (f.x!=0.0)&&(f.y!=0.0)&&(f.z!=0.0)&&(f.w!=0.0); }",m_allFunction);
+
+        m_writer.WriteLine(0, "bool %s(int i) { return (i!=0); }",m_allFunction);
+        m_writer.WriteLine(0, "bool %s(ivec2 i) { return (i.x!=0)&&(i.y!=0); }",m_allFunction);
+        m_writer.WriteLine(0, "bool %s(ivec3 i) { return (i.x!=0)&&(i.y!=0)&&(i.z!=0); }",m_allFunction);
+        m_writer.WriteLine(0, "bool %s(ivec4 i) { return (i.x!=0)&&(i.y!=0)&&(i.z!=0)&&(i.w!=0); }",m_allFunction);
+
+        m_writer.WriteLine(0, "bool %s(mat2 f) { return (f[0][0]!=0.0)&&(f[0][1]!=0.0)&&(f[1][0]!=0.0)&&(f[1][1]!=0.0); }",m_allFunction);
+        m_writer.WriteLine(0, "bool %s(mat2x3 f) { return (f[0][0]!=0.0)&&(f[0][1]!=0.0)&&(f[0][2]!=0.0)&&(f[1][0]!=0.0)&&(f[1][1]!=0.0)&&(f[1][2]!=0.0); }",m_allFunction);
+        m_writer.WriteLine(0, "bool %s(mat2x4 f) { return (f[0][0]!=0.0)&&(f[0][1]!=0.0)&&(f[0][2]!=0.0)&&(f[0][3]!=0.0)&&(f[1][0]!=0.0)&&(f[1][1]!=0.0)&&(f[1][2]!=0.0)&&(f[1][3]!=0.0); }",m_allFunction);
+
+        m_writer.WriteLine(0, "bool %s(mat3 f) { return (f[0][0]!=0.0)&&(f[0][1]!=0.0)&&(f[0][2]!=0.0)&&(f[1][0]!=0.0)&&(f[1][1]!=0.0)&&(f[1][2]!=0.0)&&(f[2][0]!=0.0)&&(f[2][1]!=0.0)&&(f[2][2]!=0.0); }",m_allFunction);
+        m_writer.WriteLine(0, "bool %s(mat3x2 f) { return (f[0][0]!=0.0)&&(f[0][1]!=0.0)&&(f[1][0]!=0.0)&&(f[1][1]!=0.0)&&(f[2][0]!=0.0)&&(f[2][1]!=0.0); }",m_allFunction);
+        m_writer.WriteLine(0, "bool %s(mat3x4 f) { return (f[0][0]!=0.0)&&(f[0][1]!=0.0)&&(f[0][2]!=0.0)&&(f[0][3]!=0.0)&&(f[1][0]!=0.0)&&(f[1][1]!=0.0)&&(f[1][2]!=0.0)&&(f[1][3]!=0.0)&&(f[2][0]!=0.0)&&(f[2][1]!=0.0)&&(f[2][2]!=0.0)&&(f[2][3]!=0.0); }",m_allFunction);
+
+        m_writer.WriteLine(0, "bool %s(mat4 f) { return (f[0][0]!=0.0)&&(f[0][1]!=0.0)&&(f[0][2]!=0.0)&&(f[0][3]!=0.0)&&(f[1][0]!=0.0)&&(f[1][1]!=0.0)&&(f[1][2]!=0.0)&&(f[1][3]!=0.0)&&(f[2][0]!=0.0)&&(f[2][1]!=0.0)&&(f[2][2]!=0.0)&&(f[2][3]!=0.0)&&(f[3][0]!=0.0)&&(f[3][1]!=0.0)&&(f[3][2]!=0.0)&&(f[3][3]!=0.0); }",m_allFunction);
+        m_writer.WriteLine(0, "bool %s(mat4x2 f) { return (f[0][0]!=0.0)&&(f[0][1]!=0.0)&&(f[1][0]!=0.0)&&(f[1][1]!=0.0)&&(f[2][0]!=0.0)&&(f[2][1]!=0.0)&&(f[3][0]!=0.0)&&(f[3][1]!=0.0); }",m_allFunction);
+        m_writer.WriteLine(0, "bool %s(mat4x3 f) { return (f[0][0]!=0.0)&&(f[0][1]!=0.0)&&(f[0][2]!=0.0)&&(f[1][0]!=0.0)&&(f[1][1]!=0.0)&&(f[1][2]!=0.0)&&(f[2][0]!=0.0)&&(f[2][1]!=0.0)&&(f[2][2]!=0.0)&&(f[3][0]!=0.0)&&(f[3][1]!=0.0)&&(f[3][2]!=0.0); }",m_allFunction);
+        
+        m_writer.WriteLine(0, "bool %s(bool b) { return b; }",m_allFunction);
+        m_writer.WriteLine(0, "bool %s(bvec2 b) { return (b.x)&&(b.y); }",m_allFunction);
+        m_writer.WriteLine(0, "bool %s(bvec3 b) { return (b.x)&&(b.y)&&(b.z); }",m_allFunction);
+        m_writer.WriteLine(0, "bool %s(bvec4 b) { return (b.x)&&(b.y)&&(b.z)&&(b.w); }",m_allFunction);
+    }
+    
+    if (m_tree->NeedsFunction("any")) {
+        m_writer.WriteLine(0, "bool %s(float f) { return (f!=0.0); }",m_anyFunction);
+        m_writer.WriteLine(0, "bool %s(vec2 f) { return (f.x!=0.0)||(f.y!=0.0); }",m_anyFunction);
+        m_writer.WriteLine(0, "bool %s(vec3 f) { return (f.x!=0.0)||(f.y!=0.0)||(f.z!=0.0); }",m_anyFunction);
+        m_writer.WriteLine(0, "bool %s(vec4 f) { return (f.x!=0.0)||(f.y!=0.0)||(f.z!=0.0)||(f.w!=0.0); }",m_anyFunction);
+
+        m_writer.WriteLine(0, "bool %s(int i) { return (i!=0); }",m_anyFunction);
+        m_writer.WriteLine(0, "bool %s(ivec2 i) { return (i.x!=0)||(i.y!=0); }",m_anyFunction);
+        m_writer.WriteLine(0, "bool %s(ivec3 i) { return (i.x!=0)||(i.y!=0)||(i.z!=0); }",m_anyFunction);
+        m_writer.WriteLine(0, "bool %s(ivec4 i) { return (i.x!=0)||(i.y!=0)||(i.z!=0)||(i.w!=0); }",m_anyFunction);
+
+        m_writer.WriteLine(0, "bool %s(mat2 f) { return (f[0][0]!=0.0)||(f[0][1]!=0.0)||(f[1][0]!=0.0)||(f[1][1]!=0.0); }",m_anyFunction);
+        m_writer.WriteLine(0, "bool %s(mat2x3 f) { return (f[0][0]!=0.0)||(f[0][1]!=0.0)||(f[0][2]!=0.0)||(f[1][0]!=0.0)||(f[1][1]!=0.0)||(f[1][2]!=0.0); }",m_anyFunction);
+        m_writer.WriteLine(0, "bool %s(mat2x4 f) { return (f[0][0]!=0.0)||(f[0][1]!=0.0)||(f[0][2]!=0.0)||(f[0][3]!=0.0)||(f[1][0]!=0.0)||(f[1][1]!=0.0)||(f[1][2]!=0.0)||(f[1][3]!=0.0); }",m_anyFunction);
+
+        m_writer.WriteLine(0, "bool %s(mat3 f) { return (f[0][0]!=0.0)||(f[0][1]!=0.0)||(f[0][2]!=0.0)||(f[1][0]!=0.0)||(f[1][1]!=0.0)||(f[1][2]!=0.0)||(f[2][0]!=0.0)||(f[2][1]!=0.0)||(f[2][2]!=0.0); }",m_anyFunction);
+        m_writer.WriteLine(0, "bool %s(mat3x2 f) { return (f[0][0]!=0.0)||(f[0][1]!=0.0)||(f[1][0]!=0.0)||(f[1][1]!=0.0)||(f[2][0]!=0.0)||(f[2][1]!=0.0); }",m_anyFunction);
+        m_writer.WriteLine(0, "bool %s(mat3x4 f) { return (f[0][0]!=0.0)||(f[0][1]!=0.0)||(f[0][2]!=0.0)||(f[0][3]!=0.0)||(f[1][0]!=0.0)||(f[1][1]!=0.0)||(f[1][2]!=0.0)||(f[1][3]!=0.0)||(f[2][0]!=0.0)||(f[2][1]!=0.0)||(f[2][2]!=0.0)||(f[2][3]!=0.0); }",m_anyFunction);
+
+        m_writer.WriteLine(0, "bool %s(mat4 f) { return (f[0][0]!=0.0)||(f[0][1]!=0.0)||(f[0][2]!=0.0)||(f[0][3]!=0.0)||(f[1][0]!=0.0)||(f[1][1]!=0.0)||(f[1][2]!=0.0)||(f[1][3]!=0.0)||(f[2][0]!=0.0)||(f[2][1]!=0.0)||(f[2][2]!=0.0)||(f[2][3]!=0.0)||(f[3][0]!=0.0)||(f[3][1]!=0.0)||(f[3][2]!=0.0)||(f[3][3]!=0.0); }",m_anyFunction);
+        m_writer.WriteLine(0, "bool %s(mat4x2 f) { return (f[0][0]!=0.0)||(f[0][1]!=0.0)||(f[1][0]!=0.0)||(f[1][1]!=0.0)||(f[2][0]!=0.0)||(f[2][1]!=0.0)||(f[3][0]!=0.0)||(f[3][1]!=0.0); }",m_anyFunction);
+        m_writer.WriteLine(0, "bool %s(mat4x3 f) { return (f[0][0]!=0.0)||(f[0][1]!=0.0)||(f[0][2]!=0.0)||(f[1][0]!=0.0)||(f[1][1]!=0.0)||(f[1][2]!=0.0)||(f[2][0]!=0.0)||(f[2][1]!=0.0)||(f[2][2]!=0.0)||(f[3][0]!=0.0)||(f[3][1]!=0.0)||(f[3][2]!=0.0); }",m_anyFunction);
+        
+        m_writer.WriteLine(0, "bool %s(bool b) { return b; }",m_anyFunction);
+        m_writer.WriteLine(0, "bool %s(bvec2 b) { return (b.x)||(b.y); }",m_anyFunction);
+        m_writer.WriteLine(0, "bool %s(bvec3 b) { return (b.x)||(b.y)||(b.z); }",m_anyFunction);
+        m_writer.WriteLine(0, "bool %s(bvec4 b) { return (b.x)||(b.y)||(b.z)||(b.w); }",m_anyFunction);
     }
 
 	// special function to emulate ?: with bool{2,3,4} condition type
@@ -1315,6 +1379,14 @@ void GLSLGenerator::OutputIdentifier(const char* name)
     {
         name = m_tanhFunction;
     }
+    else if (String_Equal(name, "all"))
+    {
+        name = m_allFunction;
+    }
+    else if (String_Equal(name, "any"))
+    {
+        name = m_anyFunction;
+    }
     else
     {
         // The identifier could be a GLSL reserved word (if it's not also a HLSL reserved word).
@@ -1379,15 +1451,48 @@ void GLSLGenerator::OutputStatements(int indent, HLSLStatement* statement, const
                     skipAssignment = false;
                 }
 
-                m_writer.BeginLine(indent, declaration->fileName, declaration->line);
-                if (indent == 0 && (declaration->type.flags & HLSLTypeFlag_Uniform))
+                bool isStatic = (declaration->type.flags & HLSLTypeFlag_Static) != 0;
+                bool isConst = (declaration->type.flags & HLSLTypeFlag_Const) != 0;
+
+                // Const variables (non-static) must be initialized at declaration
+                // Static const variables can skip assignment initially
+                if (isConst && !isStatic)
                 {
-                    // At the top level, we need the "uniform" keyword.
-                    m_writer.Write("uniform ");
                     skipAssignment = false;
+
+                    // GLSL doesn't support multiple const declarations on the same line
+                    // Output each const declaration separately
+                    HLSLDeclaration* currentDecl = declaration;
+                    while (currentDecl != NULL)
+                    {
+                        m_writer.BeginLine(indent, currentDecl->fileName, currentDecl->line);
+
+                        // Temporarily break the chain to output only one declaration
+                        HLSLDeclaration* savedNext = currentDecl->nextDeclaration;
+                        currentDecl->nextDeclaration = NULL;
+
+                        OutputDeclaration(currentDecl, skipAssignment);
+
+                        // Restore the chain
+                        currentDecl->nextDeclaration = savedNext;
+
+                        m_writer.EndLine(";");
+                        currentDecl = savedNext;
+                    }
                 }
-                OutputDeclaration(declaration, skipAssignment);
-                m_writer.EndLine(";");
+                else
+                {
+                    m_writer.BeginLine(indent, declaration->fileName, declaration->line);
+                    if (indent == 0 && (declaration->type.flags & HLSLTypeFlag_Uniform))
+                    {
+                        // At the top level, we need the "uniform" keyword.
+                        m_writer.Write("uniform ");
+                        skipAssignment = false;
+                    }
+
+                    OutputDeclaration(declaration, skipAssignment);
+                    m_writer.EndLine(";");
+                }
             }
         }
         else if (statement->nodeType == HLSLNodeType_Struct)
@@ -2213,8 +2318,67 @@ void GLSLGenerator::OutputDeclarationAssignment(HLSLDeclaration* declaration)
    m_writer.Write( " = " );
    if( declaration->type.array )
    {
+       // Get the number of components in the base type
+       int componentCount = 0;
+       HLSLBaseType baseType = declaration->type.baseType;
+
+       if (baseType == HLSLBaseType_Float2 || baseType == HLSLBaseType_Int2 ||
+           baseType == HLSLBaseType_Uint2 || baseType == HLSLBaseType_Bool2)
+           componentCount = 2;
+       else if (baseType == HLSLBaseType_Float3 || baseType == HLSLBaseType_Int3 ||
+                baseType == HLSLBaseType_Uint3 || baseType == HLSLBaseType_Bool3)
+           componentCount = 3;
+       else if (baseType == HLSLBaseType_Float4 || baseType == HLSLBaseType_Int4 ||
+                baseType == HLSLBaseType_Uint4 || baseType == HLSLBaseType_Bool4)
+           componentCount = 4;
+
        m_writer.Write( "%s[]( ", GetTypeName( declaration->type ) );
-       OutputExpressionList( declaration->assignment );
+
+       // If base type is a vector and we have scalar assignments, group them into constructors
+       if (componentCount > 1)
+       {
+           HLSLExpression* expr = declaration->assignment;
+           bool firstElement = true;
+           int currentComponent = 0;
+
+           while (expr != NULL)
+           {
+               if (currentComponent == 0)
+               {
+                   if (!firstElement)
+                       m_writer.Write(", ");
+                   m_writer.Write("%s( ", GetTypeName(declaration->type));
+                   firstElement = false;
+               }
+               else
+               {
+                   m_writer.Write(", ");
+               }
+
+               OutputExpression(expr);
+               currentComponent++;
+
+               if (currentComponent >= componentCount)
+               {
+                   m_writer.Write(" )");
+                   currentComponent = 0;
+               }
+
+               expr = expr->nextExpression;
+           }
+
+           // Close any incomplete constructor
+           if (currentComponent > 0)
+           {
+               m_writer.Write(" )");
+           }
+       }
+       else
+       {
+           // For scalar arrays or if no grouping needed, output normally
+           OutputExpressionList( declaration->assignment );
+       }
+
        m_writer.Write( " )" );
    }
    else
@@ -2254,6 +2418,18 @@ void GLSLGenerator::OutputDeclaration(const HLSLType& type, const char* name)
 
 void GLSLGenerator::OutputDeclarationType( const HLSLType& type )
 {
+	// Output const qualifier if present
+	// However, GLSL const can only be used with compile-time constants
+	// In HLSL, "static const" can be initialized with runtime values (like uniforms)
+	// In GLSL, we should NOT output "const" for "static const" variables
+	bool isStatic = (type.flags & HLSLTypeFlag_Static) != 0;
+	bool isConst = (type.flags & HLSLTypeFlag_Const) != 0;
+
+	// Only output const if it's const but NOT static
+	if (isConst && !isStatic)
+	{
+		m_writer.Write("const ");
+	}
 	m_writer.Write( "%s ", GetTypeName( type ) );
 }
 
@@ -2279,7 +2455,12 @@ void GLSLGenerator::OutputCast(const HLSLType& type)
     if ((m_version == Version_110 || m_version == Version_120) && type.baseType == HLSLBaseType_Float3x3)
         m_writer.Write("%s", m_matrixCtorFunction);
     else
-        OutputDeclaration(type, "");
+    {
+        // Don't output const qualifier for casts/constructors - remove the const flag
+        HLSLType typeWithoutConst = type;
+        typeWithoutConst.flags &= ~HLSLTypeFlag_Const;
+        OutputDeclaration(typeWithoutConst, "");
+    }
 }
 
 void GLSLGenerator::Error(const char* format, ...)

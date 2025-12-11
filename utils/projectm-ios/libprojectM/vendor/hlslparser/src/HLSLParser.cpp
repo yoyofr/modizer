@@ -443,6 +443,29 @@ const Intrinsic _intrinsic[] =
         Intrinsic( "any", HLSLBaseType_Bool, HLSLBaseType_Uint2 ),
         Intrinsic( "any", HLSLBaseType_Bool, HLSLBaseType_Uint3 ),
         Intrinsic( "any", HLSLBaseType_Bool, HLSLBaseType_Uint4 ),
+        
+        Intrinsic( "all", HLSLBaseType_Bool, HLSLBaseType_Float ),
+        Intrinsic( "all", HLSLBaseType_Bool, HLSLBaseType_Float2 ),
+        Intrinsic( "all", HLSLBaseType_Bool, HLSLBaseType_Float3 ),
+        Intrinsic( "all", HLSLBaseType_Bool, HLSLBaseType_Float4 ),
+        Intrinsic( "all", HLSLBaseType_Bool, HLSLBaseType_Float2x4 ),
+        Intrinsic( "all", HLSLBaseType_Bool, HLSLBaseType_Float2x3 ),
+        Intrinsic( "all", HLSLBaseType_Bool, HLSLBaseType_Float2x2 ),
+        Intrinsic( "all", HLSLBaseType_Bool, HLSLBaseType_Float3x4 ),
+        Intrinsic( "all", HLSLBaseType_Bool, HLSLBaseType_Float3x3 ),
+        Intrinsic( "all", HLSLBaseType_Bool, HLSLBaseType_Float3x2 ),
+        Intrinsic( "all", HLSLBaseType_Bool, HLSLBaseType_Float4x4 ),
+        Intrinsic( "all", HLSLBaseType_Bool, HLSLBaseType_Float4x3 ),
+        Intrinsic( "all", HLSLBaseType_Bool, HLSLBaseType_Float4x2 ),
+        Intrinsic( "all", HLSLBaseType_Bool, HLSLBaseType_Bool ),
+        Intrinsic( "all", HLSLBaseType_Bool, HLSLBaseType_Int ),
+        Intrinsic( "all", HLSLBaseType_Bool, HLSLBaseType_Int2 ),
+        Intrinsic( "all", HLSLBaseType_Bool, HLSLBaseType_Int3 ),
+        Intrinsic( "all", HLSLBaseType_Bool, HLSLBaseType_Int4 ),
+        Intrinsic( "all", HLSLBaseType_Bool, HLSLBaseType_Uint ),
+        Intrinsic( "all", HLSLBaseType_Bool, HLSLBaseType_Uint2 ),
+        Intrinsic( "all", HLSLBaseType_Bool, HLSLBaseType_Uint3 ),
+        Intrinsic( "all", HLSLBaseType_Bool, HLSLBaseType_Uint4 ),
 
         INTRINSIC_FLOAT1_FUNCTION( "asin" ),
         INTRINSIC_FLOAT1_FUNCTION( "atan" ),
@@ -2304,6 +2327,12 @@ bool HLSLParser::ParseBinaryExpression(int priority, HLSLExpression*& expression
                 if( !Expect(needsExpressionEndChar) )
                     return false;
                 needsExpressionEndChar = 0;
+                // After closing the parenthesis, check if there are binary operators
+                if (AcceptBinaryOperator(priority, binaryOp))
+                {
+                    acceptBinaryOp = true;
+                    continue;  // Continue parsing the binary operator
+                }
             }
             break;
         }
