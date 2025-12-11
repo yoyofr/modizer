@@ -905,6 +905,14 @@ std::string ShaderPreprocessor::fixModuloParentheses(const std::string& shaderSo
     return result;
 }
 
+void ShaderPreprocessor::removeEmptyLines(std::string& str) {
+    auto newEnd = std::unique(str.begin(), str.end(),
+        [](char a, char b) {
+            return (a == '\n' && b == '\n');
+        });
+    str.erase(newEnd, str.end());
+}
+
 std::string ShaderPreprocessor::preprocess(const std::string& shaderSource) {
     std::string result = shaderSource;
 
@@ -913,9 +921,9 @@ std::string ShaderPreprocessor::preprocess(const std::string& shaderSource) {
 
 
     // Step 1: Fix array initializers (must be done early, before shader_body transformations)
-    if (m_language == ShaderLanguage::HLSL) {
-        result = fixArrayInitializers(result);
-    }
+//    if (m_language == ShaderLanguage::HLSL) {
+//        result = fixArrayInitializers(result);
+//    }
 
     // Step 2: Remove invalid functions
     std::vector<FunctionInfo> functions = extractFunctions(result);
@@ -1201,6 +1209,8 @@ std::string ShaderPreprocessor::preprocess(const std::string& shaderSource) {
         HLSLTypeFixer hlslTypeFixer;
         result = hlslTypeFixer.autoFix(result);
     }
+    
+    removeEmptyLines(result);
 
     return result;
 }

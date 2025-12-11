@@ -7494,7 +7494,9 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             if (settings[GLOB_PBRATIO_ONOFF].detail.mdz_boolswitch.switch_value) mCurrentSamples+=(nbBytes/4)*settings[GLOB_PBRATIO].detail.mdz_slider.slider_value;
                             else mCurrentSamples+=(nbBytes/4);
                             
-                            if (nsfPlayer->IsDetected()||nsfPlayer->IsStopped()||(mdzSilentBufferCount>=mdzSilentBufferLimit)) {
+                            if (nsfPlayer->IsDetected()||nsfPlayer->IsStopped()||
+                                (mdzSilentBufferLimit&&(mdzSilentBufferCount>=mdzSilentBufferLimit))
+                                ) {
                                 //end reached
                                 [self setSongLengthfromMD5:mod_currentsub-mod_minsub+1 songlength:mCurrentSamples*1000/PLAYBACK_FREQ];
                                 
@@ -8967,7 +8969,6 @@ typedef struct {
         int song_length=0;
         NSString *filePathMain;
         NSString *fileName;
-        NSMutableArray *tmp_path;
         
         if (m3uReader.size()) song_length=m3uReader[i].length;
         if (song_length<=0) {

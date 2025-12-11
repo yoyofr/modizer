@@ -99,6 +99,12 @@ public:
      * @return The fully processed shader source
      */
     [[nodiscard]] std::string preprocess(const std::string& shaderSource);
+    
+    /**
+     * Remove empty lines
+     * @param str  String for which empty lines will be removed
+     */
+    void removeEmptyLines(std::string& str);
 
     /**
      * Set the shader language
