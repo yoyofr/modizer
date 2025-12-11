@@ -2298,9 +2298,16 @@ bool HLSLParser::ParseBinaryExpression(int priority, HLSLExpression*& expression
         }
         else
         {
+            // Before exiting, consume the closing parenthesis if needed
+            if( needsExpressionEndChar != 0 )
+            {
+                if( !Expect(needsExpressionEndChar) )
+                    return false;
+                needsExpressionEndChar = 0;
+            }
             break;
         }
-
+        
         //  First: try if next is a binary op before exiting the loop
         if (AcceptBinaryOperator(priority, binaryOp))
         {
