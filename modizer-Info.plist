@@ -1997,5 +1997,18 @@
 			</dict>
 		</dict>
 	</array>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>com.yoyofr.modizer</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>modizer</string>
+			</array>
+		</dict>
+	</array>
 </dict>
 </plist>

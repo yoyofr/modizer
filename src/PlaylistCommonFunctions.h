@@ -151,6 +151,53 @@
     return pl_entries;
 }
 
+-(int) loadLocalFilesRandomPL:(NSMutableArray*)labels fullpaths:(NSMutableArray*)fullpaths {
+    int pl_entries=0;
+    NSString *file,*cpath;
+    NSMutableArray *filetype_ext=[ModizFileHelper buildListSupportFileType:FTYPE_PLAYABLEFILE];
+    // First check count for each section
+    cpath=[NSHomeDirectory() stringByAppendingPathComponent:@"Documents"];
+    NSError *error;
+    NSArray *dirContent;//
+    BOOL isDir;
+    
+    NSFileManager *mFileMngr=[[NSFileManager alloc] init];
+    
+    dirContent=[mFileMngr subpathsOfDirectoryAtPath:cpath error:&error];
+    
+    NSArray *sortedDirContent = imp_RandomizeUsingMutableCopy(dirContent);
+    
+    for (int i=0;i<[sortedDirContent count];i++) {
+        NSString *file=[sortedDirContent objectAtIndex:i];
+        //check if dir
+        [mFileMngr fileExistsAtPath:[cpath stringByAppendingFormat:@"/%@",file] isDirectory:&isDir];
+        if (isDir) {
+        } else {
+            NSString *extension;// = [[file pathExtension] uppercaseString];
+            NSString *file_no_ext;// = [[[file lastPathComponent] stringByDeletingPathExtension] uppercaseString];
+            NSMutableArray *temparray_filepath=[NSMutableArray arrayWithArray:[[[file lastPathComponent] uppercaseString] componentsSeparatedByString:@"."]];
+            extension = (NSString *)[temparray_filepath lastObject];
+            //[temparray_filepath removeLastObject];
+            file_no_ext=[temparray_filepath firstObject];
+            
+            int found=0;
+            
+            if ([filetype_ext indexOfObject:extension]!=NSNotFound) found=1;
+            else if ([filetype_ext indexOfObject:file_no_ext]!=NSNotFound) found=1;
+            
+            if (found)  {
+                [labels addObject:[NSString stringWithString:[file lastPathComponent]]];
+                [fullpaths addObject:[NSString stringWithFormat:@"Documents/%@",file]];
+                pl_entries++;
+                if (pl_entries>=MAX_CARPLAY_RANDOM_PL_SIZE) break;
+            }
+        }
+    }
+    
+    return pl_entries;
+}
+
+
 -(int) loadFavoritesList:(NSMutableArray*)labels fullpaths:(NSMutableArray*)fullpaths {
     NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
     sqlite3 *db;
@@ -339,6 +386,60 @@
     [self showAlert:alertC];
 }
 */
+-(NSString *) minitNewPlaylistDB:(NSString *)listName {
+    NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
+    sqlite3 *db;
+    NSString *id_playlist;
+    pthread_mutex_lock(&db_mutex);
+    if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
+        char sqlStatement[1024];
+        int err;
+        
+        err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        if (err==SQLITE_OK){
+        } else MDZELog("ErrSQL : %d",err);
+        
+        snprintf(sqlStatement,sizeof(sqlStatement),"INSERT INTO playlists (name,num_files) SELECT \"%s\",0",[listName UTF8String]);
+        err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
+        if (err==SQLITE_OK){
+        } else MDZELog("ErrSQL : %d",err);
+        
+        //Get id
+        id_playlist=[[NSString alloc] initWithFormat:@"%lld",sqlite3_last_insert_rowid(db) ];
+    };
+    sqlite3_close(db);
+    pthread_mutex_unlock(&db_mutex);
+    return id_playlist;
+}
+
+
+- (void)createNewPlaylistAndAdd:(NSString*)label fullPath:(NSString*)fullPath {
+    UIAlertController *alertC = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Enter playlist name",@"")
+                                                                    message:nil
+                                                             preferredStyle:UIAlertControllerStyleAlert];
+    __weak UIAlertController *weakAlert = alertC;
+    [alertC addTextFieldWithConfigurationHandler:^(UITextField *textField) {
+        textField.placeholder = @"";
+    }];
+    
+    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel",@"") style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+        
+    }];
+    [alertC addAction:cancelAction];
+    
+    UIAlertAction *saveAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Create",@"") style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        UITextField *plName = weakAlert.textFields.firstObject;
+            
+        NSString *playlistName=[[NSString alloc] initWithString:plName.text];
+        NSString *playlistId=[self minitNewPlaylistDB:playlistName];
+        
+        [self addToPlaylistDB:playlistId  label:label fullPath:fullPath];
+        
+    }];
+    [alertC addAction:saveAction];
+    
+    [self showAlert:alertC];
+}
 
 
 - (void) addToPlaylistSelView:(NSString*)fullPath label:(NSString*)label showNowListening:(bool)showNL{
@@ -360,11 +461,11 @@
         }];
     [msgAlert addAction:cancelAction];
     
-/*    UIAlertAction* newPlAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"New playlist",@"") style:UIAlertActionStyleDefault
+    UIAlertAction* createNewPlaylistAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Create new playlist",@"") style:UIAlertActionStyleDefault
        handler:^(UIAlertAction * action) {
-            if ([detailViewController add_to_playlist:fullPath fileName:label forcenoplay:1]) {
-                if ([detailViewController.mplayer isPlaying]) [self showMiniPlayer];
-            }
+            //create new playlist and add current title
+        [self createNewPlaylistAndAdd:label fullPath:fullPath];
+        
             if ([self respondsToSelector:@selector(updateMiniPlayer)]) [self performSelector:@selector(updateMiniPlayer)];
             //free playlists list
             for (int i=0;i<plListsize;i++) {
@@ -372,8 +473,8 @@
             }
             mdz_safe_free(plList);
         }];
-    [msgAlert addAction:newPlAction];*/
-
+    [msgAlert addAction:createNewPlaylistAction];
+    
     if (showNL) {
 #ifdef HAS_DETAILVIEW_CONT
         UIAlertAction* nowplayingAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Now playing",@"") style:UIAlertActionStyleDefault

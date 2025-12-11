@@ -41,6 +41,7 @@ static volatile int mPopupAnimation=0;
 extern volatile t_settings settings[MAX_SETTINGS];
 
 #import "TTFadeAnimator.h"
+#import "ModizFileHelper.h"
 
 
 @implementation RootViewControllerHVSC

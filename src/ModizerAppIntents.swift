@@ -18,6 +18,16 @@ class ModizerPlayerBridge {
 
     private init() {}
 
+    /// Check if the app is properly initialized
+    private var isAppInitialized: Bool {
+        guard let appDelegate = UIApplication.shared.delegate as? NSObject else {
+            return false
+        }
+        // Check if key view controllers are set up
+        return appDelegate.value(forKey: "playlistVC") != nil &&
+               appDelegate.value(forKey: "detailViewControlleriPhone") != nil
+    }
+
     // Get the detail view controller from app delegate
     private var detailViewController: AnyObject? {
         guard let appDelegate = UIApplication.shared.delegate as? NSObject,
@@ -539,7 +549,14 @@ struct PlaylistEntity: AppEntity, Identifiable {
     @MainActor
     struct Query: EntityQuery {
         func entities(for identifiers: [PlaylistEntity.ID]) async throws -> [PlaylistEntity] {
+            // Query methods can't reliably launch the app, so just return what's available
             let playlists = ModizerPlayerBridge.shared.getAvailablePlaylists()
+
+            // If no playlists available and app might not be running, the Intent will handle this
+            if playlists.isEmpty {
+                return []
+            }
+
             let idSet = Set(identifiers)
             return playlists
                 .filter { idSet.contains(String($0.id)) }
@@ -909,11 +926,18 @@ struct GetNowPlayingIntent: AppIntent {
 struct GetPlaylistsIntent: AppIntent {
     static let title: LocalizedStringResource = "Get Playlists"
     static let description = IntentDescription("Gets the list of available playlists in Modizer.")
-    static let openAppWhenRun: Bool = false
+    static let openAppWhenRun: Bool = true
 
     @MainActor
     func perform() async throws -> some IntentResult & ReturnsValue<String> {
-        let playlists = ModizerPlayerBridge.shared.getAvailablePlaylists()
+        // Wait for app to initialize if needed (max 5 seconds)
+        var attempts = 0
+        var playlists = ModizerPlayerBridge.shared.getAvailablePlaylists()
+        while playlists.isEmpty && attempts < 50 {
+            try? await Task.sleep(nanoseconds: 100_000_000) // 100ms
+            attempts += 1
+            playlists = ModizerPlayerBridge.shared.getAvailablePlaylists()
+        }
 
         if playlists.isEmpty {
             return .result(value: "No playlists found")
@@ -932,11 +956,14 @@ struct GetPlaylistsIntent: AppIntent {
 struct PlayRandomPicksIntent: AppIntent {
     static let title: LocalizedStringResource = "Play some music"
     static let description = IntentDescription("Random picks from available local titles in Modizer.")
-    static let openAppWhenRun: Bool = false
+    static let openAppWhenRun: Bool = true
 
     @MainActor
     func perform() async throws -> some IntentResult {
-        ModizerPlayerBridge.shared.playBuiltinPlaylist(playlistId: -1)
+        let urlString = "modizer://playBuiltin?id=-1&fromShortcut=true"
+        if let url = URL(string: urlString) {
+            await UIApplication.shared.open(url)
+        }
         return .result()
     }
 }
@@ -946,11 +973,14 @@ struct PlayRandomPicksIntent: AppIntent {
 struct PlayMostPlayedIntent: AppIntent {
     static let title: LocalizedStringResource = "Play most played"
     static let description = IntentDescription("Most played titles from available local titles in Modizer.")
-    static let openAppWhenRun: Bool = false
+    static let openAppWhenRun: Bool = true
 
     @MainActor
     func perform() async throws -> some IntentResult {
-        ModizerPlayerBridge.shared.playBuiltinPlaylist(playlistId: -2)
+        let urlString = "modizer://playBuiltin?id=-2&fromShortcut=true"
+        if let url = URL(string: urlString) {
+            await UIApplication.shared.open(url)
+        }
         return .result()
     }
 }
@@ -960,11 +990,14 @@ struct PlayMostPlayedIntent: AppIntent {
 struct PlayFavoritesIntent: AppIntent {
     static let title: LocalizedStringResource = "Play favorites"
     static let description = IntentDescription("Favorites titles from available local titles in Modizer.")
-    static let openAppWhenRun: Bool = false
+    static let openAppWhenRun: Bool = true
 
     @MainActor
     func perform() async throws -> some IntentResult {
-        ModizerPlayerBridge.shared.playBuiltinPlaylist(playlistId: -3)
+        let urlString = "modizer://playBuiltin?id=-3&fromShortcut=true"
+        if let url = URL(string: urlString) {
+            await UIApplication.shared.open(url)
+        }
         return .result()
     }
 }
@@ -973,8 +1006,11 @@ struct PlayFavoritesIntent: AppIntent {
 @available(iOS 16.0, *)
 struct PlayPlaylistIntent: AppIntent {
     static let title: LocalizedStringResource = "Play Playlist"
-    static let description = IntentDescription("Plays a specific playlist in Modizer.")
+    static let description = IntentDescription("Plays a specific playlist in Modizer. Note: For best results with Siri, use 'Play Playlist By Name' instead.")
     static let openAppWhenRun: Bool = true
+
+    // This intent should appear after the by-name version in Siri suggestions
+    static let isDiscoverable = true
 
     static var parameterSummary: some ParameterSummary {
         Summary("Play \(\.$playlist)") {
@@ -993,24 +1029,17 @@ struct PlayPlaylistIntent: AppIntent {
 
     @MainActor
     func perform() async throws -> some IntentResult & ProvidesDialog {
-        // Use playlist id if available, otherwise fall back to name lookup
-        let idInt = Int(playlist.id)
-        let success: Bool
-        if let pid = idInt {
-            success = ModizerPlayerBridge.shared.playPlaylist(playlistId: pid, startIndex: startIndex)
-        } else {
-            success = ModizerPlayerBridge.shared.playPlaylist(playlistName: playlist.name, startIndex: startIndex)
+        // Use URL scheme with fromShortcut flag to launch app with proper context
+        let playlistId = playlist.id
+        let urlString = "modizer://playPlaylist?id=\(playlistId)&index=\(startIndex)&fromShortcut=true"
+
+        if let url = URL(string: urlString) {
+            await UIApplication.shared.open(url)
         }
 
-        if success {
-            let fmt = NSLocalizedString("play_playlist_dialog", tableName: nil, bundle: .main, value: "Lecture de la playlist %@", comment: "Dialog confirming playlist playback")
-            let dialog = String(format: fmt, playlist.name)
-            return .result(dialog: IntentDialog(stringLiteral: dialog))
-        } else {
-            let fmt = NSLocalizedString("playlist_not_found_dialog", tableName: nil, bundle: .main, value: "Je n'ai pas trouvé la playlist %@", comment: "Dialog when playlist not found")
-            let dialog = String(format: fmt, playlist.name)
-            return .result(dialog: IntentDialog(stringLiteral: dialog))
-        }
+        let fmt = NSLocalizedString("play_playlist_dialog", tableName: nil, bundle: .main, value: "Lecture de la playlist %@", comment: "Dialog confirming playlist playback")
+        let dialog = String(format: fmt, playlist.name)
+        return .result(dialog: IntentDialog(stringLiteral: dialog))
     }
 }
 
@@ -1018,8 +1047,11 @@ struct PlayPlaylistIntent: AppIntent {
 @available(iOS 16.0, *)
 struct PlayPlaylistByNameIntent: AppIntent {
     static let title: LocalizedStringResource = "Play Playlist By Name"
-    static let description = IntentDescription("Plays a playlist by name in Modizer.")
+    static let description = IntentDescription("Plays a playlist by name in Modizer. Recommended for Siri voice commands.")
     static let openAppWhenRun: Bool = true
+
+    // Make this the preferred intent for Siri
+    static let isDiscoverable = true
 
     static var parameterSummary: some ParameterSummary {
         Summary("Play playlist \(\.$playlistName)")
@@ -1037,17 +1069,17 @@ struct PlayPlaylistByNameIntent: AppIntent {
 
     @MainActor
     func perform() async throws -> some IntentResult & ProvidesDialog {
-        let success = ModizerPlayerBridge.shared.playPlaylist(playlistName: playlistName, startIndex: startIndex)
+        // Use URL scheme with name and fromShortcut flag
+        let encodedName = playlistName.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? playlistName
+        let urlString = "modizer://playPlaylistByName?name=\(encodedName)&index=\(startIndex)&fromShortcut=true"
 
-        if success {
-            let fmt = NSLocalizedString("play_playlist_dialog", tableName: nil, bundle: .main, value: "Lecture de la playlist %@", comment: "Dialog confirming playlist playback")
-            let dialog = String(format: fmt, playlistName)
-            return .result(dialog: IntentDialog(stringLiteral: dialog))
-        } else {
-            let fmt = NSLocalizedString("playlist_not_found_dialog", tableName: nil, bundle: .main, value: "Je n'ai pas trouvé la playlist %@", comment: "Dialog when playlist not found")
-            let dialog = String(format: fmt, playlistName)
-            return .result(dialog: IntentDialog(stringLiteral: dialog))
+        if let url = URL(string: urlString) {
+            await UIApplication.shared.open(url)
         }
+
+        let fmt = NSLocalizedString("play_playlist_dialog", tableName: nil, bundle: .main, value: "Lecture de la playlist %@", comment: "Dialog confirming playlist playback")
+        let dialog = String(format: fmt, playlistName)
+        return .result(dialog: IntentDialog(stringLiteral: dialog))
     }
 }
 
@@ -1078,7 +1110,6 @@ struct ModizerShortcuts: AppShortcutsProvider {
                     // French
                     "Joue une playlist dans \(.applicationName)",
                     "Lance une playlist dans \(.applicationName)",
-                    "Joue la playlist dans \(.applicationName)",
                     // German
                     "Spiele eine Playlist in \(.applicationName)",
                     "Starte eine Playlist in \(.applicationName)",
@@ -1116,53 +1147,6 @@ struct ModizerShortcuts: AppShortcutsProvider {
                 shortTitle: "Play Playlist",
                 systemImageName: "music.note.list"
             ),
-//            AppShortcut(
-//                intent: PlayIntent(),
-//                phrases: [
-//                    // English
-//                    "Play in \(.applicationName)",
-//                    "Start playing \(.applicationName)",
-//                    "Resume \(.applicationName)",
-//                    // French
-//                    "Lecture dans \(.applicationName)",
-//                    "Reprend la lecture dans \(.applicationName)",
-//                    // German
-//                    "Spiele in \(.applicationName)",
-//                    "Starte Wiedergabe in \(.applicationName)",
-//                    // Spanish
-//                    "Reproduce en \(.applicationName)",
-//                    "Iniciar reproducción en \(.applicationName)",
-//                    // Italian
-//                    "Riproduci in \(.applicationName)",
-//                    "Avvia riproduzione in \(.applicationName)",
-//                    // Swedish
-//                    "Spela i \(.applicationName)",
-//                    "Starta uppspelning i \(.applicationName)",
-//                    // Norwegian
-//                    "Spill i \(.applicationName)",
-//                    "Start avspilling i \(.applicationName)",
-//                    // Portuguese
-//                    "Reproduzir em \(.applicationName)",
-//                    "Iniciar reprodução em \(.applicationName)",
-//                    // Russian
-//                    "Воспроизвести в \(.applicationName)",
-//                    "Запустить воспроизведение в \(.applicationName)",
-//                    // Arabic
-//                    "تشغيل في \(.applicationName)",
-//                    "ابدأ التشغيل في \(.applicationName)",
-//                    // Hindi
-//                    "\(.applicationName) में चलाएं",
-//                    "\(.applicationName) में प्लेबैक शुरू करें",
-//                    // Japanese
-//                    "\(.applicationName)で再生",
-//                    "\(.applicationName)を再生して",
-//                    // Chinese
-//                    "在\(.applicationName)中播放",
-//                    "播放\(.applicationName)"
-//                ],
-//                shortTitle: "Play",
-//                systemImageName: "play.fill"
-//            ),
             AppShortcut(
                 intent: PlayRandomPicksIntent(),
                 phrases: [
@@ -1172,6 +1156,39 @@ struct ModizerShortcuts: AppShortcutsProvider {
                     // French
                     "Joue de la musique dans \(.applicationName)",
                     "Lance la playlist aléatoire dans \(.applicationName)",
+                    // German
+                    "Spiele Musik in \(.applicationName)",
+                    "Starte zufällige Wiedergabe in \(.applicationName)",
+                    // Spanish
+                    "Reproduce música en \(.applicationName)",
+                    "Inicia lista aleatoria en \(.applicationName)",
+                    // Italian
+                    "Riproduci musica in \(.applicationName)",
+                    "Avvia playlist casuale in \(.applicationName)",
+                    // Swedish
+                    "Spela musik i \(.applicationName)",
+                    "Starta slumpmässig spellista i \(.applicationName)",
+                    // Norwegian
+                    "Spill musikk i \(.applicationName)",
+                    "Start tilfeldig spilleliste i \(.applicationName)",
+                    // Portuguese
+                    "Reproduzir música em \(.applicationName)",
+                    "Iniciar lista aleatória em \(.applicationName)",
+                    // Russian
+                    "Воспроизвести музыку в \(.applicationName)",
+                    "Запустить случайный плейлист в \(.applicationName)",
+                    // Arabic
+                    "تشغيل موسيقى في \(.applicationName)",
+                    "ابدأ قائمة عشوائية في \(.applicationName)",
+                    // Hindi
+                    "\(.applicationName) में संगीत चलाएं",
+                    "\(.applicationName) में रैंडम प्लेलिस्ट शुरू करें",
+                    // Japanese
+                    "\(.applicationName)で音楽を再生",
+                    "\(.applicationName)でランダム再生",
+                    // Chinese
+                    "在\(.applicationName)中播放音乐",
+                    "在\(.applicationName)中随机播放"
                 ],
                 shortTitle: "Play some music",
                 systemImageName: "play.fill"
@@ -1185,6 +1202,39 @@ struct ModizerShortcuts: AppShortcutsProvider {
                     // French
                     "Joue les favoris dans \(.applicationName)",
                     "Lance la playlist favoris dans \(.applicationName)",
+                    // German
+                    "Spiele Favoriten in \(.applicationName)",
+                    "Starte Favoriten-Playlist in \(.applicationName)",
+                    // Spanish
+                    "Reproduce favoritos en \(.applicationName)",
+                    "Inicia lista de favoritos en \(.applicationName)",
+                    // Italian
+                    "Riproduci preferiti in \(.applicationName)",
+                    "Avvia playlist preferiti in \(.applicationName)",
+                    // Swedish
+                    "Spela favoriter i \(.applicationName)",
+                    "Starta favoritspellista i \(.applicationName)",
+                    // Norwegian
+                    "Spill favoritter i \(.applicationName)",
+                    "Start favorittspilleliste i \(.applicationName)",
+                    // Portuguese
+                    "Reproduzir favoritos em \(.applicationName)",
+                    "Iniciar lista de favoritos em \(.applicationName)",
+                    // Russian
+                    "Воспроизвести избранное в \(.applicationName)",
+                    "Запустить плейлист избранного в \(.applicationName)",
+                    // Arabic
+                    "تشغيل المفضلة في \(.applicationName)",
+                    "ابدأ قائمة المفضلة في \(.applicationName)",
+                    // Hindi
+                    "\(.applicationName) में पसंदीदा चलाएं",
+                    "\(.applicationName) में पसंदीदा प्लेलिस्ट शुरू करें",
+                    // Japanese
+                    "\(.applicationName)でお気に入りを再生",
+                    "\(.applicationName)のお気に入りを再生",
+                    // Chinese
+                    "在\(.applicationName)中播放收藏",
+                    "播放\(.applicationName)的收藏列表"
                 ],
                 shortTitle: "Play favorites music",
                 systemImageName: "play.fill"
@@ -1198,205 +1248,85 @@ struct ModizerShortcuts: AppShortcutsProvider {
                     // French
                     "Joue les plus joués dans \(.applicationName)",
                     "Lance la playlist les plus joués dans \(.applicationName)",
+                    // German
+                    "Spiele meistgespielte in \(.applicationName)",
+                    "Starte meistgespielte Playlist in \(.applicationName)",
+                    // Spanish
+                    "Reproduce más reproducidos en \(.applicationName)",
+                    "Inicia lista más reproducidos en \(.applicationName)",
+                    // Italian
+                    "Riproduci più riprodotti in \(.applicationName)",
+                    "Avvia playlist più riprodotti in \(.applicationName)",
+                    // Swedish
+                    "Spela mest spelade i \(.applicationName)",
+                    "Starta mest spelade spellista i \(.applicationName)",
+                    // Norwegian
+                    "Spill mest spilte i \(.applicationName)",
+                    "Start mest spilte spilleliste i \(.applicationName)",
+                    // Portuguese
+                    "Reproduzir mais tocadas em \(.applicationName)",
+                    "Iniciar lista mais tocadas em \(.applicationName)",
+                    // Russian
+                    "Воспроизвести самые популярные в \(.applicationName)",
+                    "Запустить плейлист самых популярных в \(.applicationName)",
+                    // Arabic
+                    "تشغيل الأكثر تشغيلاً في \(.applicationName)",
+                    "ابدأ قائمة الأكثر تشغيلاً في \(.applicationName)",
+                    // Hindi
+                    "\(.applicationName) में सबसे ज्यादा चलाए गए चलाएं",
+                    "\(.applicationName) में सबसे लोकप्रिय प्लेलिस्ट शुरू करें",
+                    // Japanese
+                    "\(.applicationName)で最も再生された曲を再生",
+                    "\(.applicationName)の人気曲を再生",
+                    // Chinese
+                    "在\(.applicationName)中播放最常播放",
+                    "播放\(.applicationName)的热门歌曲"
                 ],
                 shortTitle: "Play most played music",
                 systemImageName: "play.fill"
             ),
-//            AppShortcut(
-//                intent: PauseIntent(),
-//                phrases: [
-//                    // English
-//                    "Pause \(.applicationName)",
-//                    "Pause music in \(.applicationName)",
-//                    // French
-//                    "Pause dans \(.applicationName)",
-//                    "Pause la musique dans \(.applicationName)",
-//                    // German
-//                    "Pausiere in \(.applicationName)",
-//                    "Pause Musik in \(.applicationName)",
-//                    // Spanish
-//                    "Pausa en \(.applicationName)",
-//                    "Pausar música en \(.applicationName)",
-//                    // Italian
-//                    "Pausa in \(.applicationName)",
-//                    "Metti in pausa in \(.applicationName)",
-//                    // Swedish
-//                    "Pausa i \(.applicationName)",
-//                    "Pausa musik i \(.applicationName)",
-//                    // Norwegian
-//                    "Pause i \(.applicationName)",
-//                    "Pause musikk i \(.applicationName)",
-//                    // Portuguese
-//                    "Pausar em \(.applicationName)",
-//                    "Pausar música em \(.applicationName)",
-//                    // Russian
-//                    "Пауза в \(.applicationName)",
-//                    "Приостановить музыку в \(.applicationName)",
-//                    // Arabic
-//                    "إيقاف مؤقت في \(.applicationName)",
-//                    "إيقاف الموسيقى مؤقتًا في \(.applicationName)",
-//                    // Hindi
-//                    "\(.applicationName) में रोकें",
-//                    "\(.applicationName) में संगीत रोकें",
-//                    // Japanese
-//                    "\(.applicationName)を一時停止",
-//                    "\(.applicationName)で一時停止して",
-//                    // Chinese
-//                    "暂停\(.applicationName)",
-//                    "在\(.applicationName)中暂停"
-//                ],
-//                shortTitle: "Pause",
-//                systemImageName: "pause.fill"
-//            ),
-//            AppShortcut(
-//                intent: StopIntent(),
-//                phrases: [
-//                    // English
-//                    "Stop \(.applicationName)",
-//                    "Stop music in \(.applicationName)",
-//                    // French
-//                    "Stop \(.applicationName)",
-//                    "Stop la musique dans \(.applicationName)",
-//                    // German
-//                    "Stoppe in \(.applicationName)",
-//                    "Musik stoppen in \(.applicationName)",
-//                    // Spanish
-//                    "Detener en \(.applicationName)",
-//                    "Detener música en \(.applicationName)",
-//                    // Italian
-//                    "Ferma in \(.applicationName)",
-//                    "Ferma la musica in \(.applicationName)",
-//                    // Swedish
-//                    "Stoppa i \(.applicationName)",
-//                    "Stoppa musik i \(.applicationName)",
-//                    // Norwegian
-//                    "Stopp i \(.applicationName)",
-//                    "Stopp musikk i \(.applicationName)",
-//                    // Portuguese
-//                    "Parar em \(.applicationName)",
-//                    "Parar música em \(.applicationName)",
-//                    // Russian
-//                    "Остановить в \(.applicationName)",
-//                    "Остановить музыку в \(.applicationName)",
-//                    // Arabic
-//                    "إيقاف في \(.applicationName)",
-//                    "إيقاف الموسيقى في \(.applicationName)",
-//                    // Hindi
-//                    "\(.applicationName) में रुकें",
-//                    "\(.applicationName) में संगीत रोकें",
-//                    // Japanese
-//                    "\(.applicationName)を停止",
-//                    "\(.applicationName)で音楽を停止",
-//                    // Chinese
-//                    "停止\(.applicationName)",
-//                    "在\(.applicationName)中停止音乐"
-//                ],
-//                shortTitle: "Stop",
-//                systemImageName: "stop.fill"
-//            ),
-//            AppShortcut(
-//                intent: NextSongIntent(),
-//                phrases: [
-//                    // English
-//                    "Next song in \(.applicationName)",
-//                    "Skip to next in \(.applicationName)",
-//                    "Play next in \(.applicationName)",
-//                    // French
-//                    "Morceau suivant dans \(.applicationName)",
-//                    "Piste suivante dans \(.applicationName)",
-//                    // German
-//                    "Nächstes Lied in \(.applicationName)",
-//                    "Weiter in \(.applicationName)",
-//                    // Spanish
-//                    "Siguiente canción en \(.applicationName)",
-//                    "Saltar a siguiente en \(.applicationName)",
-//                    // Italian
-//                    "Prossimo brano in \(.applicationName)",
-//                    "Avanti in \(.applicationName)",
-//                    // Swedish
-//                    "Nästa låt i \(.applicationName)",
-//                    "Hoppa till nästa i \(.applicationName)",
-//                    // Norwegian
-//                    "Neste sang i \(.applicationName)",
-//                    "Hopp til neste i \(.applicationName)",
-//                    // Portuguese
-//                    "Próxima música em \(.applicationName)",
-//                    "Pular para próxima em \(.applicationName)",
-//                    // Russian
-//                    "Следующая песня в \(.applicationName)",
-//                    "Перейти к следующей в \(.applicationName)",
-//                    // Arabic
-//                    "الأغنية التالية في \(.applicationName)",
-//                    "انتقل إلى التالي في \(.applicationName)",
-//                    // Hindi
-//                    "\(.applicationName) में अगला गाना",
-//                    "\(.applicationName) में अगले पर जाएं",
-//                    // Japanese
-//                    "\(.applicationName)で次の曲",
-//                    "\(.applicationName)で次へ",
-//                    // Chinese
-//                    "\(.applicationName)的下一首",
-//                    "在\(.applicationName)中播放下一首"
-//                ],
-//                shortTitle: "Next Song",
-//                systemImageName: "forward.fill"
-//            ),
-//            AppShortcut(
-//                intent: PreviousSongIntent(),
-//                phrases: [
-//                    // English
-//                    "Previous song in \(.applicationName)",
-//                    "Go back in \(.applicationName)",
-//                    "Play previous in \(.applicationName)",
-//                    // French
-//                    "Morceau précédent dans \(.applicationName)",
-//                    "Piste précédente dans \(.applicationName)",
-//                    // German
-//                    "Vorheriges Lied in \(.applicationName)",
-//                    "Zurück in \(.applicationName)",
-//                    // Spanish
-//                    "Canción anterior en \(.applicationName)",
-//                    "Volver atrás en \(.applicationName)",
-//                    // Italian
-//                    "Brano precedente in \(.applicationName)",
-//                    "Indietro in \(.applicationName)",
-//                    // Swedish
-//                    "Föregående låt i \(.applicationName)",
-//                    "Gå tillbaka i \(.applicationName)",
-//                    // Norwegian
-//                    "Forrige sang i \(.applicationName)",
-//                    "Gå tilbake i \(.applicationName)",
-//                    // Portuguese
-//                    "Música anterior em \(.applicationName)",
-//                    "Voltar em \(.applicationName)",
-//                    // Russian
-//                    "Предыдущая песня в \(.applicationName)",
-//                    "Перейти к предыдущей в \(.applicationName)",
-//                    // Arabic
-//                    "الأغنية السابقة في \(.applicationName)",
-//                    "العودة في \(.applicationName)",
-//                    // Hindi
-//                    "\(.applicationName) में पिछला गाना",
-//                    "\(.applicationName) में वापस जाएं",
-//                    // Japanese
-//                    "\(.applicationName)で前の曲",
-//                    "\(.applicationName)で前へ",
-//                    // Chinese
-//                    "\(.applicationName)的上一首",
-//                    "在\(.applicationName)中播放上一首"
-//                ],
-//                shortTitle: "Previous Song",
-//                systemImageName: "backward.fill"
-//            ),
             AppShortcut(
                 intent: ToggleShuffleIntent(),
                 phrases: [
-                    //English
+                    // English
                     "Toggle shuffle mode in \(.applicationName)",
                     "Change shuffle mode in \(.applicationName)",
-                    //French
+                    // French
                     "Change le mode aléatoire dans \(.applicationName)",
-                    "Change le shuffle mode dans \(.applicationName)"
+                    "Active le shuffle dans \(.applicationName)",
+                    // German
+                    "Zufallsmodus umschalten in \(.applicationName)",
+                    "Shuffle-Modus ändern in \(.applicationName)",
+                    // Spanish
+                    "Cambiar modo aleatorio en \(.applicationName)",
+                    "Activar shuffle en \(.applicationName)",
+                    // Italian
+                    "Attiva modalità casuale in \(.applicationName)",
+                    "Cambia shuffle in \(.applicationName)",
+                    // Swedish
+                    "Växla blandningsläge i \(.applicationName)",
+                    "Ändra shuffle i \(.applicationName)",
+                    // Norwegian
+                    "Bytt tilfeldig modus i \(.applicationName)",
+                    "Endre shuffle i \(.applicationName)",
+                    // Portuguese
+                    "Alternar modo aleatório em \(.applicationName)",
+                    "Mudar shuffle em \(.applicationName)",
+                    // Russian
+                    "Переключить случайный режим в \(.applicationName)",
+                    "Изменить режим перемешивания в \(.applicationName)",
+                    // Arabic
+                    "تبديل وضع العشوائية في \(.applicationName)",
+                    "تغيير وضع الخلط في \(.applicationName)",
+                    // Hindi
+                    "\(.applicationName) में शफल मोड बदलें",
+                    "\(.applicationName) में रैंडम मोड टॉगल करें",
+                    // Japanese
+                    "\(.applicationName)のシャッフルモードを切り替え",
+                    "\(.applicationName)のランダム再生を変更",
+                    // Chinese
+                    "在\(.applicationName)中切换随机模式",
+                    "更改\(.applicationName)的随机播放"
                 ],
                 shortTitle: "Toggle Shuffle",
                 systemImageName: "shuffle"
@@ -1404,10 +1334,45 @@ struct ModizerShortcuts: AppShortcutsProvider {
             AppShortcut(
                 intent: ToggleLoopModeIntent(),
                 phrases: [
-                    //English
+                    // English
                     "Change loop mode in \(.applicationName)",
-                    //French
+                    "Toggle repeat in \(.applicationName)",
+                    // French
                     "Change le mode répétition dans \(.applicationName)",
+                    "Active la répétition dans \(.applicationName)",
+                    // German
+                    "Wiederholungsmodus ändern in \(.applicationName)",
+                    "Repeat umschalten in \(.applicationName)",
+                    // Spanish
+                    "Cambiar modo de repetición en \(.applicationName)",
+                    "Activar repetición en \(.applicationName)",
+                    // Italian
+                    "Cambia modalità ripetizione in \(.applicationName)",
+                    "Attiva ripeti in \(.applicationName)",
+                    // Swedish
+                    "Ändra upprepningsläge i \(.applicationName)",
+                    "Växla upprepning i \(.applicationName)",
+                    // Norwegian
+                    "Endre gjentakelsesmodus i \(.applicationName)",
+                    "Bytt repetisjon i \(.applicationName)",
+                    // Portuguese
+                    "Mudar modo de repetição em \(.applicationName)",
+                    "Alternar repetição em \(.applicationName)",
+                    // Russian
+                    "Изменить режим повтора в \(.applicationName)",
+                    "Переключить повтор в \(.applicationName)",
+                    // Arabic
+                    "تغيير وضع التكرار في \(.applicationName)",
+                    "تبديل التكرار في \(.applicationName)",
+                    // Hindi
+                    "\(.applicationName) में लूप मोड बदलें",
+                    "\(.applicationName) में रिपीट टॉगल करें",
+                    // Japanese
+                    "\(.applicationName)のリピートモードを変更",
+                    "\(.applicationName)の繰り返しを切り替え",
+                    // Chinese
+                    "在\(.applicationName)中更改循环模式",
+                    "切换\(.applicationName)的重复播放"
                 ],
                 shortTitle: "Toggle Loop Mode",
                 systemImageName: "repeat"
@@ -1415,13 +1380,46 @@ struct ModizerShortcuts: AppShortcutsProvider {
             AppShortcut(
                 intent: GetNowPlayingIntent(),
                 phrases: [
-                    //English
+                    // English
                     "What's playing in \(.applicationName)",
                     "Current song in \(.applicationName)",
                     "Now playing in \(.applicationName)",
-                    //French
+                    // French
                     "Morceau en cours dans \(.applicationName)",
-                    "Titre en cours dans \(.applicationName)"
+                    "Titre en cours dans \(.applicationName)",
+                    // German
+                    "Was spielt in \(.applicationName)",
+                    "Aktueller Song in \(.applicationName)",
+                    // Spanish
+                    "Qué se está reproduciendo en \(.applicationName)",
+                    "Canción actual en \(.applicationName)",
+                    // Italian
+                    "Cosa sta suonando in \(.applicationName)",
+                    "Brano corrente in \(.applicationName)",
+                    // Swedish
+                    "Vad spelar i \(.applicationName)",
+                    "Nuvarande låt i \(.applicationName)",
+                    // Norwegian
+                    "Hva spiller i \(.applicationName)",
+                    "Nåværende sang i \(.applicationName)",
+                    // Portuguese
+                    "O que está tocando em \(.applicationName)",
+                    "Música atual em \(.applicationName)",
+                    // Russian
+                    "Что играет в \(.applicationName)",
+                    "Текущая песня в \(.applicationName)",
+                    // Arabic
+                    "ما الذي يتم تشغيله في \(.applicationName)",
+                    "الأغنية الحالية في \(.applicationName)",
+                    // Hindi
+                    "\(.applicationName) में क्या चल रहा है",
+                    "\(.applicationName) में वर्तमान गाना",
+                    // Japanese
+                    "\(.applicationName)で再生中の曲",
+                    "\(.applicationName)の現在の曲",
+                    // Chinese
+                    "\(.applicationName)正在播放什么",
+                    "\(.applicationName)的当前歌曲"
                 ],
                 shortTitle: "Now Playing",
                 systemImageName: "music.note"

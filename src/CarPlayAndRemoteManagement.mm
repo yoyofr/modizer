@@ -8,6 +8,7 @@
 #import "CarPlayAndRemoteManagement.h"
 #import "DetailViewControllerIphone.h"
 #import "MDZCarPlaySceneDelegate.h"
+#import <CarPlay/CarPlay.h>
 
 #include <pthread.h>
 
@@ -63,7 +64,150 @@
     // Update the modern CarPlay template if available
     // This is only called when the playlist actually changes, not every second
     if (self.carPlaySceneDelegate) {
+        [self refreshNowPlayingButtons];
+        
         [self.carPlaySceneDelegate updatePlaylistsDisplay];
+    }
+}
+
+// Helper method to invert alpha channel (opaque becomes transparent and vice-versa)
+- (UIImage *)invertImage:(UIImage *)image {
+    CGSize size = image.size;
+    CGFloat scale = image.scale;
+
+    // Create a bitmap context
+    size_t width = size.width * scale;
+    size_t height = size.height * scale;
+    size_t bytesPerRow = width * 4;
+
+    CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
+    unsigned char *rawData = (unsigned char *)calloc(height * bytesPerRow, sizeof(unsigned char));
+
+    CGContextRef bitmapContext = CGBitmapContextCreate(rawData, width, height, 8, bytesPerRow, colorSpace, kCGImageAlphaPremultipliedLast | kCGBitmapByteOrder32Big);
+    CGColorSpaceRelease(colorSpace);
+
+    // Draw the original image
+    CGContextDrawImage(bitmapContext, CGRectMake(0, 0, width, height), image.CGImage);
+
+    // Invert the alpha channel: for each pixel, set alpha = 255 - alpha, keep RGB as black
+    for (size_t i = 0; i < width * height; i++) {
+        size_t offset = i * 4;
+        unsigned char alpha = rawData[offset + 3];
+
+        // Set RGB to black and invert alpha
+        rawData[offset + 0] = 0;  // R
+        rawData[offset + 1] = 0;  // G
+        rawData[offset + 2] = 0;  // B
+        rawData[offset + 3] = 255 - alpha;  // Inverted alpha
+    }
+
+    // Create image from modified data
+    CGImageRef imageRef = CGBitmapContextCreateImage(bitmapContext);
+    UIImage *invertedImage = [UIImage imageWithCGImage:imageRef scale:scale orientation:image.imageOrientation];
+
+    CGImageRelease(imageRef);
+    CGContextRelease(bitmapContext);
+    free(rawData);
+
+    return invertedImage;
+}
+
+- (void)refreshNowPlayingButtons {
+    if (@available(iOS 14.0, *)) {
+        CPNowPlayingTemplate *nowPlayingTemplate = [CPNowPlayingTemplate sharedTemplate];
+
+        NSMutableArray *buttons = [NSMutableArray array];
+
+        // Loop/Repeat button (3 levels: 0=off, 1=all, 2=one)
+        CPNowPlayingRepeatButton *repeatButton = [[CPNowPlayingRepeatButton alloc] initWithHandler:^(CPNowPlayingButton * _Nonnull button) {
+            [self.detailViewController performSelectorOnMainThread:@selector(changeLoopMode) withObject:nil waitUntilDone:YES];
+            [self refreshNowPlayingButtons];
+        }];
+        repeatButton.enabled = YES;
+        [buttons addObject:repeatButton];
+
+        // Shuffle button (3 levels: 0=off, 1=mode1, 2=mode2)
+        UIImage *shuffleImage;
+        switch (self.detailViewController.mShuffle) {
+            case 0:
+                // Shuffle off - just the symbol
+                shuffleImage = [UIImage systemImageNamed:@"shuffle"];
+                break;
+            case 1:
+             {
+                // Shuffle mode 2 - shuffle + number "1" as text
+                UIImage *shuffleIcon = [UIImage systemImageNamed:@"shuffle"];
+
+                UIGraphicsImageRenderer *renderer = [[UIGraphicsImageRenderer alloc] initWithSize:CGSizeMake(120, 120)];
+                UIImage *renderedImage = [renderer imageWithActions:^(UIGraphicsImageRendererContext * _Nonnull context) {
+                    // Draw shuffle symbol in black
+                    UIImage *tintedShuffle = [shuffleIcon imageWithTintColor:[UIColor blackColor] renderingMode:UIImageRenderingModeAlwaysOriginal];
+                    [tintedShuffle drawInRect:CGRectMake(-10, 10, 140, 100)];
+
+                    // Draw the number "1" as text
+                    NSString *text = @"1";
+                    UIFont *font = [UIFont boldSystemFontOfSize:50];
+                    NSDictionary *attributes = @{
+                        NSFontAttributeName: font,
+                        NSForegroundColorAttributeName: [UIColor blackColor]
+                    };
+
+                    CGSize textSize = [text sizeWithAttributes:attributes];
+                    CGPoint textPosition = CGPointMake(5, 60-30);
+                    [text drawAtPoint:textPosition withAttributes:attributes];
+                }];
+                shuffleImage = renderedImage;
+                break;
+            }
+            case 2:
+            default:{
+                // Shuffle mode 1 - Inverted alpha in template mode
+                UIImage *baseImage = [UIImage systemImageNamed:@"shuffle"];
+                UIGraphicsImageRenderer *renderer = [[UIGraphicsImageRenderer alloc] initWithSize:CGSizeMake(120, 120)];
+                UIImage *renderedImage = [renderer imageWithActions:^(UIGraphicsImageRendererContext * _Nonnull context) {
+                    // Draw symbol in black
+                    UIImage *tintedImage = [baseImage imageWithTintColor:[UIColor blackColor] renderingMode:UIImageRenderingModeAlwaysOriginal];
+                    [tintedImage drawInRect:CGRectMake(-10, 10, 140, 100)];
+                }];
+                // Invert alpha then apply template mode
+                //UIImage *invertedImage = [self invertImage:renderedImage];
+                shuffleImage = renderedImage;//[invertedImage imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+                break;
+            }
+        }
+        CPNowPlayingImageButton *shuffleButton = [[CPNowPlayingImageButton alloc] initWithImage:shuffleImage
+                                                                                         handler:^(CPNowPlayingButton * _Nonnull button) {
+            [self.detailViewController performSelectorOnMainThread:@selector(shuffle) withObject:nil waitUntilDone:YES];
+            [self refreshNowPlayingButtons];
+        }];
+        // Mark button as selected when shuffle is active (mode 1 or 2)
+        shuffleButton.selected = (self.detailViewController.mShuffle != 0);
+        [buttons addObject:shuffleButton];
+
+        // Favorite button
+        if (self.detailViewController.mPlaylist_size > 0) {
+            // Get rating from current playlist entry
+            signed char rating = self.detailViewController.mPlaylist[self.detailViewController.mPlaylist_pos].mPlaylistRating;
+
+            // Choose icon based on whether it's a favorite (rating = 5)
+            UIImage *favoriteImage = (rating == 5) ? [UIImage systemImageNamed:@"heart.fill"] : [UIImage systemImageNamed:@"heart"];
+
+            CPNowPlayingImageButton *favoriteButton = [[CPNowPlayingImageButton alloc] initWithImage:favoriteImage
+                                                                                             handler:^(CPNowPlayingButton * _Nonnull button) {
+                if (rating == 5) {
+                    // Remove from favorites
+                    [self.detailViewController performSelectorOnMainThread:@selector(cmdDislike) withObject:nil waitUntilDone:YES];
+                } else {
+                    // Add to favorites
+                    [self.detailViewController performSelectorOnMainThread:@selector(cmdLike) withObject:nil waitUntilDone:YES];
+                }
+                [self refreshNowPlayingButtons];
+            }];
+            [buttons addObject:favoriteButton];
+        }
+
+        // Update the CarPlay template with the new buttons
+        [nowPlayingTemplate updateNowPlayingButtons:buttons];
     }
 }
 
@@ -289,6 +433,9 @@
 
     // Timer for updating playback progress without refreshing the UI
     repeatingTimer = [NSTimer scheduledTimerWithTimeInterval: 1.0f target:self selector:@selector(updatePlaybackProgress) userInfo:nil repeats: YES];
+
+    // Initialize Now Playing buttons
+    [self refreshNowPlayingButtons];
 
     return TRUE;
 }

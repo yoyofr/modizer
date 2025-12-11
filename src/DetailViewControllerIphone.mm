@@ -139,6 +139,8 @@ extern unsigned int m_voice_oscillo_pal3[8];
 
 #import "DetailViewControllerIphone.h"
 #import "RootViewControllerPlaylist.h"
+#import "myTabBarController.h"
+#import "CarPlayAndRemoteManagement.h"
 #import <MediaPlayer/MediaPlayer.h>
 
 #import "EQViewController.h"
@@ -765,6 +767,11 @@ bool sysMonitorIsActive;
         mainRating5.hidden=TRUE;
         mainRating5off.hidden=FALSE;
     }
+    // Update CarPlay buttons after rating change
+    myTabBarController *tabBarController = (myTabBarController *)self.tabBarController;
+    if (tabBarController && tabBarController.cpMngt) {
+        [tabBarController.cpMngt refreshNowPlayingButtons];
+    }
 }
 
 -(void)updateStats:(NSString *)fileName filePath:(NSString *)filePath playcount_inc:(bool)playcount_inc {
@@ -1055,12 +1062,11 @@ bool sysMonitorIsActive;
     }
     
     DBHelper::getFileStatsDBmod(filePath,&playcount,&tmp_rating,NULL);
-    
+
     if (settings[GLOB_StatsUpload].detail.mdz_boolswitch.switch_value) {
         mSendStatTimer=0;
         [GoogleAppHelper SendStatistics:fileName path:filePath rating:tmp_rating playcount:playcount];
     }
-    
 }
 
 #import "PlaylistCommonFunctions.h"
@@ -1074,12 +1080,12 @@ bool sysMonitorIsActive;
 
 -(void)cmdLike{
     if (!mPlaylist_size) return;
-    
+
     [self pushedRatingCommon:5];
 }
 -(void)cmdDislike{
     if (!mPlaylist_size) return;
-    
+
     [self pushedRatingCommon:0];
 }
 
@@ -1369,6 +1375,12 @@ static float movePinchScale,movePinchScaleOld;
             buttonShuffleOneSel.hidden=YES;
             break;
     }
+
+    // Update CarPlay buttons
+    myTabBarController *tabBarController = (myTabBarController *)self.tabBarController;
+    if (tabBarController && tabBarController.cpMngt) {
+        [tabBarController.cpMngt refreshNowPlayingButtons];
+    }
 }
 
 - (void)setLoopMode:(int)mode {
@@ -1390,6 +1402,12 @@ static float movePinchScale,movePinchScaleOld;
             buttonLoopListSel.hidden=YES;
             buttonLoopTitleSel.hidden=NO;
             break;
+    }
+
+    // Update CarPlay buttons
+    myTabBarController *tabBarController = (myTabBarController *)self.tabBarController;
+    if (tabBarController && tabBarController.cpMngt) {
+        [tabBarController.cpMngt refreshNowPlayingButtons];
     }
 }
 
@@ -3119,11 +3137,23 @@ int recording=0;
         mPlaylist[i].mPlaylistCount=0;
     }
     //[playlistTabView reloadData];
-    
+
+    // Skip auto-restart if launched from a shortcut (shortcut will load its own playlist)
+    // Check both UserDefaults and flag file
+    BOOL launchedFromShortcut = [[NSUserDefaults standardUserDefaults] boolForKey:@"LaunchedFromShortcut"];
+
+    if (launchedFromShortcut) {
+        MDZILog("Skipping auto-restart - launched from Shortcut");
+        [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"LaunchedFromShortcut"];
+        [[NSUserDefaults standardUserDefaults] synchronize];
+        mRestart=0;
+        return;
+    }
+
     //if (segcont_resumeLaunch.selectedSegmentIndex==0) return;
     if (mPlaylist_size>0) mRestart=1;
     else mRestart=0;
-    
+
     if ([self play_curEntry:-1]) {
         //    self.tabBarController.selectedViewController = self; //detailViewController;
     }

@@ -10,7 +10,7 @@
 extern void *LoadingProgressObserverContext;
 
 #import "RootViewControllerXPWebParser.h"
-
+#import "ModizFileHelper.h"
 
 @implementation RootViewControllerXPWebParser
 @synthesize repeatingTimer;

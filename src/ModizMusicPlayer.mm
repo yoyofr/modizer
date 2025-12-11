@@ -10348,10 +10348,8 @@ char* loadRom(const char* path, size_t romSize)
         ((ReSIDfpBuilder*)mBuilder)->filter8580Curve(0.5f);
         ((ReSIDfpBuilder*)mBuilder)->filter6581Range(0.5f);
         ((ReSIDfpBuilder*)mBuilder)->combinedWaveformsStrength(SidConfig::STRONG);
+        
     }
-    
-    
-    
     
     // setup resid
     if (mSIDFilterON) mBuilder->filter(true);
@@ -10528,6 +10526,12 @@ char* loadRom(const char* path, size_t romSize)
             }
             
             m_freqTable = (sidtune_info->clockSpeed() == SidTuneInfo::CLOCK_NTSC) ? freqTableNtsc : freqTablePal;
+            
+            //Reset mute status, all active
+            unsigned int maxsids = (mSidEmuEngine->info()).maxsids();
+            for (int i=0;i<maxsids;i++) {
+                for (int voice=0;voice<4;voice++) mSidEmuEngine->mute(i,voice,0);
+            }
             
             return 0;
         }

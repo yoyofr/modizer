@@ -31,6 +31,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, weak) MDZCarPlaySceneDelegate *carPlaySceneDelegate;
 
 -(bool) initCarPlayAndRemote;
+-(void) refreshNowPlayingButtons;
 
 @end
 

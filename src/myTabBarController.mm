@@ -18,6 +18,7 @@
 #import "WelcomeVC.h"
 #import "SceneDelegate.h"
 #import "StoreManager.h"
+#import "ModizerPlaylistBridge.h"
 
 
 extern NSMutableArray *mac_key_pressed,*mac_key_released;
@@ -524,13 +525,6 @@ extern NSMutableArray *mac_key_pressed,*mac_key_released;
     
     [self setupWelcomePages];
     
-    //Faster loading for debug
-#ifdef DEBUG_MODIZER
-    //[window addSubview:[animatedLaunchVC view]];
-#else
-//    [window addSubview:[animatedLaunchVC view]];
-#endif
-    
 #if TARGET_OS_MACCATALYST
     // Hide the tab bar on Mac Catalyst
     self.tabBar.hidden = YES;
@@ -731,6 +725,58 @@ extern NSMutableArray *mac_key_pressed,*mac_key_released;
 }
 
 -(void) openURL:(NSURL *)url {
+    // Handle custom modizer:// scheme for Shortcuts
+    if ([[url scheme] isEqualToString:@"modizer"]) {
+        NSString *host = [url host];
+        NSURLComponents *components = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:NO];
+        NSMutableDictionary *params = [NSMutableDictionary dictionary];
+
+        for (NSURLQueryItem *item in components.queryItems) {
+            params[item.name] = item.value;
+        }
+
+        // Check for fromShortcut flag and set it IMMEDIATELY
+        if ([params[@"fromShortcut"] isEqualToString:@"true"]) {
+            [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"LaunchedFromShortcut"];
+            [[NSUserDefaults standardUserDefaults] synchronize];
+            MDZILog("URL launched from Shortcut - flag set");
+        }
+
+        // Handle different URL commands using ModizerPlaylistBridge
+        if ([host isEqualToString:@"playPlaylist"]) {
+            NSString *playlistId = params[@"id"];
+            int startIndex = [params[@"index"] intValue];
+
+            if (playlistId) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [[ModizerPlaylistBridge sharedInstance] playPlaylistWithId:[playlistId intValue] startIndex:startIndex];
+                });
+            }
+            return;
+        }
+        else if ([host isEqualToString:@"playPlaylistByName"]) {
+            NSString *name = params[@"name"];
+            int startIndex = [params[@"index"] intValue];
+
+            if (name) {
+                // Decode URL-encoded name
+                NSString *decodedName = [name stringByRemovingPercentEncoding];
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [[ModizerPlaylistBridge sharedInstance] playPlaylistWithName:decodedName startIndex:startIndex];
+                });
+            }
+            return;
+        }
+        else if ([host isEqualToString:@"playBuiltin"]) {
+            int playlistId = [params[@"id"] intValue];
+
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [[ModizerPlaylistBridge sharedInstance] playBuiltinPlaylistWithId:playlistId startIndex:0];
+            });
+            return;
+        }
+    }
+
     if ([url isFileURL]) {
         NSString *filepath;
         filepath=[url path];
@@ -1271,7 +1317,6 @@ extern NSMutableArray *mac_key_pressed,*mac_key_released;
 - (BOOL)canBecomeFirstResponder {
     return YES;
 }
-
 
 @end
 

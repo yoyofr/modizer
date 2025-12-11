@@ -42,6 +42,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
 #import "QuartzCore/CAAnimation.h"
 
 #import "TTFadeAnimator.h"
+#import "ModizFileHelper.h"
 
 @implementation RootViewControllerASMA
 

@@ -109,10 +109,6 @@ private:
 
     /// Last written value
     unsigned char busValue;
-//YOYOFR
-    /// Flags for muted channels
-    bool muted[3];
-    //YOYOFR
     /**
      * Emulated nonlinearity of the envelope DAC.
      *
@@ -211,16 +207,6 @@ public:
      * @param value value to write
      */
     void write(int offset, unsigned char value);
-
-    //YOYOFR
-    /**
-     * SID voice muting.
-     *
-     * @param channel channel to modify
-     * @param enable is muted?
-     */
-    void mute(int channel, bool enable) { muted[channel] = enable; }
-    //YOYOFR
 
     /**
      * Setting of SID sampling parameters.
@@ -364,7 +350,6 @@ int SID::clock(unsigned int cycles, short* buf)
         sid_idx++;
     }
     int64_t smplIncr=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
-    bool all_muted=muted[0]&muted[1]&muted[2];
     sid_idx=sid_idx*4;
     //TODO:  MODIZER changes end / YOYOFR
     
@@ -406,20 +391,12 @@ int SID::clock(unsigned int cycles, short* buf)
                     if (!mSIDSeekInProgress) {
                         if (unlikely(resampler->input(c64Output)))
                         {
-                            if (all_muted) {
-                                buf[s++]=0;
-                                sid_v4=0;
-                            } else {
-                                buf[s++] = resampler->getOutput(scaleFactor);
-                            }
+                            buf[s++] = resampler->getOutput(scaleFactor);
                             
                             for (int j=0;j<4;j++) {
-                                if (!muted[0]) m_voice_buff[sid_idx+0][m_voice_current_ptr[sid_idx+0]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8((int)(sid_v1*127));
-                                else m_voice_buff[sid_idx+0][m_voice_current_ptr[sid_idx+0]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=0;
-                                if (!muted[1]) m_voice_buff[sid_idx+1][m_voice_current_ptr[sid_idx+1]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8((int)(sid_v2*127));
-                                else m_voice_buff[sid_idx+1][m_voice_current_ptr[sid_idx+1]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=0;
-                                if (!muted[2]) m_voice_buff[sid_idx+2][m_voice_current_ptr[sid_idx+2]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8((int)(sid_v3*127));
-                                else m_voice_buff[sid_idx+2][m_voice_current_ptr[sid_idx+2]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=0;
+                                m_voice_buff[sid_idx+0][m_voice_current_ptr[sid_idx+0]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8((int)(sid_v1*127));
+                                m_voice_buff[sid_idx+1][m_voice_current_ptr[sid_idx+1]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8((int)(sid_v2*127));
+                                m_voice_buff[sid_idx+2][m_voice_current_ptr[sid_idx+2]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8((int)(sid_v3*127));
                                 m_voice_buff[sid_idx+3][m_voice_current_ptr[sid_idx+3]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8((sid_v4>>7));
                                 
                                 
@@ -431,6 +408,7 @@ int SID::clock(unsigned int cycles, short* buf)
                         }
                     } else {
                         if (unlikely(resampler->input(0))) {
+                            
                             int cnt=0;
                             //s++;
                             buf[s++]=0;
