@@ -445,6 +445,83 @@ class ModizerPlayerBridge {
         return result
     }
 
+    /// Normalisation phonétique : utilise CFStringTransform pour la translittération
+    private func phoneticNormalize(_ text: String) -> String {
+        var result = text.lowercased()
+
+        // 1. Enlever les mots vides courants (stopwords) qui peuvent être ajoutés par Siri
+        let stopwords = [
+            // Français (les plus courants qui posent problème)
+            "c'est", "cest", "c est",
+            // Anglais
+            "it's", "its", "it is",
+        ]
+
+        for stopword in stopwords.sorted(by: { $0.count > $1.count }) {
+            // Au début de la chaîne suivi d'un espace
+            result = result.replacingOccurrences(of: "^\(NSRegularExpression.escapedPattern(for: stopword))\\s+", with: "", options: .regularExpression)
+        }
+
+        // 2. Convertir en représentation phonétique via CFStringTransform
+        // Strip diacritics (accents)
+        if let transformed = result.applyingTransform(.stripDiacritics, reverse: false) {
+            result = transformed
+        }
+
+        // 3. Enlever apostrophes, tirets et caractères spéciaux
+        result = result.replacingOccurrences(of: "'", with: "")
+        result = result.replacingOccurrences(of: "'", with: "")
+        result = result.replacingOccurrences(of: "-", with: "")
+        result = result.replacingOccurrences(of: "_", with: "")
+
+        // 4. Normaliser les espaces
+        result = result.replacingOccurrences(of: "\\s+", with: "", options: .regularExpression)
+        result = result.trimmingCharacters(in: .whitespaces)
+
+        return result
+    }
+
+    /// Génère une clé phonétique simplifiée type Soundex
+    private func phoneticKey(_ text: String) -> String {
+        let normalized = phoneticNormalize(text)
+        var key = ""
+
+        // Garder la première lettre
+        if let first = normalized.first {
+            key.append(first)
+        }
+
+        // Simplifier les consonnes en groupes phonétiques
+        let phoneticMap: [Character: Character] = [
+            // Labiales
+            "b": "1", "p": "1", "f": "1", "v": "1",
+            // Dentales/Alveolaires
+            "c": "2", "s": "2", "k": "2", "g": "2", "j": "2", "q": "2", "x": "2", "z": "2",
+            // Liquides
+            "l": "3", "r": "3",
+            // Nasales
+            "m": "4", "n": "4",
+            // Dentales
+            "d": "5", "t": "5"
+        ]
+
+        var prevCode: Character = "0"
+
+        for char in normalized.lowercased().dropFirst() {
+            if let code = phoneticMap[char] {
+                if code != prevCode {
+                    key.append(code)
+                    prevCode = code
+                }
+            } else if "aeiouy".contains(char) {
+                // Voyelles - reset le code précédent mais ne pas ajouter
+                prevCode = "0"
+            }
+        }
+
+        return key
+    }
+
     /// Calcule la distance de Levenshtein entre deux strings (nombre de changements nécessaires)
     private func levenshteinDistance(_ s1: String, _ s2: String) -> Int {
         let s1 = Array(s1)
@@ -477,10 +554,26 @@ class ModizerPlayerBridge {
 
         guard !playlists.isEmpty else { return nil }
 
+        // Log pour debug - voir ce que Siri envoie exactement
+        print("🎯 Siri search input: '\(searchName)'")
+
         // Normaliser la recherche (nombres → chiffres, puis minuscules, sans accents)
         let withNumbers = normalizeNumbers(in: searchName)
+        print("🎯 After normalizeNumbers: '\(withNumbers)'")
+
         let normalizedSearch = withNumbers.folding(options: [.diacriticInsensitive, .caseInsensitive], locale: .current)
+        print("🎯 After folding: '\(normalizedSearch)'")
+
         let normalizedSearchNoSpaces = normalizedSearch.replacingOccurrences(of: " ", with: "")
+        print("🎯 Without spaces: '\(normalizedSearchNoSpaces)'")
+
+        // Version phonétique (enlever les mots vides et ne garder que les sons importants)
+        let phoneticSearch = phoneticNormalize(normalizedSearch)
+        print("🎯 Phonetic version: '\(phoneticSearch)'")
+
+        // Clé phonétique type Soundex
+        let phoneticSearchKey = phoneticKey(normalizedSearch)
+        print("🎯 Phonetic key: '\(phoneticSearchKey)'")
 
         // 1. Essai exact match (insensible à la casse, accents et nombres)
         if let exactMatch = playlists.first(where: {
@@ -517,6 +610,33 @@ class ModizerPlayerBridge {
             return normalizedSearch.contains(playlistNormalized)
         }) {
             return reverseMatch
+        }
+
+        // 3b. Essai avec normalisation phonétique (enlever les mots vides comme "c'est")
+        if let phoneticMatch = playlists.first(where: {
+            let playlistNormalized = normalizeNumbers(in: $0.name)
+                .folding(options: [.diacriticInsensitive, .caseInsensitive], locale: .current)
+            let playlistPhonetic = phoneticNormalize(playlistNormalized)
+            print("  🔍 Phonetic: '\(phoneticSearch)' vs '\(playlistPhonetic)' (playlist: \($0.name))")
+            return playlistPhonetic == phoneticSearch || playlistPhonetic.contains(phoneticSearch) || phoneticSearch.contains(playlistPhonetic)
+        }) {
+            print("  ✅ Phonetic match found: \(phoneticMatch.name)")
+            return phoneticMatch
+        }
+
+        // 3c. Essai avec clé phonétique Soundex-like (sons similaires)
+        if let soundexMatch = playlists.first(where: {
+            let playlistNormalized = normalizeNumbers(in: $0.name)
+                .folding(options: [.diacriticInsensitive, .caseInsensitive], locale: .current)
+            let playlistKey = phoneticKey(playlistNormalized)
+            print("  🔑 Soundex: '\(phoneticSearchKey)' vs '\(playlistKey)' (playlist: \($0.name))")
+            // Match si les clés sont identiques ou très proches
+            return playlistKey == phoneticSearchKey ||
+                   playlistKey.hasPrefix(phoneticSearchKey) ||
+                   phoneticSearchKey.hasPrefix(playlistKey)
+        }) {
+            print("  ✅ Soundex match found: \(soundexMatch.name)")
+            return soundexMatch
         }
 
         // 4. Matching phonétique avec distance de Levenshtein
