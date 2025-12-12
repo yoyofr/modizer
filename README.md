@@ -52,7 +52,6 @@ Other main libs & frameworks:
  - [ProjectM](https://github.com/projectM-visualizer/projectm): the most advanced open-source music visualizer.
  - [SARUnArchiveANY](https://github.com/saru2020/SARUnArchiveANY)
  - [SESlideTableViewCell](https://github.com/spaceelephant/SESlideTableViewCell)
- - [TapkuLibrary](https://github.com/devinross/tapkulibrary)
  - [UnrarKIT](https://github.com/abbeycode/UnrarKit) 
 
 ## Statistics
