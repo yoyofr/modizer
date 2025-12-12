@@ -182,11 +182,11 @@
                                 <viewLayoutGuide key="safeArea" id="qHW-Nc-CAR"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                 <constraints>
-                                    <constraint firstItem="SyA-DC-hhd" firstAttribute="leading" secondItem="qHW-Nc-CAR" secondAttribute="leading" id="0Zb-31-2N5"/>
-                                    <constraint firstItem="SyA-DC-hhd" firstAttribute="bottom" secondItem="qHW-Nc-CAR" secondAttribute="bottom" id="ahe-ct-0hf"/>
-                                    <constraint firstItem="SyA-DC-hhd" firstAttribute="trailing" secondItem="qHW-Nc-CAR" secondAttribute="trailing" id="cSK-Mh-L3r"/>
-                                    <constraint firstItem="SyA-DC-hhd" firstAttribute="top" secondItem="qHW-Nc-CAR" secondAttribute="top" id="dg9-uR-XQf"/>
+                                    <constraint firstItem="SyA-DC-hhd" firstAttribute="leading" secondItem="qHW-Nc-CAR" secondAttribute="leading" id="SLU-l0-dU0"/>
+                                    <constraint firstItem="SyA-DC-hhd" firstAttribute="bottom" secondItem="qHW-Nc-CAR" secondAttribute="bottom" id="UoS-dN-9vj"/>
+                                    <constraint firstItem="SyA-DC-hhd" firstAttribute="trailing" secondItem="qHW-Nc-CAR" secondAttribute="trailing" id="ZFP-TD-pnV"/>
                                     <constraint firstItem="SyA-DC-hhd" firstAttribute="centerX" secondItem="ai9-RI-3ow" secondAttribute="centerX" id="gep-KQ-v3i"/>
+                                    <constraint firstItem="SyA-DC-hhd" firstAttribute="top" secondItem="qHW-Nc-CAR" secondAttribute="top" id="pQO-Da-7F0"/>
                                 </constraints>
                             </view>
                             <extendedEdge key="edgesForExtendedLayout"/>
@@ -338,8 +338,10 @@
                                     <constraint firstItem="PWX-uv-g3O" firstAttribute="top" secondItem="ZzT-hS-EOJ" secondAttribute="top" id="Kxn-K7-7nV"/>
                                     <constraint firstItem="PWX-uv-g3O" firstAttribute="bottom" secondItem="ZzT-hS-EOJ" secondAttribute="bottom" id="LYd-1y-PIt"/>
                                     <constraint firstItem="PWX-uv-g3O" firstAttribute="trailing" secondItem="ZzT-hS-EOJ" secondAttribute="trailing" id="PI8-VP-3p3"/>
+                                    <constraint firstItem="PWX-uv-g3O" firstAttribute="centerX" secondItem="Qa1-JV-OZT" secondAttribute="centerX" id="j8l-nw-kP8"/>
                                     <constraint firstItem="PWX-uv-g3O" firstAttribute="centerX" secondItem="Qa1-JV-OZT" secondAttribute="centerX" id="nfo-Bj-Mcb"/>
                                     <constraint firstItem="PWX-uv-g3O" firstAttribute="leading" secondItem="ZzT-hS-EOJ" secondAttribute="leading" id="no2-gG-A8w"/>
+                                    <constraint firstItem="PWX-uv-g3O" firstAttribute="centerY" secondItem="Qa1-JV-OZT" secondAttribute="centerY" id="rQf-kc-udf"/>
                                 </constraints>
                             </view>
                             <extendedEdge key="edgesForExtendedLayout"/>

@@ -1023,7 +1023,7 @@ std::string ShaderPreprocessor::preprocess(const std::string& shaderSource) {
     }
     
     // Step 4.5: Remove redundant parentheses
-    result = removeRedundantParentheses(result);
+    //result = removeRedundantParentheses(result);
 
     // Step 4.6: Add missing parentheses around modulo operations
     result = fixModuloParentheses(result);

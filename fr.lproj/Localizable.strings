@@ -32,6 +32,10 @@
 /* No comment provided by engineer. */
 "Add current subsong" = "Ajouter le subsong";
 
+"Create new playlist"="Créer une nouvelle playlist";
+
+"Create"="Créer";
+
 /* (No Comment) */
 "Add or remove entries from browser." = "Ajouter ou supprimer des entrées.";
 
@@ -499,6 +503,8 @@
 
 /* (No Comment) */
 "Played once." = "Joué 1 fois.";
+
+"Playing"="Lecture";
 
 /* (No Comment) */
 "Playlist (%d)" = "Listes (%d)";

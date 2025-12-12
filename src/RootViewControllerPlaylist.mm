@@ -153,7 +153,7 @@ int qsort_ComparePlaylistEntriesRevFP(const void *entryA, const void *entryB) {
     }];
     [alertC addAction:cancelAction];
     
-    UIAlertAction *saveAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Save",@"") style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+    UIAlertAction *saveAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Create",@"") style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
         UITextField *plName = weakAlert.textFields.firstObject;
         if (![plName.text isEqualToString:@""]) {
             if (childController == nil) childController = [[RootViewControllerPlaylist alloc]  initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]];

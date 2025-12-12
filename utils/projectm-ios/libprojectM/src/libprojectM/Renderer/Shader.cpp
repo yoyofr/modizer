@@ -10,7 +10,10 @@
 
 //YOYOFR
 #include <pthread.h>
+#include <time.h>
+#include <unistd.h>
 extern mach_port_t mdzMainThreadId;
+extern volatile bool mdzRenderInProgress;
 
 namespace libprojectM {
 namespace Renderer {
@@ -39,16 +42,24 @@ void Shader::CompileProgram(const std::string& vertexShaderSource,
         bool mainThread=false;
         if (tid==mdzMainThreadId) mainThread=true;
         
+        if (!mainThread) {
+            //wait for a new frame to be rendered to start
+//            while (!mdzRenderInProgress) {
+//                usleep(1000);
+//            }
+            //wait for frame to be finished
+            while (mdzRenderInProgress) {
+                usleep(1000);
+            }
+        }
+        
         auto vertexShader = CompileShader(vertexShaderSource, GL_VERTEX_SHADER);
         
         auto fragmentShader = CompileShader(fragmentShaderSource, GL_FRAGMENT_SHADER);
         
-        
         glAttachShader(m_shaderProgram, vertexShader);
         glAttachShader(m_shaderProgram, fragmentShader);
         glLinkProgram(m_shaderProgram);
-        
-        
         
         // Shader objects are no longer needed after linking, free the memory.
         glDetachShader(m_shaderProgram, vertexShader);

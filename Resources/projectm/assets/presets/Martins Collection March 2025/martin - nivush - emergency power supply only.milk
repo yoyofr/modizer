@@ -454,7 +454,7 @@ warp_25=`
 warp_26=`}
 comp_1=`#define sat saturate
 comp_2=`sampler sampler_pw_noise_lq;
-comp_3=`sampler rand01, rand02, rand03, martin_skin_emergency_power_supply;
+comp_3=`sampler sampler_rand01, sampler_rand02, sampler_rand03, sampler_martin_skin_emergency_power_supply;
 comp_4=`static const float quality = 100;
 comp_5=`static const float scenepos = q20, torus1rad=q15, torus1dia=1, zoom=q10, texstr_x=q9, 
 comp_6=`                   compy=1.25, f_intens=q30, s_intens=q26, texzoom=q4, tex1lum=q14,torusdir = q11, 
@@ -569,7 +569,7 @@ comp_114=`   return normalize(n);
 comp_115=`}
 comp_116=`
 comp_117=`float3 makewall (float2 uvi)
-comp_118=`{return tex2D(martin_skin_emergency_power_supply,uvi);}
+comp_118=`{return tex2D(sampler_martin_skin_emergency_power_supply,uvi);}
 comp_119=`
 comp_120=`
 comp_121=`shader_body
@@ -648,9 +648,9 @@ comp_193=`uv4 = 0.5 + (1.0 - abs( frac(uv20 * 0.25) * 2 - 1.0 )-.5); //already d
 comp_194=`
 comp_195=`uv4 = (uv4-.5)*texzoom+.5;
 comp_196=`wtex[0]= 0;
-comp_197=`wtex[1] = tex2D(rand01,uv4);
-comp_198=`wtex[2] = tex2D(rand02,uv4);
-comp_199=`wtex[3] = tex2D(rand03,uv4);
+comp_197=`wtex[1] = tex2D(sampler_rand01,uv4);
+comp_198=`wtex[2] = tex2D(sampler_rand02,uv4);
+comp_199=`wtex[3] = tex2D(sampler_rand03,uv4);
 comp_200=`paint = lerp (wtex[seltex1],wtex[seltex2]*tex1lum,sel);
 comp_201=`ret += ((0.15+wall))*paint *sat(1-0.6*abs(norm.y))*sat(3-2*abs(p.y))*.75;
 comp_202=`

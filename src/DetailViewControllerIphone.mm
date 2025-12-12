@@ -75,6 +75,7 @@ int MIDIFX_OFS;
 #include <pthread.h>
 extern pthread_mutex_t db_mutex,gl_mutex;
 mach_port_t mdzMainThreadId;
+volatile bool mdzRenderInProgress;
 
 #import "SysMonitoring.h"
 
@@ -6109,6 +6110,7 @@ void pm_perfTest() {
     CHECK_PROFILE("load settings")
     //---------------------------------
     //---------------------------------
+    mdzRenderInProgress=false;
     _pmIsInitialized=false;
     
     _pmPresetNewLoaded=false;
@@ -7683,6 +7685,7 @@ void doFramePM(float ww,float hh) {
         m_oglView.layer.zPosition=3;
     }
     
+    mdzRenderInProgress=true;
     pthread_mutex_lock(&gl_mutex);
     [self setContextOGL];
     glClearColor(0.0f, 0.0f , 0.0f, 1.0f);
@@ -9152,6 +9155,7 @@ void doFramePM(float ww,float hh) {
     
     [self presentContextOGL];
     pthread_mutex_unlock(&gl_mutex);
+    mdzRenderInProgress=false;
     
     CFTimeInterval _fx_last_time=CFAbsoluteTimeGetCurrent();
     _fx_frame_time=1000.0f*(double)(_fx_last_time-_fx_start_time);

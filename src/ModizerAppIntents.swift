@@ -472,7 +472,7 @@ class ModizerPlayerBridge {
     }
 
     /// Trouve la playlist la plus proche du nom donné avec tolérance (casse, accents, nombres, phonétique)
-    private func findBestMatchingPlaylist(for searchName: String) -> (id: Int, name: String, size: Int)? {
+    func findBestMatchingPlaylist(for searchName: String) -> (id: Int, name: String, size: Int)? {
         let playlists = getAvailablePlaylists()
 
         guard !playlists.isEmpty else { return nil }
@@ -480,6 +480,7 @@ class ModizerPlayerBridge {
         // Normaliser la recherche (nombres → chiffres, puis minuscules, sans accents)
         let withNumbers = normalizeNumbers(in: searchName)
         let normalizedSearch = withNumbers.folding(options: [.diacriticInsensitive, .caseInsensitive], locale: .current)
+        let normalizedSearchNoSpaces = normalizedSearch.replacingOccurrences(of: " ", with: "")
 
         // 1. Essai exact match (insensible à la casse, accents et nombres)
         if let exactMatch = playlists.first(where: {
@@ -488,6 +489,16 @@ class ModizerPlayerBridge {
             return playlistNormalized == normalizedSearch
         }) {
             return exactMatch
+        }
+
+        // 1b. Essai exact match sans espaces (pour gérer "c 64" vs "c64")
+        if let exactMatchNoSpaces = playlists.first(where: {
+            let playlistNormalized = normalizeNumbers(in: $0.name)
+                .folding(options: [.diacriticInsensitive, .caseInsensitive], locale: .current)
+                .replacingOccurrences(of: " ", with: "")
+            return playlistNormalized == normalizedSearchNoSpaces
+        }) {
+            return exactMatchNoSpaces
         }
 
         // 2. Essai contains (la recherche est contenue dans le nom)
@@ -960,9 +971,14 @@ struct PlayRandomPicksIntent: AppIntent {
 
     @MainActor
     func perform() async throws -> some IntentResult {
-        let urlString = "modizer://playBuiltin?id=-1&fromShortcut=true"
-        if let url = URL(string: urlString) {
-            await UIApplication.shared.open(url)
+        // Set the flag to skip animation and auto-restart
+        UserDefaults.standard.set(true, forKey: "LaunchedFromShortcut")
+        UserDefaults.standard.synchronize()
+
+        // Call ModizerPlaylistBridge via runtime for random picks (id = -1)
+        if let bridgeClass = NSClassFromString("ModizerPlaylistBridge") as? NSObject.Type {
+            let bridge = bridgeClass.perform(NSSelectorFromString("sharedInstance"))?.takeUnretainedValue()
+            _ = bridge?.perform(NSSelectorFromString("playBuiltinPlaylistWithId:startIndex:"), with: -1, with: 0)
         }
         return .result()
     }
@@ -977,9 +993,14 @@ struct PlayMostPlayedIntent: AppIntent {
 
     @MainActor
     func perform() async throws -> some IntentResult {
-        let urlString = "modizer://playBuiltin?id=-2&fromShortcut=true"
-        if let url = URL(string: urlString) {
-            await UIApplication.shared.open(url)
+        // Set the flag to skip animation and auto-restart
+        UserDefaults.standard.set(true, forKey: "LaunchedFromShortcut")
+        UserDefaults.standard.synchronize()
+
+        // Call ModizerPlaylistBridge via runtime for most played (id = -2)
+        if let bridgeClass = NSClassFromString("ModizerPlaylistBridge") as? NSObject.Type {
+            let bridge = bridgeClass.perform(NSSelectorFromString("sharedInstance"))?.takeUnretainedValue()
+            _ = bridge?.perform(NSSelectorFromString("playBuiltinPlaylistWithId:startIndex:"), with: -2, with: 0)
         }
         return .result()
     }
@@ -994,9 +1015,14 @@ struct PlayFavoritesIntent: AppIntent {
 
     @MainActor
     func perform() async throws -> some IntentResult {
-        let urlString = "modizer://playBuiltin?id=-3&fromShortcut=true"
-        if let url = URL(string: urlString) {
-            await UIApplication.shared.open(url)
+        // Set the flag to skip animation and auto-restart
+        UserDefaults.standard.set(true, forKey: "LaunchedFromShortcut")
+        UserDefaults.standard.synchronize()
+
+        // Call ModizerPlaylistBridge via runtime for favorites (id = -3)
+        if let bridgeClass = NSClassFromString("ModizerPlaylistBridge") as? NSObject.Type {
+            let bridge = bridgeClass.perform(NSSelectorFromString("sharedInstance"))?.takeUnretainedValue()
+            _ = bridge?.perform(NSSelectorFromString("playBuiltinPlaylistWithId:startIndex:"), with: -3, with: 0)
         }
         return .result()
     }
@@ -1006,10 +1032,10 @@ struct PlayFavoritesIntent: AppIntent {
 @available(iOS 16.0, *)
 struct PlayPlaylistIntent: AppIntent {
     static let title: LocalizedStringResource = "Play Playlist"
-    static let description = IntentDescription("Plays a specific playlist in Modizer. Note: For best results with Siri, use 'Play Playlist By Name' instead.")
+    static let description = IntentDescription("Plays a specific playlist in Modizer. Note: For best results with voice commands, use 'Play Playlist By Name' instead.")
     static let openAppWhenRun: Bool = true
 
-    // This intent should appear after the by-name version in Siri suggestions
+    // This intent should appear after the by-name version in voice command suggestions
     static let isDiscoverable = true
 
     static var parameterSummary: some ParameterSummary {
@@ -1029,12 +1055,26 @@ struct PlayPlaylistIntent: AppIntent {
 
     @MainActor
     func perform() async throws -> some IntentResult & ProvidesDialog {
-        // Use URL scheme with fromShortcut flag to launch app with proper context
-        let playlistId = playlist.id
-        let urlString = "modizer://playPlaylist?id=\(playlistId)&index=\(startIndex)&fromShortcut=true"
+        // Set the flag to skip animation and auto-restart
+        UserDefaults.standard.set(true, forKey: "LaunchedFromShortcut")
+        UserDefaults.standard.synchronize()
 
-        if let url = URL(string: urlString) {
-            await UIApplication.shared.open(url)
+        // Call ModizerPlaylistBridge via runtime
+        var success = false
+        if let bridgeClass = NSClassFromString("ModizerPlaylistBridge") as? NSObject.Type,
+           let bridge = bridgeClass.perform(NSSelectorFromString("sharedInstance"))?.takeUnretainedValue() as? NSObject,
+           let playlistIdInt = Int32(playlist.id) {
+            let selector = NSSelectorFromString("playPlaylistWithId:startIndex:")
+            if bridge.responds(to: selector) {
+                let sig = bridge.method(for: selector)
+                typealias Function = @convention(c) (AnyObject, Selector, Int32, Int32) -> Bool
+                let function = unsafeBitCast(sig, to: Function.self)
+                success = function(bridge, selector, playlistIdInt, Int32(startIndex))
+            }
+        }
+
+        if !success {
+            throw PlaylistError.playlistNotFound
         }
 
         let fmt = NSLocalizedString("play_playlist_dialog", tableName: nil, bundle: .main, value: "Lecture de la playlist %@", comment: "Dialog confirming playlist playback")
@@ -1043,14 +1083,14 @@ struct PlayPlaylistIntent: AppIntent {
     }
 }
 
-// MARK: - Play Playlist By Name Intent (with string - for Siri)
+// MARK: - Play Playlist By Name Intent (with string - for voice commands)
 @available(iOS 16.0, *)
 struct PlayPlaylistByNameIntent: AppIntent {
     static let title: LocalizedStringResource = "Play Playlist By Name"
-    static let description = IntentDescription("Plays a playlist by name in Modizer. Recommended for Siri voice commands.")
+    static let description = IntentDescription("Plays a playlist by name in Modizer. Recommended for voice commands.")
     static let openAppWhenRun: Bool = true
 
-    // Make this the preferred intent for Siri
+    // Make this the preferred intent for voice commands
     static let isDiscoverable = true
 
     static var parameterSummary: some ParameterSummary {
@@ -1069,16 +1109,25 @@ struct PlayPlaylistByNameIntent: AppIntent {
 
     @MainActor
     func perform() async throws -> some IntentResult & ProvidesDialog {
-        // Use URL scheme with name and fromShortcut flag
-        let encodedName = playlistName.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? playlistName
-        let urlString = "modizer://playPlaylistByName?name=\(encodedName)&index=\(startIndex)&fromShortcut=true"
+        // Set the flag to skip animation and auto-restart
+        UserDefaults.standard.set(true, forKey: "LaunchedFromShortcut")
+        UserDefaults.standard.synchronize()
 
-        if let url = URL(string: urlString) {
-            await UIApplication.shared.open(url)
+        // Find the best matching playlist using intelligent matching
+        guard let matchedPlaylist = ModizerPlayerBridge.shared.findBestMatchingPlaylist(for: playlistName) else {
+            throw PlaylistError.playlistNotFound
         }
 
+        // Play the matched playlist
+        let success = ModizerPlayerBridge.shared.playPlaylist(playlistId: matchedPlaylist.id, startIndex: startIndex)
+
+        if !success {
+            throw PlaylistError.playlistNotFound
+        }
+
+        // Use the actual matched playlist name in the dialog (not what Siri heard)
         let fmt = NSLocalizedString("play_playlist_dialog", tableName: nil, bundle: .main, value: "Lecture de la playlist %@", comment: "Dialog confirming playlist playback")
-        let dialog = String(format: fmt, playlistName)
+        let dialog = String(format: fmt, matchedPlaylist.name)
         return .result(dialog: IntentDialog(stringLiteral: dialog))
     }
 }
