@@ -35,7 +35,7 @@
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Welcome" textAlignment="natural" lineBreakMode="wordWrap" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="rIf-LP-tux">
-                    <rect key="frame" x="20" y="128" width="293" height="70"/>
+                    <rect key="frame" x="20" y="128" width="253" height="70"/>
                     <constraints>
                         <constraint firstAttribute="height" constant="70" id="h4F-gI-62m"/>
                     </constraints>
@@ -90,10 +90,10 @@
                     </constraints>
                 </view>
                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="trailing" contentVerticalAlignment="center" buttonType="system" lineBreakMode="clip" translatesAutoresizingMaskIntoConstraints="NO" id="xLf-St-a04">
-                    <rect key="frame" x="313" y="138" width="80" height="34"/>
+                    <rect key="frame" x="273" y="138" width="120" height="34"/>
                     <constraints>
                         <constraint firstAttribute="height" constant="34" id="hL8-Hc-zg5"/>
-                        <constraint firstAttribute="width" constant="80" id="wzp-FV-5Qs"/>
+                        <constraint firstAttribute="width" constant="120" id="wzp-FV-5Qs"/>
                     </constraints>
                     <state key="normal" title="Button"/>
                     <buttonConfiguration key="configuration" style="plain" title="Skip" titleAlignment="trailing"/>

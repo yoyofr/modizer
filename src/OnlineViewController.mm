@@ -124,7 +124,7 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
     }
     UITabBarController *tbc = (UITabBarController *)window.rootViewController;
     if (![tbc isKindOfClass:[UITabBarController class]]) {
-        NSLog(@"[SceneDelegate] Unexpected root VC: %@", NSStringFromClass([window.rootViewController class]));
+        MDZELog("[SceneDelegate] Unexpected root VC: %@", NSStringFromClass([window.rootViewController class]));
         return;
     }
     // Resolve specific child controllers
@@ -522,7 +522,7 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
 //                    bottomLabel.text=NSLocalizedString(@"700+ set / Sega Geneis/Megadrive",@"");
 //                    break;
                 case ONLINE_COLLECTIONS_SNESM:topLabel.text=NSLocalizedString(@"SNESmusic collection",@"");
-                    bottomLabel.text=NSLocalizedString(@"1500+ set / Super Nintendo/Famicom",@"");
+                    bottomLabel.text=NSLocalizedString(@"1500+ sets / Super Nintendo/Famicom",@"");
                     break;
                 case ONLINE_COLLECTIONS_SMSP:topLabel.text=NSLocalizedString(@"SMS Power! collection",@"");
                     bottomLabel.text=NSLocalizedString(@"Master System & Game gear sets",@"");

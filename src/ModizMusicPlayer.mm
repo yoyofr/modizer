@@ -12943,13 +12943,13 @@ static void vgm_set_dev_option(PlayerBase *player, UINT8 devId, UINT32 coreOpts)
                  "ENCODED_BY",
                  "COMMENT",*/
                 if (!strcmp(t[0], "TITLE-JPN"))
-                    songTitle = t[1];
+                    songTitle = [[[NSString stringWithUTF8String:t[1]] precomposedStringWithCompatibilityMapping] UTF8String];
                 else if (!strcmp(t[0], "GAME-JPN"))
-                    songGame = t[1];
+                    songGame = [[[NSString stringWithUTF8String:t[1]] precomposedStringWithCompatibilityMapping] UTF8String];
                 else if (!strcmp(t[0], "SYSTEM-JPN"))
-                    songSystem = t[1];
+                    songSystem = [[[NSString stringWithUTF8String:t[1]] precomposedStringWithCompatibilityMapping] UTF8String];
                 else if (!strcmp(t[0], "ARTIST-JPN"))
-                    songAuthor = t[1];
+                    songAuthor = [[[NSString stringWithUTF8String:t[1]] precomposedStringWithCompatibilityMapping] UTF8String];
             }
         }
         
@@ -12964,19 +12964,19 @@ static void vgm_set_dev_option(PlayerBase *player, UINT8 devId, UINT32 coreOpts)
              "ENCODED_BY",
              "COMMENT",*/
             if ( !strcmp(t[0], "TITLE") && ((songTitle==NULL)||(songTitle[0]==0)) )
-                songTitle = t[1];
+                songTitle = [[[NSString stringWithUTF8String:t[1]] precomposedStringWithCompatibilityMapping] UTF8String];
             else if ( !strcmp(t[0], "GAME") && ((songGame==NULL)||(songGame[0]==0)) )
-                songGame = t[1];
+                songGame = [[[NSString stringWithUTF8String:t[1]] precomposedStringWithCompatibilityMapping] UTF8String];
             else if ( !strcmp(t[0], "SYSTEM") && ((songSystem==NULL)||(songSystem[0]==0)) )
-                songSystem = t[1];
+                songSystem = [[[NSString stringWithUTF8String:t[1]] precomposedStringWithCompatibilityMapping] UTF8String];
             else if ( !strcmp(t[0], "ARTIST") && ((songAuthor==NULL)||(songAuthor[0]==0)) )
-                songAuthor = t[1];
+                songAuthor = [[[NSString stringWithUTF8String:t[1]] precomposedStringWithCompatibilityMapping] UTF8String];
             else if (!strcmp(t[0], "DATE"))
-                songDate = t[1];
+                songDate = [[[NSString stringWithUTF8String:t[1]] precomposedStringWithCompatibilityMapping] UTF8String];
             else if (!strcmp(t[0], "ENCODED_BY"))
-                songEncoder = t[1];
+                songEncoder = [[[NSString stringWithUTF8String:t[1]] precomposedStringWithCompatibilityMapping] UTF8String];
             else if (!strcmp(t[0], "COMMENT"))
-                songComment = t[1];
+                songComment = [[[NSString stringWithUTF8String:t[1]] precomposedStringWithCompatibilityMapping] UTF8String];
         }
         
         
@@ -13882,7 +13882,6 @@ extern bool icloud_available;
                     
                     //remove tmp dir
                     NSError *err;
-                    //NSString *tmpArchivePath=[NSString stringWithFormat:@"%@/tmp/tmpArchive",NSHomeDirectory()];
                     NSString *tmpArchivePath=[NSString stringWithFormat:@"%@/tmpArchive",NSTemporaryDirectory()];
                     
                     if ((!isRestarting)&&(!skip_extract)) {
@@ -13920,7 +13919,7 @@ extern bool icloud_available;
                     if ((archiveIndex>=0)&&(archiveIndex<mdz_ArchiveFilesCnt)) mdz_currentArchiveIndex=archiveIndex;
                     else if (mdz_ShufflePlayMode) mdz_currentArchiveIndex=arc4random()%mdz_ArchiveFilesCnt;
                     
-                    _filePath=[NSString stringWithFormat:@"tmp/tmpArchive/%@",[NSString stringWithUTF8String:mdz_ArchiveFilesList[mdz_currentArchiveIndex]]];
+                    _filePath=[NSString stringWithFormat:@"%@/tmpArchive/%@",NSTemporaryDirectory(),[NSString stringWithUTF8String:mdz_ArchiveFilesList[mdz_currentArchiveIndex]]];
                     //extension = [_filePath pathExtension];
                     //file_no_ext = [[_filePath lastPathComponent] stringByDeletingPathExtension];
                     NSMutableArray *temparray_filepath=[NSMutableArray arrayWithArray:[[_filePath lastPathComponent] componentsSeparatedByString:@"."]];
@@ -13979,7 +13978,7 @@ extern bool icloud_available;
         mdz_ArchiveEntryPlayed[mdz_currentArchiveIndex]=max_idx+1;
         
         //init file references
-        _filePath=[NSString stringWithFormat:@"tmp/tmpArchive/%@",[NSString stringWithUTF8String:mdz_ArchiveFilesList[mdz_currentArchiveIndex]]];
+        _filePath=[NSString stringWithFormat:@"%@/tmpArchive/%@",NSTemporaryDirectory(),[NSString stringWithUTF8String:mdz_ArchiveFilesList[mdz_currentArchiveIndex]]];
         NSMutableArray *temparray_filepath=[NSMutableArray arrayWithArray:[[_filePath lastPathComponent] componentsSeparatedByString:@"."]];
         extension = (NSString *)[temparray_filepath lastObject];
         file_no_ext=[temparray_filepath firstObject];
@@ -15668,18 +15667,18 @@ extern bool icloud_available;
 -(NSString*) getModFileTitle {
     //TODO: use title tag when available
     if (mod_title&&([mod_title length]>0)) return mod_title;
-    return [[NSString stringWithUTF8String:mod_filename] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"];
+    return [[[NSString stringWithUTF8String:mod_filename] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"] precomposedStringWithCompatibilityMapping];
 }
 
 -(NSString*) getModFileTitleOrNull {
     if ([mod_title length]==0) return NULL;
-    return mod_title;
+    return [mod_title precomposedStringWithCompatibilityMapping];
 }
 
 -(NSString*) getModName {
     NSString *modName;
-    if  ( (mPlayType==MMP_KSS)||(mPlayType==MMP_GME)||(mPlayType==MMP_MDXPDX)||(mPlayType==MMP_NSFPLAY) ) return [[NSString stringWithCString:mod_name encoding:NSShiftJISStringEncoding] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"];
-    modName=[[NSString stringWithUTF8String:mod_name] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"];
+    if  ( (mPlayType==MMP_KSS)||(mPlayType==MMP_GME)||(mPlayType==MMP_MDXPDX)||(mPlayType==MMP_NSFPLAY) ) return [[[NSString stringWithCString:mod_name encoding:NSShiftJISStringEncoding] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"] precomposedStringWithCompatibilityMapping];
+    modName=[[[NSString stringWithUTF8String:mod_name] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"] precomposedStringWithCompatibilityMapping];
     
     if (modName==nil) return @"";
     return modName;
@@ -16492,17 +16491,17 @@ extern "C" void adjust_amplification(void);
         //check if spc file
         if ([[[arcEntryName pathExtension] lowercaseString] isEqualToString:@"spc"]) {
             SPCTag tag;
-            NSString *_filePath=[NSString stringWithFormat:@"tmp/tmpArchive/%@",arcEntryName];
+            NSString *_filePath=[NSString stringWithFormat:@"%@/tmpArchive/%@",NSTemporaryDirectory(),arcEntryName];
             if ([SPCTagParser parseTagsFromFile:_filePath tag:&tag]) {
                 NSString *ret=[NSString stringWithFormat:@"%.3d-%s",arc_index,tag.songName];
-
-                 if (tag.hasXID6) {
-//                     double loopSec = [SPCTagParser ticksToSeconds:tag.loopLength];
-                 }
-
-                 [SPCTagParser freeTag:&tag]; // Libérer la mémoire
+                
+                if (tag.hasXID6) {
+                    //                     double loopSec = [SPCTagParser ticksToSeconds:tag.loopLength];
+                }
+                
+                [SPCTagParser freeTag:&tag]; // Libérer la mémoire
                 return ret;
-             }
+            }
         }
         
         return [NSString stringWithUTF8String:mdz_ArchiveFilesList[arc_index]];

@@ -276,7 +276,7 @@ extern NSMutableArray *mac_key_pressed,*mac_key_released;
     [welcomePage1.exitBtn setTitle:NSLocalizedString(@"Skip",@"") forState:UIControlStateNormal];
     welcomePage1.messageLabel.text=NSLocalizedString(@""
 "Your gateway to retro and tracker music.\n"
-"Power up your device with legendary game tunes, iconic tracker modules,and timeless chiptune classics.",@"");
+"Power up your device with legendary game tunes, iconic tracker modules, and timeless chiptune classics.",@"");
     welcomePage1.messageLabel.font = [UIFont fontWithName:@"Montserrat-Regular" size:16];
     
     //Page 2

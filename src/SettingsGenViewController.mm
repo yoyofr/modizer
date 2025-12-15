@@ -650,6 +650,12 @@ void optNSFPLAYChangedC(id param) {
 + (void) loadSettings {
     //MDZILog("load settings");
     memset((char*)settings,0,sizeof(settings));
+    
+    // Langue actuellement utilisée par l'app
+    NSString *currentLanguage = [[NSBundle mainBundle].preferredLocalizations firstObject];
+    //
+    BOOL isJapaneseOrChinese = [currentLanguage hasPrefix:@"ja"] || [currentLanguage hasPrefix:@"zh"];
+    
     /////////////////////////////////////
     //ROOT
     /////////////////////////////////////
@@ -769,7 +775,7 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_PanningValue].detail.mdz_slider.slider_max_value=1;
     
     SETTINGS_ID_DEF(GLOB_Fadeouttime)
-    settings[GLOB_Fadeouttime].label=(char*)"Fade out time";
+    settings[GLOB_Fadeouttime].label=(char*)"Fade-out time";
     settings[GLOB_Fadeouttime].description=NULL;
     settings[GLOB_Fadeouttime].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER;
     settings[GLOB_Fadeouttime].sub_family=0;
@@ -791,7 +797,7 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_SilenceDetection].detail.mdz_slider.slider_max_value=10;
     
     SETTINGS_ID_DEF(GLOB_DefaultLength)
-    settings[GLOB_DefaultLength].label=(char*)"Default Length";
+    settings[GLOB_DefaultLength].label=(char*)"Default length";
     settings[GLOB_DefaultLength].description=NULL;
     settings[GLOB_DefaultLength].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER;
     settings[GLOB_DefaultLength].sub_family=0;
@@ -928,18 +934,18 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_ShowWelcome].detail.mdz_boolswitch.switch_value=1;
     
     //Not used in modern iOS (13+)
-//    SETTINGS_ID_DEF(GLOB_BackgroundMode)
-//    settings[GLOB_BackgroundMode].type=MDZ_SWITCH;
-//    settings[GLOB_BackgroundMode].label=(char*)"Background mode";
-//    settings[GLOB_BackgroundMode].description=(char*)"Off=no background process, Partial=keep playing music, Full=keep app on in background";
-//    settings[GLOB_BackgroundMode].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER;
-//    settings[GLOB_BackgroundMode].sub_family=0;
-//    settings[GLOB_BackgroundMode].callback=&optGLOBALChangedC;
-//    settings[GLOB_BackgroundMode].detail.mdz_switch.switch_value_nb=3;
-//    settings[GLOB_BackgroundMode].detail.mdz_switch.switch_labels=(char**)calloc(1,settings[GLOB_BackgroundMode].detail.mdz_switch.switch_value_nb*sizeof(char*));
-//    settings[GLOB_BackgroundMode].detail.mdz_switch.switch_labels[0]=(char*)"Off";
-//    settings[GLOB_BackgroundMode].detail.mdz_switch.switch_labels[1]=(char*)"Partial";
-//    settings[GLOB_BackgroundMode].detail.mdz_switch.switch_labels[2]=(char*)"Full";
+    //    SETTINGS_ID_DEF(GLOB_BackgroundMode)
+    //    settings[GLOB_BackgroundMode].type=MDZ_SWITCH;
+    //    settings[GLOB_BackgroundMode].label=(char*)"Background mode";
+    //    settings[GLOB_BackgroundMode].description=(char*)"Off=no background process, Partial=keep playing music, Full=keep app on in background";
+    //    settings[GLOB_BackgroundMode].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER;
+    //    settings[GLOB_BackgroundMode].sub_family=0;
+    //    settings[GLOB_BackgroundMode].callback=&optGLOBALChangedC;
+    //    settings[GLOB_BackgroundMode].detail.mdz_switch.switch_value_nb=3;
+    //    settings[GLOB_BackgroundMode].detail.mdz_switch.switch_labels=(char**)calloc(1,settings[GLOB_BackgroundMode].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    //    settings[GLOB_BackgroundMode].detail.mdz_switch.switch_labels[0]=(char*)"Off";
+    //    settings[GLOB_BackgroundMode].detail.mdz_switch.switch_labels[1]=(char*)"Partial";
+    //    settings[GLOB_BackgroundMode].detail.mdz_switch.switch_labels[2]=(char*)"Full";
     
     SETTINGS_ID_DEF(GLOB_EnqueueMode)
     settings[GLOB_EnqueueMode].type=MDZ_SWITCH;
@@ -1173,7 +1179,7 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_TitleFilename].detail.mdz_boolswitch.switch_default_value=0;
     settings[GLOB_StatsUpload].detail.mdz_boolswitch.switch_default_value=1;
     settings[GLOB_ShowWelcome].detail.mdz_boolswitch.switch_default_value=1;
-//    settings[GLOB_BackgroundMode].detail.mdz_switch.switch_default_value=2;
+    //    settings[GLOB_BackgroundMode].detail.mdz_switch.switch_default_value=2;
     settings[GLOB_EnqueueMode].detail.mdz_switch.switch_default_value=2;
     settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_default_value=0;
     settings[GLOB_AfterDownloadAction].detail.mdz_switch.switch_default_value=1;
@@ -1881,13 +1887,13 @@ void optNSFPLAYChangedC(id param) {
     settings[PROJECTM_PermmissiveMode].sub_family=0;
     settings[PROJECTM_PermmissiveMode].callback=&optPROJECTMChangedC;
     
-//    SETTINGS_ID_DEF(PROJECTM_BlurAfterAudioMode)
-//    settings[PROJECTM_BlurAfterAudioMode].type=MDZ_BOOLSWITCH;
-//    settings[PROJECTM_BlurAfterAudioMode].label=(char*)"Update Blur after audio";
-//    settings[PROJECTM_BlurAfterAudioMode].description=(char*)"Update blur textures after drawning audio related data.";
-//    settings[PROJECTM_BlurAfterAudioMode].family=MDZ_SETTINGS_FAMILY_PROJECTM;
-//    settings[PROJECTM_BlurAfterAudioMode].sub_family=0;
-//    settings[PROJECTM_BlurAfterAudioMode].callback=&optPROJECTMChangedC;
+    //    SETTINGS_ID_DEF(PROJECTM_BlurAfterAudioMode)
+    //    settings[PROJECTM_BlurAfterAudioMode].type=MDZ_BOOLSWITCH;
+    //    settings[PROJECTM_BlurAfterAudioMode].label=(char*)"Update Blur after audio";
+    //    settings[PROJECTM_BlurAfterAudioMode].description=(char*)"Update blur textures after drawning audio related data.";
+    //    settings[PROJECTM_BlurAfterAudioMode].family=MDZ_SETTINGS_FAMILY_PROJECTM;
+    //    settings[PROJECTM_BlurAfterAudioMode].sub_family=0;
+    //    settings[PROJECTM_BlurAfterAudioMode].callback=&optPROJECTMChangedC;
     
     SETTINGS_ID_DEF(PROJECTM_TimeBetweenPreset)
     settings[PROJECTM_TimeBetweenPreset].label=(char*)"Time between presets";
@@ -1990,7 +1996,7 @@ void optNSFPLAYChangedC(id param) {
     settings[PROJECTM_LockPreset].detail.mdz_boolswitch.switch_default_value=0;
     settings[PROJECTM_BlendPresets].detail.mdz_boolswitch.switch_default_value=1;
     settings[PROJECTM_PermmissiveMode].detail.mdz_boolswitch.switch_default_value=1;
-//    settings[PROJECTM_BlurAfterAudioMode].detail.mdz_boolswitch.switch_default_value=1;
+    //    settings[PROJECTM_BlurAfterAudioMode].detail.mdz_boolswitch.switch_default_value=1;
     settings[PROJECTM_TimeBetweenPreset].detail.mdz_slider.slider_default_value=15.0;
     settings[PROJECTM_BlendTime].detail.mdz_slider.slider_default_value=2.7;
     settings[PROJECTM_BundledPresets].detail.mdz_boolswitch.switch_default_value=1;
@@ -3105,7 +3111,7 @@ void optNSFPLAYChangedC(id param) {
     settings[VGMPLAY_PreferJTAG].family=MDZ_SETTINGS_FAMILY_VGMPLAY;
     settings[VGMPLAY_PreferJTAG].sub_family=0;
     settings[VGMPLAY_PreferJTAG].callback=&optVGMPLAYChangedC;
-    settings[VGMPLAY_PreferJTAG].detail.mdz_boolswitch.switch_value=0;
+    
     
     SETTINGS_ID_DEF(VGMPLAY_YM2612Emulator)
     settings[VGMPLAY_YM2612Emulator].type=MDZ_SWITCH;
@@ -3185,7 +3191,10 @@ void optNSFPLAYChangedC(id param) {
     settings[VGMPLAY_YMF262Emulator].detail.mdz_switch.switch_labels[2]=(char*)"Nuked";
     
     settings[VGMPLAY_Maxloop].detail.mdz_slider.slider_default_value=2;
-    settings[VGMPLAY_PreferJTAG].detail.mdz_boolswitch.switch_default_value=0;
+    if (isJapaneseOrChinese) {
+        // Activer certaines options
+        settings[VGMPLAY_PreferJTAG].detail.mdz_boolswitch.switch_value=1;
+    } else settings[VGMPLAY_PreferJTAG].detail.mdz_boolswitch.switch_value=0;
     settings[VGMPLAY_YMF262Emulator].detail.mdz_switch.switch_default_value=0;
     settings[VGMPLAY_YM2612Emulator].detail.mdz_switch.switch_default_value=0;
     settings[VGMPLAY_YM3812Emulator].detail.mdz_switch.switch_default_value=0;
@@ -3197,7 +3206,7 @@ void optNSFPLAYChangedC(id param) {
     //VGMSTREAM
     /////////////////////////////////////
     SETTINGS_ID_DEF(MDZ_SETTINGS_FAMILY_VGMSTREAM)
-    settings[MDZ_SETTINGS_FAMILY_VGMSTREAM].type=MDZ_FAMILY;
+        settings[MDZ_SETTINGS_FAMILY_VGMSTREAM].type=MDZ_FAMILY;
     settings[MDZ_SETTINGS_FAMILY_VGMSTREAM].label=(char*)"VGMStream";
     settings[MDZ_SETTINGS_FAMILY_VGMSTREAM].description=NULL;
     settings[MDZ_SETTINGS_FAMILY_VGMSTREAM].family=MDZ_SETTINGS_FAMILY_PLUGINS;
@@ -3676,9 +3685,6 @@ void optNSFPLAYChangedC(id param) {
     //settings[XMP_DSPLowPass].detail.mdz_boolswitch.switch_default_value=1;
     settings[XMP_FLAGS_A500F].detail.mdz_boolswitch.switch_default_value=0;
     
-    
-    
-    
     [SettingsGenViewController applyDefaultSettings];
 }
 
@@ -3724,7 +3730,7 @@ void optNSFPLAYChangedC(id param) {
     }
     UITabBarController *tbc = (UITabBarController *)window.rootViewController;
     if (![tbc isKindOfClass:[UITabBarController class]]) {
-        NSLog(@"[SceneDelegate] Unexpected root VC: %@", NSStringFromClass([window.rootViewController class]));
+        MDZELog("[SceneDelegate] Unexpected root VC: %@", NSStringFromClass([window.rootViewController class]));
         return;
     }
     // Resolve specific child controllers
@@ -4305,7 +4311,7 @@ void optNSFPLAYChangedC(id param) {
         //
         topLabel.tag = TOP_LABEL_TAG;
         topLabel.backgroundColor = [UIColor clearColor];
-        topLabel.font = [UIFont boldSystemFontOfSize:14];
+        topLabel.font = [UIFont boldSystemFontOfSize:13];
         topLabel.lineBreakMode=(settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value?
                                 ((settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value==2) ? NSLineBreakByTruncatingTail:NSLineBreakByTruncatingMiddle):NSLineBreakByTruncatingHead);;;
         topLabel.opaque=TRUE;
@@ -4376,7 +4382,7 @@ void optNSFPLAYChangedC(id param) {
     if (settings[cur_settings_idx[indexPath.section]].description) {
         topLabel.frame= CGRectMake(4,
                                    0,
-                                   tabView.bounds.size.width/**4/10*/,
+                                   tabView.bounds.size.width*4/10,
                                    50);
         bottomLabel.frame= CGRectMake(4,
                                       38,

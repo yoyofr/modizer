@@ -89,7 +89,7 @@
     }
     UITabBarController *tbc = (UITabBarController *)window.rootViewController;
     if (![tbc isKindOfClass:[UITabBarController class]]) {
-        NSLog(@"[SceneDelegate] Unexpected root VC: %@", NSStringFromClass([window.rootViewController class]));
+        MDZELog("[SceneDelegate] Unexpected root VC: %@", NSStringFromClass([window.rootViewController class]));
         return;
     }
     // Resolve specific child controllers
@@ -101,10 +101,11 @@
 // Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
 - (void)viewDidLoad {
     START_PROFILE
-    
+
     [self loadControllers];
-    
+
     textView.font=[UIFont systemFontOfSize:14];
+    textView.text=NSLocalizedString(@"About_Text", @"");
     [super viewDidLoad];
         
     darkMode=false;

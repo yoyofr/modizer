@@ -88,6 +88,8 @@
 	int mCurrentWinAskedDownload;
     
     bool noCellAction;
+    
+    int is_rsn;
 @public
     int browse_depth;
     DetailViewControllerIphone *detailViewController;

@@ -3398,6 +3398,10 @@
 		CC1E630F120423DF000A8A4E /* uaerc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = uaerc; sourceTree = "<group>"; };
 		CC2E39352B9DA419003E9E77 /* RootViewControllerXPWebParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RootViewControllerXPWebParser.h; sourceTree = "<group>"; };
 		CC2E39362B9DA419003E9E77 /* RootViewControllerXPWebParser.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RootViewControllerXPWebParser.mm; sourceTree = "<group>"; };
+		CC31441B2EEF504C0053DCE1 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Localizable.strings; sourceTree = "<group>"; };
+		CC3144452EF01E540053DCE1 /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/Localizable.strings; sourceTree = "<group>"; };
+		CC3144462EF01E630053DCE1 /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/Localizable.strings; sourceTree = "<group>"; };
+		CC3144472EF01E730053DCE1 /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/Localizable.strings; sourceTree = "<group>"; };
 		CC33B4261ABE1FC6009608E8 /* slider.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = slider.png; sourceTree = "<group>"; };
 		CC33B42C1ABF05A3009608E8 /* slider@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "slider@2x.png"; sourceTree = "<group>"; };
 		CC3F52F22ED3AE2A004D7908 /* modizer-Info-catalyst.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "modizer-Info-catalyst.plist"; sourceTree = "<group>"; };
@@ -6798,6 +6802,10 @@
 				en,
 				fr,
 				Base,
+				ja,
+				es,
+				de,
+				ru,
 			);
 			mainGroup = 29B97314FDCFA39411CA2CEA /* CustomTemplate */;
 			packageReferences = (
@@ -8531,6 +8539,10 @@
 				CCAE594F17ECABD2007638B9 /* en */,
 				CCAE595217ECAC69007638B9 /* fr */,
 				CC9A0AAB1ACA7BF70002C995 /* Base */,
+				CC31441B2EEF504C0053DCE1 /* ja */,
+				CC3144452EF01E540053DCE1 /* es */,
+				CC3144462EF01E630053DCE1 /* de */,
+				CC3144472EF01E730053DCE1 /* ru */,
 			);
 			name = Localizable.strings;
 			sourceTree = "<group>";

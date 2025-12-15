@@ -394,9 +394,16 @@ int found_img;
     // v" VERSION_MAJOR_STR "." VERSION_MINOR_STR "
     currentMode=WEB_MODE;
 
-    [webView loadRequest:[NSURLRequest requestWithURL:[NSURL fileURLWithPath:[[NSBundle mainBundle]
-                                                                              pathForResource:@"browser_home" ofType:@"html"]isDirectory:NO]]];
-    
+    // Load HTML file and replace localized message
+    NSString *htmlPath = [[NSBundle mainBundle] pathForResource:@"browser_home" ofType:@"html"];
+    NSString *htmlContent = [NSString stringWithContentsOfFile:htmlPath encoding:NSUTF8StringEncoding error:nil];
+
+    // Replace placeholder with localized message
+    NSString *localizedMessage = NSLocalizedString(@"Browser_Welcome_Message", @"");
+    htmlContent = [htmlContent stringByReplacingOccurrencesOfString:@"Localized_Message" withString:localizedMessage];
+
+    [webView loadHTMLString:htmlContent baseURL:[NSURL fileURLWithPath:[[NSBundle mainBundle] resourcePath]]];
+
 //	[webView loadHTMLString:html baseURL:nil];
     addressTextField.text=@"";
 }
@@ -1239,7 +1246,7 @@ didFinishNavigation:(WKNavigation *)navigation {
     }
     UITabBarController *tbc = (UITabBarController *)window.rootViewController;
     if (![tbc isKindOfClass:[UITabBarController class]]) {
-        NSLog(@"[SceneDelegate] Unexpected root VC: %@", NSStringFromClass([window.rootViewController class]));
+        MDZELog("[SceneDelegate] Unexpected root VC: %@", NSStringFromClass([window.rootViewController class]));
         return;
     }
     // Resolve specific child controllers

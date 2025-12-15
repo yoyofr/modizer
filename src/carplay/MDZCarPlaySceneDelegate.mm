@@ -6,6 +6,7 @@
 //
 
 #import "MDZCarPlaySceneDelegate.h"
+#import "../ModizerConstants.h"
 
 @class CarPlayAndRemoteManagement;
 
@@ -21,7 +22,6 @@
 - (void)templateApplicationScene:(CPTemplateApplicationScene *)templateApplicationScene
     didConnectInterfaceController:(CPInterfaceController *)interfaceController {
 
-    NSLog(@"[CarPlay] didConnectInterfaceController called");
 
     self.interfaceController = interfaceController;
 
@@ -35,20 +35,16 @@
     __weak typeof(self) weakSelf = self;
     CPBarButton *nowPlayingButton = [[CPBarButton alloc] initWithTitle:NSLocalizedString(@"Now Playing", @"")
                                                                 handler:^(CPBarButton * _Nonnull button) {
-        NSLog(@"[CarPlay] Now Playing button tapped");
         [weakSelf showNowPlayingScreen];
     }];
 
     self.playlistsTemplate.trailingNavigationBarButtons = @[nowPlayingButton];
 
-    NSLog(@"[CarPlay] Setting playlists template with Now Playing button");
-
     // Set as root template
     [interfaceController setRootTemplate:self.playlistsTemplate animated:NO completion:^(BOOL success, NSError * _Nullable error) {
         if (success) {
-            NSLog(@"[CarPlay] Template set successfully");
         } else {
-            NSLog(@"[CarPlay] Error setting template: %@", error);
+            MDZELog("[CarPlay] Error setting template: %@", error);
         }
     }];
 }
@@ -58,17 +54,13 @@
     MPPlayableContentManager *contentManager = [MPPlayableContentManager sharedContentManager];
     id<MPPlayableContentDelegate> delegate = contentManager.delegate;
 
-    NSLog(@"[CarPlay] Connecting to CarPlayManager, delegate: %@", delegate);
-
     // Use NSClassFromString to avoid importing the header
     if ([delegate isKindOfClass:NSClassFromString(@"CarPlayAndRemoteManagement")]) {
-        NSLog(@"[CarPlay] Found CarPlayAndRemoteManagement instance");
         // Use KVC to set the carPlaySceneDelegate property
         NSObject *carPlayManager = (NSObject *)delegate;
         [carPlayManager setValue:self forKey:@"carPlaySceneDelegate"];
-        NSLog(@"[CarPlay] Connected successfully");
     } else {
-        NSLog(@"[CarPlay] WARNING: delegate is not CarPlayAndRemoteManagement");
+        MDZELog("[CarPlay] WARNING: delegate is not CarPlayAndRemoteManagement");
     }
 }
 
@@ -86,20 +78,14 @@ didDisconnectInterfaceController:(CPInterfaceController *)interfaceController {
     MPPlayableContentManager *contentManager = [MPPlayableContentManager sharedContentManager];
     id<MPPlayableContentDataSource> dataSource = contentManager.dataSource;
 
-    NSLog(@"[CarPlay] Creating playlists template, dataSource: %@", dataSource);
-
     if (dataSource) {
         // Get number of playlists - use empty indexPath for root level
         NSIndexPath *rootIndexPath = [[NSIndexPath alloc] init];
         NSInteger count = [dataSource numberOfChildItemsAtIndexPath:rootIndexPath];
 
-        NSLog(@"[CarPlay] Found %ld playlists", (long)count);
-
         for (NSInteger i = 0; i < count; i++) {
             NSIndexPath *indexPath = [NSIndexPath indexPathWithIndex:i];
             MPContentItem *mpItem = [dataSource contentItemAtIndexPath:indexPath];
-
-            NSLog(@"[CarPlay] Playlist %ld: %@", (long)i, mpItem.title);
 
             if (mpItem) {
                 // Create CPListItem from MPContentItem
@@ -152,7 +138,7 @@ didDisconnectInterfaceController:(CPInterfaceController *)interfaceController {
     initiatePlaybackOfContentItemAtIndexPath:indexPath
                        completionHandler:^(NSError * _Nullable error) {
             if (error) {
-                NSLog(@"Error initiating playback: %@", error);
+                MDZELog("Error initiating playback: %@", error);
             } else {
                 // Refresh the template to show updated "Now Playing" status
                 dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.0 * NSEC_PER_SEC)),

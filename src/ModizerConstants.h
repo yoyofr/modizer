@@ -62,6 +62,7 @@ extern os_log_t mdzLog;
 #define STATISTICS_URL @"https://modizerdb.appspot.com"
 
 extern void *ExtractProgressObserverContext;
+extern void *ExtractBrowserListProgressObserverContext;
 extern void *LoadingProgressObserverContext;
 
 #define mdz_safe_free(x) if (x) {free(x);x=NULL;}

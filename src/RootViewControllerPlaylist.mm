@@ -530,7 +530,7 @@ int qsort_ComparePlaylistEntriesRevFP(const void *entryA, const void *entryB) {
     }
     UITabBarController *tbc = (UITabBarController *)window.rootViewController;
     if (![tbc isKindOfClass:[UITabBarController class]]) {
-        NSLog(@"[SceneDelegate] Unexpected root VC: %@", NSStringFromClass([window.rootViewController class]));
+        MDZELog("[SceneDelegate] Unexpected root VC: %@", NSStringFromClass([window.rootViewController class]));
         return;
     }
     // Resolve specific child controllers
@@ -712,27 +712,27 @@ END_PROFILE
         list = [[NSMutableArray alloc] init];
         NSMutableArray *mode_entries = [[NSMutableArray alloc] init];
         NSMutableArray *mode_entries_details = [[NSMutableArray alloc] init];
-        [mode_entries addObject:NSLocalizedString(@"Add a playlist...",@"")];
+        [mode_entries addObject:NSLocalizedString(@"Add a playlist",@"")];
         [mode_entries_details addObject:NSLocalizedString(@"Create a new playlist",@"")];
         
         if (detailViewController.mPlaylist_size) {
-            [mode_entries addObject:NSLocalizedString(@"Now playing...",@"")];
+            [mode_entries addObject:NSLocalizedString(@"Now playing",@"")];
             if (detailViewController.mPlaylist_size==1) [mode_entries_details addObject:NSLocalizedString(@"1 entry",@"")];
             else [mode_entries_details addObject:[NSString stringWithFormat:NSLocalizedString(@"%d entries",@""),detailViewController.mPlaylist_size]];
         }
         else {
-            [mode_entries addObject:NSLocalizedString(@"Now playing...",@"")];
+            [mode_entries addObject:NSLocalizedString(@"Now playing",@"")];
             [mode_entries_details addObject:NSLocalizedString(@"No entry",@"")];
         }
         
         [mode_entries addObject:NSLocalizedString(@"Random picks",@"")];
         [mode_entries_details addObject:NSLocalizedString(@"Generate a randomized playlist",@"")];
         
-        [mode_entries addObject:NSLocalizedString(@"Most played...",@"")];
-        [mode_entries_details addObject:[NSString stringWithFormat:@"%d entries",[self getMostPlayedCountFromDB]]];
+        [mode_entries addObject:NSLocalizedString(@"Most played",@"")];
+        [mode_entries_details addObject:[NSString stringWithFormat:NSLocalizedString(@"%d entries",@""),[self getMostPlayedCountFromDB]]];
         
-        [mode_entries addObject:NSLocalizedString(@"Favorites...",@"")];
-        [mode_entries_details addObject:[NSString stringWithFormat:@"%d entries",[self getFavoritesCountFromDB]]];
+        [mode_entries addObject:NSLocalizedString(@"Favorites",@"")];
+        [mode_entries_details addObject:[NSString stringWithFormat:NSLocalizedString(@"%d entries",@""),[self getFavoritesCountFromDB]]];
         
         [self loadPlayListsListFromDB:mode_entries list_id:list entries_details:mode_entries_details];
         NSDictionary *mode_entriesDict = [NSDictionary dictionaryWithObjectsAndKeys:mode_entries,@"entries",mode_entries_details,@"entries_details", nil];
@@ -784,7 +784,7 @@ END_PROFILE
                 [entries addObject:[NSString stringWithUTF8String:(const char*)sqlite3_column_text(stmt, 1)]];
                 [list_id addObject:[NSString stringWithFormat:@"%d",sqlite3_column_int(stmt, 0)]];
                 if (sqlite3_column_int(stmt, 2)==1) [details addObject:@"1 entry"];
-                else [details addObject:[NSString stringWithFormat:@"%d entries",sqlite3_column_int(stmt, 2)]];
+                else [details addObject:[NSString stringWithFormat:NSLocalizedString(@"%d entries",@""),sqlite3_column_int(stmt, 2)]];
             }
             sqlite3_finalize(stmt);
         } else MDZELog("ErrSQL : %d",err);

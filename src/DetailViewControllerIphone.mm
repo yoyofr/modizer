@@ -3653,7 +3653,7 @@ int recording=0;
         BOOL isDir;
         NSArray *dirContent;
         
-        cpath=[NSString stringWithFormat:@"%@/tmp/tmpArchive",NSHomeDirectory()];
+        cpath=[NSString stringWithFormat:@"%@/tmpArchive",NSTemporaryDirectory()];
         
         //List all entries
         NSURL *directoryURL = [NSURL fileURLWithPath:cpath];
@@ -6394,8 +6394,6 @@ void pm_perfTest() {
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
 
-    NSLog(@">>> DetailViewController viewWillAppear");
-
     // Check if we're in sidebar mode
     // Find TabBarController via window's root view controller
     BOOL isInSidebarMode = NO;
@@ -6420,29 +6418,22 @@ void pm_perfTest() {
     }
 
     tabBarVC = window.rootViewController;
-    NSLog(@">>> DetailViewController: window.rootViewController = %@", tabBarVC);
 
     if (tabBarVC != nil && [tabBarVC isKindOfClass:[UITabBarController class]]) {
-        NSLog(@">>> DetailViewController: Found TabBarController!");
         // Check if we're in sidebar mode
         if ([tabBarVC respondsToSelector:@selector(catalystSplitViewController)]) {
             id splitVC = [tabBarVC performSelector:@selector(catalystSplitViewController)];
-            NSLog(@">>> DetailViewController: splitVC = %@", splitVC);
             if (splitVC != nil) {
                 isInSidebarMode = YES;
-                NSLog(@">>> DetailViewController: In sidebar mode, hiding mini-player");
                 // Hide the mini-player when showing the full player
                 if ([tabBarVC respondsToSelector:@selector(hideSharedMiniPlayer)]) {
                     [tabBarVC performSelector:@selector(hideSharedMiniPlayer)];
                 }
             } else {
-                NSLog(@">>> DetailViewController: splitVC is nil, NOT in sidebar mode");
             }
         }
     } else {
-        NSLog(@">>> DetailViewController: No TabBarController found via window!");
     }
-    NSLog(@">>> DetailViewController: isInSidebarMode = %d", isInSidebarMode);
 
     // Only set delegate if NOT in sidebar mode
     // In sidebar mode, the tab bar controller manages navigation delegate

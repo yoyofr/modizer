@@ -1,253 +1,1056 @@
-/* 
-   Localizable.strings
+/*
+   Localizable.strings - English
    modizer
 
-   Created by yoyofr on 21/10/10.
-   Copyright 2010 __MyCompanyName__. All rights reserved.
- */
+   Organized by screens and feature families
+*/
 
-//Localizable.String file for the English version.
-"Browser_LocalBrowsing_MainKey"="Local browsing";
-"Browser_LocalBrowsing_SubKey"="Browse, play & delete local files.";
+// ================================
+// MARK: - COMMON / GENERAL
+// ================================
 
-"Browser_MODLAND_MainKey"="MODLAND collection";
-"Browser_MODLAND_SubKey"="%d downloadable files.";
-
-"Browser_HVSC_MainKey"="HVSC collection";
-"Browser_HVSC_SubKey"="%d downloadable files.";
-
-"Browser_Playlists_MainKey"="Playlists";
-"Browser_Playlists_SubKey"="Organize, create, delete & listen.";
-
-"Browser_Favorites_MainKey"="Favorites";
-"Browser_Favorites_SubKey"="Listen to rated songs.";
-
-"Browser_Most_played_MainKey"="Most played";
-"Browser_Most_played_SubKey"="Listen to most played songs.";
-
-"Browser_Web_MainKey"="Web";
-"Browser_Web_SubKey"="Browse Internet & download music.";
-
-"Browser_WorldCharts_MainKey"="World Charts";
-"Browser_WorldCharts_SubKey"="Top lists & download links.";
-
-"Browser_WebVGM_MainKey"="VGMRips";
-"Browser_WebVGM_SubKey"="Video game music rips";
-
-"Browser_UserGuide_MainKey"="User Guide";
-"Browser_UserGuide_SubKey"="Manual, FAQ, tips.";
-
-"GetAllEntries_MainKey"="Get all missing entries";
-"GetAllEntries_SubKey"="Limited to 256 first missing entries.";
-
-"DisplayAll_MainKey"="List all ordered by name";
-"DisplayAll_SubKey"="Current dir:";
-
-"DisplayDir_MainKey"="List/Directory";
-"DisplayDir_SubKey"="All ordered by path:";
-
-"DisplayAllPath_MainKey"="List all ordered by path";
-"DisplayAllPath_SubKey"="All ordered by name:";
-
-
-"Formats/Artists/Files"="Formats/Artists/Files";
-"Artists/Formats/Files"="Artists/Formats/Files";
-"Artists/Files"="Artists/Files";
-"Formats: %d entries."="Formats: %d entries.";
-"Artists: %d entries."="Artists: %d entries.";
-
-"Played %d times."="Played %d times.";
-"Played once."="Played once.";
-"Never played."="Never played.";
-"%d files."="%d files.";
-"1 file."="1 file.";
-
-"New playlist"="New playlist";
-"Save current one"="Save current one";
-
-"Create a new empty playlist."="Create a new empty playlist.";
-"Create a playlist from currently played files."="Create a playlist from currently played files.";
-
-"Browse files"="Browse files";
-"Add or remove entries from browser."="Add or remove entries from browser.";
-
-"Rename playlist"="Rename playlist";
-"Choose a new name."="Choose a new name.";
-
-"Playlist (%d)"="Playlist (%d)";
-"Playlist/Search off"="Playlist/Search off";
-
-"Local (%d, limited to %d)"="Local (%d, limited to %d)";
-"Local (%d)"="Local (%d)";
-"Local/Search off"="Local/Search off";
-
-"Modland (%d, limited to %d)"="Modland (%d, limited to %d)";
-"Modland (%d)"="Modland (%d)";
-"Modland/Search off"="Modland/Search off";
-
-"HVSC (%d, limited to %d)"="HVSC (%d, limited to %d)";
-"HVSC (%d)"="HVSC (%d)";
-"HVSC/Search off"="HVSC/Search off";
-
-"Searching Playlists..."="Searching Playlists...";
-"Searching Local files..."="Searching Local files...";
-"Searching MODLAND..."="Searching MODLAND...";
-"Searching HVSC..."="Searching HVSC...";
-
-"Please enter at least 2 characters for your search."="Please enter at least 2 characters for your search.";
-"Please activate at least 1 section for your search."="Please activate at least 1 section for your search.";
-
-"Database created."="Database created.";
-"Database will now be recreated. Please validate & wait."="Database will now be recreated. Please validate & wait.";
-"Wrong database version: %d.%d. Will update to %d.%d. Please validate & wait."="Wrong database version: %d.%d. Will update to %d.%d. Please validate & wait.";
-"No database found. Will create a new one. Please validate & wait..."="No database found. Will create a new one. Please validate & wait...";
-"File already available locally. Do you want to download it again?"="File already available locally. Do you want to download it again?";
-"Playlist is full. Delete some entries to add more."="Playlist is full. Delete some entries to add more.";
-
-"No download in progress"="No download in progress";
-"Downloaded %@"="Downloaded %@";
-"Could not add files. Please check manually with file browser (Local Browsing/Downloads)."="Could not add files. Please check manually with file browser (Local Browsing/Downloads).";
-"Downloading %@"="Downloading %@";
-"Cannot download from this URL."="Cannot download from this URL.";
-"Yes"="Yes";
-"No"="No";
-"Error"="Error";
-"Warning"="Warning";
-"Close"="Close";
-"First launch or issue encountered last time Modizer was running. Apply default settings?"="First launch or issue encountered last time Modizer was running. Apply default settings?";
-"File cannot be played. Skipping to next playable file."="File cannot be played. Skipping to next playable file.";
-"Seeking %d%%"="Seeking %d%%";
-"Seeking"="Seeking";
-"Loading"="Loading";
-"Extracting"="Extracting";
-"Too much entries! Playlist will be limited to %d first entries."="Too much entries! Playlist will be limited to %d first entries.";
-"Size: %dKB"="Size: %dKB";
-
-"URL have to start with ftp:// or http://"="URL have to start with ftp:// or http://";
-
-"Settings_General"="General";
-"Settings_Player"="Player";
-"Settings_Display"="Display";
-"Settings_Download"="Download";
-"Settings_FTP"="FTP";
-"Settings_PlaybackLib"="Playback libraries";
-"Settings_DB"="Database";
-"Settings_CleanDB"="Clean Database";
-"Settings_ResetPlCnt"="Reset play counters";
-"Settings_ResetRatings"="Reset Ratings";
-"Settings_ResetDB"="Reset whole database";
-"Settings_LocalFiles"="Local Files";
-"Settings_RecreateSamples"="Recreate 'Samples' folder";
-"Settings_FormatDownloads"="Format 'Downloads' folder";
-"Settings_RemCovers"="Remove covers";
-"Settings_UpdateFilesBackupFlag"="Check Filesystem";
-
-"Confirm_DBClean"="Launch database cleaning (can take a while)?";
-"Confirm_Reset_PlCnt"="Are you sure you want to reset all the play counter?";
-"Confirm_Reset_Ratings"="Are you sure you want to reset all the ratings?";
-"Confirm_ResetDB"="Are you sure you want to reset the whole database? Playlists, ratings, counters will be deleted.";
-"Confirm_RecreateSamples"="Do you want to recreate 'Samples' folder.";
-"Confirm_FormatDownloads"="Do you want to remove ALL files from Local Browsing/Web folder.";
-"Confirm_CheckFiles"="Do you want to perform local filesystem check ?";
-
-"Image detected"="Image detected";
-"Choose_SaveCover"="Save image as cover for %@?";
-"CoverFolder"="As Folder cover";
-"CoverFile"="As File cover";
-
-"Confirm_RemCurCovers"="Remove current covers for %@ (folder&file)?";
-"Settings_Settings"="Settings";
-"Settings_SettingsDefault"="Default";
-"Settings_SettingsHigh"="High";
-"Settings_SettingsMed"="Medium";
-"Settings_SettingsLow"="Low";
-"Confirm_SettingsDef"="Are you sure you want to reset settings with 'default' values?";
-"Confirm_SettingsHigh"="Are you sure you want to reset settings with 'high' values?";
-"Confirm_SettingsMed"="Are you sure you want to reset settings with 'medium' values?";
-"Confirm_SettingsLow"="Are you sure you want to reset settings with 'low' values?";
-
-"Browser not enough mem."="Too much entries, cannot allocate memory.";
-"Browser not enough mem. Limited."="Too much entries, cannot allocate memory. List is incomplete.";
-
-"Default length %d:%.2d"="Default length %d:%.2d";
-
-"Issue %d while trying to delete entry.\n%@"="Issue %d while trying to delete entry.\n%@";
-"Issue %d while trying to renamefile.\n%@"="Issue %d while trying to renamefile.\n%@";
-"Issue %d while moving: %@.\n%@"="Issue %d while moving: %@.\n%@";
-"Issue %d while creating folder\n%@"="Issue %d while creating folder\n%@";
-"Cannot use iCloud as folder name"="Cannot use iCloud as folder name";
-
-"Choose a subsong"="Choose a subsong";
-"Choose a song"="Choose a song";
-
-"Extract" = "Extract";
-"Rename" = "Rename";
+/* Common Actions */
+"Yes" = "Yes";
+"No" = "No";
+"Ok" = "Ok";
+"Cancel" = "Cancel";
+"Close" = "Close";
+"Save" = "Save";
 "Delete" = "Delete";
+"Rename" = "Rename";
+"Extract" = "Extract";
 "Cut" = "Cut";
 "Paste" = "Paste";
+"Create" = "Create";
+"Reset" = "Reset";
+
+/* Common States */
+"Loading" = "Loading";
+"Extracting" = "Extracting";
+"Seeking" = "Seeking";
+"Seeking %d%%" = "Seeking %d%%";
+"Refreshing" = "Refreshing";
+"Browsing" = "Browsing";
+"Cancelling..." = "Cancelling...";
+
+/* Common Messages */
+"Error" = "Error";
+"OK" = "OK";
+"Warning" = "Warning";
+"Do you want to reset to default value:\n" = "Do you want to reset to default value:\n";
+
+
+// ================================
+// MARK: - BROWSER
+// ================================
+
+/* Browser Main Keys */
+"Browser_LocalBrowsing_MainKey" = "Local browsing";
+"Browser_LocalBrowsing_SubKey" = "Browse, play & delete local files.";
+
+"Browser_MODLAND_MainKey" = "MODLAND collection";
+"Browser_MODLAND_SubKey" = "%d downloadable files.";
+
+"Browser_HVSC_MainKey" = "HVSC collection";
+"Browser_HVSC_SubKey" = "%d downloadable files.";
+
+"Browser_Playlists_MainKey" = "Playlists";
+"Browser_Playlists_SubKey" = "Organize, create, delete & listen.";
+
+"Browser_Favorites_MainKey" = "Favorites";
+"Browser_Favorites_SubKey" = "Listen to rated songs.";
+
+"Browser_Most_played_MainKey" = "Most played";
+"Browser_Most_played_SubKey" = "Listen to most played songs.";
+
+"Browser_Web_MainKey" = "Web";
+"Browser_Web_SubKey" = "Browse Internet & download music.";
+
+"Browser_WorldCharts_MainKey" = "World Charts";
+"Browser_WorldCharts_SubKey" = "Top lists & download links.";
+
+"Browser_WebVGM_MainKey" = "VGMRips";
+"Browser_WebVGM_SubKey" = "Video game music rips";
+
+"Browser_UserGuide_MainKey" = "User Guide";
+"Browser_UserGuide_SubKey" = "Manual, FAQ, tips.";
+
+/* Browser Display Modes */
+"GetAllEntries_MainKey" = "Get all missing entries";
+"GetAllEntries_SubKey" = "Limited to 256 first missing entries.";
+
+"DisplayAll_MainKey" = "List all ordered by name";
+"DisplayAll_SubKey" = "Current dir:";
+
+"DisplayDir_MainKey" = "List/Directory";
+"DisplayDir_SubKey" = "All ordered by path:";
+
+"DisplayAllPath_MainKey" = "List all ordered by path";
+"DisplayAllPath_SubKey" = "All ordered by name:";
+
+/* Browser View Modes */
+"Formats/Artists/Files" = "Formats/Artists/Files";
+"Artists/Formats/Files" = "Artists/Formats/Files";
+"Artists/Files" = "Artists/Files";
+"Formats: %d entries." = "Formats: %d entries.";
+"Artists: %d entries." = "Artists: %d entries.";
+
+/* Browser Stats */
+"Played %d times." = "Played %d times.";
+"Played once." = "Played once.";
+"Never played." = "Never played.";
+"%d files." = "%d files.";
+"1 file." = "1 file.";
+"Size: %dKB" = "Size: %dKB";
+
+/* Browser Messages */
+"Browser not enough mem." = "Too much entries, cannot allocate memory.";
+"Browser not enough mem. Limited." = "Too much entries, cannot allocate memory. List is incomplete.";
+
+/* File Operations */
 "New folder" = "New folder";
+"Enter folder name" = "Enter folder name";
+"Nothing to paste" = "Nothing to paste";
+"No file to extract or not supported archive format.\n" = "No file to extract or not supported archive format.\n";
+"Cannot use iCloud as folder name" = "Cannot use iCloud as folder name";
 
-"Are you sure you want to delete this playlist ?" = "Are you sure you want to delete this playlist ?";
-"Are you sure you want to delete this entry ?" = "Are you sure you want to delete this entry ?";
+"Issue %d while trying to delete entry.\n%@" = "Issue %d while trying to delete entry.\n%@";
+"Issue %d while trying to renamefile.\n%@" = "Issue %d while trying to renamefile.\n%@";
+"Issue %d while moving: %@.\n%@" = "Issue %d while moving: %@.\n%@";
+"Issue %d while creating folder\n%@" = "Issue %d while creating folder\n%@";
 
-"Nothing to paste"="Nothing to paste";
-"Enter folder name"="Enter folder name";
-"No file to extract or not supported archive format.\n"="No file to extract or not supported archive format.\n";
+"File is not available locally.\nTrigerring download from iCloud, please check in 'Files' application." = "File is not available locally.\nTrigerring download from iCloud, please check in 'Files' application.";
 
-"File is not available locally.\nTrigerring download from iCloud, please check in 'Files' application."="File is not available locally.\nTrigerring download from iCloud, please check in 'Files' application.";
+"unavailable" = "unavailable";
 
-"Mail support"="Mail support";
-"Contact support by email"="Contact support by email";
+// ================================
+// MARK: - SEARCH
+// ================================
 
-"[Please describe your request below]"="[Please describe your request below]";
+/* Search States */
+"Playlist (%d)" = "Playlist (%d)";
+"Playlist/Search off" = "Playlist/Search off";
 
-"Voices control"="Voices control";
-"All voices"="All voices";
+"Local (%d, limited to %d)" = "Local (%d, limited to %d)";
+"Local (%d)" = "Local (%d)";
+"Local/Search off" = "Local/Search off";
 
-"Browsing"="Browsing";
+"Modland (%d, limited to %d)" = "Modland (%d, limited to %d)";
+"Modland (%d)" = "Modland (%d)";
+"Modland/Search off" = "Modland/Search off";
 
-"Refreshing"="Refreshing";
+"HVSC (%d, limited to %d)" = "HVSC (%d, limited to %d)";
+"HVSC (%d)" = "HVSC (%d)";
+"HVSC/Search off" = "HVSC/Search off";
 
-"Previous"="Previous";
-"Previous file"="Previous file";
-"Next file"="Next file";
-"Next"="Next";
+"ASMA (%d, limited to %d)"="ASMA (%d, limited to %d)";
+"ASMA (%d)"="ASMA (%d)";
+"ASMA/Search off"="ASMA/Search off";
 
-"Clear 'Now Playing' queue"="Clear 'Now Playing' queue";
+/* Search Messages */
+"Searching Playlists..." = "Searching Playlists...";
+"Searching Local files..." = "Searching Local files...";
+"Searching MODLAND..." = "Searching MODLAND...";
+"Searching HVSC..." = "Searching HVSC...";
 
-"Now playing"="Now playing";
-"Most played"="Most played";
-"Favorites"="Favorites";
+"Please enter at least 2 characters for your search." = "Please enter at least 2 characters for your search.";
+"Please activate at least 1 section for your search." = "Please activate at least 1 section for your search.";
 
-"Resuming last\nplayed file"="Resuming last\nplayed file";
 
-"Add to a playlist"="Add to a playlist";
-"Choose a playlist"="Choose a playlist";
+// ================================
+// MARK: - PLAYER / NOW PLAYING
+// ================================
 
-"Shuffle"="Shuffle";
+/* Player States */
+"Now playing" = "Now playing";
+"Now playing(%d)" = "Now playing(%d)";
+"Most played" = "Most played";
+"Favorites" = "Favorites";
+"Resuming last\nplayed file" = "Resuming last\nplayed file";
 
-"Now playing(%d)"="Now playing(%d)";
+/* Player Controls */
+"Previous" = "Previous";
+"Previous file" = "Previous file";
+"Next file" = "Next file";
+"Next" = "Next";
+"Shuffle" = "Shuffle";
+"Voices control" = "Voices control";
+"All voices" = "All voices";
+"Clear 'Now Playing' queue" = "Clear 'Now Playing' queue";
 
-/* Settings */
-"Search: simplified regexp ('.'->'\\.', '*'->'.*')"="Search: simplified regexp ('.'->'\\.', '*'->'.*')";
-"Resume position on launch"="Resume position on launch";
-"Default length"="Default length";
-"NSFPLAY default length"="NSFPLAY default length";
+/* Song Selection */
+"Choose a subsong" = "Choose a subsong";
+"Choose a song" = "Choose a song";
 
-/*Launch popup*/
-"Cleaning DB & \nreseting settings"="Cleaning DB & \nreseting settings";
+/* Player Messages */
+"Nothing currently playing. Please select a file." = "Nothing currently playing. Please select a file.";
+"File cannot be played. Skipping to next playable file." = "File cannot be played. Skipping to next playable file.";
+"Too much entries! Playlist will be limited to %d first entries." = "Too much entries! Playlist will be limited to %d first entries.";
+"Playlist is full. Delete some entries to add more." = "Playlist is full. Delete some entries to add more.";
 
-/*Waiting View*/
-"Cancelling..."="Cancelling...";
-
-"Silence Detection"="Silence Detection";
-"Stop song if silent for more than selected number of seconds. 0: off"="Stop song if silent for more than selected number of seconds. 0: off";
-
-/* Donation */
-"Thank You! ❤️"="Thank You! ❤️";
-"Send a tip to Modizer"="Send a tip to Modizer";
-"Support Modizer development"="Support Modizer development";
-
+/* Metadata */
 "unknown_title" = "Unknown title";
 "unknown_album" = "Unknown album";
 "now_playing_format" = "Playing: %@ from %@";
+
+
+// ================================
+// MARK: - PLAYLISTS
+// ================================
+
+/* Playlist Actions */
+"New playlist" = "New playlist";
+"Create new playlist" = "Create new playlist";
+"Save current one" = "Save current one";
+"Rename playlist" = "Rename playlist";
+"Add to a playlist" = "Add to a playlist";
+"Choose a playlist" = "Choose a playlist";
+
+/* Playlist Descriptions */
+"Create a new empty playlist." = "Create a new empty playlist.";
+"Create a playlist from currently played files." = "Create a playlist from currently played files.";
+"Browse files" = "Browse files";
+"Add or remove entries from browser." = "Add or remove entries from browser.";
+"Choose a new name." = "Choose a new name.";
+
+/* Playlist Confirmations */
+"Are you sure you want to delete this playlist ?" = "Are you sure you want to delete this playlist ?";
+"Are you sure you want to delete this entry ?" = "Are you sure you want to delete this entry ?";
+
+
+// ================================
+// MARK: - DOWNLOADS
+// ================================
+
+"Downloads" = "Downloads";
+"Download queue: 1 file" = "Download queue: 1 file";
+"Download queue: %d files" = "Download queue: %d files";
+"No download in progress" = "No download in progress";
+"Downloaded %@" = "Downloaded %@";
+"Downloading %@" = "Downloading %@";
+"Cannot download from this URL." = "Cannot download from this URL.";
+"Could not add files. Please check manually with file browser (Local Browsing/Downloads)." = "Could not add files. Please check manually with file browser (Local Browsing/Downloads).";
+"File already available locally. Do you want to download it again?" = "File already available locally. Do you want to download it again?";
+"URL have to start with ftp:// or http://" = "URL have to start with ftp:// or http://";
+"Cannot connect to FTP." = "Cannot connect to FTP.";
+
+
+// ================================
+// MARK: - DATABASE
+// ================================
+
+"Database created." = "Database created.";
+"Database will now be recreated. Please validate & wait." = "Database will now be recreated. Please validate & wait.";
+"Wrong database version: %d.%d. Will update to %d.%d. Please validate & wait." = "Wrong database version: %d.%d. Will update to %d.%d. Please validate & wait.";
+"No database found. Will create a new one. Please validate & wait..." = "No database found. Will create a new one. Please validate & wait...";
+
+
+// ================================
+// MARK: - COVERS / IMAGES
+// ================================
+
+"Image detected" = "Image detected";
+"Choose_SaveCover" = "Save image as cover for %@?";
+"CoverFolder" = "As Folder cover";
+"CoverFile" = "As File cover";
+"Confirm_RemCurCovers" = "Remove current covers for %@ (folder&file)?";
+
+
+// ================================
+// MARK: - SETTINGS - GENERAL
+// ================================
+
+/* Settings Sections */
+"Settings_General" = "General";
+"Settings_Player" = "Player";
+"Settings_Display" = "Display";
+"Settings_Download" = "Download";
+"Settings_FTP" = "FTP";
+"Settings_PlaybackLib" = "Playback libraries";
+"Settings_Settings" = "Settings";
+
+/* Settings Presets */
+"Settings_SettingsDefault" = "Default";
+"Settings_SettingsHigh" = "High";
+"Settings_SettingsMed" = "Medium";
+"Settings_SettingsLow" = "Low";
+
+"Confirm_SettingsDef" = "Are you sure you want to reset settings with 'default' values?";
+"Confirm_SettingsHigh" = "Are you sure you want to reset settings with 'high' values?";
+"Confirm_SettingsMed" = "Are you sure you want to reset settings with 'medium' values?";
+"Confirm_SettingsLow" = "Are you sure you want to reset settings with 'low' values?";
+
+/* Global Player Settings */
+"Search: simplified regexp ('.'->'\\.', '*'->'.*')" = "Search: simplified regexp ('.'->'\\.', '*'->'.*')";
+"Resume position on launch" = "Resume position on launch";
+"Notification" = "Notification";
+"Notification duration" = "Notification duration";
+"Disable screen auto lock" = "Disable screen auto lock";
+"No screen auto lock" = "No screen auto lock";
+"Enable playback ratio" = "Enable playback ratio";
+"Playback ratio" = "Playback ratio";
+"Default length" = "Default length";
+"Default length %d:%.2d" = "Default length %d:%.2d";
+"Fade-out time" = "Fade-out time";
+"Silence Detection" = "Silence Detection";
+"Stop song if silent for more than selected number of seconds. 0: off" = "Stop song if silent for more than selected number of seconds. 0: off";
+"Will skip song if nothing is played for specified duration (0=off)" = "Will skip song if nothing is played for specified duration (0=off)";
+"Force mono" = "Force mono";
+"Panning" = "Panning";
+"Panning value" = "Panning value";
+"Audio latency" = "Audio latency";
+"Audio latency in ms" = "Audio latency in ms";
+"Multi default action" = "Multi default action";
+"Browse" = "Browse";
+"Archive/multi play mode" = "Archive/multi play mode";
+"Entry"="Entry";
+
+/* Archive Settings */
+"Archive multi default action" = "Archive multi default action";
+"Archive multi play mode" = "Archive multi play mode";
+
+/* Playlist Settings */
+"Play/Enqueue action" = "Play/Enqueue action";
+"Enqueue mode" = "Enqueue mode";
+"Default Action" = "Default Action";
+"Play" = "Play";
+"Enqueue" = "Enqueue";
+"Enq.&Play" = "Enq.&Play";
+"First" = "First";
+"Current" = "Current";
+"Last" = "Last";
+"Enqueue position" = "Enqueue position";
+"Post download action" = "Post download action";
+"Nothing" = "Nothing";
+
+/* Display Settings */
+"Background mode" = "Background mode";
+"Partial" = "Partial";
+"Full" = "Full";
+"Off=no background process, Partial=keep playing music, Full=keep app on in background" = "Off=no background process, Partial=keep playing music, Full=keep app on in background";
+"Long name truncate" = "Long name truncate";
+"Head" = "Head";
+"Mid." = "Mid.";
+"Tail" = "Tail";
+"Filename as title" = "Filename as title";
+
+/* Local Files Settings */
+"Auto. restore Samples folder" = "Auto. restore Samples folder";
+"Send statistics" = "Send statistics";
+
+
+// ================================
+// MARK: - SETTINGS - DATABASE
+// ================================
+
+"Settings_DB" = "Database";
+"Settings_CleanDB" = "Clean Database";
+"Settings_ResetPlCnt" = "Reset play counters";
+"Settings_ResetRatings" = "Reset Ratings";
+"Settings_ResetDB" = "Reset whole database";
+
+"Confirm_DBClean" = "Launch database cleaning (can take a while)?";
+"Confirm_Reset_PlCnt" = "Are you sure you want to reset all the play counter?";
+"Confirm_Reset_Ratings" = "Are you sure you want to reset all the ratings?";
+"Confirm_ResetDB" = "Are you sure you want to reset the whole database? Playlists, ratings, counters will be deleted.";
+
+
+// ================================
+// MARK: - SETTINGS - LOCAL FILES
+// ================================
+
+"Settings_LocalFiles" = "Local Files";
+"Settings_RecreateSamples" = "Recreate 'Samples' folder";
+"Settings_FormatDownloads" = "Format 'Downloads' folder";
+"Settings_RemCovers" = "Remove covers";
+"Settings_UpdateFilesBackupFlag" = "Check Filesystem";
+
+"Confirm_RecreateSamples" = "Do you want to recreate 'Samples' folder.";
+"Confirm_FormatDownloads" = "Do you want to remove ALL files from Local Browsing/Web folder.";
+"Confirm_CheckFiles" = "Do you want to perform local filesystem check ?";
+
+
+// ================================
+// MARK: - SETTINGS - PLUGINS
+// ================================
+
+/* AdPlug */
+"OPL type" = "OPL type";
+"Stereo surround" = "Stereo surround";
+
+/* GBSPlay */
+"HP filter type" = "HP filter type";
+"Highpass filter type" = "Highpass filter type";
+
+/* Game Music Emu (GME) */
+"Stereo separation" = "Stereo separation";
+"Ignore silence" = "Ignore silence";
+"Silence detection" = "Silence detection";
+"Equalizer" = "Equalizer";
+"Bass" = "Bass";
+"Treble" = "Treble";
+
+/* GSF */
+"Sound quality" = "Sound quality";
+"Interpolation" = "Interpolation";
+"Low-pass filter" = "Low-pass filter";
+"Echo" = "Echo";
+
+/* Highly Complete (HC) */
+"Resample quality" = "Resample quality";
+"Main enabled" = "Main enabled";
+"Reverb enabled" = "Reverb enabled";
+
+/* NSFPlay */
+"NSFPLAY default length" = "NSFPLAY default length";
+"LPF strength" = "LPF strength";
+"Min=off, default: 112" = "Min=off, default: 112";
+"HPF strength" = "HPF strength";
+"Region" = "Region";
+"VRC7 Patches" = "VRC7 Patches";
+"Force IRQ" = "Force IRQ";
+"Quality" = "Quality";
+
+/* OpenMPT */
+"Master volume" = "Master volume";
+"Sampling" = "Sampling";
+"Resampling" = "Resampling";
+
+/* SID */
+"Engine" = "Engine";
+"Filter" = "Filter";
+"Force loop" = "Force loop";
+"Clock" = "Clock";
+"Model" = "Model";
+"Force 2nd SID" = "Force 2nd SID";
+"Address 2nd" = "Address 2nd";
+"0xD420-0xD7FF or 0xDE00-0xDFFF" = "0xD420-0xD7FF or 0xDE00-0xDFFF";
+"Force 3rd SID" = "Force 3rd SID";
+"Address 3rd" = "Address 3rd";
+
+/* Timidity */
+"Max loop" = "Max loop";
+"MIDI polyphony" = "MIDI polyphony";
+"Amplification" = "Amplification";
+"Chorus" = "Chorus";
+"Reverb" = "Reverb";
+"Resample" = "Resample";
+"LP filter" = "LP filter";
+
+/* UADE */
+"Headphones" = "Headphones";
+"LED filter" = "LED filter";
+"Normalization" = "Normalization";
+"Post FX" = "Post FX";
+"Panning" = "Panning";
+"Panning value" = "Panning value";
+"Gain" = "Gain";
+"Gain value" = "Gain value";
+"Force NTSC" = "Force NTSC";
+
+/* VGMPlay */
+"Prefer JTAG" = "Prefer JTAG";
+"YM2612 emulator" = "YM2612 emulator";
+"Nuked OPN2 option" = "Nuked OPN2 option";
+"YMF262 emulator" = "YMF262 emulator";
+"YM3812 emulator" = "YM3812 emulator";
+"QSound emulator" = "QSound emulator";
+"RF5C68 emulator" = "RF5C68 emulator";
+
+/* VGMStream */
+"Max loop" = "Max loop";
+
+/* XMP */
+"Amiga 500 Filter" = "Amiga 500 Filter";
+
+
+// ================================
+// MARK: - SETTINGS - VISUALIZATIONS
+// ================================
+
+/* General FX */
+"FX Alpha" = "FX Alpha";
+"FX Fullscreen" = "FX Fullscreen";
+"FX FPS" = "FX FPS";
+"FX show info" = "FX show info";
+"Tech Info" = "Tech Info";
+"Show FPS and other infos (CPU, Resolution, ProjectM audio data)" = "Show FPS and other infos (CPU, Resolution, ProjectM audio data)";
+"FX Level of details" = "FX Level of details";
+"Low" = "Low";
+"Med" = "Med";
+"High" = "High";
+"Slow FX limit" = "Slow FX limit";
+"Deactivate FX if too slow." = "Deactivate FX if too slow.";
+"Weak" = "Weak";
+"Strong" = "Strong";
+"Display song info" = "Display song info";
+"When in fulllscreen, display song info when it changes. TL is Top Left, DR is Bottom Right, C is Center." = "When in fulllscreen, display song info when it changes. TL is Top Left, DR is Bottom Right, C is Center.";
+
+/* ProjectM */
+"ProjectM settings" = "ProjectM settings";
+"ProjectM on/off" = "ProjectM on/off";
+"Show preset label" = "Show preset label";
+"Auto switch presets mode" = "Auto switch presets mode";
+"Lock preset" = "Lock preset";
+"Time between preset" = "Time between preset";
+"Blend presets" = "Blend presets";
+"Blend time" = "Blend time";
+"Bundled presets" = "Bundled presets";
+"Custom presets" = "Custom presets";
+"Aspect ratio" = "Aspect ratio";
+"Mesh size X" = "Mesh size X";
+"Mesh size Y" = "Mesh size Y";
+"Hard cut enabled" = "Hard cut enabled";
+"Hard cut min time" = "Hard cut min time";
+"Hard cut sensitivity" = "Hard cut sensitivity";
+"Beat sensitivity" = "Beat sensitivity";
+"Permissive mode" = "Permissive mode";
+
+/* Oscilloscope */
+"Oscillo settings" = "Oscillo settings";
+"FX mode" = "FX mode";
+"Show label" = "Show label";
+"Label font size" = "Label font size";
+"Show grid" = "Show grid";
+"Grid color" = "Grid color";
+"Line width" = "Line width";
+"Mono color" = "Mono color";
+"Multi color set" = "Multi color set";
+"Reset all colors" = "Reset all colors";
+"Thin" = "Thin";
+"Medium" = "Medium";
+"Thick" = "Thick";
+"Beefy" = "Beefy";
+
+/* Piano Roll / MIDI */
+"Piano roll" = "Piano roll";
+"Activate Piano roll FX, standard or 'Synthesia' like" = "Activate Piano roll FX, standard or 'Synthesia' like";
+"Activate spark FX, colored or white" = "Activate spark FX, colored or white";
+"Display voices labels" = "Display voices labels";
+"Display octaves labels" = "Display octaves labels";
+"MIDI pattern" = "MIDI pattern";
+"MIDI cut line" = "MIDI cut line";
+"MIDI bar style" = "MIDI bar style";
+"MIDI bar vibrato" = "MIDI bar vibrato";
+"Piano 3D" = "Piano 3D";
+"Piano cut line" = "Piano cut line";
+"Piano color mode" = "Piano color mode";
+
+/* Spectrum */
+"3D spectrum" = "3D spectrum";
+"3D spectrum bloom" = "3D spectrum bloom";
+"Spectrum" = "Spectrum";
+"3D landscape" = "3D landscape";
+"3D landscape bloom" = "3D landscape bloom";
+
+/* MOD Pattern */
+"MOD pattern" = "MOD pattern";
+"MOD pattern BG alpha" = "MOD pattern BG alpha";
+"MOD pattern vol bar" = "MOD pattern vol bar";
+"MOD pattern current line mode" = "MOD pattern current line mode";
+"MOD pattern font" = "MOD pattern font";
+"MOD pattern font size" = "MOD pattern font size";
+"MOD pattern theme" = "MOD pattern theme";
+
+
+// ================================
+// MARK: - WEB BROWSER
+// ================================
+
+"Browser_Welcome_Message" = "<b>Welcome to Modizer's web browser!</b><br><br>Use the address bar above to navigate or explore your bookmarks.<br><br>To use an image as cover, copy it in the paste board with a long press.";
+"Bookmarks" = "Bookmarks";
+
+
+// ================================
+// MARK: - ABOUT
+// ================================
+
+"About_Text" = "v4.0 © Yohann Magnien / YoyoFR\n\nContact: mailto:modizerhelp@gmail.com\nWeb: https://modizer.app\n\nModizer's logo by Steve Miele.\n\nNumber of file formats/extension supported: 1090.\n!PM!,04SW,208,2DX9,2PSF,2SF,2SFLIB,3DO,4,40A,40B,41A,50A,60A,61A,669,800,9TAV,A2M,AAC,AAM,AAX,ABK,AC1,AC1D,ACB,ACM,ACX,ADL,ADLIB,ADM,ADP,ADPCM,ADPCMX,ADS,ADSC,ADW,ADX,AFC,AFS2,AGD,AGI,AGSC,AHV,AHX,AI,AIF,AIF-LOOP,AIFC,AIFCL,AIFF,AIFFL,AIX,AKB,AL,AL2,ALP,AMC,AMD,AMF,AMS,AMTS,AO,AON,AON4,AON8,AP,APC,AS0,AS3M,AS4,ASC,ASD,ASF,ASR,ASS,AST,AT3,AT9,ATSL,ATSL3,ATSL4,ATX,AUD,AUS,AVAL,AVP,AWB,AWC,AY,B1S,BAF,BAKA,BAM,BANK,BAO,BAR,BCSTM,BCWAV,BD,BD3,BDS,BDSP,BFC,BFSTM,BFWAV,BFWAVNSMBU,BG00,BGM,BGW,BH2PCM,BIK,BIK2,BIKA,BIN,BK2,BLK,BMDX,BMF,BMS,BNK,BNM,BNS,BNSF,BO2,BP,BP3,BRSTM,BRSTMSPM,BSF,BSI,BSND,BSS,BTSND,BVG,BWAV,BYTES,C64,C67,CAF,CAPDSP,CBD2,CC3,CCC,CD,CFF,CFN,CHAN,CHI,CHK,CHP,CIN,CKB,CKD,CKS,CM,CM3,CMC,CMF,CMR,CMS,CNK,COP,CORE,CP,CPK,CPLX,CPS,CRB,CSB,CSMP,CTRL,CUS,CUST,CUSTOM,CVS,CWAV,CXS,D00,DA,DAT,DATA,DAX,DB,DBM,DCS,DCT,DDSP,DE2,DEC,DFM,DH,DI,DIGI,DIVA,DL,DLM1,DLM2,DLN,DLT,DL_DELI,DM0,DM1,DM2,DMC,DMF,DMM,DMO,DMSG,DMU,DMU2,DNS,DODA,DP,DR0,DRO,DS2,DSB,DSC,DSF,DSFLIB,DSM,DSP,DSPW,DSQ,DSR,DSS,DST,DTK,DTM,DUM,DVI,DW,DWOLD,DXH,DZ,E4X,EA,EAM,EAS,EMFF,EMOD,EMS,EMSV6,ENM,ENO,ENS,ESV,ET1,EU,EUP,EX,EXA,EZW,FAG,FAR,FC,FC-BSI,FC-M,FC13,FC14,FC3,FC4,FCM,FDA,FDI,FFW,FILP,FLAC,FLX,FMB,FNK,FP,FRED,FSB,FSV,FT,FTC,FUZ,FUZZ,FW,FWAV,FWSE,G1L,GAM,GAMPLUS,GBR,GBS,GBTS,GCA,GCM,GCUB,GCW,GDM,GENH,GIN,GLUE,GM,GMC,GMS,GOT,GRAY,GSB,GSF,GSFLIB,GTD,GTR,GV,GWM,GYM,H4M,HA2,HAB,HBT,HCA,HD,HDR,HES,HGC1,HIP,HIP7,HIPC,HIS,HMC,HN,HPS,HRM,HRP,HRT,HRT!,HSC,HSF,HSP,HSQ,HST,HVL,HWAS,HX2,HX3,HXC,HXD,HXG,HXX,IAB,IADP,ICE,IDMSF,IDSP,IDVI,IDWAV,IDXMA,IFS,IKM,ILD,IMA,IMC,IMF,IMS,IMX,INSTR,INT,IS,IS14,IS20,ISB,ISD,ISWS,IT,IT1,ITL,IVAG,IVAUD,IVB,J2B,JAM,JBM,JC,JCB,JCBO,JD,JMF,JO,JOE,JP,JPN,JPND,JPO,JPOLD,JSTM,JT,KAT,KCES,KCEY,KEF,KEF7,KH,KM9,KNS,KOVS,KRAW,KRIS,KRS,KSM,KSS,KTAC,KTSL2ASBIN,KTSS,KVS,L,LAA,LAAC,LAIF,LAIFC,LAIFF,LASF,LAX,LBIN,LDS,LEG,LEP,LIN,LIQ,LM0,LM1,LM2,LM3,LM4,LM5,LM6,LM7,LME,LMP3,LMP4,LOGG,LOPUS,LP,LPCM,LPK,LPS,LRMB,LSE,LSF,LSTM,LWAV,LZS,M,M15,M2,M3U,M4A,M4V,MA,MAB,MAD,MAP,MATX,MAX,MBM,MC,MC3,MCA,MCADPCM,MCG,MCMD,MCMD_ORG,MCO,MCR,MD,MDAT,MDI,MDL,MDS,MDSP,MDST,MDX,MDY,MED,MEXXMP,MFP,MG,MGS,MI4,MIB,MIC,MID,MIDI,MIHB,MINI2SF,MINIDSF,MINIGSF,MININCSF,MINIPSF,MINIPSF2,MINIQSF,MINISNSF,MINISSF,MINIUSF,MJB,MK2,MKF,MKII,MKIIO,MKJ,ML,MM4,MM8,MMCMP,MMD0,MMD1,MMD2,MMD3,MMD4,MMDC,MMS,MNSTR,MO3,MOD,MOD15,MOD15_MST,MOD15_ST-IV,MOD15_UST,MOD_ADSC4,MOD_COMP,MOD_DOC,MOD_FLT4,MOD_NTK,MOD_NTK1,MOD_NTK2,MOD_NTKAMP,MOGG,MOK,MON,MON_OLD,MP3,MP4,MPD,MPDSP,MPF,MPG,MPK,MPRO,MPT,MPTM,MS,MSA,MSADPCM,MSB,MSC,MSD,MSF,MSO,MSP,MSS,MSV,MSVP,MT2,MTA2,MTAF,MTK,MTM,MTP2,MTR,MUG,MUG2,MUL,MUPS,MUS,MUSC,MUSX,MW,MWV,MXST,MYSPD,MZ,N64,NAAC,NCSF,NCSFLIB,NDP,NDS,NGCA,NLSD,NOISEPACKER2,NOISEPACKER3,NOP,NP,NP1,NP2,NP3,NPS,NPSF,NR,NRU,NSF,NSFE,NSOPUS,NST,NTP,NTPK,NUB,NUB2,NUS3AUDIO,NUS3BANK,NWA,NWAV,NXA,OCTAMED,OGG,OGL,OKT,OMU,ONE,OPI,OPUS,OPUSX,OPX,ORG,OSP,OTM,OVB,OVI,OXM,OZI,P,P00,P10,P21,P2BT,P30,P3D,P40A,P40B,P41A,P4X,P50A,P5A,P5X,P60,P60A,P61,P61A,P6X,P86,PAP,PAST,PCD,PCM,PDT,PDX,PFLT,PHA,PIN,PIS,PK,PLM,PM,PM0,PM01,PM1,PM10C,PM18A,PM2,PM20,PM4,PM40,PMB,PMZ,PNB,POLK,PONA,POS,POWT,PP10,PP20,PP21,PP30,PPC,PPK,PPM,PPS,PPZ,PR1,PR2,PRG,PROM,PRU,PRU1,PRU2,PRUN,PRUN1,PRUN2,PS,PS2STM,PSA,PSC,PSF,PSF2,PSF2LIB,PSFLIB,PSG,PSH,PSID,PSM,PSND,PSW,PT,PT1,PT2,PT3,PT36,PTCOP,PTM,PTTUNE,PUMA,PVI,PVP,PWR,PXA,PYG,PYGM,PYGMY,PZI,QC,QPA,QSF,QSFLIB,QTS,R,RAC,RAD,RAK,RAS,RAW,RH,RHO,RIFF,RIX,RJP,RK,RKB,RKV,RMT,RND,ROF,ROL,RPGMVO,RRDS,RSD,RSF,RSID,RSM,RSP,RSTM,RTM,RWAR,RWAV,RWS,RWSD,RWX,RXW,S-C,S14,S3M,S7G,S98,SA,SA-P,SA2,SAB,SAD,SAF,SAP,SAS,SAT,SA_OLD,SB,SB0,SB1,SB2,SB3,SB4,SB5,SB6,SB7,SBIN,SBK,SBR,SBV,SC,SC68,SCD,SCH,SCI,SCL,SCN,SCR,SCT,SCUMM,SD9,SDB,SDF,SDR,SDT,SEB,SED,SEG,SF0,SF2,SFL,SFM,SFS,SFX,SFX13,SFX2,SG,SGB,SGC,SGD,SGX,SID,SID1,SID2,SJS,SKT,SKYT,SL3,SLI,SM,SM0,SM1,SM2,SM3,SM4,SM5,SM6,SM7,SMC,SMK,SMN,SMP,SMPL,SMPRO,SMUS,SMV,SND,SNDH,SNDMON,SNDS,SNG,SNGW,SNK,SNR,SNS,SNSF,SNSFLIB,SNT,SNT!,SNU,SNX,SOC,SOD,SOG,SON,SONIC,SOP,SPC,SPD,SPK,SPL,SPM,SPS,SPSD,SPW,SQD,SQT,SQX,SS,SS2,SSF,SSFLIB,SSM,SSS,ST,ST1,ST2,ST26,ST3,ST30,STAR,STC,STER,STK,STM,STMA,STP,STPK,STR,STREAM,STRM,STS,STX,SUN,SVAG,SVG,SVS,SWAG,SWAV,SWD,SWITCH_AUDIO,SX,SXD,SXD1,SXD2,SXD3,SYN,SYNMOD,SZX,TD0,TEC,TF,TF0,TFC,TFD,TFE,TFHD1.5,TFHD7V,TFHDPRO,TFMX,TFMX1.5,TFMX7V,TFMXPRO,TGQ,TGV,THM,THN,THP,THX,TINY,TK5,TLZ,TLZP,TM2,TM8,TMC,TME,TMX,TP,TP1,TP2,TP3,TPU,TRA,TRC,TRD,TRO,TRONIC,TRS,TS,TUN,TW,TWO,TXT,TXTH,TXTP,TYDSP,UDS,UE4OPUS,ULT,ULW,UM3,UMX,UN2,UNIC,UNIC2,USF,USFLIB,UTK,UV,V0,V1,V2M,V2MZ,VA3,VAG,VAI,VAS,VAWX,VB,VBK,VDM,VDS,VGM,VGS,VGV,VGZ,VID,VIG,VIS,VMS,VOI,VP6,VPK,VS,VSF,VSS,VSV,VTX,VXN,WAA,WAC,WAD,WAF,WAM,WAS,WAV,WAVC,WAVE,WAVEBATCH,WAVM,WAY,WB,WB2,WBD,WD,WEM,WII,WLF,WMA,WMUS,WN,WOW,WP2,WPD,WSD,WSI,WSR,WUA,WV2,WV6,WVE,WVS,WVX,X,XA,XA2,XA30,XAD,XAG,XAN,XANN,XAU,XAV,XEN,XM,XMA,XMA2,XMD,XMU,XNA,XNB,XOPUS,XPK,XPS,XSE,XSEW,XSF,XSM,XSS,XVAG,XVAS,XWAV,XWB,XWC,XWM,XWMA,XWS,XWV,YDSP,YM,YMF,ZEN,ZIC,ZIP,ZSD,ZSM,ZSS,ZWDSP,ZWV,ZXZIP\nIntegrated player libs:\n- Adplug\n- Another Slight Atari Player(ASAP)\n- AtariSound\n- Eupmini\n- ffmpeg/mpg123/vorbis\n- Game Music Emu\n- FMPmini\n- Highly Complete\n- AHX/Hively tracker\n- LazyUSF\n- Libvgm\n- Mdxplay\n- NSFPlay\n- OpenMPT\n- PlayGSF\n- Pmdmini\n- PxTone / Organya\n- PT3Player\n- SC68\n- Sibplayfp\n- Snes9x/snsf\n- ST-Sound\n- Timidity(using Merlin_gold SF2 soundfont)\n- UADE\n- XSF (2SF, NCSF)\n- XMP\n-V2M tinyplayer\n- VGMStream\n- VIO2SF\n- WebSID\n- ZXTune\n\nDisclaimer:\nInternet accesses to the Modland, HVSC & ASMA libraries are provided as an as-is service, guarantee for availability and/or functionality is not given. Use this application at your own risk.";
+
+
+// ================================
+// MARK: - SUPPORT
+// ================================
+
+"Mail support" = "Mail support";
+"Contact support by email" = "Contact support by email";
+"[Please describe your request below]" = "[Please describe your request below]";
+
+
+// ================================
+// MARK: - DONATION / TIPS
+// ================================
+
+"Thank You! ❤️" = "Thank You! ❤️";
+"Send a tip to Modizer" = "Send a tip to Modizer";
+"Support Modizer development" = "Support Modizer development";
+
+
+// ================================
+// MARK: - LAUNCH / INITIALIZATION
+// ================================
+
+"Cleaning DB & \nreseting settings" = "Cleaning DB & \nreseting settings";
+"First launch or issue encountered last time Modizer was running. Apply default settings?" = "First launch or issue encountered last time Modizer was running. Apply default settings?";
+
+
+// ================================
+// MARK: - SIRI / APP INTENTS
+// ================================
+
+"Get Now Playing" = "Get Now Playing";
+"Which playlist would you like to play?" = "Which playlist would you like to play?";
+
+
+// ================================
+// MARK: - TABS
+// ================================
+
+"Search" = "Search";
+"More" = "More";
+"Suspend" = "Suspend";
+"Clear all" = "Clear all";
+"Online" = "Online";
+
+
+// ================================
+// MARK: - MORE TAB
+// ================================
+
+"About" = "About";
+"Some general informations" = "Some general informations";
+"Settings" = "Settings";
+"Global, Visu, FTP & Plugins" = "Global, Visu, FTP & Plugins";
+"Maintenance" = "Maintenance";
+"Clean DB, Reset ratings, ..." = "Clean DB, Reset ratings, ...";
+
+
+// ================================
+// MARK: - ONLINE TAB / COLLECTIONS
+// ================================
+
+/* Section Headers */
+"Collections" = "Collections";
+"Browse Internet" = "Browse Internet";
+"Games Music" = "Games Music";
+"Mods & chiptunes" = "Mods & chiptunes";
+"Other" = "Other";
+
+/* Collections */
+"MODLAND collection" = "MODLAND collection";
+"HVSC collection" = "HVSC collection";
+"ASMA collection" = "ASMA collection";
+"JOSHW collection" = "JOSHW collection";
+"VGMRips collection" = "VGMRips collection";
+"SNESmusic collection" = "SNESmusic collection";
+"SMS Power! collection" = "SMS Power! collection";
+"ZXArt collection" = "ZXArt collection";
+
+/* Collection Descriptions */
+"%d entries" = "%d entries";
+"Thousands of entries" = "Thousands of entries";
+"2K+ packs / 40K+ songs" = "2K+ packs / 40K+ songs";
+"1500+ sets / Super Nintendo/Famicom" = "1500+ sets / Super Nintendo/Famicom";
+"Master System & Game gear sets" = "Master System & Game gear sets";
+"ZX Spectrum" = "ZX Spectrum";
+
+/* Internet */
+"Modizer World Charts" = "Modizer World Charts";
+"Web browser" = "Web browser";
+"No internet connectivity or website down." = "No internet connectivity or website down.";
+
+// ================================
+// MARK: - SETTINGS - FAMILIES & UI  
+// ================================
+
+/* Settings Families */
+"Global" = "Global";
+"Default Players" = "Default Players";
+"Visualizers" = "Visualizers";
+"PR & NS colors settings" = "PR & NS colors settings";
+"Plugins" = "Plugins";
+
+/* Player Selection */
+"MOD player" = "MOD player";
+"SAP player" = "SAP player";
+"SID player" = "SID player";
+"VGM player" = "VGM player";
+"YM player" = "YM player";
+"NSF player" = "NSF player";
+"PT3 player" = "PT3 player";
+"GBS player" = "GBS player";
+"KSS player" = "KSS player";
+"2SF player" = "2SF player";
+"MIDI player" = "MIDI player";
+
+/* Global Player Settings - Additional Descriptions */
+"Only for plugins supporting this feature (GME, NSFPLAY, LIBVGM)" = "Only for plugins supporting this feature (GME, NSFPLAY, LIBVGM)";
+"0=auto, delay rounded to a multiple of audio buffer size" = "0=auto, delay rounded to a multiple of audio buffer size";
+"Limited: not for subsong" = "Limited: not for subsong";
+"Default value is 3s" = "Default value is 3s";
+"Default action when selecting an archive or a multisong file" = "Default action when selecting an archive or a multisong file";
+"Play only selected entry or full archive/multisong file" = "Play only selected entry or full archive/multisong file";
+"Show Welcome screen" = "Show Welcome screen";
+"Adplug priority for module" = "Adplug priority for module";
+
+/* FTP Settings */
+"Server status" = "Server status";
+"FTP Server" = "FTP Server";
+"Authorize anonymous" = "Authorize anonymous";
+"User" = "User";
+"Password" = "Password";
+"Port" = "Port";
+
+/* Online Settings */
+"MODLAND URL" = "MODLAND URL";
+"HVSC URL" = "HVSC URL";
+"ASMA URL" = "ASMA URL";
+"MODLAND Server" = "MODLAND Server";
+"MODLAND cust.URL" = "MODLAND cust.URL";
+"HVSC Server" = "HVSC Server";
+"HVSC cust.URL" = "HVSC cust.URL";
+"ASMA Server" = "ASMA Server";
+"ASMA cust.URL" = "ASMA cust.URL";
+
+
+// ================================
+// MARK: - SETTINGS - ADDITIONAL PLUGIN SETTINGS
+// ================================
+
+/* Visualization - MOD Pattern */
+"Patterns BG Alpha" = "Patterns BG Alpha";
+"Opacity of mod patterns view" = "Opacity of mod patterns view";
+"MOD Color Theme" = "MOD Color Theme";
+"MOD Current Line" = "MOD Current Line";
+"MOD Volume bars" = "MOD Volume bars";
+"MOD Pattern Font" = "MOD Pattern Font";
+"MOD Pattern Font Size" = "MOD Pattern Font Size";
+
+/* Visualization - Piano Roll / MIDI */
+"Piano Roll FX" = "Piano Roll FX";
+"PR/Spark FX" = "PR/Spark FX";
+"Display voices label" = "Display voices label";
+"Notes scroller FX" = "Notes scroller FX";
+"NS/bars mode" = "NS/bars mode";
+"NS/bars style" = "NS/bars style";
+"Vibrato display" = "Vibrato display";
+"Piano FX" = "Piano FX";
+"Piano bars mode" = "Piano bars mode";
+
+/* Visualization - Spectrum */
+"3D Sp.Bloom" = "3D Sp.Bloom";
+"3D Land. Bloom" = "3D Land. Bloom";
+"0: off" = "0: off";
+
+/* ProjectM Settings */
+"ProjectM FX" = "ProjectM FX";
+"Rendering quality: Max is pixel resolution, 1/2 is half, ..." = "Rendering quality: Max is pixel resolution, 1/2 is half, ...";
+"Custom presets/textures should be copied in .projectm folder" = "Custom presets/textures should be copied in .projectm folder";
+"Display preset name" = "Display preset name";
+"Lim: display and disappear quickly" = "Lim: display and disappear quickly";
+"Auto switch presets" = "Auto switch presets";
+"Allow loading of milk file with script issues" = "Allow loading of milk file with script issues";
+"Default is 15s" = "Default is 15s";
+"Default is 2.7s" = "Default is 2.7s";
+"Default value is 32" = "Default value is 32";
+"Default value is 24" = "Default value is 24";
+"Default value is 20" = "Default value is 20";
+"Hardcut" = "Hardcut";
+"Hardcut triggers presets switch synchronized with beats." = "Hardcut triggers presets switch synchronized with beats.";
+"Hardcut min time" = "Hardcut min time";
+"Preserve aspect ratio for compatible shaders." = "Preserve aspect ratio for compatible shaders.";
+"Default value is 1" = "Default value is 1";
+"Hardcut sensitivity" = "Hardcut sensitivity";
+
+/* Oscilloscope Settings */
+"Oscillo FX" = "Oscillo FX";
+"Oscillo show labels" = "Oscillo show labels";
+"Oscillo labels font size" = "Oscillo labels font size";
+"Oscillo show grid" = "Oscillo show grid";
+"Oscillo line width" = "Oscillo line width";
+"Reset all custom colors" = "Reset all custom colors";
+"Multi color | System 1" = "Multi color | System 1";
+"Multi color | System 2" = "Multi color | System 2";
+"Multi color | System 3" = "Multi color | System 3";
+"Multi color | System 4" = "Multi color | System 4";
+"Multi color | System 5" = "Multi color | System 5";
+"Multi color | System 6" = "Multi color | System 6";
+"Multi color | System 7" = "Multi color | System 7";
+"Multi color | System 8" = "Multi color | System 8";
+
+/* Piano/MIDI Colors */
+"Custom color 01" = "Custom color 01";
+"Custom color 02" = "Custom color 02";
+"Custom color 03" = "Custom color 03";
+"Custom color 04" = "Custom color 04";
+"Custom color 05" = "Custom color 05";
+"Custom color 06" = "Custom color 06";
+"Custom color 07" = "Custom color 07";
+"Custom color 08" = "Custom color 08";
+"Custom color 09" = "Custom color 09";
+"Custom color 10" = "Custom color 10";
+"Custom color 11" = "Custom color 11";
+"Custom color 12" = "Custom color 12";
+"Custom color 13" = "Custom color 13";
+"Custom color 14" = "Custom color 14";
+"Custom color 15" = "Custom color 15";
+"Custom color 16" = "Custom color 16";
+"Custom color 17" = "Custom color 17";
+"Custom color 18" = "Custom color 18";
+"Custom color 19" = "Custom color 19";
+"Custom color 20" = "Custom color 20";
+"Custom color 21" = "Custom color 21";
+"Custom color 22" = "Custom color 22";
+"Custom color 23" = "Custom color 23";
+"Custom color 24" = "Custom color 24";
+"Custom color 25" = "Custom color 25";
+"Custom color 26" = "Custom color 26";
+"Custom color 27" = "Custom color 27";
+"Custom color 28" = "Custom color 28";
+"Custom color 29" = "Custom color 29";
+"Custom color 30" = "Custom color 30";
+"Custom color 31" = "Custom color 31";
+"Custom color 32" = "Custom color 32";
+
+/* Plugin Settings - Libopenmpt */
+"Libopenmpt" = "Libopenmpt";
+
+/* Plugin Settings - GME */
+"GME" = "GME";
+"Will skip song if nothing is played for specified duration (0=off)" = "Will skip song if nothing is played for specified duration (0=off)";
+
+/* Plugin Settings - GSF */
+"GSF" = "GSF";
+
+/* Plugin Settings - NSFPLAY */
+"NSFPLAY" = "NSFPLAY";
+"Default length" = "Default length";
+"Oversampling. Min=0, default: 10" = "Oversampling. Min=0, default: 10";
+"Min=off, default: 112" = "Min=off, default: 112";
+"Max=off, default: 164" = "Max=off, default: 164";
+"1/2/3=NTSC/PAL/DENDY\n4/5/6=force NTSC/PAL/DENDY" = "1/2/3=NTSC/PAL/DENDY\n4/5/6=force NTSC/PAL/DENDY";
+"Forces IRQ capability for all NSFs, not just NSF2" = "Forces IRQ capability for all NSFs, not just NSF2";
+"APU unmute on reset" = "APU unmute on reset";
+"APU phase reset" = "APU phase reset";
+"APU non linear mixing" = "APU non linear mixing";
+"APU swap duty 1/2" = "APU swap duty 1/2";
+"APU Initialize sweep unmute" = "APU Initialize sweep unmute";
+"DMC enable $4011 writes" = "DMC enable $4011 writes";
+"DMC enable periodic noise" = "DMC enable periodic noise";
+"DMC unmute on reset" = "DMC unmute on reset";
+"DMC anti clicking" = "DMC anti clicking";
+"DMC non linear mixer" = "DMC non linear mixer";
+"DMC randomize noise on reset" = "DMC randomize noise on reset";
+"DMC mute triangle on pitch 0" = "DMC mute triangle on pitch 0";
+"prevents high frequency aliasing" = "prevents high frequency aliasing";
+"DMC rand. triangle" = "DMC rand. triangle";
+"randomize triangle on reset" = "randomize triangle on reset";
+"DMC reverse bits" = "DMC reverse bits";
+"reverse bits of DPCM sample bytes" = "reverse bits of DPCM sample bytes";
+"MMC5 non linear mixing" = "MMC5 non linear mixing";
+"MMC5 Phase reset" = "MMC5 Phase reset";
+"Reset phase counter after write $5003 and $5007" = "Reset phase counter after write $5003 and $5007";
+"FDS LP filter in Hz" = "FDS LP filter in Hz";
+"Cutoff frequency (0Hz=off, 2000Hz=default)" = "Cutoff frequency (0Hz=off, 2000Hz=default)";
+"FDS reset \"phase\"" = "FDS reset \"phase\"";
+"$4085 \"resets\" modular phase" = "$4085 \"resets\" modular phase";
+"FDS write protect" = "FDS write protect";
+"write protect $8000-DFFF" = "write protect $8000-DFFF";
+"VRC7 Replace with OPLL" = "VRC7 Replace with OPLL";
+"N163 Serial Multiplex mixing" = "N163 Serial Multiplex mixing";
+"N163 Write Protect Phase" = "N163 Write Protect Phase";
+"N163 Limit Wavelength" = "N163 Limit Wavelength";
+
+/* Plugin Settings - ADPLUG */
+"ADPLUG" = "ADPLUG";
+
+/* Plugin Settings - HC (Highly Complete) */
+"HC" = "HC";
+"Only for HC plugin" = "Only for HC plugin";
+
+/* Plugin Settings - SID */
+"SID" = "SID";
+"Digiboost" = "Digiboost";
+
+/* Plugin Settings - TIMIDITY */
+"TIMIDITY" = "TIMIDITY";
+
+/* Plugin Settings - UADE */
+"UADE" = "UADE";
+"Panning value" = "Panning value";
+"Gain value" = "Gain value";
+
+/* Plugin Settings - VGMPlay */
+"VGMPLAY" = "VGMPLAY";
+
+/* Plugin Settings - VGMStream */
+"VGMSTREAM" = "VGMSTREAM";
+
+/* Plugin Settings - XMP */
+"XMP" = "XMP";
+
+/* Plugin Settings - SEXYPSF */
+"SEXYPSF" = "SEXYPSF";
+
+/* Plugin Settings - GBSPlay */
+"GBS" = "GBS";
+
+/* Plugin Settings - STSOUND */
+"STSOUND" = "STSOUND";
+
+/* Plugin Settings - SC68 */
+"SC68" = "SC68";
+
+/* Additional Settings */
+"Disable" = "Disable";
+"Enter playlist name" = "Enter playlist name";
+"Ask" = "Ask";
+"Play All" = "Play All";
+"Single" = "Single";
+"Archive" = "Archive";
+"On" = "On";
+"Off" = "Off";
+"Lim" = "Lim";
+
+// ================================
+// MARK: - PLAYLISTS - ADDITIONAL ENTRIES
+// ================================
+
+/* Playlist Menu Entries */
+"Add a playlist" = "Add a playlist";
+"Create a new playlist" = "Create a new playlist";
+"Now playing" = "Now playing";
+"1 entry" = "1 entry";
+"No entry" = "No entry";
+"Random picks" = "Random picks";
+"Generate a randomized playlist" = "Generate a randomized playlist";
+"Most played" = "Most played";
+"Favorites" = "Favorites";
+
+/* Playlist Actions */
+"Add/Remove files..." = "Add/Remove files...";
+"More actions..." = "More actions...";
+"Save as a new playlist" = "Save as a new playlist";
+
+// ================================
+// MARK: - WELCOME PAGES
+// ================================
+
+"Welcome to Modizer!\n" = "Welcome to Modizer!\n";
+"Level up your library" = "Level up your library";
+"Sound meets visuals." = "Sound meets visuals.";
+"Made with passion,\noffered for free." = "Made with passion,\noffered for free.";
+
+/* Welcome Page Messages */
+"Your gateway to retro and tracker music.\nPower up your device with legendary game tunes, iconic tracker modules, and timeless chiptune classics." = "Your gateway to retro and tracker music.\nPower up your device with legendary game tunes, iconic tracker modules, and timeless chiptune classics.";
+
+"Browse and stream from online catalogs, to complete your own collections.\nBuild, edit, and listen to playlists effortlessly." = "Browse and stream from online catalogs, to complete your own collections.\nBuild, edit, and listen to playlists effortlessly.";
+
+"Unlock classic oscilloscope looks, spectrum bars, piano rolls, trackers view and ProjectM/Milkdrop FX. Let Modizer paint each track with motion and color." = "Unlock classic oscilloscope looks, spectrum bars, piano rolls, trackers view and ProjectM/Milkdrop FX. Let Modizer paint each track with motion and color.";
+
+"If you enjoy the app, tips are a great way to support its ongoing development.\nThank you for helping keep Modizer alive and evolving." = "If you enjoy the app, tips are a great way to support its ongoing development.\nThank you for helping keep Modizer alive and evolving.";
+
+"Skip" = "Skip";
+
+// ================================
+// MARK: - TIPS / DONATIONS
+// ================================
+
+/* Tips Screen */
+"Support with a Tip" = "Support with a Tip";
+"Enjoy Modizer ?" = "Enjoy Modizer ?";
+"Your support helps keep Modizer running and ad-free!" = "Your support helps keep Modizer running and ad-free!";
+"Already tipped so far" = "Already tipped so far";
+"Thank you for your support! ❤️" = "Thank you for your support! ❤️";
+
+/* Tip Tiers */
+"Coffee" = "Coffee";
+"Coffee & Croissant" = "Coffee & Croissant";
+"Dinner" = "Dinner";
+"Loading..." = "Loading...";
+
+/* Tip Actions */
+"Confirm Tip" = "Confirm Tip";
+"Send Tip" = "Send Tip";
+"Send a %@ tip for %@?" = "Send a %@ tip for %@?";
+"Tip" = "Tip";
+
+/* Tip Errors */
+"Unable to load products. Please check your internet connection." = "Unable to load products. Please check your internet connection.";
+
+/* Thank You Alert */
+"Thank You! ❤️" = "Thank You! ❤️";
+"Your support means everything! Thank you for helping keep Modizer running." = "Your support means everything! Thank you for helping keep Modizer running.";
+
+// ================================
+// MARK: - MAINTENANCE SCREEN
+// ================================
+
+/* Maintenance Actions */
+"Clean Database" = "Clean Database";
+"Clear 'Now Playing' queue" = "Clear 'Now Playing' queue";
+"Recreate Samples folder" = "Recreate Samples folder";
+"Reset settings to default" = "Reset settings to default";
+"Remove current cover" = "Remove current cover";
+"Reset Ratings" = "Reset Ratings";
+"Reset Played Counters" = "Reset Played Counters";
+"Reset Database" = "Reset Database";
+"Clear images cache" = "Clear images cache";
+
+/* Maintenance Messages */
+"Settings reseted" = "Settings reseted";
+"Ratings reseted" = "Ratings reseted";
+"Played Counters reseted" = "Played Counters reseted";
+"Samples folder created" = "Samples folder created";
+"Cache cleaned" = "Cache cleaned";
+"Database reseted" = "Database reseted";
+"No cover to remove" = "No cover to remove";
+"Cover removed" = "Cover removed";
+"Database cleaned" = "Database cleaned";
+
+/* Maintenance Confirmations */
+"Are you sure you want to clean the DB, it might take a while ?" = "Are you sure you want to clean the DB, it might take a while ?";
+"Clean" = "Clean";
+"Cleaning DB" = "Cleaning DB";
+"Cancelling..." = "Cancelling...";
+
+// ================================
+// MARK: - PLAYERMENU
+// ================================
+
+"Close FX\nwindow" = "Close FX\nwindow";
+"All FX off" = "All FX off";
+"FX\nalpha" = "FX\nalpha";
+"Show name\ntemp." = "Show name\ntemp.";
+"Show name" = "Show name";
+"Bundled\npresets" = "Bundled\npresets";
+"Custom\npresets" = "Custom\npresets";
+"Blend\npresets" = "Blend\npresets";
+"Clear\nall" = "Clear\nall";
+"Select\nall" = "Select\nall";
+"Favorites" = "Favorites";
+"Expand" = "Expand";
+"Select\nlisted" = "Select\nlisted";
+"Remove\nlisted" = "Remove\nlisted";
+"Selected" = "Selected";
+"Collapse" = "Collapse";
+"Labels" = "Labels";
+"Grid" = "Grid";
+"Voices\nlabels" = "Voices\nlabels";
+"Octaves\nlabels" = "Octaves\nlabels";
+"Volume\nbars" = "Volume\nbars";
+"Fixed bar" = "Fixed bar";
+"BG\nopacity" = "BG\nopacity";
+"Bloom:\n%s" = "Bloom:\n%s";
+"Thickness:\n%s" = "Thickness:\n%s";
+"Font size\n%s" = "Font size\n%s";
+"Font:\n%s" = "Font:\n%s";
+"Info HUD:\n%s" = "Info HUD:\n%s";
+"Select active %s presets" = "Select active %s presets";
+"bundled" = "bundled";
+"custom" = "custom";
+"Select\ncustom\npresets" = "Select\ncustom\npresets";
+"Select\nbundled\npresets" = "Select\nbundled\npresets";
+"Themes:\n%s" = "Themes:\n%s";
+
+
