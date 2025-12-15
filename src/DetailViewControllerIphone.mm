@@ -752,6 +752,11 @@ bool sysMonitorIsActive;
 -(IBAction) oglButtonPushed {
     if (mOglViewIsHidden) {
         mOglViewIsHidden=NO;
+        // if no active FX, show menu
+        if ([self computeActiveFX]==0) {
+            pmenu_show=1;
+            pmenu_fade=0;
+        }
     }
     else {
         mOglViewIsHidden=YES;
@@ -4677,17 +4682,6 @@ bool coverAvailable;
 //GLsizei txtBGImageWidth,txtBGImageHeight;
 
 /**************************************************/
-
--(void)updateFlagOnExit{
-    NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
-    NSNumber *valNb;
-    
-    valNb=[[NSNumber alloc] initWithInt:0];
-    [prefs setObject:valNb forKey:@"ModizerRunning"];
-    
-    [prefs synchronize];
-    //[valNb autorelease];
-}
 
 //return 1 if flag is not ok
 -(int)checkFlagOnStartup{

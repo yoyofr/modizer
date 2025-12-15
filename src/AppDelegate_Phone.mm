@@ -280,13 +280,24 @@ pthread_mutex_t gl_mutex;
     [SettingsGenViewController backupSettings];
     [detailViewControlleriPhone saveSettings];
     [downloadVC backupDownloadList];
-    [detailViewControlleriPhone updateFlagOnExit];
+    
+    NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
+    NSNumber *valNb;
+    valNb=[[NSNumber alloc] initWithInt:0];
+    [prefs setObject:valNb forKey:@"ModizerRunning"];
+    [prefs synchronize];
     
     [self removeAllNotifications];
     [self cleanupTempData];
 }
 
 - (void)applicationWillEnterForeground:(UIApplication *)application {
+    NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
+    NSNumber *valNb;
+    valNb=[[NSNumber alloc] initWithInt:1];
+    [prefs setObject:valNb forKey:@"ModizerRunning"];
+    [prefs synchronize];
+    
     [downloadVC refreshDownloadCountBadge];
 }
 
@@ -311,15 +322,19 @@ pthread_mutex_t gl_mutex;
     }
 
     // Ensure that settings are saved if closed by OS after resigning active
-//    [SettingsGenViewController backupSettings];
-//    [detailViewControlleriPhone saveSettings];
-//    [downloadVC backupDownloadList];
-//    [detailViewControlleriPhone updateFlagOnExit];
+    [SettingsGenViewController backupSettings];
+    [detailViewControlleriPhone saveSettings];
+    [downloadVC backupDownloadList];
 }
 
 - (void)applicationDidEnterBackground:(UIApplication *)application {
 //    [SettingsGenViewController backupSettings];
 //    [detailViewControlleriPhone saveSettings];
+    NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
+    NSNumber *valNb;
+    valNb=[[NSNumber alloc] initWithInt:0];
+    [prefs setObject:valNb forKey:@"ModizerRunning"];
+    [prefs synchronize];
 }
 
 - (void)openFeature:(NSString *)feature {
@@ -348,7 +363,7 @@ continueUserActivity:(NSUserActivity *)userActivity
 //    MDZELog("received a memory warning...");
     [SettingsGenViewController backupSettings];
     [detailViewControlleriPhone saveSettings];
-//    [downloadVC backupDownloadList];
+    [downloadVC backupDownloadList];
     //[super didReceiveMemoryWarning];
 }
 

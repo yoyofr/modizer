@@ -243,7 +243,6 @@ enum {
 
 -(void)saveSettings;
 -(void)loadSettings:(int)safe_mode;
--(void)updateFlagOnExit;
 -(int)checkFlagOnStartup;
 
 -(BOOL)play_curEntry:(int)subsong;
