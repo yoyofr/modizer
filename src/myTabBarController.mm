@@ -402,7 +402,8 @@ extern NSMutableArray *mac_key_pressed,*mac_key_released;
     
     if (@available(iOS 18.0, *)) {
         if (UIDevice.currentDevice.userInterfaceIdiom == UIUserInterfaceIdiomPad) {
-            self.traitOverrides.horizontalSizeClass = UIUserInterfaceSizeClassCompact;//UIUserInterfaceSizeClassRegular;
+            //self.traitOverrides.horizontalSizeClass = UIUserInterfaceSizeClassCompact;//UIUserInterfaceSizeClassRegular;
+            self.traitOverrides.horizontalSizeClass = UIUserInterfaceSizeClassRegular;
         }
     }
     
@@ -532,6 +533,12 @@ extern NSMutableArray *mac_key_pressed,*mac_key_released;
     // Move tab bar completely off-screen - this makes the view controllers use the full space
     self.tabBar.frame = CGRectZero;
     self.tabBar.translucent = NO;
+
+    // On iOS 18+, explicitly disable the tab bar mode that shows tabs as segmented control
+    if (@available(iOS 18.0, *)) {
+        // Set mode to tabBar (traditional) instead of automatic which might show segmented control
+        self.mode = UITabBarControllerModeTabSidebar;//UITabBarControllerModeTabBar;
+    }
 
     // Set navigation controller delegates to handle pushed view controllers
     for (UIViewController *vc in self.viewControllers) {

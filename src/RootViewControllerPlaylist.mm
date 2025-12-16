@@ -2194,7 +2194,6 @@ int getPlaylistStatsDBmod(t_playlist *pl) {
                 sqlite3_exec(db, "PRAGMA temp_store=MEMORY", NULL, NULL, NULL);
 
         
-        printf("yo1\n");
         int i=0;
 
         i=0;

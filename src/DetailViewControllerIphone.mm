@@ -6412,8 +6412,12 @@ void pm_perfTest() {
     }
 
     tabBarVC = window.rootViewController;
+    
+    if (tabBarVC) {
+    }
 
     if (tabBarVC != nil && [tabBarVC isKindOfClass:[UITabBarController class]]) {
+        tabBarVC.traitOverrides.horizontalSizeClass = UIUserInterfaceSizeClassCompact;
         // Check if we're in sidebar mode
         if ([tabBarVC respondsToSelector:@selector(catalystSplitViewController)]) {
             id splitVC = [tabBarVC performSelector:@selector(catalystSplitViewController)];
@@ -6650,6 +6654,7 @@ void pm_perfTest() {
     tabBarVC = window.rootViewController;
 
     if (tabBarVC != nil && [tabBarVC isKindOfClass:[UITabBarController class]]) {
+        tabBarVC.traitOverrides.horizontalSizeClass = UIUserInterfaceSizeClassRegular;
         // Check if we're in sidebar mode
         if ([tabBarVC respondsToSelector:@selector(catalystSplitViewController)]) {
             id splitVC = [tabBarVC performSelector:@selector(catalystSplitViewController)];
@@ -6660,7 +6665,7 @@ void pm_perfTest() {
             }
         }
     }
-
+    
     // Only set delegate if NOT in sidebar mode
     // In sidebar mode, the tab bar controller manages navigation delegate
     if (!isInSidebarMode) {
