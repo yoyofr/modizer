@@ -1640,11 +1640,13 @@ static float movePinchScale,movePinchScaleOld;
             break;
         case 2: //TR
             pos_x=(ww-str_size_max.x-safe_adjust_right)*glScaleFactor;
+            if (coverAvailable) pos_x-=textHH*3.0*glScaleFactor;
             pos_y=(safe_adjust_top+0*textHH)*glScaleFactor;
             break;
         case 3: //Center
             pos_x=round((ww-str_size_max.x)/2.0*glScaleFactor);
-            pos_y=round((hh-textHH)/2.0*glScaleFactor);
+            if (coverAvailable) pos_x-=textHH*3.0*glScaleFactor/2;
+            pos_y=round((hh-textHH*3)/2.0*glScaleFactor);
             break;
         case 4: //BL
             pos_x=safe_adjust_left*glScaleFactor;
@@ -1652,6 +1654,7 @@ static float movePinchScale,movePinchScaleOld;
             break;
         case 5: //BR
             pos_x=(ww-str_size_max.x-safe_adjust_right)*glScaleFactor;
+            if (coverAvailable) pos_x-=textHH*3.0*glScaleFactor;
             pos_y=(hh-textHH*3-2*textHH-safe_adjust_bottom)*glScaleFactor;
             break;
     }
@@ -4546,7 +4549,6 @@ int recording=0;
                 } else {
                     pt=[self.view convertPoint:self.mainView.frame.origin toView:[UIApplication sharedApplication].keyWindow.rootViewController.view];
                 }
-//                MDZILog("yo: %f / %f",pt.y,mDevice_ww);
                 yofs=pt.y;
 
 #if TARGET_OS_MACCATALYST
@@ -4691,12 +4693,12 @@ bool coverAvailable;
     
     [prefs synchronize];
     
-    valNb=[prefs objectForKey:@"ModizerRunning"];if (DEBUG_NO_SETTINGS) valNb=nil;
+    valNb=[prefs objectForKey:@"ModizerRunningForeGround"];if (DEBUG_NO_SETTINGS) valNb=nil;
     if (valNb == nil) retcode=1;
     else if ([valNb intValue]!=0) retcode=1;
     
     valNb=[[NSNumber alloc] initWithInt:1];
-    [prefs setObject:valNb forKey:@"ModizerRunning"];
+    [prefs setObject:valNb forKey:@"ModizerRunningForeGround"];
     
     return retcode;
 }
@@ -5403,6 +5405,18 @@ void pm_perfTest() {
 }
 #endif
 
+- (void)pmRelease {
+    if ((!_pmIsInitialized)||(_pm==NULL)) return;
+    projectm_destroy(_pm);
+    _pm=NULL;
+    _pm_shouldRestartAt=[_mdzPM_playlist getPos];
+    
+    _mdzPM_playlist=nil;
+    _mdzPM_Favorites=nil;
+    
+    _pmIsInitialized=false;
+}
+
 - (void)pmInit {
     
     mdz_pmMilkPermissiveEvalCode=settings[PROJECTM_PermmissiveMode].detail.mdz_boolswitch.switch_value;
@@ -5786,7 +5800,7 @@ void pm_perfTest() {
     mLoadIssueMessage=0;
     curSongLength=0;
     
-    repeatingTimer=0;
+    repeatingTimer=nil;
     
     CHECK_PROFILE("various1")
     
@@ -6252,11 +6266,21 @@ void pm_perfTest() {
     mBackground=true;
     mBackground_oglViewWasHidden=m_oglView.hidden;
     m_oglView.hidden=true;
-    if (m_displayLink) m_displayLink.preferredFramesPerSecond = 5;     //if (mHasFocus) [self.navigationController popViewControllerAnimated:YES];
+    if (m_displayLink) {
+        [m_displayLink invalidate];
+        m_displayLink=nil;
+    }
     if (mHasFocus) {
         mShouldHaveFocusAfterBackground=1;
         //[self viewWillDisappear:NO];
     } else mShouldHaveFocusAfterBackground=0;
+    
+    //Deactivate updateInfos timer
+    [repeatingTimer invalidate];
+    repeatingTimer = nil;
+    
+    //Release ProjectM
+    [self pmRelease];
 }
 
 -(void) enterForeground {
@@ -6267,8 +6291,19 @@ void pm_perfTest() {
     tgtFrameStartTime=0;
     mBackground=false;
     m_oglView.hidden=mBackground_oglViewWasHidden;
-    //update displayLink refresh
-    if (m_displayLink) m_displayLink.preferredFramesPerSecond = (settings[GLOB_FXFPS].detail.mdz_switch.switch_value?60:30); //60 or 30 fps depending on device speed iPhone
+    
+    //Reactivate updateInfos timer
+    if ([mplayer isPlaying]) repeatingTimer = [NSTimer scheduledTimerWithTimeInterval: 0.1f target:self selector:@selector(updateInfos:) userInfo:nil repeats: YES];
+    
+    //Init ProjectM
+    if (_pmIsInitialized==false) [self pmInit];
+    
+    //Build displaylink if needed
+    if (m_displayLink==nil) {
+        m_displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(doFrame)];
+        m_displayLink.preferredFramesPerSecond = (settings[GLOB_FXFPS].detail.mdz_switch.switch_value?60:30); //60 or 30 fps depending on device speed iPhone
+        [m_displayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSRunLoopCommonModes];
+    }
 }
 
 - (void)viewWillLayoutSubviews {
@@ -6582,6 +6617,11 @@ void pm_perfTest() {
     
     //Display reminder / access to FX view
     [self oglButtonMessage];
+    
+    //Displaylink: update FPS
+    if (m_displayLink) {
+        m_displayLink.preferredFramesPerSecond = (settings[GLOB_FXFPS].detail.mdz_switch.switch_value?60:30); //60 or 30 fps depending on device speed iPhone
+    }
 }
 
 - (void)oglButtonMessage {
@@ -7647,8 +7687,10 @@ void doFramePM(float ww,float hh) {
     
     calcFps();
     
-    if (mBackground) return;
-    
+    if (mBackground || !mHasFocus) {
+        no_reentrant=0;
+        return;
+    }
     
     if (self.mainView.hidden||m_oglView.hidden||(isVisible==false)) {
         no_reentrant=0;
@@ -9221,6 +9263,11 @@ void doFramePM(float ww,float hh) {
 
 - (void)viewDidDisappear:(BOOL)animated {
     mHasFocus=0;
+    
+    //Displaylink: update FPS
+    if (m_displayLink) {
+        m_displayLink.preferredFramesPerSecond = 5; //reduce to 5fps when not visible
+    }
     
     [super viewDidDisappear:animated];
 }

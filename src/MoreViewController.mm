@@ -487,9 +487,6 @@ extern volatile t_settings settings[MAX_SETTINGS];
     SettingsMaintenanceViewController *mntVC;
     switch (indexPath.row) {
         case 0://About
-            //AboutViewController *aboutVC = [[[AboutViewController alloc]  initWithNibName:@"AboutViewController" bundle:[NSBundle mainBundle]] autorelease];
-            // And push the window
-            //aboutVC.view.frame=self.view.frame;
             [self.navigationController pushViewController:aboutVC animated:YES];
             break;
         case 1://Mail support

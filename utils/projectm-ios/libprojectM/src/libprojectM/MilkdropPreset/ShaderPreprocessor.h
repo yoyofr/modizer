@@ -260,6 +260,14 @@ private:
     [[nodiscard]] std::string fixArrayInitializers(const std::string& shaderSource);
 
     /**
+     * Expand vector types in array initializers by adding swizzles
+     * Example: float toto[8]={floor(_qa),floor(_qb)}; -> float toto[8]={floor(_qa).x,floor(_qa).y,...};
+     * @param shaderSource The shader source code
+     * @return The processed shader source with swizzles added to array initializers
+     */
+    [[nodiscard]] std::string expandArrayInitializerSwizzles(const std::string& shaderSource);
+
+    /**
      * Fix empty for loop initializers and increments by replacing with "1"
      * Example: for (;i<10;) -> for (1;i<10;1)
      * @param shaderSource The shader source code

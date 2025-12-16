@@ -15,7 +15,7 @@
             </connections>
         </placeholder>
         <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
-        <view clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" id="1">
+        <view clipsSubviews="YES" contentMode="scaleToFill" id="1">
             <rect key="frame" x="0.0" y="0.0" width="375" height="545"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
@@ -31,9 +31,9 @@
             </subviews>
             <viewLayoutGuide key="safeArea" id="Bga-Bc-jIv"/>
             <constraints>
-                <constraint firstItem="3" firstAttribute="centerY" secondItem="1" secondAttribute="centerY" id="TPL-2I-jnj"/>
+                <constraint firstItem="3" firstAttribute="top" secondItem="Bga-Bc-jIv" secondAttribute="top" id="TPL-2I-jnj"/>
                 <constraint firstItem="3" firstAttribute="bottom" secondItem="Bga-Bc-jIv" secondAttribute="bottom" id="UyD-4G-dIL"/>
-                <constraint firstItem="3" firstAttribute="centerX" secondItem="1" secondAttribute="centerX" id="Wac-Cg-OJ8"/>
+                <constraint firstItem="3" firstAttribute="trailing" secondItem="Bga-Bc-jIv" secondAttribute="trailing" id="Wac-Cg-OJ8"/>
                 <constraint firstItem="3" firstAttribute="leading" secondItem="Bga-Bc-jIv" secondAttribute="leading" id="lbR-nE-F79"/>
             </constraints>
             <simulatedNavigationBarMetrics key="simulatedTopBarMetrics" translucent="NO"/>

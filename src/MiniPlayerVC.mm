@@ -501,8 +501,6 @@ int gesture_move_file_min_trans;
     if (previousWidth != currentWidth && currentWidth > 0) {
         previousWidth = currentWidth;
 
-        NSLog(@"minipl viewDidLayoutSubviews: mpview size changed to %f, updating layout", currentWidth);
-
         // Update frames with new width
         _songInfoView.frame = CGRectMake(50, 0, (currentWidth - 50 - 150), 48);
         _labelMain.frame = CGRectMake(0, 0, (currentWidth - 50 - 150), 24);
@@ -527,8 +525,6 @@ int gesture_move_file_min_trans;
 
 - (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
     float ww=self.mpview.frame.size.width;
-    
-    NSLog(@"minipl viewWillTransition: mpview size %f",ww);
     
     _songInfoView.frame=CGRectMake(50,0,(ww-50-150),48);
     _labelMain.frame=CGRectMake(0,0,(ww-50-150),24);
@@ -609,7 +605,6 @@ int gesture_move_file_min_trans;
     
     //Labels
     float ww=self.mpview.frame.size.width;
-    NSLog(@"minipl willappear: mpview size %f",ww);
     
     //if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
 //    if (@available(iOS 14.0, *)) {

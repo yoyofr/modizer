@@ -2247,7 +2247,8 @@ void GLSLGenerator::OutputEntryCaller(HLSLFunction* entryFunction)
     for(HLSLDeclaration *declaration : globalVarsAssignments)
     {
         m_writer.BeginLine(1, declaration->fileName, declaration->line);
-        OutputDeclarationBody( declaration->type, GetSafeIdentifierName( declaration->name ) );
+        // For assignments (not declarations), only output the variable name without array size
+        m_writer.Write("%s", GetSafeIdentifierName(declaration->name));
 
         OutputDeclarationAssignment(declaration);
         m_writer.EndLine(";");
@@ -2359,6 +2360,39 @@ void GLSLGenerator::OutputDeclarationAssignment(HLSLDeclaration* declaration)
 
        m_writer.Write( "%s[]( ", GetTypeName( declaration->type ) );
 
+       // Check if we need to expand vector expressions into scalar components
+       // This happens when base type is scalar but we have fewer expressions than array size
+       bool needsVectorExpansion = false;
+       int expansionFactor = 0;
+
+       if (componentCount == 0 && declaration->type.arraySize != NULL)
+       {
+           // Count number of expressions
+           int exprCount = 0;
+           HLSLExpression* expr = declaration->assignment;
+           while (expr != NULL)
+           {
+               exprCount++;
+               expr = expr->nextExpression;
+           }
+
+           // Get array size
+           int arraySize = 0;
+           if (m_tree->GetExpressionValue(declaration->type.arraySize, arraySize))
+           {
+               // Check if we need expansion (array size is larger than expression count)
+               if (exprCount > 0 && arraySize > exprCount && arraySize % exprCount == 0)
+               {
+                   expansionFactor = arraySize / exprCount;
+                   // Only expand for factors 2, 3, or 4 (matching vector sizes)
+                   if (expansionFactor == 2 || expansionFactor == 3 || expansionFactor == 4)
+                   {
+                       needsVectorExpansion = true;
+                   }
+               }
+           }
+       }
+
        // If base type is a vector and we have scalar assignments, group them into constructors
        if (componentCount > 1)
        {
@@ -2396,6 +2430,29 @@ void GLSLGenerator::OutputDeclarationAssignment(HLSLDeclaration* declaration)
            if (currentComponent > 0)
            {
                m_writer.Write(" )");
+           }
+       }
+       else if (needsVectorExpansion)
+       {
+           // Expand vector expressions into scalar components with swizzles
+           HLSLExpression* expr = declaration->assignment;
+           bool firstElement = true;
+           const char* swizzles[] = {"x", "y", "z", "w"};
+
+           while (expr != NULL)
+           {
+               for (int i = 0; i < expansionFactor; ++i)
+               {
+                   if (!firstElement)
+                       m_writer.Write(", ");
+
+                   m_writer.Write("(");
+                   OutputExpression(expr);
+                   m_writer.Write(").%s", swizzles[i]);
+
+                   firstElement = false;
+               }
+               expr = expr->nextExpression;
            }
        }
        else

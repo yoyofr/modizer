@@ -579,7 +579,29 @@ std::vector<ShaderPreprocessor::ArrayInitializerInfo> ShaderPreprocessor::detect
         
         // Extract the type (this is the actual type like "float", not including static/const)
         std::string arrayType = source.substr(typeWordStart, typeWordEnd - typeWordStart);
-        
+
+        // Validate that we have a valid type - if empty or invalid, this is not a valid array declaration
+        if (arrayType.empty()) {
+            pos = equalsPos + 1;
+            continue;
+        }
+
+        // Check if the type is a valid shader type
+        std::vector<std::string> validTypes = getShaderTypes();
+        bool isValidType = false;
+        for (const auto& validType : validTypes) {
+            if (arrayType == validType) {
+                isValidType = true;
+                break;
+            }
+        }
+
+        // If not a valid type, skip this - it's probably not a declaration (e.g., "spec[16] = ...")
+        if (!isValidType) {
+            pos = equalsPos + 1;
+            continue;
+        }
+
         // Now check for const keyword (working backwards from the type)
         bool isConst = false;
         size_t beforeType = typeWordStart;
@@ -772,7 +794,51 @@ std::string ShaderPreprocessor::fixArrayInitializers(const std::string& shaderSo
             result.insert(searchPos + 1, "\n" + allAssignments);
         }
     }
-    
+
+    return result;
+}
+
+std::string ShaderPreprocessor::expandArrayInitializerSwizzles(const std::string& shaderSource) {
+    std::vector<ArrayInitializerInfo> arrayInits = detectArrayInitializers(shaderSource);
+
+    if (arrayInits.empty()) {
+        return shaderSource;
+    }
+
+    std::string result = shaderSource;
+
+    // Process in reverse order to maintain correct positions
+    for (auto it = arrayInits.rbegin(); it != arrayInits.rend(); ++it) {
+        const auto& info = *it;
+
+        // Rebuild the declaration with expanded values
+        std::string newDeclaration;
+
+        // Add static/const qualifiers if present
+        if (info.isStatic) {
+            newDeclaration += "static ";
+        }
+        if (info.isConst) {
+            newDeclaration += "const ";
+        }
+
+        // Add type, name and size
+        newDeclaration += info.arrayType + " " + info.arrayName + "[" + info.arraySize + "] = {";
+
+        // Add expanded initializer values
+        for (size_t i = 0; i < info.initializerValues.size(); ++i) {
+            if (i > 0) {
+                newDeclaration += ", ";
+            }
+            newDeclaration += info.initializerValues[i];
+        }
+
+        newDeclaration += "};";
+
+        // Replace the original declaration
+        result.replace(info.declarationStart, info.declarationEnd - info.declarationStart, newDeclaration);
+    }
+
     return result;
 }
 
@@ -919,13 +985,18 @@ std::string ShaderPreprocessor::preprocess(const std::string& shaderSource) {
     // Step 0: Process #define directives (expand macros and remove directives)
     result = processDefines(result);
 
+    // Step 1: Expand vector types in array initializers by adding swizzles
+    // Note: This is now handled by hlslparser in GLSLGenerator::OutputDeclarationAssignment
+    // to avoid duplication and ensure correct handling of all array initialization cases
+    // result = expandArrayInitializerSwizzles(result);
 
-    // Step 1: Fix array initializers (must be done early, before shader_body transformations)
+    // Step 2: Fix array initializers (must be done early, before shader_body transformations)
+    // Note: This is currently disabled as hlslparser handles the conversion better
 //    if (m_language == ShaderLanguage::HLSL) {
 //        result = fixArrayInitializers(result);
 //    }
 
-    // Step 2: Remove invalid functions
+    // Step 3: Remove invalid functions
     std::vector<FunctionInfo> functions = extractFunctions(result);
     for (auto it = functions.rbegin(); it != functions.rend(); ++it) {
         if (it->shouldReturnValue && !it->hasReturn) {
@@ -933,7 +1004,7 @@ std::string ShaderPreprocessor::preprocess(const std::string& shaderSource) {
         }
     }
 
-    // Step 3: Fix variable shadowing
+    // Step 4: Fix variable shadowing
     std::vector<ShadowingInfo> shadowingCases = detectShadowing(result);
     
     if (!shadowingCases.empty()) {
@@ -987,7 +1058,7 @@ std::string ShaderPreprocessor::preprocess(const std::string& shaderSource) {
         }
     }
     
-    // Step 4: Fix division by zero
+    // Step 5: Fix division by zero
     std::vector<ForLoopInfo> dangerousLoops = detectDivisionByZeroInLoops(result);
     
     if (!dangerousLoops.empty()) {
@@ -1022,13 +1093,13 @@ std::string ShaderPreprocessor::preprocess(const std::string& shaderSource) {
         }
     }
     
-    // Step 4.5: Remove redundant parentheses
+    // Step 5.0: Remove redundant parentheses
     //result = removeRedundantParentheses(result);
 
-    // Step 4.6: Add missing parentheses around modulo operations
+    // Step 5.1: Add missing parentheses around modulo operations
     result = fixModuloParentheses(result);
     
-    // Step 5: Clean preprocessor directives
+    // Step 6: Clean preprocessor directives
 //    size_t pos = 0;
 //    while (pos < result.length()) {
 //        if (pos == 0 || result[pos - 1] == '\n') {
@@ -1052,13 +1123,13 @@ std::string ShaderPreprocessor::preprocess(const std::string& shaderSource) {
 //        ++pos;
 //    }
     
-    // Step 6: Rename keywords used as variables (HLSL-specific)
+    // Step 7: Rename keywords used as variables (HLSL-specific)
     if (m_language == ShaderLanguage::HLSL) {
         std::vector<std::string> hlslKeywords = {"sample"};
         result = renameKeywordsAsVariables(result, hlslKeywords, "_var");
     }
     
-    // Step 7: Fix complex for loops
+    // Step 8: Fix complex for loops
     bool foundComplexLoop = true;
     int iterationCount = 0;
     
@@ -1201,10 +1272,10 @@ std::string ShaderPreprocessor::preprocess(const std::string& shaderSource) {
         result.replace(loop.forStart, loop.bodyEnd - loop.forStart, replacement);
     }
     
-    // Step 7.5: Fix empty for loop initializers and increments
+    // Step 8.1: Fix empty for loop initializers and increments
     result = fixEmptyForLoopParts(result);
 
-    // Step 8: Apply HLSLTypeFixer as final step (HLSL-specific)
+    // Step 9: Apply HLSLTypeFixer as final step (HLSL-specific)
     if (m_language == ShaderLanguage::HLSL) {
         HLSLTypeFixer hlslTypeFixer;
         result = hlslTypeFixer.autoFix(result);

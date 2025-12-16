@@ -106,14 +106,6 @@ pthread_mutex_t gl_mutex;
     supportedExtension=nil;
 }
 
-- (void)cleanupTempData {
-    NSArray* temp = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:NSTemporaryDirectory() error:NULL];
-    for (NSString *file in temp) {
-        NSString *str=(NSString *)file;
-        if ([str containsString:@"MDZNotif"]) [[NSFileManager defaultManager] removeItemAtPath:[NSString stringWithFormat:@"%@%@", NSTemporaryDirectory(), file] error:NULL];
-    }
-}
-
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch
     //
@@ -264,81 +256,28 @@ pthread_mutex_t gl_mutex;
     return [self application:application openURL:url options:nil];
 }
 
-- (void)removeAllNotifications {
-    UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
-    
-    // Remove all delivered notifications
-    [center removeAllDeliveredNotifications];
-    
-    // Remove all pending notifications
-    [center removeAllPendingNotificationRequests];
-    
-    //MDZDLog("All notifications removed");
-}
 
 - (void)applicationWillTerminate:(UIApplication *)application {
-    [SettingsGenViewController backupSettings];
-    [detailViewControlleriPhone saveSettings];
-    [downloadVC backupDownloadList];
-    
-    NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
-    NSNumber *valNb;
-    valNb=[[NSNumber alloc] initWithInt:0];
-    [prefs setObject:valNb forKey:@"ModizerRunning"];
-    [prefs synchronize];
-    
-    [self removeAllNotifications];
-    [self cleanupTempData];
 }
 
 - (void)applicationWillEnterForeground:(UIApplication *)application {
-    NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
-    NSNumber *valNb;
-    valNb=[[NSNumber alloc] initWithInt:1];
-    [prefs setObject:valNb forKey:@"ModizerRunning"];
-    [prefs synchronize];
     
-    [downloadVC refreshDownloadCountBadge];
 }
 
 - (void)applicationDidBecomeActive:(UIApplication *)application {
-    if ([[UIApplication sharedApplication] respondsToSelector:@selector(endReceivingRemoteControlEvents)]) {
-    //    [[UIApplication sharedApplication] endReceivingRemoteControlEvents];
-        [detailViewControlleriPhone enterForeground];
-    }
     
-    [downloadVC restoreDownloadList];
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application {
-    /*
-     Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
-     Use this method to pause ongoing tasks, disable timers, and throttle down OpenGL ES frame rates. Games should use this method to pause the game.
-     */
-    if ([[UIApplication sharedApplication] respondsToSelector:@selector(beginReceivingRemoteControlEvents)]) {
-        [detailViewControlleriPhone enterBackground];
-//        [tabBarC becomeFirstResponder];
-//        [[UIApplication sharedApplication] beginReceivingRemoteControlEvents];
-    }
-
-    // Ensure that settings are saved if closed by OS after resigning active
-    [SettingsGenViewController backupSettings];
-    [detailViewControlleriPhone saveSettings];
-    [downloadVC backupDownloadList];
+    
 }
 
 - (void)applicationDidEnterBackground:(UIApplication *)application {
-//    [SettingsGenViewController backupSettings];
-//    [detailViewControlleriPhone saveSettings];
-    NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
-    NSNumber *valNb;
-    valNb=[[NSNumber alloc] initWithInt:0];
-    [prefs setObject:valNb forKey:@"ModizerRunning"];
-    [prefs synchronize];
+    
 }
 
 - (void)openFeature:(NSString *)feature {
-    MDZILog("open feature %@",feature);
+    //MDZILog("open feature %@",feature);
 }
 
 - (BOOL)application:(UIApplication *)application
@@ -350,7 +289,6 @@ continueUserActivity:(NSUserActivity *)userActivity
         [self openFeature:feature];
         return YES;
     }
-    
     return NO;
 }
 
