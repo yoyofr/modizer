@@ -848,11 +848,36 @@ void GLSLGenerator::OutputExpression(HLSLExpression* expression, const HLSLType*
 //                m_writer.Write(",");
 //                OutputExpression(binaryExpression->expression2, dstType2);
 //                m_writer.Write(")))");
+                bool forceType=false;
+                const char *forceTypeStr=NULL;
+                if ((dstType1->baseType==HLSLBaseType_Int)||(dstType2->baseType==HLSLBaseType_Int)||
+                    (dstType1->baseType==HLSLBaseType_Uint)||(dstType2->baseType==HLSLBaseType_Uint)) {
+                    forceTypeStr="float(";
+                    forceType=true;
+                } else if ((dstType1->baseType==HLSLBaseType_Int2)||(dstType2->baseType==HLSLBaseType_Int2)||
+                           (dstType1->baseType==HLSLBaseType_Uint2)||(dstType2->baseType==HLSLBaseType_Uint2)) {
+                    forceTypeStr="float2(";
+                    forceType=true;
+                } else if ((dstType1->baseType==HLSLBaseType_Int3)||(dstType2->baseType==HLSLBaseType_Int3)||
+                           (dstType1->baseType==HLSLBaseType_Uint3)||(dstType2->baseType==HLSLBaseType_Uint3)) {
+                    forceTypeStr="float3(";
+                    forceType=true;
+                } else if ((dstType1->baseType==HLSLBaseType_Int4)||(dstType2->baseType==HLSLBaseType_Int4)||
+                        (dstType1->baseType==HLSLBaseType_Uint4)||(dstType2->baseType==HLSLBaseType_Uint4)) {
+                    forceTypeStr="float4(";
+                    forceType=true;
+                }
+                
                 m_writer.Write("(mod(");
+                if (forceType) m_writer.Write("%s",forceTypeStr);
                 OutputExpression(binaryExpression->expression1, dstType1);
+                if (forceType) m_writer.Write(")");
                 m_writer.Write(",");
+                if (forceType) m_writer.Write("%s",forceTypeStr);
                 OutputExpression(binaryExpression->expression2, dstType2);
+                if (forceType) m_writer.Write(")");
                 m_writer.Write("))");
+                
             } else {
                 bool handled = false;
                 if (m_options.flags & Flag_AlternateNanPropagation) {
