@@ -3653,8 +3653,6 @@ int recording=0;
         NSArray *filetype_ext=[SUPPORTED_FILETYPE_COVER componentsSeparatedByString:@","];
         NSFileManager *fileMngr=[[NSFileManager alloc] init];
         
-        NSError *error;
-        NSRange rdir;
         BOOL isDir;
         NSArray *dirContent;
         
@@ -4550,10 +4548,12 @@ int recording=0;
                 }
 //                MDZILog("yo: %f / %f",pt.y,mDevice_ww);
                 yofs=pt.y;
-                
+
+#if TARGET_OS_MACCATALYST
                 if (is_macOS) {
                     yofs-=28;
                 }
+#endif
                 
                 // Use self.view.safeAreaInsets for more reliable results, especially on iOS 15
                 safe_bottom=self.view.safeAreaInsets.bottom;
@@ -5818,10 +5818,6 @@ void pm_perfTest() {
     cover_viewBG.contentMode=UIViewContentModeScaleToFill;
     cover_viewAll.contentMode=UIViewContentModeScaleToFill;
     
-    [UIView setAnimationDelegate:self];
-    [UIView setAnimationDidStopSelector:@selector(animationDidStop:finished:context:)];
-    
-    
     //build various bars
     [self buildCommandBars];
     
@@ -6417,7 +6413,11 @@ void pm_perfTest() {
     }
 
     if (tabBarVC != nil && [tabBarVC isKindOfClass:[UITabBarController class]]) {
-        tabBarVC.traitOverrides.horizontalSizeClass = UIUserInterfaceSizeClassCompact;
+        if (@available(iOS 18.0, *)) {
+            if (UIDevice.currentDevice.userInterfaceIdiom == UIUserInterfaceIdiomPad) {
+                tabBarVC.traitOverrides.horizontalSizeClass = UIUserInterfaceSizeClassCompact;
+            }
+        }
         // Check if we're in sidebar mode
         if ([tabBarVC respondsToSelector:@selector(catalystSplitViewController)]) {
             id splitVC = [tabBarVC performSelector:@selector(catalystSplitViewController)];
@@ -6654,7 +6654,11 @@ void pm_perfTest() {
     tabBarVC = window.rootViewController;
 
     if (tabBarVC != nil && [tabBarVC isKindOfClass:[UITabBarController class]]) {
-        tabBarVC.traitOverrides.horizontalSizeClass = UIUserInterfaceSizeClassRegular;
+        if (@available(iOS 18.0, *)) {
+            if (UIDevice.currentDevice.userInterfaceIdiom == UIUserInterfaceIdiomPad) {
+                tabBarVC.traitOverrides.horizontalSizeClass = UIUserInterfaceSizeClassRegular;
+            }
+        }
         // Check if we're in sidebar mode
         if ([tabBarVC respondsToSelector:@selector(catalystSplitViewController)]) {
             id splitVC = [tabBarVC performSelector:@selector(catalystSplitViewController)];
@@ -9267,34 +9271,29 @@ void doFramePM(float ww,float hh) {
     frame.origin.y=self.view.frame.size.height;
     infoMsgView.frame=frame;
     infoMsgView.hidden=NO;
-    [UIView beginAnimations:@"closePopup" context:nil];
-    [UIView setAnimationDelegate:self];
-    [UIView setAnimationDelay:0];
-    [UIView setAnimationDuration:0.4];
-    frame=infoMsgView.frame;
-    frame.origin.y=self.view.frame.size.height-144;
-    infoMsgView.frame=frame;
-    [UIView commitAnimations];
+    
+    [UIView animateWithDuration:0.4 delay:0.0 options:0
+                     animations:^{
+        CGRect frame;
+        frame=self.infoMsgView.frame;
+        frame.origin.y=self.view.frame.size.height-144;
+        self.infoMsgView.frame=frame;
+        } completion:^(BOOL finished) {
+            [self closePopup];
+        }];
 }
 -(void) closePopup {
-    CGRect frame;
-    [UIView beginAnimations:@"hidePopup" context:nil];
-    [UIView setAnimationDelegate:self];
-    [UIView setAnimationDelay:2.4];
-    [UIView setAnimationDuration:0.4];
-    frame=infoMsgView.frame;
-    frame.origin.y=self.view.frame.size.height;
-    infoMsgView.frame=frame;
-    [UIView commitAnimations];
+    [UIView animateWithDuration:0.4 delay:2.4 options:0
+                     animations:^{
+        CGRect frame;
+        frame=self.infoMsgView.frame;
+        frame.origin.y=self.view.frame.size.height;
+        self.infoMsgView.frame=frame;
+        } completion:^(BOOL finished) {
+            [self hidePopup];
+        }];
 }
 
-
-#pragma mark -
-
-- (void)animationDidStop:(NSString *)animationID finished:(NSNumber *)finished context:(void *)context {
-    if ([animationID compare:@"closePopup"]==NSOrderedSame) [self closePopup];
-    else if ([animationID compare:@"hidePopup"]==NSOrderedSame) [self hidePopup];
-}
 
 #pragma mark - Table view data source
 

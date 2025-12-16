@@ -101,6 +101,8 @@ extern NSMutableArray *mac_key_pressed,*mac_key_released;
     
     [self setNeedsStatusBarAppearanceUpdate];
     
+    [self.detailViewControllerIphone.view layoutSubviews];
+    
     [self showAnimatedLaunchOverlay];
 }
 
@@ -407,6 +409,13 @@ extern NSMutableArray *mac_key_pressed,*mac_key_released;
         }
     }
     
+    // On iOS 18+, explicitly disable the tab bar mode that shows tabs as segmented control
+    if (@available(iOS 18.0, *)) {
+        // Set mode to tabBar (traditional) instead of automatic which might show segmented control
+        self.mode = UITabBarControllerModeTabSidebar;//UITabBarControllerModeTabBar;
+    }
+    
+    
     // Resolve detailViewControllerIphone
     self.rootViewControllerIphone = [self findChildOfClass:[RootViewControllerLocalBrowser class]];
     self.playlistVC = [self findChildOfClass:[RootViewControllerPlaylist class]];
@@ -418,6 +427,7 @@ extern NSMutableArray *mac_key_pressed,*mac_key_released;
     self.webBrowser = [self findChildOfClass:[WebBrowser class]];
     self.downloadVC = [self findChildOfClass:[DownloadViewController class]];
     self.aboutVC = [self findChildOfClass:[AboutViewController class]];
+    
     
     [self.rootViewControllerIphone loadViewIfNeeded];
     [self.playlistVC loadViewIfNeeded];
@@ -526,19 +536,9 @@ extern NSMutableArray *mac_key_pressed,*mac_key_released;
     
     [self setupWelcomePages];
     
+    
+    
 #if TARGET_OS_MACCATALYST
-    // Hide the tab bar on Mac Catalyst
-    self.tabBar.hidden = YES;
-
-    // Move tab bar completely off-screen - this makes the view controllers use the full space
-    self.tabBar.frame = CGRectZero;
-    self.tabBar.translucent = NO;
-
-    // On iOS 18+, explicitly disable the tab bar mode that shows tabs as segmented control
-    if (@available(iOS 18.0, *)) {
-        // Set mode to tabBar (traditional) instead of automatic which might show segmented control
-        self.mode = UITabBarControllerModeTabSidebar;//UITabBarControllerModeTabBar;
-    }
 
     // Set navigation controller delegates to handle pushed view controllers
     for (UIViewController *vc in self.viewControllers) {

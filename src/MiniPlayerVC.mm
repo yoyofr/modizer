@@ -30,99 +30,267 @@ int gesture_move_file_min_trans;
 
 @implementation MiniPlayerVC
 
-@synthesize detailVC;
-@synthesize coverImg;
-@synthesize mpview;
-
 - (void)viewDidLoad {
     START_PROFILE
     [super viewDidLoad];
     // Do any additional setup after loading the view.
-    mpview=[[MiniPlayerView alloc] init];
-    mpview.translatesAutoresizingMaskIntoConstraints=false;
-    [self.view addSubview:mpview];
+    _mpview=[[MiniPlayerView alloc] init];
+    _mpview.translatesAutoresizingMaskIntoConstraints=false;
+    [self.view addSubview:_mpview];
     
-    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:mpview attribute:NSLayoutAttributeCenterX multiplier:1.0 constant:0]];
-    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:mpview attribute:NSLayoutAttributeCenterY multiplier:1.0 constant:0]];
-    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:mpview attribute:NSLayoutAttributeWidth multiplier:1.0 constant:0]];
-    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:mpview attribute:NSLayoutAttributeHeight multiplier:1.0 constant:0]];
+    // Align leading edge to safe area
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:_mpview attribute:NSLayoutAttributeLeading relatedBy:NSLayoutRelationEqual toItem:self.view.safeAreaLayoutGuide attribute:NSLayoutAttributeLeading multiplier:1.0 constant:0]];
     
-    mpview.userInteractionEnabled=true;
+    // Align trailing edge to safe area
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:_mpview attribute:NSLayoutAttributeTrailing relatedBy:NSLayoutRelationEqual toItem:self.view.safeAreaLayoutGuide attribute:NSLayoutAttributeTrailing multiplier:1.0 constant:0]];
     
-    labelTime_mode=0;
+    //    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:_mpview attribute:NSLayoutAttributeCenterX multiplier:1.0 constant:0]];
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:_mpview attribute:NSLayoutAttributeCenterY multiplier:1.0 constant:0]];
+    //    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:_mpview attribute:NSLayoutAttributeWidth multiplier:1.0 constant:0]];
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:_mpview attribute:NSLayoutAttributeHeight multiplier:1.0 constant:0]];
+    
+    _mpview.userInteractionEnabled=true;
+    
+    UIFont *font = [UIFont systemFontOfSize:12];
+    UIFontDescriptor *fontDescriptor = [font fontDescriptor];
+    UIFontDescriptor *styleDescriptor = [fontDescriptor fontDescriptorWithSymbolicTraits:[fontDescriptor symbolicTraits]| UIFontDescriptorTraitBold|UIFontDescriptorTraitItalic];
+    UIFont *myFont = [UIFont fontWithDescriptor:styleDescriptor size:font.pointSize];
+    
+    _coverView=[[UIImageView alloc] init];
+    [_mpview addSubview:_coverView];
+    
+    _songInfoView=[[UIView alloc] init];
+    _songInfoView.userInteractionEnabled=true;
+    _songInfoView.backgroundColor=[UIColor clearColor];
+    _songInfoView.clipsToBounds=true;
+    [_mpview addSubview:_songInfoView];
+    
+    _labelPrev=[[UILabel alloc] init];
+    _labelPrev.text=NSLocalizedString(@"Previous",@"");
+    [_labelPrev setFont:[UIFont italicSystemFontOfSize:12]];
+    _labelPrev.textAlignment=NSTextAlignmentCenter;
+    [_songInfoView addSubview:_labelPrev];
+    
+    _labelPrevEntry=[[UILabel alloc] init];
+    _labelPrevEntry.text=NSLocalizedString(@"Previous file",@"");
+    [_labelPrevEntry setFont:myFont];
+    _labelPrevEntry.textAlignment=NSTextAlignmentCenter;
+    _labelPrevEntry.alpha=0;
+    [_songInfoView addSubview:_labelPrevEntry];
+    
+    _labelNextEntry=[[UILabel alloc] init];
+    _labelNextEntry.text=NSLocalizedString(@"Next file",@"");
+    [_labelNextEntry setFont:myFont];
+    _labelNextEntry.alpha=0;
+    _labelNextEntry.textAlignment=NSTextAlignmentCenter;
+    [_songInfoView addSubview:_labelNextEntry];
+    
+    _labelNext=[[UILabel alloc] init];
+    _labelNext.text=NSLocalizedString(@"Next",@"");
+    [_labelNext setFont:[UIFont italicSystemFontOfSize:12]];
+    _labelNext.textAlignment=NSTextAlignmentCenter;
+    [_songInfoView addSubview:_labelNext];
+    
+    _labelMain=[[CBAutoScrollLabel alloc] init];
+    [_labelMain setFont:[UIFont systemFontOfSize:12]];
+    _labelMain.labelSpacing = 35; // distance between start and end labels
+    _labelMain.pauseInterval = 3.7; // seconds of pause before scrolling starts again
+    _labelMain.scrollSpeed = 30; // pixels per second
+    _labelMain.textAlignment = NSTextAlignmentLeft; // centers text when no auto-scrolling is applied
+    _labelMain.fadeLength = 12.f; // length of the left and right edge fade, 0 to disable
+    _labelMain.userInteractionEnabled=false;
+    
+    _labelSub=[[CBAutoScrollLabel alloc] init];
+    [_labelSub setFont:[UIFont systemFontOfSize:10]];
+    _labelSub.labelSpacing = 35; // distance between start and end labels
+    _labelSub.pauseInterval = 3.7; // seconds of pause before scrolling starts again
+    _labelSub.scrollSpeed = 30; // pixels per second
+    _labelSub.textAlignment = NSTextAlignmentLeft; // centers text when no auto-scrolling is applied
+    _labelSub.fadeLength = 12.f; // length of the left and right edge fade, 0 to disable
+    
+    _labelArtist=[[CBAutoScrollLabel alloc] init];
+    [_labelArtist setFont:[UIFont systemFontOfSize:10]];
+    _labelArtist.labelSpacing = 35; // distance between start and end labels
+    _labelArtist.pauseInterval = 3.7; // seconds of pause before scrolling starts again
+    _labelArtist.scrollSpeed = 30; // pixels per second
+    _labelArtist.textAlignment = NSTextAlignmentLeft; // centers text when no auto-scrolling is applied
+    _labelArtist.fadeLength = 12.f; // length of the left and right edge fade, 0 to disable
+    
+    _labelTime=[[UILabel alloc] init];
+    [_labelTime setFont:[UIFont systemFontOfSize:11]];
+    _labelTime.textAlignment = NSTextAlignmentCenter; // centers text when no auto-scrolling is applied
+    _labelTime.userInteractionEnabled=true;
+    _labelTime.numberOfLines=0;
+    
+    _labelPlaylist=[[UILabel alloc] init];
+    [_labelPlaylist setFont:[UIFont systemFontOfSize:10]];
+    _labelPlaylist.textAlignment = NSTextAlignmentCenter; // centers text when no auto-scrolling is applied
+    _labelPlaylist.userInteractionEnabled=true;
+    _labelPlaylist.numberOfLines=0;
+    
+    
+    [_songInfoView addSubview:_labelMain];
+    [_songInfoView addSubview:_labelSub];
+    [_songInfoView addSubview:_labelArtist];
+    [_mpview addSubview:_labelTime];
+    [_mpview addSubview:_labelPlaylist];
+    
+    //view to cover cover image + labels and recognize tap + swipe gesture
+    _gestureAreaView=[[UIView alloc] init];
+    _gestureAreaView.userInteractionEnabled=true;
+    _gestureAreaView.translatesAutoresizingMaskIntoConstraints=false;
+    [_gestureAreaView setBackgroundColor:[UIColor clearColor]];
+    [_mpview addSubview:_gestureAreaView];
+    
+    // new gesture recognizer
+    UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(pushedGoPlayer)];
+    // Set required taps and number of touches
+    [tapGesture setNumberOfTapsRequired:1];
+    [tapGesture setNumberOfTouchesRequired:1];
+    // Add the gesture to the view
+    [_gestureAreaView addGestureRecognizer:tapGesture];
+    
+    tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(pushedTime)];
+    // Set required taps and number of touches
+    [tapGesture setNumberOfTapsRequired:1];
+    [tapGesture setNumberOfTouchesRequired:1];
+    // Add the gesture to the view
+    [_labelTime addGestureRecognizer:tapGesture];
+    
+    if (![[[self parentViewController] title] isEqualToString:NSLocalizedString(@"Now playing",@"")]) {
+        //not already on the NowPlaying screen, allow button activtation
+        tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(pushedPlaylist)];
+        // Set required taps and number of touches
+        [tapGesture setNumberOfTapsRequired:1];
+        [tapGesture setNumberOfTouchesRequired:1];
+        // Add the gesture to the view
+        [_labelPlaylist addGestureRecognizer:tapGesture];
+    }
+    
+    UIPanGestureRecognizer *panGesture =[[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panLabels:)];
+    [_gestureAreaView addGestureRecognizer:panGesture];
+    
+    [_mpview addConstraint:[NSLayoutConstraint constraintWithItem:_gestureAreaView attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:_mpview attribute:NSLayoutAttributeHeight multiplier:1.0 constant:0]];
+    [_mpview addConstraint:[NSLayoutConstraint constraintWithItem:_gestureAreaView attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:_mpview attribute:NSLayoutAttributeTop multiplier:1.0 constant:0]];
+    [_mpview addConstraint:[NSLayoutConstraint constraintWithItem:_gestureAreaView attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:_labelMain attribute:NSLayoutAttributeRight multiplier:1.0 constant:0]];
+    [_mpview addConstraint:[NSLayoutConstraint constraintWithItem:_gestureAreaView attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:_mpview attribute:NSLayoutAttributeLeft multiplier:1.0 constant:0]];
+    
+    //Buttons@
+    _btnPlay=[[BButton alloc] initWithFrame:CGRectMake(0,1,46,46) type:BButtonTypeGray style:BButtonStyleBootstrapV4];
+    [_btnPlay addAwesomeIcon:FAIconPlay beforeTitle:YES];
+    [_btnPlay addTarget:self action:@selector(pushedPlay) forControlEvents:UIControlEventTouchUpInside];
+    _btnPlay.userInteractionEnabled=true;
+    _btnPlay.translatesAutoresizingMaskIntoConstraints = false;
+    _btnPlay.hidden=false;
+    [_btnPlay setColor:_mpview.backgroundColor];
+    [_btnPlay setButtonCornerRadius:[NSNumber numberWithFloat:0.0f]];
+    _btnPlay.layer.borderWidth=0;
+    [_mpview addSubview:_btnPlay];
+    
+    _btnPause=[[BButton alloc] initWithFrame:CGRectMake(0,1,46,46) type:BButtonTypeGray style:BButtonStyleBootstrapV4];
+    [_btnPause addAwesomeIcon:FAIconPause beforeTitle:YES];
+    [_btnPause addTarget:self action:@selector(pushedPause) forControlEvents:UIControlEventTouchUpInside];
+    _btnPause.translatesAutoresizingMaskIntoConstraints = false;
+    _btnPause.hidden=true;
+    [_btnPause setButtonCornerRadius:[NSNumber numberWithFloat:0.0f]];
+    [_btnPause setColor:_mpview.backgroundColor];
+    _btnPause.layer.borderWidth=0;
+    [_mpview addSubview:_btnPause];
+    
+    NSDictionary *views = NSDictionaryOfVariableBindings(_btnPlay);
+    // width constraint
+    [_mpview addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:[_btnPlay(46)]" options:0 metrics:nil views:views]];
+    // height constraint
+    [_mpview addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[_btnPlay(46)]" options:0 metrics:nil views:views]];
+    // center align
+    [_mpview addConstraint:[NSLayoutConstraint constraintWithItem:_btnPlay attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:_mpview attribute:NSLayoutAttributeRight multiplier:1.0 constant:0]];
+    [_mpview addConstraint:[NSLayoutConstraint constraintWithItem:_btnPlay attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:_mpview attribute:NSLayoutAttributeBottom multiplier:1.0 constant:-1]];
+    
+    views = NSDictionaryOfVariableBindings(_btnPause);
+    // width constraint
+    [_mpview addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:[_btnPause(46)]" options:0 metrics:nil views:views]];
+    // height constraint
+    [_mpview addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[_btnPause(46)]" options:0 metrics:nil views:views]];
+    // center align
+    [_mpview addConstraint:[NSLayoutConstraint constraintWithItem:_btnPause attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:_mpview attribute:NSLayoutAttributeRight multiplier:1.0 constant:0]];
+    [_mpview addConstraint:[NSLayoutConstraint constraintWithItem:_btnPause attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:_mpview attribute:NSLayoutAttributeBottom multiplier:1.0 constant:-1]];
+    
+    
+    
+    _labelTime_mode=0;
     END_PROFILE
 }
 
 - (void)refreshViewDarkmode {
-    if (darkMode) [mpview setBackgroundColor:[UIColor colorWithRed:0.1 green:0.1 blue:0.1 alpha:1]];
-    else [mpview setBackgroundColor:[UIColor colorWithRed:0.9 green:0.9 blue:0.9 alpha:1]];
+    if (_darkMode) [_mpview setBackgroundColor:[UIColor colorWithRed:0.1 green:0.1 blue:0.1 alpha:1]];
+    else [_mpview setBackgroundColor:[UIColor colorWithRed:0.9 green:0.9 blue:0.9 alpha:1]];
     
-    if (darkMode) {
-        labelPrev.textColor = [UIColor whiteColor];
-        labelNext.textColor = [UIColor whiteColor];
-        labelPrevEntry.textColor = [UIColor whiteColor];
-        labelNextEntry.textColor = [UIColor whiteColor];
-        labelMain.textColor = [UIColor whiteColor];
-        labelSub.textColor = [UIColor whiteColor];
-        labelArtist.textColor = [UIColor whiteColor];
-        labelTime.textColor = [UIColor whiteColor];
-        labelPlaylist.textColor = [UIColor whiteColor];
-        //btnPlay
-        [btnPlay setColor:[UIColor colorWithRed:0.1 green:0.1 blue:0.1 alpha:1]];
-        [btnPause setColor:[UIColor colorWithRed:0.1 green:0.1 blue:0.1 alpha:1]];
-        //btnPause
+    if (_darkMode) {
+        _labelPrev.textColor = [UIColor whiteColor];
+        _labelNext.textColor = [UIColor whiteColor];
+        _labelPrevEntry.textColor = [UIColor whiteColor];
+        _labelNextEntry.textColor = [UIColor whiteColor];
+        _labelMain.textColor = [UIColor whiteColor];
+        _labelSub.textColor = [UIColor whiteColor];
+        _labelArtist.textColor = [UIColor whiteColor];
+        _labelTime.textColor = [UIColor whiteColor];
+        _labelPlaylist.textColor = [UIColor whiteColor];
+        //_btnPlay
+        [_btnPlay setColor:[UIColor colorWithRed:0.1 green:0.1 blue:0.1 alpha:1]];
+        [_btnPause setColor:[UIColor colorWithRed:0.1 green:0.1 blue:0.1 alpha:1]];
+        //_btnPause
     } else {
-        labelPrev.textColor = [UIColor blackColor];
-        labelNext.textColor = [UIColor blackColor];
-        labelPrevEntry.textColor = [UIColor blackColor];
-        labelNextEntry.textColor = [UIColor blackColor];
-        labelMain.textColor = [UIColor blackColor];
-        labelSub.textColor = [UIColor blackColor];
-        labelArtist.textColor = [UIColor blackColor];
-        labelTime.textColor = [UIColor blackColor];
-        labelPlaylist.textColor = [UIColor blackColor];
-        [btnPlay setColor:[UIColor colorWithRed:0.9 green:0.9 blue:0.9 alpha:1]];
-        [btnPause setColor:[UIColor colorWithRed:0.9 green:0.9 blue:0.9 alpha:1]];
+        _labelPrev.textColor = [UIColor blackColor];
+        _labelNext.textColor = [UIColor blackColor];
+        _labelPrevEntry.textColor = [UIColor blackColor];
+        _labelNextEntry.textColor = [UIColor blackColor];
+        _labelMain.textColor = [UIColor blackColor];
+        _labelSub.textColor = [UIColor blackColor];
+        _labelArtist.textColor = [UIColor blackColor];
+        _labelTime.textColor = [UIColor blackColor];
+        _labelPlaylist.textColor = [UIColor blackColor];
+        [_btnPlay setColor:[UIColor colorWithRed:0.9 green:0.9 blue:0.9 alpha:1]];
+        [_btnPause setColor:[UIColor colorWithRed:0.9 green:0.9 blue:0.9 alpha:1]];
     }
 }
 
 - (void)traitCollectionDidChange:(UITraitCollection *)previousTraitCollection {
-    darkMode=false;
-    if (self.traitCollection.userInterfaceStyle==UIUserInterfaceStyleDark) darkMode=true;
+    _darkMode=false;
+    if (self.traitCollection.userInterfaceStyle==UIUserInterfaceStyleDark) _darkMode=true;
         
     [self refreshViewDarkmode];
 }
 
 -(void) pushedGoPlayer {
-    detailVC.view.frame=self.view.frame;
+    _detailVC.view.frame=self.view.frame;
     [self.parentViewController performSelector:@selector(goPlayer)];
 }
 
 -(void) swipeRight:(bool)prevFile {
     //[self.parentViewController performSelector:@selector(showWaitingLoading)];
-    if (prevFile) [detailVC playPrev];
-    else [detailVC playPrevSub];
+    if (prevFile) [_detailVC playPrev];
+    else [_detailVC playPrevSub];
     //[self.parentViewController performSelector:@selector(hideWaiting)];
 }
 
 -(void) swipeLeft:(bool)nextFile {
     //[self.parentViewController performSelector:@selector(showWaitingLoading)];
-    if (nextFile) [detailVC playNext];
-    else [detailVC playNextSub];
+    if (nextFile) [_detailVC playNext];
+    else [_detailVC playNextSub];
     //[self.parentViewController performSelector:@selector(hideWaiting)];
 }
 
 -(void) pushedPlay {
-    [detailVC playPushed];
+    [_detailVC playPushed];
 }
 
 -(void) pushedPause {
-    [detailVC pausePushed];
+    [_detailVC pausePushed];
 }
 
 -(void) pushedTime {
-    labelTime_mode++;
-    if (labelTime_mode>=2) labelTime_mode=0;
+    _labelTime_mode++;
+    if (_labelTime_mode>=2) _labelTime_mode=0;
 }
 
 -(void) pushedPlaylist {
@@ -142,14 +310,14 @@ int gesture_move_file_min_trans;
     switch (gesture.state) {
         case UIGestureRecognizerStateBegan:
             max_velocity.x=0;
-            org_centerx=labelMain.center.x;
-            orgPrev_centerx=labelPrev.center.x;
-            orgNext_centerx=labelNext.center.x;
+            org_centerx=_labelMain.center.x;
+            orgPrev_centerx=_labelPrev.center.x;
+            orgNext_centerx=_labelNext.center.x;
             
             gesture_swipe_min_vel=SWIPE_MIN_VELOCITY;
             gesture_swipe_min_trans=SWIPE_MIN_TRANSLATION;
-            gesture_move_sub_min_trans=MIN(gestureAreaView.frame.size.width*TRIGGER_SUB_MIN_WIDTH_RATIO,TRIGGER_SUB_MIN_TRANSLATION);
-            gesture_move_file_min_trans=MIN(gestureAreaView.frame.size.width*TRIGGER_ENTRY_MIN_WIDTH_RATIO,TRIGGER_ENTRY_MIN_TRANSLATION);
+            gesture_move_sub_min_trans=MIN(_gestureAreaView.frame.size.width*TRIGGER_SUB_MIN_WIDTH_RATIO,TRIGGER_SUB_MIN_TRANSLATION);
+            gesture_move_file_min_trans=MIN(_gestureAreaView.frame.size.width*TRIGGER_ENTRY_MIN_WIDTH_RATIO,TRIGGER_ENTRY_MIN_TRANSLATION);
             
             break;
         case UIGestureRecognizerStateChanged:
@@ -161,15 +329,15 @@ int gesture_move_file_min_trans;
                 if (cur_velocity.x<max_velocity.x) max_velocity.x=cur_velocity.x;
             }
             
-            labelMain.center = CGPointMake(labelMain.center.x + translation.x, labelMain.center.y);
-            labelSub.center = CGPointMake(labelSub.center.x + translation.x, labelSub.center.y);
-            labelArtist.center = CGPointMake(labelArtist.center.x + translation.x, labelArtist.center.y);
-            labelPrev.center= CGPointMake(labelPrev.center.x + translation.x, labelPrev.center.y);
-            labelNext.center= CGPointMake(labelNext.center.x + translation.x, labelNext.center.y);
-            labelPrevEntry.center= CGPointMake(labelPrevEntry.center.x + translation.x, labelPrevEntry.center.y);
-            labelNextEntry.center= CGPointMake(labelNextEntry.center.x + translation.x, labelNextEntry.center.y);
+            _labelMain.center = CGPointMake(_labelMain.center.x + translation.x, _labelMain.center.y);
+            _labelSub.center = CGPointMake(_labelSub.center.x + translation.x, _labelSub.center.y);
+            _labelArtist.center = CGPointMake(_labelArtist.center.x + translation.x, _labelArtist.center.y);
+            _labelPrev.center= CGPointMake(_labelPrev.center.x + translation.x, _labelPrev.center.y);
+            _labelNext.center= CGPointMake(_labelNext.center.x + translation.x, _labelNext.center.y);
+            _labelPrevEntry.center= CGPointMake(_labelPrevEntry.center.x + translation.x, _labelPrevEntry.center.y);
+            _labelNextEntry.center= CGPointMake(_labelNextEntry.center.x + translation.x, _labelNextEntry.center.y);
             
-            translationX=org_centerx-labelMain.center.x;
+            translationX=org_centerx-_labelMain.center.x;
             alpha=(float)translationX*1.0f/(gesture_move_sub_min_trans*2);
             if (alpha<0) alpha=-alpha;
             if (alpha>0.75f) alpha=0.75f;
@@ -180,13 +348,13 @@ int gesture_move_file_min_trans;
                 alpha2=0;
             }
             
-            labelPrev.alpha=(0.25f+alpha)*(1-alpha2);
-            labelNext.alpha=(0.25f+alpha)*(1-alpha2);
-            labelPrevEntry.alpha=(0.25f+alpha)*alpha2;
-            labelNextEntry.alpha=(0.25f+alpha)*alpha2;
-            labelMain.alpha=(1-alpha);
-            labelSub.alpha=(1-alpha);
-            labelArtist.alpha=(1-alpha);
+            _labelPrev.alpha=(0.25f+alpha)*(1-alpha2);
+            _labelNext.alpha=(0.25f+alpha)*(1-alpha2);
+            _labelPrevEntry.alpha=(0.25f+alpha)*alpha2;
+            _labelNextEntry.alpha=(0.25f+alpha)*alpha2;
+            _labelMain.alpha=(1-alpha);
+            _labelSub.alpha=(1-alpha);
+            _labelArtist.alpha=(1-alpha);
                         
             break;
         case UIGestureRecognizerStateFailed:
@@ -194,7 +362,7 @@ int gesture_move_file_min_trans;
         case UIGestureRecognizerStateEnded:
             // reset label
             
-            translationX=org_centerx-labelMain.center.x;
+            translationX=org_centerx-_labelMain.center.x;
                         
             if (translationX>gesture_move_file_min_trans) bEntryInsteadOfSub=true;
             if (translationX<-gesture_move_file_min_trans) bEntryInsteadOfSub=true;
@@ -204,66 +372,65 @@ int gesture_move_file_min_trans;
             else if ((translationX>gesture_swipe_min_trans)&&(max_velocity.x<-gesture_swipe_min_vel)) [self swipeLeft:bEntryInsteadOfSub];
             else if ((translationX<-gesture_swipe_min_trans)&&(max_velocity.x>gesture_swipe_min_vel)) [self swipeRight:bEntryInsteadOfSub];
             
-            [UIView beginAnimations:@"miniplayer_recenterinfoview" context:nil];
-            [UIView setAnimationDelegate:self];
-            [UIView setAnimationDelay:0];
-            [UIView setAnimationDuration:0.2f];
-            labelMain.center=CGPointMake(org_centerx,labelMain.center.y);
-            labelSub.center=CGPointMake(org_centerx,labelSub.center.y);
-            labelArtist.center=CGPointMake(org_centerx,labelArtist.center.y);
-            labelPrev.alpha=0;
-            labelNext.alpha=0;
-            labelPrevEntry.alpha=0;
-            labelNextEntry.alpha=0;
-            labelMain.alpha=1;
-            labelSub.alpha=1;
-            labelArtist.alpha=1;
-            labelPrev.center=CGPointMake(orgPrev_centerx,labelPrev.center.y);
-            labelNext.center=CGPointMake(orgNext_centerx,labelNext.center.y);
-            labelPrevEntry.center=CGPointMake(orgPrev_centerx,labelPrevEntry.center.y);
-            labelNextEntry.center=CGPointMake(orgNext_centerx,labelNextEntry.center.y);
-            [UIView commitAnimations];
-            
+            [UIView animateWithDuration:0.2 delay:0.0 options:0
+                             animations:^{
+                self.labelMain.center=CGPointMake(org_centerx,self.labelMain.center.y);
+                self.labelSub.center=CGPointMake(org_centerx,self.labelSub.center.y);
+                self.labelArtist.center=CGPointMake(org_centerx,self.labelArtist.center.y);
+                self.labelPrev.alpha=0;
+                self.labelNext.alpha=0;
+                self.labelPrevEntry.alpha=0;
+                self.labelNextEntry.alpha=0;
+                self.labelMain.alpha=1;
+                self.labelSub.alpha=1;
+                self.labelArtist.alpha=1;
+                self.labelPrev.center=CGPointMake(orgPrev_centerx,self.labelPrev.center.y);
+                self.labelNext.center=CGPointMake(orgNext_centerx,self.labelNext.center.y);
+                self.labelPrevEntry.center=CGPointMake(orgPrev_centerx,self.labelPrevEntry.center.y);
+                self.labelNextEntry.center=CGPointMake(orgNext_centerx,self.labelNextEntry.center.y);
+                } completion:^(BOOL finished) {
+                }];
+                        
             break;
     }
             
     // reset translation
-    [gesture setTranslation:CGPointZero inView:labelMain];
+    [gesture setTranslation:CGPointZero inView:_labelMain];
 }
 
 -(void) refreshTime {
-    if (detailVC.mPlaylist_size==0) {
+    if (_detailVC.mPlaylist_size==0) {
         self.view.hidden=TRUE;
         return;
     }
     if (self.view.hidden) self.view.hidden=FALSE;
     
-    int l=[detailVC.mplayer getSongLength]/1000;
-    int t=[detailVC.mplayer getCurrentTime]/1000;
-    switch (labelTime_mode) {
+    int l=[_detailVC.mplayer getSongLength]/1000;
+    int t=[_detailVC.mplayer getCurrentTime]/1000;
+    switch (_labelTime_mode) {
         case 0:
-            if (l>0) labelTime.text=[NSString stringWithFormat:@"-%d:%.2d\n-\n%d:%.2d",(l-t)/60,(l-t)%60,l/60,l%60];
-            else labelTime.text=[NSString stringWithFormat:@"--:--"];
+            if (l>0) _labelTime.text=[NSString stringWithFormat:@"-%d:%.2d\n-\n%d:%.2d",(l-t)/60,(l-t)%60,l/60,l%60];
+            else _labelTime.text=[NSString stringWithFormat:@"--:--"];
             break;
         case 1:
-            labelTime.text=[NSString stringWithFormat:@"%d:%.2d\n-\n%d:%.2d",(t)/60,(t)%60,l/60,l%60];
+            _labelTime.text=[NSString stringWithFormat:@"%d:%.2d\n-\n%d:%.2d",(t)/60,(t)%60,l/60,l%60];
             break;
     }
     
-    if ([detailVC.mplayer isPlaying]) {
+    if ([_detailVC.mplayer isPlaying]) {
         
-        if (![[detailVC.mplayer getModFileTitle] isEqualToString:labelMain.text]) [self refreshCoverLabels];
+        if (![[_detailVC.mplayer getModFileTitle] isEqualToString:_labelMain.text]) [self refreshCoverLabels];
         
-        if ([detailVC.mplayer isPaused]) {
-            btnPlay.hidden=false;
-            btnPause.hidden=true;
+        if ([_detailVC.mplayer isPaused]) {
+            _btnPlay.hidden=false;
+            _btnPause.hidden=true;
         } else {
-            btnPlay.hidden=true;
-            btnPause.hidden=false;
+            _btnPlay.hidden=true;
+            _btnPause.hidden=false;
         }
     } else {
-        btnPlay.hidden=false;
-        btnPause.hidden=true;
+        _btnPlay.hidden=false;
+        _btnPause.hidden=true;
     }
 }
 
@@ -271,79 +438,110 @@ int gesture_move_file_min_trans;
     static bool no_reentrant=false;
     if (no_reentrant) return;
     no_reentrant=true;
-    if ([detailVC.mplayer isPlaying]) {
+    if ([_detailVC.mplayer isPlaying]) {
         
-        if ([detailVC.mplayer isPaused]) {
-            btnPlay.hidden=false;
-            btnPause.hidden=true;
+        if ([_detailVC.mplayer isPaused]) {
+            _btnPlay.hidden=false;
+            _btnPause.hidden=true;
         } else {
-            btnPlay.hidden=true;
-            btnPause.hidden=false;
+            _btnPlay.hidden=true;
+            _btnPause.hidden=false;
         }
-        labelMain.text=[detailVC.mplayer getModFileTitle];
-        labelArtist.text=[detailVC.mplayer artist];
-        if ([detailVC.mplayer isArchive]&&([detailVC.mplayer getArcEntriesCnt]>1)) {
+        _labelMain.text=[_detailVC.mplayer getModFileTitle];
+        _labelArtist.text=[_detailVC.mplayer artist];
+        if ([_detailVC.mplayer isArchive]&&([_detailVC.mplayer getArcEntriesCnt]>1)) {
             //archive with multiple files
-            if (detailVC.mplayer.mod_subsongs>1) {
+            if (_detailVC.mplayer.mod_subsongs>1) {
                 //and also subsongs
-                labelSub.text=[NSString stringWithFormat:@"(%d/%d)(%d/%d) %@",[detailVC.mplayer getArcIndex]+1,[detailVC.mplayer getArcEntriesCnt],detailVC.mplayer.mod_currentsub-detailVC.mplayer.mod_minsub+1,detailVC.mplayer.mod_subsongs,[detailVC.mplayer getModName]];
+                _labelSub.text=[NSString stringWithFormat:@"(%d/%d)(%d/%d) %@",[_detailVC.mplayer getArcIndex]+1,[_detailVC.mplayer getArcEntriesCnt],_detailVC.mplayer.mod_currentsub-_detailVC.mplayer.mod_minsub+1,_detailVC.mplayer.mod_subsongs,[_detailVC.mplayer getModName]];
             } else {
                 //no subsong
-                labelSub.text=[NSString stringWithFormat:@"(%d/%d) %@",[detailVC.mplayer getArcIndex]+1,[detailVC.mplayer getArcEntriesCnt],[detailVC.mplayer getModName]];
+                _labelSub.text=[NSString stringWithFormat:@"(%d/%d) %@",[_detailVC.mplayer getArcIndex]+1,[_detailVC.mplayer getArcEntriesCnt],[_detailVC.mplayer getModName]];
             }
         } else {
-            if (detailVC.mplayer.mod_subsongs>1) {
+            if (_detailVC.mplayer.mod_subsongs>1) {
                 //subsongs
-                labelSub.text=[NSString stringWithFormat:@"(%d/%d) %@",detailVC.mplayer.mod_currentsub-detailVC.mplayer.mod_minsub+1,detailVC.mplayer.mod_subsongs,[detailVC.mplayer getModName]];
+                _labelSub.text=[NSString stringWithFormat:@"(%d/%d) %@",_detailVC.mplayer.mod_currentsub-_detailVC.mplayer.mod_minsub+1,_detailVC.mplayer.mod_subsongs,[_detailVC.mplayer getModName]];
             } else {
                 //no subsong
-                labelSub.text=[NSString stringWithFormat:@"%@",[detailVC.mplayer getModName]];
+                _labelSub.text=[NSString stringWithFormat:@"%@",[_detailVC.mplayer getModName]];
             }
         }
-        labelPlaylist.text=[NSString stringWithFormat:@"%d\n-\n%d",detailVC.mPlaylist_pos+1,detailVC.mPlaylist_size];
-        //labelTime.text=[NSString stringWithFormat:@"%d:%.2d",t/60,t%60];
+        _labelPlaylist.text=[NSString stringWithFormat:@"%d\n-\n%d",_detailVC.mPlaylist_pos+1,_detailVC.mPlaylist_size];
+        //_labelTime.text=[NSString stringWithFormat:@"%d:%.2d",t/60,t%60];
         [self refreshTime];
     } else {
-        labelMain.text=@"Initializing";
-        labelSub.text=@"...";
-        labelArtist.text=@"";
-        labelTime.text=@"-:--";
+        _labelMain.text=@"Initializing";
+        _labelSub.text=@"...";
+        _labelArtist.text=@"";
+        _labelTime.text=@"-:--";
                 
-        if (detailVC.mPlaylist_size) labelPlaylist.text=[NSString stringWithFormat:@"%d\n-\n%d",detailVC.mPlaylist_pos+1,detailVC.mPlaylist_size];
-        else labelPlaylist.text=@"...\n-\n...";
+        if (_detailVC.mPlaylist_size) _labelPlaylist.text=[NSString stringWithFormat:@"%d\n-\n%d",_detailVC.mPlaylist_pos+1,_detailVC.mPlaylist_size];
+        else _labelPlaylist.text=@"...\n-\n...";
         
-        btnPause.hidden=true;
-        btnPlay.hidden=false;
+        _btnPause.hidden=true;
+        _btnPlay.hidden=false;
     }
     
-    [coverView setImage:coverImg];
+    [_coverView setImage:_coverImg];
     no_reentrant=false;
 }
 
 - (void) refreshCoverView {
-    [coverView setImage:coverImg];
+    [_coverView setImage:_coverImg];
 }
 
 - (void)viewDidLayoutSubviews {
-    gesture_swipe_min_vel=SWIPE_MIN_VELOCITY;
-    gesture_swipe_min_trans=SWIPE_MIN_TRANSLATION;
-    gesture_move_sub_min_trans=MIN(gestureAreaView.frame.size.width*TRIGGER_SUB_MIN_WIDTH_RATIO,TRIGGER_SUB_MIN_TRANSLATION);
-    gesture_move_file_min_trans=MIN(gestureAreaView.frame.size.width*TRIGGER_ENTRY_MIN_WIDTH_RATIO,TRIGGER_ENTRY_MIN_TRANSLATION);
+    [super viewDidLayoutSubviews];
+
+    // Update layout when _mpview size changes (e.g., when sidebar appears)
+    static CGFloat previousWidth = 0;
+    CGFloat currentWidth = self.mpview.frame.size.width;
+
+    if (previousWidth != currentWidth && currentWidth > 0) {
+        previousWidth = currentWidth;
+
+        NSLog(@"minipl viewDidLayoutSubviews: mpview size changed to %f, updating layout", currentWidth);
+
+        // Update frames with new width
+        _songInfoView.frame = CGRectMake(50, 0, (currentWidth - 50 - 150), 48);
+        _labelMain.frame = CGRectMake(0, 0, (currentWidth - 50 - 150), 24);
+        _labelSub.frame = CGRectMake(0, 24, (currentWidth - 50 - 150), 12);
+        _labelArtist.frame = CGRectMake(0, 24 + 12, (currentWidth - 50 - 150), 12);
+
+        _labelPrev.frame = CGRectMake(-[_labelPrev.text sizeWithAttributes:@{NSFontAttributeName:_labelPrev.font}].width, 0, [_labelPrev.text sizeWithAttributes:@{NSFontAttributeName:_labelPrev.font}].width, 48);
+        _labelPrevEntry.frame = CGRectMake(-[_labelPrevEntry.text sizeWithAttributes:@{NSFontAttributeName:_labelPrevEntry.font}].width, 0, [_labelPrevEntry.text sizeWithAttributes:@{NSFontAttributeName:_labelPrevEntry.font}].width, 48);
+        _labelNextEntry.frame = CGRectMake((currentWidth - 50 - 150), 0, [_labelNextEntry.text sizeWithAttributes:@{NSFontAttributeName:_labelNextEntry.font}].width, 48);
+        _labelNext.frame = CGRectMake((currentWidth - 50 - 150), 0, [_labelNext.text sizeWithAttributes:@{NSFontAttributeName:_labelNext.font}].width, 48);
+
+        _labelTime.frame = CGRectMake(currentWidth - 100, 0, 50, 48);
+        _labelPlaylist.frame = CGRectMake(currentWidth - 150, 0, 50, 48);
+    }
+
+    // Update gesture parameters
+    gesture_swipe_min_vel = SWIPE_MIN_VELOCITY;
+    gesture_swipe_min_trans = SWIPE_MIN_TRANSLATION;
+    gesture_move_sub_min_trans = MIN(_gestureAreaView.frame.size.width * TRIGGER_SUB_MIN_WIDTH_RATIO, TRIGGER_SUB_MIN_TRANSLATION);
+    gesture_move_file_min_trans = MIN(_gestureAreaView.frame.size.width * TRIGGER_ENTRY_MIN_WIDTH_RATIO, TRIGGER_ENTRY_MIN_TRANSLATION);
 }
 
 - (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
-    songInfoView.frame=CGRectMake(50,0,(size.width-50-150),48);
-    labelMain.frame=CGRectMake(0,0,(size.width-50-150),24);
-    labelSub.frame=CGRectMake(0,24,(size.width-50-150),12);
-    labelArtist.frame=CGRectMake(0,24+12,(size.width-50-150),12);
-        
-    labelPrev.frame=CGRectMake(-[labelPrev.text sizeWithAttributes:@{NSFontAttributeName:labelPrev.font}].width,0,[labelPrev.text sizeWithAttributes:@{NSFontAttributeName:labelPrev.font}].width,48);
-    labelPrevEntry.frame=CGRectMake(-[labelPrevEntry.text sizeWithAttributes:@{NSFontAttributeName:labelPrevEntry.font}].width,0,[labelPrevEntry.text sizeWithAttributes:@{NSFontAttributeName:labelPrevEntry.font}].width,48);
-    labelNextEntry.frame=CGRectMake((size.width-50-150),0,[labelNextEntry.text sizeWithAttributes:@{NSFontAttributeName:labelNextEntry.font}].width,48);
-    labelNext.frame=CGRectMake((size.width-50-150),0,[labelNext.text sizeWithAttributes:@{NSFontAttributeName:labelNext.font}].width,48);
+    float ww=self.mpview.frame.size.width;
     
-    labelTime.frame=CGRectMake(size.width-100,0,50,48);
-    labelPlaylist.frame=CGRectMake(size.width-150,0,50,48);
+    NSLog(@"minipl viewWillTransition: mpview size %f",ww);
+    
+    _songInfoView.frame=CGRectMake(50,0,(ww-50-150),48);
+    _labelMain.frame=CGRectMake(0,0,(ww-50-150),24);
+    _labelSub.frame=CGRectMake(0,24,(ww-50-150),12);
+    _labelArtist.frame=CGRectMake(0,24+12,(ww-50-150),12);
+        
+    _labelPrev.frame=CGRectMake(-[_labelPrev.text sizeWithAttributes:@{NSFontAttributeName:_labelPrev.font}].width,0,[_labelPrev.text sizeWithAttributes:@{NSFontAttributeName:_labelPrev.font}].width,48);
+    _labelPrevEntry.frame=CGRectMake(-[_labelPrevEntry.text sizeWithAttributes:@{NSFontAttributeName:_labelPrevEntry.font}].width,0,[_labelPrevEntry.text sizeWithAttributes:@{NSFontAttributeName:_labelPrevEntry.font}].width,48);
+    _labelNextEntry.frame=CGRectMake((ww-50-150),0,[_labelNextEntry.text sizeWithAttributes:@{NSFontAttributeName:_labelNextEntry.font}].width,48);
+    _labelNext.frame=CGRectMake((ww-50-150),0,[_labelNext.text sizeWithAttributes:@{NSFontAttributeName:_labelNext.font}].width,48);
+    
+    _labelTime.frame=CGRectMake(ww-100,0,50,48);
+    _labelPlaylist.frame=CGRectMake(ww-150,0,50,48);
     
     
     [self refreshCoverLabels];
@@ -393,272 +591,100 @@ int gesture_move_file_min_trans;
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     
+    
+    
     //issue when checking minivc directly, so check visible viewcontroller instead
     UIViewController *vc = [self visibleViewController:[UIApplication sharedApplication].keyWindow.rootViewController];
-    darkMode=false;
-    if (vc.traitCollection.userInterfaceStyle==UIUserInterfaceStyleDark) darkMode=true;
+    _darkMode=false;
+    if (vc.traitCollection.userInterfaceStyle==UIUserInterfaceStyleDark) _darkMode=true;
     
     //Background color
     
-    if (darkMode) [mpview setBackgroundColor:[UIColor colorWithRed:0.1 green:0.1 blue:0.1 alpha:1]];
-    else [mpview setBackgroundColor:[UIColor colorWithRed:0.9 green:0.9 blue:0.9 alpha:1]];
+    if (_darkMode) [_mpview setBackgroundColor:[UIColor colorWithRed:0.1 green:0.1 blue:0.1 alpha:1]];
+    else [_mpview setBackgroundColor:[UIColor colorWithRed:0.9 green:0.9 blue:0.9 alpha:1]];
     
     //Cover artwork
-    coverView=[[UIImageView alloc] init];
-    coverView.frame=CGRectMake(0,0,48,48);
-    [mpview addSubview:coverView];
+    _coverView.frame=CGRectMake(0,0,48,48);
+    
     
     //Labels
-    int ww=self.view.frame.size.width;
+    float ww=self.mpview.frame.size.width;
+    NSLog(@"minipl willappear: mpview size %f",ww);
     
     //if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
-    if (@available(iOS 14.0, *)) {
-        if ([NSProcessInfo processInfo].isiOSAppOnMac) {
-            UIScreen* mainscr = [UIScreen mainScreen];
-            UIWindow *win=[UIApplication sharedApplication].keyWindow;
-            
-            ww=win.bounds.size.width;
-        }
-    } else {
-        
-    }
+//    if (@available(iOS 14.0, *)) {
+//        if ([NSProcessInfo processInfo].isiOSAppOnMac) {
+//            UIScreen* mainscr = [UIScreen mainScreen];
+//            UIWindow *win=[UIApplication sharedApplication].keyWindow;
+//            
+//            ww=win.bounds.size.width;
+//        }
+//    } else {
+//        
+//    }
     
-    songInfoView=[[UIView alloc] init];
-    songInfoView.frame=CGRectMake(50,0,(ww-50-150),48);
-    songInfoView.userInteractionEnabled=true;
-    songInfoView.backgroundColor=[UIColor clearColor];
-    songInfoView.clipsToBounds=true;
-    [mpview addSubview:songInfoView];
+    _songInfoView.frame=CGRectMake(50,0,(ww-50-150),48);
     
-    labelPrev=[[UILabel alloc] init];
-    labelPrev.text=NSLocalizedString(@"Previous",@"");
-    labelPrev.frame=CGRectMake(-[labelPrev.text sizeWithAttributes:@{NSFontAttributeName:labelPrev.font}].width,0,[labelPrev.text sizeWithAttributes:@{NSFontAttributeName:labelPrev.font}].width,48);
-    [labelPrev setFont:[UIFont italicSystemFontOfSize:12]];
-    if (darkMode) labelPrev.textColor = [UIColor whiteColor];
-    else labelPrev.textColor = [UIColor blackColor];
-    labelPrev.textAlignment=NSTextAlignmentCenter;
-    [songInfoView addSubview:labelPrev];
+    _labelPrev.frame=CGRectMake(-[_labelPrev.text sizeWithAttributes:@{NSFontAttributeName:_labelPrev.font}].width,0,[_labelPrev.text sizeWithAttributes:@{NSFontAttributeName:_labelPrev.font}].width,48);
     
-    UIFont *font = [UIFont systemFontOfSize:12];
-    UIFontDescriptor *fontDescriptor = [font fontDescriptor];
-    UIFontDescriptor *styleDescriptor = [fontDescriptor fontDescriptorWithSymbolicTraits:[fontDescriptor symbolicTraits]| UIFontDescriptorTraitBold|UIFontDescriptorTraitItalic];
-    UIFont *myFont = [UIFont fontWithDescriptor:styleDescriptor size:font.pointSize];
+    if (_darkMode) _labelPrev.textColor = [UIColor whiteColor];
+    else _labelPrev.textColor = [UIColor blackColor];
     
+    _labelPrevEntry.frame=CGRectMake(-[_labelPrevEntry.text sizeWithAttributes:@{NSFontAttributeName:_labelPrevEntry.font}].width,0,[_labelPrevEntry.text sizeWithAttributes:@{NSFontAttributeName:_labelPrevEntry.font}].width,48);
+    if (_darkMode) _labelPrevEntry.textColor = [UIColor whiteColor];
+    else _labelPrevEntry.textColor = [UIColor blackColor];
+
+    _labelNextEntry.frame=CGRectMake((ww-50-150),0,[_labelNextEntry.text sizeWithAttributes:@{NSFontAttributeName:_labelNextEntry.font}].width,48);
     
-    labelPrevEntry=[[UILabel alloc] init];
-    labelPrevEntry.text=NSLocalizedString(@"Previous file",@"");
-    labelPrevEntry.frame=CGRectMake(-[labelPrevEntry.text sizeWithAttributes:@{NSFontAttributeName:labelPrevEntry.font}].width,0,[labelPrevEntry.text sizeWithAttributes:@{NSFontAttributeName:labelPrevEntry.font}].width,48);
-    [labelPrevEntry setFont:myFont];
-    if (darkMode) labelPrevEntry.textColor = [UIColor whiteColor];
-    else labelPrevEntry.textColor = [UIColor blackColor];
-    labelPrevEntry.textAlignment=NSTextAlignmentCenter;
-    labelPrevEntry.alpha=0;
-    [songInfoView addSubview:labelPrevEntry];
+    if (_darkMode) _labelNextEntry.textColor = [UIColor whiteColor];
+    else _labelNextEntry.textColor = [UIColor blackColor];
     
-    labelNextEntry=[[UILabel alloc] init];
-    labelNextEntry.text=NSLocalizedString(@"Next file",@"");
-    labelNextEntry.frame=CGRectMake((ww-50-150),0,[labelNextEntry.text sizeWithAttributes:@{NSFontAttributeName:labelNextEntry.font}].width,48);
+    _labelNext.frame=CGRectMake((ww-50-150),0,[_labelNext.text sizeWithAttributes:@{NSFontAttributeName:_labelNext.font}].width,48);
+    if (_darkMode) _labelNext.textColor = [UIColor whiteColor];
+    else _labelNext.textColor = [UIColor blackColor];
     
+    _labelMain.frame=CGRectMake(0,0,(ww-50-150),24);
+    if (_darkMode) _labelMain.textColor = [UIColor whiteColor];
+    else _labelMain.textColor = [UIColor blackColor];
     
-    [labelNextEntry setFont:myFont];
-    if (darkMode) labelNextEntry.textColor = [UIColor whiteColor];
-    else labelNextEntry.textColor = [UIColor blackColor];
-    labelNextEntry.alpha=0;
-    labelNextEntry.textAlignment=NSTextAlignmentCenter;
-    [songInfoView addSubview:labelNextEntry];
+    _labelSub.frame=CGRectMake(0,24,(ww-50-150),12);
+    if (_darkMode) _labelSub.textColor = [UIColor whiteColor];
+    else _labelSub.textColor = [UIColor blackColor];
     
-    labelNext=[[UILabel alloc] init];
-    labelNext.text=NSLocalizedString(@"Next",@"");
-    labelNext.frame=CGRectMake((ww-50-150),0,[labelNext.text sizeWithAttributes:@{NSFontAttributeName:labelNext.font}].width,48);
-    [labelNext setFont:[UIFont italicSystemFontOfSize:12]];
-    if (darkMode) labelNext.textColor = [UIColor whiteColor];
-    else labelNext.textColor = [UIColor blackColor];
-    labelNext.textAlignment=NSTextAlignmentCenter;
-    [songInfoView addSubview:labelNext];
+    _labelArtist.frame=CGRectMake(0,24+12,(ww-50-150),12);
+    if (_darkMode) _labelArtist.textColor = [UIColor whiteColor];
+    else _labelArtist.textColor = [UIColor blackColor];
     
+    _labelTime.frame=CGRectMake(ww-100,0,50,48);
+    if (_darkMode) _labelTime.textColor = [UIColor whiteColor];
+    else _labelTime.textColor = [UIColor blackColor];
     
-    
-    labelMain=[[CBAutoScrollLabel alloc] init];
-    labelMain.frame=CGRectMake(0,0,(ww-50-150),24);
-    [labelMain setFont:[UIFont systemFontOfSize:12]];
-    if (darkMode) labelMain.textColor = [UIColor whiteColor];
-    else labelMain.textColor = [UIColor blackColor];
-    labelMain.labelSpacing = 35; // distance between start and end labels
-    labelMain.pauseInterval = 3.7; // seconds of pause before scrolling starts again
-    labelMain.scrollSpeed = 30; // pixels per second
-    labelMain.textAlignment = NSTextAlignmentLeft; // centers text when no auto-scrolling is applied
-    labelMain.fadeLength = 12.f; // length of the left and right edge fade, 0 to disable
-    labelMain.userInteractionEnabled=false;
-    
-    labelSub=[[CBAutoScrollLabel alloc] init];
-    labelSub.frame=CGRectMake(0,24,(ww-50-150),12);
-    [labelSub setFont:[UIFont systemFontOfSize:10]];
-    if (darkMode) labelSub.textColor = [UIColor whiteColor];
-    else labelSub.textColor = [UIColor blackColor];
-    labelSub.labelSpacing = 35; // distance between start and end labels
-    labelSub.pauseInterval = 3.7; // seconds of pause before scrolling starts again
-    labelSub.scrollSpeed = 30; // pixels per second
-    labelSub.textAlignment = NSTextAlignmentLeft; // centers text when no auto-scrolling is applied
-    labelSub.fadeLength = 12.f; // length of the left and right edge fade, 0 to disable
-    
-    labelArtist=[[CBAutoScrollLabel alloc] init];
-    labelArtist.frame=CGRectMake(0,24+12,(ww-50-150),12);
-    [labelArtist setFont:[UIFont systemFontOfSize:10]];
-    if (darkMode) labelArtist.textColor = [UIColor whiteColor];
-    else labelArtist.textColor = [UIColor blackColor];
-    labelArtist.labelSpacing = 35; // distance between start and end labels
-    labelArtist.pauseInterval = 3.7; // seconds of pause before scrolling starts again
-    labelArtist.scrollSpeed = 30; // pixels per second
-    labelArtist.textAlignment = NSTextAlignmentLeft; // centers text when no auto-scrolling is applied
-    labelArtist.fadeLength = 12.f; // length of the left and right edge fade, 0 to disable
-    
-    labelTime=[[UILabel alloc] init];
-    labelTime.frame=CGRectMake(ww-100,0,50,48);
-    [labelTime setFont:[UIFont systemFontOfSize:11]];
-    if (darkMode) labelTime.textColor = [UIColor whiteColor];
-    else labelTime.textColor = [UIColor blackColor];
-    labelTime.textAlignment = NSTextAlignmentCenter; // centers text when no auto-scrolling is applied
-    labelTime.userInteractionEnabled=true;
-    labelTime.numberOfLines=0;
-    
-    labelPlaylist=[[UILabel alloc] init];
-    labelPlaylist.frame=CGRectMake(ww-150,0,50,48);
-    [labelPlaylist setFont:[UIFont systemFontOfSize:10]];
-    if (darkMode) labelPlaylist.textColor = [UIColor whiteColor];
-    else labelPlaylist.textColor = [UIColor blackColor];
-    labelPlaylist.textAlignment = NSTextAlignmentCenter; // centers text when no auto-scrolling is applied
-    labelPlaylist.userInteractionEnabled=true;
-    labelPlaylist.numberOfLines=0;
+    _labelPlaylist.frame=CGRectMake(ww-150,0,50,48);
+    if (_darkMode) _labelPlaylist.textColor = [UIColor whiteColor];
+    else _labelPlaylist.textColor = [UIColor blackColor];
     [self refreshCoverLabels];
     
+    [_btnPlay setColor:_mpview.backgroundColor];
     
-    [songInfoView addSubview:labelMain];
-    [songInfoView addSubview:labelSub];
-    [songInfoView addSubview:labelArtist];
-    [mpview addSubview:labelTime];
-    [mpview addSubview:labelPlaylist];
-    
-    //view to cover cover image + labels and recognize tap + swipe gesture
-    gestureAreaView=[[UIView alloc] init];
-    gestureAreaView.userInteractionEnabled=true;
-    gestureAreaView.translatesAutoresizingMaskIntoConstraints=false;
-    [gestureAreaView setBackgroundColor:[UIColor clearColor]];
-    [mpview addSubview:gestureAreaView];
-    
-    
-    
-    // new gesture recognizer
-    UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(pushedGoPlayer)];
-    // Set required taps and number of touches
-    [tapGesture setNumberOfTapsRequired:1];
-    [tapGesture setNumberOfTouchesRequired:1];
-    // Add the gesture to the view
-    [gestureAreaView addGestureRecognizer:tapGesture];
-    
-    tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(pushedTime)];
-    // Set required taps and number of touches
-    [tapGesture setNumberOfTapsRequired:1];
-    [tapGesture setNumberOfTouchesRequired:1];
-    // Add the gesture to the view
-    [labelTime addGestureRecognizer:tapGesture];
-    
-    if (![[[self parentViewController] title] isEqualToString:NSLocalizedString(@"Now playing",@"")]) {
-        //not already on the NowPlaying screen, allow button activtation
-        tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(pushedPlaylist)];
-        // Set required taps and number of touches
-        [tapGesture setNumberOfTapsRequired:1];
-        [tapGesture setNumberOfTouchesRequired:1];
-        // Add the gesture to the view
-        [labelPlaylist addGestureRecognizer:tapGesture];
-    }
-    
-    UIPanGestureRecognizer *panGesture =[[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panLabels:)];
-    [gestureAreaView addGestureRecognizer:panGesture];
-    
-    /*
-    // new gesture recognizer
-    UISwipeGestureRecognizer *swipeGesture = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(swipeLeft)];
-    // Set required direction and number of touches
-    [swipeGesture setDirection:UISwipeGestureRecognizerDirectionLeft];
-    [swipeGesture setNumberOfTouchesRequired:1];
-    // Add the gesture to the view
-    [gestureAreaView addGestureRecognizer:swipeGesture];
-    
-    swipeGesture = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(swipeRight)];
-    // Set required direction and number of touches
-    [swipeGesture setDirection:UISwipeGestureRecognizerDirectionRight];
-    [swipeGesture setNumberOfTouchesRequired:1];
-    // Add the gesture to the view
-    [gestureAreaView addGestureRecognizer:swipeGesture];*/
-    
-    
-    [mpview addConstraint:[NSLayoutConstraint constraintWithItem:gestureAreaView attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:mpview attribute:NSLayoutAttributeHeight multiplier:1.0 constant:0]];
-    [mpview addConstraint:[NSLayoutConstraint constraintWithItem:gestureAreaView attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:mpview attribute:NSLayoutAttributeTop multiplier:1.0 constant:0]];
-    [mpview addConstraint:[NSLayoutConstraint constraintWithItem:gestureAreaView attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:labelMain attribute:NSLayoutAttributeRight multiplier:1.0 constant:0]];
-    [mpview addConstraint:[NSLayoutConstraint constraintWithItem:gestureAreaView attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:mpview attribute:NSLayoutAttributeLeft multiplier:1.0 constant:0]];
-    
-    //Buttons@
-    btnPlay=[[BButton alloc] initWithFrame:CGRectMake(0,1,46,46) type:BButtonTypeGray style:BButtonStyleBootstrapV4];
-    [btnPlay addAwesomeIcon:FAIconPlay beforeTitle:YES];
-    [btnPlay addTarget:self action:@selector(pushedPlay) forControlEvents:UIControlEventTouchUpInside];
-    btnPlay.userInteractionEnabled=true;
-    btnPlay.translatesAutoresizingMaskIntoConstraints = false;
-    btnPlay.hidden=false;
-    [btnPlay setColor:mpview.backgroundColor];
-    [btnPlay setButtonCornerRadius:[NSNumber numberWithFloat:0.0f]];
-    btnPlay.layer.borderWidth=0;
-    [mpview addSubview:btnPlay];
-    
-    btnPause=[[BButton alloc] initWithFrame:CGRectMake(0,1,46,46) type:BButtonTypeGray style:BButtonStyleBootstrapV4];
-    [btnPause addAwesomeIcon:FAIconPause beforeTitle:YES];
-    [btnPause addTarget:self action:@selector(pushedPause) forControlEvents:UIControlEventTouchUpInside];
-    btnPause.translatesAutoresizingMaskIntoConstraints = false;
-    btnPause.hidden=true;
-    [btnPause setButtonCornerRadius:[NSNumber numberWithFloat:0.0f]];
-    [btnPause setColor:mpview.backgroundColor];
-    btnPause.layer.borderWidth=0;
-    [mpview addSubview:btnPause];
-    
-    NSDictionary *views = NSDictionaryOfVariableBindings(btnPlay);
-    // width constraint
-    [mpview addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:[btnPlay(46)]" options:0 metrics:nil views:views]];
-    // height constraint
-    [mpview addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[btnPlay(46)]" options:0 metrics:nil views:views]];
-    // center align
-    [mpview addConstraint:[NSLayoutConstraint constraintWithItem:btnPlay attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:mpview attribute:NSLayoutAttributeRight multiplier:1.0 constant:0]];
-    [mpview addConstraint:[NSLayoutConstraint constraintWithItem:btnPlay attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:mpview attribute:NSLayoutAttributeBottom multiplier:1.0 constant:-1]];
-    
-    views = NSDictionaryOfVariableBindings(btnPause);
-    // width constraint
-    [mpview addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:[btnPause(46)]" options:0 metrics:nil views:views]];
-    // height constraint
-    [mpview addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[btnPause(46)]" options:0 metrics:nil views:views]];
-    // center align
-    [mpview addConstraint:[NSLayoutConstraint constraintWithItem:btnPause attribute:NSLayoutAttributeRight relatedBy:NSLayoutRelationEqual toItem:mpview attribute:NSLayoutAttributeRight multiplier:1.0 constant:0]];
-    [mpview addConstraint:[NSLayoutConstraint constraintWithItem:btnPause attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:mpview attribute:NSLayoutAttributeBottom multiplier:1.0 constant:-1]];
-    
+    [_btnPause setColor:_mpview.backgroundColor];
+
     //Timer
-    repeatingTimer = [NSTimer scheduledTimerWithTimeInterval: 0.20f target:self selector:@selector(refreshTime) userInfo:nil repeats: YES]; //5 times/second
+    _repeatingTimer = [NSTimer scheduledTimerWithTimeInterval: 0.20f target:self selector:@selector(refreshTime) userInfo:nil repeats: YES]; //5 times/second
     
-    if ([detailVC.mplayer isPlaying]) {
-        if ([detailVC.mplayer isPaused]) {
-            btnPlay.hidden=false;
-            btnPause.hidden=true;
+    if ([_detailVC.mplayer isPlaying]) {
+        if ([_detailVC.mplayer isPaused]) {
+            _btnPlay.hidden=false;
+            _btnPause.hidden=true;
         } else {
-            btnPlay.hidden=true;
-            btnPause.hidden=false;
+            _btnPlay.hidden=true;
+            _btnPause.hidden=false;
         }
     }
 }
 
 -(void)viewDidDisappear:(BOOL)animated {
-    [coverView removeFromSuperview];coverView=nil;
-    [labelMain removeFromSuperview];labelMain=nil;
-    [labelTime removeFromSuperview];labelTime=nil;
-    [labelPlaylist removeFromSuperview];labelPlaylist=nil;
-    [gestureAreaView removeFromSuperview];gestureAreaView=nil;
-    [repeatingTimer invalidate];
-    repeatingTimer = nil; // ensures we never invalidate an already invalid Timer
+    [_repeatingTimer invalidate];
+    _repeatingTimer = nil; // ensures we never invalidate an already invalid Timer
 }
 
 /*
