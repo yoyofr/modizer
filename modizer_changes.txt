@@ -29,10 +29,11 @@ missing seek support:
 
 4.01
 ----
+- improved localizations, add of japanese, spanish, german, russian, arabic, finnish, italian, portuguese, swedish, chinese (simplified)
 - RSN archive: spc filenames replaced by title when available (in player view/archive entries selector)
-- improved localization: japanese, spanish, german, russian, arabic, finnish, italian, portuguese, swedish, chinese (simplified)
 - improved web browser home page
 - updated DB with latest data (Modland, ASMA)
+- various bugfixes and stability improvement
 
 4.0
 ---
