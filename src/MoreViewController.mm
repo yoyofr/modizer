@@ -507,9 +507,16 @@ extern volatile t_settings settings[MAX_SETTINGS];
         }
             break;
         case 2:{//Tips
+#ifdef MDZ_MACOS_WINDOW_AOT
+            NSString *paypalURL=@"https://paypal.me/ymagnien";
+            NSString * encodedString = [paypalURL stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLFragmentAllowedCharacterSet]];
+            UIApplication *application = [UIApplication sharedApplication];
+            [application openURL:[NSURL URLWithString: encodedString] options:@{} completionHandler:nil];
+#else
             TipsViewController *tipsVC = [[TipsViewController alloc] init];
             UINavigationController *navController = [[UINavigationController alloc] initWithRootViewController:tipsVC];
             [self presentViewController:navController animated:YES completion:nil];
+#endif
             break;
         }
         case 3:{//Settings

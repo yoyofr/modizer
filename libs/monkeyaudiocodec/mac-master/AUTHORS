@@ -1,0 +1,9 @@
+Matthew T. Ashland <email @ monkeysaudio.com> : Original author of Monkey's Audio Codec
+
+Frank Klemm : First port to linux (with makefile)
+
+SuperMMX <SuperMMX AT GMail DOT com> : Package the source, include the frontend and shared lib, 
+         porting to Big Endian platform and adding other non-win32 enhancement.
+
+Jason Jordan <shnutils@freeshell.org> : maintainer of the shntool-enabled versions 3.99-u4-b5-sN
+         (pipe decoding/encoding; miscellaneous enhancements; patch aggregation; bug fixes)

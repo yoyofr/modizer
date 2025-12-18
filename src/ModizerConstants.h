@@ -248,6 +248,8 @@ extern void *LoadingProgressObserverContext;
 
 #define SUPPORTED_FILETYPE_STSOUND @"YM"
 
+#define SUPPORTED_FILETYPE_MAC @"APE"
+
 #define SUPPORTED_FILETYPE_ATARISOUND @"SNDH"
 
 #define SUPPORTED_FILETYPE_SC68 @"SC68"
@@ -432,7 +434,8 @@ enum MMP_PLAYER_TYPE {
     MMP_PIXEL,
     MMP_GBS,
     MMP_WSR,
-    MMP_ZXTUNE
+    MMP_ZXTUNE,
+    MMP_MAC
 };
 
 typedef enum {

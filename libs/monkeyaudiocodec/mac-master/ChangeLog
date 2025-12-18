@@ -1,0 +1,119 @@
+2006-06-01  SuperMMX  <SuperMMX AT GMail DOT com>
+
+	* mac-port: 3.99 Update 4 Build 5 released.
+
+2006-06-01  SuperMMX  <SuperMMX AT GMail DOT com>
+
+	* src/MACLib/MD5.cpp: Change the casting to avoid compilation error for higher version of GCC.
+	* configure.in: Remove backward compatibility.
+	
+2006-05-24  SuperMMX  <SuperMMX AT GMail DOT com>
+
+	* configure.in: Remove "backward" support. 
+	Enable "assembly" by default. 
+	Add YASM format and arch checking.
+	Change the ARCH name.
+	Enabling assembly or not now depends on the existance of YASM.
+	* src/MACLib/Assembly/Makefile.am (AUTOMAKE_OPTIONS): 
+	Add assembly sources for x86 and x86_64.
+	Conditional compiling.
+	Change the .nas to .asm.
+	* src/MACLib/Assembly/common.cpp: 
+	Add asm functions.
+	Conditional assign for c, x86 and x86_64.
+	* src/MACLib/Assembly/x86_mmx.asm, src/MACLib/Assembly/x86_64_mmx.asm : ASM sources.
+	* src/MACLib/Makefile.am (AUTOMAKE_OPTIONS): Remove old library.
+	* src/Shared/All.h: Remove ENABLE_ASSEMBLY when BUILD_CROSS_PLATFORM is not defined.
+
+2006-05-21  SuperMMX  <SuperMMX AT GMail DOT com>
+
+	* configure.in: Add pointer size checking.
+	* src/MACLib/MACLib.h, src/MACLib/APESimple.cpp, 
+	src/MACLib/APEInfo.[h|cpp], 
+	src/MACLib/APEDecompress.[h|cpp]:
+	Change int64 to intptr_t.
+
+2006-05-21  SuperMMX  <SuperMMX AT GMail DOT com>
+
+	* src/Shared/WinFileIO.h: Add new line.
+	* src/MACLib/Assembly/Assembly.h, src/MACLib/Assembly/common.cpp, 
+	src/MACLib/NNFilter.[cpp|h] (Compress, Decompress): Add function poiter.
+
+2006-05-01  SuperMMX  <SuperMMX AT GMail DOT com>
+
+	* src/Shared/NoWindows.h, src/Shared/All.h: Add definitions of "int64" and "uint64" for win and non-win.
+	* src/MACLib/MACLib.h, src/MACLib/APESimple.cpp, 
+	src/MACLib/APEInfo.[h|cpp], 
+	src/MACLib/APEDecompress.[h|cpp],
+	Change "int GetInfo(APE_DECOMPRESS_FIELDS, int, int);" to "int64 GetInfo(APE_DECOMPRESS_FIELDS, int64, int64);".
+	* src/MACLib/WAVInputSource.cpp (struct RIFF_HEADER): 
+	Change some "unsigned long"s reprenting 32bit to "uint32".
+
+2006-05-01  SuperMMX  <SuperMMX AT GMail DOT com>
+	* src/MACLib/Assembly/common.cpp: Copy the C implementation of Adapt and CalculateDotProduct 
+	from NNFilter.cpp
+	* src/Shared/All.h: Remove BUILD_CROSS_PLATFORM and BACKWARDS_COMPATIBILITY definition.
+	* src/Shared/GlobalFunctions.cpp (FileExists): Change the filename from UTF-16 to ANSI.
+
+2006-04-30  SuperMMX  <SuperMMX AT GMail DOT com>
+
+	* configure.in: Remove -DBUILD_CROSS_PLATFORM. Add enable-assembly option.
+	Change NASM to YASM. Add WIN checking. Add more platform checking.
+	* src/MACLib/Assembly/Makefile.am (AUTOMAKE_OPTIONS): Change ARCH_X86 to ENABLE_ASSEMBLY checking.
+	Change NASM to YASM.
+	* src/Shared/Makefile.am (AUTOMAKE_OPTIONS): Check WinFileIO.[cpp|h].
+	* src/Shared/config.h.in: Remove this generated file.
+	
+MAC: short for Monkey's Audio Codec, a lossless audio codec (almost with the .ape extension).
+
+Version 3.99 update 4 build 4 (2005/08/31)
+	* added big endian support (really big, and no backward compatibility any more)
+	* added library checking for nanosleep.
+	* added wcscasecmp checking and copied the corresonding sources from glibc
+		for platforms without GNU Extension support.
+	* removed -lstdc++ in MACLib/Makefile.am.
+	* fixed the bug of conversion from WCS to MBS for non-ascii characters 
+		in UTF-8 locale.
+	
+Version 3.99 update 4 build 3 (2005/04/14)
+	* fixed bug of opening files error when no permission to write.
+	* changed mac console to be linked dynamiclly.
+	* changed LINK definition in Makefile.am of Assembly.
+	
+Version 3.99 update 4 build 2 (2005/04/06)
+	* changed AM_PROG_LIBTOOL to AC_PROG_LIBTOOL.
+	* updated nasm checking information.
+	* fixed redundant semicolon in Assembly.h when compiled by GCC 3.4.
+	* fixed bug of opening file as Read Only in StdLibFileIO.cpp,
+		should be Reading and Writing.
+	* changed _FPOSOFF macro to ftell() for better compatibilities.
+	* changed definition of BUILD_CROSSPLATFORM macro in the original source.
+	* added LINK definition in Makefile.am of Assembly when working with
+	        automake 1.9, to avoid broken building process.
+	* added some additional files which are not necessary for non-win32 port,
+		but exist in the original release.
+	* fixed some typos.
+
+Version 3.99 update 4 (2004/05/12)
+	* added support for the original 3.99 update 4
+	* added -Wno-long-long directive in config.in
+	* changed the location of parameter BUILD_CROSSPLATFORM, added into configure.in
+	* removed -D__GNUC_IA32__ directive
+	
+Version 3.99  (2004/05/02)
+	* added support for original 3.99
+	* fixed console compressing finishing error.
+	
+Version 3.98a (2004/02/20)
+	* added BACK_COMPATIBILITY
+	* added a shell script "strip_fPIC.sh", for compiling and linking the 
+	        ASM sources. Thanks the FLAC guys.
+	* fixed some conversions between and multi bytes and wide char.
+	* fixed that APL files are not right played.
+	* updated the Analyze sample to work correctly.
+	* changed some codes to avoid warning, but some of those still couldn't be avoided.
+	* changed the link style of Console and Sample to static
+	* changed some autoconf automake codes.
+	
+Version 3.96 (2003/07/27)
+	* built 1st. including the frontend, the shared lib and some examples.

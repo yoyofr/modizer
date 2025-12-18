@@ -6276,8 +6276,8 @@ void pm_perfTest() {
     } else mShouldHaveFocusAfterBackground=0;
     
     //Deactivate updateInfos timer
-    [repeatingTimer invalidate];
-    repeatingTimer = nil;
+    //[repeatingTimer invalidate];
+    //repeatingTimer = nil;
     
     //Release ProjectM
     [self pmRelease];
@@ -6293,7 +6293,7 @@ void pm_perfTest() {
     m_oglView.hidden=mBackground_oglViewWasHidden;
     
     //Reactivate updateInfos timer
-    if ([mplayer isPlaying]) repeatingTimer = [NSTimer scheduledTimerWithTimeInterval: 0.1f target:self selector:@selector(updateInfos:) userInfo:nil repeats: YES];
+    //if ([mplayer isPlaying]) repeatingTimer = [NSTimer scheduledTimerWithTimeInterval: 0.1f target:self selector:@selector(updateInfos:) userInfo:nil repeats: YES];
     
     //Init ProjectM
     if (_pmIsInitialized==false) [self pmInit];

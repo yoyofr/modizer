@@ -21,9 +21,8 @@
             <rect key="frame" x="0.0" y="0.0" width="375" height="584"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
-                <tableView contentMode="scaleToFill" fixedFrame="YES" alwaysBounceVertical="YES" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" translatesAutoresizingMaskIntoConstraints="NO" id="3">
-                    <rect key="frame" x="0.0" y="0.0" width="375" height="584"/>
-                    <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES" heightSizable="YES"/>
+                <tableView contentMode="scaleToFill" alwaysBounceVertical="YES" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" translatesAutoresizingMaskIntoConstraints="NO" id="3">
+                    <rect key="frame" x="0.0" y="20" width="375" height="564"/>
                     <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                     <searchBar key="tableHeaderView" contentMode="redraw" id="24">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="44"/>
@@ -40,6 +39,12 @@
                 </tableView>
             </subviews>
             <viewLayoutGuide key="safeArea" id="oUv-ev-wZE"/>
+            <constraints>
+                <constraint firstItem="oUv-ev-wZE" firstAttribute="leading" secondItem="3" secondAttribute="leading" id="PR8-mv-Isg"/>
+                <constraint firstItem="oUv-ev-wZE" firstAttribute="trailing" secondItem="3" secondAttribute="trailing" id="QN5-4f-RJM"/>
+                <constraint firstItem="oUv-ev-wZE" firstAttribute="top" secondItem="3" secondAttribute="top" id="RhU-r5-IrC"/>
+                <constraint firstItem="oUv-ev-wZE" firstAttribute="bottom" secondItem="3" secondAttribute="bottom" id="zUb-BS-AaC"/>
+            </constraints>
             <simulatedTabBarMetrics key="simulatedBottomBarMetrics" translucent="NO"/>
             <point key="canvasLocation" x="85.599999999999994" y="64.31784107946028"/>
         </view>

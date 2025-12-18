@@ -1,0 +1,27 @@
+version 3.99-u4-b5-s7
+  + fixed compilation issue on big-endian systems [report: Michael Plotkin]
+
+version 3.99-u4-b5-s6
+  + fixed compilation issues with GCC 4.4 on some 64-bit systems [report: Eivind Eide]
+
+version 3.99-u4-b5-s5
+  + fixed long-standing 64-bit decompression crash [patch: Adam Nielsen]
+  + fixed crash with pathnames longer than 256 characters [report: Kabakov Boris]
+  + fixed a compilation issue (don't pass -fno-common to yasm)
+
+version 3.99-u4-b5-s4
+  + include error reason with error code in mac.exe
+  + automatically recalculate quick verify checksum when compressing, if
+    necessary (e.g. piped encoding with foobar2000, or truncated WAVE file)
+    
+version 3.99-u4-b5-s3
+  + reenabled quick-verification of APE files (via new '-q' option)
+
+version 3.99-u4-b5-s2
+  + show above version in mac.exe help screen (sN = shntool revision N)
+  + added support for encoding WAVE data of unknown length (all files/pipes
+    are now treated as unknown length; this forces mac.exe to write a seek
+    table of maximum size regardless of input file size, adding ~30kb/file)
+
+version 3.99-u4-b5-s1
+  + added support for pipe encoding/decoding

@@ -301,7 +301,7 @@
         {@"http://ssf.joshw.info",@"Saturn Music",@"JoshW/Saturn",@"Consoles",TRUE},
         {@"http://dsf.joshw.info",@"Dreamcast Music",@"JoshW/DC",@"Consoles",TRUE},
         {@"http://hes.joshw.info",@"PC Engine Music",@"JoshW/PCE",@"Consoles",TRUE},
-        {@"http://ncd.joshw.info",@"Neo Geo CD Music",@"JoshW/NEOCD",@"Consoles",TRUE},
+        {@"http://ncd.joshw.info",@"Neo Geo CD Music",@"JoshW/NEOCD",@"Consoles",FALSE},
         {@"http://psf.joshw.info",@"PlayStation Music",@"JoshW/PS1",@"Consoles",TRUE},
         {@"http://psf2.joshw.info",@"PlayStation 2 Music",@"JoshW/PS2",@"Consoles",TRUE},
         {@"http://psf3.joshw.info",@"PlayStation 3 Music",@"JoshW/PS3",@"Consoles",TRUE},

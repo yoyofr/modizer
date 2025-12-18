@@ -1,0 +1,93 @@
+From matt@jriver.com Mon Feb  2 12:33:34 2009
+Delivered-To: ogetbilo@gmail.com
+Received: by 10.90.34.1 with SMTP id h1cs188794agh;
+        Mon, 2 Feb 2009 09:33:34 -0800 (PST)
+Received: by 10.64.63.16 with SMTP id l16mr2760800qba.6.1233596013505;
+        Mon, 02 Feb 2009 09:33:33 -0800 (PST)
+Return-Path: <matt@jriver.com>
+Received: from linux.jriver.com (nm.jriver.com [204.29.156.98])
+        by mx.google.com with SMTP id k29si6326715qba.7.2009.02.02.09.33.33;
+        Mon, 02 Feb 2009 09:33:33 -0800 (PST)
+Received-SPF: pass (google.com: domain of matt@jriver.com designates 204.29.156.98 as permitted sender) client-ip=204.29.156.98;
+Authentication-Results: mx.google.com; spf=pass (google.com: domain of matt@jriver.com designates 204.29.156.98 as permitted sender) smtp.mail=matt@jriver.com
+Received: (qmail 23096 invoked from network); 2 Feb 2009 17:33:34 -0000
+Received: from unknown (HELO ?199.242.131.144?) (199.242.131.144)
+  by 0 with SMTP; 2 Feb 2009 17:33:34 -0000
+Message-ID: <49872E6E.5090609@jriver.com>
+Date: Mon, 02 Feb 2009 11:33:34 -0600
+From: Matt Ashland <matt@jriver.com>
+User-Agent: Thunderbird 2.0.0.19 (Windows/20081209)
+MIME-Version: 1.0
+To: "Orcan B. Ogetbil" <ogetbilo@gmail.com>
+Subject: Re: Including MAC at rpmfusion?
+References: <200812121517.16055.ogetbilo@gmail.com> <4942C9D9.1000301@jriver.com> <200902021215.15415.ogetbilo@gmail.com>
+In-Reply-To: <200902021215.15415.ogetbilo@gmail.com>
+Content-Type: text/plain;
+  charset=ISO-8859-1;
+  format=flowed
+Content-Transfer-Encoding: 7bit
+X-Length: 3296
+X-UID: 1187
+
+Hi Orcan,
+
+Here's the license:
+http://www.monkeysaudio.com/license.html
+
+Like I said, my intent is to make the code free without restrictions and 
+complications.  Per the language of the license, consider this "express 
+written consent" to do as you like.
+
+I'm not too interested in getting into a horse-trading arrangement to 
+give code away.  I hope you understand.
+
+Best,
+-Matt
+
+
+Orcan B. Ogetbil wrote:
+> Hi Matt,
+> It's me again. People I talked to say it is not appropriate to distribute MAC 
+> as is right now. They claim that, an email is not enough for permission to 
+> redistribute.
+>
+> Could you add some text (that will allow redistribution of MAC) in the 
+> tarball, perhaps a line in the src/License.htm file? This will solve most 
+> questions about this issue. 
+>
+> Thanks a lot,
+> Orcan
+>
+>
+>
+> On Friday 12 December 2008 15:30:17 you wrote:
+>   
+>> Hi Orcan,
+>>
+>> Please feel free to modify or distribute Monkey's Audio to your liking.
+>> I intend the license to Monkey's Audio to be free and open.  I have no
+>> interest in monetizing Monkey's Audio or restricting it.
+>>
+>> Thanks for your support.
+>>
+>> -Matt
+>>
+>> Orcan B. Ogetbil wrote:
+>>     
+>>> Hi Matt,
+>>> I would like to ask permission for distributing the linux port of MAC at
+>>> rpmfusion, one of the widest known 3rd party repositories that
+>>> distributes content that cannot be directly included in Fedora Linux.
+>>>
+>>> I have seen in the forums that you have no interest in (L)GPL'ing your
+>>> code and I respect that. But your current license says nothing about the
+>>> distribution of MAC. Hence we can't distribute any MAC code or binary
+>>> without your permission.
+>>>
+>>> I hope to hear back from you soon.
+>>> Regards,
+>>>       
+>
+>   
+
+

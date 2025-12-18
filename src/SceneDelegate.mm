@@ -210,10 +210,10 @@ bool mdz_macos_AOTplugin=false;
 
 - (void)sceneDidBecomeActive:(UIScene *)scene {
     // Called when the scene has moved from an inactive state to an active state.
-    if ([[UIApplication sharedApplication] respondsToSelector:@selector(endReceivingRemoteControlEvents)]) {
+    //if ([[UIApplication sharedApplication] respondsToSelector:@selector(endReceivingRemoteControlEvents)]) {
     //    [[UIApplication sharedApplication] endReceivingRemoteControlEvents];
         [detailViewControlleriPhone enterForeground];
-    }
+    //}
     
     [downloadVC restoreDownloadList];
 }
@@ -224,11 +224,11 @@ bool mdz_macos_AOTplugin=false;
      Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
      Use this method to pause ongoing tasks, disable timers, and throttle down OpenGL ES frame rates. Games should use this method to pause the game.
      */
-    if ([[UIApplication sharedApplication] respondsToSelector:@selector(beginReceivingRemoteControlEvents)]) {
-        [detailViewControlleriPhone enterBackground];
+    //if ([[UIApplication sharedApplication] respondsToSelector:@selector(beginReceivingRemoteControlEvents)]) {
+    [detailViewControlleriPhone enterBackground];
 //        [tabBarC becomeFirstResponder];
 //        [[UIApplication sharedApplication] beginReceivingRemoteControlEvents];
-    }
+    //}
 
     // Ensure that settings are saved if closed by OS after resigning active
     [SettingsGenViewController backupSettings];
