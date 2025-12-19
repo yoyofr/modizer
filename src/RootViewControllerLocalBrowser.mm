@@ -318,10 +318,14 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     
     if (quiet) [self recreateDB];
     else {
-        if (forceInit) [self showAlertMsg:NSLocalizedString(@"Info",@"") message:NSLocalizedString(@"Database will now be recreated. Please validate & wait.",@"")];
+        if (forceInit) {
+            [self showAlertMsg:NSLocalizedString(@"Info",@"") message:NSLocalizedString(@"Database will now be recreated. Please validate & wait.",@"")];
+            [self recreateDB];
+        }
         else {
             if (wrongversion) {
                 [self showAlertMsg:NSLocalizedString(@"Info",@"") message:[NSString stringWithFormat:NSLocalizedString(@"Old database version: %d.%d. Will update to %d.%d. Please validate & wait.",@""),maj,min,VERSION_MAJOR,VERSION_MINOR]];
+                [self recreateDB];
             }
             else  {
                 //USer database missing, create it

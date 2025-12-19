@@ -508,7 +508,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
             break;
         case 2:{//Tips
 #ifdef MDZ_MACOS_WINDOW_AOT
-            NSString *paypalURL=@"https://paypal.me/ymagnien";
+            NSString *paypalURL=@"https://www.paypal.com/donate?business=ymagnien@hotmail.com&no_recurring=0&item_name=Modizer";
             NSString * encodedString = [paypalURL stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLFragmentAllowedCharacterSet]];
             UIApplication *application = [UIApplication sharedApplication];
             [application openURL:[NSURL URLWithString: encodedString] options:@{} completionHandler:nil];

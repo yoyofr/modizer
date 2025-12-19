@@ -644,6 +644,7 @@ static int mdz_IsArchive,mdz_ArchiveFilesCnt,mdz_currentArchiveIndex;
 static int *mdz_ArchiveEntryPlayed;
 static int *mdz_ArchiveEntryMonoSub;
 static int *mdz_ArchiveEntryMonoSubLength;
+static char **mdz_ArchiveEntryTitle;
 static int *mdz_SubsongPlayed;
 
 int64_t mdz_ratio_fp_cnt,mdz_ratio_fp_inc,mdz_ratio_fp_inv_inc;
@@ -2800,6 +2801,7 @@ void propertyListenerCallback (void                   *inUserData,              
         mdz_ArchiveEntryPlayed=NULL;
         mdz_ArchiveEntryMonoSub=NULL;
         mdz_ArchiveEntryMonoSubLength=NULL;
+        mdz_ArchiveEntryTitle=NULL;
         m3uArchiveMode=0;
         
         mdz_ArchiveFilesList=NULL;
@@ -5862,16 +5864,18 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     strcpy(gmetype,gme_info->system);
                                     iModuleLength=gme_info->play_length;
                                     
+                                    char *title=NULL;
                                     if (m3uArchiveMode) {
                                         if (mdz_ArchiveEntryMonoSubLength[mdz_currentArchiveIndex]>0) {
                                             iModuleLength=mdz_ArchiveEntryMonoSubLength[mdz_currentArchiveIndex];
                                         }
+                                        title=mdz_ArchiveEntryTitle[mdz_currentArchiveIndex];
                                     }
                                     
                                     if (iModuleLength<=0) iModuleLength=settings[GLOB_DefaultLength].detail.mdz_slider.slider_value*1000;
                                     
                                     snprintf(mod_message,MAX_STIL_DATA_LENGTH*2,"Song.......: %s\nGame.......: %s\nAuthor.....: %s\nDumper.....: %s\nCopyright..: %s\nTracks......: %d\n%s",
-                                            (gme_info->song?gme_info->song:" "),
+                                            (title?title:(gme_info->song?gme_info->song:" ")),
                                             (gme_info->game?gme_info->game:" "),
                                             (gme_info->author?gme_info->author:" "),
                                             (gme_info->dumper?gme_info->dumper:" "),
@@ -5882,6 +5886,9 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     if (gme_info->song){
                                         if (gme_info->song[0]) mod_title=[NSString stringWithCString:gme_info->song encoding:NSShiftJISStringEncoding];
                                         else mod_title=NULL;
+                                    }
+                                    if (title) {
+                                        if (title[0]) mod_title=[NSString stringWithCString:title encoding:NSShiftJISStringEncoding];
                                     }
                                     gme_free_info(gme_info);
                                 } else {
@@ -13908,10 +13915,12 @@ static void vgm_set_dev_option(PlayerBase *player, UINT8 devId, UINT32 coreOpts)
         }
         
         int m3uPlayLength=0;
+        char *title=NULL;
         if (m3uArchiveMode) {
             if (mdz_ArchiveEntryMonoSubLength[mdz_currentArchiveIndex]>0) {
                 m3uPlayLength=mdz_ArchiveEntryMonoSubLength[mdz_currentArchiveIndex];
             }
+            if (mdz_ArchiveEntryTitle[mdz_currentArchiveIndex]) title=mdz_ArchiveEntryTitle[mdz_currentArchiveIndex];
         }
         
         //////////////////////////////////
@@ -13961,7 +13970,7 @@ static void vgm_set_dev_option(PlayerBase *player, UINT8 devId, UINT32 coreOpts)
             if (iModuleLength<=0) iModuleLength=settings[GLOB_DefaultLength].detail.mdz_slider.slider_value*1000;
             
             snprintf(mod_message,MAX_STIL_DATA_LENGTH*2,"Song:%s\nGame:%s\nAuthor:%s\nDumper:%s\nCopyright:%s\nTracks:%d\n%s",
-                    (gme_info->song?gme_info->song:" "),
+                    (title?title:(gme_info->song?gme_info->song:" ")),
                     (gme_info->game?gme_info->game:" "),
                     (gme_info->author?gme_info->author:" "),
                     (gme_info->dumper?gme_info->dumper:" "),
@@ -13972,6 +13981,7 @@ static void vgm_set_dev_option(PlayerBase *player, UINT8 devId, UINT32 coreOpts)
             if (gme_info->song){
                 if (gme_info->song[0]) mod_title=[NSString stringWithCString:gme_info->song encoding:NSShiftJISStringEncoding];
                 else mod_title=NULL;
+                if (title) mod_title=[NSString stringWithFormat:@"%s",title];
                 //if (gme_info->song[0]) snprintf(mod_name,sizeof(mod_name)," %s",gme_info->song);
             }
             
@@ -13993,6 +14003,7 @@ static void vgm_set_dev_option(PlayerBase *player, UINT8 devId, UINT32 coreOpts)
             gme_free_info(gme_info);
         } else {
             mod_title=[NSString stringWithFormat:@"%.3d",mod_currentsub-mod_minsub+1];
+            if (title) mod_title=[NSString stringWithFormat:@"%s",title];
             strcpy(gmetype,"N/A");
             strcpy(mod_message,"N/A\n");
             iModuleLength=settings[GLOB_DefaultLength].detail.mdz_slider.slider_value*1000;
@@ -14314,12 +14325,24 @@ extern bool icloud_available;
                             }
                             mdz_ArchiveEntryMonoSubLength=(int*)malloc(mdz_ArchiveFilesCnt*sizeof(int));
                             memset(mdz_ArchiveEntryMonoSubLength,-1,mdz_ArchiveFilesCnt*sizeof(int));
-                            
+
+                            if (mdz_ArchiveEntryTitle) {
+                                free(mdz_ArchiveEntryTitle);
+                                mdz_ArchiveEntryTitle=NULL;
+                            }
+                            mdz_ArchiveEntryTitle=(char**)malloc(mdz_ArchiveFilesCnt*sizeof(char*));
+                            memset(mdz_ArchiveEntryTitle,0,mdz_ArchiveFilesCnt*sizeof(char*));
                             
                             for (int i=0;i<mdz_ArchiveFilesCnt;i++) {
                                 const char *file=m3uReader[i].file;
                                 mdz_ArchiveFilesList[i]=(char*)malloc(strlen(file)+1);
                                 strcpy(mdz_ArchiveFilesList[i],file);
+                                
+                                file=m3uReader[i].name;
+                                if (file && file[0]) {
+                                    mdz_ArchiveEntryTitle[i]=(char*)malloc(strlen(file)+1);
+                                    strcpy(mdz_ArchiveEntryTitle[i],file);
+                                }
                                 
                                 if (m3uReader[i].track>=0) mdz_ArchiveEntryMonoSub[i]=m3uReader[i].track;
                                 if (m3uReader[i].length>0) mdz_ArchiveEntryMonoSubLength[i]=m3uReader[i].length;
@@ -15149,16 +15172,18 @@ extern bool icloud_available;
                 if (gme_track_info( gme_emu, &gme_info, mod_currentsub )==0) {
                     iModuleLength=gme_info->play_length;
                     
+                    char *title=NULL;
                     if (m3uArchiveMode) {
                         if (mdz_ArchiveEntryMonoSubLength[mdz_currentArchiveIndex]>0) {
                             iModuleLength=mdz_ArchiveEntryMonoSubLength[mdz_currentArchiveIndex];
                         }
+                        title=mdz_ArchiveEntryTitle[mdz_currentArchiveIndex];
                     }
                     
                     if (iModuleLength<=0) iModuleLength=settings[GLOB_DefaultLength].detail.mdz_slider.slider_value*1000;
                     strcpy(gmetype,gme_info->system);
                     snprintf(mod_message,MAX_STIL_DATA_LENGTH*2,"Song:%s\nGame:%s\nAuthor:%s\nDumper:%s\nCopyright:%s\nTracks:%d\n%s",
-                            (gme_info->song?gme_info->song:" "),
+                            (title?title:(gme_info->song?gme_info->song:" ")),
                             (gme_info->game?gme_info->game:" "),
                             (gme_info->author?gme_info->author:" "),
                             (gme_info->dumper?gme_info->dumper:" "),
@@ -15167,6 +15192,10 @@ extern bool icloud_available;
                             (gme_info->comment?gme_info->comment:" "));
                     if (gme_info->song){
                         if (gme_info->song[0]) mod_title=[NSString stringWithCString:gme_info->song encoding:NSShiftJISStringEncoding];
+                        else mod_title=NULL;
+                    }
+                    if (title) {
+                        if (title[0]) mod_title=[NSString stringWithCString:title encoding:NSShiftJISStringEncoding];
                         else mod_title=NULL;
                     }
                     gme_free_info(gme_info);
@@ -16157,16 +16186,21 @@ extern bool icloud_available;
         if (gme_track_info( gme_emu, &gme_info, subsong )==0) {
             int sublen=gme_info->play_length;
             
+            char *title=NULL;
             if (m3uArchiveMode) {
                 if (mdz_ArchiveEntryMonoSubLength[mdz_currentArchiveIndex]>0) {
                     sublen=mdz_ArchiveEntryMonoSubLength[mdz_currentArchiveIndex];
                 }
+                title=mdz_ArchiveEntryTitle[mdz_currentArchiveIndex];
             }
             
             if (sublen<=0) sublen=settings[GLOB_DefaultLength].detail.mdz_slider.slider_value*1000;
             
             result=nil;
-            if (gme_info->song){
+            if (title) {
+                if (title[0]) result=[[NSString stringWithFormat:@"%.3d-%@",subsong-mod_minsub+1,[NSString stringWithCString:title encoding:NSShiftJISStringEncoding]]  stringByReplacingOccurrencesOfString:@"\"" withString:@"'"];
+            }
+            if ((!result)&&(gme_info->song)) {
                 if (gme_info->song[0]) result=[[NSString stringWithFormat:@"%.3d-%@",subsong-mod_minsub+1,[NSString stringWithCString:gme_info->song encoding:NSShiftJISStringEncoding]]  stringByReplacingOccurrencesOfString:@"\"" withString:@"'"];
             }
             if ((!result)&&(gme_info->game)) {
@@ -16886,6 +16920,10 @@ extern "C" void adjust_amplification(void);
 -(NSString*) getArcEntryTitle:(int)arc_index {
     if ((arc_index>=0)&&(arc_index<mdz_ArchiveFilesCnt)) {
         NSString *arcEntryName=[NSString stringWithUTF8String:mdz_ArchiveFilesList[arc_index]];
+        
+        if (mdz_ArchiveEntryTitle) {
+            if (mdz_ArchiveEntryTitle[arc_index]) arcEntryName=[NSString stringWithUTF8String:mdz_ArchiveEntryTitle[arc_index]];
+        }
         //check if spc file
         if ([[[arcEntryName pathExtension] lowercaseString] isEqualToString:@"spc"]) {
             SPCTag tag;
@@ -16902,8 +16940,7 @@ extern "C" void adjust_amplification(void);
             }
         }
         
-        return [NSString stringWithUTF8String:mdz_ArchiveFilesList[arc_index]];
-        //return [NSString stringWithFormat:@"%s",mdz_ArchiveFilesListAlias[arc_index]];
+        return arcEntryName;
     } else return @"";
     
 }

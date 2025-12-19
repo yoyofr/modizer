@@ -27,9 +27,12 @@ missing seek support:
 => add a small progress bar in cells in modland/asma/hvsc... When downloading
 => ADPLUG oscillo data not generated when OPL is not Woody
 
-4.01
+4.1
 ----
-- improved localizations, add of japanese, spanish, german, russian, arabic, finnish, italian, portuguese, swedish, chinese (simplified)
+- improved localizations, add of japanese, spanish, german, russian, arabic, finnish, italian, portuguese, swedish, chinese (simplified), norwegian, danish, dutch, korean
+- new playback library: Monkey Audio Codec (APE)
+- better support of archive including m3u playlist data, specially pcengine archives from JoshW collections
+- background mode improvement
 - RSN archive: spc filenames replaced by title when available (in player view/archive entries selector)
 - improved web browser home page
 - updated DB with latest data (Modland, ASMA)

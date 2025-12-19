@@ -1150,6 +1150,7 @@ MD5 (./Composers/Makary_Brauner/Dom_w_Dolinie_Mgiel.sap) = ac110466de2e824cd378e
 MD5 (./Composers/Makary_Brauner/Fred_Main_Theme.sap) = 5b1871a9a99efaafc8417dd40e3a83ed
 MD5 (./Composers/Makary_Brauner/Someday_somewhere.sap) = 9346ba76fe1261351580b80e3846e1af
 MD5 (./Composers/Makary_Brauner/Last_of_the_Year.sap) = ed822030ebff33248a38225ba05b3f22
+MD5 (./Composers/Makary_Brauner/When_You_Grow_Up.sap) = 7068bd9f84532e9d4841baff07dbcd7b
 MD5 (./Composers/Makary_Brauner/Clubbed_to_Death.sap) = 4c9213bd6f1dde121c229357e10e096c
 MD5 (./Composers/Makary_Brauner/Bike_Ride.sap) = efd489271520b17e1712eced8870895f
 MD5 (./Composers/Makary_Brauner/Prehistoric_Tale.sap) = d18e6a13fc4f70aa32fdce5915ddc6cc

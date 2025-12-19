@@ -503,9 +503,6 @@ extern NSMutableArray *mac_key_pressed,*mac_key_released;
         }
     }
     
-    // Perform initial setup that previously lived in AppDelegate
-    [self.rootViewControllerIphone createEditableCopyOfDatabaseIfNeeded:FALSE quiet:0];
-
     // Initialize CarPlay management
     self.cpMngt = [[CarPlayAndRemoteManagement alloc] init];
     self.cpMngt.detailViewController = detailViewControllerIphone;
@@ -536,7 +533,9 @@ extern NSMutableArray *mac_key_pressed,*mac_key_released;
     
     [self setupWelcomePages];
     
-    
+    if (settings[GLOB_ShowWelcome].detail.mdz_boolswitch.switch_value==0) {
+        [self.rootViewControllerIphone createEditableCopyOfDatabaseIfNeeded:FALSE quiet:0];
+    }
     
 #if TARGET_OS_MACCATALYST
 
@@ -581,7 +580,9 @@ extern NSMutableArray *mac_key_pressed,*mac_key_released;
 #endif
 
 - (void)presentWelcomePages {
-    if (!settings[GLOB_ShowWelcome].detail.mdz_boolswitch.switch_value) return;
+    if (settings[GLOB_ShowWelcome].detail.mdz_boolswitch.switch_value==0) {
+        return;
+    }
     
     // Don't present if already presenting or presented
     if (myPVC.presentingViewController != nil || myPVC.isBeingPresented) {
@@ -600,6 +601,7 @@ extern NSMutableArray *mac_key_pressed,*mac_key_released;
 
 - (void)exitWelcomePages {
     [myPVC dismissViewControllerAnimated:true completion:^{
+        [self.rootViewControllerIphone createEditableCopyOfDatabaseIfNeeded:FALSE quiet:0];
     }];
 }
 

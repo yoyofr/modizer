@@ -1,7 +1,7 @@
 ﻿##############################################################################
 #
 #  STIL v3.9 - SAP Tune Information List
-#  Total number of entries: 1766
+#  Total number of entries: 1767
 #
 ##############################################################################
 
@@ -3305,6 +3305,11 @@ COMMENT: 1st place at Silly Venture 2016 music compo.
   TITLE: Thalamusik [from the C64 game Sanxion loader]
  ARTIST: Rob Hubbard
 COMMENT: A cover of the tune from C64 SID Thalamusik by Rob Hubbard.
+
+/Composers/Makary_Brauner/When_You_Grow_Up.sap
+  TITLE: When You Grow Up, Your Heart Dies
+ ARTIST: Gunship
+COMMENT: Final soundtrack from the demo 'Rewind 2' which won at Lost Party 2024.
 
 /Composers/Makary_Brauner/Zybex_Remix.sap
   TITLE: Zybex, Tune #4
