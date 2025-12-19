@@ -6356,7 +6356,7 @@ void pm_perfTest() {
     //repeatingTimer = nil;
     
     //Release ProjectM
-    [self pmRelease];
+    //[self pmRelease];
 }
 
 -(void) enterForeground {
@@ -6374,7 +6374,7 @@ void pm_perfTest() {
     if (labelModuleName) [labelModuleName setPaused:false];
     
     //Init ProjectM
-    if (_pmFirstInitDone && (_pmIsInitialized==false)) [self pmInit];
+    //if (_pmFirstInitDone && (_pmIsInitialized==false)) [self pmInit];
     
     //Build displaylink if needed
     if (_pmFirstInitDone && (m_displayLink==nil)) {
