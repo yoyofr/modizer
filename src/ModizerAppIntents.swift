@@ -384,6 +384,9 @@ class ModizerPlayerBridge {
         let hindiMapping = Self.generateNumberMapping(for: Locale(identifier: "hi_IN"), upTo: 100)
         let japaneseMapping = Self.generateNumberMapping(for: Locale(identifier: "ja_JP"), upTo: 100)
         let chineseMapping = Self.generateNumberMapping(for: Locale(identifier: "zh_CN"), upTo: 100)
+        let danishMapping = Self.generateNumberMapping(for: Locale(identifier: "da_DK"), upTo: 100)
+        let dutchMapping = Self.generateNumberMapping(for: Locale(identifier: "nl_NL"), upTo: 100)
+        let koreanMapping = Self.generateNumberMapping(for: Locale(identifier: "ko_KR"), upTo: 100)
 
         // Combiner tous les mappings (inverser: mot→nombre)
         var wordToNumber: [String: String] = [:]
@@ -426,6 +429,15 @@ class ModizerPlayerBridge {
         for (number, word) in chineseMapping {
             wordToNumber[word] = "\(number)"
         }
+        for (number, word) in danishMapping {
+            wordToNumber[word] = "\(number)"
+        }
+        for (number, word) in dutchMapping {
+            wordToNumber[word] = "\(number)"
+        }
+        for (number, word) in koreanMapping {
+            wordToNumber[word] = "\(number)"
+        }
 
         // Trier par longueur décroissante pour matcher les expressions les plus longues en premier
         // (ex: "vingt et un" avant "vingt")
@@ -443,6 +455,83 @@ class ModizerPlayerBridge {
         }
 
         return result
+    }
+
+    /// Normalisation phonétique : utilise CFStringTransform pour la translittération
+    private func phoneticNormalize(_ text: String) -> String {
+        var result = text.lowercased()
+
+        // 1. Enlever les mots vides courants (stopwords) qui peuvent être ajoutés par Siri
+        let stopwords = [
+            // Français (les plus courants qui posent problème)
+            "c'est", "cest", "c est",
+            // Anglais
+            "it's", "its", "it is",
+        ]
+
+        for stopword in stopwords.sorted(by: { $0.count > $1.count }) {
+            // Au début de la chaîne suivi d'un espace
+            result = result.replacingOccurrences(of: "^\(NSRegularExpression.escapedPattern(for: stopword))\\s+", with: "", options: .regularExpression)
+        }
+
+        // 2. Convertir en représentation phonétique via CFStringTransform
+        // Strip diacritics (accents)
+        if let transformed = result.applyingTransform(.stripDiacritics, reverse: false) {
+            result = transformed
+        }
+
+        // 3. Enlever apostrophes, tirets et caractères spéciaux
+        result = result.replacingOccurrences(of: "'", with: "")
+        result = result.replacingOccurrences(of: "'", with: "")
+        result = result.replacingOccurrences(of: "-", with: "")
+        result = result.replacingOccurrences(of: "_", with: "")
+
+        // 4. Normaliser les espaces
+        result = result.replacingOccurrences(of: "\\s+", with: "", options: .regularExpression)
+        result = result.trimmingCharacters(in: .whitespaces)
+
+        return result
+    }
+
+    /// Génère une clé phonétique simplifiée type Soundex
+    private func phoneticKey(_ text: String) -> String {
+        let normalized = phoneticNormalize(text)
+        var key = ""
+
+        // Garder la première lettre
+        if let first = normalized.first {
+            key.append(first)
+        }
+
+        // Simplifier les consonnes en groupes phonétiques
+        let phoneticMap: [Character: Character] = [
+            // Labiales
+            "b": "1", "p": "1", "f": "1", "v": "1",
+            // Dentales/Alveolaires
+            "c": "2", "s": "2", "k": "2", "g": "2", "j": "2", "q": "2", "x": "2", "z": "2",
+            // Liquides
+            "l": "3", "r": "3",
+            // Nasales
+            "m": "4", "n": "4",
+            // Dentales
+            "d": "5", "t": "5"
+        ]
+
+        var prevCode: Character = "0"
+
+        for char in normalized.lowercased().dropFirst() {
+            if let code = phoneticMap[char] {
+                if code != prevCode {
+                    key.append(code)
+                    prevCode = code
+                }
+            } else if "aeiouy".contains(char) {
+                // Voyelles - reset le code précédent mais ne pas ajouter
+                prevCode = "0"
+            }
+        }
+
+        return key
     }
 
     /// Calcule la distance de Levenshtein entre deux strings (nombre de changements nécessaires)
@@ -472,14 +561,31 @@ class ModizerPlayerBridge {
     }
 
     /// Trouve la playlist la plus proche du nom donné avec tolérance (casse, accents, nombres, phonétique)
-    private func findBestMatchingPlaylist(for searchName: String) -> (id: Int, name: String, size: Int)? {
+    func findBestMatchingPlaylist(for searchName: String) -> (id: Int, name: String, size: Int)? {
         let playlists = getAvailablePlaylists()
 
         guard !playlists.isEmpty else { return nil }
 
+        // Log pour debug - voir ce que Siri envoie exactement
+        print("🎯 Siri search input: '\(searchName)'")
+
         // Normaliser la recherche (nombres → chiffres, puis minuscules, sans accents)
         let withNumbers = normalizeNumbers(in: searchName)
+        print("🎯 After normalizeNumbers: '\(withNumbers)'")
+
         let normalizedSearch = withNumbers.folding(options: [.diacriticInsensitive, .caseInsensitive], locale: .current)
+        print("🎯 After folding: '\(normalizedSearch)'")
+
+        let normalizedSearchNoSpaces = normalizedSearch.replacingOccurrences(of: " ", with: "")
+        print("🎯 Without spaces: '\(normalizedSearchNoSpaces)'")
+
+        // Version phonétique (enlever les mots vides et ne garder que les sons importants)
+        let phoneticSearch = phoneticNormalize(normalizedSearch)
+        print("🎯 Phonetic version: '\(phoneticSearch)'")
+
+        // Clé phonétique type Soundex
+        let phoneticSearchKey = phoneticKey(normalizedSearch)
+        print("🎯 Phonetic key: '\(phoneticSearchKey)'")
 
         // 1. Essai exact match (insensible à la casse, accents et nombres)
         if let exactMatch = playlists.first(where: {
@@ -488,6 +594,16 @@ class ModizerPlayerBridge {
             return playlistNormalized == normalizedSearch
         }) {
             return exactMatch
+        }
+
+        // 1b. Essai exact match sans espaces (pour gérer "c 64" vs "c64")
+        if let exactMatchNoSpaces = playlists.first(where: {
+            let playlistNormalized = normalizeNumbers(in: $0.name)
+                .folding(options: [.diacriticInsensitive, .caseInsensitive], locale: .current)
+                .replacingOccurrences(of: " ", with: "")
+            return playlistNormalized == normalizedSearchNoSpaces
+        }) {
+            return exactMatchNoSpaces
         }
 
         // 2. Essai contains (la recherche est contenue dans le nom)
@@ -506,6 +622,33 @@ class ModizerPlayerBridge {
             return normalizedSearch.contains(playlistNormalized)
         }) {
             return reverseMatch
+        }
+
+        // 3b. Essai avec normalisation phonétique (enlever les mots vides comme "c'est")
+        if let phoneticMatch = playlists.first(where: {
+            let playlistNormalized = normalizeNumbers(in: $0.name)
+                .folding(options: [.diacriticInsensitive, .caseInsensitive], locale: .current)
+            let playlistPhonetic = phoneticNormalize(playlistNormalized)
+            print("  🔍 Phonetic: '\(phoneticSearch)' vs '\(playlistPhonetic)' (playlist: \($0.name))")
+            return playlistPhonetic == phoneticSearch || playlistPhonetic.contains(phoneticSearch) || phoneticSearch.contains(playlistPhonetic)
+        }) {
+            print("  ✅ Phonetic match found: \(phoneticMatch.name)")
+            return phoneticMatch
+        }
+
+        // 3c. Essai avec clé phonétique Soundex-like (sons similaires)
+        if let soundexMatch = playlists.first(where: {
+            let playlistNormalized = normalizeNumbers(in: $0.name)
+                .folding(options: [.diacriticInsensitive, .caseInsensitive], locale: .current)
+            let playlistKey = phoneticKey(playlistNormalized)
+            print("  🔑 Soundex: '\(phoneticSearchKey)' vs '\(playlistKey)' (playlist: \($0.name))")
+            // Match si les clés sont identiques ou très proches
+            return playlistKey == phoneticSearchKey ||
+                   playlistKey.hasPrefix(phoneticSearchKey) ||
+                   phoneticSearchKey.hasPrefix(playlistKey)
+        }) {
+            print("  ✅ Soundex match found: \(soundexMatch.name)")
+            return soundexMatch
         }
 
         // 4. Matching phonétique avec distance de Levenshtein
@@ -544,7 +687,7 @@ class ModizerPlayerBridge {
 
 @available(iOS 16.0, *)
 struct PlaylistEntity: AppEntity, Identifiable {
-    static var typeDisplayRepresentation: TypeDisplayRepresentation { TypeDisplayRepresentation(name: "Playlist") }
+    static var typeDisplayRepresentation: TypeDisplayRepresentation { TypeDisplayRepresentation(name: LocalizedStringResource("Playlist")) }
 
     @MainActor
     struct Query: EntityQuery {
@@ -610,7 +753,7 @@ struct PlaylistEntity: AppEntity, Identifiable {
 @available(iOS 16.0, *)
 struct PlayIntent: AppIntent {
     static let title: LocalizedStringResource = "Play"
-    static let description = IntentDescription("Starts playing music in Modizer.")
+    static let description = IntentDescription(LocalizedStringResource("Starts playing music in Modizer."))
     static let openAppWhenRun: Bool = false
 
     @MainActor
@@ -624,7 +767,7 @@ struct PlayIntent: AppIntent {
 @available(iOS 16.0, *)
 struct PauseIntent: AppIntent {
     static let title: LocalizedStringResource = "Pause"
-    static let description = IntentDescription("Pauses music playback in Modizer.")
+    static let description = IntentDescription(LocalizedStringResource("Pauses music playback in Modizer."))
     static let openAppWhenRun: Bool = false
 
     @MainActor
@@ -638,7 +781,7 @@ struct PauseIntent: AppIntent {
 @available(iOS 16.0, *)
 struct StopIntent: AppIntent {
     static let title: LocalizedStringResource = "Stop"
-    static let description = IntentDescription("Stops music playback in Modizer.")
+    static let description = IntentDescription(LocalizedStringResource("Stops music playback in Modizer."))
     static let openAppWhenRun: Bool = false
 
     @MainActor
@@ -652,7 +795,7 @@ struct StopIntent: AppIntent {
 @available(iOS 16.0, *)
 struct NextSongIntent: AppIntent {
     static let title: LocalizedStringResource = "Next Song"
-    static let description = IntentDescription("Skips to the next song in Modizer.")
+    static let description = IntentDescription(LocalizedStringResource("Skips to the next song in Modizer."))
     static let openAppWhenRun: Bool = false
 
     @MainActor
@@ -666,7 +809,7 @@ struct NextSongIntent: AppIntent {
 @available(iOS 16.0, *)
 struct PreviousSongIntent: AppIntent {
     static let title: LocalizedStringResource = "Previous Song"
-    static let description = IntentDescription("Skips to the previous song in Modizer.")
+    static let description = IntentDescription(LocalizedStringResource("Skips to the previous song in Modizer."))
     static let openAppWhenRun: Bool = false
 
     @MainActor
@@ -680,10 +823,10 @@ struct PreviousSongIntent: AppIntent {
 @available(iOS 16.0, *)
 struct PlaySubsongIntent: AppIntent {
     static let title: LocalizedStringResource = "Play Subsong"
-    static let description = IntentDescription("Plays a specific subsong in the current file.")
+    static let description = IntentDescription(LocalizedStringResource("Plays a specific subsong in the current file."))
     static let openAppWhenRun: Bool = false
 
-    @Parameter(title: "Subsong Index", description: "The index of the subsong to play", default: 0)
+    @Parameter(title: LocalizedStringResource("Subsong Index"), description: LocalizedStringResource("The index of the subsong to play"), default: 0)
     var subsongIndex: Int
 
     @MainActor
@@ -697,13 +840,13 @@ struct PlaySubsongIntent: AppIntent {
 @available(iOS 16.0, *)
 struct SeekIntent: AppIntent {
     static let title: LocalizedStringResource = "Seek"
-    static let description = IntentDescription("Seeks to a specific position in the current song.")
+    static let description = IntentDescription(LocalizedStringResource("Seeks to a specific position in the current song."))
     static let openAppWhenRun: Bool = false
 
-    @Parameter(title: "Position (seconds)", description: "The position to seek to in seconds")
+    @Parameter(title: LocalizedStringResource("Position (seconds)"), description: LocalizedStringResource("The position to seek to in seconds"))
     var position: Int
 
-    @Parameter(title: "Relative", description: "Whether to seek relative to current position", default: false)
+    @Parameter(title: LocalizedStringResource("Relative"), description: LocalizedStringResource("Whether to seek relative to current position"), default: false)
     var relative: Bool
 
     @MainActor
@@ -726,10 +869,10 @@ struct SeekIntent: AppIntent {
 @available(iOS 16.0, *)
 struct SetInfiniteLoopIntent: AppIntent {
     static let title: LocalizedStringResource = "Set Infinite Loop"
-    static let description = IntentDescription("Set the infinite loop mode in Modizer.")
+    static let description = IntentDescription(LocalizedStringResource("Set the infinite loop mode in Modizer."))
     static let openAppWhenRun: Bool = false
 
-    @Parameter(title: "Infinite Loop Mode", description: "0: off, 1: infinite loop", default: 1)
+    @Parameter(title: LocalizedStringResource("Infinite Loop Mode"), description: LocalizedStringResource("0: off, 1: infinite loop"), default: 1)
     var mode: Int
 
     @MainActor
@@ -743,10 +886,10 @@ struct SetInfiniteLoopIntent: AppIntent {
 @available(iOS 16.0, *)
 struct SetLoopModeIntent: AppIntent {
     static let title: LocalizedStringResource = "Set Loop Mode"
-    static let description = IntentDescription("Set the loop mode in Modizer.")
+    static let description = IntentDescription(LocalizedStringResource("Set the loop mode in Modizer."))
     static let openAppWhenRun: Bool = false
 
-    @Parameter(title: "Repeat Mode", description: "0: off, 1: loop current title, 2: loop playlist", default: 1)
+    @Parameter(title: LocalizedStringResource("Repeat Mode"), description: LocalizedStringResource("0: off, 1: loop current title, 2: loop playlist"), default: 1)
     var mode: Int
 
     @MainActor
@@ -760,10 +903,10 @@ struct SetLoopModeIntent: AppIntent {
 @available(iOS 16.0, *)
 struct SetShuffleModeIntent: AppIntent {
     static let title: LocalizedStringResource = "Set Shuffle Mode"
-    static let description = IntentDescription("Set the shuffle mode in Modizer.")
+    static let description = IntentDescription(LocalizedStringResource("Set the shuffle mode in Modizer."))
     static let openAppWhenRun: Bool = false
 
-    @Parameter(title: "Shuffle Mode", description: "0: off, 1: choose only one title if file has subsongs or is an archive, 2: play all titles of a given file", default: 1)
+    @Parameter(title: LocalizedStringResource("Shuffle Mode"), description: LocalizedStringResource("0: off, 1: choose only one title if file has subsongs or is an archive, 2: play all titles of a given file"), default: 1)
     var mode: Int
 
     @MainActor
@@ -777,7 +920,7 @@ struct SetShuffleModeIntent: AppIntent {
 @available(iOS 16.0, *)
 struct ToggleShuffleIntent: AppIntent {
     static let title: LocalizedStringResource = "Toggle Shuffle"
-    static let description = IntentDescription("Toggles shuffle mode in Modizer.")
+    static let description = IntentDescription(LocalizedStringResource("Toggles shuffle mode in Modizer."))
     static let openAppWhenRun: Bool = false
 
     @MainActor
@@ -791,7 +934,7 @@ struct ToggleShuffleIntent: AppIntent {
 @available(iOS 16.0, *)
 struct ToggleLoopModeIntent: AppIntent {
     static let title: LocalizedStringResource = "Toggle Loop Mode"
-    static let description = IntentDescription("Toggles loop mode in Modizer.")
+    static let description = IntentDescription(LocalizedStringResource("Toggles loop mode in Modizer."))
     static let openAppWhenRun: Bool = false
 
     @MainActor
@@ -805,10 +948,10 @@ struct ToggleLoopModeIntent: AppIntent {
 @available(iOS 16.0, *)
 struct SetFullscreenIntent: AppIntent {
     static let title: LocalizedStringResource = "Set Fullscreen mode"
-    static let description = IntentDescription("Set Fullscreen mode on or off in Modizer.")
+    static let description = IntentDescription(LocalizedStringResource("Set Fullscreen mode on or off in Modizer."))
     static let openAppWhenRun: Bool = true
-    
-    @Parameter(title: "Fullscreen mode", description: "Activate (1) or disactivate (0) Fullscreen mode", default: 1)
+
+    @Parameter(title: LocalizedStringResource("Fullscreen mode"), description: LocalizedStringResource("Activate (1) or disactivate (0) Fullscreen mode"), default: 1)
     var fxValue: Int
 
     @MainActor
@@ -822,7 +965,7 @@ struct SetFullscreenIntent: AppIntent {
 @available(iOS 16.0, *)
 struct GoToPlayerViewIntent: AppIntent {
     static let title: LocalizedStringResource = "Go the player view"
-    static let description = IntentDescription("Go the player view in Modizer.")
+    static let description = IntentDescription(LocalizedStringResource("Go the player view in Modizer."))
     static let openAppWhenRun: Bool = true
     
     @MainActor
@@ -836,17 +979,17 @@ struct GoToPlayerViewIntent: AppIntent {
 @available(iOS 16.0, *)
 struct SetFXIntent: AppIntent {
     static let title: LocalizedStringResource = "Set FX"
-    static let description = IntentDescription("Set FX mode in Modizer.")
+    static let description = IntentDescription(LocalizedStringResource("Set FX mode in Modizer."))
     static let openAppWhenRun: Bool = true
-    
+
     @Parameter(
-        title: "FX",
-        description: "The FX to set",
+        title: LocalizedStringResource("FX"),
+        description: LocalizedStringResource("The FX to set"),
         optionsProvider: FXOptionsProvider()
     )
     var fxName: String
 
-    @Parameter(title: "FX Mode", description: "The mode to activate for the selected FX (0:off)", default: 0)
+    @Parameter(title: LocalizedStringResource("FX Mode"), description: LocalizedStringResource("The mode to activate for the selected FX (0:off)"), default: 0)
     var fxValue: Int
 
     @MainActor
@@ -866,15 +1009,15 @@ struct SetFXIntent: AppIntent {
 struct FXOptionsProvider: DynamicOptionsProvider {
     // Liste statique accessible
         static let fxList = [
-            "ProjectM",
-            "Oscillo",
-            "Piano roll",
-            "3D Piano",
-            "Notes bars",
-            "Tracker",
-            "2D Spectrum",
-            "3D Spectrum",
-            "3D Landscape"
+            NSLocalizedString("ProjectM", comment: ""),
+            NSLocalizedString("Oscillo", comment: ""),
+            NSLocalizedString("Piano roll", comment: ""),
+            NSLocalizedString("3D Piano", comment: ""),
+            NSLocalizedString("Notes bars", comment: ""),
+            NSLocalizedString("Tracker", comment: ""),
+            NSLocalizedString("2D Spectrum", comment: ""),
+            NSLocalizedString("3D Spectrum", comment: ""),
+            NSLocalizedString("3D Landscape", comment: "")
         ]
     func results() async throws -> [String] {
             return FXOptionsProvider.fxList
@@ -886,7 +1029,7 @@ struct FXOptionsProvider: DynamicOptionsProvider {
 @available(iOS 16.0, *)
 struct GetNowPlayingIntent: AppIntent {
     static let title: LocalizedStringResource = "Get Now Playing"
-    static let description = IntentDescription("Gets information about the currently playing song.")
+    static let description = IntentDescription(LocalizedStringResource("Gets information about the currently playing song."))
     static let openAppWhenRun: Bool = false
 
     @MainActor
@@ -925,7 +1068,7 @@ struct GetNowPlayingIntent: AppIntent {
 @available(iOS 16.0, *)
 struct GetPlaylistsIntent: AppIntent {
     static let title: LocalizedStringResource = "Get Playlists"
-    static let description = IntentDescription("Gets the list of available playlists in Modizer.")
+    static let description = IntentDescription(LocalizedStringResource("Gets the list of available playlists in Modizer."))
     static let openAppWhenRun: Bool = true
 
     @MainActor
@@ -940,7 +1083,7 @@ struct GetPlaylistsIntent: AppIntent {
         }
 
         if playlists.isEmpty {
-            return .result(value: "No playlists found")
+            return .result(value: NSLocalizedString("No playlists found", comment: ""))
         }
 
         let playlistList = playlists.map { playlist in
@@ -955,15 +1098,17 @@ struct GetPlaylistsIntent: AppIntent {
 @available(iOS 16.0, *)
 struct PlayRandomPicksIntent: AppIntent {
     static let title: LocalizedStringResource = "Play some music"
-    static let description = IntentDescription("Random picks from available local titles in Modizer.")
+    static let description = IntentDescription(LocalizedStringResource("Random picks from available local titles in Modizer."))
     static let openAppWhenRun: Bool = true
 
     @MainActor
     func perform() async throws -> some IntentResult {
-        let urlString = "modizer://playBuiltin?id=-1&fromShortcut=true"
-        if let url = URL(string: urlString) {
-            await UIApplication.shared.open(url)
-        }
+        // Set the flag to skip animation and auto-restart
+        UserDefaults.standard.set(true, forKey: "LaunchedFromShortcut")
+        UserDefaults.standard.synchronize()
+
+        // Call ModizerPlaylistBridge via runtime for random picks (id = -1)
+        _ = ModizerPlayerBridge.shared.playBuiltinPlaylist(playlistId: -1, startIndex: 0)
         return .result()
     }
 }
@@ -972,15 +1117,17 @@ struct PlayRandomPicksIntent: AppIntent {
 @available(iOS 16.0, *)
 struct PlayMostPlayedIntent: AppIntent {
     static let title: LocalizedStringResource = "Play most played"
-    static let description = IntentDescription("Most played titles from available local titles in Modizer.")
+    static let description = IntentDescription(LocalizedStringResource("Most played titles from available local titles in Modizer."))
     static let openAppWhenRun: Bool = true
 
     @MainActor
     func perform() async throws -> some IntentResult {
-        let urlString = "modizer://playBuiltin?id=-2&fromShortcut=true"
-        if let url = URL(string: urlString) {
-            await UIApplication.shared.open(url)
-        }
+        // Set the flag to skip animation and auto-restart
+        UserDefaults.standard.set(true, forKey: "LaunchedFromShortcut")
+        UserDefaults.standard.synchronize()
+
+        // Call ModizerPlaylistBridge via runtime for most played (id = -2)
+        _ = ModizerPlayerBridge.shared.playBuiltinPlaylist(playlistId: -2, startIndex: 0)
         return .result()
     }
 }
@@ -989,15 +1136,17 @@ struct PlayMostPlayedIntent: AppIntent {
 @available(iOS 16.0, *)
 struct PlayFavoritesIntent: AppIntent {
     static let title: LocalizedStringResource = "Play favorites"
-    static let description = IntentDescription("Favorites titles from available local titles in Modizer.")
+    static let description = IntentDescription(LocalizedStringResource("Favorites titles from available local titles in Modizer."))
     static let openAppWhenRun: Bool = true
 
     @MainActor
     func perform() async throws -> some IntentResult {
-        let urlString = "modizer://playBuiltin?id=-3&fromShortcut=true"
-        if let url = URL(string: urlString) {
-            await UIApplication.shared.open(url)
-        }
+        // Set the flag to skip animation and auto-restart
+        UserDefaults.standard.set(true, forKey: "LaunchedFromShortcut")
+        UserDefaults.standard.synchronize()
+
+        // Call ModizerPlaylistBridge via runtime for favorites (id = -3)
+        _ = ModizerPlayerBridge.shared.playBuiltinPlaylist(playlistId: -3, startIndex: 0)
         return .result()
     }
 }
@@ -1006,10 +1155,10 @@ struct PlayFavoritesIntent: AppIntent {
 @available(iOS 16.0, *)
 struct PlayPlaylistIntent: AppIntent {
     static let title: LocalizedStringResource = "Play Playlist"
-    static let description = IntentDescription("Plays a specific playlist in Modizer. Note: For best results with Siri, use 'Play Playlist By Name' instead.")
+    static let description = IntentDescription(LocalizedStringResource("Plays a specific playlist in Modizer. Note: For best results with voice commands, use 'Play Playlist By Name' instead."))
     static let openAppWhenRun: Bool = true
 
-    // This intent should appear after the by-name version in Siri suggestions
+    // This intent should appear after the by-name version in voice command suggestions
     static let isDiscoverable = true
 
     static var parameterSummary: some ParameterSummary {
@@ -1019,22 +1168,36 @@ struct PlayPlaylistIntent: AppIntent {
     }
 
     @Parameter(
-        title: "Playlist",
-        description: "The playlist to play"
+        title: LocalizedStringResource("Playlist"),
+        description: LocalizedStringResource("The playlist to play")
     )
     var playlist: PlaylistEntity
 
-    @Parameter(title: "Start Index", description: "The index of the song to start playing from (0-based)", default: 0)
+    @Parameter(title: LocalizedStringResource("Start Index"), description: LocalizedStringResource("The index of the song to start playing from (0-based)"), default: 0)
     var startIndex: Int
 
     @MainActor
     func perform() async throws -> some IntentResult & ProvidesDialog {
-        // Use URL scheme with fromShortcut flag to launch app with proper context
-        let playlistId = playlist.id
-        let urlString = "modizer://playPlaylist?id=\(playlistId)&index=\(startIndex)&fromShortcut=true"
+        // Set the flag to skip animation and auto-restart
+        UserDefaults.standard.set(true, forKey: "LaunchedFromShortcut")
+        UserDefaults.standard.synchronize()
 
-        if let url = URL(string: urlString) {
-            await UIApplication.shared.open(url)
+        // Call ModizerPlaylistBridge via runtime
+        var success = false
+        if let bridgeClass = NSClassFromString("ModizerPlaylistBridge") as? NSObject.Type,
+           let bridge = bridgeClass.perform(NSSelectorFromString("sharedInstance"))?.takeUnretainedValue() as? NSObject,
+           let playlistIdInt = Int32(playlist.id) {
+            let selector = NSSelectorFromString("playPlaylistWithId:startIndex:")
+            if bridge.responds(to: selector) {
+                let sig = bridge.method(for: selector)
+                typealias Function = @convention(c) (AnyObject, Selector, Int32, Int32) -> Bool
+                let function = unsafeBitCast(sig, to: Function.self)
+                success = function(bridge, selector, playlistIdInt, Int32(startIndex))
+            }
+        }
+
+        if !success {
+            throw PlaylistError.playlistNotFound
         }
 
         let fmt = NSLocalizedString("play_playlist_dialog", tableName: nil, bundle: .main, value: "Lecture de la playlist %@", comment: "Dialog confirming playlist playback")
@@ -1043,14 +1206,14 @@ struct PlayPlaylistIntent: AppIntent {
     }
 }
 
-// MARK: - Play Playlist By Name Intent (with string - for Siri)
+// MARK: - Play Playlist By Name Intent (with string - for voice commands)
 @available(iOS 16.0, *)
 struct PlayPlaylistByNameIntent: AppIntent {
     static let title: LocalizedStringResource = "Play Playlist By Name"
-    static let description = IntentDescription("Plays a playlist by name in Modizer. Recommended for Siri voice commands.")
+    static let description = IntentDescription(LocalizedStringResource("Plays a playlist by name in Modizer. Recommended for voice commands."))
     static let openAppWhenRun: Bool = true
 
-    // Make this the preferred intent for Siri
+    // Make this the preferred intent for voice commands
     static let isDiscoverable = true
 
     static var parameterSummary: some ParameterSummary {
@@ -1058,27 +1221,36 @@ struct PlayPlaylistByNameIntent: AppIntent {
     }
 
     @Parameter(
-        title: "Playlist Name",
-        description: "The name of the playlist to play",
+        title: LocalizedStringResource("Playlist Name"),
+        description: LocalizedStringResource("The name of the playlist to play"),
         requestValueDialog: IntentDialog(LocalizedStringResource("Which playlist would you like to play?"))
     )
     var playlistName: String
 
-    @Parameter(title: "Start Index", description: "The index of the song to start playing from (0-based)", default: 0)
+    @Parameter(title: LocalizedStringResource("Start Index"), description: LocalizedStringResource("The index of the song to start playing from (0-based)"), default: 0)
     var startIndex: Int
 
     @MainActor
     func perform() async throws -> some IntentResult & ProvidesDialog {
-        // Use URL scheme with name and fromShortcut flag
-        let encodedName = playlistName.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? playlistName
-        let urlString = "modizer://playPlaylistByName?name=\(encodedName)&index=\(startIndex)&fromShortcut=true"
+        // Set the flag to skip animation and auto-restart
+        UserDefaults.standard.set(true, forKey: "LaunchedFromShortcut")
+        UserDefaults.standard.synchronize()
 
-        if let url = URL(string: urlString) {
-            await UIApplication.shared.open(url)
+        // Find the best matching playlist using intelligent matching
+        guard let matchedPlaylist = ModizerPlayerBridge.shared.findBestMatchingPlaylist(for: playlistName) else {
+            throw PlaylistError.playlistNotFound
         }
 
+        // Play the matched playlist
+        let success = ModizerPlayerBridge.shared.playPlaylist(playlistId: matchedPlaylist.id, startIndex: startIndex)
+
+        if !success {
+            throw PlaylistError.playlistNotFound
+        }
+
+        // Use the actual matched playlist name in the dialog (not what Siri heard)
         let fmt = NSLocalizedString("play_playlist_dialog", tableName: nil, bundle: .main, value: "Lecture de la playlist %@", comment: "Dialog confirming playlist playback")
-        let dialog = String(format: fmt, playlistName)
+        let dialog = String(format: fmt, matchedPlaylist.name)
         return .result(dialog: IntentDialog(stringLiteral: dialog))
     }
 }
@@ -1090,7 +1262,7 @@ enum PlaylistError: Error, CustomLocalizedStringResourceConvertible {
     var localizedStringResource: LocalizedStringResource {
         switch self {
         case .playlistNotFound:
-            return "Playlist not found. Use 'Get Playlists' to see available playlists."
+            return LocalizedStringResource("Playlist not found. Use 'Get Playlists' to see available playlists.")
         }
     }
 }
@@ -1142,7 +1314,16 @@ struct ModizerShortcuts: AppShortcutsProvider {
                     "\(.applicationName)のプレイリスト",
                     // Chinese
                     "在\(.applicationName)中播放播放列表",
-                    "播放\(.applicationName)的播放列表"
+                    "播放\(.applicationName)的播放列表",
+                    // Danish
+                    "Afspil en playliste i \(.applicationName)",
+                    "Start en playliste i \(.applicationName)",
+                    // Dutch
+                    "Speel een afspeellijst in \(.applicationName)",
+                    "Start een afspeellijst in \(.applicationName)",
+                    // Korean
+                    "\(.applicationName)에서 재생목록 재생",
+                    "\(.applicationName)에서 플레이리스트 시작"
                 ],
                 shortTitle: "Play Playlist",
                 systemImageName: "music.note.list"
@@ -1188,7 +1369,16 @@ struct ModizerShortcuts: AppShortcutsProvider {
                     "\(.applicationName)でランダム再生",
                     // Chinese
                     "在\(.applicationName)中播放音乐",
-                    "在\(.applicationName)中随机播放"
+                    "在\(.applicationName)中随机播放",
+                    // Danish
+                    "Afspil musik i \(.applicationName)",
+                    "Start tilfældig playliste i \(.applicationName)",
+                    // Dutch
+                    "Speel muziek in \(.applicationName)",
+                    "Start willekeurige afspeellijst in \(.applicationName)",
+                    // Korean
+                    "\(.applicationName)에서 음악 재생",
+                    "\(.applicationName)에서 무작위 재생"
                 ],
                 shortTitle: "Play some music",
                 systemImageName: "play.fill"
@@ -1234,7 +1424,16 @@ struct ModizerShortcuts: AppShortcutsProvider {
                     "\(.applicationName)のお気に入りを再生",
                     // Chinese
                     "在\(.applicationName)中播放收藏",
-                    "播放\(.applicationName)的收藏列表"
+                    "播放\(.applicationName)的收藏列表",
+                    // Danish
+                    "Afspil favoritter i \(.applicationName)",
+                    "Start favorit playliste i \(.applicationName)",
+                    // Dutch
+                    "Speel favorieten in \(.applicationName)",
+                    "Start favorieten afspeellijst in \(.applicationName)",
+                    // Korean
+                    "\(.applicationName)에서 즐겨찾기 재생",
+                    "\(.applicationName)에서 좋아하는 음악 재생"
                 ],
                 shortTitle: "Play favorites music",
                 systemImageName: "play.fill"
@@ -1280,7 +1479,16 @@ struct ModizerShortcuts: AppShortcutsProvider {
                     "\(.applicationName)の人気曲を再生",
                     // Chinese
                     "在\(.applicationName)中播放最常播放",
-                    "播放\(.applicationName)的热门歌曲"
+                    "播放\(.applicationName)的热门歌曲",
+                    // Danish
+                    "Afspil mest spillede i \(.applicationName)",
+                    "Start mest spillede playliste i \(.applicationName)",
+                    // Dutch
+                    "Speel meest gespeelde in \(.applicationName)",
+                    "Start meest gespeelde afspeellijst in \(.applicationName)",
+                    // Korean
+                    "\(.applicationName)에서 가장 많이 재생된 곡 재생",
+                    "\(.applicationName)에서 인기곡 재생"
                 ],
                 shortTitle: "Play most played music",
                 systemImageName: "play.fill"
@@ -1326,7 +1534,16 @@ struct ModizerShortcuts: AppShortcutsProvider {
                     "\(.applicationName)のランダム再生を変更",
                     // Chinese
                     "在\(.applicationName)中切换随机模式",
-                    "更改\(.applicationName)的随机播放"
+                    "更改\(.applicationName)的随机播放",
+                    // Danish
+                    "Skift shuffle-tilstand i \(.applicationName)",
+                    "Ændre tilfældig afspilning i \(.applicationName)",
+                    // Dutch
+                    "Schakel shuffle-modus in \(.applicationName)",
+                    "Wijzig willekeurige weergave in \(.applicationName)",
+                    // Korean
+                    "\(.applicationName)에서 셔플 모드 전환",
+                    "\(.applicationName)에서 무작위 재생 변경"
                 ],
                 shortTitle: "Toggle Shuffle",
                 systemImageName: "shuffle"
@@ -1372,7 +1589,16 @@ struct ModizerShortcuts: AppShortcutsProvider {
                     "\(.applicationName)の繰り返しを切り替え",
                     // Chinese
                     "在\(.applicationName)中更改循环模式",
-                    "切换\(.applicationName)的重复播放"
+                    "切换\(.applicationName)的重复播放",
+                    // Danish
+                    "Skift gentagelsestilstand i \(.applicationName)",
+                    "Ændre gentag i \(.applicationName)",
+                    // Dutch
+                    "Verander herhaalmodus in \(.applicationName)",
+                    "Schakel herhaling in \(.applicationName)",
+                    // Korean
+                    "\(.applicationName)에서 반복 모드 변경",
+                    "\(.applicationName)에서 반복 재생 전환"
                 ],
                 shortTitle: "Toggle Loop Mode",
                 systemImageName: "repeat"
@@ -1419,7 +1645,16 @@ struct ModizerShortcuts: AppShortcutsProvider {
                     "\(.applicationName)の現在の曲",
                     // Chinese
                     "\(.applicationName)正在播放什么",
-                    "\(.applicationName)的当前歌曲"
+                    "\(.applicationName)的当前歌曲",
+                    // Danish
+                    "Hvad afspiller i \(.applicationName)",
+                    "Nuværende sang i \(.applicationName)",
+                    // Dutch
+                    "Wat speelt er in \(.applicationName)",
+                    "Huidige nummer in \(.applicationName)",
+                    // Korean
+                    "\(.applicationName)에서 재생 중인 곡",
+                    "\(.applicationName)의 현재 곡"
                 ],
                 shortTitle: "Now Playing",
                 systemImageName: "music.note"

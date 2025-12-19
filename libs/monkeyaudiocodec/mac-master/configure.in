@@ -1,0 +1,175 @@
+#                                               -*- Autoconf -*-
+# Process this file with autoconf to produce a configure script.
+
+#AC_PREREQ(2.57)
+AC_INIT(mac, 4.11-u4-b5-s7)
+AC_CONFIG_SRCDIR([src/Shared/GlobalFunctions.cpp])
+AC_PREFIX_DEFAULT("/usr")
+
+AM_INIT_AUTOMAKE(AC_PACKAGE_NAME, AC_PACKAGE_VERSION)
+AM_CONFIG_HEADER(src/Shared/config.h)
+AM_MAINTAINER_MODE
+
+# Checks for programs.
+CXXFLAGS="$CXXFLAGS -O3 -Wall -pedantic -Wno-long-long"
+AC_PROG_CXX
+AC_PROG_CC
+AC_PROG_LIBTOOL
+AC_PROG_MAKE_SET
+
+AM_MAINTAINER_MODE
+
+CONFIGURE_STYLE=gnu
+
+# Checks for libraries.
+
+# Checks for header files.
+AC_HEADER_STDC
+AC_CHECK_HEADERS([fcntl.h memory.h stdlib.h string.h sys/ioctl.h sys/time.h unistd.h])
+
+# Checks for typedefs, structures, and compiler characteristics.
+AC_C_CONST
+AC_TYPE_SIZE_T
+AC_C_INLINE
+
+# Checks for library functions.
+AC_FUNC_MEMCMP
+AC_FUNC_STAT
+#AC_CHECK_FUNCS([ftruncate memmove memset strrchr strstr])
+
+# Checks for whether the architecture is in big endian or not.
+# will define WORDS_BIGENDIAN if the arch is in big endian.
+AC_C_BIGENDIAN
+
+AC_CHECK_FUNCS(wcscasecmp)
+
+# AC_SEARCH_LIBS (nanosleep, [rt,posix4])
+# copied from videolan
+AC_CHECK_FUNC(nanosleep,,[
+  AC_CHECK_LIB(rt,nanosleep,LIBS="${LIBS} -lrt",[
+    AC_CHECK_LIB(posix4,nanosleep,LIBS="${LIBS} -lposix4")
+  ])
+])
+
+AC_MSG_CHECKING(for assembly enabled)
+AC_ARG_ENABLE(assembly,
+  [  --enable-assembly=yes,no      enable assembly or not],
+  assembly="$enableval", assembly="yes")
+if test "$assembly" = "yes"; then
+  AC_MSG_RESULT(yes)
+else
+  AC_MSG_RESULT(no)
+fi
+
+AM_CONDITIONAL(ENABLE_ASSEMBLY, test "$assembly" = "yes")
+
+if test "$assembly" = "yes"; then
+YASM=
+AC_PATH_PROG(YASM, yasm, "not found")
+fi
+
+AC_MSG_CHECKING([for some Win32 platform])
+case "$host" in
+  *-*-mingw*|*-*-cygwin*)
+    os_win=yes
+    ;;
+  *)
+    os_win=no
+    ;;
+esac
+AC_MSG_RESULT([$os_win])
+
+if test "$os_win" != "yes"; then
+  AC_DEFINE(BUILD_CROSS_PLATFORM,,[Build cross platform])
+fi
+
+AM_CONDITIONAL(OS_WIN, test "$os_win" = "yes")
+
+case "$host_os" in
+  *bsd*|linux*|beos|irix*|solaris*)
+    YASM_FORMAT="-f elf"
+    ;;
+  [[cC]][[yY]][[gG]][[wW]][[iI]][[nN]]*|mingw32*|mks*)
+    YASM_FORMAT="-f win32"
+    ;;
+esac
+
+case "$host" in
+  i386-*-* | i486-*-* | i586-*-* | i686-*-* | i86pc-*-*)
+    arch_type=X86
+    YASM_ARCH="-m x86"
+
+    AC_DEFINE(ARCH_X86,,[Architecture is x86])
+    ;;
+  x86_64-*-*)
+    arch_type=X86_64
+    YASM_ARCH="-m amd64"
+
+    AC_DEFINE(ARCH_X86_64,,[Architecture is x86_64])
+    ;;
+  powerpc-*-* )
+    arch_type=PowerPC
+
+    AC_DEFINE(ARCH_PPC,,[Architecture is powerpc])
+    ;;
+  sparc-*-* )
+    arch_type=SPARC
+
+    AC_DEFINE(ARCH_SPARC,,[Architecture is sparc])
+    ;;
+  *)
+    arch_type=other
+    ;;
+esac
+
+AM_CONDITIONAL(HAS_YASM, test "x$YASM" != "x")
+
+AM_CONDITIONAL(ARCH_X86, test "$arch_type" = "X86")
+AM_CONDITIONAL(ARCH_X86_64, test "$arch_type" = "X86_64")
+AM_CONDITIONAL(ARCH_SPARC, test "$arch_type" = "SPARC")
+AM_CONDITIONAL(ARCH_PPC, test "$arch_type" = "PowerPC")
+
+
+if test "x$YASM" != "x"; then
+  AC_MSG_RESULT("enable_assembly = yes")  
+  AC_DEFINE(ENABLE_ASSEMBLY,,[with assembly enabled])
+else
+  AC_MSG_RESULT("enable_assembly = no")
+  assembly=no;
+fi
+
+AC_SUBST(YASM_ARCH)
+AC_SUBST(YASM_FORMAT)
+
+
+AC_CHECK_SIZEOF([int *])
+case "$ac_cv_sizeof_int_p" in
+     8)
+        AC_DEFINE(IS_64BIT,,[64bit])
+	;;
+esac
+
+AC_OUTPUT([Makefile src/Makefile 
+			  src/Console/Makefile 
+			  src/Shared/Makefile 
+			  src/MACLib/Makefile 
+			  src/MACLib/Assembly/Makefile
+			  src/Examples/Makefile
+			  src/Examples/Analyze/Makefile
+			  src/Examples/Analyze/Sample1/Makefile
+			  ])
+
+AC_MSG_RESULT([
+Build options:
+  $PACKAGE			$VERSION
+  archtecture		$arch_type
+  Win			$os_win
+  enable-assembly	$assembly
+])
+if test "$assembly" = "yes"; then
+AC_MSG_RESULT([
+  Yasm			$YASM
+  YASM_ARCH		$YASM_ARCH
+  YASM_FORMAT		$YASM_FORMAT
+])
+fi

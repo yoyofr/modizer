@@ -101,6 +101,8 @@ extern NSMutableArray *mac_key_pressed,*mac_key_released;
     
     [self setNeedsStatusBarAppearanceUpdate];
     
+    [self.detailViewControllerIphone.view layoutSubviews];
+    
     [self showAnimatedLaunchOverlay];
 }
 
@@ -276,7 +278,7 @@ extern NSMutableArray *mac_key_pressed,*mac_key_released;
     [welcomePage1.exitBtn setTitle:NSLocalizedString(@"Skip",@"") forState:UIControlStateNormal];
     welcomePage1.messageLabel.text=NSLocalizedString(@""
 "Your gateway to retro and tracker music.\n"
-"Power up your device with legendary game tunes, iconic tracker modules,and timeless chiptune classics.",@"");
+"Power up your device with legendary game tunes, iconic tracker modules, and timeless chiptune classics.",@"");
     welcomePage1.messageLabel.font = [UIFont fontWithName:@"Montserrat-Regular" size:16];
     
     //Page 2
@@ -402,9 +404,17 @@ extern NSMutableArray *mac_key_pressed,*mac_key_released;
     
     if (@available(iOS 18.0, *)) {
         if (UIDevice.currentDevice.userInterfaceIdiom == UIUserInterfaceIdiomPad) {
-            self.traitOverrides.horizontalSizeClass = UIUserInterfaceSizeClassCompact;//UIUserInterfaceSizeClassRegular;
+            //self.traitOverrides.horizontalSizeClass = UIUserInterfaceSizeClassCompact;//UIUserInterfaceSizeClassRegular;
+            self.traitOverrides.horizontalSizeClass = UIUserInterfaceSizeClassRegular;
         }
     }
+    
+    // On iOS 18+, explicitly disable the tab bar mode that shows tabs as segmented control
+    if (@available(iOS 18.0, *)) {
+        // Set mode to tabBar (traditional) instead of automatic which might show segmented control
+        self.mode = UITabBarControllerModeTabSidebar;//UITabBarControllerModeTabBar;
+    }
+    
     
     // Resolve detailViewControllerIphone
     self.rootViewControllerIphone = [self findChildOfClass:[RootViewControllerLocalBrowser class]];
@@ -417,6 +427,7 @@ extern NSMutableArray *mac_key_pressed,*mac_key_released;
     self.webBrowser = [self findChildOfClass:[WebBrowser class]];
     self.downloadVC = [self findChildOfClass:[DownloadViewController class]];
     self.aboutVC = [self findChildOfClass:[AboutViewController class]];
+    
     
     [self.rootViewControllerIphone loadViewIfNeeded];
     [self.playlistVC loadViewIfNeeded];
@@ -492,9 +503,6 @@ extern NSMutableArray *mac_key_pressed,*mac_key_released;
         }
     }
     
-    // Perform initial setup that previously lived in AppDelegate
-    [self.rootViewControllerIphone createEditableCopyOfDatabaseIfNeeded:FALSE quiet:0];
-
     // Initialize CarPlay management
     self.cpMngt = [[CarPlayAndRemoteManagement alloc] init];
     self.cpMngt.detailViewController = detailViewControllerIphone;
@@ -525,13 +533,11 @@ extern NSMutableArray *mac_key_pressed,*mac_key_released;
     
     [self setupWelcomePages];
     
+    if (settings[GLOB_ShowWelcome].detail.mdz_boolswitch.switch_value==0) {
+        [self.rootViewControllerIphone createEditableCopyOfDatabaseIfNeeded:FALSE quiet:0];
+    }
+    
 #if TARGET_OS_MACCATALYST
-    // Hide the tab bar on Mac Catalyst
-    self.tabBar.hidden = YES;
-
-    // Move tab bar completely off-screen - this makes the view controllers use the full space
-    self.tabBar.frame = CGRectZero;
-    self.tabBar.translucent = NO;
 
     // Set navigation controller delegates to handle pushed view controllers
     for (UIViewController *vc in self.viewControllers) {
@@ -574,7 +580,9 @@ extern NSMutableArray *mac_key_pressed,*mac_key_released;
 #endif
 
 - (void)presentWelcomePages {
-    if (!settings[GLOB_ShowWelcome].detail.mdz_boolswitch.switch_value) return;
+    if (settings[GLOB_ShowWelcome].detail.mdz_boolswitch.switch_value==0) {
+        return;
+    }
     
     // Don't present if already presenting or presented
     if (myPVC.presentingViewController != nil || myPVC.isBeingPresented) {
@@ -593,6 +601,7 @@ extern NSMutableArray *mac_key_pressed,*mac_key_released;
 
 - (void)exitWelcomePages {
     [myPVC dismissViewControllerAnimated:true completion:^{
+        [self.rootViewControllerIphone createEditableCopyOfDatabaseIfNeeded:FALSE quiet:0];
     }];
 }
 

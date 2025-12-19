@@ -51,8 +51,8 @@ extern os_log_t mdzLog;
 
 #define VERSION_MAJOR 4
 #define VERSION_MAJOR_STR "4"
-#define VERSION_MINOR 0
-#define VERSION_MINOR_STR "0"
+#define VERSION_MINOR 1
+#define VERSION_MINOR_STR "1"
 
 #ifdef DEBUG_MODIZER
 #else
@@ -62,6 +62,7 @@ extern os_log_t mdzLog;
 #define STATISTICS_URL @"https://modizerdb.appspot.com"
 
 extern void *ExtractProgressObserverContext;
+extern void *ExtractBrowserListProgressObserverContext;
 extern void *LoadingProgressObserverContext;
 
 #define mdz_safe_free(x) if (x) {free(x);x=NULL;}
@@ -247,6 +248,8 @@ extern void *LoadingProgressObserverContext;
 
 #define SUPPORTED_FILETYPE_STSOUND @"YM"
 
+#define SUPPORTED_FILETYPE_MAC @"APE"
+
 #define SUPPORTED_FILETYPE_ATARISOUND @"SNDH"
 
 #define SUPPORTED_FILETYPE_SC68 @"SC68"
@@ -431,7 +434,8 @@ enum MMP_PLAYER_TYPE {
     MMP_PIXEL,
     MMP_GBS,
     MMP_WSR,
-    MMP_ZXTUNE
+    MMP_ZXTUNE,
+    MMP_MAC
 };
 
 typedef enum {

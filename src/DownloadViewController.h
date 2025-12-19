@@ -95,7 +95,6 @@
 -(void) startReceiveCurrentURLEntry;
 -(void) startReceiveCurrentFTPEntry;
 -(void) checkIfShouldAddFile:(NSString*)localPath fileName:(NSString*)fileName;
--(int) isPlayableFile:(NSString*)file;
 
 @property (nonatomic, retain) DetailViewControllerIphone *detailViewController;
 @property (nonatomic, retain) RootViewControllerLocalBrowser *rootViewController;

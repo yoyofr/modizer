@@ -153,7 +153,7 @@ int qsort_ComparePlaylistEntriesRevFP(const void *entryA, const void *entryB) {
     }];
     [alertC addAction:cancelAction];
     
-    UIAlertAction *saveAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Save",@"") style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+    UIAlertAction *saveAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Create",@"") style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
         UITextField *plName = weakAlert.textFields.firstObject;
         if (![plName.text isEqualToString:@""]) {
             if (childController == nil) childController = [[RootViewControllerPlaylist alloc]  initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]];
@@ -530,7 +530,7 @@ int qsort_ComparePlaylistEntriesRevFP(const void *entryA, const void *entryB) {
     }
     UITabBarController *tbc = (UITabBarController *)window.rootViewController;
     if (![tbc isKindOfClass:[UITabBarController class]]) {
-        NSLog(@"[SceneDelegate] Unexpected root VC: %@", NSStringFromClass([window.rootViewController class]));
+        MDZELog("[SceneDelegate] Unexpected root VC: %@", NSStringFromClass([window.rootViewController class]));
         return;
     }
     // Resolve specific child controllers
@@ -712,27 +712,27 @@ END_PROFILE
         list = [[NSMutableArray alloc] init];
         NSMutableArray *mode_entries = [[NSMutableArray alloc] init];
         NSMutableArray *mode_entries_details = [[NSMutableArray alloc] init];
-        [mode_entries addObject:NSLocalizedString(@"Add a playlist...",@"")];
+        [mode_entries addObject:NSLocalizedString(@"Add a playlist",@"")];
         [mode_entries_details addObject:NSLocalizedString(@"Create a new playlist",@"")];
         
         if (detailViewController.mPlaylist_size) {
-            [mode_entries addObject:NSLocalizedString(@"Now playing...",@"")];
+            [mode_entries addObject:NSLocalizedString(@"Now playing",@"")];
             if (detailViewController.mPlaylist_size==1) [mode_entries_details addObject:NSLocalizedString(@"1 entry",@"")];
             else [mode_entries_details addObject:[NSString stringWithFormat:NSLocalizedString(@"%d entries",@""),detailViewController.mPlaylist_size]];
         }
         else {
-            [mode_entries addObject:NSLocalizedString(@"Now playing...",@"")];
+            [mode_entries addObject:NSLocalizedString(@"Now playing",@"")];
             [mode_entries_details addObject:NSLocalizedString(@"No entry",@"")];
         }
         
         [mode_entries addObject:NSLocalizedString(@"Random picks",@"")];
         [mode_entries_details addObject:NSLocalizedString(@"Generate a randomized playlist",@"")];
         
-        [mode_entries addObject:NSLocalizedString(@"Most played...",@"")];
-        [mode_entries_details addObject:[NSString stringWithFormat:@"%d entries",[self getMostPlayedCountFromDB]]];
+        [mode_entries addObject:NSLocalizedString(@"Most played",@"")];
+        [mode_entries_details addObject:[NSString stringWithFormat:NSLocalizedString(@"%d entries",@""),[self getMostPlayedCountFromDB]]];
         
-        [mode_entries addObject:NSLocalizedString(@"Favorites...",@"")];
-        [mode_entries_details addObject:[NSString stringWithFormat:@"%d entries",[self getFavoritesCountFromDB]]];
+        [mode_entries addObject:NSLocalizedString(@"Favorites",@"")];
+        [mode_entries_details addObject:[NSString stringWithFormat:NSLocalizedString(@"%d entries",@""),[self getFavoritesCountFromDB]]];
         
         [self loadPlayListsListFromDB:mode_entries list_id:list entries_details:mode_entries_details];
         NSDictionary *mode_entriesDict = [NSDictionary dictionaryWithObjectsAndKeys:mode_entries,@"entries",mode_entries_details,@"entries_details", nil];
@@ -784,7 +784,7 @@ END_PROFILE
                 [entries addObject:[NSString stringWithUTF8String:(const char*)sqlite3_column_text(stmt, 1)]];
                 [list_id addObject:[NSString stringWithFormat:@"%d",sqlite3_column_int(stmt, 0)]];
                 if (sqlite3_column_int(stmt, 2)==1) [details addObject:@"1 entry"];
-                else [details addObject:[NSString stringWithFormat:@"%d entries",sqlite3_column_int(stmt, 2)]];
+                else [details addObject:[NSString stringWithFormat:NSLocalizedString(@"%d entries",@""),sqlite3_column_int(stmt, 2)]];
             }
             sqlite3_finalize(stmt);
         } else MDZELog("ErrSQL : %d",err);
@@ -1101,6 +1101,7 @@ END_PROFILE
     NSArray *filetype_extFMP=[SUPPORTED_FILETYPE_FMP componentsSeparatedByString:@","];
     NSArray *filetype_extSID=[SUPPORTED_FILETYPE_SID componentsSeparatedByString:@","];
     NSArray *filetype_extSTSOUND=[SUPPORTED_FILETYPE_STSOUND componentsSeparatedByString:@","];
+    NSArray *filetype_extMAC=[SUPPORTED_FILETYPE_MAC componentsSeparatedByString:@","];
     NSArray *filetype_extATARISOUND=[SUPPORTED_FILETYPE_ATARISOUND componentsSeparatedByString:@","];
     NSArray *filetype_extSC68=[SUPPORTED_FILETYPE_SC68 componentsSeparatedByString:@","];
     NSArray *filetype_extPT3=[SUPPORTED_FILETYPE_PT3 componentsSeparatedByString:@","];
@@ -1126,7 +1127,7 @@ END_PROFILE
     NSArray *filetype_extASAP=[SUPPORTED_FILETYPE_ASAP componentsSeparatedByString:@","];
     NSArray *filetype_extWMIDI=[SUPPORTED_FILETYPE_WMIDI componentsSeparatedByString:@","];
     NSArray *filetype_extVGM=[SUPPORTED_FILETYPE_VGM componentsSeparatedByString:@","];
-    NSMutableArray *filetype_ext=[NSMutableArray arrayWithCapacity:[filetype_extMDX count]+[filetype_extSID count]+[filetype_extSTSOUND count]+[filetype_extATARISOUND count]+
+    NSMutableArray *filetype_ext=[NSMutableArray arrayWithCapacity:[filetype_extMDX count]+[filetype_extSID count]+[filetype_extSTSOUND count]+[filetype_extMAC count]+[filetype_extATARISOUND count]+
                                   [filetype_extSC68 count]+[filetype_extPT3 count]+[filetype_extGBS count]+
                                   [filetype_extNSFPLAY count]+[filetype_extPIXEL count]+[filetype_extARCHIVE count]+[filetype_extUADE count]+[filetype_extMODPLUG count]+[filetype_extXMP count]+
                                   [filetype_extGME count]+[filetype_extADPLUG count]+[filetype_ext2SF count]+[filetype_extNCSF count]+
@@ -1210,6 +1211,7 @@ END_PROFILE
     [filetype_ext addObjectsFromArray:filetype_extFMP];
     [filetype_ext addObjectsFromArray:filetype_extSID];
     [filetype_ext addObjectsFromArray:filetype_extSTSOUND];
+    [filetype_ext addObjectsFromArray:filetype_extMAC];
     [filetype_ext addObjectsFromArray:filetype_extATARISOUND];
     [filetype_ext addObjectsFromArray:filetype_extSC68];
     [filetype_ext addObjectsFromArray:filetype_extPT3];
@@ -2194,7 +2196,6 @@ int getPlaylistStatsDBmod(t_playlist *pl) {
                 sqlite3_exec(db, "PRAGMA temp_store=MEMORY", NULL, NULL, NULL);
 
         
-        printf("yo1\n");
         int i=0;
 
         i=0;

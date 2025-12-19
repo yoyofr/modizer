@@ -1,0 +1,121 @@
+/*
+   Localizable.strings - Français
+   modizer
+
+   Organisé par écrans et familles de fonctionnalités
+*/
+
+// ================================
+// MARK: - COMMUN / GÉNÉRAL
+// ================================
+
+/* Actions Communes */
+"Yes" = "Oui";
+"No" = "Non";
+"Ok" = "Ok";
+"Cancel" = "Annuler";
+"Close" = "Fermer";
+"Save" = "Sauver";
+"Delete" = "Supprimer";
+"Rename" = "Renommer";
+"Extract" = "Extraire";
+"Cut" = "Couper";
+"Paste" = "Coller";
+"Create" = "Créer";
+"Reset" = "Réinitialiser";
+
+/* États Communs */
+"Loading" = "Chargement";
+"Extracting" = "Extraction";
+"Seeking" = "Positionnement";
+"Seeking %d%%" = "Positionnement %d%%";
+"Refreshing" = "Rafraîchissement";
+"Browsing" = "Navigation";
+"Cancelling..." = "Annulation...";
+
+/* Messages Communs */
+"Error" = "Erreur";
+"Warning" = "Attention";
+"Do you want to reset to default value:\n" = "Voulez-vous réinitialiser à la valeur par défaut :\n";
+
+
+// ================================
+// MARK: - NAVIGATEUR
+// ================================
+
+/* Clés Principales du Navigateur */
+"Browser_LocalBrowsing_MainKey" = "Navigation locale";
+"Browser_LocalBrowsing_SubKey" = "Parcourir, jouer et supprimer les fichiers locaux.";
+
+"Browser_MODLAND_MainKey" = "Collection MODLAND";
+"Browser_MODLAND_SubKey" = "%d fichiers téléchargeables.";
+
+"Browser_HVSC_MainKey" = "Collection HVSC";
+"Browser_HVSC_SubKey" = "%d fichiers téléchargeables.";
+
+"Browser_Playlists_MainKey" = "Listes de lecture";
+"Browser_Playlists_SubKey" = "Organiser, créer, supprimer et écouter.";
+
+"Browser_Favorites_MainKey" = "Favoris";
+"Browser_Favorites_SubKey" = "Écouter les morceaux notés.";
+
+"Browser_Most_played_MainKey" = "Plus joués";
+"Browser_Most_played_SubKey" = "Écouter les morceaux les plus joués.";
+
+"Browser_Web_MainKey" = "Web";
+"Browser_Web_SubKey" = "Naviguer sur Internet et télécharger de la musique.";
+
+"Browser_WorldCharts_MainKey" = "Classements mondiaux";
+"Browser_WorldCharts_SubKey" = "Top listes et liens de téléchargement.";
+
+"Browser_WebVGM_MainKey" = "VGMRips";
+"Browser_WebVGM_SubKey" = "Musiques de jeux vidéo";
+
+"Browser_UserGuide_MainKey" = "Guide utilisateur";
+"Browser_UserGuide_SubKey" = "Manuel, FAQ, astuces.";
+
+/* Modes d'Affichage du Navigateur */
+"GetAllEntries_MainKey" = "Obtenir toutes les entrées manquantes";
+"GetAllEntries_SubKey" = "Limité aux 256 premières entrées manquantes.";
+
+"DisplayAll_MainKey" = "Lister tout par nom";
+"DisplayAll_SubKey" = "Rép. courant :";
+
+"DisplayDir_MainKey" = "Liste/Répertoire";
+"DisplayDir_SubKey" = "Tout par chemin :";
+
+"DisplayAllPath_MainKey" = "Lister tout par chemin";
+"DisplayAllPath_SubKey" = "Tout par nom :";
+
+/* Modes de Vue du Navigateur */
+"Formats/Artists/Files" = "Formats/Artistes/Fichiers";
+"Artists/Formats/Files" = "Artistes/Formats/Fichiers";
+"Artists/Files" = "Artistes/Fichiers";
+"Formats: %d entries." = "Formats : %d entrées.";
+"Artists: %d entries." = "Artistes : %d entrées.";
+
+/* Statistiques du Navigateur */
+"Played %d times." = "Joué %d fois.";
+"Played once." = "Joué une fois.";
+"Never played." = "Jamais joué.";
+"%d files." = "%d fichiers.";
+"1 file." = "1 fichier.";
+"Size: %dKB" = "Taille : %dKo";
+
+/* Messages du Navigateur */
+"Browser not enough mem." = "Trop d'entrées, impossible d'allouer la mémoire.";
+"Browser not enough mem. Limited." = "Trop d'entrées, impossible d'allouer la mémoire. Liste incomplète.";
+
+/* Opérations sur Fichiers */
+"New folder" = "Nouveau dossier";
+"Enter folder name" = "Entrez le nom du dossier";
+"Nothing to paste" = "Rien à coller";
+"No file to extract or not supported archive format.\n" = "Aucun fichier à extraire ou format d'archive non supporté.\n";
+"Cannot use iCloud as folder name" = "Impossible d'utiliser iCloud comme nom de dossier";
+
+"Issue %d while trying to delete entry.\n%@" = "Problème %d lors de la suppression de l'entrée.\n%@";
+"Issue %d while trying to renamefile.\n%@" = "Problème %d lors du renommage du fichier.\n%@";
+"Issue %d while moving: %@.\n%@" = "Problème %d lors du déplacement : %@.\n%@";
+"Issue %d while creating folder\n%@" = "Problème %d lors de la création du dossier\n%@";
+
+"File is not available locally.\nTrigerring download from iCloud, please check in 'Files' application." = "Fichier non disponible localement.\nLancement du téléchargement depuis iCloud, veuillez vérifier dans l'application 'Fichiers'.";

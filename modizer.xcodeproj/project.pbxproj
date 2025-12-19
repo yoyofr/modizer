@@ -668,6 +668,10 @@
 		CC2E39372B9DA419003E9E77 /* RootViewControllerXPWebParser.mm in Sources */ = {isa = PBXBuildFile; fileRef = CC2E39362B9DA419003E9E77 /* RootViewControllerXPWebParser.mm */; };
 		CC33B4271ABE1FC6009608E8 /* slider.png in Resources */ = {isa = PBXBuildFile; fileRef = CC33B4261ABE1FC6009608E8 /* slider.png */; };
 		CC33B42D1ABF05A3009608E8 /* slider@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CC33B42C1ABF05A3009608E8 /* slider@2x.png */; };
+		CC3D65392EF2AAB700636BEE /* libmonkeyaudiocodec.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CC31446A2EF28F5C0053DCE1 /* libmonkeyaudiocodec.a */; };
+		CC3D65722EF431A800636BEE /* libmonkeyaudiocodec.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CC31446A2EF28F5C0053DCE1 /* libmonkeyaudiocodec.a */; };
+		CC3D65762EF4C55B00636BEE /* Localizable_utf16.strings in Resources */ = {isa = PBXBuildFile; fileRef = CC3D65742EF4C55B00636BEE /* Localizable_utf16.strings */; };
+		CC3D65772EF4C55B00636BEE /* Localizable_utf16.strings in Resources */ = {isa = PBXBuildFile; fileRef = CC3D65742EF4C55B00636BEE /* Localizable_utf16.strings */; };
 		CC3F530F2ED3C028004D7908 /* libavdevice.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = CC3F53092ED3C028004D7908 /* libavdevice.xcframework */; };
 		CC3F53102ED3C028004D7908 /* libavutil.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = CC3F530C2ED3C028004D7908 /* libavutil.xcframework */; };
 		CC3F53112ED3C028004D7908 /* libswscale.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = CC3F530E2ED3C028004D7908 /* libswscale.xcframework */; };
@@ -1969,6 +1973,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = CC88FB902EDB2CD100717901;
 			remoteInfo = ModizerMacWindowPlugin;
+		};
+		CC3144692EF28F5C0053DCE1 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = CC3144652EF28F5B0053DCE1 /* monkeyaudiocodec.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = CC3144582EF28F5B0053DCE1;
+			remoteInfo = monkeyaudiocodec;
 		};
 		CC47A4752BF024F400472202 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -3398,8 +3409,24 @@
 		CC1E630F120423DF000A8A4E /* uaerc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = uaerc; sourceTree = "<group>"; };
 		CC2E39352B9DA419003E9E77 /* RootViewControllerXPWebParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RootViewControllerXPWebParser.h; sourceTree = "<group>"; };
 		CC2E39362B9DA419003E9E77 /* RootViewControllerXPWebParser.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RootViewControllerXPWebParser.mm; sourceTree = "<group>"; };
+		CC31441B2EEF504C0053DCE1 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Localizable.strings; sourceTree = "<group>"; };
+		CC3144452EF01E540053DCE1 /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/Localizable.strings; sourceTree = "<group>"; };
+		CC3144462EF01E630053DCE1 /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/Localizable.strings; sourceTree = "<group>"; };
+		CC3144472EF01E730053DCE1 /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/Localizable.strings; sourceTree = "<group>"; };
+		CC3144482EF056AF0053DCE1 /* ar */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ar; path = ar.lproj/Localizable.strings; sourceTree = "<group>"; };
+		CC3144492EF056BB0053DCE1 /* fi */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fi; path = fi.lproj/Localizable.strings; sourceTree = "<group>"; };
+		CC31444A2EF056C60053DCE1 /* it */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = it; path = it.lproj/Localizable.strings; sourceTree = "<group>"; };
+		CC31444B2EF056D40053DCE1 /* pt-BR */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "pt-BR"; path = "pt-BR.lproj/Localizable.strings"; sourceTree = "<group>"; };
+		CC31444C2EF056E00053DCE1 /* sv */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sv; path = sv.lproj/Localizable.strings; sourceTree = "<group>"; };
+		CC31444D2EF056F50053DCE1 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Localizable.strings"; sourceTree = "<group>"; };
+		CC3144652EF28F5B0053DCE1 /* monkeyaudiocodec.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = monkeyaudiocodec.xcodeproj; path = monkeyaudiocodec/monkeyaudiocodec.xcodeproj; sourceTree = "<group>"; };
 		CC33B4261ABE1FC6009608E8 /* slider.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = slider.png; sourceTree = "<group>"; };
 		CC33B42C1ABF05A3009608E8 /* slider@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "slider@2x.png"; sourceTree = "<group>"; };
+		CC3D65732EF4C54800636BEE /* da */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = da; path = da.lproj/Localizable.strings; sourceTree = "<group>"; };
+		CC3D65752EF4C55B00636BEE /* nl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = nl; path = nl.lproj/Localizable_utf16.strings; sourceTree = "<group>"; };
+		CC3D65782EF4C5CC00636BEE /* ko */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ko; path = ko.lproj/Localizable.strings; sourceTree = "<group>"; };
+		CC3D65792EF4C7D900636BEE /* nb */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = nb; path = nb.lproj/Localizable.strings; sourceTree = "<group>"; };
+		CC3D657A2EF51F4D00636BEE /* nl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = nl; path = nl.lproj/Localizable.strings; sourceTree = "<group>"; };
 		CC3F52F22ED3AE2A004D7908 /* modizer-Info-catalyst.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "modizer-Info-catalyst.plist"; sourceTree = "<group>"; };
 		CC3F53072ED3C028004D7908 /* ffmpegkit.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = ffmpegkit.xcframework; sourceTree = "<group>"; };
 		CC3F53082ED3C028004D7908 /* libavcodec.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = libavcodec.xcframework; sourceTree = "<group>"; };
@@ -3865,7 +3892,7 @@
 		CCB8D98D17F62A18008E6A45 /* txtMenu8b_2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu8b_2x.png; sourceTree = "<group>"; };
 		CCB8D99117F62A18008E6A45 /* txtMenu11a_2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu11a_2x.png; sourceTree = "<group>"; };
 		CCB8D99217F62A18008E6A45 /* txtMenu11c_2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu11c_2x.png; sourceTree = "<group>"; };
-		CCBE63E82EE2DD44000FDD7E /* modizer mac local.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "modizer mac local.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		CCBE63E82EE2DD44000FDD7E /* modizer_mac.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = modizer_mac.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CCBF10011221788200E8DE4E /* digidrum.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = digidrum.cpp; sourceTree = "<group>"; };
 		CCBF10021221788200E8DE4E /* digidrum.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = digidrum.h; sourceTree = "<group>"; };
 		CCBF10041221788200E8DE4E /* LZH.H */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = LZH.H; sourceTree = "<group>"; };
@@ -4000,14 +4027,14 @@
 				welcome_playlist.png,
 				welcome_settings.png,
 			);
-			target = CCBE60562EE2DD44000FDD7E /* modizer mac local */;
+			target = CCBE60562EE2DD44000FDD7E /* modizer_mac */;
 		};
 		CCBE63EB2EE2DD44000FDD7E /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				ModizerMacWindowManager.m,
 			);
-			target = CCBE60562EE2DD44000FDD7E /* modizer mac local */;
+			target = CCBE60562EE2DD44000FDD7E /* modizer_mac */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
@@ -4040,6 +4067,7 @@
 				CCC543F72B89F46B00E97EC1 /* libadplug.a in Frameworks */,
 				CC0E2DBC2B80A07D00CB58C7 /* libmpg123-openmpt.a in Frameworks */,
 				CC0E2DBB2B80A06C00CB58C7 /* libvorbis-openmpt.a in Frameworks */,
+				CC3D65722EF431A800636BEE /* libmonkeyaudiocodec.a in Frameworks */,
 				CC0E2DBA2B80A04800CB58C7 /* libogg-openmpt.a in Frameworks */,
 				CC6B93612EDF8E0200383CC4 /* liblibopenmpt-modizer.a in Frameworks */,
 				CCEB4E012BAE00ED004831C6 /* libiconv.tbd in Frameworks */,
@@ -4131,6 +4159,7 @@
 				CCBE61252EE2DD44000FDD7E /* libadplug.a in Frameworks */,
 				CCBE61262EE2DD44000FDD7E /* libmpg123-openmpt.a in Frameworks */,
 				CCBE61272EE2DD44000FDD7E /* libvorbis-openmpt.a in Frameworks */,
+				CC3D65392EF2AAB700636BEE /* libmonkeyaudiocodec.a in Frameworks */,
 				CCBE61282EE2DD44000FDD7E /* libogg-openmpt.a in Frameworks */,
 				CCBE61292EE2DD44000FDD7E /* liblibopenmpt-modizer.a in Frameworks */,
 				CCBE612A2EE2DD44000FDD7E /* libiconv.tbd in Frameworks */,
@@ -4201,7 +4230,7 @@
 			children = (
 				1D6058910D05DD3D006BFB54 /* modizer.app */,
 				CC88FB912EDB2CD100717901 /* ModizerMacWindowPlugin.bundle */,
-				CCBE63E82EE2DD44000FDD7E /* modizer mac local.app */,
+				CCBE63E82EE2DD44000FDD7E /* modizer_mac.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -4216,6 +4245,7 @@
 				32CA4F630368D1EE00C91783 /* modizer_Prefix.pch */,
 				CC88D1131270AF200004EBBE /* modizer-Info.plist */,
 				CC3F52F22ED3AE2A004D7908 /* modizer-Info-catalyst.plist */,
+				CC3D65742EF4C55B00636BEE /* Localizable_utf16.strings */,
 				CCAE594E17ECABD2007638B9 /* Localizable.strings */,
 				CC1E5A161200B3B8000A8A4E /* Resources */,
 				29B97323FDCFA39411CA2CEA /* Frameworks */,
@@ -4552,6 +4582,7 @@
 		593925CB25CF0C56009281DC /* libs */ = {
 			isa = PBXGroup;
 			children = (
+				CC3144652EF28F5B0053DCE1 /* monkeyaudiocodec.xcodeproj */,
 				CCC541B62B89DD1700E97EC1 /* adplug.xcodeproj */,
 				333157371207699700815317 /* AHX */,
 				3399D61317B5A5C6009E2AE9 /* asap */,
@@ -5724,6 +5755,14 @@
 			path = S;
 			sourceTree = "<group>";
 		};
+		CC3144662EF28F5B0053DCE1 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				CC31446A2EF28F5C0053DCE1 /* libmonkeyaudiocodec.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		CC33B25F1AB81688009608E8 /* libopenmpt */ = {
 			isa = PBXGroup;
 			children = (
@@ -6739,9 +6778,9 @@
 			productReference = CC88FB912EDB2CD100717901 /* ModizerMacWindowPlugin.bundle */;
 			productType = "com.apple.product-type.bundle";
 		};
-		CCBE60562EE2DD44000FDD7E /* modizer mac local */ = {
+		CCBE60562EE2DD44000FDD7E /* modizer_mac */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = CCBE63E42EE2DD44000FDD7E /* Build configuration list for PBXNativeTarget "modizer mac local" */;
+			buildConfigurationList = CCBE63E42EE2DD44000FDD7E /* Build configuration list for PBXNativeTarget "modizer_mac" */;
 			buildPhases = (
 				CCBE60572EE2DD44000FDD7E /* Sources */,
 				CCBE61152EE2DD44000FDD7E /* Frameworks */,
@@ -6765,11 +6804,11 @@
 				CCBF271D2ECB1A460039936C /* WelcomePages */,
 				CCE026442E9BB0E3008B7070 /* GLES3 */,
 			);
-			name = "modizer mac local";
+			name = modizer_mac;
 			packageProductDependencies = (
 			);
 			productName = modizer;
-			productReference = CCBE63E82EE2DD44000FDD7E /* modizer mac local.app */;
+			productReference = CCBE63E82EE2DD44000FDD7E /* modizer_mac.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -6798,6 +6837,20 @@
 				en,
 				fr,
 				Base,
+				ja,
+				es,
+				de,
+				ru,
+				ar,
+				fi,
+				it,
+				"pt-BR",
+				sv,
+				"zh-Hans",
+				da,
+				nl,
+				ko,
+				nb,
 			);
 			mainGroup = 29B97314FDCFA39411CA2CEA /* CustomTemplate */;
 			packageReferences = (
@@ -6905,6 +6958,10 @@
 					ProjectRef = CC47A4CA2BF1FB3500472202 /* libzxtune.xcodeproj */;
 				},
 				{
+					ProductGroup = CC3144662EF28F5B0053DCE1 /* Products */;
+					ProjectRef = CC3144652EF28F5B0053DCE1 /* monkeyaudiocodec.xcodeproj */;
+				},
+				{
 					ProductGroup = CC7BBD342B800AF600D8CAAE /* Products */;
 					ProjectRef = CC7BBD332B800AF600D8CAAE /* mpg123-openmpt.xcodeproj */;
 				},
@@ -6973,7 +7030,7 @@
 			targets = (
 				1D6058900D05DD3D006BFB54 /* modizer */,
 				CC88FB902EDB2CD100717901 /* ModizerMacWindowPlugin */,
-				CCBE60562EE2DD44000FDD7E /* modizer mac local */,
+				CCBE60562EE2DD44000FDD7E /* modizer_mac */,
 			);
 		};
 /* End PBXProject section */
@@ -7110,6 +7167,13 @@
 			fileType = archive.ar;
 			path = liblibnsfplay.a;
 			remoteRef = CC1638562B7CDF92003323FD /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		CC31446A2EF28F5C0053DCE1 /* libmonkeyaudiocodec.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libmonkeyaudiocodec.a;
+			remoteRef = CC3144692EF28F5C0053DCE1 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		CC47A4762BF024F400472202 /* liblibwonderswan.a */ = {
@@ -7661,6 +7725,7 @@
 				33ABE59917B0E87D00AE0EA1 /* bb_caret-right@2x.png in Resources */,
 				5950D83525DF070200B476B2 /* MIMETYPES.plist in Resources */,
 				CC8369932B5DD5510035A4DA /* playpt3.txt in Resources */,
+				CC3D65762EF4C55B00636BEE /* Localizable_utf16.strings in Resources */,
 				33ABE5A417B142EC00AE0EA1 /* bb_list_white.png in Resources */,
 				33ABE5A517B142EC00AE0EA1 /* bb_list_white@2x.png in Resources */,
 				33ABE5B117B17A5200AE0EA1 /* FontAwesome.ttf in Resources */,
@@ -7858,6 +7923,7 @@
 				CCBE62022EE2DD44000FDD7E /* 05-shuffleone-green.png in Resources */,
 				CCBE62032EE2DD44000FDD7E /* MajorTom in Resources */,
 				CCBE62042EE2DD44000FDD7E /* ManiacsOfNoise in Resources */,
+				CC3D65772EF4C55B00636BEE /* Localizable_utf16.strings in Resources */,
 				CCBE62052EE2DD44000FDD7E /* Mark_Cooksey in Resources */,
 				CCBE62062EE2DD44000FDD7E /* Mark_Cooksey_Old in Resources */,
 				CCBE62072EE2DD44000FDD7E /* MarkII in Resources */,
@@ -8525,12 +8591,34 @@
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
+		CC3D65742EF4C55B00636BEE /* Localizable_utf16.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				CC3D65752EF4C55B00636BEE /* nl */,
+			);
+			name = Localizable_utf16.strings;
+			sourceTree = "<group>";
+		};
 		CCAE594E17ECABD2007638B9 /* Localizable.strings */ = {
 			isa = PBXVariantGroup;
 			children = (
 				CCAE594F17ECABD2007638B9 /* en */,
 				CCAE595217ECAC69007638B9 /* fr */,
 				CC9A0AAB1ACA7BF70002C995 /* Base */,
+				CC31441B2EEF504C0053DCE1 /* ja */,
+				CC3144452EF01E540053DCE1 /* es */,
+				CC3144462EF01E630053DCE1 /* de */,
+				CC3144472EF01E730053DCE1 /* ru */,
+				CC3144482EF056AF0053DCE1 /* ar */,
+				CC3144492EF056BB0053DCE1 /* fi */,
+				CC31444A2EF056C60053DCE1 /* it */,
+				CC31444B2EF056D40053DCE1 /* pt-BR */,
+				CC31444C2EF056E00053DCE1 /* sv */,
+				CC31444D2EF056F50053DCE1 /* zh-Hans */,
+				CC3D65732EF4C54800636BEE /* da */,
+				CC3D65782EF4C5CC00636BEE /* ko */,
+				CC3D65792EF4C7D900636BEE /* nb */,
+				CC3D657A2EF51F4D00636BEE /* nl */,
 			);
 			name = Localizable.strings;
 			sourceTree = "<group>";
@@ -8557,9 +8645,21 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 4.0.3;
+				CURRENT_PROJECT_VERSION = 4.1.0;
+				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = NO;
 				"ENABLE_HARDENED_RUNTIME[sdk=macosx*]" = YES;
+				ENABLE_INCOMING_NETWORK_CONNECTIONS = YES;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
+				ENABLE_RESOURCE_ACCESS_AUDIO_INPUT = NO;
+				ENABLE_RESOURCE_ACCESS_BLUETOOTH = NO;
+				ENABLE_RESOURCE_ACCESS_CALENDARS = NO;
+				ENABLE_RESOURCE_ACCESS_CAMERA = NO;
+				ENABLE_RESOURCE_ACCESS_CONTACTS = NO;
+				ENABLE_RESOURCE_ACCESS_LOCATION = NO;
+				ENABLE_RESOURCE_ACCESS_PRINTING = NO;
+				ENABLE_RESOURCE_ACCESS_USB = NO;
+				ENABLE_USER_SELECTED_FILES = readonly;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/utils",
@@ -8574,7 +8674,7 @@
 				INFOPLIST_KEY_CFBundleDisplayName = Modizer;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.music";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
-				MARKETING_VERSION = 4.0;
+				MARKETING_VERSION = 4.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.yoyofr.modizer;
 				PRODUCT_NAME = modizer;
 				PROVISIONING_PROFILE = "";
@@ -8583,7 +8683,7 @@
 				SKIP_INSTALL = NO;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = YES;
-				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
 				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -8600,9 +8700,21 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 4.0.3;
+				CURRENT_PROJECT_VERSION = 4.1.0;
+				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = NO;
 				"ENABLE_HARDENED_RUNTIME[sdk=macosx*]" = YES;
+				ENABLE_INCOMING_NETWORK_CONNECTIONS = YES;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
+				ENABLE_RESOURCE_ACCESS_AUDIO_INPUT = NO;
+				ENABLE_RESOURCE_ACCESS_BLUETOOTH = NO;
+				ENABLE_RESOURCE_ACCESS_CALENDARS = NO;
+				ENABLE_RESOURCE_ACCESS_CAMERA = NO;
+				ENABLE_RESOURCE_ACCESS_CONTACTS = NO;
+				ENABLE_RESOURCE_ACCESS_LOCATION = NO;
+				ENABLE_RESOURCE_ACCESS_PRINTING = NO;
+				ENABLE_RESOURCE_ACCESS_USB = NO;
+				ENABLE_USER_SELECTED_FILES = readonly;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/utils",
@@ -8616,7 +8728,7 @@
 				INFOPLIST_KEY_CFBundleDisplayName = Modizer;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.music";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
-				MARKETING_VERSION = 4.0;
+				MARKETING_VERSION = 4.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.yoyofr.modizer;
 				PRODUCT_NAME = modizer;
 				PROVISIONING_PROFILE = "";
@@ -8625,7 +8737,7 @@
 				SKIP_INSTALL = NO;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = YES;
-				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
 				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -8695,6 +8807,8 @@
 					"$(PROJECT_DIR)/utils/projectm-ios/libprojectM/src/api/include",
 					"$(PROJECT_DIR)/utils/projectm-ios/libprojectM/src/playlist/api",
 					"$(PROJECT_DIR)/utils/projectm-ios/libprojectM/vendor",
+					"$(PROJECT_DIR)/libs/monkeyaudiocodec/mac-master/src/shared",
+					"$(PROJECT_DIR)/libs/monkeyaudiocodec/mac-master/src/MACLib",
 				);
 				INFOPLIST_FILE = "modizer-info.plist";
 				"INFOPLIST_FILE[sdk=iphone*]" = "modizer-info.plist";
@@ -8854,6 +8968,8 @@
 					"$(PROJECT_DIR)/utils/projectm-ios/libprojectM/src/api/include",
 					"$(PROJECT_DIR)/utils/projectm-ios/libprojectM/src/playlist/api",
 					"$(PROJECT_DIR)/utils/projectm-ios/libprojectM/vendor",
+					"$(PROJECT_DIR)/libs/monkeyaudiocodec/mac-master/src/shared",
+					"$(PROJECT_DIR)/libs/monkeyaudiocodec/mac-master/src/MACLib",
 				);
 				INFOPLIST_FILE = "modizer-info.plist";
 				"INFOPLIST_FILE[sdk=iphone*]" = "modizer-info.plist";
@@ -9014,6 +9130,8 @@
 					"$(PROJECT_DIR)/utils/projectm-ios/libprojectM/src/api/include",
 					"$(PROJECT_DIR)/utils/projectm-ios/libprojectM/src/playlist/api",
 					"$(PROJECT_DIR)/utils/projectm-ios/libprojectM/vendor",
+					"$(PROJECT_DIR)/libs/monkeyaudiocodec/mac-master/src/shared",
+					"$(PROJECT_DIR)/libs/monkeyaudiocodec/mac-master/src/MACLib",
 				);
 				INFOPLIST_FILE = "modizer-info.plist";
 				"INFOPLIST_FILE[sdk=iphone*]" = "modizer-info.plist";
@@ -9125,9 +9243,21 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = YES;
-				CURRENT_PROJECT_VERSION = 4.0.3;
+				CURRENT_PROJECT_VERSION = 4.1.0;
+				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = NO;
 				"ENABLE_HARDENED_RUNTIME[sdk=macosx*]" = YES;
+				ENABLE_INCOMING_NETWORK_CONNECTIONS = YES;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
+				ENABLE_RESOURCE_ACCESS_AUDIO_INPUT = NO;
+				ENABLE_RESOURCE_ACCESS_BLUETOOTH = NO;
+				ENABLE_RESOURCE_ACCESS_CALENDARS = NO;
+				ENABLE_RESOURCE_ACCESS_CAMERA = NO;
+				ENABLE_RESOURCE_ACCESS_CONTACTS = NO;
+				ENABLE_RESOURCE_ACCESS_LOCATION = NO;
+				ENABLE_RESOURCE_ACCESS_PRINTING = NO;
+				ENABLE_RESOURCE_ACCESS_USB = NO;
+				ENABLE_USER_SELECTED_FILES = readonly;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/utils",
@@ -9141,7 +9271,7 @@
 				INFOPLIST_KEY_CFBundleDisplayName = Modizer;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.music";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
-				MARKETING_VERSION = 4.0;
+				MARKETING_VERSION = 4.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.yoyofr.modizer;
 				PRODUCT_NAME = modizer;
 				PROVISIONING_PROFILE = "";
@@ -9151,7 +9281,7 @@
 				SKIP_INSTALL = NO;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = YES;
-				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
 				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -9300,9 +9430,21 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 4.0.3;
+				CURRENT_PROJECT_VERSION = 4.1.0;
+				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = NO;
 				"ENABLE_HARDENED_RUNTIME[sdk=macosx*]" = YES;
+				ENABLE_INCOMING_NETWORK_CONNECTIONS = YES;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
+				ENABLE_RESOURCE_ACCESS_AUDIO_INPUT = NO;
+				ENABLE_RESOURCE_ACCESS_BLUETOOTH = NO;
+				ENABLE_RESOURCE_ACCESS_CALENDARS = NO;
+				ENABLE_RESOURCE_ACCESS_CAMERA = NO;
+				ENABLE_RESOURCE_ACCESS_CONTACTS = NO;
+				ENABLE_RESOURCE_ACCESS_LOCATION = NO;
+				ENABLE_RESOURCE_ACCESS_PRINTING = NO;
+				ENABLE_RESOURCE_ACCESS_USB = NO;
+				ENABLE_USER_SELECTED_FILES = readonly;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/utils",
@@ -9317,7 +9459,7 @@
 				INFOPLIST_KEY_CFBundleDisplayName = Modizer;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.music";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
-				MARKETING_VERSION = 4.0;
+				MARKETING_VERSION = 4.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.yoyofr.modizer;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
@@ -9343,9 +9485,21 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 4.0.3;
+				CURRENT_PROJECT_VERSION = 4.1.0;
+				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = NO;
 				"ENABLE_HARDENED_RUNTIME[sdk=macosx*]" = YES;
+				ENABLE_INCOMING_NETWORK_CONNECTIONS = YES;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
+				ENABLE_RESOURCE_ACCESS_AUDIO_INPUT = NO;
+				ENABLE_RESOURCE_ACCESS_BLUETOOTH = NO;
+				ENABLE_RESOURCE_ACCESS_CALENDARS = NO;
+				ENABLE_RESOURCE_ACCESS_CAMERA = NO;
+				ENABLE_RESOURCE_ACCESS_CONTACTS = NO;
+				ENABLE_RESOURCE_ACCESS_LOCATION = NO;
+				ENABLE_RESOURCE_ACCESS_PRINTING = NO;
+				ENABLE_RESOURCE_ACCESS_USB = NO;
+				ENABLE_USER_SELECTED_FILES = readonly;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/utils",
@@ -9359,7 +9513,7 @@
 				INFOPLIST_KEY_CFBundleDisplayName = Modizer;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.music";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
-				MARKETING_VERSION = 4.0;
+				MARKETING_VERSION = 4.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.yoyofr.modizer;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
@@ -9386,9 +9540,21 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = YES;
-				CURRENT_PROJECT_VERSION = 4.0.3;
+				CURRENT_PROJECT_VERSION = 4.1.0;
+				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = NO;
 				"ENABLE_HARDENED_RUNTIME[sdk=macosx*]" = YES;
+				ENABLE_INCOMING_NETWORK_CONNECTIONS = YES;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
+				ENABLE_RESOURCE_ACCESS_AUDIO_INPUT = NO;
+				ENABLE_RESOURCE_ACCESS_BLUETOOTH = NO;
+				ENABLE_RESOURCE_ACCESS_CALENDARS = NO;
+				ENABLE_RESOURCE_ACCESS_CAMERA = NO;
+				ENABLE_RESOURCE_ACCESS_CONTACTS = NO;
+				ENABLE_RESOURCE_ACCESS_LOCATION = NO;
+				ENABLE_RESOURCE_ACCESS_PRINTING = NO;
+				ENABLE_RESOURCE_ACCESS_USB = NO;
+				ENABLE_USER_SELECTED_FILES = readonly;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/utils",
@@ -9402,7 +9568,7 @@
 				INFOPLIST_KEY_CFBundleDisplayName = Modizer;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.music";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
-				MARKETING_VERSION = 4.0;
+				MARKETING_VERSION = 4.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.yoyofr.modizer;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
@@ -9453,7 +9619,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
 		};
-		CCBE63E42EE2DD44000FDD7E /* Build configuration list for PBXNativeTarget "modizer mac local" */ = {
+		CCBE63E42EE2DD44000FDD7E /* Build configuration list for PBXNativeTarget "modizer_mac" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				CCBE63E52EE2DD44000FDD7E /* Debug */,

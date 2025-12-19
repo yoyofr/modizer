@@ -15,31 +15,44 @@ NS_ASSUME_NONNULL_BEGIN
 @class DetailViewControllerIphone;
 
 @interface MiniPlayerVC : UIViewController {
-    MiniPlayerView *mpview;
-    UIImageView *coverView;
-    UIImage *coverImg;
-    UIView *gestureAreaView;
+//    MiniPlayerView *mpview;
     
-    UIView *songInfoView;
-    CBAutoScrollLabel *labelMain,*labelSub,*labelArtist;
-    UILabel *labelPrev,*labelNext;
-    UILabel *labelPrevEntry,*labelNextEntry;
-    UILabel *labelPlaylist;
-    UILabel *labelTime;
-    char labelTime_mode;
+//    UIImage *coverImg;
+//    UIImageView *coverView;
+//    UIView *gestureAreaView;
     
-    BButton *btnPlay,*btnPause;
+//    UIView *songInfoView;
+//    CBAutoScrollLabel *labelMain,*labelSub,*labelArtist;
+//    UILabel *labelPrev,*labelNext;
+//    UILabel *labelPrevEntry,*labelNextEntry;
+//    UILabel *labelPlaylist;
+//    UILabel *labelTime;
+//    char labelTime_mode;
     
-    bool darkMode;
+//    BButton *btnPlay,*btnPause;
     
-    NSTimer *repeatingTimer;
+//    bool darkMode;
     
-    DetailViewControllerIphone *detailVC;
+//    NSTimer *repeatingTimer;
+    
+//    DetailViewControllerIphone *detailVC;
 }
 
-@property (nonatomic, retain) DetailViewControllerIphone *detailVC;
-@property (nonatomic, retain) UIImage *coverImg;
-@property (nonatomic, retain) MiniPlayerView *mpview;
+@property (nonatomic, strong) DetailViewControllerIphone *detailVC;
+@property (nonatomic, strong) UIImage *coverImg;
+@property (nonatomic, strong) MiniPlayerView *mpview;
+@property (nonatomic, strong) CBAutoScrollLabel *labelMain,*labelSub,*labelArtist;
+@property (nonatomic, strong) UILabel *labelPrev,*labelNext;
+@property (nonatomic, strong) UILabel *labelPrevEntry,*labelNextEntry;
+@property (nonatomic, strong) UILabel *labelPlaylist;
+@property (nonatomic, strong) UILabel *labelTime;
+@property (nonatomic, strong) UIImageView *coverView;
+@property (nonatomic, strong) UIView *gestureAreaView;
+@property (nonatomic, strong) UIView *songInfoView;
+@property (nonatomic, strong) BButton *btnPlay,*btnPause;
+@property (nonatomic, strong) NSTimer *repeatingTimer;
+@property (nonatomic, assign) char labelTime_mode;
+@property (nonatomic, assign) bool darkMode;
 
 -(void) refreshCoverLabels;
 -(void) refreshCoverView;

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		CC0D405C2EECC063007AB96D /* Logging.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC0D405B2EECC063007AB96D /* Logging.cpp */; };
 		CC432B522EB3A076007972E0 /* ShaderPreprocessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC432B512EB3A075007972E0 /* ShaderPreprocessor.cpp */; };
 		CC53BE072EBA421100B159A3 /* AltFinalComposite.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC53BE062EBA421100B159A3 /* AltFinalComposite.cpp */; };
 		CC53BE0A2EBA4F2800B159A3 /* AltPerPixelMesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC53BE092EBA4F2800B159A3 /* AltPerPixelMesh.cpp */; };
@@ -125,6 +126,8 @@
 /* Begin PBXFileReference section */
 		CC08C3A62EA983D100A0F15F /* fast_float.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fast_float.h; path = fast_float/fast_float.h; sourceTree = "<group>"; };
 		CC09C24A2ECA1D5B00BD53CE /* test_int_assignment_fix.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = test_int_assignment_fix.cpp; sourceTree = "<group>"; };
+		CC0D405A2EECC063007AB96D /* Logging.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Logging.hpp; sourceTree = "<group>"; };
+		CC0D405B2EECC063007AB96D /* Logging.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Logging.cpp; sourceTree = "<group>"; };
 		CC3B027D2EB69FF50079D537 /* user_sprites.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = user_sprites.h; sourceTree = "<group>"; };
 		CC432B502EB3A059007972E0 /* ShaderPreprocessor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ShaderPreprocessor.h; sourceTree = "<group>"; };
 		CC432B512EB3A075007972E0 /* ShaderPreprocessor.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ShaderPreprocessor.cpp; sourceTree = "<group>"; };
@@ -1426,6 +1429,8 @@
 		CCABA27A2E93C97600AF59B0 /* libprojectM */ = {
 			isa = PBXGroup;
 			children = (
+				CC0D405A2EECC063007AB96D /* Logging.hpp */,
+				CC0D405B2EECC063007AB96D /* Logging.cpp */,
 				CCE026372E99A778008B7070 /* config.h */,
 				CCE025DC2E99A6A3008B7070 /* PresetFileParser.hpp */,
 				CCE025DD2E99A6A3008B7070 /* PresetFileParser.cpp */,
@@ -1637,6 +1642,7 @@
 				CCABA2BF2E93C97600AF59B0 /* Milkdrop2077WaveLasso.cpp in Sources */,
 				CCABA2C02E93C97600AF59B0 /* TextureAttachment.cpp in Sources */,
 				CCABA2C12E93C97600AF59B0 /* Milkdrop2077WaveStar.cpp in Sources */,
+				CC0D405C2EECC063007AB96D /* Logging.cpp in Sources */,
 				CCABA2C22E93C97600AF59B0 /* Border.cpp in Sources */,
 				CCABA2C32E93C97600AF59B0 /* Milkdrop2077Wave11.cpp in Sources */,
 				CCABA2C42E93C97600AF59B0 /* PresetTransition.cpp in Sources */,

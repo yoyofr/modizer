@@ -1,7 +1,7 @@
 ﻿##############################################################################
 #
 #  STIL v3.9 - SAP Tune Information List
-#  Total number of entries: 1763
+#  Total number of entries: 1767
 #
 ##############################################################################
 
@@ -3306,6 +3306,11 @@ COMMENT: 1st place at Silly Venture 2016 music compo.
  ARTIST: Rob Hubbard
 COMMENT: A cover of the tune from C64 SID Thalamusik by Rob Hubbard.
 
+/Composers/Makary_Brauner/When_You_Grow_Up.sap
+  TITLE: When You Grow Up, Your Heart Dies
+ ARTIST: Gunship
+COMMENT: Final soundtrack from the demo 'Rewind 2' which won at Lost Party 2024.
+
 /Composers/Makary_Brauner/Zybex_Remix.sap
   TITLE: Zybex, Tune #4
  ARTIST: Adam Gilmore
@@ -4697,6 +4702,9 @@ COMMENT: 1st place at Winter Chip II (Best Pokey) music compo.
 
 ### /Composers/Swierszcz_Piotr ###############################################
 
+/Composers/Swierszcz_Piotr/22_22.sap
+COMMENT: Second soundtrack from the demo 'Rewind' which won at Lost Party 2022.
+
 /Composers/Swierszcz_Piotr/Anarchy_Menu_3.sap
   TITLE: Anarchymenu3 [from the Amiga MOD module]
  ARTIST: Matt Simmonds (4-Mat)
@@ -4801,6 +4809,12 @@ COMMENT: Music from the game 'Reverse' released by Mirage in 1993.
 
 /Composers/Swierszcz_Piotr/Scream.sap
 COMMENT: 1st place at QuaST party 1995 music compo.
+
+/Composers/Swierszcz_Piotr/The_Drive.sap
+COMMENT: Third soundtrack from the demo 'Rewind' which won at Lost Party 2022.
+
+/Composers/Swierszcz_Piotr/The_Greedits.sap
+COMMENT: Sixth soundtrack from the demo 'Rewind' which won at Lost Party 2022.
 
 /Composers/Swierszcz_Piotr/White_Lamp.sap
   TITLE: Greensleeves

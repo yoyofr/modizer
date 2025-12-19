@@ -87,7 +87,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
     }
     UITabBarController *tbc = (UITabBarController *)window.rootViewController;
     if (![tbc isKindOfClass:[UITabBarController class]]) {
-        NSLog(@"[SceneDelegate] Unexpected root VC: %@", NSStringFromClass([window.rootViewController class]));
+        MDZELog("[SceneDelegate] Unexpected root VC: %@", NSStringFromClass([window.rootViewController class]));
         return;
     }
     // Resolve specific child controllers
@@ -487,9 +487,6 @@ extern volatile t_settings settings[MAX_SETTINGS];
     SettingsMaintenanceViewController *mntVC;
     switch (indexPath.row) {
         case 0://About
-            //AboutViewController *aboutVC = [[[AboutViewController alloc]  initWithNibName:@"AboutViewController" bundle:[NSBundle mainBundle]] autorelease];
-            // And push the window
-            //aboutVC.view.frame=self.view.frame;
             [self.navigationController pushViewController:aboutVC animated:YES];
             break;
         case 1://Mail support
@@ -510,9 +507,16 @@ extern volatile t_settings settings[MAX_SETTINGS];
         }
             break;
         case 2:{//Tips
+#ifdef MDZ_MACOS_WINDOW_AOT
+            NSString *paypalURL=@"https://www.paypal.com/donate?business=ymagnien@hotmail.com&no_recurring=0&item_name=Modizer";
+            NSString * encodedString = [paypalURL stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLFragmentAllowedCharacterSet]];
+            UIApplication *application = [UIApplication sharedApplication];
+            [application openURL:[NSURL URLWithString: encodedString] options:@{} completionHandler:nil];
+#else
             TipsViewController *tipsVC = [[TipsViewController alloc] init];
             UINavigationController *navController = [[UINavigationController alloc] initWithRootViewController:tipsVC];
             [self presentViewController:navController animated:YES completion:nil];
+#endif
             break;
         }
         case 3:{//Settings

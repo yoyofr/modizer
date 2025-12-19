@@ -40,7 +40,7 @@ typedef NS_ENUM(NSInteger, TipTier) {
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    self.title = @"Support with a Tip";
+    self.title = NSLocalizedString(@"Support with a Tip", @"");
     self.view.backgroundColor = [UIColor systemBackgroundColor];
     
     [self setupPriceFormatter];
@@ -83,12 +83,12 @@ typedef NS_ENUM(NSInteger, TipTier) {
     
     // Header
     self.headerLabel = [[UILabel alloc] init];
-    self.headerLabel.text = @"Enjoy Modizer ?";
+    self.headerLabel.text = NSLocalizedString(@"Enjoy Modizer ?", @"");
     self.headerLabel.font = [UIFont systemFontOfSize:28 weight:UIFontWeightBold];
     self.headerLabel.textAlignment = NSTextAlignmentCenter;
     
     self.subheaderLabel = [[UILabel alloc] init];
-    self.subheaderLabel.text = @"Your support helps keep Modizer running and ad-free!";
+    self.subheaderLabel.text = NSLocalizedString(@"Your support helps keep Modizer running and ad-free!", @"");
     self.subheaderLabel.font = [UIFont systemFontOfSize:16];
     self.subheaderLabel.textColor = [UIColor secondaryLabelColor];
     self.subheaderLabel.textAlignment = NSTextAlignmentCenter;
@@ -121,7 +121,7 @@ typedef NS_ENUM(NSInteger, TipTier) {
     
     // Thank you message (initially hidden)
     UILabel *thankYouLabel = [[UILabel alloc] init];
-    thankYouLabel.text = @"Thank you for your support! ❤️";
+    thankYouLabel.text = NSLocalizedString(@"Thank you for your support! ❤️", @"");
     thankYouLabel.font = [UIFont systemFontOfSize:14];
     thankYouLabel.textColor = [UIColor secondaryLabelColor];
     thankYouLabel.textAlignment = NSTextAlignmentCenter;
@@ -164,7 +164,7 @@ typedef NS_ENUM(NSInteger, TipTier) {
 }
 
 - (void)pullToRefresh:(UIRefreshControl *)refreshControl {
-    NSLog(@"User triggered pull-to-refresh");
+    //NSLog(@"User triggered pull-to-refresh");
     
     // Force refresh products
     [[StoreManager sharedManager] refreshProducts];
@@ -178,10 +178,10 @@ typedef NS_ENUM(NSInteger, TipTier) {
     NSMutableArray<TipButton *> *buttons = [NSMutableArray array];
     
     NSArray *configs = @[
-        @{@"emoji": @"☕", @"title": @"Coffee", @"subtitle": @"Loading...", @"color": [UIColor systemBrownColor]},
-        @{@"emoji": @"🥐", @"title": @"Coffee & Croissant", @"subtitle": @"Loading...", @"color": [UIColor systemOrangeColor]},
-        //@{@"emoji": @"🍔", @"title": @"Lunch", @"subtitle": @"Loading...", @"color": [UIColor systemBlueColor]},
-        @{@"emoji": @"🍽️", @"title": @"Dinner", @"subtitle": @"Loading...", @"color": [UIColor systemPurpleColor]}
+        @{@"emoji": @"☕", @"title": NSLocalizedString(@"Coffee", @""), @"subtitle": NSLocalizedString(@"Loading...", @""), @"color": [UIColor systemBrownColor]},
+        @{@"emoji": @"🥐", @"title": NSLocalizedString(@"Coffee & Croissant", @""), @"subtitle": NSLocalizedString(@"Loading...", @""), @"color": [UIColor systemOrangeColor]},
+        //@{@"emoji": @"🍔", @"title": @"Lunch", @"subtitle": NSLocalizedString(@"Loading...", @""), @"color": [UIColor systemBlueColor]},
+        @{@"emoji": @"🍽️", @"title": NSLocalizedString(@"Dinner", @""), @"subtitle": NSLocalizedString(@"Loading...", @""), @"color": [UIColor systemPurpleColor]}
     ];
     
     for (NSDictionary *config in configs) {
@@ -346,18 +346,18 @@ typedef NS_ENUM(NSInteger, TipTier) {
     
     // Get title from button
     UILabel *titleLabel = [sender viewWithTag:100];
-    NSString *tipName = titleLabel.text ?: @"Tip";
+    NSString *tipName = titleLabel.text ?: NSLocalizedString(@"Tip", @"");
     
     // Show confirmation
-    UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Confirm Tip"
-                                                                   message:[NSString stringWithFormat:@"Send a %@ tip for %@?", tipName, formattedPrice]
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Confirm Tip", @"")
+                                                                   message:[NSString stringWithFormat:NSLocalizedString(@"Send a %@ tip for %@?", @""), tipName, formattedPrice]
                                                             preferredStyle:UIAlertControllerStyleAlert];
     
-    [alert addAction:[UIAlertAction actionWithTitle:@"Cancel"
+    [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", @"")
                                               style:UIAlertActionStyleCancel
                                             handler:nil]];
     
-    [alert addAction:[UIAlertAction actionWithTitle:@"Send Tip"
+    [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"Send Tip", @"")
                                               style:UIAlertActionStyleDefault
                                             handler:^(UIAlertAction *action) {
         [self purchaseProduct:sender.product];
@@ -426,7 +426,7 @@ typedef NS_ENUM(NSInteger, TipTier) {
     if (products.count > 0) {
         [self updateButtonsWithProducts];
     } else {
-        [self showErrorMessage:@"Unable to load products. Please check your internet connection."];
+        [self showErrorMessage:NSLocalizedString(@"Unable to load products. Please check your internet connection.", @"")];
     }
 }
 
@@ -469,10 +469,10 @@ typedef NS_ENUM(NSInteger, TipTier) {
 }
 
 - (void)showErrorMessage:(NSString *)message {
-    UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Error"
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Error", @"")
                                                                    message:message
                                                             preferredStyle:UIAlertControllerStyleAlert];
-    [alert addAction:[UIAlertAction actionWithTitle:@"OK"
+    [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"OK", @"")
                                               style:UIAlertActionStyleDefault
                                             handler:nil]];
     [self presentViewController:alert animated:YES completion:nil];

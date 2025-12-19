@@ -284,45 +284,45 @@
     NSMutableArray *tmpArray=[[NSMutableArray alloc] init];
     t_webSite_entry webs_entry[]= {
         //computers
-        {@"http://pc.joshw.info",@"PC Streamed Music",@"JoshW/PC",@"Computers",TRUE},
-        {@"http://cdi.joshw.info/amiga",@"Amiga Music",@"JoshW/Amiga",@"Computers",TRUE},
-        {@"http://fmtowns.joshw.info",@"FM Towns Music",@"JoshW/FMT",@"Computers",TRUE},
-        {@"http://s98.joshw.info",@"S98 Music",@"JoshW/S98",@"Computers",TRUE},
-        {@"http://kss.joshw.info/MSX",@"MSX Music",@"JoshW/MSX",@"Computers",TRUE},
+        {@"https://pc.joshw.info",@"PC Streamed Music",@"JoshW/PC",@"Computers",TRUE},
+        {@"https://cdi.joshw.info/amiga",@"Amiga Music",@"JoshW/Amiga",@"Computers",TRUE},
+        {@"https://fmtowns.joshw.info",@"FM Towns Music",@"JoshW/FMT",@"Computers",TRUE},
+        {@"https://s98.joshw.info",@"S98 Music",@"JoshW/S98",@"Computers",TRUE},
+        {@"https://kss.joshw.info/MSX",@"MSX Music",@"JoshW/MSX",@"Computers",TRUE},
         //consoles
-        {@"http://nsf.joshw.info",@"NES Music",@"JoshW/NES",@"Consoles",TRUE},
-        {@"http://spc.joshw.info",@"SNES Music",@"JoshW/SNES",@"Consoles",TRUE},
-        {@"http://usf.joshw.info",@"Nintendo64 Music",@"JoshW/N64",@"Consoles",TRUE},
-        {@"http://gcn.joshw.info",@"Gamecube Music",@"JoshW/GC",@"Consoles",TRUE},
-        {@"http://wii.joshw.info",@"Nintendo Wii Music",@"JoshW/Wii",@"Consoles",TRUE},
-        {@"http://wiiu.joshw.info",@"Nintendo Wii U Music",@"JoshW/WiiU",@"Consoles",TRUE},
-        {@"http://kss.joshw.info/Master%20System",@"Master System Music",@"JoshW/SMS",@"Consoles",TRUE},
-        {@"http://smd.joshw.info",@"Genesis/SegaCD Music",@"JoshW/SMD",@"Consoles",TRUE},
-        {@"http://ssf.joshw.info",@"Saturn Music",@"JoshW/Saturn",@"Consoles",TRUE},
-        {@"http://dsf.joshw.info",@"Dreamcast Music",@"JoshW/DC",@"Consoles",TRUE},
-        {@"http://hes.joshw.info",@"PC Engine Music",@"JoshW/PCE",@"Consoles",TRUE},
-        {@"http://ncd.joshw.info",@"Neo Geo CD Music",@"JoshW/NEOCD",@"Consoles",TRUE},
-        {@"http://psf.joshw.info",@"PlayStation Music",@"JoshW/PS1",@"Consoles",TRUE},
-        {@"http://psf2.joshw.info",@"PlayStation 2 Music",@"JoshW/PS2",@"Consoles",TRUE},
-        {@"http://psf3.joshw.info",@"PlayStation 3 Music",@"JoshW/PS3",@"Consoles",TRUE},
-        {@"http://xbox.joshw.info",@"XBox Music",@"JoshW/Xbox",@"Consoles",TRUE},
-        {@"http://x360.joshw.info",@"XBox360 Music",@"JoshW/X360",@"Consoles",TRUE},
-        {@"http://3do.joshw.info",@"3DO Music",@"JoshW/3DO",@"Consoles",TRUE},
-        {@"http://switch.joshw.info",@"Nintendo Switch",@"JoshW/Switch",@"Consoles",TRUE},
-        {@"http://cdi.joshw.info/cdi",@"Philips CD-i",@"JoshW/CD-i",@"Consoles",TRUE},
-        {@"http://psf4.joshw.info",@"Playstation 4",@"JoshW/PS4",@"Consoles",TRUE},
-        {@"http://psf5.joshw.info",@"Playstation 5",@"JoshW/PS5",@"Consoles",TRUE},
-        {@"http://cdi.joshw.info/pgm",@"Arcade PGM",@"JoshW/PGM",@"Consoles",FALSE},
+        {@"https://nsf.joshw.info",@"NES Music",@"JoshW/NES",@"Consoles",TRUE},
+        {@"https://spc.joshw.info",@"SNES Music",@"JoshW/SNES",@"Consoles",TRUE},
+        {@"https://usf.joshw.info",@"Nintendo64 Music",@"JoshW/N64",@"Consoles",TRUE},
+        {@"https://gcn.joshw.info",@"Gamecube Music",@"JoshW/GC",@"Consoles",TRUE},
+        {@"https://wii.joshw.info",@"Nintendo Wii Music",@"JoshW/Wii",@"Consoles",TRUE},
+        {@"https://wiiu.joshw.info",@"Nintendo Wii U Music",@"JoshW/WiiU",@"Consoles",TRUE},
+        {@"https://kss.joshw.info/Master%20System",@"Master System Music",@"JoshW/SMS",@"Consoles",TRUE},
+        {@"https://smd.joshw.info",@"Genesis/SegaCD Music",@"JoshW/SMD",@"Consoles",TRUE},
+        {@"https://ssf.joshw.info",@"Saturn Music",@"JoshW/Saturn",@"Consoles",TRUE},
+        {@"https://dsf.joshw.info",@"Dreamcast Music",@"JoshW/DC",@"Consoles",TRUE},
+        {@"https://hes.joshw.info",@"PC Engine Music",@"JoshW/PCE",@"Consoles",TRUE},
+        {@"https://ncd.joshw.info",@"Neo Geo CD Music",@"JoshW/NEOCD",@"Consoles",FALSE},
+        {@"https://psf.joshw.info",@"PlayStation Music",@"JoshW/PS1",@"Consoles",TRUE},
+        {@"https://psf2.joshw.info",@"PlayStation 2 Music",@"JoshW/PS2",@"Consoles",TRUE},
+        {@"https://psf3.joshw.info",@"PlayStation 3 Music",@"JoshW/PS3",@"Consoles",TRUE},
+        {@"https://xbox.joshw.info",@"XBox Music",@"JoshW/Xbox",@"Consoles",TRUE},
+        {@"https://x360.joshw.info",@"XBox360 Music",@"JoshW/X360",@"Consoles",TRUE},
+        {@"https://3do.joshw.info",@"3DO Music",@"JoshW/3DO",@"Consoles",TRUE},
+        {@"https://switch.joshw.info",@"Nintendo Switch",@"JoshW/Switch",@"Consoles",TRUE},
+        {@"https://cdi.joshw.info/cdi",@"Philips CD-i",@"JoshW/CD-i",@"Consoles",TRUE},
+        {@"https://psf4.joshw.info",@"Playstation 4",@"JoshW/PS4",@"Consoles",TRUE},
+        {@"https://psf5.joshw.info",@"Playstation 5",@"JoshW/PS5",@"Consoles",TRUE},
+        {@"https://cdi.joshw.info/pgm",@"Arcade PGM",@"JoshW/PGM",@"Consoles",FALSE},
         //portables
-        {@"http://gbs.joshw.info",@"Game Boy Music",@"JoshW/GB",@"Portables",TRUE},
-        {@"http://gsf.joshw.info",@"Game Boy Advance Music",@"JoshW/GBA",@"Portables",TRUE},
-        {@"http://2sf.joshw.info",@"Nintendo DS Music",@"JoshW/NDS",@"Portables",TRUE},
-        {@"http://3sf.joshw.info",@"Nintendo 3DS Music",@"JoshW/3DS",@"Portables",TRUE},
-        {@"http://kss.joshw.info/Game%20Gear",@"Sega Game Gear Music",@"JoshW/SGG",@"Portables",TRUE},
-        {@"http://wsr.joshw.info",@"WonderSwan Music",@"JoshW/WS",@"Portables",TRUE},
-        {@"http://psp.joshw.info",@"PSP Music",@"JoshW/PSP",@"Portables",TRUE},
-        {@"http://vita.joshw.info",@"PSVita Music",@"JoshW/PSVita",@"Portables",TRUE},
-        {@"http://mobile.joshw.info",@"Mobile/Smartphone Music",@"JoshW/Mobile",@"Portables",TRUE}
+        {@"https://gbs.joshw.info",@"Game Boy Music",@"JoshW/GB",@"Portables",TRUE},
+        {@"https://gsf.joshw.info",@"Game Boy Advance Music",@"JoshW/GBA",@"Portables",TRUE},
+        {@"https://2sf.joshw.info",@"Nintendo DS Music",@"JoshW/NDS",@"Portables",TRUE},
+        {@"https://3sf.joshw.info",@"Nintendo 3DS Music",@"JoshW/3DS",@"Portables",TRUE},
+        {@"https://kss.joshw.info/Game%20Gear",@"Sega Game Gear Music",@"JoshW/SGG",@"Portables",TRUE},
+        {@"https://wsr.joshw.info",@"WonderSwan Music",@"JoshW/WS",@"Portables",TRUE},
+        {@"https://psp.joshw.info",@"PSP Music",@"JoshW/PSP",@"Portables",TRUE},
+        {@"https://vita.joshw.info",@"PSVita Music",@"JoshW/PSVita",@"Portables",TRUE},
+        {@"https://mobile.joshw.info",@"Mobile/Smartphone Music",@"JoshW/Mobile",@"Portables",TRUE}
     };
     
     for (int i=0;i<sizeof(webs_entry)/sizeof(t_webSite_entry);i++) {
@@ -957,6 +957,8 @@
         NSString *localPath=[NSHomeDirectory() stringByAppendingFormat:@"/%@",cur_db_entries[section][indexPath.row].fullpath];
         mClickedPrimAction=(settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==0);
         
+        MDZILog("URL: %@",cur_db_entries[section][indexPath.row].URL);
+        
         if (cur_db_entries[section][indexPath.row].downloaded==1) {
             if (mClickedPrimAction) {
                 NSMutableArray *array_label = [[NSMutableArray alloc] init];
@@ -978,7 +980,6 @@
             }
         } else {
             [self checkCreate:[localPath stringByDeletingLastPathComponent]];
-            
             
             [downloadViewController addURLToDownloadList:cur_db_entries[section][indexPath.row].URL fileName:cur_db_entries[section][indexPath.row].label filePath:cur_db_entries[section][indexPath.row].fullpath filesize:-1 isMODLAND:1 usePrimaryAction:mClickedPrimAction];
             

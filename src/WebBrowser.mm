@@ -46,7 +46,7 @@ int found_img;
 @synthesize infoDownloadView,infoDownloadLbl;
 
 @synthesize custom_URL,custom_URL_name;
-@synthesize custom_url_count;
+@synthesize custom_url_count,is_macOS;
 
 #include "MiniPlayerImplementNoTableView.h"
 
@@ -394,9 +394,16 @@ int found_img;
     // v" VERSION_MAJOR_STR "." VERSION_MINOR_STR "
     currentMode=WEB_MODE;
 
-    [webView loadRequest:[NSURLRequest requestWithURL:[NSURL fileURLWithPath:[[NSBundle mainBundle]
-                                                                              pathForResource:@"browser_home" ofType:@"html"]isDirectory:NO]]];
-    
+    // Load HTML file and replace localized message
+    NSString *htmlPath = [[NSBundle mainBundle] pathForResource:@"browser_home" ofType:@"html"];
+    NSString *htmlContent = [NSString stringWithContentsOfFile:htmlPath encoding:NSUTF8StringEncoding error:nil];
+
+    // Replace placeholder with localized message
+    NSString *localizedMessage = NSLocalizedString(@"Browser_Welcome_Message", @"");
+    htmlContent = [htmlContent stringByReplacingOccurrencesOfString:@"Localized_Message" withString:localizedMessage];
+
+    [webView loadHTMLString:htmlContent baseURL:[NSURL fileURLWithPath:[[NSBundle mainBundle] resourcePath]]];
+
 //	[webView loadHTMLString:html baseURL:nil];
     addressTextField.text=@"";
 }
@@ -893,7 +900,28 @@ didCommitNavigation:(WKNavigation *)navigation {
 //- (void)webViewDidFinishLoad:(WKWebView*)webV {
 - (void)webView:(WKWebView *)webView
 didFinishNavigation:(WKNavigation *)navigation {
-    
+
+    if (is_macOS) {
+        // Injecter le JavaScript pour intercepter les clics droits sur les images
+        NSString *js = @"\
+        document.addEventListener('contextmenu', function(e) { \
+            if (e.target.tagName === 'IMG') { \
+                e.preventDefault(); \
+                window.webkit.messageHandlers.imageContextMenu.postMessage({ \
+                    imageUrl: e.target.src, \
+                    imageAlt: e.target.alt || '' \
+                }); \
+                return false; \
+            } \
+        }, false);";
+        
+        [webView evaluateJavaScript:js completionHandler:^(id result, NSError *error) {
+            if (error) {
+                NSLog(@"❌ Erreur injection JS: %@", error);
+            }
+        }];
+    }
+
     //update addressfield indicator
     UIButton *button = [[UIButton alloc] initWithFrame:CGRectMake(0,0,28,28)];
     [button setImage:[UIImage imageNamed:@"bb_refresh.png"] forState:UIControlStateNormal];
@@ -1214,6 +1242,37 @@ didFinishNavigation:(WKNavigation *)navigation {
     
 }
 
+//#if TARGET_OS_MACCATALYST
+// Implémentation du WKScriptMessageHandler pour gérer les clics sur images
+- (void)userContentController:(WKUserContentController *)userContentController
+      didReceiveScriptMessage:(WKScriptMessage *)message {
+
+    if ([message.name isEqualToString:@"imageContextMenu"]) {
+        NSDictionary *dict = message.body;
+        NSString *imageUrl = dict[@"imageUrl"];
+
+        if (imageUrl) {
+            // Télécharger et copier l'image
+            NSURL *url = [NSURL URLWithString:imageUrl];
+            NSURLSessionDataTask *task = [[NSURLSession sharedSession]
+                dataTaskWithURL:url
+                completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+                    if (data && !error) {
+                        UIImage *image = [UIImage imageWithData:data];
+                        if (image) {
+                            dispatch_async(dispatch_get_main_queue(), ^{
+                                [[UIPasteboard generalPasteboard] setImage:image];
+                                NSLog(@"✅ Image copiée dans le presse-papier");
+                            });
+                        }
+                    }
+                }];
+            [task resume];
+        }
+    }
+}
+//#endif
+
 - (id)findChildOfClass:(Class)cls inTabBarController:(UITabBarController *)tbc {
     for (UIViewController *vc in tbc.viewControllers) {
         // Unwrap nav controllers if present
@@ -1228,8 +1287,6 @@ didFinishNavigation:(WKNavigation *)navigation {
     return nil;
 }
 
-
-
 -(void) loadControllers {
     // With automatic storyboard loading, the window and root VC are created by UIKit.
     UIWindow *window=[UIApplication sharedApplication].windows.firstObject;
@@ -1239,7 +1296,7 @@ didFinishNavigation:(WKNavigation *)navigation {
     }
     UITabBarController *tbc = (UITabBarController *)window.rootViewController;
     if (![tbc isKindOfClass:[UITabBarController class]]) {
-        NSLog(@"[SceneDelegate] Unexpected root VC: %@", NSStringFromClass([window.rootViewController class]));
+        MDZELog("[SceneDelegate] Unexpected root VC: %@", NSStringFromClass([window.rootViewController class]));
         return;
     }
     // Resolve specific child controllers
@@ -1262,7 +1319,7 @@ didFinishNavigation:(WKNavigation *)navigation {
     forceReloadCells=false;
     darkMode=false;
     if (self.traitCollection.userInterfaceStyle==UIUserInterfaceStyleDark) darkMode=true;
-        
+    
     wasMiniPlayerOn=([detailViewController mPlaylist_size]>0?true:false);
     miniplayerVC=nil;
     
@@ -1329,15 +1386,57 @@ didFinishNavigation:(WKNavigation *)navigation {
     configuration.ignoresViewportScaleLimits = NO;
     configuration.dataDetectorTypes = WKDataDetectorTypeNone;
     
+    is_macOS=false;
+    if ([NSProcessInfo processInfo].isiOSAppOnMac) {
+        is_macOS=true;
+    }
+#if TARGET_OS_MACCATALYST
+    is_macOS=true;
+#endif
+    
+    if (is_macOS) {
+        // ========================================
+        // FIX 1: User-Agent pour avoir le bon layout
+        // ========================================
+        // Forcer le User-Agent de Safari macOS complet
+        // configuration.applicationNameForUserAgent = @"Version/17.0 Safari/605.1.15";
+
+        // ========================================
+        // FIX 2: Message handler pour copier les images
+        // ========================================
+        WKUserContentController *contentController = [[WKUserContentController alloc] init];
+        [contentController addScriptMessageHandler:self name:@"imageContextMenu"];
+        configuration.userContentController = contentController;
+
+        // ========================================
+        // FIX 3: Activer les préférences pour les interactions
+        // ========================================
+        configuration.preferences.javaScriptCanOpenWindowsAutomatically = YES;
+        
+        // Activer les interactions avec les images
+        WKPreferences *preferences = [[WKPreferences alloc] init];
+        preferences.javaScriptEnabled = YES;
+        configuration.preferences = preferences;
+        
+        // Autoriser les liens et les previews (important pour le menu contextuel)
+        if (@available(macCatalyst 13.0, *)) {
+            configuration.defaultWebpagePreferences.allowsContentJavaScript = YES;
+        }
+    }
 
     // Create the new WKWebView
     webView = [[ModizerWebView alloc] initWithFrame:CGRectMake(0,0,0,0) configuration:configuration];
-    
+
+    if (is_macOS) {
+        // Forcer le User-Agent de Safari macOS pour avoir le bon layout
+        webView.customUserAgent = @"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1 Safari/605.1.15";
+    }
+
     //webView.scalesPageToFit = YES;
     //webView.autoresizesSubviews = YES;
     //webView.autoresizingMask=(UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth);
     webView.translatesAutoresizingMaskIntoConstraints = NO;
-    
+
     // Set the delegate - note this is 'navigationDelegate' not just 'delegate'
     self.webView.navigationDelegate = self;
     self.webView.UIDelegate=self;

@@ -16,8 +16,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "CCBE60562EE2DD44000FDD7E"
-               BuildableName = "modizer mac local.app"
-               BlueprintName = "modizer mac local"
+               BuildableName = "modizer_mac.app"
+               BlueprintName = "modizer_mac"
                ReferencedContainer = "container:modizer.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -31,9 +31,9 @@
       shouldAutocreateTestPlan = "YES">
    </TestAction>
    <LaunchAction
-      buildConfiguration = "Release"
-      selectedDebuggerIdentifier = ""
-      selectedLauncherIdentifier = "Xcode.IDEFoundation.Launcher.PosixSpawn"
+      buildConfiguration = "Debug"
+      selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
+      selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       launchStyle = "0"
       useCustomWorkingDirectory = "NO"
       ignoresPersistentStateOnLaunch = "NO"
@@ -45,8 +45,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "CCBE60562EE2DD44000FDD7E"
-            BuildableName = "modizer mac local.app"
-            BlueprintName = "modizer mac local"
+            BuildableName = "modizer_mac.app"
+            BlueprintName = "modizer_mac"
             ReferencedContainer = "container:modizer.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
@@ -62,8 +62,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "CCBE60562EE2DD44000FDD7E"
-            BuildableName = "modizer mac local.app"
-            BlueprintName = "modizer mac local"
+            BuildableName = "modizer_mac.app"
+            BlueprintName = "modizer_mac"
             ReferencedContainer = "container:modizer.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>

@@ -210,18 +210,78 @@ bool mdz_macos_AOTplugin=false;
 
 - (void)sceneDidBecomeActive:(UIScene *)scene {
     // Called when the scene has moved from an inactive state to an active state.
+    //if ([[UIApplication sharedApplication] respondsToSelector:@selector(endReceivingRemoteControlEvents)]) {
+    //    [[UIApplication sharedApplication] endReceivingRemoteControlEvents];
+        [detailViewControlleriPhone enterForeground];
+    //}
+    
+    [downloadVC restoreDownloadList];
 }
 
 - (void)sceneWillResignActive:(UIScene *)scene {
     // Called when the scene will move from an active state to an inactive state.
+    /*
+     Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
+     Use this method to pause ongoing tasks, disable timers, and throttle down OpenGL ES frame rates. Games should use this method to pause the game.
+     */
+    //if ([[UIApplication sharedApplication] respondsToSelector:@selector(beginReceivingRemoteControlEvents)]) {
+    [detailViewControlleriPhone enterBackground];
+//        [tabBarC becomeFirstResponder];
+//        [[UIApplication sharedApplication] beginReceivingRemoteControlEvents];
+    //}
+
+    // Ensure that settings are saved if closed by OS after resigning active
+    [SettingsGenViewController backupSettings];
+    [detailViewControlleriPhone saveSettings];
+    [downloadVC backupDownloadList];
 }
 
 - (void)sceneWillEnterForeground:(UIScene *)scene {
     // Called as the scene transitions from the background to the foreground.
+    NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
+    NSNumber *valNb;
+    valNb=[[NSNumber alloc] initWithInt:1];
+    [prefs setObject:valNb forKey:@"ModizerRunningForeGround"];
+    [prefs synchronize];
+    
+    [downloadVC refreshDownloadCountBadge];
 }
+
+- (void)cleanupTempData {
+    NSArray* temp = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:NSTemporaryDirectory() error:NULL];
+    for (NSString *file in temp) {
+        NSString *str=(NSString *)file;
+        if ([str containsString:@"MDZNotif"]) [[NSFileManager defaultManager] removeItemAtPath:[NSString stringWithFormat:@"%@%@", NSTemporaryDirectory(), file] error:NULL];
+    }
+}
+
+- (void)removeAllNotifications {
+    UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
+    
+    // Remove all delivered notifications
+    [center removeAllDeliveredNotifications];
+    
+    // Remove all pending notifications
+    [center removeAllPendingNotificationRequests];
+    
+    //MDZDLog("All notifications removed");
+}
+
+
 
 - (void)sceneDidEnterBackground:(UIScene *)scene {
     // Called as the scene transitions from the foreground to the background.
+    [SettingsGenViewController backupSettings];
+    [detailViewControlleriPhone saveSettings];
+    [downloadVC backupDownloadList];
+    
+    NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
+    NSNumber *valNb;
+    valNb=[[NSNumber alloc] initWithInt:0];
+    [prefs setObject:valNb forKey:@"ModizerRunningForeGround"];
+    [prefs synchronize];
+    
+    [self cleanupTempData];
 }
 
 - (void)scene:(UIScene *)scene openURLContexts:(NSSet<UIOpenURLContext *> *)URLContexts {

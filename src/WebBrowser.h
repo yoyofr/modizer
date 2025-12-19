@@ -19,7 +19,7 @@
 @class DownloadViewController;
 @class DetailViewControllerIphone;
 
-@interface WebBrowser : UIViewController <UINavigationControllerDelegate,WKNavigationDelegate,WKUIDelegate,UITextFieldDelegate,NSURLSessionTaskDelegate,NSURLSessionDataDelegate> {
+@interface WebBrowser : UIViewController <UINavigationControllerDelegate,WKNavigationDelegate,WKUIDelegate,UITextFieldDelegate,NSURLSessionTaskDelegate,NSURLSessionDataDelegate,WKScriptMessageHandler> {
 	ModizerWebView *webView;
     IBOutlet UIView *view;
 	IBOutlet UIToolbar *toolBar;
@@ -47,11 +47,13 @@
     NSMutableArray *custom_URL;
     NSMutableArray *custom_URL_name;
     int custom_url_count;
+    bool is_macOS;
 }
 
 @property (strong) NSMutableArray *custom_URL;
 @property (strong) NSMutableArray *custom_URL_name;
 @property int custom_url_count;
+@property bool is_macOS;
 
 @property (nonatomic,retain) IBOutlet UIView *infoDownloadView;
 @property (nonatomic,retain) IBOutlet UILabel *infoDownloadLbl;

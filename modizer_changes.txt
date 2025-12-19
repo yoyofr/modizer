@@ -27,6 +27,27 @@ missing seek support:
 => add a small progress bar in cells in modland/asma/hvsc... When downloading
 => ADPLUG oscillo data not generated when OPL is not Woody
 
+4.1
+----
+- improved localizations, add of japanese, spanish, german, russian, arabic, finnish, italian, portuguese, swedish, chinese (simplified), norwegian, danish, dutch, korean
+- new playback library: Monkey Audio Codec (APE)
+- better support of archive including m3u playlist data, specially pcengine archives from JoshW collections
+- background mode improvement
+- RSN archive: spc filenames replaced by title when available (in player view/archive entries selector)
+- improved web browser home page
+- updated DB with latest data (Modland, ASMA)
+- various bugfixes and stability improvement
+
+4.0
+---
+- Optimized FX engine now using Metal (all FX migrated/rewritten from OpenGL ES 1.0)
+- New redesigned FX menu 
+- FX: ProjectM/Milkdrop support for a new dimension of music visualization (add you owns in ProjectM/presets and texture folders using Files app)
+- Shortcuts and Siri support
+- Playback librairies updated (libopenmpt, libxmp, ...)
+- Music DB updated: modland, hvsc, asma
+- Stability improvements
+
 3.11
 ----
 - [DB] ASMA & MODLAND updated to latest version (2024/09/29)

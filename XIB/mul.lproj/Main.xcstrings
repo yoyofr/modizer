@@ -1,498 +1,2827 @@
 {
-  "sourceLanguage" : "en",
-  "strings" : {
-    "3m3-1K-1ZU.text" : {
-      "comment" : "Class = \"UILabel\"; text = \"Label....................\"; ObjectID = \"3m3-1K-1ZU\";",
-      "extractionState" : "extracted_with_value",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Label...................."
+  "sourceLanguage": "en",
+  "strings": {
+    "3m3-1K-1ZU.text": {
+      "comment": "Class = \"UILabel\"; text = \"Label....................\"; ObjectID = \"3m3-1K-1ZU\";",
+      "extractionState": "extracted_with_value",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Label...................."
           }
         }
-      }
+      },
+      "shouldTranslate": false
     },
-    "3zP-nW-rOu.title" : {
-      "comment" : "Class = \"UITabBarItem\"; title = \"Item\"; ObjectID = \"3zP-nW-rOu\";",
-      "extractionState" : "extracted_with_value",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Item"
+    "3zP-nW-rOu.title": {
+      "comment": "Class = \"UITabBarItem\"; title = \"Item\"; ObjectID = \"3zP-nW-rOu\";",
+      "extractionState": "extracted_with_value",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Item"
           }
         }
-      }
+      },
+      "shouldTranslate": false
     },
-    "9dM-I0-L66.title" : {
-      "comment" : "Class = \"UINavigationItem\"; title = \"Search\"; ObjectID = \"9dM-I0-L66\";",
-      "extractionState" : "extracted_with_value",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Search"
-          }
-        }
-      }
-    },
-    "49B-dI-2fP.title" : {
-      "comment" : "Class = \"UINavigationItem\"; title = \"More\"; ObjectID = \"49B-dI-2fP\";",
-      "extractionState" : "extracted_with_value",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "More"
-          }
-        }
-      }
-    },
-    "57T-bH-4lR.normalTitle" : {
-      "comment" : "Class = \"UIButton\"; normalTitle = \"Resume\"; ObjectID = \"57T-bH-4lR\";",
-      "extractionState" : "extracted_with_value",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Resume"
-          }
-        }
-      }
-    },
-    "944-4Q-LrI.normalTitle" : {
-      "comment" : "Class = \"UIButton\"; normalTitle = \"Tap to activate FX\"; ObjectID = \"944-4Q-LrI\";",
-      "extractionState" : "extracted_with_value",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Tap to activate FX"
+    "9dM-I0-L66.title": {
+      "comment": "Class = \"UINavigationItem\"; title = \"Search\"; ObjectID = \"9dM-I0-L66\";",
+      "extractionState": "extracted_with_value",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suche"
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Toucher pour activer les FX"
-          }
-        }
-      }
-    },
-    "AYl-JB-O45.title" : {
-      "comment" : "Class = \"UINavigationItem\"; title = \"Internet\"; ObjectID = \"AYl-JB-O45\";",
-      "extractionState" : "extracted_with_value",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Internet"
-          }
-        }
-      }
-    },
-    "bgZ-cP-ERA.normalTitle" : {
-      "comment" : "Class = \"UIButton\"; normalTitle = \"Cancel\"; ObjectID = \"bgZ-cP-ERA\";",
-      "extractionState" : "extracted_with_value",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Cancel"
-          }
-        }
-      }
-    },
-    "bvi-Gp-gQo.normalTitle" : {
-      "comment" : "Class = \"UIButton\"; normalTitle = \"-\"; ObjectID = \"bvi-Gp-gQo\";",
-      "extractionState" : "extracted_with_value",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "-"
-          }
-        }
-      }
-    },
-    "CSl-7t-Tff.title" : {
-      "comment" : "Class = \"UITabBarItem\"; title = \"Playlist\"; ObjectID = \"CSl-7t-Tff\";",
-      "extractionState" : "extracted_with_value",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Playlist"
-          }
-        }
-      }
-    },
-    "cvV-hj-6A0.title" : {
-      "comment" : "Class = \"UITabBarItem\"; title = \"Online\"; ObjectID = \"cvV-hj-6A0\";",
-      "extractionState" : "extracted_with_value",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Online"
-          }
-        }
-      }
-    },
-    "DvQ-5y-VX7.title" : {
-      "comment" : "Class = \"UITabBarItem\"; title = \"Library\"; ObjectID = \"DvQ-5y-VX7\";",
-      "extractionState" : "extracted_with_value",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Library"
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Search"
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bibliothèque"
-          }
-        }
-      }
-    },
-    "fbK-Qm-4oI.title" : {
-      "comment" : "Class = \"UINavigationItem\"; title = \"About\"; ObjectID = \"fbK-Qm-4oI\";",
-      "extractionState" : "extracted_with_value",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "About"
-          }
-        }
-      }
-    },
-    "fV6-MA-EGs.title" : {
-      "comment" : "Class = \"UINavigationItem\"; title = \"Playlists\"; ObjectID = \"fV6-MA-EGs\";",
-      "extractionState" : "extracted_with_value",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Playlists"
-          }
-        }
-      }
-    },
-    "H3A-In-WcL.title" : {
-      "comment" : "Class = \"UINavigationItem\"; title = \"Library\"; ObjectID = \"H3A-In-WcL\";",
-      "extractionState" : "extracted_with_value",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Library"
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Buscar"
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bibliothèque"
-          }
-        }
-      }
-    },
-    "i6j-qO-A9D.normalTitle" : {
-      "comment" : "Class = \"UIButton\"; normalTitle = \"+\"; ObjectID = \"i6j-qO-A9D\";",
-      "extractionState" : "extracted_with_value",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "+"
-          }
-        }
-      }
-    },
-    "jMv-JX-mB8.text" : {
-      "comment" : "Class = \"UILabel\"; text = \"00:00\"; ObjectID = \"jMv-JX-mB8\";",
-      "extractionState" : "extracted_with_value",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "00:00"
-          }
-        }
-      }
-    },
-    "Jx5-dc-83q.text" : {
-      "comment" : "Class = \"UILabel\"; text = \"Downloading : xxxxxxx\"; ObjectID = \"Jx5-dc-83q\";",
-      "extractionState" : "extracted_with_value",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Downloading : xxxxxxx"
-          }
-        }
-      }
-    },
-    "mq5-jp-mrX.text" : {
-      "comment" : "Class = \"UILabel\"; text = \"Label....................\"; ObjectID = \"mq5-jp-mrX\";",
-      "extractionState" : "extracted_with_value",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Label...................."
-          }
-        }
-      }
-    },
-    "MWm-br-vsJ.title" : {
-      "comment" : "Class = \"UIViewController\"; title = \"File\"; ObjectID = \"MWm-br-vsJ\";",
-      "extractionState" : "extracted_with_value",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "File"
-          }
-        }
-      }
-    },
-    "mWS-K4-65s.title" : {
-      "comment" : "Class = \"UITabBarItem\"; title = \"Item\"; ObjectID = \"mWS-K4-65s\";",
-      "extractionState" : "extracted_with_value",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Item"
-          }
-        }
-      }
-    },
-    "nDl-H1-3sT.text" : {
-      "comment" : "Class = \"UITextView\"; text = \"v4.0 © Yohann Magnien / YoyoFR\\n\\nContact: mailto:modizerhelp@gmail.com\\nWeb: https://modizer.app\\n\\nModizer's logo by Steve Miele.\\n\\nNumber of file formats/extension supported: 1090.\\n!PM!,04SW,208,2DX9,2PSF,2SF,2SFLIB,3DO,4,40A,40B,41A,50A,60A,61A,669,800,9TAV,A2M,AAC,AAM,AAX,ABK,AC1,AC1D,ACB,ACM,ACX,ADL,ADLIB,ADM,ADP,ADPCM,ADPCMX,ADS,ADSC,ADW,ADX,AFC,AFS2,AGD,AGI,AGSC,AHV,AHX,AI,AIF,AIF-LOOP,AIFC,AIFCL,AIFF,AIFFL,AIX,AKB,AL,AL2,ALP,AMC,AMD,AMF,AMS,AMTS,AO,AON,AON4,AON8,AP,APC,AS0,AS3M,AS4,ASC,ASD,ASF,ASR,ASS,AST,AT3,AT9,ATSL,ATSL3,ATSL4,ATX,AUD,AUS,AVAL,AVP,AWB,AWC,AY,B1S,BAF,BAKA,BAM,BANK,BAO,BAR,BCSTM,BCWAV,BD,BD3,BDS,BDSP,BFC,BFSTM,BFWAV,BFWAVNSMBU,BG00,BGM,BGW,BH2PCM,BIK,BIK2,BIKA,BIN,BK2,BLK,BMDX,BMF,BMS,BNK,BNM,BNS,BNSF,BO2,BP,BP3,BRSTM,BRSTMSPM,BSF,BSI,BSND,BSS,BTSND,BVG,BWAV,BYTES,C64,C67,CAF,CAPDSP,CBD2,CC3,CCC,CD,CFF,CFN,CHAN,CHI,CHK,CHP,CIN,CKB,CKD,CKS,CM,CM3,CMC,CMF,CMR,CMS,CNK,COP,CORE,CP,CPK,CPLX,CPS,CRB,CSB,CSMP,CTRL,CUS,CUST,CUSTOM,CVS,CWAV,CXS,D00,DA,DAT,DATA,DAX,DB,DBM,DCS,DCT,DDSP,DE2,DEC,DFM,DH,DI,DIGI,DIVA,DL,DLM1,DLM2,DLN,DLT,DL_DELI,DM0,DM1,DM2,DMC,DMF,DMM,DMO,DMSG,DMU,DMU2,DNS,DODA,DP,DR0,DRO,DS2,DSB,DSC,DSF,DSFLIB,DSM,DSP,DSPW,DSQ,DSR,DSS,DST,DTK,DTM,DUM,DVI,DW,DWOLD,DXH,DZ,E4X,EA,EAM,EAS,EMFF,EMOD,EMS,EMSV6,ENM,ENO,ENS,ESV,ET1,EU,EUP,EX,EXA,EZW,FAG,FAR,FC,FC-BSI,FC-M,FC13,FC14,FC3,FC4,FCM,FDA,FDI,FFW,FILP,FLAC,FLX,FMB,FNK,FP,FRED,FSB,FSV,FT,FTC,FUZ,FUZZ,FW,FWAV,FWSE,G1L,GAM,GAMPLUS,GBR,GBS,GBTS,GCA,GCM,GCUB,GCW,GDM,GENH,GIN,GLUE,GM,GMC,GMS,GOT,GRAY,GSB,GSF,GSFLIB,GTD,GTR,GV,GWM,GYM,H4M,HA2,HAB,HBT,HCA,HD,HDR,HES,HGC1,HIP,HIP7,HIPC,HIS,HMC,HN,HPS,HRM,HRP,HRT,HRT!,HSC,HSF,HSP,HSQ,HST,HVL,HWAS,HX2,HX3,HXC,HXD,HXG,HXX,IAB,IADP,ICE,IDMSF,IDSP,IDVI,IDWAV,IDXMA,IFS,IKM,ILD,IMA,IMC,IMF,IMS,IMX,INSTR,INT,IS,IS14,IS20,ISB,ISD,ISWS,IT,IT1,ITL,IVAG,IVAUD,IVB,J2B,JAM,JBM,JC,JCB,JCBO,JD,JMF,JO,JOE,JP,JPN,JPND,JPO,JPOLD,JSTM,JT,KAT,KCES,KCEY,KEF,KEF7,KH,KM9,KNS,KOVS,KRAW,KRIS,KRS,KSM,KSS,KTAC,KTSL2ASBIN,KTSS,KVS,L,LAA,LAAC,LAIF,LAIFC,LAIFF,LASF,LAX,LBIN,LDS,LEG,LEP,LIN,LIQ,LM0,LM1,LM2,LM3,LM4,LM5,LM6,LM7,LME,LMP3,LMP4,LOGG,LOPUS,LP,LPCM,LPK,LPS,LRMB,LSE,LSF,LSTM,LWAV,LZS,M,M15,M2,M3U,M4A,M4V,MA,MAB,MAD,MAP,MATX,MAX,MBM,MC,MC3,MCA,MCADPCM,MCG,MCMD,MCMD_ORG,MCO,MCR,MD,MDAT,MDI,MDL,MDS,MDSP,MDST,MDX,MDY,MED,MEXXMP,MFP,MG,MGS,MI4,MIB,MIC,MID,MIDI,MIHB,MINI2SF,MINIDSF,MINIGSF,MININCSF,MINIPSF,MINIPSF2,MINIQSF,MINISNSF,MINISSF,MINIUSF,MJB,MK2,MKF,MKII,MKIIO,MKJ,ML,MM4,MM8,MMCMP,MMD0,MMD1,MMD2,MMD3,MMD4,MMDC,MMS,MNSTR,MO3,MOD,MOD15,MOD15_MST,MOD15_ST-IV,MOD15_UST,MOD_ADSC4,MOD_COMP,MOD_DOC,MOD_FLT4,MOD_NTK,MOD_NTK1,MOD_NTK2,MOD_NTKAMP,MOGG,MOK,MON,MON_OLD,MP3,MP4,MPD,MPDSP,MPF,MPG,MPK,MPRO,MPT,MPTM,MS,MSA,MSADPCM,MSB,MSC,MSD,MSF,MSO,MSP,MSS,MSV,MSVP,MT2,MTA2,MTAF,MTK,MTM,MTP2,MTR,MUG,MUG2,MUL,MUPS,MUS,MUSC,MUSX,MW,MWV,MXST,MYSPD,MZ,N64,NAAC,NCSF,NCSFLIB,NDP,NDS,NGCA,NLSD,NOISEPACKER2,NOISEPACKER3,NOP,NP,NP1,NP2,NP3,NPS,NPSF,NR,NRU,NSF,NSFE,NSOPUS,NST,NTP,NTPK,NUB,NUB2,NUS3AUDIO,NUS3BANK,NWA,NWAV,NXA,OCTAMED,OGG,OGL,OKT,OMU,ONE,OPI,OPUS,OPUSX,OPX,ORG,OSP,OTM,OVB,OVI,OXM,OZI,P,P00,P10,P21,P2BT,P30,P3D,P40A,P40B,P41A,P4X,P50A,P5A,P5X,P60,P60A,P61,P61A,P6X,P86,PAP,PAST,PCD,PCM,PDT,PDX,PFLT,PHA,PIN,PIS,PK,PLM,PM,PM0,PM01,PM1,PM10C,PM18A,PM2,PM20,PM4,PM40,PMB,PMZ,PNB,POLK,PONA,POS,POWT,PP10,PP20,PP21,PP30,PPC,PPK,PPM,PPS,PPZ,PR1,PR2,PRG,PROM,PRU,PRU1,PRU2,PRUN,PRUN1,PRUN2,PS,PS2STM,PSA,PSC,PSF,PSF2,PSF2LIB,PSFLIB,PSG,PSH,PSID,PSM,PSND,PSW,PT,PT1,PT2,PT3,PT36,PTCOP,PTM,PTTUNE,PUMA,PVI,PVP,PWR,PXA,PYG,PYGM,PYGMY,PZI,QC,QPA,QSF,QSFLIB,QTS,R,RAC,RAD,RAK,RAS,RAW,RH,RHO,RIFF,RIX,RJP,RK,RKB,RKV,RMT,RND,ROF,ROL,RPGMVO,RRDS,RSD,RSF,RSID,RSM,RSP,RSTM,RTM,RWAR,RWAV,RWS,RWSD,RWX,RXW,S-C,S14,S3M,S7G,S98,S98xxxxxxxxx,SA,SA-P,SA2,SAB,SAD,SAF,SAP,SAS,SAT,SA_OLD,SB,SB0,SB1,SB2,SB3,SB4,SB5,SB6,SB7,SBIN,SBK,SBR,SBV,SC,SC68,SCD,SCH,SCI,SCL,SCN,SCR,SCT,SCUMM,SD9,SDB,SDF,SDR,SDT,SEB,SED,SEG,SF0,SF2,SFL,SFM,SFS,SFX,SFX13,SFX2,SG,SGB,SGC,SGD,SGX,SID,SID1,SID2,SJS,SKT,SKYT,SL3,SLI,SM,SM0,SM1,SM2,SM3,SM4,SM5,SM6,SM7,SMC,SMK,SMN,SMP,SMPL,SMPRO,SMUS,SMV,SND,SNDH,SNDMON,SNDS,SNG,SNGW,SNK,SNR,SNS,SNSF,SNSFLIB,SNT,SNT!,SNU,SNX,SOC,SOD,SOG,SON,SONIC,SOP,SPC,SPD,SPK,SPL,SPM,SPS,SPSD,SPW,SQD,SQT,SQX,SS,SS2,SSF,SSFLIB,SSM,SSS,ST,ST1,ST2,ST26,ST3,ST30,STAR,STC,STER,STK,STM,STMA,STP,STPK,STR,STREAM,STRM,STS,STX,SUN,SVAG,SVG,SVS,SWAG,SWAV,SWD,SWITCH_AUDIO,SX,SXD,SXD1,SXD2,SXD3,SYN,SYNMOD,SZX,TD0,TEC,TF,TF0,TFC,TFD,TFE,TFHD1.5,TFHD7V,TFHDPRO,TFMX,TFMX1.5,TFMX7V,TFMXPRO,TGQ,TGV,THM,THN,THP,THX,TINY,TK5,TLZ,TLZP,TM2,TM8,TMC,TME,TMX,TP,TP1,TP2,TP3,TPU,TRA,TRC,TRD,TRO,TRONIC,TRS,TS,TUN,TW,TWO,TXT,TXTH,TXTP,TYDSP,UDS,UE4OPUS,ULT,ULW,UM3,UMX,UN2,UNIC,UNIC2,USF,USFLIB,UTK,UV,V0,V1,V2M,V2MZ,VA3,VAG,VAI,VAS,VAWX,VB,VBK,VDM,VDS,VGM,VGS,VGV,VGZ,VID,VIG,VIS,VMS,VOI,VP6,VPK,VS,VSF,VSS,VSV,VTX,VXN,WAA,WAC,WAD,WAF,WAM,WAS,WAV,WAVC,WAVE,WAVEBATCH,WAVM,WAY,WB,WB2,WBD,WD,WEM,WII,WLF,WMA,WMUS,WN,WOW,WP2,WPD,WSD,WSI,WSR,WUA,WV2,WV6,WVE,WVS,WVX,X,XA,XA2,XA30,XAD,XAG,XAN,XANN,XAU,XAV,XEN,XM,XMA,XMA2,XMD,XMU,XNA,XNB,XOPUS,XPK,XPS,XSE,XSEW,XSF,XSM,XSS,XVAG,XVAS,XWAV,XWB,XWC,XWM,XWMA,XWS,XWV,YDSP,YM,YMF,ZEN,ZIC,ZIP,ZSD,ZSM,ZSS,ZWDSP,ZWV,ZXZIP\\nIntegrated player libs:\\n- Adplug\\n- Another Slight Atari Player(ASAP)\\n- AtariSound\\n- Eupmini\\n- ffmpeg/mpg123/vorbis\\n- Game Music Emu\\n- FMPmini\\n- Highly Complete\\n- AHX/Hively tracker\\n- LazyUSF\\n- Libvgm\\n- Mdxplay\\n- NSFPlay\\n- OpenMPT\\n- PlayGSF\\n- Pmdmini\\n- PxTone / Organya\\n- PT3Player\\n- SC68\\n- Sibplayfp\\n- Snes9x/snsf\\n- ST-Sound\\n- Timidity(using Merlin_gold SF2 soundfont)\\n- UADE\\n- XSF (2SF, NCSF)\\n- XMP\\n-V2M tinyplayer\\n- VGMStream\\n- VIO2SF\\n- WebSID\\n- ZXTune\\n\\nDisclaimer:\\nInternet accesses to the Modland, HVSC & ASMA libraries are provided as an as-is service, guarantee for availability and/or functionality is not given. Use this application at your own risk.\"; ObjectID = \"nDl-H1-3sT\";",
-      "extractionState" : "extracted_with_value",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "v4.0 © Yohann Magnien / YoyoFR\n\nContact: mailto:modizerhelp@gmail.com\nWeb: https://modizer.app\n\nModizer's logo by Steve Miele.\n\nNumber of file formats/extension supported: 1090.\n!PM!,04SW,208,2DX9,2PSF,2SF,2SFLIB,3DO,4,40A,40B,41A,50A,60A,61A,669,800,9TAV,A2M,AAC,AAM,AAX,ABK,AC1,AC1D,ACB,ACM,ACX,ADL,ADLIB,ADM,ADP,ADPCM,ADPCMX,ADS,ADSC,ADW,ADX,AFC,AFS2,AGD,AGI,AGSC,AHV,AHX,AI,AIF,AIF-LOOP,AIFC,AIFCL,AIFF,AIFFL,AIX,AKB,AL,AL2,ALP,AMC,AMD,AMF,AMS,AMTS,AO,AON,AON4,AON8,AP,APC,AS0,AS3M,AS4,ASC,ASD,ASF,ASR,ASS,AST,AT3,AT9,ATSL,ATSL3,ATSL4,ATX,AUD,AUS,AVAL,AVP,AWB,AWC,AY,B1S,BAF,BAKA,BAM,BANK,BAO,BAR,BCSTM,BCWAV,BD,BD3,BDS,BDSP,BFC,BFSTM,BFWAV,BFWAVNSMBU,BG00,BGM,BGW,BH2PCM,BIK,BIK2,BIKA,BIN,BK2,BLK,BMDX,BMF,BMS,BNK,BNM,BNS,BNSF,BO2,BP,BP3,BRSTM,BRSTMSPM,BSF,BSI,BSND,BSS,BTSND,BVG,BWAV,BYTES,C64,C67,CAF,CAPDSP,CBD2,CC3,CCC,CD,CFF,CFN,CHAN,CHI,CHK,CHP,CIN,CKB,CKD,CKS,CM,CM3,CMC,CMF,CMR,CMS,CNK,COP,CORE,CP,CPK,CPLX,CPS,CRB,CSB,CSMP,CTRL,CUS,CUST,CUSTOM,CVS,CWAV,CXS,D00,DA,DAT,DATA,DAX,DB,DBM,DCS,DCT,DDSP,DE2,DEC,DFM,DH,DI,DIGI,DIVA,DL,DLM1,DLM2,DLN,DLT,DL_DELI,DM0,DM1,DM2,DMC,DMF,DMM,DMO,DMSG,DMU,DMU2,DNS,DODA,DP,DR0,DRO,DS2,DSB,DSC,DSF,DSFLIB,DSM,DSP,DSPW,DSQ,DSR,DSS,DST,DTK,DTM,DUM,DVI,DW,DWOLD,DXH,DZ,E4X,EA,EAM,EAS,EMFF,EMOD,EMS,EMSV6,ENM,ENO,ENS,ESV,ET1,EU,EUP,EX,EXA,EZW,FAG,FAR,FC,FC-BSI,FC-M,FC13,FC14,FC3,FC4,FCM,FDA,FDI,FFW,FILP,FLAC,FLX,FMB,FNK,FP,FRED,FSB,FSV,FT,FTC,FUZ,FUZZ,FW,FWAV,FWSE,G1L,GAM,GAMPLUS,GBR,GBS,GBTS,GCA,GCM,GCUB,GCW,GDM,GENH,GIN,GLUE,GM,GMC,GMS,GOT,GRAY,GSB,GSF,GSFLIB,GTD,GTR,GV,GWM,GYM,H4M,HA2,HAB,HBT,HCA,HD,HDR,HES,HGC1,HIP,HIP7,HIPC,HIS,HMC,HN,HPS,HRM,HRP,HRT,HRT!,HSC,HSF,HSP,HSQ,HST,HVL,HWAS,HX2,HX3,HXC,HXD,HXG,HXX,IAB,IADP,ICE,IDMSF,IDSP,IDVI,IDWAV,IDXMA,IFS,IKM,ILD,IMA,IMC,IMF,IMS,IMX,INSTR,INT,IS,IS14,IS20,ISB,ISD,ISWS,IT,IT1,ITL,IVAG,IVAUD,IVB,J2B,JAM,JBM,JC,JCB,JCBO,JD,JMF,JO,JOE,JP,JPN,JPND,JPO,JPOLD,JSTM,JT,KAT,KCES,KCEY,KEF,KEF7,KH,KM9,KNS,KOVS,KRAW,KRIS,KRS,KSM,KSS,KTAC,KTSL2ASBIN,KTSS,KVS,L,LAA,LAAC,LAIF,LAIFC,LAIFF,LASF,LAX,LBIN,LDS,LEG,LEP,LIN,LIQ,LM0,LM1,LM2,LM3,LM4,LM5,LM6,LM7,LME,LMP3,LMP4,LOGG,LOPUS,LP,LPCM,LPK,LPS,LRMB,LSE,LSF,LSTM,LWAV,LZS,M,M15,M2,M3U,M4A,M4V,MA,MAB,MAD,MAP,MATX,MAX,MBM,MC,MC3,MCA,MCADPCM,MCG,MCMD,MCMD_ORG,MCO,MCR,MD,MDAT,MDI,MDL,MDS,MDSP,MDST,MDX,MDY,MED,MEXXMP,MFP,MG,MGS,MI4,MIB,MIC,MID,MIDI,MIHB,MINI2SF,MINIDSF,MINIGSF,MININCSF,MINIPSF,MINIPSF2,MINIQSF,MINISNSF,MINISSF,MINIUSF,MJB,MK2,MKF,MKII,MKIIO,MKJ,ML,MM4,MM8,MMCMP,MMD0,MMD1,MMD2,MMD3,MMD4,MMDC,MMS,MNSTR,MO3,MOD,MOD15,MOD15_MST,MOD15_ST-IV,MOD15_UST,MOD_ADSC4,MOD_COMP,MOD_DOC,MOD_FLT4,MOD_NTK,MOD_NTK1,MOD_NTK2,MOD_NTKAMP,MOGG,MOK,MON,MON_OLD,MP3,MP4,MPD,MPDSP,MPF,MPG,MPK,MPRO,MPT,MPTM,MS,MSA,MSADPCM,MSB,MSC,MSD,MSF,MSO,MSP,MSS,MSV,MSVP,MT2,MTA2,MTAF,MTK,MTM,MTP2,MTR,MUG,MUG2,MUL,MUPS,MUS,MUSC,MUSX,MW,MWV,MXST,MYSPD,MZ,N64,NAAC,NCSF,NCSFLIB,NDP,NDS,NGCA,NLSD,NOISEPACKER2,NOISEPACKER3,NOP,NP,NP1,NP2,NP3,NPS,NPSF,NR,NRU,NSF,NSFE,NSOPUS,NST,NTP,NTPK,NUB,NUB2,NUS3AUDIO,NUS3BANK,NWA,NWAV,NXA,OCTAMED,OGG,OGL,OKT,OMU,ONE,OPI,OPUS,OPUSX,OPX,ORG,OSP,OTM,OVB,OVI,OXM,OZI,P,P00,P10,P21,P2BT,P30,P3D,P40A,P40B,P41A,P4X,P50A,P5A,P5X,P60,P60A,P61,P61A,P6X,P86,PAP,PAST,PCD,PCM,PDT,PDX,PFLT,PHA,PIN,PIS,PK,PLM,PM,PM0,PM01,PM1,PM10C,PM18A,PM2,PM20,PM4,PM40,PMB,PMZ,PNB,POLK,PONA,POS,POWT,PP10,PP20,PP21,PP30,PPC,PPK,PPM,PPS,PPZ,PR1,PR2,PRG,PROM,PRU,PRU1,PRU2,PRUN,PRUN1,PRUN2,PS,PS2STM,PSA,PSC,PSF,PSF2,PSF2LIB,PSFLIB,PSG,PSH,PSID,PSM,PSND,PSW,PT,PT1,PT2,PT3,PT36,PTCOP,PTM,PTTUNE,PUMA,PVI,PVP,PWR,PXA,PYG,PYGM,PYGMY,PZI,QC,QPA,QSF,QSFLIB,QTS,R,RAC,RAD,RAK,RAS,RAW,RH,RHO,RIFF,RIX,RJP,RK,RKB,RKV,RMT,RND,ROF,ROL,RPGMVO,RRDS,RSD,RSF,RSID,RSM,RSP,RSTM,RTM,RWAR,RWAV,RWS,RWSD,RWX,RXW,S-C,S14,S3M,S7G,S98,S98xxxxxxxxx,SA,SA-P,SA2,SAB,SAD,SAF,SAP,SAS,SAT,SA_OLD,SB,SB0,SB1,SB2,SB3,SB4,SB5,SB6,SB7,SBIN,SBK,SBR,SBV,SC,SC68,SCD,SCH,SCI,SCL,SCN,SCR,SCT,SCUMM,SD9,SDB,SDF,SDR,SDT,SEB,SED,SEG,SF0,SF2,SFL,SFM,SFS,SFX,SFX13,SFX2,SG,SGB,SGC,SGD,SGX,SID,SID1,SID2,SJS,SKT,SKYT,SL3,SLI,SM,SM0,SM1,SM2,SM3,SM4,SM5,SM6,SM7,SMC,SMK,SMN,SMP,SMPL,SMPRO,SMUS,SMV,SND,SNDH,SNDMON,SNDS,SNG,SNGW,SNK,SNR,SNS,SNSF,SNSFLIB,SNT,SNT!,SNU,SNX,SOC,SOD,SOG,SON,SONIC,SOP,SPC,SPD,SPK,SPL,SPM,SPS,SPSD,SPW,SQD,SQT,SQX,SS,SS2,SSF,SSFLIB,SSM,SSS,ST,ST1,ST2,ST26,ST3,ST30,STAR,STC,STER,STK,STM,STMA,STP,STPK,STR,STREAM,STRM,STS,STX,SUN,SVAG,SVG,SVS,SWAG,SWAV,SWD,SWITCH_AUDIO,SX,SXD,SXD1,SXD2,SXD3,SYN,SYNMOD,SZX,TD0,TEC,TF,TF0,TFC,TFD,TFE,TFHD1.5,TFHD7V,TFHDPRO,TFMX,TFMX1.5,TFMX7V,TFMXPRO,TGQ,TGV,THM,THN,THP,THX,TINY,TK5,TLZ,TLZP,TM2,TM8,TMC,TME,TMX,TP,TP1,TP2,TP3,TPU,TRA,TRC,TRD,TRO,TRONIC,TRS,TS,TUN,TW,TWO,TXT,TXTH,TXTP,TYDSP,UDS,UE4OPUS,ULT,ULW,UM3,UMX,UN2,UNIC,UNIC2,USF,USFLIB,UTK,UV,V0,V1,V2M,V2MZ,VA3,VAG,VAI,VAS,VAWX,VB,VBK,VDM,VDS,VGM,VGS,VGV,VGZ,VID,VIG,VIS,VMS,VOI,VP6,VPK,VS,VSF,VSS,VSV,VTX,VXN,WAA,WAC,WAD,WAF,WAM,WAS,WAV,WAVC,WAVE,WAVEBATCH,WAVM,WAY,WB,WB2,WBD,WD,WEM,WII,WLF,WMA,WMUS,WN,WOW,WP2,WPD,WSD,WSI,WSR,WUA,WV2,WV6,WVE,WVS,WVX,X,XA,XA2,XA30,XAD,XAG,XAN,XANN,XAU,XAV,XEN,XM,XMA,XMA2,XMD,XMU,XNA,XNB,XOPUS,XPK,XPS,XSE,XSEW,XSF,XSM,XSS,XVAG,XVAS,XWAV,XWB,XWC,XWM,XWMA,XWS,XWV,YDSP,YM,YMF,ZEN,ZIC,ZIP,ZSD,ZSM,ZSS,ZWDSP,ZWV,ZXZIP\nIntegrated player libs:\n- Adplug\n- Another Slight Atari Player(ASAP)\n- AtariSound\n- Eupmini\n- ffmpeg/mpg123/vorbis\n- Game Music Emu\n- FMPmini\n- Highly Complete\n- AHX/Hively tracker\n- LazyUSF\n- Libvgm\n- Mdxplay\n- NSFPlay\n- OpenMPT\n- PlayGSF\n- Pmdmini\n- PxTone / Organya\n- PT3Player\n- SC68\n- Sibplayfp\n- Snes9x/snsf\n- ST-Sound\n- Timidity(using Merlin_gold SF2 soundfont)\n- UADE\n- XSF (2SF, NCSF)\n- XMP\n-V2M tinyplayer\n- VGMStream\n- VIO2SF\n- WebSID\n- ZXTune\n\nDisclaimer:\nInternet accesses to the Modland, HVSC & ASMA libraries are provided as an as-is service, guarantee for availability and/or functionality is not given. Use this application at your own risk."
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recherche"
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "needs_review",
-            "value" : "v4.0 © Yohann Magnien / YoyoFR\n\nContact: mailto:modizerhelp@gmail.com\nWeb: https://modizer.app\n\nModizer's logo par Steve Miele.\n\nNombre de formats de fichiers/extensions supportés: 1090.\n!PM!,04SW,208,2DX9,2PSF,2SF,2SFLIB,3DO,4,40A,40B,41A,50A,60A,61A,669,800,9TAV,A2M,AAC,AAM,AAX,ABK,AC1,AC1D,ACB,ACM,ACX,ADL,ADLIB,ADM,ADP,ADPCM,ADPCMX,ADS,ADSC,ADW,ADX,AFC,AFS2,AGD,AGI,AGSC,AHV,AHX,AI,AIF,AIF-LOOP,AIFC,AIFCL,AIFF,AIFFL,AIX,AKB,AL,AL2,ALP,AMC,AMD,AMF,AMS,AMTS,AO,AON,AON4,AON8,AP,APC,AS0,AS3M,AS4,ASC,ASD,ASF,ASR,ASS,AST,AT3,AT9,ATSL,ATSL3,ATSL4,ATX,AUD,AUS,AVAL,AVP,AWB,AWC,AY,B1S,BAF,BAKA,BAM,BANK,BAO,BAR,BCSTM,BCWAV,BD,BD3,BDS,BDSP,BFC,BFSTM,BFWAV,BFWAVNSMBU,BG00,BGM,BGW,BH2PCM,BIK,BIK2,BIKA,BIN,BK2,BLK,BMDX,BMF,BMS,BNK,BNM,BNS,BNSF,BO2,BP,BP3,BRSTM,BRSTMSPM,BSF,BSI,BSND,BSS,BTSND,BVG,BWAV,BYTES,C64,C67,CAF,CAPDSP,CBD2,CC3,CCC,CD,CFF,CFN,CHAN,CHI,CHK,CHP,CIN,CKB,CKD,CKS,CM,CM3,CMC,CMF,CMR,CMS,CNK,COP,CORE,CP,CPK,CPLX,CPS,CRB,CSB,CSMP,CTRL,CUS,CUST,CUSTOM,CVS,CWAV,CXS,D00,DA,DAT,DATA,DAX,DB,DBM,DCS,DCT,DDSP,DE2,DEC,DFM,DH,DI,DIGI,DIVA,DL,DLM1,DLM2,DLN,DLT,DL_DELI,DM0,DM1,DM2,DMC,DMF,DMM,DMO,DMSG,DMU,DMU2,DNS,DODA,DP,DR0,DRO,DS2,DSB,DSC,DSF,DSFLIB,DSM,DSP,DSPW,DSQ,DSR,DSS,DST,DTK,DTM,DUM,DVI,DW,DWOLD,DXH,DZ,E4X,EA,EAM,EAS,EMFF,EMOD,EMS,EMSV6,ENM,ENO,ENS,ESV,ET1,EU,EUP,EX,EXA,EZW,FAG,FAR,FC,FC-BSI,FC-M,FC13,FC14,FC3,FC4,FCM,FDA,FDI,FFW,FILP,FLAC,FLX,FMB,FNK,FP,FRED,FSB,FSV,FT,FTC,FUZ,FUZZ,FW,FWAV,FWSE,G1L,GAM,GAMPLUS,GBR,GBS,GBTS,GCA,GCM,GCUB,GCW,GDM,GENH,GIN,GLUE,GM,GMC,GMS,GOT,GRAY,GSB,GSF,GSFLIB,GTD,GTR,GV,GWM,GYM,H4M,HA2,HAB,HBT,HCA,HD,HDR,HES,HGC1,HIP,HIP7,HIPC,HIS,HMC,HN,HPS,HRM,HRP,HRT,HRT!,HSC,HSF,HSP,HSQ,HST,HVL,HWAS,HX2,HX3,HXC,HXD,HXG,HXX,IAB,IADP,ICE,IDMSF,IDSP,IDVI,IDWAV,IDXMA,IFS,IKM,ILD,IMA,IMC,IMF,IMS,IMX,INSTR,INT,IS,IS14,IS20,ISB,ISD,ISWS,IT,IT1,ITL,IVAG,IVAUD,IVB,J2B,JAM,JBM,JC,JCB,JCBO,JD,JMF,JO,JOE,JP,JPN,JPND,JPO,JPOLD,JSTM,JT,KAT,KCES,KCEY,KEF,KEF7,KH,KM9,KNS,KOVS,KRAW,KRIS,KRS,KSM,KSS,KTAC,KTSL2ASBIN,KTSS,KVS,L,LAA,LAAC,LAIF,LAIFC,LAIFF,LASF,LAX,LBIN,LDS,LEG,LEP,LIN,LIQ,LM0,LM1,LM2,LM3,LM4,LM5,LM6,LM7,LME,LMP3,LMP4,LOGG,LOPUS,LP,LPCM,LPK,LPS,LRMB,LSE,LSF,LSTM,LWAV,LZS,M,M15,M2,M3U,M4A,M4V,MA,MAB,MAD,MAP,MATX,MAX,MBM,MC,MC3,MCA,MCADPCM,MCG,MCMD,MCMD_ORG,MCO,MCR,MD,MDAT,MDI,MDL,MDS,MDSP,MDST,MDX,MDY,MED,MEXXMP,MFP,MG,MGS,MI4,MIB,MIC,MID,MIDI,MIHB,MINI2SF,MINIDSF,MINIGSF,MININCSF,MINIPSF,MINIPSF2,MINIQSF,MINISNSF,MINISSF,MINIUSF,MJB,MK2,MKF,MKII,MKIIO,MKJ,ML,MM4,MM8,MMCMP,MMD0,MMD1,MMD2,MMD3,MMD4,MMDC,MMS,MNSTR,MO3,MOD,MOD15,MOD15_MST,MOD15_ST-IV,MOD15_UST,MOD_ADSC4,MOD_COMP,MOD_DOC,MOD_FLT4,MOD_NTK,MOD_NTK1,MOD_NTK2,MOD_NTKAMP,MOGG,MOK,MON,MON_OLD,MP3,MP4,MPD,MPDSP,MPF,MPG,MPK,MPRO,MPT,MPTM,MS,MSA,MSADPCM,MSB,MSC,MSD,MSF,MSO,MSP,MSS,MSV,MSVP,MT2,MTA2,MTAF,MTK,MTM,MTP2,MTR,MUG,MUG2,MUL,MUPS,MUS,MUSC,MUSX,MW,MWV,MXST,MYSPD,MZ,N64,NAAC,NCSF,NCSFLIB,NDP,NDS,NGCA,NLSD,NOISEPACKER2,NOISEPACKER3,NOP,NP,NP1,NP2,NP3,NPS,NPSF,NR,NRU,NSF,NSFE,NSOPUS,NST,NTP,NTPK,NUB,NUB2,NUS3AUDIO,NUS3BANK,NWA,NWAV,NXA,OCTAMED,OGG,OGL,OKT,OMU,ONE,OPI,OPUS,OPUSX,OPX,ORG,OSP,OTM,OVB,OVI,OXM,OZI,P,P00,P10,P21,P2BT,P30,P3D,P40A,P40B,P41A,P4X,P50A,P5A,P5X,P60,P60A,P61,P61A,P6X,P86,PAP,PAST,PCD,PCM,PDT,PDX,PFLT,PHA,PIN,PIS,PK,PLM,PM,PM0,PM01,PM1,PM10C,PM18A,PM2,PM20,PM4,PM40,PMB,PMZ,PNB,POLK,PONA,POS,POWT,PP10,PP20,PP21,PP30,PPC,PPK,PPM,PPS,PPZ,PR1,PR2,PRG,PROM,PRU,PRU1,PRU2,PRUN,PRUN1,PRUN2,PS,PS2STM,PSA,PSC,PSF,PSF2,PSF2LIB,PSFLIB,PSG,PSH,PSID,PSM,PSND,PSW,PT,PT1,PT2,PT3,PT36,PTCOP,PTM,PTTUNE,PUMA,PVI,PVP,PWR,PXA,PYG,PYGM,PYGMY,PZI,QC,QPA,QSF,QSFLIB,QTS,R,RAC,RAD,RAK,RAS,RAW,RH,RHO,RIFF,RIX,RJP,RK,RKB,RKV,RMT,RND,ROF,ROL,RPGMVO,RRDS,RSD,RSF,RSID,RSM,RSP,RSTM,RTM,RWAR,RWAV,RWS,RWSD,RWX,RXW,S-C,S14,S3M,S7G,S98,S98xxxxxxxxx,SA,SA-P,SA2,SAB,SAD,SAF,SAP,SAS,SAT,SA_OLD,SB,SB0,SB1,SB2,SB3,SB4,SB5,SB6,SB7,SBIN,SBK,SBR,SBV,SC,SC68,SCD,SCH,SCI,SCL,SCN,SCR,SCT,SCUMM,SD9,SDB,SDF,SDR,SDT,SEB,SED,SEG,SF0,SF2,SFL,SFM,SFS,SFX,SFX13,SFX2,SG,SGB,SGC,SGD,SGX,SID,SID1,SID2,SJS,SKT,SKYT,SL3,SLI,SM,SM0,SM1,SM2,SM3,SM4,SM5,SM6,SM7,SMC,SMK,SMN,SMP,SMPL,SMPRO,SMUS,SMV,SND,SNDH,SNDMON,SNDS,SNG,SNGW,SNK,SNR,SNS,SNSF,SNSFLIB,SNT,SNT!,SNU,SNX,SOC,SOD,SOG,SON,SONIC,SOP,SPC,SPD,SPK,SPL,SPM,SPS,SPSD,SPW,SQD,SQT,SQX,SS,SS2,SSF,SSFLIB,SSM,SSS,ST,ST1,ST2,ST26,ST3,ST30,STAR,STC,STER,STK,STM,STMA,STP,STPK,STR,STREAM,STRM,STS,STX,SUN,SVAG,SVG,SVS,SWAG,SWAV,SWD,SWITCH_AUDIO,SX,SXD,SXD1,SXD2,SXD3,SYN,SYNMOD,SZX,TD0,TEC,TF,TF0,TFC,TFD,TFE,TFHD1.5,TFHD7V,TFHDPRO,TFMX,TFMX1.5,TFMX7V,TFMXPRO,TGQ,TGV,THM,THN,THP,THX,TINY,TK5,TLZ,TLZP,TM2,TM8,TMC,TME,TMX,TP,TP1,TP2,TP3,TPU,TRA,TRC,TRD,TRO,TRONIC,TRS,TS,TUN,TW,TWO,TXT,TXTH,TXTP,TYDSP,UDS,UE4OPUS,ULT,ULW,UM3,UMX,UN2,UNIC,UNIC2,USF,USFLIB,UTK,UV,V0,V1,V2M,V2MZ,VA3,VAG,VAI,VAS,VAWX,VB,VBK,VDM,VDS,VGM,VGS,VGV,VGZ,VID,VIG,VIS,VMS,VOI,VP6,VPK,VS,VSF,VSS,VSV,VTX,VXN,WAA,WAC,WAD,WAF,WAM,WAS,WAV,WAVC,WAVE,WAVEBATCH,WAVM,WAY,WB,WB2,WBD,WD,WEM,WII,WLF,WMA,WMUS,WN,WOW,WP2,WPD,WSD,WSI,WSR,WUA,WV2,WV6,WVE,WVS,WVX,X,XA,XA2,XA30,XAD,XAG,XAN,XANN,XAU,XAV,XEN,XM,XMA,XMA2,XMD,XMU,XNA,XNB,XOPUS,XPK,XPS,XSE,XSEW,XSF,XSM,XSS,XVAG,XVAS,XWAV,XWB,XWC,XWM,XWMA,XWS,XWV,YDSP,YM,YMF,ZEN,ZIC,ZIP,ZSD,ZSM,ZSS,ZWDSP,ZWV,ZXZIP\nBibliothèques utilisées:\n- Adplug\n- Another Slight Atari Player(ASAP)\n- AtariSound\n- Eupmini\n- ffmpeg/mpg123/vorbis\n- Game Music Emu\n- FMPmini\n- Highly Complete\n- AHX/Hively tracker\n- LazyUSF\n- Libvgm\n- Mdxplay\n- NSFPlay \n- OpenMPT\n- PlayGSF\n- Pmdmini\n- PxTone / Organya\n- PT3Player\n- SC68\n- Sibplayfp\n- Snes9x/snsf\n- ST-Sound\n- Timidity(using Merlin_gold SF2 soundfont)\n- UADE\n- XSF (2SF, NCSF)\n- XMP\n-V2M tinyplayer\n- VGMStream\n- VIO2SF\n- WebSID\n- ZXTune\n\nAvertissement :\nL’accès internet aux bibliothèques Modland, HVSC et ASMA est fourni tel quel, sans garantie de disponibilité ni de fonctionnement. L’utilisation de cette application se fait à vos propres risques."
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "検索"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Поиск"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sök"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Haku"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cerca"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "搜索"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "بحث"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Buscar"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Søg"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zoeken"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "검색"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Søk"
           }
         }
       }
     },
-    "p3U-05-Cer.normalTitle" : {
-      "comment" : "Class = \"UIButton\"; normalTitle = \"Suspend\"; ObjectID = \"p3U-05-Cer\";",
-      "extractionState" : "extracted_with_value",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Suspend"
+    "49B-dI-2fP.title": {
+      "comment": "Class = \"UINavigationItem\"; title = \"More\"; ObjectID = \"49B-dI-2fP\";",
+      "extractionState": "extracted_with_value",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mehr"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "More"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Más"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Autre"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "その他"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ещё"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mer"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lisää"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Altro"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "更多"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "المزيد"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mais"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "More"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "More"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "More"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "More"
           }
         }
       }
     },
-    "PCk-qz-FQb.placeholder" : {
-      "comment" : "Class = \"UITextField\"; placeholder = \"Search or input a site url\"; ObjectID = \"PCk-qz-FQb\";",
-      "extractionState" : "extracted_with_value",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Search or input a site url"
+    "57T-bH-4lR.normalTitle": {
+      "comment": "Class = \"UIButton\"; normalTitle = \"Resume\"; ObjectID = \"57T-bH-4lR\";",
+      "extractionState": "extracted_with_value",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fortsetzen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Resume"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reanudar"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reprendre"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "再開"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Возобновить"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Återuppta"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jatka"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Riprendi"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "继续"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "استئناف"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Retomar"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Resume"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Resume"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Resume"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Resume"
           }
         }
       }
     },
-    "Pju-ZE-qPM.text" : {
-      "comment" : "Class = \"UILabel\"; text = \"Label....................\"; ObjectID = \"Pju-ZE-qPM\";",
-      "extractionState" : "extracted_with_value",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Label...................."
+    "944-4Q-LrI.normalTitle": {
+      "comment": "Class = \"UIButton\"; normalTitle = \"Tap to activate FX\"; ObjectID = \"944-4Q-LrI\";",
+      "extractionState": "extracted_with_value",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tippen zum Aktivieren von FX"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Tap to activate FX"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toca para activar FX"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toucher pour activer les FX"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "タップしてFXを有効化"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нажмите для активации FX"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tryck för att aktivera FX"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Napauta FX-efektin aktivoimiseksi"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tocca per attivare FX"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "点击激活 FX"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "اضغط لتفعيل المؤثرات"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toque para ativar FX"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tap to activate FX"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tap to activate FX"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tap to activate FX"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tap to activate FX"
           }
         }
       }
     },
-    "PRA-K2-Wdt.title" : {
-      "comment" : "Class = \"UINavigationItem\"; title = \"Online\"; ObjectID = \"PRA-K2-Wdt\";",
-      "extractionState" : "extracted_with_value",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Online"
+    "AYl-JB-O45.title": {
+      "comment": "Class = \"UINavigationItem\"; title = \"Internet\"; ObjectID = \"AYl-JB-O45\";",
+      "extractionState": "extracted_with_value",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Internet"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Internet"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Internet"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Internet"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "インターネット"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Интернет"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Internet"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Internet"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Internet"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "互联网"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الإنترنت"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Internet"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Internet"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Internet"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Internet"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Internet"
           }
         }
       }
     },
-    "Qtm-2x-6iT.title" : {
-      "comment" : "Class = \"UITabBarItem\"; title = \"Item\"; ObjectID = \"Qtm-2x-6iT\";",
-      "extractionState" : "extracted_with_value",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Item"
+    "bgZ-cP-ERA.normalTitle": {
+      "comment": "Class = \"UIButton\"; normalTitle = \"Cancel\"; ObjectID = \"bgZ-cP-ERA\";",
+      "extractionState": "extracted_with_value",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abbrechen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Cancel"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancelar"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Annuler"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "キャンセル"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Отмена"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avbryt"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Peruuta"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Annulla"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "取消"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "إلغاء"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancelar"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Annuller"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Annuleer"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "취소"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Avbryt"
           }
         }
       }
     },
-    "RaE-My-8AQ.normalTitle" : {
-      "comment" : "Class = \"UIButton\"; normalTitle = \"Clear all\"; ObjectID = \"RaE-My-8AQ\";",
-      "extractionState" : "extracted_with_value",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Clear all"
+    "bvi-Gp-gQo.normalTitle": {
+      "comment": "Class = \"UIButton\"; normalTitle = \"-\"; ObjectID = \"bvi-Gp-gQo\";",
+      "extractionState": "extracted_with_value",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "-"
+          }
+        }
+      },
+      "shouldTranslate": false
+    },
+    "CSl-7t-Tff.title": {
+      "comment": "Class = \"UITabBarItem\"; title = \"Playlist\"; ObjectID = \"CSl-7t-Tff\";",
+      "extractionState": "extracted_with_value",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Playlist"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Playlist"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lista de reproducción"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Playlist"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "プレイリスト"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Плейлист"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spellista"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Soittolista"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Playlist"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "播放列表"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "قائمة التشغيل"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Playlist"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spilleliste"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Afspeellijst"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "재생목록"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spilleliste"
           }
         }
       }
     },
-    "RHH-hw-vvc.normalTitle" : {
-      "comment" : "Class = \"UIButton\"; normalTitle = \"∞\"; ObjectID = \"RHH-hw-vvc\";",
-      "extractionState" : "extracted_with_value",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "∞"
+    "cvV-hj-6A0.title": {
+      "comment": "Class = \"UITabBarItem\"; title = \"Online\"; ObjectID = \"cvV-hj-6A0\";",
+      "extractionState": "extracted_with_value",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Online"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Online"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En línea"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En ligne"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "オンライン"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Онлайн"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Online"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verkossa"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Online"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在线"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "متصل"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Online"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Online"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Online"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Online"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Online"
           }
         }
       }
     },
-    "RRX-8o-b1m.text" : {
-      "comment" : "Class = \"UILabel\"; text = \"Search in progress...\"; ObjectID = \"RRX-8o-b1m\";",
-      "extractionState" : "extracted_with_value",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Search in progress..."
+    "DvQ-5y-VX7.title": {
+      "comment": "Class = \"UITabBarItem\"; title = \"Library\"; ObjectID = \"DvQ-5y-VX7\";",
+      "extractionState": "extracted_with_value",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bibliothek"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Library"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Biblioteca"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bibliothèque"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ライブラリ"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Библиотека"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bibliotek"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kirjasto"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Libreria"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "库"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "المكتبة"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Biblioteca"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Library"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Library"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Library"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Library"
           }
         }
       }
     },
-    "rUz-Hl-EY8.title" : {
-      "comment" : "Class = \"UITabBarItem\"; title = \"Item\"; ObjectID = \"rUz-Hl-EY8\";",
-      "extractionState" : "extracted_with_value",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Item"
+    "fbK-Qm-4oI.title": {
+      "comment": "Class = \"UINavigationItem\"; title = \"About\"; ObjectID = \"fbK-Qm-4oI\";",
+      "extractionState": "extracted_with_value",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Über"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "About"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Acerca de"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A propos"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "情報"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "О программе"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Om"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tietoja"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Info"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "关于"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "حول"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sobre"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "About"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "About"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "About"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "About"
           }
         }
       }
     },
-    "tg5-2u-vCN.title" : {
-      "comment" : "Class = \"UIViewController\"; title = \"Browse\"; ObjectID = \"tg5-2u-vCN\";",
-      "extractionState" : "extracted_with_value",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Browse"
+    "fV6-MA-EGs.title": {
+      "comment": "Class = \"UINavigationItem\"; title = \"Playlists\"; ObjectID = \"fV6-MA-EGs\";",
+      "extractionState": "extracted_with_value",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Playlists"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Playlists"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Listas de reproducción"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Playlists"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "プレイリスト"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Плейлисты"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spellistor"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Soittolistat"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Playlist"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "播放列表"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "قوائم التشغيل"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Playlists"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Playlists"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Playlists"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Playlists"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Playlists"
           }
         }
       }
     },
-    "Trd-4K-wLH.title" : {
-      "comment" : "Class = \"UINavigationItem\"; title = \"Downloads\"; ObjectID = \"Trd-4K-wLH\";",
-      "extractionState" : "extracted_with_value",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Downloads"
+    "H3A-In-WcL.title": {
+      "comment": "Class = \"UINavigationItem\"; title = \"Library\"; ObjectID = \"H3A-In-WcL\";",
+      "extractionState": "extracted_with_value",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bibliothek"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Library"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Biblioteca"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bibliothèque"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ライブラリ"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Библиотека"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bibliotek"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kirjasto"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Libreria"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "库"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "المكتبة"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Biblioteca"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Library"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Library"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Library"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Library"
           }
         }
       }
     },
-    "W8v-hQ-B0m.text" : {
-      "comment" : "Class = \"UILabel\"; text = \"00:00\"; ObjectID = \"W8v-hQ-B0m\";",
-      "extractionState" : "extracted_with_value",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "00:00"
+    "i6j-qO-A9D.normalTitle": {
+      "comment": "Class = \"UIButton\"; normalTitle = \"+\"; ObjectID = \"i6j-qO-A9D\";",
+      "extractionState": "extracted_with_value",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "+"
+          }
+        }
+      },
+      "shouldTranslate": false
+    },
+    "jMv-JX-mB8.text": {
+      "comment": "Class = \"UILabel\"; text = \"00:00\"; ObjectID = \"jMv-JX-mB8\";",
+      "extractionState": "extracted_with_value",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "00:00"
+          }
+        }
+      },
+      "shouldTranslate": false
+    },
+    "Jx5-dc-83q.text": {
+      "comment": "Class = \"UILabel\"; text = \"Downloading :\"; ObjectID = \"Jx5-dc-83q\";",
+      "extractionState": "extracted_with_value",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lädt herunter:"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Downloading :"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Descargando:"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Télécharge: "
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ダウンロード中："
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Загрузка:"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hämtar:"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ladataan:"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Download in corso:"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "下载中："
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "جاري التنزيل :"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Baixando :"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downloading :"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downloading :"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downloading :"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downloading :"
           }
         }
       }
     },
-    "WUp-pw-saM.title" : {
-      "comment" : "Class = \"UIViewController\"; title = \"Playlists\"; ObjectID = \"WUp-pw-saM\";",
-      "extractionState" : "extracted_with_value",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Playlists"
+    "mq5-jp-mrX.text": {
+      "comment": "Class = \"UILabel\"; text = \"Label....................\"; ObjectID = \"mq5-jp-mrX\";",
+      "extractionState": "extracted_with_value",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Label...................."
+          }
+        }
+      },
+      "shouldTranslate": false
+    },
+    "MWm-br-vsJ.title": {
+      "comment": "Class = \"UIViewController\"; title = \"File\"; ObjectID = \"MWm-br-vsJ\";",
+      "extractionState": "extracted_with_value",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Datei"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "File"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Archivo"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fichier"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ファイル"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Файл"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fil"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tiedosto"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "File"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "文件"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ملف"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arquivo"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "File"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "File"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "File"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "File"
           }
         }
       }
     },
-    "xV0-Ez-trt.title" : {
-      "comment" : "Class = \"UIViewController\"; title = \"web browser\"; ObjectID = \"xV0-Ez-trt\";",
-      "extractionState" : "extracted_with_value",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "web browser"
+    "mWS-K4-65s.title": {
+      "comment": "Class = \"UITabBarItem\"; title = \"Item\"; ObjectID = \"mWS-K4-65s\";",
+      "extractionState": "extracted_with_value",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Artikel"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Item"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elemento"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Objet"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "項目"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Элемент"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Objekt"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kohde"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elemento"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "项目"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "عنصر"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Item"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Item"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Item"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Item"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Item"
           }
         }
       }
     },
-    "Y1P-8t-IWd.title" : {
-      "comment" : "Class = \"UIViewController\"; title = \"More\"; ObjectID = \"Y1P-8t-IWd\";",
-      "extractionState" : "extracted_with_value",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "More"
+    "nDl-H1-3sT.text": {
+      "comment": "Class = \"UITextView\"; text = \"v4.0 © Yohann Magnien / YoyoFR\\n\\nContact: mailto:modizerhelp@gmail.com\\nWeb: https://modizer.app\\n\\nModizer's logo by Steve Miele.\\n\\nNumber of file formats/extension supported: 1090.\\n!PM!,04SW,208,2DX9,2PSF,2SF,2SFLIB,3DO,4,40A,40B,41A,50A,60A,61A,669,800,9TAV,A2M,AAC,AAM,AAX,ABK,AC1,AC1D,ACB,ACM,ACX,ADL,ADLIB,ADM,ADP,ADPCM,ADPCMX,ADS,ADSC,ADW,ADX,AFC,AFS2,AGD,AGI,AGSC,AHV,AHX,AI,AIF,AIF-LOOP,AIFC,AIFCL,AIFF,AIFFL,AIX,AKB,AL,AL2,ALP,AMC,AMD,AMF,AMS,AMTS,AO,AON,AON4,AON8,AP,APC,AS0,AS3M,AS4,ASC,ASD,ASF,ASR,ASS,AST,AT3,AT9,ATSL,ATSL3,ATSL4,ATX,AUD,AUS,AVAL,AVP,AWB,AWC,AY,B1S,BAF,BAKA,BAM,BANK,BAO,BAR,BCSTM,BCWAV,BD,BD3,BDS,BDSP,BFC,BFSTM,BFWAV,BFWAVNSMBU,BG00,BGM,BGW,BH2PCM,BIK,BIK2,BIKA,BIN,BK2,BLK,BMDX,BMF,BMS,BNK,BNM,BNS,BNSF,BO2,BP,BP3,BRSTM,BRSTMSPM,BSF,BSI,BSND,BSS,BTSND,BVG,BWAV,BYTES,C64,C67,CAF,CAPDSP,CBD2,CC3,CCC,CD,CFF,CFN,CHAN,CHI,CHK,CHP,CIN,CKB,CKD,CKS,CM,CM3,CMC,CMF,CMR,CMS,CNK,COP,CORE,CP,CPK,CPLX,CPS,CRB,CSB,CSMP,CTRL,CUS,CUST,CUSTOM,CVS,CWAV,CXS,D00,DA,DAT,DATA,DAX,DB,DBM,DCS,DCT,DDSP,DE2,DEC,DFM,DH,DI,DIGI,DIVA,DL,DLM1,DLM2,DLN,DLT,DL_DELI,DM0,DM1,DM2,DMC,DMF,DMM,DMO,DMSG,DMU,DMU2,DNS,DODA,DP,DR0,DRO,DS2,DSB,DSC,DSF,DSFLIB,DSM,DSP,DSPW,DSQ,DSR,DSS,DST,DTK,DTM,DUM,DVI,DW,DWOLD,DXH,DZ,E4X,EA,EAM,EAS,EMFF,EMOD,EMS,EMSV6,ENM,ENO,ENS,ESV,ET1,EU,EUP,EX,EXA,EZW,FAG,FAR,FC,FC-BSI,FC-M,FC13,FC14,FC3,FC4,FCM,FDA,FDI,FFW,FILP,FLAC,FLX,FMB,FNK,FP,FRED,FSB,FSV,FT,FTC,FUZ,FUZZ,FW,FWAV,FWSE,G1L,GAM,GAMPLUS,GBR,GBS,GBTS,GCA,GCM,GCUB,GCW,GDM,GENH,GIN,GLUE,GM,GMC,GMS,GOT,GRAY,GSB,GSF,GSFLIB,GTD,GTR,GV,GWM,GYM,H4M,HA2,HAB,HBT,HCA,HD,HDR,HES,HGC1,HIP,HIP7,HIPC,HIS,HMC,HN,HPS,HRM,HRP,HRT,HRT!,HSC,HSF,HSP,HSQ,HST,HVL,HWAS,HX2,HX3,HXC,HXD,HXG,HXX,IAB,IADP,ICE,IDMSF,IDSP,IDVI,IDWAV,IDXMA,IFS,IKM,ILD,IMA,IMC,IMF,IMS,IMX,INSTR,INT,IS,IS14,IS20,ISB,ISD,ISWS,IT,IT1,ITL,IVAG,IVAUD,IVB,J2B,JAM,JBM,JC,JCB,JCBO,JD,JMF,JO,JOE,JP,JPN,JPND,JPO,JPOLD,JSTM,JT,KAT,KCES,KCEY,KEF,KEF7,KH,KM9,KNS,KOVS,KRAW,KRIS,KRS,KSM,KSS,KTAC,KTSL2ASBIN,KTSS,KVS,L,LAA,LAAC,LAIF,LAIFC,LAIFF,LASF,LAX,LBIN,LDS,LEG,LEP,LIN,LIQ,LM0,LM1,LM2,LM3,LM4,LM5,LM6,LM7,LME,LMP3,LMP4,LOGG,LOPUS,LP,LPCM,LPK,LPS,LRMB,LSE,LSF,LSTM,LWAV,LZS,M,M15,M2,M3U,M4A,M4V,MA,MAB,MAD,MAP,MATX,MAX,MBM,MC,MC3,MCA,MCADPCM,MCG,MCMD,MCMD_ORG,MCO,MCR,MD,MDAT,MDI,MDL,MDS,MDSP,MDST,MDX,MDY,MED,MEXXMP,MFP,MG,MGS,MI4,MIB,MIC,MID,MIDI,MIHB,MINI2SF,MINIDSF,MINIGSF,MININCSF,MINIPSF,MINIPSF2,MINIQSF,MINISNSF,MINISSF,MINIUSF,MJB,MK2,MKF,MKII,MKIIO,MKJ,ML,MM4,MM8,MMCMP,MMD0,MMD1,MMD2,MMD3,MMD4,MMDC,MMS,MNSTR,MO3,MOD,MOD15,MOD15_MST,MOD15_ST-IV,MOD15_UST,MOD_ADSC4,MOD_COMP,MOD_DOC,MOD_FLT4,MOD_NTK,MOD_NTK1,MOD_NTK2,MOD_NTKAMP,MOGG,MOK,MON,MON_OLD,MP3,MP4,MPD,MPDSP,MPF,MPG,MPK,MPRO,MPT,MPTM,MS,MSA,MSADPCM,MSB,MSC,MSD,MSF,MSO,MSP,MSS,MSV,MSVP,MT2,MTA2,MTAF,MTK,MTM,MTP2,MTR,MUG,MUG2,MUL,MUPS,MUS,MUSC,MUSX,MW,MWV,MXST,MYSPD,MZ,N64,NAAC,NCSF,NCSFLIB,NDP,NDS,NGCA,NLSD,NOISEPACKER2,NOISEPACKER3,NOP,NP,NP1,NP2,NP3,NPS,NPSF,NR,NRU,NSF,NSFE,NSOPUS,NST,NTP,NTPK,NUB,NUB2,NUS3AUDIO,NUS3BANK,NWA,NWAV,NXA,OCTAMED,OGG,OGL,OKT,OMU,ONE,OPI,OPUS,OPUSX,OPX,ORG,OSP,OTM,OVB,OVI,OXM,OZI,P,P00,P10,P21,P2BT,P30,P3D,P40A,P40B,P41A,P4X,P50A,P5A,P5X,P60,P60A,P61,P61A,P6X,P86,PAP,PAST,PCD,PCM,PDT,PDX,PFLT,PHA,PIN,PIS,PK,PLM,PM,PM0,PM01,PM1,PM10C,PM18A,PM2,PM20,PM4,PM40,PMB,PMZ,PNB,POLK,PONA,POS,POWT,PP10,PP20,PP21,PP30,PPC,PPK,PPM,PPS,PPZ,PR1,PR2,PRG,PROM,PRU,PRU1,PRU2,PRUN,PRUN1,PRUN2,PS,PS2STM,PSA,PSC,PSF,PSF2,PSF2LIB,PSFLIB,PSG,PSH,PSID,PSM,PSND,PSW,PT,PT1,PT2,PT3,PT36,PTCOP,PTM,PTTUNE,PUMA,PVI,PVP,PWR,PXA,PYG,PYGM,PYGMY,PZI,QC,QPA,QSF,QSFLIB,QTS,R,RAC,RAD,RAK,RAS,RAW,RH,RHO,RIFF,RIX,RJP,RK,RKB,RKV,RMT,RND,ROF,ROL,RPGMVO,RRDS,RSD,RSF,RSID,RSM,RSP,RSTM,RTM,RWAR,RWAV,RWS,RWSD,RWX,RXW,S-C,S14,S3M,S7G,S98,SA,SA-P,SA2,SAB,SAD,SAF,SAP,SAS,SAT,SA_OLD,SB,SB0,SB1,SB2,SB3,SB4,SB5,SB6,SB7,SBIN,SBK,SBR,SBV,SC,SC68,SCD,SCH,SCI,SCL,SCN,SCR,SCT,SCUMM,SD9,SDB,SDF,SDR,SDT,SEB,SED,SEG,SF0,SF2,SFL,SFM,SFS,SFX,SFX13,SFX2,SG,SGB,SGC,SGD,SGX,SID,SID1,SID2,SJS,SKT,SKYT,SL3,SLI,SM,SM0,SM1,SM2,SM3,SM4,SM5,SM6,SM7,SMC,SMK,SMN,SMP,SMPL,SMPRO,SMUS,SMV,SND,SNDH,SNDMON,SNDS,SNG,SNGW,SNK,SNR,SNS,SNSF,SNSFLIB,SNT,SNT!,SNU,SNX,SOC,SOD,SOG,SON,SONIC,SOP,SPC,SPD,SPK,SPL,SPM,SPS,SPSD,SPW,SQD,SQT,SQX,SS,SS2,SSF,SSFLIB,SSM,SSS,ST,ST1,ST2,ST26,ST3,ST30,STAR,STC,STER,STK,STM,STMA,STP,STPK,STR,STREAM,STRM,STS,STX,SUN,SVAG,SVG,SVS,SWAG,SWAV,SWD,SWITCH_AUDIO,SX,SXD,SXD1,SXD2,SXD3,SYN,SYNMOD,SZX,TD0,TEC,TF,TF0,TFC,TFD,TFE,TFHD1.5,TFHD7V,TFHDPRO,TFMX,TFMX1.5,TFMX7V,TFMXPRO,TGQ,TGV,THM,THN,THP,THX,TINY,TK5,TLZ,TLZP,TM2,TM8,TMC,TME,TMX,TP,TP1,TP2,TP3,TPU,TRA,TRC,TRD,TRO,TRONIC,TRS,TS,TUN,TW,TWO,TXT,TXTH,TXTP,TYDSP,UDS,UE4OPUS,ULT,ULW,UM3,UMX,UN2,UNIC,UNIC2,USF,USFLIB,UTK,UV,V0,V1,V2M,V2MZ,VA3,VAG,VAI,VAS,VAWX,VB,VBK,VDM,VDS,VGM,VGS,VGV,VGZ,VID,VIG,VIS,VMS,VOI,VP6,VPK,VS,VSF,VSS,VSV,VTX,VXN,WAA,WAC,WAD,WAF,WAM,WAS,WAV,WAVC,WAVE,WAVEBATCH,WAVM,WAY,WB,WB2,WBD,WD,WEM,WII,WLF,WMA,WMUS,WN,WOW,WP2,WPD,WSD,WSI,WSR,WUA,WV2,WV6,WVE,WVS,WVX,X,XA,XA2,XA30,XAD,XAG,XAN,XANN,XAU,XAV,XEN,XM,XMA,XMA2,XMD,XMU,XNA,XNB,XOPUS,XPK,XPS,XSE,XSEW,XSF,XSM,XSS,XVAG,XVAS,XWAV,XWB,XWC,XWM,XWMA,XWS,XWV,YDSP,YM,YMF,ZEN,ZIC,ZIP,ZSD,ZSM,ZSS,ZWDSP,ZWV,ZXZIP\\nIntegrated player libs:\\n- Adplug\\n- Another Slight Atari Player(ASAP)\\n- AtariSound\\n- Eupmini\\n- ffmpeg/mpg123/vorbis\\n- Game Music Emu\\n- FMPmini\\n- Highly Complete\\n- AHX/Hively tracker\\n- LazyUSF\\n- Libvgm\\n- Mdxplay\\n- NSFPlay\\n- OpenMPT\\n- PlayGSF\\n- Pmdmini\\n- PxTone / Organya\\n- PT3Player\\n- SC68\\n- Sibplayfp\\n- Snes9x/snsf\\n- ST-Sound\\n- Timidity(using Merlin_gold SF2 soundfont)\\n- UADE\\n- XSF (2SF, NCSF)\\n- XMP\\n-V2M tinyplayer\\n- VGMStream\\n- VIO2SF\\n- WebSID\\n- ZXTune\\n\\nDisclaimer:\\nInternet accesses to the Modland, HVSC & ASMA libraries are provided as an as-is service, guarantee for availability and/or functionality is not given. Use this application at your own risk.\"; ObjectID = \"nDl-H1-3sT\";",
+      "extractionState": "extracted_with_value",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "v4.0 © Yohann Magnien / YoyoFR\n\nContact: mailto:modizerhelp@gmail.com\nWeb: https://modizer.app\n\nModizer's logo by Steve Miele.\n\nNumber of file formats/extension supported: 1090.\n!PM!,04SW,208,2DX9,2PSF,2SF,2SFLIB,3DO,4,40A,40B,41A,50A,60A,61A,669,800,9TAV,A2M,AAC,AAM,AAX,ABK,AC1,AC1D,ACB,ACM,ACX,ADL,ADLIB,ADM,ADP,ADPCM,ADPCMX,ADS,ADSC,ADW,ADX,AFC,AFS2,AGD,AGI,AGSC,AHV,AHX,AI,AIF,AIF-LOOP,AIFC,AIFCL,AIFF,AIFFL,AIX,AKB,AL,AL2,ALP,AMC,AMD,AMF,AMS,AMTS,AO,AON,AON4,AON8,AP,APC,AS0,AS3M,AS4,ASC,ASD,ASF,ASR,ASS,AST,AT3,AT9,ATSL,ATSL3,ATSL4,ATX,AUD,AUS,AVAL,AVP,AWB,AWC,AY,B1S,BAF,BAKA,BAM,BANK,BAO,BAR,BCSTM,BCWAV,BD,BD3,BDS,BDSP,BFC,BFSTM,BFWAV,BFWAVNSMBU,BG00,BGM,BGW,BH2PCM,BIK,BIK2,BIKA,BIN,BK2,BLK,BMDX,BMF,BMS,BNK,BNM,BNS,BNSF,BO2,BP,BP3,BRSTM,BRSTMSPM,BSF,BSI,BSND,BSS,BTSND,BVG,BWAV,BYTES,C64,C67,CAF,CAPDSP,CBD2,CC3,CCC,CD,CFF,CFN,CHAN,CHI,CHK,CHP,CIN,CKB,CKD,CKS,CM,CM3,CMC,CMF,CMR,CMS,CNK,COP,CORE,CP,CPK,CPLX,CPS,CRB,CSB,CSMP,CTRL,CUS,CUST,CUSTOM,CVS,CWAV,CXS,D00,DA,DAT,DATA,DAX,DB,DBM,DCS,DCT,DDSP,DE2,DEC,DFM,DH,DI,DIGI,DIVA,DL,DLM1,DLM2,DLN,DLT,DL_DELI,DM0,DM1,DM2,DMC,DMF,DMM,DMO,DMSG,DMU,DMU2,DNS,DODA,DP,DR0,DRO,DS2,DSB,DSC,DSF,DSFLIB,DSM,DSP,DSPW,DSQ,DSR,DSS,DST,DTK,DTM,DUM,DVI,DW,DWOLD,DXH,DZ,E4X,EA,EAM,EAS,EMFF,EMOD,EMS,EMSV6,ENM,ENO,ENS,ESV,ET1,EU,EUP,EX,EXA,EZW,FAG,FAR,FC,FC-BSI,FC-M,FC13,FC14,FC3,FC4,FCM,FDA,FDI,FFW,FILP,FLAC,FLX,FMB,FNK,FP,FRED,FSB,FSV,FT,FTC,FUZ,FUZZ,FW,FWAV,FWSE,G1L,GAM,GAMPLUS,GBR,GBS,GBTS,GCA,GCM,GCUB,GCW,GDM,GENH,GIN,GLUE,GM,GMC,GMS,GOT,GRAY,GSB,GSF,GSFLIB,GTD,GTR,GV,GWM,GYM,H4M,HA2,HAB,HBT,HCA,HD,HDR,HES,HGC1,HIP,HIP7,HIPC,HIS,HMC,HN,HPS,HRM,HRP,HRT,HRT!,HSC,HSF,HSP,HSQ,HST,HVL,HWAS,HX2,HX3,HXC,HXD,HXG,HXX,IAB,IADP,ICE,IDMSF,IDSP,IDVI,IDWAV,IDXMA,IFS,IKM,ILD,IMA,IMC,IMF,IMS,IMX,INSTR,INT,IS,IS14,IS20,ISB,ISD,ISWS,IT,IT1,ITL,IVAG,IVAUD,IVB,J2B,JAM,JBM,JC,JCB,JCBO,JD,JMF,JO,JOE,JP,JPN,JPND,JPO,JPOLD,JSTM,JT,KAT,KCES,KCEY,KEF,KEF7,KH,KM9,KNS,KOVS,KRAW,KRIS,KRS,KSM,KSS,KTAC,KTSL2ASBIN,KTSS,KVS,L,LAA,LAAC,LAIF,LAIFC,LAIFF,LASF,LAX,LBIN,LDS,LEG,LEP,LIN,LIQ,LM0,LM1,LM2,LM3,LM4,LM5,LM6,LM7,LME,LMP3,LMP4,LOGG,LOPUS,LP,LPCM,LPK,LPS,LRMB,LSE,LSF,LSTM,LWAV,LZS,M,M15,M2,M3U,M4A,M4V,MA,MAB,MAD,MAP,MATX,MAX,MBM,MC,MC3,MCA,MCADPCM,MCG,MCMD,MCMD_ORG,MCO,MCR,MD,MDAT,MDI,MDL,MDS,MDSP,MDST,MDX,MDY,MED,MEXXMP,MFP,MG,MGS,MI4,MIB,MIC,MID,MIDI,MIHB,MINI2SF,MINIDSF,MINIGSF,MININCSF,MINIPSF,MINIPSF2,MINIQSF,MINISNSF,MINISSF,MINIUSF,MJB,MK2,MKF,MKII,MKIIO,MKJ,ML,MM4,MM8,MMCMP,MMD0,MMD1,MMD2,MMD3,MMD4,MMDC,MMS,MNSTR,MO3,MOD,MOD15,MOD15_MST,MOD15_ST-IV,MOD15_UST,MOD_ADSC4,MOD_COMP,MOD_DOC,MOD_FLT4,MOD_NTK,MOD_NTK1,MOD_NTK2,MOD_NTKAMP,MOGG,MOK,MON,MON_OLD,MP3,MP4,MPD,MPDSP,MPF,MPG,MPK,MPRO,MPT,MPTM,MS,MSA,MSADPCM,MSB,MSC,MSD,MSF,MSO,MSP,MSS,MSV,MSVP,MT2,MTA2,MTAF,MTK,MTM,MTP2,MTR,MUG,MUG2,MUL,MUPS,MUS,MUSC,MUSX,MW,MWV,MXST,MYSPD,MZ,N64,NAAC,NCSF,NCSFLIB,NDP,NDS,NGCA,NLSD,NOISEPACKER2,NOISEPACKER3,NOP,NP,NP1,NP2,NP3,NPS,NPSF,NR,NRU,NSF,NSFE,NSOPUS,NST,NTP,NTPK,NUB,NUB2,NUS3AUDIO,NUS3BANK,NWA,NWAV,NXA,OCTAMED,OGG,OGL,OKT,OMU,ONE,OPI,OPUS,OPUSX,OPX,ORG,OSP,OTM,OVB,OVI,OXM,OZI,P,P00,P10,P21,P2BT,P30,P3D,P40A,P40B,P41A,P4X,P50A,P5A,P5X,P60,P60A,P61,P61A,P6X,P86,PAP,PAST,PCD,PCM,PDT,PDX,PFLT,PHA,PIN,PIS,PK,PLM,PM,PM0,PM01,PM1,PM10C,PM18A,PM2,PM20,PM4,PM40,PMB,PMZ,PNB,POLK,PONA,POS,POWT,PP10,PP20,PP21,PP30,PPC,PPK,PPM,PPS,PPZ,PR1,PR2,PRG,PROM,PRU,PRU1,PRU2,PRUN,PRUN1,PRUN2,PS,PS2STM,PSA,PSC,PSF,PSF2,PSF2LIB,PSFLIB,PSG,PSH,PSID,PSM,PSND,PSW,PT,PT1,PT2,PT3,PT36,PTCOP,PTM,PTTUNE,PUMA,PVI,PVP,PWR,PXA,PYG,PYGM,PYGMY,PZI,QC,QPA,QSF,QSFLIB,QTS,R,RAC,RAD,RAK,RAS,RAW,RH,RHO,RIFF,RIX,RJP,RK,RKB,RKV,RMT,RND,ROF,ROL,RPGMVO,RRDS,RSD,RSF,RSID,RSM,RSP,RSTM,RTM,RWAR,RWAV,RWS,RWSD,RWX,RXW,S-C,S14,S3M,S7G,S98,SA,SA-P,SA2,SAB,SAD,SAF,SAP,SAS,SAT,SA_OLD,SB,SB0,SB1,SB2,SB3,SB4,SB5,SB6,SB7,SBIN,SBK,SBR,SBV,SC,SC68,SCD,SCH,SCI,SCL,SCN,SCR,SCT,SCUMM,SD9,SDB,SDF,SDR,SDT,SEB,SED,SEG,SF0,SF2,SFL,SFM,SFS,SFX,SFX13,SFX2,SG,SGB,SGC,SGD,SGX,SID,SID1,SID2,SJS,SKT,SKYT,SL3,SLI,SM,SM0,SM1,SM2,SM3,SM4,SM5,SM6,SM7,SMC,SMK,SMN,SMP,SMPL,SMPRO,SMUS,SMV,SND,SNDH,SNDMON,SNDS,SNG,SNGW,SNK,SNR,SNS,SNSF,SNSFLIB,SNT,SNT!,SNU,SNX,SOC,SOD,SOG,SON,SONIC,SOP,SPC,SPD,SPK,SPL,SPM,SPS,SPSD,SPW,SQD,SQT,SQX,SS,SS2,SSF,SSFLIB,SSM,SSS,ST,ST1,ST2,ST26,ST3,ST30,STAR,STC,STER,STK,STM,STMA,STP,STPK,STR,STREAM,STRM,STS,STX,SUN,SVAG,SVG,SVS,SWAG,SWAV,SWD,SWITCH_AUDIO,SX,SXD,SXD1,SXD2,SXD3,SYN,SYNMOD,SZX,TD0,TEC,TF,TF0,TFC,TFD,TFE,TFHD1.5,TFHD7V,TFHDPRO,TFMX,TFMX1.5,TFMX7V,TFMXPRO,TGQ,TGV,THM,THN,THP,THX,TINY,TK5,TLZ,TLZP,TM2,TM8,TMC,TME,TMX,TP,TP1,TP2,TP3,TPU,TRA,TRC,TRD,TRO,TRONIC,TRS,TS,TUN,TW,TWO,TXT,TXTH,TXTP,TYDSP,UDS,UE4OPUS,ULT,ULW,UM3,UMX,UN2,UNIC,UNIC2,USF,USFLIB,UTK,UV,V0,V1,V2M,V2MZ,VA3,VAG,VAI,VAS,VAWX,VB,VBK,VDM,VDS,VGM,VGS,VGV,VGZ,VID,VIG,VIS,VMS,VOI,VP6,VPK,VS,VSF,VSS,VSV,VTX,VXN,WAA,WAC,WAD,WAF,WAM,WAS,WAV,WAVC,WAVE,WAVEBATCH,WAVM,WAY,WB,WB2,WBD,WD,WEM,WII,WLF,WMA,WMUS,WN,WOW,WP2,WPD,WSD,WSI,WSR,WUA,WV2,WV6,WVE,WVS,WVX,X,XA,XA2,XA30,XAD,XAG,XAN,XANN,XAU,XAV,XEN,XM,XMA,XMA2,XMD,XMU,XNA,XNB,XOPUS,XPK,XPS,XSE,XSEW,XSF,XSM,XSS,XVAG,XVAS,XWAV,XWB,XWC,XWM,XWMA,XWS,XWV,YDSP,YM,YMF,ZEN,ZIC,ZIP,ZSD,ZSM,ZSS,ZWDSP,ZWV,ZXZIP\nIntegrated player libs:\n- Adplug\n- Another Slight Atari Player(ASAP)\n- AtariSound\n- Eupmini\n- ffmpeg/mpg123/vorbis\n- Game Music Emu\n- FMPmini\n- Highly Complete\n- AHX/Hively tracker\n- LazyUSF\n- Libvgm\n- Mdxplay\n- NSFPlay\n- OpenMPT\n- PlayGSF\n- Pmdmini\n- PxTone / Organya\n- PT3Player\n- SC68\n- Sibplayfp\n- Snes9x/snsf\n- ST-Sound\n- Timidity(using Merlin_gold SF2 soundfont)\n- UADE\n- XSF (2SF, NCSF)\n- XMP\n-V2M tinyplayer\n- VGMStream\n- VIO2SF\n- WebSID\n- ZXTune\n\nDisclaimer:\nInternet accesses to the Modland, HVSC & ASMA libraries are provided as an as-is service, guarantee for availability and/or functionality is not given. Use this application at your own risk."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "v4.0 © Yohann Magnien / YoyoFR\n\nContact: mailto:modizerhelp@gmail.com\nWeb: https://modizer.app\n\nModizer's logo par Steve Miele.\n\nNombre de formats de fichiers/extensions supportés: 1090.\n!PM!,04SW,208,2DX9,2PSF,2SF,2SFLIB,3DO,4,40A,40B,41A,50A,60A,61A,669,800,9TAV,A2M,AAC,AAM,AAX,ABK,AC1,AC1D,ACB,ACM,ACX,ADL,ADLIB,ADM,ADP,ADPCM,ADPCMX,ADS,ADSC,ADW,ADX,AFC,AFS2,AGD,AGI,AGSC,AHV,AHX,AI,AIF,AIF-LOOP,AIFC,AIFCL,AIFF,AIFFL,AIX,AKB,AL,AL2,ALP,AMC,AMD,AMF,AMS,AMTS,AO,AON,AON4,AON8,AP,APC,AS0,AS3M,AS4,ASC,ASD,ASF,ASR,ASS,AST,AT3,AT9,ATSL,ATSL3,ATSL4,ATX,AUD,AUS,AVAL,AVP,AWB,AWC,AY,B1S,BAF,BAKA,BAM,BANK,BAO,BAR,BCSTM,BCWAV,BD,BD3,BDS,BDSP,BFC,BFSTM,BFWAV,BFWAVNSMBU,BG00,BGM,BGW,BH2PCM,BIK,BIK2,BIKA,BIN,BK2,BLK,BMDX,BMF,BMS,BNK,BNM,BNS,BNSF,BO2,BP,BP3,BRSTM,BRSTMSPM,BSF,BSI,BSND,BSS,BTSND,BVG,BWAV,BYTES,C64,C67,CAF,CAPDSP,CBD2,CC3,CCC,CD,CFF,CFN,CHAN,CHI,CHK,CHP,CIN,CKB,CKD,CKS,CM,CM3,CMC,CMF,CMR,CMS,CNK,COP,CORE,CP,CPK,CPLX,CPS,CRB,CSB,CSMP,CTRL,CUS,CUST,CUSTOM,CVS,CWAV,CXS,D00,DA,DAT,DATA,DAX,DB,DBM,DCS,DCT,DDSP,DE2,DEC,DFM,DH,DI,DIGI,DIVA,DL,DLM1,DLM2,DLN,DLT,DL_DELI,DM0,DM1,DM2,DMC,DMF,DMM,DMO,DMSG,DMU,DMU2,DNS,DODA,DP,DR0,DRO,DS2,DSB,DSC,DSF,DSFLIB,DSM,DSP,DSPW,DSQ,DSR,DSS,DST,DTK,DTM,DUM,DVI,DW,DWOLD,DXH,DZ,E4X,EA,EAM,EAS,EMFF,EMOD,EMS,EMSV6,ENM,ENO,ENS,ESV,ET1,EU,EUP,EX,EXA,EZW,FAG,FAR,FC,FC-BSI,FC-M,FC13,FC14,FC3,FC4,FCM,FDA,FDI,FFW,FILP,FLAC,FLX,FMB,FNK,FP,FRED,FSB,FSV,FT,FTC,FUZ,FUZZ,FW,FWAV,FWSE,G1L,GAM,GAMPLUS,GBR,GBS,GBTS,GCA,GCM,GCUB,GCW,GDM,GENH,GIN,GLUE,GM,GMC,GMS,GOT,GRAY,GSB,GSF,GSFLIB,GTD,GTR,GV,GWM,GYM,H4M,HA2,HAB,HBT,HCA,HD,HDR,HES,HGC1,HIP,HIP7,HIPC,HIS,HMC,HN,HPS,HRM,HRP,HRT,HRT!,HSC,HSF,HSP,HSQ,HST,HVL,HWAS,HX2,HX3,HXC,HXD,HXG,HXX,IAB,IADP,ICE,IDMSF,IDSP,IDVI,IDWAV,IDXMA,IFS,IKM,ILD,IMA,IMC,IMF,IMS,IMX,INSTR,INT,IS,IS14,IS20,ISB,ISD,ISWS,IT,IT1,ITL,IVAG,IVAUD,IVB,J2B,JAM,JBM,JC,JCB,JCBO,JD,JMF,JO,JOE,JP,JPN,JPND,JPO,JPOLD,JSTM,JT,KAT,KCES,KCEY,KEF,KEF7,KH,KM9,KNS,KOVS,KRAW,KRIS,KRS,KSM,KSS,KTAC,KTSL2ASBIN,KTSS,KVS,L,LAA,LAAC,LAIF,LAIFC,LAIFF,LASF,LAX,LBIN,LDS,LEG,LEP,LIN,LIQ,LM0,LM1,LM2,LM3,LM4,LM5,LM6,LM7,LME,LMP3,LMP4,LOGG,LOPUS,LP,LPCM,LPK,LPS,LRMB,LSE,LSF,LSTM,LWAV,LZS,M,M15,M2,M3U,M4A,M4V,MA,MAB,MAD,MAP,MATX,MAX,MBM,MC,MC3,MCA,MCADPCM,MCG,MCMD,MCMD_ORG,MCO,MCR,MD,MDAT,MDI,MDL,MDS,MDSP,MDST,MDX,MDY,MED,MEXXMP,MFP,MG,MGS,MI4,MIB,MIC,MID,MIDI,MIHB,MINI2SF,MINIDSF,MINIGSF,MININCSF,MINIPSF,MINIPSF2,MINIQSF,MINISNSF,MINISSF,MINIUSF,MJB,MK2,MKF,MKII,MKIIO,MKJ,ML,MM4,MM8,MMCMP,MMD0,MMD1,MMD2,MMD3,MMD4,MMDC,MMS,MNSTR,MO3,MOD,MOD15,MOD15_MST,MOD15_ST-IV,MOD15_UST,MOD_ADSC4,MOD_COMP,MOD_DOC,MOD_FLT4,MOD_NTK,MOD_NTK1,MOD_NTK2,MOD_NTKAMP,MOGG,MOK,MON,MON_OLD,MP3,MP4,MPD,MPDSP,MPF,MPG,MPK,MPRO,MPT,MPTM,MS,MSA,MSADPCM,MSB,MSC,MSD,MSF,MSO,MSP,MSS,MSV,MSVP,MT2,MTA2,MTAF,MTK,MTM,MTP2,MTR,MUG,MUG2,MUL,MUPS,MUS,MUSC,MUSX,MW,MWV,MXST,MYSPD,MZ,N64,NAAC,NCSF,NCSFLIB,NDP,NDS,NGCA,NLSD,NOISEPACKER2,NOISEPACKER3,NOP,NP,NP1,NP2,NP3,NPS,NPSF,NR,NRU,NSF,NSFE,NSOPUS,NST,NTP,NTPK,NUB,NUB2,NUS3AUDIO,NUS3BANK,NWA,NWAV,NXA,OCTAMED,OGG,OGL,OKT,OMU,ONE,OPI,OPUS,OPUSX,OPX,ORG,OSP,OTM,OVB,OVI,OXM,OZI,P,P00,P10,P21,P2BT,P30,P3D,P40A,P40B,P41A,P4X,P50A,P5A,P5X,P60,P60A,P61,P61A,P6X,P86,PAP,PAST,PCD,PCM,PDT,PDX,PFLT,PHA,PIN,PIS,PK,PLM,PM,PM0,PM01,PM1,PM10C,PM18A,PM2,PM20,PM4,PM40,PMB,PMZ,PNB,POLK,PONA,POS,POWT,PP10,PP20,PP21,PP30,PPC,PPK,PPM,PPS,PPZ,PR1,PR2,PRG,PROM,PRU,PRU1,PRU2,PRUN,PRUN1,PRUN2,PS,PS2STM,PSA,PSC,PSF,PSF2,PSF2LIB,PSFLIB,PSG,PSH,PSID,PSM,PSND,PSW,PT,PT1,PT2,PT3,PT36,PTCOP,PTM,PTTUNE,PUMA,PVI,PVP,PWR,PXA,PYG,PYGM,PYGMY,PZI,QC,QPA,QSF,QSFLIB,QTS,R,RAC,RAD,RAK,RAS,RAW,RH,RHO,RIFF,RIX,RJP,RK,RKB,RKV,RMT,RND,ROF,ROL,RPGMVO,RRDS,RSD,RSF,RSID,RSM,RSP,RSTM,RTM,RWAR,RWAV,RWS,RWSD,RWX,RXW,S-C,S14,S3M,S7G,S98,SA,SA-P,SA2,SAB,SAD,SAF,SAP,SAS,SAT,SA_OLD,SB,SB0,SB1,SB2,SB3,SB4,SB5,SB6,SB7,SBIN,SBK,SBR,SBV,SC,SC68,SCD,SCH,SCI,SCL,SCN,SCR,SCT,SCUMM,SD9,SDB,SDF,SDR,SDT,SEB,SED,SEG,SF0,SF2,SFL,SFM,SFS,SFX,SFX13,SFX2,SG,SGB,SGC,SGD,SGX,SID,SID1,SID2,SJS,SKT,SKYT,SL3,SLI,SM,SM0,SM1,SM2,SM3,SM4,SM5,SM6,SM7,SMC,SMK,SMN,SMP,SMPL,SMPRO,SMUS,SMV,SND,SNDH,SNDMON,SNDS,SNG,SNGW,SNK,SNR,SNS,SNSF,SNSFLIB,SNT,SNT!,SNU,SNX,SOC,SOD,SOG,SON,SONIC,SOP,SPC,SPD,SPK,SPL,SPM,SPS,SPSD,SPW,SQD,SQT,SQX,SS,SS2,SSF,SSFLIB,SSM,SSS,ST,ST1,ST2,ST26,ST3,ST30,STAR,STC,STER,STK,STM,STMA,STP,STPK,STR,STREAM,STRM,STS,STX,SUN,SVAG,SVG,SVS,SWAG,SWAV,SWD,SWITCH_AUDIO,SX,SXD,SXD1,SXD2,SXD3,SYN,SYNMOD,SZX,TD0,TEC,TF,TF0,TFC,TFD,TFE,TFHD1.5,TFHD7V,TFHDPRO,TFMX,TFMX1.5,TFMX7V,TFMXPRO,TGQ,TGV,THM,THN,THP,THX,TINY,TK5,TLZ,TLZP,TM2,TM8,TMC,TME,TMX,TP,TP1,TP2,TP3,TPU,TRA,TRC,TRD,TRO,TRONIC,TRS,TS,TUN,TW,TWO,TXT,TXTH,TXTP,TYDSP,UDS,UE4OPUS,ULT,ULW,UM3,UMX,UN2,UNIC,UNIC2,USF,USFLIB,UTK,UV,V0,V1,V2M,V2MZ,VA3,VAG,VAI,VAS,VAWX,VB,VBK,VDM,VDS,VGM,VGS,VGV,VGZ,VID,VIG,VIS,VMS,VOI,VP6,VPK,VS,VSF,VSS,VSV,VTX,VXN,WAA,WAC,WAD,WAF,WAM,WAS,WAV,WAVC,WAVE,WAVEBATCH,WAVM,WAY,WB,WB2,WBD,WD,WEM,WII,WLF,WMA,WMUS,WN,WOW,WP2,WPD,WSD,WSI,WSR,WUA,WV2,WV6,WVE,WVS,WVX,X,XA,XA2,XA30,XAD,XAG,XAN,XANN,XAU,XAV,XEN,XM,XMA,XMA2,XMD,XMU,XNA,XNB,XOPUS,XPK,XPS,XSE,XSEW,XSF,XSM,XSS,XVAG,XVAS,XWAV,XWB,XWC,XWM,XWMA,XWS,XWV,YDSP,YM,YMF,ZEN,ZIC,ZIP,ZSD,ZSM,ZSS,ZWDSP,ZWV,ZXZIP\nBibliothèques utilisées:\n- Adplug\n- Another Slight Atari Player(ASAP)\n- AtariSound\n- Eupmini\n- ffmpeg/mpg123/vorbis\n- Game Music Emu\n- FMPmini\n- Highly Complete\n- AHX/Hively tracker\n- LazyUSF\n- Libvgm\n- Mdxplay\n- NSFPlay \n- OpenMPT\n- PlayGSF\n- Pmdmini\n- PxTone / Organya\n- PT3Player\n- SC68\n- Sibplayfp\n- Snes9x/snsf\n- ST-Sound\n- Timidity(using Merlin_gold SF2 soundfont)\n- UADE\n- XSF (2SF, NCSF)\n- XMP\n-V2M tinyplayer\n- VGMStream\n- VIO2SF\n- WebSID\n- ZXTune\n\nAvertissement :\nL'accès internet aux bibliothèques Modland, HVSC et ASMA est fourni tel quel, sans garantie de disponibilité ni de fonctionnement. L'utilisation de cette application se fait à vos propres risques."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "v4.0 © Yohann Magnien / YoyoFR\n\nContact: mailto:modizerhelp@gmail.com\nWeb: https://modizer.app\n\nModizerのロゴ：Steve Miele氏\n\nサポートされているファイル形式/拡張子の数：1090\n!PM!,04SW,208,2DX9,2PSF,2SF,2SFLIB,3DO,4,40A,40B,41A,50A,60A,61A,669,800,9TAV,A2M,AAC,AAM,AAX,ABK,AC1,AC1D,ACB,ACM,ACX,ADL,ADLIB,ADM,ADP,ADPCM,ADPCMX,ADS,ADSC,ADW,ADX,AFC,AFS2,AGD,AGI,AGSC,AHV,AHX,AI,AIF,AIF-LOOP,AIFC,AIFCL,AIFF,AIFFL,AIX,AKB,AL,AL2,ALP,AMC,AMD,AMF,AMS,AMTS,AO,AON,AON4,AON8,AP,APC,AS0,AS3M,AS4,ASC,ASD,ASF,ASR,ASS,AST,AT3,AT9,ATSL,ATSL3,ATSL4,ATX,AUD,AUS,AVAL,AVP,AWB,AWC,AY,B1S,BAF,BAKA,BAM,BANK,BAO,BAR,BCSTM,BCWAV,BD,BD3,BDS,BDSP,BFC,BFSTM,BFWAV,BFWAVNSMBU,BG00,BGM,BGW,BH2PCM,BIK,BIK2,BIKA,BIN,BK2,BLK,BMDX,BMF,BMS,BNK,BNM,BNS,BNSF,BO2,BP,BP3,BRSTM,BRSTMSPM,BSF,BSI,BSND,BSS,BTSND,BVG,BWAV,BYTES,C64,C67,CAF,CAPDSP,CBD2,CC3,CCC,CD,CFF,CFN,CHAN,CHI,CHK,CHP,CIN,CKB,CKD,CKS,CM,CM3,CMC,CMF,CMR,CMS,CNK,COP,CORE,CP,CPK,CPLX,CPS,CRB,CSB,CSMP,CTRL,CUS,CUST,CUSTOM,CVS,CWAV,CXS,D00,DA,DAT,DATA,DAX,DB,DBM,DCS,DCT,DDSP,DE2,DEC,DFM,DH,DI,DIGI,DIVA,DL,DLM1,DLM2,DLN,DLT,DL_DELI,DM0,DM1,DM2,DMC,DMF,DMM,DMO,DMSG,DMU,DMU2,DNS,DODA,DP,DR0,DRO,DS2,DSB,DSC,DSF,DSFLIB,DSM,DSP,DSPW,DSQ,DSR,DSS,DST,DTK,DTM,DUM,DVI,DW,DWOLD,DXH,DZ,E4X,EA,EAM,EAS,EMFF,EMOD,EMS,EMSV6,ENM,ENO,ENS,ESV,ET1,EU,EUP,EX,EXA,EZW,FAG,FAR,FC,FC-BSI,FC-M,FC13,FC14,FC3,FC4,FCM,FDA,FDI,FFW,FILP,FLAC,FLX,FMB,FNK,FP,FRED,FSB,FSV,FT,FTC,FUZ,FUZZ,FW,FWAV,FWSE,G1L,GAM,GAMPLUS,GBR,GBS,GBTS,GCA,GCM,GCUB,GCW,GDM,GENH,GIN,GLUE,GM,GMC,GMS,GOT,GRAY,GSB,GSF,GSFLIB,GTD,GTR,GV,GWM,GYM,H4M,HA2,HAB,HBT,HCA,HD,HDR,HES,HGC1,HIP,HIP7,HIPC,HIS,HMC,HN,HPS,HRM,HRP,HRT,HRT!,HSC,HSF,HSP,HSQ,HST,HVL,HWAS,HX2,HX3,HXC,HXD,HXG,HXX,IAB,IADP,ICE,IDMSF,IDSP,IDVI,IDWAV,IDXMA,IFS,IKM,ILD,IMA,IMC,IMF,IMS,IMX,INSTR,INT,IS,IS14,IS20,ISB,ISD,ISWS,IT,IT1,ITL,IVAG,IVAUD,IVB,J2B,JAM,JBM,JC,JCB,JCBO,JD,JMF,JO,JOE,JP,JPN,JPND,JPO,JPOLD,JSTM,JT,KAT,KCES,KCEY,KEF,KEF7,KH,KM9,KNS,KOVS,KRAW,KRIS,KRS,KSM,KSS,KTAC,KTSL2ASBIN,KTSS,KVS,L,LAA,LAAC,LAIF,LAIFC,LAIFF,LASF,LAX,LBIN,LDS,LEG,LEP,LIN,LIQ,LM0,LM1,LM2,LM3,LM4,LM5,LM6,LM7,LME,LMP3,LMP4,LOGG,LOPUS,LP,LPCM,LPK,LPS,LRMB,LSE,LSF,LSTM,LWAV,LZS,M,M15,M2,M3U,M4A,M4V,MA,MAB,MAD,MAP,MATX,MAX,MBM,MC,MC3,MCA,MCADPCM,MCG,MCMD,MCMD_ORG,MCO,MCR,MD,MDAT,MDI,MDL,MDS,MDSP,MDST,MDX,MDY,MED,MEXXMP,MFP,MG,MGS,MI4,MIB,MIC,MID,MIDI,MIHB,MINI2SF,MINIDSF,MINIGSF,MININCSF,MINIPSF,MINIPSF2,MINIQSF,MINISNSF,MINISSF,MINIUSF,MJB,MK2,MKF,MKII,MKIIO,MKJ,ML,MM4,MM8,MMCMP,MMD0,MMD1,MMD2,MMD3,MMD4,MMDC,MMS,MNSTR,MO3,MOD,MOD15,MOD15_MST,MOD15_ST-IV,MOD15_UST,MOD_ADSC4,MOD_COMP,MOD_DOC,MOD_FLT4,MOD_NTK,MOD_NTK1,MOD_NTK2,MOD_NTKAMP,MOGG,MOK,MON,MON_OLD,MP3,MP4,MPD,MPDSP,MPF,MPG,MPK,MPRO,MPT,MPTM,MS,MSA,MSADPCM,MSB,MSC,MSD,MSF,MSO,MSP,MSS,MSV,MSVP,MT2,MTA2,MTAF,MTK,MTM,MTP2,MTR,MUG,MUG2,MUL,MUPS,MUS,MUSC,MUSX,MW,MWV,MXST,MYSPD,MZ,N64,NAAC,NCSF,NCSFLIB,NDP,NDS,NGCA,NLSD,NOISEPACKER2,NOISEPACKER3,NOP,NP,NP1,NP2,NP3,NPS,NPSF,NR,NRU,NSF,NSFE,NSOPUS,NST,NTP,NTPK,NUB,NUB2,NUS3AUDIO,NUS3BANK,NWA,NWAV,NXA,OCTAMED,OGG,OGL,OKT,OMU,ONE,OPI,OPUS,OPUSX,OPX,ORG,OSP,OTM,OVB,OVI,OXM,OZI,P,P00,P10,P21,P2BT,P30,P3D,P40A,P40B,P41A,P4X,P50A,P5A,P5X,P60,P60A,P61,P61A,P6X,P86,PAP,PAST,PCD,PCM,PDT,PDX,PFLT,PHA,PIN,PIS,PK,PLM,PM,PM0,PM01,PM1,PM10C,PM18A,PM2,PM20,PM4,PM40,PMB,PMZ,PNB,POLK,PONA,POS,POWT,PP10,PP20,PP21,PP30,PPC,PPK,PPM,PPS,PPZ,PR1,PR2,PRG,PROM,PRU,PRU1,PRU2,PRUN,PRUN1,PRUN2,PS,PS2STM,PSA,PSC,PSF,PSF2,PSF2LIB,PSFLIB,PSG,PSH,PSID,PSM,PSND,PSW,PT,PT1,PT2,PT3,PT36,PTCOP,PTM,PTTUNE,PUMA,PVI,PVP,PWR,PXA,PYG,PYGM,PYGMY,PZI,QC,QPA,QSF,QSFLIB,QTS,R,RAC,RAD,RAK,RAS,RAW,RH,RHO,RIFF,RIX,RJP,RK,RKB,RKV,RMT,RND,ROF,ROL,RPGMVO,RRDS,RSD,RSF,RSID,RSM,RSP,RSTM,RTM,RWAR,RWAV,RWS,RWSD,RWX,RXW,S-C,S14,S3M,S7G,S98,SA,SA-P,SA2,SAB,SAD,SAF,SAP,SAS,SAT,SA_OLD,SB,SB0,SB1,SB2,SB3,SB4,SB5,SB6,SB7,SBIN,SBK,SBR,SBV,SC,SC68,SCD,SCH,SCI,SCL,SCN,SCR,SCT,SCUMM,SD9,SDB,SDF,SDR,SDT,SEB,SED,SEG,SF0,SF2,SFL,SFM,SFS,SFX,SFX13,SFX2,SG,SGB,SGC,SGD,SGX,SID,SID1,SID2,SJS,SKT,SKYT,SL3,SLI,SM,SM0,SM1,SM2,SM3,SM4,SM5,SM6,SM7,SMC,SMK,SMN,SMP,SMPL,SMPRO,SMUS,SMV,SND,SNDH,SNDMON,SNDS,SNG,SNGW,SNK,SNR,SNS,SNSF,SNSFLIB,SNT,SNT!,SNU,SNX,SOC,SOD,SOG,SON,SONIC,SOP,SPC,SPD,SPK,SPL,SPM,SPS,SPSD,SPW,SQD,SQT,SQX,SS,SS2,SSF,SSFLIB,SSM,SSS,ST,ST1,ST2,ST26,ST3,ST30,STAR,STC,STER,STK,STM,STMA,STP,STPK,STR,STREAM,STRM,STS,STX,SUN,SVAG,SVG,SVS,SWAG,SWAV,SWD,SWITCH_AUDIO,SX,SXD,SXD1,SXD2,SXD3,SYN,SYNMOD,SZX,TD0,TEC,TF,TF0,TFC,TFD,TFE,TFHD1.5,TFHD7V,TFHDPRO,TFMX,TFMX1.5,TFMX7V,TFMXPRO,TGQ,TGV,THM,THN,THP,THX,TINY,TK5,TLZ,TLZP,TM2,TM8,TMC,TME,TMX,TP,TP1,TP2,TP3,TPU,TRA,TRC,TRD,TRO,TRONIC,TRS,TS,TUN,TW,TWO,TXT,TXTH,TXTP,TYDSP,UDS,UE4OPUS,ULT,ULW,UM3,UMX,UN2,UNIC,UNIC2,USF,USFLIB,UTK,UV,V0,V1,V2M,V2MZ,VA3,VAG,VAI,VAS,VAWX,VB,VBK,VDM,VDS,VGM,VGS,VGV,VGZ,VID,VIG,VIS,VMS,VOI,VP6,VPK,VS,VSF,VSS,VSV,VTX,VXN,WAA,WAC,WAD,WAF,WAM,WAS,WAV,WAVC,WAVE,WAVEBATCH,WAVM,WAY,WB,WB2,WBD,WD,WEM,WII,WLF,WMA,WMUS,WN,WOW,WP2,WPD,WSD,WSI,WSR,WUA,WV2,WV6,WVE,WVS,WVX,X,XA,XA2,XA30,XAD,XAG,XAN,XANN,XAU,XAV,XEN,XM,XMA,XMA2,XMD,XMU,XNA,XNB,XOPUS,XPK,XPS,XSE,XSEW,XSF,XSM,XSS,XVAG,XVAS,XWAV,XWB,XWC,XWM,XWMA,XWS,XWV,YDSP,YM,YMF,ZEN,ZIC,ZIP,ZSD,ZSM,ZSS,ZWDSP,ZWV,ZXZIP\n統合されたプレーヤーライブラリ：\n- Adplug\n- Another Slight Atari Player(ASAP)\n- AtariSound\n- Eupmini\n- ffmpeg/mpg123/vorbis\n- Game Music Emu\n- FMPmini\n- Highly Complete\n- AHX/Hively tracker\n- LazyUSF\n- Libvgm\n- Mdxplay\n- NSFPlay\n- OpenMPT\n- PlayGSF\n- Pmdmini\n- PxTone / Organya\n- PT3Player\n- SC68\n- Sibplayfp\n- Snes9x/snsf\n- ST-Sound\n- Timidity(using Merlin_gold SF2 soundfont)\n- UADE\n- XSF (2SF, NCSF)\n- XMP\n-V2M tinyplayer\n- VGMStream\n- VIO2SF\n- WebSID\n- ZXTune\n\n免責事項：\nModland、HVSC、ASMAライブラリへのインターネットアクセスは現状のまま提供されており、可用性や機能性は保証されません。本アプリケーションの使用は自己責任で行ってください。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "v4.0 © Yohann Magnien / YoyoFR\n\nContact: mailto:modizerhelp@gmail.com\nWeb: https://modizer.app\n\nModizer-Logo von Steve Miele.\n\nAnzahl unterstützter Dateiformate/-erweiterungen: 1090.\n!PM!,04SW,208,2DX9,2PSF,2SF,2SFLIB,3DO,4,40A,40B,41A,50A,60A,61A,669,800,9TAV,A2M,AAC,AAM,AAX,ABK,AC1,AC1D,ACB,ACM,ACX,ADL,ADLIB,ADM,ADP,ADPCM,ADPCMX,ADS,ADSC,ADW,ADX,AFC,AFS2,AGD,AGI,AGSC,AHV,AHX,AI,AIF,AIF-LOOP,AIFC,AIFCL,AIFF,AIFFL,AIX,AKB,AL,AL2,ALP,AMC,AMD,AMF,AMS,AMTS,AO,AON,AON4,AON8,AP,APC,AS0,AS3M,AS4,ASC,ASD,ASF,ASR,ASS,AST,AT3,AT9,ATSL,ATSL3,ATSL4,ATX,AUD,AUS,AVAL,AVP,AWB,AWC,AY,B1S,BAF,BAKA,BAM,BANK,BAO,BAR,BCSTM,BCWAV,BD,BD3,BDS,BDSP,BFC,BFSTM,BFWAV,BFWAVNSMBU,BG00,BGM,BGW,BH2PCM,BIK,BIK2,BIKA,BIN,BK2,BLK,BMDX,BMF,BMS,BNK,BNM,BNS,BNSF,BO2,BP,BP3,BRSTM,BRSTMSPM,BSF,BSI,BSND,BSS,BTSND,BVG,BWAV,BYTES,C64,C67,CAF,CAPDSP,CBD2,CC3,CCC,CD,CFF,CFN,CHAN,CHI,CHK,CHP,CIN,CKB,CKD,CKS,CM,CM3,CMC,CMF,CMR,CMS,CNK,COP,CORE,CP,CPK,CPLX,CPS,CRB,CSB,CSMP,CTRL,CUS,CUST,CUSTOM,CVS,CWAV,CXS,D00,DA,DAT,DATA,DAX,DB,DBM,DCS,DCT,DDSP,DE2,DEC,DFM,DH,DI,DIGI,DIVA,DL,DLM1,DLM2,DLN,DLT,DL_DELI,DM0,DM1,DM2,DMC,DMF,DMM,DMO,DMSG,DMU,DMU2,DNS,DODA,DP,DR0,DRO,DS2,DSB,DSC,DSF,DSFLIB,DSM,DSP,DSPW,DSQ,DSR,DSS,DST,DTK,DTM,DUM,DVI,DW,DWOLD,DXH,DZ,E4X,EA,EAM,EAS,EMFF,EMOD,EMS,EMSV6,ENM,ENO,ENS,ESV,ET1,EU,EUP,EX,EXA,EZW,FAG,FAR,FC,FC-BSI,FC-M,FC13,FC14,FC3,FC4,FCM,FDA,FDI,FFW,FILP,FLAC,FLX,FMB,FNK,FP,FRED,FSB,FSV,FT,FTC,FUZ,FUZZ,FW,FWAV,FWSE,G1L,GAM,GAMPLUS,GBR,GBS,GBTS,GCA,GCM,GCUB,GCW,GDM,GENH,GIN,GLUE,GM,GMC,GMS,GOT,GRAY,GSB,GSF,GSFLIB,GTD,GTR,GV,GWM,GYM,H4M,HA2,HAB,HBT,HCA,HD,HDR,HES,HGC1,HIP,HIP7,HIPC,HIS,HMC,HN,HPS,HRM,HRP,HRT,HRT!,HSC,HSF,HSP,HSQ,HST,HVL,HWAS,HX2,HX3,HXC,HXD,HXG,HXX,IAB,IADP,ICE,IDMSF,IDSP,IDVI,IDWAV,IDXMA,IFS,IKM,ILD,IMA,IMC,IMF,IMS,IMX,INSTR,INT,IS,IS14,IS20,ISB,ISD,ISWS,IT,IT1,ITL,IVAG,IVAUD,IVB,J2B,JAM,JBM,JC,JCB,JCBO,JD,JMF,JO,JOE,JP,JPN,JPND,JPO,JPOLD,JSTM,JT,KAT,KCES,KCEY,KEF,KEF7,KH,KM9,KNS,KOVS,KRAW,KRIS,KRS,KSM,KSS,KTAC,KTSL2ASBIN,KTSS,KVS,L,LAA,LAAC,LAIF,LAIFC,LAIFF,LASF,LAX,LBIN,LDS,LEG,LEP,LIN,LIQ,LM0,LM1,LM2,LM3,LM4,LM5,LM6,LM7,LME,LMP3,LMP4,LOGG,LOPUS,LP,LPCM,LPK,LPS,LRMB,LSE,LSF,LSTM,LWAV,LZS,M,M15,M2,M3U,M4A,M4V,MA,MAB,MAD,MAP,MATX,MAX,MBM,MC,MC3,MCA,MCADPCM,MCG,MCMD,MCMD_ORG,MCO,MCR,MD,MDAT,MDI,MDL,MDS,MDSP,MDST,MDX,MDY,MED,MEXXMP,MFP,MG,MGS,MI4,MIB,MIC,MID,MIDI,MIHB,MINI2SF,MINIDSF,MINIGSF,MININCSF,MINIPSF,MINIPSF2,MINIQSF,MINISNSF,MINISSF,MINIUSF,MJB,MK2,MKF,MKII,MKIIO,MKJ,ML,MM4,MM8,MMCMP,MMD0,MMD1,MMD2,MMD3,MMD4,MMDC,MMS,MNSTR,MO3,MOD,MOD15,MOD15_MST,MOD15_ST-IV,MOD15_UST,MOD_ADSC4,MOD_COMP,MOD_DOC,MOD_FLT4,MOD_NTK,MOD_NTK1,MOD_NTK2,MOD_NTKAMP,MOGG,MOK,MON,MON_OLD,MP3,MP4,MPD,MPDSP,MPF,MPG,MPK,MPRO,MPT,MPTM,MS,MSA,MSADPCM,MSB,MSC,MSD,MSF,MSO,MSP,MSS,MSV,MSVP,MT2,MTA2,MTAF,MTK,MTM,MTP2,MTR,MUG,MUG2,MUL,MUPS,MUS,MUSC,MUSX,MW,MWV,MXST,MYSPD,MZ,N64,NAAC,NCSF,NCSFLIB,NDP,NDS,NGCA,NLSD,NOISEPACKER2,NOISEPACKER3,NOP,NP,NP1,NP2,NP3,NPS,NPSF,NR,NRU,NSF,NSFE,NSOPUS,NST,NTP,NTPK,NUB,NUB2,NUS3AUDIO,NUS3BANK,NWA,NWAV,NXA,OCTAMED,OGG,OGL,OKT,OMU,ONE,OPI,OPUS,OPUSX,OPX,ORG,OSP,OTM,OVB,OVI,OXM,OZI,P,P00,P10,P21,P2BT,P30,P3D,P40A,P40B,P41A,P4X,P50A,P5A,P5X,P60,P60A,P61,P61A,P6X,P86,PAP,PAST,PCD,PCM,PDT,PDX,PFLT,PHA,PIN,PIS,PK,PLM,PM,PM0,PM01,PM1,PM10C,PM18A,PM2,PM20,PM4,PM40,PMB,PMZ,PNB,POLK,PONA,POS,POWT,PP10,PP20,PP21,PP30,PPC,PPK,PPM,PPS,PPZ,PR1,PR2,PRG,PROM,PRU,PRU1,PRU2,PRUN,PRUN1,PRUN2,PS,PS2STM,PSA,PSC,PSF,PSF2,PSF2LIB,PSFLIB,PSG,PSH,PSID,PSM,PSND,PSW,PT,PT1,PT2,PT3,PT36,PTCOP,PTM,PTTUNE,PUMA,PVI,PVP,PWR,PXA,PYG,PYGM,PYGMY,PZI,QC,QPA,QSF,QSFLIB,QTS,R,RAC,RAD,RAK,RAS,RAW,RH,RHO,RIFF,RIX,RJP,RK,RKB,RKV,RMT,RND,ROF,ROL,RPGMVO,RRDS,RSD,RSF,RSID,RSM,RSP,RSTM,RTM,RWAR,RWAV,RWS,RWSD,RWX,RXW,S-C,S14,S3M,S7G,S98,SA,SA-P,SA2,SAB,SAD,SAF,SAP,SAS,SAT,SA_OLD,SB,SB0,SB1,SB2,SB3,SB4,SB5,SB6,SB7,SBIN,SBK,SBR,SBV,SC,SC68,SCD,SCH,SCI,SCL,SCN,SCR,SCT,SCUMM,SD9,SDB,SDF,SDR,SDT,SEB,SED,SEG,SF0,SF2,SFL,SFM,SFS,SFX,SFX13,SFX2,SG,SGB,SGC,SGD,SGX,SID,SID1,SID2,SJS,SKT,SKYT,SL3,SLI,SM,SM0,SM1,SM2,SM3,SM4,SM5,SM6,SM7,SMC,SMK,SMN,SMP,SMPL,SMPRO,SMUS,SMV,SND,SNDH,SNDMON,SNDS,SNG,SNGW,SNK,SNR,SNS,SNSF,SNSFLIB,SNT,SNT!,SNU,SNX,SOC,SOD,SOG,SON,SONIC,SOP,SPC,SPD,SPK,SPL,SPM,SPS,SPSD,SPW,SQD,SQT,SQX,SS,SS2,SSF,SSFLIB,SSM,SSS,ST,ST1,ST2,ST26,ST3,ST30,STAR,STC,STER,STK,STM,STMA,STP,STPK,STR,STREAM,STRM,STS,STX,SUN,SVAG,SVG,SVS,SWAG,SWAV,SWD,SWITCH_AUDIO,SX,SXD,SXD1,SXD2,SXD3,SYN,SYNMOD,SZX,TD0,TEC,TF,TF0,TFC,TFD,TFE,TFHD1.5,TFHD7V,TFHDPRO,TFMX,TFMX1.5,TFMX7V,TFMXPRO,TGQ,TGV,THM,THN,THP,THX,TINY,TK5,TLZ,TLZP,TM2,TM8,TMC,TME,TMX,TP,TP1,TP2,TP3,TPU,TRA,TRC,TRD,TRO,TRONIC,TRS,TS,TUN,TW,TWO,TXT,TXTH,TXTP,TYDSP,UDS,UE4OPUS,ULT,ULW,UM3,UMX,UN2,UNIC,UNIC2,USF,USFLIB,UTK,UV,V0,V1,V2M,V2MZ,VA3,VAG,VAI,VAS,VAWX,VB,VBK,VDM,VDS,VGM,VGS,VGV,VGZ,VID,VIG,VIS,VMS,VOI,VP6,VPK,VS,VSF,VSS,VSV,VTX,VXN,WAA,WAC,WAD,WAF,WAM,WAS,WAV,WAVC,WAVE,WAVEBATCH,WAVM,WAY,WB,WB2,WBD,WD,WEM,WII,WLF,WMA,WMUS,WN,WOW,WP2,WPD,WSD,WSI,WSR,WUA,WV2,WV6,WVE,WVS,WVX,X,XA,XA2,XA30,XAD,XAG,XAN,XANN,XAU,XAV,XEN,XM,XMA,XMA2,XMD,XMU,XNA,XNB,XOPUS,XPK,XPS,XSE,XSEW,XSF,XSM,XSS,XVAG,XVAS,XWAV,XWB,XWC,XWM,XWMA,XWS,XWV,YDSP,YM,YMF,ZEN,ZIC,ZIP,ZSD,ZSM,ZSS,ZWDSP,ZWV,ZXZIP\nIntegrierte Player-Bibliotheken:\n- Adplug\n- Another Slight Atari Player(ASAP)\n- AtariSound\n- Eupmini\n- ffmpeg/mpg123/vorbis\n- Game Music Emu\n- FMPmini\n- Highly Complete\n- AHX/Hively tracker\n- LazyUSF\n- Libvgm\n- Mdxplay\n- NSFPlay\n- OpenMPT\n- PlayGSF\n- Pmdmini\n- PxTone / Organya\n- PT3Player\n- SC68\n- Sibplayfp\n- Snes9x/snsf\n- ST-Sound\n- Timidity(using Merlin_gold SF2 soundfont)\n- UADE\n- XSF (2SF, NCSF)\n- XMP\n-V2M tinyplayer\n- VGMStream\n- VIO2SF\n- WebSID\n- ZXTune\n\nHaftungsausschluss:\nDer Internetzugang zu den Bibliotheken Modland, HVSC und ASMA wird als Service bereitgestellt, ohne Garantie für Verfügbarkeit und/oder Funktionalität. Die Nutzung dieser Anwendung erfolgt auf eigenes Risiko."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "v4.0 © Yohann Magnien / YoyoFR\n\nContact: mailto:modizerhelp@gmail.com\nWeb: https://modizer.app\n\nLogo de Modizer por Steve Miele.\n\nNúmero de formatos/extensiones de archivo compatibles: 1090.\n!PM!,04SW,208,2DX9,2PSF,2SF,2SFLIB,3DO,4,40A,40B,41A,50A,60A,61A,669,800,9TAV,A2M,AAC,AAM,AAX,ABK,AC1,AC1D,ACB,ACM,ACX,ADL,ADLIB,ADM,ADP,ADPCM,ADPCMX,ADS,ADSC,ADW,ADX,AFC,AFS2,AGD,AGI,AGSC,AHV,AHX,AI,AIF,AIF-LOOP,AIFC,AIFCL,AIFF,AIFFL,AIX,AKB,AL,AL2,ALP,AMC,AMD,AMF,AMS,AMTS,AO,AON,AON4,AON8,AP,APC,AS0,AS3M,AS4,ASC,ASD,ASF,ASR,ASS,AST,AT3,AT9,ATSL,ATSL3,ATSL4,ATX,AUD,AUS,AVAL,AVP,AWB,AWC,AY,B1S,BAF,BAKA,BAM,BANK,BAO,BAR,BCSTM,BCWAV,BD,BD3,BDS,BDSP,BFC,BFSTM,BFWAV,BFWAVNSMBU,BG00,BGM,BGW,BH2PCM,BIK,BIK2,BIKA,BIN,BK2,BLK,BMDX,BMF,BMS,BNK,BNM,BNS,BNSF,BO2,BP,BP3,BRSTM,BRSTMSPM,BSF,BSI,BSND,BSS,BTSND,BVG,BWAV,BYTES,C64,C67,CAF,CAPDSP,CBD2,CC3,CCC,CD,CFF,CFN,CHAN,CHI,CHK,CHP,CIN,CKB,CKD,CKS,CM,CM3,CMC,CMF,CMR,CMS,CNK,COP,CORE,CP,CPK,CPLX,CPS,CRB,CSB,CSMP,CTRL,CUS,CUST,CUSTOM,CVS,CWAV,CXS,D00,DA,DAT,DATA,DAX,DB,DBM,DCS,DCT,DDSP,DE2,DEC,DFM,DH,DI,DIGI,DIVA,DL,DLM1,DLM2,DLN,DLT,DL_DELI,DM0,DM1,DM2,DMC,DMF,DMM,DMO,DMSG,DMU,DMU2,DNS,DODA,DP,DR0,DRO,DS2,DSB,DSC,DSF,DSFLIB,DSM,DSP,DSPW,DSQ,DSR,DSS,DST,DTK,DTM,DUM,DVI,DW,DWOLD,DXH,DZ,E4X,EA,EAM,EAS,EMFF,EMOD,EMS,EMSV6,ENM,ENO,ENS,ESV,ET1,EU,EUP,EX,EXA,EZW,FAG,FAR,FC,FC-BSI,FC-M,FC13,FC14,FC3,FC4,FCM,FDA,FDI,FFW,FILP,FLAC,FLX,FMB,FNK,FP,FRED,FSB,FSV,FT,FTC,FUZ,FUZZ,FW,FWAV,FWSE,G1L,GAM,GAMPLUS,GBR,GBS,GBTS,GCA,GCM,GCUB,GCW,GDM,GENH,GIN,GLUE,GM,GMC,GMS,GOT,GRAY,GSB,GSF,GSFLIB,GTD,GTR,GV,GWM,GYM,H4M,HA2,HAB,HBT,HCA,HD,HDR,HES,HGC1,HIP,HIP7,HIPC,HIS,HMC,HN,HPS,HRM,HRP,HRT,HRT!,HSC,HSF,HSP,HSQ,HST,HVL,HWAS,HX2,HX3,HXC,HXD,HXG,HXX,IAB,IADP,ICE,IDMSF,IDSP,IDVI,IDWAV,IDXMA,IFS,IKM,ILD,IMA,IMC,IMF,IMS,IMX,INSTR,INT,IS,IS14,IS20,ISB,ISD,ISWS,IT,IT1,ITL,IVAG,IVAUD,IVB,J2B,JAM,JBM,JC,JCB,JCBO,JD,JMF,JO,JOE,JP,JPN,JPND,JPO,JPOLD,JSTM,JT,KAT,KCES,KCEY,KEF,KEF7,KH,KM9,KNS,KOVS,KRAW,KRIS,KRS,KSM,KSS,KTAC,KTSL2ASBIN,KTSS,KVS,L,LAA,LAAC,LAIF,LAIFC,LAIFF,LASF,LAX,LBIN,LDS,LEG,LEP,LIN,LIQ,LM0,LM1,LM2,LM3,LM4,LM5,LM6,LM7,LME,LMP3,LMP4,LOGG,LOPUS,LP,LPCM,LPK,LPS,LRMB,LSE,LSF,LSTM,LWAV,LZS,M,M15,M2,M3U,M4A,M4V,MA,MAB,MAD,MAP,MATX,MAX,MBM,MC,MC3,MCA,MCADPCM,MCG,MCMD,MCMD_ORG,MCO,MCR,MD,MDAT,MDI,MDL,MDS,MDSP,MDST,MDX,MDY,MED,MEXXMP,MFP,MG,MGS,MI4,MIB,MIC,MID,MIDI,MIHB,MINI2SF,MINIDSF,MINIGSF,MININCSF,MINIPSF,MINIPSF2,MINIQSF,MINISNSF,MINISSF,MINIUSF,MJB,MK2,MKF,MKII,MKIIO,MKJ,ML,MM4,MM8,MMCMP,MMD0,MMD1,MMD2,MMD3,MMD4,MMDC,MMS,MNSTR,MO3,MOD,MOD15,MOD15_MST,MOD15_ST-IV,MOD15_UST,MOD_ADSC4,MOD_COMP,MOD_DOC,MOD_FLT4,MOD_NTK,MOD_NTK1,MOD_NTK2,MOD_NTKAMP,MOGG,MOK,MON,MON_OLD,MP3,MP4,MPD,MPDSP,MPF,MPG,MPK,MPRO,MPT,MPTM,MS,MSA,MSADPCM,MSB,MSC,MSD,MSF,MSO,MSP,MSS,MSV,MSVP,MT2,MTA2,MTAF,MTK,MTM,MTP2,MTR,MUG,MUG2,MUL,MUPS,MUS,MUSC,MUSX,MW,MWV,MXST,MYSPD,MZ,N64,NAAC,NCSF,NCSFLIB,NDP,NDS,NGCA,NLSD,NOISEPACKER2,NOISEPACKER3,NOP,NP,NP1,NP2,NP3,NPS,NPSF,NR,NRU,NSF,NSFE,NSOPUS,NST,NTP,NTPK,NUB,NUB2,NUS3AUDIO,NUS3BANK,NWA,NWAV,NXA,OCTAMED,OGG,OGL,OKT,OMU,ONE,OPI,OPUS,OPUSX,OPX,ORG,OSP,OTM,OVB,OVI,OXM,OZI,P,P00,P10,P21,P2BT,P30,P3D,P40A,P40B,P41A,P4X,P50A,P5A,P5X,P60,P60A,P61,P61A,P6X,P86,PAP,PAST,PCD,PCM,PDT,PDX,PFLT,PHA,PIN,PIS,PK,PLM,PM,PM0,PM01,PM1,PM10C,PM18A,PM2,PM20,PM4,PM40,PMB,PMZ,PNB,POLK,PONA,POS,POWT,PP10,PP20,PP21,PP30,PPC,PPK,PPM,PPS,PPZ,PR1,PR2,PRG,PROM,PRU,PRU1,PRU2,PRUN,PRUN1,PRUN2,PS,PS2STM,PSA,PSC,PSF,PSF2,PSF2LIB,PSFLIB,PSG,PSH,PSID,PSM,PSND,PSW,PT,PT1,PT2,PT3,PT36,PTCOP,PTM,PTTUNE,PUMA,PVI,PVP,PWR,PXA,PYG,PYGM,PYGMY,PZI,QC,QPA,QSF,QSFLIB,QTS,R,RAC,RAD,RAK,RAS,RAW,RH,RHO,RIFF,RIX,RJP,RK,RKB,RKV,RMT,RND,ROF,ROL,RPGMVO,RRDS,RSD,RSF,RSID,RSM,RSP,RSTM,RTM,RWAR,RWAV,RWS,RWSD,RWX,RXW,S-C,S14,S3M,S7G,S98,SA,SA-P,SA2,SAB,SAD,SAF,SAP,SAS,SAT,SA_OLD,SB,SB0,SB1,SB2,SB3,SB4,SB5,SB6,SB7,SBIN,SBK,SBR,SBV,SC,SC68,SCD,SCH,SCI,SCL,SCN,SCR,SCT,SCUMM,SD9,SDB,SDF,SDR,SDT,SEB,SED,SEG,SF0,SF2,SFL,SFM,SFS,SFX,SFX13,SFX2,SG,SGB,SGC,SGD,SGX,SID,SID1,SID2,SJS,SKT,SKYT,SL3,SLI,SM,SM0,SM1,SM2,SM3,SM4,SM5,SM6,SM7,SMC,SMK,SMN,SMP,SMPL,SMPRO,SMUS,SMV,SND,SNDH,SNDMON,SNDS,SNG,SNGW,SNK,SNR,SNS,SNSF,SNSFLIB,SNT,SNT!,SNU,SNX,SOC,SOD,SOG,SON,SONIC,SOP,SPC,SPD,SPK,SPL,SPM,SPS,SPSD,SPW,SQD,SQT,SQX,SS,SS2,SSF,SSFLIB,SSM,SSS,ST,ST1,ST2,ST26,ST3,ST30,STAR,STC,STER,STK,STM,STMA,STP,STPK,STR,STREAM,STRM,STS,STX,SUN,SVAG,SVG,SVS,SWAG,SWAV,SWD,SWITCH_AUDIO,SX,SXD,SXD1,SXD2,SXD3,SYN,SYNMOD,SZX,TD0,TEC,TF,TF0,TFC,TFD,TFE,TFHD1.5,TFHD7V,TFHDPRO,TFMX,TFMX1.5,TFMX7V,TFMXPRO,TGQ,TGV,THM,THN,THP,THX,TINY,TK5,TLZ,TLZP,TM2,TM8,TMC,TME,TMX,TP,TP1,TP2,TP3,TPU,TRA,TRC,TRD,TRO,TRONIC,TRS,TS,TUN,TW,TWO,TXT,TXTH,TXTP,TYDSP,UDS,UE4OPUS,ULT,ULW,UM3,UMX,UN2,UNIC,UNIC2,USF,USFLIB,UTK,UV,V0,V1,V2M,V2MZ,VA3,VAG,VAI,VAS,VAWX,VB,VBK,VDM,VDS,VGM,VGS,VGV,VGZ,VID,VIG,VIS,VMS,VOI,VP6,VPK,VS,VSF,VSS,VSV,VTX,VXN,WAA,WAC,WAD,WAF,WAM,WAS,WAV,WAVC,WAVE,WAVEBATCH,WAVM,WAY,WB,WB2,WBD,WD,WEM,WII,WLF,WMA,WMUS,WN,WOW,WP2,WPD,WSD,WSI,WSR,WUA,WV2,WV6,WVE,WVS,WVX,X,XA,XA2,XA30,XAD,XAG,XAN,XANN,XAU,XAV,XEN,XM,XMA,XMA2,XMD,XMU,XNA,XNB,XOPUS,XPK,XPS,XSE,XSEW,XSF,XSM,XSS,XVAG,XVAS,XWAV,XWB,XWC,XWM,XWMA,XWS,XWV,YDSP,YM,YMF,ZEN,ZIC,ZIP,ZSD,ZSM,ZSS,ZWDSP,ZWV,ZXZIP\nBibliotecas de reproducción integradas:\n- Adplug\n- Another Slight Atari Player(ASAP)\n- AtariSound\n- Eupmini\n- ffmpeg/mpg123/vorbis\n- Game Music Emu\n- FMPmini\n- Highly Complete\n- AHX/Hively tracker\n- LazyUSF\n- Libvgm\n- Mdxplay\n- NSFPlay\n- OpenMPT\n- PlayGSF\n- Pmdmini\n- PxTone / Organya\n- PT3Player\n- SC68\n- Sibplayfp\n- Snes9x/snsf\n- ST-Sound\n- Timidity(using Merlin_gold SF2 soundfont)\n- UADE\n- XSF (2SF, NCSF)\n- XMP\n-V2M tinyplayer\n- VGMStream\n- VIO2SF\n- WebSID\n- ZXTune\n\nDescargo de responsabilidad:\nLos accesos a Internet a las bibliotecas Modland, HVSC y ASMA se proporcionan como un servicio tal cual, sin garantía de disponibilidad y/o funcionalidad. Usa esta aplicación bajo tu propio riesgo."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "v4.0 © Yohann Magnien / YoyoFR\n\nContact: mailto:modizerhelp@gmail.com\nWeb: https://modizer.app\n\nЛоготип Modizer от Steve Miele.\n\nКоличество поддерживаемых форматов/расширений файлов: 1090.\n!PM!,04SW,208,2DX9,2PSF,2SF,2SFLIB,3DO,4,40A,40B,41A,50A,60A,61A,669,800,9TAV,A2M,AAC,AAM,AAX,ABK,AC1,AC1D,ACB,ACM,ACX,ADL,ADLIB,ADM,ADP,ADPCM,ADPCMX,ADS,ADSC,ADW,ADX,AFC,AFS2,AGD,AGI,AGSC,AHV,AHX,AI,AIF,AIF-LOOP,AIFC,AIFCL,AIFF,AIFFL,AIX,AKB,AL,AL2,ALP,AMC,AMD,AMF,AMS,AMTS,AO,AON,AON4,AON8,AP,APC,AS0,AS3M,AS4,ASC,ASD,ASF,ASR,ASS,AST,AT3,AT9,ATSL,ATSL3,ATSL4,ATX,AUD,AUS,AVAL,AVP,AWB,AWC,AY,B1S,BAF,BAKA,BAM,BANK,BAO,BAR,BCSTM,BCWAV,BD,BD3,BDS,BDSP,BFC,BFSTM,BFWAV,BFWAVNSMBU,BG00,BGM,BGW,BH2PCM,BIK,BIK2,BIKA,BIN,BK2,BLK,BMDX,BMF,BMS,BNK,BNM,BNS,BNSF,BO2,BP,BP3,BRSTM,BRSTMSPM,BSF,BSI,BSND,BSS,BTSND,BVG,BWAV,BYTES,C64,C67,CAF,CAPDSP,CBD2,CC3,CCC,CD,CFF,CFN,CHAN,CHI,CHK,CHP,CIN,CKB,CKD,CKS,CM,CM3,CMC,CMF,CMR,CMS,CNK,COP,CORE,CP,CPK,CPLX,CPS,CRB,CSB,CSMP,CTRL,CUS,CUST,CUSTOM,CVS,CWAV,CXS,D00,DA,DAT,DATA,DAX,DB,DBM,DCS,DCT,DDSP,DE2,DEC,DFM,DH,DI,DIGI,DIVA,DL,DLM1,DLM2,DLN,DLT,DL_DELI,DM0,DM1,DM2,DMC,DMF,DMM,DMO,DMSG,DMU,DMU2,DNS,DODA,DP,DR0,DRO,DS2,DSB,DSC,DSF,DSFLIB,DSM,DSP,DSPW,DSQ,DSR,DSS,DST,DTK,DTM,DUM,DVI,DW,DWOLD,DXH,DZ,E4X,EA,EAM,EAS,EMFF,EMOD,EMS,EMSV6,ENM,ENO,ENS,ESV,ET1,EU,EUP,EX,EXA,EZW,FAG,FAR,FC,FC-BSI,FC-M,FC13,FC14,FC3,FC4,FCM,FDA,FDI,FFW,FILP,FLAC,FLX,FMB,FNK,FP,FRED,FSB,FSV,FT,FTC,FUZ,FUZZ,FW,FWAV,FWSE,G1L,GAM,GAMPLUS,GBR,GBS,GBTS,GCA,GCM,GCUB,GCW,GDM,GENH,GIN,GLUE,GM,GMC,GMS,GOT,GRAY,GSB,GSF,GSFLIB,GTD,GTR,GV,GWM,GYM,H4M,HA2,HAB,HBT,HCA,HD,HDR,HES,HGC1,HIP,HIP7,HIPC,HIS,HMC,HN,HPS,HRM,HRP,HRT,HRT!,HSC,HSF,HSP,HSQ,HST,HVL,HWAS,HX2,HX3,HXC,HXD,HXG,HXX,IAB,IADP,ICE,IDMSF,IDSP,IDVI,IDWAV,IDXMA,IFS,IKM,ILD,IMA,IMC,IMF,IMS,IMX,INSTR,INT,IS,IS14,IS20,ISB,ISD,ISWS,IT,IT1,ITL,IVAG,IVAUD,IVB,J2B,JAM,JBM,JC,JCB,JCBO,JD,JMF,JO,JOE,JP,JPN,JPND,JPO,JPOLD,JSTM,JT,KAT,KCES,KCEY,KEF,KEF7,KH,KM9,KNS,KOVS,KRAW,KRIS,KRS,KSM,KSS,KTAC,KTSL2ASBIN,KTSS,KVS,L,LAA,LAAC,LAIF,LAIFC,LAIFF,LASF,LAX,LBIN,LDS,LEG,LEP,LIN,LIQ,LM0,LM1,LM2,LM3,LM4,LM5,LM6,LM7,LME,LMP3,LMP4,LOGG,LOPUS,LP,LPCM,LPK,LPS,LRMB,LSE,LSF,LSTM,LWAV,LZS,M,M15,M2,M3U,M4A,M4V,MA,MAB,MAD,MAP,MATX,MAX,MBM,MC,MC3,MCA,MCADPCM,MCG,MCMD,MCMD_ORG,MCO,MCR,MD,MDAT,MDI,MDL,MDS,MDSP,MDST,MDX,MDY,MED,MEXXMP,MFP,MG,MGS,MI4,MIB,MIC,MID,MIDI,MIHB,MINI2SF,MINIDSF,MINIGSF,MININCSF,MINIPSF,MINIPSF2,MINIQSF,MINISNSF,MINISSF,MINIUSF,MJB,MK2,MKF,MKII,MKIIO,MKJ,ML,MM4,MM8,MMCMP,MMD0,MMD1,MMD2,MMD3,MMD4,MMDC,MMS,MNSTR,MO3,MOD,MOD15,MOD15_MST,MOD15_ST-IV,MOD15_UST,MOD_ADSC4,MOD_COMP,MOD_DOC,MOD_FLT4,MOD_NTK,MOD_NTK1,MOD_NTK2,MOD_NTKAMP,MOGG,MOK,MON,MON_OLD,MP3,MP4,MPD,MPDSP,MPF,MPG,MPK,MPRO,MPT,MPTM,MS,MSA,MSADPCM,MSB,MSC,MSD,MSF,MSO,MSP,MSS,MSV,MSVP,MT2,MTA2,MTAF,MTK,MTM,MTP2,MTR,MUG,MUG2,MUL,MUPS,MUS,MUSC,MUSX,MW,MWV,MXST,MYSPD,MZ,N64,NAAC,NCSF,NCSFLIB,NDP,NDS,NGCA,NLSD,NOISEPACKER2,NOISEPACKER3,NOP,NP,NP1,NP2,NP3,NPS,NPSF,NR,NRU,NSF,NSFE,NSOPUS,NST,NTP,NTPK,NUB,NUB2,NUS3AUDIO,NUS3BANK,NWA,NWAV,NXA,OCTAMED,OGG,OGL,OKT,OMU,ONE,OPI,OPUS,OPUSX,OPX,ORG,OSP,OTM,OVB,OVI,OXM,OZI,P,P00,P10,P21,P2BT,P30,P3D,P40A,P40B,P41A,P4X,P50A,P5A,P5X,P60,P60A,P61,P61A,P6X,P86,PAP,PAST,PCD,PCM,PDT,PDX,PFLT,PHA,PIN,PIS,PK,PLM,PM,PM0,PM01,PM1,PM10C,PM18A,PM2,PM20,PM4,PM40,PMB,PMZ,PNB,POLK,PONA,POS,POWT,PP10,PP20,PP21,PP30,PPC,PPK,PPM,PPS,PPZ,PR1,PR2,PRG,PROM,PRU,PRU1,PRU2,PRUN,PRUN1,PRUN2,PS,PS2STM,PSA,PSC,PSF,PSF2,PSF2LIB,PSFLIB,PSG,PSH,PSID,PSM,PSND,PSW,PT,PT1,PT2,PT3,PT36,PTCOP,PTM,PTTUNE,PUMA,PVI,PVP,PWR,PXA,PYG,PYGM,PYGMY,PZI,QC,QPA,QSF,QSFLIB,QTS,R,RAC,RAD,RAK,RAS,RAW,RH,RHO,RIFF,RIX,RJP,RK,RKB,RKV,RMT,RND,ROF,ROL,RPGMVO,RRDS,RSD,RSF,RSID,RSM,RSP,RSTM,RTM,RWAR,RWAV,RWS,RWSD,RWX,RXW,S-C,S14,S3M,S7G,S98,SA,SA-P,SA2,SAB,SAD,SAF,SAP,SAS,SAT,SA_OLD,SB,SB0,SB1,SB2,SB3,SB4,SB5,SB6,SB7,SBIN,SBK,SBR,SBV,SC,SC68,SCD,SCH,SCI,SCL,SCN,SCR,SCT,SCUMM,SD9,SDB,SDF,SDR,SDT,SEB,SED,SEG,SF0,SF2,SFL,SFM,SFS,SFX,SFX13,SFX2,SG,SGB,SGC,SGD,SGX,SID,SID1,SID2,SJS,SKT,SKYT,SL3,SLI,SM,SM0,SM1,SM2,SM3,SM4,SM5,SM6,SM7,SMC,SMK,SMN,SMP,SMPL,SMPRO,SMUS,SMV,SND,SNDH,SNDMON,SNDS,SNG,SNGW,SNK,SNR,SNS,SNSF,SNSFLIB,SNT,SNT!,SNU,SNX,SOC,SOD,SOG,SON,SONIC,SOP,SPC,SPD,SPK,SPL,SPM,SPS,SPSD,SPW,SQD,SQT,SQX,SS,SS2,SSF,SSFLIB,SSM,SSS,ST,ST1,ST2,ST26,ST3,ST30,STAR,STC,STER,STK,STM,STMA,STP,STPK,STR,STREAM,STRM,STS,STX,SUN,SVAG,SVG,SVS,SWAG,SWAV,SWD,SWITCH_AUDIO,SX,SXD,SXD1,SXD2,SXD3,SYN,SYNMOD,SZX,TD0,TEC,TF,TF0,TFC,TFD,TFE,TFHD1.5,TFHD7V,TFHDPRO,TFMX,TFMX1.5,TFMX7V,TFMXPRO,TGQ,TGV,THM,THN,THP,THX,TINY,TK5,TLZ,TLZP,TM2,TM8,TMC,TME,TMX,TP,TP1,TP2,TP3,TPU,TRA,TRC,TRD,TRO,TRONIC,TRS,TS,TUN,TW,TWO,TXT,TXTH,TXTP,TYDSP,UDS,UE4OPUS,ULT,ULW,UM3,UMX,UN2,UNIC,UNIC2,USF,USFLIB,UTK,UV,V0,V1,V2M,V2MZ,VA3,VAG,VAI,VAS,VAWX,VB,VBK,VDM,VDS,VGM,VGS,VGV,VGZ,VID,VIG,VIS,VMS,VOI,VP6,VPK,VS,VSF,VSS,VSV,VTX,VXN,WAA,WAC,WAD,WAF,WAM,WAS,WAV,WAVC,WAVE,WAVEBATCH,WAVM,WAY,WB,WB2,WBD,WD,WEM,WII,WLF,WMA,WMUS,WN,WOW,WP2,WPD,WSD,WSI,WSR,WUA,WV2,WV6,WVE,WVS,WVX,X,XA,XA2,XA30,XAD,XAG,XAN,XANN,XAU,XAV,XEN,XM,XMA,XMA2,XMD,XMU,XNA,XNB,XOPUS,XPK,XPS,XSE,XSEW,XSF,XSM,XSS,XVAG,XVAS,XWAV,XWB,XWC,XWM,XWMA,XWS,XWV,YDSP,YM,YMF,ZEN,ZIC,ZIP,ZSD,ZSM,ZSS,ZWDSP,ZWV,ZXZIP\nИнтегрированные библиотеки воспроизведения:\n- Adplug\n- Another Slight Atari Player(ASAP)\n- AtariSound\n- Eupmini\n- ffmpeg/mpg123/vorbis\n- Game Music Emu\n- FMPmini\n- Highly Complete\n- AHX/Hively tracker\n- LazyUSF\n- Libvgm\n- Mdxplay\n- NSFPlay\n- OpenMPT\n- PlayGSF\n- Pmdmini\n- PxTone / Organya\n- PT3Player\n- SC68\n- Sibplayfp\n- Snes9x/snsf\n- ST-Sound\n- Timidity(using Merlin_gold SF2 soundfont)\n- UADE\n- XSF (2SF, NCSF)\n- XMP\n-V2M tinyplayer\n- VGMStream\n- VIO2SF\n- WebSID\n- ZXTune\n\nОтказ от ответственности:\nДоступ в Интернет к библиотекам Modland, HVSC и ASMA предоставляется как есть, без гарантии доступности и/или функциональности. Используйте это приложение на свой риск."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "v4.0 © Yohann Magnien / YoyoFR\n\nKontakt: mailto:modizerhelp@gmail.com\nWebb: https://modizer.app\n\nModizers logotyp av Steve Miele.\n\nAntal filformat/filändelser som stöds: 1090.\n!PM!,04SW,208,2DX9,2PSF,2SF,2SFLIB,3DO,4,40A,40B,41A,50A,60A,61A,669,800,9TAV,A2M,AAC,AAM,AAX,ABK,AC1,AC1D,ACB,ACM,ACX,ADL,ADLIB,ADM,ADP,ADPCM,ADPCMX,ADS,ADSC,ADW,ADX,AFC,AFS2,AGD,AGI,AGSC,AHV,AHX,AI,AIF,AIF-LOOP,AIFC,AIFCL,AIFF,AIFFL,AIX,AKB,AL,AL2,ALP,AMC,AMD,AMF,AMS,AMTS,AO,AON,AON4,AON8,AP,APC,AS0,AS3M,AS4,ASC,ASD,ASF,ASR,ASS,AST,AT3,AT9,ATSL,ATSL3,ATSL4,ATX,AUD,AUS,AVAL,AVP,AWB,AWC,AY,B1S,BAF,BAKA,BAM,BANK,BAO,BAR,BCSTM,BCWAV,BD,BD3,BDS,BDSP,BFC,BFSTM,BFWAV,BFWAVNSMBU,BG00,BGM,BGW,BH2PCM,BIK,BIK2,BIKA,BIN,BK2,BLK,BMDX,BMF,BMS,BNK,BNM,BNS,BNSF,BO2,BP,BP3,BRSTM,BRSTMSPM,BSF,BSI,BSND,BSS,BTSND,BVG,BWAV,BYTES,C64,C67,CAF,CAPDSP,CBD2,CC3,CCC,CD,CFF,CFN,CHAN,CHI,CHK,CHP,CIN,CKB,CKD,CKS,CM,CM3,CMC,CMF,CMR,CMS,CNK,COP,CORE,CP,CPK,CPLX,CPS,CRB,CSB,CSMP,CTRL,CUS,CUST,CUSTOM,CVS,CWAV,CXS,D00,DA,DAT,DATA,DAX,DB,DBM,DCS,DCT,DDSP,DE2,DEC,DFM,DH,DI,DIGI,DIVA,DL,DLM1,DLM2,DLN,DLT,DL_DELI,DM0,DM1,DM2,DMC,DMF,DMM,DMO,DMSG,DMU,DMU2,DNS,DODA,DP,DR0,DRO,DS2,DSB,DSC,DSF,DSFLIB,DSM,DSP,DSPW,DSQ,DSR,DSS,DST,DTK,DTM,DUM,DVI,DW,DWOLD,DXH,DZ,E4X,EA,EAM,EAS,EMFF,EMOD,EMS,EMSV6,ENM,ENO,ENS,ESV,ET1,EU,EUP,EX,EXA,EZW,FAG,FAR,FC,FC-BSI,FC-M,FC13,FC14,FC3,FC4,FCM,FDA,FDI,FFW,FILP,FLAC,FLX,FMB,FNK,FP,FRED,FSB,FSV,FT,FTC,FUZ,FUZZ,FW,FWAV,FWSE,G1L,GAM,GAMPLUS,GBR,GBS,GBTS,GCA,GCM,GCUB,GCW,GDM,GENH,GIN,GLUE,GM,GMC,GMS,GOT,GRAY,GSB,GSF,GSFLIB,GTD,GTR,GV,GWM,GYM,H4M,HA2,HAB,HBT,HCA,HD,HDR,HES,HGC1,HIP,HIP7,HIPC,HIS,HMC,HN,HPS,HRM,HRP,HRT,HRT!,HSC,HSF,HSP,HSQ,HST,HVL,HWAS,HX2,HX3,HXC,HXD,HXG,HXX,IAB,IADP,ICE,IDMSF,IDSP,IDVI,IDWAV,IDXMA,IFS,IKM,ILD,IMA,IMC,IMF,IMS,IMX,INSTR,INT,IS,IS14,IS20,ISB,ISD,ISWS,IT,IT1,ITL,IVAG,IVAUD,IVB,J2B,JAM,JBM,JC,JCB,JCBO,JD,JMF,JO,JOE,JP,JPN,JPND,JPO,JPOLD,JSTM,JT,KAT,KCES,KCEY,KEF,KEF7,KH,KM9,KNS,KOVS,KRAW,KRIS,KRS,KSM,KSS,KTAC,KTSL2ASBIN,KTSS,KVS,L,LAA,LAAC,LAIF,LAIFC,LAIFF,LASF,LAX,LBIN,LDS,LEG,LEP,LIN,LIQ,LM0,LM1,LM2,LM3,LM4,LM5,LM6,LM7,LME,LMP3,LMP4,LOGG,LOPUS,LP,LPCM,LPK,LPS,LRMB,LSE,LSF,LSTM,LWAV,LZS,M,M15,M2,M3U,M4A,M4V,MA,MAB,MAD,MAP,MATX,MAX,MBM,MC,MC3,MCA,MCADPCM,MCG,MCMD,MCMD_ORG,MCO,MCR,MD,MDAT,MDI,MDL,MDS,MDSP,MDST,MDX,MDY,MED,MEXXMP,MFP,MG,MGS,MI4,MIB,MIC,MID,MIDI,MIHB,MINI2SF,MINIDSF,MINIGSF,MININCSF,MINIPSF,MINIPSF2,MINIQSF,MINISNSF,MINISSF,MINIUSF,MJB,MK2,MKF,MKII,MKIIO,MKJ,ML,MM4,MM8,MMCMP,MMD0,MMD1,MMD2,MMD3,MMD4,MMDC,MMS,MNSTR,MO3,MOD,MOD15,MOD15_MST,MOD15_ST-IV,MOD15_UST,MOD_ADSC4,MOD_COMP,MOD_DOC,MOD_FLT4,MOD_NTK,MOD_NTK1,MOD_NTK2,MOD_NTKAMP,MOGG,MOK,MON,MON_OLD,MP3,MP4,MPD,MPDSP,MPF,MPG,MPK,MPRO,MPT,MPTM,MS,MSA,MSADPCM,MSB,MSC,MSD,MSF,MSO,MSP,MSS,MSV,MSVP,MT2,MTA2,MTAF,MTK,MTM,MTP2,MTR,MUG,MUG2,MUL,MUPS,MUS,MUSC,MUSX,MW,MWV,MXST,MYSPD,MZ,N64,NAAC,NCSF,NCSFLIB,NDP,NDS,NGCA,NLSD,NOISEPACKER2,NOISEPACKER3,NOP,NP,NP1,NP2,NP3,NPS,NPSF,NR,NRU,NSF,NSFE,NSOPUS,NST,NTP,NTPK,NUB,NUB2,NUS3AUDIO,NUS3BANK,NWA,NWAV,NXA,OCTAMED,OGG,OGL,OKT,OMU,ONE,OPI,OPUS,OPUSX,OPX,ORG,OSP,OTM,OVB,OVI,OXM,OZI,P,P00,P10,P21,P2BT,P30,P3D,P40A,P40B,P41A,P4X,P50A,P5A,P5X,P60,P60A,P61,P61A,P6X,P86,PAP,PAST,PCD,PCM,PDT,PDX,PFLT,PHA,PIN,PIS,PK,PLM,PM,PM0,PM01,PM1,PM10C,PM18A,PM2,PM20,PM4,PM40,PMB,PMZ,PNB,POLK,PONA,POS,POWT,PP10,PP20,PP21,PP30,PPC,PPK,PPM,PPS,PPZ,PR1,PR2,PRG,PROM,PRU,PRU1,PRU2,PRUN,PRUN1,PRUN2,PS,PS2STM,PSA,PSC,PSF,PSF2,PSF2LIB,PSFLIB,PSG,PSH,PSID,PSM,PSND,PSW,PT,PT1,PT2,PT3,PT36,PTCOP,PTM,PTTUNE,PUMA,PVI,PVP,PWR,PXA,PYG,PYGM,PYGMY,PZI,QC,QPA,QSF,QSFLIB,QTS,R,RAC,RAD,RAK,RAS,RAW,RH,RHO,RIFF,RIX,RJP,RK,RKB,RKV,RMT,RND,ROF,ROL,RPGMVO,RRDS,RSD,RSF,RSID,RSM,RSP,RSTM,RTM,RWAR,RWAV,RWS,RWSD,RWX,RXW,S-C,S14,S3M,S7G,S98,SA,SA-P,SA2,SAB,SAD,SAF,SAP,SAS,SAT,SA_OLD,SB,SB0,SB1,SB2,SB3,SB4,SB5,SB6,SB7,SBIN,SBK,SBR,SBV,SC,SC68,SCD,SCH,SCI,SCL,SCN,SCR,SCT,SCUMM,SD9,SDB,SDF,SDR,SDT,SEB,SED,SEG,SF0,SF2,SFL,SFM,SFS,SFX,SFX13,SFX2,SG,SGB,SGC,SGD,SGX,SID,SID1,SID2,SJS,SKT,SKYT,SL3,SLI,SM,SM0,SM1,SM2,SM3,SM4,SM5,SM6,SM7,SMC,SMK,SMN,SMP,SMPL,SMPRO,SMUS,SMV,SND,SNDH,SNDMON,SNDS,SNG,SNGW,SNK,SNR,SNS,SNSF,SNSFLIB,SNT,SNT!,SNU,SNX,SOC,SOD,SOG,SON,SONIC,SOP,SPC,SPD,SPK,SPL,SPM,SPS,SPSD,SPW,SQD,SQT,SQX,SS,SS2,SSF,SSFLIB,SSM,SSS,ST,ST1,ST2,ST26,ST3,ST30,STAR,STC,STER,STK,STM,STMA,STP,STPK,STR,STREAM,STRM,STS,STX,SUN,SVAG,SVG,SVS,SWAG,SWAV,SWD,SWITCH_AUDIO,SX,SXD,SXD1,SXD2,SXD3,SYN,SYNMOD,SZX,TD0,TEC,TF,TF0,TFC,TFD,TFE,TFHD1.5,TFHD7V,TFHDPRO,TFMX,TFMX1.5,TFMX7V,TFMXPRO,TGQ,TGV,THM,THN,THP,THX,TINY,TK5,TLZ,TLZP,TM2,TM8,TMC,TME,TMX,TP,TP1,TP2,TP3,TPU,TRA,TRC,TRD,TRO,TRONIC,TRS,TS,TUN,TW,TWO,TXT,TXTH,TXTP,TYDSP,UDS,UE4OPUS,ULT,ULW,UM3,UMX,UN2,UNIC,UNIC2,USF,USFLIB,UTK,UV,V0,V1,V2M,V2MZ,VA3,VAG,VAI,VAS,VAWX,VB,VBK,VDM,VDS,VGM,VGS,VGV,VGZ,VID,VIG,VIS,VMS,VOI,VP6,VPK,VS,VSF,VSS,VSV,VTX,VXN,WAA,WAC,WAD,WAF,WAM,WAS,WAV,WAVC,WAVE,WAVEBATCH,WAVM,WAY,WB,WB2,WBD,WD,WEM,WII,WLF,WMA,WMUS,WN,WOW,WP2,WPD,WSD,WSI,WSR,WUA,WV2,WV6,WVE,WVS,WVX,X,XA,XA2,XA30,XAD,XAG,XAN,XANN,XAU,XAV,XEN,XM,XMA,XMA2,XMD,XMU,XNA,XNB,XOPUS,XPK,XPS,XSE,XSEW,XSF,XSM,XSS,XVAG,XVAS,XWAV,XWB,XWC,XWM,XWMA,XWS,XWV,YDSP,YM,YMF,ZEN,ZIC,ZIP,ZSD,ZSM,ZSS,ZWDSP,ZWV,ZXZIP\nIntegrerade spelarbibliotek:\n- Adplug\n- Another Slight Atari Player (ASAP)\n- AtariSound\n- Eupmini\n- ffmpeg/mpg123/vorbis\n- Game Music Emu\n- FMPmini\n- Highly Complete\n- AHX/Hively tracker\n- LazyUSF\n- Libvgm\n- Mdxplay\n- NSFPlay\n- OpenMPT\n- PlayGSF\n- Pmdmini\n- PxTone / Organya\n- PT3Player\n- SC68\n- Sibplayfp\n- Snes9x/snsf\n- ST-Sound\n- Timidity (använder Merlin_gold SF2 soundfont)\n- UADE\n- XSF (2SF, NCSF)\n- XMP\n- V2M tinyplayer\n- VGMStream\n- VIO2SF\n- WebSID\n- ZXTune\n\nFriskrivning:\nInternetåtkomst till biblioteken Modland, HVSC och ASMA tillhandahålls i befintligt skick utan någon garanti för tillgänglighet och/eller funktionalitet. Använd denna applikation på egen risk."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "v4.0 © Yohann Magnien / YoyoFR\n\nYhteys: mailto:modizerhelp@gmail.com\nVerkkosivusto: https://modizer.app\n\nModizerin logo Steven Miele.\n\nTuettujen tiedostomuotojen/tunnisteiden määrä: 1090.\n!PM!,04SW,208,2DX9,2PSF,2SF,2SFLIB,3DO,4,40A,40B,41A,50A,60A,61A,669,800,9TAV,A2M,AAC,AAM,AAX,ABK,AC1,AC1D,ACB,ACM,ACX,ADL,ADLIB,ADM,ADP,ADPCM,ADPCMX,ADS,ADSC,ADW,ADX,AFC,AFS2,AGD,AGI,AGSC,AHV,AHX,AI,AIF,AIF-LOOP,AIFC,AIFCL,AIFF,AIFFL,AIX,AKB,AL,AL2,ALP,AMC,AMD,AMF,AMS,AMTS,AO,AON,AON4,AON8,AP,APC,AS0,AS3M,AS4,ASC,ASD,ASF,ASR,ASS,AST,AT3,AT9,ATSL,ATSL3,ATSL4,ATX,AUD,AUS,AVAL,AVP,AWB,AWC,AY,B1S,BAF,BAKA,BAM,BANK,BAO,BAR,BCSTM,BCWAV,BD,BD3,BDS,BDSP,BFC,BFSTM,BFWAV,BFWAVNSMBU,BG00,BGM,BGW,BH2PCM,BIK,BIK2,BIKA,BIN,BK2,BLK,BMDX,BMF,BMS,BNK,BNM,BNS,BNSF,BO2,BP,BP3,BRSTM,BRSTMSPM,BSF,BSI,BSND,BSS,BTSND,BVG,BWAV,BYTES,C64,C67,CAF,CAPDSP,CBD2,CC3,CCC,CD,CFF,CFN,CHAN,CHI,CHK,CHP,CIN,CKB,CKD,CKS,CM,CM3,CMC,CMF,CMR,CMS,CNK,COP,CORE,CP,CPK,CPLX,CPS,CRB,CSB,CSMP,CTRL,CUS,CUST,CUSTOM,CVS,CWAV,CXS,D00,DA,DAT,DATA,DAX,DB,DBM,DCS,DCT,DDSP,DE2,DEC,DFM,DH,DI,DIGI,DIVA,DL,DLM1,DLM2,DLN,DLT,DL_DELI,DM0,DM1,DM2,DMC,DMF,DMM,DMO,DMSG,DMU,DMU2,DNS,DODA,DP,DR0,DRO,DS2,DSB,DSC,DSF,DSFLIB,DSM,DSP,DSPW,DSQ,DSR,DSS,DST,DTK,DTM,DUM,DVI,DW,DWOLD,DXH,DZ,E4X,EA,EAM,EAS,EMFF,EMOD,EMS,EMSV6,ENM,ENO,ENS,ESV,ET1,EU,EUP,EX,EXA,EZW,FAG,FAR,FC,FC-BSI,FC-M,FC13,FC14,FC3,FC4,FCM,FDA,FDI,FFW,FILP,FLAC,FLX,FMB,FNK,FP,FRED,FSB,FSV,FT,FTC,FUZ,FUZZ,FW,FWAV,FWSE,G1L,GAM,GAMPLUS,GBR,GBS,GBTS,GCA,GCM,GCUB,GCW,GDM,GENH,GIN,GLUE,GM,GMC,GMS,GOT,GRAY,GSB,GSF,GSFLIB,GTD,GTR,GV,GWM,GYM,H4M,HA2,HAB,HBT,HCA,HD,HDR,HES,HGC1,HIP,HIP7,HIPC,HIS,HMC,HN,HPS,HRM,HRP,HRT,HRT!,HSC,HSF,HSP,HSQ,HST,HVL,HWAS,HX2,HX3,HXC,HXD,HXG,HXX,IAB,IADP,ICE,IDMSF,IDSP,IDVI,IDWAV,IDXMA,IFS,IKM,ILD,IMA,IMC,IMF,IMS,IMX,INSTR,INT,IS,IS14,IS20,ISB,ISD,ISWS,IT,IT1,ITL,IVAG,IVAUD,IVB,J2B,JAM,JBM,JC,JCB,JCBO,JD,JMF,JO,JOE,JP,JPN,JPND,JPO,JPOLD,JSTM,JT,KAT,KCES,KCEY,KEF,KEF7,KH,KM9,KNS,KOVS,KRAW,KRIS,KRS,KSM,KSS,KTAC,KTSL2ASBIN,KTSS,KVS,L,LAA,LAAC,LAIF,LAIFC,LAIFF,LASF,LAX,LBIN,LDS,LEG,LEP,LIN,LIQ,LM0,LM1,LM2,LM3,LM4,LM5,LM6,LM7,LME,LMP3,LMP4,LOGG,LOPUS,LP,LPCM,LPK,LPS,LRMB,LSE,LSF,LSTM,LWAV,LZS,M,M15,M2,M3U,M4A,M4V,MA,MAB,MAD,MAP,MATX,MAX,MBM,MC,MC3,MCA,MCADPCM,MCG,MCMD,MCMD_ORG,MCO,MCR,MD,MDAT,MDI,MDL,MDS,MDSP,MDST,MDX,MDY,MED,MEXXMP,MFP,MG,MGS,MI4,MIB,MIC,MID,MIDI,MIHB,MINI2SF,MINIDSF,MINIGSF,MININCSF,MINIPSF,MINIPSF2,MINIQSF,MINISNSF,MINISSF,MINIUSF,MJB,MK2,MKF,MKII,MKIIO,MKJ,ML,MM4,MM8,MMCMP,MMD0,MMD1,MMD2,MMD3,MMD4,MMDC,MMS,MNSTR,MO3,MOD,MOD15,MOD15_MST,MOD15_ST-IV,MOD15_UST,MOD_ADSC4,MOD_COMP,MOD_DOC,MOD_FLT4,MOD_NTK,MOD_NTK1,MOD_NTK2,MOD_NTKAMP,MOGG,MOK,MON,MON_OLD,MP3,MP4,MPD,MPDSP,MPF,MPG,MPK,MPRO,MPT,MPTM,MS,MSA,MSADPCM,MSB,MSC,MSD,MSF,MSO,MSP,MSS,MSV,MSVP,MT2,MTA2,MTAF,MTK,MTM,MTP2,MTR,MUG,MUG2,MUL,MUPS,MUS,MUSC,MUSX,MW,MWV,MXST,MYSPD,MZ,N64,NAAC,NCSF,NCSFLIB,NDP,NDS,NGCA,NLSD,NOISEPACKER2,NOISEPACKER3,NOP,NP,NP1,NP2,NP3,NPS,NPSF,NR,NRU,NSF,NSFE,NSOPUS,NST,NTP,NTPK,NUB,NUB2,NUS3AUDIO,NUS3BANK,NWA,NWAV,NXA,OCTAMED,OGG,OGL,OKT,OMU,ONE,OPI,OPUS,OPUSX,OPX,ORG,OSP,OTM,OVB,OVI,OXM,OZI,P,P00,P10,P21,P2BT,P30,P3D,P40A,P40B,P41A,P4X,P50A,P5A,P5X,P60,P60A,P61,P61A,P6X,P86,PAP,PAST,PCD,PCM,PDT,PDX,PFLT,PHA,PIN,PIS,PK,PLM,PM,PM0,PM01,PM1,PM10C,PM18A,PM2,PM20,PM4,PM40,PMB,PMZ,PNB,POLK,PONA,POS,POWT,PP10,PP20,PP21,PP30,PPC,PPK,PPM,PPS,PPZ,PR1,PR2,PRG,PROM,PRU,PRU1,PRU2,PRUN,PRUN1,PRUN2,PS,PS2STM,PSA,PSC,PSF,PSF2,PSF2LIB,PSFLIB,PSG,PSH,PSID,PSM,PSND,PSW,PT,PT1,PT2,PT3,PT36,PTCOP,PTM,PTTUNE,PUMA,PVI,PVP,PWR,PXA,PYG,PYGM,PYGMY,PZI,QC,QPA,QSF,QSFLIB,QTS,R,RAC,RAD,RAK,RAS,RAW,RH,RHO,RIFF,RIX,RJP,RK,RKB,RKV,RMT,RND,ROF,ROL,RPGMVO,RRDS,RSD,RSF,RSID,RSM,RSP,RSTM,RTM,RWAR,RWAV,RWS,RWSD,RWX,RXW,S-C,S14,S3M,S7G,S98,SA,SA-P,SA2,SAB,SAD,SAF,SAP,SAS,SAT,SA_OLD,SB,SB0,SB1,SB2,SB3,SB4,SB5,SB6,SB7,SBIN,SBK,SBR,SBV,SC,SC68,SCD,SCH,SCI,SCL,SCN,SCR,SCT,SCUMM,SD9,SDB,SDF,SDR,SDT,SEB,SED,SEG,SF0,SF2,SFL,SFM,SFS,SFX,SFX13,SFX2,SG,SGB,SGC,SGD,SGX,SID,SID1,SID2,SJS,SKT,SKYT,SL3,SLI,SM,SM0,SM1,SM2,SM3,SM4,SM5,SM6,SM7,SMC,SMK,SMN,SMP,SMPL,SMPRO,SMUS,SMV,SND,SNDH,SNDMON,SNDS,SNG,SNGW,SNK,SNR,SNS,SNSF,SNSFLIB,SNT,SNT!,SNU,SNX,SOC,SOD,SOG,SON,SONIC,SOP,SPC,SPD,SPK,SPL,SPM,SPS,SPSD,SPW,SQD,SQT,SQX,SS,SS2,SSF,SSFLIB,SSM,SSS,ST,ST1,ST2,ST26,ST3,ST30,STAR,STC,STER,STK,STM,STMA,STP,STPK,STR,STREAM,STRM,STS,STX,SUN,SVAG,SVG,SVS,SWAG,SWAV,SWD,SWITCH_AUDIO,SX,SXD,SXD1,SXD2,SXD3,SYN,SYNMOD,SZX,TD0,TEC,TF,TF0,TFC,TFD,TFE,TFHD1.5,TFHD7V,TFHDPRO,TFMX,TFMX1.5,TFMX7V,TFMXPRO,TGQ,TGV,THM,THN,THP,THX,TINY,TK5,TLZ,TLZP,TM2,TM8,TMC,TME,TMX,TP,TP1,TP2,TP3,TPU,TRA,TRC,TRD,TRO,TRONIC,TRS,TS,TUN,TW,TWO,TXT,TXTH,TXTP,TYDSP,UDS,UE4OPUS,ULT,ULW,UM3,UMX,UN2,UNIC,UNIC2,USF,USFLIB,UTK,UV,V0,V1,V2M,V2MZ,VA3,VAG,VAI,VAS,VAWX,VB,VBK,VDM,VDS,VGM,VGS,VGV,VGZ,VID,VIG,VIS,VMS,VOI,VP6,VPK,VS,VSF,VSS,VSV,VTX,VXN,WAA,WAC,WAD,WAF,WAM,WAS,WAV,WAVC,WAVE,WAVEBATCH,WAVM,WAY,WB,WB2,WBD,WD,WEM,WII,WLF,WMA,WMUS,WN,WOW,WP2,WPD,WSD,WSI,WSR,WUA,WV2,WV6,WVE,WVS,WVX,X,XA,XA2,XA30,XAD,XAG,XAN,XANN,XAU,XAV,XEN,XM,XMA,XMA2,XMD,XMU,XNA,XNB,XOPUS,XPK,XPS,XSE,XSEW,XSF,XSM,XSS,XVAG,XVAS,XWAV,XWB,XWC,XWM,XWMA,XWS,XWV,YDSP,YM,YMF,ZEN,ZIC,ZIP,ZSD,ZSM,ZSS,ZWDSP,ZWV,ZXZIP\nIntegroidut soitinkirjastot:\n- Adplug\n- Another Slight Atari Player(ASAP)\n- AtariSound\n- Eupmini\n- ffmpeg/mpg123/vorbis\n- Game Music Emu\n- FMPmini\n- Highly Complete\n- AHX/Hively tracker\n- LazyUSF\n- Libvgm\n- Mdxplay\n- NSFPlay\n- OpenMPT\n- PlayGSF\n- Pmdmini\n- PxTone / Organya\n- PT3Player\n- SC68\n- Sibplayfp\n- Snes9x/snsf\n- ST-Sound\n- Timidity(using Merlin_gold SF2 soundfont)\n- UADE\n- XSF (2SF, NCSF)\n- XMP\n-V2M tinyplayer\n- VGMStream\n- VIO2SF\n- WebSID\n- ZXTune\n\nVapautus:\nInternet-pääsy Modland-, HVSC- ja ASMA-kirjastoihin tarjotaan sellaisenaan, ilman takuuta saatavuudesta ja/tai toiminnasta. Käytät tätä sovellusta omalla vastuullasi."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "v4.0 © Yohann Magnien / YoyoFR\n\nContatti: mailto:modizerhelp@gmail.com\nWeb: https://modizer.app\n\nLogo Modizer di Steve Miele.\n\nNumero di formati/estensioni file supportate: 1090.\n!PM!,04SW,208,2DX9,2PSF,2SF,2SFLIB,3DO,4,40A,40B,41A,50A,60A,61A,669,800,9TAV,A2M,AAC,AAM,AAX,ABK,AC1,AC1D,ACB,ACM,ACX,ADL,ADLIB,ADM,ADP,ADPCM,ADPCMX,ADS,ADSC,ADW,ADX,AFC,AFS2,AGD,AGI,AGSC,AHV,AHX,AI,AIF,AIF-LOOP,AIFC,AIFCL,AIFF,AIFFL,AIX,AKB,AL,AL2,ALP,AMC,AMD,AMF,AMS,AMTS,AO,AON,AON4,AON8,AP,APC,AS0,AS3M,AS4,ASC,ASD,ASF,ASR,ASS,AST,AT3,AT9,ATSL,ATSL3,ATSL4,ATX,AUD,AUS,AVAL,AVP,AWB,AWC,AY,B1S,BAF,BAKA,BAM,BANK,BAO,BAR,BCSTM,BCWAV,BD,BD3,BDS,BDSP,BFC,BFSTM,BFWAV,BFWAVNSMBU,BG00,BGM,BGW,BH2PCM,BIK,BIK2,BIKA,BIN,BK2,BLK,BMDX,BMF,BMS,BNK,BNM,BNS,BNSF,BO2,BP,BP3,BRSTM,BRSTMSPM,BSF,BSI,BSND,BSS,BTSND,BVG,BWAV,BYTES,C64,C67,CAF,CAPDSP,CBD2,CC3,CCC,CD,CFF,CFN,CHAN,CHI,CHK,CHP,CIN,CKB,CKD,CKS,CM,CM3,CMC,CMF,CMR,CMS,CNK,COP,CORE,CP,CPK,CPLX,CPS,CRB,CSB,CSMP,CTRL,CUS,CUST,CUSTOM,CVS,CWAV,CXS,D00,DA,DAT,DATA,DAX,DB,DBM,DCS,DCT,DDSP,DE2,DEC,DFM,DH,DI,DIGI,DIVA,DL,DLM1,DLM2,DLN,DLT,DL_DELI,DM0,DM1,DM2,DMC,DMF,DMM,DMO,DMSG,DMU,DMU2,DNS,DODA,DP,DR0,DRO,DS2,DSB,DSC,DSF,DSFLIB,DSM,DSP,DSPW,DSQ,DSR,DSS,DST,DTK,DTM,DUM,DVI,DW,DWOLD,DXH,DZ,E4X,EA,EAM,EAS,EMFF,EMOD,EMS,EMSV6,ENM,ENO,ENS,ESV,ET1,EU,EUP,EX,EXA,EZW,FAG,FAR,FC,FC-BSI,FC-M,FC13,FC14,FC3,FC4,FCM,FDA,FDI,FFW,FILP,FLAC,FLX,FMB,FNK,FP,FRED,FSB,FSV,FT,FTC,FUZ,FUZZ,FW,FWAV,FWSE,G1L,GAM,GAMPLUS,GBR,GBS,GBTS,GCA,GCM,GCUB,GCW,GDM,GENH,GIN,GLUE,GM,GMC,GMS,GOT,GRAY,GSB,GSF,GSFLIB,GTD,GTR,GV,GWM,GYM,H4M,HA2,HAB,HBT,HCA,HD,HDR,HES,HGC1,HIP,HIP7,HIPC,HIS,HMC,HN,HPS,HRM,HRP,HRT,HRT!,HSC,HSF,HSP,HSQ,HST,HVL,HWAS,HX2,HX3,HXC,HXD,HXG,HXX,IAB,IADP,ICE,IDMSF,IDSP,IDVI,IDWAV,IDXMA,IFS,IKM,ILD,IMA,IMC,IMF,IMS,IMX,INSTR,INT,IS,IS14,IS20,ISB,ISD,ISWS,IT,IT1,ITL,IVAG,IVAUD,IVB,J2B,JAM,JBM,JC,JCB,JCBO,JD,JMF,JO,JOE,JP,JPN,JPND,JPO,JPOLD,JSTM,JT,KAT,KCES,KCEY,KEF,KEF7,KH,KM9,KNS,KOVS,KRAW,KRIS,KRS,KSM,KSS,KTAC,KTSL2ASBIN,KTSS,KVS,L,LAA,LAAC,LAIF,LAIFC,LAIFF,LASF,LAX,LBIN,LDS,LEG,LEP,LIN,LIQ,LM0,LM1,LM2,LM3,LM4,LM5,LM6,LM7,LME,LMP3,LMP4,LOGG,LOPUS,LP,LPCM,LPK,LPS,LRMB,LSE,LSF,LSTM,LWAV,LZS,M,M15,M2,M3U,M4A,M4V,MA,MAB,MAD,MAP,MATX,MAX,MBM,MC,MC3,MCA,MCADPCM,MCG,MCMD,MCMD_ORG,MCO,MCR,MD,MDAT,MDI,MDL,MDS,MDSP,MDST,MDX,MDY,MED,MEXXMP,MFP,MG,MGS,MI4,MIB,MIC,MID,MIDI,MIHB,MINI2SF,MINIDSF,MINIGSF,MININCSF,MINIPSF,MINIPSF2,MINIQSF,MINISNSF,MINISSF,MINIUSF,MJB,MK2,MKF,MKII,MKIIO,MKJ,ML,MM4,MM8,MMCMP,MMD0,MMD1,MMD2,MMD3,MMD4,MMDC,MMS,MNSTR,MO3,MOD,MOD15,MOD15_MST,MOD15_ST-IV,MOD15_UST,MOD_ADSC4,MOD_COMP,MOD_DOC,MOD_FLT4,MOD_NTK,MOD_NTK1,MOD_NTK2,MOD_NTKAMP,MOGG,MOK,MON,MON_OLD,MP3,MP4,MPD,MPDSP,MPF,MPG,MPK,MPRO,MPT,MPTM,MS,MSA,MSADPCM,MSB,MSC,MSD,MSF,MSO,MSP,MSS,MSV,MSVP,MT2,MTA2,MTAF,MTK,MTM,MTP2,MTR,MUG,MUG2,MUL,MUPS,MUS,MUSC,MUSX,MW,MWV,MXST,MYSPD,MZ,N64,NAAC,NCSF,NCSFLIB,NDP,NDS,NGCA,NLSD,NOISEPACKER2,NOISEPACKER3,NOP,NP,NP1,NP2,NP3,NPS,NPSF,NR,NRU,NSF,NSFE,NSOPUS,NST,NTP,NTPK,NUB,NUB2,NUS3AUDIO,NUS3BANK,NWA,NWAV,NXA,OCTAMED,OGG,OGL,OKT,OMU,ONE,OPI,OPUS,OPUSX,OPX,ORG,OSP,OTM,OVB,OVI,OXM,OZI,P,P00,P10,P21,P2BT,P30,P3D,P40A,P40B,P41A,P4X,P50A,P5A,P5X,P60,P60A,P61,P61A,P6X,P86,PAP,PAST,PCD,PCM,PDT,PDX,PFLT,PHA,PIN,PIS,PK,PLM,PM,PM0,PM01,PM1,PM10C,PM18A,PM2,PM20,PM4,PM40,PMB,PMZ,PNB,POLK,PONA,POS,POWT,PP10,PP20,PP21,PP30,PPC,PPK,PPM,PPS,PPZ,PR1,PR2,PRG,PROM,PRU,PRU1,PRU2,PRUN,PRUN1,PRUN2,PS,PS2STM,PSA,PSC,PSF,PSF2,PSF2LIB,PSFLIB,PSG,PSH,PSID,PSM,PSND,PSW,PT,PT1,PT2,PT3,PT36,PTCOP,PTM,PTTUNE,PUMA,PVI,PVP,PWR,PXA,PYG,PYGM,PYGMY,PZI,QC,QPA,QSF,QSFLIB,QTS,R,RAC,RAD,RAK,RAS,RAW,RH,RHO,RIFF,RIX,RJP,RK,RKB,RKV,RMT,RND,ROF,ROL,RPGMVO,RRDS,RSD,RSF,RSID,RSM,RSP,RSTM,RTM,RWAR,RWAV,RWS,RWSD,RWX,RXW,S-C,S14,S3M,S7G,S98,SA,SA-P,SA2,SAB,SAD,SAF,SAP,SAS,SAT,SA_OLD,SB,SB0,SB1,SB2,SB3,SB4,SB5,SB6,SB7,SBIN,SBK,SBR,SBV,SC,SC68,SCD,SCH,SCI,SCL,SCN,SCR,SCT,SCUMM,SD9,SDB,SDF,SDR,SDT,SEB,SED,SEG,SF0,SF2,SFL,SFM,SFS,SFX,SFX13,SFX2,SG,SGB,SGC,SGD,SGX,SID,SID1,SID2,SJS,SKT,SKYT,SL3,SLI,SM,SM0,SM1,SM2,SM3,SM4,SM5,SM6,SM7,SMC,SMK,SMN,SMP,SMPL,SMPRO,SMUS,SMV,SND,SNDH,SNDMON,SNDS,SNG,SNGW,SNK,SNR,SNS,SNSF,SNSFLIB,SNT,SNT!,SNU,SNX,SOC,SOD,SOG,SON,SONIC,SOP,SPC,SPD,SPK,SPL,SPM,SPS,SPSD,SPW,SQD,SQT,SQX,SS,SS2,SSF,SSFLIB,SSM,SSS,ST,ST1,ST2,ST26,ST3,ST30,STAR,STC,STER,STK,STM,STMA,STP,STPK,STR,STREAM,STRM,STS,STX,SUN,SVAG,SVG,SVS,SWAG,SWAV,SWD,SWITCH_AUDIO,SX,SXD,SXD1,SXD2,SXD3,SYN,SYNMOD,SZX,TD0,TEC,TF,TF0,TFC,TFD,TFE,TFHD1.5,TFHD7V,TFHDPRO,TFMX,TFMX1.5,TFMX7V,TFMXPRO,TGQ,TGV,THM,THN,THP,THX,TINY,TK5,TLZ,TLZP,TM2,TM8,TMC,TME,TMX,TP,TP1,TP2,TP3,TPU,TRA,TRC,TRD,TRO,TRONIC,TRS,TS,TUN,TW,TWO,TXT,TXTH,TXTP,TYDSP,UDS,UE4OPUS,ULT,ULW,UM3,UMX,UN2,UNIC,UNIC2,USF,USFLIB,UTK,UV,V0,V1,V2M,V2MZ,VA3,VAG,VAI,VAS,VAWX,VB,VBK,VDM,VDS,VGM,VGS,VGV,VGZ,VID,VIG,VIS,VMS,VOI,VP6,VPK,VS,VSF,VSS,VSV,VTX,VXN,WAA,WAC,WAD,WAF,WAM,WAS,WAV,WAVC,WAVE,WAVEBATCH,WAVM,WAY,WB,WB2,WBD,WD,WEM,WII,WLF,WMA,WMUS,WN,WOW,WP2,WPD,WSD,WSI,WSR,WUA,WV2,WV6,WVE,WVS,WVX,X,XA,XA2,XA30,XAD,XAG,XAN,XANN,XAU,XAV,XEN,XM,XMA,XMA2,XMD,XMU,XNA,XNB,XOPUS,XPK,XPS,XSE,XSEW,XSF,XSM,XSS,XVAG,XVAS,XWAV,XWB,XWC,XWM,XWMA,XWS,XWV,YDSP,YM,YMF,ZEN,ZIC,ZIP,ZSD,ZSM,ZSS,ZWDSP,ZWV,ZXZIP\nLibrerie player integrate:\n- Adplug\n- Another Slight Atari Player(ASAP)\n- AtariSound\n- Eupmini\n- ffmpeg/mpg123/vorbis\n- Game Music Emu\n- FMPmini\n- Highly Complete\n- AHX/Hively tracker\n- LazyUSF\n- Libvgm\n- Mdxplay\n- NSFPlay\n- OpenMPT\n- PlayGSF\n- Pmdmini\n- PxTone / Organya\n- PT3Player\n- SC68\n- Sibplayfp\n- Snes9x/snsf\n- ST-Sound\n- Timidity(usando Merlin_gold SF2 soundfont)\n- UADE\n- XSF (2SF, NCSF)\n- XMP\n-V2M tinyplayer\n- VGMStream\n- VIO2SF\n- WebSID\n- ZXTune\n\nEsclausola di responsabilità:\nL'accesso a Internet alle librerie Modland, HVSC e ASMA è fornito come servizio realistico, non è data garanzia per la disponibilità e/o la funzionalità. Usa questa applicazione a tuo rischio."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "v4.0 © Yohann Magnien / YoyoFR\n\n联系：mailto:modizerhelp@gmail.com\n网站：https://modizer.app\n\nModizer 的标志由 Steve Miele 设计。\n\n支持的文件格式/扩展名数量：1090。\n!PM!,04SW,208,2DX9,2PSF,2SF,2SFLIB,3DO,4,40A,40B,41A,50A,60A,61A,669,800,9TAV,A2M,AAC,AAM,AAX,ABK,AC1,AC1D,ACB,ACM,ACX,ADL,ADLIB,ADM,ADP,ADPCM,ADPCMX,ADS,ADSC,ADW,ADX,AFC,AFS2,AGD,AGI,AGSC,AHV,AHX,AI,AIF,AIF-LOOP,AIFC,AIFCL,AIFF,AIFFL,AIX,AKB,AL,AL2,ALP,AMC,AMD,AMF,AMS,AMTS,AO,AON,AON4,AON8,AP,APC,AS0,AS3M,AS4,ASC,ASD,ASF,ASR,ASS,AST,AT3,AT9,ATSL,ATSL3,ATSL4,ATX,AUD,AUS,AVAL,AVP,AWB,AWC,AY,B1S,BAF,BAKA,BAM,BANK,BAO,BAR,BCSTM,BCWAV,BD,BD3,BDS,BDSP,BFC,BFSTM,BFWAV,BFWAVNSMBU,BG00,BGM,BGW,BH2PCM,BIK,BIK2,BIKA,BIN,BK2,BLK,BMDX,BMF,BMS,BNK,BNM,BNS,BNSF,BO2,BP,BP3,BRSTM,BRSTMSPM,BSF,BSI,BSND,BSS,BTSND,BVG,BWAV,BYTES,C64,C67,CAF,CAPDSP,CBD2,CC3,CCC,CD,CFF,CFN,CHAN,CHI,CHK,CHP,CIN,CKB,CKD,CKS,CM,CM3,CMC,CMF,CMR,CMS,CNK,COP,CORE,CP,CPK,CPLX,CPS,CRB,CSB,CSMP,CTRL,CUS,CUST,CUSTOM,CVS,CWAV,CXS,D00,DA,DAT,DATA,DAX,DB,DBM,DCS,DCT,DDSP,DE2,DEC,DFM,DH,DI,DIGI,DIVA,DL,DLM1,DLM2,DLN,DLT,DL_DELI,DM0,DM1,DM2,DMC,DMF,DMM,DMO,DMSG,DMU,DMU2,DNS,DODA,DP,DR0,DRO,DS2,DSB,DSC,DSF,DSFLIB,DSM,DSP,DSPW,DSQ,DSR,DSS,DST,DTK,DTM,DUM,DVI,DW,DWOLD,DXH,DZ,E4X,EA,EAM,EAS,EMFF,EMOD,EMS,EMSV6,ENM,ENO,ENS,ESV,ET1,EU,EUP,EX,EXA,EZW,FAG,FAR,FC,FC-BSI,FC-M,FC13,FC14,FC3,FC4,FCM,FDA,FDI,FFW,FILP,FLAC,FLX,FMB,FNK,FP,FRED,FSB,FSV,FT,FTC,FUZ,FUZZ,FW,FWAV,FWSE,G1L,GAM,GAMPLUS,GBR,GBS,GBTS,GCA,GCM,GCUB,GCW,GDM,GENH,GIN,GLUE,GM,GMC,GMS,GOT,GRAY,GSB,GSF,GSFLIB,GTD,GTR,GV,GWM,GYM,H4M,HA2,HAB,HBT,HCA,HD,HDR,HES,HGC1,HIP,HIP7,HIPC,HIS,HMC,HN,HPS,HRM,HRP,HRT,HRT!,HSC,HSF,HSP,HSQ,HST,HVL,HWAS,HX2,HX3,HXC,HXD,HXG,HXX,IAB,IADP,ICE,IDMSF,IDSP,IDVI,IDWAV,IDXMA,IFS,IKM,ILD,IMA,IMC,IMF,IMS,IMX,INSTR,INT,IS,IS14,IS20,ISB,ISD,ISWS,IT,IT1,ITL,IVAG,IVAUD,IVB,J2B,JAM,JBM,JC,JCB,JCBO,JD,JMF,JO,JOE,JP,JPN,JPND,JPO,JPOLD,JSTM,JT,KAT,KCES,KCEY,KEF,KEF7,KH,KM9,KNS,KOVS,KRAW,KRIS,KRS,KSM,KSS,KTAC,KTSL2ASBIN,KTSS,KVS,L,LAA,LAAC,LAIF,LAIFC,LAIFF,LASF,LAX,LBIN,LDS,LEG,LEP,LIN,LIQ,LM0,LM1,LM2,LM3,LM4,LM5,LM6,LM7,LME,LMP3,LMP4,LOGG,LOPUS,LP,LPCM,LPK,LPS,LRMB,LSE,LSF,LSTM,LWAV,LZS,M,M15,M2,M3U,M4A,M4V,MA,MAB,MAD,MAP,MATX,MAX,MBM,MC,MC3,MCA,MCADPCM,MCG,MCMD,MCMD_ORG,MCO,MCR,MD,MDAT,MDI,MDL,MDS,MDSP,MDST,MDX,MDY,MED,MEXXMP,MFP,MG,MGS,MI4,MIB,MIC,MID,MIDI,MIHB,MINI2SF,MINIDSF,MINIGSF,MININCSF,MINIPSF,MINIPSF2,MINIQSF,MINISNSF,MINISSF,MINIUSF,MJB,MK2,MKF,MKII,MKIIO,MKJ,ML,MM4,MM8,MMCMP,MMD0,MMD1,MMD2,MMD3,MMD4,MMDC,MMS,MNSTR,MO3,MOD,MOD15,MOD15_MST,MOD15_ST-IV,MOD15_UST,MOD_ADSC4,MOD_COMP,MOD_DOC,MOD_FLT4,MOD_NTK,MOD_NTK1,MOD_NTK2,MOD_NTKAMP,MOGG,MOK,MON,MON_OLD,MP3,MP4,MPD,MPDSP,MPF,MPG,MPK,MPRO,MPT,MPTM,MS,MSA,MSADPCM,MSB,MSC,MSD,MSF,MSO,MSP,MSS,MSV,MSVP,MT2,MTA2,MTAF,MTK,MTM,MTP2,MTR,MUG,MUG2,MUL,MUPS,MUS,MUSC,MUSX,MW,MWV,MXST,MYSPD,MZ,N64,NAAC,NCSF,NCSFLIB,NDP,NDS,NGCA,NLSD,NOISEPACKER2,NOISEPACKER3,NOP,NP,NP1,NP2,NP3,NPS,NPSF,NR,NRU,NSF,NSFE,NSOPUS,NST,NTP,NTPK,NUB,NUB2,NUS3AUDIO,NUS3BANK,NWA,NWAV,NXA,OCTAMED,OGG,OGL,OKT,OMU,ONE,OPI,OPUS,OPUSX,OPX,ORG,OSP,OTM,OVB,OVI,OXM,OZI,P,P00,P10,P21,P2BT,P30,P3D,P40A,P40B,P41A,P4X,P50A,P5A,P5X,P60,P60A,P61,P61A,P6X,P86,PAP,PAST,PCD,PCM,PDT,PDX,PFLT,PHA,PIN,PIS,PK,PLM,PM,PM0,PM01,PM1,PM10C,PM18A,PM2,PM20,PM4,PM40,PMB,PMZ,PNB,POLK,PONA,POS,POWT,PP10,PP20,PP21,PP30,PPC,PPK,PPM,PPS,PPZ,PR1,PR2,PRG,PROM,PRU,PRU1,PRU2,PRUN,PRUN1,PRUN2,PS,PS2STM,PSA,PSC,PSF,PSF2,PSF2LIB,PSFLIB,PSG,PSH,PSID,PSM,PSND,PSW,PT,PT1,PT2,PT3,PT36,PTCOP,PTM,PTTUNE,PUMA,PVI,PVP,PWR,PXA,PYG,PYGM,PYGMY,PZI,QC,QPA,QSF,QSFLIB,QTS,R,RAC,RAD,RAK,RAS,RAW,RH,RHO,RIFF,RIX,RJP,RK,RKB,RKV,RMT,RND,ROF,ROL,RPGMVO,RRDS,RSD,RSF,RSID,RSM,RSP,RSTM,RTM,RWAR,RWAV,RWS,RWSD,RWX,RXW,S-C,S14,S3M,S7G,S98,SA,SA-P,SA2,SAB,SAD,SAF,SAP,SAS,SAT,SA_OLD,SB,SB0,SB1,SB2,SB3,SB4,SB5,SB6,SB7,SBIN,SBK,SBR,SBV,SC,SC68,SCD,SCH,SCI,SCL,SCN,SCR,SCT,SCUMM,SD9,SDB,SDF,SDR,SDT,SEB,SED,SEG,SF0,SF2,SFL,SFM,SFS,SFX,SFX13,SFX2,SG,SGB,SGC,SGD,SGX,SID,SID1,SID2,SJS,SKT,SKYT,SL3,SLI,SM,SM0,SM1,SM2,SM3,SM4,SM5,SM6,SM7,SMC,SMK,SMN,SMP,SMPL,SMPRO,SMUS,SMV,SND,SNDH,SNDMON,SNDS,SNG,SNGW,SNK,SNR,SNS,SNSF,SNSFLIB,SNT,SNT!,SNU,SNX,SOC,SOD,SOG,SON,SONIC,SOP,SPC,SPD,SPK,SPL,SPM,SPS,SPSD,SPW,SQD,SQT,SQX,SS,SS2,SSF,SSFLIB,SSM,SSS,ST,ST1,ST2,ST26,ST3,ST30,STAR,STC,STER,STK,STM,STMA,STP,STPK,STR,STREAM,STRM,STS,STX,SUN,SVAG,SVG,SVS,SWAG,SWAV,SWD,SWITCH_AUDIO,SX,SXD,SXD1,SXD2,SXD3,SYN,SYNMOD,SZX,TD0,TEC,TF,TF0,TFC,TFD,TFE,TFHD1.5,TFHD7V,TFHDPRO,TFMX,TFMX1.5,TFMX7V,TFMXPRO,TGQ,TGV,THM,THN,THP,THX,TINY,TK5,TLZ,TLZP,TM2,TM8,TMC,TME,TMX,TP,TP1,TP2,TP3,TPU,TRA,TRC,TRD,TRO,TRONIC,TRS,TS,TUN,TW,TWO,TXT,TXTH,TXTP,TYDSP,UDS,UE4OPUS,ULT,ULW,UM3,UMX,UN2,UNIC,UNIC2,USF,USFLIB,UTK,UV,V0,V1,V2M,V2MZ,VA3,VAG,VAI,VAS,VAWX,VB,VBK,VDM,VDS,VGM,VGS,VGV,VGZ,VID,VIG,VIS,VMS,VOI,VP6,VPK,VS,VSF,VSS,VSV,VTX,VXN,WAA,WAC,WAD,WAF,WAM,WAS,WAV,WAVC,WAVE,WAVEBATCH,WAVM,WAY,WB,WB2,WBD,WD,WEM,WII,WLF,WMA,WMUS,WN,WOW,WP2,WPD,WSD,WSI,WSR,WUA,WV2,WV6,WVE,WVS,WVX,X,XA,XA2,XA30,XAD,XAG,XAN,XANN,XAU,XAV,XEN,XM,XMA,XMA2,XMD,XMU,XNA,XNB,XOPUS,XPK,XPS,XSE,XSEW,XSF,XSM,XSS,XVAG,XVAS,XWAV,XWB,XWC,XWM,XWMA,XWS,XWV,YDSP,YM,YMF,ZEN,ZIC,ZIP,ZSD,ZSM,ZSS,ZWDSP,ZWV,ZXZIP\n集成播放器库：\n- Adplug\n- Another Slight Atari Player(ASAP)\n- AtariSound\n- Eupmini\n- ffmpeg/mpg123/vorbis\n- Game Music Emu\n- FMPmini\n- Highly Complete\n- AHX/Hively tracker\n- LazyUSF\n- Libvgm\n- Mdxplay\n- NSFPlay\n- OpenMPT\n- PlayGSF\n- Pmdmini\n- PxTone / Organya\n- PT3Player\n- SC68\n- Sibplayfp\n- Snes9x/snsf\n- ST-Sound\n- Timidity(使用 Merlin_gold SF2 音色库)\n- UADE\n- XSF (2SF, NCSF)\n- XMP\n-V2M tinyplayer\n- VGMStream\n- VIO2SF\n- WebSID\n- ZXTune\n\n免责声明：\nModland、HVSC 和 ASMA 库的互联网访问权限按现状提供，不保证可用性和/或功能。使用本应用程序风险自负。"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الإصدار 4.0 © Yohann Magnien / YoyoFR\n\nالتواصل: mailto:modizerhelp@gmail.com\nالموقع: https://modizer.app\n\nشعار Modizer من تصميم Steve Miele.\n\nعدد صيغ الملفات/الملحقات المدعومة: 1090.\n!PM!,04SW,208,2DX9,2PSF,2SF,2SFLIB,3DO,4,40A,40B,41A,50A,60A,61A,669,800,9TAV,A2M,AAC,AAM,AAX,ABK,AC1,AC1D,ACB,ACM,ACX,ADL,ADLIB,ADM,ADP,ADPCM,ADPCMX,ADS,ADSC,ADW,ADX,AFC,AFS2,AGD,AGI,AGSC,AHV,AHX,AI,AIF,AIF-LOOP,AIFC,AIFCL,AIFF,AIFFL,AIX,AKB,AL,AL2,ALP,AMC,AMD,AMF,AMS,AMTS,AO,AON,AON4,AON8,AP,APC,AS0,AS3M,AS4,ASC,ASD,ASF,ASR,ASS,AST,AT3,AT9,ATSL,ATSL3,ATSL4,ATX,AUD,AUS,AVAL,AVP,AWB,AWC,AY,B1S,BAF,BAKA,BAM,BANK,BAO,BAR,BCSTM,BCWAV,BD,BD3,BDS,BDSP,BFC,BFSTM,BFWAV,BFWAVNSMBU,BG00,BGM,BGW,BH2PCM,BIK,BIK2,BIKA,BIN,BK2,BLK,BMDX,BMF,BMS,BNK,BNM,BNS,BNSF,BO2,BP,BP3,BRSTM,BRSTMSPM,BSF,BSI,BSND,BSS,BTSND,BVG,BWAV,BYTES,C64,C67,CAF,CAPDSP,CBD2,CC3,CCC,CD,CFF,CFN,CHAN,CHI,CHK,CHP,CIN,CKB,CKD,CKS,CM,CM3,CMC,CMF,CMR,CMS,CNK,COP,CORE,CP,CPK,CPLX,CPS,CRB,CSB,CSMP,CTRL,CUS,CUST,CUSTOM,CVS,CWAV,CXS,D00,DA,DAT,DATA,DAX,DB,DBM,DCS,DCT,DDSP,DE2,DEC,DFM,DH,DI,DIGI,DIVA,DL,DLM1,DLM2,DLN,DLT,DL_DELI,DM0,DM1,DM2,DMC,DMF,DMM,DMO,DMSG,DMU,DMU2,DNS,DODA,DP,DR0,DRO,DS2,DSB,DSC,DSF,DSFLIB,DSM,DSP,DSPW,DSQ,DSR,DSS,DST,DTK,DTM,DUM,DVI,DW,DWOLD,DXH,DZ,E4X,EA,EAM,EAS,EMFF,EMOD,EMS,EMSV6,ENM,ENO,ENS,ESV,ET1,EU,EUP,EX,EXA,EZW,FAG,FAR,FC,FC-BSI,FC-M,FC13,FC14,FC3,FC4,FCM,FDA,FDI,FFW,FILP,FLAC,FLX,FMB,FNK,FP,FRED,FSB,FSV,FT,FTC,FUZ,FUZZ,FW,FWAV,FWSE,G1L,GAM,GAMPLUS,GBR,GBS,GBTS,GCA,GCM,GCUB,GCW,GDM,GENH,GIN,GLUE,GM,GMC,GMS,GOT,GRAY,GSB,GSF,GSFLIB,GTD,GTR,GV,GWM,GYM,H4M,HA2,HAB,HBT,HCA,HD,HDR,HES,HGC1,HIP,HIP7,HIPC,HIS,HMC,HN,HPS,HRM,HRP,HRT,HRT!,HSC,HSF,HSP,HSQ,HST,HVL,HWAS,HX2,HX3,HXC,HXD,HXG,HXX,IAB,IADP,ICE,IDMSF,IDSP,IDVI,IDWAV,IDXMA,IFS,IKM,ILD,IMA,IMC,IMF,IMS,IMX,INSTR,INT,IS,IS14,IS20,ISB,ISD,ISWS,IT,IT1,ITL,IVAG,IVAUD,IVB,J2B,JAM,JBM,JC,JCB,JCBO,JD,JMF,JO,JOE,JP,JPN,JPND,JPO,JPOLD,JSTM,JT,KAT,KCES,KCEY,KEF,KEF7,KH,KM9,KNS,KOVS,KRAW,KRIS,KRS,KSM,KSS,KTAC,KTSL2ASBIN,KTSS,KVS,L,LAA,LAAC,LAIF,LAIFC,LAIFF,LASF,LAX,LBIN,LDS,LEG,LEP,LIN,LIQ,LM0,LM1,LM2,LM3,LM4,LM5,LM6,LM7,LME,LMP3,LMP4,LOGG,LOPUS,LP,LPCM,LPK,LPS,LRMB,LSE,LSF,LSTM,LWAV,LZS,M,M15,M2,M3U,M4A,M4V,MA,MAB,MAD,MAP,MATX,MAX,MBM,MC,MC3,MCA,MCADPCM,MCG,MCMD,MCMD_ORG,MCO,MCR,MD,MDAT,MDI,MDL,MDS,MDSP,MDST,MDX,MDY,MED,MEXXMP,MFP,MG,MGS,MI4,MIB,MIC,MID,MIDI,MIHB,MINI2SF,MINIDSF,MINIGSF,MININCSF,MINIPSF,MINIPSF2,MINIQSF,MINISNSF,MINISSF,MINIUSF,MJB,MK2,MKF,MKII,MKIIO,MKJ,ML,MM4,MM8,MMCMP,MMD0,MMD1,MMD2,MMD3,MMD4,MMDC,MMS,MNSTR,MO3,MOD,MOD15,MOD15_MST,MOD15_ST-IV,MOD15_UST,MOD_ADSC4,MOD_COMP,MOD_DOC,MOD_FLT4,MOD_NTK,MOD_NTK1,MOD_NTK2,MOD_NTKAMP,MOGG,MOK,MON,MON_OLD,MP3,MP4,MPD,MPDSP,MPF,MPG,MPK,MPRO,MPT,MPTM,MS,MSA,MSADPCM,MSB,MSC,MSD,MSF,MSO,MSP,MSS,MSV,MSVP,MT2,MTA2,MTAF,MTK,MTM,MTP2,MTR,MUG,MUG2,MUL,MUPS,MUS,MUSC,MUSX,MW,MWV,MXST,MYSPD,MZ,N64,NAAC,NCSF,NCSFLIB,NDP,NDS,NGCA,NLSD,NOISEPACKER2,NOISEPACKER3,NOP,NP,NP1,NP2,NP3,NPS,NPSF,NR,NRU,NSF,NSFE,NSOPUS,NST,NTP,NTPK,NUB,NUB2,NUS3AUDIO,NUS3BANK,NWA,NWAV,NXA,OCTAMED,OGG,OGL,OKT,OMU,ONE,OPI,OPUS,OPUSX,OPX,ORG,OSP,OTM,OVB,OVI,OXM,OZI,P,P00,P10,P21,P2BT,P30,P3D,P40A,P40B,P41A,P4X,P50A,P5A,P5X,P60,P60A,P61,P61A,P6X,P86,PAP,PAST,PCD,PCM,PDT,PDX,PFLT,PHA,PIN,PIS,PK,PLM,PM,PM0,PM01,PM1,PM10C,PM18A,PM2,PM20,PM4,PM40,PMB,PMZ,PNB,POLK,PONA,POS,POWT,PP10,PP20,PP21,PP30,PPC,PPK,PPM,PPS,PPZ,PR1,PR2,PRG,PROM,PRU,PRU1,PRU2,PRUN,PRUN1,PRUN2,PS,PS2STM,PSA,PSC,PSF,PSF2,PSF2LIB,PSFLIB,PSG,PSH,PSID,PSM,PSND,PSW,PT,PT1,PT2,PT3,PT36,PTCOP,PTM,PTTUNE,PUMA,PVI,PVP,PWR,PXA,PYG,PYGM,PYGMY,PZI,QC,QPA,QSF,QSFLIB,QTS,R,RAC,RAD,RAK,RAS,RAW,RH,RHO,RIFF,RIX,RJP,RK,RKB,RKV,RMT,RND,ROF,ROL,RPGMVO,RRDS,RSD,RSF,RSID,RSM,RSP,RSTM,RTM,RWAR,RWAV,RWS,RWSD,RWX,RXW,S-C,S14,S3M,S7G,S98,SA,SA-P,SA2,SAB,SAD,SAF,SAP,SAS,SAT,SA_OLD,SB,SB0,SB1,SB2,SB3,SB4,SB5,SB6,SB7,SBIN,SBK,SBR,SBV,SC,SC68,SCD,SCH,SCI,SCL,SCN,SCR,SCT,SCUMM,SD9,SDB,SDF,SDR,SDT,SEB,SED,SEG,SF0,SF2,SFL,SFM,SFS,SFX,SFX13,SFX2,SG,SGB,SGC,SGD,SGX,SID,SID1,SID2,SJS,SKT,SKYT,SL3,SLI,SM,SM0,SM1,SM2,SM3,SM4,SM5,SM6,SM7,SMC,SMK,SMN,SMP,SMPL,SMPRO,SMUS,SMV,SND,SNDH,SNDMON,SNDS,SNG,SNGW,SNK,SNR,SNS,SNSF,SNSFLIB,SNT,SNT!,SNU,SNX,SOC,SOD,SOG,SON,SONIC,SOP,SPC,SPD,SPK,SPL,SPM,SPS,SPSD,SPW,SQD,SQT,SQX,SS,SS2,SSF,SSFLIB,SSM,SSS,ST,ST1,ST2,ST26,ST3,ST30,STAR,STC,STER,STK,STM,STMA,STP,STPK,STR,STREAM,STRM,STS,STX,SUN,SVAG,SVG,SVS,SWAG,SWAV,SWD,SWITCH_AUDIO,SX,SXD,SXD1,SXD2,SXD3,SYN,SYNMOD,SZX,TD0,TEC,TF,TF0,TFC,TFD,TFE,TFHD1.5,TFHD7V,TFHDPRO,TFMX,TFMX1.5,TFMX7V,TFMXPRO,TGQ,TGV,THM,THN,THP,THX,TINY,TK5,TLZ,TLZP,TM2,TM8,TMC,TME,TMX,TP,TP1,TP2,TP3,TPU,TRA,TRC,TRD,TRO,TRONIC,TRS,TS,TUN,TW,TWO,TXT,TXTH,TXTP,TYDSP,UDS,UE4OPUS,ULT,ULW,UM3,UMX,UN2,UNIC,UNIC2,USF,USFLIB,UTK,UV,V0,V1,V2M,V2MZ,VA3,VAG,VAI,VAS,VAWX,VB,VBK,VDM,VDS,VGM,VGS,VGV,VGZ,VID,VIG,VIS,VMS,VOI,VP6,VPK,VS,VSF,VSS,VSV,VTX,VXN,WAA,WAC,WAD,WAF,WAM,WAS,WAV,WAVC,WAVE,WAVEBATCH,WAVM,WAY,WB,WB2,WBD,WD,WEM,WII,WLF,WMA,WMUS,WN,WOW,WP2,WPD,WSD,WSI,WSR,WUA,WV2,WV6,WVE,WVS,WVX,X,XA,XA2,XA30,XAD,XAG,XAN,XANN,XAU,XAV,XEN,XM,XMA,XMA2,XMD,XMU,XNA,XNB,XOPUS,XPK,XPS,XSE,XSEW,XSF,XSM,XSS,XVAG,XVAS,XWAV,XWB,XWC,XWM,XWMA,XWS,XWV,YDSP,YM,YMF,ZEN,ZIC,ZIP,ZSD,ZSM,ZSS,ZWDSP,ZWV,ZXZIP\nمكتبات المشغل المدمجة:\n- Adplug\n- Another Slight Atari Player(ASAP)\n- AtariSound\n- Eupmini\n- ffmpeg/mpg123/vorbis\n- Game Music Emu\n- FMPmini\n- Highly Complete\n- AHX/Hively tracker\n- LazyUSF\n- Libvgm\n- Mdxplay\n- NSFPlay\n- OpenMPT\n- PlayGSF\n- Pmdmini\n- PxTone / Organya\n- PT3Player\n- SC68\n- Sibplayfp\n- Snes9x/snsf\n- ST-Sound\n- Timidity(using Merlin_gold SF2 soundfont)\n- UADE\n- XSF (2SF, NCSF)\n- XMP\n-V2M tinyplayer\n- VGMStream\n- VIO2SF\n- WebSID\n- ZXTune\n\nبيان إخلاء المسؤولية:\nيتم توفير الوصول إلى الإنترنت لمكتبات Modland و HVSC و ASMA كما هي، بدون ضمانات للتوفر و/أو الوظائف. استخدم هذا التطبيق على مسؤوليتك الخاصة."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "v4.0 © Yohann Magnien / YoyoFR\n\nContato: mailto:modizerhelp@gmail.com\nSite: https://modizer.app\n\nLogo do Modizer por Steve Miele.\n\nNúmero de formatos/extensões de arquivo suportados: 1090.\n!PM!,04SW,208,2DX9,2PSF,2SF,2SFLIB,3DO,4,40A,40B,41A,50A,60A,61A,669,800,9TAV,A2M,AAC,AAM,AAX,ABK,AC1,AC1D,ACB,ACM,ACX,ADL,ADLIB,ADM,ADP,ADPCM,ADPCMX,ADS,ADSC,ADW,ADX,AFC,AFS2,AGD,AGI,AGSC,AHV,AHX,AI,AIF,AIF-LOOP,AIFC,AIFCL,AIFF,AIFFL,AIX,AKB,AL,AL2,ALP,AMC,AMD,AMF,AMS,AMTS,AO,AON,AON4,AON8,AP,APC,AS0,AS3M,AS4,ASC,ASD,ASF,ASR,ASS,AST,AT3,AT9,ATSL,ATSL3,ATSL4,ATX,AUD,AUS,AVAL,AVP,AWB,AWC,AY,B1S,BAF,BAKA,BAM,BANK,BAO,BAR,BCSTM,BCWAV,BD,BD3,BDS,BDSP,BFC,BFSTM,BFWAV,BFWAVNSMBU,BG00,BGM,BGW,BH2PCM,BIK,BIK2,BIKA,BIN,BK2,BLK,BMDX,BMF,BMS,BNK,BNM,BNS,BNSF,BO2,BP,BP3,BRSTM,BRSTMSPM,BSF,BSI,BSND,BSS,BTSND,BVG,BWAV,BYTES,C64,C67,CAF,CAPDSP,CBD2,CC3,CCC,CD,CFF,CFN,CHAN,CHI,CHK,CHP,CIN,CKB,CKD,CKS,CM,CM3,CMC,CMF,CMR,CMS,CNK,COP,CORE,CP,CPK,CPLX,CPS,CRB,CSB,CSMP,CTRL,CUS,CUST,CUSTOM,CVS,CWAV,CXS,D00,DA,DAT,DATA,DAX,DB,DBM,DCS,DCT,DDSP,DE2,DEC,DFM,DH,DI,DIGI,DIVA,DL,DLM1,DLM2,DLN,DLT,DL_DELI,DM0,DM1,DM2,DMC,DMF,DMM,DMO,DMSG,DMU,DMU2,DNS,DODA,DP,DR0,DRO,DS2,DSB,DSC,DSF,DSFLIB,DSM,DSP,DSPW,DSQ,DSR,DSS,DST,DTK,DTM,DUM,DVI,DW,DWOLD,DXH,DZ,E4X,EA,EAM,EAS,EMFF,EMOD,EMS,EMSV6,ENM,ENO,ENS,ESV,ET1,EU,EUP,EX,EXA,EZW,FAG,FAR,FC,FC-BSI,FC-M,FC13,FC14,FC3,FC4,FCM,FDA,FDI,FFW,FILP,FLAC,FLX,FMB,FNK,FP,FRED,FSB,FSV,FT,FTC,FUZ,FUZZ,FW,FWAV,FWSE,G1L,GAM,GAMPLUS,GBR,GBS,GBTS,GCA,GCM,GCUB,GCW,GDM,GENH,GIN,GLUE,GM,GMC,GMS,GOT,GRAY,GSB,GSF,GSFLIB,GTD,GTR,GV,GWM,GYM,H4M,HA2,HAB,HBT,HCA,HD,HDR,HES,HGC1,HIP,HIP7,HIPC,HIS,HMC,HN,HPS,HRM,HRP,HRT,HRT!,HSC,HSF,HSP,HSQ,HST,HVL,HWAS,HX2,HX3,HXC,HXD,HXG,HXX,IAB,IADP,ICE,IDMSF,IDSP,IDVI,IDWAV,IDXMA,IFS,IKM,ILD,IMA,IMC,IMF,IMS,IMX,INSTR,INT,IS,IS14,IS20,ISB,ISD,ISWS,IT,IT1,ITL,IVAG,IVAUD,IVB,J2B,JAM,JBM,JC,JCB,JCBO,JD,JMF,JO,JOE,JP,JPN,JPND,JPO,JPOLD,JSTM,JT,KAT,KCES,KCEY,KEF,KEF7,KH,KM9,KNS,KOVS,KRAW,KRIS,KRS,KSM,KSS,KTAC,KTSL2ASBIN,KTSS,KVS,L,LAA,LAAC,LAIF,LAIFC,LAIFF,LASF,LAX,LBIN,LDS,LEG,LEP,LIN,LIQ,LM0,LM1,LM2,LM3,LM4,LM5,LM6,LM7,LME,LMP3,LMP4,LOGG,LOPUS,LP,LPCM,LPK,LPS,LRMB,LSE,LSF,LSTM,LWAV,LZS,M,M15,M2,M3U,M4A,M4V,MA,MAB,MAD,MAP,MATX,MAX,MBM,MC,MC3,MCA,MCADPCM,MCG,MCMD,MCMD_ORG,MCO,MCR,MD,MDAT,MDI,MDL,MDS,MDSP,MDST,MDX,MDY,MED,MEXXMP,MFP,MG,MGS,MI4,MIB,MIC,MID,MIDI,MIHB,MINI2SF,MINIDSF,MINIGSF,MININCSF,MINIPSF,MINIPSF2,MINIQSF,MINISNSF,MINISSF,MINIUSF,MJB,MK2,MKF,MKII,MKIIO,MKJ,ML,MM4,MM8,MMCMP,MMD0,MMD1,MMD2,MMD3,MMD4,MMDC,MMS,MNSTR,MO3,MOD,MOD15,MOD15_MST,MOD15_ST-IV,MOD15_UST,MOD_ADSC4,MOD_COMP,MOD_DOC,MOD_FLT4,MOD_NTK,MOD_NTK1,MOD_NTK2,MOD_NTKAMP,MOGG,MOK,MON,MON_OLD,MP3,MP4,MPD,MPDSP,MPF,MPG,MPK,MPRO,MPT,MPTM,MS,MSA,MSADPCM,MSB,MSC,MSD,MSF,MSO,MSP,MSS,MSV,MSVP,MT2,MTA2,MTAF,MTK,MTM,MTP2,MTR,MUG,MUG2,MUL,MUPS,MUS,MUSC,MUSX,MW,MWV,MXST,MYSPD,MZ,N64,NAAC,NCSF,NCSFLIB,NDP,NDS,NGCA,NLSD,NOISEPACKER2,NOISEPACKER3,NOP,NP,NP1,NP2,NP3,NPS,NPSF,NR,NRU,NSF,NSFE,NSOPUS,NST,NTP,NTPK,NUB,NUB2,NUS3AUDIO,NUS3BANK,NWA,NWAV,NXA,OCTAMED,OGG,OGL,OKT,OMU,ONE,OPI,OPUS,OPUSX,OPX,ORG,OSP,OTM,OVB,OVI,OXM,OZI,P,P00,P10,P21,P2BT,P30,P3D,P40A,P40B,P41A,P4X,P50A,P5A,P5X,P60,P60A,P61,P61A,P6X,P86,PAP,PAST,PCD,PCM,PDT,PDX,PFLT,PHA,PIN,PIS,PK,PLM,PM,PM0,PM01,PM1,PM10C,PM18A,PM2,PM20,PM4,PM40,PMB,PMZ,PNB,POLK,PONA,POS,POWT,PP10,PP20,PP21,PP30,PPC,PPK,PPM,PPS,PPZ,PR1,PR2,PRG,PROM,PRU,PRU1,PRU2,PRUN,PRUN1,PRUN2,PS,PS2STM,PSA,PSC,PSF,PSF2,PSF2LIB,PSFLIB,PSG,PSH,PSID,PSM,PSND,PSW,PT,PT1,PT2,PT3,PT36,PTCOP,PTM,PTTUNE,PUMA,PVI,PVP,PWR,PXA,PYG,PYGM,PYGMY,PZI,QC,QPA,QSF,QSFLIB,QTS,R,RAC,RAD,RAK,RAS,RAW,RH,RHO,RIFF,RIX,RJP,RK,RKB,RKV,RMT,RND,ROF,ROL,RPGMVO,RRDS,RSD,RSF,RSID,RSM,RSP,RSTM,RTM,RWAR,RWAV,RWS,RWSD,RWX,RXW,S-C,S14,S3M,S7G,S98,SA,SA-P,SA2,SAB,SAD,SAF,SAP,SAS,SAT,SA_OLD,SB,SB0,SB1,SB2,SB3,SB4,SB5,SB6,SB7,SBIN,SBK,SBR,SBV,SC,SC68,SCD,SCH,SCI,SCL,SCN,SCR,SCT,SCUMM,SD9,SDB,SDF,SDR,SDT,SEB,SED,SEG,SF0,SF2,SFL,SFM,SFS,SFX,SFX13,SFX2,SG,SGB,SGC,SGD,SGX,SID,SID1,SID2,SJS,SKT,SKYT,SL3,SLI,SM,SM0,SM1,SM2,SM3,SM4,SM5,SM6,SM7,SMC,SMK,SMN,SMP,SMPL,SMPRO,SMUS,SMV,SND,SNDH,SNDMON,SNDS,SNG,SNGW,SNK,SNR,SNS,SNSF,SNSFLIB,SNT,SNT!,SNU,SNX,SOC,SOD,SOG,SON,SONIC,SOP,SPC,SPD,SPK,SPL,SPM,SPS,SPSD,SPW,SQD,SQT,SQX,SS,SS2,SSF,SSFLIB,SSM,SSS,ST,ST1,ST2,ST26,ST3,ST30,STAR,STC,STER,STK,STM,STMA,STP,STPK,STR,STREAM,STRM,STS,STX,SUN,SVAG,SVG,SVS,SWAG,SWAV,SWD,SWITCH_AUDIO,SX,SXD,SXD1,SXD2,SXD3,SYN,SYNMOD,SZX,TD0,TEC,TF,TF0,TFC,TFD,TFE,TFHD1.5,TFHD7V,TFHDPRO,TFMX,TFMX1.5,TFMX7V,TFMXPRO,TGQ,TGV,THM,THN,THP,THX,TINY,TK5,TLZ,TLZP,TM2,TM8,TMC,TME,TMX,TP,TP1,TP2,TP3,TPU,TRA,TRC,TRD,TRO,TRONIC,TRS,TS,TUN,TW,TWO,TXT,TXTH,TXTP,TYDSP,UDS,UE4OPUS,ULT,ULW,UM3,UMX,UN2,UNIC,UNIC2,USF,USFLIB,UTK,UV,V0,V1,V2M,V2MZ,VA3,VAG,VAI,VAS,VAWX,VB,VBK,VDM,VDS,VGM,VGS,VGV,VGZ,VID,VIG,VIS,VMS,VOI,VP6,VPK,VS,VSF,VSS,VSV,VTX,VXN,WAA,WAC,WAD,WAF,WAM,WAS,WAV,WAVC,WAVE,WAVEBATCH,WAVM,WAY,WB,WB2,WBD,WD,WEM,WII,WLF,WMA,WMUS,WN,WOW,WP2,WPD,WSD,WSI,WSR,WUA,WV2,WV6,WVE,WVS,WVX,X,XA,XA2,XA30,XAD,XAG,XAN,XANN,XAU,XAV,XEN,XM,XMA,XMA2,XMD,XMU,XNA,XNB,XOPUS,XPK,XPS,XSE,XSEW,XSF,XSM,XSS,XVAG,XVAS,XWAV,XWB,XWC,XWM,XWMA,XWS,XWV,YDSP,YM,YMF,ZEN,ZIC,ZIP,ZSD,ZSM,ZSS,ZWDSP,ZWV,ZXZIP\nBibliotecas de reprodução integradas:\n- Adplug\n- Another Slight Atari Player(ASAP)\n- AtariSound\n- Eupmini\n- ffmpeg/mpg123/vorbis\n- Game Music Emu\n- FMPmini\n- Highly Complete\n- AHX/Hively tracker\n- LazyUSF\n- Libvgm\n- Mdxplay\n- NSFPlay\n- OpenMPT\n- PlayGSF\n- Pmdmini\n- PxTone / Organya\n- PT3Player\n- SC68\n- Sibplayfp\n- Snes9x/snsf\n- ST-Sound\n- Timidity(usando soundfont SF2 Merlin_gold)\n- UADE\n- XSF (2SF, NCSF)\n- XMP\n-V2M tinyplayer\n- VGMStream\n- VIO2SF\n- WebSID\n- ZXTune\n\nIsenção de Responsabilidade:\nOs acessos da Internet às bibliotecas Modland, HVSC e ASMA são fornecidos como um serviço, sem garantia de disponibilidade e/ou funcionalidade. Use este aplicativo por sua conta e risco."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "v4.0 © Yohann Magnien / YoyoFR\n\nContact: mailto:modizerhelp@gmail.com\nWeb: https://modizer.app\n\nModizer's logo by Steve Miele.\n\nNumber of file formats/extension supported: 1090.\n!PM!,04SW,208,2DX9,2PSF,2SF,2SFLIB,3DO,4,40A,40B,41A,50A,60A,61A,669,800,9TAV,A2M,AAC,AAM,AAX,ABK,AC1,AC1D,ACB,ACM,ACX,ADL,ADLIB,ADM,ADP,ADPCM,ADPCMX,ADS,ADSC,ADW,ADX,AFC,AFS2,AGD,AGI,AGSC,AHV,AHX,AI,AIF,AIF-LOOP,AIFC,AIFCL,AIFF,AIFFL,AIX,AKB,AL,AL2,ALP,AMC,AMD,AMF,AMS,AMTS,AO,AON,AON4,AON8,AP,APC,AS0,AS3M,AS4,ASC,ASD,ASF,ASR,ASS,AST,AT3,AT9,ATSL,ATSL3,ATSL4,ATX,AUD,AUS,AVAL,AVP,AWB,AWC,AY,B1S,BAF,BAKA,BAM,BANK,BAO,BAR,BCSTM,BCWAV,BD,BD3,BDS,BDSP,BFC,BFSTM,BFWAV,BFWAVNSMBU,BG00,BGM,BGW,BH2PCM,BIK,BIK2,BIKA,BIN,BK2,BLK,BMDX,BMF,BMS,BNK,BNM,BNS,BNSF,BO2,BP,BP3,BRSTM,BRSTMSPM,BSF,BSI,BSND,BSS,BTSND,BVG,BWAV,BYTES,C64,C67,CAF,CAPDSP,CBD2,CC3,CCC,CD,CFF,CFN,CHAN,CHI,CHK,CHP,CIN,CKB,CKD,CKS,CM,CM3,CMC,CMF,CMR,CMS,CNK,COP,CORE,CP,CPK,CPLX,CPS,CRB,CSB,CSMP,CTRL,CUS,CUST,CUSTOM,CVS,CWAV,CXS,D00,DA,DAT,DATA,DAX,DB,DBM,DCS,DCT,DDSP,DE2,DEC,DFM,DH,DI,DIGI,DIVA,DL,DLM1,DLM2,DLN,DLT,DL_DELI,DM0,DM1,DM2,DMC,DMF,DMM,DMO,DMSG,DMU,DMU2,DNS,DODA,DP,DR0,DRO,DS2,DSB,DSC,DSF,DSFLIB,DSM,DSP,DSPW,DSQ,DSR,DSS,DST,DTK,DTM,DUM,DVI,DW,DWOLD,DXH,DZ,E4X,EA,EAM,EAS,EMFF,EMOD,EMS,EMSV6,ENM,ENO,ENS,ESV,ET1,EU,EUP,EX,EXA,EZW,FAG,FAR,FC,FC-BSI,FC-M,FC13,FC14,FC3,FC4,FCM,FDA,FDI,FFW,FILP,FLAC,FLX,FMB,FNK,FP,FRED,FSB,FSV,FT,FTC,FUZ,FUZZ,FW,FWAV,FWSE,G1L,GAM,GAMPLUS,GBR,GBS,GBTS,GCA,GCM,GCUB,GCW,GDM,GENH,GIN,GLUE,GM,GMC,GMS,GOT,GRAY,GSB,GSF,GSFLIB,GTD,GTR,GV,GWM,GYM,H4M,HA2,HAB,HBT,HCA,HD,HDR,HES,HGC1,HIP,HIP7,HIPC,HIS,HMC,HN,HPS,HRM,HRP,HRT,HRT!,HSC,HSF,HSP,HSQ,HST,HVL,HWAS,HX2,HX3,HXC,HXD,HXG,HXX,IAB,IADP,ICE,IDMSF,IDSP,IDVI,IDWAV,IDXMA,IFS,IKM,ILD,IMA,IMC,IMF,IMS,IMX,INSTR,INT,IS,IS14,IS20,ISB,ISD,ISWS,IT,IT1,ITL,IVAG,IVAUD,IVB,J2B,JAM,JBM,JC,JCB,JCBO,JD,JMF,JO,JOE,JP,JPN,JPND,JPO,JPOLD,JSTM,JT,KAT,KCES,KCEY,KEF,KEF7,KH,KM9,KNS,KOVS,KRAW,KRIS,KRS,KSM,KSS,KTAC,KTSL2ASBIN,KTSS,KVS,L,LAA,LAAC,LAIF,LAIFC,LAIFF,LASF,LAX,LBIN,LDS,LEG,LEP,LIN,LIQ,LM0,LM1,LM2,LM3,LM4,LM5,LM6,LM7,LME,LMP3,LMP4,LOGG,LOPUS,LP,LPCM,LPK,LPS,LRMB,LSE,LSF,LSTM,LWAV,LZS,M,M15,M2,M3U,M4A,M4V,MA,MAB,MAD,MAP,MATX,MAX,MBM,MC,MC3,MCA,MCADPCM,MCG,MCMD,MCMD_ORG,MCO,MCR,MD,MDAT,MDI,MDL,MDS,MDSP,MDST,MDX,MDY,MED,MEXXMP,MFP,MG,MGS,MI4,MIB,MIC,MID,MIDI,MIHB,MINI2SF,MINIDSF,MINIGSF,MININCSF,MINIPSF,MINIPSF2,MINIQSF,MINISNSF,MINISSF,MINIUSF,MJB,MK2,MKF,MKII,MKIIO,MKJ,ML,MM4,MM8,MMCMP,MMD0,MMD1,MMD2,MMD3,MMD4,MMDC,MMS,MNSTR,MO3,MOD,MOD15,MOD15_MST,MOD15_ST-IV,MOD15_UST,MOD_ADSC4,MOD_COMP,MOD_DOC,MOD_FLT4,MOD_NTK,MOD_NTK1,MOD_NTK2,MOD_NTKAMP,MOGG,MOK,MON,MON_OLD,MP3,MP4,MPD,MPDSP,MPF,MPG,MPK,MPRO,MPT,MPTM,MS,MSA,MSADPCM,MSB,MSC,MSD,MSF,MSO,MSP,MSS,MSV,MSVP,MT2,MTA2,MTAF,MTK,MTM,MTP2,MTR,MUG,MUG2,MUL,MUPS,MUS,MUSC,MUSX,MW,MWV,MXST,MYSPD,MZ,N64,NAAC,NCSF,NCSFLIB,NDP,NDS,NGCA,NLSD,NOISEPACKER2,NOISEPACKER3,NOP,NP,NP1,NP2,NP3,NPS,NPSF,NR,NRU,NSF,NSFE,NSOPUS,NST,NTP,NTPK,NUB,NUB2,NUS3AUDIO,NUS3BANK,NWA,NWAV,NXA,OCTAMED,OGG,OGL,OKT,OMU,ONE,OPI,OPUS,OPUSX,OPX,ORG,OSP,OTM,OVB,OVI,OXM,OZI,P,P00,P10,P21,P2BT,P30,P3D,P40A,P40B,P41A,P4X,P50A,P5A,P5X,P60,P60A,P61,P61A,P6X,P86,PAP,PAST,PCD,PCM,PDT,PDX,PFLT,PHA,PIN,PIS,PK,PLM,PM,PM0,PM01,PM1,PM10C,PM18A,PM2,PM20,PM4,PM40,PMB,PMZ,PNB,POLK,PONA,POS,POWT,PP10,PP20,PP21,PP30,PPC,PPK,PPM,PPS,PPZ,PR1,PR2,PRG,PROM,PRU,PRU1,PRU2,PRUN,PRUN1,PRUN2,PS,PS2STM,PSA,PSC,PSF,PSF2,PSF2LIB,PSFLIB,PSG,PSH,PSID,PSM,PSND,PSW,PT,PT1,PT2,PT3,PT36,PTCOP,PTM,PTTUNE,PUMA,PVI,PVP,PWR,PXA,PYG,PYGM,PYGMY,PZI,QC,QPA,QSF,QSFLIB,QTS,R,RAC,RAD,RAK,RAS,RAW,RH,RHO,RIFF,RIX,RJP,RK,RKB,RKV,RMT,RND,ROF,ROL,RPGMVO,RRDS,RSD,RSF,RSID,RSM,RSP,RSTM,RTM,RWAR,RWAV,RWS,RWSD,RWX,RXW,S-C,S14,S3M,S7G,S98,SA,SA-P,SA2,SAB,SAD,SAF,SAP,SAS,SAT,SA_OLD,SB,SB0,SB1,SB2,SB3,SB4,SB5,SB6,SB7,SBIN,SBK,SBR,SBV,SC,SC68,SCD,SCH,SCI,SCL,SCN,SCR,SCT,SCUMM,SD9,SDB,SDF,SDR,SDT,SEB,SED,SEG,SF0,SF2,SFL,SFM,SFS,SFX,SFX13,SFX2,SG,SGB,SGC,SGD,SGX,SID,SID1,SID2,SJS,SKT,SKYT,SL3,SLI,SM,SM0,SM1,SM2,SM3,SM4,SM5,SM6,SM7,SMC,SMK,SMN,SMP,SMPL,SMPRO,SMUS,SMV,SND,SNDH,SNDMON,SNDS,SNG,SNGW,SNK,SNR,SNS,SNSF,SNSFLIB,SNT,SNT!,SNU,SNX,SOC,SOD,SOG,SON,SONIC,SOP,SPC,SPD,SPK,SPL,SPM,SPS,SPSD,SPW,SQD,SQT,SQX,SS,SS2,SSF,SSFLIB,SSM,SSS,ST,ST1,ST2,ST26,ST3,ST30,STAR,STC,STER,STK,STM,STMA,STP,STPK,STR,STREAM,STRM,STS,STX,SUN,SVAG,SVG,SVS,SWAG,SWAV,SWD,SWITCH_AUDIO,SX,SXD,SXD1,SXD2,SXD3,SYN,SYNMOD,SZX,TD0,TEC,TF,TF0,TFC,TFD,TFE,TFHD1.5,TFHD7V,TFHDPRO,TFMX,TFMX1.5,TFMX7V,TFMXPRO,TGQ,TGV,THM,THN,THP,THX,TINY,TK5,TLZ,TLZP,TM2,TM8,TMC,TME,TMX,TP,TP1,TP2,TP3,TPU,TRA,TRC,TRD,TRO,TRONIC,TRS,TS,TUN,TW,TWO,TXT,TXTH,TXTP,TYDSP,UDS,UE4OPUS,ULT,ULW,UM3,UMX,UN2,UNIC,UNIC2,USF,USFLIB,UTK,UV,V0,V1,V2M,V2MZ,VA3,VAG,VAI,VAS,VAWX,VB,VBK,VDM,VDS,VGM,VGS,VGV,VGZ,VID,VIG,VIS,VMS,VOI,VP6,VPK,VS,VSF,VSS,VSV,VTX,VXN,WAA,WAC,WAD,WAF,WAM,WAS,WAV,WAVC,WAVE,WAVEBATCH,WAVM,WAY,WB,WB2,WBD,WD,WEM,WII,WLF,WMA,WMUS,WN,WOW,WP2,WPD,WSD,WSI,WSR,WUA,WV2,WV6,WVE,WVS,WVX,X,XA,XA2,XA30,XAD,XAG,XAN,XANN,XAU,XAV,XEN,XM,XMA,XMA2,XMD,XMU,XNA,XNB,XOPUS,XPK,XPS,XSE,XSEW,XSF,XSM,XSS,XVAG,XVAS,XWAV,XWB,XWC,XWM,XWMA,XWS,XWV,YDSP,YM,YMF,ZEN,ZIC,ZIP,ZSD,ZSM,ZSS,ZWDSP,ZWV,ZXZIP\nIntegrated player libs:\n- Adplug\n- Another Slight Atari Player(ASAP)\n- AtariSound\n- Eupmini\n- ffmpeg/mpg123/vorbis\n- Game Music Emu\n- FMPmini\n- Highly Complete\n- AHX/Hively tracker\n- LazyUSF\n- Libvgm\n- Mdxplay\n- NSFPlay\n- OpenMPT\n- PlayGSF\n- Pmdmini\n- PxTone / Organya\n- PT3Player\n- SC68\n- Sibplayfp\n- Snes9x/snsf\n- ST-Sound\n- Timidity(using Merlin_gold SF2 soundfont)\n- UADE\n- XSF (2SF, NCSF)\n- XMP\n-V2M tinyplayer\n- VGMStream\n- VIO2SF\n- WebSID\n- ZXTune\n\nDisclaimer:\nInternet accesses to the Modland, HVSC & ASMA libraries are provided as an as-is service, guarantee for availability and/or functionality is not given. Use this application at your own risk."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "v4.0 © Yohann Magnien / YoyoFR\n\nContact: mailto:modizerhelp@gmail.com\nWeb: https://modizer.app\n\nModizer's logo by Steve Miele.\n\nNumber of file formats/extension supported: 1090.\n!PM!,04SW,208,2DX9,2PSF,2SF,2SFLIB,3DO,4,40A,40B,41A,50A,60A,61A,669,800,9TAV,A2M,AAC,AAM,AAX,ABK,AC1,AC1D,ACB,ACM,ACX,ADL,ADLIB,ADM,ADP,ADPCM,ADPCMX,ADS,ADSC,ADW,ADX,AFC,AFS2,AGD,AGI,AGSC,AHV,AHX,AI,AIF,AIF-LOOP,AIFC,AIFCL,AIFF,AIFFL,AIX,AKB,AL,AL2,ALP,AMC,AMD,AMF,AMS,AMTS,AO,AON,AON4,AON8,AP,APC,AS0,AS3M,AS4,ASC,ASD,ASF,ASR,ASS,AST,AT3,AT9,ATSL,ATSL3,ATSL4,ATX,AUD,AUS,AVAL,AVP,AWB,AWC,AY,B1S,BAF,BAKA,BAM,BANK,BAO,BAR,BCSTM,BCWAV,BD,BD3,BDS,BDSP,BFC,BFSTM,BFWAV,BFWAVNSMBU,BG00,BGM,BGW,BH2PCM,BIK,BIK2,BIKA,BIN,BK2,BLK,BMDX,BMF,BMS,BNK,BNM,BNS,BNSF,BO2,BP,BP3,BRSTM,BRSTMSPM,BSF,BSI,BSND,BSS,BTSND,BVG,BWAV,BYTES,C64,C67,CAF,CAPDSP,CBD2,CC3,CCC,CD,CFF,CFN,CHAN,CHI,CHK,CHP,CIN,CKB,CKD,CKS,CM,CM3,CMC,CMF,CMR,CMS,CNK,COP,CORE,CP,CPK,CPLX,CPS,CRB,CSB,CSMP,CTRL,CUS,CUST,CUSTOM,CVS,CWAV,CXS,D00,DA,DAT,DATA,DAX,DB,DBM,DCS,DCT,DDSP,DE2,DEC,DFM,DH,DI,DIGI,DIVA,DL,DLM1,DLM2,DLN,DLT,DL_DELI,DM0,DM1,DM2,DMC,DMF,DMM,DMO,DMSG,DMU,DMU2,DNS,DODA,DP,DR0,DRO,DS2,DSB,DSC,DSF,DSFLIB,DSM,DSP,DSPW,DSQ,DSR,DSS,DST,DTK,DTM,DUM,DVI,DW,DWOLD,DXH,DZ,E4X,EA,EAM,EAS,EMFF,EMOD,EMS,EMSV6,ENM,ENO,ENS,ESV,ET1,EU,EUP,EX,EXA,EZW,FAG,FAR,FC,FC-BSI,FC-M,FC13,FC14,FC3,FC4,FCM,FDA,FDI,FFW,FILP,FLAC,FLX,FMB,FNK,FP,FRED,FSB,FSV,FT,FTC,FUZ,FUZZ,FW,FWAV,FWSE,G1L,GAM,GAMPLUS,GBR,GBS,GBTS,GCA,GCM,GCUB,GCW,GDM,GENH,GIN,GLUE,GM,GMC,GMS,GOT,GRAY,GSB,GSF,GSFLIB,GTD,GTR,GV,GWM,GYM,H4M,HA2,HAB,HBT,HCA,HD,HDR,HES,HGC1,HIP,HIP7,HIPC,HIS,HMC,HN,HPS,HRM,HRP,HRT,HRT!,HSC,HSF,HSP,HSQ,HST,HVL,HWAS,HX2,HX3,HXC,HXD,HXG,HXX,IAB,IADP,ICE,IDMSF,IDSP,IDVI,IDWAV,IDXMA,IFS,IKM,ILD,IMA,IMC,IMF,IMS,IMX,INSTR,INT,IS,IS14,IS20,ISB,ISD,ISWS,IT,IT1,ITL,IVAG,IVAUD,IVB,J2B,JAM,JBM,JC,JCB,JCBO,JD,JMF,JO,JOE,JP,JPN,JPND,JPO,JPOLD,JSTM,JT,KAT,KCES,KCEY,KEF,KEF7,KH,KM9,KNS,KOVS,KRAW,KRIS,KRS,KSM,KSS,KTAC,KTSL2ASBIN,KTSS,KVS,L,LAA,LAAC,LAIF,LAIFC,LAIFF,LASF,LAX,LBIN,LDS,LEG,LEP,LIN,LIQ,LM0,LM1,LM2,LM3,LM4,LM5,LM6,LM7,LME,LMP3,LMP4,LOGG,LOPUS,LP,LPCM,LPK,LPS,LRMB,LSE,LSF,LSTM,LWAV,LZS,M,M15,M2,M3U,M4A,M4V,MA,MAB,MAD,MAP,MATX,MAX,MBM,MC,MC3,MCA,MCADPCM,MCG,MCMD,MCMD_ORG,MCO,MCR,MD,MDAT,MDI,MDL,MDS,MDSP,MDST,MDX,MDY,MED,MEXXMP,MFP,MG,MGS,MI4,MIB,MIC,MID,MIDI,MIHB,MINI2SF,MINIDSF,MINIGSF,MININCSF,MINIPSF,MINIPSF2,MINIQSF,MINISNSF,MINISSF,MINIUSF,MJB,MK2,MKF,MKII,MKIIO,MKJ,ML,MM4,MM8,MMCMP,MMD0,MMD1,MMD2,MMD3,MMD4,MMDC,MMS,MNSTR,MO3,MOD,MOD15,MOD15_MST,MOD15_ST-IV,MOD15_UST,MOD_ADSC4,MOD_COMP,MOD_DOC,MOD_FLT4,MOD_NTK,MOD_NTK1,MOD_NTK2,MOD_NTKAMP,MOGG,MOK,MON,MON_OLD,MP3,MP4,MPD,MPDSP,MPF,MPG,MPK,MPRO,MPT,MPTM,MS,MSA,MSADPCM,MSB,MSC,MSD,MSF,MSO,MSP,MSS,MSV,MSVP,MT2,MTA2,MTAF,MTK,MTM,MTP2,MTR,MUG,MUG2,MUL,MUPS,MUS,MUSC,MUSX,MW,MWV,MXST,MYSPD,MZ,N64,NAAC,NCSF,NCSFLIB,NDP,NDS,NGCA,NLSD,NOISEPACKER2,NOISEPACKER3,NOP,NP,NP1,NP2,NP3,NPS,NPSF,NR,NRU,NSF,NSFE,NSOPUS,NST,NTP,NTPK,NUB,NUB2,NUS3AUDIO,NUS3BANK,NWA,NWAV,NXA,OCTAMED,OGG,OGL,OKT,OMU,ONE,OPI,OPUS,OPUSX,OPX,ORG,OSP,OTM,OVB,OVI,OXM,OZI,P,P00,P10,P21,P2BT,P30,P3D,P40A,P40B,P41A,P4X,P50A,P5A,P5X,P60,P60A,P61,P61A,P6X,P86,PAP,PAST,PCD,PCM,PDT,PDX,PFLT,PHA,PIN,PIS,PK,PLM,PM,PM0,PM01,PM1,PM10C,PM18A,PM2,PM20,PM4,PM40,PMB,PMZ,PNB,POLK,PONA,POS,POWT,PP10,PP20,PP21,PP30,PPC,PPK,PPM,PPS,PPZ,PR1,PR2,PRG,PROM,PRU,PRU1,PRU2,PRUN,PRUN1,PRUN2,PS,PS2STM,PSA,PSC,PSF,PSF2,PSF2LIB,PSFLIB,PSG,PSH,PSID,PSM,PSND,PSW,PT,PT1,PT2,PT3,PT36,PTCOP,PTM,PTTUNE,PUMA,PVI,PVP,PWR,PXA,PYG,PYGM,PYGMY,PZI,QC,QPA,QSF,QSFLIB,QTS,R,RAC,RAD,RAK,RAS,RAW,RH,RHO,RIFF,RIX,RJP,RK,RKB,RKV,RMT,RND,ROF,ROL,RPGMVO,RRDS,RSD,RSF,RSID,RSM,RSP,RSTM,RTM,RWAR,RWAV,RWS,RWSD,RWX,RXW,S-C,S14,S3M,S7G,S98,SA,SA-P,SA2,SAB,SAD,SAF,SAP,SAS,SAT,SA_OLD,SB,SB0,SB1,SB2,SB3,SB4,SB5,SB6,SB7,SBIN,SBK,SBR,SBV,SC,SC68,SCD,SCH,SCI,SCL,SCN,SCR,SCT,SCUMM,SD9,SDB,SDF,SDR,SDT,SEB,SED,SEG,SF0,SF2,SFL,SFM,SFS,SFX,SFX13,SFX2,SG,SGB,SGC,SGD,SGX,SID,SID1,SID2,SJS,SKT,SKYT,SL3,SLI,SM,SM0,SM1,SM2,SM3,SM4,SM5,SM6,SM7,SMC,SMK,SMN,SMP,SMPL,SMPRO,SMUS,SMV,SND,SNDH,SNDMON,SNDS,SNG,SNGW,SNK,SNR,SNS,SNSF,SNSFLIB,SNT,SNT!,SNU,SNX,SOC,SOD,SOG,SON,SONIC,SOP,SPC,SPD,SPK,SPL,SPM,SPS,SPSD,SPW,SQD,SQT,SQX,SS,SS2,SSF,SSFLIB,SSM,SSS,ST,ST1,ST2,ST26,ST3,ST30,STAR,STC,STER,STK,STM,STMA,STP,STPK,STR,STREAM,STRM,STS,STX,SUN,SVAG,SVG,SVS,SWAG,SWAV,SWD,SWITCH_AUDIO,SX,SXD,SXD1,SXD2,SXD3,SYN,SYNMOD,SZX,TD0,TEC,TF,TF0,TFC,TFD,TFE,TFHD1.5,TFHD7V,TFHDPRO,TFMX,TFMX1.5,TFMX7V,TFMXPRO,TGQ,TGV,THM,THN,THP,THX,TINY,TK5,TLZ,TLZP,TM2,TM8,TMC,TME,TMX,TP,TP1,TP2,TP3,TPU,TRA,TRC,TRD,TRO,TRONIC,TRS,TS,TUN,TW,TWO,TXT,TXTH,TXTP,TYDSP,UDS,UE4OPUS,ULT,ULW,UM3,UMX,UN2,UNIC,UNIC2,USF,USFLIB,UTK,UV,V0,V1,V2M,V2MZ,VA3,VAG,VAI,VAS,VAWX,VB,VBK,VDM,VDS,VGM,VGS,VGV,VGZ,VID,VIG,VIS,VMS,VOI,VP6,VPK,VS,VSF,VSS,VSV,VTX,VXN,WAA,WAC,WAD,WAF,WAM,WAS,WAV,WAVC,WAVE,WAVEBATCH,WAVM,WAY,WB,WB2,WBD,WD,WEM,WII,WLF,WMA,WMUS,WN,WOW,WP2,WPD,WSD,WSI,WSR,WUA,WV2,WV6,WVE,WVS,WVX,X,XA,XA2,XA30,XAD,XAG,XAN,XANN,XAU,XAV,XEN,XM,XMA,XMA2,XMD,XMU,XNA,XNB,XOPUS,XPK,XPS,XSE,XSEW,XSF,XSM,XSS,XVAG,XVAS,XWAV,XWB,XWC,XWM,XWMA,XWS,XWV,YDSP,YM,YMF,ZEN,ZIC,ZIP,ZSD,ZSM,ZSS,ZWDSP,ZWV,ZXZIP\nIntegrated player libs:\n- Adplug\n- Another Slight Atari Player(ASAP)\n- AtariSound\n- Eupmini\n- ffmpeg/mpg123/vorbis\n- Game Music Emu\n- FMPmini\n- Highly Complete\n- AHX/Hively tracker\n- LazyUSF\n- Libvgm\n- Mdxplay\n- NSFPlay\n- OpenMPT\n- PlayGSF\n- Pmdmini\n- PxTone / Organya\n- PT3Player\n- SC68\n- Sibplayfp\n- Snes9x/snsf\n- ST-Sound\n- Timidity(using Merlin_gold SF2 soundfont)\n- UADE\n- XSF (2SF, NCSF)\n- XMP\n-V2M tinyplayer\n- VGMStream\n- VIO2SF\n- WebSID\n- ZXTune\n\nDisclaimer:\nInternet accesses to the Modland, HVSC & ASMA libraries are provided as an as-is service, guarantee for availability and/or functionality is not given. Use this application at your own risk."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "v4.0 © Yohann Magnien / YoyoFR\n\nContact: mailto:modizerhelp@gmail.com\nWeb: https://modizer.app\n\nModizer's logo by Steve Miele.\n\nNumber of file formats/extension supported: 1090.\n!PM!,04SW,208,2DX9,2PSF,2SF,2SFLIB,3DO,4,40A,40B,41A,50A,60A,61A,669,800,9TAV,A2M,AAC,AAM,AAX,ABK,AC1,AC1D,ACB,ACM,ACX,ADL,ADLIB,ADM,ADP,ADPCM,ADPCMX,ADS,ADSC,ADW,ADX,AFC,AFS2,AGD,AGI,AGSC,AHV,AHX,AI,AIF,AIF-LOOP,AIFC,AIFCL,AIFF,AIFFL,AIX,AKB,AL,AL2,ALP,AMC,AMD,AMF,AMS,AMTS,AO,AON,AON4,AON8,AP,APC,AS0,AS3M,AS4,ASC,ASD,ASF,ASR,ASS,AST,AT3,AT9,ATSL,ATSL3,ATSL4,ATX,AUD,AUS,AVAL,AVP,AWB,AWC,AY,B1S,BAF,BAKA,BAM,BANK,BAO,BAR,BCSTM,BCWAV,BD,BD3,BDS,BDSP,BFC,BFSTM,BFWAV,BFWAVNSMBU,BG00,BGM,BGW,BH2PCM,BIK,BIK2,BIKA,BIN,BK2,BLK,BMDX,BMF,BMS,BNK,BNM,BNS,BNSF,BO2,BP,BP3,BRSTM,BRSTMSPM,BSF,BSI,BSND,BSS,BTSND,BVG,BWAV,BYTES,C64,C67,CAF,CAPDSP,CBD2,CC3,CCC,CD,CFF,CFN,CHAN,CHI,CHK,CHP,CIN,CKB,CKD,CKS,CM,CM3,CMC,CMF,CMR,CMS,CNK,COP,CORE,CP,CPK,CPLX,CPS,CRB,CSB,CSMP,CTRL,CUS,CUST,CUSTOM,CVS,CWAV,CXS,D00,DA,DAT,DATA,DAX,DB,DBM,DCS,DCT,DDSP,DE2,DEC,DFM,DH,DI,DIGI,DIVA,DL,DLM1,DLM2,DLN,DLT,DL_DELI,DM0,DM1,DM2,DMC,DMF,DMM,DMO,DMSG,DMU,DMU2,DNS,DODA,DP,DR0,DRO,DS2,DSB,DSC,DSF,DSFLIB,DSM,DSP,DSPW,DSQ,DSR,DSS,DST,DTK,DTM,DUM,DVI,DW,DWOLD,DXH,DZ,E4X,EA,EAM,EAS,EMFF,EMOD,EMS,EMSV6,ENM,ENO,ENS,ESV,ET1,EU,EUP,EX,EXA,EZW,FAG,FAR,FC,FC-BSI,FC-M,FC13,FC14,FC3,FC4,FCM,FDA,FDI,FFW,FILP,FLAC,FLX,FMB,FNK,FP,FRED,FSB,FSV,FT,FTC,FUZ,FUZZ,FW,FWAV,FWSE,G1L,GAM,GAMPLUS,GBR,GBS,GBTS,GCA,GCM,GCUB,GCW,GDM,GENH,GIN,GLUE,GM,GMC,GMS,GOT,GRAY,GSB,GSF,GSFLIB,GTD,GTR,GV,GWM,GYM,H4M,HA2,HAB,HBT,HCA,HD,HDR,HES,HGC1,HIP,HIP7,HIPC,HIS,HMC,HN,HPS,HRM,HRP,HRT,HRT!,HSC,HSF,HSP,HSQ,HST,HVL,HWAS,HX2,HX3,HXC,HXD,HXG,HXX,IAB,IADP,ICE,IDMSF,IDSP,IDVI,IDWAV,IDXMA,IFS,IKM,ILD,IMA,IMC,IMF,IMS,IMX,INSTR,INT,IS,IS14,IS20,ISB,ISD,ISWS,IT,IT1,ITL,IVAG,IVAUD,IVB,J2B,JAM,JBM,JC,JCB,JCBO,JD,JMF,JO,JOE,JP,JPN,JPND,JPO,JPOLD,JSTM,JT,KAT,KCES,KCEY,KEF,KEF7,KH,KM9,KNS,KOVS,KRAW,KRIS,KRS,KSM,KSS,KTAC,KTSL2ASBIN,KTSS,KVS,L,LAA,LAAC,LAIF,LAIFC,LAIFF,LASF,LAX,LBIN,LDS,LEG,LEP,LIN,LIQ,LM0,LM1,LM2,LM3,LM4,LM5,LM6,LM7,LME,LMP3,LMP4,LOGG,LOPUS,LP,LPCM,LPK,LPS,LRMB,LSE,LSF,LSTM,LWAV,LZS,M,M15,M2,M3U,M4A,M4V,MA,MAB,MAD,MAP,MATX,MAX,MBM,MC,MC3,MCA,MCADPCM,MCG,MCMD,MCMD_ORG,MCO,MCR,MD,MDAT,MDI,MDL,MDS,MDSP,MDST,MDX,MDY,MED,MEXXMP,MFP,MG,MGS,MI4,MIB,MIC,MID,MIDI,MIHB,MINI2SF,MINIDSF,MINIGSF,MININCSF,MINIPSF,MINIPSF2,MINIQSF,MINISNSF,MINISSF,MINIUSF,MJB,MK2,MKF,MKII,MKIIO,MKJ,ML,MM4,MM8,MMCMP,MMD0,MMD1,MMD2,MMD3,MMD4,MMDC,MMS,MNSTR,MO3,MOD,MOD15,MOD15_MST,MOD15_ST-IV,MOD15_UST,MOD_ADSC4,MOD_COMP,MOD_DOC,MOD_FLT4,MOD_NTK,MOD_NTK1,MOD_NTK2,MOD_NTKAMP,MOGG,MOK,MON,MON_OLD,MP3,MP4,MPD,MPDSP,MPF,MPG,MPK,MPRO,MPT,MPTM,MS,MSA,MSADPCM,MSB,MSC,MSD,MSF,MSO,MSP,MSS,MSV,MSVP,MT2,MTA2,MTAF,MTK,MTM,MTP2,MTR,MUG,MUG2,MUL,MUPS,MUS,MUSC,MUSX,MW,MWV,MXST,MYSPD,MZ,N64,NAAC,NCSF,NCSFLIB,NDP,NDS,NGCA,NLSD,NOISEPACKER2,NOISEPACKER3,NOP,NP,NP1,NP2,NP3,NPS,NPSF,NR,NRU,NSF,NSFE,NSOPUS,NST,NTP,NTPK,NUB,NUB2,NUS3AUDIO,NUS3BANK,NWA,NWAV,NXA,OCTAMED,OGG,OGL,OKT,OMU,ONE,OPI,OPUS,OPUSX,OPX,ORG,OSP,OTM,OVB,OVI,OXM,OZI,P,P00,P10,P21,P2BT,P30,P3D,P40A,P40B,P41A,P4X,P50A,P5A,P5X,P60,P60A,P61,P61A,P6X,P86,PAP,PAST,PCD,PCM,PDT,PDX,PFLT,PHA,PIN,PIS,PK,PLM,PM,PM0,PM01,PM1,PM10C,PM18A,PM2,PM20,PM4,PM40,PMB,PMZ,PNB,POLK,PONA,POS,POWT,PP10,PP20,PP21,PP30,PPC,PPK,PPM,PPS,PPZ,PR1,PR2,PRG,PROM,PRU,PRU1,PRU2,PRUN,PRUN1,PRUN2,PS,PS2STM,PSA,PSC,PSF,PSF2,PSF2LIB,PSFLIB,PSG,PSH,PSID,PSM,PSND,PSW,PT,PT1,PT2,PT3,PT36,PTCOP,PTM,PTTUNE,PUMA,PVI,PVP,PWR,PXA,PYG,PYGM,PYGMY,PZI,QC,QPA,QSF,QSFLIB,QTS,R,RAC,RAD,RAK,RAS,RAW,RH,RHO,RIFF,RIX,RJP,RK,RKB,RKV,RMT,RND,ROF,ROL,RPGMVO,RRDS,RSD,RSF,RSID,RSM,RSP,RSTM,RTM,RWAR,RWAV,RWS,RWSD,RWX,RXW,S-C,S14,S3M,S7G,S98,SA,SA-P,SA2,SAB,SAD,SAF,SAP,SAS,SAT,SA_OLD,SB,SB0,SB1,SB2,SB3,SB4,SB5,SB6,SB7,SBIN,SBK,SBR,SBV,SC,SC68,SCD,SCH,SCI,SCL,SCN,SCR,SCT,SCUMM,SD9,SDB,SDF,SDR,SDT,SEB,SED,SEG,SF0,SF2,SFL,SFM,SFS,SFX,SFX13,SFX2,SG,SGB,SGC,SGD,SGX,SID,SID1,SID2,SJS,SKT,SKYT,SL3,SLI,SM,SM0,SM1,SM2,SM3,SM4,SM5,SM6,SM7,SMC,SMK,SMN,SMP,SMPL,SMPRO,SMUS,SMV,SND,SNDH,SNDMON,SNDS,SNG,SNGW,SNK,SNR,SNS,SNSF,SNSFLIB,SNT,SNT!,SNU,SNX,SOC,SOD,SOG,SON,SONIC,SOP,SPC,SPD,SPK,SPL,SPM,SPS,SPSD,SPW,SQD,SQT,SQX,SS,SS2,SSF,SSFLIB,SSM,SSS,ST,ST1,ST2,ST26,ST3,ST30,STAR,STC,STER,STK,STM,STMA,STP,STPK,STR,STREAM,STRM,STS,STX,SUN,SVAG,SVG,SVS,SWAG,SWAV,SWD,SWITCH_AUDIO,SX,SXD,SXD1,SXD2,SXD3,SYN,SYNMOD,SZX,TD0,TEC,TF,TF0,TFC,TFD,TFE,TFHD1.5,TFHD7V,TFHDPRO,TFMX,TFMX1.5,TFMX7V,TFMXPRO,TGQ,TGV,THM,THN,THP,THX,TINY,TK5,TLZ,TLZP,TM2,TM8,TMC,TME,TMX,TP,TP1,TP2,TP3,TPU,TRA,TRC,TRD,TRO,TRONIC,TRS,TS,TUN,TW,TWO,TXT,TXTH,TXTP,TYDSP,UDS,UE4OPUS,ULT,ULW,UM3,UMX,UN2,UNIC,UNIC2,USF,USFLIB,UTK,UV,V0,V1,V2M,V2MZ,VA3,VAG,VAI,VAS,VAWX,VB,VBK,VDM,VDS,VGM,VGS,VGV,VGZ,VID,VIG,VIS,VMS,VOI,VP6,VPK,VS,VSF,VSS,VSV,VTX,VXN,WAA,WAC,WAD,WAF,WAM,WAS,WAV,WAVC,WAVE,WAVEBATCH,WAVM,WAY,WB,WB2,WBD,WD,WEM,WII,WLF,WMA,WMUS,WN,WOW,WP2,WPD,WSD,WSI,WSR,WUA,WV2,WV6,WVE,WVS,WVX,X,XA,XA2,XA30,XAD,XAG,XAN,XANN,XAU,XAV,XEN,XM,XMA,XMA2,XMD,XMU,XNA,XNB,XOPUS,XPK,XPS,XSE,XSEW,XSF,XSM,XSS,XVAG,XVAS,XWAV,XWB,XWC,XWM,XWMA,XWS,XWV,YDSP,YM,YMF,ZEN,ZIC,ZIP,ZSD,ZSM,ZSS,ZWDSP,ZWV,ZXZIP\nIntegrated player libs:\n- Adplug\n- Another Slight Atari Player(ASAP)\n- AtariSound\n- Eupmini\n- ffmpeg/mpg123/vorbis\n- Game Music Emu\n- FMPmini\n- Highly Complete\n- AHX/Hively tracker\n- LazyUSF\n- Libvgm\n- Mdxplay\n- NSFPlay\n- OpenMPT\n- PlayGSF\n- Pmdmini\n- PxTone / Organya\n- PT3Player\n- SC68\n- Sibplayfp\n- Snes9x/snsf\n- ST-Sound\n- Timidity(using Merlin_gold SF2 soundfont)\n- UADE\n- XSF (2SF, NCSF)\n- XMP\n-V2M tinyplayer\n- VGMStream\n- VIO2SF\n- WebSID\n- ZXTune\n\nDisclaimer:\nInternet accesses to the Modland, HVSC & ASMA libraries are provided as an as-is service, guarantee for availability and/or functionality is not given. Use this application at your own risk."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "v4.0 © Yohann Magnien / YoyoFR\n\nContact: mailto:modizerhelp@gmail.com\nWeb: https://modizer.app\n\nModizer's logo by Steve Miele.\n\nNumber of file formats/extension supported: 1090.\n!PM!,04SW,208,2DX9,2PSF,2SF,2SFLIB,3DO,4,40A,40B,41A,50A,60A,61A,669,800,9TAV,A2M,AAC,AAM,AAX,ABK,AC1,AC1D,ACB,ACM,ACX,ADL,ADLIB,ADM,ADP,ADPCM,ADPCMX,ADS,ADSC,ADW,ADX,AFC,AFS2,AGD,AGI,AGSC,AHV,AHX,AI,AIF,AIF-LOOP,AIFC,AIFCL,AIFF,AIFFL,AIX,AKB,AL,AL2,ALP,AMC,AMD,AMF,AMS,AMTS,AO,AON,AON4,AON8,AP,APC,AS0,AS3M,AS4,ASC,ASD,ASF,ASR,ASS,AST,AT3,AT9,ATSL,ATSL3,ATSL4,ATX,AUD,AUS,AVAL,AVP,AWB,AWC,AY,B1S,BAF,BAKA,BAM,BANK,BAO,BAR,BCSTM,BCWAV,BD,BD3,BDS,BDSP,BFC,BFSTM,BFWAV,BFWAVNSMBU,BG00,BGM,BGW,BH2PCM,BIK,BIK2,BIKA,BIN,BK2,BLK,BMDX,BMF,BMS,BNK,BNM,BNS,BNSF,BO2,BP,BP3,BRSTM,BRSTMSPM,BSF,BSI,BSND,BSS,BTSND,BVG,BWAV,BYTES,C64,C67,CAF,CAPDSP,CBD2,CC3,CCC,CD,CFF,CFN,CHAN,CHI,CHK,CHP,CIN,CKB,CKD,CKS,CM,CM3,CMC,CMF,CMR,CMS,CNK,COP,CORE,CP,CPK,CPLX,CPS,CRB,CSB,CSMP,CTRL,CUS,CUST,CUSTOM,CVS,CWAV,CXS,D00,DA,DAT,DATA,DAX,DB,DBM,DCS,DCT,DDSP,DE2,DEC,DFM,DH,DI,DIGI,DIVA,DL,DLM1,DLM2,DLN,DLT,DL_DELI,DM0,DM1,DM2,DMC,DMF,DMM,DMO,DMSG,DMU,DMU2,DNS,DODA,DP,DR0,DRO,DS2,DSB,DSC,DSF,DSFLIB,DSM,DSP,DSPW,DSQ,DSR,DSS,DST,DTK,DTM,DUM,DVI,DW,DWOLD,DXH,DZ,E4X,EA,EAM,EAS,EMFF,EMOD,EMS,EMSV6,ENM,ENO,ENS,ESV,ET1,EU,EUP,EX,EXA,EZW,FAG,FAR,FC,FC-BSI,FC-M,FC13,FC14,FC3,FC4,FCM,FDA,FDI,FFW,FILP,FLAC,FLX,FMB,FNK,FP,FRED,FSB,FSV,FT,FTC,FUZ,FUZZ,FW,FWAV,FWSE,G1L,GAM,GAMPLUS,GBR,GBS,GBTS,GCA,GCM,GCUB,GCW,GDM,GENH,GIN,GLUE,GM,GMC,GMS,GOT,GRAY,GSB,GSF,GSFLIB,GTD,GTR,GV,GWM,GYM,H4M,HA2,HAB,HBT,HCA,HD,HDR,HES,HGC1,HIP,HIP7,HIPC,HIS,HMC,HN,HPS,HRM,HRP,HRT,HRT!,HSC,HSF,HSP,HSQ,HST,HVL,HWAS,HX2,HX3,HXC,HXD,HXG,HXX,IAB,IADP,ICE,IDMSF,IDSP,IDVI,IDWAV,IDXMA,IFS,IKM,ILD,IMA,IMC,IMF,IMS,IMX,INSTR,INT,IS,IS14,IS20,ISB,ISD,ISWS,IT,IT1,ITL,IVAG,IVAUD,IVB,J2B,JAM,JBM,JC,JCB,JCBO,JD,JMF,JO,JOE,JP,JPN,JPND,JPO,JPOLD,JSTM,JT,KAT,KCES,KCEY,KEF,KEF7,KH,KM9,KNS,KOVS,KRAW,KRIS,KRS,KSM,KSS,KTAC,KTSL2ASBIN,KTSS,KVS,L,LAA,LAAC,LAIF,LAIFC,LAIFF,LASF,LAX,LBIN,LDS,LEG,LEP,LIN,LIQ,LM0,LM1,LM2,LM3,LM4,LM5,LM6,LM7,LME,LMP3,LMP4,LOGG,LOPUS,LP,LPCM,LPK,LPS,LRMB,LSE,LSF,LSTM,LWAV,LZS,M,M15,M2,M3U,M4A,M4V,MA,MAB,MAD,MAP,MATX,MAX,MBM,MC,MC3,MCA,MCADPCM,MCG,MCMD,MCMD_ORG,MCO,MCR,MD,MDAT,MDI,MDL,MDS,MDSP,MDST,MDX,MDY,MED,MEXXMP,MFP,MG,MGS,MI4,MIB,MIC,MID,MIDI,MIHB,MINI2SF,MINIDSF,MINIGSF,MININCSF,MINIPSF,MINIPSF2,MINIQSF,MINISNSF,MINISSF,MINIUSF,MJB,MK2,MKF,MKII,MKIIO,MKJ,ML,MM4,MM8,MMCMP,MMD0,MMD1,MMD2,MMD3,MMD4,MMDC,MMS,MNSTR,MO3,MOD,MOD15,MOD15_MST,MOD15_ST-IV,MOD15_UST,MOD_ADSC4,MOD_COMP,MOD_DOC,MOD_FLT4,MOD_NTK,MOD_NTK1,MOD_NTK2,MOD_NTKAMP,MOGG,MOK,MON,MON_OLD,MP3,MP4,MPD,MPDSP,MPF,MPG,MPK,MPRO,MPT,MPTM,MS,MSA,MSADPCM,MSB,MSC,MSD,MSF,MSO,MSP,MSS,MSV,MSVP,MT2,MTA2,MTAF,MTK,MTM,MTP2,MTR,MUG,MUG2,MUL,MUPS,MUS,MUSC,MUSX,MW,MWV,MXST,MYSPD,MZ,N64,NAAC,NCSF,NCSFLIB,NDP,NDS,NGCA,NLSD,NOISEPACKER2,NOISEPACKER3,NOP,NP,NP1,NP2,NP3,NPS,NPSF,NR,NRU,NSF,NSFE,NSOPUS,NST,NTP,NTPK,NUB,NUB2,NUS3AUDIO,NUS3BANK,NWA,NWAV,NXA,OCTAMED,OGG,OGL,OKT,OMU,ONE,OPI,OPUS,OPUSX,OPX,ORG,OSP,OTM,OVB,OVI,OXM,OZI,P,P00,P10,P21,P2BT,P30,P3D,P40A,P40B,P41A,P4X,P50A,P5A,P5X,P60,P60A,P61,P61A,P6X,P86,PAP,PAST,PCD,PCM,PDT,PDX,PFLT,PHA,PIN,PIS,PK,PLM,PM,PM0,PM01,PM1,PM10C,PM18A,PM2,PM20,PM4,PM40,PMB,PMZ,PNB,POLK,PONA,POS,POWT,PP10,PP20,PP21,PP30,PPC,PPK,PPM,PPS,PPZ,PR1,PR2,PRG,PROM,PRU,PRU1,PRU2,PRUN,PRUN1,PRUN2,PS,PS2STM,PSA,PSC,PSF,PSF2,PSF2LIB,PSFLIB,PSG,PSH,PSID,PSM,PSND,PSW,PT,PT1,PT2,PT3,PT36,PTCOP,PTM,PTTUNE,PUMA,PVI,PVP,PWR,PXA,PYG,PYGM,PYGMY,PZI,QC,QPA,QSF,QSFLIB,QTS,R,RAC,RAD,RAK,RAS,RAW,RH,RHO,RIFF,RIX,RJP,RK,RKB,RKV,RMT,RND,ROF,ROL,RPGMVO,RRDS,RSD,RSF,RSID,RSM,RSP,RSTM,RTM,RWAR,RWAV,RWS,RWSD,RWX,RXW,S-C,S14,S3M,S7G,S98,SA,SA-P,SA2,SAB,SAD,SAF,SAP,SAS,SAT,SA_OLD,SB,SB0,SB1,SB2,SB3,SB4,SB5,SB6,SB7,SBIN,SBK,SBR,SBV,SC,SC68,SCD,SCH,SCI,SCL,SCN,SCR,SCT,SCUMM,SD9,SDB,SDF,SDR,SDT,SEB,SED,SEG,SF0,SF2,SFL,SFM,SFS,SFX,SFX13,SFX2,SG,SGB,SGC,SGD,SGX,SID,SID1,SID2,SJS,SKT,SKYT,SL3,SLI,SM,SM0,SM1,SM2,SM3,SM4,SM5,SM6,SM7,SMC,SMK,SMN,SMP,SMPL,SMPRO,SMUS,SMV,SND,SNDH,SNDMON,SNDS,SNG,SNGW,SNK,SNR,SNS,SNSF,SNSFLIB,SNT,SNT!,SNU,SNX,SOC,SOD,SOG,SON,SONIC,SOP,SPC,SPD,SPK,SPL,SPM,SPS,SPSD,SPW,SQD,SQT,SQX,SS,SS2,SSF,SSFLIB,SSM,SSS,ST,ST1,ST2,ST26,ST3,ST30,STAR,STC,STER,STK,STM,STMA,STP,STPK,STR,STREAM,STRM,STS,STX,SUN,SVAG,SVG,SVS,SWAG,SWAV,SWD,SWITCH_AUDIO,SX,SXD,SXD1,SXD2,SXD3,SYN,SYNMOD,SZX,TD0,TEC,TF,TF0,TFC,TFD,TFE,TFHD1.5,TFHD7V,TFHDPRO,TFMX,TFMX1.5,TFMX7V,TFMXPRO,TGQ,TGV,THM,THN,THP,THX,TINY,TK5,TLZ,TLZP,TM2,TM8,TMC,TME,TMX,TP,TP1,TP2,TP3,TPU,TRA,TRC,TRD,TRO,TRONIC,TRS,TS,TUN,TW,TWO,TXT,TXTH,TXTP,TYDSP,UDS,UE4OPUS,ULT,ULW,UM3,UMX,UN2,UNIC,UNIC2,USF,USFLIB,UTK,UV,V0,V1,V2M,V2MZ,VA3,VAG,VAI,VAS,VAWX,VB,VBK,VDM,VDS,VGM,VGS,VGV,VGZ,VID,VIG,VIS,VMS,VOI,VP6,VPK,VS,VSF,VSS,VSV,VTX,VXN,WAA,WAC,WAD,WAF,WAM,WAS,WAV,WAVC,WAVE,WAVEBATCH,WAVM,WAY,WB,WB2,WBD,WD,WEM,WII,WLF,WMA,WMUS,WN,WOW,WP2,WPD,WSD,WSI,WSR,WUA,WV2,WV6,WVE,WVS,WVX,X,XA,XA2,XA30,XAD,XAG,XAN,XANN,XAU,XAV,XEN,XM,XMA,XMA2,XMD,XMU,XNA,XNB,XOPUS,XPK,XPS,XSE,XSEW,XSF,XSM,XSS,XVAG,XVAS,XWAV,XWB,XWC,XWM,XWMA,XWS,XWV,YDSP,YM,YMF,ZEN,ZIC,ZIP,ZSD,ZSM,ZSS,ZWDSP,ZWV,ZXZIP\nIntegrated player libs:\n- Adplug\n- Another Slight Atari Player(ASAP)\n- AtariSound\n- Eupmini\n- ffmpeg/mpg123/vorbis\n- Game Music Emu\n- FMPmini\n- Highly Complete\n- AHX/Hively tracker\n- LazyUSF\n- Libvgm\n- Mdxplay\n- NSFPlay\n- OpenMPT\n- PlayGSF\n- Pmdmini\n- PxTone / Organya\n- PT3Player\n- SC68\n- Sibplayfp\n- Snes9x/snsf\n- ST-Sound\n- Timidity(using Merlin_gold SF2 soundfont)\n- UADE\n- XSF (2SF, NCSF)\n- XMP\n-V2M tinyplayer\n- VGMStream\n- VIO2SF\n- WebSID\n- ZXTune\n\nDisclaimer:\nInternet accesses to the Modland, HVSC & ASMA libraries are provided as an as-is service, guarantee for availability and/or functionality is not given. Use this application at your own risk."
           }
         }
       }
     },
-    "yfx-PB-aR7.text" : {
-      "comment" : "Class = \"UILabel\"; text = \"1234Ko/1234Ko\"; ObjectID = \"yfx-PB-aR7\";",
-      "extractionState" : "extracted_with_value",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "1234Ko/1234Ko"
+    "p3U-05-Cer.normalTitle": {
+      "comment": "Class = \"UIButton\"; normalTitle = \"Suspend\"; ObjectID = \"p3U-05-Cer\";",
+      "extractionState": "extracted_with_value",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anhalten"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Suspend"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suspender"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suspendre"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "一時停止"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Приостановить"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pausa"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pysäytä väliaikaisesti"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sospendi"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "暂停"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "إيقاف مؤقت"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suspender"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suspend"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suspend"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suspend"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suspend"
           }
         }
       }
     },
-    "Yhe-rn-F3S.title" : {
-      "comment" : "Class = \"UIBarButtonItem\"; title = \"Item\"; ObjectID = \"Yhe-rn-F3S\";",
-      "extractionState" : "extracted_with_value",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Item"
+    "PCk-qz-FQb.placeholder": {
+      "comment": "Class = \"UITextField\"; placeholder = \"Search or input a site url\"; ObjectID = \"PCk-qz-FQb\";",
+      "extractionState": "extracted_with_value",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suchen oder URL eingeben"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Search or input a site url"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Buscar o introducir URL"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recherchez ou entrez une adresse"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "検索またはURLを入力"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Поиск или ввод URL"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sök eller ange en webbplatsadress"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hae tai kirjoita verkkosivun osoite"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cerca o inserisci un URL del sito"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "搜索或输入网站网址"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ابحث أو أدخل رابط الموقع"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pesquisar ou inserir uma URL"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search or input a site url"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search or input a site url"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search or input a site url"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search or input a site url"
           }
         }
       }
+    },
+    "Pju-ZE-qPM.text": {
+      "comment": "Class = \"UILabel\"; text = \"Label....................\"; ObjectID = \"Pju-ZE-qPM\";",
+      "extractionState": "extracted_with_value",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Label...................."
+          }
+        }
+      },
+      "shouldTranslate": false
+    },
+    "PRA-K2-Wdt.title": {
+      "comment": "Class = \"UINavigationItem\"; title = \"Online\"; ObjectID = \"PRA-K2-Wdt\";",
+      "extractionState": "extracted_with_value",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Online"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Online"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En línea"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En ligne"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "オンライン"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Онлайн"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Online"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verkossa"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Online"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在线"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "متصل"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Online"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Online"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Online"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Online"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Online"
+          }
+        }
+      }
+    },
+    "Qtm-2x-6iT.title": {
+      "comment": "Class = \"UITabBarItem\"; title = \"Item\"; ObjectID = \"Qtm-2x-6iT\";",
+      "extractionState": "extracted_with_value",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Item"
+          }
+        }
+      },
+      "shouldTranslate": false
+    },
+    "RaE-My-8AQ.normalTitle": {
+      "comment": "Class = \"UIButton\"; normalTitle = \"Clear all\"; ObjectID = \"RaE-My-8AQ\";",
+      "extractionState": "extracted_with_value",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alles löschen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Clear all"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Limpiar todo"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Effacer tout"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "すべて消去"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Очистить всё"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rensa alla"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tyhjennä kaikki"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancella tutto"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "全部清除"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "مسح الكل"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Limpar tudo"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clear all"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clear all"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clear all"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clear all"
+          }
+        }
+      }
+    },
+    "RHH-hw-vvc.normalTitle": {
+      "comment": "Class = \"UIButton\"; normalTitle = \"∞\"; ObjectID = \"RHH-hw-vvc\";",
+      "extractionState": "extracted_with_value",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "∞"
+          }
+        }
+      },
+      "shouldTranslate": false
+    },
+    "RRX-8o-b1m.text": {
+      "comment": "Class = \"UILabel\"; text = \"Search in progress...\"; ObjectID = \"RRX-8o-b1m\";",
+      "extractionState": "extracted_with_value",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suche läuft..."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Search in progress..."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Buscando..."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recherche en cours…"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "検索中..."
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Идёт поиск..."
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sökning pågår..."
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Haku käynnissä..."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ricerca in corso..."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "搜索进行中..."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "جاري البحث..."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pesquisa em andamento..."
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search in progress..."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search in progress..."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search in progress..."
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search in progress..."
+          }
+        }
+      }
+    },
+    "rUz-Hl-EY8.title": {
+      "comment": "Class = \"UITabBarItem\"; title = \"Item\"; ObjectID = \"rUz-Hl-EY8\";",
+      "extractionState": "extracted_with_value",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Item"
+          }
+        }
+      },
+      "shouldTranslate": false
+    },
+    "tg5-2u-vCN.title": {
+      "comment": "Class = \"UIViewController\"; title = \"Browse\"; ObjectID = \"tg5-2u-vCN\";",
+      "extractionState": "extracted_with_value",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Durchsuchen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Browse"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Explorar"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Parcourir"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ブラウズ"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Обзор"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bläddra"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Selaa"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sfoglia"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "浏览"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "استعراض"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Navegar"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Browse"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Browse"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Browse"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Browse"
+          }
+        }
+      }
+    },
+    "Trd-4K-wLH.title": {
+      "comment": "Class = \"UINavigationItem\"; title = \"Downloads\"; ObjectID = \"Trd-4K-wLH\";",
+      "extractionState": "extracted_with_value",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downloads"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Downloads"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Descargas"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Téléchargements"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ダウンロード"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Загрузки"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nedladdningar"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lataukset"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Download"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "下载"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "التنزيلات"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downloads"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downloads"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downloads"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downloads"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downloads"
+          }
+        }
+      }
+    },
+    "W8v-hQ-B0m.text": {
+      "comment": "Class = \"UILabel\"; text = \"00:00\"; ObjectID = \"W8v-hQ-B0m\";",
+      "extractionState": "extracted_with_value",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "00:00"
+          }
+        }
+      },
+      "shouldTranslate": false
+    },
+    "WUp-pw-saM.title": {
+      "comment": "Class = \"UIViewController\"; title = \"Playlists\"; ObjectID = \"WUp-pw-saM\";",
+      "extractionState": "extracted_with_value",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Playlists"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Playlists"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Listas de reproducción"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Playlists"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "プレイリスト"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Плейлисты"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spellistor"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Soittolistat"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Playlist"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "播放列表"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "قوائم التشغيل"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Playlists"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Playlists"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Playlists"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Playlists"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Playlists"
+          }
+        }
+      }
+    },
+    "xV0-Ez-trt.title": {
+      "comment": "Class = \"UIViewController\"; title = \"web browser\"; ObjectID = \"xV0-Ez-trt\";",
+      "extractionState": "extracted_with_value",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Webbrowser"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "web browser"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Navegador web"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Navigateur web"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Webブラウザ"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Веб-браузер"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "webläsare"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verkkoselain"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "browser web"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "网页浏览器"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "متصفح الويب"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "navegador web"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "web browser"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "web browser"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "web browser"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "web browser"
+          }
+        }
+      }
+    },
+    "Y1P-8t-IWd.title": {
+      "comment": "Class = \"UIViewController\"; title = \"More\"; ObjectID = \"Y1P-8t-IWd\";",
+      "extractionState": "extracted_with_value",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mehr"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "More"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Más"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Autre"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "その他"
+          }
+        },
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ещё"
+          }
+        },
+        "sv": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mer"
+          }
+        },
+        "fi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lisää"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Altro"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "更多"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "المزيد"
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mais"
+          }
+        },
+        "da": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "More"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "More"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "More"
+          }
+        },
+        "nb": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "More"
+          }
+        }
+      }
+    },
+    "yfx-PB-aR7.text": {
+      "comment": "Class = \"UILabel\"; text = \"1234Ko/1234Ko\"; ObjectID = \"yfx-PB-aR7\";",
+      "extractionState": "extracted_with_value",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "1234Ko/1234Ko"
+          }
+        }
+      },
+      "shouldTranslate": false
+    },
+    "Yhe-rn-F3S.title": {
+      "comment": "Class = \"UIBarButtonItem\"; title = \"Item\"; ObjectID = \"Yhe-rn-F3S\";",
+      "extractionState": "extracted_with_value",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Item"
+          }
+        }
+      },
+      "shouldTranslate": false
     }
   },
-  "version" : "1.1"
+  "version": "1.1"
 }

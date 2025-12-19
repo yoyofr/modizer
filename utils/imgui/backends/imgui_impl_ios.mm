@@ -109,7 +109,6 @@ bool ImGui_ImplIOS_Init()
     IM_ASSERT(font_menu_icon != NULL);
     
     for (int i=0;i<FONT_TRACKER_NB;i++) {
-        //NSLog(@"loading %s.ttf size: %f",font_trackerName[i][0],ft_size);
         ImFontConfig font_cfg = ImFontConfig();
         font_cfg.GlyphMinAdvanceX=font_trackerSize[i][1]*glScaleFactor*font_trackerSize[i][2];
         font_cfg.GlyphMaxAdvanceX=font_trackerSize[i][1]*glScaleFactor*font_trackerSize[i][2];
@@ -399,7 +398,6 @@ void ImGui_ImplIOS_UpdateEvent(ImGuiIOSEvent *event)
         if (wantInputText==2) {
             int pos=0;
             while (lastChar_pos) {
-                //NSLog(@"key: %C",lastChar[pos]);
                 if (lastChar[pos]>=32) io.AddInputCharacter(lastChar[pos]);
                 else {
                     if (lastChar[pos]==0x8) { //Backspace
@@ -542,16 +540,13 @@ void ImGui_ImplIOS_NewFrame(float w,float h,float scale)
 
 const char* ImGui_ImplIOS_GetClipboardText(void* user_data)
 {
-    NSLog(@"get clipboard: ");
     UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
     NSString *text = pasteboard.string;
-    NSLog(@"%@",text);
     return [text UTF8String];
 }
 
 void ImGui_ImplIOS_SetClipboardText(void* user_data, const char* text)
 {
-    NSLog(@"set clipboard: %s",text);
     UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
     pasteboard.string=[NSString stringWithUTF8String:text];
 }

@@ -22,6 +22,10 @@ NSString *cutpaste_filesrcpath=nil;
 
 #include "gme.h"
 
+//SPC parser
+#include "SPCTagParser.h"
+
+
 //FileHelper
 #include "ModizFileHelper.h"
 
@@ -314,10 +318,14 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     
     if (quiet) [self recreateDB];
     else {
-        if (forceInit) [self showAlertMsg:NSLocalizedString(@"Info",@"") message:NSLocalizedString(@"Database will now be recreated. Please validate & wait.",@"")];
+        if (forceInit) {
+            [self showAlertMsg:NSLocalizedString(@"Info",@"") message:NSLocalizedString(@"Database will now be recreated. Please validate & wait.",@"")];
+            [self recreateDB];
+        }
         else {
             if (wrongversion) {
                 [self showAlertMsg:NSLocalizedString(@"Info",@"") message:[NSString stringWithFormat:NSLocalizedString(@"Old database version: %d.%d. Will update to %d.%d. Please validate & wait.",@""),maj,min,VERSION_MAJOR,VERSION_MINOR]];
+                [self recreateDB];
             }
             else  {
                 //USer database missing, create it
@@ -400,7 +408,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     }
     UITabBarController *tbc = (UITabBarController *)window.rootViewController;
     if (![tbc isKindOfClass:[UITabBarController class]]) {
-        NSLog(@"[SceneDelegate] Unexpected root VC: %@", NSStringFromClass([window.rootViewController class]));
+        MDZELog("[SceneDelegate] Unexpected root VC: %@", NSStringFromClass([window.rootViewController class]));
         return;
     }
     // Resolve specific child controllers
@@ -418,6 +426,8 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     dictActionBtn=[NSMutableDictionary dictionaryWithCapacity:64];
     
     extractProgress = nil;
+    
+    is_rsn=0;
     
     wasMiniPlayerOn=([detailViewController mPlaylist_size]>0?true:false);
     miniplayerVC=nil;
@@ -1277,15 +1287,11 @@ static int qsort_CompareArcEntries(const void *entryA, const void *entryB) {
 //        struct archive *a;
 //        struct archive_entry *entry;
 //        int r;
-        
-        
                 
         char **archive_entries;
         int archive_entries_count;
         int found=[ModizFileHelper scanarchive:[cpath UTF8String] filesList_ptr:&archive_entries filesCount_ptr:&archive_entries_count];
         int file_idx=0;
-        
-        
         
 //        a = archive_read_new();
 //        archive_read_support_filter_all(a);
@@ -1299,9 +1305,23 @@ static int qsort_CompareArcEntries(const void *entryA, const void *entryB) {
             qsort(archive_entries, archive_entries_count, sizeof(char*), &qsort_CompareArcEntries);
             
             
-            int is_rsn=0;
+            is_rsn=0;
             NSString *extension=[[[cpath lastPathComponent] pathExtension] uppercaseString];
-            if ([extension caseInsensitiveCompare:@"rsn"]==NSOrderedSame) is_rsn=1;
+            if ([extension caseInsensitiveCompare:@"rsn"]==NSOrderedSame) {
+                is_rsn=1;
+                
+                dispatch_sync(dispatch_get_main_queue(), ^(void){
+                    //Run UI Updates
+                    [self.tableView setUserInteractionEnabled:false];
+                    [self.navigationItem setHidesBackButton:YES animated:YES];
+                });
+                
+                extractProgress = [NSProgress progressWithTotalUnitCount:1];
+                extractProgress.cancellable = YES;
+                extractProgress.pausable = NO;
+                NSString *tmpPath=[NSString stringWithFormat:@"%@/tmpArchiveBrowser",NSTemporaryDirectory()];
+                [ModizFileHelper extractToPath:[cpath UTF8String] path:[tmpPath UTF8String] caller:self progress:extractProgress context:ExtractBrowserListProgressObserverContext];
+            }
             
 //            while (archive_read_next_header(a, &entry) == ARCHIVE_OK) {
             while (file_idx<found) {
@@ -2857,6 +2877,18 @@ As a consequence, some entries might disappear from existing playlist.\n\
         int section=indexPath.section-2;
         cellValue=cur_local_entries[section][indexPath.row].label;
         
+        if (is_rsn) {
+            NSString *tmpFile=[NSString stringWithFormat:@"%@/tmpArchiveBrowser/%@",NSTemporaryDirectory(),cur_local_entries[section][indexPath.row].label];
+            SPCTag tag;
+            if ([SPCTagParser parseTagsFromFile:tmpFile tag:&tag]) {
+                cellValue=[NSString stringWithFormat:@"%.3d-%s",indexPath.row,tag.songName];
+                if (tag.hasXID6) {
+                    //                     double loopSec = [SPCTagParser ticksToSeconds:tag.loopLength];
+                }
+                [SPCTagParser freeTag:&tag]; // Libérer la mémoire
+            }
+        }
+        
         
         if (cur_local_entries[section][indexPath.row].type==0) { //directory
             if (darkMode) topLabel.textColor=[UIColor colorWithRed:0.5f green:0.5f blue:1.0f alpha:1.0f];
@@ -3946,6 +3978,29 @@ As a consequence, some entries might disappear from existing playlist.\n\
         }
         waitingViewPlayer.hidden=wv.hidden;
         
+    } else if (context == ExtractBrowserListProgressObserverContext) {
+        NSProgress *progress = object;
+        
+        if ([progress isCancelled]) {
+            [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+                [self.waitingViewExtract resetCancelStatus];
+                self.waitingViewExtract.hidden=TRUE;
+                [self.waitingViewExtract hideProgress];
+                [self.tableView setUserInteractionEnabled:true];
+                [self.navigationItem setHidesBackButton:NO animated:YES];
+                [self.tableView reloadData];
+            }];
+        }
+        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+            [self.waitingViewExtract setProgress:progress.fractionCompleted];
+            if (progress.fractionCompleted>=1.0f) {
+                self.waitingViewExtract.hidden=TRUE;
+                [self.waitingViewExtract hideProgress];
+                [self.tableView setUserInteractionEnabled:true];
+                [self.navigationItem setHidesBackButton:NO animated:YES];
+                [self.tableView reloadData];
+            }
+        }];
     } else {
         [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
     }

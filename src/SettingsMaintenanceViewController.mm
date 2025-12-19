@@ -51,6 +51,19 @@ extern bool dbhelper_cancel;
 }
 
 
+- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
+    [super viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
+
+    [coordinator animateAlongsideTransition:^(id<UIViewControllerTransitionCoordinatorContext> context) {
+        // Force reload cells during transition
+        forceReloadCells = true;
+        [self.tableView reloadData];
+    } completion:^(id<UIViewControllerTransitionCoordinatorContext> context) {
+        // Ensure final layout is correct
+        [self.tableView reloadData];
+    }];
+}
+
 - (void)viewDidLoad
 {
     START_PROFILE
@@ -408,34 +421,35 @@ extern char cleanDB_Status[256];
     UITableViewCell *cell = [tabView dequeueReusableCellWithIdentifier:CellIdentifier];
     if (cell == nil) {
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
-        
-        cell.frame=CGRectMake(0,0,self.view.frame.size.width,50);
+
+        cell.frame=CGRectMake(0,0,tabView.bounds.size.width,50);
         cell.autoresizingMask=UIViewAutoresizingFlexibleWidth;
         [cell setBackgroundColor:[UIColor clearColor]];
-        
+
         NSString *imgName=(darkMode?@"tabview_gradient50Black.png":@"tabview_gradient50.png");
         UIImage *image = [UIImage imageNamed:imgName];
         UIImageView *imageView = [[UIImageView alloc] initWithImage:image];
         imageView.contentMode = UIViewContentModeScaleToFill;
+        imageView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
         cell.backgroundView = imageView;
         //[imageView release];
-        
-        
-        btn= [[BButton alloc] initWithFrame:CGRectMake(self.view.frame.size.width/2-100,
+
+
+        btn= [[BButton alloc] initWithFrame:CGRectMake(tabView.bounds.size.width/2-100,
                                                       10,
-                                                      200,          
+                                                      200,
                                                        30)];
         btn.tag=TOP_LABEL_TAG;
         [cell.contentView addSubview:btn];
         btn.autoresizingMask=UIViewAutoresizingFlexibleLeftMargin|UIViewAutoresizingFlexibleRightMargin;
-        
+
         cell.accessoryView=nil;
         cell.accessoryType = UITableViewCellAccessoryNone;
         [cell layoutSubviews];
     } else {
         btn = (BButton *)[cell viewWithTag:TOP_LABEL_TAG];
-    }    
-    btn.frame=CGRectMake((self.view.frame.size.width-self.view.frame.size.width*2/3)/2,10,self.view.frame.size.width*2/3,30);
+    }
+    btn.frame=CGRectMake((tabView.bounds.size.width-tabView.bounds.size.width*2/3)/2,10,tabView.bounds.size.width*2/3,30);
     
     NSString *txt;
     switch (indexPath.row) {            

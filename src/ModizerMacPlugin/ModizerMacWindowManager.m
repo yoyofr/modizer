@@ -49,7 +49,6 @@
 
 // Auto-load quand le bundle est chargé
 + (void)load {
-    //NSLog(@"ModizerMacWindowPlugin loaded");
 }
 
 @end

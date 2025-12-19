@@ -1,0 +1,34 @@
+Build instructions:
+
+1) obtain source code
+
+	a) grab the pre-patched sources:
+
+		% download mac-3.99-u4-b5-sN.tar.gz
+		% gunzip < mac-3.99-u4-b5-sN.tar.gz | tar xf -
+		% cd mac-3.99-u4-b5-sN
+
+2) compile and install
+
+	a) for unix targets:
+
+		% CXXFLAGS="-DSHNTOOL" ./configure
+		% make
+		% make install
+
+		MAC USERS:
+
+			If you run 'mac' and get an error similar to:
+
+				dyld: Symbol not found: _Adapt_x86*_mmx
+
+			try reconfiguring and reinstalling without assembly routines:
+
+		% CXXFLAGS="-DSHNTOOL" ./configure --enable-assembly=no
+		% make
+		% make install
+
+	b) for win32 (under MinGW):
+
+		% CXXFLAGS="-DSHNTOOL -D_WIN32" ./configure
+		% make

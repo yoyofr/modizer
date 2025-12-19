@@ -6,7 +6,7 @@
 //  Copyright __YoyoFR / Yohann Magnien__ 2010. All rights reserved.
 //
 
-//#define GEN_EXT_LIST
+#define GEN_EXT_LIST
 
 #import <UserNotifications/UserNotifications.h>
 #import "AppDelegate_Phone.h"
@@ -28,6 +28,7 @@
 
 //GLOBAL VAR
 void *ExtractProgressObserverContext = &ExtractProgressObserverContext;
+void *ExtractBrowserListProgressObserverContext = &ExtractBrowserListProgressObserverContext;
 void *LoadingProgressObserverContext = &LoadingProgressObserverContext;
 extern bool mdz_macos_AOTplugin;
 //
@@ -103,14 +104,6 @@ pthread_mutex_t gl_mutex;
     
     //[supportedExtension release];
     supportedExtension=nil;
-}
-
-- (void)cleanupTempData {
-    NSArray* temp = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:NSTemporaryDirectory() error:NULL];
-    for (NSString *file in temp) {
-        NSString *str=(NSString *)file;
-        if ([str containsString:@"MDZNotif"]) [[NSFileManager defaultManager] removeItemAtPath:[NSString stringWithFormat:@"%@%@", NSTemporaryDirectory(), file] error:NULL];
-    }
 }
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
@@ -263,66 +256,28 @@ pthread_mutex_t gl_mutex;
     return [self application:application openURL:url options:nil];
 }
 
-- (void)removeAllNotifications {
-    UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
-    
-    // Remove all delivered notifications
-    [center removeAllDeliveredNotifications];
-    
-    // Remove all pending notifications
-    [center removeAllPendingNotificationRequests];
-    
-    //MDZDLog("All notifications removed");
-}
 
 - (void)applicationWillTerminate:(UIApplication *)application {
-    [SettingsGenViewController backupSettings];
-    [detailViewControlleriPhone saveSettings];
-    [downloadVC backupDownloadList];
-    [detailViewControlleriPhone updateFlagOnExit];
-    
-    [self removeAllNotifications];
-    [self cleanupTempData];
 }
 
 - (void)applicationWillEnterForeground:(UIApplication *)application {
-    [downloadVC refreshDownloadCountBadge];
+    
 }
 
 - (void)applicationDidBecomeActive:(UIApplication *)application {
-    if ([[UIApplication sharedApplication] respondsToSelector:@selector(endReceivingRemoteControlEvents)]) {
-    //    [[UIApplication sharedApplication] endReceivingRemoteControlEvents];
-        [detailViewControlleriPhone enterForeground];
-    }
     
-    [downloadVC restoreDownloadList];
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application {
-    /*
-     Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
-     Use this method to pause ongoing tasks, disable timers, and throttle down OpenGL ES frame rates. Games should use this method to pause the game.
-     */
-    if ([[UIApplication sharedApplication] respondsToSelector:@selector(beginReceivingRemoteControlEvents)]) {
-        [detailViewControlleriPhone enterBackground];
-//        [tabBarC becomeFirstResponder];
-//        [[UIApplication sharedApplication] beginReceivingRemoteControlEvents];
-    }
-
-    // Ensure that settings are saved if closed by OS after resigning active
-//    [SettingsGenViewController backupSettings];
-//    [detailViewControlleriPhone saveSettings];
-//    [downloadVC backupDownloadList];
-//    [detailViewControlleriPhone updateFlagOnExit];
+    
 }
 
 - (void)applicationDidEnterBackground:(UIApplication *)application {
-//    [SettingsGenViewController backupSettings];
-//    [detailViewControlleriPhone saveSettings];
+    
 }
 
 - (void)openFeature:(NSString *)feature {
-    MDZILog("open feature %@",feature);
+    //MDZILog("open feature %@",feature);
 }
 
 - (BOOL)application:(UIApplication *)application
@@ -334,7 +289,6 @@ continueUserActivity:(NSUserActivity *)userActivity
         [self openFeature:feature];
         return YES;
     }
-    
     return NO;
 }
 
@@ -347,7 +301,7 @@ continueUserActivity:(NSUserActivity *)userActivity
 //    MDZELog("received a memory warning...");
     [SettingsGenViewController backupSettings];
     [detailViewControlleriPhone saveSettings];
-//    [downloadVC backupDownloadList];
+    [downloadVC backupDownloadList];
     //[super didReceiveMemoryWarning];
 }
 
@@ -469,24 +423,17 @@ continueUserActivity:(NSUserActivity *)userActivity
     // Called when a new scene session is being created.
     // Use this method to select a configuration to create the new scene with.
 
-    NSLog(@"[AppDelegate] ===== NEW SCENE CONNECTING =====");
-    NSLog(@"[AppDelegate] Scene role: '%@'", connectingSceneSession.role);
-    NSLog(@"[AppDelegate] Session: %@", connectingSceneSession);
-    NSLog(@"[AppDelegate] Scene class: %@", NSStringFromClass([connectingSceneSession.configuration.sceneClass class]));
 
     // Check if this is a CarPlay scene - try matching the role string
     if ([connectingSceneSession.role containsString:@"CarPlay"] ||
         [connectingSceneSession.role containsString:@"CPTemplate"]) {
-        NSLog(@"[AppDelegate] *** DETECTED CARPLAY SCENE ***");
         UISceneConfiguration *config = [[UISceneConfiguration alloc] initWithName:@"CarPlay Configuration" sessionRole:connectingSceneSession.role];
         config.delegateClass = NSClassFromString(@"MDZCarPlaySceneDelegate");
         config.sceneClass = NSClassFromString(@"CPTemplateApplicationScene");
-        NSLog(@"[AppDelegate] Created CarPlay config with delegate: %@", config.delegateClass);
         return config;
     }
 
     // Default configuration for main window scene
-    NSLog(@"[AppDelegate] Creating default window scene configuration");
     UISceneConfiguration *config = [[UISceneConfiguration alloc] initWithName:@"Default Configuration" sessionRole:connectingSceneSession.role];
     config.delegateClass = [SceneDelegate class];
     return config;
