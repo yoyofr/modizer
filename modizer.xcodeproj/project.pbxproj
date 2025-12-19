@@ -670,8 +670,6 @@
 		CC33B42D1ABF05A3009608E8 /* slider@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CC33B42C1ABF05A3009608E8 /* slider@2x.png */; };
 		CC3D65392EF2AAB700636BEE /* libmonkeyaudiocodec.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CC31446A2EF28F5C0053DCE1 /* libmonkeyaudiocodec.a */; };
 		CC3D65722EF431A800636BEE /* libmonkeyaudiocodec.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CC31446A2EF28F5C0053DCE1 /* libmonkeyaudiocodec.a */; };
-		CC3D65762EF4C55B00636BEE /* Localizable_utf16.strings in Resources */ = {isa = PBXBuildFile; fileRef = CC3D65742EF4C55B00636BEE /* Localizable_utf16.strings */; };
-		CC3D65772EF4C55B00636BEE /* Localizable_utf16.strings in Resources */ = {isa = PBXBuildFile; fileRef = CC3D65742EF4C55B00636BEE /* Localizable_utf16.strings */; };
 		CC3F530F2ED3C028004D7908 /* libavdevice.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = CC3F53092ED3C028004D7908 /* libavdevice.xcframework */; };
 		CC3F53102ED3C028004D7908 /* libavutil.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = CC3F530C2ED3C028004D7908 /* libavutil.xcframework */; };
 		CC3F53112ED3C028004D7908 /* libswscale.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = CC3F530E2ED3C028004D7908 /* libswscale.xcframework */; };
@@ -3423,10 +3421,11 @@
 		CC33B4261ABE1FC6009608E8 /* slider.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = slider.png; sourceTree = "<group>"; };
 		CC33B42C1ABF05A3009608E8 /* slider@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "slider@2x.png"; sourceTree = "<group>"; };
 		CC3D65732EF4C54800636BEE /* da */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = da; path = da.lproj/Localizable.strings; sourceTree = "<group>"; };
-		CC3D65752EF4C55B00636BEE /* nl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = nl; path = nl.lproj/Localizable_utf16.strings; sourceTree = "<group>"; };
 		CC3D65782EF4C5CC00636BEE /* ko */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ko; path = ko.lproj/Localizable.strings; sourceTree = "<group>"; };
 		CC3D65792EF4C7D900636BEE /* nb */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = nb; path = nb.lproj/Localizable.strings; sourceTree = "<group>"; };
 		CC3D657A2EF51F4D00636BEE /* nl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = nl; path = nl.lproj/Localizable.strings; sourceTree = "<group>"; };
+		CC3D657B2EF524EF00636BEE /* pl */ = {isa = PBXFileReference; fileEncoding = 2483028224; lastKnownFileType = text.plist.strings; lineEnding = 0; name = pl; path = pl.lproj/Localizable.strings; sourceTree = "<group>"; };
+		CC3D657C2EF529E500636BEE /* cs */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = cs; path = cs.lproj/Localizable.strings; sourceTree = "<group>"; };
 		CC3F52F22ED3AE2A004D7908 /* modizer-Info-catalyst.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "modizer-Info-catalyst.plist"; sourceTree = "<group>"; };
 		CC3F53072ED3C028004D7908 /* ffmpegkit.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = ffmpegkit.xcframework; sourceTree = "<group>"; };
 		CC3F53082ED3C028004D7908 /* libavcodec.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = libavcodec.xcframework; sourceTree = "<group>"; };
@@ -4245,7 +4244,6 @@
 				32CA4F630368D1EE00C91783 /* modizer_Prefix.pch */,
 				CC88D1131270AF200004EBBE /* modizer-Info.plist */,
 				CC3F52F22ED3AE2A004D7908 /* modizer-Info-catalyst.plist */,
-				CC3D65742EF4C55B00636BEE /* Localizable_utf16.strings */,
 				CCAE594E17ECABD2007638B9 /* Localizable.strings */,
 				CC1E5A161200B3B8000A8A4E /* Resources */,
 				29B97323FDCFA39411CA2CEA /* Frameworks */,
@@ -6851,6 +6849,8 @@
 				nl,
 				ko,
 				nb,
+				pl,
+				cs,
 			);
 			mainGroup = 29B97314FDCFA39411CA2CEA /* CustomTemplate */;
 			packageReferences = (
@@ -7725,7 +7725,6 @@
 				33ABE59917B0E87D00AE0EA1 /* bb_caret-right@2x.png in Resources */,
 				5950D83525DF070200B476B2 /* MIMETYPES.plist in Resources */,
 				CC8369932B5DD5510035A4DA /* playpt3.txt in Resources */,
-				CC3D65762EF4C55B00636BEE /* Localizable_utf16.strings in Resources */,
 				33ABE5A417B142EC00AE0EA1 /* bb_list_white.png in Resources */,
 				33ABE5A517B142EC00AE0EA1 /* bb_list_white@2x.png in Resources */,
 				33ABE5B117B17A5200AE0EA1 /* FontAwesome.ttf in Resources */,
@@ -7923,7 +7922,6 @@
 				CCBE62022EE2DD44000FDD7E /* 05-shuffleone-green.png in Resources */,
 				CCBE62032EE2DD44000FDD7E /* MajorTom in Resources */,
 				CCBE62042EE2DD44000FDD7E /* ManiacsOfNoise in Resources */,
-				CC3D65772EF4C55B00636BEE /* Localizable_utf16.strings in Resources */,
 				CCBE62052EE2DD44000FDD7E /* Mark_Cooksey in Resources */,
 				CCBE62062EE2DD44000FDD7E /* Mark_Cooksey_Old in Resources */,
 				CCBE62072EE2DD44000FDD7E /* MarkII in Resources */,
@@ -8591,14 +8589,6 @@
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
-		CC3D65742EF4C55B00636BEE /* Localizable_utf16.strings */ = {
-			isa = PBXVariantGroup;
-			children = (
-				CC3D65752EF4C55B00636BEE /* nl */,
-			);
-			name = Localizable_utf16.strings;
-			sourceTree = "<group>";
-		};
 		CCAE594E17ECABD2007638B9 /* Localizable.strings */ = {
 			isa = PBXVariantGroup;
 			children = (
@@ -8619,6 +8609,8 @@
 				CC3D65782EF4C5CC00636BEE /* ko */,
 				CC3D65792EF4C7D900636BEE /* nb */,
 				CC3D657A2EF51F4D00636BEE /* nl */,
+				CC3D657B2EF524EF00636BEE /* pl */,
+				CC3D657C2EF529E500636BEE /* cs */,
 			);
 			name = Localizable.strings;
 			sourceTree = "<group>";
