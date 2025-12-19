@@ -670,6 +670,8 @@
 		CC33B42D1ABF05A3009608E8 /* slider@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CC33B42C1ABF05A3009608E8 /* slider@2x.png */; };
 		CC3D65392EF2AAB700636BEE /* libmonkeyaudiocodec.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CC31446A2EF28F5C0053DCE1 /* libmonkeyaudiocodec.a */; };
 		CC3D65722EF431A800636BEE /* libmonkeyaudiocodec.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CC31446A2EF28F5C0053DCE1 /* libmonkeyaudiocodec.a */; };
+		CC3D657F2EF58B2600636BEE /* VoiceCommandsViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = CC3D657E2EF58B2600636BEE /* VoiceCommandsViewController.mm */; };
+		CC3D65802EF58B2600636BEE /* VoiceCommandsViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = CC3D657E2EF58B2600636BEE /* VoiceCommandsViewController.mm */; };
 		CC3F530F2ED3C028004D7908 /* libavdevice.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = CC3F53092ED3C028004D7908 /* libavdevice.xcframework */; };
 		CC3F53102ED3C028004D7908 /* libavutil.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = CC3F530C2ED3C028004D7908 /* libavutil.xcframework */; };
 		CC3F53112ED3C028004D7908 /* libswscale.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = CC3F530E2ED3C028004D7908 /* libswscale.xcframework */; };
@@ -3420,12 +3422,14 @@
 		CC3144652EF28F5B0053DCE1 /* monkeyaudiocodec.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = monkeyaudiocodec.xcodeproj; path = monkeyaudiocodec/monkeyaudiocodec.xcodeproj; sourceTree = "<group>"; };
 		CC33B4261ABE1FC6009608E8 /* slider.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = slider.png; sourceTree = "<group>"; };
 		CC33B42C1ABF05A3009608E8 /* slider@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "slider@2x.png"; sourceTree = "<group>"; };
-		CC3D65732EF4C54800636BEE /* da */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = da; path = da.lproj/Localizable.strings; sourceTree = "<group>"; };
+		CC3D65732EF4C54800636BEE /* da */ = {isa = PBXFileReference; fileEncoding = 2415919360; lastKnownFileType = text.plist.strings; name = da; path = da.lproj/Localizable.strings; sourceTree = "<group>"; };
 		CC3D65782EF4C5CC00636BEE /* ko */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ko; path = ko.lproj/Localizable.strings; sourceTree = "<group>"; };
 		CC3D65792EF4C7D900636BEE /* nb */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = nb; path = nb.lproj/Localizable.strings; sourceTree = "<group>"; };
 		CC3D657A2EF51F4D00636BEE /* nl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = nl; path = nl.lproj/Localizable.strings; sourceTree = "<group>"; };
 		CC3D657B2EF524EF00636BEE /* pl */ = {isa = PBXFileReference; fileEncoding = 2483028224; lastKnownFileType = text.plist.strings; lineEnding = 0; name = pl; path = pl.lproj/Localizable.strings; sourceTree = "<group>"; };
-		CC3D657C2EF529E500636BEE /* cs */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; lineEnding = 0; name = cs; path = cs.lproj/Localizable.strings; sourceTree = "<group>"; };
+		CC3D657C2EF529E500636BEE /* cs */ = {isa = PBXFileReference; fileEncoding = 2483028224; lastKnownFileType = text.plist.strings; lineEnding = 0; name = cs; path = cs.lproj/Localizable.strings; sourceTree = "<group>"; };
+		CC3D657D2EF58B2600636BEE /* VoiceCommandsViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VoiceCommandsViewController.h; sourceTree = "<group>"; };
+		CC3D657E2EF58B2600636BEE /* VoiceCommandsViewController.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = VoiceCommandsViewController.mm; sourceTree = "<group>"; };
 		CC3F52F22ED3AE2A004D7908 /* modizer-Info-catalyst.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "modizer-Info-catalyst.plist"; sourceTree = "<group>"; };
 		CC3F53072ED3C028004D7908 /* ffmpegkit.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = ffmpegkit.xcframework; sourceTree = "<group>"; };
 		CC3F53082ED3C028004D7908 /* libavcodec.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = libavcodec.xcframework; sourceTree = "<group>"; };
@@ -5194,6 +5198,8 @@
 				33AB276917B3D48F00C12189 /* MoreViewController.h */,
 				33AB276A17B3D48F00C12189 /* MoreViewController.mm */,
 				CC1E622C12041177000A8A4E /* myTabBarController.h */,
+				CC3D657D2EF58B2600636BEE /* VoiceCommandsViewController.h */,
+				CC3D657E2EF58B2600636BEE /* VoiceCommandsViewController.mm */,
 				CC1E622D12041177000A8A4E /* myTabBarController.mm */,
 				CC9CEF2D2E98D73200725D15 /* PlayerMenu.h */,
 				CC9CEF2E2E98D76C00725D15 /* PlayerMenu.mm */,
@@ -8258,6 +8264,7 @@
 				CCBF10161221788200E8DE4E /* LzhLib.cpp in Sources */,
 				CC8369542B57CCC80035A4DA /* lines68.c in Sources */,
 				CC16CA432EAEAED100255213 /* DirParser.mm in Sources */,
+				CC3D65802EF58B2600636BEE /* VoiceCommandsViewController.mm in Sources */,
 				CCBF10191221788200E8DE4E /* Ym2149Ex.cpp in Sources */,
 				CC8368592B57CA9A0035A4DA /* mfpemul.c in Sources */,
 				CC6B93662EE0F24600383CC4 /* MDZCarPlaySceneDelegate.mm in Sources */,
@@ -8461,6 +8468,7 @@
 				CCBE60A02EE2DD44000FDD7E /* LzhLib.cpp in Sources */,
 				CCBE60A12EE2DD44000FDD7E /* lines68.c in Sources */,
 				CCBE60A22EE2DD44000FDD7E /* DirParser.mm in Sources */,
+				CC3D657F2EF58B2600636BEE /* VoiceCommandsViewController.mm in Sources */,
 				CCBE60A32EE2DD44000FDD7E /* Ym2149Ex.cpp in Sources */,
 				CCBE60A42EE2DD44000FDD7E /* mfpemul.c in Sources */,
 				CCBE60A52EE2DD44000FDD7E /* MDZCarPlaySceneDelegate.mm in Sources */,
@@ -8818,7 +8826,6 @@
 				MACOSX_DEPLOYMENT_TARGET = 15.6;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = (
-					"-DMDZ_MACOS_WINDOW_AOT",
 					"-DLOAD_PROFILE",
 					"-DMODIZER",
 					"-D",
@@ -8979,7 +8986,6 @@
 				MACOSX_DEPLOYMENT_TARGET = 15.6;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = (
-					"-DMDZ_MACOS_WINDOW_AOT",
 					"-DNDEBUG",
 					"-DMODIZER",
 					"-D",
@@ -9452,6 +9458,30 @@
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.music";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				MARKETING_VERSION = 4.1;
+				OTHER_CFLAGS = (
+					"-DMDZ_MACOS_WINDOW_AOT",
+					"-DLOAD_PROFILE",
+					"-DMODIZER",
+					"-D",
+					"VGM_USE_MPEG=1",
+					"-D",
+					"VGM_USE_VORBIS=1",
+					"-D",
+					"VGM_USE_FFMPEG=1",
+					"-D",
+					"VGM_USE_ATRAC9=1",
+					"-D",
+					LSB_FIRST,
+					"-D",
+					LONG_IS_64BIT,
+					"-DEMU68_MONOLITIC",
+					"-DPRJM_F_SIZE=8",
+					"-DGLES_SILENCE_DEPRECATION",
+					"-DUSE_GLES",
+					"-DPROJECTM_FILESYSTEM_NAMESPACE=std",
+					"-DPROJECTM_FILESYSTEM_INCLUDE=<filesystem>",
+					"-DPROJECTM_USE_THREADS=1",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.yoyofr.modizer;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
@@ -9506,6 +9536,31 @@
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.music";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				MARKETING_VERSION = 4.1;
+				OTHER_CFLAGS = (
+					"-DMDZ_MACOS_WINDOW_AOT",
+					"-DNDEBUG",
+					"-DMODIZER",
+					"-D",
+					"VGM_USE_MPEG=1",
+					"-D",
+					"VGM_USE_VORBIS=1",
+					"-D",
+					"VGM_USE_FFMPEG=1",
+					"-D",
+					"VGM_USE_ATRAC9=1",
+					"-DNS_BLOCK_ASSERTIONS=1",
+					"-D",
+					LSB_FIRST,
+					"-D",
+					LONG_IS_64BIT,
+					"-DEMU68_MONOLITIC",
+					"-DPRJM_F_SIZE=8",
+					"-DGLES_SILENCE_DEPRECATION",
+					"-DUSE_GLES",
+					"-DPROJECTM_FILESYSTEM_NAMESPACE=std",
+					"-DPROJECTM_FILESYSTEM_INCLUDE=<filesystem>",
+					"-DPROJECTM_USE_THREADS=1",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.yoyofr.modizer;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
@@ -9561,6 +9616,31 @@
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.music";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				MARKETING_VERSION = 4.1;
+				OTHER_CFLAGS = (
+					"-DMDZ_MACOS_WINDOW_AOT",
+					"-DNDEBUG",
+					"-DMODIZER",
+					"-D",
+					"VGM_USE_MPEG=1",
+					"-D",
+					"VGM_USE_VORBIS=1",
+					"-D",
+					"VGM_USE_FFMPEG=1",
+					"-D",
+					"VGM_USE_ATRAC9=1",
+					"-DNS_BLOCK_ASSERTIONS=1",
+					"-D",
+					LSB_FIRST,
+					"-D",
+					LONG_IS_64BIT,
+					"-DEMU68_MONOLITIC",
+					"-DPRJM_F_SIZE=8",
+					"-DGLES_SILENCE_DEPRECATION",
+					"-DUSE_GLES",
+					"-DPROJECTM_FILESYSTEM_NAMESPACE=std",
+					"-DPROJECTM_FILESYSTEM_INCLUDE=<filesystem>",
+					"-DPROJECTM_USE_THREADS=1",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.yoyofr.modizer;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";

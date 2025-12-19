@@ -16,6 +16,7 @@
 #import "DownloadViewController.h"
 #import "MiniPlayerVC.h"
 #import "WaitingView.h"
+#import "VoiceCommandsViewController.h"
 
 
 @class DownloadViewController;

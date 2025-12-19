@@ -238,7 +238,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
     // Return the number of rows in the section.
-    return 6;
+    return 7;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -401,7 +401,11 @@ extern volatile t_settings settings[MAX_SETTINGS];
             topLabel.text=NSLocalizedString(@"Maintenance",@"");
             bottomLabel.text=NSLocalizedString(@"Clean DB, Reset ratings, ...",@"");
             break;
-        case 5: //downloads
+        case 5: //Voice Commands
+            topLabel.text=NSLocalizedString(@"Voice Commands",@"");
+            bottomLabel.text=NSLocalizedString(@"Siri voice commands for Modizer",@"");
+            break;
+        case 6: //downloads
         {
             topLabel.text=NSLocalizedString(@"Downloads",@"");
             int download_queue=downloadViewController.mFTPDownloadQueueDepth+downloadViewController.mURLDownloadQueueDepth;
@@ -561,7 +565,27 @@ extern volatile t_settings settings[MAX_SETTINGS];
             //mntVC.view.frame=self.view.frame;
             [self.navigationController pushViewController:mntVC animated:YES];
             break;
-        case 5://downloads
+        case 5:{//Voice Commands
+            VoiceCommandsViewController *voiceVC = [[VoiceCommandsViewController alloc] init];
+            voiceVC.detailViewController=detailViewController;            
+            voiceVC.title = NSLocalizedString(@"Voice Commands",@"");
+            {
+                VoiceCommandsViewController *childController = voiceVC;
+                // Ensure proper layout under navigation/tab bars
+                if ([childController respondsToSelector:@selector(setEdgesForExtendedLayout:)]) {
+                    childController.edgesForExtendedLayout = UIRectEdgeNone;
+                    childController.extendedLayoutIncludesOpaqueBars = NO;
+                }
+                if ([childController isKindOfClass:[UITableViewController class]]) {
+                    ((UITableViewController *)childController).tableView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentAutomatic;
+                } else if ([childController.view isKindOfClass:[UIScrollView class]]) {
+                    ((UIScrollView *)childController.view).contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentAutomatic;
+                }
+            }
+            [self.navigationController pushViewController:voiceVC animated:YES];
+            break;
+        }
+        case 6://downloads
             //downloadViewController.view.frame=self.view.frame;
             [self.navigationController pushViewController:downloadViewController animated:YES];
             break;

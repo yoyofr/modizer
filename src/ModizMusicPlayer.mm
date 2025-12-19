@@ -6585,7 +6585,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 OSMutex_Lock(vgm_renderMtx);
                                 nbBytes=vgm_player.Render(SOUND_BUFFER_SIZE_SAMPLE*2*2,buffer_ana[buffer_ana_gen_ofs]);
                                 if (nbBytes<SOUND_BUFFER_SIZE_SAMPLE*2*2) {
-                                    MDZELog("vgm player not enough bytes: %d",nbBytes);
+                                    //MDZELog("vgm player not enough bytes: %d",nbBytes);
                                 }
                                 OSMutex_Unlock(vgm_renderMtx);
                                 if (settings[GLOB_PBRATIO_ONOFF].detail.mdz_boolswitch.switch_value) mCurrentSamples+=SOUND_BUFFER_SIZE_SAMPLE*settings[GLOB_PBRATIO].detail.mdz_slider.slider_value;
