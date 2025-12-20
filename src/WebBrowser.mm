@@ -68,6 +68,10 @@ int found_img;
                                   relatedBy:NSLayoutRelationEqual toItem:self.view attribute:
                                   NSLayoutAttributeBottom multiplier:1.0f constant:0];
         [self.view addConstraint:bottomConstraint];
+
+        // Force layout update for miniplayer
+        [self.view setNeedsLayout];
+        [self.view layoutIfNeeded];
     }
 }
 
@@ -1593,7 +1597,11 @@ shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherG
                               NSLayoutAttributeBottom multiplier:1.0f constant:0];
     
     [self.view addConstraint:bottomConstraint];
-    
+
+    // Force layout update for miniplayer
+    [self.view setNeedsLayout];
+    [self.view layoutIfNeeded];
+
     [self hideWaiting];
     
     [waitingViewPlayer resetCancelStatus];

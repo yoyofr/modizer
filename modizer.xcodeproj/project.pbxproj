@@ -3895,7 +3895,7 @@
 		CCB8D98D17F62A18008E6A45 /* txtMenu8b_2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu8b_2x.png; sourceTree = "<group>"; };
 		CCB8D99117F62A18008E6A45 /* txtMenu11a_2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu11a_2x.png; sourceTree = "<group>"; };
 		CCB8D99217F62A18008E6A45 /* txtMenu11c_2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu11c_2x.png; sourceTree = "<group>"; };
-		CCBE63E82EE2DD44000FDD7E /* modizer_mac.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = modizer_mac.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		CCBE63E82EE2DD44000FDD7E /* modizer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = modizer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CCBF10011221788200E8DE4E /* digidrum.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = digidrum.cpp; sourceTree = "<group>"; };
 		CCBF10021221788200E8DE4E /* digidrum.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = digidrum.h; sourceTree = "<group>"; };
 		CCBF10041221788200E8DE4E /* LZH.H */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = LZH.H; sourceTree = "<group>"; };
@@ -4233,7 +4233,7 @@
 			children = (
 				1D6058910D05DD3D006BFB54 /* modizer.app */,
 				CC88FB912EDB2CD100717901 /* ModizerMacWindowPlugin.bundle */,
-				CCBE63E82EE2DD44000FDD7E /* modizer_mac.app */,
+				CCBE63E82EE2DD44000FDD7E /* modizer.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -6812,7 +6812,7 @@
 			packageProductDependencies = (
 			);
 			productName = modizer;
-			productReference = CCBE63E82EE2DD44000FDD7E /* modizer_mac.app */;
+			productReference = CCBE63E82EE2DD44000FDD7E /* modizer.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -9564,7 +9564,8 @@
 					"-DPROJECTM_USE_THREADS=1",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.yoyofr.modizer;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_MODULE_NAME = modizer;
+				PRODUCT_NAME = modizer;
 				PROVISIONING_PROFILE = "";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = iphoneos;
@@ -9643,7 +9644,8 @@
 					"-DPROJECTM_USE_THREADS=1",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.yoyofr.modizer;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_MODULE_NAME = modizer;
+				PRODUCT_NAME = modizer;
 				PROVISIONING_PROFILE = "";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = iphoneos;
@@ -9723,7 +9725,8 @@
 					"-DPROJECTM_USE_THREADS=1",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.yoyofr.modizer;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_MODULE_NAME = modizer;
+				PRODUCT_NAME = modizer;
 				PROVISIONING_PROFILE = "";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 				PROVISIONING_PROFILE_SPECIFIER = "";
