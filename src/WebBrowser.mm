@@ -1537,7 +1537,7 @@ shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherG
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
-    //if ((!wasMiniPlayerOn) && [detailViewController mPlaylist_size]) [self showMiniPlayer];
+    if ((!wasMiniPlayerOn) && [detailViewController mPlaylist_size]) [self showMiniPlayer];
 }
 
 - (void)viewWillLayoutSubviews {
@@ -1562,6 +1562,7 @@ shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherG
     bool oldmode=darkMode;
     darkMode=false;
     if (self.traitCollection.userInterfaceStyle==UIUserInterfaceStyleDark) darkMode=true;
+    if (oldmode!=darkMode) forceReloadCells=true;
     
     self.navigationController.delegate = self;
     
@@ -1572,7 +1573,7 @@ shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherG
     
     CGFloat safe_top=0;
     safe_top=[[UIApplication sharedApplication] keyWindow].safeAreaInsets.top;
-        
+    
     if ([detailViewController mPlaylist_size]>0) {
         wasMiniPlayerOn=true;
         [self showMiniPlayer];
@@ -1611,7 +1612,6 @@ shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherG
                                           context:LoadingProgressObserverContext];
     
     repeatingTimer = [NSTimer scheduledTimerWithTimeInterval: 0.20f target:self selector:@selector(updateLoadingInfos:) userInfo:nil repeats: YES]; //5 times/second
- 
     
     [super viewWillAppear:animated];
 }

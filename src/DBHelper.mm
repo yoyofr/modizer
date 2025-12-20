@@ -225,15 +225,44 @@ int DBHelper::deleteStatsFileDB(NSString *fullpath) {
     ret=1;
     if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
         char sqlStatement[1024];
+        sqlite3_stmt *stmt;
         
         err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = NORMAL;", 0, 0, 0);
         if (err==SQLITE_OK){
         } else MDZELog("ErrSQL : %d",err);
         
+        //Remove stats
         snprintf(sqlStatement,1024,"DELETE FROM user_stats WHERE fullpath = \"%s\"",[fullpath UTF8String]);
         err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
         if (err==SQLITE_OK){
         } else {ret=0;MDZELog("ErrSQL : %d",err);}
+        
+        //Update playlists referencing the deleted file
+        snprintf(sqlStatement,1024,"SELECT id_playlist FROM playlists_entries WHERE fullpath =\"%s\"",[fullpath UTF8String]);
+        err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+        if (err==SQLITE_OK){
+            while (sqlite3_step(stmt) == SQLITE_ROW) {
+                int plid;
+                plid=(int)sqlite3_column_int(stmt, 0);
+        
+                //Remove stats
+                snprintf(sqlStatement,1024,"DELETE FROM playlists_entries WHERE id_playlist=%d AND fullpath = \"%s\"",plid,[fullpath UTF8String]);
+                err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
+                if (err==SQLITE_OK){
+                } else {ret=0;MDZELog("ErrSQL : %d",err);}
+                
+                //Recompute nb of entries
+                snprintf(sqlStatement,1024,"UPDATE playlists SET num_files=\
+                        (SELECT COUNT(1) FROM playlists_entries e WHERE playlists.id=e.id_playlist AND playlists.id=%d)\
+                        WHERE id=%d",
+                         plid,plid);
+                err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
+                if (err==SQLITE_OK){
+                } else {ret=0;MDZELog("ErrSQL : %d",err);}
+                
+            }
+            sqlite3_finalize(stmt);
+        } else MDZELog("ErrSQL : %d",err);
         
     }
     sqlite3_close(db);
@@ -252,6 +281,7 @@ int DBHelper::deleteStatsDirDB(NSString *fullpath) {
     ret=1;
     if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
         char sqlStatement[1024];
+        sqlite3_stmt *stmt;
         
         err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = NORMAL;", 0, 0, 0);
         if (err==SQLITE_OK){
@@ -261,6 +291,33 @@ int DBHelper::deleteStatsDirDB(NSString *fullpath) {
         err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
         if (err==SQLITE_OK){
         } else {ret=0;MDZELog("ErrSQL : %d",err);}
+        
+        //Update playlists referencing the deleted file
+        snprintf(sqlStatement,1024,"SELECT id_playlist FROM playlists_entries WHERE fullpath LIKE \"%s/%%\"",[fullpath UTF8String]);
+        err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+        if (err==SQLITE_OK){
+            while (sqlite3_step(stmt) == SQLITE_ROW) {
+                int plid;
+                plid=(int)sqlite3_column_int(stmt, 0);
+        
+                //Remove stats
+                snprintf(sqlStatement,1024,"DELETE FROM playlists_entries WHERE id_playlist=%d AND fullpath LIKE \"%s/%%\"",plid,[fullpath UTF8String]);
+                err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
+                if (err==SQLITE_OK){
+                } else {ret=0;MDZELog("ErrSQL : %d",err);}
+                
+                //Recompute nb of entries
+                snprintf(sqlStatement,1024,"UPDATE playlists SET num_files=\
+                        (SELECT COUNT(1) FROM playlists_entries e WHERE playlists.id=e.id_playlist AND playlists.id=%d)\
+                        WHERE id=%d",
+                         plid,plid);
+                err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
+                if (err==SQLITE_OK){
+                } else {ret=0;MDZELog("ErrSQL : %d",err);}
+                
+            }
+            sqlite3_finalize(stmt);
+        } else MDZELog("ErrSQL : %d",err);
         
     }
     sqlite3_close(db);
