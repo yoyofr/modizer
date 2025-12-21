@@ -10856,10 +10856,6 @@ char* loadRom(const char* path, size_t romSize)
     return 1;
 }
 
--(int) mmp_s98Load:(NSString*)filePath {  //S98
-    return -1;
-}
-
 -(int) mmp_kssLoad:(NSString*)filePath {  //KSS
     mPlayType=MMP_KSS;
     
@@ -14114,7 +14110,6 @@ extern bool icloud_available;
     NSArray *filetype_extHC=[SUPPORTED_FILETYPE_HC componentsSeparatedByString:@","];
     NSArray *filetype_extEUP=[SUPPORTED_FILETYPE_EUP componentsSeparatedByString:@","];
     NSArray *filetype_extHVL=[SUPPORTED_FILETYPE_HVL componentsSeparatedByString:@","];
-    NSArray *filetype_extS98=[SUPPORTED_FILETYPE_S98 componentsSeparatedByString:@","];
     NSArray *filetype_extKSS=[SUPPORTED_FILETYPE_KSS componentsSeparatedByString:@","];
     NSArray *filetype_extGSF=[SUPPORTED_FILETYPE_GSF componentsSeparatedByString:@","];
     NSArray *filetype_extASAP=[SUPPORTED_FILETYPE_ASAP componentsSeparatedByString:@","];
@@ -14416,10 +14411,6 @@ extern bool icloud_available;
             if (mdz_defaultNSFPLAYER==DEFAULT_NSFNSFPLAY) [available_player addObject:[NSNumber numberWithInt:MMP_NSFPLAY]];
             break;
         }
-        //        if ([file_no_ext caseInsensitiveCompare:[filetype_extNSFPLAY objectAtIndex:i]]==NSOrderedSame) {
-        //            if (mdz_defaultNSFPLAYER==DEFAULT_NSFNSFPLAY) [available_player addObject:[NSNumber numberWithInt:MMP_NSFPLAY]];
-        //            break;
-        //        }
     }
     
     
@@ -14429,11 +14420,6 @@ extern bool icloud_available;
             else [available_player addObject:[NSNumber numberWithInt:MMP_VGMPLAY]];
             break;
         }
-        //        if ([file_no_ext caseInsensitiveCompare:[filetype_extVGM objectAtIndex:i]]==NSOrderedSame) {
-        //            if (mdz_defaultVGMPLAYER==DEFAULT_VGMVGM) [available_player insertObject:[NSNumber numberWithInt:MMP_VGMPLAY] atIndex:0];
-        //            else [available_player addObject:[NSNumber numberWithInt:MMP_VGMPLAY]];
-        //            break;
-        //        }
     }
     for (int i=0;i<[filetype_extASAP count];i++) {
         if ([extension caseInsensitiveCompare:[filetype_extASAP objectAtIndex:i]]==NSOrderedSame) {
@@ -14441,21 +14427,12 @@ extern bool icloud_available;
             else [available_player addObject:[NSNumber numberWithInt:MMP_ASAP]];
             break;
         }
-        //        if ([file_no_ext caseInsensitiveCompare:[filetype_extASAP objectAtIndex:i]]==NSOrderedSame) {
-        //            if (mdz_defaultSAPPLAYER==DEFAULT_SAPASAP) [available_player insertObject:[NSNumber numberWithInt:MMP_ASAP] atIndex:0];
-        //            else [available_player addObject:[NSNumber numberWithInt:MMP_ASAP]];
-        //            break;
-        //        }
     }
     for (int i=0;i<[filetype_extGBS count];i++) {
         if ([extension caseInsensitiveCompare:[filetype_extGBS objectAtIndex:i]]==NSOrderedSame) {
             if (mdz_defaultGBSPLAYER==DEFAULT_GBSGBSPLAY) [available_player addObject:[NSNumber numberWithInt:MMP_GBS]];
             break;
         }
-        //        if ([file_no_ext caseInsensitiveCompare:[filetype_extGBS objectAtIndex:i]]==NSOrderedSame) {
-        //            [available_player addObject:[NSNumber numberWithInt:MMP_GBS]];
-        //            break;
-        //        }
     }
     
     for (int i=0;i<[filetype_extGME count];i++) {
@@ -14534,30 +14511,18 @@ extern bool icloud_available;
             else [available_player addObject:[NSNumber numberWithInt:MMP_PT3]];
             break;
         }
-        //        if ([file_no_ext caseInsensitiveCompare:[filetype_extPT3 objectAtIndex:i]]==NSOrderedSame) {
-        //            [available_player addObject:[NSNumber numberWithInt:MMP_PT3]];
-        //            break;
-        //        }
     }
     for (int i=0;i<[filetype_extPIXEL count];i++) {
         if ([extension caseInsensitiveCompare:[filetype_extPIXEL objectAtIndex:i]]==NSOrderedSame) {
             [available_player addObject:[NSNumber numberWithInt:MMP_PIXEL]];
             break;
         }
-        //        if ([file_no_ext caseInsensitiveCompare:[filetype_extPIXEL objectAtIndex:i]]==NSOrderedSame) {
-        //            [available_player addObject:[NSNumber numberWithInt:MMP_PIXEL]];
-        //            break;
-        //        }
     }
     for (int i=0;i<[filetype_extWSR count];i++) {
         if ([extension caseInsensitiveCompare:[filetype_extWSR objectAtIndex:i]]==NSOrderedSame) {
             [available_player addObject:[NSNumber numberWithInt:MMP_WSR]];
             break;
         }
-        //        if ([file_no_ext caseInsensitiveCompare:[filetype_extWSR objectAtIndex:i]]==NSOrderedSame) {
-        //            [available_player addObject:[NSNumber numberWithInt:MMP_WSR]];
-        //            break;
-        //        }
     }
     for (int i=0;i<[filetype_extZXTUNE count];i++) {
         if ([extension caseInsensitiveCompare:[filetype_extZXTUNE objectAtIndex:i]]==NSOrderedSame) {
@@ -14575,50 +14540,30 @@ extern bool icloud_available;
             else [available_player addObject:[NSNumber numberWithInt:MMP_ZXTUNE]];
             break;
         }
-        //        if ([file_no_ext caseInsensitiveCompare:[filetype_extZXTUNE objectAtIndex:i]]==NSOrderedSame) {
-        //            [available_player addObject:[NSNumber numberWithInt:MMP_ZXTUNE]];
-        //            break;
-        //        }
     }
     for (int i=0;i<[filetype_ext2SF count];i++) {
         if ((mdz_default2SFPLAYER==DEFAULT_2SFVIO2SF)&&([extension caseInsensitiveCompare:[filetype_ext2SF objectAtIndex:i]]==NSOrderedSame)) {
             [available_player addObject:[NSNumber numberWithInt:MMP_2SF]];
             break;
         }
-        //        if ([file_no_ext caseInsensitiveCompare:[filetype_ext2SF objectAtIndex:i]]==NSOrderedSame) {
-        //            [available_player addObject:[NSNumber numberWithInt:MMP_2SF]];
-        //            break;
-        //        }
     }
     for (int i=0;i<[filetype_extNCSF count];i++) {
         if ([extension caseInsensitiveCompare:[filetype_extNCSF objectAtIndex:i]]==NSOrderedSame) {
             [available_player addObject:[NSNumber numberWithInt:MMP_NCSF]];
             break;
         }
-        //        if ([file_no_ext caseInsensitiveCompare:[filetype_extNCSF objectAtIndex:i]]==NSOrderedSame) {
-        //            [available_player addObject:[NSNumber numberWithInt:MMP_NCSF]];
-        //            break;
-        //        }
     }
     for (int i=0;i<[filetype_extV2M count];i++) {
         if ([extension caseInsensitiveCompare:[filetype_extV2M objectAtIndex:i]]==NSOrderedSame) {
             [available_player addObject:[NSNumber numberWithInt:MMP_V2M]];
             break;
         }
-        //        if ([file_no_ext caseInsensitiveCompare:[filetype_extV2M objectAtIndex:i]]==NSOrderedSame) {
-        //            [available_player addObject:[NSNumber numberWithInt:MMP_V2M]];
-        //            break;
-        //        }
     }
     for (int i=0;i<[filetype_extHC count];i++) {
         if ([extension caseInsensitiveCompare:[filetype_extHC objectAtIndex:i]]==NSOrderedSame) {
             [available_player addObject:[NSNumber numberWithInt:MMP_HC]];
             break;
         }
-        //        if ([file_no_ext caseInsensitiveCompare:[filetype_extHC objectAtIndex:i]]==NSOrderedSame) {
-        //            [available_player addObject:[NSNumber numberWithInt:MMP_HC]];
-        //            break;
-        //        }
     }
     for (int i=0;i<[filetype_extEUP count];i++) {
         if ([extension caseInsensitiveCompare:[filetype_extEUP objectAtIndex:i]]==NSOrderedSame) {
@@ -14663,21 +14608,6 @@ extern bool icloud_available;
             [available_player addObject:[NSNumber numberWithInt:MMP_HVL]];
             break;
         }
-        //        if ([file_no_ext caseInsensitiveCompare:[filetype_extHVL objectAtIndex:i]]==NSOrderedSame) {
-        //            [available_player addObject:[NSNumber numberWithInt:MMP_HVL]];
-        //            break;
-        //        }
-    }
-    
-    for (int i=0;i<[filetype_extS98 count];i++) {
-        if ([extension caseInsensitiveCompare:[filetype_extS98 objectAtIndex:i]]==NSOrderedSame) {
-            [available_player addObject:[NSNumber numberWithInt:MMP_S98]];
-            break;
-        }
-        //        if ([file_no_ext caseInsensitiveCompare:[filetype_extS98 objectAtIndex:i]]==NSOrderedSame) {
-        //            [available_player addObject:[NSNumber numberWithInt:MMP_S98]];
-        //            break;
-        //        }
     }
     
     for (int i=0;i<[filetype_extKSS count];i++) {
@@ -14686,11 +14616,6 @@ extern bool icloud_available;
             else [available_player addObject:[NSNumber numberWithInt:MMP_KSS]];
             break;
         }
-        //        if ([file_no_ext caseInsensitiveCompare:[filetype_extKSS objectAtIndex:i]]==NSOrderedSame) {
-        //            if ((mdz_defaultKSSPLAYER==DEFAULT_KSSLIBKSS)||([extension caseInsensitiveCompare:@"KSS"]!=NSOrderedSame)) [available_player insertObject:[NSNumber numberWithInt:MMP_KSS] atIndex:0];
-        //            else [available_player addObject:[NSNumber numberWithInt:MMP_KSS]];
-        //            break;
-        //        }
     }
     bool is_potential_mod=false;
     for (int i=0;i<[filetype_extXMP count];i++) {
@@ -14934,9 +14859,6 @@ extern bool icloud_available;
                 break;
             case MMP_HVL:
                 retval=[self mmp_hvlLoad:filePath];
-                break;
-            case MMP_S98:
-                retval=[self mmp_s98Load:filePath];
                 break;
             case MMP_KSS:
                 retval=[self mmp_kssLoad:filePath];

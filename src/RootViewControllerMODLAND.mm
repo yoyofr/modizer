@@ -1544,7 +1544,15 @@ END_PROFILE
         } else MDZELog("ErrSQL : %d",err);
         
 		
-        snprintf(sqlStatement,1024,"select localpath from mod_file where id=%d",id_mod);
+        snprintf(sqlStatement,1024,""
+                 "SELECT a.author||'/'||t.filetype||'/'||l.album||'/'||f.filename "
+                 "FROM mod_author a,mod_type t,mod_album l, mod_file f "
+                 "WHERE f.id_author=a.id AND f.id_type=t.id AND f.id_album=l.id AND f.id=%d "
+                 "UNION "
+                 "SELECT a.author||'/'||t.filetype||'/'||f.filename "
+                 "FROM mod_author a,mod_type t, mod_file f "
+                 "WHERE f.id_author=a.id AND f.id_type=t.id AND f.id_album IS NULL AND f.id=%d;"
+                 "",id_mod,id_mod);
 		err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
 		if (err==SQLITE_OK){
 			while (sqlite3_step(stmt) == SQLITE_ROW) {
@@ -1785,7 +1793,15 @@ END_PROFILE
         if (err==SQLITE_OK){
         } else MDZELog("ErrSQL : %d",err);
         
-        snprintf(sqlStatement,1024,"SELECT localpath FROM mod_file WHERE id=%d",id_mod);
+        snprintf(sqlStatement,1024,""
+                 "SELECT a.author||'/'||t.filetype||'/'||l.album||'/'||f.filename "
+                 "FROM mod_author a,mod_type t,mod_album l, mod_file f "
+                 "WHERE f.id_author=a.id AND f.id_type=t.id AND f.id_album=l.id AND f.id=%d "
+                 "UNION "
+                 "SELECT a.author||'/'||t.filetype||'/'||f.filename "
+                 "FROM mod_author a,mod_type t, mod_file f "
+                 "WHERE f.id_author=a.id AND f.id_type=t.id AND f.id_album IS NULL AND f.id=%d;"
+                 "",id_mod,id_mod);
         err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
         if (err==SQLITE_OK){
             

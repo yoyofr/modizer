@@ -5412,7 +5412,7 @@ void updatePresetCustomDirStructure() {
     DirParser *dirParser=[[DirParser alloc] init];
     dirParser.includeHiddenFiles = NO;
     dirParser.maxDepth = 5;
-    dirParser.filterExt = @"milk";
+    dirParser.filterExt = @[@"milk", @"milkz"];
     
     NSError *error;
     
@@ -5432,7 +5432,7 @@ void buildPresetDirStructure() {
     DirParser *dirParser=[[DirParser alloc] init];
     dirParser.includeHiddenFiles = NO;
     dirParser.maxDepth = 5;
-    dirParser.filterExt = @"milk";
+    dirParser.filterExt = @[@"milk",@"milkz"];
     
     NSString *canonicalHomePath;
     

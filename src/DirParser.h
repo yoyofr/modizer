@@ -151,7 +151,7 @@ enum MDZ_PLAYLIST_FNODE_Type {
 @interface DirParser : NSObject
 
 @property (nonatomic, assign) BOOL includeHiddenFiles;
-@property (nonatomic, strong) NSString *filterExt;
+@property (nonatomic, strong) NSArray *filterExt;
 @property (nonatomic, assign) NSInteger maxDepth;
 
 //- (FileNode *)parseDirectoryAtPath:(NSString *)path type:(uint8_t)type error:(NSError **)error;

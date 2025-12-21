@@ -413,22 +413,58 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
     self.nextFilepath=nil;
 }
 
+- (void)uncompressIfNeeded:(NSString *)filePath newPath:(const char**)newPath {
+    if ([[[filePath pathExtension] lowercaseString] isEqualToString:@"milkz"]) {
+        // Create temporary file URL
+        NSString *newFilePath = [NSString stringWithFormat:@"%@tmpPreset.milk",NSTemporaryDirectory()];
+        
+        int chunk_size=32768;
+        
+        gzFile inFile;
+        FILE *tmpFile;
+        inFile=gzopen([filePath UTF8String],"rb");
+        if (inFile==NULL) {
+            MDZELog("cannot open compressed preset %@",filePath);
+            *newPath=NULL;
+            return;
+        }
+        tmpFile=fopen([newFilePath UTF8String],"wb");
+        if (tmpFile==NULL) {
+            MDZELog("cannot open temp preset file to uncompress %@",filePath);
+            gzclose(inFile);
+            *newPath=NULL;
+            return;
+        }
+        char *buffer=(char*)malloc(chunk_size);
+        for (;;) {
+            int read_bytes=gzread(inFile, buffer, chunk_size);
+            if (read_bytes) fwrite(buffer, read_bytes, 1, tmpFile);
+            if (read_bytes<chunk_size) break;
+        }
+        free(buffer);
+        fclose(tmpFile);
+        gzclose(inFile);
+        
+        *newPath=[newFilePath UTF8String];
+    }
+}
+
 - (void)preloadNextPreset:(FileNode*)item {
-//    MGLContext *mainContext=[MGLContext currentContext];
+    
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
-//        MGLContext *sharedContext= [[MGLContext alloc] initWithAPI:mainContext.API sharegroup:mainContext.sharegroup];
-//        [MGLContext setCurrentContext:sharedContext];
         //Load new preset
+        const char *filepath=[[item getFullPath] UTF8String];
         pthread_mutex_lock(&pm_mutex);
         [self releaseNextPreset];
         if (self.size) {
             self.nextFilepath=[NSString stringWithString:[item getFullPath] ];
             self.lastFailed=false;
-            projectm_preload_preset_file(self.pmh, [[item getFullPath] UTF8String], &self->_nextWarpP, &self->_nextCompP);
+            
+            //check if compressed milk preset, if so uncompress and update filepath accordingly
+            [self uncompressIfNeeded:[item getFullPath] newPath:&filepath];
+            
+            projectm_preload_preset_file(self.pmh, filepath, &self->_nextWarpP, &self->_nextCompP);
         }
-        
-//        glFlush();
-//        [MGLContext setCurrentContext:nil];
         
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
             pthread_mutex_unlock(&pm_mutex);
@@ -451,9 +487,6 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
 }
 
 - (void)loadASyncCurrentPreset:(bool)cut {
-    
-//    MGLContext *mainContext=[MGLContext currentContext];
-    
     FileNode *item;
     if (self.size==0) {
         moveToNextPresetRequest=0;
@@ -461,8 +494,7 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
     }
     item=[self.items objectAtIndex:self.position];
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
-//        MGLContext *sharedContext= [[MGLContext alloc] initWithAPI:mainContext.API sharegroup:mainContext.sharegroup];
-//        [MGLContext setCurrentContext:sharedContext];
+        const char *filepath=[[item getFullPath] UTF8String];
         //Load new preset
         pthread_mutex_lock(&pm_mutex);
         if ((self.nextWarpP && self.nextCompP && [self.nextFilepath isEqualToString:[item getFullPath]])) {
@@ -473,19 +505,22 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
             self.nextCompP=0;
             self.lastFailed=false;
             //MDZILog("shortcut, already compiled");
+            
+            //check if compressed milk preset, if so uncompress and update filepath accordingly
+            [self uncompressIfNeeded:[item getFullPath] newPath:&filepath];
         } else {
             self.warpP=0;
             self.compP=0;
             self.lastFailed=false;
             
-            projectm_preload_preset_file(self.pmh, [[item getFullPath] UTF8String], &self->_warpP, &self->_compP);
+            //check if compressed milk preset, if so uncompress and update filepath accordingly
+            [self uncompressIfNeeded:[item getFullPath] newPath:&filepath];
+            
+            projectm_preload_preset_file(self.pmh, filepath, &self->_warpP, &self->_compP);
         }
         
-//        glFlush();
-//        [MGLContext setCurrentContext:nil];
-        
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-            
+            const char *filepath=[[item getFullPath] UTF8String];
             if (!self.lastFailed) {
                 if (self.warpP && self.compP) {
                     moveToNextPresetRequest=0;
@@ -494,7 +529,11 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
                     self.lastFailed=false;
                     //pthread_mutex_lock(&pm_mutex);
                     
-                    projectm_loadpreload_preset_file(self.pmh, [[item getFullPath] UTF8String], self.warpP, self.compP, !cut);
+                    if ([[[[item getFullPath] pathExtension] lowercaseString] isEqualToString:@"milkz"]) {
+                        filepath=[[NSString stringWithFormat:@"%@tmpPreset.milk",NSTemporaryDirectory()] UTF8String];
+                    }
+                    
+                    projectm_loadpreload_preset_file(self.pmh, filepath, self.warpP, self.compP, !cut);
                     
                     CHECK_PROFILE("preset loaded fast")
                     END_PROFILE
@@ -536,11 +575,9 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
 }
 
 - (void)loadASyncPreset:(FileNode*)item cut:(bool)cut {
-//    MGLContext *mainContext=[MGLContext currentContext];
+    
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
-//        MGLContext *sharedContext= [[MGLContext alloc] initWithAPI:mainContext.API sharegroup:mainContext.sharegroup];
-//        [MGLContext setCurrentContext:sharedContext];
-        
+        const char *filepath=[[item getFullPath] UTF8String];
         //Load new preset
         pthread_mutex_lock(&pm_mutex);
         if (self.size) {
@@ -548,23 +585,25 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
             self.compP=0;
             self.lastFailed=false;
             
-            MDZILog("loading: %@",[item getFullPath]);
+            //check if compressed milk preset, if so uncompress and update filepath accordingly
+            [self uncompressIfNeeded:[item getFullPath] newPath:&filepath];
             
-            projectm_preload_preset_file(self.pmh, [[item getFullPath] UTF8String], &self->_warpP, &self->_compP);
+            projectm_preload_preset_file(self.pmh, filepath, &self->_warpP, &self->_compP);
         }
         
-//        glFlush();
-//        [MGLContext setCurrentContext:nil];
-        
-        
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-            
+            const char *filepath=[[item getFullPath] UTF8String];
             if (!self.lastFailed) {
                 if (self.warpP && self.compP) {
+                    
+                    if ([[[[item getFullPath] pathExtension] lowercaseString] isEqualToString:@"milkz"]) {
+                        filepath=[[NSString stringWithFormat:@"%@tmpPreset.milk",NSTemporaryDirectory()] UTF8String];
+                    }
+                    
                     //MDZILog("warpP %d compP %d",self.warpP,self.compP);
                     START_PROFILE
                     self.lastFailed=false;
-                    projectm_loadpreload_preset_file(self.pmh, [[item getFullPath] UTF8String], self.warpP, self.compP, !cut);
+                    projectm_loadpreload_preset_file(self.pmh, filepath, self.warpP, self.compP, !cut);
                     CHECK_PROFILE("preset loaded fast")
                     END_PROFILE
                     
@@ -595,7 +634,11 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
     _lastFailed=false;
     START_PROFILE
     
-    projectm_load_preset_file(_pmh, [[file getFullPath] UTF8String],!cut);
+    const char *filepath=[[file getFullPath] UTF8String];
+    //check if compressed milk preset, if so uncompress and update filepath accordingly
+    [self uncompressIfNeeded:[item getFullPath]  newPath:&filepath];
+    
+    projectm_load_preset_file(_pmh, filepath,!cut);
     CHECK_PROFILE("preset loaded normal")
     END_PROFILE
     
@@ -622,7 +665,11 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
             item=[_items objectAtIndex:_position];
             START_PROFILE
             
-            projectm_load_preset_file(_pmh, [[item getFullPath] UTF8String],!cut);
+            const char *filepath=[[item getFullPath] UTF8String];
+            //check if compressed milk preset, if so uncompress and update filepath accordingly
+            [self uncompressIfNeeded:[item getFullPath]  newPath:&filepath];
+            
+            projectm_load_preset_file(_pmh, filepath,!cut);
             CHECK_PROFILE("preset loaded normal")
             END_PROFILE
             
@@ -1191,7 +1238,16 @@ code_4=a=1.0;\n\
             } else {
                 //File, add it to children if matching the filter
                 bool addToList=true;
-                if (self.filterExt && ![[entryPath pathExtension] isEqualToString:self.filterExt]) addToList=false;
+                if (self.filterExt) {
+                    bool isMatching=false;
+                    for (NSString *ext in self.filterExt) {
+                        if ( [[[entryPath pathExtension] lowercaseString] isEqualToString:ext] ) {
+                            isMatching=true;
+                            break;
+                        }
+                    }
+                    addToList=isMatching;
+                }
                 
                 if (addToList) {
                     NSString *childPath=[entryPath substringFromIndex:localPathStartPos];
@@ -1245,59 +1301,6 @@ code_4=a=1.0;\n\
         }
     }
 }
-
-//- (FileNode *)parseDirectoryAtPath:(NSString *)path type:(uint8_t)type error:(NSError **)error {
-//    // Check if path exists
-//    NSFileManager *fm = [NSFileManager defaultManager];
-//    
-//    BOOL exists = [fm fileExistsAtPath:path];
-//    if (!exists) {
-//        if (error) {
-//            *error = [NSError errorWithDomain:NSCocoaErrorDomain
-//                                         code:NSFileReadNoSuchFileError
-//                                     userInfo:@{NSLocalizedDescriptionKey: @"Path does not exist"}];
-//        }
-//        return nil;
-//    }
-//    
-//    return [self parseDirectoryAtPathInternal:@"/." root:path type:type depth:0 error:error];
-//}
-//
-//- (FileNode *)parseDirectoryAtPathInternal:(NSString *)path root:(NSString *)rootPath type:(uint8_t)type depth:(NSInteger)depth error:(NSError **)error {
-//    NSFileManager *fm = [NSFileManager defaultManager];
-//    
-//    FileNode *node = [[FileNode alloc] initWithPath:path root:rootPath type:type];
-//    // If it's a file or we've reached max depth, return the node
-//    if (!node.isDirectory || (self.maxDepth >= 0 && depth >= self.maxDepth)) {
-//        if (self.filterExt && [[node.name pathExtension] caseInsensitiveCompare:self.filterExt]) return nil;
-//        return node;
-//    }
-//    
-//    // Get directory contents
-//    NSArray *contents = [fm contentsOfDirectoryAtPath:[rootPath stringByAppendingString:path] error:error];
-//    if (!contents) {
-//        return node; // Return node even if we can't read contents
-//    }
-//    
-//    // Sort contents alphabetically
-//    contents = [contents sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
-//    
-//    for (NSString *item in contents) {
-//        // Skip hidden files if specified
-//        if (!self.includeHiddenFiles && [item hasPrefix:@"."]) {
-//            continue;
-//        }
-//        
-//        NSString *itemPath = [path stringByAppendingPathComponent:item];
-//        FileNode *childNode = [self parseDirectoryAtPathInternal:itemPath root:rootPath type:type depth:depth + 1 error:nil];
-//        
-//        if (childNode) {
-//            if (node.children==nil) node.children=[NSMutableArray array];
-//            [node.children addObject:childNode];
-//        }
-//    }
-//    return node;
-//}
 
 - (NSArray<FileNode *> *)flattenTree:(FileNode *)root {
     NSMutableArray<FileNode *> *result = [NSMutableArray array];

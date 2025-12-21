@@ -155,7 +155,6 @@ extern bool icloud_available;
             NSArray *filetype_extHC=[SUPPORTED_FILETYPE_HC componentsSeparatedByString:@","];
             NSArray *filetype_extEUP=[SUPPORTED_FILETYPE_EUP componentsSeparatedByString:@","];
             NSArray *filetype_extHVL=[SUPPORTED_FILETYPE_HVL componentsSeparatedByString:@","];
-            NSArray *filetype_extS98=[SUPPORTED_FILETYPE_S98 componentsSeparatedByString:@","];
             NSArray *filetype_extKSS=[SUPPORTED_FILETYPE_KSS componentsSeparatedByString:@","];
             NSArray *filetype_extGSF=[SUPPORTED_FILETYPE_GSF componentsSeparatedByString:@","];
             NSArray *filetype_extASAP=[SUPPORTED_FILETYPE_ASAP componentsSeparatedByString:@","];
@@ -188,7 +187,6 @@ extern bool icloud_available;
                           [filetype_extHC count]+
                           [filetype_extEUP count]+
                           [filetype_extHVL count]+
-                          [filetype_extS98 count]+
                           [filetype_extKSS count]+
                           [filetype_extGSF count]+
                           [filetype_extASAP count]+
@@ -220,7 +218,6 @@ extern bool icloud_available;
             [filetype_ext addObjectsFromArray:filetype_extHC];
             [filetype_ext addObjectsFromArray:filetype_extEUP];
             [filetype_ext addObjectsFromArray:filetype_extHVL];
-            [filetype_ext addObjectsFromArray:filetype_extS98];
             [filetype_ext addObjectsFromArray:filetype_extKSS];
             [filetype_ext addObjectsFromArray:filetype_extGSF];
             [filetype_ext addObjectsFromArray:filetype_extASAP];
@@ -261,7 +258,6 @@ extern bool icloud_available;
             NSArray *filetype_extHC=[SUPPORTED_FILETYPE_HC_EXT componentsSeparatedByString:@","];
             NSArray *filetype_extEUP=[SUPPORTED_FILETYPE_EUP_EXT componentsSeparatedByString:@","];
             NSArray *filetype_extHVL=[SUPPORTED_FILETYPE_HVL componentsSeparatedByString:@","];
-            NSArray *filetype_extS98=[SUPPORTED_FILETYPE_S98 componentsSeparatedByString:@","];
             NSArray *filetype_extKSS=[SUPPORTED_FILETYPE_KSS componentsSeparatedByString:@","];
             NSArray *filetype_extGSF=[SUPPORTED_FILETYPE_GSF_EXT componentsSeparatedByString:@","];
             NSArray *filetype_extASAP=[SUPPORTED_FILETYPE_ASAP componentsSeparatedByString:@","];
@@ -294,7 +290,6 @@ extern bool icloud_available;
                           [filetype_extHC count]+
                           [filetype_extEUP count]+
                           [filetype_extHVL count]+
-                          [filetype_extS98 count]+
                           [filetype_extKSS count]+
                           [filetype_extGSF count]+
                           [filetype_extASAP count]+
@@ -326,7 +321,6 @@ extern bool icloud_available;
             [filetype_ext addObjectsFromArray:filetype_extHC];
             [filetype_ext addObjectsFromArray:filetype_extEUP];
             [filetype_ext addObjectsFromArray:filetype_extHVL];
-            [filetype_ext addObjectsFromArray:filetype_extS98];
             [filetype_ext addObjectsFromArray:filetype_extKSS];
             [filetype_ext addObjectsFromArray:filetype_extGSF];
             [filetype_ext addObjectsFromArray:filetype_extASAP];
@@ -464,7 +458,6 @@ extern bool icloud_available;
     NSArray *filetype_extHC=(no_aux_file?[SUPPORTED_FILETYPE_HC componentsSeparatedByString:@","]:[SUPPORTED_FILETYPE_HC_EXT componentsSeparatedByString:@","]);
     NSArray *filetype_extEUP=(no_aux_file?[SUPPORTED_FILETYPE_EUP componentsSeparatedByString:@","]:[SUPPORTED_FILETYPE_EUP_EXT componentsSeparatedByString:@","]);
     NSArray *filetype_extHVL=[SUPPORTED_FILETYPE_HVL componentsSeparatedByString:@","];
-    NSArray *filetype_extS98=[SUPPORTED_FILETYPE_S98 componentsSeparatedByString:@","];
     NSArray *filetype_extKSS=[SUPPORTED_FILETYPE_KSS componentsSeparatedByString:@","];
     NSArray *filetype_extGSF=(no_aux_file?[SUPPORTED_FILETYPE_GSF componentsSeparatedByString:@","]:[SUPPORTED_FILETYPE_GSF_EXT componentsSeparatedByString:@","]);
     NSArray *filetype_extASAP=[SUPPORTED_FILETYPE_ASAP componentsSeparatedByString:@","];
@@ -824,12 +817,6 @@ extern bool icloud_available;
         for (int i=0;i<[filetype_extHVL count];i++) {
             if ([extension caseInsensitiveCompare:[filetype_extHVL objectAtIndex:i]]==NSOrderedSame) {found=MMP_HVL;break;}
             if ([file_no_ext caseInsensitiveCompare:[filetype_extHVL objectAtIndex:i]]==NSOrderedSame) {found=MMP_HVL;break;}
-        }
-    }
-    if (!found) {
-        for (int i=0;i<[filetype_extS98 count];i++) {
-            if ([extension caseInsensitiveCompare:[filetype_extS98 objectAtIndex:i]]==NSOrderedSame) {found=MMP_S98;break;}
-            if ([file_no_ext caseInsensitiveCompare:[filetype_extS98 objectAtIndex:i]]==NSOrderedSame) {found=MMP_S98;break;}
         }
     }
     if (!found) {

@@ -17,18 +17,20 @@
 
 extern pthread_mutex_t db_mutex;
 
-NSMutableArray *DBHelper::getMissingPartsNameFromFilePath(NSString *localPath,NSString *ext) {
+NSMutableArray *DBHelper::getMissingPartsNameFromFilePath(NSString *fullPath,NSString *ext) {
     NSString *pathToDB=[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:DATABASENAME_MAIN];
     sqlite3 *db;
     int err;
     NSMutableArray *result=[[NSMutableArray alloc] init];
     
-    if (localPath==nil) return nil;
+    if (fullPath==nil) return nil;
+    NSArray *strComponents=[fullPath componentsSeparatedByString:@"/"];
+    if ([strComponents count]<5) return nil;
     
     pthread_mutex_lock(&db_mutex);
     
     if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
-        char sqlStatement[1024],sqltmp[512];
+        char sqlStatement[1024];//,sqltmp[512];
         sqlite3_stmt *stmt;
         
         err=sqlite3_exec(db, "PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = NORMAL;", 0, 0, 0);
@@ -36,15 +38,42 @@ NSMutableArray *DBHelper::getMissingPartsNameFromFilePath(NSString *localPath,NS
         } else MDZELog("ErrSQL : %d",err);
         
         //removing the /Documents/MODLAND
-        NSString *strTmpPath = [localPath stringByDeletingLastPathComponent];
+        NSString *strTmpPath = [fullPath stringByDeletingLastPathComponent];
         NSUInteger index = [strTmpPath rangeOfString:@"/"].location;
         strTmpPath = [strTmpPath substringFromIndex:index+1];
         index = [strTmpPath rangeOfString:@"/"].location;
         strTmpPath = [strTmpPath substringFromIndex:index+1];
         
-        snprintf(sqltmp,512,"%s",[strTmpPath cStringUsingEncoding:NSUTF8StringEncoding]);
+        //snprintf(sqltmp,512,"%s",[strTmpPath UTF8String]);
         
-        snprintf(sqlStatement,1024,"SELECT fullpath,localpath FROM mod_file WHERE localpath like \"%s/%%%s\"",sqltmp,[ext UTF8String]);
+        //snprintf(sqlStatement,1024,"SELECT fullpath,localpath FROM mod_file WHERE localpath like \"%s/%%%s\"",sqltmp,[ext UTF8String]);
+        
+        const char *sqlAuthor,*sqlFiletype,*sqlAlbum,*sqlFilename;
+        sqlAuthor=[[strComponents objectAtIndex:2] UTF8String];
+        sqlFiletype=[[strComponents objectAtIndex:3] UTF8String];
+        if ([strComponents count]>5) {
+            sqlAlbum=[[strComponents objectAtIndex:4] UTF8String];
+            sqlFilename=[[strComponents objectAtIndex:5] UTF8String];
+        } else {
+            sqlAlbum=NULL;
+            sqlFilename=[[strComponents objectAtIndex:4] UTF8String];
+        }
+        
+        if (sqlAlbum) {
+            snprintf(sqlStatement,1024,""
+                     "SELECT f.fullpath,a.author||'/'||t.filetype||'/'||l.album||'/'||f.filename "
+                     "FROM mod_author a,mod_type t,mod_album l, mod_file f "
+                     "WHERE f.id_author=a.id AND f.id_type=t.id AND f.id_album=l.id "
+                     "AND a.author like \"%s\" AND t.filetype like \"%s\" AND l.album like \"%s\" AND f.filename like \"%%%s\" "
+                     "",sqlAuthor,sqlFiletype,sqlAlbum,[ext UTF8String]);
+        } else {
+            snprintf(sqlStatement,1024,""
+                     "SELECT f.fullpath,a.author||'/'||t.filetype||'/'||f.filename "
+                     "FROM mod_author a,mod_type t, mod_file f "
+                     "WHERE f.id_author=a.id AND f.id_type=t.id AND f.id_album IS NULL "
+                     "AND a.author like \"%s\" AND t.filetype like \"%s\" AND f.filename like \"%%%s\" "
+                     "",sqlAuthor,sqlFiletype,[ext UTF8String]);
+        }
         
         err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
         if (err==SQLITE_OK){
@@ -75,10 +104,13 @@ NSString *DBHelper::getFullPathFromLocalPath(NSString *localPath) {
     NSString *result=nil;
     if (localPath==nil) return nil;
     
+    NSArray *strComponents=[localPath componentsSeparatedByString:@"/"];
+    if ([strComponents count]<3) return nil;
+    
     pthread_mutex_lock(&db_mutex);
     
     if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
-        char sqlStatement[1024],sqltmp[512];
+        char sqlStatement[1024];//,sqltmp[512];
         int adjusted=0;
         sqlite3_stmt *stmt;
         
@@ -86,11 +118,54 @@ NSString *DBHelper::getFullPathFromLocalPath(NSString *localPath) {
         if (err==SQLITE_OK){
         } else MDZELog("ErrSQL : %d",err);
         
-        snprintf(sqltmp,512,"%s",[localPath cStringUsingEncoding:NSUTF8StringEncoding]);
+        //snprintf(sqltmp,512,"%s",[localPath UTF8String]);
         //		printf("%s\n",sqltmp);
+
+        const char *sqlAuthor,*sqlFiletype,*sqlAlbum,*sqlFilename;
+        sqlAuthor=[[strComponents objectAtIndex:0] UTF8String];
+        sqlFiletype=[[strComponents objectAtIndex:1] UTF8String];
+        if ([strComponents count]>3) {
+            sqlAlbum=[[strComponents objectAtIndex:2] UTF8String];
+            sqlFilename=[[strComponents objectAtIndex:3] UTF8String];
+        } else {
+            sqlAlbum=NULL;
+            sqlFilename=[[strComponents objectAtIndex:2] UTF8String];
+        }
         
-        if (adjusted) snprintf(sqlStatement,1024,"SELECT fullpath FROM mod_file WHERE localpath LIKE \"%s\"",sqltmp);
-        else snprintf(sqlStatement,1024,"SELECT fullpath FROM mod_file WHERE localpath = \"%s\"",sqltmp);
+        if (adjusted) {
+            if (sqlAlbum) {
+                snprintf(sqlStatement,1024,""
+                         "SELECT f.fullpath "
+                         "FROM mod_author a,mod_type t,mod_album l, mod_file f "
+                         "WHERE f.id_author=a.id AND f.id_type=t.id AND f.id_album=l.id "
+                         "AND a.author like \"%s\" AND t.filetype like \"%s\" AND l.album like \"%s\" AND f.filename like \"%s\" "
+                         "",sqlAuthor,sqlFiletype,sqlAlbum,sqlFilename);
+            } else {
+                snprintf(sqlStatement,1024,""
+                         "SELECT f.fullpath "
+                         "FROM mod_author a,mod_type t, mod_file f "
+                         "WHERE f.id_author=a.id AND f.id_type=t.id AND f.id_album IS NULL "
+                         "AND a.author like \"%s\" AND t.filetype like \"%s\" AND f.filename like \"%s\" "
+                         "",sqlAuthor,sqlFiletype,sqlFilename);
+            }
+        }
+        else {
+            if (sqlAlbum) {
+                snprintf(sqlStatement,1024,""
+                         "SELECT f.fullpath "
+                         "FROM mod_author a,mod_type t,mod_album l, mod_file f "
+                         "WHERE f.id_author=a.id AND f.id_type=t.id AND f.id_album=l.id "
+                         "AND a.author = \"%s\" AND t.filetype = \"%s\" AND l.album = \"%s\" AND f.filename = \"%s\" "
+                         "",sqlAuthor,sqlFiletype,sqlAlbum,sqlFilename);
+            } else {
+                snprintf(sqlStatement,1024,""
+                         "SELECT f.fullpath "
+                         "FROM mod_author a,mod_type t, mod_file f "
+                         "WHERE f.id_author=a.id AND f.id_type=t.id AND f.id_album IS NULL "
+                         "AND a.author = \"%s\" AND t.filetype = \"%s\" AND f.filename = \"%s\" "
+                         "",sqlAuthor,sqlFiletype,sqlFilename);
+            }
+        }
         
         err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
         if (err==SQLITE_OK){
@@ -138,8 +213,24 @@ NSString *DBHelper::getLocalPathFromFullPath(NSString *fullPath) {
                 adjusted=1;
             }
         }
-        if (adjusted) snprintf(sqlStatement,1024,"SELECT localpath FROM mod_file WHERE fullpath like \"%s\"",sqltmp);
-        else snprintf(sqlStatement,1024,"SELECT localpath FROM mod_file WHERE fullpath = \"%s\"",sqltmp);
+        if (adjusted) snprintf(sqlStatement,1024,""
+                               "SELECT a.author||'/'||t.filetype||'/'||l.album||'/'||f.filename "
+                               "FROM mod_author a,mod_type t,mod_album l, mod_file f "
+                               "WHERE f.id_author=a.id AND f.id_type=t.id AND f.id_album=l.id AND f.fullpath like \"%s\" "
+                               "UNION "
+                               "SELECT a.author||'/'||t.filetype||'/'||f.filename "
+                               "FROM mod_author a,mod_type t, mod_file f "
+                               "WHERE f.id_author=a.id AND f.id_type=t.id AND f.id_album IS NULL AND f.fullpath like \"%s\" "
+                               "",sqltmp,sqltmp);
+        else snprintf(sqlStatement,1024,""
+                      "SELECT a.author||'/'||t.filetype||'/'||l.album||'/'||f.filename "
+                      "FROM mod_author a,mod_type t,mod_album l, mod_file f "
+                      "WHERE f.id_author=a.id AND f.id_type=t.id AND f.id_album=l.id AND f.fullpath = \"%s\" "
+                      "UNION "
+                      "SELECT a.author||'/'||t.filetype||'/'||f.filename "
+                      "FROM mod_author a,mod_type t, mod_file f "
+                      "WHERE f.id_author=a.id AND f.id_type=t.id AND f.id_album IS NULL AND f.fullpath = \"%s\" "
+                      "",sqltmp,sqltmp);
         
         err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
         if (err==SQLITE_OK){
