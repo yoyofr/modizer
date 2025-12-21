@@ -32,6 +32,7 @@
 +(NSString *)getFullCleanFilePath:(NSString*)filePath arcidx_ptr:(int*)arcidx_ptr subsong_ptr:(int*)subsong_ptr;
 +(NSString *)getFilePathNoSubSong:(NSString*)filePath;
 +(NSString *)getFilePathFromDocuments:(NSString*)filePath;
++(NSString *)getAppHomeDirectory;
 
 +(NSString*) getCorrectFileName:(const char*)archiveFilename archive:(struct archive *)a entry:(struct archive_entry *)entry;
 

@@ -19,9 +19,12 @@ static int lastSelectedSearch;
 #include <pthread.h>
 extern pthread_mutex_t db_mutex;
 
+
 #import "SearchViewController.h"
 #import <QuartzCore/CAGradientLayer.h>
 #import "SettingsGenViewController.h"
+#import "ModizFileHelper.h"
+
 extern volatile t_settings settings[MAX_SETTINGS];
 
 #define MAX_SEARCH_RESULT 512   //per section
@@ -479,7 +482,7 @@ END_PROFILE
 }
 
 -(int) searchPlaylist {
-    NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
+    NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
     sqlite3 *db;
     int playlist_entries_idx;
     
@@ -844,7 +847,7 @@ END_PROFILE
     local_entries_count=MAX_SEARCH_RESULT;
     local_entries=(t_local_browse_entryS*)calloc(local_entries_count,sizeof(t_local_browse_entryS));
     
-    cpath=[NSHomeDirectory() stringByAppendingPathComponent: @"Documents"];
+    cpath=[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent: @"Documents"];
     index=[cpath length];
     prefix_length=[cpath length]+1;
     [dirToSearch addObject:cpath];
@@ -1524,7 +1527,7 @@ END_PROFILE
 }
 
 -(void) loadPlayListsFromDB:(NSString *)_id_playlist intoPlaylist:(t_playlistS *)_playlist  {
-    NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
+    NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
     sqlite3 *db;
     pthread_mutex_lock(&db_mutex);
     if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
@@ -1610,7 +1613,7 @@ END_PROFILE
             [detailViewController play_listmodules:array_label start_index:0 path:array_path];
             
         } else {		//download
-            NSString *completePath=[NSString stringWithFormat:@"%@",[NSHomeDirectory() stringByAppendingPathComponent:  [localPath stringByDeletingLastPathComponent]]];
+            NSString *completePath=[NSString stringWithFormat:@"%@",[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:  [localPath stringByDeletingLastPathComponent]]];
             NSError *err;
             [mFileMngr createDirectoryAtPath:completePath withIntermediateDirectories:TRUE attributes:nil error:&err];
             
@@ -1642,7 +1645,7 @@ END_PROFILE
             [detailViewController play_listmodules:array_label start_index:0 path:array_path];
             
         } else {
-            NSString *completePath=[NSString stringWithFormat:@"%@/%@%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],HVSC_BASEDIR,[dbHVSC_entries[indexPath.row].fullpath stringByDeletingLastPathComponent]];
+            NSString *completePath=[NSString stringWithFormat:@"%@/%@%@",[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:  @"Documents"],HVSC_BASEDIR,[dbHVSC_entries[indexPath.row].fullpath stringByDeletingLastPathComponent]];
             NSError *err;
             [mFileMngr createDirectoryAtPath:completePath withIntermediateDirectories:TRUE attributes:nil error:&err];
             
@@ -1674,7 +1677,7 @@ END_PROFILE
             [detailViewController play_listmodules:array_label start_index:0 path:array_path];
             
         } else {
-            NSString *completePath=[NSString stringWithFormat:@"%@/%@%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],ASMA_BASEDIR,[dbASMA_entries[indexPath.row].fullpath stringByDeletingLastPathComponent]];
+            NSString *completePath=[NSString stringWithFormat:@"%@/%@%@",[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:  @"Documents"],ASMA_BASEDIR,[dbASMA_entries[indexPath.row].fullpath stringByDeletingLastPathComponent]];
             NSError *err;
             [mFileMngr createDirectoryAtPath:completePath withIntermediateDirectories:TRUE attributes:nil error:&err];
             
@@ -1714,7 +1717,7 @@ END_PROFILE
                 
             }
         } else {  //download
-            NSString *completePath=[NSString stringWithFormat:@"%@",[NSHomeDirectory() stringByAppendingPathComponent:  [localPath stringByDeletingLastPathComponent]]];
+            NSString *completePath=[NSString stringWithFormat:@"%@",[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:  [localPath stringByDeletingLastPathComponent]]];
             NSError *err;
             [mFileMngr createDirectoryAtPath:completePath withIntermediateDirectories:TRUE attributes:nil error:&err];
             
@@ -1743,7 +1746,7 @@ END_PROFILE
                 
             }
         } else {
-            NSString *completePath=[NSString stringWithFormat:@"%@/%@%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],HVSC_BASEDIR,[dbHVSC_entries[indexPath.row].fullpath stringByDeletingLastPathComponent]];
+            NSString *completePath=[NSString stringWithFormat:@"%@/%@%@",[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:  @"Documents"],HVSC_BASEDIR,[dbHVSC_entries[indexPath.row].fullpath stringByDeletingLastPathComponent]];
             NSError *err;
             [mFileMngr createDirectoryAtPath:completePath withIntermediateDirectories:TRUE attributes:nil error:&err];
             
@@ -1772,7 +1775,7 @@ END_PROFILE
                 
             }
         } else {
-            NSString *completePath=[NSString stringWithFormat:@"%@/%@%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],ASMA_BASEDIR,[dbASMA_entries[indexPath.row].fullpath stringByDeletingLastPathComponent]];
+            NSString *completePath=[NSString stringWithFormat:@"%@/%@%@",[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:  @"Documents"],ASMA_BASEDIR,[dbASMA_entries[indexPath.row].fullpath stringByDeletingLastPathComponent]];
             NSError *err;
             [mFileMngr createDirectoryAtPath:completePath withIntermediateDirectories:TRUE attributes:nil error:&err];
             

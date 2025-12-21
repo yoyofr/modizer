@@ -1516,7 +1516,7 @@ END_PROFILE
 }
 
 - (void)checkCreate:(NSString *)filePath {
-    NSString *completePath=[NSString stringWithFormat:@"%@/%@",NSHomeDirectory(),filePath];
+    NSString *completePath=[NSString stringWithFormat:@"%@/%@",[ModizFileHelper getAppHomeDirectory],filePath];
     NSError *err;
     [mFileMngr createDirectoryAtPath:completePath withIntermediateDirectories:TRUE attributes:nil error:&err];	
 }
@@ -1787,7 +1787,7 @@ END_PROFILE
                 NSString *pathToCheck=nil;
                 
                 if (cur_db_entries[section][indexPath.row].fullpath)
-                    pathToCheck=[NSString stringWithFormat:@"%@/Documents/%@%@",NSHomeDirectory(),HVSC_BASEDIR,cur_db_entries[section][indexPath.row].fullpath];
+                    pathToCheck=[NSString stringWithFormat:@"%@/Documents/%@%@",[ModizFileHelper getAppHomeDirectory],HVSC_BASEDIR,cur_db_entries[section][indexPath.row].fullpath];
                 if (pathToCheck) {
                     if ([mFileMngr fileExistsAtPath:pathToCheck]) cur_db_entries[section][indexPath.row].downloaded=1;
                     else cur_db_entries[section][indexPath.row].downloaded=0;
@@ -1904,7 +1904,7 @@ END_PROFILE
             }
             section-=download_all;
             //delete file
-            NSString *fullpath=[NSHomeDirectory() stringByAppendingPathComponent:[NSString stringWithFormat:@"/Documents/%@%@",HVSC_BASEDIR,cur_db_entries[section][indexPath.row].fullpath]];
+            NSString *fullpath=[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:[NSString stringWithFormat:@"/Documents/%@%@",HVSC_BASEDIR,cur_db_entries[section][indexPath.row].fullpath]];
             NSError *err;
         DBHelper::deleteStatsFileDB(fullpath);
             cur_db_entries[section][indexPath.row].downloaded=0;
@@ -2208,7 +2208,7 @@ END_PROFILE
                                 NSString *pathToCheck=nil;
                                 
                                 if (cur_db_entries[i][j].fullpath)
-                                    pathToCheck=[NSString stringWithFormat:@"%@/Documents/%@%@",NSHomeDirectory(),HVSC_BASEDIR,cur_db_entries[i][j].fullpath];
+                                    pathToCheck=[NSString stringWithFormat:@"%@/Documents/%@%@",[ModizFileHelper getAppHomeDirectory],HVSC_BASEDIR,cur_db_entries[i][j].fullpath];
                                 if (pathToCheck) {
                                     if ([mFileMngr fileExistsAtPath:pathToCheck]) cur_db_entries[i][j].downloaded=1;
                                     else existing=cur_db_entries[i][j].downloaded=0;

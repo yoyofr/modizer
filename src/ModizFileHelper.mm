@@ -855,10 +855,27 @@ extern bool icloud_available;
     return found;
 }
 
++(NSString *)getAppHomeDirectory {
+    // On Mac Catalyst, NSHomeDirectory() returns /Users/username/ (user's home)
+    // We need to use the app's container directory instead
+    #if TARGET_OS_MACCATALYST
+        // Get the app's Documents directory and go up one level to get the container
+        NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+        if (paths.count > 0) {
+            NSString *documentsPath = paths[0];
+            // Remove "/Documents" to get the container path
+            return [documentsPath stringByDeletingLastPathComponent];
+        }
+    #endif
+
+    // On iOS and fallback, use the standard NSHomeDirectory()
+    return NSHomeDirectory();
+}
+
 +(NSString*) getFullPathForFilePath:(NSString*)filePath {
     NSString *fullFilePath;
     if (icloud_available && ([filePath containsString:[icloudURL path]])) fullFilePath=[NSString stringWithString:filePath];
-    else fullFilePath=[NSHomeDirectory() stringByAppendingPathComponent:filePath];
+    else fullFilePath=[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:filePath];
     return fullFilePath;
 }
 
@@ -1016,7 +1033,7 @@ extern bool icloud_available;
     int result;
     //BOOL isDir;
     NSFileManager *fileManager = [[NSFileManager alloc] init];
-    NSString *cpath=[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents/Samples"];
+    NSString *cpath=[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:  @"Documents/Samples"];
     NSString *file;
     const char* attrName = "com.apple.MobileBackup";
     u_int8_t attrValue = 1;

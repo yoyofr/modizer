@@ -8,6 +8,7 @@
 
 
 #import "RootViewControllerSNESMWebParser.h"
+#import "ModizFileHelper.h"
 
 enum {
     BROWSE_DEFAULT=0,
@@ -327,7 +328,7 @@ int qsortSNESM_entries_rating_or_entries(const void *entryA, const void *entryB)
             MDZELog("Error: %@", error);
         } else {
             NSData *data=responseObject;
-            [data writeToFile:[NSString stringWithFormat:@"%@/%@",NSHomeDirectory(),[[fullpath stringByDeletingPathExtension] stringByAppendingString:@".png"]] atomically:NO];
+            [data writeToFile:[NSString stringWithFormat:@"%@/%@",[ModizFileHelper getAppHomeDirectory],[[fullpath stringByDeletingPathExtension] stringByAppendingString:@".png"]] atomically:NO];
         }
     }];
     
@@ -689,7 +690,7 @@ int qsortSNESM_entries_rating_or_entries(const void *entryA, const void *entryB)
         dbWEB_entries[index][dbWEB_entries_count[index]].isFile=wef->file_type;
         dbWEB_entries[index][dbWEB_entries_count[index]].downloaded=-1;
         if (wef->file_type) {
-            dbWEB_entries[index][dbWEB_entries_count[index]].img_URL=[NSHomeDirectory() stringByAppendingFormat:@"/%@",[[dbWEB_entries[index][dbWEB_entries_count[index]].fullpath stringByDeletingPathExtension] stringByAppendingString:@".png"]];
+            dbWEB_entries[index][dbWEB_entries_count[index]].img_URL=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@",[[dbWEB_entries[index][dbWEB_entries_count[index]].fullpath stringByDeletingPathExtension] stringByAppendingString:@".png"]];
             
             if (![[NSFileManager defaultManager] fileExistsAtPath:dbWEB_entries[index][dbWEB_entries_count[index]].img_URL]) dbWEB_entries[index][dbWEB_entries_count[index]].img_URL=nil;
             
@@ -883,7 +884,7 @@ int qsortSNESM_entries_rating_or_entries(const void *entryA, const void *entryB)
         NSString *pathToCheck=nil;
         
         if (cur_db_entries[section][indexPath.row].fullpath)
-            pathToCheck=[NSString stringWithFormat:@"%@/%@",NSHomeDirectory(),cur_db_entries[section][indexPath.row].fullpath];
+            pathToCheck=[NSString stringWithFormat:@"%@/%@",[ModizFileHelper getAppHomeDirectory],cur_db_entries[section][indexPath.row].fullpath];
         if (pathToCheck) {
             if ([mFileMngr fileExistsAtPath:pathToCheck]) cur_db_entries[section][indexPath.row].downloaded=1;
             else cur_db_entries[section][indexPath.row].downloaded=0;
@@ -955,7 +956,7 @@ int qsortSNESM_entries_rating_or_entries(const void *entryA, const void *entryB)
         actionView.enabled=YES;
         actionView.hidden=NO;
         
-        NSString *imgPath=[NSHomeDirectory() stringByAppendingFormat:@"/%@",[[cur_db_entries[section][indexPath.row].fullpath stringByDeletingPathExtension] stringByAppendingString:@".png"]];
+        NSString *imgPath=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@",[[cur_db_entries[section][indexPath.row].fullpath stringByDeletingPathExtension] stringByAppendingString:@".png"]];
         
         if (cur_db_entries[section][indexPath.row].img_URL) {
             coverImgView.image=[UIImage imageWithContentsOfFile:cur_db_entries[section][indexPath.row].img_URL];
@@ -1013,7 +1014,7 @@ int qsortSNESM_entries_rating_or_entries(const void *entryA, const void *entryB)
         
         if (cur_db_entries[section][indexPath.row].isFile) { //FILE
             //File selected, start download is needed
-            NSString *localPath=[NSHomeDirectory() stringByAppendingFormat:@"/%@",cur_db_entries[section][indexPath.row].fullpath];
+            NSString *localPath=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@",cur_db_entries[section][indexPath.row].fullpath];
             
             if (cur_db_entries[section][indexPath.row].downloaded==1) {
                 NSMutableArray *array_label = [[NSMutableArray alloc] init];
@@ -1031,7 +1032,7 @@ int qsortSNESM_entries_rating_or_entries(const void *entryA, const void *entryB)
                     
                     [self checkCreate:[localPath stringByDeletingLastPathComponent]];
                     
-                    cur_db_entries[section][indexPath.row].img_URL=[NSHomeDirectory() stringByAppendingFormat:@"/%@",[[cur_db_entries[section][indexPath.row].fullpath stringByDeletingPathExtension] stringByAppendingString:@".png"]];
+                    cur_db_entries[section][indexPath.row].img_URL=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@",[[cur_db_entries[section][indexPath.row].fullpath stringByDeletingPathExtension] stringByAppendingString:@".png"]];
                     
                     [downloadViewController addURLToDownloadList:web_entry.URL fileName:cur_db_entries[section][indexPath.row].label filePath:cur_db_entries[section][indexPath.row].fullpath filesize:-1 isMODLAND:1 usePrimaryAction:1];
                 } else {
@@ -1057,7 +1058,7 @@ int qsortSNESM_entries_rating_or_entries(const void *entryA, const void *entryB)
     
     if (cur_db_entries[section][indexPath.row].isFile) { //FILE
         //File selected, start download is needed
-        NSString *localPath=[NSHomeDirectory() stringByAppendingFormat:@"/%@",cur_db_entries[section][indexPath.row].fullpath];
+        NSString *localPath=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@",cur_db_entries[section][indexPath.row].fullpath];
         mClickedPrimAction=2;
         
         if (cur_db_entries[section][indexPath.row].downloaded==1) {
@@ -1072,7 +1073,7 @@ int qsortSNESM_entries_rating_or_entries(const void *entryA, const void *entryB)
                 
                 [self checkCreate:[localPath stringByDeletingLastPathComponent]];
                 
-                cur_db_entries[section][indexPath.row].img_URL=[NSHomeDirectory() stringByAppendingFormat:@"/%@",[[cur_db_entries[section][indexPath.row].fullpath stringByDeletingPathExtension] stringByAppendingString:@".png"]];
+                cur_db_entries[section][indexPath.row].img_URL=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@",[[cur_db_entries[section][indexPath.row].fullpath stringByDeletingPathExtension] stringByAppendingString:@".png"]];
                 
                 [downloadViewController addURLToDownloadList:web_entry.URL fileName:cur_db_entries[section][indexPath.row].label filePath:cur_db_entries[section][indexPath.row].fullpath filesize:-1 isMODLAND:1 usePrimaryAction:mClickedPrimAction];
             } else {
@@ -1092,7 +1093,7 @@ int qsortSNESM_entries_rating_or_entries(const void *entryA, const void *entryB)
     
     if (cur_db_entries[section][indexPath.row].isFile) { //FILE
         //File selected, start download is needed
-        NSString *localPath=[NSHomeDirectory() stringByAppendingFormat:@"/%@",cur_db_entries[section][indexPath.row].fullpath];
+        NSString *localPath=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@",cur_db_entries[section][indexPath.row].fullpath];
         mClickedPrimAction=(settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==0);
         
         if (cur_db_entries[section][indexPath.row].downloaded==1) {
@@ -1120,7 +1121,7 @@ int qsortSNESM_entries_rating_or_entries(const void *entryA, const void *entryB)
                 
                 [self checkCreate:[localPath stringByDeletingLastPathComponent]];
                 
-                cur_db_entries[section][indexPath.row].img_URL=[NSHomeDirectory() stringByAppendingFormat:@"/%@",[[cur_db_entries[section][indexPath.row].fullpath stringByDeletingPathExtension] stringByAppendingString:@".png"]];
+                cur_db_entries[section][indexPath.row].img_URL=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@",[[cur_db_entries[section][indexPath.row].fullpath stringByDeletingPathExtension] stringByAppendingString:@".png"]];
                 
                 [downloadViewController addURLToDownloadList:web_entry.URL fileName:cur_db_entries[section][indexPath.row].label filePath:cur_db_entries[section][indexPath.row].fullpath filesize:-1 isMODLAND:1 usePrimaryAction:mClickedPrimAction];
             } else {

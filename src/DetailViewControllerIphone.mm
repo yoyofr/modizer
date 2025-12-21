@@ -3668,22 +3668,22 @@ int recording=0;
     
     if ([_filePath length]>2) {
         if (([_filePath characterAtIndex:0]=='/')&&([_filePath characterAtIndex:1]=='/')) fullFilePath=[_filePath substringFromIndex:2];
-        else fullFilePath=[NSHomeDirectory() stringByAppendingPathComponent:_filePath];
-    } else fullFilePath=[NSHomeDirectory() stringByAppendingPathComponent:_filePath];
+        else fullFilePath=[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:_filePath];
+    } else fullFilePath=[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:_filePath];
     return fullFilePath;
 }
 
 -(void) checkForCover:(NSString *)filePath {
     NSString *pathFolderImgPNG,*pathFileImgPNG,*pathFolderImgJPG,*pathFolderImgJPEG,*pathFileImgJPG,*pathFileImgJPEG,*pathFolderImgGIF,*pathFileImgGIF;
     
-    pathFolderImgPNG=[NSHomeDirectory() stringByAppendingFormat:@"/%@/folder.png",[filePath stringByDeletingLastPathComponent]];
-    pathFolderImgJPG=[NSHomeDirectory() stringByAppendingFormat:@"/%@/folder.jpg",[filePath stringByDeletingLastPathComponent]];
-    pathFolderImgJPEG=[NSHomeDirectory() stringByAppendingFormat:@"/%@/folder.jpeg",[filePath stringByDeletingLastPathComponent]];
-    pathFolderImgGIF=[NSHomeDirectory() stringByAppendingFormat:@"/%@/folder.gif",[filePath stringByDeletingLastPathComponent]];
-    pathFileImgPNG=[NSHomeDirectory() stringByAppendingFormat:@"/%@.png",[filePath stringByDeletingPathExtension]];
-    pathFileImgJPG=[NSHomeDirectory() stringByAppendingFormat:@"/%@.jpg",[filePath stringByDeletingPathExtension]];
-    pathFileImgJPEG=[NSHomeDirectory() stringByAppendingFormat:@"/%@.jpeg",[filePath stringByDeletingPathExtension]];
-    pathFileImgGIF=[NSHomeDirectory() stringByAppendingFormat:@"/%@.gif",[filePath stringByDeletingPathExtension]];
+    pathFolderImgPNG=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@/folder.png",[filePath stringByDeletingLastPathComponent]];
+    pathFolderImgJPG=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@/folder.jpg",[filePath stringByDeletingLastPathComponent]];
+    pathFolderImgJPEG=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@/folder.jpeg",[filePath stringByDeletingLastPathComponent]];
+    pathFolderImgGIF=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@/folder.gif",[filePath stringByDeletingLastPathComponent]];
+    pathFileImgPNG=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@.png",[filePath stringByDeletingPathExtension]];
+    pathFileImgJPG=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@.jpg",[filePath stringByDeletingPathExtension]];
+    pathFileImgJPEG=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@.jpeg",[filePath stringByDeletingPathExtension]];
+    pathFileImgGIF=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@.gif",[filePath stringByDeletingPathExtension]];
     
     coverAvailable=false;
     cover_img=nil;
@@ -4897,7 +4897,7 @@ bool coverAvailable;
     
     if (mPlaylist_size) {
         gzFile f;
-        f=gzopen([[NSHomeDirectory() stringByAppendingPathComponent:@"Documents/modizer.plnow"] UTF8String],"rb");
+        f=gzopen([[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:@"Documents/modizer.plnow"] UTF8String],"rb");
         if (f) {
             int fsize=1<<16;
             char *fdata=(char *)malloc(fsize);
@@ -5036,7 +5036,7 @@ bool coverAvailable;
     
     if (mPlaylist_size) {
         gzFile f;
-        f=gzopen([[NSHomeDirectory() stringByAppendingPathComponent:@"Documents/modizer.plnow"] UTF8String],"wb");
+        f=gzopen([[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:@"Documents/modizer.plnow"] UTF8String],"wb");
         if (f) {
             for (int i=0;i<mPlaylist_size;i++) {
                 const char *str=[mPlaylist[i].mPlaylistFilename UTF8String];
@@ -5201,22 +5201,22 @@ bool coverAvailable;
     filePath=mPlaylist[index].mPlaylistFilepath;
     basePath=[filePath stringByDeletingLastPathComponent];
     
-    fullFilepath=[NSHomeDirectory() stringByAppendingFormat:@"/%@",filePath];
+    fullFilepath=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@",filePath];
     
-    pathFolderImgPNG=[NSHomeDirectory() stringByAppendingFormat:@"/%@/folder.png",basePath];
-    pathFolderImgJPG=[NSHomeDirectory() stringByAppendingFormat:@"/%@/folder.jpg",basePath];
-    pathFolderImgJPEG=[NSHomeDirectory() stringByAppendingFormat:@"/%@/folder.jpeg",basePath];
-    pathFolderImgGIF=[NSHomeDirectory() stringByAppendingFormat:@"/%@/folder.gif",basePath];
-    pathCoverImgPNG=[NSHomeDirectory() stringByAppendingFormat:@"/%@/cover.png",basePath];
-    pathCoverImgJPG=[NSHomeDirectory() stringByAppendingFormat:@"/%@/cover.jpg",basePath];
-    pathCoverImgJPEG=[NSHomeDirectory() stringByAppendingFormat:@"/%@/cover.jpeg",basePath];
-    pathCoverImgGIF=[NSHomeDirectory() stringByAppendingFormat:@"/%@/cover.gif",basePath];
+    pathFolderImgPNG=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@/folder.png",basePath];
+    pathFolderImgJPG=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@/folder.jpg",basePath];
+    pathFolderImgJPEG=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@/folder.jpeg",basePath];
+    pathFolderImgGIF=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@/folder.gif",basePath];
+    pathCoverImgPNG=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@/cover.png",basePath];
+    pathCoverImgJPG=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@/cover.jpg",basePath];
+    pathCoverImgJPEG=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@/cover.jpeg",basePath];
+    pathCoverImgGIF=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@/cover.gif",basePath];
     
     basePath=[filePath stringByDeletingPathExtension];
-    pathFileImgPNG=[NSHomeDirectory() stringByAppendingFormat:@"/%@.png",basePath];
-    pathFileImgJPG=[NSHomeDirectory() stringByAppendingFormat:@"/%@.jpg",basePath];
-    pathFileImgJPEG=[NSHomeDirectory() stringByAppendingFormat:@"/%@.jpeg",basePath];
-    pathFileImgGIF=[NSHomeDirectory() stringByAppendingFormat:@"/%@.gif",basePath];
+    pathFileImgPNG=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@.png",basePath];
+    pathFileImgJPG=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@.jpg",basePath];
+    pathFileImgJPEG=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@.jpeg",basePath];
+    pathFileImgGIF=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@.gif",basePath];
     //isReadableFileAtPath
     if ([fileMngr fileExistsAtPath:pathFileImgJPG]) mPlaylist[index].cover_flag=1;
     else if ([fileMngr fileExistsAtPath:pathFileImgJPEG]) mPlaylist[index].cover_flag=2;
@@ -5417,7 +5417,7 @@ void updatePresetCustomDirStructure() {
     NSError *error;
     
     NSString *canonicalHomePath;
-    [[[NSURL fileURLWithPath:NSHomeDirectory()] URLByResolvingSymlinksInPath] getResourceValue:&canonicalHomePath forKey:NSURLCanonicalPathKey error:nil];
+    [[[NSURL fileURLWithPath:[ModizFileHelper getAppHomeDirectory]] URLByResolvingSymlinksInPath] getResourceValue:&canonicalHomePath forKey:NSURLCanonicalPathKey error:nil];
     NSString *dirPath = [NSString stringWithFormat:@"%@/Documents%s/presets",canonicalHomePath,PM_ROOT_FOLDER_CUSTOM];
     
     pmCustomPresetsFileNode=nil;
@@ -5438,10 +5438,10 @@ void buildPresetDirStructure() {
     
     NSString *pmBundleDir = [NSString stringWithFormat:@"%@/projectm/assets/presets",[[NSBundle mainBundle] resourcePath]];
     
-    [[[NSURL fileURLWithPath:NSHomeDirectory()] URLByResolvingSymlinksInPath] getResourceValue:&canonicalHomePath forKey:NSURLCanonicalPathKey error:nil];
+    [[[NSURL fileURLWithPath:[ModizFileHelper getAppHomeDirectory]] URLByResolvingSymlinksInPath] getResourceValue:&canonicalHomePath forKey:NSURLCanonicalPathKey error:nil];
     NSString *pmCustomDir = [NSString stringWithFormat:@"%@/Documents%s/presets",canonicalHomePath,PM_ROOT_FOLDER_CUSTOM];
     
-    //NSString *pmCustomDir = [NSString stringWithFormat:@"%@/Documents%s/presets",NSHomeDirectory(),PM_ROOT_FOLDER_CUSTOM];
+    //NSString *pmCustomDir = [NSString stringWithFormat:@"%@/Documents%s/presets",[ModizFileHelper getAppHomeDirectory],PM_ROOT_FOLDER_CUSTOM];
     
     NSError *error=nil;
     
@@ -5547,8 +5547,8 @@ void pm_perfTest() {
     
     
     NSString *pmBundleDirText = [NSString stringWithFormat:@"%@/projectm/assets/textures",[[NSBundle mainBundle] resourcePath]];
-    NSString *pmCustomDirText = [NSString stringWithFormat:@"%@/Documents%s/textures",NSHomeDirectory(),PM_ROOT_FOLDER_CUSTOM];
-    NSString *pmCustomDirSprites = [NSString stringWithFormat:@"%@/Documents%s/sprites",NSHomeDirectory(),PM_ROOT_FOLDER_CUSTOM];
+    NSString *pmCustomDirText = [NSString stringWithFormat:@"%@/Documents%s/textures",[ModizFileHelper getAppHomeDirectory],PM_ROOT_FOLDER_CUSTOM];
+    NSString *pmCustomDirSprites = [NSString stringWithFormat:@"%@/Documents%s/sprites",[ModizFileHelper getAppHomeDirectory],PM_ROOT_FOLDER_CUSTOM];
     
     mdz_pmTexturesSearchPathsNb=0;
     mdz_pmTexturesSearchPaths[mdz_pmTexturesSearchPathsNb++]=[pmBundleDirText UTF8String];

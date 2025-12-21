@@ -10,6 +10,7 @@
 #define PARSER_TIMEOUT 30 //in seconds
 
 #import "RootViewControllerJoshWWebParser.h"
+#import "ModizFileHelper.h"
 
 @implementation RootViewControllerJoshWWebParser
 
@@ -21,7 +22,7 @@
     
     //check if folders exist, create if required
     if (browse_depth>=2&&mWebBaseDir) {
-        rootDir=[NSString stringWithFormat:@"%@",[NSHomeDirectory() stringByAppendingFormat:@"/Documents/%@",mWebBaseDir]];
+        rootDir=[NSString stringWithFormat:@"%@",[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/Documents/%@",mWebBaseDir]];
         BOOL dirExist = [mFileMngr fileExistsAtPath:rootDir];
         if (!dirExist) {
             [mFileMngr createDirectoryAtPath:rootDir withIntermediateDirectories:TRUE attributes:NULL error:NULL];
@@ -816,7 +817,7 @@
         NSString *pathToCheck=nil;
         
         if (cur_db_entries[section][indexPath.row].fullpath)
-            pathToCheck=[NSString stringWithFormat:@"%@/%@",NSHomeDirectory(),cur_db_entries[section][indexPath.row].fullpath];
+            pathToCheck=[NSString stringWithFormat:@"%@/%@",[ModizFileHelper getAppHomeDirectory],cur_db_entries[section][indexPath.row].fullpath];
         if (pathToCheck) {
             if ([mFileMngr fileExistsAtPath:pathToCheck]) cur_db_entries[section][indexPath.row].downloaded=1;
             else cur_db_entries[section][indexPath.row].downloaded=0;
@@ -916,7 +917,7 @@
         int section = indexPath.section-1;
         
         //delete file
-        NSString *fullpath=[NSHomeDirectory() stringByAppendingFormat:@"/%@",cur_db_entries[section][indexPath.row].fullpath];
+        NSString *fullpath=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@",cur_db_entries[section][indexPath.row].fullpath];
         NSError *err;
         DBHelper::deleteStatsFileDB(fullpath);
         cur_db_entries[section][indexPath.row].downloaded=0;
@@ -954,7 +955,7 @@
     
     if (cur_db_entries[section][indexPath.row].isFile) { //FILE
         //File selected, start download is needed
-        NSString *localPath=[NSHomeDirectory() stringByAppendingFormat:@"/%@",cur_db_entries[section][indexPath.row].fullpath];
+        NSString *localPath=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@",cur_db_entries[section][indexPath.row].fullpath];
         mClickedPrimAction=(settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==0);
         
         MDZILog("URL: %@",cur_db_entries[section][indexPath.row].URL);

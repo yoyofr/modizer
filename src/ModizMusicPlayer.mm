@@ -3775,7 +3775,7 @@ void gsf_update(unsigned char* pSound,int lBytes) {
     char *argv[1];
     argv[0]=tim_filepath;
     
-    //tim_init((char*)[[NSHomeDirectory() stringByAppendingPathComponent:@"modizer.app/timidity"] UTF8String]);
+    //tim_init((char*)[[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:@"modizer.app/timidity"] UTF8String]);
     
     if (tim_force_soundfont) {
         tim_init(tim_force_soundfont_path);
@@ -3783,9 +3783,9 @@ void gsf_update(unsigned char* pSound,int lBytes) {
     } else {
         //timidity
         tim_init((char*)[[NSString stringWithFormat:@"%@",[[NSBundle mainBundle] resourcePath]] UTF8String]);
-        tim_init((char*)[[NSHomeDirectory() stringByAppendingPathComponent:@"modizer.app/timidity"] UTF8String]);
-        tim_init((char*)[[NSHomeDirectory() stringByAppendingPathComponent:@"Documents"] UTF8String]);
-        snprintf(tim_config_file_path,sizeof(tim_config_file_path),"%s",(char*)[[NSHomeDirectory() stringByAppendingPathComponent:@"Documents/timidity.cfg"] UTF8String]);
+        tim_init((char*)[[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:@"modizer.app/timidity"] UTF8String]);
+        tim_init((char*)[[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:@"Documents"] UTF8String]);
+        snprintf(tim_config_file_path,sizeof(tim_config_file_path),"%s",(char*)[[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:@"Documents/timidity.cfg"] UTF8String]);
     }
     
     mdz_tim_only_precompute=0;
@@ -8135,7 +8135,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
     
     if (songlength==-1) {
         //Try in user DB
-        pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
+        pathToDB=[NSString stringWithFormat:@"%@/%@",[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
         
         if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
             char sqlStatement[1024];
@@ -8158,7 +8158,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
     return songlength;
 }
 -(void) setSongLengthfromMD5:(int)track_nb songlength:(int)slength {
-    NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
+    NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
     sqlite3 *db;
     int err;
     
@@ -12029,7 +12029,7 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
         char *argv[1];
         argv[0]=tim_filepath;
         
-        //tim_init((char*)[[NSHomeDirectory() stringByAppendingPathComponent:@"modizer.app/timidity"] UTF8String]);
+        //tim_init((char*)[[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:@"modizer.app/timidity"] UTF8String]);
         
         if (tim_force_soundfont) {
             tim_init(tim_force_soundfont_path);
@@ -12037,9 +12037,9 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
         } else {
             //timidity
             tim_init((char*)[[NSString stringWithFormat:@"%@",[[NSBundle mainBundle] resourcePath]] UTF8String]);
-            tim_init((char*)[[NSHomeDirectory() stringByAppendingPathComponent:@"modizer.app/timidity"] UTF8String]);
-            tim_init((char*)[[NSHomeDirectory() stringByAppendingPathComponent:@"Documents"] UTF8String]);
-            snprintf(tim_config_file_path,sizeof(tim_config_file_path),"%s",(char*)[[NSHomeDirectory() stringByAppendingPathComponent:@"Documents/timidity.cfg"] UTF8String]);
+            tim_init((char*)[[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:@"modizer.app/timidity"] UTF8String]);
+            tim_init((char*)[[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:@"Documents"] UTF8String]);
+            snprintf(tim_config_file_path,sizeof(tim_config_file_path),"%s",(char*)[[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:@"Documents/timidity.cfg"] UTF8String]);
         }
         
         mdz_tim_only_precompute=1;
@@ -14055,9 +14055,9 @@ extern bool icloud_available;
         else if ([_filePath characterAtIndex:0]=='/') fullFilePath=[NSString stringWithString:_filePath];
         else {
             if (icloud_available && ([_filePath containsString:[icloudURL path]])) fullFilePath=[NSString stringWithString:_filePath];
-            else fullFilePath=[NSHomeDirectory() stringByAppendingPathComponent:_filePath];
+            else fullFilePath=[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:_filePath];
         }
-    } else fullFilePath=[NSHomeDirectory() stringByAppendingPathComponent:_filePath];
+    } else fullFilePath=[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:_filePath];
     return fullFilePath;
 }
 
@@ -14272,7 +14272,7 @@ extern bool icloud_available;
                     file_no_ext=[temparray_filepath firstObject];
                     
                     
-                    //filePath=[NSHomeDirectory() stringByAppendingPathComponent:_filePath];
+                    //filePath=[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:_filePath];
                     filePath=[self getFullFilePath:_filePath];
                     snprintf(mod_filename,1024,"%s / %s",archive_filename,[[[filePath lastPathComponent] stringByDeletingPathExtension] UTF8String]);
                     

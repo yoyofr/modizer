@@ -16,6 +16,8 @@ static void *WBProgressObserverContext = &WBProgressObserverContext;
 #import "WebBrowser.h"
 #import "WB_BookmarksViewController.h"
 #import "SettingsGenViewController.h"
+#import "ModizFileHelper.h"
+
 extern volatile t_settings settings[MAX_SETTINGS];
 
 
@@ -511,7 +513,7 @@ int found_img;
                     //Is it already existing ?
                     NSFileManager *fileManager = [[NSFileManager alloc] init];
                     BOOL success;
-                    success = [fileManager fileExistsAtPath:[NSHomeDirectory() stringByAppendingPathComponent: localPath]];
+                    success = [fileManager fileExistsAtPath:[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent: localPath]];
                     if (success) {//already existing : start play/enqueue
                         if (settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==0) {
                             NSMutableArray *array_label = [[NSMutableArray alloc] init ];
@@ -536,7 +538,7 @@ int found_img;
                     //Is it already existing ?
                     NSFileManager *fileManager = [[NSFileManager alloc] init];
                     BOOL success;
-                    success = [fileManager fileExistsAtPath:[NSHomeDirectory() stringByAppendingPathComponent: localPath]];
+                    success = [fileManager fileExistsAtPath:[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent: localPath]];
                     if (success) {//already existing : start play/enqueue
                         if (settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==0) {
                             NSMutableArray *array_label = [[NSMutableArray alloc] init];
@@ -561,7 +563,7 @@ int found_img;
                     //Is it already existing ?
                     NSFileManager *fileManager = [[NSFileManager alloc] init];
                     BOOL success;
-                    success = [fileManager fileExistsAtPath:[NSHomeDirectory() stringByAppendingPathComponent: localPath]];
+                    success = [fileManager fileExistsAtPath:[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent: localPath]];
                     if (success) {//already existing : start play/enqueue
                         if (settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==0) {
                             NSMutableArray *array_label = [[NSMutableArray alloc] init];
@@ -778,7 +780,7 @@ int found_img;
                 //Is it already existing ?
                 NSFileManager *fileManager = [[NSFileManager alloc] init];
                 BOOL success;
-                success = [fileManager fileExistsAtPath:[NSHomeDirectory() stringByAppendingPathComponent: localPath]];
+                success = [fileManager fileExistsAtPath:[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent: localPath]];
                 if (success) {//already existing : start play/enqueue
                     if (settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==0) {
                         NSMutableArray *array_label = [[NSMutableArray alloc] init];
@@ -804,7 +806,7 @@ int found_img;
                 //Is it already existing ?
                 NSFileManager *fileManager = [[NSFileManager alloc] init];
                 BOOL success;
-                success = [fileManager fileExistsAtPath:[NSHomeDirectory() stringByAppendingPathComponent: localPath]];
+                success = [fileManager fileExistsAtPath:[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent: localPath]];
                 if (success) {//already existing : start play/enqueue
                     if (settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==0) {
                         NSMutableArray *array_label = [[NSMutableArray alloc] init];
@@ -1119,9 +1121,9 @@ didFinishNavigation:(WKNavigation *)navigation {
                             if (found_img==2) filename=[NSString stringWithFormat:@"%@/folder.png",[cover_currentPlayFilepath stringByDeletingLastPathComponent]];
                             if (found_img==3) filename=[NSString stringWithFormat:@"%@/folder.gif",[cover_currentPlayFilepath stringByDeletingLastPathComponent]];
                             NSFileManager *mFileMngr=[[NSFileManager alloc] init];
-                            [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@/folder.jpg",NSHomeDirectory(),[cover_currentPlayFilepath stringByDeletingLastPathComponent]] error:&err];
-                            [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@/folder.png",NSHomeDirectory(),[cover_currentPlayFilepath stringByDeletingLastPathComponent]] error:&err];
-                            [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@/folder.gif",NSHomeDirectory(),[cover_currentPlayFilepath stringByDeletingLastPathComponent]] error:&err];
+                            [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@/folder.jpg",[ModizFileHelper getAppHomeDirectory],[cover_currentPlayFilepath stringByDeletingLastPathComponent]] error:&err];
+                            [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@/folder.png",[ModizFileHelper getAppHomeDirectory],[cover_currentPlayFilepath stringByDeletingLastPathComponent]] error:&err];
+                            [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@/folder.gif",[ModizFileHelper getAppHomeDirectory],[cover_currentPlayFilepath stringByDeletingLastPathComponent]] error:&err];
                             
                             [self openPopup: [NSString stringWithFormat:@"Downloading : %@",[filename lastPathComponent] ]];
                             [downloadViewController addURLImageToDownloadList:cover_url_string fileName:filename filesize:cover_expectedContentLength];
@@ -1139,9 +1141,9 @@ didFinishNavigation:(WKNavigation *)navigation {
                             if (found_img==2) filename=[NSString stringWithFormat:@"%@.png",[cover_currentPlayFilepath stringByDeletingPathExtension]];
                             if (found_img==3) filename=[NSString stringWithFormat:@"%@.gif",[cover_currentPlayFilepath stringByDeletingPathExtension]];
                             NSFileManager *mFileMngr=[[NSFileManager alloc] init];
-                            [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@.jpg",NSHomeDirectory(),[cover_currentPlayFilepath stringByDeletingPathExtension]] error:&err];
-                            [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@.png",NSHomeDirectory(),[cover_currentPlayFilepath stringByDeletingPathExtension]] error:&err];
-                            [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@.gif",NSHomeDirectory(),[cover_currentPlayFilepath stringByDeletingPathExtension]] error:&err];
+                            [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@.jpg",[ModizFileHelper getAppHomeDirectory],[cover_currentPlayFilepath stringByDeletingPathExtension]] error:&err];
+                            [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@.png",[ModizFileHelper getAppHomeDirectory],[cover_currentPlayFilepath stringByDeletingPathExtension]] error:&err];
+                            [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@.gif",[ModizFileHelper getAppHomeDirectory],[cover_currentPlayFilepath stringByDeletingPathExtension]] error:&err];
                             
                             [self openPopup: [NSString stringWithFormat:@"Downloading : %@",[filename lastPathComponent] ]];
                             [downloadViewController addURLImageToDownloadList:cover_url_string fileName:filename filesize:cover_expectedContentLength];
@@ -1198,12 +1200,12 @@ didFinishNavigation:(WKNavigation *)navigation {
                         NSError *err;
                         filename=[NSString stringWithFormat:@"%@/folder.png",[cover_currentPlayFilepath stringByDeletingLastPathComponent]];
                         NSFileManager *mFileMngr=[[NSFileManager alloc] init];
-                        [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@/folder.jpg",NSHomeDirectory(),[cover_currentPlayFilepath stringByDeletingLastPathComponent]] error:&err];
-                        [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@/folder.png",NSHomeDirectory(),[cover_currentPlayFilepath stringByDeletingLastPathComponent]] error:&err];
-                        [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@/folder.gif",NSHomeDirectory(),[cover_currentPlayFilepath stringByDeletingLastPathComponent]] error:&err];
+                        [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@/folder.jpg",[ModizFileHelper getAppHomeDirectory],[cover_currentPlayFilepath stringByDeletingLastPathComponent]] error:&err];
+                        [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@/folder.png",[ModizFileHelper getAppHomeDirectory],[cover_currentPlayFilepath stringByDeletingLastPathComponent]] error:&err];
+                        [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@/folder.gif",[ModizFileHelper getAppHomeDirectory],[cover_currentPlayFilepath stringByDeletingLastPathComponent]] error:&err];
                         
                         [self openPopup: [NSString stringWithFormat:@"Saving : %@",[filename lastPathComponent] ]];
-                        NSString *filePath=[NSString stringWithFormat:@"%@/%@/folder.png",NSHomeDirectory(),[cover_currentPlayFilepath stringByDeletingLastPathComponent]];
+                        NSString *filePath=[NSString stringWithFormat:@"%@/%@/folder.png",[ModizFileHelper getAppHomeDirectory],[cover_currentPlayFilepath stringByDeletingLastPathComponent]];
                         [mFileMngr createFileAtPath:filePath contents:UIImagePNGRepresentation(myImage)  attributes:NULL];
                         
                         [detailViewController checkNewCover];
@@ -1220,12 +1222,12 @@ didFinishNavigation:(WKNavigation *)navigation {
                         NSError *err;
                         filename=[NSString stringWithFormat:@"%@.png",[cover_currentPlayFilepath stringByDeletingPathExtension]];
                         NSFileManager *mFileMngr=[[NSFileManager alloc] init];
-                        [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@.jpg",NSHomeDirectory(),[cover_currentPlayFilepath stringByDeletingPathExtension]] error:&err];
-                        [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@.png",NSHomeDirectory(),[cover_currentPlayFilepath stringByDeletingPathExtension]] error:&err];
-                        [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@.gif",NSHomeDirectory(),[cover_currentPlayFilepath stringByDeletingPathExtension]] error:&err];
+                        [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@.jpg",[ModizFileHelper getAppHomeDirectory],[cover_currentPlayFilepath stringByDeletingPathExtension]] error:&err];
+                        [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@.png",[ModizFileHelper getAppHomeDirectory],[cover_currentPlayFilepath stringByDeletingPathExtension]] error:&err];
+                        [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@.gif",[ModizFileHelper getAppHomeDirectory],[cover_currentPlayFilepath stringByDeletingPathExtension]] error:&err];
                         
                         [self openPopup: [NSString stringWithFormat:@"Saving : %@",[filename lastPathComponent] ]];
-                        NSString *filePath=[NSString stringWithFormat:@"%@/%@.png",NSHomeDirectory(),[cover_currentPlayFilepath stringByDeletingPathExtension]];
+                        NSString *filePath=[NSString stringWithFormat:@"%@/%@.png",[ModizFileHelper getAppHomeDirectory],[cover_currentPlayFilepath stringByDeletingPathExtension]];
                         [mFileMngr createFileAtPath:filePath contents:UIImagePNGRepresentation(myImage)  attributes:NULL];
                         
                         [detailViewController checkNewCover];

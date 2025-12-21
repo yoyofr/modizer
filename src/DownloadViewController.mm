@@ -50,7 +50,7 @@ gzwrite(f,&str_len,sizeof(str_len));gzwrite(f,str,str_len);
 - (void)backupDownloadList {
     [self suspend]; //1st, suspend any ongoing download
     gzFile f;
-    f=gzopen([[NSHomeDirectory() stringByAppendingPathComponent:@"Documents/modizer.downloadqueue"] UTF8String],"wb");
+    f=gzopen([[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:@"Documents/modizer.downloadqueue"] UTF8String],"wb");
     if (f) {
         gzwrite(f,&mFTPDownloadQueueDepth,sizeof(mFTPDownloadQueueDepth));
         for (int i=0;i<mFTPDownloadQueueDepth;i++) {
@@ -112,7 +112,7 @@ MDZELog("gzread error str for FTP entry %d",i); \
 
 - (int)restoreDownloadList {
     gzFile f;
-    f=gzopen([[NSHomeDirectory() stringByAppendingPathComponent:@"Documents/modizer.downloadqueue"] UTF8String],"rb");
+    f=gzopen([[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:@"Documents/modizer.downloadqueue"] UTF8String],"rb");
     if (f) {
         char str[4096];
         int str_len;
@@ -594,15 +594,15 @@ MDZELog("gzread error str for FTP entry %d",i); \
 		//Rename file to good name
 		NSError *err;
 		
-		[mFileMngr createDirectoryAtPath:[[NSHomeDirectory() stringByAppendingPathComponent:mCurrentFilePath] stringByDeletingLastPathComponent]
+		[mFileMngr createDirectoryAtPath:[[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:mCurrentFilePath] stringByDeletingLastPathComponent]
              withIntermediateDirectories:TRUE attributes:nil error:&err];
 		
-		[mFileMngr moveItemAtPath:[NSHomeDirectory() stringByAppendingPathComponent:TMP_FILE_NAME]
-                           toPath:[NSHomeDirectory() stringByAppendingPathComponent:mCurrentFilePath] error:&err];
+		[mFileMngr moveItemAtPath:[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:TMP_FILE_NAME]
+                           toPath:[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:mCurrentFilePath] error:&err];
 		
-        [self addSkipBackupAttributeToItemAtPath:[NSHomeDirectory() stringByAppendingPathComponent:mCurrentFilePath]];
+        [self addSkipBackupAttributeToItemAtPath:[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:mCurrentFilePath]];
         
-		if (mIsMODLAND[0]==0) [self checkIfShouldAddFile:[NSHomeDirectory() stringByAppendingPathComponent: mCurrentFilePath] fileName:mCurrentFilename ];
+		if (mIsMODLAND[0]==0) [self checkIfShouldAddFile:[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent: mCurrentFilePath] fileName:mCurrentFilename ];
 		else {  //MODLAND
 			if ([ModizFileHelper isPlayableFile:mCurrentFilename]) {
                 if ((mCurrentUsePrimaryAction==1)&&(mIsMODLAND[0]==1)) {
@@ -653,7 +653,7 @@ MDZELog("gzread error str for FTP entry %d",i); \
         [self.fileStream close];
         self.fileStream = nil;
 		//if an error occured : remove file
-		if (status) [mFileMngr removeItemAtPath:[NSHomeDirectory() stringByAppendingPathComponent:TMP_FILE_NAME] error:&err];
+		if (status) [mFileMngr removeItemAtPath:[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:TMP_FILE_NAME] error:&err];
     }
     [self _receiveDidStopWithStatus:statusString];
 	
@@ -986,7 +986,7 @@ MDZELog("gzread error str for FTP entry %d",i); \
                         NSString *localPath=[NSString stringWithFormat:@"Documents/%@/%@",MODLAND_BASEDIR,localP];
                         
                         //add only if file isn't existing already
-                        if ([mFileMngr fileExistsAtPath:[NSHomeDirectory() stringByAppendingPathComponent:localPath]]==false) {
+                        if ([mFileMngr fileExistsAtPath:[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:localPath]]==false) {
                             
                             bool already_in=false;
                             for (int j=0;j<mFTPDownloadQueueDepth;j++) {
@@ -1027,7 +1027,7 @@ MDZELog("gzread error str for FTP entry %d",i); \
                         NSString *localPath=[NSString stringWithFormat:@"Documents/%@/%@",MODLAND_BASEDIR,localP];
                         
                         //add only if file isn't existing already
-                        if ([mFileMngr fileExistsAtPath:[NSHomeDirectory() stringByAppendingPathComponent:localPath]]==false) {
+                        if ([mFileMngr fileExistsAtPath:[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:localPath]]==false) {
                             
                             bool already_in=false;
                             for (int j=0;j<mFTPDownloadQueueDepth;j++) {
@@ -1068,7 +1068,7 @@ MDZELog("gzread error str for FTP entry %d",i); \
                         NSString *localPath=[NSString stringWithFormat:@"Documents/%@/%@",MODLAND_BASEDIR,localP];
                         
                         //add only if file isn't existing already
-                        if ([mFileMngr fileExistsAtPath:[NSHomeDirectory() stringByAppendingPathComponent:localPath]]==false) {
+                        if ([mFileMngr fileExistsAtPath:[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:localPath]]==false) {
                             
                             bool already_in=false;
                             for (int j=0;j<mFTPDownloadQueueDepth;j++) {
@@ -1396,7 +1396,7 @@ MDZELog("gzread error str for FTP entry %d",i); \
     
     //Check download dir exist & create if needed
     NSError *err;
-    [mFileMngr createDirectoryAtPath:[NSHomeDirectory() stringByAppendingPathComponent:@"Documents/Downloads"]  withIntermediateDirectories:TRUE attributes:nil error:&err];
+    [mFileMngr createDirectoryAtPath:[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:@"Documents/Downloads"]  withIntermediateDirectories:TRUE attributes:nil error:&err];
     
 	downloadLabelName.text=[[NSString stringWithFormat:NSLocalizedString(@"Downloading %@",@""),mURL[0]] stringByReplacingPercentEscapesUsingEncoding:NSASCIIStringEncoding];
 	downloadLabelSize.text=[NSString stringWithFormat:@"%dKB",mURLFilesize[0]/1024];
@@ -1435,12 +1435,12 @@ MDZELog("gzread error str for FTP entry %d",i); \
         if (fileName==nil) fileName=[NSString stringWithString:[response suggestedFilename]];
         NSString *localPath;
             
-        if (mCurrentURLIsImage) localPath=[[NSString alloc] initWithFormat:@"%@/%@",NSHomeDirectory(),fileName];
+        if (mCurrentURLIsImage) localPath=[[NSString alloc] initWithFormat:@"%@/%@",[ModizFileHelper getAppHomeDirectory],fileName];
         else {
             if (mURLIsMODLAND[0]) {
-                localPath=[[NSString alloc] initWithFormat:@"%@/%@",NSHomeDirectory(),mURLFilePath[0]];
+                localPath=[[NSString alloc] initWithFormat:@"%@/%@",[ModizFileHelper getAppHomeDirectory],mURLFilePath[0]];
             } else {
-                localPath=[[NSString alloc] initWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents/Downloads"],fileName];
+                localPath=[[NSString alloc] initWithFormat:@"%@/%@",[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:  @"Documents/Downloads"],fileName];
             }
         }
         localPath = [localPath stringByReplacingOccurrencesOfString: @"'" withString: @"\'"];
@@ -1508,7 +1508,7 @@ MDZELog("gzread error str for FTP entry %d",i); \
 	}
     
     //Check download dir exist & create if needed
-    [mFileMngr createDirectoryAtPath:[NSHomeDirectory() stringByAppendingPathComponent:@"Documents/Downloads"]  withIntermediateDirectories:TRUE attributes:nil error:&err];
+    [mFileMngr createDirectoryAtPath:[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:@"Documents/Downloads"]  withIntermediateDirectories:TRUE attributes:nil error:&err];
     
     
     
@@ -1536,13 +1536,13 @@ MDZELog("gzread error str for FTP entry %d",i); \
 		return;
 	}
 	// Open a local stream for the file we're going to receive into.
-	[mFileMngr removeItemAtPath:[NSHomeDirectory() stringByAppendingPathComponent:TMP_FILE_NAME] error:&err];
-    self.fileStream = [NSOutputStream outputStreamToFileAtPath:[NSHomeDirectory() stringByAppendingPathComponent:TMP_FILE_NAME] append:NO];
+	[mFileMngr removeItemAtPath:[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:TMP_FILE_NAME] error:&err];
+    self.fileStream = [NSOutputStream outputStreamToFileAtPath:[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:TMP_FILE_NAME] append:NO];
     assert(self.fileStream != nil);
     [self.fileStream setDelegate:self];
     [self.fileStream open];
     
-    [self addSkipBackupAttributeToItemAtPath:[NSHomeDirectory() stringByAppendingPathComponent:TMP_FILE_NAME]];
+    [self addSkipBackupAttributeToItemAtPath:[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:TMP_FILE_NAME]];
 	
     // Open a FTP stream for the file to download
     self.networkStream = (__bridge NSInputStream *) ftpStream;

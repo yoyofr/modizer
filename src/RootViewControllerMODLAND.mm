@@ -1724,7 +1724,7 @@ END_PROFILE
 }
 
 - (void)checkCreate:(NSString *)filePath {
-    NSString *completePath=[NSString stringWithFormat:@"%@/%@",NSHomeDirectory(),filePath];
+    NSString *completePath=[NSString stringWithFormat:@"%@/%@",[ModizFileHelper getAppHomeDirectory],filePath];
     NSError *err;
     [mFileMngr createDirectoryAtPath:completePath withIntermediateDirectories:TRUE attributes:nil error:&err];	
 }
@@ -2448,7 +2448,7 @@ END_PROFILE
             }
             section-=download_all;
             //delete file
-            NSString *localpath=[NSHomeDirectory() stringByAppendingPathComponent:[NSString stringWithFormat:@"/Documents/%@/%@",MODLAND_BASEDIR,[self getCompleteLocalPath:cur_db_entries[section][indexPath.row].id_mod]]];
+            NSString *localpath=[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:[NSString stringWithFormat:@"/Documents/%@/%@",MODLAND_BASEDIR,[self getCompleteLocalPath:cur_db_entries[section][indexPath.row].id_mod]]];
             NSError *err;
             DBHelper::deleteStatsFileDB(localpath);
             cur_db_entries[section][indexPath.row].downloaded=0;

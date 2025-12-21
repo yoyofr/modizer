@@ -793,6 +793,8 @@
 		CC93319E2EA55E6400CB0503 /* SysMonitoring.m in Sources */ = {isa = PBXBuildFile; fileRef = CC93319D2EA55E6400CB0503 /* SysMonitoring.m */; };
 		CC9331A12EA5844900CB0503 /* ModizerGlobals.c in Sources */ = {isa = PBXBuildFile; fileRef = CC9331A02EA583F300CB0503 /* ModizerGlobals.c */; };
 		CC94D9FD1AC7FCE70046C45D /* UIImage+ImageEffects.m in Sources */ = {isa = PBXBuildFile; fileRef = CC94D9FC1AC7FCE70046C45D /* UIImage+ImageEffects.m */; };
+		CC9957C12EF7F37A00FD4CDF /* AppStore512.png in Resources */ = {isa = PBXBuildFile; fileRef = CC8D41AF1801E26F00533682 /* AppStore512.png */; };
+		CC9957C22EF7F37A00FD4CDF /* AppStore512.png in Resources */ = {isa = PBXBuildFile; fileRef = CC8D41AF1801E26F00533682 /* AppStore512.png */; };
 		CC9A51012BE37C2E00CED1F0 /* liblibpmdmini.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CC9A50BC2BE36C8300CED1F0 /* liblibpmdmini.a */; };
 		CC9A51032BE38F2D00CED1F0 /* ym2608_adpcm_rom.bin in Resources */ = {isa = PBXBuildFile; fileRef = CC9A51022BE38F2D00CED1F0 /* ym2608_adpcm_rom.bin */; };
 		CC9CE1562E96F77000725D15 /* projectm in Resources */ = {isa = PBXBuildFile; fileRef = CC9CE1552E96F68100725D15 /* projectm */; };
@@ -3698,7 +3700,7 @@
 		CC8A8D4017F9FF5500A56E0C /* Icon-Small-40.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon-Small-40.png"; sourceTree = "<group>"; };
 		CC8A8D4117F9FF5500A56E0C /* Icon-Small-80.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon-Small-80.png"; sourceTree = "<group>"; };
 		CC8A8D4217F9FF5500A56E0C /* Icon-Small-100.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon-Small-100.png"; sourceTree = "<group>"; };
-		CC8D41AF1801E26F00533682 /* AppStore512.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = AppStore512.png; sourceTree = SOURCE_ROOT; };
+		CC8D41AF1801E26F00533682 /* AppStore512.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = AppStore512.png; path = Resources/AppStore512.png; sourceTree = SOURCE_ROOT; };
 		CC9331562EA040B200CB0503 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		CC9331582EA040B300CB0503 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		CC9331932EA28B7B00CB0503 /* Fonts */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Fonts; sourceTree = "<group>"; };
@@ -4017,21 +4019,6 @@
 			);
 			target = CC88FB902EDB2CD100717901 /* ModizerMacWindowPlugin */;
 		};
-		CCBE63EA2EE2DD44000FDD7E /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				welcome_localBrowser.png,
-				welcome_more.png,
-				welcome_online.png,
-				welcome_playerView1.png,
-				welcome_playerView2.png,
-				welcome_playerView3.png,
-				welcome_playerView4.png,
-				welcome_playlist.png,
-				welcome_settings.png,
-			);
-			target = CCBE60562EE2DD44000FDD7E /* modizer_mac */;
-		};
 		CCBE63EB2EE2DD44000FDD7E /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -4043,7 +4030,7 @@
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		CC88FB962EDB2D0600717901 /* ModizerMacPlugin */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (CC88FB9C2EDB2EC200717901 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, CC88FB9E2EDB2EC600717901 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, CCBE63EB2EE2DD44000FDD7E /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = ModizerMacPlugin; sourceTree = "<group>"; };
-		CCBF271D2ECB1A460039936C /* WelcomePages */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (CCBE63EA2EE2DD44000FDD7E /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = WelcomePages; sourceTree = "<group>"; };
+		CCBF271D2ECB1A460039936C /* WelcomePages */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = WelcomePages; sourceTree = "<group>"; };
 		CCE026442E9BB0E3008B7070 /* GLES3 */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (MDZShaders, ); path = GLES3; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
@@ -7679,6 +7666,7 @@
 				594CB8C2263358D900D154E5 /* txtMenu5c_2x.png in Resources */,
 				59909B501E3E204E00C629AA /* tabview_gradient40Orange.png in Resources */,
 				33554E1A14C3299F00018161 /* btnpause@2x.png in Resources */,
+				CC9957C12EF7F37A00FD4CDF /* AppStore512.png in Resources */,
 				33554E1B14C3299F00018161 /* btnplay@2x.png in Resources */,
 				3358147914EC0F27003D7B5B /* pinfo.png in Resources */,
 				3358147A14EC0F27003D7B5B /* pinfo@2x.png in Resources */,
@@ -8104,6 +8092,7 @@
 				CCBE62B22EE2DD44000FDD7E /* txtMenu5c_2x.png in Resources */,
 				CCBE62B32EE2DD44000FDD7E /* tabview_gradient40Orange.png in Resources */,
 				CCBE62B42EE2DD44000FDD7E /* btnpause@2x.png in Resources */,
+				CC9957C22EF7F37A00FD4CDF /* AppStore512.png in Resources */,
 				CCBE62B52EE2DD44000FDD7E /* btnplay@2x.png in Resources */,
 				CCBE62B62EE2DD44000FDD7E /* pinfo.png in Resources */,
 				CCBE62B72EE2DD44000FDD7E /* pinfo@2x.png in Resources */,

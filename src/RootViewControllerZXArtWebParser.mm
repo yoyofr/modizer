@@ -12,6 +12,8 @@
 #import "AFNetworking.h"
 #import "AFHTTPSessionManager.h"
 
+#import "ModizFileHelper.h"
+
 enum {
     BROWSE_ALL_INDEX,
     BROWSE_ALL_AUTHORS,
@@ -817,7 +819,7 @@ int qsortZXArt_entries_rating_or_entries(const void *entryA, const void *entryB)
         NSString *pathToCheck=nil;
         
         if (cur_db_entries[section][indexPath.row].fullpath)
-            pathToCheck=[NSString stringWithFormat:@"%@/%@",NSHomeDirectory(),cur_db_entries[section][indexPath.row].fullpath];
+            pathToCheck=[NSString stringWithFormat:@"%@/%@",[ModizFileHelper getAppHomeDirectory],cur_db_entries[section][indexPath.row].fullpath];
         if (pathToCheck) {
             if ([mFileMngr fileExistsAtPath:pathToCheck]) cur_db_entries[section][indexPath.row].downloaded=1;
             else cur_db_entries[section][indexPath.row].downloaded=0;
@@ -927,7 +929,7 @@ int qsortZXArt_entries_rating_or_entries(const void *entryA, const void *entryB)
     
     if (cur_db_entries[section][indexPath.row].isFile) { //FILE
         //File selected, start download is needed
-        NSString *localPath=[NSHomeDirectory() stringByAppendingFormat:@"/%@",cur_db_entries[section][indexPath.row].fullpath];
+        NSString *localPath=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@",cur_db_entries[section][indexPath.row].fullpath];
         mClickedPrimAction=(settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==0);
         
         if (cur_db_entries[section][indexPath.row].downloaded==1) {

@@ -9,6 +9,7 @@
 
 #import "SettingsMaintenanceViewController.h"
 #import "ImagesCache.h"
+#import "ModizFileHelper.h"
 
 #include <pthread.h>
 extern pthread_mutex_t db_mutex;
@@ -224,7 +225,7 @@ extern bool dbhelper_cancel;
 -(bool) resetRatingsDB {
     [self showWaiting];
     [self flushMainLoop];
-	NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
+	NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
 	sqlite3 *db;
 	int err;
 	
@@ -251,7 +252,7 @@ extern bool dbhelper_cancel;
 -(bool) resetPlaycountDB {
     [self showWaiting];
     [self flushMainLoop];
-	NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
+	NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
 	sqlite3 *db;
 	int err;
 	
@@ -372,12 +373,12 @@ extern char cleanDB_Status[256];
         [self hideWaiting];
         return;
     }
-    [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@/folder.jpg",NSHomeDirectory(),[currentPlayFilepath stringByDeletingLastPathComponent]] error:&err];
-    [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@/folder.png",NSHomeDirectory(),[currentPlayFilepath stringByDeletingLastPathComponent]] error:&err];
-    [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@/folder.gif",NSHomeDirectory(),[currentPlayFilepath stringByDeletingLastPathComponent]] error:&err];
-    [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@.jpg",NSHomeDirectory(),[currentPlayFilepath stringByDeletingPathExtension]] error:&err];
-    [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@.png",NSHomeDirectory(),[currentPlayFilepath stringByDeletingPathExtension]] error:&err];
-    [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@.gif",NSHomeDirectory(),[currentPlayFilepath stringByDeletingPathExtension]] error:&err];
+    [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@/folder.jpg",[ModizFileHelper getAppHomeDirectory],[currentPlayFilepath stringByDeletingLastPathComponent]] error:&err];
+    [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@/folder.png",[ModizFileHelper getAppHomeDirectory],[currentPlayFilepath stringByDeletingLastPathComponent]] error:&err];
+    [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@/folder.gif",[ModizFileHelper getAppHomeDirectory],[currentPlayFilepath stringByDeletingLastPathComponent]] error:&err];
+    [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@.jpg",[ModizFileHelper getAppHomeDirectory],[currentPlayFilepath stringByDeletingPathExtension]] error:&err];
+    [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@.png",[ModizFileHelper getAppHomeDirectory],[currentPlayFilepath stringByDeletingPathExtension]] error:&err];
+    [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@.gif",[ModizFileHelper getAppHomeDirectory],[currentPlayFilepath stringByDeletingPathExtension]] error:&err];
     mFileMngr=nil;
     
     [self showAlertMsg:NSLocalizedString(@"Info",@"") message:NSLocalizedString(@"Cover removed",@"")];

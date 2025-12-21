@@ -6,6 +6,7 @@
 //
 
 #import "ModizerPlaylistBridge.h"
+#import "ModizFileHelper.h"
 
 // Only include the struct definition header (pure C)
 #import "RootViewControllerPlaylist.h"
@@ -54,7 +55,7 @@ extern pthread_mutex_t db_mutex;
 - (NSArray<ModizerPlaylistInfo *> *)getAvailablePlaylists {
     // Access database directly without requiring view controller
     NSString *pathToDB = [NSString stringWithFormat:@"%@/%@",
-                          [NSHomeDirectory() stringByAppendingPathComponent:@"Documents"],
+                          [[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:@"Documents"],
                           DATABASENAME_USER];
 
     sqlite3 *db;

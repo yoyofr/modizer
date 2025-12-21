@@ -19,7 +19,7 @@
 #import "SceneDelegate.h"
 #import "StoreManager.h"
 #import "ModizerPlaylistBridge.h"
-
+#import "ModizFileHelper.h"
 
 extern NSMutableArray *mac_key_pressed,*mac_key_released;
 
@@ -793,10 +793,10 @@ extern NSMutableArray *mac_key_pressed,*mac_key_released;
         NSString *imported_filepath;
         NSError *err;
         NSFileManager *mFileMngr=[[NSFileManager alloc] init];
-        
-        [mFileMngr createDirectoryAtPath:[NSHomeDirectory() stringByAppendingPathComponent:@"Documents/Downloads"] withIntermediateDirectories:true attributes:NULL error:NULL];
-        
-        imported_filepath=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:@"Documents/Downloads"],[filepath lastPathComponent]];
+
+        [mFileMngr createDirectoryAtPath:[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:@"Documents/Downloads"] withIntermediateDirectories:true attributes:NULL error:NULL];
+
+        imported_filepath=[NSString stringWithFormat:@"%@/%@",[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:@"Documents/Downloads"],[filepath lastPathComponent]];
         //////////////////
         ///Get access
         if ([url startAccessingSecurityScopedResource]) {

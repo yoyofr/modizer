@@ -13,6 +13,7 @@
 #import "SettingsGenViewController.h"
 //#import "MNEValueTrackingSlider.h"
 #import "OBSlider.h"
+#import "ModizFileHelper.h"
 
 #import "Reachability.h"
 #include <ifaddrs.h>
@@ -4904,13 +4905,13 @@ void optNSFPLAYChangedC(id param) {
     
     pUser = ftpserver->AddUser(settings[FTP_USER].detail.mdz_textbox.text,
                                settings[FTP_PASSWORD].detail.mdz_textbox.text,
-                               [[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents/"] UTF8String]);
+                               [[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:  @"Documents/"] UTF8String]);
     
     // Create anonymous user
     if (settings[FTP_ANONYMOUS].detail.mdz_boolswitch.switch_value) {
         pAnonymousUser = ftpserver->AddUser("anonymous",
                                             NULL,
-                                            [[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents/"] UTF8String]);
+                                            [[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:  @"Documents/"] UTF8String]);
     }
     
     

@@ -33,6 +33,7 @@ extern bool _pmPresetNewLoaded;
 
 #import "DirParser.h"
 #import "ModizerConstants.h"
+#import "ModizFileHelper.h"
 
 #include "zlib.h"
 
@@ -918,7 +919,7 @@ code_4=a=1.0;\n\
 
 - (int)savePlaylist {
     gzFile f;
-    f=gzopen([[NSHomeDirectory() stringByAppendingPathComponent:@"Documents/modizerPresetsPL.pmpl"] UTF8String],"wb");
+    f=gzopen([[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:@"Documents/modizerPresetsPL.pmpl"] UTF8String],"wb");
     if (f) {
         //Write header
         MDZPlaylist_Header_t header;
@@ -955,10 +956,10 @@ code_4=a=1.0;\n\
 - (int)loadPlaylist {
     int missing_counter=0;
     NSString *pmBundleDir = [NSString stringWithFormat:@"%@/projectm/assets/presets",[[NSBundle mainBundle] resourcePath]];
-    NSString *pmCustomDir = [NSString stringWithFormat:@"%@/Documents%s/presets",NSHomeDirectory(),PM_ROOT_FOLDER_CUSTOM];
+    NSString *pmCustomDir = [NSString stringWithFormat:@"%@/Documents%s/presets",[ModizFileHelper getAppHomeDirectory],PM_ROOT_FOLDER_CUSTOM];
     
     gzFile f;
-    f=gzopen([[NSHomeDirectory() stringByAppendingPathComponent:@"Documents/modizerPresetsPL.pmpl"] UTF8String],"rb");
+    f=gzopen([[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:@"Documents/modizerPresetsPL.pmpl"] UTF8String],"rb");
     if (f) {
         int readBytes;
         //Read header
@@ -1459,10 +1460,10 @@ code_4=a=1.0;\n\
 - (int)loadFavorites {
     int missing_counter=0;
     NSString *pmBundleDir = [NSString stringWithFormat:@"%@/projectm/assets/presets",[[NSBundle mainBundle] resourcePath]];
-    NSString *pmCustomDir = [NSString stringWithFormat:@"%@/Documents%s/presets",NSHomeDirectory(),PM_ROOT_FOLDER_CUSTOM];
+    NSString *pmCustomDir = [NSString stringWithFormat:@"%@/Documents%s/presets",[ModizFileHelper getAppHomeDirectory],PM_ROOT_FOLDER_CUSTOM];
     
     gzFile f;
-    f=gzopen([[NSHomeDirectory() stringByAppendingPathComponent:@"Documents/modizerFavorites.pmfav"] UTF8String],"rb");
+    f=gzopen([[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:@"Documents/modizerFavorites.pmfav"] UTF8String],"rb");
     if (f) {
         int readBytes;
         //Read header
@@ -1538,7 +1539,7 @@ code_4=a=1.0;\n\
 }
 - (int)saveFavorites {
     gzFile f;
-    f=gzopen([[NSHomeDirectory() stringByAppendingPathComponent:@"Documents/modizerFavorites.pmfav"] UTF8String],"wb");
+    f=gzopen([[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:@"Documents/modizerFavorites.pmfav"] UTF8String],"wb");
     if (f) {
         //Write header
         MDZFavorites_Header_t header;

@@ -132,25 +132,25 @@ pthread_mutex_t gl_mutex;
         } else icloudURL=nil;
     }
     
-    [mFileMngr createDirectoryAtPath:[NSHomeDirectory() stringByAppendingPathComponent:@"Documents/Downloads"] withIntermediateDirectories:true attributes:NULL error:NULL];
+    [mFileMngr createDirectoryAtPath:[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:@"Documents/Downloads"] withIntermediateDirectories:true attributes:NULL error:NULL];
     
 #ifdef DEBUG_MODIZER
-    MDZILog("%@",[NSHomeDirectory() stringByAppendingPathComponent:@"Documents/Downloads"]);
+    MDZILog("%@",[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:@"Documents/Downloads"]);
 #endif
     
     //create dir for projectm custom assets
-    [mFileMngr createDirectoryAtPath:[NSHomeDirectory() stringByAppendingPathComponent:[NSString stringWithFormat:@"/Documents%s",PM_ROOT_FOLDER_CUSTOM]] withIntermediateDirectories:true attributes:NULL error:NULL];
-    [mFileMngr createDirectoryAtPath:[NSHomeDirectory() stringByAppendingPathComponent:[NSString stringWithFormat:@"/Documents%s/presets",PM_ROOT_FOLDER_CUSTOM]] withIntermediateDirectories:true attributes:NULL error:NULL];
-    [mFileMngr createDirectoryAtPath:[NSHomeDirectory() stringByAppendingPathComponent:[NSString stringWithFormat:@"/Documents%s/textures",PM_ROOT_FOLDER_CUSTOM]] withIntermediateDirectories:true attributes:NULL error:NULL];
+    [mFileMngr createDirectoryAtPath:[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:[NSString stringWithFormat:@"/Documents%s",PM_ROOT_FOLDER_CUSTOM]] withIntermediateDirectories:true attributes:NULL error:NULL];
+    [mFileMngr createDirectoryAtPath:[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:[NSString stringWithFormat:@"/Documents%s/presets",PM_ROOT_FOLDER_CUSTOM]] withIntermediateDirectories:true attributes:NULL error:NULL];
+    [mFileMngr createDirectoryAtPath:[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:[NSString stringWithFormat:@"/Documents%s/textures",PM_ROOT_FOLDER_CUSTOM]] withIntermediateDirectories:true attributes:NULL error:NULL];
 
     //create dir for shaders cache
-    [mFileMngr createDirectoryAtPath:[NSHomeDirectory() stringByAppendingPathComponent:[NSString stringWithFormat:@"/Documents%s",SHADER_CACHE_DIR]] withIntermediateDirectories:true attributes:NULL error:NULL];
+    [mFileMngr createDirectoryAtPath:[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:[NSString stringWithFormat:@"/Documents%s",SHADER_CACHE_DIR]] withIntermediateDirectories:true attributes:NULL error:NULL];
         
     
     // REMOVED: Mac Catalyst window size code - now handled in SceneDelegate
     // The window setup is now handled in SceneDelegate's scene:willConnectToSession:
     
-    snprintf(homedirectory,sizeof(homedirectory),"%s",[[NSHomeDirectory() stringByAppendingPathComponent:@"modizer.app"] UTF8String]);
+    snprintf(homedirectory,sizeof(homedirectory),"%s",[[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:@"modizer.app"] UTF8String]);
     
     snprintf(bundledirectory,sizeof(bundledirectory),"%s",[[[NSBundle mainBundle] bundlePath] UTF8String]);
     

@@ -95,7 +95,7 @@ static char **browser_sidtune_title,**browser_sidtune_name;
 
 
 -(void) getDBVersion:(int*)major minor:(int*)minor {
-    NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
+    NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
     sqlite3 *db;
     pthread_mutex_lock(&db_mutex);
     
@@ -136,8 +136,8 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     @autoreleasepool {
         
         NSString *defaultDBPath = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:DATABASENAME_USER];
-        NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
-        NSString *pathToOldDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_TMP];
+        NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
+        NSString *pathToOldDB=[NSString stringWithFormat:@"%@/%@",[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:  @"Documents"],DATABASENAME_TMP];
         NSError *error;
         NSFileManager *fileManager=[[NSFileManager alloc] init];
         
@@ -255,7 +255,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     NSFileManager *fileManager = [[NSFileManager alloc] init];
     NSError *error;
     
-    NSString *samplesDocPath=[NSString stringWithFormat:@"%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents/Samples"]];
+    NSString *samplesDocPath=[NSString stringWithFormat:@"%@",[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:  @"Documents/Samples"]];
     NSString *samplesPkgPath = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"Samples"];
     
     
@@ -798,7 +798,7 @@ static int qsort_CompareArcEntries(const void *entryA, const void *entryB) {
     NSMutableArray *all_multisongstype_ext=[ModizFileHelper buildListSupportFileType:FTYPE_PLAYABLEFILE_SUBSONGS];
     NSMutableArray *archivetype_ext=[ModizFileHelper buildListSupportFileType:FTYPE_ARCHIVE];
     
-    NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
+    NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
     sqlite3 *db;
     int err;
     char sqlStatement[1024];
@@ -3298,7 +3298,7 @@ As a consequence, some entries might disappear from existing playlist.\n\
     NSMutableArray *filetype_ext=[ModizFileHelper buildListSupportFileType:FTYPE_PLAYABLEFILE];;
     
     // First check count for each section
-    cpath=[NSHomeDirectory() stringByAppendingPathComponent:@"Documents"];
+    cpath=[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:@"Documents"];
     NSError *error;
     NSArray *dirContent;//
     BOOL isDir;

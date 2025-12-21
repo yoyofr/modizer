@@ -16,7 +16,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "CCBE60562EE2DD44000FDD7E"
-               BuildableName = "modizer_mac.app"
+               BuildableName = "modizer.app"
                BlueprintName = "modizer_mac"
                ReferencedContainer = "container:modizer.xcodeproj">
             </BuildableReference>
@@ -45,7 +45,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "CCBE60562EE2DD44000FDD7E"
-            BuildableName = "modizer_mac.app"
+            BuildableName = "modizer.app"
             BlueprintName = "modizer_mac"
             ReferencedContainer = "container:modizer.xcodeproj">
          </BuildableReference>
@@ -62,7 +62,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "CCBE60562EE2DD44000FDD7E"
-            BuildableName = "modizer_mac.app"
+            BuildableName = "modizer.app"
             BlueprintName = "modizer_mac"
             ReferencedContainer = "container:modizer.xcodeproj">
          </BuildableReference>

@@ -764,7 +764,7 @@ END_PROFILE
 }
 
 -(void) loadPlayListsListFromDB:(NSMutableArray*)entries list_id:(NSMutableArray*)list_id entries_details:(NSMutableArray*)details {
-    NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
+    NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
     sqlite3 *db;
     pthread_mutex_lock(&db_mutex);
     if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
@@ -793,7 +793,7 @@ END_PROFILE
     pthread_mutex_unlock(&db_mutex);
 }
 -(void) loadPlayListsFromDB:(NSString *)_id_playlist intoPlaylist:(t_playlist *)_playlist  {
-    NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
+    NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
     sqlite3 *db;
     
     pthread_mutex_lock(&db_mutex);
@@ -857,7 +857,7 @@ END_PROFILE
     pthread_mutex_unlock(&db_mutex);
 }
 -(NSString *) getPlaylistNameDB:(NSString*)id_playlist {
-    NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
+    NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
     NSString *listName;
     sqlite3 *db;
     int err;
@@ -887,7 +887,7 @@ END_PROFILE
 }
 
 -(bool) addListToPlaylistDB {
-    NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
+    NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
     sqlite3 *db;
     int err;
     bool result;
@@ -930,7 +930,7 @@ END_PROFILE
     return result;
 }
 -(bool) addListToPlaylistDB:(NSString*)id_playlist entries:(t_plPlaylist_entry*)pl_entries nb_entries:(int)nb_entries  {
-    NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
+    NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
     sqlite3 *db;
     int err;
     bool result;
@@ -973,7 +973,7 @@ END_PROFILE
     return result;
 }
 -(bool) removeFromPlaylistDB:(NSString*)id_playlist fullPath:(NSString*)fullpath {
-    NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
+    NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
     sqlite3 *db;
     int err;
     bool result;
@@ -1000,7 +1000,7 @@ END_PROFILE
     return result;
 }
 -(bool) replacePlaylistDBwithCurrent {
-    NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
+    NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
     sqlite3 *db;
     int err;
     pthread_mutex_lock(&db_mutex);
@@ -1047,7 +1047,7 @@ END_PROFILE
     return TRUE;
 }
 -(void) updatePlaylistNameDB:(NSString*)id_playlist playlist_name:(NSString *)playlist_name {
-    NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
+    NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
     sqlite3 *db;
     int err;
     pthread_mutex_lock(&db_mutex);
@@ -1069,7 +1069,7 @@ END_PROFILE
 }
 
 -(int) deletePlaylistDB:(NSString*)id_playlist {
-    NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
+    NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
     sqlite3 *db;
     int err,ret;
     pthread_mutex_lock(&db_mutex);
@@ -1143,7 +1143,7 @@ END_PROFILE
     
     NSMutableArray *all_multisongstype_ext=[NSMutableArray arrayWithCapacity:[filetype_extGME_MULTISONGSFILE count]+[filetype_extSID_MULTISONGSFILE count]];
     
-    NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
+    NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
     sqlite3 *db;
     int err;
     char sqlStatement[1024];
@@ -1262,7 +1262,7 @@ END_PROFILE
     for (int i=0;i<27;i++) local_entries_count[i]=0;
     
     // First check count for each section
-    cpath=[NSHomeDirectory() stringByAppendingPathComponent:  currentPath];
+    cpath=[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:  currentPath];
     //Check if it is a directory or an archive
     BOOL isDirectory;
     browseType=0;
@@ -2067,7 +2067,7 @@ END_PROFILE
 
 
 -(void) loadFavoritesList:(t_playlist*)playlist {
-    NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
+    NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
     sqlite3 *db;
     
     playlist->nb_entries=0;
@@ -2118,7 +2118,7 @@ END_PROFILE
 }
 
 -(void) loadMostPlayedList:(t_playlist*)playlist{
-    NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
+    NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
     sqlite3 *db;
     playlist->nb_entries=0;
     
@@ -2170,7 +2170,7 @@ END_PROFILE
 }
 
 int getPlaylistStatsDBmod(t_playlist *pl) {
-    NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
+    NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
     sqlite3 *db;
     int err;
     int ret=0;
@@ -2401,7 +2401,7 @@ int getPlaylistStatsDBmod(t_playlist *pl) {
 }
 
 - (void)checkCreate:(NSString *)filePath {
-    NSString *completePath=[NSString stringWithFormat:@"%@/%@",NSHomeDirectory(),filePath];
+    NSString *completePath=[NSString stringWithFormat:@"%@/%@",[ModizFileHelper getAppHomeDirectory],filePath];
     NSError *err;
     [mFileMngr createDirectoryAtPath:completePath withIntermediateDirectories:TRUE attributes:nil error:&err];
 }

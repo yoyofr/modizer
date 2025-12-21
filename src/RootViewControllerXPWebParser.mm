@@ -384,7 +384,7 @@ END_PROFILE
 }
 
 - (void)checkCreate:(NSString *)filePath {
-    //NSString *completePath=[NSString stringWithFormat:@"%@/%@",NSHomeDirectory(),filePath];
+    //NSString *completePath=[NSString stringWithFormat:@"%@/%@",[ModizFileHelper getAppHomeDirectory],filePath];
     NSError *err;
     [mFileMngr createDirectoryAtPath:filePath withIntermediateDirectories:TRUE attributes:nil error:&err];
 }
@@ -504,7 +504,7 @@ END_PROFILE
         int section = indexPath.section-1;
         
         //delete file
-        NSString *fullpath=[NSHomeDirectory() stringByAppendingFormat:@"/%@",cur_db_entries[section][indexPath.row].fullpath];
+        NSString *fullpath=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@",cur_db_entries[section][indexPath.row].fullpath];
         NSError *err;
         DBHelper::deleteStatsFileDB(fullpath);
         cur_db_entries[section][indexPath.row].downloaded=0;
@@ -627,7 +627,7 @@ END_PROFILE
         
         if (cur_db_entries[section][indexPath.row].isFile) { //FILE
             //File selected, start download is needed
-            NSString *localPath=[NSHomeDirectory() stringByAppendingFormat:@"/%@",cur_db_entries[section][indexPath.row].fullpath];
+            NSString *localPath=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@",cur_db_entries[section][indexPath.row].fullpath];
             
             if (cur_db_entries[section][indexPath.row].downloaded==1) {
                 NSMutableArray *array_label = [[NSMutableArray alloc] init];
@@ -670,7 +670,7 @@ END_PROFILE
     
     if (cur_db_entries[section][indexPath.row].isFile) { //FILE
         //File selected, start download is needed
-        NSString *localPath=[NSHomeDirectory() stringByAppendingFormat:@"/%@",cur_db_entries[section][indexPath.row].fullpath];
+        NSString *localPath=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@",cur_db_entries[section][indexPath.row].fullpath];
         mClickedPrimAction=2;
         
         if (cur_db_entries[section][indexPath.row].downloaded==1) {
@@ -706,7 +706,7 @@ END_PROFILE
     
     if (cur_db_entries[section][indexPath.row].isFile) { //FILE
         //File selected, start download is needed
-        NSString *localPath=[NSHomeDirectory() stringByAppendingFormat:@"/%@",cur_db_entries[section][indexPath.row].fullpath];
+        NSString *localPath=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@",cur_db_entries[section][indexPath.row].fullpath];
         mClickedPrimAction=(settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==0);
         
         if (cur_db_entries[section][indexPath.row].downloaded==1) {

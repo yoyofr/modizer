@@ -159,7 +159,7 @@ NSString *DBHelper::getLocalPathFromFullPath(NSString *fullPath) {
 
 
 int DBHelper::getFileStatsDBmod(NSString *fullpath,short int *playcount,signed char *rating,signed char *avg_rating,int *song_length,char *channels_nb,int *songs) {
-    NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
+    NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
     sqlite3 *db;
     int err;
     int ret=0;
@@ -214,7 +214,7 @@ int DBHelper::getFileStatsDBmod(NSString *fullpath,short int *playcount,signed c
 }
 
 int DBHelper::deleteStatsFileDB(NSString *fullpath) {
-    NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
+    NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
     sqlite3 *db;
     int err,ret;
     
@@ -270,7 +270,7 @@ int DBHelper::deleteStatsFileDB(NSString *fullpath) {
     return ret;
 }
 int DBHelper::deleteStatsDirDB(NSString *fullpath) {
-    NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
+    NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
     sqlite3 *db;
     int err,ret;
     
@@ -482,7 +482,7 @@ int DBHelper::getNbMODLANDFilesEntries() {
 }
 
 void DBHelper::updateFileStatsAvgRatingDBmod(NSString *fullpath) {
-    NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
+    NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
     sqlite3 *db;
     int err;
     int avg_rating;
@@ -685,7 +685,7 @@ void DBHelper::updateFileStatsAvgRatingDBmod(NSString *fullpath) {
 }
 
 int DBHelper::updateFileStatsDBmod(NSString *name,NSString *fullpath,short int playcount,signed char rating,signed char avg_rating,int song_length,signed char channels_nb,int songs) {
-    NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
+    NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
     sqlite3 *db;
     int err;
     int ret=0;
@@ -742,7 +742,7 @@ int DBHelper::updateFileStatsDBmod(NSString *name,NSString *fullpath,short int p
 }
 
 int DBHelper::updateRatingDBmod(NSString *fullpath,signed char rating) {
-    NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
+    NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
     sqlite3 *db;
     int err;
     int ret=0;
@@ -811,7 +811,7 @@ bool dbhelper_cancel;
 char cleanDB_Status[256];
 
 int DBHelper::cleanDB() {
-    NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[NSHomeDirectory() stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
+    NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
     sqlite3 *db;
     int err;
     BOOL success;
@@ -881,7 +881,7 @@ int DBHelper::cleanDB() {
                 NSString *fullpath=[NSString stringWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
                 //clean up for archive/multisong entries
                 fullpath=[ModizFileHelper getFullCleanFilePath:fullpath];
-                success = [fileManager fileExistsAtPath:[NSHomeDirectory() stringByAppendingPathComponent:fullpath]];
+                success = [fileManager fileExistsAtPath:[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:fullpath]];
                 if (!success) {//file does not exist
                     cleaned_entries++;
                     
@@ -926,7 +926,7 @@ int DBHelper::cleanDB() {
                 NSString *fullpath=[NSString stringWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
                 //clean up for archive/multisong entries
                 fullpath=[ModizFileHelper getFullCleanFilePath:fullpath];
-                success = [fileManager fileExistsAtPath:[NSHomeDirectory() stringByAppendingPathComponent:fullpath]];
+                success = [fileManager fileExistsAtPath:[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:fullpath]];
                 if (!success) {//file does not exist
                     MDZILog("missing : %s",sqlite3_column_text(stmt, 0));
                     
