@@ -1402,7 +1402,6 @@ static int qsort_CompareArcEntries(const void *entryA, const void *entryB) {
                         }
                     }
                 
-                
 //                a = archive_read_new();
 //                archive_read_support_filter_all(a);
 //                archive_read_support_format_raw(a);

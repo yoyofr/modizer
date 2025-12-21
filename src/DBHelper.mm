@@ -96,7 +96,6 @@ NSMutableArray *DBHelper::getMissingPartsNameFromFilePath(NSString *fullPath,NSS
     return result;
 }
 
-
 NSString *DBHelper::getFullPathFromLocalPath(NSString *localPath) {
     NSString *pathToDB=[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:DATABASENAME_MAIN];
     sqlite3 *db;
@@ -245,10 +244,6 @@ NSString *DBHelper::getLocalPathFromFullPath(NSString *fullPath) {
     pthread_mutex_unlock(&db_mutex);
     return result;
 }
-
-
-
-
 
 int DBHelper::getFileStatsDBmod(NSString *fullpath,short int *playcount,signed char *rating,signed char *avg_rating,int *song_length,char *channels_nb,int *songs) {
     NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];

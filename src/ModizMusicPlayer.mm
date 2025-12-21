@@ -8399,7 +8399,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
         //if only 1 archive entry, update it as well
         if (mdz_ArchiveFilesCnt==1) DBHelper::updateFileStatsDBmod([[ModizFileHelper getFilePathFromDocuments:mod_loadmodule_filepath] lastPathComponent],[ModizFileHelper getFilePathFromDocuments:mod_loadmodule_filepath],-1,-1,-1,mod_total_length,numChannels,mod_subsongs);
         else { //archive with multiple entries, reset stats if needed
-            DBHelper::updateFileStatsDBmod([[ModizFileHelper getFilePathFromDocuments:mod_loadmodule_filepath] lastPathComponent],[ModizFileHelper getFilePathFromDocuments:mod_loadmodule_filepath],-1,-1,-1,0,0,-mdz_ArchiveFilesCnt);
+            DBHelper::updateFileStatsDBmod([[ModizFileHelper getFilePathFromDocuments:mod_loadmodule_filepath] lastPathComponent],[ModizFileHelper getFilePathFromDocuments:mod_loadmodule_filepath],-1,-1,-1,-1,-1,-mdz_ArchiveFilesCnt);
         }
     } else { //not an archive
         DBHelper::updateFileStatsDBmod([[ModizFileHelper getFilePathFromDocuments:mod_loadmodule_filepath] lastPathComponent],[ModizFileHelper getFilePathFromDocuments:mod_loadmodule_filepath],-1,-1,-1,mod_total_length,numChannels,mod_subsongs);
@@ -13939,10 +13939,11 @@ static void vgm_set_dev_option(PlayerBase *player, UINT8 devId, UINT32 coreOpts)
                 fileName=[self getSubTitle:i];
                 filePathMain=[ModizFileHelper getFilePathFromDocuments:mod_loadmodule_filepath];
                 if (mdz_ArchiveFilesCnt) filePathMain=[NSString stringWithFormat:@"%@@%d",filePathMain,mdz_currentArchiveIndex];
-                
-                NSString *filePathSubsong=[NSString stringWithFormat:@"%@?%d",filePathMain,i];
-                DBHelper::updateFileStatsDBmod(fileName,filePathSubsong,-1,-1,-1,gme_subsong_length,gme_voice_count( gme_emu ),mod_subsongs);
-                
+               
+                if (mod_subsongs>1) {
+                    NSString *filePathSubsong=[NSString stringWithFormat:@"%@?%d",filePathMain,i];
+                    DBHelper::updateFileStatsDBmod(fileName,filePathSubsong,-1,-1,-1,gme_subsong_length,gme_voice_count( gme_emu ),mod_subsongs);
+                }
                 if (i==mod_subsongs-1) {// Global file stats update
                     [self mmp_updateDBStatsAtLoadSubsong:mod_total_length];
                 }
@@ -14184,6 +14185,23 @@ extern bool icloud_available;
         if (mdz_ArchiveFilesCnt) {
             for (int i=0;i<mdz_ArchiveFilesCnt;i++) free(mdz_ArchiveFilesList[i]);
             free(mdz_ArchiveFilesList);
+            
+            if (mdz_ArchiveEntryMonoSub) {
+                free(mdz_ArchiveEntryMonoSub);
+                mdz_ArchiveEntryMonoSub=NULL;
+            }
+            if (mdz_ArchiveEntryMonoSubLength) {
+                free(mdz_ArchiveEntryMonoSubLength);
+                mdz_ArchiveEntryMonoSubLength=NULL;
+            }
+            if (mdz_ArchiveEntryTitle) {
+                for (int i=0;i<mdz_ArchiveFilesCnt;i++) {
+                    if (mdz_ArchiveEntryTitle[i]) free(mdz_ArchiveEntryTitle[i]);
+                }
+                free(mdz_ArchiveEntryTitle);
+                mdz_ArchiveEntryTitle=NULL;
+            }
+            
             mdz_ArchiveFilesList=NULL;
             mdz_ArchiveFilesCnt=0;
             if (mdz_ArchiveEntryPlayed) free(mdz_ArchiveEntryPlayed);
@@ -14298,8 +14316,6 @@ extern bool icloud_available;
                             
                             for (int i=0;i<m3uReader.size();i++) {
                                 MDZILog("%d: file %s - type %s - track %d - length  %d",i,m3uReader[i].file,m3uReader[i].type,m3uReader[i].track,m3uReader[i].length);
-                                
-                                
                             }
                             
                             for (int i=0;i<mdz_ArchiveFilesCnt;i++) free(mdz_ArchiveFilesList[i]);
@@ -14308,24 +14324,12 @@ extern bool icloud_available;
                             mdz_ArchiveFilesCnt=m3uReader.size();
                             mdz_ArchiveFilesList=(char**)malloc(mdz_ArchiveFilesCnt*sizeof(char*));
                             
-                            if (mdz_ArchiveEntryMonoSub) {
-                                free(mdz_ArchiveEntryMonoSub);
-                                mdz_ArchiveEntryMonoSub=NULL;
-                            }
                             mdz_ArchiveEntryMonoSub=(int*)malloc(mdz_ArchiveFilesCnt*sizeof(int));
                             memset(mdz_ArchiveEntryMonoSub,-1,mdz_ArchiveFilesCnt*sizeof(int));
-                            
-                            if (mdz_ArchiveEntryMonoSubLength) {
-                                free(mdz_ArchiveEntryMonoSubLength);
-                                mdz_ArchiveEntryMonoSubLength=NULL;
-                            }
+
                             mdz_ArchiveEntryMonoSubLength=(int*)malloc(mdz_ArchiveFilesCnt*sizeof(int));
                             memset(mdz_ArchiveEntryMonoSubLength,-1,mdz_ArchiveFilesCnt*sizeof(int));
-
-                            if (mdz_ArchiveEntryTitle) {
-                                free(mdz_ArchiveEntryTitle);
-                                mdz_ArchiveEntryTitle=NULL;
-                            }
+                            
                             mdz_ArchiveEntryTitle=(char**)malloc(mdz_ArchiveFilesCnt*sizeof(char*));
                             memset(mdz_ArchiveEntryTitle,0,mdz_ArchiveFilesCnt*sizeof(char*));
                             
@@ -14344,6 +14348,39 @@ extern bool icloud_available;
                                 if (m3uReader[i].length>0) mdz_ArchiveEntryMonoSubLength[i]=m3uReader[i].length;
                             }
                         }
+                    } else if ([[[mod_loadmodule_filepath pathExtension] lowercaseString] isEqualToString:@"rsn"]) {
+                        //rsn file
+                        mdz_ArchiveEntryTitle=(char**)malloc(mdz_ArchiveFilesCnt*sizeof(char*));
+                        memset(mdz_ArchiveEntryTitle,0,mdz_ArchiveFilesCnt*sizeof(char*));
+                        
+                        int totalTime=0;
+                        for (int i=0;i<mdz_ArchiveFilesCnt;i++) {
+                            NSString *path=[NSString stringWithFormat:@"%@/tmpArchive/%@",NSTemporaryDirectory(),[NSString stringWithUTF8String:mdz_ArchiveFilesList[i]]];
+                            if ([[[path pathExtension] lowercaseString] isEqualToString:@"spc"]) {
+                                SPCTag tag;
+                                if ([SPCTagParser parseTagsFromFile:path tag:&tag]) {
+                                    double loopSec = [SPCTagParser ticksToSeconds:tag.loopLength];
+//                                    if (tag.hasXID6) {
+//                                        
+//                                    }
+                                    int songlength=int(loopSec*1000);
+                                    totalTime+=songlength;
+                                    NSString *arcTitle=[NSString stringWithFormat:@"%.3d-%s",i,tag.songName];
+                                    const char *name=[arcTitle UTF8String];
+                                    mdz_ArchiveEntryTitle[i]=(char*)malloc(strlen(name)+1);
+                                    strcpy(mdz_ArchiveEntryTitle[i],name);
+                                    
+                                    //MDZILog("%@ %d = %d %dx%d %d",arcTitle,songlength,tag.introLength/64,tag.loopLength/64,tag.loopCount,tag.endLength/64);
+                                    
+                                    //update file
+                                    DBHelper::updateFileStatsDBmod(arcTitle,[NSString stringWithFormat:@"%@@%d",mod_loadmodule_filepath,i],-1,-1,-1,songlength,8,1);
+                                    
+                                    [SPCTagParser freeTag:&tag]; // Libérer la mémoire
+                                }
+                            }
+                        }
+                        //update file
+                        DBHelper::updateFileStatsDBmod([[NSString stringWithFormat:@"%@",mod_loadmodule_filepath] lastPathComponent],[NSString stringWithFormat:@"%@",mod_loadmodule_filepath],-1,-1,-1,totalTime,8,-mdz_ArchiveFilesCnt);
                     }
                     
                     if (mdz_IsArchive && mdz_ArchiveFilesCnt) {
@@ -14384,21 +14421,25 @@ extern bool icloud_available;
                 mdz_currentArchiveIndex=archiveIndex;
             }
         }
-        //increase play counter
-        int max_idx=0;
-        for (int j=0;j<mdz_ArchiveFilesCnt;j++) {
-            if (max_idx<mdz_ArchiveEntryPlayed[j]) max_idx=mdz_ArchiveEntryPlayed[j];
+        if (mdz_currentArchiveIndex>=mdz_ArchiveFilesCnt) {
+            filePath=NULL;
+        } else {
+            //increase play counter
+            int max_idx=0;
+            for (int j=0;j<mdz_ArchiveFilesCnt;j++) {
+                if (max_idx<mdz_ArchiveEntryPlayed[j]) max_idx=mdz_ArchiveEntryPlayed[j];
+            }
+            mdz_ArchiveEntryPlayed[mdz_currentArchiveIndex]=max_idx+1;
+            
+            //init file references
+            _filePath=[NSString stringWithFormat:@"%@/tmpArchive/%@",NSTemporaryDirectory(),[NSString stringWithUTF8String:mdz_ArchiveFilesList[mdz_currentArchiveIndex]]];
+            NSMutableArray *temparray_filepath=[NSMutableArray arrayWithArray:[[_filePath lastPathComponent] componentsSeparatedByString:@"."]];
+            extension = (NSString *)[temparray_filepath lastObject];
+            file_no_ext=[temparray_filepath firstObject];
+            
+            filePath=[self getFullFilePath:_filePath];
+            snprintf(mod_filename,1024,"%s / %s",archive_filename,[[[filePath lastPathComponent] stringByDeletingPathExtension] UTF8String]);
         }
-        mdz_ArchiveEntryPlayed[mdz_currentArchiveIndex]=max_idx+1;
-        
-        //init file references
-        _filePath=[NSString stringWithFormat:@"%@/tmpArchive/%@",NSTemporaryDirectory(),[NSString stringWithUTF8String:mdz_ArchiveFilesList[mdz_currentArchiveIndex]]];
-        NSMutableArray *temparray_filepath=[NSMutableArray arrayWithArray:[[_filePath lastPathComponent] componentsSeparatedByString:@"."]];
-        extension = (NSString *)[temparray_filepath lastObject];
-        file_no_ext=[temparray_filepath firstObject];
-        
-        filePath=[self getFullFilePath:_filePath];
-        snprintf(mod_filename,1024,"%s / %s",archive_filename,[[[filePath lastPathComponent] stringByDeletingPathExtension] UTF8String]);
     }
     
     if (filePath==NULL) {
@@ -16848,20 +16889,20 @@ extern "C" void adjust_amplification(void);
             if (mdz_ArchiveEntryTitle[arc_index]) arcEntryName=[NSString stringWithUTF8String:mdz_ArchiveEntryTitle[arc_index]];
         }
         //check if spc file
-        if ([[[arcEntryName pathExtension] lowercaseString] isEqualToString:@"spc"]) {
-            SPCTag tag;
-            NSString *_filePath=[NSString stringWithFormat:@"%@/tmpArchive/%@",NSTemporaryDirectory(),arcEntryName];
-            if ([SPCTagParser parseTagsFromFile:_filePath tag:&tag]) {
-                NSString *ret=[NSString stringWithFormat:@"%.3d-%s",arc_index,tag.songName];
-                
-                if (tag.hasXID6) {
-                    //                     double loopSec = [SPCTagParser ticksToSeconds:tag.loopLength];
-                }
-                
-                [SPCTagParser freeTag:&tag]; // Libérer la mémoire
-                return ret;
-            }
-        }
+//        if ([[[arcEntryName pathExtension] lowercaseString] isEqualToString:@"spc"]) {
+//            SPCTag tag;
+//            NSString *_filePath=[NSString stringWithFormat:@"%@/tmpArchive/%@",NSTemporaryDirectory(),arcEntryName];
+//            if ([SPCTagParser parseTagsFromFile:_filePath tag:&tag]) {
+//                NSString *ret=[NSString stringWithFormat:@"%.3d-%s",arc_index,tag.songName];
+//                
+//                if (tag.hasXID6) {
+//                    //                     double loopSec = [SPCTagParser ticksToSeconds:tag.loopLength];
+//                }
+//                
+//                [SPCTagParser freeTag:&tag]; // Libérer la mémoire
+//                return ret;
+//            }
+//        }
         
         return arcEntryName;
     } else return @"";
