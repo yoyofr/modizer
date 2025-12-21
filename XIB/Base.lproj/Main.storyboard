@@ -1078,10 +1078,10 @@
                 <viewController title="web browser" modalTransitionStyle="flipHorizontal" id="xV0-Ez-trt" customClass="WebBrowser" sceneMemberID="viewController">
                     <view key="view" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" id="xDm-58-Xc4" userLabel="WB View">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="735"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Search or input a site url" textAlignment="center" adjustsFontForContentSizeCategory="YES" minimumFontSize="17" clearButtonMode="whileEditing" id="PCk-qz-FQb">
-                                <rect key="frame" x="8" y="22" width="376" height="34"/>
+                                <rect key="frame" x="8" y="350" width="376" height="34"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
                                 <color key="backgroundColor" systemColor="secondarySystemBackgroundColor"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
@@ -1091,11 +1091,11 @@
                                 </connections>
                             </textField>
                             <progressView opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="750" fixedFrame="YES" progress="0.5" translatesAutoresizingMaskIntoConstraints="NO" id="5Nv-Qh-jNh">
-                                <rect key="frame" x="0.0" y="37" width="393" height="4"/>
+                                <rect key="frame" x="0.0" y="365" width="393" height="4"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES"/>
                             </progressView>
                             <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="JYF-To-slK" userLabel="Top Toolbar">
-                                <rect key="frame" x="0.0" y="41" width="393" height="44"/>
+                                <rect key="frame" x="0.0" y="345" width="393" height="44"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES"/>
                                 <items>
                                     <barButtonItem title="Item" image="web-browser-back.png" id="Yhe-rn-F3S" userLabel="BackVC">
@@ -1140,7 +1140,7 @@
                                 </items>
                             </toolbar>
                             <view userInteractionEnabled="NO" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="zos-5v-DhB" userLabel="Info download">
-                                <rect key="frame" x="0.0" y="675" width="393" height="60"/>
+                                <rect key="frame" x="0.0" y="337" width="393" height="60"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                                 <subviews>
                                     <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" fixedFrame="YES" text="Label...................." lineBreakMode="characterWrap" numberOfLines="2" minimumFontSize="18" translatesAutoresizingMaskIntoConstraints="NO" id="mq5-jp-mrX" userLabel="Download Label">

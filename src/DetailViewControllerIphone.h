@@ -413,4 +413,7 @@ enum {
 
 -(void) oglButtonMessage;
 
+-(void) cleanPlaylistAfterDelDir:(NSString*)fullPath;
+-(void) cleanPlaylistAfterDelFile:(NSString*)fullPath;
+
 @end

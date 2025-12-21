@@ -2513,9 +2513,11 @@ As a consequence, some entries might disappear from existing playlist.\n\
         } else {
             if (cur_local_entries[section][indexPath.row].type==0) { //Dir
                 DBHelper::deleteStatsDirDB(fullpath);
+                [self.detailViewController cleanPlaylistAfterDelDir:fullpath];
             }
             if (cur_local_entries[section][indexPath.row].type&3) { //File
                 DBHelper::deleteStatsFileDB(fullpath);
+                [self.detailViewController cleanPlaylistAfterDelFile:fullpath];
             }
             if (mSearch) {
                 mSearch=0;

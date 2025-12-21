@@ -1323,7 +1323,16 @@ struct ModizerShortcuts: AppShortcutsProvider {
                     "Start een afspeellijst in \(.applicationName)",
                     // Korean
                     "\(.applicationName)에서 재생목록 재생",
-                    "\(.applicationName)에서 플레이리스트 시작"
+                    "\(.applicationName)에서 플레이리스트 시작",
+                    // Czech
+                    "Přehrát playlist v \(.applicationName)",
+                    "Spustit playlist v \(.applicationName)",
+                    // Polish
+                    "Odtwórz playlistę w \(.applicationName)",
+                    "Uruchom playlistę w \(.applicationName)",
+                    // Finnish
+                    "Toista soittolista \(.applicationName)ssa",
+                    "Käynnistä soittolista \(.applicationName)ssa"
                 ],
                 shortTitle: "Play Playlist",
                 systemImageName: "music.note.list"
@@ -1378,7 +1387,16 @@ struct ModizerShortcuts: AppShortcutsProvider {
                     "Start willekeurige afspeellijst in \(.applicationName)",
                     // Korean
                     "\(.applicationName)에서 음악 재생",
-                    "\(.applicationName)에서 무작위 재생"
+                    "\(.applicationName)에서 무작위 재생",
+                    // Czech
+                    "Přehrát hudbu v \(.applicationName)",
+                    "Spustit náhodný playlist v \(.applicationName)",
+                    // Polish
+                    "Odtwórz muzykę w \(.applicationName)",
+                    "Uruchom losową playlistę w \(.applicationName)",
+                    // Finnish
+                    "Toista musiikkia \(.applicationName)ssa",
+                    "Käynnistä satunnainen soittolista \(.applicationName)ssa"
                 ],
                 shortTitle: "Play some music",
                 systemImageName: "play.fill"
@@ -1433,7 +1451,16 @@ struct ModizerShortcuts: AppShortcutsProvider {
                     "Start favorieten afspeellijst in \(.applicationName)",
                     // Korean
                     "\(.applicationName)에서 즐겨찾기 재생",
-                    "\(.applicationName)에서 좋아하는 음악 재생"
+                    "\(.applicationName)에서 좋아하는 음악 재생",
+                    // Czech
+                    "Přehrát oblíbené v \(.applicationName)",
+                    "Spustit playlist oblíbených v \(.applicationName)",
+                    // Polish
+                    "Odtwórz ulubione w \(.applicationName)",
+                    "Uruchom playlistę ulubionych w \(.applicationName)",
+                    // Finnish
+                    "Toista suosikit \(.applicationName)ssa",
+                    "Käynnistä suosikkisoittolista \(.applicationName)ssa"
                 ],
                 shortTitle: "Play favorites music",
                 systemImageName: "play.fill"
@@ -1488,7 +1515,16 @@ struct ModizerShortcuts: AppShortcutsProvider {
                     "Start meest gespeelde afspeellijst in \(.applicationName)",
                     // Korean
                     "\(.applicationName)에서 가장 많이 재생된 곡 재생",
-                    "\(.applicationName)에서 인기곡 재생"
+                    "\(.applicationName)에서 인기곡 재생",
+                    // Czech
+                    "Přehrát nejhranější v \(.applicationName)",
+                    "Spustit playlist nejhranějších v \(.applicationName)",
+                    // Polish
+                    "Odtwórz najczęściej odtwarzane w \(.applicationName)",
+                    "Uruchom playlistę najczęściej odtwarzanych w \(.applicationName)",
+                    // Finnish
+                    "Toista eniten toistetut \(.applicationName)ssa",
+                    "Käynnistä eniten toistettujen soittolista \(.applicationName)ssa"
                 ],
                 shortTitle: "Play most played music",
                 systemImageName: "play.fill"
@@ -1543,7 +1579,16 @@ struct ModizerShortcuts: AppShortcutsProvider {
                     "Wijzig willekeurige weergave in \(.applicationName)",
                     // Korean
                     "\(.applicationName)에서 셔플 모드 전환",
-                    "\(.applicationName)에서 무작위 재생 변경"
+                    "\(.applicationName)에서 무작위 재생 변경",
+                    // Czech
+                    "Přepnout náhodný režim v \(.applicationName)",
+                    "Změnit shuffle v \(.applicationName)",
+                    // Polish
+                    "Przełącz tryb losowy w \(.applicationName)",
+                    "Zmień shuffle w \(.applicationName)",
+                    // Finnish
+                    "Vaihda sekoitustila \(.applicationName)ssa",
+                    "Muuta satunnaistoistoa \(.applicationName)ssa"
                 ],
                 shortTitle: "Toggle Shuffle",
                 systemImageName: "shuffle"
@@ -1598,7 +1643,16 @@ struct ModizerShortcuts: AppShortcutsProvider {
                     "Schakel herhaling in \(.applicationName)",
                     // Korean
                     "\(.applicationName)에서 반복 모드 변경",
-                    "\(.applicationName)에서 반복 재생 전환"
+                    "\(.applicationName)에서 반복 재생 전환",
+                    // Czech
+                    "Změnit režim opakování v \(.applicationName)",
+                    "Přepnout opakování v \(.applicationName)",
+                    // Polish
+                    "Zmień tryb powtarzania w \(.applicationName)",
+                    "Przełącz powtarzanie w \(.applicationName)",
+                    // Finnish
+                    "Muuta toistotilaa \(.applicationName)ssa",
+                    "Vaihda toistoa \(.applicationName)ssa"
                 ],
                 shortTitle: "Toggle Loop Mode",
                 systemImageName: "repeat"
@@ -1654,7 +1708,16 @@ struct ModizerShortcuts: AppShortcutsProvider {
                     "Huidige nummer in \(.applicationName)",
                     // Korean
                     "\(.applicationName)에서 재생 중인 곡",
-                    "\(.applicationName)의 현재 곡"
+                    "\(.applicationName)의 현재 곡",
+                    // Czech
+                    "Co se přehrává v \(.applicationName)",
+                    "Aktuální skladba v \(.applicationName)",
+                    // Polish
+                    "Co gra w \(.applicationName)",
+                    "Bieżący utwór w \(.applicationName)",
+                    // Finnish
+                    "Mitä soitetaan \(.applicationName)ssa",
+                    "Nykyinen kappale \(.applicationName)ssa"
                 ],
                 shortTitle: "Now Playing",
                 systemImageName: "music.note"

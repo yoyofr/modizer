@@ -6585,7 +6585,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 OSMutex_Lock(vgm_renderMtx);
                                 nbBytes=vgm_player.Render(SOUND_BUFFER_SIZE_SAMPLE*2*2,buffer_ana[buffer_ana_gen_ofs]);
                                 if (nbBytes<SOUND_BUFFER_SIZE_SAMPLE*2*2) {
-                                    MDZELog("vgm player not enough bytes: %d",nbBytes);
+                                    //MDZELog("vgm player not enough bytes: %d",nbBytes);
                                 }
                                 OSMutex_Unlock(vgm_renderMtx);
                                 if (settings[GLOB_PBRATIO_ONOFF].detail.mdz_boolswitch.switch_value) mCurrentSamples+=SOUND_BUFFER_SIZE_SAMPLE*settings[GLOB_PBRATIO].detail.mdz_slider.slider_value;
@@ -13169,6 +13169,8 @@ static void vgm_set_dev_option(PlayerBase *player, UINT8 devId, UINT32 coreOpts)
         totalFrames += fadeFrames;
     }
     
+    snprintf(mod_name,sizeof(mod_name),"");
+    
     mod_message[0]=0;
     numChannels=0;
     m_genNumVoicesChannels=0;
@@ -13330,7 +13332,6 @@ static void vgm_set_dev_option(PlayerBase *player, UINT8 devId, UINT32 coreOpts)
     mod_maxsub=0;
     mod_subsongs=1;
     
-    snprintf(mod_name,sizeof(mod_name),"");
     if (mod_name[0]==0) snprintf(mod_name,sizeof(mod_name)," %s",mod_filename);
     
     [self mmp_updateDBStatsAtLoad];
@@ -14342,7 +14343,7 @@ extern bool icloud_available;
                                 if (file && file[0]) {
                                     mdz_ArchiveEntryTitle[i]=(char*)malloc(strlen(file)+1);
                                     strcpy(mdz_ArchiveEntryTitle[i],file);
-                                }
+                                } else mdz_ArchiveEntryTitle[i]=0;
                                 
                                 if (m3uReader[i].track>=0) mdz_ArchiveEntryMonoSub[i]=m3uReader[i].track;
                                 if (m3uReader[i].length>0) mdz_ArchiveEntryMonoSubLength[i]=m3uReader[i].length;

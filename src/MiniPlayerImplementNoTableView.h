@@ -57,8 +57,12 @@
     [self.view addConstraint:[NSLayoutConstraint constraintWithItem:miniplayerVC.view attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:self.view attribute:NSLayoutAttributeBottom multiplier:1.0 constant:-adjust_y]];
         
     NSNumber *value=[[NSNumber alloc] initWithFloat:(48-adjust_y)];
-    
+
     if ([self respondsToSelector:@selector(adjustViewForMiniplayer:)]) [self performSelector:@selector(adjustViewForMiniplayer:) withObject:value];
+
+    // Force layout update
+    [self.view setNeedsLayout];
+    [self.view layoutIfNeeded];
     //[tableView reloadData];
 }
 

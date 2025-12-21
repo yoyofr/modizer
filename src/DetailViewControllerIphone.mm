@@ -6356,7 +6356,7 @@ void pm_perfTest() {
     //repeatingTimer = nil;
     
     //Release ProjectM
-    [self pmRelease];
+    //[self pmRelease];
 }
 
 -(void) enterForeground {
@@ -6374,7 +6374,7 @@ void pm_perfTest() {
     if (labelModuleName) [labelModuleName setPaused:false];
     
     //Init ProjectM
-    if (_pmFirstInitDone && (_pmIsInitialized==false)) [self pmInit];
+    //if (_pmFirstInitDone && (_pmIsInitialized==false)) [self pmInit];
     
     //Build displaylink if needed
     if (_pmFirstInitDone && (m_displayLink==nil)) {
@@ -9593,6 +9593,88 @@ void doFramePM(float ww,float hh) {
     current_selmode=ARCSUB_MODE_NONE;
     [self dismissViewControllerAnimated:YES completion:nil];
 }
+
+-(void) cleanPlaylistAfterDelDir:(NSString*)fullPath {
+    //////////////////////////////////////////////////////////////////////////////////////:
+    //nowplaying playlist, remove a dir (multiple entries)
+    //////////////////////////////////////////////////////////////////////////////////////:
+    int strLen=(int)[fullPath length];
+    int j=0;
+    bool isplaying=[self mIsPlaying];
+    bool removeCurrentPos=false;
+    while (j<mPlaylist_size) {
+        NSString *strTmp=[ModizFileHelper getFullPathForFilePath:mPlaylist[j].mPlaylistFilepath];
+        if ([strTmp length]>=strLen) {
+            strTmp=[strTmp substringToIndex:strLen];
+            //MDZILog("cleanPlaylistAfterDelDir: %@ | %@\n",strTmp,fullPath);
+            if ([strTmp isEqualToString:fullPath]) {
+                if (j==mPlaylist_pos) [self stop];
+                
+                mPlaylist[j].mPlaylistFilename=nil;
+                mPlaylist[j].mPlaylistFilepath=nil;
+                for (int i=j;i<mPlaylist_size-1;i++) {
+                    mPlaylist[i].mPlaylistFilename=mPlaylist[i+1].mPlaylistFilename;
+                    mPlaylist[i].mPlaylistFilepath=mPlaylist[i+1].mPlaylistFilepath;
+                    mPlaylist[i].mPlaylistRating=mPlaylist[i+1].mPlaylistRating;
+                    mPlaylist[i].mPlaylistCount=mPlaylist[i+1].mPlaylistCount;
+                    mPlaylist[i].cover_flag=mPlaylist[i+1].cover_flag;
+                }
+                mPlaylist_size--;
+                if (mPlaylist_pos>=mPlaylist_size) mPlaylist_pos--;
+                if ((j)<=mPlaylist_pos) mPlaylist_pos--;
+                if (mPlaylist_pos<0) mPlaylist_pos=0;
+                mShouldUpdateInfos=1;
+            } else j++;
+        } else j++;
+    }
+    if (removeCurrentPos && mPlaylist_size && isplaying) {
+        [self play_curEntry:-1];
+    }
+    if (mPlaylist_size==0) [self stop];
+}
+-(void) cleanPlaylistAfterDelFile:(NSString*)fullPath {
+    //////////////////////////////////////////////////////////////////////////////////////:
+    //nowplaying playlist, remove an entry
+    //////////////////////////////////////////////////////////////////////////////////////:
+    
+    int j=0;
+    
+    bool isplaying=[self mIsPlaying];
+    bool removeCurrentPos=false;
+    
+    while (j<mPlaylist_size) {
+        NSString *strTmp=[ModizFileHelper getFullPathForFilePath:mPlaylist[j].mPlaylistFilepath];
+        //MDZILog("cleanPlaylistAfterDelFile: %@ | %@\n",strTmp,fullPath);
+        if ([strTmp isEqualToString:fullPath]) {
+            if (j==mPlaylist_pos) {
+                removeCurrentPos=true;
+            }
+            
+            mPlaylist[j].mPlaylistFilename=nil;
+            mPlaylist[j].mPlaylistFilepath=nil;
+            for (int i=j;i<mPlaylist_size-1;i++) {
+                mPlaylist[i].mPlaylistFilename=mPlaylist[i+1].mPlaylistFilename;
+                mPlaylist[i].mPlaylistFilepath=mPlaylist[i+1].mPlaylistFilepath;
+                mPlaylist[i].mPlaylistRating=mPlaylist[i+1].mPlaylistRating;
+                mPlaylist[i].mPlaylistCount=mPlaylist[i+1].mPlaylistCount;
+                mPlaylist[i].cover_flag=mPlaylist[i+1].cover_flag;
+            }
+            
+            mPlaylist_size--;
+            if (mPlaylist_pos>=mPlaylist_size) mPlaylist_pos--;
+            if ((j)<=mPlaylist_pos) mPlaylist_pos--;
+            if (mPlaylist_pos<0) mPlaylist_pos=0;
+            mShouldUpdateInfos=1;
+            
+            
+        } else j++;
+    }
+    if (removeCurrentPos && mPlaylist_size && isplaying) {
+        [self play_curEntry:-1];
+    }
+    if (mPlaylist_size==0) [self stop];
+}
+
 
 /*
  -(void)ShowBroadcasting {
