@@ -93,6 +93,8 @@ extern pthread_mutex_t db_mutex;
 }
 
 - (BOOL)playPlaylistWithId:(int)playlistId startIndex:(int)startIndex {
+//    MDZILog("🎵 playPlaylistWithId:%d startIndex:%d called", playlistId, startIndex);
+
     // Wait for app to be fully initialized (max 5 seconds)
     id detailVC = [self detailViewController];
     id playlistVC = [self playlistViewController];
@@ -106,8 +108,11 @@ extern pthread_mutex_t db_mutex;
     }
 
     if (!detailVC || !playlistVC) {
+        MDZELog("❌ View controllers not initialized (detailVC: %@, playlistVC: %@)", detailVC, playlistVC);
         return NO;
     }
+
+    //MDZILog("✅ View controllers initialized after %d attempts", attempts);
 
     // Load the playlist from database
     t_playlist *playlist = (t_playlist *)calloc(1, sizeof(t_playlist));
@@ -150,9 +155,12 @@ extern pthread_mutex_t db_mutex;
     }
 
     if (!playlistIdStr) {
+        MDZELog("❌ Playlist ID %d not found in database", playlistId);
         free(playlist);
         return NO;
     }
+
+//    MDZILog("✅ Found playlist: %@", playlist->playlist_name);
 
     // Load playlist entries using the same method as the UI
     SEL loadSelector = NSSelectorFromString(@"loadPlayListsFromDB:intoPlaylist:");
@@ -166,9 +174,12 @@ extern pthread_mutex_t db_mutex;
 
     // Only proceed if we have entries
     if (playlist->nb_entries == 0) {
+        MDZELog("❌ Playlist has no entries");
         free(playlist);
         return NO;
     }
+
+//    MDZILog("✅ Playlist loaded with %d entries", playlist->nb_entries);
 
 //    // Navigate to player view to bring app to foreground
 //    id tabBarController = [self tabBarController];
@@ -179,8 +190,10 @@ extern pthread_mutex_t db_mutex;
     // Call play_listmodules:start_index: on detailVC on main thread
     // Use dispatch_async with a small delay to ensure app is fully in foreground
     dispatch_async(dispatch_get_main_queue(), ^{
+        //MDZILog("🎵 Scheduling play_listmodules call...");
         // Small delay to ensure app is fully active
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+//            MDZILog("🎵 Calling play_listmodules:start_index:");
             SEL playSelector = NSSelectorFromString(@"play_listmodules:start_index:");
             NSMethodSignature *playSig = [detailVC methodSignatureForSelector:playSelector];
             NSInvocation *playInv = [NSInvocation invocationWithMethodSignature:playSig];
@@ -190,9 +203,11 @@ extern pthread_mutex_t db_mutex;
             [playInv setArgument:&startIndex atIndex:3];
             [playInv retainArguments];
             [playInv invoke];
+//            MDZILog("✅ play_listmodules invoked");
         });
     });
 
+//    MDZILog("✅ Returning YES from playPlaylistWithId");
     return YES;
 }
 

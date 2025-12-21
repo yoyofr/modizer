@@ -1543,6 +1543,12 @@ shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherG
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
+    
+#if TARGET_OS_MACCATALYST
+#else
+    [self.navigationController setNavigationBarHidden:YES animated:YES];
+#endif
+    
     if ((!wasMiniPlayerOn) && [detailViewController mPlaylist_size]) [self showMiniPlayer];
 }
 

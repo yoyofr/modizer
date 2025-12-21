@@ -989,3 +989,23 @@
 "Select\ncustom\npresets" = "Select\ncustom\npresets";
 "Select\nbundled\npresets" = "Select\nbundled\npresets";
 "Themes:\n%s" = "Themes:\n%s";
+
+// MARK: - Voice Commands phrases
+"Play some music in Modizer" = "Play some music in Modizer";
+"Start random playlist in Modizer" = "Start random playlist in Modizer";
+"Play favorites in Modizer" = "Play favorites in Modizer";
+"Start favorites playlist in Modizer" = "Start favorites playlist in Modizer";
+"Play most played in Modizer" = "Play most played in Modizer";
+"Start most played playlist in Modizer" = "Start most played playlist in Modizer";
+"Play a playlist in Modizer" = "Play a playlist in Modizer";
+"Start a playlist in Modizer" = "Start a playlist in Modizer";
+"Toggle shuffle mode in Modizer" = "Toggle shuffle mode in Modizer";
+"Change shuffle mode in Modizer" = "Change shuffle mode in Modizer";
+"Change loop mode in Modizer" = "Change loop mode in Modizer";
+"Toggle repeat in Modizer" = "Toggle repeat in Modizer";
+"What's playing in Modizer" = "What's playing in Modizer";
+"Current song in Modizer" = "Current song in Modizer";
+
+/* Error messages */
+"playlist_not_found_error" = "Playlist not found. Use 'Get Playlists' to see available playlists.";
+"playlist_empty_error" = "This playlist has no entries. Please add some music to it first.";

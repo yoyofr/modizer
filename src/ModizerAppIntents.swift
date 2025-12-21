@@ -308,19 +308,32 @@ class ModizerPlayerBridge {
     }
 
     func playPlaylist(playlistId: Int, startIndex: Int = 0) -> Bool {
+//        print("🔧 playPlaylist called with ID: \(playlistId), startIndex: \(startIndex)")
+
         guard let bridgeClass = NSClassFromString("ModizerPlaylistBridge") as? NSObject.Type,
               let bridge = bridgeClass.perform(NSSelectorFromString("sharedInstance"))?.takeUnretainedValue() as? NSObject else {
+            print("❌ Failed to get ModizerPlaylistBridge")
             return false
         }
 
+//        print("✅ Got ModizerPlaylistBridge instance")
+
         let selector = NSSelectorFromString("playPlaylistWithId:startIndex:")
-        guard bridge.responds(to: selector) else { return false }
+        guard bridge.responds(to: selector) else {
+            print("❌ Bridge doesn't respond to playPlaylistWithId:startIndex:")
+            return false
+        }
+
+//        print("✅ Bridge responds to selector")
 
         let method = bridge.method(for: selector)
         typealias MethodType = @convention(c) (NSObject, Selector, Int32, Int32) -> Bool
         let implementation = unsafeBitCast(method, to: MethodType.self)
 
-        return implementation(bridge, selector, Int32(playlistId), Int32(startIndex))
+        let result = implementation(bridge, selector, Int32(playlistId), Int32(startIndex))
+//        print("🔧 playPlaylistWithId:startIndex: returned: \(result)")
+
+        return result
     }
     
     func playBuiltinPlaylist(playlistId: Int, startIndex: Int = 0) -> Bool {
@@ -567,32 +580,34 @@ class ModizerPlayerBridge {
         guard !playlists.isEmpty else { return nil }
 
         // Log pour debug - voir ce que Siri envoie exactement
-        print("🎯 Siri search input: '\(searchName)'")
+//        print("🎯 Siri search input: '\(searchName)'")
 
         // Normaliser la recherche (nombres → chiffres, puis minuscules, sans accents)
         let withNumbers = normalizeNumbers(in: searchName)
-        print("🎯 After normalizeNumbers: '\(withNumbers)'")
+//        print("🎯 After normalizeNumbers: '\(withNumbers)'")
 
         let normalizedSearch = withNumbers.folding(options: [.diacriticInsensitive, .caseInsensitive], locale: .current)
-        print("🎯 After folding: '\(normalizedSearch)'")
+//        print("🎯 After folding: '\(normalizedSearch)'")
 
         let normalizedSearchNoSpaces = normalizedSearch.replacingOccurrences(of: " ", with: "")
-        print("🎯 Without spaces: '\(normalizedSearchNoSpaces)'")
+//        print("🎯 Without spaces: '\(normalizedSearchNoSpaces)'")
 
         // Version phonétique (enlever les mots vides et ne garder que les sons importants)
         let phoneticSearch = phoneticNormalize(normalizedSearch)
-        print("🎯 Phonetic version: '\(phoneticSearch)'")
+//        print("🎯 Phonetic version: '\(phoneticSearch)'")
 
         // Clé phonétique type Soundex
         let phoneticSearchKey = phoneticKey(normalizedSearch)
-        print("🎯 Phonetic key: '\(phoneticSearchKey)'")
+//        print("🎯 Phonetic key: '\(phoneticSearchKey)'")
 
         // 1. Essai exact match (insensible à la casse, accents et nombres)
         if let exactMatch = playlists.first(where: {
             let playlistNormalized = normalizeNumbers(in: $0.name)
                 .folding(options: [.diacriticInsensitive, .caseInsensitive], locale: .current)
+//            print("  🔍 Exact: '\(normalizedSearch)' vs '\(playlistNormalized)' (playlist: \($0.name))")
             return playlistNormalized == normalizedSearch
         }) {
+//            print("  ✅ Exact match found: \(exactMatch.name)")
             return exactMatch
         }
 
@@ -601,8 +616,10 @@ class ModizerPlayerBridge {
             let playlistNormalized = normalizeNumbers(in: $0.name)
                 .folding(options: [.diacriticInsensitive, .caseInsensitive], locale: .current)
                 .replacingOccurrences(of: " ", with: "")
+//            print("  🔍 Exact no-space: '\(normalizedSearchNoSpaces)' vs '\(playlistNormalized)' (playlist: \($0.name))")
             return playlistNormalized == normalizedSearchNoSpaces
         }) {
+//            print("  ✅ Exact no-space match found: \(exactMatchNoSpaces.name)")
             return exactMatchNoSpaces
         }
 
@@ -629,10 +646,10 @@ class ModizerPlayerBridge {
             let playlistNormalized = normalizeNumbers(in: $0.name)
                 .folding(options: [.diacriticInsensitive, .caseInsensitive], locale: .current)
             let playlistPhonetic = phoneticNormalize(playlistNormalized)
-            print("  🔍 Phonetic: '\(phoneticSearch)' vs '\(playlistPhonetic)' (playlist: \($0.name))")
+//            print("  🔍 Phonetic: '\(phoneticSearch)' vs '\(playlistPhonetic)' (playlist: \($0.name))")
             return playlistPhonetic == phoneticSearch || playlistPhonetic.contains(phoneticSearch) || phoneticSearch.contains(playlistPhonetic)
         }) {
-            print("  ✅ Phonetic match found: \(phoneticMatch.name)")
+//            print("  ✅ Phonetic match found: \(phoneticMatch.name)")
             return phoneticMatch
         }
 
@@ -641,13 +658,13 @@ class ModizerPlayerBridge {
             let playlistNormalized = normalizeNumbers(in: $0.name)
                 .folding(options: [.diacriticInsensitive, .caseInsensitive], locale: .current)
             let playlistKey = phoneticKey(playlistNormalized)
-            print("  🔑 Soundex: '\(phoneticSearchKey)' vs '\(playlistKey)' (playlist: \($0.name))")
+//            print("  🔑 Soundex: '\(phoneticSearchKey)' vs '\(playlistKey)' (playlist: \($0.name))")
             // Match si les clés sont identiques ou très proches
             return playlistKey == phoneticSearchKey ||
                    playlistKey.hasPrefix(phoneticSearchKey) ||
                    phoneticSearchKey.hasPrefix(playlistKey)
         }) {
-            print("  ✅ Soundex match found: \(soundexMatch.name)")
+//            print("  ✅ Soundex match found: \(soundexMatch.name)")
             return soundexMatch
         }
 
@@ -1232,25 +1249,40 @@ struct PlayPlaylistByNameIntent: AppIntent {
 
     @MainActor
     func perform() async throws -> some IntentResult & ProvidesDialog {
+//        print("🎵 PlayPlaylistByNameIntent.perform() called with: '\(playlistName)'")
+
         // Set the flag to skip animation and auto-restart
         UserDefaults.standard.set(true, forKey: "LaunchedFromShortcut")
         UserDefaults.standard.synchronize()
 
         // Find the best matching playlist using intelligent matching
         guard let matchedPlaylist = ModizerPlayerBridge.shared.findBestMatchingPlaylist(for: playlistName) else {
+            print("❌ No matching playlist found")
             throw PlaylistError.playlistNotFound
+        }
+
+//        print("🎵 Matched playlist: '\(matchedPlaylist.name)' (ID: \(matchedPlaylist.id), size: \(matchedPlaylist.size))")
+
+        // Check if playlist has entries
+        if matchedPlaylist.size == 0 {
+            print("❌ Playlist is empty")
+            throw PlaylistError.playlistEmpty
         }
 
         // Play the matched playlist
         let success = ModizerPlayerBridge.shared.playPlaylist(playlistId: matchedPlaylist.id, startIndex: startIndex)
 
+//        print("🎵 playPlaylist returned: \(success)")
+
         if !success {
+            print("❌ Failed to play playlist")
             throw PlaylistError.playlistNotFound
         }
 
         // Use the actual matched playlist name in the dialog (not what Siri heard)
         let fmt = NSLocalizedString("play_playlist_dialog", tableName: nil, bundle: .main, value: "Lecture de la playlist %@", comment: "Dialog confirming playlist playback")
         let dialog = String(format: fmt, matchedPlaylist.name)
+//        print("✅ Returning success dialog: '\(dialog)'")
         return .result(dialog: IntentDialog(stringLiteral: dialog))
     }
 }
@@ -1258,11 +1290,14 @@ struct PlayPlaylistByNameIntent: AppIntent {
 @available(iOS 16.0, *)
 enum PlaylistError: Error, CustomLocalizedStringResourceConvertible {
     case playlistNotFound
+    case playlistEmpty
 
     var localizedStringResource: LocalizedStringResource {
         switch self {
         case .playlistNotFound:
-            return LocalizedStringResource("Playlist not found. Use 'Get Playlists' to see available playlists.")
+            return LocalizedStringResource("playlist_not_found_error", defaultValue: "Playlist not found. Use 'Get Playlists' to see available playlists.")
+        case .playlistEmpty:
+            return LocalizedStringResource("playlist_empty_error", defaultValue: "This playlist has no entries. Please add some music to it first.")
         }
     }
 }
