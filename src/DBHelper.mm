@@ -49,7 +49,8 @@ NSMutableArray *DBHelper::getMissingPartsNameFromFilePath(NSString *localPath,NS
         err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
         if (err==SQLITE_OK){
             while (sqlite3_step(stmt) == SQLITE_ROW) {
-                NSString *localPath=[NSString stringWithFormat:@"%@/Documents/%@",[[NSBundle mainBundle] resourcePath],[NSString stringWithUTF8String:(const char*)sqlite3_column_text(stmt, 1)]];
+                NSString *localPath=[NSString stringWithFormat:@"%@/Documents/%@",[ModizFileHelper getAppHomeDirectory],[NSString stringWithUTF8String:(const char*)sqlite3_column_text(stmt, 1)]];
+                
                 FILE *f=fopen([localPath UTF8String],"rb");
                 if (!f) {
                     [result addObject:[NSString stringWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)]];
