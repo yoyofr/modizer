@@ -17,6 +17,8 @@
 #import "MiniPlayerVC.h"
 #import "WaitingView.h"
 
+#import "Notifications.h"
+
 @interface RootViewControllerMODLAND : UIViewController <UINavigationControllerDelegate,UISearchBarDelegate,UIGestureRecognizerDelegate,CMPopTipViewDelegate> {
 	NSString *ratingImg[3];
 	UIView *infoMsgView;
@@ -78,7 +80,9 @@
 	
 	int mClickedPrimAction;
 	int mCurrentWinAskedDownload;
-@public    
+    NSTimer *repeatTimer;
+    int activeKey;
+@public
     int browse_depth;
     DetailViewControllerIphone *detailViewController;
     DownloadViewController *downloadViewController;
@@ -97,6 +101,12 @@
 @property (nonatomic, retain) NSArray *keys;
 @property (nonatomic, retain) NSString *currentPath,*mSearchText;
 @property (nonatomic, retain) CMPopTipView *popTipView;
+
+@property (nonatomic, retain) NSTimer *repeatTimer;
+@property (nonatomic, assign) int activeKey;
+
+@property (nonatomic, strong) id mdzChangeObserverToken;
+
 
 -(IBAction)goPlayer;
 

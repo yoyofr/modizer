@@ -11258,6 +11258,10 @@ char* loadRom(const char* path, size_t romSize)
     
     snprintf(mod_name,sizeof(mod_name)," %s",[[filePath lastPathComponent] UTF8String]);
     
+    numChannels=2;
+    zxtune_song_info.reset();
+    mdz_zxtune->decodeInitialize(mod_currentsub+1,zxtune_song_info);
+    numChannels=mdz_zxtune->get_channels_count();
     
     //////////////////////////////////
     //update DB with songlength
@@ -11305,7 +11309,6 @@ char* loadRom(const char* path, size_t romSize)
     
     
     mod_currentsub=0;
-    numChannels=2;
     iModuleLength=mdz_zxtune->get_max_position();
     iCurrentTime=0;
     mCurrentSamples=0;
@@ -11320,8 +11323,6 @@ char* loadRom(const char* path, size_t romSize)
     mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
     //Loop
     if (mLoopMode==1) iModuleLength=-1;
-    
-    numChannels=mdz_zxtune->get_channels_count();
     
     m_genNumVoicesChannels=numChannels;
     m_voicesDataAvail=1;
@@ -12707,6 +12708,11 @@ static unsigned char* v2m_check_and_convert(unsigned char* tune, unsigned int* l
         //help to behave more like real hardware, fix a few recent dumps
         void * pIOP = psx_get_iop_state( HC_emulatorCore );
         iop_set_compat( pIOP, IOP_COMPAT_HARSH );
+        
+        //set options
+        void *spu_state = iop_get_spu_state(pIOP);
+        spu_enable_main(spu_state,(settings[HC_MainEnabled].detail.mdz_boolswitch.switch_value?1:0));
+        spu_enable_reverb(spu_state,(settings[HC_ReverbEnabled].detail.mdz_boolswitch.switch_value?1:0));
     } else if (HC_type==2) { //PSF2
         hc_sample_rate=48000;
         m_voice_current_samplerate=hc_sample_rate;
@@ -13604,6 +13610,8 @@ static void vgm_set_dev_option(PlayerBase *player, UINT8 devId, UINT32 coreOpts)
         }
     }
     
+    numChannels=(ASAPInfo_GetChannels(ASAP_GetInfo(asap))*4);
+    
     //////////////////////////////////
     //update DB with songlength
     //////////////////////////////////
@@ -13628,6 +13636,8 @@ static void vgm_set_dev_option(PlayerBase *player, UINT8 devId, UINT32 coreOpts)
     ASAP_PlaySong(asap, mod_currentsub, duration);
     ASAP_MutePokeyChannels(asap,0); //all channels active by default
     
+    
+    
     //    ASAPInfo_GetExtDescription
     
     snprintf(mod_message,MAX_STIL_DATA_LENGTH*2,"Author:%s\nTitle:%s\nSongs:%d\nChannels:%d\n",ASAPInfo_GetAuthor(ASAP_GetInfo(asap)),ASAPInfo_GetTitle(ASAP_GetInfo(asap)),ASAPInfo_GetSongs(ASAP_GetInfo(asap)),ASAPInfo_GetChannels(ASAP_GetInfo(asap))*4);
@@ -13637,8 +13647,6 @@ static void vgm_set_dev_option(PlayerBase *player, UINT8 devId, UINT32 coreOpts)
     iModuleLength=(duration>=1000?duration:1000);
     iCurrentTime=0;
     mCurrentSamples=0;
-    
-    numChannels=(ASAPInfo_GetChannels(ASAP_GetInfo(asap))*4);
     
     
     if (ASAPInfo_GetTitle(ASAP_GetInfo(asap))[0]) {
@@ -15930,7 +15938,7 @@ extern bool icloud_available;
         GSFClose();
     }
     if (mPlayType==MMP_ASAP) { //ASAP
-        free(ASAP_module);
+        mdz_safe_free(ASAP_module);
         //STILL DATA
         if (sidtune_title) {
             for (int i=0;i<mod_subsongs;i++)

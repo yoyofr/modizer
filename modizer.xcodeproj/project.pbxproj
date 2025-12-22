@@ -703,6 +703,8 @@
 		CC5BAD562BFB8F85007A3920 /* liblibchpconv.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CC5BAD522BFB818A007A3920 /* liblibchpconv.a */; };
 		CC5C709B17CD1BAE00DC7197 /* FFTAccelerate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC5C709917CD1BAE00DC7197 /* FFTAccelerate.cpp */; };
 		CC5C709D17CD1D7900DC7197 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CC5C709C17CD1D7900DC7197 /* Accelerate.framework */; };
+		CC600F6D2EF9511C000E2F00 /* Notifications.m in Sources */ = {isa = PBXBuildFile; fileRef = CC600F6C2EF9511C000E2F00 /* Notifications.m */; };
+		CC600F6E2EF9511C000E2F00 /* Notifications.m in Sources */ = {isa = PBXBuildFile; fileRef = CC600F6C2EF9511C000E2F00 /* Notifications.m */; };
 		CC671C562E95CCEF0076CE1E /* MetalANGLE-ios13.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = CCABFADD2E9598F400AF59B0 /* MetalANGLE-ios13.xcframework */; };
 		CC671C572E95CCEF0076CE1E /* MetalANGLE-ios13.xcframework in Copy Files-Frameworks */ = {isa = PBXBuildFile; fileRef = CCABFADD2E9598F400AF59B0 /* MetalANGLE-ios13.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		CC6B930A2EDE596F00383CC4 /* SPCTagParser.mm in Sources */ = {isa = PBXBuildFile; fileRef = CC6B93092EDE596F00383CC4 /* SPCTagParser.mm */; };
@@ -3424,7 +3426,7 @@
 		CC3144652EF28F5B0053DCE1 /* monkeyaudiocodec.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = monkeyaudiocodec.xcodeproj; path = monkeyaudiocodec/monkeyaudiocodec.xcodeproj; sourceTree = "<group>"; };
 		CC33B4261ABE1FC6009608E8 /* slider.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = slider.png; sourceTree = "<group>"; };
 		CC33B42C1ABF05A3009608E8 /* slider@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "slider@2x.png"; sourceTree = "<group>"; };
-		CC3D65732EF4C54800636BEE /* da */ = {isa = PBXFileReference; fileEncoding = 2415919360; lastKnownFileType = text.plist.strings; name = da; path = da.lproj/Localizable.strings; sourceTree = "<group>"; };
+		CC3D65732EF4C54800636BEE /* da */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = da; path = da.lproj/Localizable.strings; sourceTree = "<group>"; };
 		CC3D65782EF4C5CC00636BEE /* ko */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ko; path = ko.lproj/Localizable.strings; sourceTree = "<group>"; };
 		CC3D65792EF4C7D900636BEE /* nb */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = nb; path = nb.lproj/Localizable.strings; sourceTree = "<group>"; };
 		CC3D657A2EF51F4D00636BEE /* nl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = nl; path = nl.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -3459,6 +3461,8 @@
 		CC5C709917CD1BAE00DC7197 /* FFTAccelerate.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FFTAccelerate.cpp; sourceTree = "<group>"; };
 		CC5C709A17CD1BAE00DC7197 /* FFTAccelerate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FFTAccelerate.h; sourceTree = "<group>"; };
 		CC5C709C17CD1D7900DC7197 /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
+		CC600F412EF95118000E2F00 /* Notifications.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Notifications.h; sourceTree = "<group>"; };
+		CC600F6C2EF9511C000E2F00 /* Notifications.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Notifications.m; sourceTree = "<group>"; };
 		CC671C292E95C8FF0076CE1E /* GLKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLKit.framework; path = System/Library/Frameworks/GLKit.framework; sourceTree = SDKROOT; };
 		CC671C2B2E95CCD20076CE1E /* .clang-format */ = {isa = PBXFileReference; lastKnownFileType = text; path = ".clang-format"; sourceTree = "<group>"; };
 		CC671C2C2E95CCD20076CE1E /* egl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = egl.h; sourceTree = "<group>"; };
@@ -5217,6 +5221,8 @@
 				CC1E623A12041177000A8A4E /* WebBrowser.mm */,
 				CCBF270F2ECA8EB40039936C /* WelcomeVC.h */,
 				CCBF27102ECA8EB40039936C /* WelcomeVC.m */,
+				CC600F412EF95118000E2F00 /* Notifications.h */,
+				CC600F6C2EF9511C000E2F00 /* Notifications.m */,
 			);
 			path = src;
 			sourceTree = "<group>";
@@ -8352,6 +8358,7 @@
 				59A65C80262501A000BC99D1 /* MiniPlayerView.m in Sources */,
 				33ABE5B517B2364D00AE0EA1 /* WB_BookmarksViewController.mm in Sources */,
 				33AB276B17B3D48F00C12189 /* MoreViewController.mm in Sources */,
+				CC600F6E2EF9511C000E2F00 /* Notifications.m in Sources */,
 				3399D61217B5A143009E2AE9 /* RootViewControllerASMA.mm in Sources */,
 				3399D61617B5A5C6009E2AE9 /* asap.c in Sources */,
 				59A65C922625F3DB00BC99D1 /* WaitingView.m in Sources */,
@@ -8556,6 +8563,7 @@
 				CCBE61022EE2DD44000FDD7E /* MiniPlayerView.m in Sources */,
 				CCBE61032EE2DD44000FDD7E /* WB_BookmarksViewController.mm in Sources */,
 				CCBE61042EE2DD44000FDD7E /* MoreViewController.mm in Sources */,
+				CC600F6D2EF9511C000E2F00 /* Notifications.m in Sources */,
 				CCBE61052EE2DD44000FDD7E /* RootViewControllerASMA.mm in Sources */,
 				CCBE61062EE2DD44000FDD7E /* asap.c in Sources */,
 				CCBE61072EE2DD44000FDD7E /* WaitingView.m in Sources */,

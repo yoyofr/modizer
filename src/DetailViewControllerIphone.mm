@@ -79,8 +79,9 @@ volatile bool mdzRenderInProgress;
 
 #import "SysMonitoring.h"
 
+// Notification
 #import <UserNotifications/UserNotifications.h>
-
+#import "Notifications.h"
 
 #import "DirParser.h"
 FileNode *pmBundledPresetsFileNode;
@@ -824,12 +825,19 @@ bool sysMonitorIsActive;
         DBHelper::updateFileStatsDBmod(fileName,filePath,playcount,rating,avg_rating,[mplayer getGlobalLength],-1,mplayer.mod_subsongs);
         
     }
+    
+    NSDictionary *userInfo = @{
+        @"fileName": fileName,
+        @"filePath": filePath,
+    };
+    [[NSNotificationCenter defaultCenter] postNotificationName:MDZFileStatsChangedNotification
+                                                        object:self
+                                                      userInfo:userInfo];
 }
 
 
 - (void) pushedRatingMulti {
-    signed char tmp_rating,avg_rating;
-    short int playcount;
+    signed char tmp_rating;    
     __block NSString *filePath,*fileName;
     UIAlertController *msgAlert;
     UIAlertAction* userAction;

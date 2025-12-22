@@ -360,10 +360,10 @@ MDZELog("gzread error str for FTP entry %d",i); \
     mFileMngr=[[NSFileManager alloc] init];
     
     
-    [btnCancel setType:BButtonTypeGray];
-    [btnClear setType:BButtonTypeGray];
-    [btnSuspend setType:BButtonTypeGray];
-    [btnResume setType:BButtonTypeGray];
+    [btnCancel setType:BButtonTypeWarning];
+    [btnClear setType:BButtonTypeDanger];
+    [btnSuspend setType:BButtonTypeWarning];
+    [btnResume setType:BButtonTypePrimary];
     
     //[btnCancel setShouldShowDisabled:YES];
     //[btnClear setShouldShowDisabled:YES];

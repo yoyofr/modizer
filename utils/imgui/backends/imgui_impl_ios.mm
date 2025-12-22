@@ -10,7 +10,12 @@
 #import <UIKit/UIKit.h>
 
 #define FONT_MENU_FILE_MONO  @"Fonts/Mplus1Code-Regular"
+
 #define FONT_MENU_FILE_JAP @"Fonts/Mplus1-Medium"
+#define FONT_MENU_FILE_CHINESE @"Fonts/NotoSansSC-Medium"
+#define FONT_MENU_FILE_KOREAN @"Fonts/NotoSansKR-Medium"
+#define FONT_MENU_FILE_ARABIC @"Fonts/NotoSansArabic-Medium"
+#define FONT_MENU_FILE_RUSSIAN @"Fonts/NotoSansMono-Medium"
 
 #define MAX_LASTCHAR_SIZE 16 //buffer to capture key inputs in UITextfield
 
@@ -76,6 +81,10 @@ bool ImGui_ImplIOS_Init()
     
     currentEvent.event_type=IMGUI_IOS_Event_None;
     
+    // Langue actuellement utilisée par l'app
+    NSString *currentLanguage = [[NSBundle mainBundle].preferredLocalizations firstObject];
+    //
+    
     font_menu_mono=io.Fonts->AddFontFromFileTTF([[[NSBundle mainBundle] pathForResource:FONT_MENU_FILE_MONO ofType: @"ttf"] UTF8String], 16.0f*glScaleFactor, NULL, io.Fonts->GetGlyphRangesJapanese());
     IM_ASSERT(font_menu_mono != NULL);
     ImFontConfig icons_config = ImFontConfig();
@@ -94,7 +103,16 @@ bool ImGui_ImplIOS_Init()
     IM_ASSERT(font_menu_icon_mono != NULL);
     
     
-    font_menu=io.Fonts->AddFontFromFileTTF([[[NSBundle mainBundle] pathForResource:FONT_MENU_FILE_JAP ofType: @"ttf"] UTF8String], 16.0f*glScaleFactor, NULL, io.Fonts->GetGlyphRangesJapanese());
+    if ([currentLanguage hasPrefix:@"zh"]) {
+        font_menu=io.Fonts->AddFontFromFileTTF([[[NSBundle mainBundle] pathForResource:FONT_MENU_FILE_CHINESE ofType: @"ttf"] UTF8String], 16.0f*glScaleFactor, NULL, io.Fonts->GetGlyphRangesChineseSimplifiedCommon());
+    } else if ([currentLanguage hasPrefix:@"ar"]) {
+        font_menu=io.Fonts->AddFontFromFileTTF([[[NSBundle mainBundle] pathForResource:FONT_MENU_FILE_ARABIC ofType: @"ttf"] UTF8String], 16.0f*glScaleFactor, NULL, io.Fonts->GetGlyphRangesDefault());
+    } else if ([currentLanguage hasPrefix:@"ko"]) {
+        font_menu=io.Fonts->AddFontFromFileTTF([[[NSBundle mainBundle] pathForResource:FONT_MENU_FILE_KOREAN ofType: @"ttf"] UTF8String], 16.0f*glScaleFactor, NULL, io.Fonts->GetGlyphRangesKorean());
+    } else if ([currentLanguage hasPrefix:@"ru"]) {
+        font_menu=io.Fonts->AddFontFromFileTTF([[[NSBundle mainBundle] pathForResource:FONT_MENU_FILE_RUSSIAN ofType: @"ttf"] UTF8String], 16.0f*glScaleFactor, NULL, io.Fonts->GetGlyphRangesCyrillic());
+    } else {
+        font_menu=io.Fonts->AddFontFromFileTTF([[[NSBundle mainBundle] pathForResource:FONT_MENU_FILE_JAP ofType: @"ttf"] UTF8String], 16.0f*glScaleFactor, NULL, io.Fonts->GetGlyphRangesJapanese());        }
     IM_ASSERT(font_menu != NULL);
     
     icons_config = ImFontConfig();

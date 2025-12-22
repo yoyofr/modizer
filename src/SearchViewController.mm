@@ -41,6 +41,8 @@ static NSFileManager *mFileMngr;
 @synthesize downloadViewController,rootViewControllerIphone;
 @synthesize popTipView;
 @synthesize waitingView,waitingViewPlayer;
+@synthesize repeatTimer;
+@synthesize activeKey;
 
 #pragma mark -
 #pragma mark Search functions
@@ -119,13 +121,13 @@ static NSFileManager *mFileMngr;
                     self.popTipView.backgroundColor = [UIColor lightGrayColor];
                     self.popTipView.textColor = [UIColor darkTextColor];
                     
-                    [self.popTipView presentPointingAtView:[self.tableView cellForRowAtIndexPath:indexPath] inView:self.view animated:YES];
+                    [self.popTipView presentPointingAtView:[self.tableView cellForRowAtIndexPath:indexPath] inView:self.tableView animated:YES];
                     popTipViewRow=crow;
                     popTipViewSection=csection;
                 } else {
                     if ((popTipViewRow!=crow)||(popTipViewSection!=csection)||([str compare:self.popTipView.message]!=NSOrderedSame)) {
                         self.popTipView.message=str;
-                        [self.popTipView presentPointingAtView:[self.tableView cellForRowAtIndexPath:indexPath] inView:self.view animated:YES];
+                        [self.popTipView presentPointingAtView:[self.tableView cellForRowAtIndexPath:indexPath] inView:self.tableView animated:YES];
                         popTipViewRow=crow;
                         popTipViewSection=csection;
                     }
@@ -187,6 +189,65 @@ static NSFileManager *mFileMngr;
     self.rootViewControllerIphone = [self findChildOfClass:[RootViewControllerLocalBrowser class] inTabBarController:tbc];
 }
 
+- (void)moveCursorOnce {
+    UITextField *tf = self.sBar.searchTextField;
+    UITextPosition *pos = tf.selectedTextRange.start;
+
+    NSInteger offset = (self.activeKey == UIKeyboardHIDUsageKeyboardLeftArrow) ? -1 : 1;
+    UITextPosition *newPos = [tf positionFromPosition:pos offset:offset];
+
+    if (newPos) {
+        tf.selectedTextRange = [tf textRangeFromPosition:newPos toPosition:newPos];
+    }
+}
+
+
+- (void)startRepeating {
+    [self.repeatTimer invalidate];
+    self.repeatTimer = [NSTimer scheduledTimerWithTimeInterval:0.05
+                                                        target:self
+                                                      selector:@selector(moveCursorOnce)
+                                                      userInfo:nil
+                                                       repeats:YES];
+}
+
+
+- (void)pressesBegan:(NSSet<UIPress *> *)presses withEvent:(UIPressesEvent *)event {
+    for (UIPress *press in presses) {
+        UIKey *key = press.key;
+        if (!key) continue;
+
+        if (key.keyCode == UIKeyboardHIDUsageKeyboardLeftArrow ||
+            key.keyCode == UIKeyboardHIDUsageKeyboardRightArrow) {
+
+            self.activeKey = key.keyCode;
+            [self moveCursorOnce];
+
+            // délai initial macOS (~0.45s)
+            self.repeatTimer = [NSTimer scheduledTimerWithTimeInterval:0.45
+                                                                target:self
+                                                              selector:@selector(startRepeating)
+                                                              userInfo:nil
+                                                               repeats:NO];
+            return;
+        }
+    }
+    [super pressesBegan:presses withEvent:event];
+}
+
+- (void)pressesEnded:(NSSet<UIPress *> *)presses withEvent:(UIPressesEvent *)event {
+    [self.repeatTimer invalidate];
+    self.repeatTimer = nil;
+    self.activeKey = 0;
+    [super pressesEnded:presses withEvent:event];
+}
+
+- (void)pressesCancelled:(NSSet<UIPress *> *)presses withEvent:(UIPressesEvent *)event {
+    [self.repeatTimer invalidate];
+    self.repeatTimer = nil;
+    self.activeKey = 0;
+    [super pressesCancelled:presses withEvent:event];
+}
 
 // Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
 - (void)viewDidLoad {
@@ -265,6 +326,13 @@ static NSFileManager *mFileMngr;
     
     mSearch=0;
     mSearchText=nil;
+#ifdef TARGET_OS_MACCATALYST
+    UITextField *textfield=sBar.searchTextField;
+    textfield.textContentType=nil;
+    textfield.keyboardType=UIKeyboardTypeDefault;
+    textfield.autocorrectionType=UITextAutocorrectionTypeNo;
+    textfield.spellCheckingType=UITextSpellCheckingTypeNo;
+#endif
     
     dbASMA_entries_count=dbHVSC_entries_count=db_entries_count=local_entries_count=playlist_entries_count=0;
     db_entries=NULL;
@@ -306,6 +374,16 @@ END_PROFILE
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
+    
+#ifdef TARGET_OS_MACCATALYST
+    UITextField *textfield=sBar.searchTextField;
+    textfield.textContentType=nil;
+    textfield.keyboardType=UIKeyboardTypeDefault;
+    textfield.autocorrectionType=UITextAutocorrectionTypeNo;
+    textfield.spellCheckingType=UITextSpellCheckingTypeNo;
+#endif
+
+    
     if ((!wasMiniPlayerOn) && [detailViewController mPlaylist_size]) [self showMiniPlayer];
 }
 
@@ -992,6 +1070,7 @@ END_PROFILE
 
 #pragma mark UISearchBarDelegate
 - (void)searchBarTextDidBeginEditing:(UISearchBar *)searchBar {
+
     
     // only show the status bar’s cancel button while in edit mode
     sBar.showsCancelButton = YES;

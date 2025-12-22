@@ -172,6 +172,11 @@
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
     if ((!wasMiniPlayerOn) && [detailViewController mPlaylist_size]) [self showMiniPlayer];
+    
+#ifdef TARGET_OS_MACCATALYST
+    [self showAlertMsg:NSLocalizedString(@"Warning",@"") message:(NSString *)NSLocalizedString(@"Voices commands aren't supported in MacOS.","")];
+#endif
+
 }
 
 - (UIStatusBarStyle)preferredStatusBarStyle {

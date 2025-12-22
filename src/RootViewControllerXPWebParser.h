@@ -42,6 +42,8 @@ extern volatile t_settings settings[MAX_SETTINGS];
 #import "AFHTTPSessionManager.h"
 #import "AFURLSessionManager.h"
 
+#import "Notifications.h"
+
 @class DetailViewControllerIphone;
 @class DownloadViewController;
 
@@ -127,6 +129,10 @@ extern volatile t_settings settings[MAX_SETTINGS];
 
 @property (nonatomic, retain) NSString *mSearchText,*mWebBaseURL,*rootDir;
 @property (nonatomic, retain) CMPopTipView *popTipView;
+
+@property (nonatomic, retain) NSTimer *repeatTimer;
+@property (nonatomic, assign) int activeKey;
+@property (nonatomic, strong) id mdzChangeObserverToken;
 
 -(IBAction)goPlayer;
 

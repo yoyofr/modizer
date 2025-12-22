@@ -76,13 +76,13 @@ extern void *LoadingProgressObserverContext;
                         self.popTipView.backgroundColor = [UIColor lightGrayColor];
                         self.popTipView.textColor = [UIColor darkTextColor];
                         
-                        [self.popTipView presentPointingAtView:[self.tableView cellForRowAtIndexPath:indexPath] inView:self.view animated:YES];
+                        [self.popTipView presentPointingAtView:[self.tableView cellForRowAtIndexPath:indexPath] inView:self.tableView animated:YES];
                         popTipViewRow=crow;
                         popTipViewSection=csection;
                     } else {
                         if ((popTipViewRow!=crow)||(popTipViewSection!=csection)||([str compare:self.popTipView.message]!=NSOrderedSame)) {
                             self.popTipView.message=str;
-                            [self.popTipView presentPointingAtView:[self.tableView cellForRowAtIndexPath:indexPath] inView:self.view animated:YES];
+                            [self.popTipView presentPointingAtView:[self.tableView cellForRowAtIndexPath:indexPath] inView:self.tableView animated:YES];
                             popTipViewRow=crow;
                             popTipViewSection=csection;
                         }
@@ -370,6 +370,21 @@ END_PROFILE
     
     repeatingTimer = [NSTimer scheduledTimerWithTimeInterval: 0.20f target:self selector:@selector(updateLoadingInfos:) userInfo:nil repeats: YES]; //5 times/second
     
+    self.mdzChangeObserverToken =
+        [[NSNotificationCenter defaultCenter] addObserverForName:MDZFileStatsChangedNotification
+                                                          object:nil
+                                                           queue:[NSOperationQueue mainQueue]
+                                                      usingBlock:^(NSNotification * _Nonnull note) {
+        // Consommer la notification
+        NSDictionary *info = note.userInfo;
+//        NSString *fileName = info[@"fileName"];
+//        NSString *filePath = info[@"filePath"];
+        // Mets à jour l’UI / ton modèle
+        //self.forceReloadCells=true;
+        [self fillKeys];
+        [self.tableView reloadData];
+    }];
+    
     [super viewWillAppear:animated];
     
 }
@@ -423,6 +438,10 @@ END_PROFILE
                                           forKeyPath:observedSelector
                                              context:LoadingProgressObserverContext];
     
+    if (self.mdzChangeObserverToken) {
+        [[NSNotificationCenter defaultCenter] removeObserver:self.mdzChangeObserverToken];
+        self.mdzChangeObserverToken = nil;
+    }
     [super viewDidDisappear:animated];
 }
 
@@ -573,6 +592,67 @@ END_PROFILE
 - (void)searchBarSearchButtonClicked:(UISearchBar *)searchBar {
     [searchBar resignFirstResponder];
 }
+
+- (void)moveCursorOnce {
+    UITextField *tf = self.sBar.searchTextField;
+    UITextPosition *pos = tf.selectedTextRange.start;
+
+    NSInteger offset = (self.activeKey == UIKeyboardHIDUsageKeyboardLeftArrow) ? -1 : 1;
+    UITextPosition *newPos = [tf positionFromPosition:pos offset:offset];
+
+    if (newPos) {
+        tf.selectedTextRange = [tf textRangeFromPosition:newPos toPosition:newPos];
+    }
+}
+
+
+- (void)startRepeating {
+    [self.repeatTimer invalidate];
+    self.repeatTimer = [NSTimer scheduledTimerWithTimeInterval:0.05
+                                                        target:self
+                                                      selector:@selector(moveCursorOnce)
+                                                      userInfo:nil
+                                                       repeats:YES];
+}
+
+
+- (void)pressesBegan:(NSSet<UIPress *> *)presses withEvent:(UIPressesEvent *)event {
+    for (UIPress *press in presses) {
+        UIKey *key = press.key;
+        if (!key) continue;
+
+        if (key.keyCode == UIKeyboardHIDUsageKeyboardLeftArrow ||
+            key.keyCode == UIKeyboardHIDUsageKeyboardRightArrow) {
+
+            self.activeKey = key.keyCode;
+            [self moveCursorOnce];
+
+            // délai initial macOS (~0.45s)
+            self.repeatTimer = [NSTimer scheduledTimerWithTimeInterval:0.45
+                                                                target:self
+                                                              selector:@selector(startRepeating)
+                                                              userInfo:nil
+                                                               repeats:NO];
+            return;
+        }
+    }
+    [super pressesBegan:presses withEvent:event];
+}
+
+- (void)pressesEnded:(NSSet<UIPress *> *)presses withEvent:(UIPressesEvent *)event {
+    [self.repeatTimer invalidate];
+    self.repeatTimer = nil;
+    self.activeKey = 0;
+    [super pressesEnded:presses withEvent:event];
+}
+
+- (void)pressesCancelled:(NSSet<UIPress *> *)presses withEvent:(UIPressesEvent *)event {
+    [self.repeatTimer invalidate];
+    self.repeatTimer = nil;
+    self.activeKey = 0;
+    [super pressesCancelled:presses withEvent:event];
+}
+
 
 -(IBAction)goPlayer {
     if (detailViewController.mPlaylist_size) {
@@ -856,6 +936,11 @@ END_PROFILE
     }
     if (mFileMngr) {
         mFileMngr=nil;
+    }
+    
+    if (self.mdzChangeObserverToken) {
+        [[NSNotificationCenter defaultCenter] removeObserver:self.mdzChangeObserverToken];
+        self.mdzChangeObserverToken = nil;
     }
     //[super dealloc];
 }

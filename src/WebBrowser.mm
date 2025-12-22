@@ -1373,17 +1373,22 @@ didFinishNavigation:(WKNavigation *)navigation {
     CGFloat statusbarHeight;
     CGSize statusBarSize = [[UIApplication sharedApplication] statusBarFrame].size;
     statusbarHeight=MIN(statusBarSize.width, statusBarSize.height);
-    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:addressTextField attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:self.view attribute:NSLayoutAttributeWidth multiplier:0.96 constant:0]];
-    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:addressTextField attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:self.view attribute:NSLayoutAttributeCenterX multiplier:1.0 constant:0]];
-    topConstraint=[NSLayoutConstraint constraintWithItem:addressTextField attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:self.view attribute:NSLayoutAttributeTop multiplier:1.0 constant:statusbarHeight];
+    
+//    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:addressTextField attribute:NSLayoutAttributeLeading relatedBy:NSLayoutRelationEqual toItem:self.view.safeAreaLayoutGuide attribute:NSLayoutAttributeLeading multiplier:1.0 constant:0]];
+//    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:addressTextField attribute:NSLayoutAttributeTrailing relatedBy:NSLayoutRelationEqual toItem:self.view.safeAreaLayoutGuide attribute:NSLayoutAttributeTrailing multiplier:1.0 constant:0]];
+//    
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:addressTextField attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:self.view.safeAreaLayoutGuide attribute:NSLayoutAttributeWidth multiplier:0.98 constant:0]];
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:addressTextField attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:self.view.safeAreaLayoutGuide attribute:NSLayoutAttributeCenterX multiplier:1.0 constant:0]];
+    
+    topConstraint=[NSLayoutConstraint constraintWithItem:addressTextField attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:self.view.safeAreaLayoutGuide attribute:NSLayoutAttributeTop multiplier:1.0 constant:statusbarHeight];
     [self.view addConstraint:topConstraint];
     
     //progressbar
-    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:progressIndicator attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:self.view attribute:NSLayoutAttributeWidth multiplier:1.0 constant:0]];
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:progressIndicator attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:self.view.safeAreaLayoutGuide attribute:NSLayoutAttributeWidth multiplier:1.0 constant:0]];
     [self.view addConstraint:[NSLayoutConstraint constraintWithItem:progressIndicator attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:addressTextField attribute:NSLayoutAttributeBottom multiplier:1.0 constant:0]];
     
     //toolbar
-    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:toolBar attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:self.view attribute:NSLayoutAttributeWidth multiplier:1.0 constant:0]];
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:toolBar attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:self.view.safeAreaLayoutGuide attribute:NSLayoutAttributeWidth multiplier:1.0 constant:0]];
     [self.view addConstraint:[NSLayoutConstraint constraintWithItem:toolBar attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:progressIndicator attribute:NSLayoutAttributeBottom multiplier:1.0 constant:0]];
     
     // Create the new configuration object to set useful options
@@ -1452,8 +1457,18 @@ didFinishNavigation:(WKNavigation *)navigation {
     [self.view addSubview:webView];
     [self.view sendSubviewToBack:webView];
     
-    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:webView attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:self.view attribute:NSLayoutAttributeWidth multiplier:1.0 constant:0]];
+//    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:webView attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:self.view attribute:NSLayoutAttributeWidth multiplier:1.0 constant:0]];
+//    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:webView attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:toolBar attribute:NSLayoutAttributeBottom multiplier:1.0 constant:0]];
+
+    
+    // Contraintes Safe Area pour la webView
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:webView attribute:NSLayoutAttributeLeading relatedBy:NSLayoutRelationEqual toItem:self.view.safeAreaLayoutGuide attribute:NSLayoutAttributeLeading multiplier:1.0 constant:0]];
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:webView attribute:NSLayoutAttributeTrailing relatedBy:NSLayoutRelationEqual toItem:self.view.safeAreaLayoutGuide attribute:NSLayoutAttributeTrailing multiplier:1.0 constant:0]];
     [self.view addConstraint:[NSLayoutConstraint constraintWithItem:webView attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:toolBar attribute:NSLayoutAttributeBottom multiplier:1.0 constant:0]];
+    
+    
+    
+    // Le bottom sera géré dynamiquement (miniplayer vs safe area) dans viewWillAppear/refreshMiniplayer.
     
 
     // Load a blank page
@@ -1605,7 +1620,7 @@ shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherG
                               NSLayoutAttributeBottom multiplier:1.0f constant:0];
     
     [self.view addConstraint:bottomConstraint];
-
+    
     // Force layout update for miniplayer
     [self.view setNeedsLayout];
     [self.view layoutIfNeeded];

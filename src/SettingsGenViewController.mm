@@ -171,13 +171,13 @@ volatile t_settings settings[MAX_SETTINGS];
                     self.popTipView.backgroundColor = [UIColor lightGrayColor];
                     self.popTipView.textColor = [UIColor darkTextColor];
                     
-                    [self.popTipView presentPointingAtView:[self.tableView cellForRowAtIndexPath:indexPath] inView:self.view animated:YES];
+                    [self.popTipView presentPointingAtView:[self.tableView cellForRowAtIndexPath:indexPath] inView:self.tableView animated:YES];
                     popTipViewRow=crow;
                     popTipViewSection=csection;
                 } else {
                     if ((popTipViewRow!=crow)||(popTipViewSection!=csection)||([str compare:self.popTipView.message]!=NSOrderedSame)) {
                         self.popTipView.message=str;
-                        [self.popTipView presentPointingAtView:[self.tableView cellForRowAtIndexPath:indexPath] inView:self.view animated:YES];
+                        [self.popTipView presentPointingAtView:[self.tableView cellForRowAtIndexPath:indexPath] inView:self.tableView animated:YES];
                         popTipViewRow=crow;
                         popTipViewSection=csection;
                     }

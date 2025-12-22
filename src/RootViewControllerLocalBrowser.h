@@ -90,6 +90,9 @@
     bool noCellAction;
     
     int is_rsn;
+    
+    NSTimer *repeatTimer;
+    int activeKey;
 @public
     int browse_depth;
     DetailViewControllerIphone *detailViewController;
@@ -111,6 +114,10 @@
 
 @property (nonatomic, retain) NSFileManager *mFileMngr;
 @property (nonatomic, retain) CMPopTipView *popTipView;
+
+@property (nonatomic, retain) NSTimer *repeatTimer;
+@property (nonatomic, assign) int activeKey;
+
 
 -(IBAction)goPlayer;
 

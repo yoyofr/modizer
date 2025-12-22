@@ -17,6 +17,8 @@
 #import "MiniPlayerVC.h"
 #import "WaitingView.h"
 
+#import "Notifications.h"
+
 @class DetailViewControllerIphone;
 
 @interface RootViewControllerPlaylist : UIViewController <UINavigationControllerDelegate,UISearchBarDelegate,UIActionSheetDelegate,UIGestureRecognizerDelegate,CMPopTipViewDelegate,SESlideTableViewCellDelegate> {
@@ -73,6 +75,9 @@
 	UIViewController *childController;
 	
 	int mClickedPrimAction;
+    
+    NSTimer *repeatTimer;
+    int activeKey;
 @public
     IBOutlet UITableView *tableView;
 
@@ -98,6 +103,11 @@
 
 @property (nonatomic, retain) CMPopTipView *popTipView;
 @property (nonatomic, retain) WaitingView *waitingView,*waitingViewPlayer;
+
+@property (nonatomic, retain) NSTimer *repeatTimer;
+@property (nonatomic, assign) int activeKey;
+
+@property (nonatomic, strong) id mdzChangeObserverToken;
 
 @property int mDetailPlayerMode,currentPlayedEntry;
 

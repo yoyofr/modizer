@@ -20,6 +20,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
 @synthesize detailViewController;
 @synthesize scrollView;
 
+#include "AlertsCommonFunctions.h"
 
 -(IBAction) closeView {
     [self viewWillDisappear:NO];
@@ -67,6 +68,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
 
 -(void) viewDidAppear:(BOOL)animated {
     detailViewController.bShowVC=true;
+    
     [super viewDidAppear:animated];
 }
 

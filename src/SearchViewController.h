@@ -116,6 +116,8 @@ typedef struct {
 	
 	int tooMuchDB,tooMuchPL,tooMuchLO,tooMuchDBHVSC,tooMuchDBASMA;
 
+    NSTimer *repeatTimer;
+    int activeKey;
 }
 
 @property (nonatomic, retain) DetailViewControllerIphone *detailViewController;
@@ -127,6 +129,8 @@ typedef struct {
 @property (nonatomic, retain) IBOutlet UILabel *searchLabel;
 @property (nonatomic, retain) CMPopTipView *popTipView;
 @property (nonatomic, retain) WaitingView *waitingView,*waitingViewPlayer;
+@property (nonatomic, retain) NSTimer *repeatTimer;
+@property (nonatomic, assign) int activeKey;
 
 -(IBAction)goPlayer;
 

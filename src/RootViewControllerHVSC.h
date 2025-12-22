@@ -15,6 +15,8 @@
 #import "MiniPlayerVC.h"
 #import "WaitingView.h"
 
+#import "Notifications.h"
+
 @class DetailViewControllerIphone;
 @class DownloadViewController;
 
@@ -77,7 +79,9 @@
 	
 	int mClickedPrimAction;
 	int mCurrentWinAskedDownload;
-@public    
+    NSTimer *repeatTimer;
+    int activeKey;
+@public
     int browse_depth;
     DetailViewControllerIphone *detailViewController;
     DownloadViewController *downloadViewController;
@@ -97,6 +101,11 @@
 @property (nonatomic, retain) NSString *currentPath,*mSearchText;
 @property (nonatomic, retain) CMPopTipView *popTipView;
 @property (nonatomic, retain) WaitingView *waitingView,*waitingViewPlayer;
+@property (nonatomic, retain) NSTimer *repeatTimer;
+@property (nonatomic, assign) int activeKey;
+
+@property (nonatomic, strong) id mdzChangeObserverToken;
+
 
 -(IBAction)goPlayer;
 
