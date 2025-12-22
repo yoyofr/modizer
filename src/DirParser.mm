@@ -249,19 +249,23 @@ extern pthread_mutex_t pm_mutex,gl_mutex;
     int sizePL=(int)[pathsPL count];
     if (!sizePL) return;
     NSString *plPath=[pathsPL objectAtIndex:posPL];
+    plPath=[plPath stringByReplacingOccurrencesOfString:@"/" withString:@"\0"];
     for (FileNode *node in fnodes) {
         NSString *filePath=node.localpath;
+        filePath=[filePath stringByReplacingOccurrencesOfString:@"/" withString:@"\0"];
         if ([filePath isEqualToString:plPath]) {
             //file is matching PL entry, move to next PL entry
             node.isSelected=true;
             posPL++;
             if (posPL>=sizePL) break;
             plPath=[pathsPL objectAtIndex:posPL];
+            plPath=[plPath stringByReplacingOccurrencesOfString:@"/" withString:@"\0"];
         } else while ([filePath  caseInsensitiveCompare:plPath]==NSOrderedDescending){
             //file is after pl entry, move pl entry to next one
             posPL++;
             if (posPL>=sizePL) break;
             plPath=[pathsPL objectAtIndex:posPL];
+            plPath=[plPath stringByReplacingOccurrencesOfString:@"/" withString:@"\0"];
         }
     }
 }
@@ -270,23 +274,33 @@ extern pthread_mutex_t pm_mutex,gl_mutex;
     //Build an array of FileNode to update
     NSArray *fnodes=[self getFilesArray];
     
+    
+    
     int posFL=0;
     int sizeFL=(int)[orderedFL count];
     if (!sizeFL) return;
     NSString *flPath=[[orderedFL objectAtIndex:posFL] substringFromIndex:3];
+    flPath=[flPath stringByReplacingOccurrencesOfString:@"/" withString:@"\0"];
+//    MDZILog("fav to match: %@",flPath);
     for (FileNode *node in fnodes) {
         NSString *filePath=node.localpath;
+        filePath=[filePath stringByReplacingOccurrencesOfString:@"/" withString:@"\0"];
+//        MDZILog("node to match %@",filePath);
         if ([filePath isEqualToString:flPath]) {
             //file is matching FL entry, move to next PL entry
             node.isFavorite=true;
             posFL++;
             if (posFL>=sizeFL) break;
             flPath=[[orderedFL objectAtIndex:posFL] substringFromIndex:3];
+            flPath=[flPath stringByReplacingOccurrencesOfString:@"/" withString:@"\0"];
+//            MDZILog("found, next fav to match: %@",flPath);
         } else while ([filePath  caseInsensitiveCompare:flPath]==NSOrderedDescending){
             //file is after fl entry, move fl entry to next one
             posFL++;
             if (posFL>=sizeFL) break;
             flPath=[[orderedFL objectAtIndex:posFL] substringFromIndex:3];
+            flPath=[flPath stringByReplacingOccurrencesOfString:@"/" withString:@"\0"];
+//            MDZILog("not found, next fav to match: %@",flPath);
         }
     }
 }
@@ -1518,7 +1532,9 @@ code_4=a=1.0;\n\
             if (node.isMissing) {
                 //File doesn't exist anymore, remove from favorites
                 missing_counter++;
+                MDZILog("not found fav: %s",str);
             } else {
+                MDZILog("found fav: %s",str);
                 //File exits, put in the right list
                 if (presetType==MDZ_PLAYLIST_FNODE_Bundle) [_bundlePresets addObject:[NSString stringWithUTF8String:str]];
                 if (presetType==MDZ_PLAYLIST_FNODE_Custom) [_customPresets addObject:[NSString stringWithUTF8String:str]];

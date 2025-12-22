@@ -172,6 +172,7 @@ projectm_handle _pm; //!< Pointer to the projectM instance used by the applicati
 //projectm_playlist_handle _pm_playlist; //!< Pointer to the projectM playlist manager instance.
 MDZPlaylist *_mdzPM_playlist;
 MDZFavorites *_mdzPM_Favorites;
+bool _pmFavoritesChanged;
 bool _pm_playlist_loadBundled,_pm_playlist_loadCustom;
 NSString *pmCurPresetFile;
 int _pm_display_name_countdown;
@@ -837,7 +838,7 @@ bool sysMonitorIsActive;
 
 
 - (void) pushedRatingMulti {
-    signed char tmp_rating;    
+    signed char tmp_rating;
     __block NSString *filePath,*fileName;
     UIAlertController *msgAlert;
     UIAlertAction* userAction;
@@ -1841,7 +1842,7 @@ static float movePinchScale,movePinchScaleOld;
 }
 
 -(void) mdChangeFavoriteStatusPreset:(int)val {
-    if (_pmIsInitialized && _pm && (pmenu_show==0)) {
+    if (_pmIsInitialized && _pm /*&& (pmenu_show==0)*/) {
         const char *title;
         title = [_mdzPM_playlist getCurPresetCleanTitle];
         if (title) {
@@ -1869,6 +1870,7 @@ static float movePinchScale,movePinchScaleOld;
                 //[self newGuiMessage:NSLocalizedString(@"Removed from favorites",@"")];
                 [self newGuiMessage:[NSString stringWithFormat:@"%C",static_cast<unichar>(FA_STAR_O)]];
             }
+            _pmFavoritesChanged=true;
             _pmPresetUpdateDisplayInfo=true;
             _pm_display_scroll_pause=_pm_fps*1.5;
         }
@@ -5513,6 +5515,7 @@ void pm_perfTest() {
     // Allocate Favorites
     _mdzPM_Favorites=[[MDZFavorites alloc] init];
     [_mdzPM_Favorites loadFavorites];
+    _pmFavoritesChanged=false;
     
     MDZDLog("loaded pl, entries nb: %d",[_mdzPM_playlist getSize]);
     if ([_mdzPM_playlist getSize]) {

@@ -30,6 +30,7 @@ extern FileNode *pmBundledPresetsFileNode;
 extern FileNode *pmCustomPresetsFileNode;
 extern MDZPlaylist *_mdzPM_playlist;
 extern MDZFavorites *_mdzPM_Favorites;
+extern bool _pmFavoritesChanged;
 
 FileNode *pmCurrentFileNode;
 NSString *pMenu_currentPM_entry;
@@ -1989,6 +1990,21 @@ int playerShowMenu(float ww,float hh,float safe_top,float safe_bottom,float safe
             ImGui::SetCursorPos(cpos);
             ImGui::BeginChild("Modizer menu pm explore subwin",ImVec2(menu_win_size-(safe_left+safe_right)*glScaleFactor,winTreeNodeHeight));
             
+            if (_pmFavoritesChanged) {
+                _pmFavoritesChanged=false;
+                //if custom presets,rescan dir
+//                if (pmCurrentFileNode==pmCustomPresetsFileNode) {
+//                    updatePresetCustomDirStructure();
+//                    pmCurrentFileNode=pmCustomPresetsFileNode;
+//                }
+//                [_mdzPM_playlist updateFileNodeStatus:pmCurrentFileNode];
+                
+                if (pmCurrentFileNode==pmCustomPresetsFileNode) [_mdzPM_Favorites updateFileNodeStatus:pmCurrentFileNode type:MDZ_PLAYLIST_FNODE_Custom];
+                else [_mdzPM_Favorites updateFileNodeStatus:pmCurrentFileNode type:MDZ_PLAYLIST_FNODE_Bundle];
+                
+                pMenu_PMInitTempData(pmCurrentFileNode);
+            }
+            
             int index=0;
             bool filter=false;
             if (pmFileNodeFilter[0]) {
@@ -1996,6 +2012,8 @@ int playerShowMenu(float ww,float hh,float safe_top,float safe_bottom,float safe
                 NSString *strFilter=[NSString stringWithUTF8String:pmFileNodeFilter];
                 [pmCurrentFileNode filterNodes:strFilter filterDir:true];
             }
+            
+            
             
             //update status consistency / tree
             pMenu_PMUpdateSelStatus(pmCurrentFileNode,FALSE,FALSE);
