@@ -540,7 +540,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     
     noCellAction=false;
     
-END_PROFILE
+    END_PROFILE
 }
 
 -(void) fillKeys {
@@ -723,7 +723,7 @@ static int qsort_CompareArcEntries(const void *entryA, const void *entryB) {
 }
 
 
--(void)listLocalFiles {
+-(void) listLocalFiles {
     NSString *file,*cpath;
     NSURL *fileURL;
     NSMutableArray *filetype_ext=[ModizFileHelper buildListSupportFileType:FTYPE_PLAYABLEFILE];
@@ -772,11 +772,11 @@ static int qsort_CompareArcEntries(const void *entryA, const void *entryB) {
     search_local=0;
     
     if (search_local_nb_entries) {
-            for (int j=0;j<search_local_entries_count;j++) {
-                search_local_entries[j].label=nil;
-                search_local_entries[j].fullpath=nil;
-            }
-            search_local_entries=NULL;
+        for (int j=0;j<search_local_entries_count;j++) {
+            search_local_entries[j].label=nil;
+            search_local_entries[j].fullpath=nil;
+        }
+        search_local_entries=NULL;
         search_local_nb_entries=0;
         free(search_local_entries_data);
     }
@@ -786,33 +786,33 @@ static int qsort_CompareArcEntries(const void *entryA, const void *entryB) {
         
         search_local_entries_data=(t_local_browse_entry*)calloc(local_nb_entries,sizeof(t_local_browse_entry));
         
-            search_local_entries_count=0;
-            if (local_entries_count) search_local_entries=search_local_entries_data;
-            for (int j=0;j<local_entries_count;j++)  {
-                
-                bool found=false;
-                if ((browseType==0)&&mShowSubdir) {
-                    found=[self searchStringRegExp:mSearchText sourceString:local_entries[j].label];
-                    if (!found) found=[self searchStringRegExp:mSearchText sourceString:local_entries[j].fullpath];
-                } else {
-                    found=[self searchStringRegExp:mSearchText sourceString:local_entries[j].label];
-                }
-                
-                if  (found ||([mSearchText length]==0)) {
-                    search_local_entries[search_local_entries_count].label=local_entries[j].label;
-                    search_local_entries[search_local_entries_count].fullpath=local_entries[j].fullpath;
-                    search_local_entries[search_local_entries_count].playcount=local_entries[j].playcount;
-                    search_local_entries[search_local_entries_count].rating=local_entries[j].rating;
-                    search_local_entries[search_local_entries_count].type=local_entries[j].type;
-                    
-                    search_local_entries[search_local_entries_count].song_length=local_entries[j].song_length;
-                    search_local_entries[search_local_entries_count].songs=local_entries[j].songs;
-                    search_local_entries[search_local_entries_count].channels_nb=local_entries[j].channels_nb;
-                    
-                    search_local_entries_count++;
-                    search_local_nb_entries++;
-                }
+        search_local_entries_count=0;
+        if (local_entries_count) search_local_entries=search_local_entries_data;
+        for (int j=0;j<local_entries_count;j++)  {
+            
+            bool found=false;
+            if ((browseType==0)&&mShowSubdir) {
+                found=[self searchStringRegExp:mSearchText sourceString:local_entries[j].label];
+                if (!found) found=[self searchStringRegExp:mSearchText sourceString:local_entries[j].fullpath];
+            } else {
+                found=[self searchStringRegExp:mSearchText sourceString:local_entries[j].label];
             }
+            
+            if  (found ||([mSearchText length]==0)) {
+                search_local_entries[search_local_entries_count].label=local_entries[j].label;
+                search_local_entries[search_local_entries_count].fullpath=local_entries[j].fullpath;
+                search_local_entries[search_local_entries_count].playcount=local_entries[j].playcount;
+                search_local_entries[search_local_entries_count].rating=local_entries[j].rating;
+                search_local_entries[search_local_entries_count].type=local_entries[j].type;
+                
+                search_local_entries[search_local_entries_count].song_length=local_entries[j].song_length;
+                search_local_entries[search_local_entries_count].songs=local_entries[j].songs;
+                search_local_entries[search_local_entries_count].channels_nb=local_entries[j].channels_nb;
+                
+                search_local_entries_count++;
+                search_local_nb_entries++;
+            }
+        }
         no_reentrant=false;
         return;
     }
@@ -830,11 +830,11 @@ static int qsort_CompareArcEntries(const void *entryA, const void *entryB) {
             local_entries_data[i].label=nil;
             local_entries_data[i].fullpath=nil;
         }
-            for (int j=0;j<local_entries_count;j++) {
-                local_entries[j].label=nil;
-                local_entries[j].fullpath=nil;
-            }
-            local_entries=NULL;
+        for (int j=0;j<local_entries_count;j++) {
+            local_entries[j].label=nil;
+            local_entries[j].fullpath=nil;
+        }
+        local_entries=NULL;
         free(local_entries_data);local_entries_data=NULL;
         local_nb_entries=0;
     }
@@ -916,18 +916,18 @@ static int qsort_CompareArcEntries(const void *entryA, const void *entryB) {
                 } else local_nb_entries_limit=0;
                 if (local_entries_data) {
                     local_entries_index=0;
-                        if (local_entries_count) {
-                            if (local_entries_index+local_entries_count>local_nb_entries) {
-                                local_entries_count=local_nb_entries-local_entries_index;
-                                local_entries=&(local_entries_data[local_entries_index]);
-                                local_entries_index+=local_entries_count;
-                                local_entries_count=0;
-                            } else {
-                                local_entries=&(local_entries_data[local_entries_index]);
-                                local_entries_index+=local_entries_count;
-                                local_entries_count=0;
-                            }
+                    if (local_entries_count) {
+                        if (local_entries_index+local_entries_count>local_nb_entries) {
+                            local_entries_count=local_nb_entries-local_entries_index;
+                            local_entries=&(local_entries_data[local_entries_index]);
+                            local_entries_index+=local_entries_count;
+                            local_entries_count=0;
+                        } else {
+                            local_entries=&(local_entries_data[local_entries_index]);
+                            local_entries_index+=local_entries_count;
+                            local_entries_count=0;
                         }
+                    }
                     
                     for (int i=0;i<sidtune_info->songs();i++){
                         const SidTuneInfo *s_info;
@@ -1082,18 +1082,18 @@ static int qsort_CompareArcEntries(const void *entryA, const void *entryB) {
             } else local_nb_entries_limit=0;
             if (local_entries_data) {
                 local_entries_index=0;
-                    if (local_entries_count) {
-                        if (local_entries_index+local_entries_count>local_nb_entries) {
-                            local_entries_count=local_nb_entries-local_entries_index;
-                            local_entries=&(local_entries_data[local_entries_index]);
-                            local_entries_index+=local_entries_count;
-                            local_entries_count=0;
-                        } else {
-                            local_entries=&(local_entries_data[local_entries_index]);
-                            local_entries_index+=local_entries_count;
-                            local_entries_count=0;
-                        }
+                if (local_entries_count) {
+                    if (local_entries_index+local_entries_count>local_nb_entries) {
+                        local_entries_count=local_nb_entries-local_entries_index;
+                        local_entries=&(local_entries_data[local_entries_index]);
+                        local_entries_index+=local_entries_count;
+                        local_entries_count=0;
+                    } else {
+                        local_entries=&(local_entries_data[local_entries_index]);
+                        local_entries_index+=local_entries_count;
+                        local_entries_count=0;
                     }
+                }
                 
                 gme_err_t gme_err=gme_open_file( [cpath UTF8String], &gme_emu, gme_info_only );
                 if (gme_err) {
@@ -1263,18 +1263,18 @@ static int qsort_CompareArcEntries(const void *entryA, const void *entryB) {
             } else local_nb_entries_limit=0;
             if (local_entries_data) {
                 local_entries_index=0;
-                    if (local_entries_count) {
-                        if (local_entries_index+local_entries_count>local_nb_entries) {
-                            local_entries_count=local_nb_entries-local_entries_index;
-                            local_entries=&(local_entries_data[local_entries_index]);
-                            local_entries_index+=local_entries_count;
-                            local_entries_count=0;
-                        } else {
-                            local_entries=&(local_entries_data[local_entries_index]);
-                            local_entries_index+=local_entries_count;
-                            local_entries_count=0;
-                        }
+                if (local_entries_count) {
+                    if (local_entries_index+local_entries_count>local_nb_entries) {
+                        local_entries_count=local_nb_entries-local_entries_index;
+                        local_entries=&(local_entries_data[local_entries_index]);
+                        local_entries_index+=local_entries_count;
+                        local_entries_count=0;
+                    } else {
+                        local_entries=&(local_entries_data[local_entries_index]);
+                        local_entries_index+=local_entries_count;
+                        local_entries_count=0;
                     }
+                }
                 
                 file_idx=0;
                 if (found) {
@@ -1503,18 +1503,18 @@ static int qsort_CompareArcEntries(const void *entryA, const void *entryB) {
             } else local_nb_entries_limit=0;
             if (local_entries_data) {
                 local_entries_index=0;
-                    if (local_entries_count) {
-                        if (local_entries_index+local_entries_count>local_nb_entries) {
-                            local_entries_count=local_nb_entries-local_entries_index;
-                            local_entries=&(local_entries_data[local_entries_index]);
-                            local_entries_index+=local_entries_count;
-                            local_entries_count=0;
-                        } else {
-                            local_entries=&(local_entries_data[local_entries_index]);
-                            local_entries_index+=local_entries_count;
-                            local_entries_count=0;
-                        }
+                if (local_entries_count) {
+                    if (local_entries_index+local_entries_count>local_nb_entries) {
+                        local_entries_count=local_nb_entries-local_entries_index;
+                        local_entries=&(local_entries_data[local_entries_index]);
+                        local_entries_index+=local_entries_count;
+                        local_entries_count=0;
+                    } else {
+                        local_entries=&(local_entries_data[local_entries_index]);
+                        local_entries_index+=local_entries_count;
+                        local_entries_count=0;
                     }
+                }
                 
                 // Second check count for each section
                 for (fileURL in sortedDirContent) {
@@ -1670,6 +1670,8 @@ static int shouldRestart=1;
 -(void) viewWillAppear:(BOOL)animated {
     //static int firstcall=0;
     [super viewWillAppear:animated];
+    
+    shouldFillKeys=1;
     
     bool oldmode=darkMode;
     darkMode=false;
@@ -2149,87 +2151,9 @@ As a consequence, some entries might disappear from existing playlist.\n\
     if ([cell.reuseIdentifier compare:@"CellH"]==NSOrderedSame) {
         //Header => New Folder
         
-        UIAlertController *alertC = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Enter folder name",@"")
-                                                                        message:nil
-                                                                 preferredStyle:UIAlertControllerStyleAlert];
-        __weak UIAlertController *weakAlert = alertC;
-        [alertC addTextFieldWithConfigurationHandler:^(UITextField *textField) {
-            textField.placeholder = [NSString stringWithString:NSLocalizedString(@"New folder",@"")];;
-        }];
         
-        UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel",@"") style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
-            
-        }];
-        [alertC addAction:cancelAction];
-        
-        UIAlertAction *saveAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Create",@"") style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
-            UITextField *tf = weakAlert.textFields.firstObject;
-            
-            NSString *newPath;
-            newPath=[[ModizFileHelper getFullPathForFilePath:currentPath] stringByAppendingPathComponent:tf.text];
-            
-            NSError *err;
-            if ([mFileMngr createDirectoryAtPath:newPath withIntermediateDirectories:YES attributes:nil error:&err]==NO) {
-                MDZELog("Issue %d while create folder %@",(int)(err.code),newPath);
-                [self showAlertMsg:NSLocalizedString(@"Warning",@"") message:[NSString stringWithFormat:NSLocalizedString(@"Issue %d while creating folder\n%@",@""),err.code,newPath]];
-            } else {
-                [ModizFileHelper addSkipBackupAttributeToItemAtPath:newPath];
-                
-                if (mSearch) {
-                    mSearch=0;
-                    [self listLocalFiles];
-                    mSearch=1;
-                }
-                [self listLocalFiles];
-                
-                [self.tableView reloadData];
-            }
-        }];
-        [alertC addAction:saveAction];
-        
-        [self showAlert:alertC];
     } else {
-        //File or Directory => Delete
         
-        // Delete button was pressed
-        NSIndexPath *indexPath = [self.tableView indexPathForCell:cell];
-        
-        //delete entry
-        t_local_browse_entry *cur_local_entries=(search_local?search_local_entries:local_entries);
-        int section=indexPath.section-2;
-        NSString *fullpath=[ModizFileHelper getFullPathForFilePath:cur_local_entries[indexPath.row].fullpath];
-        NSError *err;
-        
-        if ([cutpaste_filesrcpath compare:cur_local_entries[indexPath.row].fullpath]==NSOrderedSame) {
-            //deleting file in cut/paste buffer -> cancel buffer
-            
-            cutpaste_filesrcpath=nil;
-        }
-        
-        if ([mFileMngr removeItemAtPath:fullpath error:&err]!=YES) {
-            MDZELog("Issue %d while removing: %@",(int)(err.code),fullpath);
-            [self showAlertMsg:NSLocalizedString(@"Warning",@"") message:[NSString stringWithFormat:NSLocalizedString(@"Issue %d while trying to delete entry.\n%@",@""),err.code,err.localizedDescription]];
-        } else {
-            if (cur_local_entries[indexPath.row].type==0) { //Dir
-                DBHelper::deleteStatsDirDB(fullpath);
-                [self.detailViewController cleanPlaylistAfterDelDir:fullpath];
-            }
-            if (cur_local_entries[indexPath.row].type&3) { //File
-                DBHelper::deleteStatsFileDB(fullpath);
-                [self.detailViewController cleanPlaylistAfterDelFile:fullpath];
-            }
-            if (mSearch) {
-                mSearch=0;
-                [self listLocalFiles]; //force a refresh
-                mSearch=1;
-            }
-            [self listLocalFiles];
-            //[self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
-            [self.tableView reloadData];
-        }
-        
-        //            [self.tableView deleteRowsAtIndexPaths:@[cellIndexPath]
-        //                                  withRowAnimation:UITableViewRowAnimationAutomatic];
     }
     [self.tableView reloadData];
 }
@@ -2251,7 +2175,7 @@ As a consequence, some entries might disappear from existing playlist.\n\
     
     t_local_browse_entry *cur_local_entries=(search_local?search_local_entries:local_entries);
     
-    SESlideTableViewCell *cell;
+    UITableViewCell *cell;
     
     if (forceReloadCells) {
         while ([tabView dequeueReusableCellWithIdentifier:CellIdentifier]) {}
@@ -2259,20 +2183,20 @@ As a consequence, some entries might disappear from existing playlist.\n\
         forceReloadCells=false;
     }
     
-    if (indexPath.section==0) cell = (SESlideTableViewCell *)[tabView dequeueReusableCellWithIdentifier:CellIdentifierHeader];
-    else cell = (SESlideTableViewCell *)[tabView dequeueReusableCellWithIdentifier:CellIdentifier];
+    if (indexPath.section==0) cell = (UITableViewCell *)[tabView dequeueReusableCellWithIdentifier:CellIdentifierHeader];
+    else cell = (UITableViewCell *)[tabView dequeueReusableCellWithIdentifier:CellIdentifier];
     
     
     
     if ((cell == nil)) {
         if (indexPath.section>1) {
-            cell = [[SESlideTableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:    CellIdentifier];
-            cell.delegate = self;
+            cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:    CellIdentifier];
+//            cell.delegate = self;
             
-            if (noCellAction==false) {
-                [cell addLeftButtonWithText:NSLocalizedString(@"Rename",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_RENAME_COL_R green:MDZ_RENAME_COL_G blue:MDZ_RENAME_COL_B alpha:1.0]];
-                [cell addLeftButtonWithText:NSLocalizedString(@"Cut",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_CUT_COL_R green:MDZ_CUT_COL_G blue:MDZ_CUT_COL_B alpha:1.0]];
-            }
+//            if (noCellAction==false) {
+//                [cell addLeftButtonWithText:NSLocalizedString(@"Rename",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_RENAME_COL_R green:MDZ_RENAME_COL_G blue:MDZ_RENAME_COL_B alpha:1.0]];
+//                [cell addLeftButtonWithText:NSLocalizedString(@"Cut",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_CUT_COL_R green:MDZ_CUT_COL_G blue:MDZ_CUT_COL_B alpha:1.0]];
+//            }
             
             if (self.tableView.refreshControl.isRefreshing==false) {
                 
@@ -2281,22 +2205,22 @@ As a consequence, some entries might disappear from existing playlist.\n\
                     if ([ModizFileHelper isABrowsableArchive:[ModizFileHelper getFullPathForFilePath:cur_local_entries[indexPath.row].fullpath]]) cur_local_entries[indexPath.row].type=2;
                     else cur_local_entries[indexPath.row].type=1;
                 }
-                if (noCellAction==false) {
-                    if (cur_local_entries[indexPath.row].type==2) {
-                        [cell addLeftButtonWithText:NSLocalizedString(@"Extract",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_EXTRACT_COL_R green:MDZ_EXTRACT_COL_G blue:MDZ_EXTRACT_COL_B alpha:1.0]];
-                    }
-                }
+//                if (noCellAction==false) {
+//                    if (cur_local_entries[indexPath.row].type==2) {
+//                        [cell addLeftButtonWithText:NSLocalizedString(@"Extract",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_EXTRACT_COL_R green:MDZ_EXTRACT_COL_G blue:MDZ_EXTRACT_COL_B alpha:1.0]];
+//                    }
+//                }
             }
-            if (noCellAction==false) {
-                [cell addRightButtonWithText:NSLocalizedString(@"Delete",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor redColor]];
-            }
+//            if (noCellAction==false) {
+//                [cell addRightButtonWithText:NSLocalizedString(@"Delete",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor redColor]];
+//            }
         } else {
-            cell = [[SESlideTableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:    CellIdentifierHeader];
-            cell.delegate = self;
-            if (noCellAction==false) {
-                [cell addLeftButtonWithText:NSLocalizedString(@"Paste",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_PASTE_COL_R green:MDZ_PASTE_COL_G blue:MDZ_PASTE_COL_B alpha:1]];
-                [cell addRightButtonWithText:NSLocalizedString(@"New folder",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_NEWFOLDER_COL_R green:MDZ_NEWFOLDER_COL_G blue:MDZ_NEWFOLDER_COL_B alpha:1]];
-            }
+            cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:    CellIdentifierHeader];
+//            cell.delegate = self;
+//            if (noCellAction==false) {
+//                [cell addLeftButtonWithText:NSLocalizedString(@"Paste",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_PASTE_COL_R green:MDZ_PASTE_COL_G blue:MDZ_PASTE_COL_B alpha:1]];
+//                [cell addRightButtonWithText:NSLocalizedString(@"New folder",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_NEWFOLDER_COL_R green:MDZ_NEWFOLDER_COL_G blue:MDZ_NEWFOLDER_COL_B alpha:1]];
+//            }
             
         }
         
@@ -2382,14 +2306,14 @@ As a consequence, some entries might disappear from existing playlist.\n\
         bottomLabel.lineBreakMode=(settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value?
                                 ((settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value==2) ? NSLineBreakByTruncatingTail:NSLineBreakByTruncatingMiddle):NSLineBreakByTruncatingHead);
         
-        [cell removeAllLeftButtons];
-        [cell removeAllRightButtons];
+//        [cell removeAllLeftButtons];
+//        [cell removeAllRightButtons];
         
         if (indexPath.section>1) {
-            if (noCellAction==false) {
-                [cell addLeftButtonWithText:NSLocalizedString(@"Rename",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_RENAME_COL_R green:MDZ_RENAME_COL_G blue:MDZ_RENAME_COL_B alpha:1.0]];
-                [cell addLeftButtonWithText:NSLocalizedString(@"Cut",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_CUT_COL_R green:MDZ_CUT_COL_G blue:MDZ_CUT_COL_B alpha:1.0]];
-            }
+//            if (noCellAction==false) {
+//                [cell addLeftButtonWithText:NSLocalizedString(@"Rename",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_RENAME_COL_R green:MDZ_RENAME_COL_G blue:MDZ_RENAME_COL_B alpha:1.0]];
+//                [cell addLeftButtonWithText:NSLocalizedString(@"Cut",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_CUT_COL_R green:MDZ_CUT_COL_G blue:MDZ_CUT_COL_B alpha:1.0]];
+//            }
             
             if (self.tableView.refreshControl.isRefreshing==false) {
                 if ((cur_local_entries[indexPath.row].type&16)&&((cur_local_entries[indexPath.row].type&15)==2)) { //need to confirm if true archive
@@ -2397,20 +2321,20 @@ As a consequence, some entries might disappear from existing playlist.\n\
                     else cur_local_entries[indexPath.row].type=1;
                 }
                 
-                if (noCellAction==false) {
-                    if (cur_local_entries[indexPath.row].type==2) {
-                        [cell addLeftButtonWithText:NSLocalizedString(@"Extract",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_EXTRACT_COL_R green:MDZ_EXTRACT_COL_G blue:MDZ_EXTRACT_COL_B alpha:1.0]];
-                    }
-                    if (noCellAction==false) {
-                        [cell addRightButtonWithText:NSLocalizedString(@"Delete",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor redColor]];
-                    }
-                }
+//                if (noCellAction==false) {
+//                    if (cur_local_entries[indexPath.row].type==2) {
+//                        [cell addLeftButtonWithText:NSLocalizedString(@"Extract",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_EXTRACT_COL_R green:MDZ_EXTRACT_COL_G blue:MDZ_EXTRACT_COL_B alpha:1.0]];
+//                    }
+//                    if (noCellAction==false) {
+//                        [cell addRightButtonWithText:NSLocalizedString(@"Delete",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor redColor]];
+//                    }
+//                }
             }
         } else {
-            if (noCellAction==false) {
-                [cell addLeftButtonWithText:NSLocalizedString(@"Paste",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_PASTE_COL_R green:MDZ_PASTE_COL_G blue:MDZ_PASTE_COL_B alpha:1.0]];
-                [cell addRightButtonWithText:NSLocalizedString(@"New folder",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_NEWFOLDER_COL_R green:MDZ_NEWFOLDER_COL_G blue:MDZ_NEWFOLDER_COL_B alpha:1]];
-            }
+//            if (noCellAction==false) {
+//                [cell addLeftButtonWithText:NSLocalizedString(@"Paste",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_PASTE_COL_R green:MDZ_PASTE_COL_G blue:MDZ_PASTE_COL_B alpha:1.0]];
+//                [cell addRightButtonWithText:NSLocalizedString(@"New folder",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_NEWFOLDER_COL_R green:MDZ_NEWFOLDER_COL_G blue:MDZ_NEWFOLDER_COL_B alpha:1]];
+//            }
         }
     }
     actionView.hidden=TRUE;
@@ -2483,12 +2407,14 @@ As a consequence, some entries might disappear from existing playlist.\n\
             
             [secActionView setImage:[UIImage imageNamed:@"playlist_add_all.png"] forState:UIControlStateNormal];
             [secActionView setImage:[UIImage imageNamed:@"playlist_add_all.png"] forState:UIControlStateHighlighted];
+            [secActionView removeTarget: self action:NULL forControlEvents: UIControlEventTouchUpInside];
             [secActionView addTarget: self action: @selector(secondaryActionTapped:) forControlEvents: UIControlEventTouchUpInside];
             //secActionView.tag=indexPath.row*100+indexPath.section;
             [dictActionBtn setObject:[NSNumber numberWithInteger:indexPath.row*100+indexPath.section] forKey:[[secActionView.description componentsSeparatedByString:@";"] firstObject]];
             
             [actionView setImage:[UIImage imageNamed:@"play_all.png"] forState:UIControlStateNormal];
             [actionView setImage:[UIImage imageNamed:@"play_all.png"] forState:UIControlStateHighlighted];
+            [actionView removeTarget: self action:NULL forControlEvents: UIControlEventTouchUpInside];
             [actionView addTarget: self action: @selector(primaryActionTapped:) forControlEvents: UIControlEventTouchUpInside];
             //actionView.tag=indexPath.row*100+indexPath.section;
             [dictActionBtn setObject:[NSNumber numberWithInteger:indexPath.row*100+indexPath.section] forKey:[[actionView.description componentsSeparatedByString:@";"] firstObject]];
@@ -2522,22 +2448,6 @@ As a consequence, some entries might disappear from existing playlist.\n\
             actionView.hidden=YES;
             secActionView.enabled=NO;
             secActionView.hidden=YES;
-            /*[secActionView setImage:[UIImage imageNamed:@"playlist_add_all.png"] forState:UIControlStateNormal];
-             [secActionView setImage:[UIImage imageNamed:@"playlist_add_all.png"] forState:UIControlStateHighlighted];
-             [secActionView addTarget: self action: @selector(secondaryActionTapped:) forControlEvents: UIControlEventTouchUpInside];
-             
-             [actionView setImage:[UIImage imageNamed:@"play_all.png"] forState:UIControlStateNormal];
-             [actionView setImage:[UIImage imageNamed:@"play_all.png"] forState:UIControlStateHighlighted];
-             [actionView addTarget: self action: @selector(primaryActionTapped:) forControlEvents: UIControlEventTouchUpInside];
-             
-             int icon_posx=tabView.bounds.size.width-2-PRI_SEC_ACTIONS_IMAGE_SIZE-tabView.safeAreaInsets.right-tabView.safeAreaInsets.left;
-             icon_posx-=32;
-             actionView.frame = CGRectMake(icon_posx,0,PRI_SEC_ACTIONS_IMAGE_SIZE,PRI_SEC_ACTIONS_IMAGE_SIZE);
-             actionView.enabled=YES;
-             actionView.hidden=NO;
-             secActionView.frame = CGRectMake(icon_posx-PRI_SEC_ACTIONS_IMAGE_SIZE-4,0,PRI_SEC_ACTIONS_IMAGE_SIZE,PRI_SEC_ACTIONS_IMAGE_SIZE);
-             secActionView.enabled=YES;
-             secActionView.hidden=NO;*/
         }
     } else {
         cellValue=cur_local_entries[indexPath.row].label;
@@ -2705,67 +2615,318 @@ As a consequence, some entries might disappear from existing playlist.\n\
     return cell;
 }
 
-// Override to support editing the table view.
-- (void)tableView:(UITableView *)tabView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
-    t_local_browse_entry *cur_local_entries=(search_local?search_local_entries:local_entries);
-    
-    if (editingStyle == UITableViewCellEditingStyleDelete) {
-        // Delete the row from the data source
-        
-        //delete entry
-        NSString *fullpath=[ModizFileHelper getFullPathForFilePath:cur_local_entries[indexPath.row].fullpath];
-        NSError *err;
-        
-        if ([mFileMngr removeItemAtPath:fullpath error:&err]!=YES) {
-            MDZELog("Issue %d while removing: %@",(int)(err.code),fullpath);
-            [self showAlertMsg:NSLocalizedString(@"Warning",@"") message:[NSString stringWithFormat:NSLocalizedString(@"Issue %d while trying to delete entry.\n%@",@""),err.code,err.localizedDescription]];
-        } else {
-            if (cur_local_entries[indexPath.row].type==0) { //Dir
-                DBHelper::deleteStatsDirDB(fullpath);
-            }
-            if (cur_local_entries[indexPath.row].type&3) { //File
-                DBHelper::deleteStatsFileDB(fullpath);
-            }
-            if (mSearch) {
-                mSearch=0;
-                [self listLocalFiles];
-                mSearch=1;
-            }
-            [self listLocalFiles];
-            [tabView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
-            [tabView reloadData];
-        }
-        
-    } else if (editingStyle == UITableViewCellEditingStyleInsert) {
-        // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
-    }
-}
-/*- (NSIndexPath *)tableView:(UITableView *)tableView targetIndexPathForMoveFromRowAtIndexPath:(NSIndexPath *)sourceIndexPath toProposedIndexPath:(NSIndexPath *)proposedDestinationIndexPath {
- return proposedDestinationIndexPath;
- }*/
-// Override to support rearranging the table view.
-/*- (void)tableView:(UITableView *)tableView moveRowAtIndexPath:(NSIndexPath *)fromIndexPath toIndexPath:(NSIndexPath *)toIndexPath {
- 
- }*/
 // Override to support conditional rearranging of the table view.
 - (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath {
     // Return NO if you do not want the item to be re-orderable.
     return NO;
 }
-- (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
-    // Return NO if you do not want the item to be re-orderable.
-    return NO;
-    
-    t_local_browse_entry *cur_local_entries=(search_local?search_local_entries:local_entries);
-    int section=indexPath.section-2;
-    if (section>=0) {
-        NSString *fullpath=[ModizFileHelper getFullPathForFilePath:cur_local_entries[indexPath.row].fullpath];
-        BOOL res;
-        NSFileManager *myMngr=[[NSFileManager alloc] init];
-        res=[myMngr isDeletableFileAtPath:fullpath];
-        //[myMngr release];
-        return res;
+
+- (UISwipeActionsConfiguration *)tableView:(UITableView *)tableView
+trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
+    if (indexPath.section==0) {
+        if (indexPath.row==0) {
+            // NEW FOLDER ACTION
+            UIContextualAction *newFolderAction =
+            [UIContextualAction contextualActionWithStyle:UIContextualActionStyleNormal
+                                                    title:NSLocalizedString(@"New folder", @"")
+                                                  handler:^(UIContextualAction *action,
+                                                            UIView *sourceView,
+                                                            void (^completionHandler)(BOOL)) {
+                
+                UIAlertController *alertC = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Enter folder name",@"")
+                                                                                message:nil
+                                                                         preferredStyle:UIAlertControllerStyleAlert];
+                __weak UIAlertController *weakAlert = alertC;
+                [alertC addTextFieldWithConfigurationHandler:^(UITextField *textField) {
+                    textField.placeholder = [NSString stringWithString:NSLocalizedString(@"New folder",@"")];;
+                }];
+                
+                UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel",@"") style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+                    
+                }];
+                [alertC addAction:cancelAction];
+                
+                UIAlertAction *saveAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Create",@"") style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+                    UITextField *tf = weakAlert.textFields.firstObject;
+                    
+                    NSString *newPath;
+                    newPath=[[ModizFileHelper getFullPathForFilePath:currentPath] stringByAppendingPathComponent:tf.text];
+                    
+                    NSError *err;
+                    if ([mFileMngr createDirectoryAtPath:newPath withIntermediateDirectories:YES attributes:nil error:&err]==NO) {
+                        MDZELog("Issue %d while create folder %@",(int)(err.code),newPath);
+                        [self showAlertMsg:NSLocalizedString(@"Warning",@"") message:[NSString stringWithFormat:NSLocalizedString(@"Issue %d while creating folder\n%@",@""),err.code,newPath]];
+                        completionHandler(NO);
+                    } else {
+                        [ModizFileHelper addSkipBackupAttributeToItemAtPath:newPath];
+                        
+                        if (mSearch) {
+                            mSearch=0;
+                            [self listLocalFiles];
+                            mSearch=1;
+                        }
+                        [self listLocalFiles];
+                        
+                        // Reload the cell to show the file is no longer downloaded
+                        //[tableView reloadRowsAtIndexPaths:@[indexPath]
+                        //                 withRowAnimation:UITableViewRowAnimationAutomatic];
+                        [tableView reloadData];
+                        
+                        completionHandler(YES);
+                    }
+                }];
+                [alertC addAction:saveAction];
+                
+                [self showAlert:alertC];
+            }];
+            newFolderAction.backgroundColor = [UIColor colorWithRed:MDZ_NEWFOLDER_COL_R green:MDZ_NEWFOLDER_COL_G blue:MDZ_NEWFOLDER_COL_B alpha:1];
+            
+            // Return multiple actions - they appear from right to left
+            return [UISwipeActionsConfiguration configurationWithActions:@[newFolderAction]];
+        }
+    } else {
+        // DELETE ACTION
+        UIContextualAction *deleteAction =
+        [UIContextualAction contextualActionWithStyle:UIContextualActionStyleDestructive
+                                                title:NSLocalizedString(@"Delete", @"")
+                                              handler:^(UIContextualAction *action,
+                                                        UIView *sourceView,
+                                                        void (^completionHandler)(BOOL)) {
+            
+            //File or Directory => Delete
+            
+            //delete entry
+            t_local_browse_entry *cur_local_entries=(search_local?search_local_entries:local_entries);
+            NSString *fullpath=[ModizFileHelper getFullPathForFilePath:cur_local_entries[indexPath.row].fullpath];
+            NSError *err;
+            
+            if ([cutpaste_filesrcpath compare:cur_local_entries[indexPath.row].fullpath]==NSOrderedSame) {
+                //deleting file in cut/paste buffer -> cancel buffer
+                cutpaste_filesrcpath=nil;
+            }
+            
+            if ([mFileMngr removeItemAtPath:fullpath error:&err]!=YES) {
+                MDZELog("Issue %d while removing: %@",(int)(err.code),fullpath);
+                [self showAlertMsg:NSLocalizedString(@"Warning",@"") message:[NSString stringWithFormat:NSLocalizedString(@"Issue %d while trying to delete entry.\n%@",@""),err.code,err.localizedDescription]];
+                completionHandler(NO);
+            } else {
+                if (cur_local_entries[indexPath.row].type==0) { //Dir
+                    DBHelper::deleteStatsDirDB(fullpath);
+                    [self.detailViewController cleanPlaylistAfterDelDir:fullpath];
+                }
+                if (cur_local_entries[indexPath.row].type&3) { //File
+                    DBHelper::deleteStatsFileDB(fullpath);
+                    [self.detailViewController cleanPlaylistAfterDelFile:fullpath];
+                }
+                if (mSearch) {
+                    mSearch=0;
+                    [self listLocalFiles]; //force a refresh
+                    mSearch=1;
+                }
+                [self listLocalFiles];
+                //[self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
+                [tableView reloadData];
+                completionHandler(YES);
+            }
+        }];
+        deleteAction.backgroundColor = [UIColor redColor];
+        
+        // Return multiple actions - they appear from right to left
+        return [UISwipeActionsConfiguration configurationWithActions:@[deleteAction]];
     }
+    return nil;
+}
+
+- (UISwipeActionsConfiguration *)tableView:(UITableView *)tableView
+leadingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
+    if (indexPath.section==0) {
+        if (indexPath.row==0) {
+            // PASTE ACTION
+            UIContextualAction *pasteAction =
+            [UIContextualAction contextualActionWithStyle:UIContextualActionStyleNormal
+                                                    title:NSLocalizedString(@"Paste", @"")
+                                                  handler:^(UIContextualAction *action,
+                                                            UIView *sourceView,
+                                                            void (^completionHandler)(BOOL)) {
+                
+                if (cutpaste_filesrcpath) {
+                    //Paste file or dir
+                    NSString *sourcePath=[ModizFileHelper getFullPathForFilePath:cutpaste_filesrcpath];
+                    NSString *destPath=[[ModizFileHelper getFullPathForFilePath:currentPath] stringByAppendingPathComponent:[cutpaste_filesrcpath lastPathComponent]];
+                    NSError *err;
+                    
+                    mFileMngr.delegate=self;
+                    if ([mFileMngr moveItemAtPath:sourcePath toPath:destPath error:&err]!=YES) {
+                        MDZELog("Issue %d while moving: %@",(int)(err.code),cutpaste_filesrcpath);
+                        [self showAlertMsg:NSLocalizedString(@"Warning",@"") message:[NSString stringWithFormat:NSLocalizedString(@"Issue %d while moving: %@.\n%@",@""),err.code,cutpaste_filesrcpath]];
+                    } else {
+                        //[cutpaste_filesrcpath release];
+                        cutpaste_filesrcpath=nil;
+                        if (mSearch) {
+                            mSearch=0;
+                            [self listLocalFiles];
+                            mSearch=1;
+                        }
+                        [self listLocalFiles];
+                        [self.tableView reloadData];
+                    }
+                    completionHandler(YES);
+                } else {
+                    //Alert msg => nothing to Paste
+                    [self showAlertMsg:NSLocalizedString(@"Warning",@"") message:NSLocalizedString(@"Nothing to paste",@"")];
+                    completionHandler(NO);
+                }
+            }];
+            pasteAction.backgroundColor = [UIColor colorWithRed:MDZ_PASTE_COL_R green:MDZ_PASTE_COL_G blue:MDZ_PASTE_COL_B alpha:1];
+            
+            // Return multiple actions - they appear from right to left
+            return [UISwipeActionsConfiguration configurationWithActions:@[pasteAction]];
+        }
+    } else {
+        // RENAME ACTION
+        UIContextualAction *renameAction =
+        [UIContextualAction contextualActionWithStyle:UIContextualActionStyleNormal
+                                                title:NSLocalizedString(@"Rename", @"")
+                                              handler:^(UIContextualAction *action,
+                                                        UIView *sourceView,
+                                                        void (^completionHandler)(BOOL)) {
+            //File or Directory
+            //rename
+            t_local_browse_entry *cur_local_entries=(search_local?search_local_entries:local_entries);
+            //rename
+            renameIdx=indexPath.row;
+            
+            if ([cutpaste_filesrcpath compare:cur_local_entries[indexPath.row].fullpath]==NSOrderedSame) {
+                //renaming file in cut/paste buffer -> cancel buffer
+                //[cutpaste_filesrcpath release];
+                cutpaste_filesrcpath=nil;
+            }
+            
+            UIAlertController *alertC = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Enter new name",@"")
+                                                                            message:nil
+                                                                     preferredStyle:UIAlertControllerStyleAlert];
+            __weak UIAlertController *weakAlert = alertC;
+            [alertC addTextFieldWithConfigurationHandler:^(UITextField *textField) {
+                textField.placeholder = [NSString stringWithString:cur_local_entries[indexPath.row].label];
+            }];
+            
+            UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel",@"") style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+                
+            }];
+            [alertC addAction:cancelAction];
+            
+            UIAlertAction *saveAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Rename",@"") style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+                UITextField *tf = weakAlert.textFields.firstObject;
+                t_local_browse_entry *cur_local_entries=(search_local?search_local_entries:local_entries);
+                if (cur_local_entries[renameIdx].label) cur_local_entries[renameIdx].label=nil;
+                
+                NSString *curPath,*tgtPath;
+                
+                curPath=[ModizFileHelper getFullPathForFilePath:cur_local_entries[renameIdx].fullpath];
+                tgtPath=[ModizFileHelper getFullPathForFilePath:cur_local_entries[renameIdx].fullpath];
+                
+                tgtPath=[[tgtPath stringByDeletingLastPathComponent] stringByAppendingPathComponent:tf.text];
+                
+                NSError *err;
+                mFileMngr.delegate=self;
+                if ([mFileMngr moveItemAtPath:curPath toPath:tgtPath error:&err]==NO) {
+                    MDZELog("Issue %d while renaming file %@",(int)(err.code),curPath);
+                } else {
+                    cur_local_entries[renameIdx].label=[[NSString alloc] initWithString:tf.text];
+                    
+                    cur_local_entries[renameIdx].fullpath=[[NSString alloc] initWithString:tgtPath];
+                    if (mSearch) {
+                        mSearch=0;
+                        [self listLocalFiles];
+                        mSearch=1;
+                    }
+                    shouldFillKeys=1;
+                    [self fillKeys];
+                    
+                    [self.tableView reloadData];
+                }
+            }];
+            [alertC addAction:saveAction];
+            
+            [self showAlert:alertC];
+            
+            
+            completionHandler(YES);
+        }];
+        renameAction.backgroundColor = [UIColor colorWithRed:MDZ_RENAME_COL_R green:MDZ_RENAME_COL_G blue:MDZ_RENAME_COL_B alpha:1];
+        
+        // CUT ACTION
+        UIContextualAction *cutAction =
+        [UIContextualAction contextualActionWithStyle:UIContextualActionStyleNormal
+                                                title:NSLocalizedString(@"Cut", @"")
+                                              handler:^(UIContextualAction *action,
+                                                        UIView *sourceView,
+                                                        void (^completionHandler)(BOOL)) {
+            //cut
+            t_local_browse_entry *cur_local_entries=(search_local?search_local_entries:local_entries);
+            cutpaste_filesrcpath=[[NSString alloc] initWithString:cur_local_entries[indexPath.row].fullpath];
+            completionHandler(YES);
+        }];
+        cutAction.backgroundColor = [UIColor colorWithRed:MDZ_CUT_COL_R green:MDZ_CUT_COL_G blue:MDZ_CUT_COL_B alpha:1];
+        
+        // EXTRACT ACTION
+        UIContextualAction *extractAction =
+        [UIContextualAction contextualActionWithStyle:UIContextualActionStyleNormal
+                                                title:NSLocalizedString(@"Extract", @"")
+                                              handler:^(UIContextualAction *action,
+                                                        UIView *sourceView,
+                                                        void (^completionHandler)(BOOL)) {
+            //extract
+            [waitingViewExtract setTitle:NSLocalizedString(@"Extracting",@"")];
+            [waitingViewExtract setDetail:@""];
+            [waitingViewExtract showCancel];
+            [waitingViewExtract showProgress];
+            waitingViewExtract.hidden=false;
+            //[self showWaiting];
+            //[self flushMainLoop];
+            t_local_browse_entry *cur_local_entries=(search_local?search_local_entries:local_entries);
+            int section=indexPath.section-2;
+            
+            NSString *filePath=[ModizFileHelper getFullPathForFilePath:cur_local_entries[indexPath.row].fullpath];
+            NSString *tgtPath;
+            tgtPath=[ModizFileHelper getFullPathForFilePath:[cur_local_entries[indexPath.row].fullpath stringByDeletingPathExtension]];
+            int files_found=[ModizFileHelper scanarchive:[filePath UTF8String] filesList_ptr:nil filesCount_ptr:nil];
+            if (files_found) {
+                [self.tableView setUserInteractionEnabled:false];
+                [self.navigationItem setHidesBackButton:YES animated:YES];
+                extractProgress = [NSProgress progressWithTotalUnitCount:1];
+                extractProgress.cancellable = YES;
+                extractProgress.pausable = NO;
+                [ModizFileHelper extractToPath:[filePath UTF8String] path:[tgtPath UTF8String] caller:self progress:extractProgress context:ExtractProgressObserverContext];
+                if (mSearch) {
+                    mSearch=0;
+                    [self listLocalFiles];
+                    mSearch=1;
+                }
+                [self listLocalFiles];
+                
+                //[self.tableView reloadData];
+            } else {
+                [self showAlertMsg:NSLocalizedString(@"Warning",@"") message:NSLocalizedString(@"No file to extract or not supported archive format.\n",@"")];
+            }
+            //[self hideWaiting];
+            completionHandler(YES);
+        }];
+        extractAction.backgroundColor = [UIColor colorWithRed:MDZ_EXTRACT_COL_R green:MDZ_EXTRACT_COL_G blue:MDZ_EXTRACT_COL_B alpha:1];
+        
+        // Return multiple actions - they appear from right to left
+        t_local_browse_entry *cur_local_entries=(search_local?search_local_entries:local_entries);
+        if (cur_local_entries[indexPath.row].type==2) return [UISwipeActionsConfiguration configurationWithActions:@[cutAction,renameAction,extractAction]];
+        else return [UISwipeActionsConfiguration configurationWithActions:@[cutAction,renameAction]];
+    }
+    return nil;
+}
+
+
+- (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
+    if (indexPath.section==0) {
+        if (indexPath.row==0) return YES;
+    } else return YES;
     return NO;
 }
 
@@ -2944,8 +3105,6 @@ As a consequence, some entries might disappear from existing playlist.\n\
     [self showWaiting];
     [self flushMainLoop];
     
-    int section=indexPath.section-2;
-    
     if (indexPath.section==0) {
         // launch Play of current list
         t_playlist *pl;
@@ -3072,7 +3231,6 @@ As a consequence, some entries might disappear from existing playlist.\n\
     
     
     //local  browser & favorites
-    int section=indexPath.section-2;
     
     if (indexPath.section==0) {
         // enqueue current dir

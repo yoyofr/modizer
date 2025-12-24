@@ -19,13 +19,11 @@
 
 #import "MiniPlayerVC.h"
 
-#import "SESlideTableViewCell.h"
-
 #import "WaitingView.h"
 
 @class DetailViewControllerIphone;
 
-@interface RootViewControllerLocalBrowser : UIViewController <UISearchBarDelegate,UIGestureRecognizerDelegate,CMPopTipViewDelegate,SESlideTableViewCellDelegate,UINavigationControllerDelegate,UIScrollViewDelegate,NSFileManagerDelegate> {
+@interface RootViewControllerLocalBrowser : UIViewController <UISearchBarDelegate,UIGestureRecognizerDelegate,CMPopTipViewDelegate,UINavigationControllerDelegate,UIScrollViewDelegate,NSFileManagerDelegate> {
 	NSString *ratingImg[3];
 	UIView *infoMsgView;
 	UILabel *infoMsgLbl;
