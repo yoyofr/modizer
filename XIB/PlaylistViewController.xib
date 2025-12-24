@@ -21,17 +21,17 @@
             <rect key="frame" x="0.0" y="0.0" width="375" height="584"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
-                <tableView contentMode="scaleToFill" alwaysBounceVertical="YES" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" translatesAutoresizingMaskIntoConstraints="NO" id="3">
-                    <rect key="frame" x="0.0" y="20" width="375" height="564"/>
+                <searchBar contentMode="redraw" preservesSuperviewLayoutMargins="YES" id="24">
+                    <rect key="frame" x="0.0" y="0.0" width="375" height="44"/>
+                    <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
+                    <textInputTraits key="textInputTraits"/>
+                    <connections>
+                        <outlet property="delegate" destination="-1" id="28"/>
+                    </connections>
+                </searchBar>
+                <tableView clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" alwaysBounceVertical="YES" showsVerticalScrollIndicator="YES" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" translatesAutoresizingMaskIntoConstraints="NO" id="3">
+                    <rect key="frame" x="0.0" y="44" width="375" height="540"/>
                     <color key="backgroundColor" systemColor="systemBackgroundColor"/>
-                    <searchBar key="tableHeaderView" contentMode="redraw" id="24">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="44"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
-                        <textInputTraits key="textInputTraits"/>
-                        <connections>
-                            <outlet property="delegate" destination="-1" id="28"/>
-                        </connections>
-                    </searchBar>
                     <connections>
                         <outlet property="dataSource" destination="-1" id="21"/>
                         <outlet property="delegate" destination="-1" id="22"/>
@@ -42,7 +42,7 @@
             <constraints>
                 <constraint firstItem="oUv-ev-wZE" firstAttribute="leading" secondItem="3" secondAttribute="leading" id="PR8-mv-Isg"/>
                 <constraint firstItem="oUv-ev-wZE" firstAttribute="trailing" secondItem="3" secondAttribute="trailing" id="QN5-4f-RJM"/>
-                <constraint firstItem="oUv-ev-wZE" firstAttribute="top" secondItem="3" secondAttribute="top" id="RhU-r5-IrC"/>
+                <constraint firstItem="24" firstAttribute="bottom" secondItem="3" secondAttribute="top" id="RhU-r5-IrC"/>
                 <constraint firstItem="oUv-ev-wZE" firstAttribute="bottom" secondItem="3" secondAttribute="bottom" id="zUb-BS-AaC"/>
             </constraints>
             <simulatedTabBarMetrics key="simulatedBottomBarMetrics" translucent="NO"/>

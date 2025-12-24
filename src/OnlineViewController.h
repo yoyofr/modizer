@@ -15,7 +15,7 @@
 #import "RootViewControllerASMA.h"
 #import "RootViewControllerJoshWWebParser.h"
 #import "RootViewControllerVGMRWebParser.h"
-#import "RootViewControllerP2612WebParser.h"
+#import "RootViewControllerAMPWebParser.h"
 #import "RootViewControllerSNESMWebParser.h"
 #import "RootViewControllerSMSPWebParser.h"
 #import "RootViewControllerZXArtWebParser.h"

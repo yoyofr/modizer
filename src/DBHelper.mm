@@ -1055,6 +1055,14 @@ int DBHelper::cleanDB() {
             MDZELog("ErrSQL : %d",err);
         }
         
+        //Clean v4.1- garbage
+        //
+        snprintf(cleanDB_Status,sizeof(cleanDB_Status),"removing wrong entries from user_stats / rsn files");
+        snprintf(sqlStatement,sizeof(sqlStatement),"DELETE FROM user_stats WHERE fullpath LIKE '%%rsn%%?%%'");
+        err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
+        if (err!=SQLITE_OK){
+            MDZELog("ErrSQL : %d",err);
+        }
         
         printf("compressing DB\n");
         snprintf(cleanDB_Status,sizeof(cleanDB_Status),"compressing DB");
@@ -1068,6 +1076,7 @@ int DBHelper::cleanDB() {
         printf("Cannot open DB\n");
     }
     sqlite3_close(db);
+    
     
     
     pthread_mutex_unlock(&db_mutex);

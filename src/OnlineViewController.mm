@@ -9,11 +9,11 @@
 
 enum {
     ONLINE_COLLECTIONS_MODLAND=0,
+    ONLINE_COLLECTIONS_AMP,
     ONLINE_COLLECTIONS_HVSC,
     ONLINE_COLLECTIONS_ASMA,
     ONLINE_COLLECTIONS_JOSHW,
     ONLINE_COLLECTIONS_VGMRips,
-//    ONLINE_COLLECTIONS_P2612,
     ONLINE_COLLECTIONS_SNESM,
     ONLINE_COLLECTIONS_SMSP,
     ONLINE_COLLECTIONS_ZXART,
@@ -160,8 +160,8 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
     // height constraint
     [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[waitingView(150)]" options:0 metrics:nil views:views]];
     // center align
-    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:waitingView attribute:NSLayoutAttributeCenterX multiplier:1.0 constant:0]];
-    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:waitingView attribute:NSLayoutAttributeCenterY multiplier:1.0 constant:0]];
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view.safeAreaLayoutGuide attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:waitingView attribute:NSLayoutAttributeCenterX multiplier:1.0 constant:0]];
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view.safeAreaLayoutGuide attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:waitingView attribute:NSLayoutAttributeCenterY multiplier:1.0 constant:0]];
     
     waitingViewPlayer = [[WaitingView alloc] init];
     waitingViewPlayer.layer.zPosition=MAXFLOAT;
@@ -174,8 +174,8 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
     // height constraint
     [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[waitingViewPlayer(150)]" options:0 metrics:nil views:views]];
     // center align
-    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:waitingViewPlayer attribute:NSLayoutAttributeCenterX multiplier:1.0 constant:0]];
-    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:waitingViewPlayer attribute:NSLayoutAttributeCenterY multiplier:1.0 constant:0]];
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view.safeAreaLayoutGuide attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:waitingViewPlayer attribute:NSLayoutAttributeCenterX multiplier:1.0 constant:0]];
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view.safeAreaLayoutGuide attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:waitingViewPlayer attribute:NSLayoutAttributeCenterY multiplier:1.0 constant:0]];
     
     forceReloadCells=false;
     darkMode=false;
@@ -440,7 +440,7 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
         //
         topLabel.tag = TOP_LABEL_TAG;
         topLabel.backgroundColor = [UIColor clearColor];
-        topLabel.font = [UIFont boldSystemFontOfSize:18];
+        topLabel.font = [UIFont systemFontOfSize:17];
         topLabel.lineBreakMode=(settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value?
                                 ((settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value==2) ? NSLineBreakByTruncatingTail:NSLineBreakByTruncatingMiddle):NSLineBreakByTruncatingHead);;;
         topLabel.opaque=TRUE;
@@ -506,6 +506,9 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
                 case ONLINE_COLLECTIONS_MODLAND:topLabel.text=NSLocalizedString(@"MODLAND collection",@"");
                     bottomLabel.text=[NSString stringWithFormat:NSLocalizedString(@"%d entries",@""),mNbMODLANDFileEntries];
                     break;
+                case ONLINE_COLLECTIONS_AMP:topLabel.text=NSLocalizedString(@"AMP collection",@"");
+                    bottomLabel.text=NSLocalizedString(@"174K+ modules / Amiga Music Preservation",@"");
+                    break;
                 case ONLINE_COLLECTIONS_HVSC:topLabel.text=NSLocalizedString(@"HVSC collection",@"");
                     bottomLabel.text=[NSString stringWithFormat:NSLocalizedString(@"%d entries",@""),mNbHVSCFileEntries];
                     break;
@@ -518,9 +521,6 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
                 case ONLINE_COLLECTIONS_VGMRips:topLabel.text=NSLocalizedString(@"VGMRips collection",@"");
                     bottomLabel.text=NSLocalizedString(@"2K+ packs / 40K+ songs",@"");
                     break;
-//                case ONLINE_COLLECTIONS_P2612:topLabel.text=NSLocalizedString(@"P2612 collection",@"");
-//                    bottomLabel.text=NSLocalizedString(@"700+ set / Sega Geneis/Megadrive",@"");
-//                    break;
                 case ONLINE_COLLECTIONS_SNESM:topLabel.text=NSLocalizedString(@"SNESmusic collection",@"");
                     bottomLabel.text=NSLocalizedString(@"1500+ sets / Super Nintendo/Famicom",@"");
                     break;
@@ -709,20 +709,20 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
                                    message:NSLocalizedString(@"No internet connectivity or website down.",@"")];
                     }
                     break;
-//                case ONLINE_COLLECTIONS_P2612: //P2612
-//                    collectionViewController = [[RootViewControllerP2612WebParser alloc]  initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]];
-//                    //set new title
-//                    collectionViewController.title = @"P2612";
-//                    // Set new directory
-//                    ((RootViewControllerP2612WebParser*)collectionViewController)->browse_depth = 0;
-//                    ((RootViewControllerP2612WebParser*)collectionViewController)->detailViewController=detailViewController;
-//                    ((RootViewControllerP2612WebParser*)collectionViewController)->downloadViewController=downloadViewController;
-//                    
-//                    //collectionViewController.view.frame=self.view.frame;
-//                    [self adjustFrame:collectionViewController];
-//                    // And push the window
-//                    [self.navigationController pushViewController:collectionViewController animated:YES];
-//                    break;
+                case ONLINE_COLLECTIONS_AMP: //AMP
+                    collectionViewController = [[RootViewControllerAMPWebParser alloc]  initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]];
+                    //set new title
+                    collectionViewController.title = @"AMP";
+                    // Set new directory
+                    ((RootViewControllerAMPWebParser*)collectionViewController)->browse_depth = 0;
+                    ((RootViewControllerAMPWebParser*)collectionViewController)->detailViewController=detailViewController;
+                    ((RootViewControllerAMPWebParser*)collectionViewController)->downloadViewController=downloadViewController;
+                    
+                    //collectionViewController.view.frame=self.view.frame;
+                    [self adjustFrame:collectionViewController];
+                    // And push the window
+                    [self.navigationController pushViewController:collectionViewController animated:YES];
+                    break;
                 case ONLINE_COLLECTIONS_SNESM: //SnesMusic
                     //check if reachable
                     // Allocate a reachability object

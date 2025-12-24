@@ -32,6 +32,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 -(bool) initCarPlayAndRemote;
 -(void) refreshNowPlayingButtons;
+-(void) refreshMPItems;
 
 @end
 

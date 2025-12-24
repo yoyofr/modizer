@@ -3131,7 +3131,6 @@ int recording=0;
         
         mPlaylist[i].mPlaylistRating=-1;//rating;
         mPlaylist[i].mPlaylistCount=0;
-        //[self checkAvailableCovers:i];
         mPlaylist[i].cover_flag=-1;
     }
     
@@ -3189,7 +3188,6 @@ int recording=0;
         
         mPlaylist[i].mPlaylistRating=pl->entries[i].ratings;
         mPlaylist[i].mPlaylistCount=0;
-        //        [self checkAvailableCovers:i];
         mPlaylist[i].cover_flag=-1;
     }
     
@@ -3269,7 +3267,6 @@ int recording=0;
                 mPlaylist[i].mPlaylistFilename=[[NSString alloc] initWithString:[fileNames objectAtIndex:i]];
                 mPlaylist[i].mPlaylistFilepath=[[NSString alloc] initWithString:[filePaths objectAtIndex:i]];
                 mPlaylist[i].mPlaylistRating=-1;
-                //[self checkAvailableCovers:i];
                 mPlaylist[i].cover_flag=-1;
             }
             added_pos=0;
@@ -3284,7 +3281,6 @@ int recording=0;
                 mPlaylist[i+mPlaylist_pos+1].mPlaylistFilename=[[NSString alloc] initWithString:[fileNames objectAtIndex:i]];
                 mPlaylist[i+mPlaylist_pos+1].mPlaylistFilepath=[[NSString alloc] initWithString:[filePaths objectAtIndex:i]];
                 mPlaylist[i+mPlaylist_pos+1].mPlaylistRating=-1;
-                //[self checkAvailableCovers:i+mPlaylist_pos+1];
                 mPlaylist[i+mPlaylist_pos+1].cover_flag=-1;
             }
             added_pos=mPlaylist_pos+1;
@@ -3293,7 +3289,6 @@ int recording=0;
                 mPlaylist[i+mPlaylist_size].mPlaylistFilename=[[NSString alloc] initWithString:[fileNames objectAtIndex:i]];
                 mPlaylist[i+mPlaylist_size].mPlaylistFilepath=[[NSString alloc] initWithString:[filePaths objectAtIndex:i]];
                 mPlaylist[i+mPlaylist_size].mPlaylistRating=-1;
-                //[self checkAvailableCovers:i+mPlaylist_size];
                 mPlaylist[i+mPlaylist_size].cover_flag=-1;
             }
             added_pos=mPlaylist_size;
@@ -3312,7 +3307,6 @@ int recording=0;
             mPlaylist[i].mPlaylistFilepath=[[NSString alloc] initWithString:[filePaths objectAtIndex:i]];
             mPlaylist[i].mPlaylistCount=0;
             mPlaylist[i].mPlaylistRating=-1;
-            //[self checkAvailableCovers:i];
             mPlaylist[i].cover_flag=-1;
         }
         mPlaylist_size=add_entries_nb;
@@ -3355,7 +3349,6 @@ int recording=0;
             }
             mPlaylist[0].mPlaylistFilename=[[NSString alloc] initWithString:fileName];
             mPlaylist[0].mPlaylistFilepath=[[NSString alloc] initWithString:filePath];
-            //[self checkAvailableCovers:0];
             mPlaylist[0].cover_flag=-1;
             
             added_pos=0;
@@ -3368,13 +3361,11 @@ int recording=0;
             
             mPlaylist[mPlaylist_pos+1].mPlaylistFilename=[[NSString alloc] initWithString:fileName];
             mPlaylist[mPlaylist_pos+1].mPlaylistFilepath=[[NSString alloc] initWithString:filePath];
-            //[self checkAvailableCovers:mPlaylist_pos+1];
             mPlaylist[mPlaylist_pos+1].cover_flag=-1;
             added_pos=mPlaylist_pos+1;
         } else { //last
             mPlaylist[mPlaylist_size].mPlaylistFilename=[[NSString alloc] initWithString:fileName];
             mPlaylist[mPlaylist_size].mPlaylistFilepath=[[NSString alloc] initWithString:filePath];
-            //            [self checkAvailableCovers:mPlaylist_size];
             mPlaylist[mPlaylist_size].cover_flag=-1;
             added_pos=mPlaylist_size;
         }
@@ -3390,7 +3381,6 @@ int recording=0;
     } else { //create a new playlist with downloaded song
         mPlaylist[0].mPlaylistFilename=[[NSString alloc] initWithString:fileName];
         mPlaylist[0].mPlaylistFilepath=[[NSString alloc] initWithString:filePath];
-        //[self checkAvailableCovers:0];
         mPlaylist[0].cover_flag=-1;
         added_pos=0;
         mPlaylist_size=1;
@@ -3684,12 +3674,19 @@ int recording=0;
 }
 
 -(void) checkForCover:(NSString *)filePath {
-    NSString *pathFolderImgPNG,*pathFileImgPNG,*pathFolderImgJPG,*pathFolderImgJPEG,*pathFileImgJPG,*pathFileImgJPEG,*pathFolderImgGIF,*pathFileImgGIF;
+    NSString *pathFolderImgPNG,*pathCoverImgPNG,*pathFileImgPNG,
+             *pathFolderImgJPG,*pathCoverImgJPG,*pathFolderImgJPEG,
+             *pathCoverImgJPEG,*pathFileImgJPG,*pathFileImgJPEG,
+             *pathFolderImgGIF,*pathCoverImgGIF,*pathFileImgGIF;
     
     pathFolderImgPNG=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@/folder.png",[filePath stringByDeletingLastPathComponent]];
     pathFolderImgJPG=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@/folder.jpg",[filePath stringByDeletingLastPathComponent]];
     pathFolderImgJPEG=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@/folder.jpeg",[filePath stringByDeletingLastPathComponent]];
     pathFolderImgGIF=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@/folder.gif",[filePath stringByDeletingLastPathComponent]];
+    pathCoverImgPNG=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@/cover.png",[filePath stringByDeletingLastPathComponent]];
+    pathCoverImgJPG=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@/cover.jpg",[filePath stringByDeletingLastPathComponent]];
+    pathCoverImgJPEG=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@/cover.jpeg",[filePath stringByDeletingLastPathComponent]];
+    pathCoverImgGIF=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@/cover.gif",[filePath stringByDeletingLastPathComponent]];
     pathFileImgPNG=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@.png",[filePath stringByDeletingPathExtension]];
     pathFileImgJPG=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@.jpg",[filePath stringByDeletingPathExtension]];
     pathFileImgJPEG=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@.jpeg",[filePath stringByDeletingPathExtension]];
@@ -3716,12 +3713,15 @@ int recording=0;
         }
     }
     if (cover_img==nil) cover_img=[UIImage imageWithContentsOfFile:pathFolderImgJPG];
+    if (cover_img==nil) cover_img=[UIImage imageWithContentsOfFile:pathCoverImgJPG];
     if (cover_img==nil) cover_img=[UIImage imageWithContentsOfFile:pathFolderImgJPEG];
+    if (cover_img==nil) cover_img=[UIImage imageWithContentsOfFile:pathCoverImgJPEG];
     if (cover_img==nil) cover_img=[UIImage imageWithContentsOfFile:pathFolderImgPNG];
+    if (cover_img==nil) cover_img=[UIImage imageWithContentsOfFile:pathCoverImgPNG];
     if (cover_img==nil) {
         cover_img=[UIImage imageWithContentsOfFile:pathFolderImgGIF];
         if (cover_img) {
-            NSURL* firstUrl = [NSURL fileURLWithPath:pathFileImgGIF];
+            NSURL* firstUrl = [NSURL fileURLWithPath:pathFolderImgGIF];
             gifAnimation= [AnimatedGif getAnimationForGifAtUrl: firstUrl];
             
             gifAnimation.frame=CGRectMake(0, 0,cover_view.frame.size.width,cover_view.frame.size.height);
@@ -3729,6 +3729,18 @@ int recording=0;
             [cover_view addSubview:gifAnimation];
         }
     }
+    if (cover_img==nil) {
+        cover_img=[UIImage imageWithContentsOfFile:pathCoverImgGIF];
+        if (cover_img) {
+            NSURL* firstUrl = [NSURL fileURLWithPath:pathCoverImgGIF];
+            gifAnimation= [AnimatedGif getAnimationForGifAtUrl: firstUrl];
+            
+            gifAnimation.frame=CGRectMake(0, 0,cover_view.frame.size.width,cover_view.frame.size.height);
+            [gifAnimation layoutSubviews];
+            [cover_view addSubview:gifAnimation];
+        }
+    }
+
     
     if ((cover_img==nil)&&[mplayer isArchive]) {//archive mode, check tmp folder
         NSString *file,*cpath;
@@ -3873,7 +3885,6 @@ int recording=0;
     
     [self checkForCover:filePath];
     
-    //[self checkAvailableCovers:mPlaylist_pos];
     mPlaylist[mPlaylist_pos].cover_flag=-1;
     
     current_selmode=ARCSUB_MODE_NONE;
@@ -4303,7 +4314,6 @@ int recording=0;
     
     [self checkForCover:filePathTmp];
     
-    //[self checkAvailableCovers:mPlaylist_pos];
     mPlaylist[mPlaylist_pos].cover_flag=-1;
     
     current_selmode=ARCSUB_MODE_NONE;
@@ -5200,49 +5210,6 @@ bool coverAvailable;
         r = archive_read_free(a);  // Note 3
     }
     return ret;
-}
-
-
-- (void) checkAvailableCovers:(int)index {
-    NSString *pathFolderImgPNG,*pathCoverImgPNG,*pathFileImgPNG,*pathFolderImgJPG,*pathCoverImgJPG,*pathFileImgJPG,*pathFolderImgJPEG,*pathCoverImgJPEG,*pathFileImgJPEG,*pathFolderImgGIF,*pathCoverImgGIF,*pathFileImgGIF,*fullFilepath,*filePath,*basePath;
-    NSFileManager *fileMngr=[[NSFileManager alloc] init];
-    
-    mPlaylist[index].cover_flag=0; //used for cover flag
-    filePath=mPlaylist[index].mPlaylistFilepath;
-    basePath=[filePath stringByDeletingLastPathComponent];
-    
-    fullFilepath=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@",filePath];
-    
-    pathFolderImgPNG=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@/folder.png",basePath];
-    pathFolderImgJPG=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@/folder.jpg",basePath];
-    pathFolderImgJPEG=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@/folder.jpeg",basePath];
-    pathFolderImgGIF=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@/folder.gif",basePath];
-    pathCoverImgPNG=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@/cover.png",basePath];
-    pathCoverImgJPG=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@/cover.jpg",basePath];
-    pathCoverImgJPEG=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@/cover.jpeg",basePath];
-    pathCoverImgGIF=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@/cover.gif",basePath];
-    
-    basePath=[filePath stringByDeletingPathExtension];
-    pathFileImgPNG=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@.png",basePath];
-    pathFileImgJPG=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@.jpg",basePath];
-    pathFileImgJPEG=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@.jpeg",basePath];
-    pathFileImgGIF=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@.gif",basePath];
-    //isReadableFileAtPath
-    if ([fileMngr fileExistsAtPath:pathFileImgJPG]) mPlaylist[index].cover_flag=1;
-    else if ([fileMngr fileExistsAtPath:pathFileImgJPEG]) mPlaylist[index].cover_flag=2;
-    else if ([fileMngr fileExistsAtPath:pathFileImgPNG]) mPlaylist[index].cover_flag=3;
-    else if ([fileMngr fileExistsAtPath:pathFileImgGIF]) mPlaylist[index].cover_flag=4;
-    else if ([fileMngr fileExistsAtPath:pathFolderImgJPG]) mPlaylist[index].cover_flag=5;
-    else if ([fileMngr fileExistsAtPath:pathFolderImgJPEG]) mPlaylist[index].cover_flag=6;
-    else if ([fileMngr fileExistsAtPath:pathFolderImgPNG]) mPlaylist[index].cover_flag=7;
-    else if ([fileMngr fileExistsAtPath:pathFolderImgGIF]) mPlaylist[index].cover_flag=8;
-    else if ([fileMngr fileExistsAtPath:pathCoverImgJPG]) mPlaylist[index].cover_flag=9;
-    else if ([fileMngr fileExistsAtPath:pathCoverImgJPEG]) mPlaylist[index].cover_flag=10;
-    else if ([fileMngr fileExistsAtPath:pathCoverImgPNG]) mPlaylist[index].cover_flag=11;
-    else if ([fileMngr fileExistsAtPath:pathCoverImgGIF]) mPlaylist[index].cover_flag=12;
-    else if ([self scanArchiveForCover:[fullFilepath UTF8String] ]) mPlaylist[index].cover_flag=13;
-    
-    //[fileMngr release];
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////

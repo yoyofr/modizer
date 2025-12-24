@@ -74,7 +74,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
     
     NSFileManager *mFileMngr;
     
-    NSMutableArray *indexTitles;
+//    NSMutableArray *indexTitles;
     
     NSMutableDictionary *dictActionBtn;
     
@@ -82,17 +82,17 @@ extern volatile t_settings settings[MAX_SETTINGS];
     int browse_mode;
     int shouldFillKeys;
     
-    int indexTitleMode;
+//    int indexTitleMode;
     
     int mAccessoryButton;
     
     t_WEB_browse_entry *dbWEB_entries_data;
-    int dbWEB_entries_count[27];
-    t_WEB_browse_entry *dbWEB_entries[27];
+    int dbWEB_entries_count;
+    t_WEB_browse_entry *dbWEB_entries;
     int dbWEB_nb_entries,dbWEB_hasFiles;
     t_WEB_browse_entry *search_dbWEB_entries_data;
-    int search_dbWEB_entries_count[27];
-    t_WEB_browse_entry *search_dbWEB_entries[27];
+    int search_dbWEB_entries_count;
+    t_WEB_browse_entry *search_dbWEB_entries;
     int search_dbWEB;
     int search_dbWEB_nb_entries,search_dbWEB_hasFiles;
     
@@ -108,7 +108,11 @@ extern volatile t_settings settings[MAX_SETTINGS];
     bool darkMode;
     bool forceReloadCells;
     
-    int mClickedPrimAction;    
+    int mClickedPrimAction;
+    
+    bool entries_noMoreToLoad;
+    int arr_current_fetch_position;
+    int fillKeysInProgress;
 @public
     int browse_depth;
     bool has_letter_index;
@@ -133,6 +137,8 @@ extern volatile t_settings settings[MAX_SETTINGS];
 @property (nonatomic, retain) NSTimer *repeatTimer;
 @property (nonatomic, assign) int activeKey;
 @property (nonatomic, strong) id mdzChangeObserverToken;
+@property (nonatomic, assign) bool entries_noMoreToLoad;
+@property (nonatomic, assign) int arr_current_fetch_position,fillKeysInProgress;
 
 -(IBAction)goPlayer;
 

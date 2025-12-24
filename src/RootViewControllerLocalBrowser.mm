@@ -38,8 +38,6 @@ NSString *cutpaste_filesrcpath=nil;
 #include <pthread.h>
 extern pthread_mutex_t db_mutex;
 pthread_mutex_t db_mutexHVSCSTIL;
-//static int shouldFillKeys;
-static int local_flag;
 static volatile int mPopupAnimation=0;
 
 #import "RootViewControllerLocalBrowser.h"
@@ -58,8 +56,6 @@ extern volatile t_settings settings[MAX_SETTINGS];
 @synthesize mFileMngr;
 @synthesize detailViewController,tableView;
 @synthesize sBar;
-@synthesize list;
-@synthesize keys;
 @synthesize currentPath;
 @synthesize childController;
 @synthesize mSearchText;
@@ -473,8 +469,6 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     mSearchText=nil;
     mCurrentWinAskedDownload=0;
     mClickedPrimAction=0;
-    list=nil;
-    keys=nil;
     
     if (browse_depth==0) { //Local mode
         currentPath = @"Documents";
@@ -483,68 +477,6 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     
     UIBarButtonItem *item = [[UIBarButtonItem alloc] initWithImage:[UIImage systemImageNamed:NOW_PLAYING_ICON] style:UIBarButtonItemStylePlain target:self action:@selector(goPlayer)];
     self.navigationItem.rightBarButtonItem = item;
-    
-    indexTitles = [[NSMutableArray alloc] init];
-    [indexTitles addObject:@"{search}"];
-    [indexTitles addObject:@"#"];
-    [indexTitles addObject:@"A"];
-    [indexTitles addObject:@"B"];
-    [indexTitles addObject:@"C"];
-    [indexTitles addObject:@"D"];
-    [indexTitles addObject:@"E"];
-    [indexTitles addObject:@"F"];
-    [indexTitles addObject:@"G"];
-    [indexTitles addObject:@"H"];
-    [indexTitles addObject:@"I"];
-    [indexTitles addObject:@"J"];
-    [indexTitles addObject:@"K"];
-    [indexTitles addObject:@"L"];
-    [indexTitles addObject:@"M"];
-    [indexTitles addObject:@"N"];
-    [indexTitles addObject:@"O"];
-    [indexTitles addObject:@"P"];
-    [indexTitles addObject:@"Q"];
-    [indexTitles addObject:@"R"];
-    [indexTitles addObject:@"S"];
-    [indexTitles addObject:@"T"];
-    [indexTitles addObject:@"U"];
-    [indexTitles addObject:@"V"];
-    [indexTitles addObject:@"W"];
-    [indexTitles addObject:@"X"];
-    [indexTitles addObject:@"Y"];
-    [indexTitles addObject:@"Z"];
-    
-    indexTitlesSpace = [[NSMutableArray alloc] init];
-    [indexTitlesSpace addObject:@"{search}"];
-    [indexTitlesSpace addObject:@" "];
-    [indexTitlesSpace addObject:@"#"];
-    [indexTitlesSpace addObject:@"A"];
-    [indexTitlesSpace addObject:@"B"];
-    [indexTitlesSpace addObject:@"C"];
-    [indexTitlesSpace addObject:@"D"];
-    [indexTitlesSpace addObject:@"E"];
-    [indexTitlesSpace addObject:@"F"];
-    [indexTitlesSpace addObject:@"G"];
-    [indexTitlesSpace addObject:@"H"];
-    [indexTitlesSpace addObject:@"I"];
-    [indexTitlesSpace addObject:@"J"];
-    [indexTitlesSpace addObject:@"K"];
-    [indexTitlesSpace addObject:@"L"];
-    [indexTitlesSpace addObject:@"M"];
-    [indexTitlesSpace addObject:@"N"];
-    [indexTitlesSpace addObject:@"O"];
-    [indexTitlesSpace addObject:@"P"];
-    [indexTitlesSpace addObject:@"Q"];
-    [indexTitlesSpace addObject:@"R"];
-    [indexTitlesSpace addObject:@"S"];
-    [indexTitlesSpace addObject:@"T"];
-    [indexTitlesSpace addObject:@"U"];
-    [indexTitlesSpace addObject:@"V"];
-    [indexTitlesSpace addObject:@"W"];
-    [indexTitlesSpace addObject:@"X"];
-    [indexTitlesSpace addObject:@"Y"];
-    [indexTitlesSpace addObject:@"Z"];
-    
     
     /////////////////////////////////////
     // Waiting view
@@ -560,8 +492,8 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     // height constraint
     [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[waitingView(150)]" options:0 metrics:nil views:views]];
     // center align
-    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:waitingView attribute:NSLayoutAttributeCenterX multiplier:1.0 constant:0]];
-    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:waitingView attribute:NSLayoutAttributeCenterY multiplier:1.0 constant:0]];
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view.safeAreaLayoutGuide attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:waitingView attribute:NSLayoutAttributeCenterX multiplier:1.0 constant:0]];
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view.safeAreaLayoutGuide attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:waitingView attribute:NSLayoutAttributeCenterY multiplier:1.0 constant:0]];
     
     waitingViewExtract = [[WaitingView alloc] init];
     waitingViewExtract.layer.zPosition=MAXFLOAT;
@@ -574,8 +506,8 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     // height constraint
     [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[waitingViewExtract(150)]" options:0 metrics:nil views:views]];
     // center align
-    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:waitingViewExtract attribute:NSLayoutAttributeCenterX multiplier:1.0 constant:0]];
-    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:waitingViewExtract attribute:NSLayoutAttributeCenterY multiplier:1.0 constant:0]];
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view.safeAreaLayoutGuide attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:waitingViewExtract attribute:NSLayoutAttributeCenterX multiplier:1.0 constant:0]];
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view.safeAreaLayoutGuide attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:waitingViewExtract attribute:NSLayoutAttributeCenterY multiplier:1.0 constant:0]];
     
     waitingViewPlayer = [[WaitingView alloc] init];
     waitingViewPlayer.layer.zPosition=MAXFLOAT;
@@ -588,8 +520,8 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     // height constraint
     [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[waitingViewPlayer(150)]" options:0 metrics:nil views:views]];
     // center align
-    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:waitingViewPlayer attribute:NSLayoutAttributeCenterX multiplier:1.0 constant:0]];
-    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:waitingViewPlayer attribute:NSLayoutAttributeCenterY multiplier:1.0 constant:0]];
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view.safeAreaLayoutGuide attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:waitingViewPlayer attribute:NSLayoutAttributeCenterX multiplier:1.0 constant:0]];
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view.safeAreaLayoutGuide attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:waitingViewPlayer attribute:NSLayoutAttributeCenterY multiplier:1.0 constant:0]];
     
     
     
@@ -840,13 +772,11 @@ static int qsort_CompareArcEntries(const void *entryA, const void *entryB) {
     search_local=0;
     
     if (search_local_nb_entries) {
-        for (int i=0;i<27;i++) {
-            for (int j=0;j<search_local_entries_count[i];j++) {
-                search_local_entries[i][j].label=nil;
-                search_local_entries[i][j].fullpath=nil;
+            for (int j=0;j<search_local_entries_count;j++) {
+                search_local_entries[j].label=nil;
+                search_local_entries[j].fullpath=nil;
             }
-            search_local_entries[i]=NULL;
-        }
+            search_local_entries=NULL;
         search_local_nb_entries=0;
         free(search_local_entries_data);
     }
@@ -856,37 +786,33 @@ static int qsort_CompareArcEntries(const void *entryA, const void *entryB) {
         
         search_local_entries_data=(t_local_browse_entry*)calloc(local_nb_entries,sizeof(t_local_browse_entry));
         
-        for (int i=0;i<27;i++) {
-            search_local_entries_count[i]=0;
-            if (local_entries_count[i]) search_local_entries[i]=&(search_local_entries_data[search_local_nb_entries]);
-            for (int j=0;j<local_entries_count[i];j++)  {
+            search_local_entries_count=0;
+            if (local_entries_count) search_local_entries=search_local_entries_data;
+            for (int j=0;j<local_entries_count;j++)  {
                 
                 bool found=false;
                 if ((browseType==0)&&mShowSubdir) {
-                    found=[self searchStringRegExp:mSearchText sourceString:local_entries[i][j].label];
-                    if (!found) found=[self searchStringRegExp:mSearchText sourceString:local_entries[i][j].fullpath];
+                    found=[self searchStringRegExp:mSearchText sourceString:local_entries[j].label];
+                    if (!found) found=[self searchStringRegExp:mSearchText sourceString:local_entries[j].fullpath];
                 } else {
-                    found=[self searchStringRegExp:mSearchText sourceString:local_entries[i][j].label];
+                    found=[self searchStringRegExp:mSearchText sourceString:local_entries[j].label];
                 }
                 
                 if  (found ||([mSearchText length]==0)) {
-                    search_local_entries[i][search_local_entries_count[i]].label=local_entries[i][j].label;
-                    search_local_entries[i][search_local_entries_count[i]].fullpath=local_entries[i][j].fullpath;
-                    search_local_entries[i][search_local_entries_count[i]].playcount=local_entries[i][j].playcount;
-                    search_local_entries[i][search_local_entries_count[i]].rating=local_entries[i][j].rating;
-                    search_local_entries[i][search_local_entries_count[i]].type=local_entries[i][j].type;
+                    search_local_entries[search_local_entries_count].label=local_entries[j].label;
+                    search_local_entries[search_local_entries_count].fullpath=local_entries[j].fullpath;
+                    search_local_entries[search_local_entries_count].playcount=local_entries[j].playcount;
+                    search_local_entries[search_local_entries_count].rating=local_entries[j].rating;
+                    search_local_entries[search_local_entries_count].type=local_entries[j].type;
                     
-                    search_local_entries[i][search_local_entries_count[i]].song_length=local_entries[i][j].song_length;
-                    search_local_entries[i][search_local_entries_count[i]].songs=local_entries[i][j].songs;
-                    search_local_entries[i][search_local_entries_count[i]].channels_nb=local_entries[i][j].channels_nb;
+                    search_local_entries[search_local_entries_count].song_length=local_entries[j].song_length;
+                    search_local_entries[search_local_entries_count].songs=local_entries[j].songs;
+                    search_local_entries[search_local_entries_count].channels_nb=local_entries[j].channels_nb;
                     
-                    search_local_entries_count[i]++;
+                    search_local_entries_count++;
                     search_local_nb_entries++;
                 }
             }
-            
-            
-        }
         no_reentrant=false;
         return;
     }
@@ -904,17 +830,15 @@ static int qsort_CompareArcEntries(const void *entryA, const void *entryB) {
             local_entries_data[i].label=nil;
             local_entries_data[i].fullpath=nil;
         }
-        for (int i=0;i<27;i++) {
-            for (int j=0;j<local_entries_count[i];j++) {
-                local_entries[i][j].label=nil;
-                local_entries[i][j].fullpath=nil;
+            for (int j=0;j<local_entries_count;j++) {
+                local_entries[j].label=nil;
+                local_entries[j].fullpath=nil;
             }
-            local_entries[i]=NULL;
-        }
+            local_entries=NULL;
         free(local_entries_data);local_entries_data=NULL;
         local_nb_entries=0;
     }
-    for (int i=0;i<27;i++) local_entries_count[i]=0;
+    local_entries_count=0;
     
     
     
@@ -967,18 +891,10 @@ static int qsort_CompareArcEntries(const void *entryA, const void *entryB) {
                     }
                 }
                 if (!filtered) {
-                    
-                    const char *str=[file UTF8String];
-                    int index=0;
-                    if ((str[0]>='A')&&(str[0]<='Z') ) index=(str[0]-'A'+1);
-                    if ((str[0]>='a')&&(str[0]<='z') ) index=(str[0]-'a'+1);
-                    local_entries_count[index]++;
+                    local_entries_count++;
                     local_nb_entries++;
                 }
             }
-            
-            
-            
             
             if (local_nb_entries) {
                 //2nd initialize array to receive entries
@@ -1000,18 +916,16 @@ static int qsort_CompareArcEntries(const void *entryA, const void *entryB) {
                 } else local_nb_entries_limit=0;
                 if (local_entries_data) {
                     local_entries_index=0;
-                    for (int i=0;i<27;i++)
-                        if (local_entries_count[i]) {
-                            if (local_entries_index+local_entries_count[i]>local_nb_entries) {
-                                local_entries_count[i]=local_nb_entries-local_entries_index;
-                                local_entries[i]=&(local_entries_data[local_entries_index]);
-                                local_entries_index+=local_entries_count[i];
-                                local_entries_count[i]=0;
-                                for (int j=i+1;j<27;j++) local_entries_count[i]=0;
+                        if (local_entries_count) {
+                            if (local_entries_index+local_entries_count>local_nb_entries) {
+                                local_entries_count=local_nb_entries-local_entries_index;
+                                local_entries=&(local_entries_data[local_entries_index]);
+                                local_entries_index+=local_entries_count;
+                                local_entries_count=0;
                             } else {
-                                local_entries[i]=&(local_entries_data[local_entries_index]);
-                                local_entries_index+=local_entries_count[i];
-                                local_entries_count[i]=0;
+                                local_entries=&(local_entries_data[local_entries_index]);
+                                local_entries_index+=local_entries_count;
+                                local_entries_count=0;
                             }
                         }
                     
@@ -1038,22 +952,17 @@ static int qsort_CompareArcEntries(const void *entryA, const void *entryB) {
                         
                         if (!filtered) {
                             
-                            const char *str;
-                            str=[file UTF8String];
-                            int index=0;
-                            if ((str[0]>='A')&&(str[0]<='Z') ) index=(str[0]-'A'+1);
-                            if ((str[0]>='a')&&(str[0]<='z') ) index=(str[0]-'a'+1);
-                            local_entries[index][local_entries_count[index]].type=1;
-                            local_entries[index][local_entries_count[index]].label=[[NSString alloc ] initWithString:[file lastPathComponent]];
-                            local_entries[index][local_entries_count[index]].fullpath=[[NSString alloc] initWithFormat:@"%@?%d",currentPath,i];
+                            local_entries[local_entries_count].type=1;
+                            local_entries[local_entries_count].label=[[NSString alloc ] initWithString:[file lastPathComponent]];
+                            local_entries[local_entries_count].fullpath=[[NSString alloc] initWithFormat:@"%@?%d",currentPath,i];
                             
-                            local_entries[index][local_entries_count[index]].rating=0;
-                            local_entries[index][local_entries_count[index]].playcount=0;
-                            local_entries[index][local_entries_count[index]].song_length=0;
-                            local_entries[index][local_entries_count[index]].songs=1;//0;
-                            local_entries[index][local_entries_count[index]].channels_nb=0;
+                            local_entries[local_entries_count].rating=0;
+                            local_entries[local_entries_count].playcount=0;
+                            local_entries[local_entries_count].song_length=0;
+                            local_entries[local_entries_count].songs=1;//0;
+                            local_entries[local_entries_count].channels_nb=0;
                             
-                            snprintf(sqlStatement,1024,"SELECT play_count,rating,length,channels,songs,avg_rating FROM user_stats WHERE fullpath=\"%s\"",[local_entries[index][local_entries_count[index]].fullpath UTF8String]);
+                            snprintf(sqlStatement,1024,"SELECT play_count,rating,length,channels,songs,avg_rating FROM user_stats WHERE fullpath=\"%s\"",[local_entries[local_entries_count].fullpath UTF8String]);
                             err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
                             if (err==SQLITE_OK){
                                 while (sqlite3_step(stmt) == SQLITE_ROW) {
@@ -1064,16 +973,15 @@ static int qsort_CompareArcEntries(const void *entryA, const void *entryB) {
                                         rating=(signed char)sqlite3_column_int(stmt, 5);
                                         if (rating) rating=1;
                                     }
-                                    local_entries[index][local_entries_count[index]].playcount=(short int)sqlite3_column_int(stmt, 0);
-                                    local_entries[index][local_entries_count[index]].rating=rating;
-                                    local_entries[index][local_entries_count[index]].song_length=(int)sqlite3_column_int(stmt, 2);
-                                    local_entries[index][local_entries_count[index]].channels_nb=(char)sqlite3_column_int(stmt, 3);
-                                    //local_entries[index][local_entries_count[index]].songs=(int)sqlite3_column_int(stmt, 4);
+                                    local_entries[local_entries_count].playcount=(short int)sqlite3_column_int(stmt, 0);
+                                    local_entries[local_entries_count].rating=rating;
+                                    local_entries[local_entries_count].song_length=(int)sqlite3_column_int(stmt, 2);
+                                    local_entries[local_entries_count].channels_nb=(char)sqlite3_column_int(stmt, 3);
                                 }
                                 sqlite3_finalize(stmt);
                             } else MDZELog("ErrSQL : %d",err);
                             
-                            local_entries_count[index]++;
+                            local_entries_count++;
                             
                             if (local_nb_entries_limit) {
                                 local_nb_entries_limit--;
@@ -1145,12 +1053,7 @@ static int qsort_CompareArcEntries(const void *entryA, const void *entryB) {
                         }
                     }
                     if (!filtered) {
-                        
-                        const char *str=[file UTF8String];
-                        int index=0;
-                        if ((str[0]>='A')&&(str[0]<='Z') ) index=(str[0]-'A'+1);
-                        if ((str[0]>='a')&&(str[0]<='z') ) index=(str[0]-'a'+1);
-                        local_entries_count[index]++;
+                        local_entries_count++;
                         local_nb_entries++;
                     }
                     gme_free_info(gme_info);
@@ -1179,18 +1082,16 @@ static int qsort_CompareArcEntries(const void *entryA, const void *entryB) {
             } else local_nb_entries_limit=0;
             if (local_entries_data) {
                 local_entries_index=0;
-                for (int i=0;i<27;i++)
-                    if (local_entries_count[i]) {
-                        if (local_entries_index+local_entries_count[i]>local_nb_entries) {
-                            local_entries_count[i]=local_nb_entries-local_entries_index;
-                            local_entries[i]=&(local_entries_data[local_entries_index]);
-                            local_entries_index+=local_entries_count[i];
-                            local_entries_count[i]=0;
-                            for (int j=i+1;j<27;j++) local_entries_count[i]=0;
+                    if (local_entries_count) {
+                        if (local_entries_index+local_entries_count>local_nb_entries) {
+                            local_entries_count=local_nb_entries-local_entries_index;
+                            local_entries=&(local_entries_data[local_entries_index]);
+                            local_entries_index+=local_entries_count;
+                            local_entries_count=0;
                         } else {
-                            local_entries[i]=&(local_entries_data[local_entries_index]);
-                            local_entries_index+=local_entries_count[i];
-                            local_entries_count[i]=0;
+                            local_entries=&(local_entries_data[local_entries_index]);
+                            local_entries_index+=local_entries_count;
+                            local_entries_count=0;
                         }
                     }
                 
@@ -1234,22 +1135,17 @@ static int qsort_CompareArcEntries(const void *entryA, const void *entryB) {
                             }
                             if (!filtered) {
                                 
-                                const char *str;
-                                str=[file UTF8String];
-                                int index=0;
-                                if ((str[0]>='A')&&(str[0]<='Z') ) index=(str[0]-'A'+1);
-                                if ((str[0]>='a')&&(str[0]<='z') ) index=(str[0]-'a'+1);
-                                local_entries[index][local_entries_count[index]].type=1;
-                                local_entries[index][local_entries_count[index]].label=[[NSString alloc ] initWithString:[file lastPathComponent]];
-                                local_entries[index][local_entries_count[index]].fullpath=[[NSString alloc] initWithFormat:@"%@?%d",currentPath,i];
+                                local_entries[local_entries_count].type=1;
+                                local_entries[local_entries_count].label=[[NSString alloc ] initWithString:[file lastPathComponent]];
+                                local_entries[local_entries_count].fullpath=[[NSString alloc] initWithFormat:@"%@?%d",currentPath,i];
                                 
-                                local_entries[index][local_entries_count[index]].rating=0;
-                                local_entries[index][local_entries_count[index]].playcount=0;
-                                local_entries[index][local_entries_count[index]].song_length=0;
-                                local_entries[index][local_entries_count[index]].songs=1;//0;
-                                local_entries[index][local_entries_count[index]].channels_nb=0;
+                                local_entries[local_entries_count].rating=0;
+                                local_entries[local_entries_count].playcount=0;
+                                local_entries[local_entries_count].song_length=0;
+                                local_entries[local_entries_count].songs=1;//0;
+                                local_entries[local_entries_count].channels_nb=0;
                                 
-                                snprintf(sqlStatement,1024,"SELECT play_count,rating,length,channels,songs,avg_rating FROM user_stats WHERE fullpath=\"%s\"",[local_entries[index][local_entries_count[index]].fullpath UTF8String]);
+                                snprintf(sqlStatement,1024,"SELECT play_count,rating,length,channels,songs,avg_rating FROM user_stats WHERE fullpath=\"%s\"",[local_entries[local_entries_count].fullpath UTF8String]);
                                 err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
                                 if (err==SQLITE_OK){
                                     while (sqlite3_step(stmt) == SQLITE_ROW) {
@@ -1260,16 +1156,15 @@ static int qsort_CompareArcEntries(const void *entryA, const void *entryB) {
                                             rating=(signed char)sqlite3_column_int(stmt, 5);
                                             if (rating) rating=1;
                                         }
-                                        local_entries[index][local_entries_count[index]].playcount=(short int)sqlite3_column_int(stmt, 0);
-                                        local_entries[index][local_entries_count[index]].rating=rating;
-                                        local_entries[index][local_entries_count[index]].song_length=(int)sqlite3_column_int(stmt, 2);
-                                        local_entries[index][local_entries_count[index]].channels_nb=(char)sqlite3_column_int(stmt, 3);
-                                        //local_entries[index][local_entries_count[index]].songs=(int)sqlite3_column_int(stmt, 4);
+                                        local_entries[local_entries_count].playcount=(short int)sqlite3_column_int(stmt, 0);
+                                        local_entries[local_entries_count].rating=rating;
+                                        local_entries[local_entries_count].song_length=(int)sqlite3_column_int(stmt, 2);
+                                        local_entries[local_entries_count].channels_nb=(char)sqlite3_column_int(stmt, 3);
                                     }
                                     sqlite3_finalize(stmt);
                                 } else MDZELog("ErrSQL : %d",err);
                                 
-                                local_entries_count[index]++;
+                                local_entries_count++;
                                 
                                 if (local_nb_entries_limit) {
                                     local_nb_entries_limit--;
@@ -1285,21 +1180,11 @@ static int qsort_CompareArcEntries(const void *entryA, const void *entryB) {
             }
         }
     } else if (browseType==1) { //Archive
-//        struct archive *a;
-//        struct archive_entry *entry;
-//        int r;
-                
         char **archive_entries;
         int archive_entries_count;
         int found=[ModizFileHelper scanarchive:[cpath UTF8String] filesList_ptr:&archive_entries filesCount_ptr:&archive_entries_count];
         int file_idx=0;
         
-//        a = archive_read_new();
-//        archive_read_support_filter_all(a);
-//        archive_read_support_format_raw(a);
-//        archive_read_support_format_all(a);
-//        r = archive_read_open_filename(a, [cpath UTF8String], 16384); // Note 1
-//        if (r == ARCHIVE_OK) {
         if (found) {
             
             //sort the file list
@@ -1324,11 +1209,8 @@ static int qsort_CompareArcEntries(const void *entryA, const void *entryB) {
                 [ModizFileHelper extractToPath:[cpath UTF8String] path:[tmpPath UTF8String] caller:self progress:extractProgress context:ExtractBrowserListProgressObserverContext];
             }
             
-//            while (archive_read_next_header(a, &entry) == ARCHIVE_OK) {
             while (file_idx<found) {
                 
-                
-//                file=[ModizFileHelper getCorrectFileName:[cpath UTF8String] archive:a entry:entry];
                 file=[NSString stringWithUTF8String:archive_entries[file_idx]];
                 
                 NSString *extension;
@@ -1352,21 +1234,14 @@ static int qsort_CompareArcEntries(const void *entryA, const void *entryB) {
                     else if ([filetype_ext indexOfObject:file_no_ext]!=NSNotFound) found=1;
                     
                     if (found)  {
-                        const char *str=[[file lastPathComponent] UTF8String];
-                        int index=0;
-                        if ((str[0]>='A')&&(str[0]<='Z') ) index=(str[0]-'A'+1);
-                        if ((str[0]>='a')&&(str[0]<='z') ) index=(str[0]-'a'+1);
-                        local_entries_count[index]++;
+                        local_entries_count++;
                         local_nb_entries++;
                     }
                 }
-                
-                //archive_read_data_skip(a);  // Note 2
                 file_idx++;
             }
         } else {
         }
-//        r = archive_read_free(a);  // Note 3
         
         if (local_nb_entries) {
             //2nd initialize array to receive entries
@@ -1388,27 +1263,19 @@ static int qsort_CompareArcEntries(const void *entryA, const void *entryB) {
             } else local_nb_entries_limit=0;
             if (local_entries_data) {
                 local_entries_index=0;
-                for (int i=0;i<27;i++)
-                    if (local_entries_count[i]) {
-                        if (local_entries_index+local_entries_count[i]>local_nb_entries) {
-                            local_entries_count[i]=local_nb_entries-local_entries_index;
-                            local_entries[i]=&(local_entries_data[local_entries_index]);
-                            local_entries_index+=local_entries_count[i];
-                            local_entries_count[i]=0;
-                            for (int j=i+1;j<27;j++) local_entries_count[i]=0;
+                    if (local_entries_count) {
+                        if (local_entries_index+local_entries_count>local_nb_entries) {
+                            local_entries_count=local_nb_entries-local_entries_index;
+                            local_entries=&(local_entries_data[local_entries_index]);
+                            local_entries_index+=local_entries_count;
+                            local_entries_count=0;
                         } else {
-                            local_entries[i]=&(local_entries_data[local_entries_index]);
-                            local_entries_index+=local_entries_count[i];
-                            local_entries_count[i]=0;
+                            local_entries=&(local_entries_data[local_entries_index]);
+                            local_entries_index+=local_entries_count;
+                            local_entries_count=0;
                         }
                     }
                 
-//                a = archive_read_new();
-//                archive_read_support_filter_all(a);
-//                archive_read_support_format_raw(a);
-//                archive_read_support_format_all(a);
-//                r = archive_read_open_filename(a, [cpath UTF8String], 10240); // Note 1
-//                if (r == ARCHIVE_OK) {
                 file_idx=0;
                 if (found) {
                     int arc_counter=0;
@@ -1448,31 +1315,23 @@ static int qsort_CompareArcEntries(const void *entryA, const void *entryB) {
                                     //tmp_convstr=mdx_make_sjis_to_syscharset(tmp_str);
                                     other_encoding=1;
                                 }
-                                int index=0;
-                                if ((str[0]>='A')&&(str[0]<='Z') ) index=(str[0]-'A'+1);
-                                if ((str[0]>='a')&&(str[0]<='z') ) index=(str[0]-'a'+1);
-                                local_entries[index][local_entries_count[index]].type=1;
+                                local_entries[local_entries_count].type=1;
                                 //NOT Supported: archive or multisongs in an archive
-                                //                                //check if Archive file
-                                //                                if ([archivetype_ext indexOfObject:extension]!=NSNotFound) local_entries[index][local_entries_count[index]].type=2;
-                                //                                else if ([archivetype_ext indexOfObject:file_no_ext]!=NSNotFound) local_entries[index][local_entries_count[index]].type=2;
-                                //                                //check if Multisongs file
-                                
                                 
                                 if (other_encoding) {
-                                    local_entries[index][local_entries_count[index]].label=[[NSString alloc ] initWithCString:tmp_str encoding:NSUTF8StringEncoding];
+                                    local_entries[local_entries_count].label=[[NSString alloc ] initWithCString:tmp_str encoding:NSUTF8StringEncoding];
                                     //	free(tmp_convstr);
-                                } else local_entries[index][local_entries_count[index]].label=[[NSString alloc ] initWithString:[file lastPathComponent]];
+                                } else local_entries[local_entries_count].label=[[NSString alloc ] initWithString:[file lastPathComponent]];
                                 
-                                local_entries[index][local_entries_count[index]].fullpath=[[NSString alloc] initWithFormat:@"%@@%d",currentPath,arc_counter];
+                                local_entries[local_entries_count].fullpath=[[NSString alloc] initWithFormat:@"%@@%d",currentPath,arc_counter];
                                 
-                                local_entries[index][local_entries_count[index]].rating=0;
-                                local_entries[index][local_entries_count[index]].playcount=0;
-                                local_entries[index][local_entries_count[index]].song_length=0;
-                                local_entries[index][local_entries_count[index]].songs=0;
-                                local_entries[index][local_entries_count[index]].channels_nb=0;
+                                local_entries[local_entries_count].rating=0;
+                                local_entries[local_entries_count].playcount=0;
+                                local_entries[local_entries_count].song_length=0;
+                                local_entries[local_entries_count].songs=0;
+                                local_entries[local_entries_count].channels_nb=0;
                                 
-                                snprintf(sqlStatement,1024,"SELECT play_count,rating,length,channels,songs,avg_rating FROM user_stats WHERE fullpath=\"%s\"",[local_entries[index][local_entries_count[index]].fullpath UTF8String]);
+                                snprintf(sqlStatement,1024,"SELECT play_count,rating,length,channels,songs,avg_rating FROM user_stats WHERE fullpath=\"%s\"",[local_entries[local_entries_count].fullpath UTF8String]);
                                 err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
                                 if (err==SQLITE_OK){
                                     while (sqlite3_step(stmt) == SQLITE_ROW) {
@@ -1483,16 +1342,16 @@ static int qsort_CompareArcEntries(const void *entryA, const void *entryB) {
                                             rating=(signed char)sqlite3_column_int(stmt, 5);
                                             if (rating) rating=1;
                                         }
-                                        local_entries[index][local_entries_count[index]].playcount=(short int)sqlite3_column_int(stmt, 0);
-                                        local_entries[index][local_entries_count[index]].rating=rating;
-                                        local_entries[index][local_entries_count[index]].song_length=(int)sqlite3_column_int(stmt, 2);
-                                        local_entries[index][local_entries_count[index]].channels_nb=(char)sqlite3_column_int(stmt, 3);
-                                        local_entries[index][local_entries_count[index]].songs=(int)sqlite3_column_int(stmt, 4);
+                                        local_entries[local_entries_count].playcount=(short int)sqlite3_column_int(stmt, 0);
+                                        local_entries[local_entries_count].rating=rating;
+                                        local_entries[local_entries_count].song_length=(int)sqlite3_column_int(stmt, 2);
+                                        local_entries[local_entries_count].channels_nb=(char)sqlite3_column_int(stmt, 3);
+                                        local_entries[local_entries_count].songs=(int)sqlite3_column_int(stmt, 4);
                                     }
                                     sqlite3_finalize(stmt);
                                 } else MDZELog("ErrSQL : %d",err);
                                 
-                                local_entries_count[index]++;
+                                local_entries_count++;
                                 arc_counter++;
                                 
                                 if (local_nb_entries_limit) {
@@ -1501,11 +1360,9 @@ static int qsort_CompareArcEntries(const void *entryA, const void *entryB) {
                                 }
                             }
                         }
-//                        archive_read_data_skip(a);  // Note 2
                         file_idx++;
                     }
                 }
-                //r = archive_read_free(a);  // Note 3
             }
             
         }
@@ -1552,17 +1409,6 @@ static int qsort_CompareArcEntries(const void *entryA, const void *entryB) {
         int file_idx=0;
         int file_cnt=[sortedDirContent count];
         for (fileURL in sortedDirContent) {
-            //check if dir
-            //rdir.location=NSNotFound;
-            //rdir = [file rangeOfString:@"." options:NSCaseInsensitiveSearch];
-            
-            /*file_idx++;
-             if ((file_idx&127)==0)
-             dispatch_sync(dispatch_get_main_queue(), ^(void){
-             //Run UI Updates
-             [self updateWaitingDetail:[NSString stringWithFormat:@"%d/%d",file_idx,file_cnt]];
-             });*/
-            
             //[mFileMngr fileExistsAtPath:[cpath stringByAppendingFormat:@"/%@",file] isDirectory:&isDir];
             NSNumber *isDirectory = nil;
             [fileURL getResourceValue:&isDirectory forKey:NSURLIsDirectoryKey error:nil];
@@ -1593,11 +1439,7 @@ static int qsort_CompareArcEntries(const void *entryA, const void *entryB) {
                                     }
                                 }
                                 if (!filtered) {
-                                    const char *str=[file UTF8String];
-                                    int index=0;
-                                    if ((str[0]>='A')&&(str[0]<='Z') ) index=(str[0]-'A'+1);
-                                    if ((str[0]>='a')&&(str[0]<='z') ) index=(str[0]-'a'+1);
-                                    local_entries_count[index]++;
+                                    local_entries_count++;
                                     local_nb_entries++;
                                 }
                             }
@@ -1632,13 +1474,7 @@ static int qsort_CompareArcEntries(const void *entryA, const void *entryB) {
                         else if ([archivetype_ext indexOfObject:extension]!=NSNotFound) found=1;
                         
                         if (found)  {
-                            const char *str;
-                            if (mShowSubdir==2) str=[file UTF8String];
-                            else str=[[file lastPathComponent] UTF8String];
-                            int index=0;
-                            if ((str[0]>='A')&&(str[0]<='Z') ) index=(str[0]-'A'+1);
-                            if ((str[0]>='a')&&(str[0]<='z') ) index=(str[0]-'a'+1);
-                            local_entries_count[index]++;
+                            local_entries_count++;
                             local_nb_entries++;
                         }
                     }
@@ -1667,27 +1503,22 @@ static int qsort_CompareArcEntries(const void *entryA, const void *entryB) {
             } else local_nb_entries_limit=0;
             if (local_entries_data) {
                 local_entries_index=0;
-                for (int i=0;i<27;i++)
-                    if (local_entries_count[i]) {
-                        if (local_entries_index+local_entries_count[i]>local_nb_entries) {
-                            local_entries_count[i]=local_nb_entries-local_entries_index;
-                            local_entries[i]=&(local_entries_data[local_entries_index]);
-                            local_entries_index+=local_entries_count[i];
-                            local_entries_count[i]=0;
-                            for (int j=i+1;j<27;j++) local_entries_count[i]=0;
+                    if (local_entries_count) {
+                        if (local_entries_index+local_entries_count>local_nb_entries) {
+                            local_entries_count=local_nb_entries-local_entries_index;
+                            local_entries=&(local_entries_data[local_entries_index]);
+                            local_entries_index+=local_entries_count;
+                            local_entries_count=0;
                         } else {
-                            local_entries[i]=&(local_entries_data[local_entries_index]);
-                            local_entries_index+=local_entries_count[i];
-                            local_entries_count[i]=0;
+                            local_entries=&(local_entries_data[local_entries_index]);
+                            local_entries_index+=local_entries_count;
+                            local_entries_count=0;
                         }
                     }
                 
                 // Second check count for each section
                 for (fileURL in sortedDirContent) {
                     if (shouldStop) break;
-                    //rdir.location=NSNotFound;
-                    // rdir = [file rangeOfString:@"." options:NSCaseInsensitiveSearch];
-                    //[mFileMngr fileExistsAtPath:[cpath stringByAppendingFormat:@"/%@",file] isDirectory:&isDir];
                     NSNumber *isDirectory = nil;
                     [fileURL getResourceValue:&isDirectory forKey:NSURLIsDirectoryKey error:nil];
                     [fileURL getResourceValue:&file forKey:NSURLPathKey error:nil];
@@ -1715,16 +1546,12 @@ static int qsort_CompareArcEntries(const void *entryA, const void *entryB) {
                                             }
                                         }
                                         if (!filtered) {
-                                            const char *str=[file UTF8String];
-                                            int index=0;
-                                            if ((str[0]>='A')&&(str[0]<='Z') ) index=(str[0]-'A'+1);
-                                            if ((str[0]>='a')&&(str[0]<='z') ) index=(str[0]-'a'+1);
-                                            local_entries[index][local_entries_count[index]].type=0;
+                                            local_entries[local_entries_count].type=0;
                                             
-                                            local_entries[index][local_entries_count[index]].label=[[NSString alloc] initWithString:file];
+                                            local_entries[local_entries_count].label=[[NSString alloc] initWithString:file];
                                             
-                                            local_entries[index][local_entries_count[index]].fullpath=[[NSString alloc] initWithFormat:@"%@/%@",currentPath,file];
-                                            local_entries_count[index]++;
+                                            local_entries[local_entries_count].fullpath=[[NSString alloc] initWithFormat:@"%@/%@",currentPath,file];
+                                            local_entries_count++;
                                             if (local_nb_entries_limit) {
                                                 local_nb_entries_limit--;
                                                 if (!local_nb_entries_limit) shouldStop=1;
@@ -1764,73 +1591,37 @@ static int qsort_CompareArcEntries(const void *entryA, const void *entryB) {
                                 
                                 
                                 if (found)  {
-                                    const char *str;
                                     char tmp_str[1024];//,*tmp_convstr;
                                     int other_encoding=0;
-                                    if (mShowSubdir==2) str=[file UTF8String];
-                                    else str=[[file lastPathComponent] UTF8String];
                                     
                                     if ([extension caseInsensitiveCompare:@"mdx"]==NSOrderedSame ) {
                                         [[file lastPathComponent] getFileSystemRepresentation:tmp_str maxLength:1024];
                                         //tmp_convstr=mdx_make_sjis_to_syscharset(tmp_str);
                                         other_encoding=1;
                                     }
-                                    int index=0;
-                                    if ((str[0]>='A')&&(str[0]<='Z') ) index=(str[0]-'A'+1);
-                                    if ((str[0]>='a')&&(str[0]<='z') ) index=(str[0]-'a'+1);
-                                    local_entries[index][local_entries_count[index]].type=1;
+                                    local_entries[local_entries_count].type=1;
                                     //check if Archive file
                                     if ([archivetype_ext indexOfObject:extension]!=NSNotFound) { //check if really an archive
-                                        //if ([ModizFileHelper isABrowsableArchive:[cpath stringByAppendingFormat:@"/%@",file]]) local_entries[index][local_entries_count[index]].type=2;
-                                        local_entries[index][local_entries_count[index]].type=2|16;  //16 is to flag them as to check before displaying entry in tabiew
+                                        local_entries[local_entries_count].type=2|16;  //16 is to flag them as to check before displaying entry in tabiew
                                     } else if ([all_multisongstype_ext indexOfObject:extension]!=NSNotFound) { //check if Multisongs file
-                                        local_entries[index][local_entries_count[index]].type=3|16;  //16 is to flag them as to check before displaying entry in tabiew
-                                        //if ([ModizFileHelper isGMEFileWithSubsongs:[cpath stringByAppendingFormat:@"/%@",file]]) local_entries[index][local_entries_count[index]].type=3;
-                                        //else if ([ModizFileHelper isSidFileWithSubsongs:[cpath stringByAppendingFormat:@"/%@",file]]) local_entries[index][local_entries_count[index]].type=3;
+                                        local_entries[local_entries_count].type=3|16;  //16 is to flag them as to check before displaying entry in tabiew
                                         
                                     }
                                     
                                     if (other_encoding) {
-                                        local_entries[index][local_entries_count[index]].label=[[NSString alloc] initWithCString:tmp_str encoding:NSUTF8StringEncoding];
+                                        local_entries[local_entries_count].label=[[NSString alloc] initWithCString:tmp_str encoding:NSUTF8StringEncoding];
                                         //	free(tmp_convstr);
-                                    } else local_entries[index][local_entries_count[index]].label=[[NSString alloc] initWithString:[file lastPathComponent]];
+                                    } else local_entries[local_entries_count].label=[[NSString alloc] initWithString:[file lastPathComponent]];
                                     
-                                    local_entries[index][local_entries_count[index]].fullpath=[[NSString alloc] initWithFormat:@"%@/%@",currentPath,file];
+                                    local_entries[local_entries_count].fullpath=[[NSString alloc] initWithFormat:@"%@/%@",currentPath,file];
                                     
-                                    local_entries[index][local_entries_count[index]].rating=-1;
-                                    local_entries[index][local_entries_count[index]].playcount=-1;
-                                    local_entries[index][local_entries_count[index]].song_length=-1;
-                                    local_entries[index][local_entries_count[index]].songs=-1;
-                                    local_entries[index][local_entries_count[index]].channels_nb=-1;
+                                    local_entries[local_entries_count].rating=-1;
+                                    local_entries[local_entries_count].playcount=-1;
+                                    local_entries[local_entries_count].song_length=-1;
+                                    local_entries[local_entries_count].songs=-1;
+                                    local_entries[local_entries_count].channels_nb=-1;
                                     
-#if 0
-                                    snprintf(sqlStatement,1024,"SELECT play_count,rating,length,channels,songs,avg_rating FROM user_stats WHERE fullpath=\"%s/%s\"",[currentPath UTF8String],[file UTF8String]);
-                                    err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
-                                    
-                                    //printf("%s\n",sqlStatement);
-                                    
-                                    if (err==SQLITE_OK){
-                                        while (sqlite3_step(stmt) == SQLITE_ROW) {
-                                            signed char rating=(signed char)sqlite3_column_int(stmt, 1);
-                                            if (rating<0) rating=0;
-                                            if (rating>5) rating=5;
-                                            if ((rating==0)&&(sqlite3_column_type(stmt,5)!=SQLITE_NULL)) {
-                                                rating=(signed char)sqlite3_column_int(stmt, 5);
-                                                if (rating) rating=1;
-                                            }
-                                            
-                                            //printf("ch: %d - sl: %d\n",(int)sqlite3_column_int(stmt, 3),(int)sqlite3_column_int(stmt, 2));
-                                            
-                                            local_entries[index][local_entries_count[index]].playcount=(short int)sqlite3_column_int(stmt, 0);
-                                            local_entries[index][local_entries_count[index]].rating=rating;
-                                            local_entries[index][local_entries_count[index]].song_length=(int)sqlite3_column_int(stmt, 2);
-                                            local_entries[index][local_entries_count[index]].channels_nb=(char)sqlite3_column_int(stmt, 3);
-                                            local_entries[index][local_entries_count[index]].songs=(int)sqlite3_column_int(stmt, 4);
-                                        }
-                                        sqlite3_finalize(stmt);
-                                    } else MDZELog("ErrSQL : %d",err);
-#endif
-                                    local_entries_count[index]++;
+                                    local_entries_count++;
                                     
                                     if (local_nb_entries_limit) {
                                         local_nb_entries_limit--;
@@ -1928,13 +1719,6 @@ static int shouldRestart=1;
     }
     
     if (shouldFillKeys) {
-        if (keys) {
-            keys=nil;
-        }
-        if (list) {
-            list=nil;
-        }
-        
         //Reset rating if applicable (ensure updated value)
         if (local_nb_entries) {
             for (int i=0;i<local_nb_entries;i++) {
@@ -2183,109 +1967,28 @@ As a consequence, some entries might disappear from existing playlist.\n\
 
 - (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section {
     return 0;
-    if (mSearch) return 0;
-    
-    if (section==0) return 0;
-    if (section==1) return 0;
-    if ((search_local?search_local_entries_count[section-2]:local_entries_count[section-2])) {
-        return 24;
-    } else return 0;
-    return 0;
 }
 
 - (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section {
     return nil;
-    NSString *lbl=nil;
-    
-    if (mSearch) lbl=nil;
-    else if (section==0) lbl=nil;
-    else if (section==1) lbl=@"";
-    else if ((search_local?search_local_entries_count[section-2]:local_entries_count[section-2])) lbl=[indexTitlesSpace objectAtIndex:section];
-    else lbl=nil;
-    
-    if (lbl)
-    /*if ([lbl compare:@""]!=NSOrderedSame)*/{
-        UIView *customView = [[UIView alloc] initWithFrame: CGRectMake(0.0, 0.0, tableView.bounds.size.width, 24.0)];
-        if (darkMode) customView.backgroundColor = [UIColor colorWithRed: 0.3f green: 0.3f blue: 0.3f alpha: 1.0f];
-        else customView.backgroundColor = [UIColor colorWithRed: 0.7f green: 0.7f blue: 0.7f alpha: 1.0f];
-        
-        CALayer *layerU = [CALayer layer];
-        layerU.frame = CGRectMake(0.0, 0.0, tableView.bounds.size.width, 1.0);
-        if (darkMode) layerU.backgroundColor = [[UIColor colorWithRed: 1-183.0f/255.0f green: 1-193.0f/255.0f blue: 1-199.0f/255.0f alpha: 1.00] CGColor];
-        else layerU.backgroundColor = [[UIColor colorWithRed: 183.0f/255.0f green: 193.0f/255.0f blue: 199.0f/255.0f alpha: 1.00] CGColor];
-        [customView.layer insertSublayer:layerU atIndex:0];
-        
-        CAGradientLayer *gradient = [CAGradientLayer layer];
-        gradient.frame = CGRectMake(0.0, 1.0, tableView.bounds.size.width, 22.0);
-        if (darkMode) gradient.colors = [NSArray arrayWithObjects:(id)[[UIColor colorWithRed: 1-144.0f/255.0f green: 1-159.0f/255.0f blue: 1-177.0f/255.0f alpha: 1.00] CGColor],
-                                         (id)[[UIColor colorWithRed: 1-183.0f/255.0f green: 1-193.0f/255.0f blue: 1-199.0f/255.0f  alpha: 1.00] CGColor], nil];
-        else gradient.colors = [NSArray arrayWithObjects:(id)[[UIColor colorWithRed: 144.0f/255.0f green: 159.0f/255.0f blue: 177.0f/255.0f alpha: 1.00] CGColor],
-                                (id)[[UIColor colorWithRed: 183.0f/255.0f green: 193.0f/255.0f blue: 199.0f/255.0f  alpha: 1.00] CGColor], nil];
-        [customView.layer insertSublayer:gradient atIndex:0];
-        
-        CALayer *layerD = [CALayer layer];
-        layerD.frame = CGRectMake(0.0, 23.0, tableView.bounds.size.width, 1.0);
-        if (darkMode) layerD.backgroundColor = [[UIColor colorWithRed: 1-144.0f/255.0f green: 1-159.0f/255.0f blue: 1-177.0f/255.0f alpha: 1.00] CGColor];
-        else layerD.backgroundColor = [[UIColor colorWithRed: 144.0f/255.0f green: 159.0f/255.0f blue: 177.0f/255.0f alpha: 1.00] CGColor];
-        [customView.layer insertSublayer:layerD atIndex:0];
-        
-        UILabel *topLabel = [[UILabel alloc] init];
-        topLabel.frame=CGRectMake(10, 0.0, tableView.bounds.size.width-10*2, 24);
-        //
-        // Configure the properties for the text that are the same on every row
-        //
-        topLabel.backgroundColor = [UIColor clearColor];
-        topLabel.textColor = [UIColor whiteColor];
-        if (darkMode) topLabel.highlightedTextColor = [UIColor colorWithRed:1-0.9 green:1-0.9 blue:1-0.9 alpha:1.0];
-        else topLabel.highlightedTextColor = [UIColor colorWithRed:0.9 green:0.9 blue:0.9 alpha:1.0];
-        topLabel.font = [UIFont boldSystemFontOfSize:20];
-        topLabel.lineBreakMode=(settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value?
-                                ((settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value==2) ? NSLineBreakByTruncatingTail:NSLineBreakByTruncatingMiddle):NSLineBreakByTruncatingHead);
-        topLabel.opaque=TRUE;
-        topLabel.text=lbl;
-        
-        [customView addSubview: topLabel];
-        
-        return customView;
-    }
-    
-    return nil;
 }
 
-/*- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
- if (mSearch) return nil;
- 
- if (section==0) return nil;
- if (section==1) return @"";
- if ((search_local?search_local_entries_count[section-2]:local_entries_count[section-2])) {
- return [indexTitlesSpace objectAtIndex:section];
- } else return nil;
- return nil;
- }*/
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
-    local_flag=0;
-    return 28+1;
+    return 2;
 }
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    if (section==0) return 0;
-    if (section==1) {
+    if (section==0) {
         if (browse_depth==0) return 2;
         else return 1;
     }
-    return (search_local?search_local_entries_count[section-2]:local_entries_count[section-2]);
+    return (search_local?search_local_entries_count:local_entries_count);
 }
 - (NSArray *)sectionIndexTitlesForTableView:(UITableView *)tableView {
-    if (mSearch) return nil;
-    return indexTitlesSpace;
+    return nil;
 }
 
 - (NSInteger)tableView:(UITableView *)tabView sectionForSectionIndexTitle:(NSString *)title atIndex:(NSInteger)index {
-    if (mSearch) return -1;
-    if (index == 0) {
-        [tabView setContentOffset:CGPointZero animated:NO];
-        return NSNotFound;
-    }
-    return index;
+    return -1;
 }
 /**
  Tells the delegate that a button of the left side is triggered.
@@ -2330,12 +2033,11 @@ As a consequence, some entries might disappear from existing playlist.\n\
         
         switch (buttonIndex) {
             case 0: {//rename
-                t_local_browse_entry **cur_local_entries=(search_local?search_local_entries:local_entries);
-                int section=indexPath.section-2;
+                t_local_browse_entry *cur_local_entries=(search_local?search_local_entries:local_entries);
                 //rename
-                renameSec=section;renameIdx=indexPath.row;
+                renameIdx=indexPath.row;
                 
-                if ([cutpaste_filesrcpath compare:cur_local_entries[section][indexPath.row].fullpath]==NSOrderedSame) {
+                if ([cutpaste_filesrcpath compare:cur_local_entries[indexPath.row].fullpath]==NSOrderedSame) {
                     //renaming file in cut/paste buffer -> cancel buffer
                     //[cutpaste_filesrcpath release];
                     cutpaste_filesrcpath=nil;
@@ -2346,7 +2048,7 @@ As a consequence, some entries might disappear from existing playlist.\n\
                                                                          preferredStyle:UIAlertControllerStyleAlert];
                 __weak UIAlertController *weakAlert = alertC;
                 [alertC addTextFieldWithConfigurationHandler:^(UITextField *textField) {
-                    textField.placeholder = [NSString stringWithString:cur_local_entries[section][indexPath.row].label];
+                    textField.placeholder = [NSString stringWithString:cur_local_entries[indexPath.row].label];
                 }];
                 
                 UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel",@"") style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
@@ -2356,13 +2058,13 @@ As a consequence, some entries might disappear from existing playlist.\n\
                 
                 UIAlertAction *saveAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Rename",@"") style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
                     UITextField *tf = weakAlert.textFields.firstObject;
-                    t_local_browse_entry **cur_local_entries=(search_local?search_local_entries:local_entries);
-                    if (cur_local_entries[renameSec][renameIdx].label) cur_local_entries[renameSec][renameIdx].label=nil;
+                    t_local_browse_entry *cur_local_entries=(search_local?search_local_entries:local_entries);
+                    if (cur_local_entries[renameIdx].label) cur_local_entries[renameIdx].label=nil;
                     
                     NSString *curPath,*tgtPath;
                     
-                    curPath=[ModizFileHelper getFullPathForFilePath:cur_local_entries[renameSec][renameIdx].fullpath];
-                    tgtPath=[ModizFileHelper getFullPathForFilePath:cur_local_entries[renameSec][renameIdx].fullpath];
+                    curPath=[ModizFileHelper getFullPathForFilePath:cur_local_entries[renameIdx].fullpath];
+                    tgtPath=[ModizFileHelper getFullPathForFilePath:cur_local_entries[renameIdx].fullpath];
                     
                     tgtPath=[[tgtPath stringByDeletingLastPathComponent] stringByAppendingPathComponent:tf.text];
                     
@@ -2371,10 +2073,9 @@ As a consequence, some entries might disappear from existing playlist.\n\
                     if ([mFileMngr moveItemAtPath:curPath toPath:tgtPath error:&err]==NO) {
                         MDZELog("Issue %d while renaming file %@",(int)(err.code),curPath);
                     } else {
-                        cur_local_entries[renameSec][renameIdx].label=[[NSString alloc] initWithString:tf.text];
+                        cur_local_entries[renameIdx].label=[[NSString alloc] initWithString:tf.text];
                         
-                        //[cur_local_entries[renameSec][renameIdx].fullpath release];
-                        cur_local_entries[renameSec][renameIdx].fullpath=[[NSString alloc] initWithString:tgtPath];
+                        cur_local_entries[renameIdx].fullpath=[[NSString alloc] initWithString:tgtPath];
                         if (mSearch) {
                             mSearch=0;
                             [self listLocalFiles];
@@ -2393,10 +2094,8 @@ As a consequence, some entries might disappear from existing playlist.\n\
                 break;
             }
             case 1:{//cut
-                t_local_browse_entry **cur_local_entries=(search_local?search_local_entries:local_entries);
-                int section=indexPath.section-2;
-                //cutpaste_filesrcpath=[NSString stringWithString:cur_local_entries[section][indexPath.row].fullpath];
-                cutpaste_filesrcpath=[[NSString alloc] initWithString:cur_local_entries[section][indexPath.row].fullpath];
+                t_local_browse_entry *cur_local_entries=(search_local?search_local_entries:local_entries);
+                cutpaste_filesrcpath=[[NSString alloc] initWithString:cur_local_entries[indexPath.row].fullpath];
                 break;
             }
             case 2:{//extract
@@ -2407,12 +2106,12 @@ As a consequence, some entries might disappear from existing playlist.\n\
                 waitingViewExtract.hidden=false;
                 //[self showWaiting];
                 //[self flushMainLoop];
-                t_local_browse_entry **cur_local_entries=(search_local?search_local_entries:local_entries);
+                t_local_browse_entry *cur_local_entries=(search_local?search_local_entries:local_entries);
                 int section=indexPath.section-2;
                 
-                NSString *filePath=[ModizFileHelper getFullPathForFilePath:cur_local_entries[section][indexPath.row].fullpath];
+                NSString *filePath=[ModizFileHelper getFullPathForFilePath:cur_local_entries[indexPath.row].fullpath];
                 NSString *tgtPath;
-                tgtPath=[ModizFileHelper getFullPathForFilePath:[cur_local_entries[section][indexPath.row].fullpath stringByDeletingPathExtension]];
+                tgtPath=[ModizFileHelper getFullPathForFilePath:[cur_local_entries[indexPath.row].fullpath stringByDeletingPathExtension]];
                 int files_found=[ModizFileHelper scanarchive:[filePath UTF8String] filesList_ptr:nil filesCount_ptr:nil];
                 if (files_found) {
                     [self.tableView setUserInteractionEnabled:false];
@@ -2496,12 +2195,12 @@ As a consequence, some entries might disappear from existing playlist.\n\
         NSIndexPath *indexPath = [self.tableView indexPathForCell:cell];
         
         //delete entry
-        t_local_browse_entry **cur_local_entries=(search_local?search_local_entries:local_entries);
+        t_local_browse_entry *cur_local_entries=(search_local?search_local_entries:local_entries);
         int section=indexPath.section-2;
-        NSString *fullpath=[ModizFileHelper getFullPathForFilePath:cur_local_entries[section][indexPath.row].fullpath];
+        NSString *fullpath=[ModizFileHelper getFullPathForFilePath:cur_local_entries[indexPath.row].fullpath];
         NSError *err;
         
-        if ([cutpaste_filesrcpath compare:cur_local_entries[section][indexPath.row].fullpath]==NSOrderedSame) {
+        if ([cutpaste_filesrcpath compare:cur_local_entries[indexPath.row].fullpath]==NSOrderedSame) {
             //deleting file in cut/paste buffer -> cancel buffer
             
             cutpaste_filesrcpath=nil;
@@ -2511,11 +2210,11 @@ As a consequence, some entries might disappear from existing playlist.\n\
             MDZELog("Issue %d while removing: %@",(int)(err.code),fullpath);
             [self showAlertMsg:NSLocalizedString(@"Warning",@"") message:[NSString stringWithFormat:NSLocalizedString(@"Issue %d while trying to delete entry.\n%@",@""),err.code,err.localizedDescription]];
         } else {
-            if (cur_local_entries[section][indexPath.row].type==0) { //Dir
+            if (cur_local_entries[indexPath.row].type==0) { //Dir
                 DBHelper::deleteStatsDirDB(fullpath);
                 [self.detailViewController cleanPlaylistAfterDelDir:fullpath];
             }
-            if (cur_local_entries[section][indexPath.row].type&3) { //File
+            if (cur_local_entries[indexPath.row].type&3) { //File
                 DBHelper::deleteStatsFileDB(fullpath);
                 [self.detailViewController cleanPlaylistAfterDelFile:fullpath];
             }
@@ -2534,41 +2233,6 @@ As a consequence, some entries might disappear from existing playlist.\n\
     }
     [self.tableView reloadData];
 }
-/**
- Asks the delegate if the cell can be a slide-state.
- 
- The result of this function is not reflected to the slide indicators of the cell.
- You should set "showsLeftSlideIndicator" or "showsRightSlideIndicator" property of SESlideTableViewCell manually.
- 
- @return YES if the cell can be the state, otherwise NO.
- @param cell The cell that is making this request.
- @param slideState The state that the cell want to be.
- */
-//- (BOOL)slideTableViewCell:(SESlideTableViewCell*)cell canSlideToState:(SESlideTableViewCellSlideState)slideState;
-/**
- Tells the delegate that the slide state of the cell will change.
- 
- Even when this function is called, the cell's slide state may not be the state which this function tells.
- To know the cell's slide state, use slideTableViewCell:DidSlideToState: instead.
- 
- @param cell The cell informing the delegate of the event.
- @param slideState The slide state which the cell may become.
- */
-//- (void)slideTableViewCell:(SESlideTableViewCell*)cell willSlideToState:(SESlideTableViewCellSlideState)slideState;
-/**
- Tells the delegate that the slide state of the cell did change.
- 
- @param cell The cell informing the delegate of the event.
- @param slideState The slide state which the cell became.
- */
-//- (void)slideTableViewCell:(SESlideTableViewCell*)cell didSlideToState:(SESlideTableViewCellSlideState)slideState;
-/**
- Tells the delegate that the cell will show buttons of the side.
- 
- @param cell The cell informing the delegate of the event.
- @param side The side of the buttons which the cell will show.
- */
-//- (void)slideTableViewCell:(SESlideTableViewCell *)cell wilShowButtonsOfSide:(SESlideTableViewCellSide)side;
 
 - (UITableViewCell *)tableView:(UITableView *)tabView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     static NSString *CellIdentifier = @"Cell";
@@ -2585,7 +2249,7 @@ As a consequence, some entries might disappear from existing playlist.\n\
     UIButton *actionView,*secActionView;
     
     
-    t_local_browse_entry **cur_local_entries=(search_local?search_local_entries:local_entries);
+    t_local_browse_entry *cur_local_entries=(search_local?search_local_entries:local_entries);
     
     SESlideTableViewCell *cell;
     
@@ -2595,7 +2259,7 @@ As a consequence, some entries might disappear from existing playlist.\n\
         forceReloadCells=false;
     }
     
-    if (indexPath.section==1) cell = (SESlideTableViewCell *)[tabView dequeueReusableCellWithIdentifier:CellIdentifierHeader];
+    if (indexPath.section==0) cell = (SESlideTableViewCell *)[tabView dequeueReusableCellWithIdentifier:CellIdentifierHeader];
     else cell = (SESlideTableViewCell *)[tabView dequeueReusableCellWithIdentifier:CellIdentifier];
     
     
@@ -2612,13 +2276,13 @@ As a consequence, some entries might disappear from existing playlist.\n\
             
             if (self.tableView.refreshControl.isRefreshing==false) {
                 
-                if ((cur_local_entries[indexPath.section-2][indexPath.row].type&16)&&((cur_local_entries[indexPath.section-2][indexPath.row].type&15)==2)) { //need to confirm if true archive
+                if ((cur_local_entries[indexPath.row].type&16)&&((cur_local_entries[indexPath.row].type&15)==2)) { //need to confirm if true archive
                     
-                    if ([ModizFileHelper isABrowsableArchive:[ModizFileHelper getFullPathForFilePath:cur_local_entries[indexPath.section-2][indexPath.row].fullpath]]) cur_local_entries[indexPath.section-2][indexPath.row].type=2;
-                    else cur_local_entries[indexPath.section-2][indexPath.row].type=1;
+                    if ([ModizFileHelper isABrowsableArchive:[ModizFileHelper getFullPathForFilePath:cur_local_entries[indexPath.row].fullpath]]) cur_local_entries[indexPath.row].type=2;
+                    else cur_local_entries[indexPath.row].type=1;
                 }
                 if (noCellAction==false) {
-                    if (cur_local_entries[indexPath.section-2][indexPath.row].type==2) {
+                    if (cur_local_entries[indexPath.row].type==2) {
                         [cell addLeftButtonWithText:NSLocalizedString(@"Extract",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_EXTRACT_COL_R green:MDZ_EXTRACT_COL_G blue:MDZ_EXTRACT_COL_B alpha:1.0]];
                     }
                 }
@@ -2664,7 +2328,7 @@ As a consequence, some entries might disappear from existing playlist.\n\
         //
         topLabel.tag = TOP_LABEL_TAG;
         topLabel.backgroundColor = [UIColor clearColor];
-        topLabel.font = [UIFont boldSystemFontOfSize:18];
+        topLabel.font = [UIFont systemFontOfSize:17];
         topLabel.lineBreakMode=(settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value?
                                 ((settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value==2) ? NSLineBreakByTruncatingTail:NSLineBreakByTruncatingMiddle):NSLineBreakByTruncatingHead);
         topLabel.opaque=TRUE;
@@ -2728,13 +2392,13 @@ As a consequence, some entries might disappear from existing playlist.\n\
             }
             
             if (self.tableView.refreshControl.isRefreshing==false) {
-                if ((cur_local_entries[indexPath.section-2][indexPath.row].type&16)&&((cur_local_entries[indexPath.section-2][indexPath.row].type&15)==2)) { //need to confirm if true archive
-                    if ([ModizFileHelper isABrowsableArchive:[ModizFileHelper getFullPathForFilePath:cur_local_entries[indexPath.section-2][indexPath.row].fullpath]]) cur_local_entries[indexPath.section-2][indexPath.row].type=2;
-                    else cur_local_entries[indexPath.section-2][indexPath.row].type=1;
+                if ((cur_local_entries[indexPath.row].type&16)&&((cur_local_entries[indexPath.row].type&15)==2)) { //need to confirm if true archive
+                    if ([ModizFileHelper isABrowsableArchive:[ModizFileHelper getFullPathForFilePath:cur_local_entries[indexPath.row].fullpath]]) cur_local_entries[indexPath.row].type=2;
+                    else cur_local_entries[indexPath.row].type=1;
                 }
                 
                 if (noCellAction==false) {
-                    if (cur_local_entries[indexPath.section-2][indexPath.row].type==2) {
+                    if (cur_local_entries[indexPath.row].type==2) {
                         [cell addLeftButtonWithText:NSLocalizedString(@"Extract",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_EXTRACT_COL_R green:MDZ_EXTRACT_COL_G blue:MDZ_EXTRACT_COL_B alpha:1.0]];
                     }
                     if (noCellAction==false) {
@@ -2785,7 +2449,7 @@ As a consequence, some entries might disappear from existing playlist.\n\
     if (self.tableView.refreshControl.isRefreshing) return cell;
     
     // Set up the cell...
-    if (indexPath.section==1){
+    if (indexPath.section==0){
         if (indexPath.row==0) {
             switch (mShowSubdir) {
                 case 0:
@@ -2876,11 +2540,10 @@ As a consequence, some entries might disappear from existing playlist.\n\
              secActionView.hidden=NO;*/
         }
     } else {
-        int section=indexPath.section-2;
-        cellValue=cur_local_entries[section][indexPath.row].label;
+        cellValue=cur_local_entries[indexPath.row].label;
         
         if (is_rsn) {
-            NSString *tmpFile=[NSString stringWithFormat:@"%@/tmpArchiveBrowser/%@",NSTemporaryDirectory(),cur_local_entries[section][indexPath.row].label];
+            NSString *tmpFile=[NSString stringWithFormat:@"%@/tmpArchiveBrowser/%@",NSTemporaryDirectory(),cur_local_entries[indexPath.row].label];
             SPCTag tag;
             if ([SPCTagParser parseTagsFromFile:tmpFile tag:&tag]) {
                 cellValue=[NSString stringWithFormat:@"%.3d-%s",indexPath.row,tag.songName];
@@ -2892,7 +2555,7 @@ As a consequence, some entries might disappear from existing playlist.\n\
         }
         
         
-        if (cur_local_entries[section][indexPath.row].type==0) { //directory
+        if (cur_local_entries[indexPath.row].type==0) { //directory
             if (darkMode) topLabel.textColor=[UIColor colorWithRed:0.5f green:0.5f blue:1.0f alpha:1.0f];
             else topLabel.textColor=[UIColor colorWithRed:0.0f green:0.0f blue:1.0f alpha:1.0f];
             //cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
@@ -2920,18 +2583,18 @@ As a consequence, some entries might disappear from existing playlist.\n\
             int actionicon_offsetx=tabView.safeAreaInsets.right+tabView.safeAreaInsets.left;
             //archive file ?
             
-            if (cur_local_entries[section][indexPath.row].type&16) { //need to confirm if true archive or multisong
-                if ((cur_local_entries[section][indexPath.row].type&15)==2) { //need to confirm if true archive
-                    if ([ModizFileHelper isABrowsableArchive:[ModizFileHelper getFullPathForFilePath:cur_local_entries[section][indexPath.row].fullpath]]) cur_local_entries[section][indexPath.row].type=2;
-                    else cur_local_entries[section][indexPath.row].type=1;
-                } else if ((cur_local_entries[section][indexPath.row].type&15)==3) { //need to confirm if true multisong
-                    if ([ModizFileHelper isGMEFileWithSubsongs:[ModizFileHelper getFullPathForFilePath:cur_local_entries[section][indexPath.row].fullpath]]) cur_local_entries[section][indexPath.row].type=3;
-                    else if ([ModizFileHelper isSidFileWithSubsongs:[ModizFileHelper getFullPathForFilePath:cur_local_entries[section][indexPath.row].fullpath]]) cur_local_entries[section][indexPath.row].type=3;
-                    else cur_local_entries[section][indexPath.row].type=1;
+            if (cur_local_entries[indexPath.row].type&16) { //need to confirm if true archive or multisong
+                if ((cur_local_entries[indexPath.row].type&15)==2) { //need to confirm if true archive
+                    if ([ModizFileHelper isABrowsableArchive:[ModizFileHelper getFullPathForFilePath:cur_local_entries[indexPath.row].fullpath]]) cur_local_entries[indexPath.row].type=2;
+                    else cur_local_entries[indexPath.row].type=1;
+                } else if ((cur_local_entries[indexPath.row].type&15)==3) { //need to confirm if true multisong
+                    if ([ModizFileHelper isGMEFileWithSubsongs:[ModizFileHelper getFullPathForFilePath:cur_local_entries[indexPath.row].fullpath]]) cur_local_entries[indexPath.row].type=3;
+                    else if ([ModizFileHelper isSidFileWithSubsongs:[ModizFileHelper getFullPathForFilePath:cur_local_entries[indexPath.row].fullpath]]) cur_local_entries[indexPath.row].type=3;
+                    else cur_local_entries[indexPath.row].type=1;
                 }
             }
             
-            if ((cur_local_entries[section][indexPath.row].type==2)||(cur_local_entries[section][indexPath.row].type==3)) {
+            if ((cur_local_entries[indexPath.row].type==2)||(cur_local_entries[indexPath.row].type==3)) {
                 actionicon_offsetx=PRI_SEC_ACTIONS_IMAGE_SIZE+tabView.safeAreaInsets.right+tabView.safeAreaInsets.left;
                 //                    cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
                 
@@ -2986,53 +2649,47 @@ As a consequence, some entries might disappear from existing playlist.\n\
             actionView.hidden=NO;
             
             
-            if (cur_local_entries[section][indexPath.row].rating==-1) {
+            if (cur_local_entries[indexPath.row].rating==-1) {
                 signed char avg_rating;
-                DBHelper::getFileStatsDBmod(cur_local_entries[section][indexPath.row].fullpath,
-                                            &cur_local_entries[section][indexPath.row].playcount,
-                                            &cur_local_entries[section][indexPath.row].rating,
+                DBHelper::getFileStatsDBmod(cur_local_entries[indexPath.row].fullpath,
+                                            &cur_local_entries[indexPath.row].playcount,
+                                            &cur_local_entries[indexPath.row].rating,
                                             &avg_rating,
-                                            &cur_local_entries[section][indexPath.row].song_length,
-                                            &cur_local_entries[section][indexPath.row].channels_nb,
-                                            &cur_local_entries[section][indexPath.row].songs);
-                if ((cur_local_entries[section][indexPath.row].rating==0)&&(avg_rating>0))
-                    cur_local_entries[section][indexPath.row].rating=1;
+                                            &cur_local_entries[indexPath.row].song_length,
+                                            &cur_local_entries[indexPath.row].channels_nb,
+                                            &cur_local_entries[indexPath.row].songs);
+                if ((cur_local_entries[indexPath.row].rating==0)&&(avg_rating>0))
+                    cur_local_entries[indexPath.row].rating=1;
             }
-            if (cur_local_entries[section][indexPath.row].rating>0) bottomImageView.image=[UIImage imageNamed:ratingImg[RATING_IMG(cur_local_entries[section][indexPath.row].rating)]];
+            if (cur_local_entries[indexPath.row].rating>0) bottomImageView.image=[UIImage imageNamed:ratingImg[RATING_IMG(cur_local_entries[indexPath.row].rating)]];
             
             NSString *bottomStr;
-            int isMonoSong=cur_local_entries[section][indexPath.row].songs==1;
-            if (cur_local_entries[section][indexPath.row].song_length>0)
-                bottomStr=[NSString stringWithFormat:@"%02d:%02d",cur_local_entries[section][indexPath.row].song_length/1000/60,(cur_local_entries[section][indexPath.row].song_length/1000)%60];
+            int isMonoSong=cur_local_entries[indexPath.row].songs==1;
+            if (cur_local_entries[indexPath.row].song_length>0)
+                bottomStr=[NSString stringWithFormat:@"%02d:%02d",cur_local_entries[indexPath.row].song_length/1000/60,(cur_local_entries[indexPath.row].song_length/1000)%60];
             else bottomStr=@"--:--";
             
-            if (cur_local_entries[section][indexPath.row].channels_nb) bottomStr=[NSString stringWithFormat:@"%@|%02dch",bottomStr,cur_local_entries[section][indexPath.row].channels_nb];
+            if (cur_local_entries[indexPath.row].channels_nb) bottomStr=[NSString stringWithFormat:@"%@|%02dch",bottomStr,cur_local_entries[indexPath.row].channels_nb];
             else bottomStr=[NSString stringWithFormat:@"%@|--ch",bottomStr];
             
             if (isMonoSong) {
                 bottomStr=[NSString stringWithFormat:@"%@|1 sg",bottomStr];
             } else {
-                if (cur_local_entries[section][indexPath.row].songs==0) bottomStr=[NSString stringWithFormat:@"%@",bottomStr,-cur_local_entries[section][indexPath.row].songs];
-                else if (cur_local_entries[section][indexPath.row].songs>0) bottomStr=[NSString stringWithFormat:@"%@|%d sg",bottomStr,cur_local_entries[section][indexPath.row].songs];
-                else bottomStr=[NSString stringWithFormat:@"%@|%d f",bottomStr,-cur_local_entries[section][indexPath.row].songs];
+                if (cur_local_entries[indexPath.row].songs==0) bottomStr=[NSString stringWithFormat:@"%@",bottomStr,-cur_local_entries[indexPath.row].songs];
+                else if (cur_local_entries[indexPath.row].songs>0) bottomStr=[NSString stringWithFormat:@"%@|%d sg",bottomStr,cur_local_entries[indexPath.row].songs];
+                else bottomStr=[NSString stringWithFormat:@"%@|%d f",bottomStr,-cur_local_entries[indexPath.row].songs];
             }
             
-            bottomStr=[NSString stringWithFormat:@"%@|Pl:%d",bottomStr,cur_local_entries[section][indexPath.row].playcount];
+            bottomStr=[NSString stringWithFormat:@"%@|Pl:%d",bottomStr,cur_local_entries[indexPath.row].playcount];
             
             if (mShowSubdir==2) {  //if in sort by fullpath mode, indicate path in bottom label
-                NSString *strtmp=cur_local_entries[section][indexPath.row].fullpath;
+                NSString *strtmp=cur_local_entries[indexPath.row].fullpath;
                 NSRange rdir=[strtmp rangeOfString:currentPath];
                 if (rdir.location!=NSNotFound) {
                     strtmp=[strtmp substringFromIndex:(rdir.location+rdir.length+1)];
                 }
                 bottomStr=[NSString stringWithFormat:@"%@|%@",bottomStr,[strtmp stringByDeletingLastPathComponent]];
             }
-            
-            /*if (!cur_local_entries[section][indexPath.row].playcount)
-             bottomStr = [NSString stringWithFormat:@"%@%@",bottomStr,played0time];
-             else if (cur_local_entries[section][indexPath.row].playcount==1)
-             bottomStr = [NSString stringWithFormat:@"%@%@",bottomStr,played1time];
-             else bottomStr = [NSString stringWithFormat:@"%@%@",bottomStr,[NSString stringWithFormat:playedXtimes,cur_local_entries[section][indexPath.row].playcount]];*/
             
             bottomLabel.text=bottomStr;
             
@@ -3050,24 +2707,23 @@ As a consequence, some entries might disappear from existing playlist.\n\
 
 // Override to support editing the table view.
 - (void)tableView:(UITableView *)tabView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
-    t_local_browse_entry **cur_local_entries=(search_local?search_local_entries:local_entries);
+    t_local_browse_entry *cur_local_entries=(search_local?search_local_entries:local_entries);
     
     if (editingStyle == UITableViewCellEditingStyleDelete) {
         // Delete the row from the data source
         
         //delete entry
-        int section=indexPath.section-2;
-        NSString *fullpath=[ModizFileHelper getFullPathForFilePath:cur_local_entries[section][indexPath.row].fullpath];
+        NSString *fullpath=[ModizFileHelper getFullPathForFilePath:cur_local_entries[indexPath.row].fullpath];
         NSError *err;
         
         if ([mFileMngr removeItemAtPath:fullpath error:&err]!=YES) {
             MDZELog("Issue %d while removing: %@",(int)(err.code),fullpath);
             [self showAlertMsg:NSLocalizedString(@"Warning",@"") message:[NSString stringWithFormat:NSLocalizedString(@"Issue %d while trying to delete entry.\n%@",@""),err.code,err.localizedDescription]];
         } else {
-            if (cur_local_entries[section][indexPath.row].type==0) { //Dir
+            if (cur_local_entries[indexPath.row].type==0) { //Dir
                 DBHelper::deleteStatsDirDB(fullpath);
             }
-            if (cur_local_entries[section][indexPath.row].type&3) { //File
+            if (cur_local_entries[indexPath.row].type&3) { //File
                 DBHelper::deleteStatsFileDB(fullpath);
             }
             if (mSearch) {
@@ -3100,10 +2756,10 @@ As a consequence, some entries might disappear from existing playlist.\n\
     // Return NO if you do not want the item to be re-orderable.
     return NO;
     
-    t_local_browse_entry **cur_local_entries=(search_local?search_local_entries:local_entries);
+    t_local_browse_entry *cur_local_entries=(search_local?search_local_entries:local_entries);
     int section=indexPath.section-2;
     if (section>=0) {
-        NSString *fullpath=[ModizFileHelper getFullPathForFilePath:cur_local_entries[section][indexPath.row].fullpath];
+        NSString *fullpath=[ModizFileHelper getFullPathForFilePath:cur_local_entries[indexPath.row].fullpath];
         BOOL res;
         NSFileManager *myMngr=[[NSFileManager alloc] init];
         res=[myMngr isDeletableFileAtPath:fullpath];
@@ -3277,7 +2933,7 @@ As a consequence, some entries might disappear from existing playlist.\n\
     
     if (tableView.refreshControl.isRefreshing) return;
     
-    t_local_browse_entry **cur_local_entries=(search_local?search_local_entries:local_entries);
+    t_local_browse_entry *cur_local_entries=(search_local?search_local_entries:local_entries);
     
     [tableView selectRowAtIndexPath:indexPath animated:FALSE scrollPosition:UITableViewScrollPositionNone];
     
@@ -3290,32 +2946,26 @@ As a consequence, some entries might disappear from existing playlist.\n\
     
     int section=indexPath.section-2;
     
-    if (indexPath.section==1) {
+    if (indexPath.section==0) {
         // launch Play of current list
-        int pos=0;
-        
         t_playlist *pl;
         pl=(t_playlist *)calloc(1,sizeof(t_playlist));
         pl->nb_entries=0;
-        for (int i=0;i<27;i++) {
-            for (int j=0;j<(search_local?search_local_entries_count[i]:local_entries_count[i]);j++) {
-                if (cur_local_entries[i][j].type&3) {
+            for (int j=0;j<(search_local?search_local_entries_count:local_entries_count);j++) {
+                if (cur_local_entries[j].type&3) {
                     
-                    pl->entries[pl->nb_entries].label=cur_local_entries[i][j].label;
-                    pl->entries[pl->nb_entries].fullpath=cur_local_entries[i][j].fullpath;
-                    pl->entries[pl->nb_entries].ratings=cur_local_entries[i][j].rating;
-                    pl->entries[pl->nb_entries].playcounts=cur_local_entries[i][j].playcount;
+                    pl->entries[pl->nb_entries].label=cur_local_entries[j].label;
+                    pl->entries[pl->nb_entries].fullpath=cur_local_entries[j].fullpath;
+                    pl->entries[pl->nb_entries].ratings=cur_local_entries[j].rating;
+                    pl->entries[pl->nb_entries].playcounts=cur_local_entries[j].playcount;
                     pl->nb_entries++;
                     if (pl->nb_entries>=MAX_PL_ENTRIES) {
                         MDZELog("max entries reached (%d)",MAX_PL_ENTRIES);
                         break;
                     }
                     
-                    if (i<section) pos++;
-                    else if ((i==(section))&&(j<indexPath.row)) pos++;
                 }
             }
-        }
         if (pl->nb_entries) {
             [detailViewController play_listmodules:pl start_index:-1];
             
@@ -3325,15 +2975,15 @@ As a consequence, some entries might disappear from existing playlist.\n\
         }
         free(pl);
     } else {
-        if (cur_local_entries[section][indexPath.row].type&3) {//File selected
+        if (cur_local_entries[indexPath.row].type&3) {//File selected
             // launch Play
             t_playlist *pl;
             pl=(t_playlist*)calloc(1,sizeof(t_playlist));
             pl->nb_entries=1;
-            pl->entries[0].label=cur_local_entries[section][indexPath.row].label;
-            pl->entries[0].fullpath=cur_local_entries[section][indexPath.row].fullpath;
-            pl->entries[0].ratings=cur_local_entries[section][indexPath.row].rating;
-            pl->entries[0].playcounts=cur_local_entries[section][indexPath.row].playcount;
+            pl->entries[0].label=cur_local_entries[indexPath.row].label;
+            pl->entries[0].fullpath=cur_local_entries[indexPath.row].fullpath;
+            pl->entries[0].ratings=cur_local_entries[indexPath.row].rating;
+            pl->entries[0].playcounts=cur_local_entries[indexPath.row].playcount;
             [detailViewController play_listmodules:pl start_index:0];
                         
             [tableView reloadData];
@@ -3407,7 +3057,7 @@ As a consequence, some entries might disappear from existing playlist.\n\
     
     if (tableView.refreshControl.isRefreshing) return;
     
-    t_local_browse_entry **cur_local_entries=(search_local?search_local_entries:local_entries);
+    t_local_browse_entry *cur_local_entries=(search_local?search_local_entries:local_entries);
     
     
     
@@ -3424,33 +3074,28 @@ As a consequence, some entries might disappear from existing playlist.\n\
     //local  browser & favorites
     int section=indexPath.section-2;
     
-    if (indexPath.section==1) {
+    if (indexPath.section==0) {
         // enqueue current dir
         
         
-        int pos=0;
         int total_entries=0;
         NSMutableArray *array_label = [[NSMutableArray alloc] init];
         NSMutableArray *array_path = [[NSMutableArray alloc] init];
-        for (int i=0;i<27;i++)
-            for (int j=0;j<(search_local?search_local_entries_count[i]:local_entries_count[i]);j++)
-                if (cur_local_entries[i][j].type&3) {
+            for (int j=0;j<(search_local?search_local_entries_count:local_entries_count);j++)
+                if (cur_local_entries[j].type&3) {
                     total_entries++;
-                    [array_label addObject:cur_local_entries[i][j].label];
-                    [array_path addObject:cur_local_entries[i][j].fullpath];
-                    if (i<section) pos++;
-                    else if (i==(section))
-                        if (j<indexPath.row) pos++;
+                    [array_label addObject:cur_local_entries[j].label];
+                    [array_path addObject:cur_local_entries[j].fullpath];
                 }
         
         //add to playlist
         if (total_entries) [self addMultipleToPlaylistSelView:array_path label:array_label showNowListening:true];
         
     } else {
-        if (cur_local_entries[section][indexPath.row].type&3) {//File selected
+        if (cur_local_entries[indexPath.row].type&3) {//File selected
             
             //add to playlist
-            [self addToPlaylistSelView:cur_local_entries[section][indexPath.row].fullpath label:cur_local_entries[section][indexPath.row].label showNowListening:true];
+            [self addToPlaylistSelView:cur_local_entries[indexPath.row].fullpath label:cur_local_entries[indexPath.row].label showNowListening:true];
         }
     }
     [self hideWaiting];
@@ -3494,14 +3139,14 @@ As a consequence, some entries might disappear from existing playlist.\n\
     // Navigation logic may go here. Create and push another view controller.
     //First get the dictionary object
     NSString *cellValue;
-    t_local_browse_entry **cur_local_entries=(search_local?search_local_entries:local_entries);
+    t_local_browse_entry *cur_local_entries=(search_local?search_local_entries:local_entries);
     
     if (tabView.refreshControl.isRefreshing) return;
     
     int section=indexPath.section-2;
     
     
-    if (indexPath.section==1) {
+    if (indexPath.section==0) {
         int donothing=0;
         if (indexPath.row==0) {
             if (mSearch) {
@@ -3580,9 +3225,9 @@ As a consequence, some entries might disappear from existing playlist.\n\
             }
         }
     } else {
-        cellValue=cur_local_entries[section][indexPath.row].label;
+        cellValue=cur_local_entries[indexPath.row].label;
         
-        if (cur_local_entries[section][indexPath.row].type==0) { //Directory selected : change current directory
+        if (cur_local_entries[indexPath.row].type==0) { //Directory selected : change current directory
             
             [self updateWaitingTitle:@""];
             [self updateWaitingDetail:@""];
@@ -3623,7 +3268,7 @@ As a consequence, some entries might disappear from existing playlist.\n\
             
             [self hideWaiting];
             //				[childController autorelease];
-        } else if (((cur_local_entries[section][indexPath.row].type==2)||(cur_local_entries[section][indexPath.row].type==3))&&(mAccessoryButton||settings[GLOB_ArcMultiDefaultAction].detail.mdz_switch.switch_value)) { //Archive selected or multisongs: display files inside
+        } else if (((cur_local_entries[indexPath.row].type==2)||(cur_local_entries[indexPath.row].type==3))&&(mAccessoryButton||settings[GLOB_ArcMultiDefaultAction].detail.mdz_switch.switch_value)) { //Archive selected or multisongs: display files inside
             
             
             [self updateWaitingTitle:@""];
@@ -3635,7 +3280,7 @@ As a consequence, some entries might disappear from existing playlist.\n\
             
             
             NSString *newPath;
-            if (mShowSubdir) newPath=[NSString stringWithString:cur_local_entries[section][indexPath.row].fullpath];
+            if (mShowSubdir) newPath=[NSString stringWithString:cur_local_entries[indexPath.row].fullpath];
             else newPath=[NSString stringWithFormat:@"%@/%@",currentPath,cellValue];
             //[newPath retain];
             if (childController == nil) childController = [[RootViewControllerLocalBrowser alloc]  initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]];
@@ -3678,10 +3323,10 @@ As a consequence, some entries might disappear from existing playlist.\n\
                 t_playlist *pl;
                 pl=(t_playlist *)calloc(1,sizeof(t_playlist));
                 pl->nb_entries=1;
-                pl->entries[0].label=cur_local_entries[section][indexPath.row].label;
-                pl->entries[0].fullpath=cur_local_entries[section][indexPath.row].fullpath;
-                pl->entries[0].ratings=cur_local_entries[section][indexPath.row].rating;
-                pl->entries[0].playcounts=cur_local_entries[section][indexPath.row].playcount;
+                pl->entries[0].label=cur_local_entries[indexPath.row].label;
+                pl->entries[0].fullpath=cur_local_entries[indexPath.row].fullpath;
+                pl->entries[0].ratings=cur_local_entries[indexPath.row].rating;
+                pl->entries[0].playcounts=cur_local_entries[indexPath.row].playcount;
                 [detailViewController play_listmodules:pl start_index:0];
                 
                 if ([detailViewController.mplayer isPlaying]) [self showMiniPlayer];
@@ -3689,7 +3334,7 @@ As a consequence, some entries might disappear from existing playlist.\n\
                 free(pl);
                 
             } else {
-                if ([detailViewController add_to_playlist:cur_local_entries[section][indexPath.row].fullpath fileName:cur_local_entries[section][indexPath.row].label forcenoplay:0]) {
+                if ([detailViewController add_to_playlist:cur_local_entries[indexPath.row].fullpath fileName:cur_local_entries[indexPath.row].label forcenoplay:0]) {
                                     
                 }
             }
@@ -3750,15 +3395,15 @@ As a consequence, some entries might disappear from existing playlist.\n\
             int csection=indexPath.section-2;
             if (csection>=0) {
                 //display popup
-                t_local_browse_entry **cur_local_entries=(search_local?search_local_entries:local_entries);
+                t_local_browse_entry *cur_local_entries=(search_local?search_local_entries:local_entries);
                 
                 //get file info
                 NSError *err;
                 NSDictionary *dict;
                 NSFileManager *fileManager=[[NSFileManager alloc] init];
                 
-                NSString *str=[NSString stringWithFormat:@"%@\n%@",cur_local_entries[csection][crow].label,cur_local_entries[csection][crow].fullpath];
-                dict=[fileManager attributesOfItemAtPath:[ModizFileHelper getFullPathForFilePath:cur_local_entries[csection][crow].fullpath] error:&err];
+                NSString *str=[NSString stringWithFormat:@"%@\n%@",cur_local_entries[crow].label,cur_local_entries[crow].fullpath];
+                dict=[fileManager attributesOfItemAtPath:[ModizFileHelper getFullPathForFilePath:cur_local_entries[crow].fullpath] error:&err];
                 if (dict) {
                     str=[str stringByAppendingFormat:@"\n%lluKo",[dict fileSize]/1024];
                 }
@@ -3878,51 +3523,29 @@ As a consequence, some entries might disappear from existing playlist.\n\
         //[mSearchText release];
         mSearchText=nil;
     }
-    if (keys) {
-        //[keys release];
-        keys=nil;
-    }
-    if (list) {
-        //[list release];
-        list=nil;
-    }
     
     if (local_nb_entries) {
         for (int i=0;i<local_nb_entries;i++) {
             local_entries_data[i].label=nil;
             local_entries_data[i].fullpath=nil;
         }
-        for (int i=0;i<27;i++) {
-            for (int j=0;j<local_entries_count[i];j++) {
-                local_entries[i][j].label=nil;
-                local_entries[i][j].fullpath=nil;
+            for (int j=0;j<local_entries_count;j++) {
+                local_entries[j].label=nil;
+                local_entries[j].fullpath=nil;
             }
-            local_entries[i]=NULL;
-        }
+            local_entries=NULL;
         free(local_entries_data);
     }
     if (search_local_nb_entries) {
         
-        for (int i=0;i<27;i++) {
-            for (int j=0;j<search_local_entries_count[i];j++) {
-                search_local_entries[i][j].label=nil;
-                search_local_entries[i][j].fullpath=nil;
+            for (int j=0;j<search_local_entries_count;j++) {
+                search_local_entries[j].label=nil;
+                search_local_entries[j].fullpath=nil;
             }
-            search_local_entries[i]=NULL;
-        }
+            search_local_entries=NULL;
         
         search_local_nb_entries=0;
         free(search_local_entries_data);
-    }
-    
-    
-    if (indexTitles) {
-        //[indexTitles release];
-        indexTitles=nil;
-    }
-    if (indexTitlesSpace) {
-        //[indexTitlesSpace release];
-        indexTitlesSpace=nil;
     }
     
     if (mFileMngr) {

@@ -13,8 +13,21 @@
         [miniplayerVC removeFromParentViewController];
         [miniplayerVC.view removeFromSuperview];
         miniplayerVC=nil;
-        
+
         self.tableView.frame=CGRectMake(0,self.tableView.frame.origin.y,self.tableView.frame.size.width,self.tableView.frame.size.height+48);
+
+        // Reset insets when hiding miniPlayer, but keep safe area insets for scroll indicators
+        self.tableView.contentInset = UIEdgeInsetsZero;
+
+        // Respect safe area insets for scroll indicators visibility
+        UIEdgeInsets safeInsets = self.view.safeAreaInsets;
+        self.tableView.scrollIndicatorInsets = UIEdgeInsetsMake(
+            safeInsets.top,
+            safeInsets.left,
+            safeInsets.bottom,
+            safeInsets.right
+        );
+
         [self.view setNeedsLayout];
         [self.view layoutIfNeeded];
         [tableView reloadData];
@@ -59,10 +72,18 @@
     [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:miniplayerVC.view attribute:NSLayoutAttributeBottom multiplier:1.0 constant:-adjust_y]];
     
     self.tableView.frame=CGRectMake(0,self.tableView.frame.origin.y,self.tableView.frame.size.width,self.tableView.frame.size.height-48+adjust_y);
-    
-    
+
+
     self.tableView.contentInset = UIEdgeInsetsMake(0, 0, 48 - adjust_y, 0);
-    self.tableView.scrollIndicatorInsets = self.tableView.contentInset;
+
+    // Set scrollIndicatorInsets to respect safe area on all sides + miniPlayer on bottom
+    UIEdgeInsets safeInsets = self.view.safeAreaInsets;
+    self.tableView.scrollIndicatorInsets = UIEdgeInsetsMake(
+        safeInsets.top,
+        safeInsets.left,
+        48 - adjust_y,  // Keep space for miniPlayer
+        safeInsets.right
+    );
     
     [self.view setNeedsLayout];
     [self.view layoutIfNeeded];

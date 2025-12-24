@@ -364,7 +364,7 @@
 		5966D25C25CFF14D00520777 /* liszt_mazeppa.mid in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = 5966D17425CFF0D100520777 /* liszt_mazeppa.mid */; };
 		5966D25D25CFF14D00520777 /* beethoven_op125_3.mid in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = 5966D17525CFF0D100520777 /* beethoven_op125_3.mid */; };
 		5966D25E25CFF14D00520777 /* chopin_fantaisie.mid in Copy Files-Samples Classical */ = {isa = PBXBuildFile; fileRef = 5966D17625CFF0D100520777 /* chopin_fantaisie.mid */; };
-		596BB20C26507734000E63A6 /* RootViewControllerP2612WebParser.mm in Sources */ = {isa = PBXBuildFile; fileRef = 596BB20B26507733000E63A6 /* RootViewControllerP2612WebParser.mm */; };
+		596BB20C26507734000E63A6 /* RootViewControllerAMPWebParser.mm in Sources */ = {isa = PBXBuildFile; fileRef = 596BB20B26507733000E63A6 /* RootViewControllerAMPWebParser.mm */; };
 		598051D3262E1D7500BB0309 /* Battle_Garegga_(Toaplan_2).zip in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = 598051A0262E1D0A00BB0309 /* Battle_Garegga_(Toaplan_2).zip */; };
 		598051D4262E1D7500BB0309 /* Dune_(IBM_PC_AT).zip in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = 5980519D262E1D0A00BB0309 /* Dune_(IBM_PC_AT).zip */; };
 		598051D5262E1D7500BB0309 /* Indiana_Jones_and_the_Fate_of_Atlantis_(IBM_PC_AT).zip in Copy Files-Samples Games */ = {isa = PBXBuildFile; fileRef = 5980519C262E1D0A00BB0309 /* Indiana_Jones_and_the_Fate_of_Atlantis_(IBM_PC_AT).zip */; };
@@ -1008,7 +1008,7 @@
 		CCBE60F72EE2DD44000FDD7E /* UIColor+BButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 33ABE5AE17B17A5100AE0EA1 /* UIColor+BButton.m */; };
 		CCBE60F82EE2DD44000FDD7E /* uri68.c in Sources */ = {isa = PBXBuildFile; fileRef = CC83680F2B57CA9A0035A4DA /* uri68.c */; };
 		CCBE60F92EE2DD44000FDD7E /* OnlineViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 330F36C817A683FB00EEC84A /* OnlineViewController.mm */; };
-		CCBE60FA2EE2DD44000FDD7E /* RootViewControllerP2612WebParser.mm in Sources */ = {isa = PBXBuildFile; fileRef = 596BB20B26507733000E63A6 /* RootViewControllerP2612WebParser.mm */; };
+		CCBE60FA2EE2DD44000FDD7E /* RootViewControllerAMPWebParser.mm in Sources */ = {isa = PBXBuildFile; fileRef = 596BB20B26507733000E63A6 /* RootViewControllerAMPWebParser.mm */; };
 		CCBE60FB2EE2DD44000FDD7E /* AFURLSessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 59C22A0B25B992D9003FEDBF /* AFURLSessionManager.m */; };
 		CCBE60FC2EE2DD44000FDD7E /* vfs68_z.c in Sources */ = {isa = PBXBuildFile; fileRef = CC83680C2B57CA9A0035A4DA /* vfs68_z.c */; };
 		CCBE60FD2EE2DD44000FDD7E /* EQView.m in Sources */ = {isa = PBXBuildFile; fileRef = CC6CBDF517DC615F006DCBC7 /* EQView.m */; };
@@ -3059,8 +3059,8 @@
 		5966D17425CFF0D100520777 /* liszt_mazeppa.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = liszt_mazeppa.mid; sourceTree = "<group>"; };
 		5966D17525CFF0D100520777 /* beethoven_op125_3.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = beethoven_op125_3.mid; sourceTree = "<group>"; };
 		5966D17625CFF0D100520777 /* chopin_fantaisie.mid */ = {isa = PBXFileReference; lastKnownFileType = audio.midi; path = chopin_fantaisie.mid; sourceTree = "<group>"; };
-		596BB1F426507733000E63A6 /* RootViewControllerP2612WebParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RootViewControllerP2612WebParser.h; sourceTree = "<group>"; };
-		596BB20B26507733000E63A6 /* RootViewControllerP2612WebParser.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RootViewControllerP2612WebParser.mm; sourceTree = "<group>"; };
+		596BB1F426507733000E63A6 /* RootViewControllerAMPWebParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RootViewControllerAMPWebParser.h; sourceTree = "<group>"; };
+		596BB20B26507733000E63A6 /* RootViewControllerAMPWebParser.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RootViewControllerAMPWebParser.mm; sourceTree = "<group>"; };
 		5980519B262E1D0A00BB0309 /* Skate_or_Die_intro.sid */ = {isa = PBXFileReference; lastKnownFileType = file; path = Skate_or_Die_intro.sid; sourceTree = "<group>"; };
 		5980519C262E1D0A00BB0309 /* Indiana_Jones_and_the_Fate_of_Atlantis_(IBM_PC_AT).zip */ = {isa = PBXFileReference; lastKnownFileType = archive.zip; path = "Indiana_Jones_and_the_Fate_of_Atlantis_(IBM_PC_AT).zip"; sourceTree = "<group>"; };
 		5980519D262E1D0A00BB0309 /* Dune_(IBM_PC_AT).zip */ = {isa = PBXFileReference; lastKnownFileType = archive.zip; path = "Dune_(IBM_PC_AT).zip"; sourceTree = "<group>"; };
@@ -4321,8 +4321,8 @@
 				59F726B72657ABFD006BB0E3 /* RootViewControllerSMSPWebParser.mm */,
 				5991486F2651632B005DEB44 /* RootViewControllerSNESMWebParser.h */,
 				599148862651632B005DEB44 /* RootViewControllerSNESMWebParser.mm */,
-				596BB1F426507733000E63A6 /* RootViewControllerP2612WebParser.h */,
-				596BB20B26507733000E63A6 /* RootViewControllerP2612WebParser.mm */,
+				596BB1F426507733000E63A6 /* RootViewControllerAMPWebParser.h */,
+				596BB20B26507733000E63A6 /* RootViewControllerAMPWebParser.mm */,
 				591CA87526483DB600168C7E /* RootViewControllerVGMRWebParser.h */,
 				591CA87626483DB600168C7E /* RootViewControllerVGMRWebParser.mm */,
 				591A7F99262C0EE8001ABB99 /* RootViewControllerJoshWWebParser.h */,
@@ -8347,7 +8347,7 @@
 				59B9997C25CFE5690071E144 /* UIColor+BButton.m in Sources */,
 				CC8368E42B57CA9B0035A4DA /* uri68.c in Sources */,
 				330F36C917A683FB00EEC84A /* OnlineViewController.mm in Sources */,
-				596BB20C26507734000E63A6 /* RootViewControllerP2612WebParser.mm in Sources */,
+				596BB20C26507734000E63A6 /* RootViewControllerAMPWebParser.mm in Sources */,
 				59C22A1C25B992D9003FEDBF /* AFURLSessionManager.m in Sources */,
 				CC8368E22B57CA9B0035A4DA /* vfs68_z.c in Sources */,
 				CC6CBDF617DC615F006DCBC7 /* EQView.m in Sources */,
@@ -8552,7 +8552,7 @@
 				CCBE60F72EE2DD44000FDD7E /* UIColor+BButton.m in Sources */,
 				CCBE60F82EE2DD44000FDD7E /* uri68.c in Sources */,
 				CCBE60F92EE2DD44000FDD7E /* OnlineViewController.mm in Sources */,
-				CCBE60FA2EE2DD44000FDD7E /* RootViewControllerP2612WebParser.mm in Sources */,
+				CCBE60FA2EE2DD44000FDD7E /* RootViewControllerAMPWebParser.mm in Sources */,
 				CCBE60FB2EE2DD44000FDD7E /* AFURLSessionManager.m in Sources */,
 				CCBE60FC2EE2DD44000FDD7E /* vfs68_z.c in Sources */,
 				CCBE60FD2EE2DD44000FDD7E /* EQView.m in Sources */,

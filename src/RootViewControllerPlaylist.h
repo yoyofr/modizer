@@ -45,7 +45,6 @@
 	
     NSMutableArray *list;
     NSMutableArray *keys;
-	NSMutableArray *indexTitles,*indexTitlesDownload;
     
     NSMutableDictionary *dictActionBtn;
 	
@@ -54,13 +53,13 @@
     int mAccessoryButton;
 
 	t_local_browse_entry *local_entries_data;
-	int local_entries_count[27];
-    t_local_browse_entry *local_entries[27];
+	int local_entries_count;
+    t_local_browse_entry *local_entries;
 	int local_nb_entries;
 	
 	t_local_browse_entry *search_local_entries_data;
-	int search_local_entries_count[27];
-    t_local_browse_entry *search_local_entries[27];
+	int search_local_entries_count;
+    t_local_browse_entry *search_local_entries;
 	int search_local_nb_entries;
 	
 	int search_local;

@@ -41,10 +41,6 @@
     
     NSFileManager *mFileMngr;
     
-    NSMutableArray *list;
-    NSMutableArray *keys;
-    NSMutableArray *indexTitles,*indexTitlesDownload;
-    
     NSMutableDictionary *dictActionBtn;
     
     int mNbASMAFileEntries;
@@ -54,12 +50,12 @@
     int mAccessoryButton;
     
     t_dbHVSC_browse_entry *dbASMA_entries_data;
-    int dbASMA_entries_count[27];
-    t_dbHVSC_browse_entry *dbASMA_entries[27];
+    int dbASMA_entries_count;
+    t_dbHVSC_browse_entry *dbASMA_entries;
     int dbASMA_nb_entries,dbASMA_hasFiles;
     t_dbHVSC_browse_entry *search_dbASMA_entries_data;
-    int search_dbASMA_entries_count[27];
-    t_dbHVSC_browse_entry *search_dbASMA_entries[27];
+    int search_dbASMA_entries_count;
+    t_dbHVSC_browse_entry *search_dbASMA_entries;
     int search_dbASMA;
     int search_dbASMA_nb_entries,search_dbASMA_hasFiles;
     
@@ -98,8 +94,6 @@
 @property (nonatomic, retain) IBOutlet UITableView *tableView;
 @property (nonatomic, retain) IBOutlet UISearchBar *sBar;
 
-@property (nonatomic, retain) NSArray *list;
-@property (nonatomic, retain) NSArray *keys;
 @property (nonatomic, retain) NSString *currentPath,*mSearchText;
 @property (nonatomic, retain) CMPopTipView *popTipView;
 @property (nonatomic, retain) WaitingView *waitingView,*waitingViewPlayer;

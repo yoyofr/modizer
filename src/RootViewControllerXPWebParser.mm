@@ -59,17 +59,12 @@ extern void *LoadingProgressObserverContext;
         if (indexPath != nil) {
             if ((gestureRecognizer.state==UIGestureRecognizerStateBegan)||(gestureRecognizer.state==UIGestureRecognizerStateChanged)) {
                 int crow=indexPath.row;
-                int csection;
                 
-                
-                csection=indexPath.section-1;
-                
-                if (csection>=0) {
                     //display popup
-                    t_WEB_browse_entry **cur_db_entries;
+                    t_WEB_browse_entry *cur_db_entries;
                     cur_db_entries=(search_dbWEB?search_dbWEB_entries:dbWEB_entries);
                     
-                    NSString *str=cur_db_entries[csection][crow].fullpath;
+                    NSString *str=cur_db_entries[crow].fullpath;
                     if (self.popTipView == nil) {
                         self.popTipView = [[CMPopTipView alloc] initWithMessage:str];
                         self.popTipView.delegate = self;
@@ -78,16 +73,15 @@ extern void *LoadingProgressObserverContext;
                         
                         [self.popTipView presentPointingAtView:[self.tableView cellForRowAtIndexPath:indexPath] inView:self.tableView animated:YES];
                         popTipViewRow=crow;
-                        popTipViewSection=csection;
+                        popTipViewSection=0;
                     } else {
-                        if ((popTipViewRow!=crow)||(popTipViewSection!=csection)||([str compare:self.popTipView.message]!=NSOrderedSame)) {
+                        if ((popTipViewRow!=crow)||(popTipViewSection!=0)||([str compare:self.popTipView.message]!=NSOrderedSame)) {
                             self.popTipView.message=str;
                             [self.popTipView presentPointingAtView:[self.tableView cellForRowAtIndexPath:indexPath] inView:self.tableView animated:YES];
                             popTipViewRow=crow;
-                            popTipViewSection=csection;
+                            popTipViewSection=0;
                         }
                     }
-                }
             } else {
                 //hide popup
                 if (popTipView!=nil) {
@@ -144,8 +138,6 @@ extern void *LoadingProgressObserverContext;
     [self loadControllers];
     
     dictActionBtn=[NSMutableDictionary dictionaryWithCapacity:64];
-    
-    indexTitleMode=0;
     
     mPopupAnimation=0;
     
@@ -204,6 +196,10 @@ extern void *LoadingProgressObserverContext;
     
     search_dbWEB=0;  //reset to ensure search_dbWEB is not used by default
     
+    
+    dbWEB_entries=NULL;
+    search_dbWEB_entries=NULL;
+    
     dbWEB_nb_entries=0;
     search_dbWEB_nb_entries=0;
     
@@ -215,38 +211,6 @@ extern void *LoadingProgressObserverContext;
     
     UIBarButtonItem *item = [[UIBarButtonItem alloc] initWithImage:[UIImage systemImageNamed:NOW_PLAYING_ICON] style:UIBarButtonItemStylePlain target:self action:@selector(goPlayer)];
     self.navigationItem.rightBarButtonItem = item;
-    
-    indexTitles = [[NSMutableArray alloc] init];
-    [indexTitles addObject:@"{search}"];
-    if (indexTitleMode) {
-        [indexTitles addObject:@"#"];
-        [indexTitles addObject:@"A"];
-        [indexTitles addObject:@"B"];
-        [indexTitles addObject:@"C"];
-        [indexTitles addObject:@"D"];
-        [indexTitles addObject:@"E"];
-        [indexTitles addObject:@"F"];
-        [indexTitles addObject:@"G"];
-        [indexTitles addObject:@"H"];
-        [indexTitles addObject:@"I"];
-        [indexTitles addObject:@"J"];
-        [indexTitles addObject:@"K"];
-        [indexTitles addObject:@"L"];
-        [indexTitles addObject:@"M"];
-        [indexTitles addObject:@"N"];
-        [indexTitles addObject:@"O"];
-        [indexTitles addObject:@"P"];
-        [indexTitles addObject:@"Q"];
-        [indexTitles addObject:@"R"];
-        [indexTitles addObject:@"S"];
-        [indexTitles addObject:@"T"];
-        [indexTitles addObject:@"U"];
-        [indexTitles addObject:@"V"];
-        [indexTitles addObject:@"W"];
-        [indexTitles addObject:@"X"];
-        [indexTitles addObject:@"Y"];
-        [indexTitles addObject:@"Z"];
-    }
     
     /////////////////////////////////////
     // Waiting view
@@ -262,8 +226,8 @@ extern void *LoadingProgressObserverContext;
     // height constraint
     [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[waitingView(150)]" options:0 metrics:nil views:views]];
     // center align
-    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:waitingView attribute:NSLayoutAttributeCenterX multiplier:1.0 constant:0]];
-    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:waitingView attribute:NSLayoutAttributeCenterY multiplier:1.0 constant:0]];
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view.safeAreaLayoutGuide attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:waitingView attribute:NSLayoutAttributeCenterX multiplier:1.0 constant:0]];
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view.safeAreaLayoutGuide attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:waitingView attribute:NSLayoutAttributeCenterY multiplier:1.0 constant:0]];
     
     waitingViewPlayer = [[WaitingView alloc] init];
     waitingViewPlayer.layer.zPosition=MAXFLOAT;
@@ -276,8 +240,8 @@ extern void *LoadingProgressObserverContext;
     // height constraint
     [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[waitingViewPlayer(150)]" options:0 metrics:nil views:views]];
     // center align
-    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:waitingViewPlayer attribute:NSLayoutAttributeCenterX multiplier:1.0 constant:0]];
-    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:waitingViewPlayer attribute:NSLayoutAttributeCenterY multiplier:1.0 constant:0]];
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view.safeAreaLayoutGuide attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:waitingViewPlayer attribute:NSLayoutAttributeCenterX multiplier:1.0 constant:0]];
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view.safeAreaLayoutGuide attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:waitingViewPlayer attribute:NSLayoutAttributeCenterY multiplier:1.0 constant:0]];
     
     [super viewDidLoad];
     
@@ -288,6 +252,7 @@ END_PROFILE
     //called when fillKeys has finished
     [self hideWaiting];
     [tableView reloadData];
+    fillKeysInProgress=0;
 }
 
 -(void) fillKeys {
@@ -465,87 +430,105 @@ END_PROFILE
 #pragma mark Table view data source
 
 - (NSArray *)sectionIndexTitlesForTableView:(UITableView *)tableView {
-    if (mSearch) return nil;
-    
-    return indexTitles;
+    return nil;
 }
 
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
-    if (!indexTitleMode) return nil;
-    if (mSearch) return nil;
-    if (section==0) return 0;
-    if (search_dbWEB) {
-        if (search_dbWEB_entries_count[section-1]) return [indexTitles objectAtIndex:section];
-        return nil;
-    } else {
-        if (dbWEB_entries_count[section-1]) return [indexTitles objectAtIndex:section];
-        return nil;
-    }
     return nil;
 }
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
-    if (search_dbWEB) {
-        if (indexTitleMode) return 28;
-        return 2;
-    } else {
-        if (indexTitleMode) return 28;
-        return 2;
-    }
+    return 1;
 }
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    if (section==0) return 0;
     //Check if "Get all entries" has to be displayed
     if (search_dbWEB) {
-        return search_dbWEB_entries_count[section-1];
+        return search_dbWEB_entries_count;
     } else {
-        return dbWEB_entries_count[section-1];
+        return dbWEB_entries_count;
     }
 }
 
 - (NSInteger)tableView:(UITableView *)tabView sectionForSectionIndexTitle:(NSString *)title atIndex:(NSInteger)index {
-    if (mSearch) return -1;
-    if (index == 0) {
-        [tabView setContentOffset:CGPointZero animated:NO];
-        return NSNotFound;
-    }
-    return index;
+    return -1;
 }
 
 // Override to support editing the table view.
-- (void)tableView:(UITableView *)tabView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
-    
-    if (editingStyle == UITableViewCellEditingStyleDelete) {
-        // Delete the row from the data source
-        //delete entry
-        t_WEB_browse_entry **cur_db_entries;
-        cur_db_entries=(search_dbWEB?search_dbWEB_entries:dbWEB_entries);
-        int section = indexPath.section-1;
-        
-        //delete file
-        NSString *fullpath=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@",cur_db_entries[section][indexPath.row].fullpath];
-        NSError *err;
-        DBHelper::deleteStatsFileDB(fullpath);
-        cur_db_entries[section][indexPath.row].downloaded=0;
-        //delete local file
-        [mFileMngr removeItemAtPath:fullpath error:&err];
-        //ask for a reload/redraw
-        [tabView reloadData];
-        
-    } else if (editingStyle == UITableViewCellEditingStyleInsert) {
-        // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
-    }
-}
+//- (void)tableView:(UITableView *)tabView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
+//    
+//    if (editingStyle == UITableViewCellEditingStyleDelete) {
+//        // Delete the row from the data source
+//        //delete entry
+//        t_WEB_browse_entry *cur_db_entries;
+//        cur_db_entries=(search_dbWEB?search_dbWEB_entries:dbWEB_entries);
+//        
+//        //delete file
+//        NSString *fullpath=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@",cur_db_entries[indexPath.row].fullpath];
+//        NSError *err;
+//        DBHelper::deleteStatsFileDB(fullpath);
+//        cur_db_entries[indexPath.row].downloaded=0;
+//        //delete local file
+//        [mFileMngr removeItemAtPath:fullpath error:&err];
+//        //ask for a reload/redraw
+//        [tabView reloadData];
+//        
+//    } else if (editingStyle == UITableViewCellEditingStyleInsert) {
+//        // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
+//    }
+//}
 
 - (BOOL)tableView:(UITableView *)tabView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
     // Return NO if you do not want the item to be re-orderable.
-    t_WEB_browse_entry **cur_db_entries=(search_dbWEB?search_dbWEB_entries:dbWEB_entries);
-    int section =indexPath.section-1;
-    if (section>=0) {
-        if (cur_db_entries[section][indexPath.row].downloaded==1) return YES;
+    t_WEB_browse_entry *cur_db_entries=(search_dbWEB?search_dbWEB_entries:dbWEB_entries);
+    if (cur_db_entries) {
+        if (cur_db_entries[indexPath.row].downloaded==1) return YES;
     }
     return NO;
 }
+
+- (UISwipeActionsConfiguration *)tableView:(UITableView *)tableView
+trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
+
+//    t_WEB_browse_entry *cur_db_entries=(search_dbWEB?search_dbWEB_entries:dbWEB_entries);
+
+    // Only show actions for downloaded files
+//    if (cur_db_entries[indexPath.row].downloaded != 1) {
+//        return nil;
+//    }
+
+    // DELETE ACTION
+    UIContextualAction *deleteAction =
+    [UIContextualAction contextualActionWithStyle:UIContextualActionStyleDestructive
+                                            title:NSLocalizedString(@"Delete", @"")
+                                          handler:^(UIContextualAction *action,
+                                                    UIView *sourceView,
+                                                    void (^completionHandler)(BOOL)) {
+
+        t_WEB_browse_entry *cur_db_entries=(search_dbWEB?search_dbWEB_entries:dbWEB_entries);
+
+        //delete file
+        NSString *fullpath=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@",cur_db_entries[indexPath.row].fullpath];
+        NSError *err;
+        DBHelper::deleteStatsFileDB(fullpath);
+        cur_db_entries[indexPath.row].downloaded=0;
+        cur_db_entries[indexPath.row].rating=-1;
+        cur_db_entries[indexPath.row].playcount=-1;
+
+        //delete local file
+        [mFileMngr removeItemAtPath:fullpath error:&err];
+
+        // Reload the cell to show the file is no longer downloaded
+        [tableView reloadRowsAtIndexPaths:@[indexPath]
+                         withRowAnimation:UITableViewRowAnimationAutomatic];
+
+        completionHandler(YES);
+    }];
+    deleteAction.backgroundColor = [UIColor redColor];
+
+    // Return multiple actions - they appear from right to left
+    return [UISwipeActionsConfiguration configurationWithActions:@[deleteAction]];
+}
+
 
 #pragma mark UISearchBarDelegate
 - (void)searchBarTextDidBeginEditing:(UISearchBar *)searchBar {
@@ -701,20 +684,19 @@ END_PROFILE
     [self flushMainLoop];
     
     {
-        t_WEB_browse_entry **cur_db_entries;
+        t_WEB_browse_entry *cur_db_entries;
         cur_db_entries=(search_dbWEB?search_dbWEB_entries:dbWEB_entries);
-        int section = indexPath.section-1;
         
-        if (cur_db_entries[section][indexPath.row].isFile) { //FILE
+        if (cur_db_entries[indexPath.row].isFile) { //FILE
             //File selected, start download is needed
-            NSString *localPath=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@",cur_db_entries[section][indexPath.row].fullpath];
+            NSString *localPath=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@",cur_db_entries[indexPath.row].fullpath];
             
-            if (cur_db_entries[section][indexPath.row].downloaded==1) {
+            if (cur_db_entries[indexPath.row].downloaded==1) {
                 NSMutableArray *array_label = [[NSMutableArray alloc] init];
                 NSMutableArray *array_path = [[NSMutableArray alloc] init];
-                [array_label addObject:cur_db_entries[section][indexPath.row].label];
-                [array_path addObject:cur_db_entries[section][indexPath.row].fullpath];
-                cur_db_entries[section][indexPath.row].rating=-1;
+                [array_label addObject:cur_db_entries[indexPath.row].label];
+                [array_path addObject:cur_db_entries[indexPath.row].fullpath];
+                cur_db_entries[indexPath.row].rating=-1;
                 [detailViewController play_listmodules:array_label start_index:0 path:array_path];
                 if ([detailViewController.mplayer isPlaying]) [self showMiniPlayer];
                 
@@ -722,7 +704,7 @@ END_PROFILE
             } else {
                 [self checkCreate:[localPath stringByDeletingLastPathComponent]];
                 
-                [downloadViewController addURLToDownloadList:cur_db_entries[section][indexPath.row].URL fileName:cur_db_entries[section][indexPath.row].label filePath:cur_db_entries[section][indexPath.row].fullpath filesize:-1 isMODLAND:1 usePrimaryAction:1];
+                [downloadViewController addURLToDownloadList:cur_db_entries[indexPath.row].URL fileName:cur_db_entries[indexPath.row].label filePath:cur_db_entries[indexPath.row].fullpath filesize:-1 isMODLAND:1 usePrimaryAction:1];
                 
             }
         }
@@ -744,25 +726,24 @@ END_PROFILE
     [self showWaiting];
     [self flushMainLoop];
     
-    t_WEB_browse_entry **cur_db_entries;
+    t_WEB_browse_entry *cur_db_entries;
     cur_db_entries=(search_dbWEB?search_dbWEB_entries:dbWEB_entries);
-    int section=indexPath.section-1;
     
-    if (cur_db_entries[section][indexPath.row].isFile) { //FILE
+    if (cur_db_entries[indexPath.row].isFile) { //FILE
         //File selected, start download is needed
-        NSString *localPath=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@",cur_db_entries[section][indexPath.row].fullpath];
+        NSString *localPath=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@",cur_db_entries[indexPath.row].fullpath];
         mClickedPrimAction=2;
         
-        if (cur_db_entries[section][indexPath.row].downloaded==1) {
+        if (cur_db_entries[indexPath.row].downloaded==1) {
             //add to playlist
-            [self addToPlaylistSelView:cur_db_entries[section][indexPath.row].fullpath label:cur_db_entries[section][indexPath.row].label showNowListening:true];
+            [self addToPlaylistSelView:cur_db_entries[indexPath.row].fullpath label:cur_db_entries[indexPath.row].label showNowListening:true];
             
-            cur_db_entries[section][indexPath.row].rating=-1;
+            cur_db_entries[indexPath.row].rating=-1;
             [tableView reloadData];
         } else {
             [self checkCreate:[localPath stringByDeletingLastPathComponent]];
             
-            [downloadViewController addURLToDownloadList:cur_db_entries[section][indexPath.row].URL fileName:cur_db_entries[section][indexPath.row].label filePath:cur_db_entries[section][indexPath.row].fullpath filesize:-1 isMODLAND:1 usePrimaryAction:mClickedPrimAction];
+            [downloadViewController addURLToDownloadList:cur_db_entries[indexPath.row].URL fileName:cur_db_entries[indexPath.row].label filePath:cur_db_entries[indexPath.row].fullpath filesize:-1 isMODLAND:1 usePrimaryAction:mClickedPrimAction];
         }
     }
     [self hideWaiting];
@@ -780,31 +761,30 @@ END_PROFILE
 }
 
 - (void)tableView:(UITableView *)tabView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    t_WEB_browse_entry **cur_db_entries;
+    t_WEB_browse_entry *cur_db_entries;
     cur_db_entries=(search_dbWEB?search_dbWEB_entries:dbWEB_entries);
-    int section=indexPath.section-1;
     
-    if (cur_db_entries[section][indexPath.row].isFile) { //FILE
+    if (cur_db_entries[indexPath.row].isFile) { //FILE
         //File selected, start download is needed
-        NSString *localPath=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@",cur_db_entries[section][indexPath.row].fullpath];
+        NSString *localPath=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@",cur_db_entries[indexPath.row].fullpath];
         mClickedPrimAction=(settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==0);
         
-        if (cur_db_entries[section][indexPath.row].downloaded==1) {
+        if (cur_db_entries[indexPath.row].downloaded==1) {
             if (mClickedPrimAction) {
                 NSMutableArray *array_label = [[NSMutableArray alloc] init];
                 NSMutableArray *array_path = [[NSMutableArray alloc] init];
-                [array_label addObject:cur_db_entries[section][indexPath.row].label];
-                [array_path addObject:cur_db_entries[section][indexPath.row].fullpath];
-                cur_db_entries[section][indexPath.row].rating=-1;
+                [array_label addObject:cur_db_entries[indexPath.row].label];
+                [array_path addObject:cur_db_entries[indexPath.row].fullpath];
+                cur_db_entries[indexPath.row].rating=-1;
                 [detailViewController play_listmodules:array_label start_index:0 path:array_path];
                 if ([detailViewController.mplayer isPlaying]) [self showMiniPlayer];
                 
                 [tabView reloadData];
             } else {
-                if ([detailViewController add_to_playlist:localPath fileName:cur_db_entries[section][indexPath.row].label forcenoplay:(settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==1)]) {
+                if ([detailViewController add_to_playlist:localPath fileName:cur_db_entries[indexPath.row].label forcenoplay:(settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==1)]) {
                     if ([detailViewController.mplayer isPlaying]) [self showMiniPlayer];
                     
-                    cur_db_entries[section][indexPath.row].rating=-1;
+                    cur_db_entries[indexPath.row].rating=-1;
                     [tabView reloadData];
                 }
             }
@@ -812,18 +792,18 @@ END_PROFILE
             [self checkCreate:[localPath stringByDeletingLastPathComponent]];
             
             
-            [downloadViewController addURLToDownloadList:cur_db_entries[section][indexPath.row].URL fileName:cur_db_entries[section][indexPath.row].label filePath:cur_db_entries[section][indexPath.row].fullpath filesize:-1 isMODLAND:1 usePrimaryAction:mClickedPrimAction];
+            [downloadViewController addURLToDownloadList:cur_db_entries[indexPath.row].URL fileName:cur_db_entries[indexPath.row].label filePath:cur_db_entries[indexPath.row].fullpath filesize:-1 isMODLAND:1 usePrimaryAction:mClickedPrimAction];
             
         }
     } else {
         childController = [[RootViewControllerXPWebParser alloc]  initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]];
         //set new title
-        childController.title = cur_db_entries[section][indexPath.row].fullpath;
+        childController.title = cur_db_entries[indexPath.row].fullpath;
         // Set new directory
         ((RootViewControllerXPWebParser*)childController)->browse_depth = browse_depth+1;
         ((RootViewControllerXPWebParser*)childController)->detailViewController=detailViewController;
         ((RootViewControllerXPWebParser*)childController)->downloadViewController=downloadViewController;
-        ((RootViewControllerXPWebParser*)childController)->mWebBaseURL=cur_db_entries[section][indexPath.row].URL;
+        ((RootViewControllerXPWebParser*)childController)->mWebBaseURL=cur_db_entries[indexPath.row].URL;
         
         //childController.view.frame=self.view.frame;
         // Ensure proper layout under navigation/tab bars
@@ -918,21 +898,16 @@ END_PROFILE
         free(dbWEB_entries_data);
     }
     if (search_dbWEB_nb_entries) {
-        for (int i=0;i<27;i++) {
-            for (int j=0;j<search_dbWEB_entries_count[i];j++) {
-                search_dbWEB_entries[i][j].label=nil;
-                search_dbWEB_entries[i][j].fullpath=nil;
-                search_dbWEB_entries[i][j].URL=nil;
-                search_dbWEB_entries[i][j].info=nil;
-                search_dbWEB_entries[i][j].img_URL=nil;
-            }
-            search_dbWEB_entries[i]=NULL;
+        for (int j=0;j<search_dbWEB_entries_count;j++) {
+            search_dbWEB_entries[j].label=nil;
+            search_dbWEB_entries[j].fullpath=nil;
+            search_dbWEB_entries[j].URL=nil;
+            search_dbWEB_entries[j].info=nil;
+            search_dbWEB_entries[j].img_URL=nil;
         }
+        search_dbWEB_entries=NULL;
         search_dbWEB_nb_entries=0;
         free(search_dbWEB_entries_data);
-    }
-    if (indexTitles) {
-        indexTitles=nil;
     }
     if (mFileMngr) {
         mFileMngr=nil;

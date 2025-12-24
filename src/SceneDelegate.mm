@@ -214,8 +214,13 @@ bool mdz_macos_AOTplugin=false;
     //    [[UIApplication sharedApplication] endReceivingRemoteControlEvents];
         [detailViewControlleriPhone enterForeground];
     //}
-    
+
     [downloadVC restoreDownloadList];
+
+    // Refresh CarPlay when app becomes active
+    if (tabBarController && tabBarController.cpMngt) {
+        [tabBarController.cpMngt refreshMPItems];
+    }
 }
 
 - (void)sceneWillResignActive:(UIScene *)scene {

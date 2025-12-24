@@ -40,10 +40,6 @@
     NSFileManager *mFileMngr;
 
     
-    NSMutableArray *list;
-    NSMutableArray *keys;
-	NSMutableArray *indexTitles,*indexTitlesDownload;
-    
     NSMutableDictionary *dictActionBtn;
 	
 	int mNbFormatEntries,mNbAuthorEntries,mNbMODLANDFileEntries;
@@ -53,13 +49,13 @@
     int mAccessoryButton;
 
 	t_db_browse_entry *db_entries_data;
-	int db_entries_count[27];
-	t_db_browse_entry *db_entries[27];
+	int db_entries_count;
+	t_db_browse_entry *db_entries;
 	int db_nb_entries,db_hasFiles;
 	
 	t_db_browse_entry *search_db_entries_data;
-	int search_db_entries_count[27];
-	t_db_browse_entry *search_db_entries[27];	
+	int search_db_entries_count;
+	t_db_browse_entry *search_db_entries;	
 	int search_db;
 	int search_db_nb_entries,search_db_hasFiles;
 
@@ -97,8 +93,6 @@
 @property (nonatomic, retain) IBOutlet UISearchBar *sBar;
 @property (nonatomic, retain) WaitingView *waitingView,*waitingViewPlayer;
 
-@property (nonatomic, retain) NSArray *list;
-@property (nonatomic, retain) NSArray *keys;
 @property (nonatomic, retain) NSString *currentPath,*mSearchText;
 @property (nonatomic, retain) CMPopTipView *popTipView;
 
