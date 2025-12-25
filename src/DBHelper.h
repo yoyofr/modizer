@@ -37,6 +37,7 @@ namespace DBHelper
 	int getNbAuthorEntries();
 	int getNbMODLANDFilesEntries();
 	int getNbHVSCFilesEntries();
+    int getNbCGSCFilesEntries();
     int getNbASMAFilesEntries();
 
     int cleanDB();

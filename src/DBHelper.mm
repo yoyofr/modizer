@@ -505,6 +505,38 @@ int DBHelper::getNbHVSCFilesEntries() {
     pthread_mutex_unlock(&db_mutex);
     return ret_int;
 }
+int DBHelper::getNbCGSCFilesEntries() {
+    NSString *pathToDB=[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:DATABASENAME_MAIN];
+    sqlite3 *db;
+    int err;
+    int ret_int=0;
+    
+    pthread_mutex_lock(&db_mutex);
+    
+    if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
+        char sqlStatement[1024];
+        sqlite3_stmt *stmt;
+        
+        err=sqlite3_exec(db, "PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = NORMAL;", 0, 0, 0);
+        if (err==SQLITE_OK){
+        } else MDZELog("ErrSQL : %d",err);
+        
+        snprintf(sqlStatement,1024,"SELECT count(1) FROM cgsc_file");
+        err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+        if (err==SQLITE_OK){
+            while (sqlite3_step(stmt) == SQLITE_ROW) {
+                ret_int=sqlite3_column_int(stmt, 0);
+            }
+            sqlite3_finalize(stmt);
+        } else MDZELog("ErrSQL : %d",err);
+        
+    }
+    sqlite3_close(db);
+    
+    pthread_mutex_unlock(&db_mutex);
+    return ret_int;
+}
+
 int DBHelper::getNbASMAFilesEntries() {
     NSString *pathToDB=[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:DATABASENAME_MAIN];
     sqlite3 *db;

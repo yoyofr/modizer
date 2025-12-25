@@ -613,6 +613,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
     if ((miniplayerVC==nil)&&([detailViewController mPlaylist_size]>0)) {
         wasMiniPlayerOn=true;
         [self showMiniPlayer];
+        [self updateMiniPlayer];
     }
 }
 

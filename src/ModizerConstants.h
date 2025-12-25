@@ -206,6 +206,7 @@ extern void *LoadingProgressObserverContext;
 
 #define MODLAND_BASEDIR @"MODLAND"
 #define HVSC_BASEDIR @"HVSC"
+#define CGSC_BASEDIR @"CGSC"
 #define ASMA_BASEDIR @"ASMA"
 
 #define DATABASENAME_MAIN @"databaseMAIN.modizerdb"
@@ -218,7 +219,11 @@ extern void *LoadingProgressObserverContext;
 
 #define HVSC_HOST_DEFAULT "https://hvsc.brona.dk/HVSC/C64Music"
 #define HVSC_HOST_ALT1 "https://www.sannic.nl/hvsc/?dir=C64Music"
-#define HVSC_HOST_ALT2 "https://mirror.mos6581.de/hvsc/"
+#define HVSC_HOST_ALT2 "https://www.sannic.nl/hvsc/?dir=C64Music"
+
+#define CGSC_HOST_DEFAULT "http://yoyofr92.free.fr/files/CGSC"
+#define CGSC_HOST_ALT1 "http://yoyofr92.free.fr/files/CGSC"
+#define CGSC_HOST_ALT2 "http://yoyofr92.free.fr/files/CGSC"
 
 //#define ASMA_FTPHOST @"malus.exotica.org.uk/pub/exotica/media/audio/Atari_SAP_Music_Archive/ASMA/"
 #define ASMA_HOST_DEFAULT "http://asma.atari.org/asma"
@@ -244,7 +249,7 @@ extern void *LoadingProgressObserverContext;
 #define SUPPORTED_FILETYPE_FMP @"OVI,OPI,OZI"
 #define SUPPORTED_FILETYPE_FMP_EXT @"OVI,OPI,OZI,PPZ,PVI"
 
-#define SUPPORTED_FILETYPE_SID @"SID,STR,MUS,C64,PRG,P00,RSID,PSID"
+#define SUPPORTED_FILETYPE_SID @"SID,MUS,C64,PRG,P00,RSID,PSID"
 
 #define SUPPORTED_FILETYPE_STSOUND @"YM"
 

@@ -12,6 +12,7 @@
 #import "WebBrowser.h"
 #import "RootViewControllerMODLAND.h"
 #import "RootViewControllerHVSC.h"
+#import "RootViewControllerCGSC.h"
 #import "RootViewControllerASMA.h"
 #import "RootViewControllerJoshWWebParser.h"
 #import "RootViewControllerVGMRWebParser.h"
@@ -36,7 +37,7 @@
     MiniPlayerVC *miniplayerVC;
     bool wasMiniPlayerOn;
     
-    int mNbMODLANDFileEntries,mNbHVSCFileEntries,mNbASMAFileEntries;
+    int mNbMODLANDFileEntries,mNbHVSCFileEntries,mNbCGSCFileEntries,mNbASMAFileEntries;
     
     bool darkMode;
     bool forceReloadCells;
@@ -49,7 +50,7 @@
 @property (nonatomic, retain) DetailViewControllerIphone *detailViewController;
 @property (nonatomic, retain) IBOutlet UITableView *tableView;
 @property (nonatomic, retain) UIViewController *collectionViewController;
-@property (nonatomic) int mNbMODLANDFileEntries,mNbHVSCFileEntries,mNbASMAFileEntries;
+@property (nonatomic) int mNbMODLANDFileEntries,mNbHVSCFileEntries,mNbCGSCFileEntries,mNbASMAFileEntries;
 @property (nonatomic, retain) WaitingView *waitingView,*waitingViewPlayer;
 
 

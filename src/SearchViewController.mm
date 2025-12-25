@@ -2107,6 +2107,7 @@ END_PROFILE
     if ((miniplayerVC==nil)&&([detailViewController mPlaylist_size]>0)) {
         wasMiniPlayerOn=true;
         [self showMiniPlayer];
+        [self updateMiniPlayer];
     }
 }
 

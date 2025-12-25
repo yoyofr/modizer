@@ -495,11 +495,10 @@ int gesture_move_file_min_trans;
     [super viewDidLayoutSubviews];
 
     // Update layout when _mpview size changes (e.g., when sidebar appears)
-    static CGFloat previousWidth = 0;
     CGFloat currentWidth = self.mpview.frame.size.width;
 
-    if (previousWidth != currentWidth && currentWidth > 0) {
-        previousWidth = currentWidth;
+    if (_previousLayoutWidth != currentWidth && currentWidth > 0) {
+        _previousLayoutWidth = currentWidth;
 
         // Update frames with new width
         _songInfoView.frame = CGRectMake(50, 0, (currentWidth - 50 - 150), 48);

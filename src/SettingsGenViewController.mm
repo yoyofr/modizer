@@ -1282,6 +1282,15 @@ void optNSFPLAYChangedC(id param) {
     settings[ONLINE_HVSC_CURRENT_URL].detail.mdz_msgbox.text=(char*)calloc(1,strlen("N/A")+1);
     strcpy(settings[ONLINE_HVSC_CURRENT_URL].detail.mdz_msgbox.text,"N/A");
     
+    SETTINGS_ID_DEF(ONLINE_CGSC_CURRENT_URL)
+    settings[ONLINE_CGSC_CURRENT_URL].label=(char*)"CGSC URL";
+    settings[ONLINE_CGSC_CURRENT_URL].description=NULL;
+    settings[ONLINE_CGSC_CURRENT_URL].family=MDZ_SETTINGS_FAMILY_GLOBAL_ONLINE;
+    settings[ONLINE_CGSC_CURRENT_URL].sub_family=0;
+    settings[ONLINE_CGSC_CURRENT_URL].type=MDZ_MSGBOX;
+    settings[ONLINE_CGSC_CURRENT_URL].detail.mdz_msgbox.text=(char*)calloc(1,strlen("N/A")+1);
+    strcpy(settings[ONLINE_CGSC_CURRENT_URL].detail.mdz_msgbox.text,"N/A");
+    
     SETTINGS_ID_DEF(ONLINE_ASMA_CURRENT_URL)
     settings[ONLINE_ASMA_CURRENT_URL].label=(char*)"ASMA URL";
     settings[ONLINE_ASMA_CURRENT_URL].description=NULL;
@@ -1336,6 +1345,28 @@ void optNSFPLAYChangedC(id param) {
     settings[ONLINE_HVSC_URL_CUSTOM].sub_family=0;
     settings[ONLINE_HVSC_URL_CUSTOM].detail.mdz_textbox.text=NULL;
     
+    SETTINGS_ID_DEF(ONLINE_CGSC_URL)
+    settings[ONLINE_CGSC_URL].type=MDZ_SWITCH;
+    settings[ONLINE_CGSC_URL].label=(char*)"CGSC Server";
+    settings[ONLINE_CGSC_URL].description=NULL;
+    settings[ONLINE_CGSC_URL].family=MDZ_SETTINGS_FAMILY_GLOBAL_ONLINE;
+    settings[ONLINE_CGSC_URL].callback=&optONLINESwitchChanged;
+    settings[ONLINE_CGSC_URL].sub_family=0;
+    settings[ONLINE_CGSC_URL].detail.mdz_switch.switch_value_nb=4;
+    settings[ONLINE_CGSC_URL].detail.mdz_switch.switch_labels=(char**)calloc(1,settings[ONLINE_CGSC_URL].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[ONLINE_CGSC_URL].detail.mdz_switch.switch_labels[0]=(char*)"Default";
+    settings[ONLINE_CGSC_URL].detail.mdz_switch.switch_labels[1]=(char*)"Alt1";
+    settings[ONLINE_CGSC_URL].detail.mdz_switch.switch_labels[2]=(char*)"Alt2";
+    settings[ONLINE_CGSC_URL].detail.mdz_switch.switch_labels[3]=(char*)"Cust";
+    
+    SETTINGS_ID_DEF(ONLINE_CGSC_URL_CUSTOM)
+    settings[ONLINE_CGSC_URL_CUSTOM].type=MDZ_TEXTBOX;
+    settings[ONLINE_CGSC_URL_CUSTOM].label=(char*)"CGSC cust.URL";
+    settings[ONLINE_CGSC_URL_CUSTOM].description=NULL;
+    settings[ONLINE_CGSC_URL_CUSTOM].family=MDZ_SETTINGS_FAMILY_GLOBAL_ONLINE;
+    settings[ONLINE_CGSC_URL_CUSTOM].sub_family=0;
+    settings[ONLINE_CGSC_URL_CUSTOM].detail.mdz_textbox.text=NULL;
+    
     SETTINGS_ID_DEF(ONLINE_ASMA_URL)
     settings[ONLINE_ASMA_URL].type=MDZ_SWITCH;
     settings[ONLINE_ASMA_URL].label=(char*)"ASMA Server";
@@ -1360,6 +1391,7 @@ void optNSFPLAYChangedC(id param) {
     
     settings[ONLINE_MODLAND_URL].detail.mdz_switch.switch_default_value=0;
     settings[ONLINE_HVSC_URL].detail.mdz_switch.switch_default_value=0;
+    settings[ONLINE_CGSC_URL].detail.mdz_switch.switch_default_value=0;
     settings[ONLINE_ASMA_URL].detail.mdz_switch.switch_default_value=0;
     
     if (settings[ONLINE_MODLAND_CURRENT_URL].detail.mdz_msgbox.default_text) free(settings[ONLINE_MODLAND_CURRENT_URL].detail.mdz_msgbox.default_text);
@@ -1367,6 +1399,9 @@ void optNSFPLAYChangedC(id param) {
     
     if (settings[ONLINE_HVSC_CURRENT_URL].detail.mdz_msgbox.default_text) free(settings[ONLINE_HVSC_CURRENT_URL].detail.mdz_msgbox.default_text);
     settings[ONLINE_HVSC_CURRENT_URL].detail.mdz_msgbox.default_text=strdup(HVSC_HOST_DEFAULT);
+    
+    if (settings[ONLINE_CGSC_CURRENT_URL].detail.mdz_msgbox.default_text) free(settings[ONLINE_CGSC_CURRENT_URL].detail.mdz_msgbox.default_text);
+    settings[ONLINE_CGSC_CURRENT_URL].detail.mdz_msgbox.default_text=strdup(CGSC_HOST_DEFAULT);
     
     if (settings[ONLINE_ASMA_CURRENT_URL].detail.mdz_msgbox.default_text) free(settings[ONLINE_ASMA_CURRENT_URL].detail.mdz_msgbox.default_text);
     settings[ONLINE_ASMA_CURRENT_URL].detail.mdz_msgbox.default_text=strdup(ASMA_HOST_DEFAULT);
@@ -1376,6 +1411,9 @@ void optNSFPLAYChangedC(id param) {
     
     if (settings[ONLINE_HVSC_URL_CUSTOM].detail.mdz_textbox.default_text) free(settings[ONLINE_HVSC_URL_CUSTOM].detail.mdz_textbox.default_text);
     settings[ONLINE_HVSC_URL_CUSTOM].detail.mdz_textbox.default_text=NULL;
+    
+    if (settings[ONLINE_CGSC_URL_CUSTOM].detail.mdz_textbox.default_text) free(settings[ONLINE_CGSC_URL_CUSTOM].detail.mdz_textbox.default_text);
+    settings[ONLINE_CGSC_URL_CUSTOM].detail.mdz_textbox.default_text=NULL;
     
     if (settings[ONLINE_ASMA_URL_CUSTOM].detail.mdz_textbox.default_text) free(settings[ONLINE_ASMA_URL_CUSTOM].detail.mdz_textbox.default_text);
     settings[ONLINE_ASMA_URL_CUSTOM].detail.mdz_textbox.default_text=NULL;
@@ -4225,6 +4263,7 @@ void optNSFPLAYChangedC(id param) {
     switch (cur_settings_idx[textField.tag]) {
         case ONLINE_MODLAND_URL_CUSTOM:
         case ONLINE_HVSC_URL_CUSTOM:
+        case ONLINE_CGSC_URL_CUSTOM:
         case ONLINE_ASMA_URL_CUSTOM:
             if (settings[cur_settings_idx[textField.tag]].detail.mdz_textbox.text) {
                 if (strncasecmp(settings[cur_settings_idx[textField.tag]].detail.mdz_textbox.text,"HTTP://",7)==0) break; //HTTP
@@ -4976,6 +5015,28 @@ void optNSFPLAYChangedC(id param) {
             
             break;
     }
+    //CGSC
+    switch (settings[ONLINE_CGSC_URL].detail.mdz_switch.switch_value) {
+        case 0://default
+            if (settings[ONLINE_CGSC_CURRENT_URL].detail.mdz_msgbox.text) free(settings[ONLINE_CGSC_CURRENT_URL].detail.mdz_msgbox.text);
+            settings[ONLINE_CGSC_CURRENT_URL].detail.mdz_msgbox.text=strdup(CGSC_HOST_DEFAULT);
+            break;
+        case 1://alt1
+            if (settings[ONLINE_CGSC_CURRENT_URL].detail.mdz_msgbox.text) free(settings[ONLINE_CGSC_CURRENT_URL].detail.mdz_msgbox.text);
+            settings[ONLINE_CGSC_CURRENT_URL].detail.mdz_msgbox.text=strdup(CGSC_HOST_ALT1);
+            break;
+        case 2://alt2
+            if (settings[ONLINE_CGSC_CURRENT_URL].detail.mdz_msgbox.text) free(settings[ONLINE_CGSC_CURRENT_URL].detail.mdz_msgbox.text);
+            settings[ONLINE_CGSC_CURRENT_URL].detail.mdz_msgbox.text=strdup(CGSC_HOST_ALT2);
+            break;
+        case 3://custom
+            if (settings[ONLINE_CGSC_CURRENT_URL].detail.mdz_msgbox.text) free(settings[ONLINE_CGSC_CURRENT_URL].detail.mdz_msgbox.text);
+            if (settings[ONLINE_CGSC_URL_CUSTOM].detail.mdz_textbox.text) {
+                settings[ONLINE_CGSC_CURRENT_URL].detail.mdz_msgbox.text=strdup(settings[ONLINE_CGSC_URL_CUSTOM].detail.mdz_textbox.text);
+            } else settings[ONLINE_CGSC_CURRENT_URL].detail.mdz_msgbox.text=NULL;
+            
+            break;
+    }
     //ASMA
     switch (settings[ONLINE_ASMA_URL].detail.mdz_switch.switch_value) {
         case 0://default
@@ -5096,6 +5157,7 @@ void optNSFPLAYChangedC(id param) {
     if ((miniplayerVC==nil)&&([detailViewController mPlaylist_size]>0)) {
         wasMiniPlayerOn=true;
         [self showMiniPlayer];
+        [self updateMiniPlayer];
     }
 }
 

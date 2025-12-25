@@ -782,6 +782,14 @@
 		CC84ACC72ECD9F250047656F /* WelcomeView_2Images.xib in Resources */ = {isa = PBXBuildFile; fileRef = CC84ACC62ECD9F250047656F /* WelcomeView_2Images.xib */; };
 		CC84ACC92ECE07940047656F /* WelcomeView_4Images.xib in Resources */ = {isa = PBXBuildFile; fileRef = CC84ACC82ECE07940047656F /* WelcomeView_4Images.xib */; };
 		CC88FB8C2EDAF0B900717901 /* Credits.html in Resources */ = {isa = PBXBuildFile; fileRef = CC88FB8A2EDAF01E00717901 /* Credits.html */; };
+		CC8970DD2EFCB21000D6CA1E /* RootViewControllerCGSC.mm in Sources */ = {isa = PBXBuildFile; fileRef = CC8970DC2EFCB21000D6CA1E /* RootViewControllerCGSC.mm */; };
+		CC8970DE2EFCB21000D6CA1E /* RootViewControllerCGSC.mm in Sources */ = {isa = PBXBuildFile; fileRef = CC8970DC2EFCB21000D6CA1E /* RootViewControllerCGSC.mm */; };
+		CC89710B2EFD3ADA00D6CA1E /* C64PICDecoder.mm in Sources */ = {isa = PBXBuildFile; fileRef = CC89710A2EFD3AD800D6CA1E /* C64PICDecoder.mm */; };
+		CC89710C2EFD3ADA00D6CA1E /* C64PICDecoder.mm in Sources */ = {isa = PBXBuildFile; fileRef = CC89710A2EFD3AD800D6CA1E /* C64PICDecoder.mm */; };
+		CC89710F2EFD5D3F00D6CA1E /* C64PGGDecoder.mm in Sources */ = {isa = PBXBuildFile; fileRef = CC89710E2EFD5D3F00D6CA1E /* C64PGGDecoder.mm */; };
+		CC8971102EFD5D3F00D6CA1E /* C64PGGDecoder.mm in Sources */ = {isa = PBXBuildFile; fileRef = CC89710E2EFD5D3F00D6CA1E /* C64PGGDecoder.mm */; };
+		CC8971132EFD924500D6CA1E /* C64PJJDecoder.mm in Sources */ = {isa = PBXBuildFile; fileRef = CC8971122EFD924500D6CA1E /* C64PJJDecoder.mm */; };
+		CC8971142EFD924500D6CA1E /* C64PJJDecoder.mm in Sources */ = {isa = PBXBuildFile; fileRef = CC8971122EFD924500D6CA1E /* C64PJJDecoder.mm */; };
 		CC89C83F2EC0F875000A110A /* libxmp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 59805449262F21CA00BB0309 /* libxmp.a */; };
 		CC89CB252EC14FDB000A110A /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = CC89CB242EC14FDB000A110A /* LaunchScreen.storyboard */; };
 		CC8A8D4317F9FF5500A56E0C /* Icon-76.png in Resources */ = {isa = PBXBuildFile; fileRef = CC8A8D3C17F9FF5500A56E0C /* Icon-76.png */; };
@@ -3696,6 +3704,14 @@
 		CC88D1131270AF200004EBBE /* modizer-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "modizer-Info.plist"; sourceTree = "<group>"; };
 		CC88FB8A2EDAF01E00717901 /* Credits.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = Credits.html; sourceTree = "<group>"; };
 		CC88FB912EDB2CD100717901 /* ModizerMacWindowPlugin.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ModizerMacWindowPlugin.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
+		CC8970DB2EFCB21000D6CA1E /* RootViewControllerCGSC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RootViewControllerCGSC.h; sourceTree = "<group>"; };
+		CC8970DC2EFCB21000D6CA1E /* RootViewControllerCGSC.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = RootViewControllerCGSC.mm; sourceTree = "<group>"; };
+		CC8971092EFD3ABD00D6CA1E /* C64PICDecoder.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C64PICDecoder.h; sourceTree = "<group>"; };
+		CC89710A2EFD3AD800D6CA1E /* C64PICDecoder.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = C64PICDecoder.mm; sourceTree = "<group>"; };
+		CC89710D2EFD5D3F00D6CA1E /* C64PGGDecoder.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C64PGGDecoder.h; sourceTree = "<group>"; };
+		CC89710E2EFD5D3F00D6CA1E /* C64PGGDecoder.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = C64PGGDecoder.mm; sourceTree = "<group>"; };
+		CC8971112EFD924500D6CA1E /* C64PJJDecoder.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = C64PJJDecoder.h; sourceTree = "<group>"; };
+		CC8971122EFD924500D6CA1E /* C64PJJDecoder.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = C64PJJDecoder.mm; sourceTree = "<group>"; };
 		CC89CB242EC14FDB000A110A /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 		CC8A8D3C17F9FF5500A56E0C /* Icon-76.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon-76.png"; sourceTree = "<group>"; };
 		CC8A8D3D17F9FF5500A56E0C /* Icon-120.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon-120.png"; sourceTree = "<group>"; };
@@ -4333,6 +4349,8 @@
 				330F36C817A683FB00EEC84A /* OnlineViewController.mm */,
 				3399D60F17B59CD6009E2AE9 /* RootViewControllerASMA.h */,
 				3399D61017B59CD6009E2AE9 /* RootViewControllerASMA.mm */,
+				CC8970DB2EFCB21000D6CA1E /* RootViewControllerCGSC.h */,
+				CC8970DC2EFCB21000D6CA1E /* RootViewControllerCGSC.mm */,
 				33EDF0EB145939850038C673 /* RootViewControllerHVSC.h */,
 				33EDF0EC145939850038C673 /* RootViewControllerHVSC.mm */,
 				336BF213144FF4BE0086700A /* RootViewControllerLocalBrowser.h */,
@@ -5145,6 +5163,12 @@
 				CCE8D7482B8D68FD0076D8C0 /* AnimatedLaunchVC.mm */,
 				CC1E621E12041177000A8A4E /* AppDelegate_Phone.h */,
 				CC1E621F12041177000A8A4E /* AppDelegate_Phone.mm */,
+				CC89710D2EFD5D3F00D6CA1E /* C64PGGDecoder.h */,
+				CC89710E2EFD5D3F00D6CA1E /* C64PGGDecoder.mm */,
+				CC8971092EFD3ABD00D6CA1E /* C64PICDecoder.h */,
+				CC89710A2EFD3AD800D6CA1E /* C64PICDecoder.mm */,
+				CC8971112EFD924500D6CA1E /* C64PJJDecoder.h */,
+				CC8971122EFD924500D6CA1E /* C64PJJDecoder.mm */,
 				59809D292632A93300CCCF42 /* CarPlayAndRemoteManagement.h */,
 				59809D2A2632A93300CCCF42 /* CarPlayAndRemoteManagement.mm */,
 				59BF54EF2628C9F50064EF5E /* CommonFunctions */,
@@ -5189,9 +5213,9 @@
 				33AB276917B3D48F00C12189 /* MoreViewController.h */,
 				33AB276A17B3D48F00C12189 /* MoreViewController.mm */,
 				CC1E622C12041177000A8A4E /* myTabBarController.h */,
-				CC3D657D2EF58B2600636BEE /* VoiceCommandsViewController.h */,
-				CC3D657E2EF58B2600636BEE /* VoiceCommandsViewController.mm */,
 				CC1E622D12041177000A8A4E /* myTabBarController.mm */,
+				CC600F412EF95118000E2F00 /* Notifications.h */,
+				CC600F6C2EF9511C000E2F00 /* Notifications.m */,
 				CC9CEF2D2E98D73200725D15 /* PlayerMenu.h */,
 				CC9CEF2E2E98D76C00725D15 /* PlayerMenu.mm */,
 				336BF216144FF4CA0086700A /* RootViewControllers */,
@@ -5211,6 +5235,8 @@
 				CC93319D2EA55E6400CB0503 /* SysMonitoring.m */,
 				CCBF272D2ECB2EB10039936C /* TipsViewController.h */,
 				CCBF272E2ECB2EDE0039936C /* TipsViewController.mm */,
+				CC3D657D2EF58B2600636BEE /* VoiceCommandsViewController.h */,
+				CC3D657E2EF58B2600636BEE /* VoiceCommandsViewController.mm */,
 				5918E0A926177CB1004B85DA /* VoicesViewController.h */,
 				5918E0AA26177CB1004B85DA /* VoicesViewController.mm */,
 				59A65C902625F3DB00BC99D1 /* WaitingView.h */,
@@ -5221,8 +5247,6 @@
 				CC1E623A12041177000A8A4E /* WebBrowser.mm */,
 				CCBF270F2ECA8EB40039936C /* WelcomeVC.h */,
 				CCBF27102ECA8EB40039936C /* WelcomeVC.m */,
-				CC600F412EF95118000E2F00 /* Notifications.h */,
-				CC600F6C2EF9511C000E2F00 /* Notifications.m */,
 			);
 			path = src;
 			sourceTree = "<group>";
@@ -8189,6 +8213,7 @@
 				59C22A3225B99ACA003FEDBF /* Reachability.m in Sources */,
 				CC8368F12B57CA9B0035A4DA /* option68.c in Sources */,
 				CC8368F22B57CA9B0035A4DA /* registry68.c in Sources */,
+				CC8971102EFD5D3F00D6CA1E /* C64PGGDecoder.mm in Sources */,
 				591D8E4B25DC63620013E19F /* bit_allocation.c in Sources */,
 				CC8368E52B57CA9B0035A4DA /* string68.c in Sources */,
 				CCFDC53617DB105500C6692C /* NVAllpassFilter.m in Sources */,
@@ -8212,6 +8237,7 @@
 				CC8368ED2B57CA9B0035A4DA /* replay68.c in Sources */,
 				CC1E5D241200B3B8000A8A4E /* ioapi.c in Sources */,
 				CC1E5D251200B3B8000A8A4E /* unzip.c in Sources */,
+				CC8970DD2EFCB21000D6CA1E /* RootViewControllerCGSC.mm in Sources */,
 				CCD649472EDC5F1A00FC5925 /* ModizerPlaylistBridge.mm in Sources */,
 				CCD6491A2EDBB89600FC5925 /* ModizerAppIntents.swift in Sources */,
 				CC83686E2B57CA9A0035A4DA /* unice68_unpack.c in Sources */,
@@ -8238,6 +8264,7 @@
 				CC1E623E12041177000A8A4E /* DownloadViewController.mm in Sources */,
 				CC9CEF2F2E98D76F00725D15 /* PlayerMenu.mm in Sources */,
 				591CA87D264850D300168C7E /* ImagesCache.m in Sources */,
+				CC89710C2EFD3ADA00D6CA1E /* C64PICDecoder.mm in Sources */,
 				CC83686B2B57CA9A0035A4DA /* libsc68.c in Sources */,
 				CC1E624112041177000A8A4E /* ModizMusicPlayer.mm in Sources */,
 				591D8E4925DC63620013E19F /* bit_reader.c in Sources */,
@@ -8246,6 +8273,7 @@
 				CC1E624812041177000A8A4E /* SearchViewController.mm in Sources */,
 				CCFB5ED22EA98C480049DA7F /* ModizerWrapper.h in Sources */,
 				CC83686C2B57CA9A0035A4DA /* conf68.c in Sources */,
+				CC8971132EFD924500D6CA1E /* C64PJJDecoder.mm in Sources */,
 				CC1E624A12041177000A8A4E /* WebBrowser.mm in Sources */,
 				CCCFB6C02BFA3EAE0026F1F7 /* RootViewControllerZXArtWebParser.mm in Sources */,
 				591D8E4725DC63620013E19F /* scale_factors.c in Sources */,
@@ -8394,6 +8422,7 @@
 				CCBE605A2EE2DD44000FDD7E /* Reachability.m in Sources */,
 				CCBE605B2EE2DD44000FDD7E /* option68.c in Sources */,
 				CCBE605C2EE2DD44000FDD7E /* registry68.c in Sources */,
+				CC89710F2EFD5D3F00D6CA1E /* C64PGGDecoder.mm in Sources */,
 				CCBE605D2EE2DD44000FDD7E /* bit_allocation.c in Sources */,
 				CCBE605E2EE2DD44000FDD7E /* string68.c in Sources */,
 				CCBE605F2EE2DD44000FDD7E /* NVAllpassFilter.m in Sources */,
@@ -8417,6 +8446,7 @@
 				CCBE60712EE2DD44000FDD7E /* replay68.c in Sources */,
 				CCBE60722EE2DD44000FDD7E /* ioapi.c in Sources */,
 				CCBE60732EE2DD44000FDD7E /* unzip.c in Sources */,
+				CC8970DE2EFCB21000D6CA1E /* RootViewControllerCGSC.mm in Sources */,
 				CCBE60742EE2DD44000FDD7E /* ModizerPlaylistBridge.mm in Sources */,
 				CCBE60752EE2DD44000FDD7E /* ModizerAppIntents.swift in Sources */,
 				CCBE60762EE2DD44000FDD7E /* unice68_unpack.c in Sources */,
@@ -8443,6 +8473,7 @@
 				CCBE608B2EE2DD44000FDD7E /* DownloadViewController.mm in Sources */,
 				CCBE608C2EE2DD44000FDD7E /* PlayerMenu.mm in Sources */,
 				CCBE608D2EE2DD44000FDD7E /* ImagesCache.m in Sources */,
+				CC89710B2EFD3ADA00D6CA1E /* C64PICDecoder.mm in Sources */,
 				CCBE608E2EE2DD44000FDD7E /* libsc68.c in Sources */,
 				CCBE608F2EE2DD44000FDD7E /* ModizMusicPlayer.mm in Sources */,
 				CCBE60902EE2DD44000FDD7E /* bit_reader.c in Sources */,
@@ -8451,6 +8482,7 @@
 				CCBE60932EE2DD44000FDD7E /* SearchViewController.mm in Sources */,
 				CCBE60942EE2DD44000FDD7E /* ModizerWrapper.h in Sources */,
 				CCBE60952EE2DD44000FDD7E /* conf68.c in Sources */,
+				CC8971142EFD924500D6CA1E /* C64PJJDecoder.mm in Sources */,
 				CCBE60962EE2DD44000FDD7E /* WebBrowser.mm in Sources */,
 				CCBE60972EE2DD44000FDD7E /* RootViewControllerZXArtWebParser.mm in Sources */,
 				CCBE60982EE2DD44000FDD7E /* scale_factors.c in Sources */,

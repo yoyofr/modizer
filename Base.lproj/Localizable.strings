@@ -623,7 +623,6 @@
 "Maintenance" = "Maintenance";
 "Clean DB, Reset ratings, ..." = "Clean DB, Reset ratings, ...";
 
-
 // ================================
 // MARK: - ONLINE TAB / COLLECTIONS
 // ================================
@@ -639,6 +638,7 @@
 "MODLAND collection" = "MODLAND collection";
 "AMP collection" = "AMP collection";
 "HVSC collection" = "HVSC collection";
+"CGSC collection" = "CGSC collection";
 "ASMA collection" = "ASMA collection";
 "JOSHW collection" = "JOSHW collection";
 "VGMRips collection" = "VGMRips collection";

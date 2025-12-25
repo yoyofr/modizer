@@ -53,6 +53,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) NSTimer *repeatingTimer;
 @property (nonatomic, assign) char labelTime_mode;
 @property (nonatomic, assign) bool darkMode;
+@property (nonatomic, assign) CGFloat previousLayoutWidth;
 
 -(void) refreshCoverLabels;
 -(void) refreshCoverView;

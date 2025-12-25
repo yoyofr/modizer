@@ -4016,6 +4016,7 @@ int getPlaylistStatsDBmod(t_playlist *pl) {
     if ((miniplayerVC==nil)&&([detailViewController mPlaylist_size]>0)) {
         wasMiniPlayerOn=true;
         [self showMiniPlayer];
+        [self updateMiniPlayer];
     }
     currentPlayedEntry=detailViewController.mPlaylist_pos;
     if ((browse_depth==1)&&show_playlist&&(currentPlayedEntry>=0)&&(integrated_playlist==INTEGRATED_PLAYLIST_NOWPLAYING)&&(playlist->nb_entries)) {

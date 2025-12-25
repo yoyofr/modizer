@@ -139,6 +139,10 @@ extern unsigned int m_voice_oscillo_pal3[8];
 
 #import "UIImageResize.h"
 
+#import "C64PICDecoder.h"
+#import "C64PGGDecoder.h"
+#import "C64PJJDecoder.h"
+
 #import "DetailViewControllerIphone.h"
 #import "RootViewControllerPlaylist.h"
 #import "myTabBarController.h"
@@ -3677,7 +3681,7 @@ int recording=0;
     NSString *pathFolderImgPNG,*pathCoverImgPNG,*pathFileImgPNG,
              *pathFolderImgJPG,*pathCoverImgJPG,*pathFolderImgJPEG,
              *pathCoverImgJPEG,*pathFileImgJPG,*pathFileImgJPEG,
-             *pathFolderImgGIF,*pathCoverImgGIF,*pathFileImgGIF;
+             *pathFolderImgGIF,*pathCoverImgGIF,*pathFileImgGIF,*pathFileImgPIC,*pathFileImgPGG,*pathFileImgPJJ;
     
     pathFolderImgPNG=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@/folder.png",[filePath stringByDeletingLastPathComponent]];
     pathFolderImgJPG=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@/folder.jpg",[filePath stringByDeletingLastPathComponent]];
@@ -3691,6 +3695,9 @@ int recording=0;
     pathFileImgJPG=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@.jpg",[filePath stringByDeletingPathExtension]];
     pathFileImgJPEG=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@.jpeg",[filePath stringByDeletingPathExtension]];
     pathFileImgGIF=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@.gif",[filePath stringByDeletingPathExtension]];
+    pathFileImgPIC=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@.pic",[filePath stringByDeletingPathExtension]];
+    pathFileImgPGG=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@.pgg",[filePath stringByDeletingPathExtension]];
+    pathFileImgPJJ=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@.pjj",[filePath stringByDeletingPathExtension]];
     
     coverAvailable=false;
     cover_img=nil;
@@ -3710,6 +3717,27 @@ int recording=0;
             gifAnimation.frame=CGRectMake(0, 0,cover_view.frame.size.width,cover_view.frame.size.height);
             [gifAnimation layoutSubviews];
             [cover_view addSubview:gifAnimation];
+        }
+    }
+    if (cover_img==nil) {
+        NSData *picData = [NSData dataWithContentsOfFile:pathFileImgPIC];
+        if (picData) {
+            UIImage *img = [C64PICDecoder imageFromPICData:picData];
+            if (img) cover_img = img;
+        }
+    }
+    if (cover_img==nil) {
+        NSData *picData = [NSData dataWithContentsOfFile:pathFileImgPGG];
+        if (picData) {
+            UIImage *img = [C64PGGDecoder imageFromPGGData:picData];
+            if (img) cover_img = img;
+        }
+    }
+    if (cover_img==nil) {
+        NSData *picData = [NSData dataWithContentsOfFile:pathFileImgPJJ];
+        if (picData) {
+            UIImage *img = [C64PJJDecoder imageFromPJJData:picData];
+            if (img) cover_img = img;
         }
     }
     if (cover_img==nil) cover_img=[UIImage imageWithContentsOfFile:pathFolderImgJPG];

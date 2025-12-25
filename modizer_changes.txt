@@ -27,6 +27,12 @@ missing seek support:
 => add a small progress bar in cells in modland/asma/hvsc... When downloading
 => ADPLUG oscillo data not generated when OPL is not Woody
 
+4.2
+---
+- fixes several localizations issues
+- UI fixes & improvements
+- new online collections: AMP, CGSC
+
 4.1
 ----
 - improved localizations, add of japanese, spanish, german, russian, arabic, finnish, italian, portuguese, swedish, chinese (simplified), norwegian, danish, dutch, korean, polish, czech

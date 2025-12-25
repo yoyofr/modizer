@@ -281,11 +281,7 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
     //populate entries
 }
 
--(void) fillKeysWithModeCateg {
-    int dbWEB_entries_index;
-    
-    entries_noMoreToLoad=true;
-    
+-(void) fillSearchWithEntries {
     if (search_dbWEB_nb_entries) {
             for (int j=0;j<search_dbWEB_entries_count;j++) {
                 search_dbWEB_entries[j].label=nil;
@@ -298,31 +294,47 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
         search_dbWEB_nb_entries=0;
         free(search_dbWEB_entries_data);
     }
-    dbWEB_hasFiles=search_dbWEB_hasFiles=0;
-    // in case of search, do not ask DB again => duplicate already found entries & filter them
-    if (mSearch) {
-        search_dbWEB=1;
-        
-        search_dbWEB_entries_data=(t_WEB_browse_entry*)calloc(1,dbWEB_nb_entries*sizeof(t_WEB_browse_entry));
-        
-            search_dbWEB_entries_count=0;
-        if (dbWEB_entries_count) search_dbWEB_entries=search_dbWEB_entries_data;
-            for (int j=0;j<dbWEB_entries_count;j++)  {
-                if ([self searchStringRegExp:mSearchText sourceString:dbWEB_entries[j].label]) {
-                    search_dbWEB_entries[search_dbWEB_entries_count].label=dbWEB_entries[j].label;
-                    search_dbWEB_entries[search_dbWEB_entries_count].downloaded=dbWEB_entries[j].downloaded;
-                    search_dbWEB_entries[search_dbWEB_entries_count].rating=dbWEB_entries[j].rating;
-                    search_dbWEB_entries[search_dbWEB_entries_count].playcount=dbWEB_entries[j].playcount;
-                    search_dbWEB_entries[search_dbWEB_entries_count].fullpath=dbWEB_entries[j].fullpath;
-                    search_dbWEB_entries[search_dbWEB_entries_count].URL=dbWEB_entries[j].URL;
-                    search_dbWEB_entries[search_dbWEB_entries_count].isFile=dbWEB_entries[j].isFile;
-                    search_dbWEB_entries[search_dbWEB_entries_count].info=dbWEB_entries[j].info;
-                    search_dbWEB_entries_count++;
-                    search_dbWEB_nb_entries++;
-                }
-            }
+    search_dbWEB_hasFiles=0;
+    
+    search_dbWEB=1;
+    
+    search_dbWEB_entries_data=(t_WEB_browse_entry*)calloc(1,dbWEB_nb_entries*sizeof(t_WEB_browse_entry));
+    
+        search_dbWEB_entries_count=0;
+    if (dbWEB_entries_count) search_dbWEB_entries=search_dbWEB_entries_data;
+    for (int j=0;j<dbWEB_entries_count;j++)  {
+        if ([self searchStringRegExp:mSearchText sourceString:dbWEB_entries[j].label]) {
+            search_dbWEB_entries[search_dbWEB_entries_count].label=dbWEB_entries[j].label;
+            search_dbWEB_entries[search_dbWEB_entries_count].downloaded=dbWEB_entries[j].downloaded;
+            search_dbWEB_entries[search_dbWEB_entries_count].rating=dbWEB_entries[j].rating;
+            search_dbWEB_entries[search_dbWEB_entries_count].playcount=dbWEB_entries[j].playcount;
+            search_dbWEB_entries[search_dbWEB_entries_count].fullpath=dbWEB_entries[j].fullpath;
+            search_dbWEB_entries[search_dbWEB_entries_count].URL=dbWEB_entries[j].URL;
+            search_dbWEB_entries[search_dbWEB_entries_count].isFile=dbWEB_entries[j].isFile;
+            search_dbWEB_entries[search_dbWEB_entries_count].info=dbWEB_entries[j].info;
+            search_dbWEB_entries[search_dbWEB_entries_count].img_URL=dbWEB_entries[j].img_URL;
+            
+            search_dbWEB_entries_count++;
+            search_dbWEB_nb_entries++;
+            
+            search_dbWEB_entries_count++;
+            search_dbWEB_nb_entries++;
+        }
+    }
+}
+
+-(void) fillKeysWithModeCateg {
+    int dbWEB_entries_index;
+    
+    entries_noMoreToLoad=true;
+    dbWEB_hasFiles=0;
+    
+    if (entries_noMoreToLoad && mSearch) {
+        // in case of search, do not ask DB again => duplicate already found entries & filter them
+        [self fillSearchWithEntries];
         return;
     }
+    
     if (dbWEB_nb_entries) {
         for (int i=0;i<dbWEB_nb_entries;i++) {
             dbWEB_entries_data[i].label=nil;
@@ -483,44 +495,14 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
 -(void) fillKeysWithWEBSource {
     int dbWEB_entries_index;
     
-    if (search_dbWEB_nb_entries) {
-            for (int j=0;j<search_dbWEB_entries_count;j++) {
-                search_dbWEB_entries[j].label=nil;
-                search_dbWEB_entries[j].fullpath=nil;
-                search_dbWEB_entries[j].URL=nil;
-                search_dbWEB_entries[j].info=nil;
-                search_dbWEB_entries[j].img_URL=nil;
-            }
-            search_dbWEB_entries=NULL;
-        search_dbWEB_nb_entries=0;
-        free(search_dbWEB_entries_data);
-    }
-    dbWEB_hasFiles=search_dbWEB_hasFiles=0;
-    // in case of search, do not ask DB again => duplicate already found entries & filter them
-    if (mSearch) {
-        search_dbWEB=1;
-        
-        search_dbWEB_entries_data=(t_WEB_browse_entry*)calloc(1,dbWEB_nb_entries*sizeof(t_WEB_browse_entry));
-        
-            search_dbWEB_entries_count=0;
-            if (dbWEB_entries_count) search_dbWEB_entries=search_dbWEB_entries_data;
-            for (int j=0;j<dbWEB_entries_count;j++)  {
-                if ([self searchStringRegExp:mSearchText sourceString:dbWEB_entries[j].label]) {
-                    search_dbWEB_entries[search_dbWEB_entries_count].label=dbWEB_entries[j].label;
-                    search_dbWEB_entries[search_dbWEB_entries_count].downloaded=dbWEB_entries[j].downloaded;
-                    search_dbWEB_entries[search_dbWEB_entries_count].rating=dbWEB_entries[j].rating;
-                    search_dbWEB_entries[search_dbWEB_entries_count].playcount=dbWEB_entries[j].playcount;
-                    search_dbWEB_entries[search_dbWEB_entries_count].fullpath=dbWEB_entries[j].fullpath;
-                    search_dbWEB_entries[search_dbWEB_entries_count].URL=dbWEB_entries[j].URL;
-                    search_dbWEB_entries[search_dbWEB_entries_count].isFile=dbWEB_entries[j].isFile;
-                    search_dbWEB_entries[search_dbWEB_entries_count].info=dbWEB_entries[j].info;
-                    search_dbWEB_entries[search_dbWEB_entries_count].img_URL=dbWEB_entries[j].img_URL;
-                    search_dbWEB_entries_count++;
-                    search_dbWEB_nb_entries++;
-                }
-            }
+    dbWEB_hasFiles=0;
+    
+    if (entries_noMoreToLoad && mSearch) {
+        // in case of search, do not ask DB again => duplicate already found entries & filter them
+        [self fillSearchWithEntries];
         return;
     }
+    
     if (dbWEB_nb_entries) {
         for (int i=0;i<dbWEB_nb_entries;i++) {
             dbWEB_entries_data[i].label=nil;
@@ -766,7 +748,13 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
         we[i].file_systems=nil;
     }
     
-    mdz_safe_free(we);    
+    mdz_safe_free(we);
+    
+    if (!entries_noMoreToLoad && mSearch) {
+        // in case of search, do not ask DB again => duplicate already found entries & filter them
+        [self fillSearchWithEntries];
+        return;
+    }
 }
 
 #pragma mark -

@@ -11,6 +11,7 @@ enum {
     ONLINE_COLLECTIONS_MODLAND=0,
     ONLINE_COLLECTIONS_AMP,
     ONLINE_COLLECTIONS_HVSC,
+    ONLINE_COLLECTIONS_CGSC,
     ONLINE_COLLECTIONS_ASMA,
     ONLINE_COLLECTIONS_JOSHW,
     ONLINE_COLLECTIONS_VGMRips,
@@ -67,7 +68,7 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
 
 @synthesize tableView;
 @synthesize downloadViewController,webBrowser,collectionViewController,detailViewController;
-@synthesize mNbMODLANDFileEntries,mNbHVSCFileEntries,mNbASMAFileEntries;
+@synthesize mNbMODLANDFileEntries,mNbHVSCFileEntries,mNbCGSCFileEntries,mNbASMAFileEntries;
 @synthesize waitingView,waitingViewPlayer;
 
 #include "MiniPlayerImplementTableView.h"
@@ -188,6 +189,7 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
 #ifdef GET_NB_ENTRIES
     mNbMODLANDFileEntries=DBHelper::getNbMODLANDFilesEntries();
     mNbHVSCFileEntries=DBHelper::getNbHVSCFilesEntries();
+    mNbCGSCFileEntries=DBHelper::getNbCGSCFilesEntries();
     mNbASMAFileEntries=DBHelper::getNbASMAFilesEntries();
 #else
     mNbMODLANDFileEntries=NB_MODLAND_ENTRIES;
@@ -512,6 +514,9 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
                 case ONLINE_COLLECTIONS_HVSC:topLabel.text=NSLocalizedString(@"HVSC collection",@"");
                     bottomLabel.text=[NSString stringWithFormat:NSLocalizedString(@"%d entries",@""),mNbHVSCFileEntries];
                     break;
+                case ONLINE_COLLECTIONS_CGSC:topLabel.text=NSLocalizedString(@"CGSC collection",@"");
+                    bottomLabel.text=[NSString stringWithFormat:NSLocalizedString(@"%d entries",@""),mNbCGSCFileEntries];
+                    break;
                 case ONLINE_COLLECTIONS_ASMA:topLabel.text=NSLocalizedString(@"ASMA collection",@"");
                     bottomLabel.text=[NSString stringWithFormat:NSLocalizedString(@"%d entries",@""),mNbASMAFileEntries];
                     break;
@@ -649,6 +654,19 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
                     ((RootViewControllerHVSC*)collectionViewController)->browse_depth = 1;
                     ((RootViewControllerHVSC*)collectionViewController)->detailViewController=detailViewController;
                     ((RootViewControllerHVSC*)collectionViewController)->downloadViewController=downloadViewController;
+//                    collectionViewController.view.frame=self.view.frame;
+                    [self adjustFrame:collectionViewController];
+                    // And push the window
+                    [self.navigationController pushViewController:collectionViewController animated:YES];
+                    break;
+                case ONLINE_COLLECTIONS_CGSC: //CGSC
+                    collectionViewController = [[RootViewControllerCGSC alloc]  initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]];
+                    //set new title
+                    collectionViewController.title = @"CGSC";
+                    // Set new directory
+                    ((RootViewControllerCGSC*)collectionViewController)->browse_depth = 1;
+                    ((RootViewControllerCGSC*)collectionViewController)->detailViewController=detailViewController;
+                    ((RootViewControllerCGSC*)collectionViewController)->downloadViewController=downloadViewController;
 //                    collectionViewController.view.frame=self.view.frame;
                     [self adjustFrame:collectionViewController];
                     // And push the window
@@ -865,6 +883,7 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
     if ((miniplayerVC==nil)&&([detailViewController mPlaylist_size]>0)) {
         wasMiniPlayerOn=true;
         [self showMiniPlayer];
+        [self updateMiniPlayer];
     }
 }
 

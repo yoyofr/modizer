@@ -258,6 +258,11 @@ pthread_mutex_t gl_mutex;
 
 
 - (void)applicationWillTerminate:(UIApplication *)application {
+    UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
+    // Remove all delivered notifications
+    [center removeAllDeliveredNotifications];
+    // Remove all pending notifications
+    [center removeAllPendingNotificationRequests];
 }
 
 - (void)applicationWillEnterForeground:(UIApplication *)application {
