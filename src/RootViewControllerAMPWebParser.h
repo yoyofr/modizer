@@ -15,10 +15,12 @@
 @interface RootViewControllerAMPWebParser : RootViewControllerXPWebParser <UINavigationControllerDelegate,UISearchBarDelegate,UIGestureRecognizerDelegate,CMPopTipViewDelegate> {
     
     NSMutableArray *arr_url_handleList,*arr_url_realnameList,*arr_url_countryList,*arr_url_groupsList;
+    NSMutableArray *arr_url_fileList,*arr_url_composerList,*arr_url_formatList,*arr_url_sizeList;
     int browse_subMode;
 }
 
 @property (nonatomic, strong) NSMutableArray *arr_url_handleList,*arr_url_realnameList,*arr_url_countryList,*arr_url_groupsList;
+@property (nonatomic, strong) NSMutableArray *arr_url_fileList,*arr_url_composerList,*arr_url_formatList,*arr_url_sizeList;
 @property (nonatomic, assign) int browse_subMode;
 
 @end

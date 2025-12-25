@@ -1452,31 +1452,6 @@ MDZELog("gzread error str for FTP entry %d",i); \
             [self requestFailed];
             [[NSFileManager defaultManager] removeItemAtPath:[filePath path] error:NULL];
         } else {
-//            // Cast response to NSHTTPURLResponse to access statusCode
-//            NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
-//
-//            // Check for HTTP errors (404, 500, etc.)
-//            if (httpResponse && httpResponse.statusCode != 200) {
-//                MDZELog("HTTP error %ld for %@", (long)httpResponse.statusCode, filePath);
-//                
-//                if (httpResponse.statusCode == 404) {
-//                    // Handle 404 specifically
-//                    MDZELog("File not found (404): %@", filePath);
-//                }
-//                
-//                [self requestFailed];
-//                [[NSFileManager defaultManager] removeItemAtPath:[filePath path] error:NULL];
-//                return;
-//            }
-//
-//                  // Check for other errors
-//            if (error) {
-//                MDZELog("URL file download error for %@, error: %d %@", filePath, (int)(error.code), error.localizedDescription);
-//                [self requestFailed];
-//                [[NSFileManager defaultManager] removeItemAtPath:[filePath path] error:NULL];
-//                return;
-//            }
-//            
             [self addSkipBackupAttributeToItemAtPath:[filePath path]];
             
             if (mURLIsMODLAND[0]) {

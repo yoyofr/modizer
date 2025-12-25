@@ -82,6 +82,7 @@ typedef struct {
     double webRating;
     int entries_nb;
     bool isFile;
+    char url_type;
     signed char downloaded;
     int song_length;
     int songs;

@@ -19,7 +19,19 @@ enum {
     BROWSE_SUB_LUCKY,
     BROWSE_SUB_COMPOSERS_LIST,
     BROWSE_SUB_COMPOSER_DETAILS,
-    BROWSE_SUB_COMPOSER_MODS,
+    BROWSE_SUB_MODULES_LIST,
+    BROWSE_SUB_COMPOSER_INTERVIEW,
+};
+
+enum {
+    AMP_LINK_NONE,
+    AMP_LINK_COMPOSERS_LIST,
+    AMP_LINK_COMPOSER_DETAILS,
+    AMP_LINK_MODULES_LIST,
+    AMP_LINK_INTERVIEW,
+    AMP_LINK_MODULE_FILE,
+    AMP_LINK_GROUP_DETAILS,
+    AMP_LINK_COUNTRY_DETAILS,
 };
 
 
@@ -92,6 +104,12 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
     arr_url_realnameList=[NSMutableArray array];
     arr_url_countryList=[NSMutableArray array];
     arr_url_groupsList=[NSMutableArray array];
+    
+    arr_url_fileList=[NSMutableArray array];
+    arr_url_composerList=[NSMutableArray array];
+    arr_url_formatList=[NSMutableArray array];
+    arr_url_sizeList=[NSMutableArray array];
+    
     arr_current_fetch_position=0;
 
     // Configure scroll indicators
@@ -142,6 +160,12 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
 
 -(void) fillKeysCompleted {
     [super fillKeysCompleted];
+    
+    if (mSearch && (search_dbWEB_entries_count==0)&&(entries_noMoreToLoad==false)) {
+        dispatch_async(dispatch_get_main_queue(), ^(void){
+            [self fillMoreKeys];
+        });
+    }
 }
 
 -(void) populateKeys {
@@ -159,8 +183,6 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
 }
 
 -(void) fillMoreKeys {
-    if (fillKeysInProgress) return;
-    fillKeysInProgress=1;
     shouldFillKeys=1;
     dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void){
         [self fillKeys];
@@ -168,6 +190,8 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
 }
 
 -(void) fillKeys {
+    if (fillKeysInProgress) return;
+    fillKeysInProgress=1;
     if (shouldFillKeys) {
         shouldFillKeys=0;
         [self populateKeys];
@@ -210,7 +234,7 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
         
         search_dbWEB_entries_data=(t_WEB_browse_entry*)calloc(1,dbWEB_nb_entries*sizeof(t_WEB_browse_entry));
         
-            search_dbWEB_entries_count=0;
+        search_dbWEB_entries_count=0;
         if (dbWEB_entries_count) search_dbWEB_entries=search_dbWEB_entries_data;
             for (int j=0;j<dbWEB_entries_count;j++)  {
                 if ([self searchStringRegExp:mSearchText sourceString:dbWEB_entries[j].label]) {
@@ -221,6 +245,7 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
                     search_dbWEB_entries[search_dbWEB_entries_count].fullpath=dbWEB_entries[j].fullpath;
                     search_dbWEB_entries[search_dbWEB_entries_count].URL=dbWEB_entries[j].URL;
                     search_dbWEB_entries[search_dbWEB_entries_count].isFile=dbWEB_entries[j].isFile;
+                    search_dbWEB_entries[search_dbWEB_entries_count].url_type=dbWEB_entries[j].url_type;
                     search_dbWEB_entries[search_dbWEB_entries_count].info=dbWEB_entries[j].info;
                     search_dbWEB_entries_count++;
                     search_dbWEB_nb_entries++;
@@ -275,6 +300,8 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
         
         dbWEB_entries[dbWEB_entries_count].isFile=0;
         
+        dbWEB_entries[dbWEB_entries_count].url_type=0;
+        
         dbWEB_entries_count++;
         dbWEB_entries_index++;
     }
@@ -311,11 +338,9 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
             search_dbWEB_entries[search_dbWEB_entries_count].fullpath=dbWEB_entries[j].fullpath;
             search_dbWEB_entries[search_dbWEB_entries_count].URL=dbWEB_entries[j].URL;
             search_dbWEB_entries[search_dbWEB_entries_count].isFile=dbWEB_entries[j].isFile;
+            search_dbWEB_entries[search_dbWEB_entries_count].url_type=dbWEB_entries[j].url_type;
             search_dbWEB_entries[search_dbWEB_entries_count].info=dbWEB_entries[j].info;
             search_dbWEB_entries[search_dbWEB_entries_count].img_URL=dbWEB_entries[j].img_URL;
-            
-            search_dbWEB_entries_count++;
-            search_dbWEB_nb_entries++;
             
             search_dbWEB_entries_count++;
             search_dbWEB_nb_entries++;
@@ -381,6 +406,7 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
         dbWEB_entries[dbWEB_entries_count].URL=[NSString stringWithString:wentry->url];
         
         dbWEB_entries[dbWEB_entries_count].isFile=0;
+        dbWEB_entries[dbWEB_entries_count].url_type=0;
         
         dbWEB_entries_count++;
         dbWEB_entries_index++;
@@ -423,6 +449,7 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
                     search_dbWEB_entries[search_dbWEB_entries_count].fullpath=dbWEB_entries[j].fullpath;
                     search_dbWEB_entries[search_dbWEB_entries_count].URL=dbWEB_entries[j].URL;
                     search_dbWEB_entries[search_dbWEB_entries_count].isFile=dbWEB_entries[j].isFile;
+                    search_dbWEB_entries[search_dbWEB_entries_count].url_type=dbWEB_entries[j].url_type;
                     search_dbWEB_entries[search_dbWEB_entries_count].info=dbWEB_entries[j].info;
                     search_dbWEB_entries_count++;
                     search_dbWEB_nb_entries++;
@@ -484,6 +511,7 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
         dbWEB_entries[dbWEB_entries_count].URL=[NSString stringWithString:wentry->url];
         
         dbWEB_entries[dbWEB_entries_count].isFile=0;
+        dbWEB_entries[dbWEB_entries_count].url_type=0;
         
         dbWEB_entries_count++;
         dbWEB_entries_index++;
@@ -518,14 +546,12 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
     typedef struct {
         NSString *file_URL;
         NSString *file_name;
-        NSString *file_company;
-        NSString *file_systems;
-        NSString *file_chipsets;
+        NSString *composer;
         float file_rating;
         int entries_nb;
         NSString *file_details;
         NSString *file_img_URL;
-        char file_type;
+        char url_type;
     } t_web_file_entry;
     
     //Browse page
@@ -539,7 +565,7 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
     int we_index=0;
     bool sort_entries=false;
     
-    if ((browse_mode==BROWSE_COMPOSER)&&(browse_subMode==BROWSE_SUB_COMPOSERS_LIST)) {
+    if (browse_subMode==BROWSE_SUB_COMPOSERS_LIST) {
         ///////////////////////////////////////////////////////////////////////:
         // AMP Composer list
         ///////////////////////////////////////////////////////////////////////:
@@ -595,14 +621,14 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
                 
                 //el=[arr_url objectAtIndex:j];
                 we[we_index].file_name=[NSString stringWithFormat:@"%@",el.content];
-                we[we_index].file_type=0;
+                we[we_index].url_type=AMP_LINK_COMPOSER_DETAILS;
                 we[we_index].entries_nb=0;
                 
                 [tmpArray addObject:[NSValue valueWithPointer:&(we[we_index])]];
                 we_index++;
             }
         }
-    } else if ((browse_mode==BROWSE_COMPOSER)&&(browse_subMode==BROWSE_SUB_COMPOSER_DETAILS)) {
+    } else if (browse_subMode==BROWSE_SUB_COMPOSER_DETAILS) {
         ///////////////////////////////////////////////////////////////////////:
         // AMP Composer's details
         ///////////////////////////////////////////////////////////////////////:
@@ -628,6 +654,18 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
         
         we=(t_web_file_entry*)calloc(1,sizeof(t_web_file_entry)*entries_nb);
         
+        if ([arr_url_modulesLink count]>0) {
+            el=[arr_url_modulesLink objectAtIndex:0];
+            we[we_index].file_name=[NSString stringWithFormat:@"Modules: %@",el.content];
+            we[we_index].file_URL=[NSString stringWithFormat:@"https://amp.dascene.net/%@",[el objectForKey:@"href"]];
+            we[we_index].url_type=AMP_LINK_MODULES_LIST;
+            MDZILog("url of mods: %@",we[we_index].file_URL);
+        } else {
+            we[we_index].file_name=[NSString stringWithFormat:@"Modules: N/A"];
+            we[we_index].file_URL=nil;
+        }
+        [tmpArray addObject:[NSValue valueWithPointer:&(we[we_index++])]];
+        
         el=[arr_url_realName objectAtIndex:0];
         we[we_index].file_name=[NSString stringWithFormat:@"Real name: %@",el.content];
         we[we_index].file_URL=nil;
@@ -639,6 +677,7 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
         
         we[we_index].file_name=[NSString stringWithFormat:@"Lived in: %@",strTmp];
         we[we_index].file_URL=[NSString stringWithFormat:@"https://amp.dascene.net/%@",[el objectForKey:@"href"]];;
+        we[we_index].url_type=AMP_LINK_COUNTRY_DETAILS;
         MDZILog("url of %@: %@",we[we_index].file_name,we[we_index].file_URL);
         [tmpArray addObject:[NSValue valueWithPointer:&(we[we_index++])]];
         
@@ -657,35 +696,99 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
             if ([child objectForKey:@"href"]) {
                 we[we_index].file_name=[NSString stringWithFormat:@" • %@",child.content];
                 we[we_index].file_URL=[NSString stringWithFormat:@"https://amp.dascene.net/%@",[child objectForKey:@"href"]];
+                we[we_index].url_type=AMP_LINK_GROUP_DETAILS;
                 MDZILog("url of %@: %@",we[we_index].file_name,we[we_index].file_URL);
                 [tmpArray addObject:[NSValue valueWithPointer:&(we[we_index++])]];
             }
         }
         
-        if ([arr_url_modulesLink count]>0) {
-            el=[arr_url_modulesLink objectAtIndex:0];
-            we[we_index].file_name=[NSString stringWithFormat:@"Modules: %@",el.content];
-            we[we_index].file_URL=[NSString stringWithFormat:@"https://amp.dascene.net/%@",[el objectForKey:@"href"]];
-            MDZILog("url of mods: %@",we[we_index].file_URL);
-        } else {
-            we[we_index].file_name=[NSString stringWithFormat:@"Modules: N/A"];
-            we[we_index].file_URL=nil;
-        }
-        [tmpArray addObject:[NSValue valueWithPointer:&(we[we_index++])]];
-        
         if ([arr_url_interviewLink count]>0) {
             el=[arr_url_interviewLink objectAtIndex:0];
-            we[we_index].file_name=[NSString stringWithFormat:@"Interview"];
-            we[we_index].file_URL=[NSString stringWithFormat:@"https://amp.dascene.net/%@",[el objectForKey:@"href"]];
-            [tmpArray addObject:[NSValue valueWithPointer:&(we[we_index++])]];
-            MDZILog("url of interview: %@",we[we_index].file_URL);
+            NSString *str=[NSString stringWithFormat:@"https://amp.dascene.net/%@",[el objectForKey:@"href"]];
+            if (![str containsString:@"downcount"]) {
+                we[we_index].file_name=[NSString stringWithFormat:@"Interview"];
+                we[we_index].file_URL=str;
+                we[we_index].url_type=AMP_LINK_INTERVIEW;
+                [tmpArray addObject:[NSValue valueWithPointer:&(we[we_index++])]];
+            }
         }
         
         entries_noMoreToLoad=true;
         
-    }  else if ((browse_mode==BROWSE_COMPOSER)&&(browse_subMode==BROWSE_SUB_COMPOSER_MODS)) {
-        MDZILog("composer mods\n");
-        entries_noMoreToLoad=true;
+    }  else if (browse_subMode==BROWSE_SUB_MODULES_LIST) {
+        
+        ///////////////////////////////////////////////////////////////////////:
+        // AMP Modules list
+        ///////////////////////////////////////////////////////////////////////:
+        
+        dispatch_async(dispatch_get_main_queue(), ^(void){
+            [self updateWaitingDetail:[NSString stringWithFormat:@"fetching from %d",self.arr_current_fetch_position]];
+        });
+        
+        url = [NSURL URLWithString:[NSString stringWithFormat:@"%@&position=%d",mWebBaseURL,arr_current_fetch_position]];
+        urlData = [NSData dataWithContentsOfURL:url];
+        doc       = [[TFHpple alloc] initWithHTMLData:urlData];
+        
+        NSArray *arr_tmp_url_fileList=[doc searchWithXPathQuery:@"//div[@id='result']//tr[@class='tr0' or @class='tr1']/td[1]/a"];
+        NSArray *arr_tmp_url_composerList=[doc searchWithXPathQuery:@"//div[@id='result']//tr[@class='tr0' or @class='tr1']/td[2]/a"];
+        NSArray *arr_tmp_url_formatList=[doc searchWithXPathQuery:@"//div[@id='result']//tr[@class='tr0' or @class='tr1']/td[3]"];
+        NSArray *arr_tmp_url_sizeList=[doc searchWithXPathQuery:@"//div[@id='result']//tr[@class='tr0' or @class='tr1']/td[4]"];
+        
+        [arr_url_fileList addObjectsFromArray:arr_tmp_url_fileList];
+        [arr_url_composerList addObjectsFromArray:arr_tmp_url_composerList];
+        [arr_url_formatList addObjectsFromArray:arr_tmp_url_formatList];
+        [arr_url_sizeList addObjectsFromArray:arr_tmp_url_sizeList];
+        
+        int currentFiles=(int)[arr_url_fileList count];
+        
+        arr_current_fetch_position+=currentFiles;
+        if (currentFiles<50) {
+            entries_noMoreToLoad=true;
+        }
+        
+        dispatch_async(dispatch_get_main_queue(), ^(void){
+            [self updateWaitingDetail:[NSString stringWithFormat:@"fetching %d",self.arr_current_fetch_position]];
+        });
+        
+        
+        int total_files=(int)[arr_url_fileList count];
+        int total_composers=(int)[arr_url_composerList count];
+
+        //keep last items to remove unrelevant entries at beginning
+        while (total_composers>total_files) {
+            [arr_url_composerList removeObjectAtIndex:0];
+            total_composers--;
+        }
+        
+        int total_formats=(int)[arr_url_formatList count];
+        int total_sizes=(int)[arr_url_sizeList count];
+        if ( (total_files!=total_formats) ||
+            (total_files!=total_composers) ||
+            (total_files!=total_sizes) ) {
+            MDZELog("AMP consistency issue: files %d composers %d formats %d sizes %d\n",total_files,total_composers,total_formats,total_sizes);
+        }
+        
+        if (total_files) {
+            we=(t_web_file_entry*)calloc(1,sizeof(t_web_file_entry)*total_files);
+            
+            for (int j=0;j<total_files;j++) {
+                TFHppleElement *el=[arr_url_fileList objectAtIndex:j];
+                TFHppleElement *el_composer=[arr_url_composerList objectAtIndex:j];
+                TFHppleElement *el_format=[arr_url_formatList objectAtIndex:j];
+                TFHppleElement *el_size=[arr_url_sizeList objectAtIndex:j];
+                
+                we[we_index].file_URL=[NSString stringWithFormat:@"https://amp.dascene.net/%@",[el objectForKey:@"href"]];
+                we[we_index].composer=[NSString stringWithFormat:@"%@",el_composer.content];
+                we[we_index].file_name=[NSString stringWithFormat:@"%@.%@",[el_format.content lowercaseString],el.content];
+                
+                we[we_index].file_details=[NSString stringWithFormat:@"%@",el_size.content];
+                we[we_index].url_type=AMP_LINK_MODULE_FILE;
+                we[we_index].entries_nb=1;
+                
+                [tmpArray addObject:[NSValue valueWithPointer:&(we[we_index])]];
+                we_index++;
+            }
+        }
     }
     
     if (sort_entries) {
@@ -710,27 +813,24 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
     for (int i=0;i<dbWEB_nb_entries;i++) {
         t_web_file_entry *wef = (t_web_file_entry *)[[sortedArray objectAtIndex:i] pointerValue];
         
-        if (wef->file_type==1) dbWEB_entries[dbWEB_entries_count].label=[[NSString alloc] initWithFormat:@"%@.zip",wef->file_name];
-        else dbWEB_entries[dbWEB_entries_count].label=[[NSString alloc] initWithFormat:@"%@",wef->file_name];
         
-        if (wef->file_type==1) dbWEB_entries[dbWEB_entries_count].fullpath=[NSString stringWithFormat:@"Documents/AMP/%@/%@.zip",wef->file_systems,wef->file_name];
-        else dbWEB_entries[dbWEB_entries_count].fullpath=[[NSString alloc] initWithFormat:@"%@",wef->file_name];
+        dbWEB_entries[dbWEB_entries_count].label=[[NSString alloc] initWithFormat:@"%@",wef->file_name];
         
         if (wef->file_URL) dbWEB_entries[dbWEB_entries_count].URL=[NSString stringWithString:wef->file_URL];
         
         if (wef->file_img_URL && ([wef->file_img_URL characterAtIndex:[wef->file_img_URL length]-1]!='/') ) dbWEB_entries[dbWEB_entries_count].img_URL=[NSString stringWithString:wef->file_img_URL];
         
-        dbWEB_entries[dbWEB_entries_count].isFile=wef->file_type;
+        if (wef->url_type==AMP_LINK_MODULE_FILE) {
+            dbWEB_entries[dbWEB_entries_count].fullpath=[NSString stringWithFormat:@"Documents/AMP/%@/%@.gz",wef->composer,wef->file_name];
+            dbWEB_entries[dbWEB_entries_count].isFile=1;
+            dbWEB_entries[dbWEB_entries_count].info=wef->file_details;
+        } else {
+            dbWEB_entries[dbWEB_entries_count].fullpath=[[NSString alloc] initWithFormat:@"%@",wef->file_name];
+            dbWEB_entries[dbWEB_entries_count].isFile=0;
+        }
+        dbWEB_entries[dbWEB_entries_count].url_type=wef->url_type;
         dbWEB_entries[dbWEB_entries_count].downloaded=-1;
-        if (wef->file_type) {
-            dbWEB_entries[dbWEB_entries_count].info=[NSString stringWithFormat:@"%.1f/10・%@・%@",wef->file_rating,wef->file_systems, [wef->file_details stringByReplacingOccurrencesOfString:@"&#13;\n" withString:@""]];
-            dbWEB_entries[dbWEB_entries_count].webRating=wef->file_rating;
-        }
-        else {
-            if (wef->entries_nb>1) dbWEB_entries[dbWEB_entries_count].info=[NSString stringWithFormat:@"%d Packs",wef->entries_nb];
-            else dbWEB_entries[dbWEB_entries_count].info=[NSString stringWithFormat:@"1 Pack"];
-            dbWEB_entries[dbWEB_entries_count].entries_nb=wef->entries_nb;
-        }
+        dbWEB_entries[dbWEB_entries_count].entries_nb=wef->entries_nb;
         
         dbWEB_entries[dbWEB_entries_count].rating=-1;
         dbWEB_entries[dbWEB_entries_count].playcount=-1;
@@ -743,9 +843,6 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
         we[i].file_img_URL=nil;
         we[i].file_name=nil;
         we[i].file_details=nil;
-        we[i].file_company=nil;
-        we[i].file_chipsets=nil;
-        we[i].file_systems=nil;
     }
     
     mdz_safe_free(we);
@@ -1062,9 +1159,7 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
         } else {
             [self checkCreate:[localPath stringByDeletingLastPathComponent]];
             
-            
             [downloadViewController addURLToDownloadList:cur_db_entries[indexPath.row].URL fileName:cur_db_entries[indexPath.row].label filePath:cur_db_entries[indexPath.row].fullpath filesize:-1 isMODLAND:1 usePrimaryAction:mClickedPrimAction];
-            
         }
     } else {
         childController = [[RootViewControllerAMPWebParser alloc]  initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]];
@@ -1101,8 +1196,24 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
         
         if ((browse_mode==BROWSE_COMPOSER)&&(browse_subMode==BROWSE_SUB_BROWSE)) ((RootViewControllerAMPWebParser*)childController)->browse_subMode=BROWSE_SUB_COMPOSERS_LIST;
         else if ((browse_mode==BROWSE_COMPOSER)&&(browse_subMode==BROWSE_SUB_COMPOSERS_LIST)) ((RootViewControllerAMPWebParser*)childController)->browse_subMode=BROWSE_SUB_COMPOSER_DETAILS;
-        else if ((browse_mode==BROWSE_COMPOSER)&&(browse_subMode==BROWSE_SUB_COMPOSER_DETAILS)) ((RootViewControllerAMPWebParser*)childController)->browse_subMode=BROWSE_SUB_COMPOSER_MODS;
+        else if ((browse_mode==BROWSE_COMPOSER)&&(browse_subMode==BROWSE_SUB_COMPOSER_DETAILS)) ((RootViewControllerAMPWebParser*)childController)->browse_subMode=BROWSE_SUB_MODULES_LIST;
         
+        switch (cur_db_entries[indexPath.row].url_type) {
+            case AMP_LINK_COMPOSERS_LIST:
+                ((RootViewControllerAMPWebParser*)childController)->browse_subMode=BROWSE_SUB_COMPOSERS_LIST;
+                break;
+            case AMP_LINK_COMPOSER_DETAILS:
+                ((RootViewControllerAMPWebParser*)childController)->browse_subMode=BROWSE_SUB_COMPOSER_DETAILS;
+                break;
+            case AMP_LINK_MODULES_LIST:
+                ((RootViewControllerAMPWebParser*)childController)->browse_subMode=BROWSE_SUB_MODULES_LIST;
+                break;
+            case AMP_LINK_INTERVIEW:
+                ((RootViewControllerAMPWebParser*)childController)->browse_subMode=BROWSE_SUB_COMPOSER_INTERVIEW;
+                break;
+            default:
+            case AMP_LINK_NONE:break;
+        }
         
         
 //        childController.view.frame=self.view.frame;
@@ -1123,6 +1234,5 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
         [self.navigationController pushViewController:childController animated:YES];
     }
 }
-
 
 @end

@@ -225,10 +225,14 @@ extern bool icloud_available;
             [filetype_ext addObjectsFromArray:filetype_extVGM];
             break;
         }
-        case FTYPE_PLAYABLEFILE_AMIGA: { //specific case for file named with extension first, i.e. mod.unreal rather than unreal.mod
-            NSArray *filetype_extUADE=[SUPPORTED_FILETYPE_UADE componentsSeparatedByString:@","];            
-            filetype_ext=[NSMutableArray arrayWithCapacity:[filetype_extUADE count]];
+        case FTYPE_PLAYABLEFILE_AMIGA: { //specific case for file named with extension first, i.e. mod.unreal rather than unreal.mod. Important for AMP collection
+            NSArray *filetype_extUADE=[SUPPORTED_FILETYPE_UADE componentsSeparatedByString:@","];
+            NSArray *filetype_extOMPT=[SUPPORTED_FILETYPE_OMPT componentsSeparatedByString:@","];
+            NSArray *filetype_extXMP=[SUPPORTED_FILETYPE_XMP componentsSeparatedByString:@","];
+            filetype_ext=[NSMutableArray arrayWithCapacity:[filetype_extUADE count]+[filetype_extOMPT count]+[filetype_extXMP count]];
             [filetype_ext addObjectsFromArray:filetype_extUADE];
+            [filetype_ext addObjectsFromArray:filetype_extOMPT];
+            [filetype_ext addObjectsFromArray:filetype_extXMP];
             break;
         }
         case FTYPE_PLAYABLEFILE_AND_DATAFILE: {
