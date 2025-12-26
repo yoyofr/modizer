@@ -75,10 +75,12 @@ typedef struct {
 
 typedef struct {
     NSString *label;
+    NSAttributedString *labelAttr;
     NSString *fullpath;
     NSString *URL;
     NSString *img_URL;
     NSString *info;
+    NSAttributedString *infoAttr;
     double webRating;
     int entries_nb;
     bool isFile;

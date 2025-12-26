@@ -112,7 +112,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
     
     bool entries_noMoreToLoad;
     int arr_current_fetch_position;
-    int fillKeysInProgress;
+    int fillKeysInProgress,shouldReload;
 @public
     int browse_depth;
     bool has_letter_index;
@@ -138,7 +138,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
 @property (nonatomic, assign) int activeKey;
 @property (nonatomic, strong) id mdzChangeObserverToken;
 @property (nonatomic, assign) bool entries_noMoreToLoad;
-@property (nonatomic, assign) int arr_current_fetch_position,fillKeysInProgress;
+@property (nonatomic, assign) int arr_current_fetch_position,fillKeysInProgress,shouldReload;
 
 -(IBAction)goPlayer;
 

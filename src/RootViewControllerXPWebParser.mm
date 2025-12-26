@@ -358,7 +358,7 @@ END_PROFILE
     if (childController) [(RootViewControllerXPWebParser*)childController refreshViewAfterDownload];
     else {
         //will trigger a background task
-        dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void){
+        dispatch_async(dispatch_get_main_queue(), ^(void){
             [self fillKeys];
         });
     }
@@ -382,11 +382,11 @@ END_PROFILE
         [self showWaiting];
         [self flushMainLoop];
         
-        dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void){
+        dispatch_async(dispatch_get_main_queue(), ^(void){
             [self fillKeys];
         });
     } else {
-        dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void){
+        dispatch_async(dispatch_get_main_queue(), ^(void){
             [self fillKeys];
         });
     }
@@ -556,7 +556,7 @@ trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
     else mSearch=1;
     if (mSearch) shouldFillKeys=1;
     search_dbWEB=0;
-    dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void){
+    dispatch_async(dispatch_get_main_queue(), ^(void){
         [self fillKeys];
     });
 }
@@ -569,7 +569,7 @@ trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
     [searchBar resignFirstResponder];
     //shouldFillKeys=1;
     search_dbWEB=0;
-    dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void){
+    dispatch_async(dispatch_get_main_queue(), ^(void){
         [self fillKeys];
     });
 }
