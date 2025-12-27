@@ -162,14 +162,15 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
     if (mSearch && (search_dbWEB_entries_count==0)&&(entries_noMoreToLoad==false)) {
         dispatch_async(dispatch_get_main_queue(), ^(void){
             [self hideWaiting];
-            //[tableView reloadData];
-            [tableView reloadData];
             [self fillMoreKeys];
+            [tableView reloadData];
+            [tableView layoutIfNeeded];
         });
     } else {
         dispatch_async(dispatch_get_main_queue(), ^(void){
             [self hideWaiting];
             [tableView reloadData];
+            [tableView layoutIfNeeded];
         });
     }
 }
@@ -202,8 +203,8 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
     [self.searchDebounceTimer invalidate];
     self.searchDebounceTimer = nil;
 
-    // Schedule new search after 0.6 second delay
-    self.searchDebounceTimer = [NSTimer scheduledTimerWithTimeInterval:0.6
+    // Schedule new search after delay
+    self.searchDebounceTimer = [NSTimer scheduledTimerWithTimeInterval:0.3
                                                                  target:self
                                                                selector:@selector(fillKeys)
                                                                userInfo:nil
@@ -698,13 +699,12 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
         NSArray *arr_tmp_url_realnameList=[doc searchWithXPathQuery:@"//text()[contains(normalize-space(.),'Real Name:')]/following::node()[1]"];
         if ([arr_tmp_url_realnameList count]>0) {
             //have found only 1 group and redirected to composers list
-            //browse_subMode=AMP_LINK_COMPOSERS_LIST;
-            
             NSArray *arr_tmp_url_groupName=[doc searchWithXPathQuery:@"//q"];
             
             TFHppleElement *el_title=[arr_tmp_url_groupName objectAtIndex:0];
             navbarTitle.text=el_title.content;
             self.navigationItem.title=navbarTitle.text;
+            [navbarTitle sizeToFit];
             
             NSArray *arr_tmp_url_handleList=[doc searchWithXPathQuery:@"//text()[contains(normalize-space(.),'Handle:')]/following::a[1]"];
             //NSArray *arr_tmp_url_realnameList=[doc searchWithXPathQuery:@"//text()[contains(normalize-space(.),'Real Name:')]/following::node()[1]"];
@@ -1517,12 +1517,14 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
                 if ([detailViewController.mplayer isPlaying]) [self showMiniPlayer];
 
                 [tabView reloadData];
+                [tableView layoutIfNeeded];
             } else {
                 if ([detailViewController add_to_playlist:localPath fileName:cur_db_entries[indexPath.row].label forcenoplay:(settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==1)]) {
                     if ([detailViewController.mplayer isPlaying]) [self showMiniPlayer];
 
                     cur_db_entries[indexPath.row].rating=-1;
                     [tabView reloadData];
+                    [tableView layoutIfNeeded];
                 }
             }
         } else {
@@ -1532,7 +1534,7 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
         }
     } else if (cur_db_entries[indexPath.row].URL) {
         
-        if (browse_depth>=3) {
+        if (browse_depth>=4) {
             //set new title
             self.title = cur_db_entries[indexPath.row].fullpath;
             // Set new directory
@@ -1629,8 +1631,8 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
     [self.searchDebounceTimer invalidate];
     self.searchDebounceTimer = nil;
 
-    // Schedule new search after 0.6 second delay
-    self.searchDebounceTimer = [NSTimer scheduledTimerWithTimeInterval:0.6
+    // Schedule new search after delay
+    self.searchDebounceTimer = [NSTimer scheduledTimerWithTimeInterval:0.3
                                                                  target:self
                                                                selector:@selector(fillKeys)
                                                                userInfo:nil

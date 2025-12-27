@@ -509,7 +509,7 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
                     bottomLabel.text=[NSString stringWithFormat:NSLocalizedString(@"%d entries",@""),mNbMODLANDFileEntries];
                     break;
                 case ONLINE_COLLECTIONS_AMP:topLabel.text=NSLocalizedString(@"AMP collection",@"");
-                    bottomLabel.text=NSLocalizedString(@"174K+ modules / Amiga Music Preservation",@"");
+                    bottomLabel.text=NSLocalizedString(@"Amiga Music Preservation",@"");
                     break;
                 case ONLINE_COLLECTIONS_HVSC:topLabel.text=NSLocalizedString(@"HVSC collection",@"");
                     bottomLabel.text=[NSString stringWithFormat:NSLocalizedString(@"%d entries",@""),mNbHVSCFileEntries];
@@ -524,7 +524,7 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
                     bottomLabel.text=NSLocalizedString(@"Thousands of entries",@"");
                     break;
                 case ONLINE_COLLECTIONS_VGMRips:topLabel.text=NSLocalizedString(@"VGMRips collection",@"");
-                    bottomLabel.text=NSLocalizedString(@"2K+ packs / 40K+ songs",@"");
+                    bottomLabel.text=NSLocalizedString(@"4K+ packs / 70K+ songs",@"");
                     break;
                 case ONLINE_COLLECTIONS_SNESM:topLabel.text=NSLocalizedString(@"SNESmusic collection",@"");
                     bottomLabel.text=NSLocalizedString(@"1500+ sets / Super Nintendo/Famicom",@"");

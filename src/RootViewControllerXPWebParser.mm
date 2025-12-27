@@ -253,6 +253,7 @@ END_PROFILE
     //called when fillKeys has finished
     [self hideWaiting];
     [tableView reloadData];
+    [tableView layoutIfNeeded];
     fillKeysInProgress=0;
 }
 
@@ -273,6 +274,7 @@ END_PROFILE
     if (darkMode) self.tableView.backgroundColor=[UIColor blackColor];
     else self.tableView.backgroundColor=[UIColor whiteColor];
     [self.tableView reloadData];
+    [self.tableView layoutIfNeeded];
 }
 
 - (UIStatusBarStyle)preferredStatusBarStyle {
@@ -280,7 +282,7 @@ END_PROFILE
 }
 
 -(void) viewWillAppear:(BOOL)animated {
-//    [self.navigationController.navigationBar setBarStyle:UIBarStyleDefault];
+    //    [self.navigationController.navigationBar setBarStyle:UIBarStyleDefault];
     [self.sBar setBarStyle:UIBarStyleDefault];
     //[[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];
     
@@ -337,18 +339,19 @@ END_PROFILE
     repeatingTimer = [NSTimer scheduledTimerWithTimeInterval: 0.20f target:self selector:@selector(updateLoadingInfos:) userInfo:nil repeats: YES]; //5 times/second
     
     self.mdzChangeObserverToken =
-        [[NSNotificationCenter defaultCenter] addObserverForName:MDZFileStatsChangedNotification
-                                                          object:nil
-                                                           queue:[NSOperationQueue mainQueue]
-                                                      usingBlock:^(NSNotification * _Nonnull note) {
+    [[NSNotificationCenter defaultCenter] addObserverForName:MDZFileStatsChangedNotification
+                                                      object:nil
+                                                       queue:[NSOperationQueue mainQueue]
+                                                  usingBlock:^(NSNotification * _Nonnull note) {
         // Consommer la notification
         NSDictionary *info = note.userInfo;
-//        NSString *fileName = info[@"fileName"];
-//        NSString *filePath = info[@"filePath"];
+        //        NSString *fileName = info[@"fileName"];
+        //        NSString *filePath = info[@"filePath"];
         // Mets à jour l’UI / ton modèle
         //self.forceReloadCells=true;
         [self fillKeys];
         [self.tableView reloadData];
+        [self.tableView layoutIfNeeded];
     }];
     
     [super viewWillAppear:animated];
@@ -416,17 +419,20 @@ END_PROFILE
 
 - (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
     [self.tableView reloadData];
+    [tableView layoutIfNeeded];
     [miniplayerVC viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
 }
 
 
 - (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation duration:(NSTimeInterval)duration {
     [tableView reloadData];
+    [tableView layoutIfNeeded];
 }
 
 // Ensure that the view controller supports rotation and that the split view can therefore show in both portrait and landscape.
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
     [tableView reloadData];
+    [tableView layoutIfNeeded];
     return YES;
 }
 
@@ -567,8 +573,8 @@ trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
     [self.searchDebounceTimer invalidate];
     self.searchDebounceTimer = nil;
 
-    // Schedule new search after 0.6 second delay
-    self.searchDebounceTimer = [NSTimer scheduledTimerWithTimeInterval:0.6
+    // Schedule new search after delay
+    self.searchDebounceTimer = [NSTimer scheduledTimerWithTimeInterval:0.3
                                                                  target:self
                                                                selector:@selector(fillKeys)
                                                                userInfo:nil
@@ -590,8 +596,8 @@ trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
     [self.searchDebounceTimer invalidate];
     self.searchDebounceTimer = nil;
 
-    // Schedule new search after 0.6 second delay
-    self.searchDebounceTimer = [NSTimer scheduledTimerWithTimeInterval:0.6
+    // Schedule new search after delay
+    self.searchDebounceTimer = [NSTimer scheduledTimerWithTimeInterval:0.3
                                                                  target:self
                                                                selector:@selector(fillKeys)
                                                                userInfo:nil
@@ -726,6 +732,7 @@ trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
                 if ([detailViewController.mplayer isPlaying]) [self showMiniPlayer];
                 
                 [tableView reloadData];
+                [tableView layoutIfNeeded];
             } else {
                 [self checkCreate:[localPath stringByDeletingLastPathComponent]];
                 
@@ -765,6 +772,7 @@ trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
             
             cur_db_entries[indexPath.row].rating=-1;
             [tableView reloadData];
+            [tableView layoutIfNeeded];
         } else {
             [self checkCreate:[localPath stringByDeletingLastPathComponent]];
             
@@ -805,12 +813,14 @@ trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
                 if ([detailViewController.mplayer isPlaying]) [self showMiniPlayer];
                 
                 [tabView reloadData];
+                [tableView layoutIfNeeded];
             } else {
                 if ([detailViewController add_to_playlist:localPath fileName:cur_db_entries[indexPath.row].label forcenoplay:(settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==1)]) {
                     if ([detailViewController.mplayer isPlaying]) [self showMiniPlayer];
                     
                     cur_db_entries[indexPath.row].rating=-1;
                     [tabView reloadData];
+                    [tableView layoutIfNeeded];
                 }
             }
         } else {
