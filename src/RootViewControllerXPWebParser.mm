@@ -358,7 +358,7 @@ END_PROFILE
     if (childController) [(RootViewControllerXPWebParser*)childController refreshViewAfterDownload];
     else {
         //will trigger a background task
-        dispatch_async(dispatch_get_main_queue(), ^(void){
+        dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void){
             [self fillKeys];
         });
     }
@@ -382,11 +382,11 @@ END_PROFILE
         [self showWaiting];
         [self flushMainLoop];
         
-        dispatch_async(dispatch_get_main_queue(), ^(void){
+        dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void){
             [self fillKeys];
         });
     } else {
-        dispatch_async(dispatch_get_main_queue(), ^(void){
+        dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void){
             [self fillKeys];
         });
     }
@@ -398,12 +398,15 @@ END_PROFILE
     [self hideWaiting];
     [repeatingTimer invalidate];
     repeatingTimer = nil;
-    
+
+    [self.searchDebounceTimer invalidate];
+    self.searchDebounceTimer = nil;
+
     NSString *observedSelector = NSStringFromSelector(@selector(hidden));
     [detailViewController.waitingView removeObserver:self
                                           forKeyPath:observedSelector
                                              context:LoadingProgressObserverContext];
-    
+
     if (self.mdzChangeObserverToken) {
         [[NSNotificationCenter defaultCenter] removeObserver:self.mdzChangeObserverToken];
         self.mdzChangeObserverToken = nil;
@@ -556,9 +559,20 @@ trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
     else mSearch=1;
     if (mSearch) shouldFillKeys=1;
     search_dbWEB=0;
-    dispatch_async(dispatch_get_main_queue(), ^(void){
-        [self fillKeys];
-    });
+//    dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void){
+//        [self fillKeys];
+//    });
+    
+    // Cancel previous search timer to debounce
+    [self.searchDebounceTimer invalidate];
+    self.searchDebounceTimer = nil;
+
+    // Schedule new search after 0.6 second delay
+    self.searchDebounceTimer = [NSTimer scheduledTimerWithTimeInterval:0.6
+                                                                 target:self
+                                                               selector:@selector(fillKeys)
+                                                               userInfo:nil
+                                                                repeats:NO];
 }
 - (void)searchBarCancelButtonClicked:(UISearchBar *)searchBar {
     //if (mSearchText) [mSearchText release];
@@ -569,9 +583,19 @@ trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
     [searchBar resignFirstResponder];
     //shouldFillKeys=1;
     search_dbWEB=0;
-    dispatch_async(dispatch_get_main_queue(), ^(void){
-        [self fillKeys];
-    });
+//    dispatch_async(dispatch_get_main_queue(), ^(void){
+//        [self fillKeys];
+//    });
+    // Cancel previous search timer to debounce
+    [self.searchDebounceTimer invalidate];
+    self.searchDebounceTimer = nil;
+
+    // Schedule new search after 0.6 second delay
+    self.searchDebounceTimer = [NSTimer scheduledTimerWithTimeInterval:0.6
+                                                                 target:self
+                                                               selector:@selector(fillKeys)
+                                                               userInfo:nil
+                                                                repeats:NO];
 }
 - (void)searchBarSearchButtonClicked:(UISearchBar *)searchBar {
     [searchBar resignFirstResponder];
@@ -882,9 +906,13 @@ trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
 - (void)dealloc {
     [waitingView removeFromSuperview];
     waitingView=nil;
-    
+
     [waitingViewPlayer removeFromSuperview];
     waitingViewPlayer=nil;
+
+    [self.searchDebounceTimer invalidate];
+    self.searchDebounceTimer = nil;
+
     if (mSearchText) {
         mSearchText=nil;
     }

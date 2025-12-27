@@ -11260,6 +11260,7 @@ char* loadRom(const char* path, size_t romSize)
     
     numChannels=2;
     zxtune_song_info.reset();
+    mdz_zxtune->get_song_info(mod_currentsub+1,zxtune_song_info);
     mdz_zxtune->decodeInitialize(mod_currentsub+1,zxtune_song_info);
     numChannels=mdz_zxtune->get_channels_count();
     
@@ -14151,6 +14152,24 @@ extern bool icloud_available;
     
     [self iPhoneDrv_LittlePlayStart];
     
+    mod_title=nil;
+    
+    // Init artist if based on a download from a collection
+    artist=@"";
+    
+    NSArray *collectionDirList=@[@"MODLAND",@"AMP",@"CGSC",@"ZXArt"];
+    for (NSString *str in collectionDirList) {
+        if ([_filePath containsString:[NSString stringWithFormat:@"Documents/%@/",str]]) {
+            NSArray *components = [_filePath pathComponents];
+            NSUInteger index = [components indexOfObject:str];
+            
+            if (index != NSNotFound && index + 1 < components.count) {
+                artist = components[index + 1];
+            }
+        }
+    }
+    
+    
     mdz_defaultMODPLAYER=settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_value;
     mdz_defaultSAPPLAYER=settings[GLOB_DefaultSAPPlayer].detail.mdz_switch.switch_value;
     mdz_defaultVGMPLAYER=settings[GLOB_DefaultVGMPlayer].detail.mdz_switch.switch_value;
@@ -14790,9 +14809,7 @@ extern bool icloud_available;
     mod_currentfile=[NSString stringWithString:filePath];
     mod_currentext=[NSString stringWithString:extension];
     
-    artist=@"";
     album=[filePath lastPathComponent];
-    mod_title=nil;
     
     m_voice_fadeout_factor=256;
     

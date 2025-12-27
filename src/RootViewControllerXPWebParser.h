@@ -135,6 +135,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
 @property (nonatomic, retain) CMPopTipView *popTipView;
 
 @property (nonatomic, retain) NSTimer *repeatTimer;
+@property (nonatomic, retain) NSTimer *searchDebounceTimer;
 @property (nonatomic, assign) int activeKey;
 @property (nonatomic, strong) id mdzChangeObserverToken;
 @property (nonatomic, assign) bool entries_noMoreToLoad;

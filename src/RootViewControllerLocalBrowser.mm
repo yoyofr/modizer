@@ -1999,164 +1999,6 @@ As a consequence, some entries might disappear from existing playlist.\n\
  @param buttonIndex The index of the button which is triggered.
  */
 
-//*****************************************
-//Archive management
-
-- (void)slideTableViewCell:(SESlideTableViewCell*)cell didTriggerLeftButton:(NSInteger)buttonIndex {
-    
-    if ([cell.reuseIdentifier compare:@"CellH"]==NSOrderedSame) {
-        if (cutpaste_filesrcpath) {
-            //Paste file or dir
-            NSString *sourcePath=[ModizFileHelper getFullPathForFilePath:cutpaste_filesrcpath];
-            NSString *destPath=[[ModizFileHelper getFullPathForFilePath:currentPath] stringByAppendingPathComponent:[cutpaste_filesrcpath lastPathComponent]];
-            NSError *err;
-            
-            mFileMngr.delegate=self;
-            if ([mFileMngr moveItemAtPath:sourcePath toPath:destPath error:&err]!=YES) {
-                MDZELog("Issue %d while moving: %@",(int)(err.code),cutpaste_filesrcpath);
-                [self showAlertMsg:NSLocalizedString(@"Warning",@"") message:[NSString stringWithFormat:NSLocalizedString(@"Issue %d while moving: %@.\n%@",@""),err.code,cutpaste_filesrcpath]];
-            } else {
-                //[cutpaste_filesrcpath release];
-                cutpaste_filesrcpath=nil;
-                if (mSearch) {
-                    mSearch=0;
-                    [self listLocalFiles];
-                    mSearch=1;
-                }
-                [self listLocalFiles];
-            }
-        } else {
-            //Alert msg => nothing to Paste
-            [self showAlertMsg:NSLocalizedString(@"Warning",@"") message:NSLocalizedString(@"Nothing to paste",@"")];
-        }
-    } else {
-        //File or Directory
-        NSIndexPath *indexPath = [self.tableView indexPathForCell:cell];
-        
-        switch (buttonIndex) {
-            case 0: {//rename
-                t_local_browse_entry *cur_local_entries=(search_local?search_local_entries:local_entries);
-                //rename
-                renameIdx=indexPath.row;
-                
-                if ([cutpaste_filesrcpath compare:cur_local_entries[indexPath.row].fullpath]==NSOrderedSame) {
-                    //renaming file in cut/paste buffer -> cancel buffer
-                    //[cutpaste_filesrcpath release];
-                    cutpaste_filesrcpath=nil;
-                }
-                
-                UIAlertController *alertC = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Enter new name",@"")
-                                                                                message:nil
-                                                                         preferredStyle:UIAlertControllerStyleAlert];
-                __weak UIAlertController *weakAlert = alertC;
-                [alertC addTextFieldWithConfigurationHandler:^(UITextField *textField) {
-                    textField.placeholder = [NSString stringWithString:cur_local_entries[indexPath.row].label];
-                }];
-                
-                UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel",@"") style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
-                    
-                }];
-                [alertC addAction:cancelAction];
-                
-                UIAlertAction *saveAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Rename",@"") style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
-                    UITextField *tf = weakAlert.textFields.firstObject;
-                    t_local_browse_entry *cur_local_entries=(search_local?search_local_entries:local_entries);
-                    if (cur_local_entries[renameIdx].label) cur_local_entries[renameIdx].label=nil;
-                    
-                    NSString *curPath,*tgtPath;
-                    
-                    curPath=[ModizFileHelper getFullPathForFilePath:cur_local_entries[renameIdx].fullpath];
-                    tgtPath=[ModizFileHelper getFullPathForFilePath:cur_local_entries[renameIdx].fullpath];
-                    
-                    tgtPath=[[tgtPath stringByDeletingLastPathComponent] stringByAppendingPathComponent:tf.text];
-                    
-                    NSError *err;
-                    mFileMngr.delegate=self;
-                    if ([mFileMngr moveItemAtPath:curPath toPath:tgtPath error:&err]==NO) {
-                        MDZELog("Issue %d while renaming file %@",(int)(err.code),curPath);
-                    } else {
-                        cur_local_entries[renameIdx].label=[[NSString alloc] initWithString:tf.text];
-                        
-                        cur_local_entries[renameIdx].fullpath=[[NSString alloc] initWithString:tgtPath];
-                        if (mSearch) {
-                            mSearch=0;
-                            [self listLocalFiles];
-                            mSearch=1;
-                        }
-                        shouldFillKeys=1;
-                        [self fillKeys];
-                        
-                        [self.tableView reloadData];
-                    }
-                }];
-                [alertC addAction:saveAction];
-                
-                [self showAlert:alertC];
-                
-                break;
-            }
-            case 1:{//cut
-                t_local_browse_entry *cur_local_entries=(search_local?search_local_entries:local_entries);
-                cutpaste_filesrcpath=[[NSString alloc] initWithString:cur_local_entries[indexPath.row].fullpath];
-                break;
-            }
-            case 2:{//extract
-                [waitingViewExtract setTitle:NSLocalizedString(@"Extracting",@"")];
-                [waitingViewExtract setDetail:@""];
-                [waitingViewExtract showCancel];
-                [waitingViewExtract showProgress];
-                waitingViewExtract.hidden=false;
-                //[self showWaiting];
-                //[self flushMainLoop];
-                t_local_browse_entry *cur_local_entries=(search_local?search_local_entries:local_entries);
-                int section=indexPath.section-2;
-                
-                NSString *filePath=[ModizFileHelper getFullPathForFilePath:cur_local_entries[indexPath.row].fullpath];
-                NSString *tgtPath;
-                tgtPath=[ModizFileHelper getFullPathForFilePath:[cur_local_entries[indexPath.row].fullpath stringByDeletingPathExtension]];
-                int files_found=[ModizFileHelper scanarchive:[filePath UTF8String] filesList_ptr:nil filesCount_ptr:nil];
-                if (files_found) {
-                    [self.tableView setUserInteractionEnabled:false];
-                    [self.navigationItem setHidesBackButton:YES animated:YES];
-                    extractProgress = [NSProgress progressWithTotalUnitCount:1];
-                    extractProgress.cancellable = YES;
-                    extractProgress.pausable = NO;
-                    [ModizFileHelper extractToPath:[filePath UTF8String] path:[tgtPath UTF8String] caller:self progress:extractProgress context:ExtractProgressObserverContext];
-                    if (mSearch) {
-                        mSearch=0;
-                        [self listLocalFiles];
-                        mSearch=1;
-                    }
-                    [self listLocalFiles];
-                    
-                    //[self.tableView reloadData];
-                } else {
-                    [self showAlertMsg:NSLocalizedString(@"Warning",@"") message:NSLocalizedString(@"No file to extract or not supported archive format.\n",@"")];
-                }
-                //[self hideWaiting];
-                break;
-            }
-        }
-    }
-    
-    [self.tableView reloadData];
-}
-/**
- Tells the delegate that a button of the right side is triggered.
- 
- @param cell The cell informing the delegate of the event.
- @param buttonIndex The index of the button which is triggered.
- */
-- (void)slideTableViewCell:(SESlideTableViewCell*)cell didTriggerRightButton:(NSInteger)buttonIndex {
-    if ([cell.reuseIdentifier compare:@"CellH"]==NSOrderedSame) {
-        //Header => New Folder
-        
-        
-    } else {
-        
-    }
-    [self.tableView reloadData];
-}
 
 - (UITableViewCell *)tableView:(UITableView *)tabView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     static NSString *CellIdentifier = @"Cell";
@@ -2167,7 +2009,8 @@ As a consequence, some entries might disappear from existing playlist.\n\
     const NSInteger BOTTOM_IMAGE_TAG = 1003;
     const NSInteger ACT_IMAGE_TAG = 1004;
     const NSInteger SECACT_IMAGE_TAG = 1005;
-    UILabel *topLabel;
+    //UILabel *topLabel;
+    CBAutoScrollLabel *topLabel;
     UILabel *bottomLabel;
     UIImageView *bottomImageView;
     UIButton *actionView,*secActionView;
@@ -2185,8 +2028,6 @@ As a consequence, some entries might disappear from existing playlist.\n\
     
     if (indexPath.section==0) cell = (UITableViewCell *)[tabView dequeueReusableCellWithIdentifier:CellIdentifierHeader];
     else cell = (UITableViewCell *)[tabView dequeueReusableCellWithIdentifier:CellIdentifier];
-    
-    
     
     if ((cell == nil)) {
         if (indexPath.section>1) {
@@ -2245,7 +2086,13 @@ As a consequence, some entries might disappear from existing playlist.\n\
         //
         // Create the label for the top row of text
         //
-        topLabel = [[UILabel alloc] init];
+        //topLabel = [[UILabel alloc] init];
+        topLabel = [[CBAutoScrollLabel alloc] init];
+        topLabel.labelSpacing = 35; // distance between start and end labels
+        topLabel.pauseInterval = 3.7; // seconds of pause before scrolling starts again
+        topLabel.scrollSpeed = 30; // pixels per second
+        topLabel.fadeLength = 12.f; // length of the left and right edge fade, 0 to disable
+        
         [cell.contentView addSubview:topLabel];
         //
         // Configure the properties for the text that are the same on every row
@@ -2253,8 +2100,8 @@ As a consequence, some entries might disappear from existing playlist.\n\
         topLabel.tag = TOP_LABEL_TAG;
         topLabel.backgroundColor = [UIColor clearColor];
         topLabel.font = [UIFont systemFontOfSize:17];
-        topLabel.lineBreakMode=(settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value?
-                                ((settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value==2) ? NSLineBreakByTruncatingTail:NSLineBreakByTruncatingMiddle):NSLineBreakByTruncatingHead);
+//        topLabel.lineBreakMode=(settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value?
+//                                ((settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value==2) ? NSLineBreakByTruncatingTail:NSLineBreakByTruncatingMiddle):NSLineBreakByTruncatingHead);
         topLabel.opaque=TRUE;
         
         //
@@ -2294,14 +2141,15 @@ As a consequence, some entries might disappear from existing playlist.\n\
         //        cell.selectionStyle=UITableViewCellSelectionStyleGray;
     } else {
         cell.frame=CGRectMake(0,0,tabView.frame.size.width,40);
-        topLabel = (UILabel *)[cell viewWithTag:TOP_LABEL_TAG];
+        //topLabel = (UILabel *)[cell viewWithTag:TOP_LABEL_TAG];
+        topLabel = (CBAutoScrollLabel *)[cell viewWithTag:TOP_LABEL_TAG];
         bottomLabel = (UILabel *)[cell viewWithTag:BOTTOM_LABEL_TAG];
         bottomImageView = (UIImageView *)[cell viewWithTag:BOTTOM_IMAGE_TAG];
         actionView = (UIButton *)[cell viewWithTag:ACT_IMAGE_TAG];
         secActionView = (UIButton *)[cell viewWithTag:SECACT_IMAGE_TAG];
         
-        topLabel.lineBreakMode=(settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value?
-                                ((settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value==2) ? NSLineBreakByTruncatingTail:NSLineBreakByTruncatingMiddle):NSLineBreakByTruncatingHead);
+//        topLabel.lineBreakMode=(settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value?
+//                                ((settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value==2) ? NSLineBreakByTruncatingTail:NSLineBreakByTruncatingMiddle):NSLineBreakByTruncatingHead);
         
         bottomLabel.lineBreakMode=(settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value?
                                 ((settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value==2) ? NSLineBreakByTruncatingTail:NSLineBreakByTruncatingMiddle):NSLineBreakByTruncatingHead);
@@ -2344,12 +2192,12 @@ As a consequence, some entries might disappear from existing playlist.\n\
     
     if (darkMode) {
         topLabel.textColor = [UIColor colorWithRed:0.9 green:0.9 blue:0.9 alpha:1.0];
-        topLabel.highlightedTextColor = [UIColor colorWithRed:1 green:1 blue:1 alpha:1.0];
+//        topLabel.highlightedTextColor = [UIColor colorWithRed:1 green:1 blue:1 alpha:1.0];
         bottomLabel.textColor = [UIColor colorWithRed:0.6 green:0.6 blue:0.6 alpha:1.0];
         bottomLabel.highlightedTextColor = [UIColor colorWithRed:0.8 green:0.8 blue:0.8 alpha:1.0];
     } else {
         topLabel.textColor = [UIColor colorWithRed:0.1 green:0.1 blue:0.1 alpha:1.0];
-        topLabel.highlightedTextColor = [UIColor colorWithRed:0.0 green:0.0 blue:0.0 alpha:1.0];
+//        topLabel.highlightedTextColor = [UIColor colorWithRed:0.0 green:0.0 blue:0.0 alpha:1.0];
         bottomLabel.textColor = [UIColor colorWithRed:0.4 green:0.4 blue:0.4 alpha:1.0];
         bottomLabel.highlightedTextColor = [UIColor colorWithRed:0.2 green:0.2 blue:0.2 alpha:1.0];
     }
@@ -2898,12 +2746,12 @@ leadingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
                 extractProgress.cancellable = YES;
                 extractProgress.pausable = NO;
                 [ModizFileHelper extractToPath:[filePath UTF8String] path:[tgtPath UTF8String] caller:self progress:extractProgress context:ExtractProgressObserverContext];
-                if (mSearch) {
-                    mSearch=0;
-                    [self listLocalFiles];
-                    mSearch=1;
-                }
-                [self listLocalFiles];
+//                if (mSearch) {
+//                    mSearch=0;
+//                    [self listLocalFiles];
+//                    mSearch=1;
+//                }
+//                [self listLocalFiles];
                 
                 //[self.tableView reloadData];
             } else {
@@ -3550,8 +3398,8 @@ leadingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
     if (indexPath != nil) {
         if ((gestureRecognizer.state==UIGestureRecognizerStateBegan)||(gestureRecognizer.state==UIGestureRecognizerStateChanged)) {
             int crow=indexPath.row;
-            int csection=indexPath.section-2;
-            if (csection>=0) {
+            int csection=indexPath.section;
+            if (csection>=1) {
                 //display popup
                 t_local_browse_entry *cur_local_entries=(search_local?search_local_entries:local_entries);
                 
@@ -3568,6 +3416,7 @@ leadingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
                 
                 //[fileManager release];
                 
+                MDZILog("got: %@",str);
                 
                 if (self.popTipView == nil) {
                     self.popTipView = [[CMPopTipView alloc] initWithMessage:str];
