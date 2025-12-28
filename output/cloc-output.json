@@ -1,11 +1,11 @@
 {"header" : {
   "cloc_url"           : "github.com/AlDanial/cloc",
   "cloc_version"       : "1.98",
-  "elapsed_seconds"    : 28.9331059455872,
-  "n_files"            : 19020,
-  "n_lines"            : 8433279,
-  "files_per_second"   : 657.378438241986,
-  "lines_per_second"   : 291475.067207094,
+  "elapsed_seconds"    : 27.0124068260193,
+  "n_files"            : 19033,
+  "n_lines"            : 8435223,
+  "files_per_second"   : 704.602152728825,
+  "lines_per_second"   : 312272.17383217,
   "report_file"        : "../output/cloc-output.json"},
 "C" :{
   "nFiles": 4543,
@@ -13,10 +13,10 @@
   "comment": 301115,
   "code": 1875750},
 "C/C++ Header" :{
-  "nFiles": 9234,
-  "blank": 267369,
-  "comment": 454450,
-  "code": 1847574},
+  "nFiles": 9239,
+  "blank": 267441,
+  "comment": 454481,
+  "code": 1847719},
 "C++" :{
   "nFiles": 2690,
   "blank": 269574,
@@ -28,20 +28,20 @@
   "comment": 50123,
   "code": 349665},
 "Bourne Shell" :{
-  "nFiles": 234,
+  "nFiles": 237,
   "blank": 55328,
-  "comment": 59931,
-  "code": 341636},
+  "comment": 59936,
+  "code": 341656},
 "m4" :{
   "nFiles": 122,
   "blank": 11854,
   "comment": 2319,
   "code": 105770},
 "Objective-C++" :{
-  "nFiles": 98,
-  "blank": 16563,
-  "comment": 9830,
-  "code": 81798},
+  "nFiles": 102,
+  "blank": 17096,
+  "comment": 9733,
+  "code": 82994},
 "Scheme" :{
   "nFiles": 8,
   "blank": 49,
@@ -58,10 +58,10 @@
   "comment": 13223,
   "code": 58396},
 "Objective-C" :{
-  "nFiles": 170,
-  "blank": 9573,
-  "comment": 5623,
-  "code": 35835},
+  "nFiles": 171,
+  "blank": 9574,
+  "comment": 5624,
+  "code": 35837},
 "PO File" :{
   "nFiles": 29,
   "blank": 8499,
@@ -144,9 +144,9 @@
   "code": 1681},
 "Swift" :{
   "nFiles": 9,
-  "blank": 283,
-  "comment": 264,
-  "code": 1637},
+  "blank": 291,
+  "comment": 287,
+  "code": 1641},
 "reStructuredText" :{
   "nFiles": 7,
   "blank": 620,
@@ -328,7 +328,7 @@
   "comment": 0,
   "code": 1},
 "SUM": {
-  "blank": 1041290,
-  "comment": 1066340,
-  "code": 6325649,
-  "nFiles": 19020} }
+  "blank": 1041904,
+  "comment": 1066303,
+  "code": 6327016,
+  "nFiles": 19033} }
