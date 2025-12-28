@@ -1344,7 +1344,7 @@ MDZELog("gzread error str for FTP entry %d",i); \
         if (lCancelURL==2) moveToNext=false; //Suspended
 		lCancelURL=0;
 	} else {
-        [self showAlertMsg:NSLocalizedString(@"Error", @"") message:NSLocalizedString(@"Cannot download from this URL.",@"")];
+        if (mURLIsMODLAND[0]!=2) [self showAlertMsg:NSLocalizedString(@"Error", @"") message:NSLocalizedString(@"Cannot download from this URL.",@"")];
 	}
     if (moveToNext) [self updateToNextURL];
 	mGetURLInProgress=0;

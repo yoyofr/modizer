@@ -65,6 +65,15 @@ typedef struct {
 	signed char downloaded;
 } t_dbASMA_browse_entryS;
 
+typedef struct {
+    NSString *label;
+    NSString *dir1,*dir2;
+    NSString *fullpath;
+    NSString *id_md5;
+    signed char downloaded;
+} t_dbCGSC_browse_entryS;
+
+
 @interface SearchViewController : UIViewController <UITableViewDelegate,UISearchBarDelegate,UIGestureRecognizerDelegate,CMPopTipViewDelegate>  {
     DetailViewControllerIphone *detailViewController;
     DownloadViewController *downloadViewController;
@@ -103,6 +112,10 @@ typedef struct {
     t_dbASMA_browse_entryS *dbASMA_entries;
 	int dbASMA_entries_count;
 	int ASMA_expanded,ASMA_searchOn;
+    
+    t_dbCGSC_browse_entryS *dbCGSC_entries;
+    int dbCGSC_entries_count;
+    int CGSC_expanded,CGSC_searchOn;
 	
 	t_local_browse_entryS *local_entries;
 	int local_entries_count;
@@ -114,7 +127,7 @@ typedef struct {
 	int playlist_expanded,playlist_searchOn;
 	
 	
-	int tooMuchDB,tooMuchPL,tooMuchLO,tooMuchDBHVSC,tooMuchDBASMA;
+	int tooMuchDB,tooMuchPL,tooMuchLO,tooMuchDBHVSC,tooMuchDBASMA,tooMuchDBCGSC;
 
     NSTimer *repeatTimer;
     int activeKey;

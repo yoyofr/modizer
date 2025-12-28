@@ -12,7 +12,8 @@ enum {
     LOCAL_SEARCH,
     MODLAND_SEARCH,
     HVSC_SEARCH,
-    ASMA_SEARCH
+    ASMA_SEARCH,
+    CGSC_SEARCH,
 };
 static int lastSelectedSearch;
 
@@ -110,6 +111,9 @@ static NSFileManager *mFileMngr;
                     break;
                 case 4:
                     str=dbASMA_entries[crow].fullpath;
+                    break;
+                case 5:
+                    str=dbCGSC_entries[crow].fullpath;
                     break;
             }
             
@@ -304,6 +308,7 @@ static NSFileManager *mFileMngr;
     modland_searchOn=0;
     HVSC_searchOn=0;
     ASMA_searchOn=0;
+    CGSC_searchOn=0;
     playlist_searchOn=0;
     local_searchOn=0;
     
@@ -326,7 +331,7 @@ static NSFileManager *mFileMngr;
     
     mSearch=0;
     mSearchText=nil;
-#ifdef TARGET_OS_MACCATALYST
+#if TARGET_OS_MACCATALYST
     UITextField *textfield=sBar.searchTextField;
     textfield.textContentType=nil;
     textfield.keyboardType=UIKeyboardTypeDefault;
@@ -334,15 +339,16 @@ static NSFileManager *mFileMngr;
     textfield.spellCheckingType=UITextSpellCheckingTypeNo;
 #endif
     
-    dbASMA_entries_count=dbHVSC_entries_count=db_entries_count=local_entries_count=playlist_entries_count=0;
+    dbCGSC_entries_count=dbASMA_entries_count=dbHVSC_entries_count=db_entries_count=local_entries_count=playlist_entries_count=0;
     db_entries=NULL;
+    dbCGSC_entries=NULL;
     dbASMA_entries=NULL;
     dbHVSC_entries=NULL;
     local_entries=NULL;
     playlist_entries=NULL;
-    tooMuchDB=tooMuchPL=tooMuchLO=tooMuchDBASMA=tooMuchDBHVSC=0;
+    tooMuchDB=tooMuchPL=tooMuchLO=tooMuchDBASMA=tooMuchDBCGSC=tooMuchDBHVSC=0;
     
-    ASMA_expanded=HVSC_expanded=modland_expanded=local_expanded=playlist_expanded=0;
+    CGSC_expanded=ASMA_expanded=HVSC_expanded=modland_expanded=local_expanded=playlist_expanded=0;
     [super viewDidLoad];
     
 END_PROFILE
@@ -375,7 +381,7 @@ END_PROFILE
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
     
-#ifdef TARGET_OS_MACCATALYST
+#if TARGET_OS_MACCATALYST
     UITextField *textfield=sBar.searchTextField;
     textfield.textContentType=nil;
     textfield.keyboardType=UIKeyboardTypeDefault;
@@ -408,7 +414,7 @@ END_PROFILE
     if (darkMode) self.tableView.backgroundColor=[UIColor blackColor];
     else self.tableView.backgroundColor=[UIColor whiteColor];
     
-    
+    for (int i=0;i<dbCGSC_entries_count;i++) dbCGSC_entries[i].downloaded=-1;
     for (int i=0;i<dbASMA_entries_count;i++) dbASMA_entries[i].downloaded=-1;
     for (int i=0;i<dbHVSC_entries_count;i++) dbHVSC_entries[i].downloaded=-1;
     for (int i=0;i<db_entries_count;i++) db_entries[i].downloaded=-1;
@@ -486,14 +492,6 @@ END_PROFILE
     
     if (dbHVSC_entries_count) {
         for (int i=0;i<dbHVSC_entries_count;i++) {
-            /*if (dbHVSC_entries[i].label) [dbHVSC_entries[i].label release];
-             if (dbHVSC_entries[i].fullpath) [dbHVSC_entries[i].fullpath release];
-             if (dbHVSC_entries[i].id_md5) [dbHVSC_entries[i].id_md5 release];
-             if (dbHVSC_entries[i].dir1) [dbHVSC_entries[i].dir1 release];
-             if (dbHVSC_entries[i].dir2) [dbHVSC_entries[i].dir2 release];
-             if (dbHVSC_entries[i].dir3) [dbHVSC_entries[i].dir3 release];
-             if (dbHVSC_entries[i].dir4) [dbHVSC_entries[i].dir4 release];
-             if (dbHVSC_entries[i].dir5) [dbHVSC_entries[i].dir5 release];*/
             dbHVSC_entries[i].label=nil;
             dbHVSC_entries[i].fullpath=nil;
             dbHVSC_entries[i].id_md5=nil;
@@ -507,16 +505,20 @@ END_PROFILE
         dbHVSC_entries=NULL;
         dbHVSC_entries_count=0;
     }
+    if (dbCGSC_entries_count) {
+        for (int i=0;i<dbCGSC_entries_count;i++) {
+            dbCGSC_entries[i].label=nil;
+            dbCGSC_entries[i].fullpath=nil;
+            dbCGSC_entries[i].id_md5=nil;
+            dbCGSC_entries[i].dir1=nil;
+            dbCGSC_entries[i].dir2=nil;
+        }
+        free(dbCGSC_entries);
+        dbCGSC_entries=NULL;
+        dbCGSC_entries_count=0;
+    }
     if (dbASMA_entries_count) {
         for (int i=0;i<dbASMA_entries_count;i++) {
-            /*if (dbASMA_entries[i].label) [dbASMA_entries[i].label release];
-             if (dbASMA_entries[i].fullpath) [dbASMA_entries[i].fullpath release];
-             if (dbASMA_entries[i].id_md5) [dbASMA_entries[i].id_md5 release];
-             if (dbASMA_entries[i].dir1) [dbASMA_entries[i].dir1 release];
-             if (dbASMA_entries[i].dir2) [dbASMA_entries[i].dir2 release];
-             if (dbASMA_entries[i].dir3) [dbASMA_entries[i].dir3 release];
-             if (dbASMA_entries[i].dir4) [dbASMA_entries[i].dir4 release];
-             */
             dbASMA_entries[i].label=nil;
             dbASMA_entries[i].fullpath=nil;
             dbASMA_entries[i].id_md5=nil;
@@ -720,6 +722,91 @@ END_PROFILE
     pthread_mutex_unlock(&db_mutex);
     return 0;
 }
+
+-(int) searchCGSC {
+    NSString *pathToDB=[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:DATABASENAME_MAIN];
+    sqlite3 *db;
+    int db_entries_idx;
+    
+    if (dbCGSC_entries_count) {
+        for (int i=0;i<dbCGSC_entries_count;i++) {
+            dbCGSC_entries[i].label=nil;
+            dbCGSC_entries[i].fullpath=nil;
+            dbCGSC_entries[i].id_md5=nil;
+            dbCGSC_entries[i].dir1=nil;
+            dbCGSC_entries[i].dir2=nil;
+        }
+        free(dbCGSC_entries);
+        dbCGSC_entries=NULL;
+        dbCGSC_entries_count=0;
+    }
+    pthread_mutex_lock(&db_mutex);
+    db_entries_idx=0;
+    if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
+        char sqlStatement[1024];
+        sqlite3_stmt *stmt;
+        int err;
+        
+        sqlite3_create_function(db,"REGEXP",2,SQLITE_UTF8, NULL, &sqlite_regexp, NULL,NULL);
+        
+        err=sqlite3_exec(db, "PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        if (err==SQLITE_OK){
+        } else MDZELog("ErrSQL : %d",err);
+        
+        dbCGSC_entries_count=MAX_SEARCH_RESULT;
+        if (dbCGSC_entries_count) {
+            dbCGSC_entries=(t_dbCGSC_browse_entryS*)calloc(dbCGSC_entries_count,sizeof(t_dbCGSC_browse_entryS));
+            memset(dbCGSC_entries,0,dbCGSC_entries_count*sizeof(t_dbCGSC_browse_entryS));
+            
+            snprintf(sqlStatement,1024,"SELECT filename,id_md5,fullpath FROM cgsc_file \
+                         WHERE filename REGEXP '%s' OR fullpath REGEXP '%s'",[[self convSearchRegExp:mSearchText] UTF8String],[[self convSearchRegExp:mSearchText] UTF8String]);
+            
+            snprintf(sqlStatement,1024,"%s ORDER BY filename COLLATE NOCASE LIMIT %d",sqlStatement,MAX_SEARCH_RESULT);
+            err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+            
+            if (err==SQLITE_OK){
+                while (sqlite3_step(stmt) == SQLITE_ROW) {
+                    dbCGSC_entries[db_entries_idx].label=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
+                    dbCGSC_entries[db_entries_idx].id_md5=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 1)];
+                    dbCGSC_entries[db_entries_idx].fullpath=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 2)];
+                    dbCGSC_entries[db_entries_idx].downloaded=-1;
+                    
+                    db_entries_idx++;
+                    if (db_entries_idx==dbCGSC_entries_count) break;
+                }
+                sqlite3_finalize(stmt);
+            } else MDZELog("ErrSQL : %d",err);
+            
+            if (db_entries_idx<dbCGSC_entries_count) dbCGSC_entries_count=db_entries_idx;
+            if (dbCGSC_entries_count==0) {
+                free(dbCGSC_entries);
+            }
+            if (dbCGSC_entries_count==MAX_SEARCH_RESULT) {
+                snprintf(sqlStatement,1024,"SELECT count(1) FROM cgsc_file \
+                          WHERE filename REGEXP '%s' OR fullpath REGEXP '%s'",[[self convSearchRegExp:mSearchText] UTF8String],[[self convSearchRegExp:mSearchText] UTF8String]);
+                
+                err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+                if (err==SQLITE_OK){
+                    int nb_row;
+                    if (sqlite3_step(stmt) == SQLITE_ROW) {
+                        nb_row=sqlite3_column_int(stmt, 0);
+                        if (nb_row>dbCGSC_entries_count) tooMuchDBCGSC=nb_row;
+                    }
+                    sqlite3_finalize(stmt);
+                } else MDZELog("ErrSQL : %d",err);
+                
+            }
+            
+        } else {
+            dbCGSC_entries=NULL;
+        }
+        
+    };
+    sqlite3_close(db);
+    pthread_mutex_unlock(&db_mutex);
+    return 0;
+}
+
 
 -(int) searchASMA {
     NSString *pathToDB=[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:DATABASENAME_MAIN];
@@ -998,7 +1085,9 @@ END_PROFILE
         mSearchProgress=3;
         if (HVSC_searchOn&&(mSearchMode&8)) [self searchHVSC];
         mSearchProgress=4;
-        if (ASMA_searchOn&&(mSearchMode&8)) [self searchASMA];
+        if (ASMA_searchOn&&(mSearchMode&16)) [self searchASMA];
+        mSearchProgress=5;
+        if (CGSC_searchOn&&(mSearchMode&32)) [self searchCGSC];
         //searchPrgView.hidden=YES;
         [self performSelectorOnMainThread:@selector(hideSearchPrgView) withObject:nil waitUntilDone:YES];
     }
@@ -1016,8 +1105,9 @@ END_PROFILE
             if (local_searchOn) local_expanded=1;
             if (HVSC_searchOn) HVSC_expanded=1;
             if (ASMA_searchOn) ASMA_expanded=1;
+            if (CGSC_searchOn) CGSC_expanded=1;
         } else {
-            if (ASMA_searchOn+HVSC_searchOn+modland_searchOn+playlist_searchOn+local_searchOn) {
+            if (CGSC_searchOn+ASMA_searchOn+HVSC_searchOn+modland_searchOn+playlist_searchOn+local_searchOn) {
                 switch (lastSelectedSearch) {
                     case PLAYLIST_SEARCH:
                         playlist_expanded=1;
@@ -1034,6 +1124,9 @@ END_PROFILE
                     case ASMA_SEARCH:
                         ASMA_expanded=1;
                         break;
+                    case CGSC_SEARCH:
+                        CGSC_expanded=1;
+                        break;
                 }
             }
         }
@@ -1045,6 +1138,7 @@ END_PROFILE
         if (mSearchProgress==2) searchLabel.text=NSLocalizedString(@"Searching MODLAND...",@"");
         if (mSearchProgress==3) searchLabel.text=NSLocalizedString(@"Searching HVSC...",@"");
         if (mSearchProgress==4) searchLabel.text=NSLocalizedString(@"Searching ASMA...",@"");
+        if (mSearchProgress==5) searchLabel.text=NSLocalizedString(@"Searching CGSC...",@"");
     }
 }
 
@@ -1052,16 +1146,16 @@ END_PROFILE
     if ([mSearchText length]<2) {
         [self showAlertMsg:NSLocalizedString(@"Info",@"") message:NSLocalizedString(@"Please enter at least 2 characters for your search.",@"")];
         
-    } if (!(modland_searchOn+playlist_searchOn+local_searchOn+HVSC_searchOn+ASMA_searchOn)) {
+    } if (!(modland_searchOn+playlist_searchOn+local_searchOn+HVSC_searchOn+ASMA_searchOn+CGSC_searchOn)) {
         [self showAlertMsg:NSLocalizedString(@"Info",@"") message:NSLocalizedString(@"Please activate at least 1 section for your search.",@"")];
         
     } else {
-        tooMuchDB=tooMuchDBHVSC=tooMuchDBASMA=tooMuchPL=tooMuchLO=0;
+        tooMuchDB=tooMuchDBHVSC=tooMuchDBASMA=tooMuchDBCGSC=tooMuchPL=tooMuchLO=0;
         //searchPrgView.hidden=NO;
         [self performSelectorOnMainThread:@selector(showSearchPrgView) withObject:nil waitUntilDone:YES];
         
         mSearchProgress=0;
-        modland_expanded=local_expanded=playlist_expanded=HVSC_expanded=ASMA_expanded=0;
+        modland_expanded=local_expanded=playlist_expanded=HVSC_expanded=ASMA_expanded=CGSC_expanded=0;
         mSearchMode=search_mode;
         [NSThread detachNewThreadSelector:@selector(searchThread) toTarget:self withObject:NULL];
         [NSTimer scheduledTimerWithTimeInterval: 0.2 target:self selector:@selector(updateSearchInfos:) userInfo:nil repeats: YES];
@@ -1105,7 +1199,7 @@ END_PROFILE
 
 - (void)searchBarSearchButtonClicked:(UISearchBar *)searchBar {
     [searchBar resignFirstResponder];
-    [self doSearch:15];
+    [self doSearch:63];
     //	[tableView reloadData];
 }
 
@@ -1145,6 +1239,12 @@ END_PROFILE
 - (void) headerASMATapped: (UIButton*) sender {
     /* do what you want in response to section header tap */
     ASMA_expanded^=1;
+    [tableView reloadData];
+}
+
+- (void) headerCGSCTapped: (UIButton*) sender {
+    /* do what you want in response to section header tap */
+    CGSC_expanded^=1;
     [tableView reloadData];
 }
 
@@ -1251,13 +1351,41 @@ END_PROFILE
     [tableView reloadData];
 }
 
+- (void) headerCGSCTappedSearchOn: (UIButton*) sender {
+    CGSC_searchOn^=1;
+    if (CGSC_searchOn&&mSearchText) {
+        lastSelectedSearch=CGSC_SEARCH;
+        if ([mSearchText length]>0) {
+            [sBar resignFirstResponder];
+            [self doSearch:32];
+        }
+    }
+    if (!CGSC_searchOn) {
+        if (dbCGSC_entries_count) {
+            for (int i=0;i<dbCGSC_entries_count;i++) {
+                dbCGSC_entries[i].label=nil;
+                dbCGSC_entries[i].fullpath=nil;
+                dbASMA_entries[i].id_md5=nil;
+                dbCGSC_entries[i].dir1=nil;
+                dbCGSC_entries[i].dir2=nil;
+            }
+            free(dbCGSC_entries);
+            dbCGSC_entries=NULL;
+            dbCGSC_entries_count=0;
+        }
+        CGSC_expanded=0;
+    }
+    [tableView reloadData];
+}
+
+
 - (void) headerASMATappedSearchOn: (UIButton*) sender {
     ASMA_searchOn^=1;
     if (ASMA_searchOn&&mSearchText) {
         lastSelectedSearch=ASMA_SEARCH;
         if ([mSearchText length]>0) {
             [sBar resignFirstResponder];
-            [self doSearch:8];
+            [self doSearch:16];
         }
     }
     if (!ASMA_searchOn) {
@@ -1549,6 +1677,33 @@ END_PROFILE
             }
             [buttonLeft addTarget: self action: @selector(headerASMATappedSearchOn:) forControlEvents: UIControlEventTouchUpInside];
             break;
+        case 5:
+            if (CGSC_searchOn&&dbCGSC_entries_count) {
+                if (CGSC_expanded) [buttonRight setImage:[UIImage imageNamed:@"expanded.png"]  forState: UIControlStateNormal];
+                else [buttonRight setImage:[UIImage imageNamed:@"collapsed.png"]  forState: UIControlStateNormal];
+                [buttonRight addTarget: self action: @selector(headerCGSCTapped:) forControlEvents: UIControlEventTouchUpInside];
+            } else [buttonRight setImage:nil  forState: UIControlStateNormal];
+            if (dbCGSC_entries_count) {
+                //[customView addSubview: buttonRight];
+                [buttonLabel addTarget: self action: @selector(headerCGSCTapped:) forControlEvents: UIControlEventTouchUpInside];
+            } else [buttonLabel addTarget: self action: @selector(headerCGSCTappedSearchOn:) forControlEvents: UIControlEventTouchUpInside];
+            
+            if (CGSC_searchOn) {
+                [buttonLeft setImage:[UIImage imageNamed:@"checkbox_single.png"]  forState: UIControlStateNormal];
+                if (tooMuchDBCGSC) {
+                    [buttonLabel setTitle:[NSString stringWithFormat:NSLocalizedString(@"CGSC (%d, limited to %d)",@""),tooMuchDBCGSC,dbCGSC_entries_count] forState:UIControlStateNormal];
+                    buttonLabel.titleLabel.font            = [UIFont boldSystemFontOfSize: 16];
+                } else [buttonLabel setTitle:[NSString stringWithFormat:NSLocalizedString(@"CGSC (%d)",@""),dbCGSC_entries_count] forState:UIControlStateNormal];
+                if (darkMode) buttonLabel.titleLabel.textColor = [UIColor colorWithRed:1-1.0f green:1-1.0f blue:1-1.0f alpha:1.0f];
+                else buttonLabel.titleLabel.textColor = [UIColor colorWithRed:1.0f green:1.0f blue:1.0f alpha:1.0f];
+            } else {
+                [buttonLeft setImage:[UIImage imageNamed:@"checkbox_unchecked.png"]  forState: UIControlStateNormal];
+                [buttonLabel setTitle:[NSString stringWithString:NSLocalizedString(@"CGSC/Search off",@"")] forState:UIControlStateNormal];
+                if (darkMode) buttonLabel.titleLabel.textColor = [UIColor colorWithRed:1-0.9f green:1-0.9f blue:1-0.9f alpha:1.0f];
+                else buttonLabel.titleLabel.textColor = [UIColor colorWithRed:0.9f green:0.9f blue:0.9f alpha:1.0f];
+            }
+            [buttonLeft addTarget: self action: @selector(headerCGSCTappedSearchOn:) forControlEvents: UIControlEventTouchUpInside];
+            break;
     }
     
     [customView addSubview: buttonLeft];
@@ -1575,7 +1730,7 @@ END_PROFILE
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
     local_flag=0;
-    return 5;
+    return 6;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
@@ -1594,6 +1749,9 @@ END_PROFILE
     } else if (section==4) {
         if (ASMA_expanded==0) return 0;
         return dbASMA_entries_count;
+    } else if (section==5) {
+        if (CGSC_expanded==0) return 0;
+        return dbCGSC_entries_count;
     }
     return 0;
 }
@@ -1617,6 +1775,11 @@ END_PROFILE
         if (dbASMA_entries[i].downloaded==0) {
             checkPath = [documentsDirectory stringByAppendingPathComponent:[NSString stringWithFormat:@"%@%@",ASMA_BASEDIR,dbASMA_entries[i].fullpath]];
             if ([fileManager fileExistsAtPath:checkPath]) dbASMA_entries[i].downloaded=1;
+        }
+    for (int i=0;i<dbCGSC_entries_count;i++)
+        if (dbCGSC_entries[i].downloaded==0) {
+            checkPath = [documentsDirectory stringByAppendingPathComponent:[NSString stringWithFormat:@"%@%@",CGSC_BASEDIR,dbCGSC_entries[i].fullpath]];
+            if ([fileManager fileExistsAtPath:checkPath]) dbCGSC_entries[i].downloaded=1;
         }
     [tableView reloadData];
 }
@@ -1787,6 +1950,35 @@ END_PROFILE
             }
         }
     }
+    if (indexPath.section==5) {//CGSC
+        //File selected, start download is needed
+        NSString *sidFilename=[NSString stringWithFormat:@"%@",dbCGSC_entries[indexPath.row].label];
+        NSString *ftpPath=[NSString stringWithFormat:@"%@",dbCGSC_entries[indexPath.row].fullpath];
+        NSString *localPath=[NSString stringWithFormat:@"Documents/%@%@",CGSC_BASEDIR,dbCGSC_entries[indexPath.row].fullpath];
+        
+        if (dbCGSC_entries[indexPath.row].downloaded==1) {
+            NSMutableArray *array_label = [[NSMutableArray alloc] init];
+            NSMutableArray *array_path = [[NSMutableArray alloc] init];
+            [array_label addObject:sidFilename];
+            [array_path addObject:localPath];
+            [detailViewController play_listmodules:array_label start_index:0 path:array_path];
+            
+        } else {
+            NSString *completePath=[NSString stringWithFormat:@"%@/%@%@",[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:  @"Documents"],CGSC_BASEDIR,[dbCGSC_entries[indexPath.row].fullpath stringByDeletingLastPathComponent]];
+            NSError *err;
+            [mFileMngr createDirectoryAtPath:completePath withIntermediateDirectories:TRUE attributes:nil error:&err];
+            
+            NSString *CGSC_url=[NSString stringWithFormat:@"%s",settings[ONLINE_CGSC_CURRENT_URL].detail.mdz_msgbox.text];
+            NSRange nsr=[CGSC_url rangeOfString:@"ftp://" options:NSCaseInsensitiveSearch];
+            if (nsr.location==NSNotFound) {
+                //HTTP
+                [downloadViewController addURLToDownloadList:[NSString stringWithFormat:@"%@%@",CGSC_url,ftpPath] fileName:sidFilename filePath:localPath filesize:-1 isMODLAND:1 usePrimaryAction:1];
+            } else {
+                //FTP
+                [downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:[CGSC_url substringFromIndex:6] filesize:-1 filename:sidFilename isMODLAND:1 usePrimaryAction:1];
+            }
+        }
+    }
 }
 
 -(void) doSecAction:(NSIndexPath *)indexPath {
@@ -1882,6 +2074,32 @@ END_PROFILE
             } else {
                 //FTP
                 [downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:[asma_url substringFromIndex:6] filesize:-1 filename:sidFilename isMODLAND:1 usePrimaryAction:0];
+            }
+        }
+    }
+    if (indexPath.section==5) {//CGSC
+        //File selected, start download is needed
+        NSString *sidFilename=[NSString stringWithFormat:@"%@",dbCGSC_entries[indexPath.row].label];
+        NSString *ftpPath=[NSString stringWithFormat:@"%@",dbCGSC_entries[indexPath.row].fullpath];
+        NSString *localPath=[NSString stringWithFormat:@"Documents/%@%@",CGSC_BASEDIR,dbCGSC_entries[indexPath.row].fullpath];
+        
+        if (dbCGSC_entries[indexPath.row].downloaded==1) {
+            if ([detailViewController add_to_playlist:localPath fileName:dbCGSC_entries[indexPath.row].label forcenoplay:1]) {
+                
+            }
+        } else {
+            NSString *completePath=[NSString stringWithFormat:@"%@/%@%@",[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:  @"Documents"],CGSC_BASEDIR,[dbCGSC_entries[indexPath.row].fullpath stringByDeletingLastPathComponent]];
+            NSError *err;
+            [mFileMngr createDirectoryAtPath:completePath withIntermediateDirectories:TRUE attributes:nil error:&err];
+            
+            NSString *CGSC_url=[NSString stringWithFormat:@"%s",settings[ONLINE_CGSC_CURRENT_URL].detail.mdz_msgbox.text];
+            NSRange nsr=[CGSC_url rangeOfString:@"ftp://" options:NSCaseInsensitiveSearch];
+            if (nsr.location==NSNotFound) {
+                //HTTP
+                [downloadViewController addURLToDownloadList:[NSString stringWithFormat:@"%@%@",CGSC_url,ftpPath] fileName:sidFilename filePath:localPath filesize:-1 isMODLAND:1 usePrimaryAction:0];
+            } else {
+                //FTP
+                [downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:[CGSC_url substringFromIndex:6] filesize:-1 filename:sidFilename isMODLAND:1 usePrimaryAction:0];
             }
         }
     }
@@ -2093,6 +2311,26 @@ END_PROFILE
             topLabel.textColor=[UIColor colorWithRed:0.5f green:0.5f blue:0.5f alpha:1.0f];
         }
         bottomLabel.text = dbASMA_entries[indexPath.row].fullpath;
+    }
+    if (indexPath.section==5) {
+        topLabel.text=[NSString stringWithFormat:@"%@",dbCGSC_entries[indexPath.row].label];
+        
+        if (dbCGSC_entries[indexPath.row].downloaded==-1) {
+            NSFileManager *fileManager = mFileMngr;
+            BOOL success;
+            NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+            NSString *documentsDirectory = [paths objectAtIndex:0];
+            NSString *checkPath;
+            
+            checkPath = [documentsDirectory stringByAppendingPathComponent:[NSString stringWithFormat:@"%@%@",CGSC_BASEDIR,dbCGSC_entries[indexPath.row].fullpath]];
+            success = [fileManager fileExistsAtPath:checkPath];
+            if (success) dbCGSC_entries[indexPath.row].downloaded=1;
+            else dbCGSC_entries[indexPath.row].downloaded=0;
+        }
+        if (dbCGSC_entries[indexPath.row].downloaded==0) {
+            topLabel.textColor=[UIColor colorWithRed:0.5f green:0.5f blue:0.5f alpha:1.0f];
+        }
+        bottomLabel.text = dbCGSC_entries[indexPath.row].fullpath;
     }
     
     return cell;

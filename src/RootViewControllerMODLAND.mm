@@ -2373,7 +2373,7 @@ trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
             } else {
                 if (db_hasFiles) download_all=1;
             }
-            crow-=download_all;
+            //crow-=download_all;
         if (crow>=0) {
             filePath=[self getCompletePath:cur_db_entries[crow].id_mod];
             modFilename=[self getModFilename:cur_db_entries[crow].id_mod];
@@ -2437,7 +2437,7 @@ trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
             } else {
                 if (db_hasFiles) download_all=1;
             }
-            crow-=download_all;
+            //crow-=download_all;
         if (crow>=0) {
             NSString *filePath=[self getCompletePath:cur_db_entries[crow].id_mod];
             NSString *modFilename=[self getModFilename:cur_db_entries[crow].id_mod];

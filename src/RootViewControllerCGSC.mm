@@ -1346,7 +1346,7 @@ trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
         }
         
         int crow=indexPath.row;
-        if (download_all) crow--;
+        //if (download_all) crow--;
         
         if (crow>=0) {
             if (cur_db_entries[crow].id_md5) { //FILE
@@ -1412,7 +1412,7 @@ trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
         }
         
         int crow=indexPath.row;
-        if (download_all) crow--;
+        //if (download_all) crow--;
 
         if (crow>=0) {
             if (cur_db_entries[crow].id_md5) { //FILE

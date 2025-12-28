@@ -1731,7 +1731,7 @@ trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
             } else {
                 if (dbHVSC_hasFiles) download_all=1;
             }
-            crow-=download_all;
+            //crow-=download_all;
             
             if (cur_db_entries[crow].id_md5) { //FILE
                 //File selected, start download is needed
@@ -1794,7 +1794,7 @@ trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
             } else {
                 if (dbHVSC_hasFiles) download_all=1;
             }
-            crow-=download_all;
+            //crow-=download_all;
             
             if (cur_db_entries[crow].id_md5) { //FILE
                 //File selected, start download is needed
