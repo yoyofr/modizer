@@ -141,7 +141,7 @@ extern void *LoadingProgressObserverContext;
     dictActionBtn=[NSMutableDictionary dictionaryWithCapacity:64];
     
     mPopupAnimation=0;
-    
+    htmlData=nil;
     sort_mode=0;
     
     self.navigationController.delegate = self;

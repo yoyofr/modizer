@@ -1130,6 +1130,39 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
             }
         }
     }
+    if (browse_subMode==AMP_LINK_INTERVIEW) {
+        
+        ///////////////////////////////////////////////////////////////////////:
+        // AMP Modules list
+        ///////////////////////////////////////////////////////////////////////:
+        
+        dispatch_async(dispatch_get_main_queue(), ^(void){
+            [self updateWaitingDetail:[NSString stringWithFormat:@"fetching from %d",self.arr_current_fetch_position]];
+        });
+        
+        url = [NSURL URLWithString:[NSString stringWithFormat:@"%@",mWebBaseURL]];
+        
+        urlData = [NSData dataWithContentsOfURL:url];
+        doc       = [[TFHpple alloc] initWithHTMLData:urlData];
+        
+        NSArray *arr_interview=[doc searchWithXPathQuery:@"//div[@id='interview']/ul"];
+        
+        entries_noMoreToLoad=true;
+        
+        dispatch_async(dispatch_get_main_queue(), ^(void){
+            [self updateWaitingDetail:[NSString stringWithFormat:@"fetching %d",self.arr_current_fetch_position]];
+        });
+
+        if ([arr_interview count]!=1) {
+            MDZELog("AMP consistency issue interview count: %d\n",(int)[arr_interview count]);
+        }
+        
+        if ([arr_interview count]) {
+            TFHppleElement *el=[arr_interview objectAtIndex:0];
+            
+            htmlData=[NSString stringWithFormat:@"<!DOCTYPE html><html><body>%@</body></html>",el.raw];
+        }
+    }
     
     if (sort_entries) {
             sortedArray = [tmpArray sortedArrayUsingComparator:^(id obj1, id obj2) {

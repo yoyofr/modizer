@@ -81,8 +81,6 @@
 	int mClickedPrimAction;
 	int mCurrentWinAskedDownload;
     
-    bool noCellAction;
-    
     int is_rsn;
     
     NSTimer *repeatTimer;

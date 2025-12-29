@@ -33,7 +33,7 @@
 	CMPopTipView *popTipView;
     int popTipViewRow,popTipViewSection;
 	
-	WaitingView *waitingView,*waitingViewPlayer;
+	WaitingView *waitingView,*waitingViewExtract,*waitingViewPlayer;
     NSTimer *repeatingTimer;
     
     NSFileManager *mFileMngr;
@@ -75,6 +75,9 @@
 	
 	int mClickedPrimAction;
     
+    NSProgress *extractProgress;
+    int is_rsn;
+    
     NSTimer *repeatTimer;
     int activeKey;
 @public
@@ -96,12 +99,14 @@
 @property (nonatomic, retain) IBOutlet UITableView *tableView;
 @property (nonatomic, retain) IBOutlet UISearchBar *sBar;
 
+@property (nonatomic, retain) NSProgress *extractProgress;
+
 @property (nonatomic, retain) NSArray *list;
 @property (nonatomic, retain) NSArray *keys;
 @property (nonatomic, retain) NSString *currentPath,*mSearchText;
 
 @property (nonatomic, retain) CMPopTipView *popTipView;
-@property (nonatomic, retain) WaitingView *waitingView,*waitingViewPlayer;
+@property (nonatomic, retain) WaitingView *waitingView,*waitingViewExtract,*waitingViewPlayer;
 
 @property (nonatomic, retain) NSTimer *repeatTimer;
 @property (nonatomic, assign) int activeKey;

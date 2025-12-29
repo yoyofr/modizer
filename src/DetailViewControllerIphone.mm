@@ -7690,13 +7690,182 @@ void doFramePM(float ww,float hh) {
     }
 }
 
-
-- (void)doFrame {
-    static int no_reentrant=0;
-    static int framecpt=0;
-    uint ww,hh;
+- (void) doFx2DSpectrum:(ImVec4)fxSize winSize:(ImVec2)winSize {
+    float x=fxSize.x;
+    float y=fxSize.y;
+    float ww=fxSize.z;
+    float hh=fxSize.w;
     int nb_spectrum_bands;
-    uint hasdrawnotes;
+    
+    switch (settings[GLOB_FXLOD].detail.mdz_switch.switch_value) {
+        case 2:
+            nb_spectrum_bands=SPECTRUM_BANDS;
+            break;
+        case 1:
+            nb_spectrum_bands=SPECTRUM_BANDS/2;
+            break;
+        case 0:
+            nb_spectrum_bands=SPECTRUM_BANDS/4;
+            break;
+    }
+    
+    RenderUtils::DrawSpectrum2D(x,y,ww,hh,real_spectrumL,real_spectrumR,
+                                settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value,nb_spectrum_bands,glScaleFactor,
+                                0/*settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value*/);
+}
+
+- (void) doFx3DSpectrum:(ImVec4)fxSize winSize:(ImVec2)winSize {
+    float x=fxSize.x;
+    float y=fxSize.y;
+    float ww=fxSize.z;
+    float hh=fxSize.w;
+    int nb_spectrum_bands;
+    
+    static float spectrum_posx=0;
+    static float spectrum_posy=0;
+    static float spectrum_posz=0;
+    static float spectrum_rotx=0;
+    static float spectrum_roty=0;
+    
+    switch (settings[GLOB_FXLOD].detail.mdz_switch.switch_value) {
+        case 2:
+            nb_spectrum_bands=SPECTRUM_BANDS;
+            break;
+        case 1:
+            nb_spectrum_bands=SPECTRUM_BANDS/2;
+            break;
+        case 0:
+            nb_spectrum_bands=SPECTRUM_BANDS/4;
+            break;
+    }
+    
+    if (movePinchScaleFX3DSpectrum<-9.0/4) movePinchScaleFX3DSpectrum=-9.0/4;
+    if (movePinchScaleFX3DSpectrum>9.0/4) movePinchScaleFX3DSpectrum=9.0/4;
+    spectrum_rotx=movePxFX3DSpectrum*0.5f;
+    spectrum_roty=movePyFX3DSpectrum*0.25f;
+    if (movePx2FX3DSpectrum>400) movePx2FX3DSpectrum=400;
+    if (movePx2FX3DSpectrum<-400) movePx2FX3DSpectrum=-400;
+    if (movePy2FX3DSpectrum>400) movePy2FX3DSpectrum=400;
+    if (movePy2FX3DSpectrum<-400) movePy2FX3DSpectrum=-400;
+    spectrum_posx=movePx2FX3DSpectrum*0.05;
+    spectrum_posy=-movePy2FX3DSpectrum*0.05;
+    spectrum_posz=movePinchScaleFX3DSpectrum*10*4;
+    
+    int mirror=0;
+    if (settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value) mirror=0;
+    if (settings[GLOB_FXPiano3D].detail.mdz_switch.switch_value) mirror=0;
+    RenderUtils::DrawSpectrum3DBar(x,y,ww,hh,real_spectrumL,real_spectrumR,angle,
+                                   settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value,nb_spectrum_bands,mirror,glScaleFactor,settings[GLOB_FX3DSpectrumBloom].detail.mdz_switch.switch_value,spectrum_rotx,spectrum_roty,spectrum_posx,spectrum_posy,spectrum_posz);
+}
+
+- (void) doFx3DLandscape:(ImVec4)fxSize winSize:(ImVec2)winSize {
+    float x=fxSize.x;
+    float y=fxSize.y;
+    float ww=fxSize.z;
+    float hh=fxSize.w;
+    int nb_spectrum_bands;
+    
+    switch (settings[GLOB_FXLOD].detail.mdz_switch.switch_value) {
+        case 2:
+            nb_spectrum_bands=SPECTRUM_BANDS;
+            break;
+        case 1:
+            nb_spectrum_bands=SPECTRUM_BANDS/2;
+            break;
+        case 0:
+            nb_spectrum_bands=SPECTRUM_BANDS/4;
+            break;
+    }
+    
+    if (settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value<4){
+        RenderUtils::DrawSpectrum3D(x,y,ww,hh,real_spectrumL,real_spectrumR,angle,settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value,nb_spectrum_bands,settings[GLOB_FX3DLandscapeBloom].detail.mdz_boolswitch.switch_value,glScaleFactor);
+    } else if (settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value<6) { RenderUtils::DrawSpectrumLandscape3D(x,y,ww,hh,real_spectrumL,real_spectrumR,angle,settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value-3,nb_spectrum_bands,settings[GLOB_FX3DLandscapeBloom].detail.mdz_boolswitch.switch_value,glScaleFactor);
+    } else {
+        RenderUtils::DrawSpectrum3DMorph(x,y,ww,hh,real_spectrumL,real_spectrumR,angle,settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value-5,nb_spectrum_bands,settings[GLOB_FX3DLandscapeBloom].detail.mdz_boolswitch.switch_value,glScaleFactor);
+    }
+}
+
+- (void) doFxMidiPattern:(ImVec4)fxSize winSize:(ImVec2)winSize {
+    float x=fxSize.x;
+    float y=fxSize.y;
+    float ww=fxSize.z;
+    float hh=fxSize.w;
+    int playerpos;
+    
+    playerpos=[mplayer getCurrentGenBufferIdx];
+    
+    RenderUtils::DrawMidiFX(x,y,ww,hh,winSize.x,winSize.y,settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value-1,tim_midifx_note_range,tim_midifx_note_offset,tim_midifx_length,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,mScaleFactor);
+    
+}
+
+- (void) doFxPiano3D:(ImVec4)fxSize winSize:(ImVec2)winSize {
+    float x=fxSize.x;
+    float y=fxSize.y;
+    float ww=fxSize.z;
+    float hh=fxSize.w;
+    static float piano_posx=0;
+    static float piano_posy=0;
+    static float piano_posz=0;
+    static float piano_rotx=0;
+    static float piano_roty=0;
+    
+    switch (settings[GLOB_FXPiano3D].detail.mdz_switch.switch_value) {
+        case 1:
+            RenderUtils::DrawPiano3D(x,y,ww,hh,1,0,0,0,0,0,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value);
+            break;
+        case 2:
+            RenderUtils::DrawPiano3DWithNotesWall(x,y,ww,hh,1,0,0,0,0,0,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,settings[GLOB_FXLOD].detail.mdz_switch.switch_value);
+            break;
+        case 3:
+            if (movePinchScaleFXPiano<-0/4) movePinchScaleFXPiano=-0/4;
+            if (movePinchScaleFXPiano>9.0/4) movePinchScaleFXPiano=9.0/4;
+            piano_rotx=movePyFXPiano;
+            piano_roty=movePxFXPiano;
+            piano_posx=movePx2FXPiano*0.05;
+            piano_posy=-movePy2FXPiano*0.05;
+            piano_posz=movePinchScaleFXPiano*100*4;
+            RenderUtils::DrawPiano3D(x,y,ww,hh,0,piano_posx,piano_posy,piano_posz,piano_rotx,piano_roty,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value);
+            break;
+        case 4:
+            if (movePinchScaleFXPiano<-0.8/4) movePinchScaleFXPiano=-0.8/4;
+            if (movePinchScaleFXPiano>14.0/4) movePinchScaleFXPiano=14.0/4;
+            piano_rotx=movePyFXPiano;
+            piano_roty=movePxFXPiano;
+            piano_posx=movePx2FXPiano*0.05;
+            piano_posy=-movePy2FXPiano*0.05;
+            piano_posz=movePinchScaleFXPiano*100*4;
+            RenderUtils::DrawPiano3DWithNotesWall(x,y,ww,hh,0,piano_posx,piano_posy,piano_posz,piano_rotx,piano_roty,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,settings[GLOB_FXLOD].detail.mdz_switch.switch_value);
+            break;
+    }
+}
+
+- (void) doFxPianoRoll:(ImVec4)fxSize winSize:(ImVec2)winSize {
+    float x=fxSize.x;
+    float y=fxSize.y;
+    float ww=fxSize.z;
+    float hh=fxSize.w;
+    
+    memset(voicesName,0,sizeof(voicesName));
+    for (int i=0;i<[mplayer getNumChannels];i++) {
+        snprintf(voicesName+i*32,31,"%s",[[mplayer getVoicesName:i onlyMidi:true] UTF8String]);
+    }
+    
+    switch (settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value) {
+        case 1:
+            RenderUtils::DrawPianoRollFX(x,y,ww,hh,settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value-1,prollfx_note_range,prollfx_noteroll_offset,prollfx_length,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,mScaleFactor,(char*)voicesName);
+            break;
+        case 2:
+            RenderUtils::DrawPianoRollSynthesiaFX(x,y,ww,hh,settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value-1,prollfx_note_range,prollfx_noteroll_offset,prollfx_length,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,mScaleFactor,(char*)voicesName);
+            break;
+    }
+}
+
+- (void) doFxModPatterns:(ImVec4)fxSize winSize:(ImVec2)winSize {
+    float x=fxSize.x;
+    float y=fxSize.y;
+    float ww=fxSize.z;
+    float hh=fxSize.w;
+    
 #define MAX_STR_DATA_SIZE 65*SOUND_MAXMOD_CHANNELS+1
     char str_data[MAX_STR_DATA_SIZE];
     unsigned int cnote,cinst,ceff,cparam,cvol,endChan;
@@ -7704,17 +7873,615 @@ void doFramePM(float ww,float hh) {
     int i,j,k,l,note_avail,idx,startRow;
     int linestodraw,midline;
     ModPlugNote *currentNotes,*prevNotes,*nextNotes,*readNotes;
-    int playerpos=[mplayer getCurrentPlayedBufferIdx];
-    static float piano_posx=0;
-    static float piano_posy=0;
-    static float piano_posz=0;
-    static float piano_rotx=0;
-    static float piano_roty=0;
-    static float spectrum_posx=0;
-    static float spectrum_posy=0;
-    static float spectrum_posz=0;
-    static float spectrum_rotx=0;
-    static float spectrum_roty=0;
+    
+    //LIBOMPT or LIBXMP {
+    //DISPLAY MOD PATTERNS
+    
+    //------------------------------------------------
+    // Select current mod pattern themes
+    //------------------------------------------------
+    modpat_curTheme=modpat_themesList[(settings[GLOB_FXMODPattern_Theme].detail.mdz_switch.switch_value)%modpat_themesNb];
+    
+    int display_note_mode=(settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value-1);
+    if (display_note_mode>=3) display_note_mode-=3;
+    
+    float fontSize=16;
+    switch (settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_value) {
+        case 0: //
+            fontSize=mdz_font_size[0];
+            break;
+        case 1: //
+            fontSize=mdz_font_size[1];
+            break;
+        case 2: //
+            fontSize=mdz_font_size[2];
+            break;
+        case 3: //
+            fontSize=mdz_font_size[3];
+            break;
+    }
+    
+    if (settings[GLOB_FXMODPattern_BGAlpha].detail.mdz_slider.slider_value>0) {
+        //Darken the background
+        RenderUtils::DarkenScreen(x, y, ww, hh,winSize.x,winSize.y, settings[GLOB_FXMODPattern_BGAlpha].detail.mdz_slider.slider_value*255.0);
+    }
+    
+    ImGui::GetStyle().Alpha=1.0f;
+    ImGui::PushStyleColor(ImGuiCol_WindowBg,ImVec4(0,0,0,0));
+    ImGui::PushStyleColor(ImGuiCol_Border,ImVec4(0,0,0,0));
+    
+    int cur_font=settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_value;
+    if (cur_font>=FONT_TRACKER_NB) cur_font=FONT_TRACKER_NB-1;
+    
+    float font_ofsX,font_ofsY;
+    if (font_tracker[cur_font]) { ImGui::PushFont(font_tracker[cur_font],fontSize*glScaleFactor);
+        font_ofsX=font_trackerSize[cur_font][3]*fontSize/FONT_BASE_SIZEF*font_trackerSize[cur_font][2];
+        font_ofsY=font_trackerSize[cur_font][4]*fontSize/FONT_BASE_SIZEF*font_trackerSize[cur_font][2];
+    }
+    else {
+        ImGui::PushFont(nullptr);
+        font_ofsX=0;
+        font_ofsY=0;
+    }
+    //                ImGui::Begin("ModPattern",0,ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoScrollbar|ImGuiWindowFlags_NoFocusOnAppearing);
+    
+    //ImGui::SetCursorPos(ImVec2(0,0));
+    
+    //Compute how many lines to draw
+    float lineHeight=(fontSize+1)*glScaleFactor;//ImGui::GetTextLineHeight();
+    
+    linestodraw=((float)hh*glScaleFactor-lineHeight-4.0*glScaleFactor+lineHeight-1)/lineHeight;
+    //linestodraw=round((hh*glScaleFactor-NOTES_DISPLAY_TOPMARGIN+lineHeight/mScaleFactor+3)/(lineHeight/mScaleFactor+4)); //draw even if halfed for last line
+    //int limit_midline=round((hh*glScaleFactor-NOTES_DISPLAY_TOPMARGIN)/(lineHeight/mScaleFactor+4)); //draw even if halfed for last line
+    int limit_midline=((float)hh*glScaleFactor-lineHeight-4.0*glScaleFactor)/lineHeight;
+    midline=0;//linestodraw>>1;
+    
+    
+    //Get access to notes data / patterns
+    int *pat,*row;
+    int playerpos;
+    pat=[mplayer playPattern];
+    row=[mplayer playRow];
+    playerpos=[mplayer getCurrentPlayedBufferIdx];
+    currentPattern=pat[playerpos];
+    currentRow=row[playerpos];
+    
+    if ( (currentPattern>=0)&&(currentRow>=0) ) {
+        
+        currentNotes=[mplayer ompt_getPattern:currentPattern numrows:(unsigned int*)(&numRows)];
+        prevNotes=nil;
+        nextNotes=nil;
+        prevPattern=[mplayer prevPattern][playerpos];
+        if (prevPattern>=0) prevNotes=[mplayer ompt_getPattern:prevPattern numrows:(unsigned int*)(&numRowsP)];
+        
+        nextPattern=[mplayer nextPattern][playerpos];
+        if (nextPattern>=0) nextNotes=[mplayer ompt_getPattern:nextPattern numrows:(unsigned int*)(&numRowsN)];
+        
+        if (settings[GLOB_FXMODPattern_CurrentLineMode].detail.mdz_switch.switch_value) midline=linestodraw>>1;
+        else {
+            midline=currentRow;
+            if (midline>=limit_midline) midline=limit_midline-1;
+        }
+        
+        endChan=mplayer.numChannels;
+        startRow=currentRow-midline;
+        
+        int channelVolumeData[SOUND_MAXMOD_CHANNELS];
+        unsigned char *volData=mplayer.playVolData;
+        for (int i=0;i<endChan;i++) {
+            channelVolumeData[i]=volData[playerpos*SOUND_MAXMOD_CHANNELS+i];
+        }
+        
+        idx=startRow*mplayer.numChannels;
+        
+        if (fontWidth==0) fontWidth=ImGui::CalcTextSize("ABCDEFGH").x/8.0;
+        RenderUtils::DrawChanLayout(x,y,ww,hh,winSize.x,winSize.y,display_note_mode,endChan,((int)(movePxMOD)),fontWidth/glScaleFactor,fontSize+1,glScaleFactor);
+        
+        if (settings[GLOB_FXMODPattern_VolBar].detail.mdz_boolswitch.switch_value) {
+            RenderUtils::DrawChanLayoutAfter(x,y,ww,hh,winSize.x,winSize.y,display_note_mode,channelVolumeData,endChan,((int)(movePxMOD)),fontWidth/mScaleFactor,fontSize+1,0,midline,mScaleFactor);
+        } else {
+            RenderUtils::DrawChanLayoutAfter(x,y,ww,hh,winSize.x,winSize.y,display_note_mode,NULL,endChan,((int)(movePxMOD)),fontWidth/mScaleFactor,fontSize+1,0,midline,mScaleFactor);
+        }
+        
+        
+        if (currentNotes) {
+            l=0;
+            
+            //1st win with line nb
+            char str_prefix[4];
+            ImVec2 cursorPos;
+            float startx=(ImGui::CalcTextSize("9999").x);
+            modPatternWindowSize=ww*glScaleFactor-startx;
+            
+            
+            ImGui::SetNextWindowPos(ImVec2(0,0));
+            ImGui::SetNextWindowSize(ImVec2(startx,hh*glScaleFactor));
+            ImGui::Begin("ModPatternWin_LinesCol",0,ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|
+                         ImGuiWindowFlags_NoScrollbar|
+                         ImGuiWindowFlags_NoFocusOnAppearing);
+            
+            int colR,colG,colB;
+            float color_div;
+            
+            for (i=startRow;i<startRow+linestodraw;i++) {
+                
+                str_prefix[3]=0;
+                str_prefix[0]=' ';
+                if ((i<0)&&prevNotes) {
+                    str_prefix[1]=dec2hex[((numRowsP+i)>>4)&0xF];
+                    str_prefix[2]=dec2hex[(numRowsP+i)&0xF];
+                    color_div=0.7;
+                } else if (i<numRows) {
+                    str_prefix[1]=dec2hex[(i>>4)&0xF];
+                    str_prefix[2]=dec2hex[i&0xF];
+                    color_div=1;
+                } else if (nextNotes) {
+                    str_prefix[1]=dec2hex[((i-numRows)>>4)&0xF];
+                    str_prefix[2]=dec2hex[(i-numRows)&0xF];
+                    color_div=0.7;
+                }
+                cursorPos=ImVec2((font_ofsX)*mScaleFactor-fontWidth/3.0f,
+                                 (i-startRow+1)*lineHeight+(4.0+font_ofsY)*glScaleFactor);
+                
+                if ((i==currentRow)&&(modpat_curTheme->theme_flag&MDZ_THEMEFLAG_HighlightZoom)) {
+                    if (i&1) {
+                        colR=modpat_curTheme->lineNb_col1H[0]*color_div;
+                        colG=modpat_curTheme->lineNb_col1H[1]*color_div;
+                        colB=modpat_curTheme->lineNb_col1H[2]*color_div;
+                    } else {
+                        colR=modpat_curTheme->lineNb_col2H[0]*color_div;
+                        colG=modpat_curTheme->lineNb_col2H[1]*color_div;
+                        colB=modpat_curTheme->lineNb_col2H[2]*color_div;
+                    }
+                } else {
+                    if (i&1) {
+                        colR=modpat_curTheme->lineNb_col1[0]*color_div;
+                        colG=modpat_curTheme->lineNb_col1[1]*color_div;
+                        colB=modpat_curTheme->lineNb_col1[2]*color_div;
+                    } else {
+                        colR=modpat_curTheme->lineNb_col2[0]*color_div;
+                        colG=modpat_curTheme->lineNb_col2[1]*color_div;
+                        colB=modpat_curTheme->lineNb_col2[2]*color_div;
+                    }
+                }
+                
+                if ((i==currentRow)&&(modpat_curTheme->theme_flag&MDZ_THEMEFLAG_HighlightZoom)) {
+                    ImGui::SetCursorPos(cursorPos);
+                    ImGui::TextAttrZoom(1.4f,"{#%02X%02X%02X}%s",colR,colG,colB,str_prefix);
+                } else {
+                    ImGui::SetCursorPos(cursorPos);
+                    ImGui::TextAttr("{#%02X%02X%02X}%s",colR,colG,colB,str_prefix);
+                }
+                
+            }
+            ImGui::End();
+            //2nd win with pattern
+            ImGui::SetNextWindowPos(ImVec2(startx,0));
+            ImGui::SetNextWindowSize(ImVec2(ww*glScaleFactor-startx,hh*glScaleFactor));
+            ImGui::Begin("ModPatternWin2",0,ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|
+                         ImGuiWindowFlags_NoScrollbar|
+                         ImGuiWindowFlags_NoFocusOnAppearing);
+            
+            for (i=startRow;i<startRow+linestodraw;i++) {
+                note_avail=0;
+                if (i<0) {
+                    color_div=0.7;
+                    if ((prevNotes)&&((numRowsP+i)>=0)) {
+                        if (numRowsP+i>=0) {
+                            note_avail=1;
+                            idx=(numRowsP+i)*mplayer.numChannels;
+                            readNotes=prevNotes;
+                        }
+                    }
+                } else if (currentNotes&&(i<numRows)) {
+                    color_div=1;
+                    note_avail=1;
+                    idx=i*mplayer.numChannels;
+                    readNotes=currentNotes;
+                } else {
+                    color_div=0.7;
+                    if ((nextNotes)&&((i-numRows)<numRowsN)) {
+                        note_avail=1;
+                        idx=(i-numRows)*mplayer.numChannels;
+                        readNotes=nextNotes;
+                    }
+                }
+                k=0;
+                if (note_avail) {
+                    bool highlight=false;
+                    if ((i==currentRow)&&(modpat_curTheme->theme_flag&MDZ_THEMEFLAG_HighlightZoom)) highlight=true;
+                    switch (display_note_mode) {
+                        case 0: //all infos
+                            for (j=0;j<endChan;j++)  {
+                                cnote=readNotes[idx].Note;
+                                cinst=readNotes[idx].Instrument;
+                                ceff=readNotes[idx].Effect;
+                                cparam=readNotes[idx].Parameter;
+                                cvol=readNotes[idx].Volume;
+                                
+                                if (highlight) {
+                                    colR=modpat_curTheme->note_colH[0]*color_div;
+                                    colG=modpat_curTheme->note_colH[1]*color_div;
+                                    colB=modpat_curTheme->note_colH[2]*color_div;
+                                } else {
+                                    colR=modpat_curTheme->note_col[0]*color_div;
+                                    colG=modpat_curTheme->note_col[1]*color_div;
+                                    colB=modpat_curTheme->note_col[2]*color_div;
+                                }
+                                str_data[k++]='{';str_data[k++]='#';
+                                str_data[k++]=dec2hex[(colR>>4)&0xF];str_data[k++]=dec2hex[colR&0xF];
+                                str_data[k++]=dec2hex[(colG>>4)&0xF];str_data[k++]=dec2hex[colG&0xF];
+                                str_data[k++]=dec2hex[(colB>>4)&0xF];str_data[k++]=dec2hex[colB&0xF];
+                                str_data[k++]='}';
+                                
+                                if (cnote) {
+                                    str_data[k++]=note2charA[(cnote-13)%12];
+                                    str_data[k++]=note2charB[(cnote-13)%12];
+                                    str_data[k++]=(cnote-13)/12+'0';
+                                } else {
+                                    str_data[k++]=ASCII_MIDDOT[0];str_data[k++]=ASCII_MIDDOT[1];
+                                    str_data[k++]=ASCII_MIDDOT[0];str_data[k++]=ASCII_MIDDOT[1];
+                                    str_data[k++]=ASCII_MIDDOT[0];str_data[k++]=ASCII_MIDDOT[1];
+                                }
+                                
+                                if (highlight) {
+                                    colR=modpat_curTheme->instrument_colH[0]*color_div;
+                                    colG=modpat_curTheme->instrument_colH[1]*color_div;
+                                    colB=modpat_curTheme->instrument_colH[2]*color_div;
+                                } else {
+                                    colR=modpat_curTheme->instrument_col[0]*color_div;
+                                    colG=modpat_curTheme->instrument_col[1]*color_div;
+                                    colB=modpat_curTheme->instrument_col[2]*color_div;
+                                }
+                                str_data[k++]='{';str_data[k++]='#';
+                                str_data[k++]=dec2hex[(colR>>4)&0xF];str_data[k++]=dec2hex[colR&0xF];
+                                str_data[k++]=dec2hex[(colG>>4)&0xF];str_data[k++]=dec2hex[colG&0xF];
+                                str_data[k++]=dec2hex[(colB>>4)&0xF];str_data[k++]=dec2hex[colB&0xF];
+                                str_data[k++]='}';
+                                
+                                if (cinst) {
+                                    str_data[k++]=dec2hex[(cinst>>4)&0xF];
+                                    str_data[k++]=dec2hex[cinst&0xF];
+                                } else {
+                                    str_data[k++]=ASCII_MIDDOT[0];str_data[k++]=ASCII_MIDDOT[1];
+                                    str_data[k++]=ASCII_MIDDOT[0];str_data[k++]=ASCII_MIDDOT[1];
+                                }
+                                
+                                if (highlight) {
+                                    colR=modpat_curTheme->volume_colH[0]*color_div;
+                                    colG=modpat_curTheme->volume_colH[1]*color_div;
+                                    colB=modpat_curTheme->volume_colH[2]*color_div;
+                                } else {
+                                    colR=modpat_curTheme->volume_col[0]*color_div;
+                                    colG=modpat_curTheme->volume_col[1]*color_div;
+                                    colB=modpat_curTheme->volume_col[2]*color_div;
+                                }
+                                str_data[k++]='{';str_data[k++]='#';
+                                str_data[k++]=dec2hex[(colR>>4)&0xF];str_data[k++]=dec2hex[colR&0xF];
+                                str_data[k++]=dec2hex[(colG>>4)&0xF];str_data[k++]=dec2hex[colG&0xF];
+                                str_data[k++]=dec2hex[(colB>>4)&0xF];str_data[k++]=dec2hex[colB&0xF];
+                                str_data[k++]='}';
+                                
+                                if (cvol) {
+                                    str_data[k++]=dec2hex[(cvol>>4)&0xF];
+                                    str_data[k++]=dec2hex[cvol&0xF];
+                                } else {
+                                    str_data[k++]=ASCII_MIDDOT[0];str_data[k++]=ASCII_MIDDOT[1];
+                                    str_data[k++]=ASCII_MIDDOT[0];str_data[k++]=ASCII_MIDDOT[1];
+                                }
+                                
+                                if (highlight) {
+                                    colR=modpat_curTheme->effect_colH[0]*color_div;
+                                    colG=modpat_curTheme->effect_colH[1]*color_div;
+                                    colB=modpat_curTheme->effect_colH[2]*color_div;
+                                } else {
+                                    colR=modpat_curTheme->effect_col[0]*color_div;
+                                    colG=modpat_curTheme->effect_col[1]*color_div;
+                                    colB=modpat_curTheme->effect_col[2]*color_div;
+                                }
+                                str_data[k++]='{';str_data[k++]='#';
+                                str_data[k++]=dec2hex[(colR>>4)&0xF];str_data[k++]=dec2hex[colR&0xF];
+                                str_data[k++]=dec2hex[(colG>>4)&0xF];str_data[k++]=dec2hex[colG&0xF];
+                                str_data[k++]=dec2hex[(colB>>4)&0xF];str_data[k++]=dec2hex[colB&0xF];
+                                str_data[k++]='}';
+                                
+                                if (ceff) {
+                                    str_data[k++]='A'+ceff;
+                                } else {
+                                    str_data[k++]=ASCII_MIDDOT[0];str_data[k++]=ASCII_MIDDOT[1];
+                                }
+                                
+                                if (highlight) {
+                                    colR=modpat_curTheme->param_colH[0]*color_div;
+                                    colG=modpat_curTheme->param_colH[1]*color_div;
+                                    colB=modpat_curTheme->param_colH[2]*color_div;
+                                } else {
+                                    colR=modpat_curTheme->param_col[0]*color_div;
+                                    colG=modpat_curTheme->param_col[1]*color_div;
+                                    colB=modpat_curTheme->param_col[2]*color_div;
+                                }
+                                str_data[k++]='{';str_data[k++]='#';
+                                str_data[k++]=dec2hex[(colR>>4)&0xF];str_data[k++]=dec2hex[colR&0xF];
+                                str_data[k++]=dec2hex[(colG>>4)&0xF];str_data[k++]=dec2hex[colG&0xF];
+                                str_data[k++]=dec2hex[(colB>>4)&0xF];str_data[k++]=dec2hex[colB&0xF];
+                                str_data[k++]='}';
+                                
+                                if (cparam) {
+                                    str_data[k++]=dec2hex[(cparam>>4)&0xF];
+                                    str_data[k++]=dec2hex[cparam&0xF];
+                                } else {
+                                    str_data[k++]=ASCII_MIDDOT[0];str_data[k++]=ASCII_MIDDOT[1];
+                                    str_data[k++]=ASCII_MIDDOT[0];str_data[k++]=ASCII_MIDDOT[1];
+                                }
+                                str_data[k++]=' ';
+                                idx++;
+                            }
+                            break;
+                        case 1: //note + instru
+                            for (j=0;j<endChan;j++)  {
+                                cnote=readNotes[idx].Note;
+                                cinst=readNotes[idx].Instrument;
+                                
+                                if (highlight) {
+                                    colR=modpat_curTheme->note_colH[0]*color_div;
+                                    colG=modpat_curTheme->note_colH[1]*color_div;
+                                    colB=modpat_curTheme->note_colH[2]*color_div;
+                                } else {
+                                    colR=modpat_curTheme->note_col[0]*color_div;
+                                    colG=modpat_curTheme->note_col[1]*color_div;
+                                    colB=modpat_curTheme->note_col[2]*color_div;
+                                }
+                                str_data[k++]='{';str_data[k++]='#';
+                                str_data[k++]=dec2hex[(colR>>4)&0xF];str_data[k++]=dec2hex[colR&0xF];
+                                str_data[k++]=dec2hex[(colG>>4)&0xF];str_data[k++]=dec2hex[colG&0xF];
+                                str_data[k++]=dec2hex[(colB>>4)&0xF];str_data[k++]=dec2hex[colB&0xF];
+                                str_data[k++]='}';
+                                
+                                if (cnote) {
+                                    str_data[k++]=note2charA[(cnote-13)%12];
+                                    str_data[k++]=note2charB[(cnote-13)%12];
+                                    str_data[k++]=(cnote-13)/12+'0';
+                                } else {
+                                    str_data[k++]=ASCII_MIDDOT[0];str_data[k++]=ASCII_MIDDOT[1];
+                                    str_data[k++]=ASCII_MIDDOT[0];str_data[k++]=ASCII_MIDDOT[1];
+                                    str_data[k++]=ASCII_MIDDOT[0];str_data[k++]=ASCII_MIDDOT[1];
+                                }
+                                
+                                if (highlight) {
+                                    colR=modpat_curTheme->instrument_colH[0]*color_div;
+                                    colG=modpat_curTheme->instrument_colH[1]*color_div;
+                                    colB=modpat_curTheme->instrument_colH[2]*color_div;
+                                } else {
+                                    colR=modpat_curTheme->instrument_col[0]*color_div;
+                                    colG=modpat_curTheme->instrument_col[1]*color_div;
+                                    colB=modpat_curTheme->instrument_col[2]*color_div;
+                                }
+                                str_data[k++]='{';str_data[k++]='#';
+                                str_data[k++]=dec2hex[(colR>>4)&0xF];str_data[k++]=dec2hex[colR&0xF];
+                                str_data[k++]=dec2hex[(colG>>4)&0xF];str_data[k++]=dec2hex[colG&0xF];
+                                str_data[k++]=dec2hex[(colB>>4)&0xF];str_data[k++]=dec2hex[colB&0xF];
+                                str_data[k++]='}';
+                                
+                                if (cinst) {
+                                    str_data[k++]=dec2hex[(cinst>>4)&0xF];
+                                    str_data[k++]=dec2hex[cinst&0xF];
+                                } else {
+                                    str_data[k++]=ASCII_MIDDOT[0];str_data[k++]=ASCII_MIDDOT[1];
+                                    str_data[k++]=ASCII_MIDDOT[0];str_data[k++]=ASCII_MIDDOT[1];
+                                }
+                                str_data[k++]=' ';
+                                idx++;
+                            }
+                            break;
+                        case 2: //only note
+                            for (j=0;j<endChan;j++)  {
+                                cnote=readNotes[idx].Note;
+                                
+                                if (highlight) {
+                                    colR=modpat_curTheme->note_colH[0]*color_div;
+                                    colG=modpat_curTheme->note_colH[1]*color_div;
+                                    colB=modpat_curTheme->note_colH[2]*color_div;
+                                } else {
+                                    colR=modpat_curTheme->note_col[0]*color_div;
+                                    colG=modpat_curTheme->note_col[1]*color_div;
+                                    colB=modpat_curTheme->note_col[2]*color_div;
+                                }
+                                str_data[k++]='{';str_data[k++]='#';
+                                str_data[k++]=dec2hex[(colR>>4)&0xF];str_data[k++]=dec2hex[colR&0xF];
+                                str_data[k++]=dec2hex[(colG>>4)&0xF];str_data[k++]=dec2hex[colG&0xF];
+                                str_data[k++]=dec2hex[(colB>>4)&0xF];str_data[k++]=dec2hex[colB&0xF];
+                                str_data[k++]='}';
+                                
+                                if (cnote) {
+                                    str_data[k++]=note2charA[(cnote-13)%12];
+                                    str_data[k++]=note2charB[(cnote-13)%12];
+                                    str_data[k++]=(cnote-13)/12+'0';
+                                } else {
+                                    str_data[k++]=ASCII_MIDDOT[0];str_data[k++]=ASCII_MIDDOT[1];
+                                    str_data[k++]=ASCII_MIDDOT[0];str_data[k++]=ASCII_MIDDOT[1];
+                                    str_data[k++]=ASCII_MIDDOT[0];str_data[k++]=ASCII_MIDDOT[1];
+                                }
+                                str_data[k++]=' ';
+                                idx++;
+                            }
+                            break;
+                    }
+                    str_data[k]=0;
+                    //mText[l++] = new CGLString(str_data, mFont,mScaleFactor);
+                    
+                } else {
+                    //mText[l++] = NULL;
+                    str_data[k]=0;
+                }
+                
+                cursorPos.y=(i-startRow+1)*lineHeight+(4.0+font_ofsY)*glScaleFactor;
+                cursorPos.x=font_ofsX*glScaleFactor;
+                
+                if ((i==currentRow)&&(modpat_curTheme->theme_flag&MDZ_THEMEFLAG_HighlightZoom)) {
+                    ImGui::SetCursorPos(cursorPos);
+                    ImGui::TextAttrZoom(1.4f,"%s",str_data);
+                } else {
+                    ImGui::SetCursorPos(cursorPos);
+                    ImGui::TextAttr("%s",str_data);
+                }
+                
+                
+                
+            }
+            ImGui::SetScrollX(-movePxMOD*glScaleFactor);
+            ImGui::End();
+            
+            //3rd win: draw header
+            ImGui::SetNextWindowPos(ImVec2(startx,0));
+            ImGui::SetNextWindowSize(ImVec2(ww*glScaleFactor-startx,lineHeight));
+            ImGui::Begin("ModPatternWin3",0,ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|
+                         ImGuiWindowFlags_NoScrollbar|
+                         ImGuiWindowFlags_NoFocusOnAppearing);
+            
+            memset(str_data,32,11*mplayer.numChannels);//visibleChan);
+            str_data[11*mplayer.numChannels]=0; //11 chars max / channel
+            float xofs=0;
+            int str_size=1;
+            
+            switch (display_note_mode) {
+                case 0:
+                    for (j=0;j<endChan;j++) {
+                        str_data[(j-0)*11+4]='0'+(j+1)/10;
+                        str_data[(j-0)*11+5]='0'+(j+1)%10;
+                    }
+                    //str_data[(endChan-1-0)*11+9]=0;
+                    str_data[11*endChan]=0;
+                    str_size=11*endChan;
+                    xofs=0;
+                    break;
+                case 1:
+                    for (j=0;j<endChan;j++) {
+                        str_data[(j-0)*6+2]='0'+(j+1)/10;
+                        str_data[(j-0)*6+3]='0'+(j+1)%10;
+                    }
+                    str_data[6*endChan]=0;
+                    str_size=6*endChan;
+                    xofs=0.5;
+                    break;
+                case 2:
+                    for (j=0;j<endChan;j++) {
+                        str_data[(j-0)*4+1]='0'+(j+1)/10;
+                        str_data[(j-0)*4+2]='0'+(j+1)%10;
+                    }
+                    str_data[4*endChan]=0;
+                    str_size=4*endChan;
+                    xofs=0.5;
+                    break;
+            }
+            header_w=ImGui::CalcTextSize(str_data).x;
+            fontWidth=round(header_w/str_size);
+            xofs*=fontWidth;
+            
+            if (note_avail) modPatternLineSize=header_w;
+            
+            ImGui::SetCursorPos(ImVec2(-xofs+font_ofsX*glScaleFactor,(4.0+font_ofsY/2.0)*glScaleFactor));
+            
+            colR=modpat_curTheme->header_col[0];
+            colG=modpat_curTheme->header_col[1];
+            colB=modpat_curTheme->header_col[2];
+            
+            ImGui::TextAttr("{#%02X%02X%02X}%s",colR,colG,colB,str_data);
+            
+            ImGui::SetScrollX(-movePxMOD*glScaleFactor);
+            ImGui::End();
+        }
+    }
+    ImGui::PopFont();
+    ImGui::PopStyleColor();
+    ImGui::PopStyleColor();
+}
+
+- (void) doFxOscillo:(ImVec4)fxSize winSize:(ImVec2)winSize{
+    short int **snd_buffer;
+    int cur_pos;
+    snd_buffer=[mplayer buffer_ana_cpy];
+    cur_pos=[mplayer getCurrentPlayedBufferIdx];
+    float x=fxSize.x;
+    float y=fxSize.y;
+    float ww=fxSize.z;
+    float hh=fxSize.w;
+    
+    switch (settings[OSCILLO_FXMODE].detail.mdz_switch.switch_value) {
+        case 1:
+            if ([mplayer m_voicesDataAvail]) {
+                if (settings[OSCILLO_ShowLabel].detail.mdz_boolswitch.switch_value) {
+                    memset(voicesName,0,sizeof(voicesName));
+                    for (int i=0;i<[mplayer getNumChannels];i++) {
+                        snprintf(voicesName+i*32,31,"%s",[[mplayer getVoicesName:i onlyMidi:false] UTF8String]);
+                    }
+                    RenderUtils::DrawOscilloMultiple(x,y,ww,hh,winSize.x,winSize.y,m_voice_buff_ana_cpy,cur_pos,([mplayer getNumChannels]<SOUND_MAXVOICES_BUFFER_FX?[mplayer getNumChannels]:SOUND_MAXVOICES_BUFFER_FX),1,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,
+                                                     0/*settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value*/,
+                                                     (char*)voicesName,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value);
+                } else {
+                    RenderUtils::DrawOscilloMultiple(x,y,ww,hh,winSize.x,winSize.y,m_voice_buff_ana_cpy,cur_pos,([mplayer getNumChannels]<SOUND_MAXVOICES_BUFFER_FX?[mplayer getNumChannels]:SOUND_MAXVOICES_BUFFER_FX),1,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,
+                                                     0/*settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value*/,
+                                                     NULL,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value);
+                }
+            } else {
+                if (settings[OSCILLO_ShowLabel].detail.mdz_boolswitch.switch_value) {
+                    memset(voicesName,0,sizeof(voicesName));
+                    snprintf(voicesName+0*32,31,"Left");
+                    snprintf(voicesName+1*32,31,"Right");
+                    RenderUtils::DrawOscilloMultiple(x,y,ww,hh,winSize.x,winSize.y,(signed char **)snd_buffer,cur_pos,2,1,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,
+                                                     0,
+                                                     (char*)voicesName,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value,1);
+                } else {
+                    RenderUtils::DrawOscilloMultiple(x,y,ww,hh,winSize.x,winSize.y,(signed char **)snd_buffer,cur_pos,2,1,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,
+                                                     0,
+                                                     NULL,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value,1);
+                }
+                
+                
+            }
+            break;
+        case 2:
+            if ([mplayer m_voicesDataAvail]) {
+                char voicesName[SOUND_MAXVOICES_BUFFER_FX*32];
+                
+                if (settings[OSCILLO_ShowLabel].detail.mdz_boolswitch.switch_value) {
+                    memset(voicesName,0,sizeof(voicesName));
+                    for (int i=0;i<[mplayer getNumChannels];i++) {
+                        snprintf(voicesName+i*32,31,"%s",[[mplayer getVoicesName:i onlyMidi:false] UTF8String]);
+                    }
+                    
+                    RenderUtils::DrawOscilloMultiple(x,y,ww,hh,winSize.x,winSize.y,m_voice_buff_ana_cpy,cur_pos,([mplayer getNumChannels]<SOUND_MAXVOICES_BUFFER_FX?[mplayer getNumChannels]:SOUND_MAXVOICES_BUFFER_FX),2,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,
+                                                     0/*settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value*/,
+                                                     (char*)voicesName,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value);
+                } else {
+                    RenderUtils::DrawOscilloMultiple(x,y,ww,hh,winSize.x,winSize.y,m_voice_buff_ana_cpy,cur_pos,([mplayer getNumChannels]<SOUND_MAXVOICES_BUFFER_FX?[mplayer getNumChannels]:SOUND_MAXVOICES_BUFFER_FX),2,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,
+                                                     0/*settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value*/,
+                                                     NULL,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value);
+                }
+            } else {
+                RenderUtils::DrawOscilloMultiple(x,y,ww,hh,winSize.x,winSize.y,(signed char **)snd_buffer,cur_pos,2,1,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,
+                                                 0/*settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value*/,
+                                                 NULL,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value,1);
+            }
+            break;
+        case 3:
+            RenderUtils::DrawOscilloMultiple(x,y,ww,hh,winSize.x,winSize.y,(signed char **)snd_buffer,cur_pos,2,1,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,
+                                             0/*settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value*/,
+                                             NULL,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value,1);
+            break;
+        case 4:
+            RenderUtils::DrawOscilloMultiple(x,y,ww,hh,winSize.x,winSize.y,(signed char **)snd_buffer,cur_pos,2,2,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,
+                                             0/*settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value*/,
+                                             NULL,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value,1);
+            break;
+    }
+}
+
+- (void)doFrame {
+    static int no_reentrant=0;
+    static int framecpt=0;
+    uint ww,hh;
+    int nb_spectrum_bands;
+    
     float fxalpha;
     int frameToUpdate=0;
     int shouldGoToSettings=0;
@@ -7781,10 +8548,10 @@ void doFramePM(float ww,float hh) {
         return;
     }
     
-//    if (!mFont || !mFontMenu ) {
-//        no_reentrant=0;
-//        return;
-//    }
+    //    if (!mFont || !mFontMenu ) {
+    //        no_reentrant=0;
+    //        return;
+    //    }
     fxalpha=settings[GLOB_FXAlpha].detail.mdz_slider.slider_value;
     if (settings[GLOB_FX3DSpectrumBloom].detail.mdz_switch.switch_value) {
         //if bloom is on, fx alpha should be minimum 0.9f
@@ -7888,17 +8655,17 @@ void doFramePM(float ww,float hh) {
         //MDZILog("send wheel move %f %f at pos %f %f",imgui_event.wheel_x,imgui_event.wheel_y,imgui_event.pos_x,imgui_event.pos_y);
         
         //if (panGestureWheel==0) {
-            moveWheelXPMenu=moveWheelXPMenu*0.94f;
-            moveWheelYPMenu=moveWheelYPMenu*0.94f;
-            if (fabs(moveWheelXPMenu)<2.0f) moveWheelXPMenu=0;
-            if (fabs(moveWheelYPMenu)<2.0f) moveWheelYPMenu=0;
+        moveWheelXPMenu=moveWheelXPMenu*0.94f;
+        moveWheelYPMenu=moveWheelYPMenu*0.94f;
+        if (fabs(moveWheelXPMenu)<2.0f) moveWheelXPMenu=0;
+        if (fabs(moveWheelYPMenu)<2.0f) moveWheelYPMenu=0;
         //}
     }
     varCheck[0]=imgui_event.event_type;
     varCheck[1]=imgui_event.pos_y;
     varCheck[2]=imgui_event.wheel_y;
     
-        
+    
     ImGui_ImplIOS_NewFrame(ww*glScaleFactor,hh*glScaleFactor,1);
     ImGui_ImplIOS_UpdateEvent(&imgui_event);
     ImGui_ImplOpenGL3_NewFrame();
@@ -7984,7 +8751,7 @@ void doFramePM(float ww,float hh) {
                 movePxPM=0;
                 movePyPM=0;
                 movePMnomore=1;
-
+                
                 if ([_mdzPM_playlist getSize]) {
                     [_mdzPM_playlist next:false];
                 }
@@ -8018,12 +8785,12 @@ void doFramePM(float ww,float hh) {
     /* Compute pattern display scrolling */
     /*******************************************************/
     if ((mplayer.mPatternDataAvail)&&(settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value)) {//pattern display
-//        if (visibleChan<=mplayer.numChannels+1) {
-//            if (movePxMOD>0) movePxMOD=0;
-//            if (movePxMOD<-(mplayer.numChannels-visibleChan+1+1)*size_chan) movePxMOD=-(mplayer.numChannels-visibleChan+1+1)*size_chan;
-//            startChan=-movePxMOD/size_chan;
-//
-//        } else movePxMOD=0;
+        //        if (visibleChan<=mplayer.numChannels+1) {
+        //            if (movePxMOD>0) movePxMOD=0;
+        //            if (movePxMOD<-(mplayer.numChannels-visibleChan+1+1)*size_chan) movePxMOD=-(mplayer.numChannels-visibleChan+1+1)*size_chan;
+        //            startChan=-movePxMOD/size_chan;
+        //
+        //        } else movePxMOD=0;
         if (modPatternLineSize<=modPatternWindowSize) movePxMOD=0;
         else {
             if (modPatternWindowSize-movePxMOD*glScaleFactor>=modPatternLineSize) movePxMOD=-(modPatternLineSize-modPatternWindowSize)/glScaleFactor;
@@ -8124,7 +8891,6 @@ void doFramePM(float ww,float hh) {
     /*******************************************************/
     if ( ([mplayer isMidiLikeDataAvailable]||mplayer.mPatternDataAvail)&&
         settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value ) {
-        float note_fx_linewidth;
         float noteroll_fx_keywidth;
         //scroll  & get current note bar width
         
@@ -8207,8 +8973,6 @@ void doFramePM(float ww,float hh) {
         }
     }
     
-    hasdrawnotes=0;
-    
     //update spectrum data
     if (
         (settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value)||
@@ -8227,7 +8991,6 @@ void doFramePM(float ww,float hh) {
                 /////////////////////////////////////////
                 //Number of Samples for input(time domain)/output(frequency domain)
                 int numSamples = SOUND_BUFFER_SIZE_SAMPLE_SPECTRUM;
-                int idx;
                 //Fill Input Array with Left channel
                 for (int i=0; i<numSamples; i++) {
                     fft_time[i]=(float)curBuffer[i*2]/32768.0f;
@@ -8236,10 +8999,7 @@ void doFramePM(float ww,float hh) {
                 memset(fft_freqAvgCount,0,sizeof(int)*SPECTRUM_BANDS);
                 fftAccel->doFFTReal(fft_time, fft_frequency, numSamples);
                 
-                const float log2FrameSize = log2f(numSamples);
-                
                 int lowfreq,highfreq,tmpfreq;
-                float sum;
                 
                 double Xfactor=powl(10.l,log10l(SOUND_BUFFER_SIZE_SAMPLE_SPECTRUM/2)/(double)(SPECTRUM_BANDS-1));
                 highfreq=1;
@@ -8382,650 +9142,86 @@ void doFramePM(float ww,float hh) {
     }
     angle+=(float)4.0f;
     
+    int fxSlot[8];
+    fxSlot[0]=0;
+    fxSlot[1]=0;
+    fxSlot[2]=0;
+    fxSlot[3]=0;
+    fxSlot[4]=0;
+    fxSlot[5]=0;
+    fxSlot[6]=0;
+    fxSlot[7]=1;
+    bool fxActiveSlot[4];
+    ImVec4 fxPos[4];
+    fxActiveSlot[0]=true;  fxPos[0]=ImVec4(0,0,ww/2,hh);
+    fxActiveSlot[1]=true;  fxPos[1]=ImVec4(ww/2,0,ww/2,hh);
+    fxActiveSlot[2]=false; fxPos[2]=ImVec4(0,0,ww,hh);
+    fxActiveSlot[3]=false; fxPos[3]=ImVec4(0,0,ww,hh);
     
-    //-------------------------------------
-    // 3D Landscape, 3D Spectrum, 3D Piano
-    //-------------------------------------
-    if ([mplayer isPlaying]){
-        if (settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value) {
-            if (settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value<4){
-                RenderUtils::DrawSpectrum3D(real_spectrumL,real_spectrumR,ww,hh,angle,settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value,nb_spectrum_bands,settings[GLOB_FX3DLandscapeBloom].detail.mdz_boolswitch.switch_value,glScaleFactor);
-            } else if (settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value<6) { RenderUtils::DrawSpectrumLandscape3D(real_spectrumL,real_spectrumR,ww,hh,angle,settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value-3,nb_spectrum_bands,settings[GLOB_FX3DLandscapeBloom].detail.mdz_boolswitch.switch_value,glScaleFactor);
-            } else {
-                RenderUtils::DrawSpectrum3DMorph(real_spectrumL,real_spectrumR,ww,hh,angle,settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value-5,nb_spectrum_bands,settings[GLOB_FX3DLandscapeBloom].detail.mdz_boolswitch.switch_value,glScaleFactor);
-            }
-        }
-        if (settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value) {
-            
-            if (movePinchScaleFX3DSpectrum<-9.0/4) movePinchScaleFX3DSpectrum=-9.0/4;
-            if (movePinchScaleFX3DSpectrum>9.0/4) movePinchScaleFX3DSpectrum=9.0/4;
-            spectrum_rotx=movePxFX3DSpectrum*0.5f;
-            spectrum_roty=movePyFX3DSpectrum*0.25f;
-            if (movePx2FX3DSpectrum>400) movePx2FX3DSpectrum=400;
-            if (movePx2FX3DSpectrum<-400) movePx2FX3DSpectrum=-400;
-            if (movePy2FX3DSpectrum>400) movePy2FX3DSpectrum=400;
-            if (movePy2FX3DSpectrum<-400) movePy2FX3DSpectrum=-400;
-            spectrum_posx=movePx2FX3DSpectrum*0.05;
-            spectrum_posy=-movePy2FX3DSpectrum*0.05;
-            spectrum_posz=movePinchScaleFX3DSpectrum*10*4;
-            
-            int mirror=0;
-            if (settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value) mirror=0;
-            if (settings[GLOB_FXPiano3D].detail.mdz_switch.switch_value) mirror=0;
-            RenderUtils::DrawSpectrum3DBar(real_spectrumL,real_spectrumR,ww,hh,angle,
-                                           settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value,nb_spectrum_bands,mirror,glScaleFactor,settings[GLOB_FX3DSpectrumBloom].detail.mdz_switch.switch_value,spectrum_rotx,spectrum_roty,spectrum_posx,spectrum_posy,spectrum_posz);
-        }
-        
-                if (settings[GLOB_FXPiano3D].detail.mdz_switch.switch_value) {
-            switch (settings[GLOB_FXPiano3D].detail.mdz_switch.switch_value) {
-                case 1:
-                    RenderUtils::DrawPiano3D(ww,hh,1,0,0,0,0,0,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value);
-                    break;
-                case 2:
-                    RenderUtils::DrawPiano3DWithNotesWall(ww,hh,1,0,0,0,0,0,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,settings[GLOB_FXLOD].detail.mdz_switch.switch_value);
-                    break;
-                case 3:
-                    if (movePinchScaleFXPiano<-0/4) movePinchScaleFXPiano=-0/4;
-                    if (movePinchScaleFXPiano>9.0/4) movePinchScaleFXPiano=9.0/4;
-                    piano_rotx=movePyFXPiano;
-                    piano_roty=movePxFXPiano;
-                    piano_posx=movePx2FXPiano*0.05;
-                    piano_posy=-movePy2FXPiano*0.05;
-                    piano_posz=movePinchScaleFXPiano*100*4;
-                    RenderUtils::DrawPiano3D(ww,hh,0,piano_posx,piano_posy,piano_posz,piano_rotx,piano_roty,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value);
-                    break;
-                case 4:
-                    if (movePinchScaleFXPiano<-0.8/4) movePinchScaleFXPiano=-0.8/4;
-                    if (movePinchScaleFXPiano>14.0/4) movePinchScaleFXPiano=14.0/4;
-                    piano_rotx=movePyFXPiano;
-                    piano_roty=movePxFXPiano;
-                    piano_posx=movePx2FXPiano*0.05;
-                    piano_posy=-movePy2FXPiano*0.05;
-                    piano_posz=movePinchScaleFXPiano*100*4;
-                    RenderUtils::DrawPiano3DWithNotesWall(ww,hh,0,piano_posx,piano_posy,piano_posz,piano_rotx,piano_roty,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,settings[GLOB_FXLOD].detail.mdz_switch.switch_value);
-                    break;
-            }
-        }
-    }
-    
-    
-    //-------------------------------------
-    // Spectrum2D
-    //-------------------------------------
     if ([mplayer isPlaying]) {
-        if (settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value) {
-            RenderUtils::DrawSpectrum2D(real_spectrumL,real_spectrumR,ww,hh,
-                                               settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value,nb_spectrum_bands,glScaleFactor,
-                                        0/*settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value*/);
-        }
-    }
-    //-------------------------------------
-    // MOD & MIDI
-    //-------------------------------------
-    if (([mplayer isPlaying])&&
-        (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value||
-         settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value||
-         settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value)  ) {
-        
-        //------------------------------------------------
-        // Select current mod pattern themes
-        //------------------------------------------------
-        modpat_curTheme=modpat_themesList[(settings[GLOB_FXMODPattern_Theme].detail.mdz_switch.switch_value)%modpat_themesNb];
-        
-        int display_note_mode=(settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value-1);
-        if (display_note_mode>=3) display_note_mode-=3;
-        
-        if (settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value) {
-            
-            memset(voicesName,0,sizeof(voicesName));
-            for (int i=0;i<[mplayer getNumChannels];i++) {
-                snprintf(voicesName+i*32,31,"%s",[[mplayer getVoicesName:i onlyMidi:true] UTF8String]);
-            }
-            
-            switch (settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value) {
-                case 1:
-                    RenderUtils::DrawPianoRollFX(ww,hh,settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value-1,prollfx_note_range,prollfx_noteroll_offset,prollfx_length,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,mScaleFactor,(char*)voicesName);
-                    break;
-                case 2:
-                    RenderUtils::DrawPianoRollSynthesiaFX(ww,hh,settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value-1,prollfx_note_range,prollfx_noteroll_offset,prollfx_length,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,mScaleFactor,(char*)voicesName);
-                    break;
-            }
-        }
-        
-        if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value) {
-            playerpos=[mplayer getCurrentGenBufferIdx];
-            RenderUtils::DrawMidiFX(ww,hh,settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value-1,tim_midifx_note_range,tim_midifx_note_offset,tim_midifx_length,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,mScaleFactor);
-            
-            if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value) {
-                //printf("%d/%d",tim_voicenb_cpy[playerpos],(int)(settings[TIM_Polyphony].detail.mdz_slider.slider_value));
-            }
-        }
-        if (mplayer.mPatternDataAvail) { //LIBOMPT or LIBXMP
-            
-            if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value) {
-                //DISPLAY MOD PATTERNS
-                float fontSize=16;
-                int ftsizeIdx=settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_value;
-                switch (settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_value) {
-                    case 0: //
-                        fontSize=mdz_font_size[0];
-                        break;
-                    case 1: //
-                        fontSize=mdz_font_size[1];
-                        break;
-                    case 2: //
-                        fontSize=mdz_font_size[2];
-                        break;
-                    case 3: //
-                        fontSize=mdz_font_size[3];
-                        break;
+        for (int slot=0;slot<4;slot++) {
+            if (fxActiveSlot[slot]) {
+                float x=fxPos[slot].x;
+                float y=fxPos[slot].y;
+                float w=fxPos[slot].z;
+                float h=fxPos[slot].w;
+                //-------------------------------------
+                // Landscape 3D
+                //-------------------------------------
+                if ( (fxSlot[0]==slot) && (settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value)) {
+                    [self doFx3DLandscape:ImVec4(x,y,w,h) winSize:ImVec2(ww,hh)];
                 }
                 
-                if (settings[GLOB_FXMODPattern_BGAlpha].detail.mdz_slider.slider_value>0) {
-                    //Darken the background
-                    RenderUtils::DarkenScreen(0, 0, ww, hh, settings[GLOB_FXMODPattern_BGAlpha].detail.mdz_slider.slider_value*255.0);
+                //-------------------------------------
+                // Spectrum 3D
+                //-------------------------------------
+                if ( (fxSlot[1]==slot) && (settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value)) {
+                    [self doFx3DSpectrum:ImVec4(x,y,w,h) winSize:ImVec2(ww,hh)];
                 }
                 
-                ImGui::GetStyle().Alpha=1.0f;
-                ImGui::PushStyleColor(ImGuiCol_WindowBg,ImVec4(0,0,0,0));
-                ImGui::PushStyleColor(ImGuiCol_Border,ImVec4(0,0,0,0));
-                
-                int cur_font=settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_value;
-                if (cur_font>=FONT_TRACKER_NB) cur_font=FONT_TRACKER_NB-1;
-                
-                float font_ofsX,font_ofsY;
-                if (font_tracker[cur_font]) { ImGui::PushFont(font_tracker[cur_font],fontSize*glScaleFactor);
-                    font_ofsX=font_trackerSize[cur_font][3]*fontSize/FONT_BASE_SIZEF*font_trackerSize[cur_font][2];
-                    font_ofsY=font_trackerSize[cur_font][4]*fontSize/FONT_BASE_SIZEF*font_trackerSize[cur_font][2];
+                //-------------------------------------
+                // Piano 3D
+                //-------------------------------------
+                if ( (fxSlot[2]==slot) && (settings[GLOB_FXPiano3D].detail.mdz_switch.switch_value)) {
+                    [self doFxPiano3D:ImVec4(x,y,w,h) winSize:ImVec2(ww,hh)];
                 }
-                else {
-                    ImGui::PushFont(nullptr);
-                    font_ofsX=0;
-                    font_ofsY=0;
+                //-------------------------------------
+                // Spectrum 2D
+                //-------------------------------------
+                if ( (fxSlot[3]==slot) && (settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value)) {
+                    [self doFx2DSpectrum:ImVec4(x,y,w,h) winSize:ImVec2(ww,hh)];
                 }
-                //                ImGui::Begin("ModPattern",0,ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoScrollbar|ImGuiWindowFlags_NoFocusOnAppearing);
                 
-                //ImGui::SetCursorPos(ImVec2(0,0));
-                
-                //Compute how many lines to draw
-                float lineHeight=(fontSize+1)*glScaleFactor;//ImGui::GetTextLineHeight();
-                
-                linestodraw=((float)hh*glScaleFactor-lineHeight-4.0*glScaleFactor+lineHeight-1)/lineHeight;
-                //linestodraw=round((hh*glScaleFactor-NOTES_DISPLAY_TOPMARGIN+lineHeight/mScaleFactor+3)/(lineHeight/mScaleFactor+4)); //draw even if halfed for last line
-                //int limit_midline=round((hh*glScaleFactor-NOTES_DISPLAY_TOPMARGIN)/(lineHeight/mScaleFactor+4)); //draw even if halfed for last line
-                int limit_midline=((float)hh*glScaleFactor-lineHeight-4.0*glScaleFactor)/lineHeight;
-                midline=0;//linestodraw>>1;
-                
-                
-                //Get access to notes data / patterns
-                int *pat,*row;
-                int playerpos;
-                pat=[mplayer playPattern];
-                row=[mplayer playRow];
-                playerpos=[mplayer getCurrentPlayedBufferIdx];
-                currentPattern=pat[playerpos];
-                currentRow=row[playerpos];
-                
-                if ( (currentPattern>=0)&&(currentRow>=0) ) {
-                    
-                    currentNotes=[mplayer ompt_getPattern:currentPattern numrows:(unsigned int*)(&numRows)];
-                    prevNotes=nil;
-                    nextNotes=nil;
-                    prevPattern=[mplayer prevPattern][playerpos];
-                    if (prevPattern>=0) prevNotes=[mplayer ompt_getPattern:prevPattern numrows:(unsigned int*)(&numRowsP)];
-                    
-                    nextPattern=[mplayer nextPattern][playerpos];
-                    if (nextPattern>=0) nextNotes=[mplayer ompt_getPattern:nextPattern numrows:(unsigned int*)(&numRowsN)];
-                    
-                    if (settings[GLOB_FXMODPattern_CurrentLineMode].detail.mdz_switch.switch_value) midline=linestodraw>>1;
-                    else {
-                        midline=currentRow;
-                        if (midline>=limit_midline) midline=limit_midline-1;
-                    }
-                    
-                    endChan=mplayer.numChannels;
-                    startRow=currentRow-midline;
-                    
-                    int channelVolumeData[SOUND_MAXMOD_CHANNELS];
-                    unsigned char *volData=mplayer.playVolData;
-                    for (int i=0;i<endChan;i++) {
-                        channelVolumeData[i]=volData[playerpos*SOUND_MAXMOD_CHANNELS+i];
-                    }
-                    
-                    idx=startRow*mplayer.numChannels;
-                    
-                    if (fontWidth==0) fontWidth=ImGui::CalcTextSize("ABCDEFGH").x/8.0;
-                    RenderUtils::DrawChanLayout(ww,hh,display_note_mode,endChan,((int)(movePxMOD)),fontWidth/glScaleFactor,fontSize+1,glScaleFactor);
-                    
-                    if (settings[GLOB_FXMODPattern_VolBar].detail.mdz_boolswitch.switch_value) {
-                        RenderUtils::DrawChanLayoutAfter(ww,hh,display_note_mode,channelVolumeData,endChan,((int)(movePxMOD)),fontWidth/mScaleFactor,fontSize+1,0,midline,mScaleFactor);
-                    } else {
-                        RenderUtils::DrawChanLayoutAfter(ww,hh,display_note_mode,NULL,endChan,((int)(movePxMOD)),fontWidth/mScaleFactor,fontSize+1,0,midline,mScaleFactor);
-                    }
-                    
-                    
-                    if (currentNotes) {
-                        hasdrawnotes=1;
-                        l=0;
-                        
-                        //1st win with line nb
-                        char str_prefix[4];
-                        ImVec2 cursorPos;
-                        float startx=(ImGui::CalcTextSize("9999").x);
-                        modPatternWindowSize=ww*glScaleFactor-startx;
-                        
-                        
-                        ImGui::SetNextWindowPos(ImVec2(0,0));
-                        ImGui::SetNextWindowSize(ImVec2(startx,hh*glScaleFactor));
-                        ImGui::Begin("ModPatternWin_LinesCol",0,ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|
-                                     ImGuiWindowFlags_NoScrollbar|
-                                     ImGuiWindowFlags_NoFocusOnAppearing);
-                        
-                        int colR,colG,colB;
-                        float color_div;
-                        
-                        for (i=startRow;i<startRow+linestodraw;i++) {
-                            
-                            str_prefix[3]=0;
-                            str_prefix[0]=' ';
-                            if ((i<0)&&prevNotes) {
-                                str_prefix[1]=dec2hex[((numRowsP+i)>>4)&0xF];
-                                str_prefix[2]=dec2hex[(numRowsP+i)&0xF];
-                                color_div=0.7;
-                            } else if (i<numRows) {
-                                str_prefix[1]=dec2hex[(i>>4)&0xF];
-                                str_prefix[2]=dec2hex[i&0xF];
-                                color_div=1;
-                            } else if (nextNotes) {
-                                str_prefix[1]=dec2hex[((i-numRows)>>4)&0xF];
-                                str_prefix[2]=dec2hex[(i-numRows)&0xF];
-                                color_div=0.7;
-                            }
-                            cursorPos=ImVec2((font_ofsX)*mScaleFactor-fontWidth/3.0f,
-                                             (i-startRow+1)*lineHeight+(4.0+font_ofsY)*glScaleFactor);
-                            
-                            if ((i==currentRow)&&(modpat_curTheme->theme_flag&MDZ_THEMEFLAG_HighlightZoom)) {
-                                if (i&1) {
-                                    colR=modpat_curTheme->lineNb_col1H[0]*color_div;
-                                    colG=modpat_curTheme->lineNb_col1H[1]*color_div;
-                                    colB=modpat_curTheme->lineNb_col1H[2]*color_div;
-                                } else {
-                                    colR=modpat_curTheme->lineNb_col2H[0]*color_div;
-                                    colG=modpat_curTheme->lineNb_col2H[1]*color_div;
-                                    colB=modpat_curTheme->lineNb_col2H[2]*color_div;
-                                }
-                            } else {
-                                if (i&1) {
-                                    colR=modpat_curTheme->lineNb_col1[0]*color_div;
-                                    colG=modpat_curTheme->lineNb_col1[1]*color_div;
-                                    colB=modpat_curTheme->lineNb_col1[2]*color_div;
-                                } else {
-                                    colR=modpat_curTheme->lineNb_col2[0]*color_div;
-                                    colG=modpat_curTheme->lineNb_col2[1]*color_div;
-                                    colB=modpat_curTheme->lineNb_col2[2]*color_div;
-                                }
-                            }
-                            
-                            if ((i==currentRow)&&(modpat_curTheme->theme_flag&MDZ_THEMEFLAG_HighlightZoom)) {
-                                ImGui::SetCursorPos(cursorPos);
-                                ImGui::TextAttrZoom(1.4f,"{#%02X%02X%02X}%s",colR,colG,colB,str_prefix);
-                            } else {
-                                ImGui::SetCursorPos(cursorPos);
-                                ImGui::TextAttr("{#%02X%02X%02X}%s",colR,colG,colB,str_prefix);
-                            }
-                            
-                        }
-                        ImGui::End();
-                        //2nd win with pattern
-                        ImGui::SetNextWindowPos(ImVec2(startx,0));
-                        ImGui::SetNextWindowSize(ImVec2(ww*glScaleFactor-startx,hh*glScaleFactor));
-                        ImGui::Begin("ModPatternWin2",0,ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|
-                                     ImGuiWindowFlags_NoScrollbar|
-                                     ImGuiWindowFlags_NoFocusOnAppearing);
-                        
-                        for (i=startRow;i<startRow+linestodraw;i++) {
-                            note_avail=0;
-                            if (i<0) {
-                                color_div=0.7;
-                                if ((prevNotes)&&((numRowsP+i)>=0)) {
-                                    if (numRowsP+i>=0) {
-                                        note_avail=1;
-                                        idx=(numRowsP+i)*mplayer.numChannels;
-                                        readNotes=prevNotes;
-                                    }
-                                }
-                            } else if (currentNotes&&(i<numRows)) {
-                                color_div=1;
-                                note_avail=1;
-                                idx=i*mplayer.numChannels;
-                                readNotes=currentNotes;
-                            } else {
-                                color_div=0.7;
-                                if ((nextNotes)&&((i-numRows)<numRowsN)) {
-                                    note_avail=1;
-                                    idx=(i-numRows)*mplayer.numChannels;
-                                    readNotes=nextNotes;
-                                }
-                            }
-                            k=0;
-                            if (note_avail) {
-                                bool highlight=false;
-                                if ((i==currentRow)&&(modpat_curTheme->theme_flag&MDZ_THEMEFLAG_HighlightZoom)) highlight=true;
-                                switch (display_note_mode) {
-                                    case 0: //all infos
-                                        for (j=0;j<endChan;j++)  {
-                                            cnote=readNotes[idx].Note;
-                                            cinst=readNotes[idx].Instrument;
-                                            ceff=readNotes[idx].Effect;
-                                            cparam=readNotes[idx].Parameter;
-                                            cvol=readNotes[idx].Volume;
-                                            
-                                            if (highlight) {
-                                                colR=modpat_curTheme->note_colH[0]*color_div;
-                                                colG=modpat_curTheme->note_colH[1]*color_div;
-                                                colB=modpat_curTheme->note_colH[2]*color_div;
-                                            } else {
-                                                colR=modpat_curTheme->note_col[0]*color_div;
-                                                colG=modpat_curTheme->note_col[1]*color_div;
-                                                colB=modpat_curTheme->note_col[2]*color_div;
-                                            }
-                                            str_data[k++]='{';str_data[k++]='#';
-                                            str_data[k++]=dec2hex[(colR>>4)&0xF];str_data[k++]=dec2hex[colR&0xF];
-                                            str_data[k++]=dec2hex[(colG>>4)&0xF];str_data[k++]=dec2hex[colG&0xF];
-                                            str_data[k++]=dec2hex[(colB>>4)&0xF];str_data[k++]=dec2hex[colB&0xF];
-                                            str_data[k++]='}';
-                                            
-                                            if (cnote) {
-                                                str_data[k++]=note2charA[(cnote-13)%12];
-                                                str_data[k++]=note2charB[(cnote-13)%12];
-                                                str_data[k++]=(cnote-13)/12+'0';
-                                            } else {
-                                                str_data[k++]=ASCII_MIDDOT[0];str_data[k++]=ASCII_MIDDOT[1];
-                                                str_data[k++]=ASCII_MIDDOT[0];str_data[k++]=ASCII_MIDDOT[1];
-                                                str_data[k++]=ASCII_MIDDOT[0];str_data[k++]=ASCII_MIDDOT[1];
-                                            }
-                                            
-                                            if (highlight) {
-                                                colR=modpat_curTheme->instrument_colH[0]*color_div;
-                                                colG=modpat_curTheme->instrument_colH[1]*color_div;
-                                                colB=modpat_curTheme->instrument_colH[2]*color_div;
-                                            } else {
-                                                colR=modpat_curTheme->instrument_col[0]*color_div;
-                                                colG=modpat_curTheme->instrument_col[1]*color_div;
-                                                colB=modpat_curTheme->instrument_col[2]*color_div;
-                                            }
-                                            str_data[k++]='{';str_data[k++]='#';
-                                            str_data[k++]=dec2hex[(colR>>4)&0xF];str_data[k++]=dec2hex[colR&0xF];
-                                            str_data[k++]=dec2hex[(colG>>4)&0xF];str_data[k++]=dec2hex[colG&0xF];
-                                            str_data[k++]=dec2hex[(colB>>4)&0xF];str_data[k++]=dec2hex[colB&0xF];
-                                            str_data[k++]='}';
-                                            
-                                            if (cinst) {
-                                                str_data[k++]=dec2hex[(cinst>>4)&0xF];
-                                                str_data[k++]=dec2hex[cinst&0xF];
-                                            } else {
-                                                str_data[k++]=ASCII_MIDDOT[0];str_data[k++]=ASCII_MIDDOT[1];
-                                                str_data[k++]=ASCII_MIDDOT[0];str_data[k++]=ASCII_MIDDOT[1];
-                                            }
-                                            
-                                            if (highlight) {
-                                                colR=modpat_curTheme->volume_colH[0]*color_div;
-                                                colG=modpat_curTheme->volume_colH[1]*color_div;
-                                                colB=modpat_curTheme->volume_colH[2]*color_div;
-                                            } else {
-                                                colR=modpat_curTheme->volume_col[0]*color_div;
-                                                colG=modpat_curTheme->volume_col[1]*color_div;
-                                                colB=modpat_curTheme->volume_col[2]*color_div;
-                                            }
-                                            str_data[k++]='{';str_data[k++]='#';
-                                            str_data[k++]=dec2hex[(colR>>4)&0xF];str_data[k++]=dec2hex[colR&0xF];
-                                            str_data[k++]=dec2hex[(colG>>4)&0xF];str_data[k++]=dec2hex[colG&0xF];
-                                            str_data[k++]=dec2hex[(colB>>4)&0xF];str_data[k++]=dec2hex[colB&0xF];
-                                            str_data[k++]='}';
-                                            
-                                            if (cvol) {
-                                                str_data[k++]=dec2hex[(cvol>>4)&0xF];
-                                                str_data[k++]=dec2hex[cvol&0xF];
-                                            } else {
-                                                str_data[k++]=ASCII_MIDDOT[0];str_data[k++]=ASCII_MIDDOT[1];
-                                                str_data[k++]=ASCII_MIDDOT[0];str_data[k++]=ASCII_MIDDOT[1];
-                                            }
-                                            
-                                            if (highlight) {
-                                                colR=modpat_curTheme->effect_colH[0]*color_div;
-                                                colG=modpat_curTheme->effect_colH[1]*color_div;
-                                                colB=modpat_curTheme->effect_colH[2]*color_div;
-                                            } else {
-                                                colR=modpat_curTheme->effect_col[0]*color_div;
-                                                colG=modpat_curTheme->effect_col[1]*color_div;
-                                                colB=modpat_curTheme->effect_col[2]*color_div;
-                                            }
-                                            str_data[k++]='{';str_data[k++]='#';
-                                            str_data[k++]=dec2hex[(colR>>4)&0xF];str_data[k++]=dec2hex[colR&0xF];
-                                            str_data[k++]=dec2hex[(colG>>4)&0xF];str_data[k++]=dec2hex[colG&0xF];
-                                            str_data[k++]=dec2hex[(colB>>4)&0xF];str_data[k++]=dec2hex[colB&0xF];
-                                            str_data[k++]='}';
-                                            
-                                            if (ceff) {
-                                                str_data[k++]='A'+ceff;
-                                            } else {
-                                                str_data[k++]=ASCII_MIDDOT[0];str_data[k++]=ASCII_MIDDOT[1];
-                                            }
-                                            
-                                            if (highlight) {
-                                                colR=modpat_curTheme->param_colH[0]*color_div;
-                                                colG=modpat_curTheme->param_colH[1]*color_div;
-                                                colB=modpat_curTheme->param_colH[2]*color_div;
-                                            } else {
-                                                colR=modpat_curTheme->param_col[0]*color_div;
-                                                colG=modpat_curTheme->param_col[1]*color_div;
-                                                colB=modpat_curTheme->param_col[2]*color_div;
-                                            }
-                                            str_data[k++]='{';str_data[k++]='#';
-                                            str_data[k++]=dec2hex[(colR>>4)&0xF];str_data[k++]=dec2hex[colR&0xF];
-                                            str_data[k++]=dec2hex[(colG>>4)&0xF];str_data[k++]=dec2hex[colG&0xF];
-                                            str_data[k++]=dec2hex[(colB>>4)&0xF];str_data[k++]=dec2hex[colB&0xF];
-                                            str_data[k++]='}';
-                                            
-                                            if (cparam) {
-                                                str_data[k++]=dec2hex[(cparam>>4)&0xF];
-                                                str_data[k++]=dec2hex[cparam&0xF];
-                                            } else {
-                                                str_data[k++]=ASCII_MIDDOT[0];str_data[k++]=ASCII_MIDDOT[1];
-                                                str_data[k++]=ASCII_MIDDOT[0];str_data[k++]=ASCII_MIDDOT[1];
-                                            }
-                                            str_data[k++]=' ';
-                                            idx++;
-                                        }
-                                        break;
-                                    case 1: //note + instru
-                                        for (j=0;j<endChan;j++)  {
-                                            cnote=readNotes[idx].Note;
-                                            cinst=readNotes[idx].Instrument;
-                                            
-                                            if (highlight) {
-                                                colR=modpat_curTheme->note_colH[0]*color_div;
-                                                colG=modpat_curTheme->note_colH[1]*color_div;
-                                                colB=modpat_curTheme->note_colH[2]*color_div;
-                                            } else {
-                                                colR=modpat_curTheme->note_col[0]*color_div;
-                                                colG=modpat_curTheme->note_col[1]*color_div;
-                                                colB=modpat_curTheme->note_col[2]*color_div;
-                                            }
-                                            str_data[k++]='{';str_data[k++]='#';
-                                            str_data[k++]=dec2hex[(colR>>4)&0xF];str_data[k++]=dec2hex[colR&0xF];
-                                            str_data[k++]=dec2hex[(colG>>4)&0xF];str_data[k++]=dec2hex[colG&0xF];
-                                            str_data[k++]=dec2hex[(colB>>4)&0xF];str_data[k++]=dec2hex[colB&0xF];
-                                            str_data[k++]='}';
-                                            
-                                            if (cnote) {
-                                                str_data[k++]=note2charA[(cnote-13)%12];
-                                                str_data[k++]=note2charB[(cnote-13)%12];
-                                                str_data[k++]=(cnote-13)/12+'0';
-                                            } else {
-                                                str_data[k++]=ASCII_MIDDOT[0];str_data[k++]=ASCII_MIDDOT[1];
-                                                str_data[k++]=ASCII_MIDDOT[0];str_data[k++]=ASCII_MIDDOT[1];
-                                                str_data[k++]=ASCII_MIDDOT[0];str_data[k++]=ASCII_MIDDOT[1];
-                                            }
-                                            
-                                            if (highlight) {
-                                                colR=modpat_curTheme->instrument_colH[0]*color_div;
-                                                colG=modpat_curTheme->instrument_colH[1]*color_div;
-                                                colB=modpat_curTheme->instrument_colH[2]*color_div;
-                                            } else {
-                                                colR=modpat_curTheme->instrument_col[0]*color_div;
-                                                colG=modpat_curTheme->instrument_col[1]*color_div;
-                                                colB=modpat_curTheme->instrument_col[2]*color_div;
-                                            }
-                                            str_data[k++]='{';str_data[k++]='#';
-                                            str_data[k++]=dec2hex[(colR>>4)&0xF];str_data[k++]=dec2hex[colR&0xF];
-                                            str_data[k++]=dec2hex[(colG>>4)&0xF];str_data[k++]=dec2hex[colG&0xF];
-                                            str_data[k++]=dec2hex[(colB>>4)&0xF];str_data[k++]=dec2hex[colB&0xF];
-                                            str_data[k++]='}';
-                                            
-                                            if (cinst) {
-                                                str_data[k++]=dec2hex[(cinst>>4)&0xF];
-                                                str_data[k++]=dec2hex[cinst&0xF];
-                                            } else {
-                                                str_data[k++]=ASCII_MIDDOT[0];str_data[k++]=ASCII_MIDDOT[1];
-                                                str_data[k++]=ASCII_MIDDOT[0];str_data[k++]=ASCII_MIDDOT[1];
-                                            }
-                                            str_data[k++]=' ';
-                                            idx++;
-                                        }
-                                        break;
-                                    case 2: //only note
-                                        for (j=0;j<endChan;j++)  {
-                                            cnote=readNotes[idx].Note;
-                                            
-                                            if (highlight) {
-                                                colR=modpat_curTheme->note_colH[0]*color_div;
-                                                colG=modpat_curTheme->note_colH[1]*color_div;
-                                                colB=modpat_curTheme->note_colH[2]*color_div;
-                                            } else {
-                                                colR=modpat_curTheme->note_col[0]*color_div;
-                                                colG=modpat_curTheme->note_col[1]*color_div;
-                                                colB=modpat_curTheme->note_col[2]*color_div;
-                                            }
-                                            str_data[k++]='{';str_data[k++]='#';
-                                            str_data[k++]=dec2hex[(colR>>4)&0xF];str_data[k++]=dec2hex[colR&0xF];
-                                            str_data[k++]=dec2hex[(colG>>4)&0xF];str_data[k++]=dec2hex[colG&0xF];
-                                            str_data[k++]=dec2hex[(colB>>4)&0xF];str_data[k++]=dec2hex[colB&0xF];
-                                            str_data[k++]='}';
-                                            
-                                            if (cnote) {
-                                                str_data[k++]=note2charA[(cnote-13)%12];
-                                                str_data[k++]=note2charB[(cnote-13)%12];
-                                                str_data[k++]=(cnote-13)/12+'0';
-                                            } else {
-                                                str_data[k++]=ASCII_MIDDOT[0];str_data[k++]=ASCII_MIDDOT[1];
-                                                str_data[k++]=ASCII_MIDDOT[0];str_data[k++]=ASCII_MIDDOT[1];
-                                                str_data[k++]=ASCII_MIDDOT[0];str_data[k++]=ASCII_MIDDOT[1];
-                                            }
-                                            str_data[k++]=' ';
-                                            idx++;
-                                        }
-                                        break;
-                                }
-                                str_data[k]=0;
-                                //mText[l++] = new CGLString(str_data, mFont,mScaleFactor);
-                                
-                            } else {
-                                //mText[l++] = NULL;
-                                str_data[k]=0;
-                            }
-                            
-                            cursorPos.y=(i-startRow+1)*lineHeight+(4.0+font_ofsY)*glScaleFactor;
-                            cursorPos.x=font_ofsX*glScaleFactor;
-                            
-                            if ((i==currentRow)&&(modpat_curTheme->theme_flag&MDZ_THEMEFLAG_HighlightZoom)) {
-                                ImGui::SetCursorPos(cursorPos);
-                                ImGui::TextAttrZoom(1.4f,"%s",str_data);
-                            } else {
-                                ImGui::SetCursorPos(cursorPos);
-                                ImGui::TextAttr("%s",str_data);
-                            }
-                            
-                            
-                            
-                        }
-                        ImGui::SetScrollX(-movePxMOD*glScaleFactor);
-                        ImGui::End();
-                        
-                        //3rd win: draw header
-                        ImGui::SetNextWindowPos(ImVec2(startx,0));
-                        ImGui::SetNextWindowSize(ImVec2(ww*glScaleFactor-startx,lineHeight));
-                        ImGui::Begin("ModPatternWin3",0,ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|
-                                     ImGuiWindowFlags_NoScrollbar|
-                                     ImGuiWindowFlags_NoFocusOnAppearing);
-                        
-                        memset(str_data,32,11*mplayer.numChannels);//visibleChan);
-                        str_data[11*mplayer.numChannels]=0; //11 chars max / channel
-                        float xofs=0;
-                        int str_size=1;
-                        
-                        switch (display_note_mode) {
-                            case 0:
-                                for (j=0;j<endChan;j++) {
-                                    str_data[(j-0)*11+4]='0'+(j+1)/10;
-                                    str_data[(j-0)*11+5]='0'+(j+1)%10;
-                                }
-                                //str_data[(endChan-1-0)*11+9]=0;
-                                str_data[11*endChan]=0;
-                                str_size=11*endChan;
-                                xofs=0;
-                                break;
-                            case 1:
-                                for (j=0;j<endChan;j++) {
-                                    str_data[(j-0)*6+2]='0'+(j+1)/10;
-                                    str_data[(j-0)*6+3]='0'+(j+1)%10;
-                                }
-                                str_data[6*endChan]=0;
-                                str_size=6*endChan;
-                                xofs=0.5;
-                                break;
-                            case 2:
-                                for (j=0;j<endChan;j++) {
-                                    str_data[(j-0)*4+1]='0'+(j+1)/10;
-                                    str_data[(j-0)*4+2]='0'+(j+1)%10;
-                                }
-                                str_data[4*endChan]=0;
-                                str_size=4*endChan;
-                                xofs=0.5;
-                                break;
-                        }
-                        header_w=ImGui::CalcTextSize(str_data).x;
-                        fontWidth=round(header_w/str_size);
-                        xofs*=fontWidth;
-                        
-                        if (note_avail) modPatternLineSize=header_w;
-                        
-                        ImGui::SetCursorPos(ImVec2(-xofs+font_ofsX*glScaleFactor,(4.0+font_ofsY/2.0)*glScaleFactor));
-                        
-                        colR=modpat_curTheme->header_col[0];
-                        colG=modpat_curTheme->header_col[1];
-                        colB=modpat_curTheme->header_col[2];
-                        
-                        ImGui::TextAttr("{#%02X%02X%02X}%s",colR,colG,colB,str_data);
-                        
-                        ImGui::SetScrollX(-movePxMOD*glScaleFactor);
-                        ImGui::End();
-                    }
+                //-------------------------------------
+                // Piano Roll
+                //-------------------------------------
+                if ( (fxSlot[4]==slot) && (settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value)) {
+                    [self doFxPianoRoll:ImVec4(x,y,w,h) winSize:ImVec2(ww,hh)];
                 }
-                    ImGui::PopFont();
-                    ImGui::PopStyleColor();
-                    ImGui::PopStyleColor();
+                
+                //-------------------------------------
+                // Midi patterns
+                //-------------------------------------
+                if ( (fxSlot[5]==slot) && (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value)) {
+                    [self doFxMidiPattern:ImVec4(x,y,w,h) winSize:ImVec2(ww,hh)];
+                }
+                
+                //-------------------------------------
+                // Mod patterns
+                //-------------------------------------
+                if ( (fxSlot[6]==slot) && (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value && mplayer.mPatternDataAvail)) {
+                    [self doFxModPatterns:ImVec4(x,y,w,h) winSize:ImVec2(ww,hh)];
+                }
+                
+                //-------------------------------------
+                // Oscillo
+                //-------------------------------------
+                if ( (fxSlot[7]==slot) && (settings[OSCILLO_FXMODE].detail.mdz_switch.switch_value)) {
+                    [self doFxOscillo:ImVec4(x,y,w,h) winSize:ImVec2(ww,hh)];
+                }
             }
         }
     }
-    
-    
-    /*else {
-        if (sysMonitorIsActive) {
-            [sysMonitor stopMonitoring];
-            sysMonitorIsActive=false;
-        }
-    }*/
     
     //-------------------------------------
     // Song info
@@ -9039,7 +9235,7 @@ void doFramePM(float ww,float hh) {
         if (_pmIsInitialized && _pm) {
             //float x,y,w,h;
             
-//            MDZILog("safe %f %f",safe_top,safe_bottom);
+            //            MDZILog("safe %f %f",safe_top,safe_bottom);
             
             if (_pmPresetNewLoaded) {
                 _pmPresetUpdateDisplayInfo=true;
@@ -9072,7 +9268,7 @@ void doFramePM(float ww,float hh) {
             if (pmPresetStr&&_pm_display_name_countdown) {
                 float alpha_val=(float)(_pm_display_name_countdown*4)/255.0;
                 if (alpha_val>0.8) alpha_val=0.8;
-
+                
                 if (font_menu) ImGui::PushFont(font_menu,FONTSIZE_PM_PRESET_INFO_LINE*glScaleFactor);
                 else ImGui::PushFont(nullptr);
                 
@@ -9125,88 +9321,6 @@ void doFramePM(float ww,float hh) {
         }
     }
     
-    //-------------------------------------
-    // Oscillo
-    //-------------------------------------
-    if ([mplayer isPlaying]){
-        short int **snd_buffer;
-        int cur_pos;
-        snd_buffer=[mplayer buffer_ana_cpy];
-        cur_pos=[mplayer getCurrentPlayedBufferIdx];
-        
-        switch (settings[OSCILLO_FXMODE].detail.mdz_switch.switch_value) {
-            case 1:
-                if ([mplayer m_voicesDataAvail]) {
-                    if (settings[OSCILLO_ShowLabel].detail.mdz_boolswitch.switch_value) {
-                        memset(voicesName,0,sizeof(voicesName));
-                        for (int i=0;i<[mplayer getNumChannels];i++) {
-                            snprintf(voicesName+i*32,31,"%s",[[mplayer getVoicesName:i onlyMidi:false] UTF8String]);
-                        }
-                        RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy,cur_pos,([mplayer getNumChannels]<SOUND_MAXVOICES_BUFFER_FX?[mplayer getNumChannels]:SOUND_MAXVOICES_BUFFER_FX),ww,hh,1,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,
-                                                         0/*settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value*/,
-                                                         (char*)voicesName,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value);
-                    } else {
-                        RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy,cur_pos,([mplayer getNumChannels]<SOUND_MAXVOICES_BUFFER_FX?[mplayer getNumChannels]:SOUND_MAXVOICES_BUFFER_FX),ww,hh,1,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,
-                                                         0/*settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value*/,
-                                                         NULL,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value);
-                    }
-                } else {
-                    if (settings[OSCILLO_ShowLabel].detail.mdz_boolswitch.switch_value) {
-                        memset(voicesName,0,sizeof(voicesName));
-                        snprintf(voicesName+0*32,31,"Left");
-                        snprintf(voicesName+1*32,31,"Right");
-                        RenderUtils::DrawOscilloMultiple((signed char **)snd_buffer,cur_pos,2,ww,hh,1,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,
-                                                         0,
-                                                         (char*)voicesName,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value,1);
-                    } else {
-                        RenderUtils::DrawOscilloMultiple((signed char **)snd_buffer,cur_pos,2,ww,hh,1,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,
-                                                         0,
-                                                         NULL,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value,1);
-                    }
-                    
-                    
-                }
-                break;
-            case 2:
-                if ([mplayer m_voicesDataAvail]) {
-                    char voicesName[SOUND_MAXVOICES_BUFFER_FX*32];
-                    
-                    if (settings[OSCILLO_ShowLabel].detail.mdz_boolswitch.switch_value) {
-                        memset(voicesName,0,sizeof(voicesName));
-                        for (int i=0;i<[mplayer getNumChannels];i++) {
-                            snprintf(voicesName+i*32,31,"%s",[[mplayer getVoicesName:i onlyMidi:false] UTF8String]);
-                        }
-                        
-                        RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy,cur_pos,([mplayer getNumChannels]<SOUND_MAXVOICES_BUFFER_FX?[mplayer getNumChannels]:SOUND_MAXVOICES_BUFFER_FX),ww,hh,2,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,
-                                                         0/*settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value*/,
-                                                         (char*)voicesName,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value);
-                    } else {
-                        RenderUtils::DrawOscilloMultiple(m_voice_buff_ana_cpy,cur_pos,([mplayer getNumChannels]<SOUND_MAXVOICES_BUFFER_FX?[mplayer getNumChannels]:SOUND_MAXVOICES_BUFFER_FX),ww,hh,2,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,
-                                                         0/*settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value*/,
-                                                         NULL,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value);
-                    }
-                } else {
-                    RenderUtils::DrawOscilloMultiple((signed char **)snd_buffer,cur_pos,2,ww,hh,1,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,
-                                                     0/*settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value*/,
-                                                     NULL,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value,1);
-                }
-                break;
-            case 3:
-                RenderUtils::DrawOscilloMultiple((signed char **)snd_buffer,cur_pos,2,ww,hh,1,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,
-                                                 0/*settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value*/,
-                                                 NULL,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value,1);
-                break;
-            case 4:
-                RenderUtils::DrawOscilloMultiple((signed char **)snd_buffer,cur_pos,2,ww,hh,2,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,
-                                                 0/*settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value*/,
-                                                 NULL,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value,1);
-                break;
-        }
-    }
-    //-------------------------------------
-    // 3D Landscape, 3D Spectrum, 3D Piano
-    //-------------------------------------
-        
     if (pmenu_show) {
         if (pmenu_fade<255) {
             pmenu_fade+=32*frameToUpdate;//48;
@@ -9261,10 +9375,10 @@ void doFramePM(float ww,float hh) {
     [self showGUICorners:ImVec2(ww,hh) frameToUpdate:frameToUpdate];
     [self showInfoData:ImVec2(ww,hh) frameToUpdate:frameToUpdate];
     
-//    if (_mdzPM_playlist.lastFailed) {
-//        [self newGuiMessage:[NSString stringWithFormat:@"%C",static_cast<unichar>(FA_EXCLAMATION_TRIANGLE)]];
-//        //_mdzPM_playlist.lastFailed=false;
-//    }
+    //    if (_mdzPM_playlist.lastFailed) {
+    //        [self newGuiMessage:[NSString stringWithFormat:@"%C",static_cast<unichar>(FA_EXCLAMATION_TRIANGLE)]];
+    //        //_mdzPM_playlist.lastFailed=false;
+    //    }
     [self showGuiMessage:ImVec2(ww,hh) frameToUpdate:frameToUpdate];
     
     //-----------------------------------
@@ -9328,7 +9442,7 @@ void doFramePM(float ww,float hh) {
                 break;
         }
         
-//        settingsVC.view.frame=self.view.frame;
+        //        settingsVC.view.frame=self.view.frame;
         SettingsGenViewController *childController=settingsVC;
         if ([childController respondsToSelector:@selector(setEdgesForExtendedLayout:)]) {
             childController.edgesForExtendedLayout = UIRectEdgeNone;

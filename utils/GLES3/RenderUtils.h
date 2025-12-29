@@ -184,31 +184,31 @@ int DrawBox(LineVertexF *ptsB,int index,float x,float y,float width,float height
 int DrawKeyW(LineVertexF *ptsB,int index,float x,float y,float width,float height,float border_size,int crt,int cgt,int cbt,int ca,int subnote,int note_idx,int channel,int ww,int hh);
 int DrawKeyB(LineVertexF *ptsB,int index,float x,float y,float width,float height,float border_size,int crt,int cgt,int cbt,int ca,int subnote,int note_idx,int channel,int ww,int hh);
 
-void DrawChanLayout(uint ww,uint hh,int display_note_mode,int chanNb,float pixOfs,float char_width,float char_height,float mScaleFactor);
-void DrawChanLayoutAfter(uint _ww,uint _hh,int display_note_mode,int *volumeData,int chanNb,float pixOfs,float char_width,float char_height,float char_yOfs,int rowToHighlight,float mScaleFactor);
+void DrawChanLayout(float ox,float oy,uint ww,uint hh,float winWidth,float winHeight,int display_note_mode,int chanNb,float pixOfs,float char_width,float char_height,float mScaleFactor);
+void DrawChanLayoutAfter(float ox,float oy,uint _ww,uint _hh,float winWidth,float winHeight,int display_note_mode,int *volumeData,int chanNb,float pixOfs,float char_width,float char_height,float char_yOfs,int rowToHighlight,float mScaleFactor);
 
 void ReduceToUnit(GLfloat vector[3]);
 void calcNormal(GLfloat v[3][3], GLfloat out[3]);
 
-void DrawOscilloMultiple(signed char **snd_data,int snd_data_idx,int num_voices,uint ww,uint hh,uint color_mode,float mScaleFactor,bool isfullscreen,bool bloom,char *voices_label=NULL,bool draw_frame=true,bool flag_direct_stereo=false);
+void DrawOscilloMultiple(float ox,float oy,float ww,float hh,float winWidth,float winHeight,signed char **snd_data,int snd_data_idx,int num_voices,uint color_mode,float mScaleFactor,bool isfullscreen,bool bloom,char *voices_label=NULL,bool draw_frame=true,bool flag_direct_stereo=false);
 
-void DrawSpectrum3D(short int *spectrumDataL,short int *spectrumDataR,uint ww,uint hh,float angle,int mode,int nb_spectrum_bands,int bloom,float mScaleFactor);
-void DrawSpectrumLandscape3D(short int *spectrumDataL,short int *spectrumDataR,uint ww,uint hh,float angle,int mode,int nb_spectrum_bands,int bloom,float mScaleFactor);
-void DrawSpectrum3DMorph(short int *spectrumDataL,short int *spectrumDataR,uint ww,uint hh,float angle,int mode,int nb_spectrum_bands,int bloom,float mScaleFactor);
+void DrawSpectrum3D(float ox,float oy,uint ww,uint hh,short int *spectrumDataL,short int *spectrumDataR,float angle,int mode,int nb_spectrum_bands,int bloom,float mScaleFactor);
+void DrawSpectrumLandscape3D(float ox,float oy,uint ww,uint hh,short int *spectrumDataL,short int *spectrumDataR,float angle,int mode,int nb_spectrum_bands,int bloom,float mScaleFactor);
+void DrawSpectrum3DMorph(float ox,float oy,uint ww,uint hh,short int *spectrumDataL,short int *spectrumDataR,float angle,int mode,int nb_spectrum_bands,int bloom,float mScaleFactor);
 
-void DrawSpectrum3DBar(short int *spectrumDataL,short int *spectrumDataR,uint ww,uint hh,float angle,int mode,int nb_spectrum_bands,int mirror,float mScaleFactor,int bloom,float rotx,float roty,float posx,float posy,float posz);
-void DrawSpectrum2D(short int *spectrumDataL,short int *spectrumDataR,uint ww,uint hh,int mode,int nb_spectrum_bands,float mScaleFactor,bool bloom);
+void DrawSpectrum3DBar(float ox,float oy,uint ww,uint hh,short int *spectrumDataL,short int *spectrumDataR,float angle,int mode,int nb_spectrum_bands,int mirror,float mScaleFactor,int bloom,float rotx,float roty,float posx,float posy,float posz);
+void DrawSpectrum2D(float ox,float oy,uint ww,uint hh,short int *spectrumDataL,short int *spectrumDataR,int mode,int nb_spectrum_bands,float mScaleFactor,bool bloom);
 
 void UpdateDataMidiFX(unsigned int *data,bool clearBuffer,bool paused);
 void UpdateDataPiano(unsigned int *data,bool clearbuffer,bool paused);
 
 int DrawBox(LineVertexF *ptsB,int index,float x,float y,float width,float height,float border_size,int crt,int cgt,int cbt,int ca,int subnote,int ww,int hh);
 
-void DrawMidiFX(uint ww,uint hh,int horiz_vert,float note_display_range, float note_display_offset,int fx_len,int color_mode,float mScaleFactor);
-void DrawPianoRollFX(uint ww,uint hh,int horiz_vert,float note_display_range, float note_display_offset,int fx_len,int color_mode,float mScaleFactor,char *voices_label);
-void DrawPianoRollSynthesiaFX(uint ww,uint hh,int horiz_vert,float note_display_range, float note_display_offset,int fx_len,int color_mode,float mScaleFactor,char *voices_label);
-void DrawPiano3D(uint ww,uint hh,int automove,float posx,float posy,float posz,float rotx,float roty,int color_mode);
-void DrawPiano3DWithNotesWall(uint ww,uint hh,int automove,float posx,float posy,float posz,float rotx,float roty,int color_mode, int fxquality);
+void DrawMidiFX(float ox,float oy,float ww,float hh,float winWidth,float winHeight,int horiz_vert,float note_display_range, float note_display_offset,int fx_len,int color_mode,float mScaleFactor);
+void DrawPianoRollFX(float ox,float oy,uint ww,uint hh,int horiz_vert,float note_display_range, float note_display_offset,int fx_len,int color_mode,float mScaleFactor,char *voices_label);
+void DrawPianoRollSynthesiaFX(float ox,float oy,uint ww,uint hh,int horiz_vert,float note_display_range, float note_display_offset,int fx_len,int color_mode,float mScaleFactor,char *voices_label);
+void DrawPiano3D(float ox,float oy,uint ww,uint hh,int automove,float posx,float posy,float posz,float rotx,float roty,int color_mode);
+void DrawPiano3DWithNotesWall(float ox,float oy,uint ww,uint hh,int automove,float posx,float posy,float posz,float rotx,float roty,int color_mode, int fxquality);
 
 void DrawTexture(uint ww,uint hh,GLuint textureIdx,float alpha,bool reversed=false);
 void DrawTextureBlur(uint ww,uint hh,GLuint textureIdx,int hori,float min_brightness,float blurDiv);
@@ -238,7 +238,7 @@ int buildQuad(LineVertexF *pts,
 
 void releaseProgram(int prgId);
 
-void DarkenScreen(int x,int y,int width,int height,int a, int r=0,int g=0,int b=0);
+void DarkenScreen(int ox,int oy,int width,int height,float winWidth,float winHeight,int a, int r=0,int g=0,int b=0);
 
 }
 

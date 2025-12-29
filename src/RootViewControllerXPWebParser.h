@@ -96,6 +96,8 @@ extern volatile t_settings settings[MAX_SETTINGS];
     int search_dbWEB;
     int search_dbWEB_nb_entries,search_dbWEB_hasFiles;
     
+    NSString *htmlData;
+    
     NSString *rootDir;
     int mSearch;
     NSString *mSearchText;
@@ -140,6 +142,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
 @property (nonatomic, strong) id mdzChangeObserverToken;
 @property (nonatomic, assign) bool entries_noMoreToLoad;
 @property (nonatomic, assign) int arr_current_fetch_position,fillKeysInProgress,shouldReload;
+@property (nonatomic, strong) NSString *htmlData;
 
 -(IBAction)goPlayer;
 

@@ -538,8 +538,6 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     
     //tableView.refreshControl=refreshControl;
     
-    noCellAction=false;
-    
     END_PROFILE
 }
 
@@ -765,8 +763,6 @@ static int qsort_CompareArcEntries(const void *entryA, const void *entryB) {
             }
         }
     }
-    
-    if (browseType>0) noCellAction=true;
     
     // in case of search, do not ask DB again => duplicate already found entries & filter them
     search_local=0;
@@ -1196,7 +1192,7 @@ static int qsort_CompareArcEntries(const void *entryA, const void *entryB) {
             if ([extension caseInsensitiveCompare:@"rsn"]==NSOrderedSame) {
                 is_rsn=1;
                 
-                dispatch_sync(dispatch_get_main_queue(), ^(void){
+                dispatch_async(dispatch_get_main_queue(), ^(void){
                     //Run UI Updates
                     [self.tableView setUserInteractionEnabled:false];
                     [self.navigationItem setHidesBackButton:YES animated:YES];
@@ -1822,7 +1818,7 @@ static int shouldRestart=1;
         
         dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void){
             //Background Thread
-            dispatch_sync(dispatch_get_main_queue(), ^(void){
+            dispatch_async(dispatch_get_main_queue(), ^(void){
                 //Run UI Updates
                 [detailViewController play_restart];
             });
@@ -2000,7 +1996,7 @@ As a consequence, some entries might disappear from existing playlist.\n\
  */
 
 
-- (UITableViewCell *)tableView:(UITableView *)tabView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+- (UITableViewCell *) tableView:(UITableView *)tabView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     static NSString *CellIdentifier = @"Cell";
     static NSString *CellIdentifierHeader = @"CellH";
     NSString *cellValue;
@@ -2029,15 +2025,9 @@ As a consequence, some entries might disappear from existing playlist.\n\
     if (indexPath.section==0) cell = (UITableViewCell *)[tabView dequeueReusableCellWithIdentifier:CellIdentifierHeader];
     else cell = (UITableViewCell *)[tabView dequeueReusableCellWithIdentifier:CellIdentifier];
     
-    if ((cell == nil)) {
+    if (cell == nil) {
         if (indexPath.section>1) {
             cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:    CellIdentifier];
-//            cell.delegate = self;
-            
-//            if (noCellAction==false) {
-//                [cell addLeftButtonWithText:NSLocalizedString(@"Rename",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_RENAME_COL_R green:MDZ_RENAME_COL_G blue:MDZ_RENAME_COL_B alpha:1.0]];
-//                [cell addLeftButtonWithText:NSLocalizedString(@"Cut",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_CUT_COL_R green:MDZ_CUT_COL_G blue:MDZ_CUT_COL_B alpha:1.0]];
-//            }
             
             if (self.tableView.refreshControl.isRefreshing==false) {
                 
@@ -2046,23 +2036,9 @@ As a consequence, some entries might disappear from existing playlist.\n\
                     if ([ModizFileHelper isABrowsableArchive:[ModizFileHelper getFullPathForFilePath:cur_local_entries[indexPath.row].fullpath]]) cur_local_entries[indexPath.row].type=2;
                     else cur_local_entries[indexPath.row].type=1;
                 }
-//                if (noCellAction==false) {
-//                    if (cur_local_entries[indexPath.row].type==2) {
-//                        [cell addLeftButtonWithText:NSLocalizedString(@"Extract",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_EXTRACT_COL_R green:MDZ_EXTRACT_COL_G blue:MDZ_EXTRACT_COL_B alpha:1.0]];
-//                    }
-//                }
             }
-//            if (noCellAction==false) {
-//                [cell addRightButtonWithText:NSLocalizedString(@"Delete",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor redColor]];
-//            }
         } else {
             cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:    CellIdentifierHeader];
-//            cell.delegate = self;
-//            if (noCellAction==false) {
-//                [cell addLeftButtonWithText:NSLocalizedString(@"Paste",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_PASTE_COL_R green:MDZ_PASTE_COL_G blue:MDZ_PASTE_COL_B alpha:1]];
-//                [cell addRightButtonWithText:NSLocalizedString(@"New folder",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_NEWFOLDER_COL_R green:MDZ_NEWFOLDER_COL_G blue:MDZ_NEWFOLDER_COL_B alpha:1]];
-//            }
-            
         }
         
         cell.frame=CGRectMake(0,0,tabView.frame.size.width,40);
@@ -2154,14 +2130,7 @@ As a consequence, some entries might disappear from existing playlist.\n\
         bottomLabel.lineBreakMode=(settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value?
                                 ((settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value==2) ? NSLineBreakByTruncatingTail:NSLineBreakByTruncatingMiddle):NSLineBreakByTruncatingHead);
         
-//        [cell removeAllLeftButtons];
-//        [cell removeAllRightButtons];
-        
         if (indexPath.section>1) {
-//            if (noCellAction==false) {
-//                [cell addLeftButtonWithText:NSLocalizedString(@"Rename",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_RENAME_COL_R green:MDZ_RENAME_COL_G blue:MDZ_RENAME_COL_B alpha:1.0]];
-//                [cell addLeftButtonWithText:NSLocalizedString(@"Cut",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_CUT_COL_R green:MDZ_CUT_COL_G blue:MDZ_CUT_COL_B alpha:1.0]];
-//            }
             
             if (self.tableView.refreshControl.isRefreshing==false) {
                 if ((cur_local_entries[indexPath.row].type&16)&&((cur_local_entries[indexPath.row].type&15)==2)) { //need to confirm if true archive
@@ -2169,20 +2138,8 @@ As a consequence, some entries might disappear from existing playlist.\n\
                     else cur_local_entries[indexPath.row].type=1;
                 }
                 
-//                if (noCellAction==false) {
-//                    if (cur_local_entries[indexPath.row].type==2) {
-//                        [cell addLeftButtonWithText:NSLocalizedString(@"Extract",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_EXTRACT_COL_R green:MDZ_EXTRACT_COL_G blue:MDZ_EXTRACT_COL_B alpha:1.0]];
-//                    }
-//                    if (noCellAction==false) {
-//                        [cell addRightButtonWithText:NSLocalizedString(@"Delete",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor redColor]];
-//                    }
-//                }
             }
         } else {
-//            if (noCellAction==false) {
-//                [cell addLeftButtonWithText:NSLocalizedString(@"Paste",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_PASTE_COL_R green:MDZ_PASTE_COL_G blue:MDZ_PASTE_COL_B alpha:1.0]];
-//                [cell addRightButtonWithText:NSLocalizedString(@"New folder",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_NEWFOLDER_COL_R green:MDZ_NEWFOLDER_COL_G blue:MDZ_NEWFOLDER_COL_B alpha:1]];
-//            }
         }
     }
     actionView.hidden=TRUE;
@@ -3615,7 +3572,7 @@ leadingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
     }
 }
 
--(void) updateLoadingInfos: (NSTimer *) theTimer {
+- (void) updateLoadingInfos:(NSTimer *) theTimer {
     [waitingViewPlayer.progressView setProgress:detailViewController.waitingView.progressView.progress animated:YES];
     
     if ([detailViewController.mplayer isPlaying]&& (miniplayerVC==nil) ) [self showMiniPlayer];
