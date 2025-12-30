@@ -1,5 +1,5 @@
 //
-//  AnimatedLaunchVC.m
+//  AnimatedLaunchVC.mm
 //  modizer
 //
 //  Created by Yohann Magnien David on 27/02/2024.

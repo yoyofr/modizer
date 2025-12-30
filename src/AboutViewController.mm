@@ -1,5 +1,5 @@
     //
-//  AboutViewController.m
+//  AboutViewController.mm
 //  modizer
 //
 //  Created by Yohann Magnien on 16/09/10.

@@ -1,5 +1,5 @@
 //
-//  MiniPlayerVC.m
+//  MiniPlayerVC.mm
 //  modizer
 //
 //  Created by Yohann Magnien on 12/04/2021.

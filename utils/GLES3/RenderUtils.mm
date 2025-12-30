@@ -65,9 +65,8 @@ unsigned int *data_midifx_col=data_midifx_pal1;
 #define SPECTR_XSIZE 38.0f
 static float oldSpectrumDataL[SPECTRUM_DEPTH*4][SPECTRUM_BANDS];
 static float oldSpectrumDataR[SPECTRUM_DEPTH*4][SPECTRUM_BANDS];
-static GLfloat vertices[4][3];  /* Holds Float Info For 4 Sets Of Vertices */
+
 static GLfloat normals[4][3];  /* Holds Float Info For 4 Sets Of Vertices */
-static GLfloat vertColor[4][4];  /* Holds Float Info For 4 Sets Of Vertices */
 
 extern int MIDIFX_OFS;
 
@@ -496,7 +495,7 @@ void RenderUtils::DrawTexture(uint ww,uint hh,GLuint textureIdx,float alpha,bool
     glRestoreState();
 }
 
-void RenderUtils::DarkenScreen(int x,int y,int width,int height,float winWidth,float winHeight,int a, int r,int g,int b) {
+void RenderUtils::DarkenScreen(float ox,float oy,float ww,float hh,int a, int r,int g,int b) {
     if (!renderIsInit) return;
     
     glUseProgram(userData_simpleRender2D->programObject);
@@ -517,15 +516,15 @@ void RenderUtils::DarkenScreen(int x,int y,int width,int height,float winWidth,f
     int count=0;
     
     count+=RenderUtils::buildQuad(&(pts[count]),
-                                  x,       y,
-                                  x+width, y,
-                                  x+width, y+height,
-                                  x      , y+height,
+                                  ox,  oy,
+                                  ww, oy,
+                                  ww, hh,
+                                  ox , hh,
                                   r,g,b,a,
                                   r,g,b,a,
                                   r,g,b,a,
                                   r,g,b,a,
-                                  winWidth,winHeight);
+                                  ww,hh);
     
     // Load the vertex data
     glVertexAttribPointer ( positionAttribHandle, 3, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(pts[0].x) );
@@ -537,6 +536,8 @@ void RenderUtils::DarkenScreen(int x,int y,int width,int height,float winWidth,f
     
     // Load the uniforms
     glDrawArrays(GL_TRIANGLES,0,count);
+    
+    
     
     glRestoreState();
 }
@@ -953,7 +954,7 @@ static signed char cur_snd_data[OSCILLO_BUFFER_SIZE*SOUND_MAXVOICES_BUFFER_FX];
 #define absint(a) (a>=0?a:-a)
 
 #define FIXED_POINT_PRECISION 16
-void RenderUtils::DrawOscilloMultiple(float ox,float oy,float ww,float hh,float winWidth,float winHeight,signed char **snd_data,int snd_data_idx,int num_voices,uint color_mode,float mScaleFactor,bool isfullscreen,bool bloom,char *voices_label,bool draw_frame,bool flag_direct_stereo) {
+void RenderUtils::DrawOscilloMultiple(float ox,float oy,float ww,float hh,signed char **snd_data,int snd_data_idx,int num_voices,uint color_mode,float mScaleFactor,bool isfullscreen,bool bloom,char *voices_label,bool draw_frame,bool flag_direct_stereo) {
     SimpleLineVertexF *ptsLines;
     ColorDataF *ptsCol;
     LineVertexF *ptsTriangles;
@@ -1233,7 +1234,7 @@ void RenderUtils::DrawOscilloMultiple(float ox,float oy,float ww,float hh,float 
                 ptsCol[countLines].a=(float)colA/255.0f;
                 
                 ptsLines[countLines++] = SimpleLineVertexF(xpos+i,osp[cur_voices]+ypos,
-                                                         xpos+i+1,sp[cur_voices]+ypos,winWidth,winHeight);
+                                                         xpos+i+1,sp[cur_voices]+ypos,ww,hh);
                 
                 smpl_ofs+=smpl_ofs_incr;//*3/4;
             }
@@ -1303,12 +1304,6 @@ void RenderUtils::DrawOscilloMultiple(float ox,float oy,float ww,float hh,float 
     glUniform1f(widthHandle,line_width);
     
     //ImGui::Text("%.3f x %.3f, %.3f x %.3f",ptsLines[0].Ax,ptsLines[0].Ay,ptsLines[0].Bx,ptsLines[0].By);
-    for (int ii=0;ii<countLines;ii++) {
-        ptsLines[ii].Ax+=2*ox/winWidth;
-        ptsLines[ii].Ay+=2*oy/winHeight;
-        ptsLines[ii].Bx+=2*ox/winWidth;
-        ptsLines[ii].By+=2*oy/winHeight;
-    }
     glDrawArraysInstanced(GL_TRIANGLES,0,6, countLines);
     
     if (draw_frame) {
@@ -1325,40 +1320,34 @@ void RenderUtils::DrawOscilloMultiple(float ox,float oy,float ww,float hh,float 
         //top
         ptsCol[countLines].r=(float)colR/255.0;ptsCol[countLines].g=(float)colG/255.0;ptsCol[countLines].b=(float)colB/255.0;ptsCol[countLines].a=1.0f;
         ptsLines[countLines++] = SimpleLineVertexF(0, hh-1,
-                                                 ww-1,hh-1,winWidth,winHeight);
+                                                 ww-1,hh-1,ww,hh);
         //right
         ptsCol[countLines].r=(float)colR/255.0;ptsCol[countLines].g=(float)colG/255.0;ptsCol[countLines].b=(float)colB/255.0;ptsCol[countLines].a=1.0f;
         ptsLines[countLines++] = SimpleLineVertexF(ww-1, hh-1,
-                                                 ww-1,hh-mulfactor*max_voices_by_row*2,winWidth,winHeight);
+                                                 ww-1,hh-mulfactor*max_voices_by_row*2,ww,hh);
         //bottom
         ptsCol[countLines].r=(float)colR/255.0;ptsCol[countLines].g=(float)colG/255.0;ptsCol[countLines].b=(float)colB/255.0;ptsCol[countLines].a=1.0f;
         ptsLines[countLines++] = SimpleLineVertexF(ww-1,hh-mulfactor*max_voices_by_row*2,
-                                                   0,hh-mulfactor*max_voices_by_row*2,winWidth,winHeight);
+                                                   0,hh-mulfactor*max_voices_by_row*2,ww,hh);
         //left
         ptsCol[countLines].r=(float)colR/255.0;ptsCol[countLines].g=(float)colG/255.0;ptsCol[countLines].b=(float)colB/255.0;ptsCol[countLines].a=1.0f;
         ptsLines[countLines++] = SimpleLineVertexF(0,hh-mulfactor*max_voices_by_row*2,
-                                                   0,hh-1,winWidth,winHeight);
+                                                   0,hh-1,ww,hh);
         for (int r=0;r<columns_nb;r++) {
             int xpos=xofs+r*columns_width;
             int max_voices=num_voices*(r+1)/columns_nb;
             int ypos=hh-mulfactor;
             ptsCol[countLines].r=(float)colR/255.0;ptsCol[countLines].g=(float)colG/255.0;ptsCol[countLines].b=(float)colB/255.0;ptsCol[countLines].a=1.0f;
             ptsLines[countLines++] = SimpleLineVertexF(xpos,hh-1,
-                                                       xpos,hh-mulfactor*max_voices_by_row*2,winWidth,winHeight);
+                                                       xpos,hh-mulfactor*max_voices_by_row*2,ww,hh);
         }
         for (int r=0;r<max_voices_by_row;r++) {
             ptsCol[countLines].r=(float)colR/255.0;ptsCol[countLines].g=(float)colG/255.0;ptsCol[countLines].b=(float)colB/255.0;ptsCol[countLines].a=1.0f;
             ptsLines[countLines++] = SimpleLineVertexF(0,hh-mulfactor*r*2,
-                                                       ww-1,hh-mulfactor*r*2,winWidth,winHeight);
+                                                       ww-1,hh-mulfactor*r*2,ww,hh);
         }
         // Load the line width
         glUniform1f(widthHandle,line_width);
-        for (int ii=0;ii<countLines;ii++) {
-            ptsLines[ii].Ax+=2*ox/winWidth;
-            ptsLines[ii].Ay+=2*oy/winHeight;
-            ptsLines[ii].Bx+=2*ox/winWidth;
-            ptsLines[ii].By+=2*oy/winHeight;
-        }
         glDrawArraysInstanced(GL_TRIANGLES,0,6, countLines);
     }
     
@@ -1408,7 +1397,7 @@ int RenderUtils::buildQuad(LineVertexF *pts,
     return count;
 }
 
-void RenderUtils::DrawChanLayout(float ox,float oy,uint _ww,uint _hh,float winWidth,float winHeight,int display_note_mode,int chanNb,float pixOfs,float char_width,float char_height,float mScaleFactor) {
+void RenderUtils::DrawChanLayout(float ox,float oy,float ww,float hh,int display_note_mode,int chanNb,float pixOfs,float char_width,float char_height,float mScaleFactor) {
     int count=0;
     float col_size,col_ofs;
     LineVertexF *pts;
@@ -1425,7 +1414,7 @@ void RenderUtils::DrawChanLayout(float ox,float oy,uint _ww,uint _hh,float winWi
         return;
     }
     float min_w=col_size*chanNb+col_ofs;
-    min_w=fmin(min_w,_ww);
+    min_w=fmin(min_w,ww);
     
     //border / lines nb
     int col1[3],col2[3];
@@ -1434,196 +1423,196 @@ void RenderUtils::DrawChanLayout(float ox,float oy,uint _ww,uint _hh,float winWi
     BOOST_COL(col1);
     BOOST_COL(col2);
     count+=RenderUtils::buildQuad(&(pts[count]),
-                                  ox+0,     oy+0,
-                                  ox+2, oy+0,
-                                  ox+2,  oy+_hh/*-(char_height+2-0)-2*/,
-                                  ox+0,      oy+_hh/*-(char_height+2-0)-2*/,
+                                  0,     0,
+                                  2, 0,
+                                  2,  hh/*-(char_height+2-0)-2*/,
+                                  0,      hh/*-(char_height+2-0)-2*/,
                                   ARG_COL(col1),255,
                                   ARG_COL(col2),255,
                                   ARG_COL(col2),255,
                                   ARG_COL(col1),255,
-                                  winWidth,winHeight);
+                                  ww,hh);
 
 
     if (modpat_curTheme->theme_flag&MDZ_THEMEFLAG_NoFillLineNb) {
         INIT_COL(col1,modpat_curTheme->frame_base1);
         INIT_COL(col2,modpat_curTheme->frame_base2);
         count+=RenderUtils::buildQuad(&(pts[count]),
-                                      ox+2.0f, oy+_hh-(char_height+2-0)-2,
-                                      ox+4.0f, oy+_hh-(char_height+2-0)-2,
-                                      ox+4.0f,    oy+0,
-                                      ox+2.0f,    oy+0,
+                                      2.0f, hh-(char_height+2-0)-2,
+                                      4.0f, hh-(char_height+2-0)-2,
+                                      4.0f,    0,
+                                      2.0f,    0,
                                       ARG_COL(col1),255,
                                       ARG_COL(col1),255,
                                       ARG_COL(col2),255,
                                       ARG_COL(col2),255,
-                                      winWidth,winHeight);
+                                      ww,hh);
         DIM_COL(col1);
         DIM_COL(col2);
         count+=RenderUtils::buildQuad(&(pts[count]),
-                                      ox+4.0f, oy+_hh-(char_height+2-0)-2,
-                                      ox+6.0f, oy+_hh-(char_height+2-0)-2,
-                                      ox+6.0f,    oy+0,
-                                      ox+4.0f,    oy+0,
+                                      4.0f, hh-(char_height+2-0)-2,
+                                      6.0f, hh-(char_height+2-0)-2,
+                                      6.0f,    0,
+                                      4.0f,    0,
                                       ARG_COL(col1),255,
                                       ARG_COL(col1),255,
                                       ARG_COL(col2),255,
                                       ARG_COL(col2),255,
-                                      winWidth,winHeight);
+                                      ww,hh);
         INIT_COL(col1,modpat_curTheme->frame_base1);
         INIT_COL(col2,modpat_curTheme->frame_base2);
         BOOST_COL(col1);
         BOOST_COL(col2);
         count+=RenderUtils::buildQuad(&(pts[count]),
-                                      ox+col_ofs-6.0f, oy+_hh-(char_height+2-0)-2,
-                                      ox+col_ofs-6.0f+2.0f, oy+_hh-(char_height+2-0)-2,
-                                      ox+col_ofs-6.0f+2.0f,    oy+0,
-                                      ox+col_ofs-6.0f,    oy+0,
+                                      col_ofs-6.0f, hh-(char_height+2-0)-2,
+                                      col_ofs-6.0f+2.0f, hh-(char_height+2-0)-2,
+                                      col_ofs-6.0f+2.0f,    0,
+                                      col_ofs-6.0f,    0,
                                       ARG_COL(col1),255,
                                       ARG_COL(col1),255,
                                       ARG_COL(col2),255,
                                       ARG_COL(col2),255,
-                                      winWidth,winHeight);
+                                      ww,hh);
         INIT_COL(col1,modpat_curTheme->frame_base1);
         INIT_COL(col2,modpat_curTheme->frame_base2);
         count+=RenderUtils::buildQuad(&(pts[count]),
-                                      ox+col_ofs-4.0f, oy+_hh-(char_height+2-0)-2,
-                                      ox+col_ofs-4.0f+2.0f, oy+_hh-(char_height+2-0)-2,
-                                      ox+col_ofs-4.0f+2.0f,    oy+0,
-                                      ox+col_ofs-4.0f,    oy+0,
+                                      col_ofs-4.0f, hh-(char_height+2-0)-2,
+                                      col_ofs-4.0f+2.0f, hh-(char_height+2-0)-2,
+                                      col_ofs-4.0f+2.0f,    0,
+                                      col_ofs-4.0f,    0,
                                       ARG_COL(col1),255,
                                       ARG_COL(col1),255,
                                       ARG_COL(col2),255,
                                       ARG_COL(col2),255,
-                                      winWidth,winHeight);
+                                      ww,hh);
     } else {
         INIT_COL(col1,modpat_curTheme->frame_base1);
         INIT_COL(col2,modpat_curTheme->frame_base2);
         count+=RenderUtils::buildQuad(&(pts[count]),
-                                      ox+2,     oy+0,
-                                      ox+col_ofs-2, oy+0,
-                                      ox+col_ofs-2,  oy+_hh-(char_height+2-0)-2,
-                                      ox+2,      oy+_hh-(char_height+2-0)-2,
+                                      2,     0,
+                                      col_ofs-2, 0,
+                                      col_ofs-2,  hh-(char_height+2-0)-2,
+                                      2,      hh-(char_height+2-0)-2,
                                       ARG_COL(col1),255,
                                       ARG_COL(col2),255,
                                       ARG_COL(col1),255,
                                       ARG_COL(col1),255,
-                                      winWidth,winHeight);
+                                      ww,hh);
     }
     INIT_COL(col1,modpat_curTheme->frame_base1);
     INIT_COL(col2,modpat_curTheme->frame_base2);
     DIM_COL(col1);
     DIM_COL(col2);
     count+=RenderUtils::buildQuad(&(pts[count]),
-                                  ox+col_ofs-2,     oy+0,
-                                  ox+col_ofs, oy+0,
-                                  ox+col_ofs,  oy+_hh-(char_height+2-0)-2,
-                                  ox+col_ofs-2,      oy+_hh-(char_height+2-0)-2,
+                                  col_ofs-2,     0,
+                                  col_ofs, 0,
+                                  col_ofs,  hh-(char_height+2-0)-2,
+                                  col_ofs-2,      hh-(char_height+2-0)-2,
                                   ARG_COL(col1),255,
                                   ARG_COL(col2),255,
                                   ARG_COL(col2),255,
                                   ARG_COL(col1),255,
-                                  winWidth,winHeight);
+                                  ww,hh);
         
     INIT_COL(col1,modpat_curTheme->frame_base1);
     INIT_COL(col2,modpat_curTheme->frame_base2);
     BOOST_COL(col1);
     BOOST_COL(col2);
     count+=RenderUtils::buildQuad(&(pts[count]),
-                                  ox+0,     oy+_hh/*-(char_height+2-0)*/,
-                                  ox+col_ofs, oy+_hh/*-(char_height+2-0)*/,
-                                  ox+col_ofs,  oy+_hh/*-(char_height+2-0)*/-2,
-                                  ox+0,      oy+_hh/*-(char_height+2-0)*/-2,
+                                  0,     hh/*-(char_height+2-0)*/,
+                                  col_ofs, hh/*-(char_height+2-0)*/,
+                                  col_ofs,  hh/*-(char_height+2-0)*/-2,
+                                  0,      hh/*-(char_height+2-0)*/-2,
                                   ARG_COL(col2),255,
                                   ARG_COL(col1),255,
                                   ARG_COL(col1),255,
                                   ARG_COL(col2),255,
-                                  winWidth,winHeight);
+                                  ww,hh);
 
 
     //then draw channels frame
     int j=0;
     for (int i=1; i<=chanNb; i++) {
-        if ( ((pixOfs+col_size*i+col_ofs)>=col_ofs) && ( (pixOfs+col_ofs+col_size*(i-1))<_ww) ) {
+        if ( ((pixOfs+col_size*i+col_ofs)>=col_ofs) && ( (pixOfs+col_ofs+col_size*(i-1))<ww) ) {
             //Header line
             j++;
             float min_x=pixOfs+col_ofs+col_size*(i-1);
             float max_x=pixOfs+col_ofs+col_size*i;
             float max_x2=pixOfs+col_ofs+col_size*i+2;
             if (min_x<col_ofs) min_x=col_ofs;
-            if (max_x>_ww) max_x=_ww;
-            if (max_x2>_ww) max_x2=_ww;
+            if (max_x>ww) max_x=ww;
+            if (max_x2>ww) max_x2=ww;
             
             INIT_COL(col1,modpat_curTheme->frame_base1);
             INIT_COL(col2,modpat_curTheme->frame_base2);
             BOOST_COL(col1);
             BOOST_COL(col2);
             count+=RenderUtils::buildQuad(&(pts[count]),
-                                          ox+min_x,     oy+_hh,
-                                          ox+max_x, oy+_hh,
-                                          ox+max_x2, oy+_hh-2,
-                                          ox+min_x,     oy+_hh-2,
+                                          min_x,     hh,
+                                          max_x, hh,
+                                          max_x2, hh-2,
+                                          min_x,     hh-2,
                                           ARG_COL(col1),255,
                                           ARG_COL(col2),255,
                                           ARG_COL(col2),255,
                                           ARG_COL(col1),255,
-                                          winWidth,winHeight);
+                                          ww,hh);
             INIT_COL(col1,modpat_curTheme->frame_base1);
             INIT_COL(col2,modpat_curTheme->frame_base2);
             count+=RenderUtils::buildQuad(&(pts[count]),
-                                          ox+min_x,     oy+_hh-2,
-                                          ox+max_x, oy+_hh-2,
-                                          ox+max_x, oy+_hh-(char_height+2-0)-2,
-                                          ox+min_x,     oy+_hh-(char_height+2-0)-2,
+                                          min_x,     hh-2,
+                                          max_x, hh-2,
+                                          max_x, hh-(char_height+2-0)-2,
+                                          min_x,     hh-(char_height+2-0)-2,
                                           ARG_COL(col1),255,
                                           ARG_COL(col2),255,
                                           ARG_COL(col2),255,
                                           ARG_COL(col1),255,
-                                          winWidth,winHeight);
+                                          ww,hh);
             INIT_COL(col1,modpat_curTheme->frame_base1);
             INIT_COL(col2,modpat_curTheme->frame_base2);
             DIM_COL(col1);
             DIM_COL(col2);
             count+=RenderUtils::buildQuad(&(pts[count]),
-                                          ox+(j>1?4.0:0)+min_x,     oy+_hh-(char_height+2-0)-2,
-                                          ox+(j>1?4.0:0)+max_x, oy+_hh-(char_height+2-0)-2,
-                                          ox+(j>1?4.0:0)+max_x, oy+_hh-(char_height+2-0),
-                                          ox+(j>1?4.0:0)+min_x,     oy+_hh-(char_height+2-0),
+                                          (j>1?4.0:0)+min_x,     hh-(char_height+2-0)-2,
+                                          (j>1?4.0:0)+max_x, hh-(char_height+2-0)-2,
+                                          (j>1?4.0:0)+max_x, hh-(char_height+2-0),
+                                          (j>1?4.0:0)+min_x,     hh-(char_height+2-0),
                                           ARG_COL(col1),255,
                                           ARG_COL(col2),255,
                                           ARG_COL(col2),255,
                                           ARG_COL(col1),255,
-                                          winWidth,winHeight);
+                                          ww,hh);
             if (j>1) {
                 INIT_COL(col1,modpat_curTheme->frame_base1);
                 INIT_COL(col2,modpat_curTheme->frame_base2);
                 BOOST_COL(col1);
                 BOOST_COL(col2);
                 count+=RenderUtils::buildQuad(&(pts[count]),
-                                              ox+min_x-2,     oy+_hh,
-                                              ox+min_x, oy+_hh,
-                                              ox+min_x,  oy+_hh-(char_height+2-0),
-                                              ox+min_x-2,      oy+_hh-(char_height+2-0),
+                                              min_x-2,     hh,
+                                              min_x, hh,
+                                              min_x,  hh-(char_height+2-0),
+                                              min_x-2,      hh-(char_height+2-0),
                                               ARG_COL(col2),255,
                                               ARG_COL(col2),255,
                                               ARG_COL(col1),255,
                                               ARG_COL(col1),255,
-                                              winWidth,winHeight);
+                                              ww,hh);
             } else {
                 INIT_COL(col1,modpat_curTheme->frame_base1);
                 INIT_COL(col2,modpat_curTheme->frame_base2);
                 BOOST_COL(col1);
                 BOOST_COL(col2);
                 count+=RenderUtils::buildQuad(&(pts[count]),
-                                              ox+min_x-2,     oy+_hh,
-                                              ox+min_x, oy+_hh,
-                                              ox+min_x,  oy+_hh-(char_height+2-0),
-                                              ox+min_x-2,      oy+_hh-(char_height+2-0),
+                                              min_x-2,     hh,
+                                              min_x, hh,
+                                              min_x,  hh-(char_height+2-0),
+                                              min_x-2,      hh-(char_height+2-0),
                                               ARG_COL(col1),255,
                                               ARG_COL(col1),255,
                                               ARG_COL(col2),255,
                                               ARG_COL(col2),255,
-                                              winWidth,winHeight);
+                                              ww,hh);
             }
             
             //Draw header BG if different from frame_base1
@@ -1647,60 +1636,60 @@ void RenderUtils::DrawChanLayout(float ox,float oy,uint _ww,uint _hh,float winWi
                         
                         INIT_COL(col1,modpat_curTheme->headerBG_col);
                         count+=RenderUtils::buildQuad(&(pts[count]),
-                                                      ox+hmin_x,     oy+_hh-2-2,
-                                                      ox+pixOfs+col_ofs+col_size*i-header_frame_ofsX, oy+_hh-2-2,
-                                                      ox+pixOfs+col_ofs+col_size*i-header_frame_ofsX, oy+_hh-2-(char_height+2-2),
-                                                      ox+hmin_x,     oy+_hh-2-(char_height+2-2),
+                                                      hmin_x,     hh-2-2,
+                                                      pixOfs+col_ofs+col_size*i-header_frame_ofsX, hh-2-2,
+                                                      pixOfs+col_ofs+col_size*i-header_frame_ofsX, hh-2-(char_height+2-2),
+                                                      hmin_x,     hh-2-(char_height+2-2),
                                                       ARG_COL(col1),255,
                                                       ARG_COL(col1),255,
                                                       ARG_COL(col1),255,
                                                       ARG_COL(col1),255,
-                                                      winWidth,winHeight);
+                                                      ww,hh);
                     }
             }
         }
         //channel frame
-        if (( (pixOfs+col_size*i+col_ofs-2.0f+1.0)>col_ofs ) && ( (pixOfs+col_size*i+col_ofs-2.0f)<=_ww) ) {
+        if (( (pixOfs+col_size*i+col_ofs-2.0f+1.0)>col_ofs ) && ( (pixOfs+col_size*i+col_ofs-2.0f)<=ww) ) {
             INIT_COL(col1,modpat_curTheme->frame_base1);
             INIT_COL(col2,modpat_curTheme->frame_base2);
             BOOST_COL(col1);
             BOOST_COL(col2);
             count+=RenderUtils::buildQuad(&(pts[count]),
-                                          ox+pixOfs+col_size*i+col_ofs-2.0f, oy+_hh-2,
-                                          ox+pixOfs+col_size*i+col_ofs-2.0f+1.0, oy+_hh-2,
-                                          ox+pixOfs+col_size*i+col_ofs-2.0f+1.0,    oy+0,
-                                          ox+pixOfs+col_size*i+col_ofs-2.0f,    oy+0,
+                                          pixOfs+col_size*i+col_ofs-2.0f, hh-2,
+                                          pixOfs+col_size*i+col_ofs-2.0f+1.0, hh-2,
+                                          pixOfs+col_size*i+col_ofs-2.0f+1.0,    0,
+                                          pixOfs+col_size*i+col_ofs-2.0f,    0,
                                           ARG_COL(col1),255,
                                           ARG_COL(col1),255,
                                           ARG_COL(col2),255,
                                           ARG_COL(col2),255,
-                                          winWidth,winHeight);
+                                          ww,hh);
             INIT_COL(col1,modpat_curTheme->frame_base1);
             INIT_COL(col2,modpat_curTheme->frame_base2);
             count+=RenderUtils::buildQuad(&(pts[count]),
-                                          ox+pixOfs+col_size*i+col_ofs-1, oy+_hh-2,
-                                          ox+pixOfs+col_size*i+col_ofs+2.0, oy+_hh-2,
-                                          ox+pixOfs+col_size*i+col_ofs+2.0,    oy+0,
-                                          ox+pixOfs+col_size*i+col_ofs-1,    oy+0,
+                                          pixOfs+col_size*i+col_ofs-1, hh-2,
+                                          pixOfs+col_size*i+col_ofs+2.0, hh-2,
+                                          pixOfs+col_size*i+col_ofs+2.0,    0,
+                                          pixOfs+col_size*i+col_ofs-1,    0,
                                           ARG_COL(col1),255,
                                           ARG_COL(col1),255,
                                           ARG_COL(col2),255,
                                           ARG_COL(col2),255,
-                                          winWidth,winHeight);
+                                          ww,hh);
             INIT_COL(col1,modpat_curTheme->frame_base1);
             INIT_COL(col2,modpat_curTheme->frame_base2);
             DIM_COL(col1);
             DIM_COL(col2);
             count+=RenderUtils::buildQuad(&(pts[count]),
-                                          ox+pixOfs+col_size*i+col_ofs+2, oy+_hh-2,
-                                          ox+pixOfs+col_size*i+col_ofs+2+2.0, oy+_hh-2,
-                                          ox+pixOfs+col_size*i+col_ofs+2+2.0,   oy+ 0,
-                                          ox+pixOfs+col_size*i+col_ofs+2,    oy+0,
+                                          pixOfs+col_size*i+col_ofs+2, hh-2,
+                                          pixOfs+col_size*i+col_ofs+2+2.0, hh-2,
+                                          pixOfs+col_size*i+col_ofs+2+2.0,    0,
+                                          pixOfs+col_size*i+col_ofs+2,    0,
                                           ARG_COL(col1),255,
                                           ARG_COL(col1),255,
                                           ARG_COL(col2),255,
                                           ARG_COL(col2),255,
-                                          winWidth,winHeight);
+                                          ww,hh);
         }
     }
     
@@ -1708,15 +1697,15 @@ void RenderUtils::DrawChanLayout(float ox,float oy,uint _ww,uint _hh,float winWi
     if (1) {
         INIT_COL(col1,modpat_curTheme->frame_base1);
         count+=RenderUtils::buildQuad(&(pts[count]),
-                                      ox+2,     oy+_hh-2,
-                                      ox+col_ofs, oy+_hh-2,
-                                      ox+col_ofs,  oy+_hh-2-(char_height+2),
-                                      ox+2,      oy+_hh-2-(char_height+2),
+                                      2,     hh-2,
+                                      col_ofs, hh-2,
+                                      col_ofs,  hh-2-(char_height+2),
+                                      2,      hh-2-(char_height+2),
                                       ARG_COL(col1),255,
                                       ARG_COL(col1),255,
                                       ARG_COL(col1),255,
                                       ARG_COL(col1),255,
-                                      winWidth,winHeight);
+                                      ww,hh);
     }
     // Use the program object
     glUseProgram ( userData_simpleRender2D->programObject );
@@ -1751,7 +1740,7 @@ void RenderUtils::DrawChanLayout(float ox,float oy,uint _ww,uint _hh,float winWi
     
 }
 
-void RenderUtils::DrawChanLayoutAfter(float ox,float oy,uint _ww,uint _hh,float winWidth,float winHeight,int display_note_mode,int *volumeData,int chanNb,float pixOfs,float char_width,float char_height,float char_yOfs,int rowToHighlight,float mScaleFactor) {
+void RenderUtils::DrawChanLayoutAfter(float ox,float oy,float ww,float hh,int display_note_mode,int *volumeData,int chanNb,float pixOfs,float char_width,float char_height,float char_yOfs,int rowToHighlight,float mScaleFactor) {
     int ii;
     int colr,colg,colb,cola;
     int count=0;
@@ -1781,9 +1770,9 @@ void RenderUtils::DrawChanLayoutAfter(float ox,float oy,uint _ww,uint _hh,float 
     }
     
     float min_w=col_size*chanNb+col_ofs;
-    min_w=fmin(min_w,_ww);
+    min_w=fmin(min_w,ww);
     
-    int red_height=(255-80)*_hh/256/5;;
+    int red_height=(255-80)*hh/256/5;;
     
     //Volumes bar
     if (volumeData) {
@@ -1804,7 +1793,7 @@ void RenderUtils::DrawChanLayoutAfter(float ox,float oy,uint _ww,uint _hh,float 
             cgbase=modpat_curTheme->volume_barL[1];
             cbbase=modpat_curTheme->volume_barL[2];
             int curVol=volumeData[i];
-            int curVolH=curVol*_hh/256/5;
+            int curVolH=curVol*hh/256/5;
             
             if (modpat_curTheme->theme_flag&MDZ_THEMEFLAG_VolDottedBar) {
                 curVolH=(curVolH>>4)<<4; //round to a multiple of 32
@@ -1821,33 +1810,33 @@ void RenderUtils::DrawChanLayoutAfter(float ox,float oy,uint _ww,uint _hh,float 
                 
             }
             
-            if ( ((pixOfs+col_size*i+col_ofs+barOfsX)<_ww) &&
+            if ( ((pixOfs+col_size*i+col_ofs+barOfsX)<ww) &&
                  ((pixOfs+col_size*i+col_ofs+barOfsX+barWidth)>0)
                 ) {
                 count+=RenderUtils::buildQuad(&(pts[count]),
-                                              ox+pixOfs+col_size*i+col_ofs+barOfsX, oy+0,
-                                              ox+pixOfs+col_size*i+col_ofs+barOfsX+barWidth, oy+0,
-                                              ox+pixOfs+col_size*i+col_ofs+barOfsX+barWidth, oy+curVolH,
-                                              ox+pixOfs+col_size*i+col_ofs+barOfsX, oy+curVolH,
+                                              pixOfs+col_size*i+col_ofs+barOfsX, 0,
+                                              pixOfs+col_size*i+col_ofs+barOfsX+barWidth, 0,
+                                              pixOfs+col_size*i+col_ofs+barOfsX+barWidth, curVolH,
+                                              pixOfs+col_size*i+col_ofs+barOfsX, curVolH,
                                               crbase,cgbase,cbbase,255,
                                               crbase,cgbase,cbbase,255,
                                               cr,cg,cb,255,
                                               cr,cg,cb,255,
-                                              winWidth,winHeight);
+                                              ww,hh);
                 
                 if ( (modpat_curTheme->theme_flag&MDZ_THEMEFLAG_BordersLR) ||
                     (modpat_curTheme->theme_flag&MDZ_THEMEFLAG_BordersTop) ){
                     if ((modpat_curTheme->theme_flag&MDZ_THEMEFLAG_BordersLR)) {
                         count+=RenderUtils::buildQuad(&(pts[count]),
-                                                      ox-barShadowOfsX+pixOfs+col_size*i+col_ofs+barOfsX+barWidth, oy+0,
-                                                      ox+pixOfs+col_size*i+col_ofs+barOfsX+barWidth, oy+0,
-                                                      ox+pixOfs+col_size*i+col_ofs+barOfsX+barWidth, oy+curVolH,
-                                                      ox-barShadowOfsX+pixOfs+col_size*i+col_ofs+barOfsX+barWidth, oy+curVolH,
+                                                      -barShadowOfsX+pixOfs+col_size*i+col_ofs+barOfsX+barWidth, 0,
+                                                      pixOfs+col_size*i+col_ofs+barOfsX+barWidth, 0,
+                                                      pixOfs+col_size*i+col_ofs+barOfsX+barWidth, curVolH,
+                                                      -barShadowOfsX+pixOfs+col_size*i+col_ofs+barOfsX+barWidth, curVolH,
                                                       crbase/2,cgbase/2,cbbase/2,255,
                                                       crbase/2,cgbase/2,cbbase/2,255,
                                                       cr/2,cg/2,cb/2,255,
                                                       cr/2,cg/2,cb/2,255,
-                                                      winWidth,winHeight);
+                                                      ww,hh);
                     }
                     crbase*=1.4f;
                     cgbase*=1.4f;
@@ -1868,28 +1857,28 @@ void RenderUtils::DrawChanLayoutAfter(float ox,float oy,uint _ww,uint _hh,float 
                     if (cg>255) cg=255;
                     if (cb>255) cb=255;
                     count+=RenderUtils::buildQuad(&(pts[count]),
-                                                  ox+pixOfs+col_size*i+col_ofs+barOfsX, oy+0,
-                                                  ox+barShadowOfsX+pixOfs+col_size*i+col_ofs+barOfsX, oy+0,
-                                                  ox+barShadowOfsX+pixOfs+col_size*i+col_ofs+barOfsX, oy+curVolH,
-                                                  ox+pixOfs+col_size*i+col_ofs+barOfsX, oy+curVolH,
+                                                  pixOfs+col_size*i+col_ofs+barOfsX, 0,
+                                                  barShadowOfsX+pixOfs+col_size*i+col_ofs+barOfsX, 0,
+                                                  barShadowOfsX+pixOfs+col_size*i+col_ofs+barOfsX, curVolH,
+                                                  pixOfs+col_size*i+col_ofs+barOfsX, curVolH,
                                                   crbase,cgbase,cbbase,255,
                                                   crbase,cgbase,cbbase,255,
                                                   cr,cg,cb,255,
                                                   cr,cg,cb,255,
-                                                  winWidth,winHeight);
+                                                  ww,hh);
                     if (modpat_curTheme->theme_flag&MDZ_THEMEFLAG_BordersTop) {
                         if (curVolH>barShadowOfsX) barOfsY=barShadowOfsX;
                         else barOfsY=curVolH;
                         count+=RenderUtils::buildQuad(&(pts[count]),
-                                                      ox+pixOfs+col_size*i+col_ofs+barOfsX, oy+curVolH-barOfsY,
-                                                      ox-barShadowOfsX+pixOfs+col_size*i+col_ofs+barOfsX+barWidth, oy+curVolH-barOfsY,
-                                                      ox+pixOfs+col_size*i+col_ofs+barOfsX+barWidth, oy+curVolH,
-                                                      ox+pixOfs+col_size*i+col_ofs+barOfsX, oy+curVolH,
+                                                      pixOfs+col_size*i+col_ofs+barOfsX, curVolH-barOfsY,
+                                                      -barShadowOfsX+pixOfs+col_size*i+col_ofs+barOfsX+barWidth, curVolH-barOfsY,
+                                                      pixOfs+col_size*i+col_ofs+barOfsX+barWidth, curVolH,
+                                                      pixOfs+col_size*i+col_ofs+barOfsX, curVolH,
                                                       cr,cg,cb,255,
                                                       cr,cg,cb,255,
                                                       cr,cg,cb,255,
                                                       cr,cg,cb,255,
-                                                      winWidth,winHeight);
+                                                      ww,hh);
                     }
                 }
             }
@@ -1928,33 +1917,33 @@ void RenderUtils::DrawChanLayoutAfter(float ox,float oy,uint _ww,uint _hh,float 
     count=0;
     
     //Draw current playing line
-    ii=_hh-rowToHighlight*char_height-2*char_height-2-char_yOfs+1.0;
+    ii=hh-rowToHighlight*char_height-2*char_height-2-char_yOfs+1.0;
     
     colr=modpat_curTheme->highlight_bar[0];
     colg=modpat_curTheme->highlight_bar[1];
     colb=modpat_curTheme->highlight_bar[2];
     cola=150;
     count+=RenderUtils::buildQuad(&(pts[count]),
-                                  ox+0,     oy+ii-1-2,
-                                  ox+min_w, oy+ii-1-2,
-                                  ox+min_w, oy+ii+char_height+2,
-                                  ox+0,     oy+ii+char_height+2,
+                                  0,     ii-1-2,
+                                  min_w, ii-1-2,
+                                  min_w, ii+char_height+2,
+                                  0,     ii+char_height+2,
                                   colr,colg,colb,cola,
                                   colr,colg,colb,cola,
                                   colr,colg,colb,cola,
                                   colr,colg,colb,cola,
-                                  winWidth,winHeight);
+                                  ww,hh);
     
     count+=RenderUtils::buildQuad(&(pts[count]),
-                                  ox+0,     oy+ii-1-2,
-                                  ox+min_w, oy+ii-1-2,
-                                  ox+min_w, oy+ii-3-2,
-                                  ox+0, oy+ii-3-2,
+                                  0,     ii-1-2,
+                                  min_w, ii-1-2,
+                                  min_w, ii-3-2,
+                                  0, ii-3-2,
                                   colr/2,colg/2,colb/2,cola,
                                   colr/2,colg/2,colb/2,cola,
                                   colr/2,colg/2,colb/2,cola,
                                   colr/2,colg/2,colb/2,cola,
-                                  winWidth,winHeight);
+                                  ww,hh);
     colr*=1.4f;colg*=1.4f;colb*=1.4f;
     colr+=(255-colr)/3;
     colg+=(255-colg)/3;
@@ -1963,15 +1952,15 @@ void RenderUtils::DrawChanLayoutAfter(float ox,float oy,uint _ww,uint _hh,float 
     if (colg>255) colg=255;
     if (colb>255) colb=255;
     count+=RenderUtils::buildQuad(&(pts[count]),
-                                  ox+0,    oy+ii+char_height-2+2,
-                                  ox+min_w, oy+ii+char_height-2+2,
-                                  ox+min_w, oy+ii+char_height+2,
-                                  ox+0, oy+ii+char_height+2,
+                                  0,    ii+char_height-2+2,
+                                  min_w, ii+char_height-2+2,
+                                  min_w, ii+char_height+2,
+                                  0, ii+char_height+2,
                                   colr,colg,colb,cola,
                                   colr,colg,colb,cola,
                                   colr,colg,colb,cola,
                                   colr,colg,colb,cola,
-                                  winWidth,winHeight);
+                                  ww,hh);
     
     // Use the program object
     if (curRender!=userData_simpleRender2D) {
@@ -4263,12 +4252,20 @@ unsigned char piano_key_instr[128];
 
 //extern int texturePiano;
 
-void RenderUtils::DrawPiano3D(float ox,float oy,float ww,float hh,float winWidth,float winHeight,int automove,float posx,float posy,float posz,float rotx,float roty,int color_mode) {
+void RenderUtils::DrawPiano3D(float ox,float oy,float ww,float hh,int automove,float posx,float posy,float posz,float rotx,float roty,int color_mode) {
     int index;
     float key_length,key_lengthBL,key_height,key_heightBL;
     float key_leftpos;
     static int piano_fxcpt;
     static int first_call=1;
+    //GLfloat vertices[4][3];  /* Holds Float Info For 4 Sets Of Vertices */
+    //GLfloat vertColor[4][4];  /* Holds Float Info For 4 Sets Of Vertices */
+    LineVertexF *vertices;
+    
+    if (!renderIsInit) return;
+    
+    vertices=(LineVertexF*)malloc(sizeof(LineVertexF)*6*6*48);
+    if (!vertices) return;
     
     if (first_call) {
         memset(piano_key_state,0,128);
@@ -4307,9 +4304,6 @@ void RenderUtils::DrawPiano3D(float ox,float oy,float ww,float hh,float winWidth
     GLuint positionAttribHandle;
     GLuint colorAttribHandle;
     
-    GLuint lightColUnifHandle;
-    GLuint lightPosUnifHandle;
-    
     curP=userData_simpleRender3D;
     // Use the program object
     glUseProgram ( curP->programObject );
@@ -4321,8 +4315,8 @@ void RenderUtils::DrawPiano3D(float ox,float oy,float ww,float hh,float winWidth
     glEnableVertexAttribArray ( colorAttribHandle );
     
     // Load the vertex data
-    glVertexAttribPointer ( positionAttribHandle, 3, GL_FLOAT, GL_FALSE, sizeof(GLfloat)*3, &(vertices[0][0]) );
-    glVertexAttribPointer ( colorAttribHandle, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat)*4, &(vertColor[0][0]) );
+    glVertexAttribPointer ( positionAttribHandle, 3, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(vertices[0].x) );
+    glVertexAttribPointer ( colorAttribHandle, 4, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(vertices[0].r) );
     //////////////////////////////
     
     // Generate a model view matrix to rotate/translate the cube
@@ -4360,7 +4354,6 @@ void RenderUtils::DrawPiano3D(float ox,float oy,float ww,float hh,float winWidth
     
     
     int j=MIDIFX_LEN-MIDIFX_OFS-1;
-    index=0;
     for (int i=0; i<256; i++) {
         if (data_pianofx_note[j][i]) {
             int instr=data_pianofx_instr[j][i];
@@ -4394,115 +4387,163 @@ cbt=(0.9f*piano_key_state[i+k]+1.0f*(8-piano_key_state[i+k]))/8; \
 } else crt=cgt=cbt=1.0f; \
 /*Key / Up Face*/ \
 cr=crt;cg=cgt;cb=cbt;\
-vertColor[0][0]=cr;vertColor[0][1]=cg;vertColor[0][2]=cb; \
-vertices[0][0]=(float)(white_idx-key_leftpos+0.05f); \
-vertices[0][1]=yn+yadj; \
-vertices[0][2]=z+0.1f;  \
-vertColor[1][0]=cr;vertColor[1][1]=cg;vertColor[1][2]=cb; \
-vertices[1][0]=(float)(white_idx-key_leftpos+0.05f); \
-vertices[1][1]=yf+yadj; \
-vertices[1][2]=z-key_length;  \
-vertColor[2][0]=cr;vertColor[2][1]=cg;vertColor[2][2]=cb; \
-vertices[2][0]=(float)(white_idx-key_leftpos+0.95f); \
-vertices[2][1]=yn+yadj; \
-vertices[2][2]=z+0.1f;  \
-vertColor[3][0]=cr;vertColor[3][1]=cg;vertColor[3][2]=cb; \
-vertices[3][0]=(float)(white_idx-key_leftpos+0.95f); \
-vertices[3][1]=yf+yadj; \
-vertices[3][2]=z-key_length;  \
-glDrawArrays(GL_TRIANGLE_STRIP, 0, 4); \
+vertices[index+0].r=cr;vertices[index+0].g=cg;vertices[index+0].b=cb;vertices[index+0].a=1; \
+vertices[index+0].x=(float)(white_idx-key_leftpos+0.05f); \
+vertices[index+0].y=yn+yadj; \
+vertices[index+0].z=z+0.1f;  \
+vertices[index+1].r=cr;vertices[index+1].g=cg;vertices[index+1].b=cb;vertices[index+1].a=1; \
+vertices[index+1].x=(float)(white_idx-key_leftpos+0.05f); \
+vertices[index+1].y=yf+yadj; \
+vertices[index+1].z=z-key_length;  \
+vertices[index+2].r=cr;vertices[index+2].g=cg;vertices[index+2].b=cb;vertices[index+2].a=1; \
+vertices[index+2].x=(float)(white_idx-key_leftpos+0.95f); \
+vertices[index+2].y=yn+yadj; \
+vertices[index+2].z=z+0.1f;  \
+vertices[index+3].r=cr;vertices[index+3].g=cg;vertices[index+3].b=cb;vertices[index+3].a=1; \
+vertices[index+3].x=(float)(white_idx-key_leftpos+0.95f); \
+vertices[index+3].y=yf+yadj; \
+vertices[index+3].z=z-key_length;  \
+vertices[index+5].r=cr;vertices[index+5].g=cg;vertices[index+5].b=cb;vertices[index+5].a=1; \
+vertices[index+5].x=(float)(white_idx-key_leftpos+0.05f); \
+vertices[index+5].y=yf+yadj; \
+vertices[index+5].z=z-key_length;  \
+vertices[index+4].r=cr;vertices[index+4].g=cg;vertices[index+4].b=cb;vertices[index+4].a=1; \
+vertices[index+4].x=(float)(white_idx-key_leftpos+0.95f); \
+vertices[index+4].y=yn+yadj; \
+vertices[index+4].z=z+0.1f;  \
+index+=6; \
 /*Key / Down Face*/ \
 cr=crt*0.4;cg=cgt*0.4;cb=cbt*0.4; \
-vertColor[0][0]=cr;vertColor[0][1]=cg;vertColor[0][2]=cb; \
-vertices[0][0]=(float)(white_idx-key_leftpos+0.05f); \
-vertices[0][1]=yn-key_height; \
-vertices[0][2]=z; \
-vertColor[1][0]=cr;vertColor[1][1]=cg;vertColor[1][2]=cb; \
-vertices[1][0]=(float)(white_idx-key_leftpos+0.05f); \
-vertices[1][1]=yf-key_height; \
-vertices[1][2]=z-key_length; \
-vertColor[2][0]=cr;vertColor[2][1]=cg;vertColor[2][2]=cb; \
-vertices[2][0]=(float)(white_idx-key_leftpos+0.95f); \
-vertices[2][1]=yn-key_height; \
-vertices[2][2]=z; \
-vertColor[3][0]=cr;vertColor[3][1]=cg;vertColor[3][2]=cb; \
-vertices[3][0]=(float)(white_idx-key_leftpos+0.95f); \
-vertices[3][1]=yf-key_height; \
-vertices[3][2]=z-key_length; \
-glDrawArrays(GL_TRIANGLE_STRIP, 0, 4); \
+vertices[index+0].r=cr;vertices[index+0].g=cg;vertices[index+0].b=cb;vertices[index+0].a=1; \
+vertices[index+0].x=(float)(white_idx-key_leftpos+0.05f); \
+vertices[index+0].y=yn-key_height; \
+vertices[index+0].z=z; \
+vertices[index+1].r=cr;vertices[index+1].g=cg;vertices[index+1].b=cb;vertices[index+1].a=1; \
+vertices[index+1].x=(float)(white_idx-key_leftpos+0.05f); \
+vertices[index+1].y=yf-key_height; \
+vertices[index+1].z=z-key_length; \
+vertices[index+2].r=cr;vertices[index+2].g=cg;vertices[index+2].b=cb;vertices[index+2].a=1; \
+vertices[index+2].x=(float)(white_idx-key_leftpos+0.95f); \
+vertices[index+2].y=yn-key_height; \
+vertices[index+2].z=z; \
+vertices[index+3].r=cr;vertices[index+3].g=cg;vertices[index+3].b=cb;vertices[index+3].a=1; \
+vertices[index+3].x=(float)(white_idx-key_leftpos+0.95f); \
+vertices[index+3].y=yf-key_height; \
+vertices[index+3].z=z-key_length; \
+vertices[index+5].r=cr;vertices[index+5].g=cg;vertices[index+5].b=cb;vertices[index+5].a=1; \
+vertices[index+5].x=(float)(white_idx-key_leftpos+0.05f); \
+vertices[index+5].y=yf-key_height; \
+vertices[index+5].z=z-key_length; \
+vertices[index+4].r=cr;vertices[index+4].g=cg;vertices[index+4].b=cb;vertices[index+4].a=1; \
+vertices[index+4].x=(float)(white_idx-key_leftpos+0.95f); \
+vertices[index+4].y=yn-key_height; \
+vertices[index+4].z=z; \
+index+=6; \
 /*Key / Front Face*/ \
 cr=crt*0.6f;cg=cgt*0.6f;cb=cbt*0.6f; \
-vertColor[0][0]=cr;vertColor[0][1]=cg;vertColor[0][2]=cb; \
-vertices[0][0]=(float)(white_idx-key_leftpos+0.10f); \
-vertices[0][1]=yn-key_height; \
-vertices[0][2]=z;  \
-vertColor[1][0]=cr;vertColor[1][1]=cg;vertColor[1][2]=cb; \
-vertices[1][0]=(float)(white_idx-key_leftpos+0.10f); \
-vertices[1][1]=yn+0; \
-vertices[1][2]=z;   \
-vertColor[2][0]=cr;vertColor[2][1]=cg;vertColor[2][2]=cb; \
-vertices[2][0]=(float)(white_idx-key_leftpos+0.90f); \
-vertices[2][1]=yn-key_height; \
-vertices[2][2]=z;  \
-vertColor[3][0]=cr;vertColor[3][1]=cg;vertColor[3][2]=cb; \
-vertices[3][0]=(float)(white_idx-key_leftpos+0.90f); \
-vertices[3][1]=yn; \
-vertices[3][2]=z;   \
-glDrawArrays(GL_TRIANGLE_STRIP, 0, 4); \
+vertices[index+0].r=cr;vertices[index+0].g=cg;vertices[index+0].b=cb;vertices[index+0].a=1; \
+vertices[index+0].x=(float)(white_idx-key_leftpos+0.10f); \
+vertices[index+0].y=yn-key_height; \
+vertices[index+0].z=z;  \
+vertices[index+1].r=cr;vertices[index+1].g=cg;vertices[index+1].b=cb;vertices[index+1].a=1; \
+vertices[index+1].x=(float)(white_idx-key_leftpos+0.10f); \
+vertices[index+1].y=yn+0; \
+vertices[index+1].z=z;   \
+vertices[index+2].r=cr;vertices[index+2].g=cg;vertices[index+2].b=cb;vertices[index+2].a=1; \
+vertices[index+2].x=(float)(white_idx-key_leftpos+0.90f); \
+vertices[index+2].y=yn-key_height; \
+vertices[index+2].z=z;  \
+vertices[index+3].r=cr;vertices[index+3].g=cg;vertices[index+3].b=cb;vertices[index+3].a=1; \
+vertices[index+3].x=(float)(white_idx-key_leftpos+0.90f); \
+vertices[index+3].y=yn; \
+vertices[index+3].z=z;   \
+vertices[index+5].r=cr;vertices[index+5].g=cg;vertices[index+5].b=cb;vertices[index+5].a=1; \
+vertices[index+5].x=(float)(white_idx-key_leftpos+0.10f); \
+vertices[index+5].y=yn+0; \
+vertices[index+5].z=z;   \
+vertices[index+4].r=cr;vertices[index+4].g=cg;vertices[index+4].b=cb;vertices[index+4].a=1; \
+vertices[index+4].x=(float)(white_idx-key_leftpos+0.90f); \
+vertices[index+4].y=yn-key_height; \
+vertices[index+4].z=z;  \
+index+=6; \
 /*Key / Back Face*/ \
-vertColor[0][0]=cr;vertColor[0][1]=cg;vertColor[0][2]=cb; \
-vertices[0][0]=(float)(white_idx-key_leftpos+0.10f); \
-vertices[0][1]=yf-key_height; \
-vertices[0][2]=z-key_length; \
-vertColor[1][0]=cr;vertColor[1][1]=cg;vertColor[1][2]=cb; \
-vertices[1][0]=(float)(white_idx-key_leftpos+0.10f); \
-vertices[1][1]=yf+0; \
-vertices[1][2]=z-key_length; \
-vertColor[2][0]=cr;vertColor[2][1]=cg;vertColor[2][2]=cb; \
-vertices[2][0]=(float)(white_idx-key_leftpos+0.90f); \
-vertices[2][1]=yf-key_height; \
-vertices[2][2]=z-key_length; \
-vertColor[3][0]=cr;vertColor[3][1]=cg;vertColor[3][2]=cb; \
-vertices[3][0]=(float)(white_idx-key_leftpos+0.90f); \
-vertices[3][1]=yf; \
-vertices[3][2]=z-key_length; \
-glDrawArrays(GL_TRIANGLE_STRIP, 0, 4); \
+vertices[index+0].r=cr;vertices[index+0].g=cg;vertices[index+0].b=cb;vertices[index+0].a=1; \
+vertices[index+0].x=(float)(white_idx-key_leftpos+0.10f); \
+vertices[index+0].y=yf-key_height; \
+vertices[index+0].z=z-key_length; \
+vertices[index+1].r=cr;vertices[index+1].g=cg;vertices[index+1].b=cb;vertices[index+1].a=1; \
+vertices[index+1].x=(float)(white_idx-key_leftpos+0.10f); \
+vertices[index+1].y=yf+0; \
+vertices[index+1].z=z-key_length; \
+vertices[index+2].r=cr;vertices[index+2].g=cg;vertices[index+2].b=cb;vertices[index+2].a=1; \
+vertices[index+2].x=(float)(white_idx-key_leftpos+0.90f); \
+vertices[index+2].y=yf-key_height; \
+vertices[index+2].z=z-key_length; \
+vertices[index+3].r=cr;vertices[index+3].g=cg;vertices[index+3].b=cb;vertices[index+3].a=1; \
+vertices[index+3].x=(float)(white_idx-key_leftpos+0.90f); \
+vertices[index+3].y=yf; \
+vertices[index+3].z=z-key_length; \
+vertices[index+5].r=cr;vertices[index+5].g=cg;vertices[index+5].b=cb;vertices[index+5].a=1; \
+vertices[index+5].x=(float)(white_idx-key_leftpos+0.10f); \
+vertices[index+5].y=yf+0; \
+vertices[index+5].z=z-key_length; \
+vertices[index+4].r=cr;vertices[index+4].g=cg;vertices[index+4].b=cb;vertices[index+4].a=1; \
+vertices[index+4].x=(float)(white_idx-key_leftpos+0.90f); \
+vertices[index+4].y=yf-key_height; \
+vertices[index+4].z=z-key_length; \
+index+=6; \
 /*Key / Right Face*/ \
-vertColor[0][0]=cr;vertColor[0][1]=cg;vertColor[0][2]=cb; \
-vertices[0][0]=(float)(white_idx-key_leftpos+0.90f); \
-vertices[0][1]=yn-key_height; \
-vertices[0][2]=z;  \
-vertColor[1][0]=cr;vertColor[1][1]=cg;vertColor[1][2]=cb; \
-vertices[1][0]=(float)(white_idx-key_leftpos+0.90f); \
-vertices[1][1]=yn+0; \
-vertices[1][2]=z;  \
-vertColor[2][0]=cr;vertColor[2][1]=cg;vertColor[2][2]=cb; \
-vertices[2][0]=(float)(white_idx-key_leftpos+0.90f); \
-vertices[2][1]=yf-key_height; \
-vertices[2][2]=z-key_length;   \
-vertColor[3][0]=cr;vertColor[3][1]=cg;vertColor[3][2]=cb; \
-vertices[3][0]=(float)(white_idx-key_leftpos+0.90f); \
-vertices[3][1]=yf; \
-vertices[3][2]=z-key_length;  \
-glDrawArrays(GL_TRIANGLE_STRIP, 0, 4); \
+vertices[index+0].r=cr;vertices[index+0].g=cg;vertices[index+0].b=cb;vertices[index+0].a=1; \
+vertices[index+0].x=(float)(white_idx-key_leftpos+0.90f); \
+vertices[index+0].y=yn-key_height; \
+vertices[index+0].z=z;  \
+vertices[index+1].r=cr;vertices[index+1].g=cg;vertices[index+1].b=cb;vertices[index+1].a=1; \
+vertices[index+1].x=(float)(white_idx-key_leftpos+0.90f); \
+vertices[index+1].y=yn+0; \
+vertices[index+1].z=z;  \
+vertices[index+2].r=cr;vertices[index+2].g=cg;vertices[index+2].b=cb;vertices[index+2].a=1; \
+vertices[index+2].x=(float)(white_idx-key_leftpos+0.90f); \
+vertices[index+2].y=yf-key_height; \
+vertices[index+2].z=z-key_length;   \
+vertices[index+3].r=cr;vertices[index+3].g=cg;vertices[index+3].b=cb;vertices[index+3].a=1; \
+vertices[index+3].x=(float)(white_idx-key_leftpos+0.90f); \
+vertices[index+3].y=yf; \
+vertices[index+3].z=z-key_length;  \
+vertices[index+5].r=cr;vertices[index+5].g=cg;vertices[index+5].b=cb;vertices[index+5].a=1; \
+vertices[index+5].x=(float)(white_idx-key_leftpos+0.90f); \
+vertices[index+5].y=yn+0; \
+vertices[index+5].z=z;  \
+vertices[index+4].r=cr;vertices[index+4].g=cg;vertices[index+4].b=cb;vertices[index+4].a=1; \
+vertices[index+4].x=(float)(white_idx-key_leftpos+0.90f); \
+vertices[index+4].y=yf-key_height; \
+vertices[index+4].z=z-key_length;   \
+index+=6; \
 /*Key / Left Face*/ \
-vertColor[0][0]=cr;vertColor[0][1]=cg;vertColor[0][2]=cb; \
-vertices[0][0]=(float)(white_idx-key_leftpos+0.10f); \
-vertices[0][1]=yf-key_height; \
-vertices[0][2]=z-key_length;  \
-vertColor[1][0]=cr;vertColor[1][1]=cg;vertColor[1][2]=cb; \
-vertices[1][0]=(float)(white_idx-key_leftpos+0.10f); \
-vertices[1][1]=yf+0; \
-vertices[1][2]=z-key_length;  \
-vertColor[2][0]=cr;vertColor[2][1]=cg;vertColor[2][2]=cb; \
-vertices[2][0]=(float)(white_idx-key_leftpos+0.10f); \
-vertices[2][1]=yn-key_height; \
-vertices[2][2]=z;  \
-vertColor[3][0]=cr;vertColor[3][1]=cg;vertColor[3][2]=cb; \
-vertices[3][0]=(float)(white_idx-key_leftpos+0.10f); \
-vertices[3][1]=yn; \
-vertices[3][2]=z;  \
-glDrawArrays(GL_TRIANGLE_STRIP, 0, 4); \
+vertices[index+0].r=cr;vertices[index+0].g=cg;vertices[index+0].b=cb;vertices[index+0].a=1; \
+vertices[index+0].x=(float)(white_idx-key_leftpos+0.10f); \
+vertices[index+0].y=yf-key_height; \
+vertices[index+0].z=z-key_length;  \
+vertices[index+1].r=cr;vertices[index+1].g=cg;vertices[index+1].b=cb;vertices[index+1].a=1; \
+vertices[index+1].x=(float)(white_idx-key_leftpos+0.10f); \
+vertices[index+1].y=yf+0; \
+vertices[index+1].z=z-key_length;  \
+vertices[index+2].r=cr;vertices[index+2].g=cg;vertices[index+2].b=cb;vertices[index+2].a=1; \
+vertices[index+2].x=(float)(white_idx-key_leftpos+0.10f); \
+vertices[index+2].y=yn-key_height; \
+vertices[index+2].z=z;  \
+vertices[index+3].r=cr;vertices[index+3].g=cg;vertices[index+3].b=cb;vertices[index+3].a=1; \
+vertices[index+3].x=(float)(white_idx-key_leftpos+0.10f); \
+vertices[index+3].y=yn; \
+vertices[index+3].z=z;  \
+vertices[index+5].r=cr;vertices[index+5].g=cg;vertices[index+5].b=cb;vertices[index+5].a=1; \
+vertices[index+5].x=(float)(white_idx-key_leftpos+0.10f); \
+vertices[index+5].y=yf+0; \
+vertices[index+5].z=z-key_length;  \
+vertices[index+4].r=cr;vertices[index+4].g=cg;vertices[index+4].b=cb;vertices[index+4].a=1; \
+vertices[index+4].x=(float)(white_idx-key_leftpos+0.10f); \
+vertices[index+4].y=yn-key_height; \
+vertices[index+4].z=z;  \
+index+=6; \
 white_idx++; \
 } else { /*black key*/ \
 if (piano_key_state[i+k]) { \
@@ -4512,100 +4553,138 @@ cbt=(0.3f*piano_key_state[i+k]+0.4f*(8-piano_key_state[i+k]))/8; \
 } else crt=cgt=cbt=0.2f; \
 /*TOP*/ \
 cr=crt;cg=cgt;cb=cbt;\
-vertColor[0][0]=cr;vertColor[0][1]=cg;vertColor[0][2]=cb; \
-vertices[0][0]=(float)(white_idx-key_leftpos-0.15f); \
-vertices[0][1]=ynBL+key_heightBL; \
-vertices[0][2]=z-key_lengthBL*6/5;  \
-vertColor[1][0]=cr;vertColor[1][1]=cg;vertColor[1][2]=cb; \
-vertices[1][0]=(float)(white_idx-key_leftpos-0.15f); \
-vertices[1][1]=yf+key_heightBL; \
-vertices[1][2]=z-key_length;  \
-vertColor[2][0]=cr;vertColor[2][1]=cg;vertColor[2][2]=cb; \
-vertices[2][0]=(float)(white_idx-key_leftpos+0.15f); \
-vertices[2][1]=ynBL+key_heightBL; \
-vertices[2][2]=z-key_lengthBL*6/5;  \
-vertColor[3][0]=cr;vertColor[3][1]=cg;vertColor[3][2]=cb; \
-vertices[3][0]=(float)(white_idx-key_leftpos+0.15f); \
-vertices[3][1]=yf+key_heightBL; \
-vertices[3][2]=z-key_length; \
-glDrawArrays(GL_TRIANGLE_STRIP, 0, 4); \
+vertices[index+0].r=cr;vertices[index+0].g=cg;vertices[index+0].b=cb;vertices[index+0].a=1; \
+vertices[index+0].x=(float)(white_idx-key_leftpos-0.15f); \
+vertices[index+0].y=ynBL+key_heightBL; \
+vertices[index+0].z=z-key_lengthBL*6/5;  \
+vertices[index+1].r=cr;vertices[index+1].g=cg;vertices[index+1].b=cb;vertices[index+1].a=1; \
+vertices[index+1].x=(float)(white_idx-key_leftpos-0.15f); \
+vertices[index+1].y=yf+key_heightBL; \
+vertices[index+1].z=z-key_length;  \
+vertices[index+2].r=cr;vertices[index+2].g=cg;vertices[index+2].b=cb;vertices[index+2].a=1; \
+vertices[index+2].x=(float)(white_idx-key_leftpos+0.15f); \
+vertices[index+2].y=ynBL+key_heightBL; \
+vertices[index+2].z=z-key_lengthBL*6/5;  \
+vertices[index+3].r=cr;vertices[index+3].g=cg;vertices[index+3].b=cb;vertices[index+3].a=1; \
+vertices[index+3].x=(float)(white_idx-key_leftpos+0.15f); \
+vertices[index+3].y=yf+key_heightBL; \
+vertices[index+3].z=z-key_length; \
+vertices[index+5].r=cr;vertices[index+5].g=cg;vertices[index+5].b=cb;vertices[index+5].a=1; \
+vertices[index+5].x=(float)(white_idx-key_leftpos-0.15f); \
+vertices[index+5].y=yf+key_heightBL; \
+vertices[index+5].z=z-key_length;  \
+vertices[index+4].r=cr;vertices[index+4].g=cg;vertices[index+4].b=cb;vertices[index+4].a=1; \
+vertices[index+4].x=(float)(white_idx-key_leftpos+0.15f); \
+vertices[index+4].y=ynBL+key_heightBL; \
+vertices[index+4].z=z-key_lengthBL*6/5;  \
+index+=6; \
 cr=crt*0.6f;cg=cgt*0.6f;cb=cbt*0.6f; \
 /*FRONT*/ \
-vertColor[0][0]=cr;vertColor[0][1]=cg;vertColor[0][2]=cb; \
-vertices[0][0]=(float)(white_idx-key_leftpos-0.3f); \
-vertices[0][1]=ynBL; \
-vertices[0][2]=z-key_lengthBL;   \
-vertColor[1][0]=cr;vertColor[1][1]=cg;vertColor[1][2]=cb; \
-vertices[1][0]=(float)(white_idx-key_leftpos-0.15f); \
-vertices[1][1]=ynBL+key_heightBL; \
-vertices[1][2]=z-key_lengthBL*6/5; \
-vertColor[2][0]=cr;vertColor[2][1]=cg;vertColor[2][2]=cb; \
-vertices[2][0]=(float)(white_idx-key_leftpos+0.3f); \
-vertices[2][1]=ynBL; \
-vertices[2][2]=z-key_lengthBL; \
-vertColor[3][0]=cr;vertColor[3][1]=cg;vertColor[3][2]=cb; \
-vertices[3][0]=(float)(white_idx-key_leftpos+0.15f); \
-vertices[3][1]=ynBL+key_heightBL; \
-vertices[3][2]=z-key_lengthBL*6/5; \
-glDrawArrays(GL_TRIANGLE_STRIP, 0, 4); \
+vertices[index+0].r=cr;vertices[index+0].g=cg;vertices[index+0].b=cb;vertices[index+0].a=1; \
+vertices[index+0].x=(float)(white_idx-key_leftpos-0.3f); \
+vertices[index+0].y=ynBL; \
+vertices[index+0].z=z-key_lengthBL;   \
+vertices[index+1].r=cr;vertices[index+1].g=cg;vertices[index+1].b=cb;vertices[index+1].a=1; \
+vertices[index+1].x=(float)(white_idx-key_leftpos-0.15f); \
+vertices[index+1].y=ynBL+key_heightBL; \
+vertices[index+1].z=z-key_lengthBL*6/5; \
+vertices[index+2].r=cr;vertices[index+2].g=cg;vertices[index+2].b=cb;vertices[index+2].a=1; \
+vertices[index+2].x=(float)(white_idx-key_leftpos+0.3f); \
+vertices[index+2].y=ynBL; \
+vertices[index+2].z=z-key_lengthBL; \
+vertices[index+3].r=cr;vertices[index+3].g=cg;vertices[index+3].b=cb;vertices[index+3].a=1; \
+vertices[index+3].x=(float)(white_idx-key_leftpos+0.15f); \
+vertices[index+3].y=ynBL+key_heightBL; \
+vertices[index+3].z=z-key_lengthBL*6/5; \
+vertices[index+5].r=cr;vertices[index+5].g=cg;vertices[index+5].b=cb;vertices[index+5].a=1; \
+vertices[index+5].x=(float)(white_idx-key_leftpos-0.15f); \
+vertices[index+5].y=ynBL+key_heightBL; \
+vertices[index+5].z=z-key_lengthBL*6/5; \
+vertices[index+4].r=cr;vertices[index+4].g=cg;vertices[index+4].b=cb;vertices[index+4].a=1; \
+vertices[index+4].x=(float)(white_idx-key_leftpos+0.3f); \
+vertices[index+4].y=ynBL; \
+vertices[index+4].z=z-key_lengthBL; \
+index+=6; \
 /*RIGHT*/ \
-vertColor[0][0]=cr;vertColor[0][1]=cg;vertColor[0][2]=cb; \
-vertices[0][0]=(float)(white_idx-key_leftpos+0.3f); \
-vertices[0][1]=ynBL; \
-vertices[0][2]=z-key_lengthBL; \
-vertColor[1][0]=cr;vertColor[1][1]=cg;vertColor[1][2]=cb; \
-vertices[1][0]=(float)(white_idx-key_leftpos+0.15f); \
-vertices[1][1]=ynBL+key_heightBL; \
-vertices[1][2]=z-key_lengthBL*6/5; \
-vertColor[2][0]=cr;vertColor[2][1]=cg;vertColor[2][2]=cb; \
-vertices[2][0]=(float)(white_idx-key_leftpos+0.3f); \
-vertices[2][1]=yf; \
-vertices[2][2]=z-key_length;  \
-vertColor[3][0]=cr;vertColor[3][1]=cg;vertColor[3][2]=cb; \
-vertices[3][0]=(float)(white_idx-key_leftpos+0.15f); \
-vertices[3][1]=yf+key_heightBL; \
-vertices[3][2]=z-key_length; \
-glDrawArrays(GL_TRIANGLE_STRIP, 0, 4); \
+vertices[index+0].r=cr;vertices[index+0].g=cg;vertices[index+0].b=cb;vertices[index+0].a=1; \
+vertices[index+0].x=(float)(white_idx-key_leftpos+0.3f); \
+vertices[index+0].y=ynBL; \
+vertices[index+0].z=z-key_lengthBL; \
+vertices[index+1].r=cr;vertices[index+1].g=cg;vertices[index+1].b=cb;vertices[index+1].a=1; \
+vertices[index+1].x=(float)(white_idx-key_leftpos+0.15f); \
+vertices[index+1].y=ynBL+key_heightBL; \
+vertices[index+1].z=z-key_lengthBL*6/5; \
+vertices[index+2].r=cr;vertices[index+2].g=cg;vertices[index+2].b=cb;vertices[index+2].a=1; \
+vertices[index+2].x=(float)(white_idx-key_leftpos+0.3f); \
+vertices[index+2].y=yf; \
+vertices[index+2].z=z-key_length;  \
+vertices[index+3].r=cr;vertices[index+3].g=cg;vertices[index+3].b=cb;vertices[index+3].a=1; \
+vertices[index+3].x=(float)(white_idx-key_leftpos+0.15f); \
+vertices[index+3].y=yf+key_heightBL; \
+vertices[index+3].z=z-key_length; \
+vertices[index+5].r=cr;vertices[index+5].g=cg;vertices[index+5].b=cb;vertices[index+5].a=1; \
+vertices[index+5].x=(float)(white_idx-key_leftpos+0.15f); \
+vertices[index+5].y=ynBL+key_heightBL; \
+vertices[index+5].z=z-key_lengthBL*6/5; \
+vertices[index+4].r=cr;vertices[index+4].g=cg;vertices[index+4].b=cb;vertices[index+4].a=1; \
+vertices[index+4].x=(float)(white_idx-key_leftpos+0.3f); \
+vertices[index+4].y=yf; \
+vertices[index+4].z=z-key_length;  \
+index+=6; \
 /*BACK*/ \
-vertColor[0][0]=cr;vertColor[0][1]=cg;vertColor[0][2]=cb; \
-vertices[0][0]=(float)(white_idx-key_leftpos-0.3f); \
-vertices[0][1]=yf; \
-vertices[0][2]=z-key_length; \
-vertColor[1][0]=cr;vertColor[1][1]=cg;vertColor[1][2]=cb; \
-vertices[1][0]=(float)(white_idx-key_leftpos-0.15f); \
-vertices[1][1]=yf+key_heightBL; \
-vertices[1][2]=z-key_length; \
-vertColor[2][0]=cr;vertColor[2][1]=cg;vertColor[2][2]=cb; \
-vertices[2][0]=(float)(white_idx-key_leftpos+0.3f); \
-vertices[2][1]=yf; \
-vertices[2][2]=z-key_length; \
-vertColor[3][0]=cr;vertColor[3][1]=cg;vertColor[3][2]=cb; \
-vertices[3][0]=(float)(white_idx-key_leftpos+0.15f); \
-vertices[3][1]=yf+key_heightBL; \
-vertices[3][2]=z-key_length; \
-glDrawArrays(GL_TRIANGLE_STRIP, 0, 4); \
+vertices[index+0].r=cr;vertices[index+0].g=cg;vertices[index+0].b=cb;vertices[index+0].a=1; \
+vertices[index+0].x=(float)(white_idx-key_leftpos-0.3f); \
+vertices[index+0].y=yf; \
+vertices[index+0].z=z-key_length; \
+vertices[index+1].r=cr;vertices[index+1].g=cg;vertices[index+1].b=cb;vertices[index+1].a=1; \
+vertices[index+1].x=(float)(white_idx-key_leftpos-0.15f); \
+vertices[index+1].y=yf+key_heightBL; \
+vertices[index+1].z=z-key_length; \
+vertices[index+2].r=cr;vertices[index+2].g=cg;vertices[index+2].b=cb;vertices[index+2].a=1; \
+vertices[index+2].x=(float)(white_idx-key_leftpos+0.3f); \
+vertices[index+2].y=yf; \
+vertices[index+2].z=z-key_length; \
+vertices[index+3].r=cr;vertices[index+3].g=cg;vertices[index+3].b=cb;vertices[index+3].a=1; \
+vertices[index+3].x=(float)(white_idx-key_leftpos+0.15f); \
+vertices[index+3].y=yf+key_heightBL; \
+vertices[index+3].z=z-key_length; \
+vertices[index+5].r=cr;vertices[index+5].g=cg;vertices[index+5].b=cb;vertices[index+5].a=1; \
+vertices[index+5].x=(float)(white_idx-key_leftpos-0.15f); \
+vertices[index+5].y=yf+key_heightBL; \
+vertices[index+5].z=z-key_length; \
+vertices[index+4].r=cr;vertices[index+4].g=cg;vertices[index+4].b=cb;vertices[index+4].a=1; \
+vertices[index+4].x=(float)(white_idx-key_leftpos+0.3f); \
+vertices[index+4].y=yf; \
+vertices[index+4].z=z-key_length; \
+index+=6; \
 /*LEFT*/ \
-vertColor[0][0]=cr;vertColor[0][1]=cg;vertColor[0][2]=cb; \
-vertices[0][0]=(float)(white_idx-key_leftpos-0.3f); \
-vertices[0][1]=yf; \
-vertices[0][2]=z-key_length; \
-vertColor[1][0]=cr;vertColor[1][1]=cg;vertColor[1][2]=cb; \
-vertices[1][0]=(float)(white_idx-key_leftpos-0.15f); \
-vertices[1][1]=yf+key_heightBL; \
-vertices[1][2]=z-key_length; \
-vertColor[2][0]=cr;vertColor[2][1]=cg;vertColor[2][2]=cb; \
-vertices[2][0]=(float)(white_idx-key_leftpos-0.3f); \
-vertices[2][1]=ynBL; \
-vertices[2][2]=z-key_lengthBL; \
-vertColor[3][0]=cr;vertColor[3][1]=cg;vertColor[3][2]=cb; \
-vertices[3][0]=(float)(white_idx-key_leftpos-0.15f); \
-vertices[3][1]=ynBL+key_heightBL; \
-vertices[3][2]=z-key_lengthBL*6/5; \
-glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);  \
+vertices[index+0].r=cr;vertices[index+0].g=cg;vertices[index+0].b=cb;vertices[index+0].a=1; \
+vertices[index+0].x=(float)(white_idx-key_leftpos-0.3f); \
+vertices[index+0].y=yf; \
+vertices[index+0].z=z-key_length; \
+vertices[index+1].r=cr;vertices[index+1].g=cg;vertices[index+1].b=cb;vertices[index+1].a=1; \
+vertices[index+1].x=(float)(white_idx-key_leftpos-0.15f); \
+vertices[index+1].y=yf+key_heightBL; \
+vertices[index+1].z=z-key_length; \
+vertices[index+2].r=cr;vertices[index+2].g=cg;vertices[index+2].b=cb;vertices[index+2].a=1; \
+vertices[index+2].x=(float)(white_idx-key_leftpos-0.3f); \
+vertices[index+2].y=ynBL; \
+vertices[index+2].z=z-key_lengthBL; \
+vertices[index+3].r=cr;vertices[index+3].g=cg;vertices[index+3].b=cb;vertices[index+3].a=1; \
+vertices[index+3].x=(float)(white_idx-key_leftpos-0.15f); \
+vertices[index+3].y=ynBL+key_heightBL; \
+vertices[index+3].z=z-key_lengthBL*6/5; \
+vertices[index+5].r=cr;vertices[index+5].g=cg;vertices[index+5].b=cb;vertices[index+5].a=1; \
+vertices[index+5].x=(float)(white_idx-key_leftpos-0.15f); \
+vertices[index+5].y=yf+key_heightBL; \
+vertices[index+5].z=z-key_length; \
+vertices[index+4].r=cr;vertices[index+4].g=cg;vertices[index+4].b=cb;vertices[index+4].a=1; \
+vertices[index+4].x=(float)(white_idx-key_leftpos-0.3f); \
+vertices[index+4].y=ynBL; \
+vertices[index+4].z=z-key_lengthBL; \
+index+=6; \
 }
     
-    //draw piano
-    vertColor[0][3]=vertColor[1][3]=vertColor[2][3]=vertColor[3][3]=1.0f;
     int white_idx=0;
     key_length=6;
     key_lengthBL=6*4/9;
@@ -4623,32 +4702,38 @@ glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);  \
     int piano_ofs=0;
     int k=0;
     z=0;
-    vertColor[0][3]=vertColor[1][3]=vertColor[2][3]=vertColor[3][3]=1.0f;
     
+    index=0;
     for (int i=0;i<48;i++,piano_ofs++) {
         PIANO3D_DRAWKEY
     }
+    glDrawArrays(GL_TRIANGLES, 0, index);
     
     z=z-key_length;
     yf=yf+key_height*3;
     key_leftpos+=28.0f;
     
     k=48;
+    index=0;
     for (int i=0;i<48;i++,piano_ofs++) {
         PIANO3D_DRAWKEY
     }
+    glDrawArrays(GL_TRIANGLES, 0, index);
     
     z=z-key_length;
     yf=yf+key_height*3;
     key_leftpos+=28.0f-(28-19)/2;
     k=96;
+    index=0;
     for (int i=0;i<32;i++,piano_ofs++) {
         PIANO3D_DRAWKEY
     }
+    glDrawArrays(GL_TRIANGLES, 0, index);
     
 
     glRestoreState();
     //    glDisable(GL_BLEND);
+    free(vertices);
 }
 
 
@@ -4701,41 +4786,43 @@ void RenderUtils::UpdateDataPiano(unsigned int *data,bool clearbuffer,bool pause
             memset(data_pianofx_st[i],0,256*sizeof(unsigned int));
         }
     }
-    //update old ones
-    for (int j=0;j<data_pianofx_len-1;j++) {
-        memcpy(data_pianofx_note[j],data_pianofx_note[j+1],256);
-        memcpy(data_pianofx_subnote[j],data_pianofx_note[j+1],256);
-        memcpy(data_pianofx_instr[j],data_pianofx_instr[j+1],256);
-        memcpy(data_pianofx_vol[j],data_pianofx_vol[j+1],256);
-        memcpy(data_pianofx_st[j],data_pianofx_st[j+1],256*sizeof(unsigned int));
-    }
-    //add new one
-    for (int i=0;i<256;i++) {
-        unsigned int note=data[i];
-        data_pianofx_note[data_pianofx_len-1][i]=note&0xFF;
-        data_pianofx_subnote[data_pianofx_len-1][i]=(note>>28)&0xF;
-        data_pianofx_instr[data_pianofx_len-1][i]=(note>>8)&0xFF;
-        data_pianofx_vol[data_pianofx_len-1][i]=(note>>16)&0xFF;
-        data_pianofx_st[data_pianofx_len-1][i]=((note>>24)&0xF)|(data_pianofx_framecpt<<8);
-    }
-    
-    if (settings[GLOB_FXPianoCutLine].detail.mdz_switch.switch_value==0) { //cut note bars after piano
-        for (int j=0;j<data_pianofx_len-1-MIDIFX_OFS;j++) {
-            memset(data_pianofx_note[j],0,256);
-            memset(data_pianofx_subnote[j],0,256);
-            memset(data_pianofx_instr[j],0,256);
-            memset(data_pianofx_vol[j],0,256);
-            memset(data_pianofx_st[j],0,256*sizeof(unsigned int));
-        }
-    }
-    
     if (!paused) {
-        data_pianofx_framecpt++;
-        pianoroll_cpt++;
+        //update old ones
+        for (int j=0;j<data_pianofx_len-1;j++) {
+            memcpy(data_pianofx_note[j],data_pianofx_note[j+1],256);
+            memcpy(data_pianofx_subnote[j],data_pianofx_note[j+1],256);
+            memcpy(data_pianofx_instr[j],data_pianofx_instr[j+1],256);
+            memcpy(data_pianofx_vol[j],data_pianofx_vol[j+1],256);
+            memcpy(data_pianofx_st[j],data_pianofx_st[j+1],256*sizeof(unsigned int));
+        }
+        //add new one
+        for (int i=0;i<256;i++) {
+            unsigned int note=data[i];
+            data_pianofx_note[data_pianofx_len-1][i]=note&0xFF;
+            data_pianofx_subnote[data_pianofx_len-1][i]=(note>>28)&0xF;
+            data_pianofx_instr[data_pianofx_len-1][i]=(note>>8)&0xFF;
+            data_pianofx_vol[data_pianofx_len-1][i]=(note>>16)&0xFF;
+            data_pianofx_st[data_pianofx_len-1][i]=((note>>24)&0xF)|(data_pianofx_framecpt<<8);
+        }
+        
+        if (settings[GLOB_FXPianoCutLine].detail.mdz_switch.switch_value==0) { //cut note bars after piano
+            for (int j=0;j<data_pianofx_len-1-MIDIFX_OFS;j++) {
+                memset(data_pianofx_note[j],0,256);
+                memset(data_pianofx_subnote[j],0,256);
+                memset(data_pianofx_instr[j],0,256);
+                memset(data_pianofx_vol[j],0,256);
+                memset(data_pianofx_st[j],0,256*sizeof(unsigned int));
+            }
+        }
+        
+        if (!paused) {
+            data_pianofx_framecpt++;
+            pianoroll_cpt++;
+        }
     }
 }
 
-void RenderUtils::DrawPiano3DWithNotesWall(float ox,float oy,float ww,float hh,float winWidth,float winHeight,int automove,float posx,float posy,float posz,float rotx,float roty,int color_mode,int fxquality) {
+void RenderUtils::DrawPiano3DWithNotesWall(float ox,float oy,float ww,float hh,int automove,float posx,float posy,float posz,float rotx,float roty,int color_mode,int fxquality) {
     int index;
     float key_length,key_lengthBL,key_height,key_heightBL;
     float key_leftpos;
@@ -4752,8 +4839,14 @@ void RenderUtils::DrawPiano3DWithNotesWall(float ox,float oy,float ww,float hh,f
     static float ztransSpeed_tgt=0;
     static int camera_pos=0;
     static int camera_pos_countdown=0;
-    
+//    GLfloat vertices[4][3];  /* Holds Float Info For 4 Sets Of Vertices */
+//    GLfloat vertColor[4][4];  /* Holds Float Info For 4 Sets Of Vertices */
+    LineVertexF *vertices;
+
     if (!renderIsInit) return;
+    
+    vertices=(LineVertexF*)malloc(sizeof(LineVertexF)*6*6*128);
+    if (!vertices) return;
     
     if (first_call) {
         
@@ -4800,9 +4893,6 @@ void RenderUtils::DrawPiano3DWithNotesWall(float ox,float oy,float ww,float hh,f
     GLuint positionAttribHandle;
     GLuint colorAttribHandle;
     
-    GLuint lightColUnifHandle;
-    GLuint lightPosUnifHandle;
-    
     curP=userData_simpleRender3D;
     // Use the program object
     glUseProgram ( curP->programObject );
@@ -4814,8 +4904,8 @@ void RenderUtils::DrawPiano3DWithNotesWall(float ox,float oy,float ww,float hh,f
     glEnableVertexAttribArray ( colorAttribHandle );
     
     // Load the vertex data
-    glVertexAttribPointer ( positionAttribHandle, 3, GL_FLOAT, GL_FALSE, sizeof(GLfloat)*3, &(vertices[0][0]) );
-    glVertexAttribPointer ( colorAttribHandle, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat)*4, &(vertColor[0][0]) );
+    glVertexAttribPointer ( positionAttribHandle, 3, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(vertices[0].x) );
+    glVertexAttribPointer ( colorAttribHandle, 4, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(vertices[0].r) );
     //////////////////////////////
     
     // Generate a model view matrix to rotate/translate the cube
@@ -4995,7 +5085,6 @@ void RenderUtils::DrawPiano3DWithNotesWall(float ox,float oy,float ww,float hh,f
     
     int piano_ofs=0;
     z=0;
-    vertColor[0][3]=vertColor[1][3]=vertColor[2][3]=vertColor[3][3]=1.0f;
     yadj=0.01f;
     for (int i=0;i<128;i++) {
         if (piano_key_state[i]) {
@@ -5035,134 +5124,175 @@ void RenderUtils::DrawPiano3DWithNotesWall(float ox,float oy,float ww,float hh,f
             } else crt=cgt=cbt=1.0f;
             /*Key / Up Face*/
             cr=crt;cg=cgt;cb=cbt;
-            vertColor[0][0]=cr;vertColor[0][1]=cg;vertColor[0][2]=cb;
-            vertices[0][0]=(float)(white_idx-key_leftpos+0.05f);
-            vertices[0][1]=yn+yadj;
-            vertices[0][2]=z+0.1f;
-            vertColor[1][0]=cr;vertColor[1][1]=cg;vertColor[1][2]=cb;
-            vertices[1][0]=(float)(white_idx-key_leftpos+0.05f);
-            vertices[1][1]=yf+yadj;
-            vertices[1][2]=z-key_length;
-            vertColor[2][0]=cr;vertColor[2][1]=cg;vertColor[2][2]=cb;
-            vertices[2][0]=(float)(white_idx-key_leftpos+0.95f);
-            vertices[2][1]=yn+yadj;
-            vertices[2][2]=z+0.1f;
-            vertColor[3][0]=cr;vertColor[3][1]=cg;vertColor[3][2]=cb;
-            vertices[3][0]=(float)(white_idx-key_leftpos+0.95f);
-            vertices[3][1]=yf+yadj;
-            vertices[3][2]=z-key_length;
+            vertices[vertices_count+0].r=cr;vertices[vertices_count+0].g=cg;vertices[vertices_count+0].b=cb;vertices[vertices_count+0].a=1;
+            vertices[vertices_count+0].x=(float)(white_idx-key_leftpos+0.05f);
+            vertices[vertices_count+0].y=yn+yadj;
+            vertices[vertices_count+0].z=z+0.1f;
+            vertices[vertices_count+1].r=cr;vertices[vertices_count+1].g=cg;vertices[vertices_count+1].b=cb;vertices[vertices_count+1].a=1;
+            vertices[vertices_count+1].x=(float)(white_idx-key_leftpos+0.05f);
+            vertices[vertices_count+1].y=yf+yadj;
+            vertices[vertices_count+1].z=z-key_length;
+            vertices[vertices_count+2].r=cr;vertices[vertices_count+2].g=cg;vertices[vertices_count+2].b=cb;vertices[vertices_count+2].a=1;
+            vertices[vertices_count+2].x=(float)(white_idx-key_leftpos+0.95f);
+            vertices[vertices_count+2].y=yn+yadj;
+            vertices[vertices_count+2].z=z+0.1f;
+            vertices[vertices_count+3].r=cr;vertices[vertices_count+3].g=cg;vertices[vertices_count+3].b=cb;vertices[vertices_count+4].a=1;
+            vertices[vertices_count+3].x=(float)(white_idx-key_leftpos+0.95f);
+            vertices[vertices_count+3].y=yf+yadj;
+            vertices[vertices_count+3].z=z-key_length;
+            vertices[vertices_count+5].r=cr;vertices[vertices_count+5].g=cg;vertices[vertices_count+5].b=cb;vertices[vertices_count+5].a=1;
+            vertices[vertices_count+5].x=(float)(white_idx-key_leftpos+0.05f);
+            vertices[vertices_count+5].y=yf+yadj;
+            vertices[vertices_count+5].z=z-key_length;
+            vertices[vertices_count+4].r=cr;vertices[vertices_count+4].g=cg;vertices[vertices_count+4].b=cb;vertices[vertices_count+4].a=1;
+            vertices[vertices_count+4].x=(float)(white_idx-key_leftpos+0.95f);
+            vertices[vertices_count+4].y=yn+yadj;
+            vertices[vertices_count+4].z=z+0.1f;
             
-            
-            glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-            vertices_count+=4;
+            vertices_count+=6;
             
             
             /*Key / Down Face*/
             cr=crt*0.4;cg=cgt*0.4;cb=cbt*0.4;
-            vertColor[0][0]=cr;vertColor[0][1]=cg;vertColor[0][2]=cb;
-            vertices[0][0]=(float)(white_idx-key_leftpos+0.05f);
-            vertices[0][1]=yn-key_height;
-            vertices[0][2]=z;
-            vertColor[1][0]=cr;vertColor[1][1]=cg;vertColor[1][2]=cb;
-            vertices[1][0]=(float)(white_idx-key_leftpos+0.05f);
-            vertices[1][1]=yf-key_height;
-            vertices[1][2]=z-key_length;
-            vertColor[2][0]=cr;vertColor[2][1]=cg;vertColor[2][2]=cb;
-            vertices[2][0]=(float)(white_idx-key_leftpos+0.95f);
-            vertices[2][1]=yn-key_height;
-            vertices[2][2]=z;
-            vertColor[3][0]=cr;vertColor[3][1]=cg;vertColor[3][2]=cb;
-            vertices[3][0]=(float)(white_idx-key_leftpos+0.95f);
-            vertices[3][1]=yf-key_height;
-            vertices[3][2]=z-key_length;
+            vertices[vertices_count+0].r=cr;vertices[vertices_count+0].g=cg;vertices[vertices_count+0].b=cb;vertices[vertices_count+0].a=1;
+            vertices[vertices_count+0].x=(float)(white_idx-key_leftpos+0.05f);
+            vertices[vertices_count+0].y=yn-key_height;
+            vertices[vertices_count+0].z=z;
+            vertices[vertices_count+1].r=cr;vertices[vertices_count+1].g=cg;vertices[vertices_count+1].b=cb;vertices[vertices_count+1].a=1;
+            vertices[vertices_count+1].x=(float)(white_idx-key_leftpos+0.05f);
+            vertices[vertices_count+1].y=yf-key_height;
+            vertices[vertices_count+1].z=z-key_length;
+            vertices[vertices_count+2].r=cr;vertices[vertices_count+2].g=cg;vertices[vertices_count+2].b=cb;vertices[vertices_count+2].a=1;
+            vertices[vertices_count+2].x=(float)(white_idx-key_leftpos+0.95f);
+            vertices[vertices_count+2].y=yn-key_height;
+            vertices[vertices_count+2].z=z;
+            vertices[vertices_count+3].r=cr;vertices[vertices_count+3].g=cg;vertices[vertices_count+3].b=cb;vertices[vertices_count+3].a=1;
+            vertices[vertices_count+3].x=(float)(white_idx-key_leftpos+0.95f);
+            vertices[vertices_count+3].y=yf-key_height;
+            vertices[vertices_count+3].z=z-key_length;
+            vertices[vertices_count+5].r=cr;vertices[vertices_count+5].g=cg;vertices[vertices_count+5].b=cb;vertices[vertices_count+5].a=1;
+            vertices[vertices_count+5].x=(float)(white_idx-key_leftpos+0.05f);
+            vertices[vertices_count+5].y=yf-key_height;
+            vertices[vertices_count+5].z=z-key_length;
+            vertices[vertices_count+4].r=cr;vertices[vertices_count+4].g=cg;vertices[vertices_count+4].b=cb;vertices[vertices_count+4].a=1;
+            vertices[vertices_count+4].x=(float)(white_idx-key_leftpos+0.95f);
+            vertices[vertices_count+4].y=yn-key_height;
+            vertices[vertices_count+4].z=z;
             
-            glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-            vertices_count+=4;
+            vertices_count+=6;
             
             /*Key / Front Face*/
             cr=crt*0.6f;cg=cgt*0.6f;cb=cbt*0.6f;
-            vertColor[0][0]=cr;vertColor[0][1]=cg;vertColor[0][2]=cb;
-            vertices[0][0]=(float)(white_idx-key_leftpos+0.10f);
-            vertices[0][1]=yn-key_height;
-            vertices[0][2]=z;
-            vertColor[1][0]=cr;vertColor[1][1]=cg;vertColor[1][2]=cb;
-            vertices[1][0]=(float)(white_idx-key_leftpos+0.10f);
-            vertices[1][1]=yn+0;
-            vertices[1][2]=z;
-            vertColor[2][0]=cr;vertColor[2][1]=cg;vertColor[2][2]=cb;
-            vertices[2][0]=(float)(white_idx-key_leftpos+0.90f);
-            vertices[2][1]=yn-key_height;
-            vertices[2][2]=z;
-            vertColor[3][0]=cr;vertColor[3][1]=cg;vertColor[3][2]=cb;
-            vertices[3][0]=(float)(white_idx-key_leftpos+0.90f);
-            vertices[3][1]=yn;
-            vertices[3][2]=z;
+            vertices[vertices_count+0].r=cr;vertices[vertices_count+0].g=cg;vertices[vertices_count+0].b=cb;vertices[vertices_count+0].a=1;
+            vertices[vertices_count+0].x=(float)(white_idx-key_leftpos+0.10f);
+            vertices[vertices_count+0].y=yn-key_height;
+            vertices[vertices_count+0].z=z;
+            vertices[vertices_count+1].r=cr;vertices[vertices_count+1].g=cg;vertices[vertices_count+1].b=cb;vertices[vertices_count+1].a=1;
+            vertices[vertices_count+1].x=(float)(white_idx-key_leftpos+0.10f);
+            vertices[vertices_count+1].y=yn+0;
+            vertices[vertices_count+1].z=z;
+            vertices[vertices_count+2].r=cr;vertices[vertices_count+2].g=cg;vertices[vertices_count+2].b=cb;vertices[vertices_count+2].a=1;
+            vertices[vertices_count+2].x=(float)(white_idx-key_leftpos+0.90f);
+            vertices[vertices_count+2].y=yn-key_height;
+            vertices[vertices_count+2].z=z;
+            vertices[vertices_count+3].r=cr;vertices[vertices_count+3].g=cg;vertices[vertices_count+3].b=cb;vertices[vertices_count+3].a=1;
+            vertices[vertices_count+3].x=(float)(white_idx-key_leftpos+0.90f);
+            vertices[vertices_count+3].y=yn;
+            vertices[vertices_count+3].z=z;
+            vertices[vertices_count+5].r=cr;vertices[vertices_count+5].g=cg;vertices[vertices_count+5].b=cb;vertices[vertices_count+5].a=1;
+            vertices[vertices_count+5].x=(float)(white_idx-key_leftpos+0.10f);
+            vertices[vertices_count+5].y=yn+0;
+            vertices[vertices_count+5].z=z;
+            vertices[vertices_count+4].r=cr;vertices[vertices_count+4].g=cg;vertices[vertices_count+4].b=cb;vertices[vertices_count+4].a=1;
+            vertices[vertices_count+4].x=(float)(white_idx-key_leftpos+0.90f);
+            vertices[vertices_count+4].y=yn-key_height;
+            vertices[vertices_count+4].z=z;
             
-            glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-            vertices_count+=4;
+            vertices_count+=6;
             
             /*Key / Back Face*/
-            vertColor[0][0]=cr;vertColor[0][1]=cg;vertColor[0][2]=cb;
-            vertices[0][0]=(float)(white_idx-key_leftpos+0.10f);
-            vertices[0][1]=yf-key_height;
-            vertices[0][2]=z-key_length;
-            vertColor[1][0]=cr;vertColor[1][1]=cg;vertColor[1][2]=cb;
-            vertices[1][0]=(float)(white_idx-key_leftpos+0.10f);
-            vertices[1][1]=yf+0;
-            vertices[1][2]=z-key_length;
-            vertColor[2][0]=cr;vertColor[2][1]=cg;vertColor[2][2]=cb;
-            vertices[2][0]=(float)(white_idx-key_leftpos+0.90f);
-            vertices[2][1]=yf-key_height;
-            vertices[2][2]=z-key_length;
-            vertColor[3][0]=cr;vertColor[3][1]=cg;vertColor[3][2]=cb;
-            vertices[3][0]=(float)(white_idx-key_leftpos+0.90f);
-            vertices[3][1]=yf;
-            vertices[3][2]=z-key_length;
+            vertices[vertices_count+0].r=cr;vertices[vertices_count+0].g=cg;vertices[vertices_count+0].b=cb;vertices[vertices_count+0].a=1;
+            vertices[vertices_count+0].x=(float)(white_idx-key_leftpos+0.10f);
+            vertices[vertices_count+0].y=yf-key_height;
+            vertices[vertices_count+0].z=z-key_length;
+            vertices[vertices_count+1].r=cr;vertices[vertices_count+1].g=cg;vertices[vertices_count+1].b=cb;vertices[vertices_count+1].a=1;
+            vertices[vertices_count+1].x=(float)(white_idx-key_leftpos+0.10f);
+            vertices[vertices_count+1].y=yf+0;
+            vertices[vertices_count+1].z=z-key_length;
+            vertices[vertices_count+2].r=cr;vertices[vertices_count+2].g=cg;vertices[vertices_count+2].b=cb;vertices[vertices_count+2].a=1;
+            vertices[vertices_count+2].x=(float)(white_idx-key_leftpos+0.90f);
+            vertices[vertices_count+2].y=yf-key_height;
+            vertices[vertices_count+2].z=z-key_length;
+            vertices[vertices_count+3].r=cr;vertices[vertices_count+3].g=cg;vertices[vertices_count+3].b=cb;vertices[vertices_count+3].a=1;
+            vertices[vertices_count+3].x=(float)(white_idx-key_leftpos+0.90f);
+            vertices[vertices_count+3].y=yf;
+            vertices[vertices_count+3].z=z-key_length;
+            vertices[vertices_count+5].r=cr;vertices[vertices_count+5].g=cg;vertices[vertices_count+5].b=cb;vertices[vertices_count+5].a=1;
+            vertices[vertices_count+5].x=(float)(white_idx-key_leftpos+0.10f);
+            vertices[vertices_count+5].y=yf+0;
+            vertices[vertices_count+5].z=z-key_length;
+            vertices[vertices_count+4].r=cr;vertices[vertices_count+4].g=cg;vertices[vertices_count+4].b=cb;vertices[vertices_count+4].a=1;
+            vertices[vertices_count+4].x=(float)(white_idx-key_leftpos+0.90f);
+            vertices[vertices_count+4].y=yf-key_height;
+            vertices[vertices_count+4].z=z-key_length;
             
-            glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-            vertices_count+=4;
+            vertices_count+=6;
             
             /*Key / Right Face*/
-            vertColor[0][0]=cr;vertColor[0][1]=cg;vertColor[0][2]=cb;
-            vertices[0][0]=(float)(white_idx-key_leftpos+0.90f);
-            vertices[0][1]=yn-key_height;
-            vertices[0][2]=z;
-            vertColor[1][0]=cr;vertColor[1][1]=cg;vertColor[1][2]=cb;
-            vertices[1][0]=(float)(white_idx-key_leftpos+0.90f);
-            vertices[1][1]=yn+0;
-            vertices[1][2]=z;
-            vertColor[2][0]=cr;vertColor[2][1]=cg;vertColor[2][2]=cb;
-            vertices[2][0]=(float)(white_idx-key_leftpos+0.90f);
-            vertices[2][1]=yf-key_height;
-            vertices[2][2]=z-key_length;
-            vertColor[3][0]=cr;vertColor[3][1]=cg;vertColor[3][2]=cb;
-            vertices[3][0]=(float)(white_idx-key_leftpos+0.90f);
-            vertices[3][1]=yf;
-            vertices[3][2]=z-key_length;
+            vertices[vertices_count+0].r=cr;vertices[vertices_count+0].g=cg;vertices[vertices_count+0].b=cb;vertices[vertices_count+0].a=1;
+            vertices[vertices_count+0].x=(float)(white_idx-key_leftpos+0.90f);
+            vertices[vertices_count+0].y=yn-key_height;
+            vertices[vertices_count+0].z=z;
+            vertices[vertices_count+1].r=cr;vertices[vertices_count+1].g=cg;vertices[vertices_count+1].b=cb;vertices[vertices_count+1].a=1;
+            vertices[vertices_count+1].x=(float)(white_idx-key_leftpos+0.90f);
+            vertices[vertices_count+1].y=yn+0;
+            vertices[vertices_count+1].z=z;
+            vertices[vertices_count+2].r=cr;vertices[vertices_count+2].g=cg;vertices[vertices_count+2].b=cb;vertices[vertices_count+2].a=1;
+            vertices[vertices_count+2].x=(float)(white_idx-key_leftpos+0.90f);
+            vertices[vertices_count+2].y=yf-key_height;
+            vertices[vertices_count+2].z=z-key_length;
+            vertices[vertices_count+3].r=cr;vertices[vertices_count+3].g=cg;vertices[vertices_count+3].b=cb;vertices[vertices_count+3].a=1;
+            vertices[vertices_count+3].x=(float)(white_idx-key_leftpos+0.90f);
+            vertices[vertices_count+3].y=yf;
+            vertices[vertices_count+3].z=z-key_length;
+            vertices[vertices_count+5].r=cr;vertices[vertices_count+5].g=cg;vertices[vertices_count+5].b=cb;vertices[vertices_count+5].a=1;
+            vertices[vertices_count+5].x=(float)(white_idx-key_leftpos+0.90f);
+            vertices[vertices_count+5].y=yn+0;
+            vertices[vertices_count+5].z=z;
+            vertices[vertices_count+4].r=cr;vertices[vertices_count+4].g=cg;vertices[vertices_count+4].b=cb;vertices[vertices_count+4].a=1;
+            vertices[vertices_count+4].x=(float)(white_idx-key_leftpos+0.90f);
+            vertices[vertices_count+4].y=yf-key_height;
+            vertices[vertices_count+4].z=z-key_length;
             
-            glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-            vertices_count+=4;
+            vertices_count+=6;
             
             /*Key / Left Face*/
-            vertColor[0][0]=cr;vertColor[0][1]=cg;vertColor[0][2]=cb;
-            vertices[0][0]=(float)(white_idx-key_leftpos+0.10f);
-            vertices[0][1]=yf-key_height;
-            vertices[0][2]=z-key_length;
-            vertColor[1][0]=cr;vertColor[1][1]=cg;vertColor[1][2]=cb;
-            vertices[1][0]=(float)(white_idx-key_leftpos+0.10f);
-            vertices[1][1]=yf+0;
-            vertices[1][2]=z-key_length;
-            vertColor[2][0]=cr;vertColor[2][1]=cg;vertColor[2][2]=cb;
-            vertices[2][0]=(float)(white_idx-key_leftpos+0.10f);
-            vertices[2][1]=yn-key_height;
-            vertices[2][2]=z;
-            vertColor[3][0]=cr;vertColor[3][1]=cg;vertColor[3][2]=cb;
-            vertices[3][0]=(float)(white_idx-key_leftpos+0.10f);
-            vertices[3][1]=yn;
-            vertices[3][2]=z;
+            vertices[vertices_count+0].r=cr;vertices[vertices_count+0].g=cg;vertices[vertices_count+0].b=cb;vertices[vertices_count+0].a=1;
+            vertices[vertices_count+0].x=(float)(white_idx-key_leftpos+0.10f);
+            vertices[vertices_count+0].y=yf-key_height;
+            vertices[vertices_count+0].z=z-key_length;
+            vertices[vertices_count+1].r=cr;vertices[vertices_count+1].g=cg;vertices[vertices_count+1].b=cb;vertices[vertices_count+1].a=1;
+            vertices[vertices_count+1].x=(float)(white_idx-key_leftpos+0.10f);
+            vertices[vertices_count+1].y=yf+0;
+            vertices[vertices_count+1].z=z-key_length;
+            vertices[vertices_count+2].r=cr;vertices[vertices_count+2].g=cg;vertices[vertices_count+2].b=cb;vertices[vertices_count+2].a=1;
+            vertices[vertices_count+2].x=(float)(white_idx-key_leftpos+0.10f);
+            vertices[vertices_count+2].y=yn-key_height;
+            vertices[vertices_count+2].z=z;
+            vertices[vertices_count+3].r=cr;vertices[vertices_count+3].g=cg;vertices[vertices_count+3].b=cb;vertices[vertices_count+3].a=1;
+            vertices[vertices_count+3].x=(float)(white_idx-key_leftpos+0.10f);
+            vertices[vertices_count+3].y=yn;
+            vertices[vertices_count+3].z=z;
+            vertices[vertices_count+5].r=cr;vertices[vertices_count+5].g=cg;vertices[vertices_count+5].b=cb;vertices[vertices_count+5].a=1;
+            vertices[vertices_count+5].x=(float)(white_idx-key_leftpos+0.10f);
+            vertices[vertices_count+5].y=yf+0;
+            vertices[vertices_count+5].z=z-key_length;
+            vertices[vertices_count+4].r=cr;vertices[vertices_count+4].g=cg;vertices[vertices_count+4].b=cb;vertices[vertices_count+4].a=1;
+            vertices[vertices_count+4].x=(float)(white_idx-key_leftpos+0.10f);
+            vertices[vertices_count+4].y=yn-key_height;
+            vertices[vertices_count+4].z=z;
             
-            glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-            vertices_count+=4;
+            vertices_count+=6;
             
             white_idx++;
         } else { /*black key*/
@@ -5177,115 +5307,150 @@ void RenderUtils::DrawPiano3DWithNotesWall(float ox,float oy,float ww,float hh,f
             } else crt=cgt=cbt=0.2f;
             /*TOP*/
             cr=crt;cg=cgt;cb=cbt;
-            vertColor[0][0]=cr;vertColor[0][1]=cg;vertColor[0][2]=cb;
-            vertices[0][0]=(float)(white_idx-key_leftpos-0.15f);
-            vertices[0][1]=ynBL+key_heightBL;
-            vertices[0][2]=z-key_lengthBL*6/5;
-            vertColor[1][0]=cr;vertColor[1][1]=cg;vertColor[1][2]=cb;
-            vertices[1][0]=(float)(white_idx-key_leftpos-0.15f);
-            vertices[1][1]=yf+key_heightBL;
-            vertices[1][2]=z-key_length;
-            vertColor[2][0]=cr;vertColor[2][1]=cg;vertColor[2][2]=cb;
-            vertices[2][0]=(float)(white_idx-key_leftpos+0.15f);
-            vertices[2][1]=ynBL+key_heightBL;
-            vertices[2][2]=z-key_lengthBL*6/5;
-            vertColor[3][0]=cr;vertColor[3][1]=cg;vertColor[3][2]=cb;
-            vertices[3][0]=(float)(white_idx-key_leftpos+0.15f);
-            vertices[3][1]=yf+key_heightBL;
-            vertices[3][2]=z-key_length;
+            vertices[vertices_count+0].r=cr;vertices[vertices_count+0].g=cg;vertices[vertices_count+0].b=cb;vertices[vertices_count+0].a=1;
+            vertices[vertices_count+0].x=(float)(white_idx-key_leftpos-0.15f);
+            vertices[vertices_count+0].y=ynBL+key_heightBL;
+            vertices[vertices_count+0].z=z-key_lengthBL*6/5;
+            vertices[vertices_count+1].r=cr;vertices[vertices_count+1].g=cg;vertices[vertices_count+1].b=cb;vertices[vertices_count+1].a=1;
+            vertices[vertices_count+1].x=(float)(white_idx-key_leftpos-0.15f);
+            vertices[vertices_count+1].y=yf+key_heightBL;
+            vertices[vertices_count+1].z=z-key_length;
+            vertices[vertices_count+2].r=cr;vertices[vertices_count+2].g=cg;vertices[vertices_count+2].b=cb;vertices[vertices_count+2].a=1;
+            vertices[vertices_count+2].x=(float)(white_idx-key_leftpos+0.15f);
+            vertices[vertices_count+2].y=ynBL+key_heightBL;
+            vertices[vertices_count+2].z=z-key_lengthBL*6/5;
+            vertices[vertices_count+3].r=cr;vertices[vertices_count+3].g=cg;vertices[vertices_count+3].b=cb;vertices[vertices_count+3].a=1;
+            vertices[vertices_count+3].x=(float)(white_idx-key_leftpos+0.15f);
+            vertices[vertices_count+3].y=yf+key_heightBL;
+            vertices[vertices_count+3].z=z-key_length;
+            vertices[vertices_count+5].r=cr;vertices[vertices_count+5].g=cg;vertices[vertices_count+5].b=cb;vertices[vertices_count+5].a=1;
+            vertices[vertices_count+5].x=(float)(white_idx-key_leftpos-0.15f);
+            vertices[vertices_count+5].y=yf+key_heightBL;
+            vertices[vertices_count+5].z=z-key_length;
+            vertices[vertices_count+4].r=cr;vertices[vertices_count+4].g=cg;vertices[vertices_count+4].b=cb;vertices[vertices_count+4].a=1;
+            vertices[vertices_count+4].x=(float)(white_idx-key_leftpos+0.15f);
+            vertices[vertices_count+4].y=ynBL+key_heightBL;
+            vertices[vertices_count+4].z=z-key_lengthBL*6/5;
             
-            glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-            vertices_count+=4;
+            vertices_count+=6;
             
             cr=crt*0.6f;cg=cgt*0.6f;cb=cbt*0.6f;
             /*FRONT*/
-            vertColor[0][0]=cr;vertColor[0][1]=cg;vertColor[0][2]=cb;
-            vertices[0][0]=(float)(white_idx-key_leftpos-0.3f);
-            vertices[0][1]=ynBL;
-            vertices[0][2]=z-key_lengthBL;
-            vertColor[1][0]=cr;vertColor[1][1]=cg;vertColor[1][2]=cb;
-            vertices[1][0]=(float)(white_idx-key_leftpos-0.15f);
-            vertices[1][1]=ynBL+key_heightBL;
-            vertices[1][2]=z-key_lengthBL*6/5;
-            vertColor[2][0]=cr;vertColor[2][1]=cg;vertColor[2][2]=cb;
-            vertices[2][0]=(float)(white_idx-key_leftpos+0.3f);
-            vertices[2][1]=ynBL;
-            vertices[2][2]=z-key_lengthBL;
-            vertColor[3][0]=cr;vertColor[3][1]=cg;vertColor[3][2]=cb;
-            vertices[3][0]=(float)(white_idx-key_leftpos+0.15f);
-            vertices[3][1]=ynBL+key_heightBL;
-            vertices[3][2]=z-key_lengthBL*6/5;
+            vertices[vertices_count+0].r=cr;vertices[vertices_count+0].g=cg;vertices[vertices_count+0].b=cb;vertices[vertices_count+0].a=1;
+            vertices[vertices_count+0].x=(float)(white_idx-key_leftpos-0.3f);
+            vertices[vertices_count+0].y=ynBL;
+            vertices[vertices_count+0].z=z-key_lengthBL;
+            vertices[vertices_count+1].r=cr;vertices[vertices_count+1].g=cg;vertices[vertices_count+1].b=cb;vertices[vertices_count+1].a=1;
+            vertices[vertices_count+1].x=(float)(white_idx-key_leftpos-0.15f);
+            vertices[vertices_count+1].y=ynBL+key_heightBL;
+            vertices[vertices_count+1].z=z-key_lengthBL*6/5;
+            vertices[vertices_count+2].r=cr;vertices[vertices_count+2].g=cg;vertices[vertices_count+2].b=cb;vertices[vertices_count+2].a=1;
+            vertices[vertices_count+2].x=(float)(white_idx-key_leftpos+0.3f);
+            vertices[vertices_count+2].y=ynBL;
+            vertices[vertices_count+2].z=z-key_lengthBL;
+            vertices[vertices_count+3].r=cr;vertices[vertices_count+3].g=cg;vertices[vertices_count+3].b=cb;vertices[vertices_count+3].a=1;
+            vertices[vertices_count+3].x=(float)(white_idx-key_leftpos+0.15f);
+            vertices[vertices_count+3].y=ynBL+key_heightBL;
+            vertices[vertices_count+3].z=z-key_lengthBL*6/5;
+            vertices[vertices_count+5].r=cr;vertices[vertices_count+5].g=cg;vertices[vertices_count+5].b=cb;vertices[vertices_count+5].a=1;
+            vertices[vertices_count+5].x=(float)(white_idx-key_leftpos-0.15f);
+            vertices[vertices_count+5].y=ynBL+key_heightBL;
+            vertices[vertices_count+5].z=z-key_lengthBL*6/5;
+            vertices[vertices_count+4].r=cr;vertices[vertices_count+4].g=cg;vertices[vertices_count+4].b=cb;vertices[vertices_count+4].a=1;
+            vertices[vertices_count+4].x=(float)(white_idx-key_leftpos+0.3f);
+            vertices[vertices_count+4].y=ynBL;
+            vertices[vertices_count+4].z=z-key_lengthBL;
             
-            glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-            vertices_count+=4;
+            vertices_count+=6;
             
             /*BACK*/
-            vertColor[0][0]=cr;vertColor[0][1]=cg;vertColor[0][2]=cb;
-            vertices[0][0]=(float)(white_idx-key_leftpos-0.3f);
-            vertices[0][1]=yf;
-            vertices[0][2]=z-key_length;
-            vertColor[1][0]=cr;vertColor[1][1]=cg;vertColor[1][2]=cb;
-            vertices[1][0]=(float)(white_idx-key_leftpos-0.15f);
-            vertices[1][1]=yf+key_heightBL;
-            vertices[1][2]=z-key_length;
-            vertColor[2][0]=cr;vertColor[2][1]=cg;vertColor[2][2]=cb;
-            vertices[2][0]=(float)(white_idx-key_leftpos+0.3f);
-            vertices[2][1]=yf;
-            vertices[2][2]=z-key_length;
-            vertColor[3][0]=cr;vertColor[3][1]=cg;vertColor[3][2]=cb;
-            vertices[3][0]=(float)(white_idx-key_leftpos+0.15f);
-            vertices[3][1]=yf+key_heightBL;
-            vertices[3][2]=z-key_length;
+            vertices[vertices_count+0].r=cr;vertices[vertices_count+0].g=cg;vertices[vertices_count+0].b=cb;vertices[vertices_count+0].a=1;
+            vertices[vertices_count+0].x=(float)(white_idx-key_leftpos-0.3f);
+            vertices[vertices_count+0].y=yf;
+            vertices[vertices_count+0].z=z-key_length;
+            vertices[vertices_count+1].r=cr;vertices[vertices_count+1].g=cg;vertices[vertices_count+1].b=cb;vertices[vertices_count+1].a=1;
+            vertices[vertices_count+1].x=(float)(white_idx-key_leftpos-0.15f);
+            vertices[vertices_count+1].y=yf+key_heightBL;
+            vertices[vertices_count+1].z=z-key_length;
+            vertices[vertices_count+2].r=cr;vertices[vertices_count+2].g=cg;vertices[vertices_count+2].b=cb;vertices[vertices_count+2].a=1;
+            vertices[vertices_count+2].x=(float)(white_idx-key_leftpos+0.3f);
+            vertices[vertices_count+2].y=yf;
+            vertices[vertices_count+2].z=z-key_length;
+            vertices[vertices_count+3].r=cr;vertices[vertices_count+3].g=cg;vertices[vertices_count+3].b=cb;vertices[vertices_count+3].a=1;
+            vertices[vertices_count+3].x=(float)(white_idx-key_leftpos+0.15f);
+            vertices[vertices_count+3].y=yf+key_heightBL;
+            vertices[vertices_count+3].z=z-key_length;
+            vertices[vertices_count+5].r=cr;vertices[vertices_count+5].g=cg;vertices[vertices_count+5].b=cb;vertices[vertices_count+5].a=1;
+            vertices[vertices_count+5].x=(float)(white_idx-key_leftpos-0.15f);
+            vertices[vertices_count+5].y=yf+key_heightBL;
+            vertices[vertices_count+5].z=z-key_length;
+            vertices[vertices_count+4].r=cr;vertices[vertices_count+4].g=cg;vertices[vertices_count+4].b=cb;vertices[vertices_count+4].a=1;
+            vertices[vertices_count+4].x=(float)(white_idx-key_leftpos+0.3f);
+            vertices[vertices_count+4].y=yf;
+            vertices[vertices_count+4].z=z-key_length;
             
-            glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-            vertices_count+=4;
+            vertices_count+=6;
             
             /*RIGHT*/
-            vertColor[0][0]=cr;vertColor[0][1]=cg;vertColor[0][2]=cb;
-            vertices[0][0]=(float)(white_idx-key_leftpos+0.3f);
-            vertices[0][1]=ynBL;
-            vertices[0][2]=z-key_lengthBL;
-            vertColor[1][0]=cr;vertColor[1][1]=cg;vertColor[1][2]=cb;
-            vertices[1][0]=(float)(white_idx-key_leftpos+0.15f);
-            vertices[1][1]=ynBL+key_heightBL;
-            vertices[1][2]=z-key_lengthBL*6/5;
-            vertColor[2][0]=cr;vertColor[2][1]=cg;vertColor[2][2]=cb;
-            vertices[2][0]=(float)(white_idx-key_leftpos+0.3f);
-            vertices[2][1]=yf;
-            vertices[2][2]=z-key_length;
-            vertColor[3][0]=cr;vertColor[3][1]=cg;vertColor[3][2]=cb;
-            vertices[3][0]=(float)(white_idx-key_leftpos+0.15f);
-            vertices[3][1]=yf+key_heightBL;
-            vertices[3][2]=z-key_length;
+            vertices[vertices_count+0].r=cr;vertices[vertices_count+0].g=cg;vertices[vertices_count+0].b=cb;vertices[vertices_count+0].a=1;
+            vertices[vertices_count+0].x=(float)(white_idx-key_leftpos+0.3f);
+            vertices[vertices_count+0].y=ynBL;
+            vertices[vertices_count+0].z=z-key_lengthBL;
+            vertices[vertices_count+1].r=cr;vertices[vertices_count+1].g=cg;vertices[vertices_count+1].b=cb;vertices[vertices_count+1].a=1;
+            vertices[vertices_count+1].x=(float)(white_idx-key_leftpos+0.15f);
+            vertices[vertices_count+1].y=ynBL+key_heightBL;
+            vertices[vertices_count+1].z=z-key_lengthBL*6/5;
+            vertices[vertices_count+2].r=cr;vertices[vertices_count+2].g=cg;vertices[vertices_count+2].b=cb;vertices[vertices_count+2].a=1;
+            vertices[vertices_count+2].x=(float)(white_idx-key_leftpos+0.3f);
+            vertices[vertices_count+2].y=yf;
+            vertices[vertices_count+2].z=z-key_length;
+            vertices[vertices_count+3].r=cr;vertices[vertices_count+3].g=cg;vertices[vertices_count+3].b=cb;vertices[vertices_count+3].a=1;
+            vertices[vertices_count+3].x=(float)(white_idx-key_leftpos+0.15f);
+            vertices[vertices_count+3].y=yf+key_heightBL;
+            vertices[vertices_count+3].z=z-key_length;
+            vertices[vertices_count+5].r=cr;vertices[vertices_count+5].g=cg;vertices[vertices_count+5].b=cb;vertices[vertices_count+5].a=1;
+            vertices[vertices_count+5].x=(float)(white_idx-key_leftpos+0.15f);
+            vertices[vertices_count+5].y=ynBL+key_heightBL;
+            vertices[vertices_count+5].z=z-key_lengthBL*6/5;
+            vertices[vertices_count+4].r=cr;vertices[vertices_count+4].g=cg;vertices[vertices_count+4].b=cb;vertices[vertices_count+4].a=1;
+            vertices[vertices_count+4].x=(float)(white_idx-key_leftpos+0.3f);
+            vertices[vertices_count+4].y=yf;
+            vertices[vertices_count+4].z=z-key_length;
             
-            glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-            vertices_count+=4;
+            vertices_count+=6;
             
             /*LEFT*/
-            vertColor[0][0]=cr;vertColor[0][1]=cg;vertColor[0][2]=cb;
-            vertices[0][0]=(float)(white_idx-key_leftpos-0.3f);
-            vertices[0][1]=yf;
-            vertices[0][2]=z-key_length;
-            vertColor[1][0]=cr;vertColor[1][1]=cg;vertColor[1][2]=cb;
-            vertices[1][0]=(float)(white_idx-key_leftpos-0.15f);
-            vertices[1][1]=yf+key_heightBL;
-            vertices[1][2]=z-key_length;
-            vertColor[2][0]=cr;vertColor[2][1]=cg;vertColor[2][2]=cb;
-            vertices[2][0]=(float)(white_idx-key_leftpos-0.3f);
-            vertices[2][1]=ynBL;
-            vertices[2][2]=z-key_lengthBL;
-            vertColor[3][0]=cr;vertColor[3][1]=cg;vertColor[3][2]=cb;
-            vertices[3][0]=(float)(white_idx-key_leftpos-0.15f);
-            vertices[3][1]=ynBL+key_heightBL;
-            vertices[3][2]=z-key_lengthBL*6/5;
+            vertices[vertices_count+0].r=cr;vertices[vertices_count+0].g=cg;vertices[vertices_count+0].b=cb;vertices[vertices_count+0].a=1;
+            vertices[vertices_count+0].x=(float)(white_idx-key_leftpos-0.3f);
+            vertices[vertices_count+0].y=yf;
+            vertices[vertices_count+0].z=z-key_length;
+            vertices[vertices_count+1].r=cr;vertices[vertices_count+1].g=cg;vertices[vertices_count+1].b=cb;vertices[vertices_count+1].a=1;
+            vertices[vertices_count+1].x=(float)(white_idx-key_leftpos-0.15f);
+            vertices[vertices_count+1].y=yf+key_heightBL;
+            vertices[vertices_count+1].z=z-key_length;
+            vertices[vertices_count+2].r=cr;vertices[vertices_count+2].g=cg;vertices[vertices_count+2].b=cb;vertices[vertices_count+2].a=1;
+            vertices[vertices_count+2].x=(float)(white_idx-key_leftpos-0.3f);
+            vertices[vertices_count+2].y=ynBL;
+            vertices[vertices_count+2].z=z-key_lengthBL;
+            vertices[vertices_count+3].r=cr;vertices[vertices_count+3].g=cg;vertices[vertices_count+3].b=cb;vertices[vertices_count+3].a=1;
+            vertices[vertices_count+3].x=(float)(white_idx-key_leftpos-0.15f);
+            vertices[vertices_count+3].y=ynBL+key_heightBL;
+            vertices[vertices_count+3].z=z-key_lengthBL*6/5;
+            vertices[vertices_count+5].r=cr;vertices[vertices_count+5].g=cg;vertices[vertices_count+5].b=cb;vertices[vertices_count+5].a=1;
+            vertices[vertices_count+5].x=(float)(white_idx-key_leftpos-0.15f);
+            vertices[vertices_count+5].y=yf+key_heightBL;
+            vertices[vertices_count+5].z=z-key_length;
+            vertices[vertices_count+4].r=cr;vertices[vertices_count+4].g=cg;vertices[vertices_count+4].b=cb;vertices[vertices_count+4].a=1;
+            vertices[vertices_count+4].x=(float)(white_idx-key_leftpos-0.3f);
+            vertices[vertices_count+4].y=ynBL;
+            vertices[vertices_count+4].z=z-key_lengthBL;
             
-            glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-            vertices_count+=4;
+            vertices_count+=6;
         }
         piano_ofs++;
     }
     
-    vertColor[0][3]=vertColor[1][3]=vertColor[2][3]=vertColor[3][3]=1.0f;
+    glDrawArrays(GL_TRIANGLES, 0, vertices_count);
     
     int tgt_note_min=127;
     int tgt_note_max=0;
@@ -5446,6 +5611,8 @@ void RenderUtils::DrawPiano3DWithNotesWall(float ox,float oy,float ww,float hh,f
     if (tgt_note_min<127) note_min=tgt_note_min;
     
     glRestoreState();
+    
+    free(vertices);
 }
 
 void RenderUtils::UpdateDataMidiFX(unsigned int *data,bool clearBuffer,bool paused) {
@@ -5498,7 +5665,7 @@ void RenderUtils::UpdateDataMidiFX(unsigned int *data,bool clearBuffer,bool paus
     if (!paused) data_midifx_framecpt++;
 }
 
-void RenderUtils::DrawMidiFX(float ox,float oy,float ww,float hh,float winWidth,float winHeight,int horiz_vert,float note_display_range, float note_display_offset,int fx_len,int color_mode,float mScaleFactor) {
+void RenderUtils::DrawMidiFX(float ox,float oy,float ww,float hh,int horiz_vert,float note_display_range, float note_display_offset,int fx_len,int color_mode,float mScaleFactor) {
     LineVertexF *ptsB;
     coordData *texcoords; /* Holds Float Info For 4 Sets Of Texture coordinates. */
     int crt,cgt,cbt,ca;
@@ -5745,83 +5912,77 @@ void RenderUtils::DrawMidiFX(float ox,float oy,float ww,float hh,float winWidth,
                 if ((settings[GLOB_FXMIDIBarStyle].detail.mdz_switch.switch_value==0)||(settings[GLOB_FXMIDIBarStyle].detail.mdz_switch.switch_value==2)) {
                     
                     if (index+12>=max_indices) {
-                        for (int ii=0;ii<index;ii++) {
-                            ptsB[ii].x+=2*ox/winWidth;
-                            ptsB[ii].y+=2*oy/winHeight;
-                        }
+                        
                         glDrawArrays(GL_TRIANGLES, 0, index);
                         index=0;
                     }
-                    ptsB[index++] = LineVertexF(posStart-line_width_extra, posNote-line_width_extra,crtp[0],cgtp[0],cbtp[0],cap[0],winWidth,winHeight);
-                    ptsB[index++] = LineVertexF(posEnd+line_width_extra, posNote-line_width_extra,crtp[1],cgtp[1],cbtp[1],cap[1],winWidth,winHeight);
-                    ptsB[index++] = LineVertexF(posStart-line_width_extra, posNote+(line_width)/2,crt,cgt,cbt,ca,winWidth,winHeight);
+                    ptsB[index++] = LineVertexF(posStart-line_width_extra, posNote-line_width_extra,crtp[0],cgtp[0],cbtp[0],cap[0],ww,hh);
+                    ptsB[index++] = LineVertexF(posEnd+line_width_extra, posNote-line_width_extra,crtp[1],cgtp[1],cbtp[1],cap[1],ww,hh);
+                    ptsB[index++] = LineVertexF(posStart-line_width_extra, posNote+(line_width)/2,crt,cgt,cbt,ca,ww,hh);
                     
-                    ptsB[index++] = LineVertexF(posEnd+line_width_extra, posNote-line_width_extra,crtp[1],cgtp[1],cbtp[1],cap[1],winWidth,winHeight);
-                    ptsB[index++] = LineVertexF(posStart-line_width_extra, posNote+(line_width)/2,crt,cgt,cbt,ca,winWidth,winHeight);
-                    ptsB[index++] = LineVertexF(posEnd+line_width_extra, posNote+(line_width)/2,crt,cgt,cbt,ca,winWidth,winHeight);
+                    ptsB[index++] = LineVertexF(posEnd+line_width_extra, posNote-line_width_extra,crtp[1],cgtp[1],cbtp[1],cap[1],ww,hh);
+                    ptsB[index++] = LineVertexF(posStart-line_width_extra, posNote+(line_width)/2,crt,cgt,cbt,ca,ww,hh);
+                    ptsB[index++] = LineVertexF(posEnd+line_width_extra, posNote+(line_width)/2,crt,cgt,cbt,ca,ww,hh);
                     
-                    ptsB[index++] = LineVertexF(posStart-line_width_extra, posNote+(line_width)/2,crt,cgt,cbt,ca,winWidth,winHeight);
-                    ptsB[index++] = LineVertexF(posEnd+line_width_extra, posNote+(line_width)/2,crt,cgt,cbt,ca,winWidth,winHeight);
-                    ptsB[index++] = LineVertexF(posStart-line_width_extra, posNote+line_width+line_width_extra,crtp[2],cgtp[2],cbtp[2],cap[2],winWidth,winHeight);
+                    ptsB[index++] = LineVertexF(posStart-line_width_extra, posNote+(line_width)/2,crt,cgt,cbt,ca,ww,hh);
+                    ptsB[index++] = LineVertexF(posEnd+line_width_extra, posNote+(line_width)/2,crt,cgt,cbt,ca,ww,hh);
+                    ptsB[index++] = LineVertexF(posStart-line_width_extra, posNote+line_width+line_width_extra,crtp[2],cgtp[2],cbtp[2],cap[2],ww,hh);
                     
-                    ptsB[index++] = LineVertexF(posEnd+line_width_extra, posNote+(line_width)/2,crt,cgt,cbt,ca,winWidth,winHeight);
-                    ptsB[index++] = LineVertexF(posStart-line_width_extra, posNote+line_width+line_width_extra,crtp[2],cgtp[2],cbtp[2],cap[2],winWidth,winHeight);
-                    ptsB[index++] = LineVertexF(posEnd+line_width_extra, posNote+line_width+line_width_extra,crtp[3],cgtp[3],cbtp[3],cap[3],winWidth,winHeight);
+                    ptsB[index++] = LineVertexF(posEnd+line_width_extra, posNote+(line_width)/2,crt,cgt,cbt,ca,ww,hh);
+                    ptsB[index++] = LineVertexF(posStart-line_width_extra, posNote+line_width+line_width_extra,crtp[2],cgtp[2],cbtp[2],cap[2],ww,hh);
+                    ptsB[index++] = LineVertexF(posEnd+line_width_extra, posNote+line_width+line_width_extra,crtp[3],cgtp[3],cbtp[3],cap[3],ww,hh);
                 } else {
                     int border_size=(line_width>=8?2:1);
                     
                     if (index+30>=max_indices) {
-                        for (int ii=0;ii<index;ii++) {
-                            ptsB[ii].x+=2*ox/winWidth;
-                            ptsB[ii].y+=2*oy/winHeight;
-                        }
+                        
                         glDrawArrays(GL_TRIANGLES, 0, index);
                         index=0;
                     }
                     //top
-                    ptsB[index++] = LineVertexF(posStart-line_width_extra, posNote-line_width_extra,crtp[0],cgtp[0],cbtp[0],cap[0],winWidth,winHeight);
-                    ptsB[index++] = LineVertexF(posEnd+line_width_extra, posNote-line_width_extra,crtp[1],cgtp[1],cbtp[1],cap[1],winWidth,winHeight);
-                    ptsB[index++] = LineVertexF(posEnd+line_width_extra, posNote-line_width_extra+border_size,crtp[1],cgtp[1],cbtp[1],cap[1],winWidth,winHeight);
+                    ptsB[index++] = LineVertexF(posStart-line_width_extra, posNote-line_width_extra,crtp[0],cgtp[0],cbtp[0],cap[0],ww,hh);
+                    ptsB[index++] = LineVertexF(posEnd+line_width_extra, posNote-line_width_extra,crtp[1],cgtp[1],cbtp[1],cap[1],ww,hh);
+                    ptsB[index++] = LineVertexF(posEnd+line_width_extra, posNote-line_width_extra+border_size,crtp[1],cgtp[1],cbtp[1],cap[1],ww,hh);
                     
-                    ptsB[index++] = LineVertexF(posStart-line_width_extra, posNote-line_width_extra,crtp[0],cgtp[0],cbtp[0],cap[0],winWidth,winHeight);
-                    ptsB[index++] = LineVertexF(posEnd+line_width_extra, posNote-line_width_extra+border_size,crtp[1],cgtp[1],cbtp[1],cap[1],winWidth,winHeight);
-                    ptsB[index++] = LineVertexF(posStart-line_width_extra, posNote-line_width_extra+border_size,crtp[0],cgtp[0],cbtp[0],cap[0],winWidth,winHeight);
+                    ptsB[index++] = LineVertexF(posStart-line_width_extra, posNote-line_width_extra,crtp[0],cgtp[0],cbtp[0],cap[0],ww,hh);
+                    ptsB[index++] = LineVertexF(posEnd+line_width_extra, posNote-line_width_extra+border_size,crtp[1],cgtp[1],cbtp[1],cap[1],ww,hh);
+                    ptsB[index++] = LineVertexF(posStart-line_width_extra, posNote-line_width_extra+border_size,crtp[0],cgtp[0],cbtp[0],cap[0],ww,hh);
                     
                     //left
-                    ptsB[index++] = LineVertexF(posStart-line_width_extra, posNote-line_width_extra,crtp[0],cgtp[0],cbtp[0],cap[0],winWidth,winHeight);
-                    ptsB[index++] = LineVertexF(posStart-line_width_extra+border_size, posNote-line_width_extra,crtp[1],cgtp[1],cbtp[1],cap[1],winWidth,winHeight);
-                    ptsB[index++] = LineVertexF(posStart-line_width_extra+border_size, posNote+(line_width)+line_width_extra,crtp[1],cgtp[1],cbtp[1],cap[1],winWidth,winHeight);
+                    ptsB[index++] = LineVertexF(posStart-line_width_extra, posNote-line_width_extra,crtp[0],cgtp[0],cbtp[0],cap[0],ww,hh);
+                    ptsB[index++] = LineVertexF(posStart-line_width_extra+border_size, posNote-line_width_extra,crtp[1],cgtp[1],cbtp[1],cap[1],ww,hh);
+                    ptsB[index++] = LineVertexF(posStart-line_width_extra+border_size, posNote+(line_width)+line_width_extra,crtp[1],cgtp[1],cbtp[1],cap[1],ww,hh);
                     
-                    ptsB[index++] = LineVertexF(posStart-line_width_extra, posNote-line_width_extra,crtp[0],cgtp[0],cbtp[0],cap[0],winWidth,winHeight);
-                    ptsB[index++] = LineVertexF(posStart-line_width_extra+border_size, posNote+(line_width)+line_width_extra,crtp[1],cgtp[1],cbtp[1],cap[1],winWidth,winHeight);
-                    ptsB[index++] = LineVertexF(posStart-line_width_extra, posNote+(line_width)+line_width_extra,crtp[1],cgtp[1],cbtp[1],cap[1],winWidth,winHeight);
+                    ptsB[index++] = LineVertexF(posStart-line_width_extra, posNote-line_width_extra,crtp[0],cgtp[0],cbtp[0],cap[0],ww,hh);
+                    ptsB[index++] = LineVertexF(posStart-line_width_extra+border_size, posNote+(line_width)+line_width_extra,crtp[1],cgtp[1],cbtp[1],cap[1],ww,hh);
+                    ptsB[index++] = LineVertexF(posStart-line_width_extra, posNote+(line_width)+line_width_extra,crtp[1],cgtp[1],cbtp[1],cap[1],ww,hh);
                     
                     //bottom
-                    ptsB[index++] = LineVertexF(posStart-line_width_extra, posNote+(line_width)+line_width_extra,crtp[2],cgtp[2],cbtp[2],cap[2],winWidth,winHeight);
-                    ptsB[index++] = LineVertexF(posEnd+line_width_extra, posNote+(line_width)+line_width_extra,crtp[3],cgtp[3],cbtp[3],cap[3],winWidth,winHeight);
-                    ptsB[index++] = LineVertexF(posEnd+line_width_extra, posNote+(line_width)+line_width_extra-border_size,crtp[3],cgtp[3],cbtp[3],cap[3],winWidth,winHeight);
+                    ptsB[index++] = LineVertexF(posStart-line_width_extra, posNote+(line_width)+line_width_extra,crtp[2],cgtp[2],cbtp[2],cap[2],ww,hh);
+                    ptsB[index++] = LineVertexF(posEnd+line_width_extra, posNote+(line_width)+line_width_extra,crtp[3],cgtp[3],cbtp[3],cap[3],ww,hh);
+                    ptsB[index++] = LineVertexF(posEnd+line_width_extra, posNote+(line_width)+line_width_extra-border_size,crtp[3],cgtp[3],cbtp[3],cap[3],ww,hh);
                     
-                    ptsB[index++] = LineVertexF(posStart-line_width_extra, posNote+(line_width)+line_width_extra,crtp[2],cgtp[2],cbtp[2],cap[2],winWidth,winHeight);
-                    ptsB[index++] = LineVertexF(posEnd+line_width_extra, posNote+(line_width)+line_width_extra-border_size,crtp[3],cgtp[3],cbtp[3],cap[3],winWidth,winHeight);
-                    ptsB[index++] = LineVertexF(posStart-line_width_extra, posNote+(line_width)+line_width_extra-border_size,crtp[2],cgtp[2],cbtp[2],cap[2],winWidth,winHeight);
+                    ptsB[index++] = LineVertexF(posStart-line_width_extra, posNote+(line_width)+line_width_extra,crtp[2],cgtp[2],cbtp[2],cap[2],ww,hh);
+                    ptsB[index++] = LineVertexF(posEnd+line_width_extra, posNote+(line_width)+line_width_extra-border_size,crtp[3],cgtp[3],cbtp[3],cap[3],ww,hh);
+                    ptsB[index++] = LineVertexF(posStart-line_width_extra, posNote+(line_width)+line_width_extra-border_size,crtp[2],cgtp[2],cbtp[2],cap[2],ww,hh);
                     
                     //right
-                    ptsB[index++] = LineVertexF(posEnd+line_width_extra, posNote-line_width_extra,crtp[2],cgtp[2],cbtp[2],cap[2],winWidth,winHeight);
-                    ptsB[index++] = LineVertexF(posEnd+line_width_extra-border_size, posNote-line_width_extra,crtp[3],cgtp[3],cbtp[3],cap[3],winWidth,winHeight);
-                    ptsB[index++] = LineVertexF(posEnd+line_width_extra-border_size, posNote+(line_width)+line_width_extra,crtp[3],cgtp[3],cbtp[3],cap[3],winWidth,winHeight);
+                    ptsB[index++] = LineVertexF(posEnd+line_width_extra, posNote-line_width_extra,crtp[2],cgtp[2],cbtp[2],cap[2],ww,hh);
+                    ptsB[index++] = LineVertexF(posEnd+line_width_extra-border_size, posNote-line_width_extra,crtp[3],cgtp[3],cbtp[3],cap[3],ww,hh);
+                    ptsB[index++] = LineVertexF(posEnd+line_width_extra-border_size, posNote+(line_width)+line_width_extra,crtp[3],cgtp[3],cbtp[3],cap[3],ww,hh);
                     
-                    ptsB[index++] = LineVertexF(posEnd+line_width_extra, posNote-line_width_extra,crtp[2],cgtp[2],cbtp[2],cap[2],winWidth,winHeight);
-                    ptsB[index++] = LineVertexF(posEnd+line_width_extra-border_size, posNote+(line_width)+line_width_extra,crtp[3],cgtp[3],cbtp[3],cap[3],winWidth,winHeight);
-                    ptsB[index++] = LineVertexF(posEnd+line_width_extra, posNote+(line_width)+line_width_extra,crtp[3],cgtp[3],cbtp[3],cap[3],winWidth,winHeight);
+                    ptsB[index++] = LineVertexF(posEnd+line_width_extra, posNote-line_width_extra,crtp[2],cgtp[2],cbtp[2],cap[2],ww,hh);
+                    ptsB[index++] = LineVertexF(posEnd+line_width_extra-border_size, posNote+(line_width)+line_width_extra,crtp[3],cgtp[3],cbtp[3],cap[3],ww,hh);
+                    ptsB[index++] = LineVertexF(posEnd+line_width_extra, posNote+(line_width)+line_width_extra,crtp[3],cgtp[3],cbtp[3],cap[3],ww,hh);
                     
                     //inner part
-                    ptsB[index++] = LineVertexF(posStart-line_width_extra+border_size, posNote-line_width_extra+border_size,crt,cgt,cbt,ca,winWidth,winHeight);
-                    ptsB[index++] = LineVertexF(posEnd+line_width_extra-border_size, posNote-line_width_extra+border_size,crt,cgt,cbt,ca,winWidth,winHeight);
-                    ptsB[index++] = LineVertexF(posStart-line_width_extra+border_size, posNote+(line_width)+line_width_extra-border_size,crt,cgt,cbt,ca,winWidth,winHeight);
+                    ptsB[index++] = LineVertexF(posStart-line_width_extra+border_size, posNote-line_width_extra+border_size,crt,cgt,cbt,ca,ww,hh);
+                    ptsB[index++] = LineVertexF(posEnd+line_width_extra-border_size, posNote-line_width_extra+border_size,crt,cgt,cbt,ca,ww,hh);
+                    ptsB[index++] = LineVertexF(posStart-line_width_extra+border_size, posNote+(line_width)+line_width_extra-border_size,crt,cgt,cbt,ca,ww,hh);
                     
-                    ptsB[index++] = LineVertexF(posEnd+line_width_extra-border_size, posNote-line_width_extra+border_size,crt,cgt,cbt,ca,winWidth,winHeight);
-                    ptsB[index++] = LineVertexF(posStart-line_width_extra+border_size, posNote+(line_width)+line_width_extra-border_size,crt,cgt,cbt,ca,winWidth,winHeight);
-                    ptsB[index++] = LineVertexF(posEnd+line_width_extra-border_size, posNote+(line_width)+line_width_extra-border_size,crt,cgt,cbt,ca,winWidth,winHeight);
+                    ptsB[index++] = LineVertexF(posEnd+line_width_extra-border_size, posNote-line_width_extra+border_size,crt,cgt,cbt,ca,ww,hh);
+                    ptsB[index++] = LineVertexF(posStart-line_width_extra+border_size, posNote+(line_width)+line_width_extra-border_size,crt,cgt,cbt,ca,ww,hh);
+                    ptsB[index++] = LineVertexF(posEnd+line_width_extra-border_size, posNote+(line_width)+line_width_extra-border_size,crt,cgt,cbt,ca,ww,hh);
                     
                     
                 }
@@ -5835,95 +5996,85 @@ void RenderUtils::DrawMidiFX(float ox,float oy,float ww,float hh,float winWidth,
                 if ((settings[GLOB_FXMIDIBarStyle].detail.mdz_switch.switch_value==0)||(settings[GLOB_FXMIDIBarStyle].detail.mdz_switch.switch_value==2)) {
                     
                     if (index+12>=max_indices) {
-                        for (int ii=0;ii<index;ii++) {
-                            ptsB[ii].x+=2*ox/winWidth;
-                            ptsB[ii].y+=2*oy/winHeight;
-                        }
+                        
                         glDrawArrays(GL_TRIANGLES, 0, index);
                         index=0;
                     }
                     
-                    ptsB[index++] = LineVertexF(posNote-line_width_extra, posStart-line_width_extra,crtp[0],cgtp[0],cbtp[0],cap[0],winWidth,winHeight);
-                    ptsB[index++] = LineVertexF(posNote-line_width_extra, posEnd+line_width_extra,crtp[1],cgtp[1],cbtp[1],cap[1],winWidth,winHeight);
-                    ptsB[index++] = LineVertexF(posNote+(line_width)/2, posStart-line_width_extra, crt,cgt,cbt,ca,winWidth,winHeight);
+                    ptsB[index++] = LineVertexF(posNote-line_width_extra, posStart-line_width_extra,crtp[0],cgtp[0],cbtp[0],cap[0],ww,hh);
+                    ptsB[index++] = LineVertexF(posNote-line_width_extra, posEnd+line_width_extra,crtp[1],cgtp[1],cbtp[1],cap[1],ww,hh);
+                    ptsB[index++] = LineVertexF(posNote+(line_width)/2, posStart-line_width_extra, crt,cgt,cbt,ca,ww,hh);
                     
-                    ptsB[index++] = LineVertexF(posNote-line_width_extra, posEnd+line_width_extra,crtp[1],cgtp[1],cbtp[1],cap[1],winWidth,winHeight);
-                    ptsB[index++] = LineVertexF(posNote+(line_width)/2, posStart-line_width_extra, crt,cgt,cbt,ca,winWidth,winHeight);
-                    ptsB[index++] = LineVertexF(posNote+(line_width)/2, posEnd+line_width_extra, crt,cgt,cbt,ca,winWidth,winHeight);
+                    ptsB[index++] = LineVertexF(posNote-line_width_extra, posEnd+line_width_extra,crtp[1],cgtp[1],cbtp[1],cap[1],ww,hh);
+                    ptsB[index++] = LineVertexF(posNote+(line_width)/2, posStart-line_width_extra, crt,cgt,cbt,ca,ww,hh);
+                    ptsB[index++] = LineVertexF(posNote+(line_width)/2, posEnd+line_width_extra, crt,cgt,cbt,ca,ww,hh);
                     
-                    ptsB[index++] = LineVertexF(posNote+(line_width)/2, posStart-line_width_extra, crt,cgt,cbt,ca,winWidth,winHeight);
-                    ptsB[index++] = LineVertexF(posNote+(line_width)/2, posEnd+line_width_extra, crt,cgt,cbt,ca,winWidth,winHeight);
-                    ptsB[index++] = LineVertexF(posNote+(line_width)+line_width_extra, posStart-line_width_extra,crtp[2],cgtp[2],cbtp[2],cap[2],winWidth,winHeight);
+                    ptsB[index++] = LineVertexF(posNote+(line_width)/2, posStart-line_width_extra, crt,cgt,cbt,ca,ww,hh);
+                    ptsB[index++] = LineVertexF(posNote+(line_width)/2, posEnd+line_width_extra, crt,cgt,cbt,ca,ww,hh);
+                    ptsB[index++] = LineVertexF(posNote+(line_width)+line_width_extra, posStart-line_width_extra,crtp[2],cgtp[2],cbtp[2],cap[2],ww,hh);
                     
-                    ptsB[index++] = LineVertexF(posNote+(line_width)/2, posEnd+line_width_extra, crt,cgt,cbt,ca,winWidth,winHeight);
-                    ptsB[index++] = LineVertexF(posNote+(line_width)+line_width_extra, posStart-line_width_extra,crtp[2],cgtp[2],cbtp[2],cap[2],winWidth,winHeight);
-                    ptsB[index++] = LineVertexF(posNote+(line_width)+line_width_extra, posEnd+line_width_extra,crtp[3],cgtp[3],cbtp[3],cap[3],winWidth,winHeight);
+                    ptsB[index++] = LineVertexF(posNote+(line_width)/2, posEnd+line_width_extra, crt,cgt,cbt,ca,ww,hh);
+                    ptsB[index++] = LineVertexF(posNote+(line_width)+line_width_extra, posStart-line_width_extra,crtp[2],cgtp[2],cbtp[2],cap[2],ww,hh);
+                    ptsB[index++] = LineVertexF(posNote+(line_width)+line_width_extra, posEnd+line_width_extra,crtp[3],cgtp[3],cbtp[3],cap[3],ww,hh);
                 } else {
                     int border_size=(line_width>=8?2:1);
                     
                     if (index+30>=max_indices) {
-                        for (int ii=0;ii<index;ii++) {
-                            ptsB[ii].x+=2*ox/winWidth;
-                            ptsB[ii].y+=2*oy/winHeight;
-                        }
+                        
                         glDrawArrays(GL_TRIANGLES, 0, index);
                         index=0;
                     }
                     
                     //top
-                    ptsB[index++] = LineVertexF(posNote-line_width_extra, posStart-line_width_extra, crtp[0],cgtp[0],cbtp[0],cap[0],winWidth,winHeight);
-                    ptsB[index++] = LineVertexF(posNote-line_width_extra, posStart-line_width_extra+border_size, crtp[1],cgtp[1],cbtp[1],cap[1],winWidth,winHeight);
-                    ptsB[index++] = LineVertexF(posNote+(line_width)+line_width_extra, posStart-line_width_extra+border_size, crtp[1],cgtp[1],cbtp[1],cap[1],winWidth,winHeight);
+                    ptsB[index++] = LineVertexF(posNote-line_width_extra, posStart-line_width_extra, crtp[0],cgtp[0],cbtp[0],cap[0],ww,hh);
+                    ptsB[index++] = LineVertexF(posNote-line_width_extra, posStart-line_width_extra+border_size, crtp[1],cgtp[1],cbtp[1],cap[1],ww,hh);
+                    ptsB[index++] = LineVertexF(posNote+(line_width)+line_width_extra, posStart-line_width_extra+border_size, crtp[1],cgtp[1],cbtp[1],cap[1],ww,hh);
                     
-                    ptsB[index++] = LineVertexF(posNote-line_width_extra, posStart-line_width_extra, crtp[0],cgtp[0],cbtp[0],cap[0],winWidth,winHeight);
-                    ptsB[index++] = LineVertexF(posNote+(line_width)+line_width_extra, posStart-line_width_extra+border_size, crtp[1],cgtp[1],cbtp[1],cap[1],winWidth,winHeight);
-                    ptsB[index++] = LineVertexF(posNote+(line_width)+line_width_extra, posStart-line_width_extra, crtp[1],cgtp[1],cbtp[1],cap[1],winWidth,winHeight);
+                    ptsB[index++] = LineVertexF(posNote-line_width_extra, posStart-line_width_extra, crtp[0],cgtp[0],cbtp[0],cap[0],ww,hh);
+                    ptsB[index++] = LineVertexF(posNote+(line_width)+line_width_extra, posStart-line_width_extra+border_size, crtp[1],cgtp[1],cbtp[1],cap[1],ww,hh);
+                    ptsB[index++] = LineVertexF(posNote+(line_width)+line_width_extra, posStart-line_width_extra, crtp[1],cgtp[1],cbtp[1],cap[1],ww,hh);
                     
                     //left
-                    ptsB[index++] = LineVertexF(posNote-line_width_extra, posStart-line_width_extra, crtp[0],cgtp[0],cbtp[0],cap[0],winWidth,winHeight);
-                    ptsB[index++] = LineVertexF(posNote-line_width_extra, posEnd+line_width_extra, crtp[1],cgtp[1],cbtp[1],cap[1],winWidth,winHeight);
-                    ptsB[index++] = LineVertexF(posNote-line_width_extra+border_size, posEnd+line_width_extra, crtp[1],cgtp[1],cbtp[1],cap[1],winWidth,winHeight);
+                    ptsB[index++] = LineVertexF(posNote-line_width_extra, posStart-line_width_extra, crtp[0],cgtp[0],cbtp[0],cap[0],ww,hh);
+                    ptsB[index++] = LineVertexF(posNote-line_width_extra, posEnd+line_width_extra, crtp[1],cgtp[1],cbtp[1],cap[1],ww,hh);
+                    ptsB[index++] = LineVertexF(posNote-line_width_extra+border_size, posEnd+line_width_extra, crtp[1],cgtp[1],cbtp[1],cap[1],ww,hh);
                     
-                    ptsB[index++] = LineVertexF(posNote-line_width_extra, posStart-line_width_extra, crtp[0],cgtp[0],cbtp[0],cap[0],winWidth,winHeight);
-                    ptsB[index++] = LineVertexF(posNote-line_width_extra+border_size, posEnd+line_width_extra, crtp[1],cgtp[1],cbtp[1],cap[1],winWidth,winHeight);
-                    ptsB[index++] = LineVertexF(posNote-line_width_extra+border_size, posStart-line_width_extra, crtp[0],cgtp[0],cbtp[0],cap[0],winWidth,winHeight);
+                    ptsB[index++] = LineVertexF(posNote-line_width_extra, posStart-line_width_extra, crtp[0],cgtp[0],cbtp[0],cap[0],ww,hh);
+                    ptsB[index++] = LineVertexF(posNote-line_width_extra+border_size, posEnd+line_width_extra, crtp[1],cgtp[1],cbtp[1],cap[1],ww,hh);
+                    ptsB[index++] = LineVertexF(posNote-line_width_extra+border_size, posStart-line_width_extra, crtp[0],cgtp[0],cbtp[0],cap[0],ww,hh);
                     
                     //right
-                    ptsB[index++] = LineVertexF(posNote+(line_width)+line_width_extra,posStart-line_width_extra, crtp[2],cgtp[2],cbtp[2],cap[2],winWidth,winHeight);
-                    ptsB[index++] = LineVertexF(posNote+(line_width)+line_width_extra,posEnd+line_width_extra, crtp[3],cgtp[3],cbtp[3],cap[3],winWidth,winHeight);
-                    ptsB[index++] = LineVertexF(posNote+(line_width)+line_width_extra-border_size,posEnd+line_width_extra, crtp[3],cgtp[3],cbtp[3],cap[3],winWidth,winHeight);
+                    ptsB[index++] = LineVertexF(posNote+(line_width)+line_width_extra,posStart-line_width_extra, crtp[2],cgtp[2],cbtp[2],cap[2],ww,hh);
+                    ptsB[index++] = LineVertexF(posNote+(line_width)+line_width_extra,posEnd+line_width_extra, crtp[3],cgtp[3],cbtp[3],cap[3],ww,hh);
+                    ptsB[index++] = LineVertexF(posNote+(line_width)+line_width_extra-border_size,posEnd+line_width_extra, crtp[3],cgtp[3],cbtp[3],cap[3],ww,hh);
                     
-                    ptsB[index++] = LineVertexF(posNote+(line_width)+line_width_extra,posStart-line_width_extra, crtp[2],cgtp[2],cbtp[2],cap[2],winWidth,winHeight);
-                    ptsB[index++] = LineVertexF(posNote+(line_width)+line_width_extra-border_size,posEnd+line_width_extra, crtp[3],cgtp[3],cbtp[3],cap[3],winWidth,winHeight);
-                    ptsB[index++] = LineVertexF(posNote+(line_width)+line_width_extra-border_size,posStart-line_width_extra, crtp[2],cgtp[2],cbtp[2],cap[2],winWidth,winHeight);
+                    ptsB[index++] = LineVertexF(posNote+(line_width)+line_width_extra,posStart-line_width_extra, crtp[2],cgtp[2],cbtp[2],cap[2],ww,hh);
+                    ptsB[index++] = LineVertexF(posNote+(line_width)+line_width_extra-border_size,posEnd+line_width_extra, crtp[3],cgtp[3],cbtp[3],cap[3],ww,hh);
+                    ptsB[index++] = LineVertexF(posNote+(line_width)+line_width_extra-border_size,posStart-line_width_extra, crtp[2],cgtp[2],cbtp[2],cap[2],ww,hh);
                     
                     //bottom
-                    ptsB[index++] = LineVertexF(posNote-line_width_extra, posEnd+line_width_extra, crtp[2],cgtp[2],cbtp[2],cap[2],winWidth,winHeight);
-                    ptsB[index++] = LineVertexF(posNote-line_width_extra, posEnd+line_width_extra-border_size, crtp[3],cgtp[3],cbtp[3],cap[3],winWidth,winHeight);
-                    ptsB[index++] = LineVertexF(posNote+(line_width)+line_width_extra,posEnd+line_width_extra-border_size, crtp[3],cgtp[3],cbtp[3],cap[3],winWidth,winHeight);
+                    ptsB[index++] = LineVertexF(posNote-line_width_extra, posEnd+line_width_extra, crtp[2],cgtp[2],cbtp[2],cap[2],ww,hh);
+                    ptsB[index++] = LineVertexF(posNote-line_width_extra, posEnd+line_width_extra-border_size, crtp[3],cgtp[3],cbtp[3],cap[3],ww,hh);
+                    ptsB[index++] = LineVertexF(posNote+(line_width)+line_width_extra,posEnd+line_width_extra-border_size, crtp[3],cgtp[3],cbtp[3],cap[3],ww,hh);
                     
-                    ptsB[index++] = LineVertexF(posNote-line_width_extra, posEnd+line_width_extra, crtp[2],cgtp[2],cbtp[2],cap[2],winWidth,winHeight);
-                    ptsB[index++] = LineVertexF(posNote+(line_width)+line_width_extra, posEnd+line_width_extra-border_size, crtp[3],cgtp[3],cbtp[3],cap[3],winWidth,winHeight);
-                    ptsB[index++] = LineVertexF(posNote+(line_width)+line_width_extra, posEnd+line_width_extra, crtp[3],cgtp[3],cbtp[3],cap[3],winWidth,winHeight);
+                    ptsB[index++] = LineVertexF(posNote-line_width_extra, posEnd+line_width_extra, crtp[2],cgtp[2],cbtp[2],cap[2],ww,hh);
+                    ptsB[index++] = LineVertexF(posNote+(line_width)+line_width_extra, posEnd+line_width_extra-border_size, crtp[3],cgtp[3],cbtp[3],cap[3],ww,hh);
+                    ptsB[index++] = LineVertexF(posNote+(line_width)+line_width_extra, posEnd+line_width_extra, crtp[3],cgtp[3],cbtp[3],cap[3],ww,hh);
                     
                     //inner part
-                    ptsB[index++] = LineVertexF(posNote-line_width_extra+border_size, posStart-line_width_extra+border_size, crt,cgt,cbt,ca,winWidth,winHeight);
-                    ptsB[index++] = LineVertexF(posNote-line_width_extra+border_size, posEnd+line_width_extra-border_size, crt,cgt,cbt,ca,winWidth,winHeight);
-                    ptsB[index++] = LineVertexF(posNote+(line_width)+line_width_extra-border_size, posStart-line_width_extra+border_size, crt,cgt,cbt,ca,winWidth,winHeight);
+                    ptsB[index++] = LineVertexF(posNote-line_width_extra+border_size, posStart-line_width_extra+border_size, crt,cgt,cbt,ca,ww,hh);
+                    ptsB[index++] = LineVertexF(posNote-line_width_extra+border_size, posEnd+line_width_extra-border_size, crt,cgt,cbt,ca,ww,hh);
+                    ptsB[index++] = LineVertexF(posNote+(line_width)+line_width_extra-border_size, posStart-line_width_extra+border_size, crt,cgt,cbt,ca,ww,hh);
                     
-                    ptsB[index++] = LineVertexF(posNote-line_width_extra+border_size, posEnd+line_width_extra-border_size, crt,cgt,cbt,ca,winWidth,winHeight);
-                    ptsB[index++] = LineVertexF(posNote+(line_width)+line_width_extra-border_size, posStart-line_width_extra+border_size, crt,cgt,cbt,ca,winWidth,winHeight);
-                    ptsB[index++] = LineVertexF(posNote+(line_width)+line_width_extra-border_size, posEnd+line_width_extra-border_size, crt,cgt,cbt,ca,winWidth,winHeight);
+                    ptsB[index++] = LineVertexF(posNote-line_width_extra+border_size, posEnd+line_width_extra-border_size, crt,cgt,cbt,ca,ww,hh);
+                    ptsB[index++] = LineVertexF(posNote+(line_width)+line_width_extra-border_size, posStart-line_width_extra+border_size, crt,cgt,cbt,ca,ww,hh);
+                    ptsB[index++] = LineVertexF(posNote+(line_width)+line_width_extra-border_size, posEnd+line_width_extra-border_size, crt,cgt,cbt,ca,ww,hh);
                 }
             }
         }
     }
     
     //    printf("total: %d\n",index);
-    for (int ii=0;ii<index;ii++) {
-        ptsB[ii].x+=2*ox/winWidth;
-        ptsB[ii].y+=2*oy/winHeight;
-    }
     glDrawArrays(GL_TRIANGLES, 0, index);
     
     //////////////////////////////////////////////
@@ -5936,7 +6087,7 @@ void RenderUtils::DrawMidiFX(float ox,float oy,float ww,float hh,float winWidth,
                       (data_midifx_len-MIDIFX_OFS-1)*band_width-band_width*2,
                       0,
                       band_width*2,hh,1,
-                      235,210,255,200,0,winWidth,winHeight);
+                      235,210,255,200,0,ww,hh);
         
     } else {
         index=DrawBox(ptsB, index,
@@ -5944,11 +6095,7 @@ void RenderUtils::DrawMidiFX(float ox,float oy,float ww,float hh,float winWidth,
                       (data_midifx_len-MIDIFX_OFS-1)*band_width-band_width*2,
                       ww,
                       band_width*2,1,
-                      235,210,255,200,0,winWidth,winHeight);
-    }
-    for (int ii=0;ii<index;ii++) {
-        ptsB[ii].x+=2*ox/winWidth;
-        ptsB[ii].y+=2*oy/winHeight;
+                      235,210,255,200,0,ww,hh);
     }
     glDrawArrays(GL_TRIANGLES, 0, index);
     //    glLineWidth(band_width*mScaleFactor);
@@ -6395,7 +6542,7 @@ int RenderUtils::DrawKeyB(LineVertexF *ptsB,int index,float x,float y,float widt
 }
 
 
-void RenderUtils::DrawPianoRollFX(float ox,float oy,float ww,float hh,float winWidth,float winHeight,int horiz_vert,float note_display_range, float note_display_offset,int fx_len,int color_mode,float mScaleFactor,char *voices_label) {
+void RenderUtils::DrawPianoRollFX(float ox,float oy,float ww,float hh,int horiz_vert,float note_display_range, float note_display_offset,int fx_len,int color_mode,float mScaleFactor,char *voices_label) {
     LineVertexF *ptsB;
     int crt,cgt,cbt,ca;
     int index;
@@ -6477,7 +6624,7 @@ void RenderUtils::DrawPianoRollFX(float ox,float oy,float ww,float hh,float winW
                   crtp[0],cgtp[0],cbtp[0],cap[0],
                   crtp[1],cgtp[1],cbtp[1],cap[1],
                   crtp[1],cgtp[1],cbtp[1],cap[1],
-                  winWidth,winHeight);
+                         ww,hh);
     }
     
     // Load the vertex data
@@ -6485,10 +6632,6 @@ void RenderUtils::DrawPianoRollFX(float ox,float oy,float ww,float hh,float winW
     glVertexAttribPointer ( colorAttribHandle, 4, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(ptsB[0].r) );
     // Load the uniforms
     // Draw
-    for (int ii=0;ii<index;ii++) {
-        ptsB[ii].x+=2*ox/winWidth;
-        ptsB[ii].y+=2*oy/winHeight;
-    }
     glDrawArrays(GL_TRIANGLES, 0, index);
     
     index=0;
@@ -6549,7 +6692,7 @@ void RenderUtils::DrawPianoRollFX(float ox,float oy,float ww,float hh,float winW
         for (int note=0;note<256;note++) {
             if (note_posType[note]==0) { //white key
                 x=note_posX[note];
-                if ((x+width>0)||(x<ww) ) {
+                if ((x+width>0)&&(x<ww) ) {
                     if (index+INDICES_SIZE_KEYW>=max_indices) {
                         // Load the vertex data
 //                        glVertexAttribPointer ( positionAttribHandle, 2, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(ptsB[0].x) );
@@ -6559,15 +6702,12 @@ void RenderUtils::DrawPianoRollFX(float ox,float oy,float ww,float hh,float winW
 //                        glEnableVertexAttribArray ( colorAttribHandle );
                         // Load the uniforms
                         // Draw
-                        for (int ii=0;ii<index;ii++) {
-                            ptsB[ii].x+=2*ox/winWidth;
-                            ptsB[ii].y+=2*oy/winHeight;
-                        }
+                        
                         glDrawArrays(GL_TRIANGLES, 0, index);
                         
                         index=0;
                     }
-                    index=DrawKeyW(ptsB,index,x,y,width,height,2,220,220,220,255,0,note,j,winWidth,winHeight);
+                    index=DrawKeyW(ptsB,index,x,y,width,height,2,220,220,220,255,0,note,j,ww,hh);
                 }
             }
         }
@@ -6611,17 +6751,13 @@ void RenderUtils::DrawPianoRollFX(float ox,float oy,float ww,float hh,float winW
 //                            glEnableVertexAttribArray ( colorAttribHandle );
                             // Load the uniforms
                             // Draw
-                            for (int ii=0;ii<index;ii++) {
-                                ptsB[ii].x+=2*ox/winWidth;
-                                ptsB[ii].y+=2*oy/winHeight;
-                            }
                             glDrawArrays(GL_TRIANGLES, 0, index);
                             
                             
                             index=0;
                         }
-                        if ( (x+width>0)||(x<ww)) {
-                            index=DrawKeyW(ptsB,index,x,y,width,height,border_size,crt,cgt,cbt,255,subnote,note,instr%num_rows,winWidth,winHeight);
+                        if ( (x+width>0)&&(x<ww)) {
+                            index=DrawKeyW(ptsB,index,x,y,width,height,border_size,crt,cgt,cbt,255,subnote,note,instr%num_rows,ww,hh);
                         }
                     }
                 }
@@ -6641,14 +6777,10 @@ void RenderUtils::DrawPianoRollFX(float ox,float oy,float ww,float hh,float winW
 //                    glVertexAttribPointer ( colorAttribHandle, 4, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(ptsB[0].r) );
                     // Load the uniforms
                     // Draw
-                    for (int ii=0;ii<index;ii++) {
-                        ptsB[ii].x+=2*ox/winWidth;
-                        ptsB[ii].y+=2*oy/winHeight;
-                    }
                     glDrawArrays(GL_TRIANGLES, 0, index);
                     index=0;
                 }
-                if ( (xB+widthB>0)||(xB<ww)) index=DrawKeyB(ptsB,index,xB,yB,widthB,heightB,border_size,40,40,40,255,0,note,j,winWidth,winHeight);
+                if ( (xB+widthB>0)&&(xB<ww)) index=DrawKeyB(ptsB,index,xB,yB,widthB,heightB,border_size,40,40,40,255,0,note,j,ww,hh);
             }
         }
     }
@@ -6693,21 +6825,18 @@ void RenderUtils::DrawPianoRollFX(float ox,float oy,float ww,float hh,float winW
 //                            glVertexAttribPointer ( colorAttribHandle, 4, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(ptsB[0].r) );
                             // Load the uniforms
                             // Draw
-                            for (int ii=0;ii<index;ii++) {
-                                ptsB[ii].x+=2*ox/winWidth;
-                                ptsB[ii].y+=2*oy/winHeight;
-                            }
+                            
                             glDrawArrays(GL_TRIANGLES, 0, index);
                             index=0;
                         }
-                        if ( (x+widthB>0)||(x<ww))  index=DrawKeyB(ptsB,index,x,y,widthB,heightB,border_size,crt,cgt,cbt,255,subnote,note,instr%num_rows,winWidth,winHeight);
+                        if ( (x+widthB>0)&&(x<ww))  index=DrawKeyB(ptsB,index,x,y,widthB,heightB,border_size,crt,cgt,cbt,255,subnote,note,instr%num_rows,ww,hh);
                     }
                 }
             }
         }
     }
     
-    ImGui::SetNextWindowPos(ImVec2(0,0));
+    ImGui::SetNextWindowPos(ImVec2(ox*mScaleFactor,oy*mScaleFactor));
     ImGui::SetNextWindowSize(ImVec2(ww*mScaleFactor,hh*mScaleFactor));
     ImGui::GetStyle().Alpha=1.0f;
     ImGui::PushStyleColor(ImGuiCol_WindowBg,ImVec4(0,0,0,0));
@@ -6751,14 +6880,11 @@ void RenderUtils::DrawPianoRollFX(float ox,float oy,float ww,float hh,float winW
 //                glVertexAttribPointer ( colorAttribHandle, 4, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(ptsB[0].r) );
                 // Load the uniforms
                 // Draw
-                for (int ii=0;ii<index;ii++) {
-                    ptsB[ii].x+=2*ox/winWidth;
-                    ptsB[ii].y+=2*oy/winHeight;
-                }
+                
                 glDrawArrays(GL_TRIANGLES, 0, index);
                 index=0;
             }
-            index=DrawBox(ptsB,index,x-10,y+1+1,8,8,1/*border_size*/,crt,cgt,cbt,255,0,winWidth,winHeight);
+            index=DrawBox(ptsB,index,x-10,y+1+1,8,8,1/*border_size*/,crt,cgt,cbt,255,0,ww,hh);
         }
     }
     
@@ -6796,10 +6922,6 @@ void RenderUtils::DrawPianoRollFX(float ox,float oy,float ww,float hh,float winW
 //        glVertexAttribPointer ( colorAttribHandle, 4, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(ptsB[0].r) );
         // Load the uniforms
         // Draw
-        for (int ii=0;ii<index;ii++) {
-            ptsB[ii].x+=2*ox/winWidth;
-            ptsB[ii].y+=2*oy/winHeight;
-        }
         glDrawArrays(GL_TRIANGLES, 0, index);
         index=0;
     }
@@ -6819,7 +6941,7 @@ void RenderUtils::DrawPianoRollFX(float ox,float oy,float ww,float hh,float winW
     glRestoreState();
 }
 
-void RenderUtils::DrawPianoRollSynthesiaFX(float ox,float oy,float ww,float hh,float winWidth,float winHeight,int horiz_vert,float note_display_range, float note_display_offset,int fx_len,int color_mode,float mScaleFactor,char *voices_label) {
+void RenderUtils::DrawPianoRollSynthesiaFX(float ox,float oy,float ww,float hh,int horiz_vert,float note_display_range, float note_display_offset,int fx_len,int color_mode,float mScaleFactor,char *voices_label) {
     LineVertexF *ptsB;
     coordData *texcoords; /* Holds Float Info For 4 Sets Of Texture coordinates. */
     int crt,cgt,cbt,ca;
@@ -6907,7 +7029,7 @@ void RenderUtils::DrawPianoRollSynthesiaFX(float ox,float oy,float ww,float hh,f
     glEnable(GL_BLEND);
     glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
     
-    ImGui::SetNextWindowPos(ImVec2(0,0));
+    ImGui::SetNextWindowPos(ImVec2(ox*mScaleFactor,oy*mScaleFactor));
     ImGui::SetNextWindowSize(ImVec2(ww*mScaleFactor,hh*mScaleFactor));
     ImGui::GetStyle().Alpha=1.0f;
     ImGui::PushStyleColor(ImGuiCol_WindowBg,ImVec4(0,0,0,0));
@@ -7090,16 +7212,13 @@ void RenderUtils::DrawPianoRollSynthesiaFX(float ox,float oy,float ww,float hh,f
                           wd, //w
                           posEnd-posStart+line_width_extra*2, //h
                           border_size,crt,cgt,cbt,255,0/*subnote*/,
-                          winWidth,winHeight);
+                          ww,hh);
             
         }
     }
     
     //    printf("total: %d\n",index);
-    for (int ii=0;ii<index;ii++) {
-        ptsB[ii].x+=2*ox/winWidth;
-        ptsB[ii].y+=2*oy/winHeight;
-    }
+    
     glDrawArrays(GL_TRIANGLES, 0, index);
     
     
@@ -7283,17 +7402,14 @@ void RenderUtils::DrawPianoRollSynthesiaFX(float ox,float oy,float ww,float hh,f
         }
     
     for (int i=0;i<index;i++) {
-        ptsB[i].x=(ptsB[i].x*2.0/(float)winWidth)-1.0;
-        ptsB[i].y=(ptsB[i].y*2.0/(float)winHeight)-1.0;
+        ptsB[i].x=(ptsB[i].x*2.0/(float)ww)-1.0;
+        ptsB[i].y=(ptsB[i].y*2.0/(float)hh)-1.0;
         ptsB[i].r=ptsB[i].r/255.0;
         ptsB[i].g=ptsB[i].g/255.0;
         ptsB[i].b=ptsB[i].b/255.0;
         ptsB[i].a=ptsB[i].a/255.0;
     }
-    for (int ii=0;ii<index;ii++) {
-        ptsB[ii].x+=2*ox/winWidth;
-        ptsB[ii].y+=2*oy/winHeight;
-    }
+    
     glDrawArrays(GL_TRIANGLES, 0, index);
   
     //reset spark intensity if no note played
@@ -7325,18 +7441,15 @@ void RenderUtils::DrawPianoRollSynthesiaFX(float ox,float oy,float ww,float hh,f
     cap[0]=255;cap[1]=255;
     float wd=height/32.0;
         y=ofsy+height;
-        ptsB[index++] = LineVertexF(0,y     ,crtp[0],cgtp[0],cbtp[0],cap[0],winWidth,winHeight);
-        ptsB[index++] = LineVertexF(ww,y    ,crtp[0],cgtp[0],cbtp[0],cap[0],winWidth,winHeight);
-        ptsB[index++] = LineVertexF(ww,y+wd ,crtp[1],cgtp[1],cbtp[1],cap[1],winWidth,winHeight);
+        ptsB[index++] = LineVertexF(0,y     ,crtp[0],cgtp[0],cbtp[0],cap[0],ww,hh);
+        ptsB[index++] = LineVertexF(ww,y    ,crtp[0],cgtp[0],cbtp[0],cap[0],ww,hh);
+        ptsB[index++] = LineVertexF(ww,y+wd ,crtp[1],cgtp[1],cbtp[1],cap[1],ww,hh);
         
-        ptsB[index++] = LineVertexF(0,y      ,crtp[0],cgtp[0],cbtp[0],cap[0],winWidth,winHeight);
-        ptsB[index++] = LineVertexF(ww,y+wd  ,crtp[1],cgtp[1],cbtp[1],cap[1],winWidth,winHeight);
-        ptsB[index++] = LineVertexF(0,y+wd   ,crtp[1],cgtp[1],cbtp[1],cap[1],winWidth,winHeight);
+        ptsB[index++] = LineVertexF(0,y      ,crtp[0],cgtp[0],cbtp[0],cap[0],ww,hh);
+        ptsB[index++] = LineVertexF(ww,y+wd  ,crtp[1],cgtp[1],cbtp[1],cap[1],ww,hh);
+        ptsB[index++] = LineVertexF(0,y+wd   ,crtp[1],cgtp[1],cbtp[1],cap[1],ww,hh);
     
-    for (int ii=0;ii<index;ii++) {
-        ptsB[ii].x+=2*ox/winWidth;
-        ptsB[ii].y+=2*oy/winHeight;
-    }
+    
     glDrawArrays(GL_TRIANGLES, 0, index);
     
     index=0;
@@ -7348,14 +7461,11 @@ void RenderUtils::DrawPianoRollSynthesiaFX(float ox,float oy,float ww,float hh,f
         if ( note_posType[note]==0) { //white key
             x=note_posX[note];
             if (index+INDICES_SIZE_KEYW>=max_indices) {
-                for (int ii=0;ii<index;ii++) {
-                    ptsB[ii].x+=2*ox/winWidth;
-                    ptsB[ii].y+=2*oy/winHeight;
-                }
+                
                 glDrawArrays(GL_TRIANGLES, 0, index);
                 index=0;
             }
-            if ((x+width>0)||(x<ww)) index=DrawKeyW(ptsB,index,x,y,width,height,border_size,220,220,220,255,0,note,0,winWidth,winHeight);
+            if ((x+width>0)&&(x<ww)) index=DrawKeyW(ptsB,index,x,y,width,height,border_size,220,220,220,255,0,note,0,ww,hh);
         }
     }
     
@@ -7392,14 +7502,11 @@ void RenderUtils::DrawPianoRollSynthesiaFX(float ox,float oy,float ww,float hh,f
                     
                     y=ofsy+0;
                     if (index+INDICES_SIZE_KEYW>=max_indices) {
-                        for (int ii=0;ii<index;ii++) {
-                            ptsB[ii].x+=2*ox/winWidth;
-                            ptsB[ii].y+=2*oy/winHeight;
-                        }
+                        
                         glDrawArrays(GL_TRIANGLES, 0, index);
                         index=0;
                     }
-                    if ( (x+width>0)||(x<ww) ) index=DrawKeyW(ptsB,index,x,y,width,height,border_size,crt,cgt,cbt,255,subnote,note,0,winWidth,winHeight);
+                    if ( (x+width>0)&&(x<ww) ) index=DrawKeyW(ptsB,index,x,y,width,height,border_size,crt,cgt,cbt,255,subnote,note,0,ww,hh);
                 }
             }
         }
@@ -7412,14 +7519,11 @@ void RenderUtils::DrawPianoRollSynthesiaFX(float ox,float oy,float ww,float hh,f
             yB=y+height-heightB;
             xB=note_posX[note];
             if (index+INDICES_SIZE_KEYB>=max_indices) {
-                for (int ii=0;ii<index;ii++) {
-                    ptsB[ii].x+=2*ox/winWidth;
-                    ptsB[ii].y+=2*oy/winHeight;
-                }
+                
                 glDrawArrays(GL_TRIANGLES, 0, index);
                 index=0;
             }
-            if ( (xB+widthB>0)||(xB<ww) ) index=DrawKeyB(ptsB,index,xB,yB,widthB,heightB,border_size,40,40,40,255,0,note,0,winWidth,winHeight);
+            if ( (xB+widthB>0)&&(xB<ww) ) index=DrawKeyB(ptsB,index,xB,yB,widthB,heightB,border_size,40,40,40,255,0,note,0,ww,hh);
         }
     }
     
@@ -7455,14 +7559,11 @@ void RenderUtils::DrawPianoRollSynthesiaFX(float ox,float oy,float ww,float hh,f
                     x=note_posX[note];
                     y=ofsy+height-heightB+0;
                     if (index+INDICES_SIZE_KEYB>=max_indices) {
-                        for (int ii=0;ii<index;ii++) {
-                            ptsB[ii].x+=2*ox/winWidth;
-                            ptsB[ii].y+=2*oy/winHeight;
-                        }
+                    
                         glDrawArrays(GL_TRIANGLES, 0, index);
                         index=0;
                     }
-                    if ( (x+widthB>0)||(x<ww) )  index=DrawKeyB(ptsB,index,x,y,widthB,heightB,border_size,crt,cgt,cbt,255,subnote,note,0,winWidth,winHeight);
+                    if ( (x+widthB>0)&&(x<ww) )  index=DrawKeyB(ptsB,index,x,y,widthB,heightB,border_size,crt,cgt,cbt,255,subnote,note,0,ww,hh);
                 }
             }
         }
@@ -7496,14 +7597,11 @@ void RenderUtils::DrawPianoRollSynthesiaFX(float ox,float oy,float ww,float hh,f
                 y-=16;
             }
             if (index+INDICES_SIZE_BOX>=max_indices) {
-                for (int ii=0;ii<index;ii++) {
-                    ptsB[ii].x+=2*ox/winWidth;
-                    ptsB[ii].y+=2*oy/winHeight;
-                }
+                
                 glDrawArrays(GL_TRIANGLES, 0, index);
                 index=0;
             }
-            index=DrawBox(ptsB,index,x-10,y+1,8,8,1/*border_size*/,crt,cgt,cbt,255,0,winWidth,winHeight);
+            index=DrawBox(ptsB,index,x-10,y+1,8,8,1/*border_size*/,crt,cgt,cbt,255,0,ww,hh);
             
             x+=widthx;
         }
@@ -7511,10 +7609,6 @@ void RenderUtils::DrawPianoRollSynthesiaFX(float ox,float oy,float ww,float hh,f
     
     if (index) {
         // Draw
-        for (int ii=0;ii<index;ii++) {
-            ptsB[ii].x+=2*ox/winWidth;
-            ptsB[ii].y+=2*oy/winHeight;
-        }
         glDrawArrays(GL_TRIANGLES, 0, index);
     }
     
@@ -7686,17 +7780,14 @@ void RenderUtils::DrawPianoRollSynthesiaFX(float ox,float oy,float ww,float hh,f
         }
     }
     for (int i=0;i<index;i++) {
-        ptsB[i].x=(ptsB[i].x*2.0/(float)winWidth)-1.0;
-        ptsB[i].y=(ptsB[i].y*2.0/(float)winHeight)-1.0;
+        ptsB[i].x=(ptsB[i].x*2.0/(float)ww)-1.0;
+        ptsB[i].y=(ptsB[i].y*2.0/(float)hh)-1.0;
         ptsB[i].r=ptsB[i].r/255.0;
         ptsB[i].g=ptsB[i].g/255.0;
         ptsB[i].b=ptsB[i].b/255.0;
         ptsB[i].a=ptsB[i].a/255.0;
     }
-    for (int ii=0;ii<index;ii++) {
-        ptsB[ii].x+=2*ox/winWidth;
-        ptsB[ii].y+=2*oy/winHeight;
-    }
+    
     glDrawArrays(GL_TRIANGLES, 0, index);
     
 //    glEnable(GL_BLEND);

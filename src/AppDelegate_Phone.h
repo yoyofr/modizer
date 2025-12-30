@@ -1,6 +1,6 @@
 //
 //  AppDelegate_Phone.h
-//  modizer4
+//  modizer
 //
 //  Created by Yohann Magnien on 09/06/10.
 //  Copyright __YoyoFR / Yohann Magnien__ 2010. All rights reserved.

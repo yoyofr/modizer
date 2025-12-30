@@ -1,5 +1,5 @@
 //
-//  EQViewController.m
+//  EQViewController.mm
 //  modizer
 //
 //  Created by Yohann Magnien on 07/08/13.

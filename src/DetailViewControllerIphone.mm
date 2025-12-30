@@ -1,6 +1,6 @@
 //
 //  DetailViewController.mm
-//  modizer1
+//  modizer
 //
 //  Created by Yohann Magnien on 04/06/10.
 //  Copyright __YoyoFR / Yohann Magnien__ 2010. All rights reserved.
@@ -154,6 +154,8 @@ extern unsigned int m_voice_oscillo_pal3[8];
 //#import "../libs/libopenmpt/openmpt-trunk/include/modplug/include/libmodplug/modplug.h"
 
 #include "ModizerVoicesData.h"
+
+int fxSlot[FX_MAX];
 
 #include "TextureUtils.h"
 /*----------------------------------------------*/
@@ -740,16 +742,15 @@ bool sysMonitorIsActive;
 
 -(int) computeActiveFX {
     int active_idx=0;
-    if (settings[OSCILLO_FXMODE].detail.mdz_switch.switch_value) active_idx|=1<<0;
-    if (settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value) active_idx|=1<<1;
-    if (settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value) active_idx|=1<<2;
-    if (settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value) active_idx|=1<<3;
-    
-    if (settings[GLOB_FXPiano3D].detail.mdz_switch.switch_value||settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value) active_idx|=1<<4;
-    if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value) active_idx|=1<<5;
-    if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value) active_idx|=1<<6;
-    
-    if (settings[PROJECTM_FXONOFF].detail.mdz_boolswitch.switch_value) active_idx|=1<<8;
+    if (settings[PROJECTM_FXONOFF].detail.mdz_boolswitch.switch_value) active_idx|=1<<FX_PROJECTM;
+    if (settings[OSCILLO_FXMODE].detail.mdz_switch.switch_value) active_idx|=1<<FX_OSCILLO;
+    if (settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value) active_idx|=1<<FX_PIANOROLL;
+    if (settings[GLOB_FXPiano3D].detail.mdz_switch.switch_value) active_idx|=1<<FX_PIANO3D;
+    if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value) active_idx|=1<<FX_MIDIPattern;
+    if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value) active_idx|=1<<FX_MODPattern;
+    if (settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value) active_idx|=1<<FX_2DSpectrum;
+    if (settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value) active_idx|=1<<FX_3DSpectrum;
+    if (settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value) active_idx|=1<<FX_3DLandscape;
     
     if (settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value) active_idx|=1<<13;
     
@@ -6181,6 +6182,8 @@ void pm_perfTest() {
     fft_freqAvgCount = (int *)malloc(sizeof(int)*SPECTRUM_BANDS);
     fft_time = (float *)malloc(sizeof(float)*SOUND_BUFFER_SIZE_SAMPLE);
     
+    memset(fxSlot,0,sizeof(fxSlot));
+    
     _pm_shouldRestartAt=-1;
     CHECK_PROFILE("various9")
     if ([self checkFlagOnStartup]) {
@@ -7690,7 +7693,7 @@ void doFramePM(float ww,float hh) {
     }
 }
 
-- (void) doFx2DSpectrum:(ImVec4)fxSize winSize:(ImVec2)winSize {
+- (void) doFx2DSpectrum:(ImVec4)fxSize {
     float x=fxSize.x;
     float y=fxSize.y;
     float ww=fxSize.z;
@@ -7714,7 +7717,7 @@ void doFramePM(float ww,float hh) {
                                 0/*settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value*/);
 }
 
-- (void) doFx3DSpectrum:(ImVec4)fxSize winSize:(ImVec2)winSize {
+- (void) doFx3DSpectrum:(ImVec4)fxSize {
     float x=fxSize.x;
     float y=fxSize.y;
     float ww=fxSize.z;
@@ -7758,7 +7761,7 @@ void doFramePM(float ww,float hh) {
                                    settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value,nb_spectrum_bands,mirror,glScaleFactor,settings[GLOB_FX3DSpectrumBloom].detail.mdz_switch.switch_value,spectrum_rotx,spectrum_roty,spectrum_posx,spectrum_posy,spectrum_posz);
 }
 
-- (void) doFx3DLandscape:(ImVec4)fxSize winSize:(ImVec2)winSize {
+- (void) doFx3DLandscape:(ImVec4)fxSize {
     float x=fxSize.x;
     float y=fxSize.y;
     float ww=fxSize.z;
@@ -7785,7 +7788,7 @@ void doFramePM(float ww,float hh) {
     }
 }
 
-- (void) doFxMidiPattern:(ImVec4)fxSize winSize:(ImVec2)winSize {
+- (void) doFxMidiPattern:(ImVec4)fxSize {
     float x=fxSize.x;
     float y=fxSize.y;
     float ww=fxSize.z;
@@ -7794,11 +7797,11 @@ void doFramePM(float ww,float hh) {
     
     playerpos=[mplayer getCurrentGenBufferIdx];
     
-    RenderUtils::DrawMidiFX(x,y,ww,hh,winSize.x,winSize.y,settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value-1,tim_midifx_note_range,tim_midifx_note_offset,tim_midifx_length,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,mScaleFactor);
+    RenderUtils::DrawMidiFX(x,y,ww,hh,settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value-1,tim_midifx_note_range,tim_midifx_note_offset,tim_midifx_length,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,mScaleFactor);
     
 }
 
-- (void) doFxPiano3D:(ImVec4)fxSize winSize:(ImVec2)winSize {
+- (void) doFxPiano3D:(ImVec4)fxSize {
     float x=fxSize.x;
     float y=fxSize.y;
     float ww=fxSize.z;
@@ -7811,10 +7814,10 @@ void doFramePM(float ww,float hh) {
     
     switch (settings[GLOB_FXPiano3D].detail.mdz_switch.switch_value) {
         case 1:
-            RenderUtils::DrawPiano3D(x,y,ww,hh,winSize.x,winSize.y,1,0,0,0,0,0,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value);
+            RenderUtils::DrawPiano3D(x,y,ww,hh,1,0,0,0,0,0,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value);
             break;
         case 2:
-            RenderUtils::DrawPiano3DWithNotesWall(x,y,ww,hh,winSize.x,winSize.y,1,0,0,0,0,0,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,settings[GLOB_FXLOD].detail.mdz_switch.switch_value);
+            RenderUtils::DrawPiano3DWithNotesWall(x,y,ww,hh,1,0,0,0,0,0,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,settings[GLOB_FXLOD].detail.mdz_switch.switch_value);
             break;
         case 3:
             if (movePinchScaleFXPiano<-0/4) movePinchScaleFXPiano=-0/4;
@@ -7824,7 +7827,7 @@ void doFramePM(float ww,float hh) {
             piano_posx=movePx2FXPiano*0.05;
             piano_posy=-movePy2FXPiano*0.05;
             piano_posz=movePinchScaleFXPiano*100*4;
-            RenderUtils::DrawPiano3D(x,y,ww,hh,winSize.x,winSize.y,0,piano_posx,piano_posy,piano_posz,piano_rotx,piano_roty,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value);
+            RenderUtils::DrawPiano3D(x,y,ww,hh,0,piano_posx,piano_posy,piano_posz,piano_rotx,piano_roty,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value);
             break;
         case 4:
             if (movePinchScaleFXPiano<-0.8/4) movePinchScaleFXPiano=-0.8/4;
@@ -7834,12 +7837,12 @@ void doFramePM(float ww,float hh) {
             piano_posx=movePx2FXPiano*0.05;
             piano_posy=-movePy2FXPiano*0.05;
             piano_posz=movePinchScaleFXPiano*100*4;
-            RenderUtils::DrawPiano3DWithNotesWall(x,y,ww,hh,winSize.x,winSize.y,0,piano_posx,piano_posy,piano_posz,piano_rotx,piano_roty,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,settings[GLOB_FXLOD].detail.mdz_switch.switch_value);
+            RenderUtils::DrawPiano3DWithNotesWall(x,y,ww,hh,0,piano_posx,piano_posy,piano_posz,piano_rotx,piano_roty,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,settings[GLOB_FXLOD].detail.mdz_switch.switch_value);
             break;
     }
 }
 
-- (void) doFxPianoRoll:(ImVec4)fxSize winSize:(ImVec2)winSize {
+- (void) doFxPianoRoll:(ImVec4)fxSize {
     float x=fxSize.x;
     float y=fxSize.y;
     float ww=fxSize.z;
@@ -7852,15 +7855,15 @@ void doFramePM(float ww,float hh) {
     
     switch (settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value) {
         case 1:
-            RenderUtils::DrawPianoRollFX(x,y,ww,hh,winSize.x,winSize.y,settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value-1,prollfx_note_range,prollfx_noteroll_offset,prollfx_length,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,mScaleFactor,(char*)voicesName);
+            RenderUtils::DrawPianoRollFX(x,y,ww,hh,settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value-1,prollfx_note_range,prollfx_noteroll_offset,prollfx_length,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,mScaleFactor,(char*)voicesName);
             break;
         case 2:
-            RenderUtils::DrawPianoRollSynthesiaFX(x,y,ww,hh,winSize.x,winSize.y,settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value-1,prollfx_note_range,prollfx_noteroll_offset,prollfx_length,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,mScaleFactor,(char*)voicesName);
+            RenderUtils::DrawPianoRollSynthesiaFX(x,y,ww,hh,settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value-1,prollfx_note_range,prollfx_noteroll_offset,prollfx_length,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,mScaleFactor,(char*)voicesName);
             break;
     }
 }
 
-- (void) doFxModPatterns:(ImVec4)fxSize winSize:(ImVec2)winSize {
+- (void) doFxModPatterns:(ImVec4)fxSize {
     float x=fxSize.x;
     float y=fxSize.y;
     float ww=fxSize.z;
@@ -7903,7 +7906,7 @@ void doFramePM(float ww,float hh) {
     
     if (settings[GLOB_FXMODPattern_BGAlpha].detail.mdz_slider.slider_value>0) {
         //Darken the background
-        RenderUtils::DarkenScreen(x, y, ww, hh,winSize.x,winSize.y, settings[GLOB_FXMODPattern_BGAlpha].detail.mdz_slider.slider_value*255.0);
+        RenderUtils::DarkenScreen(x, y, ww, hh, settings[GLOB_FXMODPattern_BGAlpha].detail.mdz_slider.slider_value*255.0);
     }
     
     ImGui::GetStyle().Alpha=1.0f;
@@ -7975,12 +7978,12 @@ void doFramePM(float ww,float hh) {
         idx=startRow*mplayer.numChannels;
         
         if (fontWidth==0) fontWidth=ImGui::CalcTextSize("ABCDEFGH").x/8.0;
-        RenderUtils::DrawChanLayout(x,y,ww,hh,winSize.x,winSize.y,display_note_mode,endChan,((int)(movePxMOD)),fontWidth/glScaleFactor,fontSize+1,glScaleFactor);
+        RenderUtils::DrawChanLayout(x,y,ww,hh,display_note_mode,endChan,((int)(movePxMOD)),fontWidth/glScaleFactor,fontSize+1,glScaleFactor);
         
         if (settings[GLOB_FXMODPattern_VolBar].detail.mdz_boolswitch.switch_value) {
-            RenderUtils::DrawChanLayoutAfter(x,y,ww,hh,winSize.x,winSize.y,display_note_mode,channelVolumeData,endChan,((int)(movePxMOD)),fontWidth/mScaleFactor,fontSize+1,0,midline,mScaleFactor);
+            RenderUtils::DrawChanLayoutAfter(x,y,ww,hh,display_note_mode,channelVolumeData,endChan,((int)(movePxMOD)),fontWidth/mScaleFactor,fontSize+1,0,midline,mScaleFactor);
         } else {
-            RenderUtils::DrawChanLayoutAfter(x,y,ww,hh,winSize.x,winSize.y,display_note_mode,NULL,endChan,((int)(movePxMOD)),fontWidth/mScaleFactor,fontSize+1,0,midline,mScaleFactor);
+            RenderUtils::DrawChanLayoutAfter(x,y,ww,hh,display_note_mode,NULL,endChan,((int)(movePxMOD)),fontWidth/mScaleFactor,fontSize+1,0,midline,mScaleFactor);
         }
         
         
@@ -7994,7 +7997,7 @@ void doFramePM(float ww,float hh) {
             modPatternWindowSize=ww*glScaleFactor-startx;
             
             
-            ImGui::SetNextWindowPos(ImVec2(0,0));
+            ImGui::SetNextWindowPos(ImVec2(x*glScaleFactor,y*glScaleFactor));
             ImGui::SetNextWindowSize(ImVec2(startx,hh*glScaleFactor));
             ImGui::Begin("ModPatternWin_LinesCol",0,ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|
                          ImGuiWindowFlags_NoScrollbar|
@@ -8056,7 +8059,7 @@ void doFramePM(float ww,float hh) {
             }
             ImGui::End();
             //2nd win with pattern
-            ImGui::SetNextWindowPos(ImVec2(startx,0));
+            ImGui::SetNextWindowPos(ImVec2(startx+x*glScaleFactor,y*glScaleFactor));
             ImGui::SetNextWindowSize(ImVec2(ww*glScaleFactor-startx,hh*glScaleFactor));
             ImGui::Begin("ModPatternWin2",0,ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|
                          ImGuiWindowFlags_NoScrollbar|
@@ -8332,7 +8335,7 @@ void doFramePM(float ww,float hh) {
             ImGui::End();
             
             //3rd win: draw header
-            ImGui::SetNextWindowPos(ImVec2(startx,0));
+            ImGui::SetNextWindowPos(ImVec2(startx+x*glScaleFactor,y*glScaleFactor));
             ImGui::SetNextWindowSize(ImVec2(ww*glScaleFactor-startx,lineHeight));
             ImGui::Begin("ModPatternWin3",0,ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|
                          ImGuiWindowFlags_NoScrollbar|
@@ -8396,7 +8399,7 @@ void doFramePM(float ww,float hh) {
     ImGui::PopStyleColor();
 }
 
-- (void) doFxOscillo:(ImVec4)fxSize winSize:(ImVec2)winSize{
+- (void) doFxOscillo:(ImVec4)fxSize {
     short int **snd_buffer;
     int cur_pos;
     snd_buffer=[mplayer buffer_ana_cpy];
@@ -8414,11 +8417,11 @@ void doFramePM(float ww,float hh) {
                     for (int i=0;i<[mplayer getNumChannels];i++) {
                         snprintf(voicesName+i*32,31,"%s",[[mplayer getVoicesName:i onlyMidi:false] UTF8String]);
                     }
-                    RenderUtils::DrawOscilloMultiple(x,y,ww,hh,winSize.x,winSize.y,m_voice_buff_ana_cpy,cur_pos,([mplayer getNumChannels]<SOUND_MAXVOICES_BUFFER_FX?[mplayer getNumChannels]:SOUND_MAXVOICES_BUFFER_FX),1,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,
+                    RenderUtils::DrawOscilloMultiple(x,y,ww,hh,m_voice_buff_ana_cpy,cur_pos,([mplayer getNumChannels]<SOUND_MAXVOICES_BUFFER_FX?[mplayer getNumChannels]:SOUND_MAXVOICES_BUFFER_FX),1,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,
                                                      0/*settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value*/,
                                                      (char*)voicesName,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value);
                 } else {
-                    RenderUtils::DrawOscilloMultiple(x,y,ww,hh,winSize.x,winSize.y,m_voice_buff_ana_cpy,cur_pos,([mplayer getNumChannels]<SOUND_MAXVOICES_BUFFER_FX?[mplayer getNumChannels]:SOUND_MAXVOICES_BUFFER_FX),1,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,
+                    RenderUtils::DrawOscilloMultiple(x,y,ww,hh,m_voice_buff_ana_cpy,cur_pos,([mplayer getNumChannels]<SOUND_MAXVOICES_BUFFER_FX?[mplayer getNumChannels]:SOUND_MAXVOICES_BUFFER_FX),1,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,
                                                      0/*settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value*/,
                                                      NULL,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value);
                 }
@@ -8427,11 +8430,11 @@ void doFramePM(float ww,float hh) {
                     memset(voicesName,0,sizeof(voicesName));
                     snprintf(voicesName+0*32,31,"Left");
                     snprintf(voicesName+1*32,31,"Right");
-                    RenderUtils::DrawOscilloMultiple(x,y,ww,hh,winSize.x,winSize.y,(signed char **)snd_buffer,cur_pos,2,1,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,
+                    RenderUtils::DrawOscilloMultiple(x,y,ww,hh,(signed char **)snd_buffer,cur_pos,2,1,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,
                                                      0,
                                                      (char*)voicesName,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value,1);
                 } else {
-                    RenderUtils::DrawOscilloMultiple(x,y,ww,hh,winSize.x,winSize.y,(signed char **)snd_buffer,cur_pos,2,1,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,
+                    RenderUtils::DrawOscilloMultiple(x,y,ww,hh,(signed char **)snd_buffer,cur_pos,2,1,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,
                                                      0,
                                                      NULL,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value,1);
                 }
@@ -8449,29 +8452,71 @@ void doFramePM(float ww,float hh) {
                         snprintf(voicesName+i*32,31,"%s",[[mplayer getVoicesName:i onlyMidi:false] UTF8String]);
                     }
                     
-                    RenderUtils::DrawOscilloMultiple(x,y,ww,hh,winSize.x,winSize.y,m_voice_buff_ana_cpy,cur_pos,([mplayer getNumChannels]<SOUND_MAXVOICES_BUFFER_FX?[mplayer getNumChannels]:SOUND_MAXVOICES_BUFFER_FX),2,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,
+                    RenderUtils::DrawOscilloMultiple(x,y,ww,hh,m_voice_buff_ana_cpy,cur_pos,([mplayer getNumChannels]<SOUND_MAXVOICES_BUFFER_FX?[mplayer getNumChannels]:SOUND_MAXVOICES_BUFFER_FX),2,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,
                                                      0/*settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value*/,
                                                      (char*)voicesName,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value);
                 } else {
-                    RenderUtils::DrawOscilloMultiple(x,y,ww,hh,winSize.x,winSize.y,m_voice_buff_ana_cpy,cur_pos,([mplayer getNumChannels]<SOUND_MAXVOICES_BUFFER_FX?[mplayer getNumChannels]:SOUND_MAXVOICES_BUFFER_FX),2,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,
+                    RenderUtils::DrawOscilloMultiple(x,y,ww,hh,m_voice_buff_ana_cpy,cur_pos,([mplayer getNumChannels]<SOUND_MAXVOICES_BUFFER_FX?[mplayer getNumChannels]:SOUND_MAXVOICES_BUFFER_FX),2,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,
                                                      0/*settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value*/,
                                                      NULL,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value);
                 }
             } else {
-                RenderUtils::DrawOscilloMultiple(x,y,ww,hh,winSize.x,winSize.y,(signed char **)snd_buffer,cur_pos,2,1,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,
+                RenderUtils::DrawOscilloMultiple(x,y,ww,hh,(signed char **)snd_buffer,cur_pos,2,1,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,
                                                  0/*settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value*/,
                                                  NULL,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value,1);
             }
             break;
         case 3:
-            RenderUtils::DrawOscilloMultiple(x,y,ww,hh,winSize.x,winSize.y,(signed char **)snd_buffer,cur_pos,2,1,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,
+            RenderUtils::DrawOscilloMultiple(x,y,ww,hh,(signed char **)snd_buffer,cur_pos,2,1,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,
                                              0/*settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value*/,
                                              NULL,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value,1);
             break;
         case 4:
-            RenderUtils::DrawOscilloMultiple(x,y,ww,hh,winSize.x,winSize.y,(signed char **)snd_buffer,cur_pos,2,2,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,
+            RenderUtils::DrawOscilloMultiple(x,y,ww,hh,(signed char **)snd_buffer,cur_pos,2,2,mScaleFactor,settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value,
                                              0/*settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_value*/,
                                              NULL,settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value,1);
+            break;
+    }
+}
+
+void initViewPortData(int fxidx,float &x,float &y,float &w,float &h,float ww,float hh) {
+    switch (fxSlot[fxidx]) {
+        default:
+        case 0: //full
+            x=0; y=0;
+            w=ww; h=hh;
+            break;
+        case 1: //split vertically, left
+            x=0; y=0;
+            w=ww/2; h=hh;
+            break;
+        case 2: //split vertically, right
+            x=ww/2; y=0;
+            w=ww/2; h=hh;
+            break;
+        case 3: //split horizontally, top
+            x=0; y=hh/2;
+            w=ww; h=hh/2;
+            break;
+        case 4: //split horizontally, bottom
+            x=0; y=0;
+            w=ww; h=hh/2;
+            break;
+        case 5: //split vert&hor, top left
+            x=0; y=hh/2;
+            w=ww/2; h=hh/2;
+            break;
+        case 6: //split vert&hor, top right
+            x=ww/2; y=hh/2;
+            w=ww/2; h=hh/2;
+            break;
+        case 7: //split vert&hor, bottom left
+            x=0; y=0;
+            w=ww/2; h=hh/2;
+            break;
+        case 8: //split vert&hor, bottom right
+            x=ww/2; y=0;
+            w=ww/2; h=hh/2;
             break;
     }
 }
@@ -9142,85 +9187,85 @@ void doFramePM(float ww,float hh) {
     }
     angle+=(float)4.0f;
     
-    int fxSlot[8];
-    fxSlot[0]=0;
-    fxSlot[1]=0;
-    fxSlot[2]=0;
-    fxSlot[3]=0;
-    fxSlot[4]=0;
-    fxSlot[5]=0;
-    fxSlot[6]=0;
-    fxSlot[7]=1;
-    bool fxActiveSlot[4];
-    ImVec4 fxPos[4];
-    fxActiveSlot[0]=true;  fxPos[0]=ImVec4(0,0,ww/2,hh);
-    fxActiveSlot[1]=true;  fxPos[1]=ImVec4(ww/2,0,ww/2,hh);
-    fxActiveSlot[2]=false; fxPos[2]=ImVec4(0,0,ww,hh);
-    fxActiveSlot[3]=false; fxPos[3]=ImVec4(0,0,ww,hh);
     
     if ([mplayer isPlaying]) {
-        for (int slot=0;slot<4;slot++) {
-            if (fxActiveSlot[slot]) {
-                float x=fxPos[slot].x;
-                float y=fxPos[slot].y;
-                float w=fxPos[slot].z;
-                float h=fxPos[slot].w;
+                float x;
+                float y;
+                float w;
+                float h;
+                
                 //-------------------------------------
                 // Landscape 3D
                 //-------------------------------------
-                if ( (fxSlot[0]==slot) && (settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value)) {
-                    [self doFx3DLandscape:ImVec4(x,y,w,h) winSize:ImVec2(ww,hh)];
+                if (settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value) {
+                    initViewPortData(FX_3DLandscape,x,y,w,h,ww,hh);
+                    glViewport(x*mScaleFactor, (y?hh-y:0)*mScaleFactor, w*mScaleFactor, h*mScaleFactor);
+                    [self doFx3DLandscape:ImVec4(x,y,w,h)];
                 }
                 
                 //-------------------------------------
                 // Spectrum 3D
                 //-------------------------------------
-                if ( (fxSlot[1]==slot) && (settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value)) {
-                    [self doFx3DSpectrum:ImVec4(x,y,w,h) winSize:ImVec2(ww,hh)];
+                if (settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value) {
+                    initViewPortData(FX_3DSpectrum,x,y,w,h,ww,hh);
+                    glViewport(x*mScaleFactor, (y?hh-y:0)*mScaleFactor, w*mScaleFactor, h*mScaleFactor);
+                    [self doFx3DSpectrum:ImVec4(x,y,w,h)];
                 }
                 
                 //-------------------------------------
                 // Piano 3D
                 //-------------------------------------
-                if ( (fxSlot[2]==slot) && (settings[GLOB_FXPiano3D].detail.mdz_switch.switch_value)) {
-                    [self doFxPiano3D:ImVec4(x,y,w,h) winSize:ImVec2(ww,hh)];
+                if (settings[GLOB_FXPiano3D].detail.mdz_switch.switch_value) {
+                    initViewPortData(FX_PIANO3D,x,y,w,h,ww,hh);
+                    glViewport(x*mScaleFactor, (h!=hh?h-y:y)*mScaleFactor, w*mScaleFactor, h*mScaleFactor);
+                    [self doFxPiano3D:ImVec4(x,y,w,h)];
                 }
                 //-------------------------------------
                 // Spectrum 2D
                 //-------------------------------------
-                if ( (fxSlot[3]==slot) && (settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value)) {
-                    [self doFx2DSpectrum:ImVec4(x,y,w,h) winSize:ImVec2(ww,hh)];
+                if (settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value) {
+                    initViewPortData(FX_2DSpectrum,x,y,w,h,ww,hh);
+                    glViewport(x*mScaleFactor, (h!=hh?h-y:y)*mScaleFactor, w*mScaleFactor, h*mScaleFactor);
+                    [self doFx2DSpectrum:ImVec4(x,y,w,h)];
                 }
                 
                 //-------------------------------------
                 // Piano Roll
                 //-------------------------------------
-                if ( (fxSlot[4]==slot) && (settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value)) {
-                    [self doFxPianoRoll:ImVec4(x,y,w,h) winSize:ImVec2(ww,hh)];
+                if (settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value) {
+                    initViewPortData(FX_PIANOROLL,x,y,w,h,ww,hh);
+                    glViewport(x*mScaleFactor, (h!=hh?h-y:y)*mScaleFactor, w*mScaleFactor, h*mScaleFactor);
+                    [self doFxPianoRoll:ImVec4(x,y,w,h)];
                 }
                 
                 //-------------------------------------
                 // Midi patterns
                 //-------------------------------------
-                if ( (fxSlot[5]==slot) && (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value)) {
-                    [self doFxMidiPattern:ImVec4(x,y,w,h) winSize:ImVec2(ww,hh)];
+                if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value) {
+                    initViewPortData(FX_MIDIPattern,x,y,w,h,ww,hh);
+                    glViewport(x*mScaleFactor, (h!=hh?h-y:y)*mScaleFactor, w*mScaleFactor, h*mScaleFactor);
+                    [self doFxMidiPattern:ImVec4(x,y,w,h)];
                 }
                 
                 //-------------------------------------
                 // Mod patterns
                 //-------------------------------------
-                if ( (fxSlot[6]==slot) && (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value && mplayer.mPatternDataAvail)) {
-                    [self doFxModPatterns:ImVec4(x,y,w,h) winSize:ImVec2(ww,hh)];
+                if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value && mplayer.mPatternDataAvail) {
+                    initViewPortData(FX_MODPattern,x,y,w,h,ww,hh);
+                    glViewport(x*mScaleFactor, (h!=hh?h-y:y)*mScaleFactor, w*mScaleFactor, h*mScaleFactor);
+                    [self doFxModPatterns:ImVec4(x,y,w,h)];
                 }
                 
                 //-------------------------------------
                 // Oscillo
                 //-------------------------------------
-                if ( (fxSlot[7]==slot) && (settings[OSCILLO_FXMODE].detail.mdz_switch.switch_value)) {
-                    [self doFxOscillo:ImVec4(x,y,w,h) winSize:ImVec2(ww,hh)];
+                if (settings[OSCILLO_FXMODE].detail.mdz_switch.switch_value) {
+                    initViewPortData(FX_OSCILLO,x,y,w,h,ww,hh);
+                    glViewport(x*mScaleFactor, (h!=hh?h-y:y)*mScaleFactor, w*mScaleFactor, h*mScaleFactor);
+                    [self doFxOscillo:ImVec4(x,y,w,h)];
                 }
-            }
-        }
+        
+        glViewport(0, 0, ww*mScaleFactor, hh*mScaleFactor);
     }
     
     //-------------------------------------

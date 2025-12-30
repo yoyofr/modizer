@@ -1,5 +1,5 @@
 //
-//  main.m
+//  main.mm
 //  modizer
 //
 //  Created by yoyofr on 7/28/10.

@@ -1,5 +1,5 @@
 //
-//  MoreViewController.m
+//  MoreViewController.mm
 //  modizer
 //
 //  Created by Yohann Magnien on 08/08/13.

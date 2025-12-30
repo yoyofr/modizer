@@ -1,5 +1,5 @@
 //
-//  GoogleAppHelper.m
+//  GoogleAppHelper.mm
 //  modizer
 //
 //  Created by yoyofr on 23/10/10.

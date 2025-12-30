@@ -1,5 +1,5 @@
 /*
- *  DBHelper.cpp
+ *  DBHelper.mm
  *  modizer
  *
  *  Created by Yohann Magnien on 23/08/10.

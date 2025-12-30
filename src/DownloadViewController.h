@@ -1,6 +1,6 @@
 //
 //  DownloadViewController.h
-//  modizer4
+//  modizer
 //
 //  Created by yoyofr on 6/20/10.
 //  Copyright 2010 __YoyoFR / Yohann Magnien__. All rights reserved.

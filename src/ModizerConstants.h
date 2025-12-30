@@ -450,5 +450,20 @@ typedef enum {
     FTYPE_SINGLE_FILETYPE
 } t_filetypeList;
 
+enum {
+    FX_PROJECTM=0,
+    FX_OSCILLO,
+    FX_PIANOROLL,
+    FX_PIANO3D,
+    FX_MIDIPattern,
+    FX_MODPattern,
+    FX_2DSpectrum,
+    FX_3DSpectrum,
+    FX_3DLandscape,
+    
+    FX_MAX
+};
+
+
 #endif
 
