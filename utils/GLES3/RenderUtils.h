@@ -205,10 +205,10 @@ void UpdateDataPiano(unsigned int *data,bool clearbuffer,bool paused);
 int DrawBox(LineVertexF *ptsB,int index,float x,float y,float width,float height,float border_size,int crt,int cgt,int cbt,int ca,int subnote,int ww,int hh);
 
 void DrawMidiFX(float ox,float oy,float ww,float hh,float winWidth,float winHeight,int horiz_vert,float note_display_range, float note_display_offset,int fx_len,int color_mode,float mScaleFactor);
-void DrawPianoRollFX(float ox,float oy,uint ww,uint hh,int horiz_vert,float note_display_range, float note_display_offset,int fx_len,int color_mode,float mScaleFactor,char *voices_label);
-void DrawPianoRollSynthesiaFX(float ox,float oy,uint ww,uint hh,int horiz_vert,float note_display_range, float note_display_offset,int fx_len,int color_mode,float mScaleFactor,char *voices_label);
-void DrawPiano3D(float ox,float oy,uint ww,uint hh,int automove,float posx,float posy,float posz,float rotx,float roty,int color_mode);
-void DrawPiano3DWithNotesWall(float ox,float oy,uint ww,uint hh,int automove,float posx,float posy,float posz,float rotx,float roty,int color_mode, int fxquality);
+void DrawPianoRollFX(float ox,float oy,float ww,float hh,float winWidth,float winHeight,int horiz_vert,float note_display_range, float note_display_offset,int fx_len,int color_mode,float mScaleFactor,char *voices_label);
+void DrawPianoRollSynthesiaFX(float ox,float oy,float ww,float hh,float winWidth,float winHeight,int horiz_vert,float note_display_range, float note_display_offset,int fx_len,int color_mode,float mScaleFactor,char *voices_label);
+void DrawPiano3D(float ox,float oy,float ww,float hh,float winWidth,float winHeight,int automove,float posx,float posy,float posz,float rotx,float roty,int color_mode);
+void DrawPiano3DWithNotesWall(float ox,float oy,float ww,float hh,float winWidth,float winHeight,int automove,float posx,float posy,float posz,float rotx,float roty,int color_mode, int fxquality);
 
 void DrawTexture(uint ww,uint hh,GLuint textureIdx,float alpha,bool reversed=false);
 void DrawTextureBlur(uint ww,uint hh,GLuint textureIdx,int hori,float min_brightness,float blurDiv);

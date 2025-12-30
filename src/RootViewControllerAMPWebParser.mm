@@ -1,6 +1,6 @@
 //
 //  RootViewControllerAMPWebParser.mm
-//  modizer1
+//  modizer
 //
 //  Created by Yohann Magnien on 07/05/21.
 //  Copyright __YoyoFR / Yohann Magnien__ 2010. All rights reserved.
@@ -157,18 +157,18 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
 }
 
 -(void) fillKeysCompleted {
-    //[super fillKeysCompleted];
+    [super fillKeysCompleted];
     fillKeysInProgress=0;
     if (mSearch && (search_dbWEB_entries_count==0)&&(entries_noMoreToLoad==false)) {
         dispatch_async(dispatch_get_main_queue(), ^(void){
-            [self hideWaiting];
+//            [self hideWaiting];
             [self fillMoreKeys];
             [tableView reloadData];
             [tableView layoutIfNeeded];
         });
     } else {
         dispatch_async(dispatch_get_main_queue(), ^(void){
-            [self hideWaiting];
+//            [self hideWaiting];
             [tableView reloadData];
             [tableView layoutIfNeeded];
         });
@@ -204,7 +204,7 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
     self.searchDebounceTimer = nil;
 
     // Schedule new search after delay
-    self.searchDebounceTimer = [NSTimer scheduledTimerWithTimeInterval:0.3
+    self.searchDebounceTimer = [NSTimer scheduledTimerWithTimeInterval:0.5
                                                                  target:self
                                                                selector:@selector(fillKeys)
                                                                userInfo:nil
@@ -723,11 +723,6 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
                 entries_noMoreToLoad=true;
             }
             
-            dispatch_async(dispatch_get_main_queue(), ^(void){
-                [self updateWaitingDetail:[NSString stringWithFormat:@"fetching %d",self.arr_current_fetch_position]];
-            });
-            
-            
             int total_handles=(int)[arr_url_handleList count];
             int total_realnames=(int)[arr_url_realnameList count];
             int total_countries=(int)[arr_url_countryList count];
@@ -771,11 +766,6 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
             //if (currentHandles<50) {
             entries_noMoreToLoad=true;
             //}
-            
-            dispatch_async(dispatch_get_main_queue(), ^(void){
-                [self updateWaitingDetail:[NSString stringWithFormat:@"fetching %d",self.arr_current_fetch_position]];
-            });
-            
             
             int total_groups=(int)[arr_url_groupsList count];
             int total_groupsLogo=(int)[arr_url_groupsLogoList count];
@@ -853,10 +843,6 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
         if (currentHandles<50) {
             entries_noMoreToLoad=true;
         }
-        
-        dispatch_async(dispatch_get_main_queue(), ^(void){
-            [self updateWaitingDetail:[NSString stringWithFormat:@"fetching %d",self.arr_current_fetch_position]];
-        });
         
         int total_handles=(int)[arr_url_handleList count];
         int total_realnames=(int)[arr_url_realnameList count];
@@ -1086,11 +1072,6 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
             entries_noMoreToLoad=true;
         }
         
-        dispatch_async(dispatch_get_main_queue(), ^(void){
-            [self updateWaitingDetail:[NSString stringWithFormat:@"fetching %d",self.arr_current_fetch_position]];
-        });
-        
-        
         int total_files=(int)[arr_url_fileList count];
         int total_composers=(int)[arr_url_composerList count];
         
@@ -1137,7 +1118,7 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
         ///////////////////////////////////////////////////////////////////////:
         
         dispatch_async(dispatch_get_main_queue(), ^(void){
-            [self updateWaitingDetail:[NSString stringWithFormat:@"fetching from %d",self.arr_current_fetch_position]];
+            [self updateWaitingDetail:[NSString stringWithFormat:@"fetching interview"]];
         });
         
         url = [NSURL URLWithString:[NSString stringWithFormat:@"%@",mWebBaseURL]];
@@ -1149,10 +1130,6 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
         
         entries_noMoreToLoad=true;
         
-        dispatch_async(dispatch_get_main_queue(), ^(void){
-            [self updateWaitingDetail:[NSString stringWithFormat:@"fetching %d",self.arr_current_fetch_position]];
-        });
-
         if ([arr_interview count]!=1) {
             MDZELog("AMP consistency issue interview count: %d\n",(int)[arr_interview count]);
         }
@@ -1160,7 +1137,80 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
         if ([arr_interview count]) {
             TFHppleElement *el=[arr_interview objectAtIndex:0];
             
-            htmlData=[NSString stringWithFormat:@"<!DOCTYPE html><html><body>%@</body></html>",el.raw];
+            htmlData=[NSString stringWithFormat:@""
+                      "<!DOCTYPE html>"
+                      "<html>"
+                      "<head>"
+                      "<meta charset='UTF-8'><meta name='viewport' content='width=600, initial-scale=1.0, user-scalable=yes, no-shrink=yes'>"
+                      "    <style>"
+                      "        * {"
+                      "            font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;"
+                      "        }"
+                      ""
+                      "        body {"
+                      "            color: white;"
+                      "            font-size: small;"
+                      "-webkit-text-size-adjust: none;"
+                      "            background-color: #123456;"
+                      "            margin: 0;"
+                      "        }"
+                      "TT {"
+                        "font-family: Courier;"
+                      "}"
+                      ".small {"
+                      "font-family : tahoma, verdana, arial, geneva, sans-serif;"
+                      "font-size : 9pt;"
+                      "color : #000000;"
+                      "text-decoration : none;"
+                      "background-color : rgb(200,200,200);"
+                      "}"
+                      ""
+                      "        #interview {"
+                      "            text-align: justify;"
+                      "            width: 100%%;"
+                      "        }"
+                      ""
+                      "        #interview p {"
+                      "            font-size: 9pt;"
+                      "        }"
+                      ""
+                      "        #interview ul {"
+                      "            margin: 0;"
+                      "            font-size: 9pt;"
+                      "        }"
+                      ""
+                      "        #interview li {"
+                      "            margin: 0;"
+                      "            font-size: 9pt;"
+                      "            color: #fcce04;"
+                      "        }"
+                      ""
+                      "        #interview span {"
+                      "            color: #ffffff;"
+                      "        }"
+                      ""
+                      "        #interview h3 {"
+                      "            color: #fcce04;"
+                      "            text-decoration: underline;"
+                      "        }"
+                      ""
+                      "        #interview h5 {"
+                      "            text-align: left;"
+                      "            margin: 0;"
+                      "            margin-top: 5px;"
+                      "        }"
+                      "    </style>"
+                      "</head>"
+                      "<body>"
+                      "<div id=\"interview\">"
+                      "<p>"
+                      "<center><h3>Interview</h3></center>"
+                      "</p>"
+                      "<br />"
+                      "%@"
+                      "</body>"
+                      "</html>"
+                      "",el.raw];
         }
     }
     
@@ -1665,7 +1715,7 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
     self.searchDebounceTimer = nil;
 
     // Schedule new search after delay
-    self.searchDebounceTimer = [NSTimer scheduledTimerWithTimeInterval:0.3
+    self.searchDebounceTimer = [NSTimer scheduledTimerWithTimeInterval:0.5
                                                                  target:self
                                                                selector:@selector(fillKeys)
                                                                userInfo:nil

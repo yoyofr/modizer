@@ -1,5 +1,5 @@
 //
-//  OnlineViewController.m
+//  OnlineViewController.mm
 //  modizer
 //
 //  Created by Yohann Magnien on 29/07/13.
@@ -229,6 +229,7 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
 }
 
 - (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
+    [self.tableView reloadData];
     [miniplayerVC viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
 }
 

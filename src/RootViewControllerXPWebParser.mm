@@ -1,6 +1,6 @@
 //
 //  RootViewControllerXPWebParser.mm
-//  modizer1
+//  modizer
 //
 //  Created by Yohann Magnien on 10/03/24.
 //  Copyright __YoyoFR / Yohann Magnien__ 2024. All rights reserved.
@@ -245,15 +245,200 @@ extern void *LoadingProgressObserverContext;
     [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.view.safeAreaLayoutGuide attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:waitingViewPlayer attribute:NSLayoutAttributeCenterY multiplier:1.0 constant:0]];
     
     [super viewDidLoad];
-    
+
 END_PROFILE
+}
+
+-(void) createHTMLWebViewIfNeeded {
+    if (!_htmlWebView) {
+        WKWebViewConfiguration *config = [[WKWebViewConfiguration alloc] init];
+
+        // Set minimum font size to ensure readability
+        config.preferences.minimumFontSize = 9.0;
+
+        _htmlWebView = [[WKWebView alloc] initWithFrame:CGRectZero configuration:config];
+        _htmlWebView.translatesAutoresizingMaskIntoConstraints = NO;
+        _htmlWebView.navigationDelegate = self;
+
+        // Enable scrolling with visible scrollbars
+        _htmlWebView.scrollView.showsHorizontalScrollIndicator = YES;
+        _htmlWebView.scrollView.showsVerticalScrollIndicator = YES;
+
+        if (darkMode) {
+            _htmlWebView.backgroundColor = [UIColor blackColor];
+        } else {
+            _htmlWebView.backgroundColor = [UIColor whiteColor];
+        }
+    }
+}
+
+-(NSString*) fixWindowsCharacters:(NSString*)input {
+    if (!input || [input length] == 0) return input;
+
+    NSMutableString *result = [NSMutableString stringWithString:input];
+
+    // Replace Windows-1252 characters that don't have valid UTF-8 equivalents
+    // These are characters in the range 0x80-0x9F that are problematic
+
+    // 0x95 - Bullet point (&#149;)
+    unichar bullet = 0x95;
+    NSString *bulletStr = [NSString stringWithCharacters:&bullet length:1];
+    [result replaceOccurrencesOfString:bulletStr withString:@"•" options:NSLiteralSearch range:NSMakeRange(0, [result length])];
+
+    // 0x96 - En dash (&#150;)
+    unichar endash = 0x96;
+    NSString *endashStr = [NSString stringWithCharacters:&endash length:1];
+    [result replaceOccurrencesOfString:endashStr withString:@"–" options:NSLiteralSearch range:NSMakeRange(0, [result length])];
+
+    // 0x97 - Em dash (&#151;)
+    unichar emdash = 0x97;
+    NSString *emdashStr = [NSString stringWithCharacters:&emdash length:1];
+    [result replaceOccurrencesOfString:emdashStr withString:@"—" options:NSLiteralSearch range:NSMakeRange(0, [result length])];
+
+    // 0x91, 0x92 - Left/right single quotes (&#145;, &#146;)
+    unichar lsquote = 0x91;
+    unichar rsquote = 0x92;
+    [result replaceOccurrencesOfString:[NSString stringWithCharacters:&lsquote length:1] withString:@"'" options:NSLiteralSearch range:NSMakeRange(0, [result length])];
+    [result replaceOccurrencesOfString:[NSString stringWithCharacters:&rsquote length:1] withString:@"'" options:NSLiteralSearch range:NSMakeRange(0, [result length])];
+
+    // 0x93, 0x94 - Left/right double quotes (&#147;, &#148;)
+    unichar ldquote = 0x93;
+    unichar rdquote = 0x94;
+    unichar ldqChar = 0x201C; // Unicode left double quote
+    unichar rdqChar = 0x201D; // Unicode right double quote
+    [result replaceOccurrencesOfString:[NSString stringWithCharacters:&ldquote length:1] withString:[NSString stringWithCharacters:&ldqChar length:1] options:NSLiteralSearch range:NSMakeRange(0, [result length])];
+    [result replaceOccurrencesOfString:[NSString stringWithCharacters:&rdquote length:1] withString:[NSString stringWithCharacters:&rdqChar length:1] options:NSLiteralSearch range:NSMakeRange(0, [result length])];
+
+    // 0x85 - Ellipsis (&#133;)
+    unichar ellipsis = 0x85;
+    [result replaceOccurrencesOfString:[NSString stringWithCharacters:&ellipsis length:1] withString:@"…" options:NSLiteralSearch range:NSMakeRange(0, [result length])];
+
+    return result;
+}
+
+-(BOOL) shouldDisplayHTMLContent {
+    return (htmlData != nil && [htmlData length] > 0);
+}
+
+-(void) switchToHTMLView {
+    [self createHTMLWebViewIfNeeded];
+
+    if (_htmlWebView.superview == nil) {
+        // Remove tableView
+        [tableView removeFromSuperview];
+
+        // Add WKWebView directly to main view
+        [self.view addSubview:_htmlWebView];
+
+        // Simple constraints - WKWebView takes full view size
+        [_htmlWebView.leadingAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.leadingAnchor].active = YES;
+        [_htmlWebView.trailingAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.trailingAnchor].active = YES;
+
+        if (sBar && !sBar.hidden) {
+            [_htmlWebView.topAnchor constraintEqualToAnchor:sBar.bottomAnchor].active = YES;
+        } else {
+            [_htmlWebView.topAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.topAnchor].active = YES;
+        }
+
+        [_htmlWebView.bottomAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.bottomAnchor].active = YES;
+    }
+
+    // Fix Windows-1252 characters that were decoded by TFHpple
+    NSString *cleanedData = [self fixWindowsCharacters:htmlData];
+
+    // Check if htmlData is already a complete HTML document
+    BOOL isCompleteHTML = ([cleanedData rangeOfString:@"<html" options:NSCaseInsensitiveSearch].location != NSNotFound) ||
+                          ([cleanedData rangeOfString:@"<!DOCTYPE html" options:NSCaseInsensitiveSearch].location != NSNotFound);
+
+    NSString *fullHTML;
+    if (isCompleteHTML) {
+        // Replace viewport to use fixed minimum width (like a desktop browser)
+        // This ensures content is rendered at a minimum readable size with horizontal scroll if needed
+        NSError *error = nil;
+        NSRegularExpression *viewportRegex = [NSRegularExpression regularExpressionWithPattern:@"<meta[^>]*name=['\"]viewport['\"][^>]*>"
+                                                                                        options:NSRegularExpressionCaseInsensitive
+                                                                                          error:&error];
+        NSUInteger matches = [viewportRegex numberOfMatchesInString:cleanedData options:0 range:NSMakeRange(0, [cleanedData length])];
+
+        if (!error && matches > 0) {
+            // Replace existing viewport with fixed width and initial scale
+            NSString *fixedViewport = @"<meta name='viewport' content='width=600, initial-scale=1.0, user-scalable=yes, shrink-to-fit=no'>";
+            fullHTML = [viewportRegex stringByReplacingMatchesInString:cleanedData
+                                                                options:0
+                                                                  range:NSMakeRange(0, [cleanedData length])
+                                                           withTemplate:fixedViewport];
+            NSLog(@"Replaced viewport meta tag (found %lu matches)", (unsigned long)matches);
+        } else {
+            // No viewport found, inject one after <head>
+            NSRegularExpression *headRegex = [NSRegularExpression regularExpressionWithPattern:@"<head[^>]*>"
+                                                                                        options:NSRegularExpressionCaseInsensitive
+                                                                                          error:&error];
+            if (!error && [headRegex numberOfMatchesInString:cleanedData options:0 range:NSMakeRange(0, [cleanedData length])] > 0) {
+                NSString *headWithViewport = @"$0<meta name='viewport' content='width=600, initial-scale=1.0, user-scalable=yes, shrink-to-fit=no'>";
+                fullHTML = [headRegex stringByReplacingMatchesInString:cleanedData
+                                                                options:0
+                                                                  range:NSMakeRange(0, [cleanedData length])
+                                                           withTemplate:headWithViewport];
+                NSLog(@"Injected viewport meta tag after <head>");
+            } else {
+                fullHTML = cleanedData;
+                NSLog(@"No viewport and no <head> found, using HTML as-is");
+            }
+        }
+
+        // Also inject CSS to force minimum content width (important for Mac Catalyst)
+        NSRegularExpression *headCloseRegex = [NSRegularExpression regularExpressionWithPattern:@"</head>"
+                                                                                        options:NSRegularExpressionCaseInsensitive
+                                                                                          error:&error];
+        if (!error && [headCloseRegex numberOfMatchesInString:fullHTML options:0 range:NSMakeRange(0, [fullHTML length])] > 0) {
+            NSString *minWidthCSS = @"<style>html, body { min-width: 600px !important; overflow-x: auto !important; } body > * { min-width: 600px !important; }</style></head>";
+            fullHTML = [headCloseRegex stringByReplacingMatchesInString:fullHTML
+                                                                options:0
+                                                                  range:NSMakeRange(0, [fullHTML length])
+                                                           withTemplate:minWidthCSS];
+            NSLog(@"Injected min-width CSS");
+        }
+    } else {
+        // Wrap content in HTML template with fixed width viewport
+        NSString *htmlTemplate = @"<html><head><meta charset='UTF-8'><meta name='viewport' content='width=600, initial-scale=1.0, user-scalable=yes, shrink-to-fit=no'><style>body { font-family: -apple-system; font-size: 9pt; -webkit-text-size-adjust: none; margin: 16px; %@ }</style></head><body>%@</body></html>";
+
+        NSString *colorStyle;
+        if (darkMode) {
+            colorStyle = @"background-color: #000; color: #fff;";
+        } else {
+            colorStyle = @"background-color: #fff; color: #000;";
+        }
+
+        fullHTML = [NSString stringWithFormat:htmlTemplate, colorStyle, cleanedData];
+    }
+
+    [_htmlWebView loadHTMLString:fullHTML baseURL:nil];
+}
+
+-(void) switchToTableView {
+    if (_htmlWebView && _htmlWebView.superview) {
+        [_htmlWebView removeFromSuperview];
+    }
+
+    if (tableView.superview == nil) {
+        [self.view addSubview:tableView];
+    }
+
+    [tableView reloadData];
+    [tableView layoutIfNeeded];
 }
 
 -(void) fillKeysCompleted {
     //called when fillKeys has finished
-    [self hideWaiting];
-    [tableView reloadData];
-    [tableView layoutIfNeeded];
+
+    if ([self shouldDisplayHTMLContent]) {
+        // Don't hide waiting yet - will hide when webview finishes loading
+        [self switchToHTMLView];
+    } else {
+        [self hideWaiting];
+        [self switchToTableView];
+    }
+
     fillKeysInProgress=0;
 }
 
@@ -273,6 +458,20 @@ END_PROFILE
     if (oldmode!=darkMode) forceReloadCells=true;
     if (darkMode) self.tableView.backgroundColor=[UIColor blackColor];
     else self.tableView.backgroundColor=[UIColor whiteColor];
+
+    // Update htmlWebView colors if it exists
+    if (_htmlWebView) {
+        if (darkMode) {
+            _htmlWebView.backgroundColor = [UIColor blackColor];
+        } else {
+            _htmlWebView.backgroundColor = [UIColor whiteColor];
+        }
+        // Reload HTML with updated colors if currently displayed
+        if ([self shouldDisplayHTMLContent] && _htmlWebView.superview) {
+            [self switchToHTMLView];
+        }
+    }
+
     [self.tableView reloadData];
     [self.tableView layoutIfNeeded];
 }
@@ -416,6 +615,37 @@ END_PROFILE
     }
     [super viewDidDisappear:animated];
 }
+
+#pragma mark - WKNavigationDelegate
+
+- (void)webView:(WKWebView *)webView didFinishNavigation:(WKNavigation *)navigation {
+    // Hide waiting indicator when HTML content is fully loaded
+    [self hideWaiting];
+
+//    // Force minimum contentSize width
+//    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+//        CGSize currentContentSize = webView.scrollView.contentSize;
+//        CGFloat minWidth = 600.0;
+//
+//        if (currentContentSize.width < minWidth) {
+//            // Force contentSize to have minimum width
+//            webView.scrollView.contentSize = CGSizeMake(minWidth, currentContentSize.height);
+//            NSLog(@"Forced contentSize width from %.0f to %.0f", currentContentSize.width, minWidth);
+//        }
+//
+//        NSLog(@"Final contentSize: %@, frame: %@",
+//              NSStringFromCGSize(webView.scrollView.contentSize),
+//              NSStringFromCGSize(webView.frame.size));
+//    });
+}
+
+- (void)webView:(WKWebView *)webView didFailNavigation:(WKNavigation *)navigation withError:(NSError *)error {
+    // Hide waiting indicator even on error
+    [self hideWaiting];
+    NSLog(@"WebView navigation failed: %@", error);
+}
+
+#pragma mark - View Transitions
 
 - (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
     [self.tableView reloadData];
@@ -574,7 +804,7 @@ trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
     self.searchDebounceTimer = nil;
 
     // Schedule new search after delay
-    self.searchDebounceTimer = [NSTimer scheduledTimerWithTimeInterval:0.3
+    self.searchDebounceTimer = [NSTimer scheduledTimerWithTimeInterval:0.5
                                                                  target:self
                                                                selector:@selector(fillKeys)
                                                                userInfo:nil
@@ -597,7 +827,7 @@ trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
     self.searchDebounceTimer = nil;
 
     // Schedule new search after delay
-    self.searchDebounceTimer = [NSTimer scheduledTimerWithTimeInterval:0.3
+    self.searchDebounceTimer = [NSTimer scheduledTimerWithTimeInterval:0.5
                                                                  target:self
                                                                selector:@selector(fillKeys)
                                                                userInfo:nil
@@ -922,6 +1152,11 @@ trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
 
     [self.searchDebounceTimer invalidate];
     self.searchDebounceTimer = nil;
+
+    if (_htmlWebView) {
+        [_htmlWebView removeFromSuperview];
+        _htmlWebView = nil;
+    }
 
     if (mSearchText) {
         mSearchText=nil;

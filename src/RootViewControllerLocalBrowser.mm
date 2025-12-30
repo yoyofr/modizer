@@ -1,6 +1,6 @@
 //
-//  RootViewControllerLocalBrowser.m
-//  modizer1
+//  RootViewControllerLocalBrowser.mm
+//  modizer
 //
 //  Created by Yohann Magnien on 04/06/10.
 //  Copyright __YoyoFR / Yohann Magnien__ 2010. All rights reserved.
@@ -1202,6 +1202,7 @@ static int qsort_CompareArcEntries(const void *entryA, const void *entryB) {
                 extractProgress.cancellable = YES;
                 extractProgress.pausable = NO;
                 NSString *tmpPath=[NSString stringWithFormat:@"%@/tmpArchiveBrowser",NSTemporaryDirectory()];
+                [mFileMngr removeItemAtPath:tmpPath error:NULL];
                 [ModizFileHelper extractToPath:[cpath UTF8String] path:[tmpPath UTF8String] caller:self progress:extractProgress context:ExtractBrowserListProgressObserverContext];
             }
             

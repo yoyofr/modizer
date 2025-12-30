@@ -1,6 +1,6 @@
 //
-//  SearchViewController.m
-//  modizer4
+//  SearchViewController.mm
+//  modizer
 //
 //  Created by yoyofr on 7/16/10.
 //  Copyright 2010 __YoyoFR / Yohann Magnien__. All rights reserved.

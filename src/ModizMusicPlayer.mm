@@ -9128,7 +9128,11 @@ typedef struct {
     if (nsfe_name[0]) snprintf(mod_name,sizeof(mod_name)," %s",nsfe_name);
     else snprintf(mod_name,sizeof(mod_name)," %s",[[[mod_currentfile lastPathComponent] stringByDeletingPathExtension] UTF8String]);
     
-    artist=[NSString stringWithUTF8String:nsfData->artist];
+    if (m3uReader.info().composer) {
+        if (m3uReader.info().composer[0]) artist=[NSString stringWithCString:m3uReader.info().composer encoding:NSShiftJISStringEncoding];
+    } else if (m3uReader.info().artist) {
+        if (m3uReader.info().artist[0]) artist=[NSString stringWithCString:m3uReader.info().artist encoding:NSShiftJISStringEncoding];
+    } else artist=[NSString stringWithUTF8String:nsfData->artist];
     
     numChannels=0;
     memset(modizChipsetType,0,sizeof(modizChipsetType));
@@ -9418,8 +9422,11 @@ static WSRPlayerApi* s_coreSwan=&oswan::g_wsr_player_api;
     
     mod_title=[NSString stringWithUTF8String:mod_name];
     
-    if (m3uReader.info().artist)
+    if (m3uReader.info().composer) {
+        if (m3uReader.info().composer[0]) artist=[NSString stringWithCString:m3uReader.info().composer encoding:NSShiftJISStringEncoding];
+    } else if (m3uReader.info().artist) {
         if (m3uReader.info().artist[0]) artist=[NSString stringWithCString:m3uReader.info().artist encoding:NSShiftJISStringEncoding];
+    }
     
     if (m3uReader.info().title)
         if (m3uReader.info().title[0]) snprintf(mod_name,sizeof(mod_name)," %s",m3uReader.info().title);
@@ -9729,7 +9736,9 @@ static WSRPlayerApi* s_coreSwan=&oswan::g_wsr_player_api;
         if (m3uReader.info().title[0]) snprintf(mod_name,sizeof(mod_name)," %s",m3uReader.info().title);
     } else if (metadata->title[0]) snprintf(mod_name,sizeof(mod_name)," %s",metadata->title);
     
-    if (m3uReader.info().artist) {
+    if (m3uReader.info().composer) {
+        if (m3uReader.info().composer[0]) artist=[NSString stringWithCString:m3uReader.info().composer encoding:NSShiftJISStringEncoding];
+    } else if (m3uReader.info().artist) {
         if (m3uReader.info().artist[0]) artist=[NSString stringWithCString:m3uReader.info().artist encoding:NSShiftJISStringEncoding];
     } else artist=[NSString stringWithUTF8String:metadata->author];
     
@@ -10920,8 +10929,11 @@ char* loadRom(const char* path, size_t romSize)
         }
     }
     
-    if (m3uReader.info().artist)
+    if (m3uReader.info().composer) {
+        if (m3uReader.info().composer[0]) artist=[NSString stringWithCString:m3uReader.info().composer encoding:NSShiftJISStringEncoding];
+    } else if (m3uReader.info().artist) {
         if (m3uReader.info().artist[0]) artist=[NSString stringWithCString:m3uReader.info().artist encoding:NSShiftJISStringEncoding];
+    }
     
     if (m3uReader.size()) {
         KSSPLAY_reset(kssplay, m3uReader[mod_currentsub].track, 0);
@@ -14320,6 +14332,8 @@ extern bool icloud_available;
                     //check if there is a m3u file
                     __block bool m3uFound=false;
                     __block NSString *m3uFilePath;
+                    __block bool noArcM3Umode=false;
+                    NSArray *extNoArcM3Umode=@[@"nsf",@"nsfe",@"kss",@"hes",@"gbs"];
                     
                     NSArray* dirEntries = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:[NSString stringWithFormat:@"%@/tmpArchive",NSTemporaryDirectory()] error:NULL];
                     
@@ -14330,20 +14344,27 @@ extern bool icloud_available;
                             m3uFound=true;
                             m3uFilePath=[NSString stringWithFormat:@"%@/tmpArchive/%@",NSTemporaryDirectory(),filename];
                         }
+                        
+                        for (NSString *tmpExt in extNoArcM3Umode) {
+                            if ([[extension lowercaseString] isEqualToString:tmpExt]) {
+                                noArcM3Umode=true;
+                                break;
+                            }
+                        }
                     }];
                     
-                    if (m3uFound) {
+                    if (m3uFound && !noArcM3Umode) {
                         //check if a playlist exists
                         const char *plfile=[m3uFilePath UTF8String];
                         m3uReader.clear();
                         m3uReader.load(plfile);
                         if (m3uReader.size()) {
-                            MDZILog("m3u file found in archive, entries nb: %d",m3uReader.size());
+                            //MDZILog("m3u file found in archive, entries nb: %d",m3uReader.size());
                             m3uArchiveMode=1;
                             
-                            for (int i=0;i<m3uReader.size();i++) {
-                                MDZILog("%d: file %s - type %s - track %d - length  %d",i,m3uReader[i].file,m3uReader[i].type,m3uReader[i].track,m3uReader[i].length);
-                            }
+//                            for (int i=0;i<m3uReader.size();i++) {
+//                                MDZILog("%d: file %s - type %s - track %d - length  %d",i,m3uReader[i].file,m3uReader[i].type,m3uReader[i].track,m3uReader[i].length);
+//                            }
                             
                             for (int i=0;i<mdz_ArchiveFilesCnt;i++) free(mdz_ArchiveFilesList[i]);
                             free(mdz_ArchiveFilesList);
@@ -14360,6 +14381,11 @@ extern bool icloud_available;
                             mdz_ArchiveEntryTitle=(char**)malloc(mdz_ArchiveFilesCnt*sizeof(char*));
                             memset(mdz_ArchiveEntryTitle,0,mdz_ArchiveFilesCnt*sizeof(char*));
                             
+                            int m3u_minEntry=1;
+                            for (int i=0;i<m3uReader.size();i++) {
+                                if (m3uReader[i].track<m3u_minEntry) m3u_minEntry=m3uReader[i].track;
+                            }
+                            
                             for (int i=0;i<mdz_ArchiveFilesCnt;i++) {
                                 const char *file=m3uReader[i].file;
                                 mdz_ArchiveFilesList[i]=(char*)malloc(strlen(file)+1);
@@ -14371,7 +14397,10 @@ extern bool icloud_available;
                                     strcpy(mdz_ArchiveEntryTitle[i],file);
                                 } else mdz_ArchiveEntryTitle[i]=0;
                                 
-                                if (m3uReader[i].track>=0) mdz_ArchiveEntryMonoSub[i]=m3uReader[i].track;
+                                if (m3uReader[i].track>=0) {
+                                    mdz_ArchiveEntryMonoSub[i]=m3uReader[i].track;
+                                    if (m3uReader[i].decimal_track && (m3u_minEntry>0)) mdz_ArchiveEntryMonoSub[i]--;
+                                }
                                 if (m3uReader[i].length>0) mdz_ArchiveEntryMonoSubLength[i]=m3uReader[i].length;
                             }
                         }

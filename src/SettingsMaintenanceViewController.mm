@@ -1,5 +1,5 @@
 //
-//  SettingsMaintenanceViewController.m
+//  SettingsMaintenanceViewController.mm
 //  modizer
 //
 //  Created by Yohann Magnien on 10/08/13.

@@ -1,4 +1,4 @@
-//  SettingsGenViewController.m
+//  SettingsGenViewController.mm
 //  modizer
 //
 //  Created by Yohann Magnien on 10/08/13.
@@ -3742,6 +3742,11 @@ void optNSFPLAYChangedC(id param) {
 /////////////////////////////////////////////////////////////////////////////////////////////
 #include "WaitingViewCommonMethods.h"
 /////////////////////////////////////////////////////////////////////////////////////////////
+
+- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
+    [self.tableView reloadData];
+    [miniplayerVC viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
+}
 
 
 - (id)findChildOfClass:(Class)cls inTabBarController:(UITabBarController *)tbc {

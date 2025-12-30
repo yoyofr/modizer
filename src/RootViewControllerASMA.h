@@ -1,6 +1,6 @@
 //
 //  RootViewControllerASMA.h
-//  modizer1
+//  modizer
 //
 //  Created by Yohann Magnien on 04/06/10.
 //  Copyright __YoyoFR / Yohann Magnien__ 2010. All rights reserved.

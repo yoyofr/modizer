@@ -7811,10 +7811,10 @@ void doFramePM(float ww,float hh) {
     
     switch (settings[GLOB_FXPiano3D].detail.mdz_switch.switch_value) {
         case 1:
-            RenderUtils::DrawPiano3D(x,y,ww,hh,1,0,0,0,0,0,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value);
+            RenderUtils::DrawPiano3D(x,y,ww,hh,winSize.x,winSize.y,1,0,0,0,0,0,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value);
             break;
         case 2:
-            RenderUtils::DrawPiano3DWithNotesWall(x,y,ww,hh,1,0,0,0,0,0,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,settings[GLOB_FXLOD].detail.mdz_switch.switch_value);
+            RenderUtils::DrawPiano3DWithNotesWall(x,y,ww,hh,winSize.x,winSize.y,1,0,0,0,0,0,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,settings[GLOB_FXLOD].detail.mdz_switch.switch_value);
             break;
         case 3:
             if (movePinchScaleFXPiano<-0/4) movePinchScaleFXPiano=-0/4;
@@ -7824,7 +7824,7 @@ void doFramePM(float ww,float hh) {
             piano_posx=movePx2FXPiano*0.05;
             piano_posy=-movePy2FXPiano*0.05;
             piano_posz=movePinchScaleFXPiano*100*4;
-            RenderUtils::DrawPiano3D(x,y,ww,hh,0,piano_posx,piano_posy,piano_posz,piano_rotx,piano_roty,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value);
+            RenderUtils::DrawPiano3D(x,y,ww,hh,winSize.x,winSize.y,0,piano_posx,piano_posy,piano_posz,piano_rotx,piano_roty,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value);
             break;
         case 4:
             if (movePinchScaleFXPiano<-0.8/4) movePinchScaleFXPiano=-0.8/4;
@@ -7834,7 +7834,7 @@ void doFramePM(float ww,float hh) {
             piano_posx=movePx2FXPiano*0.05;
             piano_posy=-movePy2FXPiano*0.05;
             piano_posz=movePinchScaleFXPiano*100*4;
-            RenderUtils::DrawPiano3DWithNotesWall(x,y,ww,hh,0,piano_posx,piano_posy,piano_posz,piano_rotx,piano_roty,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,settings[GLOB_FXLOD].detail.mdz_switch.switch_value);
+            RenderUtils::DrawPiano3DWithNotesWall(x,y,ww,hh,winSize.x,winSize.y,0,piano_posx,piano_posy,piano_posz,piano_rotx,piano_roty,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,settings[GLOB_FXLOD].detail.mdz_switch.switch_value);
             break;
     }
 }
@@ -7852,10 +7852,10 @@ void doFramePM(float ww,float hh) {
     
     switch (settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value) {
         case 1:
-            RenderUtils::DrawPianoRollFX(x,y,ww,hh,settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value-1,prollfx_note_range,prollfx_noteroll_offset,prollfx_length,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,mScaleFactor,(char*)voicesName);
+            RenderUtils::DrawPianoRollFX(x,y,ww,hh,winSize.x,winSize.y,settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value-1,prollfx_note_range,prollfx_noteroll_offset,prollfx_length,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,mScaleFactor,(char*)voicesName);
             break;
         case 2:
-            RenderUtils::DrawPianoRollSynthesiaFX(x,y,ww,hh,settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value-1,prollfx_note_range,prollfx_noteroll_offset,prollfx_length,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,mScaleFactor,(char*)voicesName);
+            RenderUtils::DrawPianoRollSynthesiaFX(x,y,ww,hh,winSize.x,winSize.y,settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value-1,prollfx_note_range,prollfx_noteroll_offset,prollfx_length,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,mScaleFactor,(char*)voicesName);
             break;
     }
 }

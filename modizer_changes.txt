@@ -31,7 +31,10 @@ missing seek support:
 ---
 - fixes several localizations issues
 - UI fixes & improvements
-- new online collections: AMP, CGSC
+- new online collections: AMP (Amiga Music Preservation), CGSC (Compute's Gazette Sid Collection)
+- DB updated: HVSC #84, CGSC 1.47, ASMA & MODLAND as of 2025/12/30
+- Support of pic files as cover image for CGSC
+- Playlists: bugfixes & small improvements
 
 4.1
 ----

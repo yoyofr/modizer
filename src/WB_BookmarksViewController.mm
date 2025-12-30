@@ -1,5 +1,5 @@
 //
-//  WB_BookmarksViewController.m
+//  WB_BookmarksViewController.mm
 //  modizer
 //
 //  Created by Yohann Magnien on 07/08/13.

@@ -1,5 +1,5 @@
 //
- //  SceneDelegate.m
+ //  SceneDelegate.mm
  //  modizer
  //
  //  Created by Yohann Magnien

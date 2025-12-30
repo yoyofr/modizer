@@ -1,6 +1,6 @@
 //
 //  RootViewControllerXPWebParser.h
-//  modizer1
+//  modizer
 //
 //  Created by Yohann Magnien on 10/03/24.
 //  Copyright __YoyoFR / Yohann Magnien__ 2024. All rights reserved.
@@ -41,6 +41,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
 #import "AFNetworking.h"
 #import "AFHTTPSessionManager.h"
 #import "AFURLSessionManager.h"
+#import <WebKit/WebKit.h>
 
 #import "Notifications.h"
 
@@ -48,7 +49,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
 @class DownloadViewController;
 
 
-@interface RootViewControllerXPWebParser : UIViewController <UINavigationControllerDelegate,UISearchBarDelegate,UIGestureRecognizerDelegate,CMPopTipViewDelegate,NSURLSessionDelegate> {
+@interface RootViewControllerXPWebParser : UIViewController <UINavigationControllerDelegate,UISearchBarDelegate,UIGestureRecognizerDelegate,CMPopTipViewDelegate,NSURLSessionDelegate,WKNavigationDelegate> {
     NSString *ratingImg[3];
     UIView *infoMsgView;
     UILabel *infoMsgLbl;
@@ -69,7 +70,8 @@ extern volatile t_settings settings[MAX_SETTINGS];
     WaitingView *waitingView,*waitingViewPlayer;
     NSTimer *repeatingTimer;
     IBOutlet UITableView *tableView;
-    
+    WKWebView *htmlWebView;
+
     IBOutlet UISearchBar *sBar;
     
     NSFileManager *mFileMngr;
@@ -131,6 +133,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
 @property (nonatomic, retain) DownloadViewController *downloadViewController;
 @property (nonatomic, retain) IBOutlet UIViewController *childController;
 @property (nonatomic, retain) IBOutlet UITableView *tableView;
+@property (nonatomic, retain) WKWebView *htmlWebView;
 @property (nonatomic, retain) IBOutlet UISearchBar *sBar;
 
 @property (nonatomic, retain) NSString *mSearchText,*mWebBaseURL,*rootDir;
@@ -143,6 +146,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
 @property (nonatomic, assign) bool entries_noMoreToLoad;
 @property (nonatomic, assign) int arr_current_fetch_position,fillKeysInProgress,shouldReload;
 @property (nonatomic, strong) NSString *htmlData;
+@property (nonatomic, strong) NSLayoutConstraint *htmlWebViewHeightConstraint;
 
 -(IBAction)goPlayer;
 

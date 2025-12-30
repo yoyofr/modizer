@@ -1,6 +1,6 @@
 //
 //  RootViewControllerJoshWWebParser.mm
-//  modizer1
+//  modizer
 //
 //  Created by Yohann Magnien on 07/05/21.
 //  Copyright __YoyoFR / Yohann Magnien__ 2010. All rights reserved.
@@ -477,12 +477,21 @@
         t_web_file_entry *wef = (t_web_file_entry *)[[sortedArray objectAtIndex:i] pointerValue];
         snprintf(str,1024,"%s",[[wef->file_URL stringByRemovingPercentEncoding] UTF8String]);
         
+        int index=0;
+        if ((str[0]>='A')&&(str[0]<='Z') ) index=(str[0]-'A'+1);
+        if ((str[0]>='a')&&(str[0]<='z') ) index=(str[0]-'a'+1);
+        
         dbWEB_entries[dbWEB_entries_count].label=[[NSString alloc] initWithFormat:@"%s",str];
         
         dbWEB_entries[dbWEB_entries_count].fullpath=[NSString stringWithFormat:@"Documents/%@/%@",mWebBaseDir,dbWEB_entries[dbWEB_entries_count].label];
         
-        
-        dbWEB_entries[dbWEB_entries_count].URL=[NSString stringWithFormat:@"%@/%@",mWebBaseURL,wef->file_URL];
+        if (has_letter_index) {
+            if (index==0) {
+                dbWEB_entries[dbWEB_entries_count].URL=[NSString stringWithFormat:@"%@/0-9/%@",mWebBaseURL,wef->file_URL];
+            } else {
+                dbWEB_entries[dbWEB_entries_count].URL=[NSString stringWithFormat:@"%@/%c/%@",mWebBaseURL,'a'+index-1,wef->file_URL];
+            }
+        } else dbWEB_entries[dbWEB_entries_count].URL=[NSString stringWithFormat:@"%@/%@",mWebBaseURL,wef->file_URL];
         
         if (str[strlen(str)-1]!='/') dbWEB_entries[dbWEB_entries_count].isFile=1;
         else dbWEB_entries[dbWEB_entries_count].isFile=0;

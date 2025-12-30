@@ -1184,8 +1184,6 @@ void RenderUtils::DrawOscilloMultiple(float ox,float oy,float ww,float hh,float 
     if (font_menu) ImGui::PushFont(font_menu,fontSize*mScaleFactor);
     else ImGui::PushFont(nullptr);
     ImGui::Begin("OscilloFX",0,ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoScrollbar|ImGuiWindowFlags_NoFocusOnAppearing);
-    //ImGui::SetCursorPos(ImVec2(0,0));
-    //ImGui::Text("%d %d",ww,hh);
     
     for (int r=0;r<columns_nb;r++) {
         int xpos=xofs+r*columns_width;
@@ -4265,7 +4263,7 @@ unsigned char piano_key_instr[128];
 
 //extern int texturePiano;
 
-void RenderUtils::DrawPiano3D(float ox,float oy,uint ww,uint hh,int automove,float posx,float posy,float posz,float rotx,float roty,int color_mode) {
+void RenderUtils::DrawPiano3D(float ox,float oy,float ww,float hh,float winWidth,float winHeight,int automove,float posx,float posy,float posz,float rotx,float roty,int color_mode) {
     int index;
     float key_length,key_lengthBL,key_height,key_heightBL;
     float key_leftpos;
@@ -4737,7 +4735,7 @@ void RenderUtils::UpdateDataPiano(unsigned int *data,bool clearbuffer,bool pause
     }
 }
 
-void RenderUtils::DrawPiano3DWithNotesWall(float ox,float oy,uint ww,uint hh,int automove,float posx,float posy,float posz,float rotx,float roty,int color_mode,int fxquality) {
+void RenderUtils::DrawPiano3DWithNotesWall(float ox,float oy,float ww,float hh,float winWidth,float winHeight,int automove,float posx,float posy,float posz,float rotx,float roty,int color_mode,int fxquality) {
     int index;
     float key_length,key_lengthBL,key_height,key_heightBL;
     float key_leftpos;
@@ -6216,16 +6214,6 @@ int RenderUtils::DrawKeyW(LineVertexF *ptsB,int index,float x,float y,float widt
     ptsB[index++] = LineVertexF(x+1           , y+height      ,crtp[4],cgtp[4],cbtp[4],cap[4],ww,hh);
     ptsB[index++] = LineVertexF(x+width-1     , y+height      ,crtp[5],cgtp[5],cbtp[5],cap[5],ww,hh);
     
-    //top
-    //    ptsB[index++] = LineVertexF(x+1               , y+height     ,crtp[3],cgtp[3],cbtp[3],cap[3],ww,hh);
-    //    ptsB[index++] = LineVertexF(x+width-1         , y+height     ,crtp[3],cgtp[3],cbtp[3],cap[3],ww,hh);
-    //    ptsB[index++] = LineVertexF(x+width-1         , y+height-2   ,crtp[3],cgtp[3],cbtp[3],cap[3],ww,hh);
-    //
-    //    ptsB[index++] = LineVertexF(x+1               , y+height     ,crtp[3],cgtp[3],cbtp[3],cap[3],ww,hh);
-    //    ptsB[index++] = LineVertexF(x+width-1         , y+height-2   ,crtp[3],cgtp[3],cbtp[3],cap[3],ww,hh);
-    //    ptsB[index++] = LineVertexF(x+1               , y+height-2   ,crtp[3],cgtp[3],cbtp[3],cap[3],ww,hh);
-    
-    
     //inner part low
     ptsB[index++] = LineVertexF(x+width/16           , y+2   ,crtp[1],cgtp[1],cbtp[1],cap[1],ww,hh);
     ptsB[index++] = LineVertexF(x+width-width/16     , y+2   ,crtp[1],cgtp[1],cbtp[1],cap[1],ww,hh);
@@ -6407,7 +6395,7 @@ int RenderUtils::DrawKeyB(LineVertexF *ptsB,int index,float x,float y,float widt
 }
 
 
-void RenderUtils::DrawPianoRollFX(float ox,float oy,uint ww,uint hh,int horiz_vert,float note_display_range, float note_display_offset,int fx_len,int color_mode,float mScaleFactor,char *voices_label) {
+void RenderUtils::DrawPianoRollFX(float ox,float oy,float ww,float hh,float winWidth,float winHeight,int horiz_vert,float note_display_range, float note_display_offset,int fx_len,int color_mode,float mScaleFactor,char *voices_label) {
     LineVertexF *ptsB;
     int crt,cgt,cbt,ca;
     int index;
@@ -6489,7 +6477,7 @@ void RenderUtils::DrawPianoRollFX(float ox,float oy,uint ww,uint hh,int horiz_ve
                   crtp[0],cgtp[0],cbtp[0],cap[0],
                   crtp[1],cgtp[1],cbtp[1],cap[1],
                   crtp[1],cgtp[1],cbtp[1],cap[1],
-                  ww,hh);
+                  winWidth,winHeight);
     }
     
     // Load the vertex data
@@ -6497,6 +6485,10 @@ void RenderUtils::DrawPianoRollFX(float ox,float oy,uint ww,uint hh,int horiz_ve
     glVertexAttribPointer ( colorAttribHandle, 4, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(ptsB[0].r) );
     // Load the uniforms
     // Draw
+    for (int ii=0;ii<index;ii++) {
+        ptsB[ii].x+=2*ox/winWidth;
+        ptsB[ii].y+=2*oy/winHeight;
+    }
     glDrawArrays(GL_TRIANGLES, 0, index);
     
     index=0;
@@ -6567,11 +6559,15 @@ void RenderUtils::DrawPianoRollFX(float ox,float oy,uint ww,uint hh,int horiz_ve
 //                        glEnableVertexAttribArray ( colorAttribHandle );
                         // Load the uniforms
                         // Draw
+                        for (int ii=0;ii<index;ii++) {
+                            ptsB[ii].x+=2*ox/winWidth;
+                            ptsB[ii].y+=2*oy/winHeight;
+                        }
                         glDrawArrays(GL_TRIANGLES, 0, index);
                         
                         index=0;
                     }
-                    index=DrawKeyW(ptsB,index,x,y,width,height,2,220,220,220,255,0,note,j,ww,hh);
+                    index=DrawKeyW(ptsB,index,x,y,width,height,2,220,220,220,255,0,note,j,winWidth,winHeight);
                 }
             }
         }
@@ -6615,13 +6611,17 @@ void RenderUtils::DrawPianoRollFX(float ox,float oy,uint ww,uint hh,int horiz_ve
 //                            glEnableVertexAttribArray ( colorAttribHandle );
                             // Load the uniforms
                             // Draw
+                            for (int ii=0;ii<index;ii++) {
+                                ptsB[ii].x+=2*ox/winWidth;
+                                ptsB[ii].y+=2*oy/winHeight;
+                            }
                             glDrawArrays(GL_TRIANGLES, 0, index);
                             
                             
                             index=0;
                         }
                         if ( (x+width>0)||(x<ww)) {
-                            index=DrawKeyW(ptsB,index,x,y,width,height,border_size,crt,cgt,cbt,255,subnote,note,instr%num_rows,ww,hh);
+                            index=DrawKeyW(ptsB,index,x,y,width,height,border_size,crt,cgt,cbt,255,subnote,note,instr%num_rows,winWidth,winHeight);
                         }
                     }
                 }
@@ -6641,10 +6641,14 @@ void RenderUtils::DrawPianoRollFX(float ox,float oy,uint ww,uint hh,int horiz_ve
 //                    glVertexAttribPointer ( colorAttribHandle, 4, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(ptsB[0].r) );
                     // Load the uniforms
                     // Draw
+                    for (int ii=0;ii<index;ii++) {
+                        ptsB[ii].x+=2*ox/winWidth;
+                        ptsB[ii].y+=2*oy/winHeight;
+                    }
                     glDrawArrays(GL_TRIANGLES, 0, index);
                     index=0;
                 }
-                if ( (xB+widthB>0)||(xB<ww)) index=DrawKeyB(ptsB,index,xB,yB,widthB,heightB,border_size,40,40,40,255,0,note,j,ww,hh);
+                if ( (xB+widthB>0)||(xB<ww)) index=DrawKeyB(ptsB,index,xB,yB,widthB,heightB,border_size,40,40,40,255,0,note,j,winWidth,winHeight);
             }
         }
     }
@@ -6689,10 +6693,14 @@ void RenderUtils::DrawPianoRollFX(float ox,float oy,uint ww,uint hh,int horiz_ve
 //                            glVertexAttribPointer ( colorAttribHandle, 4, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(ptsB[0].r) );
                             // Load the uniforms
                             // Draw
+                            for (int ii=0;ii<index;ii++) {
+                                ptsB[ii].x+=2*ox/winWidth;
+                                ptsB[ii].y+=2*oy/winHeight;
+                            }
                             glDrawArrays(GL_TRIANGLES, 0, index);
                             index=0;
                         }
-                        if ( (x+widthB>0)||(x<ww))  index=DrawKeyB(ptsB,index,x,y,widthB,heightB,border_size,crt,cgt,cbt,255,subnote,note,instr%num_rows,ww,hh);
+                        if ( (x+widthB>0)||(x<ww))  index=DrawKeyB(ptsB,index,x,y,widthB,heightB,border_size,crt,cgt,cbt,255,subnote,note,instr%num_rows,winWidth,winHeight);
                     }
                 }
             }
@@ -6743,10 +6751,14 @@ void RenderUtils::DrawPianoRollFX(float ox,float oy,uint ww,uint hh,int horiz_ve
 //                glVertexAttribPointer ( colorAttribHandle, 4, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(ptsB[0].r) );
                 // Load the uniforms
                 // Draw
+                for (int ii=0;ii<index;ii++) {
+                    ptsB[ii].x+=2*ox/winWidth;
+                    ptsB[ii].y+=2*oy/winHeight;
+                }
                 glDrawArrays(GL_TRIANGLES, 0, index);
                 index=0;
             }
-            index=DrawBox(ptsB,index,x-10,y+1+1,8,8,1/*border_size*/,crt,cgt,cbt,255,0,ww,hh);
+            index=DrawBox(ptsB,index,x-10,y+1+1,8,8,1/*border_size*/,crt,cgt,cbt,255,0,winWidth,winHeight);
         }
     }
     
@@ -6784,6 +6796,10 @@ void RenderUtils::DrawPianoRollFX(float ox,float oy,uint ww,uint hh,int horiz_ve
 //        glVertexAttribPointer ( colorAttribHandle, 4, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(ptsB[0].r) );
         // Load the uniforms
         // Draw
+        for (int ii=0;ii<index;ii++) {
+            ptsB[ii].x+=2*ox/winWidth;
+            ptsB[ii].y+=2*oy/winHeight;
+        }
         glDrawArrays(GL_TRIANGLES, 0, index);
         index=0;
     }
@@ -6803,7 +6819,7 @@ void RenderUtils::DrawPianoRollFX(float ox,float oy,uint ww,uint hh,int horiz_ve
     glRestoreState();
 }
 
-void RenderUtils::DrawPianoRollSynthesiaFX(float ox,float oy,uint ww,uint hh,int horiz_vert,float note_display_range, float note_display_offset,int fx_len,int color_mode,float mScaleFactor,char *voices_label) {
+void RenderUtils::DrawPianoRollSynthesiaFX(float ox,float oy,float ww,float hh,float winWidth,float winHeight,int horiz_vert,float note_display_range, float note_display_offset,int fx_len,int color_mode,float mScaleFactor,char *voices_label) {
     LineVertexF *ptsB;
     coordData *texcoords; /* Holds Float Info For 4 Sets Of Texture coordinates. */
     int crt,cgt,cbt,ca;
@@ -7074,12 +7090,16 @@ void RenderUtils::DrawPianoRollSynthesiaFX(float ox,float oy,uint ww,uint hh,int
                           wd, //w
                           posEnd-posStart+line_width_extra*2, //h
                           border_size,crt,cgt,cbt,255,0/*subnote*/,
-                          ww,hh);
+                          winWidth,winHeight);
             
         }
     }
     
     //    printf("total: %d\n",index);
+    for (int ii=0;ii<index;ii++) {
+        ptsB[ii].x+=2*ox/winWidth;
+        ptsB[ii].y+=2*oy/winHeight;
+    }
     glDrawArrays(GL_TRIANGLES, 0, index);
     
     
@@ -7263,12 +7283,16 @@ void RenderUtils::DrawPianoRollSynthesiaFX(float ox,float oy,uint ww,uint hh,int
         }
     
     for (int i=0;i<index;i++) {
-        ptsB[i].x=(ptsB[i].x*2.0/(float)ww)-1.0;
-        ptsB[i].y=(ptsB[i].y*2.0/(float)hh)-1.0;
+        ptsB[i].x=(ptsB[i].x*2.0/(float)winWidth)-1.0;
+        ptsB[i].y=(ptsB[i].y*2.0/(float)winHeight)-1.0;
         ptsB[i].r=ptsB[i].r/255.0;
         ptsB[i].g=ptsB[i].g/255.0;
         ptsB[i].b=ptsB[i].b/255.0;
         ptsB[i].a=ptsB[i].a/255.0;
+    }
+    for (int ii=0;ii<index;ii++) {
+        ptsB[ii].x+=2*ox/winWidth;
+        ptsB[ii].y+=2*oy/winHeight;
     }
     glDrawArrays(GL_TRIANGLES, 0, index);
   
@@ -7301,14 +7325,18 @@ void RenderUtils::DrawPianoRollSynthesiaFX(float ox,float oy,uint ww,uint hh,int
     cap[0]=255;cap[1]=255;
     float wd=height/32.0;
         y=ofsy+height;
-        ptsB[index++] = LineVertexF(0,y     ,crtp[0],cgtp[0],cbtp[0],cap[0],ww,hh);
-        ptsB[index++] = LineVertexF(ww,y    ,crtp[0],cgtp[0],cbtp[0],cap[0],ww,hh);
-        ptsB[index++] = LineVertexF(ww,y+wd ,crtp[1],cgtp[1],cbtp[1],cap[1],ww,hh);
+        ptsB[index++] = LineVertexF(0,y     ,crtp[0],cgtp[0],cbtp[0],cap[0],winWidth,winHeight);
+        ptsB[index++] = LineVertexF(ww,y    ,crtp[0],cgtp[0],cbtp[0],cap[0],winWidth,winHeight);
+        ptsB[index++] = LineVertexF(ww,y+wd ,crtp[1],cgtp[1],cbtp[1],cap[1],winWidth,winHeight);
         
-        ptsB[index++] = LineVertexF(0,y      ,crtp[0],cgtp[0],cbtp[0],cap[0],ww,hh);
-        ptsB[index++] = LineVertexF(ww,y+wd  ,crtp[1],cgtp[1],cbtp[1],cap[1],ww,hh);
-        ptsB[index++] = LineVertexF(0,y+wd   ,crtp[1],cgtp[1],cbtp[1],cap[1],ww,hh);
+        ptsB[index++] = LineVertexF(0,y      ,crtp[0],cgtp[0],cbtp[0],cap[0],winWidth,winHeight);
+        ptsB[index++] = LineVertexF(ww,y+wd  ,crtp[1],cgtp[1],cbtp[1],cap[1],winWidth,winHeight);
+        ptsB[index++] = LineVertexF(0,y+wd   ,crtp[1],cgtp[1],cbtp[1],cap[1],winWidth,winHeight);
     
+    for (int ii=0;ii<index;ii++) {
+        ptsB[ii].x+=2*ox/winWidth;
+        ptsB[ii].y+=2*oy/winHeight;
+    }
     glDrawArrays(GL_TRIANGLES, 0, index);
     
     index=0;
@@ -7320,10 +7348,14 @@ void RenderUtils::DrawPianoRollSynthesiaFX(float ox,float oy,uint ww,uint hh,int
         if ( note_posType[note]==0) { //white key
             x=note_posX[note];
             if (index+INDICES_SIZE_KEYW>=max_indices) {
+                for (int ii=0;ii<index;ii++) {
+                    ptsB[ii].x+=2*ox/winWidth;
+                    ptsB[ii].y+=2*oy/winHeight;
+                }
                 glDrawArrays(GL_TRIANGLES, 0, index);
                 index=0;
             }
-            if ((x+width>0)||(x<ww)) index=DrawKeyW(ptsB,index,x,y,width,height,border_size,220,220,220,255,0,note,0,ww,hh);
+            if ((x+width>0)||(x<ww)) index=DrawKeyW(ptsB,index,x,y,width,height,border_size,220,220,220,255,0,note,0,winWidth,winHeight);
         }
     }
     
@@ -7360,10 +7392,14 @@ void RenderUtils::DrawPianoRollSynthesiaFX(float ox,float oy,uint ww,uint hh,int
                     
                     y=ofsy+0;
                     if (index+INDICES_SIZE_KEYW>=max_indices) {
+                        for (int ii=0;ii<index;ii++) {
+                            ptsB[ii].x+=2*ox/winWidth;
+                            ptsB[ii].y+=2*oy/winHeight;
+                        }
                         glDrawArrays(GL_TRIANGLES, 0, index);
                         index=0;
                     }
-                    if ( (x+width>0)||(x<ww) ) index=DrawKeyW(ptsB,index,x,y,width,height,border_size,crt,cgt,cbt,255,subnote,note,0,ww,hh);
+                    if ( (x+width>0)||(x<ww) ) index=DrawKeyW(ptsB,index,x,y,width,height,border_size,crt,cgt,cbt,255,subnote,note,0,winWidth,winHeight);
                 }
             }
         }
@@ -7376,10 +7412,14 @@ void RenderUtils::DrawPianoRollSynthesiaFX(float ox,float oy,uint ww,uint hh,int
             yB=y+height-heightB;
             xB=note_posX[note];
             if (index+INDICES_SIZE_KEYB>=max_indices) {
+                for (int ii=0;ii<index;ii++) {
+                    ptsB[ii].x+=2*ox/winWidth;
+                    ptsB[ii].y+=2*oy/winHeight;
+                }
                 glDrawArrays(GL_TRIANGLES, 0, index);
                 index=0;
             }
-            if ( (xB+widthB>0)||(xB<ww) ) index=DrawKeyB(ptsB,index,xB,yB,widthB,heightB,border_size,40,40,40,255,0,note,0,ww,hh);
+            if ( (xB+widthB>0)||(xB<ww) ) index=DrawKeyB(ptsB,index,xB,yB,widthB,heightB,border_size,40,40,40,255,0,note,0,winWidth,winHeight);
         }
     }
     
@@ -7415,10 +7455,14 @@ void RenderUtils::DrawPianoRollSynthesiaFX(float ox,float oy,uint ww,uint hh,int
                     x=note_posX[note];
                     y=ofsy+height-heightB+0;
                     if (index+INDICES_SIZE_KEYB>=max_indices) {
+                        for (int ii=0;ii<index;ii++) {
+                            ptsB[ii].x+=2*ox/winWidth;
+                            ptsB[ii].y+=2*oy/winHeight;
+                        }
                         glDrawArrays(GL_TRIANGLES, 0, index);
                         index=0;
                     }
-                    if ( (x+widthB>0)||(x<ww) )  index=DrawKeyB(ptsB,index,x,y,widthB,heightB,border_size,crt,cgt,cbt,255,subnote,note,0,ww,hh);
+                    if ( (x+widthB>0)||(x<ww) )  index=DrawKeyB(ptsB,index,x,y,widthB,heightB,border_size,crt,cgt,cbt,255,subnote,note,0,winWidth,winHeight);
                 }
             }
         }
@@ -7452,10 +7496,14 @@ void RenderUtils::DrawPianoRollSynthesiaFX(float ox,float oy,uint ww,uint hh,int
                 y-=16;
             }
             if (index+INDICES_SIZE_BOX>=max_indices) {
+                for (int ii=0;ii<index;ii++) {
+                    ptsB[ii].x+=2*ox/winWidth;
+                    ptsB[ii].y+=2*oy/winHeight;
+                }
                 glDrawArrays(GL_TRIANGLES, 0, index);
                 index=0;
             }
-            index=DrawBox(ptsB,index,x-10,y+1,8,8,1/*border_size*/,crt,cgt,cbt,255,0,ww,hh);
+            index=DrawBox(ptsB,index,x-10,y+1,8,8,1/*border_size*/,crt,cgt,cbt,255,0,winWidth,winHeight);
             
             x+=widthx;
         }
@@ -7463,6 +7511,10 @@ void RenderUtils::DrawPianoRollSynthesiaFX(float ox,float oy,uint ww,uint hh,int
     
     if (index) {
         // Draw
+        for (int ii=0;ii<index;ii++) {
+            ptsB[ii].x+=2*ox/winWidth;
+            ptsB[ii].y+=2*oy/winHeight;
+        }
         glDrawArrays(GL_TRIANGLES, 0, index);
     }
     
@@ -7634,12 +7686,16 @@ void RenderUtils::DrawPianoRollSynthesiaFX(float ox,float oy,uint ww,uint hh,int
         }
     }
     for (int i=0;i<index;i++) {
-        ptsB[i].x=(ptsB[i].x*2.0/(float)ww)-1.0;
-        ptsB[i].y=(ptsB[i].y*2.0/(float)hh)-1.0;
+        ptsB[i].x=(ptsB[i].x*2.0/(float)winWidth)-1.0;
+        ptsB[i].y=(ptsB[i].y*2.0/(float)winHeight)-1.0;
         ptsB[i].r=ptsB[i].r/255.0;
         ptsB[i].g=ptsB[i].g/255.0;
         ptsB[i].b=ptsB[i].b/255.0;
         ptsB[i].a=ptsB[i].a/255.0;
+    }
+    for (int ii=0;ii<index;ii++) {
+        ptsB[ii].x+=2*ox/winWidth;
+        ptsB[ii].y+=2*oy/winHeight;
     }
     glDrawArrays(GL_TRIANGLES, 0, index);
     

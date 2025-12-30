@@ -174,11 +174,12 @@ extern volatile t_settings settings[MAX_SETTINGS];
     return UIStatusBarStyleDefault;
 }
 
+- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
+    [self.tableView reloadData];
+    [miniplayerVC viewWillTransitionToSize:size withTransitionCoordinator:coordinator];
+}
+
 - (void)viewWillAppear:(BOOL)animated {
-    
-//    [self.navigationController.navigationBar setBarStyle:UIBarStyleDefault];
-    //[[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];
-    
     self.navigationController.delegate = self;
     
     [self hideWaiting];

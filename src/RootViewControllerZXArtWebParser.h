@@ -1,6 +1,6 @@
 //
 //  RootViewControllerZXArtWebParser.h
-//  modizer1
+//  modizer
 //
 //  Created by Yohann Magnien on 19/05/24.
 //  Copyright __YoyoFR / Yohann Magnien__ 2024. All rights reserved.

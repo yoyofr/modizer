@@ -1,5 +1,5 @@
 //
-//  StoreManager.m
+//  StoreManager.mm
 //  modizer
 //
 //  Created by Yohann Magnien David on 17/11/2025.

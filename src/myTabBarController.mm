@@ -1,6 +1,6 @@
 //
-//  myTabBarController.m
-//  modizer4
+//  myTabBarController.mm
+//  modizer
 //
 //  Created by Yohann Magnien on 14/06/10.
 //  Copyright 2010 __YoyoFR / Yohann Magnien__. All rights reserved.

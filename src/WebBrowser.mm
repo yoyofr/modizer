@@ -1,6 +1,6 @@
 //
-//  WebBrowser.m
-//  modizer4
+//  WebBrowser.mm
+//  modizer
 //
 //  Created by yoyofr on 7/4/10.
 //  Copyright 2010 __YoyoFR / Yohann Magnien__. All rights reserved.
@@ -10,7 +10,7 @@
 static void *WBProgressObserverContext = &WBProgressObserverContext;
 
 #define EMPTY_PAGE @"<html><head><title>Modizer Web Browser</title>\
-<meta name=\"viewport\" content=\"width=320, initial-scale=1.0\" /></head>\
+<meta name=\"viewport\" content=\"width=320, initial-scale=1.0, no-shrink=yes\" /></head>\
 <body style='background-color:#eee;color:#111;'><div align=\"CENTER\">Loading...</div></body></html>"
 
 #import "WebBrowser.h"
