@@ -1137,7 +1137,8 @@ static float movePxPRoll=0,movePyPRoll=0,movePinchScaleFXPRoll=0;
 static float movePxFXPiano=0,movePyFXPiano=0,movePx2FXPiano=0,movePy2FXPiano=0,movePinchScaleFXPiano=0;
 static float movePxFX3DSpectrum=0,movePyFX3DSpectrum=0,movePx2FX3DSpectrum=0,movePy2FX3DSpectrum=0,movePinchScaleFX3DSpectrum=0;
 static float movePx2=0,movePy2=0,movePx2Old=0,movePy2Old=0;
-static float movePinchScale,movePinchScaleOld;
+static float movePinchScaleFXMOD=0;
+static float movePinchScale,movePinchScaleOld,movePinchAngle;
 
 
 
@@ -5611,9 +5612,11 @@ void pm_perfTest() {
     posPx=posPy=0;
     movePx2=movePy2=movePx2Old=movePy2Old=0;
     movePinchScale=movePinchScaleOld=0;
+    movePinchAngle=0;
+    movePinchScaleFXMOD=0;
     sliderProgressModuleEdit=0;
     sliderProgressModuleChanged=0;
-    modPatternLineSize=0;
+    modPatternLineSize	=0;
 }
 
 - (void) buildCommandBar:(UIToolbar *)bar isPause:(bool)isPause isSub:(bool)isSub {
@@ -6139,6 +6142,7 @@ void pm_perfTest() {
     if (tim_midifx_note_range<MIN_VISIBLE_MIDI_NOTES) tim_midifx_note_range=MIN_VISIBLE_MIDI_NOTES;
     
     movePinchScaleFXMID=(DEFAULT_VISIBLE_MIDI_NOTES-tim_midifx_note_range)/64.0;
+    movePinchScaleFXMOD=0;
     
     tim_midifx_note_offset_reset=true;
     tim_midifx_length=MAX_MIDIFX_LENGTH;
@@ -7121,6 +7125,10 @@ static int mOglView1Tap=0;
     CGPoint start_pt=[gestureRecognizer locationInView:m_oglView];
     movePx2=pt.x;
     movePy2=pt.y;
+    
+    CGPoint velocity = [gestureRecognizer velocityInView:gestureRecognizer.view];
+    movePinchAngle = atan2(velocity.y, velocity.x);
+    
     switch (gestureRecognizer.state) {
         case UIGestureRecognizerStateBegan:
             startPx=start_pt.x;
@@ -7157,10 +7165,35 @@ static int mOglView1Tap=0;
     }
 }
 
+- (CGFloat)angleForPinchGesture:(UIPinchGestureRecognizer *)gesture
+                          view:(UIView *)view
+{
+    if (gesture.numberOfTouches < 2) {
+        return 0;
+    }
+
+    CGPoint p1 = [gesture locationOfTouch:0 inView:view];
+    CGPoint p2 = [gesture locationOfTouch:1 inView:view];
+
+    CGFloat dx = p2.x - p1.x;
+    CGFloat dy = p2.y - p1.y;
+    CGFloat angle = atan2(dy, dx); // radians
+
+    return angle;
+}
+
+
 -(void) glViewPinchGesture:(UIPinchGestureRecognizer *)gestureRecognizer {
     CGFloat scale=gestureRecognizer.scale;
     movePinchScale=scale;
+    movePinchAngle=[self angleForPinchGesture:gestureRecognizer view:gestureRecognizer.view] * 180.0 / M_PI;
+    
+    CGPoint start_pt=[gestureRecognizer locationInView:m_oglView];
+    
     if (gestureRecognizer.state==UIGestureRecognizerStateBegan) {
+        startPx=start_pt.x;
+        startPy=start_pt.y;
+        
         movePinchScaleOld=movePinchScale;
         
 //        MDZILog("reset wheel Pinch start");
@@ -8738,13 +8771,60 @@ void initViewPortData(int fxidx,float &x,float &y,float &w,float &h,float ww,flo
         //movePxPMenu+=movePx-movePxOld;
         //movePyPMenu+=movePy-movePyOld;
     }
+    /*
+     1:left
+     2:right
+     3:bottom
+     4:top
+     5:bottom left
+     6:bottom right
+     7:top left
+     8:top right
+     */
     
-    if ((pmenu_show==0)&&[SettingsGenViewController isFXActive:PROJECTM_FXONOFF]) {
+    bool mdz_ui_touch_zone[9];
+    memset(mdz_ui_touch_zone,0,sizeof(mdz_ui_touch_zone));
+    
+    //if ((movePx-movePxOld)||(movePy-movePyOld)) {
+        mdz_ui_touch_zone[0]=true; //always true for fullscreen
+        if (startPx<ww/2) {
+            //left
+            mdz_ui_touch_zone[1]=true;
+            if (startPy>hh/2) {
+                //bottom
+                mdz_ui_touch_zone[3]=true;
+                //bottom left
+                mdz_ui_touch_zone[5]=true;
+            }
+            else {
+                //top
+                mdz_ui_touch_zone[4]=true;
+                //top left
+                mdz_ui_touch_zone[7]=true;
+            }
+        } else {
+            //right
+            mdz_ui_touch_zone[2]=true;
+            if (startPy>hh/2) {
+                //bottom
+                mdz_ui_touch_zone[3]=true;
+                //bottom right
+                mdz_ui_touch_zone[6]=true;
+            }
+            else {
+                //top
+                mdz_ui_touch_zone[4]=true;
+                //top right
+                mdz_ui_touch_zone[8]=true;
+            }
+        }
+    //}
+    if ((pmenu_show==0)&&[SettingsGenViewController isFXActive:PROJECTM_FXONOFF] && mdz_ui_touch_zone[fxSlot[FX_PROJECTM]]) {
         movePxPM+=movePx-movePxOld;
         movePyPM+=movePy-movePyOld;
     }
     
-    if ((pmenu_show==0)&&[SettingsGenViewController isFXActive:GLOB_FXPiano3D]) {
+    if ((pmenu_show==0)&&[SettingsGenViewController isFXActive:GLOB_FXPiano3D] && mdz_ui_touch_zone[fxSlot[FX_PIANO3D]]) {
         movePxFXPiano+=movePx-movePxOld;
         movePyFXPiano+=movePy-movePyOld;
         movePx2FXPiano+=movePx2-movePx2Old;
@@ -8752,7 +8832,7 @@ void initViewPortData(int fxidx,float &x,float &y,float &w,float &h,float ww,flo
         movePinchScaleFXPiano+=movePinchScale-movePinchScaleOld;
     }
     
-    if ((pmenu_show==0)&&[SettingsGenViewController isFXActive:GLOB_FX3DSpectrum]) {
+    if ((pmenu_show==0)&&[SettingsGenViewController isFXActive:GLOB_FX3DSpectrum] && mdz_ui_touch_zone[fxSlot[FX_3DSpectrum]]) {
         movePxFX3DSpectrum+=movePx-movePxOld;
         movePyFX3DSpectrum+=movePy-movePyOld;
         movePx2FX3DSpectrum+=movePx2-movePx2Old;
@@ -8760,21 +8840,44 @@ void initViewPortData(int fxidx,float &x,float &y,float &w,float &h,float ww,flo
         movePinchScaleFX3DSpectrum+=movePinchScale-movePinchScaleOld;
     }
     
-    if ((pmenu_show==0)&&[SettingsGenViewController isFXActive:GLOB_FXMIDIPattern]) {
+    if ((pmenu_show==0)&&[SettingsGenViewController isFXActive:GLOB_FXMIDIPattern] && mdz_ui_touch_zone[fxSlot[FX_MIDIPattern]]) {
         movePxMID+=movePx-movePxOld;
         movePyMID+=movePy-movePyOld;
         movePinchScaleFXMID+=movePinchScale-movePinchScaleOld;
     }
     
-    if ((pmenu_show==0)&&[SettingsGenViewController isFXActive:GLOB_FXPianoRoll]) {
+    if ((pmenu_show==0)&&[SettingsGenViewController isFXActive:GLOB_FXPianoRoll] && mdz_ui_touch_zone[fxSlot[FX_PIANOROLL]]) {
         movePxPRoll+=movePx-movePxOld;
         movePyPRoll+=movePy-movePyOld;
         movePinchScaleFXPRoll+=movePinchScale-movePinchScaleOld;
     }
     
-    if ((pmenu_show==0)&&[SettingsGenViewController isFXActive:GLOB_FXMODPattern]) {
+    if ((pmenu_show==0)&&[SettingsGenViewController isFXActive:GLOB_FXMODPattern] && mdz_ui_touch_zone[fxSlot[FX_MODPattern]]) {
         movePxMOD+=movePx-movePxOld;
         movePyMOD+=movePy-movePyOld;
+        movePinchScaleFXMOD+=movePinchScale-movePinchScaleOld;
+        
+        if (movePinchScaleFXMOD<-0.4) {
+            movePinchScaleFXMOD=0;
+            //MDZILog("angle %f",movePinchAngle);
+            if ( (fabs(movePinchAngle)>45)&&(fabs(movePinchAngle)<45+90) ) {
+                if (settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_value>0) settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_value--;
+                
+            } else {
+                
+                settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value++;
+                if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value>=settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value_nb) settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value=settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value_nb-1;
+            }
+        } else if (movePinchScaleFXMOD>0.4) {
+            movePinchScaleFXMOD=0;
+            //MDZILog("angle %f",movePinchAngle);
+            if ( (fabs(movePinchAngle)>45)&&(fabs(movePinchAngle)<45+90) ) {
+                settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_value++;
+                if (settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_value>=settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_value_nb) settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_value=settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_value_nb-1;
+            } else {
+                if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value>1) settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value--;
+            }
+        }
     }
     
     movePinchScaleOld=movePinchScale;
@@ -8787,9 +8890,9 @@ void initViewPortData(int fxidx,float &x,float &y,float &w,float &h,float ww,flo
         //PM is active
         
         //check if it is alone before processing inputs, to avoid mixing inputs with other FX
-        bool isPMalone=[self isProjectMAlone];
+        //bool isPMalone=[self isProjectMAlone];
         
-        if (isPMalone&&(movePMnomore==0)) {
+        if (movePMnomore==0) {
             if (movePxPM>PM_HorizontalSwipe_Threshold) {
                 movePxPM=0;
                 movePyPM=0;
