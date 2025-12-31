@@ -770,6 +770,7 @@ static int qsort_CompareArcEntries(const void *entryA, const void *entryB) {
     if (search_local_nb_entries) {
         for (int j=0;j<search_local_entries_count;j++) {
             search_local_entries[j].label=nil;
+            search_local_entries[j].altlabel=nil;
             search_local_entries[j].fullpath=nil;
         }
         search_local_entries=NULL;
@@ -796,6 +797,7 @@ static int qsort_CompareArcEntries(const void *entryA, const void *entryB) {
             
             if  (found ||([mSearchText length]==0)) {
                 search_local_entries[search_local_entries_count].label=local_entries[j].label;
+                search_local_entries[search_local_entries_count].altlabel=local_entries[j].altlabel;
                 search_local_entries[search_local_entries_count].fullpath=local_entries[j].fullpath;
                 search_local_entries[search_local_entries_count].playcount=local_entries[j].playcount;
                 search_local_entries[search_local_entries_count].rating=local_entries[j].rating;
@@ -824,10 +826,12 @@ static int qsort_CompareArcEntries(const void *entryA, const void *entryB) {
     if (local_nb_entries) {
         for (int i=0;i<local_nb_entries;i++) {
             local_entries_data[i].label=nil;
+            local_entries_data[i].altlabel=nil;
             local_entries_data[i].fullpath=nil;
         }
         for (int j=0;j<local_entries_count;j++) {
             local_entries[j].label=nil;
+            local_entries[j].altlabel=nil;
             local_entries[j].fullpath=nil;
         }
         local_entries=NULL;
@@ -2258,17 +2262,15 @@ As a consequence, some entries might disappear from existing playlist.\n\
     } else {
         cellValue=cur_local_entries[indexPath.row].label;
         
-        if (is_rsn) {
+        if (is_rsn&& (cur_local_entries[indexPath.row].altlabel==nil)) {
             NSString *tmpFile=[NSString stringWithFormat:@"%@/tmpArchiveBrowser/%@",NSTemporaryDirectory(),cur_local_entries[indexPath.row].label];
             SPCTag tag;
             if ([SPCTagParser parseTagsFromFile:tmpFile tag:&tag]) {
-                cellValue=[NSString stringWithFormat:@"%.3d-%s",indexPath.row,tag.songName];
-                if (tag.hasXID6) {
-                    //                     double loopSec = [SPCTagParser ticksToSeconds:tag.loopLength];
-                }
+                cur_local_entries[indexPath.row].altlabel=[NSString stringWithFormat:@"%.3d-%s",indexPath.row,tag.songName];
                 [SPCTagParser freeTag:&tag]; // Libérer la mémoire
             }
         }
+        if (cur_local_entries[indexPath.row].altlabel) cellValue=cur_local_entries[indexPath.row].altlabel;
         
         
         if (cur_local_entries[indexPath.row].type==0) { //directory
@@ -3121,28 +3123,7 @@ leadingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
                 
                 [self refreshViewReloadFiles];
                 
-                /*[self hideWaitingCancel];
-                 [self updateWaitingTitle:@""];
-                 [self updateWaitingDetail:@""];
-                 
-                 [self showWaiting];
-                 [self flushMainLoop];
-                 
-                 
-                 int old_mSearch=mSearch;
-                 NSString *old_mSearchText=mSearchText;
-                 mSearch=0;
-                 mSearchText=nil;
-                 [self fillKeys];   //1st load eveything
-                 mSearch=old_mSearch;
-                 mSearchText=old_mSearchText;
-                 if (mSearch) {
-                 shouldFillKeys=1;
-                 [self fillKeys];   //2nd filter for drawing
-                 }
-                 [tabView reloadData];
-                 
-                 [self hideWaiting];*/
+                
             }
         }else {
             if (icloud_available) {
@@ -3640,6 +3621,7 @@ leadingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
                 [self.tableView setUserInteractionEnabled:true];
                 [self.navigationItem setHidesBackButton:NO animated:YES];
                 [self.tableView reloadData];
+                [self.tableView layoutIfNeeded];
             }];
         }
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
@@ -3650,6 +3632,7 @@ leadingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
                 [self.tableView setUserInteractionEnabled:true];
                 [self.navigationItem setHidesBackButton:NO animated:YES];
                 [self.tableView reloadData];
+                [self.tableView layoutIfNeeded];
             }
         }];
     } else {

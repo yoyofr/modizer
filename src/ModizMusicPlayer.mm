@@ -4681,7 +4681,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 }
                                 mStartPosSamples=mCurrentSamples;
                                 
-                                dispatch_sync(dispatch_get_main_queue(), ^(void){
+                                dispatch_async(dispatch_get_main_queue(), ^(void){
                                     //Run UI Updates
                                     [detailViewControllerIphone showWaitingCancel];
                                     [detailViewControllerIphone showWaitingProgress];
@@ -4690,7 +4690,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     [detailViewControllerIphone updateWaitingDetail:@""];
                                 });
                             } else if (mNeedSeek==2) {
-                                dispatch_sync(dispatch_get_main_queue(), ^(void){
+                                dispatch_async(dispatch_get_main_queue(), ^(void){
                                     //Run UI Updates
                                     [detailViewControllerIphone setProgressWaiting:[NSNumber numberWithFloat: (float)(mCurrentSamples-mStartPosSamples)/(seek_tgtSamples-mStartPosSamples)]];
                                 });
@@ -4701,7 +4701,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 }
                             } else if (mNeedSeek==3) {
                                 mdzSilentBufferCount=0;
-                                dispatch_sync(dispatch_get_main_queue(), ^(void){
+                                dispatch_async(dispatch_get_main_queue(), ^(void){
                                     [detailViewControllerIphone hideWaiting];
                                     [detailViewControllerIphone hideWaitingCancel];
                                 });
@@ -4795,7 +4795,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                         if (mNeedSeek==1) { //SEEK
                             mNeedSeek=2;  //taken into account
                             
-                            dispatch_sync(dispatch_get_main_queue(), ^(void){
+                            dispatch_async(dispatch_get_main_queue(), ^(void){
                                 //Run UI Updates
                                 [detailViewControllerIphone showWaitingCancel];
                                 [detailViewControllerIphone showWaitingProgress];
@@ -4827,7 +4827,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     mCurrentSamples += SOUND_BUFFER_SIZE_SAMPLE;
                                     iCurrentTime=mCurrentSamples*1000/PLAYBACK_FREQ;
                                     
-                                    dispatch_sync(dispatch_get_main_queue(), ^(void){
+                                    dispatch_async(dispatch_get_main_queue(), ^(void){
                                         //Run UI Updates
                                         [detailViewControllerIphone setProgressWaiting:[NSNumber numberWithFloat: (float)(mCurrentSamples-mStartPosSamples)/(mSeekSamples-mStartPosSamples)]];
                                     });
@@ -4845,7 +4845,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     mCurrentSamples=mSeekSamples;
                                     iCurrentTime=mCurrentSamples*1000/PLAYBACK_FREQ;
                                     
-                                    dispatch_sync(dispatch_get_main_queue(), ^(void){
+                                    dispatch_async(dispatch_get_main_queue(), ^(void){
                                         //Run UI Updates
                                         [detailViewControllerIphone setProgressWaiting:[NSNumber numberWithFloat: (float)(mCurrentSamples-mStartPosSamples)/(mSeekSamples-mStartPosSamples)]];
                                     });
@@ -4893,7 +4893,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     Postprocess::applyStereoEnhance(buffer_ana[buffer_ana_gen_ofs], SOUND_BUFFER_SIZE_SAMPLE);
                                     SidSnapshot::record();
                                     
-                                    dispatch_sync(dispatch_get_main_queue(), ^(void){
+                                    dispatch_async(dispatch_get_main_queue(), ^(void){
                                         //Run UI Updates
                                         [detailViewControllerIphone setProgressWaiting:[NSNumber numberWithFloat: (float)(mCurrentSamples-mStartPosSamples)/(mSeekSamples-mStartPosSamples)]];
                                     });
@@ -4911,7 +4911,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     
                                     Postprocess::applyStereoEnhance(buffer_ana[buffer_ana_gen_ofs], SOUND_BUFFER_SIZE_SAMPLE);
                                     SidSnapshot::record();
-                                    dispatch_sync(dispatch_get_main_queue(), ^(void){
+                                    dispatch_async(dispatch_get_main_queue(), ^(void){
                                         //Run UI Updates
                                         [detailViewControllerIphone setProgressWaiting:[NSNumber numberWithFloat: (float)(mCurrentSamples-mStartPosSamples)/(mSeekSamples-mStartPosSamples)]];
                                     });
@@ -4949,7 +4949,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     mCurrentSamples+=(nbBytes/4)*32;
                                     iCurrentTime=mCurrentSamples*1000/PLAYBACK_FREQ;
                                     
-                                    dispatch_sync(dispatch_get_main_queue(), ^(void){
+                                    dispatch_async(dispatch_get_main_queue(), ^(void){
                                         //Run UI Updates
                                         [detailViewControllerIphone setProgressWaiting:[NSNumber numberWithFloat: (float)(mCurrentSamples-mStartPosSamples)/(mSeekSamples-mStartPosSamples)]];
                                     });
@@ -4966,7 +4966,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     mCurrentSamples+=(nbBytes/4);
                                     iCurrentTime=mCurrentSamples*1000/PLAYBACK_FREQ;
                                     
-                                    dispatch_sync(dispatch_get_main_queue(), ^(void){
+                                    dispatch_async(dispatch_get_main_queue(), ^(void){
                                         //Run UI Updates
                                         [detailViewControllerIphone setProgressWaiting:[NSNumber numberWithFloat: (float)(mCurrentSamples-mStartPosSamples)/(mSeekSamples-mStartPosSamples)]];
                                     });
@@ -5027,7 +5027,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     mCurrentSamples += SOUND_BUFFER_SIZE_SAMPLE;
                                     iCurrentTime=mCurrentSamples*1000/PLAYBACK_FREQ;
                                     
-                                    dispatch_sync(dispatch_get_main_queue(), ^(void){
+                                    dispatch_async(dispatch_get_main_queue(), ^(void){
                                         //Run UI Updates
                                         [detailViewControllerIphone setProgressWaiting:[NSNumber numberWithFloat: (float)(mCurrentSamples-mStartPosSamples)/(mSeekSamples-mStartPosSamples)]];
                                     });
@@ -5043,7 +5043,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     mCurrentSamples = mSeekSamples;
                                     iCurrentTime=mCurrentSamples*1000/PLAYBACK_FREQ;
                                     
-                                    dispatch_sync(dispatch_get_main_queue(), ^(void){
+                                    dispatch_async(dispatch_get_main_queue(), ^(void){
                                         //Run UI Updates
                                         [detailViewControllerIphone setProgressWaiting:[NSNumber numberWithFloat: (float)(mCurrentSamples-mStartPosSamples)/(mSeekSamples-mStartPosSamples)]];
                                     });
@@ -5071,7 +5071,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     mCurrentSamples += SOUND_BUFFER_SIZE_SAMPLE;
                                     iCurrentTime=mCurrentSamples*1000/PLAYBACK_FREQ;
                                     
-                                    dispatch_sync(dispatch_get_main_queue(), ^(void){
+                                    dispatch_async(dispatch_get_main_queue(), ^(void){
                                         //Run UI Updates
                                         [detailViewControllerIphone setProgressWaiting:[NSNumber numberWithFloat: (float)(mCurrentSamples-mStartPosSamples)/(mSeekSamples-mStartPosSamples)]];
                                     });
@@ -5089,7 +5089,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     mCurrentSamples = mSeekSamples;
                                     iCurrentTime=mCurrentSamples*1000/PLAYBACK_FREQ;
                                     
-                                    dispatch_sync(dispatch_get_main_queue(), ^(void){
+                                    dispatch_async(dispatch_get_main_queue(), ^(void){
                                         //Run UI Updates
                                         [detailViewControllerIphone setProgressWaiting:[NSNumber numberWithFloat: (float)(mCurrentSamples-mStartPosSamples)/(mSeekSamples-mStartPosSamples)]];
                                     });
@@ -5120,7 +5120,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     mCurrentSamples += bufsize;
                                     iCurrentTime=mCurrentSamples*1000/PLAYBACK_FREQ;
                                     
-                                    dispatch_sync(dispatch_get_main_queue(), ^(void){
+                                    dispatch_async(dispatch_get_main_queue(), ^(void){
                                         //Run UI Updates
                                         [detailViewControllerIphone setProgressWaiting:[NSNumber numberWithFloat: (float)(mCurrentSamples-mStartPosSamples)/(mSeekSamples-mStartPosSamples)]];
                                     });
@@ -5159,7 +5159,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     mCurrentSamples += bufsize;
                                     iCurrentTime=mCurrentSamples*1000/PLAYBACK_FREQ;
                                     
-                                    dispatch_sync(dispatch_get_main_queue(), ^(void){
+                                    dispatch_async(dispatch_get_main_queue(), ^(void){
                                         //Run UI Updates
                                         [detailViewControllerIphone setProgressWaiting:[NSNumber numberWithFloat: (float)(mCurrentSamples-mStartPosSamples)/(mSeekSamples-mStartPosSamples)]];
                                     });
@@ -5204,7 +5204,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     
                                     if (mCurrentSamples>=mSeekSamples) break;
                                     
-                                    dispatch_sync(dispatch_get_main_queue(), ^(void){
+                                    dispatch_async(dispatch_get_main_queue(), ^(void){
                                         //Run UI Updates
                                         [detailViewControllerIphone setProgressWaiting:[NSNumber numberWithFloat: (float)(mCurrentSamples-mStartPosSamples)/(mSeekSamples-mStartPosSamples)]];
                                     });
@@ -5259,7 +5259,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     mCurrentSamples+=sample_to_skip;
                                     iCurrentTime=mCurrentSamples*1000/PLAYBACK_FREQ;
                                     
-                                    dispatch_sync(dispatch_get_main_queue(), ^(void){
+                                    dispatch_async(dispatch_get_main_queue(), ^(void){
                                         //Run UI Updates
                                         [detailViewControllerIphone setProgressWaiting:[NSNumber numberWithFloat: (float)(mCurrentSamples-mStartPosSamples)/(mSeekSamples-mStartPosSamples)]];
                                     });
@@ -5297,7 +5297,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     mCurrentSamples+=sample_to_skip;
                                     iCurrentTime=mCurrentSamples*1000/PLAYBACK_FREQ;
                                     
-                                    dispatch_sync(dispatch_get_main_queue(), ^(void){
+                                    dispatch_async(dispatch_get_main_queue(), ^(void){
                                         //Run UI Updates
                                         [detailViewControllerIphone setProgressWaiting:[NSNumber numberWithFloat: (float)(mCurrentSamples-mStartPosSamples)/(mSeekSamples-mStartPosSamples)]];
                                     });
@@ -5338,7 +5338,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                         mCurrentSamples+=sample_to_skip;
                                         iCurrentTime=mCurrentSamples*1000/PLAYBACK_FREQ;
                                         
-                                        dispatch_sync(dispatch_get_main_queue(), ^(void){
+                                        dispatch_async(dispatch_get_main_queue(), ^(void){
                                             //Run UI Updates
                                             [detailViewControllerIphone setProgressWaiting:[NSNumber numberWithFloat: (float)(mCurrentSamples-mStartPosSamples)/(mSeekSamples-mStartPosSamples)]];
                                         });
@@ -5401,7 +5401,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                         mCurrentSamples+=sample_to_skip;
                                         iCurrentTime=mCurrentSamples*1000/PLAYBACK_FREQ;
                                         
-                                        dispatch_sync(dispatch_get_main_queue(), ^(void){
+                                        dispatch_async(dispatch_get_main_queue(), ^(void){
                                             //Run UI Updates
                                             [detailViewControllerIphone setProgressWaiting:[NSNumber numberWithFloat: (float)(mCurrentSamples-mStartPosSamples)/(mSeekSamples-mStartPosSamples)]];
                                         });
@@ -5433,7 +5433,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     
                                     eup_pcm.write_pos=0;
                                     
-                                    dispatch_sync(dispatch_get_main_queue(), ^(void){
+                                    dispatch_async(dispatch_get_main_queue(), ^(void){
                                         //Run UI Updates
                                         [detailViewControllerIphone setProgressWaiting:[NSNumber numberWithFloat: (float)(mCurrentSamples-mStartPosSamples)/(mSeekSamples-mStartPosSamples)]];
                                     });
@@ -5454,8 +5454,8 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     //
                                     if (HC_type==0x21) usf_restart(lzu_state);
                                     else {
-                                        [self MMP_HCClose];
-                                        [self MMP_HCLoad:mod_currentfile];
+                                        [self mmp_HCClose];
+                                        [self mmp_HCLoad:mod_currentfile];
                                     }
                                     hc_currentSample=0;
                                     mCurrentSamples=0;
@@ -5509,7 +5509,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     }
                                     
                                     
-                                    dispatch_sync(dispatch_get_main_queue(), ^(void){
+                                    dispatch_async(dispatch_get_main_queue(), ^(void){
                                         //Run UI Updates
                                         [detailViewControllerIphone setProgressWaiting:[NSNumber numberWithFloat: (float)(mCurrentSamples-mStartPosSamples)/(mSeekSamples-mStartPosSamples)]];
                                     });
@@ -5569,7 +5569,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     
                                     
                                     
-                                    dispatch_sync(dispatch_get_main_queue(), ^(void){
+                                    dispatch_async(dispatch_get_main_queue(), ^(void){
                                         //Run UI Updates
                                         [detailViewControllerIphone setProgressWaiting:[NSNumber numberWithFloat: (float)(mCurrentSamples-mStartPosSamples)/(mSeekSamples-mStartPosSamples)]];
                                     });
@@ -5610,7 +5610,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     mCurrentSamples+=SOUND_BUFFER_SIZE_SAMPLE;
                                     iCurrentTime=mCurrentSamples*1000/PLAYBACK_FREQ;
                                     
-                                    dispatch_sync(dispatch_get_main_queue(), ^(void){
+                                    dispatch_async(dispatch_get_main_queue(), ^(void){
                                         //Run UI Updates
                                         [detailViewControllerIphone setProgressWaiting:[NSNumber numberWithFloat: (float)(mCurrentSamples-mStartPosSamples)/(mSeekSamples-mStartPosSamples)]];
                                     });
@@ -5626,7 +5626,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                  mCurrentSamples = mSeekSamples;
                                  iCurrentTime=mCurrentSamples*1000/PLAYBACK_FREQ;
                                  
-                                 dispatch_sync(dispatch_get_main_queue(), ^(void){
+                                 dispatch_async(dispatch_get_main_queue(), ^(void){
                                  //Run UI Updates
                                  [detailViewControllerIphone setProgressWaiting:[NSNumber numberWithFloat: (float)(mCurrentSamples-mStartPosSamples)/(mSeekSamples-mStartPosSamples)]];
                                  });
@@ -5654,7 +5654,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     xSFPlayer->currentSample += SOUND_BUFFER_SIZE_SAMPLE;
                                     iCurrentTime=(xSFPlayer->currentSample)*1000/(xSFPlayer->GetSampleRate());
                                     
-                                    dispatch_sync(dispatch_get_main_queue(), ^(void){
+                                    dispatch_async(dispatch_get_main_queue(), ^(void){
                                         //Run UI Updates
                                         mCurrentSamples=xSFPlayer->currentSample;
                                         [detailViewControllerIphone setProgressWaiting:[NSNumber numberWithFloat: (float)(xSFPlayer->currentSample-mStartPosSamples)/(mSeekSamples-mStartPosSamples)]];
@@ -5671,7 +5671,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     xSFPlayer->currentSample = mSeekSamples;
                                     iCurrentTime=(xSFPlayer->currentSample)*1000/(xSFPlayer->GetSampleRate());
                                     
-                                    dispatch_sync(dispatch_get_main_queue(), ^(void){
+                                    dispatch_async(dispatch_get_main_queue(), ^(void){
                                         //Run UI Updates
                                         mCurrentSamples=xSFPlayer->currentSample;
                                         [detailViewControllerIphone setProgressWaiting:[NSNumber numberWithFloat: (float)(xSFPlayer->currentSample-mStartPosSamples)/(mSeekSamples-mStartPosSamples)]];
@@ -5703,7 +5703,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     mVGMSTREAM_decode_pos_samples+=nbSamplesToRender;
                                     iCurrentTime=mVGMSTREAM_decode_pos_samples*1000/(vgmStream->sample_rate);
                                     
-                                    dispatch_sync(dispatch_get_main_queue(), ^(void){
+                                    dispatch_async(dispatch_get_main_queue(), ^(void){
                                         //Run UI Updates
                                         mCurrentSamples=mVGMSTREAM_decode_pos_samples;
                                         [detailViewControllerIphone setProgressWaiting:[NSNumber numberWithFloat: (float)(mVGMSTREAM_decode_pos_samples-mStartPosSamples)/(mSeekSamples-mStartPosSamples)]];
@@ -5717,7 +5717,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 mCurrentSamples=mVGMSTREAM_decode_pos_samples;
                             }
                             
-                            dispatch_sync(dispatch_get_main_queue(), ^(void){
+                            dispatch_async(dispatch_get_main_queue(), ^(void){
                                 [detailViewControllerIphone hideWaiting];
                                 [detailViewControllerIphone hideWaitingCancel];
                             });
@@ -12277,30 +12277,35 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
     //////////////////////////////////
     //update DB with songlength
     //////////////////////////////////
-    for (int i=0;i<mod_subsongs; i++) {
-        //change subsong
-        vgmFile->stream_index=i;
-        VGMSTREAM* vgmStreamTmp = init_vgmstream_from_STREAMFILE(vgmFile);
-        if (vgmStreamTmp) {
-            int subsong_length= vgmstream_get_samples(vgmStreamTmp);
-            mod_total_length+=(double)subsong_length*1000.0f/(double)(vgmStream->sample_rate);
-            
-            close_vgmstream(vgmStreamTmp);
-            
-            NSString *filePathMain;
-            NSString *fileName=[self getSubTitle:i];
-            
-            filePathMain=[ModizFileHelper getFilePathFromDocuments:mod_loadmodule_filepath];
-            if (mdz_ArchiveFilesCnt) filePathMain=[NSString stringWithFormat:@"%@@%d",filePathMain,mdz_currentArchiveIndex];
-            
-            NSString *filePathSubsong=[NSString stringWithFormat:@"%@?%d",filePathMain,i];
-            DBHelper::updateFileStatsDBmod(fileName,filePathSubsong,-1,-1,-1,subsong_length,numChannels,mod_subsongs);
-            
-            if (i==mod_subsongs-1) {// Global file stats update
-                [self mmp_updateDBStatsAtLoadSubsong:mod_total_length];
+    if (mod_subsongs) {
+        for (int i=0;i<mod_subsongs; i++) {
+            //change subsong
+            vgmFile->stream_index=i;
+            VGMSTREAM* vgmStreamTmp = init_vgmstream_from_STREAMFILE(vgmFile);
+            if (vgmStreamTmp) {
+                int subsong_length= vgmstream_get_samples(vgmStreamTmp);
+                mod_total_length+=(double)subsong_length*1000.0f/(double)(vgmStream->sample_rate);
+                
+                close_vgmstream(vgmStreamTmp);
+                
+                NSString *filePathMain;
+                NSString *fileName=[self getSubTitle:i];
+                
+                filePathMain=[ModizFileHelper getFilePathFromDocuments:mod_loadmodule_filepath];
+                if (mdz_ArchiveFilesCnt) filePathMain=[NSString stringWithFormat:@"%@@%d",filePathMain,mdz_currentArchiveIndex];
+                
+                NSString *filePathSubsong=[NSString stringWithFormat:@"%@?%d",filePathMain,i];
+                DBHelper::updateFileStatsDBmod(fileName,filePathSubsong,-1,-1,-1,subsong_length,numChannels,mod_subsongs);
+                
+                if (i==mod_subsongs-1) {// Global file stats update
+                    [self mmp_updateDBStatsAtLoadSubsong:mod_total_length];
+                }
             }
         }
+    } else {
+        [self mmp_updateDBStatsAtLoad];
     }
+    
     vgmFile->stream_index=mod_currentsub;
     return 0;
 }
@@ -12647,7 +12652,7 @@ static unsigned char* v2m_check_and_convert(unsigned char* tune, unsigned int* l
     return 0;
 }
 
--(int) MMP_HCLoad:(NSString*)filePath {  //Highly Complete
+-(int) mmp_HCLoad:(NSString*)filePath {  //Highly Complete
     mPlayType=MMP_HC;
     FILE *f;
     
@@ -14982,7 +14987,7 @@ extern bool icloud_available;
                 retval=[self mmp_uadeLoad:filePath];
                 break;
             case MMP_HC:
-                retval=[self MMP_HCLoad:filePath];
+                retval=[self mmp_HCLoad:filePath];
                 break;
             case MMP_ADPLUG:
                 retval=[self mmp_adplugLoad:filePath];
@@ -15721,7 +15726,7 @@ extern bool icloud_available;
     mdzSilentBufferCount=0;
 }
 
--(void) MMP_HCClose {
+-(void) mmp_HCClose {
     mdz_safe_free(HC_emulatorCore);
     
     if ( HC_type == 2 && HC_emulatorExtra ) {
@@ -15822,7 +15827,7 @@ extern bool icloud_available;
         adplugDB=NULL;
     }
     if (mPlayType==MMP_HC) {
-        [self MMP_HCClose];
+        [self mmp_HCClose];
     }
     if (mPlayType==MMP_NSFPLAY) {
         if (nsfPlayer) delete nsfPlayer;

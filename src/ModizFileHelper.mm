@@ -465,7 +465,7 @@ extern bool icloud_available;
     NSArray *filetype_extKSS=[SUPPORTED_FILETYPE_KSS componentsSeparatedByString:@","];
     NSArray *filetype_extGSF=(no_aux_file?[SUPPORTED_FILETYPE_GSF componentsSeparatedByString:@","]:[SUPPORTED_FILETYPE_GSF_EXT componentsSeparatedByString:@","]);
     NSArray *filetype_extASAP=[SUPPORTED_FILETYPE_ASAP componentsSeparatedByString:@","];
-    NSArray *filetype_extVGMSTREAM=[SUPPORTED_FILETYPE_VGMSTREAM componentsSeparatedByString:@","];
+    NSArray *filetype_extVGMSTREAM=(no_aux_file?[SUPPORTED_FILETYPE_VGMSTREAM componentsSeparatedByString:@","]:[[NSString stringWithFormat:@"%@,%@", SUPPORTED_FILETYPE_VGMSTREAM_EXT,SUPPORTED_FILETYPE_VGMSTREAM] componentsSeparatedByString:@","]);
     NSArray *filetype_extVGM=[SUPPORTED_FILETYPE_VGM componentsSeparatedByString:@","];
     NSArray *filetype_extWMIDI=(no_aux_file?[SUPPORTED_FILETYPE_WMIDI componentsSeparatedByString:@","]:[SUPPORTED_FILETYPE_WMIDI_EXT componentsSeparatedByString:@","]);
     NSArray *filetype_extCOVER=[SUPPORTED_FILETYPE_COVER componentsSeparatedByString:@","];

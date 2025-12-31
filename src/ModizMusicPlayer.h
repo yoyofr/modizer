@@ -398,6 +398,7 @@ extern "C" {
 
 -(void) setLoopInf:(int)val;
 
+-(void) mmp_updateDBStatsAtLoad;
 
 //loaders
 -(int) mmp_gsfLoad:(NSString*)filePath;
@@ -416,8 +417,8 @@ extern "C" {
 -(int) mmp_openmptLoad:(NSString*)filePath;
 -(int) mmp_timidityLoad:(NSString*)filePath;
 -(int) mmp_vgmstreamLoad:(NSString*)filePath extension:(NSString*)extension;
--(int) MMP_HCLoad:(NSString*)filePath;
--(void) MMP_HCClose;
+-(int) mmp_HCLoad:(NSString*)filePath;
+-(void) mmp_HCClose;
 -(int) mmp_2sfLoad:(NSString*)filePath;
 -(int) mmp_snsfLoad:(NSString*)filePath;
 -(int) mmp_vgmplayLoad:(NSString*)filePath;
