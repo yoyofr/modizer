@@ -204,6 +204,7 @@ enum MDZ_SETTINGS {
         OMPT_MasterVolume,
         OMPT_Sampling,
         OMPT_StereoSeparation,
+        OMPT_FLAGS_AMIGAFILTER,
             
             
         MDZ_SETTINGS_FAMILY_SID,
@@ -271,6 +272,7 @@ enum MDZ_SETTINGS {
     GLOB_FX_DISPLAYSONGINFO,
         MDZ_SETTINGS_FAMILY_PROJECTM,
         PROJECTM_FXONOFF,
+        PROJECTM_FXSLOT,
         PROJECTM_Quality,
         PROJECTM_ShowPresetLabel,
         PROJECTM_AutoSwitchPresetsMode,
@@ -293,6 +295,7 @@ enum MDZ_SETTINGS {
         
         MDZ_SETTINGS_FAMILY_OSCILLO,
         OSCILLO_FXMODE,
+        OSCILLO_FXSLOT,
         OSCILLO_ShowLabel,
         OSCILLO_LabelFontSize,
         OSCILLO_ShowGrid,
@@ -311,6 +314,7 @@ enum MDZ_SETTINGS {
         OSCILLO_MULTI_COLOR08,
     
     GLOB_FXMODPattern,
+    GLOB_FXMODPatternFXSLOT,
     GLOB_FXMODPattern_BGAlpha,
     GLOB_FXMODPattern_VolBar,
     GLOB_FXMODPattern_CurrentLineMode,
@@ -353,21 +357,27 @@ enum MDZ_SETTINGS {
         PIANOMIDI_MULTI_COLOR31,
         PIANOMIDI_MULTI_COLOR32,
     GLOB_FXPianoRoll,
+    GLOB_FXPianoRollFXSLOT,
     GLOB_FXPianoRollSpark,
     GLOB_FXPianoRollVoicesLabels,
     GLOB_FXPianoRollOctavesLabels,
     GLOB_FXMIDIPattern,
+    GLOB_FXMIDIPatternFXSLOT,
     GLOB_FXMIDICutLine,
     GLOB_FXMIDIBarStyle,
     GLOB_FXMIDIBarVibrato,
     GLOB_FXPiano3D,
+    GLOB_FXPiano3DFXSLOT,
     GLOB_FXPianoCutLine,
     GLOB_FXPianoColorMode,
     GLOB_FX3DSpectrum,
+    GLOB_FX3DSpectrumFXSLOT,
     GLOB_FX3DSpectrumBloom,
         
     GLOB_FXSpectrum,
+    GLOB_FXSpectrumFXSLOT,
     GLOB_FX3DLandscape,
+    GLOB_FX3DLandscapeFXSLOT,
     GLOB_FX3DLandscapeBloom,
     
     MAX_SETTINGS

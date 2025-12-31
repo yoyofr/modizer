@@ -11832,6 +11832,23 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
     openmpt_module_set_render_param(openmpt_module_ext_get_module(ompt_mod),OPENMPT_MODULE_RENDER_INTERPOLATIONFILTER_LENGTH,optOMPT_SamplingVal);
     openmpt_module_set_render_param(openmpt_module_ext_get_module(ompt_mod),OPENMPT_MODULE_RENDER_MASTERGAIN_MILLIBEL,optOMPT_MasterVol);
     
+    openmpt_module_set_render_param(openmpt_module_ext_get_module(ompt_mod),OPENMPT_MODULE_RENDER_MASTERGAIN_MILLIBEL,optOMPT_MasterVol);
+    
+    switch (settings[OMPT_FLAGS_AMIGAFILTER].detail.mdz_switch.switch_value) {
+        case 2: //AMIGA 1200
+            openmpt_module_ctl_set_boolean(openmpt_module_ext_get_module(ompt_mod),"render.resampler.emulate_amiga", 1);
+            openmpt_module_ctl_set_text(openmpt_module_ext_get_module(ompt_mod),"render.resampler.emulate_amiga_type", "a1200");
+            break;
+        case 1: //AMIGA 500
+            openmpt_module_ctl_set_boolean(openmpt_module_ext_get_module(ompt_mod),"render.resampler.emulate_amiga", 1);
+            openmpt_module_ctl_set_text(openmpt_module_ext_get_module(ompt_mod),"render.resampler.emulate_amiga_type", "a500");
+            break;
+        default:
+        case 0: //off
+            openmpt_module_ctl_set_boolean(openmpt_module_ext_get_module(ompt_mod),"render.resampler.emulate_amiga", 0);
+            break;
+    }
+    
     
     if (settings[GLOB_PBRATIO_ONOFF].detail.mdz_boolswitch.switch_value) {
         ompt_mod_interactive->set_tempo_factor(ompt_mod,settings[GLOB_PBRATIO].detail.mdz_slider.slider_value);
@@ -16825,6 +16842,26 @@ extern "C" void adjust_amplification(void);
         } else ompt_mod_interactive->set_tempo_factor(ompt_mod,1.0);
     }
 }
+
+-(void) optOMPT_AmigaFiltter {
+    if (ompt_mod) {
+        switch (settings[OMPT_FLAGS_AMIGAFILTER].detail.mdz_switch.switch_value) {
+            case 2: //AMIGA 1200
+                openmpt_module_ctl_set_boolean(openmpt_module_ext_get_module(ompt_mod),"render.resampler.emulate_amiga", 1);
+                openmpt_module_ctl_set_text(openmpt_module_ext_get_module(ompt_mod),"render.resampler.emulate_amiga_type", "a1200");
+                break;
+            case 1: //AMIGA 500
+                openmpt_module_ctl_set_boolean(openmpt_module_ext_get_module(ompt_mod),"render.resampler.emulate_amiga", 1);
+                openmpt_module_ctl_set_text(openmpt_module_ext_get_module(ompt_mod),"render.resampler.emulate_amiga_type", "a500");
+                break;
+            default:
+            case 0: //off
+                openmpt_module_ctl_set_boolean(openmpt_module_ext_get_module(ompt_mod),"render.resampler.emulate_amiga", 0);
+                break;
+        }
+    }
+}
+
 
 ///////////////////////////
 /////

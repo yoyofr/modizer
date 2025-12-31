@@ -16,11 +16,18 @@
     
     NSMutableArray *arr_url_handleList,*arr_url_realnameList,*arr_url_countryList,*arr_url_groupsList,*arr_url_groupsLogoList;
     NSMutableArray *arr_url_fileList,*arr_url_composerList,*arr_url_formatList,*arr_url_sizeList;
+    
+    NSMutableArray *arr_VC_title;
+    NSMutableArray *arr_VC_URL;
+    NSMutableArray *arr_VC_Mode;
+    NSMutableArray *arr_VC_search;
+    
     int browse_subMode;
 }
 
 @property (nonatomic, strong) NSMutableArray *arr_url_handleList,*arr_url_realnameList,*arr_url_countryList,*arr_url_groupsList,*arr_url_groupsLogoList;
 @property (nonatomic, strong) NSMutableArray *arr_url_fileList,*arr_url_composerList,*arr_url_formatList,*arr_url_sizeList;
+@property (nonatomic, strong) NSMutableArray *arr_VC_title,*arr_VC_URL,*arr_VC_Mode,*arr_VC_search;
 @property (nonatomic, assign) int browse_subMode;
 
 @end

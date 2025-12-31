@@ -751,13 +751,15 @@ static int renderedTextWidth,renderedTextHeight;
 static GLint curFramebuffer,curRenderbuffer;
 static unsigned int pingpongFBO[2];
 static unsigned int pingpongBuffer[2];
+static GLint curViewport[4];
+
 
 void RenderUtils::startRenderToTexture(int width,int height) {
     static bool firstCall=true;
     // The framebuffer, which regroups 0, 1, or more textures, and 0 or 1 depth buffer.
     
     glGetIntegerv(GL_FRAMEBUFFER_BINDING,&curFramebuffer);
-    //glGetIntegerv(GL_RENDERBUFFER_BINDING,&curRenderbuffer);
+    glGetIntegerv(GL_VIEWPORT, curViewport);
     
     if (firstCall||(renderedTextWidth!=width)||(renderedTextHeight!=height)) {
         renderedTextWidth=width;
@@ -814,14 +816,17 @@ void RenderUtils::endRenderToTexture(int width,int height,int bloomIntensity) {
         }
         // Bind rendering buffer
         glBindFramebuffer(GL_FRAMEBUFFER, curFramebuffer);
-        glViewport(0,0,width,height);
+        //glViewport(0,0,width,height);
+        glViewport(curViewport[0],curViewport[1],curViewport[2],curViewport[3]);
+        
         
         // Render by blending the original & blurred textures
         RenderUtils::DrawTextureBlend(width, height, renderedTexture,curTexture);
     } else {
         // Bind rendering buffer
         glBindFramebuffer(GL_FRAMEBUFFER, curFramebuffer);
-        glViewport(0,0,width,height);
+        //glViewport(0,0,width,height);
+        glViewport(curViewport[0],curViewport[1],curViewport[2],curViewport[3]);
         
         RenderUtils::DrawTexture(width, height, renderedTexture,1.0,0);
     }
@@ -835,7 +840,8 @@ void RenderUtils::endRenderToTextureBasic(int width,int height,float alpha) {
     
     // Bind rendering buffer
     glBindFramebuffer(GL_FRAMEBUFFER, curFramebuffer);
-    glViewport(0,0,width,height);
+    //glViewport(0,0,width,height);
+    glViewport(curViewport[0],curViewport[1],curViewport[2],curViewport[3]);
         
     RenderUtils::DrawTextureBasic(width, height, renderedTexture,alpha,0);
 }

@@ -343,6 +343,7 @@ extern "C" {
 -(void) optOMPT_Sampling:(int) mode;
 -(void) optOMPT_StereoSeparation:(float) val;
 -(void) optOMPT_Tempo;
+-(void) optOMPT_AmigaFiltter;
 
 -(void) optUpdateSystemColor;
 

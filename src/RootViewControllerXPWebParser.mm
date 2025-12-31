@@ -340,7 +340,8 @@ END_PROFILE
             [_htmlWebView.topAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.topAnchor].active = YES;
         }
 
-        [_htmlWebView.bottomAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.bottomAnchor].active = YES;
+        if (miniplayerVC) [_htmlWebView.bottomAnchor constraintEqualToAnchor:miniplayerVC.view.topAnchor].active = YES;
+        else [_htmlWebView.bottomAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.bottomAnchor].active = YES;
     }
 
     // Fix Windows-1252 characters that were decoded by TFHpple
@@ -433,8 +434,11 @@ END_PROFILE
 
     if ([self shouldDisplayHTMLContent]) {
         // Don't hide waiting yet - will hide when webview finishes loading
+        sBar.hidden=YES;
         [self switchToHTMLView];
+        
     } else {
+        sBar.hidden=NO;
         [self hideWaiting];
         [self switchToTableView];
     }

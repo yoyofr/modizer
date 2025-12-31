@@ -1492,6 +1492,17 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXSpectrum].detail.mdz_switch.switch_labels[1]=(char*)"1";
     settings[GLOB_FXSpectrum].detail.mdz_switch.switch_labels[2]=(char*)"2";
     
+    SETTINGS_ID_DEF(GLOB_FXSpectrumFXSLOT)
+    settings[GLOB_FXSpectrumFXSLOT].label=(char*)"FX Layout";
+    settings[GLOB_FXSpectrumFXSLOT].description=(char*)"0: fullscreen 1:left 2:right 3:top 4:bottom 5:top left 6:top right 7:bottom left 8:bottom right";
+    settings[GLOB_FXSpectrumFXSLOT].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+    settings[GLOB_FXSpectrumFXSLOT].sub_family=0;
+    settings[GLOB_FXSpectrumFXSLOT].callback=&optVISUChangedC;
+    settings[GLOB_FXSpectrumFXSLOT].type=MDZ_SLIDER_DISCRETE;
+    settings[GLOB_FXSpectrumFXSLOT].detail.mdz_slider.slider_digits=0;
+    settings[GLOB_FXSpectrumFXSLOT].detail.mdz_slider.slider_min_value=0;
+    settings[GLOB_FXSpectrumFXSLOT].detail.mdz_slider.slider_max_value=8;
+    
     SETTINGS_ID_DEF(GLOB_FXMODPattern)
     settings[GLOB_FXMODPattern].type=MDZ_SWITCH;
     settings[GLOB_FXMODPattern].label=(char*)"MOD Pattern";
@@ -1504,6 +1515,17 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXMODPattern].detail.mdz_switch.switch_labels[1]=(char*)"1";
     settings[GLOB_FXMODPattern].detail.mdz_switch.switch_labels[2]=(char*)"2";
     settings[GLOB_FXMODPattern].detail.mdz_switch.switch_labels[3]=(char*)"3";
+    
+    SETTINGS_ID_DEF(GLOB_FXMODPatternFXSLOT)
+    settings[GLOB_FXMODPatternFXSLOT].label=(char*)"FX Layout";
+    settings[GLOB_FXMODPatternFXSLOT].description=(char*)"0: fullscreen 1:left 2:right 3:top 4:bottom 5:top left 6:top right 7:bottom left 8:bottom right";
+    settings[GLOB_FXMODPatternFXSLOT].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+    settings[GLOB_FXMODPatternFXSLOT].sub_family=0;
+    settings[GLOB_FXMODPatternFXSLOT].callback=&optVISUChangedC;
+    settings[GLOB_FXMODPatternFXSLOT].type=MDZ_SLIDER_DISCRETE;
+    settings[GLOB_FXMODPatternFXSLOT].detail.mdz_slider.slider_digits=0;
+    settings[GLOB_FXMODPatternFXSLOT].detail.mdz_slider.slider_min_value=0;
+    settings[GLOB_FXMODPatternFXSLOT].detail.mdz_slider.slider_max_value=8;
     
     
     SETTINGS_ID_DEF(GLOB_FXMODPattern_BGAlpha)
@@ -1593,6 +1615,17 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_labels[1]=(char*)"Std";
     settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_labels[2]=(char*)"Syn.";
     
+    SETTINGS_ID_DEF(GLOB_FXPianoRollFXSLOT)
+    settings[GLOB_FXPianoRollFXSLOT].label=(char*)"FX Layout";
+    settings[GLOB_FXPianoRollFXSLOT].description=(char*)"0: fullscreen 1:left 2:right 3:top 4:bottom 5:top left 6:top right 7:bottom left 8:bottom right";
+    settings[GLOB_FXPianoRollFXSLOT].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+    settings[GLOB_FXPianoRollFXSLOT].sub_family=0;
+    settings[GLOB_FXPianoRollFXSLOT].callback=&optVISUChangedC;
+    settings[GLOB_FXPianoRollFXSLOT].type=MDZ_SLIDER_DISCRETE;
+    settings[GLOB_FXPianoRollFXSLOT].detail.mdz_slider.slider_digits=0;
+    settings[GLOB_FXPianoRollFXSLOT].detail.mdz_slider.slider_min_value=0;
+    settings[GLOB_FXPianoRollFXSLOT].detail.mdz_slider.slider_max_value=8;
+    
     SETTINGS_ID_DEF(GLOB_FXPianoRollSpark)
     settings[GLOB_FXPianoRollSpark].type=MDZ_SWITCH;
     settings[GLOB_FXPianoRollSpark].label=(char*)"PR/Spark FX";
@@ -1632,6 +1665,17 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_labels[0]=(char*)"Off";
     settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_labels[1]=(char*)"Hori";
     settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_labels[2]=(char*)"Vert";
+    
+    SETTINGS_ID_DEF(GLOB_FXMIDIPatternFXSLOT)
+    settings[GLOB_FXMIDIPatternFXSLOT].label=(char*)"FX Layout";
+    settings[GLOB_FXMIDIPatternFXSLOT].description=(char*)"0: fullscreen 1:left 2:right 3:top 4:bottom 5:top left 6:top right 7:bottom left 8:bottom right";
+    settings[GLOB_FXMIDIPatternFXSLOT].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+    settings[GLOB_FXMIDIPatternFXSLOT].sub_family=0;
+    settings[GLOB_FXMIDIPatternFXSLOT].callback=&optVISUChangedC;
+    settings[GLOB_FXMIDIPatternFXSLOT].type=MDZ_SLIDER_DISCRETE;
+    settings[GLOB_FXMIDIPatternFXSLOT].detail.mdz_slider.slider_digits=0;
+    settings[GLOB_FXMIDIPatternFXSLOT].detail.mdz_slider.slider_min_value=0;
+    settings[GLOB_FXMIDIPatternFXSLOT].detail.mdz_slider.slider_max_value=8;
     
     SETTINGS_ID_DEF(GLOB_FXMIDICutLine)
     settings[GLOB_FXMIDICutLine].type=MDZ_SWITCH;
@@ -1683,6 +1727,17 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXPiano3D].detail.mdz_switch.switch_labels[3]=(char*)"3";
     settings[GLOB_FXPiano3D].detail.mdz_switch.switch_labels[4]=(char*)"4";
     
+    SETTINGS_ID_DEF(GLOB_FXPiano3DFXSLOT)
+    settings[GLOB_FXPiano3DFXSLOT].label=(char*)"FX Layout";
+    settings[GLOB_FXPiano3DFXSLOT].description=(char*)"0: fullscreen 1:left 2:right 3:top 4:bottom 5:top left 6:top right 7:bottom left 8:bottom right";
+    settings[GLOB_FXPiano3DFXSLOT].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+    settings[GLOB_FXPiano3DFXSLOT].sub_family=0;
+    settings[GLOB_FXPiano3DFXSLOT].callback=&optVISUChangedC;
+    settings[GLOB_FXPiano3DFXSLOT].type=MDZ_SLIDER_DISCRETE;
+    settings[GLOB_FXPiano3DFXSLOT].detail.mdz_slider.slider_digits=0;
+    settings[GLOB_FXPiano3DFXSLOT].detail.mdz_slider.slider_min_value=0;
+    settings[GLOB_FXPiano3DFXSLOT].detail.mdz_slider.slider_max_value=8;
+    
     SETTINGS_ID_DEF(GLOB_FXPianoCutLine)
     settings[GLOB_FXPianoCutLine].type=MDZ_SWITCH;
     settings[GLOB_FXPianoCutLine].label=(char*)"Piano bars mode";
@@ -1719,6 +1774,17 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_labels[2]=(char*)"2";
     settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_labels[3]=(char*)"3";
     
+    SETTINGS_ID_DEF(GLOB_FX3DSpectrumFXSLOT)
+    settings[GLOB_FX3DSpectrumFXSLOT].label=(char*)"FX Layout";
+    settings[GLOB_FX3DSpectrumFXSLOT].description=(char*)"0: fullscreen 1:left 2:right 3:top 4:bottom 5:top left 6:top right 7:bottom left 8:bottom right";
+    settings[GLOB_FX3DSpectrumFXSLOT].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+    settings[GLOB_FX3DSpectrumFXSLOT].sub_family=0;
+    settings[GLOB_FX3DSpectrumFXSLOT].callback=&optVISUChangedC;
+    settings[GLOB_FX3DSpectrumFXSLOT].type=MDZ_SLIDER_DISCRETE;
+    settings[GLOB_FX3DSpectrumFXSLOT].detail.mdz_slider.slider_digits=0;
+    settings[GLOB_FX3DSpectrumFXSLOT].detail.mdz_slider.slider_min_value=0;
+    settings[GLOB_FX3DSpectrumFXSLOT].detail.mdz_slider.slider_max_value=8;
+    
     SETTINGS_ID_DEF(GLOB_FX3DSpectrumBloom)
     settings[GLOB_FX3DSpectrumBloom].label=(char*)"3D Sp.Bloom";
     settings[GLOB_FX3DSpectrumBloom].description=NULL;
@@ -1749,6 +1815,17 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_labels[6]=(char*)"6";
     settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_labels[7]=(char*)"7";
     settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_labels[8]=(char*)"8";
+    
+    SETTINGS_ID_DEF(GLOB_FX3DLandscapeFXSLOT)
+    settings[GLOB_FX3DLandscapeFXSLOT].label=(char*)"FX Layout";
+    settings[GLOB_FX3DLandscapeFXSLOT].description=(char*)"0: fullscreen 1:left 2:right 3:top 4:bottom 5:top left 6:top right 7:bottom left 8:bottom right";
+    settings[GLOB_FX3DLandscapeFXSLOT].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+    settings[GLOB_FX3DLandscapeFXSLOT].sub_family=0;
+    settings[GLOB_FX3DLandscapeFXSLOT].callback=&optVISUChangedC;
+    settings[GLOB_FX3DLandscapeFXSLOT].type=MDZ_SLIDER_DISCRETE;
+    settings[GLOB_FX3DLandscapeFXSLOT].detail.mdz_slider.slider_digits=0;
+    settings[GLOB_FX3DLandscapeFXSLOT].detail.mdz_slider.slider_min_value=0;
+    settings[GLOB_FX3DLandscapeFXSLOT].detail.mdz_slider.slider_max_value=8;
     
     SETTINGS_ID_DEF(GLOB_FX3DLandscapeBloom)
     settings[GLOB_FX3DLandscapeBloom].label=(char*)"3D Land. Bloom";
@@ -1847,6 +1924,17 @@ void optNSFPLAYChangedC(id param) {
     settings[PROJECTM_FXONOFF].description=NULL;
     settings[PROJECTM_FXONOFF].family=MDZ_SETTINGS_FAMILY_PROJECTM;
     settings[PROJECTM_FXONOFF].sub_family=0;
+    
+    SETTINGS_ID_DEF(PROJECTM_FXSLOT)
+    settings[PROJECTM_FXSLOT].label=(char*)"FX Layout";
+    settings[PROJECTM_FXSLOT].description=(char*)"0: fullscreen 1:left 2:right 3:top 4:bottom 5:top left 6:top right 7:bottom left 8:bottom right";
+    settings[PROJECTM_FXSLOT].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+    settings[PROJECTM_FXSLOT].sub_family=0;
+    settings[PROJECTM_FXSLOT].callback=&optVISUChangedC;
+    settings[PROJECTM_FXSLOT].type=MDZ_SLIDER_DISCRETE;
+    settings[PROJECTM_FXSLOT].detail.mdz_slider.slider_digits=0;
+    settings[PROJECTM_FXSLOT].detail.mdz_slider.slider_min_value=0;
+    settings[PROJECTM_FXSLOT].detail.mdz_slider.slider_max_value=8;
     
     SETTINGS_ID_DEF(PROJECTM_Quality)
     settings[PROJECTM_Quality].type=MDZ_SWITCH;
@@ -2068,6 +2156,17 @@ void optNSFPLAYChangedC(id param) {
     settings[OSCILLO_FXMODE].detail.mdz_switch.switch_labels[3]=(char*)"Stereo 1";
     settings[OSCILLO_FXMODE].detail.mdz_switch.switch_labels[4]=(char*)"Stereo 2";
     
+    SETTINGS_ID_DEF(OSCILLO_FXSLOT)
+    settings[OSCILLO_FXSLOT].label=(char*)"FX Layout";
+    settings[OSCILLO_FXSLOT].description=(char*)"0: fullscreen 1:left 2:right 3:top 4:bottom 5:top left 6:top right 7:bottom left 8:bottom right";
+    settings[OSCILLO_FXSLOT].family=MDZ_SETTINGS_FAMILY_OSCILLO;
+    settings[OSCILLO_FXSLOT].sub_family=0;
+    settings[OSCILLO_FXSLOT].callback=&optVISUChangedC;
+    settings[OSCILLO_FXSLOT].type=MDZ_SLIDER_DISCRETE;
+    settings[OSCILLO_FXSLOT].detail.mdz_slider.slider_digits=0;
+    settings[OSCILLO_FXSLOT].detail.mdz_slider.slider_min_value=0;
+    settings[OSCILLO_FXSLOT].detail.mdz_slider.slider_max_value=8;
+    
     
     SETTINGS_ID_DEF(OSCILLO_ShowLabel)
     settings[OSCILLO_ShowLabel].type=MDZ_BOOLSWITCH;
@@ -2230,6 +2329,17 @@ void optNSFPLAYChangedC(id param) {
     settings[OSCILLO_LabelFontSize].detail.mdz_switch.switch_default_value=1;
     
     settings[OSCILLO_FXMODE].detail.mdz_switch.switch_default_value=0;
+    
+    // FXSlot
+    settings[PROJECTM_FXSLOT].detail.mdz_slider.slider_default_value=0;
+    settings[OSCILLO_FXSLOT].detail.mdz_slider.slider_default_value=0;
+    settings[GLOB_FXPianoRollFXSLOT].detail.mdz_slider.slider_default_value=0;
+    settings[GLOB_FXPiano3DFXSLOT].detail.mdz_slider.slider_default_value=0;
+    settings[GLOB_FXMIDIPatternFXSLOT].detail.mdz_slider.slider_default_value=0;
+    settings[GLOB_FXMODPatternFXSLOT].detail.mdz_slider.slider_default_value=0;
+    settings[GLOB_FXSpectrumFXSLOT].detail.mdz_slider.slider_default_value=0;
+    settings[GLOB_FX3DSpectrumFXSLOT].detail.mdz_slider.slider_default_value=0;
+    settings[GLOB_FX3DLandscapeFXSLOT].detail.mdz_slider.slider_default_value=0;
     
     /////////////////////////////////////
     //PR & NS Colors
@@ -2568,9 +2678,23 @@ void optNSFPLAYChangedC(id param) {
     settings[OMPT_StereoSeparation].detail.mdz_slider.slider_min_value=0;
     settings[OMPT_StereoSeparation].detail.mdz_slider.slider_max_value=1;
     
+    SETTINGS_ID_DEF(OMPT_FLAGS_AMIGAFILTER)
+    settings[OMPT_FLAGS_AMIGAFILTER].type=MDZ_SWITCH;
+    settings[OMPT_FLAGS_AMIGAFILTER].label=(char*)"Amiga Filter";
+    settings[OMPT_FLAGS_AMIGAFILTER].description=NULL;
+    settings[OMPT_FLAGS_AMIGAFILTER].family=MDZ_SETTINGS_FAMILY_OMPT;
+    settings[OMPT_FLAGS_AMIGAFILTER].sub_family=0;
+    settings[OMPT_FLAGS_AMIGAFILTER].callback=&optOMPTChangedC;
+    settings[OMPT_FLAGS_AMIGAFILTER].detail.mdz_switch.switch_value_nb=3;
+    settings[OMPT_FLAGS_AMIGAFILTER].detail.mdz_switch.switch_labels=(char**)calloc(1,settings[OMPT_FLAGS_AMIGAFILTER].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[OMPT_FLAGS_AMIGAFILTER].detail.mdz_switch.switch_labels[0]=(char*)"Off";
+    settings[OMPT_FLAGS_AMIGAFILTER].detail.mdz_switch.switch_labels[1]=(char*)"A500";
+    settings[OMPT_FLAGS_AMIGAFILTER].detail.mdz_switch.switch_labels[2]=(char*)"A1200";
+    
     settings[OMPT_MasterVolume].detail.mdz_slider.slider_default_value=0.5;
     settings[OMPT_Sampling].detail.mdz_switch.switch_default_value=0;
     settings[OMPT_StereoSeparation].detail.mdz_slider.slider_default_value=0.5;
+    settings[OMPT_FLAGS_AMIGAFILTER].detail.mdz_switch.switch_default_value=0;
     
     /////////////////////////////////////
     //GME

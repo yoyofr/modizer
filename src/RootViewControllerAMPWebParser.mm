@@ -91,12 +91,98 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
 //    [tableView reloadData];
 }
 
+- (void)onBackTapped {
+
+    if ((browse_depth<=0)||(browse_subMode==AMP_LINK_INTERVIEW)) {
+        [self.navigationController popViewControllerAnimated:YES];
+    } else {
+        browse_depth--;
+        
+        self.title=[arr_VC_title lastObject];
+        [arr_VC_title removeLastObject];
+        mWebBaseURL=[arr_VC_URL lastObject];
+        [arr_VC_URL removeLastObject];
+        browse_subMode=[(NSNumber*)[arr_VC_Mode lastObject] intValue];
+        [arr_VC_Mode removeLastObject];
+        
+        mSearchText=[arr_VC_search lastObject];
+        [arr_VC_search removeLastObject];
+        if ([mSearchText length]==0) {
+            mSearchText=nil;
+            mSearch=0;
+        } else {
+            mSearch=1;
+            search_dbWEB=0;  //reset to ensure search_dbWEB is not used by default
+        }
+        sBar.text=mSearchText;
+        
+        sort_mode=0;
+        entries_noMoreToLoad=false;
+        shouldReload=false;
+        
+        shouldFillKeys=1;
+        
+        
+        dbWEB_entries=NULL;
+        search_dbWEB_entries=NULL;
+        
+        dbWEB_nb_entries=0;
+        search_dbWEB_nb_entries=0;
+        
+        search_dbWEB_hasFiles=0;
+        dbWEB_hasFiles=0;
+        
+        
+        mClickedPrimAction=0;
+        
+
+        arr_url_handleList=[NSMutableArray array];
+        arr_url_realnameList=[NSMutableArray array];
+        arr_url_countryList=[NSMutableArray array];
+        arr_url_groupsList=[NSMutableArray array];
+        arr_url_groupsLogoList=[NSMutableArray array];
+        
+        arr_url_fileList=[NSMutableArray array];
+        arr_url_composerList=[NSMutableArray array];
+        arr_url_formatList=[NSMutableArray array];
+        arr_url_sizeList=[NSMutableArray array];
+        
+        arr_current_fetch_position=0;
+        
+        htmlData=nil;
+        
+        [self updateWaitingDetail:@""];
+        [self showWaiting];
+        [self flushMainLoop];
+        
+        [self fillMoreKeys];
+    }
+}
+
 - (void)viewDidLoad {
     START_PROFILE
     [super viewDidLoad];
+    
+    UIImage *image = [UIImage systemImageNamed:@"chevron.backward"];
+
+    UIBarButtonItem *backButton =
+        [[UIBarButtonItem alloc] initWithImage:image
+                                         style:UIBarButtonItemStylePlain
+                                        target:self
+                                        action:@selector(onBackTapped)];
+
+    self.navigationItem.leftBarButtonItem = backButton;
+    
+    arr_VC_title=[NSMutableArray array];
+    arr_VC_URL=[NSMutableArray array];
+    arr_VC_Mode=[NSMutableArray array];
+    arr_VC_search=[NSMutableArray array];
+    
     sort_mode=0;
     entries_noMoreToLoad=false;
     shouldReload=false;
+    
+    if (mWebBaseURL==nil) mWebBaseURL=@"";
 
     arr_url_handleList=[NSMutableArray array];
     arr_url_realnameList=[NSMutableArray array];
@@ -272,6 +358,7 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
                     search_dbWEB_entries[search_dbWEB_entries_count].playcount=dbWEB_entries[j].playcount;
                     search_dbWEB_entries[search_dbWEB_entries_count].fullpath=dbWEB_entries[j].fullpath;
                     search_dbWEB_entries[search_dbWEB_entries_count].URL=dbWEB_entries[j].URL;
+                    search_dbWEB_entries[search_dbWEB_entries_count].img_URL=dbWEB_entries[j].img_URL;
                     search_dbWEB_entries[search_dbWEB_entries_count].isFile=dbWEB_entries[j].isFile;
                     search_dbWEB_entries[search_dbWEB_entries_count].url_type=dbWEB_entries[j].url_type;
                     search_dbWEB_entries[search_dbWEB_entries_count].info=dbWEB_entries[j].info;
@@ -348,7 +435,6 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
                 search_dbWEB_entries[j].label=nil;
                 search_dbWEB_entries[j].fullpath=nil;
                 search_dbWEB_entries[j].URL=nil;
-                search_dbWEB_entries[j].url_type=0;
                 search_dbWEB_entries[j].info=nil;
                 search_dbWEB_entries[j].img_URL=nil;
                 search_dbWEB_entries[j].labelAttr=nil;
@@ -378,6 +464,9 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
             search_dbWEB_entries[search_dbWEB_entries_count].url_type=dbWEB_entries[j].url_type;
             search_dbWEB_entries[search_dbWEB_entries_count].info=dbWEB_entries[j].info;
             search_dbWEB_entries[search_dbWEB_entries_count].img_URL=dbWEB_entries[j].img_URL;
+            search_dbWEB_entries[search_dbWEB_entries_count].labelAttr=dbWEB_entries[j].labelAttr;
+            search_dbWEB_entries[search_dbWEB_entries_count].infoAttr=dbWEB_entries[j].infoAttr;
+            
             
             search_dbWEB_entries_count++;
             search_dbWEB_nb_entries++;
@@ -493,48 +582,14 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
     int dbWEB_entries_index;
     
     entries_noMoreToLoad=true;
+    dbWEB_hasFiles=0;
     
-    if (search_dbWEB_nb_entries) {
-            for (int j=0;j<search_dbWEB_entries_count;j++) {
-                search_dbWEB_entries[j].label=nil;
-                search_dbWEB_entries[j].fullpath=nil;
-                search_dbWEB_entries[j].URL=nil;
-                search_dbWEB_entries[j].url_type=0;
-                search_dbWEB_entries[j].info=nil;
-                search_dbWEB_entries[j].img_URL=nil;
-                search_dbWEB_entries[j].labelAttr=nil;
-                search_dbWEB_entries[j].infoAttr=nil;
-            }
-            search_dbWEB_entries=NULL;
-        search_dbWEB_nb_entries=0;
-        free(search_dbWEB_entries_data);
-    }
-    dbWEB_hasFiles=search_dbWEB_hasFiles=0;
-    // in case of search, do not ask DB again => duplicate already found entries & filter them
-    if (mSearch) {
-        search_dbWEB=1;
-        
-        search_dbWEB_entries_data=(t_WEB_browse_entry*)calloc(1,dbWEB_nb_entries*sizeof(t_WEB_browse_entry));
-        
-            search_dbWEB_entries_count=0;
-        if (dbWEB_entries_count) search_dbWEB_entries=search_dbWEB_entries_data;
-            for (int j=0;j<dbWEB_entries_count;j++)  {
-                if ([self searchStringRegExp:mSearchText sourceString:dbWEB_entries[j].label]) {
-                    search_dbWEB_entries[search_dbWEB_entries_count].label=dbWEB_entries[j].label;
-                    search_dbWEB_entries[search_dbWEB_entries_count].downloaded=dbWEB_entries[j].downloaded;
-                    search_dbWEB_entries[search_dbWEB_entries_count].rating=dbWEB_entries[j].rating;
-                    search_dbWEB_entries[search_dbWEB_entries_count].playcount=dbWEB_entries[j].playcount;
-                    search_dbWEB_entries[search_dbWEB_entries_count].fullpath=dbWEB_entries[j].fullpath;
-                    search_dbWEB_entries[search_dbWEB_entries_count].URL=dbWEB_entries[j].URL;
-                    search_dbWEB_entries[search_dbWEB_entries_count].isFile=dbWEB_entries[j].isFile;
-                    search_dbWEB_entries[search_dbWEB_entries_count].url_type=dbWEB_entries[j].url_type;
-                    search_dbWEB_entries[search_dbWEB_entries_count].info=dbWEB_entries[j].info;
-                    search_dbWEB_entries_count++;
-                    search_dbWEB_nb_entries++;
-                }
-            }
+    if (entries_noMoreToLoad && mSearch) {
+        // in case of search, do not ask DB again => duplicate already found entries & filter them
+        [self fillSearchWithEntries];
         return;
     }
+    
     if (dbWEB_nb_entries) {
         for (int i=0;i<dbWEB_nb_entries;i++) {
             dbWEB_entries_data[i].label=nil;
@@ -941,7 +996,7 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
             
             we[we_index].file_URL=[NSString stringWithFormat:@"https://amp.dascene.net/%@",[el objectForKey:@"href"]];
             we[we_index].url_type=AMP_LINK_MODULES_LIST;
-            MDZILog("url of mods: %@",we[we_index].file_URL);
+            //MDZILog("url of mods: %@",we[we_index].file_URL);
         } else {
             we[we_index].file_name=[NSString stringWithFormat:@"Modules: N/A"];
             we[we_index].file_URL=nil;
@@ -1014,7 +1069,7 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
                 we[we_index].file_URL=[NSString stringWithFormat:@"https://amp.dascene.net/%@",[child objectForKey:@"href"]];
                 we[we_index].url_type=AMP_LINK_COMPOSERS_LIST;
                 //
-                MDZILog("url of %@: %@",we[we_index].file_name,we[we_index].file_URL);
+                //MDZILog("url of %@: %@",we[we_index].file_name,we[we_index].file_URL);
                 [tmpArray addObject:[NSValue valueWithPointer:&(we[we_index++])]];
             }
         }
@@ -1199,6 +1254,26 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
                       "            margin: 0;"
                       "            margin-top: 5px;"
                       "        }"
+                      "    A:link {"
+                      "    text-decoration : none;"
+                      "    font-weight : bold;"
+                      "    color : #f63;"
+                      "    }"
+                      "    A:visited {"
+                      "    text-decoration : none;"
+                      "    font-weight : bold;"
+                      "    color : #f63;"
+                      "    }"
+                      "    A:hover {"
+                      "    /*text-decoration : underline; */"
+                      "    color : #fc0;"
+                      "    }"
+                      "    A.offsite {"
+                      "    text-decoration : none;"
+                      "    font-weight : normal;"
+                      "    color : #f63;"
+                      "    background : #006;"
+                      "    }"
                       "    </style>"
                       "</head>"
                       "<body>"
@@ -1277,7 +1352,7 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
     
     mdz_safe_free(we);
     
-    if (!entries_noMoreToLoad && mSearch) {
+    if (/*!entries_noMoreToLoad &&*/ mSearch) {
         // in case of search, do not ask DB again => duplicate already found entries & filter them
         [self fillSearchWithEntries];
         return;
@@ -1307,7 +1382,8 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
     cur_db_entries=(search_dbWEB?search_dbWEB_entries:dbWEB_entries);
     int nb_entries=(search_dbWEB?search_dbWEB_nb_entries:dbWEB_nb_entries);
     
-    bool has_mini_img=(cur_db_entries[indexPath.row].img_URL?TRUE:FALSE);
+    bool has_mini_img=false;
+    if (cur_db_entries && nb_entries) has_mini_img=(cur_db_entries[indexPath.row].img_URL?TRUE:FALSE);
     
     if (forceReloadCells) {
         while ([tableView dequeueReusableCellWithIdentifier:CellIdentifier]) {}
@@ -1435,143 +1511,148 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
     
     cell.accessoryType = UITableViewCellAccessoryNone;
     
-    cellValue=cur_db_entries[indexPath.row].label;
-    cellValueAttr=cur_db_entries[indexPath.row].labelAttr;
-    int colFactor;
-    //update downloaded if needed
-    if(cur_db_entries[indexPath.row].downloaded==-1) {
-        NSString *pathToCheck=nil;
+    if (cur_db_entries && nb_entries) {
         
-        if (cur_db_entries[indexPath.row].fullpath)
-            pathToCheck=[NSString stringWithFormat:@"%@/%@",[ModizFileHelper getAppHomeDirectory],cur_db_entries[indexPath.row].fullpath];
-        if (pathToCheck) {
-            if ([mFileMngr fileExistsAtPath:pathToCheck]) cur_db_entries[indexPath.row].downloaded=1;
-            else cur_db_entries[indexPath.row].downloaded=0;
-        } else cur_db_entries[indexPath.row].downloaded=0;
-    }
-    
-    if(cur_db_entries[indexPath.row].downloaded==1) {
-        colFactor=1;
-    } else colFactor=0;
-    
-    if (cur_db_entries[indexPath.row].isFile) { //FILE
-        if (colFactor==0) topLabel.textColor=[UIColor colorWithRed:0.5f green:0.5f blue:0.5f alpha:1.0];
-        topLabel.frame= CGRectMake((has_mini_img?35:0)+1.0 * cell.indentationWidth,
-                                   0,
-                                   tabView.bounds.size.width -1.0 * cell.indentationWidth- 32-PRI_SEC_ACTIONS_IMAGE_SIZE-(has_mini_img?35:0),
-                                   22);
-        if (cur_db_entries[indexPath.row].downloaded==1) {
-            if (cur_db_entries[indexPath.row].rating==-1) {
-                DBHelper::getFileStatsDBmod(cur_db_entries[indexPath.row].fullpath,
-                                            &cur_db_entries[indexPath.row].playcount,
-                                            &cur_db_entries[indexPath.row].rating,
-                                            NULL,
-                                            &cur_db_entries[indexPath.row].song_length,
-                                            &cur_db_entries[indexPath.row].channels_nb,
-                                            &cur_db_entries[indexPath.row].songs);
+        cellValue=cur_db_entries[indexPath.row].label;
+        cellValueAttr=cur_db_entries[indexPath.row].labelAttr;
+        int colFactor;
+        //update downloaded if needed
+        if(cur_db_entries[indexPath.row].downloaded==-1) {
+            NSString *pathToCheck=nil;
+            
+            if (cur_db_entries[indexPath.row].fullpath)
+                pathToCheck=[NSString stringWithFormat:@"%@/%@",[ModizFileHelper getAppHomeDirectory],cur_db_entries[indexPath.row].fullpath];
+            if (pathToCheck) {
+                if ([mFileMngr fileExistsAtPath:pathToCheck]) cur_db_entries[indexPath.row].downloaded=1;
+                else cur_db_entries[indexPath.row].downloaded=0;
+            } else cur_db_entries[indexPath.row].downloaded=0;
+        }
+        
+        if(cur_db_entries[indexPath.row].downloaded==1) {
+            colFactor=1;
+        } else colFactor=0;
+        
+        if (cur_db_entries[indexPath.row].isFile) { //FILE
+            if (colFactor==0) topLabel.textColor=[UIColor colorWithRed:0.5f green:0.5f blue:0.5f alpha:1.0];
+            topLabel.frame= CGRectMake((has_mini_img?35:0)+1.0 * cell.indentationWidth,
+                                       0,
+                                       tabView.bounds.size.width -1.0 * cell.indentationWidth- 32-PRI_SEC_ACTIONS_IMAGE_SIZE-(has_mini_img?35:0),
+                                       22);
+            if (cur_db_entries[indexPath.row].downloaded==1) {
+                if (cur_db_entries[indexPath.row].rating==-1) {
+                    DBHelper::getFileStatsDBmod(cur_db_entries[indexPath.row].fullpath,
+                                                &cur_db_entries[indexPath.row].playcount,
+                                                &cur_db_entries[indexPath.row].rating,
+                                                NULL,
+                                                &cur_db_entries[indexPath.row].song_length,
+                                                &cur_db_entries[indexPath.row].channels_nb,
+                                                &cur_db_entries[indexPath.row].songs);
+                }
+                if (cur_db_entries[indexPath.row].rating>0) bottomImageView.image=[UIImage imageNamed:ratingImg[RATING_IMG(cur_db_entries[indexPath.row].rating)]];
+                
+                NSString *bottomStr;
+                if (cur_db_entries[indexPath.row].song_length>0)
+                    bottomStr=[NSString stringWithFormat:@"%02d:%02d",cur_db_entries[indexPath.row].song_length/1000/60,(cur_db_entries[indexPath.row].song_length/1000)%60];
+                else bottomStr=@"--:--";
+                if (cur_db_entries[indexPath.row].channels_nb)
+                    bottomStr=[NSString stringWithFormat:@"%@・%02dch",bottomStr,cur_db_entries[indexPath.row].channels_nb];
+                else bottomStr=[NSString stringWithFormat:@"%@・--ch",bottomStr];
+                bottomStr=[NSString stringWithFormat:@"%@・Pl:%d",bottomStr,cur_db_entries[indexPath.row].playcount];
+                
+                bottomLabel.text=[NSString stringWithFormat:@"%@・%@",cur_db_entries[indexPath.row].info,bottomStr];
+                
+                bottomLabel.frame = CGRectMake((has_mini_img?35:0)+ 1.0 * cell.indentationWidth+20,
+                                               22,
+                                               tabView.bounds.size.width -1.0 * cell.indentationWidth-32-PRI_SEC_ACTIONS_IMAGE_SIZE-20-(has_mini_img?35:0),
+                                               18);
+            } else {
+                bottomLabel.text=cur_db_entries[indexPath.row].info;
             }
-            if (cur_db_entries[indexPath.row].rating>0) bottomImageView.image=[UIImage imageNamed:ratingImg[RATING_IMG(cur_db_entries[indexPath.row].rating)]];
+            if (settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==0) {
+                [actionView setImage:[UIImage imageNamed:@"playlist_add.png"] forState:UIControlStateNormal];
+                [actionView setImage:[UIImage imageNamed:@"playlist_add.png"] forState:UIControlStateHighlighted];
+                [actionView removeTarget: self action:NULL forControlEvents: UIControlEventTouchUpInside];
+                [actionView addTarget: self action: @selector(secondaryActionTapped:) forControlEvents: UIControlEventTouchUpInside];
+                [dictActionBtn setObject:[NSNumber numberWithInteger:indexPath.row*100+indexPath.section] forKey:[[actionView.description componentsSeparatedByString:@";"] firstObject]];
+            } else {
+                [actionView setImage:[UIImage imageNamed:@"play.png"] forState:UIControlStateNormal];
+                [actionView setImage:[UIImage imageNamed:@"play.png"] forState:UIControlStateHighlighted];
+                [actionView removeTarget: self action:NULL forControlEvents: UIControlEventTouchUpInside];
+                [actionView addTarget: self action: @selector(primaryActionTapped:) forControlEvents: UIControlEventTouchUpInside];
+                [dictActionBtn setObject:[NSNumber numberWithInteger:indexPath.row*100+indexPath.section] forKey:[[actionView.description componentsSeparatedByString:@";"] firstObject]];
+            }
+            actionView.frame = CGRectMake(tabView.bounds.size.width-2-32-PRI_SEC_ACTIONS_IMAGE_SIZE-tabView.safeAreaInsets.left-tabView.safeAreaInsets.right,
+                                          0,
+                                          PRI_SEC_ACTIONS_IMAGE_SIZE,
+                                          PRI_SEC_ACTIONS_IMAGE_SIZE);
+            actionView.enabled=YES;
+            actionView.hidden=NO;
             
-            NSString *bottomStr;
-            if (cur_db_entries[indexPath.row].song_length>0)
-                bottomStr=[NSString stringWithFormat:@"%02d:%02d",cur_db_entries[indexPath.row].song_length/1000/60,(cur_db_entries[indexPath.row].song_length/1000)%60];
-            else bottomStr=@"--:--";
-            if (cur_db_entries[indexPath.row].channels_nb)
-                bottomStr=[NSString stringWithFormat:@"%@・%02dch",bottomStr,cur_db_entries[indexPath.row].channels_nb];
-            else bottomStr=[NSString stringWithFormat:@"%@・--ch",bottomStr];
-            bottomStr=[NSString stringWithFormat:@"%@・Pl:%d",bottomStr,cur_db_entries[indexPath.row].playcount];
-            
-            bottomLabel.text=[NSString stringWithFormat:@"%@・%@",cur_db_entries[indexPath.row].info,bottomStr];
-            
-            bottomLabel.frame = CGRectMake((has_mini_img?35:0)+ 1.0 * cell.indentationWidth+20,
+            if (cur_db_entries[indexPath.row].img_URL) {
+                coverImgView.image = [imagesCache getImageWithURL:cur_db_entries[indexPath.row].img_URL
+                                                           prefix:@"AMP_mini"
+                                                             size:CGSizeMake(34.0f, 34.0f)
+                                                   forUIImageView:coverImgView];
+                //coverImgView.contentMode=UIViewContentModeScaleAspectFit;
+            }
+        } else { // DIR
+            bottomLabel.frame = CGRectMake((has_mini_img?35:0)+ 1.0 * cell.indentationWidth,
                                            22,
-                                           tabView.bounds.size.width -1.0 * cell.indentationWidth-32-PRI_SEC_ACTIONS_IMAGE_SIZE-20-(has_mini_img?35:0),
+                                           tabView.bounds.size.width -1.0 * cell.indentationWidth-32-PRI_SEC_ACTIONS_IMAGE_SIZE-(has_mini_img?35:0),
+                                           18);
+            if (cur_db_entries[indexPath.row].info) {
+                bottomLabel.text=[NSString stringWithFormat:@"%@",cur_db_entries[indexPath.row].info];
+            } else {
+                bottomLabel.text=nil;
+            }
+            topLabel.frame= CGRectMake((has_mini_img?35:0)+1.0 * cell.indentationWidth,
+                                       0,
+                                       tabView.bounds.size.width -1.0 * cell.indentationWidth- 32-(has_mini_img?35:0),
+                                       22);
+            if (darkMode) topLabel.textColor=[UIColor colorWithRed:0.5f green:0.5f blue:1.0f alpha:1.0f];
+            else topLabel.textColor=[UIColor colorWithRed:0.0f green:0.0f blue:1.0f alpha:1.0f];
+            
+            if (cur_db_entries[indexPath.row].img_URL) {
+                coverImgView.image = [imagesCache getImageWithURL:cur_db_entries[indexPath.row].img_URL
+                                                           prefix:@"AMP_mini"
+                                                             size:CGSizeMake(34.0f, 34.0f)
+                                                   forUIImageView:coverImgView];
+                coverImgView.contentMode=UIViewContentModeScaleAspectFit;
+            }
+            
+            if (cur_db_entries[indexPath.row].URL) cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+            else cell.accessoryType = UITableViewCellAccessoryNone;
+        }
+        if (cellValueAttr) topLabel.attributedText = cellValueAttr;
+        else topLabel.text = cellValue;
+        
+        if ([bottomLabel.text length]>0) {
+            topLabel.frame= CGRectMake((has_mini_img?35:0)+1.0 * cell.indentationWidth,
+                                       0,
+                                       tabView.bounds.size.width -1.0 * cell.indentationWidth- 32-(has_mini_img?35:0)-PRI_SEC_ACTIONS_IMAGE_SIZE,
+                                       22);
+            bottomLabel.frame = CGRectMake((has_mini_img?35:0)+1.0 * cell.indentationWidth,
+                                           22,
+                                           tabView.bounds.size.width -1.0 * cell.indentationWidth-32-(has_mini_img?35:0)-PRI_SEC_ACTIONS_IMAGE_SIZE,
                                            18);
         } else {
-            bottomLabel.text=cur_db_entries[indexPath.row].info;
-        }
-        if (settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==0) {
-            [actionView setImage:[UIImage imageNamed:@"playlist_add.png"] forState:UIControlStateNormal];
-            [actionView setImage:[UIImage imageNamed:@"playlist_add.png"] forState:UIControlStateHighlighted];
-            [actionView removeTarget: self action:NULL forControlEvents: UIControlEventTouchUpInside];
-            [actionView addTarget: self action: @selector(secondaryActionTapped:) forControlEvents: UIControlEventTouchUpInside];
-            [dictActionBtn setObject:[NSNumber numberWithInteger:indexPath.row*100+indexPath.section] forKey:[[actionView.description componentsSeparatedByString:@";"] firstObject]];
-        } else {
-            [actionView setImage:[UIImage imageNamed:@"play.png"] forState:UIControlStateNormal];
-            [actionView setImage:[UIImage imageNamed:@"play.png"] forState:UIControlStateHighlighted];
-            [actionView removeTarget: self action:NULL forControlEvents: UIControlEventTouchUpInside];
-            [actionView addTarget: self action: @selector(primaryActionTapped:) forControlEvents: UIControlEventTouchUpInside];
-            [dictActionBtn setObject:[NSNumber numberWithInteger:indexPath.row*100+indexPath.section] forKey:[[actionView.description componentsSeparatedByString:@";"] firstObject]];
-        }
-        actionView.frame = CGRectMake(tabView.bounds.size.width-2-32-PRI_SEC_ACTIONS_IMAGE_SIZE-tabView.safeAreaInsets.left-tabView.safeAreaInsets.right,
-                                      0,
-                                      PRI_SEC_ACTIONS_IMAGE_SIZE,
-                                      PRI_SEC_ACTIONS_IMAGE_SIZE);
-        actionView.enabled=YES;
-        actionView.hidden=NO;
-        
-        if (cur_db_entries[indexPath.row].img_URL) {
-            coverImgView.image = [imagesCache getImageWithURL:cur_db_entries[indexPath.row].img_URL
-                                                       prefix:@"AMP_mini"
-                                                         size:CGSizeMake(34.0f, 34.0f)
-                                               forUIImageView:coverImgView];
-            //coverImgView.contentMode=UIViewContentModeScaleAspectFit;
-        }
-    } else { // DIR
-        bottomLabel.frame = CGRectMake((has_mini_img?35:0)+ 1.0 * cell.indentationWidth,
-                                       22,
-                                       tabView.bounds.size.width -1.0 * cell.indentationWidth-32-PRI_SEC_ACTIONS_IMAGE_SIZE-(has_mini_img?35:0),
-                                       18);
-        if (cur_db_entries[indexPath.row].info) {
-            bottomLabel.text=[NSString stringWithFormat:@"%@",cur_db_entries[indexPath.row].info];
-        } else {
-            bottomLabel.text=nil;
-        }
-        topLabel.frame= CGRectMake((has_mini_img?35:0)+1.0 * cell.indentationWidth,
-                                   0,
-                                   tabView.bounds.size.width -1.0 * cell.indentationWidth- 32-(has_mini_img?35:0),
-                                   22);
-        if (darkMode) topLabel.textColor=[UIColor colorWithRed:0.5f green:0.5f blue:1.0f alpha:1.0f];
-        else topLabel.textColor=[UIColor colorWithRed:0.0f green:0.0f blue:1.0f alpha:1.0f];
-        
-        if (cur_db_entries[indexPath.row].img_URL) {
-            coverImgView.image = [imagesCache getImageWithURL:cur_db_entries[indexPath.row].img_URL
-                                                       prefix:@"AMP_mini"
-                                                         size:CGSizeMake(34.0f, 34.0f)
-                                               forUIImageView:coverImgView];
-            coverImgView.contentMode=UIViewContentModeScaleAspectFit;
+            topLabel.frame= CGRectMake((has_mini_img?35:0)+1.0 * cell.indentationWidth,
+                                       0,
+                                       tabView.bounds.size.width -1.0 * cell.indentationWidth- 32-(has_mini_img?35:0)-PRI_SEC_ACTIONS_IMAGE_SIZE,
+                                       35);
+            bottomLabel.frame = CGRectMake((has_mini_img?35:0)+1.0 * cell.indentationWidth,
+                                           40,
+                                           tabView.bounds.size.width -1.0 * cell.indentationWidth-32-(has_mini_img?35:0)-PRI_SEC_ACTIONS_IMAGE_SIZE,
+                                           0);
         }
         
-        if (cur_db_entries[indexPath.row].URL) cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-        else cell.accessoryType = UITableViewCellAccessoryNone;
-    }
-    if (cellValueAttr) topLabel.attributedText = cellValueAttr;
-    else topLabel.text = cellValue;
-    
-    if ([bottomLabel.text length]>0) {
-        topLabel.frame= CGRectMake((has_mini_img?35:0)+1.0 * cell.indentationWidth,
-                                   0,
-                                   tabView.bounds.size.width -1.0 * cell.indentationWidth- 32-(has_mini_img?35:0)-PRI_SEC_ACTIONS_IMAGE_SIZE,
-                                   22);
-        bottomLabel.frame = CGRectMake((has_mini_img?35:0)+1.0 * cell.indentationWidth,
-                                       22,
-                                       tabView.bounds.size.width -1.0 * cell.indentationWidth-32-(has_mini_img?35:0)-PRI_SEC_ACTIONS_IMAGE_SIZE,
-                                       18);
+        if ((indexPath.row==nb_entries-1)&&(entries_noMoreToLoad==false)) {
+            dispatch_async(dispatch_get_main_queue(), ^(void){
+                [self fillMoreKeys];
+            });
+        }
     } else {
-        topLabel.frame= CGRectMake((has_mini_img?35:0)+1.0 * cell.indentationWidth,
-                                   0,
-                                   tabView.bounds.size.width -1.0 * cell.indentationWidth- 32-(has_mini_img?35:0)-PRI_SEC_ACTIONS_IMAGE_SIZE,
-                                   35);
-        bottomLabel.frame = CGRectMake((has_mini_img?35:0)+1.0 * cell.indentationWidth,
-                                       40,
-                                       tabView.bounds.size.width -1.0 * cell.indentationWidth-32-(has_mini_img?35:0)-PRI_SEC_ACTIONS_IMAGE_SIZE,
-                                       0);
-    }
-    
-    if ((indexPath.row==nb_entries-1)&&(entries_noMoreToLoad==false)) {
-        dispatch_async(dispatch_get_main_queue(), ^(void){
-            [self fillMoreKeys];
-        });
+        topLabel.text = @"";
     }
     
     return cell;
@@ -1617,12 +1698,18 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
         }
     } else if (cur_db_entries[indexPath.row].URL) {
         
-        if (browse_depth>=4) {
+        if (cur_db_entries[indexPath.row].url_type!=AMP_LINK_INTERVIEW) {
+            [arr_VC_title addObject:self.title];
+            [arr_VC_URL addObject:mWebBaseURL];
+            [arr_VC_Mode addObject:[NSNumber numberWithInt:browse_subMode]];
+            [arr_VC_search addObject:(self.mSearchText?self.mSearchText:@"")];
+            
             //set new title
             self.title = cur_db_entries[indexPath.row].fullpath;
             // Set new directory
             browse_depth = browse_depth+1;
             mWebBaseURL=cur_db_entries[indexPath.row].URL;
+            if (mWebBaseURL==nil) mWebBaseURL=@"";
             browse_subMode=cur_db_entries[indexPath.row].url_type;
             
             sort_mode=0;
@@ -1644,6 +1731,7 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
             
             mSearchText=nil;
             mClickedPrimAction=0;
+            sBar.text=mSearchText;
 
             arr_url_handleList=[NSMutableArray array];
             arr_url_realnameList=[NSMutableArray array];
@@ -1658,6 +1746,12 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
             
             arr_current_fetch_position=0;
             
+            htmlData=nil;
+            
+            [self updateWaitingDetail:@""];
+            [self showWaiting];
+            [self flushMainLoop];
+            
             [self fillMoreKeys];
         } else {
             
@@ -1665,13 +1759,12 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
             //set new title
             childController.title = cur_db_entries[indexPath.row].fullpath;
             // Set new directory
-            ((RootViewControllerAMPWebParser*)childController)->browse_depth = browse_depth+1;
+            ((RootViewControllerAMPWebParser*)childController)->browse_depth = 1;
             ((RootViewControllerAMPWebParser*)childController)->detailViewController=detailViewController;
             ((RootViewControllerAMPWebParser*)childController)->downloadViewController=downloadViewController;
             ((RootViewControllerAMPWebParser*)childController)->mWebBaseURL=cur_db_entries[indexPath.row].URL;
             
             ((RootViewControllerAMPWebParser*)childController)->browse_subMode=cur_db_entries[indexPath.row].url_type;
-            //        MDZILog("child submode: %d",((RootViewControllerAMPWebParser*)childController)->browse_subMode);
             
             // Ensure proper layout under navigation/tab bars
             if ([childController respondsToSelector:@selector(setEdgesForExtendedLayout:)]) {

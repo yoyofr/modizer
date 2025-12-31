@@ -51,6 +51,7 @@ extern int fxSlot[FX_MAX];
 const char *fxSlotPosStr[9]={"Full","Split\nleft","Split\nright","Split\ntop","Split\nbottom",
     "Split\ntop left","Split\ntop right","Split\nbottom left","Split\nbottom right",
 };
+static GLuint txtSlots[9];
 
 int pMenu_TreeNodeLines;
 
@@ -136,12 +137,14 @@ float menu_scrollY[MENU_INDEX_MAX];
 #define FX3DLANDSCAPE_IDX (MENU_3DLANDSCAPE-1)
 
 
+
 static GLuint txtShineFx;
 static int menuCpt[16];
 
 static float global_FXAlpha,global_MODPatOpacity;
 
 static GLuint txtMenuHandle[16];
+static GLuint txtMenuFlag[16];
 int menuRootColNb=4;
 const char *menuRootLabel[16]={
     NULL,NULL,NULL,NULL,
@@ -164,6 +167,7 @@ unsigned short menuRootLabelFAIcon[16]={
 
 int menuMoreColNb=4;
 static GLuint txtMenuMoreHandle[16];
+static GLuint txtMenuMoreFlag[16];
 const char *menuRootMoreLabel[16]={
     NULL,"@sliderFX\nalpha|30|100",NULL,NULL,
     NULL,NULL,NULL,NULL,
@@ -186,6 +190,7 @@ char *menuMenuMoreDynLabel[16];
 
 int menuProjectMColNb=4;
 static GLuint txtMenuProjectMHandle[16];
+static GLuint txtMenuProjectMFlag[16];
 const char *menuProjectMLabel[16]={
     NULL,NULL,"Show name\ntemp.","Show name",
     "Bundled\npresets","Custom\npresets",NULL,"Blend\npresets",
@@ -208,6 +213,7 @@ char *menuProjectMDynLabel[16];
 
 int menuProjectMExploreColNb=6;
 static GLuint txtMenuProjectMExploreHandle[6*2];
+static GLuint txtMenuProjectMExploreFlag[6*2];
 const char *menuProjectMExploreLabel[6*2]={
     "Clear\nall",      "Select\nall",         "Favorites",   "Expand",NULL,NULL,
     "Select\nlisted",    "Remove\nlisted", "Selected",       "Collapse",NULL,NULL,
@@ -224,6 +230,7 @@ unsigned short menuProjectMExploreLabelFAIcon[6*2]={
 
 int menuOscilloColNb=4;
 static GLuint txtMenuOscilloHandle[16];
+static GLuint txtMenuOscilloFlag[16];
 const char *menuOscilloLabel[16]={
     NULL,NULL,NULL,NULL,
     NULL,"Labels","Grid",NULL,
@@ -246,6 +253,7 @@ char *menuOscilloDynLabel[16];
 
 int menu2DSpectrumColNb=4;
 static GLuint txtMenu2DSpectrumHandle[16];
+static GLuint txtMenu2DSpectrumFlag[16];
 const char *menu2DSpectrumLabel[16]={
     NULL,NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
@@ -268,6 +276,7 @@ char *menu2DSpectrumDynLabel[16];
 
 int menu3DSpectrumColNb=4;
 static GLuint txtMenu3DSpectrumHandle[16];
+static GLuint txtMenu3DSpectrumFlag[16];
 const char *menu3DSpectrumLabel[16]={
     NULL,NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
@@ -290,6 +299,7 @@ char *menu3DSpectrumDynLabel[16];
 
 int menu3DLandscapeColNb=4;
 static GLuint txtMenu3DLandscapeHandle[16];
+static GLuint txtMenu3DLandscapeFlag[16];
 const char *menu3DLandscapeLabel[16]={
     NULL,NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
@@ -312,6 +322,7 @@ char *menu3DLandscapeDynLabel[16];
 
 int menuPiano3DColNb=4;
 static GLuint txtMenuPiano3DHandle[16];
+static GLuint txtMenuPiano3DFlag[16];
 const char *menuPiano3DLabel[16]={
     NULL,NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
@@ -334,6 +345,7 @@ char *menuPiano3DDynLabel[16];
 
 int menuPianoRollColNb=4;
 static GLuint txtMenuPianoRollHandle[16];
+static GLuint txtMenuPianoRollFlag[16];
 const char *menuPianoRollLabel[16]={
     NULL,NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
@@ -356,6 +368,7 @@ char *menuPianoRollDynLabel[16];
 
 int menuMidiColNb=4;
 static GLuint txtMenuMidiHandle[16];
+static GLuint txtMenuMidiFlag[16];
 const char *menuMidiLabel[16]={
     NULL,NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
@@ -378,6 +391,7 @@ char *menuMidiDynLabel[16];
 
 int menuModPatternColNb=4;
 static GLuint txtMenuModPatternHandle[16];
+static GLuint txtMenuModPatternFlag[16];
 const char *menuModPatternLabel[16]={
     NULL,NULL,NULL,NULL,
     "Volume\nbars",NULL,NULL,"Fixed bar",
@@ -458,7 +472,8 @@ int playerGetActivatedCells(int menu_idx) {
         if (settings[OSCILLO_ShowGrid].detail.mdz_boolswitch.switch_value==1) active_idx|=1<<6;
         if (settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value) active_idx|=1<<11;
         
-        snprintf(menuOscilloDynLabel[12],64,localStr("Position:\n%s"),localStr(fxSlotPosStr[fxSlot[FX_OSCILLO]]));
+        txtMenuOscilloHandle[12]=txtSlots[fxSlot[FX_OSCILLO]];
+        active_idx|=1<<12;
         
         snprintf(menuOscilloDynLabel[7],64,localStr("Thickness:\n%s"),localStr(settings[OSCILLO_LINE_Width].detail.mdz_switch.switch_labels[settings[OSCILLO_LINE_Width].detail.mdz_switch.switch_value]));
         snprintf(menuOscilloDynLabel[8],64,localStr("Font size\n%s"),localStr(settings[OSCILLO_LabelFontSize].detail.mdz_switch.switch_labels[settings[OSCILLO_LabelFontSize].detail.mdz_switch.switch_value]));
@@ -468,7 +483,8 @@ int playerGetActivatedCells(int menu_idx) {
         if (settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value==2) active_idx|=1<<2;
         if (settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value) active_idx|=1<<11;
         
-        snprintf(menu2DSpectrumDynLabel[12],64,localStr("Position:\n%s"),localStr(fxSlotPosStr[fxSlot[FX_2DSpectrum]]));
+        txtMenu2DSpectrumHandle[12]=txtSlots[fxSlot[FX_2DSpectrum]];
+        active_idx|=1<<12;
         
     } else if (menu_idx==MENU_3DSPECTRUM) {
         if (settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value==0) active_idx|=1<<0;
@@ -476,7 +492,9 @@ int playerGetActivatedCells(int menu_idx) {
         if (settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value==2) active_idx|=1<<2;
         if (settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value==3) active_idx|=1<<3;
         if (settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value) active_idx|=1<<11;
-        snprintf(menu3DSpectrumDynLabel[12],64,localStr("Position:\n%s"),localStr(fxSlotPosStr[fxSlot[FX_3DSpectrum]]));
+
+        txtMenu3DSpectrumHandle[12]=txtSlots[fxSlot[FX_3DSpectrum]];
+        active_idx|=1<<12;
         
         snprintf(menu3DSpectrumDynLabel[7],64,localStr("Bloom:\n%s"),localStr(settings[GLOB_FX3DSpectrumBloom].detail.mdz_switch.switch_labels[settings[GLOB_FX3DSpectrumBloom].detail.mdz_switch.switch_value]));
     } else if (menu_idx==MENU_3DLANDSCAPE) {
@@ -491,7 +509,8 @@ int playerGetActivatedCells(int menu_idx) {
         if (settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value==8) active_idx|=1<<8;
         if (settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value) active_idx|=1<<11;
         
-        snprintf(menu3DLandscapeDynLabel[12],64,localStr("Position:\n%s"),localStr(fxSlotPosStr[fxSlot[FX_3DLandscape]]));
+        txtMenu3DLandscapeHandle[12]=txtSlots[fxSlot[FX_3DLandscape]];
+        active_idx|=1<<12;
         
         snprintf(menu3DLandscapeDynLabel[9],64,localStr("Bloom:\n%s"),localStr(settings[GLOB_FX3DLandscapeBloom].detail.mdz_switch.switch_labels[settings[GLOB_FX3DLandscapeBloom].detail.mdz_switch.switch_value]));
     } else if (menu_idx==MENU_PIANO3D) {
@@ -502,7 +521,8 @@ int playerGetActivatedCells(int menu_idx) {
         if (settings[GLOB_FXPiano3D].detail.mdz_switch.switch_value==4) active_idx|=1<<4;
         if (settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value) active_idx|=1<<11;
         
-        snprintf(menuPiano3DDynLabel[12],64,localStr("Position:\n%s"),localStr(fxSlotPosStr[fxSlot[FX_PIANO3D]]));
+        txtMenuPiano3DHandle[12]=txtSlots[fxSlot[FX_PIANO3D]];
+        active_idx|=1<<12;
         
     } else if (menu_idx==MENU_PIANOROLL) {
         if (settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value==0) active_idx|=1<<0;
@@ -512,7 +532,8 @@ int playerGetActivatedCells(int menu_idx) {
         if (settings[GLOB_FXPianoRollOctavesLabels].detail.mdz_boolswitch.switch_value) active_idx|=1<<9;
         if (settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value) active_idx|=1<<11;
         
-        snprintf(menuPianoRollDynLabel[12],64,localStr("Position:\n%s"),localStr(fxSlotPosStr[fxSlot[FX_PIANOROLL]]));
+        txtMenuPianoRollHandle[12]=txtSlots[fxSlot[FX_PIANOROLL]];
+        active_idx|=1<<12;
         
     } else if (menu_idx==MENU_MIDIPATTERN) {
         if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value==0) active_idx|=1<<0;
@@ -520,7 +541,8 @@ int playerGetActivatedCells(int menu_idx) {
         if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value==2) active_idx|=1<<2;
         if (settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value) active_idx|=1<<11;
         
-        snprintf(menuMidiDynLabel[12],64,localStr("Position:\n%s"),localStr(fxSlotPosStr[fxSlot[FX_MIDIPattern]]));
+        txtMenuMidiHandle[12]=txtSlots[fxSlot[FX_MIDIPattern]];
+        active_idx|=1<<12;
         
     } else if (menu_idx==MENU_MODPATTERN) {
         if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value==0) active_idx|=1<<0;
@@ -531,7 +553,8 @@ int playerGetActivatedCells(int menu_idx) {
         if (settings[GLOB_FXMODPattern_CurrentLineMode].detail.mdz_switch.switch_value==1) active_idx|=1<<7;
         if (settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value) active_idx|=1<<11;
         
-        snprintf(menuModPatternDynLabel[12],64,localStr("Position:\n%s"),localStr(fxSlotPosStr[fxSlot[FX_MODPattern]]));
+        txtMenuModPatternHandle[12]=txtSlots[fxSlot[FX_MODPattern]];
+        active_idx|=1<<12;
         
         snprintf(menuModPatternDynLabel[5],64,localStr("Themes:\n%s"),localStr(settings[GLOB_FXMODPattern_Theme].detail.mdz_switch.switch_labels[settings[GLOB_FXMODPattern_Theme].detail.mdz_switch.switch_value]));
         snprintf(menuModPatternDynLabel[10],64,localStr("Font size\n%s"),localStr(settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_labels[settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_value]));
@@ -552,6 +575,8 @@ int playerGetActivatedCells(int menu_idx) {
         if (settings[PROJECTM_LockPreset].detail.mdz_boolswitch.switch_value) menuProjectMLabelFAIcon[10]=FA_LOCK;
         else menuProjectMLabelFAIcon[10]=FA_UNLOCK;
         
+        txtMenuProjectMHandle[12]=txtSlots[fxSlot[FX_PROJECTM]];
+        active_idx|=1<<12;
         
         if (settings[PROJECTM_BundledPresets].detail.mdz_boolswitch.switch_value) menuProjectMDynLabel[8]=(char*)localStr("Select\nbundled\npresets");
         else menuProjectMDynLabel[8]=NULL;
@@ -560,6 +585,302 @@ int playerGetActivatedCells(int menu_idx) {
     }
     return active_idx;
 }
+
+void createTexture(UIImage *image,GLuint *textureRef) {
+    CGSize sizeOfImage = [image size];
+    CGImageRef cgImage = image.CGImage;
+
+    size_t width = sizeOfImage.width;
+    size_t height = sizeOfImage.height;
+
+    GLubyte *pixels = (GLubyte *)calloc(width * height * 4, sizeof(GLubyte));
+
+    CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
+    CGContextRef context = CGBitmapContextCreate(
+        pixels,
+        width,
+        height,
+        8,
+        width * 4,
+        colorSpace,
+        kCGImageAlphaPremultipliedLast | kCGBitmapByteOrder32Big
+    );
+
+    // Important : inverser Y pour OpenGL
+    CGContextTranslateCTM(context, 0, height);
+    CGContextScaleCTM(context, 1.0, -1.0);
+
+    // Dessiner l’image dans le contexte
+    CGContextDrawImage(context, CGRectMake(0, 0, width, height), cgImage);
+
+    // Cleanup
+    CGContextRelease(context);
+    CGColorSpaceRelease(colorSpace);
+
+    
+    glGenTextures(1, textureRef);
+    glBindTexture(GL_TEXTURE_2D, *textureRef);
+    
+    //create texture
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+    
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    
+    free(pixels);
+}
+
+void generateSlotsTextures() {
+    int textureSize=256;
+    int frameThickness=4;
+    CGFloat radius = 8.0;
+    CGSize size = CGSizeMake(textureSize, textureSize);
+    
+    UIImage *patternImage;
+    {
+        CGSize psize = CGSizeMake(16, 16);
+
+        UIGraphicsImageRenderer *r =
+            [[UIGraphicsImageRenderer alloc] initWithSize:psize];
+
+        patternImage = [r imageWithActions:^(UIGraphicsImageRendererContext *ctx) {
+
+            CGContextRef c = ctx.CGContext;
+
+            [[UIColor colorWithWhite:1.0 alpha:0.8] setFill];
+            CGContextFillRect(c, CGRectMake(0, 0, 8, 8));
+            CGContextFillRect(c, CGRectMake(8, 8, 8, 8));
+            
+            [[UIColor colorWithWhite:0.3 alpha:0.8] setFill];
+            CGContextFillRect(c, CGRectMake(8, 0, 8, 8));
+            CGContextFillRect(c, CGRectMake(0, 8, 8, 8));
+            
+        }];
+    }
+    
+    UIGraphicsImageRenderer *renderer =
+    [[UIGraphicsImageRenderer alloc] initWithSize:size];
+    
+    //Full
+    UIImage *image = [renderer imageWithActions:^(UIGraphicsImageRendererContext *context) {
+        CGContextRef ctx = context.CGContext;
+        // Fond transparent
+        CGContextClearRect(ctx, CGRectMake(0, 0, textureSize, textureSize));
+        // Couleur du cadre (blanc ici)
+        CGContextSetStrokeColorWithColor(ctx, [UIColor whiteColor].CGColor);
+        // Épaisseur du cadre
+        CGContextSetLineWidth(ctx, frameThickness);
+        // Dessiner le cadre
+        CGRect rect = CGRectMake(frameThickness/2, frameThickness/2, textureSize-frameThickness, textureSize-frameThickness);
+        
+        UIBezierPath *path = [UIBezierPath bezierPathWithRoundedRect:rect cornerRadius:radius];
+
+        // Remplissage motif
+        [[UIColor colorWithPatternImage:patternImage] setFill];
+        [path fill];
+        
+        // Cadre
+        [[UIColor whiteColor] setStroke];
+        path.lineWidth = frameThickness;
+        [path stroke];
+    }];
+    createTexture(image,&txtSlots[0]);
+    
+    //Left
+    image = [renderer imageWithActions:^(UIGraphicsImageRendererContext *context) {
+        CGContextRef ctx = context.CGContext;
+        // Fond transparent
+        CGContextClearRect(ctx, CGRectMake(0, 0, textureSize, textureSize));
+        // Couleur du cadre (blanc ici)
+        CGContextSetStrokeColorWithColor(ctx, [UIColor whiteColor].CGColor);
+        // Épaisseur du cadre
+        CGContextSetLineWidth(ctx, frameThickness);
+        // Dessiner le cadre
+        CGRect rect = CGRectMake(frameThickness/2, frameThickness/2, textureSize/2-frameThickness/2, textureSize-frameThickness);
+        UIBezierPath *path = [UIBezierPath bezierPathWithRoundedRect:rect cornerRadius:radius];
+
+        // Remplissage motif
+        [[UIColor colorWithPatternImage:patternImage] setFill];
+        [path fill];
+        
+        // Cadre
+        [[UIColor whiteColor] setStroke];
+        path.lineWidth = frameThickness;
+        [path stroke];
+    }];
+    createTexture(image,&txtSlots[1]);
+    
+    //Right
+    image = [renderer imageWithActions:^(UIGraphicsImageRendererContext *context) {
+        CGContextRef ctx = context.CGContext;
+        // Fond transparent
+        CGContextClearRect(ctx, CGRectMake(0, 0, textureSize, textureSize));
+        // Couleur du cadre (blanc ici)
+        CGContextSetStrokeColorWithColor(ctx, [UIColor whiteColor].CGColor);
+        // Épaisseur du cadre
+        CGContextSetLineWidth(ctx, frameThickness);
+        // Dessiner le cadre
+        CGRect rect = CGRectMake(textureSize/2+frameThickness/2, frameThickness/2, textureSize/2-frameThickness/2, textureSize-frameThickness);
+        UIBezierPath *path = [UIBezierPath bezierPathWithRoundedRect:rect cornerRadius:radius];
+
+        // Remplissage motif
+        [[UIColor colorWithPatternImage:patternImage] setFill];
+        [path fill];
+        
+        // Cadre
+        [[UIColor whiteColor] setStroke];
+        path.lineWidth = frameThickness;
+        [path stroke];
+    }];
+    createTexture(image,&txtSlots[2]);
+    
+    //Top
+    image = [renderer imageWithActions:^(UIGraphicsImageRendererContext *context) {
+        CGContextRef ctx = context.CGContext;
+        // Fond transparent
+        CGContextClearRect(ctx, CGRectMake(0, 0, textureSize, textureSize));
+        // Couleur du cadre (blanc ici)
+        CGContextSetStrokeColorWithColor(ctx, [UIColor whiteColor].CGColor);
+        // Épaisseur du cadre
+        CGContextSetLineWidth(ctx, frameThickness);
+        // Dessiner le cadre
+        CGRect rect = CGRectMake(frameThickness/2, frameThickness/2, textureSize-frameThickness, textureSize/2-frameThickness/2);
+        UIBezierPath *path = [UIBezierPath bezierPathWithRoundedRect:rect cornerRadius:radius];
+
+        // Remplissage motif
+        [[UIColor colorWithPatternImage:patternImage] setFill];
+        [path fill];
+        
+        // Cadre
+        [[UIColor whiteColor] setStroke];
+        path.lineWidth = frameThickness;
+        [path stroke];
+    }];
+    createTexture(image,&txtSlots[3]);
+    
+    //Bottom
+    image = [renderer imageWithActions:^(UIGraphicsImageRendererContext *context) {
+        CGContextRef ctx = context.CGContext;
+        // Fond transparent
+        CGContextClearRect(ctx, CGRectMake(0, 0, textureSize, textureSize));
+        // Couleur du cadre (blanc ici)
+        CGContextSetStrokeColorWithColor(ctx, [UIColor whiteColor].CGColor);
+        // Épaisseur du cadre
+        CGContextSetLineWidth(ctx, frameThickness);
+        // Dessiner le cadre
+        CGRect rect = CGRectMake(frameThickness/2, textureSize/2+frameThickness/2, textureSize-frameThickness, textureSize/2-frameThickness/2);
+        UIBezierPath *path = [UIBezierPath bezierPathWithRoundedRect:rect cornerRadius:radius];
+
+        // Remplissage motif
+        [[UIColor colorWithPatternImage:patternImage] setFill];
+        [path fill];
+        
+        // Cadre
+        [[UIColor whiteColor] setStroke];
+        path.lineWidth = frameThickness;
+        [path stroke];
+    }];
+    createTexture(image,&txtSlots[4]);
+    
+    //Top Left
+    image = [renderer imageWithActions:^(UIGraphicsImageRendererContext *context) {
+        CGContextRef ctx = context.CGContext;
+        // Fond transparent
+        CGContextClearRect(ctx, CGRectMake(0, 0, textureSize, textureSize));
+        // Couleur du cadre (blanc ici)
+        CGContextSetStrokeColorWithColor(ctx, [UIColor whiteColor].CGColor);
+        // Épaisseur du cadre
+        CGContextSetLineWidth(ctx, frameThickness);
+        // Dessiner le cadre
+        CGRect rect = CGRectMake(frameThickness/2, frameThickness/2, textureSize/2-frameThickness/2, textureSize/2-frameThickness/2);
+        UIBezierPath *path = [UIBezierPath bezierPathWithRoundedRect:rect cornerRadius:radius];
+
+        // Remplissage motif
+        [[UIColor colorWithPatternImage:patternImage] setFill];
+        [path fill];
+        
+        // Cadre
+        [[UIColor whiteColor] setStroke];
+        path.lineWidth = frameThickness;
+        [path stroke];
+    }];
+    createTexture(image,&txtSlots[5]);
+    
+    //Top Right
+    image = [renderer imageWithActions:^(UIGraphicsImageRendererContext *context) {
+        CGContextRef ctx = context.CGContext;
+        // Fond transparent
+        CGContextClearRect(ctx, CGRectMake(0, 0, textureSize, textureSize));
+        // Couleur du cadre (blanc ici)
+        CGContextSetStrokeColorWithColor(ctx, [UIColor whiteColor].CGColor);
+        // Épaisseur du cadre
+        CGContextSetLineWidth(ctx, frameThickness);
+        // Dessiner le cadre
+        CGRect rect = CGRectMake(textureSize/2+frameThickness/2, frameThickness/2, textureSize/2-frameThickness/2, textureSize/2-frameThickness/2);
+        UIBezierPath *path = [UIBezierPath bezierPathWithRoundedRect:rect cornerRadius:radius];
+
+        // Remplissage motif
+        [[UIColor colorWithPatternImage:patternImage] setFill];
+        [path fill];
+        
+        // Cadre
+        [[UIColor whiteColor] setStroke];
+        path.lineWidth = frameThickness;
+        [path stroke];
+    }];
+    createTexture(image,&txtSlots[6]);
+    
+    //Bottom Left
+    image = [renderer imageWithActions:^(UIGraphicsImageRendererContext *context) {
+        CGContextRef ctx = context.CGContext;
+        // Fond transparent
+        CGContextClearRect(ctx, CGRectMake(0, 0, textureSize, textureSize));
+        // Couleur du cadre (blanc ici)
+        CGContextSetStrokeColorWithColor(ctx, [UIColor whiteColor].CGColor);
+        // Épaisseur du cadre
+        CGContextSetLineWidth(ctx, frameThickness);
+        // Dessiner le cadre
+        CGRect rect = CGRectMake(frameThickness/2, textureSize/2+frameThickness/2, textureSize/2-frameThickness/2, textureSize/2-frameThickness/2);
+        UIBezierPath *path = [UIBezierPath bezierPathWithRoundedRect:rect cornerRadius:radius];
+
+        // Remplissage motif
+        [[UIColor colorWithPatternImage:patternImage] setFill];
+        [path fill];
+        
+        // Cadre
+        [[UIColor whiteColor] setStroke];
+        path.lineWidth = frameThickness;
+        [path stroke];
+    }];
+    createTexture(image,&txtSlots[7]);
+    
+    //Bottom Right
+    image = [renderer imageWithActions:^(UIGraphicsImageRendererContext *context) {
+        CGContextRef ctx = context.CGContext;
+        // Fond transparent
+        CGContextClearRect(ctx, CGRectMake(0, 0, textureSize, textureSize));
+        // Couleur du cadre (blanc ici)
+        CGContextSetStrokeColorWithColor(ctx, [UIColor whiteColor].CGColor);
+        // Épaisseur du cadre
+        CGContextSetLineWidth(ctx, frameThickness);
+        // Dessiner le cadre
+        CGRect rect = CGRectMake(textureSize/2+frameThickness/2, textureSize/2+frameThickness/2, textureSize/2-frameThickness/2, textureSize/2-frameThickness/2);
+        UIBezierPath *path = [UIBezierPath bezierPathWithRoundedRect:rect cornerRadius:radius];
+
+        // Remplissage motif
+        [[UIColor colorWithPatternImage:patternImage] setFill];
+        [path fill];
+        
+        // Cadre
+        [[UIColor whiteColor] setStroke];
+        path.lineWidth = frameThickness;
+        [path stroke];
+    }];
+    createTexture(image,&txtSlots[8]);
+}
+
 
 
 //------------------------------------------------------
@@ -576,6 +897,26 @@ void playerMenuInit() {
     memset(txtMenuProjectMHandle,0,sizeof(txtMenuProjectMHandle));
     memset(txtMenuProjectMExploreHandle,0,sizeof(txtMenuProjectMExploreHandle));
     memset(txtMenuOscilloHandle,0,sizeof(txtMenuOscilloHandle));
+    memset(txtMenu2DSpectrumHandle,0,sizeof(txtMenu2DSpectrumHandle));
+    memset(txtMenu3DSpectrumHandle,0,sizeof(txtMenu3DSpectrumHandle));
+    memset(txtMenu3DLandscapeHandle,0,sizeof(txtMenu3DLandscapeHandle));
+    memset(txtMenuPiano3DHandle,0,sizeof(txtMenuPiano3DHandle));
+    memset(txtMenuPianoRollHandle,0,sizeof(txtMenuPianoRollHandle));
+    memset(txtMenuMidiHandle,0,sizeof(txtMenuMidiHandle));
+    memset(txtMenuModPatternHandle,0,sizeof(txtMenuModPatternHandle));
+    
+    memset(txtMenuFlag,0,sizeof(txtMenuFlag));
+    memset(txtMenuMoreFlag,0,sizeof(txtMenuMoreFlag));
+    memset(txtMenuProjectMFlag,0,sizeof(txtMenuProjectMFlag));
+    memset(txtMenuProjectMExploreFlag,0,sizeof(txtMenuProjectMExploreFlag));
+    memset(txtMenuOscilloFlag,0,sizeof(txtMenuOscilloFlag));
+    memset(txtMenu2DSpectrumFlag,0,sizeof(txtMenu2DSpectrumFlag));
+    memset(txtMenu3DSpectrumFlag,0,sizeof(txtMenu3DSpectrumFlag));
+    memset(txtMenu3DLandscapeFlag,0,sizeof(txtMenu3DLandscapeFlag));
+    memset(txtMenuPiano3DFlag,0,sizeof(txtMenuPiano3DFlag));
+    memset(txtMenuPianoRollFlag,0,sizeof(txtMenuPianoRollFlag));
+    memset(txtMenuMidiFlag,0,sizeof(txtMenuMidiFlag));
+    memset(txtMenuModPatternFlag,0,sizeof(txtMenuModPatternFlag));
     
     memset(menuMenuMoreDynLabel,0,sizeof(menuMenuMoreDynLabel));
     memset(menuProjectMDynLabel,0,sizeof(menuProjectMDynLabel));
@@ -587,15 +928,6 @@ void playerMenuInit() {
     memset(menu2DSpectrumDynLabel,0,sizeof(menu2DSpectrumDynLabel));
     memset(menu3DSpectrumDynLabel,0,sizeof(menu3DSpectrumDynLabel));
     memset(menu3DLandscapeDynLabel,0,sizeof(menu3DLandscapeDynLabel));
-    
-    
-    memset(txtMenu2DSpectrumHandle,0,sizeof(txtMenu2DSpectrumHandle));
-    memset(txtMenu3DSpectrumHandle,0,sizeof(txtMenu3DSpectrumHandle));
-    memset(txtMenu3DLandscapeHandle,0,sizeof(txtMenu3DLandscapeHandle));
-    memset(txtMenuPiano3DHandle,0,sizeof(txtMenuPiano3DHandle));
-    memset(txtMenuPianoRollHandle,0,sizeof(txtMenuPianoRollHandle));
-    memset(txtMenuMidiHandle,0,sizeof(txtMenuMidiHandle));
-    memset(txtMenuModPatternHandle,0,sizeof(txtMenuModPatternHandle));
     memset(menuModPatternDynLabel,0,sizeof(menuModPatternDynLabel));
     
     memset(menu_scrollX,0,sizeof(menu_scrollX));
@@ -612,18 +944,12 @@ void playerMenuInit() {
     menuModPatternDynLabel[10]=(char*)malloc(64);
     menuModPatternDynLabel[6]=(char*)malloc(64);
     
-    menuOscilloDynLabel[12]=(char*)malloc(64);
-    menuPianoRollDynLabel[12]=(char*)malloc(64);
-    menuPiano3DDynLabel[12]=(char*)malloc(64);
-    menuMidiDynLabel[12]=(char*)malloc(64);
-    menuModPatternDynLabel[12]=(char*)malloc(64);
-    menu2DSpectrumDynLabel[12]=(char*)malloc(64);
-    menu3DSpectrumDynLabel[12]=(char*)malloc(64);
-    menu3DLandscapeDynLabel[12]=(char*)malloc(64);
     
     snprintf(menuModPatternDynLabel[10],64,localStr("Font size\n%s"),localStr(settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_labels[settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_value]));
     
     for (int i=0;i<16;i++) menuCpt[i]=rand();
+    
+    generateSlotsTextures();
     
     //ProjectM
     if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"txtMenu13a_2x.png"), &(txtMenuHandle[FXPROJECTM_IDX]), NULL, NULL)) {
@@ -752,9 +1078,30 @@ void playerMenuInit() {
     
     //shine texture
     txtShineFx=0;
-    if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"gloss.png"), &(txtShineFx), NULL, NULL)) {
+    if (!LoadTextureFromFile(pMenu_getBundledResFilePath(@"frame.png"), &(txtShineFx), NULL, NULL)) {
         MDZELog("Cannot load texture");
     }
+    
+    
+    //fxSlots
+    txtMenuProjectMHandle[12]=txtSlots[fxSlot[FX_PROJECTM]];
+    txtMenuProjectMFlag[12]=1;
+    txtMenuOscilloHandle[12]=txtSlots[fxSlot[FX_OSCILLO]];
+    txtMenuOscilloFlag[12]=1;
+    txtMenuPianoRollHandle[12]=txtSlots[fxSlot[FX_PIANOROLL]];
+    txtMenuPianoRollFlag[12]=1;
+    txtMenuPiano3DHandle[12]=txtSlots[fxSlot[FX_PIANO3D]];
+    txtMenuPiano3DFlag[12]=1;
+    txtMenuMidiHandle[12]=txtSlots[fxSlot[FX_MIDIPattern]];
+    txtMenuMidiFlag[12]=1;
+    txtMenuModPatternHandle[12]=txtSlots[fxSlot[FX_MODPattern]];
+    txtMenuModPatternFlag[12]=1;
+    txtMenu2DSpectrumHandle[12]=txtSlots[fxSlot[FX_2DSpectrum]];
+    txtMenu2DSpectrumFlag[12]=1;
+    txtMenu3DSpectrumHandle[12]=txtSlots[fxSlot[FX_3DSpectrum]];
+    txtMenu3DSpectrumFlag[12]=1;
+    txtMenu3DLandscapeHandle[12]=txtSlots[fxSlot[FX_3DLandscape]];
+    txtMenu3DLandscapeFlag[12]=1;
     
     pMenu_isInitialized=true;
 }
@@ -784,6 +1131,7 @@ int buildSubMenu(int r,
                  float cell_sizeH,
                  
                  GLuint *current_txtMenuHandle,
+                 GLuint *current_txtMenuFlag,
                  const char **currentMenuLabel,
                  char **currentMenuDynLabel,
                  unsigned short *currentMenuLabelFAIcon,
@@ -813,15 +1161,22 @@ int buildSubMenu(int r,
     if (current_txtMenuHandle[celIdx]) { //Image Button
         float padding=6;
         if (isActive) {
-            ImGui::SetNextItemAllowOverlap();
-            tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
-            ImGui::PushID((celIdx)*4+0);
-            ImGui::ImageButton("",(ImTextureID)(intptr_t)current_txtMenuHandle[celIdx], ImVec2(cell_size-padding, cell_sizeH-padding),uv0,uv1,bg_col,tint_col);
-            ImGui::PopID();
-            ImGui::SetCursorPos(cur_pos);
-            ImGui::PushID((celIdx)*4+1);
-            ret=ImGui::ImageButton("",(ImTextureID)(intptr_t)txtShineFx,ImVec2(cell_size-padding, cell_sizeH-padding),uv0,uv1,bg_col,tint_col);
-            ImGui::PopID();
+            if (current_txtMenuFlag[celIdx]) {
+                tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
+                ImGui::PushID((celIdx)*4);
+                ret=ImGui::ImageButton("",(ImTextureID)(intptr_t)current_txtMenuHandle[celIdx], ImVec2(cell_size-padding, cell_sizeH-padding),uv0,uv1,bg_col,tint_col);
+                ImGui::PopID();
+            } else {
+                ImGui::SetNextItemAllowOverlap();
+                tint_col.x=1.0;tint_col.y=1.0;tint_col.z=1.0;tint_col.w=1.0f;
+                ImGui::PushID((celIdx)*4+0);
+                ImGui::ImageButton("",(ImTextureID)(intptr_t)current_txtMenuHandle[celIdx], ImVec2(cell_size-padding, cell_sizeH-padding),uv0,uv1,bg_col,tint_col);
+                ImGui::PopID();
+                ImGui::SetCursorPos(cur_pos);
+                ImGui::PushID((celIdx)*4+1);
+                ret=ImGui::ImageButton("",(ImTextureID)(intptr_t)txtShineFx,ImVec2(cell_size-padding, cell_sizeH-padding),uv0,uv1,bg_col,tint_col);
+                ImGui::PopID();
+            }
         } else {
             ImGui::PushID((celIdx)*4);
             ret=ImGui::ImageButton("",(ImTextureID)(intptr_t)current_txtMenuHandle[celIdx], ImVec2(cell_size-padding, cell_sizeH-padding),uv0,uv1,bg_col,tint_col);
@@ -909,7 +1264,7 @@ int playerShowMenu(float ww,float hh,float safe_top,float safe_bottom,float safe
     float menu_win_sizeH;
     ImVec2 menu_win_pos;
     float cell_size;
-    GLuint *current_txtMenuHandle;
+    GLuint *current_txtMenuHandle,*current_txtMenuFlag;
     const char **currentMenuLabel;
     char **currentMenuDynLabel;
     unsigned short *currentMenuLabelFAIcon;
@@ -986,6 +1341,7 @@ int playerShowMenu(float ww,float hh,float safe_top,float safe_bottom,float safe
         ImGui::SetCursorPos(cpos);
         if (ImGui::BeginTable("menu_root",col_nb,flagTable,ImVec2(tgt_menu_win_size,menu_win_sizeH))) {
             current_txtMenuHandle=txtMenuHandle;
+            current_txtMenuFlag=txtMenuFlag;
             currentMenuLabel=menuRootLabel;
             currentMenuLabelFAIcon=menuRootLabelFAIcon;
             currentMenuVar=menuRootVar;
@@ -1004,6 +1360,7 @@ int playerShowMenu(float ww,float hh,float safe_top,float safe_bottom,float safe
                                          cell_size,
                                          cell_size,
                                          current_txtMenuHandle,
+                                         current_txtMenuFlag,
                                          currentMenuLabel,
                                          currentMenuDynLabel,
                                          currentMenuLabelFAIcon,
@@ -1079,6 +1436,7 @@ int playerShowMenu(float ww,float hh,float safe_top,float safe_bottom,float safe
         ImGui::SetCursorPos(cpos);
         if (ImGui::BeginTable("menu_root_more",col_nb,flagTable,ImVec2(tgt_menu_win_size,menu_win_sizeH))) {
             current_txtMenuHandle=txtMenuMoreHandle;
+            current_txtMenuFlag=txtMenuMoreFlag;
             currentMenuLabel=menuRootMoreLabel;
             currentMenuLabelFAIcon=menuRootMoreLabelFAIcon;
             currentMenuVar=menuRootMoreVar;
@@ -1097,6 +1455,7 @@ int playerShowMenu(float ww,float hh,float safe_top,float safe_bottom,float safe
                                          cell_size,
                                          cell_size,
                                          current_txtMenuHandle,
+                                         current_txtMenuFlag,
                                          currentMenuLabel,
                                          currentMenuDynLabel,
                                          currentMenuLabelFAIcon,
@@ -1155,6 +1514,7 @@ int playerShowMenu(float ww,float hh,float safe_top,float safe_bottom,float safe
         ImGui::SetCursorPos(cpos);
         if (ImGui::BeginTable("menu_oscillo",col_nb,flagTable,ImVec2(tgt_menu_win_size,menu_win_sizeH))) {
             current_txtMenuHandle=txtMenuOscilloHandle;
+            current_txtMenuFlag=txtMenuOscilloFlag;
             currentMenuLabel=menuOscilloLabel;
             currentMenuLabelFAIcon=menuOscilloLabelFAIcon;
             currentMenuVar=menuOscilloVar;
@@ -1173,6 +1533,7 @@ int playerShowMenu(float ww,float hh,float safe_top,float safe_bottom,float safe
                                          cell_size,
                                          cell_size,
                                          current_txtMenuHandle,
+                                         current_txtMenuFlag,
                                          currentMenuLabel,
                                          currentMenuDynLabel,
                                          currentMenuLabelFAIcon,
@@ -1247,6 +1608,7 @@ int playerShowMenu(float ww,float hh,float safe_top,float safe_bottom,float safe
         ImGui::SetCursorPos(cpos);
         if (ImGui::BeginTable("menu_2dspectrum",col_nb,flagTable,ImVec2(tgt_menu_win_size,menu_win_sizeH))) {
             current_txtMenuHandle=txtMenu2DSpectrumHandle;
+            current_txtMenuFlag=txtMenu2DSpectrumFlag;
             currentMenuLabel=menu2DSpectrumLabel;
             currentMenuLabelFAIcon=menu2DSpectrumLabelFAIcon;
             currentMenuVar=menu2DSpectrumVar;
@@ -1265,6 +1627,7 @@ int playerShowMenu(float ww,float hh,float safe_top,float safe_bottom,float safe
                                          cell_size,
                                          cell_size,
                                          current_txtMenuHandle,
+                                         current_txtMenuFlag,
                                          currentMenuLabel,
                                          currentMenuDynLabel,
                                          currentMenuLabelFAIcon,
@@ -1320,6 +1683,7 @@ int playerShowMenu(float ww,float hh,float safe_top,float safe_bottom,float safe
         ImGui::SetCursorPos(cpos);
         if (ImGui::BeginTable("menu_3dspectrum",col_nb,flagTable,ImVec2(tgt_menu_win_size,menu_win_sizeH))) {
             current_txtMenuHandle=txtMenu3DSpectrumHandle;
+            current_txtMenuFlag=txtMenu3DSpectrumFlag;
             currentMenuLabel=menu3DSpectrumLabel;
             currentMenuDynLabel=menu3DSpectrumDynLabel;
             currentMenuLabelFAIcon=menu3DSpectrumLabelFAIcon;
@@ -1338,6 +1702,7 @@ int playerShowMenu(float ww,float hh,float safe_top,float safe_bottom,float safe
                                          cell_size,
                                          cell_size,
                                          current_txtMenuHandle,
+                                         current_txtMenuFlag,
                                          currentMenuLabel,
                                          currentMenuDynLabel,
                                          currentMenuLabelFAIcon,
@@ -1398,6 +1763,7 @@ int playerShowMenu(float ww,float hh,float safe_top,float safe_bottom,float safe
         ImGui::SetCursorPos(cpos);
         if (ImGui::BeginTable("menu_3dlandscape",col_nb,flagTable,ImVec2(tgt_menu_win_size,menu_win_sizeH))) {
             current_txtMenuHandle=txtMenu3DLandscapeHandle;
+            current_txtMenuFlag=txtMenu3DLandscapeFlag;
             currentMenuLabel=menu3DLandscapeLabel;
             currentMenuDynLabel=menu3DLandscapeDynLabel;
             currentMenuLabelFAIcon=menu3DLandscapeLabelFAIcon;
@@ -1416,6 +1782,7 @@ int playerShowMenu(float ww,float hh,float safe_top,float safe_bottom,float safe
                                          cell_size,
                                          cell_size,
                                          current_txtMenuHandle,
+                                         current_txtMenuFlag,
                                          currentMenuLabel,
                                          currentMenuDynLabel,
                                          currentMenuLabelFAIcon,
@@ -1491,6 +1858,7 @@ int playerShowMenu(float ww,float hh,float safe_top,float safe_bottom,float safe
         ImGui::SetCursorPos(cpos);
         if (ImGui::BeginTable("menu_pianoroll",col_nb,flagTable,ImVec2(tgt_menu_win_size,menu_win_sizeH))) {
             current_txtMenuHandle=txtMenuPianoRollHandle;
+            current_txtMenuFlag=txtMenuPianoRollFlag;
             currentMenuLabel=menuPianoRollLabel;
             currentMenuLabelFAIcon=menuPianoRollLabelFAIcon;
             currentMenuVar=menuPianoRollVar;
@@ -1509,6 +1877,7 @@ int playerShowMenu(float ww,float hh,float safe_top,float safe_bottom,float safe
                                          cell_size,
                                          cell_size,
                                          current_txtMenuHandle,
+                                         current_txtMenuFlag,
                                          currentMenuLabel,
                                          currentMenuDynLabel,
                                          currentMenuLabelFAIcon,
@@ -1568,6 +1937,7 @@ int playerShowMenu(float ww,float hh,float safe_top,float safe_bottom,float safe
         ImGui::SetCursorPos(cpos);
         if (ImGui::BeginTable("menu_piano3d",col_nb,flagTable,ImVec2(tgt_menu_win_size,menu_win_sizeH))) {
             current_txtMenuHandle=txtMenuPiano3DHandle;
+            current_txtMenuFlag=txtMenuPiano3DFlag;
             currentMenuLabel=menuPiano3DLabel;
             currentMenuLabelFAIcon=menuPiano3DLabelFAIcon;
             currentMenuVar=menuPiano3DVar;
@@ -1586,6 +1956,7 @@ int playerShowMenu(float ww,float hh,float safe_top,float safe_bottom,float safe
                                          cell_size,
                                          cell_size,
                                          current_txtMenuHandle,
+                                         current_txtMenuFlag,
                                          currentMenuLabel,
                                          currentMenuDynLabel,
                                          currentMenuLabelFAIcon,
@@ -1647,6 +2018,7 @@ int playerShowMenu(float ww,float hh,float safe_top,float safe_bottom,float safe
         ImGui::SetCursorPos(cpos);
         if (ImGui::BeginTable("menu_midipattern",col_nb,flagTable,ImVec2(tgt_menu_win_size,menu_win_sizeH))) {
             current_txtMenuHandle=txtMenuMidiHandle;
+            current_txtMenuFlag=txtMenuMidiFlag;
             currentMenuLabel=menuMidiLabel;
             currentMenuLabelFAIcon=menuMidiLabelFAIcon;
             currentMenuVar=menuMidiVar;
@@ -1665,6 +2037,7 @@ int playerShowMenu(float ww,float hh,float safe_top,float safe_bottom,float safe
                                          cell_size,
                                          cell_size,
                                          current_txtMenuHandle,
+                                         current_txtMenuFlag,
                                          currentMenuLabel,
                                          currentMenuDynLabel,
                                          currentMenuLabelFAIcon,
@@ -1720,6 +2093,7 @@ int playerShowMenu(float ww,float hh,float safe_top,float safe_bottom,float safe
         ImGui::SetCursorPos(cpos);
         if (ImGui::BeginTable("menu_modpattern",col_nb,flagTable,ImVec2(tgt_menu_win_size,menu_win_sizeH))) {
             current_txtMenuHandle=txtMenuModPatternHandle;
+            current_txtMenuFlag=txtMenuModPatternFlag;
             currentMenuLabel=menuModPatternLabel;
             currentMenuDynLabel=menuModPatternDynLabel;
             currentMenuLabelFAIcon=menuModPatternLabelFAIcon;
@@ -1738,6 +2112,7 @@ int playerShowMenu(float ww,float hh,float safe_top,float safe_bottom,float safe
                                          cell_size,
                                          cell_size,
                                          current_txtMenuHandle,
+                                         current_txtMenuFlag,
                                          currentMenuLabel,
                                          currentMenuDynLabel,
                                          currentMenuLabelFAIcon,
@@ -1811,6 +2186,7 @@ int playerShowMenu(float ww,float hh,float safe_top,float safe_bottom,float safe
         ImGui::SetCursorPos(cpos);
         if (ImGui::BeginTable("menu_ProjectM",col_nb,flagTable,ImVec2(tgt_menu_win_size,menu_win_sizeH))) {
             current_txtMenuHandle=txtMenuProjectMHandle;
+            current_txtMenuFlag=txtMenuProjectMFlag;
             currentMenuLabel=menuProjectMLabel;
             currentMenuLabelFAIcon=menuProjectMLabelFAIcon;
             currentMenuVar=menuProjectMVar;
@@ -1829,6 +2205,7 @@ int playerShowMenu(float ww,float hh,float safe_top,float safe_bottom,float safe
                                              cell_size,
                                              cell_size,
                                              current_txtMenuHandle,
+                                             current_txtMenuFlag,
                                              currentMenuLabel,
                                              currentMenuDynLabel,
                                              currentMenuLabelFAIcon,
@@ -1905,6 +2282,7 @@ int playerShowMenu(float ww,float hh,float safe_top,float safe_bottom,float safe
                                 settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value=!(settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value);
                                 break;
                             case 0x03:
+                                fxSlot[FX_PROJECTM]=(fxSlot[FX_PROJECTM]+1)%9;
                                 break;
                             case 0x13: //Go to settings - PROJECTM
                                 keepOpened=4;
@@ -1939,6 +2317,7 @@ int playerShowMenu(float ww,float hh,float safe_top,float safe_bottom,float safe
         if (ImGui::BeginTable("menu_ProjectM_Explore",col_nb,flagTable/*,ImVec2(tgt_menu_win_size,menu_win_sizeH)*/)) {
             settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value=1;
             current_txtMenuHandle=txtMenuProjectMExploreHandle;
+            current_txtMenuFlag=txtMenuProjectMExploreFlag;
             currentMenuLabel=menuProjectMExploreLabel;
             currentMenuLabelFAIcon=menuProjectMExploreLabelFAIcon;
             currentMenuVar=menuProjectMExploreVar;
@@ -1958,6 +2337,7 @@ int playerShowMenu(float ww,float hh,float safe_top,float safe_bottom,float safe
                                          cell_size,
                                          new_cell_h,
                                          current_txtMenuHandle,
+                                         current_txtMenuFlag,
                                          currentMenuLabel,
                                          currentMenuDynLabel,
                                          currentMenuLabelFAIcon,

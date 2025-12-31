@@ -1175,6 +1175,16 @@ static float movePinchScale,movePinchScaleOld;
     if ((scope==SETTINGS_ALL)||(scope==SETTINGS_VISU)) {
         [self checkGLViewCanDisplay];
         if (m_displayLink) m_displayLink.preferredFramesPerSecond = (settings[GLOB_FXFPS].detail.mdz_switch.switch_value?60:30); //60 or 30 fps depending on device speed iPhone
+        
+        fxSlot[FX_PROJECTM]=settings[PROJECTM_FXSLOT].detail.mdz_slider.slider_value;
+        fxSlot[FX_OSCILLO]=settings[OSCILLO_FXSLOT].detail.mdz_slider.slider_value;
+        fxSlot[FX_PIANOROLL]=settings[GLOB_FXPianoRollFXSLOT].detail.mdz_slider.slider_value;
+        fxSlot[FX_PIANO3D]=settings[GLOB_FXPiano3DFXSLOT].detail.mdz_slider.slider_value;
+        fxSlot[FX_MIDIPattern]=settings[GLOB_FXMIDIPatternFXSLOT].detail.mdz_slider.slider_value;
+        fxSlot[FX_MODPattern]=settings[GLOB_FXMODPatternFXSLOT].detail.mdz_slider.slider_value;
+        fxSlot[FX_2DSpectrum]=settings[GLOB_FXSpectrumFXSLOT].detail.mdz_slider.slider_value;
+        fxSlot[FX_3DSpectrum]=settings[GLOB_FX3DSpectrumFXSLOT].detail.mdz_slider.slider_value;
+        fxSlot[FX_3DLandscape]=settings[GLOB_FX3DLandscapeFXSLOT].detail.mdz_slider.slider_value;
     }
     
     /////////////////////
@@ -1182,7 +1192,6 @@ static float movePinchScale,movePinchScaleOld;
     /////////////////////
     if ((scope==SETTINGS_ALL)||(scope==SETTINGS_OSCILLO)) {
         [mplayer optUpdateSystemColor];
-        [mplayer optOMPT_Tempo];
     }
     
     /////////////////////
@@ -1340,6 +1349,8 @@ static float movePinchScale,movePinchScaleOld;
         [mplayer optOMPT_Sampling:settings[OMPT_Sampling].detail.mdz_switch.switch_value];
         [mplayer optOMPT_StereoSeparation:settings[OMPT_StereoSeparation].detail.mdz_slider.slider_value];
         [mplayer optOMPT_MasterVol:settings[OMPT_MasterVolume].detail.mdz_slider.slider_value];
+        [mplayer optOMPT_AmigaFiltter];
+        [mplayer optOMPT_Tempo];
     }
     
     /////////////////////
@@ -6001,6 +6012,7 @@ void pm_perfTest() {
     CHECK_PROFILE("various5")
     
     textMessage.font = [UIFont fontWithName:@"Courier-Bold" size:14];
+    textMessage.editable=NO;
     
     
     /////////////////////////////////////
@@ -7232,7 +7244,7 @@ void menuInterpolValue(float &curValue,float startValue,float tgtValue) {
     [self presentViewController:msgAlert animated:YES completion:nil];
 }
 
-void doFramePM(float ww,float hh) {
+void doFramePM(float ww,float hh,bool isSlot) {
     if (!_pmIsInitialized) return; //PRojectM might still be initializing and calling some opengl stuff from background thread
     
     mdzMainThreadId = pthread_mach_thread_np(pthread_self());
@@ -7270,7 +7282,7 @@ void doFramePM(float ww,float hh) {
         
 //        mdz_pmBlurAfterAudio=settings[PROJECTM_BlurAfterAudioMode].detail.mdz_boolswitch.switch_value;
         
-        if ( (_pmCanvasWidth==(ww*glScaleFactor)) && (_pmCanvasHeight==(hh*glScaleFactor)) ) {
+        if ( (_pmCanvasWidth==(ww*glScaleFactor)) && (_pmCanvasHeight==(hh*glScaleFactor)) && !isSlot) {
             //Max Quality, screen resolution
             //Render directly to screen
             projectm_opengl_render_frame(_pm);
@@ -7869,7 +7881,7 @@ void doFramePM(float ww,float hh) {
     float ww=fxSize.z;
     float hh=fxSize.w;
     
-#define MAX_STR_DATA_SIZE 65*SOUND_MAXMOD_CHANNELS+1
+#define MAX_STR_DATA_SIZE 66*SOUND_MAXMOD_CHANNELS+1
     char str_data[MAX_STR_DATA_SIZE];
     unsigned int cnote,cinst,ceff,cparam,cvol,endChan;
     int numRows,numRowsP,numRowsN;
@@ -7906,7 +7918,7 @@ void doFramePM(float ww,float hh) {
     
     if (settings[GLOB_FXMODPattern_BGAlpha].detail.mdz_slider.slider_value>0) {
         //Darken the background
-        RenderUtils::DarkenScreen(x, y, ww, hh, settings[GLOB_FXMODPattern_BGAlpha].detail.mdz_slider.slider_value*255.0);
+        RenderUtils::DarkenScreen(0, 0, ww, hh, settings[GLOB_FXMODPattern_BGAlpha].detail.mdz_slider.slider_value*255.0);
     }
     
     ImGui::GetStyle().Alpha=1.0f;
@@ -8722,12 +8734,6 @@ void initViewPortData(int fxidx,float &x,float &y,float &w,float &h,float ww,flo
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     RenderUtils::DrawTexture(ww, hh, txtBGImage, 1.0f-fxalpha,1);
     
-    /*-------------------------------------------------------------------------------*/
-    /*  ProjectM render */
-    /*-------------------------------------------------------------------------------*/
-    doFramePM(ww,hh);
-    /*-------------------------------------------------------------------------------*/
-    
     if (pmenu_show) {
         //movePxPMenu+=movePx-movePxOld;
         //movePyPMenu+=movePy-movePyOld;
@@ -9193,13 +9199,27 @@ void initViewPortData(int fxidx,float &x,float &y,float &w,float &h,float ww,flo
                 float y;
                 float w;
                 float h;
+        
+        /*-------------------------------------------------------------------------------*/
+        /*  ProjectM render */
+        /*-------------------------------------------------------------------------------*/
+        if (settings[PROJECTM_FXONOFF].detail.mdz_switch.switch_value) {
+            bool isSlot=false;
+            initViewPortData(FX_PROJECTM,x,y,w,h,ww,hh);
+            glViewport(x*mScaleFactor, (h!=hh?h-y:y)*mScaleFactor, w*mScaleFactor, h*mScaleFactor);
+            if ((w<ww)||(h<hh)) isSlot=true;
+            doFramePM(ww,hh,isSlot);
+        }
+        
+        /*-------------------------------------------------------------------------------*/
+        
                 
                 //-------------------------------------
                 // Landscape 3D
                 //-------------------------------------
                 if (settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value) {
                     initViewPortData(FX_3DLandscape,x,y,w,h,ww,hh);
-                    glViewport(x*mScaleFactor, (y?hh-y:0)*mScaleFactor, w*mScaleFactor, h*mScaleFactor);
+                    glViewport(x*mScaleFactor, (h!=hh?h-y:y)*mScaleFactor, w*mScaleFactor, h*mScaleFactor);
                     [self doFx3DLandscape:ImVec4(x,y,w,h)];
                 }
                 
@@ -9208,7 +9228,7 @@ void initViewPortData(int fxidx,float &x,float &y,float &w,float &h,float ww,flo
                 //-------------------------------------
                 if (settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value) {
                     initViewPortData(FX_3DSpectrum,x,y,w,h,ww,hh);
-                    glViewport(x*mScaleFactor, (y?hh-y:0)*mScaleFactor, w*mScaleFactor, h*mScaleFactor);
+                    glViewport(x*mScaleFactor, (h!=hh?h-y:y)*mScaleFactor, w*mScaleFactor, h*mScaleFactor);
                     [self doFx3DSpectrum:ImVec4(x,y,w,h)];
                 }
                 
@@ -9389,6 +9409,19 @@ void initViewPortData(int fxidx,float &x,float &y,float &w,float &h,float ww,flo
         bool isFullscreen=settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value;
         
         int ret=PMenu::playerShowMenu(ww,hh,safe_top,safe_bottom,safe_left,safe_right,glScaleFactor,fadelev,movePxPMenu,movePyPMenu,pmenu_show);
+        
+        //update fxslot settings
+        settings[PROJECTM_FXSLOT].detail.mdz_slider.slider_value=fxSlot[FX_PROJECTM];
+        settings[OSCILLO_FXSLOT].detail.mdz_slider.slider_value=fxSlot[FX_OSCILLO];
+        settings[GLOB_FXPianoRollFXSLOT].detail.mdz_slider.slider_value=fxSlot[FX_PIANOROLL];
+        settings[GLOB_FXPiano3DFXSLOT].detail.mdz_slider.slider_value=fxSlot[FX_PIANO3D];
+        settings[GLOB_FXMIDIPatternFXSLOT].detail.mdz_slider.slider_value=fxSlot[FX_MIDIPattern];
+        settings[GLOB_FXMODPatternFXSLOT].detail.mdz_slider.slider_value=fxSlot[FX_MODPattern];
+        settings[GLOB_FXSpectrumFXSLOT].detail.mdz_slider.slider_value=fxSlot[FX_2DSpectrum];
+        settings[GLOB_FX3DSpectrumFXSLOT].detail.mdz_slider.slider_value=fxSlot[FX_3DSpectrum];
+        settings[GLOB_FX3DLandscapeFXSLOT].detail.mdz_slider.slider_value=fxSlot[FX_3DLandscape];
+        //
+        
         
         movePxPMenu=movePyPMenu=0;
         if (ret<0) {

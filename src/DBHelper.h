@@ -41,6 +41,8 @@ namespace DBHelper
     int getNbASMAFilesEntries();
 
     int cleanDB();
+
+    NSString *getCleanStr(NSString *str);
 }
 #endif
 

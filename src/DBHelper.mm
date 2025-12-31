@@ -245,6 +245,10 @@ NSString *DBHelper::getLocalPathFromFullPath(NSString *fullPath) {
     return result;
 }
 
+NSString *DBHelper::getCleanStr(NSString *str) {
+    return [str stringByReplacingOccurrencesOfString:@"\"" withString:@"\"\""];
+}
+
 int DBHelper::getFileStatsDBmod(NSString *fullpath,short int *playcount,signed char *rating,signed char *avg_rating,int *song_length,char *channels_nb,int *songs) {
     NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
     sqlite3 *db;
@@ -270,7 +274,7 @@ int DBHelper::getFileStatsDBmod(NSString *fullpath,short int *playcount,signed c
         if (err==SQLITE_OK){
         } else MDZELog("ErrSQL : %d",err);
         
-        snprintf(sqlStatement,1024,"SELECT play_count,rating,avg_rating,length,channels,songs FROM user_stats WHERE fullpath=\"%s\"",[fullpath UTF8String]);
+        snprintf(sqlStatement,1024,"SELECT play_count,rating,avg_rating,length,channels,songs FROM user_stats WHERE fullpath=\"%s\"",[DBHelper::getCleanStr(fullpath) UTF8String]);
         err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
         if (err==SQLITE_OK){
             while (sqlite3_step(stmt) == SQLITE_ROW) {
@@ -319,13 +323,13 @@ int DBHelper::deleteStatsFileDB(NSString *fullpath) {
         } else MDZELog("ErrSQL : %d",err);
         
         //Remove stats
-        snprintf(sqlStatement,1024,"DELETE FROM user_stats WHERE fullpath = \"%s\"",[fullpath UTF8String]);
+        snprintf(sqlStatement,1024,"DELETE FROM user_stats WHERE fullpath = \"%s\"",[DBHelper::getCleanStr(fullpath) UTF8String]);
         err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
         if (err==SQLITE_OK){
         } else {ret=0;MDZELog("ErrSQL : %d",err);}
         
         //Update playlists referencing the deleted file
-        snprintf(sqlStatement,1024,"SELECT id_playlist FROM playlists_entries WHERE fullpath =\"%s\"",[fullpath UTF8String]);
+        snprintf(sqlStatement,1024,"SELECT id_playlist FROM playlists_entries WHERE fullpath =\"%s\"",[DBHelper::getCleanStr(fullpath) UTF8String]);
         err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
         if (err==SQLITE_OK){
             while (sqlite3_step(stmt) == SQLITE_ROW) {
@@ -333,7 +337,7 @@ int DBHelper::deleteStatsFileDB(NSString *fullpath) {
                 plid=(int)sqlite3_column_int(stmt, 0);
         
                 //Remove stats
-                snprintf(sqlStatement,1024,"DELETE FROM playlists_entries WHERE id_playlist=%d AND fullpath = \"%s\"",plid,[fullpath UTF8String]);
+                snprintf(sqlStatement,1024,"DELETE FROM playlists_entries WHERE id_playlist=%d AND fullpath = \"%s\"",plid,[DBHelper::getCleanStr(fullpath) UTF8String]);
                 err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
                 if (err==SQLITE_OK){
                 } else {ret=0;MDZELog("ErrSQL : %d",err);}
@@ -374,13 +378,13 @@ int DBHelper::deleteStatsDirDB(NSString *fullpath) {
         if (err==SQLITE_OK){
         } else MDZELog("ErrSQL : %d",err);
         
-        snprintf(sqlStatement,1024,"DELETE FROM user_stats WHERE fullpath LIKE \"%s/%%\"",[fullpath UTF8String]);
+        snprintf(sqlStatement,1024,"DELETE FROM user_stats WHERE fullpath LIKE \"%s/%%\"",[DBHelper::getCleanStr(fullpath) UTF8String]);
         err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
         if (err==SQLITE_OK){
         } else {ret=0;MDZELog("ErrSQL : %d",err);}
         
         //Update playlists referencing the deleted file
-        snprintf(sqlStatement,1024,"SELECT id_playlist FROM playlists_entries WHERE fullpath LIKE \"%s/%%\"",[fullpath UTF8String]);
+        snprintf(sqlStatement,1024,"SELECT id_playlist FROM playlists_entries WHERE fullpath LIKE \"%s/%%\"",[DBHelper::getCleanStr(fullpath) UTF8String]);
         err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
         if (err==SQLITE_OK){
             while (sqlite3_step(stmt) == SQLITE_ROW) {
@@ -388,7 +392,7 @@ int DBHelper::deleteStatsDirDB(NSString *fullpath) {
                 plid=(int)sqlite3_column_int(stmt, 0);
         
                 //Remove stats
-                snprintf(sqlStatement,1024,"DELETE FROM playlists_entries WHERE id_playlist=%d AND fullpath LIKE \"%s/%%\"",plid,[fullpath UTF8String]);
+                snprintf(sqlStatement,1024,"DELETE FROM playlists_entries WHERE id_playlist=%d AND fullpath LIKE \"%s/%%\"",plid,[DBHelper::getCleanStr(fullpath) UTF8String]);
                 err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
                 if (err==SQLITE_OK){
                 } else {ret=0;MDZELog("ErrSQL : %d",err);}
@@ -638,7 +642,7 @@ void DBHelper::updateFileStatsAvgRatingDBmod(NSString *fullpath) {
             if (err==SQLITE_OK){
             } else MDZELog("ErrSQL : %d",err);
             
-            snprintf(sqlStatement,1024,"SELECT name,fullpath,play_count,rating,length,channels,songs FROM user_stats WHERE fullpath like \"%s%%\"",[fullpathCleaned UTF8String]);
+            snprintf(sqlStatement,1024,"SELECT name,fullpath,play_count,rating,length,channels,songs FROM user_stats WHERE fullpath like \"%s%%\"",[DBHelper::getCleanStr(fullpathCleaned) UTF8String]);
             
             //printf("req: %s\n",sqlStatement);
             
@@ -688,14 +692,14 @@ void DBHelper::updateFileStatsAvgRatingDBmod(NSString *fullpath) {
             
             //2nd update rating based on average
             
-            snprintf(sqlStatement,1024,"DELETE FROM user_stats WHERE fullpath=\"%s\"",[fullpathCleaned UTF8String]);
+            snprintf(sqlStatement,1024,"DELETE FROM user_stats WHERE fullpath=\"%s\"",[DBHelper::getCleanStr(fullpathCleaned) UTF8String]);
             err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
             if (err==SQLITE_OK){
             } else MDZELog("ErrSQL : %d",err);
             
             if (fname==NULL) fname=[fullpathCleaned lastPathComponent];
             
-            snprintf(sqlStatement,1024,"INSERT INTO user_stats (name,fullpath,play_count,rating,avg_rating,length,channels,songs) SELECT \"%s\",\"%s\",%d,%d,%d,%d,%d,%d",[fname UTF8String],[fullpathCleaned UTF8String],playcount,global_rating,avg_rating,sng_length,channels,songs);
+            snprintf(sqlStatement,1024,"INSERT INTO user_stats (name,fullpath,play_count,rating,avg_rating,length,channels,songs) SELECT \"%s\",\"%s\",%d,%d,%d,%d,%d,%d",[DBHelper::getCleanStr(fname) UTF8String],[DBHelper::getCleanStr(fullpathCleaned) UTF8String],playcount,global_rating,avg_rating,sng_length,channels,songs);
             err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
             if (err==SQLITE_OK){
             } else MDZELog("ErrSQL : %d",err);
@@ -726,7 +730,7 @@ void DBHelper::updateFileStatsAvgRatingDBmod(NSString *fullpath) {
             if (err==SQLITE_OK){
             } else MDZELog("ErrSQL : %d",err);
             
-            snprintf(sqlStatement,1024,"SELECT name,fullpath,play_count,rating,length,channels,songs,avg_rating FROM user_stats WHERE fullpath like \"%s%%\"",[fullpathCleaned UTF8String]);
+            snprintf(sqlStatement,1024,"SELECT name,fullpath,play_count,rating,length,channels,songs,avg_rating FROM user_stats WHERE fullpath like \"%s%%\"",[DBHelper::getCleanStr(fullpathCleaned) UTF8String]);
             
             //printf("req: %s\n",sqlStatement);
             
@@ -782,14 +786,14 @@ void DBHelper::updateFileStatsAvgRatingDBmod(NSString *fullpath) {
             
             //2nd update rating based on average
             
-            snprintf(sqlStatement,1024,"DELETE FROM user_stats WHERE fullpath=\"%s\"",[fullpathCleaned UTF8String]);
+            snprintf(sqlStatement,1024,"DELETE FROM user_stats WHERE fullpath=\"%s\"",[DBHelper::getCleanStr(fullpathCleaned) UTF8String]);
             err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
             if (err==SQLITE_OK){
             } else MDZELog("ErrSQL : %d",err);
             
             if (fname==NULL) fname=[fullpathCleaned lastPathComponent];
             
-            snprintf(sqlStatement,1024,"INSERT INTO user_stats (name,fullpath,play_count,rating,avg_rating,length,channels,songs) SELECT \"%s\",\"%s\",%d,%d,%d,%d,%d,%d",[fname UTF8String],[fullpathCleaned UTF8String],playcount,global_rating,avg_rating,sng_length,channels,songs);
+            snprintf(sqlStatement,1024,"INSERT INTO user_stats (name,fullpath,play_count,rating,avg_rating,length,channels,songs) SELECT \"%s\",\"%s\",%d,%d,%d,%d,%d,%d",[DBHelper::getCleanStr(fname) UTF8String],[DBHelper::getCleanStr(fullpathCleaned) UTF8String],playcount,global_rating,avg_rating,sng_length,channels,songs);
             err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
             if (err==SQLITE_OK){
             } else MDZELog("ErrSQL : %d",err);
@@ -821,7 +825,7 @@ int DBHelper::updateFileStatsDBmod(NSString *name,NSString *fullpath,short int p
         if (err==SQLITE_OK){
         } else MDZELog("ErrSQL : %d",err);
         
-        snprintf(sqlStatement,sizeof(sqlStatement),"SELECT name,play_count,length,channels,songs,rating,avg_rating FROM user_stats WHERE fullpath=\"%s\"",[fullpath UTF8String]);
+        snprintf(sqlStatement,sizeof(sqlStatement),"SELECT name,play_count,length,channels,songs,rating,avg_rating FROM user_stats WHERE fullpath=\"%s\"",[DBHelper::getCleanStr(fullpath) UTF8String]);
         err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
         if (err==SQLITE_OK){
             while (sqlite3_step(stmt) == SQLITE_ROW) {
@@ -839,7 +843,7 @@ int DBHelper::updateFileStatsDBmod(NSString *name,NSString *fullpath,short int p
             sqlite3_finalize(stmt);
         } else MDZELog("ErrSQL : %d",err);
         
-        snprintf(sqlStatement,1024,"DELETE FROM user_stats WHERE fullpath=\"%s\"",[fullpath UTF8String]);
+        snprintf(sqlStatement,1024,"DELETE FROM user_stats WHERE fullpath=\"%s\"",[DBHelper::getCleanStr(fullpath) UTF8String]);
         err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
         if (err==SQLITE_OK){
         } else MDZELog("ErrSQL : %d",err);
@@ -848,7 +852,7 @@ int DBHelper::updateFileStatsDBmod(NSString *name,NSString *fullpath,short int p
         if (rating==-1) rating=0;
         if (avg_rating==-1) avg_rating=0;
         
-        snprintf(sqlStatement,1024,"INSERT INTO user_stats (name,fullpath,play_count,rating,avg_rating,length,channels,songs) SELECT \"%s\",\"%s\",%d,%d,%d,%d,%d,%d",[name UTF8String],[fullpath UTF8String],playcount,rating,avg_rating,song_length,channels_nb,songs);
+        snprintf(sqlStatement,1024,"INSERT INTO user_stats (name,fullpath,play_count,rating,avg_rating,length,channels,songs) SELECT \"%s\",\"%s\",%d,%d,%d,%d,%d,%d",[DBHelper::getCleanStr(name) UTF8String],[DBHelper::getCleanStr(fullpath) UTF8String],playcount,rating,avg_rating,song_length,channels_nb,songs);
         err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
         if (err==SQLITE_OK){
         } else MDZELog("ErrSQL : %d",err);
@@ -886,7 +890,7 @@ int DBHelper::updateRatingDBmod(NSString *fullpath,signed char rating) {
         } else MDZELog("ErrSQL : %d",err);
         
         
-        snprintf(sqlStatement,sizeof(sqlStatement),"SELECT name,play_count,length,channels,songs,avg_rating FROM user_stats WHERE fullpath=\"%s\"",[fullpath UTF8String]);
+        snprintf(sqlStatement,sizeof(sqlStatement),"SELECT name,play_count,length,channels,songs,avg_rating FROM user_stats WHERE fullpath=\"%s\"",[DBHelper::getCleanStr(fullpath) UTF8String]);
         err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
         if (err==SQLITE_OK){
             while (sqlite3_step(stmt) == SQLITE_ROW) {
@@ -903,16 +907,20 @@ int DBHelper::updateRatingDBmod(NSString *fullpath,signed char rating) {
             sqlite3_finalize(stmt);
         } else MDZELog("ErrSQL : %d",err);
         
-        snprintf(sqlStatement,sizeof(sqlStatement),"DELETE FROM user_stats WHERE fullpath=\"%s\"",[fullpath UTF8String]);
+        snprintf(sqlStatement,sizeof(sqlStatement),"DELETE FROM user_stats WHERE fullpath=\"%s\"",[DBHelper::getCleanStr(fullpath) UTF8String]);
         err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
         if (err==SQLITE_OK){
         } else MDZELog("ErrSQL : %d",err);
         
         if (name==NULL) {
-            name=(char*)strdup([[fullpath lastPathComponent] UTF8String]);
+            name=(char*)strdup([[DBHelper::getCleanStr(fullpath) lastPathComponent] UTF8String]);
+        } else {
+            NSString *nameTmp=[NSString stringWithUTF8String:name];
+            free(name);
+            name=(char*)strdup([[DBHelper::getCleanStr(nameTmp) lastPathComponent] UTF8String]);
         }
         
-        snprintf(sqlStatement,sizeof(sqlStatement),"INSERT INTO user_stats (name,fullpath,play_count,rating,avg_rating,length,channels,songs) SELECT \"%s\",\"%s\",%d,%d,%d,%d,%d,%d",name,[fullpath UTF8String],playcount,rating,avg_rating,song_length,channels_nb,songs);
+        snprintf(sqlStatement,sizeof(sqlStatement),"INSERT INTO user_stats (name,fullpath,play_count,rating,avg_rating,length,channels,songs) SELECT \"%s\",\"%s\",%d,%d,%d,%d,%d,%d",name,[DBHelper::getCleanStr(fullpath) UTF8String],playcount,rating,avg_rating,song_length,channels_nb,songs);
         err=sqlite3_exec(db, sqlStatement, NULL, NULL, NULL);
         if (err==SQLITE_OK){
         } else MDZELog("ErrSQL : %d",err);
@@ -1004,7 +1012,7 @@ int DBHelper::cleanDB() {
                 if (!success) {//file does not exist
                     cleaned_entries++;
                     
-                    snprintf(sqlStatement2,sizeof(sqlStatement2),"DELETE FROM user_stats WHERE fullpath LIKE \"%s%%\"",sqlite3_column_text(stmt, 0));
+                    snprintf(sqlStatement2,sizeof(sqlStatement2),"DELETE FROM user_stats WHERE fullpath LIKE \"%s%%\"",[DBHelper::getCleanStr([NSString stringWithUTF8String:(const char *)sqlite3_column_text(stmt, 0)]) UTF8String] );
                     err=sqlite3_exec(db, sqlStatement2, NULL, NULL, NULL);
                     if (err!=SQLITE_OK) {
                         MDZELog("Issue during delete of user_Stats");
