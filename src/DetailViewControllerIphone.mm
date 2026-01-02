@@ -7,6 +7,8 @@
 //
 //#define PM_TEST_LOAD 64
 
+#define FX_AUTO_SCALING_DELAY_ZOOMIN 30 //frame delay before zooming in for FX auto scaling
+
 #define PM_FRAMETIME_LIMIT (1000.0f/10.0f) // max allowed frame time in ms, if regularly above, PM will be deactivated
 #define PM_FRAMETIME_LIMIT_WEAK 100 //Max slow frames allowed for 'weak' mode
 #define PM_FRAMETIME_LIMIT_STRONG 10 //Max slow frames allowed for 'strong' mode
@@ -5733,6 +5735,9 @@ void pm_perfTest() {
     
     [super viewDidLoad];
     
+    mScaleInfo[0]=0;
+    mScaleInfo[1]=0;
+    mScaleInfo[2]=FX_AUTO_SCALING_DELAY_ZOOMIN;
     //    if (safe_bottom>0) safe_bottom+=20;
     mScaleFactor=1.0f;
     is_iPad=false;
@@ -7277,8 +7282,59 @@ void menuInterpolValue(float &curValue,float startValue,float tgtValue) {
     [self presentViewController:msgAlert animated:YES completion:nil];
 }
 
-void doFramePM(float ww,float hh,bool isSlot) {
+-(void) doFramePM:(ImVec2)winSize isSlot:(bool)isSlot {
+    float ww=winSize.x;
+    float hh=winSize.y;
     if (!_pmIsInitialized) return; //PRojectM might still be initializing and calling some opengl stuff from background thread
+    
+    if (settings[PROJECTM_FXONOFF].detail.mdz_boolswitch.switch_value) {
+        //PM is active
+        
+        //check if it is alone before processing inputs, to avoid mixing inputs with other FX
+        //bool isPMalone=[self isProjectMAlone];
+        
+        if (movePMnomore==0) {
+            if (movePxPM>PM_HorizontalSwipe_Threshold) {
+                movePxPM=0;
+                movePyPM=0;
+                movePMnomore=1;
+                if ([_mdzPM_playlist getSize]) {
+                    if (settings[PROJECTM_AutoSwitchPresetsMode].detail.mdz_switch.switch_value) [_mdzPM_playlist last:false];
+                    else [_mdzPM_playlist last:false];
+                }
+            } else if (movePxPM<-PM_HorizontalSwipe_Threshold) {
+                movePxPM=0;
+                movePyPM=0;
+                movePMnomore=1;
+                
+                if ([_mdzPM_playlist getSize]) {
+                    [_mdzPM_playlist next:false];
+                }
+            }
+            
+            if (movePyPM>PM_VerticalSwipe_Threshold) {
+                //----------------------
+                //Swipe down: lock/unlock
+                //----------------------
+                movePxPM=0;
+                movePyPM=0;
+                movePMnomore=1;
+                if (_pmIsInitialized && _pm) {
+                    [self mdSwitchLockStatusPreset];
+                }
+            } else if (movePyPM<-PM_VerticalSwipe_Threshold) {
+                //----------------------
+                //Swipe up: favorite -> like/unlike
+                //----------------------
+                movePxPM=0;
+                movePyPM=0;
+                movePMnomore=1;
+                if (_pmIsInitialized && _pm) {
+                    [self mdChangeFavoriteStatusPreset:0];
+                }
+            }
+        }
+    }
     
     mdzMainThreadId = pthread_mach_thread_np(pthread_self());
     
@@ -7840,10 +7896,141 @@ void doFramePM(float ww,float hh,bool isSlot) {
     float hh=fxSize.w;
     int playerpos;
     
+    /*******************************************************/
+    /* Compute midiFX display scrolling */
+    /*******************************************************/
+    if ( ([mplayer isMidiLikeDataAvailable]||mplayer.mPatternDataAvail)&&
+        settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value ) {
+        float note_fx_linewidth;
+        float noteroll_fx_keywidth;
+        //scroll  & get current note bar width
+        
+        
+        
+        if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value==2) {
+            //vertical
+            tim_midifx_note_offset+=-movePxMID;
+            
+            note_fx_linewidth=ww/tim_midifx_note_range;
+            
+            tim_midifx_length-=movePyMID*1.2f*(tim_midifx_length)/(MAX_MIDIFX_LENGTH)*(tim_midifx_length)/(MAX_MIDIFX_LENGTH)*(tim_midifx_length)/(MAX_MIDIFX_LENGTH);
+            
+            movePyMID=0;
+            if (tim_midifx_length>MAX_MIDIFX_LENGTH) tim_midifx_length=MAX_MIDIFX_LENGTH;
+            if (tim_midifx_length<=MIDIFX_OFS) tim_midifx_length=MIDIFX_OFS+1;
+        } else {
+            //horizontal
+            tim_midifx_note_offset+=movePyMID;
+            
+            note_fx_linewidth=hh/tim_midifx_note_range;
+            
+            tim_midifx_length+=movePxMID*1.2f*(tim_midifx_length)/(MAX_MIDIFX_LENGTH)*(tim_midifx_length)/(MAX_MIDIFX_LENGTH)*(tim_midifx_length)/(MAX_MIDIFX_LENGTH);
+            movePxMID=0;
+            if (tim_midifx_length>MAX_MIDIFX_LENGTH) tim_midifx_length=MAX_MIDIFX_LENGTH;
+            if (tim_midifx_length<=MIDIFX_OFS) tim_midifx_length=MIDIFX_OFS+1;
+        }
+        
+        movePxMID=0;
+        movePyMID=0;
+        
+        if (tim_midifx_note_offset<0) {
+            tim_midifx_note_offset=0;
+        }
+        if ( (tim_midifx_note_offset/note_fx_linewidth+tim_midifx_note_range)>=MAX_MIDI_NOTES ) {
+            tim_midifx_note_offset=(MAX_MIDI_NOTES-tim_midifx_note_range)*note_fx_linewidth;
+        }
+        
+        float visible_wkeys_range=(tim_midifx_note_range*7.0/12.0);
+        noteroll_fx_keywidth=(float)(ww)/visible_wkeys_range;
+        
+        if (tim_midifx_note_offset_reset) {
+            tim_midifx_note_offset_reset=false;
+            tim_midifx_note_offset=note_fx_linewidth*(128 - tim_midifx_note_range)/2;
+            if (tim_midifx_note_offset<0) tim_midifx_note_offset=0;
+            
+        }
+        
+        //compute current center
+        float note_visible_center=tim_midifx_note_offset/note_fx_linewidth+(tim_midifx_note_range/2);
+        
+        //update visible notes range
+        if (movePinchScaleFXMID<((DEFAULT_VISIBLE_MIDI_NOTES-MAX_VISIBLE_MIDI_NOTES)/64.0f)) movePinchScaleFXMID=((DEFAULT_VISIBLE_MIDI_NOTES-MAX_VISIBLE_MIDI_NOTES)/64.0f);
+        if (movePinchScaleFXMID>((DEFAULT_VISIBLE_MIDI_NOTES-MIN_VISIBLE_MIDI_NOTES)/64.0f)) movePinchScaleFXMID=(DEFAULT_VISIBLE_MIDI_NOTES-MIN_VISIBLE_MIDI_NOTES)/64.0f;
+        tim_midifx_note_range=DEFAULT_VISIBLE_MIDI_NOTES-movePinchScaleFXMID*64.0f;
+        
+        if  (tim_midifx_note_range<MIN_VISIBLE_MIDI_NOTES) {
+            tim_midifx_note_range=MIN_VISIBLE_MIDI_NOTES;
+        }
+        if (tim_midifx_note_range>MAX_VISIBLE_MIDI_NOTES) tim_midifx_note_range=MAX_VISIBLE_MIDI_NOTES;
+        
+        //update bar width
+        if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value==2) {
+            //vert
+            note_fx_linewidth=ww/tim_midifx_note_range;
+        } else {
+            //horiz
+            note_fx_linewidth=hh/tim_midifx_note_range;
+        }
+        visible_wkeys_range=(tim_midifx_note_range*7.0/12.0);
+        noteroll_fx_keywidth=(float)(ww)/visible_wkeys_range;
+        
+        //recompute offset to get same center
+        tim_midifx_note_offset=(note_visible_center-(tim_midifx_note_range/2))*note_fx_linewidth;
+        
+        if (tim_midifx_note_offset<0) {
+            tim_midifx_note_offset=0;
+        }
+        if ( (tim_midifx_note_offset/note_fx_linewidth+tim_midifx_note_range)>=MAX_MIDI_NOTES ) {
+            tim_midifx_note_offset=(MAX_MIDI_NOTES-tim_midifx_note_range)*note_fx_linewidth;
+        }
+        
+    }
+    
+    
     playerpos=[mplayer getCurrentGenBufferIdx];
+            
+    //max rendering size
+    float maxLength=(settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value-1?ww:hh);
+    //used to store min & max rendering pos
+    mScaleInfo[0]=maxLength;
+    mScaleInfo[1]=0;
     
-    RenderUtils::DrawMidiFX(x,y,ww,hh,settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value-1,tim_midifx_note_range,tim_midifx_note_offset,tim_midifx_length,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,mScaleFactor);
-    
+    RenderUtils::DrawMidiFX(x,y,ww,hh,settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value-1,tim_midifx_note_range,tim_midifx_note_offset,tim_midifx_length,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,mScaleFactor,mScaleInfo);
+
+    if (settings[GLOB_FXMIDIPatternAutoScale].detail.mdz_boolswitch.switch_value) {
+        //rendered size
+        float sizeFx=mScaleInfo[1]-mScaleInfo[0]+1;
+        //too large
+        if ( sizeFx>=maxLength ) {
+            movePinchScaleFXMID-=2.0*1.0/64.0;
+            //tim_midifx_note_offset+=1;
+        } else {
+            //too low / bass
+            if ( (mScaleInfo[0]<0) ) {
+                float diff=-mScaleInfo[0]/4;
+                if (diff>8) diff=8;
+                if (diff<0.4) diff=0.4;
+                tim_midifx_note_offset-=diff;
+            }
+            //too high / treble
+            if ( (mScaleInfo[1]>maxLength) ) {
+                float diff=(mScaleInfo[1]-maxLength)/4;
+                if (diff>8) diff=8;
+                if (diff<0.4) diff=0.4;
+                tim_midifx_note_offset+=diff;
+            }
+            
+            //too small
+            if (sizeFx<=maxLength*0.9) mScaleInfo[2]+=1;
+            else mScaleInfo[2]=0;
+            if ( (mScaleInfo[2]>FX_AUTO_SCALING_DELAY_ZOOMIN)) {
+                if (movePinchScaleFXMID<((DEFAULT_VISIBLE_MIDI_NOTES-MIN_VISIBLE_MIDI_NOTES)/64.0f)) {
+                    movePinchScaleFXMID+=1.0*1.0/64.0;
+                    //tim_midifx_note_offset-=2.0;
+                }
+            }
+        }
+    }
 }
 
 - (void) doFxPiano3D:(ImVec4)fxSize {
@@ -7893,18 +8080,114 @@ void doFramePM(float ww,float hh,bool isSlot) {
     float ww=fxSize.z;
     float hh=fxSize.w;
     
+    /*******************************************************/
+    /* Compute pianoroll display scrolling */
+    /*******************************************************/
+    if ( ([mplayer isMidiLikeDataAvailable]||mplayer.mPatternDataAvail)&&
+        settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value ) {
+        float noteroll_fx_keywidth;
+        //scroll  & get current note bar width
+        
+        prollfx_noteroll_offset+=-movePxPRoll;
+        
+        movePxPRoll=0;
+        movePyPRoll=0;
+        
+        float visible_wkeys_range=(prollfx_note_range*7.0/12.0);
+        noteroll_fx_keywidth=(float)(ww)/visible_wkeys_range;
+        if (prollfx_noteroll_offset<0) {
+            prollfx_noteroll_offset=0;
+        }
+        if ( (prollfx_noteroll_offset>(MAX_MIDI_NOTES-prollfx_note_range)*noteroll_fx_keywidth*7.0/12.0) ) {
+            prollfx_noteroll_offset=(MAX_MIDI_NOTES-prollfx_note_range)*noteroll_fx_keywidth*7.0/12.0;
+        }
+        
+        if (prollfx_note_offset_reset) {
+            prollfx_note_offset_reset=false;
+            prollfx_noteroll_offset=noteroll_fx_keywidth*(128 - prollfx_note_range)/2.0*7.0/12.0;
+            if (prollfx_noteroll_offset<0) prollfx_noteroll_offset=0;
+        }
+        
+        //compute current center
+        float noteroll_visible_center=prollfx_noteroll_offset*12.0/7.0/noteroll_fx_keywidth+(prollfx_note_range/2);
+        
+        //update visible notes range
+        if (movePinchScaleFXPRoll<((DEFAULT_VISIBLE_MIDI_NOTES-MAX_VISIBLE_MIDI_NOTES)/64.0f)) movePinchScaleFXPRoll=((DEFAULT_VISIBLE_MIDI_NOTES-MAX_VISIBLE_MIDI_NOTES)/64.0f);
+        if (movePinchScaleFXPRoll>((DEFAULT_VISIBLE_MIDI_NOTES-MIN_VISIBLE_MIDI_NOTES*2)/64.0f)) movePinchScaleFXPRoll=(DEFAULT_VISIBLE_MIDI_NOTES-MIN_VISIBLE_MIDI_NOTES*2)/64.0f;
+        prollfx_note_range=DEFAULT_VISIBLE_MIDI_NOTES-movePinchScaleFXPRoll*64.0f;
+        
+        if  (prollfx_note_range<MIN_VISIBLE_MIDI_NOTES) {
+            prollfx_note_range=MIN_VISIBLE_MIDI_NOTES;
+        }
+        if (prollfx_note_range>MAX_VISIBLE_MIDI_NOTES) prollfx_note_range=MAX_VISIBLE_MIDI_NOTES;
+        
+        //update bar width
+        visible_wkeys_range=(prollfx_note_range*7.0/12.0);
+        noteroll_fx_keywidth=(float)(ww)/visible_wkeys_range;
+        
+        //recompute offset to get same center
+        prollfx_noteroll_offset=(noteroll_visible_center-(prollfx_note_range/2))*7.0/12.0*noteroll_fx_keywidth;
+        if (prollfx_noteroll_offset<0) {
+            prollfx_noteroll_offset=0;
+        }
+        if ( (prollfx_noteroll_offset>(MAX_MIDI_NOTES-prollfx_note_range)*noteroll_fx_keywidth*7.0/12.0) ) {
+            prollfx_noteroll_offset=(MAX_MIDI_NOTES-prollfx_note_range)*noteroll_fx_keywidth*7.0/12.0;
+        }
+    }
+    
     memset(voicesName,0,sizeof(voicesName));
     for (int i=0;i<[mplayer getNumChannels];i++) {
         snprintf(voicesName+i*32,31,"%s",[[mplayer getVoicesName:i onlyMidi:true] UTF8String]);
     }
     
+    //max rendering size
+    float maxLength=ww;
+    //used to store min & max rendering pos
+    mScaleInfo[0]=maxLength;
+    mScaleInfo[1]=0;
+    
     switch (settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value) {
         case 1:
-            RenderUtils::DrawPianoRollFX(x,y,ww,hh,settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value-1,prollfx_note_range,prollfx_noteroll_offset,prollfx_length,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,mScaleFactor,(char*)voicesName);
+            RenderUtils::DrawPianoRollFX(x,y,ww,hh,settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value-1,prollfx_note_range,prollfx_noteroll_offset,prollfx_length,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,mScaleFactor,(char*)voicesName,mScaleInfo);
             break;
         case 2:
-            RenderUtils::DrawPianoRollSynthesiaFX(x,y,ww,hh,settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value-1,prollfx_note_range,prollfx_noteroll_offset,prollfx_length,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,mScaleFactor,(char*)voicesName);
+            RenderUtils::DrawPianoRollSynthesiaFX(x,y,ww,hh,settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value-1,prollfx_note_range,prollfx_noteroll_offset,prollfx_length,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,mScaleFactor,(char*)voicesName,mScaleInfo);
             break;
+    }
+    
+    if (settings[GLOB_FXPianoRollFXAutoScale].detail.mdz_boolswitch.switch_value) {
+        //rendered size
+        float sizeFx=mScaleInfo[1]-mScaleInfo[0]+1;
+        //too large
+        if ( sizeFx>=maxLength ) {
+            movePinchScaleFXPRoll-=2.0*1.0/64.0;
+            //tim_midifx_note_offset+=1;
+        } else {
+            //too low / bass
+            if ( (mScaleInfo[0]<0) ) {
+                float diff=-mScaleInfo[0]/4;
+                if (diff>8) diff=8;
+                if (diff<0.4) diff=0.4;
+                prollfx_noteroll_offset-=diff;
+            }
+            //too high / treble
+            if ( (mScaleInfo[1]>maxLength) ) {
+                float diff=(mScaleInfo[1]-maxLength)/4;
+                if (diff>8) diff=8;
+                if (diff<0.4) diff=0.4;
+                prollfx_noteroll_offset+=diff;
+            }
+            
+            //too small
+            if (sizeFx<=maxLength*0.9) mScaleInfo[2]+=1;
+            else mScaleInfo[2]=0;
+            if ( (mScaleInfo[2]>FX_AUTO_SCALING_DELAY_ZOOMIN)) {
+                if (movePinchScaleFXPRoll<((DEFAULT_VISIBLE_MIDI_NOTES-MIN_VISIBLE_MIDI_NOTES*2)/64.0f)) {
+                    movePinchScaleFXPRoll+=1.0*1.0/64.0;
+                    //tim_midifx_note_offset-=2.0;
+                }
+            }
+        }
     }
 }
 
@@ -7922,8 +8205,25 @@ void doFramePM(float ww,float hh,bool isSlot) {
     int linestodraw,midline;
     ModPlugNote *currentNotes,*prevNotes,*nextNotes,*readNotes;
     
-    //LIBOMPT or LIBXMP {
+    //LIBOMPT or LIBXMP
     //DISPLAY MOD PATTERNS
+    
+    /*******************************************************/
+    /* Compute pattern display scrolling */
+    /*******************************************************/
+    if ((mplayer.mPatternDataAvail)&&(settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value)) {//pattern display
+        //        if (visibleChan<=mplayer.numChannels+1) {
+        //            if (movePxMOD>0) movePxMOD=0;
+        //            if (movePxMOD<-(mplayer.numChannels-visibleChan+1+1)*size_chan) movePxMOD=-(mplayer.numChannels-visibleChan+1+1)*size_chan;
+        //            startChan=-movePxMOD/size_chan;
+        //
+        //        } else movePxMOD=0;
+        if (modPatternLineSize<=modPatternWindowSize) movePxMOD=0;
+        else {
+            if (modPatternWindowSize-movePxMOD*glScaleFactor>=modPatternLineSize) movePxMOD=-(modPatternLineSize-modPatternWindowSize)/glScaleFactor;
+            else if (movePxMOD>0) movePxMOD=0;
+        }
+    }
     
     //------------------------------------------------
     // Select current mod pattern themes
@@ -8781,7 +9081,6 @@ void initViewPortData(int fxidx,float &x,float &y,float &w,float &h,float ww,flo
      7:top left
      8:top right
      */
-    
     bool mdz_ui_touch_zone[9];
     memset(mdz_ui_touch_zone,0,sizeof(mdz_ui_touch_zone));
     
@@ -8885,216 +9184,6 @@ void initViewPortData(int fxidx,float &x,float &y,float &w,float &h,float ww,flo
     movePyOld=movePy;
     movePx2Old=movePx2;
     movePy2Old=movePy2;
-    
-    if (settings[PROJECTM_FXONOFF].detail.mdz_boolswitch.switch_value) {
-        //PM is active
-        
-        //check if it is alone before processing inputs, to avoid mixing inputs with other FX
-        //bool isPMalone=[self isProjectMAlone];
-        
-        if (movePMnomore==0) {
-            if (movePxPM>PM_HorizontalSwipe_Threshold) {
-                movePxPM=0;
-                movePyPM=0;
-                movePMnomore=1;
-                if ([_mdzPM_playlist getSize]) {
-                    if (settings[PROJECTM_AutoSwitchPresetsMode].detail.mdz_switch.switch_value) [_mdzPM_playlist last:false];
-                    else [_mdzPM_playlist last:false];
-                }
-            } else if (movePxPM<-PM_HorizontalSwipe_Threshold) {
-                movePxPM=0;
-                movePyPM=0;
-                movePMnomore=1;
-                
-                if ([_mdzPM_playlist getSize]) {
-                    [_mdzPM_playlist next:false];
-                }
-            }
-            
-            if (movePyPM>PM_VerticalSwipe_Threshold) {
-                //----------------------
-                //Swipe down: lock/unlock
-                //----------------------
-                movePxPM=0;
-                movePyPM=0;
-                movePMnomore=1;
-                if (_pmIsInitialized && _pm) {
-                    [self mdSwitchLockStatusPreset];
-                }
-            } else if (movePyPM<-PM_VerticalSwipe_Threshold) {
-                //----------------------
-                //Swipe up: favorite -> like/unlike
-                //----------------------
-                movePxPM=0;
-                movePyPM=0;
-                movePMnomore=1;
-                if (_pmIsInitialized && _pm) {
-                    [self mdChangeFavoriteStatusPreset:0];
-                }
-            }
-        }
-    }
-    
-    /*******************************************************/
-    /* Compute pattern display scrolling */
-    /*******************************************************/
-    if ((mplayer.mPatternDataAvail)&&(settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value)) {//pattern display
-        //        if (visibleChan<=mplayer.numChannels+1) {
-        //            if (movePxMOD>0) movePxMOD=0;
-        //            if (movePxMOD<-(mplayer.numChannels-visibleChan+1+1)*size_chan) movePxMOD=-(mplayer.numChannels-visibleChan+1+1)*size_chan;
-        //            startChan=-movePxMOD/size_chan;
-        //
-        //        } else movePxMOD=0;
-        if (modPatternLineSize<=modPatternWindowSize) movePxMOD=0;
-        else {
-            if (modPatternWindowSize-movePxMOD*glScaleFactor>=modPatternLineSize) movePxMOD=-(modPatternLineSize-modPatternWindowSize)/glScaleFactor;
-            else if (movePxMOD>0) movePxMOD=0;
-        }
-    }
-    
-    /*******************************************************/
-    /* Compute midiFX display scrolling */
-    /*******************************************************/
-    if ( ([mplayer isMidiLikeDataAvailable]||mplayer.mPatternDataAvail)&&
-        settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value ) {
-        float note_fx_linewidth;
-        float noteroll_fx_keywidth;
-        //scroll  & get current note bar width
-        
-        if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value==2) {
-            //vertical
-            tim_midifx_note_offset+=-movePxMID;
-            
-            note_fx_linewidth=ww/tim_midifx_note_range;
-            
-            tim_midifx_length-=movePyMID*1.2f*(tim_midifx_length)/(MAX_MIDIFX_LENGTH)*(tim_midifx_length)/(MAX_MIDIFX_LENGTH)*(tim_midifx_length)/(MAX_MIDIFX_LENGTH);
-            
-            movePyMID=0;
-            if (tim_midifx_length>MAX_MIDIFX_LENGTH) tim_midifx_length=MAX_MIDIFX_LENGTH;
-            if (tim_midifx_length<=MIDIFX_OFS) tim_midifx_length=MIDIFX_OFS+1;
-        } else {
-            //horizontal
-            tim_midifx_note_offset+=movePyMID;
-            
-            note_fx_linewidth=hh/tim_midifx_note_range;
-            
-            tim_midifx_length+=movePxMID*1.2f*(tim_midifx_length)/(MAX_MIDIFX_LENGTH)*(tim_midifx_length)/(MAX_MIDIFX_LENGTH)*(tim_midifx_length)/(MAX_MIDIFX_LENGTH);
-            movePxMID=0;
-            if (tim_midifx_length>MAX_MIDIFX_LENGTH) tim_midifx_length=MAX_MIDIFX_LENGTH;
-            if (tim_midifx_length<=MIDIFX_OFS) tim_midifx_length=MIDIFX_OFS+1;
-        }
-        
-        movePxMID=0;
-        movePyMID=0;
-        
-        if (tim_midifx_note_offset<0) {
-            tim_midifx_note_offset=0;
-        }
-        if ( (tim_midifx_note_offset/note_fx_linewidth+tim_midifx_note_range)>=MAX_MIDI_NOTES ) {
-            tim_midifx_note_offset=(MAX_MIDI_NOTES-tim_midifx_note_range)*note_fx_linewidth;
-        }
-        
-        float visible_wkeys_range=(tim_midifx_note_range*7.0/12.0);
-        noteroll_fx_keywidth=(float)(ww)/visible_wkeys_range;
-        
-        if (tim_midifx_note_offset_reset) {
-            tim_midifx_note_offset_reset=false;
-            tim_midifx_note_offset=note_fx_linewidth*(128 - tim_midifx_note_range)/2;
-            if (tim_midifx_note_offset<0) tim_midifx_note_offset=0;
-            
-        }
-        
-        //compute current center
-        float note_visible_center=tim_midifx_note_offset/note_fx_linewidth+(tim_midifx_note_range/2);
-        
-        //update visible notes range
-        if (movePinchScaleFXMID<((DEFAULT_VISIBLE_MIDI_NOTES-MAX_VISIBLE_MIDI_NOTES)/64.0f)) movePinchScaleFXMID=((DEFAULT_VISIBLE_MIDI_NOTES-MAX_VISIBLE_MIDI_NOTES)/64.0f);
-        if (movePinchScaleFXMID>((DEFAULT_VISIBLE_MIDI_NOTES-MIN_VISIBLE_MIDI_NOTES)/64.0f)) movePinchScaleFXMID=(DEFAULT_VISIBLE_MIDI_NOTES-MIN_VISIBLE_MIDI_NOTES)/64.0f;
-        tim_midifx_note_range=DEFAULT_VISIBLE_MIDI_NOTES-movePinchScaleFXMID*64.0f;
-        
-        if  (tim_midifx_note_range<MIN_VISIBLE_MIDI_NOTES) {
-            tim_midifx_note_range=MIN_VISIBLE_MIDI_NOTES;
-        }
-        if (tim_midifx_note_range>MAX_VISIBLE_MIDI_NOTES) tim_midifx_note_range=MAX_VISIBLE_MIDI_NOTES;
-        
-        //update bar width
-        if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value==2) {
-            //vert
-            note_fx_linewidth=ww/tim_midifx_note_range;
-        } else {
-            //horiz
-            note_fx_linewidth=hh/tim_midifx_note_range;
-        }
-        visible_wkeys_range=(tim_midifx_note_range*7.0/12.0);
-        noteroll_fx_keywidth=(float)(ww)/visible_wkeys_range;
-        
-        //recompute offset to get same center
-        tim_midifx_note_offset=(note_visible_center-(tim_midifx_note_range/2))*note_fx_linewidth;
-        
-        if (tim_midifx_note_offset<0) {
-            tim_midifx_note_offset=0;
-        }
-        if ( (tim_midifx_note_offset/note_fx_linewidth+tim_midifx_note_range)>=MAX_MIDI_NOTES ) {
-            tim_midifx_note_offset=(MAX_MIDI_NOTES-tim_midifx_note_range)*note_fx_linewidth;
-        }
-        
-    }
-    
-    /*******************************************************/
-    /* Compute pianoroll display scrolling */
-    /*******************************************************/
-    if ( ([mplayer isMidiLikeDataAvailable]||mplayer.mPatternDataAvail)&&
-        settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value ) {
-        float noteroll_fx_keywidth;
-        //scroll  & get current note bar width
-        
-        prollfx_noteroll_offset+=-movePxPRoll;
-        
-        movePxPRoll=0;
-        movePyPRoll=0;
-        
-        float visible_wkeys_range=(prollfx_note_range*7.0/12.0);
-        noteroll_fx_keywidth=(float)(ww)/visible_wkeys_range;
-        if (prollfx_noteroll_offset<0) {
-            prollfx_noteroll_offset=0;
-        }
-        if ( (prollfx_noteroll_offset>(MAX_MIDI_NOTES-prollfx_note_range)*noteroll_fx_keywidth*7.0/12.0) ) {
-            prollfx_noteroll_offset=(MAX_MIDI_NOTES-prollfx_note_range)*noteroll_fx_keywidth*7.0/12.0;
-        }
-        
-        if (prollfx_note_offset_reset) {
-            prollfx_note_offset_reset=false;
-            prollfx_noteroll_offset=noteroll_fx_keywidth*(128 - prollfx_note_range)/2.0*7.0/12.0;
-            if (prollfx_noteroll_offset<0) prollfx_noteroll_offset=0;
-        }
-        
-        //compute current center
-        float noteroll_visible_center=prollfx_noteroll_offset*12.0/7.0/noteroll_fx_keywidth+(prollfx_note_range/2);
-        
-        //update visible notes range
-        if (movePinchScaleFXPRoll<((DEFAULT_VISIBLE_MIDI_NOTES-MAX_VISIBLE_MIDI_NOTES)/64.0f)) movePinchScaleFXPRoll=((DEFAULT_VISIBLE_MIDI_NOTES-MAX_VISIBLE_MIDI_NOTES)/64.0f);
-        if (movePinchScaleFXPRoll>((DEFAULT_VISIBLE_MIDI_NOTES-MIN_VISIBLE_MIDI_NOTES)/64.0f)) movePinchScaleFXPRoll=(DEFAULT_VISIBLE_MIDI_NOTES-MIN_VISIBLE_MIDI_NOTES)/64.0f;
-        prollfx_note_range=DEFAULT_VISIBLE_MIDI_NOTES-movePinchScaleFXPRoll*64.0f;
-        
-        if  (prollfx_note_range<MIN_VISIBLE_MIDI_NOTES) {
-            prollfx_note_range=MIN_VISIBLE_MIDI_NOTES;
-        }
-        if (prollfx_note_range>MAX_VISIBLE_MIDI_NOTES) prollfx_note_range=MAX_VISIBLE_MIDI_NOTES;
-        
-        //update bar width
-        visible_wkeys_range=(prollfx_note_range*7.0/12.0);
-        noteroll_fx_keywidth=(float)(ww)/visible_wkeys_range;
-        
-        //recompute offset to get same center
-        prollfx_noteroll_offset=(noteroll_visible_center-(prollfx_note_range/2))*7.0/12.0*noteroll_fx_keywidth;
-        if (prollfx_noteroll_offset<0) {
-            prollfx_noteroll_offset=0;
-        }
-        if ( (prollfx_noteroll_offset>(MAX_MIDI_NOTES-prollfx_note_range)*noteroll_fx_keywidth*7.0/12.0) ) {
-            prollfx_noteroll_offset=(MAX_MIDI_NOTES-prollfx_note_range)*noteroll_fx_keywidth*7.0/12.0;
-        }
-    }
-    
     
     //check for click
     if (mOglView1Tap) {
@@ -9311,7 +9400,7 @@ void initViewPortData(int fxidx,float &x,float &y,float &w,float &h,float ww,flo
             initViewPortData(FX_PROJECTM,x,y,w,h,ww,hh);
             glViewport(x*mScaleFactor, (h!=hh?h-y:y)*mScaleFactor, w*mScaleFactor, h*mScaleFactor);
             if ((w<ww)||(h<hh)) isSlot=true;
-            doFramePM(ww,hh,isSlot);
+            [self doFramePM:ImVec2(ww,hh) isSlot:isSlot];
         }
         
         /*-------------------------------------------------------------------------------*/

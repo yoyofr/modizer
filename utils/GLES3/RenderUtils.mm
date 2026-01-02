@@ -5671,7 +5671,7 @@ void RenderUtils::UpdateDataMidiFX(unsigned int *data,bool clearBuffer,bool paus
     if (!paused) data_midifx_framecpt++;
 }
 
-void RenderUtils::DrawMidiFX(float ox,float oy,float ww,float hh,int horiz_vert,float note_display_range, float note_display_offset,int fx_len,int color_mode,float mScaleFactor) {
+void RenderUtils::DrawMidiFX(float ox,float oy,float ww,float hh,int horiz_vert,float note_display_range, float note_display_offset,int fx_len,int color_mode,float mScaleFactor,float *scaleInfo) {
     LineVertexF *ptsB;
     coordData *texcoords; /* Holds Float Info For 4 Sets Of Texture coordinates. */
     int crt,cgt,cbt,ca;
@@ -5684,6 +5684,8 @@ void RenderUtils::DrawMidiFX(float ox,float oy,float ww,float hh,int horiz_vert,
     uint8_t sparkPresent[256];
     static uint8_t sparkIntensity[256];
     static bool first_call=true;
+    
+    if (!renderIsInit) return;
     
     if (first_call) {
         first_call=false;
@@ -5913,6 +5915,11 @@ void RenderUtils::DrawMidiFX(float ox,float oy,float ww,float hh,int horiz_vert,
             float posStart=(int)(data_bar2draw[i].startidx)*ww/data_midifx_len;
             float posEnd=((int)(data_bar2draw[i].startidx)+(int)(data_bar2draw[i].size))*ww/data_midifx_len;
             
+            if (scaleInfo) {
+                if (scaleInfo[0]>(posNote-line_width_extra-2)) scaleInfo[0]=posNote-line_width_extra-2;
+                if (scaleInfo[1]<(posNote+line_width+line_width_extra+2)) scaleInfo[1]=posNote+line_width+line_width_extra+2;
+            }
+            
             if ( ((posNote+(line_width)+line_width_extra)>=0) && ((posNote-line_width_extra)<(int)hh)) {
                 
                 if ((settings[GLOB_FXMIDIBarStyle].detail.mdz_switch.switch_value==0)||(settings[GLOB_FXMIDIBarStyle].detail.mdz_switch.switch_value==2)) {
@@ -5997,6 +6004,12 @@ void RenderUtils::DrawMidiFX(float ox,float oy,float ww,float hh,int horiz_vert,
             float posNote=note*line_width-note_display_offset+subnote;
             float posStart=(int)(data_bar2draw[i].startidx)*hh/data_midifx_len;
             float posEnd=((int)(data_bar2draw[i].startidx)+(int)(data_bar2draw[i].size))*hh/data_midifx_len;
+            
+            if (scaleInfo) {
+                if (scaleInfo[0]>(posNote-line_width_extra-2)) scaleInfo[0]=posNote-line_width_extra-2;
+                if (scaleInfo[1]<(posNote+line_width+line_width_extra+2)) scaleInfo[1]=posNote+line_width+line_width_extra+2;
+            }
+            
             if ( ((posNote+(line_width)+line_width_extra)>=0) && ((posNote-line_width_extra)<(int)ww)) {
                 
                 if ((settings[GLOB_FXMIDIBarStyle].detail.mdz_switch.switch_value==0)||(settings[GLOB_FXMIDIBarStyle].detail.mdz_switch.switch_value==2)) {
@@ -6547,13 +6560,18 @@ int RenderUtils::DrawKeyB(LineVertexF *ptsB,int index,float x,float y,float widt
     return index;
 }
 
-
-void RenderUtils::DrawPianoRollFX(float ox,float oy,float ww,float hh,int horiz_vert,float note_display_range, float note_display_offset,int fx_len,int color_mode,float mScaleFactor,char *voices_label) {
+// return flag
+//             1/bit 0: not large enough / left
+//             2/bit 1: not large enough / right
+//             3/bit 2: too large / left
+//             4/bit 3: too large / right
+void RenderUtils::DrawPianoRollFX(float ox,float oy,float ww,float hh,int horiz_vert,float note_display_range, float note_display_offset,int fx_len,int color_mode,float mScaleFactor,char *voices_label,float *scaleInfo) {
     LineVertexF *ptsB;
     int crt,cgt,cbt,ca;
     int index;
     int voices_posX[SOUND_MAXVOICES_BUFFER_FX];
     //int band_width,ofs_band;
+    int ret=0;
     
     if (!renderIsInit) return;
     
@@ -6698,6 +6716,7 @@ void RenderUtils::DrawPianoRollFX(float ox,float oy,float ww,float hh,int horiz_
         for (int note=0;note<256;note++) {
             if (note_posType[note]==0) { //white key
                 x=note_posX[note];
+                
                 if ((x+width>0)&&(x<ww) ) {
                     if (index+INDICES_SIZE_KEYW>=max_indices) {
                         // Load the vertex data
@@ -6745,6 +6764,11 @@ void RenderUtils::DrawPianoRollFX(float ox,float oy,float ww,float hh,int horiz_
                 
                 if (vol&&(st&VOICE_ON)) {  //check volume & status => we have something
                     x=note_posX[note];
+                    
+                    if (scaleInfo) {
+                        if (scaleInfo[0]>(x-2)) scaleInfo[0]=x-2;
+                        if (scaleInfo[1]<(x+width+2)) scaleInfo[1]=x+width+2;
+                    }
                     
                     if (note_posType[note]==0) { //white key
                         y=hh-(height+16)*((instr%num_rows)+1);
@@ -6822,6 +6846,11 @@ void RenderUtils::DrawPianoRollFX(float ox,float oy,float ww,float hh,int horiz_
                     //                    printf("B instr %d note %d note%%12 %d type %d x %f\n",instr,note,note%12,note_posType[note],x);
                     
                     x=note_posX[note];
+                    
+                    if (scaleInfo) {
+                        if (scaleInfo[0]>(x-2)) scaleInfo[0]=x-2;
+                        if (scaleInfo[1]<(x+width+2)) scaleInfo[1]=x+width+2;
+                    }
                     
                     if (note_posType[note]==1) { //back key
                         y=hh-(height+16)*((instr%num_rows)+1)+height-heightB;
@@ -6947,9 +6976,15 @@ void RenderUtils::DrawPianoRollFX(float ox,float oy,float ww,float hh,int horiz_
     glRestoreState();
 }
 
-void RenderUtils::DrawPianoRollSynthesiaFX(float ox,float oy,float ww,float hh,int horiz_vert,float note_display_range, float note_display_offset,int fx_len,int color_mode,float mScaleFactor,char *voices_label) {
+// return flag
+//             1/bit 0: not large enough / left
+//             2/bit 1: not large enough / right
+//             3/bit 2: too large / left
+//             4/bit 3: too large / right
+void RenderUtils::DrawPianoRollSynthesiaFX(float ox,float oy,float ww,float hh,int horiz_vert,float note_display_range, float note_display_offset,int fx_len,int color_mode,float mScaleFactor,char *voices_label,float *scaleInfo) {
     LineVertexF *ptsB;
     coordData *texcoords; /* Holds Float Info For 4 Sets Of Texture coordinates. */
+    int ret=0;
     int crt,cgt,cbt,ca;
     int index;
     static bool first_call=true;
@@ -6959,6 +6994,8 @@ void RenderUtils::DrawPianoRollSynthesiaFX(float ox,float oy,float ww,float hh,i
     uint8_t sparkPresent[256];
     static uint8_t sparkIntensity[256];
     float ofsy;
+    
+    if (!renderIsInit) return;
     
     glDumpState();
     
@@ -7205,6 +7242,11 @@ void RenderUtils::DrawPianoRollSynthesiaFX(float ox,float oy,float ww,float hh,i
         float wd_ofs=wd*subnote/10;
         wd+=wd_ofs;
         posNote-=wd_ofs/2;
+        
+        if (scaleInfo) {
+            if (scaleInfo[0]>(posNote-line_width_extra-2)) scaleInfo[0]=posNote-line_width_extra-2;
+            if (scaleInfo[1]<(posNote-line_width_extra+wd+2)) scaleInfo[1]=posNote-line_width_extra+wd+2;
+        }
         
         float posStart=(int)(data_bar2draw[i].startidx)*(hh-height-16)/data_midifx_len+height+0+ofsy+height/32;
         float posEnd=((int)(data_bar2draw[i].startidx)+(int)(data_bar2draw[i].size))*(hh-height-8)/data_midifx_len+height+0+ofsy+height/32;

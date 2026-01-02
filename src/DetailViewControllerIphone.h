@@ -190,6 +190,7 @@ enum {
     
     int mHasFocus;
     float mScaleFactor;
+    float mScaleInfo[3];
     int mPaused;
     
     UIImage *cover_img,*default_cover;
@@ -283,6 +284,7 @@ enum {
 @property bool is_macOS,is_iPad;
 @property BOOL mIsPlaying;
 @property float mScaleFactor;
+@property float *mScaleInfo;
 @property (nonatomic, retain) ModizMusicPlayer *mplayer;
 //@property (nonatomic,retain) NSMutableArray *mPlaylistFilenames,*mPlaylistFilepaths;
 @property (nonatomic,retain) UIView *mInWasView;

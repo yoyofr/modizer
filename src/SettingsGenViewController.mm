@@ -1626,6 +1626,14 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXPianoRollFXSLOT].detail.mdz_slider.slider_min_value=0;
     settings[GLOB_FXPianoRollFXSLOT].detail.mdz_slider.slider_max_value=8;
     
+    SETTINGS_ID_DEF(GLOB_FXPianoRollFXAutoScale)
+    settings[GLOB_FXPianoRollFXAutoScale].type=MDZ_BOOLSWITCH;
+    settings[GLOB_FXPianoRollFXAutoScale].label=(char*)"Auto scale";
+    settings[GLOB_FXPianoRollFXAutoScale].description=NULL;
+    settings[GLOB_FXPianoRollFXAutoScale].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+    settings[GLOB_FXPianoRollFXAutoScale].sub_family=0;
+    settings[GLOB_FXPianoRollFXAutoScale].detail.mdz_boolswitch.switch_value=1;
+    
     SETTINGS_ID_DEF(GLOB_FXPianoRollSpark)
     settings[GLOB_FXPianoRollSpark].type=MDZ_SWITCH;
     settings[GLOB_FXPianoRollSpark].label=(char*)"PR/Spark FX";
@@ -1676,6 +1684,14 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXMIDIPatternFXSLOT].detail.mdz_slider.slider_digits=0;
     settings[GLOB_FXMIDIPatternFXSLOT].detail.mdz_slider.slider_min_value=0;
     settings[GLOB_FXMIDIPatternFXSLOT].detail.mdz_slider.slider_max_value=8;
+    
+    SETTINGS_ID_DEF(GLOB_FXMIDIPatternAutoScale)
+    settings[GLOB_FXMIDIPatternAutoScale].type=MDZ_BOOLSWITCH;
+    settings[GLOB_FXMIDIPatternAutoScale].label=(char*)"Auto scale";
+    settings[GLOB_FXMIDIPatternAutoScale].description=NULL;
+    settings[GLOB_FXMIDIPatternAutoScale].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+    settings[GLOB_FXMIDIPatternAutoScale].sub_family=0;
+    settings[GLOB_FXMIDIPatternAutoScale].detail.mdz_boolswitch.switch_value=1;
     
     SETTINGS_ID_DEF(GLOB_FXMIDICutLine)
     settings[GLOB_FXMIDICutLine].type=MDZ_SWITCH;
@@ -1879,11 +1895,13 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXFPS].callback=&optVISUChangedC;
     
     
+    settings[GLOB_FXPianoRollFXAutoScale].detail.mdz_boolswitch.switch_default_value=1;
     settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_default_value=0;
     settings[GLOB_FXPianoRollSpark].detail.mdz_switch.switch_default_value=1;
     settings[GLOB_FXPianoRollVoicesLabels].detail.mdz_boolswitch.switch_default_value=1;
     settings[GLOB_FXPianoRollOctavesLabels].detail.mdz_boolswitch.switch_default_value=0;
     
+    settings[GLOB_FXMIDIPatternAutoScale].detail.mdz_boolswitch.switch_default_value=1;
     settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_default_value=0;
     settings[GLOB_FXMIDICutLine].detail.mdz_switch.switch_default_value=2;
     settings[GLOB_FXMIDIBarStyle].detail.mdz_switch.switch_default_value=1;

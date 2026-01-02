@@ -348,7 +348,7 @@ static GLuint txtMenuPianoRollHandle[16];
 static GLuint txtMenuPianoRollFlag[16];
 const char *menuPianoRollLabel[16]={
     NULL,NULL,NULL,NULL,
-    NULL,NULL,NULL,NULL,
+    "Auto\nscaling",NULL,NULL,NULL,
     "Voices\nlabels","Octaves\nlabels",NULL,NULL,
     NULL,NULL,NULL,NULL,
 };
@@ -371,7 +371,7 @@ static GLuint txtMenuMidiHandle[16];
 static GLuint txtMenuMidiFlag[16];
 const char *menuMidiLabel[16]={
     NULL,NULL,NULL,NULL,
-    NULL,NULL,NULL,NULL,
+    "Auto\nscaling",NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
     NULL,NULL,NULL,NULL,
 };
@@ -528,6 +528,7 @@ int playerGetActivatedCells(int menu_idx) {
         if (settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value==0) active_idx|=1<<0;
         if (settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value==1) active_idx|=1<<1;
         if (settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value==2) active_idx|=1<<2;
+        if (settings[GLOB_FXPianoRollFXAutoScale].detail.mdz_boolswitch.switch_value) active_idx|=1<<4;
         if (settings[GLOB_FXPianoRollVoicesLabels].detail.mdz_boolswitch.switch_value) active_idx|=1<<8;
         if (settings[GLOB_FXPianoRollOctavesLabels].detail.mdz_boolswitch.switch_value) active_idx|=1<<9;
         if (settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value) active_idx|=1<<11;
@@ -539,6 +540,7 @@ int playerGetActivatedCells(int menu_idx) {
         if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value==0) active_idx|=1<<0;
         if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value==1) active_idx|=1<<1;
         if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value==2) active_idx|=1<<2;
+        if (settings[GLOB_FXMIDIPatternAutoScale].detail.mdz_boolswitch.switch_value) active_idx|=1<<4;
         if (settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value) active_idx|=1<<11;
         
         txtMenuMidiHandle[12]=txtSlots[fxSlot[FX_MIDIPattern]];
@@ -1898,7 +1900,9 @@ int playerShowMenu(float ww,float hh,float safe_top,float safe_bottom,float safe
                                 txtMenuHandle[FXPIANOROLL_IDX]=current_txtMenuHandle[2];
                                 break;
                             case 0x30:break;
-                            case 0x01:break;
+                            case 0x01:
+                                settings[GLOB_FXPianoRollFXAutoScale].detail.mdz_boolswitch.switch_value=!settings[GLOB_FXPianoRollFXAutoScale].detail.mdz_boolswitch.switch_value;
+                                break;
                             case 0x11:break;
                             case 0x21:break;
                             case 0x31:break;
@@ -2058,7 +2062,9 @@ int playerShowMenu(float ww,float hh,float safe_top,float safe_bottom,float safe
                                 txtMenuHandle[FXMIDI_IDX]=current_txtMenuHandle[2];
                                 break;
                             case 0x30:break;
-                            case 0x01:break;
+                            case 0x01:
+                                settings[GLOB_FXMIDIPatternAutoScale].detail.mdz_boolswitch.switch_value=!settings[GLOB_FXMIDIPatternAutoScale].detail.mdz_boolswitch.switch_value;
+                                break;
                             case 0x11:break;
                             case 0x21:break;
                             case 0x31:break;

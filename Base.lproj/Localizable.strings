@@ -976,6 +976,7 @@
 "Grid" = "Grid";
 "Voices\nlabels" = "Voices\nlabels";
 "Octaves\nlabels" = "Octaves\nlabels";
+"Auto\nscaling" = "Auto\nscaling";
 "Volume\nbars" = "Volume\nbars";
 "Fixed bar" = "Fixed bar";
 "BG\nopacity" = "BG\nopacity";
