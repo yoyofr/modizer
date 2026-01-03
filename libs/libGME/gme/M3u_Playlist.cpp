@@ -73,6 +73,7 @@ inline unsigned from_dec( unsigned n ) { return n - '0'; }
 
 static char* parse_filename( char* in, M3u_Playlist::entry_t& entry )
 {
+    bool extension_found=false; //YOYOFR add detection of extension to prevent wrong ',' management
 	entry.file = in;
 	entry.type = "";
 	char* out = in;
@@ -81,8 +82,8 @@ static char* parse_filename( char* in, M3u_Playlist::entry_t& entry )
 		int c = *in;
 		if ( !c ) break;
 		in++;
-		
-		if ( c == ',' ) // commas in filename
+        
+		if ( ( c == ',' ) && extension_found ) // commas in filename
 		{
 			char* p = skip_white( in );
 			if ( *p == '$' || from_dec( *p ) <= 9 )
@@ -91,6 +92,8 @@ static char* parse_filename( char* in, M3u_Playlist::entry_t& entry )
 				break;
 			}
 		}
+
+        if ( c == '.') extension_found=true;
 		
 		if ( c == ':' && in [0] == ':' && in [1] && in [2] != ',' ) // ::type suffix
 		{
