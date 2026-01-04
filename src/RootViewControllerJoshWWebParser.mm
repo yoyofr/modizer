@@ -671,7 +671,7 @@
                                    22);
         if (cur_db_entries[indexPath.row].downloaded==1) {
             if (cur_db_entries[indexPath.row].rating==-1) {
-                DBHelper::getFileStatsDBmod([NSString stringWithFormat:@"Documents/%@%@",mWebBaseDir,cur_db_entries[indexPath.row].fullpath],
+                DBHelper::getFileStatsDBmod(cur_db_entries[indexPath.row].fullpath,
                                             &cur_db_entries[indexPath.row].playcount,
                                             &cur_db_entries[indexPath.row].rating,
                                             NULL,
@@ -690,7 +690,7 @@
             else bottomStr=[NSString stringWithFormat:@"%@|--ch",bottomStr];
             if (cur_db_entries[indexPath.row].songs) {
                 if (cur_db_entries[indexPath.row].songs==1) bottomStr=[NSString stringWithFormat:@"%@|1 song",bottomStr];
-                else bottomStr=[NSString stringWithFormat:@"%@|%d songs",bottomStr,cur_db_entries[indexPath.row].songs];
+                else bottomStr=[NSString stringWithFormat:@"%@|%d songs",bottomStr,abs(cur_db_entries[indexPath.row].songs)];
             }
             else bottomStr=[NSString stringWithFormat:@"%@|- song",bottomStr];
             bottomStr=[NSString stringWithFormat:@"%@|Pl:%d",bottomStr,cur_db_entries[indexPath.row].playcount];

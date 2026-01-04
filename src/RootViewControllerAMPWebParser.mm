@@ -34,9 +34,23 @@ enum {
     AMP_LINK_COUNTRY_DETAILS,
 };
 
+
 @implementation RootViewControllerAMPWebParser
 
 @synthesize browse_subMode;
+
+typedef struct {
+    NSString *file_URL;
+    NSString *file_name;
+    NSMutableAttributedString *file_nameAttr;
+    NSString *composer;
+    float file_rating;
+    int entries_nb;
+    NSString *file_details;
+    NSString *file_img_URL;
+    char url_type;
+} t_web_file_entry;
+
 
 int qsortAMP_entries_alpha(const void *entryA, const void *entryB) {
     NSString *strA,*strB;
@@ -264,16 +278,29 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
 -(void) populateKeys {
 //    MDZILog("populate with submode: %d",self.browse_subMode);
     
-    if (browse_depth==0) [self fillKeysWithRepoCateg];
+    if (browse_depth==0) {
+        [self fillKeysWithRepoCateg];
+        dispatch_async(dispatch_get_main_queue(), ^(void){
+            [self fillKeysCompleted];
+        });
+    }
     else {
         switch (self.browse_subMode) {
-            case AMP_LINK_COMPOSERS:
+            case AMP_LINK_COMPOSERS:{
                 [self fillKeysWithModeCateg];
+                dispatch_async(dispatch_get_main_queue(), ^(void){
+                    [self fillKeysCompleted];
+                });
+            }
                 break;
             case AMP_LINK_BROWSE_COMPOSERS:
             case AMP_LINK_BROWSE_GROUPS:
-            case AMP_LINK_BROWSE_MODULES:
+            case AMP_LINK_BROWSE_MODULES:{
                 [self fillKeysWithBrowserIndex];
+                dispatch_async(dispatch_get_main_queue(), ^(void){
+                    [self fillKeysCompleted];
+                });
+            }
                 break;
             default:
                 [self fillKeysWithWEBSource];
@@ -314,11 +341,12 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
         }
         if (mSearch) {
             [self populateKeys];
+        } else {
+            dispatch_async(dispatch_get_main_queue(), ^(void){
+                [self fillKeysCompleted];
+            });
         }
     }
-    dispatch_async(dispatch_get_main_queue(), ^(void){
-        [self fillKeysCompleted];
-    });
 }
 
 -(void) fillKeysWithRepoCateg {
@@ -666,628 +694,10 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
     //populate entries
 }
 
-
--(void) fillKeysWithWEBSource {
-    int dbWEB_entries_index;
-    
-    dbWEB_hasFiles=0;
-    
-    if (entries_noMoreToLoad && mSearch) {
-        // in case of search, do not ask DB again => duplicate already found entries & filter them
-        [self fillSearchWithEntries];
-        return;
-    }
-    
-    if (dbWEB_nb_entries) {
-        for (int i=0;i<dbWEB_nb_entries;i++) {
-            dbWEB_entries_data[i].label=nil;
-            dbWEB_entries_data[i].fullpath=nil;
-            dbWEB_entries_data[i].URL=nil;
-            dbWEB_entries_data[i].url_type=0;
-            dbWEB_entries_data[i].info=nil;
-            dbWEB_entries_data[i].img_URL=nil;
-            dbWEB_entries_data[i].labelAttr=nil;
-            dbWEB_entries_data[i].infoAttr=nil;
-        }
-        free(dbWEB_entries_data);dbWEB_entries_data=NULL;
-        dbWEB_nb_entries=0;
-    }
-    
-    typedef struct {
-        NSString *file_URL;
-        NSString *file_name;
-        NSMutableAttributedString *file_nameAttr;
-        NSString *composer;
-        float file_rating;
-        int entries_nb;
-        NSString *file_details;
-        NSString *file_img_URL;
-        char url_type;
-    } t_web_file_entry;
-    
-    //Browse page
-    //Download html data
-    NSURL *url;
-    NSData  *urlData;
-    TFHpple * doc;
-    NSArray *sortedArray;
-    NSMutableArray *tmpArray=[[NSMutableArray alloc] init];
-    t_web_file_entry *we=NULL;
-    int we_index=0;
+-(void) fillKeysWithWEBSourceCompleted:(NSMutableArray*)tmpArray entries_count:(int)we_index entries_data:(t_web_file_entry *)we {
     bool sort_entries=false;
-    
-    if (shouldReload) {
-        shouldReload=false;
-        arr_current_fetch_position=0;
-        [arr_url_handleList removeAllObjects];
-        [arr_url_realnameList removeAllObjects];
-        [arr_url_countryList removeAllObjects];
-        [arr_url_groupsList removeAllObjects];
-        [arr_url_groupsLogoList removeAllObjects];
-        [arr_url_fileList removeAllObjects];
-        [arr_url_composerList removeAllObjects];
-        [arr_url_formatList removeAllObjects];
-        [arr_url_sizeList removeAllObjects];
-    }
-    
-    if ((browse_subMode==AMP_LINK_GROUPS_LIST)||
-               (browse_subMode==AMP_LINK_SEARCH_GROUPS_LIST)){
-        ///////////////////////////////////////////////////////////////////////:
-        // AMP Composer list
-        ///////////////////////////////////////////////////////////////////////:
-        dispatch_async(dispatch_get_main_queue(), ^(void){
-            [self updateWaitingDetail:[NSString stringWithFormat:@"fetching from %d",self.arr_current_fetch_position]];
-        });
-        
-        if (browse_subMode==AMP_LINK_SEARCH_GROUPS_LIST) {
-            if ([mSearchText length]>0) {
-                url = [NSURL URLWithString:[NSString stringWithFormat:@"%@%@&position=%d",mWebBaseURL,mSearchText,arr_current_fetch_position]];
-            } else {
-                url = [NSURL URLWithString:@""];
-            }
-        } else url = [NSURL URLWithString:[NSString stringWithFormat:@"%@&position=%d",mWebBaseURL,arr_current_fetch_position]];
-        
-        
-        urlData = [NSData dataWithContentsOfURL:url];
-        doc       = [[TFHpple alloc] initWithHTMLData:urlData];
-        
-        NSArray *arr_tmp_url_realnameList=[doc searchWithXPathQuery:@"//text()[contains(normalize-space(.),'Real Name:')]/following::node()[1]"];
-        if ([arr_tmp_url_realnameList count]>0) {
-            //have found only 1 group and redirected to composers list
-            NSArray *arr_tmp_url_groupName=[doc searchWithXPathQuery:@"//q"];
-            
-            TFHppleElement *el_title=[arr_tmp_url_groupName objectAtIndex:0];
-            navbarTitle.text=el_title.content;
-            self.navigationItem.title=navbarTitle.text;
-            [navbarTitle sizeToFit];
-            
-            NSArray *arr_tmp_url_handleList=[doc searchWithXPathQuery:@"//text()[contains(normalize-space(.),'Handle:')]/following::a[1]"];
-            //NSArray *arr_tmp_url_realnameList=[doc searchWithXPathQuery:@"//text()[contains(normalize-space(.),'Real Name:')]/following::node()[1]"];
-            NSArray *arr_tmp_url_countryList=[doc searchWithXPathQuery:@"//text()[contains(normalize-space(.),'Country:')]/following::a[1]"];
-            NSArray *arr_tmp_url_groupsList=[doc searchWithXPathQuery:@"//td[@class='descript' and normalize-space(.)='Groups:']/following-sibling::td"];
-            
-            [arr_url_handleList addObjectsFromArray:arr_tmp_url_handleList];
-            [arr_url_realnameList addObjectsFromArray:arr_tmp_url_realnameList];
-            [arr_url_countryList addObjectsFromArray:arr_tmp_url_countryList];
-            [arr_url_groupsList addObjectsFromArray:arr_tmp_url_groupsList];
-            
-            int currentHandles=(int)[arr_tmp_url_handleList count];
-            
-            arr_current_fetch_position+=currentHandles;
-            if (currentHandles<50) {
-                entries_noMoreToLoad=true;
-            }
-            
-            int total_handles=(int)[arr_url_handleList count];
-            int total_realnames=(int)[arr_url_realnameList count];
-            int total_countries=(int)[arr_url_countryList count];
-            int total_groups=(int)[arr_url_groupsList count];
-            if ( (total_handles!=total_realnames) ||
-                (total_handles!=total_realnames) ||
-                (total_handles!=total_realnames) ||
-                (total_handles!=total_realnames) ) {
-                MDZELog("AMP consistency issue: handles %d real names %d countries %d groups %d\n",total_handles,total_realnames,total_countries,total_groups);
-            }
-            
-            if (total_handles) {
-                we=(t_web_file_entry*)calloc(1,sizeof(t_web_file_entry)*total_handles);
-                
-                for (int j=0;j<total_handles;j++) {
-                    TFHppleElement *el=[arr_url_handleList objectAtIndex:j];
-                    we[we_index].file_URL=[NSString stringWithFormat:@"https://amp.dascene.net/%@",[el objectForKey:@"href"]];
-                    
-                    //el=[arr_url objectAtIndex:j];
-                    we[we_index].file_name=[NSString stringWithFormat:@"%@",el.content];
-                    we[we_index].url_type=AMP_LINK_COMPOSER_DETAILS;
-                    we[we_index].entries_nb=0;
-                    
-                    [tmpArray addObject:[NSValue valueWithPointer:&(we[we_index])]];
-                    we_index++;
-                }
-            }
-        } else {
-            navbarTitle.text=self.title;
-            self.navigationItem.title=navbarTitle.text;
-            
-            NSArray *arr_tmp_url_groupsList=[doc searchWithXPathQuery:@"//div[@id='result']//tr[@class='tr0' or @class='tr1']/td[1]/a"];
-            NSArray *arr_tmp_url_groupsLogoList=[doc searchWithXPathQuery:@"//div[@id='result']//tr[@class='tr0' or @class='tr1']/td[3]"];
-            
-            [arr_url_groupsList addObjectsFromArray:arr_tmp_url_groupsList];
-            [arr_url_groupsLogoList addObjectsFromArray:arr_tmp_url_groupsLogoList];
-            
-            //int currentGroups=(int)[arr_url_groupsList count];
-            
-            //arr_current_fetch_position+=currentGroups;
-            //if (currentHandles<50) {
-            entries_noMoreToLoad=true;
-            //}
-            
-            int total_groups=(int)[arr_url_groupsList count];
-            int total_groupsLogo=(int)[arr_url_groupsLogoList count];
-            if (total_groups!=total_groupsLogo) {
-                MDZELog("AMP consistency issue: groups %d logos %d\n",total_groups,total_groupsLogo);
-            }
-            
-            if (total_groups) {
-                we=(t_web_file_entry*)calloc(1,sizeof(t_web_file_entry)*total_groups);
-                
-                for (int j=0;j<total_groups;j++) {
-                    TFHppleElement *el=[arr_url_groupsList objectAtIndex:j];
-                    if (el.content && [el.content length]) {
-                        NSString *str=[el objectForKey:@"href"];
-                        
-                        we[we_index].file_URL=[NSString stringWithFormat:@"https://amp.dascene.net/%@",[el objectForKey:@"href"]];
-                        
-                        //el=[arr_url objectAtIndex:j];
-                        we[we_index].file_name=[NSString stringWithFormat:@"%@",el.content];
-                        we[we_index].url_type=AMP_LINK_COMPOSERS_LIST;
-                        we[we_index].entries_nb=0;
-                        
-                        //Logo isn't really useful and not rendering nice in mini
-                        //                    el=[arr_url_groupsLogoList objectAtIndex:j];
-                        //                    TFHppleElement *el_img=[el firstChildWithTagName:@"img"];
-                        //                    if (el_img) {
-                        //                        if ([el_img objectForKey:@"src"]) {
-                        //                            we[we_index].file_img_URL=[NSString stringWithFormat:@"https://amp.dascene.net/%@",[el_img objectForKey:@"src"]];
-                        //                            MDZILog("found img: %@",we[we_index].file_img_URL);
-                        //                        }
-                        //                    }
-                        
-                        [tmpArray addObject:[NSValue valueWithPointer:&(we[we_index])]];
-                        we_index++;
-                    }
-                }
-            }
-        }
-    }
-    
-    if ((browse_subMode==AMP_LINK_COMPOSERS_LIST)||
-        (browse_subMode==AMP_LINK_SEARCH_COMPOSERS_LIST)) {
-        ///////////////////////////////////////////////////////////////////////:
-        // AMP Composer list
-        ///////////////////////////////////////////////////////////////////////:
-        dispatch_async(dispatch_get_main_queue(), ^(void){
-            [self updateWaitingDetail:[NSString stringWithFormat:@"fetching from %d",self.arr_current_fetch_position]];
-        });
-        
-        if (browse_subMode==AMP_LINK_SEARCH_COMPOSERS_LIST) {
-            if ([mSearchText length]>0) {
-                url = [NSURL URLWithString:[NSString stringWithFormat:@"%@%@&position=%d",mWebBaseURL,mSearchText,arr_current_fetch_position]];
-            } else {
-                url = [NSURL URLWithString:@""];
-            }
-        } else url = [NSURL URLWithString:[NSString stringWithFormat:@"%@&position=%d",mWebBaseURL,arr_current_fetch_position]];
-        
-        
-        urlData = [NSData dataWithContentsOfURL:url];
-        doc       = [[TFHpple alloc] initWithHTMLData:urlData];
-        
-        NSArray *arr_tmp_url_handleList=[doc searchWithXPathQuery:@"//text()[contains(normalize-space(.),'Handle:')]/following::a[1]"];
-        NSArray *arr_tmp_url_realnameList=[doc searchWithXPathQuery:@"//text()[contains(normalize-space(.),'Real Name:')]/following::node()[1]"];
-        NSArray *arr_tmp_url_countryList=[doc searchWithXPathQuery:@"//text()[contains(normalize-space(.),'Country:')]/following::a[1]"];
-        NSArray *arr_tmp_url_groupsList=[doc searchWithXPathQuery:@"//td[@class='descript' and normalize-space(.)='Groups:']/following-sibling::td"];
-        
-        [arr_url_handleList addObjectsFromArray:arr_tmp_url_handleList];
-        [arr_url_realnameList addObjectsFromArray:arr_tmp_url_realnameList];
-        [arr_url_countryList addObjectsFromArray:arr_tmp_url_countryList];
-        [arr_url_groupsList addObjectsFromArray:arr_tmp_url_groupsList];
-        
-        int currentHandles=(int)[arr_tmp_url_handleList count];
-        
-        arr_current_fetch_position+=currentHandles;
-        if (currentHandles<50) {
-            entries_noMoreToLoad=true;
-        }
-        
-        int total_handles=(int)[arr_url_handleList count];
-        int total_realnames=(int)[arr_url_realnameList count];
-        int total_countries=(int)[arr_url_countryList count];
-        int total_groups=(int)[arr_url_groupsList count];
-        if ( (total_handles!=total_realnames) ||
-            (total_handles!=total_realnames) ||
-            (total_handles!=total_realnames) ||
-            (total_handles!=total_realnames) ) {
-            MDZELog("AMP consistency issue: handles %d real names %d countries %d groups %d\n",total_handles,total_realnames,total_countries,total_groups);
-        }
-        
-        if (total_handles) {
-            we=(t_web_file_entry*)calloc(1,sizeof(t_web_file_entry)*total_handles);
-            
-            for (int j=0;j<total_handles;j++) {
-                TFHppleElement *el=[arr_url_handleList objectAtIndex:j];
-                we[we_index].file_URL=[NSString stringWithFormat:@"https://amp.dascene.net/%@",[el objectForKey:@"href"]];
-                
-                //el=[arr_url objectAtIndex:j];
-                we[we_index].file_name=[NSString stringWithFormat:@"%@",el.content];
-                we[we_index].url_type=AMP_LINK_COMPOSER_DETAILS;
-                we[we_index].entries_nb=0;
-                
-                el=[arr_url_realnameList objectAtIndex:j];
-                we[we_index].file_details=[NSString stringWithFormat:@"%@",el.content];
-                
-                el=[arr_url_groupsList objectAtIndex:j];
-                if (el && [el.content length]) {
-                    we[we_index].file_details=[we[we_index].file_details stringByAppendingFormat:@" • %@",[NSString stringWithFormat:@"%@",el.content]];
-                }
-                
-                [tmpArray addObject:[NSValue valueWithPointer:&(we[we_index])]];
-                we_index++;
-            }
-        }
-    }
-    if (browse_subMode==AMP_LINK_COMPOSER_DETAILS) {
-        ///////////////////////////////////////////////////////////////////////:
-        // AMP Composer's details
-        ///////////////////////////////////////////////////////////////////////:
-        url = [NSURL URLWithString:[NSString stringWithFormat:@"%@",mWebBaseURL]];
-        urlData = [NSData dataWithContentsOfURL:url];
-        doc       = [[TFHpple alloc] initWithHTMLData:urlData];
-        
-        NSArray *arr_url_realName=[doc searchWithXPathQuery:@"//td[@class='descript' and contains(normalize-space(.), 'Real')]/following-sibling::td[1]"];
-        NSArray *arr_url_livedIn=[doc searchWithXPathQuery:@"//td[@class='descript' and contains(normalize-space(.), 'Lived')]/following-sibling::td[1]/a"];
-        NSArray *arr_url_exHandlesList=[doc searchWithXPathQuery:@"//td[@class='descript' and contains(normalize-space(.), 'Ex.')]/following-sibling::td[1]"];
-        NSArray *arr_url_groupsList=[doc searchWithXPathQuery:@"//td[@class='descript' and contains(normalize-space(.), 'member')]/following-sibling::td[1]"];
-        NSArray *arr_url_modulesLink=[doc searchWithXPathQuery:@"//td[@class='descript' and contains(normalize-space(.), 'Modules')]/following-sibling::td[1]/a"];
-        NSArray *arr_url_interviewLink=[doc searchWithXPathQuery:@"//td[@class='descript' and contains(normalize-space(.), 'Interview')]/following-sibling::td[1]/a"];
-        
-        int entries_nb=6;
-        TFHppleElement *el;
-        
-        UIColor *topTextCol,*topTextColH,*bottomTextCol;
-        UIColor *topTextColData;
-        if (darkMode) {
-            topTextCol = [UIColor colorWithRed:0.5f green:0.5f blue:1.0f alpha:1.0f];;
-            topTextColData = [UIColor colorWithRed:0.8 green:0.8 blue:1.0 alpha:1.0];
-            topTextColH = [UIColor colorWithRed:1 green:1 blue:1 alpha:1.0];
-            bottomTextCol = [UIColor colorWithRed:0.6 green:0.6 blue:0.6 alpha:1.0];
-        } else {
-            topTextCol = [UIColor colorWithRed:0.0f green:0.0f blue:1.0f alpha:1.0f];;
-            topTextColData = [UIColor colorWithRed:0.2 green:0.2 blue:0.5 alpha:1.0];
-            topTextColH = [UIColor colorWithRed:0.0 green:0.0 blue:0.0 alpha:1.0];
-            bottomTextCol = [UIColor colorWithRed:0.4 green:0.4 blue:0.4 alpha:1.0];
-        }
-        
-        NSDictionary *baseAttributes = @{
-            NSForegroundColorAttributeName:topTextCol,
-            NSFontAttributeName:[UIFont systemFontOfSize:17.0f],
-            NSBackgroundColorAttributeName:[UIColor clearColor]
-        };
-        NSDictionary *attributesData = @{
-            NSForegroundColorAttributeName:topTextColData,
-            NSFontAttributeName:[UIFont systemFontOfSize:17.0f],
-        };
-        NSRange rangeData;
-        
-        //add entries for each group & country
-        el=[arr_url_groupsList objectAtIndex:0];
-        entries_nb+=[[el.content componentsSeparatedByString:@","] count];
-        entries_nb+=[arr_url_livedIn count];
-        
-        we=(t_web_file_entry*)calloc(1,sizeof(t_web_file_entry)*entries_nb);
-        
-        if ([arr_url_modulesLink count]>0) {
-            el=[arr_url_modulesLink objectAtIndex:0];
-            we[we_index].file_name=[NSString stringWithFormat:@"Modules: %@",el.content];
-            
-            we[we_index].file_nameAttr=[[NSMutableAttributedString alloc] initWithString:we[we_index].file_name attributes:baseAttributes];
-            rangeData = NSMakeRange([@"Modules: " length],[el.content length]);
-            [we[we_index].file_nameAttr setAttributes:attributesData range:rangeData];
-            
-            
-            we[we_index].file_URL=[NSString stringWithFormat:@"https://amp.dascene.net/%@",[el objectForKey:@"href"]];
-            we[we_index].url_type=AMP_LINK_MODULES_LIST;
-            //MDZILog("url of mods: %@",we[we_index].file_URL);
-        } else {
-            we[we_index].file_name=[NSString stringWithFormat:@"Modules: N/A"];
-            we[we_index].file_URL=nil;
-        }
-        [tmpArray addObject:[NSValue valueWithPointer:&(we[we_index++])]];
-        
-        el=[arr_url_realName objectAtIndex:0];
-        we[we_index].file_name=[NSString stringWithFormat:@"Real name: %@",el.content];
-        
-        we[we_index].file_nameAttr=[[NSMutableAttributedString alloc] initWithString:we[we_index].file_name attributes:baseAttributes];
-        rangeData = NSMakeRange([@"Real name: " length],[el.content length]);
-        [we[we_index].file_nameAttr setAttributes:attributesData range:rangeData];
-        we[we_index].file_URL=nil;
-        [tmpArray addObject:[NSValue valueWithPointer:&(we[we_index++])]];
-        
-        we[we_index].file_name=[NSString stringWithFormat:@"Lived in:"];
-        we[we_index].file_URL=nil;
-        [tmpArray addObject:[NSValue valueWithPointer:&(we[we_index++])]];
-        
-        for (int i=0;i<[arr_url_livedIn count];i++) {
-            el=[arr_url_livedIn objectAtIndex:i];
-            NSString *strTmp = [[el.raw componentsSeparatedByString:@"title=\""] lastObject];
-            strTmp = [[strTmp componentsSeparatedByString:@"\""] firstObject];
-            we[we_index].file_name=[NSString stringWithFormat:@" • %@",strTmp];
-            
-            TFHppleElement *el_img=[el firstChildWithTagName:@"img"];
-            if (el_img) {
-                if ([el_img objectForKey:@"src"]) {
-                    we[we_index].file_img_URL=[NSString stringWithFormat:@"https://amp.dascene.net/%@",[el_img objectForKey:@"src"]];
-                    //MDZILog("found img: %@",we[we_index].file_img_URL);
-                    we[we_index].file_name=[NSString stringWithFormat:@"%@",strTmp];
-                }
-            }
-            
-            we[we_index].file_nameAttr=[[NSMutableAttributedString alloc] initWithString:we[we_index].file_name attributes:baseAttributes];
-            rangeData = NSMakeRange(0,[we[we_index].file_name length]);
-            [we[we_index].file_nameAttr setAttributes:attributesData range:rangeData];
-            we[we_index].file_URL=[NSString stringWithFormat:@"https://amp.dascene.net/%@",[el objectForKey:@"href"]];;
-            we[we_index].url_type=AMP_LINK_COMPOSERS_LIST;
-            
-            
-            
-            [tmpArray addObject:[NSValue valueWithPointer:&(we[we_index++])]];
-        }
-        
-        el=[arr_url_exHandlesList objectAtIndex:0];
-        we[we_index].file_name=[NSString stringWithFormat:@"Ex.Handles: %@",el.content];
-        
-        we[we_index].file_nameAttr=[[NSMutableAttributedString alloc] initWithString:we[we_index].file_name attributes:baseAttributes];
-        rangeData = NSMakeRange([@"Ex.Handles: " length],[el.content length]);
-        [we[we_index].file_nameAttr setAttributes:attributesData range:rangeData];
-        
-        we[we_index].file_URL=nil;
-        [tmpArray addObject:[NSValue valueWithPointer:&(we[we_index++])]];
-        
-        el=[arr_url_groupsList objectAtIndex:0];
-        we[we_index].file_name=[NSString stringWithFormat:@"Was a member of:"];
-        we[we_index].file_URL=nil;
-        [tmpArray addObject:[NSValue valueWithPointer:&(we[we_index++])]];
-        
-        //get list of groups and links
-        for (TFHppleElement *child in el.children) {
-            if ([child objectForKey:@"href"]) {
-                we[we_index].file_name=[NSString stringWithFormat:@" • %@",child.content];
-                
-                we[we_index].file_nameAttr=[[NSMutableAttributedString alloc] initWithString:we[we_index].file_name attributes:baseAttributes];
-                rangeData = NSMakeRange(0,[we[we_index].file_name length]);
-                [we[we_index].file_nameAttr setAttributes:attributesData range:rangeData];
-                
-                we[we_index].file_URL=[NSString stringWithFormat:@"https://amp.dascene.net/%@",[child objectForKey:@"href"]];
-                we[we_index].url_type=AMP_LINK_COMPOSERS_LIST;
-                //
-                //MDZILog("url of %@: %@",we[we_index].file_name,we[we_index].file_URL);
-                [tmpArray addObject:[NSValue valueWithPointer:&(we[we_index++])]];
-            }
-        }
-        
-        if ([arr_url_interviewLink count]>0) {
-            el=[arr_url_interviewLink objectAtIndex:0];
-            NSString *str=[NSString stringWithFormat:@"https://amp.dascene.net/%@",[el objectForKey:@"href"]];
-            if (![str containsString:@"downcount"]) {
-                we[we_index].file_name=[NSString stringWithFormat:@"Interview"];
-                we[we_index].file_URL=str;
-                we[we_index].url_type=AMP_LINK_INTERVIEW;
-                [tmpArray addObject:[NSValue valueWithPointer:&(we[we_index++])]];
-            }
-        }
-        
-        entries_noMoreToLoad=true;
-        
-    }
-    if ((browse_subMode==AMP_LINK_MODULES_LIST)||
-               (browse_subMode==AMP_LINK_SEARCH_MODULES_LIST)) {
-        
-        ///////////////////////////////////////////////////////////////////////:
-        // AMP Modules list
-        ///////////////////////////////////////////////////////////////////////:
-        
-        dispatch_async(dispatch_get_main_queue(), ^(void){
-            [self updateWaitingDetail:[NSString stringWithFormat:@"fetching from %d",self.arr_current_fetch_position]];
-        });
-        
-        if (browse_subMode==AMP_LINK_SEARCH_MODULES_LIST) {
-            if ([mSearchText length]>0) {
-                url = [NSURL URLWithString:[NSString stringWithFormat:@"%@%@&position=%d",mWebBaseURL,mSearchText,arr_current_fetch_position]];
-            } else {
-                url = [NSURL URLWithString:@""];
-            }
-        } else url = [NSURL URLWithString:[NSString stringWithFormat:@"%@&position=%d",mWebBaseURL,arr_current_fetch_position]];
-        
-        urlData = [NSData dataWithContentsOfURL:url];
-        doc       = [[TFHpple alloc] initWithHTMLData:urlData];
-        
-        NSArray *arr_tmp_url_fileList=[doc searchWithXPathQuery:@"//div[@id='result']//tr[@class='tr0' or @class='tr1']/td[1]/a"];
-        NSArray *arr_tmp_url_composerList=[doc searchWithXPathQuery:@"//div[@id='result']//tr[@class='tr0' or @class='tr1']/td[2]/a"];
-        NSArray *arr_tmp_url_formatList=[doc searchWithXPathQuery:@"//div[@id='result']//tr[@class='tr0' or @class='tr1']/td[3]"];
-        NSArray *arr_tmp_url_sizeList=[doc searchWithXPathQuery:@"//div[@id='result']//tr[@class='tr0' or @class='tr1']/td[4]"];
-        
-        [arr_url_fileList addObjectsFromArray:arr_tmp_url_fileList];
-        [arr_url_composerList addObjectsFromArray:arr_tmp_url_composerList];
-        [arr_url_formatList addObjectsFromArray:arr_tmp_url_formatList];
-        [arr_url_sizeList addObjectsFromArray:arr_tmp_url_sizeList];
-        
-        int currentFiles=(int)[arr_url_fileList count];
-        
-        arr_current_fetch_position+=currentFiles;
-        if (currentFiles<50) {
-            entries_noMoreToLoad=true;
-        }
-        
-        int total_files=(int)[arr_url_fileList count];
-        int total_composers=(int)[arr_url_composerList count];
-        
-        //keep last items to remove unrelevant entries at beginning
-        while (total_composers>total_files) {
-            [arr_url_composerList removeObjectAtIndex:0];
-            total_composers--;
-        }
-        
-        int total_formats=(int)[arr_url_formatList count];
-        int total_sizes=(int)[arr_url_sizeList count];
-        if ( (total_files!=total_formats) ||
-            (total_files!=total_composers) ||
-            (total_files!=total_sizes) ) {
-            MDZELog("AMP consistency issue: files %d composers %d formats %d sizes %d\n",total_files,total_composers,total_formats,total_sizes);
-        }
-        
-        if (total_files) {
-            we=(t_web_file_entry*)calloc(1,sizeof(t_web_file_entry)*total_files);
-            
-            for (int j=0;j<total_files;j++) {
-                TFHppleElement *el=[arr_url_fileList objectAtIndex:j];
-                TFHppleElement *el_composer=[arr_url_composerList objectAtIndex:j];
-                TFHppleElement *el_format=[arr_url_formatList objectAtIndex:j];
-                TFHppleElement *el_size=[arr_url_sizeList objectAtIndex:j];
-                
-                we[we_index].file_URL=[NSString stringWithFormat:@"https://amp.dascene.net/%@",[el objectForKey:@"href"]];
-                we[we_index].composer=[NSString stringWithFormat:@"%@",el_composer.content];
-                we[we_index].file_name=[NSString stringWithFormat:@"%@.%@",[el_format.content lowercaseString],el.content];
-                
-                we[we_index].file_details=[NSString stringWithFormat:@"%@",el_size.content];
-                we[we_index].url_type=AMP_LINK_MODULE_FILE;
-                we[we_index].entries_nb=1;
-                
-                [tmpArray addObject:[NSValue valueWithPointer:&(we[we_index])]];
-                we_index++;
-            }
-        }
-    }
-    if (browse_subMode==AMP_LINK_INTERVIEW) {
-        
-        ///////////////////////////////////////////////////////////////////////:
-        // AMP Modules list
-        ///////////////////////////////////////////////////////////////////////:
-        
-        dispatch_async(dispatch_get_main_queue(), ^(void){
-            [self updateWaitingDetail:[NSString stringWithFormat:@"fetching interview"]];
-        });
-        
-        url = [NSURL URLWithString:[NSString stringWithFormat:@"%@",mWebBaseURL]];
-        
-        urlData = [NSData dataWithContentsOfURL:url];
-        doc       = [[TFHpple alloc] initWithHTMLData:urlData];
-        
-        NSArray *arr_interview=[doc searchWithXPathQuery:@"//div[@id='interview']/ul"];
-        
-        entries_noMoreToLoad=true;
-        
-        if ([arr_interview count]!=1) {
-            MDZELog("AMP consistency issue interview count: %d\n",(int)[arr_interview count]);
-        }
-        
-        if ([arr_interview count]) {
-            TFHppleElement *el=[arr_interview objectAtIndex:0];
-            
-            htmlData=[NSString stringWithFormat:@""
-                      "<!DOCTYPE html>"
-                      "<html>"
-                      "<head>"
-                      "<meta charset='UTF-8'><meta name='viewport' content='width=600, initial-scale=1.0, user-scalable=yes, no-shrink=yes'>"
-                      "    <style>"
-                      "        * {"
-                      "            font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;"
-                      "        }"
-                      ""
-                      "        body {"
-                      "            color: white;"
-                      "            font-size: small;"
-                      "-webkit-text-size-adjust: none;"
-                      "            background-color: #123456;"
-                      "            margin: 0;"
-                      "        }"
-                      "TT {"
-                        "font-family: Courier;"
-                      "}"
-                      ".small {"
-                      "font-family : tahoma, verdana, arial, geneva, sans-serif;"
-                      "font-size : 9pt;"
-                      "color : #000000;"
-                      "text-decoration : none;"
-                      "background-color : rgb(200,200,200);"
-                      "}"
-                      ""
-                      "        #interview {"
-                      "            text-align: justify;"
-                      "            width: 100%%;"
-                      "        }"
-                      ""
-                      "        #interview p {"
-                      "            font-size: 9pt;"
-                      "        }"
-                      ""
-                      "        #interview ul {"
-                      "            margin: 0;"
-                      "            font-size: 9pt;"
-                      "        }"
-                      ""
-                      "        #interview li {"
-                      "            margin: 0;"
-                      "            font-size: 9pt;"
-                      "            color: #fcce04;"
-                      "        }"
-                      ""
-                      "        #interview span {"
-                      "            color: #ffffff;"
-                      "        }"
-                      ""
-                      "        #interview h3 {"
-                      "            color: #fcce04;"
-                      "            text-decoration: underline;"
-                      "        }"
-                      ""
-                      "        #interview h5 {"
-                      "            text-align: left;"
-                      "            margin: 0;"
-                      "            margin-top: 5px;"
-                      "        }"
-                      "    A:link {"
-                      "    text-decoration : none;"
-                      "    font-weight : bold;"
-                      "    color : #f63;"
-                      "    }"
-                      "    A:visited {"
-                      "    text-decoration : none;"
-                      "    font-weight : bold;"
-                      "    color : #f63;"
-                      "    }"
-                      "    A:hover {"
-                      "    /*text-decoration : underline; */"
-                      "    color : #fc0;"
-                      "    }"
-                      "    A.offsite {"
-                      "    text-decoration : none;"
-                      "    font-weight : normal;"
-                      "    color : #f63;"
-                      "    background : #006;"
-                      "    }"
-                      "    </style>"
-                      "</head>"
-                      "<body>"
-                      "<div id=\"interview\">"
-                      "<p>"
-                      "<center><h3>Interview</h3></center>"
-                      "</p>"
-                      "<br />"
-                      "%@"
-                      "</body>"
-                      "</html>"
-                      "",el.raw];
-        }
-    }
+    NSArray *sortedArray;
+    int dbWEB_entries_index;
     
     if (sort_entries) {
             sortedArray = [tmpArray sortedArrayUsingComparator:^(id obj1, id obj2) {
@@ -1299,7 +709,7 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
         sortedArray = tmpArray;
     }
     
-    dbWEB_nb_entries=[sortedArray count];
+    dbWEB_nb_entries=(int)[sortedArray count];
     
     //2nd initialize array to receive entries
     dbWEB_entries_data=(t_WEB_browse_entry *)calloc(1,dbWEB_nb_entries*sizeof(t_WEB_browse_entry));
@@ -1355,7 +765,751 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
     if (/*!entries_noMoreToLoad &&*/ mSearch) {
         // in case of search, do not ask DB again => duplicate already found entries & filter them
         [self fillSearchWithEntries];
+    }
+    
+    dispatch_async(dispatch_get_main_queue(), ^(void){
+        [self fillKeysCompleted];
+    });
+}
+
+-(void) fillKeysWithWEBSource {
+    
+    dbWEB_hasFiles=0;
+    
+    if (entries_noMoreToLoad && mSearch) {
+        // in case of search, do not ask DB again => duplicate already found entries & filter them
+        [self fillSearchWithEntries];
         return;
+    }
+    
+    if (dbWEB_nb_entries) {
+        for (int i=0;i<dbWEB_nb_entries;i++) {
+            dbWEB_entries_data[i].label=nil;
+            dbWEB_entries_data[i].fullpath=nil;
+            dbWEB_entries_data[i].URL=nil;
+            dbWEB_entries_data[i].url_type=0;
+            dbWEB_entries_data[i].info=nil;
+            dbWEB_entries_data[i].img_URL=nil;
+            dbWEB_entries_data[i].labelAttr=nil;
+            dbWEB_entries_data[i].infoAttr=nil;
+        }
+        free(dbWEB_entries_data);dbWEB_entries_data=NULL;
+        dbWEB_nb_entries=0;
+    }
+    
+    
+    
+    //Browse page
+    //Download html data
+    NSURL *url;
+    //NSData  *urlData;
+    //TFHpple * doc;
+    
+    NSMutableArray *tmpArray=[[NSMutableArray alloc] init];
+    __block t_web_file_entry *we=NULL;
+    __block int we_index=0;
+    
+    if (shouldReload) {
+        shouldReload=false;
+        arr_current_fetch_position=0;
+        [arr_url_handleList removeAllObjects];
+        [arr_url_realnameList removeAllObjects];
+        [arr_url_countryList removeAllObjects];
+        [arr_url_groupsList removeAllObjects];
+        [arr_url_groupsLogoList removeAllObjects];
+        [arr_url_fileList removeAllObjects];
+        [arr_url_composerList removeAllObjects];
+        [arr_url_formatList removeAllObjects];
+        [arr_url_sizeList removeAllObjects];
+    }
+    
+    if ((browse_subMode==AMP_LINK_GROUPS_LIST)||
+               (browse_subMode==AMP_LINK_SEARCH_GROUPS_LIST)){
+        ///////////////////////////////////////////////////////////////////////:
+        // AMP Composer list
+        ///////////////////////////////////////////////////////////////////////:
+        dispatch_async(dispatch_get_main_queue(), ^(void){
+            [self updateWaitingDetail:[NSString stringWithFormat:@"fetching from %d",self.arr_current_fetch_position]];
+        });
+        
+        if (browse_subMode==AMP_LINK_SEARCH_GROUPS_LIST) {
+            if ([mSearchText length]>0) {
+                url = [NSURL URLWithString:[NSString stringWithFormat:@"%@%@&position=%d",mWebBaseURL,mSearchText,arr_current_fetch_position]];
+            } else {
+                url = [NSURL URLWithString:@""];
+            }
+        } else url = [NSURL URLWithString:[NSString stringWithFormat:@"%@&position=%d",mWebBaseURL,arr_current_fetch_position]];
+        
+        
+        NSURLSession *session = [NSURLSession sharedSession];
+
+        NSURLSessionDataTask *task =
+        [session dataTaskWithURL:url
+               completionHandler:^(NSData * _Nullable data,
+                                   NSURLResponse * _Nullable response,
+                                   NSError * _Nullable error)
+        {
+            if (error) {
+                NSLog(@"Erreur réseau : %@", error);
+                [self fillKeysWithWEBSourceCompleted:tmpArray entries_count:we_index entries_data:we];
+                return;
+            }
+
+            if (!data) {
+                NSLog(@"Aucune donnée reçue");
+                [self fillKeysWithWEBSourceCompleted:tmpArray entries_count:we_index entries_data:we];
+                return;
+            }
+
+            TFHpple *doc = [[TFHpple alloc] initWithHTMLData:data];
+            
+            NSArray *arr_tmp_url_realnameList=[doc searchWithXPathQuery:@"//text()[contains(normalize-space(.),'Real Name:')]/following::node()[1]"];
+            if ([arr_tmp_url_realnameList count]>0) {
+                //have found only 1 group and redirected to composers list
+                NSArray *arr_tmp_url_groupName=[doc searchWithXPathQuery:@"//q"];
+                
+                TFHppleElement *el_title=[arr_tmp_url_groupName objectAtIndex:0];
+                navbarTitle.text=el_title.content;
+                self.navigationItem.title=navbarTitle.text;
+                [navbarTitle sizeToFit];
+                
+                NSArray *arr_tmp_url_handleList=[doc searchWithXPathQuery:@"//text()[contains(normalize-space(.),'Handle:')]/following::a[1]"];
+                //NSArray *arr_tmp_url_realnameList=[doc searchWithXPathQuery:@"//text()[contains(normalize-space(.),'Real Name:')]/following::node()[1]"];
+                NSArray *arr_tmp_url_countryList=[doc searchWithXPathQuery:@"//text()[contains(normalize-space(.),'Country:')]/following::a[1]"];
+                NSArray *arr_tmp_url_groupsList=[doc searchWithXPathQuery:@"//td[@class='descript' and normalize-space(.)='Groups:']/following-sibling::td"];
+                
+                [arr_url_handleList addObjectsFromArray:arr_tmp_url_handleList];
+                [arr_url_realnameList addObjectsFromArray:arr_tmp_url_realnameList];
+                [arr_url_countryList addObjectsFromArray:arr_tmp_url_countryList];
+                [arr_url_groupsList addObjectsFromArray:arr_tmp_url_groupsList];
+                
+                int currentHandles=(int)[arr_tmp_url_handleList count];
+                
+                arr_current_fetch_position+=currentHandles;
+                if (currentHandles<50) {
+                    entries_noMoreToLoad=true;
+                }
+                
+                int total_handles=(int)[arr_url_handleList count];
+                int total_realnames=(int)[arr_url_realnameList count];
+                int total_countries=(int)[arr_url_countryList count];
+                int total_groups=(int)[arr_url_groupsList count];
+                if ( (total_handles!=total_realnames) ||
+                    (total_handles!=total_realnames) ||
+                    (total_handles!=total_realnames) ||
+                    (total_handles!=total_realnames) ) {
+                    MDZELog("AMP consistency issue: handles %d real names %d countries %d groups %d\n",total_handles,total_realnames,total_countries,total_groups);
+                }
+                
+                if (total_handles) {
+                    we=(t_web_file_entry*)calloc(1,sizeof(t_web_file_entry)*total_handles);
+                    
+                    for (int j=0;j<total_handles;j++) {
+                        TFHppleElement *el=[arr_url_handleList objectAtIndex:j];
+                        we[we_index].file_URL=[NSString stringWithFormat:@"https://amp.dascene.net/%@",[el objectForKey:@"href"]];
+                        
+                        //el=[arr_url objectAtIndex:j];
+                        we[we_index].file_name=[NSString stringWithFormat:@"%@",el.content];
+                        we[we_index].url_type=AMP_LINK_COMPOSER_DETAILS;
+                        we[we_index].entries_nb=0;
+                        
+                        [tmpArray addObject:[NSValue valueWithPointer:&(we[we_index])]];
+                        we_index++;
+                    }
+                }
+            } else {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    // mise à jour UI si nécessaire
+                    navbarTitle.text=self.title;
+                    self.navigationItem.title=navbarTitle.text;
+                });
+                
+                
+                NSArray *arr_tmp_url_groupsList=[doc searchWithXPathQuery:@"//div[@id='result']//tr[@class='tr0' or @class='tr1']/td[1]/a"];
+                NSArray *arr_tmp_url_groupsLogoList=[doc searchWithXPathQuery:@"//div[@id='result']//tr[@class='tr0' or @class='tr1']/td[3]"];
+                
+                [arr_url_groupsList addObjectsFromArray:arr_tmp_url_groupsList];
+                [arr_url_groupsLogoList addObjectsFromArray:arr_tmp_url_groupsLogoList];
+                
+                //int currentGroups=(int)[arr_url_groupsList count];
+                
+                //arr_current_fetch_position+=currentGroups;
+                //if (currentHandles<50) {
+                entries_noMoreToLoad=true;
+                //}
+                
+                int total_groups=(int)[arr_url_groupsList count];
+                int total_groupsLogo=(int)[arr_url_groupsLogoList count];
+                if (total_groups!=total_groupsLogo) {
+                    MDZELog("AMP consistency issue: groups %d logos %d\n",total_groups,total_groupsLogo);
+                }
+                
+                if (total_groups) {
+                    we=(t_web_file_entry*)calloc(1,sizeof(t_web_file_entry)*total_groups);
+                    
+                    for (int j=0;j<total_groups;j++) {
+                        TFHppleElement *el=[arr_url_groupsList objectAtIndex:j];
+                        if (el.content && [el.content length]) {
+                            NSString *str=[el objectForKey:@"href"];
+                            
+                            we[we_index].file_URL=[NSString stringWithFormat:@"https://amp.dascene.net/%@",[el objectForKey:@"href"]];
+                            
+                            //el=[arr_url objectAtIndex:j];
+                            we[we_index].file_name=[NSString stringWithFormat:@"%@",el.content];
+                            we[we_index].url_type=AMP_LINK_COMPOSERS_LIST;
+                            we[we_index].entries_nb=0;
+                            
+                            //Logo isn't really useful and not rendering nice in mini
+                            //                    el=[arr_url_groupsLogoList objectAtIndex:j];
+                            //                    TFHppleElement *el_img=[el firstChildWithTagName:@"img"];
+                            //                    if (el_img) {
+                            //                        if ([el_img objectForKey:@"src"]) {
+                            //                            we[we_index].file_img_URL=[NSString stringWithFormat:@"https://amp.dascene.net/%@",[el_img objectForKey:@"src"]];
+                            //                            MDZILog("found img: %@",we[we_index].file_img_URL);
+                            //                        }
+                            //                    }
+                            
+                            [tmpArray addObject:[NSValue valueWithPointer:&(we[we_index])]];
+                            we_index++;
+                        }
+                    }
+                }
+            }
+
+            [self fillKeysWithWEBSourceCompleted:tmpArray entries_count:we_index entries_data:we];
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
+                // mise à jour UI si nécessaire
+            });
+        }];
+
+        [task resume];
+    }
+    
+    if ((browse_subMode==AMP_LINK_COMPOSERS_LIST)||
+        (browse_subMode==AMP_LINK_SEARCH_COMPOSERS_LIST)) {
+        ///////////////////////////////////////////////////////////////////////:
+        // AMP Composer list
+        ///////////////////////////////////////////////////////////////////////:
+        dispatch_async(dispatch_get_main_queue(), ^(void){
+            [self updateWaitingDetail:[NSString stringWithFormat:@"fetching from %d",self.arr_current_fetch_position]];
+        });
+        
+        if (browse_subMode==AMP_LINK_SEARCH_COMPOSERS_LIST) {
+            if ([mSearchText length]>0) {
+                url = [NSURL URLWithString:[NSString stringWithFormat:@"%@%@&position=%d",mWebBaseURL,mSearchText,arr_current_fetch_position]];
+            } else {
+                url = [NSURL URLWithString:@""];
+            }
+        } else url = [NSURL URLWithString:[NSString stringWithFormat:@"%@&position=%d",mWebBaseURL,arr_current_fetch_position]];
+        
+        
+        NSURLSession *session = [NSURLSession sharedSession];
+
+        NSURLSessionDataTask *task =
+        [session dataTaskWithURL:url
+               completionHandler:^(NSData * _Nullable data,
+                                   NSURLResponse * _Nullable response,
+                                   NSError * _Nullable error)
+         {
+            if (error) {
+                NSLog(@"Erreur réseau : %@", error);
+                [self fillKeysWithWEBSourceCompleted:tmpArray entries_count:we_index entries_data:we];
+                return;
+            }
+            
+            if (!data) {
+                NSLog(@"Aucune donnée reçue");
+                [self fillKeysWithWEBSourceCompleted:tmpArray entries_count:we_index entries_data:we];
+                return;
+            }
+            
+            TFHpple *doc       = [[TFHpple alloc] initWithHTMLData:data];
+            
+            NSArray *arr_tmp_url_handleList=[doc searchWithXPathQuery:@"//text()[contains(normalize-space(.),'Handle:')]/following::a[1]"];
+            NSArray *arr_tmp_url_realnameList=[doc searchWithXPathQuery:@"//text()[contains(normalize-space(.),'Real Name:')]/following::node()[1]"];
+            NSArray *arr_tmp_url_countryList=[doc searchWithXPathQuery:@"//text()[contains(normalize-space(.),'Country:')]/following::a[1]"];
+            NSArray *arr_tmp_url_groupsList=[doc searchWithXPathQuery:@"//td[@class='descript' and normalize-space(.)='Groups:']/following-sibling::td"];
+            
+            [arr_url_handleList addObjectsFromArray:arr_tmp_url_handleList];
+            [arr_url_realnameList addObjectsFromArray:arr_tmp_url_realnameList];
+            [arr_url_countryList addObjectsFromArray:arr_tmp_url_countryList];
+            [arr_url_groupsList addObjectsFromArray:arr_tmp_url_groupsList];
+            
+            int currentHandles=(int)[arr_tmp_url_handleList count];
+            
+            arr_current_fetch_position+=currentHandles;
+            if (currentHandles<50) {
+                entries_noMoreToLoad=true;
+            }
+            
+            int total_handles=(int)[arr_url_handleList count];
+            int total_realnames=(int)[arr_url_realnameList count];
+            int total_countries=(int)[arr_url_countryList count];
+            int total_groups=(int)[arr_url_groupsList count];
+            if ( (total_handles!=total_realnames) ||
+                (total_handles!=total_realnames) ||
+                (total_handles!=total_realnames) ||
+                (total_handles!=total_realnames) ) {
+                MDZELog("AMP consistency issue: handles %d real names %d countries %d groups %d\n",total_handles,total_realnames,total_countries,total_groups);
+            }
+            
+            if (total_handles) {
+                we=(t_web_file_entry*)calloc(1,sizeof(t_web_file_entry)*total_handles);
+                
+                for (int j=0;j<total_handles;j++) {
+                    TFHppleElement *el=[arr_url_handleList objectAtIndex:j];
+                    we[we_index].file_URL=[NSString stringWithFormat:@"https://amp.dascene.net/%@",[el objectForKey:@"href"]];
+                    
+                    //el=[arr_url objectAtIndex:j];
+                    we[we_index].file_name=[NSString stringWithFormat:@"%@",el.content];
+                    we[we_index].url_type=AMP_LINK_COMPOSER_DETAILS;
+                    we[we_index].entries_nb=0;
+                    
+                    el=[arr_url_realnameList objectAtIndex:j];
+                    we[we_index].file_details=[NSString stringWithFormat:@"%@",el.content];
+                    
+                    el=[arr_url_groupsList objectAtIndex:j];
+                    if (el && [el.content length]) {
+                        we[we_index].file_details=[we[we_index].file_details stringByAppendingFormat:@" • %@",[NSString stringWithFormat:@"%@",el.content]];
+                    }
+                    
+                    [tmpArray addObject:[NSValue valueWithPointer:&(we[we_index])]];
+                    we_index++;
+                }
+            }
+            
+            [self fillKeysWithWEBSourceCompleted:tmpArray entries_count:we_index entries_data:we];
+        }];
+        
+        [task resume];
+    }
+    if (browse_subMode==AMP_LINK_COMPOSER_DETAILS) {
+        ///////////////////////////////////////////////////////////////////////:
+        // AMP Composer's details
+        ///////////////////////////////////////////////////////////////////////:
+        url = [NSURL URLWithString:[NSString stringWithFormat:@"%@",mWebBaseURL]];
+        
+        NSURLSession *session = [NSURLSession sharedSession];
+
+        NSURLSessionDataTask *task =
+        [session dataTaskWithURL:url
+               completionHandler:^(NSData * _Nullable data,
+                                   NSURLResponse * _Nullable response,
+                                   NSError * _Nullable error)
+         {
+            if (error) {
+                NSLog(@"Erreur réseau : %@", error);
+                [self fillKeysWithWEBSourceCompleted:tmpArray entries_count:we_index entries_data:we];
+                return;
+            }
+            
+            if (!data) {
+                NSLog(@"Aucune donnée reçue");
+                [self fillKeysWithWEBSourceCompleted:tmpArray entries_count:we_index entries_data:we];
+                return;
+            }
+            
+            TFHpple *doc       = [[TFHpple alloc] initWithHTMLData:data];
+            
+            NSArray *arr_url_realName=[doc searchWithXPathQuery:@"//td[@class='descript' and contains(normalize-space(.), 'Real')]/following-sibling::td[1]"];
+            NSArray *arr_url_livedIn=[doc searchWithXPathQuery:@"//td[@class='descript' and contains(normalize-space(.), 'Lived')]/following-sibling::td[1]/a"];
+            NSArray *arr_url_exHandlesList=[doc searchWithXPathQuery:@"//td[@class='descript' and contains(normalize-space(.), 'Ex.')]/following-sibling::td[1]"];
+            NSArray *arr_url_groupsList=[doc searchWithXPathQuery:@"//td[@class='descript' and contains(normalize-space(.), 'member')]/following-sibling::td[1]"];
+            NSArray *arr_url_modulesLink=[doc searchWithXPathQuery:@"//td[@class='descript' and contains(normalize-space(.), 'Modules')]/following-sibling::td[1]/a"];
+            NSArray *arr_url_interviewLink=[doc searchWithXPathQuery:@"//td[@class='descript' and contains(normalize-space(.), 'Interview')]/following-sibling::td[1]/a"];
+            
+            int entries_nb=6;
+            TFHppleElement *el;
+            
+            UIColor *topTextCol,*topTextColH,*bottomTextCol;
+            UIColor *topTextColData;
+            if (darkMode) {
+                topTextCol = [UIColor colorWithRed:0.5f green:0.5f blue:1.0f alpha:1.0f];;
+                topTextColData = [UIColor colorWithRed:0.8 green:0.8 blue:1.0 alpha:1.0];
+                topTextColH = [UIColor colorWithRed:1 green:1 blue:1 alpha:1.0];
+                bottomTextCol = [UIColor colorWithRed:0.6 green:0.6 blue:0.6 alpha:1.0];
+            } else {
+                topTextCol = [UIColor colorWithRed:0.0f green:0.0f blue:1.0f alpha:1.0f];;
+                topTextColData = [UIColor colorWithRed:0.2 green:0.2 blue:0.5 alpha:1.0];
+                topTextColH = [UIColor colorWithRed:0.0 green:0.0 blue:0.0 alpha:1.0];
+                bottomTextCol = [UIColor colorWithRed:0.4 green:0.4 blue:0.4 alpha:1.0];
+            }
+            
+            NSDictionary *baseAttributes = @{
+                NSForegroundColorAttributeName:topTextCol,
+                NSFontAttributeName:[UIFont systemFontOfSize:17.0f],
+                NSBackgroundColorAttributeName:[UIColor clearColor]
+            };
+            NSDictionary *attributesData = @{
+                NSForegroundColorAttributeName:topTextColData,
+                NSFontAttributeName:[UIFont systemFontOfSize:17.0f],
+            };
+            NSRange rangeData;
+            
+            //add entries for each group & country
+            el=[arr_url_groupsList objectAtIndex:0];
+            entries_nb+=[[el.content componentsSeparatedByString:@","] count];
+            entries_nb+=[arr_url_livedIn count];
+            
+            we=(t_web_file_entry*)calloc(1,sizeof(t_web_file_entry)*entries_nb);
+            
+            if ([arr_url_modulesLink count]>0) {
+                el=[arr_url_modulesLink objectAtIndex:0];
+                we[we_index].file_name=[NSString stringWithFormat:@"Modules: %@",el.content];
+                
+                we[we_index].file_nameAttr=[[NSMutableAttributedString alloc] initWithString:we[we_index].file_name attributes:baseAttributes];
+                rangeData = NSMakeRange([@"Modules: " length],[el.content length]);
+                [we[we_index].file_nameAttr setAttributes:attributesData range:rangeData];
+                
+                
+                we[we_index].file_URL=[NSString stringWithFormat:@"https://amp.dascene.net/%@",[el objectForKey:@"href"]];
+                we[we_index].url_type=AMP_LINK_MODULES_LIST;
+                //MDZILog("url of mods: %@",we[we_index].file_URL);
+            } else {
+                we[we_index].file_name=[NSString stringWithFormat:@"Modules: N/A"];
+                we[we_index].file_URL=nil;
+            }
+            [tmpArray addObject:[NSValue valueWithPointer:&(we[we_index++])]];
+            
+            el=[arr_url_realName objectAtIndex:0];
+            we[we_index].file_name=[NSString stringWithFormat:@"Real name: %@",el.content];
+            
+            we[we_index].file_nameAttr=[[NSMutableAttributedString alloc] initWithString:we[we_index].file_name attributes:baseAttributes];
+            rangeData = NSMakeRange([@"Real name: " length],[el.content length]);
+            [we[we_index].file_nameAttr setAttributes:attributesData range:rangeData];
+            we[we_index].file_URL=nil;
+            [tmpArray addObject:[NSValue valueWithPointer:&(we[we_index++])]];
+            
+            we[we_index].file_name=[NSString stringWithFormat:@"Lived in:"];
+            we[we_index].file_URL=nil;
+            [tmpArray addObject:[NSValue valueWithPointer:&(we[we_index++])]];
+            
+            for (int i=0;i<[arr_url_livedIn count];i++) {
+                el=[arr_url_livedIn objectAtIndex:i];
+                NSString *strTmp = [[el.raw componentsSeparatedByString:@"title=\""] lastObject];
+                strTmp = [[strTmp componentsSeparatedByString:@"\""] firstObject];
+                we[we_index].file_name=[NSString stringWithFormat:@" • %@",strTmp];
+                
+                TFHppleElement *el_img=[el firstChildWithTagName:@"img"];
+                if (el_img) {
+                    if ([el_img objectForKey:@"src"]) {
+                        we[we_index].file_img_URL=[NSString stringWithFormat:@"https://amp.dascene.net/%@",[el_img objectForKey:@"src"]];
+                        //MDZILog("found img: %@",we[we_index].file_img_URL);
+                        we[we_index].file_name=[NSString stringWithFormat:@"%@",strTmp];
+                    }
+                }
+                
+                we[we_index].file_nameAttr=[[NSMutableAttributedString alloc] initWithString:we[we_index].file_name attributes:baseAttributes];
+                rangeData = NSMakeRange(0,[we[we_index].file_name length]);
+                [we[we_index].file_nameAttr setAttributes:attributesData range:rangeData];
+                we[we_index].file_URL=[NSString stringWithFormat:@"https://amp.dascene.net/%@",[el objectForKey:@"href"]];;
+                we[we_index].url_type=AMP_LINK_COMPOSERS_LIST;
+                
+                
+                
+                [tmpArray addObject:[NSValue valueWithPointer:&(we[we_index++])]];
+            }
+            
+            el=[arr_url_exHandlesList objectAtIndex:0];
+            we[we_index].file_name=[NSString stringWithFormat:@"Ex.Handles: %@",el.content];
+            
+            we[we_index].file_nameAttr=[[NSMutableAttributedString alloc] initWithString:we[we_index].file_name attributes:baseAttributes];
+            rangeData = NSMakeRange([@"Ex.Handles: " length],[el.content length]);
+            [we[we_index].file_nameAttr setAttributes:attributesData range:rangeData];
+            
+            we[we_index].file_URL=nil;
+            [tmpArray addObject:[NSValue valueWithPointer:&(we[we_index++])]];
+            
+            el=[arr_url_groupsList objectAtIndex:0];
+            we[we_index].file_name=[NSString stringWithFormat:@"Was a member of:"];
+            we[we_index].file_URL=nil;
+            [tmpArray addObject:[NSValue valueWithPointer:&(we[we_index++])]];
+            
+            //get list of groups and links
+            for (TFHppleElement *child in el.children) {
+                if ([child objectForKey:@"href"]) {
+                    we[we_index].file_name=[NSString stringWithFormat:@" • %@",child.content];
+                    
+                    we[we_index].file_nameAttr=[[NSMutableAttributedString alloc] initWithString:we[we_index].file_name attributes:baseAttributes];
+                    rangeData = NSMakeRange(0,[we[we_index].file_name length]);
+                    [we[we_index].file_nameAttr setAttributes:attributesData range:rangeData];
+                    
+                    we[we_index].file_URL=[NSString stringWithFormat:@"https://amp.dascene.net/%@",[child objectForKey:@"href"]];
+                    we[we_index].url_type=AMP_LINK_COMPOSERS_LIST;
+                    //
+                    //MDZILog("url of %@: %@",we[we_index].file_name,we[we_index].file_URL);
+                    [tmpArray addObject:[NSValue valueWithPointer:&(we[we_index++])]];
+                }
+            }
+            
+            if ([arr_url_interviewLink count]>0) {
+                el=[arr_url_interviewLink objectAtIndex:0];
+                NSString *str=[NSString stringWithFormat:@"https://amp.dascene.net/%@",[el objectForKey:@"href"]];
+                if (![str containsString:@"downcount"]) {
+                    we[we_index].file_name=[NSString stringWithFormat:@"Interview"];
+                    we[we_index].file_URL=str;
+                    we[we_index].url_type=AMP_LINK_INTERVIEW;
+                    [tmpArray addObject:[NSValue valueWithPointer:&(we[we_index++])]];
+                }
+            }
+            
+            entries_noMoreToLoad=true;
+            
+            [self fillKeysWithWEBSourceCompleted:tmpArray entries_count:we_index entries_data:we];
+        }];
+        
+        [task resume];
+    }
+    if ((browse_subMode==AMP_LINK_MODULES_LIST)||
+               (browse_subMode==AMP_LINK_SEARCH_MODULES_LIST)) {
+        
+        ///////////////////////////////////////////////////////////////////////:
+        // AMP Modules list
+        ///////////////////////////////////////////////////////////////////////:
+        
+        dispatch_async(dispatch_get_main_queue(), ^(void){
+            [self updateWaitingDetail:[NSString stringWithFormat:@"fetching from %d",self.arr_current_fetch_position]];
+        });
+        
+        if (browse_subMode==AMP_LINK_SEARCH_MODULES_LIST) {
+            if ([mSearchText length]>0) {
+                url = [NSURL URLWithString:[NSString stringWithFormat:@"%@%@&position=%d",mWebBaseURL,mSearchText,arr_current_fetch_position]];
+            } else {
+                url = [NSURL URLWithString:@""];
+            }
+        } else url = [NSURL URLWithString:[NSString stringWithFormat:@"%@&position=%d",mWebBaseURL,arr_current_fetch_position]];
+        
+        NSURLSession *session = [NSURLSession sharedSession];
+
+        NSURLSessionDataTask *task =
+        [session dataTaskWithURL:url
+               completionHandler:^(NSData * _Nullable data,
+                                   NSURLResponse * _Nullable response,
+                                   NSError * _Nullable error)
+         {
+            if (error) {
+                NSLog(@"Erreur réseau : %@", error);
+                [self fillKeysWithWEBSourceCompleted:tmpArray entries_count:we_index entries_data:we];
+                return;
+            }
+            
+            if (!data) {
+                NSLog(@"Aucune donnée reçue");
+                [self fillKeysWithWEBSourceCompleted:tmpArray entries_count:we_index entries_data:we];
+                return;
+            }
+            
+            TFHpple *doc       = [[TFHpple alloc] initWithHTMLData:data];
+            
+            NSArray *arr_tmp_url_fileList=[doc searchWithXPathQuery:@"//div[@id='result']//tr[@class='tr0' or @class='tr1']/td[1]/a"];
+            NSArray *arr_tmp_url_composerList=[doc searchWithXPathQuery:@"//div[@id='result']//tr[@class='tr0' or @class='tr1']/td[2]/a"];
+            NSArray *arr_tmp_url_formatList=[doc searchWithXPathQuery:@"//div[@id='result']//tr[@class='tr0' or @class='tr1']/td[3]"];
+            NSArray *arr_tmp_url_sizeList=[doc searchWithXPathQuery:@"//div[@id='result']//tr[@class='tr0' or @class='tr1']/td[4]"];
+            
+            [arr_url_fileList addObjectsFromArray:arr_tmp_url_fileList];
+            [arr_url_composerList addObjectsFromArray:arr_tmp_url_composerList];
+            [arr_url_formatList addObjectsFromArray:arr_tmp_url_formatList];
+            [arr_url_sizeList addObjectsFromArray:arr_tmp_url_sizeList];
+            
+            int currentFiles=(int)[arr_url_fileList count];
+            
+            arr_current_fetch_position+=currentFiles;
+            if (currentFiles<50) {
+                entries_noMoreToLoad=true;
+            }
+            
+            int total_files=(int)[arr_url_fileList count];
+            int total_composers=(int)[arr_url_composerList count];
+            
+            //keep last items to remove unrelevant entries at beginning
+            while (total_composers>total_files) {
+                [arr_url_composerList removeObjectAtIndex:0];
+                total_composers--;
+            }
+            
+            int total_formats=(int)[arr_url_formatList count];
+            int total_sizes=(int)[arr_url_sizeList count];
+            if ( (total_files!=total_formats) ||
+                (total_files!=total_composers) ||
+                (total_files!=total_sizes) ) {
+                MDZELog("AMP consistency issue: files %d composers %d formats %d sizes %d\n",total_files,total_composers,total_formats,total_sizes);
+            }
+            
+            if (total_files) {
+                we=(t_web_file_entry*)calloc(1,sizeof(t_web_file_entry)*total_files);
+                
+                for (int j=0;j<total_files;j++) {
+                    TFHppleElement *el=[arr_url_fileList objectAtIndex:j];
+                    TFHppleElement *el_composer=[arr_url_composerList objectAtIndex:j];
+                    TFHppleElement *el_format=[arr_url_formatList objectAtIndex:j];
+                    TFHppleElement *el_size=[arr_url_sizeList objectAtIndex:j];
+                    
+                    we[we_index].file_URL=[NSString stringWithFormat:@"https://amp.dascene.net/%@",[el objectForKey:@"href"]];
+                    we[we_index].composer=[NSString stringWithFormat:@"%@",el_composer.content];
+                    we[we_index].file_name=[NSString stringWithFormat:@"%@.%@",[el_format.content lowercaseString],el.content];
+                    
+                    we[we_index].file_details=[NSString stringWithFormat:@"%@",el_size.content];
+                    we[we_index].url_type=AMP_LINK_MODULE_FILE;
+                    we[we_index].entries_nb=1;
+                    
+                    [tmpArray addObject:[NSValue valueWithPointer:&(we[we_index])]];
+                    we_index++;
+                }
+            }
+            
+            [self fillKeysWithWEBSourceCompleted:tmpArray entries_count:we_index entries_data:we];
+            
+        }];
+        
+        [task resume];
+    }
+    if (browse_subMode==AMP_LINK_INTERVIEW) {
+        
+        ///////////////////////////////////////////////////////////////////////:
+        // AMP Modules list
+        ///////////////////////////////////////////////////////////////////////:
+        
+        dispatch_async(dispatch_get_main_queue(), ^(void){
+            [self updateWaitingDetail:[NSString stringWithFormat:@"fetching interview"]];
+        });
+        
+        url = [NSURL URLWithString:[NSString stringWithFormat:@"%@",mWebBaseURL]];
+        
+        NSURLSession *session = [NSURLSession sharedSession];
+
+        NSURLSessionDataTask *task =
+        [session dataTaskWithURL:url
+               completionHandler:^(NSData * _Nullable data,
+                                   NSURLResponse * _Nullable response,
+                                   NSError * _Nullable error)
+         {
+            if (error) {
+                NSLog(@"Erreur réseau : %@", error);
+                [self fillKeysWithWEBSourceCompleted:tmpArray entries_count:we_index entries_data:we];
+                return;
+            }
+            
+            if (!data) {
+                NSLog(@"Aucune donnée reçue");
+                [self fillKeysWithWEBSourceCompleted:tmpArray entries_count:we_index entries_data:we];
+                return;
+            }
+            
+            TFHpple *doc       = [[TFHpple alloc] initWithHTMLData:data];
+            
+            NSArray *arr_interview=[doc searchWithXPathQuery:@"//div[@id='interview']/ul"];
+            
+            entries_noMoreToLoad=true;
+            
+            if ([arr_interview count]!=1) {
+                MDZELog("AMP consistency issue interview count: %d\n",(int)[arr_interview count]);
+            }
+            
+            if ([arr_interview count]) {
+                TFHppleElement *el=[arr_interview objectAtIndex:0];
+                
+                htmlData=[NSString stringWithFormat:@""
+                          "<!DOCTYPE html>"
+                          "<html>"
+                          "<head>"
+                          "<meta charset='UTF-8'><meta name='viewport' content='width=600, initial-scale=1.0, user-scalable=yes, no-shrink=yes'>"
+                          "    <style>"
+                          "        * {"
+                          "            font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;"
+                          "        }"
+                          ""
+                          "        body {"
+                          "            color: white;"
+                          "            font-size: small;"
+                          "-webkit-text-size-adjust: none;"
+                          "            background-color: #123456;"
+                          "            margin: 0;"
+                          "        }"
+                          "TT {"
+                          "font-family: Courier;"
+                          "}"
+                          ".small {"
+                          "font-family : tahoma, verdana, arial, geneva, sans-serif;"
+                          "font-size : 9pt;"
+                          "color : #000000;"
+                          "text-decoration : none;"
+                          "background-color : rgb(200,200,200);"
+                          "}"
+                          ""
+                          "        #interview {"
+                          "            text-align: justify;"
+                          "            width: 100%%;"
+                          "        }"
+                          ""
+                          "        #interview p {"
+                          "            font-size: 9pt;"
+                          "        }"
+                          ""
+                          "        #interview ul {"
+                          "            margin: 0;"
+                          "            font-size: 9pt;"
+                          "        }"
+                          ""
+                          "        #interview li {"
+                          "            margin: 0;"
+                          "            font-size: 9pt;"
+                          "            color: #fcce04;"
+                          "        }"
+                          ""
+                          "        #interview span {"
+                          "            color: #ffffff;"
+                          "        }"
+                          ""
+                          "        #interview h3 {"
+                          "            color: #fcce04;"
+                          "            text-decoration: underline;"
+                          "        }"
+                          ""
+                          "        #interview h5 {"
+                          "            text-align: left;"
+                          "            margin: 0;"
+                          "            margin-top: 5px;"
+                          "        }"
+                          "    A:link {"
+                          "    text-decoration : none;"
+                          "    font-weight : bold;"
+                          "    color : #f63;"
+                          "    }"
+                          "    A:visited {"
+                          "    text-decoration : none;"
+                          "    font-weight : bold;"
+                          "    color : #f63;"
+                          "    }"
+                          "    A:hover {"
+                          "    /*text-decoration : underline; */"
+                          "    color : #fc0;"
+                          "    }"
+                          "    A.offsite {"
+                          "    text-decoration : none;"
+                          "    font-weight : normal;"
+                          "    color : #f63;"
+                          "    background : #006;"
+                          "    }"
+                          "    </style>"
+                          "</head>"
+                          "<body>"
+                          "<div id=\"interview\">"
+                          "<p>"
+                          "<center><h3>Interview</h3></center>"
+                          "</p>"
+                          "<br />"
+                          "%@"
+                          "</body>"
+                          "</html>"
+                          "",el.raw];
+            }
+            
+            [self fillKeysWithWEBSourceCompleted:tmpArray entries_count:we_index entries_data:we];
+            
+        }];
+        
+        [task resume];
     }
 }
 

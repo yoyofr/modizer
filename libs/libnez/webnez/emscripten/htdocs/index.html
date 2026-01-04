@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type"
+      content="text/html; charset=utf-8">
+
+<!--
+ webNEZ: HTML5 Audio/JavaScript port of NEZplug++.
+
+ Copyright 
+  (C) 2018 Juergen Wothke
+
+ Credits: 
+  * Based on NEZplug++(http://offgao.net/program/nezplug++.html) code by Mamiya.
+  * The visualization used on this page was strongly "inspired" by this demo:
+    http://html5-demos.appspot.com/static/webaudio/createMediaSourceElement.html
+
+ LICENSE
+ 
+ This library is free software; you can redistribute it and/or modify it
+ under the terms of the GNU General Public License as published by
+ the Free Software Foundation; either version 2.1 of the License, or (at
+ your option) any later version. This library is distributed in the hope
+ that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ GNU General Public License for more details.
+ 
+ You should have received a copy of the GNU General Public
+ License along with this library; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
+-->
+<meta http-equiv="X-UA-Compatible" content="chrome=1" />
+<title>webNEZ - an 'antique computer music' player for the Web</title>
+
+<meta name="description" content="This enhanced WebAssembly/JavaScript version of 
+NEZplug++ allows to play the following legacy audio file formats: .ay, .gbr, .gbs, .hes, .kss, .mbm, .mus, .nfs, .sgc, .sng">
+<meta name="author" content="Juergen Wothke">
+<meta name="keywords" content="NEZplug++,WebAudio">
+
+<link href="stdlib/common.css" rel="stylesheet" type="text/css">
+
+<link rel="image_src" href="screenshot.gif" />
+<meta property="og:image" content="http://www.wothke.ch/webNEZ/screenshot.gif" />
+
+<link rel="icon" href="favicon.ico" type="image/x-icon">
+<link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
+<link type="image/x-icon" href="favicon.ico" />
+
+<style>
+.drop {
+	position: relative;
+	width:300px;
+	height:300px;
+	z-index:500;
+	-webkit-transform: translateX(-70px) translateY(60px) translateZ(0px) rotateX(0deg) rotateY(0deg) rotateZ(0deg);
+	-moz-transform: translateX(-80px) translateY(40px) translateZ(0px) rotateX(0deg) rotateY(0deg) rotateZ(0deg);
+}
+aside {
+	position: absolute;
+	z-index: 10;
+	left: 150px;
+	top: 15px;
+}
+
+</style>
+
+<script>
+	window.openDetails = false;
+
+	let allFilesLoadedCallback = function() {
+		$(function() {	// DOM also is loaded
+			try {
+				new Main().run();
+			}
+			catch (e) {
+				alert("fatal error: " + e);
+			}
+		});
+	}
+
+	/*
+	If HTML wasn't such a green banana joke, there would be a built-in feature to allow
+	to specify a simple "include dependencies" configuration in a human readable form... but
+	since this doesn't exist I am using https://github.com/muicss/loadjs as a poor man's
+	crutch (I somewhat enhanced that API with loadJsBundles)
+	*/
+	function loadJsBundles(e){const n=function(e,n,t){let s=n[0];loadjs(s,e);let r=n[1];if(void 0!==r&&null!=r)if("function"==typeof r){let n=function(){r()};loadjs.ready(e,{success:n})}else{let n=function(){t(r)};loadjs.ready(e,{success:n})}};for(const[t,s]of Object.entries(e))if("@onReady"==t){let e=s[0],n=function(){loadJsBundles(s[1])};loadjs.ready(e,{success:n})}else n(t,s,loadJsBundles)}loadjs=function(){var e=function(){},n={},t={},s={};function r(e,n){if(e){var r=s[e];if(t[e]=n,r)for(;r.length;)r[0](e,n),r.splice(0,1)}}function o(n,t){n.call&&(n={success:n}),t.length?(n.error||e)(t):(n.success||e)(n)}function c(n,t,s,r){var o,i,u=document,l=s.async,f=(s.numRetries||0)+1,a=s.before||e,d=n.replace(/[\?|#].*$/,""),h=n.replace(/^(css|img)!/,"");r=r||0,/(^css!|\.css$)/.test(d)?((i=u.createElement("link")).rel="stylesheet",i.href=h,(o="hideFocus"in i)&&i.relList&&(o=0,i.rel="preload",i.as="style")):/(^img!|\.(png|gif|jpg|svg|webp)$)/.test(d)?(i=u.createElement("img")).src=h:((i=u.createElement("script")).src=n,i.async=void 0===l||l),!(i.onload=i.onerror=i.onbeforeload=function(e){var u=e.type[0];if(o)try{i.sheet.cssText.length||(u="e")}catch(e){18!=e.code&&(u="e")}if("e"==u){if((r+=1)<f)return c(n,t,s,r)}else if("preload"==i.rel&&"style"==i.as)return i.rel="stylesheet";t(n,u,e.defaultPrevented)})!==a(n,i)&&u.head.appendChild(i)}function i(e,t,s){var i,u;if(t&&t.trim&&(i=t),u=(i?s:t)||{},i){if(i in n)throw"LoadJS";n[i]=!0}function l(n,t){!function(e,n,t){var s,r,o=(e=e.push?e:[e]).length,i=o,u=[];for(s=function(e,t,s){if("e"==t&&u.push(e),"b"==t){if(!s)return;u.push(e)}--o||n(u)},r=0;r<i;r++)c(e[r],s,t)}(e,(function(e){o(u,e),n&&o({success:n,error:t},e),r(i,e)}),u)}if(u.returnPromise)return new Promise(l);l()}return i.ready=function(e,n){return function(e,n){e=e.push?e:[e];var r,o,c,i=[],u=e.length,l=u;for(r=function(e,t){t.length&&i.push(e),--l||n(i)};u--;)o=e[u],(c=t[o])?r(o,c):(s[o]=s[o]||[]).push(r)}(e,(function(e){o(n,e)})),i},i.done=function(e){r(e,[])},i.reset=function(){n={},t={},s={}},i.isDefined=function(e){return e in n},i}();
+
+	loadJsBundles({
+		uiBundle:	[[
+						'stdlib/mini_controls.js',
+						'stdlib/analytics.js'
+						]],
+		jQueryBase: [[	'stdlib/jquery1.11.min.js'], {
+								jQueryBundle: [[	'stdlib/jquery.details.min.js',
+													'stdlib/mini_display.js',
+													]],
+						}],
+		playerBase: [[	'stdlib/scriptprocessor_player.min.js'], {
+								playerBundle: [[	'backend_nez.js'
+													]],
+							}],
+		"@onReady": [['uiBundle', 'jQueryBundle', 'playerBundle'], {
+								mainBundle: [['main.js'], allFilesLoadedCallback]
+							}]
+	});
+</script>
+</head>
+
+<body>
+<div class="tooltip" id="tooltip" alt= "This is a hobby project, but it costs not only time to regularily maintain this site but also money to pay for the internet service provider (etc). If you want to keep this site up and running.. or if you just like my work (see https://jwothke.wordpress.com/) and you'd like to see more of it in the future, please make a contribution. Thank you!"></div>
+
+<details>
+  <summary>What's this?</summary>
+  <div>
+  <h1>Enhanced web port of NEZplug++</h1>
+  <p>Copyright (C) 2018-2023 by Juergen Wothke  (The source code can be found <a rel="noopener" target="_blank" href="https://bitbucket.org/wothke/webnez">here</a>.)</p>
+  <p>This enhanced JavaScript/WebAssenbly/HTML5 port of <a href="http://offgao.net/program/nezplug++.html" rel="noopener" target="_blank">NEZplug++</a> is a 
+  "swiss army knife" type of "legacy computer music" player that emulates a wide range of game consoles and home computers (Famicom, Game Gear, 
+  Game Boy, TurboGrafx-16 aka PC-Engine, MSX, ZX Spectrum.) Special purpose emulators may provide better results in some cases, e.g.  
+  <a href="https://www.wothke.ch/webTurbo" rel="noopener" target="_blank">webTurbo</a> 
+  for "Hudson Entertainment Sound" (.hes) or <a href="https://www.wothke.ch/spectreZX" rel="noopener" target="_blank">spectreZX</a> for ZXSpectrum (.ay, etc).</p>
+ 
+  <p>Bring your own music files (.ay, .gbr, .gbs, .hes, .kss, .mbm, .mus, .nfs, .sgc, .sng) by dropping them onto the page. In order to drag&amp;drop songs 
+  that require additional library files (e.g. drumkits for .mus and .mbm songs) select all the files that belong to the song and drop 
+  these on the page in one go. Note that formats like sgc are poorly suited for drag and dropping since actually used track IDs cannot automatically be 
+  guessed correctly by the player. Respective music files can be found on <a href="https://ftp.modland.com/pub/modules/" rel="noopener" target="_blank">modland.com</a>. 
+  and in other online legacy software collections.</p>
+ 
+  <p>This is one of about 30 music players that I have ported to the Web over the years. To hear them all
+  in action visit my <a href="http://www.wothke.ch/playmod/" rel="noopener" target="_blank">PlayMOD</a> page.</p>
+ 
+ <p>Credits: The original NEZplug was created by Mr. Mamiya with the NEZplug++ extensions by RuRuRu. The music files
+ used as examples are fetched directly from ftp.modland.com (If you are a copyright holder of a respective song and
+ do not want it to be used here let me know so that I can replace it.)</p>
+
+ </div>
+</details>
+<aside>
+    <span id="controls" style="z-index: 1101;"></span>
+</aside>
+
+<section>
+  <div id="logo">
+		<!-- in new Chrome the reflections disapear dependig on the canvas height.. what a fucking joke -->
+		<div id="moz-reflect-logo"><canvas  id="logoCanvas"  width="270" height="100"></canvas></div>	
+  </div>
+  
+  <div id="spectrum" >
+		<!-- use "hight" greater than 80 and the fucking reflection is gone.. FUCK YOU IDIOTS -->
+		<div id="moz-reflect-spectrum"><canvas id="spectrumCanvas" width="800" height="80"></canvas></div>
+  </div>
+  <div id="drop" class="drop"><img src="NEZ.webp"/></div><!--see BasicPlayerControls-->
+</section>
+</body>
+</html>

@@ -1,0 +1,5 @@
+Portable HES/KSS/NSF/GBR/GBS/AY Player library
+Location: http://www.proc.org.tohoku.ac.jp/befis/
+Language: ANSI-C
+Author:   Mamiya (mamiya@proc.org.tohoku.ac.jp)
+License:  PDS

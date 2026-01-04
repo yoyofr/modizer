@@ -854,6 +854,7 @@
 		CCB8D99F17F62A18008E6A45 /* txtMenu8b_2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CCB8D98D17F62A18008E6A45 /* txtMenu8b_2x.png */; };
 		CCB8D9A317F62A18008E6A45 /* txtMenu11a_2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CCB8D99117F62A18008E6A45 /* txtMenu11a_2x.png */; };
 		CCB8D9A417F62A18008E6A45 /* txtMenu11c_2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CCB8D99217F62A18008E6A45 /* txtMenu11c_2x.png */; };
+		CCB99AF92F09D6340024DFBB /* libnez.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CCB998CE2F09A39F0024DFBB /* libnez.a */; };
 		CCBE60582EE2DD44000FDD7E /* vfs68_mem.c in Sources */ = {isa = PBXBuildFile; fileRef = CC8368162B57CA9A0035A4DA /* vfs68_mem.c */; };
 		CCBE60592EE2DD44000FDD7E /* inst68.c in Sources */ = {isa = PBXBuildFile; fileRef = CC8369262B57CCC70035A4DA /* inst68.c */; };
 		CCBE605A2EE2DD44000FDD7E /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 59C22A3025B99ACA003FEDBF /* Reachability.m */; };
@@ -2097,6 +2098,13 @@
 			proxyType = 2;
 			remoteGlobalIDString = CCB816ED2B7196A500364D64;
 			remoteInfo = libpixel;
+		};
+		CCB998CD2F09A39F0024DFBB /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = CCB998AE2F09A39E0024DFBB /* nez.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = CCB998A12F09A39E0024DFBB;
+			remoteInfo = nez;
 		};
 		CCC3A1C62BE77E6A00710980 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -3917,6 +3925,7 @@
 		CCB8D98D17F62A18008E6A45 /* txtMenu8b_2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu8b_2x.png; sourceTree = "<group>"; };
 		CCB8D99117F62A18008E6A45 /* txtMenu11a_2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu11a_2x.png; sourceTree = "<group>"; };
 		CCB8D99217F62A18008E6A45 /* txtMenu11c_2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu11c_2x.png; sourceTree = "<group>"; };
+		CCB998AE2F09A39E0024DFBB /* nez.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = nez.xcodeproj; path = libnez/nez/nez.xcodeproj; sourceTree = "<group>"; };
 		CCBE63E82EE2DD44000FDD7E /* modizer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = modizer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CCBF10011221788200E8DE4E /* digidrum.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = digidrum.cpp; sourceTree = "<group>"; };
 		CCBF10021221788200E8DE4E /* digidrum.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = digidrum.h; sourceTree = "<group>"; };
@@ -4131,6 +4140,7 @@
 				CCDC905D2BBA97E30049CA0D /* libgbsplay.a in Frameworks */,
 				CC1E56C71200B391000A8A4E /* MediaPlayer.framework in Frameworks */,
 				59BDE96D260FE5A500FB0C69 /* libHighlyQuixotic.a in Frameworks */,
+				CCB99AF92F09D6340024DFBB /* libnez.a in Frameworks */,
 				5966D0C525CFEE3000520777 /* libLazyusf.a in Frameworks */,
 				5966D0BF25CFEE0F00520777 /* libgme.a in Frameworks */,
 				CC6B93632EDF8E8700383CC4 /* libsidplayfp.a in Frameworks */,
@@ -4593,6 +4603,7 @@
 		593925CB25CF0C56009281DC /* libs */ = {
 			isa = PBXGroup;
 			children = (
+				CCB998AE2F09A39E0024DFBB /* nez.xcodeproj */,
 				CC3144652EF28F5B0053DCE1 /* monkeyaudiocodec.xcodeproj */,
 				CCC541B62B89DD1700E97EC1 /* adplug.xcodeproj */,
 				333157371207699700815317 /* AHX */,
@@ -6518,6 +6529,14 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		CCB998AF2F09A39E0024DFBB /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				CCB998CE2F09A39F0024DFBB /* libnez.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		CCBF0FF91221788200E8DE4E /* STSound */ = {
 			isa = PBXGroup;
 			children = (
@@ -6989,6 +7008,10 @@
 					ProjectRef = CC7BBD332B800AF600D8CAAE /* mpg123-openmpt.xcodeproj */;
 				},
 				{
+					ProductGroup = CCB998AF2F09A39E0024DFBB /* Products */;
+					ProjectRef = CCB998AE2F09A39E0024DFBB /* nez.xcodeproj */;
+				},
+				{
 					ProductGroup = CC7BBD3A2B800B0200D8CAAE /* Products */;
 					ProjectRef = CC7BBD392B800B0200D8CAAE /* ogg-openmpt.xcodeproj */;
 				},
@@ -7302,6 +7325,13 @@
 			fileType = archive.ar;
 			path = liblibpixel.a;
 			remoteRef = CCB816FD2B7196A500364D64 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		CCB998CE2F09A39F0024DFBB /* libnez.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libnez.a;
+			remoteRef = CCB998CD2F09A39F0024DFBB /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		CCC3A1C72BE77E6A00710980 /* libliblzma_mdz.a */ = {
@@ -8689,10 +8719,6 @@
 				ENABLE_RESOURCE_ACCESS_PRINTING = NO;
 				ENABLE_RESOURCE_ACCESS_USB = NO;
 				ENABLE_USER_SELECTED_FILES = readonly;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/utils",
-				);
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
@@ -8700,6 +8726,21 @@
 				GCC_PREFIX_HEADER = modizer_Prefix.pch;
 				GCC_THUMB_SUPPORT = NO;
 				GCC_VERSION = "";
+				HEADER_SEARCH_PATHS = (
+					utils/libarchive/libarchive/libarchive,
+					"$(PROJECT_DIR)/libs/binio/libbinio-master/src",
+					"$(PROJECT_DIR)/utils/MSColorPicker-master",
+					"$(PROJECT_DIR)/utils/MetalANGLE/",
+					"${PROJECT_DIR}/../../include",
+					"${PROJECT_DIR}/../../third_party",
+					"$(PROJECT_DIR)/utils/projectm-ios/libprojectM/src/api/include",
+					"$(PROJECT_DIR)/utils/projectm-ios/libprojectM/src/playlist/api",
+					"$(PROJECT_DIR)/utils/projectm-ios/libprojectM/vendor",
+					"$(PROJECT_DIR)/libs/monkeyaudiocodec/mac-master/src/shared",
+					"$(PROJECT_DIR)/libs/monkeyaudiocodec/mac-master/src/MACLib",
+					"$(PROJECT_DIR)/libs/libnez/webnez/src",
+					"$(PROJECT_DIR)/libs/libnez/webnez/src/format",
+				);
 				INFOPLIST_KEY_CFBundleDisplayName = Modizer;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.music";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
@@ -8744,16 +8785,27 @@
 				ENABLE_RESOURCE_ACCESS_PRINTING = NO;
 				ENABLE_RESOURCE_ACCESS_USB = NO;
 				ENABLE_USER_SELECTED_FILES = readonly;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/utils",
-				);
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = modizer_Prefix.pch;
 				GCC_THUMB_SUPPORT = NO;
 				GCC_VERSION = "";
+				HEADER_SEARCH_PATHS = (
+					utils/libarchive/libarchive/libarchive,
+					"$(PROJECT_DIR)/libs/binio/libbinio-master/src",
+					"$(PROJECT_DIR)/utils/MSColorPicker-master",
+					"$(PROJECT_DIR)/utils/MetalANGLE/",
+					"${PROJECT_DIR}/../../include",
+					"${PROJECT_DIR}/../../third_party",
+					"$(PROJECT_DIR)/utils/projectm-ios/libprojectM/src/api/include",
+					"$(PROJECT_DIR)/utils/projectm-ios/libprojectM/src/playlist/api",
+					"$(PROJECT_DIR)/utils/projectm-ios/libprojectM/vendor",
+					"$(PROJECT_DIR)/libs/monkeyaudiocodec/mac-master/src/shared",
+					"$(PROJECT_DIR)/libs/monkeyaudiocodec/mac-master/src/MACLib",
+					"$(PROJECT_DIR)/libs/libnez/webnez/src",
+					"$(PROJECT_DIR)/libs/libnez/webnez/src/format",
+				);
 				INFOPLIST_KEY_CFBundleDisplayName = Modizer;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.music";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
@@ -8809,6 +8861,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/libs/ffmpeg-kit",
+					"$(PROJECT_DIR)/utils",
 				);
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -8838,6 +8891,7 @@
 					"$(PROJECT_DIR)/utils/projectm-ios/libprojectM/vendor",
 					"$(PROJECT_DIR)/libs/monkeyaudiocodec/mac-master/src/shared",
 					"$(PROJECT_DIR)/libs/monkeyaudiocodec/mac-master/src/MACLib",
+					"$(PROJECT_DIR)/libs/libnez/webnez/src/format",
 				);
 				INFOPLIST_FILE = "modizer-info.plist";
 				"INFOPLIST_FILE[sdk=iphone*]" = "modizer-info.plist";
@@ -8972,6 +9026,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/libs/ffmpeg-kit",
+					"$(PROJECT_DIR)/utils",
 				);
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -8998,6 +9053,7 @@
 					"$(PROJECT_DIR)/utils/projectm-ios/libprojectM/vendor",
 					"$(PROJECT_DIR)/libs/monkeyaudiocodec/mac-master/src/shared",
 					"$(PROJECT_DIR)/libs/monkeyaudiocodec/mac-master/src/MACLib",
+					"$(PROJECT_DIR)/libs/libnez/webnez/src/format",
 				);
 				INFOPLIST_FILE = "modizer-info.plist";
 				"INFOPLIST_FILE[sdk=iphone*]" = "modizer-info.plist";
@@ -9134,6 +9190,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/libs/ffmpeg-kit",
+					"$(PROJECT_DIR)/utils",
 				);
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -9159,6 +9216,7 @@
 					"$(PROJECT_DIR)/utils/projectm-ios/libprojectM/vendor",
 					"$(PROJECT_DIR)/libs/monkeyaudiocodec/mac-master/src/shared",
 					"$(PROJECT_DIR)/libs/monkeyaudiocodec/mac-master/src/MACLib",
+					"$(PROJECT_DIR)/libs/libnez/webnez/src/format",
 				);
 				INFOPLIST_FILE = "modizer-info.plist";
 				"INFOPLIST_FILE[sdk=iphone*]" = "modizer-info.plist";
@@ -9285,16 +9343,27 @@
 				ENABLE_RESOURCE_ACCESS_PRINTING = NO;
 				ENABLE_RESOURCE_ACCESS_USB = NO;
 				ENABLE_USER_SELECTED_FILES = readonly;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/utils",
-				);
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = modizer_Prefix.pch;
 				GCC_THUMB_SUPPORT = NO;
 				GCC_VERSION = "";
+				HEADER_SEARCH_PATHS = (
+					utils/libarchive/libarchive/libarchive,
+					"$(PROJECT_DIR)/libs/binio/libbinio-master/src",
+					"$(PROJECT_DIR)/utils/MSColorPicker-master",
+					"$(PROJECT_DIR)/utils/MetalANGLE/",
+					"${PROJECT_DIR}/../../include",
+					"${PROJECT_DIR}/../../third_party",
+					"$(PROJECT_DIR)/utils/projectm-ios/libprojectM/src/api/include",
+					"$(PROJECT_DIR)/utils/projectm-ios/libprojectM/src/playlist/api",
+					"$(PROJECT_DIR)/utils/projectm-ios/libprojectM/vendor",
+					"$(PROJECT_DIR)/libs/monkeyaudiocodec/mac-master/src/shared",
+					"$(PROJECT_DIR)/libs/monkeyaudiocodec/mac-master/src/MACLib",
+					"$(PROJECT_DIR)/libs/libnez/webnez/src",
+					"$(PROJECT_DIR)/libs/libnez/webnez/src/format",
+				);
 				INFOPLIST_KEY_CFBundleDisplayName = Modizer;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.music";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
