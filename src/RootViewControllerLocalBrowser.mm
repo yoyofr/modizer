@@ -1993,13 +1993,6 @@ As a consequence, some entries might disappear from existing playlist.\n\
 - (NSInteger)tableView:(UITableView *)tabView sectionForSectionIndexTitle:(NSString *)title atIndex:(NSInteger)index {
     return -1;
 }
-/**
- Tells the delegate that a button of the left side is triggered.
- 
- @param cell The cell informing the delegate of the event.
- @param buttonIndex The index of the button which is triggered.
- */
-
 
 - (UITableViewCell *) tableView:(UITableView *)tabView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     static NSString *CellIdentifier = @"Cell";
@@ -2270,6 +2263,7 @@ As a consequence, some entries might disappear from existing playlist.\n\
                 [SPCTagParser freeTag:&tag]; // Libérer la mémoire
             }
         }
+        
         if (cur_local_entries[indexPath.row].altlabel) cellValue=cur_local_entries[indexPath.row].altlabel;
         
         

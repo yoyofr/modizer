@@ -13,7 +13,6 @@
 
 #import "CMPopTipView.h"
 
-#import "SESlideTableViewCell.h"
 #import "MiniPlayerVC.h"
 #import "WaitingView.h"
 
@@ -21,7 +20,7 @@
 
 @class DetailViewControllerIphone;
 
-@interface RootViewControllerPlaylist : UIViewController <UINavigationControllerDelegate,UISearchBarDelegate,UIActionSheetDelegate,UIGestureRecognizerDelegate,CMPopTipViewDelegate,SESlideTableViewCellDelegate> {
+@interface RootViewControllerPlaylist : UIViewController <UINavigationControllerDelegate,UISearchBarDelegate,UIActionSheetDelegate,UIGestureRecognizerDelegate,CMPopTipViewDelegate> {
 	NSString *ratingImg[3];
 	UIView *infoMsgView;
 	UILabel *infoMsgLbl;

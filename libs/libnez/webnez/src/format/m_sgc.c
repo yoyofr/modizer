@@ -542,6 +542,8 @@ static struct {
 	char* title;
 	char* artist;
 	char* copyright;
+    const char* type;
+    const char* system;
 	char detail[1024];
 }songinfodata;
 static Uint8 titlebuffer[0x21];
@@ -588,6 +590,11 @@ static Uint32 load(NEZ_PLAY *pNezPlay, SGCSEQ *THIS_, Uint8 *pData, Uint32 uSize
 	SONGINFO_SetPlayAddress(pNezPlay->song, THIS_->playaddr);
 //	SONGINFO_SetExtendDevice(pNezPlay->song, THIS_->extdevice << 8);
 
+    songinfodata.type="SGC";
+    songinfodata.system=system_name[THIS_->systype];
+    
+    SONGINFO_SetSystem(pNezPlay->song, songinfodata.system);
+    SONGINFO_SetType(pNezPlay->song, songinfodata.type);
 	sprintf(songinfodata.detail,
 #ifdef EMSCRIPTEN
 "Type          : SGC<br>\r\n\

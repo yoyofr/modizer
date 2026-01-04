@@ -675,6 +675,70 @@ int qsort_ComparePlaylistEntriesRevFP(const void *entryA, const void *entryB) {
 END_PROFILE
 }
 
+- (NSString*) getTitleFromTags:(NSString*)filePath {
+    NSString *ret=[[filePath lastPathComponent] stringByDeletingPathExtension];
+    NSURL *url = [NSURL fileURLWithPath:filePath];
+    AVURLAsset *asset = [AVURLAsset URLAssetWithURL:url options:nil];
+    // Métadonnées communes (recommandé)
+    for (AVMetadataItem *item in asset.commonMetadata) {
+        NSString *key = item.commonKey;
+        NSString *value = item.stringValue;
+        if (key && value) {
+            if ([[key lowercaseString] isEqualToString:@"title"]) {
+                ret=[NSString stringWithString:value];
+                break;
+            }
+        }
+    }
+    NSNumber *track = nil;
+    // ID3
+    for (AVMetadataItem *item in [asset metadataForFormat:AVMetadataFormatID3Metadata]) {
+        if ([item.key isEqual:AVMetadataID3MetadataKeyTrackNumber]) {
+            NSArray *parts = [item.stringValue componentsSeparatedByString:@"/"];
+            track = @([parts.firstObject integerValue]);
+            break;
+        }
+    }
+    // iTunes
+    for (AVMetadataItem *item in [asset metadataForFormat:AVMetadataFormatiTunesMetadata]) {
+        if ([item.key isEqual:AVMetadataiTunesMetadataKeyTrackNumber]) {
+            NSDictionary *dict = (NSDictionary *)item.value;
+            track = dict[@"trackNumber"];
+            break;
+        }
+    }
+    // Vorbis
+    NSString *VorbisFormat = @"org.xiph.vorbis.comments";
+    if ([asset.availableMetadataFormats containsObject:VorbisFormat]) {
+        
+        for (AVMetadataItem *item in [asset metadataForFormat:VorbisFormat]) {
+            NSString *key = [item.key description];
+            if ([key caseInsensitiveCompare:@"TRACKNUMBER"] == NSOrderedSame) {
+                track = @([item.stringValue integerValue]);
+                break;
+            }
+        }
+    }
+    if (track) ret=[NSString stringWithFormat:@"%@.%@",track.stringValue,ret];
+    return ret;
+}
+
+-(void) updatePlaylistEntriesFromTag {
+    NSArray *filetype_extVGMSTREAM=[SUPPORTED_FILETYPE_VGMSTREAM componentsSeparatedByString:@","];
+    NSString *ext;
+    if (!playlist) return;
+    for (int i=0;i<playlist->nb_entries;i++) {
+        ext=[[playlist->entries[i].fullpath pathExtension] uppercaseString];
+        for (NSString *item in filetype_extVGMSTREAM) {
+            if ([item isEqualToString:ext]) {
+                playlist->entries[i].label=[self getTitleFromTags:[ModizFileHelper getFullCleanFilePath:playlist->entries[i].fullpath]];
+                break;
+            }
+        }
+    }
+}
+
+
 -(void) fillKeys {
     if (browse_depth==0) {
         keys = [[NSMutableArray alloc] init];
@@ -712,6 +776,7 @@ END_PROFILE
         switch (integrated_playlist) {
             case 0: //not integrated playlist, refresh currently selected playlist
                 [self loadPlayListsFromDB:playlist->playlist_id intoPlaylist:playlist];
+                [self updatePlaylistEntriesFromTag];
                 break;
             case INTEGRATED_PLAYLIST_NOWPLAYING:
                 [self reloadNowPlaying];
@@ -2618,21 +2683,7 @@ int getPlaylistStatsDBmod(t_playlist *pl) {
     return -1;
 }
 
-/**
- Asks the delegate if the cell can be a slide-state.
- 
- The result of this function is not reflected to the slide indicators of the cell.
- You should set "showsLeftSlideIndicator" or "showsRightSlideIndicator" property of SESlideTableViewCell manually.
- 
- @return YES if the cell can be the state, otherwise NO.
- @param cell The cell that is making this request.
- @param slideState The state that the cell want to be.
- */
-- (BOOL)slideTableViewCell:(SESlideTableViewCell*)cell canSlideToState:(SESlideTableViewCellSlideState)slideState {
-    return YES;
-}
-
-
+#if 0
 - (void)slideTableViewCell:(SESlideTableViewCell*)cell didTriggerRightButton:(NSInteger)buttonIndex {
     if ([cell.reuseIdentifier compare:@"CellA"]==NSOrderedSame) {
         //DELETE action requested
@@ -2752,13 +2803,194 @@ int getPlaylistStatsDBmod(t_playlist *pl) {
         }
     }
 }
+#endif
 
-- (void)slideTableViewCell:(SESlideTableViewCell*)cell didTriggerLeftButton:(NSInteger)buttonIndex {
+- (UISwipeActionsConfiguration *)tableView:(UITableView *)tableView
+trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
+    if (browse_depth==0) {
+        if (indexPath.row>=5) {
+            //////////////////////////////////////////////////////////////////////////////////////:
+            //main playlist screen, delete a playlist
+            //////////////////////////////////////////////////////////////////////////////////////:
+            UIContextualAction *deleteAction =
+            [UIContextualAction contextualActionWithStyle:UIContextualActionStyleDestructive
+                                                    title:NSLocalizedString(@"Delete", @"")
+                                                  handler:^(UIContextualAction *action,
+                                                            UIView *sourceView,
+                                                            void (^completionHandler)(BOOL)) {
+                
+                
+                UIAlertController* alert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Warning",@"")
+                                                                               message:NSLocalizedString(@"Are you sure you want to delete this playlist ?",@"")
+                                                                        preferredStyle:UIAlertControllerStyleAlert];
+                
+                UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel",@"") style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+                    
+                }];
+                [alert addAction:cancelAction];
+                
+                UIAlertAction *saveAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Delete",@"") style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+                    if ([self deletePlaylistDB:[list objectAtIndex:indexPath.row-5]]) {
+                        keys=nil;
+                        list=nil;
+                        [self fillKeys];
+                        [self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
+                    }
+                    [tableView reloadData];
+                    completionHandler(YES);
+                }];
+                [alert addAction:saveAction];
+                
+                [self presentViewController:alert animated:YES completion:nil];
+                completionHandler(YES);
+            }];
+        deleteAction.backgroundColor = [UIColor redColor];
+        
+        // Return multiple actions - they appear from right to left
+        return [UISwipeActionsConfiguration configurationWithActions:@[deleteAction]];
+        }
+    } else if (browse_depth==1) {
+        if (show_playlist) {
+            if (integrated_playlist==INTEGRATED_PLAYLIST_NOWPLAYING) {
+                //////////////////////////////////////////////////////////////////////////////////////:
+                //nowplaying playlist, remove an entry
+                //////////////////////////////////////////////////////////////////////////////////////:
+                
+                
+                UIContextualAction *deleteAction =
+                [UIContextualAction contextualActionWithStyle:UIContextualActionStyleDestructive
+                                                        title:NSLocalizedString(@"Delete", @"")
+                                                      handler:^(UIContextualAction *action,
+                                                                UIView *sourceView,
+                                                                void (^completionHandler)(BOOL)) {
+                    
+                    detailViewController.mPlaylist[indexPath.row-1].mPlaylistFilename=nil;
+                    detailViewController.mPlaylist[indexPath.row-1].mPlaylistFilepath=nil;
+                    for (int i=indexPath.row-1;i<playlist->nb_entries-1;i++) {
+                        detailViewController.mPlaylist[i].mPlaylistFilename=detailViewController.mPlaylist[i+1].mPlaylistFilename;
+                        detailViewController.mPlaylist[i].mPlaylistFilepath=detailViewController.mPlaylist[i+1].mPlaylistFilepath;
+                        detailViewController.mPlaylist[i].mPlaylistRating=detailViewController.mPlaylist[i+1].mPlaylistRating;
+                        detailViewController.mPlaylist[i].mPlaylistCount=detailViewController.mPlaylist[i+1].mPlaylistCount;
+                        detailViewController.mPlaylist[i].cover_flag=detailViewController.mPlaylist[i+1].cover_flag;
+                    }
+                    detailViewController.mPlaylist_size--;
+                    if (detailViewController.mPlaylist_pos>=detailViewController.mPlaylist_size) detailViewController.mPlaylist_pos--;
+                    if ((indexPath.row-1)<=detailViewController.mPlaylist_pos) detailViewController.mPlaylist_pos--;
+                    detailViewController.mShouldUpdateInfos=1;
+                    
+                    [self reloadNowPlaying];
+                    
+                    forceReloadCells=true;
+                    [self.tableView reloadData];
+                    completionHandler(YES);
+                }];
+                
+                deleteAction.backgroundColor = [UIColor redColor];
+                
+                // Return multiple actions - they appear from right to left
+                return [UISwipeActionsConfiguration configurationWithActions:@[deleteAction]];
+                
+            } else if (integrated_playlist==INTEGRATED_PLAYLIST_RANDOM) {
+                //to check
+            } else if (integrated_playlist==INTEGRATED_PLAYLIST_MOSTPLAYED) {
+                
+                UIContextualAction *deleteAction =
+                [UIContextualAction contextualActionWithStyle:UIContextualActionStyleDestructive
+                                                        title:NSLocalizedString(@"Delete", @"")
+                                                      handler:^(UIContextualAction *action,
+                                                                UIView *sourceView,
+                                                                void (^completionHandler)(BOOL)) {
+                    
+                    short int playcount;
+                    signed char rating,avg_rating;
+                    
+                    DBHelper::getFileStatsDBmod(playlist->entries[indexPath.row-1].fullpath,
+                                                &playcount,&rating,&avg_rating);
+                    playcount=0;
+                    DBHelper::updateFileStatsDBmod(playlist->entries[indexPath.row-1].label,
+                                                   playlist->entries[indexPath.row-1].fullpath,
+                                                   playcount,rating,avg_rating);
+                    
+                    [self loadMostPlayedList:playlist];
+                    
+                    forceReloadCells=true;
+                    [self.tableView reloadData];
+                    completionHandler(YES);
+                }];
+                
+                deleteAction.backgroundColor = [UIColor redColor];
+                
+                // Return multiple actions - they appear from right to left
+                return [UISwipeActionsConfiguration configurationWithActions:@[deleteAction]];
+                
+            } else if (integrated_playlist==INTEGRATED_PLAYLIST_FAVORITES) {
+                UIContextualAction *deleteAction =
+                [UIContextualAction contextualActionWithStyle:UIContextualActionStyleDestructive
+                                                        title:NSLocalizedString(@"Delete", @"")
+                                                      handler:^(UIContextualAction *action,
+                                                                UIView *sourceView,
+                                                                void (^completionHandler)(BOOL)) {
+                    short int playcount;
+                    signed char rating,avg_rating;
+                    DBHelper::getFileStatsDBmod(playlist->entries[indexPath.row-1].fullpath,
+                                                &playcount,&rating,&avg_rating);
+                    rating=0;
+                    DBHelper::updateFileStatsDBmod(playlist->entries[indexPath.row-1].label,
+                                                   playlist->entries[indexPath.row-1].fullpath,
+                                                   playcount,rating,avg_rating);
+                    
+                    [self loadFavoritesList:playlist];
+                    forceReloadCells=true;
+                    [self.tableView reloadData];
+                    completionHandler(YES);
+                }];
+                
+                deleteAction.backgroundColor = [UIColor redColor];
+                
+                // Return multiple actions - they appear from right to left
+                return [UISwipeActionsConfiguration configurationWithActions:@[deleteAction]];
+            } else if (integrated_playlist==0) {
+                if (indexPath.row>=2) {
+                    //////////////////////////////////////////////////////////////////////////////////////:
+                    //user playlist, remove an entry
+                    //////////////////////////////////////////////////////////////////////////////////////:
+                    
+                    UIContextualAction *deleteAction =
+                    [UIContextualAction contextualActionWithStyle:UIContextualActionStyleDestructive
+                                                            title:NSLocalizedString(@"Delete", @"")
+                                                          handler:^(UIContextualAction *action,
+                                                                    UIView *sourceView,
+                                                                    void (^completionHandler)(BOOL)) {
+                        playlist->entries[indexPath.row-2].label=nil;
+                        playlist->entries[indexPath.row-2].fullpath=nil;
+                        for (int i=indexPath.row-2;i<playlist->nb_entries-1;i++) {
+                            playlist->entries[i].label=playlist->entries[i+1].label;
+                            playlist->entries[i].fullpath=playlist->entries[i+1].fullpath;
+                            playlist->entries[i].ratings=playlist->entries[i+1].ratings;
+                            playlist->entries[i].playcounts=playlist->entries[i+1].playcounts;
+                        }
+                        playlist->nb_entries--;
+                        [self replacePlaylistDBwithCurrent];
+                        
+                        forceReloadCells=true;
+                        [self.tableView reloadData];
+                        completionHandler(YES);
+                    }];
+                    
+                    deleteAction.backgroundColor = [UIColor redColor];
+                    
+                    // Return multiple actions - they appear from right to left
+                    return [UISwipeActionsConfiguration configurationWithActions:@[deleteAction]];
+                }
+            }
+        }
+    }
+    return nil;
 }
+
 
 - (UITableViewCell *)tableView:(UITableView *)tabView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     static NSString *CellIdentifier = @"Cell";
-    static NSString *CellIdentifier_withAction = @"CellA";
     NSString *cellValue;
     const NSInteger TOP_LABEL_TAG = 1001;
     const NSInteger BOTTOM_LABEL_TAG = 1002;
@@ -2773,47 +3005,17 @@ int getPlaylistStatsDBmod(t_playlist *pl) {
     t_local_browse_entry *cur_local_entries=(search_local?search_local_entries:local_entries);
     BOOL isEditing=[tabView isEditing];
     
-    SESlideTableViewCell *cell;
-    
-    bool allow_delete;
-    allow_delete=false;
-    if (browse_depth==0) {
-        //main playlist screen with builtin ones + user specific
-        if (indexPath.row>=5) allow_delete=true;
-    } else if (browse_depth==1) {
-        if (show_playlist) {
-            if (integrated_playlist==INTEGRATED_PLAYLIST_NOWPLAYING) {
-                if (indexPath.row>=1) allow_delete=true;
-            } else if (integrated_playlist==INTEGRATED_PLAYLIST_RANDOM) {
-                if (indexPath.row>=1) allow_delete=false;
-            } else if (integrated_playlist==INTEGRATED_PLAYLIST_MOSTPLAYED) {
-                if (indexPath.row>=1) allow_delete=true;
-            } else if (integrated_playlist==INTEGRATED_PLAYLIST_FAVORITES) {
-                if (indexPath.row>=1) allow_delete=true;
-            } else if (integrated_playlist==0) {
-                if (indexPath.row>=2) allow_delete=true;
-            }
-        }
-    }
+    UITableViewCell *cell;
     
     if (forceReloadCells) {
-        while ([tableView dequeueReusableCellWithIdentifier:CellIdentifier_withAction]) {}
         while ([tableView dequeueReusableCellWithIdentifier:CellIdentifier]) {}
         forceReloadCells=false;
     }
     
-    if (allow_delete) cell = (SESlideTableViewCell *)[tabView dequeueReusableCellWithIdentifier:CellIdentifier_withAction];
-    else cell = (SESlideTableViewCell *)[tabView dequeueReusableCellWithIdentifier:CellIdentifier];
+    cell = (UITableViewCell *)[tabView dequeueReusableCellWithIdentifier:CellIdentifier];
     
     if (cell == nil) {
-        if (!allow_delete) {
-            cell = [[SESlideTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
-            cell.delegate=self;
-        } else {
-            cell = [[SESlideTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier_withAction];
-            cell.delegate=self;
-            [cell addRightButtonWithText:NSLocalizedString(@"Delete",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor redColor]];
-        }
+        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
         
         cell.frame=CGRectMake(0,0,tabView.frame.size.width,40);
         

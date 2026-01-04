@@ -94,6 +94,10 @@ extern void *LoadingProgressObserverContext;
 #define MDZ_RENAME_COL_R (0xEE/255.0f)
 #define MDZ_RENAME_COL_G (0x31/255.0f)
 #define MDZ_RENAME_COL_B (0x6B/255.0f)
+
+#define MDZ_EDIT_COL_R (0x6B/255.0f)
+#define MDZ_EDIT_COL_G (0x31/255.0f)
+#define MDZ_EDIT_COL_B (0xEE/255.0f)
                 
 #define MDZ_EXTRACT_COL_R (0x50/255.0f)
 #define MDZ_EXTRACT_COL_G (0x80/255.0f)

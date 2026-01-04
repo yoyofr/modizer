@@ -295,27 +295,19 @@ extern volatile t_settings settings[MAX_SETTINGS];
     return custom_url_count;
 }
 
-//-(void) showAlert:(UIAlertController*)alertC {
-//    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone) { //if iPhone
-//        [self presentViewController:alertC animated:YES completion:nil];
-//    } else { //if iPad
-//        alertC.modalPresentationStyle = UIModalPresentationPopover;
-//        alertC.popoverPresentationController.sourceView = self.view;
-//        alertC.popoverPresentationController.sourceRect = CGRectMake(self.view.frame.size.width/3, self.view.frame.size.height/2, 0, 0);
-//        alertC.popoverPresentationController.permittedArrowDirections=0;
-//        [self presentViewController:alertC animated:YES completion:nil];
-//    }
-//}
-
-- (void)slideTableViewCell:(SESlideTableViewCell*)cell didTriggerLeftButton:(NSInteger)buttonIndex {
+- (UISwipeActionsConfiguration *)tableView:(UITableView *)tableView
+leadingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
     
-        //File or Directory
-        NSIndexPath *indexPath = [self.tableView indexPathForCell:cell];
-    UIAlertController *alertC;
-    if (buttonIndex==0) {
-        alertC = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Enter new name",@"")
-                                                     message:nil
-                                              preferredStyle:UIAlertControllerStyleAlert];
+    UIContextualAction *renameAction =
+    [UIContextualAction contextualActionWithStyle:UIContextualActionStyleDestructive
+                                            title:NSLocalizedString(@"Rename", @"")
+                                          handler:^(UIContextualAction *action,
+                                                    UIView *sourceView,
+                                                    void (^completionHandler)(BOOL)) {
+        
+        UIAlertController *alertC = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Enter new name",@"")
+                                                                        message:nil
+                                                                 preferredStyle:UIAlertControllerStyleAlert];
         __weak UIAlertController *weakAlert = alertC;
         [alertC addTextFieldWithConfigurationHandler:^(UITextField *textField) {
             textField.text = [NSString stringWithString:custom_URL_name[indexPath.row]];
@@ -337,10 +329,20 @@ extern volatile t_settings settings[MAX_SETTINGS];
             }
         }];
         [alertC addAction:saveAction];
-    } else {
-        alertC = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Edit URL",@"")
-                                                     message:nil
-                                              preferredStyle:UIAlertControllerStyleAlert];
+        [self showAlert:alertC];
+        completionHandler(YES);
+    }];
+    
+    UIContextualAction *editAction =
+    [UIContextualAction contextualActionWithStyle:UIContextualActionStyleDestructive
+                                            title:NSLocalizedString(@"Edit URL", @"")
+                                          handler:^(UIContextualAction *action,
+                                                    UIView *sourceView,
+                                                    void (^completionHandler)(BOOL)) {
+        
+        UIAlertController *alertC = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Edit URL",@"")
+                                                                        message:nil
+                                                                 preferredStyle:UIAlertControllerStyleAlert];
         __weak UIAlertController *weakAlert = alertC;
         [alertC addTextFieldWithConfigurationHandler:^(UITextField *textField) {
             textField.text = [NSString stringWithString:custom_URL[indexPath.row]];
@@ -358,78 +360,58 @@ extern volatile t_settings settings[MAX_SETTINGS];
                 [self.tableView reloadData];
             }
             else{
+                wbBmName.text=[NSString stringWithString:custom_URL[indexPath.row]];
                 [self presentViewController:weakAlert animated:YES completion:nil];
             }
         }];
         [alertC addAction:saveAction];
-    }
+        [self showAlert:alertC];
+        completionHandler(YES);
+    }];
     
+    renameAction.backgroundColor = [UIColor colorWithRed:MDZ_RENAME_COL_R green:MDZ_RENAME_COL_G blue:MDZ_RENAME_COL_B alpha:1.0];
+    editAction.backgroundColor = [UIColor colorWithRed:MDZ_EDIT_COL_R green:MDZ_EDIT_COL_G blue:MDZ_EDIT_COL_B alpha:1.0];
     
-    [self showAlert:alertC];
+    // Return multiple actions - they appear from right to left
+    return [UISwipeActionsConfiguration configurationWithActions:@[editAction,renameAction]];
 }
-/**
- Tells the delegate that a button of the right side is triggered.
- 
- @param cell The cell informing the delegate of the event.
- @param buttonIndex The index of the button which is triggered.
- */
-- (void)slideTableViewCell:(SESlideTableViewCell*)cell didTriggerRightButton:(NSInteger)buttonIndex {
-        NSIndexPath *indexPath = [self.tableView indexPathForCell:cell];
+
+- (UISwipeActionsConfiguration *)tableView:(UITableView *)tableView
+trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
+    
+    UIContextualAction *deleteAction =
+    [UIContextualAction contextualActionWithStyle:UIContextualActionStyleDestructive
+                                            title:NSLocalizedString(@"Delete", @"")
+                                          handler:^(UIContextualAction *action,
+                                                    UIView *sourceView,
+                                                    void (^completionHandler)(BOOL)) {
         
         //delete entry
-     for (int i=indexPath.row;i<custom_url_count-1;i++) {
-        custom_URL_name[i]=custom_URL_name[i+1];
-        custom_URL[i]=custom_URL[i+1];
-    }
-    custom_URL_name[custom_url_count-1]=nil;
-    custom_URL[custom_url_count-1]=nil;
-    custom_url_count--;
+        for (int i=indexPath.row;i<custom_url_count-1;i++) {
+            custom_URL_name[i]=custom_URL_name[i+1];
+            custom_URL[i]=custom_URL[i+1];
+        }
+        custom_URL_name[custom_url_count-1]=nil;
+        custom_URL[custom_url_count-1]=nil;
+        custom_url_count--;
+        
+        [self saveBookmarks];
+        
+        [self.tableView reloadData];
+        
+        completionHandler(YES);
+    }];
     
-    [self saveBookmarks];
+    deleteAction.backgroundColor = [UIColor redColor];
     
-    [self.tableView reloadData];
+    // Return multiple actions - they appear from right to left
+    return [UISwipeActionsConfiguration configurationWithActions:@[deleteAction]];
 }
-/**
- Asks the delegate if the cell can be a slide-state.
- 
- The result of this function is not reflected to the slide indicators of the cell.
- You should set "showsLeftSlideIndicator" or "showsRightSlideIndicator" property of SESlideTableViewCell manually.
- 
- @return YES if the cell can be the state, otherwise NO.
- @param cell The cell that is making this request.
- @param slideState The state that the cell want to be.
- */
-//- (BOOL)slideTableViewCell:(SESlideTableViewCell*)cell canSlideToState:(SESlideTableViewCellSlideState)slideState;
-/**
- Tells the delegate that the slide state of the cell will change.
- 
- Even when this function is called, the cell's slide state may not be the state which this function tells.
- To know the cell's slide state, use slideTableViewCell:DidSlideToState: instead.
- 
- @param cell The cell informing the delegate of the event.
- @param slideState The slide state which the cell may become.
- */
-//- (void)slideTableViewCell:(SESlideTableViewCell*)cell willSlideToState:(SESlideTableViewCellSlideState)slideState;
-/**
- Tells the delegate that the slide state of the cell did change.
- 
- @param cell The cell informing the delegate of the event.
- @param slideState The slide state which the cell became.
- */
-//- (void)slideTableViewCell:(SESlideTableViewCell*)cell didSlideToState:(SESlideTableViewCellSlideState)slideState;
-/**
- Tells the delegate that the cell will show buttons of the side.
- 
- @param cell The cell informing the delegate of the event.
- @param side The side of the buttons which the cell will show.
- */
-//- (void)slideTableViewCell:(SESlideTableViewCell *)cell wilShowButtonsOfSide:(SESlideTableViewCellSide)side;
 
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     static NSString *CellIdentifier = @"Cell";
-    NSString *cellValue;
     const NSInteger TOP_LABEL_TAG = 1001;
     const NSInteger BOTTOM_LABEL_TAG = 1002;
     UILabel *topLabel;
@@ -441,11 +423,10 @@ extern volatile t_settings settings[MAX_SETTINGS];
         forceReloadCells=false;
     }
     
-    SESlideTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
     if (cell == nil) {
         //        cell = [[[UITableViewCell alloc] initWithFrame:CGRectZero reuseIdentifier:CellIdentifier] autorelease];
-        cell = [[SESlideTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
-        cell.delegate=self;
+        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
         
         cell.frame=CGRectMake(0,0,tableView.frame.size.width,40);
         
@@ -532,21 +513,13 @@ extern volatile t_settings settings[MAX_SETTINGS];
             topLabel.text=custom_URL_name[indexPath.row];//-1];
             bottomLabel.text=custom_URL[indexPath.row];//-1];
     
-    [cell removeAllLeftButtons];
-    [cell removeAllRightButtons];
-    
-        [cell addLeftButtonWithText:NSLocalizedString(@"Rename",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_RENAME_COL_R green:MDZ_RENAME_COL_G blue:MDZ_RENAME_COL_B alpha:1.0]];
-    [cell addLeftButtonWithText:NSLocalizedString(@"Edit URL",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor colorWithRed:MDZ_RENAME_COL_R green:MDZ_RENAME_COL_G blue:MDZ_RENAME_COL_B alpha:1.0]];
-        [cell addRightButtonWithText:NSLocalizedString(@"Delete",@"") textColor:[UIColor whiteColor] backgroundColor:[UIColor redColor]];
-        
     return cell;
 }
 
 // Override to support conditional editing of the table view.
 - (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    return NO;
-    //return YES;
+    return YES;
 }
 
 // Override to support editing the table view.

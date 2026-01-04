@@ -406,7 +406,6 @@
 		59B9997C25CFE5690071E144 /* UIColor+BButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 33ABE5AE17B17A5100AE0EA1 /* UIColor+BButton.m */; };
 		59B9997E25CFE56D0071E144 /* NSString+FontAwesome.m in Sources */ = {isa = PBXBuildFile; fileRef = 33ABE5AA17B17A5100AE0EA1 /* NSString+FontAwesome.m */; };
 		59B9998025CFE5700071E144 /* BButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 33ABE5A817B17A5100AE0EA1 /* BButton.m */; };
-		59B9999625CFE6890071E144 /* SESlideTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 59B9999525CFE6890071E144 /* SESlideTableViewCell.m */; };
 		59BDE88B260F675D00FB0C69 /* libhighlyexperimental.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 59BDE7DF260F650C00FB0C69 /* libhighlyexperimental.a */; };
 		59BDE96D260FE5A500FB0C69 /* libHighlyQuixotic.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 59BDE95B260FE33100FB0C69 /* libHighlyQuixotic.a */; };
 		59BDE96E260FE5AB00FB0C69 /* libhighlytheoritical.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 59BDE907260FE1D000FB0C69 /* libhighlytheoritical.a */; };
@@ -666,6 +665,7 @@
 		CC1E63B9120423E0000A8A4E /* uade.conf in Resources */ = {isa = PBXBuildFile; fileRef = CC1E630E120423DF000A8A4E /* uade.conf */; };
 		CC1E63BA120423E0000A8A4E /* uaerc in Resources */ = {isa = PBXBuildFile; fileRef = CC1E630F120423DF000A8A4E /* uaerc */; };
 		CC2E39372B9DA419003E9E77 /* RootViewControllerXPWebParser.mm in Sources */ = {isa = PBXBuildFile; fileRef = CC2E39362B9DA419003E9E77 /* RootViewControllerXPWebParser.mm */; };
+		CC318FDA2F0A888C00C81390 /* libnez.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CCB998CE2F09A39F0024DFBB /* libnez.a */; };
 		CC33B4271ABE1FC6009608E8 /* slider.png in Resources */ = {isa = PBXBuildFile; fileRef = CC33B4261ABE1FC6009608E8 /* slider.png */; };
 		CC33B42D1ABF05A3009608E8 /* slider@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CC33B42C1ABF05A3009608E8 /* slider@2x.png */; };
 		CC3D65392EF2AAB700636BEE /* libmonkeyaudiocodec.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CC31446A2EF28F5C0053DCE1 /* libmonkeyaudiocodec.a */; };
@@ -1036,7 +1036,6 @@
 		CCBE610A2EE2DD44000FDD7E /* TipsViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = CCBF272E2ECB2EDE0039936C /* TipsViewController.mm */; };
 		CCBE610B2EE2DD44000FDD7E /* NSString+FontAwesome.m in Sources */ = {isa = PBXBuildFile; fileRef = 33ABE5AA17B17A5100AE0EA1 /* NSString+FontAwesome.m */; };
 		CCBE610C2EE2DD44000FDD7E /* AnimatedLaunchVC.mm in Sources */ = {isa = PBXBuildFile; fileRef = CCE8D7482B8D68FD0076D8C0 /* AnimatedLaunchVC.mm */; };
-		CCBE610D2EE2DD44000FDD7E /* SESlideTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 59B9999525CFE6890071E144 /* SESlideTableViewCell.m */; };
 		CCBE610E2EE2DD44000FDD7E /* EQViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = CC6CBDF217DBE3A8006DCBC7 /* EQViewController.mm */; };
 		CCBE610F2EE2DD44000FDD7E /* gzip68.c in Sources */ = {isa = PBXBuildFile; fileRef = CC8368152B57CA9A0035A4DA /* gzip68.c */; };
 		CCBE61102EE2DD44000FDD7E /* unice68_pack.c in Sources */ = {isa = PBXBuildFile; fileRef = CC8367812B57CA9A0035A4DA /* unice68_pack.c */; };
@@ -3125,8 +3124,6 @@
 		59A65CA92627808000BC99D1 /* MiniPlayerImplementNoTableView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MiniPlayerImplementNoTableView.h; sourceTree = "<group>"; };
 		59A6652F1E4B04E700EB110E /* txtMenu2d_2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu2d_2x.png; sourceTree = "<group>"; };
 		59A665311E4B04E700EB110E /* txtMenu2e_2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu2e_2x.png; sourceTree = "<group>"; };
-		59B9999425CFE6890071E144 /* SESlideTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SESlideTableViewCell.h; path = lib/SESlideTableViewCell.h; sourceTree = "<group>"; };
-		59B9999525CFE6890071E144 /* SESlideTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SESlideTableViewCell.m; path = lib/SESlideTableViewCell.m; sourceTree = "<group>"; };
 		59BB9F01261B03DE00DB5D6C /* ModizerVoicesData.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ModizerVoicesData.h; sourceTree = "<group>"; };
 		59BDE7DA260F650C00FB0C69 /* highlyexperimental.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = highlyexperimental.xcodeproj; sourceTree = "<group>"; };
 		59BDE83B260F658B00FB0C69 /* hebios.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = hebios.h; path = highlyexperimental/hebios.h; sourceTree = "<group>"; };
@@ -4233,6 +4230,7 @@
 				CCBE615B2EE2DD44000FDD7E /* libgbsplay.a in Frameworks */,
 				CCBE615C2EE2DD44000FDD7E /* MediaPlayer.framework in Frameworks */,
 				CCBE615D2EE2DD44000FDD7E /* libHighlyQuixotic.a in Frameworks */,
+				CC318FDA2F0A888C00C81390 /* libnez.a in Frameworks */,
 				CCBE615E2EE2DD44000FDD7E /* libLazyusf.a in Frameworks */,
 				CCBE615F2EE2DD44000FDD7E /* libgme.a in Frameworks */,
 				CCBE61602EE2DD44000FDD7E /* libsidplayfp.a in Frameworks */,
@@ -4666,15 +4664,6 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		59517DE61E40778D00FAA0BF /* SESlideTableViewCell */ = {
-			isa = PBXGroup;
-			children = (
-				59B9999425CFE6890071E144 /* SESlideTableViewCell.h */,
-				59B9999525CFE6890071E144 /* SESlideTableViewCell.m */,
-			);
-			path = SESlideTableViewCell;
-			sourceTree = "<group>";
-		};
 		595F9C1C1E54B90D009DBEED /* libxmp */ = {
 			isa = PBXGroup;
 			children = (
@@ -4918,7 +4907,6 @@
 				33BB80CC14D4679B00EA4B32 /* OBSlider */,
 				59C22A2F25B99ACA003FEDBF /* Reachability */,
 				59B9995125CFE2A00071E144 /* Resample */,
-				59517DE61E40778D00FAA0BF /* SESlideTableViewCell */,
 				59A65C9E26277C4D00BC99D1 /* Transitions */,
 				CC1E5B131200B3B8000A8A4E /* unzip */,
 			);
@@ -8425,7 +8413,6 @@
 				CCBF272F2ECB2EE00039936C /* TipsViewController.mm in Sources */,
 				59B9997E25CFE56D0071E144 /* NSString+FontAwesome.m in Sources */,
 				CCE8D74A2B8D68FD0076D8C0 /* AnimatedLaunchVC.mm in Sources */,
-				59B9999625CFE6890071E144 /* SESlideTableViewCell.m in Sources */,
 				CC6CBDF317DBE3A8006DCBC7 /* EQViewController.mm in Sources */,
 				CC8368EA2B57CA9B0035A4DA /* gzip68.c in Sources */,
 				CC8368752B57CA9A0035A4DA /* unice68_pack.c in Sources */,
@@ -8634,7 +8621,6 @@
 				CCBE610A2EE2DD44000FDD7E /* TipsViewController.mm in Sources */,
 				CCBE610B2EE2DD44000FDD7E /* NSString+FontAwesome.m in Sources */,
 				CCBE610C2EE2DD44000FDD7E /* AnimatedLaunchVC.mm in Sources */,
-				CCBE610D2EE2DD44000FDD7E /* SESlideTableViewCell.m in Sources */,
 				CCBE610E2EE2DD44000FDD7E /* EQViewController.mm in Sources */,
 				CCBE610F2EE2DD44000FDD7E /* gzip68.c in Sources */,
 				CCBE61102EE2DD44000FDD7E /* unice68_pack.c in Sources */,
@@ -8726,21 +8712,6 @@
 				GCC_PREFIX_HEADER = modizer_Prefix.pch;
 				GCC_THUMB_SUPPORT = NO;
 				GCC_VERSION = "";
-				HEADER_SEARCH_PATHS = (
-					utils/libarchive/libarchive/libarchive,
-					"$(PROJECT_DIR)/libs/binio/libbinio-master/src",
-					"$(PROJECT_DIR)/utils/MSColorPicker-master",
-					"$(PROJECT_DIR)/utils/MetalANGLE/",
-					"${PROJECT_DIR}/../../include",
-					"${PROJECT_DIR}/../../third_party",
-					"$(PROJECT_DIR)/utils/projectm-ios/libprojectM/src/api/include",
-					"$(PROJECT_DIR)/utils/projectm-ios/libprojectM/src/playlist/api",
-					"$(PROJECT_DIR)/utils/projectm-ios/libprojectM/vendor",
-					"$(PROJECT_DIR)/libs/monkeyaudiocodec/mac-master/src/shared",
-					"$(PROJECT_DIR)/libs/monkeyaudiocodec/mac-master/src/MACLib",
-					"$(PROJECT_DIR)/libs/libnez/webnez/src",
-					"$(PROJECT_DIR)/libs/libnez/webnez/src/format",
-				);
 				INFOPLIST_KEY_CFBundleDisplayName = Modizer;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.music";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
@@ -8791,21 +8762,6 @@
 				GCC_PREFIX_HEADER = modizer_Prefix.pch;
 				GCC_THUMB_SUPPORT = NO;
 				GCC_VERSION = "";
-				HEADER_SEARCH_PATHS = (
-					utils/libarchive/libarchive/libarchive,
-					"$(PROJECT_DIR)/libs/binio/libbinio-master/src",
-					"$(PROJECT_DIR)/utils/MSColorPicker-master",
-					"$(PROJECT_DIR)/utils/MetalANGLE/",
-					"${PROJECT_DIR}/../../include",
-					"${PROJECT_DIR}/../../third_party",
-					"$(PROJECT_DIR)/utils/projectm-ios/libprojectM/src/api/include",
-					"$(PROJECT_DIR)/utils/projectm-ios/libprojectM/src/playlist/api",
-					"$(PROJECT_DIR)/utils/projectm-ios/libprojectM/vendor",
-					"$(PROJECT_DIR)/libs/monkeyaudiocodec/mac-master/src/shared",
-					"$(PROJECT_DIR)/libs/monkeyaudiocodec/mac-master/src/MACLib",
-					"$(PROJECT_DIR)/libs/libnez/webnez/src",
-					"$(PROJECT_DIR)/libs/libnez/webnez/src/format",
-				);
 				INFOPLIST_KEY_CFBundleDisplayName = Modizer;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.music";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
@@ -8892,6 +8848,7 @@
 					"$(PROJECT_DIR)/libs/monkeyaudiocodec/mac-master/src/shared",
 					"$(PROJECT_DIR)/libs/monkeyaudiocodec/mac-master/src/MACLib",
 					"$(PROJECT_DIR)/libs/libnez/webnez/src/format",
+					"$(PROJECT_DIR)/libs/libnez/webnez/src",
 				);
 				INFOPLIST_FILE = "modizer-info.plist";
 				"INFOPLIST_FILE[sdk=iphone*]" = "modizer-info.plist";
@@ -9054,6 +9011,7 @@
 					"$(PROJECT_DIR)/libs/monkeyaudiocodec/mac-master/src/shared",
 					"$(PROJECT_DIR)/libs/monkeyaudiocodec/mac-master/src/MACLib",
 					"$(PROJECT_DIR)/libs/libnez/webnez/src/format",
+					"$(PROJECT_DIR)/libs/libnez/webnez/src",
 				);
 				INFOPLIST_FILE = "modizer-info.plist";
 				"INFOPLIST_FILE[sdk=iphone*]" = "modizer-info.plist";
@@ -9217,6 +9175,7 @@
 					"$(PROJECT_DIR)/libs/monkeyaudiocodec/mac-master/src/shared",
 					"$(PROJECT_DIR)/libs/monkeyaudiocodec/mac-master/src/MACLib",
 					"$(PROJECT_DIR)/libs/libnez/webnez/src/format",
+					"$(PROJECT_DIR)/libs/libnez/webnez/src",
 				);
 				INFOPLIST_FILE = "modizer-info.plist";
 				"INFOPLIST_FILE[sdk=iphone*]" = "modizer-info.plist";
@@ -9349,21 +9308,6 @@
 				GCC_PREFIX_HEADER = modizer_Prefix.pch;
 				GCC_THUMB_SUPPORT = NO;
 				GCC_VERSION = "";
-				HEADER_SEARCH_PATHS = (
-					utils/libarchive/libarchive/libarchive,
-					"$(PROJECT_DIR)/libs/binio/libbinio-master/src",
-					"$(PROJECT_DIR)/utils/MSColorPicker-master",
-					"$(PROJECT_DIR)/utils/MetalANGLE/",
-					"${PROJECT_DIR}/../../include",
-					"${PROJECT_DIR}/../../third_party",
-					"$(PROJECT_DIR)/utils/projectm-ios/libprojectM/src/api/include",
-					"$(PROJECT_DIR)/utils/projectm-ios/libprojectM/src/playlist/api",
-					"$(PROJECT_DIR)/utils/projectm-ios/libprojectM/vendor",
-					"$(PROJECT_DIR)/libs/monkeyaudiocodec/mac-master/src/shared",
-					"$(PROJECT_DIR)/libs/monkeyaudiocodec/mac-master/src/MACLib",
-					"$(PROJECT_DIR)/libs/libnez/webnez/src",
-					"$(PROJECT_DIR)/libs/libnez/webnez/src/format",
-				);
 				INFOPLIST_KEY_CFBundleDisplayName = Modizer;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.music";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
@@ -9607,7 +9551,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 4.1.1.0;
+				CURRENT_PROJECT_VERSION = 4.2.0;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = NO;
 				"ENABLE_HARDENED_RUNTIME[sdk=macosx*]" = YES;
@@ -9622,10 +9566,6 @@
 				ENABLE_RESOURCE_ACCESS_PRINTING = NO;
 				ENABLE_RESOURCE_ACCESS_USB = NO;
 				ENABLE_USER_SELECTED_FILES = readonly;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/utils",
-				);
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
@@ -9636,7 +9576,7 @@
 				INFOPLIST_KEY_CFBundleDisplayName = Modizer;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.music";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
-				MARKETING_VERSION = 4.1.1;
+				MARKETING_VERSION = 4.2;
 				OTHER_CFLAGS = (
 					"-DMDZ_MACOS_WINDOW_AOT",
 					"-DLOAD_PROFILE",
@@ -9687,7 +9627,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 4.1.1.0;
+				CURRENT_PROJECT_VERSION = 4.2.0;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = NO;
 				"ENABLE_HARDENED_RUNTIME[sdk=macosx*]" = YES;
@@ -9702,10 +9642,6 @@
 				ENABLE_RESOURCE_ACCESS_PRINTING = NO;
 				ENABLE_RESOURCE_ACCESS_USB = NO;
 				ENABLE_USER_SELECTED_FILES = readonly;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/utils",
-				);
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -9715,7 +9651,7 @@
 				INFOPLIST_KEY_CFBundleDisplayName = Modizer;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.music";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
-				MARKETING_VERSION = 4.1.1;
+				MARKETING_VERSION = 4.2;
 				OTHER_CFLAGS = (
 					"-DMDZ_MACOS_WINDOW_AOT",
 					"-DNDEBUG",
@@ -9768,7 +9704,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = YES;
-				CURRENT_PROJECT_VERSION = 4.1.1.0;
+				CURRENT_PROJECT_VERSION = 4.2.0;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = NO;
 				"ENABLE_HARDENED_RUNTIME[sdk=macosx*]" = YES;
@@ -9783,10 +9719,6 @@
 				ENABLE_RESOURCE_ACCESS_PRINTING = NO;
 				ENABLE_RESOURCE_ACCESS_USB = NO;
 				ENABLE_USER_SELECTED_FILES = readonly;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/utils",
-				);
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -9796,7 +9728,7 @@
 				INFOPLIST_KEY_CFBundleDisplayName = Modizer;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.music";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
-				MARKETING_VERSION = 4.1.1;
+				MARKETING_VERSION = 4.2;
 				OTHER_CFLAGS = (
 					"-DMDZ_MACOS_WINDOW_AOT",
 					"-DNDEBUG",

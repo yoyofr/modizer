@@ -125,6 +125,25 @@ char *SONGINFO_GetDetail(SONG_INFO *info)
 {
     return info->detail;
 }
+
+void SONGINFO_SetSystem(SONG_INFO *info,const char *system)
+{
+    strcpy(info->system, system);
+}
+
+char *SONGINFO_GetSystem(SONG_INFO *info)
+{
+    return info->system;
+}
+void SONGINFO_SetType(SONG_INFO *info,const char *type)
+{
+    strcpy(info->type, type);
+}
+
+char *SONGINFO_GetType(SONG_INFO *info)
+{
+    return info->type;
+}
 //#endif
 
 void SONGINFO_Reset(SONG_INFO *info) {

@@ -202,8 +202,12 @@ extern "C" {
 	AudioQueueRef mAudioQueue;
 	AudioQueueBufferRef *mBuffers;
 	int mQueueIsBeingStopped;
+    
+    //
+    UIImage *artworkImage;
 };
 @property (nonatomic, retain) NSProgress *extractProgress;
+@property (nonatomic, strong) UIImage *artworkImage;
 @property NSString *artist,*album;
 @property bool extractPendingCancel;
 @property int mod_subsongs,mod_currentsub,mod_minsub,mod_maxsub,mLoopMode;

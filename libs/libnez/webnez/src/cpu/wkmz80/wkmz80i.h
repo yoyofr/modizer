@@ -9,19 +9,19 @@
 extern "C" {
 #endif
 
-enum {
+typedef enum {
 	ST_LOCKINT = (1 << 0),
 	ST_DD = (1 << 1),	/* ix */
 	ST_FD = (1 << 2),	/* iy */
 	ST_CB = (1 << 3)	/* DDCB FDCB (ii+d) write back */
-} KMZ80_STATE;
+} WKMZ80_STATE;
 
-enum {
+typedef enum {
 	EXF_ICEXIST = (1 << 0),
 	EXF_AUTOIRQCLEAR = (1 << 1)
-} KMZ80_EXFLAG;
+} WKMZ80_EXFLAG;
 
-enum {
+typedef enum {
 	OP_NOP,
 	/* ŒðŠ·–½—ß */
 	OP_EX_AF_AF,
@@ -138,9 +138,9 @@ enum {
 	OP_STOP = OP_HALT,
 	/* HD64180CPU§Œä–½—ß */
 	OP_SLP = OP_HALT2
-} KMZ80_OP_CODE;
+} WKMZ80_OP_CODE;
 
-enum {
+typedef enum {
 	STO_NONE,
 	STO_B,		/* b */
 	STO_C,		/* c */
@@ -169,9 +169,9 @@ enum {
 	STO_ST,	/* (-sp).w */
 	STO_AFDMG,	/* af(dmg) */
 	STO_MAX
-} KMZ80_POSTOP_CODE;
+} WKMZ80_POSTOP_CODE;
 
-enum {
+typedef enum {
 	LDO_NONE,
 	LDO_B,		/* b */
 	LDO_C,		/* c */
@@ -200,9 +200,9 @@ enum {
 	LDO_SN,		/* signed n */
 	LDO_AFDMG,	/* af(dmg) */
 	LDO_MAX
-} KMZ80_PREOP_CODE;
+} WKMZ80_PREOP_CODE;
 
-enum {
+typedef enum {
 	/* Z80 R800 HD64180 DMG */
 	ADR_NONE,
 	ADR_AN,		/* (An) */
@@ -223,7 +223,7 @@ enum {
 	ADR_HC,		/* (ff00h+c) */
 	ADR_SP,		/* (sp+n) */
 	ADR_MAX
-} KMZ80_OP_ADR;
+} WKMZ80_OP_ADR;
 
 typedef struct {
 	Uint8 post;

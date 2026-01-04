@@ -22,6 +22,8 @@ typedef struct SONG_INFO_TAG
     char artist[128];	
     char copyright[128];
     char detail[1024];
+    char type[32];
+    char system[32];
 } SONG_INFO;
 
 SONG_INFO* SONGINFO_New();
@@ -41,6 +43,10 @@ void SONGINFO_SetPlayAddress(SONG_INFO*, Uint v);
 Uint SONGINFO_GetChannel(SONG_INFO*);
 void SONGINFO_SetChannel(SONG_INFO*, Uint v);
 
+void SONGINFO_SetType(SONG_INFO*,const char *type);
+char *SONGINFO_GetType(SONG_INFO*);
+void SONGINFO_SetSystem(SONG_INFO*,const char *system);
+char *SONGINFO_GetSystem(SONG_INFO*);
 void SONGINFO_SetTitle(SONG_INFO*,const char *title);
 char *SONGINFO_GetTitle(SONG_INFO*);
 void SONGINFO_SetArtist(SONG_INFO*,const char *artist);

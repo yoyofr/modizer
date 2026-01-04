@@ -3716,11 +3716,15 @@ int recording=0;
     
     coverAvailable=false;
     cover_img=nil;
+    
     //    cover_img=[UIImage imageWithData:[NSData dataWithContentsOfFile:pathFolderImgPNG]];
     if (gifAnimation) [gifAnimation removeFromSuperview];
     gifAnimation=nil;
-    
-    cover_img=[UIImage imageWithContentsOfFile:pathFileImgJPG];
+
+    if ([mplayer artworkImage]) {
+        cover_img=[mplayer artworkImage];
+    }
+    if (cover_img==nil) cover_img=[UIImage imageWithContentsOfFile:pathFileImgJPG];
     if (cover_img==nil) cover_img=[UIImage imageWithContentsOfFile:pathFileImgJPEG];
     if (cover_img==nil) cover_img=[UIImage imageWithContentsOfFile:pathFileImgPNG];
     if (cover_img==nil) {

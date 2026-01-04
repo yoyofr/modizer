@@ -11,11 +11,10 @@
 #import "WebBrowser.h"
 #import "MiniPlayerVC.h"
 #import "WaitingView.h"
-#import "SESlideTableViewCell.h"
 
 #define MAX_CUSTOM_URL 5
 
-@interface WB_BookmarksViewController : UIViewController <UINavigationControllerDelegate,SESlideTableViewCellDelegate>{
+@interface WB_BookmarksViewController : UIViewController <UINavigationControllerDelegate>{
     IBOutlet UITableView *tableView;
     IBOutlet UIToolbar *toolBar;
     

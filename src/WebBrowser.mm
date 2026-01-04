@@ -125,6 +125,55 @@ int found_img;
     [self.webView.scrollView.refreshControl endRefreshing];
 }
 
+-(IBAction) addBookmark {
+    if (custom_url_count<MAX_CUSTOM_URL) {
+        if ([addressTextField.text length]) {
+            NSString *tmpStr;
+            if ([addressTextField.text length]>24) tmpStr=[NSString stringWithFormat:@"%@...",[addressTextField.text substringToIndex:24-3]];
+            else tmpStr=[NSString stringWithString:addressTextField.text];
+            
+            
+            UIAlertController *alertC = [UIAlertController alertControllerWithTitle:[NSString stringWithFormat:@"Enter Bookmark name for %@",tmpStr]
+                                                                            message:nil
+                                                                     preferredStyle:UIAlertControllerStyleAlert];
+            __weak UIAlertController *weakAlert = alertC;
+            [alertC addTextFieldWithConfigurationHandler:^(UITextField *textField) {
+                textField.placeholder = addressTextField.text;
+            }];
+            
+            UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel",@"") style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+                
+            }];
+            [alertC addAction:cancelAction];
+            
+            UIAlertAction *saveAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Save",@"") style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+                UITextField *name = weakAlert.textFields.firstObject;
+                [self.custom_URL addObject:[[NSString alloc] initWithString:self.addressTextField.text]];
+                [self.custom_URL_name addObject:[[NSString alloc] initWithString:name.text]];
+                self.custom_url_count++;
+                [self saveBookmarks];
+                [self openPopup:@"Bookmark updated"];
+            }];
+            [alertC addAction:saveAction];
+            
+            [self showAlert:alertC];
+            
+        }
+    } else {
+        UIAlertController *msgAlert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Warning",@"")
+                                       message:[NSString stringWithFormat:NSLocalizedString(@"Too many favorites",@""),[cover_currentPlayFilepath lastPathComponent]]
+                                       preferredStyle:UIAlertControllerStyleAlert];
+        
+        
+        UIAlertAction* cancelAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Ok",@"") style:UIAlertActionStyleDefault
+           handler:^(UIAlertAction * action) {
+            }];
+        [msgAlert addAction:cancelAction];
+        
+        [self presentViewController:msgAlert animated:YES completion:nil];
+    }
+    
+}
 
 -(IBAction) newBookmark:(id)sender {
     if (custom_url_count<MAX_CUSTOM_URL) {
@@ -1349,9 +1398,9 @@ didFinishNavigation:(WKNavigation *)navigation {
     [self.view addConstraint:[NSLayoutConstraint constraintWithItem:waitingView attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:self.view.safeAreaLayoutGuide attribute:NSLayoutAttributeCenterX multiplier:1.0 constant:0]];
     [self.view addConstraint:[NSLayoutConstraint constraintWithItem:waitingView attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:self.view.safeAreaLayoutGuide attribute:NSLayoutAttributeCenterY multiplier:1.0 constant:0]];
     
+    //adressfield
     views = NSDictionaryOfVariableBindings(addressTextField);
     [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[addressTextField(32)]" options:0 metrics:nil views:views]];
-    //adressfield
     
     waitingViewPlayer = [[WaitingView alloc] init];
     waitingViewPlayer.layer.zPosition=MAXFLOAT;
@@ -1374,9 +1423,7 @@ didFinishNavigation:(WKNavigation *)navigation {
     CGSize statusBarSize = [[UIApplication sharedApplication] statusBarFrame].size;
     statusbarHeight=MIN(statusBarSize.width, statusBarSize.height);
     
-//    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:addressTextField attribute:NSLayoutAttributeLeading relatedBy:NSLayoutRelationEqual toItem:self.view.safeAreaLayoutGuide attribute:NSLayoutAttributeLeading multiplier:1.0 constant:0]];
-//    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:addressTextField attribute:NSLayoutAttributeTrailing relatedBy:NSLayoutRelationEqual toItem:self.view.safeAreaLayoutGuide attribute:NSLayoutAttributeTrailing multiplier:1.0 constant:0]];
-//    
+//
     [self.view addConstraint:[NSLayoutConstraint constraintWithItem:addressTextField attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:self.view.safeAreaLayoutGuide attribute:NSLayoutAttributeWidth multiplier:0.98 constant:0]];
     [self.view addConstraint:[NSLayoutConstraint constraintWithItem:addressTextField attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:self.view.safeAreaLayoutGuide attribute:NSLayoutAttributeCenterX multiplier:1.0 constant:0]];
     
@@ -1384,11 +1431,13 @@ didFinishNavigation:(WKNavigation *)navigation {
     [self.view addConstraint:topConstraint];
     
     //progressbar
-    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:progressIndicator attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:self.view.safeAreaLayoutGuide attribute:NSLayoutAttributeWidth multiplier:1.0 constant:0]];
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:progressIndicator attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:self.view.safeAreaLayoutGuide attribute:NSLayoutAttributeWidth multiplier:0.98 constant:0]];
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:progressIndicator attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:self.view.safeAreaLayoutGuide attribute:NSLayoutAttributeCenterX multiplier:1.0 constant:0]];
     [self.view addConstraint:[NSLayoutConstraint constraintWithItem:progressIndicator attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:addressTextField attribute:NSLayoutAttributeBottom multiplier:1.0 constant:0]];
     
     //toolbar
     [self.view addConstraint:[NSLayoutConstraint constraintWithItem:toolBar attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:self.view.safeAreaLayoutGuide attribute:NSLayoutAttributeWidth multiplier:1.0 constant:0]];
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:toolBar attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:self.view.safeAreaLayoutGuide attribute:NSLayoutAttributeCenterX multiplier:1.0 constant:0]];
     [self.view addConstraint:[NSLayoutConstraint constraintWithItem:toolBar attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:progressIndicator attribute:NSLayoutAttributeBottom multiplier:1.0 constant:0]];
     
     // Create the new configuration object to set useful options

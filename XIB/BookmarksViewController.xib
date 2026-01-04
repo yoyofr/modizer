@@ -21,9 +21,8 @@
             <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
-                <tableView contentMode="scaleToFill" fixedFrame="YES" alwaysBounceVertical="YES" style="plain" separatorStyle="none" rowHeight="40" sectionHeaderHeight="18" sectionFooterHeight="0.0" translatesAutoresizingMaskIntoConstraints="NO" id="3">
-                    <rect key="frame" x="0.0" y="0.0" width="375" height="623"/>
-                    <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES" heightSizable="YES"/>
+                <tableView contentMode="scaleToFill" alwaysBounceVertical="YES" style="plain" separatorStyle="none" rowHeight="40" sectionHeaderHeight="18" sectionFooterHeight="0.0" translatesAutoresizingMaskIntoConstraints="NO" id="3">
+                    <rect key="frame" x="0.0" y="74" width="375" height="593"/>
                     <color key="backgroundColor" red="0.94997608420000001" green="0.94997608420000001" blue="0.94997608420000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                     <color key="separatorColor" red="0.0" green="0.0" blue="0.0" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
                     <connections>
@@ -39,6 +38,12 @@
             </subviews>
             <viewLayoutGuide key="safeArea" id="Xbn-HM-JST"/>
             <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+            <constraints>
+                <constraint firstItem="3" firstAttribute="leading" secondItem="Xbn-HM-JST" secondAttribute="leading" id="AoK-fR-PQQ"/>
+                <constraint firstItem="3" firstAttribute="top" secondItem="Xbn-HM-JST" secondAttribute="top" id="PIS-q6-LAc"/>
+                <constraint firstItem="3" firstAttribute="trailing" secondItem="Xbn-HM-JST" secondAttribute="trailing" id="jJJ-Ty-uR4"/>
+                <constraint firstItem="3" firstAttribute="bottom" secondItem="Xbn-HM-JST" secondAttribute="bottom" id="wcm-r3-gSg"/>
+            </constraints>
             <simulatedNavigationBarMetrics key="simulatedTopBarMetrics" prompted="NO"/>
             <point key="canvasLocation" x="86" y="65"/>
         </view>

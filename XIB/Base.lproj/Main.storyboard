@@ -1091,11 +1091,12 @@
                                     <outlet property="delegate" destination="xV0-Ez-trt" id="4df-MP-HtD"/>
                                 </connections>
                             </textField>
-                            <progressView opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="750" fixedFrame="YES" progress="0.5" translatesAutoresizingMaskIntoConstraints="NO" id="5Nv-Qh-jNh">
+                            <progressView clipsSubviews="YES" contentMode="scaleToFill" verticalHuggingPriority="750" preservesSuperviewLayoutMargins="YES" progress="0.5" id="5Nv-Qh-jNh">
                                 <rect key="frame" x="0.0" y="365" width="393" height="4"/>
-                                <autoresizingMask key="autoresizingMask" widthSizable="YES"/>
+                                <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
+                                <directionalEdgeInsets key="directionalLayoutMargins" top="8" leading="8" bottom="8" trailing="8"/>
                             </progressView>
-                            <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="JYF-To-slK" userLabel="Top Toolbar">
+                            <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" fixedFrame="YES" preservesSuperviewLayoutMargins="YES" translatesAutoresizingMaskIntoConstraints="NO" id="JYF-To-slK" userLabel="Top Toolbar">
                                 <rect key="frame" x="0.0" y="345" width="393" height="44"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES"/>
                                 <items>
@@ -1116,25 +1117,22 @@
                                             <action selector="goBack:" destination="xV0-Ez-trt" id="yxl-wm-wBr"/>
                                         </connections>
                                     </barButtonItem>
-                                    <barButtonItem style="plain" systemItem="flexibleSpace" id="UKU-OF-c6A"/>
                                     <barButtonItem style="plain" systemItem="flexibleSpace" id="iik-Gd-VPg"/>
                                     <barButtonItem tag="2" image="bb_caret-right.png" style="plain" id="mDF-eM-BRT" userLabel="Next">
                                         <connections>
                                             <action selector="goForward:" destination="xV0-Ez-trt" id="NRs-rp-FWo"/>
                                         </connections>
                                     </barButtonItem>
-                                    <barButtonItem style="plain" systemItem="flexibleSpace" id="HAR-xJ-KoJ"/>
                                     <barButtonItem style="plain" systemItem="flexibleSpace" id="kyD-5W-KIt"/>
                                     <barButtonItem tag="5" style="plain" systemItem="bookmarks" id="Xsa-20-P0c" userLabel="Bookmarks">
                                         <connections>
                                             <action selector="goBookmarks" destination="xV0-Ez-trt" id="hZ7-w2-kqs"/>
                                         </connections>
                                     </barButtonItem>
-                                    <barButtonItem style="plain" systemItem="flexibleSpace" id="osi-2B-M94"/>
                                     <barButtonItem style="plain" systemItem="flexibleSpace" id="rZ1-wP-i4r"/>
-                                    <barButtonItem tag="4" style="plain" systemItem="add" id="7fu-hf-Diu" userLabel="Action">
+                                    <barButtonItem tag="5" style="plain" systemItem="add" id="7XG-0b-mMT" userLabel="add bookmark">
                                         <connections>
-                                            <action selector="newBookmark:" destination="xV0-Ez-trt" id="0Qk-Ci-7hW"/>
+                                            <action selector="addBookmark" destination="xV0-Ez-trt" id="fo4-vb-NF4"/>
                                         </connections>
                                     </barButtonItem>
                                     <barButtonItem style="plain" systemItem="flexibleSpace" id="NI1-lN-tMI"/>
@@ -1171,12 +1169,11 @@
                         <outlet property="backButton" destination="py8-fL-Q7b" id="KAT-8H-H7W"/>
                         <outlet property="detailViewController" destination="MWm-br-vsJ" id="Pax-nD-nVh"/>
                         <outlet property="downloadViewController" destination="IFH-dZ-s3L" id="Fvm-4j-iC4"/>
-                        <outlet property="forwardButton" destination="7fu-hf-Diu" id="Mh8-lF-Z6J"/>
+                        <outlet property="forwardButton" destination="mDF-eM-BRT" id="IBr-ac-Ng6"/>
                         <outlet property="infoDownloadLbl" destination="mq5-jp-mrX" id="AHK-Zi-yVT"/>
                         <outlet property="infoDownloadView" destination="zos-5v-DhB" id="fQV-tS-JPE"/>
                         <outlet property="progressIndicator" destination="5Nv-Qh-jNh" id="bxf-YN-eIa"/>
                         <outlet property="toolBar" destination="JYF-To-slK" id="Xo2-oi-2uA"/>
-                        <outlet property="view" destination="xDm-58-Xc4" id="jXc-Xe-Zib"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="uYD-1a-8Ez" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>

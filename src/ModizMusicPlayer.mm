@@ -2537,7 +2537,7 @@ void propertyListenerCallback (void                   *inUserData,              
 
 
 @implementation ModizMusicPlayer
-@synthesize artist,album;
+@synthesize artist,album,artworkImage;
 @synthesize extractPendingCancel;
 @synthesize detailViewControllerIphone;
 @synthesize mod_subsongs,mod_currentsub,mod_minsub,mod_maxsub,mLoopMode;
@@ -2813,6 +2813,8 @@ void propertyListenerCallback (void                   *inUserData,              
         mLoadModuleStatus=0;
         mLoopMode=0;
         mCurrentSamples=0;
+        
+        artworkImage = nil;
         
         snprintf(bundlePath,sizeof(bundlePath),"%s/",[[[NSBundle mainBundle] resourcePath] UTF8String]);
         
@@ -5262,8 +5264,36 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 pAPEDecompress->Seek(mMAC_decode_pos_samples);
                             }
                             if (mPlayType==MMP_NEZ) { //NEZ
+                                int64_t mStartPosSamples;
+                                int64_t mSeekSamples=(double)mNeedSeekTime*(double)(PLAYBACK_FREQ)/1000.0f;
                                 bGlobalSeekProgress=-1;
-                                //TODO
+                                if (mCurrentSamples >mSeekSamples) {
+                                    //nsfPlayer->SetSong(mod_currentsub);
+                                    NEZReset(_nezPlay);
+                                    
+                                    iCurrentTime=0;
+                                    mCurrentSamples=0;
+                                }
+                                mStartPosSamples=mCurrentSamples;
+                                
+                                while (mCurrentSamples<mSeekSamples) {
+                                    int64_t sample_to_skip=mSeekSamples - mCurrentSamples;
+                                    if (sample_to_skip>SOUND_BUFFER_SIZE_SAMPLE) sample_to_skip=SOUND_BUFFER_SIZE_SAMPLE;
+                                    NEZRender(_nezPlay, buffer_ana[buffer_ana_gen_ofs], sample_to_skip);
+                                    
+                                    mCurrentSamples+=sample_to_skip;
+                                    iCurrentTime=mCurrentSamples*1000/PLAYBACK_FREQ;
+                                    
+                                    dispatch_async(dispatch_get_main_queue(), ^(void){
+                                        //Run UI Updates
+                                        [detailViewControllerIphone setProgressWaiting:[NSNumber numberWithFloat: (float)(mCurrentSamples-mStartPosSamples)/(mSeekSamples-mStartPosSamples)]];
+                                    });
+                                    if ([detailViewControllerIphone isCancelPending]) {
+                                        [detailViewControllerIphone resetCancelStatus];
+                                        mSeekSamples=mCurrentSamples;
+                                        break;
+                                    }
+                                }
                             }
                             if (mPlayType==MMP_PMDMINI) { //PMDMini : not supported
                                 int64_t mStartPosSamples;
@@ -5972,15 +6002,23 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 }
                                 mod_message_updated=2;
                             } else if (mPlayType==MMP_NEZ) { //NEZ
-                                // .hes files do contain multiple tracks but used IDs are not obvious
-                                if (mod_currentsub >= 0)
-                                {
-                                    NEZSetSongNo(_nezPlay, mod_currentsub );
-                                }
-                                NEZReset(_nezPlay);        // without this there is no sound..
-                                NEZVolume(_nezPlay,0);
                                 
-                                iModuleLength=settings[GLOB_DefaultLength].detail.mdz_slider.slider_value*1000;
+                                if (m3uReader.size()) {
+                                    NEZSetSongNo(_nezPlay, m3uReader[mod_currentsub-mod_minsub].track+1);
+                                } else NEZSetSongNo(_nezPlay, mod_currentsub-mod_minsub+1);
+                                NEZReset(_nezPlay);
+                                
+                                // song info
+                                if (m3uReader.size()) {
+                                    mod_title=[NSString stringWithUTF8String:m3uReader[mod_currentsub-mod_minsub].name];
+                                } else {
+                                    mod_title=[NSString stringWithUTF8String:SONGINFO_GetTitle(_nezPlay->song)];
+                                    artist=[NSString stringWithFormat:@"%s",SONGINFO_GetArtist(_nezPlay->song)];
+                                }
+                                
+                                iModuleLength=0;
+                                if (m3uReader.size()) iModuleLength=m3uReader[mod_currentsub-mod_minsub].length;
+                                if (iModuleLength<=0) iModuleLength=settings[GLOB_DefaultLength].detail.mdz_slider.slider_value*1000;
                                 
                                 mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
                                 if (mLoopMode) iModuleLength=-1;
@@ -5990,12 +6028,6 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 iCurrentTime=0;
                                 mCurrentSamples=0;
                                 mNeedSeek=0;bGlobalSeekProgress=0;
-                                
-                                mod_name[0]=0;
-                                
-                                std::string title = SONGINFO_GetTitle(_nezPlay->song);
-                                mod_title=[NSString stringWithUTF8String:title.c_str()];
-                                artist=[NSString stringWithFormat:@"%s",SONGINFO_GetArtist(_nezPlay->song)];
                                 
                                 int cpt_wait=0;
                                 while (mod_message_updated) {
@@ -6797,16 +6829,38 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             }
                         }
                         if (mPlayType==MMP_NEZ) { //NEZ
-                            
                             NEZRender(_nezPlay, buffer_ana[buffer_ana_gen_ofs], SOUND_BUFFER_SIZE_SAMPLE);
                             nbBytes = SOUND_BUFFER_SIZE_SAMPLE*2*2;
                                                         
                             mCurrentSamples+=SOUND_BUFFER_SIZE_SAMPLE;
                             
-                            if (mCurrentSamples>=mTgtSamples) nbBytes=0;
+                            if ((mCurrentSamples>=mTgtSamples)||
+                                (mdzSilentBufferLimit&&(mdzSilentBufferCount>=mdzSilentBufferLimit))
+                                ) {
+                                //end reached
+                                [self setSongLengthfromMD5:mod_currentsub-mod_minsub+1 songlength:mCurrentSamples*1000/PLAYBACK_FREQ];
+                                
+                                if (iModuleLength<0) {
+                                    NEZReset(_nezPlay);
+                                    mCurrentSamples=0;
+                                    iCurrentTime=0;
+                                    mdzSilentBufferCount=0;
+                                    
+                                    nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
+                                } else nbBytes=0;
+                            }
                             
-                            if (nbBytes<SOUND_BUFFER_SIZE_SAMPLE*2*2) {
-                                nbBytes=(nbBytes==(SOUND_BUFFER_SIZE_SAMPLE*2*2)?nbBytes-4:nbBytes);
+                            if ((nbBytes==0)||( (iModuleLength>0)&&(mCurrentSamples>=mTgtSamples)) ) {
+                                if (mSingleSubMode==0) {
+                                    if ([self playNextSub]<0) nbBytes=(nbBytes==SOUND_BUFFER_SIZE_SAMPLE*2*2?nbBytes-4:nbBytes);
+                                    else {
+                                        nbBytes=(nbBytes==SOUND_BUFFER_SIZE_SAMPLE*2*2?nbBytes-4:nbBytes);
+                                        donotstop=1;
+                                        moveToSubSong=2;
+                                    }
+                                } else nbBytes=(nbBytes==SOUND_BUFFER_SIZE_SAMPLE*2*2?nbBytes-4:nbBytes);
+                            } else {
+                                
                             }
                         }
                         if (mPlayType==MMP_HC) { //Highly Complete
@@ -9459,6 +9513,7 @@ static WSRPlayerApi* s_coreSwan=&oswan::g_wsr_player_api;
         f=fopen(plfile,"rb");
     }
     m3uReader.clear();
+    m3uReader_adjofs=0;
     if (f) {
         fclose(f);
         m3uReader.load(plfile);
@@ -9807,6 +9862,7 @@ static WSRPlayerApi* s_coreSwan=&oswan::g_wsr_player_api;
         f=fopen(plfile,"rb");
     }
     m3uReader.clear();
+    m3uReader_adjofs=0;
     if (f) {
         fclose(f);
         m3uReader.load(plfile);
@@ -10082,6 +10138,20 @@ static WSRPlayerApi* s_coreSwan=&oswan::g_wsr_player_api;
     fread(nez_fileBuffer,1,nez_fileBufferLen,f);
     fclose(f);
     
+    //check if m3u playlist exists
+    const char *plfile=[[[filePath stringByDeletingPathExtension] stringByAppendingString:@".m3u"] UTF8String];
+    f=fopen(plfile,"rb");
+    if (!f) {
+        plfile=[[[filePath stringByDeletingPathExtension] stringByAppendingString:@".M3U"] UTF8String];
+        f=fopen(plfile,"rb");
+    }
+    m3uReader.clear();
+    m3uReader_adjofs=0;
+    if (f) {
+        fclose(f);
+        m3uReader.load(plfile);
+    }
+    
     //Init player
     _nezPlay = NEZNew();
     if (!_nezPlay) {
@@ -10093,9 +10163,6 @@ static WSRPlayerApi* s_coreSwan=&oswan::g_wsr_player_api;
     NEZSetFrequency(_nezPlay, PLAYBACK_FREQ);
     NEZSetChannel(_nezPlay, 2);
     
-    _nezPlay->volume=256;
-    
-
     NSF_noise_random_reset = 0;
     NSF_2A03Type = 1;
     Namco106_Realmode = 1;
@@ -10120,39 +10187,41 @@ static WSRPlayerApi* s_coreSwan=&oswan::g_wsr_player_api;
             title = [filePath UTF8String];
             title.erase( title.find_last_of( '.' ) );    // remove ext
         }
-        //setText(0, title.c_str());
-        //setText(1, trim(SONGINFO_GetArtist(_nezPlay->song)).c_str());
-        //setText(2, trim(SONGINFO_GetCopyright(_nezPlay->song)).c_str());
-
-        //setNumText(3, NEZGetSongNo(_nezPlay));
-        //setNumText(4, NEZGetSongMax(_nezPlay));
-
-        // this originally allowed for 4x longer text.. is that a problem?
-        //setText(5, SONGINFO_GetDetail(_nezPlay->song));
-        
+        mod_title=[NSString stringWithUTF8String:title.c_str()];
+        artist=[NSString stringWithFormat:@"%s",SONGINFO_GetArtist(_nezPlay->song)];
         // song info
         snprintf(mod_name,sizeof(mod_name)," %s",[[[filePath lastPathComponent] stringByDeletingPathExtension] UTF8String]);
-        mod_title=[NSString stringWithUTF8String:title.c_str()];
+        
+        if (m3uReader.size()) {
+            const char* tmpStr=m3uReader.info().title;
+            if (tmpStr && tmpStr[0]) snprintf(mod_name,sizeof(mod_name)," %s",tmpStr);
+            tmpStr=m3uReader.info().composer;
+            if (tmpStr && tmpStr[0]) artist=[NSString stringWithFormat:@"%s",tmpStr];
+            else {
+                tmpStr=m3uReader.info().artist;
+                if (tmpStr && tmpStr[0]) artist=[NSString stringWithFormat:@"%s",tmpStr];
+            }
+        }
         
         iModuleLength=0;
-        artist=[NSString stringWithFormat:@"%s",SONGINFO_GetArtist(_nezPlay->song)];
         
-        mod_subsongs=NEZGetSongMax(_nezPlay);
-        mod_minsub=1;
-        mod_maxsub=NEZGetSongMax(_nezPlay);
-        mod_currentsub=NEZGetSongNo(_nezPlay);
         
-        // .hes files do contain multiple tracks but used IDs are not obvious
-        if (mod_currentsub >= 0)
-        {
-            NEZSetSongNo(_nezPlay, mod_currentsub );
+        if (m3uReader.size()) {
+            mod_subsongs=m3uReader.size();
+            mod_minsub=0;
+            mod_maxsub=m3uReader.size()-1;
+            mod_currentsub=0;
+            
+            NEZSetSongNo(_nezPlay, m3uReader[mod_currentsub-mod_minsub].track+1);
+        } else {
+            mod_subsongs=NEZGetSongMax(_nezPlay);
+            mod_minsub=1;
+            mod_maxsub=NEZGetSongMax(_nezPlay);
+            mod_currentsub=NEZGetSongNo(_nezPlay);
+            NEZSetSongNo(_nezPlay, mod_currentsub-mod_minsub+1);
         }
+        
         NEZReset(_nezPlay);        // without this there is no sound..
-        NEZVolume(_nezPlay,0);
-
-        //std::string title = SONGINFO_GetTitle(_nezPlay->song);
-        //setText(0, _isMbmMode ? _mbm.getTitle() : title.c_str());    // AY EMUL tracks have names
-        //setNumText(3, NEZGetSongNo(_nezPlay));
     } else {
         MDZELog("nez cannot load file %@",filePath);
         mdz_safe_free(nez_fileBuffer);
@@ -10174,7 +10243,7 @@ static WSRPlayerApi* s_coreSwan=&oswan::g_wsr_player_api;
     mCurrentSamples=0;
     
         numChannels=2;
-        m_voicesDataAvail=1;
+        m_voicesDataAvail=0;
         m_genNumVoicesChannels=numChannels;
         for (int i=0;i<m_genNumVoicesChannels;i++) {
             m_voice_voiceColor[i]=m_voice_systemColor[0];
@@ -10186,6 +10255,11 @@ static WSRPlayerApi* s_coreSwan=&oswan::g_wsr_player_api;
     if (mLoopMode) {
         iModuleLength=-1;
     }
+    
+    snprintf(mod_message,MAX_STIL_DATA_LENGTH*2,"");
+    snprintf(mod_message,MAX_STIL_DATA_LENGTH*2,"%sTitle: %s\n",mod_message,[mod_title UTF8String]);
+    snprintf(mod_message,MAX_STIL_DATA_LENGTH*2,"%sArtist: %s\n",mod_message,[artist UTF8String]);
+    snprintf(mod_message,MAX_STIL_DATA_LENGTH*2,"%sCopyright: %s\n",mod_message,SONGINFO_GetCopyright(_nezPlay->song));
     
     return 0;
 }
@@ -11152,6 +11226,7 @@ char* loadRom(const char* path, size_t romSize)
         f=fopen(plfile,"rb");
     }
     m3uReader.clear();
+    m3uReader_adjofs=0;
     if (f) {
         fclose(f);
         m3uReader.load(plfile);
@@ -12520,6 +12595,89 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
     if (vgmStream->stream_name[0]) snprintf(mod_name,sizeof(mod_name)," %s",vgmStream->stream_name);
     else snprintf(mod_name,sizeof(mod_name)," %s",mod_filename);
     
+    
+    NSURL *url = [NSURL fileURLWithPath:filePath];
+    AVURLAsset *asset = [AVURLAsset URLAssetWithURL:url options:nil];
+    // Métadonnées communes (recommandé)
+    for (AVMetadataItem *item in asset.commonMetadata) {
+        NSString *key = item.commonKey;
+        NSString *value = item.stringValue;
+        
+        if (key && value) {
+            NSLog(@"TAG: %@ = %@", key, value);
+            
+            if ([[key lowercaseString] isEqualToString:@"title"]) {
+                mod_title=[NSString stringWithString:value];
+            }
+            if ([[key lowercaseString] isEqualToString:@"artist"]) {
+                artist=[NSString stringWithString:value];
+            }
+            if ([[key lowercaseString] isEqualToString:@"albumName"]) {
+                snprintf(mod_name,sizeof(mod_name),"%s",[value UTF8String]);
+                album=[NSString stringWithString:value];
+            }
+        }
+        
+        if ([item.commonKey isEqual:AVMetadataCommonKeyArtwork]) {
+            
+            id value = item.value;
+            
+            // Cas le plus courant : NSData (JPEG / PNG)
+            if ([value isKindOfClass:[NSData class]]) {
+                artworkImage = [UIImage imageWithData:(NSData *)value];
+                NSLog(@"TAG: image found/data");
+            }
+            // Parfois déjà une UIImage (rare mais possible)
+            else if ([value isKindOfClass:[UIImage class]]) {
+                artworkImage = (UIImage *)value;
+                NSLog(@"TAG: image found");
+            }
+            
+        }
+    }
+    
+    NSNumber *track = nil;
+    NSNumber *total = nil;
+    // ID3
+    for (AVMetadataItem *item in [asset metadataForFormat:AVMetadataFormatID3Metadata]) {
+        if ([item.key isEqual:AVMetadataID3MetadataKeyTrackNumber]) {
+            NSArray *parts = [item.stringValue componentsSeparatedByString:@"/"];
+            track = @([parts.firstObject integerValue]);
+            if (parts.count > 1) {
+                total = @([parts[1] integerValue]);
+            }
+        }
+    }
+
+    // iTunes
+    for (AVMetadataItem *item in [asset metadataForFormat:AVMetadataFormatiTunesMetadata]) {
+        if ([item.key isEqual:AVMetadataiTunesMetadataKeyTrackNumber]) {
+            NSDictionary *dict = (NSDictionary *)item.value;
+            track = dict[@"trackNumber"];
+            total = dict[@"trackCount"];
+        }
+    }
+
+    // Vorbis
+    NSString *VorbisFormat = @"org.xiph.vorbis.comments";
+    if ([asset.availableMetadataFormats containsObject:VorbisFormat]) {
+        
+        for (AVMetadataItem *item in [asset metadataForFormat:VorbisFormat]) {
+            NSString *key = [item.key description];
+            if ([key caseInsensitiveCompare:@"TRACKNUMBER"] == NSOrderedSame) {
+                track = @([item.stringValue integerValue]);
+            }
+            if ([key caseInsensitiveCompare:@"TRACKTOTAL"] == NSOrderedSame ||
+                [key caseInsensitiveCompare:@"TOTALTRACKS"] == NSOrderedSame) {
+                total = @([item.stringValue integerValue]);
+            }
+        }
+    }
+
+    if (track) {
+        mod_title=[NSString stringWithFormat:@"%@.%@",track.stringValue,mod_title];
+    }
+
     mod_message[0]=0;
     describe_vgmstream(vgmStream,mod_message,MAX_STIL_DATA_LENGTH*2);
     vgm_sample_data=(int16_t*)malloc(SOUND_BUFFER_SIZE_SAMPLE*2*(numChannels>2?numChannels:2));
@@ -14429,6 +14587,8 @@ extern bool icloud_available;
     NSString *filePath;
     NSMutableArray *available_player=[NSMutableArray arrayWithCapacity:1];
     
+    artworkImage = nil;
+    
     int found=0;
     volatile static bool no_reentrant=false;
     
@@ -14614,20 +14774,31 @@ extern bool icloud_available;
                     
                     //check if there is a m3u file
                     __block bool m3uFound=false;
-                    __block NSString *m3uFilePath;
+                    __block NSString *m3uFilePath=nil;
                     __block bool noArcM3Umode=false;
-                    NSArray *extNoArcM3Umode=@[@"nsf",@"nsfe",@"kss",@"gbs"];
+                    __block unsigned long long maxFileSize=0;
+                    NSArray *extNoArcM3Umode=@[@"nsf",@"nsfe",@"kss",@"gbs",@"sgc"];
                     
                     NSArray* dirEntries = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:[NSString stringWithFormat:@"%@/tmpArchive",NSTemporaryDirectory()] error:NULL];
                     
                     [dirEntries enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
                         NSString *filename = (NSString *)obj;
+                        NSString *fullPath = [NSString stringWithFormat:@"%@/tmpArchive/%@",NSTemporaryDirectory(),filename];
+
+                        // Récupération des attributs
+                        NSDictionary *attributes = [[NSFileManager defaultManager] attributesOfItemAtPath:fullPath error:nil];
+
+                        // Taille du fichier en octets
+                        unsigned long long fileSize = [attributes fileSize];
+                        
                         NSString *extension = [[filename pathExtension] lowercaseString];
                         if ([extension isEqualToString:@"m3u"]) {
                             m3uFound=true;
-                            m3uFilePath=[NSString stringWithFormat:@"%@/tmpArchive/%@",NSTemporaryDirectory(),filename];
+                            if ( (m3uFilePath==nil) || (fileSize>maxFileSize) ) {
+                                m3uFilePath=[NSString stringWithFormat:@"%@/tmpArchive/%@",NSTemporaryDirectory(),filename];
+                                maxFileSize=fileSize;
+                            }
                         }
-                        
                         for (NSString *tmpExt in extNoArcM3Umode) {
                             if ([[extension lowercaseString] isEqualToString:tmpExt]) {
                                 noArcM3Umode=true;
@@ -14640,6 +14811,7 @@ extern bool icloud_available;
                         //check if a playlist exists
                         const char *plfile=[m3uFilePath UTF8String];
                         m3uReader.clear();
+                        m3uReader_adjofs=0;
                         m3uReader.load(plfile);
                         if (m3uReader.size()) {
                             //MDZILog("m3u file found in archive, entries nb: %d",m3uReader.size());
@@ -15991,6 +16163,27 @@ extern bool icloud_available;
             [self Play];
             break;
         case MMP_NEZ: //NEZ
+            mod_currentsub=subsong;
+            if (m3uReader.size()) {
+                NEZSetSongNo(_nezPlay, m3uReader[mod_currentsub-mod_minsub].track+1);
+            } else NEZSetSongNo(_nezPlay, mod_currentsub-mod_minsub+1);
+            NEZReset(_nezPlay);
+            
+            // song info
+            if (m3uReader.size()) {
+                mod_title=[NSString stringWithUTF8String:m3uReader[mod_currentsub-mod_minsub].name];
+            } else {
+                mod_title=[NSString stringWithUTF8String:SONGINFO_GetTitle(_nezPlay->song)];
+                artist=[NSString stringWithFormat:@"%s",SONGINFO_GetArtist(_nezPlay->song)];
+            }
+            
+            iModuleLength=0;
+            if (m3uReader.size()) iModuleLength=m3uReader[mod_currentsub-mod_minsub].length;
+            if (iModuleLength<=0) iModuleLength=settings[GLOB_DefaultLength].detail.mdz_slider.slider_value*1000;
+            
+            mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
+            if (mLoopMode) iModuleLength=-1;
+            
             if (startPos) [self Seek:startPos];
             [self updateCurSubSongPlayed:mod_currentsub-mod_minsub];
             [self Play];
@@ -16114,6 +16307,7 @@ extern bool icloud_available;
         if (nsfData) delete nsfData;
         nsfData=NULL;
         m3uReader.clear();
+        m3uReader_adjofs=0;
     }
     if (mPlayType==MMP_PIXEL) {
         
@@ -16161,6 +16355,7 @@ extern bool icloud_available;
         if (kss) KSS_delete(kss);
         kss=NULL;
         m3uReader.clear();
+        m3uReader_adjofs=0;
     }
     if (mPlayType==MMP_HVL) { //HVL
         hvl_FreeTune(hvl_song);
@@ -16464,6 +16659,7 @@ extern bool icloud_available;
         if (xsf_mode==0) return @"XSF/SSEQPlayer";
         else return @"XSF/2SF";
     }
+    if (mPlayType==MMP_NEZ) return @"Nezplug";
     if (mPlayType==MMP_V2M) return @"V2M";
     if (mPlayType==MMP_VGMSTREAM) return @"VGMSTREAM";
     return @"";
@@ -16597,7 +16793,7 @@ extern bool icloud_available;
             return [[NSString stringWithFormat:@"%.3d-%@",subsong-mod_minsub+1,[NSString stringWithCString:m3uReader[subsong].name encoding:NSShiftJISStringEncoding] ] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"];
         }
         return [NSString stringWithFormat:@"%.3d",subsong-mod_minsub+1];
-    }else if (mPlayType==MMP_ATARISOUND) {
+    } else if (mPlayType==MMP_ATARISOUND) {
         SndhFile::SubSongInfo info;
         atariSndh.GetSubsongInfo(subsong,info);
         const char *str=info.musicSubTitle;
@@ -16608,6 +16804,11 @@ extern bool icloud_available;
             return [[NSString stringWithFormat:@"%.3d-%@",subsong-mod_minsub+1,[NSString stringWithCString:m3uReader[subsong].name encoding:NSShiftJISStringEncoding] ] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"];
         }
         return [NSString stringWithFormat:@"%.3d-%s",subsong-mod_minsub+1,nsfData->GetTitleString("%L",subsong)];
+    } else if (mPlayType==MMP_NEZ) {
+        if (m3uReader.size()-1>=subsong) {
+            return [[NSString stringWithFormat:@"%.3d-%@",subsong-mod_minsub+1,[NSString stringWithCString:m3uReader[subsong].name encoding:NSShiftJISStringEncoding] ] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"];
+        }
+        return [NSString stringWithFormat:@"%.3d-%s",subsong-mod_minsub+1,SONGINFO_GetTitle(_nezPlay->song)];
     } else if (mPlayType==MMP_SC68) {
         sc68_music_info_t info;
         sc68_music_info(sc68,&info,subsong,0);
@@ -16661,7 +16862,6 @@ extern bool icloud_available;
     if (mPlayType==MMP_SIDPLAY) return @"SID";
     if (mPlayType==MMP_STSOUND) return @"YM";
     if (mPlayType==MMP_MAC) return @"APE";
-    if (mPlayType==MMP_NEZ) return @"NEZ"; //TODO
     if (mPlayType==MMP_ATARISOUND) return @"SNDH";
     if (mPlayType==MMP_PT3) return @"PT3";
     if (mPlayType==MMP_ZXTUNE) return [NSString stringWithFormat:@"%s/%s",zxtune_song_info.get_codec(),zxtune_song_info.get_program()];
@@ -16699,6 +16899,7 @@ extern bool icloud_available;
     if (mPlayType==MMP_NCSF) return [NSString stringWithFormat:@"%s",mmp_fileext];
     if (mPlayType==MMP_V2M) return [NSString stringWithFormat:@"%s",mmp_fileext];
     if (mPlayType==MMP_VGMSTREAM) return [NSString stringWithFormat:@"%s",mmp_fileext];
+    if (mPlayType==MMP_NEZ) return [NSString stringWithUTF8String:SONGINFO_GetType(_nezPlay->song)];
     return @" ";
 }
 -(BOOL) isPlaying {
@@ -17506,6 +17707,7 @@ extern "C" void adjust_amplification(void);
         case MMP_ATARISOUND:
         case MMP_2SF:
         case MMP_NCSF:
+        case MMP_NEZ:
         case MMP_ADPLUG:
         case MMP_HVL:
         case MMP_STSOUND:
@@ -17548,6 +17750,8 @@ extern "C" void adjust_amplification(void);
         case MMP_2SF:
         case MMP_NCSF:
             return @"NDS";
+        case MMP_NEZ:
+            return [NSString stringWithUTF8String:SONGINFO_GetSystem(_nezPlay->song)];
         case MMP_V2M:
             return @"V2";
         case MMP_WSR:

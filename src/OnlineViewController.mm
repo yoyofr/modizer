@@ -207,8 +207,6 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
     UIBarButtonItem *item = [[UIBarButtonItem alloc] initWithImage:[UIImage systemImageNamed:NOW_PLAYING_ICON] style:UIBarButtonItemStylePlain target:self action:@selector(goPlayer)];
     self.navigationItem.rightBarButtonItem = item;
     
-    [self.webBrowser loadBookmarks];
-    
     //    [self.tableView registerClass:[UITableViewCell class] forCellReuseIdentifier:@"Cell"];
     //self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     END_PROFILE
@@ -271,6 +269,8 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
                                           context:LoadingProgressObserverContext];
     
     repeatingTimer = [NSTimer scheduledTimerWithTimeInterval: 0.20f target:self selector:@selector(updateLoadingInfos:) userInfo:nil repeats: YES]; //5 times/second
+    
+    [self.webBrowser loadBookmarks];
     
     [self.tableView reloadData];
     collectionViewController=nil;

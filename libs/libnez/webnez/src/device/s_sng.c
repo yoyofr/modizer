@@ -70,10 +70,10 @@ __inline static Int32 SNGSoundSquareSynth(SNGSOUND *sndp, SNG_SQUARE *ch)
 	Int32 outputbuf=0,count=0;
 	if (ch->spd < (0x4 << CPS_SHIFT))
 	{
-		return LogToLin(sndp->logtbl, ch->vol + sndp->common.mastervolume, LOG_LIN_BITS - 21);
+		return LogToLin(sndp->logtbl, ch->vol + sndp->common.mastervolume, LOG_LIN_BITS - 21-2);
 	}
 	ch->cycles += sndp->common.cps<<RENDERS;
-	ch->output = LogToLin(sndp->logtbl, ch->vol + sndp->common.mastervolume, LOG_LIN_BITS - 21);
+	ch->output = LogToLin(sndp->logtbl, ch->vol + sndp->common.mastervolume, LOG_LIN_BITS - 21-2);
 	ch->output *= !(ch->adr & 1);
 	while (ch->cycles >= ch->spd)
 	{
@@ -85,7 +85,7 @@ __inline static Int32 SNGSoundSquareSynth(SNGSOUND *sndp, SNG_SQUARE *ch)
 		if(ch->count >= 1<<RENDERS){
 			ch->count = 0;
 			ch->adr++;
-			ch->output = LogToLin(sndp->logtbl, ch->vol + sndp->common.mastervolume, LOG_LIN_BITS - 21);
+			ch->output = LogToLin(sndp->logtbl, ch->vol + sndp->common.mastervolume, LOG_LIN_BITS - 21-2);
 			ch->output *= !(ch->adr & 1);
 		}
 	}
@@ -100,7 +100,7 @@ __inline static Int32 SNGSoundNoiseSynth(SNGSOUND *sndp, SNG_NOISE *ch)
 	Int32 outputbuf=0,count=0;
 	//if (ch->spd < (0x1 << (CPS_SHIFT - 1))) return 0;
 	ch->cycles += (sndp->common.ncps >> 1) <<NOISE_RENDERS;
-	ch->output = LogToLin(sndp->logtbl, ch->vol + sndp->common.mastervolume, LOG_LIN_BITS - 21);
+	ch->output = LogToLin(sndp->logtbl, ch->vol + sndp->common.mastervolume, LOG_LIN_BITS - 21-2);
 	ch->output *= !(ch->rng & 1);
 	while (ch->cycles >= ch->spd)
 	{
@@ -115,7 +115,7 @@ __inline static Int32 SNGSoundNoiseSynth(SNGSOUND *sndp, SNG_NOISE *ch)
 			//ch->rng += ch->rng + (((ch->rng >> ch->step1)/* ^ (ch->rng >> ch->step2)*/) & 1);
 			ch->rng >>= 1;
 
-			ch->output = LogToLin(sndp->logtbl, ch->vol + sndp->common.mastervolume, LOG_LIN_BITS - 21);
+			ch->output = LogToLin(sndp->logtbl, ch->vol + sndp->common.mastervolume, LOG_LIN_BITS - 21-2);
 			ch->output *= !(ch->rng & 1);
 		}
 	}

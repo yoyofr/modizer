@@ -74,6 +74,7 @@
 -(IBAction) goBack:(id)sender;
 -(IBAction) goForward:(id)sender;
 -(IBAction) newBookmark:(id)sender;
+-(IBAction) addBookmark;
 -(IBAction) goBookmarks;
 -(IBAction) goHome:(id)sender;
 -(IBAction) newUrlEntered:(id)sender;

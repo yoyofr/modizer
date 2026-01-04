@@ -17,10 +17,10 @@ extern "C" {
 #define Uint8 unsigned char
 #endif
 
-//#if defined(EMSCRIPTEN)
+#if defined(EMSCRIPTEN)
 #ifdef __inline
 #undef __inline
-//#endif
+#endif
 #define __inline
 #elif defined(_MSC_VER)
 #elif defined(__BORLANDC__)
