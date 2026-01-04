@@ -31,10 +31,18 @@ missing seek support:
 ---
 - fixes several localizations issues
 - UI fixes & improvements
-- new online collections: AMP (Amiga Music Preservation), CGSC (Compute's Gazette Sid Collection)
+- FX can now be displayed using various layouts to combine them more easily
+- Midi & Piano roll FX now have an auto scaling option to follow notes
+- New online collections: AMP (Amiga Music Preservation), CGSC (Compute's Gazette Sid Collection)
+- New playback library: nezplug integrated to play SGC files (Master system, Game Gear)
 - DB updated: HVSC #84, CGSC 1.47, ASMA & MODLAND as of 2025/12/30
-- Support of pic files as cover image for CGSC
-- Playlists: bugfixes & small improvements
+- Support of pic/pgg/pjj pictures files as cover image for CGSC
+- libopenmpt: new settings to activate Amiga filter
+- Playlists: bugfixes & improvements
+- Faster seek for most formats.
+- Better tags management for relevant audio stream formats (mp3, ogg, aac, flac, ...).
+Playlists entries will be automatically renamed based on tags (track number & title) if available, allowing to sort entries (using 'Sort A-Z' action).
+If an image is embedded it will be used as cover.
 
 4.1
 ----

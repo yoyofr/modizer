@@ -35,7 +35,7 @@ Modizer is using several playback libraries to support a wide range of music for
 | - [XSF (2SF, NCSF)](https://github.com/CyberBotX/in_xsf) | - [libXMP](https://github.com/libxmp/libxmp) |
 | - [V2M tinyplayer](https://github.com/jgilje/v2m-player) | - [VGMStream](https://github.com/vgmstream/vgmstream) |
 | - [VIO2SF](https://bitbucket.org/kode54/vio2sf/src/master/) | - [WebSID](https://www.wothke.ch/websid/) |
-| - [ZXTune](https://bitbucket.org/zxtune/zxtune/src/develop/) | |
+| - [WebNEZ](https://bitbucket.org/wothke/webnez/src/master/) | - [ZXTune](https://bitbucket.org/zxtune/zxtune/src/develop/) |
 
 Other main libs & frameworks:
  - [ASIHTTPRequest](https://allseeing-i.com/ASIHTTPRequest/)
@@ -51,7 +51,6 @@ Other main libs & frameworks:
  - [NVDSP](https://github.com/bartolsthoorn/NVDSP)
  - [ProjectM](https://github.com/projectM-visualizer/projectm): the most advanced open-source music visualizer.
  - [SARUnArchiveANY](https://github.com/saru2020/SARUnArchiveANY)
- - [SESlideTableViewCell](https://github.com/spaceelephant/SESlideTableViewCell)
  - [UnrarKIT](https://github.com/abbeycode/UnrarKit) 
 
 ## Statistics
