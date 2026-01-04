@@ -699,23 +699,27 @@ END_PROFILE
             break;
         }
     }
-    // iTunes
-    for (AVMetadataItem *item in [asset metadataForFormat:AVMetadataFormatiTunesMetadata]) {
-        if ([item.key isEqual:AVMetadataiTunesMetadataKeyTrackNumber]) {
-            NSDictionary *dict = (NSDictionary *)item.value;
-            track = dict[@"trackNumber"];
-            break;
+    if (track==nil) {
+        // iTunes
+        for (AVMetadataItem *item in [asset metadataForFormat:AVMetadataFormatiTunesMetadata]) {
+            if ([item.key isEqual:AVMetadataiTunesMetadataKeyTrackNumber]) {
+                NSDictionary *dict = (NSDictionary *)item.value;
+                track = dict[@"trackNumber"];
+                break;
+            }
         }
     }
-    // Vorbis
-    NSString *VorbisFormat = @"org.xiph.vorbis.comments";
-    if ([asset.availableMetadataFormats containsObject:VorbisFormat]) {
-        
-        for (AVMetadataItem *item in [asset metadataForFormat:VorbisFormat]) {
-            NSString *key = [item.key description];
-            if ([key caseInsensitiveCompare:@"TRACKNUMBER"] == NSOrderedSame) {
-                track = @([item.stringValue integerValue]);
-                break;
+    if (track==nil) {
+        // Vorbis
+        NSString *VorbisFormat = @"org.xiph.vorbis.comments";
+        if ([asset.availableMetadataFormats containsObject:VorbisFormat]) {
+            
+            for (AVMetadataItem *item in [asset metadataForFormat:VorbisFormat]) {
+                NSString *key = [item.key description];
+                if ([key caseInsensitiveCompare:@"TRACKNUMBER"] == NSOrderedSame) {
+                    track = @([item.stringValue integerValue]);
+                    break;
+                }
             }
         }
     }

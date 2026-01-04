@@ -7047,12 +7047,10 @@ void RenderUtils::DrawPianoRollSynthesiaFX(float ox,float oy,float ww,float hh,i
         for (int i=0;i<m_genNumMidiVoicesChannels;i++) {
             int j=i;
             
-            //x+=16+mOscilloFont[1]->maxCharWidth*strlen(mVoicesNamePiano[i]->mText)/mScaleFactor;
             float txtw=ImGui::CalcTextSize(voices_label+i*32).x/mScaleFactor;
             x+=16+txtw;
             
             if (x>ww) {
-                //x=16+16+mOscilloFont[1]->maxCharWidth*strlen(mVoicesNamePiano[i]->mText)/mScaleFactor;
                 x=16+16+txtw;
                 labels_lines_needed+=1;
             }
@@ -7243,13 +7241,24 @@ void RenderUtils::DrawPianoRollSynthesiaFX(float ox,float oy,float ww,float hh,i
         wd+=wd_ofs;
         posNote-=wd_ofs/2;
         
+        
         if (scaleInfo) {
             if (scaleInfo[0]>(posNote-line_width_extra-2)) scaleInfo[0]=posNote-line_width_extra-2;
             if (scaleInfo[1]<(posNote-line_width_extra+wd+2)) scaleInfo[1]=posNote-line_width_extra+wd+2;
         }
         
-        float posStart=(int)(data_bar2draw[i].startidx)*(hh-height-16)/data_midifx_len+height+0+ofsy+height/32;
-        float posEnd=((int)(data_bar2draw[i].startidx)+(int)(data_bar2draw[i].size))*(hh-height-8)/data_midifx_len+height+0+ofsy+height/32;
+        //        float posNote=note*line_width-note_display_offset+subnote;
+        
+        //
+        //        if ( ((posNote+(line_width)+line_width_extra)>=0) && ((posNote-line_width_extra)<(int)ww)) {
+        //
+
+        
+//        float posStart=(int)(data_bar2draw[i].startidx)*(hh-height-16)/data_midifx_len+height+0+ofsy+height/32;
+//        float posEnd=((int)(data_bar2draw[i].startidx)+(int)(data_bar2draw[i].size))*(hh-height-8)/data_midifx_len+height+0+ofsy+height/32;
+                float posStart=(int)(data_bar2draw[i].startidx)*(hh-ofsy-height)/data_midifx_len+ofsy+height;
+                float posEnd=((int)(data_bar2draw[i].startidx)+(int)(data_bar2draw[i].size))*(hh-ofsy-height)/data_midifx_len+ofsy+height;
+        
         if ( (posNote-line_width_extra+wd>=0) && (posNote-line_width_extra<(int)ww)) {
             int border_size=(line_width>=8?2:1);
             

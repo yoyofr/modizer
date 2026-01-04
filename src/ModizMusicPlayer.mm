@@ -12604,7 +12604,7 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
         NSString *value = item.stringValue;
         
         if (key && value) {
-            NSLog(@"TAG: %@ = %@", key, value);
+//            NSLog(@"TAG: %@ = %@", key, value);
             
             if ([[key lowercaseString] isEqualToString:@"title"]) {
                 mod_title=[NSString stringWithString:value];
@@ -12625,12 +12625,12 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
             // Cas le plus courant : NSData (JPEG / PNG)
             if ([value isKindOfClass:[NSData class]]) {
                 artworkImage = [UIImage imageWithData:(NSData *)value];
-                NSLog(@"TAG: image found/data");
+//                NSLog(@"TAG: image found/data");
             }
             // Parfois déjà une UIImage (rare mais possible)
             else if ([value isKindOfClass:[UIImage class]]) {
                 artworkImage = (UIImage *)value;
-                NSLog(@"TAG: image found");
+//                NSLog(@"TAG: image found");
             }
             
         }
@@ -12648,32 +12648,34 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
             }
         }
     }
-
-    // iTunes
-    for (AVMetadataItem *item in [asset metadataForFormat:AVMetadataFormatiTunesMetadata]) {
-        if ([item.key isEqual:AVMetadataiTunesMetadataKeyTrackNumber]) {
-            NSDictionary *dict = (NSDictionary *)item.value;
-            track = dict[@"trackNumber"];
-            total = dict[@"trackCount"];
-        }
-    }
-
-    // Vorbis
-    NSString *VorbisFormat = @"org.xiph.vorbis.comments";
-    if ([asset.availableMetadataFormats containsObject:VorbisFormat]) {
-        
-        for (AVMetadataItem *item in [asset metadataForFormat:VorbisFormat]) {
-            NSString *key = [item.key description];
-            if ([key caseInsensitiveCompare:@"TRACKNUMBER"] == NSOrderedSame) {
-                track = @([item.stringValue integerValue]);
-            }
-            if ([key caseInsensitiveCompare:@"TRACKTOTAL"] == NSOrderedSame ||
-                [key caseInsensitiveCompare:@"TOTALTRACKS"] == NSOrderedSame) {
-                total = @([item.stringValue integerValue]);
+    if (track==nil) {
+        // iTunes
+        for (AVMetadataItem *item in [asset metadataForFormat:AVMetadataFormatiTunesMetadata]) {
+            if ([item.key isEqual:AVMetadataiTunesMetadataKeyTrackNumber]) {
+                NSDictionary *dict = (NSDictionary *)item.value;
+                track = dict[@"trackNumber"];
+                total = dict[@"trackCount"];
             }
         }
     }
-
+    if (track==nil) {
+        // Vorbis
+        NSString *VorbisFormat = @"org.xiph.vorbis.comments";
+        if ([asset.availableMetadataFormats containsObject:VorbisFormat]) {
+            
+            for (AVMetadataItem *item in [asset metadataForFormat:VorbisFormat]) {
+                NSString *key = [item.key description];
+                if ([key caseInsensitiveCompare:@"TRACKNUMBER"] == NSOrderedSame) {
+                    track = @([item.stringValue integerValue]);
+                }
+                if ([key caseInsensitiveCompare:@"TRACKTOTAL"] == NSOrderedSame ||
+                    [key caseInsensitiveCompare:@"TOTALTRACKS"] == NSOrderedSame) {
+                    total = @([item.stringValue integerValue]);
+                }
+            }
+        }
+    }
+    
     if (track) {
         mod_title=[NSString stringWithFormat:@"%@.%@",track.stringValue,mod_title];
     }

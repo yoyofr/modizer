@@ -412,6 +412,34 @@
     return id_playlist;
 }
 
+- (void)createNewPlaylistAndAddList:(NSArray*)arrLabels fullPaths:(NSArray*)arrFullPaths {
+    UIAlertController *alertC = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Enter playlist name",@"")
+                                                                    message:nil
+                                                             preferredStyle:UIAlertControllerStyleAlert];
+    __weak UIAlertController *weakAlert = alertC;
+    [alertC addTextFieldWithConfigurationHandler:^(UITextField *textField) {
+        textField.placeholder = @"";
+    }];
+    
+    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel",@"") style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+        
+    }];
+    [alertC addAction:cancelAction];
+    
+    UIAlertAction *saveAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Create",@"") style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        UITextField *plName = weakAlert.textFields.firstObject;
+            
+        NSString *playlistName=[[NSString alloc] initWithString:plName.text];
+        NSString *playlistId=[self minitNewPlaylistDB:playlistName];
+        
+        [self addMultipleToPlaylistDB:playlistId labels:arrLabels fullPaths:arrFullPaths];
+        
+    }];
+    [alertC addAction:saveAction];
+    
+    [self showAlert:alertC];
+}
+
 
 - (void)createNewPlaylistAndAdd:(NSString*)label fullPath:(NSString*)fullPath {
     UIAlertController *alertC = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Enter playlist name",@"")
@@ -530,21 +558,30 @@
             mdz_safe_free(plList);
         }];
     [msgAlert addAction:cancelAction];
+    
+    UIAlertAction* createNewPlaylistAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Create new playlist",@"") style:UIAlertActionStyleDefault
+                                                                    handler:^(UIAlertAction * action) {
+        //create new playlist and add current title
+        [self createNewPlaylistAndAddList:arrayLabel fullPaths:arrayPath];
+        
+    }];
+    [msgAlert addAction:createNewPlaylistAction];
+    
 
     if (showNL) {
 #ifdef HAS_DETAILVIEW_CONT
         UIAlertAction* nowplayingAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Now playing",@"") style:UIAlertActionStyleDefault
-           handler:^(UIAlertAction * action) {
-                if ([detailViewController add_to_playlist:arrayPath fileNames:arrayLabel forcenoplay:1]) {
-                    if ([detailViewController.mplayer isPlaying]) [self showMiniPlayer];
-                }
-                if ([self respondsToSelector:@selector(updateMiniPlayer)]) [self performSelector:@selector(updateMiniPlayer)];
-                //free playlists list
-                for (int i=0;i<plListsize;i++) {
-                    mdz_safe_free(plList[i].pl_name);
-                }
-                mdz_safe_free(plList);
-            }];
+                                                                 handler:^(UIAlertAction * action) {
+            if ([detailViewController add_to_playlist:arrayPath fileNames:arrayLabel forcenoplay:1]) {
+                if ([detailViewController.mplayer isPlaying]) [self showMiniPlayer];
+            }
+            if ([self respondsToSelector:@selector(updateMiniPlayer)]) [self performSelector:@selector(updateMiniPlayer)];
+            //free playlists list
+            for (int i=0;i<plListsize;i++) {
+                mdz_safe_free(plList[i].pl_name);
+            }
+            mdz_safe_free(plList);
+        }];
         [msgAlert addAction:nowplayingAction];
 #endif
     }

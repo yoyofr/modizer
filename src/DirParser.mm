@@ -1534,7 +1534,7 @@ code_4=a=1.0;\n\
                 missing_counter++;
                 MDZILog("not found fav: %s",str);
             } else {
-                MDZILog("found fav: %s",str);
+//                MDZILog("found fav: %s",str);
                 //File exits, put in the right list
                 if (presetType==MDZ_PLAYLIST_FNODE_Bundle) [_bundlePresets addObject:[NSString stringWithUTF8String:str]];
                 if (presetType==MDZ_PLAYLIST_FNODE_Custom) [_customPresets addObject:[NSString stringWithUTF8String:str]];
