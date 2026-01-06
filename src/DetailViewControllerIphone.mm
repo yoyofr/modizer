@@ -7,7 +7,8 @@
 //
 //#define PM_TEST_LOAD 64
 
-#define FX_AUTO_SCALING_DELAY_ZOOMIN 30 //frame delay before zooming in for FX auto scaling
+#define FX_AUTO_SCALING_DELAY_ZOOMIN_FAST 30 //frame delay before zooming in for FX auto scaling
+#define FX_AUTO_SCALING_DELAY_ZOOMIN_SLOW 120 //frame delay before zooming in for FX auto scaling
 
 #define PM_FRAMETIME_LIMIT (1000.0f/10.0f) // max allowed frame time in ms, if regularly above, PM will be deactivated
 #define PM_FRAMETIME_LIMIT_WEAK 100 //Max slow frames allowed for 'weak' mode
@@ -272,6 +273,7 @@ static int shouldUpdateCoverTexture;
 static BOOL mOglViewIsHidden;
 static volatile int mSendStatTimer;
 static NSDate *locationLastUpdate=nil;
+static int mOglView1Tap=0;
 
 float mDevice_hh,mDevice_ww;
 static int mShouldHaveFocusAfterBackground,mLoadIssueMessage;
@@ -363,16 +365,16 @@ bool sysMonitorIsActive;
     [mplayer playGoToSub:(int)row+mplayer.mod_minsub];
     clearAudioFXbuffer=true;
     _seekRequested=-1;
-
+    
     double delayInSeconds = 0.5;
     dispatch_time_t delay = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
-
+    
     dispatch_after(delay, dispatch_get_main_queue(), ^{
         // Code to run after 2 seconds
         if (settings[GLOB_Notification].detail.mdz_switch.switch_value==2) {
             [self sendNotifPlayedTitle];
         }
-
+        
     });
 }
 
@@ -453,30 +455,30 @@ bool sysMonitorIsActive;
     //containerView.layer.shadowOffset = CGSizeMake(2.0,2.0);
     //containerView.layer.shadowOpacity = 1.0;
     //containerView.layer.shadowRadius = 2;
-
+    
     alertTableView.layer.cornerRadius = 10;
     alertTableView.layer.masksToBounds = true;
     alertTableView.translatesAutoresizingMaskIntoConstraints = NO;
     [containerView addSubview:alertTableView];
-
+    
     alertTableView.delegate = self;
     alertTableView.dataSource = self;
     alertTableView.tableFooterView = [[UIView alloc]initWithFrame:CGRectZero];
     alertTableView.rowHeight=SELECTOR_TABVIEWCELL_HEIGHT;
     alertTableView.sectionHeaderHeight=32;
-
+    
     [alertTableView setSeparatorStyle:UITableViewCellSeparatorStyleSingleLine];
     [alertTableView setTag:kAlertTableViewTag];
-
+    
     containerView.translatesAutoresizingMaskIntoConstraints = NO;
     [controller.view addSubview:containerView];// alertTableView];
-
-
+    
+    
     [controller.view bringSubviewToFront:containerView];//alertTableView];
     [controller.view setUserInteractionEnabled:YES];
     [alertTableView setUserInteractionEnabled:YES];
     [alertTableView setAllowsSelection:YES];
-
+    
     BButton *cancel_btn= [[BButton alloc] initWithFrame:CGRectMake(0, 0, 200, 30)];
     [cancel_btn setType:BButtonTypePrimary];
     [cancel_btn removeTarget:self action:NULL forControlEvents:UIControlEventTouchUpInside];
@@ -484,30 +486,30 @@ bool sysMonitorIsActive;
     [cancel_btn setTitle:NSLocalizedString(@"Cancel", @"Cancel Action") forState:UIControlStateNormal];
     cancel_btn.translatesAutoresizingMaskIntoConstraints = NO;
     [controller.view addSubview:cancel_btn];
-
+    
     NSDictionary * viewsDic = NSDictionaryOfVariableBindings(cancel_btn, containerView);
-
+    
     // Contraintes horizontales pour le containerView
     NSArray * hConstraintsContainer = [NSLayoutConstraint constraintsWithVisualFormat:@"H:|[containerView]|"
                                                                               options:0
                                                                               metrics:nil
                                                                                 views:viewsDic];
     [controller.view addConstraints:hConstraintsContainer];
-
+    
     // Contraintes horizontales pour le bouton
     NSArray * hConstraints = [NSLayoutConstraint constraintsWithVisualFormat:@"H:|-50-[cancel_btn]-50-|"
                                                                      options:0
                                                                      metrics:nil
                                                                        views:viewsDic];
     [controller.view addConstraints:hConstraints];
-
+    
     // Contraintes verticales pour positionner containerView en haut et cancel_btn en bas
     NSArray * vConstraints = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|-16-[containerView]-8-[cancel_btn(50)]-16-|"
                                                                      options:0
                                                                      metrics:nil
                                                                        views:viewsDic];
     [controller.view addConstraints:vConstraints];
-
+    
     // Contraintes pour alertTableView à l'intérieur de containerView
     [NSLayoutConstraint activateConstraints:@[
         [alertTableView.topAnchor constraintEqualToAnchor:containerView.topAnchor],
@@ -586,7 +588,7 @@ bool sysMonitorIsActive;
     controller.modalPresentationStyle=UIModalPresentationPopover;
     
     //alertTableView  = [[UITableView alloc] initWithFrame:recttv];
-
+    
     UIView *containerView=[[UIView alloc] initWithFrame:recttv];
     //self.tableView = UITableView(frame: containerView.bounds, style: .plain)
     alertTableView  = [[UITableView alloc] initWithFrame:containerView.bounds];
@@ -595,32 +597,32 @@ bool sysMonitorIsActive;
     //containerView.layer.shadowOffset = CGSizeMake(2.0,2.0);
     //containerView.layer.shadowOpacity = 1.0;
     //containerView.layer.shadowRadius = 2;
-
+    
     alertTableView.layer.cornerRadius = 10;
     alertTableView.layer.masksToBounds = true;
     alertTableView.translatesAutoresizingMaskIntoConstraints = NO;
     [containerView addSubview:alertTableView];
-
+    
     alertTableView.delegate = self;
     alertTableView.dataSource = self;
     alertTableView.tableFooterView = [[UIView alloc]initWithFrame:CGRectZero];
     alertTableView.rowHeight=SELECTOR_TABVIEWCELL_HEIGHT;
     alertTableView.sectionHeaderHeight=32;
-
+    
     [alertTableView setSeparatorStyle:UITableViewCellSeparatorStyleSingleLine];
     [alertTableView setTag:kAlertTableViewTag];
-
+    
     containerView.translatesAutoresizingMaskIntoConstraints = NO;
     [controller.view addSubview:containerView];// alertTableView];
-
-
+    
+    
     [controller.view bringSubviewToFront:containerView];//alertTableView];
     [controller.view setUserInteractionEnabled:YES];
     [alertTableView setUserInteractionEnabled:YES];
     [alertTableView setAllowsSelection:YES];
-
-
-
+    
+    
+    
     BButton *cancel_btn= [[BButton alloc] initWithFrame:CGRectMake(0, 0, 200, 30)];
     [cancel_btn setType:BButtonTypePrimary];
     [cancel_btn removeTarget:self action:NULL forControlEvents:UIControlEventTouchUpInside];
@@ -628,30 +630,30 @@ bool sysMonitorIsActive;
     [cancel_btn setTitle:NSLocalizedString(@"Cancel", @"Cancel Action") forState:UIControlStateNormal];
     cancel_btn.translatesAutoresizingMaskIntoConstraints = NO;
     [controller.view addSubview:cancel_btn];
-
+    
     NSDictionary * viewsDic = NSDictionaryOfVariableBindings(cancel_btn, containerView);
-
+    
     // Contraintes horizontales pour le containerView
     NSArray * hConstraintsContainer = [NSLayoutConstraint constraintsWithVisualFormat:@"H:|[containerView]|"
                                                                               options:0
                                                                               metrics:nil
                                                                                 views:viewsDic];
     [controller.view addConstraints:hConstraintsContainer];
-
+    
     // Contraintes horizontales pour le bouton
     NSArray * hConstraints = [NSLayoutConstraint constraintsWithVisualFormat:@"H:|-50-[cancel_btn]-50-|"
                                                                      options:0
                                                                      metrics:nil
                                                                        views:viewsDic];
     [controller.view addConstraints:hConstraints];
-
+    
     // Contraintes verticales pour positionner containerView en haut et cancel_btn en bas
     NSArray * vConstraints = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|-16-[containerView]-8-[cancel_btn(50)]-16-|"
                                                                      options:0
                                                                      metrics:nil
                                                                        views:viewsDic];
     [controller.view addConstraints:vConstraints];
-
+    
     // Contraintes pour alertTableView à l'intérieur de containerView
     [NSLayoutConstraint activateConstraints:@[
         [alertTableView.topAnchor constraintEqualToAnchor:containerView.topAnchor],
@@ -1085,7 +1087,7 @@ bool sysMonitorIsActive;
     }
     
     DBHelper::getFileStatsDBmod(filePath,&playcount,&tmp_rating,NULL);
-
+    
     if (settings[GLOB_StatsUpload].detail.mdz_boolswitch.switch_value) {
         mSendStatTimer=0;
         [GoogleAppHelper SendStatistics:fileName path:filePath rating:tmp_rating playcount:playcount];
@@ -1103,12 +1105,12 @@ bool sysMonitorIsActive;
 
 -(void)cmdLike{
     if (!mPlaylist_size) return;
-
+    
     [self pushedRatingCommon:5];
 }
 -(void)cmdDislike{
     if (!mPlaylist_size) return;
-
+    
     [self pushedRatingCommon:0];
 }
 
@@ -1126,6 +1128,9 @@ static float modPatternLineSize,modPatternWindowSize;
 
 static int _shiftModeOn;
 static float oglTapX=0,oglTapY=0,movePx=0,movePy=0,movePxMOD=0,movePyMOD=0,movePxOld=0,movePyOld=0,movePxPM=0,movePyPM=0;
+static float oglLPTapX=0,oglLPTapY=0,oglLPTapXstart=0,oglLPTapYstart=0;
+static int fxLPselected=-1,fxTargetSlot=-1,fxLPselectedCpt=0;
+static int oglLPTap=0;
 static float movePxPMenu=0,movePyPMenu=0;
 static float posMouseX=0,posMouseY=0;
 static float moveWheelXPMenu,moveWheelYPMenu=0;
@@ -1410,7 +1415,7 @@ static float movePinchScale,movePinchScaleOld,movePinchAngle;
             buttonShuffleOneSel.hidden=YES;
             break;
     }
-
+    
     // Update CarPlay buttons
     myTabBarController *tabBarController = (myTabBarController *)self.tabBarController;
     if (tabBarController && tabBarController.cpMngt) {
@@ -1438,7 +1443,7 @@ static float movePinchScale,movePinchScaleOld,movePinchAngle;
             buttonLoopTitleSel.hidden=NO;
             break;
     }
-
+    
     // Update CarPlay buttons
     myTabBarController *tabBarController = (myTabBarController *)self.tabBarController;
     if (tabBarController && tabBarController.cpMngt) {
@@ -1476,10 +1481,10 @@ static float movePinchScale,movePinchScaleOld,movePinchAngle;
         PMenu::playerMenuBack();
     } else {
         //Ensure all keys are processed
-//        ImGuiIOSEvent imgui_event;
-//        imgui_event.event_type=IMGUI_IOS_Event_None;
-//        ImGui_ImplIOS_UpdateEvent(&imgui_event);
-//
+        //        ImGuiIOSEvent imgui_event;
+        //        imgui_event.event_type=IMGUI_IOS_Event_None;
+        //        ImGui_ImplIOS_UpdateEvent(&imgui_event);
+        //
         [self.navigationController popViewControllerAnimated:YES];
     }
 }
@@ -1607,7 +1612,7 @@ static float movePinchScale,movePinchScaleOld,movePinchAngle;
             snprintf(strLine[lineIdx++],MDZ_FX_SONGINFO_MAXCHAR,"%sX",[[_mdz_display_songinfo_title substringFromIndex:split] UTF8String]);
         }
     }
-
+    
     if ((_mdz_display_songinfo_sub!=nil)&&[_mdz_display_songinfo_sub length]) {
         int strLen=(int)[_mdz_display_songinfo_sub length];
         if (strLen<MDZ_FX_SONGINFO_MAXCHAR) {
@@ -1692,7 +1697,7 @@ static float movePinchScale,movePinchScaleOld,movePinchAngle;
             lineIdx++;
         }
     }
-
+    
     if ((_mdz_display_songinfo_sub!=nil)&&[_mdz_display_songinfo_sub length]) {
         int strLen=(int)[_mdz_display_songinfo_sub length];
         if (strLen<MDZ_FX_SONGINFO_MAXCHAR) {
@@ -1782,7 +1787,7 @@ static float movePinchScale,movePinchScaleOld,movePinchAngle;
         ImGui::SetCursorPos(cur_pos);
         ImGui::Image(txtCoverImg, ImVec2(lineIdx*textHH*glScaleFactor,lineIdx*textHH*glScaleFactor));
     }
-
+    
     
     ImGui::End();
     ImGui::PopFont();
@@ -2093,8 +2098,8 @@ static float movePinchScale,movePinchScaleOld,movePinchAngle;
     
     if (display_length_mode&&(curSongLength>0)) labelTime.text=[NSString stringWithFormat:@"-%.2d:%.2d", ((curSongLength-[mplayer getCurrentTime])/1000)/60,((curSongLength-[mplayer getCurrentTime])/1000)%60];
     else labelTime.text=[NSString stringWithFormat:@"%.2d:%.2d", ([mplayer getCurrentTime]/1000)/60,([mplayer getCurrentTime]/1000)%60];
-//    sliderProgressModuleChanged=0;
-//    sliderProgressModuleEdit=0;
+    //    sliderProgressModuleChanged=0;
+    //    sliderProgressModuleEdit=0;
     
     return;
 }
@@ -2108,14 +2113,14 @@ static float movePinchScale,movePinchScaleOld,movePinchAngle;
     if (no_reetrant) return;
     no_reetrant=true;
     MPNowPlayingInfoCenter *infoCenter = [MPNowPlayingInfoCenter defaultCenter];
-
+    
     MPRemoteCommandCenter *cmdCenter=[MPRemoteCommandCenter sharedCommandCenter];
-
+    
     if (artwork==nil) {
         if (cover_img) artwork=[[MPMediaItemArtwork alloc] initWithImage:cover_img];
         else artwork=[[MPMediaItemArtwork alloc] initWithImage:default_cover];
     }
-
+    
     if (mPlaylist_size) {
         NSString *artist=mplayer.artist;
         NSString *album=mplayer.album;
@@ -2123,7 +2128,7 @@ static float movePinchScale,movePinchScaleOld,movePinchAngle;
         
         if ([mplayer getModFileTitle]) title=[NSString stringWithFormat:@"%@ /%@",[mplayer getModFileTitle],[mplayer getModName]];
         else title=[NSString stringWithFormat:@"%@",[mplayer getModName]];
-
+        
         //if (is_macOS) {
         if (mIsPlaying) {
             if (mPaused) infoCenter.playbackState=MPNowPlayingPlaybackStatePaused;
@@ -2143,14 +2148,14 @@ static float movePinchScale,movePinchScaleOld,movePinchAngle;
             [cmdCenter.playCommand setEnabled:YES];
             [cmdCenter.pauseCommand setEnabled:NO];
         }
-
+        
         // Update shuffle and repeat state for CarPlay
         if (mShuffle) {
             cmdCenter.changeShuffleModeCommand.currentShuffleType = MPShuffleTypeItems;
         } else {
             cmdCenter.changeShuffleModeCommand.currentShuffleType = MPShuffleTypeOff;
         }
-
+        
         switch (mLoopMode) {
             case 0:
                 cmdCenter.changeRepeatModeCommand.currentRepeatType = MPRepeatTypeOff;
@@ -2162,7 +2167,7 @@ static float movePinchScale,movePinchScaleOld,movePinchAngle;
                 cmdCenter.changeRepeatModeCommand.currentRepeatType = MPRepeatTypeOne;
                 break;
         }
-
+        
         infoCenter.nowPlayingInfo = [NSMutableDictionary dictionaryWithObjectsAndKeys:
                                      title,
                                      MPMediaItemPropertyTitle,
@@ -3172,9 +3177,9 @@ int recording=0;
     clearAudioFXbuffer=true;
     _seekRequested=-1;
     
-//    if (settings[GLOB_Notification].detail.mdz_switch.switch_value==2) {
-//        [self sendNotifPlayedTitle];
-//    }
+    //    if (settings[GLOB_Notification].detail.mdz_switch.switch_value==2) {
+    //        [self sendNotifPlayedTitle];
+    //    }
     
     [self refreshCurrentVC];
 }
@@ -3243,11 +3248,11 @@ int recording=0;
         mPlaylist[i].mPlaylistCount=0;
     }
     //[playlistTabView reloadData];
-
+    
     // Skip auto-restart if launched from a shortcut (shortcut will load its own playlist)
     // Check both UserDefaults and flag file
     BOOL launchedFromShortcut = [[NSUserDefaults standardUserDefaults] boolForKey:@"LaunchedFromShortcut"];
-
+    
     if (launchedFromShortcut) {
         MDZILog("Skipping auto-restart - launched from Shortcut");
         [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"LaunchedFromShortcut"];
@@ -3255,11 +3260,11 @@ int recording=0;
         mRestart=0;
         return;
     }
-
+    
     //if (segcont_resumeLaunch.selectedSegmentIndex==0) return;
     if (mPlaylist_size>0) mRestart=1;
     else mRestart=0;
-
+    
     if ([self play_curEntry:-1]) {
         //    self.tabBarController.selectedViewController = self; //detailViewController;
     }
@@ -3415,9 +3420,9 @@ int recording=0;
         clearAudioFXbuffer=true;
         _seekRequested=-1;
         
-//        if (settings[GLOB_Notification].detail.mdz_switch.switch_value==2) {
-//            [self sendNotifPlayedTitle];
-//        }
+        //        if (settings[GLOB_Notification].detail.mdz_switch.switch_value==2) {
+        //            [self sendNotifPlayedTitle];
+        //        }
     }
     if ((!forcenoplay)&&(settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==2)) {//Enqueue & play
         mPlaylist_pos=added_pos;
@@ -3426,9 +3431,9 @@ int recording=0;
         clearAudioFXbuffer=true;
         _seekRequested=-1;
         
-//        if (settings[GLOB_Notification].detail.mdz_switch.switch_value==2) {
-//            [self sendNotifPlayedTitle];
-//        }
+        //        if (settings[GLOB_Notification].detail.mdz_switch.switch_value==2) {
+        //            [self sendNotifPlayedTitle];
+        //        }
     }
     
     [self refreshCurrentVC];
@@ -3694,9 +3699,9 @@ int recording=0;
 
 -(void) checkForCover:(NSString *)filePath {
     NSString *pathFolderImgPNG,*pathCoverImgPNG,*pathFileImgPNG,
-             *pathFolderImgJPG,*pathCoverImgJPG,*pathFolderImgJPEG,
-             *pathCoverImgJPEG,*pathFileImgJPG,*pathFileImgJPEG,
-             *pathFolderImgGIF,*pathCoverImgGIF,*pathFileImgGIF,*pathFileImgPIC,*pathFileImgPGG,*pathFileImgPJJ;
+    *pathFolderImgJPG,*pathCoverImgJPG,*pathFolderImgJPEG,
+    *pathCoverImgJPEG,*pathFileImgJPG,*pathFileImgJPEG,
+    *pathFolderImgGIF,*pathCoverImgGIF,*pathFileImgGIF,*pathFileImgPIC,*pathFileImgPGG,*pathFileImgPJJ;
     
     pathFolderImgPNG=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@/folder.png",[filePath stringByDeletingLastPathComponent]];
     pathFolderImgJPG=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@/folder.jpg",[filePath stringByDeletingLastPathComponent]];
@@ -3720,7 +3725,7 @@ int recording=0;
     //    cover_img=[UIImage imageWithData:[NSData dataWithContentsOfFile:pathFolderImgPNG]];
     if (gifAnimation) [gifAnimation removeFromSuperview];
     gifAnimation=nil;
-
+    
     if ([mplayer artworkImage]) {
         cover_img=[mplayer artworkImage];
     }
@@ -3787,7 +3792,7 @@ int recording=0;
             [cover_view addSubview:gifAnimation];
         }
     }
-
+    
     
     if ((cover_img==nil)&&[mplayer isArchive]) {//archive mode, check tmp folder
         NSString *file,*cpath;
@@ -4583,7 +4588,7 @@ int recording=0;
             safe_top=self.view.safeAreaInsets.top;
             safe_left=self.view.safeAreaInsets.left;
             safe_right=self.view.safeAreaInsets.right;
-//            if (safe_bottom>0) safe_bottom+=20;
+            //            if (safe_bottom>0) safe_bottom+=20;
             //MDZILog("safe: %f %f %f %f",safe_bottom,safe_top,safe_left,safe_right);
             
             if (is_macOS||is_iPad) {
@@ -4648,121 +4653,121 @@ int recording=0;
     } else{
         //        waitingView.transform=CGAffineTransformMakeRotation(interfaceOrientation==UIInterfaceOrientationLandscapeLeft?-M_PI_2:M_PI_2);
         //waitingView.frame=CGRectMake(mDevice_hh/2-60,mDevice_ww/2-60,120,110);
+        
+        if (!deactivateFStemp && settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value) {
+            if (mHasFocus) {
+                statusbarHidden=YES;
+                [self setNeedsStatusBarAppearanceUpdate];
+            }
+            [self.navigationController setNavigationBarHidden:YES animated:YES];
             
-            if (!deactivateFStemp && settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value) {
-                if (mHasFocus) {
-                    statusbarHidden=YES;
-                    [self setNeedsStatusBarAppearanceUpdate];
-                }
-                [self.navigationController setNavigationBarHidden:YES animated:YES];
-                
-                
-                mainView.frame = CGRectMake(0.0, 0, mDevice_hh, mDevice_ww);
-                m_oglView.frame = CGRectMake(0.0, 0.0, mDevice_hh, mDevice_ww);  //ipad
-                //cover_viewBG.frame = CGRectMake(0.0, 0, mDevice_hh, mDevice_ww);//-82+82-safe_bottom-yofs);
-                cover_viewAll.frame = m_oglView.frame;//CGRectMake(0.0, 0, mDevice_hh, mDevice_ww);//-82+82-safe_bottom-yofs);
-                
-                cover_view.frame = CGRectMake(cover_viewAll.frame.size.width/20,
-                                              cover_viewAll.frame.size.height/20,
-                                              cover_viewAll.frame.size.width-2*cover_viewAll.frame.size.width/20,
-                                              cover_viewAll.frame.size.height-2*cover_viewAll.frame.size.height/20);
-                
+            
+            mainView.frame = CGRectMake(0.0, 0, mDevice_hh, mDevice_ww);
+            m_oglView.frame = CGRectMake(0.0, 0.0, mDevice_hh, mDevice_ww);  //ipad
+            //cover_viewBG.frame = CGRectMake(0.0, 0, mDevice_hh, mDevice_ww);//-82+82-safe_bottom-yofs);
+            cover_viewAll.frame = m_oglView.frame;//CGRectMake(0.0, 0, mDevice_hh, mDevice_ww);//-82+82-safe_bottom-yofs);
+            
+            cover_view.frame = CGRectMake(cover_viewAll.frame.size.width/20,
+                                          cover_viewAll.frame.size.height/20,
+                                          cover_viewAll.frame.size.width-2*cover_viewAll.frame.size.width/20,
+                                          cover_viewAll.frame.size.height-2*cover_viewAll.frame.size.height/20);
+            
+            
+        } else {
+            if (mHasFocus) {
+                statusbarHidden=NO;
+                [self setNeedsStatusBarAppearanceUpdate];
+            }
+            [self.navigationController setNavigationBarHidden:NO animated:YES];
+            
+            //                int yofs=self.navigationItem.titleView.frame.size.height;
+            //                if (is_macOS) yofs+=104;
+            //                else yofs+=12;
+            
+            float yofs;
+            CGPoint pt;
+            if (is_macOS||is_iPad) {
+                pt=[self.view convertPoint:self.view.frame.origin toView:[UIApplication sharedApplication].keyWindow.rootViewController.view];
+            } else {
+                pt=[self.view convertPoint:self.mainView.frame.origin toView:[UIApplication sharedApplication].keyWindow.rootViewController.view];
+            }
+            yofs=pt.y;
+            
+#if TARGET_OS_MACCATALYST
+            if (is_macOS) {
+                yofs-=28;
+            }
+#endif
+            
+            // Use self.view.safeAreaInsets for more reliable results, especially on iOS 15
+            safe_bottom=self.view.safeAreaInsets.bottom;
+            safe_top=self.view.safeAreaInsets.top;
+            safe_left=self.view.safeAreaInsets.left;
+            safe_right=self.view.safeAreaInsets.right;
+            //                if (safe_bottom>0) safe_bottom+=20;
+            //                MDZILog("safe: %f %f %f %f",safe_bottom,safe_top,safe_left,safe_right);
+            
+            if (is_macOS||is_iPad) {
+                mainView.frame = CGRectMake(safe_left, 0, mDevice_hh-safe_left-safe_right, mDevice_ww-yofs);
+                m_oglView.frame = CGRectMake(0, 82, mDevice_hh-safe_left-safe_right, mDevice_ww-82-safe_bottom-yofs);
+                oglButton.frame = CGRectMake(0, 82, mDevice_hh-safe_left-safe_right, mDevice_ww-82-safe_bottom-yofs);
                 
             } else {
-                if (mHasFocus) {
-                    statusbarHidden=NO;
-                    [self setNeedsStatusBarAppearanceUpdate];
-                }
-                [self.navigationController setNavigationBarHidden:NO animated:YES];
+                mainView.frame = CGRectMake(safe_left, 28, mDevice_hh-safe_left-safe_right, mDevice_ww-yofs);
+                m_oglView.frame = CGRectMake(0, 82, mDevice_hh-safe_left-safe_right, mDevice_ww-82-0*safe_bottom-yofs);
+                oglButton.frame = CGRectMake(0, 82, mDevice_hh-safe_left-safe_right, mDevice_ww-82-0*safe_bottom-yofs);
                 
-//                int yofs=self.navigationItem.titleView.frame.size.height;
-//                if (is_macOS) yofs+=104;
-//                else yofs+=12;
-                
-                float yofs;
-                CGPoint pt;
-                if (is_macOS||is_iPad) {
-                    pt=[self.view convertPoint:self.view.frame.origin toView:[UIApplication sharedApplication].keyWindow.rootViewController.view];
-                } else {
-                    pt=[self.view convertPoint:self.mainView.frame.origin toView:[UIApplication sharedApplication].keyWindow.rootViewController.view];
-                }
-                yofs=pt.y;
-
-#if TARGET_OS_MACCATALYST
-                if (is_macOS) {
-                    yofs-=28;
-                }
-#endif
-                
-                // Use self.view.safeAreaInsets for more reliable results, especially on iOS 15
-                safe_bottom=self.view.safeAreaInsets.bottom;
-                safe_top=self.view.safeAreaInsets.top;
-                safe_left=self.view.safeAreaInsets.left;
-                safe_right=self.view.safeAreaInsets.right;
-//                if (safe_bottom>0) safe_bottom+=20;
-//                MDZILog("safe: %f %f %f %f",safe_bottom,safe_top,safe_left,safe_right);
-                
-                if (is_macOS||is_iPad) {
-                    mainView.frame = CGRectMake(safe_left, 0, mDevice_hh-safe_left-safe_right, mDevice_ww-yofs);
-                    m_oglView.frame = CGRectMake(0, 82, mDevice_hh-safe_left-safe_right, mDevice_ww-82-safe_bottom-yofs);
-                    oglButton.frame = CGRectMake(0, 82, mDevice_hh-safe_left-safe_right, mDevice_ww-82-safe_bottom-yofs);
-                    
-                } else {
-                    mainView.frame = CGRectMake(safe_left, 28, mDevice_hh-safe_left-safe_right, mDevice_ww-yofs);
-                    m_oglView.frame = CGRectMake(0, 82, mDevice_hh-safe_left-safe_right, mDevice_ww-82-0*safe_bottom-yofs);
-                    oglButton.frame = CGRectMake(0, 82, mDevice_hh-safe_left-safe_right, mDevice_ww-82-0*safe_bottom-yofs);
-                    
-                }
-                
-                cover_viewAll.frame = m_oglView.frame;//CGRectMake(0.0, 0, mDevice_hh, mDevice_ww-82+82-safe_bottom-yofs);
-                cover_view.frame = CGRectMake(cover_viewAll.frame.size.width/20,
-                                              cover_viewAll.frame.size.height/20,
-                                              cover_viewAll.frame.size.width-2*cover_viewAll.frame.size.width/20,
-                                              cover_viewAll.frame.size.height-2*cover_viewAll.frame.size.height/20);
-                if (gifAnimation) {
-                    gifAnimation.frame = CGRectMake(0, 0,cover_view.frame.size.width,cover_view.frame.size.height);
-                }
-                
-                if (bShowEQ) eqVC.view.frame=CGRectMake(mainView.frame.origin.x,m_oglView.frame.origin.y,mainView.frame.size.width,m_oglView.frame.size.height);
-                if (bShowVC) voicesVC.view.frame=CGRectMake(mainView.frame.origin.x,m_oglView.frame.origin.y,mainView.frame.size.width,m_oglView.frame.size.height);
-                
-                if (infoIsFullscreen) infoView.frame = CGRectMake(mainView.frame.origin.x, 0, mainView.frame.size.width, mDevice_ww-20-30);
-                else infoView.frame = CGRectMake(mainView.frame.origin.x, 82, mainView.frame.size.width, mDevice_ww-82-30-0*safe_bottom);
-                
-                int xofs=mDevice_hh-(24*5+36*3+8)-safe_left-safe_right;
-                yofs=10;
-                //commandViewU.frame = CGRectMake(mDevice_hh-72-40-31-20-4, 8, 40+72+31+20, 32+32);
-                commandViewU.frame = CGRectMake(0, 0, mainView.frame.size.width, 32+44+8);
-                
-                buttonLoopTitleSel.frame = CGRectMake(xofs+2,yofs+0,40,32);
-                buttonLoopList.frame = CGRectMake(xofs+2,yofs+0,40,32);
-                buttonLoopListSel.frame = CGRectMake(xofs+2,yofs+0,40,32);
-                buttonShuffle.frame = CGRectMake(xofs+42,yofs+0,40,32);
-                buttonShuffleSel.frame = CGRectMake(xofs+42,yofs+0,40,32);
-                buttonShuffleOneSel.frame = CGRectMake(xofs+42,yofs+0,40,32);
-                btnLoopInf.frame = CGRectMake(xofs+80,yofs+-12,35,57);
-                
-                mainRating5.frame = CGRectMake(xofs+6+2,yofs+42+2,20,20);
-                mainRating5off.frame = CGRectMake(xofs+6+2,yofs+42+2,20,20);
-                
-                btnAddToPl.frame = CGRectMake(xofs+6+2+28,yofs+42+2,20,20);
-                
-                btnShowSubSong.frame = CGRectMake(xofs+6+24*5+4+36*2,yofs+40,32,32);
-                btnShowArcList.frame = CGRectMake(xofs+6+24*5+4+36,yofs+40,32,32);
-                btnShowVoices.frame = CGRectMake(xofs+6+24*5+4,yofs+40,32,32);
-                btnRecordScreen.frame = CGRectMake(xofs+6+24*5+4-36,yofs+40,32,32);
-                
-                infoButton.frame = CGRectMake(mDevice_hh-44-safe_left-safe_right,4,40,40);
-                eqButton.frame = CGRectMake(mDevice_hh-44-44-safe_left-safe_right,4,40,40);
-                
-                playlistPos.frame = CGRectMake((mDevice_hh-200-safe_left-safe_right)/2-90,0,180,20);
-                
-                labelModuleLength.frame=CGRectMake(2,0,45,20);
-                labelTime.frame=CGRectMake(2,20,45,20);
-                btnChangeTime.frame=CGRectMake(2,17,45,20);
-                
-                sliderProgressModule.frame = CGRectMake(48,16-3,mDevice_hh-(24*5+36*3+10+48)-safe_left-safe_right,23);
             }
+            
+            cover_viewAll.frame = m_oglView.frame;//CGRectMake(0.0, 0, mDevice_hh, mDevice_ww-82+82-safe_bottom-yofs);
+            cover_view.frame = CGRectMake(cover_viewAll.frame.size.width/20,
+                                          cover_viewAll.frame.size.height/20,
+                                          cover_viewAll.frame.size.width-2*cover_viewAll.frame.size.width/20,
+                                          cover_viewAll.frame.size.height-2*cover_viewAll.frame.size.height/20);
+            if (gifAnimation) {
+                gifAnimation.frame = CGRectMake(0, 0,cover_view.frame.size.width,cover_view.frame.size.height);
+            }
+            
+            if (bShowEQ) eqVC.view.frame=CGRectMake(mainView.frame.origin.x,m_oglView.frame.origin.y,mainView.frame.size.width,m_oglView.frame.size.height);
+            if (bShowVC) voicesVC.view.frame=CGRectMake(mainView.frame.origin.x,m_oglView.frame.origin.y,mainView.frame.size.width,m_oglView.frame.size.height);
+            
+            if (infoIsFullscreen) infoView.frame = CGRectMake(mainView.frame.origin.x, 0, mainView.frame.size.width, mDevice_ww-20-30);
+            else infoView.frame = CGRectMake(mainView.frame.origin.x, 82, mainView.frame.size.width, mDevice_ww-82-30-0*safe_bottom);
+            
+            int xofs=mDevice_hh-(24*5+36*3+8)-safe_left-safe_right;
+            yofs=10;
+            //commandViewU.frame = CGRectMake(mDevice_hh-72-40-31-20-4, 8, 40+72+31+20, 32+32);
+            commandViewU.frame = CGRectMake(0, 0, mainView.frame.size.width, 32+44+8);
+            
+            buttonLoopTitleSel.frame = CGRectMake(xofs+2,yofs+0,40,32);
+            buttonLoopList.frame = CGRectMake(xofs+2,yofs+0,40,32);
+            buttonLoopListSel.frame = CGRectMake(xofs+2,yofs+0,40,32);
+            buttonShuffle.frame = CGRectMake(xofs+42,yofs+0,40,32);
+            buttonShuffleSel.frame = CGRectMake(xofs+42,yofs+0,40,32);
+            buttonShuffleOneSel.frame = CGRectMake(xofs+42,yofs+0,40,32);
+            btnLoopInf.frame = CGRectMake(xofs+80,yofs+-12,35,57);
+            
+            mainRating5.frame = CGRectMake(xofs+6+2,yofs+42+2,20,20);
+            mainRating5off.frame = CGRectMake(xofs+6+2,yofs+42+2,20,20);
+            
+            btnAddToPl.frame = CGRectMake(xofs+6+2+28,yofs+42+2,20,20);
+            
+            btnShowSubSong.frame = CGRectMake(xofs+6+24*5+4+36*2,yofs+40,32,32);
+            btnShowArcList.frame = CGRectMake(xofs+6+24*5+4+36,yofs+40,32,32);
+            btnShowVoices.frame = CGRectMake(xofs+6+24*5+4,yofs+40,32,32);
+            btnRecordScreen.frame = CGRectMake(xofs+6+24*5+4-36,yofs+40,32,32);
+            
+            infoButton.frame = CGRectMake(mDevice_hh-44-safe_left-safe_right,4,40,40);
+            eqButton.frame = CGRectMake(mDevice_hh-44-44-safe_left-safe_right,4,40,40);
+            
+            playlistPos.frame = CGRectMake((mDevice_hh-200-safe_left-safe_right)/2-90,0,180,20);
+            
+            labelModuleLength.frame=CGRectMake(2,0,45,20);
+            labelTime.frame=CGRectMake(2,20,45,20);
+            btnChangeTime.frame=CGRectMake(2,17,45,20);
+            
+            sliderProgressModule.frame = CGRectMake(48,16-3,mDevice_hh-(24*5+36*3+10+48)-safe_left-safe_right,23);
+        }
     }
     [self updateBarPos];
     
@@ -5594,7 +5599,7 @@ void pm_perfTest() {
     _pmPresetUpdateDisplayInfo=false;
     _pm_display_name_countdown=0;
     
-//    [_mdzPM_playlist loadIdlePreset];
+    //    [_mdzPM_playlist loadIdlePreset];
     if ((_pm_shouldRestartAt>=0) &&(_pm_shouldRestartAt<[_mdzPM_playlist getSize])) {
         //        MDZILog("restart pm preset idx: %d",_pm_shouldRestartAt);
         [_mdzPM_playlist setPos:_pm_shouldRestartAt cut:true];
@@ -5629,8 +5634,8 @@ void pm_perfTest() {
     
     // When creating your bar button items with SF Symbols:
     UIImageSymbolConfiguration *config = [UIImageSymbolConfiguration configurationWithPointSize:22.0
-                                                                                          weight:UIImageSymbolWeightThin
-                                                                                           scale:UIImageSymbolScaleLarge];
+                                                                                         weight:UIImageSymbolWeightThin
+                                                                                          scale:UIImageSymbolScaleLarge];
     
     
     UIImage *playPauseImage;
@@ -5651,7 +5656,7 @@ void pm_perfTest() {
     UIBarButtonItem *itemPrev = [[UIBarButtonItem alloc] initWithImage:prevImage style:UIBarButtonItemStylePlain target:self action:@selector(playPrev)];
     
     UIBarButtonItem *itemNext = [[UIBarButtonItem alloc] initWithImage:nextImage style:UIBarButtonItemStylePlain target:self action:@selector(playNext)];
-
+    
     UIBarButtonItem *itemPrevSub=nil;
     UIBarButtonItem *itemNextSub=nil;
     if (isSub) {
@@ -5741,7 +5746,7 @@ void pm_perfTest() {
     
     mScaleInfo[0]=0;
     mScaleInfo[1]=0;
-    mScaleInfo[2]=FX_AUTO_SCALING_DELAY_ZOOMIN;
+    mScaleInfo[2]=FX_AUTO_SCALING_DELAY_ZOOMIN_SLOW;
     //    if (safe_bottom>0) safe_bottom+=20;
     mScaleFactor=1.0f;
     is_iPad=false;
@@ -5754,63 +5759,63 @@ void pm_perfTest() {
         is_macOS=true;
         mDeviceType=DEVICE_MACOS;
     }
-
     
-        if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad) {
-            if (!is_macOS) {
-                mDeviceType=DEVICE_IPAD; //ipad
-                is_iPad=true;
-            }
-            else mDeviceType=DEVICE_MACOS;
-            UIScreen* mainscr = [UIScreen mainScreen];
-            
-            //UIWindow *win=[UIApplication sharedApplication].keyWindow;
-            UIWindow *win;
-            //win=[UIApplication sharedApplication].windows.firstObject;
-            win=[self getWindow];
-            
-            
-            //if (mainscr.bounds.size.height>mainscr.bounds.size.width) {
-            if (win.bounds.size.height>win.bounds.size.width) {
-                mDevice_hh=win.bounds.size.height;
-                mDevice_ww=win.bounds.size.width;
-                orientationHV=UIInterfaceOrientationPortrait; //(int)[[UIDevice currentDevice]orientation];
-            } else {
-                mDevice_ww=win.bounds.size.height;
-                mDevice_hh=win.bounds.size.width;
-                orientationHV=UIInterfaceOrientationLandscapeLeft; //(int)[[UIDevice currentDevice]orientation];
-            }
-            
-            mScaleFactor=mainscr.scale;
-            if (mScaleFactor>=2) {
-                if (!is_macOS) mDeviceType=DEVICE_IPAD_RETINA;
-            }
-        } else {
-            mDeviceType=DEVICE_IPHONE; //iphone
-            mDevice_hh=480;
-            mDevice_ww=320;
-            UIScreen* mainscr = [UIScreen mainScreen];
-            UIWindow *win;
-            //win=[UIApplication sharedApplication].windows.firstObject;
-            win=[self getWindow];
-            
-            
-            if (win.bounds.size.height>win.bounds.size.width) {
-                mDevice_hh=win.bounds.size.height;
-                mDevice_ww=win.bounds.size.width;
-                orientationHV=UIInterfaceOrientationPortrait; //(int)[[UIDevice currentDevice]orientation];
-            } else {
-                mDevice_ww=win.bounds.size.height;
-                mDevice_hh=win.bounds.size.width;
-                orientationHV=UIInterfaceOrientationLandscapeLeft; //(int)[[UIDevice currentDevice]orientation];
-            }
-            mScaleFactor=mainscr.scale;
-            
-            if (mScaleFactor>=2) mDeviceType=DEVICE_IPHONE_RETINA;
-            
+    
+    if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad) {
+        if (!is_macOS) {
+            mDeviceType=DEVICE_IPAD; //ipad
+            is_iPad=true;
         }
-        [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(orientationDidChange:) name:UIDeviceOrientationDidChangeNotification object:nil];
-
+        else mDeviceType=DEVICE_MACOS;
+        UIScreen* mainscr = [UIScreen mainScreen];
+        
+        //UIWindow *win=[UIApplication sharedApplication].keyWindow;
+        UIWindow *win;
+        //win=[UIApplication sharedApplication].windows.firstObject;
+        win=[self getWindow];
+        
+        
+        //if (mainscr.bounds.size.height>mainscr.bounds.size.width) {
+        if (win.bounds.size.height>win.bounds.size.width) {
+            mDevice_hh=win.bounds.size.height;
+            mDevice_ww=win.bounds.size.width;
+            orientationHV=UIInterfaceOrientationPortrait; //(int)[[UIDevice currentDevice]orientation];
+        } else {
+            mDevice_ww=win.bounds.size.height;
+            mDevice_hh=win.bounds.size.width;
+            orientationHV=UIInterfaceOrientationLandscapeLeft; //(int)[[UIDevice currentDevice]orientation];
+        }
+        
+        mScaleFactor=mainscr.scale;
+        if (mScaleFactor>=2) {
+            if (!is_macOS) mDeviceType=DEVICE_IPAD_RETINA;
+        }
+    } else {
+        mDeviceType=DEVICE_IPHONE; //iphone
+        mDevice_hh=480;
+        mDevice_ww=320;
+        UIScreen* mainscr = [UIScreen mainScreen];
+        UIWindow *win;
+        //win=[UIApplication sharedApplication].windows.firstObject;
+        win=[self getWindow];
+        
+        
+        if (win.bounds.size.height>win.bounds.size.width) {
+            mDevice_hh=win.bounds.size.height;
+            mDevice_ww=win.bounds.size.width;
+            orientationHV=UIInterfaceOrientationPortrait; //(int)[[UIDevice currentDevice]orientation];
+        } else {
+            mDevice_ww=win.bounds.size.height;
+            mDevice_hh=win.bounds.size.width;
+            orientationHV=UIInterfaceOrientationLandscapeLeft; //(int)[[UIDevice currentDevice]orientation];
+        }
+        mScaleFactor=mainscr.scale;
+        
+        if (mScaleFactor>=2) mDeviceType=DEVICE_IPHONE_RETINA;
+        
+    }
+    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(orientationDidChange:) name:UIDeviceOrientationDidChangeNotification object:nil];
+    
     
     _fx_frame_time=0;
     _fx_frame_timeOverLimitCounter=0;
@@ -6077,6 +6082,12 @@ void pm_perfTest() {
     // Add the gesture to the view
     [m_oglView addGestureRecognizer:glViewTwoFingersTouch];
     
+    UILongPressGestureRecognizer *glViewLongPressTouch = [[UILongPressGestureRecognizer alloc]
+                                                          initWithTarget:self
+                                                          action:@selector(glViewLongPresstouch:)];
+    // Add the gesture to the view
+    [m_oglView addGestureRecognizer:glViewLongPressTouch];
+    
     // Create gesture recognizer
     UIPanGestureRecognizer *glViewPanGesture = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(glViewPanGesture:)];
     // Set required taps and number of touches
@@ -6232,17 +6243,17 @@ void pm_perfTest() {
         //--------------------------------//
         // Build ProjectM presets directories structure
         //--------------------------------//
-    {
-        START_PROFILE
-        buildPresetDirStructure();
-        CHECK_PROFILE("parsed bundled and custom folders")
-        //--------------------------------//
-        // ProjectM
-        //--------------------------------//
-        [self pmInit];
-        CHECK_PROFILE("pmInit")
-        END_PROFILE
-    }
+        {
+            START_PROFILE
+            buildPresetDirStructure();
+            CHECK_PROFILE("parsed bundled and custom folders")
+            //--------------------------------//
+            // ProjectM
+            //--------------------------------//
+            [self pmInit];
+            CHECK_PROFILE("pmInit")
+            END_PROFILE
+        }
         
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
             
@@ -6310,20 +6321,20 @@ void pm_perfTest() {
             CGRect windowFrame = windowScene.coordinateSpace.bounds;
             
             // Méthode 1: Vérifier si on a une titlebar cachée (iOS 16+)
-//            if (@available(iOS 16.0, *)) {
-//                if (windowScene.titlebar) {
-//                    BOOL titlebarHidden = (windowScene.titlebar.titleVisibility == UITitlebarTitleVisibilityHidden);
-//                    MDZILog("fs: titlebar hidden=%d", titlebarHidden);
-//                    return titlebarHidden;
-//                }
-//            }
+            //            if (@available(iOS 16.0, *)) {
+            //                if (windowScene.titlebar) {
+            //                    BOOL titlebarHidden = (windowScene.titlebar.titleVisibility == UITitlebarTitleVisibilityHidden);
+            //                    MDZILog("fs: titlebar hidden=%d", titlebarHidden);
+            //                    return titlebarHidden;
+            //                }
+            //            }
             
             // Méthode 2: Comparer avec la taille maximale disponible
             // En plein écran, la fenêtre devrait être > 1500pts de large sur un écran standard
             BOOL likelyFullscreen = (windowFrame.size.width > 1500.0 &&
                                      windowFrame.size.height > 1000.0);
             
-//            MDZILog("fs: window=%f x %f, likely fullscreen=%d",windowFrame.size.width, windowFrame.size.height, likelyFullscreen);
+            //            MDZILog("fs: window=%f x %f, likely fullscreen=%d",windowFrame.size.width, windowFrame.size.height, likelyFullscreen);
             
             return likelyFullscreen;
         }
@@ -6426,7 +6437,7 @@ void pm_perfTest() {
     safe_left = self.view.safeAreaInsets.left;
     safe_right = self.view.safeAreaInsets.right;
     
-//    if (safe_bottom>0) safe_bottom+=20;
+    //    if (safe_bottom>0) safe_bottom+=20;
     
     UIWindow *win;//=[UIApplication sharedApplication].keyWindow;
     win=[self getWindow];
@@ -6468,20 +6479,20 @@ void pm_perfTest() {
 }
 
 - (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
-//    if (mOglViewIsHidden==NO) {
-//        //YOYOFR HACK to remove one day (maybe after switch to Metal ?)
-//        //on macos, when switching to full screen size, a lag appears if opengl view is displayed
-//        //so remove it for 1s
-//        mOglViewIsHidden=YES;
-//        [self checkGLViewCanDisplay];
-//
-//        NSTimeInterval delayInSeconds = 0.1;
-//        dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
-//        dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
-//            mOglViewIsHidden=NO;
-//            [self checkGLViewCanDisplay];
-//        });
-//    }
+    //    if (mOglViewIsHidden==NO) {
+    //        //YOYOFR HACK to remove one day (maybe after switch to Metal ?)
+    //        //on macos, when switching to full screen size, a lag appears if opengl view is displayed
+    //        //so remove it for 1s
+    //        mOglViewIsHidden=YES;
+    //        [self checkGLViewCanDisplay];
+    //
+    //        NSTimeInterval delayInSeconds = 0.1;
+    //        dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
+    //        dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
+    //            mOglViewIsHidden=NO;
+    //            [self checkGLViewCanDisplay];
+    //        });
+    //    }
     
     
     labelModuleName.frame=CGRectMake(0,0,size.width-128,40);
@@ -6530,12 +6541,12 @@ void pm_perfTest() {
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
-
+    
     // Check if we're in sidebar mode
     // Find TabBarController via window's root view controller
     BOOL isInSidebarMode = NO;
     UIViewController *tabBarVC = nil;
-
+    
     // Get the window's root view controller
     UIWindow *window = self.view.window;
     if (window == nil) {
@@ -6553,12 +6564,12 @@ void pm_perfTest() {
             if (window) break;
         }
     }
-
+    
     tabBarVC = window.rootViewController;
     
     if (tabBarVC) {
     }
-
+    
     if (tabBarVC != nil && [tabBarVC isKindOfClass:[UITabBarController class]]) {
         if (@available(iOS 18.0, *)) {
             if (UIDevice.currentDevice.userInterfaceIdiom == UIUserInterfaceIdiomPad) {
@@ -6579,13 +6590,13 @@ void pm_perfTest() {
         }
     } else {
     }
-
+    
     // Only set delegate if NOT in sidebar mode
     // In sidebar mode, the tab bar controller manages navigation delegate
     if (!isInSidebarMode) {
         self.navigationController.delegate = self;
     }
-
+    
     deactivateFStemp=0;
     
     if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad) {
@@ -6634,7 +6645,7 @@ void pm_perfTest() {
     safe_right=self.view.safeAreaInsets.right;
     
     
-//    if (safe_bottom>0) safe_bottom+=20;
+    //    if (safe_bottom>0) safe_bottom+=20;
     
     
     bool oldmode=darkMode;
@@ -6745,10 +6756,10 @@ void pm_perfTest() {
         //fade out & zoom
         self.oglButton.titleLabel.alpha=0.0;
         self.oglButton.transform = CGAffineTransformMakeScale(1.5, 1.5); // Zoom to 150%
-        } completion:^(BOOL finished) {
-            //reset transfo
-            self.oglButton.transform = CGAffineTransformIdentity; // Reset transform first
-        }];
+    } completion:^(BOOL finished) {
+        //reset transfo
+        self.oglButton.transform = CGAffineTransformIdentity; // Reset transform first
+    }];
 }
 
 - (void)checkNewCover {
@@ -6780,11 +6791,11 @@ void pm_perfTest() {
 
 - (void)viewWillDisappear:(BOOL)animated {
     [super viewWillDisappear:animated];
-
+    
     // Check if we're in sidebar mode
     BOOL isInSidebarMode = NO;
     UIViewController *tabBarVC = nil;
-
+    
     // Get window's root view controller
     UIWindow *window = self.view.window;
     if (window == nil) {
@@ -6802,9 +6813,9 @@ void pm_perfTest() {
             if (window) break;
         }
     }
-
+    
     tabBarVC = window.rootViewController;
-
+    
     if (tabBarVC != nil && [tabBarVC isKindOfClass:[UITabBarController class]]) {
         if (@available(iOS 18.0, *)) {
             if (UIDevice.currentDevice.userInterfaceIdiom == UIUserInterfaceIdiomPad) {
@@ -6827,7 +6838,7 @@ void pm_perfTest() {
     if (!isInSidebarMode) {
         self.navigationController.delegate = self;
     }
-
+    
     //    if (m_displayLink) [m_displayLink invalidate];
     
     [[self navigationController] setNavigationBarHidden:NO animated:NO];
@@ -6869,8 +6880,8 @@ void pm_perfTest() {
         //draw image into context
         CGContextDrawImage(tmpContext, CGRectMake(0.0, 0.0, pixelSizeOfImage.width, pixelSizeOfImage.height), cover_img.CGImage);
         
-//        txtCoverImgWidth=pixelSizeOfImage.width;
-//        txtCoverImgHeight=pixelSizeOfImage.height;
+        //        txtCoverImgWidth=pixelSizeOfImage.width;
+        //        txtCoverImgHeight=pixelSizeOfImage.height;
         
         glBindTexture(GL_TEXTURE_2D, txtCoverImg);
         
@@ -6910,8 +6921,8 @@ void pm_perfTest() {
         //draw image into context
         CGContextDrawImage(tmpContext, CGRectMake(0.0, 0.0, pixelSizeOfImage.width, pixelSizeOfImage.height), backgroundImage.CGImage);
         
-//        txtBGImageWidth=pixelSizeOfImage.width;
-//        txtBGImageHeight=pixelSizeOfImage.height;
+        //        txtBGImageWidth=pixelSizeOfImage.width;
+        //        txtBGImageHeight=pixelSizeOfImage.height;
         
         glBindTexture(GL_TEXTURE_2D, txtBGImage);
         
@@ -6945,7 +6956,57 @@ void pm_perfTest() {
     [super viewDidAppear:animated];
 }
 
-static int mOglView1Tap=0;
+void updateSettingsSelectedSlot() {
+    //update fxslot settings
+    settings[PROJECTM_FXSLOT].detail.mdz_slider.slider_value=fxSlot[FX_PROJECTM];
+    settings[OSCILLO_FXSLOT].detail.mdz_slider.slider_value=fxSlot[FX_OSCILLO];
+    settings[GLOB_FXPianoRollFXSLOT].detail.mdz_slider.slider_value=fxSlot[FX_PIANOROLL];
+    settings[GLOB_FXPiano3DFXSLOT].detail.mdz_slider.slider_value=fxSlot[FX_PIANO3D];
+    settings[GLOB_FXMIDIPatternFXSLOT].detail.mdz_slider.slider_value=fxSlot[FX_MIDIPattern];
+    settings[GLOB_FXMODPatternFXSLOT].detail.mdz_slider.slider_value=fxSlot[FX_MODPattern];
+    settings[GLOB_FXSpectrumFXSLOT].detail.mdz_slider.slider_value=fxSlot[FX_2DSpectrum];
+    settings[GLOB_FX3DSpectrumFXSLOT].detail.mdz_slider.slider_value=fxSlot[FX_3DSpectrum];
+    settings[GLOB_FX3DLandscapeFXSLOT].detail.mdz_slider.slider_value=fxSlot[FX_3DLandscape];
+    //
+}
+
+-(void) glViewLongPresstouch:(UILongPressGestureRecognizer *)gestureRecognizer {
+    static float oglLPTapXold=0,oglLPTapYold=0;
+    CGPoint pt=[gestureRecognizer locationInView:m_oglView];
+    oglLPTapX=pt.x;
+    oglLPTapY=pt.y;
+    
+    switch (gestureRecognizer.state) {
+        case UIGestureRecognizerStateBegan:
+            oglLPTap=1;
+            oglLPTapXstart=oglLPTapX;
+            oglLPTapYstart=oglLPTapY;
+            oglLPTapXold=oglLPTapX;
+            oglLPTapYold=oglLPTapY;
+            break;
+        case UIGestureRecognizerStateChanged:
+            oglLPTap=2;
+            //reset delay counter if moving enough
+            if ( (abs(oglLPTapXold-oglLPTapX)>8.0) || (abs(oglLPTapYold-oglLPTapY)>8.0) ) {
+                fxLPselectedCpt=0;
+                oglLPTapXold=oglLPTapX;
+                oglLPTapYold=oglLPTapY;
+            }
+            break;
+        default:
+            if (fxLPselected>=0) {
+                fxSlot[fxLPselected]=fxTargetSlot;
+                
+                //update fxslot settings
+                updateSettingsSelectedSlot();
+            }
+            oglLPTap=0;
+            fxLPselected=-1;
+            break;
+    }
+}
+
+
 -(void) glViewTwoFingersTouch:(UITapGestureRecognizer *)gestureRecognizer {
     //MDZILog("touch 2 fingers");
     
@@ -8027,7 +8088,7 @@ void menuInterpolValue(float &curValue,float startValue,float tgtValue) {
             //too small
             if (sizeFx<=maxLength*0.9) mScaleInfo[2]+=1;
             else mScaleInfo[2]=0;
-            if ( (mScaleInfo[2]>FX_AUTO_SCALING_DELAY_ZOOMIN)) {
+            if ( (mScaleInfo[2]>FX_AUTO_SCALING_DELAY_ZOOMIN_FAST)) {
                 if (movePinchScaleFXMID<((DEFAULT_VISIBLE_MIDI_NOTES-MIN_VISIBLE_MIDI_NOTES)/64.0f)) {
                     movePinchScaleFXMID+=1.0*1.0/64.0;
                     //tim_midifx_note_offset-=2.0;
@@ -8150,8 +8211,11 @@ void menuInterpolValue(float &curValue,float startValue,float tgtValue) {
     mScaleInfo[0]=maxLength;
     mScaleInfo[1]=0;
     
+    int delay_threshold=FX_AUTO_SCALING_DELAY_ZOOMIN_FAST;
+    
     switch (settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value) {
         case 1:
+            delay_threshold=FX_AUTO_SCALING_DELAY_ZOOMIN_SLOW;
             RenderUtils::DrawPianoRollFX(x,y,ww,hh,settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value-1,prollfx_note_range,prollfx_noteroll_offset,prollfx_length,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,mScaleFactor,(char*)voicesName,mScaleInfo);
             break;
         case 2:
@@ -8183,9 +8247,10 @@ void menuInterpolValue(float &curValue,float startValue,float tgtValue) {
             }
             
             //too small
-            if (sizeFx<=maxLength*0.9) mScaleInfo[2]+=1;
+            if (sizeFx<=maxLength*0.8) mScaleInfo[2]+=1;
             else mScaleInfo[2]=0;
-            if ( (mScaleInfo[2]>FX_AUTO_SCALING_DELAY_ZOOMIN)) {
+            
+            if ( (mScaleInfo[2]>delay_threshold)) {
                 if (movePinchScaleFXPRoll<((DEFAULT_VISIBLE_MIDI_NOTES-MIN_VISIBLE_MIDI_NOTES*2)/64.0f)) {
                     movePinchScaleFXPRoll+=1.0*1.0/64.0;
                     //tim_midifx_note_offset-=2.0;
@@ -8255,7 +8320,7 @@ void menuInterpolValue(float &curValue,float startValue,float tgtValue) {
     
     if (settings[GLOB_FXMODPattern_BGAlpha].detail.mdz_slider.slider_value>0) {
         //Darken the background
-        RenderUtils::DarkenScreen(0, 0, ww, hh, settings[GLOB_FXMODPattern_BGAlpha].detail.mdz_slider.slider_value*255.0);
+        RenderUtils::FillArea(0, 0, ww, hh, ww, hh,glScaleFactor, settings[GLOB_FXMODPattern_BGAlpha].detail.mdz_slider.slider_value*255.0);
     }
     
     ImGui::GetStyle().Alpha=1.0f;
@@ -8469,7 +8534,8 @@ void menuInterpolValue(float &curValue,float startValue,float tgtValue) {
                                 if (cnote) {
                                     str_data[k++]=note2charA[(cnote-13)%12];
                                     str_data[k++]=note2charB[(cnote-13)%12];
-                                    str_data[k++]=(cnote-13)/12+'0';
+                                    int note=(cnote-13)/12; if (note<0) note=0; if (note>15) note=15;
+                                    str_data[k++]=dec2hex[note];
                                 } else {
                                     str_data[k++]=ASCII_MIDDOT[0];str_data[k++]=ASCII_MIDDOT[1];
                                     str_data[k++]=ASCII_MIDDOT[0];str_data[k++]=ASCII_MIDDOT[1];
@@ -8592,7 +8658,8 @@ void menuInterpolValue(float &curValue,float startValue,float tgtValue) {
                                 if (cnote) {
                                     str_data[k++]=note2charA[(cnote-13)%12];
                                     str_data[k++]=note2charB[(cnote-13)%12];
-                                    str_data[k++]=(cnote-13)/12+'0';
+                                    int note=(cnote-13)/12; if (note<0) note=0; if (note>15) note=15;
+                                    str_data[k++]=dec2hex[note];
                                 } else {
                                     str_data[k++]=ASCII_MIDDOT[0];str_data[k++]=ASCII_MIDDOT[1];
                                     str_data[k++]=ASCII_MIDDOT[0];str_data[k++]=ASCII_MIDDOT[1];
@@ -8647,7 +8714,8 @@ void menuInterpolValue(float &curValue,float startValue,float tgtValue) {
                                 if (cnote) {
                                     str_data[k++]=note2charA[(cnote-13)%12];
                                     str_data[k++]=note2charB[(cnote-13)%12];
-                                    str_data[k++]=(cnote-13)/12+'0';
+                                    int note=(cnote-13)/12; if (note<0) note=0; if (note>15) note=15;
+                                    str_data[k++]=dec2hex[note];
                                 } else {
                                     str_data[k++]=ASCII_MIDDOT[0];str_data[k++]=ASCII_MIDDOT[1];
                                     str_data[k++]=ASCII_MIDDOT[0];str_data[k++]=ASCII_MIDDOT[1];
@@ -8828,6 +8896,18 @@ void menuInterpolValue(float &curValue,float startValue,float tgtValue) {
     }
 }
 
+bool isFXinRangeLPtouch(float x,float y,float w,float h) {
+    if ( (oglLPTapXstart>=x) && (oglLPTapXstart<=(x+w)) &&
+        (oglLPTapYstart>=y) && (oglLPTapYstart<=(y+h)) ) return YES;
+    return NO;
+}
+
+bool isFXinRangeLPtouchCurrent(float x,float y,float w,float h) {
+    if ( (oglLPTapX>=x) && (oglLPTapX<=(x+w)) &&
+        (oglLPTapY>=y) && (oglLPTapY<=(y+h)) ) return YES;
+    return NO;
+}
+
 void initViewPortData(int fxidx,float &x,float &y,float &w,float &h,float ww,float hh) {
     switch (fxSlot[fxidx]) {
         default:
@@ -8843,30 +8923,70 @@ void initViewPortData(int fxidx,float &x,float &y,float &w,float &h,float ww,flo
             x=ww/2; y=0;
             w=ww/2; h=hh;
             break;
-        case 3: //split horizontally, top
+        case 3: //split horizontally, bottom
             x=0; y=hh/2;
             w=ww; h=hh/2;
             break;
-        case 4: //split horizontally, bottom
+        case 4: //split horizontally, top
             x=0; y=0;
             w=ww; h=hh/2;
             break;
-        case 5: //split vert&hor, top left
+        case 5: //split vert&hor, bottom left
             x=0; y=hh/2;
             w=ww/2; h=hh/2;
             break;
-        case 6: //split vert&hor, top right
+        case 6: //split vert&hor, bottom right
             x=ww/2; y=hh/2;
             w=ww/2; h=hh/2;
             break;
-        case 7: //split vert&hor, bottom left
+        case 7: //split vert&hor, top left
             x=0; y=0;
             w=ww/2; h=hh/2;
             break;
-        case 8: //split vert&hor, bottom right
+        case 8: //split vert&hor, top right
             x=ww/2; y=0;
             w=ww/2; h=hh/2;
             break;
+    }
+    //is a long press touch in progress
+    //and is the current FX not selected
+    if (oglLPTap && (fxLPselected!=fxidx)) {
+        //is the org touch point in range of the FX used slot
+        if (isFXinRangeLPtouch(x,y,w,h)) {
+            //is there already a FX selected
+            if (fxLPselected==-1) {
+                //no: select current one
+                fxLPselectedCpt=0;
+                fxLPselected=fxidx;
+            } else if (isFXinRangeLPtouchCurrent(x,y,w,h)) {
+                //yes: check if we should swap with current one
+                if ( (fxLPselected!=fxidx)&&(fxLPselectedCpt>(settings[GLOB_FXFPS].detail.mdz_switch.switch_value?60:30)*2) ) {
+                    fxLPselected=fxidx;
+                    fxLPselectedCpt=(settings[GLOB_FXFPS].detail.mdz_switch.switch_value?60:30);
+                } else fxLPselectedCpt++;
+            }
+        }
+    }
+    
+    if (fxLPselected==fxidx) {
+        w=ww/2; h=hh/2;
+        x=oglLPTapX-w/2;
+        y=hh-oglLPTapY-h/2;
+        y=h-y;
+    }
+}
+
+void drawTgtSlotPattern(int fxIdx,float x,float y,float w,float h,float ww,float hh) {
+    if ( (fxLPselected==fxIdx) && (fxTargetSlot>=0) ) {
+        //highlight tgt slot
+        static int cptA=0;
+        int alpha=255-128;
+        int col=255-64+32*sin(cptA*0.03);
+        if (col<0) col=0; if (col>255) col=255;
+        glViewport(0, 0, ww*glScaleFactor, hh*glScaleFactor);
+        RenderUtils::FillAreaPattern(x, y,
+                                     w, h, ww, hh,glScaleFactor, fxTargetSlot, alpha,col,col,col);
+        cptA++;
     }
 }
 
@@ -9396,91 +9516,201 @@ void initViewPortData(int fxidx,float &x,float &y,float &w,float &h,float ww,flo
                 float w;
                 float h;
         
-        /*-------------------------------------------------------------------------------*/
-        /*  ProjectM render */
-        /*-------------------------------------------------------------------------------*/
-        if (settings[PROJECTM_FXONOFF].detail.mdz_switch.switch_value) {
-            bool isSlot=false;
-            initViewPortData(FX_PROJECTM,x,y,w,h,ww,hh);
-            glViewport(x*mScaleFactor, (h!=hh?h-y:y)*mScaleFactor, w*mScaleFactor, h*mScaleFactor);
-            if ((w<ww)||(h<hh)) isSlot=true;
-            [self doFramePM:ImVec2(ww,hh) isSlot:isSlot];
+        //  7 4 8
+        //  1 0 2
+        //  5 3 6
+        
+        //Compute distance for each slot to determine the closest one
+        fxTargetSlot=-1;
+        ImVec2 slotsLocations[9];
+        ImVec4 slotsPos[9];
+        if (oglLPTap) {
+            float distance=ww*ww+hh*hh;
+            //full
+            slotsLocations[0].x=ww/2;slotsLocations[0].y=hh/2;
+            slotsPos[0].x=0;slotsPos[0].y=0;
+            slotsPos[0].z=ww;slotsPos[0].w=hh;
+            //left
+            slotsLocations[1].x=ww/4;slotsLocations[1].y=hh/2;
+            slotsPos[1].x=0;slotsPos[1].y=0;
+            slotsPos[1].z=ww/2;slotsPos[1].w=hh;
+            //right
+            slotsLocations[2].x=ww*3/4;slotsLocations[2].y=hh/2;
+            slotsPos[2].x=ww/2;slotsPos[2].y=0;
+            slotsPos[2].z=ww/2;slotsPos[2].w=hh;
+            //bottom
+            slotsLocations[3].x=ww/2;slotsLocations[3].y=hh*3/4;
+            slotsPos[3].x=0;slotsPos[3].y=0;
+            slotsPos[3].z=ww;slotsPos[3].w=hh/2;
+            //top
+            slotsLocations[4].x=ww/2;slotsLocations[4].y=hh*1/4;
+            slotsPos[4].x=0;slotsPos[4].y=hh/2;
+            slotsPos[4].z=ww;slotsPos[4].w=hh/2;
+            //bottom left
+            slotsLocations[5].x=ww/4;slotsLocations[5].y=hh*3/4;
+            slotsPos[5].x=0;slotsPos[5].y=0;
+            slotsPos[5].z=ww/2;slotsPos[5].w=hh/2;
+            //bottom right
+            slotsLocations[6].x=ww*3/4;slotsLocations[6].y=hh*3/4;
+            slotsPos[6].x=ww/2;slotsPos[6].y=0;
+            slotsPos[6].z=ww/2;slotsPos[6].w=hh/2;
+            //top left
+            slotsLocations[7].x=ww/4;slotsLocations[7].y=hh*1/4;
+            slotsPos[7].x=0;slotsPos[7].y=hh/2;
+            slotsPos[7].z=ww/2;slotsPos[7].w=hh/2;
+            //top right
+            slotsLocations[8].x=ww*3/4;slotsLocations[8].y=hh*1/4;
+            slotsPos[8].x=ww/2;slotsPos[8].y=hh/2;
+            slotsPos[8].z=ww/2;slotsPos[8].w=hh/2;
+            for (int i=0;i<9;i++) {
+                float tmp=(slotsLocations[i].x-oglLPTapX)*(slotsLocations[i].x-oglLPTapX)+(slotsLocations[i].y-oglLPTapY)*(slotsLocations[i].y-oglLPTapY);
+                if (tmp<distance) {
+                    distance=tmp;
+                    fxTargetSlot=i;
+                }
+            }
         }
         
-        /*-------------------------------------------------------------------------------*/
-        
+//        if ( (fxLPselected>=0) && (fxTargetSlot>=0) ) {
+//            //highlight tgt slot
+//            static int cptA=0;
+//            int alpha=255-64+32*sin(cptA*0.05);
+//            RenderUtils::FillAreaPattern(slotsPos[fxTargetSlot].x, slotsPos[fxTargetSlot].y,
+//                                      slotsPos[fxTargetSlot].z, slotsPos[fxTargetSlot].w, ww, hh,glScaleFactor, alpha,255-64,255-64,255-64);
+//            cptA++;
+//        }
+//
+        for (int pass=0;pass<2;pass++) {
+            /*-------------------------------------------------------------------------------*/
+            /*  ProjectM render */
+            /*-------------------------------------------------------------------------------*/
+            if ( ((pass==0) && (fxLPselected!=FX_PROJECTM)) ||
+                ((pass==1) && (fxLPselected==FX_PROJECTM)) )
+            if (settings[PROJECTM_FXONOFF].detail.mdz_switch.switch_value) {
+                drawTgtSlotPattern(FX_PROJECTM,slotsPos[fxTargetSlot].x, slotsPos[fxTargetSlot].y,
+                                   slotsPos[fxTargetSlot].z, slotsPos[fxTargetSlot].w, ww, hh);
                 
-                //-------------------------------------
-                // Landscape 3D
-                //-------------------------------------
-                if (settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value) {
-                    initViewPortData(FX_3DLandscape,x,y,w,h,ww,hh);
-                    glViewport(x*mScaleFactor, (h!=hh?h-y:y)*mScaleFactor, w*mScaleFactor, h*mScaleFactor);
-                    [self doFx3DLandscape:ImVec4(x,y,w,h)];
-                }
+                bool isSlot=false;
+                initViewPortData(FX_PROJECTM,x,y,w,h,ww,hh);
+                glViewport(x*mScaleFactor, (h!=hh?h-y:y)*mScaleFactor, w*mScaleFactor, h*mScaleFactor);
+                if ((w<ww)||(h<hh)) isSlot=true;
+                [self doFramePM:ImVec2(ww,hh) isSlot:isSlot];
+            }
+            
+            /*-------------------------------------------------------------------------------*/
+            
+            
+            //-------------------------------------
+            // Landscape 3D
+            //-------------------------------------
+            if ( ((pass==0) && (fxLPselected!=FX_3DLandscape)) ||
+                ((pass==1) && (fxLPselected==FX_3DLandscape)) )
+            if (settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value) {
+                drawTgtSlotPattern(FX_3DLandscape,slotsPos[fxTargetSlot].x, slotsPos[fxTargetSlot].y,
+                                   slotsPos[fxTargetSlot].z, slotsPos[fxTargetSlot].w, ww, hh);
                 
-                //-------------------------------------
-                // Spectrum 3D
-                //-------------------------------------
-                if (settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value) {
-                    initViewPortData(FX_3DSpectrum,x,y,w,h,ww,hh);
-                    glViewport(x*mScaleFactor, (h!=hh?h-y:y)*mScaleFactor, w*mScaleFactor, h*mScaleFactor);
-                    [self doFx3DSpectrum:ImVec4(x,y,w,h)];
-                }
+                initViewPortData(FX_3DLandscape,x,y,w,h,ww,hh);
+                glViewport(x*mScaleFactor, (h!=hh?h-y:y)*mScaleFactor, w*mScaleFactor, h*mScaleFactor);
+                [self doFx3DLandscape:ImVec4(x,y,w,h)];
+            }
+            
+            //-------------------------------------
+            // Spectrum 3D
+            //-------------------------------------
+            if ( ((pass==0) && (fxLPselected!=FX_3DSpectrum)) ||
+                ((pass==1) && (fxLPselected==FX_3DSpectrum)) )
+            if (settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value) {
+                drawTgtSlotPattern(FX_3DSpectrum,slotsPos[fxTargetSlot].x, slotsPos[fxTargetSlot].y,
+                                   slotsPos[fxTargetSlot].z, slotsPos[fxTargetSlot].w, ww, hh);
                 
-                //-------------------------------------
-                // Piano 3D
-                //-------------------------------------
-                if (settings[GLOB_FXPiano3D].detail.mdz_switch.switch_value) {
-                    initViewPortData(FX_PIANO3D,x,y,w,h,ww,hh);
-                    glViewport(x*mScaleFactor, (h!=hh?h-y:y)*mScaleFactor, w*mScaleFactor, h*mScaleFactor);
-                    [self doFxPiano3D:ImVec4(x,y,w,h)];
-                }
-                //-------------------------------------
-                // Spectrum 2D
-                //-------------------------------------
-                if (settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value) {
-                    initViewPortData(FX_2DSpectrum,x,y,w,h,ww,hh);
-                    glViewport(x*mScaleFactor, (h!=hh?h-y:y)*mScaleFactor, w*mScaleFactor, h*mScaleFactor);
-                    [self doFx2DSpectrum:ImVec4(x,y,w,h)];
-                }
+                initViewPortData(FX_3DSpectrum,x,y,w,h,ww,hh);
+                glViewport(x*mScaleFactor, (h!=hh?h-y:y)*mScaleFactor, w*mScaleFactor, h*mScaleFactor);
+                [self doFx3DSpectrum:ImVec4(x,y,w,h)];
+            }
+            
+            //-------------------------------------
+            // Piano 3D
+            //-------------------------------------
+            if ( ((pass==0) && (fxLPselected!=FX_PIANO3D)) ||
+                ((pass==1) && (fxLPselected==FX_PIANO3D)) )
+            if (settings[GLOB_FXPiano3D].detail.mdz_switch.switch_value) {
+                drawTgtSlotPattern(FX_PIANO3D,slotsPos[fxTargetSlot].x, slotsPos[fxTargetSlot].y,
+                                   slotsPos[fxTargetSlot].z, slotsPos[fxTargetSlot].w, ww, hh);
                 
-                //-------------------------------------
-                // Piano Roll
-                //-------------------------------------
-                if (settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value) {
-                    initViewPortData(FX_PIANOROLL,x,y,w,h,ww,hh);
-                    glViewport(x*mScaleFactor, (h!=hh?h-y:y)*mScaleFactor, w*mScaleFactor, h*mScaleFactor);
-                    [self doFxPianoRoll:ImVec4(x,y,w,h)];
-                }
+                initViewPortData(FX_PIANO3D,x,y,w,h,ww,hh);
+                glViewport(x*mScaleFactor, (h!=hh?h-y:y)*mScaleFactor, w*mScaleFactor, h*mScaleFactor);
+                [self doFxPiano3D:ImVec4(x,y,w,h)];
+            }
+            //-------------------------------------
+            // Spectrum 2D
+            //-------------------------------------
+            if ( ((pass==0) && (fxLPselected!=FX_2DSpectrum)) ||
+                ((pass==1) && (fxLPselected==FX_2DSpectrum)) )
+            if (settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value) {
+                drawTgtSlotPattern(FX_2DSpectrum,slotsPos[fxTargetSlot].x, slotsPos[fxTargetSlot].y,
+                                   slotsPos[fxTargetSlot].z, slotsPos[fxTargetSlot].w, ww, hh);
                 
-                //-------------------------------------
-                // Midi patterns
-                //-------------------------------------
-                if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value) {
-                    initViewPortData(FX_MIDIPattern,x,y,w,h,ww,hh);
-                    glViewport(x*mScaleFactor, (h!=hh?h-y:y)*mScaleFactor, w*mScaleFactor, h*mScaleFactor);
-                    [self doFxMidiPattern:ImVec4(x,y,w,h)];
-                }
+                initViewPortData(FX_2DSpectrum,x,y,w,h,ww,hh);
+                glViewport(x*mScaleFactor, (h!=hh?h-y:y)*mScaleFactor, w*mScaleFactor, h*mScaleFactor);
+                [self doFx2DSpectrum:ImVec4(x,y,w,h)];
+            }
+            
+            //-------------------------------------
+            // Piano Roll
+            //-------------------------------------
+            if ( ((pass==0) && (fxLPselected!=FX_PIANOROLL)) ||
+                ((pass==1) && (fxLPselected==FX_PIANOROLL)) )
+            if (settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value) {
+                drawTgtSlotPattern(FX_PIANOROLL,slotsPos[fxTargetSlot].x, slotsPos[fxTargetSlot].y,
+                                   slotsPos[fxTargetSlot].z, slotsPos[fxTargetSlot].w, ww, hh);
                 
-                //-------------------------------------
-                // Mod patterns
-                //-------------------------------------
-                if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value && mplayer.mPatternDataAvail) {
-                    initViewPortData(FX_MODPattern,x,y,w,h,ww,hh);
-                    glViewport(x*mScaleFactor, (h!=hh?h-y:y)*mScaleFactor, w*mScaleFactor, h*mScaleFactor);
-                    [self doFxModPatterns:ImVec4(x,y,w,h)];
-                }
+                initViewPortData(FX_PIANOROLL,x,y,w,h,ww,hh);
+                glViewport(x*mScaleFactor, (h!=hh?h-y:y)*mScaleFactor, w*mScaleFactor, h*mScaleFactor);
+                [self doFxPianoRoll:ImVec4(x,y,w,h)];
+            }
+            
+            //-------------------------------------
+            // Midi patterns
+            //-------------------------------------
+            if ( ((pass==0) && (fxLPselected!=FX_MIDIPattern)) ||
+                ((pass==1) && (fxLPselected==FX_MIDIPattern)) )
+            if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value) {
+                drawTgtSlotPattern(FX_MIDIPattern,slotsPos[fxTargetSlot].x, slotsPos[fxTargetSlot].y,
+                                   slotsPos[fxTargetSlot].z, slotsPos[fxTargetSlot].w, ww, hh);
                 
-                //-------------------------------------
-                // Oscillo
-                //-------------------------------------
-                if (settings[OSCILLO_FXMODE].detail.mdz_switch.switch_value) {
-                    initViewPortData(FX_OSCILLO,x,y,w,h,ww,hh);
-                    glViewport(x*mScaleFactor, (h!=hh?h-y:y)*mScaleFactor, w*mScaleFactor, h*mScaleFactor);
-                    [self doFxOscillo:ImVec4(x,y,w,h)];
-                }
-        
+                initViewPortData(FX_MIDIPattern,x,y,w,h,ww,hh);
+                glViewport(x*mScaleFactor, (h!=hh?h-y:y)*mScaleFactor, w*mScaleFactor, h*mScaleFactor);
+                [self doFxMidiPattern:ImVec4(x,y,w,h)];
+            }
+            
+            //-------------------------------------
+            // Mod patterns
+            //-------------------------------------
+            if ( ((pass==0) && (fxLPselected!=FX_MODPattern)) ||
+                ((pass==1) && (fxLPselected==FX_MODPattern)) )
+            if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value && mplayer.mPatternDataAvail) {
+                drawTgtSlotPattern(FX_MODPattern,slotsPos[fxTargetSlot].x, slotsPos[fxTargetSlot].y,
+                                   slotsPos[fxTargetSlot].z, slotsPos[fxTargetSlot].w, ww, hh);
+                
+                initViewPortData(FX_MODPattern,x,y,w,h,ww,hh);
+                glViewport(x*mScaleFactor, (h!=hh?h-y:y)*mScaleFactor, w*mScaleFactor, h*mScaleFactor);
+                [self doFxModPatterns:ImVec4(x,y,w,h)];
+            }
+            
+            //-------------------------------------
+            // Oscillo
+            //-------------------------------------
+            if ( ((pass==0) && (fxLPselected!=FX_OSCILLO)) ||
+                ((pass==1) && (fxLPselected==FX_OSCILLO)) )
+            if (settings[OSCILLO_FXMODE].detail.mdz_switch.switch_value) {
+                drawTgtSlotPattern(FX_OSCILLO,slotsPos[fxTargetSlot].x, slotsPos[fxTargetSlot].y,
+                                   slotsPos[fxTargetSlot].z, slotsPos[fxTargetSlot].w, ww, hh);
+                
+                initViewPortData(FX_OSCILLO,x,y,w,h,ww,hh);
+                glViewport(x*mScaleFactor, (h!=hh?h-y:y)*mScaleFactor, w*mScaleFactor, h*mScaleFactor);
+                [self doFxOscillo:ImVec4(x,y,w,h)];
+            }
+        }
         glViewport(0, 0, ww*mScaleFactor, hh*mScaleFactor);
     }
     
@@ -9607,16 +9837,7 @@ void initViewPortData(int fxidx,float &x,float &y,float &w,float &h,float ww,flo
         int ret=PMenu::playerShowMenu(ww,hh,safe_top,safe_bottom,safe_left,safe_right,glScaleFactor,fadelev,movePxPMenu,movePyPMenu,pmenu_show);
         
         //update fxslot settings
-        settings[PROJECTM_FXSLOT].detail.mdz_slider.slider_value=fxSlot[FX_PROJECTM];
-        settings[OSCILLO_FXSLOT].detail.mdz_slider.slider_value=fxSlot[FX_OSCILLO];
-        settings[GLOB_FXPianoRollFXSLOT].detail.mdz_slider.slider_value=fxSlot[FX_PIANOROLL];
-        settings[GLOB_FXPiano3DFXSLOT].detail.mdz_slider.slider_value=fxSlot[FX_PIANO3D];
-        settings[GLOB_FXMIDIPatternFXSLOT].detail.mdz_slider.slider_value=fxSlot[FX_MIDIPattern];
-        settings[GLOB_FXMODPatternFXSLOT].detail.mdz_slider.slider_value=fxSlot[FX_MODPattern];
-        settings[GLOB_FXSpectrumFXSLOT].detail.mdz_slider.slider_value=fxSlot[FX_2DSpectrum];
-        settings[GLOB_FX3DSpectrumFXSLOT].detail.mdz_slider.slider_value=fxSlot[FX_3DSpectrum];
-        settings[GLOB_FX3DLandscapeFXSLOT].detail.mdz_slider.slider_value=fxSlot[FX_3DLandscape];
-        //
+        updateSettingsSelectedSlot();
         
         
         movePxPMenu=movePyPMenu=0;

@@ -238,7 +238,9 @@ int buildQuad(LineVertexF *pts,
 
 void releaseProgram(int prgId);
 
-void DarkenScreen(float ox,float oy,float ww,float hh,int a, int r=0,int g=0,int b=0);
+void FillArea(float ox,float oy,float ww,float hh,float winWidth,float winHeight,float mScaleFactor,int a, int r=0,int g=0,int b=0);
+
+void FillAreaPattern(float ox,float oy,float ww,float hh,float winWidth,float winHeight,float mScaleFactor,int mode,int a, int r=0,int g=0,int b=0);
 
 }
 

@@ -460,15 +460,14 @@ typedef enum {
 
 enum {
     FX_PROJECTM=0,
-    FX_OSCILLO,
-    FX_PIANOROLL,
+    FX_3DLandscape,
+    FX_3DSpectrum,
     FX_PIANO3D,
+    FX_2DSpectrum,
+    FX_PIANOROLL,
     FX_MIDIPattern,
     FX_MODPattern,
-    FX_2DSpectrum,
-    FX_3DSpectrum,
-    FX_3DLandscape,
-    
+    FX_OSCILLO,
     FX_MAX
 };
 

@@ -123,6 +123,7 @@ float position[] = { 0, 0, 8, 1 };
 
 GLUserData *userData_lightRender3D;
 GLUserData *userData_simpleRender2D;
+GLUserData *userData_simpleRender2DPattern;
 GLUserData *userData_customRender2D;
 GLUserData *userData_normalRender3D;
 GLUserData *userData_simpleRender3D;
@@ -274,6 +275,8 @@ int RenderUtils::RenderInit() {
         
         userData_simpleRender2D=InitProgram((char*)[[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/MDZShaders/Vertex2DSimple.glsl"]  UTF8String],
                                             (char*)[[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/MDZShaders/Fragment2DSimple.glsl"] UTF8String]);
+        userData_simpleRender2DPattern=InitProgram((char*)[[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/MDZShaders/Vertex2DSimple.glsl"]  UTF8String],
+                                        (char*)[[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/MDZShaders/Fragment2DSimplePattern.glsl"] UTF8String]);
         userData_customRender2D=InitProgram((char*)[[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/MDZShaders/Vertex2DCustom.glsl"]  UTF8String],
                                             (char*)[[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"/MDZShaders/Fragment2DCustom.glsl"] UTF8String]);
         
@@ -301,6 +304,7 @@ int RenderUtils::RenderInit() {
         
     if (!userData_lightRender3D ||
         !userData_simpleRender2D ||
+        !userData_simpleRender2DPattern ||
         !userData_customRender2D ||
         !userData_simpleRender3D ||
         !userData_normalRender3D ||
@@ -495,7 +499,7 @@ void RenderUtils::DrawTexture(uint ww,uint hh,GLuint textureIdx,float alpha,bool
     glRestoreState();
 }
 
-void RenderUtils::DarkenScreen(float ox,float oy,float ww,float hh,int a, int r,int g,int b) {
+void RenderUtils::FillArea(float ox,float oy,float ww,float hh,float winWidth,float winHeight,float mScaleFactor,int a, int r,int g,int b) {
     if (!renderIsInit) return;
     
     glUseProgram(userData_simpleRender2D->programObject);
@@ -517,14 +521,14 @@ void RenderUtils::DarkenScreen(float ox,float oy,float ww,float hh,int a, int r,
     
     count+=RenderUtils::buildQuad(&(pts[count]),
                                   ox,  oy,
-                                  ww, oy,
-                                  ww, hh,
-                                  ox , hh,
+                                  ox+ww, oy,
+                                  ox+ww, oy+hh,
+                                  ox , oy+hh,
                                   r,g,b,a,
                                   r,g,b,a,
                                   r,g,b,a,
                                   r,g,b,a,
-                                  ww,hh);
+                                  winWidth,winHeight);
     
     // Load the vertex data
     glVertexAttribPointer ( positionAttribHandle, 3, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(pts[0].x) );
@@ -541,6 +545,73 @@ void RenderUtils::DarkenScreen(float ox,float oy,float ww,float hh,int a, int r,
     
     glRestoreState();
 }
+
+void RenderUtils::FillAreaPattern(float ox,float oy,float ww,float hh,float winWidth,float winHeight,float mScaleFactor,int mode,int a, int r,int g,int b) {
+    if (!renderIsInit) return;
+    
+    static float cptTime=0;
+    
+    glUseProgram(userData_simpleRender2DPattern->programObject);
+    
+    GLuint positionAttribHandle = glGetAttribLocation(userData_simpleRender2DPattern->programObject, "a_position");
+    GLuint colorAttribHandle    = glGetAttribLocation(userData_simpleRender2DPattern->programObject, "a_color");
+    
+    GLuint resolutionUH     = glGetUniformLocation(userData_simpleRender2DPattern->programObject, "u_resolution");
+    GLuint checkboardUH    = glGetUniformLocation(userData_simpleRender2DPattern->programObject, "u_checkboardsize");
+    GLuint timeUH    = glGetUniformLocation(userData_simpleRender2DPattern->programObject, "u_time");
+    GLuint scaleFUH    = glGetUniformLocation(userData_simpleRender2DPattern->programObject, "u_scaleFactor");
+    GLuint modeUH    = glGetUniformLocation(userData_simpleRender2DPattern->programObject, "u_mode");
+    
+    //Save opengl state
+    glDumpState();
+    
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glDisable(GL_CULL_FACE);
+    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_STENCIL_TEST);
+    
+    LineVertexF pts[6];
+    int count=0;
+    
+    count+=RenderUtils::buildQuad(&(pts[count]),
+                                  ox,  oy,
+                                  ox+ww, oy,
+                                  ox+ww, oy+hh,
+                                  ox , oy+hh,
+                                  r,g,b,a,
+                                  r,g,b,a,
+                                  r,g,b,a,
+                                  r,g,b,a,
+                                  winWidth,winHeight);
+    
+    // Load the vertex data
+    glVertexAttribPointer ( positionAttribHandle, 3, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(pts[0].x) );
+    glVertexAttribPointer ( colorAttribHandle, 4, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(pts[0].r) );
+    
+    // enable data buffers for shader
+    glEnableVertexAttribArray ( positionAttribHandle );
+    glEnableVertexAttribArray ( colorAttribHandle );
+    
+    //GLuint resolutionUnifHandle    = glGetUniformLocation(userData_Render2DTextures->programObject, "u_resolution");
+    glUniform4f(resolutionUH, (ox)*mScaleFactor, (oy)*mScaleFactor, (ox+ww)*mScaleFactor, (oy+hh)*mScaleFactor);
+    
+    glUniform1f(checkboardUH, 32.0*mScaleFactor);
+    glUniform1f(timeUH, cptTime);
+    glUniform1f(scaleFUH, mScaleFactor);
+    glUniform1i(modeUH,mode);
+    
+    cptTime+=1.0/60.0;
+    
+    
+    // Load the uniforms
+    glDrawArrays(GL_TRIANGLES,0,count);
+    
+    
+    
+    glRestoreState();
+}
+
 
 void RenderUtils::DrawTextureBasic(uint ww,uint hh,GLuint textureIdx,float alpha,bool reversed) {
     // Use the program object
