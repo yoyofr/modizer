@@ -594,7 +594,7 @@ void RenderUtils::FillAreaPattern(float ox,float oy,float ww,float hh,float winW
     glEnableVertexAttribArray ( colorAttribHandle );
     
     //GLuint resolutionUnifHandle    = glGetUniformLocation(userData_Render2DTextures->programObject, "u_resolution");
-    glUniform4f(resolutionUH, (ox)*mScaleFactor, (oy)*mScaleFactor, (ox+ww)*mScaleFactor, (oy+hh)*mScaleFactor);
+    glUniform4f(resolutionUH, (ox)*mScaleFactor, (oy)*mScaleFactor, (ox+ww-1)*mScaleFactor, (oy+hh-1)*mScaleFactor);
     
     glUniform1f(checkboardUH, 32.0*mScaleFactor);
     glUniform1f(timeUH, cptTime);
@@ -1962,15 +1962,19 @@ void RenderUtils::DrawChanLayoutAfter(float ox,float oy,float ww,float hh,int di
         }
     }
     GLUserData *curRender;
-    GLuint modeAH,redHeightAH,positionAttribHandle,colorAttribHandle,redColAH;
+    GLuint viewportUH,modeAH,redHeightAH,positionAttribHandle,colorAttribHandle,redColAH;
     // Use the program object
     if (modpat_curTheme->theme_flag&MDZ_THEMEFLAG_VolDottedBar) curRender=userData_customRender2D;
     else curRender=userData_simpleRender2D;
     
+    GLint viewport[4];
+    glGetIntegerv(GL_VIEWPORT, viewport);
+
     glUseProgram ( curRender->programObject );
     modeAH = glGetUniformLocation(curRender->programObject, "u_mode");
     redHeightAH = glGetUniformLocation(curRender->programObject, "u_redHeight");
     redColAH = glGetUniformLocation(curRender->programObject, "u_redCol");
+    viewportUH = glGetUniformLocation(curRender->programObject, "u_viewport");
     positionAttribHandle = glGetAttribLocation(curRender->programObject, "a_position");
     colorAttribHandle    = glGetAttribLocation(curRender->programObject, "a_color");
     // Load the vertex data
@@ -1988,7 +1992,15 @@ void RenderUtils::DrawChanLayoutAfter(float ox,float oy,float ww,float hh,int di
         for (int j=0;j<3;j++) redColor[j]=(float)modpat_curTheme->volume_barH[j]/255.0f;
         glUniform3f(redColAH, redColor[0],redColor[1],redColor[2]);
         
-    } else glUniform1i(modeAH, 0);
+    } else {
+        glUniform1i(modeAH, 0);
+    }
+    
+    glUniform4f(viewportUH,
+                viewport[0], viewport[1],
+                viewport[2], viewport[3]);
+
+    
     // Load the uniforms
     glDrawArrays(GL_TRIANGLES,0,count);
     count=0;
@@ -2051,7 +2063,15 @@ void RenderUtils::DrawChanLayoutAfter(float ox,float oy,float ww,float hh,int di
         // Load the vertex data
         glEnableVertexAttribArray ( positionAttribHandle );
         glEnableVertexAttribArray ( colorAttribHandle );
+        
+        viewportUH = glGetUniformLocation(curRender->programObject, "u_viewport");
+        glUniform4f(viewportUH,
+                    viewport[0], viewport[1],
+                    viewport[2], viewport[3]);
+
     }
+    
+    
     
     // Load the uniforms
     glDrawArrays(GL_TRIANGLES,0,count);

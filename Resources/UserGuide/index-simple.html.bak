@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modizer - User Guide</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Language Selector -->
+    <div class="language-selector">
+        <button class="lang-btn active" data-lang="en">EN</button>
+        <button class="lang-btn" data-lang="fr">FR</button>
+    </div>
+
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <h1 class="logo">Modizer</h1>
+            <p class="tagline" data-i18n="tagline">The Ultimate Chiptune & Module Player</p>
+        </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="main-nav">
+        <div class="container">
+            <ul class="nav-list">
+                <li><a href="#getting-started" class="nav-link active" data-i18n="nav.getting-started">Getting Started</a></li>
+                <li><a href="#features" class="nav-link" data-i18n="nav.features">Features</a></li>
+                <li><a href="#formats" class="nav-link" data-i18n="nav.formats">Supported Formats</a></li>
+                <li><a href="#faq" class="nav-link" data-i18n="nav.faq">FAQ</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container">
+        <!-- Getting Started Section -->
+        <section id="getting-started" class="content-section active">
+            <h2 data-i18n="sections.getting-started.title">Getting Started</h2>
+
+            <div class="card">
+                <h3 data-i18n="sections.getting-started.welcome.title">Welcome to Modizer!</h3>
+                <p data-i18n="sections.getting-started.welcome.text">
+                    Modizer is a powerful music player for iOS that specializes in playing classic module files,
+                    chiptunes, and various retro gaming music formats. Whether you're a fan of Amiga MOD files,
+                    SID music from Commodore 64, or arcade game soundtracks, Modizer has you covered.
+                </p>
+            </div>
+
+            <div class="card">
+                <h3 data-i18n="sections.getting-started.first-steps.title">First Steps</h3>
+                <ol class="steps-list">
+                    <li>
+                        <strong data-i18n="sections.getting-started.first-steps.step1.title">Import Your Music</strong>
+                        <p data-i18n="sections.getting-started.first-steps.step1.text">
+                            Use iTunes File Sharing, iCloud Drive, or any other file transfer method to add music files to Modizer.
+                        </p>
+                    </li>
+                    <li>
+                        <strong data-i18n="sections.getting-started.first-steps.step2.title">Browse Your Collection</strong>
+                        <p data-i18n="sections.getting-started.first-steps.step2.text">
+                            Navigate through your music library using the intuitive file browser or search function.
+                        </p>
+                    </li>
+                    <li>
+                        <strong data-i18n="sections.getting-started.first-steps.step3.title">Start Playing</strong>
+                        <p data-i18n="sections.getting-started.first-steps.step3.text">
+                            Simply tap on any file to start playback. Use the playback controls to adjust volume, seek, or skip tracks.
+                        </p>
+                    </li>
+                </ol>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section id="features" class="content-section">
+            <h2 data-i18n="sections.features.title">Features</h2>
+
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🎵</div>
+                    <h3 data-i18n="sections.features.playback.title">Advanced Playback</h3>
+                    <p data-i18n="sections.features.playback.text">
+                        High-quality audio playback with support for multiple audio engines and effects.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">📁</div>
+                    <h3 data-i18n="sections.features.browser.title">File Browser</h3>
+                    <p data-i18n="sections.features.browser.text">
+                        Easy-to-use file browser with search, filtering, and favorites management.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🎨</div>
+                    <h3 data-i18n="sections.features.visualizer.title">Visualizer</h3>
+                    <p data-i18n="sections.features.visualizer.text">
+                        Beautiful music visualizations powered by projectM for an immersive experience.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">📋</div>
+                    <h3 data-i18n="sections.features.playlists.title">Playlists</h3>
+                    <p data-i18n="sections.features.playlists.text">
+                        Create and manage custom playlists for your favorite tracks.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">⚙️</div>
+                    <h3 data-i18n="sections.features.settings.title">Customization</h3>
+                    <p data-i18n="sections.features.settings.text">
+                        Extensive settings to fine-tune audio quality, interface, and playback behavior.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">📤</div>
+                    <h3 data-i18n="sections.features.export.title">Export & Share</h3>
+                    <p data-i18n="sections.features.export.text">
+                        Export tracks to various formats or share them with other apps.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Formats Section -->
+        <section id="formats" class="content-section">
+            <h2 data-i18n="sections.formats.title">Supported Formats</h2>
+
+            <div class="card">
+                <p data-i18n="sections.formats.intro">
+                    Modizer supports an extensive range of music formats from various platforms and eras:
+                </p>
+            </div>
+
+            <div class="formats-grid">
+                <div class="format-category">
+                    <h3 data-i18n="sections.formats.modules.title">Module Formats</h3>
+                    <ul>
+                        <li><strong>MOD</strong> - <span data-i18n="sections.formats.modules.mod">Amiga ProTracker modules</span></li>
+                        <li><strong>XM</strong> - <span data-i18n="sections.formats.modules.xm">FastTracker II Extended Module</span></li>
+                        <li><strong>S3M</strong> - <span data-i18n="sections.formats.modules.s3m">ScreamTracker 3 Module</span></li>
+                        <li><strong>IT</strong> - <span data-i18n="sections.formats.modules.it">Impulse Tracker Module</span></li>
+                        <li><strong>MED</strong> - <span data-i18n="sections.formats.modules.med">OctaMED modules</span></li>
+                    </ul>
+                </div>
+
+                <div class="format-category">
+                    <h3 data-i18n="sections.formats.chiptune.title">Chiptune Formats</h3>
+                    <ul>
+                        <li><strong>SID</strong> - <span data-i18n="sections.formats.chiptune.sid">Commodore 64 music</span></li>
+                        <li><strong>NSF</strong> - <span data-i18n="sections.formats.chiptune.nsf">Nintendo Entertainment System</span></li>
+                        <li><strong>SPC</strong> - <span data-i18n="sections.formats.chiptune.spc">Super Nintendo</span></li>
+                        <li><strong>VGM</strong> - <span data-i18n="sections.formats.chiptune.vgm">Video Game Music</span></li>
+                        <li><strong>GYM</strong> - <span data-i18n="sections.formats.chiptune.gym">Sega Genesis/Mega Drive</span></li>
+                    </ul>
+                </div>
+
+                <div class="format-category">
+                    <h3 data-i18n="sections.formats.arcade.title">Arcade & Console</h3>
+                    <ul>
+                        <li><strong>VGZ</strong> - <span data-i18n="sections.formats.arcade.vgz">Compressed VGM</span></li>
+                        <li><strong>HES</strong> - <span data-i18n="sections.formats.arcade.hes">PC Engine/TurboGrafx-16</span></li>
+                        <li><strong>AY</strong> - <span data-i18n="sections.formats.arcade.ay">ZX Spectrum/Amstrad CPC</span></li>
+                        <li><strong>GBS</strong> - <span data-i18n="sections.formats.arcade.gbs">Game Boy</span></li>
+                    </ul>
+                </div>
+
+                <div class="format-category">
+                    <h3 data-i18n="sections.formats.other.title">Other Formats</h3>
+                    <ul>
+                        <li><strong>MP3</strong> - <span data-i18n="sections.formats.other.mp3">MPEG Audio Layer 3</span></li>
+                        <li><strong>FLAC</strong> - <span data-i18n="sections.formats.other.flac">Free Lossless Audio Codec</span></li>
+                        <li><strong>OGG</strong> - <span data-i18n="sections.formats.other.ogg">Ogg Vorbis</span></li>
+                        <li><strong>WAV</strong> - <span data-i18n="sections.formats.other.wav">Waveform Audio</span></li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- FAQ Section -->
+        <section id="faq" class="content-section">
+            <h2 data-i18n="sections.faq.title">Frequently Asked Questions</h2>
+
+            <div class="faq-list">
+                <div class="faq-item">
+                    <h3 class="faq-question" data-i18n="sections.faq.q1.question">How do I add music files to Modizer?</h3>
+                    <p class="faq-answer" data-i18n="sections.faq.q1.answer">
+                        You can add files via iTunes File Sharing, iCloud Drive, or by opening files from other apps
+                        and selecting "Open in Modizer". The app also supports direct downloads from web archives.
+                    </p>
+                </div>
+
+                <div class="faq-item">
+                    <h3 class="faq-question" data-i18n="sections.faq.q2.question">Why isn't my file playing correctly?</h3>
+                    <p class="faq-answer" data-i18n="sections.faq.q2.answer">
+                        Some files may require specific audio engines. Try switching to a different engine in the
+                        settings. Also ensure the file isn't corrupted by testing it on another device or player.
+                    </p>
+                </div>
+
+                <div class="faq-item">
+                    <h3 class="faq-question" data-i18n="sections.faq.q3.question">Can I export files to standard audio formats?</h3>
+                    <p class="faq-answer" data-i18n="sections.faq.q3.answer">
+                        Yes! Modizer can export tracks to WAV, MP3, or other standard formats. Use the export
+                        function in the track information menu.
+                    </p>
+                </div>
+
+                <div class="faq-item">
+                    <h3 class="faq-question" data-i18n="sections.faq.q4.question">How do I enable the visualizer?</h3>
+                    <p class="faq-answer" data-i18n="sections.faq.q4.answer">
+                        During playback, tap the visualizer button in the player interface. You can customize
+                        the visualizer presets in the settings menu.
+                    </p>
+                </div>
+
+                <div class="faq-item">
+                    <h3 class="faq-question" data-i18n="sections.faq.q5.question">Where can I find music files to play?</h3>
+                    <p class="faq-answer" data-i18n="sections.faq.q5.answer">
+                        There are many online archives with legal module files, including Modland, The Mod Archive,
+                        and various game music archives. Modizer can browse these directly from the app.
+                    </p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 Modizer. <span data-i18n="footer.rights">All rights reserved.</span></p>
+            <p>
+                <a href="https://github.com/yoyofr/modizer" target="_blank" data-i18n="footer.github">GitHub</a> |
+                <a href="#" data-i18n="footer.contact">Contact</a>
+            </p>
+        </div>
+    </footer>
+
+    <script src="js/i18n.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

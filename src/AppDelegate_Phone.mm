@@ -258,11 +258,18 @@ pthread_mutex_t gl_mutex;
 
 
 - (void)applicationWillTerminate:(UIApplication *)application {
+    MDZILog("applicationWillTerminate");
     UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
     // Remove all delivered notifications
     [center removeAllDeliveredNotifications];
     // Remove all pending notifications
     [center removeAllPendingNotificationRequests];
+    
+    NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
+    NSNumber *valNb;
+    valNb=[[NSNumber alloc] initWithInt:0];
+    [prefs setObject:valNb forKey:@"ModizerRunningForeGround"];
+    [prefs synchronize];
 }
 
 - (void)applicationWillEnterForeground:(UIApplication *)application {

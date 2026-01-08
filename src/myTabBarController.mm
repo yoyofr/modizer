@@ -6,6 +6,7 @@
 //  Copyright 2010 __YoyoFR / Yohann Magnien__. All rights reserved.
 //
 
+#define DEBUG_SHOW_WELCOME 1
 
 #import "myTabBarController.h"
 #import "TTFadeAnimator.h"
@@ -267,10 +268,11 @@ extern NSMutableArray *mac_key_pressed,*mac_key_released;
     [welcomePage3 loadViewIfNeeded];
     [welcomePage4 loadViewIfNeeded];
     
+    float HEADER_FONT_SIZE=20;
     //Page 1
     welcomePage1.topLabel.text=NSLocalizedString(
 @"Welcome to Modizer!\n",@"");
-    welcomePage1.topLabel.font = [UIFont fontWithName:@"Orbitron-Regular" size:24];
+    welcomePage1.topLabel.font = [UIFont fontWithName:@"Orbitron-Regular" size:HEADER_FONT_SIZE];
     welcomePage1.imageView1.image = [UIImage imageNamed:@"welcome_localBrowser.png"];
     welcomePage1.leftBtn.hidden=true;
     welcomePage1.rightBtn.hidden=false;
@@ -279,11 +281,11 @@ extern NSMutableArray *mac_key_pressed,*mac_key_released;
     welcomePage1.messageLabel.text=NSLocalizedString(@""
 "Your gateway to retro and tracker music.\n"
 "Power up your device with legendary game tunes, iconic tracker modules, and timeless chiptune classics.",@"");
-    welcomePage1.messageLabel.font = [UIFont fontWithName:@"Montserrat-Regular" size:16];
+    welcomePage1.messageLabel.font = [UIFont fontWithName:@"Montserrat-Regular" size:15];
     
     //Page 2
-    welcomePage2.topLabel.text=NSLocalizedString(@"Level up your library",@"");
-    welcomePage2.topLabel.font = [UIFont fontWithName:@"Orbitron-Regular" size:24];
+    welcomePage2.topLabel.text=NSLocalizedString(@"Level up your library.",@"");
+    welcomePage2.topLabel.font = [UIFont fontWithName:@"Orbitron-Regular" size:HEADER_FONT_SIZE];
     welcomePage2.imageView1.image = [UIImage imageNamed:@"welcome_online.png"];
     welcomePage2.imageView2.image = [UIImage imageNamed:@"welcome_playlist.png"];
     welcomePage2.leftBtn.hidden=false;
@@ -293,11 +295,11 @@ extern NSMutableArray *mac_key_pressed,*mac_key_released;
     [welcomePage2.exitBtn setTitle:NSLocalizedString(@"Skip",@"") forState:UIControlStateNormal];
     welcomePage2.messageLabel.text=NSLocalizedString(@""
 "Browse and stream from online catalogs, to complete your own collections.\nBuild, edit, and listen to playlists effortlessly.",@"");
-    welcomePage2.messageLabel.font = [UIFont fontWithName:@"Montserrat-Regular" size:16];
+    welcomePage2.messageLabel.font = [UIFont fontWithName:@"Montserrat-Regular" size:15];
     
     //Page 3
     welcomePage3.topLabel.text=NSLocalizedString(@"Sound meets visuals.",@"");
-    welcomePage3.topLabel.font = [UIFont fontWithName:@"Orbitron-Regular" size:24];
+    welcomePage3.topLabel.font = [UIFont fontWithName:@"Orbitron-Regular" size:HEADER_FONT_SIZE];
     welcomePage3.imageView1.image = [UIImage imageNamed:@"welcome_playerView1.png"];
     welcomePage3.imageView2.image = [UIImage imageNamed:@"welcome_playerView2.png"];
     welcomePage3.imageView3.image = [UIImage imageNamed:@"welcome_playerView3.png"];
@@ -309,11 +311,11 @@ extern NSMutableArray *mac_key_pressed,*mac_key_released;
     [welcomePage3.exitBtn setTitle:NSLocalizedString(@"Skip",@"") forState:UIControlStateNormal];
     welcomePage3.messageLabel.text=NSLocalizedString(@""
 "Unlock classic oscilloscope looks, spectrum bars, piano rolls, trackers view and ProjectM/Milkdrop FX. Let Modizer paint each track with motion and color.",@"");
-    welcomePage3.messageLabel.font = [UIFont fontWithName:@"Montserrat-Regular" size:16];
+    welcomePage3.messageLabel.font = [UIFont fontWithName:@"Montserrat-Regular" size:15];
     
     //Page 4
     welcomePage4.topLabel.text=NSLocalizedString(@"Made with passion,\noffered for free.",@"");
-    welcomePage4.topLabel.font = [UIFont fontWithName:@"Orbitron-Regular" size:24];
+    welcomePage4.topLabel.font = [UIFont fontWithName:@"Orbitron-Regular" size:HEADER_FONT_SIZE];
     welcomePage4.imageView1.image = [UIImage imageNamed:@"welcome_more.png"];
     welcomePage4.leftBtn.hidden=false;
     welcomePage4.rightBtn.hidden=true;
@@ -321,7 +323,7 @@ extern NSMutableArray *mac_key_pressed,*mac_key_released;
     [welcomePage4.exitBtn setTitle:NSLocalizedString(@"Close",@"") forState:UIControlStateNormal];
     welcomePage4.messageLabel.text=NSLocalizedString(@""
 "If you enjoy the app, tips are a great way to support its ongoing development.\nThank you for helping keep Modizer alive and evolving.",@"");
-    welcomePage4.messageLabel.font = [UIFont fontWithName:@"Montserrat-Regular" size:16];
+    welcomePage4.messageLabel.font = [UIFont fontWithName:@"Montserrat-Regular" size:15];
     
     [welcomePage1.exitBtn addTarget:self action:@selector(exitWelcomePages) forControlEvents:UIControlEventTouchUpInside];
     [welcomePage2.exitBtn addTarget:self action:@selector(exitWelcomePages) forControlEvents:UIControlEventTouchUpInside];
@@ -580,7 +582,7 @@ extern NSMutableArray *mac_key_pressed,*mac_key_released;
 #endif
 
 - (void)presentWelcomePages {
-    if (settings[GLOB_ShowWelcome].detail.mdz_boolswitch.switch_value==0) {
+    if (!DEBUG_SHOW_WELCOME && (settings[GLOB_ShowWelcome].detail.mdz_boolswitch.switch_value==0)) {
         return;
     }
     

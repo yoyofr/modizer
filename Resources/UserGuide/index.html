@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modizer - User Guide</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Language Selector -->
+    <div class="language-selector">
+        <button class="lang-btn active" data-lang="en">EN</button>
+        <button class="lang-btn" data-lang="fr">FR</button>
+    </div>
+
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <h1 class="logo">Modizer</h1>
+            <p class="tagline" data-i18n="tagline">The Ultimate Chiptune & Module Player</p>
+        </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="main-nav">
+        <div class="container">
+            <ul class="nav-list">
+                <li><a href="#getting-started" class="nav-link active" data-i18n="nav.getting-started">Getting Started</a></li>
+                <li><a href="#player" class="nav-link" data-i18n="nav.player">Player</a></li>
+                <li><a href="#browser" class="nav-link" data-i18n="nav.browser">File Browser</a></li>
+                <li><a href="#playlists" class="nav-link" data-i18n="nav.playlists">Playlists</a></li>
+                <li><a href="#online" class="nav-link" data-i18n="nav.online">Online</a></li>
+                <li><a href="#visualizers" class="nav-link" data-i18n="nav.visualizers">Visualizers</a></li>
+                <li><a href="#settings" class="nav-link" data-i18n="nav.settings">Settings</a></li>
+                <li><a href="#formats" class="nav-link" data-i18n="nav.formats">Formats</a></li>
+                <li><a href="#faq" class="nav-link" data-i18n="nav.faq">FAQ</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container">
+
+        <!-- ==================== GETTING STARTED ==================== -->
+        <section id="getting-started" class="content-section active">
+            <h2 data-i18n="sections.getting-started.title">Getting Started</h2>
+
+            <div class="card">
+                <h3 data-i18n="sections.getting-started.welcome.title">Welcome to Modizer!</h3>
+                <p data-i18n="sections.getting-started.welcome.text">
+                    Modizer is a powerful music player for iOS that specializes in playing classic module files,
+                    chiptunes, and various retro gaming music formats. Whether you're a fan of Amiga MOD files,
+                    SID music from Commodore 64, or arcade game soundtracks, Modizer has you covered.
+                </p>
+            </div>
+
+            <div class="card">
+                <h3 data-i18n="sections.getting-started.interface.title">Main Interface</h3>
+                <p data-i18n="sections.getting-started.interface.text">
+                    Modizer uses a tab bar navigation with 5 main sections:
+                </p>
+
+                <div class="screenshot-placeholder" data-screenshot="browser-main-view.png">
+                    <div class="placeholder-icon">📸</div>
+                    <p class="placeholder-text">Screenshot: Main interface with tab bar</p>
+                </div>
+
+                <ul class="feature-list">
+                    <li><strong data-i18n="sections.getting-started.interface.tab1">Local Files</strong> - <span data-i18n="sections.getting-started.interface.tab1-desc">Browse your music library</span></li>
+                    <li><strong data-i18n="sections.getting-started.interface.tab2">Playlists</strong> - <span data-i18n="sections.getting-started.interface.tab2-desc">Manage your playlists</span></li>
+                    <li><strong data-i18n="sections.getting-started.interface.tab3">Online</strong> - <span data-i18n="sections.getting-started.interface.tab3-desc">Download from music archives</span></li>
+                    <li><strong data-i18n="sections.getting-started.interface.tab4">Search</strong> - <span data-i18n="sections.getting-started.interface.tab4-desc">Search across all sources</span></li>
+                    <li><strong data-i18n="sections.getting-started.interface.tab5">More</strong> - <span data-i18n="sections.getting-started.interface.tab5-desc">Settings and additional features</span></li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h3 data-i18n="sections.getting-started.first-steps.title">First Steps</h3>
+                <ol class="steps-list">
+                    <li>
+                        <strong data-i18n="sections.getting-started.first-steps.step1.title">Import Your Music</strong>
+                        <p data-i18n="sections.getting-started.first-steps.step1.text">
+                            Use iTunes File Sharing, iCloud Drive, or download directly from online archives. You can also use the built-in FTP server.
+                        </p>
+                    </li>
+                    <li>
+                        <strong data-i18n="sections.getting-started.first-steps.step2.title">Browse Your Collection</strong>
+                        <p data-i18n="sections.getting-started.first-steps.step2.text">
+                            Navigate through your music library using the Local Files tab or search function.
+                        </p>
+                    </li>
+                    <li>
+                        <strong data-i18n="sections.getting-started.first-steps.step3.title">Start Playing</strong>
+                        <p data-i18n="sections.getting-started.first-steps.step3.text">
+                            Tap any file to start playback. The player screen shows full track information and controls.
+                        </p>
+                    </li>
+                </ol>
+            </div>
+        </section>
+
+        <!-- ==================== PLAYER SCREEN ==================== -->
+        <section id="player" class="content-section">
+            <h2 data-i18n="sections.player.title">Player Screen</h2>
+
+            <div class="card">
+                <h3 data-i18n="sections.player.overview.title">Overview</h3>
+                <p data-i18n="sections.player.overview.text">
+                    The Player Screen is the heart of Modizer. It displays track information, playback controls, and provides access to advanced features like visualizers, equalizer, and voice control.
+                </p>
+
+                <div class="screenshot-grid">
+                    <div class="screenshot-placeholder" data-screenshot="player-main-view-portrait.png">
+                        <div class="placeholder-icon">📸</div>
+                        <p class="placeholder-text">Player - Portrait View</p>
+                    </div>
+                    <div class="screenshot-placeholder" data-screenshot="player-main-view-landscape.png">
+                        <div class="placeholder-icon">📸</div>
+                        <p class="placeholder-text">Player - Landscape View</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3 data-i18n="sections.player.controls.title">Playback Controls</h3>
+
+                <div class="screenshot-placeholder" data-screenshot="player-playback-controls.png">
+                    <div class="placeholder-icon">📸</div>
+                    <p class="placeholder-text">Playback controls detail</p>
+                </div>
+
+                <h4 data-i18n="sections.player.controls.basic-title">Basic Controls</h4>
+                <ul class="feature-list">
+                    <li><strong data-i18n="sections.player.controls.play">Play/Pause</strong> - <span data-i18n="sections.player.controls.play-desc">Start or pause playback</span></li>
+                    <li><strong data-i18n="sections.player.controls.prev">Previous</strong> - <span data-i18n="sections.player.controls.prev-desc">Go to previous track</span></li>
+                    <li><strong data-i18n="sections.player.controls.next">Next</strong> - <span data-i18n="sections.player.controls.next-desc">Go to next track</span></li>
+                    <li><strong data-i18n="sections.player.controls.seek">Seek Bar</strong> - <span data-i18n="sections.player.controls.seek-desc">Drag to navigate within the track</span></li>
+                    <li><strong data-i18n="sections.player.controls.time">Time Display</strong> - <span data-i18n="sections.player.controls.time-desc">Tap to toggle between elapsed/remaining time</span></li>
+                </ul>
+
+                <h4 data-i18n="sections.player.controls.advanced-title">Advanced Controls</h4>
+                <ul class="feature-list">
+                    <li><strong data-i18n="sections.player.controls.subsong">Previous/Next Subsong</strong> - <span data-i18n="sections.player.controls.subsong-desc">Navigate subsongs in multi-song files (SID, NSF, etc.)</span></li>
+                    <li><strong data-i18n="sections.player.controls.archive">Archive Navigation</strong> - <span data-i18n="sections.player.controls.archive-desc">Long press to navigate archive entries</span></li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h3 data-i18n="sections.player.info.title">Track Information</h3>
+
+                <div class="screenshot-placeholder" data-screenshot="player-track-info.png">
+                    <div class="placeholder-icon">📸</div>
+                    <p class="placeholder-text">Track information display</p>
+                </div>
+
+                <p data-i18n="sections.player.info.text">
+                    The player displays comprehensive track information:
+                </p>
+                <ul class="feature-list">
+                    <li data-i18n="sections.player.info.item1">Album cover artwork (if available)</li>
+                    <li data-i18n="sections.player.info.item2">Track title with auto-scrolling for long names</li>
+                    <li data-i18n="sections.player.info.item3">Artist/Composer name</li>
+                    <li data-i18n="sections.player.info.item4">Subtitle/Album information</li>
+                    <li data-i18n="sections.player.info.item5">Module type and file size</li>
+                    <li data-i18n="sections.player.info.item6">Number of channels</li>
+                    <li data-i18n="sections.player.info.item7">Playlist position</li>
+                    <li data-i18n="sections.player.info.item8">Song length and current time</li>
+                </ul>
+
+                <div class="tip-box">
+                    <strong data-i18n="sections.player.info.tip-title">Tip:</strong>
+                    <span data-i18n="sections.player.info.tip-text">Tap the Info button to see detailed metadata including file format, sample rate, and technical information.</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3 data-i18n="sections.player.modes.title">Playback Modes</h3>
+
+                <div class="screenshot-grid">
+                    <div class="screenshot-placeholder" data-screenshot="player-loop-modes.png">
+                        <div class="placeholder-icon">📸</div>
+                        <p class="placeholder-text">Loop modes</p>
+                    </div>
+                    <div class="screenshot-placeholder" data-screenshot="player-shuffle-modes.png">
+                        <div class="placeholder-icon">📸</div>
+                        <p class="placeholder-text">Shuffle modes</p>
+                    </div>
+                </div>
+
+                <h4 data-i18n="sections.player.modes.loop-title">Loop Modes</h4>
+                <ul class="feature-list">
+                    <li><strong data-i18n="sections.player.modes.loop-off">Loop Off</strong> - <span data-i18n="sections.player.modes.loop-off-desc">Play through the list once</span></li>
+                    <li><strong data-i18n="sections.player.modes.loop-one">Loop One</strong> - <span data-i18n="sections.player.modes.loop-one-desc">Repeat current track</span></li>
+                    <li><strong data-i18n="sections.player.modes.loop-all">Loop All</strong> - <span data-i18n="sections.player.modes.loop-all-desc">Repeat entire playlist</span></li>
+                    <li><strong data-i18n="sections.player.modes.loop-inf">Infinite Loop</strong> - <span data-i18n="sections.player.modes.loop-inf-desc">Loop forever without fadeout</span></li>
+                </ul>
+
+                <h4 data-i18n="sections.player.modes.shuffle-title">Shuffle Modes</h4>
+                <ul class="feature-list">
+                    <li><strong data-i18n="sections.player.modes.shuffle-off">Shuffle Off</strong> - <span data-i18n="sections.player.modes.shuffle-off-desc">Play in order</span></li>
+                    <li><strong data-i18n="sections.player.modes.shuffle-on">Shuffle On</strong> - <span data-i18n="sections.player.modes.shuffle-on-desc">Random playback order</span></li>
+                    <li><strong data-i18n="sections.player.modes.shuffle-one">Shuffle One</strong> - <span data-i18n="sections.player.modes.shuffle-one-desc">Pick one random track</span></li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h3 data-i18n="sections.player.features.title">Advanced Features</h3>
+
+                <h4 data-i18n="sections.player.features.rating-title">Rating System</h4>
+                <div class="screenshot-placeholder" data-screenshot="player-rating.png">
+                    <div class="placeholder-icon">📸</div>
+                    <p class="placeholder-text">5-star rating system</p>
+                </div>
+                <p data-i18n="sections.player.features.rating-text">
+                    Rate your tracks from 1 to 5 stars. Use ratings to create smart playlists and find your favorites quickly.
+                </p>
+
+                <h4 data-i18n="sections.player.features.selectors-title">Selectors</h4>
+                <div class="screenshot-grid">
+                    <div class="screenshot-placeholder" data-screenshot="player-subsong-selector.png">
+                        <div class="placeholder-icon">📸</div>
+                        <p class="placeholder-text">Subsong selector</p>
+                    </div>
+                    <div class="screenshot-placeholder" data-screenshot="player-archive-selector.png">
+                        <div class="placeholder-icon">📸</div>
+                        <p class="placeholder-text">Archive selector</p>
+                    </div>
+                </div>
+                <ul class="feature-list">
+                    <li><strong data-i18n="sections.player.features.subsong">Subsong Selector</strong> - <span data-i18n="sections.player.features.subsong-desc">For files with multiple tracks (SID, NSF, SNDH, etc.)</span></li>
+                    <li><strong data-i18n="sections.player.features.archive">Archive Selector</strong> - <span data-i18n="sections.player.features.archive-desc">Navigate files within archives without extracting</span></li>
+                    <li><strong data-i18n="sections.player.features.voices">Voice/Channel Selector</strong> - <span data-i18n="sections.player.features.voices-desc">Mute/solo individual channels (see Voices section)</span></li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h3 data-i18n="sections.player.mini.title">Mini Player</h3>
+
+                <div class="screenshot-placeholder" data-screenshot="player-mini-player.png">
+                    <div class="placeholder-icon">📸</div>
+                    <p class="placeholder-text">Mini player overlay</p>
+                </div>
+
+                <p data-i18n="sections.player.mini.text">
+                    The mini player appears at the bottom when you navigate away from the main player. It shows:
+                </p>
+                <ul class="feature-list">
+                    <li data-i18n="sections.player.mini.item1">Album cover thumbnail</li>
+                    <li data-i18n="sections.player.mini.item2">Track title and artist (auto-scrolling)</li>
+                    <li data-i18n="sections.player.mini.item3">Play/Pause button</li>
+                    <li data-i18n="sections.player.mini.item4">Time display</li>
+                    <li data-i18n="sections.player.mini.item5">Tap to return to full player</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- ==================== FILE BROWSER ==================== -->
+        <section id="browser" class="content-section">
+            <h2 data-i18n="sections.browser.title">File Browser</h2>
+
+            <div class="card">
+                <h3 data-i18n="sections.browser.overview.title">Overview</h3>
+
+                <div class="screenshot-placeholder" data-screenshot="browser-main-view.png">
+                    <div class="placeholder-icon">📸</div>
+                    <p class="placeholder-text">File browser main view</p>
+                </div>
+
+                <p data-i18n="sections.browser.overview.text">
+                    The File Browser lets you navigate your local music collection. It displays files and folders with metadata, icons, and quick actions.
+                </p>
+            </div>
+
+            <div class="card">
+                <h3 data-i18n="sections.browser.navigation.title">Navigation</h3>
+
+                <div class="screenshot-placeholder" data-screenshot="browser-folder-navigation.png">
+                    <div class="placeholder-icon">📸</div>
+                    <p class="placeholder-text">Folder navigation with breadcrumb</p>
+                </div>
+
+                <ul class="feature-list">
+                    <li><strong data-i18n="sections.browser.navigation.tap">Tap folder</strong> - <span data-i18n="sections.browser.navigation.tap-desc">Enter folder</span></li>
+                    <li><strong data-i18n="sections.browser.navigation.back">Back button</strong> - <span data-i18n="sections.browser.navigation.back-desc">Return to parent folder</span></li>
+                    <li><strong data-i18n="sections.browser.navigation.breadcrumb">Breadcrumb path</strong> - <span data-i18n="sections.browser.navigation.breadcrumb-desc">Shows current location</span></li>
+                    <li><strong data-i18n="sections.browser.navigation.tap-file">Tap file</strong> - <span data-i18n="sections.browser.navigation.tap-file-desc">Start playback</span></li>
+                    <li><strong data-i18n="sections.browser.navigation.long-press">Long press</strong> - <span data-i18n="sections.browser.navigation.long-press-desc">Show context menu with actions</span></li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h3 data-i18n="sections.browser.search.title">Search</h3>
+
+                <div class="screenshot-placeholder" data-screenshot="browser-search-bar.png">
+                    <div class="placeholder-icon">📸</div>
+                    <p class="placeholder-text">Search bar filtering files</p>
+                </div>
+
+                <p data-i18n="sections.browser.search.text">
+                    Use the search bar at the top to filter files in the current folder. The search is instant and case-insensitive.
+                </p>
+            </div>
+
+            <div class="card">
+                <h3 data-i18n="sections.browser.metadata.title">File Metadata</h3>
+
+                <div class="screenshot-placeholder" data-screenshot="browser-file-details.png">
+                    <div class="placeholder-icon">📸</div>
+                    <p class="placeholder-text">File details display</p>
+                </div>
+
+                <p data-i18n="sections.browser.metadata.text">
+                    Each file shows useful information:
+                </p>
+                <ul class="feature-list">
+                    <li data-i18n="sections.browser.metadata.item1">File type icon</li>
+                    <li data-i18n="sections.browser.metadata.item2">Filename</li>
+                    <li data-i18n="sections.browser.metadata.item3">File size</li>
+                    <li data-i18n="sections.browser.metadata.item4">Song length</li>
+                    <li data-i18n="sections.browser.metadata.item5">Number of subsongs</li>
+                    <li data-i18n="sections.browser.metadata.item6">Number of channels</li>
+                    <li data-i18n="sections.browser.metadata.item7">Rating stars</li>
+                    <li data-i18n="sections.browser.metadata.item8">Play count</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h3 data-i18n="sections.browser.actions.title">File Actions</h3>
+
+                <div class="screenshot-placeholder" data-screenshot="browser-context-menu.png">
+                    <div class="placeholder-icon">📸</div>
+                    <p class="placeholder-text">Context menu with actions</p>
+                </div>
+
+                <p data-i18n="sections.browser.actions.text">
+                    Long press on any file or folder to access these actions:
+                </p>
+
+                <h4 data-i18n="sections.browser.actions.playback-title">Playback</h4>
+                <ul class="feature-list">
+                    <li data-i18n="sections.browser.actions.play">Play file</li>
+                    <li data-i18n="sections.browser.actions.play-all">Play all files in folder</li>
+                    <li data-i18n="sections.browser.actions.enqueue">Add to play queue</li>
+                </ul>
+
+                <h4 data-i18n="sections.browser.actions.organize-title">Organization</h4>
+                <ul class="feature-list">
+                    <li data-i18n="sections.browser.actions.playlist">Add to playlist</li>
+                    <li data-i18n="sections.browser.actions.favorite">Add to favorites</li>
+                    <li data-i18n="sections.browser.actions.rating">Set rating</li>
+                </ul>
+
+                <h4 data-i18n="sections.browser.actions.manage-title">File Management</h4>
+                <ul class="feature-list">
+                    <li data-i18n="sections.browser.actions.create">Create new folder</li>
+                    <li data-i18n="sections.browser.actions.rename">Rename file/folder</li>
+                    <li data-i18n="sections.browser.actions.cut">Cut</li>
+                    <li data-i18n="sections.browser.actions.paste">Paste</li>
+                    <li data-i18n="sections.browser.actions.delete">Delete</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h3 data-i18n="sections.browser.archives.title">Archive Support</h3>
+
+                <div class="screenshot-placeholder" data-screenshot="browser-archive-contents.png">
+                    <div class="placeholder-icon">📸</div>
+                    <p class="placeholder-text">Browse inside archive</p>
+                </div>
+
+                <p data-i18n="sections.browser.archives.text">
+                    Modizer can browse and play files directly from archives without extraction:
+                </p>
+                <ul class="feature-list">
+                    <li data-i18n="sections.browser.archives.supported">Supported formats: ZIP, 7Z, RAR, LHA, RSN</li>
+                    <li data-i18n="sections.browser.archives.tap">Tap archive to browse contents</li>
+                    <li data-i18n="sections.browser.archives.play">Play files directly from archive</li>
+                    <li data-i18n="sections.browser.archives.extract">Extract option available in context menu</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h3 data-i18n="sections.browser.icloud.title">iCloud Integration</h3>
+
+                <div class="screenshot-placeholder" data-screenshot="browser-icloud-folder.png">
+                    <div class="placeholder-icon">📸</div>
+                    <p class="placeholder-text">iCloud folder access</p>
+                </div>
+
+                <p data-i18n="sections.browser.icloud.text">
+                    Access your iCloud Drive folder directly from Modizer. Files stored in iCloud will automatically sync across your devices.
+                </p>
+            </div>
+        </section>
+
+        <!-- ==================== PLAYLISTS ==================== -->
+        <section id="playlists" class="content-section">
+            <h2 data-i18n="sections.playlists.title">Playlists</h2>
+
+            <div class="card">
+                <h3 data-i18n="sections.playlists.overview.title">Overview</h3>
+
+                <div class="screenshot-placeholder" data-screenshot="playlist-main-view.png">
+                    <div class="placeholder-icon">📸</div>
+                    <p class="placeholder-text">Playlists main view</p>
+                </div>
+
+                <p data-i18n="sections.playlists.overview.text">
+                    Organize your music with playlists. Modizer includes smart playlists and lets you create custom ones.
+                </p>
+            </div>
+
+            <div class="card">
+                <h3 data-i18n="sections.playlists.smart.title">Smart Playlists</h3>
+
+                <div class="screenshot-placeholder" data-screenshot="playlist-smart-playlists.png">
+                    <div class="placeholder-icon">📸</div>
+                    <p class="placeholder-text">Built-in smart playlists</p>
+                </div>
+
+                <p data-i18n="sections.playlists.smart.text">
+                    Modizer includes 4 built-in smart playlists:
+                </p>
+
+                <div class="screenshot-grid">
+                    <div class="screenshot-placeholder" data-screenshot="playlist-now-playing.png">
+                        <div class="placeholder-icon">📸</div>
+                        <p class="placeholder-text">Now Playing</p>
+                    </div>
+                    <div class="screenshot-placeholder" data-screenshot="playlist-favorites.png">
+                        <div class="placeholder-icon">📸</div>
+                        <p class="placeholder-text">Favorites</p>
+                    </div>
+                </div>
+
+                <ul class="feature-list">
+                    <li><strong data-i18n="sections.playlists.smart.now-playing">Now Playing</strong> - <span data-i18n="sections.playlists.smart.now-playing-desc">Current play queue</span></li>
+                    <li><strong data-i18n="sections.playlists.smart.favorites">Favorites</strong> - <span data-i18n="sections.playlists.smart.favorites-desc">All tracks marked as favorites</span></li>
+                    <li><strong data-i18n="sections.playlists.smart.most-played">Most Played</strong> - <span data-i18n="sections.playlists.smart.most-played-desc">Tracks with highest play counts</span></li>
+                    <li><strong data-i18n="sections.playlists.smart.random">Random</strong> - <span data-i18n="sections.playlists.smart.random-desc">Randomly selected tracks</span></li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h3 data-i18n="sections.playlists.custom.title">Custom Playlists</h3>
+
+                <div class="screenshot-placeholder" data-screenshot="playlist-create-new.png">
+                    <div class="placeholder-icon">📸</div>
+                    <p class="placeholder-text">Create new playlist</p>
+                </div>
+
+                <h4 data-i18n="sections.playlists.custom.create-title">Creating Playlists</h4>
+                <ol class="steps-list-simple">
+                    <li data-i18n="sections.playlists.custom.create-step1">Tap the "+" button</li>
+                    <li data-i18n="sections.playlists.custom.create-step2">Enter a playlist name</li>
+                    <li data-i18n="sections.playlists.custom.create-step3">Add songs from browser or search</li>
+                </ol>
+
+                <h4 data-i18n="sections.playlists.custom.add-title">Adding Songs</h4>
+                <div class="screenshot-placeholder" data-screenshot="playlist-add-song.png">
+                    <div class="placeholder-icon">📸</div>
+                    <p class="placeholder-text">Adding songs to playlist</p>
+                </div>
+                <ul class="feature-list">
+                    <li data-i18n="sections.playlists.custom.add-browser">From browser: Long press file → "Add to Playlist"</li>
+                    <li data-i18n="sections.playlists.custom.add-player">From player: Tap "Add to Playlist" button</li>
+                    <li data-i18n="sections.playlists.custom.add-drag">Drag and drop (edit mode)</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h3 data-i18n="sections.playlists.manage.title">Managing Playlists</h3>
+
+                <div class="screenshot-grid">
+                    <div class="screenshot-placeholder" data-screenshot="playlist-edit-mode.png">
+                        <div class="placeholder-icon">📸</div>
+                        <p class="placeholder-text">Edit mode</p>
+                    </div>
+                    <div class="screenshot-placeholder" data-screenshot="playlist-reorder.png">
+                        <div class="placeholder-icon">📸</div>
+                        <p class="placeholder-text">Reordering tracks</p>
+                    </div>
+                </div>
+
+                <ul class="feature-list">
+                    <li><strong data-i18n="sections.playlists.manage.rename">Rename</strong> - <span data-i18n="sections.playlists.manage.rename-desc">Long press playlist → Rename</span></li>
+                    <li><strong data-i18n="sections.playlists.manage.delete">Delete</strong> - <span data-i18n="sections.playlists.manage.delete-desc">Swipe left on playlist</span></li>
+                    <li><strong data-i18n="sections.playlists.manage.reorder">Reorder tracks</strong> - <span data-i18n="sections.playlists.manage.reorder-desc">Edit mode → drag handles</span></li>
+                    <li><strong data-i18n="sections.playlists.manage.remove">Remove tracks</strong> - <span data-i18n="sections.playlists.manage.remove-desc">Swipe left on track</span></li>
+                    <li><strong data-i18n="sections.playlists.manage.clear">Clear playlist</strong> - <span data-i18n="sections.playlists.manage.clear-desc">Remove all tracks at once</span></li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h3 data-i18n="sections.playlists.search.title">Search in Playlists</h3>
+
+                <div class="screenshot-placeholder" data-screenshot="playlist-search.png">
+                    <div class="placeholder-icon">📸</div>
+                    <p class="placeholder-text">Playlist search</p>
+                </div>
+
+                <p data-i18n="sections.playlists.search.text">
+                    Use the search bar to quickly find tracks within a playlist. Search works on track name, artist, and filename.
+                </p>
+            </div>
+        </section>
+
+        <!-- ==================== ONLINE COLLECTIONS ==================== -->
+        <section id="online" class="content-section">
+            <h2 data-i18n="sections.online.title">Online Collections</h2>
+
+            <div class="card">
+                <h3 data-i18n="sections.online.overview.title">Overview</h3>
+
+                <div class="screenshot-placeholder" data-screenshot="online-main-list.png">
+                    <div class="placeholder-icon">📸</div>
+                    <p class="placeholder-text">Online collections list</p>
+                </div>
+
+                <p data-i18n="sections.online.overview.text">
+                    Access massive online music archives directly from Modizer. Download tracks to your library or stream previews.
+                </p>
+            </div>
+
+            <div class="card">
+                <h3 data-i18n="sections.online.collections.title">Available Collections</h3>
+
+                <h4>MODLAND</h4>
+                <div class="screenshot-placeholder" data-screenshot="online-modland-browse.png">
+                    <div class="placeholder-icon">📸</div>
+                    <p class="placeholder-text">MODLAND browser</p>
+                </div>
+                <p data-i18n="sections.online.collections.modland-text">
+                    The largest collection of module files (MOD, XM, S3M, IT, etc.) with over 1 million tracks.
+                </p>
+                <ul class="feature-list">
+                    <li data-i18n="sections.online.collections.modland-by-type">Browse by File Type</li>
+                    <li data-i18n="sections.online.collections.modland-by-author">Browse by Author</li>
+                    <li data-i18n="sections.online.collections.modland-by-album">Browse by Album</li>
+                    <li data-i18n="sections.online.collections.modland-by-name">Browse by Filename</li>
+                </ul>
+
+                <h4>HVSC (High Voltage SID Collection)</h4>
+                <div class="screenshot-placeholder" data-screenshot="online-hvsc-browse.png">
+                    <div class="placeholder-icon">📸</div>
+                    <p class="placeholder-text">HVSC browser</p>
+                </div>
+                <p data-i18n="sections.online.collections.hvsc-text">
+                    Complete collection of Commodore 64 SID music files.
+                </p>
+
+                <h4>ASMA (Atari SAP Music Archive)</h4>
+                <p data-i18n="sections.online.collections.asma-text">
+                    Atari 8-bit computer music archive.
+                </p>
+
+                <h4>CGSC (Console Game Sound Collection)</h4>
+                <p data-i18n="sections.online.collections.cgsc-text">
+                    Video game music from various consoles.
+                </p>
+
+                <h4 data-i18n="sections.online.collections.more-title">Additional Sources</h4>
+                <ul class="feature-list">
+                    <li>JoshW</li>
+                    <li>VGMR</li>
+                    <li>AMP</li>
+                    <li>SNESM</li>
+                    <li>SMSP</li>
+                    <li>ZXArt</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h3 data-i18n="sections.online.download.title">Downloading Files</h3>
+
+                <div class="screenshot-grid">
+                    <div class="screenshot-placeholder" data-screenshot="online-file-download.png">
+                        <div class="placeholder-icon">📸</div>
+                        <p class="placeholder-text">Download file</p>
+                    </div>
+                    <div class="screenshot-placeholder" data-screenshot="online-download-queue.png">
+                        <div class="placeholder-icon">📸</div>
+                        <p class="placeholder-text">Download queue</p>
+                    </div>
+                </div>
+
+                <ol class="steps-list-simple">
+                    <li data-i18n="sections.online.download.step1">Browse to desired file</li>
+                    <li data-i18n="sections.online.download.step2">Tap the download button</li>
+                    <li data-i18n="sections.online.download.step3">File is added to download queue</li>
+                    <li data-i18n="sections.online.download.step4">Downloaded files appear in Local Files</li>
+                </ol>
+
+                <div class="tip-box">
+                    <strong data-i18n="sections.online.download.tip-title">Tip:</strong>
+                    <span data-i18n="sections.online.download.tip-text">Downloaded files are marked with a special icon. You can download entire folders at once.</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3 data-i18n="sections.online.search.title">Searching Online</h3>
+
+                <div class="screenshot-placeholder" data-screenshot="online-search-results.png">
+                    <div class="placeholder-icon">📸</div>
+                    <p class="placeholder-text">Online search results</p>
+                </div>
+
+                <p data-i18n="sections.online.search.text">
+                    Use the Search tab to search across all online collections simultaneously. Results are grouped by source.
+                </p>
+            </div>
+        </section>
+
+        <!-- ==================== VISUALIZERS ==================== -->
+        <section id="visualizers" class="content-section">
+            <h2 data-i18n="sections.visualizers.title">Visualizers</h2>
+
+            <div class="card">
+                <h3 data-i18n="sections.visualizers.overview.title">Overview</h3>
+
+                <div class="screenshot-placeholder" data-screenshot="viz-projectm-fullscreen.png">
+                    <div class="placeholder-icon">📸</div>
+                    <p class="placeholder-text">ProjectM visualizer fullscreen</p>
+                </div>
+
+                <p data-i18n="sections.visualizers.overview.text">
+                    Modizer includes 9 different visualization modes to enhance your listening experience. Each visualizer reacts to the music in real-time.
+                </p>
+
+                <p data-i18n="sections.visualizers.overview.access">
+                    <strong data-i18n="sections.visualizers.overview.access-title">Access:</strong>
+                    <span data-i18n="sections.visualizers.overview.access-text">Tap the visualizer button in the player screen to enable. Tap again to cycle through visualizer types or go fullscreen.</span>
+                </p>
+            </div>
+
+            <div class="card">
+                <h3 data-i18n="sections.visualizers.types.title">Visualizer Types</h3>
+
+                <h4>1. ProjectM</h4>
+                <div class="screenshot-grid-3">
+                    <div class="screenshot-placeholder" data-screenshot="viz-projectm-preset1.png">
+                        <div class="placeholder-icon">📸</div>
+                        <p class="placeholder-text">Preset 1</p>
+                    </div>
+                    <div class="screenshot-placeholder" data-screenshot="viz-projectm-preset2.png">
+                        <div class="placeholder-icon">📸</div>
+                        <p class="placeholder-text">Preset 2</p>
+                    </div>
+                    <div class="screenshot-placeholder" data-screenshot="viz-preset-selector.png">
+                        <div class="placeholder-icon">📸</div>
+                        <p class="placeholder-text">Preset selector</p>
+                    </div>
+                </div>
+                <p data-i18n="sections.visualizers.types.projectm-text">
+                    Advanced music visualizer with hundreds of presets. Swipe left/right to change presets, or tap to lock your favorite.
+                </p>
+
+                <h4>2. 3D Spectrum</h4>
+                <div class="screenshot-placeholder" data-screenshot="viz-3d-spectrum.png">
+                    <div class="placeholder-icon">📸</div>
+                    <p class="placeholder-text">3D Spectrum analyzer</p>
+                </div>
+                <p data-i18n="sections.visualizers.types.spectrum3d-text">
+                    Three-dimensional spectrum analyzer with customizable colors and bloom effects.
+                </p>
+
+                <h4>3. 3D Landscape</h4>
+                <div class="screenshot-placeholder" data-screenshot="viz-3d-landscape.png">
+                    <div class="placeholder-icon">📸</div>
+                    <p class="placeholder-text">3D Landscape visualization</p>
+                </div>
+                <p data-i18n="sections.visualizers.types.landscape-text">
+                    Flowing 3D landscape that morphs with the music.
+                </p>
+
+                <h4>4. Piano 3D</h4>
+                <div class="screenshot-placeholder" data-screenshot="viz-piano-3d.png">
+                    <div class="placeholder-icon">📸</div>
+                    <p class="placeholder-text">3D Piano roll</p>
+                </div>
+                <p data-i18n="sections.visualizers.types.piano3d-text">
+                    3D piano roll visualization, perfect for MIDI and tracked music. Shows notes in real-time.
+                </p>
+
+                <h4>5. 2D Spectrum</h4>
+                <div class="screenshot-placeholder" data-screenshot="viz-2d-spectrum.png">
+                    <div class="placeholder-icon">📸</div>
+                    <p class="placeholder-text">Classic spectrum analyzer</p>
+                </div>
+                <p data-i18n="sections.visualizers.types.spectrum2d-text">
+                    Classic frequency spectrum analyzer. Clean and efficient.
+                </p>
+
+                <h4>6. Piano Roll</h4>
+                <div class="screenshot-placeholder" data-screenshot="viz-piano-roll.png">
+                    <div class="placeholder-icon">📸</div>
+                    <p class="placeholder-text">2D Piano roll</p>
+                </div>
+                <p data-i18n="sections.visualizers.types.pianoroll-text">
+                    2D piano roll with customizable colors per channel. Great for analyzing MIDI files.
+                </p>
+
+                <h4>7. MOD Pattern</h4>
+                <div class="screenshot-placeholder" data-screenshot="viz-mod-pattern.png">
+                    <div class="placeholder-icon">📸</div>
+                    <p class="placeholder-text">Module pattern display</p>
+                </div>
+                <p data-i18n="sections.visualizers.types.modpattern-text">
+                    Displays the pattern data of module files (MOD, XM, S3M, IT). Shows notes, effects, and volumes. Multiple themes and fonts available.
+                </p>
+
+                <h4>8. Oscilloscope</h4>
+                <div class="screenshot-placeholder" data-screenshot="viz-oscilloscope.png">
+                    <div class="placeholder-icon">📸</div>
+                    <p class="placeholder-text">Oscilloscope waveform</p>
+                </div>
+                <p data-i18n="sections.visualizers.types.oscilloscope-text">
+                    Classic oscilloscope showing the audio waveform. Multiple display modes and colors.
+                </p>
+            </div>
+
+            <div class="card">
+                <h3 data-i18n="sections.visualizers.controls.title">Visualizer Controls</h3>
+
+                <ul class="feature-list">
+                    <li><strong data-i18n="sections.visualizers.controls.toggle">Toggle On/Off</strong> - <span data-i18n="sections.visualizers.controls.toggle-desc">Tap visualizer button in player</span></li>
+                    <li><strong data-i18n="sections.visualizers.controls.fullscreen">Fullscreen</strong> - <span data-i18n="sections.visualizers.controls.fullscreen-desc">Double-tap visualizer area</span></li>
+                    <li><strong data-i18n="sections.visualizers.controls.presets">Change Presets</strong> - <span data-i18n="sections.visualizers.controls.presets-desc">Swipe left/right or use preset buttons</span></li>
+                    <li><strong data-i18n="sections.visualizers.controls.lock">Lock Preset</strong> - <span data-i18n="sections.visualizers.controls.lock-desc">Tap lock icon to favorite</span></li>
+                    <li><strong data-i18n="sections.visualizers.controls.settings">Settings</strong> - <span data-i18n="sections.visualizers.controls.settings-desc">Access in More → Settings → Visualizer</span></li>
+                </ul>
+
+                <div class="tip-box">
+                    <strong data-i18n="sections.visualizers.controls.tip-title">Tip:</strong>
+                    <span data-i18n="sections.visualizers.controls.tip-text">Each visualizer type has its own settings. Configure colors, quality, and behavior in the Settings menu.</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== SETTINGS ==================== -->
+        <section id="settings" class="content-section">
+            <h2 data-i18n="sections.settings.title">Settings</h2>
+
+            <div class="card">
+                <h3 data-i18n="sections.settings.overview.title">Overview</h3>
+
+                <div class="screenshot-placeholder" data-screenshot="settings-main-menu.png">
+                    <div class="placeholder-icon">📸</div>
+                    <p class="placeholder-text">Settings main menu</p>
+                </div>
+
+                <p data-i18n="sections.settings.overview.text">
+                    Modizer offers extensive customization options. Access settings from More → Settings.
+                </p>
+            </div>
+
+            <div class="card">
+                <h3 data-i18n="sections.settings.global.title">Global Settings</h3>
+
+                <div class="screenshot-placeholder" data-screenshot="settings-global.png">
+                    <div class="placeholder-icon">📸</div>
+                    <p class="placeholder-text">Global settings</p>
+                </div>
+
+                <h4 data-i18n="sections.settings.global.audio-title">Audio Settings</h4>
+                <ul class="feature-list">
+                    <li><strong data-i18n="sections.settings.global.frequency">Playback Frequency</strong> - <span data-i18n="sections.settings.global.frequency-desc">22050Hz to 48000Hz</span></li>
+                    <li><strong data-i18n="sections.settings.global.latency">Audio Latency</strong> - <span data-i18n="sections.settings.global.latency-desc">Adjust for responsiveness vs stability</span></li>
+                    <li><strong data-i18n="sections.settings.global.fadeout">Fadeout Time</strong> - <span data-i18n="sections.settings.global.fadeout-desc">Duration of track fadeout</span></li>
+                    <li><strong data-i18n="sections.settings.global.silence">Silence Detection</strong> - <span data-i18n="sections.settings.global.silence-desc">Auto-skip after silence</span></li>
+                    <li><strong data-i18n="sections.settings.global.mono">Force Mono</strong> - <span data-i18n="sections.settings.global.mono-desc">Convert stereo to mono</span></li>
+                </ul>
+
+                <h4 data-i18n="sections.settings.global.behavior-title">Behavior</h4>
+                <ul class="feature-list">
+                    <li data-i18n="sections.settings.global.resume">Resume on start</li>
+                    <li data-i18n="sections.settings.global.notifications">Show notifications</li>
+                    <li data-i18n="sections.settings.global.screen-lock">Prevent screen auto-lock during playback</li>
+                    <li data-i18n="sections.settings.global.archives">Archive handling preferences</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h3 data-i18n="sections.settings.players.title">Player Priority</h3>
+
+                <div class="screenshot-placeholder" data-screenshot="settings-player-priority.png">
+                    <div class="placeholder-icon">📸</div>
+                    <p class="placeholder-text">Player priority settings</p>
+                </div>
+
+                <p data-i18n="sections.settings.players.text">
+                    Choose which audio engine to use for each file format. Modizer includes multiple engines for maximum compatibility.
+                </p>
+            </div>
+
+            <div class="card">
+                <h3 data-i18n="sections.settings.plugins.title">Plugin Settings</h3>
+
+                <div class="screenshot-placeholder" data-screenshot="settings-plugins-list.png">
+                    <div class="placeholder-icon">📸</div>
+                    <p class="placeholder-text">Plugin settings list</p>
+                </div>
+
+                <p data-i18n="sections.settings.plugins.text">
+                    Each audio engine has its own specific settings. Configure emulation accuracy, filters, and sound quality per plugin.
+                </p>
+
+                <h4 data-i18n="sections.settings.plugins.popular-title">Popular Plugin Settings</h4>
+                <ul class="feature-list">
+                    <li><strong>SID</strong> - <span data-i18n="sections.settings.plugins.sid">C64 emulation: reSID/reSIDfp engine, filter, clock speed, SID model</span></li>
+                    <li><strong>NSFPlay</strong> - <span data-i18n="sections.settings.plugins.nsf">NES emulation: expansion chips, quality, filters</span></li>
+                    <li><strong>OpenMPT</strong> - <span data-i18n="sections.settings.plugins.openmpt">Module playback: stereo separation, Amiga filter, resampling</span></li>
+                    <li><strong>Timidity</strong> - <span data-i18n="sections.settings.plugins.timidity">MIDI: soundfont, reverb, chorus, polyphony</span></li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h3 data-i18n="sections.settings.ftp.title">FTP Server</h3>
+
+                <div class="screenshot-grid">
+                    <div class="screenshot-placeholder" data-screenshot="settings-ftp-server.png">
+                        <div class="placeholder-icon">📸</div>
+                        <p class="placeholder-text">FTP server settings</p>
+                    </div>
+                    <div class="screenshot-placeholder" data-screenshot="settings-ftp-enabled.png">
+                        <div class="placeholder-icon">📸</div>
+                        <p class="placeholder-text">FTP server active</p>
+                    </div>
+                </div>
+
+                <p data-i18n="sections.settings.ftp.text">
+                    Enable the built-in FTP server to transfer files from your computer:
+                </p>
+                <ol class="steps-list-simple">
+                    <li data-i18n="sections.settings.ftp.step1">Toggle "Enable FTP Server" on</li>
+                    <li data-i18n="sections.settings.ftp.step2">Note the IP address and port shown</li>
+                    <li data-i18n="sections.settings.ftp.step3">Connect from your computer using an FTP client</li>
+                    <li data-i18n="sections.settings.ftp.step4">Transfer files to Modizer's Documents folder</li>
+                </ol>
+            </div>
+
+            <div class="card">
+                <h3 data-i18n="sections.settings.online.title">Online Sources</h3>
+
+                <div class="screenshot-placeholder" data-screenshot="settings-online-urls.png">
+                    <div class="placeholder-icon">📸</div>
+                    <p class="placeholder-text">Online source URLs</p>
+                </div>
+
+                <p data-i18n="sections.settings.online.text">
+                    Configure URLs for online music archives. Use alternate mirrors if the primary source is slow or unavailable.
+                </p>
+            </div>
+        </section>
+
+        <!-- ==================== FORMATS ==================== -->
+        <section id="formats" class="content-section">
+            <h2 data-i18n="sections.formats.title">Supported Formats</h2>
+
+            <div class="card">
+                <p data-i18n="sections.formats.intro">
+                    Modizer supports over 500 music file formats from various platforms and eras. Here are the main categories:
+                </p>
+            </div>
+
+            <div class="formats-grid">
+                <div class="format-category">
+                    <h3 data-i18n="sections.formats.modules.title">Module Formats</h3>
+                    <ul>
+                        <li><strong>MOD</strong> - <span data-i18n="sections.formats.modules.mod">Amiga ProTracker modules</span></li>
+                        <li><strong>XM</strong> - <span data-i18n="sections.formats.modules.xm">FastTracker II Extended Module</span></li>
+                        <li><strong>S3M</strong> - <span data-i18n="sections.formats.modules.s3m">ScreamTracker 3 Module</span></li>
+                        <li><strong>IT</strong> - <span data-i18n="sections.formats.modules.it">Impulse Tracker Module</span></li>
+                        <li><strong>MED</strong> - <span data-i18n="sections.formats.modules.med">OctaMED modules</span></li>
+                        <li><strong>MTM, STM, FAR, ULT, OKT, 669...</strong></li>
+                    </ul>
+                </div>
+
+                <div class="format-category">
+                    <h3 data-i18n="sections.formats.chiptune.title">Chiptune Formats</h3>
+                    <ul>
+                        <li><strong>SID</strong> - <span data-i18n="sections.formats.chiptune.sid">Commodore 64 music</span></li>
+                        <li><strong>NSF</strong> - <span data-i18n="sections.formats.chiptune.nsf">Nintendo Entertainment System</span></li>
+                        <li><strong>SPC</strong> - <span data-i18n="sections.formats.chiptune.spc">Super Nintendo</span></li>
+                        <li><strong>VGM</strong> - <span data-i18n="sections.formats.chiptune.vgm">Video Game Music</span></li>
+                        <li><strong>GYM</strong> - <span data-i18n="sections.formats.chiptune.gym">Sega Genesis/Mega Drive</span></li>
+                        <li><strong>SAP</strong> - <span data-i18n="sections.formats.chiptune.sap">Atari 8-bit</span></li>
+                        <li><strong>YM</strong> - <span data-i18n="sections.formats.chiptune.ym">Atari ST</span></li>
+                    </ul>
+                </div>
+
+                <div class="format-category">
+                    <h3 data-i18n="sections.formats.console.title">Console Formats</h3>
+                    <ul>
+                        <li><strong>PSF/PSF2</strong> - <span data-i18n="sections.formats.console.psf">PlayStation 1 & 2</span></li>
+                        <li><strong>GSF</strong> - <span data-i18n="sections.formats.console.gsf">Game Boy Advance</span></li>
+                        <li><strong>2SF</strong> - <span data-i18n="sections.formats.console.2sf">Nintendo DS</span></li>
+                        <li><strong>SSF</strong> - <span data-i18n="sections.formats.console.ssf">Sega Saturn</span></li>
+                        <li><strong>DSF</strong> - <span data-i18n="sections.formats.console.dsf">Dreamcast</span></li>
+                        <li><strong>USF</strong> - <span data-i18n="sections.formats.console.usf">Nintendo 64</span></li>
+                        <li><strong>GBS</strong> - <span data-i18n="sections.formats.console.gbs">Game Boy</span></li>
+                        <li><strong>HES</strong> - <span data-i18n="sections.formats.console.hes">PC Engine</span></li>
+                        <li><strong>KSS</strong> - <span data-i18n="sections.formats.console.kss">MSX</span></li>
+                    </ul>
+                </div>
+
+                <div class="format-category">
+                    <h3 data-i18n="sections.formats.amiga.title">Amiga Formats</h3>
+                    <ul>
+                        <li><strong>AHX</strong> - <span data-i18n="sections.formats.amiga.ahx">Abyss Highest Experience</span></li>
+                        <li><strong>THX</strong> - <span data-i18n="sections.formats.amiga.thx">Thomas Hermann eXchange</span></li>
+                        <li><strong>TFMX</strong> - <span data-i18n="sections.formats.amiga.tfmx">The Final Musicsystem eXtended</span></li>
+                        <li><strong>SMUS</strong> - <span data-i18n="sections.formats.amiga.smus">Simple MUSical Score</span></li>
+                        <li><strong data-i18n="sections.formats.amiga.uade">400+ formats via UADE</strong></li>
+                    </ul>
+                </div>
+
+                <div class="format-category">
+                    <h3 data-i18n="sections.formats.arcade.title">Arcade Formats</h3>
+                    <ul>
+                        <li><strong>VGZ</strong> - <span data-i18n="sections.formats.arcade.vgz">Compressed VGM</span></li>
+                        <li><strong>AY</strong> - <span data-i18n="sections.formats.arcade.ay">ZX Spectrum/Amstrad CPC</span></li>
+                        <li><strong>PT3</strong> - <span data-i18n="sections.formats.arcade.pt3">ProTracker 3 (ZX Spectrum)</span></li>
+                        <li><strong data-i18n="sections.formats.arcade.vgmstream">500+ formats via VGMStream</strong></li>
+                    </ul>
+                </div>
+
+                <div class="format-category">
+                    <h3 data-i18n="sections.formats.other.title">Other Formats</h3>
+                    <ul>
+                        <li><strong>MIDI</strong> - <span data-i18n="sections.formats.other.midi">General MIDI files</span></li>
+                        <li><strong>MP3</strong> - <span data-i18n="sections.formats.other.mp3">MPEG Audio Layer 3</span></li>
+                        <li><strong>FLAC</strong> - <span data-i18n="sections.formats.other.flac">Free Lossless Audio Codec</span></li>
+                        <li><strong>OGG</strong> - <span data-i18n="sections.formats.other.ogg">Ogg Vorbis</span></li>
+                        <li><strong>WAV</strong> - <span data-i18n="sections.formats.other.wav">Waveform Audio</span></li>
+                        <li><strong>MDX</strong> - <span data-i18n="sections.formats.other.mdx">Sharp X68000</span></li>
+                        <li><strong>PMD</strong> - <span data-i18n="sections.formats.other.pmd">NEC PC-98</span></li>
+                        <li><strong>ORG</strong> - <span data-i18n="sections.formats.other.org">Organya (Cave Story)</span></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3 data-i18n="sections.formats.archive.title">Archive Formats</h3>
+                <p data-i18n="sections.formats.archive.text">
+                    Modizer can browse and play files directly from these archive formats:
+                </p>
+                <ul class="feature-list">
+                    <li><strong>ZIP</strong></li>
+                    <li><strong>7Z</strong></li>
+                    <li><strong>RAR</strong></li>
+                    <li><strong>LHA/LZH</strong></li>
+                    <li><strong>RSN</strong> - <span data-i18n="sections.formats.archive.rsn">Really Simple rip (SPC archives)</span></li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- ==================== FAQ ==================== -->
+        <section id="faq" class="content-section">
+            <h2 data-i18n="sections.faq.title">Frequently Asked Questions</h2>
+
+            <div class="faq-list">
+                <div class="faq-item">
+                    <h3 class="faq-question" data-i18n="sections.faq.q1.question">How do I add music files to Modizer?</h3>
+                    <p class="faq-answer" data-i18n="sections.faq.q1.answer">
+                        You can add files via iTunes File Sharing, iCloud Drive, or by opening files from other apps
+                        and selecting "Open in Modizer". The app also supports direct downloads from web archives,
+                        and has a built-in FTP server for easy transfer from your computer.
+                    </p>
+                </div>
+
+                <div class="faq-item">
+                    <h3 class="faq-question" data-i18n="sections.faq.q2.question">Why isn't my file playing correctly?</h3>
+                    <p class="faq-answer" data-i18n="sections.faq.q2.answer">
+                        Some files may require specific audio engines. Go to Settings → Player Priority and try
+                        switching to a different engine for that format. Also ensure the file isn't corrupted by
+                        testing it on another device or player.
+                    </p>
+                </div>
+
+                <div class="faq-item">
+                    <h3 class="faq-question" data-i18n="sections.faq.q3.question">Can I export files to standard audio formats?</h3>
+                    <p class="faq-answer" data-i18n="sections.faq.q3.answer">
+                        Yes! Modizer can export tracks to WAV, MP3, or other standard formats. Use the export
+                        function in the track information menu or from the file browser context menu.
+                    </p>
+                </div>
+
+                <div class="faq-item">
+                    <h3 class="faq-question" data-i18n="sections.faq.q4.question">How do I enable the visualizer?</h3>
+                    <p class="faq-answer" data-i18n="sections.faq.q4.answer">
+                        During playback, tap the visualizer button in the player interface. You can cycle through
+                        different visualizer types by tapping again, or double-tap to go fullscreen. Swipe left/right
+                        to change presets in ProjectM mode.
+                    </p>
+                </div>
+
+                <div class="faq-item">
+                    <h3 class="faq-question" data-i18n="sections.faq.q5.question">Where can I find music files to play?</h3>
+                    <p class="faq-answer" data-i18n="sections.faq.q5.answer">
+                        Use the Online tab to browse massive archives: MODLAND (modules), HVSC (SID), ASMA (Atari),
+                        CGSC (console games), and many others. All these collections are accessible directly from
+                        within Modizer.
+                    </p>
+                </div>
+
+                <div class="faq-item">
+                    <h3 class="faq-question" data-i18n="sections.faq.q6.question">How do I use the FTP server?</h3>
+                    <p class="faq-answer" data-i18n="sections.faq.q6.answer">
+                        Go to More → Settings → FTP Server and enable it. Modizer will display an IP address
+                        and port. Use any FTP client on your computer to connect and transfer files. Make sure
+                        your iOS device and computer are on the same WiFi network.
+                    </p>
+                </div>
+
+                <div class="faq-item">
+                    <h3 class="faq-question" data-i18n="sections.faq.q7.question">What are subsongs?</h3>
+                    <p class="faq-answer" data-i18n="sections.faq.q7.answer">
+                        Many retro music formats contain multiple tracks in a single file (like a game with
+                        multiple levels). SID, NSF, SNDH, and other formats often have subsongs. Use the
+                        Previous/Next Subsong buttons or the Subsong Selector to navigate them.
+                    </p>
+                </div>
+
+                <div class="faq-item">
+                    <h3 class="faq-question" data-i18n="sections.faq.q8.question">Can I mute specific channels?</h3>
+                    <p class="faq-answer" data-i18n="sections.faq.q8.answer">
+                        Yes! Tap the Voices button in the player to access the channel selector. You can
+                        mute/unmute individual channels or use solo mode. This is great for analyzing module
+                        files or learning how tracks are composed.
+                    </p>
+                </div>
+
+                <div class="faq-item">
+                    <h3 class="faq-question" data-i18n="sections.faq.q9.question">Does Modizer work offline?</h3>
+                    <p class="faq-answer" data-i18n="sections.faq.q9.answer">
+                        Yes! Once you've downloaded files to your local library, you can play them offline.
+                        Only the Online Collections browsing and downloading requires an internet connection.
+                    </p>
+                </div>
+
+                <div class="faq-item">
+                    <h3 class="faq-question" data-i18n="sections.faq.q10.question">How do I improve SID playback quality?</h3>
+                    <p class="faq-answer" data-i18n="sections.faq.q10.answer">
+                        Go to Settings → Plugin Settings → SID. Choose the reSIDfp engine for highest
+                        quality, enable the 6581 or 8580 filter depending on the tune, and select the
+                        appropriate clock speed (PAL/NTSC). You can also adjust stereo separation for
+                        multi-SID tunes.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 Modizer. <span data-i18n="footer.rights">All rights reserved.</span></p>
+            <p>
+                <a href="https://github.com/yoyofr/modizer" target="_blank" data-i18n="footer.github">GitHub</a> |
+                <a href="#" data-i18n="footer.contact">Contact</a>
+            </p>
+        </div>
+    </footer>
+
+    <script src="js/i18n.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

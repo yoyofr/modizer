@@ -7,7 +7,7 @@
 //
 //#define PM_TEST_LOAD 64
 
-#define FX_AUTO_SCALING_DELAY_ZOOMIN_FAST 30 //frame delay before zooming in for FX auto scaling
+#define FX_AUTO_SCALING_DELAY_ZOOMIN_FAST 60 //frame delay before zooming in for FX auto scaling
 #define FX_AUTO_SCALING_DELAY_ZOOMIN_SLOW 120 //frame delay before zooming in for FX auto scaling
 
 #define PM_FRAMETIME_LIMIT (1000.0f/10.0f) // max allowed frame time in ms, if regularly above, PM will be deactivated
@@ -260,6 +260,8 @@ extern unsigned char tim_voicenb_cpy[SOUND_BUFFER_NB];
 extern char mplayer_error_msg[1024];
 float tim_midifx_note_range,tim_midifx_note_offset,tim_midifx_length;
 bool tim_midifx_note_offset_reset;
+
+float mScaleInfo[5];
 
 float prollfx_note_range,prollfx_noteroll_offset,prollfx_length;
 bool prollfx_note_offset_reset;
@@ -4880,6 +4882,8 @@ bool coverAvailable;
     NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
     NSNumber *valNb;
     
+    MDZILog("Load Settings, safe mode %d",safe_mode);
+    
     [prefs synchronize];
     
     not_expected_version=0;
@@ -4890,6 +4894,8 @@ bool coverAvailable;
     } else {
         if ([valNb intValue]!=VERSION_MAJOR) {
             not_expected_version=1;
+            
+            MDZILog("not expected version maj");
         }
     }
     valNb=[prefs objectForKey:@"VERSION_MINOR"];if (safe_mode) valNb=nil;
@@ -4899,6 +4905,8 @@ bool coverAvailable;
     } else {
         if ([valNb intValue]!=VERSION_MINOR) {
             not_expected_version=1;
+            
+            MDZILog("not expected version min");
         }
     }
     if (not_expected_version) {
@@ -5747,6 +5755,8 @@ void pm_perfTest() {
     mScaleInfo[0]=0;
     mScaleInfo[1]=0;
     mScaleInfo[2]=FX_AUTO_SCALING_DELAY_ZOOMIN_SLOW;
+    mScaleInfo[3]=FX_AUTO_SCALING_DELAY_ZOOMIN_SLOW;
+    mScaleInfo[4]=FX_AUTO_SCALING_DELAY_ZOOMIN_SLOW;
     //    if (safe_bottom>0) safe_bottom+=20;
     mScaleFactor=1.0f;
     is_iPad=false;
@@ -8178,7 +8188,7 @@ void menuInterpolValue(float &curValue,float startValue,float tgtValue) {
         
         //update visible notes range
         if (movePinchScaleFXPRoll<((DEFAULT_VISIBLE_MIDI_NOTES-MAX_VISIBLE_MIDI_NOTES)/64.0f)) movePinchScaleFXPRoll=((DEFAULT_VISIBLE_MIDI_NOTES-MAX_VISIBLE_MIDI_NOTES)/64.0f);
-        if (movePinchScaleFXPRoll>((DEFAULT_VISIBLE_MIDI_NOTES-MIN_VISIBLE_MIDI_NOTES*2)/64.0f)) movePinchScaleFXPRoll=(DEFAULT_VISIBLE_MIDI_NOTES-MIN_VISIBLE_MIDI_NOTES*2)/64.0f;
+        if (movePinchScaleFXPRoll>((DEFAULT_VISIBLE_MIDI_NOTES-MIN_VISIBLE_MIDI_NOTES*1.5)/64.0f)) movePinchScaleFXPRoll=(DEFAULT_VISIBLE_MIDI_NOTES-MIN_VISIBLE_MIDI_NOTES*1.5)/64.0f;
         prollfx_note_range=DEFAULT_VISIBLE_MIDI_NOTES-movePinchScaleFXPRoll*64.0f;
         
         if  (prollfx_note_range<MIN_VISIBLE_MIDI_NOTES) {
@@ -8208,8 +8218,14 @@ void menuInterpolValue(float &curValue,float startValue,float tgtValue) {
     //max rendering size
     float maxLength=ww;
     //used to store min & max rendering pos
-    mScaleInfo[0]=maxLength;
-    mScaleInfo[1]=0;
+    float oldScaleMin,oldScaleMax;
+    oldScaleMin=mScaleInfo[0];
+    oldScaleMax=mScaleInfo[1];
+    if (mScaleInfo[4]>=FX_AUTO_SCALING_DELAY_ZOOMIN_FAST) {
+        mScaleInfo[0]=maxLength;
+        mScaleInfo[1]=0;
+        mScaleInfo[4]=0;
+    }
     
     int delay_threshold=FX_AUTO_SCALING_DELAY_ZOOMIN_FAST;
     
@@ -8223,12 +8239,24 @@ void menuInterpolValue(float &curValue,float startValue,float tgtValue) {
             break;
     }
     
+    varCheck[0]=mScaleInfo[0];
+    varCheck[1]=mScaleInfo[1];
+    varCheck[2]=mScaleInfo[3];
+    varCheck[3]=mScaleInfo[4];
+    
+    
     if (settings[GLOB_FXPianoRollFXAutoScale].detail.mdz_boolswitch.switch_value) {
+        if ( (oldScaleMin>mScaleInfo[0]) || (oldScaleMax<mScaleInfo[1]) ) {
+            //change of min or max, reset counter
+            mScaleInfo[4]=0;
+        } else mScaleInfo[4]++;
+        
         //rendered size
         float sizeFx=mScaleInfo[1]-mScaleInfo[0]+1;
-        //too large
+        //too large to fit
         if ( sizeFx>=maxLength ) {
             movePinchScaleFXPRoll-=2.0*1.0/64.0;
+            mScaleInfo[4]=FX_AUTO_SCALING_DELAY_ZOOMIN_FAST;
             //tim_midifx_note_offset+=1;
         } else {
             //too low / bass
@@ -8237,6 +8265,7 @@ void menuInterpolValue(float &curValue,float startValue,float tgtValue) {
                 if (diff>8) diff=8;
                 if (diff<0.4) diff=0.4;
                 prollfx_noteroll_offset-=diff;
+                mScaleInfo[4]=FX_AUTO_SCALING_DELAY_ZOOMIN_FAST;
             }
             //too high / treble
             if ( (mScaleInfo[1]>maxLength) ) {
@@ -8244,17 +8273,22 @@ void menuInterpolValue(float &curValue,float startValue,float tgtValue) {
                 if (diff>8) diff=8;
                 if (diff<0.4) diff=0.4;
                 prollfx_noteroll_offset+=diff;
+                mScaleInfo[4]=FX_AUTO_SCALING_DELAY_ZOOMIN_FAST;
             }
             
-            //too small
-            if (sizeFx<=maxLength*0.8) mScaleInfo[2]+=1;
-            else mScaleInfo[2]=0;
+            //too small, should be zoomed
+            if (sizeFx<=maxLength*0.8) {
+                mScaleInfo[3]+=1;
+            }
+            else {
+                mScaleInfo[3]=0;
+            }
             
-            if ( (mScaleInfo[2]>delay_threshold)) {
-                if (movePinchScaleFXPRoll<((DEFAULT_VISIBLE_MIDI_NOTES-MIN_VISIBLE_MIDI_NOTES*2)/64.0f)) {
+            if ( (mScaleInfo[3]>delay_threshold)) {
+                if (movePinchScaleFXPRoll<((DEFAULT_VISIBLE_MIDI_NOTES-MIN_VISIBLE_MIDI_NOTES*1.5)/64.0f)) {
                     movePinchScaleFXPRoll+=1.0*1.0/64.0;
-                    //tim_midifx_note_offset-=2.0;
-                }
+                } else mScaleInfo[3]=0;
+                mScaleInfo[4]=FX_AUTO_SCALING_DELAY_ZOOMIN_FAST;
             }
         }
     }
@@ -8980,8 +9014,8 @@ void drawTgtSlotPattern(int fxIdx,float x,float y,float w,float h,float ww,float
     if ( (fxLPselected==fxIdx) && (fxTargetSlot>=0) ) {
         //highlight tgt slot
         static int cptA=0;
-        int alpha=255-128;
-        int col=255-64+32*sin(cptA*0.03);
+        int alpha=255-64;
+        int col=255-128+32*sin(cptA*0.03);
         if (col<0) col=0; if (col>255) col=255;
         glViewport(0, 0, ww*glScaleFactor, hh*glScaleFactor);
         RenderUtils::FillAreaPattern(x, y,
@@ -9035,7 +9069,7 @@ void drawTgtSlotPattern(int fxIdx,float x,float y,float w,float h,float ww,float
     }
     else {
         double time_diff=curFrameStartTime-tgtFrameStartTime;
-        double fps_to_draw=time_diff*60.0;
+        double fps_to_draw=time_diff*(settings[GLOB_FXFPS].detail.mdz_switch.switch_value?60:30);
         frameToUpdate=round(fps_to_draw);
         if (frameToUpdate<1) frameToUpdate=1;
         tgtFrameStartTime=curFrameStartTime;
@@ -9175,10 +9209,6 @@ void drawTgtSlotPattern(int fxIdx,float x,float y,float w,float h,float ww,float
         if (fabs(moveWheelYPMenu)<2.0f) moveWheelYPMenu=0;
         //}
     }
-    varCheck[0]=imgui_event.event_type;
-    varCheck[1]=imgui_event.pos_y;
-    varCheck[2]=imgui_event.wheel_y;
-    
     
     ImGui_ImplIOS_NewFrame(ww*glScaleFactor,hh*glScaleFactor,1);
     ImGui_ImplIOS_UpdateEvent(&imgui_event);

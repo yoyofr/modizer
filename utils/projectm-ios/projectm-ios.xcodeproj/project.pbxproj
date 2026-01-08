@@ -75,7 +75,6 @@
 		CCABA2D82E93C97600AF59B0 /* Milkdrop2077WaveSkewed.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCABA1FC2E93C97600AF59B0 /* Milkdrop2077WaveSkewed.cpp */; };
 		CCABA2D92E93C97600AF59B0 /* VideoEcho.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCABA2352E93C97600AF59B0 /* VideoEcho.cpp */; };
 		CCABA2DA2E93C97600AF59B0 /* Waveform.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCABA2372E93C97600AF59B0 /* Waveform.cpp */; };
-		CCABA2DB2E93C97600AF59B0 /* PresetShaderHeaderGlsl330.inc in Sources */ = {isa = PBXBuildFile; fileRef = CCABA1DB2E93C97600AF59B0 /* PresetShaderHeaderGlsl330.inc */; };
 		CCABA2DC2E93C97600AF59B0 /* Framebuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCABA24F2E93C97600AF59B0 /* Framebuffer.cpp */; };
 		CCABA2DD2E93C97600AF59B0 /* DerivativeLine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCABA1E82E93C97600AF59B0 /* DerivativeLine.cpp */; };
 		CCABA2DF2E93C97600AF59B0 /* PCM.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCABA1D22E93C97600AF59B0 /* PCM.cpp */; };
@@ -1669,7 +1668,6 @@
 				CCABA2D82E93C97600AF59B0 /* Milkdrop2077WaveSkewed.cpp in Sources */,
 				CCABA2D92E93C97600AF59B0 /* VideoEcho.cpp in Sources */,
 				CCABA2DA2E93C97600AF59B0 /* Waveform.cpp in Sources */,
-				CCABA2DB2E93C97600AF59B0 /* PresetShaderHeaderGlsl330.inc in Sources */,
 				CCABA2DC2E93C97600AF59B0 /* Framebuffer.cpp in Sources */,
 				CCABA2DD2E93C97600AF59B0 /* DerivativeLine.cpp in Sources */,
 				CCABA2DF2E93C97600AF59B0 /* PCM.cpp in Sources */,

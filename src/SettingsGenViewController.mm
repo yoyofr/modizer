@@ -1745,7 +1745,7 @@ void optNSFPLAYChangedC(id param) {
     
     SETTINGS_ID_DEF(GLOB_FXPiano3DFXSLOT)
     settings[GLOB_FXPiano3DFXSLOT].label=(char*)"FX Layout";
-    settings[GLOB_FXPiano3DFXSLOT].description=(char*)"0: fullscreen 1:left 2:right 3:top 4:bottom 5:top left 6:top right 7:bottom left 8:bottom right";
+    settings[GLOB_FXPiano3DFXSLOT].description=(char*)"0: fullscreen 1:left 2:right 3:bottom 4:top 5:bottom left 6:bottom right 7:top left 8:top right";
     settings[GLOB_FXPiano3DFXSLOT].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
     settings[GLOB_FXPiano3DFXSLOT].sub_family=0;
     settings[GLOB_FXPiano3DFXSLOT].callback=&optVISUChangedC;

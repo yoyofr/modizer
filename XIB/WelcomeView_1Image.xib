@@ -31,11 +31,11 @@
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Welcome" textAlignment="natural" lineBreakMode="wordWrap" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="rIf-LP-tux">
-                    <rect key="frame" x="20" y="128" width="253" height="70"/>
+                    <rect key="frame" x="5" y="128" width="270" height="70"/>
                     <constraints>
                         <constraint firstAttribute="height" constant="70" id="h4F-gI-62m"/>
                     </constraints>
-                    <fontDescription key="fontDescription" name="Orbitron-Regular" family="Orbitron" pointSize="23"/>
+                    <fontDescription key="fontDescription" name="Orbitron-Regular" family="Orbitron" pointSize="22"/>
                     <nil key="textColor"/>
                     <nil key="highlightedColor"/>
                 </label>
@@ -52,10 +52,10 @@
                     <nil key="highlightedColor"/>
                 </label>
                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="trailing" contentVerticalAlignment="center" buttonType="system" lineBreakMode="clip" translatesAutoresizingMaskIntoConstraints="NO" id="xLf-St-a04">
-                    <rect key="frame" x="273" y="138" width="120" height="34"/>
+                    <rect key="frame" x="275" y="138" width="118" height="34"/>
                     <constraints>
                         <constraint firstAttribute="height" constant="34" id="hL8-Hc-zg5"/>
-                        <constraint firstAttribute="width" constant="120" id="wzp-FV-5Qs"/>
+                        <constraint firstAttribute="width" constant="118" id="wzp-FV-5Qs"/>
                     </constraints>
                     <state key="normal" title="Button"/>
                     <buttonConfiguration key="configuration" style="plain" title="Skip" titleAlignment="trailing"/>
@@ -86,7 +86,7 @@
                 <constraint firstItem="uqw-1m-J4X" firstAttribute="trailing" secondItem="vUN-kp-3ea" secondAttribute="trailing" constant="-36" id="5s3-NT-PCy"/>
                 <constraint firstItem="xLf-St-a04" firstAttribute="leading" secondItem="rIf-LP-tux" secondAttribute="trailing" id="6YJ-BY-4uy"/>
                 <constraint firstItem="uqw-1m-J4X" firstAttribute="top" secondItem="rIf-LP-tux" secondAttribute="bottom" id="9uD-Om-7cx"/>
-                <constraint firstItem="rIf-LP-tux" firstAttribute="leading" secondItem="3mw-SG-QpB" secondAttribute="trailing" constant="-20" id="Agf-Nb-nkl"/>
+                <constraint firstItem="rIf-LP-tux" firstAttribute="leading" secondItem="3mw-SG-QpB" secondAttribute="trailing" constant="-35" id="Agf-Nb-nkl"/>
                 <constraint firstItem="RTw-Y6-T4v" firstAttribute="bottom" secondItem="vUN-kp-3ea" secondAttribute="bottom" id="Brq-Nx-RmK"/>
                 <constraint firstItem="3mw-SG-QpB" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" id="EQP-dO-hIu"/>
                 <constraint firstItem="Crq-di-Niq" firstAttribute="leading" secondItem="RTw-Y6-T4v" secondAttribute="trailing" constant="-30" id="ETn-gD-2hB"/>

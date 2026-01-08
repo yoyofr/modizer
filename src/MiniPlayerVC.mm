@@ -582,6 +582,15 @@ int gesture_move_file_min_trans;
     return [self visibleViewController:presentedViewController];
 }
 
+- (void)viewDidAppear:(BOOL)animated {
+    UIViewController *vc = [self visibleViewController:[UIApplication sharedApplication].keyWindow.rootViewController];
+    bool dkmode=false;
+    if (vc.traitCollection.userInterfaceStyle==UIUserInterfaceStyleDark) dkmode=true;
+    if (_darkMode!=dkmode) {
+        _darkMode=dkmode;
+        [self refreshViewDarkmode];
+    }
+}
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];

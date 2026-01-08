@@ -7,10 +7,11 @@ layout(location = 0) out vec4 outColor;
 uniform int u_mode;
 uniform int u_redHeight;
 uniform vec3 u_redCol;
+uniform vec4 u_viewport; // x, y, width, height
 
 void main()
 {
-    int x=int(gl_FragCoord.y);
+    int x=int(gl_FragCoord.y-u_viewport.y);
     if (u_mode==0) {
         if ((x&15)<10) outColor = v_color;
         else outColor = vec4(0,0,0,0);

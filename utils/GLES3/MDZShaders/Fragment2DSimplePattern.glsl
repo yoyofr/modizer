@@ -19,14 +19,15 @@ vec3 hsv2rgb(vec3 c) {
     return c.z * mix(vec3(1.0), rgb, c.y);
 }
 
-const float BORDER = 2.0;
+const float BORDER = 3.0;
 const float NEON_RADIUS = 20.0;   // portée de la lumière
-const float NEON_POWER  = 2.5;    // dureté du glow
+const float NEON_POWER  = 3.0;    // dureté du glow
 
 void main() {
     float px=gl_FragCoord.x;
     float py=gl_FragCoord.y;
     float incr=u_time*80.0;
+    float alpha=v_color.w;
     switch (u_mode) {
         case 0://full
             break;
@@ -68,12 +69,14 @@ void main() {
     float y2 = u_resolution.w;
     float w=x2-x1;
     float h=y2-y1;
+    float pixel_x=gl_FragCoord.x-x1;
+    float pixel_y=gl_FragCoord.y-y1;
 
     // Distance aux bords
-    float dLeft   = gl_FragCoord.x-x1;
-    float dRight  = x2 - gl_FragCoord.x;
-    float dBottom = gl_FragCoord.y-y1;
-    float dTop    = y2 - gl_FragCoord.y;
+    float dLeft   = pixel_x;
+    float dRight  = w-pixel_x;
+    float dBottom = pixel_y;
+    float dTop    = h-pixel_y;
     
 
     float distToBorder = min(min(dLeft, dRight), min(dBottom, dTop));
@@ -83,21 +86,21 @@ void main() {
     // --- PARAMÉTRISATION DU PÉRIMÈTRE (sens horaire) ---
     float p;
 
-    if ((gl_FragCoord.y-y1) <= (BORDER*u_scaleFactor)) {
-        p = gl_FragCoord.x-x1;
+    if (pixel_y <= (BORDER*u_scaleFactor)) {
+        p = pixel_x;
     }
-    else if ((x2-gl_FragCoord.x) <= (BORDER*u_scaleFactor)) {
-        p = w + (gl_FragCoord.y-y1);
+    else if ((w-pixel_x) <= (BORDER*u_scaleFactor)) {
+        p = w + pixel_y;
     }
-    else if ((y2-gl_FragCoord.y) <= (BORDER*u_scaleFactor)) {
-        p = w + h + (w - (gl_FragCoord.x-x1));
+    else if ((h-pixel_y) <= (BORDER*u_scaleFactor)) {
+        p = w + h + (w - pixel_x);
     }
-    else {
-        p = w + h + w + (h - (gl_FragCoord.y-y1));
+    else if (pixel_x <= (BORDER*u_scaleFactor)) {
+        p = w + h + w + (h - pixel_y);
     }
 
     float perimeter = 2.0 * (w + h);
-    float hue = fract(7.0 * p / perimeter + u_time * 0.25);
+    float hue = fract(7.0 * p / perimeter + u_time * 2.5);
 
     vec3 neonColor = hsv2rgb(vec3(hue, 1.0, 1.0));
 
@@ -110,7 +113,10 @@ void main() {
     // --- COULEUR DE BASE ---
     vec3 baseColor;
     if (a ^^ b) baseColor = v_color.xyz;
-    else        baseColor = 1.0-v_color.xyz;
+    else        {
+        baseColor = vec3(0.0,0.0,0.0);//v_color.xyz/4.0;
+        alpha=0.0;
+    }
 
     // --- COMPOSITION ---
     vec3 color = baseColor;
@@ -121,7 +127,12 @@ void main() {
     // Bordure pleine (tube néon)
     if (isBorder) {
         color = neonColor * 1.8;
+        alpha=1.0;
+    } else {
+        alpha+=glow;
     }
+    
+    
 
-    out_color = vec4(color, v_color.w);
+    out_color = vec4(color, alpha);
 }

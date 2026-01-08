@@ -35,7 +35,7 @@
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Welcome" textAlignment="natural" lineBreakMode="wordWrap" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="rIf-LP-tux">
-                    <rect key="frame" x="20" y="128" width="253" height="70"/>
+                    <rect key="frame" x="5" y="128" width="268" height="70"/>
                     <constraints>
                         <constraint firstAttribute="height" constant="70" id="h4F-gI-62m"/>
                     </constraints>
@@ -132,7 +132,7 @@
                 <constraint firstItem="xLf-St-a04" firstAttribute="trailing" secondItem="vUN-kp-3ea" secondAttribute="trailing" id="4o1-fl-uAx"/>
                 <constraint firstItem="yUr-JZ-iTi" firstAttribute="leading" secondItem="RTw-Y6-T4v" secondAttribute="trailing" constant="-30" id="4pM-UZ-GXN"/>
                 <constraint firstItem="xLf-St-a04" firstAttribute="leading" secondItem="rIf-LP-tux" secondAttribute="trailing" id="6YJ-BY-4uy"/>
-                <constraint firstItem="rIf-LP-tux" firstAttribute="leading" secondItem="3mw-SG-QpB" secondAttribute="trailing" constant="-20" id="Agf-Nb-nkl"/>
+                <constraint firstItem="rIf-LP-tux" firstAttribute="leading" secondItem="3mw-SG-QpB" secondAttribute="trailing" constant="-35" id="Agf-Nb-nkl"/>
                 <constraint firstItem="RTw-Y6-T4v" firstAttribute="bottom" secondItem="vUN-kp-3ea" secondAttribute="bottom" id="Brq-Nx-RmK"/>
                 <constraint firstItem="3mw-SG-QpB" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" id="EQP-dO-hIu"/>
                 <constraint firstItem="rIf-LP-tux" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" constant="10" id="IPe-4C-imY"/>

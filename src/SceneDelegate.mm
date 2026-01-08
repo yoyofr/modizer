@@ -206,6 +206,26 @@ bool mdz_macos_AOTplugin=false;
 
 - (void)sceneDidDisconnect:(UIScene *)scene {
     // Called as the scene is being released by the system.
+//    MDZILog("sceneDidDisconnect");
+    UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
+    // Remove all delivered notifications
+    [center removeAllDeliveredNotifications];
+    // Remove all pending notifications
+    [center removeAllPendingNotificationRequests];
+    
+    
+    [detailViewControlleriPhone enterBackground];
+    [SettingsGenViewController backupSettings];
+    [detailViewControlleriPhone saveSettings];
+    [downloadVC backupDownloadList];
+    
+    NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
+    NSNumber *valNb;
+    valNb=[[NSNumber alloc] initWithInt:0];
+    [prefs setObject:valNb forKey:@"ModizerRunningForeGround"];
+    [prefs synchronize];
+    
+    [self cleanupTempData];
 }
 
 - (void)sceneDidBecomeActive:(UIScene *)scene {
