@@ -268,7 +268,7 @@
         [cell.contentView addSubview:topLabel];
         topLabel.tag = TOP_LABEL_TAG;
         topLabel.backgroundColor = [UIColor clearColor];
-        topLabel.font = [UIFont systemFontOfSize:14];
+        topLabel.font = [UIFont systemFontOfSize:17 weight:UIFontWeightSemibold];
         topLabel.lineBreakMode = NSLineBreakByTruncatingTail;
         topLabel.opaque = TRUE;
 

@@ -6,6 +6,8 @@
 //
 //
 
+#define GLOB_FXMODPATTERN_BGCOL 0x301020
+
 #import "ModizerConstants.h"
 #import <UIKit/UIKit.h>
 
@@ -292,7 +294,6 @@ enum MDZ_SETTINGS {
         PROJECTM_PermmissiveMode,
         //PROJECTM_BlurAfterAudioMode,
         
-        
         MDZ_SETTINGS_FAMILY_OSCILLO,
         OSCILLO_FXMODE,
         OSCILLO_FXSLOT,
@@ -313,14 +314,16 @@ enum MDZ_SETTINGS {
         OSCILLO_MULTI_COLOR07,
         OSCILLO_MULTI_COLOR08,
     
-    GLOB_FXMODPattern,
-    GLOB_FXMODPatternFXSLOT,
-    GLOB_FXMODPattern_BGAlpha,
-    GLOB_FXMODPattern_VolBar,
-    GLOB_FXMODPattern_CurrentLineMode,
-    GLOB_FXMODPattern_Font,
-    GLOB_FXMODPattern_FontSize,
-    GLOB_FXMODPattern_Theme,
+        MDZ_SETTINGS_FAMILY_FXMODPattern,
+        GLOB_FXMODPattern,
+        GLOB_FXMODPatternFXSLOT,
+        GLOB_FXMODPattern_BGAlpha,
+        GLOB_FXMODPattern_VolBar,
+        GLOB_FXMODPattern_CurrentLineMode,
+        GLOB_FXMODPattern_Font,
+        GLOB_FXMODPattern_FontSize,
+        GLOB_FXMODPattern_Theme,
+    
         MDZ_SETTINGS_FAMILY_PIANOMIDI_COL,
         PIANOMIDI_MULTI_COLORSET,
         PIANOMIDI_MULTI_RESETALL,
@@ -356,28 +359,39 @@ enum MDZ_SETTINGS {
         PIANOMIDI_MULTI_COLOR30,
         PIANOMIDI_MULTI_COLOR31,
         PIANOMIDI_MULTI_COLOR32,
-    GLOB_FXPianoRoll,
-    GLOB_FXPianoRollFXSLOT,
-    GLOB_FXPianoRollFXAutoScale,
-    GLOB_FXPianoRollSpark,
-    GLOB_FXPianoRollVoicesLabels,
-    GLOB_FXPianoRollOctavesLabels,
-    GLOB_FXMIDIPattern,
-    GLOB_FXMIDIPatternFXSLOT,
-    GLOB_FXMIDIPatternAutoScale,
-    GLOB_FXMIDICutLine,
-    GLOB_FXMIDIBarStyle,
-    GLOB_FXMIDIBarVibrato,
+    
+        MDZ_SETTINGS_FAMILY_FXPianoRoll,
+        GLOB_FXPianoRoll,
+        GLOB_FXPianoRollFXSLOT,
+        GLOB_FXPianoRollFXAutoScale,
+        GLOB_FXPianoRollSpark,
+        GLOB_FXPianoRollVoicesLabels,
+        GLOB_FXPianoRollOctavesLabels,
+    
+        MDZ_SETTINGS_FAMILY_FXMIDIPattern,
+        GLOB_FXMIDIPattern,
+        GLOB_FXMIDIPatternFXSLOT,
+        GLOB_FXMIDIPatternAutoScale,
+        GLOB_FXMIDICutLine,
+        GLOB_FXMIDIBarStyle,
+        GLOB_FXMIDIBarVibrato,
+    
+    MDZ_SETTINGS_FAMILY_FXPiano3D,
     GLOB_FXPiano3D,
     GLOB_FXPiano3DFXSLOT,
     GLOB_FXPianoCutLine,
     GLOB_FXPianoColorMode,
+    
+    MDZ_SETTINGS_FAMILY_FXP3DSpectrum,
     GLOB_FX3DSpectrum,
     GLOB_FX3DSpectrumFXSLOT,
     GLOB_FX3DSpectrumBloom,
-        
+    
+    MDZ_SETTINGS_FAMILY_FXPSpectrum,
     GLOB_FXSpectrum,
     GLOB_FXSpectrumFXSLOT,
+    
+    MDZ_SETTINGS_FAMILY_FXP3DLandscape,
     GLOB_FX3DLandscape,
     GLOB_FX3DLandscapeFXSLOT,
     GLOB_FX3DLandscapeBloom,
@@ -437,6 +451,7 @@ typedef struct {
     const char *setting_id;
     char *label;
     char *description;
+    int bg_col;
     unsigned short int family;
     unsigned short int sub_family;
     void (*callback)(id);

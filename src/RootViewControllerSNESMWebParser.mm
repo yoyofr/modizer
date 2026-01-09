@@ -703,7 +703,7 @@ int qsortSNESM_entries_rating_or_entries(const void *entryA, const void *entryB)
         //
         topLabel.tag = TOP_LABEL_TAG;
         topLabel.backgroundColor = [UIColor clearColor];
-        topLabel.font = [UIFont systemFontOfSize:17];
+        topLabel.font = [UIFont systemFontOfSize:17 weight:UIFontWeightSemibold];
         topLabel.lineBreakMode=(settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value?
                                 ((settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value==2) ? NSLineBreakByTruncatingTail:NSLineBreakByTruncatingMiddle):NSLineBreakByTruncatingHead);;;
         topLabel.opaque=TRUE;

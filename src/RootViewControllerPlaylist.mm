@@ -3049,7 +3049,7 @@ trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
         //
         topLabel.tag = TOP_LABEL_TAG;
         topLabel.backgroundColor = [UIColor clearColor];
-        topLabel.font = [UIFont systemFontOfSize:17];
+        topLabel.font = [UIFont systemFontOfSize:17 weight:UIFontWeightSemibold];
         //topLabel.lineBreakMode=(settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value?
          //                       ((settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value==2) ? NSLineBreakByTruncatingTail:NSLineBreakByTruncatingMiddle):NSLineBreakByTruncatingHead);;;
         topLabel.opaque=TRUE;
@@ -3120,7 +3120,7 @@ trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
     
     topLabel.frame= CGRectMake(1.0 * cell.indentationWidth,
                                0,
-                               tabView.bounds.size.width -1.0 * cell.indentationWidth- 32-(isEditing?32:0),
+                               tabView.bounds.size.width -1.0 * cell.indentationWidth-32-(isEditing?32:0),
                                22);
     bottomLabel.frame = CGRectMake(1.0 * cell.indentationWidth,
                                    22,
@@ -3260,12 +3260,12 @@ trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
                 
                 bottomLabel.frame = CGRectMake( 1.0 * cell.indentationWidth,
                                                22,
-                                               tabView.bounds.size.width -1.0 * cell.indentationWidth-32-PRI_SEC_ACTIONS_IMAGE_SIZE-60,
+                                               tabView.bounds.size.width -1.0 * cell.indentationWidth-PRI_SEC_ACTIONS_IMAGE_SIZE-60,
                                                18);
                 
                 topLabel.frame= CGRectMake(1.0 * cell.indentationWidth,
                                            0,
-                                           tabView.bounds.size.width -1.0 * cell.indentationWidth- 32-PRI_SEC_ACTIONS_IMAGE_SIZE-4-PRI_SEC_ACTIONS_IMAGE_SIZE,
+                                           tabView.bounds.size.width -1.0 * cell.indentationWidth-PRI_SEC_ACTIONS_IMAGE_SIZE-4-PRI_SEC_ACTIONS_IMAGE_SIZE,
                                            22);
                 
                 [secActionView setImage:[UIImage imageNamed:@"playlist_add_all.png"] forState:UIControlStateNormal];
@@ -3278,10 +3278,10 @@ trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
                 [actionView addTarget: self action: @selector(primaryActionTapped:) forControlEvents: UIControlEventTouchUpInside];
                 [dictActionBtn setObject:[NSNumber numberWithInteger:indexPath.row*100+indexPath.section] forKey:[[actionView.description componentsSeparatedByString:@";"] firstObject]];
                 
-                actionView.frame = CGRectMake(tabView.bounds.size.width-2-32-PRI_SEC_ACTIONS_IMAGE_SIZE-tabView.safeAreaInsets.left-tabView.safeAreaInsets.right,0,PRI_SEC_ACTIONS_IMAGE_SIZE,PRI_SEC_ACTIONS_IMAGE_SIZE);
+                actionView.frame = CGRectMake(tabView.bounds.size.width-2-PRI_SEC_ACTIONS_IMAGE_SIZE-tabView.safeAreaInsets.left-tabView.safeAreaInsets.right,0,PRI_SEC_ACTIONS_IMAGE_SIZE,PRI_SEC_ACTIONS_IMAGE_SIZE);
                 actionView.enabled=YES;
                 actionView.hidden=NO;
-                secActionView.frame = CGRectMake(tabView.bounds.size.width-2-32-PRI_SEC_ACTIONS_IMAGE_SIZE-PRI_SEC_ACTIONS_IMAGE_SIZE-4-tabView.safeAreaInsets.left-tabView.safeAreaInsets.right,0,PRI_SEC_ACTIONS_IMAGE_SIZE,PRI_SEC_ACTIONS_IMAGE_SIZE);
+                secActionView.frame = CGRectMake(tabView.bounds.size.width-2-PRI_SEC_ACTIONS_IMAGE_SIZE-PRI_SEC_ACTIONS_IMAGE_SIZE-4-tabView.safeAreaInsets.left-tabView.safeAreaInsets.right,0,PRI_SEC_ACTIONS_IMAGE_SIZE,PRI_SEC_ACTIONS_IMAGE_SIZE);
                 secActionView.enabled=YES;
                 secActionView.hidden=NO;
                 
@@ -3326,7 +3326,7 @@ trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
                     if ((cur_local_entries[indexPath.row].type==2)||(cur_local_entries[indexPath.row].type==3)) {
                         actionicon_offsetx=PRI_SEC_ACTIONS_IMAGE_SIZE+tabView.safeAreaInsets.left+tabView.safeAreaInsets.right;
                         //                    cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-                        secActionView.frame = CGRectMake(tabView.bounds.size.width-2-32-actionicon_offsetx,0,PRI_SEC_ACTIONS_IMAGE_SIZE,PRI_SEC_ACTIONS_IMAGE_SIZE);
+                        secActionView.frame = CGRectMake(tabView.bounds.size.width-2-actionicon_offsetx,0,PRI_SEC_ACTIONS_IMAGE_SIZE,PRI_SEC_ACTIONS_IMAGE_SIZE);
                         [secActionView setImage:[UIImage imageNamed:@"arc_details.png"] forState:UIControlStateNormal];
                         [secActionView setImage:[UIImage imageNamed:@"arc_details.png"] forState:UIControlStateHighlighted];
                         [secActionView removeTarget: self action:NULL forControlEvents: UIControlEventTouchUpInside];
@@ -3339,7 +3339,7 @@ trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
                     
                     topLabel.frame= CGRectMake(1.0 * cell.indentationWidth,
                                                0,
-                                               tabView.bounds.size.width -1.0 * cell.indentationWidth- 32-PRI_SEC_ACTIONS_IMAGE_SIZE-actionicon_offsetx,
+                                               tabView.bounds.size.width -1.0 * cell.indentationWidth-PRI_SEC_ACTIONS_IMAGE_SIZE-actionicon_offsetx,
                                                22);
                     
                     
@@ -3358,7 +3358,7 @@ trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
                     
                     bottomLabel.frame = CGRectMake( 1.0 * cell.indentationWidth+20,
                                                    22,
-                                                   tabView.bounds.size.width -1.0 * cell.indentationWidth-32-PRI_SEC_ACTIONS_IMAGE_SIZE-20-actionicon_offsetx,
+                                                   tabView.bounds.size.width -1.0 * cell.indentationWidth-PRI_SEC_ACTIONS_IMAGE_SIZE-20-actionicon_offsetx,
                                                    18);
                     if ((nb_occur=[self isLocalEntryInPlaylist:cur_local_entries[indexPath.row].fullpath])) {
                         
@@ -3367,7 +3367,7 @@ trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
                         [actionView removeTarget: self action:NULL forControlEvents: UIControlEventTouchUpInside];
                         [actionView addTarget: self action: @selector(primaryActionTapped:) forControlEvents: UIControlEventTouchUpInside];
                         [dictActionBtn setObject:[NSNumber numberWithInteger:indexPath.row*100+indexPath.section] forKey:[[actionView.description componentsSeparatedByString:@";"] firstObject]];
-                        actionView.frame = CGRectMake(tabView.bounds.size.width-2-32-PRI_SEC_ACTIONS_IMAGE_SIZE-actionicon_offsetx,0,PRI_SEC_ACTIONS_IMAGE_SIZE,PRI_SEC_ACTIONS_IMAGE_SIZE);
+                        actionView.frame = CGRectMake(tabView.bounds.size.width-2-PRI_SEC_ACTIONS_IMAGE_SIZE-actionicon_offsetx,0,PRI_SEC_ACTIONS_IMAGE_SIZE,PRI_SEC_ACTIONS_IMAGE_SIZE);
                         actionView.enabled=YES;
                         actionView.hidden=NO;
                         

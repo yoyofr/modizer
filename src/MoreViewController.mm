@@ -278,7 +278,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
         //
         topLabel.tag = TOP_LABEL_TAG;
         topLabel.backgroundColor = [UIColor clearColor];
-        topLabel.font = [UIFont systemFontOfSize:17];
+        topLabel.font = [UIFont systemFontOfSize:17 weight:UIFontWeightSemibold];
         topLabel.lineBreakMode=(settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value?
                                 ((settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value==2) ? NSLineBreakByTruncatingTail:NSLineBreakByTruncatingMiddle):NSLineBreakByTruncatingHead);;
         topLabel.opaque=TRUE;
@@ -323,15 +323,15 @@ extern volatile t_settings settings[MAX_SETTINGS];
         bottomLabel.highlightedTextColor = [UIColor colorWithRed:0.8 green:0.8 blue:0.8 alpha:1.0];
     }
     
-    
+    cell.frame=CGRectMake(0,0,tableView.frame.size.width,40);
     
     topLabel.frame= CGRectMake(1.0 * cell.indentationWidth,
                                0,
-                               tableView.bounds.size.width -1.0 * cell.indentationWidth- 32-(isEditing?32:0),
+                               tableView.bounds.size.width -1.0 * cell.indentationWidth-(isEditing?32:0),
                                22);
     bottomLabel.frame = CGRectMake(1.0 * cell.indentationWidth,
                                    22,
-                                   tableView.bounds.size.width -1.0 * cell.indentationWidth-32-(isEditing?32:0),
+                                   tableView.bounds.size.width -1.0 * cell.indentationWidth-(isEditing?32:0),
                                    18);
     
     bottomLabel.text=@""; //default value

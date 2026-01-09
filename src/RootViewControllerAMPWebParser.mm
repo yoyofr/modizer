@@ -124,9 +124,9 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
         if ([mSearchText length]==0) {
             mSearchText=nil;
             mSearch=0;
+            search_dbWEB=0;  //reset to ensure search_dbWEB is not used by default
         } else {
             mSearch=1;
-            search_dbWEB=0;  //reset to ensure search_dbWEB is not used by default
         }
         sBar.text=mSearchText;
         
@@ -142,6 +142,7 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
         
         dbWEB_nb_entries=0;
         search_dbWEB_nb_entries=0;
+        search_dbWEB_entries_count=0;
         
         search_dbWEB_hasFiles=0;
         dbWEB_hasFiles=0;
@@ -866,12 +867,17 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
             NSArray *arr_tmp_url_realnameList=[doc searchWithXPathQuery:@"//text()[contains(normalize-space(.),'Real Name:')]/following::node()[1]"];
             if ([arr_tmp_url_realnameList count]>0) {
                 //have found only 1 group and redirected to composers list
+                
+                mSearch=0;
+                
                 NSArray *arr_tmp_url_groupName=[doc searchWithXPathQuery:@"//q"];
                 
                 TFHppleElement *el_title=[arr_tmp_url_groupName objectAtIndex:0];
-                navbarTitle.text=el_title.content;
-                self.navigationItem.title=navbarTitle.text;
-                [navbarTitle sizeToFit];
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    navbarTitle.text=el_title.content;
+                    self.navigationItem.title=navbarTitle.text;
+                    [navbarTitle sizeToFit];
+                });
                 
                 NSArray *arr_tmp_url_handleList=[doc searchWithXPathQuery:@"//text()[contains(normalize-space(.),'Handle:')]/following::a[1]"];
                 //NSArray *arr_tmp_url_realnameList=[doc searchWithXPathQuery:@"//text()[contains(normalize-space(.),'Real Name:')]/following::node()[1]"];
@@ -1138,12 +1144,12 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
             
             NSDictionary *baseAttributes = @{
                 NSForegroundColorAttributeName:topTextCol,
-                NSFontAttributeName:[UIFont systemFontOfSize:17.0f],
+                NSFontAttributeName:[UIFont systemFontOfSize:17 weight:UIFontWeightSemibold],
                 NSBackgroundColorAttributeName:[UIColor clearColor]
             };
             NSDictionary *attributesData = @{
                 NSForegroundColorAttributeName:topTextColData,
-                NSFontAttributeName:[UIFont systemFontOfSize:17.0f],
+                NSFontAttributeName:[UIFont systemFontOfSize:17 weight:UIFontWeightSemibold],
             };
             NSRange rangeData;
             
@@ -1569,7 +1575,7 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
         //
         topLabel.tag = TOP_LABEL_TAG;
         topLabel.backgroundColor = [UIColor clearColor];
-        topLabel.font = [UIFont systemFontOfSize:17];
+        topLabel.font = [UIFont systemFontOfSize:17 weight:UIFontWeightSemibold];
         topLabel.lineBreakMode=(settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value?
                                 ((settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value==2) ? NSLineBreakByTruncatingTail:NSLineBreakByTruncatingMiddle):NSLineBreakByTruncatingHead);;;
         topLabel.opaque=TRUE;
@@ -1651,14 +1657,6 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
         bottomLabel.textColor = [UIColor colorWithRed:0.4 green:0.4 blue:0.4 alpha:1.0];
         //bottomLabel.highlightedTextColor = [UIColor colorWithRed:0.2 green:0.2 blue:0.2 alpha:1.0];
     }
-//    topLabel.frame= CGRectMake((has_mini_img?35:0)+1.0 * cell.indentationWidth,
-//                               0,
-//                               tabView.bounds.size.width -1.0 * cell.indentationWidth- 32-(has_mini_img?35:0)-PRI_SEC_ACTIONS_IMAGE_SIZE,
-//                               22);
-//    bottomLabel.frame = CGRectMake((has_mini_img?35:0)+1.0 * cell.indentationWidth,
-//                                   22,
-//                                   tabView.bounds.size.width -1.0 * cell.indentationWidth-32-(has_mini_img?35:0)-PRI_SEC_ACTIONS_IMAGE_SIZE,
-//                                   18);
     bottomLabel.text=@""; //default value
     bottomImageView.image=nil;
     coverImgView.image=nil;
@@ -1690,7 +1688,7 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
             if (colFactor==0) topLabel.textColor=[UIColor colorWithRed:0.5f green:0.5f blue:0.5f alpha:1.0];
             topLabel.frame= CGRectMake((has_mini_img?35:0)+1.0 * cell.indentationWidth,
                                        0,
-                                       tabView.bounds.size.width -1.0 * cell.indentationWidth- 32-PRI_SEC_ACTIONS_IMAGE_SIZE-(has_mini_img?35:0),
+                                       tabView.bounds.size.width -1.0 * cell.indentationWidth-PRI_SEC_ACTIONS_IMAGE_SIZE-(has_mini_img?35:0),
                                        22);
             if (cur_db_entries[indexPath.row].downloaded==1) {
                 if (cur_db_entries[indexPath.row].rating==-1) {
@@ -1717,7 +1715,7 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
                 
                 bottomLabel.frame = CGRectMake((has_mini_img?35:0)+ 1.0 * cell.indentationWidth+20,
                                                22,
-                                               tabView.bounds.size.width -1.0 * cell.indentationWidth-32-PRI_SEC_ACTIONS_IMAGE_SIZE-20-(has_mini_img?35:0),
+                                               tabView.bounds.size.width -1.0 * cell.indentationWidth-PRI_SEC_ACTIONS_IMAGE_SIZE-20-(has_mini_img?35:0),
                                                18);
             } else {
                 bottomLabel.text=cur_db_entries[indexPath.row].info;
@@ -1735,7 +1733,7 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
                 [actionView addTarget: self action: @selector(primaryActionTapped:) forControlEvents: UIControlEventTouchUpInside];
                 [dictActionBtn setObject:[NSNumber numberWithInteger:indexPath.row*100+indexPath.section] forKey:[[actionView.description componentsSeparatedByString:@";"] firstObject]];
             }
-            actionView.frame = CGRectMake(tabView.bounds.size.width-2-32-PRI_SEC_ACTIONS_IMAGE_SIZE-tabView.safeAreaInsets.left-tabView.safeAreaInsets.right,
+            actionView.frame = CGRectMake(tabView.bounds.size.width-2-PRI_SEC_ACTIONS_IMAGE_SIZE-tabView.safeAreaInsets.left-tabView.safeAreaInsets.right,
                                           0,
                                           PRI_SEC_ACTIONS_IMAGE_SIZE,
                                           PRI_SEC_ACTIONS_IMAGE_SIZE);
@@ -1752,7 +1750,7 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
         } else { // DIR
             bottomLabel.frame = CGRectMake((has_mini_img?35:0)+ 1.0 * cell.indentationWidth,
                                            22,
-                                           tabView.bounds.size.width -1.0 * cell.indentationWidth-32-PRI_SEC_ACTIONS_IMAGE_SIZE-(has_mini_img?35:0),
+                                           tabView.bounds.size.width -1.0 * cell.indentationWidth-PRI_SEC_ACTIONS_IMAGE_SIZE-(has_mini_img?35:0),
                                            18);
             if (cur_db_entries[indexPath.row].info) {
                 bottomLabel.text=[NSString stringWithFormat:@"%@",cur_db_entries[indexPath.row].info];
@@ -1761,7 +1759,7 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
             }
             topLabel.frame= CGRectMake((has_mini_img?35:0)+1.0 * cell.indentationWidth,
                                        0,
-                                       tabView.bounds.size.width -1.0 * cell.indentationWidth- 32-(has_mini_img?35:0),
+                                       tabView.bounds.size.width -1.0 * cell.indentationWidth- PRI_SEC_ACTIONS_IMAGE_SIZE-(has_mini_img?35:0),
                                        22);
             if (darkMode) topLabel.textColor=[UIColor colorWithRed:0.5f green:0.5f blue:1.0f alpha:1.0f];
             else topLabel.textColor=[UIColor colorWithRed:0.0f green:0.0f blue:1.0f alpha:1.0f];
@@ -1783,20 +1781,20 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
         if ([bottomLabel.text length]>0) {
             topLabel.frame= CGRectMake((has_mini_img?35:0)+1.0 * cell.indentationWidth,
                                        0,
-                                       tabView.bounds.size.width -1.0 * cell.indentationWidth- 32-(has_mini_img?35:0)-PRI_SEC_ACTIONS_IMAGE_SIZE,
+                                       tabView.bounds.size.width -1.0 * cell.indentationWidth-(has_mini_img?35:0)-PRI_SEC_ACTIONS_IMAGE_SIZE,
                                        22);
             bottomLabel.frame = CGRectMake((has_mini_img?35:0)+1.0 * cell.indentationWidth,
                                            22,
-                                           tabView.bounds.size.width -1.0 * cell.indentationWidth-32-(has_mini_img?35:0)-PRI_SEC_ACTIONS_IMAGE_SIZE,
+                                           tabView.bounds.size.width -1.0 * cell.indentationWidth-(has_mini_img?35:0)-PRI_SEC_ACTIONS_IMAGE_SIZE,
                                            18);
         } else {
             topLabel.frame= CGRectMake((has_mini_img?35:0)+1.0 * cell.indentationWidth,
                                        0,
-                                       tabView.bounds.size.width -1.0 * cell.indentationWidth- 32-(has_mini_img?35:0)-PRI_SEC_ACTIONS_IMAGE_SIZE,
+                                       tabView.bounds.size.width -1.0 * cell.indentationWidth-(has_mini_img?35:0)-PRI_SEC_ACTIONS_IMAGE_SIZE,
                                        35);
             bottomLabel.frame = CGRectMake((has_mini_img?35:0)+1.0 * cell.indentationWidth,
                                            40,
-                                           tabView.bounds.size.width -1.0 * cell.indentationWidth-32-(has_mini_img?35:0)-PRI_SEC_ACTIONS_IMAGE_SIZE,
+                                           tabView.bounds.size.width -1.0 * cell.indentationWidth-(has_mini_img?35:0)-PRI_SEC_ACTIONS_IMAGE_SIZE,
                                            0);
         }
         
@@ -1876,6 +1874,7 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
             
             dbWEB_entries=NULL;
             search_dbWEB_entries=NULL;
+            search_dbWEB_entries_count=0;
             
             dbWEB_nb_entries=0;
             search_dbWEB_nb_entries=0;

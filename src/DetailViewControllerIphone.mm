@@ -7,6 +7,9 @@
 //
 //#define PM_TEST_LOAD 64
 
+#define FXSLOT_LPTOUCH_ACTIVTATION_DELAY 1.5  //in seconds
+#define FXSLOT_LPTOUCH_CYCLING_DELAY 1.5  //in seconds, has to be <= FXSLOT_LPTOUCH_ACTIVTATION_DELAY
+
 #define FX_AUTO_SCALING_DELAY_ZOOMIN_FAST 60 //frame delay before zooming in for FX auto scaling
 #define FX_AUTO_SCALING_DELAY_ZOOMIN_SLOW 120 //frame delay before zooming in for FX auto scaling
 
@@ -8994,9 +8997,9 @@ void initViewPortData(int fxidx,float &x,float &y,float &w,float &h,float ww,flo
                 fxLPselected=fxidx;
             } else if (isFXinRangeLPtouchCurrent(x,y,w,h)) {
                 //yes: check if we should swap with current one
-                if ( (fxLPselected!=fxidx)&&(fxLPselectedCpt>(settings[GLOB_FXFPS].detail.mdz_switch.switch_value?60:30)*2) ) {
+                if ( (fxLPselected!=fxidx)&&(fxLPselectedCpt>(settings[GLOB_FXFPS].detail.mdz_switch.switch_value?60:30)*FXSLOT_LPTOUCH_ACTIVTATION_DELAY) ) {
                     fxLPselected=fxidx;
-                    fxLPselectedCpt=(settings[GLOB_FXFPS].detail.mdz_switch.switch_value?60:30);
+                    fxLPselectedCpt=FXSLOT_LPTOUCH_ACTIVTATION_DELAY-FXSLOT_LPTOUCH_CYCLING_DELAY;
                 } else fxLPselectedCpt++;
             }
         }
@@ -9015,7 +9018,7 @@ void drawTgtSlotPattern(int fxIdx,float x,float y,float w,float h,float ww,float
         //highlight tgt slot
         static int cptA=0;
         int alpha=255-64;
-        int col=255-128+32*sin(cptA*0.03);
+        int col=128+32*sin(cptA*0.03);
         if (col<0) col=0; if (col>255) col=255;
         glViewport(0, 0, ww*glScaleFactor, hh*glScaleFactor);
         RenderUtils::FillAreaPattern(x, y,
@@ -10155,7 +10158,7 @@ void drawTgtSlotPattern(int fxIdx,float x,float y,float w,float h,float ww,float
         //
         topLabel.tag = TOP_LABEL_TAG;
         topLabel.backgroundColor = [UIColor clearColor];
-        topLabel.font = [UIFont boldSystemFontOfSize:14];
+        topLabel.font = [UIFont systemFontOfSize:15 weight:UIFontWeightSemibold];
         topLabel.lineBreakMode=(settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value?
                                 ((settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value==2) ? NSLineBreakByTruncatingTail:NSLineBreakByTruncatingMiddle):NSLineBreakByTruncatingHead);;
         topLabel.opaque=TRUE;

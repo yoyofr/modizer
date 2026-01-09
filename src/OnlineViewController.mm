@@ -443,7 +443,7 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
         //
         topLabel.tag = TOP_LABEL_TAG;
         topLabel.backgroundColor = [UIColor clearColor];
-        topLabel.font = [UIFont systemFontOfSize:17];
+        topLabel.font = [UIFont systemFontOfSize:17 weight:UIFontWeightSemibold];
         topLabel.lineBreakMode=(settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value?
                                 ((settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value==2) ? NSLineBreakByTruncatingTail:NSLineBreakByTruncatingMiddle):NSLineBreakByTruncatingHead);;;
         topLabel.opaque=TRUE;
@@ -487,6 +487,8 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
         bottomLabel.textColor = [UIColor colorWithRed:0.4 green:0.4 blue:0.4 alpha:1.0];
         bottomLabel.highlightedTextColor = [UIColor colorWithRed:0.2 green:0.2 blue:0.2 alpha:1.0];
     }
+    
+    cell.frame=CGRectMake(0,0,tableView.frame.size.width,40);
     
     topLabel.frame= CGRectMake(1.0 * cell.indentationWidth,
                                0,

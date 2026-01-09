@@ -114,8 +114,8 @@ void main() {
     vec3 baseColor;
     if (a ^^ b) baseColor = v_color.xyz;
     else        {
-        baseColor = vec3(0.0,0.0,0.0);//v_color.xyz/4.0;
-        alpha=0.0;
+        baseColor = vec3(0.1,0.1,0.1);//v_color.xyz/4.0;
+        alpha=0.7;
     }
 
     // --- COMPOSITION ---

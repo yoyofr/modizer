@@ -1627,7 +1627,7 @@ MDZELog("gzread error str for FTP entry %d",i); \
         //
         topLabel.tag = TOP_LABEL_TAG;
         topLabel.backgroundColor = [UIColor clearColor];
-        topLabel.font = [UIFont systemFontOfSize:17];
+        topLabel.font = [UIFont systemFontOfSize:17 weight:UIFontWeightSemibold];
         topLabel.lineBreakMode=(NSLineBreakMode)UILineBreakModeMiddleTruncation;
         topLabel.opaque=TRUE;
         topLabel.autoresizesSubviews=UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleRightMargin;

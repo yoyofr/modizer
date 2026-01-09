@@ -6,7 +6,7 @@
 //  Copyright 2010 __YoyoFR / Yohann Magnien__. All rights reserved.
 //
 
-#define DEBUG_SHOW_WELCOME 1
+#define DEBUG_SHOW_WELCOME 0
 
 #import "myTabBarController.h"
 #import "TTFadeAnimator.h"

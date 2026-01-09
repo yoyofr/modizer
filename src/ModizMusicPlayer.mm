@@ -6362,30 +6362,38 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     }
                                 } else nbBytes=(nbBytes==SOUND_BUFFER_SIZE_SAMPLE*2*2?nbBytes-4:nbBytes);
                             } else {
-                                
                                 gme_play( gme_emu, SOUND_BUFFER_SIZE_SAMPLE*2, buffer_ana[buffer_ana_gen_ofs] );
                                 nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
                                 if (settings[GLOB_PBRATIO_ONOFF].detail.mdz_boolswitch.switch_value) mCurrentSamples+=SOUND_BUFFER_SIZE_SAMPLE*settings[GLOB_PBRATIO].detail.mdz_slider.slider_value;
                                 else mCurrentSamples+=SOUND_BUFFER_SIZE_SAMPLE;
                                 
+                                
+                                
                                 //midi like notes data
                                 int voices_idx=0;
                                 memset(tim_notes[buffer_ana_gen_ofs],0,DEFAULT_VOICES*4);
                                 for (int j=0; j < m_genNumVoicesChannels; j++) {
+                                    
+                                    int vgmofs=(m_voice_prev_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/(SOUND_BUFFER_SIZE_SAMPLE);
+                                    vgmofs=vgmofs&15;
+                                    vgmofs*=8;
+                                    
                                     if (m_voicesStatus[j]) {
-                                        unsigned int idx=vgm_getNote(j);
-                                        
-                                        if ((idx>0)&&vgm_last_vol[j]) {
-                                            unsigned int subidx=vgm_getSubNote(j);
+                                        unsigned int idx=vgm_getNote(j+vgmofs);
+                                        if ((idx>0)&&vgm_last_vol[j+vgmofs]) {
+                                            unsigned int subidx=vgm_getSubNote(j+vgmofs);
                                             //printf("ch %d note %d vol %d\n",j,idx,vgm_last_vol[j]);
                                             
-                                            unsigned int instr=vgm_last_instr[j];
+                                            unsigned int instr=vgm_last_instr[j+vgmofs];
                                             tim_notes[buffer_ana_gen_ofs][voices_idx]=
                                             (unsigned int)idx|
                                             ((unsigned int)(instr)<<8)|
-                                            ((unsigned int)vgm_last_vol[j]<<16)|
+                                            ((unsigned int)vgm_last_vol[j+vgmofs]<<16)|
                                             ((unsigned int)(1<<1)<<24)|
                                             ((unsigned int)subidx<<28);
+                                            
+                                                vgm_last_vol[j+vgmofs]=0;
+                                                vgm_last_note[j+vgmofs]=0;
                                         }
                                         voices_idx++;
                                     }
@@ -6394,6 +6402,8 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 
                                 int diffptr=(m_voice_current_ptr[0]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)-(m_voice_prev_current_ptr[0]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
                                 if (diffptr<0) diffptr+=SOUND_BUFFER_SIZE_SAMPLE*4*4;
+                                
+                                //MDZILog("ptr diff %d %d %d",diffptr,(int)m_voice_current_ptr[0],(int)m_voice_prev_current_ptr[0]);
                                 
                                 if (diffptr<SOUND_BUFFER_SIZE_SAMPLE) {
                                     for (int j=0;j<(m_genNumVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?m_genNumVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) {

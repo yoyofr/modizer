@@ -695,12 +695,61 @@ void optNSFPLAYChangedC(id param) {
     settings[MDZ_SETTINGS_FAMILY_OSCILLO].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
     settings[MDZ_SETTINGS_FAMILY_OSCILLO].sub_family=MDZ_SETTINGS_FAMILY_OSCILLO;
     
+    SETTINGS_ID_DEF(MDZ_SETTINGS_FAMILY_FXMODPattern)
+    settings[MDZ_SETTINGS_FAMILY_FXMODPattern].type=MDZ_FAMILY;
+    settings[MDZ_SETTINGS_FAMILY_FXMODPattern].label=(char*)"MOD Pattern settings";
+    settings[MDZ_SETTINGS_FAMILY_FXMODPattern].description=NULL;
+    settings[MDZ_SETTINGS_FAMILY_FXMODPattern].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+    settings[MDZ_SETTINGS_FAMILY_FXMODPattern].sub_family=MDZ_SETTINGS_FAMILY_FXMODPattern;
+    
+    SETTINGS_ID_DEF(MDZ_SETTINGS_FAMILY_FXMIDIPattern)
+    settings[MDZ_SETTINGS_FAMILY_FXMIDIPattern].type=MDZ_FAMILY;
+    settings[MDZ_SETTINGS_FAMILY_FXMIDIPattern].label=(char*)"MIDI pattern settings";
+    settings[MDZ_SETTINGS_FAMILY_FXMIDIPattern].description=NULL;
+    settings[MDZ_SETTINGS_FAMILY_FXMIDIPattern].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+    settings[MDZ_SETTINGS_FAMILY_FXMIDIPattern].sub_family=MDZ_SETTINGS_FAMILY_FXMIDIPattern;
+    
+    SETTINGS_ID_DEF(MDZ_SETTINGS_FAMILY_FXPianoRoll)
+    settings[MDZ_SETTINGS_FAMILY_FXPianoRoll].type=MDZ_FAMILY;
+    settings[MDZ_SETTINGS_FAMILY_FXPianoRoll].label=(char*)"Piano roll settings";
+    settings[MDZ_SETTINGS_FAMILY_FXPianoRoll].description=NULL;
+    settings[MDZ_SETTINGS_FAMILY_FXPianoRoll].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+    settings[MDZ_SETTINGS_FAMILY_FXPianoRoll].sub_family=MDZ_SETTINGS_FAMILY_FXPianoRoll;
+    
     SETTINGS_ID_DEF(MDZ_SETTINGS_FAMILY_PIANOMIDI_COL)
     settings[MDZ_SETTINGS_FAMILY_PIANOMIDI_COL].type=MDZ_FAMILY;
     settings[MDZ_SETTINGS_FAMILY_PIANOMIDI_COL].label=(char*)"PR & NS colors settings";
     settings[MDZ_SETTINGS_FAMILY_PIANOMIDI_COL].description=NULL;
     settings[MDZ_SETTINGS_FAMILY_PIANOMIDI_COL].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
     settings[MDZ_SETTINGS_FAMILY_PIANOMIDI_COL].sub_family=MDZ_SETTINGS_FAMILY_PIANOMIDI_COL;
+    
+    SETTINGS_ID_DEF(MDZ_SETTINGS_FAMILY_FXPiano3D)
+    settings[MDZ_SETTINGS_FAMILY_FXPiano3D].type=MDZ_FAMILY;
+    settings[MDZ_SETTINGS_FAMILY_FXPiano3D].label=(char*)"Piano 3D settings";
+    settings[MDZ_SETTINGS_FAMILY_FXPiano3D].description=NULL;
+    settings[MDZ_SETTINGS_FAMILY_FXPiano3D].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+    settings[MDZ_SETTINGS_FAMILY_FXPiano3D].sub_family=MDZ_SETTINGS_FAMILY_FXPiano3D;
+    
+    SETTINGS_ID_DEF(MDZ_SETTINGS_FAMILY_FXP3DSpectrum)
+    settings[MDZ_SETTINGS_FAMILY_FXP3DSpectrum].type=MDZ_FAMILY;
+    settings[MDZ_SETTINGS_FAMILY_FXP3DSpectrum].label=(char*)"3D spectrum settings";
+    settings[MDZ_SETTINGS_FAMILY_FXP3DSpectrum].description=NULL;
+    settings[MDZ_SETTINGS_FAMILY_FXP3DSpectrum].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+    settings[MDZ_SETTINGS_FAMILY_FXP3DSpectrum].sub_family=MDZ_SETTINGS_FAMILY_FXP3DSpectrum;
+    
+    SETTINGS_ID_DEF(MDZ_SETTINGS_FAMILY_FXPSpectrum)
+    settings[MDZ_SETTINGS_FAMILY_FXPSpectrum].type=MDZ_FAMILY;
+    settings[MDZ_SETTINGS_FAMILY_FXPSpectrum].label=(char*)"Spectrum settings";
+    settings[MDZ_SETTINGS_FAMILY_FXPSpectrum].description=NULL;
+    settings[MDZ_SETTINGS_FAMILY_FXPSpectrum].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+    settings[MDZ_SETTINGS_FAMILY_FXPSpectrum].sub_family=MDZ_SETTINGS_FAMILY_FXPSpectrum;
+    
+    SETTINGS_ID_DEF(MDZ_SETTINGS_FAMILY_FXP3DLandscape)
+    settings[MDZ_SETTINGS_FAMILY_FXP3DLandscape].type=MDZ_FAMILY;
+    settings[MDZ_SETTINGS_FAMILY_FXP3DLandscape].label=(char*)"3D landscape settings";
+    settings[MDZ_SETTINGS_FAMILY_FXP3DLandscape].description=NULL;
+    settings[MDZ_SETTINGS_FAMILY_FXP3DLandscape].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+    settings[MDZ_SETTINGS_FAMILY_FXP3DLandscape].sub_family=MDZ_SETTINGS_FAMILY_FXP3DLandscape;
     
     SETTINGS_ID_DEF(MDZ_SETTINGS_FAMILY_PLUGINS)
     settings[MDZ_SETTINGS_FAMILY_PLUGINS].type=MDZ_FAMILY;
@@ -1484,7 +1533,7 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXSpectrum].type=MDZ_SWITCH;
     settings[GLOB_FXSpectrum].label=(char*)"2D Spectrum";
     settings[GLOB_FXSpectrum].description=NULL;
-    settings[GLOB_FXSpectrum].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+    settings[GLOB_FXSpectrum].family=MDZ_SETTINGS_FAMILY_FXPSpectrum;
     settings[GLOB_FXSpectrum].sub_family=0;
     settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value_nb=3;
     settings[GLOB_FXSpectrum].detail.mdz_switch.switch_labels=(char**)calloc(1,settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value_nb*sizeof(char*));
@@ -1494,8 +1543,8 @@ void optNSFPLAYChangedC(id param) {
     
     SETTINGS_ID_DEF(GLOB_FXSpectrumFXSLOT)
     settings[GLOB_FXSpectrumFXSLOT].label=(char*)"FX Layout";
-    settings[GLOB_FXSpectrumFXSLOT].description=(char*)"0: fullscreen 1:left 2:right 3:top 4:bottom 5:top left 6:top right 7:bottom left 8:bottom right";
-    settings[GLOB_FXSpectrumFXSLOT].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+    settings[GLOB_FXSpectrumFXSLOT].description=(char*)"0: fullscreen 1:left 2:right 3:bottom 4:top 5:bottom left 6:bottom right 7:top left 8:top right";
+    settings[GLOB_FXSpectrumFXSLOT].family=MDZ_SETTINGS_FAMILY_FXPSpectrum;
     settings[GLOB_FXSpectrumFXSLOT].sub_family=0;
     settings[GLOB_FXSpectrumFXSLOT].callback=&optVISUChangedC;
     settings[GLOB_FXSpectrumFXSLOT].type=MDZ_SLIDER_DISCRETE;
@@ -1507,7 +1556,7 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXMODPattern].type=MDZ_SWITCH;
     settings[GLOB_FXMODPattern].label=(char*)"MOD Pattern";
     settings[GLOB_FXMODPattern].description=NULL;
-    settings[GLOB_FXMODPattern].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+    settings[GLOB_FXMODPattern].family=MDZ_SETTINGS_FAMILY_FXMODPattern;
     settings[GLOB_FXMODPattern].sub_family=0;
     settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value_nb=4;
     settings[GLOB_FXMODPattern].detail.mdz_switch.switch_labels=(char**)calloc(1,settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value_nb*sizeof(char*));
@@ -1518,8 +1567,8 @@ void optNSFPLAYChangedC(id param) {
     
     SETTINGS_ID_DEF(GLOB_FXMODPatternFXSLOT)
     settings[GLOB_FXMODPatternFXSLOT].label=(char*)"FX Layout";
-    settings[GLOB_FXMODPatternFXSLOT].description=(char*)"0: fullscreen 1:left 2:right 3:top 4:bottom 5:top left 6:top right 7:bottom left 8:bottom right";
-    settings[GLOB_FXMODPatternFXSLOT].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+    settings[GLOB_FXMODPatternFXSLOT].description=(char*)"0: fullscreen 1:left 2:right 3:bottom 4:top 5:bottom left 6:bottom right 7:top left 8:top right";
+    settings[GLOB_FXMODPatternFXSLOT].family=MDZ_SETTINGS_FAMILY_FXMODPattern;
     settings[GLOB_FXMODPatternFXSLOT].sub_family=0;
     settings[GLOB_FXMODPatternFXSLOT].callback=&optVISUChangedC;
     settings[GLOB_FXMODPatternFXSLOT].type=MDZ_SLIDER_DISCRETE;
@@ -1531,7 +1580,7 @@ void optNSFPLAYChangedC(id param) {
     SETTINGS_ID_DEF(GLOB_FXMODPattern_BGAlpha)
     settings[GLOB_FXMODPattern_BGAlpha].label=(char*)"Patterns BG Alpha";
     settings[GLOB_FXMODPattern_BGAlpha].description=(char*)"Opacity of mod patterns view";
-    settings[GLOB_FXMODPattern_BGAlpha].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+    settings[GLOB_FXMODPattern_BGAlpha].family=MDZ_SETTINGS_FAMILY_FXMODPattern;
     settings[GLOB_FXMODPattern_BGAlpha].sub_family=0;
     settings[GLOB_FXMODPattern_BGAlpha].callback=&optVISUChangedC;
     settings[GLOB_FXMODPattern_BGAlpha].type=MDZ_SLIDER_CONTINUOUS;
@@ -1543,7 +1592,7 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXMODPattern_Theme].type=MDZ_SWITCH;
     settings[GLOB_FXMODPattern_Theme].label=(char*)"MOD Color Theme";
     settings[GLOB_FXMODPattern_Theme].description=NULL;
-    settings[GLOB_FXMODPattern_Theme].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+    settings[GLOB_FXMODPattern_Theme].family=MDZ_SETTINGS_FAMILY_FXMODPattern;
     settings[GLOB_FXMODPattern_Theme].sub_family=0;
     settings[GLOB_FXMODPattern_Theme].detail.mdz_switch.switch_value_nb=modpat_themesNb;
     settings[GLOB_FXMODPattern_Theme].detail.mdz_switch.switch_labels=(char**)calloc(1,settings[GLOB_FXMODPattern_Theme].detail.mdz_switch.switch_value_nb*sizeof(char*));
@@ -1560,7 +1609,7 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXMODPattern_CurrentLineMode].type=MDZ_SWITCH;
     settings[GLOB_FXMODPattern_CurrentLineMode].label=(char*)"MOD Current Line";
     settings[GLOB_FXMODPattern_CurrentLineMode].description=NULL;
-    settings[GLOB_FXMODPattern_CurrentLineMode].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+    settings[GLOB_FXMODPattern_CurrentLineMode].family=MDZ_SETTINGS_FAMILY_FXMODPattern;
     settings[GLOB_FXMODPattern_CurrentLineMode].sub_family=0;
     settings[GLOB_FXMODPattern_CurrentLineMode].detail.mdz_switch.switch_value_nb=2;
     settings[GLOB_FXMODPattern_CurrentLineMode].detail.mdz_switch.switch_labels=(char**)calloc(1,settings[GLOB_FXMODPattern_CurrentLineMode].detail.mdz_switch.switch_value_nb*sizeof(char*));
@@ -1571,7 +1620,7 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXMODPattern_VolBar].type=MDZ_BOOLSWITCH;
     settings[GLOB_FXMODPattern_VolBar].label=(char*)"MOD Volume bars";
     settings[GLOB_FXMODPattern_VolBar].description=NULL;
-    settings[GLOB_FXMODPattern_VolBar].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+    settings[GLOB_FXMODPattern_VolBar].family=MDZ_SETTINGS_FAMILY_FXMODPattern;
     settings[GLOB_FXMODPattern_VolBar].sub_family=0;
     
     
@@ -1579,7 +1628,7 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXMODPattern_Font].type=MDZ_SWITCH;
     settings[GLOB_FXMODPattern_Font].label=(char*)"MOD Pattern Font";
     settings[GLOB_FXMODPattern_Font].description=NULL;
-    settings[GLOB_FXMODPattern_Font].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+    settings[GLOB_FXMODPattern_Font].family=MDZ_SETTINGS_FAMILY_FXMODPattern;
     settings[GLOB_FXMODPattern_Font].sub_family=0;
     settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_value_nb=5;
     settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_labels=(char**)calloc(1,settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_value_nb*sizeof(char*));
@@ -1593,7 +1642,7 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXMODPattern_FontSize].type=MDZ_SWITCH;
     settings[GLOB_FXMODPattern_FontSize].label=(char*)"MOD Pattern Font Size";
     settings[GLOB_FXMODPattern_FontSize].description=NULL;
-    settings[GLOB_FXMODPattern_FontSize].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+    settings[GLOB_FXMODPattern_FontSize].family=MDZ_SETTINGS_FAMILY_FXMODPattern;
     settings[GLOB_FXMODPattern_FontSize].sub_family=0;
     settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_value_nb=4;
     settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_labels=(char**)calloc(1,settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_value_nb*sizeof(char*));
@@ -1607,7 +1656,7 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXPianoRoll].type=MDZ_SWITCH;
     settings[GLOB_FXPianoRoll].label=(char*)"Piano Roll FX";
     settings[GLOB_FXPianoRoll].description=(char*)"Activate Piano roll FX, standard or 'Synthesia' like";
-    settings[GLOB_FXPianoRoll].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+    settings[GLOB_FXPianoRoll].family=MDZ_SETTINGS_FAMILY_FXPianoRoll;
     settings[GLOB_FXPianoRoll].sub_family=0;
     settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value_nb=3;
     settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_labels=(char**)calloc(1,settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value_nb*sizeof(char*));
@@ -1617,8 +1666,8 @@ void optNSFPLAYChangedC(id param) {
     
     SETTINGS_ID_DEF(GLOB_FXPianoRollFXSLOT)
     settings[GLOB_FXPianoRollFXSLOT].label=(char*)"FX Layout";
-    settings[GLOB_FXPianoRollFXSLOT].description=(char*)"0: fullscreen 1:left 2:right 3:top 4:bottom 5:top left 6:top right 7:bottom left 8:bottom right";
-    settings[GLOB_FXPianoRollFXSLOT].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+    settings[GLOB_FXPianoRollFXSLOT].description=(char*)"0: fullscreen 1:left 2:right 3:bottom 4:top 5:bottom left 6:bottom right 7:top left 8:top right";
+    settings[GLOB_FXPianoRollFXSLOT].family=MDZ_SETTINGS_FAMILY_FXPianoRoll;
     settings[GLOB_FXPianoRollFXSLOT].sub_family=0;
     settings[GLOB_FXPianoRollFXSLOT].callback=&optVISUChangedC;
     settings[GLOB_FXPianoRollFXSLOT].type=MDZ_SLIDER_DISCRETE;
@@ -1630,7 +1679,7 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXPianoRollFXAutoScale].type=MDZ_BOOLSWITCH;
     settings[GLOB_FXPianoRollFXAutoScale].label=(char*)"Auto scale";
     settings[GLOB_FXPianoRollFXAutoScale].description=NULL;
-    settings[GLOB_FXPianoRollFXAutoScale].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+    settings[GLOB_FXPianoRollFXAutoScale].family=MDZ_SETTINGS_FAMILY_FXPianoRoll;
     settings[GLOB_FXPianoRollFXAutoScale].sub_family=0;
     settings[GLOB_FXPianoRollFXAutoScale].detail.mdz_boolswitch.switch_value=1;
     
@@ -1638,7 +1687,7 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXPianoRollSpark].type=MDZ_SWITCH;
     settings[GLOB_FXPianoRollSpark].label=(char*)"PR/Spark FX";
     settings[GLOB_FXPianoRollSpark].description=(char*)"Activate spark FX, colored or white";
-    settings[GLOB_FXPianoRollSpark].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+    settings[GLOB_FXPianoRollSpark].family=MDZ_SETTINGS_FAMILY_FXPianoRoll;
     settings[GLOB_FXPianoRollSpark].sub_family=0;
     settings[GLOB_FXPianoRollSpark].detail.mdz_switch.switch_value_nb=3;
     settings[GLOB_FXPianoRollSpark].detail.mdz_switch.switch_labels=(char**)calloc(1,settings[GLOB_FXPianoRollSpark].detail.mdz_switch.switch_value_nb*sizeof(char*));
@@ -1649,7 +1698,7 @@ void optNSFPLAYChangedC(id param) {
     SETTINGS_ID_DEF(GLOB_FXPianoRollVoicesLabels)
     settings[GLOB_FXPianoRollVoicesLabels].label=(char*)"PR/Voices labels";
     settings[GLOB_FXPianoRollVoicesLabels].description=(char*)"Display voices label";
-    settings[GLOB_FXPianoRollVoicesLabels].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+    settings[GLOB_FXPianoRollVoicesLabels].family=MDZ_SETTINGS_FAMILY_FXPianoRoll;
     settings[GLOB_FXPianoRollVoicesLabels].sub_family=0;
     settings[GLOB_FXPianoRollVoicesLabels].type=MDZ_BOOLSWITCH;
     settings[GLOB_FXPianoRollVoicesLabels].detail.mdz_boolswitch.switch_value=0;
@@ -1657,7 +1706,7 @@ void optNSFPLAYChangedC(id param) {
     SETTINGS_ID_DEF(GLOB_FXPianoRollOctavesLabels)
     settings[GLOB_FXPianoRollOctavesLabels].label=(char*)"PR/Octaves labels";
     settings[GLOB_FXPianoRollOctavesLabels].description=(char*)"Display octaves labels";
-    settings[GLOB_FXPianoRollOctavesLabels].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+    settings[GLOB_FXPianoRollOctavesLabels].family=MDZ_SETTINGS_FAMILY_FXPianoRoll;
     settings[GLOB_FXPianoRollOctavesLabels].sub_family=0;
     settings[GLOB_FXPianoRollOctavesLabels].type=MDZ_BOOLSWITCH;
     settings[GLOB_FXPianoRollOctavesLabels].detail.mdz_boolswitch.switch_value=0;
@@ -1666,7 +1715,7 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXMIDIPattern].type=MDZ_SWITCH;
     settings[GLOB_FXMIDIPattern].label=(char*)"Notes scroller FX";
     settings[GLOB_FXMIDIPattern].description=NULL;
-    settings[GLOB_FXMIDIPattern].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+    settings[GLOB_FXMIDIPattern].family=MDZ_SETTINGS_FAMILY_FXMIDIPattern;
     settings[GLOB_FXMIDIPattern].sub_family=0;
     settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value_nb=3;
     settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_labels=(char**)calloc(1,settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value_nb*sizeof(char*));
@@ -1676,8 +1725,8 @@ void optNSFPLAYChangedC(id param) {
     
     SETTINGS_ID_DEF(GLOB_FXMIDIPatternFXSLOT)
     settings[GLOB_FXMIDIPatternFXSLOT].label=(char*)"FX Layout";
-    settings[GLOB_FXMIDIPatternFXSLOT].description=(char*)"0: fullscreen 1:left 2:right 3:top 4:bottom 5:top left 6:top right 7:bottom left 8:bottom right";
-    settings[GLOB_FXMIDIPatternFXSLOT].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+    settings[GLOB_FXMIDIPatternFXSLOT].description=(char*)"0: fullscreen 1:left 2:right 3:bottom 4:top 5:bottom left 6:bottom right 7:top left 8:top right";
+    settings[GLOB_FXMIDIPatternFXSLOT].family=MDZ_SETTINGS_FAMILY_FXMIDIPattern;
     settings[GLOB_FXMIDIPatternFXSLOT].sub_family=0;
     settings[GLOB_FXMIDIPatternFXSLOT].callback=&optVISUChangedC;
     settings[GLOB_FXMIDIPatternFXSLOT].type=MDZ_SLIDER_DISCRETE;
@@ -1689,7 +1738,7 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXMIDIPatternAutoScale].type=MDZ_BOOLSWITCH;
     settings[GLOB_FXMIDIPatternAutoScale].label=(char*)"Auto scale";
     settings[GLOB_FXMIDIPatternAutoScale].description=NULL;
-    settings[GLOB_FXMIDIPatternAutoScale].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+    settings[GLOB_FXMIDIPatternAutoScale].family=MDZ_SETTINGS_FAMILY_FXMIDIPattern;
     settings[GLOB_FXMIDIPatternAutoScale].sub_family=0;
     settings[GLOB_FXMIDIPatternAutoScale].detail.mdz_boolswitch.switch_value=1;
     
@@ -1697,7 +1746,7 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXMIDICutLine].type=MDZ_SWITCH;
     settings[GLOB_FXMIDICutLine].label=(char*)"NS/bars mode";
     settings[GLOB_FXMIDICutLine].description=NULL;
-    settings[GLOB_FXMIDICutLine].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+    settings[GLOB_FXMIDICutLine].family=MDZ_SETTINGS_FAMILY_FXMIDIPattern;
     settings[GLOB_FXMIDICutLine].sub_family=0;
     settings[GLOB_FXMIDICutLine].detail.mdz_switch.switch_value_nb=3;
     settings[GLOB_FXMIDICutLine].detail.mdz_switch.switch_labels=(char**)calloc(1,settings[GLOB_FXMIDICutLine].detail.mdz_switch.switch_value_nb*sizeof(char*));
@@ -1709,7 +1758,7 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXMIDIBarStyle].type=MDZ_SWITCH;
     settings[GLOB_FXMIDIBarStyle].label=(char*)"NS/bars style";
     settings[GLOB_FXMIDIBarStyle].description=NULL;
-    settings[GLOB_FXMIDIBarStyle].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+    settings[GLOB_FXMIDIBarStyle].family=MDZ_SETTINGS_FAMILY_FXMIDIPattern;
     settings[GLOB_FXMIDIBarStyle].sub_family=0;
     settings[GLOB_FXMIDIBarStyle].detail.mdz_switch.switch_value_nb=3;
     settings[GLOB_FXMIDIBarStyle].detail.mdz_switch.switch_labels=(char**)calloc(1,settings[GLOB_FXMIDIBarStyle].detail.mdz_switch.switch_value_nb*sizeof(char*));
@@ -1721,7 +1770,7 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXMIDIBarVibrato].type=MDZ_SWITCH;
     settings[GLOB_FXMIDIBarVibrato].label=(char*)"Vibrato display";
     settings[GLOB_FXMIDIBarVibrato].description=NULL;
-    settings[GLOB_FXMIDIBarVibrato].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+    settings[GLOB_FXMIDIBarVibrato].family=MDZ_SETTINGS_FAMILY_FXMIDIPattern;
     settings[GLOB_FXMIDIBarVibrato].sub_family=0;
     settings[GLOB_FXMIDIBarVibrato].detail.mdz_switch.switch_value_nb=3;
     settings[GLOB_FXMIDIBarVibrato].detail.mdz_switch.switch_labels=(char**)calloc(1,settings[GLOB_FXMIDIBarVibrato].detail.mdz_switch.switch_value_nb*sizeof(char*));
@@ -1733,7 +1782,7 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXPiano3D].type=MDZ_SWITCH;
     settings[GLOB_FXPiano3D].label=(char*)"Piano FX";
     settings[GLOB_FXPiano3D].description=NULL;
-    settings[GLOB_FXPiano3D].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+    settings[GLOB_FXPiano3D].family=MDZ_SETTINGS_FAMILY_FXPiano3D;
     settings[GLOB_FXPiano3D].sub_family=0;
     settings[GLOB_FXPiano3D].detail.mdz_switch.switch_value_nb=5;
     settings[GLOB_FXPiano3D].detail.mdz_switch.switch_labels=(char**)calloc(1,settings[GLOB_FXPiano3D].detail.mdz_switch.switch_value_nb*sizeof(char*));
@@ -1746,7 +1795,7 @@ void optNSFPLAYChangedC(id param) {
     SETTINGS_ID_DEF(GLOB_FXPiano3DFXSLOT)
     settings[GLOB_FXPiano3DFXSLOT].label=(char*)"FX Layout";
     settings[GLOB_FXPiano3DFXSLOT].description=(char*)"0: fullscreen 1:left 2:right 3:bottom 4:top 5:bottom left 6:bottom right 7:top left 8:top right";
-    settings[GLOB_FXPiano3DFXSLOT].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+    settings[GLOB_FXPiano3DFXSLOT].family=MDZ_SETTINGS_FAMILY_FXPiano3D;
     settings[GLOB_FXPiano3DFXSLOT].sub_family=0;
     settings[GLOB_FXPiano3DFXSLOT].callback=&optVISUChangedC;
     settings[GLOB_FXPiano3DFXSLOT].type=MDZ_SLIDER_DISCRETE;
@@ -1758,7 +1807,7 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXPianoCutLine].type=MDZ_SWITCH;
     settings[GLOB_FXPianoCutLine].label=(char*)"Piano bars mode";
     settings[GLOB_FXPianoCutLine].description=NULL;
-    settings[GLOB_FXPianoCutLine].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+    settings[GLOB_FXPianoCutLine].family=MDZ_SETTINGS_FAMILY_FXPiano3D;
     settings[GLOB_FXPianoCutLine].sub_family=0;
     settings[GLOB_FXPianoCutLine].detail.mdz_switch.switch_value_nb=3;
     settings[GLOB_FXPianoCutLine].detail.mdz_switch.switch_labels=(char**)calloc(1,settings[GLOB_FXPianoCutLine].detail.mdz_switch.switch_value_nb*sizeof(char*));
@@ -1770,7 +1819,7 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXPianoColorMode].type=MDZ_SWITCH;
     settings[GLOB_FXPianoColorMode].label=(char*)"Piano color mode";
     settings[GLOB_FXPianoColorMode].description=NULL;
-    settings[GLOB_FXPianoColorMode].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+    settings[GLOB_FXPianoColorMode].family=MDZ_SETTINGS_FAMILY_FXPiano3D;
     settings[GLOB_FXPianoColorMode].sub_family=0;
     settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value_nb=2;
     settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_labels=(char**)calloc(1,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value_nb*sizeof(char*));
@@ -1781,7 +1830,7 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FX3DSpectrum].type=MDZ_SWITCH;
     settings[GLOB_FX3DSpectrum].label=(char*)"3D Spectrum";
     settings[GLOB_FX3DSpectrum].description=NULL;
-    settings[GLOB_FX3DSpectrum].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+    settings[GLOB_FX3DSpectrum].family=MDZ_SETTINGS_FAMILY_FXP3DSpectrum;
     settings[GLOB_FX3DSpectrum].sub_family=0;
     settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value_nb=4;
     settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_labels=(char**)calloc(1,settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value_nb*sizeof(char*));
@@ -1792,8 +1841,8 @@ void optNSFPLAYChangedC(id param) {
     
     SETTINGS_ID_DEF(GLOB_FX3DSpectrumFXSLOT)
     settings[GLOB_FX3DSpectrumFXSLOT].label=(char*)"FX Layout";
-    settings[GLOB_FX3DSpectrumFXSLOT].description=(char*)"0: fullscreen 1:left 2:right 3:top 4:bottom 5:top left 6:top right 7:bottom left 8:bottom right";
-    settings[GLOB_FX3DSpectrumFXSLOT].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+    settings[GLOB_FX3DSpectrumFXSLOT].description=(char*)"0: fullscreen 1:left 2:right 3:bottom 4:top 5:bottom left 6:bottom right 7:top left 8:top right";
+    settings[GLOB_FX3DSpectrumFXSLOT].family=MDZ_SETTINGS_FAMILY_FXP3DSpectrum;
     settings[GLOB_FX3DSpectrumFXSLOT].sub_family=0;
     settings[GLOB_FX3DSpectrumFXSLOT].callback=&optVISUChangedC;
     settings[GLOB_FX3DSpectrumFXSLOT].type=MDZ_SLIDER_DISCRETE;
@@ -1804,7 +1853,7 @@ void optNSFPLAYChangedC(id param) {
     SETTINGS_ID_DEF(GLOB_FX3DSpectrumBloom)
     settings[GLOB_FX3DSpectrumBloom].label=(char*)"3D Sp.Bloom";
     settings[GLOB_FX3DSpectrumBloom].description=NULL;
-    settings[GLOB_FX3DSpectrumBloom].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+    settings[GLOB_FX3DSpectrumBloom].family=MDZ_SETTINGS_FAMILY_FXP3DSpectrum;
     settings[GLOB_FX3DSpectrumBloom].sub_family=0;
     settings[GLOB_FX3DSpectrumBloom].type=MDZ_SWITCH;
     settings[GLOB_FX3DSpectrumBloom].detail.mdz_switch.switch_value_nb=4;
@@ -1818,7 +1867,7 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FX3DLandscape].type=MDZ_SWITCH;
     settings[GLOB_FX3DLandscape].label=(char*)"3D Landscape";
     settings[GLOB_FX3DLandscape].description=(char*)"0: off";
-    settings[GLOB_FX3DLandscape].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+    settings[GLOB_FX3DLandscape].family=MDZ_SETTINGS_FAMILY_FXP3DLandscape;
     settings[GLOB_FX3DLandscape].sub_family=0;
     settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value_nb=9;
     settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_labels=(char**)calloc(1,settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value_nb*sizeof(char*));
@@ -1834,8 +1883,8 @@ void optNSFPLAYChangedC(id param) {
     
     SETTINGS_ID_DEF(GLOB_FX3DLandscapeFXSLOT)
     settings[GLOB_FX3DLandscapeFXSLOT].label=(char*)"FX Layout";
-    settings[GLOB_FX3DLandscapeFXSLOT].description=(char*)"0: fullscreen 1:left 2:right 3:top 4:bottom 5:top left 6:top right 7:bottom left 8:bottom right";
-    settings[GLOB_FX3DLandscapeFXSLOT].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+    settings[GLOB_FX3DLandscapeFXSLOT].description=(char*)"0: fullscreen 1:left 2:right 3:bottom 4:top 5:bottom left 6:bottom right 7:top left 8:top right";
+    settings[GLOB_FX3DLandscapeFXSLOT].family=MDZ_SETTINGS_FAMILY_FXP3DLandscape;
     settings[GLOB_FX3DLandscapeFXSLOT].sub_family=0;
     settings[GLOB_FX3DLandscapeFXSLOT].callback=&optVISUChangedC;
     settings[GLOB_FX3DLandscapeFXSLOT].type=MDZ_SLIDER_DISCRETE;
@@ -1846,7 +1895,7 @@ void optNSFPLAYChangedC(id param) {
     SETTINGS_ID_DEF(GLOB_FX3DLandscapeBloom)
     settings[GLOB_FX3DLandscapeBloom].label=(char*)"3D Land. Bloom";
     settings[GLOB_FX3DLandscapeBloom].description=NULL;
-    settings[GLOB_FX3DLandscapeBloom].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+    settings[GLOB_FX3DLandscapeBloom].family=MDZ_SETTINGS_FAMILY_FXP3DLandscape;
     settings[GLOB_FX3DLandscapeBloom].sub_family=0;
     settings[GLOB_FX3DLandscapeBloom].type=MDZ_SWITCH;
     settings[GLOB_FX3DLandscapeBloom].detail.mdz_switch.switch_value_nb=4;
@@ -1945,8 +1994,8 @@ void optNSFPLAYChangedC(id param) {
     
     SETTINGS_ID_DEF(PROJECTM_FXSLOT)
     settings[PROJECTM_FXSLOT].label=(char*)"FX Layout";
-    settings[PROJECTM_FXSLOT].description=(char*)"0: fullscreen 1:left 2:right 3:top 4:bottom 5:top left 6:top right 7:bottom left 8:bottom right";
-    settings[PROJECTM_FXSLOT].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+    settings[PROJECTM_FXSLOT].description=(char*)"0: fullscreen 1:left 2:right 3:bottom 4:top 5:bottom left 6:bottom right 7:top left 8:top right";
+    settings[PROJECTM_FXSLOT].family=MDZ_SETTINGS_FAMILY_PROJECTM;
     settings[PROJECTM_FXSLOT].sub_family=0;
     settings[PROJECTM_FXSLOT].callback=&optVISUChangedC;
     settings[PROJECTM_FXSLOT].type=MDZ_SLIDER_DISCRETE;
@@ -2176,7 +2225,7 @@ void optNSFPLAYChangedC(id param) {
     
     SETTINGS_ID_DEF(OSCILLO_FXSLOT)
     settings[OSCILLO_FXSLOT].label=(char*)"FX Layout";
-    settings[OSCILLO_FXSLOT].description=(char*)"0: fullscreen 1:left 2:right 3:top 4:bottom 5:top left 6:top right 7:bottom left 8:bottom right";
+    settings[OSCILLO_FXSLOT].description=(char*)"0: fullscreen 1:left 2:right 3:bottom 4:top 5:bottom left 6:bottom right 7:top left 8:top right";
     settings[OSCILLO_FXSLOT].family=MDZ_SETTINGS_FAMILY_OSCILLO;
     settings[OSCILLO_FXSLOT].sub_family=0;
     settings[OSCILLO_FXSLOT].callback=&optVISUChangedC;
@@ -4498,7 +4547,7 @@ void optNSFPLAYChangedC(id param) {
         //
         topLabel.tag = TOP_LABEL_TAG;
         topLabel.backgroundColor = [UIColor clearColor];
-        topLabel.font = [UIFont boldSystemFontOfSize:13];
+        topLabel.font = [UIFont systemFontOfSize:17 weight:UIFontWeightSemibold];
         topLabel.lineBreakMode=(settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value?
                                 ((settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value==2) ? NSLineBreakByTruncatingTail:NSLineBreakByTruncatingMiddle):NSLineBreakByTruncatingHead);;;
         topLabel.opaque=TRUE;
@@ -4570,7 +4619,7 @@ void optNSFPLAYChangedC(id param) {
         topLabel.frame= CGRectMake(4,
                                    0,
                                    tabView.bounds.size.width*4/10,
-                                   50);
+                                   38);
         bottomLabel.frame= CGRectMake(4,
                                       38,
                                       tabView.bounds.size.width/**4/10*/,

@@ -3,6 +3,7 @@
 //TODO:  MODIZER changes start / YOYOFR
 extern "C" {
 #include "../../../src/ModizerVoicesData.h"
+#include "stdio.h"
 }
 static int current_voice;
 //TODO:  MODIZER changes end / YOYOFR
@@ -225,7 +226,6 @@ void Spc_Dsp::run( int clock_count )
 		mvoll = -mvoll; // eliminate surround
 	
     
-    int count_start=count;//YOYOFR
 	do
 	{
 		// KON/KOFF reading
@@ -346,8 +346,6 @@ void Spc_Dsp::run( int clock_count )
 					main_out_r += r;
                     
                     //TODO:  MODIZER changes start / YOYOFR
-                        
-                     
 					
 					if ( REG(eon) & vbit )
 					{
@@ -367,9 +365,25 @@ void Spc_Dsp::run( int clock_count )
                     
                     m_voice_buff[current_voice][(m_voice_current_ptr[current_voice]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*4-1)]=LIMIT8((newamp>>21));
                     m_voice_buff[current_voice][((m_voice_current_ptr[current_voice]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)+1)&(SOUND_BUFFER_SIZE_SAMPLE*4*4-1)]=LIMIT8((newamp>>21));
+                    
+                    
+                    //YOYOFR
+                    //if ((count==count_start)||1) {//do only once / call
+                    if (newamp) {
+                        int vgmofs=(m_voice_current_ptr[current_voice]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)/(SOUND_BUFFER_SIZE_SAMPLE);
+                        vgmofs=vgmofs&15;
+                        vgmofs*=8;
+                        int freq=((long long)(pitch)*440/(1<<12)); //assume ref is A4
+                        vgm_last_note[vgmofs+current_voice]=freq;
+                        vgm_last_vol[vgmofs+current_voice]=env>>3;
+                        if (vgm_last_vol[vgmofs+current_voice]==0) vgm_last_vol[vgmofs+current_voice]=1;
+                        vgm_last_instr[vgmofs+current_voice]=current_voice;
+                    }
+                    //}
+                    //YOYOFR
                 
                     //TODO:  MODIZER changes end / YOYOFR
-				}
+                }
 				
 				pmon_input = output;
 				VREG(v_regs,outx) = (uint8_t) (output >> 8);
@@ -587,25 +601,7 @@ void Spc_Dsp::run( int clock_count )
 			}
 skip_brr:
             
-            //YOYOFR
-            if (count==count_start) {//do only once / call
-                int pp= pitch;
-                if ( v->enabled && pp && (!(REG(flg) & 0x40)) ) {
-                    int freq=((long long)(pp)*440/(1<<12)); //assume ref is A4
-                    vgm_last_note[current_voice]=freq;
-                    vgm_last_vol[current_voice]=v->env;
-                    if (vgm_last_vol[current_voice]) {
-                        vgm_last_vol[current_voice]>>=3;
-                        if (vgm_last_vol[current_voice]>255) vgm_last_vol[current_voice]=255;
-                        if (vgm_last_vol[current_voice]<0) vgm_last_vol[current_voice]=0;
-                    }
-                    if (vgm_last_vol[current_voice]==0) vgm_last_note[current_voice]=0;
-                    vgm_last_instr[current_voice]=current_voice;
-                } else {
-                    vgm_last_note[current_voice]=0;
-                }
-            }
-            //YOYOFR
+            
             
             
         

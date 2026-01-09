@@ -2073,7 +2073,7 @@ As a consequence, some entries might disappear from existing playlist.\n\
         //
         topLabel.tag = TOP_LABEL_TAG;
         topLabel.backgroundColor = [UIColor clearColor];
-        topLabel.font = [UIFont systemFontOfSize:17];
+        topLabel.font = [UIFont systemFontOfSize:17 weight:UIFontWeightSemibold];
 //        topLabel.lineBreakMode=(settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value?
 //                                ((settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value==2) ? NSLineBreakByTruncatingTail:NSLineBreakByTruncatingMiddle):NSLineBreakByTruncatingHead);
         topLabel.opaque=TRUE;
@@ -2161,11 +2161,11 @@ As a consequence, some entries might disappear from existing playlist.\n\
     
     topLabel.frame= CGRectMake(1.0 * cell.indentationWidth,
                                0,
-                               tabView.bounds.size.width -1.0 * cell.indentationWidth- 32,
+                               tabView.bounds.size.width -1.0 * cell.indentationWidth/*- 32*/,
                                22);
     bottomLabel.frame = CGRectMake(1.0 * cell.indentationWidth,
                                    22,
-                                   tabView.bounds.size.width -1.0 * cell.indentationWidth-32,
+                                   tabView.bounds.size.width -1.0 * cell.indentationWidth/*-32*/,
                                    18);
     bottomLabel.text=@""; //default value
     bottomImageView.image=nil;
@@ -2197,7 +2197,7 @@ As a consequence, some entries might disappear from existing playlist.\n\
             
             bottomLabel.frame = CGRectMake( 1.0 * cell.indentationWidth,
                                            22,
-                                           tabView.bounds.size.width -1.0 * cell.indentationWidth-32-PRI_SEC_ACTIONS_IMAGE_SIZE-60,
+                                           tabView.bounds.size.width -1.0 * cell.indentationWidth/*-32*/-PRI_SEC_ACTIONS_IMAGE_SIZE-60,
                                            18);
             
             if (darkMode) topLabel.textColor=[UIColor colorWithRed:ACTION_COLOR_RED_DARKMODE green:ACTION_COLOR_GREEN_DARKMODE blue:ACTION_COLOR_BLUE_DARKMODE alpha:1.0];
@@ -2205,7 +2205,7 @@ As a consequence, some entries might disappear from existing playlist.\n\
             
             topLabel.frame= CGRectMake(1.0 * cell.indentationWidth,
                                        0,
-                                       tabView.bounds.size.width -1.0 * cell.indentationWidth- 32-PRI_SEC_ACTIONS_IMAGE_SIZE-4-PRI_SEC_ACTIONS_IMAGE_SIZE,
+                                       tabView.bounds.size.width -1.0 * cell.indentationWidth/*- 32*/-PRI_SEC_ACTIONS_IMAGE_SIZE-4-PRI_SEC_ACTIONS_IMAGE_SIZE,
                                        22);
             
             [secActionView setImage:[UIImage imageNamed:@"playlist_add_all.png"] forState:UIControlStateNormal];
@@ -2223,7 +2223,7 @@ As a consequence, some entries might disappear from existing playlist.\n\
             [dictActionBtn setObject:[NSNumber numberWithInteger:indexPath.row*100+indexPath.section] forKey:[[actionView.description componentsSeparatedByString:@";"] firstObject]];
             
             int icon_posx=tabView.bounds.size.width-2-PRI_SEC_ACTIONS_IMAGE_SIZE-tabView.safeAreaInsets.right-tabView.safeAreaInsets.left;
-            icon_posx-=32;
+            //icon_posx-=32;
             actionView.frame = CGRectMake(icon_posx,0,PRI_SEC_ACTIONS_IMAGE_SIZE,PRI_SEC_ACTIONS_IMAGE_SIZE);
             actionView.enabled=YES;
             actionView.hidden=NO;
@@ -2237,7 +2237,7 @@ As a consequence, some entries might disappear from existing playlist.\n\
             
             bottomLabel.frame = CGRectMake( 1.0 * cell.indentationWidth,
                                            22,
-                                           tabView.bounds.size.width -1.0 * cell.indentationWidth-32-PRI_SEC_ACTIONS_IMAGE_SIZE-60,
+                                           tabView.bounds.size.width -1.0 * cell.indentationWidth/*-32*/-PRI_SEC_ACTIONS_IMAGE_SIZE-60,
                                            18);
             
             if (darkMode) topLabel.textColor=[UIColor colorWithRed:ICLOUD_COLOR_RED_DARKMODE green:ICLOUD_COLOR_GREEN_DARKMODE blue:ICLOUD_COLOR_BLUE_DARKMODE alpha:1.0];
@@ -2245,7 +2245,7 @@ As a consequence, some entries might disappear from existing playlist.\n\
             
             topLabel.frame= CGRectMake(1.0 * cell.indentationWidth,
                                        0,
-                                       tabView.bounds.size.width -1.0 * cell.indentationWidth- 32-PRI_SEC_ACTIONS_IMAGE_SIZE-4-PRI_SEC_ACTIONS_IMAGE_SIZE,
+                                       tabView.bounds.size.width -1.0 * cell.indentationWidth/*- 32*/-PRI_SEC_ACTIONS_IMAGE_SIZE-4-PRI_SEC_ACTIONS_IMAGE_SIZE,
                                        22);
             actionView.enabled=NO;
             actionView.hidden=YES;
@@ -2274,14 +2274,14 @@ As a consequence, some entries might disappear from existing playlist.\n\
             
             topLabel.frame= CGRectMake(1.0 * cell.indentationWidth,
                                        0,
-                                       tabView.bounds.size.width -1.0 * cell.indentationWidth- 32-32,
+                                       tabView.bounds.size.width -1.0 * cell.indentationWidth/*- 32*/-32,
                                        40);
             
             int actionicon_offsetx=tabView.safeAreaInsets.right+tabView.safeAreaInsets.left;
             actionicon_offsetx=PRI_SEC_ACTIONS_IMAGE_SIZE+tabView.safeAreaInsets.right+tabView.safeAreaInsets.left;
             //                    cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
             
-            secActionView.frame = CGRectMake(tabView.bounds.size.width-2-32-actionicon_offsetx,0,PRI_SEC_ACTIONS_IMAGE_SIZE,PRI_SEC_ACTIONS_IMAGE_SIZE);
+            secActionView.frame = CGRectMake(tabView.bounds.size.width-2/*-32*/-actionicon_offsetx,0,PRI_SEC_ACTIONS_IMAGE_SIZE,PRI_SEC_ACTIONS_IMAGE_SIZE);
             
             [secActionView setImage:[UIImage imageNamed:@"folder.png"] forState:UIControlStateNormal];
             [secActionView setImage:[UIImage imageNamed:@"folder.png"] forState:UIControlStateHighlighted];
@@ -2310,7 +2310,7 @@ As a consequence, some entries might disappear from existing playlist.\n\
                 actionicon_offsetx=PRI_SEC_ACTIONS_IMAGE_SIZE+tabView.safeAreaInsets.right+tabView.safeAreaInsets.left;
                 //                    cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
                 
-                secActionView.frame = CGRectMake(tabView.bounds.size.width-2-32-actionicon_offsetx,0,PRI_SEC_ACTIONS_IMAGE_SIZE,PRI_SEC_ACTIONS_IMAGE_SIZE);
+                secActionView.frame = CGRectMake(tabView.bounds.size.width-2/*-32*/-actionicon_offsetx,0,PRI_SEC_ACTIONS_IMAGE_SIZE,PRI_SEC_ACTIONS_IMAGE_SIZE);
                 
                 if (settings[GLOB_ArcMultiDefaultAction].detail.mdz_switch.switch_value) {
                     if (settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==0) {
@@ -2339,10 +2339,10 @@ As a consequence, some entries might disappear from existing playlist.\n\
             
             topLabel.frame= CGRectMake(1.0 * cell.indentationWidth,
                                        0,
-                                       tabView.bounds.size.width -1.0 * cell.indentationWidth- 32-PRI_SEC_ACTIONS_IMAGE_SIZE-actionicon_offsetx,
+                                       tabView.bounds.size.width -1.0 * cell.indentationWidth/*- 32*/-PRI_SEC_ACTIONS_IMAGE_SIZE-actionicon_offsetx,
                                        22);
             
-            actionView.frame = CGRectMake(tabView.bounds.size.width-2-32-PRI_SEC_ACTIONS_IMAGE_SIZE-actionicon_offsetx,0,PRI_SEC_ACTIONS_IMAGE_SIZE,PRI_SEC_ACTIONS_IMAGE_SIZE);
+            actionView.frame = CGRectMake(tabView.bounds.size.width-2/*-32*/-PRI_SEC_ACTIONS_IMAGE_SIZE-actionicon_offsetx,0,PRI_SEC_ACTIONS_IMAGE_SIZE,PRI_SEC_ACTIONS_IMAGE_SIZE);
             
             if (settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==0) {
                 [actionView setImage:[UIImage imageNamed:@"playlist_add.png"] forState:UIControlStateNormal];
@@ -2407,7 +2407,7 @@ As a consequence, some entries might disappear from existing playlist.\n\
             
             bottomLabel.frame = CGRectMake( 1.0 * cell.indentationWidth+20,
                                            22,
-                                           tabView.bounds.size.width -1.0 * cell.indentationWidth-32-PRI_SEC_ACTIONS_IMAGE_SIZE-60-actionicon_offsetx,
+                                           tabView.bounds.size.width -1.0 * cell.indentationWidth/*-32*/-PRI_SEC_ACTIONS_IMAGE_SIZE-60-actionicon_offsetx,
                                            18);
             
         }
