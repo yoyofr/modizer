@@ -1,22 +1,22 @@
 {"header" : {
   "cloc_url"           : "github.com/AlDanial/cloc",
   "cloc_version"       : "1.98",
-  "elapsed_seconds"    : 25.4969639778137,
-  "n_files"            : 19148,
-  "n_lines"            : 8463743,
-  "files_per_second"   : 750.991373587134,
-  "lines_per_second"   : 331951.012181872,
+  "elapsed_seconds"    : 29.7628579139709,
+  "n_files"            : 19149,
+  "n_lines"            : 8463886,
+  "files_per_second"   : 643.385794984805,
+  "lines_per_second"   : 284377.462153155,
   "report_file"        : "../output/cloc-output.json"},
 "C" :{
   "nFiles": 4588,
-  "blank": 316850,
+  "blank": 316854,
   "comment": 302636,
-  "code": 1892505},
+  "code": 1892527},
 "C/C++ Header" :{
-  "nFiles": 9299,
-  "blank": 267840,
-  "comment": 454663,
-  "code": 1851332},
+  "nFiles": 9298,
+  "blank": 267789,
+  "comment": 454457,
+  "code": 1851312},
 "C++" :{
   "nFiles": 2691,
   "blank": 269652,
@@ -39,9 +39,9 @@
   "code": 105770},
 "Objective-C++" :{
   "nFiles": 102,
-  "blank": 17418,
-  "comment": 9899,
-  "code": 84865},
+  "blank": 17547,
+  "comment": 9907,
+  "code": 85549},
 "Scheme" :{
   "nFiles": 8,
   "blank": 49,
@@ -58,10 +58,10 @@
   "comment": 13223,
   "code": 58396},
 "Objective-C" :{
-  "nFiles": 171,
-  "blank": 9574,
-  "comment": 5624,
-  "code": 35837},
+  "nFiles": 170,
+  "blank": 9420,
+  "comment": 5606,
+  "code": 34949},
 "PO File" :{
   "nFiles": 29,
   "blank": 8499,
@@ -82,16 +82,16 @@
   "blank": 2178,
   "comment": 2419,
   "code": 9913},
+"JavaScript" :{
+  "nFiles": 83,
+  "blank": 1390,
+  "comment": 1235,
+  "code": 8244},
 "Python" :{
   "nFiles": 36,
   "blank": 1795,
   "comment": 3258,
   "code": 8112},
-"JavaScript" :{
-  "nFiles": 81,
-  "blank": 1353,
-  "comment": 1180,
-  "code": 7843},
 "Windows Resource File" :{
   "nFiles": 38,
   "blank": 838,
@@ -157,6 +157,11 @@
   "blank": 138,
   "comment": 18,
   "code": 1091},
+"GLSL" :{
+  "nFiles": 48,
+  "blank": 282,
+  "comment": 160,
+  "code": 1050},
 "Tcl/Tk" :{
   "nFiles": 4,
   "blank": 152,
@@ -167,11 +172,6 @@
   "blank": 199,
   "comment": 139,
   "code": 981},
-"GLSL" :{
-  "nFiles": 47,
-  "blank": 260,
-  "comment": 153,
-  "code": 939},
 "awk" :{
   "nFiles": 8,
   "blank": 37,
@@ -328,7 +328,7 @@
   "comment": 0,
   "code": 1},
 "SUM": {
-  "blank": 1044639,
-  "comment": 1068389,
-  "code": 6350715,
-  "nFiles": 19148} }
+  "blank": 1044626,
+  "comment": 1068235,
+  "code": 6351025,
+  "nFiles": 19149} }
