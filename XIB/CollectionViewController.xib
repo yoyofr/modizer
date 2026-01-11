@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="24412" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina4_7" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="24405"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="RootViewControllerXPWebParser">
+            <connections>
+                <outlet property="radioButton" destination="hYa-Hu-gUt" id="DjJ-vB-vyf"/>
+                <outlet property="sBar" destination="24" id="29"/>
+                <outlet property="tableView" destination="3" id="23"/>
+                <outlet property="view" destination="1" id="19"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view clipsSubviews="YES" contentMode="scaleToFill" id="1">
+            <rect key="frame" x="0.0" y="0.0" width="375" height="584"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <button opaque="NO" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="hYa-Hu-gUt" customClass="BButton">
+                    <rect key="frame" x="331" y="20" width="44" height="44"/>
+                    <constraints>
+                        <constraint firstAttribute="width" constant="44" id="6GA-Ih-dky"/>
+                        <constraint firstAttribute="height" constant="44" id="VBU-JX-lYi"/>
+                    </constraints>
+                    <fontDescription key="fontDescription" type="system" pointSize="18"/>
+                    <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
+                </button>
+                <searchBar contentMode="redraw" preservesSuperviewLayoutMargins="YES" translatesAutoresizingMaskIntoConstraints="NO" id="24">
+                    <rect key="frame" x="0.0" y="20" width="331" height="44"/>
+                    <textInputTraits key="textInputTraits"/>
+                    <connections>
+                        <outlet property="delegate" destination="-1" id="28"/>
+                    </connections>
+                </searchBar>
+                <tableView clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" alwaysBounceVertical="YES" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" translatesAutoresizingMaskIntoConstraints="NO" id="3">
+                    <rect key="frame" x="0.0" y="64" width="375" height="520"/>
+                    <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                    <connections>
+                        <outlet property="dataSource" destination="-1" id="21"/>
+                        <outlet property="delegate" destination="-1" id="22"/>
+                    </connections>
+                </tableView>
+            </subviews>
+            <viewLayoutGuide key="safeArea" id="oUv-ev-wZE"/>
+            <constraints>
+                <constraint firstItem="hYa-Hu-gUt" firstAttribute="trailing" secondItem="oUv-ev-wZE" secondAttribute="trailing" id="2bZ-6J-rrQ"/>
+                <constraint firstItem="hYa-Hu-gUt" firstAttribute="bottom" secondItem="24" secondAttribute="bottom" id="37o-UY-yL3"/>
+                <constraint firstItem="hYa-Hu-gUt" firstAttribute="top" secondItem="24" secondAttribute="top" id="JqW-YG-kpY"/>
+                <constraint firstItem="oUv-ev-wZE" firstAttribute="leading" secondItem="3" secondAttribute="leading" id="PR8-mv-Isg"/>
+                <constraint firstItem="oUv-ev-wZE" firstAttribute="trailing" secondItem="3" secondAttribute="trailing" id="QN5-4f-RJM"/>
+                <constraint firstItem="24" firstAttribute="bottom" secondItem="3" secondAttribute="top" id="RhU-r5-IrC"/>
+                <constraint firstItem="24" firstAttribute="top" secondItem="oUv-ev-wZE" secondAttribute="top" id="g8A-FN-w5x"/>
+                <constraint firstItem="oUv-ev-wZE" firstAttribute="leading" secondItem="24" secondAttribute="leading" id="ovT-J0-Ux4"/>
+                <constraint firstItem="hYa-Hu-gUt" firstAttribute="leading" secondItem="24" secondAttribute="trailing" id="zFm-uV-O4Z"/>
+                <constraint firstItem="oUv-ev-wZE" firstAttribute="bottom" secondItem="3" secondAttribute="bottom" id="zUb-BS-AaC"/>
+            </constraints>
+            <simulatedTabBarMetrics key="simulatedBottomBarMetrics" translucent="NO"/>
+            <point key="canvasLocation" x="85.599999999999994" y="64.31784107946028"/>
+        </view>
+    </objects>
+    <resources>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+    </resources>
+</document>

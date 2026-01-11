@@ -43,6 +43,8 @@ extern volatile t_settings settings[MAX_SETTINGS];
 #import "AFURLSessionManager.h"
 #import <WebKit/WebKit.h>
 
+#import "BButton.H"
+
 #import "Notifications.h"
 
 @class DetailViewControllerIphone;
@@ -68,11 +70,12 @@ extern volatile t_settings settings[MAX_SETTINGS];
     int popTipViewRow,popTipViewSection;
     
     WaitingView *waitingView,*waitingViewPlayer;
-    NSTimer *repeatingTimer;
+    NSTimer *repeatingTimer,*updRSTimer;
     IBOutlet UITableView *tableView;
     WKWebView *htmlWebView;
 
     IBOutlet UISearchBar *sBar;
+    IBOutlet BButton *radioButton;
     
     NSFileManager *mFileMngr;
     
@@ -128,7 +131,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
 }
 
 @property (nonatomic, retain) NSFileManager *mFileMngr;
-@property (nonatomic, retain) NSTimer *repeatingTimer;
+@property (nonatomic, retain) NSTimer *repeatingTimer,*updRSTimer;
 @property (nonatomic, retain) DetailViewControllerIphone *detailViewController;
 @property (nonatomic, retain) DownloadViewController *downloadViewController;
 @property (nonatomic, retain) IBOutlet UIViewController *childController;
@@ -166,4 +169,5 @@ extern volatile t_settings settings[MAX_SETTINGS];
 -(void) showWaiting;
 -(void) hideWaiting;
 - (void) addToPlaylistSelView:(NSString*)fullPath label:(NSString*)label showNowListening:(bool)showNL;
+
 @end

@@ -1191,9 +1191,8 @@ static int qsort_CompareArcEntries(const void *entryA, const void *entryB) {
             qsort(archive_entries, archive_entries_count, sizeof(char*), &qsort_CompareArcEntries);
             
             
-            is_rsn=0;
             NSString *extension=[[[cpath lastPathComponent] pathExtension] uppercaseString];
-            if ([extension caseInsensitiveCompare:@"rsn"]==NSOrderedSame) {
+            if ( !is_rsn && ([extension caseInsensitiveCompare:@"rsn"]==NSOrderedSame) ) {
                 is_rsn=1;
                 
                 dispatch_async(dispatch_get_main_queue(), ^(void){
@@ -1207,7 +1206,13 @@ static int qsort_CompareArcEntries(const void *entryA, const void *entryB) {
                 extractProgress.pausable = NO;
                 NSString *tmpPath=[NSString stringWithFormat:@"%@/tmpArchiveBrowser",NSTemporaryDirectory()];
                 [mFileMngr removeItemAtPath:tmpPath error:NULL];
-                [ModizFileHelper extractToPath:[cpath UTF8String] path:[tmpPath UTF8String] caller:self progress:extractProgress context:ExtractBrowserListProgressObserverContext];
+                [ModizFileHelper extractToPath:[cpath UTF8String] path:[tmpPath UTF8String] caller:self progress:extractProgress context:ExtractBrowserListProgressObserverContext completion:^(BOOL success,NSError *err) {
+                    
+                    dispatch_async(dispatch_get_main_queue(), ^(void){
+                        [self.tableView reloadData];
+                        [self.tableView layoutIfNeeded];
+                    });
+                }];
             }
             
             while (file_idx<found) {
@@ -2699,7 +2704,7 @@ leadingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
                 extractProgress = [NSProgress progressWithTotalUnitCount:1];
                 extractProgress.cancellable = YES;
                 extractProgress.pausable = NO;
-                [ModizFileHelper extractToPath:[filePath UTF8String] path:[tgtPath UTF8String] caller:self progress:extractProgress context:ExtractProgressObserverContext];
+                [ModizFileHelper extractToPath:[filePath UTF8String] path:[tgtPath UTF8String] caller:self progress:extractProgress context:ExtractProgressObserverContext completion:nil];
 //                if (mSearch) {
 //                    mSearch=0;
 //                    [self listLocalFiles];
@@ -3614,8 +3619,6 @@ leadingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
                 [self.waitingViewExtract hideProgress];
                 [self.tableView setUserInteractionEnabled:true];
                 [self.navigationItem setHidesBackButton:NO animated:YES];
-                [self.tableView reloadData];
-                [self.tableView layoutIfNeeded];
             }];
         }
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
@@ -3625,8 +3628,6 @@ leadingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
                 [self.waitingViewExtract hideProgress];
                 [self.tableView setUserInteractionEnabled:true];
                 [self.navigationItem setHidesBackButton:NO animated:YES];
-                [self.tableView reloadData];
-                [self.tableView layoutIfNeeded];
             }
         }];
     } else {

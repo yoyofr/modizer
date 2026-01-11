@@ -1514,17 +1514,18 @@ END_PROFILE
     [customView.layer insertSublayer:layerD atIndex:0];
     
     if (darkMode) {
-        customView.backgroundColor = [UIColor colorWithRed: 1-0.7f green: 1-0.7f blue: 1-0.7f alpha: 1.0f];
-        layerU.backgroundColor = [[UIColor colorWithRed: 1-183.0f/255.0f green: 1-193.0f/255.0f blue: 1-199.0f/255.0f alpha: 1.00] CGColor];
-        gradient.colors = [NSArray arrayWithObjects:(id)[[UIColor colorWithRed: 1-144.0f/255.0f green: 1-159.0f/255.0f blue: 1-177.0f/255.0f alpha: 1.00] CGColor],
-                           (id)[[UIColor colorWithRed: 1-183.0f/255.0f green: 1-193.0f/255.0f blue: 1-199.0f/255.0f  alpha: 1.00] CGColor], nil];
-        layerD.backgroundColor = [[UIColor colorWithRed: 1-144.0f/255.0f green: 1-159.0f/255.0f blue: 1-177.0f/255.0f alpha: 1.00] CGColor];
+        float scaleFactor=0.6f;
+        customView.backgroundColor = [UIColor colorWithRed: MDZ_TABVIEW_HEADER_R0*scaleFactor green: MDZ_TABVIEW_HEADER_G0*scaleFactor blue: MDZ_TABVIEW_HEADER_B0*scaleFactor alpha: 1.0f];
+        layerU.backgroundColor = [[UIColor colorWithRed: MDZ_TABVIEW_HEADER_R1*scaleFactor green: MDZ_TABVIEW_HEADER_G1*scaleFactor blue: MDZ_TABVIEW_HEADER_B1*scaleFactor alpha: 1.00] CGColor];
+        gradient.colors = [NSArray arrayWithObjects:(id)[[UIColor colorWithRed: MDZ_TABVIEW_HEADER_R2*scaleFactor green: MDZ_TABVIEW_HEADER_G2*scaleFactor blue: MDZ_TABVIEW_HEADER_B2*scaleFactor alpha: 1.00] CGColor],
+                           (id)[[UIColor colorWithRed: MDZ_TABVIEW_HEADER_R1*scaleFactor green: MDZ_TABVIEW_HEADER_G1*scaleFactor blue: MDZ_TABVIEW_HEADER_B1*scaleFactor  alpha: 1.00] CGColor], nil];
+        layerD.backgroundColor = [[UIColor colorWithRed: MDZ_TABVIEW_HEADER_R2*scaleFactor green: MDZ_TABVIEW_HEADER_G2*scaleFactor blue: MDZ_TABVIEW_HEADER_B2*scaleFactor alpha: 1.00] CGColor];
     } else {
-        customView.backgroundColor = [UIColor colorWithRed: 0.7f green: 0.7f blue: 0.7f alpha: 1.0f];
-        layerU.backgroundColor = [[UIColor colorWithRed: 183.0f/255.0f green: 193.0f/255.0f blue: 199.0f/255.0f alpha: 1.00] CGColor];
-        gradient.colors = [NSArray arrayWithObjects:(id)[[UIColor colorWithRed: 144.0f/255.0f green: 159.0f/255.0f blue: 177.0f/255.0f alpha: 1.00] CGColor],
-                           (id)[[UIColor colorWithRed: 183.0f/255.0f green: 193.0f/255.0f blue: 199.0f/255.0f  alpha: 1.00] CGColor], nil];
-        layerD.backgroundColor = [[UIColor colorWithRed: 144.0f/255.0f green: 159.0f/255.0f blue: 177.0f/255.0f alpha: 1.00] CGColor];
+        customView.backgroundColor = [UIColor colorWithRed: MDZ_TABVIEW_HEADER_R0 green: MDZ_TABVIEW_HEADER_G0 blue: MDZ_TABVIEW_HEADER_B0 alpha: 1.0f];
+        layerU.backgroundColor = [[UIColor colorWithRed: MDZ_TABVIEW_HEADER_R1 green: MDZ_TABVIEW_HEADER_G1 blue: MDZ_TABVIEW_HEADER_B1 alpha: 1.00] CGColor];
+        gradient.colors = [NSArray arrayWithObjects:(id)[[UIColor colorWithRed: MDZ_TABVIEW_HEADER_R2 green: MDZ_TABVIEW_HEADER_G2 blue: MDZ_TABVIEW_HEADER_B2 alpha: 1.00] CGColor],
+                           (id)[[UIColor colorWithRed: MDZ_TABVIEW_HEADER_R1 green: MDZ_TABVIEW_HEADER_G1 blue: MDZ_TABVIEW_HEADER_B1  alpha: 1.00] CGColor], nil];
+        layerD.backgroundColor = [[UIColor colorWithRed: MDZ_TABVIEW_HEADER_R2 green: MDZ_TABVIEW_HEADER_G2 blue: MDZ_TABVIEW_HEADER_B2 alpha: 1.00] CGColor];
     }
     
     UIButton *buttonLeft = [[UIButton alloc] initWithFrame: CGRectMake(0.0, 0.0, 32, 32)];
@@ -1537,6 +1538,7 @@ END_PROFILE
     buttonLabel.titleLabel.lineBreakMode   = (NSLineBreakMode)UILineBreakModeTailTruncation;
     //	buttonLabel.titleLabel.shadowOffset    = CGSizeMake (1.0, 0.0);
     buttonLabel.frame=CGRectMake(32, 0.0, tableView.bounds.size.width-32*2, 32);
+    buttonLabel.contentHorizontalAlignment = UIControlContentHorizontalAlignmentLeft;
     
     
     switch (section) {

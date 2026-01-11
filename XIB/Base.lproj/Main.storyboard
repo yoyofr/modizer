@@ -523,6 +523,24 @@
                                                     <action selector="changeScreenRecorderFlag" destination="MWm-br-vsJ" eventType="touchUpInside" id="bEy-Li-YgW"/>
                                                 </connections>
                                             </button>
+                                            <button hidden="YES" opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="dH1-th-5Sl" userLabel="SaveFile" customClass="BButton">
+                                                <rect key="frame" x="143" y="-1" width="30" height="34"/>
+                                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                                <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.0" colorSpace="custom" customColorSpace="displayP3"/>
+                                                <fontDescription key="fontDescription" type="system" pointSize="18"/>
+                                                <connections>
+                                                    <action selector="pushedSaveFile" destination="MWm-br-vsJ" eventType="touchUpInside" id="raA-T9-bdk"/>
+                                                </connections>
+                                            </button>
+                                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="i6j-qO-A9D" userLabel="AddToPl" customClass="BButton">
+                                                <rect key="frame" x="180" y="-2" width="30" height="34"/>
+                                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                                <fontDescription key="fontDescription" type="system" pointSize="18"/>
+                                                <color key="tintColor" systemColor="systemGrayColor"/>
+                                                <connections>
+                                                    <action selector="pushedAddToPl" destination="MWm-br-vsJ" eventType="touchUpInside" id="ibQ-Hn-yNU"/>
+                                                </connections>
+                                            </button>
                                             <button hidden="YES" opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="C8D-Uc-KrX" userLabel="ArcSelector" customClass="BButton">
                                                 <rect key="frame" x="250" y="0.0" width="32" height="32"/>
                                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
@@ -576,21 +594,6 @@
                                                 </state>
                                                 <connections>
                                                     <action selector="pushedRating5" destination="MWm-br-vsJ" eventType="touchUpInside" id="aux-iq-Wad"/>
-                                                </connections>
-                                            </button>
-                                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" adjustsImageWhenHighlighted="NO" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="i6j-qO-A9D" userLabel="AddToPl">
-                                                <rect key="frame" x="180" y="0.0" width="28" height="28"/>
-                                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                                <fontDescription key="fontDescription" name="Helvetica" family="Helvetica" pointSize="36"/>
-                                                <state key="normal" title="+">
-                                                    <color key="titleColor" white="0.33333333329999998" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                                    <color key="titleShadowColor" red="0.5" green="0.5" blue="0.5" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                                </state>
-                                                <state key="highlighted">
-                                                    <color key="titleColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                                </state>
-                                                <connections>
-                                                    <action selector="pushedAddToPl" destination="MWm-br-vsJ" eventType="touchUpInside" id="ibQ-Hn-yNU"/>
                                                 </connections>
                                             </button>
                                         </subviews>
@@ -890,6 +893,7 @@
                         <outlet property="btnChangeTime" destination="Dhc-wT-rrO" id="ucS-Id-lWE"/>
                         <outlet property="btnLoopInf" destination="RHH-hw-vvc" id="NLu-Ih-Xof"/>
                         <outlet property="btnRecordScreen" destination="i9x-2F-UZM" id="CxF-Ov-3QW"/>
+                        <outlet property="btnSaveFile" destination="dH1-th-5Sl" id="ibC-7X-sZJ"/>
                         <outlet property="btnShowArcList" destination="C8D-Uc-KrX" id="qh8-DC-qbq"/>
                         <outlet property="btnShowSubSong" destination="3qe-Ue-NAd" id="ZOV-fr-oYs"/>
                         <outlet property="btnShowVoices" destination="mz3-sZ-dYT" id="N02-9P-3Ap"/>
@@ -1315,6 +1319,9 @@ Internet accesses to the Modland, HVSC &amp; ASMA libraries are provided as an a
         </systemColor>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+        <systemColor name="systemGrayColor">
+            <color red="0.5568627451" green="0.5568627451" blue="0.57647058819999997" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>

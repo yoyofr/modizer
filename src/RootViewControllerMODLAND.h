@@ -36,6 +36,7 @@
     IBOutlet UITableView *tableView;
 
 	IBOutlet UISearchBar *sBar;
+    IBOutlet UIButton *radioButton;
 	
     NSFileManager *mFileMngr;
 

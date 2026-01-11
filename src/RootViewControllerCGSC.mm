@@ -71,6 +71,9 @@ extern volatile t_settings settings[MAX_SETTINGS];
 #define HAS_DETAILVIEW_CONT
 #include "PlaylistCommonFunctions.h"
 
+-(void) pushRadioButton {
+    
+}
 
 
 -(void)handleLongPress:(UILongPressGestureRecognizer *)gestureRecognizer {
@@ -1691,7 +1694,7 @@ trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
                     mDir2=cur_db_entries[crow].dir2;
                 }
                 
-                if (childController == nil) childController = [[RootViewControllerCGSC alloc]  initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]];
+                if (childController == nil) childController = [[RootViewControllerCGSC alloc]  initWithNibName:@"CollectionViewController" bundle:[NSBundle mainBundle]];
                 else {// Don't cache childviews
                 }
                 

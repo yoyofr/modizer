@@ -395,7 +395,7 @@ static GLuint txtMenuModPatternFlag[16];
 const char *menuModPatternLabel[16]={
     NULL,NULL,NULL,NULL,
     "Volume\nbars",NULL,NULL,"Fixed bar",
-    NULL,"@sliderBG\nopacity|0|90",NULL,NULL,
+    "Hide Midi\n& Piano FX","@sliderBG\nopacity|0|90",NULL,NULL,
     NULL,NULL,NULL,NULL,
 };
 void *menuModPatternVar[16]={
@@ -553,6 +553,7 @@ int playerGetActivatedCells(int menu_idx) {
         if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value==3) active_idx|=1<<3;
         if (settings[GLOB_FXMODPattern_VolBar].detail.mdz_boolswitch.switch_value) active_idx|=1<<4;
         if (settings[GLOB_FXMODPattern_CurrentLineMode].detail.mdz_switch.switch_value==1) active_idx|=1<<7;
+        if (settings[GLOB_FXMODPatternHideOther].detail.mdz_boolswitch.switch_value) active_idx|=1<<8;
         if (settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value) active_idx|=1<<11;
         
         txtMenuModPatternHandle[12]=txtSlots[fxSlot[FX_MODPattern]];
@@ -1589,7 +1590,7 @@ int playerShowMenu(float ww,float hh,float safe_top,float safe_bottom,float safe
                                 fxSlot[FX_OSCILLO]=(fxSlot[FX_OSCILLO]+1)%9;
                                 break;
                             case 0x13: //Go to settings - oscillo
-                                keepOpened=3;
+                                keepOpened=3+FX_OSCILLO;
                                 break;
                             case 0x23: //Back to main menu
                                 pMenu_state.menu_idx=MENU_ROOT;
@@ -1664,7 +1665,7 @@ int playerShowMenu(float ww,float hh,float safe_top,float safe_bottom,float safe
                                 fxSlot[FX_2DSpectrum]=(fxSlot[FX_2DSpectrum]+1)%9;
                                 break;
                             case 0x13: //Go to settings - visu
-                                keepOpened=2;
+                                keepOpened=3+FX_2DSpectrum;
                                 break;
                             case 0x23: //Back to main menu
                                 pMenu_state.menu_idx=MENU_ROOT;
@@ -1744,7 +1745,7 @@ int playerShowMenu(float ww,float hh,float safe_top,float safe_bottom,float safe
                                 fxSlot[FX_3DSpectrum]=(fxSlot[FX_3DSpectrum]+1)%9;
                                 break;
                             case 0x13: //Go to settings - visu
-                                keepOpened=2;
+                                keepOpened=3+FX_3DSpectrum;
                                 break;
                             case 0x23: //Back to main menu
                                 pMenu_state.menu_idx=MENU_ROOT;
@@ -1839,7 +1840,7 @@ int playerShowMenu(float ww,float hh,float safe_top,float safe_bottom,float safe
                                 fxSlot[FX_3DLandscape]=(fxSlot[FX_3DLandscape]+1)%9;
                                 break;
                             case 0x13: //Go to settings - visu
-                                keepOpened=2;
+                                keepOpened=3+FX_3DLandscape;
                                 break;
                             case 0x23: //Back to main menu
                                 pMenu_state.menu_idx=MENU_ROOT;
@@ -1920,7 +1921,7 @@ int playerShowMenu(float ww,float hh,float safe_top,float safe_bottom,float safe
                                 fxSlot[FX_PIANOROLL]=(fxSlot[FX_PIANOROLL]+1)%9;
                                 break;
                             case 0x13: //Go to settings - visu
-                                keepOpened=2;
+                                keepOpened=3+FX_PIANOROLL;
                                 break;
                             case 0x23: //Back to main menu
                                 pMenu_state.menu_idx=MENU_ROOT;
@@ -2001,7 +2002,7 @@ int playerShowMenu(float ww,float hh,float safe_top,float safe_bottom,float safe
                                 fxSlot[FX_PIANO3D]=(fxSlot[FX_PIANO3D]+1)%9;
                                 break;
                             case 0x13: //Go to settings - visu
-                                keepOpened=2;
+                                keepOpened=3+FX_PIANO3D;
                                 break;
                             case 0x23: //Back to main menu
                                 pMenu_state.menu_idx=MENU_ROOT;
@@ -2078,7 +2079,7 @@ int playerShowMenu(float ww,float hh,float safe_top,float safe_bottom,float safe
                                 fxSlot[FX_MIDIPattern]=(fxSlot[FX_MIDIPattern]+1)%9;
                                 break;
                             case 0x13: //Go to settings - visu
-                                keepOpened=2;
+                                keepOpened=3+FX_MIDIPattern;
                                 break;
                             case 0x23: //Back to main menu
                                 pMenu_state.menu_idx=MENU_ROOT;
@@ -2157,6 +2158,7 @@ int playerShowMenu(float ww,float hh,float safe_top,float safe_bottom,float safe
                                 else settings[GLOB_FXMODPattern_CurrentLineMode].detail.mdz_switch.switch_value=1;
                                 break;
                             case 0x02:
+                                settings[GLOB_FXMODPatternHideOther].detail.mdz_boolswitch.switch_value=!(settings[GLOB_FXMODPatternHideOther].detail.mdz_boolswitch.switch_value);
                                 break;
                             case 0x12:
                                 break;
@@ -2171,7 +2173,7 @@ int playerShowMenu(float ww,float hh,float safe_top,float safe_bottom,float safe
                                 fxSlot[FX_MODPattern]=(fxSlot[FX_MODPattern]+1)%9;
                                 break;
                             case 0x13: //Go to settings - visu
-                                keepOpened=2;
+                                keepOpened=3+FX_MODPattern;
                                 break;
                             case 0x23: //Back to main menu
                                 pMenu_state.menu_idx=MENU_ROOT;
@@ -2291,7 +2293,7 @@ int playerShowMenu(float ww,float hh,float safe_top,float safe_bottom,float safe
                                 fxSlot[FX_PROJECTM]=(fxSlot[FX_PROJECTM]+1)%9;
                                 break;
                             case 0x13: //Go to settings - PROJECTM
-                                keepOpened=4;
+                                keepOpened=3+FX_PROJECTM;
                                 break;
                             case 0x23: //Back to main menu
                                 pMenu_state.menu_idx=MENU_ROOT;

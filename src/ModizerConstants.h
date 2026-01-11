@@ -69,9 +69,9 @@ extern void *LoadingProgressObserverContext;
 #define mdz_safe_delete(x) if(x) {delete x;x=NULL;}
 #define mdz_safe_execute_sel(cont,sel,arg) if ([cont respondsToSelector:sel]) [cont performSelectorOnMainThread:sel withObject:arg waitUntilDone:NO];
 
-#define MODIZER_MACM1_WIDTH_MIN 200
+#define MODIZER_MACM1_WIDTH_MIN 340
 #define MODIZER_MACM1_WIDTH_MAX 10000 //1920*2
-#define MODIZER_MACM1_HEIGHT_MIN  202
+#define MODIZER_MACM1_HEIGHT_MIN  342
 #define MODIZER_MACM1_HEIGHT_MAX 10000 //1200*2
 
 #define ACTION_COLOR_RED ((float)(0xD5)/255.0)
@@ -89,6 +89,18 @@ extern void *LoadingProgressObserverContext;
 #define ICLOUD_COLOR_RED_DARKMODE ((float)(0xC7)/255.0)
 #define ICLOUD_COLOR_GREEN_DARKMODE ((float)(0xAD)/255.0)
 #define ICLOUD_COLOR_BLUE_DARKMODE ((float)(0xED)/255.0)
+
+#define MDZ_TABVIEW_HEADER_R0 0.4f
+#define MDZ_TABVIEW_HEADER_G0 0.4f
+#define MDZ_TABVIEW_HEADER_B0 0.4f
+    
+#define MDZ_TABVIEW_HEADER_R1 220.0f/255.0f
+#define MDZ_TABVIEW_HEADER_G1 180.0f/255.0f
+#define MDZ_TABVIEW_HEADER_B1 200.0f/255.0f
+    
+#define MDZ_TABVIEW_HEADER_R2 198.0f/255.0f
+#define MDZ_TABVIEW_HEADER_G2 160.0f/255.0f
+#define MDZ_TABVIEW_HEADER_B2 180.0f/255.0f
 
 
 #define MDZ_RENAME_COL_R (0xEE/255.0f)

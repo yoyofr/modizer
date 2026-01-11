@@ -1050,7 +1050,7 @@ extern bool icloud_available;
     fileManager=nil;
 }
 
-+(void) extractToPath:(const char *)archivePath path:(const char *)extractPath caller:(NSObject*)caller progress:(NSProgress*)extractProgress context:(void*)context {
++(void) extractToPath:(const char *)archivePath path:(const char *)extractPath caller:(NSObject*)caller progress:(NSProgress*)extractProgress context:(void*)context completion:(void (^ _Nullable)(BOOL success, NSError * _Nullable error))completion {
     //Specific case for RAR files as libarchive is buggy for them and UnrarKIT is used instead
     NSString *cpath=[NSString stringWithUTF8String:archivePath];
     if ( ([[[cpath pathExtension] uppercaseString] isEqualToString:@"RAR"]) ||
@@ -1079,7 +1079,14 @@ extern bool icloud_available;
             [archive extractFilesTo:[NSString stringWithUTF8String:extractPath] overwrite:YES error:&error];
             if (error) {
                 MDZELog("Error: %ld %@",error.code,error.localizedDescription);
-            }            
+                if (completion) {
+                    completion(NO, error);
+                }
+            } else {
+                if (completion) {
+                    completion(YES, nil);
+                }
+            }
             [extractProgress removeObserver:caller
                                      forKeyPath:NSStringFromSelector(@selector(fractionCompleted))
                                         context:context];

@@ -55,6 +55,7 @@ struct Resources;
 @class CADisplayLink;
 @class EQViewController;
 @class VoicesViewController;
+@class RadioSource;
 
 class CFont;
 class CGLString;
@@ -115,11 +116,12 @@ enum {
     BOOL mInWasViewHidden;
     
     UIView *labelTopView;
-    CBAutoScrollLabel *labelModuleName,*labelSub,*labelArtist;
+    CBAutoScrollLabel *labelModuleName,*labelArtist;
+    UIView *labelContainer;
 
     //Subsongs and Archive entries picker
     IBOutlet UIButton *btnChangeTime;
-    IBOutlet BButton *btnShowArcList,*btnShowSubSong,*btnShowVoices,*btnRecordScreen;
+    IBOutlet BButton *btnShowArcList,*btnShowSubSong,*btnShowVoices,*btnRecordScreen,*btnSaveFile,*btnAddToPl;
     
     IBOutlet UILabel *labelTime,*labelModuleLength;
     IBOutlet UILabel *labelSeeking;
@@ -128,7 +130,6 @@ enum {
     IBOutlet UIButton *backInfo,*infoZoom,*infoUnzoom;
     IBOutlet BButton *infoButton,*eqButton;
     IBOutlet UIButton *mainRating5,*mainRating5off;
-    IBOutlet UIButton *btnAddToPl;
     IBOutlet UIToolbar *playBar,*pauseBar,*playBarSub,*pauseBarSub;
     
     IBOutlet OBSlider *sliderProgressModule;
@@ -196,7 +197,6 @@ enum {
 }
 
 @property t_plPlaylist_entry *mPlaylist;
-@property (retain,nonatomic) UIButton *btnAddToPl;
 @property int mShuffle;
 @property int mShouldUpdateInfos,mLoopMode;
 @property bool bShowVC,bShowEQ;
@@ -204,9 +204,11 @@ enum {
 @property (retain,nonatomic) UIImage *cover_img,*default_cover;
 @property (retain,nonatomic) WaitingView *waitingView;
 @property (nonatomic, strong) NSTimer *mouseHideTimer;
+@property (retain,nonatomic) RadioSource *radioSource;
 
 @property int not_expected_version;
 
+-(IBAction)pushedSaveFile;
 -(IBAction)pushedAddToPl;
 -(IBAction)pushedRating5;
 
@@ -305,7 +307,7 @@ enum {
 @property (nonatomic, retain) IBOutlet UILabel *labelTime,*labelModuleLength;
 @property (nonatomic, retain) IBOutlet UILabel *labelSeeking;
 @property (nonatomic, retain) IBOutlet UILabel *labelModuleSize;
-@property (nonatomic, retain) IBOutlet BButton *btnShowArcList,*btnShowSubSong,*btnShowVoices,*btnRecordScreen;
+@property (nonatomic, retain) IBOutlet BButton *btnShowArcList,*btnShowSubSong,*btnShowVoices,*btnRecordScreen,*btnSaveFile,*btnAddToPl;
 @property (nonatomic, retain) IBOutlet UIButton *buttonLoopTitleSel,*buttonLoopList,*buttonLoopListSel,*buttonShuffle,*buttonShuffleSel,*buttonShuffleOneSel,*btnLoopInf;
 @property (nonatomic, retain) IBOutlet UIToolbar *playBar,*pauseBar,*playBarSub,*pauseBarSub;
 

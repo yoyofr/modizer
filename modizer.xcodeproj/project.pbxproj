@@ -433,6 +433,10 @@
 		CC02DD422BA3187200ED5992 /* CoreImage.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 593288A3261FC61700DB4E7C /* CoreImage.framework */; };
 		CC02EC541AB5B35600979E38 /* timidity.cfg in Resources */ = {isa = PBXBuildFile; fileRef = 3396B61A13297F8E001792E0 /* timidity.cfg */; };
 		CC02EC551AB5B37000979E38 /* merlin_gold.sf2 in Resources */ = {isa = PBXBuildFile; fileRef = 33C658B0139437FE00265A1D /* merlin_gold.sf2 */; };
+		CC0C57AC2F128E5200A5E7C1 /* CollectionViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = CC0C57AB2F128E5100A5E7C1 /* CollectionViewController.xib */; };
+		CC0C57AD2F128E5200A5E7C1 /* CollectionViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = CC0C57AB2F128E5100A5E7C1 /* CollectionViewController.xib */; };
+		CC0C57DB2F129BBD00A5E7C1 /* RadioSource.mm in Sources */ = {isa = PBXBuildFile; fileRef = CC0C57DA2F129BBD00A5E7C1 /* RadioSource.mm */; };
+		CC0C57DC2F129BBD00A5E7C1 /* RadioSource.mm in Sources */ = {isa = PBXBuildFile; fileRef = CC0C57DA2F129BBD00A5E7C1 /* RadioSource.mm */; };
 		CC0E2DBA2B80A04800CB58C7 /* libogg-openmpt.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CC7BBD3E2B800B0200D8CAAE /* libogg-openmpt.a */; };
 		CC0E2DBB2B80A06C00CB58C7 /* libvorbis-openmpt.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CC7BBD262B800AC600D8CAAE /* libvorbis-openmpt.a */; };
 		CC0E2DBC2B80A07D00CB58C7 /* libmpg123-openmpt.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CC7BBD382B800AF600D8CAAE /* libmpg123-openmpt.a */; };
@@ -3168,6 +3172,9 @@
 		59FF99DD263F34BD004152B8 /* libkss.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = libkss.xcodeproj; sourceTree = "<group>"; };
 		CC07A87E2BB952EA0052DE82 /* gbsplay.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = gbsplay.xcodeproj; path = gbsplay/gbsplay.xcodeproj; sourceTree = "<group>"; };
 		CC08C3A72EA9858E00A0F15F /* modizer-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "modizer-Bridging-Header.h"; sourceTree = "<group>"; };
+		CC0C57AB2F128E5100A5E7C1 /* CollectionViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = CollectionViewController.xib; sourceTree = "<group>"; };
+		CC0C57D92F129BBD00A5E7C1 /* RadioSource.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RadioSource.h; sourceTree = "<group>"; };
+		CC0C57DA2F129BBD00A5E7C1 /* RadioSource.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = RadioSource.mm; sourceTree = "<group>"; };
 		CC1638392B7CCC22003323FD /* folder.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = folder.png; sourceTree = "<group>"; };
 		CC16383A2B7CCC22003323FD /* folder@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "folder@2x.png"; sourceTree = "<group>"; };
 		CC1638522B7CDF91003323FD /* libnsfplay.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libnsfplay.xcodeproj; path = libnsfplay/libnsfplay.xcodeproj; sourceTree = "<group>"; };
@@ -4682,6 +4689,7 @@
 				33B7AD0E17C75A8B00C1E404 /* MaintenanceViewController.xib */,
 				CCE8D7442B8D67460076D8C0 /* AnimatedLaunch.xib */,
 				337FF18617A9D18900CE0A28 /* PlaylistViewController.xib */,
+				CC0C57AB2F128E5100A5E7C1 /* CollectionViewController.xib */,
 				33F6A93E17B99FB8002369E7 /* SettingsViewController.xib */,
 				59A65C752624E9B700BC99D1 /* VoicesViewController.xib */,
 				CCBF26E32ECA89F00039936C /* WelcomeView_1Image.xib */,
@@ -5217,6 +5225,8 @@
 				CC600F6C2EF9511C000E2F00 /* Notifications.m */,
 				CC9CEF2D2E98D73200725D15 /* PlayerMenu.h */,
 				CC9CEF2E2E98D76C00725D15 /* PlayerMenu.mm */,
+				CC0C57D92F129BBD00A5E7C1 /* RadioSource.h */,
+				CC0C57DA2F129BBD00A5E7C1 /* RadioSource.mm */,
 				336BF216144FF4CA0086700A /* RootViewControllers */,
 				CCB5460E2EBC8E2E001412EC /* SceneDelegate.h */,
 				CCB5460F2EBC8E3B001412EC /* SceneDelegate.mm */,
@@ -7497,6 +7507,7 @@
 				CC1E633F120423DF000A8A4E /* ForgottenWorlds_Game in Resources */,
 				CC1E6340120423DF000A8A4E /* Fred in Resources */,
 				59909B611E3E7F2400C629AA /* tabview_gradient40Black@2x.png in Resources */,
+				CC0C57AC2F128E5200A5E7C1 /* CollectionViewController.xib in Resources */,
 				CC1E6341120423DF000A8A4E /* FredGray in Resources */,
 				CC1E6342120423DF000A8A4E /* FutureComposer-BSI in Resources */,
 				59909B551E3E20A300C629AA /* tabview_gradient40Green@2x.png in Resources */,
@@ -7923,6 +7934,7 @@
 				CCBE61D92EE2DD44000FDD7E /* ForgottenWorlds_Game in Resources */,
 				CCBE61DA2EE2DD44000FDD7E /* Fred in Resources */,
 				CCBE61DB2EE2DD44000FDD7E /* tabview_gradient40Black@2x.png in Resources */,
+				CC0C57AD2F128E5200A5E7C1 /* CollectionViewController.xib in Resources */,
 				CCBE61DC2EE2DD44000FDD7E /* FredGray in Resources */,
 				CCBE61DD2EE2DD44000FDD7E /* FutureComposer-BSI in Resources */,
 				CCBE61DE2EE2DD44000FDD7E /* tabview_gradient40Green@2x.png in Resources */,
@@ -8241,6 +8253,7 @@
 				CCFDC53A17DB105500C6692C /* NVHighShelvingFilter.m in Sources */,
 				CCFDC54317DB105500C6692C /* NVClippingDetection.m in Sources */,
 				CC8368EC2B57CA9B0035A4DA /* init68.c in Sources */,
+				CC0C57DC2F129BBD00A5E7C1 /* RadioSource.mm in Sources */,
 				591D8E4625DC63620013E19F /* decinit.c in Sources */,
 				CC1E5C3B1200B3B8000A8A4E /* CFtpServer.cpp in Sources */,
 				CC8368E92B57CA9B0035A4DA /* vfs68_fd.c in Sources */,
@@ -8449,6 +8462,7 @@
 				CCBE60632EE2DD44000FDD7E /* NVHighShelvingFilter.m in Sources */,
 				CCBE60642EE2DD44000FDD7E /* NVClippingDetection.m in Sources */,
 				CCBE60652EE2DD44000FDD7E /* init68.c in Sources */,
+				CC0C57DB2F129BBD00A5E7C1 /* RadioSource.mm in Sources */,
 				CCBE60662EE2DD44000FDD7E /* decinit.c in Sources */,
 				CCBE60672EE2DD44000FDD7E /* CFtpServer.cpp in Sources */,
 				CCBE60682EE2DD44000FDD7E /* vfs68_fd.c in Sources */,

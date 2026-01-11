@@ -13,7 +13,7 @@ extern void *LoadingProgressObserverContext;
 #import "ModizFileHelper.h"
 
 @implementation RootViewControllerXPWebParser
-@synthesize repeatingTimer;
+@synthesize repeatingTimer,updRSTimer;
 @synthesize mFileMngr;
 @synthesize detailViewController;
 @synthesize downloadViewController;
@@ -35,6 +35,10 @@ extern void *LoadingProgressObserverContext;
 #pragma mark -
 #pragma mark Search functions
 #import "SearchCommonFunctions.h"
+
+-(void) pushRadioButton {
+    //MDZILog("XP radio button");
+}
 
 -(void) refreshMiniplayer {
     if ((miniplayerVC==nil)&&([detailViewController mPlaylist_size]>0)) {
@@ -143,6 +147,11 @@ extern void *LoadingProgressObserverContext;
     mPopupAnimation=0;
     htmlData=nil;
     sort_mode=0;
+    
+    [radioButton setStyle:BButtonStyleBootstrapV2];
+    [radioButton setType:BButtonTypeInverse];
+    [radioButton addAwesomeIcon:FAIconRss beforeTitle:YES];
+    [radioButton setTitleColor:[UIColor grayColor] forState:UIControlStateNormal];
     
     self.navigationController.delegate = self;
     
@@ -554,7 +563,7 @@ END_PROFILE
         //self.forceReloadCells=true;
         [self fillKeys];
         [self.tableView reloadData];
-        [self.tableView layoutIfNeeded];
+//        [self.tableView layoutIfNeeded];
     }];
     
     [super viewWillAppear:animated];
@@ -1065,7 +1074,7 @@ trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
             
         }
     } else {
-        childController = [[RootViewControllerXPWebParser alloc]  initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]];
+        childController = [[RootViewControllerXPWebParser alloc]  initWithNibName:@"CollectionViewController" bundle:[NSBundle mainBundle]];
         //set new title
         childController.title = cur_db_entries[indexPath.row].fullpath;
         // Set new directory
@@ -1250,6 +1259,7 @@ trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
         [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
     }
 }
+
 
 
 @end

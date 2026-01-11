@@ -110,6 +110,8 @@ static int *fft_freqAvgCount;
 
 #import "ModizFileHelper.h"
 
+#import "RadioSource.h"
+
 #define LOCATION_UPDATE_TIMING 1800 //in second : 30minutes
 //#define NOTES_DISPLAY_LEFTMARGIN 30
 int NOTES_DISPLAY_LEFTMARGIN=30;
@@ -313,7 +315,8 @@ static int updMPNowCnt=0;
 
 @implementation DetailViewControllerIphone
 
-@synthesize btnAddToPl;
+@synthesize btnAddToPl,btnSaveFile;
+@synthesize radioSource;
 @synthesize mLoopMode;
 @synthesize waitingView;
 @synthesize cover_img,default_cover;
@@ -783,17 +786,21 @@ bool sysMonitorIsActive;
 
 
 - (void)showRating:(int)rating {
-    if (rating) {
-        mainRating5.hidden=FALSE;
-        mainRating5off.hidden=TRUE;
+    if ([radioSource isActive]) {
+        
     } else {
-        mainRating5.hidden=TRUE;
-        mainRating5off.hidden=FALSE;
-    }
-    // Update CarPlay buttons after rating change
-    myTabBarController *tabBarController = (myTabBarController *)self.tabBarController;
-    if (tabBarController && tabBarController.cpMngt) {
-        [tabBarController.cpMngt refreshNowPlayingButtons];
+        if (rating) {
+            mainRating5.hidden=FALSE;
+            mainRating5off.hidden=TRUE;
+        } else {
+            mainRating5.hidden=TRUE;
+            mainRating5off.hidden=FALSE;
+        }
+        // Update CarPlay buttons after rating change
+        myTabBarController *tabBarController = (myTabBarController *)self.tabBarController;
+        if (tabBarController && tabBarController.cpMngt) {
+            [tabBarController.cpMngt refreshNowPlayingButtons];
+        }
     }
 }
 
@@ -1043,6 +1050,7 @@ bool sysMonitorIsActive;
 
 
 -(int) getCurrentRating {
+    if (!mPlaylist || !mPlaylist_size) return 0;
     NSString *filePath,*fileName;
     filePath=mPlaylist[mPlaylist_pos].mPlaylistFilepath;
     fileName=mPlaylist[mPlaylist_pos].mPlaylistFilename;
@@ -1101,6 +1109,16 @@ bool sysMonitorIsActive;
 
 #import "PlaylistCommonFunctions.h"
 
+-(IBAction)pushedSaveFile {
+    if ([radioSource isActive] && ![radioSource isInLibrary:0]) {
+        if ([radioSource saveFileToLibrary:0]) {
+            [self openPopup:NSLocalizedString(@"File saved in Library", @"") secmsg:@"" style:POPUP_STYLE_INFO];
+            [btnSaveFile setTitleColor:[UIColor grayColor] forState:UIControlStateNormal];
+        } else {
+            [self openPopup:NSLocalizedString(@"File already in Library", @"") secmsg:@"" style:POPUP_STYLE_INFO];
+        }
+    }
+}
 
 
 -(IBAction)pushedAddToPl {
@@ -2361,6 +2379,17 @@ static float movePinchScale,movePinchScaleOld,movePinchAngle;
         }
         if (mpl_upd>=2) {
             if (mpl_upd==2) {
+                
+                labelArtist.text=mplayer.artist;
+                
+                if (labelArtist.text && [labelArtist.text length]) {
+                    labelModuleName.frame=CGRectMake(0,0,self.view.frame.size.width-128,22);
+                    labelArtist.frame=CGRectMake(0,22,self.view.frame.size.width-128,18);
+                } else {
+                    labelModuleName.frame=CGRectMake(0,0,self.view.frame.size.width-128,40);
+                    labelArtist.frame=CGRectMake(0,22,self.view.frame.size.width-128,0);
+                }
+                
                 if (settings[GLOB_TitleFilename].detail.mdz_boolswitch.switch_value==0) {
                     {
                         if ([mplayer getModFileTitleOrNull]) labelModuleName.text=[NSString stringWithFormat:@"%@ /%@",[mplayer getModFileTitle],[mplayer getModName]];
@@ -2563,6 +2592,17 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     return 1; //NSOrderedDescending
 }
 
+- (void) showRadioPopup {
+    if ([radioSource queueSize]>1) {
+        NSString *nextEntry=[radioSource getQueueLabel:1];
+        
+        NSString *msg_str=[NSString stringWithFormat:NSLocalizedString(@"Coming next:\n\n%@",@""),nextEntry];
+        [self showAlertMsg:[NSString stringWithFormat:@"%@ - %@",NSLocalizedString(@"Radio mode",@""),[radioSource radioSourceName]] message:msg_str];
+    } else {
+        NSString *msg_str=[NSString stringWithFormat:NSLocalizedString(@"Coming next:\nloading...",@"")];
+        [self showAlertMsg:[NSString stringWithFormat:@"%@ - %@",NSLocalizedString(@"Radio mode",@""),[radioSource radioSourceName]] message:msg_str];
+    }
+}
 
 - (IBAction)showPlaylist {
     t_playlist* temp_playlist;
@@ -3091,39 +3131,48 @@ int recording=0;
 }
 
 -(int)play_nextEntry {
-    if (mPlaylist_size==0) {
-        if (repeatingTimer) [repeatingTimer invalidate];
-        repeatingTimer = nil; // ensures we never invalidate an already invalid Timer
-        [mplayer Stop];
-        mPaused=1;
-        if (mHasFocus) [[self navigationController] popViewControllerAnimated:YES];
-        return 0;
-    }
-    if (mShuffle) {
-        int i;
-        int minval;
-        minval=mPlaylist[0].mPlaylistCount;
-        for (i=0;i<mPlaylist_size;i++) if (mPlaylist[i].mPlaylistCount<minval) minval=mPlaylist[i].mPlaylistCount;
+    
+    if ([radioSource isActive]) {
+        [radioSource moveNext];
+        if ([radioSource isInLibrary:0]) [btnSaveFile setTitleColor:[UIColor grayColor] forState:UIControlStateNormal];
+        else [btnSaveFile setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+        return 1;
+    } else {
         
-        mPlaylist_pos=arc4random()%(mPlaylist_size);
-        i=0;
-        while ((i<mPlaylist_size)&&(mPlaylist[mPlaylist_pos].mPlaylistCount>minval)) {
-            i++;
-            mPlaylist_pos++; if (mPlaylist_pos>=mPlaylist_size) mPlaylist_pos=0;
+        if (mPlaylist_size==0) {
+            if (repeatingTimer) [repeatingTimer invalidate];
+            repeatingTimer = nil; // ensures we never invalidate an already invalid Timer
+            [mplayer Stop];
+            mPaused=1;
+            if (mHasFocus) [[self navigationController] popViewControllerAnimated:YES];
+            return 0;
         }
-        [self play_curEntry:-1];
-        
-        return 1;
-    } else if (mPlaylist_pos<mPlaylist_size-1) {
-        mPlaylist_pos++;
-        [self play_curEntry:-1];
-        
-        return 1;
-    } else if (mLoopMode==1) {
-        mPlaylist_pos=0;
-        [self play_curEntry:-1];
-        
-        return 1;
+        if (mShuffle) {
+            int i;
+            int minval;
+            minval=mPlaylist[0].mPlaylistCount;
+            for (i=0;i<mPlaylist_size;i++) if (mPlaylist[i].mPlaylistCount<minval) minval=mPlaylist[i].mPlaylistCount;
+            
+            mPlaylist_pos=arc4random()%(mPlaylist_size);
+            i=0;
+            while ((i<mPlaylist_size)&&(mPlaylist[mPlaylist_pos].mPlaylistCount>minval)) {
+                i++;
+                mPlaylist_pos++; if (mPlaylist_pos>=mPlaylist_size) mPlaylist_pos=0;
+            }
+            [self play_curEntry:-1];
+            
+            return 1;
+        } else if (mPlaylist_pos<mPlaylist_size-1) {
+            mPlaylist_pos++;
+            [self play_curEntry:-1];
+            
+            return 1;
+        } else if (mLoopMode==1) {
+            mPlaylist_pos=0;
+            [self play_curEntry:-1];
+            
+            return 1;
+        }
     }
     return 0;
 }
@@ -3138,6 +3187,11 @@ int recording=0;
     mRestart_sub=-1;
     mRestart_arc=0;
     mPlayingPosRestart=0;
+    
+    //if not radio mode, stop radio
+    if (![(NSString*)[arrayFilepaths objectAtIndex:0] containsString:@"tmp/tmpRadio"]) {
+        [radioSource stop];
+    }
     
     if ([array count]>=MAX_PL_ENTRIES) {
         NSString *msg_str=[NSString stringWithFormat:NSLocalizedString(@"Too much entries! Playlist will be limited to %d first entries.",@""),MAX_PL_ENTRIES];
@@ -3195,6 +3249,11 @@ int recording=0;
     mRestart_sub=-1;
     mRestart_arc=0;
     mPlayingPosRestart=0;
+    
+    //if not radio mode, stop radio
+    if (![pl->entries[0].fullpath containsString:@"tmp/tmpRadio"]) {
+        [radioSource stop];
+    }
     
     if (pl->nb_entries>=MAX_PL_ENTRIES) {
         NSString *msg_str=[NSString stringWithFormat:NSLocalizedString(@"Too much entries! Playlist will be limited to %d first entries.",@""),MAX_PL_ENTRIES];
@@ -3617,6 +3676,17 @@ int recording=0;
     
     //Update song info if required
     labelModuleName.hidden=NO;
+    labelArtist.text=mplayer.artist;
+    
+    if (labelArtist.text && [labelArtist.text length]) {
+        labelModuleName.frame=CGRectMake(0,0,self.view.frame.size.width-128,22);
+        labelArtist.frame=CGRectMake(0,22,self.view.frame.size.width-128,18);
+    } else {
+        labelModuleName.frame=CGRectMake(0,0,self.view.frame.size.width-128,40);
+        labelArtist.frame=CGRectMake(0,22,self.view.frame.size.width-128,0);
+    }
+
+    
     if (settings[GLOB_TitleFilename].detail.mdz_boolswitch.switch_value) {
         labelModuleName.text=[NSString stringWithFormat:@"%@ /%@",fileName,[mplayer getModName]];
     } else {
@@ -3624,9 +3694,6 @@ int recording=0;
         else labelModuleName.text=[NSString stringWithFormat:@"%@",[mplayer getModName]];
     }
     [self refreshFXFSLabels];
-    
-    self.navigationItem.titleView=labelModuleName;
-    self.navigationItem.title=labelModuleName.text;
     
     labelModuleSize.text=[NSString stringWithFormat:NSLocalizedString(@"Size: %dKB",@""), mplayer.mp_datasize>>10];
     if ([mplayer getSongLength]>0) {
@@ -4017,6 +4084,17 @@ int recording=0;
     [mplayer optOMPT_MasterVol:settings[OMPT_MasterVolume].detail.mdz_slider.slider_value];
     
     //Update song info if required
+    labelArtist.text=mplayer.artist;
+    
+    if (labelArtist.text && [labelArtist.text length]) {
+        labelModuleName.frame=CGRectMake(0,0,self.view.frame.size.width-128,22);
+        labelArtist.frame=CGRectMake(0,22,self.view.frame.size.width-128,18);
+    } else {
+        labelModuleName.frame=CGRectMake(0,0,self.view.frame.size.width-128,40);
+        labelArtist.frame=CGRectMake(0,22,self.view.frame.size.width-128,0);
+    }
+
+    
     labelModuleName.hidden=NO;
     if (settings[GLOB_TitleFilename].detail.mdz_boolswitch.switch_value) labelModuleName.text=[NSString stringWithString:fileName];
     else {
@@ -4025,9 +4103,6 @@ int recording=0;
     }
     
     [self refreshFXFSLabels];
-    
-    self.navigationItem.titleView=labelModuleName;
-    self.navigationItem.title=labelModuleName.text;
     
     labelModuleSize.text=[NSString stringWithFormat:NSLocalizedString(@"Size: %dKB",@""), mplayer.mp_datasize>>10];
     if ([mplayer getSongLength]>0) {
@@ -4451,6 +4526,17 @@ int recording=0;
     
     
     //Update song info if required
+    labelArtist.text=mplayer.artist;
+    
+    if (labelArtist.text && [labelArtist.text length]) {
+        labelModuleName.frame=CGRectMake(0,0,self.view.frame.size.width-128,22);
+        labelArtist.frame=CGRectMake(0,22,self.view.frame.size.width-128,18);
+    } else {
+        labelModuleName.frame=CGRectMake(0,0,self.view.frame.size.width-128,40);
+        labelArtist.frame=CGRectMake(0,22,self.view.frame.size.width-128,0);
+    }
+
+    
     labelModuleName.hidden=NO;
     if (settings[GLOB_TitleFilename].detail.mdz_boolswitch.switch_value) labelModuleName.text=[NSString stringWithString:fileName];
     else {
@@ -4459,11 +4545,6 @@ int recording=0;
     }
     
     [self refreshFXFSLabels];
-    
-    self.navigationItem.titleView=labelModuleName;
-    self.navigationItem.title=labelModuleName.text;
-    
-    
     
     labelModuleSize.text=[NSString stringWithFormat:NSLocalizedString(@"Size: %dKB",@""), mplayer.mp_datasize>>10];
     if ([mplayer getSongLength]>0) {
@@ -4638,13 +4719,25 @@ int recording=0;
             
             btnShowSubSong.frame = CGRectMake(mDevice_ww-safe_left-safe_right-36,0+48,32,32);
             btnShowArcList.frame = CGRectMake(mDevice_ww-safe_left-safe_right-36*2,0+48,32,32);
-            btnShowVoices.frame = CGRectMake(mDevice_ww-safe_left-safe_right-36*3,0+48,32,32);
-            btnRecordScreen.frame = CGRectMake(mDevice_ww-safe_left-safe_right-36*4,0+48,32,32);
-            
+            btnShowVoices.frame =  CGRectMake(mDevice_ww-safe_left-safe_right-36*3,0+48,32,32);
+            btnRecordScreen.frame =CGRectMake(mDevice_ww-safe_left-safe_right-36*4,0+48,32,32);
+            btnAddToPl.frame =     CGRectMake(mDevice_ww-safe_left-safe_right-36*5,0+48,32,32);
+            btnSaveFile.frame =    CGRectMake(mDevice_ww-safe_left-safe_right-36*5,0+48,32,32);
+
             mainRating5.frame = CGRectMake(130+2,3+48+4,20,20);
             mainRating5off.frame = CGRectMake(130+2,3+48+4,20,20);
             
-            btnAddToPl.frame = CGRectMake(130+2+34,48,28,28);
+            
+            if ([radioSource isActive]) {
+                btnSaveFile.hidden=FALSE;
+                btnAddToPl.hidden=TRUE;
+                mainRating5.hidden=TRUE;
+                mainRating5off.hidden=TRUE;
+            } else {
+                btnSaveFile.hidden=TRUE;
+                btnAddToPl.hidden=FALSE;
+                [self showRating:[self getCurrentRating]];
+            }
             
             infoButton.frame = CGRectMake(mDevice_ww-safe_left-safe_right-40,4,36,36);
             eqButton.frame = CGRectMake(mDevice_ww-safe_left-safe_right-40-40,4,36,36);
@@ -4755,12 +4848,23 @@ int recording=0;
             mainRating5.frame = CGRectMake(xofs+6+2,yofs+42+2,20,20);
             mainRating5off.frame = CGRectMake(xofs+6+2,yofs+42+2,20,20);
             
-            btnAddToPl.frame = CGRectMake(xofs+6+2+28,yofs+42+2,20,20);
+            if ([radioSource isActive]) {
+                btnSaveFile.hidden=FALSE;
+                btnAddToPl.hidden=TRUE;
+                mainRating5.hidden=TRUE;
+                mainRating5off.hidden=TRUE;
+            } else {
+                btnSaveFile.hidden=TRUE;
+                btnAddToPl.hidden=FALSE;
+                [self showRating:[self getCurrentRating]];
+            }
             
-            btnShowSubSong.frame = CGRectMake(xofs+6+24*5+4+36*2,yofs+40,32,32);
-            btnShowArcList.frame = CGRectMake(xofs+6+24*5+4+36,yofs+40,32,32);
-            btnShowVoices.frame = CGRectMake(xofs+6+24*5+4,yofs+40,32,32);
+            btnShowSubSong.frame =  CGRectMake(xofs+6+24*5+4+36*2,yofs+40,32,32);
+            btnShowArcList.frame =  CGRectMake(xofs+6+24*5+4+36,yofs+40,32,32);
+            btnShowVoices.frame =   CGRectMake(xofs+6+24*5+4,yofs+40,32,32);
             btnRecordScreen.frame = CGRectMake(xofs+6+24*5+4-36,yofs+40,32,32);
+            btnAddToPl.frame =      CGRectMake(xofs+6+24*5+4-36*2,yofs+40,32,32);
+            btnSaveFile.frame =     CGRectMake(xofs+6+24*5+4-36*2,yofs+40,32,32);
             
             infoButton.frame = CGRectMake(mDevice_hh-44-safe_left-safe_right,4,40,40);
             eqButton.frame = CGRectMake(mDevice_hh-44-44-safe_left-safe_right,4,40,40);
@@ -5906,15 +6010,47 @@ void pm_perfTest() {
     
     labelModuleName=[[CBAutoScrollLabel alloc] init];
     //labelModuleName.backgroundColor=[UIColor blackColor];
-    labelModuleName.frame=CGRectMake(0,0,self.view.frame.size.width-128,40);
+    labelModuleName.frame=CGRectMake(0,0,self.view.frame.size.width-128,22);
     labelModuleName.textColor = [UIColor colorWithRed:0.95 green:0.95 blue:0.99 alpha:1.0];
-    [labelModuleName setFont:[UIFont systemFontOfSize:18]];
+    [labelModuleName setFont:[UIFont systemFontOfSize:17]];
     labelModuleName.textColor = [UIColor whiteColor];
     labelModuleName.labelSpacing = 35; // distance between start and end labels
     labelModuleName.pauseInterval = 3.7; // seconds of pause before scrolling starts again
     labelModuleName.scrollSpeed = 30; // pixels per second
     labelModuleName.textAlignment = NSTextAlignmentCenter; // centers text when no auto-scrolling is applied
     labelModuleName.fadeLength = 12.f; // length of the left and right edge fade, 0 to disable
+    
+    labelArtist=[[CBAutoScrollLabel alloc] init];
+    //labelArtist.backgroundColor=[UIColor blackColor];
+    labelArtist.frame=CGRectMake(0,22,self.view.frame.size.width-128,18);
+    labelArtist.textColor = [UIColor colorWithRed:0.85 green:0.85 blue:0.90 alpha:1.0];
+    [labelArtist setFont:[UIFont systemFontOfSize:12]];
+    labelArtist.textColor = [UIColor whiteColor];
+    labelArtist.labelSpacing = 35; // distance between start and end labels
+    labelArtist.pauseInterval = 3.7; // seconds of pause before scrolling starts again
+    labelArtist.scrollSpeed = 30; // pixels per second
+    labelArtist.textAlignment = NSTextAlignmentCenter; // centers text when no auto-scrolling is applied
+    labelArtist.fadeLength = 12.f; // length of the left and right edge fade, 0 to disable
+    
+    labelModuleName.userInteractionEnabled = YES;
+    UITapGestureRecognizer *tapGesture =
+    [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(titleTap:)];
+    [labelModuleName addGestureRecognizer:tapGesture];
+    
+    labelModuleName.text=@"No file selected";
+    labelArtist.text=@"";
+    
+    labelContainer = [[UIView alloc] init];
+    [labelContainer addSubview:labelModuleName];
+    [labelContainer addSubview:labelArtist];
+
+    labelContainer.frame=CGRectMake(0,0,self.view.frame.size.width-128,40);
+    self.navigationItem.titleView = labelContainer;
+
+    //self.navigationItem.titleView=labelModuleName;
+    //self.navigationItem.title=@"No file selected";
+    //    self.navigationItem.backBarButtonItem.title=@"dd";
+    
     
     mLoadIssueMessage=0;
     curSongLength=0;
@@ -5954,24 +6090,9 @@ void pm_perfTest() {
     //build various bars
     [self buildCommandBars];
     
-    labelModuleName.userInteractionEnabled = YES;
-    UITapGestureRecognizer *tapGesture =
-    [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(titleTap:)];
-    [labelModuleName addGestureRecognizer:tapGesture];
-    
     mPlaylist=(t_plPlaylist_entry*)calloc(MAX_PL_ENTRIES,sizeof(t_plPlaylist_entry));
     
-    self.navigationItem.title=@"No file selected";
-    //    self.navigationItem.backBarButtonItem.title=@"dd";
-    
     CHECK_PROFILE("various2b")
-    
-    //    UIBarButtonItem *bbitem=[[UIBarButtonItem alloc] initWithTitle:@"" style:UIBarButtonItemStylePlain target:self action:@selector(showPlaylist)];
-    //    [bbitem setTitleTextAttributes:[NSDictionary dictionaryWithObjectsAndKeys: [UIFont fontWithName:@"FontAwesome" size:22.0], UITextAttributeFont,nil] forState:UIControlStateNormal];
-    //    unichar tmpChar=0xF0CA;
-    //    [bbitem setTitle:[NSString stringWithCharacters:&tmpChar length:1]];
-    //    [self.navigationItem setRightBarButtonItem:bbitem animated:YES];
-    //    [bbitem setTitlePositionAdjustment:UIOffsetMake(0,1.5) forBarMetrics:UIBarMetricsDefault];
     
     UIBarButtonItem *item = [[UIBarButtonItem alloc] initWithImage:[UIImage systemImageNamed:@"music.note.list"] style:UIBarButtonItemStylePlain target:self action:@selector(showPlaylist)];
     self.navigationItem.rightBarButtonItem = item;
@@ -6135,22 +6256,30 @@ void pm_perfTest() {
     [btnShowArcList setStyle:BButtonStyleBootstrapV2];
     [btnShowSubSong setStyle:BButtonStyleBootstrapV2];
     [btnRecordScreen setStyle:BButtonStyleBootstrapV2];
-    
+    [btnSaveFile setStyle:BButtonStyleBootstrapV2];
+    [btnAddToPl setStyle:BButtonStyleBootstrapV2];
     
     [btnShowVoices setType:BButtonTypeInverse];
     [btnShowArcList setType:BButtonTypeInverse];
     [btnShowSubSong setType:BButtonTypeInverse];
     [btnRecordScreen setType:BButtonTypeInverse];
+    [btnSaveFile setType:BButtonTypeInverse];
+    [btnAddToPl setType:BButtonTypeInverse];
     
     [btnShowVoices addAwesomeIcon:FAIconMusic beforeTitle:YES];
     [btnShowArcList addAwesomeIcon:FAIconArchive beforeTitle:YES];
     [btnShowSubSong addAwesomeIcon:FAIconStackOverflow beforeTitle:YES];
     [btnRecordScreen addAwesomeIcon:FAIconVideoCamera beforeTitle:YES];
+    [btnSaveFile addAwesomeIcon:FAIconDownload beforeTitle:YES];
+    [btnAddToPl addAwesomeIcon:FAIconPlus beforeTitle:YES];
     
     btnShowVoices.hidden=false;
     btnRecordScreen.hidden=false;
     btnRecordScreen.enabled=true;
     btnRecordScreen.selected=false;
+    btnSaveFile.hidden=false;
+    btnSaveFile.enabled=true;
+    btnSaveFile.selected=false;
     bRSactive=false;
     
     
@@ -6300,6 +6429,10 @@ void pm_perfTest() {
     _mdz_display_songinfo_countdown=0;
     _mdz_FX_GuiMessageStr[0]=0;
     _mdz_FX_GuiMessage_fade=0;
+    
+    
+    radioSource = [[RadioSource alloc] init];
+    radioSource.detailVC=self;
     
     //    [super viewDidLoad];
     END_PROFILE
@@ -6508,7 +6641,15 @@ void pm_perfTest() {
     //    }
     
     
-    labelModuleName.frame=CGRectMake(0,0,size.width-128,40);
+    labelContainer.frame=CGRectMake(0,0,size.width-128,40);
+    if (labelArtist.text && [labelArtist.text length]) {
+        labelModuleName.frame=CGRectMake(0,0,size.width-128,22);
+        labelArtist.frame=CGRectMake(0,22,size.width-128,18);
+    } else {
+        labelModuleName.frame=CGRectMake(0,0,size.width-128,40);
+        labelArtist.frame=CGRectMake(0,22,size.width-128,0);
+    }
+    
     
     // Update device dimensions for both iPad AND iPhone
     // This was previously only updating for iPad, causing rotation issues on iPhone (especially iOS 15.5)
@@ -6670,7 +6811,15 @@ void pm_perfTest() {
     alertCannotPlay_displayed=0;
     //[[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent animated:YES];
     
-    labelModuleName.frame=CGRectMake(0,0,self.view.frame.size.width-128,40);
+    labelContainer.frame=CGRectMake(0,0,self.view.frame.size.width-128,40);
+    if (labelArtist.text && [labelArtist.text length]) {
+        labelModuleName.frame=CGRectMake(0,0,self.view.frame.size.width-128,22);
+        labelArtist.frame=CGRectMake(0,22,self.view.frame.size.width-128,18);
+    } else {
+        labelModuleName.frame=CGRectMake(0,0,self.view.frame.size.width-128,40);
+        labelArtist.frame=CGRectMake(0,22,self.view.frame.size.width-128,0);
+    }
+    
     
     //eq
     eqVC=nil;
@@ -6679,6 +6828,10 @@ void pm_perfTest() {
     
     [btnRecordScreen setTitleColor:(bRSactive?[UIColor redColor]:[UIColor grayColor]) forState:UIControlStateNormal];
     [btnRecordScreen setTitleColor:(bRSactive?[UIColor redColor]:[UIColor grayColor]) forState:UIControlStateHighlighted];
+    
+    [btnAddToPl setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    
+    [btnSaveFile setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
     
     if (mPlaylist_size) {
         for (int i=0;i<mPlaylist_size;i++) {  //reset rating to force resynchro (for ex, user delted an entry in 'favorites' list, thus reseting the rating for a given file
@@ -6757,6 +6910,19 @@ void pm_perfTest() {
     //Displaylink: update FPS
     if (m_displayLink) {
         m_displayLink.preferredFramesPerSecond = (settings[GLOB_FXFPS].detail.mdz_switch.switch_value?60:30); //60 or 30 fps depending on device speed iPhone
+    }
+    
+    //check if in radio mode or not
+    if ([radioSource isActive]) {
+        UIBarButtonItem *item = [[UIBarButtonItem alloc] initWithImage:[UIImage systemImageNamed:@"dot.radiowaves.up.forward"] style:UIBarButtonItemStylePlain target:self action:@selector(showRadioPopup)];
+        self.navigationItem.rightBarButtonItem = item;
+    } else {
+        UIBarButtonItem *item = [[UIBarButtonItem alloc] initWithImage:[UIImage systemImageNamed:@"music.note.list"] style:UIBarButtonItemStylePlain target:self action:@selector(showPlaylist)];
+        self.navigationItem.rightBarButtonItem = item;
+    }
+    if ([radioSource isActive]) {
+        if ([radioSource isInLibrary:0]) [btnSaveFile setTitleColor:[UIColor grayColor] forState:UIControlStateNormal];
+        else [btnSaveFile setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
     }
 }
 
@@ -7441,7 +7607,10 @@ void menuInterpolValue(float &curValue,float startValue,float tgtValue) {
         _pmCanvasWidth=ww*glScaleFactor/_pmScaleFactor;
         _pmCanvasHeight=hh*glScaleFactor/_pmScaleFactor;
         
-        if ((_pmCanvasWidth!=canvasWidth) || (_pmCanvasHeight!=canvasHeight)) projectm_set_window_size(_pm, _pmCanvasWidth, _pmCanvasHeight);
+        if ((_pmCanvasWidth!=canvasWidth) || (_pmCanvasHeight!=canvasHeight)) {
+            projectm_set_window_size(_pm, _pmCanvasWidth, _pmCanvasHeight);
+            MDZILog("set win size: %d %d",_pmCanvasWidth,_pmCanvasHeight);
+        }
         
        
         int sample_count=(settings[GLOB_FXFPS].detail.mdz_switch.switch_value?735:735*2);
@@ -8318,12 +8487,6 @@ void menuInterpolValue(float &curValue,float startValue,float tgtValue) {
     /* Compute pattern display scrolling */
     /*******************************************************/
     if ((mplayer.mPatternDataAvail)&&(settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value)) {//pattern display
-        //        if (visibleChan<=mplayer.numChannels+1) {
-        //            if (movePxMOD>0) movePxMOD=0;
-        //            if (movePxMOD<-(mplayer.numChannels-visibleChan+1+1)*size_chan) movePxMOD=-(mplayer.numChannels-visibleChan+1+1)*size_chan;
-        //            startChan=-movePxMOD/size_chan;
-        //
-        //        } else movePxMOD=0;
         if (modPatternLineSize<=modPatternWindowSize) movePxMOD=0;
         else {
             if (modPatternWindowSize-movePxMOD*glScaleFactor>=modPatternLineSize) movePxMOD=-(modPatternLineSize-modPatternWindowSize)/glScaleFactor;
@@ -8945,6 +9108,38 @@ bool isFXinRangeLPtouchCurrent(float x,float y,float w,float h) {
     return NO;
 }
 
+bool isOverlappingSlots(int slot1,int slot2) {
+    switch (slot1) {
+        case 0: //full
+            return true;
+        case 1: //left
+            if ((slot2==0)||(slot2==1)||(slot2==3)||(slot2==4)||(slot2==5)||(slot2==7)) return true;
+            return false;
+        case 2: //right
+            if ((slot2==0)||(slot2==2)||(slot2==3)||(slot2==4)||(slot2==6)||(slot2==8)) return true;
+            return false;
+        case 3: //bottom
+            if ((slot2==0)||(slot2==1)||(slot2==2)||(slot2==3)||(slot2==5)||(slot2==6)) return true;
+            return false;
+        case 4: //top
+            if ((slot2==0)||(slot2==1)||(slot2==2)||(slot2==4)||(slot2==7)||(slot2==8)) return true;
+            return false;
+        case 5: //bottom left
+            if ((slot2==0)||(slot2==1)||(slot2==3)||(slot2==5)) return true;
+            return false;
+        case 6: //bottom right
+            if ((slot2==0)||(slot2==2)||(slot2==3)||(slot2==6)) return true;
+            return false;
+        case 7: //top left
+            if ((slot2==0)||(slot2==1)||(slot2==4)||(slot2==7)) return true;
+            return false;
+        case 8: //top right
+            if ((slot2==0)||(slot2==2)||(slot2==4)||(slot2==8)) return true;
+            return false;
+    }
+    return false;
+}
+
 void initViewPortData(int fxidx,float &x,float &y,float &w,float &h,float ww,float hh) {
     switch (fxSlot[fxidx]) {
         default:
@@ -9017,8 +9212,8 @@ void drawTgtSlotPattern(int fxIdx,float x,float y,float w,float h,float ww,float
     if ( (fxLPselected==fxIdx) && (fxTargetSlot>=0) ) {
         //highlight tgt slot
         static int cptA=0;
-        int alpha=255-64;
-        int col=128+32*sin(cptA*0.03);
+        int alpha=255-128;
+        int col=96+16*sin(cptA*0.03);
         if (col<0) col=0; if (col>255) col=255;
         glViewport(0, 0, ww*glScaleFactor, hh*glScaleFactor);
         RenderUtils::FillAreaPattern(x, y,
@@ -9604,15 +9799,10 @@ void drawTgtSlotPattern(int fxIdx,float x,float y,float w,float h,float ww,float
             }
         }
         
-//        if ( (fxLPselected>=0) && (fxTargetSlot>=0) ) {
-//            //highlight tgt slot
-//            static int cptA=0;
-//            int alpha=255-64+32*sin(cptA*0.05);
-//            RenderUtils::FillAreaPattern(slotsPos[fxTargetSlot].x, slotsPos[fxTargetSlot].y,
-//                                      slotsPos[fxTargetSlot].z, slotsPos[fxTargetSlot].w, ww, hh,glScaleFactor, alpha,255-64,255-64,255-64);
-//            cptA++;
-//        }
-//
+        bool isModPatternExclusive=false;
+        if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value && mplayer.mPatternDataAvail &&
+            settings[GLOB_FXMODPatternHideOther].detail.mdz_boolswitch.switch_value) isModPatternExclusive=true;
+        
         for (int pass=0;pass<2;pass++) {
             /*-------------------------------------------------------------------------------*/
             /*  ProjectM render */
@@ -9627,7 +9817,7 @@ void drawTgtSlotPattern(int fxIdx,float x,float y,float w,float h,float ww,float
                 initViewPortData(FX_PROJECTM,x,y,w,h,ww,hh);
                 glViewport(x*mScaleFactor, (h!=hh?h-y:y)*mScaleFactor, w*mScaleFactor, h*mScaleFactor);
                 if ((w<ww)||(h<hh)) isSlot=true;
-                [self doFramePM:ImVec2(ww,hh) isSlot:isSlot];
+                [self doFramePM:ImVec2(w,h) isSlot:isSlot];
             }
             
             /*-------------------------------------------------------------------------------*/
@@ -9667,12 +9857,14 @@ void drawTgtSlotPattern(int fxIdx,float x,float y,float w,float h,float ww,float
             if ( ((pass==0) && (fxLPselected!=FX_PIANO3D)) ||
                 ((pass==1) && (fxLPselected==FX_PIANO3D)) )
             if (settings[GLOB_FXPiano3D].detail.mdz_switch.switch_value) {
-                drawTgtSlotPattern(FX_PIANO3D,slotsPos[fxTargetSlot].x, slotsPos[fxTargetSlot].y,
-                                   slotsPos[fxTargetSlot].z, slotsPos[fxTargetSlot].w, ww, hh);
-                
-                initViewPortData(FX_PIANO3D,x,y,w,h,ww,hh);
-                glViewport(x*mScaleFactor, (h!=hh?h-y:y)*mScaleFactor, w*mScaleFactor, h*mScaleFactor);
-                [self doFxPiano3D:ImVec4(x,y,w,h)];
+                if (!isModPatternExclusive || !isOverlappingSlots(fxSlot[FX_PIANO3D],fxSlot[FX_MODPattern])) {
+                    drawTgtSlotPattern(FX_PIANO3D,slotsPos[fxTargetSlot].x, slotsPos[fxTargetSlot].y,
+                                       slotsPos[fxTargetSlot].z, slotsPos[fxTargetSlot].w, ww, hh);
+                    
+                    initViewPortData(FX_PIANO3D,x,y,w,h,ww,hh);
+                    glViewport(x*mScaleFactor, (h!=hh?h-y:y)*mScaleFactor, w*mScaleFactor, h*mScaleFactor);
+                    [self doFxPiano3D:ImVec4(x,y,w,h)];
+                }
             }
             //-------------------------------------
             // Spectrum 2D
@@ -9694,12 +9886,15 @@ void drawTgtSlotPattern(int fxIdx,float x,float y,float w,float h,float ww,float
             if ( ((pass==0) && (fxLPselected!=FX_PIANOROLL)) ||
                 ((pass==1) && (fxLPselected==FX_PIANOROLL)) )
             if (settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value) {
-                drawTgtSlotPattern(FX_PIANOROLL,slotsPos[fxTargetSlot].x, slotsPos[fxTargetSlot].y,
-                                   slotsPos[fxTargetSlot].z, slotsPos[fxTargetSlot].w, ww, hh);
                 
-                initViewPortData(FX_PIANOROLL,x,y,w,h,ww,hh);
-                glViewport(x*mScaleFactor, (h!=hh?h-y:y)*mScaleFactor, w*mScaleFactor, h*mScaleFactor);
-                [self doFxPianoRoll:ImVec4(x,y,w,h)];
+                if (!isModPatternExclusive || !isOverlappingSlots(fxSlot[FX_PIANOROLL],fxSlot[FX_MODPattern])) {
+                    drawTgtSlotPattern(FX_PIANOROLL,slotsPos[fxTargetSlot].x, slotsPos[fxTargetSlot].y,
+                                       slotsPos[fxTargetSlot].z, slotsPos[fxTargetSlot].w, ww, hh);
+                    
+                    initViewPortData(FX_PIANOROLL,x,y,w,h,ww,hh);
+                    glViewport(x*mScaleFactor, (h!=hh?h-y:y)*mScaleFactor, w*mScaleFactor, h*mScaleFactor);
+                    [self doFxPianoRoll:ImVec4(x,y,w,h)];
+                }
             }
             
             //-------------------------------------
@@ -9708,12 +9903,15 @@ void drawTgtSlotPattern(int fxIdx,float x,float y,float w,float h,float ww,float
             if ( ((pass==0) && (fxLPselected!=FX_MIDIPattern)) ||
                 ((pass==1) && (fxLPselected==FX_MIDIPattern)) )
             if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value) {
-                drawTgtSlotPattern(FX_MIDIPattern,slotsPos[fxTargetSlot].x, slotsPos[fxTargetSlot].y,
-                                   slotsPos[fxTargetSlot].z, slotsPos[fxTargetSlot].w, ww, hh);
                 
-                initViewPortData(FX_MIDIPattern,x,y,w,h,ww,hh);
-                glViewport(x*mScaleFactor, (h!=hh?h-y:y)*mScaleFactor, w*mScaleFactor, h*mScaleFactor);
-                [self doFxMidiPattern:ImVec4(x,y,w,h)];
+                if (!isModPatternExclusive || !isOverlappingSlots(fxSlot[FX_MIDIPattern],fxSlot[FX_MODPattern])) {
+                    drawTgtSlotPattern(FX_MIDIPattern,slotsPos[fxTargetSlot].x, slotsPos[fxTargetSlot].y,
+                                       slotsPos[fxTargetSlot].z, slotsPos[fxTargetSlot].w, ww, hh);
+                    
+                    initViewPortData(FX_MIDIPattern,x,y,w,h,ww,hh);
+                    glViewport(x*mScaleFactor, (h!=hh?h-y:y)*mScaleFactor, w*mScaleFactor, h*mScaleFactor);
+                    [self doFxMidiPattern:ImVec4(x,y,w,h)];
+                }
             }
             
             //-------------------------------------
@@ -9887,9 +10085,7 @@ void drawTgtSlotPattern(int fxIdx,float x,float y,float w,float h,float ww,float
             pmenu_show=0;
             pmenu_fade=0;
         } else if (ret>0) {
-            if (ret==2) shouldGoToSettings=1; //Visu
-            else if (ret==3) shouldGoToSettings=2; //Oscillo
-            else if (ret==4) shouldGoToSettings=3; //ProjectM
+            if (ret>=2) shouldGoToSettings=ret; //Visu or submenu
         }
         
         //specific case for fullscreen switch change
@@ -9952,16 +10148,44 @@ void drawTgtSlotPattern(int fxIdx,float x,float y,float w,float h,float ww,float
         SettingsGenViewController *settingsVC=[[SettingsGenViewController alloc] initWithNibName:@"SettingsViewController" bundle:[NSBundle mainBundle]];
         settingsVC->detailViewController=self;
         switch (shouldGoToSettings) {
-            case 1: //Visualization
+            case 2: //Visualization
                 settingsVC->current_family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
                 settingsVC.title=NSLocalizedString(([NSString stringWithUTF8String:settings[settingsVC->current_family].label]),@"");
                 break;
-            case 2: //Oscillo
+            case 3+FX_OSCILLO:
                 settingsVC->current_family=MDZ_SETTINGS_FAMILY_OSCILLO;
                 settingsVC.title=NSLocalizedString(([NSString stringWithUTF8String:settings[settingsVC->current_family].label]),@"");
                 break;
-            case 3: //ProjectM
+            case 3+FX_PROJECTM:
                 settingsVC->current_family=MDZ_SETTINGS_FAMILY_PROJECTM;
+                settingsVC.title=NSLocalizedString(([NSString stringWithUTF8String:settings[settingsVC->current_family].label]),@"");
+                break;
+            case 3+FX_2DSpectrum:
+                settingsVC->current_family=MDZ_SETTINGS_FAMILY_FXPSpectrum;
+                settingsVC.title=NSLocalizedString(([NSString stringWithUTF8String:settings[settingsVC->current_family].label]),@"");
+                break;
+            case 3+FX_3DSpectrum:
+                settingsVC->current_family=MDZ_SETTINGS_FAMILY_FXP3DSpectrum;
+                settingsVC.title=NSLocalizedString(([NSString stringWithUTF8String:settings[settingsVC->current_family].label]),@"");
+                break;
+            case 3+FX_3DLandscape:
+                settingsVC->current_family=MDZ_SETTINGS_FAMILY_FXP3DLandscape;
+                settingsVC.title=NSLocalizedString(([NSString stringWithUTF8String:settings[settingsVC->current_family].label]),@"");
+                break;
+            case 3+FX_PIANO3D:
+                settingsVC->current_family=MDZ_SETTINGS_FAMILY_FXPiano3D;
+                settingsVC.title=NSLocalizedString(([NSString stringWithUTF8String:settings[settingsVC->current_family].label]),@"");
+                break;
+            case 3+FX_PIANOROLL:
+                settingsVC->current_family=MDZ_SETTINGS_FAMILY_FXPianoRoll;
+                settingsVC.title=NSLocalizedString(([NSString stringWithUTF8String:settings[settingsVC->current_family].label]),@"");
+                break;
+            case 3+FX_MIDIPattern:
+                settingsVC->current_family=MDZ_SETTINGS_FAMILY_FXMIDIPattern;
+                settingsVC.title=NSLocalizedString(([NSString stringWithUTF8String:settings[settingsVC->current_family].label]),@"");
+                break;
+            case 3+FX_MODPattern:
+                settingsVC->current_family=MDZ_SETTINGS_FAMILY_FXMODPattern;
                 settingsVC.title=NSLocalizedString(([NSString stringWithUTF8String:settings[settingsVC->current_family].label]),@"");
                 break;
             default: //Root

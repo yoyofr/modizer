@@ -93,6 +93,7 @@ void Shader::CompileProgram(const std::string& vertexShaderSource,
         glGetProgramiv(m_shaderProgram, GL_LINK_STATUS, &programLinked);
         if (programLinked == GL_TRUE)
         {
+            //std::cout<<"Program linkage ok"<<std::endl;
             return;
         }
         
@@ -100,6 +101,8 @@ void Shader::CompileProgram(const std::string& vertexShaderSource,
         glGetProgramiv(m_shaderProgram, GL_INFO_LOG_LENGTH, &infoLogLength);
         std::vector<char> message(infoLogLength + 1);
         glGetProgramInfoLog(m_shaderProgram, infoLogLength, nullptr, message.data());
+        
+        std::cout<<"Error in program linkage: "<<std::string(message.data())<<std::endl;
         
         throw ShaderException("Error compiling shader: " + std::string(message.data()));
     }

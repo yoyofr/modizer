@@ -209,6 +209,8 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
     
     //    [self.tableView registerClass:[UITableViewCell class] forCellReuseIdentifier:@"Cell"];
     //self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
+    
+    self.tableView.sectionHeaderHeight = 30;
     END_PROFILE
 }
 
@@ -304,34 +306,36 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
 #pragma mark - Table view data source
 
 - (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section {
-    UIView *customView = [[UIView alloc] initWithFrame: CGRectMake(0.0, 0.0, tableView.bounds.size.width, 24.0)];
+    UIView *customView = [[UIView alloc] initWithFrame: CGRectMake(0.0, 0.0, tableView.bounds.size.width, 30.0)];
     
-    if (darkMode) customView.backgroundColor = [UIColor colorWithRed: 1-0.7f green: 1-0.7f blue: 1-0.7f alpha: 1.0f];
-    else customView.backgroundColor = [UIColor colorWithRed: 0.7f green: 0.7f blue: 0.7f alpha: 1.0f];
+    float scaleFactor=0.6f;
+    
+    if (darkMode) customView.backgroundColor = [UIColor colorWithRed: MDZ_TABVIEW_HEADER_R0*scaleFactor green: MDZ_TABVIEW_HEADER_G0*scaleFactor blue: MDZ_TABVIEW_HEADER_B0*scaleFactor alpha: 1.0f];
+    else customView.backgroundColor = [UIColor colorWithRed: MDZ_TABVIEW_HEADER_R0 green: MDZ_TABVIEW_HEADER_G0 blue: MDZ_TABVIEW_HEADER_B0 alpha: 1.0f];
     
     CALayer *layerU = [CALayer layer];
     layerU.frame = CGRectMake(0.0, 0.0, tableView.bounds.size.width, 1.0);
-    
-    if (darkMode) layerU.backgroundColor = [[UIColor colorWithRed: 1-183.0f/255.0f green: 1-193.0f/255.0f blue: 1-199.0f/255.0f alpha: 1.00] CGColor];
-    else layerU.backgroundColor = [[UIColor colorWithRed: 183.0f/255.0f green: 193.0f/255.0f blue: 199.0f/255.0f alpha: 1.00] CGColor];
+
+    if (darkMode) layerU.backgroundColor = [[UIColor colorWithRed: MDZ_TABVIEW_HEADER_R1*scaleFactor green: MDZ_TABVIEW_HEADER_G1*scaleFactor blue: MDZ_TABVIEW_HEADER_B1*scaleFactor alpha: 1.00] CGColor];
+    else layerU.backgroundColor = [[UIColor colorWithRed: MDZ_TABVIEW_HEADER_R1 green: MDZ_TABVIEW_HEADER_G1 blue: MDZ_TABVIEW_HEADER_B1 alpha: 1.00] CGColor];
     
     [customView.layer insertSublayer:layerU atIndex:0];
     
     CAGradientLayer *gradient = [CAGradientLayer layer];
-    gradient.frame = CGRectMake(0.0, 1.0, tableView.bounds.size.width, 22.0);
+    gradient.frame = CGRectMake(0.0, 1.0, tableView.bounds.size.width, 28.0);
     
-    if (darkMode) gradient.colors = [NSArray arrayWithObjects:(id)[[UIColor colorWithRed: 1-144.0f/255.0f green: 1-159.0f/255.0f blue: 1-177.0f/255.0f alpha: 1.00] CGColor],
-                                     (id)[[UIColor colorWithRed: 1-183.0f/255.0f green: 1-193.0f/255.0f blue: 1-199.0f/255.0f  alpha: 1.00] CGColor], nil];
-    else gradient.colors = [NSArray arrayWithObjects:(id)[[UIColor colorWithRed: 144.0f/255.0f green: 159.0f/255.0f blue: 177.0f/255.0f alpha: 1.00] CGColor],
-                            (id)[[UIColor colorWithRed: 183.0f/255.0f green: 193.0f/255.0f blue: 199.0f/255.0f  alpha: 1.00] CGColor], nil];
+    if (darkMode) gradient.colors = [NSArray arrayWithObjects:(id)[[UIColor colorWithRed: MDZ_TABVIEW_HEADER_R2*scaleFactor green: MDZ_TABVIEW_HEADER_G2*scaleFactor blue: MDZ_TABVIEW_HEADER_B2*scaleFactor alpha: 1.00] CGColor],
+                                     (id)[[UIColor colorWithRed: MDZ_TABVIEW_HEADER_R1*scaleFactor green: MDZ_TABVIEW_HEADER_G1*scaleFactor blue: MDZ_TABVIEW_HEADER_B1*scaleFactor  alpha: 1.00] CGColor], nil];
+    else gradient.colors = [NSArray arrayWithObjects:(id)[[UIColor colorWithRed: MDZ_TABVIEW_HEADER_R2 green: MDZ_TABVIEW_HEADER_G2 blue: MDZ_TABVIEW_HEADER_B2 alpha: 1.00] CGColor],
+                            (id)[[UIColor colorWithRed: MDZ_TABVIEW_HEADER_R1 green: MDZ_TABVIEW_HEADER_G1 blue: MDZ_TABVIEW_HEADER_B1  alpha: 1.00] CGColor], nil];
     
     [customView.layer insertSublayer:gradient atIndex:0];
     
     CALayer *layerD = [CALayer layer];
     layerD.frame = CGRectMake(0.0, 23.0, tableView.bounds.size.width, 1.0);
     
-    if (darkMode) layerD.backgroundColor = [[UIColor colorWithRed: 1-144.0f/255.0f green: 1-159.0f/255.0f blue: 1-177.0f/255.0f alpha: 1.00] CGColor];
-    else layerD.backgroundColor = [[UIColor colorWithRed: 144.0f/255.0f green: 159.0f/255.0f blue: 177.0f/255.0f alpha: 1.00] CGColor];
+    if (darkMode) layerD.backgroundColor = [[UIColor colorWithRed: MDZ_TABVIEW_HEADER_R2*scaleFactor green: MDZ_TABVIEW_HEADER_G2*scaleFactor blue: MDZ_TABVIEW_HEADER_B2*scaleFactor alpha: 1.00] CGColor];
+    else layerD.backgroundColor = [[UIColor colorWithRed: MDZ_TABVIEW_HEADER_R2 green: MDZ_TABVIEW_HEADER_G2 blue: MDZ_TABVIEW_HEADER_B2 alpha: 1.00] CGColor];
     
     [customView.layer insertSublayer:layerD atIndex:0];
     
@@ -340,7 +344,9 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
     buttonLabel.titleLabel.shadowOffset    = CGSizeMake (0.0, 1.0);
     buttonLabel.titleLabel.lineBreakMode   = (NSLineBreakMode)UILineBreakModeTailTruncation;
     //	buttonLabel.titleLabel.shadowOffset    = CGSizeMake (1.0, 0.0);
-    buttonLabel.frame=CGRectMake(32, 0.0, tableView.bounds.size.width-32*2, 24);
+    buttonLabel.frame=CGRectMake(8, 0.0, tableView.bounds.size.width-8, 30);
+    buttonLabel.contentHorizontalAlignment = UIControlContentHorizontalAlignmentLeft;
+    buttonLabel.contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
     
     NSString *lbl;
     switch (section) {
@@ -583,39 +589,9 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
  }
  */
 
-/*
- // Override to support editing the table view.
- - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
- {
- if (editingStyle == UITableViewCellEditingStyleDelete) {
- // Delete the row from the data source
- [tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
- }
- else if (editingStyle == UITableViewCellEditingStyleInsert) {
- // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
- }
- }
- */
-
-/*
- // Override to support rearranging the table view.
- - (void)tableView:(UITableView *)tableView moveRowAtIndexPath:(NSIndexPath *)fromIndexPath toIndexPath:(NSIndexPath *)toIndexPath
- {
- }
- */
-
-/*
- // Override to support conditional rearranging of the table view.
- - (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath
- {
- // Return NO if you do not want the item to be re-orderable.
- return YES;
- }
- */
-
 #pragma mark - Table view delegate
 
-- (void)adjustFrame:(UIViewController*)childController {
+-(void) adjustFrame:(UIViewController*)childController {
     // Ensure proper layout under navigation/tab bars
     if ([childController respondsToSelector:@selector(setEdgesForExtendedLayout:)]) {
         childController.edgesForExtendedLayout = UIRectEdgeNone;
@@ -628,7 +604,7 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
     }
 }
 
-- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+-(void) tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     Reachability* reach;
     // Navigation logic may go here. Create and push another view controller.
@@ -637,7 +613,7 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
         case 0: {//collection
             switch (indexPath.row) {
                 case ONLINE_COLLECTIONS_MODLAND: //MODLAND
-                    collectionViewController = [[RootViewControllerMODLAND alloc]  initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]];
+                    collectionViewController = [[RootViewControllerMODLAND alloc]  initWithNibName:@"CollectionViewController" bundle:[NSBundle mainBundle]];
                     //set new title
                     collectionViewController.title = @"MODLAND";
                     // Set new directory
@@ -650,7 +626,7 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
                     [self.navigationController pushViewController:collectionViewController animated:YES];
                     break;
                 case ONLINE_COLLECTIONS_HVSC: //HVSC
-                    collectionViewController =[[RootViewControllerHVSC alloc]  initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]];
+                    collectionViewController =[[RootViewControllerHVSC alloc]  initWithNibName:@"CollectionViewController" bundle:[NSBundle mainBundle]];
                     //set new title
                     collectionViewController.title = @"HVSC";
                     // Set new directory
@@ -663,7 +639,7 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
                     [self.navigationController pushViewController:collectionViewController animated:YES];
                     break;
                 case ONLINE_COLLECTIONS_CGSC: //CGSC
-                    collectionViewController = [[RootViewControllerCGSC alloc]  initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]];
+                    collectionViewController = [[RootViewControllerCGSC alloc]  initWithNibName:@"CollectionViewController" bundle:[NSBundle mainBundle]];
                     //set new title
                     collectionViewController.title = @"CGSC";
                     // Set new directory
@@ -676,7 +652,7 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
                     [self.navigationController pushViewController:collectionViewController animated:YES];
                     break;
                 case ONLINE_COLLECTIONS_ASMA: //ASMA
-                    collectionViewController = [[RootViewControllerASMA alloc]  initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]];
+                    collectionViewController = [[RootViewControllerASMA alloc]  initWithNibName:@"CollectionViewController" bundle:[NSBundle mainBundle]];
                     //set new title
                     collectionViewController.title = @"ASMA";
                     // Set new directory
@@ -692,7 +668,7 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
                     reach = [Reachability reachabilityWithHostname:@"pc.joshw.info/"];
                         
                     if ([reach isReachable]) {
-                        collectionViewController = [[RootViewControllerJoshWWebParser alloc]  initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]];
+                        collectionViewController = [[RootViewControllerJoshWWebParser alloc]  initWithNibName:@"CollectionViewController" bundle:[NSBundle mainBundle]];
                         //set new title
                         collectionViewController.title = @"JoshW";
                         // Set new directory
@@ -713,7 +689,7 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
                     reach = [Reachability reachabilityWithHostname:@"vgmrips.net"];
                         
                     if ([reach isReachable]) {
-                        collectionViewController = [[RootViewControllerVGMRWebParser alloc]  initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]];
+                        collectionViewController = [[RootViewControllerVGMRWebParser alloc]  initWithNibName:@"CollectionViewController" bundle:[NSBundle mainBundle]];
                         //set new title
                         collectionViewController.title = @"VGMRips";
                         // Set new directory
@@ -731,7 +707,7 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
                     }
                     break;
                 case ONLINE_COLLECTIONS_AMP: //AMP
-                    collectionViewController = [[RootViewControllerAMPWebParser alloc]  initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]];
+                    collectionViewController = [[RootViewControllerAMPWebParser alloc]  initWithNibName:@"CollectionViewController" bundle:[NSBundle mainBundle]];
                     //set new title
                     collectionViewController.title = @"AMP";
                     // Set new directory
@@ -750,7 +726,7 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
                     reach = [Reachability reachabilityWithHostname:@"snesmusic.org/v2"];
                     
                     if ([reach isReachable]) {
-                        collectionViewController = [[RootViewControllerSNESMWebParser alloc]  initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]];
+                        collectionViewController = [[RootViewControllerSNESMWebParser alloc]  initWithNibName:@"CollectionViewController" bundle:[NSBundle mainBundle]];
                         //set new title
                         collectionViewController.title = @"SNESmusic";
                         // Set new directory
@@ -772,7 +748,7 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
                     reach = [Reachability reachabilityWithHostname:@"www.smspower.org"];
                         
                     if ([reach isReachable]) {
-                        collectionViewController = [[RootViewControllerSMSPWebParser alloc]  initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]];
+                        collectionViewController = [[RootViewControllerSMSPWebParser alloc]  initWithNibName:@"CollectionViewController" bundle:[NSBundle mainBundle]];
                         //set new title
                         collectionViewController.title = @"SMS Power!";
                         // Set new directory
@@ -793,7 +769,7 @@ NSString *weblinks_Others[WEBLINKS_Others_NB][2]={
                     reach = [Reachability reachabilityWithHostname:@"zxart.ee"];
                         
                     if ([reach isReachable]) {
-                        collectionViewController = [[RootViewControllerZXArtWebParser alloc]  initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]];
+                        collectionViewController = [[RootViewControllerZXArtWebParser alloc]  initWithNibName:@"CollectionViewController" bundle:[NSBundle mainBundle]];
                         //set new title
                         collectionViewController.title = @"ZXArt";
                         // Set new directory

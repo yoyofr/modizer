@@ -71,6 +71,10 @@ int qsortZXArt_entries_rating_or_entries(const void *entryA, const void *entryB)
     return 0;
 }
 
+-(void) pushRadioButton {
+    
+}
+
 
 - (void)viewDidLoad {
     START_PROFILE
@@ -838,7 +842,7 @@ int qsortZXArt_entries_rating_or_entries(const void *entryA, const void *entryB)
             
         }
     } else {
-        childController = [[RootViewControllerZXArtWebParser alloc]  initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]];
+        childController = [[RootViewControllerZXArtWebParser alloc]  initWithNibName:@"CollectionViewController" bundle:[NSBundle mainBundle]];
         //set new title
         childController.title = cur_db_entries[indexPath.row].fullpath;
         // Set new directory

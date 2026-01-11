@@ -317,6 +317,7 @@ enum MDZ_SETTINGS {
         MDZ_SETTINGS_FAMILY_FXMODPattern,
         GLOB_FXMODPattern,
         GLOB_FXMODPatternFXSLOT,
+        GLOB_FXMODPatternHideOther,
         GLOB_FXMODPattern_BGAlpha,
         GLOB_FXMODPattern_VolBar,
         GLOB_FXMODPattern_CurrentLineMode,

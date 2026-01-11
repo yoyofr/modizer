@@ -59,6 +59,10 @@ int qsortVGMR_entries_rating_or_entries(const void *entryA, const void *entryB) 
     return 0;
 }
 
+-(void) pushRadioButton {
+    
+}
+
 -(void) titleTap {
     if (!dbWEB_nb_entries) return;
     if (sort_mode==0) {
@@ -1169,7 +1173,7 @@ int qsortVGMR_entries_rating_or_entries(const void *entryA, const void *entryB) 
             
         }
     } else {
-        childController = [[RootViewControllerVGMRWebParser alloc]  initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]];
+        childController = [[RootViewControllerVGMRWebParser alloc]  initWithNibName:@"CollectionViewController" bundle:[NSBundle mainBundle]];
         //set new title
         childController.title = cur_db_entries[indexPath.row].fullpath;
         // Set new directory

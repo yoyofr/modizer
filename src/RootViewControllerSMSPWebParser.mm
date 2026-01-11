@@ -18,6 +18,10 @@ enum {
 
 @implementation RootViewControllerSMSPWebParser
 
+-(void) pushRadioButton {
+    
+}
+
 int qsortSMSP_entries_alpha(const void *entryA, const void *entryB) {
     NSString *strA,*strB;
     NSComparisonResult res;
@@ -798,7 +802,7 @@ int qsortSMSP_entries_rating_or_entries(const void *entryA, const void *entryB) 
             
         }
     } else {
-        childController = [[RootViewControllerSMSPWebParser alloc]  initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]];
+        childController = [[RootViewControllerSMSPWebParser alloc]  initWithNibName:@"CollectionViewController" bundle:[NSBundle mainBundle]];
         //set new title
         childController.title = cur_db_entries[indexPath.row].fullpath;
         // Set new directory

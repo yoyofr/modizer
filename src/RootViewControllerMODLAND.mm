@@ -86,6 +86,9 @@ extern volatile t_settings settings[MAX_SETTINGS];
 #define HAS_DETAILVIEW_CONT
 #include "PlaylistCommonFunctions.h"
 
+-(void) pushRadioButton {
+    
+}
 
 -(void)handleLongPress:(UILongPressGestureRecognizer *)gestureRecognizer {
     CGPoint p = [gestureRecognizer locationInView:self.tableView];
@@ -2516,7 +2519,7 @@ trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
     NSString *cellValue;
     
             if (browse_depth==1) {
-                if (childController == nil) childController = [[RootViewControllerMODLAND alloc]  initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]];
+                if (childController == nil) childController = [[RootViewControllerMODLAND alloc]  initWithNibName:@"CollectionViewController" bundle:[NSBundle mainBundle]];
                 else {// Don't cache childviews
                 }
                 
@@ -2565,7 +2568,7 @@ trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
                 if (!file_or_album) {
                     cellValue=cur_db_entries[crow].label;
                     
-                    if (childController == nil) childController = [[RootViewControllerMODLAND alloc]  initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]];
+                    if (childController == nil) childController = [[RootViewControllerMODLAND alloc]  initWithNibName:@"CollectionViewController" bundle:[NSBundle mainBundle]];
                     else {// Don't cache childviews
                     }
                     //set new title
@@ -2699,7 +2702,7 @@ trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
                         
                         //Check if an album was selected
                         if (cur_db_entries[crow].id_mod==-1) {//no mod : Album selcted
-                            if (childController == nil) childController = [[RootViewControllerMODLAND alloc]  initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]];
+                            if (childController == nil) childController = [[RootViewControllerMODLAND alloc]  initWithNibName:@"CollectionViewController" bundle:[NSBundle mainBundle]];
                             else {// Don't cache childviews
                             }
                             //set new title

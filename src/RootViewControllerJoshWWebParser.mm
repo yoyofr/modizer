@@ -16,6 +16,10 @@
 
 @synthesize mWebBaseDir;
 
+-(void) pushRadioButton {
+    
+}
+
 - (void)viewDidLoad {
     START_PROFILE
     [super viewDidLoad];
@@ -811,7 +815,7 @@
             
         }
     } else {
-        childController = [[RootViewControllerJoshWWebParser alloc]  initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]];
+        childController = [[RootViewControllerJoshWWebParser alloc]  initWithNibName:@"CollectionViewController" bundle:[NSBundle mainBundle]];
         //set new title
         childController.title = cur_db_entries[indexPath.row].fullpath;
         // Set new directory

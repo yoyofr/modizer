@@ -1577,6 +1577,14 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXMODPatternFXSLOT].detail.mdz_slider.slider_max_value=8;
     
     
+    SETTINGS_ID_DEF(GLOB_FXMODPatternHideOther)
+    settings[GLOB_FXMODPatternHideOther].type=MDZ_BOOLSWITCH;
+    settings[GLOB_FXMODPatternHideOther].label=(char*)"Hide MIDI & Piano FX";
+    settings[GLOB_FXMODPatternHideOther].description=(char*)"Hide other note based FX if displayed (Piano, Midi)";
+    settings[GLOB_FXMODPatternHideOther].family=MDZ_SETTINGS_FAMILY_FXMODPattern;
+    settings[GLOB_FXMODPatternHideOther].sub_family=0;
+    
+    
     SETTINGS_ID_DEF(GLOB_FXMODPattern_BGAlpha)
     settings[GLOB_FXMODPattern_BGAlpha].label=(char*)"Patterns BG Alpha";
     settings[GLOB_FXMODPattern_BGAlpha].description=(char*)"Opacity of mod patterns view";
@@ -1971,6 +1979,7 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FX_LIMIT_SLOWFX].detail.mdz_switch.switch_default_value=2;
     settings[GLOB_FXSpectrum].detail.mdz_switch.switch_default_value=0;
     settings[GLOB_FXMODPattern].detail.mdz_switch.switch_default_value=0;
+    settings[GLOB_FXMODPatternHideOther].detail.mdz_boolswitch.switch_default_value=1;
     settings[GLOB_FXMODPattern_BGAlpha].detail.mdz_slider.slider_default_value=0.3;
     settings[GLOB_FXMODPattern_CurrentLineMode].detail.mdz_switch.switch_default_value=0;
     settings[GLOB_FXMODPattern_Font].detail.mdz_switch.switch_default_value=0;

@@ -342,8 +342,8 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
     _shuffle=false;
     _history=[[NSMutableArray alloc] init];
     _pmh=pmh;
-    _compP=0; _nextCompP=0;
-    _warpP=0; _nextWarpP=0;
+    _compP=-1; _nextCompP=-1;
+    _warpP=-1; _nextWarpP=-1;
     _curEntryLbl = @"";
     [self loadIdlePreset];
     
@@ -420,10 +420,10 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
 }
 
 - (void)releaseNextPreset {
-    if (self.nextCompP) RenderUtils::releaseProgram(self.nextCompP);
-    self.nextCompP=0;
-    if (self.nextWarpP) RenderUtils::releaseProgram(self.nextWarpP);
-    self.nextWarpP=0;
+    if (self.nextCompP>0) RenderUtils::releaseProgram(self.nextCompP);
+    self.nextCompP=-1;
+    if (self.nextWarpP>0) RenderUtils::releaseProgram(self.nextWarpP);
+    self.nextWarpP=-1;
     self.nextFilepath=nil;
 }
 
@@ -483,7 +483,7 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
             pthread_mutex_unlock(&pm_mutex);
             if (!self.lastFailed) {
-                if (self.nextWarpP && self.nextCompP) {
+                if ((self.nextWarpP>=0) && (self.nextCompP>=0)) {
                     //MDZILog("compiling next preset: ok | warp %d comp %d",self.nextWarpP,self.nextCompP);
                     self.retry_preLoadcounter=0;
                 } else {
@@ -511,20 +511,20 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
         const char *filepath=[[item getFullPath] UTF8String];
         //Load new preset
         pthread_mutex_lock(&pm_mutex);
-        if ((self.nextWarpP && self.nextCompP && [self.nextFilepath isEqualToString:[item getFullPath]])) {
+        if ((self.nextWarpP>=0) && (self.nextCompP>=0) && [self.nextFilepath isEqualToString:[item getFullPath]]) {
             self.warpP=self.nextWarpP;
             self.compP=self.nextCompP;
             self.nextFilepath=nil;
-            self.nextWarpP=0;
-            self.nextCompP=0;
+            self.nextWarpP=-1;
+            self.nextCompP=-1;
             self.lastFailed=false;
             //MDZILog("shortcut, already compiled");
             
             //check if compressed milk preset, if so uncompress and update filepath accordingly
             [self uncompressIfNeeded:[item getFullPath] newPath:&filepath];
         } else {
-            self.warpP=0;
-            self.compP=0;
+            self.warpP=-1;
+            self.compP=-1;
             self.lastFailed=false;
             
             //check if compressed milk preset, if so uncompress and update filepath accordingly
@@ -536,7 +536,7 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
             const char *filepath=[[item getFullPath] UTF8String];
             if (!self.lastFailed) {
-                if (self.warpP && self.compP) {
+                if ((self.warpP>=0) && (self.compP>=0)) {
                     moveToNextPresetRequest=0;
                     //MDZILog("preload ok, warpP %d compP %d",self.warpP,self.compP);
                     START_PROFILE
@@ -595,20 +595,26 @@ void MDZOnPresetSwitchFailed(const char* presetFilename, const char* message, vo
         //Load new preset
         pthread_mutex_lock(&pm_mutex);
         if (self.size) {
-            self.warpP=0;
-            self.compP=0;
+            self.warpP=-1;
+            self.compP=-1;
             self.lastFailed=false;
             
             //check if compressed milk preset, if so uncompress and update filepath accordingly
             [self uncompressIfNeeded:[item getFullPath] newPath:&filepath];
             
             projectm_preload_preset_file(self.pmh, filepath, &self->_warpP, &self->_compP);
+            if (self.warpP<0) {
+                MDZELog("issue compiling warp");
+            }
+            if (self.compP<0) {
+                MDZELog("issue compiling comp");
+            }
         }
         
         [[NSOperationQueue mainQueue] addOperationWithBlock:^{
             const char *filepath=[[item getFullPath] UTF8String];
             if (!self.lastFailed) {
-                if (self.warpP && self.compP) {
+                if ((self.warpP>=0) && (self.compP>=0)) {
                     
                     if ([[[[item getFullPath] pathExtension] lowercaseString] isEqualToString:@"milkz"]) {
                         filepath=[[NSString stringWithFormat:@"%@tmpPreset.milk",NSTemporaryDirectory()] UTF8String];

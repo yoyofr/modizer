@@ -9,6 +9,8 @@
 #import "RootViewControllerAMPWebParser.h"
 #import "ModizFileHelper.h"
 
+#import "RadioSource.h"
+
 enum {
     BROWSE_DEFAULT=0,
     AMP_LINK_NONE,
@@ -97,6 +99,50 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
     }
     
     return 0;
+}
+
+-(void) pushRadioButton {
+    if ([detailViewController.radioSource isActive]&&(detailViewController.radioSource.mRadioSource==RS_COLLECTION_AMP)) {
+        [detailViewController stop];
+        [detailViewController clearQueue];
+        [detailViewController.radioSource stop];
+        [radioButton setTitleColor:[UIColor grayColor] forState:UIControlStateNormal];
+    } else {
+        [detailViewController.radioSource stop];
+        detailViewController.radioSource.mRadioSource=RS_COLLECTION_AMP;
+        
+        t_WEB_browse_entry *cur_db_entries;
+        cur_db_entries=(search_dbWEB?search_dbWEB_entries:dbWEB_entries);
+        int nb_entries=(search_dbWEB?search_dbWEB_nb_entries:dbWEB_nb_entries);
+        
+        switch (browse_subMode) {
+            case AMP_LINK_MODULES_LIST:
+            case AMP_LINK_SEARCH_MODULES_LIST:
+                break;
+            case AMP_LINK_COMPOSER_DETAILS:{
+                NSString *subStr=[mWebBaseURL substringFromIndex:[mWebBaseURL rangeOfString:@"view="].location+5];
+                [detailViewController.radioSource.mSourceData removeAllObjects];
+                [detailViewController.radioSource.mSourceData addObject:subStr];
+                MDZILog("data: %@",subStr);
+                detailViewController.radioSource.mRadioSource_mode=1;
+            }
+                break;
+            case AMP_LINK_GROUPS_LIST:
+            case AMP_LINK_SEARCH_GROUPS_LIST:
+                break;
+            case AMP_LINK_COMPOSERS_LIST:
+            case AMP_LINK_SEARCH_COMPOSERS_LIST:
+                
+                
+                
+                break;
+            default:
+                detailViewController.radioSource.mRadioSource_mode=0;
+                break;
+        }
+        [detailViewController.radioSource activate];
+        [radioButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    }
 }
 
 -(void) titleTap {
@@ -188,6 +234,8 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
 
     self.navigationItem.leftBarButtonItem = backButton;
     
+    [radioButton addTarget:self action:@selector(pushRadioButton) forControlEvents:UIControlEventTouchUpInside];
+    
     arr_VC_title=[NSMutableArray array];
     arr_VC_URL=[NSMutableArray array];
     arr_VC_Mode=[NSMutableArray array];
@@ -232,15 +280,44 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
     END_PROFILE
 }
 
+-(void) updRadioStatus {
+    if ([detailViewController.radioSource isActive]) {
+        [radioButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    } else {
+        [radioButton setTitleColor:[UIColor grayColor] forState:UIControlStateNormal];
+    }
+}
+
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
+    
+    [self.updRSTimer invalidate];
+    self.updRSTimer = nil;
+    self.updRSTimer = [NSTimer scheduledTimerWithTimeInterval:0.3
+                                                                 target:self
+                                                               selector:@selector(updRadioStatus)
+                                                               userInfo:nil
+                                                                repeats:YES];
 
     // Ensure scroll indicators remain visible
     // NOTE: Do NOT reset scrollIndicatorInsets here - they are managed by MiniPlayer
     self.tableView.showsVerticalScrollIndicator=YES;
     self.tableView.scrollEnabled=YES;
     self.tableView.indicatorStyle=darkMode?UIScrollViewIndicatorStyleWhite:UIScrollViewIndicatorStyleDefault;
+    
+    if ([detailViewController.radioSource isActive]&&(detailViewController.radioSource.mRadioSource==RS_COLLECTION_AMP)) {
+        [radioButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    } else {
+        [radioButton setTitleColor:[UIColor grayColor] forState:UIControlStateNormal];
+    }
 
+}
+
+- (void)viewDidDisappear:(BOOL)animated {
+    [super viewDidDisappear:animated];
+    
+    [self.updRSTimer invalidate];
+    self.updRSTimer = nil;
 }
 
 - (void)viewDidAppear:(BOOL)animated {
@@ -265,13 +342,13 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
 //            [self hideWaiting];
             [self fillMoreKeys];
             [tableView reloadData];
-            [tableView layoutIfNeeded];
+//            [tableView layoutIfNeeded];
         });
     } else {
         dispatch_async(dispatch_get_main_queue(), ^(void){
 //            [self hideWaiting];
             [tableView reloadData];
-            [tableView layoutIfNeeded];
+//            [tableView layoutIfNeeded];
         });
     }
 }
@@ -284,6 +361,7 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
         dispatch_async(dispatch_get_main_queue(), ^(void){
             [self fillKeysCompleted];
         });
+        return;
     }
     else {
         switch (self.browse_subMode) {
@@ -292,6 +370,7 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
                 dispatch_async(dispatch_get_main_queue(), ^(void){
                     [self fillKeysCompleted];
                 });
+                return;
             }
                 break;
             case AMP_LINK_BROWSE_COMPOSERS:
@@ -301,13 +380,16 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
                 dispatch_async(dispatch_get_main_queue(), ^(void){
                     [self fillKeysCompleted];
                 });
+                return;
             }
                 break;
             default:
                 [self fillKeysWithWEBSource];
+                return;
                 break;
         }
     }
+    fillKeysInProgress=0;
 }
 
 -(void) fillMoreKeys {
@@ -330,8 +412,9 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
 
 -(void) fillKeys {
     if (fillKeysInProgress) return;
-    fillKeysInProgress=1;
+    
     if (shouldFillKeys) {
+        fillKeysInProgress=1;
         shouldFillKeys=0;
         [self populateKeys];
     } else { //reset downloaded, rating & playcount flags
@@ -341,6 +424,7 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
             dbWEB_entries_data[i].playcount=-1;
         }
         if (mSearch) {
+            fillKeysInProgress=1;
             [self populateKeys];
         } else {
             dispatch_async(dispatch_get_main_queue(), ^(void){
@@ -780,6 +864,7 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
     if (entries_noMoreToLoad && mSearch) {
         // in case of search, do not ask DB again => duplicate already found entries & filter them
         [self fillSearchWithEntries];
+        fillKeysInProgress=0;
         return;
     }
     
@@ -990,6 +1075,7 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
         }];
 
         [task resume];
+        return;
     }
     
     if ((browse_subMode==AMP_LINK_COMPOSERS_LIST)||
@@ -1089,6 +1175,7 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
         }];
         
         [task resume];
+        return;
     }
     if (browse_subMode==AMP_LINK_COMPOSER_DETAILS) {
         ///////////////////////////////////////////////////////////////////////:
@@ -1266,6 +1353,7 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
         }];
         
         [task resume];
+        return;
     }
     if ((browse_subMode==AMP_LINK_MODULES_LIST)||
                (browse_subMode==AMP_LINK_SEARCH_MODULES_LIST)) {
@@ -1309,12 +1397,14 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
             TFHpple *doc       = [[TFHpple alloc] initWithHTMLData:data];
             
             NSArray *arr_tmp_url_fileList=[doc searchWithXPathQuery:@"//div[@id='result']//tr[@class='tr0' or @class='tr1']/td[1]/a"];
-            NSArray *arr_tmp_url_composerList=[doc searchWithXPathQuery:@"//div[@id='result']//tr[@class='tr0' or @class='tr1']/td[2]/a"];
+            NSArray *arr_tmp_url_composerList=[doc searchWithXPathQuery:@"//div[@id='result']//tr[@class='tr0' or @class='tr1']/td[2]"];
             NSArray *arr_tmp_url_formatList=[doc searchWithXPathQuery:@"//div[@id='result']//tr[@class='tr0' or @class='tr1']/td[3]"];
             NSArray *arr_tmp_url_sizeList=[doc searchWithXPathQuery:@"//div[@id='result']//tr[@class='tr0' or @class='tr1']/td[4]"];
             
+            
+            
             [arr_url_fileList addObjectsFromArray:arr_tmp_url_fileList];
-            [arr_url_composerList addObjectsFromArray:arr_tmp_url_composerList];
+            [arr_url_composerList addObjectsFromArray:[arr_tmp_url_composerList subarrayWithRange:NSMakeRange([arr_tmp_url_composerList count]-[arr_tmp_url_fileList count], [arr_tmp_url_fileList count])]];
             [arr_url_formatList addObjectsFromArray:arr_tmp_url_formatList];
             [arr_url_sizeList addObjectsFromArray:arr_tmp_url_sizeList];
             
@@ -1369,6 +1459,7 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
         }];
         
         [task resume];
+        return;
     }
     if (browse_subMode==AMP_LINK_INTERVIEW) {
         
@@ -1516,7 +1607,9 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
         }];
         
         [task resume];
+        return;
     }
+    fillKeysInProgress=0;
 }
 
 #pragma mark -
@@ -1674,7 +1767,7 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
             
             if (cur_db_entries[indexPath.row].fullpath)
                 pathToCheck=[NSString stringWithFormat:@"%@/%@",[ModizFileHelper getAppHomeDirectory],cur_db_entries[indexPath.row].fullpath];
-            if (pathToCheck) {
+            if (pathToCheck) {                
                 if ([mFileMngr fileExistsAtPath:pathToCheck]) cur_db_entries[indexPath.row].downloaded=1;
                 else cur_db_entries[indexPath.row].downloaded=0;
             } else cur_db_entries[indexPath.row].downloaded=0;
@@ -1832,15 +1925,15 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
                 [detailViewController play_listmodules:array_label start_index:0 path:array_path];
                 if ([detailViewController.mplayer isPlaying]) [self showMiniPlayer];
 
-                [tabView reloadData];
-                [tableView layoutIfNeeded];
+//                [tabView reloadData];
+                //[tableView layoutIfNeeded];
             } else {
                 if ([detailViewController add_to_playlist:localPath fileName:cur_db_entries[indexPath.row].label forcenoplay:(settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==1)]) {
                     if ([detailViewController.mplayer isPlaying]) [self showMiniPlayer];
 
                     cur_db_entries[indexPath.row].rating=-1;
-                    [tabView reloadData];
-                    [tableView layoutIfNeeded];
+//                    [tabView reloadData];
+                    //[tableView layoutIfNeeded];
                 }
             }
         } else {
@@ -1908,7 +2001,7 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
             [self fillMoreKeys];
         } else {
             
-            childController = [[RootViewControllerAMPWebParser alloc]  initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]];
+            childController = [[RootViewControllerAMPWebParser alloc]  initWithNibName:@"CollectionViewController" bundle:[NSBundle mainBundle]];
             //set new title
             childController.title = cur_db_entries[indexPath.row].fullpath;
             // Set new directory

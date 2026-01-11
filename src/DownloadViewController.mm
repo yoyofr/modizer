@@ -1431,16 +1431,20 @@ MDZELog("gzread error str for FTP entry %d",i); \
     } 
                                         destination:^NSURL *(NSURL *targetPath, NSURLResponse *response) {
         
-        NSString *fileName=mCurrentURLFilename;
-        if (fileName==nil) fileName=[NSString stringWithString:[response suggestedFilename]];
+        if (mCurrentURLFilename==nil) mCurrentURLFilename=[NSString stringWithString:[response suggestedFilename]];
         NSString *localPath;
             
-        if (mCurrentURLIsImage) localPath=[[NSString alloc] initWithFormat:@"%@/%@",[ModizFileHelper getAppHomeDirectory],fileName];
+        if (mCurrentURLIsImage) localPath=[[NSString alloc] initWithFormat:@"%@/%@",[ModizFileHelper getAppHomeDirectory],mCurrentURLFilename];
         else {
             if (mURLIsMODLAND[0]) {
-                localPath=[[NSString alloc] initWithFormat:@"%@/%@",[ModizFileHelper getAppHomeDirectory],mURLFilePath[0]];
+                if (mURLIsMODLAND[0]==3) {
+                    //radio mode
+                    localPath=[[NSString alloc] initWithFormat:@"%@/%@/%@",[ModizFileHelper getAppHomeDirectory],mURLFilePath[0],mCurrentURLFilename];
+                } else {
+                    localPath=[[NSString alloc] initWithFormat:@"%@/%@",[ModizFileHelper getAppHomeDirectory],mURLFilePath[0]];
+                }
             } else {
-                localPath=[[NSString alloc] initWithFormat:@"%@/%@",[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:  @"Documents/Downloads"],fileName];
+                localPath=[[NSString alloc] initWithFormat:@"%@/%@",[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:  @"Documents/Downloads"],mCurrentURLFilename];
             }
         }
         localPath = [localPath stringByReplacingOccurrencesOfString: @"'" withString: @"\'"];

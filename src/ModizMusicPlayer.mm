@@ -8278,7 +8278,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
     extractDone=false;
     extractPendingCancel=false;
     
-    [ModizFileHelper extractToPath:archivePath path:extractPath caller:self progress:extractProgress context:LoadingProgressObserverContext];
+    [ModizFileHelper extractToPath:archivePath path:extractPath caller:self progress:extractProgress context:LoadingProgressObserverContext completion:nil];
     while (extractDone==false) {
         [NSThread sleepForTimeInterval:0.01f];
         if ([self extractPendingCancel]) {
@@ -14627,6 +14627,14 @@ extern bool icloud_available;
     NSArray *collectionDirList=@[@"MODLAND",@"AMP",@"CGSC",@"ZXArt"];
     for (NSString *str in collectionDirList) {
         if ([_filePath containsString:[NSString stringWithFormat:@"Documents/%@/",str]]) {
+            NSArray *components = [_filePath pathComponents];
+            NSUInteger index = [components indexOfObject:str];
+            
+            if (index != NSNotFound && index + 1 < components.count) {
+                artist = components[index + 1];
+            }
+        } else if ([_filePath containsString:[NSString stringWithFormat:@"/%@/",str]] &&
+                   [_filePath containsString:[NSString stringWithFormat:@"tmpRadio/"]]) {
             NSArray *components = [_filePath pathComponents];
             NSUInteger index = [components indexOfObject:str];
             
