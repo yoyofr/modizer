@@ -58,7 +58,7 @@
     UIAlertController *alertC = [UIAlertController alertControllerWithTitle:title
                                        message:message
                                        preferredStyle:UIAlertControllerStyleAlert];
-    UIAlertAction* closeAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Ok",@"") style:UIAlertActionStyleCancel
+    UIAlertAction* closeAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Close",@"") style:UIAlertActionStyleCancel
         handler:^(UIAlertAction * action) {
         }];
     [alertC addAction:closeAction];

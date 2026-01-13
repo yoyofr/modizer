@@ -448,7 +448,7 @@ END_PROFILE
         
     } else {
         sBar.hidden=NO;
-        [self hideWaiting];
+//        [self hideWaiting];
         [self switchToTableView];
     }
 

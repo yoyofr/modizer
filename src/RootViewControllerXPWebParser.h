@@ -149,7 +149,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
 @property (nonatomic, assign) bool entries_noMoreToLoad;
 @property (nonatomic, assign) int arr_current_fetch_position,fillKeysInProgress,shouldReload;
 @property (nonatomic, strong) NSString *htmlData;
-@property (nonatomic, strong) NSLayoutConstraint *htmlWebViewHeightConstraint;
+@property (nonatomic, strong) NSArray<NSLayoutConstraint *> *htmlWebViewConstraints;
 
 -(IBAction)goPlayer;
 

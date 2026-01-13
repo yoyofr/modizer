@@ -24,12 +24,14 @@ enum t_radioSource {
 @property (nonatomic, assign) t_radioSource mRadioSource;
 @property (nonatomic, assign) int mRadioSource_mode;
 @property (nonatomic, assign) int mPendingNewFileToPlay;
-@property (nonatomic, assign) int mRetryCount;
+@property (nonatomic, assign) int mRetryCount,mRetryDuplCount;
 @property (nonatomic, assign) bool mActive;
 @property (nonatomic, strong) DetailViewControllerIphone *detailVC;
 @property (nonatomic, strong) NSMutableArray *mFilesList;
 @property (nonatomic, strong) NSMutableArray *mFilesExistInLibrary;
 @property (nonatomic, strong) NSMutableArray *mSourceData;
+@property (nonatomic, strong) NSMutableArray *mHistory;
+@property (nonatomic, strong) NSTimer *fetchDebounceTimer;
 
 -(void) moveNext;
 -(void) activate;

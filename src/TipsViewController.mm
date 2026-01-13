@@ -7,6 +7,7 @@
 
 #import "TipsViewController.h"
 #import "StoreManager.h"
+#import "ModizerConstants.h"
 
 typedef NS_ENUM(NSInteger, TipTier) {
     TipTierSmall = 0,
@@ -306,7 +307,7 @@ typedef NS_ENUM(NSInteger, TipTier) {
             NSString *formattedPrice = [self.priceFormatter stringFromNumber:product.price];
             priceLabel.text = formattedPrice;
             priceLabel.textColor = [UIColor systemBlueColor];
-            priceLabel.font = [UIFont systemFontOfSize:16 weight:UIFontWeightSemibold];
+            priceLabel.font = [UIFont systemFontOfSize:16 weight:MDZ_UIFONT_WEIGHT];
         }
         
         // Enable button

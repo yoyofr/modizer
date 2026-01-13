@@ -12029,6 +12029,66 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
     }
 }
 
+NSString* decodeGreekText(NSData *data) {
+     // Essayer différents encodages grecs
+     NSArray *greekEncodings = @[
+         @(CFStringConvertEncodingToNSStringEncoding(kCFStringEncodingISOLatinGreek)), // ISO-8859-7
+         @(CFStringConvertEncodingToNSStringEncoding(kCFStringEncodingWindowsGreek)),   // Windows-1253
+         @(NSISOLatin1StringEncoding),                                                   // Fallback
+     ];
+
+     for (NSNumber *encodingNum in greekEncodings) {
+         NSStringEncoding encoding = [encodingNum unsignedIntegerValue];
+         NSString *text = [[NSString alloc] initWithData:data encoding:encoding];
+
+         if (text && [text length] > 0) {
+             // Vérifier si ça ressemble à du grec (présence de caractères grecs)
+             if ([text rangeOfCharacterFromSet:[NSCharacterSet characterSetWithRange:NSMakeRange(0x0370, 0x03FF)]].location != NSNotFound) {
+                 return text;
+             }
+         }
+     }
+
+     // Fallback : UTF-8
+     return [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+ }
+
+NSString* convertAmigaGreekToUnicode(NSString *input) {
+      if (!input || [input length] == 0) return input;
+
+      // Table de correspondance ISO-8859-7 mal lu comme ISO-8859-1 → Unicode
+      NSDictionary *conversionMap = @{
+          @"Á": @"Α", @"Â": @"Β", @"Ã": @"Γ", @"Ä": @"Δ", @"Å": @"Ε", @"Æ": @"Φ",
+          @"Ç": @"Η", @"È": @"Θ", @"É": @"Ι", @"Ê": @"Κ", @"Ë": @"Λ", @"Ì": @"Μ",
+          @"Í": @"Ν", @"Î": @"Ξ", @"Ï": @"Ο", @"Ð": @"Π", @"Ñ": @"Ρ", @"Ó": @"Σ",
+          @"Ô": @"Τ", @"Õ": @"Υ", @"Ö": @"Χ", @"×": @"Ψ", @"Ø": @"Ω",
+
+          @"á": @"α", @"â": @"β", @"ã": @"γ", @"ä": @"δ", @"å": @"ε", @"æ": @"φ",
+          @"ç": @"η", @"è": @"θ", @"é": @"ι", @"ê": @"κ", @"ë": @"λ", @"ì": @"μ",
+          @"í": @"ν", @"î": @"ξ", @"ï": @"ο", @"ð": @"π", @"ñ": @"ρ", @"ò": @"ς",
+          @"ó": @"σ", @"ô": @"τ", @"õ": @"υ", @"ö": @"χ", @"÷": @"ψ", @"ø": @"ω",
+
+          // Avec accents
+          @"¼": @"Ό", @"½": @"Ύ", @"¾": @"Ώ",
+          @"Ü": @"Ά", @"Ý": @"ύ", @"Þ": @"ώ", @"ß": @"ί",
+          @"Ú": @"Ή", @"Û": @"Ί", @"Ù": @"Έ",
+          @"ú": @"ή", @"û": @"ί", @"ù": @"έ", @"ü": @"ά"
+      };
+
+      NSMutableString *result = [input mutableCopy];
+
+      for (NSString *wrongChar in conversionMap) {
+          NSString *correctChar = conversionMap[wrongChar];
+          [result replaceOccurrencesOfString:wrongChar
+                                  withString:correctChar
+                                     options:0
+                                       range:NSMakeRange(0, [result length])];
+      }
+
+      return result;
+  }
+
+
 
 -(int) mmp_openmptLoad:(NSString*)filePath {  //MODPLUG
     char *modName;
@@ -12136,12 +12196,16 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
     numInstr=openmpt_module_get_num_instruments(openmpt_module_ext_get_module(ompt_mod)); //ModPlug_NumInstruments(mp_file);
     
     modMessage=(char*)openmpt_module_get_metadata(openmpt_module_ext_get_module(ompt_mod),"message"); //ModPlug_GetMessage(mp_file);
-    if (modMessage) snprintf(mod_message,MAX_STIL_DATA_LENGTH*2,"%s\n",modMessage);
+    NSData *data=[NSData dataWithBytes:modMessage length:strlen(modMessage)+1];
+    NSString *text=decodeGreekText(data);
+    text=convertAmigaGreekToUnicode(text);
+    if (modMessage) snprintf(mod_message,MAX_STIL_DATA_LENGTH*2,"%s\n",[text UTF8String]);
     else {
         if ((numInstr==0)&&(numSamples==0)) snprintf(mod_message,MAX_STIL_DATA_LENGTH*2,"N/A\n");
         else snprintf(mod_message,MAX_STIL_DATA_LENGTH*2,"");
     }
     if (modMessage) free(modMessage);
+    
     
     
     /*			if (numInstr>0) {

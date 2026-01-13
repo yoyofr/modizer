@@ -86,8 +86,8 @@
     );
     
     [self.view setNeedsLayout];
-    [self.view layoutIfNeeded];
-    [tableView reloadData];    
+          [self.view layoutIfNeeded];
+          [tableView reloadData];
 }
 
 -(void) goCurrentPlaylist {

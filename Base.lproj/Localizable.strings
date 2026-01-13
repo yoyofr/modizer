@@ -160,6 +160,11 @@
 // MARK: - PLAYER / NOW PLAYING
 // ================================
 
+/* Radio */
+"Radio mode" = "Radio mode";
+"Next: %@" = "Next: %@";
+"Next: loading..." = "Next: loading...";
+
 /* Player States */
 "Now playing" = "Now playing";
 "Now playing(%d)" = "Now playing(%d)";

@@ -1961,15 +1961,15 @@ As a consequence, some entries might disappear from existing playlist.\n\
 }
 
 
-- (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation duration:(NSTimeInterval)duration {
-    [tableView reloadData];
-}
-
-// Ensure that the view controller supports rotation and that the split view can therefore show in both portrait and landscape.
-- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
-    [tableView reloadData];
-    return YES;
-}
+//- (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation duration:(NSTimeInterval)duration {
+//    [tableView reloadData];
+//}
+//
+//// Ensure that the view controller supports rotation and that the split view can therefore show in both portrait and landscape.
+//- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
+//    [tableView reloadData];
+//    return YES;
+//}
 
 #pragma mark - Table view data source
 
@@ -2078,7 +2078,8 @@ As a consequence, some entries might disappear from existing playlist.\n\
         //
         topLabel.tag = TOP_LABEL_TAG;
         topLabel.backgroundColor = [UIColor clearColor];
-        topLabel.font = [UIFont systemFontOfSize:17 weight:UIFontWeightSemibold];
+
+        topLabel.font = [UIFont systemFontOfSize:17 weight:MDZ_UIFONT_WEIGHT];
 //        topLabel.lineBreakMode=(settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value?
 //                                ((settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value==2) ? NSLineBreakByTruncatingTail:NSLineBreakByTruncatingMiddle):NSLineBreakByTruncatingHead);
         topLabel.opaque=TRUE;

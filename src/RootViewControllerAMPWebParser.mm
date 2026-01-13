@@ -26,6 +26,8 @@ enum {
     AMP_LINK_COMPOSERS_LIST,
     AMP_LINK_SEARCH_COMPOSERS_LIST,
     AMP_LINK_COMPOSER_DETAILS,
+    AMP_LINK_SEARCH_COUNTRY_LIST,
+    AMP_LINK_COUNTRY_LIST,
     AMP_LINK_SEARCH_MODULES_LIST,
     AMP_LINK_MODULES_LIST,
     AMP_LINK_SEARCH_GROUPS_LIST,
@@ -33,9 +35,74 @@ enum {
     AMP_LINK_INTERVIEW,
     AMP_LINK_MODULE_FILE,
     AMP_LINK_GROUP_DETAILS,
-    AMP_LINK_COUNTRY_DETAILS,
 };
 
+NSDictionary *cAMPcountryFlags = @{
+    @"Argentina": @"ar.png",
+    @"Australia": @"au.png",
+    @"Austria": @"at.png",
+    @"Belarus": @"by.png",
+    @"Belgium": @"be.png",
+    @"Brazil": @"br.png",
+    @"Bulgaria": @"bg.png",
+    @"Canada": @"ca.png",
+    @"Chile": @"cl.png",
+    @"Costa Rica": @"cr.png",
+    @"Croatia": @"hr.png",
+    @"Cyprus": @"cy.png",
+    @"Czech Republic": @"cz.png",
+    @"Denmark": @"dk.png",
+    @"Dominican Republic": @"do.png",
+    @"Estonia": @"ee.png",
+    @"Finland": @"fi.png",
+    @"France": @"fr.png",
+    @"Germany": @"de.png",
+    @"Greece": @"gr.png",
+    @"Hungary": @"hu.png",
+    @"Iceland": @"is.png",
+    @"Ireland": @"ie.png",
+    @"Isle of Man": @"im.png",
+    @"Isle of Wight": @"gb-iow.png",
+    @"Israel": @"il.png",
+    @"Italy": @"it.png",
+    @"Japan": @"jp.png",
+    @"Jordan": @"jo.png",
+    @"Lichtenstein": @"li.png",
+    @"Luxembourg": @"lu.png",
+    @"Macedonia": @"mk.png",
+    @"Malta": @"mt.png",
+    @"Martinique": @"mq.png",
+    @"Mexico": @"mx.png",
+    @"New Caledonia": @"nc.png",
+    @"New Zealand": @"nz.png",
+    @"Northern Ireland": @"gb-nir.png",
+    @"Norway": @"no.png",
+    @"Poland": @"pl.png",
+    @"Portugal": @"pt.png",
+    @"Quebec": @"ca-qe.png",
+    @"Romania": @"ro.png",
+    @"Russia": @"ru.png",
+    @"Scotland": @"gb-sct.png",
+    @"Serbia": @"rs.png",
+    @"Singapore": @"sg.png",
+    @"Slovakia": @"sk.png",
+    @"Slovenia": @"si.png",
+    @"South Africa": @"za.png",
+    @"Spain": @"es.png",
+    @"Sweden": @"se.png",
+    @"Switzerland": @"ch.png",
+    @"Taiwan": @"tw.png",
+    @"The Netherlands": @"nl.png",
+    @"Turkey": @"tr.png",
+    @"USA": @"us.png",
+    @"Ukraine": @"ua.png",
+    @"United Kingdom": @"gb.png",
+    @"Unknown": @"unknown.png",
+    @"Uruguay": @"uy.png",
+    @"Venezuela": @"ve.png",
+    @"Wales": @"gb-wls.png",
+    @"ex. Yugoslavia": @"yu.png"
+};
 
 @implementation RootViewControllerAMPWebParser
 
@@ -117,24 +184,66 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
         
         switch (browse_subMode) {
             case AMP_LINK_MODULES_LIST:
-            case AMP_LINK_SEARCH_MODULES_LIST:
+            case AMP_LINK_SEARCH_MODULES_LIST: {
+                t_WEB_browse_entry *cur_db_entries;
+                cur_db_entries=(search_dbWEB?search_dbWEB_entries:dbWEB_entries);
+                int nb_entries=(search_dbWEB?search_dbWEB_nb_entries:dbWEB_nb_entries);
+                if (nb_entries) {
+                    detailViewController.radioSource.mRadioSource_mode=2;
+                    [detailViewController.radioSource.mSourceData removeAllObjects];
+                    for (int i=0;i<nb_entries;i++) {
+                        [detailViewController.radioSource.mSourceData addObject:cur_db_entries[i].URL];
+                        [detailViewController.radioSource.mSourceData addObject:cur_db_entries[i].fullpath];
+                    }
+                }
+            }
                 break;
             case AMP_LINK_COMPOSER_DETAILS:{
                 NSString *subStr=[mWebBaseURL substringFromIndex:[mWebBaseURL rangeOfString:@"view="].location+5];
                 [detailViewController.radioSource.mSourceData removeAllObjects];
                 [detailViewController.radioSource.mSourceData addObject:subStr];
-                MDZILog("data: %@",subStr);
                 detailViewController.radioSource.mRadioSource_mode=1;
             }
                 break;
             case AMP_LINK_GROUPS_LIST:
-            case AMP_LINK_SEARCH_GROUPS_LIST:
+            case AMP_LINK_SEARCH_GROUPS_LIST: {
+                t_WEB_browse_entry *cur_db_entries;
+                cur_db_entries=(search_dbWEB?search_dbWEB_entries:dbWEB_entries);
+                int nb_entries=(search_dbWEB?search_dbWEB_nb_entries:dbWEB_nb_entries);
+                if (nb_entries) {
+                    NSString *subStr;
+                    detailViewController.radioSource.mRadioSource_mode=1;
+                    [detailViewController.radioSource.mSourceData removeAllObjects];
+                    for (int i=0;i<nb_entries;i++) {
+                        if (cur_db_entries[i].url_type==AMP_LINK_COMPOSER_DETAILS) {
+                            //was already a list of composer
+                            subStr=[cur_db_entries[i].URL substringFromIndex:[cur_db_entries[i].URL rangeOfString:@"view="].location+5];
+                            [detailViewController.radioSource.mSourceData addObject:subStr];
+                            detailViewController.radioSource.mRadioSource_mode=1;
+                        } else if (cur_db_entries[i].url_type==AMP_LINK_COMPOSERS_LIST) {
+                            //list of groups
+                            [detailViewController.radioSource.mSourceData addObject:[NSString stringWithString:cur_db_entries[i].URL]];
+                            detailViewController.radioSource.mRadioSource_mode=3;
+                        }
+                    }
+                }
+            }
                 break;
             case AMP_LINK_COMPOSERS_LIST:
-            case AMP_LINK_SEARCH_COMPOSERS_LIST:
-                
-                
-                
+            case AMP_LINK_SEARCH_COMPOSERS_LIST:{
+                t_WEB_browse_entry *cur_db_entries;
+                cur_db_entries=(search_dbWEB?search_dbWEB_entries:dbWEB_entries);
+                int nb_entries=(search_dbWEB?search_dbWEB_nb_entries:dbWEB_nb_entries);
+                if (nb_entries) {
+                    NSString *subStr;
+                    detailViewController.radioSource.mRadioSource_mode=1;
+                    [detailViewController.radioSource.mSourceData removeAllObjects];
+                    for (int i=0;i<nb_entries;i++) {
+                        subStr=[cur_db_entries[i].URL substringFromIndex:[cur_db_entries[i].URL rangeOfString:@"view="].location+5];
+                        [detailViewController.radioSource.mSourceData addObject:subStr];
+                    }
+                }
+            }
                 break;
             default:
                 detailViewController.radioSource.mRadioSource_mode=0;
@@ -216,7 +325,9 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
         [self showWaiting];
         [self flushMainLoop];
         
-        [self fillMoreKeys];
+        [self fillKeys];
+        
+        //[self fillMoreKeys];
     }
 }
 
@@ -351,6 +462,11 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
 //            [tableView layoutIfNeeded];
         });
     }
+    if ((entries_noMoreToLoad==true) || (mSearch==0)) {
+        dispatch_async(dispatch_get_main_queue(), ^(void){
+            [self hideWaiting];
+        });
+    }
 }
 
 -(void) populateKeys {
@@ -367,6 +483,14 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
         switch (self.browse_subMode) {
             case AMP_LINK_COMPOSERS:{
                 [self fillKeysWithModeCateg];
+                dispatch_async(dispatch_get_main_queue(), ^(void){
+                    [self fillKeysCompleted];
+                });
+                return;
+            }
+                break;
+            case AMP_LINK_COUNTRY_LIST:{
+                [self fillKeysWithModeCountries];
                 dispatch_async(dispatch_get_main_queue(), ^(void){
                     [self fillKeysCompleted];
                 });
@@ -400,7 +524,7 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
     self.searchDebounceTimer = nil;
 
     // Schedule new search after delay
-    self.searchDebounceTimer = [NSTimer scheduledTimerWithTimeInterval:0.5
+    self.searchDebounceTimer = [NSTimer scheduledTimerWithTimeInterval:0.1
                                                                  target:self
                                                                selector:@selector(fillKeys)
                                                                userInfo:nil
@@ -507,6 +631,7 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
     NSMutableArray *tmpArray=[[NSMutableArray alloc] init];
     t_categ_entry webs_entry[]= {
         {@"Composers",@"https://amp.dascene.net/newresult.php",AMP_LINK_COMPOSERS},
+        {@"Countries",@"https://amp.dascene.net/newresult.php",AMP_LINK_COUNTRY_LIST},
         {@"Groups",@"https://amp.dascene.net/newresult.php?request=groups&search=",AMP_LINK_SEARCH_GROUPS_LIST},
         {@"Modules",@"https://amp.dascene.net/newresult.php?request=module&search=",AMP_LINK_SEARCH_MODULES_LIST}
     };
@@ -563,7 +688,7 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
     
     search_dbWEB_entries_data=(t_WEB_browse_entry*)calloc(1,dbWEB_nb_entries*sizeof(t_WEB_browse_entry));
     
-        search_dbWEB_entries_count=0;
+    search_dbWEB_entries_count=0;
     if (dbWEB_entries_count) search_dbWEB_entries=search_dbWEB_entries_data;
     for (int j=0;j<dbWEB_entries_count;j++)  {
         if ([self searchStringRegExp:mSearchText sourceString:dbWEB_entries[j].label]) {
@@ -587,10 +712,9 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
     }
 }
 
--(void) fillKeysWithModeCateg {
+-(void) fillKeysWithModeCountries {
     int dbWEB_entries_index;
     
-    entries_noMoreToLoad=true;
     dbWEB_hasFiles=0;
     
     if (entries_noMoreToLoad && mSearch) {
@@ -598,6 +722,150 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
         [self fillSearchWithEntries];
         return;
     }
+    
+    entries_noMoreToLoad=true;
+    
+    if (dbWEB_nb_entries) {
+        for (int i=0;i<dbWEB_nb_entries;i++) {
+            dbWEB_entries_data[i].label=nil;
+            dbWEB_entries_data[i].fullpath=nil;
+            dbWEB_entries_data[i].URL=nil;
+            dbWEB_entries_data[i].url_type=0;
+            dbWEB_entries_data[i].info=nil;
+            dbWEB_entries_data[i].img_URL=nil;
+            dbWEB_entries_data[i].labelAttr=nil;
+            dbWEB_entries_data[i].infoAttr=nil;
+        }
+        free(dbWEB_entries_data);dbWEB_entries_data=NULL;
+        dbWEB_nb_entries=0;
+    }
+    
+    typedef struct {
+        NSString *category;
+        NSString *url;
+        char url_type;
+        const char *country_img;
+    } t_categ_entry;
+    NSArray *sortedArray;
+    NSMutableArray *tmpArray=[[NSMutableArray alloc] init];
+    t_categ_entry webs_entry[]= {
+        {@"Argentina",@"https://amp.dascene.net/newresult.php?request=country&search=1",AMP_LINK_COMPOSERS_LIST,"ar.png"},
+        {@"Australia",@"https://amp.dascene.net/newresult.php?request=country&search=2",AMP_LINK_COMPOSERS_LIST,"au.png"},
+        {@"Austria",@"https://amp.dascene.net/newresult.php?request=country&search=3",AMP_LINK_COMPOSERS_LIST,"at.png"},
+        {@"Belarus",@"https://amp.dascene.net/newresult.php?request=country&search=4",AMP_LINK_COMPOSERS_LIST,"by.png"},
+        {@"Belgium",@"https://amp.dascene.net/newresult.php?request=country&search=5",AMP_LINK_COMPOSERS_LIST,"be.png"},
+        {@"Brazil",@"https://amp.dascene.net/newresult.php?request=country&search=6",AMP_LINK_COMPOSERS_LIST,"br.png"},
+        {@"Bulgaria",@"https://amp.dascene.net/newresult.php?request=country&search=7",AMP_LINK_COMPOSERS_LIST,"bg.png"},
+        {@"Canada",@"https://amp.dascene.net/newresult.php?request=country&search=8",AMP_LINK_COMPOSERS_LIST,"ca.png"},
+        {@"Chile",@"https://amp.dascene.net/newresult.php?request=country&search=9",AMP_LINK_COMPOSERS_LIST,"cl.png"},
+        {@"Costa Rica",@"https://amp.dascene.net/newresult.php?request=country&search=10",AMP_LINK_COMPOSERS_LIST,"cr.png"},
+        {@"Croatia",@"https://amp.dascene.net/newresult.php?request=country&search=11",AMP_LINK_COMPOSERS_LIST,"hr.png"},
+        {@"Cyprus",@"https://amp.dascene.net/newresult.php?request=country&search=12",AMP_LINK_COMPOSERS_LIST,"cy.png"},
+        {@"Czech Republic",@"https://amp.dascene.net/newresult.php?request=country&search=13",AMP_LINK_COMPOSERS_LIST,"cz.png"},
+        {@"Denmark",@"https://amp.dascene.net/newresult.php?request=country&search=14",AMP_LINK_COMPOSERS_LIST,"dk.png"},
+        {@"Dominican Republic",@"https://amp.dascene.net/newresult.php?request=country&search=15",AMP_LINK_COMPOSERS_LIST,"do.png"},
+        {@"Estonia",@"https://amp.dascene.net/newresult.php?request=country&search=16",AMP_LINK_COMPOSERS_LIST,"ee.png"},
+        {@"Finland",@"https://amp.dascene.net/newresult.php?request=country&search=17",AMP_LINK_COMPOSERS_LIST,"fi.png"},
+        {@"France",@"https://amp.dascene.net/newresult.php?request=country&search=18",AMP_LINK_COMPOSERS_LIST,"fr.png"},
+        {@"Germany",@"https://amp.dascene.net/newresult.php?request=country&search=19",AMP_LINK_COMPOSERS_LIST,"de.png"},
+        {@"Greece",@"https://amp.dascene.net/newresult.php?request=country&search=20",AMP_LINK_COMPOSERS_LIST,"gr.png"},
+        {@"Hungary",@"https://amp.dascene.net/newresult.php?request=country&search=21",AMP_LINK_COMPOSERS_LIST,"hu.png"},
+        {@"Iceland",@"https://amp.dascene.net/newresult.php?request=country&search=22",AMP_LINK_COMPOSERS_LIST,"is.png"},
+        {@"Ireland",@"https://amp.dascene.net/newresult.php?request=country&search=23",AMP_LINK_COMPOSERS_LIST,"ie.png"},
+        {@"Isle of Man",@"https://amp.dascene.net/newresult.php?request=country&search=24",AMP_LINK_COMPOSERS_LIST,"im.png"},
+        {@"Isle of Wight",@"https://amp.dascene.net/newresult.php?request=country&search=25",AMP_LINK_COMPOSERS_LIST,"gb-iow.png"},
+        {@"Israel",@"https://amp.dascene.net/newresult.php?request=country&search=26",AMP_LINK_COMPOSERS_LIST,"il.png"},
+        {@"Italy",@"https://amp.dascene.net/newresult.php?request=country&search=27",AMP_LINK_COMPOSERS_LIST,"it.png"},
+        {@"Japan",@"https://amp.dascene.net/newresult.php?request=country&search=28",AMP_LINK_COMPOSERS_LIST,"jp.png"},
+        {@"Jordan",@"https://amp.dascene.net/newresult.php?request=country&search=29",AMP_LINK_COMPOSERS_LIST,"jo.png"},
+        {@"Lichtenstein",@"https://amp.dascene.net/newresult.php?request=country&search=30",AMP_LINK_COMPOSERS_LIST,"li.png"},
+        {@"Luxembourg",@"https://amp.dascene.net/newresult.php?request=country&search=31",AMP_LINK_COMPOSERS_LIST,"lu.png"},
+        {@"Macedonia",@"https://amp.dascene.net/newresult.php?request=country&search=32",AMP_LINK_COMPOSERS_LIST,"mk.png"},
+        {@"Malta",@"https://amp.dascene.net/newresult.php?request=country&search=33",AMP_LINK_COMPOSERS_LIST,"mt.png"},
+        {@"Martinique",@"https://amp.dascene.net/newresult.php?request=country&search=34",AMP_LINK_COMPOSERS_LIST,"mq.png"},
+        {@"Mexico",@"https://amp.dascene.net/newresult.php?request=country&search=35",AMP_LINK_COMPOSERS_LIST,"mx.png"},
+        {@"New Caledonia",@"https://amp.dascene.net/newresult.php?request=country&search=36",AMP_LINK_COMPOSERS_LIST,"nc.png"},
+        {@"New Zealand",@"https://amp.dascene.net/newresult.php?request=country&search=37",AMP_LINK_COMPOSERS_LIST,"nz.png"},
+        {@"Northern Ireland",@"https://amp.dascene.net/newresult.php?request=country&search=38",AMP_LINK_COMPOSERS_LIST,"gb-nir.png"},
+        {@"Norway",@"https://amp.dascene.net/newresult.php?request=country&search=39",AMP_LINK_COMPOSERS_LIST,"no.png"},
+        {@"Poland",@"https://amp.dascene.net/newresult.php?request=country&search=40",AMP_LINK_COMPOSERS_LIST,"pl.png"},
+        {@"Portugal",@"https://amp.dascene.net/newresult.php?request=country&search=41",AMP_LINK_COMPOSERS_LIST,"pt.png"},
+        {@"Quebec",@"https://amp.dascene.net/newresult.php?request=country&search=42",AMP_LINK_COMPOSERS_LIST,"ca-qe.png"},
+        {@"Romania",@"https://amp.dascene.net/newresult.php?request=country&search=43",AMP_LINK_COMPOSERS_LIST,"ro.png"},
+        {@"Russia",@"https://amp.dascene.net/newresult.php?request=country&search=44",AMP_LINK_COMPOSERS_LIST,"ru.png"},
+        {@"Scotland",@"https://amp.dascene.net/newresult.php?request=country&search=45",AMP_LINK_COMPOSERS_LIST,"gb-sct.png"},
+        {@"Serbia",@"https://amp.dascene.net/newresult.php?request=country&search=46",AMP_LINK_COMPOSERS_LIST,"rs.png"},
+        {@"Singapore",@"https://amp.dascene.net/newresult.php?request=country&search=47",AMP_LINK_COMPOSERS_LIST,"sg.png"},
+        {@"Slovakia",@"https://amp.dascene.net/newresult.php?request=country&search=48",AMP_LINK_COMPOSERS_LIST,"sk.png"},
+        {@"Slovenia",@"https://amp.dascene.net/newresult.php?request=country&search=49",AMP_LINK_COMPOSERS_LIST,"si.png"},
+        {@"South Africa",@"https://amp.dascene.net/newresult.php?request=country&search=50",AMP_LINK_COMPOSERS_LIST,"za.png"},
+        {@"Spain",@"https://amp.dascene.net/newresult.php?request=country&search=51",AMP_LINK_COMPOSERS_LIST,"es.png"},
+        {@"Sweden",@"https://amp.dascene.net/newresult.php?request=country&search=52",AMP_LINK_COMPOSERS_LIST,"se.png"},
+        {@"Switzerland",@"https://amp.dascene.net/newresult.php?request=country&search=53",AMP_LINK_COMPOSERS_LIST,"ch.png"},
+        {@"Taiwan",@"https://amp.dascene.net/newresult.php?request=country&search=54",AMP_LINK_COMPOSERS_LIST,"tw.png"},
+        {@"The Netherlands",@"https://amp.dascene.net/newresult.php?request=country&search=55",AMP_LINK_COMPOSERS_LIST,"nl.png"},
+        {@"Turkey",@"https://amp.dascene.net/newresult.php?request=country&search=56",AMP_LINK_COMPOSERS_LIST,"tr.png"},
+        {@"USA",@"https://amp.dascene.net/newresult.php?request=country&search=57",AMP_LINK_COMPOSERS_LIST,"us.png"},
+        {@"Ukraine",@"https://amp.dascene.net/newresult.php?request=country&search=58",AMP_LINK_COMPOSERS_LIST,"ua.png"},
+        {@"United Kingdom",@"https://amp.dascene.net/newresult.php?request=country&search=59",AMP_LINK_COMPOSERS_LIST,"gb.png"},
+        
+        {@"Unknown",@"https://amp.dascene.net/newresult.php?request=country&search=60",AMP_LINK_COMPOSERS_LIST,"unknown.png"},
+        {@"Uruguay",@"https://amp.dascene.net/newresult.php?request=country&search=61",AMP_LINK_COMPOSERS_LIST,"uy.png"},
+        {@"Venezuela",@"https://amp.dascene.net/newresult.php?request=country&search=62",AMP_LINK_COMPOSERS_LIST,"ve.png"},
+        {@"Wales",@"https://amp.dascene.net/newresult.php?request=country&search=63",AMP_LINK_COMPOSERS_LIST,"gb-wls.png"},
+        {@"ex. Yugoslavia",@"https://amp.dascene.net/newresult.php?request=country&search=64",AMP_LINK_COMPOSERS_LIST,"yu.png"},
+        
+    };
+    
+    for (int i=0;i<sizeof(webs_entry)/sizeof(t_categ_entry);i++) [tmpArray addObject:[NSValue valueWithPointer:&webs_entry[i]]];
+    
+    sortedArray=tmpArray;
+    dbWEB_nb_entries=[sortedArray count];
+    
+    dbWEB_entries_data=(t_WEB_browse_entry *)calloc(1,dbWEB_nb_entries*sizeof(t_WEB_browse_entry));
+    memset(dbWEB_entries_data,0,dbWEB_nb_entries*sizeof(t_WEB_browse_entry));
+    dbWEB_entries_index=0;
+        dbWEB_entries_count=0;
+        dbWEB_entries=dbWEB_entries_data;
+    
+    for (int i=0;i<dbWEB_nb_entries;i++) {
+        t_categ_entry *wentry = (t_categ_entry *)[[sortedArray objectAtIndex:i] pointerValue];
+        
+        dbWEB_entries[dbWEB_entries_count].label=[[NSString alloc] initWithFormat:@"%@",wentry->category];
+        
+        dbWEB_entries[dbWEB_entries_count].fullpath=[[NSString alloc] initWithFormat:@"%@", wentry->category];
+        
+        dbWEB_entries[dbWEB_entries_count].img_URL=[NSString stringWithFormat:@"mdz_local://%s",wentry->country_img];
+        
+        dbWEB_entries[dbWEB_entries_count].url_type=AMP_LINK_COMPOSERS_LIST;
+        dbWEB_entries[dbWEB_entries_count].URL=[NSString stringWithFormat:@"%@",wentry->url];
+        
+        dbWEB_entries[dbWEB_entries_count].isFile=0;
+        
+        dbWEB_entries_count++;
+        dbWEB_entries_index++;
+    }
+    //populate entries
+    
+    if (entries_noMoreToLoad && mSearch) {
+        // in case of search, do not ask DB again => duplicate already found entries & filter them
+        [self fillSearchWithEntries];
+        return;
+    }
+}
+
+-(void) fillKeysWithModeCateg {
+    int dbWEB_entries_index;
+    
+    dbWEB_hasFiles=0;
+    
+    if (entries_noMoreToLoad && mSearch) {
+        // in case of search, do not ask DB again => duplicate already found entries & filter them
+        [self fillSearchWithEntries];
+        return;
+    }
+    
+    entries_noMoreToLoad=true;
     
     if (dbWEB_nb_entries) {
         for (int i=0;i<dbWEB_nb_entries;i++) {
@@ -689,12 +957,16 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
         dbWEB_entries_index++;
     }
     //populate entries
+    if (entries_noMoreToLoad && mSearch) {
+        // in case of search, do not ask DB again => duplicate already found entries & filter them
+        [self fillSearchWithEntries];
+        return;
+    }
 }
 
 -(void) fillKeysWithBrowserIndex {
     int dbWEB_entries_index;
     
-    entries_noMoreToLoad=true;
     dbWEB_hasFiles=0;
     
     if (entries_noMoreToLoad && mSearch) {
@@ -702,6 +974,8 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
         [self fillSearchWithEntries];
         return;
     }
+    
+    entries_noMoreToLoad=true;
     
     if (dbWEB_nb_entries) {
         for (int i=0;i<dbWEB_nb_entries;i++) {
@@ -777,6 +1051,11 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
         dbWEB_entries_index++;
     }
     //populate entries
+    if (entries_noMoreToLoad && mSearch) {
+        // in case of search, do not ask DB again => duplicate already found entries & filter them
+        [self fillSearchWithEntries];
+        return;
+    }
 }
 
 -(void) fillKeysWithWEBSourceCompleted:(NSMutableArray*)tmpArray entries_count:(int)we_index entries_data:(t_web_file_entry *)we {
@@ -816,6 +1095,7 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
         
         if (wef->url_type==AMP_LINK_MODULE_FILE) {
             dbWEB_entries[dbWEB_entries_count].fullpath=[NSString stringWithFormat:@"Documents/AMP/%@/%@.gz",wef->composer,wef->file_name];
+            dbWEB_entries[dbWEB_entries_count].fullpath = [dbWEB_entries[dbWEB_entries_count].fullpath stringByReplacingOccurrencesOfString:@"\u00A0" withString:@" "];
             dbWEB_entries[dbWEB_entries_count].isFile=1;
             dbWEB_entries[dbWEB_entries_count].info=wef->file_details;
         } else if ( (browse_subMode==AMP_LINK_COMPOSERS_LIST)||(browse_subMode==AMP_LINK_SEARCH_COMPOSERS_LIST)) {
@@ -865,6 +1145,9 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
         // in case of search, do not ask DB again => duplicate already found entries & filter them
         [self fillSearchWithEntries];
         fillKeysInProgress=0;
+        dispatch_async(dispatch_get_main_queue(), ^(void){
+            [tableView reloadData];
+        });
         return;
     }
     
@@ -916,6 +1199,7 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
         ///////////////////////////////////////////////////////////////////////:
         dispatch_async(dispatch_get_main_queue(), ^(void){
             [self updateWaitingDetail:[NSString stringWithFormat:@"fetching from %d",self.arr_current_fetch_position]];
+            [self showWaiting];
         });
         
         if (browse_subMode==AMP_LINK_SEARCH_GROUPS_LIST) {
@@ -1085,6 +1369,7 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
         ///////////////////////////////////////////////////////////////////////:
         dispatch_async(dispatch_get_main_queue(), ^(void){
             [self updateWaitingDetail:[NSString stringWithFormat:@"fetching from %d",self.arr_current_fetch_position]];
+            [self showWaiting];
         });
         
         if (browse_subMode==AMP_LINK_SEARCH_COMPOSERS_LIST) {
@@ -1163,7 +1448,7 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
                     
                     el=[arr_url_groupsList objectAtIndex:j];
                     if (el && [el.content length]) {
-                        we[we_index].file_details=[we[we_index].file_details stringByAppendingFormat:@" • %@",[NSString stringWithFormat:@"%@",el.content]];
+                        we[we_index].file_details=[we[we_index].file_details stringByAppendingFormat:@" %@",[NSString stringWithFormat:@"%@",el.content]];
                     }
                     
                     [tmpArray addObject:[NSValue valueWithPointer:&(we[we_index])]];
@@ -1231,12 +1516,12 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
             
             NSDictionary *baseAttributes = @{
                 NSForegroundColorAttributeName:topTextCol,
-                NSFontAttributeName:[UIFont systemFontOfSize:17 weight:UIFontWeightSemibold],
+                NSFontAttributeName:[UIFont systemFontOfSize:17 weight:MDZ_UIFONT_WEIGHT],
                 NSBackgroundColorAttributeName:[UIColor clearColor]
             };
             NSDictionary *attributesData = @{
                 NSForegroundColorAttributeName:topTextColData,
-                NSFontAttributeName:[UIFont systemFontOfSize:17 weight:UIFontWeightSemibold],
+                NSFontAttributeName:[UIFont systemFontOfSize:17 weight:MDZ_UIFONT_WEIGHT],
             };
             NSRange rangeData;
             
@@ -1282,15 +1567,20 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
                 el=[arr_url_livedIn objectAtIndex:i];
                 NSString *strTmp = [[el.raw componentsSeparatedByString:@"title=\""] lastObject];
                 strTmp = [[strTmp componentsSeparatedByString:@"\""] firstObject];
-                we[we_index].file_name=[NSString stringWithFormat:@" • %@",strTmp];
+                we[we_index].file_name=[NSString stringWithFormat:@" %@",strTmp];
                 
-                TFHppleElement *el_img=[el firstChildWithTagName:@"img"];
-                if (el_img) {
-                    if ([el_img objectForKey:@"src"]) {
-                        we[we_index].file_img_URL=[NSString stringWithFormat:@"https://amp.dascene.net/%@",[el_img objectForKey:@"src"]];
-                        //MDZILog("found img: %@",we[we_index].file_img_URL);
-                        we[we_index].file_name=[NSString stringWithFormat:@"%@",strTmp];
-                    }
+//                TFHppleElement *el_img=[el firstChildWithTagName:@"img"];
+//                if (el_img) {
+//                    if ([el_img objectForKey:@"src"]) {
+//                        we[we_index].file_img_URL=[NSString stringWithFormat:@"https://amp.dascene.net/%@",[el_img objectForKey:@"src"]];
+//                        //MDZILog("found img: %@",we[we_index].file_img_URL);
+//                        we[we_index].file_name=[NSString stringWithFormat:@"%@",strTmp];
+//                    }
+//                }
+                NSString *countryImg=cAMPcountryFlags[strTmp];
+                //MDZILog("country %@ img %@",strTmp,countryImg);
+                if (countryImg) {
+                    we[we_index].file_img_URL=[NSString stringWithFormat:@"mdz_local://%@",countryImg];
                 }
                 
                 we[we_index].file_nameAttr=[[NSMutableAttributedString alloc] initWithString:we[we_index].file_name attributes:baseAttributes];
@@ -1322,7 +1612,7 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
             //get list of groups and links
             for (TFHppleElement *child in el.children) {
                 if ([child objectForKey:@"href"]) {
-                    we[we_index].file_name=[NSString stringWithFormat:@" • %@",child.content];
+                    we[we_index].file_name=[NSString stringWithFormat:@" %@",child.content];
                     
                     we[we_index].file_nameAttr=[[NSMutableAttributedString alloc] initWithString:we[we_index].file_name attributes:baseAttributes];
                     rangeData = NSMakeRange(0,[we[we_index].file_name length]);
@@ -1364,6 +1654,7 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
         
         dispatch_async(dispatch_get_main_queue(), ^(void){
             [self updateWaitingDetail:[NSString stringWithFormat:@"fetching from %d",self.arr_current_fetch_position]];
+            [self showWaiting];
         });
         
         if (browse_subMode==AMP_LINK_SEARCH_MODULES_LIST) {
@@ -1410,10 +1701,8 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
             
             int currentFiles=(int)[arr_url_fileList count];
             
-            arr_current_fetch_position+=currentFiles;
-            if (currentFiles<50) {
-                entries_noMoreToLoad=true;
-            }
+//            arr_current_fetch_position+=currentFiles;
+            entries_noMoreToLoad=true;
             
             int total_files=(int)[arr_url_fileList count];
             int total_composers=(int)[arr_url_composerList count];
@@ -1443,7 +1732,7 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
                     
                     we[we_index].file_URL=[NSString stringWithFormat:@"https://amp.dascene.net/%@",[el objectForKey:@"href"]];
                     we[we_index].composer=[NSString stringWithFormat:@"%@",el_composer.content];
-                    we[we_index].file_name=[NSString stringWithFormat:@"%@.%@",[el_format.content lowercaseString],el.content];
+                    we[we_index].file_name=[NSString stringWithFormat:@"%@.%@",el_format.content,el.content];
                     
                     we[we_index].file_details=[NSString stringWithFormat:@"%@",el_size.content];
                     we[we_index].url_type=AMP_LINK_MODULE_FILE;
@@ -1469,6 +1758,7 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
         
         dispatch_async(dispatch_get_main_queue(), ^(void){
             [self updateWaitingDetail:[NSString stringWithFormat:@"fetching interview"]];
+            [self showWaiting];
         });
         
         url = [NSURL URLWithString:[NSString stringWithFormat:@"%@",mWebBaseURL]];
@@ -1668,7 +1958,7 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
         //
         topLabel.tag = TOP_LABEL_TAG;
         topLabel.backgroundColor = [UIColor clearColor];
-        topLabel.font = [UIFont systemFontOfSize:17 weight:UIFontWeightSemibold];
+        topLabel.font = [UIFont systemFontOfSize:17 weight:MDZ_UIFONT_WEIGHT];
         topLabel.lineBreakMode=(settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value?
                                 ((settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value==2) ? NSLineBreakByTruncatingTail:NSLineBreakByTruncatingMiddle):NSLineBreakByTruncatingHead);;;
         topLabel.opaque=TRUE;
@@ -1761,23 +2051,25 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
         cellValue=cur_db_entries[indexPath.row].label;
         cellValueAttr=cur_db_entries[indexPath.row].labelAttr;
         int colFactor;
-        //update downloaded if needed
-        if(cur_db_entries[indexPath.row].downloaded==-1) {
-            NSString *pathToCheck=nil;
-            
-            if (cur_db_entries[indexPath.row].fullpath)
-                pathToCheck=[NSString stringWithFormat:@"%@/%@",[ModizFileHelper getAppHomeDirectory],cur_db_entries[indexPath.row].fullpath];
-            if (pathToCheck) {                
-                if ([mFileMngr fileExistsAtPath:pathToCheck]) cur_db_entries[indexPath.row].downloaded=1;
-                else cur_db_entries[indexPath.row].downloaded=0;
-            } else cur_db_entries[indexPath.row].downloaded=0;
-        }
-        
-        if(cur_db_entries[indexPath.row].downloaded==1) {
-            colFactor=1;
-        } else colFactor=0;
         
         if (cur_db_entries[indexPath.row].isFile) { //FILE
+            //update downloaded if needed
+            if(cur_db_entries[indexPath.row].downloaded==-1) {
+                NSString *pathToCheck=nil;
+                
+                if (cur_db_entries[indexPath.row].fullpath)
+                    pathToCheck=[NSString stringWithFormat:@"%@/%@",[ModizFileHelper getAppHomeDirectory],cur_db_entries[indexPath.row].fullpath];
+                if (pathToCheck) {
+//                    MDZILog("checking: %@",pathToCheck);
+                    if ([mFileMngr fileExistsAtPath:pathToCheck]) cur_db_entries[indexPath.row].downloaded=1;
+                    else cur_db_entries[indexPath.row].downloaded=0;
+                } else cur_db_entries[indexPath.row].downloaded=0;
+            }
+            
+            if(cur_db_entries[indexPath.row].downloaded==1) {
+                colFactor=1;
+            } else colFactor=0;
+            
             if (colFactor==0) topLabel.textColor=[UIColor colorWithRed:0.5f green:0.5f blue:0.5f alpha:1.0];
             topLabel.frame= CGRectMake((has_mini_img?35:0)+1.0 * cell.indentationWidth,
                                        0,
@@ -1858,10 +2150,15 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
             else topLabel.textColor=[UIColor colorWithRed:0.0f green:0.0f blue:1.0f alpha:1.0f];
             
             if (cur_db_entries[indexPath.row].img_URL) {
-                coverImgView.image = [imagesCache getImageWithURL:cur_db_entries[indexPath.row].img_URL
-                                                           prefix:@"AMP_mini"
-                                                             size:CGSizeMake(34.0f, 34.0f)
-                                                   forUIImageView:coverImgView];
+                if ([cur_db_entries[indexPath.row].img_URL containsString:@"mdz_local://"]) {
+                    NSString *imgName=[cur_db_entries[indexPath.row].img_URL substringFromIndex:[@"mdz_local://" length]];
+                    coverImgView.image = [UIImage imageNamed:imgName];
+                } else {
+                    coverImgView.image = [imagesCache getImageWithURL:cur_db_entries[indexPath.row].img_URL
+                                                               prefix:@"AMP_mini"
+                                                                 size:CGSizeMake(34.0f, 34.0f)
+                                                       forUIImageView:coverImgView];
+                }
                 coverImgView.contentMode=UIViewContentModeScaleAspectFit;
             }
             

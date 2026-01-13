@@ -2596,10 +2596,10 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     if ([radioSource queueSize]>1) {
         NSString *nextEntry=[radioSource getQueueLabel:1];
         
-        NSString *msg_str=[NSString stringWithFormat:NSLocalizedString(@"Coming next:\n\n%@",@""),nextEntry];
+        NSString *msg_str=[NSString stringWithFormat:NSLocalizedString(@"Next: %@",@""),nextEntry];
         [self showAlertMsg:[NSString stringWithFormat:@"%@ - %@",NSLocalizedString(@"Radio mode",@""),[radioSource radioSourceName]] message:msg_str];
     } else {
-        NSString *msg_str=[NSString stringWithFormat:NSLocalizedString(@"Coming next:\nloading...",@"")];
+        NSString *msg_str=[NSString stringWithFormat:NSLocalizedString(@"Next: loading...",@"")];
         [self showAlertMsg:[NSString stringWithFormat:@"%@ - %@",NSLocalizedString(@"Radio mode",@""),[radioSource radioSourceName]] message:msg_str];
     }
 }
@@ -4702,8 +4702,8 @@ int recording=0;
             if (bShowEQ) eqVC.view.frame=CGRectMake(mainView.frame.origin.x,m_oglView.frame.origin.y,mainView.frame.size.width,m_oglView.frame.size.height);
             if (bShowVC) voicesVC.view.frame=CGRectMake(mainView.frame.origin.x,m_oglView.frame.origin.y,mainView.frame.size.width,m_oglView.frame.size.height);
             
-            if (infoIsFullscreen) infoView.frame = CGRectMake(mainView.frame.origin.x, 0, mainView.frame.size.width, mDevice_hh-20-42);
-            else infoView.frame = CGRectMake(mainView.frame.origin.x, 80, mainView.frame.size.width, mDevice_hh-230-safe_bottom);
+            if (infoIsFullscreen) infoView.frame = CGRectMake(0, 0, m_oglView.frame.size.width, m_oglView.frame.size.height+m_oglView.frame.origin.y);
+            else infoView.frame = m_oglView.frame;//CGRectMake(mainView.frame.origin.x, 80, mainView.frame.size.width, mDevice_hh-230-safe_bottom);
             
             //commandViewU.frame = CGRectMake(2, 48, mDevice_ww-4, 32);
             commandViewU.frame = CGRectMake(0, 0, mDevice_ww-safe_left-safe_right, 32+48);
@@ -4829,8 +4829,8 @@ int recording=0;
             if (bShowEQ) eqVC.view.frame=CGRectMake(mainView.frame.origin.x,m_oglView.frame.origin.y,mainView.frame.size.width,m_oglView.frame.size.height);
             if (bShowVC) voicesVC.view.frame=CGRectMake(mainView.frame.origin.x,m_oglView.frame.origin.y,mainView.frame.size.width,m_oglView.frame.size.height);
             
-            if (infoIsFullscreen) infoView.frame = CGRectMake(mainView.frame.origin.x, 0, mainView.frame.size.width, mDevice_ww-20-30);
-            else infoView.frame = CGRectMake(mainView.frame.origin.x, 82, mainView.frame.size.width, mDevice_ww-82-30-0*safe_bottom);
+            if (infoIsFullscreen) infoView.frame = CGRectMake(0, 0, m_oglView.frame.size.width, m_oglView.frame.size.height+m_oglView.frame.origin.y);
+            else infoView.frame = m_oglView.frame;// CGRectMake(mainView.frame.origin.x, 82, mainView.frame.size.width, mDevice_ww-82-30-0*safe_bottom);
             
             int xofs=mDevice_hh-(24*5+36*3+8)-safe_left-safe_right;
             yofs=10;
@@ -10382,7 +10382,7 @@ void drawTgtSlotPattern(int fxIdx,float x,float y,float w,float h,float ww,float
         //
         topLabel.tag = TOP_LABEL_TAG;
         topLabel.backgroundColor = [UIColor clearColor];
-        topLabel.font = [UIFont systemFontOfSize:15 weight:UIFontWeightSemibold];
+        topLabel.font = [UIFont systemFontOfSize:15 weight:MDZ_UIFONT_WEIGHT];
         topLabel.lineBreakMode=(settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value?
                                 ((settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value==2) ? NSLineBreakByTruncatingTail:NSLineBreakByTruncatingMiddle):NSLineBreakByTruncatingHead);;
         topLabel.opaque=TRUE;
