@@ -41,6 +41,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
 
 #import "TTFadeAnimator.h"
 #import "ModizFileHelper.h"
+#import "RadioSource.h"
 
 @implementation RootViewControllerASMA
 
@@ -74,7 +75,71 @@ extern volatile t_settings settings[MAX_SETTINGS];
 #include "PlaylistCommonFunctions.h"
 
 -(void) pushRadioButton {
-    
+    if ([detailViewController.radioSource isActive]&&(detailViewController.radioSource.mRadioSource==RS_COLLECTION_ASMA)) {
+        [detailViewController stop];
+        [detailViewController clearQueue];
+        [detailViewController.radioSource stop];
+        [radioButton setTitleColor:[UIColor grayColor] forState:UIControlStateNormal];
+    } else {
+        [detailViewController.radioSource stop];
+        [detailViewController clearQueue];
+        detailViewController.radioSource.mRadioSource=RS_COLLECTION_ASMA;
+        
+        t_dbHVSC_browse_entry *cur_db_entries;
+        cur_db_entries=(search_dbASMA?search_dbASMA_entries:dbASMA_entries);
+        int nb_entries=(search_dbASMA?search_dbASMA_nb_entries:dbASMA_nb_entries);
+        
+        switch (browse_depth) {
+            case 1:
+                detailViewController.radioSource.mRadioSource_mode=1;
+                [detailViewController.radioSource.mSourceData removeAllObjects];
+                for (int i=0;i<nb_entries;i++) {
+                    [detailViewController.radioSource.mSourceData addObject:[NSString stringWithFormat:@"d:%@",cur_db_entries[i].dir1]];
+                }
+                break;
+            case 2:
+                detailViewController.radioSource.mRadioSource_mode=2;
+                [detailViewController.radioSource.mSourceData removeAllObjects];
+                for (int i=0;i<nb_entries;i++) {
+                    if (cur_db_entries[i].dir2) {
+                        //entry is a dir
+                        [detailViewController.radioSource.mSourceData addObject:[NSString stringWithFormat:@"d:%@/%@",cur_db_entries[i].dir1,cur_db_entries[i].dir2]];
+                    } else {
+                        //entry is a file
+                        [detailViewController.radioSource.mSourceData addObject:[NSString stringWithFormat:@"f:%@",cur_db_entries[i].fullpath]];
+                    }
+                }
+                break;
+            case 3:
+                detailViewController.radioSource.mRadioSource_mode=3;
+                [detailViewController.radioSource.mSourceData removeAllObjects];
+                for (int i=0;i<nb_entries;i++) {
+                    if (cur_db_entries[i].dir3) {
+                        //entry is a dir
+                        MDZILog("%@",cur_db_entries[i].dir1);
+                        MDZILog("%@",cur_db_entries[i].dir2);
+                        MDZILog("%@",cur_db_entries[i].dir3);
+                        [detailViewController.radioSource.mSourceData addObject:[NSString stringWithFormat:@"d:%@/%@/%@",cur_db_entries[i].dir1,cur_db_entries[i].dir2,cur_db_entries[i].dir3]];
+                    } else {
+                        //entry is a file
+                        [detailViewController.radioSource.mSourceData addObject:[NSString stringWithFormat:@"f:%@",cur_db_entries[i].fullpath]];
+                    }
+                }
+                break;
+            case 4:
+                detailViewController.radioSource.mRadioSource_mode=4;
+                for (int i=0;i<nb_entries;i++) {
+                    //entry is a file
+                    [detailViewController.radioSource.mSourceData addObject:[NSString stringWithFormat:@"f:%@",cur_db_entries[i].fullpath]];
+                }
+                break;
+            default:
+                detailViewController.radioSource.mRadioSource_mode=0;
+                break;
+        }
+        [detailViewController.radioSource activate];
+        [radioButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    }
 }
 
 -(void)handleLongPress:(UILongPressGestureRecognizer *)gestureRecognizer {
@@ -228,6 +293,12 @@ extern volatile t_settings settings[MAX_SETTINGS];
     mSearchText=nil;
     mCurrentWinAskedDownload=0;
     mClickedPrimAction=0;
+    
+    [radioButton setStyle:BButtonStyleBootstrapV2];
+    [radioButton setType:BButtonTypeInverse];
+    [radioButton addAwesomeIcon:FAIconRss beforeTitle:YES];
+    [radioButton setTitleColor:[UIColor grayColor] forState:UIControlStateNormal];
+    [radioButton addTarget:self action:@selector(pushRadioButton) forControlEvents:UIControlEventTouchUpInside];
     
     if (browse_depth==0) {
 #ifdef GET_NB_ENTRIES
@@ -815,12 +886,34 @@ END_PROFILE
     return UIStatusBarStyleDefault;
 }
 
+-(void) updRadioStatus {
+    if ([detailViewController.radioSource isActive]) {
+        [radioButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    } else {
+        [radioButton setTitleColor:[UIColor grayColor] forState:UIControlStateNormal];
+    }
+}
+
+
 -(void) viewWillAppear:(BOOL)animated {
 //    [self.navigationController.navigationBar setBarStyle:UIBarStyleDefault];
     [self.sBar setBarStyle:UIBarStyleDefault];
     //[[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];
     
     self.navigationController.delegate = self;
+    
+    [self.updRSTimer invalidate];
+    self.updRSTimer = nil;
+    self.updRSTimer = [NSTimer scheduledTimerWithTimeInterval:0.3
+                                                                 target:self
+                                                               selector:@selector(updRadioStatus)
+                                                               userInfo:nil
+                                                                repeats:YES];
+    if ([detailViewController.radioSource isActive]&&(detailViewController.radioSource.mRadioSource==RS_COLLECTION_ASMA)) {
+        [radioButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    } else {
+        [radioButton setTitleColor:[UIColor grayColor] forState:UIControlStateNormal];
+    }
     
     bool oldmode=darkMode;
     darkMode=false;
@@ -1013,50 +1106,6 @@ END_PROFILE
         cell.frame=CGRectMake(0,0,tabView.frame.size.width,40);
         [cell setBackgroundColor:[UIColor clearColor]];
         
-        /*CAGradientLayer *gradient = [CAGradientLayer layer];
-         gradient.frame = cell.bounds;
-         gradient.colors = [NSArray arrayWithObjects:
-         (id)[[UIColor colorWithRed:255.0/255.0 green:255.0/255.0 blue:255.0/255.0 alpha:1] CGColor],
-         (id)[[UIColor colorWithRed:255.0/255.0 green:255.0/255.0 blue:255.0/255.0 alpha:1] CGColor],
-         (id)[[UIColor colorWithRed:235.0/255.0 green:235.0/255.0 blue:235.0/255.0 alpha:1] CGColor],
-         (id)[[UIColor colorWithRed:240.0/255.0 green:240.0/255.0 blue:240.0/255.0 alpha:1] CGColor],
-         (id)[[UIColor colorWithRed:200.0/255.0 green:200.0/255.0 blue:200.0/255.0 alpha:1] CGColor],
-         (id)[[UIColor colorWithRed:200.0/255.0 green:200.0/255.0 blue:200.0/255.0 alpha:1] CGColor],
-         nil];
-         gradient.locations = [NSArray arrayWithObjects:
-         (id)[NSNumber numberWithFloat:0.00f],
-         (id)[NSNumber numberWithFloat:0.03f],
-         (id)[NSNumber numberWithFloat:0.03f],
-         (id)[NSNumber numberWithFloat:0.97f],
-         (id)[NSNumber numberWithFloat:0.97f],
-         (id)[NSNumber numberWithFloat:1.00f],
-         nil];
-         [cell setBackgroundView:[[UIView alloc] init]];
-         [cell.backgroundView.layer insertSublayer:gradient atIndex:0];
-         
-         CAGradientLayer *selgrad = [CAGradientLayer layer];
-         selgrad.frame = cell.bounds;
-         float rev_col_adj=1.2f;
-         selgrad.colors = [NSArray arrayWithObjects:
-         (id)[[UIColor colorWithRed:rev_col_adj-255.0/255.0 green:rev_col_adj-255.0/255.0 blue:rev_col_adj-255.0/255.0 alpha:1] CGColor],
-         (id)[[UIColor colorWithRed:rev_col_adj-255.0/255.0 green:rev_col_adj-255.0/255.0 blue:rev_col_adj-255.0/255.0 alpha:1] CGColor],
-         (id)[[UIColor colorWithRed:rev_col_adj-235.0/255.0 green:rev_col_adj-235.0/255.0 blue:rev_col_adj-235.0/255.0 alpha:1] CGColor],
-         (id)[[UIColor colorWithRed:rev_col_adj-240.0/255.0 green:rev_col_adj-240.0/255.0 blue:rev_col_adj-240.0/255.0 alpha:1] CGColor],
-         (id)[[UIColor colorWithRed:rev_col_adj-200.0/255.0 green:rev_col_adj-200.0/255.0 blue:rev_col_adj-200.0/255.0 alpha:1] CGColor],
-         (id)[[UIColor colorWithRed:rev_col_adj-200.0/255.0 green:rev_col_adj-200.0/255.0 blue:rev_col_adj-200.0/255.0 alpha:1] CGColor],
-         nil];
-         selgrad.locations = [NSArray arrayWithObjects:
-         (id)[NSNumber numberWithFloat:0.00f],
-         (id)[NSNumber numberWithFloat:0.03f],
-         (id)[NSNumber numberWithFloat:0.03f],
-         (id)[NSNumber numberWithFloat:0.97f],
-         (id)[NSNumber numberWithFloat:0.97f],
-         (id)[NSNumber numberWithFloat:1.00f],
-         nil];
-         
-         [cell setSelectedBackgroundView:[[UIView alloc] init]];
-         [cell.selectedBackgroundView.layer insertSublayer:selgrad atIndex:0];
-         */
         NSString *imgFile=(darkMode?@"tabview_gradient40Black.png":@"tabview_gradient40.png");
         UIImage *image = [UIImage imageNamed:imgFile];
         
@@ -1262,8 +1311,8 @@ END_PROFILE
                                            0,
                                            tabView.bounds.size.width -1.0 * cell.indentationWidth- 32,
                                            22);
-                if (darkMode) topLabel.textColor=[UIColor colorWithRed:0.5f green:0.5f blue:1.0f alpha:1.0f];
-                else topLabel.textColor=[UIColor colorWithRed:0.0f green:0.0f blue:1.0f alpha:1.0f];
+                if (darkMode) topLabel.textColor=[UIColor colorWithRed:MDZ_FOLDER_DARK_R green:MDZ_FOLDER_DARK_G blue:MDZ_FOLDER_DARK_B alpha:1.0f];
+                else topLabel.textColor=[UIColor colorWithRed:MDZ_FOLDER_LIGHT_R green:MDZ_FOLDER_LIGHT_G blue:MDZ_FOLDER_LIGHT_B alpha:1.0f];
                 
                 cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
             }
@@ -1649,7 +1698,6 @@ trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
         }
         int crow=indexPath.row;
         if (download_all) crow--;
-        
         
         if (download_all && (crow==-1)) {
             //download all dir

@@ -2595,11 +2595,12 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 - (void) showRadioPopup {
     if ([radioSource queueSize]>1) {
         NSString *nextEntry=[radioSource getQueueLabel:1];
-        
-        NSString *msg_str=[NSString stringWithFormat:NSLocalizedString(@"Next: %@",@""),nextEntry];
+        NSString *histEntries=[radioSource getHistoryLabel:10];
+        NSString *msg_str=[NSString stringWithFormat:NSLocalizedString(@"Next up:\n%@\n\nPreviously:\n%@",@""),nextEntry,histEntries];
         [self showAlertMsg:[NSString stringWithFormat:@"%@ - %@",NSLocalizedString(@"Radio mode",@""),[radioSource radioSourceName]] message:msg_str];
     } else {
-        NSString *msg_str=[NSString stringWithFormat:NSLocalizedString(@"Next: loading...",@"")];
+        NSString *histEntries=[radioSource getHistoryLabel:10];
+        NSString *msg_str=[NSString stringWithFormat:NSLocalizedString(@"Next up:\nLoading...\n\nPreviously:\n%@",@""),histEntries];
         [self showAlertMsg:[NSString stringWithFormat:@"%@ - %@",NSLocalizedString(@"Radio mode",@""),[radioSource radioSourceName]] message:msg_str];
     }
 }

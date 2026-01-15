@@ -33,12 +33,12 @@
     int popTipViewRow,popTipViewSection;
 	
     WaitingView *waitingView,*waitingViewPlayer;
-    NSTimer *repeatingTimer;
+    NSTimer *repeatingTimer,*updRSTimer;
     
     IBOutlet UITableView *tableView;
 
 	IBOutlet UISearchBar *sBar;
-    IBOutlet UIButton *radioButton;
+    IBOutlet BButton *radioButton;
 	
     NSFileManager *mFileMngr;
     
@@ -96,7 +96,7 @@
 @property (nonatomic, retain) NSString *currentPath,*mSearchText;
 @property (nonatomic, retain) CMPopTipView *popTipView;
 @property (nonatomic, retain) WaitingView *waitingView,*waitingViewPlayer;
-@property (nonatomic, retain) NSTimer *repeatTimer;
+@property (nonatomic, retain) NSTimer *repeatTimer,*updRSTimer;
 @property (nonatomic, assign) int activeKey;
 
 @property (nonatomic, strong) id mdzChangeObserverToken;
@@ -107,16 +107,12 @@
 -(void) refreshViewAfterDownload;
 - (void)checkCreate:(NSString *)filePath;
 
--(NSString*) getCompletePath:(int)id_mod;
-
 -(void) fillKeysWithHVSCDB_Dir1;
 -(void) fillKeysWithHVSCDB_Dir2:(NSString*)dir1;
 -(void) fillKeysWithHVSCDB_Dir3:(NSString*)dir1 dir2:(NSString*)dir2;
 -(void) fillKeysWithHVSCDB_Dir4:(NSString*)dir1 dir2:(NSString*)dir2 dir3:(NSString*)dir3;
 -(void) fillKeysWithHVSCDB_Dir5:(NSString*)dir1 dir2:(NSString*)dir2 dir3:(NSString*)dir3 dir4:(NSString*)dir4;
 -(void) fillKeysWithHVSCDB_AllDirs:(NSString*)dir1 dir2:(NSString*)dir2 dir3:(NSString*)dir3 dir4:(NSString*)dir4 dir5:(NSString*)dir5;
-
--(NSString*) getCompleteLocalPath:(int)id_mod;
 
 -(void)updateMiniPlayer;
 

@@ -31,12 +31,12 @@
     int popTipViewRow,popTipViewSection;
 	
 	WaitingView *waitingView,*waitingViewPlayer;
-    NSTimer *repeatingTimer;
+    NSTimer *repeatingTimer,*updRSTimer;
 	
     IBOutlet UITableView *tableView;
 
 	IBOutlet UISearchBar *sBar;
-    IBOutlet UIButton *radioButton;
+    IBOutlet BButton *radioButton;
 	
     NSFileManager *mFileMngr;
 
@@ -97,7 +97,7 @@
 @property (nonatomic, retain) NSString *currentPath,*mSearchText;
 @property (nonatomic, retain) CMPopTipView *popTipView;
 
-@property (nonatomic, retain) NSTimer *repeatTimer;
+@property (nonatomic, retain) NSTimer *repeatTimer,*updRSTimer;
 @property (nonatomic, assign) int activeKey;
 
 @property (nonatomic, strong) id mdzChangeObserverToken;

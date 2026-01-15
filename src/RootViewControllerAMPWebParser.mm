@@ -176,6 +176,7 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
         [radioButton setTitleColor:[UIColor grayColor] forState:UIControlStateNormal];
     } else {
         [detailViewController.radioSource stop];
+        [detailViewController clearQueue];
         detailViewController.radioSource.mRadioSource=RS_COLLECTION_AMP;
         
         t_WEB_browse_entry *cur_db_entries;
@@ -1204,11 +1205,11 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
         
         if (browse_subMode==AMP_LINK_SEARCH_GROUPS_LIST) {
             if ([mSearchText length]>0) {
-                url = [NSURL URLWithString:[NSString stringWithFormat:@"%@%@&position=%d",mWebBaseURL,mSearchText,arr_current_fetch_position]];
+                url = [NSURL URLWithString:[[NSString stringWithFormat:@"%@%@&position=%d",mWebBaseURL,mSearchText,arr_current_fetch_position]stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]]];
             } else {
                 url = [NSURL URLWithString:@""];
             }
-        } else url = [NSURL URLWithString:[NSString stringWithFormat:@"%@&position=%d",mWebBaseURL,arr_current_fetch_position]];
+        } else url = [NSURL URLWithString:[[NSString stringWithFormat:@"%@&position=%d",mWebBaseURL,arr_current_fetch_position]stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]]];
         
         
         NSURLSession *session = [NSURLSession sharedSession];
@@ -1374,11 +1375,11 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
         
         if (browse_subMode==AMP_LINK_SEARCH_COMPOSERS_LIST) {
             if ([mSearchText length]>0) {
-                url = [NSURL URLWithString:[NSString stringWithFormat:@"%@%@&position=%d",mWebBaseURL,mSearchText,arr_current_fetch_position]];
+                url = [NSURL URLWithString:[[NSString stringWithFormat:@"%@%@&position=%d",mWebBaseURL,mSearchText,arr_current_fetch_position]stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]]];
             } else {
                 url = [NSURL URLWithString:@""];
             }
-        } else url = [NSURL URLWithString:[NSString stringWithFormat:@"%@&position=%d",mWebBaseURL,arr_current_fetch_position]];
+        } else url = [NSURL URLWithString:[[NSString stringWithFormat:@"%@&position=%d",mWebBaseURL,arr_current_fetch_position]stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]]];
         
         
         NSURLSession *session = [NSURLSession sharedSession];
@@ -1466,7 +1467,7 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
         ///////////////////////////////////////////////////////////////////////:
         // AMP Composer's details
         ///////////////////////////////////////////////////////////////////////:
-        url = [NSURL URLWithString:[NSString stringWithFormat:@"%@",mWebBaseURL]];
+        url = [NSURL URLWithString:[[NSString stringWithFormat:@"%@",mWebBaseURL]stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]]];
         
         NSURLSession *session = [NSURLSession sharedSession];
 
@@ -1503,12 +1504,12 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
             UIColor *topTextCol,*topTextColH,*bottomTextCol;
             UIColor *topTextColData;
             if (darkMode) {
-                topTextCol = [UIColor colorWithRed:0.5f green:0.5f blue:1.0f alpha:1.0f];;
+                topTextCol = [UIColor colorWithRed:MDZ_FOLDER_DARK_R green:MDZ_FOLDER_DARK_G blue:MDZ_FOLDER_DARK_B alpha:1.0f];;
                 topTextColData = [UIColor colorWithRed:0.8 green:0.8 blue:1.0 alpha:1.0];
                 topTextColH = [UIColor colorWithRed:1 green:1 blue:1 alpha:1.0];
                 bottomTextCol = [UIColor colorWithRed:0.6 green:0.6 blue:0.6 alpha:1.0];
             } else {
-                topTextCol = [UIColor colorWithRed:0.0f green:0.0f blue:1.0f alpha:1.0f];;
+                topTextCol = [UIColor colorWithRed:MDZ_FOLDER_LIGHT_R green:MDZ_FOLDER_LIGHT_G blue:MDZ_FOLDER_LIGHT_B alpha:1.0f];
                 topTextColData = [UIColor colorWithRed:0.2 green:0.2 blue:0.5 alpha:1.0];
                 topTextColH = [UIColor colorWithRed:0.0 green:0.0 blue:0.0 alpha:1.0];
                 bottomTextCol = [UIColor colorWithRed:0.4 green:0.4 blue:0.4 alpha:1.0];
@@ -1659,11 +1660,11 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
         
         if (browse_subMode==AMP_LINK_SEARCH_MODULES_LIST) {
             if ([mSearchText length]>0) {
-                url = [NSURL URLWithString:[NSString stringWithFormat:@"%@%@&position=%d",mWebBaseURL,mSearchText,arr_current_fetch_position]];
+                url = [NSURL URLWithString:[[NSString stringWithFormat:@"%@%@&position=%d",mWebBaseURL,mSearchText,arr_current_fetch_position]stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]]];
             } else {
                 url = [NSURL URLWithString:@""];
             }
-        } else url = [NSURL URLWithString:[NSString stringWithFormat:@"%@&position=%d",mWebBaseURL,arr_current_fetch_position]];
+        } else url = [NSURL URLWithString:[[NSString stringWithFormat:@"%@&position=%d",mWebBaseURL,arr_current_fetch_position]stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]]];
         
         NSURLSession *session = [NSURLSession sharedSession];
 
@@ -1761,7 +1762,7 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
             [self showWaiting];
         });
         
-        url = [NSURL URLWithString:[NSString stringWithFormat:@"%@",mWebBaseURL]];
+        url = [NSURL URLWithString:[[NSString stringWithFormat:@"%@",mWebBaseURL]stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]]];
         
         NSURLSession *session = [NSURLSession sharedSession];
 
@@ -2146,8 +2147,8 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
                                        0,
                                        tabView.bounds.size.width -1.0 * cell.indentationWidth- PRI_SEC_ACTIONS_IMAGE_SIZE-(has_mini_img?35:0),
                                        22);
-            if (darkMode) topLabel.textColor=[UIColor colorWithRed:0.5f green:0.5f blue:1.0f alpha:1.0f];
-            else topLabel.textColor=[UIColor colorWithRed:0.0f green:0.0f blue:1.0f alpha:1.0f];
+            if (darkMode) topLabel.textColor=[UIColor colorWithRed:MDZ_FOLDER_DARK_R green:MDZ_FOLDER_DARK_G blue:MDZ_FOLDER_DARK_B alpha:1.0f];
+            else topLabel.textColor=[UIColor colorWithRed:MDZ_FOLDER_LIGHT_R green:MDZ_FOLDER_LIGHT_G blue:MDZ_FOLDER_LIGHT_B alpha:1.0f];
             
             if (cur_db_entries[indexPath.row].img_URL) {
                 if ([cur_db_entries[indexPath.row].img_URL containsString:@"mdz_local://"]) {

@@ -33,12 +33,12 @@
     int popTipViewRow,popTipViewSection;
     
     WaitingView *waitingView,*waitingViewPlayer;
-    NSTimer *repeatingTimer;
+    NSTimer *repeatingTimer,*updRSTimer;
     
     IBOutlet UITableView *tableView;
     
     IBOutlet UISearchBar *sBar;
-    IBOutlet UIButton *radioButton;
+    IBOutlet BButton *radioButton;
     
     NSFileManager *mFileMngr;
     
@@ -98,7 +98,7 @@
 @property (nonatomic, retain) NSString *currentPath,*mSearchText;
 @property (nonatomic, retain) CMPopTipView *popTipView;
 @property (nonatomic, retain) WaitingView *waitingView,*waitingViewPlayer;
-@property (nonatomic, retain) NSTimer *repeatTimer;
+@property (nonatomic, retain) NSTimer *repeatTimer,*updRSTimer;
 @property (nonatomic, assign) int activeKey;
 @property (nonatomic, assign) bool forceReloadCells;
 
@@ -108,14 +108,10 @@
 -(void) refreshViewAfterDownload;
 -(void)checkCreate:(NSString *)filePath;
 
--(NSString*) getCompletePath:(int)id_mod;
-
 -(void) fillKeysWithASMADB_Dir1;
 -(void) fillKeysWithASMADB_Dir2:(NSString*)dir1;
 -(void) fillKeysWithASMADB_Dir3:(NSString*)dir1 dir2:(NSString*)dir2;
 -(void) fillKeysWithASMADB_AllDirs:(NSString*)dir1 dir2:(NSString*)dir2 dir3:(NSString*)dir3;
-
--(NSString*) getCompleteLocalPath:(int)id_mod;
 
 -(void)updateMiniPlayer;
 

@@ -92,6 +92,15 @@ extern void *LoadingProgressObserverContext;
 #define ICLOUD_COLOR_GREEN_DARKMODE ((float)(0xAD)/255.0)
 #define ICLOUD_COLOR_BLUE_DARKMODE ((float)(0xED)/255.0)
 
+#define MDZ_FOLDER_DARK_R 0.4f
+#define MDZ_FOLDER_DARK_G 0.6f
+#define MDZ_FOLDER_DARK_B 1.0f
+
+#define MDZ_FOLDER_LIGHT_R 0.4*0.7
+#define MDZ_FOLDER_LIGHT_G 0.6*0.7
+#define MDZ_FOLDER_LIGHT_B 1.0*0.7
+
+
 #define MDZ_TABVIEW_HEADER_R0 0.4f
 #define MDZ_TABVIEW_HEADER_G0 0.4f
 #define MDZ_TABVIEW_HEADER_B0 0.4f
@@ -231,9 +240,9 @@ extern void *LoadingProgressObserverContext;
 #define DATABASENAME_USER @"database.modizerdb"
 #define DATABASENAME_TMP @"database.modizerdb.old"
 
-#define MODLAND_HOST_DEFAULT "ftp://ftp.modland.com"
-#define MODLAND_HOST_ALT1 "ftp://ftp.amigascne.org/mirrors/ftp.modland.com"
-#define MODLAND_HOST_ALT2 "aero.exotica.org.uk/pub/mirrors/modland"
+#define MODLAND_HOST_DEFAULT "https://ftp.modland.com"
+#define MODLAND_HOST_ALT1 "https://ftp.amigascne.org/mirrors/ftp.modland.com"
+#define MODLAND_HOST_ALT2 "ftp://ftp.modland.com"
 
 #define HVSC_HOST_DEFAULT "https://hvsc.brona.dk/HVSC/C64Music"
 #define HVSC_HOST_ALT1 "https://www.sannic.nl/hvsc/?dir=C64Music"
@@ -244,8 +253,8 @@ extern void *LoadingProgressObserverContext;
 #define CGSC_HOST_ALT2 "http://yoyofr92.free.fr/files/CGSC"
 
 //#define ASMA_FTPHOST @"malus.exotica.org.uk/pub/exotica/media/audio/Atari_SAP_Music_Archive/ASMA/"
-#define ASMA_HOST_DEFAULT "http://asma.atari.org/asma"
-#define ASMA_HOST_ALT1 "http://asma.scene.pl/export/1674/trunk/asma"
+#define ASMA_HOST_DEFAULT "https://asma.atari.org/asma"
+#define ASMA_HOST_ALT1 ""
 #define ASMA_HOST_ALT2 "http://asma.atariportal.cz/ASMA"
 
 #define SUPPORTED_FILETYPE_COVER @"GIF,JPEG,JPG,PNG"

@@ -34,6 +34,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
 
 #import "TTFadeAnimator.h"
 #import "ModizFileHelper.h"
+#import "RadioSource.h"
 
 
 @implementation RootViewControllerMODLAND
@@ -252,6 +253,12 @@ extern volatile t_settings settings[MAX_SETTINGS];
     
     UIBarButtonItem *item = [[UIBarButtonItem alloc] initWithImage:[UIImage systemImageNamed:NOW_PLAYING_ICON] style:UIBarButtonItemStylePlain target:self action:@selector(goPlayer)];
     self.navigationItem.rightBarButtonItem = item;
+    
+    [radioButton setStyle:BButtonStyleBootstrapV2];
+    [radioButton setType:BButtonTypeInverse];
+    [radioButton addAwesomeIcon:FAIconRss beforeTitle:YES];
+    [radioButton setTitleColor:[UIColor grayColor] forState:UIControlStateNormal];
+    [radioButton addTarget:self action:@selector(pushRadioButton) forControlEvents:UIControlEventTouchUpInside];
 	
     /////////////////////////////////////
     // Waiting view
@@ -1379,12 +1386,34 @@ END_PROFILE
     return UIStatusBarStyleDefault;
 }
 
+-(void) updRadioStatus {
+    if ([detailViewController.radioSource isActive]) {
+        [radioButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    } else {
+        [radioButton setTitleColor:[UIColor grayColor] forState:UIControlStateNormal];
+    }
+}
+
+
 -(void) viewWillAppear:(BOOL)animated {
 //    [self.navigationController.navigationBar setBarStyle:UIBarStyleDefault];
     [self.sBar setBarStyle:UIBarStyleDefault];
     //[[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];
     
     self.navigationController.delegate = self;
+    
+    [self.updRSTimer invalidate];
+    self.updRSTimer = nil;
+    self.updRSTimer = [NSTimer scheduledTimerWithTimeInterval:0.3
+                                                                 target:self
+                                                               selector:@selector(updRadioStatus)
+                                                               userInfo:nil
+                                                                repeats:YES];
+    if ([detailViewController.radioSource isActive]&&(detailViewController.radioSource.mRadioSource==RS_COLLECTION_MODLAND)) {
+        [radioButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    } else {
+        [radioButton setTitleColor:[UIColor grayColor] forState:UIControlStateNormal];
+    }
     
     bool oldmode=darkMode;
     darkMode=false;
@@ -2111,8 +2140,8 @@ END_PROFILE
                                                    22,
                                                    tabView.bounds.size.width -1.0 * cell.indentationWidth-32-PRI_SEC_ACTIONS_IMAGE_SIZE,
                                                    18);
-                    if (darkMode) topLabel.textColor=[UIColor colorWithRed:0.5f green:0.5f blue:1.0f alpha:1.0f];
-                    else topLabel.textColor=[UIColor colorWithRed:0.0f green:0.0f blue:1.0f alpha:1.0f];                    
+                    if (darkMode) topLabel.textColor=[UIColor colorWithRed:MDZ_FOLDER_DARK_R green:MDZ_FOLDER_DARK_G blue:MDZ_FOLDER_DARK_B alpha:1.0f];
+                    else topLabel.textColor=[UIColor colorWithRed:MDZ_FOLDER_LIGHT_R green:MDZ_FOLDER_LIGHT_G blue:MDZ_FOLDER_LIGHT_B alpha:1.0f];
                     bottomLabel.text=[NSString stringWithFormat:(cur_db_entries[crow].filesize>1?nbFiles:nb1File),cur_db_entries[crow].filesize];
                     cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
                 }		
