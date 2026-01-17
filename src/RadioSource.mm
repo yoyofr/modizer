@@ -10,7 +10,7 @@
 
 #define RS_MAX_DOWNLOAD 2
 #define RS_QUEUE_SIZE 5
-#define MAX_RS_HISTORY 1024
+#define MAX_RS_HISTORY 64
 #define MAX_RS_DUPLICATE_RETRY 1
 
 #define RS_MODLAND_PLAYABLE_FILE_MAX_TRIES 32 //maximum nb of tries to find a playable file / Modland DB
@@ -36,32 +36,32 @@ NS_ASSUME_NONNULL_BEGIN
 @synthesize mURLSsession,mURLSessionQueue,mURLSessionConfig;
 
 - (instancetype)init {
-    self = [super init];
-    if (self) {
-        mRadioSource=RS_NONE;
-        mRadioSource_mode=0;
-        mPendingNewFileToPlay=0;
-        mActive=NO;
-        mRetryCount=0;
-        mRetryDuplCount=0;
-        mFilesList = [NSMutableArray arrayWithCapacity:5];
-        mFilesExistInLibrary = [NSMutableArray arrayWithCapacity:5];
-        mSourceData = [NSMutableArray array];
-        mHistory = [NSMutableArray array];
-        fetchDebounceTimer = nil;
-        [self cleanFiles];
-        
-        mURLSessionConfig = [NSURLSessionConfiguration defaultSessionConfiguration];
-        mURLSessionConfig.HTTPMaximumConnectionsPerHost=1;
-        
-        mURLSessionQueue = [[NSOperationQueue alloc] init];
-        mURLSessionQueue.maxConcurrentOperationCount = 1; // Séquentiel
-        
-        mURLSsession = [NSURLSession sessionWithConfiguration:mURLSessionConfig
-                                                              delegate:self
-                                                         delegateQueue:mURLSessionQueue];
-    }
-    return self;
+self = [super init];
+if (self) {
+mRadioSource=RS_NONE;
+mRadioSource_mode=0;
+mPendingNewFileToPlay=0;
+mActive=NO;
+mRetryCount=0;
+mRetryDuplCount=0;
+mFilesList = [NSMutableArray arrayWithCapacity:5];
+mFilesExistInLibrary = [NSMutableArray arrayWithCapacity:5];
+mSourceData = [NSMutableArray array];
+mHistory = [NSMutableArray array];
+fetchDebounceTimer = nil;
+[self cleanFiles];
+
+mURLSessionConfig = [NSURLSessionConfiguration defaultSessionConfiguration];
+mURLSessionConfig.HTTPMaximumConnectionsPerHost=1;
+
+mURLSessionQueue = [[NSOperationQueue alloc] init];
+mURLSessionQueue.maxConcurrentOperationCount = 1; // Séquentiel
+
+mURLSsession = [NSURLSession sessionWithConfiguration:mURLSessionConfig
+                                             delegate:self
+                                        delegateQueue:mURLSessionQueue];
+}
+return self;
 }
 
 - (void)dealloc {
@@ -70,10 +70,10 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)downloadFileFromURL:(NSString *)urlString rSource:(t_radioSource)rSource slot:(int)slot path:(NSString*)path {
-    NSURL *url = [NSURL URLWithString:urlString];
+    NSURL *url = [NSURL URLWithString:[urlString stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]]];
     
     NSURLSessionDownloadTask *downloadTask = [mURLSsession downloadTaskWithURL:url
-                                                        completionHandler:^(NSURL *location, NSURLResponse *response, NSError *error) {
+                                                             completionHandler:^(NSURL *location, NSURLResponse *response, NSError *error) {
         // Cast la réponse en NSHTTPURLResponse pour accéder au statusCode
         NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
         
@@ -86,8 +86,8 @@ NS_ASSUME_NONNULL_BEGIN
         if (httpResponse.statusCode == 404) {
             MDZELog("Fichier non trouvé (404)");
             // Traiter le cas 404
-//            mRetryDuplCount++;
-//            [self fetchNewFileFromSource:slot];
+            //            mRetryDuplCount++;
+            //            [self fetchNewFileFromSource:slot];
             return;
         }
         
@@ -377,7 +377,7 @@ NS_ASSUME_NONNULL_BEGIN
         if (entries) {
             int fileIdx=arc4random_uniform((int)[entries count]/2);
             
-            NSString *fullpath=[entries objectAtIndex:fileIdx*2+1];
+            fullpath=[entries objectAtIndex:fileIdx*2+1];
             
             localPath=[NSString stringWithFormat:@"%@/tmp/tmpRadio/%d/%@%@",[ModizFileHelper getAppHomeDirectory],slot,CGSC_BASEDIR,fullpath];
             
@@ -388,8 +388,6 @@ NS_ASSUME_NONNULL_BEGIN
     }
     
     if (cgsc_url) {
-        [self downloadFileFromURL:cgsc_url rSource:RS_COLLECTION_CGSC slot:slot path:[fullpath stringByDeletingLastPathComponent]];
-        
         NSMutableArray *addDataURL=[NSMutableArray array];
         NSMutableArray *addDataLocalPath=[NSMutableArray array];
         
@@ -408,6 +406,7 @@ NS_ASSUME_NONNULL_BEGIN
             [self downloadFileFromURL:[addDataURL objectAtIndex:i] rSource:RS_COLLECTION_CGSC slot:slot path:[[addDataLocalPath objectAtIndex:i] stringByDeletingLastPathComponent]];
         }
         
+        [self downloadFileFromURL:cgsc_url rSource:RS_COLLECTION_CGSC slot:slot path:[fullpath stringByDeletingLastPathComponent]];
     } else {
         MDZILog("no entries from DB!");
     }
@@ -543,6 +542,14 @@ NS_ASSUME_NONNULL_BEGIN
             MDZILog("no entries from DB!");
         }
     }
+}
+
+-(NSString*) getMODLANDLocalForRemote:(NSString*)remotePath {
+    NSArray *arr=[remotePath componentsSeparatedByString:@"/"];
+    NSString *res=[arr[1] stringByAppendingFormat:@"/%@",arr[0]];
+    for (int i=2;i<[arr count];i++)
+        res=[res stringByAppendingFormat:@"/%@",arr[i]];
+    return res;
 }
 
 -(NSString*) getMODLAND_localPath:(int)id_mod {
@@ -712,7 +719,7 @@ NS_ASSUME_NONNULL_BEGIN
             
             if (entries) {
                 int fileIdx=arc4random_uniform((int)[entries count]);
-
+                
                 int max_tries=RS_MODLAND_PLAYABLE_FILE_MAX_TRIES;
                 while (max_tries) {
                     id_mod=[[entries objectAtIndex:fileIdx] intValue];
@@ -738,20 +745,20 @@ NS_ASSUME_NONNULL_BEGIN
         NSArray *addFiles=[ModizFileHelper getAdditionalMODLANDRequiredFiles:str];
         for (NSString *addFile in addFiles) {
             MDZILog("2download: %@",addFile);
-        
-            localPath=[NSString stringWithFormat:@"%@/tmp/tmpRadio/%d/%@/%@",[ModizFileHelper getAppHomeDirectory],slot,MODLAND_BASEDIR,addFile];
+            
+            localPath=[NSString stringWithFormat:@"%@/tmp/tmpRadio/%d/%@/%@",[ModizFileHelper getAppHomeDirectory],slot,MODLAND_BASEDIR,[self getMODLANDLocalForRemote:addFile]];
             modland_url=[NSString stringWithFormat:@"%s/pub/modules/%@",settings[ONLINE_MODLAND_CURRENT_URL].detail.mdz_msgbox.text,addFile ];
             [mFileMngr createDirectoryAtPath:[localPath stringByDeletingLastPathComponent] withIntermediateDirectories:TRUE attributes:nil error:&err];
-            [self downloadFileFromURL:modland_url rSource:RS_COLLECTION_MODLAND slot:slot path:[addFile stringByDeletingLastPathComponent]];
+            [self downloadFileFromURL:modland_url rSource:RS_COLLECTION_MODLAND slot:slot path:[[self getMODLANDLocalForRemote:addFile] stringByDeletingLastPathComponent]];
         }
         //main file to download
-        localPath=[NSString stringWithFormat:@"%@/tmp/tmpRadio/%d/%@/%@",[ModizFileHelper getAppHomeDirectory],slot,MODLAND_BASEDIR,str];
+        localPath=[NSString stringWithFormat:@"%@/tmp/tmpRadio/%d/%@/%@",[ModizFileHelper getAppHomeDirectory],slot,MODLAND_BASEDIR,[self getMODLANDLocalForRemote:str]];
         modland_url=[NSString stringWithFormat:@"%s/pub/modules/%@",settings[ONLINE_MODLAND_CURRENT_URL].detail.mdz_msgbox.text,str ];
         
         [mFileMngr createDirectoryAtPath:[localPath stringByDeletingLastPathComponent] withIntermediateDirectories:TRUE attributes:nil error:&err];
         
-//        MDZILog("download: %@",modland_url);
-        [self downloadFileFromURL:modland_url rSource:RS_COLLECTION_MODLAND slot:slot path:[str stringByDeletingLastPathComponent]];
+        //        MDZILog("download: %@",modland_url);
+        [self downloadFileFromURL:modland_url rSource:RS_COLLECTION_MODLAND slot:slot path:[[self getMODLANDLocalForRemote:str] stringByDeletingLastPathComponent]];
     } else {
         MDZILog("no entries from DB!");
     }
@@ -789,7 +796,7 @@ NS_ASSUME_NONNULL_BEGIN
         }
         fileURL=[NSString stringWithFormat:@"https://amp.dascene.net/detail.php?detail=modules&view=%d",composer_id];
         
-        NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"%@",fileURL]];
+        NSURL *url = [NSURL URLWithString:[[NSString stringWithFormat:@"%@",fileURL] stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]]];
         
         NSURLSession *session = [NSURLSession sharedSession];
         
@@ -824,11 +831,11 @@ NS_ASSUME_NONNULL_BEGIN
                 
                 el=[arr_url_composerList objectAtIndex:0];
                 NSString *composer=[NSString stringWithString:el.content];
-//                MDZILog("composer: %@",composer);
+                //                MDZILog("composer: %@",composer);
                 
                 el=[arr_url_modulesNb objectAtIndex:0];
                 int mod_nb=atoi([el.content UTF8String]);
-//                MDZILog("modules: %d",mod_nb);
+                //                MDZILog("modules: %d",mod_nb);
                 
                 mod_id=arc4random_uniform(mod_nb);
                 el=[arr_url_fileList objectAtIndex:mod_id];
@@ -883,7 +890,7 @@ NS_ASSUME_NONNULL_BEGIN
             //select a group
             int idx=arc4random_uniform((int)[mSourceData count]);
             
-            NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"%@",mSourceData[idx]]];
+            NSURL *url = [NSURL URLWithString:[[NSString stringWithFormat:@"%@",mSourceData[idx]] stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]]];
             
             NSURLSession *session = [NSURLSession sharedSession];
             
@@ -915,15 +922,15 @@ NS_ASSUME_NONNULL_BEGIN
                 TFHppleElement *el=[arr_url_handleList objectAtIndex:compIdx];
                 NSString *modListURL=[NSString stringWithFormat:@"https://amp.dascene.net/%@&detail=modules",[el objectForKey:@"href"]];
                 
-                NSURL *urlMods = [NSURL URLWithString:[NSString stringWithFormat:@"%@",modListURL]];
+                NSURL *urlMods = [NSURL URLWithString:[[NSString stringWithFormat:@"%@",modListURL] stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]]];
                 
                 NSURLSession *sessionMods = [NSURLSession sharedSession];
                 
                 NSURLSessionDataTask *taskMod =
                 [sessionMods dataTaskWithURL:urlMods
-                       completionHandler:^(NSData * _Nullable dataMod,
-                                           NSURLResponse * _Nullable responseMod,
-                                           NSError * _Nullable errorMod) {
+                           completionHandler:^(NSData * _Nullable dataMod,
+                                               NSURLResponse * _Nullable responseMod,
+                                               NSError * _Nullable errorMod) {
                     if (errorMod) {
                         MDZELog("Erreur réseau : %@", errorMod);
                         return;
@@ -1016,14 +1023,17 @@ NS_ASSUME_NONNULL_BEGIN
     for (NSString *relativePath in enumerator) {
         NSString *fullPath = [localPath stringByAppendingPathComponent:relativePath];
         
-        // Récupérer les attributs pour vérifier si c'est un fichier ou un dossier
-        NSDictionary *attributes = [enumerator fileAttributes];
-        NSString *fileType = attributes[NSFileType];
-        
-        // Ne traiter que les fichiers (pas les dossiers)
-        if ([fileType isEqualToString:NSFileTypeRegular]) {
-            if ([ModizFileHelper isPlayableFile:fullPath]) {
-                [mFilesList addObject:relativePath]; // Chemin relatif incluant les sous-dossiers
+        if (![fullPath containsString:@"tmpRadio/History/"]) {
+            
+            // Récupérer les attributs pour vérifier si c'est un fichier ou un dossier
+            NSDictionary *attributes = [enumerator fileAttributes];
+            NSString *fileType = attributes[NSFileType];
+            
+            // Ne traiter que les fichiers (pas les dossiers)
+            if ([fileType isEqualToString:NSFileTypeRegular]) {
+                if ([ModizFileHelper isPlayableFile:fullPath]) {
+                    [mFilesList addObject:relativePath]; // Chemin relatif incluant les sous-dossiers
+                }
             }
         }
     }
@@ -1090,12 +1100,28 @@ NS_ASSUME_NONNULL_BEGIN
     if ([mFilesList count]) {
         NSFileManager *mFileMngr=[[NSFileManager alloc] init];
         NSError *error;
-        //remove 1st one
+        //move 1st one to history
         NSString *localPath=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/tmp/tmpRadio/0"];
-        [mFileMngr removeItemAtPath:localPath error:&error];
+        
+        int hist_idx=(int)[mHistory count];
+
+        //create histo dir if not already created
+        NSString *histoPath=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/tmp/tmpRadio/History"];
+        [mFileMngr createDirectoryAtPath:histoPath withIntermediateDirectories:TRUE attributes:nil error:NULL];
+        
+        NSString *targetPath=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/tmp/tmpRadio/History/%d",hist_idx];
+        [mFileMngr removeItemAtPath:targetPath error:NULL];
+
+        
+        [mFileMngr moveItemAtPath:localPath toPath:targetPath error:&error];
         if (error) {
-            MDZELog("Error: %@", error.localizedDescription);
+            MDZELog("Error moving for histo : %@",error.localizedDescription);
         }
+        
+//        [mFileMngr removeItemAtPath:localPath error:&error];
+//        if (error) {
+//            MDZELog("Error: %@", error.localizedDescription);
+//        }
         
         NSString *tmpName=mFilesList[0];
         [mHistory insertObject:[tmpName substringFromIndex:[tmpName rangeOfString:@"/"].location+1] atIndex:0];
@@ -1107,7 +1133,7 @@ NS_ASSUME_NONNULL_BEGIN
         for (int i=0;i<[mFilesList count];i++) {
             NSString *fromPath=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/tmp/tmpRadio/%@",[[[mFilesList objectAtIndex:i] componentsSeparatedByString:@"/"] firstObject]];
             NSString *toPath=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/tmp/tmpRadio/%d",i];
-//            MDZILog("move from %@\nto %@",fromPath,toPath);
+            //            MDZILog("move from %@\nto %@",fromPath,toPath);
             [mFileMngr moveItemAtPath:fromPath toPath:toPath error:&error];
             if (error) {
                 MDZELog("Error moving tmpRadio/%d to tmpRadio/%d : %@",i+1,i, error.localizedDescription);
@@ -1178,13 +1204,46 @@ NS_ASSUME_NONNULL_BEGIN
 -(void) cleanFiles {
     NSFileManager *mFileMngr=[[NSFileManager alloc] init];
     NSError *error;
-
+    
     NSString *localPath=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/tmp/tmpRadio"];
     [mFileMngr removeItemAtPath:localPath error:&error];
     if (error) {
         MDZELog("Error cleanFiles: %@", error.localizedDescription);
     }
+    [mHistory removeAllObjects];
 }
+
+-(void) movePrev:(int)idx {
+    if (idx>=[mHistory count]) return;
+    NSString *localPath=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/tmp/tmpRadio/History/%d/%@",[mHistory count]-1-idx,mHistory[idx]];
+    
+    NSFileManager *mFileMngr = [[NSFileManager alloc] init];
+    if (![mFileMngr fileExistsAtPath:localPath]) return;
+    
+    NSMutableArray *array_label = [[NSMutableArray alloc] init];
+    NSMutableArray *array_path = [[NSMutableArray alloc] init];
+    
+    [array_label addObject:mHistory[idx]];
+    
+    [array_path addObject:localPath];
+    
+    [detailVC play_listmodules:array_label start_index:0 path:array_path];
+}
+
+-(void) startCurrent {
+    if ([mFilesList count]) {
+        NSMutableArray *array_label = [[NSMutableArray alloc] init];
+        NSMutableArray *array_path = [[NSMutableArray alloc] init];
+        
+        [array_label addObject:mFilesList[0]];
+        
+        NSString *localPath=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/tmp/tmpRadio/%@",mFilesList[0]];
+        [array_path addObject:localPath];
+        
+        [detailVC play_listmodules:array_label start_index:0 path:array_path];
+    }
+}
+
 
 -(void) moveNext {
     static int no_reenter=0;
@@ -1193,13 +1252,13 @@ NS_ASSUME_NONNULL_BEGIN
     // Cancel previous search timer to debounce
     [fetchDebounceTimer invalidate];
     fetchDebounceTimer = nil;
-
+    
     // Schedule new search after delay
-//    fetchDebounceTimer = [NSTimer scheduledTimerWithTimeInterval:0.3
-//                                                                 target:self
-//                                                               selector:@selector(fetchRenewFilesAndStart)
-//                                                               userInfo:nil
-//                                                                repeats:NO];
+    //    fetchDebounceTimer = [NSTimer scheduledTimerWithTimeInterval:0.3
+    //                                                                 target:self
+    //                                                               selector:@selector(fetchRenewFilesAndStart)
+    //                                                               userInfo:nil
+    //                                                                repeats:NO];
     [self fetchRenewFilesAndStart];
     no_reenter=0;
 }
@@ -1229,56 +1288,58 @@ NS_ASSUME_NONNULL_BEGIN
         NSArray *arr=[result componentsSeparatedByString:@"/"];
         int arr_count=(int)[arr count];
         if (mRadioSource==RS_COLLECTION_AMP) {
-            if (arr_count>=4) result=[NSString stringWithFormat:@"%@ by %@ - %@",[arr[arr_count-1] stringByDeletingPathExtension],arr[arr_count-2],arr[1]];
-            else result=[NSString stringWithFormat:@"%@ - %@",[[arr lastObject] stringByDeletingPathExtension],arr[1]];
+            if (arr_count>=4) result=[NSString stringWithFormat:@"%@ by %@ (%@)",[arr[arr_count-1] stringByDeletingPathExtension],arr[arr_count-2],arr[1]];
+            else result=[NSString stringWithFormat:@"%@ (%@)",[[arr lastObject] stringByDeletingPathExtension],arr[1]];
         }
         if (mRadioSource==RS_COLLECTION_ASMA) {
-            if ((arr_count>=4)&&([[arr objectAtIndex:2] isEqualToString:@"Composers"])) result=[NSString stringWithFormat:@"%@ by %@ - %@",[arr[arr_count-1] stringByDeletingPathExtension],arr[3],arr[1]];
-            else if ((arr_count>=4)&&([[arr objectAtIndex:2] isEqualToString:@"Groups"])) result=[NSString stringWithFormat:@"%@ by %@ - %@",[arr[arr_count-1] stringByDeletingPathExtension],arr[3],arr[1]];
-            else result=[NSString stringWithFormat:@"%@ - %@",[[arr lastObject] stringByDeletingPathExtension],arr[1]];
+            if ((arr_count>=4)&&([[arr objectAtIndex:2] isEqualToString:@"Composers"])) result=[NSString stringWithFormat:@"%@ by %@ (%@)",[arr[arr_count-1] stringByDeletingPathExtension],arr[3],arr[1]];
+            else if ((arr_count>=4)&&([[arr objectAtIndex:2] isEqualToString:@"Groups"])) result=[NSString stringWithFormat:@"%@ by %@ (%@)",[arr[arr_count-1] stringByDeletingPathExtension],arr[3],arr[1]];
+            else result=[NSString stringWithFormat:@"%@ (%@)",[[arr lastObject] stringByDeletingPathExtension],arr[1]];
         }
         if (mRadioSource==RS_COLLECTION_CGSC) {
-            result=[NSString stringWithFormat:@"%@ by %@ - %@",[arr[arr_count-1] stringByDeletingPathExtension],arr[2],arr[1]];
+            result=[NSString stringWithFormat:@"%@ by %@ (%@)",[arr[arr_count-1] stringByDeletingPathExtension],arr[2],arr[1]];
         }
         if (mRadioSource==RS_COLLECTION_HVSC) {
-            if ((arr_count>=4)&&([[arr objectAtIndex:2] isEqualToString:@"MUSICIANS"])) result=[NSString stringWithFormat:@"%@ by %@ - %@",[arr[arr_count-1] stringByDeletingPathExtension],arr[4],arr[1]];
-            else result=[NSString stringWithFormat:@"%@ - %@",[[arr lastObject] stringByDeletingPathExtension],arr[1]];
+            if ((arr_count>=4)&&([[arr objectAtIndex:2] isEqualToString:@"MUSICIANS"])) result=[NSString stringWithFormat:@"%@ by %@ (%@)",[arr[arr_count-1] stringByDeletingPathExtension],arr[4],arr[1]];
+            else result=[NSString stringWithFormat:@"%@ (%@)",[[arr lastObject] stringByDeletingPathExtension],arr[1]];
         }
         if (mRadioSource==RS_COLLECTION_MODLAND) {
-            result=[NSString stringWithFormat:@"%@ by %@ - %@",[arr[arr_count-1] stringByDeletingPathExtension],arr[3],arr[1]];
+            result=[NSString stringWithFormat:@"%@ by %@ (%@)",[arr[arr_count-1] stringByDeletingPathExtension],arr[2],arr[1]];
         }
     }
     return result;
 }
 
--(NSString *) getHistoryLabel:(int)depth {
+-(int) getHistorySize {
+    return (int)[mHistory count];
+}
+
+-(NSString *) getHistoryLabel:(int)idx {
     NSString *result=@"";
     
     int max_hist=(int)[mHistory count];
-    if (depth>max_hist) depth=max_hist;
+    if (idx>=max_hist) return @"";
     
-    for (int i=0;i<depth;i++) {
-        NSArray *arr=[mHistory[i] componentsSeparatedByString:@"/"];
-        int arr_count=(int)[arr count];
-        if (mRadioSource==RS_COLLECTION_AMP) {
-            if (arr_count>=3) result=[result stringByAppendingFormat:@"%@ by %@ - %@\n",[arr[arr_count-1] stringByDeletingPathExtension],arr[1],arr[0]];
-            else result=[result stringByAppendingFormat:@"%@\n",[[arr lastObject] stringByDeletingPathExtension]];
-        }
-        if (mRadioSource==RS_COLLECTION_ASMA) {
-            if ((arr_count>=3)&&([[arr objectAtIndex:1] isEqualToString:@"Composers"])) result=[result stringByAppendingFormat:@"%@ by %@ - %@\n",[arr[arr_count-1] stringByDeletingPathExtension],arr[2],arr[0]];
-            else if ((arr_count>=3)&&([[arr objectAtIndex:1] isEqualToString:@"Groups"])) result=[result stringByAppendingFormat:@"%@ by %@ - %@\n",[arr[arr_count-1] stringByDeletingPathExtension],arr[2],arr[0]];
-            else result=[result stringByAppendingFormat:@"%@ - %@\n",[[arr lastObject] stringByDeletingPathExtension],arr[0]];
-        }
-        if (mRadioSource==RS_COLLECTION_CGSC) {
-            result=[result stringByAppendingFormat:@"%@ by %@ - %@\n",[arr[arr_count-1] stringByDeletingPathExtension],arr[1],arr[0]];
-        }
-        if (mRadioSource==RS_COLLECTION_HVSC) {
-            if ((arr_count>=3)&&([[arr objectAtIndex:1] isEqualToString:@"MUSICIANS"])) result=[result stringByAppendingFormat:@"%@ by %@ - %@\n",[arr[arr_count-1] stringByDeletingPathExtension],arr[3],arr[0]];
-            else result=[result stringByAppendingFormat:@"%@ - %@\n",[[arr lastObject] stringByDeletingPathExtension],arr[0]];
-        }
-        if (mRadioSource==RS_COLLECTION_MODLAND) {
-            result=[result stringByAppendingFormat:@"%@ by %@ - %@\n",[arr[arr_count-1] stringByDeletingPathExtension],arr[2],arr[0]];
-        }
+    NSArray *arr=[mHistory[idx] componentsSeparatedByString:@"/"];
+    int arr_count=(int)[arr count];
+    if (mRadioSource==RS_COLLECTION_AMP) {
+        if (arr_count>=3) result=[result stringByAppendingFormat:@"%@ by %@ (%@)\n",[arr[arr_count-1] stringByDeletingPathExtension],arr[1],arr[0]];
+        else result=[result stringByAppendingFormat:@"%@\n",[[arr lastObject] stringByDeletingPathExtension]];
+    }
+    if (mRadioSource==RS_COLLECTION_ASMA) {
+        if ((arr_count>=3)&&([[arr objectAtIndex:1] isEqualToString:@"Composers"])) result=[result stringByAppendingFormat:@"%@ by %@ (%@)\n",[arr[arr_count-1] stringByDeletingPathExtension],arr[2],arr[0]];
+        else if ((arr_count>=3)&&([[arr objectAtIndex:1] isEqualToString:@"Groups"])) result=[result stringByAppendingFormat:@"%@ by %@ (%@)\n",[arr[arr_count-1] stringByDeletingPathExtension],arr[2],arr[0]];
+        else result=[result stringByAppendingFormat:@"%@ (%@)\n",[[arr lastObject] stringByDeletingPathExtension],arr[0]];
+    }
+    if (mRadioSource==RS_COLLECTION_CGSC) {
+        result=[result stringByAppendingFormat:@"%@ by %@ (%@)\n",[arr[arr_count-1] stringByDeletingPathExtension],arr[1],arr[0]];
+    }
+    if (mRadioSource==RS_COLLECTION_HVSC) {
+        if ((arr_count>=3)&&([[arr objectAtIndex:1] isEqualToString:@"MUSICIANS"])) result=[result stringByAppendingFormat:@"%@ by %@ (%@)\n",[arr[arr_count-1] stringByDeletingPathExtension],arr[3],arr[0]];
+        else result=[result stringByAppendingFormat:@"%@ (%@)\n",[[arr lastObject] stringByDeletingPathExtension],arr[0]];
+    }
+    if (mRadioSource==RS_COLLECTION_MODLAND) {
+        result=[result stringByAppendingFormat:@"%@ by %@ (%@)\n",[arr[arr_count-1] stringByDeletingPathExtension],arr[1],arr[0]];
     }
     return result;
 }
@@ -1290,7 +1351,7 @@ NS_ASSUME_NONNULL_BEGIN
     if ([mFilesList count]>=slot) {
         NSString *relativePath=[mFilesList objectAtIndex:slot];
         if ( (mRadioSource==RS_COLLECTION_AMP) || (mRadioSource==RS_COLLECTION_ASMA) ||
-             (mRadioSource==RS_COLLECTION_CGSC) || (mRadioSource==RS_COLLECTION_HVSC) ) {
+             (mRadioSource==RS_COLLECTION_CGSC) || (mRadioSource==RS_COLLECTION_HVSC) || (mRadioSource==RS_COLLECTION_MODLAND) ) {
             NSFileManager *fileManager = [[NSFileManager alloc] init];
             NSError *error=nil;
             NSString *fromPath = [[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/tmp/tmpRadio/%@",relativePath];

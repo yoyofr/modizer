@@ -38,15 +38,20 @@ enum t_radioSource {
 @property (nonatomic, strong) NSURLSession *mURLSsession;
 
 -(void) moveNext;
+-(void) movePrev:(int)idx;
+-(void) startCurrent;
+
 -(void) activate;
 -(void) stop;
 -(bool) isActive;
 -(int) queueSize;
 -(NSString *) getQueueLabel:(int)slot;
--(NSString *) getHistoryLabel:(int)depth;
+-(NSString *) getHistoryLabel:(int)idx;
+-(int) getHistorySize;
 -(NSString *) radioSourceName;
 -(bool) saveFileToLibrary:(int)slot;
 -(bool) isInLibrary:(int)slot;
+-(void) cleanFiles;
 
 @end
 

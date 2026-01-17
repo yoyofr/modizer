@@ -1205,7 +1205,7 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
         
         if (browse_subMode==AMP_LINK_SEARCH_GROUPS_LIST) {
             if ([mSearchText length]>0) {
-                url = [NSURL URLWithString:[[NSString stringWithFormat:@"%@%@&position=%d",mWebBaseURL,mSearchText,arr_current_fetch_position]stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]]];
+                url = [NSURL URLWithString:[[NSString stringWithFormat:@"%@%@&position=%d",mWebBaseURL,mSearchText,arr_current_fetch_position] stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]]];
             } else {
                 url = [NSURL URLWithString:@""];
             }

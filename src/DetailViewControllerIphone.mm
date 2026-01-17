@@ -23,7 +23,7 @@
 
 #define FX_FS_GUIMESSAGE_TIMEOUT 2
 
-#define UI_RADIO_INFO_HEIGHT 17+14*(2+1+1+5)
+#define UI_RADIO_INFO_HEIGHT 17+14+14
 
 #define POPUP_STYLE_INFO 0
 #define POPUP_STYLE_ALERT 1
@@ -77,6 +77,8 @@ int deactivateFStemp;
 #define ARCSUB_MODE_NONE 0
 #define ARCSUB_MODE_ARC 1
 #define ARCSUB_MODE_SUB 2
+#define ARCSUB_MODE_RADIO 3
+
 static int current_selmode;
 int MIDIFX_OFS;
 
@@ -317,7 +319,7 @@ static int updMPNowCnt=0;
 
 @implementation DetailViewControllerIphone
 
-@synthesize btnAddToPl,btnSaveFile;
+@synthesize btnAddToPl,btnSaveFile,btnRadioPrevList;
 @synthesize radioSource;
 @synthesize mLoopMode;
 @synthesize waitingView;
@@ -387,6 +389,15 @@ bool sysMonitorIsActive;
         
     });
 }
+
+-(void)didSelectRowInAlertRadioController:(NSInteger)row {
+    if (row>0 ) [radioSource movePrev:row-1];
+    else [radioSource startCurrent];
+    if ([radioSource isInLibrary:0]) [btnSaveFile setTitleColor:[UIColor grayColor] forState:UIControlStateNormal];
+    else [btnSaveFile setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    [self updRadioInfo];
+}
+
 
 -(void) cancelSubSel {
     current_selmode=ARCSUB_MODE_NONE;
@@ -2595,22 +2606,167 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
 }
 
 - (void) updRadioInfo {
+    if ([radioSource getHistorySize]>0) [btnRadioPrevList setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    else [btnRadioPrevList setTitleColor:[UIColor grayColor] forState:UIControlStateNormal];
+    
     if (!bShowRadio) return;
     NSString *title_str;
     NSString *msg_str;
-    if ([radioSource queueSize]>1) {
-        NSString *nextEntry=[radioSource getQueueLabel:1];
-        NSString *histEntries=[radioSource getHistoryLabel:50];
-        msg_str=[NSString stringWithFormat:NSLocalizedString(@"Next up: %@\n\nPreviously:\n%@",@""),nextEntry,histEntries];
-        title_str=[NSString stringWithFormat:@"%@ (%@)",NSLocalizedString(@"Radio mode",@""),[radioSource radioSourceName]];
-    } else {
-        NSString *histEntries=[radioSource getHistoryLabel:50];
-        msg_str=[NSString stringWithFormat:NSLocalizedString(@"Next up: Loading...\nPreviously:\n%@",@""),histEntries];
-        title_str=[NSString stringWithFormat:@"%@ (%@)",NSLocalizedString(@"Radio mode",@""),[radioSource radioSourceName]];
+    NSMutableAttributedString *msg_strAttr;
+    
+    NSDictionary *baseAttributes = @{
+        NSForegroundColorAttributeName:[UIColor colorWithRed:0.94 green:0.89 blue:1.0 alpha:1.0],
+        NSFontAttributeName:[UIFont systemFontOfSize:14 weight:UIFontWeightRegular],
+        NSBackgroundColorAttributeName:[UIColor clearColor]
+    };
+    NSDictionary *attributesDataNext = @{
+        NSForegroundColorAttributeName:[UIColor colorWithWhite:1.0 alpha:1],
+        NSFontAttributeName:[UIFont systemFontOfSize:14 weight:UIFontWeightMedium],
+    };
+    NSRange rangeData;
+    int pos;
+    
+    NSString *nextEntry;
+    if ([radioSource queueSize]>1) nextEntry=[radioSource getQueueLabel:1];
+    else {
+        nextEntry=@"loading...";
+        NSTimer *checkAgain;
+        checkAgain=[NSTimer scheduledTimerWithTimeInterval: 0.50f target:self selector:@selector(updRadioInfo) userInfo:nil repeats: NO];
     }
+    msg_str=[NSString stringWithFormat:NSLocalizedString(@"Up next: %@",@""),nextEntry];
+    title_str=[NSString stringWithFormat:@"%@ - %@",NSLocalizedString(@"Radio mode",@""),[radioSource radioSourceName]];
+        
+    msg_strAttr=[[NSMutableAttributedString alloc] initWithString:msg_str attributes:baseAttributes];
+    pos=(int)[msg_str rangeOfString:@"Up next: "].location+(int)[@"Up next: " length];
+    rangeData = NSMakeRange(pos,[nextEntry length]);
+    [msg_strAttr setAttributes:attributesDataNext range:rangeData];
+    
     radioTitle.text=title_str;
-    radioInfo.text=msg_str;
+    radioInfo.attributedText=msg_strAttr;
 }
+
+-(IBAction) radioShowPrevList:(id)sender {
+    
+    if ([radioSource getHistorySize]==0) return;
+    
+    UIViewController *controller = [[UIViewController alloc]init];
+    CGRect rect,recttv;
+    const NSInteger kAlertTableViewTag = 10001;
+    
+    current_selmode=ARCSUB_MODE_RADIO;
+    
+    int entries=[radioSource getHistorySize];
+    
+    float rw,rh,rx,ry;
+    if (self.view.traitCollection.horizontalSizeClass==UIUserInterfaceSizeClassCompact) {
+        float estimated_height=SELECTOR_TABVIEWCELL_HEIGHT*(entries+1+1)+32;
+        rx=0;
+        ry=32;
+        rw=self.view.frame.size.width;
+        
+        if (estimated_height<self.view.frame.size.height-50-ry) rh=estimated_height;
+        else rh=self.view.frame.size.height-50-ry;
+        rect = CGRectMake(rx, ry,rw,rh+50);
+        recttv = CGRectMake(rx, ry,rw,rh);
+    } else {
+        float estimated_height=SELECTOR_TABVIEWCELL_HEIGHT*(entries+1)+16;
+        
+        rw=self.view.frame.size.width;
+        if (estimated_height<self.view.frame.size.height*0.8f-100) rh=estimated_height;
+        else rh=self.view.frame.size.height*0.8f-100;
+        rect = CGRectMake(rw*0.15f, 0,rw*0.7f,rh+100);
+        recttv = CGRectMake(0, 16,rw*0.7f,rh);
+        
+    }
+    [controller setPreferredContentSize:rect.size];
+    
+    controller.modalPresentationStyle=UIModalPresentationPopover;
+    
+    UIView *containerView=[[UIView alloc] initWithFrame:recttv];
+    alertTableView  = [[UITableView alloc] initWithFrame:containerView.bounds];
+    containerView.backgroundColor = [UIColor clearColor];
+    
+    alertTableView.layer.cornerRadius = 10;
+    alertTableView.layer.masksToBounds = true;
+    alertTableView.translatesAutoresizingMaskIntoConstraints = NO;
+    [containerView addSubview:alertTableView];
+    
+    alertTableView.delegate = self;
+    alertTableView.dataSource = self;
+    alertTableView.tableFooterView = [[UIView alloc]initWithFrame:CGRectZero];
+    alertTableView.rowHeight=SELECTOR_TABVIEWCELL_HEIGHT;
+    alertTableView.sectionHeaderHeight=32;
+    
+    [alertTableView setSeparatorStyle:UITableViewCellSeparatorStyleSingleLine];
+    [alertTableView setTag:kAlertTableViewTag];
+    
+    containerView.translatesAutoresizingMaskIntoConstraints = NO;
+    [controller.view addSubview:containerView];// alertTableView];
+    
+    
+    [controller.view bringSubviewToFront:containerView];//alertTableView];
+    [controller.view setUserInteractionEnabled:YES];
+    [alertTableView setUserInteractionEnabled:YES];
+    [alertTableView setAllowsSelection:YES];
+    
+    BButton *cancel_btn= [[BButton alloc] initWithFrame:CGRectMake(0, 0, 200, 30)];
+    [cancel_btn setType:BButtonTypeGray];
+    [cancel_btn removeTarget:self action:NULL forControlEvents:UIControlEventTouchUpInside];
+    [cancel_btn addTarget:self action:@selector(cancelSubSel) forControlEvents:UIControlEventTouchUpInside];
+    [cancel_btn setTitle:NSLocalizedString(@"Close", @"") forState:UIControlStateNormal];
+    cancel_btn.translatesAutoresizingMaskIntoConstraints = NO;
+    [controller.view addSubview:cancel_btn];
+    
+    NSDictionary * viewsDic = NSDictionaryOfVariableBindings(cancel_btn, containerView);
+    
+    // Contraintes horizontales pour le containerView
+    NSArray * hConstraintsContainer = [NSLayoutConstraint constraintsWithVisualFormat:@"H:|[containerView]|"
+                                                                              options:0
+                                                                              metrics:nil
+                                                                                views:viewsDic];
+    [controller.view addConstraints:hConstraintsContainer];
+    
+    // Contraintes horizontales pour le bouton
+    NSArray * hConstraints = [NSLayoutConstraint constraintsWithVisualFormat:@"H:|-50-[cancel_btn]-50-|"
+                                                                     options:0
+                                                                     metrics:nil
+                                                                       views:viewsDic];
+    [controller.view addConstraints:hConstraints];
+    
+    // Contraintes verticales pour positionner containerView en haut et cancel_btn en bas
+    NSArray * vConstraints = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|-16-[containerView]-8-[cancel_btn(40)]-16-|"
+                                                                     options:0
+                                                                     metrics:nil
+                                                                       views:viewsDic];
+    [controller.view addConstraints:vConstraints];
+    
+    // Contraintes pour alertTableView à l'intérieur de containerView
+    [NSLayoutConstraint activateConstraints:@[
+        [alertTableView.topAnchor constraintEqualToAnchor:containerView.topAnchor],
+        [alertTableView.bottomAnchor constraintEqualToAnchor:containerView.bottomAnchor],
+        [alertTableView.leadingAnchor constraintEqualToAnchor:containerView.leadingAnchor],
+        [alertTableView.trailingAnchor constraintEqualToAnchor:containerView.trailingAnchor]
+    ]];
+    
+    [self presentViewController:controller animated:YES completion:^{
+//        NSIndexPath *indexPath = [NSIndexPath indexPathForRow:0 inSection:0];
+//        [alertTableView selectRowAtIndexPath:indexPath animated:YES scrollPosition:UITableViewScrollPositionMiddle];
+    }];
+    
+    UIButton *btn=(UIButton*)sender;
+    UIPopoverPresentationController *popoverctrl=controller.popoverPresentationController;
+    popoverctrl.sourceView = btn;
+    popoverctrl.sourceRect = CGRectMake(0, 0, btn.frame.size.width, btn.frame.size.height);
+    if (self.view.traitCollection.horizontalSizeClass==UIUserInterfaceSizeClassCompact) {
+        popoverctrl.backgroundColor=[UIColor blackColor];
+    } else {
+        popoverctrl.backgroundColor=[UIColor clearColor];
+    }
+    
+    popoverctrl.delegate=self;
+    //popoverctrl.permittedArrowDirections=UIPopoverArrowDirectionUp;
+}
+
 - (void) showRadioPopup {
     if (bShowRadio) {
         [radioTitle removeFromSuperview];
@@ -2624,17 +2780,19 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
         radioView.backgroundColor=[UIColor colorWithWhite:0 alpha:0.7];
         [self.view addSubview:radioView];
         
-        radioTitle=[[UILabel alloc] initWithFrame:CGRectMake(0,0,radioView.frame.size.width,14)];
-        radioTitle.textColor=[UIColor whiteColor];
+        radioTitle=[[UILabel alloc] initWithFrame:CGRectMake(2,2,radioView.frame.size.width-2,14)];
+        radioTitle.textColor=[UIColor colorWithRed:0.92 green:0.85 blue:1.0 alpha:1.0];
         radioTitle.backgroundColor=[UIColor clearColor];
         
         radioTitle.font=[UIFont systemFontOfSize:17 weight:UIFontWeightMedium];
         [radioView addSubview:radioTitle];
         
-        radioInfo=[[UITextView alloc] initWithFrame:CGRectMake(0,14,radioView.frame.size.width,radioView.frame.size.height-14)];
-        radioInfo.textColor=[UIColor whiteColor];
+        radioInfo=[[UITextView alloc] initWithFrame:CGRectMake(2,14,radioView.frame.size.width-2,radioView.frame.size.height-14)];
+        radioInfo.textColor=[UIColor colorWithRed:1.0 green:1.0 blue:1.0 alpha:1.0];
         radioInfo.backgroundColor=[UIColor clearColor];
         radioInfo.font=[UIFont systemFontOfSize:14];
+        radioInfo.editable=NO;
+        radioInfo.selectable=NO;
         [radioView addSubview:radioInfo];
         
         bShowRadio=true;
@@ -3817,21 +3975,44 @@ int recording=0;
     *pathCoverImgJPEG,*pathFileImgJPG,*pathFileImgJPEG,
     *pathFolderImgGIF,*pathCoverImgGIF,*pathFileImgGIF,*pathFileImgPIC,*pathFileImgPGG,*pathFileImgPJJ;
     
-    pathFolderImgPNG=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@/folder.png",[filePath stringByDeletingLastPathComponent]];
-    pathFolderImgJPG=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@/folder.jpg",[filePath stringByDeletingLastPathComponent]];
-    pathFolderImgJPEG=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@/folder.jpeg",[filePath stringByDeletingLastPathComponent]];
-    pathFolderImgGIF=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@/folder.gif",[filePath stringByDeletingLastPathComponent]];
-    pathCoverImgPNG=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@/cover.png",[filePath stringByDeletingLastPathComponent]];
-    pathCoverImgJPG=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@/cover.jpg",[filePath stringByDeletingLastPathComponent]];
-    pathCoverImgJPEG=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@/cover.jpeg",[filePath stringByDeletingLastPathComponent]];
-    pathCoverImgGIF=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@/cover.gif",[filePath stringByDeletingLastPathComponent]];
-    pathFileImgPNG=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@.png",[filePath stringByDeletingPathExtension]];
-    pathFileImgJPG=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@.jpg",[filePath stringByDeletingPathExtension]];
-    pathFileImgJPEG=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@.jpeg",[filePath stringByDeletingPathExtension]];
-    pathFileImgGIF=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@.gif",[filePath stringByDeletingPathExtension]];
-    pathFileImgPIC=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@.pic",[filePath stringByDeletingPathExtension]];
-    pathFileImgPGG=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@.pgg",[filePath stringByDeletingPathExtension]];
-    pathFileImgPJJ=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@.pjj",[filePath stringByDeletingPathExtension]];
+    bool partialPath=false;
+    if ([[filePath substringToIndex:[@"Documents/" length]] isEqualToString:@"Documents/"]) {
+        partialPath=true;
+    }
+    
+    if (partialPath) {
+        pathFolderImgPNG=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@/folder.png",[filePath stringByDeletingLastPathComponent]];
+        pathFolderImgJPG=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@/folder.jpg",[filePath stringByDeletingLastPathComponent]];
+        pathFolderImgJPEG=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@/folder.jpeg",[filePath stringByDeletingLastPathComponent]];
+        pathFolderImgGIF=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@/folder.gif",[filePath stringByDeletingLastPathComponent]];
+        pathCoverImgPNG=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@/cover.png",[filePath stringByDeletingLastPathComponent]];
+        pathCoverImgJPG=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@/cover.jpg",[filePath stringByDeletingLastPathComponent]];
+        pathCoverImgJPEG=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@/cover.jpeg",[filePath stringByDeletingLastPathComponent]];
+        pathCoverImgGIF=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@/cover.gif",[filePath stringByDeletingLastPathComponent]];
+        pathFileImgPNG=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@.png",[filePath stringByDeletingPathExtension]];
+        pathFileImgJPG=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@.jpg",[filePath stringByDeletingPathExtension]];
+        pathFileImgJPEG=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@.jpeg",[filePath stringByDeletingPathExtension]];
+        pathFileImgGIF=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@.gif",[filePath stringByDeletingPathExtension]];
+        pathFileImgPIC=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@.pic",[filePath stringByDeletingPathExtension]];
+        pathFileImgPGG=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@.pgg",[filePath stringByDeletingPathExtension]];
+        pathFileImgPJJ=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@.pjj",[filePath stringByDeletingPathExtension]];
+    } else {
+        pathFolderImgPNG=[NSString stringWithFormat:@"%@/folder.png",[filePath stringByDeletingLastPathComponent]];
+        pathFolderImgJPG=[NSString stringWithFormat:@"%@/folder.jpg",[filePath stringByDeletingLastPathComponent]];
+        pathFolderImgJPEG=[NSString stringWithFormat:@"%@/folder.jpeg",[filePath stringByDeletingLastPathComponent]];
+        pathFolderImgGIF=[NSString stringWithFormat:@"%@/folder.gif",[filePath stringByDeletingLastPathComponent]];
+        pathCoverImgPNG=[NSString stringWithFormat:@"%@/cover.png",[filePath stringByDeletingLastPathComponent]];
+        pathCoverImgJPG=[NSString stringWithFormat:@"%@/cover.jpg",[filePath stringByDeletingLastPathComponent]];
+        pathCoverImgJPEG=[NSString stringWithFormat:@"%@/cover.jpeg",[filePath stringByDeletingLastPathComponent]];
+        pathCoverImgGIF=[NSString stringWithFormat:@"%@/cover.gif",[filePath stringByDeletingLastPathComponent]];
+        pathFileImgPNG=[NSString stringWithFormat:@"%@.png",[filePath stringByDeletingPathExtension]];
+        pathFileImgJPG=[NSString stringWithFormat:@"%@.jpg",[filePath stringByDeletingPathExtension]];
+        pathFileImgJPEG=[NSString stringWithFormat:@"%@.jpeg",[filePath stringByDeletingPathExtension]];
+        pathFileImgGIF=[NSString stringWithFormat:@"%@.gif",[filePath stringByDeletingPathExtension]];
+        pathFileImgPIC=[NSString stringWithFormat:@"%@.pic",[filePath stringByDeletingPathExtension]];
+        pathFileImgPGG=[NSString stringWithFormat:@"%@.pgg",[filePath stringByDeletingPathExtension]];
+        pathFileImgPJJ=[NSString stringWithFormat:@"%@.pjj",[filePath stringByDeletingPathExtension]];
+    }
     
     coverAvailable=false;
     cover_img=nil;
@@ -4692,7 +4873,10 @@ int recording=0;
                                           cover_viewAll.frame.size.width-2*cover_viewAll.frame.size.width/20,
                                           cover_viewAll.frame.size.height-2*cover_viewAll.frame.size.height/20);
             
-            if (bShowRadio) radioView.frame=CGRectMake(mainView.frame.origin.x,m_oglView.frame.origin.y,mainView.frame.size.width,UI_RADIO_INFO_HEIGHT);
+            if (bShowRadio) { radioView.frame=CGRectMake(mainView.frame.origin.x,m_oglView.frame.origin.y+safe_top,mainView.frame.size.width,UI_RADIO_INFO_HEIGHT);
+                radioTitle.frame=CGRectMake(2,2,radioView.frame.size.width-2,14);
+                radioInfo.frame=CGRectMake(2,14,radioView.frame.size.width-2,radioView.frame.size.height-14);
+            }
         } else {
             if (mHasFocus) {
                 statusbarHidden=NO;
@@ -4731,7 +4915,10 @@ int recording=0;
                 if (gifAnimation) gifAnimation.frame = CGRectMake(0, 0,cover_view.frame.size.width,cover_view.frame.size.height);
             }
             
-            if (bShowRadio) radioView.frame=CGRectMake(mainView.frame.origin.x,m_oglView.frame.origin.y,mainView.frame.size.width,UI_RADIO_INFO_HEIGHT);
+            if (bShowRadio) { radioView.frame=CGRectMake(mainView.frame.origin.x,m_oglView.frame.origin.y,mainView.frame.size.width,UI_RADIO_INFO_HEIGHT);
+                radioTitle.frame=CGRectMake(2,2,radioView.frame.size.width-2,14);
+                radioInfo.frame=CGRectMake(2,14,radioView.frame.size.width-2,radioView.frame.size.height-14);
+            }
             
             cover_viewAll.frame = m_oglView.frame;//CGRectMake(0, 0, mDevice_ww, mDevice_hh-230+80+44-safe_bottom);
             
@@ -4768,6 +4955,8 @@ int recording=0;
             btnRecordScreen.frame =CGRectMake(mDevice_ww-safe_left-safe_right-36*4,0+48,32,32);
             btnAddToPl.frame =     CGRectMake(mDevice_ww-safe_left-safe_right-36*5,0+48,32,32);
             btnSaveFile.frame =    CGRectMake(mDevice_ww-safe_left-safe_right-36*5,0+48,32,32);
+            btnRadioPrevList.frame =    CGRectMake(mDevice_ww-safe_left-safe_right-36*6,0+48,32,32);
+
 
             mainRating5.frame = CGRectMake(130+2,3+48+4,20,20);
             mainRating5off.frame = CGRectMake(130+2,3+48+4,20,20);
@@ -4775,11 +4964,13 @@ int recording=0;
             
             if ([radioSource isActive]) {
                 btnSaveFile.hidden=FALSE;
+                btnRadioPrevList.hidden=FALSE;
                 btnAddToPl.hidden=TRUE;
                 mainRating5.hidden=TRUE;
                 mainRating5off.hidden=TRUE;
             } else {
                 btnSaveFile.hidden=TRUE;
+                btnRadioPrevList.hidden=TRUE;
                 btnAddToPl.hidden=FALSE;
                 [self showRating:[self getCurrentRating]];
             }
@@ -4815,7 +5006,10 @@ int recording=0;
                                           cover_viewAll.frame.size.width-2*cover_viewAll.frame.size.width/20,
                                           cover_viewAll.frame.size.height-2*cover_viewAll.frame.size.height/20);
             
-            if (bShowRadio) radioView.frame=CGRectMake(mainView.frame.origin.x,m_oglView.frame.origin.y,mainView.frame.size.width,UI_RADIO_INFO_HEIGHT);
+            if (bShowRadio) { radioView.frame=CGRectMake(mainView.frame.origin.x,m_oglView.frame.origin.y+safe_top,mainView.frame.size.width,UI_RADIO_INFO_HEIGHT);
+                radioTitle.frame=CGRectMake(2,2,radioView.frame.size.width-2,14);
+                radioInfo.frame=CGRectMake(2,14,radioView.frame.size.width-2,radioView.frame.size.height-14);
+            }
         } else {
             if (mHasFocus) {
                 statusbarHidden=NO;
@@ -4862,7 +5056,11 @@ int recording=0;
                 
             }
             
-            if (bShowRadio) radioView.frame=CGRectMake(mainView.frame.origin.x,m_oglView.frame.origin.y,mainView.frame.size.width,UI_RADIO_INFO_HEIGHT);
+            if (bShowRadio) {
+                radioView.frame=CGRectMake(mainView.frame.origin.x,m_oglView.frame.origin.y,mainView.frame.size.width,UI_RADIO_INFO_HEIGHT);
+                radioTitle.frame=CGRectMake(2,2,radioView.frame.size.width-2,14);
+                radioInfo.frame=CGRectMake(2,14,radioView.frame.size.width-2,radioView.frame.size.height-14);
+            }
             
             cover_viewAll.frame = m_oglView.frame;//CGRectMake(0.0, 0, mDevice_hh, mDevice_ww-82+82-safe_bottom-yofs);
             cover_view.frame = CGRectMake(cover_viewAll.frame.size.width/20,
@@ -4897,11 +5095,13 @@ int recording=0;
             
             if ([radioSource isActive]) {
                 btnSaveFile.hidden=FALSE;
+                btnRadioPrevList.hidden=FALSE;
                 btnAddToPl.hidden=TRUE;
                 mainRating5.hidden=TRUE;
                 mainRating5off.hidden=TRUE;
             } else {
                 btnSaveFile.hidden=TRUE;
+                btnRadioPrevList.hidden=TRUE;
                 btnAddToPl.hidden=FALSE;
                 [self showRating:[self getCurrentRating]];
             }
@@ -4912,6 +5112,7 @@ int recording=0;
             btnRecordScreen.frame = CGRectMake(xofs+6+24*5+4-36,yofs+40,32,32);
             btnAddToPl.frame =      CGRectMake(xofs+6+24*5+4-36*2,yofs+40,32,32);
             btnSaveFile.frame =     CGRectMake(xofs+6+24*5+4-36*2,yofs+40,32,32);
+            btnRadioPrevList.frame =     CGRectMake(xofs+6+24*5+4-36*3,yofs+40,32,32);
             
             infoButton.frame = CGRectMake(mDevice_hh-44-safe_left-safe_right,4,40,40);
             eqButton.frame = CGRectMake(mDevice_hh-44-44-safe_left-safe_right,4,40,40);
@@ -6304,6 +6505,7 @@ void pm_perfTest() {
     [btnShowSubSong setStyle:BButtonStyleBootstrapV2];
     [btnRecordScreen setStyle:BButtonStyleBootstrapV2];
     [btnSaveFile setStyle:BButtonStyleBootstrapV2];
+    [btnRadioPrevList setStyle:BButtonStyleBootstrapV2];
     [btnAddToPl setStyle:BButtonStyleBootstrapV2];
     
     [btnShowVoices setType:BButtonTypeInverse];
@@ -6311,6 +6513,7 @@ void pm_perfTest() {
     [btnShowSubSong setType:BButtonTypeInverse];
     [btnRecordScreen setType:BButtonTypeInverse];
     [btnSaveFile setType:BButtonTypeInverse];
+    [btnRadioPrevList setType:BButtonTypeInverse];
     [btnAddToPl setType:BButtonTypeInverse];
     
     [btnShowVoices addAwesomeIcon:FAIconMusic beforeTitle:YES];
@@ -6318,6 +6521,7 @@ void pm_perfTest() {
     [btnShowSubSong addAwesomeIcon:FAIconStackOverflow beforeTitle:YES];
     [btnRecordScreen addAwesomeIcon:FAIconVideoCamera beforeTitle:YES];
     [btnSaveFile addAwesomeIcon:FAIconDownload beforeTitle:YES];
+    [btnRadioPrevList addAwesomeIcon:FAIconHistory beforeTitle:YES];
     [btnAddToPl addAwesomeIcon:FAIconPlus beforeTitle:YES];
     
     btnShowVoices.hidden=false;
@@ -6327,6 +6531,9 @@ void pm_perfTest() {
     btnSaveFile.hidden=false;
     btnSaveFile.enabled=true;
     btnSaveFile.selected=false;
+    btnRadioPrevList.hidden=false;
+    btnRadioPrevList.enabled=true;
+    btnRadioPrevList.selected=false;
     bRSactive=false;
     
     
@@ -6881,6 +7088,8 @@ void pm_perfTest() {
     [btnAddToPl setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
     
     [btnSaveFile setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    if ([radioSource getHistorySize]>0) [btnRadioPrevList setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    else [btnRadioPrevList setTitleColor:[UIColor grayColor] forState:UIControlStateNormal];
     
     if (mPlaylist_size) {
         for (int i=0;i<mPlaylist_size;i++) {  //reset rating to force resynchro (for ex, user delted an entry in 'favorites' list, thus reseting the rating for a given file
@@ -6973,6 +7182,7 @@ void pm_perfTest() {
     if ([radioSource isActive]) {
         if ([radioSource isInLibrary:0]) [btnSaveFile setTitleColor:[UIColor grayColor] forState:UIControlStateNormal];
         else [btnSaveFile setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+        [self updRadioInfo];
     }
 }
 
@@ -10349,10 +10559,13 @@ void drawTgtSlotPattern(int fxIdx,float x,float y,float w,float h,float ww,float
     NSString *lbl;
     switch (current_selmode) {
         case ARCSUB_MODE_ARC:
-            lbl=NSLocalizedString(@"Choose a song",@"Choose a song");
+            lbl=NSLocalizedString(@"Choose a song",@"");
             break;
         case ARCSUB_MODE_SUB:
-            lbl=NSLocalizedString(@"Choose a subsong",@"Choose a subsong");
+            lbl=NSLocalizedString(@"Choose a subsong",@"");
+            break;
+        case ARCSUB_MODE_RADIO:
+            lbl=NSLocalizedString(@"History",@"");
             break;
     }
     
@@ -10366,16 +10579,6 @@ void drawTgtSlotPattern(int fxIdx,float x,float y,float w,float h,float ww,float
     return myLabel;
 }
 
-/*- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
- switch (current_selmode) {
- case ARCSUB_MODE_ARC:
- return NSLocalizedString(@"Choose a song",@"Choose a song");
- case ARCSUB_MODE_SUB:
- return NSLocalizedString(@"Choose a subsong",@"Choose a subsong");
- }
- return 0;
- }*/
-
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
     return 1;
 }
@@ -10385,6 +10588,8 @@ void drawTgtSlotPattern(int fxIdx,float x,float y,float w,float h,float ww,float
             return [mplayer getArcEntriesCnt];
         case ARCSUB_MODE_SUB:
             return mplayer.mod_subsongs;
+        case ARCSUB_MODE_RADIO:
+            return [radioSource getHistorySize]+1;
     }
     return 0;
 }
@@ -10462,10 +10667,17 @@ void drawTgtSlotPattern(int fxIdx,float x,float y,float w,float h,float ww,float
     
     switch (current_selmode) {
         case ARCSUB_MODE_ARC:
-            topLabel.text=[NSString stringWithFormat:@"%@",[mplayer getArcEntryTitle:indexPath.row]];
+            topLabel.text=[NSString stringWithFormat:@"%@",[mplayer getArcEntryTitle:(int)(indexPath.row)]];
             break;
         case ARCSUB_MODE_SUB:
-            topLabel.text=[NSString stringWithFormat:@"%@",[mplayer getSubTitle:indexPath.row+mplayer.mod_minsub]];
+            topLabel.text=[NSString stringWithFormat:@"%@",[mplayer getSubTitle:(int)(indexPath.row+mplayer.mod_minsub)]];
+            break;
+        case ARCSUB_MODE_RADIO:
+            if (indexPath.row==0) {
+                topLabel.text=[NSString stringWithFormat:@"%@",[radioSource getQueueLabel:0]];
+            } else {
+                topLabel.text=[NSString stringWithFormat:@"%@",[radioSource getHistoryLabel:(int)(indexPath.row-1)]];
+            }
             break;
         default:
             topLabel.text=@"N/A";
@@ -10508,6 +10720,9 @@ void drawTgtSlotPattern(int fxIdx,float x,float y,float w,float h,float ww,float
             break;
         case ARCSUB_MODE_SUB:
             [self didSelectRowInAlertSubController:indexPath.row];
+            break;
+        case ARCSUB_MODE_RADIO:
+            [self didSelectRowInAlertRadioController:indexPath.row];
             break;
         default:
             break;

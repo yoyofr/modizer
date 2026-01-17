@@ -17,6 +17,7 @@
 #import "CarPlayAndRemoteManagement.h"
 #import "ModizerConstants.h"
 #import "ModizerTypes.h"
+#import "RadioSource.h"
 
 bool mdz_macos_AOTplugin=false;
 
@@ -226,6 +227,7 @@ bool mdz_macos_AOTplugin=false;
     [prefs synchronize];
     
     [self cleanupTempData];
+    [detailViewControlleriPhone.radioSource cleanFiles];
 }
 
 - (void)sceneDidBecomeActive:(UIScene *)scene {

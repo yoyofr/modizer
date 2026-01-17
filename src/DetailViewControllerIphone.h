@@ -127,7 +127,7 @@ enum {
 
     //Subsongs and Archive entries picker
     IBOutlet UIButton *btnChangeTime;
-    IBOutlet BButton *btnShowArcList,*btnShowSubSong,*btnShowVoices,*btnRecordScreen,*btnSaveFile,*btnAddToPl;
+    IBOutlet BButton *btnShowArcList,*btnShowSubSong,*btnShowVoices,*btnRecordScreen,*btnSaveFile,*btnAddToPl,*btnRadioPrevList;
     
     IBOutlet UILabel *labelTime,*labelModuleLength;
     IBOutlet UILabel *labelSeeking;
@@ -316,7 +316,7 @@ enum {
 @property (nonatomic, retain) IBOutlet UILabel *labelTime,*labelModuleLength;
 @property (nonatomic, retain) IBOutlet UILabel *labelSeeking;
 @property (nonatomic, retain) IBOutlet UILabel *labelModuleSize;
-@property (nonatomic, retain) IBOutlet BButton *btnShowArcList,*btnShowSubSong,*btnShowVoices,*btnRecordScreen,*btnSaveFile,*btnAddToPl;
+@property (nonatomic, retain) IBOutlet BButton *btnShowArcList,*btnShowSubSong,*btnShowVoices,*btnRecordScreen,*btnSaveFile,*btnAddToPl,*btnRadioPrevList;
 @property (nonatomic, retain) IBOutlet UIButton *buttonLoopTitleSel,*buttonLoopList,*buttonLoopListSel,*buttonShuffle,*buttonShuffleSel,*buttonShuffleOneSel,*btnLoopInf;
 @property (nonatomic, retain) IBOutlet UIToolbar *playBar,*pauseBar,*playBarSub,*pauseBarSub;
 
@@ -333,9 +333,10 @@ enum {
 
 -(IBAction) changeTimeDisplay;
 
--(IBAction)showVoicesSelector:(id)sender;
--(IBAction)showSubSongSelector:(id)sender;
--(IBAction)showArcSelector:(id)sender;
+-(IBAction) showVoicesSelector:(id)sender;
+-(IBAction) showSubSongSelector:(id)sender;
+-(IBAction) showArcSelector:(id)sender;
+-(IBAction) radioShowPrevList:(id)sender;
 
 
 - (void)titleTap:(UITapGestureRecognizer *)sender;

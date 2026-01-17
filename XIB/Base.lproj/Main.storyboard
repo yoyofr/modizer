@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="24412" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="Fcr-yU-4bZ">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="24506" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="Fcr-yU-4bZ">
     <device id="retina6_12" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="24405"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="24504"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -526,6 +526,15 @@
                                                     <action selector="pushedSaveFile" destination="MWm-br-vsJ" eventType="touchUpInside" id="raA-T9-bdk"/>
                                                 </connections>
                                             </button>
+                                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="xmE-Th-SJ5" userLabel="RadioHistory" customClass="BButton">
+                                                <rect key="frame" x="143" y="-1" width="30" height="34"/>
+                                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                                <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.0" colorSpace="custom" customColorSpace="displayP3"/>
+                                                <fontDescription key="fontDescription" type="system" pointSize="18"/>
+                                                <connections>
+                                                    <action selector="radioShowPrevList:" destination="MWm-br-vsJ" eventType="touchUpInside" id="eNA-PZ-GaG"/>
+                                                </connections>
+                                            </button>
                                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="i6j-qO-A9D" userLabel="AddToPl" customClass="BButton">
                                                 <rect key="frame" x="180" y="-2" width="30" height="34"/>
                                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
@@ -886,6 +895,7 @@
                         <outlet property="btnAddToPl" destination="i6j-qO-A9D" id="ZqA-lh-1xD"/>
                         <outlet property="btnChangeTime" destination="Dhc-wT-rrO" id="ucS-Id-lWE"/>
                         <outlet property="btnLoopInf" destination="RHH-hw-vvc" id="NLu-Ih-Xof"/>
+                        <outlet property="btnRadioPrevList" destination="xmE-Th-SJ5" id="ihz-TO-qQE"/>
                         <outlet property="btnRecordScreen" destination="i9x-2F-UZM" id="CxF-Ov-3QW"/>
                         <outlet property="btnSaveFile" destination="dH1-th-5Sl" id="ibC-7X-sZJ"/>
                         <outlet property="btnShowArcList" destination="C8D-Uc-KrX" id="qh8-DC-qbq"/>
