@@ -30,6 +30,7 @@ namespace DBHelper
     void updateFileStatsAvgRatingDBmod(NSString *fullpath);
 	int updateFileStatsDBmod(NSString*name,NSString *fullpath,short int playcount=-1,signed char rating=-1,signed char avg_rating=-1,int song_length=-1,signed char channels_nb=-1,int songs=-1);
     NSMutableArray *getMissingPartsNameFromFilePath(NSString *localPath,NSString *ext);
+    NSMutableArray *getMissingPartsNameFromRemotePath(NSString *fullPath,NSString *ext);
 
     int updateRatingDBmod(NSString *fullpath,signed char rating);
 	

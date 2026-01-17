@@ -75,7 +75,87 @@ extern volatile t_settings settings[MAX_SETTINGS];
 #include "PlaylistCommonFunctions.h"
 
 -(void) pushRadioButton {
-    
+    if ([detailViewController.radioSource isActive]&&(detailViewController.radioSource.mRadioSource==RS_COLLECTION_HVSC)) {
+        [detailViewController stop];
+        [detailViewController clearQueue];
+        [detailViewController.radioSource stop];
+        [radioButton setTitleColor:[UIColor grayColor] forState:UIControlStateNormal];
+    } else {
+        [detailViewController.radioSource stop];
+        [detailViewController clearQueue];
+        detailViewController.radioSource.mRadioSource=RS_COLLECTION_HVSC;
+        
+        t_dbHVSC_browse_entry *cur_db_entries;
+        cur_db_entries=(search_dbHVSC?search_dbHVSC_entries:dbHVSC_entries);
+        int nb_entries=(search_dbHVSC?search_dbHVSC_nb_entries:dbHVSC_nb_entries);
+        
+        switch (browse_depth) {
+            case 1:
+                detailViewController.radioSource.mRadioSource_mode=1;
+                [detailViewController.radioSource.mSourceData removeAllObjects];
+                for (int i=0;i<nb_entries;i++) {
+                    [detailViewController.radioSource.mSourceData addObject:[NSString stringWithFormat:@"d:%@",cur_db_entries[i].dir1]];
+                }
+                break;
+            case 2:
+                detailViewController.radioSource.mRadioSource_mode=2;
+                [detailViewController.radioSource.mSourceData removeAllObjects];
+                for (int i=0;i<nb_entries;i++) {
+                    if (cur_db_entries[i].dir2) {
+                        //entry is a dir
+                        [detailViewController.radioSource.mSourceData addObject:[NSString stringWithFormat:@"d:%@/%@",cur_db_entries[i].dir1,cur_db_entries[i].dir2]];
+                    } else {
+                        //entry is a file
+                        [detailViewController.radioSource.mSourceData addObject:[NSString stringWithFormat:@"f:%@",cur_db_entries[i].fullpath]];
+                    }
+                }
+                break;
+            case 3:
+                detailViewController.radioSource.mRadioSource_mode=3;
+                [detailViewController.radioSource.mSourceData removeAllObjects];
+                for (int i=0;i<nb_entries;i++) {
+                    if (cur_db_entries[i].dir3) {
+                        //entry is a dir
+                        [detailViewController.radioSource.mSourceData addObject:[NSString stringWithFormat:@"d:%@/%@/%@",cur_db_entries[i].dir1,cur_db_entries[i].dir2,cur_db_entries[i].dir3]];
+                    } else {
+                        //entry is a file
+                        [detailViewController.radioSource.mSourceData addObject:[NSString stringWithFormat:@"f:%@",cur_db_entries[i].fullpath]];
+                    }
+                }
+                break;
+            case 4:
+                detailViewController.radioSource.mRadioSource_mode=4;
+                [detailViewController.radioSource.mSourceData removeAllObjects];
+                for (int i=0;i<nb_entries;i++) {
+                    if (cur_db_entries[i].dir4) {
+                        //entry is a dir
+                        [detailViewController.radioSource.mSourceData addObject:[NSString stringWithFormat:@"d:%@/%@/%@/%@",cur_db_entries[i].dir1,cur_db_entries[i].dir2,cur_db_entries[i].dir3,cur_db_entries[i].dir4]];
+                    } else {
+                        //entry is a file
+                        [detailViewController.radioSource.mSourceData addObject:[NSString stringWithFormat:@"f:%@",cur_db_entries[i].fullpath]];
+                    }
+                }
+                break;
+            case 5:
+                detailViewController.radioSource.mRadioSource_mode=5;
+                [detailViewController.radioSource.mSourceData removeAllObjects];
+                for (int i=0;i<nb_entries;i++) {
+                    if (cur_db_entries[i].dir5) {
+                        //entry is a dir
+                        [detailViewController.radioSource.mSourceData addObject:[NSString stringWithFormat:@"d:%@/%@/%@/%@/%@",cur_db_entries[i].dir1,cur_db_entries[i].dir2,cur_db_entries[i].dir3,cur_db_entries[i].dir4,cur_db_entries[i].dir5]];
+                    } else {
+                        //entry is a file
+                        [detailViewController.radioSource.mSourceData addObject:[NSString stringWithFormat:@"f:%@",cur_db_entries[i].fullpath]];
+                    }
+                }
+                break;
+            default:
+                detailViewController.radioSource.mRadioSource_mode=0;
+                break;
+        }
+        [detailViewController.radioSource activate];
+        [radioButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    }
 }
 
 -(void)handleLongPress:(UILongPressGestureRecognizer *)gestureRecognizer {
@@ -1111,7 +1191,7 @@ END_PROFILE
 }
 
 -(void) updRadioStatus {
-    if ([detailViewController.radioSource isActive]) {
+    if ([detailViewController.radioSource isActive]&&(detailViewController.radioSource.mRadioSource==RS_COLLECTION_HVSC)) {
         [radioButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
     } else {
         [radioButton setTitleColor:[UIColor grayColor] forState:UIControlStateNormal];

@@ -27,6 +27,7 @@
 +(BOOL) addSkipBackupAttributeToItemAtPath:(NSString*)path;
 +(void) updateFilesDoNotBackupAttributes;
 
+
 +(NSString*) getFullPathForFilePath:(NSString*)filePath;
 +(NSString *)getFullCleanFilePath:(NSString*)filePath;
 +(NSString *)getFullCleanFilePath:(NSString*)filePath arcidx_ptr:(int*)arcidx_ptr subsong_ptr:(int*)subsong_ptr;
@@ -35,6 +36,8 @@
 +(NSString *)getAppHomeDirectory;
 
 +(NSString*) getCorrectFileName:(const char*)archiveFilename archive:(struct archive *)a entry:(struct archive_entry *)entry;
+
++(NSArray*) getAdditionalMODLANDRequiredFiles:(NSString*)filePath;
 
 @end
 

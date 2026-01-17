@@ -116,9 +116,6 @@ extern volatile t_settings settings[MAX_SETTINGS];
                 for (int i=0;i<nb_entries;i++) {
                     if (cur_db_entries[i].dir3) {
                         //entry is a dir
-                        MDZILog("%@",cur_db_entries[i].dir1);
-                        MDZILog("%@",cur_db_entries[i].dir2);
-                        MDZILog("%@",cur_db_entries[i].dir3);
                         [detailViewController.radioSource.mSourceData addObject:[NSString stringWithFormat:@"d:%@/%@/%@",cur_db_entries[i].dir1,cur_db_entries[i].dir2,cur_db_entries[i].dir3]];
                     } else {
                         //entry is a file
@@ -887,7 +884,7 @@ END_PROFILE
 }
 
 -(void) updRadioStatus {
-    if ([detailViewController.radioSource isActive]) {
+    if ([detailViewController.radioSource isActive]&&(detailViewController.radioSource.mRadioSource==RS_COLLECTION_ASMA)) {
         [radioButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
     } else {
         [radioButton setTitleColor:[UIColor grayColor] forState:UIControlStateNormal];

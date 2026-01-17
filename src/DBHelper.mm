@@ -37,17 +37,6 @@ NSMutableArray *DBHelper::getMissingPartsNameFromFilePath(NSString *fullPath,NSS
         if (err==SQLITE_OK){
         } else MDZELog("ErrSQL : %d",err);
         
-        //removing the /Documents/MODLAND
-        NSString *strTmpPath = [fullPath stringByDeletingLastPathComponent];
-        NSUInteger index = [strTmpPath rangeOfString:@"/"].location;
-        strTmpPath = [strTmpPath substringFromIndex:index+1];
-        index = [strTmpPath rangeOfString:@"/"].location;
-        strTmpPath = [strTmpPath substringFromIndex:index+1];
-        
-        //snprintf(sqltmp,512,"%s",[strTmpPath UTF8String]);
-        
-        //snprintf(sqlStatement,1024,"SELECT fullpath,localpath FROM mod_file WHERE localpath like \"%s/%%%s\"",sqltmp,[ext UTF8String]);
-        
         const char *sqlAuthor,*sqlFiletype,*sqlAlbum,*sqlFilename;
         sqlAuthor=[[strComponents objectAtIndex:2] UTF8String];
         sqlFiletype=[[strComponents objectAtIndex:3] UTF8String];
@@ -95,6 +84,75 @@ NSMutableArray *DBHelper::getMissingPartsNameFromFilePath(NSString *fullPath,NSS
     pthread_mutex_unlock(&db_mutex);
     return result;
 }
+
+NSMutableArray *DBHelper::getMissingPartsNameFromRemotePath(NSString *fullPath,NSString *ext) {
+    NSString *pathToDB=[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:DATABASENAME_MAIN];
+    sqlite3 *db;
+    int err;
+    NSMutableArray *result=[[NSMutableArray alloc] init];
+    
+    if (fullPath==nil) return nil;
+    NSArray *strComponents=[fullPath componentsSeparatedByString:@"/"];
+    if ([strComponents count]<3) return nil;
+    
+    pthread_mutex_lock(&db_mutex);
+    
+    if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
+        char sqlStatement[1024];//,sqltmp[512];
+        sqlite3_stmt *stmt;
+        
+        err=sqlite3_exec(db, "PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = NORMAL;", 0, 0, 0);
+        if (err==SQLITE_OK){
+        } else MDZELog("ErrSQL : %d",err);
+        
+        const char *sqlAuthor,*sqlFiletype,*sqlAlbum,*sqlFilename;
+        sqlAuthor=[[strComponents objectAtIndex:1] UTF8String];
+        sqlFiletype=[[strComponents objectAtIndex:0] UTF8String];
+        if ([strComponents count]>3) {
+            sqlAlbum=[[strComponents objectAtIndex:2] UTF8String];
+            sqlFilename=[[strComponents objectAtIndex:3] UTF8String];
+        } else {
+            sqlAlbum=NULL;
+            sqlFilename=[[strComponents objectAtIndex:2] UTF8String];
+        }
+        
+        if (sqlAlbum) {
+            snprintf(sqlStatement,1024,""
+                     "SELECT f.fullpath,a.author||'/'||t.filetype||'/'||l.album||'/'||f.filename "
+                     "FROM mod_author a,mod_type t,mod_album l, mod_file f "
+                     "WHERE f.id_author=a.id AND f.id_type=t.id AND f.id_album=l.id "
+                     "AND a.author like \"%s\" AND t.filetype like \"%s\" AND l.album like \"%s\" AND f.filename like \"%%%s\" "
+                     "",sqlAuthor,sqlFiletype,sqlAlbum,[ext UTF8String]);
+        } else {
+            snprintf(sqlStatement,1024,""
+                     "SELECT f.fullpath,a.author||'/'||t.filetype||'/'||f.filename "
+                     "FROM mod_author a,mod_type t, mod_file f "
+                     "WHERE f.id_author=a.id AND f.id_type=t.id AND f.id_album IS NULL "
+                     "AND a.author like \"%s\" AND t.filetype like \"%s\" AND f.filename like \"%%%s\" "
+                     "",sqlAuthor,sqlFiletype,[ext UTF8String]);
+        }
+        
+        err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+        if (err==SQLITE_OK){
+            while (sqlite3_step(stmt) == SQLITE_ROW) {
+                NSString *localPath=[NSString stringWithFormat:@"%@/Documents/%@",[ModizFileHelper getAppHomeDirectory],[NSString stringWithUTF8String:(const char*)sqlite3_column_text(stmt, 1)]];
+                
+                FILE *f=fopen([localPath UTF8String],"rb");
+                if (!f) {
+                    [result addObject:[NSString stringWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)]];
+                    [result addObject:[NSString stringWithUTF8String:(const char*)sqlite3_column_text(stmt, 1)]];
+                }
+                else fclose(f);
+            }
+            sqlite3_finalize(stmt);
+        } else MDZELog("ErrSQL : %d",err);
+    }
+    sqlite3_close(db);
+    
+    pthread_mutex_unlock(&db_mutex);
+    return result;
+}
+
 
 NSString *DBHelper::getFullPathFromLocalPath(NSString *localPath) {
     NSString *pathToDB=[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:DATABASENAME_MAIN];

@@ -33,6 +33,10 @@ enum t_radioSource {
 @property (nonatomic, strong) NSMutableArray *mHistory,*mHistoryComp;
 @property (nonatomic, strong) NSTimer *fetchDebounceTimer;
 
+@property (nonatomic, strong) NSURLSessionConfiguration *mURLSessionConfig;
+@property (nonatomic, strong) NSOperationQueue *mURLSessionQueue;
+@property (nonatomic, strong) NSURLSession *mURLSsession;
+
 -(void) moveNext;
 -(void) activate;
 -(void) stop;

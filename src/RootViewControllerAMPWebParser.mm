@@ -393,7 +393,7 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
 }
 
 -(void) updRadioStatus {
-    if ([detailViewController.radioSource isActive]) {
+    if ([detailViewController.radioSource isActive]&&(detailViewController.radioSource.mRadioSource==RS_COLLECTION_AMP)) {
         [radioButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
     } else {
         [radioButton setTitleColor:[UIColor grayColor] forState:UIControlStateNormal];
@@ -1221,13 +1221,27 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
                                    NSError * _Nullable error)
         {
             if (error) {
-                NSLog(@"Erreur réseau : %@", error);
+                MDZELog("Erreur réseau : %@", error);
                 [self fillKeysWithWEBSourceCompleted:tmpArray entries_count:we_index entries_data:we];
                 return;
             }
 
             if (!data) {
-                NSLog(@"Aucune donnée reçue");
+                MDZELog("Aucune donnée reçue");
+                [self fillKeysWithWEBSourceCompleted:tmpArray entries_count:we_index entries_data:we];
+                return;
+            }
+            NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
+            if (httpResponse.statusCode == 404) {
+                MDZELog("Fichier non trouvé (404)");
+                // Traiter le cas 404
+                [self fillKeysWithWEBSourceCompleted:tmpArray entries_count:we_index entries_data:we];
+                return;
+            }
+            
+            if (httpResponse.statusCode >= 400) {
+                MDZELog("Erreur HTTP: %ld", (long)httpResponse.statusCode);
+                // Traiter les autres erreurs HTTP
                 [self fillKeysWithWEBSourceCompleted:tmpArray entries_count:we_index entries_data:we];
                 return;
             }
@@ -1401,6 +1415,20 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
                 [self fillKeysWithWEBSourceCompleted:tmpArray entries_count:we_index entries_data:we];
                 return;
             }
+            NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
+            if (httpResponse.statusCode == 404) {
+                MDZELog("Fichier non trouvé (404)");
+                // Traiter le cas 404
+                [self fillKeysWithWEBSourceCompleted:tmpArray entries_count:we_index entries_data:we];
+                return;
+            }
+            
+            if (httpResponse.statusCode >= 400) {
+                MDZELog("Erreur HTTP: %ld", (long)httpResponse.statusCode);
+                // Traiter les autres erreurs HTTP
+                [self fillKeysWithWEBSourceCompleted:tmpArray entries_count:we_index entries_data:we];
+                return;
+            }
             
             TFHpple *doc       = [[TFHpple alloc] initWithHTMLData:data];
             
@@ -1485,6 +1513,20 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
             
             if (!data) {
                 NSLog(@"Aucune donnée reçue");
+                [self fillKeysWithWEBSourceCompleted:tmpArray entries_count:we_index entries_data:we];
+                return;
+            }
+            NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
+            if (httpResponse.statusCode == 404) {
+                MDZELog("Fichier non trouvé (404)");
+                // Traiter le cas 404
+                [self fillKeysWithWEBSourceCompleted:tmpArray entries_count:we_index entries_data:we];
+                return;
+            }
+            
+            if (httpResponse.statusCode >= 400) {
+                MDZELog("Erreur HTTP: %ld", (long)httpResponse.statusCode);
+                // Traiter les autres erreurs HTTP
                 [self fillKeysWithWEBSourceCompleted:tmpArray entries_count:we_index entries_data:we];
                 return;
             }
@@ -1685,6 +1727,20 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
                 [self fillKeysWithWEBSourceCompleted:tmpArray entries_count:we_index entries_data:we];
                 return;
             }
+            NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
+            if (httpResponse.statusCode == 404) {
+                MDZELog("Fichier non trouvé (404)");
+                // Traiter le cas 404
+                [self fillKeysWithWEBSourceCompleted:tmpArray entries_count:we_index entries_data:we];
+                return;
+            }
+            
+            if (httpResponse.statusCode >= 400) {
+                MDZELog("Erreur HTTP: %ld", (long)httpResponse.statusCode);
+                // Traiter les autres erreurs HTTP
+                [self fillKeysWithWEBSourceCompleted:tmpArray entries_count:we_index entries_data:we];
+                return;
+            }
             
             TFHpple *doc       = [[TFHpple alloc] initWithHTMLData:data];
             
@@ -1780,6 +1836,20 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
             
             if (!data) {
                 NSLog(@"Aucune donnée reçue");
+                [self fillKeysWithWEBSourceCompleted:tmpArray entries_count:we_index entries_data:we];
+                return;
+            }
+            NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
+            if (httpResponse.statusCode == 404) {
+                MDZELog("Fichier non trouvé (404)");
+                // Traiter le cas 404
+                [self fillKeysWithWEBSourceCompleted:tmpArray entries_count:we_index entries_data:we];
+                return;
+            }
+            
+            if (httpResponse.statusCode >= 400) {
+                MDZELog("Erreur HTTP: %ld", (long)httpResponse.statusCode);
+                // Traiter les autres erreurs HTTP
                 [self fillKeysWithWEBSourceCompleted:tmpArray entries_count:we_index entries_data:we];
                 return;
             }

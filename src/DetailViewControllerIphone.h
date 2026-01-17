@@ -88,6 +88,12 @@ enum {
     VoicesViewController *voicesVC;
     bool bShowVC;
     
+    //Radio info
+    bool bShowRadio;
+    UIView *radioView;
+    UILabel *radioTitle;
+    UITextView *radioInfo;
+    
     //Record screen
     bool bRSactive;
     int isRecordingScreen; //0: not recording, 1: record, 2: record & stop at song end
@@ -205,6 +211,9 @@ enum {
 @property (retain,nonatomic) WaitingView *waitingView;
 @property (nonatomic, strong) NSTimer *mouseHideTimer;
 @property (retain,nonatomic) RadioSource *radioSource;
+@property (nonatomic, strong) UIView *radioView;
+@property (nonatomic, strong) UILabel *radioTitle;
+@property (nonatomic, strong) UITextView *radioInfo;
 
 @property int not_expected_version;
 

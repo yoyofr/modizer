@@ -23,6 +23,8 @@
 
 #define FX_FS_GUIMESSAGE_TIMEOUT 2
 
+#define UI_RADIO_INFO_HEIGHT 17+14*(2+1+1+5)
+
 #define POPUP_STYLE_INFO 0
 #define POPUP_STYLE_ALERT 1
 
@@ -2592,16 +2594,52 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     return 1; //NSOrderedDescending
 }
 
-- (void) showRadioPopup {
+- (void) updRadioInfo {
+    if (!bShowRadio) return;
+    NSString *title_str;
+    NSString *msg_str;
     if ([radioSource queueSize]>1) {
         NSString *nextEntry=[radioSource getQueueLabel:1];
-        NSString *histEntries=[radioSource getHistoryLabel:10];
-        NSString *msg_str=[NSString stringWithFormat:NSLocalizedString(@"Next up:\n%@\n\nPreviously:\n%@",@""),nextEntry,histEntries];
-        [self showAlertMsg:[NSString stringWithFormat:@"%@ - %@",NSLocalizedString(@"Radio mode",@""),[radioSource radioSourceName]] message:msg_str];
+        NSString *histEntries=[radioSource getHistoryLabel:50];
+        msg_str=[NSString stringWithFormat:NSLocalizedString(@"Next up: %@\n\nPreviously:\n%@",@""),nextEntry,histEntries];
+        title_str=[NSString stringWithFormat:@"%@ (%@)",NSLocalizedString(@"Radio mode",@""),[radioSource radioSourceName]];
     } else {
-        NSString *histEntries=[radioSource getHistoryLabel:10];
-        NSString *msg_str=[NSString stringWithFormat:NSLocalizedString(@"Next up:\nLoading...\n\nPreviously:\n%@",@""),histEntries];
-        [self showAlertMsg:[NSString stringWithFormat:@"%@ - %@",NSLocalizedString(@"Radio mode",@""),[radioSource radioSourceName]] message:msg_str];
+        NSString *histEntries=[radioSource getHistoryLabel:50];
+        msg_str=[NSString stringWithFormat:NSLocalizedString(@"Next up: Loading...\nPreviously:\n%@",@""),histEntries];
+        title_str=[NSString stringWithFormat:@"%@ (%@)",NSLocalizedString(@"Radio mode",@""),[radioSource radioSourceName]];
+    }
+    radioTitle.text=title_str;
+    radioInfo.text=msg_str;
+}
+- (void) showRadioPopup {
+    if (bShowRadio) {
+        [radioTitle removeFromSuperview];
+        [radioInfo removeFromSuperview];
+        [radioView removeFromSuperview];
+        bShowRadio=false;
+    } else {
+        radioView = [[UIView alloc] init];
+        radioView.frame=CGRectMake(mainView.frame.origin.x,m_oglView.frame.origin.y,mainView.frame.size.width,UI_RADIO_INFO_HEIGHT);
+        radioView.opaque=false;
+        radioView.backgroundColor=[UIColor colorWithWhite:0 alpha:0.7];
+        [self.view addSubview:radioView];
+        
+        radioTitle=[[UILabel alloc] initWithFrame:CGRectMake(0,0,radioView.frame.size.width,14)];
+        radioTitle.textColor=[UIColor whiteColor];
+        radioTitle.backgroundColor=[UIColor clearColor];
+        
+        radioTitle.font=[UIFont systemFontOfSize:17 weight:UIFontWeightMedium];
+        [radioView addSubview:radioTitle];
+        
+        radioInfo=[[UITextView alloc] initWithFrame:CGRectMake(0,14,radioView.frame.size.width,radioView.frame.size.height-14)];
+        radioInfo.textColor=[UIColor whiteColor];
+        radioInfo.backgroundColor=[UIColor clearColor];
+        radioInfo.font=[UIFont systemFontOfSize:14];
+        [radioView addSubview:radioInfo];
+        
+        bShowRadio=true;
+        
+        [self updRadioInfo];
     }
 }
 
@@ -3132,11 +3170,11 @@ int recording=0;
 }
 
 -(int)play_nextEntry {
-    
     if ([radioSource isActive]) {
         [radioSource moveNext];
         if ([radioSource isInLibrary:0]) [btnSaveFile setTitleColor:[UIColor grayColor] forState:UIControlStateNormal];
         else [btnSaveFile setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+        [self updRadioInfo];
         return 1;
     } else {
         
@@ -3192,6 +3230,8 @@ int recording=0;
     //if not radio mode, stop radio
     if (![(NSString*)[arrayFilepaths objectAtIndex:0] containsString:@"tmp/tmpRadio"]) {
         [radioSource stop];
+        
+        if (bShowRadio) [self showRadioPopup];
     }
     
     if ([array count]>=MAX_PL_ENTRIES) {
@@ -3254,6 +3294,7 @@ int recording=0;
     //if not radio mode, stop radio
     if (![pl->entries[0].fullpath containsString:@"tmp/tmpRadio"]) {
         [radioSource stop];
+        if (bShowRadio) [self showRadioPopup];
     }
     
     if (pl->nb_entries>=MAX_PL_ENTRIES) {
@@ -4651,6 +4692,7 @@ int recording=0;
                                           cover_viewAll.frame.size.width-2*cover_viewAll.frame.size.width/20,
                                           cover_viewAll.frame.size.height-2*cover_viewAll.frame.size.height/20);
             
+            if (bShowRadio) radioView.frame=CGRectMake(mainView.frame.origin.x,m_oglView.frame.origin.y,mainView.frame.size.width,UI_RADIO_INFO_HEIGHT);
         } else {
             if (mHasFocus) {
                 statusbarHidden=NO;
@@ -4688,6 +4730,8 @@ int recording=0;
                 oglButton.frame = CGRectMake(safe_left, 80, mDevice_ww-safe_left-safe_right, mDevice_hh-yofs-80-44-safe_bottom);
                 if (gifAnimation) gifAnimation.frame = CGRectMake(0, 0,cover_view.frame.size.width,cover_view.frame.size.height);
             }
+            
+            if (bShowRadio) radioView.frame=CGRectMake(mainView.frame.origin.x,m_oglView.frame.origin.y,mainView.frame.size.width,UI_RADIO_INFO_HEIGHT);
             
             cover_viewAll.frame = m_oglView.frame;//CGRectMake(0, 0, mDevice_ww, mDevice_hh-230+80+44-safe_bottom);
             
@@ -4771,7 +4815,7 @@ int recording=0;
                                           cover_viewAll.frame.size.width-2*cover_viewAll.frame.size.width/20,
                                           cover_viewAll.frame.size.height-2*cover_viewAll.frame.size.height/20);
             
-            
+            if (bShowRadio) radioView.frame=CGRectMake(mainView.frame.origin.x,m_oglView.frame.origin.y,mainView.frame.size.width,UI_RADIO_INFO_HEIGHT);
         } else {
             if (mHasFocus) {
                 statusbarHidden=NO;
@@ -4817,6 +4861,8 @@ int recording=0;
                 oglButton.frame = CGRectMake(0, 82, mDevice_hh-safe_left-safe_right, mDevice_ww-82-0*safe_bottom-yofs);
                 
             }
+            
+            if (bShowRadio) radioView.frame=CGRectMake(mainView.frame.origin.x,m_oglView.frame.origin.y,mainView.frame.size.width,UI_RADIO_INFO_HEIGHT);
             
             cover_viewAll.frame = m_oglView.frame;//CGRectMake(0.0, 0, mDevice_hh, mDevice_ww-82+82-safe_bottom-yofs);
             cover_view.frame = CGRectMake(cover_viewAll.frame.size.width/20,
@@ -6434,6 +6480,8 @@ void pm_perfTest() {
     
     radioSource = [[RadioSource alloc] init];
     radioSource.detailVC=self;
+    radioView=nil;
+    bShowRadio=false;
     
     //    [super viewDidLoad];
     END_PROFILE
@@ -6917,6 +6965,7 @@ void pm_perfTest() {
     if ([radioSource isActive]) {
         UIBarButtonItem *item = [[UIBarButtonItem alloc] initWithImage:[UIImage systemImageNamed:@"dot.radiowaves.up.forward"] style:UIBarButtonItemStylePlain target:self action:@selector(showRadioPopup)];
         self.navigationItem.rightBarButtonItem = item;
+        [self updRadioInfo];
     } else {
         UIBarButtonItem *item = [[UIBarButtonItem alloc] initWithImage:[UIImage systemImageNamed:@"music.note.list"] style:UIBarButtonItemStylePlain target:self action:@selector(showPlaylist)];
         self.navigationItem.rightBarButtonItem = item;

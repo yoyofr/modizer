@@ -13,6 +13,8 @@
 #define MAX_RS_HISTORY 1024
 #define MAX_RS_DUPLICATE_RETRY 1
 
+#define RS_MODLAND_PLAYABLE_FILE_MAX_TRIES 32 //maximum nb of tries to find a playable file / Modland DB
+
 #import "ModizerConstants.h"
 #import "ModizFileHelper.h"
 #import "RadioSource.h"
@@ -31,6 +33,7 @@ NS_ASSUME_NONNULL_BEGIN
 @synthesize mRadioSource,mPendingNewFileToPlay,mRadioSource_mode,mRetryCount,mRetryDuplCount;
 @synthesize detailVC,fetchDebounceTimer;
 @synthesize mActive,mFilesList,mFilesExistInLibrary,mSourceData,mHistory;
+@synthesize mURLSsession,mURLSessionQueue,mURLSessionConfig;
 
 - (instancetype)init {
     self = [super init];
@@ -47,6 +50,16 @@ NS_ASSUME_NONNULL_BEGIN
         mHistory = [NSMutableArray array];
         fetchDebounceTimer = nil;
         [self cleanFiles];
+        
+        mURLSessionConfig = [NSURLSessionConfiguration defaultSessionConfiguration];
+        mURLSessionConfig.HTTPMaximumConnectionsPerHost=1;
+        
+        mURLSessionQueue = [[NSOperationQueue alloc] init];
+        mURLSessionQueue.maxConcurrentOperationCount = 1; // Séquentiel
+        
+        mURLSsession = [NSURLSession sessionWithConfiguration:mURLSessionConfig
+                                                              delegate:self
+                                                         delegateQueue:mURLSessionQueue];
     }
     return self;
 }
@@ -59,24 +72,39 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)downloadFileFromURL:(NSString *)urlString rSource:(t_radioSource)rSource slot:(int)slot path:(NSString*)path {
     NSURL *url = [NSURL URLWithString:urlString];
     
-    NSURLSessionConfiguration *config = [NSURLSessionConfiguration defaultSessionConfiguration];
-    NSURLSession *session = [NSURLSession sessionWithConfiguration:config
-                                                          delegate:self
-                                                     delegateQueue:nil];
-    
-    NSURLSessionDownloadTask *downloadTask = [session downloadTaskWithURL:url
+    NSURLSessionDownloadTask *downloadTask = [mURLSsession downloadTaskWithURL:url
                                                         completionHandler:^(NSURL *location, NSURLResponse *response, NSError *error) {
+        // Cast la réponse en NSHTTPURLResponse pour accéder au statusCode
+        NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
+        
         if (error) {
-            MDZELog("Error downloading: %@", error.localizedDescription);
+            // Erreur réseau ou autre
+            MDZELog("Erreur de téléchargement: %@", error.localizedDescription);
             return;
         }
+        
+        if (httpResponse.statusCode == 404) {
+            MDZELog("Fichier non trouvé (404)");
+            // Traiter le cas 404
+//            mRetryDuplCount++;
+//            [self fetchNewFileFromSource:slot];
+            return;
+        }
+        
+        if (httpResponse.statusCode >= 400) {
+            MDZELog("Erreur HTTP: %ld", (long)httpResponse.statusCode);
+            // Traiter les autres erreurs HTTP
+            return;
+        }
+        
+        
         
         // Récupérer le nom de fichier suggéré par le serveur
         NSString *suggestedFilename = response.suggestedFilename;
         if (!suggestedFilename) {
             suggestedFilename = [url lastPathComponent];
         }
-                
+        
         NSString *collection=[self getSourceName:rSource];
         
         NSString *tmpName=[NSString stringWithFormat:@"%@/%@/%@",collection,path,suggestedFilename];
@@ -113,13 +141,13 @@ NS_ASSUME_NONNULL_BEGIN
                 //MDZELog("Fichier téléchargé: %@", destinationPath);
                 dispatch_async(dispatch_get_main_queue(), ^{
                     // Mise à jour UI si nécessaire
-                    if ((mPendingNewFileToPlay==1)&&(slot==0)) [self startNextEntry];
+                    if ((mPendingNewFileToPlay==1)&&(slot==0)&&[ModizFileHelper isPlayableFile:destinationPath]) [self startNextEntry];
                 });
                 
             }
         } else {
             mRetryDuplCount++;
-            [self getNewAMPFile:slot];
+            [self fetchNewFileFromSource:slot];
         }
     }];
     
@@ -191,7 +219,6 @@ NS_ASSUME_NONNULL_BEGIN
 -(void)getNewASMAFile:(int)slot {
     NSFileManager *mFileMngr=[[NSFileManager alloc] init];
     NSError *err;
-    NSString *fileURL;
     
     //clean slot
     NSString *localPath=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/tmp/tmpRadio/%d/",slot];
@@ -200,21 +227,13 @@ NS_ASSUME_NONNULL_BEGIN
     [mFileMngr createDirectoryAtPath:localPath withIntermediateDirectories:TRUE attributes:nil error:&err];
     [ModizFileHelper addSkipBackupAttributeToItemAtPath:localPath];
     
-    //get URL
-    //if ( (mRadioSource_mode==2)||(mRadioSource_mode==3)||(mRadioSource_mode==4) ) {
-    //files & folders
     int idx=arc4random_uniform((int)[mSourceData count]);
     NSString *str=[mSourceData objectAtIndex:idx];
     if ([[str substringToIndex:2] isEqualToString:@"f:"]) {
         //file
         str=[str substringFromIndex:2+1];
-        //            MDZILog("slot %d got file %@",slot,str);
-        
         NSString *localPath=[NSString stringWithFormat:@"%@/tmp/tmpRadio/%d/%@/%@",[ModizFileHelper getAppHomeDirectory],slot,ASMA_BASEDIR,str];
-        //            MDZILog("localPath %@",localPath);
-        
         NSString *asma_url=[NSString stringWithFormat:@"%s/%@",settings[ONLINE_ASMA_CURRENT_URL].detail.mdz_msgbox.text,str ];
-        //            MDZILog("asma url %@",asma_url);
         
         [mFileMngr createDirectoryAtPath:[localPath stringByDeletingLastPathComponent] withIntermediateDirectories:TRUE attributes:nil error:&err];
         
@@ -223,7 +242,6 @@ NS_ASSUME_NONNULL_BEGIN
         //folder
         str=[str substringFromIndex:2];
         NSArray *tmp_arr=[str componentsSeparatedByString:@"/"];
-        MDZILog("slot %d got folder %@",slot,str);
         
         NSMutableArray *entries=nil;
         switch ([tmp_arr count]) {
@@ -238,22 +256,15 @@ NS_ASSUME_NONNULL_BEGIN
                 break;
         }
         
-        if (entries)
-        {
-            MDZILog("got %d entries from DB",(int)[entries count]/2);
-            
+        if (entries) {
             int fileIdx=arc4random_uniform((int)[entries count]/2);
             
             NSString *filename=[entries objectAtIndex:fileIdx*2];
             NSString *fullpath=[entries objectAtIndex:fileIdx*2+1];
             
-            MDZILog("got %@ %@",filename,fullpath);
-            
             NSString *localPath=[NSString stringWithFormat:@"%@/tmp/tmpRadio/%d/%@%@",[ModizFileHelper getAppHomeDirectory],slot,ASMA_BASEDIR,fullpath];
-            MDZILog("localPath %@",localPath);
             
             NSString *asma_url=[NSString stringWithFormat:@"%s%@",settings[ONLINE_ASMA_CURRENT_URL].detail.mdz_msgbox.text,fullpath];
-            MDZILog("asma url %@",asma_url);
             
             [mFileMngr createDirectoryAtPath:[localPath stringByDeletingLastPathComponent] withIntermediateDirectories:TRUE attributes:nil error:&err];
             
@@ -262,8 +273,488 @@ NS_ASSUME_NONNULL_BEGIN
             MDZILog("no entries from DB!");
         }
     }
+}
+
+-(NSMutableArray*) getCGSC_DBEntries:(NSString*)dir1 dir2:(NSString* __nullable)dir2 {
+    NSString *pathToDB=[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:DATABASENAME_MAIN];
+    sqlite3 *db;
+    NSMutableArray *entries_arr=nil;
+    int dbCGSC_nb_entries;
     
-    //    }
+    dbCGSC_nb_entries=0;
+    
+    pthread_mutex_lock(&db_mutex);
+    if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
+        char sqlStatement[1024];
+        sqlite3_stmt *stmt;
+        int err;
+        NSString *whereClause;
+        //Build where clause
+        whereClause=[NSString stringWithFormat:@"WHERE dir1=\"%@\"",dir1];
+        if (dir2!=nil) {
+            whereClause=[whereClause stringByAppendingFormat:@" AND dir2=\"%@\"",dir2];
+        }
+        
+        err=sqlite3_exec(db, "PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        if (err==SQLITE_OK){
+        } else MDZELog("ErrSQL : %d",err);
+        
+        //count how many entries we'll have
+        snprintf(sqlStatement,1024,"SELECT COUNT(filename) FROM cgsc_file %s",[whereClause UTF8String]);
+        
+        err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+        if (err==SQLITE_OK){
+            while (sqlite3_step(stmt) == SQLITE_ROW) {
+                dbCGSC_nb_entries+=sqlite3_column_int(stmt, 0);
+            }
+            sqlite3_finalize(stmt);
+        } else MDZELog("ErrSQL : %d",err);
+        
+        if (dbCGSC_nb_entries) {
+            entries_arr=[NSMutableArray array];
+            
+            snprintf(sqlStatement,1024,"SELECT filename,fullpath,id_md5 FROM cgsc_file %s",[whereClause UTF8String]);
+            
+            err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+            if (err==SQLITE_OK){
+                while (sqlite3_step(stmt) == SQLITE_ROW) {
+                    char *str=(char*)sqlite3_column_text(stmt, 0);
+                    [entries_arr addObject:[NSString stringWithUTF8String:str]];
+                    str=(char*)sqlite3_column_text(stmt, 1);
+                    [entries_arr addObject:[NSString stringWithUTF8String:str]];
+                }
+                sqlite3_finalize(stmt);
+            } else MDZELog("ErrSQL : %d",err);
+        }
+    };
+    sqlite3_close(db);
+    pthread_mutex_unlock(&db_mutex);
+    
+    return entries_arr;
+}
+
+
+-(void)getNewCGSCFile:(int)slot {
+    NSFileManager *mFileMngr=[[NSFileManager alloc] init];
+    NSError *err;
+    NSString *cgsc_url=nil;
+    NSString *localPath=nil;
+    NSString *fullpath;
+    
+    //clean slot
+    localPath=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/tmp/tmpRadio/%d/",slot];
+    [mFileMngr removeItemAtPath:localPath error:&err];
+    //create tmp dir
+    [mFileMngr createDirectoryAtPath:localPath withIntermediateDirectories:TRUE attributes:nil error:&err];
+    [ModizFileHelper addSkipBackupAttributeToItemAtPath:localPath];
+    
+    int idx=arc4random_uniform((int)[mSourceData count]);
+    NSString *str=[mSourceData objectAtIndex:idx];
+    if ([[str substringToIndex:2] isEqualToString:@"f:"]) {
+        //file
+        str=[str substringFromIndex:2+1];
+        localPath=[NSString stringWithFormat:@"%@/tmp/tmpRadio/%d/%@/%@",[ModizFileHelper getAppHomeDirectory],slot,CGSC_BASEDIR,str];
+        cgsc_url=[NSString stringWithFormat:@"%s/%@",settings[ONLINE_CGSC_CURRENT_URL].detail.mdz_msgbox.text,str ];
+        
+        [mFileMngr createDirectoryAtPath:[localPath stringByDeletingLastPathComponent] withIntermediateDirectories:TRUE attributes:nil error:&err];
+        
+        fullpath=[NSString stringWithString:str];
+    } else {
+        //folder
+        str=[str substringFromIndex:2];
+        NSArray *tmp_arr=[str componentsSeparatedByString:@"/"];
+        
+        NSMutableArray *entries=nil;
+        switch ([tmp_arr count]) {
+            case 1:
+                entries=[self getCGSC_DBEntries:tmp_arr[0] dir2:nil];
+                break;
+            case 2:
+                entries=[self getCGSC_DBEntries:tmp_arr[0] dir2:tmp_arr[1]];
+                break;
+        }
+        
+        if (entries) {
+            int fileIdx=arc4random_uniform((int)[entries count]/2);
+            
+            NSString *fullpath=[entries objectAtIndex:fileIdx*2+1];
+            
+            localPath=[NSString stringWithFormat:@"%@/tmp/tmpRadio/%d/%@%@",[ModizFileHelper getAppHomeDirectory],slot,CGSC_BASEDIR,fullpath];
+            
+            cgsc_url=[NSString stringWithFormat:@"%s%@",settings[ONLINE_CGSC_CURRENT_URL].detail.mdz_msgbox.text,fullpath];
+            
+            [mFileMngr createDirectoryAtPath:[localPath stringByDeletingLastPathComponent] withIntermediateDirectories:TRUE attributes:nil error:&err];
+        }
+    }
+    
+    if (cgsc_url) {
+        [self downloadFileFromURL:cgsc_url rSource:RS_COLLECTION_CGSC slot:slot path:[fullpath stringByDeletingLastPathComponent]];
+        
+        NSMutableArray *addDataURL=[NSMutableArray array];
+        NSMutableArray *addDataLocalPath=[NSMutableArray array];
+        
+        [addDataURL addObject:[[cgsc_url stringByDeletingPathExtension] stringByAppendingString:@".str"]];
+        [addDataLocalPath addObject:[[fullpath stringByDeletingPathExtension] stringByAppendingString:@".str"]];
+        [addDataURL addObject:[[cgsc_url stringByDeletingPathExtension] stringByAppendingString:@".wds"]];
+        [addDataLocalPath addObject:[[fullpath stringByDeletingPathExtension] stringByAppendingString:@".wds"]];
+        [addDataURL addObject:[[cgsc_url stringByDeletingPathExtension] stringByAppendingString:@".pic"]];
+        [addDataLocalPath addObject:[[fullpath stringByDeletingPathExtension] stringByAppendingString:@".pic"]];
+        [addDataURL addObject:[[cgsc_url stringByDeletingPathExtension] stringByAppendingString:@".pgg"]];
+        [addDataLocalPath addObject:[[fullpath stringByDeletingPathExtension] stringByAppendingString:@".pgg"]];
+        [addDataURL addObject:[[cgsc_url stringByDeletingPathExtension] stringByAppendingString:@".pjj"]];
+        [addDataLocalPath addObject:[[fullpath stringByDeletingPathExtension] stringByAppendingString:@".pjj"]];
+        
+        for (int i=0;i<[addDataURL count];i++) {
+            [self downloadFileFromURL:[addDataURL objectAtIndex:i] rSource:RS_COLLECTION_CGSC slot:slot path:[[addDataLocalPath objectAtIndex:i] stringByDeletingLastPathComponent]];
+        }
+        
+    } else {
+        MDZILog("no entries from DB!");
+    }
+}
+
+-(NSMutableArray*) getHVSC_DBEntries:(NSString*)dir1 dir2:(NSString* __nullable)dir2 dir3:(NSString* __nullable)dir3 dir4:(NSString* __nullable)dir4 dir5:(NSString* __nullable)dir5 {
+    NSString *pathToDB=[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:DATABASENAME_MAIN];
+    sqlite3 *db;
+    NSMutableArray *entries_arr=nil;
+    int dbHVSC_nb_entries;
+    
+    dbHVSC_nb_entries=0;
+    
+    pthread_mutex_lock(&db_mutex);
+    if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
+        char sqlStatement[1024];
+        sqlite3_stmt *stmt;
+        int err;
+        NSString *whereClause;
+        //Build where clause
+        whereClause=[NSString stringWithFormat:@"WHERE dir1=\"%@\"",dir1];
+        if (dir2!=nil) {
+            whereClause=[whereClause stringByAppendingFormat:@" AND dir2=\"%@\"",dir2];
+        }
+        if (dir3!=nil) {
+            whereClause=[whereClause stringByAppendingFormat:@" AND dir3=\"%@\"",dir3];
+        }
+        if (dir4!=nil) {
+            whereClause=[whereClause stringByAppendingFormat:@" AND dir4=\"%@\"",dir4];
+        }
+        if (dir5!=nil) {
+            whereClause=[whereClause stringByAppendingFormat:@" AND dir5=\"%@\"",dir5];
+        }
+        
+        err=sqlite3_exec(db, "PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        if (err==SQLITE_OK){
+        } else MDZELog("ErrSQL : %d",err);
+        
+        //count how many entries we'll have
+        snprintf(sqlStatement,1024,"SELECT COUNT(filename) FROM hvsc_file %s",[whereClause UTF8String]);
+        
+        err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+        if (err==SQLITE_OK){
+            while (sqlite3_step(stmt) == SQLITE_ROW) {
+                dbHVSC_nb_entries+=sqlite3_column_int(stmt, 0);
+            }
+            sqlite3_finalize(stmt);
+        } else MDZELog("ErrSQL : %d",err);
+        
+        if (dbHVSC_nb_entries) {
+            entries_arr=[NSMutableArray array];
+            
+            snprintf(sqlStatement,1024,"SELECT filename,fullpath,id_md5 FROM hvsc_file %s",[whereClause UTF8String]);
+            
+            err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+            if (err==SQLITE_OK){
+                while (sqlite3_step(stmt) == SQLITE_ROW) {
+                    char *str=(char*)sqlite3_column_text(stmt, 0);
+                    [entries_arr addObject:[NSString stringWithUTF8String:str]];
+                    str=(char*)sqlite3_column_text(stmt, 1);
+                    [entries_arr addObject:[NSString stringWithUTF8String:str]];
+                }
+                sqlite3_finalize(stmt);
+            } else MDZELog("ErrSQL : %d",err);
+        }
+    };
+    sqlite3_close(db);
+    pthread_mutex_unlock(&db_mutex);
+    
+    return entries_arr;
+}
+
+
+-(void)getNewHVSCFile:(int)slot {
+    NSFileManager *mFileMngr=[[NSFileManager alloc] init];
+    NSError *err;
+    
+    //clean slot
+    NSString *localPath=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/tmp/tmpRadio/%d/",slot];
+    [mFileMngr removeItemAtPath:localPath error:&err];
+    //create tmp dir
+    [mFileMngr createDirectoryAtPath:localPath withIntermediateDirectories:TRUE attributes:nil error:&err];
+    [ModizFileHelper addSkipBackupAttributeToItemAtPath:localPath];
+    
+    int idx=arc4random_uniform((int)[mSourceData count]);
+    NSString *str=[mSourceData objectAtIndex:idx];
+    if ([[str substringToIndex:2] isEqualToString:@"f:"]) {
+        //file
+        str=[str substringFromIndex:2+1];
+        NSString *localPath=[NSString stringWithFormat:@"%@/tmp/tmpRadio/%d/%@/%@",[ModizFileHelper getAppHomeDirectory],slot,HVSC_BASEDIR,str];
+        NSString *hvsc_url=[NSString stringWithFormat:@"%s/%@",settings[ONLINE_HVSC_CURRENT_URL].detail.mdz_msgbox.text,str ];
+        
+        [mFileMngr createDirectoryAtPath:[localPath stringByDeletingLastPathComponent] withIntermediateDirectories:TRUE attributes:nil error:&err];
+        
+        [self downloadFileFromURL:hvsc_url rSource:RS_COLLECTION_HVSC slot:slot path:[str stringByDeletingLastPathComponent]];
+    } else {
+        //folder
+        str=[str substringFromIndex:2];
+        NSArray *tmp_arr=[str componentsSeparatedByString:@"/"];
+        
+        NSMutableArray *entries=nil;
+        switch ([tmp_arr count]) {
+            case 1:
+                entries=[self getHVSC_DBEntries:tmp_arr[0] dir2:nil dir3:nil dir4:nil dir5:nil];
+                break;
+            case 2:
+                entries=[self getHVSC_DBEntries:tmp_arr[0] dir2:tmp_arr[1] dir3:nil dir4:nil dir5:nil];
+                break;
+            case 3:
+                entries=[self getHVSC_DBEntries:tmp_arr[0] dir2:tmp_arr[1] dir3:tmp_arr[2] dir4:nil dir5:nil];
+                break;
+            case 4:
+                entries=[self getHVSC_DBEntries:tmp_arr[0] dir2:tmp_arr[1] dir3:tmp_arr[2] dir4:tmp_arr[3] dir5:nil];
+                break;
+            case 5:
+                entries=[self getHVSC_DBEntries:tmp_arr[0] dir2:tmp_arr[1] dir3:tmp_arr[2] dir4:tmp_arr[3] dir5:tmp_arr[3]];
+                break;
+        }
+        
+        if (entries) {
+            int fileIdx=arc4random_uniform((int)[entries count]/2);
+            
+            NSString *fullpath=[entries objectAtIndex:fileIdx*2+1];
+            
+            NSString *localPath=[NSString stringWithFormat:@"%@/tmp/tmpRadio/%d/%@%@",[ModizFileHelper getAppHomeDirectory],slot,HVSC_BASEDIR,fullpath];
+            
+            NSString *hvsc_url=[NSString stringWithFormat:@"%s%@",settings[ONLINE_HVSC_CURRENT_URL].detail.mdz_msgbox.text,fullpath];
+            
+            [mFileMngr createDirectoryAtPath:[localPath stringByDeletingLastPathComponent] withIntermediateDirectories:TRUE attributes:nil error:&err];
+            
+            [self downloadFileFromURL:hvsc_url rSource:RS_COLLECTION_HVSC slot:slot path:[fullpath stringByDeletingLastPathComponent]];
+        } else {
+            MDZILog("no entries from DB!");
+        }
+    }
+}
+
+-(NSString*) getMODLAND_localPath:(int)id_mod {
+    NSString *pathToDB=[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:DATABASENAME_MAIN];
+    sqlite3 *db;
+    NSString *fullpath=nil;
+    
+    pthread_mutex_lock(&db_mutex);
+    
+    if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
+        char sqlStatement[1024];
+        sqlite3_stmt *stmt;
+        int err;
+        
+        err=sqlite3_exec(db, "PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        if (err==SQLITE_OK){
+        } else MDZELog("ErrSQL : %d",err);
+        
+        
+        snprintf(sqlStatement,1024,"select fullpath from mod_file where id=%d",id_mod);
+        err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+        if (err==SQLITE_OK){
+            while (sqlite3_step(stmt) == SQLITE_ROW) {
+                fullpath=[NSString stringWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
+            }
+            sqlite3_finalize(stmt);
+        } else MDZELog("ErrSQL : %d",err);
+    }
+    
+    sqlite3_close(db);
+    pthread_mutex_unlock(&db_mutex);
+    return fullpath;
+}
+
+-(int) getMODLAND_MaxModID {
+    NSString *pathToDB=[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:DATABASENAME_MAIN];
+    sqlite3 *db;
+    int dbMODLAND_max_id;
+    
+    dbMODLAND_max_id=-1;
+    
+    pthread_mutex_lock(&db_mutex);
+    if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
+        char sqlStatement[1024];
+        sqlite3_stmt *stmt;
+        int err;
+        //Build where clause
+        
+        err=sqlite3_exec(db, "PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        if (err==SQLITE_OK){
+        } else MDZELog("ErrSQL : %d",err);
+        
+        //count how many entries we'll have
+        snprintf(sqlStatement,1024,"SELECT max(id) FROM mod_file");
+        
+        err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+        if (err==SQLITE_OK){
+            while (sqlite3_step(stmt) == SQLITE_ROW) {
+                dbMODLAND_max_id=sqlite3_column_int(stmt, 0);
+            }
+            sqlite3_finalize(stmt);
+        } else MDZELog("ErrSQL : %d",err);
+        
+    };
+    sqlite3_close(db);
+    pthread_mutex_unlock(&db_mutex);
+    
+    return dbMODLAND_max_id;
+}
+
+-(NSMutableArray*) getMODLAND_DBEntries:(int)id_type id_author:(int)id_author id_album:(int)id_album  {
+    NSString *pathToDB=[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:DATABASENAME_MAIN];
+    sqlite3 *db;
+    NSMutableArray *entries_arr=nil;
+    int dbASMA_nb_entries;
+    
+    dbASMA_nb_entries=0;
+    
+    pthread_mutex_lock(&db_mutex);
+    if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
+        char sqlStatement[1024];
+        sqlite3_stmt *stmt;
+        int err;
+        NSString *whereClause=nil;
+        //Build where clause
+        
+        if (id_type>=0) {
+            if (whereClause) whereClause=[whereClause stringByAppendingFormat:@" AND id_type=%d",id_type];
+            else whereClause=[NSString stringWithFormat:@"WHERE id_type=%d",id_type];
+        }
+        if (id_author>=0) {
+            if (whereClause) whereClause=[whereClause stringByAppendingFormat:@" AND id_author=%d",id_author];
+            else whereClause=[NSString stringWithFormat:@"WHERE id_author=%d",id_author];
+        }
+        if (id_album>=0) {
+            if (whereClause) whereClause=[whereClause stringByAppendingFormat:@" AND id_album=%d",id_album];
+            else whereClause=[NSString stringWithFormat:@"WHERE id_album=%d",id_album];
+        }
+        
+        err=sqlite3_exec(db, "PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
+        if (err==SQLITE_OK){
+        } else MDZELog("ErrSQL : %d",err);
+        
+        //count how many entries we'll have
+        snprintf(sqlStatement,1024,"SELECT COUNT(id) FROM mod_file %s",[whereClause UTF8String]);
+        
+        err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+        if (err==SQLITE_OK){
+            while (sqlite3_step(stmt) == SQLITE_ROW) {
+                dbASMA_nb_entries+=sqlite3_column_int(stmt, 0);
+            }
+            sqlite3_finalize(stmt);
+        } else MDZELog("ErrSQL : %d",err);
+        
+        if (dbASMA_nb_entries) {
+            entries_arr=[NSMutableArray array];
+            
+            snprintf(sqlStatement,1024,"SELECT id FROM mod_file %s",[whereClause UTF8String]);
+            
+            err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+            if (err==SQLITE_OK){
+                while (sqlite3_step(stmt) == SQLITE_ROW) {
+                    int id_mod=sqlite3_column_int(stmt,0);
+                    [entries_arr addObject:[NSNumber numberWithInt:id_mod]];
+                }
+                sqlite3_finalize(stmt);
+            } else MDZELog("ErrSQL : %d",err);
+        }
+    };
+    sqlite3_close(db);
+    pthread_mutex_unlock(&db_mutex);
+    
+    return entries_arr;
+}
+
+
+-(void)getNewMODLANDFile:(int)slot {
+    NSFileManager *mFileMngr=[[NSFileManager alloc] init];
+    NSError *err;
+    NSString *str;
+    NSString *localPath;
+    NSString *modland_url;
+    
+    //clean slot
+    localPath=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/tmp/tmpRadio/%d/",slot];
+    [mFileMngr removeItemAtPath:localPath error:&err];
+    //create tmp dir
+    [mFileMngr createDirectoryAtPath:localPath withIntermediateDirectories:TRUE attributes:nil error:&err];
+    [ModizFileHelper addSkipBackupAttributeToItemAtPath:localPath];
+    
+    int id_mod=-1;
+    if ([mSourceData count]>0) {
+        int idx=arc4random_uniform((int)[mSourceData count]);
+        str=[mSourceData objectAtIndex:idx];
+        if ([[str substringToIndex:2] isEqualToString:@"f:"]) {
+            //file
+            str=[str substringFromIndex:2];
+            
+            id_mod=atoi([str UTF8String]);
+        } else {
+            //folder
+            str=[str substringFromIndex:2];
+            NSArray *tmp_arr=[str componentsSeparatedByString:@"/"];
+            
+            NSMutableArray *entries=nil;
+            entries=[self getMODLAND_DBEntries:atoi([tmp_arr[0] UTF8String]) id_author:atoi([tmp_arr[1] UTF8String]) id_album:atoi([tmp_arr[2] UTF8String])];
+            
+            if (entries) {
+                int fileIdx=arc4random_uniform((int)[entries count]);
+
+                int max_tries=RS_MODLAND_PLAYABLE_FILE_MAX_TRIES;
+                while (max_tries) {
+                    id_mod=[[entries objectAtIndex:fileIdx] intValue];
+                    str=[self getMODLAND_localPath:id_mod];
+                    if ([ModizFileHelper isPlayableFile:str]) break;
+                    max_tries--;
+                }
+            }
+        }
+    } else {
+        int max_mod_id=[self getMODLAND_MaxModID];
+        int max_tries=RS_MODLAND_PLAYABLE_FILE_MAX_TRIES;
+        while (max_tries) {
+            id_mod=arc4random_uniform(max_mod_id)+1;
+            str=[self getMODLAND_localPath:id_mod];
+            if ([ModizFileHelper isPlayableFile:str]) break;
+            max_tries--;
+        }
+    }
+    if (id_mod>=0) {
+        str=[self getMODLAND_localPath:id_mod];
+        MDZILog("str %@",str);
+        NSArray *addFiles=[ModizFileHelper getAdditionalMODLANDRequiredFiles:str];
+        for (NSString *addFile in addFiles) {
+            MDZILog("2download: %@",addFile);
+        
+            localPath=[NSString stringWithFormat:@"%@/tmp/tmpRadio/%d/%@/%@",[ModizFileHelper getAppHomeDirectory],slot,MODLAND_BASEDIR,addFile];
+            modland_url=[NSString stringWithFormat:@"%s/pub/modules/%@",settings[ONLINE_MODLAND_CURRENT_URL].detail.mdz_msgbox.text,addFile ];
+            [mFileMngr createDirectoryAtPath:[localPath stringByDeletingLastPathComponent] withIntermediateDirectories:TRUE attributes:nil error:&err];
+            [self downloadFileFromURL:modland_url rSource:RS_COLLECTION_MODLAND slot:slot path:[addFile stringByDeletingLastPathComponent]];
+        }
+        //main file to download
+        localPath=[NSString stringWithFormat:@"%@/tmp/tmpRadio/%d/%@/%@",[ModizFileHelper getAppHomeDirectory],slot,MODLAND_BASEDIR,str];
+        modland_url=[NSString stringWithFormat:@"%s/pub/modules/%@",settings[ONLINE_MODLAND_CURRENT_URL].detail.mdz_msgbox.text,str ];
+        
+        [mFileMngr createDirectoryAtPath:[localPath stringByDeletingLastPathComponent] withIntermediateDirectories:TRUE attributes:nil error:&err];
+        
+//        MDZILog("download: %@",modland_url);
+        [self downloadFileFromURL:modland_url rSource:RS_COLLECTION_MODLAND slot:slot path:[str stringByDeletingLastPathComponent]];
+    } else {
+        MDZILog("no entries from DB!");
+    }
 }
 
 
@@ -559,6 +1050,15 @@ NS_ASSUME_NONNULL_BEGIN
         case RS_COLLECTION_ASMA:
             [self getNewASMAFile:slot];
             break;
+        case RS_COLLECTION_CGSC:
+            [self getNewCGSCFile:slot];
+            break;
+        case RS_COLLECTION_HVSC:
+            [self getNewHVSCFile:slot];
+            break;
+        case RS_COLLECTION_MODLAND:
+            [self getNewMODLANDFile:slot];
+            break;
         default:
             break;
     }
@@ -727,13 +1227,25 @@ NS_ASSUME_NONNULL_BEGIN
     if ([mFilesList count]>=slot) {
         result=[mFilesList objectAtIndex:slot];
         NSArray *arr=[result componentsSeparatedByString:@"/"];
+        int arr_count=(int)[arr count];
         if (mRadioSource==RS_COLLECTION_AMP) {
-            if ([arr count]>=4) result=[NSString stringWithFormat:@"%@ by %@ - %@",[arr[3] stringByDeletingPathExtension],arr[2],arr[1]];
-            else result=[NSString stringWithFormat:@"%@ - %@",[[arr lastObject] stringByDeletingPathExtension],arr[0]];
+            if (arr_count>=4) result=[NSString stringWithFormat:@"%@ by %@ - %@",[arr[arr_count-1] stringByDeletingPathExtension],arr[arr_count-2],arr[1]];
+            else result=[NSString stringWithFormat:@"%@ - %@",[[arr lastObject] stringByDeletingPathExtension],arr[1]];
         }
         if (mRadioSource==RS_COLLECTION_ASMA) {
-            if ([arr count]>=4) result=[NSString stringWithFormat:@"%@ by %@ - %@",[arr[3] stringByDeletingPathExtension],arr[2],arr[1]];
-            else result=[NSString stringWithFormat:@"%@ - %@",[[arr lastObject] stringByDeletingPathExtension],arr[0]];
+            if ((arr_count>=4)&&([[arr objectAtIndex:2] isEqualToString:@"Composers"])) result=[NSString stringWithFormat:@"%@ by %@ - %@",[arr[arr_count-1] stringByDeletingPathExtension],arr[3],arr[1]];
+            else if ((arr_count>=4)&&([[arr objectAtIndex:2] isEqualToString:@"Groups"])) result=[NSString stringWithFormat:@"%@ by %@ - %@",[arr[arr_count-1] stringByDeletingPathExtension],arr[3],arr[1]];
+            else result=[NSString stringWithFormat:@"%@ - %@",[[arr lastObject] stringByDeletingPathExtension],arr[1]];
+        }
+        if (mRadioSource==RS_COLLECTION_CGSC) {
+            result=[NSString stringWithFormat:@"%@ by %@ - %@",[arr[arr_count-1] stringByDeletingPathExtension],arr[2],arr[1]];
+        }
+        if (mRadioSource==RS_COLLECTION_HVSC) {
+            if ((arr_count>=4)&&([[arr objectAtIndex:2] isEqualToString:@"MUSICIANS"])) result=[NSString stringWithFormat:@"%@ by %@ - %@",[arr[arr_count-1] stringByDeletingPathExtension],arr[4],arr[1]];
+            else result=[NSString stringWithFormat:@"%@ - %@",[[arr lastObject] stringByDeletingPathExtension],arr[1]];
+        }
+        if (mRadioSource==RS_COLLECTION_MODLAND) {
+            result=[NSString stringWithFormat:@"%@ by %@ - %@",[arr[arr_count-1] stringByDeletingPathExtension],arr[3],arr[1]];
         }
     }
     return result;
@@ -747,13 +1259,25 @@ NS_ASSUME_NONNULL_BEGIN
     
     for (int i=0;i<depth;i++) {
         NSArray *arr=[mHistory[i] componentsSeparatedByString:@"/"];
+        int arr_count=(int)[arr count];
         if (mRadioSource==RS_COLLECTION_AMP) {
-            if ([arr count]>=3) result=[result stringByAppendingFormat:@"%@ by %@ - %@\n",[arr[2] stringByDeletingPathExtension],arr[1],arr[0]];
+            if (arr_count>=3) result=[result stringByAppendingFormat:@"%@ by %@ - %@\n",[arr[arr_count-1] stringByDeletingPathExtension],arr[1],arr[0]];
             else result=[result stringByAppendingFormat:@"%@\n",[[arr lastObject] stringByDeletingPathExtension]];
         }
         if (mRadioSource==RS_COLLECTION_ASMA) {
-            if ([arr count]>=3) result=[result stringByAppendingFormat:@"%@ by %@ - %@\n",[arr[2] stringByDeletingPathExtension],arr[1],arr[0]];
+            if ((arr_count>=3)&&([[arr objectAtIndex:1] isEqualToString:@"Composers"])) result=[result stringByAppendingFormat:@"%@ by %@ - %@\n",[arr[arr_count-1] stringByDeletingPathExtension],arr[2],arr[0]];
+            else if ((arr_count>=3)&&([[arr objectAtIndex:1] isEqualToString:@"Groups"])) result=[result stringByAppendingFormat:@"%@ by %@ - %@\n",[arr[arr_count-1] stringByDeletingPathExtension],arr[2],arr[0]];
             else result=[result stringByAppendingFormat:@"%@ - %@\n",[[arr lastObject] stringByDeletingPathExtension],arr[0]];
+        }
+        if (mRadioSource==RS_COLLECTION_CGSC) {
+            result=[result stringByAppendingFormat:@"%@ by %@ - %@\n",[arr[arr_count-1] stringByDeletingPathExtension],arr[1],arr[0]];
+        }
+        if (mRadioSource==RS_COLLECTION_HVSC) {
+            if ((arr_count>=3)&&([[arr objectAtIndex:1] isEqualToString:@"MUSICIANS"])) result=[result stringByAppendingFormat:@"%@ by %@ - %@\n",[arr[arr_count-1] stringByDeletingPathExtension],arr[3],arr[0]];
+            else result=[result stringByAppendingFormat:@"%@ - %@\n",[[arr lastObject] stringByDeletingPathExtension],arr[0]];
+        }
+        if (mRadioSource==RS_COLLECTION_MODLAND) {
+            result=[result stringByAppendingFormat:@"%@ by %@ - %@\n",[arr[arr_count-1] stringByDeletingPathExtension],arr[2],arr[0]];
         }
     }
     return result;
@@ -765,7 +1289,8 @@ NS_ASSUME_NONNULL_BEGIN
     [self scanForPlayableFiles];
     if ([mFilesList count]>=slot) {
         NSString *relativePath=[mFilesList objectAtIndex:slot];
-        if (mRadioSource==RS_COLLECTION_AMP) {
+        if ( (mRadioSource==RS_COLLECTION_AMP) || (mRadioSource==RS_COLLECTION_ASMA) ||
+             (mRadioSource==RS_COLLECTION_CGSC) || (mRadioSource==RS_COLLECTION_HVSC) ) {
             NSFileManager *fileManager = [[NSFileManager alloc] init];
             NSError *error=nil;
             NSString *fromPath = [[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/tmp/tmpRadio/%@",relativePath];

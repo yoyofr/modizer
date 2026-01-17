@@ -11,6 +11,7 @@ extern bool icloud_available;
 
 
 #import "ModizFileHelper.h"
+#import "DBHelper.h"
 
 #include <sys/sysctl.h>
 #include <sys/xattr.h>
@@ -1264,6 +1265,81 @@ extern bool icloud_available;
     if (found_arc) *arcidx_ptr=arc_index;
     if (found_sub) *subsong_ptr=sub_index;
     return filePathTmp;
+}
+
++(NSArray*) getAdditionalMODLANDRequiredFiles:(NSString*)filePath {
+    NSMutableArray *addFiles=[NSMutableArray array];
+    NSString *fileName=[filePath lastPathComponent];
+    NSString *addFile;
+    //if TFMX-ST, change name from mdat to mdst
+    if ([filePath localizedCaseInsensitiveContainsString:@".mdat"]) {
+        if ([filePath localizedCaseInsensitiveContainsString:@"TFMX ST"]) {
+            //if TFMX st, no smpl to load
+        } else {
+            addFile=[filePath stringByReplacingOccurrencesOfString:@".mdat" withString:@".smpl"];
+            [addFiles addObject:addFile];
+        }
+    }
+    if ([filePath localizedCaseInsensitiveContainsString:@"mdat."]) {
+        if ([filePath localizedCaseInsensitiveContainsString:@"TFMX ST"]) {
+            //if TFMX st, no smpl to load
+        } else {
+            addFile=[filePath stringByReplacingOccurrencesOfString:@"mdat." withString:@"smpl."];
+            [addFiles addObject:addFile];
+        }
+    }
+    //2/SCI => if .sci the .003 patch file should be downloaded as well
+    if ([filePath localizedCaseInsensitiveContainsString:@".sci"]) {
+        addFile=[NSString stringWithFormat:@"%@/%@patch.003",[filePath stringByDeletingLastPathComponent],[fileName substringToIndex:3]];
+        [addFiles addObject:addFile];
+    }
+    //3/KH => if .kh the songplay file should be downloaded as well
+    if ([filePath localizedCaseInsensitiveContainsString:@".kh"]) {
+        addFile=[NSString stringWithFormat:@"%@/songplay",[filePath stringByDeletingLastPathComponent]];
+        [addFiles addObject:addFile];
+    }
+    //4/ Adlib tracker => if sng, ins should be downloaded too
+    if ([filePath localizedCaseInsensitiveContainsString:@".sng"]) {
+        addFile=[filePath stringByReplacingOccurrencesOfString:@".sng" withString:@".ins"];
+        [addFiles addObject:addFile];
+    }
+    //5/ Stereo sid file -> .mus and .str should go be paired
+    if ([filePath localizedCaseInsensitiveContainsString:@".mus"]) {
+        addFile=[filePath stringByReplacingOccurrencesOfString:@".mus" withString:@".str"];
+        [addFiles addObject:addFile];
+    }
+    if ([filePath localizedCaseInsensitiveContainsString:@".str"]) {
+        addFile=[filePath stringByReplacingOccurrencesOfString:@".str" withString:@".mus"];
+        [addFiles addObject:addFile];
+    }
+    if ([filePath localizedCaseInsensitiveContainsString:@".mini"]) {
+        NSMutableArray *libsList=DBHelper::getMissingPartsNameFromRemotePath(filePath,@"lib");
+        for (int i=0;i<[libsList count]/2;i++) {
+            addFile=(NSString *)[libsList objectAtIndex:i*2];
+            if (![addFiles containsObject:addFile]) [addFiles addObject:addFile];
+        }
+    }
+    if ([filePath localizedCaseInsensitiveContainsString:@".mdx"]) {
+        NSMutableArray *libsList=DBHelper::getMissingPartsNameFromRemotePath(filePath,@"pdx");
+        for (int i=0;i<[libsList count]/2;i++) {
+            addFile=(NSString *)[libsList objectAtIndex:i*2];
+            if (![addFiles containsObject:addFile]) [addFiles addObject:addFile];
+        }
+    }
+    if ([filePath localizedCaseInsensitiveContainsString:@".eup"]) {
+        NSMutableArray *libsList=DBHelper::getMissingPartsNameFromRemotePath(filePath,@"fmb");
+        for (int i=0;i<[libsList count]/2;i++) {
+            addFile=(NSString *)[libsList objectAtIndex:i*2];
+            if (![addFiles containsObject:addFile]) [addFiles addObject:addFile];
+        }
+        
+        libsList=DBHelper::getMissingPartsNameFromRemotePath(filePath,@"pmb");
+        for (int i=0;i<[libsList count]/2;i++) {
+            addFile=(NSString *)[libsList objectAtIndex:i*2];
+            if (![addFiles containsObject:addFile]) [addFiles addObject:addFile];
+        }
+    }
+    return addFiles;
 }
 
 

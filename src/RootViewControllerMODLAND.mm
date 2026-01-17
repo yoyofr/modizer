@@ -88,7 +88,40 @@ extern volatile t_settings settings[MAX_SETTINGS];
 #include "PlaylistCommonFunctions.h"
 
 -(void) pushRadioButton {
-    
+    if ([detailViewController.radioSource isActive]&&(detailViewController.radioSource.mRadioSource==RS_COLLECTION_MODLAND)) {
+        [detailViewController stop];
+        [detailViewController clearQueue];
+        [detailViewController.radioSource stop];
+        [radioButton setTitleColor:[UIColor grayColor] forState:UIControlStateNormal];
+    } else {
+        [detailViewController.radioSource stop];
+        [detailViewController clearQueue];
+        detailViewController.radioSource.mRadioSource=RS_COLLECTION_MODLAND;
+        
+        t_db_browse_entry *cur_db_entries;
+        cur_db_entries=(search_db?search_db_entries:db_entries);
+        int nb_entries=(search_db?search_db_nb_entries:db_nb_entries);
+        
+        
+        [detailViewController.radioSource.mSourceData removeAllObjects];
+        
+        detailViewController.radioSource.mRadioSource_mode=1;
+        if (nb_entries>0) {
+            for (int i=0;i<nb_entries;i++) {
+                if (cur_db_entries[i].id_mod>=0) {
+                    //mod file
+                    [detailViewController.radioSource.mSourceData addObject:[NSString stringWithFormat:@"f:%d",cur_db_entries[i].id_mod]];
+                } else {
+                    [detailViewController.radioSource.mSourceData addObject:[NSString stringWithFormat:@"d:%d/%d/%d",
+                                                                             cur_db_entries[i].id_type,
+                                                                             cur_db_entries[i].id_author,
+                                                                             cur_db_entries[i].id_album]];
+                }
+            }
+        }
+        [detailViewController.radioSource activate];
+        [radioButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    }
 }
 
 -(void)handleLongPress:(UILongPressGestureRecognizer *)gestureRecognizer {
@@ -1315,6 +1348,7 @@ END_PROFILE
 	pthread_mutex_unlock(&db_mutex);
 	return localpath;
 }
+
 -(int) getFileSize:(NSString*)fileName {
 	NSString *pathToDB=[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:DATABASENAME_MAIN];
 	sqlite3 *db;
@@ -1387,7 +1421,7 @@ END_PROFILE
 }
 
 -(void) updRadioStatus {
-    if ([detailViewController.radioSource isActive]) {
+    if ([detailViewController.radioSource isActive]&&(detailViewController.radioSource.mRadioSource==RS_COLLECTION_MODLAND)) {
         [radioButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
     } else {
         [radioButton setTitleColor:[UIColor grayColor] forState:UIControlStateNormal];
