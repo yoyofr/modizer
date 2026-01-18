@@ -7,6 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		CC88F59D2F1CDC0400E1F780 /* a2m-v2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC88F59C2F1CDC0400E1F780 /* a2m-v2.cpp */; };
+		CC88F5AD2F1CDC6100E1F780 /* unlzw.c in Sources */ = {isa = PBXBuildFile; fileRef = CC88F5AB2F1CDC6100E1F780 /* unlzw.c */; };
+		CC88F5AE2F1CDC6100E1F780 /* sixdepack.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC88F5A52F1CDC6100E1F780 /* sixdepack.cpp */; };
+		CC88F5AF2F1CDC6100E1F780 /* unlzss.c in Sources */ = {isa = PBXBuildFile; fileRef = CC88F5A92F1CDC6100E1F780 /* unlzss.c */; };
+		CC88F5B02F1CDC6100E1F780 /* depack.c in Sources */ = {isa = PBXBuildFile; fileRef = CC88F5A02F1CDC6100E1F780 /* depack.c */; };
+		CC88F5B12F1CDC6100E1F780 /* plx.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CC88F5A32F1CDC6100E1F780 /* plx.cpp */; };
+		CC88F5B22F1CDC6100E1F780 /* unlzh.c in Sources */ = {isa = PBXBuildFile; fileRef = CC88F5A72F1CDC6100E1F780 /* unlzh.c */; };
 		CCC5437A2B89E6EB00E97EC1 /* ksm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCC5429C2B89E6EA00E97EC1 /* ksm.cpp */; };
 		CCC5437B2B89E6EB00E97EC1 /* coktel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCC5429F2B89E6EA00E97EC1 /* coktel.cpp */; };
 		CCC5437C2B89E6EB00E97EC1 /* fmopl.c in Sources */ = {isa = PBXBuildFile; fileRef = CCC542A02B89E6EA00E97EC1 /* fmopl.c */; };
@@ -93,6 +100,23 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		CC88F59B2F1CDC0400E1F780 /* a2m-v2.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "a2m-v2.h"; sourceTree = "<group>"; };
+		CC88F59C2F1CDC0400E1F780 /* a2m-v2.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = "a2m-v2.cpp"; sourceTree = "<group>"; };
+		CC88F59E2F1CDC3800E1F780 /* CMakeLists.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = CMakeLists.txt; sourceTree = "<group>"; };
+		CC88F59F2F1CDC6100E1F780 /* depack.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = depack.h; sourceTree = "<group>"; };
+		CC88F5A02F1CDC6100E1F780 /* depack.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = depack.c; sourceTree = "<group>"; };
+		CC88F5A12F1CDC6100E1F780 /* pch.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = pch.h; sourceTree = "<group>"; };
+		CC88F5A22F1CDC6100E1F780 /* plx.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = plx.h; sourceTree = "<group>"; };
+		CC88F5A32F1CDC6100E1F780 /* plx.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = plx.cpp; sourceTree = "<group>"; };
+		CC88F5A42F1CDC6100E1F780 /* sixdepack.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = sixdepack.h; sourceTree = "<group>"; };
+		CC88F5A52F1CDC6100E1F780 /* sixdepack.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = sixdepack.cpp; sourceTree = "<group>"; };
+		CC88F5A62F1CDC6100E1F780 /* unlzh.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = unlzh.h; sourceTree = "<group>"; };
+		CC88F5A72F1CDC6100E1F780 /* unlzh.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = unlzh.c; sourceTree = "<group>"; };
+		CC88F5A82F1CDC6100E1F780 /* unlzss.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = unlzss.h; sourceTree = "<group>"; };
+		CC88F5A92F1CDC6100E1F780 /* unlzss.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = unlzss.c; sourceTree = "<group>"; };
+		CC88F5AA2F1CDC6100E1F780 /* unlzw.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = unlzw.h; sourceTree = "<group>"; };
+		CC88F5AB2F1CDC6100E1F780 /* unlzw.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = unlzw.c; sourceTree = "<group>"; };
+		CC88F5AC2F1CDC6100E1F780 /* version.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = version.h; sourceTree = "<group>"; };
 		CCC541AA2B89DD1700E97EC1 /* libadplug.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libadplug.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		CCC5429B2B89E6EA00E97EC1 /* mtr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mtr.h; sourceTree = "<group>"; };
 		CCC5429C2B89E6EA00E97EC1 /* ksm.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ksm.cpp; sourceTree = "<group>"; };
@@ -283,6 +307,23 @@
 		CCC5429A2B89E6EA00E97EC1 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				CC88F59F2F1CDC6100E1F780 /* depack.h */,
+				CC88F5A02F1CDC6100E1F780 /* depack.c */,
+				CC88F5A12F1CDC6100E1F780 /* pch.h */,
+				CC88F5A22F1CDC6100E1F780 /* plx.h */,
+				CC88F5A32F1CDC6100E1F780 /* plx.cpp */,
+				CC88F5A42F1CDC6100E1F780 /* sixdepack.h */,
+				CC88F5A52F1CDC6100E1F780 /* sixdepack.cpp */,
+				CC88F5A62F1CDC6100E1F780 /* unlzh.h */,
+				CC88F5A72F1CDC6100E1F780 /* unlzh.c */,
+				CC88F5A82F1CDC6100E1F780 /* unlzss.h */,
+				CC88F5A92F1CDC6100E1F780 /* unlzss.c */,
+				CC88F5AA2F1CDC6100E1F780 /* unlzw.h */,
+				CC88F5AB2F1CDC6100E1F780 /* unlzw.c */,
+				CC88F5AC2F1CDC6100E1F780 /* version.h */,
+				CC88F59E2F1CDC3800E1F780 /* CMakeLists.txt */,
+				CC88F59B2F1CDC0400E1F780 /* a2m-v2.h */,
+				CC88F59C2F1CDC0400E1F780 /* a2m-v2.cpp */,
 				CCC542E72B89E6EA00E97EC1 /* adlibemu.c */,
 				CCC542E42B89E6EA00E97EC1 /* debug.c */,
 				CCC542A02B89E6EA00E97EC1 /* fmopl.c */,
@@ -508,6 +549,12 @@
 				CCC543822B89E6EB00E97EC1 /* u6m.cpp in Sources */,
 				CCC543862B89E6EB00E97EC1 /* sop.cpp in Sources */,
 				CCC543BC2B89E6EB00E97EC1 /* herad.cpp in Sources */,
+				CC88F5AD2F1CDC6100E1F780 /* unlzw.c in Sources */,
+				CC88F5AE2F1CDC6100E1F780 /* sixdepack.cpp in Sources */,
+				CC88F5AF2F1CDC6100E1F780 /* unlzss.c in Sources */,
+				CC88F5B02F1CDC6100E1F780 /* depack.c in Sources */,
+				CC88F5B12F1CDC6100E1F780 /* plx.cpp in Sources */,
+				CC88F5B22F1CDC6100E1F780 /* unlzh.c in Sources */,
 				CCC543B42B89E6EB00E97EC1 /* msc.cpp in Sources */,
 				CCC543B02B89E6EB00E97EC1 /* jbm.cpp in Sources */,
 				CCC543BB2B89E6EB00E97EC1 /* rix.cpp in Sources */,
@@ -518,6 +565,7 @@
 				CCC543B22B89E6EB00E97EC1 /* analopl.cpp in Sources */,
 				CCC5437C2B89E6EB00E97EC1 /* fmopl.c in Sources */,
 				CCC543C02B89E6EB00E97EC1 /* nukedopl.c in Sources */,
+				CC88F59D2F1CDC0400E1F780 /* a2m-v2.cpp in Sources */,
 				CCC543A22B89E6EB00E97EC1 /* dro.cpp in Sources */,
 				CCC543BE2B89E6EB00E97EC1 /* realopl.cpp in Sources */,
 				CCC543B32B89E6EB00E97EC1 /* flash.cpp in Sources */,

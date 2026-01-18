@@ -1,0 +1,5 @@
+# Blacklist pour conv_modland.sh
+# Les lignes contenant ces patterns seront exclues
+# Une entrée par ligne, les lignes commençant par # sont ignorées
+
+Ace Tracker

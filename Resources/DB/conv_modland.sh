@@ -11,12 +11,63 @@ fi
 # 1. Convertir tabs en /
 perl -CSAD -pe 's/\t/\//g' allmods.txt > conv1.tmp
 
-# 2. Construire un pattern grep unique avec toutes les extensions (échapper les caractères spéciaux regex)
-EXT_PATTERN=$(sed 's/[.[\*^$()+?{|]/\\&/g; s/!/\\!/g' ext.txt | paste -sd'|' -)
+# 2. Filtrer par extension avec awk (lookup O(1) via tableau associatif)
+# Beaucoup plus rapide que grep avec un pattern de 2000+ alternatives
+# Supporte aussi une blacklist (blacklist.txt) pour exclure certaines lignes
+awk -F'/' '
+BEGIN {
+    # Charger toutes les extensions dans un tableau associatif (en minuscules)
+    while ((getline ext < "ext.txt") > 0) {
+        gsub(/^[[:space:]]+|[[:space:]]+$/, "", ext)  # trim
+        if (ext != "") extensions[tolower(ext)] = 1
+    }
+    close("ext.txt")
 
-# 3. Un seul grep case-insensitive avec toutes les extensions, puis sort | uniq
-grep -iE "$EXT_PATTERN" conv1.tmp | sort -u > conv.tmp
+    # Charger la blacklist (si le fichier existe)
+    blacklist_count = 0
+    while ((getline pattern < "blacklist.txt") > 0) {
+        gsub(/^[[:space:]]+|[[:space:]]+$/, "", pattern)  # trim
+        if (pattern != "" && substr(pattern, 1, 1) != "#") {  # ignorer lignes vides et commentaires
+            blacklist_count++
+            blacklist[blacklist_count] = pattern
+        }
+    }
+    close("blacklist.txt")
+}
 
+function is_blacklisted(line) {
+    for (i = 1; i <= blacklist_count; i++) {
+        if (index(line, blacklist[i]) > 0) {
+            return 1
+        }
+    }
+    return 0
+}
+
+{
+    # Verifier la blacklist en premier
+    if (is_blacklisted($0)) next
+
+    # Extraire l extension du dernier champ (nom de fichier)
+    filename = $NF
+    # Trouver la dernière occurrence de "."
+    n = split(filename, parts, ".")
+    if (n > 1) {
+        ext = tolower(parts[n])
+        if (ext in extensions) {
+            print
+            next
+        }
+    }
+    # Vérifier aussi si le nom de fichier commence par une extension connue (format "EXT.xxx")
+    if (n >= 1) {
+        ext = tolower(parts[1])
+        if (ext in extensions) {
+            print
+        }
+    }
+}' conv1.tmp | sort -u > conv.tmp
+cp conv.tmp convgrep.yo
 # 4. Un seul awk pour générer tous les fichiers de sortie
 awk -F '/' '
 BEGIN {

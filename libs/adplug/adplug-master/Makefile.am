@@ -15,7 +15,13 @@ src_libadplug_la_SOURCES = \
 	src/debug.c \
 	src/fmopl.c \
 	src/nukedopl.c \
+	src/depack.c \
+	src/sixdepack.cpp \
+	src/unlzh.c \
+	src/unlzss.c \
+	src/unlzw.c \
 	src/a2m.cpp \
+	src/a2m-v2.cpp \
 	src/adl.cpp \
 	src/adplug.cpp \
 	src/adtrack.cpp \
@@ -60,6 +66,7 @@ src_libadplug_la_SOURCES = \
 	src/mtr.cpp \
 	src/mus.cpp \
 	src/nemuopl.cpp \
+	src/plx.cpp \
 	src/pis.cpp \
 	src/player.cpp \
 	src/players.cpp \
@@ -101,7 +108,13 @@ pkginclude_HEADERS = \
 	src/silentopl.h \
 	src/opl.h \
 	src/diskopl.h \
+	src/depack.h \
+	src/sixdepack.h \
+	src/unlzh.h \
+	src/unlzss.h \
+	src/unlzw.h \
 	src/a2m.h \
+	src/a2m-v2.h \
 	src/amd.h \
 	src/bam.h \
 	src/d00.h \
@@ -129,6 +142,7 @@ pkginclude_HEADERS = \
 	src/bmf.h \
 	src/flash.h \
 	src/hyp.h \
+	src/plx.h \
 	src/pis.h \
 	src/psi.h \
 	src/rat.h \
@@ -236,25 +250,25 @@ doc/adplugdb.1: $(top_srcdir)/doc/adplugdb.1.in
 #########
 
 check_PROGRAMS = \
-	test/playertest \
+	test/playtest \
 	test/emutest \
 	test/crctest \
-	test/stresstest
+	test/strstest
 
-test_playertest_SOURCES = test/playertest.cpp
+test_playtest_SOURCES = test/playertest.cpp
 test_emutest_SOURCES = test/emutest.cpp
 test_crctest_SOURCES = test/crctest.cpp
-test_stresstest_SOURCES = test/stresstest.cpp
+test_strstest_SOURCES = test/stresstest.cpp
 
-test_playertest_CPPFLAGS = $(libbinio_CFLAGS)
+test_playtest_CPPFLAGS = $(libbinio_CFLAGS)
 test_emutest_CPPFLAGS = $(libbinio_CFLAGS)
 test_crctest_CPPFLAGS = $(libbinio_CFLAGS)
-test_stresstest_CPPFLAGS = $(libbinio_CFLAGS)
+test_strstest_CPPFLAGS = $(libbinio_CFLAGS)
 
-test_playertest_LDADD = src/libadplug.la $(libbinio_LIBS)
+test_playtest_LDADD = src/libadplug.la $(libbinio_LIBS)
 test_emutest_LDADD = src/libadplug.la $(libbinio_LIBS)
 test_crctest_LDADD = src/libadplug.la $(libbinio_LIBS)
-test_stresstest_LDADD = src/libadplug.la $(libbinio_LIBS)
+test_strstest_LDADD = src/libadplug.la $(libbinio_LIBS)
 
 AM_TESTS_ENVIRONMENT = testdir='$(srcdir)/test'; export testdir;
 TESTS = $(check_PROGRAMS)
@@ -264,6 +278,8 @@ EXTRA_DIST += \
 	test/testref/2001.ref \
 	test/testmus/2.CMF \
 	test/testref/2.ref \
+	test/testmus/AB_JULIA.A2T \
+	test/testref/AB_JULIA.ref \
 	test/testmus/ACTION.PIS \
 	test/testref/ACTION.ref \
 	test/testmus/ADAGIO.DFM \
@@ -314,14 +330,20 @@ EXTRA_DIST += \
 	test/testmus/ending.sop \
 	test/testmus/EOBSOUND.ADL \
 	test/testref/EOBSOUND.ref \
+	test/testmus/fank5.a2m \
+	test/testref/fank5.ref \
 	test/testmus/fdance03.dmo \
 	test/testref/fdance03.ref \
 	test/testref/flash.ref \
 	test/testmus/flash.xad \
 	test/testmus/Flying.mdi \
 	test/testref/Flying.ref \
+	test/testmus/fm-troni.a2m \
+	test/testref/fm-troni.ref \
 	test/testref/GALWAY.ref \
 	test/testmus/GALWAY.SOP \
+	test/testmus/GENORI.LD0 \
+	test/testref/GENORI.ref \
 	test/testmus/go-_-go.bnk \
 	test/testmus/go-_-go.ims \
 	test/testref/go-_-go.ref \
@@ -391,6 +413,8 @@ EXTRA_DIST += \
 	test/testref/samurai.ref \
 	test/testmus/SATNIGHT.HSP \
 	test/testref/SATNIGHT.ref \
+	test/testmus/SAVAGE.HSQ \
+	test/testref/SAVAGE.ref \
 	test/testref/SCALES.ref \
 	test/testmus/SCALES.SA2 \
 	test/testmus/SMKEREM.HSC \
@@ -404,6 +428,8 @@ EXTRA_DIST += \
 	test/testmus/tafa.tim \
 	test/testmus/TEST16.MID \
 	test/testref/TEST16.ref \
+	test/testmus/TheAlibi.d00 \
+	test/testref/TheAlibi.ref \
 	test/testmus/TOCCATA.MAD \
 	test/testref/TOCCATA.ref \
 	test/testref/TUBES.ref \
@@ -419,7 +445,9 @@ EXTRA_DIST += \
 	test/testmus/WORMINTR.AGD \
 	test/testref/WORMINTR.ref \
 	test/testref/YsBattle.ref \
-	test/testmus/YsBattle.vgm
+	test/testmus/YsBattle.vgm \
+	test/testref/logical.ref \
+	test/testmus/logical.plx
 # Regression tests:
 EXTRA_DIST += \
 	test/fuzzing/i-85.bmf \

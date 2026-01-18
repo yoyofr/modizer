@@ -29,6 +29,9 @@ missing seek support:
 
 4.2
 ---
+- Adplug 2.4
+- UADE players routine
+- new feature: Radio mode / online collections.
 - fixes several localizations issues
 - UI fixes & improvements
 - FX can now be displayed using various layouts to combine them more easily

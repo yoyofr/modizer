@@ -1311,6 +1311,11 @@ extern bool icloud_available;
         addFile=[filePath stringByReplacingOccurrencesOfString:@".sng" withString:@".ins"];
         [addFiles addObject:addFile];
     }
+    //4.1/ Adlib tracker => if rol, need to have the bnk file
+    if ([filePath localizedCaseInsensitiveContainsString:@".rol"]) {
+        addFile=[[filePath stringByDeletingLastPathComponent] stringByAppendingString:@"/standard.bnk"];
+        [addFiles addObject:addFile];
+    }
     //5/ Stereo sid file -> .mus and .str should go be paired
     if ([filePath localizedCaseInsensitiveContainsString:@".mus"]) {
         addFile=[filePath stringByReplacingOccurrencesOfString:@".mus" withString:@".str"];
@@ -1384,6 +1389,11 @@ extern bool icloud_available;
     //4/ Adlib tracker => if sng, ins should be downloaded too
     if ([filePath localizedCaseInsensitiveContainsString:@".sng"]) {
         addFile=[filePath stringByReplacingOccurrencesOfString:@".sng" withString:@".ins"];
+        [addFiles addObject:addFile];
+    }
+    //4.1/ Adlib tracker => if rol, need to have the bnk file
+    if ([filePath localizedCaseInsensitiveContainsString:@".rol"]) {
+        addFile=[[filePath stringByDeletingLastPathComponent] stringByAppendingString:@"/standard.bnk"];
         [addFiles addObject:addFile];
     }
     //5/ Stereo sid file -> .mus and .str should go be paired

@@ -1,1 +1,1 @@
-#define ADPLUG_VERSION "2.3.4-beta"
+#define ADPLUG_VERSION "2.4"

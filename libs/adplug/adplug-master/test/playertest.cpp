@@ -57,8 +57,12 @@ static const char *filelist[] = {
   "ice_thnk.sci",	// Sierra
   "inc.raw",		// RAW
   "crusader.raw",	// RAW (non-standard clock rate)
+  "GENORI.LD0",		// Loudness (older)
   "loudness.lds",	// Loudness
   "MARIO.A2M",		// AdLib Tracker 2
+  "AB_JULIA.A2T",	// Adlib Tracker 2 (tiny module v11)
+  "fank5.a2m",      // Adlib Tracker 2 (v11)
+  "fm-troni.a2m",   // Adlib Tracker 2 (v14)
   "mi2.laa",		// LucasArts
   "michaeld.cmf",	// Creative Music Format
   "2.CMF",			// Creative Music Format (with transpose effect)
@@ -75,6 +79,7 @@ static const char *filelist[] = {
   "TUBES.SAT",		// Surprise! Adlib Tracker
   "TU_BLESS.AMD",	// AMUSIC
   "VIB_VOL3.D00",	// EdLib Packed
+  "TheAlibi.d00",       // EdLib, reheadered
   "WONDERIN.WLF",	// Apogee
   "bmf1_1.bmf",		// BMF (without XAD header)
   "bmf1_2.xad",		// xad: BMF
@@ -108,6 +113,7 @@ static const char *filelist[] = {
   "MORNING.HSQ",	// HERAD SDB v1 (HSQ packed)
   "GORBI2.SQX",		// HERAD SDB v1 (SQX packed)
   "ARRAKIS.SDB",	// HERAD SDB v1
+  "SAVAGE.HSQ",		// HERAD SDB v1 (with instmode v2)
   "NEWSAN.HSQ",		// HERAD SDB v2 (HSQ packed)
   "NEWPAGA.HA2",	// HERAD SDB v2
   "WORMINTR.AGD",	// HERAD AGD
@@ -117,6 +123,7 @@ static const char *filelist[] = {
   "ACTION.PIS",		// Beni Tracker
   "CHIP.MTR",		// Master Tracker v1
   "AKMTEC.MTR",		// Master Tracker v2
+  "logical.plx",	// Palladix Sound System
   NULL
 };
 
@@ -153,7 +160,7 @@ public:
   {
     if(reg > 255 || val > 255 || reg < 0 || val < 0)
       std::cerr << "Warning: The player is writing data out of range! (reg = "
-		<< std::hex << reg << ", val = " << val << ")\n";
+    << std::hex << reg << ", val = " << val << ")" << std::dec << std::endl;
     if(!f) return;
     fprintf(f, "%x <- %x\n", reg, val);
   }
@@ -232,6 +239,8 @@ static bool testplayer(const std::string filename)
   std::string	fn = std::string(testdir) + DIR_DELIM + filename;
 #ifdef __WATCOMC__
   std::string	testfn = tmpnam(NULL);
+#elif DJGPP
+  std::string	testfn = tmpnam(NULL);
 #else
   std::string	testfn = filename + ".test";
 #endif
@@ -281,15 +290,21 @@ int main(int argc, char *argv[])
 
   use_subdir = dir_exists(std::string(testdir) + DIR_DELIM TEST_SUBDIR);
 
+#ifdef DJGPP
+  // DJGPP/DosEMU has weird behaviour when parsing command line arguments (adds path and name of executable as seperate vars)
+  // Don't parse the rest by setting argument count to 1
+  std::cout << "Warning: Running test with DJGPP, ignoring command line arguments, executing all test files!" << std::endl;
+  argc = 1;
+#endif
   // Try all files one by one
   if(argc > 1) {
     for(i = 1; i < argc; i++)
       if(!testplayer(argv[i]))
-	retval = false;
-  } else
+        retval = false;
+  } else {
     for(i = 0; filelist[i] != NULL; i++)
       if(!testplayer(filelist[i]))
-	retval = false;
-
+        retval = false;
+  }
   return retval ? EXIT_SUCCESS : EXIT_FAILURE;
 }

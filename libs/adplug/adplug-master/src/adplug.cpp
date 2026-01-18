@@ -1,6 +1,6 @@
 /*
  * Adplug - Replayer for many OPL2/OPL3 audio file formats.
- * Copyright (C) 1999 - 2008 Simon Peter <dn.tlp@gmx.net>, et al.
+ * Copyright (C) 1999 - 2008, 2024 Simon Peter <dn.tlp@gmx.net>, et al.
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -38,6 +38,7 @@
 #include "hsc.h"
 #include "amd.h"
 #include "a2m.h"
+#include "a2m-v2.h"
 #include "imf.h"
 #include "sng.h"
 #include "adtrack.h"
@@ -85,6 +86,7 @@
 #include "coktel.h"
 #include "pis.h"
 #include "mtr.h"
+#include "plx.h"
 
 /***** CAdPlug *****/
 
@@ -94,8 +96,10 @@ const CPlayerDesc CAdPlug::allplayers[] = {
   CPlayerDesc(CsngPlayer::factory, "SNGPlay", ".sng\0"),
   CPlayerDesc(CimfPlayer::factory, "Apogee IMF", ".imf\0.wlf\0.adlib\0"),
   CPlayerDesc(Ca2mLoader::factory, "Adlib Tracker 2", ".a2m\0"),
+  CPlayerDesc(Ca2mv2Player::factory, "Adlib Tracker 2", ".a2m\0.a2t\0"),
   CPlayerDesc(CadtrackLoader::factory, "Adlib Tracker", ".sng\0"),
   CPlayerDesc(CamdLoader::factory, "AMUSIC", ".amd\0"),
+  CPlayerDesc(CamdLoader::factory, "XMS-Tracker", ".xms\0"),
   CPlayerDesc(CbamPlayer::factory, "Bob's Adlib Music", ".bam\0"),
   CPlayerDesc(CcmfPlayer::factory, "Creative Music File", ".cmf\0"),
   CPlayerDesc(CcoktelPlayer::factory, "Coktel Vision Adlib Music", ".adl\0"),
@@ -125,6 +129,7 @@ const CPlayerDesc CAdPlug::allplayers[] = {
   CPlayerDesc(CxadpsiPlayer::factory, "PSI", ".xad\0"),
   CPlayerDesc(CxadratPlayer::factory, "rat", ".xad\0"),
   CPlayerDesc(CldsPlayer::factory, "LOUDNESS Sound System", ".lds\0"),
+  CPlayerDesc(CplxPlayer::factory, "PALLADIX Sound System", ".plx\0"),
   CPlayerDesc(Cu6mPlayer::factory, "Ultima 6 Music", ".m\0"),
   CPlayerDesc(CrolPlayer::factory, "Adlib Visual Composer", ".rol\0"),
   CPlayerDesc(CxsmPlayer::factory, "eXtra Simple Music", ".xsm\0"),
@@ -156,18 +161,6 @@ const CPlayers &CAdPlug::init_players(const CPlayerDesc pd[])
 
 const CPlayers CAdPlug::players = CAdPlug::init_players(CAdPlug::allplayers);
 CAdPlugDatabase *CAdPlug::database = 0;
-
-void CAdPlug::printAllExtensionSupported() {
-    CPlayers::const_iterator    i;
-    unsigned int            j;
-    for( i = players.begin(); i != players.end(); i++) {
-        for(  j = 0; (*i)->get_extension(j); j++) {
-            printf("%s,",(*i)->get_extension(j)+1);
-        }
-    }
-    printf("\n");
-    
-}
 
 CPlayer *CAdPlug::factory(const std::string &fn, Copl *opl, const CPlayers &pl,
 			  const CFileProvider &fp)

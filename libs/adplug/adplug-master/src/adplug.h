@@ -36,8 +36,6 @@ class CAdPlug
 
 public:
   static const CPlayers players;
-    
-    static void printAllExtensionSupported();
 
   static CPlayer *factory(const std::string &fn, Copl *opl,
 			  const CPlayers &pl = players,
