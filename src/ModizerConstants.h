@@ -185,7 +185,7 @@ extern void *LoadingProgressObserverContext;
 #define MAX_MIDIFX_LENGTH 256
 
 #define MAX_MIDI_NOTES 128+128 //128midi notes+allowing extra ones / various emulated chipsets
-#define MAX_VISIBLE_MIDI_NOTES 12*14  //maximum visible range
+#define MAX_VISIBLE_MIDI_NOTES 12*21 //12*14  //maximum visible range
 #define DEFAULT_VISIBLE_MIDI_NOTES 12*8  //maximum visible range
 #define MIN_VISIBLE_MIDI_NOTES 12*2  //minimum visible range
 

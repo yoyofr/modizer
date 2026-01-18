@@ -423,6 +423,14 @@ extern bool icloud_available;
     //check playable file types
     for (int i=0;i<[supported_ext count];i++) {
         if ([extension caseInsensitiveCompare:[supported_ext objectAtIndex:i]]==NSOrderedSame) {
+            
+            // check if .ss from IFF-SMUS (in an Instruments folder)
+            if ([extension caseInsensitiveCompare:@"ss"]==NSOrderedSame) {
+                if ([[[_filePath stringByDeletingLastPathComponent] lastPathComponent] isEqualToString:@"Instruments"]) {
+                    return 0;
+                }
+            }
+            
             return 1;
         }
     }
@@ -1334,6 +1342,94 @@ extern bool icloud_available;
         }
         
         libsList=DBHelper::getMissingPartsNameFromRemotePath(filePath,@"pmb");
+        for (int i=0;i<[libsList count]/2;i++) {
+            addFile=(NSString *)[libsList objectAtIndex:i*2];
+            if (![addFiles containsObject:addFile]) [addFiles addObject:addFile];
+        }
+    }
+    return addFiles;
+}
+
++(NSArray*) getAdditionalMODLANDRequiredFilesDownloader:(NSString*)filePath {
+    NSMutableArray *addFiles=[NSMutableArray array];
+    NSString *fileName=[filePath lastPathComponent];
+    NSString *addFile;
+    //if TFMX-ST, change name from mdat to mdst
+    if ([filePath localizedCaseInsensitiveContainsString:@".mdat"]) {
+        if ([filePath localizedCaseInsensitiveContainsString:@"TFMX ST"]) {
+            //if TFMX st, no smpl to load
+        } else {
+            addFile=[filePath stringByReplacingOccurrencesOfString:@".mdat" withString:@".smpl"];
+            [addFiles addObject:addFile];
+        }
+    }
+    if ([filePath localizedCaseInsensitiveContainsString:@"mdat."]) {
+        if ([filePath localizedCaseInsensitiveContainsString:@"TFMX ST"]) {
+            //if TFMX st, no smpl to load
+        } else {
+            addFile=[filePath stringByReplacingOccurrencesOfString:@"mdat." withString:@"smpl."];
+            [addFiles addObject:addFile];
+        }
+    }
+    //2/SCI => if .sci the .003 patch file should be downloaded as well
+    if ([filePath localizedCaseInsensitiveContainsString:@".sci"]) {
+        addFile=[NSString stringWithFormat:@"%@/%@patch.003",[filePath stringByDeletingLastPathComponent],[fileName substringToIndex:3]];
+        [addFiles addObject:addFile];
+    }
+    //3/KH => if .kh the songplay file should be downloaded as well
+    if ([filePath localizedCaseInsensitiveContainsString:@".kh"]) {
+        addFile=[NSString stringWithFormat:@"%@/songplay",[filePath stringByDeletingLastPathComponent]];
+        [addFiles addObject:addFile];
+    }
+    //4/ Adlib tracker => if sng, ins should be downloaded too
+    if ([filePath localizedCaseInsensitiveContainsString:@".sng"]) {
+        addFile=[filePath stringByReplacingOccurrencesOfString:@".sng" withString:@".ins"];
+        [addFiles addObject:addFile];
+    }
+    //5/ Stereo sid file -> .mus and .str should go be paired
+    if ([filePath localizedCaseInsensitiveContainsString:@".mus"]) {
+        addFile=[filePath stringByReplacingOccurrencesOfString:@".mus" withString:@".str"];
+        [addFiles addObject:addFile];
+    }
+    if ([filePath localizedCaseInsensitiveContainsString:@".str"]) {
+        addFile=[filePath stringByReplacingOccurrencesOfString:@".str" withString:@".mus"];
+        [addFiles addObject:addFile];
+    }
+    if ([filePath localizedCaseInsensitiveContainsString:@".mini"]) {
+        NSMutableArray *libsList=DBHelper::getMissingPartsNameFromFilePath(filePath,@"lib");
+        for (int i=0;i<[libsList count]/2;i++) {
+            addFile=(NSString *)[libsList objectAtIndex:i*2];
+            if (![addFiles containsObject:addFile]) [addFiles addObject:addFile];
+        }
+    }
+    if ([filePath localizedCaseInsensitiveContainsString:@".mdx"]) {
+        NSMutableArray *libsList=DBHelper::getMissingPartsNameFromFilePath(filePath,@"pdx");
+        for (int i=0;i<[libsList count]/2;i++) {
+            addFile=(NSString *)[libsList objectAtIndex:i*2];
+            if (![addFiles containsObject:addFile]) [addFiles addObject:addFile];
+        }
+    }
+    if ([filePath localizedCaseInsensitiveContainsString:@".eup"]) {
+        NSMutableArray *libsList=DBHelper::getMissingPartsNameFromFilePath(filePath,@"fmb");
+        for (int i=0;i<[libsList count]/2;i++) {
+            addFile=(NSString *)[libsList objectAtIndex:i*2];
+            if (![addFiles containsObject:addFile]) [addFiles addObject:addFile];
+        }
+        
+        libsList=DBHelper::getMissingPartsNameFromFilePath(filePath,@"pmb");
+        for (int i=0;i<[libsList count]/2;i++) {
+            addFile=(NSString *)[libsList objectAtIndex:i*2];
+            if (![addFiles containsObject:addFile]) [addFiles addObject:addFile];
+        }
+    }
+    if ([filePath localizedCaseInsensitiveContainsString:@".smus"]) {
+        NSMutableArray *libsList=DBHelper::getMissingPartsNameFromFilePath(filePath,@"ss");
+        for (int i=0;i<[libsList count]/2;i++) {
+            addFile=(NSString *)[libsList objectAtIndex:i*2];
+            if (![addFiles containsObject:addFile]) [addFiles addObject:addFile];
+        }
+        
+        libsList=DBHelper::getMissingPartsNameFromFilePath(filePath,@"instr");
         for (int i=0;i<[libsList count]/2;i++) {
             addFile=(NSString *)[libsList objectAtIndex:i*2];
             if (![addFiles containsObject:addFile]) [addFiles addObject:addFile];

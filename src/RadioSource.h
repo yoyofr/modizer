@@ -32,6 +32,7 @@ enum t_radioSource {
 @property (nonatomic, strong) NSMutableArray *mSourceData;
 @property (nonatomic, strong) NSMutableArray *mHistory,*mHistoryComp;
 @property (nonatomic, strong) NSTimer *fetchDebounceTimer;
+@property (nonatomic, strong) NSString *mCurrentPath;
 
 @property (nonatomic, strong) NSURLSessionConfiguration *mURLSessionConfig;
 @property (nonatomic, strong) NSOperationQueue *mURLSessionQueue;
@@ -49,7 +50,7 @@ enum t_radioSource {
 -(NSString *) getHistoryLabel:(int)idx;
 -(int) getHistorySize;
 -(NSString *) radioSourceName;
--(bool) saveFileToLibrary:(int)slot;
+-(bool) saveFileToLibrary;
 -(bool) isInLibrary:(int)slot;
 -(void) cleanFiles;
 

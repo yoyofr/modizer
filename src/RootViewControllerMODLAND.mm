@@ -459,19 +459,19 @@ END_PROFILE
 						 WHERE ta.id_author=%d AND ta.id_type=t.id ORDER BY t.filetype COLLATE NOCASE",authorID);
 			err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
 			if (err==SQLITE_OK){
-				while (sqlite3_step(stmt) == SQLITE_ROW) {
-					char *str=(char*)sqlite3_column_text(stmt, 0);
-					db_entries[db_entries_count].label=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
-					db_entries[db_entries_count].filesize=sqlite3_column_int(stmt, 1);
-					db_entries[db_entries_count].id_type=sqlite3_column_int(stmt, 2);
-					db_entries[db_entries_count].id_author=authorID;
-					db_entries[db_entries_count].id_album=db_entries[db_entries_count].id_mod=-1;
-					db_entries[db_entries_count].downloaded=-1;
-					db_entries[db_entries_count].rating=-1;
-					db_entries[db_entries_count].playcount=-1;
-					db_entries_count++;
-					db_entries_index++;
-				}
+                while (sqlite3_step(stmt) == SQLITE_ROW) {
+                    char *str=(char*)sqlite3_column_text(stmt, 0);
+                    db_entries[db_entries_count].label=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
+                    db_entries[db_entries_count].filesize=sqlite3_column_int(stmt, 1);
+                    db_entries[db_entries_count].id_type=sqlite3_column_int(stmt, 2);
+                    db_entries[db_entries_count].id_author=authorID;
+                    db_entries[db_entries_count].id_album=db_entries[db_entries_count].id_mod=-1;
+                    db_entries[db_entries_count].downloaded=-1;
+                    db_entries[db_entries_count].rating=-1;
+                    db_entries[db_entries_count].playcount=-1;
+                    db_entries_count++;
+                    db_entries_index++;
+                }
 				sqlite3_finalize(stmt);
 			} else MDZELog("ErrSQL : %d",err);
 		}
@@ -876,14 +876,14 @@ END_PROFILE
 				db_entries_count=0;
 				db_entries=db_entries_data;
 			//3rd get the entries
-			if (mSearch) snprintf(sqlStatement,1024,"SELECT filename,filesize,id,0 FROM mod_file \
+			if (mSearch) snprintf(sqlStatement,1024,"SELECT fullpath,filename,filesize,id,0 FROM mod_file \
 								 WHERE id_author=%d AND id_album is null AND filename like \"%%%s%%\" \
-								 UNION SELECT a.album,a.num_files,a.id,1 FROM mod_author_album m,mod_album a \
+								 UNION SELECT '',a.album,a.num_files,a.id,1 FROM mod_author_album m,mod_album a \
 								 WHERE m.id_author=%d AND m.id_album=a.id AND a.album like \"%%%s%%\"  AND m.id_author=a.id_author\
 								 ORDER BY 1  COLLATE NOCASE",authorID,[mSearchText UTF8String],authorID,[mSearchText UTF8String]);
-			else snprintf(sqlStatement,1024,"SELECT filename,filesize,id,0 FROM mod_file \
+			else snprintf(sqlStatement,1024,"SELECT fullpath,filename,filesize,id,0 FROM mod_file \
 						 WHERE id_author=%d AND id_album is null \
-						 UNION SELECT a.album,a.num_files,a.id,1 FROM mod_author_album m,mod_album a \
+						 UNION SELECT '',a.album,a.num_files,a.id,1 FROM mod_author_album m,mod_album a \
 						 WHERE m.id_author=%d AND m.id_album=a.id AND m.id_author=a.id_author\
 						 ORDER BY 1 COLLATE NOCASE",authorID,authorID);
 			
@@ -892,26 +892,36 @@ END_PROFILE
 			if (err==SQLITE_OK){
 				while (sqlite3_step(stmt) == SQLITE_ROW) {
 					char *str=(char*)sqlite3_column_text(stmt, 0);
-					int is_album=sqlite3_column_int(stmt, 3);
+					int is_album=sqlite3_column_int(stmt, 4);
 					db_entries[db_entries_count].id_author=authorID;
 					db_entries[db_entries_count].id_type=-1;
 					if (is_album) {
-						db_entries[db_entries_count].label=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
-						db_entries[db_entries_count].id_album=sqlite3_column_int(stmt, 2);
+						db_entries[db_entries_count].label=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 1)];
+						db_entries[db_entries_count].id_album=sqlite3_column_int(stmt, 3);
 						db_entries[db_entries_count].id_mod=-1;
+                        db_entries[db_entries_count].filesize=sqlite3_column_int(stmt, 2);
+                        
+                        db_entries[db_entries_count].downloaded=-1;
+                        db_entries[db_entries_count].rating=-1;
+                        db_entries[db_entries_count].playcount=-1;
+                        db_entries_count++;
+                        db_entries_index++;
 					} else {
-						db_entries[db_entries_count].label=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
-						db_entries[db_entries_count].id_album=-1;
-						db_entries[db_entries_count].id_mod=sqlite3_column_int(stmt, 2);						
-						db_hasFiles++;
+                        if ([ModizFileHelper isPlayableFile:[NSString stringWithUTF8String:str]]) {
+                            db_entries[db_entries_count].label=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 1)];
+                            db_entries[db_entries_count].id_album=-1;
+                            db_entries[db_entries_count].id_mod=sqlite3_column_int(stmt, 3);
+                            db_hasFiles++;
+                            db_entries[db_entries_count].filesize=sqlite3_column_int(stmt, 2);
+                                
+                            db_entries[db_entries_count].downloaded=-1;
+                            db_entries[db_entries_count].rating=-1;
+                            db_entries[db_entries_count].playcount=-1;
+                            db_entries_count++;
+                            db_entries_index++;
+                        }
 					}
-					db_entries[db_entries_count].filesize=sqlite3_column_int(stmt, 1);
 					
-					db_entries[db_entries_count].downloaded=-1;
-					db_entries[db_entries_count].rating=-1;
-					db_entries[db_entries_count].playcount=-1;
-					db_entries_count++;
-					db_entries_index++;
 				}
 				sqlite3_finalize(stmt);
 			} else MDZELog("ErrSQL : %d",err);
@@ -1009,44 +1019,48 @@ END_PROFILE
 				db_entries_count=0;
 				db_entries=db_entries_data;
 			//3rd get the entries
-			if (mSearch) snprintf(sqlStatement,1024,"SELECT filename,filesize,id,0 FROM mod_file \
+			if (mSearch) snprintf(sqlStatement,1024,"SELECT fullpath,filename,filesize,id,0 FROM mod_file \
 								 WHERE id_author=%d AND id_type=%d AND id_album is null AND filename like \"%%%s%%\" \
-								 UNION SELECT a.album,m.num_files,a.id,1 FROM mod_type_author_album m,mod_album a \
+								 UNION SELECT '',a.album,m.num_files,a.id,1 FROM mod_type_author_album m,mod_album a \
 								 WHERE m.id_author=%d AND m.id_type=%d AND m.id_album=a.id AND a.album like \"%%%s%%\"  AND m.id_author=a.id_author\
 								 ORDER BY 1  COLLATE NOCASE",authorID,filetypeID,[mSearchText UTF8String],authorID,filetypeID,[mSearchText UTF8String]);
-			else snprintf(sqlStatement,1024,"SELECT filename,filesize,id,0 FROM mod_file \
+			else snprintf(sqlStatement,1024,"SELECT fullpath,filename,filesize,id,0 FROM mod_file \
 						 WHERE id_author=%d AND id_type=%d AND id_album is null \
-						 UNION SELECT a.album,m.num_files,a.id,1 FROM mod_type_author_album m,mod_album a \
+						 UNION SELECT '',a.album,m.num_files,a.id,1 FROM mod_type_author_album m,mod_album a \
 						 WHERE m.id_author=%d AND m.id_type=%d AND m.id_album=a.id  AND m.id_author=a.id_author\
 						 ORDER BY 1 COLLATE NOCASE",authorID,filetypeID,authorID,filetypeID);
             
-            
-            
-            
-			
 			err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
 			if (err==SQLITE_OK){
 				while (sqlite3_step(stmt) == SQLITE_ROW) {
 					char *str=(char*)sqlite3_column_text(stmt, 0);
-					int is_album=sqlite3_column_int(stmt, 3);
+					int is_album=sqlite3_column_int(stmt, 4);
 					db_entries[db_entries_count].id_author=authorID;
 					db_entries[db_entries_count].id_type=filetypeID;
 					if (is_album) {
-						db_entries[db_entries_count].label=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
-						db_entries[db_entries_count].id_album=sqlite3_column_int(stmt, 2);
+						db_entries[db_entries_count].label=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 1)];
+						db_entries[db_entries_count].id_album=sqlite3_column_int(stmt, 3);
 						db_entries[db_entries_count].id_mod=-1;
+                        db_entries[db_entries_count].filesize=sqlite3_column_int(stmt, 2);
+                        db_entries[db_entries_count].downloaded=-1;
+                        db_entries[db_entries_count].rating=-1;
+                        db_entries[db_entries_count].playcount=-1;
+                        db_entries_count++;
+                        db_entries_index++;
 					} else {
-						db_entries[db_entries_count].label=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
-						db_entries[db_entries_count].id_album=-1;
-						db_entries[db_entries_count].id_mod=sqlite3_column_int(stmt, 2);
-						db_hasFiles++;
+                        if ([ModizFileHelper isPlayableFile:[NSString stringWithUTF8String:str]]) {
+                            db_entries[db_entries_count].label=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 1)];
+                            db_entries[db_entries_count].id_album=-1;
+                            db_entries[db_entries_count].id_mod=sqlite3_column_int(stmt, 3);
+                            db_hasFiles++;
+                            db_entries[db_entries_count].filesize=sqlite3_column_int(stmt, 2);
+                            db_entries[db_entries_count].downloaded=-1;
+                            db_entries[db_entries_count].rating=-1;
+                            db_entries[db_entries_count].playcount=-1;
+                            db_entries_count++;
+                            db_entries_index++;
+                        }
 					}
-					db_entries[db_entries_count].filesize=sqlite3_column_int(stmt, 1);
-					db_entries[db_entries_count].downloaded=-1;
-					db_entries[db_entries_count].rating=-1;
-					db_entries[db_entries_count].playcount=-1;
-					db_entries_count++;
-					db_entries_index++;
 				}
 				sqlite3_finalize(stmt);
 			} else MDZELog("ErrSQL : %d",err);
@@ -1135,25 +1149,27 @@ END_PROFILE
 				db_entries_count=0;
 				db_entries=db_entries_data;
 			//3rd get the entries
-			if (mSearch) snprintf(sqlStatement,1024,"SELECT filename,filesize,id FROM mod_file WHERE id_author=%d AND id_album=%d AND filename LIKE \"%%%s%%\" ORDER BY filename COLLATE NOCASE",authorID,albumID,[mSearchText UTF8String]);
-			else snprintf(sqlStatement,1024,"SELECT filename,filesize,id FROM mod_file WHERE id_author=%d AND id_album=%d ORDER BY filename COLLATE NOCASE",authorID,albumID);
+			if (mSearch) snprintf(sqlStatement,1024,"SELECT fullpath,filename,filesize,id FROM mod_file WHERE id_author=%d AND id_album=%d AND filename LIKE \"%%%s%%\" ORDER BY filename COLLATE NOCASE",authorID,albumID,[mSearchText UTF8String]);
+			else snprintf(sqlStatement,1024,"SELECT fullpath,filename,filesize,id FROM mod_file WHERE id_author=%d AND id_album=%d ORDER BY filename COLLATE NOCASE",authorID,albumID);
 			
 			err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
 			if (err==SQLITE_OK){
 				while (sqlite3_step(stmt) == SQLITE_ROW) {
 					char *str=(char*)sqlite3_column_text(stmt, 0);
-					db_entries[db_entries_count].label=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
-					db_entries[db_entries_count].id_author=authorID;
-					db_entries[db_entries_count].id_type=-1;
-					db_entries[db_entries_count].id_album=albumID;
-					db_entries[db_entries_count].id_mod=sqlite3_column_int(stmt,2);
-					db_entries[db_entries_count].filesize=sqlite3_column_int(stmt,1);
-					db_entries[db_entries_count].downloaded=-1;					
-					db_entries[db_entries_count].rating=-1;
-					db_entries[db_entries_count].playcount=-1;
-					db_hasFiles++;
-					db_entries_count++;
-					db_entries_index++;
+                    if ([ModizFileHelper isPlayableFile:[NSString stringWithUTF8String:str]]) {
+                        db_entries[db_entries_count].label=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 1)];
+                        db_entries[db_entries_count].id_author=authorID;
+                        db_entries[db_entries_count].id_type=-1;
+                        db_entries[db_entries_count].id_album=albumID;
+                        db_entries[db_entries_count].id_mod=sqlite3_column_int(stmt,3);
+                        db_entries[db_entries_count].filesize=sqlite3_column_int(stmt,2);
+                        db_entries[db_entries_count].downloaded=-1;
+                        db_entries[db_entries_count].rating=-1;
+                        db_entries[db_entries_count].playcount=-1;
+                        db_hasFiles++;
+                        db_entries_count++;
+                        db_entries_index++;
+                    }
 				}
 				sqlite3_finalize(stmt);
 			} else MDZELog("ErrSQL : %d",err);
@@ -1243,9 +1259,9 @@ END_PROFILE
 				db_entries_count=0;
 				db_entries=db_entries_data;
 			//3rd get the entries
-			if (mSearch) snprintf(sqlStatement,1024,"SELECT filename,filesize,id FROM mod_file \
+			if (mSearch) snprintf(sqlStatement,1024,"SELECT fullpath,filename,filesize,id FROM mod_file \
 								 WHERE id_type=%d AND id_author=%d AND id_album=%d AND filename like \"%%%s%%\" ORDER BY 1 COLLATE NOCASE",filetypeID,authorID,albumID,[mSearchText UTF8String]);
-			else snprintf(sqlStatement,1024,"SELECT filename,filesize,id FROM mod_file \
+			else snprintf(sqlStatement,1024,"SELECT fullpath,filename,filesize,id FROM mod_file \
 						 WHERE id_type=%d AND id_author=%d AND id_album=%d ORDER BY 1 COLLATE NOCASE",filetypeID,authorID,albumID);
 			
 			
@@ -1253,18 +1269,20 @@ END_PROFILE
 			if (err==SQLITE_OK){
 				while (sqlite3_step(stmt) == SQLITE_ROW) {
 					char *str=(char*)sqlite3_column_text(stmt, 0);
-					db_entries[db_entries_count].label=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
-					db_entries[db_entries_count].id_author=authorID;
-					db_entries[db_entries_count].id_type=filetypeID;
-					db_entries[db_entries_count].id_album=albumID;
-					db_entries[db_entries_count].id_mod=sqlite3_column_int(stmt, 2);
-					db_entries[db_entries_count].filesize=sqlite3_column_int(stmt, 1);
-					db_entries[db_entries_count].downloaded=-1;
-					db_entries[db_entries_count].rating=-1;
-					db_entries[db_entries_count].playcount=-1;
-					db_hasFiles++;
-					db_entries_count++;
-					db_entries_index++;
+                    if ([ModizFileHelper isPlayableFile:[NSString stringWithUTF8String:str]]) {
+                        db_entries[db_entries_count].label=[[NSString alloc] initWithUTF8String:(const char*)sqlite3_column_text(stmt, 1)];
+                        db_entries[db_entries_count].id_author=authorID;
+                        db_entries[db_entries_count].id_type=filetypeID;
+                        db_entries[db_entries_count].id_album=albumID;
+                        db_entries[db_entries_count].id_mod=sqlite3_column_int(stmt, 3);
+                        db_entries[db_entries_count].filesize=sqlite3_column_int(stmt, 2);
+                        db_entries[db_entries_count].downloaded=-1;
+                        db_entries[db_entries_count].rating=-1;
+                        db_entries[db_entries_count].playcount=-1;
+                        db_hasFiles++;
+                        db_entries_count++;
+                        db_entries_index++;
+                    }
 				}
 				sqlite3_finalize(stmt);
 			} else MDZELog("ErrSQL : %d",err);

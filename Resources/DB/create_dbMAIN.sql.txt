@@ -14,8 +14,8 @@ CREATE TABLE mod_type_author_album (id_type integer,id_author integer,id_album i
 
 CREATE TABLE import_4comp (filesize integer,filetype text,author text,filename text,fullpath text);
 CREATE TABLE import_5comp (filesize integer,filetype text,author text,album text,filename text,fullpath text);
-CREATE TABLE import_6comp (filesize integer,filetype text,filetype2 text,author text,album text,filename text,fullpath text);
-CREATE TABLE import_7comp (filesize integer,filetype text,filetype2 text,filetype3 text,author text,album text,filename text,fullpath text);
+CREATE TABLE import_6comp (filesize integer,filetype text,author text,album text,add_data1 text,filename text,fullpath text);
+CREATE TABLE import_7comp (filesize integer,filetype text,author text,album text,add_data1 text,add_data2 text,filename text,fullpath text);
 
 .separator '\'
 
@@ -31,8 +31,8 @@ INSERT INTO import_7comp (filesize,filetype,author,filename,fullpath)
 INSERT INTO import_7comp (filesize,filetype,author,album,filename,fullpath)
 	SELECT filesize,filetype,author,album,filename,fullpath
 	FROM import_5comp;
-INSERT INTO import_7comp (filesize,filetype,filetype2,author,album,filename,fullpath)
-	SELECT filesize,filetype,filetype2,author,album,filename,fullpath
+INSERT INTO import_7comp (filesize,filetype,author,album,add_data1,filename,fullpath)
+	SELECT filesize,filetype,author,album,add_data1,filename,fullpath
 	FROM import_6comp;
 
 DROP TABLE import_4comp;

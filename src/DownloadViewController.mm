@@ -1133,6 +1133,23 @@ MDZELog("gzread error str for FTP entry %d",i); \
 	} else return -1;
 }
 
+-(NSString*) getMODLANDLocalForRemote:(NSString*)remotePath {
+    NSArray *arr=[remotePath componentsSeparatedByString:@"/"];
+    NSString *res=[arr[1] stringByAppendingFormat:@"/%@",arr[0]];
+    for (int i=2;i<[arr count];i++)
+        res=[res stringByAppendingFormat:@"/%@",arr[i]];
+    return res;
+}
+
+-(NSString*) getMODLANDRemoteForLocal:(NSString*)remotePath {
+    NSArray *arr=[remotePath componentsSeparatedByString:@"/"];
+    NSString *res=[arr[1] stringByAppendingFormat:@"/%@",arr[0]];
+    for (int i=2;i<[arr count];i++)
+        res=[res stringByAppendingFormat:@"/%@",arr[i]];
+    return res;
+}
+
+
 - (int)addURLToDownloadList:(NSString *)url fileName:(NSString *)fileName filePath:(NSString *)filePath filesize:(long long)filesize isMODLAND:(int)isMODLAND usePrimaryAction:(int)useDefaultAction {
     if (mURLDownloadQueueDepth<MAX_DOWNLOAD_QUEUE) {
         
@@ -1144,6 +1161,56 @@ MDZELog("gzread error str for FTP entry %d",i); \
                 if ([mURLFilename[i] compare:fileName]==NSOrderedSame) {duplicated=1; break;}
         }
         if (!duplicated) {
+            
+            if (isMODLAND) {
+                
+                NSArray *addFiles=[ModizFileHelper getAdditionalMODLANDRequiredFilesDownloader:filePath];
+                for (NSString *addFile in addFiles) {
+                    //MDZILog("2download: %@",addFile);
+                    NSString *cleanPath;
+                    if ([addFile containsString:@"Documents/MODLAND/"]) {
+                        cleanPath=[addFile substringFromIndex:[addFile rangeOfString:@"Documents/MODLAND/"].location+[@"Documents/MODLAND/" length]];
+                        cleanPath=[self getMODLANDLocalForRemote:cleanPath];
+                    } else {
+                        cleanPath=addFile;
+                    }
+                    
+                    NSString *localPath=[NSString stringWithFormat:@"%@/Documents/%@/%@",[ModizFileHelper getAppHomeDirectory],MODLAND_BASEDIR,[self getMODLANDLocalForRemote:cleanPath]];
+                    
+//                    if ( ([[localPath pathExtension] isEqualToString:@"ss"])||
+//                        ([[localPath pathExtension] isEqualToString:@"instr"])) {
+//                        NSString *tmp=[localPath lastPathComponent];
+//                        localPath=[[localPath stringByDeletingLastPathComponent] stringByAppendingFormat:@"/Instruments/%@",tmp];
+//                    }
+                    
+                    if (![mFileMngr fileExistsAtPath:localPath]) {
+                        localPath=[NSString stringWithFormat:@"Documents/%@/%@",MODLAND_BASEDIR,[self getMODLANDLocalForRemote:cleanPath]];
+                        
+//                        if ( ([[localPath pathExtension] isEqualToString:@"ss"])||
+//                            ([[localPath pathExtension] isEqualToString:@"instr"])) {
+//                            NSString *tmp=[localPath lastPathComponent];
+//                            localPath=[[localPath stringByDeletingLastPathComponent] stringByAppendingFormat:@"/Instruments/%@",tmp];
+//                        }
+                        
+                        [mFileMngr createDirectoryAtPath:[localPath stringByDeletingLastPathComponent] withIntermediateDirectories:TRUE attributes:nil error:nil];
+                        
+                        NSString *modland_url=[NSString stringWithFormat:@"%s/pub/modules/%@",settings[ONLINE_MODLAND_CURRENT_URL].detail.mdz_msgbox.text,DBHelper::getFullPathFromLocalPath([self getMODLANDLocalForRemote:cleanPath])];
+                        
+                        mURLFilename[mURLDownloadQueueDepth]=nil;
+                        mURLFilesize[mURLDownloadQueueDepth]=0;
+                        mURL[mURLDownloadQueueDepth]=[[NSString alloc] initWithString:modland_url];
+                        mURLIsImage[mURLDownloadQueueDepth]=0;
+                        
+                        mURLIsMODLAND[mURLDownloadQueueDepth]=1;
+                        mURLFilePath[mURLDownloadQueueDepth]=[[NSString alloc] initWithString:localPath];
+                        mURLUsePrimaryAction[mURLDownloadQueueDepth]=0;
+                        
+                        mURLDownloadQueueDepth++;
+                    }
+                }
+            }
+            
+            
             if (fileName) mURLFilename[mURLDownloadQueueDepth]=[[NSString alloc] initWithString:fileName];
             else mURLFilename[mURLDownloadQueueDepth]=nil;
             mURLFilesize[mURLDownloadQueueDepth]=filesize;

@@ -1124,7 +1124,7 @@ bool sysMonitorIsActive;
 
 -(IBAction)pushedSaveFile {
     if ([radioSource isActive] && ![radioSource isInLibrary:0]) {
-        if ([radioSource saveFileToLibrary:0]) {
+        if ([radioSource saveFileToLibrary]) {
             [self openPopup:NSLocalizedString(@"File saved in Library", @"") secmsg:@"" style:POPUP_STYLE_INFO];
             [btnSaveFile setTitleColor:[UIColor grayColor] forState:UIControlStateNormal];
         } else {
@@ -2778,7 +2778,8 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
         radioView.frame=CGRectMake(mainView.frame.origin.x,m_oglView.frame.origin.y,mainView.frame.size.width,UI_RADIO_INFO_HEIGHT);
         radioView.opaque=false;
         radioView.backgroundColor=[UIColor colorWithWhite:0 alpha:0.7];
-        [self.view addSubview:radioView];
+        [self.mainView addSubview:radioView];
+        radioView.layer.zPosition=m_oglView.layer.zPosition+0.1;
         
         radioTitle=[[UILabel alloc] initWithFrame:CGRectMake(2,2,radioView.frame.size.width-2,14)];
         radioTitle.textColor=[UIColor colorWithRed:0.92 green:0.85 blue:1.0 alpha:1.0];
@@ -9571,11 +9572,13 @@ void drawTgtSlotPattern(int fxIdx,float x,float y,float w,float h,float ww,float
         //cover_view.layer.zPosition=MAXFLOAT-9;
         cover_viewAll.layer.zPosition=MAXFLOAT-8;
         m_oglView.layer.zPosition=MAXFLOAT-7;
+        if (radioView) radioView.layer.zPosition=m_oglView.layer.zPosition+0.1;
     } else {
         //cover_viewBG.layer.zPosition=0;
         //cover_view.layer.zPosition=1;
         cover_viewAll.layer.zPosition=0;
         m_oglView.layer.zPosition=3;
+        if (radioView) radioView.layer.zPosition=m_oglView.layer.zPosition+0.1;
     }
     
     mdzRenderInProgress=true;
@@ -10565,7 +10568,7 @@ void drawTgtSlotPattern(int fxIdx,float x,float y,float w,float h,float ww,float
             lbl=NSLocalizedString(@"Choose a subsong",@"");
             break;
         case ARCSUB_MODE_RADIO:
-            lbl=NSLocalizedString(@"History",@"");
+            lbl=NSLocalizedString(@"Radio history",@"");
             break;
     }
     

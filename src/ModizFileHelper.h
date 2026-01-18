@@ -38,6 +38,7 @@
 +(NSString*) getCorrectFileName:(const char*)archiveFilename archive:(struct archive *)a entry:(struct archive_entry *)entry;
 
 +(NSArray*) getAdditionalMODLANDRequiredFiles:(NSString*)filePath;
++(NSArray*) getAdditionalMODLANDRequiredFilesDownloader:(NSString*)filePath;
 
 @end
 

@@ -42,10 +42,10 @@ NSMutableArray *DBHelper::getMissingPartsNameFromFilePath(NSString *fullPath,NSS
         sqlFiletype=[[strComponents objectAtIndex:3] UTF8String];
         if ([strComponents count]>5) {
             sqlAlbum=[[strComponents objectAtIndex:4] UTF8String];
-            sqlFilename=[[strComponents objectAtIndex:5] UTF8String];
+            sqlFilename=[[strComponents lastObject] UTF8String];
         } else {
             sqlAlbum=NULL;
-            sqlFilename=[[strComponents objectAtIndex:4] UTF8String];
+            sqlFilename=[[strComponents lastObject] UTF8String];
         }
         
         if (sqlAlbum) {
@@ -110,10 +110,10 @@ NSMutableArray *DBHelper::getMissingPartsNameFromRemotePath(NSString *fullPath,N
         sqlFiletype=[[strComponents objectAtIndex:0] UTF8String];
         if ([strComponents count]>3) {
             sqlAlbum=[[strComponents objectAtIndex:2] UTF8String];
-            sqlFilename=[[strComponents objectAtIndex:3] UTF8String];
+            sqlFilename=[[strComponents lastObject] UTF8String];
         } else {
             sqlAlbum=NULL;
-            sqlFilename=[[strComponents objectAtIndex:2] UTF8String];
+            sqlFilename=[[strComponents lastObject] UTF8String];
         }
         
         if (sqlAlbum) {
@@ -183,10 +183,10 @@ NSString *DBHelper::getFullPathFromLocalPath(NSString *localPath) {
         sqlFiletype=[[strComponents objectAtIndex:1] UTF8String];
         if ([strComponents count]>3) {
             sqlAlbum=[[strComponents objectAtIndex:2] UTF8String];
-            sqlFilename=[[strComponents objectAtIndex:3] UTF8String];
+            sqlFilename=[[strComponents lastObject] UTF8String];
         } else {
             sqlAlbum=NULL;
-            sqlFilename=[[strComponents objectAtIndex:2] UTF8String];
+            sqlFilename=[[strComponents lastObject] UTF8String];
         }
         
         if (adjusted) {

@@ -32,7 +32,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @synthesize mRadioSource,mPendingNewFileToPlay,mRadioSource_mode,mRetryCount,mRetryDuplCount;
 @synthesize detailVC,fetchDebounceTimer;
-@synthesize mActive,mFilesList,mFilesExistInLibrary,mSourceData,mHistory;
+@synthesize mActive,mFilesList,mFilesExistInLibrary,mSourceData,mHistory,mCurrentPath;
 @synthesize mURLSsession,mURLSessionQueue,mURLSessionConfig;
 
 - (instancetype)init {
@@ -49,6 +49,7 @@ mFilesExistInLibrary = [NSMutableArray arrayWithCapacity:5];
 mSourceData = [NSMutableArray array];
 mHistory = [NSMutableArray array];
 fetchDebounceTimer = nil;
+mCurrentPath=nil;
 [self cleanFiles];
 
 mURLSessionConfig = [NSURLSessionConfiguration defaultSessionConfiguration];
@@ -1089,8 +1090,32 @@ return self;
         NSString *localPath=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/tmp/tmpRadio/%@",mFilesList[0]];
         [array_path addObject:localPath];
         
+        mCurrentPath=[NSString stringWithString:localPath];
         [detailVC play_listmodules:array_label start_index:0 path:array_path];
     }
+}
+
+-(void) removeLastHistoryItem {
+    NSFileManager *mFileMngr=[[NSFileManager alloc] init];
+    NSError *error;
+    
+    NSString *histoPath=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/tmp/tmpRadio/History"];
+    NSString *targetPath=[NSString stringWithFormat:@"%@/0",histoPath];
+    //remove the first dir
+    [mFileMngr removeItemAtPath:targetPath error:NULL];
+    
+    //move the other ones accordingly
+    for (int i=1;i<[mHistory count];i++) {
+        NSString *sourcePath=[NSString stringWithFormat:@"%@/%d",histoPath,i];
+        targetPath=[NSString stringWithFormat:@"%@/%d",histoPath,i-1];
+        
+        [mFileMngr moveItemAtPath:sourcePath toPath:targetPath error:&error];
+        if (error) {
+            MDZELog("Error moving for histo update from slot %d to %d : %@",i,i-1,error.localizedDescription);
+        }
+    }
+    
+    [mHistory removeLastObject];
 }
 
 -(void)fetchRenewFilesAndStart {
@@ -1125,7 +1150,9 @@ return self;
         
         NSString *tmpName=mFilesList[0];
         [mHistory insertObject:[tmpName substringFromIndex:[tmpName rangeOfString:@"/"].location+1] atIndex:0];
-        if ([mHistory count]>MAX_RS_HISTORY) [mHistory removeLastObject];
+        if ([mHistory count]>MAX_RS_HISTORY) {
+            [self removeLastHistoryItem];
+        }
         
         [mFilesList removeObjectAtIndex:0];
         [mFilesExistInLibrary removeObjectAtIndex:0];
@@ -1227,6 +1254,7 @@ return self;
     
     [array_path addObject:localPath];
     
+    mCurrentPath=[NSString stringWithString:localPath];
     [detailVC play_listmodules:array_label start_index:0 path:array_path];
 }
 
@@ -1240,6 +1268,7 @@ return self;
         NSString *localPath=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/tmp/tmpRadio/%@",mFilesList[0]];
         [array_path addObject:localPath];
         
+        mCurrentPath=[NSString stringWithString:localPath];
         [detailVC play_listmodules:array_label start_index:0 path:array_path];
     }
 }
@@ -1345,25 +1374,28 @@ return self;
 }
 
 
--(bool) saveFileToLibrary:(int)slot {
-    bool ret=false;
+-(bool) saveFileToLibrary {
+    bool ret=true;
     [self scanForPlayableFiles];
-    if ([mFilesList count]>=slot) {
-        NSString *relativePath=[mFilesList objectAtIndex:slot];
+    if (mCurrentPath) {
+        NSString *relativePath;
+        if ([mCurrentPath containsString:@"tmpRadio/History/"]) {
+            relativePath=[mCurrentPath substringFromIndex:[mCurrentPath rangeOfString:@"tmpRadio/History/"].location+[@"tmpRadio/History/" length]];
+        } else {
+            relativePath=[mCurrentPath substringFromIndex:[mCurrentPath rangeOfString:@"tmpRadio/"].location+[@"tmpRadio/" length]];
+        }
+        
         if ( (mRadioSource==RS_COLLECTION_AMP) || (mRadioSource==RS_COLLECTION_ASMA) ||
              (mRadioSource==RS_COLLECTION_CGSC) || (mRadioSource==RS_COLLECTION_HVSC) || (mRadioSource==RS_COLLECTION_MODLAND) ) {
             NSFileManager *fileManager = [[NSFileManager alloc] init];
             NSError *error=nil;
-            NSString *fromPath = [[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/tmp/tmpRadio/%@",relativePath];
+            NSString *fromPath = [mCurrentPath stringByDeletingLastPathComponent];
             
-            NSString *toPath = [[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/Documents/%@",[relativePath substringFromIndex:[relativePath rangeOfString:@"/"].location+1]];
+            NSString *toPath = [[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/Documents/%@",[relativePath substringFromIndex:[relativePath rangeOfString:@"/"].location+1]] stringByDeletingLastPathComponent];
             //MDZILog("from %@\nto %@",fromPath,toPath);
-            // Récupère le dossier parent
-            NSString *destinationDir = [toPath stringByDeletingLastPathComponent];
-
             // Crée les dossiers intermédiaires si besoin
-            if (![fileManager fileExistsAtPath:destinationDir]) {
-                BOOL created = [fileManager createDirectoryAtPath:destinationDir
+            if (![fileManager fileExistsAtPath:toPath]) {
+                BOOL created = [fileManager createDirectoryAtPath:toPath
                                        withIntermediateDirectories:YES
                                                         attributes:nil
                                                              error:&error];
@@ -1374,15 +1406,23 @@ return self;
                 }
             }
             
-            [fileManager copyItemAtPath:fromPath toPath:toPath error:&error];
+            //[fileManager copyItemAtPath:fromPath toPath:toPath error:&error];
+            NSArray *contents = [fileManager contentsOfDirectoryAtPath:fromPath error:&error];
             if (error) {
                 MDZELog("Error saving to library: %@", error.localizedDescription);
                 ret=false;
-            } else {
-                ret=true;
             }
-        }
-    }
+            for (NSString *item in contents) {
+                NSString *sourcePath = [fromPath stringByAppendingPathComponent:item];
+                NSString *destPath = [toPath stringByAppendingPathComponent:item];
+                [fileManager copyItemAtPath:sourcePath toPath:destPath error:&error];
+                if (error) {
+                    MDZELog("Error saving to library: %@", error.localizedDescription);
+                    ret=false;
+                }
+            }
+        } else ret=false;
+    } else ret=false;
     return ret;
 }
 
