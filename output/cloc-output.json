@@ -1,11 +1,11 @@
 {"header" : {
   "cloc_url"           : "github.com/AlDanial/cloc",
   "cloc_version"       : "1.98",
-  "elapsed_seconds"    : 29.7628579139709,
-  "n_files"            : 19149,
-  "n_lines"            : 8463886,
-  "files_per_second"   : 643.385794984805,
-  "lines_per_second"   : 284377.462153155,
+  "elapsed_seconds"    : 26.5985238552094,
+  "n_files"            : 19152,
+  "n_lines"            : 8467223,
+  "files_per_second"   : 720.039958016281,
+  "lines_per_second"   : 318334.319832628,
   "report_file"        : "../output/cloc-output.json"},
 "C" :{
   "nFiles": 4588,
@@ -13,15 +13,15 @@
   "comment": 302636,
   "code": 1892527},
 "C/C++ Header" :{
-  "nFiles": 9298,
-  "blank": 267789,
-  "comment": 454457,
-  "code": 1851312},
+  "nFiles": 9299,
+  "blank": 267811,
+  "comment": 454464,
+  "code": 1851394},
 "C++" :{
   "nFiles": 2691,
-  "blank": 269652,
-  "comment": 124782,
-  "code": 1341820},
+  "blank": 269654,
+  "comment": 124785,
+  "code": 1341814},
 "Assembly" :{
   "nFiles": 200,
   "blank": 48307,
@@ -29,19 +29,19 @@
   "code": 349665},
 "Bourne Shell" :{
   "nFiles": 238,
-  "blank": 55329,
-  "comment": 59936,
-  "code": 341663},
+  "blank": 55334,
+  "comment": 59943,
+  "code": 341706},
 "m4" :{
   "nFiles": 122,
   "blank": 11854,
   "comment": 2319,
   "code": 105770},
 "Objective-C++" :{
-  "nFiles": 102,
-  "blank": 17547,
-  "comment": 9907,
-  "code": 85549},
+  "nFiles": 103,
+  "blank": 18014,
+  "comment": 10009,
+  "code": 88151},
 "Scheme" :{
   "nFiles": 8,
   "blank": 49,
@@ -168,10 +168,10 @@
   "comment": 254,
   "code": 1027},
 "DOS Batch" :{
-  "nFiles": 62,
+  "nFiles": 63,
   "blank": 199,
   "comment": 139,
-  "code": 981},
+  "code": 982},
 "awk" :{
   "nFiles": 8,
   "blank": 37,
@@ -328,7 +328,7 @@
   "comment": 0,
   "code": 1},
 "SUM": {
-  "blank": 1044626,
-  "comment": 1068235,
-  "code": 6351025,
-  "nFiles": 19149} }
+  "blank": 1045122,
+  "comment": 1068354,
+  "code": 6353747,
+  "nFiles": 19152} }
