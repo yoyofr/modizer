@@ -67,7 +67,7 @@ function is_blacklisted(line) {
         }
     }
 }' conv1.tmp | sort -u > conv.tmp
-cp conv.tmp convgrep.yo
+
 # 4. Un seul awk pour générer tous les fichiers de sortie
 awk -F '/' '
 BEGIN {

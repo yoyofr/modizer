@@ -1301,6 +1301,58 @@
 		CC84ACC12ECD0E050047656F /* Fonts in Resources */ = {isa = PBXBuildFile; fileRef = CC9331932EA28B7B00CB0503 /* Fonts */; };
 		CC84ACC72ECD9F250047656F /* WelcomeView_2Images.xib in Resources */ = {isa = PBXBuildFile; fileRef = CC84ACC62ECD9F250047656F /* WelcomeView_2Images.xib */; };
 		CC84ACC92ECE07940047656F /* WelcomeView_4Images.xib in Resources */ = {isa = PBXBuildFile; fileRef = CC84ACC82ECE07940047656F /* WelcomeView_4Images.xib */; };
+		CC88F5CC2F1D5A6000E1F780 /* Pokeynoise in Resources */ = {isa = PBXBuildFile; fileRef = CC88F5C22F1D5A6000E1F780 /* Pokeynoise */; };
+		CC88F5CD2F1D5A6000E1F780 /* Anders_0land in Resources */ = {isa = PBXBuildFile; fileRef = CC88F5B32F1D5A6000E1F780 /* Anders_0land */; };
+		CC88F5CE2F1D5A6000E1F780 /* TCB_Tracker in Resources */ = {isa = PBXBuildFile; fileRef = CC88F5C72F1D5A6000E1F780 /* TCB_Tracker */; };
+		CC88F5CF2F1D5A6000E1F780 /* TimeTracker in Resources */ = {isa = PBXBuildFile; fileRef = CC88F5C82F1D5A6000E1F780 /* TimeTracker */; };
+		CC88F5D02F1D5A6000E1F780 /* Protracker4 in Resources */ = {isa = PBXBuildFile; fileRef = CC88F5C42F1D5A6000E1F780 /* Protracker4 */; };
+		CC88F5D12F1D5A6000E1F780 /* Octa-MED-Ss in Resources */ = {isa = PBXBuildFile; fileRef = CC88F5C02F1D5A6000E1F780 /* Octa-MED-Ss */; };
+		CC88F5D22F1D5A6000E1F780 /* Nick_Pelling_Packer in Resources */ = {isa = PBXBuildFile; fileRef = CC88F5BE2F1D5A6000E1F780 /* Nick_Pelling_Packer */; };
+		CC88F5D32F1D5A6000E1F780 /* ZoundMonitor in Resources */ = {isa = PBXBuildFile; fileRef = CC88F5CB2F1D5A6000E1F780 /* ZoundMonitor */; };
+		CC88F5D42F1D5A6000E1F780 /* Ashley_Hogg in Resources */ = {isa = PBXBuildFile; fileRef = CC88F5B62F1D5A6000E1F780 /* Ashley_Hogg */; };
+		CC88F5D52F1D5A6000E1F780 /* GMC in Resources */ = {isa = PBXBuildFile; fileRef = CC88F5B82F1D5A6000E1F780 /* GMC */; };
+		CC88F5D62F1D5A6000E1F780 /* FaceTheMusic in Resources */ = {isa = PBXBuildFile; fileRef = CC88F5B72F1D5A6000E1F780 /* FaceTheMusic */; };
+		CC88F5D72F1D5A6000E1F780 /* Paul_Tonge in Resources */ = {isa = PBXBuildFile; fileRef = CC88F5C12F1D5A6000E1F780 /* Paul_Tonge */; };
+		CC88F5D82F1D5A6000E1F780 /* PreTracker in Resources */ = {isa = PBXBuildFile; fileRef = CC88F5C32F1D5A6000E1F780 /* PreTracker */; };
+		CC88F5D92F1D5A6000E1F780 /* AProSys in Resources */ = {isa = PBXBuildFile; fileRef = CC88F5B52F1D5A6000E1F780 /* AProSys */; };
+		CC88F5DA2F1D5A6000E1F780 /* RobHubbard_ST in Resources */ = {isa = PBXBuildFile; fileRef = CC88F5C62F1D5A6000E1F780 /* RobHubbard_ST */; };
+		CC88F5DB2F1D5A6000E1F780 /* JochenHippelCOSO in Resources */ = {isa = PBXBuildFile; fileRef = CC88F5BB2F1D5A6000E1F780 /* JochenHippelCOSO */; };
+		CC88F5DC2F1D5A6000E1F780 /* Mosh_Packer in Resources */ = {isa = PBXBuildFile; fileRef = CC88F5BD2F1D5A6000E1F780 /* Mosh_Packer */; };
+		CC88F5DD2F1D5A6000E1F780 /* UFO in Resources */ = {isa = PBXBuildFile; fileRef = CC88F5CA2F1D5A6000E1F780 /* UFO */; };
+		CC88F5DE2F1D5A6000E1F780 /* Andrew_Parton in Resources */ = {isa = PBXBuildFile; fileRef = CC88F5B42F1D5A6000E1F780 /* Andrew_Parton */; };
+		CC88F5DF2F1D5A6000E1F780 /* Janne_Salmijarvi_Optimizer in Resources */ = {isa = PBXBuildFile; fileRef = CC88F5B92F1D5A6000E1F780 /* Janne_Salmijarvi_Optimizer */; };
+		CC88F5E02F1D5A6000E1F780 /* JochenHippel-CoSo_UADE in Resources */ = {isa = PBXBuildFile; fileRef = CC88F5BA2F1D5A6000E1F780 /* JochenHippel-CoSo_UADE */; };
+		CC88F5E12F1D5A6000E1F780 /* RichardJoseph_Player in Resources */ = {isa = PBXBuildFile; fileRef = CC88F5C52F1D5A6000E1F780 /* RichardJoseph_Player */; };
+		CC88F5E22F1D5A6000E1F780 /* Kim_Christensen in Resources */ = {isa = PBXBuildFile; fileRef = CC88F5BC2F1D5A6000E1F780 /* Kim_Christensen */; };
+		CC88F5E32F1D5A6000E1F780 /* Titanics_Packer in Resources */ = {isa = PBXBuildFile; fileRef = CC88F5C92F1D5A6000E1F780 /* Titanics_Packer */; };
+		CC88F5E42F1D5A6000E1F780 /* NoiseTracker in Resources */ = {isa = PBXBuildFile; fileRef = CC88F5BF2F1D5A6000E1F780 /* NoiseTracker */; };
+		CC88F5E52F1D5A6000E1F780 /* Pokeynoise in Resources */ = {isa = PBXBuildFile; fileRef = CC88F5C22F1D5A6000E1F780 /* Pokeynoise */; };
+		CC88F5E62F1D5A6000E1F780 /* Anders_0land in Resources */ = {isa = PBXBuildFile; fileRef = CC88F5B32F1D5A6000E1F780 /* Anders_0land */; };
+		CC88F5E72F1D5A6000E1F780 /* TCB_Tracker in Resources */ = {isa = PBXBuildFile; fileRef = CC88F5C72F1D5A6000E1F780 /* TCB_Tracker */; };
+		CC88F5E82F1D5A6000E1F780 /* TimeTracker in Resources */ = {isa = PBXBuildFile; fileRef = CC88F5C82F1D5A6000E1F780 /* TimeTracker */; };
+		CC88F5E92F1D5A6000E1F780 /* Protracker4 in Resources */ = {isa = PBXBuildFile; fileRef = CC88F5C42F1D5A6000E1F780 /* Protracker4 */; };
+		CC88F5EA2F1D5A6000E1F780 /* Octa-MED-Ss in Resources */ = {isa = PBXBuildFile; fileRef = CC88F5C02F1D5A6000E1F780 /* Octa-MED-Ss */; };
+		CC88F5EB2F1D5A6000E1F780 /* Nick_Pelling_Packer in Resources */ = {isa = PBXBuildFile; fileRef = CC88F5BE2F1D5A6000E1F780 /* Nick_Pelling_Packer */; };
+		CC88F5EC2F1D5A6000E1F780 /* ZoundMonitor in Resources */ = {isa = PBXBuildFile; fileRef = CC88F5CB2F1D5A6000E1F780 /* ZoundMonitor */; };
+		CC88F5ED2F1D5A6000E1F780 /* Ashley_Hogg in Resources */ = {isa = PBXBuildFile; fileRef = CC88F5B62F1D5A6000E1F780 /* Ashley_Hogg */; };
+		CC88F5EE2F1D5A6000E1F780 /* GMC in Resources */ = {isa = PBXBuildFile; fileRef = CC88F5B82F1D5A6000E1F780 /* GMC */; };
+		CC88F5EF2F1D5A6000E1F780 /* FaceTheMusic in Resources */ = {isa = PBXBuildFile; fileRef = CC88F5B72F1D5A6000E1F780 /* FaceTheMusic */; };
+		CC88F5F02F1D5A6000E1F780 /* Paul_Tonge in Resources */ = {isa = PBXBuildFile; fileRef = CC88F5C12F1D5A6000E1F780 /* Paul_Tonge */; };
+		CC88F5F12F1D5A6000E1F780 /* PreTracker in Resources */ = {isa = PBXBuildFile; fileRef = CC88F5C32F1D5A6000E1F780 /* PreTracker */; };
+		CC88F5F22F1D5A6000E1F780 /* AProSys in Resources */ = {isa = PBXBuildFile; fileRef = CC88F5B52F1D5A6000E1F780 /* AProSys */; };
+		CC88F5F32F1D5A6000E1F780 /* RobHubbard_ST in Resources */ = {isa = PBXBuildFile; fileRef = CC88F5C62F1D5A6000E1F780 /* RobHubbard_ST */; };
+		CC88F5F42F1D5A6000E1F780 /* JochenHippelCOSO in Resources */ = {isa = PBXBuildFile; fileRef = CC88F5BB2F1D5A6000E1F780 /* JochenHippelCOSO */; };
+		CC88F5F52F1D5A6000E1F780 /* Mosh_Packer in Resources */ = {isa = PBXBuildFile; fileRef = CC88F5BD2F1D5A6000E1F780 /* Mosh_Packer */; };
+		CC88F5F62F1D5A6000E1F780 /* UFO in Resources */ = {isa = PBXBuildFile; fileRef = CC88F5CA2F1D5A6000E1F780 /* UFO */; };
+		CC88F5F72F1D5A6000E1F780 /* Andrew_Parton in Resources */ = {isa = PBXBuildFile; fileRef = CC88F5B42F1D5A6000E1F780 /* Andrew_Parton */; };
+		CC88F5F82F1D5A6000E1F780 /* Janne_Salmijarvi_Optimizer in Resources */ = {isa = PBXBuildFile; fileRef = CC88F5B92F1D5A6000E1F780 /* Janne_Salmijarvi_Optimizer */; };
+		CC88F5F92F1D5A6000E1F780 /* JochenHippel-CoSo_UADE in Resources */ = {isa = PBXBuildFile; fileRef = CC88F5BA2F1D5A6000E1F780 /* JochenHippel-CoSo_UADE */; };
+		CC88F5FA2F1D5A6000E1F780 /* RichardJoseph_Player in Resources */ = {isa = PBXBuildFile; fileRef = CC88F5C52F1D5A6000E1F780 /* RichardJoseph_Player */; };
+		CC88F5FB2F1D5A6000E1F780 /* Kim_Christensen in Resources */ = {isa = PBXBuildFile; fileRef = CC88F5BC2F1D5A6000E1F780 /* Kim_Christensen */; };
+		CC88F5FC2F1D5A6000E1F780 /* Titanics_Packer in Resources */ = {isa = PBXBuildFile; fileRef = CC88F5C92F1D5A6000E1F780 /* Titanics_Packer */; };
+		CC88F5FD2F1D5A6000E1F780 /* NoiseTracker in Resources */ = {isa = PBXBuildFile; fileRef = CC88F5BF2F1D5A6000E1F780 /* NoiseTracker */; };
+		CC88F6412F1D826C00E1F780 /* mus2kss.c in Sources */ = {isa = PBXBuildFile; fileRef = CC88F63A2F1D826C00E1F780 /* mus2kss.c */; };
+		CC88F6522F1D826C00E1F780 /* mus2kss.c in Sources */ = {isa = PBXBuildFile; fileRef = CC88F63A2F1D826C00E1F780 /* mus2kss.c */; };
 		CC88FB8C2EDAF0B900717901 /* Credits.html in Resources */ = {isa = PBXBuildFile; fileRef = CC88FB8A2EDAF01E00717901 /* Credits.html */; };
 		CC8970DD2EFCB21000D6CA1E /* RootViewControllerCGSC.mm in Sources */ = {isa = PBXBuildFile; fileRef = CC8970DC2EFCB21000D6CA1E /* RootViewControllerCGSC.mm */; };
 		CC8970DE2EFCB21000D6CA1E /* RootViewControllerCGSC.mm in Sources */ = {isa = PBXBuildFile; fileRef = CC8970DC2EFCB21000D6CA1E /* RootViewControllerCGSC.mm */; };
@@ -4488,6 +4540,33 @@
 		CC84ACC62ECD9F250047656F /* WelcomeView_2Images.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = WelcomeView_2Images.xib; sourceTree = "<group>"; };
 		CC84ACC82ECE07940047656F /* WelcomeView_4Images.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = WelcomeView_4Images.xib; sourceTree = "<group>"; };
 		CC88D1131270AF200004EBBE /* modizer-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "modizer-Info.plist"; sourceTree = "<group>"; };
+		CC88F5B32F1D5A6000E1F780 /* Anders_0land */ = {isa = PBXFileReference; lastKnownFileType = file; path = Anders_0land; sourceTree = "<group>"; };
+		CC88F5B42F1D5A6000E1F780 /* Andrew_Parton */ = {isa = PBXFileReference; lastKnownFileType = file; path = Andrew_Parton; sourceTree = "<group>"; };
+		CC88F5B52F1D5A6000E1F780 /* AProSys */ = {isa = PBXFileReference; lastKnownFileType = file; path = AProSys; sourceTree = "<group>"; };
+		CC88F5B62F1D5A6000E1F780 /* Ashley_Hogg */ = {isa = PBXFileReference; lastKnownFileType = file; path = Ashley_Hogg; sourceTree = "<group>"; };
+		CC88F5B72F1D5A6000E1F780 /* FaceTheMusic */ = {isa = PBXFileReference; lastKnownFileType = file; path = FaceTheMusic; sourceTree = "<group>"; };
+		CC88F5B82F1D5A6000E1F780 /* GMC */ = {isa = PBXFileReference; lastKnownFileType = file; path = GMC; sourceTree = "<group>"; };
+		CC88F5B92F1D5A6000E1F780 /* Janne_Salmijarvi_Optimizer */ = {isa = PBXFileReference; lastKnownFileType = file; path = Janne_Salmijarvi_Optimizer; sourceTree = "<group>"; };
+		CC88F5BA2F1D5A6000E1F780 /* JochenHippel-CoSo_UADE */ = {isa = PBXFileReference; lastKnownFileType = file; path = "JochenHippel-CoSo_UADE"; sourceTree = "<group>"; };
+		CC88F5BB2F1D5A6000E1F780 /* JochenHippelCOSO */ = {isa = PBXFileReference; lastKnownFileType = file; path = JochenHippelCOSO; sourceTree = "<group>"; };
+		CC88F5BC2F1D5A6000E1F780 /* Kim_Christensen */ = {isa = PBXFileReference; lastKnownFileType = file; path = Kim_Christensen; sourceTree = "<group>"; };
+		CC88F5BD2F1D5A6000E1F780 /* Mosh_Packer */ = {isa = PBXFileReference; lastKnownFileType = file; path = Mosh_Packer; sourceTree = "<group>"; };
+		CC88F5BE2F1D5A6000E1F780 /* Nick_Pelling_Packer */ = {isa = PBXFileReference; lastKnownFileType = file; path = Nick_Pelling_Packer; sourceTree = "<group>"; };
+		CC88F5BF2F1D5A6000E1F780 /* NoiseTracker */ = {isa = PBXFileReference; lastKnownFileType = file; path = NoiseTracker; sourceTree = "<group>"; };
+		CC88F5C02F1D5A6000E1F780 /* Octa-MED-Ss */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Octa-MED-Ss"; sourceTree = "<group>"; };
+		CC88F5C12F1D5A6000E1F780 /* Paul_Tonge */ = {isa = PBXFileReference; lastKnownFileType = file; path = Paul_Tonge; sourceTree = "<group>"; };
+		CC88F5C22F1D5A6000E1F780 /* Pokeynoise */ = {isa = PBXFileReference; lastKnownFileType = file; path = Pokeynoise; sourceTree = "<group>"; };
+		CC88F5C32F1D5A6000E1F780 /* PreTracker */ = {isa = PBXFileReference; lastKnownFileType = file; path = PreTracker; sourceTree = "<group>"; };
+		CC88F5C42F1D5A6000E1F780 /* Protracker4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = Protracker4; sourceTree = "<group>"; };
+		CC88F5C52F1D5A6000E1F780 /* RichardJoseph_Player */ = {isa = PBXFileReference; lastKnownFileType = file; path = RichardJoseph_Player; sourceTree = "<group>"; };
+		CC88F5C62F1D5A6000E1F780 /* RobHubbard_ST */ = {isa = PBXFileReference; lastKnownFileType = file; path = RobHubbard_ST; sourceTree = "<group>"; };
+		CC88F5C72F1D5A6000E1F780 /* TCB_Tracker */ = {isa = PBXFileReference; lastKnownFileType = file; path = TCB_Tracker; sourceTree = "<group>"; };
+		CC88F5C82F1D5A6000E1F780 /* TimeTracker */ = {isa = PBXFileReference; lastKnownFileType = file; path = TimeTracker; sourceTree = "<group>"; };
+		CC88F5C92F1D5A6000E1F780 /* Titanics_Packer */ = {isa = PBXFileReference; lastKnownFileType = file; path = Titanics_Packer; sourceTree = "<group>"; };
+		CC88F5CA2F1D5A6000E1F780 /* UFO */ = {isa = PBXFileReference; lastKnownFileType = file; path = UFO; sourceTree = "<group>"; };
+		CC88F5CB2F1D5A6000E1F780 /* ZoundMonitor */ = {isa = PBXFileReference; lastKnownFileType = file; path = ZoundMonitor; sourceTree = "<group>"; };
+		CC88F6382F1D826C00E1F780 /* mus2kss.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = mus2kss.h; sourceTree = "<group>"; };
+		CC88F63A2F1D826C00E1F780 /* mus2kss.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = mus2kss.c; sourceTree = "<group>"; };
 		CC88FB8A2EDAF01E00717901 /* Credits.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = Credits.html; sourceTree = "<group>"; };
 		CC88FB912EDB2CD100717901 /* ModizerMacWindowPlugin.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ModizerMacWindowPlugin.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		CC8970DB2EFCB21000D6CA1E /* RootViewControllerCGSC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RootViewControllerCGSC.h; sourceTree = "<group>"; };
@@ -5666,6 +5745,7 @@
 		59B9991425CFDF8F0071E144 /* utils */ = {
 			isa = PBXGroup;
 			children = (
+				CC88F63D2F1D826C00E1F780 /* mus2kss */,
 				CC6B934F2EDF624D00383CC4 /* sqlite */,
 				CCE026442E9BB0E3008B7070 /* GLES3 */,
 				CC9CEF1E2E97D9CC00725D15 /* stb */,
@@ -6636,9 +6716,13 @@
 				CC1E6266120423DF000A8A4E /* Alcatraz_Packer */,
 				CC1E6267120423DF000A8A4E /* AM-Composer */,
 				CC1E6268120423DF000A8A4E /* AMOS */,
+				CC88F5B32F1D5A6000E1F780 /* Anders_0land */,
+				CC88F5B42F1D5A6000E1F780 /* Andrew_Parton */,
+				CC88F5B52F1D5A6000E1F780 /* AProSys */,
 				CC1E6269120423DF000A8A4E /* ArtAndMagic */,
 				CC1E626A120423DF000A8A4E /* ArtOfNoise-4V */,
 				CC1E626B120423DF000A8A4E /* ArtOfNoise-8V */,
+				CC88F5B62F1D5A6000E1F780 /* Ashley_Hogg */,
 				CC1E626C120423DF000A8A4E /* AudioSculpture */,
 				CC1E626D120423DF000A8A4E /* BeathovenSynthesizer */,
 				CC1E626E120423DF000A8A4E /* BenDaglish */,
@@ -6666,6 +6750,7 @@
 				CC1E6284120423DF000A8A4E /* EMS */,
 				CC1E6285120423DF000A8A4E /* EMS-6 */,
 				CC1E6286120423DF000A8A4E /* ENV */,
+				CC88F5B72F1D5A6000E1F780 /* FaceTheMusic */,
 				CC1E6292120423DF000A8A4E /* FashionTracker */,
 				CC1E6293120423DF000A8A4E /* ForgottenWorlds_Game */,
 				CC1E6294120423DF000A8A4E /* Fred */,
@@ -6675,6 +6760,7 @@
 				CC1E6298120423DF000A8A4E /* FutureComposer1.4 */,
 				CC1E6299120423DF000A8A4E /* FuturePlayer */,
 				CC1E629A120423DF000A8A4E /* GlueMon */,
+				CC88F5B82F1D5A6000E1F780 /* GMC */,
 				CC1E629B120423DF000A8A4E /* HowieDavies */,
 				CC1E629C120423DF000A8A4E /* ImagesMusicSystem */,
 				CC1E629D120423DF000A8A4E /* Infogrames */,
@@ -6682,6 +6768,7 @@
 				CC1E629F120423DF000A8A4E /* InStereo2.0 */,
 				CC1E62A0120423DF000A8A4E /* JamCracker */,
 				CC1E62A1120423DF000A8A4E /* JankoMrsicFlogel */,
+				CC88F5B92F1D5A6000E1F780 /* Janne_Salmijarvi_Optimizer */,
 				CC1E62A2120423DF000A8A4E /* JasonBrooke */,
 				CC1E62A3120423DF000A8A4E /* JasonPage */,
 				CC1E62A4120423DF000A8A4E /* JasonPage_JP */,
@@ -6690,9 +6777,12 @@
 				CC1E62A7120423DF000A8A4E /* JesperOlsen_EP */,
 				CC1E62A8120423DF000A8A4E /* Jochen_Hippel_ST */,
 				CC1E62A9120423DF000A8A4E /* JochenHippel */,
+				CC1E62AC120423DF000A8A4E /* JochenHippel_UADE */,
 				CC1E62AA120423DF000A8A4E /* JochenHippel-7V */,
 				CC1E62AB120423DF000A8A4E /* JochenHippel-CoSo */,
-				CC1E62AC120423DF000A8A4E /* JochenHippel_UADE */,
+				CC88F5BA2F1D5A6000E1F780 /* JochenHippel-CoSo_UADE */,
+				CC88F5BB2F1D5A6000E1F780 /* JochenHippelCOSO */,
+				CC88F5BC2F1D5A6000E1F780 /* Kim_Christensen */,
 				CC1E62AD120423DF000A8A4E /* KrisHatlelid */,
 				CC1E62AE120423DF000A8A4E /* Laxity */,
 				CC1E62AF120423DF000A8A4E /* LegglessMusicEditor */,
@@ -6711,6 +6801,7 @@
 				CC1E62BC120423DF000A8A4E /* MIDI-Loriciel */,
 				CC1E62BD120423DF000A8A4E /* MikeDavies */,
 				CC1E62BE120423DF000A8A4E /* MMDC */,
+				CC88F5BD2F1D5A6000E1F780 /* Mosh_Packer */,
 				CC1E62BF120423DF000A8A4E /* Mugician */,
 				CC1E62C0120423DF000A8A4E /* MugicianII */,
 				CC1E62C1120423DF000A8A4E /* MultiMedia_Sound */,
@@ -6718,17 +6809,24 @@
 				CC1E62C3120423DF000A8A4E /* MusiclineEditor */,
 				CC1E62C4120423DF000A8A4E /* MusicMaker-4V */,
 				CC1E62C5120423DF000A8A4E /* MusicMaker-8V */,
+				CC88F5BE2F1D5A6000E1F780 /* Nick_Pelling_Packer */,
+				CC88F5BF2F1D5A6000E1F780 /* NoiseTracker */,
 				CC1E62C6120423DF000A8A4E /* NovoTradePacker */,
 				CC1E62C7120423DF000A8A4E /* NTSP-system */,
 				CC1E62C8120423DF000A8A4E /* Octa-MED */,
+				CC88F5C02F1D5A6000E1F780 /* Octa-MED-Ss */,
 				CC1E62C9120423DF000A8A4E /* Oktalyzer */,
 				CC1E62CA120423DF000A8A4E /* onEscapee */,
+				CC88F5C12F1D5A6000E1F780 /* Paul_Tonge */,
 				CC1E62CB120423DF000A8A4E /* PaulRobotham */,
 				CC1E62CC120423DF000A8A4E /* PaulShields */,
 				CC1E62CD120423DF000A8A4E /* PaulSummers */,
 				CC1E62CE120423DF000A8A4E /* PeterVerswyvelen */,
 				CC1E62CF120423DF000A8A4E /* PierreAdane */,
+				CC88F5C22F1D5A6000E1F780 /* Pokeynoise */,
+				CC88F5C32F1D5A6000E1F780 /* PreTracker */,
 				CC1E62D0120423DF000A8A4E /* ProfessionalSoundArtists */,
+				CC88F5C42F1D5A6000E1F780 /* Protracker4 */,
 				CC1E62D1120423DF000A8A4E /* PTK-Prowiz */,
 				CC1E62D2120423DF000A8A4E /* PumaTracker */,
 				CC1E62D3120423DF000A8A4E /* QuadraComposer */,
@@ -6736,8 +6834,10 @@
 				CC1E62D5120423DF000A8A4E /* Quartet_PSG */,
 				CC1E62D6120423DF000A8A4E /* Quartet_ST */,
 				CC1E62D7120423DF000A8A4E /* RichardJoseph */,
+				CC88F5C52F1D5A6000E1F780 /* RichardJoseph_Player */,
 				CC1E62D8120423DF000A8A4E /* RiffRaff */,
 				CC1E62D9120423DF000A8A4E /* RobHubbard */,
+				CC88F5C62F1D5A6000E1F780 /* RobHubbard_ST */,
 				CC1E62DA120423DF000A8A4E /* RobHubbardOld */,
 				CC1E62DB120423DF000A8A4E /* S */,
 				CC1E62DD120423DF000A8A4E /* ScottJohnston */,
@@ -6772,22 +6872,27 @@
 				CC1E62FA120423DF000A8A4E /* SynthDream */,
 				CC1E62FB120423DF000A8A4E /* SynthPack */,
 				CC1E62FC120423DF000A8A4E /* SynTracker */,
+				CC88F5C72F1D5A6000E1F780 /* TCB_Tracker */,
 				CC1E62FD120423DF000A8A4E /* TFMX */,
+				CC1E6303120423DF000A8A4E /* TFMX_ST */,
 				CC1E62FE120423DF000A8A4E /* TFMX-7V */,
 				CC1E62FF120423DF000A8A4E /* TFMX-7V-TFHD */,
 				CC1E6300120423DF000A8A4E /* TFMX-Pro */,
 				CC1E6301120423DF000A8A4E /* TFMX-Pro-TFHD */,
 				CC1E6302120423DF000A8A4E /* TFMX-TFHD */,
-				CC1E6303120423DF000A8A4E /* TFMX_ST */,
 				CC1E6304120423DF000A8A4E /* TheMusicalEnlightenment */,
 				CC1E6305120423DF000A8A4E /* ThomasHermann */,
+				CC88F5C82F1D5A6000E1F780 /* TimeTracker */,
 				CC1E6306120423DF000A8A4E /* TimFollin */,
+				CC88F5C92F1D5A6000E1F780 /* Titanics_Packer */,
 				CC1E6307120423DF000A8A4E /* TomyTracker */,
 				CC1E6308120423DF000A8A4E /* Tronic */,
+				CC88F5CA2F1D5A6000E1F780 /* UFO */,
 				CC1E6309120423DF000A8A4E /* UltimateSoundtracker */,
 				CC1E630A120423DF000A8A4E /* VoodooSupremeSynthesizer */,
 				CC1E630B120423DF000A8A4E /* WallyBeben */,
 				CC1E630C120423DF000A8A4E /* YM-2149 */,
+				CC88F5CB2F1D5A6000E1F780 /* ZoundMonitor */,
 			);
 			path = players;
 			sourceTree = "<group>";
@@ -7282,6 +7387,15 @@
 				CC836A5A2B6322780035A4DA /* liblibatariaudio.a */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		CC88F63D2F1D826C00E1F780 /* mus2kss */ = {
+			isa = PBXGroup;
+			children = (
+				CC88F6382F1D826C00E1F780 /* mus2kss.h */,
+				CC88F63A2F1D826C00E1F780 /* mus2kss.c */,
+			);
+			path = mus2kss;
 			sourceTree = "<group>";
 		};
 		CC9A509B2BE2C11300CED1F0 /* PMDMini */ = {
@@ -9013,6 +9127,31 @@
 				33C7397E13A2137A0012221C /* default_art.png in Resources */,
 				33CAECAE13E93D7100088A37 /* arc_details.png in Resources */,
 				59BE93AE2600D3F500414A42 /* basic.c64 in Resources */,
+				CC88F5CC2F1D5A6000E1F780 /* Pokeynoise in Resources */,
+				CC88F5CD2F1D5A6000E1F780 /* Anders_0land in Resources */,
+				CC88F5CE2F1D5A6000E1F780 /* TCB_Tracker in Resources */,
+				CC88F5CF2F1D5A6000E1F780 /* TimeTracker in Resources */,
+				CC88F5D02F1D5A6000E1F780 /* Protracker4 in Resources */,
+				CC88F5D12F1D5A6000E1F780 /* Octa-MED-Ss in Resources */,
+				CC88F5D22F1D5A6000E1F780 /* Nick_Pelling_Packer in Resources */,
+				CC88F5D32F1D5A6000E1F780 /* ZoundMonitor in Resources */,
+				CC88F5D42F1D5A6000E1F780 /* Ashley_Hogg in Resources */,
+				CC88F5D52F1D5A6000E1F780 /* GMC in Resources */,
+				CC88F5D62F1D5A6000E1F780 /* FaceTheMusic in Resources */,
+				CC88F5D72F1D5A6000E1F780 /* Paul_Tonge in Resources */,
+				CC88F5D82F1D5A6000E1F780 /* PreTracker in Resources */,
+				CC88F5D92F1D5A6000E1F780 /* AProSys in Resources */,
+				CC88F5DA2F1D5A6000E1F780 /* RobHubbard_ST in Resources */,
+				CC88F5DB2F1D5A6000E1F780 /* JochenHippelCOSO in Resources */,
+				CC88F5DC2F1D5A6000E1F780 /* Mosh_Packer in Resources */,
+				CC88F5DD2F1D5A6000E1F780 /* UFO in Resources */,
+				CC88F5DE2F1D5A6000E1F780 /* Andrew_Parton in Resources */,
+				CC88F5DF2F1D5A6000E1F780 /* Janne_Salmijarvi_Optimizer in Resources */,
+				CC88F5E02F1D5A6000E1F780 /* JochenHippel-CoSo_UADE in Resources */,
+				CC88F5E12F1D5A6000E1F780 /* RichardJoseph_Player in Resources */,
+				CC88F5E22F1D5A6000E1F780 /* Kim_Christensen in Resources */,
+				CC88F5E32F1D5A6000E1F780 /* Titanics_Packer in Resources */,
+				CC88F5E42F1D5A6000E1F780 /* NoiseTracker in Resources */,
 				33CAECAF13E93D7100088A37 /* arc_details@2x.png in Resources */,
 				CC8A8D4317F9FF5500A56E0C /* Icon-76.png in Resources */,
 				CCC6776B17F62BCC00F16A54 /* txtMenu7b_2x.png in Resources */,
@@ -9698,6 +9837,31 @@
 				CCBE62A82EE2DD44000FDD7E /* default_art.png in Resources */,
 				CCBE62A92EE2DD44000FDD7E /* arc_details.png in Resources */,
 				CCBE62AA2EE2DD44000FDD7E /* basic.c64 in Resources */,
+				CC88F5E52F1D5A6000E1F780 /* Pokeynoise in Resources */,
+				CC88F5E62F1D5A6000E1F780 /* Anders_0land in Resources */,
+				CC88F5E72F1D5A6000E1F780 /* TCB_Tracker in Resources */,
+				CC88F5E82F1D5A6000E1F780 /* TimeTracker in Resources */,
+				CC88F5E92F1D5A6000E1F780 /* Protracker4 in Resources */,
+				CC88F5EA2F1D5A6000E1F780 /* Octa-MED-Ss in Resources */,
+				CC88F5EB2F1D5A6000E1F780 /* Nick_Pelling_Packer in Resources */,
+				CC88F5EC2F1D5A6000E1F780 /* ZoundMonitor in Resources */,
+				CC88F5ED2F1D5A6000E1F780 /* Ashley_Hogg in Resources */,
+				CC88F5EE2F1D5A6000E1F780 /* GMC in Resources */,
+				CC88F5EF2F1D5A6000E1F780 /* FaceTheMusic in Resources */,
+				CC88F5F02F1D5A6000E1F780 /* Paul_Tonge in Resources */,
+				CC88F5F12F1D5A6000E1F780 /* PreTracker in Resources */,
+				CC88F5F22F1D5A6000E1F780 /* AProSys in Resources */,
+				CC88F5F32F1D5A6000E1F780 /* RobHubbard_ST in Resources */,
+				CC88F5F42F1D5A6000E1F780 /* JochenHippelCOSO in Resources */,
+				CC88F5F52F1D5A6000E1F780 /* Mosh_Packer in Resources */,
+				CC88F5F62F1D5A6000E1F780 /* UFO in Resources */,
+				CC88F5F72F1D5A6000E1F780 /* Andrew_Parton in Resources */,
+				CC88F5F82F1D5A6000E1F780 /* Janne_Salmijarvi_Optimizer in Resources */,
+				CC88F5F92F1D5A6000E1F780 /* JochenHippel-CoSo_UADE in Resources */,
+				CC88F5FA2F1D5A6000E1F780 /* RichardJoseph_Player in Resources */,
+				CC88F5FB2F1D5A6000E1F780 /* Kim_Christensen in Resources */,
+				CC88F5FC2F1D5A6000E1F780 /* Titanics_Packer in Resources */,
+				CC88F5FD2F1D5A6000E1F780 /* NoiseTracker in Resources */,
 				CCBE62AB2EE2DD44000FDD7E /* arc_details@2x.png in Resources */,
 				CCBE62AC2EE2DD44000FDD7E /* Icon-76.png in Resources */,
 				CCBE62AD2EE2DD44000FDD7E /* txtMenu7b_2x.png in Resources */,
@@ -9834,6 +9998,7 @@
 				CC9CEF252E97E09E00725D15 /* imgui_impl_ios.mm in Sources */,
 				591D8E4A25DC63620013E19F /* quantization.c in Sources */,
 				CCFDC52D17DB105500C6692C /* RingBuffer.mm in Sources */,
+				CC88F6522F1D826C00E1F780 /* mus2kss.c in Sources */,
 				591D8E4325DC63620013E19F /* utility.c in Sources */,
 				CCFDC52A17DB105500C6692C /* AudioFileReader.mm in Sources */,
 				59809D2B2632A93300CCCF42 /* CarPlayAndRemoteManagement.mm in Sources */,
@@ -10043,6 +10208,7 @@
 				CCBE607A2EE2DD44000FDD7E /* imgui_impl_ios.mm in Sources */,
 				CCBE607B2EE2DD44000FDD7E /* quantization.c in Sources */,
 				CCBE607C2EE2DD44000FDD7E /* RingBuffer.mm in Sources */,
+				CC88F6412F1D826C00E1F780 /* mus2kss.c in Sources */,
 				CCBE607D2EE2DD44000FDD7E /* utility.c in Sources */,
 				CCBE607E2EE2DD44000FDD7E /* AudioFileReader.mm in Sources */,
 				CCBE607F2EE2DD44000FDD7E /* CarPlayAndRemoteManagement.mm in Sources */,
@@ -10457,6 +10623,7 @@
 					"-DPROJECTM_FILESYSTEM_NAMESPACE=std",
 					"-DPROJECTM_FILESYSTEM_INCLUDE=<filesystem>",
 					"-DPROJECTM_USE_THREADS=1",
+					"-DMUS2KSS_LIBRARY",
 				);
 				OTHER_LDFLAGS = "";
 				PROVISIONING_PROFILE = "";
@@ -10621,6 +10788,7 @@
 					"-DPROJECTM_FILESYSTEM_NAMESPACE=std",
 					"-DPROJECTM_FILESYSTEM_INCLUDE=<filesystem>",
 					"-DPROJECTM_USE_THREADS=1",
+					"-DMUS2KSS_LIBRARY",
 				);
 				OTHER_LDFLAGS = "";
 				PROVISIONING_PROFILE = "";
@@ -10785,6 +10953,7 @@
 					"-DPROJECTM_FILESYSTEM_NAMESPACE=std",
 					"-DPROJECTM_FILESYSTEM_INCLUDE=<filesystem>",
 					"-DPROJECTM_USE_THREADS=1",
+					"-DMUS2KSS_LIBRARY",
 				);
 				OTHER_LDFLAGS = "";
 				PROVISIONING_PROFILE = "BBD4A981-2AB4-4F3D-939B-D7E26D41A005";

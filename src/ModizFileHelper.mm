@@ -1325,6 +1325,83 @@ extern bool icloud_available;
         addFile=[filePath stringByReplacingOccurrencesOfString:@".str" withString:@".mus"];
         [addFiles addObject:addFile];
     }
+    // other
+    if ([filePath localizedCaseInsensitiveContainsString:@"tpu."]) {
+        addFile=[filePath stringByReplacingOccurrencesOfString:@"tpu." withString:@"smp."];
+        [addFiles addObject:addFile];
+    }
+    if ([filePath localizedCaseInsensitiveContainsString:@".tpu"]) {
+        addFile=[filePath stringByReplacingOccurrencesOfString:@".tpu" withString:@".smp"];
+        [addFiles addObject:addFile];
+    }
+    if ([filePath localizedCaseInsensitiveContainsString:@"jpn."]) {
+        addFile=[filePath stringByReplacingOccurrencesOfString:@"jpn." withString:@"smp."];
+        [addFiles addObject:addFile];
+    }
+    if ([filePath localizedCaseInsensitiveContainsString:@".jpn"]) {
+        addFile=[filePath stringByReplacingOccurrencesOfString:@".jpn" withString:@".smp"];
+        [addFiles addObject:addFile];
+    }
+    if ([filePath localizedCaseInsensitiveContainsString:@"mfp."]) {
+        addFile=[filePath stringByReplacingOccurrencesOfString:@"mfp." withString:@"smp."];
+        [addFiles addObject:addFile];
+    }
+    if ([filePath localizedCaseInsensitiveContainsString:@".mfp"]) {
+        addFile=[filePath stringByReplacingOccurrencesOfString:@".mfp" withString:@".smp"];
+        [addFiles addObject:addFile];
+    }
+    if ([filePath localizedCaseInsensitiveContainsString:@"sjs."]) {
+        addFile=[filePath stringByReplacingOccurrencesOfString:@"sjs." withString:@"smp."];
+        [addFiles addObject:addFile];
+    }
+    if ([filePath localizedCaseInsensitiveContainsString:@".sjs"]) {
+        addFile=[filePath stringByReplacingOccurrencesOfString:@".sjs" withString:@".smp"];
+        [addFiles addObject:addFile];
+    }
+    if ([filePath localizedCaseInsensitiveContainsString:@"uds."]) {
+        addFile=[filePath stringByReplacingOccurrencesOfString:@"uds." withString:@"smp."];
+        [addFiles addObject:addFile];
+    }
+    if ([filePath localizedCaseInsensitiveContainsString:@".uds"]) {
+        addFile=[filePath stringByReplacingOccurrencesOfString:@".uds" withString:@".smp"];
+        [addFiles addObject:addFile];
+    }
+    if ([filePath localizedCaseInsensitiveContainsString:@".pap"]) {
+        addFile=[NSString stringWithFormat:@"%@/smp.set",[filePath stringByDeletingLastPathComponent]];
+        [addFiles addObject:addFile];
+    }
+    if ([filePath localizedCaseInsensitiveContainsString:@".4v"]) {
+        addFile=[NSString stringWithFormat:@"%@/SMP.set",[filePath stringByDeletingLastPathComponent]];
+        [addFiles addObject:addFile];
+        addFile=[filePath stringByReplacingOccurrencesOfString:@".4v" withString:@".set"];
+        [addFiles addObject:addFile];
+    }
+    if ([filePath localizedCaseInsensitiveContainsString:@".dat"]) {
+        NSMutableArray *libsList=DBHelper::getMissingPartsNameFromRemotePath(filePath,@"ssd");
+        for (int i=0;i<[libsList count]/2;i++) {
+            addFile=(NSString *)[libsList objectAtIndex:i*2];
+            if (![addFiles containsObject:addFile]) [addFiles addObject:addFile];
+        }
+    }
+    if ([filePath localizedCaseInsensitiveContainsString:@".mus"]) {
+        NSMutableArray *libsList=DBHelper::getMissingPartsNameFromRemotePath(filePath,@"sm1");
+        for (int i=0;i<[libsList count]/2;i++) {
+            addFile=(NSString *)[libsList objectAtIndex:i*2];
+            if (![addFiles containsObject:addFile]) [addFiles addObject:addFile];
+        }
+        libsList=DBHelper::getMissingPartsNameFromRemotePath(filePath,@"sm2");
+        for (int i=0;i<[libsList count]/2;i++) {
+            addFile=(NSString *)[libsList objectAtIndex:i*2];
+            if (![addFiles containsObject:addFile]) [addFiles addObject:addFile];
+        }
+    }
+    if ([filePath localizedCaseInsensitiveContainsString:@".dum"]) {
+        NSMutableArray *libsList=DBHelper::getMissingPartsNameFromRemotePath(filePath,@"ins");
+        for (int i=0;i<[libsList count]/2;i++) {
+            addFile=(NSString *)[libsList objectAtIndex:i*2];
+            if (![addFiles containsObject:addFile]) [addFiles addObject:addFile];
+        }
+    }
     if ([filePath localizedCaseInsensitiveContainsString:@".mini"]) {
         NSMutableArray *libsList=DBHelper::getMissingPartsNameFromRemotePath(filePath,@"lib");
         for (int i=0;i<[libsList count]/2;i++) {
@@ -1404,6 +1481,83 @@ extern bool icloud_available;
     if ([filePath localizedCaseInsensitiveContainsString:@".str"]) {
         addFile=[filePath stringByReplacingOccurrencesOfString:@".str" withString:@".mus"];
         [addFiles addObject:addFile];
+    }
+    // other
+    if ([filePath localizedCaseInsensitiveContainsString:@"tpu."]) {
+        addFile=[filePath stringByReplacingOccurrencesOfString:@"tpu." withString:@"smp."];
+        [addFiles addObject:addFile];
+    }
+    if ([filePath localizedCaseInsensitiveContainsString:@".tpu"]) {
+        addFile=[filePath stringByReplacingOccurrencesOfString:@".tpu" withString:@".smp"];
+        [addFiles addObject:addFile];
+    }
+    if ([filePath localizedCaseInsensitiveContainsString:@"jpn."]) {
+        addFile=[filePath stringByReplacingOccurrencesOfString:@"jpn." withString:@"smp."];
+        [addFiles addObject:addFile];
+    }
+    if ([filePath localizedCaseInsensitiveContainsString:@".jpn"]) {
+        addFile=[filePath stringByReplacingOccurrencesOfString:@".jpn" withString:@".smp"];
+        [addFiles addObject:addFile];
+    }
+    if ([filePath localizedCaseInsensitiveContainsString:@"mfp."]) {
+        addFile=[filePath stringByReplacingOccurrencesOfString:@"mfp." withString:@"smp."];
+        [addFiles addObject:addFile];
+    }
+    if ([filePath localizedCaseInsensitiveContainsString:@".mfp"]) {
+        addFile=[filePath stringByReplacingOccurrencesOfString:@".mfp" withString:@".smp"];
+        [addFiles addObject:addFile];
+    }
+    if ([filePath localizedCaseInsensitiveContainsString:@"sjs."]) {
+        addFile=[filePath stringByReplacingOccurrencesOfString:@"sjs." withString:@"smp."];
+        [addFiles addObject:addFile];
+    }
+    if ([filePath localizedCaseInsensitiveContainsString:@".sjs"]) {
+        addFile=[filePath stringByReplacingOccurrencesOfString:@".sjs" withString:@".smp"];
+        [addFiles addObject:addFile];
+    }
+    if ([filePath localizedCaseInsensitiveContainsString:@"uds."]) {
+        addFile=[filePath stringByReplacingOccurrencesOfString:@"uds." withString:@"smp."];
+        [addFiles addObject:addFile];
+    }
+    if ([filePath localizedCaseInsensitiveContainsString:@".uds"]) {
+        addFile=[filePath stringByReplacingOccurrencesOfString:@".uds" withString:@".smp"];
+        [addFiles addObject:addFile];
+    }
+    if ([filePath localizedCaseInsensitiveContainsString:@".pap"]) {
+        addFile=[NSString stringWithFormat:@"%@/smp.set",[filePath stringByDeletingLastPathComponent]];
+        [addFiles addObject:addFile];
+    }
+    if ([filePath localizedCaseInsensitiveContainsString:@".4v"]) {
+        addFile=[NSString stringWithFormat:@"%@/SMP.set",[filePath stringByDeletingLastPathComponent]];
+        [addFiles addObject:addFile];
+        addFile=[filePath stringByReplacingOccurrencesOfString:@".4v" withString:@".set"];
+        [addFiles addObject:addFile];
+    }
+    if ([filePath localizedCaseInsensitiveContainsString:@".dat"]) {
+        NSMutableArray *libsList=DBHelper::getMissingPartsNameFromFilePath(filePath,@"ssd");
+        for (int i=0;i<[libsList count]/2;i++) {
+            addFile=(NSString *)[libsList objectAtIndex:i*2];
+            if (![addFiles containsObject:addFile]) [addFiles addObject:addFile];
+        }
+    }
+    if ([filePath localizedCaseInsensitiveContainsString:@".mus"]) {
+        NSMutableArray *libsList=DBHelper::getMissingPartsNameFromFilePath(filePath,@"sm1");
+        for (int i=0;i<[libsList count]/2;i++) {
+            addFile=(NSString *)[libsList objectAtIndex:i*2];
+            if (![addFiles containsObject:addFile]) [addFiles addObject:addFile];
+        }
+        libsList=DBHelper::getMissingPartsNameFromFilePath(filePath,@"sm2");
+        for (int i=0;i<[libsList count]/2;i++) {
+            addFile=(NSString *)[libsList objectAtIndex:i*2];
+            if (![addFiles containsObject:addFile]) [addFiles addObject:addFile];
+        }
+    }
+    if ([filePath localizedCaseInsensitiveContainsString:@".dum"]) {
+        NSMutableArray *libsList=DBHelper::getMissingPartsNameFromFilePath(filePath,@"ins");
+        for (int i=0;i<[libsList count]/2;i++) {
+            addFile=(NSString *)[libsList objectAtIndex:i*2];
+            if (![addFiles containsObject:addFile]) [addFiles addObject:addFile];
+        }
     }
     if ([filePath localizedCaseInsensitiveContainsString:@".mini"]) {
         NSMutableArray *libsList=DBHelper::getMissingPartsNameFromFilePath(filePath,@"lib");

@@ -4025,10 +4025,10 @@ int recording=0;
     if ([mplayer artworkImage]) {
         cover_img=[mplayer artworkImage];
     }
-    if (cover_img==nil) cover_img=[UIImage imageWithContentsOfFile:pathFileImgJPG];
-    if (cover_img==nil) cover_img=[UIImage imageWithContentsOfFile:pathFileImgJPEG];
-    if (cover_img==nil) cover_img=[UIImage imageWithContentsOfFile:pathFileImgPNG];
-    if (cover_img==nil) {
+    if ((cover_img==nil)&&[[NSFileManager defaultManager] fileExistsAtPath:pathFileImgJPG]) cover_img=[UIImage imageWithContentsOfFile:pathFileImgJPG];
+    if ((cover_img==nil)&&[[NSFileManager defaultManager] fileExistsAtPath:pathFileImgJPEG]) cover_img=[UIImage imageWithContentsOfFile:pathFileImgJPEG];
+    if ((cover_img==nil)&&[[NSFileManager defaultManager] fileExistsAtPath:pathFileImgPNG]) cover_img=[UIImage imageWithContentsOfFile:pathFileImgPNG];
+    if ((cover_img==nil)&&[[NSFileManager defaultManager] fileExistsAtPath:pathFileImgGIF]) {
         cover_img=[UIImage imageWithContentsOfFile:pathFileImgGIF];
         if (cover_img) {
             NSURL* firstUrl = [NSURL fileURLWithPath:pathFileImgGIF];
@@ -4039,34 +4039,34 @@ int recording=0;
             [cover_view addSubview:gifAnimation];
         }
     }
-    if (cover_img==nil) {
+    if ((cover_img==nil)&&[[NSFileManager defaultManager] fileExistsAtPath:pathFileImgPIC]) {
         NSData *picData = [NSData dataWithContentsOfFile:pathFileImgPIC];
         if (picData) {
             UIImage *img = [C64PICDecoder imageFromPICData:picData];
             if (img) cover_img = img;
         }
     }
-    if (cover_img==nil) {
+    if ((cover_img==nil)&&[[NSFileManager defaultManager] fileExistsAtPath:pathFileImgPGG]) {
         NSData *picData = [NSData dataWithContentsOfFile:pathFileImgPGG];
         if (picData) {
             UIImage *img = [C64PGGDecoder imageFromPGGData:picData];
             if (img) cover_img = img;
         }
     }
-    if (cover_img==nil) {
+    if ((cover_img==nil)&&[[NSFileManager defaultManager] fileExistsAtPath:pathFileImgPJJ]) {
         NSData *picData = [NSData dataWithContentsOfFile:pathFileImgPJJ];
         if (picData) {
             UIImage *img = [C64PJJDecoder imageFromPJJData:picData];
             if (img) cover_img = img;
         }
     }
-    if (cover_img==nil) cover_img=[UIImage imageWithContentsOfFile:pathFolderImgJPG];
-    if (cover_img==nil) cover_img=[UIImage imageWithContentsOfFile:pathCoverImgJPG];
-    if (cover_img==nil) cover_img=[UIImage imageWithContentsOfFile:pathFolderImgJPEG];
-    if (cover_img==nil) cover_img=[UIImage imageWithContentsOfFile:pathCoverImgJPEG];
-    if (cover_img==nil) cover_img=[UIImage imageWithContentsOfFile:pathFolderImgPNG];
-    if (cover_img==nil) cover_img=[UIImage imageWithContentsOfFile:pathCoverImgPNG];
-    if (cover_img==nil) {
+    if ((cover_img==nil)&&[[NSFileManager defaultManager] fileExistsAtPath:pathFolderImgJPG]) cover_img=[UIImage imageWithContentsOfFile:pathFolderImgJPG];
+    if ((cover_img==nil)&&[[NSFileManager defaultManager] fileExistsAtPath:pathCoverImgJPG]) cover_img=[UIImage imageWithContentsOfFile:pathCoverImgJPG];
+    if ((cover_img==nil)&&[[NSFileManager defaultManager] fileExistsAtPath:pathFolderImgJPEG]) cover_img=[UIImage imageWithContentsOfFile:pathFolderImgJPEG];
+    if ((cover_img==nil)&&[[NSFileManager defaultManager] fileExistsAtPath:pathCoverImgJPEG]) cover_img=[UIImage imageWithContentsOfFile:pathCoverImgJPEG];
+    if ((cover_img==nil)&&[[NSFileManager defaultManager] fileExistsAtPath:pathFolderImgPNG]) cover_img=[UIImage imageWithContentsOfFile:pathFolderImgPNG];
+    if ((cover_img==nil)&&[[NSFileManager defaultManager] fileExistsAtPath:pathCoverImgPNG]) cover_img=[UIImage imageWithContentsOfFile:pathCoverImgPNG];
+    if ((cover_img==nil)&&[[NSFileManager defaultManager] fileExistsAtPath:pathFolderImgGIF]) {
         cover_img=[UIImage imageWithContentsOfFile:pathFolderImgGIF];
         if (cover_img) {
             NSURL* firstUrl = [NSURL fileURLWithPath:pathFolderImgGIF];
@@ -4077,7 +4077,7 @@ int recording=0;
             [cover_view addSubview:gifAnimation];
         }
     }
-    if (cover_img==nil) {
+    if ((cover_img==nil)&&[[NSFileManager defaultManager] fileExistsAtPath:pathCoverImgGIF]) {
         cover_img=[UIImage imageWithContentsOfFile:pathCoverImgGIF];
         if (cover_img) {
             NSURL* firstUrl = [NSURL fileURLWithPath:pathCoverImgGIF];

@@ -3,3 +3,32 @@
 # Une entrée par ligne, les lignes commençant par # sont ignorées
 
 Ace Tracker
+Aero Studio
+All Sound Tracker
+Beaver Sweeper
+BeRoTracker
+BoyScout
+Buzz
+Deflemask
+DreamStation
+Digitrekker
+Digital Sound Interface Kit
+FamiTracker
+GoatTracker
+GoatTracker 2
+Hippel ST COSO
+Jesper Olsen
+MegaStation
+MegaStation MIDI
+Monotone
+MusicMaker V8 Old
+MVS Tracker
+MVX Module
+Picatune
+Picatune2
+PlayerPro
+Pollytracker
+RamTracker
+Sam Coupe SNG
+SCC-Musixx
+Westwood SND

@@ -887,6 +887,9 @@ static int pt3_renday(short *snd, int leng, struct ayumi* ay, struct ay_data* t,
 #include "kssplay.h"
 KSSPLAY *kssplay;
 KSS *kss;
+extern "C" {
+#include "mus2kss.h"
+}
 
 //VGMPPLAY
 //extern CHIPS_OPTION ChipOpts[0x02];
@@ -9547,11 +9550,11 @@ static WSRPlayerApi* s_coreSwan=&oswan::g_wsr_player_api;
             s_coreSwan->pSetFrequency(48000);
             
             uint64_t smp = 0;
-            auto numSamples = (48000 * 3) & ~(kBufSamples - 1); // around 3 seconds check
+            auto numSamples = (48000 * 2) & ~(kBufSamples - 1); // around 2 seconds check
             while (numSamples)
             {
                 s_coreSwan->pUpdateWSR(buf, sizeof(buf), kBufSamples);
-                if (numSamples == ((48000 * 3) & ~(kBufSamples - 1)))
+                if (numSamples == ((48000 * 2) & ~(kBufSamples - 1)))
                     smp = buf[0];
                 numSamples -= kBufSamples;
                 
@@ -11212,9 +11215,23 @@ char* loadRom(const char* path, size_t romSize)
 -(int) mmp_kssLoad:(NSString*)filePath {  //KSS
     mPlayType=MMP_KSS;
     
-    FILE *f=fopen([filePath UTF8String],"rb");
+    bool kss_musMode=false;
+    NSString *kssTmpPath=filePath;
+    //check if it is a mus to convert
+    if ([[[filePath pathExtension] lowercaseString] isEqualToString:@"mus"]) {
+        //check if it is a mus to convert
+        kssTmpPath=[[filePath stringByDeletingPathExtension] stringByAppendingString:@"_tmp.kss"];
+        if (mus2kss_convert_file_auto((char*)[filePath UTF8String],(char*)[kssTmpPath UTF8String])==0) {
+            kss_musMode=true;
+        } else {
+            kssTmpPath=filePath;
+            kss_musMode=false;
+        }
+    }
+    
+    FILE *f=fopen([kssTmpPath UTF8String],"rb");
     if (f==NULL) {
-        MDZELog("HSS Cannot open file %@",filePath);
+        MDZELog("KSS Cannot open file %@",kssTmpPath);
         mPlayType=0;
         return -1;
     }
@@ -11223,9 +11240,13 @@ char* loadRom(const char* path, size_t romSize)
     mp_datasize=ftell(f);
     fclose(f);
     
-    if ((kss = KSS_load_file((char*)[filePath UTF8String])) == NULL) {
-        MDZELog("KSS Cannot load file %@",filePath);
+    if ((kss = KSS_load_file((char*)[kssTmpPath UTF8String])) == NULL) {
+        MDZELog("KSS Cannot load file %@",kssTmpPath);
         return -2;
+    }
+    
+    if (kss_musMode) {
+        //[[NSFileManager defaultManager] removeItemAtPath:kssTmpPath error:nil];
     }
     
     //check if a playlist exists
@@ -15215,12 +15236,6 @@ extern bool icloud_available;
             break;
         }
     }
-    for (int i=0;i<[filetype_extVGMSTREAM count];i++) {
-        if ([extension caseInsensitiveCompare:[filetype_extVGMSTREAM objectAtIndex:i]]==NSOrderedSame) {
-            [available_player addObject:[NSNumber numberWithInt:MMP_VGMSTREAM]];
-            break;
-        }
-    }
     for (int i=0;i<[filetype_extGSF count];i++) {
         if ([extension caseInsensitiveCompare:[filetype_extGSF objectAtIndex:i]]==NSOrderedSame) {
             [available_player addObject:[NSNumber numberWithInt:MMP_GSF]];
@@ -15297,6 +15312,12 @@ extern bool icloud_available;
             if (mdz_defaultMODPLAYER==DEFAULT_MODPLUG) [available_player insertObject:[NSNumber numberWithInt:MMP_OPENMPT] atIndex:0];
             else [available_player addObject:[NSNumber numberWithInt:MMP_OPENMPT]];
             found=MMP_OPENMPT;
+            break;
+        }
+    }
+    for (int i=0;i<[filetype_extVGMSTREAM count];i++) {
+        if ([extension caseInsensitiveCompare:[filetype_extVGMSTREAM objectAtIndex:i]]==NSOrderedSame) {
+            [available_player addObject:[NSNumber numberWithInt:MMP_VGMSTREAM]];
             break;
         }
     }

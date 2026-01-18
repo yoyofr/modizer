@@ -169,96 +169,113 @@ static int tronictest(unsigned char *buf, size_t bufsize)
 
 static int tfmxtest(unsigned char *buf, size_t bufsize, char *pre)
 {
-  if (bufsize <= 0x208)
+    if (bufsize <= 0x208)
+        return 0;
+    
+    if (strncmp((char *) buf, "TFHD", 4) == 0) {
+        if (buf[0x8] == 0x01) {
+            strcpy(pre, "TFHD1.5");	/* One File TFMX format by Alexis NASR */
+            return 1;
+        } else if (buf[0x8] == 0x02) {
+            strcpy(pre, "TFHDPro");
+            return 1;
+        } else if (buf[0x8] == 0x03) {
+            strcpy(pre, "TFHD7V");
+            return 1;
+        }
+    }
+    
+    if (strncasecmp((char *) buf, "TFMX", 4) == 0) {
+        if (strncmp((char *) &buf[4], "-SONG", 5) == 0 ||
+            strncmp((char *) &buf[4], "_SONG ", 6) == 0 ||
+            strncasecmp((char *) &buf[4], "SONG", 4) == 0 ||
+            buf[4] == 0x20) {
+            strcpy(pre, "MDAT");	/*default TFMX: TFMX Pro */
+            
+            if (strncmp((char *) &buf[10], "by", 2) == 0 ||
+                strncmp((char *) &buf[16], "  ", 2) == 0 ||
+                strncmp((char *) &buf[16], "(Empty)", 7) == 0 ||
+                /* Lethal Zone */
+                (buf[16] == 0x30 && buf[17] == 0x3d) ||
+                (buf[4] == 0x20)){
+                
+                if (read_be_u32(&buf[464]) == 0x00000000) {
+                    uint16_t x = read_be_u16(&buf[14]);
+                    if ((x != 0x0e60) || /* z-out title */
+                        (x == 0x0860 && bufsize > 4645 && read_be_u16(&buf[4644]) != 0x090c) || /* metal law */
+                        (x == 0x0b20 && bufsize > 5121 && read_be_u16(&buf[5120]) != 0x8c26) || /* bug bomber */
+                        (x == 0x0920 && bufsize > 3977 && read_be_u16(&buf[3876]) != 0x9305)) { /* metal preview */
+                        strcpy(pre, "TFMX1.5");	/*TFMX 1.0 - 1.6 */
+                    }
+                }
+                return 1;
+                
+            } else if (((buf[0x0e] == 0x08 && buf[0x0f] == 0xb0) &&	/* BMWi */
+                        (buf[0x140] == 0x00 && buf[0x141] == 0x0b) &&	/*End tackstep 1st subsong */
+                        (buf[0x1d2] == 0x02 && buf[0x1d3] == 0x00) &&	/*Trackstep datas */
+                        (buf[0x200] == 0xff && buf[0x201] == 0x00 &&	/*First effect */
+                         buf[0x202] == 0x00 && buf[0x203] == 0x00 &&
+                         buf[0x204] == 0x01 && buf[0x205] == 0xf4 &&
+                         buf[0x206] == 0xff && buf[0x207] == 0x00)) ||
+                       ((buf[0x0e] == 0x0A && buf[0x0f] == 0xb0) && /* B.C Kid */
+                        (buf[0x140] == 0x00 && buf[0x141] == 0x15) && /*End tackstep 1st subsong */
+                        (buf[0x1d2] == 0x02 && buf[0x1d3] == 0x00) && /*Trackstep datas */
+                        (buf[0x200] == 0xef && buf[0x201] == 0xfe &&	/*First effect */
+                         buf[0x202] == 0x00 && buf[0x203] == 0x03 &&
+                         buf[0x204] == 0x00 && buf[0x205] == 0x0d &&
+                         buf[0x206] == 0x00 && buf[0x207] == 0x00))) {
+                strcpy(pre, "TFMX7V");	/* "special cases TFMX 7V */
+                return 1;
+                
+            } else {
+                int e, i, s, t;
+                
+                /* Trackstep datas offset */
+                s = read_be_u32(&buf[0x1d0]);
+                if (s == 0x00000000) {
+                    /* unpacked */
+                    s = 0x00000800;
+                }
+                
+                for (i = 0; i < 0x3d; i += 2) {
+                    if (read_be_u16(&buf[0x140 + i]) != 0x0000) { /* subsong */
+                        /* Start of subsongs Trackstep data :) */
+                        t = read_be_u16(&buf[0x100 + i]) * 16 + s;
+                        /* End of subsongs Trackstep data :) */
+                        e = read_be_u16(&buf[0x140 + i]) * 16 + s;
+                        if (e < bufsize) {
+                            for (; t < e && (t + 6) < bufsize; t += 2) {
+                                if (read_be_u16(&buf[t]) == 0xeffe &&
+                                    read_be_u32(&buf[t + 2]) == 0x0003ff00 &&
+                                    buf[t + 6] == 0x00) {
+                                    strcpy(pre, "TFMX7V");	/*TFMX 7V */
+                                    return 1;
+                                }
+                            }
+                        }
+                    }
+                }
+                s = 0x00000000;
+                e = read_be_u32(&buf[0x01d4]);
+                t = read_be_u32(&buf[0x01d8]);
+                if (t < bufsize-4) {
+                    if (t == 0x00000000) {
+                        /* unpacked */
+                        e = read_be_u32(&buf[0x000007fc]);    //direct end to instr. at 7fc (2044)
+                        t = 0x00000600;            //offset to offset of instr. at 600 (1536)
+                    }
+                    t =  read_be_u32(&buf[t]);        //real offset to instr data at buf[t]
+                    for (i =0; t < e && t < bufsize+4; t +=4) {
+                        if (buf [t] > 63) {
+                            strcpy(pre, "MDST");    /*TFMX ST */
+                            return 1;
+                        }
+                    }
+                }
+            }
+        }
+    }
     return 0;
-
-  if (strncmp((char *) buf, "TFHD", 4) == 0) {
-    if (buf[0x8] == 0x01) {
-      strcpy(pre, "TFHD1.5");	/* One File TFMX format by Alexis NASR */
-      return 1;
-    } else if (buf[0x8] == 0x02) {
-      strcpy(pre, "TFHDPro");
-      return 1;
-    } else if (buf[0x8] == 0x03) {
-      strcpy(pre, "TFHD7V");
-      return 1;
-    }
-  }
-
-  if (strncasecmp((char *) buf, "TFMX", 4) == 0) {
-    if (strncmp((char *) &buf[4], "-SONG", 5) == 0 ||
-	strncmp((char *) &buf[4], "_SONG ", 6) == 0 ||
-	strncasecmp((char *) &buf[4], "SONG", 4) == 0 ||
-	buf[4] == 0x20) {
-      strcpy(pre, "MDAT");	/*default TFMX: TFMX Pro */
-
-      if (strncmp((char *) &buf[10], "by", 2) == 0 ||
-	  strncmp((char *) &buf[16], "  ", 2) == 0 ||
-	  strncmp((char *) &buf[16], "(Empty)", 7) == 0 ||
-	  /* Lethal Zone */
-	  (buf[16] == 0x30 && buf[17] == 0x3d) ||
-	  (buf[4] == 0x20)){ 
-
-	if (read_be_u32(&buf[464]) == 0x00000000) {
-	  uint16_t x = read_be_u16(&buf[14]);
-	  if ((x != 0x0e60) || /* z-out title */
-	      (x == 0x0860 && bufsize > 4645 && read_be_u16(&buf[4644]) != 0x090c) || /* metal law */
-	      (x == 0x0b20 && bufsize > 5121 && read_be_u16(&buf[5120]) != 0x8c26) || /* bug bomber */
-	      (x == 0x0920 && bufsize > 3977 && read_be_u16(&buf[3876]) != 0x9305)) { /* metal preview */
-	    strcpy(pre, "TFMX1.5");	/*TFMX 1.0 - 1.6 */
-	  }
-	}
-	return 1;
-	
-      } else if (((buf[0x0e] == 0x08 && buf[0x0f] == 0xb0) &&	/* BMWi */
-		  (buf[0x140] == 0x00 && buf[0x141] == 0x0b) &&	/*End tackstep 1st subsong */
-		  (buf[0x1d2] == 0x02 && buf[0x1d3] == 0x00) &&	/*Trackstep datas */
-		  (buf[0x200] == 0xff && buf[0x201] == 0x00 &&	/*First effect */
-		   buf[0x202] == 0x00 && buf[0x203] == 0x00 &&
-		   buf[0x204] == 0x01 && buf[0x205] == 0xf4 &&
-		   buf[0x206] == 0xff && buf[0x207] == 0x00)) ||
-		 ((buf[0x0e] == 0x0A && buf[0x0f] == 0xb0) && /* B.C Kid */
-		  (buf[0x140] == 0x00 && buf[0x141] == 0x15) && /*End tackstep 1st subsong */
-		  (buf[0x1d2] == 0x02 && buf[0x1d3] == 0x00) && /*Trackstep datas */
-		  (buf[0x200] == 0xef && buf[0x201] == 0xfe &&	/*First effect */
-		   buf[0x202] == 0x00 && buf[0x203] == 0x03 &&
-		   buf[0x204] == 0x00 && buf[0x205] == 0x0d &&
-		   buf[0x206] == 0x00 && buf[0x207] == 0x00))) {
-	strcpy(pre, "TFMX7V");	/* "special cases TFMX 7V */
-	return 1;
-
-      } else {
-	int e, i, s, t;
-
-	/* Trackstep datas offset */
-	s = read_be_u32(&buf[0x1d0]);
-	if (s == 0x00000000) {
-	  /* unpacked */
-	  s = 0x00000800;
-	}
-
-	for (i = 0; i < 0x3d; i += 2) {
-	  if (read_be_u16(&buf[0x140 + i]) != 0x0000) { /* subsong */
-	    /* Start of subsongs Trackstep data :) */
-	    t = read_be_u16(&buf[0x100 + i]) * 16 + s;
-	    /* End of subsongs Trackstep data :) */
-	    e = read_be_u16(&buf[0x140 + i]) * 16 + s;
-	    if (e < bufsize) {
-	      for (; t < e && (t + 6) < bufsize; t += 2) {
-		if (read_be_u16(&buf[t]) == 0xeffe &&
-		    read_be_u32(&buf[t + 2]) == 0x0003ff00 &&
-		    buf[t + 6] == 0x00) {
-		  strcpy(pre, "TFMX7V");	/*TFMX 7V */
-		  return 1;
-		}
-	      }
-	    }
-	  }
-	}
-      }
-    }
-  }
-  return 0;
 }
 
 /* Calculate Module length:	Just need at max 1084	*/
