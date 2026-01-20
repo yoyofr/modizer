@@ -1591,12 +1591,14 @@ END_PROFILE
                     [actionView removeTarget: self action:NULL forControlEvents: UIControlEventTouchUpInside];
                     [actionView addTarget: self action: @selector(secondaryActionTapped:) forControlEvents: UIControlEventTouchUpInside];
                     [dictActionBtn setObject:[NSNumber numberWithInteger:crow*100+indexPath.section] forKey:[[actionView.description componentsSeparatedByString:@";"] firstObject]];
+                    [dictActionBtn setObject:[NSNumber numberWithInteger:indexPath.row*100+indexPath.section] forKey:[[[actionView.description componentsSeparatedByString:@";"] firstObject] stringByAppendingString:@"realIndexP"]];
                 } else {
                     [actionView setImage:[UIImage imageNamed:@"play.png"] forState:UIControlStateNormal];
                     [actionView setImage:[UIImage imageNamed:@"play.png"] forState:UIControlStateHighlighted];
                     [actionView removeTarget: self action:NULL forControlEvents: UIControlEventTouchUpInside];
                     [actionView addTarget: self action: @selector(primaryActionTapped:) forControlEvents: UIControlEventTouchUpInside];
                     [dictActionBtn setObject:[NSNumber numberWithInteger:crow*100+indexPath.section] forKey:[[actionView.description componentsSeparatedByString:@";"] firstObject]];
+                    [dictActionBtn setObject:[NSNumber numberWithInteger:indexPath.row*100+indexPath.section] forKey:[[[actionView.description componentsSeparatedByString:@";"] firstObject] stringByAppendingString:@"realIndexP"]];
                 }
                 actionView.frame = CGRectMake(tabView.bounds.size.width-2-32-PRI_SEC_ACTIONS_IMAGE_SIZE-tabView.safeAreaInsets.left-tabView.safeAreaInsets.right,0,PRI_SEC_ACTIONS_IMAGE_SIZE,PRI_SEC_ACTIONS_IMAGE_SIZE);
                 actionView.enabled=YES;
@@ -1824,7 +1826,10 @@ trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
     if (value==NULL) return;
     NSIndexPath *indexPath=[NSIndexPath indexPathForRow:(value.longValue/100) inSection:(value.longValue%100)];
     
-    [tableView selectRowAtIndexPath:indexPath animated:FALSE scrollPosition:UITableViewScrollPositionNone];
+    value=(NSNumber*)[dictActionBtn objectForKey:[[[sender.description componentsSeparatedByString:@";"] firstObject] stringByAppendingFormat:@"realIndexP"] ];
+    if (value==NULL) return;
+    NSIndexPath *realIndexPath=[NSIndexPath indexPathForRow:(value.longValue/100) inSection:(value.longValue%100)];
+    [tableView selectRowAtIndexPath:realIndexPath animated:FALSE scrollPosition:UITableViewScrollPositionNone];
     
     [self showWaiting];
     [self flushMainLoop];
@@ -1888,7 +1893,10 @@ trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
     if (value==NULL) return;
     NSIndexPath *indexPath=[NSIndexPath indexPathForRow:(value.longValue/100) inSection:(value.longValue%100)];
     
-    [tableView selectRowAtIndexPath:indexPath animated:FALSE scrollPosition:UITableViewScrollPositionNone];
+    value=(NSNumber*)[dictActionBtn objectForKey:[[[sender.description componentsSeparatedByString:@";"] firstObject] stringByAppendingFormat:@"realIndexP"] ];
+    if (value==NULL) return;
+    NSIndexPath *realIndexPath=[NSIndexPath indexPathForRow:(value.longValue/100) inSection:(value.longValue%100)];
+    [tableView selectRowAtIndexPath:realIndexPath animated:FALSE scrollPosition:UITableViewScrollPositionNone];
     
     [self showWaiting];
     [self flushMainLoop];
@@ -1949,7 +1957,10 @@ trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
     if (value==NULL) return;
     NSIndexPath *indexPath=[NSIndexPath indexPathForRow:(value.longValue/100) inSection:(value.longValue%100)];
     
-    [tableView selectRowAtIndexPath:indexPath animated:FALSE scrollPosition:UITableViewScrollPositionNone];
+    value=(NSNumber*)[dictActionBtn objectForKey:[[[sender.description componentsSeparatedByString:@";"] firstObject] stringByAppendingFormat:@"realIndexP"] ];
+    if (value==NULL) return;
+    NSIndexPath *realIndexPath=[NSIndexPath indexPathForRow:(value.longValue/100) inSection:(value.longValue%100)];
+    [tableView selectRowAtIndexPath:realIndexPath animated:FALSE scrollPosition:UITableViewScrollPositionNone];
     
     mAccessoryButton=1;
     [self tableView:tableView didSelectRowAtIndexPath:indexPath];

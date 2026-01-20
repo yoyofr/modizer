@@ -9,16 +9,75 @@
 
 #import "RootViewControllerSNESMWebParser.h"
 #import "ModizFileHelper.h"
+#import "RadioSource.h"
+#import "ModizerTypes.h"
 
 enum {
     BROWSE_DEFAULT=0,
     BROWSE_ALL
 };
 
+extern const rsn_name_mapping_t SNESmusic_names[];
+extern int snes_spc_entries;
+
+
 @implementation RootViewControllerSNESMWebParser
 
 -(void) pushRadioButton {
-    
+    if ([detailViewController.radioSource isActive]&&(detailViewController.radioSource.mRadioSource==RS_COLLECTION_SNES)) {
+        [detailViewController stop];
+        [detailViewController clearQueue];
+        [detailViewController.radioSource stop];
+        [radioButton setTitleColor:[UIColor grayColor] forState:UIControlStateNormal];
+    } else {
+        [detailViewController.radioSource stop];
+        [detailViewController clearQueue];
+        detailViewController.radioSource.mRadioSource=RS_COLLECTION_SNES;
+        
+        t_WEB_browse_entry *cur_db_entries;
+        cur_db_entries=(search_dbWEB?search_dbWEB_entries:dbWEB_entries);
+        int nb_entries=(search_dbWEB?search_dbWEB_nb_entries:dbWEB_nb_entries);
+        
+        switch (browse_depth) {
+            case 0:
+                detailViewController.radioSource.mRadioSource_mode=1;
+                [detailViewController.radioSource.mSourceData removeAllObjects];
+                for (int i=0;i<snes_spc_entries;i++) {
+                    [detailViewController.radioSource.mSourceData addObject:[NSString stringWithFormat:@"f:%s/%s",SNESmusic_names[i].shortname,SNESmusic_names[i].longname]];
+                }
+                break;
+            case 1:
+                detailViewController.radioSource.mRadioSource_mode=0;
+                [detailViewController.radioSource.mSourceData removeAllObjects];
+                for (int i=0;i<nb_entries;i++) {
+                    
+                    if (cur_db_entries[i].isFile) {
+                        int entry_id=[[[cur_db_entries[i].URL componentsSeparatedByString:@"="] lastObject] intValue];
+                        [detailViewController.radioSource.mSourceData addObject:[NSString stringWithFormat:@"i:%d",entry_id]];
+                    } else {
+                        MDZILog("got: %@ / %@",cur_db_entries[i].label,cur_db_entries[i].fullpath);
+                    }
+                }
+                break;
+            case 2:
+                detailViewController.radioSource.mRadioSource_mode=0;
+                [detailViewController.radioSource.mSourceData removeAllObjects];
+                for (int i=0;i<nb_entries;i++) {
+                    if (cur_db_entries[i].isFile) {
+                        int entry_id=[[[cur_db_entries[i].URL componentsSeparatedByString:@"="] lastObject] intValue];
+                        [detailViewController.radioSource.mSourceData addObject:[NSString stringWithFormat:@"i:%d",entry_id]];
+                    } else {
+                        MDZILog("got: %@ / %@",cur_db_entries[i].label,cur_db_entries[i].fullpath);
+                    }
+                }
+                break;
+            default:
+                detailViewController.radioSource.mRadioSource_mode=0;
+                break;
+        }
+        [detailViewController.radioSource activate];
+        [radioButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    }
 }
 
 int qsortSNESM_entries_alpha(const void *entryA, const void *entryB) {
@@ -99,6 +158,9 @@ int qsortSNESM_entries_rating_or_entries(const void *entryA, const void *entryB)
 - (void)viewDidLoad {
     START_PROFILE
     [super viewDidLoad];
+    
+    [radioButton addTarget:self action:@selector(pushRadioButton) forControlEvents:UIControlEventTouchUpInside];
+    
     sort_mode=0;
     //set default sort mode
     if ([mWebBaseURL isEqualToString:@"http://snesmusic.org/v2/stats.php"]) sort_mode=1;
@@ -133,6 +195,47 @@ int qsortSNESM_entries_rating_or_entries(const void *entryA, const void *entryB)
     }
     END_PROFILE
 }
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    
+    [self.updRSTimer invalidate];
+    self.updRSTimer = nil;
+    self.updRSTimer = [NSTimer scheduledTimerWithTimeInterval:0.3
+                                                                 target:self
+                                                               selector:@selector(updRadioStatus)
+                                                               userInfo:nil
+                                                                repeats:YES];
+    
+    if ([detailViewController.radioSource isActive]&&(detailViewController.radioSource.mRadioSource==RS_COLLECTION_AMP)) {
+        [radioButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    } else {
+        [radioButton setTitleColor:[UIColor grayColor] forState:UIControlStateNormal];
+    }
+    
+    if (browse_depth==1) {
+        if (browse_mode==BROWSE_ALL) {
+            radioButton.hidden=YES;
+            self.radioButtonWidthConstraint.constant=0;
+            [self.view layoutIfNeeded];
+        }
+    }
+}
+
+-(void) updRadioStatus {
+    if ([detailViewController.radioSource isActive]&&(detailViewController.radioSource.mRadioSource==RS_COLLECTION_AMP)) {
+        [radioButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    } else {
+        [radioButton setTitleColor:[UIColor grayColor] forState:UIControlStateNormal];
+    }
+}
+
+-(void) fillKeysCompleted {
+    [super fillKeysCompleted];
+    
+    [self hideWaiting];
+}
+
 
 -(void) fillKeys {
     if (shouldFillKeys) {
@@ -612,7 +715,7 @@ int qsortSNESM_entries_rating_or_entries(const void *entryA, const void *entryB)
         if (wef->file_type) dbWEB_entries[dbWEB_entries_count].label=[[NSString alloc] initWithFormat:@"%@.rsn",wef->file_name];
         else dbWEB_entries[dbWEB_entries_count].label=[[NSString alloc] initWithFormat:@"%@",wef->file_name];
         
-        if (wef->file_type) dbWEB_entries[dbWEB_entries_count].fullpath=[NSString stringWithFormat:@"Documents/SNESM/%@.rsn",wef->file_name];
+        if (wef->file_type) dbWEB_entries[dbWEB_entries_count].fullpath=[NSString stringWithFormat:@"Documents/%@/%@.rsn",SNESmusic_BASEDIR,wef->file_name];
         else dbWEB_entries[dbWEB_entries_count].fullpath=[[NSString alloc] initWithFormat:@"%@",wef->file_name];
         
         if (wef->file_URL) dbWEB_entries[dbWEB_entries_count].URL=[NSString stringWithString:wef->file_URL];

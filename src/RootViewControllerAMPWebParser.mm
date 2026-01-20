@@ -422,7 +422,6 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
     } else {
         [radioButton setTitleColor:[UIColor grayColor] forState:UIControlStateNormal];
     }
-
 }
 
 - (void)viewDidDisappear:(BOOL)animated {

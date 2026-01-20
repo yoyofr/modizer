@@ -890,6 +890,8 @@ KSS *kss;
 extern "C" {
 #include "mus2kss.h"
 }
+bool kss_musMode;
+NSString *kss_tmpPath;
 
 //VGMPPLAY
 //extern CHIPS_OPTION ChipOpts[0x02];
@@ -11215,23 +11217,23 @@ char* loadRom(const char* path, size_t romSize)
 -(int) mmp_kssLoad:(NSString*)filePath {  //KSS
     mPlayType=MMP_KSS;
     
-    bool kss_musMode=false;
-    NSString *kssTmpPath=filePath;
+    kss_musMode=false;
+    kss_tmpPath=filePath;
     //check if it is a mus to convert
     if ([[[filePath pathExtension] lowercaseString] isEqualToString:@"mus"]) {
         //check if it is a mus to convert
-        kssTmpPath=[[filePath stringByDeletingPathExtension] stringByAppendingString:@"_tmp.kss"];
-        if (mus2kss_convert_file_auto((char*)[filePath UTF8String],(char*)[kssTmpPath UTF8String])==0) {
+        kss_tmpPath=[[filePath stringByDeletingPathExtension] stringByAppendingString:@".mdztmp"];
+        if (mus2kss_convert_file_auto((char*)[filePath UTF8String],(char*)[kss_tmpPath UTF8String])==0) {
             kss_musMode=true;
         } else {
-            kssTmpPath=filePath;
+            kss_tmpPath=filePath;
             kss_musMode=false;
         }
     }
     
-    FILE *f=fopen([kssTmpPath UTF8String],"rb");
+    FILE *f=fopen([kss_tmpPath UTF8String],"rb");
     if (f==NULL) {
-        MDZELog("KSS Cannot open file %@",kssTmpPath);
+        MDZELog("KSS Cannot open file %@",kss_tmpPath);
         mPlayType=0;
         return -1;
     }
@@ -11240,13 +11242,9 @@ char* loadRom(const char* path, size_t romSize)
     mp_datasize=ftell(f);
     fclose(f);
     
-    if ((kss = KSS_load_file((char*)[kssTmpPath UTF8String])) == NULL) {
-        MDZELog("KSS Cannot load file %@",kssTmpPath);
+    if ((kss = KSS_load_file((char*)[kss_tmpPath UTF8String])) == NULL) {
+        MDZELog("KSS Cannot load file %@",kss_tmpPath);
         return -2;
-    }
-    
-    if (kss_musMode) {
-        //[[NSFileManager defaultManager] removeItemAtPath:kssTmpPath error:nil];
     }
     
     //check if a playlist exists
@@ -16461,6 +16459,10 @@ extern bool icloud_available;
         kss=NULL;
         m3uReader.clear();
         m3uReader_adjofs=0;
+        
+        if (kss_musMode) {
+            [[NSFileManager defaultManager] removeItemAtPath:kss_tmpPath error:nil];
+        }
     }
     if (mPlayType==MMP_HVL) { //HVL
         hvl_FreeTune(hvl_song);
@@ -16924,7 +16926,6 @@ extern bool icloud_available;
 }
 -(NSString*) getModType {
     if (mPlayType==MMP_GME) {
-        
         return [NSString stringWithFormat:@"%s",gmetype];
     }
     if (mPlayType==MMP_XMP) {

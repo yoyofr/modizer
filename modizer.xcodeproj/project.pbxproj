@@ -1426,6 +1426,8 @@
 		CCB8D99F17F62A18008E6A45 /* txtMenu8b_2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CCB8D98D17F62A18008E6A45 /* txtMenu8b_2x.png */; };
 		CCB8D9A317F62A18008E6A45 /* txtMenu11a_2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CCB8D99117F62A18008E6A45 /* txtMenu11a_2x.png */; };
 		CCB8D9A417F62A18008E6A45 /* txtMenu11c_2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CCB8D99217F62A18008E6A45 /* txtMenu11c_2x.png */; };
+		CCB8E0FB2F1F7A7F0032BA8F /* snes_spcSets.m in Sources */ = {isa = PBXBuildFile; fileRef = CCB8E0FA2F1F7A360032BA8F /* snes_spcSets.m */; };
+		CCB8E0FC2F1F7A7F0032BA8F /* snes_spcSets.m in Sources */ = {isa = PBXBuildFile; fileRef = CCB8E0FA2F1F7A360032BA8F /* snes_spcSets.m */; };
 		CCB99AF92F09D6340024DFBB /* libnez.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CCB998CE2F09A39F0024DFBB /* libnez.a */; };
 		CCBE60582EE2DD44000FDD7E /* vfs68_mem.c in Sources */ = {isa = PBXBuildFile; fileRef = CC8368162B57CA9A0035A4DA /* vfs68_mem.c */; };
 		CCBE60592EE2DD44000FDD7E /* inst68.c in Sources */ = {isa = PBXBuildFile; fileRef = CC8369262B57CCC70035A4DA /* inst68.c */; };
@@ -4782,6 +4784,7 @@
 		CCB8D98D17F62A18008E6A45 /* txtMenu8b_2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu8b_2x.png; sourceTree = "<group>"; };
 		CCB8D99117F62A18008E6A45 /* txtMenu11a_2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu11a_2x.png; sourceTree = "<group>"; };
 		CCB8D99217F62A18008E6A45 /* txtMenu11c_2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = txtMenu11c_2x.png; sourceTree = "<group>"; };
+		CCB8E0FA2F1F7A360032BA8F /* snes_spcSets.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = snes_spcSets.m; sourceTree = "<group>"; };
 		CCB998AE2F09A39E0024DFBB /* nez.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = nez.xcodeproj; path = libnez/nez/nez.xcodeproj; sourceTree = "<group>"; };
 		CCBE63E82EE2DD44000FDD7E /* modizer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = modizer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CCBF10011221788200E8DE4E /* digidrum.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = digidrum.cpp; sourceTree = "<group>"; };
@@ -5199,35 +5202,36 @@
 		336BF216144FF4CA0086700A /* RootViewControllers */ = {
 			isa = PBXGroup;
 			children = (
-				CC2E39352B9DA419003E9E77 /* RootViewControllerXPWebParser.h */,
-				CC2E39362B9DA419003E9E77 /* RootViewControllerXPWebParser.mm */,
-				59F726A02657ABFD006BB0E3 /* RootViewControllerSMSPWebParser.h */,
-				59F726B72657ABFD006BB0E3 /* RootViewControllerSMSPWebParser.mm */,
-				5991486F2651632B005DEB44 /* RootViewControllerSNESMWebParser.h */,
-				599148862651632B005DEB44 /* RootViewControllerSNESMWebParser.mm */,
-				596BB1F426507733000E63A6 /* RootViewControllerAMPWebParser.h */,
-				596BB20B26507733000E63A6 /* RootViewControllerAMPWebParser.mm */,
-				591CA87526483DB600168C7E /* RootViewControllerVGMRWebParser.h */,
-				591CA87626483DB600168C7E /* RootViewControllerVGMRWebParser.mm */,
-				591A7F99262C0EE8001ABB99 /* RootViewControllerJoshWWebParser.h */,
-				591A7FAE262C0EE8001ABB99 /* RootViewControllerJoshWWebParser.mm */,
-				CCCFB6BE2BFA3EAE0026F1F7 /* RootViewControllerZXArtWebParser.h */,
-				CCCFB6BF2BFA3EAE0026F1F7 /* RootViewControllerZXArtWebParser.mm */,
 				330F36C717A683FB00EEC84A /* OnlineViewController.h */,
 				330F36C817A683FB00EEC84A /* OnlineViewController.mm */,
+				596BB1F426507733000E63A6 /* RootViewControllerAMPWebParser.h */,
+				596BB20B26507733000E63A6 /* RootViewControllerAMPWebParser.mm */,
 				3399D60F17B59CD6009E2AE9 /* RootViewControllerASMA.h */,
 				3399D61017B59CD6009E2AE9 /* RootViewControllerASMA.mm */,
 				CC8970DB2EFCB21000D6CA1E /* RootViewControllerCGSC.h */,
 				CC8970DC2EFCB21000D6CA1E /* RootViewControllerCGSC.mm */,
 				33EDF0EB145939850038C673 /* RootViewControllerHVSC.h */,
 				33EDF0EC145939850038C673 /* RootViewControllerHVSC.mm */,
+				591A7F99262C0EE8001ABB99 /* RootViewControllerJoshWWebParser.h */,
+				591A7FAE262C0EE8001ABB99 /* RootViewControllerJoshWWebParser.mm */,
 				336BF213144FF4BE0086700A /* RootViewControllerLocalBrowser.h */,
 				336BF214144FF4BE0086700A /* RootViewControllerLocalBrowser.mm */,
 				336BF2181451E96F0086700A /* RootViewControllerMODLAND.h */,
 				336BF2191451E96F0086700A /* RootViewControllerMODLAND.mm */,
 				33EDF0ED145939850038C673 /* RootViewControllerPlaylist.h */,
 				33EDF0EE145939850038C673 /* RootViewControllerPlaylist.mm */,
+				59F726A02657ABFD006BB0E3 /* RootViewControllerSMSPWebParser.h */,
+				59F726B72657ABFD006BB0E3 /* RootViewControllerSMSPWebParser.mm */,
+				5991486F2651632B005DEB44 /* RootViewControllerSNESMWebParser.h */,
+				599148862651632B005DEB44 /* RootViewControllerSNESMWebParser.mm */,
+				CCB8E0FA2F1F7A360032BA8F /* snes_spcSets.m */,
 				336BF217145152990086700A /* RootViewControllerStruct.h */,
+				591CA87526483DB600168C7E /* RootViewControllerVGMRWebParser.h */,
+				591CA87626483DB600168C7E /* RootViewControllerVGMRWebParser.mm */,
+				CC2E39352B9DA419003E9E77 /* RootViewControllerXPWebParser.h */,
+				CC2E39362B9DA419003E9E77 /* RootViewControllerXPWebParser.mm */,
+				CCCFB6BE2BFA3EAE0026F1F7 /* RootViewControllerZXArtWebParser.h */,
+				CCCFB6BF2BFA3EAE0026F1F7 /* RootViewControllerZXArtWebParser.mm */,
 			);
 			name = RootViewControllers;
 			sourceTree = "<group>";
@@ -10125,6 +10129,7 @@
 				333DC09716CAD92800720CA2 /* mdx_ym2151.c in Sources */,
 				591D8E4225DC63620013E19F /* imdct.c in Sources */,
 				59B9997C25CFE5690071E144 /* UIColor+BButton.m in Sources */,
+				CCB8E0FB2F1F7A7F0032BA8F /* snes_spcSets.m in Sources */,
 				CC8368E42B57CA9B0035A4DA /* uri68.c in Sources */,
 				330F36C917A683FB00EEC84A /* OnlineViewController.mm in Sources */,
 				596BB20C26507734000E63A6 /* RootViewControllerAMPWebParser.mm in Sources */,
@@ -10335,6 +10340,7 @@
 				CCBE60F52EE2DD44000FDD7E /* mdx_ym2151.c in Sources */,
 				CCBE60F62EE2DD44000FDD7E /* imdct.c in Sources */,
 				CCBE60F72EE2DD44000FDD7E /* UIColor+BButton.m in Sources */,
+				CCB8E0FC2F1F7A7F0032BA8F /* snes_spcSets.m in Sources */,
 				CCBE60F82EE2DD44000FDD7E /* uri68.c in Sources */,
 				CCBE60F92EE2DD44000FDD7E /* OnlineViewController.mm in Sources */,
 				CCBE60FA2EE2DD44000FDD7E /* RootViewControllerAMPWebParser.mm in Sources */,

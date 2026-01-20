@@ -19,6 +19,7 @@ enum t_radioSource {
     RS_COLLECTION_ASMA,
     RS_COLLECTION_HVSC,
     RS_COLLECTION_CGSC,
+    RS_COLLECTION_SNES,
 };
 
 @property (nonatomic, assign) t_radioSource mRadioSource;
@@ -31,14 +32,13 @@ enum t_radioSource {
 @property (nonatomic, strong) NSMutableArray *mFilesExistInLibrary;
 @property (nonatomic, strong) NSMutableArray *mSourceData;
 @property (nonatomic, strong) NSMutableArray *mHistory,*mHistoryComp;
-@property (nonatomic, strong) NSTimer *fetchDebounceTimer;
 @property (nonatomic, strong) NSString *mCurrentPath;
 
 @property (nonatomic, strong) NSURLSessionConfiguration *mURLSessionConfig;
 @property (nonatomic, strong) NSOperationQueue *mURLSessionQueue;
 @property (nonatomic, strong) NSURLSession *mURLSsession;
 
--(void) moveNext;
+-(void) moveNext:(bool)removeCurrentEntry;
 -(void) movePrev:(int)idx;
 -(void) startCurrent;
 
@@ -50,7 +50,7 @@ enum t_radioSource {
 -(NSString *) getHistoryLabel:(int)idx;
 -(int) getHistorySize;
 -(NSString *) radioSourceName;
--(bool) saveFileToLibrary;
+-(bool) saveFileToLibrary:(NSString* __nullable)suggestedName;
 -(bool) isInLibrary:(int)slot;
 -(void) cleanFiles;
 

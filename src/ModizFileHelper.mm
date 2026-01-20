@@ -430,6 +430,12 @@ extern bool icloud_available;
                     return 0;
                 }
             }
+            // check if .sm1 or .sm2 from FAC SoundTracker
+            if (([extension caseInsensitiveCompare:@"sm1"]==NSOrderedSame)||([extension caseInsensitiveCompare:@"sm2"]==NSOrderedSame)) {
+                if ([_filePath containsString:@"FAC SoundTracker/"]) {
+                    return 0;
+                }
+            }
             
             return 1;
         }

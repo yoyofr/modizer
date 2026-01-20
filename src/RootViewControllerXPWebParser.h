@@ -151,6 +151,9 @@ extern volatile t_settings settings[MAX_SETTINGS];
 @property (nonatomic, strong) NSString *htmlData;
 @property (nonatomic, strong) NSArray<NSLayoutConstraint *> *htmlWebViewConstraints;
 
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *radioButtonWidthConstraint;
+
+
 -(IBAction)goPlayer;
 
 -(void) refreshViewAfterDownload;

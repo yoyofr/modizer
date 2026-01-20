@@ -36,6 +36,13 @@
     END_PROFILE
 }
 
+-(void) fillKeysCompleted {
+    [super fillKeysCompleted];
+    
+    [self hideWaiting];
+}
+
+
 -(void) fillKeys {
     if (shouldFillKeys) {
         shouldFillKeys=0;

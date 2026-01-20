@@ -48,6 +48,10 @@ enum t_pattern_theme_flag {
   MDZ_THEMEFLAG_VolDottedRedTopBar=1<<6,
 };
 
+typedef struct {
+    const char *shortname;
+    const char *longname;
+} rsn_name_mapping_t;
 
 
 

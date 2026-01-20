@@ -1124,7 +1124,12 @@ bool sysMonitorIsActive;
 
 -(IBAction)pushedSaveFile {
     if ([radioSource isActive] && ![radioSource isInLibrary:0]) {
-        if ([radioSource saveFileToLibrary]) {
+        NSString *name=nil;
+        if (radioSource.mRadioSource==RS_COLLECTION_SNES) {
+            name=mplayer.album;
+        }
+        
+        if ([radioSource saveFileToLibrary:name]) {
             [self openPopup:NSLocalizedString(@"File saved in Library", @"") secmsg:@"" style:POPUP_STYLE_INFO];
             [btnSaveFile setTitleColor:[UIColor grayColor] forState:UIControlStateNormal];
         } else {
@@ -3252,6 +3257,10 @@ int recording=0;
         [mplayer Stop];
         mPaused=1;
         if (mHasFocus) [[self navigationController] popViewControllerAnimated:YES];
+        
+        if ([radioSource isActive]) {
+            [radioSource moveNext:TRUE];
+        }
         return FALSE;
     }
     
@@ -3330,7 +3339,7 @@ int recording=0;
 
 -(int)play_nextEntry {
     if ([radioSource isActive]) {
-        [radioSource moveNext];
+        [radioSource moveNext:FALSE];
         if ([radioSource isInLibrary:0]) [btnSaveFile setTitleColor:[UIColor grayColor] forState:UIControlStateNormal];
         else [btnSaveFile setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
         [self updRadioInfo];

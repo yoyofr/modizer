@@ -235,6 +235,7 @@ extern void *LoadingProgressObserverContext;
 #define HVSC_BASEDIR @"HVSC"
 #define CGSC_BASEDIR @"CGSC"
 #define ASMA_BASEDIR @"ASMA"
+#define SNESmusic_BASEDIR @"SNESM"
 
 #define DATABASENAME_MAIN @"databaseMAIN.modizerdb"
 #define DATABASENAME_USER @"database.modizerdb"
