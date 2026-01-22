@@ -1339,6 +1339,13 @@ void ADLIBEMU(getsample)(void *chip, UINT32 numsamples, DEV_SMPL** sndptr)
                 int64_t oct = ((((Bit32u)OPL->adlibreg[ARC_KON_BNUM+idx])>>2)&7);
                 int keyon=((((Bit32u)OPL->adlibreg[ARC_KON_BNUM+idx])>>5)&1);
                 
+                if (ii < 9)
+                    cptr = &OPL->op[ii];
+                else
+                    cptr = &OPL->op[ii+9];    // second set is operator18-operator35
+                if ((cptr->op_state!=OF_TYPE_OFF)&&(cptr->op_state!=OF_TYPE_REL)) keyon=1;
+                
+                
                 if (keyon) {
                     if (!(frn)) {
                         //if ((OPL->chan_out[ii] !=old_out_fm[ii]))
