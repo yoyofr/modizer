@@ -9,6 +9,7 @@
 
 #import "RootViewControllerSMSPWebParser.h"
 #import "ModizFileHelper.h"
+#import "RadioSource.h"
 
 enum {
     BROWSE_ALL=0,
@@ -19,6 +20,52 @@ enum {
 @implementation RootViewControllerSMSPWebParser
 
 -(void) pushRadioButton {
+    if ([detailViewController.radioSource isActive]&&(detailViewController.radioSource.mRadioSource==RS_COLLECTION_SMSP)) {
+        [detailViewController stop];
+        [detailViewController clearQueue];
+        [detailViewController.radioSource stop];
+        [radioButton setTitleColor:[UIColor grayColor] forState:UIControlStateNormal];
+    } else {
+        [detailViewController.radioSource stop];
+        [detailViewController clearQueue];
+        detailViewController.radioSource.mRadioSource=RS_COLLECTION_SMSP;
+        
+        t_WEB_browse_entry *cur_db_entries;
+        cur_db_entries=(search_dbWEB?search_dbWEB_entries:dbWEB_entries);
+        int nb_entries=(search_dbWEB?search_dbWEB_nb_entries:dbWEB_nb_entries);
+        
+        switch (browse_depth) {
+            case 1:
+                detailViewController.radioSource.mRadioSource_mode=1;
+                [detailViewController.radioSource.mSourceData removeAllObjects];
+                for (int i=0;i<nb_entries;i++) {
+                    if (cur_db_entries[i].isFile) {
+                        //MDZILog("got: %@ / %@",cur_db_entries[i].URL,cur_db_entries[i].img_URL);
+                        [detailViewController.radioSource.mSourceData addObject:[NSString stringWithFormat:@"f:%@/%@/%@",[[cur_db_entries[i].URL lastPathComponent] stringByDeletingPathExtension],cur_db_entries[i].info,[cur_db_entries[i].label stringByDeletingPathExtension]]];
+                    } else {
+                        MDZILog("got: %@ / %@",cur_db_entries[i].label,cur_db_entries[i].fullpath);
+                    }
+                }
+                break;
+            case 2:
+                detailViewController.radioSource.mRadioSource_mode=1;
+                [detailViewController.radioSource.mSourceData removeAllObjects];
+                for (int i=0;i<nb_entries;i++) {
+                    if (cur_db_entries[i].isFile) {
+                        //MDZILog("got: %@ / %@",cur_db_entries[i].URL,cur_db_entries[i].img_URL);
+                        [detailViewController.radioSource.mSourceData addObject:[NSString stringWithFormat:@"f:%@/%@/%@",[[cur_db_entries[i].URL lastPathComponent] stringByDeletingPathExtension],cur_db_entries[i].info,[cur_db_entries[i].label stringByDeletingPathExtension]]];
+                    } else {
+                        MDZILog("got: %@ / %@",cur_db_entries[i].label,cur_db_entries[i].fullpath);
+                    }
+                }
+                break;
+            default:
+                detailViewController.radioSource.mRadioSource_mode=0;
+                break;
+        }
+        [detailViewController.radioSource activate];
+        [radioButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    }
     
 }
 
@@ -73,6 +120,9 @@ int qsortSMSP_entries_rating_or_entries(const void *entryA, const void *entryB) 
 - (void)viewDidLoad {
     START_PROFILE
     [super viewDidLoad];
+    
+    [radioButton addTarget:self action:@selector(pushRadioButton) forControlEvents:UIControlEventTouchUpInside];
+    
     browse_mode=BROWSE_ALL;
     if ([self.title isEqualToString:@"Systems"]) {
         browse_mode=BROWSE_SYSTEMS;
@@ -81,6 +131,40 @@ int qsortSMSP_entries_rating_or_entries(const void *entryA, const void *entryB) 
     }
     END_PROFILE
 }
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    
+    [self.updRSTimer invalidate];
+    self.updRSTimer = nil;
+    self.updRSTimer = [NSTimer scheduledTimerWithTimeInterval:0.3
+                                                                 target:self
+                                                               selector:@selector(updRadioStatus)
+                                                               userInfo:nil
+                                                                repeats:YES];
+    
+    if ([detailViewController.radioSource isActive]&&(detailViewController.radioSource.mRadioSource==RS_COLLECTION_SMSP)) {
+        [radioButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    } else {
+        [radioButton setTitleColor:[UIColor grayColor] forState:UIControlStateNormal];
+    }
+    
+    if ((browse_depth==0) ||
+        ((browse_depth==1) && (browse_mode==BROWSE_SYSTEMS))){
+        radioButton.hidden=YES;
+        self.radioButtonWidthConstraint.constant=0;
+        [self.view layoutIfNeeded];
+    }
+}
+
+-(void) updRadioStatus {
+    if ([detailViewController.radioSource isActive]&&(detailViewController.radioSource.mRadioSource==RS_COLLECTION_SMSP)) {
+        [radioButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    } else {
+        [radioButton setTitleColor:[UIColor grayColor] forState:UIControlStateNormal];
+    }
+}
+
 
 -(void) fillKeysCompleted {
     [super fillKeysCompleted];
@@ -307,7 +391,7 @@ int qsortSMSP_entries_rating_or_entries(const void *entryA, const void *entryB) 
                 if ([el hasChildren]) {
                     TFHppleElement *elchild=(TFHppleElement *)[[el children] lastObject];
                     
-                    NSString *system=[[[NSString stringWithString:[elchild content]] stringByReplacingOccurrencesOfString:@"\n" withString:@""] stringByReplacingOccurrencesOfString:@"/" withString:@","];
+                    NSString *system=[[[[NSString stringWithString:[elchild content]] stringByReplacingOccurrencesOfString:@"\n" withString:@""] stringByReplacingOccurrencesOfString:@"/" withString:@","]  stringByReplacingOccurrencesOfString:@" " withString:@""];
                     
                     bool isAlreadyCovered=false;
                     we[we_index].file_name=system;
@@ -360,16 +444,13 @@ int qsortSMSP_entries_rating_or_entries(const void *entryA, const void *entryB) 
                 if ([el hasChildren]) {
                     TFHppleElement *elchild=(TFHppleElement *)[[el children] lastObject];
                     
-                    we[we_index].file_systems=[[[NSString stringWithString:[elchild content]] stringByReplacingOccurrencesOfString:@"\n" withString:@""] stringByReplacingOccurrencesOfString:@"/" withString:@","];
+                    we[we_index].file_systems=[[[[NSString stringWithString:[elchild content]] stringByReplacingOccurrencesOfString:@"\n" withString:@""] stringByReplacingOccurrencesOfString:@"/" withString:@","] stringByReplacingOccurrencesOfString:@" " withString:@""];
                     
                     if ([we[we_index].file_systems isEqualToString:cur_system]) {
-                        
                         TFHppleElement *elchild2=[el firstChildWithTagName:@"a"];
                         
                         if (elchild2) {
-                            
                             we[we_index].file_URL=[[[NSString stringWithFormat:@"http:%@",[elchild2 objectForKey:@"href"]] stringByAppendingString:@".zip"] stringByReplacingOccurrencesOfString:@"/Music" withString:@"/uploads/Music"];
-                            
                             
                             we[we_index].file_img_URL=[[[[NSString stringWithFormat:@"http:%@",[elchild2 objectForKey:@"href"]] stringByDeletingPathExtension] stringByAppendingString:@".png"] stringByReplacingOccurrencesOfString:@"/Music" withString:@"/uploads/Music"];
                             
@@ -424,7 +505,7 @@ int qsortSMSP_entries_rating_or_entries(const void *entryA, const void *entryB) 
                     elchild=(TFHppleElement *)[[el children] lastObject];
                     
                     //el=[arr_system objectAtIndex:j];
-                    we[we_index].file_systems=[[[NSString stringWithString:[elchild content]] stringByReplacingOccurrencesOfString:@"\n" withString:@""] stringByReplacingOccurrencesOfString:@"/" withString:@","];
+                    we[we_index].file_systems=[[[[NSString stringWithString:[elchild content]] stringByReplacingOccurrencesOfString:@"\n" withString:@""] stringByReplacingOccurrencesOfString:@"/" withString:@","]  stringByReplacingOccurrencesOfString:@" " withString:@""];
                     
                     //we[we_index].file_details=@"";
                     

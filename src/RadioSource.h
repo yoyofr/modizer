@@ -20,6 +20,10 @@ enum t_radioSource {
     RS_COLLECTION_HVSC,
     RS_COLLECTION_CGSC,
     RS_COLLECTION_SNES,
+    RS_COLLECTION_SMSP,
+    RS_COLLECTION_VGMR,
+    RS_COLLECTION_ZXART,
+    RS_COLLECTION_JOSHW,
 };
 
 @property (nonatomic, assign) t_radioSource mRadioSource;

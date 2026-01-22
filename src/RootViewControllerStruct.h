@@ -83,8 +83,9 @@ typedef struct {
     NSString *info;
     NSAttributedString *infoAttr;
     double webRating;
+    float ratingNb;
     int entries_nb;
-    bool isFile;
+    int isFile;
     char url_type;
     signed char downloaded;
     int song_length;

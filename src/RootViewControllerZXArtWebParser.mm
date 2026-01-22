@@ -13,6 +13,7 @@
 #import "AFHTTPSessionManager.h"
 
 #import "ModizFileHelper.h"
+#import "RadioSource.h"
 
 enum {
     BROWSE_ALL_INDEX,
@@ -79,6 +80,9 @@ int qsortZXArt_entries_rating_or_entries(const void *entryA, const void *entryB)
 - (void)viewDidLoad {
     START_PROFILE
     [super viewDidLoad];
+    
+    [radioButton addTarget:self action:@selector(pushRadioButton) forControlEvents:UIControlEventTouchUpInside];
+    
     browse_mode=BROWSE_ALL_INDEX;
     if ([self.title isEqualToString:NSLocalizedString(@"Latest entries",@"")]) {
         browse_mode=BROWSE_LATEST;
@@ -89,6 +93,38 @@ int qsortZXArt_entries_rating_or_entries(const void *entryA, const void *entryB)
         else if (browse_depth==3) browse_mode=BROWSE_ALL_AUTHORS_SONGS;
     }
     END_PROFILE
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    
+    [self.updRSTimer invalidate];
+    self.updRSTimer = nil;
+    self.updRSTimer = [NSTimer scheduledTimerWithTimeInterval:0.3
+                                                                 target:self
+                                                               selector:@selector(updRadioStatus)
+                                                               userInfo:nil
+                                                                repeats:YES];
+    
+    if ([detailViewController.radioSource isActive]&&(detailViewController.radioSource.mRadioSource==RS_COLLECTION_ZXART)) {
+        [radioButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    } else {
+        [radioButton setTitleColor:[UIColor grayColor] forState:UIControlStateNormal];
+    }
+    
+    if (browse_depth>0) {
+        radioButton.hidden=YES;
+        self.radioButtonWidthConstraint.constant=0;
+        [self.view layoutIfNeeded];
+    }
+}
+
+-(void) updRadioStatus {
+    if ([detailViewController.radioSource isActive]&&(detailViewController.radioSource.mRadioSource==RS_COLLECTION_ZXART)) {
+        [radioButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    } else {
+        [radioButton setTitleColor:[UIColor grayColor] forState:UIControlStateNormal];
+    }
 }
 
 -(void) fillKeysCompleted {

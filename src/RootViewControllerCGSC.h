@@ -102,6 +102,8 @@
 @property (nonatomic, assign) int activeKey;
 @property (nonatomic, assign) bool forceReloadCells;
 
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *radioButtonWidthConstraint;
+
 
 -(IBAction)goPlayer;
 

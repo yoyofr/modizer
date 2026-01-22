@@ -329,9 +329,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
                 [self recreateDB];
             }
         }
-        
     }
-    
 }
 
 

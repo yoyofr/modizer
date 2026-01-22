@@ -14,7 +14,8 @@
 
 enum {
     BROWSE_DEFAULT=0,
-    BROWSE_ALL
+    BROWSE_ALL,
+    BROWSE_SEARCH
 };
 
 extern const rsn_name_mapping_t SNESmusic_names[];
@@ -135,21 +136,23 @@ int qsortSNESM_entries_rating_or_entries(const void *entryA, const void *entryB)
     } else sort_mode=0;
     
     if (sort_mode==0) {
-        navbarTitle.text=[NSString stringWithFormat:@"%@ (name)",self.title];
+        navbarTitle.text=[NSString stringWithFormat:NSLocalizedString(@"%@ (name)",@""),self.title];
         self.navigationItem.title=navbarTitle.text;
         qsort(dbWEB_entries_data,dbWEB_nb_entries,sizeof(t_WEB_browse_entry),qsortSNESM_entries_alpha);
         [self fillKeys]; //update search if active
     } else {
         if (sort_mode==1) {
-            navbarTitle.text=[NSString stringWithFormat:@"%@ (rating)",self.title];
+            navbarTitle.text=[NSString stringWithFormat:NSLocalizedString(@"%@ (rating)",@""),self.title];
             self.navigationItem.title=navbarTitle.text;
         } else {
-            navbarTitle.text=[NSString stringWithFormat:@"%@ (packs)",self.title];
+            navbarTitle.text=[NSString stringWithFormat:NSLocalizedString(@"%@ (packs)",@""),self.title];
             self.navigationItem.title=navbarTitle.text;
         }
         qsort(dbWEB_entries_data,dbWEB_nb_entries,sizeof(t_WEB_browse_entry),qsortSNESM_entries_rating_or_entries);
         [self fillKeys]; //update search if active
     }
+    
+    [navbarTitle sizeToFit];
     
     [tableView reloadData];
 }
@@ -167,8 +170,10 @@ int qsortSNESM_entries_rating_or_entries(const void *entryA, const void *entryB)
     
     
     browse_mode=BROWSE_DEFAULT;
-    if ([self.title isEqualToString:NSLocalizedString(@"All",@"")]) {
+    if ([self.title isEqualToString:NSLocalizedString(@"Browse",@"")]) {
         browse_mode=BROWSE_ALL;
+    } else if ([self.title isEqualToString:NSLocalizedString(@"Search",@"")]) {
+        browse_mode=BROWSE_SEARCH;
     }
     
     self.navigationController.delegate = self;
@@ -177,17 +182,19 @@ int qsortSNESM_entries_rating_or_entries(const void *entryA, const void *entryB)
         self.navigationItem.titleView=navbarTitle;
         
         if (sort_mode==0) {
-            navbarTitle.text=[NSString stringWithFormat:@"%@ (name)   ",self.title];
+            navbarTitle.text=[NSString stringWithFormat:NSLocalizedString(@"%@ (name)",@""),self.title];
             self.navigationItem.title=navbarTitle.text;
         } else {
             if (sort_mode==1) {
-                navbarTitle.text=[NSString stringWithFormat:@"%@ (rating)",self.title];
+                navbarTitle.text=[NSString stringWithFormat:NSLocalizedString(@"%@ (rating)",@""),self.title];
                 self.navigationItem.title=navbarTitle.text;
             } else {
-                navbarTitle.text=[NSString stringWithFormat:@"%@ (packs) ",self.title];
+                navbarTitle.text=[NSString stringWithFormat:NSLocalizedString(@"%@ (packs)",@""),self.title];
                 self.navigationItem.title=navbarTitle.text;
             }
         }
+        
+        [navbarTitle sizeToFit];
         
         UITapGestureRecognizer *tapGesture =
         [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(titleTap)];
@@ -207,7 +214,7 @@ int qsortSNESM_entries_rating_or_entries(const void *entryA, const void *entryB)
                                                                userInfo:nil
                                                                 repeats:YES];
     
-    if ([detailViewController.radioSource isActive]&&(detailViewController.radioSource.mRadioSource==RS_COLLECTION_AMP)) {
+    if ([detailViewController.radioSource isActive]&&(detailViewController.radioSource.mRadioSource==RS_COLLECTION_SNES)) {
         [radioButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
     } else {
         [radioButton setTitleColor:[UIColor grayColor] forState:UIControlStateNormal];
@@ -223,7 +230,7 @@ int qsortSNESM_entries_rating_or_entries(const void *entryA, const void *entryB)
 }
 
 -(void) updRadioStatus {
-    if ([detailViewController.radioSource isActive]&&(detailViewController.radioSource.mRadioSource==RS_COLLECTION_AMP)) {
+    if ([detailViewController.radioSource isActive]&&(detailViewController.radioSource.mRadioSource==RS_COLLECTION_SNES)) {
         [radioButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
     } else {
         [radioButton setTitleColor:[UIColor grayColor] forState:UIControlStateNormal];
@@ -320,7 +327,8 @@ int qsortSNESM_entries_rating_or_entries(const void *entryA, const void *entryB)
     NSArray *sortedArray;
     NSMutableArray *tmpArray=[[NSMutableArray alloc] init];
     t_categ_entry webs_entry[]= {
-        {NSLocalizedString(@"All",@""),@""},
+        {NSLocalizedString(@"Browse",@""),@""},
+        {NSLocalizedString(@"Search",@""),@""},
         {@"Top Packs",@"http://snesmusic.org/v2/stats.php"}
     };
     
@@ -360,57 +368,63 @@ int qsortSNESM_entries_rating_or_entries(const void *entryA, const void *entryB)
 }
 
 -(bool) getSNESMDetails:(NSString*)url fullpath:(NSString*)fullpath web_entry:(t_WEB_browse_entry*)we  {
-    //get id
-    TFHppleElement *el;
-    int entry_id=[[[url componentsSeparatedByString:@"="] lastObject] intValue];
-    
-    NSString *urlEntry=[NSString stringWithFormat:@"http://snesmusic.org/v2/profile.php?profile=set&selected=%d",entry_id];
-    
-    NSData *urlDataEntry = [NSData dataWithContentsOfURL:[NSURL URLWithString:[NSString stringWithString:urlEntry]]];
-    TFHpple *docEntry       = [[TFHpple alloc] initWithHTMLData:urlDataEntry];
-    
-    //NSArray *arr_entry_name=[docEntry searchWithXPathQuery:@"/html/body/div[@id='contContainer']/h2[1]/text()"];
-    NSArray *arr_entry_file=[docEntry searchWithXPathQuery:@"/html/body//a[@class='download']"];
-    NSArray *arr_entry_img=[docEntry searchWithXPathQuery:@"/html/body//img[@class='screen']"];
-    
-    //TFHppleElement *el=[arr_entry_name firstObject];
-    //we[we_index].file_name=[NSString stringWithFormat:@"%@",[el raw]];
-    
-    if (!arr_entry_file) return false;
-    if (![arr_entry_file count]) return false;
-    
-    el=[arr_entry_file firstObject];
-    we->URL=[NSString stringWithFormat:@"http://snesmusic.org/v2/%@",[el objectForKey:@"href"]];
-    
-    el=[arr_entry_img firstObject];
-    we->img_URL=[NSString stringWithFormat:@"http://snesmusic.org/v2/%@",[el objectForKey:@"src"]];
-    
-    NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
-    AFURLSessionManager *manager = [[AFURLSessionManager alloc] initWithSessionConfiguration:configuration];
-    manager.responseSerializer = [AFHTTPResponseSerializer serializer];
-    
-    NSURL *URL = [NSURL URLWithString:we->img_URL];
-    NSURLRequest *request = [NSURLRequest requestWithURL:URL];
-    
-    NSURLSessionDataTask *dataTask = [manager dataTaskWithRequest:request
-                                                   uploadProgress:^(NSProgress * _Nonnull uploadProgress) {
-    }
-                                                 downloadProgress:^(NSProgress * _Nonnull downloadProgress) {        
+    if ([url containsString:@"snesmusic.org/v2/download.php?spcNow="]) {
+        we->URL=[NSString stringWithString:url];
         
+        NSArray *tmpArr=[url componentsSeparatedByString:@"="];
+        we->img_URL=[NSString stringWithFormat:@"http://snesmusic.org/v2/images/screenshots/%@.png",tmpArr[1]];
+
+    } else {
+        //get id
+        TFHppleElement *el;
+        int entry_id=[[[url componentsSeparatedByString:@"="] lastObject] intValue];
+        
+        NSString *urlEntry=[NSString stringWithFormat:@"http://snesmusic.org/v2/profile.php?profile=set&selected=%d",entry_id];
+        
+        NSData *urlDataEntry = [NSData dataWithContentsOfURL:[NSURL URLWithString:[NSString stringWithString:urlEntry]]];
+        TFHpple *docEntry       = [[TFHpple alloc] initWithHTMLData:urlDataEntry];
+        
+        //NSArray *arr_entry_name=[docEntry searchWithXPathQuery:@"/html/body/div[@id='contContainer']/h2[1]/text()"];
+        NSArray *arr_entry_file=[docEntry searchWithXPathQuery:@"/html/body//a[@class='download']"];
+        NSArray *arr_entry_img=[docEntry searchWithXPathQuery:@"/html/body//img[@class='screen']"];
+        
+        //TFHppleElement *el=[arr_entry_name firstObject];
+        //we[we_index].file_name=[NSString stringWithFormat:@"%@",[el raw]];
+        
+        if (!arr_entry_file) return false;
+        if (![arr_entry_file count]) return false;
+        
+        el=[arr_entry_file firstObject];
+        we->URL=[NSString stringWithFormat:@"http://snesmusic.org/v2/%@",[el objectForKey:@"href"]];
+        
+        el=[arr_entry_img firstObject];
+        we->img_URL=[NSString stringWithFormat:@"http://snesmusic.org/v2/%@",[el objectForKey:@"src"]];
     }
-                                                completionHandler:^(NSURLResponse *response, id responseObject, NSError *error) {
-        if (error) {
-            MDZELog("Error: %@", error);
-        } else {
-            NSData *data=responseObject;
-            [data writeToFile:[NSString stringWithFormat:@"%@/%@",[ModizFileHelper getAppHomeDirectory],[[fullpath stringByDeletingPathExtension] stringByAppendingString:@".png"]] atomically:NO];
+        NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
+        AFURLSessionManager *manager = [[AFURLSessionManager alloc] initWithSessionConfiguration:configuration];
+        manager.responseSerializer = [AFHTTPResponseSerializer serializer];
+        
+        NSURL *URL = [NSURL URLWithString:we->img_URL];
+        NSURLRequest *request = [NSURLRequest requestWithURL:URL];
+        
+        NSURLSessionDataTask *dataTask = [manager dataTaskWithRequest:request
+                                                       uploadProgress:^(NSProgress * _Nonnull uploadProgress) {
         }
-    }];
-    
-    [dataTask resume];
-    
-    [manager invalidateSessionCancelingTasks:NO resetSession:NO];
-    
+                                                     downloadProgress:^(NSProgress * _Nonnull downloadProgress) {
+            
+        }
+                                                    completionHandler:^(NSURLResponse *response, id responseObject, NSError *error) {
+            if (error) {
+                MDZELog("Error: %@", error);
+            } else {
+                NSData *data=responseObject;
+                [data writeToFile:[NSString stringWithFormat:@"%@/%@",[ModizFileHelper getAppHomeDirectory],[[fullpath stringByDeletingPathExtension] stringByAppendingString:@".png"]] atomically:NO];
+            }
+        }];
+        
+        [dataTask resume];
+        
+        [manager invalidateSessionCancelingTasks:NO resetSession:NO];
     return true;
 }
 
@@ -507,6 +521,19 @@ int qsortSNESM_entries_rating_or_entries(const void *entryA, const void *entryB)
             we[i+1].file_type=0;
             [tmpArray addObject:[NSValue valueWithPointer:&(we[i+1])]];
         }
+    } else if (browse_mode==BROWSE_SEARCH) {
+        ///////////////////////////////////////////////
+        // All entries / letter
+        ////////////////////////////////////////////////
+        we=(t_web_file_entry*)calloc(1,sizeof(t_web_file_entry)*snes_spc_entries);
+        for (int i=0;i<snes_spc_entries;i++) {
+            if (mSearchText && [[NSString stringWithUTF8String:SNESmusic_names[i].longname] localizedCaseInsensitiveContainsString:mSearchText]) {
+                we[i].file_URL=[NSString stringWithFormat:@"http://snesmusic.org/v2/download.php?spcNow=%s",SNESmusic_names[i].shortname];
+                we[i].file_name=[NSString stringWithFormat:@"%s",SNESmusic_names[i].longname];
+                we[i].file_type=2;
+                [tmpArray addObject:[NSValue valueWithPointer:&(we[i])]];
+            }
+        }
     } else if ([mWebBaseURL isEqualToString:@"http://snesmusic.org/v2/stats.php"]) {
         ///////////////////////////////////////////////////////////////////////:
         // SNESM Top 100
@@ -516,9 +543,6 @@ int qsortSNESM_entries_rating_or_entries(const void *entryA, const void *entryB)
         doc       = [[TFHpple alloc] initWithHTMLData:urlData];
         
         NSArray *arr_url=[doc searchWithXPathQuery:@"/html/body//ol[2]//a"];
-        //NSArray *arr_system=[doc searchWithXPathQuery:@"/html/body//tr/td[@class='c'][1]"];
-        //NSArray *arr_size=[doc searchWithXPathQuery:@"/html/body//tr/td[@class='c'][2]"];
-        //NSArray *arr_rating=[doc searchWithXPathQuery:@"/html/body//tr/td[@class='c'][3]"];
         
         we=(t_web_file_entry*)calloc(1,sizeof(t_web_file_entry)*[arr_url count]);
         
@@ -1170,5 +1194,31 @@ int qsortSNESM_entries_rating_or_entries(const void *entryA, const void *entryB)
         [self.navigationController pushViewController:childController animated:YES];
     }
 }
+
+- (void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText {
+    //if (mSearchText) [mSearchText release];
+
+    mSearchText=[[NSString alloc] initWithString:searchText];
+    if ((mSearchText==nil)||([mSearchText length]==0)||(browse_mode==BROWSE_SEARCH)) mSearch=0;
+    else mSearch=1;
+    if (mSearch||(browse_mode==BROWSE_SEARCH)) shouldFillKeys=1;
+    search_dbWEB=0;
+
+    if (mSearch) {
+        shouldReload=true;
+    }
+
+    // Cancel previous search timer to debounce
+    [self.searchDebounceTimer invalidate];
+    self.searchDebounceTimer = nil;
+
+    // Schedule new search after delay
+    self.searchDebounceTimer = [NSTimer scheduledTimerWithTimeInterval:0.5
+                                                                 target:self
+                                                               selector:@selector(fillKeys)
+                                                               userInfo:nil
+                                                                repeats:NO];
+}
+
 
 @end

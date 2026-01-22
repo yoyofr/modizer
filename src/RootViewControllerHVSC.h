@@ -101,6 +101,8 @@
 
 @property (nonatomic, strong) id mdzChangeObserverToken;
 
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *radioButtonWidthConstraint;
+
 
 -(IBAction)goPlayer;
 

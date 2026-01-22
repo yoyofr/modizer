@@ -236,6 +236,10 @@ extern void *LoadingProgressObserverContext;
 #define CGSC_BASEDIR @"CGSC"
 #define ASMA_BASEDIR @"ASMA"
 #define SNESmusic_BASEDIR @"SNESM"
+#define SMSP_BASEDIR @"SMSP"
+#define VGMR_BASEDIR @"VGMRips"
+#define ZXART_BASEDIR @"ZXArt"
+#define JOSHW_BASEDIR @"JoshW"
 
 #define DATABASENAME_MAIN @"databaseMAIN.modizerdb"
 #define DATABASENAME_USER @"database.modizerdb"

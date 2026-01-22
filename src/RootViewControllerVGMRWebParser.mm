@@ -9,6 +9,7 @@
 
 #import "RootViewControllerVGMRWebParser.h"
 #import "ModizFileHelper.h"
+#import "RadioSource.h"
 
 @implementation RootViewControllerVGMRWebParser
 
@@ -25,11 +26,15 @@ int qsortVGMR_entries_alpha(const void *entryA, const void *entryB) {
 
 int qsortVGMR_entries_rating_or_entries(const void *entryA, const void *entryB) {
     if (((t_WEB_browse_entry*)entryA)->isFile) {
-        float rA,rB;
+        float rA,rB,rAnb,rBnb;
         rA=((t_WEB_browse_entry*)entryA)->webRating;
         rB=((t_WEB_browse_entry*)entryB)->webRating;
         if (rA>rB) return -1;
         if (rA<rB) return 1;
+        rAnb=((t_WEB_browse_entry*)entryA)->ratingNb;
+        rBnb=((t_WEB_browse_entry*)entryB)->ratingNb;
+        if ((rA==rB)&&(rA>0)&&(rAnb>rBnb)) return -1;
+        if ((rA==rB)&&(rA>0)&&(rAnb<rBnb)) return 1;
         //if same, use label
         NSString *strA,*strB;
         NSComparisonResult res;
@@ -60,6 +65,55 @@ int qsortVGMR_entries_rating_or_entries(const void *entryA, const void *entryB) 
 }
 
 -(void) pushRadioButton {
+    if ([detailViewController.radioSource isActive]&&(detailViewController.radioSource.mRadioSource==RS_COLLECTION_VGMR)) {
+        [detailViewController stop];
+        [detailViewController clearQueue];
+        [detailViewController.radioSource stop];
+        [radioButton setTitleColor:[UIColor grayColor] forState:UIControlStateNormal];
+    } else {
+        [detailViewController.radioSource stop];
+        [detailViewController clearQueue];
+        detailViewController.radioSource.mRadioSource=RS_COLLECTION_VGMR;
+        
+        t_WEB_browse_entry *cur_db_entries;
+        cur_db_entries=(search_dbWEB?search_dbWEB_entries:dbWEB_entries);
+        int nb_entries=(search_dbWEB?search_dbWEB_nb_entries:dbWEB_nb_entries);
+        
+        switch (browse_depth) {
+            case 0:
+                detailViewController.radioSource.mRadioSource_mode=0;
+                [detailViewController.radioSource.mSourceData addObject:@"ALL"];
+                break;
+            case 1:
+                detailViewController.radioSource.mRadioSource_mode=1;
+                [detailViewController.radioSource.mSourceData removeAllObjects];
+                for (int i=0;i<nb_entries;i++) {
+                    if (cur_db_entries[i].isFile) {
+                        //MDZILog("got: %@ / %@",cur_db_entries[i].URL,cur_db_entries[i].img_URL);
+                        [detailViewController.radioSource.mSourceData addObject:[NSString stringWithFormat:@"f:%@|%@",[cur_db_entries[i].URL stringByRemovingPercentEncoding],[cur_db_entries[i].fullpath substringFromIndex:[cur_db_entries[i].fullpath rangeOfString:@"Documents/VGMRips/"].location+[@"Documents/VGMRips/" length]]]];
+                    } else {
+                        MDZILog("got: %@ / %@",cur_db_entries[i].label,cur_db_entries[i].fullpath);
+                    }
+                }
+                break;
+            case 2:
+                detailViewController.radioSource.mRadioSource_mode=1;
+                [detailViewController.radioSource.mSourceData removeAllObjects];
+                for (int i=0;i<nb_entries;i++) {
+                    if (cur_db_entries[i].isFile) {
+                        [detailViewController.radioSource.mSourceData addObject:[NSString stringWithFormat:@"f:%@|%@",[cur_db_entries[i].URL stringByRemovingPercentEncoding],[cur_db_entries[i].fullpath substringFromIndex:[cur_db_entries[i].fullpath rangeOfString:@"Documents/VGMRips/"].location+[@"Documents/VGMRips/" length]]]];
+                    } else {
+                        MDZILog("got: %@ / %@",cur_db_entries[i].label,cur_db_entries[i].fullpath);
+                    }
+                }
+                break;
+            default:
+                detailViewController.radioSource.mRadioSource_mode=0;
+                break;
+        }
+        [detailViewController.radioSource activate];
+        [radioButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    }
     
 }
 
@@ -94,6 +148,8 @@ int qsortVGMR_entries_rating_or_entries(const void *entryA, const void *entryB) 
     START_PROFILE
     [super viewDidLoad];
     
+    [radioButton addTarget:self action:@selector(pushRadioButton) forControlEvents:UIControlEventTouchUpInside];
+    
     sort_mode=0;
     //set default sort_mode
     if ([mWebBaseURL isEqualToString:@"https://vgmrips.net/packs/top"]) sort_mode=1;
@@ -120,6 +176,42 @@ int qsortVGMR_entries_rating_or_entries(const void *entryA, const void *entryB) 
     }
  END_PROFILE
 }
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    
+    [self.updRSTimer invalidate];
+    self.updRSTimer = nil;
+    self.updRSTimer = [NSTimer scheduledTimerWithTimeInterval:0.3
+                                                                 target:self
+                                                               selector:@selector(updRadioStatus)
+                                                               userInfo:nil
+                                                                repeats:YES];
+    
+    if ([detailViewController.radioSource isActive]&&(detailViewController.radioSource.mRadioSource==RS_COLLECTION_VGMR)) {
+        [radioButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    } else {
+        [radioButton setTitleColor:[UIColor grayColor] forState:UIControlStateNormal];
+    }
+    
+    if ( (browse_depth==0) || (browse_depth==2) ||
+         ([mWebBaseURL isEqualToString:@"https://vgmrips.net/packs/top"])||
+         ([mWebBaseURL isEqualToString:@"https://vgmrips.net/packs/latest"]) ) {
+    } else {
+        radioButton.hidden=YES;
+        self.radioButtonWidthConstraint.constant=0;
+        [self.view layoutIfNeeded];
+    }
+}
+
+-(void) updRadioStatus {
+    if ([detailViewController.radioSource isActive]&&(detailViewController.radioSource.mRadioSource==RS_COLLECTION_VGMR)) {
+        [radioButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    } else {
+        [radioButton setTitleColor:[UIColor grayColor] forState:UIControlStateNormal];
+    }
+}
+
 
 -(void) fillKeysCompleted {
     [super fillKeysCompleted];
@@ -314,6 +406,7 @@ int qsortVGMR_entries_rating_or_entries(const void *entryA, const void *entryB) 
         NSString *file_systems;
         NSString *file_chipsets;
         float file_rating;
+        float file_ratingNb;
         int entries_nb;
         NSString *file_details;
         NSString *file_img_URL;
@@ -351,7 +444,7 @@ int qsortVGMR_entries_rating_or_entries(const void *entryA, const void *entryB) 
                ([mWebBaseURL rangeOfString:@"https://vgmrips.net/packs/chip/"].location!=NSNotFound) ||
                ([mWebBaseURL rangeOfString:@"https://vgmrips.net/packs/top?letter"].location!=NSNotFound) ||
                ([mWebBaseURL rangeOfString:@"/developed"].location!=NSNotFound)
-               ){
+               ) {
         ///////////////////////////////////////////////////////////////////////:
         // Entries for a given system / chip / composer
         ///////////////////////////////////////////////////////////////////////:
@@ -444,6 +537,7 @@ int qsortVGMR_entries_rating_or_entries(const void *entryA, const void *entryB) 
                     NSArray *arr_systems=[doc searchWithXPathQuery:@"/html/body//div[@class='result row']//tr[@class='systems']/td"];
                     NSArray *arr_chips=[doc searchWithXPathQuery:@"/html/body//div[@class='result row']//tr[@class='chips']/td"];
                     NSArray *arr_rating=[doc searchWithXPathQuery:@"/html/body//div[@class='rating']/div/@class"];
+                    NSArray *arr_ratingNb=[doc searchWithXPathQuery:@"/html/body//div[@class='rating']/small"];
                     
                     if (arr_url&&[arr_url count]) {
                         
@@ -508,6 +602,11 @@ int qsortVGMR_entries_rating_or_entries(const void *entryA, const void *entryB) 
                             el=[arr_rating objectAtIndex:j];
                             NSString *rating=[[[el text] stringByReplacingOccurrencesOfString:@"stars" withString:@""] stringByReplacingOccurrencesOfString:@" " withString:@""];
                             we[we_index].file_rating=[rating floatValue]/10;
+                            
+                            el=[arr_ratingNb objectAtIndex:j];
+                            NSString *ratingNb=[[[el text] stringByReplacingOccurrencesOfString:@"ratings" withString:@""] stringByReplacingOccurrencesOfString:@" " withString:@""];
+                            ratingNb=[[[el text] stringByReplacingOccurrencesOfString:@"rating" withString:@""] stringByReplacingOccurrencesOfString:@" " withString:@""];
+                            we[we_index].file_ratingNb=[ratingNb floatValue];
                             
                             we[we_index].file_type=1;
                             
@@ -700,7 +799,7 @@ int qsortVGMR_entries_rating_or_entries(const void *entryA, const void *entryB) 
                 
         if ([mWebBaseURL isEqualToString:@"https://vgmrips.net/packs/latest"]) no_sort=TRUE;
         
-        int pageNb=1; //top 20 to start
+        int pageNb=5; //top 100 to start
         
         we=(t_web_file_entry*)calloc(1,sizeof(t_web_file_entry)*pageNb*20);
         for (int i=0;i<pageNb;i++) {
@@ -723,6 +822,7 @@ int qsortVGMR_entries_rating_or_entries(const void *entryA, const void *entryB) 
             NSArray *arr_systems=[doc searchWithXPathQuery:@"/html/body//div[@class='result row']//tr[@class='systems']//td"];
             NSArray *arr_chips=[doc searchWithXPathQuery:@"/html/body//div[@class='result row']//tr[@class='chips']/td"];
             NSArray *arr_rating=[doc searchWithXPathQuery:@"/html/body//div[@class='rating']/div/@class"];
+            NSArray *arr_ratingNb=[doc searchWithXPathQuery:@"/html/body//div[@class='rating']/small"];
             
             if (arr_url&&[arr_url count]) {
                 
@@ -783,6 +883,11 @@ int qsortVGMR_entries_rating_or_entries(const void *entryA, const void *entryB) 
                     NSString *rating=[[[el text] stringByReplacingOccurrencesOfString:@"stars" withString:@""] stringByReplacingOccurrencesOfString:@" " withString:@""];
                     we[we_index].file_rating=[rating floatValue]/10;
                     
+                    el=[arr_ratingNb objectAtIndex:j];
+                    NSString *ratingNb=[[[el text] stringByReplacingOccurrencesOfString:@"ratings" withString:@""] stringByReplacingOccurrencesOfString:@" " withString:@""];
+                    ratingNb=[[[el text] stringByReplacingOccurrencesOfString:@"rating" withString:@""] stringByReplacingOccurrencesOfString:@" " withString:@""];
+                    we[we_index].file_ratingNb=[ratingNb floatValue];
+                    
                     we[we_index].file_type=1;
                     
                     [tmpArray addObject:[NSValue valueWithPointer:&(we[we_index])]];
@@ -800,6 +905,10 @@ int qsortVGMR_entries_rating_or_entries(const void *entryA, const void *entryB) 
                 if (e1->file_type) {
                     if (e1->file_rating>e2->file_rating) return NSOrderedAscending;
                     if (e1->file_rating<e2->file_rating) return NSOrderedDescending;
+                    if ( (e1->file_rating>0) && (e1->file_rating==e2->file_rating)
+                        && (e1->file_ratingNb>e2->file_ratingNb) ) return NSOrderedAscending;
+                    if ( (e1->file_rating>0) && (e1->file_rating==e2->file_rating)
+                        && (e1->file_ratingNb<e2->file_ratingNb) ) return NSOrderedDescending;
                     NSString *str1=[e1->file_name lastPathComponent];
                     NSString *str2=[e2->file_name lastPathComponent];
                     return [str1 caseInsensitiveCompare:str2];
@@ -850,6 +959,7 @@ int qsortVGMR_entries_rating_or_entries(const void *entryA, const void *entryB) 
         if (wef->file_type) {
             dbWEB_entries[dbWEB_entries_count].info=[NSString stringWithFormat:@"%.1f/5・%@・%@・%@・%@",wef->file_rating,wef->file_company,wef->file_systems,wef->file_chipsets, [wef->file_details stringByReplacingOccurrencesOfString:@"&#13;\n" withString:@""]];
             dbWEB_entries[dbWEB_entries_count].webRating=wef->file_rating;
+            dbWEB_entries[dbWEB_entries_count].ratingNb=wef->file_ratingNb;
         }
         else {
             dbWEB_entries[dbWEB_entries_count].info=[wef->file_details stringByReplacingOccurrencesOfString:@"&#13;\n" withString:@""];
@@ -1075,10 +1185,10 @@ int qsortVGMR_entries_rating_or_entries(const void *entryA, const void *entryB) 
             
             bottomLabel.text=[NSString stringWithFormat:@"%@・%@",cur_db_entries[indexPath.row].info,bottomStr];
             
-            bottomLabel.frame = CGRectMake((has_mini_img?35:0)+ 1.0 * cell.indentationWidth+20,
-                                           22,
-                                           tabView.bounds.size.width -1.0 * cell.indentationWidth-32-PRI_SEC_ACTIONS_IMAGE_SIZE-20-(has_mini_img?35:0),
-                                           18);
+//            bottomLabel.frame = CGRectMake((has_mini_img?35:0)+ 1.0 * cell.indentationWidth+20,
+//                                           22,
+//                                           tabView.bounds.size.width -1.0 * cell.indentationWidth-32-PRI_SEC_ACTIONS_IMAGE_SIZE-20-(has_mini_img?35:0),
+//                                           18);
         } else {
             bottomLabel.text=cur_db_entries[indexPath.row].info;
         }

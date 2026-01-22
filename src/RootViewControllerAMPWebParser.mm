@@ -892,7 +892,7 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
     t_categ_entry webs_entry[]= {
         {@"Search",@"https://amp.dascene.net/newresult.php",AMP_LINK_SEARCH},
         {@"Browse",@"https://amp.dascene.net/newresult.php",AMP_LINK_BROWSE},
-        {@"Feeling Lucky",@"https://amp.dascene.net/newresult.php?request=list",AMP_LINK_LUCKY}
+        {@"Feeling lucky",@"https://amp.dascene.net/newresult.php?request=list",AMP_LINK_LUCKY}
     };
     
     for (int i=0;i<sizeof(webs_entry)/sizeof(t_categ_entry);i++) [tmpArray addObject:[NSValue valueWithPointer:&webs_entry[i]]];
@@ -913,9 +913,9 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
     for (int i=0;i<dbWEB_nb_entries;i++) {
         t_categ_entry *wentry = (t_categ_entry *)[[sortedArray objectAtIndex:i] pointerValue];
         
-        dbWEB_entries[dbWEB_entries_count].label=[[NSString alloc] initWithFormat:@"%@",wentry->category];
+        dbWEB_entries[dbWEB_entries_count].label=[[NSString alloc] initWithFormat:@"%@",NSLocalizedString(wentry->category,@"")];
         
-        dbWEB_entries[dbWEB_entries_count].fullpath=[[NSString alloc] initWithFormat:@"%@", wentry->category];
+        dbWEB_entries[dbWEB_entries_count].fullpath=[[NSString alloc] initWithFormat:@"%@", NSLocalizedString(wentry->category,@"")];
         
         switch (wentry->url_type) {
             case AMP_LINK_SEARCH:

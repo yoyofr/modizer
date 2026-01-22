@@ -11,6 +11,7 @@
 
 #import "RootViewControllerJoshWWebParser.h"
 #import "ModizFileHelper.h"
+#import "RadioSource.h"
 
 @implementation RootViewControllerJoshWWebParser
 
@@ -24,6 +25,8 @@
     START_PROFILE
     [super viewDidLoad];
     
+    [radioButton addTarget:self action:@selector(pushRadioButton) forControlEvents:UIControlEventTouchUpInside];
+    
     //check if folders exist, create if required
     if (browse_depth>=2&&mWebBaseDir) {
         rootDir=[NSString stringWithFormat:@"%@",[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/Documents/%@",mWebBaseDir]];
@@ -35,6 +38,39 @@
     
     END_PROFILE
 }
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    
+    [self.updRSTimer invalidate];
+    self.updRSTimer = nil;
+    self.updRSTimer = [NSTimer scheduledTimerWithTimeInterval:0.3
+                                                                 target:self
+                                                               selector:@selector(updRadioStatus)
+                                                               userInfo:nil
+                                                                repeats:YES];
+    
+    if ([detailViewController.radioSource isActive]&&(detailViewController.radioSource.mRadioSource==RS_COLLECTION_JOSHW)) {
+        [radioButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    } else {
+        [radioButton setTitleColor:[UIColor grayColor] forState:UIControlStateNormal];
+    }
+    
+    if (browse_depth>0) {
+        radioButton.hidden=YES;
+        self.radioButtonWidthConstraint.constant=0;
+        [self.view layoutIfNeeded];
+    }
+}
+
+-(void) updRadioStatus {
+    if ([detailViewController.radioSource isActive]&&(detailViewController.radioSource.mRadioSource==RS_COLLECTION_JOSHW)) {
+        [radioButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    } else {
+        [radioButton setTitleColor:[UIColor grayColor] forState:UIControlStateNormal];
+    }
+}
+
 
 -(void) fillKeysCompleted {
     [super fillKeysCompleted];

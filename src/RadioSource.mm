@@ -849,11 +849,145 @@ return self;
         
         [self downloadFileFromURL:snes_url rSource:RS_COLLECTION_SNES slot:slot path:[str stringByDeletingLastPathComponent]filename:[str_long stringByAppendingString:@".rsn"]];
     }
-    
-    
 }
 
+-(void)getNewSMSPFile:(int)slot {
+    NSFileManager *mFileMngr=[[NSFileManager alloc] init];
+    NSError *err;
+    
+    //clean slot
+    NSString *localPath=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/tmp/tmpRadio/%d/",slot];
+    [mFileMngr removeItemAtPath:localPath error:&err];
+    //create tmp dir
+    [mFileMngr createDirectoryAtPath:localPath withIntermediateDirectories:TRUE attributes:nil error:&err];
+    [ModizFileHelper addSkipBackupAttributeToItemAtPath:localPath];
+    
+    int idx=arc4random_uniform((int)[mSourceData count]);
+    NSString *str=[mSourceData objectAtIndex:idx];
+    if ([[str substringToIndex:2] isEqualToString:@"f:"]) {
+        //file
+        str=[str substringFromIndex:2];
+        NSArray *str_arr=[str componentsSeparatedByString:@"/"];
+        
+        NSString *localPath=[NSString stringWithFormat:@"%@/tmp/tmpRadio/%d/%@/%@/%@",[ModizFileHelper getAppHomeDirectory],slot,SMSP_BASEDIR,str_arr[1],str_arr[2]];
+        
+        //create folder if needed
+        [mFileMngr createDirectoryAtPath:[localPath stringByDeletingLastPathComponent] withIntermediateDirectories:TRUE attributes:nil error:&err];
+        
+        //get screenshot
+        NSString *smsp_url=[NSString stringWithFormat:@"http://www.smspower.org/uploads/Music/%@.png",str_arr[0] ];
+        [self downloadFileFromURL:smsp_url rSource:RS_COLLECTION_SMSP slot:slot path:str_arr[1] filename:[str_arr[2] stringByAppendingString:@".png"]];
 
+        //get rsn file
+        smsp_url=[NSString stringWithFormat:@"http://www.smspower.org/uploads/Music/%@.zip",str_arr[0] ];
+        
+        [self downloadFileFromURL:smsp_url rSource:RS_COLLECTION_SMSP slot:slot path:str_arr[1] filename:[str_arr[2] stringByAppendingString:@".zip"]];
+    }
+}
+
+-(void)getNewVGMRFile:(int)slot {
+    NSFileManager *mFileMngr=[[NSFileManager alloc] init];
+    NSError *err;
+    
+    //clean slot
+    NSString *localPath=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/tmp/tmpRadio/%d/",slot];
+    [mFileMngr removeItemAtPath:localPath error:&err];
+    //create tmp dir
+    [mFileMngr createDirectoryAtPath:localPath withIntermediateDirectories:TRUE attributes:nil error:&err];
+    [ModizFileHelper addSkipBackupAttributeToItemAtPath:localPath];
+    
+    if (mRadioSource_mode==0) {
+        //random
+        //
+        
+        NSURL *url = [NSURL URLWithString:[@"https://vgmrips.net/packs/random" stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]]];
+        
+        NSURLSession *session = [NSURLSession sharedSession];
+        
+        NSURLSessionDataTask *task =
+        [session dataTaskWithURL:url
+               completionHandler:^(NSData * _Nullable data,
+                                   NSURLResponse * _Nullable response,
+                                   NSError * _Nullable error)
+         {
+            if (error) {
+                MDZELog("Erreur réseau : %@", error);
+                return;
+            }
+            
+            if (!data) {
+                MDZELog("Aucune donnée reçue");
+                return;
+            }
+            
+            TFHpple *doc       = [[TFHpple alloc] initWithHTMLData:data];
+            
+            //get handle list
+            NSArray *arr_url=[doc searchWithXPathQuery:@"/html/body//div[@id='links']/a/@href"];
+            NSArray *arr_publisher=[doc searchWithXPathQuery:@"//span[@class='badge']/a[contains(@href, '?publisher')]"];
+            NSArray *arr_chip=[doc searchWithXPathQuery:@"//span[@class='badge']/a[contains(@href, 'packs/chip')]"];
+            NSArray *arr_system=[doc searchWithXPathQuery:@"//span[@class='badge']/a[contains(@href, 'packs/system')]"];
+            NSArray *arr_name=[doc searchWithXPathQuery:@"/html/body//h1"];
+            
+            if ((arr_url==nil)||([arr_url count]==0)) return;
+            
+            //TFHppleElement *el=;
+            NSString *vgmr_url=[[arr_url firstObject] text];
+            NSString *str_publisher=nil;
+            for (TFHppleElement *el in arr_publisher) {
+                if (str_publisher==nil) str_publisher=[NSString stringWithString:[el text]];
+                else str_publisher=[str_publisher stringByAppendingFormat:@",%@",[el text]];
+            }
+            NSString *str_chip=nil;
+            for (TFHppleElement *el in arr_chip) {
+                if (str_chip==nil) str_chip=[NSString stringWithString:[el text]];
+                else str_chip=[str_chip stringByAppendingFormat:@",%@",[el text]];
+            }
+            NSString *str_system=nil;
+            for (TFHppleElement *el in arr_system) {
+                if (str_system==nil) str_system=[NSString stringWithString:[el text]];
+                else str_system=[str_system stringByAppendingFormat:@",%@",[el text]];
+            }
+            NSString *str_name=nil;
+            if ([arr_name count]) str_name=[NSString stringWithFormat:@"%@.zip",[arr_name[0] text]];
+
+            str_publisher=[[str_publisher stringByReplacingOccurrencesOfString:@"/" withString:@"-"]  stringByReplacingOccurrencesOfString:@"?" withString:@""];
+            str_system=[[str_system stringByReplacingOccurrencesOfString:@"/" withString:@"-"]  stringByReplacingOccurrencesOfString:@"?" withString:@""];
+            str_chip=[[str_chip stringByReplacingOccurrencesOfString:@"/" withString:@"-"]  stringByReplacingOccurrencesOfString:@"?" withString:@""];
+            str_name=[[str_name stringByReplacingOccurrencesOfString:@"/" withString:@"-"]  stringByReplacingOccurrencesOfString:@"?" withString:@""];
+            
+            NSString *str_path=[NSString stringWithFormat:@"%@/%@/%@",str_publisher,str_chip,str_system];
+            
+            NSString *localPath=[NSString stringWithFormat:@"%@/tmp/tmpRadio/%d/%@/%@",[ModizFileHelper getAppHomeDirectory],slot,VGMR_BASEDIR,str_path];
+            
+            //create folder if needed
+            [mFileMngr createDirectoryAtPath:localPath withIntermediateDirectories:TRUE attributes:nil error:nil];
+            
+            
+            
+            [self downloadFileFromURL:[vgmr_url stringByRemovingPercentEncoding] rSource:RS_COLLECTION_VGMR slot:slot path:str_path filename:str_name];
+        }];
+        
+        [task resume];
+    } else if (mRadioSource_mode==1) {
+        //files
+        int idx=arc4random_uniform((int)[mSourceData count]);
+        NSString *str=[mSourceData objectAtIndex:idx];
+        if ([str containsString:@"f:"]) {
+            NSArray *arr=[[str substringFromIndex:2] componentsSeparatedByString:@"|"];
+            
+            NSString *vgmr_url=arr[0];
+            NSString *str_path=arr[1];
+            
+            NSString *localPath=[NSString stringWithFormat:@"%@/tmp/tmpRadio/%d/%@/%@",[ModizFileHelper getAppHomeDirectory],slot,VGMR_BASEDIR,str_path];
+            
+            //create folder if needed
+            [mFileMngr createDirectoryAtPath:localPath withIntermediateDirectories:TRUE attributes:nil error:nil];
+            
+            [self downloadFileFromURL:[vgmr_url stringByRemovingPercentEncoding] rSource:RS_COLLECTION_VGMR slot:slot path:[str_path stringByDeletingLastPathComponent] filename:[str_path lastPathComponent]];
+        }
+    }
+}
 
 -(void)getNewAMPFile:(int)slot {
     NSFileManager *mFileMngr=[[NSFileManager alloc] init];
@@ -1086,10 +1220,8 @@ return self;
                         }
                     }
                 }];
-                
                 [taskMod resume];
             }];
-            
             [task resume];
         }
     }
@@ -1161,6 +1293,12 @@ return self;
             break;
         case RS_COLLECTION_SNES:
             [self getNewSNESFile:slot];
+            break;
+        case RS_COLLECTION_SMSP:
+            [self getNewSMSPFile:slot];
+            break;
+        case RS_COLLECTION_VGMR:
+            [self getNewVGMRFile:slot];
             break;
         default:
             break;
@@ -1296,6 +1434,10 @@ return self;
             return @"MODLAND";
         case RS_COLLECTION_SNES:
             return @"SNESM";
+        case RS_COLLECTION_SMSP:
+            return @"SMSP";
+        case RS_COLLECTION_VGMR:
+            return @"VGMRips";
     }
     return nil;
 }
@@ -1318,6 +1460,10 @@ return self;
             return @"MODLAND";
         case RS_COLLECTION_SNES:
             return @"SNESmusic";
+        case RS_COLLECTION_SMSP:
+            return @"SMS Power!";
+        case RS_COLLECTION_VGMR:
+            return @"VGMRips";
     }
     return nil;
 }
@@ -1424,6 +1570,12 @@ return self;
         if (mRadioSource==RS_COLLECTION_SNES) {
             result=[NSString stringWithFormat:@"%@ (%@)",[arr[arr_count-1] stringByDeletingPathExtension],arr[1]];
         }
+        if (mRadioSource==RS_COLLECTION_SMSP) {
+            result=[NSString stringWithFormat:@"%@ (%@)",[arr[arr_count-1] stringByDeletingPathExtension],arr[1]];
+        }
+        if (mRadioSource==RS_COLLECTION_VGMR) {
+            result=[NSString stringWithFormat:@"%@ (%@)",[arr[arr_count-1] stringByDeletingPathExtension],arr[1]];
+        }
     }
     return result;
 }
@@ -1460,6 +1612,12 @@ return self;
         result=[result stringByAppendingFormat:@"%@ by %@ (%@)\n",[arr[arr_count-1] stringByDeletingPathExtension],arr[1],arr[0]];
     }
     if (mRadioSource==RS_COLLECTION_SNES) {
+        result=[result stringByAppendingFormat:@"%@ (%@)\n",[arr[arr_count-1] stringByDeletingPathExtension],arr[0]];
+    }
+    if (mRadioSource==RS_COLLECTION_SMSP) {
+        result=[result stringByAppendingFormat:@"%@ (%@)\n",[arr[arr_count-1] stringByDeletingPathExtension],arr[0]];
+    }
+    if (mRadioSource==RS_COLLECTION_VGMR) {
         result=[result stringByAppendingFormat:@"%@ (%@)\n",[arr[arr_count-1] stringByDeletingPathExtension],arr[0]];
     }
     return result;
@@ -1518,7 +1676,8 @@ return self;
 //        } else
         if ( (mRadioSource==RS_COLLECTION_AMP) || (mRadioSource==RS_COLLECTION_ASMA) ||
              (mRadioSource==RS_COLLECTION_CGSC) || (mRadioSource==RS_COLLECTION_HVSC) ||
-             (mRadioSource==RS_COLLECTION_MODLAND) || (mRadioSource==RS_COLLECTION_SNES) ) {
+             (mRadioSource==RS_COLLECTION_MODLAND) || (mRadioSource==RS_COLLECTION_SNES) ||
+             (mRadioSource==RS_COLLECTION_SMSP) || (mRadioSource==RS_COLLECTION_VGMR) ) {
             NSFileManager *fileManager = [[NSFileManager alloc] init];
             NSError *error=nil;
             NSString *fromPath = [mCurrentPath stringByDeletingLastPathComponent];

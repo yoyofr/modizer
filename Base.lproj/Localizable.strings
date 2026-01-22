@@ -664,6 +664,12 @@
 "Web browser" = "Web browser";
 "No internet connectivity or website down." = "No internet connectivity or website down.";
 
+/* Other */
+"Feeling lucky"="Feeling lucky";
+"%@ (name)"="%@ (name)";
+"%@ (rating)"="%@ (rating)";
+"%@ (packs)"="%@ (packs)";
+
 // ================================
 // MARK: - SETTINGS - FAMILIES & UI
 // ================================
