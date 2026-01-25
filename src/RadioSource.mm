@@ -6,7 +6,11 @@
 //
 #define RS_AMP_MAX_COMPOSER_ID 19822
 #define RS_DOWNLOAD_MAX_RETRY_COUNT 16
+
 #define RS_DOWNLOAD_WAIT 0.5 //wait time between 2 downloads, to avoid server overload
+
+#define RS_FETCHNEWFILE_MAX_RETRY_COUNT 16
+#define RS_FETCH_RETRY_WAIT 0.1
 
 #define RS_MAX_DOWNLOAD 2
 #define RS_QUEUE_SIZE 5
@@ -14,6 +18,8 @@
 #define MAX_RS_DUPLICATE_RETRY 1
 
 #define RS_MODLAND_PLAYABLE_FILE_MAX_TRIES 32 //maximum nb of tries to find a playable file / Modland DB
+
+#define JOSHW_PARSER_TIMEOUT 30 //in seconds
 
 #import "ModizerConstants.h"
 #import "ModizFileHelper.h"
@@ -41,32 +47,32 @@ NS_ASSUME_NONNULL_BEGIN
 @synthesize mURLSsession,mURLSessionQueue,mURLSessionConfig;
 
 - (instancetype)init {
-self = [super init];
-if (self) {
-mRadioSource=RS_NONE;
-mRadioSource_mode=0;
-mPendingNewFileToPlay=0;
-mActive=NO;
-mRetryCount=0;
-mRetryDuplCount=0;
-mFilesList = [NSMutableArray arrayWithCapacity:5];
-mFilesExistInLibrary = [NSMutableArray arrayWithCapacity:5];
-mSourceData = [NSMutableArray array];
-mHistory = [NSMutableArray array];
-mCurrentPath=nil;
-[self cleanFiles];
-
-mURLSessionConfig = [NSURLSessionConfiguration defaultSessionConfiguration];
-mURLSessionConfig.HTTPMaximumConnectionsPerHost=1;
-
-mURLSessionQueue = [[NSOperationQueue alloc] init];
-mURLSessionQueue.maxConcurrentOperationCount = 1; // Séquentiel
-
-mURLSsession = [NSURLSession sessionWithConfiguration:mURLSessionConfig
-                                             delegate:self
-                                        delegateQueue:mURLSessionQueue];
-}
-return self;
+    self = [super init];
+    if (self) {
+        mRadioSource=RS_NONE;
+        mRadioSource_mode=0;
+        mPendingNewFileToPlay=0;
+        mActive=NO;
+        mRetryCount=0;
+        mRetryDuplCount=0;
+        mFilesList = [NSMutableArray arrayWithCapacity:5];
+        mFilesExistInLibrary = [NSMutableArray arrayWithCapacity:5];
+        mSourceData = [NSMutableArray array];
+        mHistory = [NSMutableArray array];
+        mCurrentPath=nil;
+        [self cleanFiles];
+        
+        mURLSessionConfig = [NSURLSessionConfiguration defaultSessionConfiguration];
+        mURLSessionConfig.HTTPMaximumConnectionsPerHost=1;
+        
+        mURLSessionQueue = [[NSOperationQueue alloc] init];
+        mURLSessionQueue.maxConcurrentOperationCount = 1; // Séquentiel
+        
+        mURLSsession = [NSURLSession sessionWithConfiguration:mURLSessionConfig
+                                                     delegate:self
+                                                delegateQueue:mURLSessionQueue];
+    }
+    return self;
 }
 
 - (void)dealloc {
@@ -1211,6 +1217,7 @@ return self;
     });
     
     NSString *trimmed = [sizeString stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+    if ([trimmed length]==0) return 0;
     unichar lastChar = [trimmed characterAtIndex:trimmed.length - 1];
     
     if ([[NSCharacterSet letterCharacterSet] characterIsMember:lastChar]) {
@@ -1224,6 +1231,160 @@ return self;
     }
     
     return [trimmed longLongValue];
+}
+
+
+typedef struct {
+    NSString *webSite_URL;
+    NSString *webSite_name;
+    NSString *webSite_baseDir;
+    NSString *category;
+    bool has_letter_index;
+    NSArray *extra_index;
+} t_joshw_entry;
+
+t_joshw_entry joshw_subsites[]= {
+    //computers
+    {@"https://pc.joshw.info",@"PC Streamed Music",@"JoshW/PC",@"Computers",TRUE,@[]},
+    {@"https://cdi.joshw.info/amiga",@"Amiga Music",@"JoshW/Amiga",@"Computers",TRUE,@[]},
+    {@"https://fmtowns.joshw.info",@"FM Towns Music",@"JoshW/FMT",@"Computers",TRUE,@[]},
+    {@"https://s98.joshw.info",@"S98 Music",@"JoshW/S98",@"Computers",TRUE,@[]},
+    {@"https://kss.joshw.info/MSX",@"MSX Music",@"JoshW/MSX",@"Computers",TRUE,@[]},
+    //consoles
+    {@"https://nsf.joshw.info",@"NES Music",@"JoshW/NES",@"Consoles",TRUE,@[@"zzz_prototypes",@"zzz_unlicensed"]},
+    {@"https://spc.joshw.info",@"SNES Music",@"JoshW/SNES",@"Consoles",TRUE,@[@"zzz_prototypes",@"zzz_unlicensed"]},
+    {@"https://usf.joshw.info",@"Nintendo64 Music",@"JoshW/N64",@"Consoles",TRUE,@[]},
+    {@"https://gcn.joshw.info",@"Gamecube Music",@"JoshW/GC",@"Consoles",TRUE,@[]},
+    {@"https://wii.joshw.info",@"Nintendo Wii Music",@"JoshW/Wii",@"Consoles",TRUE,@[]},
+    {@"https://wiiu.joshw.info",@"Nintendo Wii U Music",@"JoshW/WiiU",@"Consoles",TRUE,@[]},
+    {@"https://kss.joshw.info/Master%20System",@"Master System Music",@"JoshW/SMS",@"Consoles",TRUE,@[@"zzz_homebrew"]},
+    {@"https://smd.joshw.info",@"Genesis/SegaCD Music",@"JoshW/SMD",@"Consoles",TRUE,@[@"zzz_prototypes",@"zzz_unlicensed"]},
+    {@"https://ssf.joshw.info",@"Saturn Music",@"JoshW/Saturn",@"Consoles",TRUE,@[]},
+    {@"https://dsf.joshw.info",@"Dreamcast Music",@"JoshW/DC",@"Consoles",TRUE,@[]},
+    {@"https://hes.joshw.info",@"PC Engine Music",@"JoshW/PCE",@"Consoles",TRUE,@[]},
+    {@"https://ncd.joshw.info",@"Neo Geo CD Music",@"JoshW/NEOCD",@"Consoles",FALSE,@[]},
+    {@"https://psf.joshw.info",@"PlayStation Music",@"JoshW/PS1",@"Consoles",TRUE,@[]},
+    {@"https://psf2.joshw.info",@"PlayStation 2 Music",@"JoshW/PS2",@"Consoles",TRUE,@[]},
+    {@"https://psf3.joshw.info",@"PlayStation 3 Music",@"JoshW/PS3",@"Consoles",TRUE,@[]},
+    {@"https://xbox.joshw.info",@"XBox Music",@"JoshW/Xbox",@"Consoles",TRUE,@[]},
+    {@"https://x360.joshw.info",@"XBox360 Music",@"JoshW/X360",@"Consoles",TRUE,@[]},
+    {@"https://3do.joshw.info",@"3DO Music",@"JoshW/3DO",@"Consoles",TRUE,@[]},
+    {@"https://switch.joshw.info",@"Nintendo Switch",@"JoshW/Switch",@"Consoles",TRUE,@[]},
+    {@"https://cdi.joshw.info/cdi",@"Philips CD-i",@"JoshW/CD-i",@"Consoles",TRUE,@[]},
+    {@"https://psf4.joshw.info",@"Playstation 4",@"JoshW/PS4",@"Consoles",TRUE,@[]},
+    {@"https://psf5.joshw.info",@"Playstation 5",@"JoshW/PS5",@"Consoles",TRUE,@[]},
+    {@"https://cdi.joshw.info/pgm",@"Arcade PGM",@"JoshW/PGM",@"Consoles",FALSE,@[]},
+    //portables
+    {@"https://gbs.joshw.info",@"Game Boy Music",@"JoshW/GB",@"Portables",TRUE,@[@"zzz_unlicensed"]},
+    {@"https://gsf.joshw.info",@"Game Boy Advance Music",@"JoshW/GBA",@"Portables",TRUE,@[]},
+    {@"https://2sf.joshw.info",@"Nintendo DS Music",@"JoshW/NDS",@"Portables",TRUE,@[]},
+    {@"https://3sf.joshw.info",@"Nintendo 3DS Music",@"JoshW/3DS",@"Portables",TRUE,@[]},
+    {@"https://kss.joshw.info/Game%20Gear",@"Sega Game Gear Music",@"JoshW/SGG",@"Portables",TRUE,@[]},
+    {@"https://wsr.joshw.info",@"WonderSwan Music",@"JoshW/WS",@"Portables",TRUE,@[]},
+    {@"https://psp.joshw.info",@"PSP Music",@"JoshW/PSP",@"Portables",TRUE,@[@"zzz_others"]},
+    {@"https://vita.joshw.info",@"PSVita Music",@"JoshW/PSVita",@"Portables",TRUE,@[]},
+    {@"https://mobile.joshw.info",@"Mobile/Smartphone Music",@"JoshW/Mobile",@"Portables",TRUE,@[]}
+};
+
+-(void) fillUrlData:(NSData*)data idx:(int)idx max_cnt:(int)max_cnt {
+    joshw_urlData[idx]=[NSData dataWithData:data];
+    joshw_data_cnt++;
+    dispatch_async(dispatch_get_main_queue(), ^(void){
+        //[self updateWaitingDetail:[NSString stringWithFormat:@"%d/%d",joshw_data_cnt,max_cnt]];
+    });
+}
+
+
+-(NSString*)getJOSHWfileFromSite:(NSString*)site {
+    NSString *url_site=nil;
+    NSString *res=nil;
+    int site_idx=-1;
+    int total_sites=sizeof(joshw_subsites)/sizeof(t_joshw_entry);
+    for (int i=0;i<total_sites;i++) {
+        if ([joshw_subsites[i].webSite_baseDir isEqualToString:site]) {
+            site_idx=i;
+            break;
+        }
+    }
+    
+    if (site_idx<0) return nil;
+    
+    url_site=joshw_subsites[site_idx].webSite_URL;
+    
+    //now parse website to initialize file list
+    typedef struct {
+        NSString *file_URL;
+        NSString *file_size;
+        int idx;
+    } t_joshw_file_entry;
+    
+    //Browse page
+    //Download html data
+    NSURL *url;
+    TFHpple * doc;
+    NSArray *sortedArray;
+    NSMutableArray *tmpArray=[[NSMutableArray alloc] init];
+    t_joshw_file_entry *we[27+4];
+    int we_nb[27+4];
+    bool has_letter_index=joshw_subsites[site_idx].has_letter_index;
+    NSArray *extra_index=joshw_subsites[site_idx].extra_index;
+    
+    //1st get the data
+    int total_url;
+    joshw_data_cnt=0;
+    if (has_letter_index) {
+        total_url=27+(int)[extra_index count];
+        int i=arc4random_uniform(total_url);
+        if (i==0) url=[NSURL URLWithString:[NSString stringWithFormat:@"%@/0-9/",url_site]];
+        else if (i<27) url = [NSURL URLWithString:[NSString stringWithFormat:@"%@/%c/",url_site,'a'+i-1]];
+        else url = [NSURL URLWithString:[NSString stringWithFormat:@"%@/%@/",url_site,extra_index[i-27]]];
+    } else {
+        total_url=1;
+        url=[NSURL URLWithString:[NSString stringWithFormat:@"%@/",url_site]];
+    }
+    NSData *reqData = [NSData dataWithContentsOfURL:url];
+    
+    doc       = [[TFHpple alloc] initWithHTMLData:reqData];
+    NSMutableArray *arr_url=[NSMutableArray arrayWithArray:[doc searchWithXPathQuery:@"/html/body/pre//a[position()>5]/@href"]];
+    NSMutableArray *arr_text=[NSMutableArray arrayWithArray:[doc searchWithXPathQuery:@"/html/body/pre//a[position()>5]/following-sibling::text()[1]"]];
+    if (arr_url&&[arr_url count]) {
+        long long limit=1L<<60;
+        switch (settings[GLOB_RadioModeMaxDownloadSize].detail.mdz_switch.switch_value) {
+            case 0: //no limit;
+                break;
+            case 1: //10MO
+                limit=1024*1024*10;
+                break;
+            case 2: //100MO
+                limit=1024*1024*100;
+                break;
+        }
+        
+        while ([arr_url count]) {
+            int i=arc4random_uniform((int)[arr_url count]);
+            
+            TFHppleElement *e_url=[arr_url objectAtIndex:i];
+            TFHppleElement *e_text=[arr_text objectAtIndex:i];
+            
+            if ([[e_url content] isEqualToString:@"robots.txt"]) {
+                [arr_url removeObjectAtIndex:i];
+                [arr_text removeObjectAtIndex:i];
+            } else {
+                NSArray *arrtmp=[[e_text raw] componentsSeparatedByString:@" "];
+                long long fsize=[self fileSizeFromString:[arrtmp objectAtIndex:[arrtmp count]-3]];
+                
+                if (fsize<limit) {
+                    res=[NSString stringWithFormat:@"%@%@",[url absoluteString],[e_url text]];
+                    break;
+                } else {
+                    [arr_url removeObjectAtIndex:i];
+                    [arr_text removeObjectAtIndex:i];
+                }
+            }
+        }
+    }
+    
+    return res;
 }
 
 -(int)getNewJOSHWFile:(int)slot {
@@ -1240,23 +1401,38 @@ return self;
     if (mRadioSource_mode==0) {
         //random
         //
+        int idx=arc4random_uniform(sizeof(joshw_subsites)/sizeof(t_joshw_entry));
+        NSString *str=joshw_subsites[idx].webSite_baseDir;
+        
+        NSString *url=[self getJOSHWfileFromSite:str];
+        if (url) {
+            NSString *localPath=[NSString stringWithFormat:@"%@/tmp/tmpRadio/%d/%@/%@",[ModizFileHelper getAppHomeDirectory],slot,JOSHW_BASEDIR,[str lastPathComponent]];
+            
+            //create folder if needed
+            [mFileMngr createDirectoryAtPath:localPath withIntermediateDirectories:TRUE attributes:nil error:nil];
+            
+            [self downloadFileFromURL:[url stringByRemovingPercentEncoding] rSource:RS_COLLECTION_JOSHW slot:slot path:[str lastPathComponent] filename:[[url stringByRemovingPercentEncoding] lastPathComponent]];
+            return 1;
+        }
+        
     } else if ((mRadioSource_mode==1) && [mSourceData count]) {
         //subsites list
-        int idx=arc4random_uniform([mSourceData count]);
+        int idx=arc4random_uniform((int)[mSourceData count]);
         NSString *str=[mSourceData[idx] substringFromIndex:2];
-        NSArray *arr=[str componentsSeparatedByString:@"|"];
-        NSString *url=arr[0];
-        NSString *str_path=arr[1];
         
-//        NSString *localPath=[NSString stringWithFormat:@"%@/tmp/tmpRadio/%d/%@/%@",[ModizFileHelper getAppHomeDirectory],slot,ZXART_BASEDIR,[str_path stringByDeletingLastPathComponent]];
-//        
-//        //create folder if needed
-//        [mFileMngr createDirectoryAtPath:localPath withIntermediateDirectories:TRUE attributes:nil error:nil];
-//        
-//        [self downloadFileFromURL:[url stringByRemovingPercentEncoding] rSource:RS_COLLECTION_ZXART slot:slot path:[str_path stringByDeletingLastPathComponent] filename:[str_path lastPathComponent]];
+        NSString *url=[self getJOSHWfileFromSite:str];
+        if (url) {
+            NSString *localPath=[NSString stringWithFormat:@"%@/tmp/tmpRadio/%d/%@/%@",[ModizFileHelper getAppHomeDirectory],slot,JOSHW_BASEDIR,[str lastPathComponent]];
+            
+            //create folder if needed
+            [mFileMngr createDirectoryAtPath:localPath withIntermediateDirectories:TRUE attributes:nil error:nil];
+            
+            [self downloadFileFromURL:[url stringByRemovingPercentEncoding] rSource:RS_COLLECTION_JOSHW slot:slot path:[str lastPathComponent] filename:[[url stringByRemovingPercentEncoding] lastPathComponent]];
+            return 1;
+        }
     } else if ((mRadioSource_mode==2) && [mSourceData count]) {
         //files list
-        int idx=arc4random_uniform([mSourceData count]);
+        int idx=arc4random_uniform((int)[mSourceData count]);
         NSString *str=[mSourceData[idx] substringFromIndex:2];
         NSArray *arr=[str componentsSeparatedByString:@"|"];
         NSString *url=arr[0];
@@ -1578,39 +1754,46 @@ return self;
 }
 
 -(void) fetchNewFileFromSource:(int)slot {
-    switch (mRadioSource) {
-        case RS_COLLECTION_AMP:
-            [self getNewAMPFile:slot];
-            break;
-        case RS_COLLECTION_ASMA:
-            [self getNewASMAFile:slot];
-            break;
-        case RS_COLLECTION_CGSC:
-            [self getNewCGSCFile:slot];
-            break;
-        case RS_COLLECTION_HVSC:
-            [self getNewHVSCFile:slot];
-            break;
-        case RS_COLLECTION_MODLAND:
-            [self getNewMODLANDFile:slot];
-            break;
-        case RS_COLLECTION_SNES:
-            [self getNewSNESFile:slot];
-            break;
-        case RS_COLLECTION_SMSP:
-            [self getNewSMSPFile:slot];
-            break;
-        case RS_COLLECTION_VGMR:
-            [self getNewVGMRFile:slot];
-            break;
-        case RS_COLLECTION_ZXART:
-            [self getNewZXARTFile:slot];
-            break;
-        case RS_COLLECTION_JOSHW:
-            [self getNewJOSHWFile:slot];
-            break;
-        default:
-            break;
+    int ret=0;
+    int max_try=RS_FETCHNEWFILE_MAX_RETRY_COUNT;
+    while (!ret) {
+        switch (mRadioSource) {
+            case RS_COLLECTION_AMP:
+                ret=[self getNewAMPFile:slot];
+                break;
+            case RS_COLLECTION_ASMA:
+                ret=[self getNewASMAFile:slot];
+                break;
+            case RS_COLLECTION_CGSC:
+                ret=[self getNewCGSCFile:slot];
+                break;
+            case RS_COLLECTION_HVSC:
+                ret=[self getNewHVSCFile:slot];
+                break;
+            case RS_COLLECTION_MODLAND:
+                ret=[self getNewMODLANDFile:slot];
+                break;
+            case RS_COLLECTION_SNES:
+                ret=[self getNewSNESFile:slot];
+                break;
+            case RS_COLLECTION_SMSP:
+                ret=[self getNewSMSPFile:slot];
+                break;
+            case RS_COLLECTION_VGMR:
+                ret=[self getNewVGMRFile:slot];
+                break;
+            case RS_COLLECTION_ZXART:
+                [self getNewZXARTFile:slot];
+                break;
+            case RS_COLLECTION_JOSHW:
+                ret=[self getNewJOSHWFile:slot];
+                break;
+            default:
+                break;
+        }
+        max_try--;
+        if (max_try==0) break;
+        usleep(1000*1000*RS_FETCH_RETRY_WAIT); //wait
     }
 }
 

@@ -1234,6 +1234,7 @@ static float movePinchScale,movePinchScaleOld,movePinchAngle;
         fxSlot[FX_2DSpectrum]=settings[GLOB_FXSpectrumFXSLOT].detail.mdz_slider.slider_value;
         fxSlot[FX_3DSpectrum]=settings[GLOB_FX3DSpectrumFXSLOT].detail.mdz_slider.slider_value;
         fxSlot[FX_3DLandscape]=settings[GLOB_FX3DLandscapeFXSLOT].detail.mdz_slider.slider_value;
+        fxSlot[FX_COVER]=settings[GLOB_FXCoverFXSLOT].detail.mdz_slider.slider_value;
     }
     
     /////////////////////
@@ -5208,6 +5209,7 @@ int recording=0;
 GLfloat angle;
 
 GLuint txtBGImage,txtCoverImg;
+float txtCoverImgRatio;
 bool coverAvailable;
 //GLsizei txtBGImageWidth,txtBGImageHeight;
 
@@ -7356,6 +7358,8 @@ void pm_perfTest() {
         //create texture
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, pixelSizeOfImage.width, pixelSizeOfImage.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, textureData);
         
+        txtCoverImgRatio=pixelSizeOfImage.width/pixelSizeOfImage.height;
+        
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -7435,6 +7439,7 @@ void updateSettingsSelectedSlot() {
     settings[GLOB_FXSpectrumFXSLOT].detail.mdz_slider.slider_value=fxSlot[FX_2DSpectrum];
     settings[GLOB_FX3DSpectrumFXSLOT].detail.mdz_slider.slider_value=fxSlot[FX_3DSpectrum];
     settings[GLOB_FX3DLandscapeFXSLOT].detail.mdz_slider.slider_value=fxSlot[FX_3DLandscape];
+    settings[GLOB_FXCoverFXSLOT].detail.mdz_slider.slider_value=fxSlot[FX_COVER];
     //
 }
 
@@ -8424,6 +8429,20 @@ void menuInterpolValue(float &curValue,float startValue,float tgtValue) {
         RenderUtils::DrawSpectrum3DMorph(x,y,ww,hh,real_spectrumL,real_spectrumR,angle,settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value-5,nb_spectrum_bands,settings[GLOB_FX3DLandscapeBloom].detail.mdz_boolswitch.switch_value,glScaleFactor);
     }
 }
+
+- (void) doFxCover:(ImVec4)fxSize {
+    float x=fxSize.x;
+    float y=fxSize.y;
+    float ww=fxSize.z;
+    float hh=fxSize.w;
+    
+    if (settings[GLOB_FXCoverFillMode].detail.mdz_switch.switch_value==0){
+        RenderUtils::DrawTexture(ww, hh, txtCoverImg, 1.0f,1);
+    } else {
+        RenderUtils::DrawTexture(ww, hh, txtCoverImg, 1.0f,1,txtCoverImgRatio);
+    }
+}
+
 
 - (void) doFxMidiPattern:(ImVec4)fxSize {
     float x=fxSize.x;
@@ -10111,6 +10130,21 @@ void drawTgtSlotPattern(int fxIdx,float x,float y,float w,float h,float ww,float
                 [self doFramePM:ImVec2(w,h) isSlot:isSlot];
             }
             
+            //-------------------------------------
+            // Cover
+            //-------------------------------------
+            if ( ((pass==0) && (fxLPselected!=FX_COVER)) ||
+                ((pass==1) && (fxLPselected==FX_COVER)) )
+            if (settings[GLOB_FXCover].detail.mdz_boolswitch.switch_value) {
+                drawTgtSlotPattern(FX_COVER,slotsPos[fxTargetSlot].x, slotsPos[fxTargetSlot].y,
+                                   slotsPos[fxTargetSlot].z, slotsPos[fxTargetSlot].w, ww, hh);
+                
+                initViewPortData(FX_COVER,x,y,w,h,ww,hh);
+                glViewport(x*mScaleFactor, (h!=hh?h-y:y)*mScaleFactor, w*mScaleFactor, h*mScaleFactor);
+                [self doFxCover:ImVec4(x,y,w,h)];
+            }
+            
+            
             /*-------------------------------------------------------------------------------*/
             
             
@@ -10477,6 +10511,10 @@ void drawTgtSlotPattern(int fxIdx,float x,float y,float w,float h,float ww,float
                 break;
             case 3+FX_MODPattern:
                 settingsVC->current_family=MDZ_SETTINGS_FAMILY_FXMODPattern;
+                settingsVC.title=NSLocalizedString(([NSString stringWithUTF8String:settings[settingsVC->current_family].label]),@"");
+                break;
+            case 3+FX_COVER:
+                settingsVC->current_family=MDZ_SETTINGS_FAMILY_FXPCover;
                 settingsVC.title=NSLocalizedString(([NSString stringWithUTF8String:settings[settingsVC->current_family].label]),@"");
                 break;
             default: //Root

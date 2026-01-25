@@ -751,6 +751,13 @@ void optNSFPLAYChangedC(id param) {
     settings[MDZ_SETTINGS_FAMILY_FXP3DLandscape].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
     settings[MDZ_SETTINGS_FAMILY_FXP3DLandscape].sub_family=MDZ_SETTINGS_FAMILY_FXP3DLandscape;
     
+    SETTINGS_ID_DEF(MDZ_SETTINGS_FAMILY_FXPCover)
+    settings[MDZ_SETTINGS_FAMILY_FXPCover].type=MDZ_FAMILY;
+    settings[MDZ_SETTINGS_FAMILY_FXPCover].label=(char*)"Cover";
+    settings[MDZ_SETTINGS_FAMILY_FXPCover].description=NULL;
+    settings[MDZ_SETTINGS_FAMILY_FXPCover].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+    settings[MDZ_SETTINGS_FAMILY_FXPCover].sub_family=MDZ_SETTINGS_FAMILY_FXPCover;
+    
     SETTINGS_ID_DEF(MDZ_SETTINGS_FAMILY_PLUGINS)
     settings[MDZ_SETTINGS_FAMILY_PLUGINS].type=MDZ_FAMILY;
     settings[MDZ_SETTINGS_FAMILY_PLUGINS].label=(char*)"Plugins";
@@ -1928,6 +1935,36 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FX3DLandscapeBloom].detail.mdz_switch.switch_labels[2]=(char*)"Med";
     settings[GLOB_FX3DLandscapeBloom].detail.mdz_switch.switch_labels[3]=(char*)"High";
     
+    SETTINGS_ID_DEF(GLOB_FXCover)
+    settings[GLOB_FXCover].type=MDZ_BOOLSWITCH;
+    settings[GLOB_FXCover].label=(char*)"Cover";
+    settings[GLOB_FXCover].description=NULL;
+    settings[GLOB_FXCover].family=MDZ_SETTINGS_FAMILY_FXPCover;
+    settings[GLOB_FXCover].sub_family=0;
+    settings[GLOB_FXCover].detail.mdz_boolswitch.switch_value=0;
+                                                                          
+    SETTINGS_ID_DEF(GLOB_FXCoverFillMode)
+    settings[GLOB_FXCoverFillMode].type=MDZ_SWITCH;
+    settings[GLOB_FXCoverFillMode].label=(char*)"Cover";
+    settings[GLOB_FXCoverFillMode].description=NULL;
+    settings[GLOB_FXCoverFillMode].family=MDZ_SETTINGS_FAMILY_FXPCover;
+    settings[GLOB_FXCoverFillMode].sub_family=0;
+    settings[GLOB_FXCoverFillMode].detail.mdz_switch.switch_value_nb=2;
+    settings[GLOB_FXCoverFillMode].detail.mdz_switch.switch_labels=(char**)calloc(1,settings[GLOB_FXCoverFillMode].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[GLOB_FXCoverFillMode].detail.mdz_switch.switch_labels[0]=(char*)"Fill";
+    settings[GLOB_FXCoverFillMode].detail.mdz_switch.switch_labels[1]=(char*)"Aspect";
+    
+    SETTINGS_ID_DEF(GLOB_FXCoverFXSLOT)
+    settings[GLOB_FXCoverFXSLOT].label=(char*)"FX Layout";
+    settings[GLOB_FXCoverFXSLOT].description=(char*)"0: fullscreen 1:left 2:right 3:bottom 4:top 5:bottom left 6:bottom right 7:top left 8:top right";
+    settings[GLOB_FXCoverFXSLOT].family=MDZ_SETTINGS_FAMILY_FXPCover;
+    settings[GLOB_FXCoverFXSLOT].sub_family=0;
+    settings[GLOB_FXCoverFXSLOT].callback=&optVISUChangedC;
+    settings[GLOB_FXCoverFXSLOT].type=MDZ_SLIDER_DISCRETE;
+    settings[GLOB_FXCoverFXSLOT].detail.mdz_slider.slider_digits=0;
+    settings[GLOB_FXCoverFXSLOT].detail.mdz_slider.slider_min_value=0;
+    settings[GLOB_FXCoverFXSLOT].detail.mdz_slider.slider_max_value=8;
+    
     SETTINGS_ID_DEF(GLOB_FXLOD)
     settings[GLOB_FXLOD].type=MDZ_SWITCH;
     settings[GLOB_FXLOD].label=(char*)"FX Level of details";
@@ -1985,6 +2022,8 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FX3DSpectrumBloom].detail.mdz_switch.switch_default_value=0;
     settings[GLOB_FX3DLandscapeBloom].detail.mdz_switch.switch_default_value=0;
     settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_default_value=0;
+    settings[GLOB_FXCover].detail.mdz_boolswitch.switch_default_value=0;
+    settings[GLOB_FXCoverFillMode].detail.mdz_switch.switch_default_value=0;
     settings[GLOB_FXLOD].detail.mdz_switch.switch_default_value=2;
     settings[GLOB_FXFPS].detail.mdz_switch.switch_default_value=1;
     settings[GLOB_FXSHOWINFO].detail.mdz_switch.switch_default_value=0;
@@ -2431,6 +2470,7 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXSpectrumFXSLOT].detail.mdz_slider.slider_default_value=0;
     settings[GLOB_FX3DSpectrumFXSLOT].detail.mdz_slider.slider_default_value=0;
     settings[GLOB_FX3DLandscapeFXSLOT].detail.mdz_slider.slider_default_value=0;
+    settings[GLOB_FXCoverFXSLOT].detail.mdz_slider.slider_default_value=0;
     
     /////////////////////////////////////
     //PR & NS Colors

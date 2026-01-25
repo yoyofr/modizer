@@ -440,6 +440,7 @@ enum {
     FX_MIDIPattern,
     FX_MODPattern,
     FX_OSCILLO,
+    FX_COVER,
     FX_MAX
 };
 

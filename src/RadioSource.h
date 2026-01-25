@@ -10,7 +10,10 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface RadioSource : NSObject <NSURLSessionDelegate>
+@interface RadioSource : NSObject <NSURLSessionDelegate> {
+    NSData *joshw_urlData[27+4];
+    int joshw_data_cnt;
+}
 
 enum t_radioSource {
     RS_NONE=0,

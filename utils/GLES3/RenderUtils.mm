@@ -432,7 +432,7 @@ void glRestoreState() {
     glBlendFunc(blendSrc,blendDst);
 }
 
-void RenderUtils::DrawTexture(uint ww,uint hh,GLuint textureIdx,float alpha,bool reversed) {
+void RenderUtils::DrawTexture(uint ww,uint hh,GLuint textureIdx,float alpha,bool reversed,float aspect_ratio) {
     // Use the program object
     if (!renderIsInit) return;
     
@@ -459,13 +459,39 @@ void RenderUtils::DrawTexture(uint ww,uint hh,GLuint textureIdx,float alpha,bool
     LineVertexF ptsTriangles[6];
     coordData ptsTextCoord[6];
     
-    ptsTriangles[0].x=-1; ptsTriangles[0].y=-1;
-    ptsTriangles[1].x=1; ptsTriangles[1].y=-1;
-    ptsTriangles[2].x=1; ptsTriangles[2].y=1;
+//    ptsTriangles[0].x=-1; ptsTriangles[0].y=-1;
+//    ptsTriangles[1].x=1; ptsTriangles[1].y=-1;
+//    ptsTriangles[2].x=1; ptsTriangles[2].y=1;
+//    
+//    ptsTriangles[3].x=-1; ptsTriangles[3].y=-1;
+//    ptsTriangles[4].x=1; ptsTriangles[4].y=1;
+//    ptsTriangles[5].x=-1; ptsTriangles[5].y=1;
     
-    ptsTriangles[3].x=-1; ptsTriangles[3].y=-1;
-    ptsTriangles[4].x=1; ptsTriangles[4].y=1;
-    ptsTriangles[5].x=-1; ptsTriangles[5].y=1;
+    // Calculer l'aspect ratio du viewport
+        float viewport_aspect = (float)ww / (float)hh;
+        
+        // Calculer les dimensions finales avec correction d'aspect
+        float quad_width = 1.0f;
+        float quad_height = 1.0f;
+        
+        if (aspect_ratio > 0.0f) {  // Si aspect_ratio fourni
+            if (aspect_ratio > viewport_aspect) {
+                // Texture plus large que viewport : limiter la hauteur
+                quad_height = viewport_aspect / aspect_ratio;
+            } else {
+                // Texture plus haute que viewport : limiter la largeur
+                quad_width = aspect_ratio / viewport_aspect;
+            }
+        }
+        
+        // Appliquer les dimensions corrigées
+        ptsTriangles[0].x = -quad_width; ptsTriangles[0].y = -quad_height;
+        ptsTriangles[1].x =  quad_width; ptsTriangles[1].y = -quad_height;
+        ptsTriangles[2].x =  quad_width; ptsTriangles[2].y =  quad_height;
+        
+        ptsTriangles[3].x = -quad_width; ptsTriangles[3].y = -quad_height;
+        ptsTriangles[4].x =  quad_width; ptsTriangles[4].y =  quad_height;
+        ptsTriangles[5].x = -quad_width; ptsTriangles[5].y =  quad_height;
     
     ptsTextCoord[0].u=0; ptsTextCoord[0].v=0;
     ptsTextCoord[1].u=1; ptsTextCoord[1].v=0;

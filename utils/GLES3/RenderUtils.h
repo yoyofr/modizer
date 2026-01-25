@@ -210,7 +210,7 @@ void DrawPianoRollSynthesiaFX(float ox,float oy,float ww,float hh,int horiz_vert
 void DrawPiano3D(float ox,float oy,float ww,float hh,int automove,float posx,float posy,float posz,float rotx,float roty,int color_mode);
 void DrawPiano3DWithNotesWall(float ox,float oy,float ww,float hh,int automove,float posx,float posy,float posz,float rotx,float roty,int color_mode, int fxquality);
 
-void DrawTexture(uint ww,uint hh,GLuint textureIdx,float alpha,bool reversed=false);
+void DrawTexture(uint ww,uint hh,GLuint textureIdx,float alpha,bool reversed=false,float aspect_ratio=0);
 void DrawTextureBlur(uint ww,uint hh,GLuint textureIdx,int hori,float min_brightness,float blurDiv);
 void DrawTextureBlend(uint ww,uint hh,GLuint textOrigIdx,GLuint textBlurIdx);
 void DrawTextureBasic(uint ww,uint hh,GLuint textureIdx,float alpha,bool reversed);

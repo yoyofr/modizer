@@ -22,7 +22,7 @@
         [detailViewController stop];
         [detailViewController clearQueue];
         [detailViewController.radioSource stop];
-        [radioButton setTitleColor:[UIColor grayColor] forState:UIControlStateNormal];
+        [self updRadioStatus];
     } else {
         [detailViewController.radioSource stop];
         [detailViewController clearQueue];
@@ -41,7 +41,7 @@
                 detailViewController.radioSource.mRadioSource_mode=1;
                 [detailViewController.radioSource.mSourceData removeAllObjects];
                 for (int i=0;i<nb_entries;i++) {
-                    [detailViewController.radioSource.mSourceData addObject:[NSString stringWithFormat:@"d:%@|%@",[cur_db_entries[i].URL stringByRemovingPercentEncoding],[cur_db_entries[i].fullpath substringFromIndex:[cur_db_entries[i].fullpath rangeOfString:@"Documents/JoshW/"].location+[@"Documents/JoshW/" length]]]];
+                    [detailViewController.radioSource.mSourceData addObject:[NSString stringWithFormat:@"d:%@",cur_db_entries[i].fullpath]];
                     MDZILog("got: %@",[detailViewController.radioSource.mSourceData lastObject]);
                 }
                 break;
@@ -62,7 +62,7 @@
                 break;
         }
         [detailViewController.radioSource activate];
-        [radioButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+        [self updRadioStatus];
     }
     
 }
@@ -96,12 +96,7 @@
                                                                userInfo:nil
                                                                 repeats:YES];
     
-    if ([detailViewController.radioSource isActive]&&(detailViewController.radioSource.mRadioSource==RS_COLLECTION_JOSHW)) {
-        [radioButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
-    } else {
-        [radioButton setTitleColor:[UIColor grayColor] forState:UIControlStateNormal];
-    }
-    
+    [self updRadioStatus];
     [self updRadioButton];
 }
 
@@ -483,8 +478,8 @@
     TFHpple * doc;
     NSArray *sortedArray;
     NSMutableArray *tmpArray=[[NSMutableArray alloc] init];
-    t_web_file_entry *we[27+MAX_EXTRA];
-    int we_nb[27+MAX_EXTRA];
+    t_web_file_entry *we[27+4];
+    int we_nb[27+4];
     
     
     //1st get the data

@@ -399,6 +399,11 @@ enum MDZ_SETTINGS {
     GLOB_FX3DLandscapeFXSLOT,
     GLOB_FX3DLandscapeBloom,
     
+    MDZ_SETTINGS_FAMILY_FXPCover,
+    GLOB_FXCover,
+    GLOB_FXCoverFXSLOT,
+    GLOB_FXCoverFillMode,
+    
     MAX_SETTINGS
 };
 

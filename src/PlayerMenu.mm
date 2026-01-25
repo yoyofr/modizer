@@ -32,6 +32,8 @@ extern MDZPlaylist *_mdzPM_playlist;
 extern MDZFavorites *_mdzPM_Favorites;
 extern bool _pmFavoritesChanged;
 
+extern GLuint txtBGImage,txtCoverImg;
+
 FileNode *pmCurrentFileNode;
 NSString *pMenu_currentPM_entry;
 char pmFileNodeFilter[64];
@@ -118,6 +120,7 @@ enum PMenu_Menu_List {
     MENU_2DSPECTRUM,
     MENU_3DSPECTRUM,
     MENU_3DLANDSCAPE,
+    MENU_COVER,
     MENU_ROOT_MORE,
     MENU_PROJECTM_EXPLORE,
     MENU_INDEX_MAX
@@ -135,6 +138,7 @@ float menu_scrollY[MENU_INDEX_MAX];
 #define FX2DSPECTRUM_IDX (MENU_2DSPECTRUM-1)
 #define FX3DSPECTRUM_IDX (MENU_3DSPECTRUM-1)
 #define FX3DLANDSCAPE_IDX (MENU_3DLANDSCAPE-1)
+#define FXCOVER_IDX (MENU_COVER-1)
 
 
 
@@ -250,6 +254,30 @@ unsigned short menuOscilloLabelFAIcon[16]={
     NULL,FA_COGS,FA_ARROW_CIRCLE_LEFT,FA_WINDOW_CLOSE,
 };
 char *menuOscilloDynLabel[16];
+
+int menuCoverColNb=4;
+static GLuint txtMenuCoverHandle[16];
+static GLuint txtMenuCoverFlag[16];
+const char *menuCoverLabel[16]={
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,NULL,
+};
+void *menuCoverVar[16]={
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,NULL,
+};
+unsigned short menuCoverLabelFAIcon[16]={
+    FA_POWER_OFF,NULL,NULL,NULL,
+    NULL,NULL,NULL,NULL,
+    NULL,NULL,NULL,FA_ARROWS_ALT,
+    NULL,FA_COGS,FA_ARROW_CIRCLE_LEFT,FA_WINDOW_CLOSE,
+};
+char *menuCoverDynLabel[16];
+
 
 int menu2DSpectrumColNb=4;
 static GLuint txtMenu2DSpectrumHandle[16];
@@ -434,6 +462,8 @@ void playerRootMenuInitRightItemsTexture() {
     txtMenuHandle[FX3DSPECTRUM_IDX]=txtMenu3DSpectrumHandle[max(settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value&15,1)];
     txtMenuHandle[FX3DLANDSCAPE_IDX]=txtMenu3DLandscapeHandle[max(settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value&15,1)];
     
+    txtMenuHandle[FXCOVER_IDX]=txtCoverImg;
+    
     txtMenuHandle[FXPIANOROLL_IDX]=txtMenuPianoRollHandle[max(settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value&15,1)];
     
     txtMenuHandle[FXPIANO3D_IDX]=txtMenuPiano3DHandle[max((settings[GLOB_FXPiano3D].detail.mdz_switch.switch_value)&15,1)];
@@ -455,6 +485,7 @@ int playerGetActivatedCells(int menu_idx) {
         if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value) active_idx|=1<<FXMIDI_IDX;
         if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value) active_idx|=1<<FXMODPATTERN_IDX;
         if (settings[PROJECTM_FXONOFF].detail.mdz_boolswitch.switch_value) active_idx|=1<<FXPROJECTM_IDX;
+        if (settings[GLOB_FXCover].detail.mdz_boolswitch.switch_value) active_idx|=1<<FXCOVER_IDX;
         if (settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value) active_idx|=1<<11;
     } else if (menu_idx==MENU_ROOT_MORE) {
         if (settings[GLOB_FXSHOWINFO].detail.mdz_switch.switch_value) active_idx|=1<<0;
@@ -484,6 +515,16 @@ int playerGetActivatedCells(int menu_idx) {
         if (settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value) active_idx|=1<<11;
         
         txtMenu2DSpectrumHandle[12]=txtSlots[fxSlot[FX_2DSpectrum]];
+        active_idx|=1<<12;
+        
+    } else if (menu_idx==MENU_COVER) {
+        if (settings[GLOB_FXCover].detail.mdz_boolswitch.switch_value==0) active_idx|=1<<0;
+        if (settings[GLOB_FXCover].detail.mdz_boolswitch.switch_value) active_idx|=1<<1;
+        if (settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value) active_idx|=1<<11;
+        
+        snprintf(menuCoverDynLabel[4],64,localStr("Mode:\n%s"),localStr(settings[GLOB_FXCoverFillMode].detail.mdz_switch.switch_labels[settings[GLOB_FXCoverFillMode].detail.mdz_switch.switch_value]));
+        
+        txtMenuCoverHandle[12]=txtSlots[fxSlot[FX_COVER]];
         active_idx|=1<<12;
         
     } else if (menu_idx==MENU_3DSPECTRUM) {
@@ -901,6 +942,7 @@ void playerMenuInit() {
     memset(txtMenuProjectMExploreHandle,0,sizeof(txtMenuProjectMExploreHandle));
     memset(txtMenuOscilloHandle,0,sizeof(txtMenuOscilloHandle));
     memset(txtMenu2DSpectrumHandle,0,sizeof(txtMenu2DSpectrumHandle));
+    memset(txtMenuCoverHandle,0,sizeof(txtMenuCoverHandle));
     memset(txtMenu3DSpectrumHandle,0,sizeof(txtMenu3DSpectrumHandle));
     memset(txtMenu3DLandscapeHandle,0,sizeof(txtMenu3DLandscapeHandle));
     memset(txtMenuPiano3DHandle,0,sizeof(txtMenuPiano3DHandle));
@@ -914,6 +956,7 @@ void playerMenuInit() {
     memset(txtMenuProjectMExploreFlag,0,sizeof(txtMenuProjectMExploreFlag));
     memset(txtMenuOscilloFlag,0,sizeof(txtMenuOscilloFlag));
     memset(txtMenu2DSpectrumFlag,0,sizeof(txtMenu2DSpectrumFlag));
+    memset(txtMenuCoverFlag,0,sizeof(txtMenuCoverFlag));
     memset(txtMenu3DSpectrumFlag,0,sizeof(txtMenu3DSpectrumFlag));
     memset(txtMenu3DLandscapeFlag,0,sizeof(txtMenu3DLandscapeFlag));
     memset(txtMenuPiano3DFlag,0,sizeof(txtMenuPiano3DFlag));
@@ -929,6 +972,7 @@ void playerMenuInit() {
     memset(menuMidiDynLabel,0,sizeof(menuMidiDynLabel));
     memset(menuModPatternDynLabel,0,sizeof(menuModPatternDynLabel));
     memset(menu2DSpectrumDynLabel,0,sizeof(menu2DSpectrumDynLabel));
+    memset(menuCoverDynLabel,0,sizeof(menuCoverDynLabel));
     memset(menu3DSpectrumDynLabel,0,sizeof(menu3DSpectrumDynLabel));
     memset(menu3DLandscapeDynLabel,0,sizeof(menu3DLandscapeDynLabel));
     memset(menuModPatternDynLabel,0,sizeof(menuModPatternDynLabel));
@@ -939,6 +983,7 @@ void playerMenuInit() {
     menuMenuMoreDynLabel[0]=(char*)malloc(64);
     menuOscilloDynLabel[7]=(char*)malloc(64);
     menuOscilloDynLabel[8]=(char*)malloc(64);
+    menuCoverDynLabel[4]=(char*)malloc(64);
     menuProjectMDynLabel[8]=(char*)malloc(64);
     menuProjectMDynLabel[9]=(char*)malloc(64);
     menu3DSpectrumDynLabel[7]=(char*)malloc(64);
@@ -1085,6 +1130,9 @@ void playerMenuInit() {
         MDZELog("Cannot load texture");
     }
     
+    //Cover
+    txtMenuCoverHandle[1]=txtCoverImg;
+    
     
     //fxSlots
     txtMenuProjectMHandle[12]=txtSlots[fxSlot[FX_PROJECTM]];
@@ -1101,6 +1149,8 @@ void playerMenuInit() {
     txtMenuModPatternFlag[12]=1;
     txtMenu2DSpectrumHandle[12]=txtSlots[fxSlot[FX_2DSpectrum]];
     txtMenu2DSpectrumFlag[12]=1;
+    txtMenuCoverHandle[12]=txtSlots[fxSlot[FX_COVER]];
+    txtMenuCoverFlag[12]=1;
     txtMenu3DSpectrumHandle[12]=txtSlots[fxSlot[FX_3DSpectrum]];
     txtMenu3DSpectrumFlag[12]=1;
     txtMenu3DLandscapeHandle[12]=txtSlots[fxSlot[FX_3DLandscape]];
@@ -1399,6 +1449,7 @@ int playerShowMenu(float ww,float hh,float safe_top,float safe_bottom,float safe
                                 if (MENU_INDEX_MAX>=9) pMenu_state.menu_idx=9;
                                 break;
                             case 0x12:
+                                if (MENU_INDEX_MAX>=10) pMenu_state.menu_idx=10;
                                 break;
                             case 0x22: //Menu more
                                 pMenu_state.menu_idx=MENU_ROOT_MORE;
@@ -1419,6 +1470,7 @@ int playerShowMenu(float ww,float hh,float safe_top,float safe_bottom,float safe
                                 settings[GLOB_FXPiano3D].detail.mdz_switch.switch_value=0;
                                 settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value=0;
                                 settings[PROJECTM_FXONOFF].detail.mdz_boolswitch.switch_value=0;
+                                settings[GLOB_FXCover].detail.mdz_switch.switch_value=0;
                                 break;
                             case 0x23: //Go to settings - visu
                                 keepOpened=2;
@@ -1642,11 +1694,11 @@ int playerShowMenu(float ww,float hh,float safe_top,float safe_bottom,float safe
                                 settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value=0;
                                 txtMenuHandle[FX2DSPECTRUM_IDX]=current_txtMenuHandle[1];
                                 break;
-                            case 0x10: //2DSpectrum ON
+                            case 0x10: //2DSpectrum ON mode 1
                                 settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value=1;
                                 txtMenuHandle[FX2DSPECTRUM_IDX]=current_txtMenuHandle[1];
                                 break;
-                            case 0x20: //Show preset's name
+                            case 0x20: //2DSpectrum ON mode 2
                                 settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value=2;
                                 txtMenuHandle[FX2DSPECTRUM_IDX]=current_txtMenuHandle[2];
                                 break;
@@ -1666,6 +1718,81 @@ int playerShowMenu(float ww,float hh,float safe_top,float safe_bottom,float safe
                                 break;
                             case 0x13: //Go to settings - visu
                                 keepOpened=3+FX_2DSpectrum;
+                                break;
+                            case 0x23: //Back to main menu
+                                pMenu_state.menu_idx=MENU_ROOT;
+                                break;
+                            case 0x33: //Exit
+                                keepOpened=0;
+                                break;
+                        }
+                    }
+                }
+            }
+            ImGui::EndTable();
+        }
+    } else if (pMenu_state.menu_idx==MENU_COVER) {
+        int col_nb=menuCoverColNb;
+        ImVec2 cpos=ImGui::GetCursorPos();
+        cpos.x=(menu_win_size-tgt_menu_win_size)/2;
+        ImGui::SetCursorPos(cpos);
+        if (ImGui::BeginTable("menu_cover",col_nb,flagTable,ImVec2(tgt_menu_win_size,menu_win_sizeH))) {
+            current_txtMenuHandle=txtMenuCoverHandle;
+            current_txtMenuFlag=txtMenuCoverFlag;
+            currentMenuLabel=menuCoverLabel;
+            currentMenuLabelFAIcon=menuCoverLabelFAIcon;
+            currentMenuVar=menuCoverVar;
+            currentMenuDynLabel=menuCoverDynLabel;
+            cell_size=round((tgt_menu_win_size)/col_nb)-3*menu_cell_padding;
+            for (int r=0;r<4;r++) {
+                ImGui::TableNextRow(0,cell_size);
+                for (int c=0;c<col_nb;c++) {
+                    ImGui::TableSetColumnIndex(c);
+                    
+                    bool isActive=activeFx&(1<<(r*4+c));
+                    int ret=buildSubMenu(r,
+                                         c,
+                                         col_nb,
+                                         isActive,
+                                         cell_size,
+                                         cell_size,
+                                         current_txtMenuHandle,
+                                         current_txtMenuFlag,
+                                         currentMenuLabel,
+                                         currentMenuDynLabel,
+                                         currentMenuLabelFAIcon,
+                                         currentMenuVar);
+                    if ((menushow==-1)&&((c*16+r)==0x33)) ret=1; //force exit
+                    if (ret) {
+                        switch (c*16+r) {
+                            case 0x00: //COVER OFF
+                                settings[GLOB_FXCover].detail.mdz_switch.switch_value=0;
+                                txtMenuHandle[FXCOVER_IDX]=current_txtMenuHandle[1];
+                                break;
+                            case 0x10: //Cover ON
+                                settings[GLOB_FXCover].detail.mdz_switch.switch_value=1;
+                                txtMenuHandle[FXCOVER_IDX]=current_txtMenuHandle[1];
+                                break;
+                            case 0x20:
+                                break;
+                            case 0x30:break;
+                            case 0x01: //change fill mode
+                                settings[GLOB_FXCoverFillMode].detail.mdz_switch.switch_value=(settings[GLOB_FXCoverFillMode].detail.mdz_switch.switch_value+1)%settings[GLOB_FXCoverFillMode].detail.mdz_switch.switch_value_nb;
+                                break;
+                            case 0x11:break;
+                            case 0x21:break;
+                            case 0x31:break;
+                            case 0x02:break;
+                            case 0x12:break;
+                            case 0x22:break;
+                            case 0x32: //Fullscreen switch
+                                settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value=!(settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value);
+                                break;
+                            case 0x03:
+                                fxSlot[FX_COVER]=(fxSlot[FX_COVER]+1)%9;
+                                break;
+                            case 0x13: //Go to settings - visu
+                                keepOpened=3+FX_COVER;
                                 break;
                             case 0x23: //Back to main menu
                                 pMenu_state.menu_idx=MENU_ROOT;
