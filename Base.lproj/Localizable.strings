@@ -703,6 +703,8 @@
 "Play only selected entry or full archive/multisong file" = "Play only selected entry or full archive/multisong file";
 "Show Welcome screen" = "Show Welcome screen";
 "Adplug priority for module" = "Adplug priority for module";
+"Radio download limit" = "Radio download limit";
+"Limit applied in Radio mode to avoid downloading too big files." = "Limit applied in Radio mode to avoid downloading too big files.";
 
 /* FTP Settings */
 "Server status" = "Server status";

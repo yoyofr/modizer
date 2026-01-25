@@ -221,7 +221,7 @@ return self;
 }
 
 
--(void)getNewASMAFile:(int)slot {
+-(int)getNewASMAFile:(int)slot {
     NSFileManager *mFileMngr=[[NSFileManager alloc] init];
     NSError *err;
     
@@ -243,6 +243,7 @@ return self;
         [mFileMngr createDirectoryAtPath:[localPath stringByDeletingLastPathComponent] withIntermediateDirectories:TRUE attributes:nil error:&err];
         
         [self downloadFileFromURL:asma_url rSource:RS_COLLECTION_ASMA slot:slot path:[str stringByDeletingLastPathComponent] filename:nil];
+        return 1;
     } else {
         //folder
         str=[str substringFromIndex:2];
@@ -274,10 +275,12 @@ return self;
             [mFileMngr createDirectoryAtPath:[localPath stringByDeletingLastPathComponent] withIntermediateDirectories:TRUE attributes:nil error:&err];
             
             [self downloadFileFromURL:asma_url rSource:RS_COLLECTION_ASMA slot:slot path:[fullpath stringByDeletingLastPathComponent] filename:nil];
+            return 1;
         } else {
             MDZILog("no entries from DB!");
         }
     }
+    return 0;
 }
 
 -(NSMutableArray*) getCGSC_DBEntries:(NSString*)dir1 dir2:(NSString* __nullable)dir2 {
@@ -339,7 +342,7 @@ return self;
 }
 
 
--(void)getNewCGSCFile:(int)slot {
+-(int)getNewCGSCFile:(int)slot {
     NSFileManager *mFileMngr=[[NSFileManager alloc] init];
     NSError *err;
     NSString *cgsc_url=nil;
@@ -412,9 +415,11 @@ return self;
         }
         
         [self downloadFileFromURL:cgsc_url rSource:RS_COLLECTION_CGSC slot:slot path:[fullpath stringByDeletingLastPathComponent] filename:nil];
+        return 1;
     } else {
         MDZILog("no entries from DB!");
     }
+    return 0;
 }
 
 -(NSMutableArray*) getHVSC_DBEntries:(NSString*)dir1 dir2:(NSString* __nullable)dir2 dir3:(NSString* __nullable)dir3 dir4:(NSString* __nullable)dir4 dir5:(NSString* __nullable)dir5 {
@@ -485,7 +490,7 @@ return self;
 }
 
 
--(void)getNewHVSCFile:(int)slot {
+-(int)getNewHVSCFile:(int)slot {
     NSFileManager *mFileMngr=[[NSFileManager alloc] init];
     NSError *err;
     
@@ -507,6 +512,7 @@ return self;
         [mFileMngr createDirectoryAtPath:[localPath stringByDeletingLastPathComponent] withIntermediateDirectories:TRUE attributes:nil error:&err];
         
         [self downloadFileFromURL:hvsc_url rSource:RS_COLLECTION_HVSC slot:slot path:[str stringByDeletingLastPathComponent] filename:nil];
+        return 1;
     } else {
         //folder
         str=[str substringFromIndex:2];
@@ -543,10 +549,12 @@ return self;
             [mFileMngr createDirectoryAtPath:[localPath stringByDeletingLastPathComponent] withIntermediateDirectories:TRUE attributes:nil error:&err];
             
             [self downloadFileFromURL:hvsc_url rSource:RS_COLLECTION_HVSC slot:slot path:[fullpath stringByDeletingLastPathComponent] filename:nil];
+            return 1;
         } else {
             MDZILog("no entries from DB!");
         }
     }
+    return 0;
 }
 
 -(NSString*) getMODLANDLocalForRemote:(NSString*)remotePath {
@@ -691,7 +699,7 @@ return self;
 }
 
 
--(void)getNewMODLANDFile:(int)slot {
+-(int)getNewMODLANDFile:(int)slot {
     NSFileManager *mFileMngr=[[NSFileManager alloc] init];
     NSError *err;
     NSString *str;
@@ -746,10 +754,10 @@ return self;
     }
     if (id_mod>=0) {
         str=[self getMODLAND_localPath:id_mod];
-        MDZILog("str %@",str);
+//        MDZILog("str %@",str);
         NSArray *addFiles=[ModizFileHelper getAdditionalMODLANDRequiredFiles:str];
         for (NSString *addFile in addFiles) {
-            MDZILog("2download: %@",addFile);
+            //MDZILog("2download: %@",addFile);
             
             localPath=[NSString stringWithFormat:@"%@/tmp/tmpRadio/%d/%@/%@",[ModizFileHelper getAppHomeDirectory],slot,MODLAND_BASEDIR,[self getMODLANDLocalForRemote:addFile]];
             modland_url=[NSString stringWithFormat:@"%s/pub/modules/%@",settings[ONLINE_MODLAND_CURRENT_URL].detail.mdz_msgbox.text,addFile ];
@@ -764,9 +772,11 @@ return self;
         
         //        MDZILog("download: %@",modland_url);
         [self downloadFileFromURL:modland_url rSource:RS_COLLECTION_MODLAND slot:slot path:[[self getMODLANDLocalForRemote:str] stringByDeletingLastPathComponent] filename:nil];
+        return 1;
     } else {
         MDZILog("no entries from DB!");
     }
+    return 0;
 }
 
 -(NSString*) getSNESMshortnameFromID:(int)entry_id  {
@@ -790,7 +800,7 @@ return self;
 }
 
 
--(void)getNewSNESFile:(int)slot {
+-(int)getNewSNESFile:(int)slot {
     NSFileManager *mFileMngr=[[NSFileManager alloc] init];
     NSError *err;
     
@@ -806,26 +816,32 @@ return self;
     if ([[str substringToIndex:2] isEqualToString:@"f:"]) {
         //file
         str=[str substringFromIndex:2];
-        NSArray *str_arr=[str componentsSeparatedByString:@"/"];
-        NSString *localPath=[NSString stringWithFormat:@"%@/tmp/tmpRadio/%d/%@/%@",[ModizFileHelper getAppHomeDirectory],slot,SNESmusic_BASEDIR,str_arr[0]];
+        NSArray *str_arr=[str componentsSeparatedByString:@"|"];
+        NSString *localPath=[NSString stringWithFormat:@"%@/tmp/tmpRadio/%d/%@",[ModizFileHelper getAppHomeDirectory],slot,SNESmusic_BASEDIR];
         
         //create folder if needed
-        [mFileMngr createDirectoryAtPath:[localPath stringByDeletingLastPathComponent] withIntermediateDirectories:TRUE attributes:nil error:&err];
+        [mFileMngr createDirectoryAtPath:localPath withIntermediateDirectories:TRUE attributes:nil error:&err];
         
         //get screenshot
-        NSString *snes_url=[NSString stringWithFormat:@"http://snesmusic.org/v2/images/screenshots/%@.png",str ];
-        [self downloadFileFromURL:snes_url rSource:RS_COLLECTION_SNES slot:slot path:[str stringByDeletingLastPathComponent] filename:[str_arr[1] stringByAppendingString:@".png"]];
+        NSString *snes_url=[NSString stringWithFormat:@"http://snesmusic.org/v2/images/screenshots/%@.png",str_arr[0] ];
+        [self downloadFileFromURL:snes_url rSource:RS_COLLECTION_SNES slot:slot path:@"" filename:[str_arr[1] stringByAppendingString:@".png"]];
 
         //get rsn file
-        snes_url=[NSString stringWithFormat:@"http://snesmusic.org/v2/download.php?spcNow=%@",str ];
+        snes_url=[NSString stringWithFormat:@"http://snesmusic.org/v2/download.php?spcNow=%@",str_arr[0] ];
         
-        [self downloadFileFromURL:snes_url rSource:RS_COLLECTION_SNES slot:slot path:[str stringByDeletingLastPathComponent]filename:[str_arr[1] stringByAppendingString:@".rsn"]];
-    } else if ([[str substringToIndex:2] isEqualToString:@"i:"]) {
+        [self downloadFileFromURL:snes_url rSource:RS_COLLECTION_SNES slot:slot path:@"" filename:[str_arr[1] stringByAppendingString:@".rsn"]];
+        return 1;
+    } else if ([[str substringToIndex:2] isEqualToString:@"i:"]||[[str substringToIndex:2] isEqualToString:@"s:"]) {
         //file
-        str=[str substringFromIndex:2];
-        
-        int entry_id=[str intValue];
-        str=[self getSNESMshortnameFromID:entry_id];
+        //get shortname
+        if ([[str substringToIndex:2] isEqualToString:@"i:"]) {
+            str=[str substringFromIndex:2];
+            
+            int entry_id=[str intValue];
+            str=[self getSNESMshortnameFromID:entry_id];
+        } else {
+            str=[str substringFromIndex:2];
+        }
         
         NSString *str_long=str; //by default use shortname
         for (int i=0;i<snes_spc_entries;i++) {
@@ -835,23 +851,25 @@ return self;
             }
         }
         
-        NSString *localPath=[NSString stringWithFormat:@"%@/tmp/tmpRadio/%d/%@/%@",[ModizFileHelper getAppHomeDirectory],slot,SNESmusic_BASEDIR,str];
+        NSString *localPath=[NSString stringWithFormat:@"%@/tmp/tmpRadio/%d/%@",[ModizFileHelper getAppHomeDirectory],slot,SNESmusic_BASEDIR];
         
         //create folder if needed
-        [mFileMngr createDirectoryAtPath:[localPath stringByDeletingLastPathComponent] withIntermediateDirectories:TRUE attributes:nil error:&err];
+        [mFileMngr createDirectoryAtPath:localPath withIntermediateDirectories:TRUE attributes:nil error:&err];
         
         //get screenshot
         NSString *snes_url=[NSString stringWithFormat:@"http://snesmusic.org/v2/images/screenshots/%@.png",str ];
-        [self downloadFileFromURL:snes_url rSource:RS_COLLECTION_SNES slot:slot path:[str stringByDeletingLastPathComponent]filename:[str_long stringByAppendingString:@".png"]];
+        [self downloadFileFromURL:snes_url rSource:RS_COLLECTION_SNES slot:slot path:@"" filename:[str_long stringByAppendingString:@".png"]];
 
         //get rsn file
         snes_url=[NSString stringWithFormat:@"http://snesmusic.org/v2/download.php?spcNow=%@",str ];
         
-        [self downloadFileFromURL:snes_url rSource:RS_COLLECTION_SNES slot:slot path:[str stringByDeletingLastPathComponent]filename:[str_long stringByAppendingString:@".rsn"]];
+        [self downloadFileFromURL:snes_url rSource:RS_COLLECTION_SNES slot:slot path:@"" filename:[str_long stringByAppendingString:@".rsn"]];
+        return 1;
     }
+    return 0;
 }
 
--(void)getNewSMSPFile:(int)slot {
+-(int)getNewSMSPFile:(int)slot {
     NSFileManager *mFileMngr=[[NSFileManager alloc] init];
     NSError *err;
     
@@ -882,10 +900,12 @@ return self;
         smsp_url=[NSString stringWithFormat:@"http://www.smspower.org/uploads/Music/%@.zip",str_arr[0] ];
         
         [self downloadFileFromURL:smsp_url rSource:RS_COLLECTION_SMSP slot:slot path:str_arr[1] filename:[str_arr[2] stringByAppendingString:@".zip"]];
+        return 1;
     }
+    return 0;
 }
 
--(void)getNewVGMRFile:(int)slot {
+-(int)getNewVGMRFile:(int)slot {
     NSFileManager *mFileMngr=[[NSFileManager alloc] init];
     NSError *err;
     
@@ -969,6 +989,7 @@ return self;
         }];
         
         [task resume];
+        return 1;
     } else if (mRadioSource_mode==1) {
         //files
         int idx=arc4random_uniform((int)[mSourceData count]);
@@ -985,11 +1006,289 @@ return self;
             [mFileMngr createDirectoryAtPath:localPath withIntermediateDirectories:TRUE attributes:nil error:nil];
             
             [self downloadFileFromURL:[vgmr_url stringByRemovingPercentEncoding] rSource:RS_COLLECTION_VGMR slot:slot path:[str_path stringByDeletingLastPathComponent] filename:[str_path lastPathComponent]];
+            return 1;
         }
     }
+    return 0;
 }
 
--(void)getNewAMPFile:(int)slot {
+//https://zxart.ee/api/export:zxMusic/limit:0
+//{
+//  "totalAmount": 29512,
+//  "start": 0,
+//  "limit": 0,
+//  "responseData": {
+//    "zxMusic": []
+//  },
+//  "responseStatus": "success"
+//}
+
+//https://zxart.ee/api/export:zxMusic/limit:1/start:29510/order:date,desc
+//{
+//  "totalAmount": 29512,
+//  "start": 29510,
+//  "limit": 1,
+//  "responseData": {
+//    "zxMusic": [
+//      {
+//        "id": 19717,
+//        "title": "[as soon] as it began",
+//        "internalTitle": "[as soon] as it began... cc ver.",
+//        "url": "https://zxart.ee/eng/authors/s/scalesmann/as-soon-as-it-began/",
+//        "dateCreated": 1388863097,
+//        "dateModified": 1707045851,
+//        "time": "2:25.25",
+//        "partyId": "17066",
+//        "compo": "ay",
+//        "partyPlace": "2",
+//        "authorIds": [2333],
+//        "type": "PT3",
+//        "rating": "3.93",
+//        "plays": "59",
+//        "year": 2013,
+//        "originalUrl": "https://zxart.ee/file/id:19717/filename:Scalesmann_-_%5Bas_soon%5D_as_it_began_%282013%29_%28Chaos_Constructions_2013%2C_2%29.mt3",
+//        "originalFileName": "Scalesmann_-_%5Bas_soon%5D_as_it_began_%282013%29_%28Chaos_Constructions_2013%2C_2%29.mt3",
+//        "mp3FilePath": "https://music.zxart.ee/music/19717_Scalesmann__as_soon__as_it_began.mp3"
+//      }
+//    ]
+//  },
+//  "responseStatus": "success"
+//}
+
+-(int)getNewZXARTFile:(int)slot {
+    NSFileManager *mFileMngr=[[NSFileManager alloc] init];
+    NSError *err;
+    
+    //clean slot
+    NSString *localPath=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/tmp/tmpRadio/%d/",slot];
+    [mFileMngr removeItemAtPath:localPath error:&err];
+    //create tmp dir
+    [mFileMngr createDirectoryAtPath:localPath withIntermediateDirectories:TRUE attributes:nil error:&err];
+    [ModizFileHelper addSkipBackupAttributeToItemAtPath:localPath];
+    
+    if (mRadioSource_mode==0) {
+        //random
+        //
+        NSURL *url = [NSURL URLWithString:[@"https://zxart.ee/api/export:zxMusic/limit:0" stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]]];
+        
+        NSURLSession *session = [NSURLSession sharedSession];
+        
+        NSURLSessionDataTask *task =
+        [session dataTaskWithURL:url
+               completionHandler:^(NSData * _Nullable data,
+                                   NSURLResponse * _Nullable response,
+                                   NSError * _Nullable error)
+         {
+            if (error) {
+                MDZELog("Erreur réseau : %@", error);
+                return;
+            }
+            
+            if (!data) {
+                MDZELog("Aucune donnée reçue");
+                return;
+            }
+            NSError *jsonError;
+            NSDictionary *json = [NSJSONSerialization JSONObjectWithData:data
+                                                                 options:0
+                                                                   error:&jsonError];
+            if (jsonError) {
+                MDZELog("Erreur JSON: %@", jsonError);
+                return;
+            }
+            // Vérifier le status
+                    NSString *status = json[@"responseStatus"];
+                    if (![status isEqualToString:@"success"]) {
+                        MDZELog("Erreur API: status non success");
+                        return;
+                    }
+            
+            int id_nb=[json[@"totalAmount"] intValue];
+            int idx=arc4random_uniform(id_nb);
+            
+            NSURL *url_file = [NSURL URLWithString:[[NSString stringWithFormat:@"https://zxart.ee/api/export:zxMusic/limit:1/start:%d",idx] stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]]];
+            
+            NSURLSession *session = [NSURLSession sharedSession];
+            
+            NSURLSessionDataTask *task_file =
+            [session dataTaskWithURL:url_file
+                   completionHandler:^(NSData * _Nullable data,
+                                       NSURLResponse * _Nullable response,
+                                       NSError * _Nullable error)
+             {
+                if (error) {
+                    MDZELog("Erreur réseau : %@", error);
+                    return;
+                }
+                
+                if (!data) {
+                    MDZELog("Aucune donnée reçue");
+                    return;
+                }
+                NSError *jsonError;
+                NSDictionary *json = [NSJSONSerialization JSONObjectWithData:data
+                                                                     options:0
+                                                                       error:&jsonError];
+                if (jsonError) {
+                    MDZELog("Erreur JSON: %@", jsonError);
+                    return;
+                }
+                
+                // Vérifier le status
+                        NSString *status = json[@"responseStatus"];
+                        if (![status isEqualToString:@"success"]) {
+                            MDZELog("Erreur API: status non success");
+                            return;
+                        }
+                
+                // zxMusic est un NSArray, il faut récupérer le premier élément [0]
+                NSArray *zxMusicArray = json[@"responseData"][@"zxMusic"];
+                NSString *zxart_url=nil;
+                NSString *str_auth=nil;
+                NSString *str_name=nil;
+                if (zxMusicArray.count > 0) {
+                    NSDictionary *firstMusic = zxMusicArray[0];  // Premier élément du tableau
+                    zxart_url = firstMusic[@"originalUrl"];
+                    str_auth = firstMusic[@"url"];
+                    str_name = firstMusic[@"originalFileName"];
+                    str_name=[str_name stringByRemovingPercentEncoding];
+                    str_name=[[str_name componentsSeparatedByString:@"_-_"] lastObject];
+                } else {
+                    MDZELog("Aucun résultat dans zxMusic");
+                    return;
+                }
+                
+                if ( (zxart_url==nil) || ![zxart_url length] ||
+                     (str_auth==nil) || ![str_auth length] ||
+                    (str_name==nil) || ![str_name length] ) {
+                    //no file to download
+                    MDZILog("ZXArt: No file to download or no author mentioned");
+                    return;
+                }
+                
+                str_auth=[[str_auth stringByDeletingLastPathComponent] lastPathComponent];
+                NSString *localPath=[NSString stringWithFormat:@"%@/tmp/tmpRadio/%d/%@/%@",[ModizFileHelper getAppHomeDirectory],slot,ZXART_BASEDIR,str_auth];
+                
+                //create folder if needed
+                [mFileMngr createDirectoryAtPath:localPath withIntermediateDirectories:TRUE attributes:nil error:nil];
+                
+                [self downloadFileFromURL:[zxart_url stringByRemovingPercentEncoding] rSource:RS_COLLECTION_ZXART slot:slot path:str_auth filename:str_name];
+            }];
+            
+            [task_file resume];
+        }];
+        [task resume];
+        return 1;
+    } else if ((mRadioSource_mode==1) && [mSourceData count]) {
+        //file list
+        int idx=arc4random_uniform([mSourceData count]);
+        NSString *str=[mSourceData[idx] substringFromIndex:2];
+        NSArray *arr=[str componentsSeparatedByString:@"|"];
+        NSString *url=arr[0];
+        NSString *str_path=arr[1];
+        
+        NSString *localPath=[NSString stringWithFormat:@"%@/tmp/tmpRadio/%d/%@/%@",[ModizFileHelper getAppHomeDirectory],slot,ZXART_BASEDIR,[str_path stringByDeletingLastPathComponent]];
+        
+        //create folder if needed
+        [mFileMngr createDirectoryAtPath:localPath withIntermediateDirectories:TRUE attributes:nil error:nil];
+        
+        [self downloadFileFromURL:[url stringByRemovingPercentEncoding] rSource:RS_COLLECTION_ZXART slot:slot path:[str_path stringByDeletingLastPathComponent] filename:[str_path lastPathComponent]];
+        return 1;
+    }
+    return 0;
+}
+
+- (long long)fileSizeFromString:(NSString *)sizeString {
+    static NSDictionary *multipliers;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        multipliers = @{
+            @"K": @(1024LL),
+            @"M": @(1024LL * 1024LL),
+            @"G": @(1024LL * 1024LL * 1024LL),
+            @"T": @(1024LL * 1024LL * 1024LL * 1024LL)
+        };
+    });
+    
+    NSString *trimmed = [sizeString stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+    unichar lastChar = [trimmed characterAtIndex:trimmed.length - 1];
+    
+    if ([[NSCharacterSet letterCharacterSet] characterIsMember:lastChar]) {
+        NSString *unit = [[NSString stringWithFormat:@"%C", lastChar] uppercaseString];
+        NSNumber *multiplier = multipliers[unit];
+        
+        if (multiplier) {
+            NSString *numberPart = [trimmed substringToIndex:trimmed.length - 1];
+            return (long long)([numberPart doubleValue] * [multiplier longLongValue]);
+        }
+    }
+    
+    return [trimmed longLongValue];
+}
+
+-(int)getNewJOSHWFile:(int)slot {
+    NSFileManager *mFileMngr=[[NSFileManager alloc] init];
+    NSError *err;
+    
+    //clean slot
+    NSString *localPath=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/tmp/tmpRadio/%d/",slot];
+    [mFileMngr removeItemAtPath:localPath error:&err];
+    //create tmp dir
+    [mFileMngr createDirectoryAtPath:localPath withIntermediateDirectories:TRUE attributes:nil error:&err];
+    [ModizFileHelper addSkipBackupAttributeToItemAtPath:localPath];
+    
+    if (mRadioSource_mode==0) {
+        //random
+        //
+    } else if ((mRadioSource_mode==1) && [mSourceData count]) {
+        //subsites list
+        int idx=arc4random_uniform([mSourceData count]);
+        NSString *str=[mSourceData[idx] substringFromIndex:2];
+        NSArray *arr=[str componentsSeparatedByString:@"|"];
+        NSString *url=arr[0];
+        NSString *str_path=arr[1];
+        
+//        NSString *localPath=[NSString stringWithFormat:@"%@/tmp/tmpRadio/%d/%@/%@",[ModizFileHelper getAppHomeDirectory],slot,ZXART_BASEDIR,[str_path stringByDeletingLastPathComponent]];
+//        
+//        //create folder if needed
+//        [mFileMngr createDirectoryAtPath:localPath withIntermediateDirectories:TRUE attributes:nil error:nil];
+//        
+//        [self downloadFileFromURL:[url stringByRemovingPercentEncoding] rSource:RS_COLLECTION_ZXART slot:slot path:[str_path stringByDeletingLastPathComponent] filename:[str_path lastPathComponent]];
+    } else if ((mRadioSource_mode==2) && [mSourceData count]) {
+        //files list
+        int idx=arc4random_uniform([mSourceData count]);
+        NSString *str=[mSourceData[idx] substringFromIndex:2];
+        NSArray *arr=[str componentsSeparatedByString:@"|"];
+        NSString *url=arr[0];
+        NSString *str_path=arr[1];
+        long long fsize=[self fileSizeFromString:arr[2]];
+        
+        long long limit=1L<<60;
+        switch (settings[GLOB_RadioModeMaxDownloadSize].detail.mdz_switch.switch_value) {
+            case 0: //no limit;
+                break;
+            case 1: //10MO
+                limit=1024*1024*10;
+                break;
+            case 2: //100MO
+                limit=1024*1024*100;
+                break;
+        }
+        if (fsize<limit) {
+            NSString *localPath=[NSString stringWithFormat:@"%@/tmp/tmpRadio/%d/%@/%@",[ModizFileHelper getAppHomeDirectory],slot,JOSHW_BASEDIR,[str_path stringByDeletingLastPathComponent]];
+            
+            //create folder if needed
+            [mFileMngr createDirectoryAtPath:localPath withIntermediateDirectories:TRUE attributes:nil error:nil];
+            
+            [self downloadFileFromURL:[url stringByRemovingPercentEncoding] rSource:RS_COLLECTION_JOSHW slot:slot path:[str_path stringByDeletingLastPathComponent] filename:[str_path lastPathComponent]];
+            return 1;
+        }
+    }
+    return 0;
+}
+
+
+-(int)getNewAMPFile:(int)slot {
     NSFileManager *mFileMngr=[[NSFileManager alloc] init];
     NSError *err;
     NSString *fileURL;
@@ -1096,6 +1395,7 @@ return self;
         }];
         
         [task resume];
+        return 1;
     } else if (mRadioSource_mode==2) {
         //Mods list
         if ([mSourceData count]) {
@@ -1107,6 +1407,7 @@ return self;
             if ([tmpAA count]>=4) composer=tmpAA[2];
             
             [self downloadFileFromURL:fileURL rSource:RS_COLLECTION_AMP slot:slot path:composer filename:nil];
+            return 1;
         }
     }  else if (mRadioSource_mode==3) {
         //Groups
@@ -1223,8 +1524,10 @@ return self;
                 [taskMod resume];
             }];
             [task resume];
+            return 1;
         }
     }
+    return 0;
 }
 
 -(bool) isInLibrary:(int)slot {
@@ -1299,6 +1602,12 @@ return self;
             break;
         case RS_COLLECTION_VGMR:
             [self getNewVGMRFile:slot];
+            break;
+        case RS_COLLECTION_ZXART:
+            [self getNewZXARTFile:slot];
+            break;
+        case RS_COLLECTION_JOSHW:
+            [self getNewJOSHWFile:slot];
             break;
         default:
             break;
@@ -1438,6 +1747,10 @@ return self;
             return @"SMSP";
         case RS_COLLECTION_VGMR:
             return @"VGMRips";
+        case RS_COLLECTION_ZXART:
+            return @"ZXArt";
+        case RS_COLLECTION_JOSHW:
+            return @"JoshW";
     }
     return nil;
 }
@@ -1464,6 +1777,10 @@ return self;
             return @"SMS Power!";
         case RS_COLLECTION_VGMR:
             return @"VGMRips";
+        case RS_COLLECTION_ZXART:
+            return @"ZXArt";
+        case RS_COLLECTION_JOSHW:
+            return @"JoshW";
     }
     return nil;
 }
@@ -1576,6 +1893,12 @@ return self;
         if (mRadioSource==RS_COLLECTION_VGMR) {
             result=[NSString stringWithFormat:@"%@ (%@)",[arr[arr_count-1] stringByDeletingPathExtension],arr[1]];
         }
+        if (mRadioSource==RS_COLLECTION_ZXART) {
+            result=[NSString stringWithFormat:@"%@ by %@ (%@)",[arr[arr_count-1] stringByDeletingPathExtension],arr[2],arr[1]];
+        }
+        if (mRadioSource==RS_COLLECTION_JOSHW) {
+            result=[NSString stringWithFormat:@"%@ on %@ (%@)",[arr[arr_count-1] stringByDeletingPathExtension],arr[2],arr[1]];
+        }
     }
     return result;
 }
@@ -1620,6 +1943,12 @@ return self;
     if (mRadioSource==RS_COLLECTION_VGMR) {
         result=[result stringByAppendingFormat:@"%@ (%@)\n",[arr[arr_count-1] stringByDeletingPathExtension],arr[0]];
     }
+    if (mRadioSource==RS_COLLECTION_ZXART) {
+        result=[result stringByAppendingFormat:@"%@ by %@ (%@)\n",[arr[arr_count-1] stringByDeletingPathExtension],arr[1],arr[0]];
+    }
+    if (mRadioSource==RS_COLLECTION_JOSHW) {
+        result=[result stringByAppendingFormat:@"%@ on %@ (%@)\n",[arr[arr_count-1] stringByDeletingPathExtension],arr[1],arr[0]];
+    }
     return result;
 }
 
@@ -1635,49 +1964,11 @@ return self;
             relativePath=[mCurrentPath substringFromIndex:[mCurrentPath rangeOfString:@"tmpRadio/"].location+[@"tmpRadio/" length]];
         }
         
-//        if (mRadioSource==RS_COLLECTION_SNES) {
-//            //try to get game name
-//            MDZILog("%@",suggestedName);
-//            
-//            NSFileManager *fileManager = [[NSFileManager alloc] init];
-//            NSError *error=nil;
-//            NSString *fromPath = [mCurrentPath stringByDeletingLastPathComponent];
-//            
-//            NSString *toPath = [[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/Documents/%@",[relativePath substringFromIndex:[relativePath rangeOfString:@"/"].location+1]] stringByDeletingLastPathComponent];
-//            //MDZILog("from %@\nto %@",fromPath,toPath);
-//            // Crée les dossiers intermédiaires si besoin
-//            if (![fileManager fileExistsAtPath:toPath]) {
-//                BOOL created = [fileManager createDirectoryAtPath:toPath
-//                                       withIntermediateDirectories:YES
-//                                                        attributes:nil
-//                                                             error:&error];
-//                if (!created) {
-//                    MDZELog("Erreur création dossier: %@", error);
-//                    ret=false;
-//                    return ret;
-//                }
-//            }
-//            
-//            //[fileManager copyItemAtPath:fromPath toPath:toPath error:&error];
-//            NSArray *contents = [fileManager contentsOfDirectoryAtPath:fromPath error:&error];
-//            if (error) {
-//                MDZELog("Error saving to library: %@", error.localizedDescription);
-//                ret=false;
-//            }
-//            for (NSString *item in contents) {
-//                NSString *sourcePath = [fromPath stringByAppendingPathComponent:item];
-//                NSString *destPath = [[toPath stringByAppendingPathComponent:suggestedName] stringByAppendingFormat:@".%@",[sourcePath pathExtension]];
-//                [fileManager copyItemAtPath:sourcePath toPath:destPath error:&error];
-//                if (error) {
-//                    MDZELog("Error saving to library: %@", error.localizedDescription);
-//                    ret=false;
-//                }
-//            }
-//        } else
         if ( (mRadioSource==RS_COLLECTION_AMP) || (mRadioSource==RS_COLLECTION_ASMA) ||
              (mRadioSource==RS_COLLECTION_CGSC) || (mRadioSource==RS_COLLECTION_HVSC) ||
              (mRadioSource==RS_COLLECTION_MODLAND) || (mRadioSource==RS_COLLECTION_SNES) ||
-             (mRadioSource==RS_COLLECTION_SMSP) || (mRadioSource==RS_COLLECTION_VGMR) ) {
+             (mRadioSource==RS_COLLECTION_SMSP) || (mRadioSource==RS_COLLECTION_VGMR) ||
+             (mRadioSource==RS_COLLECTION_ZXART) || (mRadioSource==RS_COLLECTION_JOSHW) ) {
             NSFileManager *fileManager = [[NSFileManager alloc] init];
             NSError *error=nil;
             NSString *fromPath = [mCurrentPath stringByDeletingLastPathComponent];

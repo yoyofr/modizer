@@ -75,6 +75,8 @@ enum MDZ_SETTINGS {
     GLOB_Fadeouttime,    
     GLOB_SilenceDetection,
     
+    GLOB_RadioModeMaxDownloadSize,
+    
     GLOB_ForceMono,
     GLOB_Panning,
     GLOB_PanningValue,

@@ -392,12 +392,17 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
     END_PROFILE
 }
 
+-(void) updRadioButton {
+    
+}
+
 -(void) updRadioStatus {
     if ([detailViewController.radioSource isActive]&&(detailViewController.radioSource.mRadioSource==RS_COLLECTION_AMP)) {
         [radioButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
     } else {
         [radioButton setTitleColor:[UIColor grayColor] forState:UIControlStateNormal];
     }
+    [self updRadioButton];
 }
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -422,6 +427,7 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
     } else {
         [radioButton setTitleColor:[UIColor grayColor] forState:UIControlStateNormal];
     }
+    [self updRadioButton];
 }
 
 - (void)viewDidDisappear:(BOOL)animated {

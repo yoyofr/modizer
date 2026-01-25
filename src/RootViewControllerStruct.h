@@ -94,4 +94,5 @@ typedef struct {
     signed char rating;
     char channels_nb;    
     bool has_letter_index;
+    NSArray *extra_index;
 } t_WEB_browse_entry;

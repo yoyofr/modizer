@@ -38,42 +38,34 @@ extern int snes_spc_entries;
         t_WEB_browse_entry *cur_db_entries;
         cur_db_entries=(search_dbWEB?search_dbWEB_entries:dbWEB_entries);
         int nb_entries=(search_dbWEB?search_dbWEB_nb_entries:dbWEB_nb_entries);
-        
+        detailViewController.radioSource.mRadioSource_mode=0;
         switch (browse_depth) {
             case 0:
-                detailViewController.radioSource.mRadioSource_mode=1;
                 [detailViewController.radioSource.mSourceData removeAllObjects];
                 for (int i=0;i<snes_spc_entries;i++) {
-                    [detailViewController.radioSource.mSourceData addObject:[NSString stringWithFormat:@"f:%s/%s",SNESmusic_names[i].shortname,SNESmusic_names[i].longname]];
+                    [detailViewController.radioSource.mSourceData addObject:[NSString stringWithFormat:@"f:%s|%s",SNESmusic_names[i].shortname,SNESmusic_names[i].longname]];
                 }
                 break;
             case 1:
-                detailViewController.radioSource.mRadioSource_mode=0;
+            case 2:
                 [detailViewController.radioSource.mSourceData removeAllObjects];
                 for (int i=0;i<nb_entries;i++) {
                     
                     if (cur_db_entries[i].isFile) {
-                        int entry_id=[[[cur_db_entries[i].URL componentsSeparatedByString:@"="] lastObject] intValue];
-                        [detailViewController.radioSource.mSourceData addObject:[NSString stringWithFormat:@"i:%d",entry_id]];
-                    } else {
-                        MDZILog("got: %@ / %@",cur_db_entries[i].label,cur_db_entries[i].fullpath);
-                    }
-                }
-                break;
-            case 2:
-                detailViewController.radioSource.mRadioSource_mode=0;
-                [detailViewController.radioSource.mSourceData removeAllObjects];
-                for (int i=0;i<nb_entries;i++) {
-                    if (cur_db_entries[i].isFile) {
-                        int entry_id=[[[cur_db_entries[i].URL componentsSeparatedByString:@"="] lastObject] intValue];
-                        [detailViewController.radioSource.mSourceData addObject:[NSString stringWithFormat:@"i:%d",entry_id]];
+//                        MDZILog("got: %@",cur_db_entries[i].URL);
+                        if (browse_mode==BROWSE_SEARCH) {
+                            NSString *entry_id=[[cur_db_entries[i].URL componentsSeparatedByString:@"="] lastObject];
+                            [detailViewController.radioSource.mSourceData addObject:[NSString stringWithFormat:@"s:%@",entry_id]];
+                        } else {
+                            int entry_id=[[[cur_db_entries[i].URL componentsSeparatedByString:@"="] lastObject] intValue];
+                            [detailViewController.radioSource.mSourceData addObject:[NSString stringWithFormat:@"i:%d",entry_id]];
+                        }
                     } else {
                         MDZILog("got: %@ / %@",cur_db_entries[i].label,cur_db_entries[i].fullpath);
                     }
                 }
                 break;
             default:
-                detailViewController.radioSource.mRadioSource_mode=0;
                 break;
         }
         [detailViewController.radioSource activate];
@@ -220,12 +212,18 @@ int qsortSNESM_entries_rating_or_entries(const void *entryA, const void *entryB)
         [radioButton setTitleColor:[UIColor grayColor] forState:UIControlStateNormal];
     }
     
-    if (browse_depth==1) {
-        if (browse_mode==BROWSE_ALL) {
-            radioButton.hidden=YES;
-            self.radioButtonWidthConstraint.constant=0;
-            [self.view layoutIfNeeded];
-        }
+    [self updRadioButton];
+}
+
+-(void) updRadioButton {
+    if ( (browse_depth==1) && (browse_mode==BROWSE_ALL) ) {
+        radioButton.hidden=YES;
+        self.radioButtonWidthConstraint.constant=0;
+        [self.view layoutIfNeeded];
+    } else {
+        radioButton.hidden=NO;
+        self.radioButtonWidthConstraint.constant=44;
+        [self.view layoutIfNeeded];
     }
 }
 
@@ -235,6 +233,7 @@ int qsortSNESM_entries_rating_or_entries(const void *entryA, const void *entryB)
     } else {
         [radioButton setTitleColor:[UIColor grayColor] forState:UIControlStateNormal];
     }
+    [self updRadioButton];
 }
 
 -(void) fillKeysCompleted {

@@ -846,6 +846,20 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_SilenceDetection].detail.mdz_slider.slider_min_value=0;
     settings[GLOB_SilenceDetection].detail.mdz_slider.slider_max_value=10;
     
+    
+    SETTINGS_ID_DEF(GLOB_RadioModeMaxDownloadSize)
+    settings[GLOB_RadioModeMaxDownloadSize].type=MDZ_SWITCH;
+    settings[GLOB_RadioModeMaxDownloadSize].label=(char*)"Radio download limit";
+    settings[GLOB_RadioModeMaxDownloadSize].description=(char*)"Limit applied in Radio mode to avoid downloading too big files.";
+    settings[GLOB_RadioModeMaxDownloadSize].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER;
+    settings[GLOB_RadioModeMaxDownloadSize].sub_family=0;
+    settings[GLOB_RadioModeMaxDownloadSize].callback=&optGLOBALChangedC;
+    settings[GLOB_RadioModeMaxDownloadSize].detail.mdz_switch.switch_value_nb=3;
+    settings[GLOB_RadioModeMaxDownloadSize].detail.mdz_switch.switch_labels=(char**)calloc(1,settings[GLOB_RadioModeMaxDownloadSize].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[GLOB_RadioModeMaxDownloadSize].detail.mdz_switch.switch_labels[0]=(char*)"Off";
+    settings[GLOB_RadioModeMaxDownloadSize].detail.mdz_switch.switch_labels[1]=(char*)"10MB";
+    settings[GLOB_RadioModeMaxDownloadSize].detail.mdz_switch.switch_labels[2]=(char*)"100MB";
+    
     SETTINGS_ID_DEF(GLOB_DefaultLength)
     settings[GLOB_DefaultLength].label=(char*)"Default length";
     settings[GLOB_DefaultLength].description=NULL;
@@ -859,7 +873,7 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_DefaultLength].detail.mdz_slider.slider_max_value=60*60;
     
     SETTINGS_ID_DEF(GLOB_AudioLatency)
-    settings[GLOB_AudioLatency].type=MDZ_SWITCH;
+    settings[GLOB_AudioLatency].type=MDZ_SLIDER_DISCRETE;
     settings[GLOB_AudioLatency].label=(char*)"Audio latency in ms";
     settings[GLOB_AudioLatency].description=(char*)"0=auto, delay rounded to a multiple of audio buffer size";
     settings[GLOB_AudioLatency].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER;
@@ -1203,6 +1217,7 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_DefaultLength].detail.mdz_slider.slider_default_value=SONG_DEFAULT_LENGTH/1000;
     settings[GLOB_Fadeouttime].detail.mdz_slider.slider_default_value=3;
     settings[GLOB_SilenceDetection].detail.mdz_slider.slider_default_value=3;
+    settings[GLOB_RadioModeMaxDownloadSize].detail.mdz_switch.switch_default_value=2;
     
     settings[GLOB_AudioLatency].detail.mdz_slider.slider_default_value=0;
     settings[GLOB_DefaultMODPlayer].detail.mdz_switch.switch_default_value=0;

@@ -11,11 +11,12 @@
 @class DetailViewControllerIphone;
 @class DownloadViewController;
 
+#define MAX_EXTRA 4
 
 @interface RootViewControllerJoshWWebParser : RootViewControllerXPWebParser <UINavigationControllerDelegate,UISearchBarDelegate,UIGestureRecognizerDelegate,CMPopTipViewDelegate> {
 @public
     NSString *mWebBaseDir;
-    NSData  *urlData[27];
+    NSData  *urlData[27+MAX_EXTRA];
     int data_cnt;
     
 }

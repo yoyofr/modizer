@@ -194,9 +194,16 @@ int qsortVGMR_entries_rating_or_entries(const void *entryA, const void *entryB) 
         [radioButton setTitleColor:[UIColor grayColor] forState:UIControlStateNormal];
     }
     
+    [self updRadioButton];
+}
+
+-(void) updRadioButton {
     if ( (browse_depth==0) || (browse_depth==2) ||
          ([mWebBaseURL isEqualToString:@"https://vgmrips.net/packs/top"])||
          ([mWebBaseURL isEqualToString:@"https://vgmrips.net/packs/latest"]) ) {
+        radioButton.hidden=NO;
+        self.radioButtonWidthConstraint.constant=44;
+        [self.view layoutIfNeeded];
     } else {
         radioButton.hidden=YES;
         self.radioButtonWidthConstraint.constant=0;
@@ -210,6 +217,7 @@ int qsortVGMR_entries_rating_or_entries(const void *entryA, const void *entryB) 
     } else {
         [radioButton setTitleColor:[UIColor grayColor] forState:UIControlStateNormal];
     }
+    [self updRadioButton];
 }
 
 

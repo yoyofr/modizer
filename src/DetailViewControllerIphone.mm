@@ -3549,6 +3549,14 @@ int recording=0;
     int playLaunched=0;
     int add_entries_nb=[fileNames count];
     
+    //if not radio mode, stop radio
+    if ([radioSource isActive]) {
+        [self stop];
+        [self clearQueue];
+        [radioSource stop];
+        if (bShowRadio) [self showRadioPopup];
+    }
+    
     if (mPlaylist_size+add_entries_nb>=MAX_PL_ENTRIES) {
         NSString *msg_str=[NSString stringWithFormat:NSLocalizedString(@"Too much entries! Playlist will be limited to %d first entries.",@""),MAX_PL_ENTRIES];
         [self showAlertMsg:NSLocalizedString(@"Warning",@"") message:msg_str];
@@ -3635,6 +3643,17 @@ int recording=0;
     short int playcount=0;
     signed char rating=0;
     signed char avg_rating;
+    
+    
+    //if not radio mode, stop radio
+    if ([radioSource isActive]) {
+        [self stop];
+        [self clearQueue];
+        [radioSource stop];
+        if (bShowRadio) [self showRadioPopup];
+    }
+    
+    
     if (mPlaylist_size>=MAX_PL_ENTRIES) {
         NSString *msg_str=[NSString stringWithFormat:NSLocalizedString(@"Too much entries! Playlist will be limited to %d first entries.",@""),MAX_PL_ENTRIES];
         [self showAlertMsg:NSLocalizedString(@"Warning",@"") message:msg_str];

@@ -73,6 +73,46 @@ int qsortZXArt_entries_rating_or_entries(const void *entryA, const void *entryB)
 }
 
 -(void) pushRadioButton {
+    if ([detailViewController.radioSource isActive]&&(detailViewController.radioSource.mRadioSource==RS_COLLECTION_ZXART)) {
+        [detailViewController stop];
+        [detailViewController clearQueue];
+        [detailViewController.radioSource stop];
+        [radioButton setTitleColor:[UIColor grayColor] forState:UIControlStateNormal];
+    } else {
+        [detailViewController.radioSource stop];
+        [detailViewController clearQueue];
+        detailViewController.radioSource.mRadioSource=RS_COLLECTION_ZXART;
+        
+        t_WEB_browse_entry *cur_db_entries;
+        cur_db_entries=(search_dbWEB?search_dbWEB_entries:dbWEB_entries);
+        int nb_entries=(search_dbWEB?search_dbWEB_nb_entries:dbWEB_nb_entries);
+        
+        switch (browse_depth) {
+            case 0:
+                detailViewController.radioSource.mRadioSource_mode=0;
+                [detailViewController.radioSource.mSourceData addObject:@"Rand"];
+                break;
+            case 1:
+            case 2:
+            case 3:
+                detailViewController.radioSource.mRadioSource_mode=1;
+                [detailViewController.radioSource.mSourceData removeAllObjects];
+                for (int i=0;i<nb_entries;i++) {
+                    if (cur_db_entries[i].isFile) {
+                        [detailViewController.radioSource.mSourceData addObject:[NSString stringWithFormat:@"f:%@|%@",[cur_db_entries[i].URL stringByRemovingPercentEncoding],[cur_db_entries[i].fullpath substringFromIndex:[cur_db_entries[i].fullpath rangeOfString:@"Documents/ZXArt/"].location+[@"Documents/ZXArt/" length]]]];
+                        //MDZILog("got: %@",[detailViewController.radioSource.mSourceData lastObject]);
+                    } else {
+                        MDZILog("got: %@ / %@",cur_db_entries[i].label,cur_db_entries[i].fullpath);
+                    }
+                }
+                break;
+            default:
+                detailViewController.radioSource.mRadioSource_mode=0;
+                break;
+        }
+        [detailViewController.radioSource activate];
+        [radioButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    }
     
 }
 
@@ -112,7 +152,16 @@ int qsortZXArt_entries_rating_or_entries(const void *entryA, const void *entryB)
         [radioButton setTitleColor:[UIColor grayColor] forState:UIControlStateNormal];
     }
     
-    if (browse_depth>0) {
+    [self updRadioButton];
+}
+
+-(void) updRadioButton {
+    if ( [detailViewController.radioSource isActive] || (browse_depth==0)||(browse_depth==3)||
+        (browse_mode==BROWSE_LATEST)||(browse_mode==BROWSE_TOP) ) {
+        radioButton.hidden=NO;
+        self.radioButtonWidthConstraint.constant=44;
+        [self.view layoutIfNeeded];
+    } else {
         radioButton.hidden=YES;
         self.radioButtonWidthConstraint.constant=0;
         [self.view layoutIfNeeded];
@@ -125,20 +174,24 @@ int qsortZXArt_entries_rating_or_entries(const void *entryA, const void *entryB)
     } else {
         [radioButton setTitleColor:[UIColor grayColor] forState:UIControlStateNormal];
     }
+    [self updRadioButton];
 }
 
 -(void) fillKeysCompleted {
     [super fillKeysCompleted];
+    fillKeysInProgress=0;
     
     [self hideWaiting];
 }
 
 -(void) fillKeys {
+    if (fillKeysInProgress) return;
+    
     if (shouldFillKeys) {
+        fillKeysInProgress=1;
         shouldFillKeys=0;
         if (browse_depth==0) [self fillKeysWithRepoCateg];
         else [self fillKeysWithWEBSource];
-        
     } else { //reset downloaded, rating & playcount flags
         for (int i=0;i<dbWEB_nb_entries;i++) {
             dbWEB_entries_data[i].downloaded=-1;
@@ -146,7 +199,8 @@ int qsortZXArt_entries_rating_or_entries(const void *entryA, const void *entryB)
             dbWEB_entries_data[i].playcount=-1;
         }
         if (mSearch) {
-            if (browse_depth==0) [self fillKeysWithRepoCateg];            
+            fillKeysInProgress=1;
+            if (browse_depth==0) [self fillKeysWithRepoCateg];
             else [self fillKeysWithWEBSource];
         }
     }
@@ -217,7 +271,7 @@ int qsortZXArt_entries_rating_or_entries(const void *entryA, const void *entryB)
     t_categ_entry webs_entry[]= {
         {NSLocalizedString(@"Top entries",@""),@"https://zxart.ee/api/export:zxMusic/limit:300/order:votes,desc"},
         {NSLocalizedString(@"Latest entries",@""),@"http://zxart.ee/api/export:zxMusic/limit:300/order:date,desc"},
-        {NSLocalizedString(@"All",@""),@""},  //http://zxart.ee/api/export:zxMusic/limit:100/"
+        {NSLocalizedString(@"Authors",@""),@""},  //http://zxart.ee/api/export:zxMusic/limit:100/"
     };
     
     for (int i=0;i<sizeof(webs_entry)/sizeof(t_categ_entry);i++) [tmpArray addObject:[NSValue valueWithPointer:&webs_entry[i]]];
@@ -293,6 +347,7 @@ int qsortZXArt_entries_rating_or_entries(const void *entryA, const void *entryB)
                     search_dbWEB_nb_entries++;
                 }
             }
+        fillKeysInProgress=0;
         return;
     }
     if (dbWEB_nb_entries) {
@@ -337,8 +392,8 @@ int qsortZXArt_entries_rating_or_entries(const void *entryA, const void *entryB)
             //here we have the data
             if (i==0) we[we_index].file_name=@"#";
             else we[we_index].file_name=[NSString stringWithFormat:@"%c",i+'A'-1];
-            if (i==0) we[we_index].file_URL=@"https://zxart.ee/eng/authors/letter20332/";
-            else we[we_index].file_URL=[NSString stringWithFormat:@"https://zxart.ee/eng/authors/%c/",i+'a'-1];
+            if (i==0) we[we_index].file_URL=@"https://zxart.ee/eng/music/authors/filter/letter:letter20332/";
+            else we[we_index].file_URL=[NSString stringWithFormat:@"https://zxart.ee/eng/music/authors/filter/letter:%c/",i+'a'-1];
             we[we_index].file_author=nil;
             we[we_index].file_format=nil;
             we[we_index].file_rating=0;
@@ -392,7 +447,10 @@ int qsortZXArt_entries_rating_or_entries(const void *entryA, const void *entryB)
                 NSArray *arr_realauthor2=[doc searchWithXPathQuery:@"//table[contains(@class, 'author_details_info')]//tr/td[2]/a"];
                 NSString *newtitle=[NSString stringWithString:[[arr_realauthor2 objectAtIndex:0] text]];
                 dispatch_async(dispatch_get_main_queue(), ^(void){
-                    navbarTitle.text=[NSString stringWithString:newtitle];
+                    if ([newtitle caseInsensitiveCompare:@"Unknown"]!=NSOrderedSame) {
+                        navbarTitle.text=[NSString stringWithString:newtitle];
+                        [navbarTitle sizeToFit];
+                    }
                 });
                 
                 mWebBaseURL=[[arr_realauthor2 objectAtIndex:0] objectForKey:@"href"];
@@ -593,7 +651,9 @@ int qsortZXArt_entries_rating_or_entries(const void *entryA, const void *entryB)
         we[i].file_details=nil;
     }
     
-    mdz_safe_free(we);    
+    mdz_safe_free(we);
+    
+    fillKeysInProgress=0;
 }
 
 

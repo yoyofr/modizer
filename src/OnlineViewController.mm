@@ -42,7 +42,7 @@ NSString *weblinks_VGM[WEBLINKS_VGM_NB][2]={
 NSString *weblinks_MODS[WEBLINKS_MODS_NB][2]={
     //MODS & Chiptunes
     {@"https://modarchive.org/",@"The Mod Archive"},
-    {@"http://amp.dascene.net/",@"Amiga Music Preservation"},
+    {@"https://opl.wafflenet.com/",@"The OPL Archive"},
     {@"http://2a03.free.fr/",@"2A03 - Chiptunes"},
     {@"http://sc68.atari.org/musics.html",@"Atari ST - SC68"},
     {@"http://sndh.atari.org",@"Atari ST SNDH Archive"},

@@ -1438,12 +1438,16 @@ END_PROFILE
     return UIStatusBarStyleDefault;
 }
 
+-(void) updRadioButton {
+}
+
 -(void) updRadioStatus {
     if ([detailViewController.radioSource isActive]&&(detailViewController.radioSource.mRadioSource==RS_COLLECTION_MODLAND)) {
         [radioButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
     } else {
         [radioButton setTitleColor:[UIColor grayColor] forState:UIControlStateNormal];
     }
+    [self updRadioButton];
 }
 
 
@@ -1545,8 +1549,8 @@ END_PROFILE
         [self.tableView reloadData];
     }];
     
-    [super viewWillAppear:animated];	
-    
+    [self updRadioButton];
+    [super viewWillAppear:animated];
 }
 
 -(void) refreshViewAfterDownload {
