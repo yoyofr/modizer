@@ -1335,6 +1335,18 @@ void optNSFPLAYChangedC(id param) {
     /////////////////////////////////////
     //GLOBAL ONLINE
     /////////////////////////////////////
+    SETTINGS_ID_DEF(ONLINE_JOSHW_IMG_GRABBER)
+    settings[ONLINE_JOSHW_IMG_GRABBER].type=MDZ_SWITCH;
+    settings[ONLINE_JOSHW_IMG_GRABBER].label=(char*)"JoshW Covers";
+    settings[ONLINE_JOSHW_IMG_GRABBER].description=(char*)"Try to download covers from TGDB or MobyGames.";
+    settings[ONLINE_JOSHW_IMG_GRABBER].family=MDZ_SETTINGS_FAMILY_GLOBAL_ONLINE;
+    settings[ONLINE_JOSHW_IMG_GRABBER].callback=&optONLINESwitchChanged;
+    settings[ONLINE_JOSHW_IMG_GRABBER].sub_family=0;
+    settings[ONLINE_JOSHW_IMG_GRABBER].detail.mdz_switch.switch_value_nb=2;
+    settings[ONLINE_JOSHW_IMG_GRABBER].detail.mdz_switch.switch_labels=(char**)calloc(1,settings[ONLINE_JOSHW_IMG_GRABBER].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[ONLINE_JOSHW_IMG_GRABBER].detail.mdz_switch.switch_labels[0]=(char*)"Off";
+    settings[ONLINE_JOSHW_IMG_GRABBER].detail.mdz_switch.switch_labels[1]=(char*)"On";
+    
     SETTINGS_ID_DEF(ONLINE_MODLAND_CURRENT_URL)
     settings[ONLINE_MODLAND_CURRENT_URL].label=(char*)"MODLAND URL";
     settings[ONLINE_MODLAND_CURRENT_URL].description=NULL;
@@ -1460,6 +1472,8 @@ void optNSFPLAYChangedC(id param) {
     settings[ONLINE_ASMA_URL_CUSTOM].sub_family=0;
     settings[ONLINE_ASMA_URL_CUSTOM].detail.mdz_textbox.text=NULL;
     
+    
+    settings[ONLINE_JOSHW_IMG_GRABBER].detail.mdz_switch.switch_default_value=1;
     settings[ONLINE_MODLAND_URL].detail.mdz_switch.switch_default_value=0;
     settings[ONLINE_HVSC_URL].detail.mdz_switch.switch_default_value=0;
     settings[ONLINE_CGSC_URL].detail.mdz_switch.switch_default_value=0;
@@ -4594,13 +4608,9 @@ void optNSFPLAYChangedC(id param) {
         
         [cell setBackgroundColor:[UIColor clearColor]];
         
-        NSString *imgName=(darkMode?@"tabview_gradient50Black.png":@"tabview_gradient50.png");
-        UIImage *image = [UIImage imageNamed:imgName];
-        UIImageView *imageView = [[UIImageView alloc] initWithImage:image];
-        imageView.contentMode = UIViewContentModeScaleToFill;
-        cell.backgroundView = imageView;
-        //[imageView release];
-        
+        UIBackgroundConfiguration *backgroundConfig = [UIBackgroundConfiguration listGroupedCellConfiguration];
+        backgroundConfig.backgroundColor = [UIColor systemGroupedBackgroundColor];
+        cell.backgroundConfiguration = backgroundConfig;
         //
         // Create the label for the top row of text
         //

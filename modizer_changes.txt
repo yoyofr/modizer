@@ -29,6 +29,7 @@ missing seek support:
 
 4.2
 ---
+- Online / JoshW collection: new option to grab a cover automatically from TGDB. Use long press to force a new cover download.
 - Adplug 2.4
 - UADE players routine
 - new feature: Radio mode / online collections.

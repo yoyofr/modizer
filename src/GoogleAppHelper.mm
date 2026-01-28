@@ -207,7 +207,7 @@ typedef struct  {
     NSString *urlString=[NSString stringWithFormat:@"%@/Stats?Name=%@&Path=%@&Rating=%d&Played=%d&UID=%@&Type=%d&VersionMajor=%s&VersionMinor=%s",
                          STATISTICS_URL,
                          [[fileName stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding] stringByReplacingOccurrencesOfString:@"&" withString:@"$$"],
-                         [[[strPath stringByAddingPercentEscapesUsingEncoding:NSISOLatin1StringEncoding] stringByReplacingOccurrencesOfString:@"%" withString:@"//"] stringByReplacingOccurrencesOfString:@"&" withString:@"$$"],
+                         [[[strPath stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]] stringByReplacingOccurrencesOfString:@"%" withString:@"//"] stringByReplacingOccurrencesOfString:@"&" withString:@"$$"],
                          rating,playcount,identifier,
                          collectionType,
                          VERSION_MAJOR_STR,

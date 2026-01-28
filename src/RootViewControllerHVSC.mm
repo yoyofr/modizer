@@ -367,23 +367,27 @@ END_PROFILE
 }
 
 -(void) fillKeys {
-	
-	
-		if (shouldFillKeys) {
-			shouldFillKeys=0;
-			if (browse_depth==1) [self fillKeysWithHVSCDB_Dir1];
-			else if (browse_depth==2) [self fillKeysWithHVSCDB_Dir2:mDir1];
-			else if (browse_depth==3) [self fillKeysWithHVSCDB_Dir3:mDir1 dir2:mDir2];
-			else if (browse_depth==4) [self fillKeysWithHVSCDB_Dir4:mDir1 dir2:mDir2 dir3:mDir3];
-			else if (browse_depth==5) [self fillKeysWithHVSCDB_Dir5:mDir1 dir2:mDir2 dir3:mDir3 dir4:mDir4];
-			else if (browse_depth==6) [self fillKeysWithHVSCDB_AllDirs:mDir1 dir2:mDir2 dir3:mDir3 dir4:mDir4 dir5:mDir5];
-		} else { //reset downloaded, rating & playcount flags
-			for (int i=0;i<dbHVSC_nb_entries;i++) {
-				dbHVSC_entries_data[i].downloaded=-1;
-				dbHVSC_entries_data[i].rating=-1;
-				dbHVSC_entries_data[i].playcount=-1;
-			}
-		}	
+    
+    if ((mSearchText==nil)||([mSearchText length]==0)) mSearch=0;
+    else mSearch=1;
+    shouldFillKeys=1;
+    search_dbHVSC=0;
+    
+    if (shouldFillKeys) {
+        shouldFillKeys=0;
+        if (browse_depth==1) [self fillKeysWithHVSCDB_Dir1];
+        else if (browse_depth==2) [self fillKeysWithHVSCDB_Dir2:mDir1];
+        else if (browse_depth==3) [self fillKeysWithHVSCDB_Dir3:mDir1 dir2:mDir2];
+        else if (browse_depth==4) [self fillKeysWithHVSCDB_Dir4:mDir1 dir2:mDir2 dir3:mDir3];
+        else if (browse_depth==5) [self fillKeysWithHVSCDB_Dir5:mDir1 dir2:mDir2 dir3:mDir3 dir4:mDir4];
+        else if (browse_depth==6) [self fillKeysWithHVSCDB_AllDirs:mDir1 dir2:mDir2 dir3:mDir3 dir4:mDir4 dir5:mDir5];
+    } else { //reset downloaded, rating & playcount flags
+        for (int i=0;i<dbHVSC_nb_entries;i++) {
+            dbHVSC_entries_data[i].downloaded=-1;
+            dbHVSC_entries_data[i].rating=-1;
+            dbHVSC_entries_data[i].playcount=-1;
+        }
+    }	
 }
 
 -(void) fillKeysWithHVSCDB_Dir1 {
@@ -1414,14 +1418,9 @@ END_PROFILE
         cell.frame=CGRectMake(0,0,tabView.frame.size.width,40);
         [cell setBackgroundColor:[UIColor clearColor]];
         
-        NSString *imgFile=(darkMode?@"tabview_gradient40Black.png":@"tabview_gradient40.png");
-        UIImage *image = [UIImage imageNamed:imgFile];
-        
-        UIImageView *imageView = [[UIImageView alloc] initWithImage:image];
-        imageView.contentMode = UIViewContentModeScaleToFill;
-        cell.backgroundView = imageView;
-        //[imageView release];
-        
+        UIBackgroundConfiguration *backgroundConfig = [UIBackgroundConfiguration listGroupedCellConfiguration];
+        backgroundConfig.backgroundColor = [UIColor systemGroupedBackgroundColor];
+        cell.backgroundConfiguration = backgroundConfig;
         //
         // Create the label for the top row of text
         //
@@ -1691,8 +1690,6 @@ trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
     // only show the status bar’s cancel button while in edit mode
     sBar.showsCancelButton = YES;
     sBar.autocorrectionType = UITextAutocorrectionTypeNo;
-    if ((mSearchText==nil)||([mSearchText length]==0)) mSearch=0;
-    else mSearch=1;
     // flush the previous search content
     //[tableData removeAllObjects];
 }
@@ -1706,10 +1703,7 @@ trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
     //if (mSearchText) [mSearchText release];
     
     mSearchText=[[NSString alloc] initWithString:searchText];
-    if ((mSearchText==nil)||([mSearchText length]==0)) mSearch=0;
-    else mSearch=1;
-    shouldFillKeys=1;
-    search_dbHVSC=0;
+    
     [self fillKeys];
     [tableView reloadData];
 }
@@ -1717,11 +1711,8 @@ trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
     //if (mSearchText) [mSearchText release];
     mSearchText=nil;
     sBar.text=nil;
-    mSearch=0;
     sBar.showsCancelButton = NO;
     [searchBar resignFirstResponder];
-    shouldFillKeys=1;
-    search_dbHVSC=0;
     [self fillKeys];
     
     [tableView reloadData];

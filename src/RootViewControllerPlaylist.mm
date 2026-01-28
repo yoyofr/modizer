@@ -744,6 +744,11 @@ END_PROFILE
 
 
 -(void) fillKeys {
+    if ((mSearchText==nil)||([mSearchText length]==0)) mSearch=0;
+    else mSearch=1;
+    shouldFillKeys=1;
+    search_local=0;
+    
     if (browse_depth==0) {
         keys = [[NSMutableArray alloc] init];
         list = [[NSMutableArray alloc] init];
@@ -3024,14 +3029,9 @@ trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
         
         [cell setBackgroundColor:[UIColor clearColor]];
         
-        NSString *imgFile=(darkMode?@"tabview_gradient40Black.png":@"tabview_gradient40.png");
-        UIImage *image = [UIImage imageNamed:imgFile];
-        
-        MDZUIImageView *imageView = [[MDZUIImageView alloc] initWithImage:image];
-        imageView.contentMode = UIViewContentModeScaleToFill;
-        cell.backgroundView = imageView;
-        //[imageView release];
-        
+        UIBackgroundConfiguration *backgroundConfig = [UIBackgroundConfiguration listGroupedCellConfiguration];
+        backgroundConfig.backgroundColor = [UIColor systemGroupedBackgroundColor];
+        cell.backgroundConfiguration = backgroundConfig;
         //
         // Create the label for the top row of text
         //
@@ -3570,10 +3570,7 @@ trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
     //if (mSearchText) [mSearchText release];
     
     mSearchText=[[NSString alloc] initWithString:searchText];
-    if ((mSearchText==nil)||([mSearchText length]==0)) mSearch=0;
-    else mSearch=1;
-    shouldFillKeys=1;
-    search_local=0;
+    
     [self fillKeys];
     [tableView reloadData];
 }

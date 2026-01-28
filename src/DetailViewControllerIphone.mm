@@ -4003,7 +4003,9 @@ int recording=0;
     NSString *pathFolderImgPNG,*pathCoverImgPNG,*pathFileImgPNG,
     *pathFolderImgJPG,*pathCoverImgJPG,*pathFolderImgJPEG,
     *pathCoverImgJPEG,*pathFileImgJPG,*pathFileImgJPEG,
-    *pathFolderImgGIF,*pathCoverImgGIF,*pathFileImgGIF,*pathFileImgPIC,*pathFileImgPGG,*pathFileImgPJJ;
+    *pathFolderImgGIF,*pathCoverImgGIF,*pathFileImgGIF,
+    *pathFolderImgWEBP,*pathCoverImgWEBP,*pathFileImgWEBP,
+    *pathFileImgPIC,*pathFileImgPGG,*pathFileImgPJJ;
     
     bool partialPath=false;
     if ([[filePath substringToIndex:[@"Documents/" length]] isEqualToString:@"Documents/"]) {
@@ -4015,14 +4017,17 @@ int recording=0;
         pathFolderImgJPG=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@/folder.jpg",[filePath stringByDeletingLastPathComponent]];
         pathFolderImgJPEG=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@/folder.jpeg",[filePath stringByDeletingLastPathComponent]];
         pathFolderImgGIF=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@/folder.gif",[filePath stringByDeletingLastPathComponent]];
+        pathFolderImgWEBP=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@/folder.webp",[filePath stringByDeletingLastPathComponent]];
         pathCoverImgPNG=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@/cover.png",[filePath stringByDeletingLastPathComponent]];
         pathCoverImgJPG=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@/cover.jpg",[filePath stringByDeletingLastPathComponent]];
         pathCoverImgJPEG=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@/cover.jpeg",[filePath stringByDeletingLastPathComponent]];
         pathCoverImgGIF=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@/cover.gif",[filePath stringByDeletingLastPathComponent]];
+        pathCoverImgWEBP=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@/cover.webp",[filePath stringByDeletingLastPathComponent]];
         pathFileImgPNG=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@.png",[filePath stringByDeletingPathExtension]];
         pathFileImgJPG=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@.jpg",[filePath stringByDeletingPathExtension]];
         pathFileImgJPEG=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@.jpeg",[filePath stringByDeletingPathExtension]];
         pathFileImgGIF=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@.gif",[filePath stringByDeletingPathExtension]];
+        pathFileImgWEBP=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@.webp",[filePath stringByDeletingPathExtension]];
         pathFileImgPIC=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@.pic",[filePath stringByDeletingPathExtension]];
         pathFileImgPGG=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@.pgg",[filePath stringByDeletingPathExtension]];
         pathFileImgPJJ=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@.pjj",[filePath stringByDeletingPathExtension]];
@@ -4031,14 +4036,17 @@ int recording=0;
         pathFolderImgJPG=[NSString stringWithFormat:@"%@/folder.jpg",[filePath stringByDeletingLastPathComponent]];
         pathFolderImgJPEG=[NSString stringWithFormat:@"%@/folder.jpeg",[filePath stringByDeletingLastPathComponent]];
         pathFolderImgGIF=[NSString stringWithFormat:@"%@/folder.gif",[filePath stringByDeletingLastPathComponent]];
+        pathFolderImgWEBP=[NSString stringWithFormat:@"%@/folder.webp",[filePath stringByDeletingLastPathComponent]];
         pathCoverImgPNG=[NSString stringWithFormat:@"%@/cover.png",[filePath stringByDeletingLastPathComponent]];
         pathCoverImgJPG=[NSString stringWithFormat:@"%@/cover.jpg",[filePath stringByDeletingLastPathComponent]];
         pathCoverImgJPEG=[NSString stringWithFormat:@"%@/cover.jpeg",[filePath stringByDeletingLastPathComponent]];
         pathCoverImgGIF=[NSString stringWithFormat:@"%@/cover.gif",[filePath stringByDeletingLastPathComponent]];
+        pathCoverImgWEBP=[NSString stringWithFormat:@"%@/cover.webp",[filePath stringByDeletingLastPathComponent]];
         pathFileImgPNG=[NSString stringWithFormat:@"%@.png",[filePath stringByDeletingPathExtension]];
         pathFileImgJPG=[NSString stringWithFormat:@"%@.jpg",[filePath stringByDeletingPathExtension]];
         pathFileImgJPEG=[NSString stringWithFormat:@"%@.jpeg",[filePath stringByDeletingPathExtension]];
         pathFileImgGIF=[NSString stringWithFormat:@"%@.gif",[filePath stringByDeletingPathExtension]];
+        pathFileImgWEBP=[NSString stringWithFormat:@"%@.webp",[filePath stringByDeletingPathExtension]];
         pathFileImgPIC=[NSString stringWithFormat:@"%@.pic",[filePath stringByDeletingPathExtension]];
         pathFileImgPGG=[NSString stringWithFormat:@"%@.pgg",[filePath stringByDeletingPathExtension]];
         pathFileImgPJJ=[NSString stringWithFormat:@"%@.pjj",[filePath stringByDeletingPathExtension]];
@@ -4057,6 +4065,7 @@ int recording=0;
     if ((cover_img==nil)&&[[NSFileManager defaultManager] fileExistsAtPath:pathFileImgJPG]) cover_img=[UIImage imageWithContentsOfFile:pathFileImgJPG];
     if ((cover_img==nil)&&[[NSFileManager defaultManager] fileExistsAtPath:pathFileImgJPEG]) cover_img=[UIImage imageWithContentsOfFile:pathFileImgJPEG];
     if ((cover_img==nil)&&[[NSFileManager defaultManager] fileExistsAtPath:pathFileImgPNG]) cover_img=[UIImage imageWithContentsOfFile:pathFileImgPNG];
+    if ((cover_img==nil)&&[[NSFileManager defaultManager] fileExistsAtPath:pathFileImgWEBP]) cover_img=[UIImage imageWithContentsOfFile:pathFileImgWEBP];
     if ((cover_img==nil)&&[[NSFileManager defaultManager] fileExistsAtPath:pathFileImgGIF]) {
         cover_img=[UIImage imageWithContentsOfFile:pathFileImgGIF];
         if (cover_img) {
@@ -4095,6 +4104,8 @@ int recording=0;
     if ((cover_img==nil)&&[[NSFileManager defaultManager] fileExistsAtPath:pathCoverImgJPEG]) cover_img=[UIImage imageWithContentsOfFile:pathCoverImgJPEG];
     if ((cover_img==nil)&&[[NSFileManager defaultManager] fileExistsAtPath:pathFolderImgPNG]) cover_img=[UIImage imageWithContentsOfFile:pathFolderImgPNG];
     if ((cover_img==nil)&&[[NSFileManager defaultManager] fileExistsAtPath:pathCoverImgPNG]) cover_img=[UIImage imageWithContentsOfFile:pathCoverImgPNG];
+    if ((cover_img==nil)&&[[NSFileManager defaultManager] fileExistsAtPath:pathFolderImgWEBP]) cover_img=[UIImage imageWithContentsOfFile:pathFolderImgWEBP];
+    if ((cover_img==nil)&&[[NSFileManager defaultManager] fileExistsAtPath:pathCoverImgWEBP]) cover_img=[UIImage imageWithContentsOfFile:pathCoverImgWEBP];
     if ((cover_img==nil)&&[[NSFileManager defaultManager] fileExistsAtPath:pathFolderImgGIF]) {
         cover_img=[UIImage imageWithContentsOfFile:pathFolderImgGIF];
         if (cover_img) {
@@ -5595,6 +5606,10 @@ bool coverAvailable;
                 //JPEG detected
                 found_img=true;
             }
+            if ([[strFilename pathExtension] caseInsensitiveCompare:@"WEBP"]==NSOrderedSame) {
+                //WEBP detected
+                found_img=true;
+            }
             if ([[strFilename pathExtension] caseInsensitiveCompare:@"GIF"]==NSOrderedSame) {
                 //GIF detected
                 found_img=true;
@@ -5647,9 +5662,14 @@ bool coverAvailable;
                 ret=3;
                 break;
             }
+            if ([[strFilename pathExtension] caseInsensitiveCompare:@"WEBP"]==NSOrderedSame) {
+                //WEBP detected
+                ret=4;
+                break;
+            }
             if ([[strFilename pathExtension] caseInsensitiveCompare:@"GIF"]==NSOrderedSame) {
                 //GIF detected
-                ret=4;
+                ret=5;
                 break;
             }
         }
@@ -7418,12 +7438,12 @@ void pm_perfTest() {
 
 - (void)viewDidAppear:(BOOL)animated {
     mHasFocus=1;
-    
+
     nowplayingPL=nil;
-    
+
     //Force an update of song info to display in gl view
     [self refreshFXFSLabels];
-    
+
     //
     [super viewDidAppear:animated];
 }
@@ -10689,12 +10709,9 @@ void drawTgtSlotPattern(int fxIdx,float x,float y,float w,float h,float ww,float
         
         [cell setBackgroundColor:[UIColor clearColor]];
         
-        NSString *imgFile=(darkMode?@"tabview_gradient50Black.png":@"tabview_gradient50.png");
-        UIImage *image = [UIImage imageNamed:imgFile];
-        UIImageView *imageView = [[UIImageView alloc] initWithImage:image];
-        imageView.contentMode = UIViewContentModeScaleToFill;
-        cell.backgroundView = imageView;
-        //[imageView release];
+        UIBackgroundConfiguration *backgroundConfig = [UIBackgroundConfiguration listGroupedCellConfiguration];
+        backgroundConfig.backgroundColor = [UIColor systemGroupedBackgroundColor];
+        cell.backgroundConfiguration = backgroundConfig;
         
         //
         // Create the label for the top row of text
@@ -10732,7 +10749,6 @@ void drawTgtSlotPattern(int fxIdx,float x,float y,float w,float h,float ww,float
                                0,
                                tabView.bounds.size.width-8,
                                SELECTOR_TABVIEWCELL_HEIGHT);
-    
     
     switch (current_selmode) {
         case ARCSUB_MODE_ARC:

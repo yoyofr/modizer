@@ -445,8 +445,6 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     self.tableView.sectionHeaderHeight = 18;
     self.tableView.rowHeight = 40;
     
-    
-    
     popTipViewRow=-1;
     popTipViewSection=-1;
     UILongPressGestureRecognizer *lpgr = [[UILongPressGestureRecognizer alloc]
@@ -540,6 +538,10 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
 }
 
 -(void) fillKeys {
+    if ((mSearchText==nil)||([mSearchText length]==0)) mSearch=0;
+    else mSearch=1;
+    shouldFillKeys=1;
+    
     if (shouldFillKeys) {
         shouldFillKeys=0;
         [self listLocalFiles];
@@ -1656,7 +1658,7 @@ static int qsort_CompareArcEntries(const void *entryA, const void *entryB) {
     if (oldmode!=darkMode) {
         forceReloadCells=true;
         
-        [self addRefreshView];
+        //[self addRefreshView];
     }
     if (darkMode) self.tableView.backgroundColor=[UIColor blackColor];
     else self.tableView.backgroundColor=[UIColor whiteColor];
@@ -1670,11 +1672,10 @@ static int shouldRestart=1;
     return UIStatusBarStyleDefault;
 }
 
-
 -(void) viewWillAppear:(BOOL)animated {
     //static int firstcall=0;
     [super viewWillAppear:animated];
-    
+
     shouldFillKeys=1;
     
     bool oldmode=darkMode;
@@ -1682,13 +1683,9 @@ static int shouldRestart=1;
     if (self.traitCollection.userInterfaceStyle==UIUserInterfaceStyleDark) darkMode=true;
     if (oldmode!=darkMode) forceReloadCells=true;
     
-//    if (darkMode) self.tableView.backgroundColor=[UIColor blackColor];
-//    else self.tableView.backgroundColor=[UIColor whiteColor];
-    
     [self.sBar setBarStyle:UIBarStyleDefault];
     
     self.navigationController.delegate = self;
-//    [[[self navigationController] navigationBar] setBarStyle:UIBarStyleDefault];
     [[self navigationController] setNavigationBarHidden:NO animated:YES];
     [self.navigationController setNeedsStatusBarAppearanceUpdate];
     
@@ -1739,7 +1736,7 @@ static int shouldRestart=1;
     }
     
     //creating view for extending background color
-    [self addRefreshView];
+    //[self addRefreshView];
     
     
 }
@@ -1759,7 +1756,7 @@ static int shouldRestart=1;
     
     if (childController) [(RootViewControllerLocalBrowser*) childController refreshViewAfterDownload];
     else {
-        if (self.tableView.refreshControl.refreshing==false) [self.tableView.refreshControl beginRefreshing];
+        //if (self.tableView.refreshControl.refreshing==false) [self.tableView.refreshControl beginRefreshing];
         
         self.sBar.enabled=false;//disable search bar
         
@@ -1794,7 +1791,7 @@ static int shouldRestart=1;
             
             dispatch_async(dispatch_get_main_queue(), ^(void){
                 //Run UI Updates
-                [self.tableView.refreshControl endRefreshing];
+                //[self.tableView.refreshControl endRefreshing];
                 [self hideWaiting];
                 [self.tableView reloadData];
                 
@@ -2045,20 +2042,9 @@ As a consequence, some entries might disappear from existing playlist.\n\
         cell.frame=CGRectMake(0,0,tabView.frame.size.width,40);
         [cell setBackgroundColor:[UIColor clearColor]];
         
-        NSString *imgFile=(darkMode?@"tabview_gradient40Black.png":@"tabview_gradient40.png");
-        UIImage *image = [UIImage imageNamed:imgFile];
-        
-        /*NSURL* imageURL = [[NSBundle mainBundle] URLForResource:@"tabview_gradient40" withExtension:@"png"];
-         
-         CIImage *img=[CIImage imageWithContentsOfURL:imageURL];
-         CIFilter *filterImg=[CIFilter filterWithName:@"CIColorInvert"];
-         [filterImg setValue:img forKey:kCIInputImageKey];
-         UIImage *image = [UIImage imageWithCIImage:[filterImg outputImage]];*/
-        
-        UIImageView *imageView = [[UIImageView alloc] initWithImage:image];
-        imageView.contentMode = UIViewContentModeScaleToFill;
-        cell.backgroundView = imageView;
-        //[imageView release];
+        UIBackgroundConfiguration *backgroundConfig = [UIBackgroundConfiguration listGroupedCellConfiguration];
+        backgroundConfig.backgroundColor = [UIColor systemGroupedBackgroundColor];
+        cell.backgroundConfiguration = backgroundConfig;
         
         //
         // Create the label for the top row of text
@@ -2714,6 +2700,8 @@ leadingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
                 //[self.tableView reloadData];
             } else {
                 [self showAlertMsg:NSLocalizedString(@"Warning",@"") message:NSLocalizedString(@"No file to extract or not supported archive format.\n",@"")];
+                self.waitingViewExtract.hidden=TRUE;
+                [self.waitingViewExtract hideProgress];
             }
             //[self hideWaiting];
             completionHandler(YES);
@@ -2766,9 +2754,7 @@ leadingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
     mSearchText=[[NSString alloc] initWithString:searchText];
     //dont auto validate if too many entries
     if (local_nb_entries<MAX_AUTOSEARCH_ENTRIES_NB) {
-        if ((mSearchText==nil)||([mSearchText length]==0)) mSearch=0;
-        else mSearch=1;
-        shouldFillKeys=1;
+        
         [self fillKeys];
         [tableView reloadData];
     }
@@ -3373,7 +3359,7 @@ leadingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
                     }
                 }
             }
-        } else {
+        } else if ((gestureRecognizer.state==UIGestureRecognizerStateEnded)||(gestureRecognizer.state==UIGestureRecognizerStateCancelled)) {
             //hide popup
             if (popTipView!=nil) {
                 [self.popTipView dismissAnimated:YES];
@@ -3381,6 +3367,12 @@ leadingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
             }
         }
     }
+}
+
+#pragma mark UIGestureRecognizerDelegate
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer {
+    // Allow swipe actions to work simultaneously with long press
+    return YES;
 }
 
 #pragma mark CMPopTipViewDelegate methods
@@ -3420,33 +3412,6 @@ leadingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
         refreshBackgroundView.backgroundColor=[UIColor whiteColor];
         self.tableView.refreshControl.tintColor = [UIColor blackColor];
     }
-    
-    /*float red_col[3]={235/255.0f,235/255.0f,110/255.0f};
-     float green_col[3]={80/255.0f,80/255.0f,40/255.0f};
-     float blue_col[3]={193/255.0f,193/255.0f,110/255.0f};
-     
-     CAGradientLayer *gradient = [CAGradientLayer layer];
-     gradient.frame = CGRectMake(0.0, 0.0, tableView.bounds.size.width, 6.0);
-     gradient.colors=@[(id)[UIColor colorWithRed:red_col[0] green:green_col[0] blue:blue_col[0] alpha:1].CGColor,
-     (id)[UIColor colorWithRed:red_col[1] green:green_col[1] blue:blue_col[1] alpha:1].CGColor,                                                   ];
-     
-     [refreshBackgroundView.layer insertSublayer:gradient atIndex:0];
-     
-     gradient = [CAGradientLayer layer];
-     gradient.frame = CGRectMake(0.0, 6.0, tableView.bounds.size.width, 88.0);
-     gradient.colors=@[(id)[UIColor colorWithRed:red_col[1] green:green_col[1] blue:blue_col[1] alpha:1].CGColor,                                                   (id)[UIColor colorWithRed:red_col[2] green:green_col[2] blue:blue_col[2] alpha:1].CGColor];
-     
-     [refreshBackgroundView.layer insertSublayer:gradient atIndex:0];
-     
-     gradient = [CAGradientLayer layer];
-     gradient.frame = CGRectMake(0.0, 94.0, tableView.bounds.size.width, 6.0);
-     float base_col;
-     if (darkMode) base_col=0;
-     else base_col=1;
-     gradient.colors=@[(id)[UIColor colorWithRed:red_col[2] green:green_col[2] blue:blue_col[2] alpha:1].CGColor,
-     (id)[UIColor colorWithRed:base_col green:base_col blue:base_col alpha:1].CGColor];
-     
-     [refreshBackgroundView.layer insertSublayer:gradient atIndex:0];*/
     
     
     [self.tableView insertSubview:refreshBackgroundView atIndex:0];
@@ -3496,7 +3461,7 @@ leadingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
         //[mFileMngr release];
         mFileMngr=nil;
     }
-    
+
     //[super dealloc];
 }
 

@@ -543,6 +543,20 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
 -(void) fillKeys {
     if (fillKeysInProgress) return;
     
+    if ((mSearchText==nil)||([mSearchText length]==0)) mSearch=0;
+    else mSearch=1;
+    if (mSearch) shouldFillKeys=1;
+    search_dbWEB=0;
+
+    if (mSearch) {
+        if ((browse_subMode==AMP_LINK_SEARCH_COMPOSERS_LIST)||
+            (browse_subMode==AMP_LINK_SEARCH_GROUPS_LIST)||
+            (browse_subMode==AMP_LINK_SEARCH_MODULES_LIST)) {
+            entries_noMoreToLoad=false;
+            shouldReload=true;
+        }
+    }
+    
     if (shouldFillKeys) {
         fillKeysInProgress=1;
         shouldFillKeys=0;
@@ -2016,14 +2030,9 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
         cell.frame=CGRectMake(0,0,tabView.frame.size.width,40);
         [cell setBackgroundColor:[UIColor clearColor]];
         
-        NSString *imgFile=(darkMode?@"tabview_gradient40Black.png":@"tabview_gradient40.png");
-        UIImage *image = [UIImage imageNamed:imgFile];
-        
-        UIImageView *imageView = [[UIImageView alloc] initWithImage:image];
-        imageView.contentMode = UIViewContentModeScaleToFill;
-        cell.backgroundView = imageView;
-        //[imageView release];
-        
+        UIBackgroundConfiguration *backgroundConfig = [UIBackgroundConfiguration listGroupedCellConfiguration];
+        backgroundConfig.backgroundColor = [UIColor systemGroupedBackgroundColor];
+        cell.backgroundConfiguration = backgroundConfig;
         //
         // Create the label for the top row of text
         //
@@ -2408,19 +2417,7 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
     //if (mSearchText) [mSearchText release];
 
     mSearchText=[[NSString alloc] initWithString:searchText];
-    if ((mSearchText==nil)||([mSearchText length]==0)) mSearch=0;
-    else mSearch=1;
-    if (mSearch) shouldFillKeys=1;
-    search_dbWEB=0;
-
-    if (mSearch) {
-        if ((browse_subMode==AMP_LINK_SEARCH_COMPOSERS_LIST)||
-            (browse_subMode==AMP_LINK_SEARCH_GROUPS_LIST)||
-            (browse_subMode==AMP_LINK_SEARCH_MODULES_LIST)) {
-            entries_noMoreToLoad=false;
-            shouldReload=true;
-        }
-    }
+    
 
     // Cancel previous search timer to debounce
     [self.searchDebounceTimer invalidate];

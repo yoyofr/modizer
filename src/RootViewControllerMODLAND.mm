@@ -118,6 +118,9 @@ extern volatile t_settings settings[MAX_SETTINGS];
                                                                              cur_db_entries[i].id_album]];
                 }
             }
+        } else {
+            detailViewController.radioSource.mRadioSource_mode=0;
+            [detailViewController.radioSource.mSourceData addObject:@"Rand"];
         }
         [detailViewController.radioSource activate];
         [radioButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
@@ -330,35 +333,41 @@ END_PROFILE
 }
 
 -(void) fillKeys {
-	
-		if (shouldFillKeys) {
-			shouldFillKeys=0;
-			switch (modland_browse_mode) {
-				case 0://Formats/Authors/Files
-					if (browse_depth==2) [self fillKeysWithDB_fileType];
-					if (browse_depth==3) [self fillKeysWithDB_fileAuthor:mFiletypeID];
-					if (browse_depth==4) [self fillKeysWithDB_albumORfilename:mFiletypeID fileAuthorID:mAuthorID];
-					if (browse_depth==5) [self fillKeysWithDB_filename:mFiletypeID fileAuthorID:mAuthorID fileAlbumID:mAlbumID];
-					break;
-				case 1://Authors/Formats/Files
-					if (browse_depth==2) [self fillKeysWithDB_fileAuthor];
-					if (browse_depth==3) [self fillKeysWithDB_fileType:mAuthorID];
-					if (browse_depth==4) [self fillKeysWithDB_albumORfilename:mFiletypeID fileAuthorID:mAuthorID];
-					if (browse_depth==5) [self fillKeysWithDB_filename:mFiletypeID fileAuthorID:mAuthorID fileAlbumID:mAlbumID];
-					break;
-				case 2://Authors/Files
-					if (browse_depth==2) [self fillKeysWithDB_fileAuthor];
-					if (browse_depth==3) [self fillKeysWithDB_albumORfilename:mAuthorID];
-					if (browse_depth==4) [self fillKeysWithDB_filename:mAuthorID fileAlbumID:mAlbumID];
-					break;
-			}
-		} else {//reset downloaded, rating & playcount flags
-			for (int i=0;i<db_nb_entries;i++) {
-				db_entries_data[i].downloaded=-1;
-				db_entries_data[i].rating=-1;
-				db_entries_data[i].playcount=-1;
-			}
-		}
+    
+    if ((mSearchText==nil)||([mSearchText length]==0)) mSearch=0;
+    else mSearch=1;
+    
+    shouldFillKeys=1;
+    search_db=0;
+    
+    if (shouldFillKeys) {
+        shouldFillKeys=0;
+        switch (modland_browse_mode) {
+            case 0://Formats/Authors/Files
+                if (browse_depth==2) [self fillKeysWithDB_fileType];
+                if (browse_depth==3) [self fillKeysWithDB_fileAuthor:mFiletypeID];
+                if (browse_depth==4) [self fillKeysWithDB_albumORfilename:mFiletypeID fileAuthorID:mAuthorID];
+                if (browse_depth==5) [self fillKeysWithDB_filename:mFiletypeID fileAuthorID:mAuthorID fileAlbumID:mAlbumID];
+                break;
+            case 1://Authors/Formats/Files
+                if (browse_depth==2) [self fillKeysWithDB_fileAuthor];
+                if (browse_depth==3) [self fillKeysWithDB_fileType:mAuthorID];
+                if (browse_depth==4) [self fillKeysWithDB_albumORfilename:mFiletypeID fileAuthorID:mAuthorID];
+                if (browse_depth==5) [self fillKeysWithDB_filename:mFiletypeID fileAuthorID:mAuthorID fileAlbumID:mAlbumID];
+                break;
+            case 2://Authors/Files
+                if (browse_depth==2) [self fillKeysWithDB_fileAuthor];
+                if (browse_depth==3) [self fillKeysWithDB_albumORfilename:mAuthorID];
+                if (browse_depth==4) [self fillKeysWithDB_filename:mAuthorID fileAlbumID:mAlbumID];
+                break;
+        }
+    } else {//reset downloaded, rating & playcount flags
+        for (int i=0;i<db_nb_entries;i++) {
+            db_entries_data[i].downloaded=-1;
+            db_entries_data[i].rating=-1;
+            db_entries_data[i].playcount=-1;
+        }
+    }
 }
 
 -(void) fillKeysWithDB_fileType:(int)authorID{
@@ -1961,14 +1970,9 @@ END_PROFILE
         cell.frame=CGRectMake(0,0,tabView.frame.size.width,40);
         [cell setBackgroundColor:[UIColor clearColor]];
         
-        NSString *imgFile=(darkMode?@"tabview_gradient40Black.png":@"tabview_gradient40.png");
-        UIImage *image = [UIImage imageNamed:imgFile];
-        
-        UIImageView *imageView = [[UIImageView alloc] initWithImage:image];
-        imageView.contentMode = UIViewContentModeScaleToFill;
-        cell.backgroundView = imageView;
-        //[imageView release];
-        
+        UIBackgroundConfiguration *backgroundConfig = [UIBackgroundConfiguration listGroupedCellConfiguration];
+        backgroundConfig.backgroundColor = [UIColor systemGroupedBackgroundColor];
+        cell.backgroundConfiguration = backgroundConfig;
         //
         // Create the label for the top row of text
         //
@@ -2313,13 +2317,8 @@ trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
 - (void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText {
     //if (mSearchText) [mSearchText release];
     mSearchText=nil;
-    
     mSearchText=[[NSString alloc] initWithString:searchText];
-    if ((mSearchText==nil)||([mSearchText length]==0)) mSearch=0;
-    else mSearch=1;
     
-    shouldFillKeys=1;
-    search_db=0;
     [self fillKeys];
         
     [tableView reloadData];

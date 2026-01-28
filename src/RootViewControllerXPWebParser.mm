@@ -60,40 +60,9 @@ extern void *LoadingProgressObserverContext;
     CGPoint p = [gestureRecognizer locationInView:self.tableView];
     
     NSIndexPath *indexPath = [self.tableView indexPathForRowAtPoint:p];
-    {
-        if (indexPath != nil) {
-            if ((gestureRecognizer.state==UIGestureRecognizerStateBegan)||(gestureRecognizer.state==UIGestureRecognizerStateChanged)) {
-                int crow=indexPath.row;
-                
-                    //display popup
-                    t_WEB_browse_entry *cur_db_entries;
-                    cur_db_entries=(search_dbWEB?search_dbWEB_entries:dbWEB_entries);
-                    
-                    NSString *str=cur_db_entries[crow].fullpath;
-                    if (self.popTipView == nil) {
-                        self.popTipView = [[CMPopTipView alloc] initWithMessage:str];
-                        self.popTipView.delegate = self;
-                        self.popTipView.backgroundColor = [UIColor lightGrayColor];
-                        self.popTipView.textColor = [UIColor darkTextColor];
-                        
-                        [self.popTipView presentPointingAtView:[self.tableView cellForRowAtIndexPath:indexPath] inView:self.tableView animated:YES];
-                        popTipViewRow=crow;
-                        popTipViewSection=0;
-                    } else {
-                        if ((popTipViewRow!=crow)||(popTipViewSection!=0)||([str compare:self.popTipView.message]!=NSOrderedSame)) {
-                            self.popTipView.message=str;
-                            [self.popTipView presentPointingAtView:[self.tableView cellForRowAtIndexPath:indexPath] inView:self.tableView animated:YES];
-                            popTipViewRow=crow;
-                            popTipViewSection=0;
-                        }
-                    }
-            } else {
-                //hide popup
-                if (popTipView!=nil) {
-                    [self.popTipView dismissAnimated:YES];
-                    popTipView=nil;
-                }
-            }
+    if (indexPath != nil) {
+        if ((gestureRecognizer.state==UIGestureRecognizerStateBegan)||(gestureRecognizer.state==UIGestureRecognizerStateChanged)) {
+        } else {
         }
     }
 }
@@ -457,6 +426,10 @@ END_PROFILE
 
 -(void) fillKeys {
     //to be implemented in each parser
+    if ((mSearchText==nil)||([mSearchText length]==0)) mSearch=0;
+    else mSearch=1;
+    if (mSearch) shouldFillKeys=1;
+    search_dbWEB=0;
     
     //call fillKeyCompleted at the end
     dispatch_async(dispatch_get_main_queue(), ^(void){
@@ -788,8 +761,8 @@ trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
     // only show the status bar’s cancel button while in edit mode
     sBar.showsCancelButton = YES;
     sBar.autocorrectionType = UITextAutocorrectionTypeNo;
-    if ((mSearchText==nil)||([mSearchText length]==0)) mSearch=0;
-    else mSearch=1;
+//    if ((mSearchText==nil)||([mSearchText length]==0)) mSearch=0;
+//    else mSearch=1;
     
     // flush the previous search content
     //[tableData removeAllObjects];
@@ -804,43 +777,35 @@ trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
     //if (mSearchText) [mSearchText release];
     
     mSearchText=[[NSString alloc] initWithString:searchText];
-    if ((mSearchText==nil)||([mSearchText length]==0)) mSearch=0;
-    else mSearch=1;
-    if (mSearch) shouldFillKeys=1;
-    search_dbWEB=0;
-//    dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void){
-//        [self fillKeys];
-//    });
+//    if ((mSearchText==nil)||([mSearchText length]==0)) mSearch=0;
+//    else mSearch=1;
+//    if (mSearch) shouldFillKeys=1;
+//    search_dbWEB=0;
     
     // Cancel previous search timer to debounce
     [self.searchDebounceTimer invalidate];
     self.searchDebounceTimer = nil;
 
     // Schedule new search after delay
-    self.searchDebounceTimer = [NSTimer scheduledTimerWithTimeInterval:0.5
+    self.searchDebounceTimer = [NSTimer scheduledTimerWithTimeInterval:0.3
                                                                  target:self
                                                                selector:@selector(fillKeys)
                                                                userInfo:nil
                                                                 repeats:NO];
 }
 - (void)searchBarCancelButtonClicked:(UISearchBar *)searchBar {
-    //if (mSearchText) [mSearchText release];
     mSearchText=nil;
     sBar.text=nil;
-    mSearch=0;
+//    mSearch=0;
     sBar.showsCancelButton = NO;
     [searchBar resignFirstResponder];
-    //shouldFillKeys=1;
-    search_dbWEB=0;
-//    dispatch_async(dispatch_get_main_queue(), ^(void){
-//        [self fillKeys];
-//    });
+//    search_dbWEB=0;
     // Cancel previous search timer to debounce
     [self.searchDebounceTimer invalidate];
     self.searchDebounceTimer = nil;
 
     // Schedule new search after delay
-    self.searchDebounceTimer = [NSTimer scheduledTimerWithTimeInterval:0.5
+    self.searchDebounceTimer = [NSTimer scheduledTimerWithTimeInterval:0.3
                                                                  target:self
                                                                selector:@selector(fillKeys)
                                                                userInfo:nil

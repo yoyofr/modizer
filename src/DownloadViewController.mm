@@ -1599,9 +1599,7 @@ MDZELog("gzread error str for FTP entry %d",i); \
 	downloadPrgView.progress=0.0f;//(float)mCurrentDownloadedBytes/(float)mFileSize;
 	// Open a CFFTPStream for the URL.
     
-	//url=[[[NSURL alloc] initWithScheme:@"ftp" host:mFTPhost[0] path:[[NSString stringWithString:mFTPpath[0]] stringByAddingPercentEscapesUsingEncoding:NSISOLatin1StringEncoding]] autorelease];
-    
-	url=[NSURL URLWithString:[NSString stringWithFormat:@"ftp://%@%@",mFTPhost[0],[[NSString stringWithString:mFTPpath[0]] stringByAddingPercentEscapesUsingEncoding:NSISOLatin1StringEncoding]]];
+	url=[NSURL URLWithString:[NSString stringWithFormat:@"ftp://%@%@",mFTPhost[0],[[NSString stringWithString:mFTPpath[0]] stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]]]];
     ftpStream = CFReadStreamCreateWithFTPURL(NULL, (__bridge CFURLRef) url);
     if (ftpStream == NULL) {
         [self showAlertMsg:NSLocalizedString(@"Error", @"") message:NSLocalizedString(@"Cannot connect to FTP.", @"")];
@@ -1680,12 +1678,9 @@ MDZELog("gzread error str for FTP entry %d",i); \
         cell.frame=CGRectMake(0,0,tableView.frame.size.width,40);
         [cell setBackgroundColor:[UIColor clearColor]];
         
-        NSString *imgFilename=(darkMode?@"tabview_gradient40Black.png":@"tabview_gradient40.png");
-        UIImage *image = [UIImage imageNamed:imgFilename];
-        MDZUIImageView *imageView = [[MDZUIImageView alloc] initWithImage:image];
-        imageView.contentMode = UIViewContentModeScaleToFill;
-        cell.backgroundView = imageView;
-        //[imageView release];
+        UIBackgroundConfiguration *backgroundConfig = [UIBackgroundConfiguration listGroupedCellConfiguration];
+        backgroundConfig.backgroundColor = [UIColor systemGroupedBackgroundColor];
+        cell.backgroundConfiguration = backgroundConfig;
         
         cell.contentView.backgroundColor = [UIColor clearColor];
         //

@@ -123,6 +123,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
 @public
     int browse_depth;
     bool has_letter_index;
+    NSString *img_grabber_url;
     NSArray *extra_index;
     DetailViewControllerIphone *detailViewController;
     DownloadViewController *downloadViewController;

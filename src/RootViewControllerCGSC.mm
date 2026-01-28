@@ -324,6 +324,10 @@ END_PROFILE
 
 -(void) fillKeys {
     
+    if ((mSearchText==nil)||([mSearchText length]==0)) mSearch=0;
+    else mSearch=1;
+    shouldFillKeys=1;
+    search_dbCGSC=0;
     
     if (shouldFillKeys) {
         shouldFillKeys=0;
@@ -941,58 +945,9 @@ END_PROFILE
         cell.frame=CGRectMake(0,0,tabView.frame.size.width,40);
         [cell setBackgroundColor:[UIColor clearColor]];
         
-        /*CAGradientLayer *gradient = [CAGradientLayer layer];
-         gradient.frame = cell.bounds;
-         gradient.colors = [NSArray arrayWithObjects:
-         (id)[[UIColor colorWithRed:255.0/255.0 green:255.0/255.0 blue:255.0/255.0 alpha:1] CGColor],
-         (id)[[UIColor colorWithRed:255.0/255.0 green:255.0/255.0 blue:255.0/255.0 alpha:1] CGColor],
-         (id)[[UIColor colorWithRed:235.0/255.0 green:235.0/255.0 blue:235.0/255.0 alpha:1] CGColor],
-         (id)[[UIColor colorWithRed:240.0/255.0 green:240.0/255.0 blue:240.0/255.0 alpha:1] CGColor],
-         (id)[[UIColor colorWithRed:200.0/255.0 green:200.0/255.0 blue:200.0/255.0 alpha:1] CGColor],
-         (id)[[UIColor colorWithRed:200.0/255.0 green:200.0/255.0 blue:200.0/255.0 alpha:1] CGColor],
-         nil];
-         gradient.locations = [NSArray arrayWithObjects:
-         (id)[NSNumber numberWithFloat:0.00f],
-         (id)[NSNumber numberWithFloat:0.03f],
-         (id)[NSNumber numberWithFloat:0.03f],
-         (id)[NSNumber numberWithFloat:0.97f],
-         (id)[NSNumber numberWithFloat:0.97f],
-         (id)[NSNumber numberWithFloat:1.00f],
-         nil];
-         [cell setBackgroundView:[[UIView alloc] init]];
-         [cell.backgroundView.layer insertSublayer:gradient atIndex:0];
-         
-         CAGradientLayer *selgrad = [CAGradientLayer layer];
-         selgrad.frame = cell.bounds;
-         float rev_col_adj=1.2f;
-         selgrad.colors = [NSArray arrayWithObjects:
-         (id)[[UIColor colorWithRed:rev_col_adj-255.0/255.0 green:rev_col_adj-255.0/255.0 blue:rev_col_adj-255.0/255.0 alpha:1] CGColor],
-         (id)[[UIColor colorWithRed:rev_col_adj-255.0/255.0 green:rev_col_adj-255.0/255.0 blue:rev_col_adj-255.0/255.0 alpha:1] CGColor],
-         (id)[[UIColor colorWithRed:rev_col_adj-235.0/255.0 green:rev_col_adj-235.0/255.0 blue:rev_col_adj-235.0/255.0 alpha:1] CGColor],
-         (id)[[UIColor colorWithRed:rev_col_adj-240.0/255.0 green:rev_col_adj-240.0/255.0 blue:rev_col_adj-240.0/255.0 alpha:1] CGColor],
-         (id)[[UIColor colorWithRed:rev_col_adj-200.0/255.0 green:rev_col_adj-200.0/255.0 blue:rev_col_adj-200.0/255.0 alpha:1] CGColor],
-         (id)[[UIColor colorWithRed:rev_col_adj-200.0/255.0 green:rev_col_adj-200.0/255.0 blue:rev_col_adj-200.0/255.0 alpha:1] CGColor],
-         nil];
-         selgrad.locations = [NSArray arrayWithObjects:
-         (id)[NSNumber numberWithFloat:0.00f],
-         (id)[NSNumber numberWithFloat:0.03f],
-         (id)[NSNumber numberWithFloat:0.03f],
-         (id)[NSNumber numberWithFloat:0.97f],
-         (id)[NSNumber numberWithFloat:0.97f],
-         (id)[NSNumber numberWithFloat:1.00f],
-         nil];
-         
-         [cell setSelectedBackgroundView:[[UIView alloc] init]];
-         [cell.selectedBackgroundView.layer insertSublayer:selgrad atIndex:0];
-         */
-        NSString *imgFile=(darkMode?@"tabview_gradient40Black.png":@"tabview_gradient40.png");
-        UIImage *image = [UIImage imageNamed:imgFile];
-        
-        UIImageView *imageView = [[UIImageView alloc] initWithImage:image];
-        imageView.contentMode = UIViewContentModeScaleToFill;
-        cell.backgroundView = imageView;
-        //[imageView release];
-        
+        UIBackgroundConfiguration *backgroundConfig = [UIBackgroundConfiguration listGroupedCellConfiguration];
+        backgroundConfig.backgroundColor = [UIColor systemGroupedBackgroundColor];
+        cell.backgroundConfiguration = backgroundConfig;
         //
         // Create the label for the top row of text
         //
@@ -1266,8 +1221,6 @@ trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
     // only show the status bar’s cancel button while in edit mode
     sBar.showsCancelButton = YES;
     sBar.autocorrectionType = UITextAutocorrectionTypeNo;
-    if ((mSearchText==nil)||([mSearchText length]==0)) mSearch=0;
-    else mSearch=1;
     
     // flush the previous search content
     //[tableData removeAllObjects];
@@ -1282,10 +1235,7 @@ trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
     //if (mSearchText) [mSearchText release];
     
     mSearchText=[[NSString alloc] initWithString:searchText];
-    if ((mSearchText==nil)||([mSearchText length]==0)) mSearch=0;
-    else mSearch=1;
-    shouldFillKeys=1;
-    search_dbCGSC=0;
+    
     [self fillKeys];
     [tableView reloadData];
 }
@@ -1293,11 +1243,8 @@ trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
     //if (mSearchText) [mSearchText release];
     mSearchText=nil;
     sBar.text=nil;
-    mSearch=0;
     sBar.showsCancelButton = NO;
     [searchBar resignFirstResponder];
-    shouldFillKeys=1;
-    search_dbCGSC=0;
     [self fillKeys];
     
     [tableView reloadData];

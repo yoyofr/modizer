@@ -346,6 +346,10 @@ END_PROFILE
 
 -(void) fillKeys {
     
+    if ((mSearchText==nil)||([mSearchText length]==0)) mSearch=0;
+    else mSearch=1;
+    shouldFillKeys=1;
+    search_dbASMA=0;
     
     if (shouldFillKeys) {
         shouldFillKeys=0;
@@ -1109,14 +1113,9 @@ END_PROFILE
         cell.frame=CGRectMake(0,0,tabView.frame.size.width,40);
         [cell setBackgroundColor:[UIColor clearColor]];
         
-        NSString *imgFile=(darkMode?@"tabview_gradient40Black.png":@"tabview_gradient40.png");
-        UIImage *image = [UIImage imageNamed:imgFile];
-        
-        UIImageView *imageView = [[UIImageView alloc] initWithImage:image];
-        imageView.contentMode = UIViewContentModeScaleToFill;
-        cell.backgroundView = imageView;
-        //[imageView release];
-        
+        UIBackgroundConfiguration *backgroundConfig = [UIBackgroundConfiguration listGroupedCellConfiguration];
+        backgroundConfig.backgroundColor = [UIColor systemGroupedBackgroundColor];
+        cell.backgroundConfiguration = backgroundConfig;
         //
         // Create the label for the top row of text
         //
@@ -1390,8 +1389,6 @@ trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
     // only show the status bar’s cancel button while in edit mode
     sBar.showsCancelButton = YES;
     sBar.autocorrectionType = UITextAutocorrectionTypeNo;
-    if ((mSearchText==nil)||([mSearchText length]==0)) mSearch=0;
-    else mSearch=1;
     
     // flush the previous search content
     //[tableData removeAllObjects];
@@ -1406,22 +1403,17 @@ trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
     //if (mSearchText) [mSearchText release];
     
     mSearchText=[[NSString alloc] initWithString:searchText];
-    if ((mSearchText==nil)||([mSearchText length]==0)) mSearch=0;
-    else mSearch=1;
-    shouldFillKeys=1;
-    search_dbASMA=0;
+    
     [self fillKeys];
+    
     [tableView reloadData];
 }
 - (void)searchBarCancelButtonClicked:(UISearchBar *)searchBar {
     //if (mSearchText) [mSearchText release];
     mSearchText=nil;
     sBar.text=nil;
-    mSearch=0;
     sBar.showsCancelButton = NO;
     [searchBar resignFirstResponder];
-    shouldFillKeys=1;
-    search_dbASMA=0;
     [self fillKeys];
     
     [tableView reloadData];

@@ -63,7 +63,7 @@
                                             <outlet property="delegate" destination="tg5-2u-vCN" id="Xcx-Dx-8is"/>
                                         </connections>
                                     </searchBar>
-                                    <tableView clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" layoutMarginsFollowReadableWidth="YES" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="40" sectionHeaderHeight="22" sectionFooterHeight="22" translatesAutoresizingMaskIntoConstraints="NO" id="8fh-8x-VO8">
+                                    <tableView clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" layoutMarginsFollowReadableWidth="YES" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="40" sectionHeaderHeight="22" sectionFooterHeight="22" translatesAutoresizingMaskIntoConstraints="NO" id="8fh-8x-VO8">
                                         <rect key="frame" x="0.0" y="44" width="393" height="519"/>
                                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                         <viewLayoutGuide key="contentLayoutGuide" id="6ku-LG-wdw"/>
@@ -117,7 +117,7 @@
                                 <rect key="frame" x="0.0" y="0.0" width="393" height="563"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <subviews>
-                                    <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="40" sectionHeaderHeight="22" sectionFooterHeight="22" translatesAutoresizingMaskIntoConstraints="NO" id="mte-ht-Ev6">
+                                    <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="40" sectionHeaderHeight="22" sectionFooterHeight="22" translatesAutoresizingMaskIntoConstraints="NO" id="mte-ht-Ev6">
                                         <rect key="frame" x="0.0" y="0.0" width="393" height="563"/>
                                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                         <connections>
@@ -168,7 +168,7 @@
                                 <rect key="frame" x="0.0" y="0.0" width="393" height="563"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <subviews>
-                                    <tableView clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" layoutMarginsFollowReadableWidth="YES" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" translatesAutoresizingMaskIntoConstraints="NO" id="SyA-DC-hhd">
+                                    <tableView clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" layoutMarginsFollowReadableWidth="YES" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" translatesAutoresizingMaskIntoConstraints="NO" id="SyA-DC-hhd">
                                         <rect key="frame" x="0.0" y="0.0" width="393" height="563"/>
                                         <color key="backgroundColor" red="0.94997608420000001" green="0.94997608420000001" blue="0.94997608420000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         <connections>
@@ -218,7 +218,7 @@
                                 <rect key="frame" x="0.0" y="0.0" width="393" height="563"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <subviews>
-                                    <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" translatesAutoresizingMaskIntoConstraints="NO" id="PPD-w7-C4Q">
+                                    <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" translatesAutoresizingMaskIntoConstraints="NO" id="PPD-w7-C4Q">
                                         <rect key="frame" x="0.0" y="0.0" width="393" height="563"/>
                                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                         <searchBar key="tableHeaderView" contentMode="redraw" barStyle="black" id="1Iy-kr-7nc">
@@ -318,7 +318,7 @@
                                 <rect key="frame" x="0.0" y="0.0" width="393" height="563"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <subviews>
-                                    <tableView clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" layoutMarginsFollowReadableWidth="YES" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="40" sectionHeaderHeight="18" sectionFooterHeight="0.0" translatesAutoresizingMaskIntoConstraints="NO" id="PWX-uv-g3O">
+                                    <tableView clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" layoutMarginsFollowReadableWidth="YES" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="40" sectionHeaderHeight="18" sectionFooterHeight="0.0" translatesAutoresizingMaskIntoConstraints="NO" id="PWX-uv-g3O">
                                         <rect key="frame" x="0.0" y="0.0" width="393" height="563"/>
                                         <color key="backgroundColor" red="0.94997608420000001" green="0.94997608420000001" blue="0.94997608420000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         <connections>
@@ -966,7 +966,7 @@
                             <progressView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="hCu-W0-BgS">
                                 <rect key="frame" x="0.0" y="199.66666666666666" width="320" height="4"/>
                             </progressView>
-                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="44" sectionHeaderHeight="44" sectionFooterHeight="44" translatesAutoresizingMaskIntoConstraints="NO" id="eG5-4s-2cb">
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="44" sectionFooterHeight="44" translatesAutoresizingMaskIntoConstraints="NO" id="eG5-4s-2cb">
                                 <rect key="frame" x="0.0" y="213.66666666666666" width="320" height="114.33333333333334"/>
                                 <color key="backgroundColor" red="0.94997608420000001" green="0.94997608420000001" blue="0.94997608420000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <connections>

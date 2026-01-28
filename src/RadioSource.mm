@@ -720,7 +720,7 @@ NS_ASSUME_NONNULL_BEGIN
     [ModizFileHelper addSkipBackupAttributeToItemAtPath:localPath];
     
     int id_mod=-1;
-    if ([mSourceData count]>0) {
+    if ( (mRadioSource_mode==1) && ([mSourceData count]>0) ) {
         int idx=arc4random_uniform((int)[mSourceData count]);
         str=[mSourceData objectAtIndex:idx];
         if ([[str substringToIndex:2] isEqualToString:@"f:"]) {
@@ -748,7 +748,7 @@ NS_ASSUME_NONNULL_BEGIN
                 }
             }
         }
-    } else {
+    } else if (mRadioSource_mode==0) {
         int max_mod_id=[self getMODLAND_MaxModID];
         int max_tries=RS_MODLAND_PLAYABLE_FILE_MAX_TRIES;
         while (max_tries) {

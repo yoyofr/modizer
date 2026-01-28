@@ -244,6 +244,16 @@ int qsortSNESM_entries_rating_or_entries(const void *entryA, const void *entryB)
 
 
 -(void) fillKeys {
+    
+    if ((mSearchText==nil)||([mSearchText length]==0)||(browse_mode==BROWSE_SEARCH)) mSearch=0;
+    else mSearch=1;
+    if (mSearch||(browse_mode==BROWSE_SEARCH)) shouldFillKeys=1;
+    search_dbWEB=0;
+
+    if (mSearch) {
+        shouldReload=true;
+    }
+    
     if (shouldFillKeys) {
         shouldFillKeys=0;
         if (browse_depth==0) [self fillKeysWithRepoCateg];
@@ -815,14 +825,9 @@ int qsortSNESM_entries_rating_or_entries(const void *entryA, const void *entryB)
         cell.frame=CGRectMake(0,0,tabView.frame.size.width,40);
         [cell setBackgroundColor:[UIColor clearColor]];
         
-        NSString *imgFile=(darkMode?@"tabview_gradient40Black.png":@"tabview_gradient40.png");
-        UIImage *image = [UIImage imageNamed:imgFile];
-        
-        UIImageView *imageView = [[UIImageView alloc] initWithImage:image];
-        imageView.contentMode = UIViewContentModeScaleToFill;
-        cell.backgroundView = imageView;
-        //[imageView release];
-        
+        UIBackgroundConfiguration *backgroundConfig = [UIBackgroundConfiguration listGroupedCellConfiguration];
+        backgroundConfig.backgroundColor = [UIColor systemGroupedBackgroundColor];
+        cell.backgroundConfiguration = backgroundConfig;
         //
         // Create the label for the top row of text
         //
@@ -1198,14 +1203,7 @@ int qsortSNESM_entries_rating_or_entries(const void *entryA, const void *entryB)
     //if (mSearchText) [mSearchText release];
 
     mSearchText=[[NSString alloc] initWithString:searchText];
-    if ((mSearchText==nil)||([mSearchText length]==0)||(browse_mode==BROWSE_SEARCH)) mSearch=0;
-    else mSearch=1;
-    if (mSearch||(browse_mode==BROWSE_SEARCH)) shouldFillKeys=1;
-    search_dbWEB=0;
-
-    if (mSearch) {
-        shouldReload=true;
-    }
+    
 
     // Cancel previous search timer to debounce
     [self.searchDebounceTimer invalidate];

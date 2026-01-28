@@ -427,14 +427,9 @@ extern char cleanDB_Status[256];
         cell.autoresizingMask=UIViewAutoresizingFlexibleWidth;
         [cell setBackgroundColor:[UIColor clearColor]];
 
-        NSString *imgName=(darkMode?@"tabview_gradient50Black.png":@"tabview_gradient50.png");
-        UIImage *image = [UIImage imageNamed:imgName];
-        UIImageView *imageView = [[UIImageView alloc] initWithImage:image];
-        imageView.contentMode = UIViewContentModeScaleToFill;
-        imageView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-        cell.backgroundView = imageView;
-        //[imageView release];
-
+        UIBackgroundConfiguration *backgroundConfig = [UIBackgroundConfiguration listGroupedCellConfiguration];
+        backgroundConfig.backgroundColor = [UIColor systemGroupedBackgroundColor];
+        cell.backgroundConfiguration = backgroundConfig;
 
         btn= [[BButton alloc] initWithFrame:CGRectMake(tabView.bounds.size.width/2-100,
                                                       10,

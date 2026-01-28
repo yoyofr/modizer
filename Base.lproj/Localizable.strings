@@ -715,6 +715,8 @@
 "Port" = "Port";
 
 /* Online Settings */
+"JoshW Covers" = "JoshW Covers";
+"Try to download covers from TGDB or MobyGames." = "Try to download covers from TGDB or MobyGames.";
 "MODLAND URL" = "MODLAND URL";
 "HVSC URL" = "HVSC URL";
 "ASMA URL" = "ASMA URL";

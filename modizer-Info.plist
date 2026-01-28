@@ -486,6 +486,8 @@
 	<true/>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
+	<key>CADisableMinimumFrameDurationOnPhone</key>
+	<true/>
 	<key>UTExportedTypeDeclarations</key>
 	<array>
 		<dict>

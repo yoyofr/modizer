@@ -95,4 +95,5 @@ typedef struct {
     char channels_nb;    
     bool has_letter_index;
     NSArray *extra_index;
+    NSString *url_img_grabber;
 } t_WEB_browse_entry;
