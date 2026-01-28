@@ -553,15 +553,24 @@ extern NSMutableArray *mac_key_pressed,*mac_key_released;
     END_PROFILE
 }
 
-#if TARGET_OS_MACCATALYST
+
 - (void)viewDidLayoutSubviews {
     [super viewDidLayoutSubviews];
-
-    // Continuously enforce tab bar at zero frame during all layout passes
-    self.tabBar.hidden = YES;
-    self.tabBar.frame = CGRectZero;
-}
+    
+    bool is_macOS=false;
+    if ([NSProcessInfo processInfo].isiOSAppOnMac) {
+        is_macOS=true;
+    }
+#if TARGET_OS_MACCATALYST
+    is_macOS=true;
 #endif
+    if (is_macOS) {
+        // Continuously enforce tab bar at zero frame during all layout passes
+        self.tabBar.hidden = YES;
+        self.tabBar.frame = CGRectZero;
+    }
+}
+
 
 #if TARGET_OS_MACCATALYST
 - (void)setSelectedViewController:(UIViewController *)selectedViewController {
@@ -710,8 +719,6 @@ extern NSMutableArray *mac_key_pressed,*mac_key_released;
 //}
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
-    
-
     
     static bool firstcall=true;
     

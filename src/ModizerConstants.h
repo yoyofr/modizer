@@ -96,9 +96,9 @@ extern void *LoadingProgressObserverContext;
 #define MDZ_FOLDER_DARK_G 0.6f
 #define MDZ_FOLDER_DARK_B 1.0f
 
-#define MDZ_FOLDER_LIGHT_R 0.4*0.7
-#define MDZ_FOLDER_LIGHT_G 0.6*0.7
-#define MDZ_FOLDER_LIGHT_B 1.0*0.7
+#define MDZ_FOLDER_LIGHT_R 0.4*0.5
+#define MDZ_FOLDER_LIGHT_G 0.6*0.5
+#define MDZ_FOLDER_LIGHT_B 1.0f
 
 
 #define MDZ_TABVIEW_HEADER_R0 0.4f

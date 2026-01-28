@@ -50,6 +50,7 @@
 	
 	IBOutlet UISearchBar *sBar;
     IBOutlet UITableView *tableView;
+    int tabViewRefresh;
     
     NSMutableDictionary *dictActionBtn;
 		

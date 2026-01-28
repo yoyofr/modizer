@@ -422,6 +422,8 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     
     extractProgress = nil;
     
+    tabViewRefresh=0;
+    
     is_rsn=0;
     
     wasMiniPlayerOn=([detailViewController mPlaylist_size]>0?true:false);
@@ -1676,7 +1678,7 @@ static int shouldRestart=1;
     //static int firstcall=0;
     [super viewWillAppear:animated];
 
-    shouldFillKeys=1;
+    //shouldFillKeys=1;
     
     bool oldmode=darkMode;
     darkMode=false;
@@ -1721,16 +1723,24 @@ static int shouldRestart=1;
         childController = nil;
     }
     
-    if (shouldFillKeys) {
+    if (1/*shouldFillKeys*/) {
         //Reset rating if applicable (ensure updated value)
         if (local_nb_entries) {
             for (int i=0;i<local_nb_entries;i++) {
                 local_entries_data[i].rating=-1;
+                local_entries_data[i].playcount=-1;
+                local_entries_data[i].song_length=-1;
+                local_entries_data[i].songs=-1;
+                local_entries_data[i].channels_nb=-1;
             }
         }
         if (search_local_nb_entries) {
             for (int i=0;i<search_local_nb_entries;i++) {
                 search_local_entries_data[i].rating=-1;
+                search_local_entries_data[i].playcount=-1;
+                search_local_entries_data[i].song_length=-1;
+                search_local_entries_data[i].songs=-1;
+                search_local_entries_data[i].channels_nb=-1;
             }
         }
     }
@@ -1738,6 +1748,16 @@ static int shouldRestart=1;
     //creating view for extending background color
     //[self addRefreshView];
     
+    
+    //check if a pending cut/paste exists
+    if (cutpaste_initiated&&(cutpaste_filesrcpath==nil)) {
+        //file has been moved, force reload
+        shouldFillKeys=1;
+        cutpaste_initiated=0;
+    }
+    
+    if (shouldFillKeys) [self refreshViewReloadFiles];
+    if ((!wasMiniPlayerOn) && [detailViewController mPlaylist_size]) [self showMiniPlayer];
     
 }
 
@@ -1753,12 +1773,25 @@ static int shouldRestart=1;
 -(void) refreshViewReloadFiles {
     
     //if (self.tableView.refreshControl.refreshing) return;
+    if (tabViewRefresh) return;
     
     if (childController) [(RootViewControllerLocalBrowser*) childController refreshViewAfterDownload];
     else {
-        if (self.tableView.refreshControl.refreshing==false) [self.tableView.refreshControl beginRefreshing];
+        //if (self.tableView.refreshControl.refreshing==false) {
+        if (!tabViewRefresh) {
+            // Sauvegarder la position AVANT beginRefreshing
+            tabViewRefresh=1;
+//            CGPoint savedOffset = self.tableView.contentOffset;
+//
+//            [self.tableView.refreshControl beginRefreshing];
+//
+//            // Restaurer APRÈS dans le prochain runloop
+//            dispatch_async(dispatch_get_main_queue(), ^{
+//                [self.tableView setContentOffset:savedOffset animated:NO];
+//            });
+        }
         
-        self.sBar.enabled=false;//disable search bar
+        //self.sBar.enabled=false;//disable search bar
         
         [self hideWaitingCancel];
         [self hideWaitingProgress];
@@ -1766,6 +1799,7 @@ static int shouldRestart=1;
         [self updateWaitingDetail:@""];
         
         [self showWaiting];
+        
         //        [self flushMainLoop];
         //        [NSThread sleepForTimeInterval:0.1f];
         //        [self flushMainLoop];
@@ -1792,10 +1826,11 @@ static int shouldRestart=1;
             dispatch_async(dispatch_get_main_queue(), ^(void){
                 //Run UI Updates
                 [self.tableView.refreshControl endRefreshing];
+                tabViewRefresh=0;
                 [self hideWaiting];
                 [self.tableView reloadData];
                 
-                self.sBar.enabled=true;//enable search bar
+                //self.sBar.enabled=true;//enable search bar
             });
         });
     }
@@ -1848,23 +1883,8 @@ static int shouldRestart=1;
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
-    
     forceReloadCells=false;
     
-    //check if a pending cut/paste exists
-    if (cutpaste_initiated&&(cutpaste_filesrcpath==nil)) {
-        //file has been moved, force reload
-        shouldFillKeys=1;
-        cutpaste_initiated=0;
-    }
-    
-    if (shouldFillKeys) [self refreshViewReloadFiles];
-    
-    
-    
-    if ((!wasMiniPlayerOn) && [detailViewController mPlaylist_size]) [self showMiniPlayer];
-    
-    //[[[self navigationController] navigationBar] setBarStyle:UIBarStyleDefault];
     
     
     if ([detailViewController not_expected_version]==1) {
@@ -2027,7 +2047,8 @@ As a consequence, some entries might disappear from existing playlist.\n\
         if (indexPath.section>1) {
             cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:    CellIdentifier];
             
-            if (self.tableView.refreshControl.isRefreshing==false) {
+            //if (self.tableView.refreshControl.isRefreshing==false) {
+            if (!tabViewRefresh) {
                 
                 if ((cur_local_entries[indexPath.row].type&16)&&((cur_local_entries[indexPath.row].type&15)==2)) { //need to confirm if true archive
                     
@@ -2120,7 +2141,8 @@ As a consequence, some entries might disappear from existing playlist.\n\
         
         if (indexPath.section>1) {
             
-            if (self.tableView.refreshControl.isRefreshing==false) {
+            //if (self.tableView.refreshControl.isRefreshing==false) {
+            if (!tabViewRefresh) {
                 if ((cur_local_entries[indexPath.row].type&16)&&((cur_local_entries[indexPath.row].type&15)==2)) { //need to confirm if true archive
                     if ([ModizFileHelper isABrowsableArchive:[ModizFileHelper getFullPathForFilePath:cur_local_entries[indexPath.row].fullpath]]) cur_local_entries[indexPath.row].type=2;
                     else cur_local_entries[indexPath.row].type=1;
@@ -2163,7 +2185,8 @@ As a consequence, some entries might disappear from existing playlist.\n\
     cell.accessoryType = UITableViewCellAccessoryNone;
     
     //if refresh in prg, wait a bit...
-    if (self.tableView.refreshControl.isRefreshing) return cell;
+    //if (self.tableView.refreshControl.isRefreshing) return cell;
+//    if (tabViewRefresh) return cell;
     
     // Set up the cell...
     if (indexPath.section==0){
@@ -2243,6 +2266,9 @@ As a consequence, some entries might disappear from existing playlist.\n\
             secActionView.hidden=YES;
         }
     } else {
+        
+        if (tabViewRefresh) return cell;
+        
         cellValue=cur_local_entries[indexPath.row].label;
         
         if (is_rsn&& (cur_local_entries[indexPath.row].altlabel==nil)) {
@@ -2884,7 +2910,8 @@ leadingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
     if (value==NULL) return;
     NSIndexPath *indexPath=[NSIndexPath indexPathForRow:(value.longValue/100) inSection:(value.longValue%100)];
     
-    if (tableView.refreshControl.isRefreshing) return;
+    //if (tableView.refreshControl.isRefreshing) return;
+    if (tabViewRefresh) return;
     
     t_local_browse_entry *cur_local_entries=(search_local?search_local_entries:local_entries);
     
@@ -3006,7 +3033,8 @@ leadingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
     if (value==NULL) return;
     NSIndexPath *indexPath=[NSIndexPath indexPathForRow:(value.longValue/100) inSection:(value.longValue%100)];
     
-    if (tableView.refreshControl.isRefreshing) return;
+    //if (tableView.refreshControl.isRefreshing) return;
+    if (tabViewRefresh) return;
     
     t_local_browse_entry *cur_local_entries=(search_local?search_local_entries:local_entries);
     
@@ -3057,7 +3085,8 @@ leadingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
     if (value==NULL) return;
     NSIndexPath *indexPath=[NSIndexPath indexPathForRow:(value.longValue/100) inSection:(value.longValue%100)];
     
-    if (tableView.refreshControl.isRefreshing) return;
+    //if (tableView.refreshControl.isRefreshing) return;
+    if (tabViewRefresh) return;
     
     [tableView selectRowAtIndexPath:indexPath animated:FALSE scrollPosition:UITableViewScrollPositionNone];
     
@@ -3091,7 +3120,8 @@ leadingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
     NSString *cellValue;
     t_local_browse_entry *cur_local_entries=(search_local?search_local_entries:local_entries);
     
-    if (tabView.refreshControl.isRefreshing) return;
+    //if (tabView.refreshControl.isRefreshing) return;
+    if (tabViewRefresh) return;
     
     int section=indexPath.section-2;
     
@@ -3392,6 +3422,7 @@ leadingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
 }
 
 -(void) addRefreshView {
+    return;
     const int TAG_REFRESHVIEW=100;
     
     UIView *refreshBackgroundView=[self.tableView viewWithTag:TAG_REFRESHVIEW];
@@ -3476,16 +3507,6 @@ leadingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
 }
 
 #pragma mark - UIScrollViewDelegate
-/*- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
- static int flag=0;
- if (scrollView.contentOffset.y>=0) flag=0;
- if ((scrollView.contentOffset.y<-80.0)&&(!refreshControl.refreshing)&&(flag==0)) {
- [refreshControl beginRefreshing];
- flag=1;
- [refreshControl sendActionsForControlEvents:UIControlEventValueChanged];
- }
- }*/
-
 - (BOOL)fileManager:(NSFileManager *)fileManager shouldMoveItemAtPath:(NSString *)srcPath toPath:(NSString *)dstPath {
     return YES;
 }
