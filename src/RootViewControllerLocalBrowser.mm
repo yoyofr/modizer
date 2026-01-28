@@ -1756,7 +1756,7 @@ static int shouldRestart=1;
     
     if (childController) [(RootViewControllerLocalBrowser*) childController refreshViewAfterDownload];
     else {
-        //if (self.tableView.refreshControl.refreshing==false) [self.tableView.refreshControl beginRefreshing];
+        if (self.tableView.refreshControl.refreshing==false) [self.tableView.refreshControl beginRefreshing];
         
         self.sBar.enabled=false;//disable search bar
         
@@ -1791,7 +1791,7 @@ static int shouldRestart=1;
             
             dispatch_async(dispatch_get_main_queue(), ^(void){
                 //Run UI Updates
-                //[self.tableView.refreshControl endRefreshing];
+                [self.tableView.refreshControl endRefreshing];
                 [self hideWaiting];
                 [self.tableView reloadData];
                 
