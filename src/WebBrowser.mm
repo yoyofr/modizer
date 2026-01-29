@@ -44,7 +44,7 @@ NSString *cover_url_string,*cover_currentPlayFilepath;
 int found_img;
 
 @synthesize webView,progressIndicator,backButton,forwardButton,downloadViewController,addressTextField;
-@synthesize detailViewController,toolBar;
+@synthesize detailViewController,toolBar,localBrowser;
 @synthesize infoDownloadView,infoDownloadLbl;
 
 @synthesize custom_URL,custom_URL_name;
@@ -1156,61 +1156,88 @@ didFinishNavigation:(WKNavigation *)navigation {
             
             if (found_img) {
                 cover_currentPlayFilepath = [detailViewController getCurrentModuleFilepath];
+                UIAlertController *msgAlert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Image detected",@"")
+                                                                                  message:[NSString stringWithFormat:NSLocalizedString(@"Choose_SaveCover",@""),[cover_currentPlayFilepath lastPathComponent]]
+                                                                           preferredStyle:UIAlertControllerStyleAlert];
                 if (cover_currentPlayFilepath) {
-                    UIAlertController *msgAlert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Image detected",@"")
-                                                                                      message:[NSString stringWithFormat:NSLocalizedString(@"Choose_SaveCover",@""),[cover_currentPlayFilepath lastPathComponent]]
-                                                                               preferredStyle:UIAlertControllerStyleAlert];
-                    
                     UIAlertAction* saveCoverFolderAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"CoverFolder",@"") style:UIAlertActionStyleDefault
                                                                                   handler:^(UIAlertAction * action) {
-                        if (detailViewController.mPlaylist_size) {
-                            NSString *filename;
-                            NSError *err;
-                            if (found_img==1) filename=[NSString stringWithFormat:@"%@/folder.jpg",[cover_currentPlayFilepath stringByDeletingLastPathComponent]];
-                            if (found_img==2) filename=[NSString stringWithFormat:@"%@/folder.png",[cover_currentPlayFilepath stringByDeletingLastPathComponent]];
-                            if (found_img==3) filename=[NSString stringWithFormat:@"%@/folder.gif",[cover_currentPlayFilepath stringByDeletingLastPathComponent]];
-                            NSFileManager *mFileMngr=[[NSFileManager alloc] init];
-                            [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@/folder.jpg",[ModizFileHelper getAppHomeDirectory],[cover_currentPlayFilepath stringByDeletingLastPathComponent]] error:&err];
-                            [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@/folder.png",[ModizFileHelper getAppHomeDirectory],[cover_currentPlayFilepath stringByDeletingLastPathComponent]] error:&err];
-                            [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@/folder.gif",[ModizFileHelper getAppHomeDirectory],[cover_currentPlayFilepath stringByDeletingLastPathComponent]] error:&err];
-                            
-                            [self openPopup: [NSString stringWithFormat:@"Downloading : %@",[filename lastPathComponent] ]];
-                            [downloadViewController addURLImageToDownloadList:cover_url_string fileName:filename filesize:cover_expectedContentLength];
-                        }
+                        
+                        NSString *filename;
+                        NSError *err;
+                        if (found_img==1) filename=[NSString stringWithFormat:@"%@/folder.jpg",[cover_currentPlayFilepath stringByDeletingLastPathComponent]];
+                        if (found_img==2) filename=[NSString stringWithFormat:@"%@/folder.png",[cover_currentPlayFilepath stringByDeletingLastPathComponent]];
+                        if (found_img==3) filename=[NSString stringWithFormat:@"%@/folder.gif",[cover_currentPlayFilepath stringByDeletingLastPathComponent]];
+                        NSFileManager *mFileMngr=[[NSFileManager alloc] init];
+                        [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@/folder.jpg",[ModizFileHelper getAppHomeDirectory],[cover_currentPlayFilepath stringByDeletingLastPathComponent]] error:&err];
+                        [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@/folder.jpeg",[ModizFileHelper getAppHomeDirectory],[cover_currentPlayFilepath stringByDeletingLastPathComponent]] error:&err];
+                        [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@/folder.png",[ModizFileHelper getAppHomeDirectory],[cover_currentPlayFilepath stringByDeletingLastPathComponent]] error:&err];
+                        [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@/folder.webp",[ModizFileHelper getAppHomeDirectory],[cover_currentPlayFilepath stringByDeletingLastPathComponent]] error:&err];
+                        [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@/folder.gif",[ModizFileHelper getAppHomeDirectory],[cover_currentPlayFilepath stringByDeletingLastPathComponent]] error:&err];
+                        
+                        [self openPopup: [NSString stringWithFormat:@"Downloading : %@",[filename lastPathComponent] ]];
+                        [downloadViewController addURLImageToDownloadList:cover_url_string fileName:filename filesize:cover_expectedContentLength];
                     }];
                     [msgAlert addAction:saveCoverFolderAction];
                     
                     UIAlertAction* saveCoverFileAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"CoverFile",@"") style:UIAlertActionStyleDefault
                                                                                 handler:^(UIAlertAction * action) {
                         
-                        if (detailViewController.mPlaylist_size) {
-                            NSString *filename;
-                            NSError *err;
-                            if (found_img==1) filename=[NSString stringWithFormat:@"%@.jpg",[cover_currentPlayFilepath stringByDeletingPathExtension]];
-                            if (found_img==2) filename=[NSString stringWithFormat:@"%@.png",[cover_currentPlayFilepath stringByDeletingPathExtension]];
-                            if (found_img==3) filename=[NSString stringWithFormat:@"%@.gif",[cover_currentPlayFilepath stringByDeletingPathExtension]];
-                            NSFileManager *mFileMngr=[[NSFileManager alloc] init];
-                            [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@.jpg",[ModizFileHelper getAppHomeDirectory],[cover_currentPlayFilepath stringByDeletingPathExtension]] error:&err];
-                            [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@.png",[ModizFileHelper getAppHomeDirectory],[cover_currentPlayFilepath stringByDeletingPathExtension]] error:&err];
-                            [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@.gif",[ModizFileHelper getAppHomeDirectory],[cover_currentPlayFilepath stringByDeletingPathExtension]] error:&err];
-                            
-                            [self openPopup: [NSString stringWithFormat:@"Downloading : %@",[filename lastPathComponent] ]];
-                            [downloadViewController addURLImageToDownloadList:cover_url_string fileName:filename filesize:cover_expectedContentLength];
-                        }
+                        NSString *filename;
+                        NSError *err;
+                        if (found_img==1) filename=[NSString stringWithFormat:@"%@.jpg",[cover_currentPlayFilepath stringByDeletingPathExtension]];
+                        if (found_img==2) filename=[NSString stringWithFormat:@"%@.png",[cover_currentPlayFilepath stringByDeletingPathExtension]];
+                        if (found_img==3) filename=[NSString stringWithFormat:@"%@.gif",[cover_currentPlayFilepath stringByDeletingPathExtension]];
+                        NSFileManager *mFileMngr=[[NSFileManager alloc] init];
+                        [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@.jpg",[ModizFileHelper getAppHomeDirectory],[cover_currentPlayFilepath stringByDeletingPathExtension]] error:&err];
+                        [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@.jpeg",[ModizFileHelper getAppHomeDirectory],[cover_currentPlayFilepath stringByDeletingPathExtension]] error:&err];
+                        [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@.png",[ModizFileHelper getAppHomeDirectory],[cover_currentPlayFilepath stringByDeletingPathExtension]] error:&err];
+                        [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@.webp",[ModizFileHelper getAppHomeDirectory],[cover_currentPlayFilepath stringByDeletingPathExtension]] error:&err];
+                        [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@.gif",[ModizFileHelper getAppHomeDirectory],[cover_currentPlayFilepath stringByDeletingPathExtension]] error:&err];
+                        
+                        [self openPopup: [NSString stringWithFormat:@"Downloading : %@",[filename lastPathComponent] ]];
+                        [downloadViewController addURLImageToDownloadList:cover_url_string fileName:filename filesize:cover_expectedContentLength];
                     }];
                     [msgAlert addAction:saveCoverFileAction];
-                    
-                    UIAlertAction* cancelAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"No",@"") style:UIAlertActionStyleDefault
-                                                                         handler:^(UIAlertAction * action) {
-                    }];
-                    [msgAlert addAction:cancelAction];
-                    
-                    cover_url_string=[[NSString alloc] initWithString:url];
-                    cover_expectedContentLength=-1;
-                    
-                    [self presentViewController:msgAlert animated:YES completion:nil];
-                    //[msgAlert show];
                 }
+                
+                UIAlertAction* saveCoverLibraryFolderAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"CoverLibraryFolder",@"") style:UIAlertActionStyleDefault
+                                                                                     handler:^(UIAlertAction * action) {
+                    
+                    NSString *filename;
+                    NSError *err;
+                    
+                    RootViewControllerLocalBrowser *browser=localBrowser;
+                    while (browser.childController) {
+                        browser=browser.childController;
+                    }
+                    NSString *path=[ModizFileHelper getFullPathForFilePath:browser.currentPath];
+                    
+                    if (found_img==1) filename=[NSString stringWithFormat:@"%@/folder.jpg",path];
+                    if (found_img==2) filename=[NSString stringWithFormat:@"%@/folder.png",path];
+                    if (found_img==3) filename=[NSString stringWithFormat:@"%@/folder.gif",path];
+                    NSFileManager *mFileMngr=[[NSFileManager alloc] init];
+                    [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/folder.jpg",[path stringByDeletingLastPathComponent]] error:&err];
+                    [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/folder.jpeg",[path stringByDeletingLastPathComponent]] error:&err];
+                    [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/folder.png",[path stringByDeletingLastPathComponent]] error:&err];
+                    [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/folder.webp",[path stringByDeletingLastPathComponent]] error:&err];
+                    [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/folder.gif",[path stringByDeletingLastPathComponent]] error:&err];
+                    
+                    [self openPopup: [NSString stringWithFormat:@"Downloading : %@",[filename lastPathComponent] ]];
+                    [downloadViewController addURLImageToDownloadList:cover_url_string fileName:filename filesize:cover_expectedContentLength];
+                }];
+                [msgAlert addAction:saveCoverLibraryFolderAction];
+                
+                UIAlertAction* cancelAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"No",@"") style:UIAlertActionStyleDefault
+                                                                     handler:^(UIAlertAction * action) {
+                }];
+                [msgAlert addAction:cancelAction];
+                
+                cover_url_string=[[NSString alloc] initWithString:url];
+                cover_expectedContentLength=-1;
+                
+                [self presentViewController:msgAlert animated:YES completion:nil];
+                //[msgAlert show];
             }
         }
     }
@@ -1237,64 +1264,93 @@ didFinishNavigation:(WKNavigation *)navigation {
         UIImage *myImage=[[UIPasteboard generalPasteboard] image];
         if (myImage) {
             cover_currentPlayFilepath = [detailViewController getCurrentModuleFilepath];
+            
+            UIAlertController *msgAlert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Image detected",@"")
+                                                                              message:[NSString stringWithFormat:NSLocalizedString(@"Choose_SaveCover",@""),[cover_currentPlayFilepath lastPathComponent]]
+                                                                       preferredStyle:UIAlertControllerStyleAlert];
+            
             if (cover_currentPlayFilepath) {
-                UIAlertController *msgAlert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Image detected",@"")
-                                                                                  message:[NSString stringWithFormat:NSLocalizedString(@"Choose_SaveCover",@""),[cover_currentPlayFilepath lastPathComponent]]
-                                                                           preferredStyle:UIAlertControllerStyleAlert];
-                
                 UIAlertAction* saveCoverFolderAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"CoverFolder",@"") style:UIAlertActionStyleDefault
                                                                               handler:^(UIAlertAction * action) {
-                    if (self->detailViewController.mPlaylist_size) {
-                        NSString *filename;
-                        NSError *err;
-                        filename=[NSString stringWithFormat:@"%@/folder.png",[cover_currentPlayFilepath stringByDeletingLastPathComponent]];
-                        NSFileManager *mFileMngr=[[NSFileManager alloc] init];
-                        [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@/folder.jpg",[ModizFileHelper getAppHomeDirectory],[cover_currentPlayFilepath stringByDeletingLastPathComponent]] error:&err];
-                        [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@/folder.png",[ModizFileHelper getAppHomeDirectory],[cover_currentPlayFilepath stringByDeletingLastPathComponent]] error:&err];
-                        [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@/folder.gif",[ModizFileHelper getAppHomeDirectory],[cover_currentPlayFilepath stringByDeletingLastPathComponent]] error:&err];
-                        
-                        [self openPopup: [NSString stringWithFormat:@"Saving : %@",[filename lastPathComponent] ]];
-                        NSString *filePath=[NSString stringWithFormat:@"%@/%@/folder.png",[ModizFileHelper getAppHomeDirectory],[cover_currentPlayFilepath stringByDeletingLastPathComponent]];
-                        [mFileMngr createFileAtPath:filePath contents:UIImagePNGRepresentation(myImage)  attributes:NULL];
-                        
-                        [detailViewController checkNewCover];
-                        [self updateMiniPlayer];
-                    }
+                    
+                    NSString *filename;
+                    NSError *err;
+                    filename=[NSString stringWithFormat:@"%@/folder.png",[cover_currentPlayFilepath stringByDeletingLastPathComponent]];
+                    NSFileManager *mFileMngr=[[NSFileManager alloc] init];
+                    [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@/folder.jpg",[ModizFileHelper getAppHomeDirectory],[cover_currentPlayFilepath stringByDeletingLastPathComponent]] error:&err];
+                    [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@/folder.jpeg",[ModizFileHelper getAppHomeDirectory],[cover_currentPlayFilepath stringByDeletingLastPathComponent]] error:&err];
+                    [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@/folder.png",[ModizFileHelper getAppHomeDirectory],[cover_currentPlayFilepath stringByDeletingLastPathComponent]] error:&err];
+                    [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@/folder.webp",[ModizFileHelper getAppHomeDirectory],[cover_currentPlayFilepath stringByDeletingLastPathComponent]] error:&err];
+                    [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@/folder.gif",[ModizFileHelper getAppHomeDirectory],[cover_currentPlayFilepath stringByDeletingLastPathComponent]] error:&err];
+                    
+                    [self openPopup: [NSString stringWithFormat:@"Saving : %@",[filename lastPathComponent] ]];
+                    NSString *filePath=[NSString stringWithFormat:@"%@/%@/folder.png",[ModizFileHelper getAppHomeDirectory],[cover_currentPlayFilepath stringByDeletingLastPathComponent]];
+                    [mFileMngr createFileAtPath:filePath contents:UIImagePNGRepresentation(myImage)  attributes:NULL];
+                    
+                    [detailViewController checkNewCover];
+                    [self updateMiniPlayer];
                 }];
                 [msgAlert addAction:saveCoverFolderAction];
                 
                 UIAlertAction* saveCoverFileAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"CoverFile",@"") style:UIAlertActionStyleDefault
                                                                             handler:^(UIAlertAction * action) {
                     
-                    if (detailViewController.mPlaylist_size) {
-                        NSString *filename;
-                        NSError *err;
-                        filename=[NSString stringWithFormat:@"%@.png",[cover_currentPlayFilepath stringByDeletingPathExtension]];
-                        NSFileManager *mFileMngr=[[NSFileManager alloc] init];
-                        [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@.jpg",[ModizFileHelper getAppHomeDirectory],[cover_currentPlayFilepath stringByDeletingPathExtension]] error:&err];
-                        [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@.png",[ModizFileHelper getAppHomeDirectory],[cover_currentPlayFilepath stringByDeletingPathExtension]] error:&err];
-                        [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@.gif",[ModizFileHelper getAppHomeDirectory],[cover_currentPlayFilepath stringByDeletingPathExtension]] error:&err];
-                        
-                        [self openPopup: [NSString stringWithFormat:@"Saving : %@",[filename lastPathComponent] ]];
-                        NSString *filePath=[NSString stringWithFormat:@"%@/%@.png",[ModizFileHelper getAppHomeDirectory],[cover_currentPlayFilepath stringByDeletingPathExtension]];
-                        [mFileMngr createFileAtPath:filePath contents:UIImagePNGRepresentation(myImage)  attributes:NULL];
-                        
-                        [detailViewController checkNewCover];
-                        [self updateMiniPlayer];
-                    }
+                    NSString *filename;
+                    NSError *err;
+                    filename=[NSString stringWithFormat:@"%@.png",[cover_currentPlayFilepath stringByDeletingPathExtension]];
+                    NSFileManager *mFileMngr=[[NSFileManager alloc] init];
+                    [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@.jpg",[ModizFileHelper getAppHomeDirectory],[cover_currentPlayFilepath stringByDeletingPathExtension]] error:&err];
+                    [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@.jpeg",[ModizFileHelper getAppHomeDirectory],[cover_currentPlayFilepath stringByDeletingPathExtension]] error:&err];
+                    [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@.png",[ModizFileHelper getAppHomeDirectory],[cover_currentPlayFilepath stringByDeletingPathExtension]] error:&err];
+                    [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@.webp",[ModizFileHelper getAppHomeDirectory],[cover_currentPlayFilepath stringByDeletingPathExtension]] error:&err];
+                    [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@.gif",[ModizFileHelper getAppHomeDirectory],[cover_currentPlayFilepath stringByDeletingPathExtension]] error:&err];
+                    
+                    [self openPopup: [NSString stringWithFormat:@"Saving : %@",[filename lastPathComponent] ]];
+                    NSString *filePath=[NSString stringWithFormat:@"%@/%@.png",[ModizFileHelper getAppHomeDirectory],[cover_currentPlayFilepath stringByDeletingPathExtension]];
+                    [mFileMngr createFileAtPath:filePath contents:UIImagePNGRepresentation(myImage)  attributes:NULL];
+                    
+                    [detailViewController checkNewCover];
+                    [self updateMiniPlayer];
                 }];
                 [msgAlert addAction:saveCoverFileAction];
-                
-                UIAlertAction* cancelAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"No",@"") style:UIAlertActionStyleDefault
-                                                                     handler:^(UIAlertAction * action) {
-                }];
-                [msgAlert addAction:cancelAction];
-                
-                [self presentViewController:msgAlert animated:YES completion:nil];
             }
+            
+            UIAlertAction* saveCoverLibraryFolderAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"CoverLibraryFolder",@"") style:UIAlertActionStyleDefault
+                                                                                 handler:^(UIAlertAction * action) {
+                NSString *filename;
+                NSError *err;
+                RootViewControllerLocalBrowser *browser=localBrowser;
+                while (browser.childController) {
+                    browser=browser.childController;
+                }
+                NSString *path=[ModizFileHelper getFullPathForFilePath:browser.currentPath];
+                
+                filename=[NSString stringWithFormat:@"%@/folder.png",path];
+                NSFileManager *mFileMngr=[[NSFileManager alloc] init];
+                [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/folder.jpg",path] error:&err];
+                [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/folder.jpeg",path] error:&err];
+                [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/folder.png",path] error:&err];
+                [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/folder.webp",path] error:&err];
+                [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/folder.gif",path] error:&err];
+                
+                [self openPopup: [NSString stringWithFormat:@"Saving : %@",[filename lastPathComponent] ]];
+                [mFileMngr createFileAtPath:filename contents:UIImagePNGRepresentation(myImage)  attributes:NULL];
+                
+                [detailViewController checkNewCover];
+                [self updateMiniPlayer];
+            }];
+            [msgAlert addAction:saveCoverLibraryFolderAction];
+            
+            
+            
+            UIAlertAction* cancelAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"No",@"") style:UIAlertActionStyleDefault
+                                                                 handler:^(UIAlertAction * action) {
+            }];
+            [msgAlert addAction:cancelAction];
+            
+            [self presentViewController:msgAlert animated:YES completion:nil];
         }
     }
-    
 }
 
 //#if TARGET_OS_MACCATALYST
@@ -1317,7 +1373,8 @@ didFinishNavigation:(WKNavigation *)navigation {
                         if (image) {
                             dispatch_async(dispatch_get_main_queue(), ^{
                                 [[UIPasteboard generalPasteboard] setImage:image];
-                                NSLog(@"✅ Image copiée dans le presse-papier");
+                                //MDZILog("✅ Image copiée dans le presse-papier");
+                                [self copyToClip:nil];
                             });
                         }
                     }
@@ -1357,6 +1414,7 @@ didFinishNavigation:(WKNavigation *)navigation {
     // Resolve specific child controllers
     self.detailViewController = [self findChildOfClass:[DetailViewControllerIphone class] inTabBarController:tbc];
     self.downloadViewController = [self findChildOfClass:[DownloadViewController class] inTabBarController:tbc];
+    self.localBrowser = [self findChildOfClass:[RootViewControllerLocalBrowser class] inTabBarController:tbc];
 }
 
 
@@ -1365,6 +1423,10 @@ didFinishNavigation:(WKNavigation *)navigation {
     START_PROFILE
     
     [self loadControllers];
+    
+    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad || [NSProcessInfo processInfo].isiOSAppOnMac) {
+        self.hidesBottomBarWhenPushed = YES;
+    }
     
     self.navigationController.delegate = self;
     
@@ -1631,6 +1693,8 @@ shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherG
 - (void)viewWillAppear:(BOOL)animated {
     //[self.navigationController.navigationBar setBarStyle:UIBarStyleDefault];
     //[[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];
+    
+    //if (localBrowser==nil) [self loadControllers];
         
     [self loadBookmarks];
     bookmarksVC=nil;

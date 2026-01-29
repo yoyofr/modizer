@@ -119,6 +119,10 @@ extern volatile t_settings settings[MAX_SETTINGS];
     START_PROFILE
     [super viewDidLoad];
     
+    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad || [NSProcessInfo processInfo].isiOSAppOnMac) {
+        self.hidesBottomBarWhenPushed = YES;
+    }
+    
     self.navigationController.delegate = self;
     
     forceReloadCells=false;
@@ -480,6 +484,10 @@ trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
         bottomLabel.lineBreakMode=(settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value?
                                 ((settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value==2) ? NSLineBreakByTruncatingTail:NSLineBreakByTruncatingMiddle):NSLineBreakByTruncatingHead);
     }
+    float margin=MDZ_TABVIEW_SEPARATOR_MARGIN;
+    cell.layoutMargins = UIEdgeInsetsMake(0, margin, 0, margin);
+    cell.separatorInset = UIEdgeInsetsMake(0, margin, 0, margin);
+    
     if (darkMode) {
         topLabel.textColor = [UIColor colorWithRed:0.9 green:0.9 blue:0.9 alpha:1.0];
         topLabel.highlightedTextColor = [UIColor colorWithRed:1 green:1 blue:1 alpha:1.0];

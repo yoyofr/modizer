@@ -112,6 +112,10 @@
 
     [self loadControllers];
     [self setupVoiceCommands];
+    
+    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad || [NSProcessInfo processInfo].isiOSAppOnMac) {
+        self.hidesBottomBarWhenPushed = YES;
+    }
 
     wasMiniPlayerOn=([detailViewController mPlaylist_size]>0?true:false);
     miniplayerVC=nil;
@@ -285,6 +289,9 @@
         topLabel = (UILabel *)[cell viewWithTag:TOP_LABEL_TAG];
         bottomLabel = (UILabel *)[cell viewWithTag:BOTTOM_LABEL_TAG];
     }
+    float margin=MDZ_TABVIEW_SEPARATOR_MARGIN;
+    cell.layoutMargins = UIEdgeInsetsMake(0, margin, 0, margin);
+    cell.separatorInset = UIEdgeInsetsMake(0, margin, 0, margin);
 
     if (darkMode) {
         topLabel.textColor = [UIColor colorWithRed:0.9 green:0.9 blue:0.9 alpha:1.0];

@@ -248,6 +248,7 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
                 break;
             default:
                 detailViewController.radioSource.mRadioSource_mode=0;
+                [detailViewController.radioSource.mSourceData addObject:@"ALL"];
                 break;
         }
         [detailViewController.radioSource activate];
@@ -335,6 +336,10 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
 - (void)viewDidLoad {
     START_PROFILE
     [super viewDidLoad];
+    
+    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad || [NSProcessInfo processInfo].isiOSAppOnMac) {
+        self.hidesBottomBarWhenPushed = YES;
+    }
     
     UIImage *image = [UIImage systemImageNamed:@"chevron.backward"];
 
@@ -2111,6 +2116,10 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
         topLabel.lineBreakMode=(settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value?
                                 ((settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value==2) ? NSLineBreakByTruncatingTail:NSLineBreakByTruncatingMiddle):NSLineBreakByTruncatingHead);;
     }
+    float margin=MDZ_TABVIEW_SEPARATOR_MARGIN;
+    cell.layoutMargins = UIEdgeInsetsMake(0, margin, 0, margin);
+    cell.separatorInset = UIEdgeInsetsMake(0, margin, 0, margin);
+    
     actionView.hidden=TRUE;
     secActionView.hidden=TRUE;
     

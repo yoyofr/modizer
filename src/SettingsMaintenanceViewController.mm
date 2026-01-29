@@ -70,7 +70,9 @@ extern bool dbhelper_cancel;
     START_PROFILE
     [super viewDidLoad];
     
-    
+    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad || [NSProcessInfo processInfo].isiOSAppOnMac) {
+        self.hidesBottomBarWhenPushed = YES;
+    }
     
     self.navigationController.delegate = self;
     
@@ -446,6 +448,10 @@ extern char cleanDB_Status[256];
         btn = (BButton *)[cell viewWithTag:TOP_LABEL_TAG];
     }
     btn.frame=CGRectMake((tabView.bounds.size.width-tabView.bounds.size.width*2/3)/2,10,tabView.bounds.size.width*2/3,30);
+    
+    float margin=MDZ_TABVIEW_SEPARATOR_MARGIN;
+    cell.layoutMargins = UIEdgeInsetsMake(0, margin, 0, margin);
+    cell.separatorInset = UIEdgeInsetsMake(0, margin, 0, margin);
     
     NSString *txt;
     switch (indexPath.row) {            

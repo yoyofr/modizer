@@ -320,6 +320,10 @@ MDZELog("gzread error str for FTP entry %d",i); \
     
     [self loadControllers];
     
+    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad || [NSProcessInfo processInfo].isiOSAppOnMac) {
+        self.hidesBottomBarWhenPushed = YES;
+    }
+    
     forceReloadCells=false;
     darkMode=false;
     if (self.traitCollection.userInterfaceStyle==UIUserInterfaceStyleDark) darkMode=true;
@@ -1720,6 +1724,9 @@ MDZELog("gzread error str for FTP entry %d",i); \
         topLabel = (UILabel *)[cell viewWithTag:TOP_LABEL_TAG];
         bottomLabel = (UILabel *)[cell viewWithTag:BOTTOM_LABEL_TAG];
     }
+    float margin=MDZ_TABVIEW_SEPARATOR_MARGIN;
+    cell.layoutMargins = UIEdgeInsetsMake(0, margin, 0, margin);
+    cell.separatorInset = UIEdgeInsetsMake(0, margin, 0, margin);
     
     if (darkMode) {
         topLabel.textColor = [UIColor colorWithRed:0.9 green:0.9 blue:0.9 alpha:1.0];

@@ -109,6 +109,10 @@ extern void *LoadingProgressObserverContext;
     START_PROFILE
     childController=NULL;
     
+    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad || [NSProcessInfo processInfo].isiOSAppOnMac) {
+        self.hidesBottomBarWhenPushed = YES;
+    }
+    
     [self loadControllers];
     
     dictActionBtn=[NSMutableDictionary dictionaryWithCapacity:64];

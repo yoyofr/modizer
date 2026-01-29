@@ -17,6 +17,8 @@
 
 @synthesize mWebBaseDir;
 
+#import "AlertsCommonFunctions.h"
+
 -(void) pushRadioButton {
     if ([detailViewController.radioSource isActive]&&(detailViewController.radioSource.mRadioSource==RS_COLLECTION_JOSHW)) {
         [detailViewController stop];
@@ -70,6 +72,12 @@
 - (void)viewDidLoad {
     START_PROFILE
     [super viewDidLoad];
+    
+    _scrapper=[[CoverScrapper alloc] init];
+    
+    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad || [NSProcessInfo processInfo].isiOSAppOnMac) {
+        self.hidesBottomBarWhenPushed = YES;
+    }
     
     [radioButton addTarget:self action:@selector(pushRadioButton) forControlEvents:UIControlEventTouchUpInside];
     
@@ -338,7 +346,6 @@
     NSArray *sortedArray;
     NSMutableArray *tmpArray=[[NSMutableArray alloc] init];
     t_webSite_entry webs_entry[]= {
-        //https://hoot.joshw.info/!MDScene_Arcade_VGM/
         //computers
         {@"https://pc.joshw.info",@"PC Streamed Music",@"JoshW/PC",@"Computers",TRUE,@[],@"https://www.mobygames.com/game/include_dlc:false/include_nsfw:false/platform:dos/platform:windows/release_status:all/title:%@/sort:moby_score/page:1/"},
         {@"https://cdi.joshw.info/amiga",@"Amiga Music",@"JoshW/Amiga",@"Computers",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=4911"},
@@ -354,7 +361,7 @@
         {@"https://wiiu.joshw.info",@"Nintendo Wii U Music",@"JoshW/WiiU",@"Consoles",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=34&platform_id[]=38"},
         {@"https://kss.joshw.info/Master%20System",@"Master System Music",@"JoshW/SMS",@"Consoles",TRUE,@[@"zzz_homebrew"],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=34&platform_id[]=35"},
         {@"https://smd.joshw.info",@"Genesis/SegaCD Music",@"JoshW/SMD",@"Consoles",TRUE,@[@"zzz_prototypes",@"zzz_unlicensed"],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=34&platform_id[]=18&platform_id[]=21&platform_id[]=33&platform_id[]=36"},
-        {@"https://ssf.joshw.info",@"Saturn Music",@"JoshW/Saturn",@"Consoles",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=34&platform_id[]=17"},
+        {@"https://ssf.joshw.info",@"Saturn Music",@"JoshW/Saturn",@"Consoles",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=17"},
         {@"https://dsf.joshw.info",@"Dreamcast Music",@"JoshW/DC",@"Consoles",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=34&platform_id[]=16"},
         {@"https://hes.joshw.info",@"PC Engine Music",@"JoshW/PCE",@"Consoles",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=34&platform_id[]=4955"},
         {@"https://ncd.joshw.info",@"Neo Geo CD Music",@"JoshW/NEOCD",@"Consoles",FALSE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=4956"},
@@ -752,6 +759,10 @@
         bottomLabel.lineBreakMode=(settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value?
                                 ((settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value==2) ? NSLineBreakByTruncatingTail:NSLineBreakByTruncatingMiddle):NSLineBreakByTruncatingHead);
     }
+    float margin=MDZ_TABVIEW_SEPARATOR_MARGIN;
+    cell.layoutMargins = UIEdgeInsetsMake(0, margin, 0, margin);
+    cell.separatorInset = UIEdgeInsetsMake(0, margin, 0, margin);
+    
     actionView.hidden=TRUE;
     secActionView.hidden=TRUE;
     
@@ -933,505 +944,6 @@
     return NO;
 }
 
-#pragma mark - String Matching (Distance & Similarity)
-
-- (NSInteger)bestMatchIndexFor:(NSString *)searchString
-                       inArray:(NSArray<NSString *> *)candidates
-                  minimumScore:(CGFloat)minScore {
-    if (!searchString || !candidates || [candidates count] == 0) {
-        return NSNotFound;
-    }
-    
-    NSInteger bestIndex = NSNotFound;
-    CGFloat bestScore = 0.0;
-    
-    for (NSInteger i = 0; i < [candidates count]; i++) {
-        NSString *candidate = candidates[i];
-        CGFloat score = [self scoreForMatch:candidate withSearch:searchString];
-        
-        // Utiliser > au lieu de >= pour favoriser le premier en cas d'égalité
-        if (score > bestScore) {
-            bestScore = score;
-            bestIndex = i;
-        }
-    }
-    
-    // Vérifier le seuil minimum
-    if (bestScore < minScore) {
-        return NSNotFound;
-    }
-    
-    return bestIndex;
-}
-
-- (CGFloat)scoreForMatch:(NSString *)candidate withSearch:(NSString *)searchString {
-    if (!candidate || !searchString) return 0.0;
-    
-    // Normaliser (minuscules, sans accents)
-    NSString *search = [[searchString lowercaseString]
-        stringByFoldingWithOptions:NSDiacriticInsensitiveSearch
-        locale:[NSLocale currentLocale]];
-    NSString *candid = [[candidate lowercaseString]
-        stringByFoldingWithOptions:NSDiacriticInsensitiveSearch
-        locale:[NSLocale currentLocale]];
-    
-    // 1. Match exacte
-    if ([search isEqualToString:candid]) {
-        return 1.0;
-    }
-    
-    // 2. Calculer le score de base via initiales et correspondance de mots
-    CGFloat baseScore = 0.0;
-    BOOL hasInitialsMatch = [self matchesInitials:search withCandidate:candid];
-    
-    if (hasInitialsMatch) {
-        baseScore = 0.92;
-    }
-    
-    // 3. Bonus pour correspondance exacte ou quasi-exacte de mots longs (>= 6 caractères)
-    CGFloat exactWordBonus = [self exactWordMatchBonus:search withCandidate:candid];
-    
-    if (exactWordBonus > 0.0) {
-        // Si on a déjà un bon score de base (initiales), ajouter le bonus
-        if (baseScore > 0.0) {
-            // CHANGEMENT ICI: Ne plus plafonner à 0.99, laisser monter jusqu'à 1.20
-            return baseScore + exactWordBonus;  // Peut aller jusqu'à 0.92 + 0.15 + autres = ~1.10
-        }
-        // Sinon utiliser juste le bonus si significatif
-        if (exactWordBonus > 0.7) {
-            return exactWordBonus;
-        }
-    }
-    
-    // Si on a un score de base des initiales, le retourner maintenant
-    if (baseScore > 0.0) {
-        return baseScore;
-    }
-    
-    // 4. Convertir chiffres romains en arabes pour comparaison
-    NSString *searchNormalized = [self normalizeRomanNumerals:search];
-    NSString *candidNormalized = [self normalizeRomanNumerals:candid];
-    
-    if ([searchNormalized isEqualToString:candidNormalized]) {
-        return 0.98;
-    }
-    
-    // 5. Analyse basée sur la série et les numéros
-    NSString *searchBase = [self removeTrailingNumber:search];
-    NSString *candidBase = [self removeTrailingNumber:candid];
-    
-    if ([searchBase length] > 3 && [candidBase hasPrefix:searchBase]) {
-        NSInteger searchNum = [self extractNumber:search];
-        NSInteger candidNum = [self extractNumber:candid];
-        
-        if (searchNum > 0 && candidNum > 0) {
-            NSInteger diff = ABS(searchNum - candidNum);
-            if (diff == 0) return 0.95;
-            if (diff == 1) return 0.70;
-            if (diff == 2) return 0.50;
-            return 0.30;
-        }
-        
-        if (searchNum > 0 && candidNum == 0) {
-            return 0.75;
-        }
-        
-        return 0.80;
-    }
-    
-    // 6. Le candidat est contenu dans la recherche
-    if ([search containsString:candid] && [candid length] > 3) {
-        return 0.85;
-    }
-    
-    // 7. La recherche est contenue dans le candidat
-    if ([candid containsString:search] && [search length] > 3) {
-        return 0.82;
-    }
-    
-    // 8. Score basé sur les mots communs
-    CGFloat wordScore = [self wordMatchScore:search withCandidate:candid];
-    if (wordScore > 0.7) {
-        return wordScore;
-    }
-    
-    // 9. Levenshtein standard
-    NSInteger distance = [self levenshteinDistanceBetween:search and:candid];
-    NSInteger maxLen = MAX([search length], [candid length]);
-    if (maxLen == 0) return 0.0;
-    
-    return MAX(0.0, 1.0 - ((CGFloat)distance / (CGFloat)maxLen));
-}
-- (CGFloat)exactWordMatchBonus:(NSString *)search withCandidate:(NSString *)candidate {
-    NSCharacterSet *separators = [NSCharacterSet characterSetWithCharactersInString:@" -_&:"];
-    NSArray *searchWords = [search componentsSeparatedByCharactersInSet:separators];
-    NSArray *candidateWords = [candidate componentsSeparatedByCharactersInSet:separators];
-    
-    CGFloat totalBonus = 0.0;
-    
-    for (NSString *searchWord in searchWords) {
-        NSString *word = [searchWord stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
-        
-        // Ignorer les mots courts et les mots qui ressemblent à des initiales
-        if ([word length] < 6) continue;
-        if ([self isLikelyInitials:word]) continue;
-        
-        CGFloat bestMatchForWord = 0.0;
-        
-        for (NSString *candidateWord in candidateWords) {
-            NSString *candWord = [candidateWord stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
-            
-            // Ignorer les mots candidats trop courts
-            if ([candWord length] < 4) continue;
-            
-            // 1. Match exact du mot long
-            if ([word isEqualToString:candWord]) {
-                // Bonus fort pour match exact
-                bestMatchForWord = MAX(bestMatchForWord, 0.15);
-            }
-            // 2. Match quasi-exact (distance de Levenshtein <= 2)
-            else {
-                NSInteger distance = [self levenshteinDistanceBetween:word and:candWord];
-                NSInteger maxLen = MAX([word length], [candWord length]);
-                
-                // Si distance très faible (1-2 caractères de différence)
-                if (distance <= 2 && maxLen >= 6) {
-                    // Bonus proportionnel : plus le mot est similaire, plus le bonus est élevé
-                    CGFloat similarity = 1.0 - ((CGFloat)distance / (CGFloat)maxLen);
-                    
-                    if (similarity >= 0.85) {  // Au moins 85% similaire
-                        CGFloat bonus = 0.12 * similarity;  // Bonus jusqu'à 0.12
-                        bestMatchForWord = MAX(bestMatchForWord, bonus);
-                    }
-                }
-                // 3. Un mot contient l'autre (pour "DragonStrike" vs "Dragon")
-                else if ([word length] >= 8 && [candWord length] >= 6) {
-                    if ([word hasPrefix:candWord] || [candWord hasPrefix:word]) {
-                        CGFloat prefixBonus = 0.08;  // Bonus moyen pour préfixe
-                        bestMatchForWord = MAX(bestMatchForWord, prefixBonus);
-                    }
-                }
-            }
-        }
-        
-        totalBonus += bestMatchForWord;
-    }
-    
-    return totalBonus;
-}
-
-- (BOOL)matchesInitials:(NSString *)search withCandidate:(NSString *)candidate {
-    NSCharacterSet *separators = [NSCharacterSet characterSetWithCharactersInString:@" -_:"];
-    NSArray *searchTokens = [search componentsSeparatedByCharactersInSet:separators];
-    NSArray *candidateTokens = [candidate componentsSeparatedByCharactersInSet:separators];
-    
-    if ([searchTokens count] == 0 || [candidateTokens count] == 0) {
-        return NO;
-    }
-    
-    NSInteger matchedTokens = 0;
-    NSInteger totalSearchTokens = 0;
-    NSInteger initialsMatches = 0;
-    
-    for (NSString *searchToken in searchTokens) {
-        NSString *token = [searchToken stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
-        if ([token length] == 0) continue;
-        
-        totalSearchTokens++;
-        
-        // Vérifier si ce token est potentiellement des initiales
-        BOOL isLikelyInitials = [self isLikelyInitials:token];
-        
-        if (isLikelyInitials) {
-            // Vérifier si les initiales matchent les premiers mots du candidat
-            if ([self token:token matchesInitialsOf:candidateTokens]) {
-                matchedTokens++;
-                initialsMatches++;
-                continue;
-            }
-        }
-        
-        // Sinon, chercher une correspondance directe de mot
-        BOOL foundWordMatch = NO;
-        for (NSString *candidateToken in candidateTokens) {
-            NSString *candToken = [candidateToken stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
-            
-            // Match exact ou début de mot (minimum 3 caractères pour éviter faux positifs)
-            if ([token length] >= 3 && [candToken length] >= 3) {
-                if ([candToken hasPrefix:token] || [token hasPrefix:candToken]) {
-                    matchedTokens++;
-                    foundWordMatch = YES;
-                    break;
-                }
-            }
-        }
-        
-        // Si c'est un token très court et qu'il n'a pas matché, c'est suspect
-        if (!foundWordMatch && !isLikelyInitials && [token length] < 3) {
-            // Ignorer les tokens trop courts qui ne sont ni des initiales ni des mots
-            totalSearchTokens--;
-        }
-    }
-    
-    if (totalSearchTokens == 0) return NO;
-    
-    // RÈGLE CRITIQUE : Si on n'a QUE des matches d'initiales (pas de vrais mots),
-    // on doit avoir au moins un token qui ressemble vraiment à des initiales (&, etc.)
-    if (matchedTokens == initialsMatches && initialsMatches > 0) {
-        // Vérifier qu'au moins un des tokens matched a un caractère spécial typique des initiales
-        BOOL hasStrongInitialsIndicator = NO;
-        for (NSString *searchToken in searchTokens) {
-            NSString *token = [searchToken stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
-            if ([token containsString:@"&"] || [token containsString:@"."]) {
-                hasStrongInitialsIndicator = YES;
-                break;
-            }
-        }
-        
-        // Si pas d'indicateur fort d'initiales, rejeter le match
-        if (!hasStrongInitialsIndicator) {
-            return NO;
-        }
-    }
-    
-    // Au moins 70% des tokens de recherche doivent matcher
-    CGFloat matchRatio = (CGFloat)matchedTokens / totalSearchTokens;
-    return matchRatio >= 0.7;
-}
-
-- (BOOL)isLikelyInitials:(NSString *)token {
-    if ([token length] == 0) return NO;
-    
-    // Indicateurs FORTS d'initiales (très fiables)
-    if ([token containsString:@"&"]) {
-        return YES; // "ad&d", "d&d", "at&t", etc.
-    }
-    
-    if ([token containsString:@"."]) {
-        return YES; // "u.s.a", "f.b.i", etc.
-    }
-    
-    // Indicateurs FAIBLES (seulement si très court ET tout en lettres)
-    if ([token length] >= 2 && [token length] <= 4) {
-        // Vérifier si c'est UNIQUEMENT des lettres
-        NSCharacterSet *letters = [NSCharacterSet letterCharacterSet];
-        for (NSInteger i = 0; i < [token length]; i++) {
-            unichar c = [token characterAtIndex:i];
-            if (![letters characterIsMember:c]) {
-                return NO;
-            }
-        }
-        
-        // Token de 2-4 lettres uniquement = potentiellement des initiales
-        return YES;
-    }
-    
-    return NO;
-}
-
-- (BOOL)token:(NSString *)token matchesInitialsOf:(NSArray<NSString *> *)candidateTokens {
-    // Nettoyer le token des caractères spéciaux
-    NSString *cleanToken = [token stringByReplacingOccurrencesOfString:@"&" withString:@""];
-    cleanToken = [cleanToken stringByReplacingOccurrencesOfString:@"." withString:@""];
-    
-    if ([cleanToken length] == 0 || [candidateTokens count] == 0) {
-        return NO;
-    }
-    
-    // Si le token nettoyé est trop long pour être des initiales, rejeter
-    if ([cleanToken length] > 6) {
-        return NO;
-    }
-    
-    // Filtrer les tokens candidats pour enlever les mots vides et symboles
-    NSMutableArray *meaningfulTokens = [NSMutableArray array];
-    for (NSString *candidateToken in candidateTokens) {
-        NSString *word = [candidateToken stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
-        
-        // Ignorer les symboles seuls et mots vides
-        if ([word length] == 0) continue;
-        if ([word isEqualToString:@"&"]) continue;
-        if ([word isEqualToString:@":"]) continue;
-        if ([word isEqualToString:@"-"]) continue;
-        if ([word isEqualToString:@"_"]) continue;
-        
-        [meaningfulTokens addObject:word];
-    }
-    
-    // Construire les initiales des N premiers mots significatifs
-    NSInteger numWords = MIN([cleanToken length], [meaningfulTokens count]);
-    
-    // Si on a moins de mots candidats que de lettres dans le token, pas de match possible
-    if (numWords < [cleanToken length]) {
-        return NO;
-    }
-    
-    NSMutableString *candidateInitials = [NSMutableString string];
-    
-    for (NSInteger i = 0; i < numWords; i++) {
-        NSString *word = meaningfulTokens[i];
-        if ([word length] > 0) {
-            [candidateInitials appendString:[word substringToIndex:1]];
-        }
-    }
-    
-    // Comparer strictement
-    NSString *candidateInitialsLower = [candidateInitials lowercaseString];
-    NSString *cleanTokenLower = [cleanToken lowercaseString];
-    
-    return [candidateInitialsLower isEqualToString:cleanTokenLower];
-}
-
-- (CGFloat)wordMatchScore:(NSString *)search withCandidate:(NSString *)candidate {
-    NSCharacterSet *separators = [NSCharacterSet characterSetWithCharactersInString:@" -_&:"];
-    NSArray *searchWords = [search componentsSeparatedByCharactersInSet:separators];
-    NSArray *candidateWords = [candidate componentsSeparatedByCharactersInSet:separators];
-    
-    NSInteger matches = 0;
-    NSInteger significantSearchWords = 0;
-    
-    for (NSString *searchWord in searchWords) {
-        NSString *word = [searchWord stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
-        if ([word length] < 3) continue; // Ignorer mots très courts
-        
-        significantSearchWords++;
-        
-        for (NSString *candidateWord in candidateWords) {
-            NSString *candWord = [candidateWord stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
-            
-            // Match partiel (au moins 4 caractères en commun)
-            if ([word length] >= 4 && [candWord containsString:word]) {
-                matches++;
-                break;
-            }
-            if ([candWord length] >= 4 && [word containsString:candWord]) {
-                matches++;
-                break;
-            }
-        }
-    }
-    
-    if (significantSearchWords == 0) return 0.0;
-    
-    CGFloat ratio = (CGFloat)matches / significantSearchWords;
-    return ratio * 0.85; // Score maximum de 0.85 pour cette méthode
-}
-
-- (NSString *)normalizeRomanNumerals:(NSString *)string {
-    if (!string) return @"";
-    
-    NSDictionary *romanToArabic = @{
-        @" i$": @" 1", @" ii$": @" 2", @" iii$": @" 3", @" iv$": @" 4",
-        @" v$": @" 5", @" vi$": @" 6", @" vii$": @" 7", @" viii$": @" 8",
-        @" ix$": @" 9", @" x$": @" 10", @" xi$": @" 11", @" xii$": @" 12",
-        @" xiii$": @" 13", @" xiv$": @" 14", @" xv$": @" 15", @" xvi$": @" 16",
-        @" xvii$": @" 17", @" xviii$": @" 18", @" xix$": @" 19", @" xx$": @" 20"
-    };
-    
-    NSString *result = [NSString stringWithFormat:@"%@ ", string];
-    
-    for (NSString *pattern in romanToArabic) {
-        NSString *arabic = romanToArabic[pattern];
-        NSRegularExpression *regex = [NSRegularExpression
-            regularExpressionWithPattern:pattern
-            options:NSRegularExpressionCaseInsensitive
-            error:nil];
-        
-        result = [regex stringByReplacingMatchesInString:result
-            options:0
-            range:NSMakeRange(0, [result length])
-            withTemplate:arabic];
-    }
-    
-    return [result stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
-}
-
-- (NSString *)removeTrailingNumber:(NSString *)string {
-    if (!string) return @"";
-    
-    NSRegularExpression *regex = [NSRegularExpression
-        regularExpressionWithPattern:@"[\\s\\-:]*[0-9ivxlcdm]+\\s*$"
-        options:NSRegularExpressionCaseInsensitive
-        error:nil];
-    
-    NSString *result = [regex stringByReplacingMatchesInString:string
-        options:0
-        range:NSMakeRange(0, [string length])
-        withTemplate:@""];
-    
-    return [result stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
-}
-
-- (NSInteger)extractNumber:(NSString *)string {
-    if (!string) return 0;
-    
-    // D'abord normaliser les romains en arabes
-    NSString *normalized = [self normalizeRomanNumerals:string];
-    
-    // Chercher un nombre à la fin
-    NSRegularExpression *regex = [NSRegularExpression
-        regularExpressionWithPattern:@"[0-9]+\\s*$"
-        options:0
-        error:nil];
-    
-    NSTextCheckingResult *match = [regex firstMatchInString:normalized
-        options:0
-        range:NSMakeRange(0, [normalized length])];
-    
-    if (match) {
-        NSString *numStr = [normalized substringWithRange:match.range];
-        numStr = [numStr stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
-        return [numStr integerValue];
-    }
-    
-    return 0;
-}
-
-- (NSInteger)levenshteinDistanceBetween:(NSString *)string1 and:(NSString *)string2 {
-    if (!string1 || !string2) return MAX([string1 length], [string2 length]);
-    
-    NSInteger len1 = [string1 length];
-    NSInteger len2 = [string2 length];
-    
-    if (len1 == 0) return len2;
-    if (len2 == 0) return len1;
-    
-    // Utiliser un tableau dynamique pour éviter stack overflow sur grandes chaînes
-    NSInteger *previousRow = (NSInteger *)malloc((len2 + 1) * sizeof(NSInteger));
-    NSInteger *currentRow = (NSInteger *)malloc((len2 + 1) * sizeof(NSInteger));
-    
-    // Initialiser la première ligne
-    for (NSInteger j = 0; j <= len2; j++) {
-        previousRow[j] = j;
-    }
-    
-    for (NSInteger i = 1; i <= len1; i++) {
-        currentRow[0] = i;
-        
-        for (NSInteger j = 1; j <= len2; j++) {
-            NSInteger cost = ([string1 characterAtIndex:i-1] == [string2 characterAtIndex:j-1]) ? 0 : 1;
-            
-            NSInteger deletion = previousRow[j] + 1;
-            NSInteger insertion = currentRow[j-1] + 1;
-            NSInteger substitution = previousRow[j-1] + cost;
-            
-            currentRow[j] = MIN(MIN(deletion, insertion), substitution);
-        }
-        
-        // Échanger les lignes
-        NSInteger *temp = previousRow;
-        previousRow = currentRow;
-        currentRow = temp;
-    }
-    
-    NSInteger result = previousRow[len2];
-    
-    free(previousRow);
-    free(currentRow);
-    
-    return result;
-}
-
 #pragma mark - Image grabber helper
 
 - (void)showToast:(NSString *)message
@@ -1520,283 +1032,6 @@
     }];
 }
 
-- (NSString *)removeParenthesesAndBrackets:(NSString *)input {
-    if (!input) return nil;
-    
-    NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@"[\\(\\[].*?[\\)\\]]"
-                                                                           options:0
-                                                                             error:nil];
-    NSString *result = [regex stringByReplacingMatchesInString:input
-                                                        options:0
-                                                          range:NSMakeRange(0, input.length)
-                                                   withTemplate:@""];
-    
-    // Nettoyer tous les espaces multiples (pas seulement les doubles)
-    NSRegularExpression *spaceRegex = [NSRegularExpression regularExpressionWithPattern:@"\\s+"
-                                                                                 options:0
-                                                                                   error:nil];
-    result = [spaceRegex stringByReplacingMatchesInString:result
-                                                  options:0
-                                                    range:NSMakeRange(0, result.length)
-                                             withTemplate:@" "];
-    
-    // Trim les espaces en début et fin
-    return [result stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
-}
-
-- (int)getImgfromTGDB:(NSString*)search_label label:(NSString*)label fullpath:(NSString*)fullpath {
-    //check if cover exists
-    NSString *cleanName=[self removeParenthesesAndBrackets:[search_label stringByDeletingPathExtension]];
-    if ([cleanName containsString:@","]) {
-        cleanName=[cleanName substringToIndex:[cleanName rangeOfString:@","].location];
-    }
-    NSString *url_img=[[NSString stringWithFormat:img_grabber_url,[cleanName stringByReplacingOccurrencesOfString:@" " withString:@"+"]] stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
-    //MDZILog("url gamedb: %@",url_img);
-    
-    NSURL *url=[NSURL URLWithString:url_img];
-    NSData *reqData = [NSData dataWithContentsOfURL:url];
-    
-    TFHpple *doc = [[TFHpple alloc] initWithHTMLData:reqData];
-    NSMutableArray *arr_img=[NSMutableArray arrayWithArray:[doc searchWithXPathQuery:@"/html/body//img[@class='card-img-top']/@src"]];
-    NSMutableArray *arr_title=[NSMutableArray arrayWithArray:[doc searchWithXPathQuery:@"/html/body//img[@class='card-img-top']/@alt"]];
-    if ((arr_img!=nil) && [arr_img count]) {
-        TFHppleElement *el;
-        
-        //Init game names list
-        NSMutableArray *gameNames=[NSMutableArray arrayWithCapacity:[arr_title count]];
-        NSString *lbl;
-        for (int i=0;i<[arr_title count];i++) {
-            el=[arr_title objectAtIndex:i];
-            lbl=[[el content] stringByReplacingOccurrencesOfString:@" cover" withString:@""];
-            [gameNames insertObject:lbl atIndex:i];
-        }
-        NSInteger index = [self bestMatchIndexFor:cleanName inArray:gameNames minimumScore:0.5];
-        
-        if (index != NSNotFound) {
-            //NSLog(@"Best match: %@", gameNames[index]);
-            el=[arr_img objectAtIndex:index];
-            url_img=[el content];
-            NSString *imgPath=[[fullpath stringByDeletingPathExtension] stringByAppendingFormat:@".%@",[[url_img pathExtension] lowercaseString]];
-            
-            
-            NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
-            AFURLSessionManager *manager = [[AFURLSessionManager alloc] initWithSessionConfiguration:configuration];
-            manager.responseSerializer = [AFHTTPResponseSerializer serializer];
-            
-            url = [NSURL URLWithString:url_img];
-            NSURLRequest *request = [NSURLRequest requestWithURL:url];
-            
-            NSURLSessionDataTask *dataTask = [manager dataTaskWithRequest:request
-                                                           uploadProgress:^(NSProgress * _Nonnull uploadProgress) {
-            }
-                                                         downloadProgress:^(NSProgress * _Nonnull downloadProgress) {
-                
-            }
-                                                        completionHandler:^(NSURLResponse *response, id responseObject, NSError *error) {
-                if (error) {
-                    MDZELog("Error: %@", error);
-                } else {
-                    NSData *data=responseObject;
-                    [data writeToFile:[NSString stringWithFormat:@"%@/%@",[ModizFileHelper getAppHomeDirectory],imgPath] atomically:NO];
-                    
-                    dispatch_async(dispatch_get_main_queue(), ^(void){
-                        [detailViewController checkNewCover];
-                        [tableView reloadData];
-                        if (miniplayerVC) [self updateMiniPlayer];
-                    });
-                    
-                }
-            }];
-            
-            [dataTask resume];
-            
-            [manager invalidateSessionCancelingTasks:NO resetSession:NO];
-            
-            return 1;
-        }
-        
-        
-//                [downloadViewController addURLToDownloadList:url_img fileName:imgName filePath:imgPath filesize:-1 isMODLAND:0 usePrimaryAction:mClickedPrimAction];
-    } else {
-        if ([search_label containsString:@"-"]) {
-            search_label=[search_label substringToIndex:[search_label rangeOfString:@"-"].location];
-            [self getImgfromTGDB:search_label label:label fullpath:fullpath];
-        }
-    }
-    return 0;
-}
-
-- (NSString *)extractInternalURLFromMobyGames:(NSString *)pageURL {
-    NSURL *url = [NSURL URLWithString:pageURL];
-    NSData *reqData = [NSData dataWithContentsOfURL:url];
-    
-    if (!reqData) return nil;
-    
-    NSString *html = [[NSString alloc] initWithData:reqData encoding:NSUTF8StringEncoding];
-    
-    // Regex pour capturer le JSON dans :initial-values='...'
-    NSRegularExpression *regex = [NSRegularExpression
-        regularExpressionWithPattern:@":initial-values='([^']+)'"
-        options:0
-        error:nil];
-    
-    NSTextCheckingResult *match = [regex firstMatchInString:html
-                                                    options:0
-                                                      range:NSMakeRange(0, [html length])];
-    
-    if (!match || match.numberOfRanges < 2) {
-        NSLog(@"⚠️ Pas de :initial-values trouvé");
-        return nil;
-    }
-    
-    // Extraire et nettoyer le JSON
-    NSString *jsonString = [html substringWithRange:[match rangeAtIndex:1]];
-    jsonString = [jsonString stringByReplacingOccurrencesOfString:@"&quot;" withString:@"\""];
-    jsonString = [jsonString stringByReplacingOccurrencesOfString:@"&#x27;" withString:@"'"];
-    jsonString = [jsonString stringByReplacingOccurrencesOfString:@"&amp;" withString:@"&"];
-    
-    // Parser le JSON
-    NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
-    NSError *jsonError;
-    NSDictionary *json = [NSJSONSerialization JSONObjectWithData:jsonData
-                                                         options:0
-                                                           error:&jsonError];
-    
-    if (jsonError) {
-        NSLog(@"⚠️ Erreur parsing JSON: %@", jsonError.localizedDescription);
-        return nil;
-    }
-    
-    // Extraire l'URL
-    NSArray *games = json[@"games"];
-    if (games && [games count] > 0) {
-        return games[0][@"internal_url"];
-    }
-    
-    return nil;
-}
-
-- (NSString *)extractCoverImageFromMobyGames:(NSString *)pageURL {
-    NSURL *url = [NSURL URLWithString:pageURL];
-    NSData *reqData = [NSData dataWithContentsOfURL:url];
-    
-    if (!reqData) return nil;
-    
-    NSString *html = [[NSString alloc] initWithData:reqData encoding:NSUTF8StringEncoding];
-    
-    // Méthode 1 : Extraire depuis les meta tags OpenGraph
-    NSRegularExpression *regex = [NSRegularExpression
-        regularExpressionWithPattern:@"<meta property=\"og:image\" content=\"([^\"]+)\""
-        options:0
-        error:nil];
-    
-    NSTextCheckingResult *match = [regex firstMatchInString:html
-                                                    options:0
-                                                      range:NSMakeRange(0, [html length])];
-    
-    if (match && match.numberOfRanges > 1) {
-        NSString *imageURL = [html substringWithRange:[match rangeAtIndex:1]];
-        NSLog(@"✅ Image trouvée (meta): %@", imageURL);
-        return imageURL;
-    }
-    
-    // Méthode 2 : Si pas de meta, chercher dans le JSON du Web Component player-tools
-    regex = [NSRegularExpression
-        regularExpressionWithPattern:@"cover-url=\"([^\"]+)\""
-        options:0
-        error:nil];
-    
-    match = [regex firstMatchInString:html options:0 range:NSMakeRange(0, [html length])];
-    
-    if (match && match.numberOfRanges > 1) {
-        NSString *imageURL = [html substringWithRange:[match rangeAtIndex:1]];
-        NSLog(@"✅ Image trouvée (component): %@", imageURL);
-        return imageURL;
-    }
-    
-    return nil;
-}
-
-- (int)getImgfromMobyG:(NSString*)search_label label:(NSString*)label fullpath:(NSString*)fullpath {
-    //check if cover exists
-    NSString *cleanName=[self removeParenthesesAndBrackets:[search_label stringByDeletingPathExtension]];
-    if ([cleanName containsString:@","]) {
-        cleanName=[cleanName substringToIndex:[cleanName rangeOfString:@","].location];
-    }
-    NSString *url_img=[[NSString stringWithFormat:img_grabber_url,cleanName] stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
-    
-    // Utilisation
-    url_img = [self extractInternalURLFromMobyGames:url_img];
-    if (url_img) {
-//        MDZILog("✅ Game URL: %@", url_img);
-        
-        url_img = [self extractCoverImageFromMobyGames:url_img];
-
-        if (url_img) {
-            
-            NSString *imgPath=[[fullpath stringByDeletingPathExtension] stringByAppendingFormat:@".%@",[[url_img pathExtension] lowercaseString]];
-            
-            NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
-            AFURLSessionManager *manager = [[AFURLSessionManager alloc] initWithSessionConfiguration:configuration];
-            manager.responseSerializer = [AFHTTPResponseSerializer serializer];
-            
-            NSURL *url = [NSURL URLWithString:url_img];
-            NSURLRequest *request = [NSURLRequest requestWithURL:url];
-            
-            NSURLSessionDataTask *dataTask = [manager dataTaskWithRequest:request
-                                                           uploadProgress:^(NSProgress * _Nonnull uploadProgress) {
-            }
-                                                         downloadProgress:^(NSProgress * _Nonnull downloadProgress) {
-                
-            }
-                                                        completionHandler:^(NSURLResponse *response, id responseObject, NSError *error) {
-                if (error) {
-                    MDZELog("Error: %@", error);
-                } else {
-                    NSData *data=responseObject;
-                    [data writeToFile:[NSString stringWithFormat:@"%@/%@",[ModizFileHelper getAppHomeDirectory],imgPath] atomically:NO];
-                    
-                    dispatch_async(dispatch_get_main_queue(), ^(void){
-                        [detailViewController checkNewCover];
-                        [tableView reloadData];
-                        if (miniplayerVC) [self updateMiniPlayer];
-                    });
-                    
-                }
-            }];
-            
-            [dataTask resume];
-            
-            [manager invalidateSessionCancelingTasks:NO resetSession:NO];
-            
-            return 1;
-            
-        }
-    } else {
-        if ([cleanName containsString:@"-"]) {
-            cleanName=[cleanName substringToIndex:[cleanName rangeOfString:@"-"].location];
-            [self getImgfromMobyG:cleanName label:label fullpath:fullpath];
-        } else if ([cleanName containsString:@"OPN"]) {
-            cleanName=[cleanName stringByReplacingOccurrencesOfString:@"OPNA" withString:@""];
-            cleanName=[cleanName stringByReplacingOccurrencesOfString:@"OPN" withString:@""];
-            [self getImgfromMobyG:cleanName label:label fullpath:fullpath];
-        } else if ([cleanName containsString:@"AD&D"]) {
-            cleanName=[cleanName stringByReplacingOccurrencesOfString:@"AD&D" withString:@""];
-            [self getImgfromMobyG:cleanName label:label fullpath:fullpath];
-        }
-    }
-    return 0;
-}
-
-- (void)getImgfromImgGrabber:(NSString*)search_label label:(NSString*)label fullpath:(NSString*)fullpath {
-    static int no_reentrant=0;
-    if (no_reentrant) return;
-    no_reentrant=1;
-    if ([img_grabber_url containsString:@"thegamesdb"]) [self getImgfromTGDB:search_label label:label fullpath:fullpath];
-    
-    if ([img_grabber_url containsString:@"mobygames"]) [self getImgfromMobyG:search_label label:label fullpath:fullpath];
-    no_reentrant=0;
-}
 
 
 #pragma mark -
@@ -1838,9 +1073,13 @@
             if (settings[ONLINE_JOSHW_IMG_GRABBER].detail.mdz_switch.switch_value) {
                 //try to get a cover
                 dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void){
-                    [self getImgfromImgGrabber:cur_db_entries[indexPath.row].label label:cur_db_entries[indexPath.row].label fullpath:cur_db_entries[indexPath.row].fullpath];
+                    //[self getImgfromImgGrabber:cur_db_entries[indexPath.row].label label:cur_db_entries[indexPath.row].label fullpath:cur_db_entries[indexPath.row].fullpath];
+                    [self.scrapper getImgfromImgGrabber:img_grabber_url search_label:cur_db_entries[indexPath.row].label label:cur_db_entries[indexPath.row].label fullpath:cur_db_entries[indexPath.row].fullpath completion:^{
+                        [detailViewController checkNewCover];
+                        [tableView reloadData];
+                        if (miniplayerVC) [self updateMiniPlayer];
+                    }];
                 });
-                
             }
             
             [downloadViewController addURLToDownloadList:cur_db_entries[indexPath.row].URL fileName:cur_db_entries[indexPath.row].label filePath:cur_db_entries[indexPath.row].fullpath filesize:-1 isMODLAND:1 usePrimaryAction:mClickedPrimAction];
@@ -1886,15 +1125,61 @@
             cur_db_entries=(search_dbWEB?search_dbWEB_entries:dbWEB_entries);
             
             if (cur_db_entries[indexPath.row].isFile && (cur_db_entries[indexPath.row].downloaded==1)) {
-
-                // Utilisation
-                CGPoint touchPoint = [gestureRecognizer locationInView:self.view];
-                [self showToast:NSLocalizedString(@"Trying to download a cover",@"") duration:2.0 nearPoint:touchPoint];
-                //try to get a cover
+                NSString *filePathNoExt=[cur_db_entries[indexPath.row].fullpath stringByDeletingPathExtension];
+            
+                UIAlertController *alertC = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Cover",@"")
+                                                   message:NSLocalizedString(@"Please select an option",@"")
+                                                   preferredStyle:UIAlertControllerStyleAlert];
                 
-                dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void){
-                    [self getImgfromImgGrabber:cur_db_entries[indexPath.row].label label:cur_db_entries[indexPath.row].label fullpath:cur_db_entries[indexPath.row].fullpath];
-                });
+                UIAlertAction* downloadAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Download cover",@"") style:UIAlertActionStyleDefault
+                    handler:^(UIAlertAction * action) {
+                    // Utilisation
+                    CGPoint touchPoint = [gestureRecognizer locationInView:self.view];
+                    [self showToast:NSLocalizedString(@"Trying to download a cover",@"") duration:2.0 nearPoint:touchPoint];
+                    //try to get a cover
+                    
+                    dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void){
+                        //[self getImgfromImgGrabber:cur_db_entries[indexPath.row].label label:cur_db_entries[indexPath.row].label fullpath:cur_db_entries[indexPath.row].fullpath];
+                        [self.scrapper getImgfromImgGrabber:img_grabber_url search_label:cur_db_entries[indexPath.row].label label:cur_db_entries[indexPath.row].label fullpath:cur_db_entries[indexPath.row].fullpath completion:^{
+                            [detailViewController checkNewCover];
+                            [tableView reloadData];
+                            if (miniplayerVC) [self updateMiniPlayer];
+                        }];
+                    });
+                    }];
+                [alertC addAction:downloadAction];
+                
+                
+                UIAlertAction* deleteAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Delete cover",@"") style:UIAlertActionStyleDestructive
+                    handler:^(UIAlertAction * action) {
+                    NSString *imgPath=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@",[filePathNoExt stringByAppendingString:@".png"]];
+                    [mFileMngr removeItemAtPath:imgPath error:nil];
+                    imgPath=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@",[filePathNoExt stringByAppendingString:@".jpg"]];
+                    [mFileMngr removeItemAtPath:imgPath error:nil];
+                    imgPath=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@",[filePathNoExt stringByAppendingString:@".jpeg"]];
+                    [mFileMngr removeItemAtPath:imgPath error:nil];
+                    imgPath=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@",[filePathNoExt stringByAppendingString:@".webp"]];
+                    [mFileMngr removeItemAtPath:imgPath error:nil];
+                    imgPath=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@",[filePathNoExt stringByAppendingString:@".gif"]];
+                    [mFileMngr removeItemAtPath:imgPath error:nil];
+                    
+                    [detailViewController checkNewCover];
+                    [tableView reloadData];
+                    if (miniplayerVC) [self updateMiniPlayer];
+                }];
+                    
+                    
+                [alertC addAction:deleteAction];
+                
+                UIAlertAction* closeAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Close",@"") style:UIAlertActionStyleCancel
+                    handler:^(UIAlertAction * action) {
+                }];
+                
+                [alertC addAction:closeAction];
+                
+                [self showAlert:alertC];
+                
+                
             }
         } else {
         }

@@ -6267,7 +6267,6 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 mNeedSeek=0;bGlobalSeekProgress=0;
                                 mCurrentSamples=0;
                                 
-                                iModuleLength=0;
                                 if (iModuleLength<=0) iModuleLength=settings[GLOB_DefaultLength].detail.mdz_slider.slider_value*1000;;
                                 
                                 mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
@@ -7587,6 +7586,17 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     }
                                     voices_idx++;
                                 }
+                            }
+                            
+                            if ((nbBytes<SOUND_BUFFER_SIZE_SAMPLE*2*2)||( (iModuleLength>0)&&(mCurrentSamples>=mTgtSamples)) ) {
+                                if (mSingleSubMode==0) {
+                                    if ([self playNextSub]<0) nbBytes=(nbBytes==SOUND_BUFFER_SIZE_SAMPLE*2*2?nbBytes-4:nbBytes);
+                                    else {
+                                        nbBytes=(nbBytes==SOUND_BUFFER_SIZE_SAMPLE*2*2?nbBytes-4:nbBytes);
+                                        donotstop=1;
+                                        moveToSubSong=2;
+                                    }
+                                } else nbBytes=(nbBytes==SOUND_BUFFER_SIZE_SAMPLE*2*2?nbBytes-4:nbBytes);
                             }
                         }
                         if (mPlayType==MMP_PIXEL) {
@@ -14880,7 +14890,7 @@ extern bool icloud_available;
                     __block NSString *m3uFilePath=nil;
                     __block bool noArcM3Umode=false;
                     __block unsigned long long maxFileSize=0;
-                    NSArray *extNoArcM3Umode=@[@"nsf",@"nsfe",@"kss",@"gbs",@"sgc"];
+                    NSArray *extNoArcM3Umode=@[@"nsf",@"nsfe",@"kss",@"gbs",@"sgc",@"wsr"];
                     
                     NSArray* dirEntries = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:[NSString stringWithFormat:@"%@/tmpArchive",NSTemporaryDirectory()] error:NULL];
                     

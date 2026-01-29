@@ -28,6 +28,7 @@
 	IBOutlet UITextField *addressTextField;
     DownloadViewController *downloadViewController;
     DetailViewControllerIphone *detailViewController;
+    RootViewControllerLocalBrowser *localBrowser;
     
     WaitingView *waitingView,*waitingViewPlayer;
     NSTimer *repeatingTimer;
@@ -64,7 +65,8 @@
 @property (nonatomic,retain) IBOutlet UITextField *addressTextField;
 @property (nonatomic,retain) DownloadViewController *downloadViewController;
 @property (nonatomic,retain) DetailViewControllerIphone *detailViewController;
-@property (nonatomic, retain) WaitingView *waitingView,*waitingViewPlayer;
+@property (nonatomic,retain) WaitingView *waitingView,*waitingViewPlayer;
+@property (nonatomic,retain) RootViewControllerLocalBrowser *localBrowser;
 
 -(IBAction) goPlayer;
 -(void) updateMiniPlayer;

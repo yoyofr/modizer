@@ -92,6 +92,8 @@ extern void *LoadingProgressObserverContext;
 #define ICLOUD_COLOR_GREEN_DARKMODE ((float)(0xAD)/255.0)
 #define ICLOUD_COLOR_BLUE_DARKMODE ((float)(0xED)/255.0)
 
+#define MDZ_TABVIEW_SEPARATOR_MARGIN 16
+
 #define MDZ_FOLDER_DARK_R 0.4f
 #define MDZ_FOLDER_DARK_G 0.6f
 #define MDZ_FOLDER_DARK_B 1.0f

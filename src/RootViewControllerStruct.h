@@ -13,6 +13,7 @@ typedef struct {
 	NSString *label;
     NSString *altlabel;
 	NSString *fullpath;
+    NSString *imgpath;
 	int song_length;
 	int songs;
 	short int playcount;

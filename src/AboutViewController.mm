@@ -103,6 +103,10 @@
     START_PROFILE
 
     [self loadControllers];
+    
+    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad || [NSProcessInfo processInfo].isiOSAppOnMac) {
+        self.hidesBottomBarWhenPushed = YES;
+    }
 
     textView.font=[UIFont systemFontOfSize:14];
     textView.text=NSLocalizedString(@"About_Text", @"");

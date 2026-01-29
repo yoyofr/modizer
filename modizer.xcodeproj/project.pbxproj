@@ -1240,6 +1240,10 @@
 		CC7E810212698C29006EF083 /* previous.png in Resources */ = {isa = PBXBuildFile; fileRef = CC7E810112698C29006EF083 /* previous.png */; };
 		CC7FC83F126B707300156FB3 /* databaseMAIN.modizerdb in Resources */ = {isa = PBXBuildFile; fileRef = CC7FC83D126B707200156FB3 /* databaseMAIN.modizerdb */; };
 		CC7FC85C126B760400156FB3 /* database.modizerdb in Resources */ = {isa = PBXBuildFile; fileRef = CC7FC85B126B760400156FB3 /* database.modizerdb */; };
+		CC834F962F2AC8D400DC3306 /* StringMatcher.m in Sources */ = {isa = PBXBuildFile; fileRef = CC834F952F2AC8D400DC3306 /* StringMatcher.m */; };
+		CC834F972F2AC8D400DC3306 /* StringMatcher.m in Sources */ = {isa = PBXBuildFile; fileRef = CC834F952F2AC8D400DC3306 /* StringMatcher.m */; };
+		CC834F9A2F2B653600DC3306 /* CoverScrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = CC834F992F2B653400DC3306 /* CoverScrapper.m */; };
+		CC834F9B2F2B653600DC3306 /* CoverScrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = CC834F992F2B653400DC3306 /* CoverScrapper.m */; };
 		CC8368592B57CA9A0035A4DA /* mfpemul.c in Sources */ = {isa = PBXBuildFile; fileRef = CC83674C2B57CA9A0035A4DA /* mfpemul.c */; };
 		CC83685A2B57CA9A0035A4DA /* ym_io.c in Sources */ = {isa = PBXBuildFile; fileRef = CC8367512B57CA9A0035A4DA /* ym_io.c */; };
 		CC83685B2B57CA9A0035A4DA /* mfp_io.c in Sources */ = {isa = PBXBuildFile; fileRef = CC8367522B57CA9A0035A4DA /* mfp_io.c */; };
@@ -4366,6 +4370,10 @@
 		CC7E810112698C29006EF083 /* previous.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = previous.png; sourceTree = "<group>"; };
 		CC7FC83D126B707200156FB3 /* databaseMAIN.modizerdb */ = {isa = PBXFileReference; lastKnownFileType = file; path = databaseMAIN.modizerdb; sourceTree = "<group>"; };
 		CC7FC85B126B760400156FB3 /* database.modizerdb */ = {isa = PBXFileReference; lastKnownFileType = file; path = database.modizerdb; sourceTree = "<group>"; };
+		CC834F692F2AC8BA00DC3306 /* StringMatcher.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = StringMatcher.h; sourceTree = "<group>"; };
+		CC834F952F2AC8D400DC3306 /* StringMatcher.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = StringMatcher.m; sourceTree = "<group>"; };
+		CC834F982F2B652600DC3306 /* CoverScrapper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CoverScrapper.h; sourceTree = "<group>"; };
+		CC834F992F2B653400DC3306 /* CoverScrapper.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CoverScrapper.m; sourceTree = "<group>"; };
 		CC8367492B57CA9A0035A4DA /* shifter_io.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = shifter_io.h; sourceTree = "<group>"; };
 		CC83674A2B57CA9A0035A4DA /* paula_io.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = paula_io.h; sourceTree = "<group>"; };
 		CC83674B2B57CA9A0035A4DA /* paulaemul.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = paulaemul.h; sourceTree = "<group>"; };
@@ -5887,6 +5895,10 @@
 		59BF54EF2628C9F50064EF5E /* CommonFunctions */ = {
 			isa = PBXGroup;
 			children = (
+				CC834F992F2B653400DC3306 /* CoverScrapper.m */,
+				CC834F982F2B652600DC3306 /* CoverScrapper.h */,
+				CC834F692F2AC8BA00DC3306 /* StringMatcher.h */,
+				CC834F952F2AC8D400DC3306 /* StringMatcher.m */,
 				CC78DBA52B9A045A00A37464 /* ModizFileHelper.h */,
 				CC78DBA62B9A045A00A37464 /* ModizFileHelper.mm */,
 				5985FB1226412C7C00F859C4 /* AlertsCommonFunctions.h */,
@@ -9966,6 +9978,7 @@
 				CC83695C2B57CCC80035A4DA /* inst68.c in Sources */,
 				59C22A3225B99ACA003FEDBF /* Reachability.m in Sources */,
 				CC8368F12B57CA9B0035A4DA /* option68.c in Sources */,
+				CC834F9B2F2B653600DC3306 /* CoverScrapper.m in Sources */,
 				CC8368F22B57CA9B0035A4DA /* registry68.c in Sources */,
 				CC8971102EFD5D3F00D6CA1E /* C64PGGDecoder.mm in Sources */,
 				591D8E4B25DC63620013E19F /* bit_allocation.c in Sources */,
@@ -10133,6 +10146,7 @@
 				CC8368E42B57CA9B0035A4DA /* uri68.c in Sources */,
 				330F36C917A683FB00EEC84A /* OnlineViewController.mm in Sources */,
 				596BB20C26507734000E63A6 /* RootViewControllerAMPWebParser.mm in Sources */,
+				CC834F962F2AC8D400DC3306 /* StringMatcher.m in Sources */,
 				59C22A1C25B992D9003FEDBF /* AFURLSessionManager.m in Sources */,
 				CC8368E22B57CA9B0035A4DA /* vfs68_z.c in Sources */,
 				CC6CBDF617DC615F006DCBC7 /* EQView.m in Sources */,
@@ -10177,6 +10191,7 @@
 				CCBE60592EE2DD44000FDD7E /* inst68.c in Sources */,
 				CCBE605A2EE2DD44000FDD7E /* Reachability.m in Sources */,
 				CCBE605B2EE2DD44000FDD7E /* option68.c in Sources */,
+				CC834F9A2F2B653600DC3306 /* CoverScrapper.m in Sources */,
 				CCBE605C2EE2DD44000FDD7E /* registry68.c in Sources */,
 				CC89710F2EFD5D3F00D6CA1E /* C64PGGDecoder.mm in Sources */,
 				CCBE605D2EE2DD44000FDD7E /* bit_allocation.c in Sources */,
@@ -10344,6 +10359,7 @@
 				CCBE60F82EE2DD44000FDD7E /* uri68.c in Sources */,
 				CCBE60F92EE2DD44000FDD7E /* OnlineViewController.mm in Sources */,
 				CCBE60FA2EE2DD44000FDD7E /* RootViewControllerAMPWebParser.mm in Sources */,
+				CC834F972F2AC8D400DC3306 /* StringMatcher.m in Sources */,
 				CCBE60FB2EE2DD44000FDD7E /* AFURLSessionManager.m in Sources */,
 				CCBE60FC2EE2DD44000FDD7E /* vfs68_z.c in Sources */,
 				CCBE60FD2EE2DD44000FDD7E /* EQView.m in Sources */,

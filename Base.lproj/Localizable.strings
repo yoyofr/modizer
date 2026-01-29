@@ -257,6 +257,7 @@
 "Choose_SaveCover" = "Save image as cover for %@?";
 "CoverFolder" = "As Folder cover";
 "CoverFile" = "As File cover";
+"CoverLibraryFolder" = "As current Library folder cover";
 "Confirm_RemCurCovers" = "Remove current covers for %@ (folder&file)?";
 
 

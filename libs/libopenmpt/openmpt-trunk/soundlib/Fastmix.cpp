@@ -492,7 +492,7 @@ bool CSoundFile::MixChannel(int count, ModChannel &chn, CHANNELINDEX channel, bo
                         int val;
                         for (int ii=0;ii<nSmpCount;ii++) {
                             val=(pbuffer[ii*2]+pbuffer[ii*2+1])-m_voice_buff_accumul_temp[0][ii&(SOUND_BUFFER_SIZE_SAMPLE-1)];
-                            m_voice_buff[chn_idx][((m_voice_current_ptr[chn_idx]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT) + count-nsamples + ii)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8( (val>>19) );
+                            m_voice_buff[chn_idx][((m_voice_current_ptr[chn_idx]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT) + count-nsamples + ii)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8( (val>>19)*0.7 );
                         }
                     }
                 //TODO:  MODIZER changes end / YOYOFR

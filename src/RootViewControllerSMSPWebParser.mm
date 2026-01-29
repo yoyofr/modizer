@@ -121,6 +121,10 @@ int qsortSMSP_entries_rating_or_entries(const void *entryA, const void *entryB) 
     START_PROFILE
     [super viewDidLoad];
     
+    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad || [NSProcessInfo processInfo].isiOSAppOnMac) {
+        self.hidesBottomBarWhenPushed = YES;
+    }
+    
     [radioButton addTarget:self action:@selector(pushRadioButton) forControlEvents:UIControlEventTouchUpInside];
     
     browse_mode=BROWSE_ALL;
@@ -714,6 +718,10 @@ int qsortSMSP_entries_rating_or_entries(const void *entryA, const void *entryB) 
         topLabel.lineBreakMode=(settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value?
                                 ((settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value==2) ? NSLineBreakByTruncatingTail:NSLineBreakByTruncatingMiddle):NSLineBreakByTruncatingHead);;
     }
+    float margin=MDZ_TABVIEW_SEPARATOR_MARGIN;
+    cell.layoutMargins = UIEdgeInsetsMake(0, margin, 0, margin);
+    cell.separatorInset = UIEdgeInsetsMake(0, margin, 0, margin);
+    
     actionView.hidden=TRUE;
     secActionView.hidden=TRUE;
     

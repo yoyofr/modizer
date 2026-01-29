@@ -233,7 +233,11 @@ extern volatile t_settings settings[MAX_SETTINGS];
 - (void)viewDidLoad {
     START_PROFILE
     childController=NULL;
-    
+
+    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad || [NSProcessInfo processInfo].isiOSAppOnMac) {
+        self.hidesBottomBarWhenPushed = YES;
+    }
+
     [self loadControllers];
     
     dictActionBtn=[NSMutableDictionary dictionaryWithCapacity:64];
@@ -1178,6 +1182,10 @@ END_PROFILE
         bottomLabel.lineBreakMode=(settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value?
                                 ((settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value==2) ? NSLineBreakByTruncatingTail:NSLineBreakByTruncatingMiddle):NSLineBreakByTruncatingHead);
     }
+    float margin=MDZ_TABVIEW_SEPARATOR_MARGIN;
+    cell.layoutMargins = UIEdgeInsetsMake(0, margin, 0, margin);
+    cell.separatorInset = UIEdgeInsetsMake(0, margin, 0, margin);
+    
     actionView.hidden=TRUE;
     secActionView.hidden=TRUE;
     

@@ -660,7 +660,7 @@ void libxmp_mixer_softmixer(struct context_data *ctx)
                         //TODO:  MODIZER changes start / YOYOFR
                         if (vi->chn<SOUND_MAXVOICES_BUFFER_FX) {
                             for (int ii=0;ii<samples;ii++)
-                                m_voice_buff[vi->chn][((m_voice_current_ptr[vi->chn]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT) + s->ticksize-size+ii)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8(( ((-buf_pos[ii*2]-buf_pos[ii*2+1])>>18)+m_voice_buff[vi->chn][((m_voice_current_ptr[vi->chn]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT) + s->ticksize-size+ii)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]) );
+                                m_voice_buff[vi->chn][((m_voice_current_ptr[vi->chn]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT) + s->ticksize-size+ii)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8(( ((-buf_pos[ii*2]-buf_pos[ii*2+1])>>18)*0.7+m_voice_buff[vi->chn][((m_voice_current_ptr[vi->chn]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT) + s->ticksize-size+ii)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]) );
                             
                         }
                         //TODO:  MODIZER changes end / YOYOFR
@@ -671,7 +671,7 @@ void libxmp_mixer_softmixer(struct context_data *ctx)
                         //TODO:  MODIZER changes start / YOYOFR
                         if (vi->chn<SOUND_MAXVOICES_BUFFER_FX) {
                             for (int ii=0;ii<samples;ii++)
-                                m_voice_buff[vi->chn][((m_voice_current_ptr[vi->chn]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT) + s->ticksize-size+ii)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8(( ((buf_pos[ii*2]+buf_pos[ii*2+1])>>18)+m_voice_buff[vi->chn][((m_voice_current_ptr[vi->chn]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT) + s->ticksize-size+ii)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]) );
+                                m_voice_buff[vi->chn][((m_voice_current_ptr[vi->chn]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT) + s->ticksize-size+ii)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8(( ((buf_pos[ii*2]+buf_pos[ii*2+1])>>18)*0.7+m_voice_buff[vi->chn][((m_voice_current_ptr[vi->chn]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT) + s->ticksize-size+ii)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)])*0.7 );
                             
                         }
                         //TODO:  MODIZER changes end / YOYOFR

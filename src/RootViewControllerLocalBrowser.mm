@@ -413,6 +413,10 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
 - (void)viewDidLoad {
     START_PROFILE
     childController=nil;
+    
+    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad || [NSProcessInfo processInfo].isiOSAppOnMac) {
+        self.hidesBottomBarWhenPushed = YES;
+    }
 
     [self loadControllers];
     
@@ -446,6 +450,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     self.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     self.tableView.sectionHeaderHeight = 18;
     self.tableView.rowHeight = 40;
+    self.tableView.separatorInset = UIEdgeInsetsZero;
     
     popTipViewRow=-1;
     popTipViewSection=-1;
@@ -1559,6 +1564,27 @@ static int qsort_CompareArcEntries(const void *entryA, const void *entryB) {
                                             local_entries[local_entries_count].label=[[NSString alloc] initWithString:file];
                                             
                                             local_entries[local_entries_count].fullpath=[[NSString alloc] initWithFormat:@"%@/%@",currentPath,file];
+                                            
+                                            //check for cover
+                                            NSString *fpath=[ModizFileHelper getFullPathForFilePath:local_entries[local_entries_count].fullpath];
+                                            NSString *imgPath=[fpath stringByAppendingString:@"/folder.png"];
+                                            bool imgExist=false;
+                                            if (![mFileMngr fileExistsAtPath:imgPath]) {
+                                                imgPath=[fpath stringByAppendingString:@"/folder.webp"];
+                                                if (![mFileMngr fileExistsAtPath:imgPath]) {
+                                                    imgPath=[fpath stringByAppendingString:@"/folder.jpg"];
+                                                    if (![mFileMngr fileExistsAtPath:imgPath]) {
+                                                        imgPath=[fpath stringByAppendingString:@"/folder.jpeg"];
+                                                        if (![mFileMngr fileExistsAtPath:imgPath]) {
+                                                            imgPath=[fpath stringByAppendingString:@"/folder.gif"];
+                                                            if ([mFileMngr fileExistsAtPath:imgPath]) imgExist=true;
+                                                        } else imgExist=true;
+                                                    } else imgExist=true;
+                                                } else imgExist=true;
+                                            } else imgExist=true;
+                                            if (imgExist) local_entries[local_entries_count].imgpath=[NSString stringWithString:imgPath];
+                                            else local_entries[local_entries_count].imgpath=nil;
+                                            
                                             local_entries_count++;
                                             if (local_nb_entries_limit) {
                                                 local_nb_entries_limit--;
@@ -1628,6 +1654,26 @@ static int qsort_CompareArcEntries(const void *entryA, const void *entryB) {
                                     local_entries[local_entries_count].song_length=-1;
                                     local_entries[local_entries_count].songs=-1;
                                     local_entries[local_entries_count].channels_nb=-1;
+                                    
+                                    //check for cover
+                                    NSString *fpath=[ModizFileHelper getFullPathForFilePath:local_entries[local_entries_count].fullpath];
+                                    NSString *imgPath=[[fpath stringByDeletingPathExtension] stringByAppendingString:@".png"];
+                                    bool imgExist=false;
+                                    if (![mFileMngr fileExistsAtPath:imgPath]) {
+                                        imgPath=[[fpath stringByDeletingPathExtension] stringByAppendingString:@".webp"];
+                                        if (![mFileMngr fileExistsAtPath:imgPath]) {
+                                            imgPath=[[fpath stringByDeletingPathExtension] stringByAppendingString:@".jpg"];
+                                            if (![mFileMngr fileExistsAtPath:imgPath]) {
+                                                imgPath=[[fpath stringByDeletingPathExtension] stringByAppendingString:@".jpeg"];
+                                                if (![mFileMngr fileExistsAtPath:imgPath]) {
+                                                    imgPath=[[fpath stringByDeletingPathExtension] stringByAppendingString:@".gif"];
+                                                    if ([mFileMngr fileExistsAtPath:imgPath]) imgExist=true;
+                                                } else imgExist=true;
+                                            } else imgExist=true;
+                                        } else imgExist=true;
+                                    } else imgExist=true;
+                                    if (imgExist) local_entries[local_entries_count].imgpath=[NSString stringWithString:imgPath];
+                                    else local_entries[local_entries_count].imgpath=nil;
                                     
                                     local_entries_count++;
                                     
@@ -2023,10 +2069,11 @@ As a consequence, some entries might disappear from existing playlist.\n\
     const NSInteger BOTTOM_IMAGE_TAG = 1003;
     const NSInteger ACT_IMAGE_TAG = 1004;
     const NSInteger SECACT_IMAGE_TAG = 1005;
+    const NSInteger COVER_IMAGE_TAG = 1006;
     //UILabel *topLabel;
     CBAutoScrollLabel *topLabel;
     UILabel *bottomLabel;
-    UIImageView *bottomImageView;
+    UIImageView *bottomImageView,*coverImgView;
     UIButton *actionView,*secActionView;
     
     
@@ -2114,6 +2161,13 @@ As a consequence, some entries might disappear from existing playlist.\n\
         bottomImageView.opaque=TRUE;
         [cell.contentView addSubview:bottomImageView];
         
+        coverImgView=[[UIImageView alloc] initWithImage:nil];
+        coverImgView.frame= CGRectMake(0,1,34,34);
+        coverImgView.contentMode=UIViewContentModeScaleAspectFit;
+        coverImgView.tag = COVER_IMAGE_TAG;
+        coverImgView.opaque=TRUE;
+        [cell.contentView addSubview:coverImgView];
+        
         actionView                = [UIButton buttonWithType: UIButtonTypeCustom];
         [cell.contentView addSubview:actionView];
         actionView.tag = ACT_IMAGE_TAG;
@@ -2130,6 +2184,7 @@ As a consequence, some entries might disappear from existing playlist.\n\
         topLabel = (CBAutoScrollLabel *)[cell viewWithTag:TOP_LABEL_TAG];
         bottomLabel = (UILabel *)[cell viewWithTag:BOTTOM_LABEL_TAG];
         bottomImageView = (UIImageView *)[cell viewWithTag:BOTTOM_IMAGE_TAG];
+        coverImgView = (UIImageView *)[cell viewWithTag:COVER_IMAGE_TAG];
         actionView = (UIButton *)[cell viewWithTag:ACT_IMAGE_TAG];
         secActionView = (UIButton *)[cell viewWithTag:SECACT_IMAGE_TAG];
         
@@ -2152,6 +2207,10 @@ As a consequence, some entries might disappear from existing playlist.\n\
         } else {
         }
     }
+    float margin=MDZ_TABVIEW_SEPARATOR_MARGIN;
+    cell.layoutMargins = UIEdgeInsetsMake(0, margin, 0, margin);
+    cell.separatorInset = UIEdgeInsetsMake(0, margin, 0, margin);
+    
     actionView.hidden=TRUE;
     secActionView.hidden=TRUE;
     
@@ -2181,6 +2240,7 @@ As a consequence, some entries might disappear from existing playlist.\n\
                                    18);
     bottomLabel.text=@""; //default value
     bottomImageView.image=nil;
+    coverImgView.image=nil;
     
     cell.accessoryType = UITableViewCellAccessoryNone;
     
@@ -2288,9 +2348,15 @@ As a consequence, some entries might disappear from existing playlist.\n\
             else topLabel.textColor=[UIColor colorWithRed:MDZ_FOLDER_LIGHT_R green:MDZ_FOLDER_LIGHT_G blue:MDZ_FOLDER_LIGHT_B alpha:1.0f];
             //cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
             
-            topLabel.frame= CGRectMake(1.0 * cell.indentationWidth,
+            bool hasImg=false;
+            if (cur_local_entries[indexPath.row].imgpath) {
+                coverImgView.image=[UIImage imageWithContentsOfFile:cur_local_entries[indexPath.row].imgpath];
+                hasImg=true;
+            }
+            
+            topLabel.frame= CGRectMake((hasImg?35:0)+1.0 * cell.indentationWidth,
                                        0,
-                                       tabView.bounds.size.width -1.0 * cell.indentationWidth/*- 32*/-32,
+                                       -(hasImg?35:0)+tabView.bounds.size.width -1.0 * cell.indentationWidth/*- 32*/-32,
                                        40);
             
             int actionicon_offsetx=tabView.safeAreaInsets.right+tabView.safeAreaInsets.left;
@@ -2309,8 +2375,15 @@ As a consequence, some entries might disappear from existing playlist.\n\
             secActionView.hidden=NO;
         } else  { //file
             int actionicon_offsetx=tabView.safeAreaInsets.right+tabView.safeAreaInsets.left;
-            //archive file ?
             
+            bool hasImg=false;
+            if (cur_local_entries[indexPath.row].imgpath) {
+                coverImgView.image=[UIImage imageWithContentsOfFile:cur_local_entries[indexPath.row].imgpath];
+                hasImg=true;
+            }
+            
+            
+            //archive file ?
             if (cur_local_entries[indexPath.row].type&16) { //need to confirm if true archive or multisong
                 if ((cur_local_entries[indexPath.row].type&15)==2) { //need to confirm if true archive
                     if ([ModizFileHelper isABrowsableArchive:[ModizFileHelper getFullPathForFilePath:cur_local_entries[indexPath.row].fullpath]]) cur_local_entries[indexPath.row].type=2;
@@ -2353,9 +2426,9 @@ As a consequence, some entries might disappear from existing playlist.\n\
                 
             }
             
-            topLabel.frame= CGRectMake(1.0 * cell.indentationWidth,
+            topLabel.frame= CGRectMake((hasImg?35:0)+1.0 * cell.indentationWidth,
                                        0,
-                                       tabView.bounds.size.width -1.0 * cell.indentationWidth/*- 32*/-PRI_SEC_ACTIONS_IMAGE_SIZE-actionicon_offsetx,
+                                       -(hasImg?35:0)+tabView.bounds.size.width -1.0 * cell.indentationWidth/*- 32*/-PRI_SEC_ACTIONS_IMAGE_SIZE-actionicon_offsetx,
                                        22);
             
             actionView.frame = CGRectMake(tabView.bounds.size.width-2/*-32*/-PRI_SEC_ACTIONS_IMAGE_SIZE-actionicon_offsetx,0,PRI_SEC_ACTIONS_IMAGE_SIZE,PRI_SEC_ACTIONS_IMAGE_SIZE);
@@ -2421,9 +2494,9 @@ As a consequence, some entries might disappear from existing playlist.\n\
             
             bottomLabel.text=bottomStr;
             
-            bottomLabel.frame = CGRectMake( 1.0 * cell.indentationWidth+20,
+            bottomLabel.frame = CGRectMake((hasImg?35:0)+ 1.0 * cell.indentationWidth,
                                            22,
-                                           tabView.bounds.size.width -1.0 * cell.indentationWidth/*-32*/-PRI_SEC_ACTIONS_IMAGE_SIZE-60-actionicon_offsetx,
+                                           -(hasImg?35:0)+tabView.bounds.size.width -1.0 * cell.indentationWidth/*-32*/-PRI_SEC_ACTIONS_IMAGE_SIZE-40-actionicon_offsetx,
                                            18);
             
         }
@@ -2441,6 +2514,9 @@ As a consequence, some entries might disappear from existing playlist.\n\
 
 - (UISwipeActionsConfiguration *)tableView:(UITableView *)tableView
 trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
+    
+    t_local_browse_entry *cur_local_entries=(search_local?search_local_entries:local_entries);
+    
     if (indexPath.section==0) {
         if (indexPath.row==0) {
             // NEW FOLDER ACTION
@@ -2514,7 +2590,6 @@ trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
             //File or Directory => Delete
             
             //delete entry
-            t_local_browse_entry *cur_local_entries=(search_local?search_local_entries:local_entries);
             NSString *fullpath=[ModizFileHelper getFullPathForFilePath:cur_local_entries[indexPath.row].fullpath];
             NSError *err;
             
@@ -2548,6 +2623,42 @@ trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
             }
         }];
         deleteAction.backgroundColor = [UIColor redColor];
+        
+        
+        // DELETE COVER ACTION
+        UIContextualAction *deleteImageAction = nil;
+        
+        if (cur_local_entries[indexPath.row].imgpath) {
+            deleteImageAction=[UIContextualAction contextualActionWithStyle:UIContextualActionStyleDestructive
+                                                    title:NSLocalizedString(@"Delete Cover", @"")
+                                                  handler:^(UIContextualAction *action,
+                                                            UIView *sourceView,
+                                                            void (^completionHandler)(BOOL)) {
+                //File or Directory => Delete
+                //delete entry
+                NSString *fullpath=cur_local_entries[indexPath.row].imgpath;
+                NSError *err;
+                
+                if ([mFileMngr removeItemAtPath:fullpath error:&err]!=YES) {
+                    MDZELog("Issue %d while removing: %@",(int)(err.code),fullpath);
+                    [self showAlertMsg:NSLocalizedString(@"Warning",@"") message:[NSString stringWithFormat:NSLocalizedString(@"Issue %d while trying to delete entry.\n%@",@""),err.code,err.localizedDescription]];
+                    completionHandler(NO);
+                } else {
+                    //                    if (mSearch) {
+                    //                        mSearch=0;
+                    //                        [self listLocalFiles]; //force a refresh
+                    //                        mSearch=1;
+                    //                    }
+                    //                    [self listLocalFiles];
+                    cur_local_entries[indexPath.row].imgpath=nil;
+                    
+                    [tableView reloadData];
+                    completionHandler(YES);
+                }
+            }];
+            deleteImageAction.backgroundColor = [UIColor redColor];
+            return [UISwipeActionsConfiguration configurationWithActions:@[deleteImageAction,deleteAction]];
+        }
         
         // Return multiple actions - they appear from right to left
         return [UISwipeActionsConfiguration configurationWithActions:@[deleteAction]];

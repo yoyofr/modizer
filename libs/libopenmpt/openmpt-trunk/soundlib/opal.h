@@ -607,10 +607,9 @@ void Opal::Output(int16_t &left, int16_t &right) {
         rightmix += chanright;
         
         //TODO:  MODIZER changes start / YOYOFR
-        int chn_idx=i%m_genNumVoicesChannels;//m_PlayState.ChnMix[nChn];
+        int chn_idx=i%m_genNumVoicesChannels;
         if (chn_idx<SOUND_MAXVOICES_BUFFER_FX) {
             m_voice_buff[chn_idx][((m_voice_current_ptr[chn_idx]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT))&(SOUND_BUFFER_SIZE_SAMPLE*2-1)]+=LIMIT8( (chanleft+chanright)>>6 );
-            
         }
         //TODO:  MODIZER changes end / YOYOFR
     }
