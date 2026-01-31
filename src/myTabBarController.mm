@@ -386,8 +386,8 @@ extern NSMutableArray *mac_key_pressed,*mac_key_released;
         [item.itemProvider loadInPlaceFileRepresentationForTypeIdentifier:@"public.data"
                                                         completionHandler:^(NSURL *url, BOOL isInPlace, NSError *error) {
             if (url && !error) {
-                NSLog(@"Fichier à l'emplacement d'origine: %@", url.path);
-                NSLog(@"Est-ce in-place? %@", isInPlace ? @"OUI" : @"NON");
+//                NSLog(@"Fichier à l'emplacement d'origine: %@", url.path);
+//                NSLog(@"Est-ce in-place? %@", isInPlace ? @"OUI" : @"NON");
                 
                 // Démarrer l'accès sécurisé
                 BOOL accessGranted = [url startAccessingSecurityScopedResource];
@@ -403,7 +403,7 @@ extern NSMutableArray *mac_key_pressed,*mac_key_released;
                     }
                 });
             } else {
-                NSLog(@"Erreur: %@", error);
+                MDZELog("Erreur: %@", error);
             }
         }];
     }
@@ -412,7 +412,7 @@ extern NSMutableArray *mac_key_pressed,*mac_key_released;
 - (void)loadAndPlayFileAtURL:(NSURL *)fileURL add_to_playlist:(bool)add_to_playlist {
     // Ton code de lecture existant, mais avec une NSURL au lieu d'un NSString
     // Par exemple, passer l'URL à tes librairies audio
-    NSLog(@"Lecture du fichier depuis: %@", fileURL.path);
+    //NSLog(@"Lecture du fichier depuis: %@", fileURL.path);
     
     // Adapter ton code de lecture pour utiliser l'URL
     //[self openURL:fileURL];

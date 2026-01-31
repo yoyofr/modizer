@@ -29,7 +29,7 @@
 #if TARGET_OS_MACCATALYST
 @interface myTabBarController : UITabBarController <UINavigationControllerDelegate,UITabBarDelegate,UIPageViewControllerDataSource,UIPageViewControllerDelegate,NSToolbarDelegate,UICollectionViewDelegate,UISplitViewControllerDelegate,UIDropInteractionDelegate> {
 #else
-@interface myTabBarController : UITabBarController <UINavigationControllerDelegate,UITabBarDelegate,UIPageViewControllerDataSource,UIPageViewControllerDelegate> {
+@interface myTabBarController : UITabBarController <UINavigationControllerDelegate,UITabBarDelegate,UIPageViewControllerDataSource,UIPageViewControllerDelegate,UIDropInteractionDelegate> {
 #endif
     DetailViewControllerIphone *detailViewControllerIphone;
     RootViewControllerPlaylist *playlistVC;

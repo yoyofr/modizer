@@ -4504,9 +4504,9 @@ yn=ynBL=yf; \
 if (piano_ofs==12) piano_ofs=0; \
 if (piano_key[piano_ofs]==0) { /*white key*/ \
 if (piano_key_state[i+k]) { \
-crt=(0.3f*piano_key_state[i+k]+1.0f*(8-piano_key_state[i+k]))/8; \
-cgt=(0.3f*piano_key_state[i+k]+1.0f*(8-piano_key_state[i+k]))/8; \
-cbt=(0.9f*piano_key_state[i+k]+1.0f*(8-piano_key_state[i+k]))/8; \
+/*crt=(0.3f*piano_key_state[i+k]+1.0f*(8-piano_key_state[i+k]))/8;*/ \
+/*cgt=(0.3f*piano_key_state[i+k]+1.0f*(8-piano_key_state[i+k]))/8;*/ \
+/*cbt=(0.9f*piano_key_state[i+k]+1.0f*(8-piano_key_state[i+k]))/8;*/ \
 } else crt=cgt=cbt=1.0f; \
 /*Key / Up Face*/ \
 cr=crt;cg=cgt;cb=cbt;\
@@ -4670,9 +4670,9 @@ index+=6; \
 white_idx++; \
 } else { /*black key*/ \
 if (piano_key_state[i+k]) { \
-crt=(0.9f*piano_key_state[i+k]+0.4f*(8-piano_key_state[i+k]))/8; \
-cgt=(0.3f*piano_key_state[i+k]+0.4f*(8-piano_key_state[i+k]))/8; \
-cbt=(0.3f*piano_key_state[i+k]+0.4f*(8-piano_key_state[i+k]))/8; \
+/*crt=(0.9f*piano_key_state[i+k]+0.4f*(8-piano_key_state[i+k]))/8;*/ \
+/*cgt=(0.3f*piano_key_state[i+k]+0.4f*(8-piano_key_state[i+k]))/8;*/ \
+/*cbt=(0.3f*piano_key_state[i+k]+0.4f*(8-piano_key_state[i+k]))/8;*/ \
 } else crt=cgt=cbt=0.2f; \
 /*TOP*/ \
 cr=crt;cg=cgt;cb=cbt;\
@@ -4828,6 +4828,24 @@ index+=6; \
     
     index=0;
     for (int i=0;i<48;i++,piano_ofs++) {
+        int colidx=0;
+        if (color_mode==0) {
+            colidx=((i+k)%12);
+        } else if (color_mode==1) {
+            colidx=(piano_key_instr[(i+k)])&63;
+        }
+        
+        crt=((data_midifx_col[colidx&31]>>16)&0xFF)/255.0f;
+        cgt=((data_midifx_col[colidx&31]>>8)&0xFF)/255.0f;
+        cbt=(data_midifx_col[colidx&31]&0xFF)/255.0f;
+        
+        if (colidx&0x20) {
+            crt=(crt+1)/2;
+            cgt=(cgt+1)/2;
+            cbt=(cbt+1)/2;
+        }
+        
+        
         PIANO3D_DRAWKEY
     }
     glDrawArrays(GL_TRIANGLES, 0, index);
@@ -4839,6 +4857,23 @@ index+=6; \
     k=48;
     index=0;
     for (int i=0;i<48;i++,piano_ofs++) {
+        int colidx=0;
+        if (color_mode==0) {
+            colidx=((i+k)%12);
+        } else if (color_mode==1) {
+            colidx=(piano_key_instr[(i+k)])&63;
+        }
+        
+        crt=((data_midifx_col[colidx&31]>>16)&0xFF)/255.0f;
+        cgt=((data_midifx_col[colidx&31]>>8)&0xFF)/255.0f;
+        cbt=(data_midifx_col[colidx&31]&0xFF)/255.0f;
+        
+        if (colidx&0x20) {
+            crt=(crt+1)/2;
+            cgt=(cgt+1)/2;
+            cbt=(cbt+1)/2;
+        }
+        
         PIANO3D_DRAWKEY
     }
     glDrawArrays(GL_TRIANGLES, 0, index);
@@ -4849,6 +4884,23 @@ index+=6; \
     k=96;
     index=0;
     for (int i=0;i<32;i++,piano_ofs++) {
+        int colidx=0;
+        if (color_mode==0) {
+            colidx=((i+k)%12);
+        } else if (color_mode==1) {
+            colidx=(piano_key_instr[(i+k)])&63;
+        }
+        
+        crt=((data_midifx_col[colidx&31]>>16)&0xFF)/255.0f;
+        cgt=((data_midifx_col[colidx&31]>>8)&0xFF)/255.0f;
+        cbt=(data_midifx_col[colidx&31]&0xFF)/255.0f;
+        
+        if (colidx&0x20) {
+            crt=(crt+1)/2;
+            cgt=(cgt+1)/2;
+            cbt=(cbt+1)/2;
+        }
+        
         PIANO3D_DRAWKEY
     }
     glDrawArrays(GL_TRIANGLES, 0, index);

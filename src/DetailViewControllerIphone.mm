@@ -1826,8 +1826,19 @@ static float movePinchScale,movePinchScaleOld,movePinchAngle;
     }
     
     if (coverAvailable) {
+        float w,h;
+        if (txtCoverImgRatio>=1) {
+            w=lineIdx*textHH;
+            h=w/txtCoverImgRatio;
+        } else {
+            h=lineIdx*textHH;
+            w=h*txtCoverImgRatio;
+        }
+        cur_pos.x+=glScaleFactor*(lineIdx*textHH-w)/2;
+        cur_pos.y+=glScaleFactor*(lineIdx*textHH-h)/2;
+        
         ImGui::SetCursorPos(cur_pos);
-        ImGui::Image(txtCoverImg, ImVec2(lineIdx*textHH*glScaleFactor,lineIdx*textHH*glScaleFactor));
+        ImGui::Image(txtCoverImg, ImVec2(w*glScaleFactor,h*glScaleFactor));
     }
     
     
@@ -2148,6 +2159,35 @@ static float movePinchScale,movePinchScaleOld,movePinchAngle;
     return;
 }
 
+-(void) initArtwork:(UIImage*)cover_img {
+    UIImage *sourceImage = cover_img ?: default_cover;
+    
+    artwork = [[MPMediaItemArtwork alloc] initWithBoundsSize:CGSizeMake(256,256)
+                                              requestHandler:^UIImage * _Nonnull(CGSize size) {
+        // Calculer le ratio pour Aspect Fit
+        CGFloat imageAspect = sourceImage.size.width / sourceImage.size.height;
+        CGFloat targetAspect = size.width / size.height;
+        
+        CGRect drawRect;
+        if (imageAspect > targetAspect) {
+            // L'image est plus large
+            CGFloat height = size.width / imageAspect;
+            drawRect = CGRectMake(0, (size.height - height) / 2.0, size.width, height);
+        } else {
+            // L'image est plus haute
+            CGFloat width = size.height * imageAspect;
+            drawRect = CGRectMake((size.width - width) / 2.0, 0, width, size.height);
+        }
+        
+        UIGraphicsBeginImageContextWithOptions(size, NO, 0.0);
+        [sourceImage drawInRect:drawRect];
+        UIImage *result = UIGraphicsGetImageFromCurrentImageContext();
+        UIGraphicsEndImageContext();
+        
+        return result ?: sourceImage;
+    }];
+}
+
 -(void) updMediaCenterProgress {
     //MPNowPlayingInfoCenter *infoCenter = [MPNowPlayingInfoCenter defaultCenter];
     [self updMediaCenter];
@@ -2160,10 +2200,7 @@ static float movePinchScale,movePinchScaleOld,movePinchAngle;
     
     MPRemoteCommandCenter *cmdCenter=[MPRemoteCommandCenter sharedCommandCenter];
     
-    if (artwork==nil) {
-        if (cover_img) artwork=[[MPMediaItemArtwork alloc] initWithImage:cover_img];
-        else artwork=[[MPMediaItemArtwork alloc] initWithImage:default_cover];
-    }
+    if (artwork==nil) [self initArtwork:cover_img];
     
     if (mPlaylist_size) {
         NSString *artist=mplayer.artist;
@@ -4404,8 +4441,7 @@ int recording=0;
     //    MPNowPlayingInfoCenter *infoCenter = [MPNowPlayingInfoCenter defaultCenter];
     //
     //
-    if (cover_img) artwork=[[MPMediaItemArtwork alloc] initWithImage:cover_img];
-    else artwork=[[MPMediaItemArtwork alloc] initWithImage:default_cover];
+    [self initArtwork:cover_img];
     //
     updMPNowCnt=0;
     
@@ -4846,8 +4882,7 @@ int recording=0;
     
     //    MPNowPlayingInfoCenter *infoCenter = [MPNowPlayingInfoCenter defaultCenter];
     //
-    if (cover_img) artwork=[[MPMediaItemArtwork alloc] initWithImage:cover_img];
-    else artwork=[[MPMediaItemArtwork alloc] initWithImage:default_cover];
+    [self initArtwork:cover_img];
     updMPNowCnt=0;
     
     //Activate timer for play infos

@@ -57,6 +57,7 @@ int gesture_move_file_min_trans;
     UIFont *myFont = [UIFont fontWithDescriptor:styleDescriptor size:font.pointSize];
     
     _coverView=[[UIImageView alloc] init];
+    _coverView.contentMode = UIViewContentModeScaleAspectFit;
     [_mpview addSubview:_coverView];
     
     _songInfoView=[[UIView alloc] init];
