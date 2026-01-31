@@ -145,7 +145,8 @@ extern void *LoadingProgressObserverContext;
 #define MODIZER_COMPIL 1
 
 #define DEFAULT_WAIT_TIME_MS  0.0001   //in s
-#define DEFAULT_WAIT_TIME_UADE_MS  0.003   //in s
+#define DEFAULT_WAIT_TIME_UADE_MS  0.001 //in s
+#define DEFAULT_WAIT_TIME_UADE_SEEK_MS  0.00001 //in s
 
 #define MODIZER_SUPPORT_EMAIL @"mailto:modizerhelp@gmail.com?subject=Support Request&body="
 #define USERGUIDE_URL @"UserGuide"

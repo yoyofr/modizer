@@ -1724,7 +1724,7 @@ static int shouldRestart=1;
     //static int firstcall=0;
     [super viewWillAppear:animated];
 
-    //shouldFillKeys=1;
+    shouldFillKeys=1;
     
     bool oldmode=darkMode;
     darkMode=false;

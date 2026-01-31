@@ -13,6 +13,51 @@
 #import "ModizFileHelper.h"
 #import "RadioSource.h"
 
+t_joshw_entry joshw_subsites[]= {
+    //computers
+    {@"https://pc.joshw.info",@"PC Streamed Music",@"JoshW/PC",@"Computers",TRUE,@[],@"https://www.mobygames.com/game/include_dlc:false/include_nsfw:false/platform:dos/platform:windows/release_status:all/title:%@/sort:moby_score/page:1/"},
+    {@"https://cdi.joshw.info/amiga",@"Amiga Music",@"JoshW/Amiga",@"Computers",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=4911"},
+    {@"https://fmtowns.joshw.info",@"FM Towns Music",@"JoshW/FMT",@"Computers",TRUE,@[],@"https://www.mobygames.com/game/include_dlc:false/include_nsfw:false/platform:fmtowns/release_status:all/title:%@/sort:moby_score/page:1/"},
+    {@"https://s98.joshw.info",@"S98 Music",@"JoshW/S98",@"Computers",TRUE,@[],@"https://www.mobygames.com/game/include_dlc:false/include_nsfw:false/platform:pc88/platform:pc98/platform:sharp-x1/platform:sharp-x68000/release_status:all/title:%@/sort:moby_score/page:1/"},
+    {@"https://kss.joshw.info/MSX",@"MSX Music",@"JoshW/MSX",@"Computers",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=4929"},
+    //consoles&arcade
+    {@"https://nsf.joshw.info",@"NES Music",@"JoshW/NES",@"Consoles & Arcade",TRUE,@[@"zzz_prototypes",@"zzz_unlicensed"],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=7&platform_id[]=4936"},
+    {@"https://spc.joshw.info",@"SNES Music",@"JoshW/SNES",@"Consoles & Arcade",TRUE,@[@"zzz_prototypes",@"zzz_unlicensed"],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=6"},
+    {@"https://usf.joshw.info",@"Nintendo64 Music",@"JoshW/N64",@"Consoles & Arcade",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=3"},
+    {@"https://gcn.joshw.info",@"Gamecube Music",@"JoshW/GC",@"Consoles & Arcade",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=2"},
+    {@"https://wii.joshw.info",@"Nintendo Wii Music",@"JoshW/Wii",@"Consoles & Arcade",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=9"},
+    {@"https://wiiu.joshw.info",@"Nintendo Wii U Music",@"JoshW/WiiU",@"Consoles & Arcade",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=38"},
+    {@"https://kss.joshw.info/Master%20System",@"Master System Music",@"JoshW/SMS",@"Consoles & Arcade",TRUE,@[@"zzz_homebrew"],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=35"},
+    {@"https://smd.joshw.info",@"Genesis/SegaCD Music",@"JoshW/SMD",@"Consoles & Arcade",TRUE,@[@"zzz_prototypes",@"zzz_unlicensed"],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=18&platform_id[]=21&platform_id[]=33&platform_id[]=36"},
+    {@"https://ssf.joshw.info",@"Saturn Music",@"JoshW/Saturn",@"Consoles & Arcade",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=17"},
+    {@"https://dsf.joshw.info",@"Dreamcast Music",@"JoshW/DC",@"Consoles & Arcade",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=16"},
+    {@"https://hes.joshw.info",@"PC Engine Music",@"JoshW/PCE",@"Consoles & Arcade",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=34&platform_id[]=4955"},
+    {@"https://ncd.joshw.info",@"Neo Geo CD Music",@"JoshW/NEOCD",@"Consoles & Arcade",FALSE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=4956"},
+    {@"https://psf.joshw.info",@"PlayStation Music",@"JoshW/PS1",@"Consoles & Arcade",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=10"},
+    {@"https://psf2.joshw.info",@"PlayStation 2 Music",@"JoshW/PS2",@"Consoles & Arcade",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=11"},
+    {@"https://psf3.joshw.info",@"PlayStation 3 Music",@"JoshW/PS3",@"Consoles & Arcade",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=12"},
+    {@"https://psf4.joshw.info",@"PlayStation 4 Music",@"JoshW/PS4",@"Consoles & Arcade",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=4919"},
+    {@"https://psf5.joshw.info",@"PlayStation 5 Music",@"JoshW/PS5",@"Consoles & Arcade",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=4980"},
+    {@"https://xbox.joshw.info",@"XBox Music",@"JoshW/Xbox",@"Consoles & Arcade",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=14"},
+    {@"https://x360.joshw.info",@"XBox360 Music",@"JoshW/X360",@"Consoles & Arcade",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=15"},
+    {@"https://3do.joshw.info",@"3DO Music",@"JoshW/3DO",@"Consoles & Arcade",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=25"},
+    {@"https://switch.joshw.info",@"Nintendo Switch",@"JoshW/Switch",@"Consoles & Arcade",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=4971"},
+    {@"https://cdi.joshw.info/cdi",@"Philips CD-i",@"JoshW/CD-i",@"Consoles & Arcade",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=4917"},
+    {@"https://cdi.joshw.info/pgm",@"Arcade PGM",@"JoshW/PGM",@"Consoles & Arcade",FALSE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=23"},
+    {@"https://hoot.joshw.info/!MDScene_Arcade_VGM",@"Arcade",@"JoshW/Arcade",@"Consoles & Arcade",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=23&platform_id[]=24"},
+    //portables
+    {@"https://gbs.joshw.info",@"Game Boy Music",@"JoshW/GB",@"Portables",TRUE,@[@"zzz_unlicensed"],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=4&platform_id[]=41"},
+    {@"https://gsf.joshw.info",@"Game Boy Advance Music",@"JoshW/GBA",@"Portables",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=5"},
+    {@"https://2sf.joshw.info",@"Nintendo DS Music",@"JoshW/NDS",@"Portables",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=8"},
+    {@"https://3sf.joshw.info",@"Nintendo 3DS Music",@"JoshW/3DS",@"Portables",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=4912"},
+    {@"https://kss.joshw.info/Game%20Gear",@"Sega Game Gear Music",@"JoshW/SGG",@"Portables",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=20"},
+    {@"https://wsr.joshw.info",@"WonderSwan Music",@"JoshW/WS",@"Portables",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=4925&platform_id[]=4926"},
+    {@"https://psp.joshw.info",@"PSP Music",@"JoshW/PSP",@"Portables",TRUE,@[@"zzz_others"],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=13"},
+    {@"https://vita.joshw.info",@"PSVita Music",@"JoshW/PSVita",@"Portables",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=39"},
+    {@"https://mobile.joshw.info",@"Mobile/Smartphone Music",@"JoshW/Mobile",@"Portables",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=4915&platform_id[]=4916"},
+};
+int joshw_subsites_size=sizeof(joshw_subsites)/sizeof(t_joshw_entry);
+
 @implementation RootViewControllerJoshWWebParser
 
 @synthesize mWebBaseDir;
@@ -52,7 +97,7 @@
                 [detailViewController.radioSource.mSourceData removeAllObjects];
                 for (int i=0;i<nb_entries;i++) {
                     if (cur_db_entries[i].isFile) {
-                        [detailViewController.radioSource.mSourceData addObject:[NSString stringWithFormat:@"f:%@|%@|%@",[cur_db_entries[i].URL stringByRemovingPercentEncoding],[cur_db_entries[i].fullpath substringFromIndex:[cur_db_entries[i].fullpath rangeOfString:@"Documents/JoshW/"].location+[@"Documents/JoshW/" length]],cur_db_entries[i].info]];
+                        [detailViewController.radioSource.mSourceData addObject:[NSString stringWithFormat:@"f:%@|%@|%@|%@",[cur_db_entries[i].URL stringByRemovingPercentEncoding],[cur_db_entries[i].fullpath substringFromIndex:[cur_db_entries[i].fullpath rangeOfString:@"Documents/JoshW/"].location+[@"Documents/JoshW/" length]],cur_db_entries[i].info,img_grabber_url]];
 //                        MDZILog("got: %@",[detailViewController.radioSource.mSourceData lastObject]);
                     } else {
                         MDZILog("got: %@ / %@",cur_db_entries[i].label,cur_db_entries[i].fullpath);
@@ -63,7 +108,11 @@
                 detailViewController.radioSource.mRadioSource_mode=0;
                 break;
         }
-        [detailViewController.radioSource activate];
+        [self showToast:NSLocalizedString(@"Launching Radio", @"") duration:2 nearPoint:radioButton.frame.origin];
+        
+        dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void){
+            [detailViewController.radioSource activate];
+        });
         [self updRadioStatus];
     }
     
@@ -231,14 +280,14 @@
     } t_categ_entry;
     NSArray *sortedArray;
     NSMutableArray *tmpArray=[[NSMutableArray alloc] init];
-    t_categ_entry webs_entry[]= {
+    t_categ_entry categ_entry[]= {
         {@"Computers",@"Amiga,FM Towns,Hoot,MSX,PC,S98"},
-        {@"Consoles",@"3DO,CD-i,DC,GC,Genesis/SegaCD,MS,N64,NeoGeoCD,Nes,PCE,PS1,PS2,PS3,PS4,Saturn,Snes,Switch,Wii,WiiU,Xbox,X360"},
+        {@"Consoles & Arcade",@"3DO,Arcade,CD-i,DC,GC,Genesis/SegaCD,MS,N64,NeoGeoCD,Nes,PCE,PS1,PS2,PS3,PS4,Saturn,Snes,Switch,Wii,WiiU,Xbox,X360"},
         {@"Portables",@"3DS,GBA,GB,Mobile,NDS,PSP,PSVita,SGG,WSR"}
         
     };
     
-    for (int i=0;i<sizeof(webs_entry)/sizeof(t_categ_entry);i++) [tmpArray addObject:[NSValue valueWithPointer:&webs_entry[i]]];
+    for (int i=0;i<sizeof(categ_entry)/sizeof(t_categ_entry);i++) [tmpArray addObject:[NSValue valueWithPointer:&categ_entry[i]]];
     
     sortedArray = [tmpArray sortedArrayUsingComparator:^(id obj1, id obj2) {
         NSString *str1=[((t_categ_entry*)[obj1 pointerValue])->category  lastPathComponent];
@@ -334,69 +383,18 @@
         dbWEB_nb_entries=0;
     }
     
-    typedef struct {
-        NSString *webSite_URL;
-        NSString *webSite_name;
-        NSString *webSite_baseDir;
-        NSString *category;
-        bool has_letter_index;
-        NSArray *extra_index;
-        NSString *gameDBsearchURL;
-    } t_webSite_entry;
+    
     NSArray *sortedArray;
     NSMutableArray *tmpArray=[[NSMutableArray alloc] init];
-    t_webSite_entry webs_entry[]= {
-        //computers
-        {@"https://pc.joshw.info",@"PC Streamed Music",@"JoshW/PC",@"Computers",TRUE,@[],@"https://www.mobygames.com/game/include_dlc:false/include_nsfw:false/platform:dos/platform:windows/release_status:all/title:%@/sort:moby_score/page:1/"},
-        {@"https://cdi.joshw.info/amiga",@"Amiga Music",@"JoshW/Amiga",@"Computers",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=4911"},
-        {@"https://fmtowns.joshw.info",@"FM Towns Music",@"JoshW/FMT",@"Computers",TRUE,@[],@"https://www.mobygames.com/game/include_dlc:false/include_nsfw:false/platform:fmtowns/release_status:all/title:%@/sort:moby_score/page:1/"},
-        {@"https://s98.joshw.info",@"S98 Music",@"JoshW/S98",@"Computers",TRUE,@[],@"https://www.mobygames.com/game/include_dlc:false/include_nsfw:false/platform:pc88/platform:pc98/platform:sharp-x1/platform:sharp-x68000/release_status:all/title:%@/sort:moby_score/page:1/"},
-        {@"https://kss.joshw.info/MSX",@"MSX Music",@"JoshW/MSX",@"Computers",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=4929"},
-        //consoles
-        {@"https://nsf.joshw.info",@"NES Music",@"JoshW/NES",@"Consoles",TRUE,@[@"zzz_prototypes",@"zzz_unlicensed"],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=34&platform_id[]=7&platform_id[]=4936"},
-        {@"https://spc.joshw.info",@"SNES Music",@"JoshW/SNES",@"Consoles",TRUE,@[@"zzz_prototypes",@"zzz_unlicensed"],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=34&platform_id[]=6"},
-        {@"https://usf.joshw.info",@"Nintendo64 Music",@"JoshW/N64",@"Consoles",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=34&platform_id[]=3"},
-        {@"https://gcn.joshw.info",@"Gamecube Music",@"JoshW/GC",@"Consoles",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=34&platform_id[]=2"},
-        {@"https://wii.joshw.info",@"Nintendo Wii Music",@"JoshW/Wii",@"Consoles",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=34&platform_id[]=9"},
-        {@"https://wiiu.joshw.info",@"Nintendo Wii U Music",@"JoshW/WiiU",@"Consoles",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=34&platform_id[]=38"},
-        {@"https://kss.joshw.info/Master%20System",@"Master System Music",@"JoshW/SMS",@"Consoles",TRUE,@[@"zzz_homebrew"],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=34&platform_id[]=35"},
-        {@"https://smd.joshw.info",@"Genesis/SegaCD Music",@"JoshW/SMD",@"Consoles",TRUE,@[@"zzz_prototypes",@"zzz_unlicensed"],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=34&platform_id[]=18&platform_id[]=21&platform_id[]=33&platform_id[]=36"},
-        {@"https://ssf.joshw.info",@"Saturn Music",@"JoshW/Saturn",@"Consoles",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=17"},
-        {@"https://dsf.joshw.info",@"Dreamcast Music",@"JoshW/DC",@"Consoles",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=34&platform_id[]=16"},
-        {@"https://hes.joshw.info",@"PC Engine Music",@"JoshW/PCE",@"Consoles",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=34&platform_id[]=4955"},
-        {@"https://ncd.joshw.info",@"Neo Geo CD Music",@"JoshW/NEOCD",@"Consoles",FALSE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=4956"},
-        {@"https://psf.joshw.info",@"PlayStation Music",@"JoshW/PS1",@"Consoles",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=10"},
-        {@"https://psf2.joshw.info",@"PlayStation 2 Music",@"JoshW/PS2",@"Consoles",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=11"},
-        {@"https://psf3.joshw.info",@"PlayStation 3 Music",@"JoshW/PS3",@"Consoles",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=12"},
-        {@"https://psf4.joshw.info",@"PlayStation 4 Music",@"JoshW/PS4",@"Consoles",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=4919"},
-        {@"https://psf5.joshw.info",@"PlayStation 5 Music",@"JoshW/PS5",@"Consoles",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=4980"},
-        {@"https://xbox.joshw.info",@"XBox Music",@"JoshW/Xbox",@"Consoles",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=14"},
-        {@"https://x360.joshw.info",@"XBox360 Music",@"JoshW/X360",@"Consoles",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=15"},
-        {@"https://3do.joshw.info",@"3DO Music",@"JoshW/3DO",@"Consoles",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=25"},
-        {@"https://switch.joshw.info",@"Nintendo Switch",@"JoshW/Switch",@"Consoles",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=4971"},
-        {@"https://cdi.joshw.info/cdi",@"Philips CD-i",@"JoshW/CD-i",@"Consoles",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=4917"},
-        //{@"https://psf4.joshw.info",@"Playstation 4",@"JoshW/PS4",@"Consoles",TRUE,@[],nil},
-        //{@"https://psf5.joshw.info",@"Playstation 5",@"JoshW/PS5",@"Consoles",TRUE,@[],nil},
-        {@"https://cdi.joshw.info/pgm",@"Arcade PGM",@"JoshW/PGM",@"Consoles",FALSE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=34&platform_id[]=23"},
-        //portables
-        {@"https://gbs.joshw.info",@"Game Boy Music",@"JoshW/GB",@"Portables",TRUE,@[@"zzz_unlicensed"],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=34&platform_id[]=4&platform_id[]=41"},
-        {@"https://gsf.joshw.info",@"Game Boy Advance Music",@"JoshW/GBA",@"Portables",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=34&platform_id[]=5"},
-        {@"https://2sf.joshw.info",@"Nintendo DS Music",@"JoshW/NDS",@"Portables",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=34&platform_id[]=8"},
-        {@"https://3sf.joshw.info",@"Nintendo 3DS Music",@"JoshW/3DS",@"Portables",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=34&platform_id[]=4912"},
-        {@"https://kss.joshw.info/Game%20Gear",@"Sega Game Gear Music",@"JoshW/SGG",@"Portables",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=34&platform_id[]=20"},
-        {@"https://wsr.joshw.info",@"WonderSwan Music",@"JoshW/WS",@"Portables",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=34&platform_id[]=4925&platform_id[]=4926"},
-        {@"https://psp.joshw.info",@"PSP Music",@"JoshW/PSP",@"Portables",TRUE,@[@"zzz_others"],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=13"},
-        {@"https://vita.joshw.info",@"PSVita Music",@"JoshW/PSVita",@"Portables",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=39"},
-        {@"https://mobile.joshw.info",@"Mobile/Smartphone Music",@"JoshW/Mobile",@"Portables",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=4915&platform_id[]=4916"},
-    };
     
-    for (int i=0;i<sizeof(webs_entry)/sizeof(t_webSite_entry);i++) {
-        if ([mWebBaseDir isEqualToString:webs_entry[i].category]) [tmpArray addObject:[NSValue valueWithPointer:&webs_entry[i]]];
+    
+    for (int i=0;i<sizeof(joshw_subsites)/sizeof(t_joshw_entry);i++) {
+        if ([mWebBaseDir isEqualToString:joshw_subsites[i].category]) [tmpArray addObject:[NSValue valueWithPointer:&joshw_subsites[i]]];
     }
     
     sortedArray = [tmpArray sortedArrayUsingComparator:^(id obj1, id obj2) {
-        NSString *str1=[((t_webSite_entry*)[obj1 pointerValue])->webSite_name  lastPathComponent];
-        NSString *str2=[((t_webSite_entry*)[obj2 pointerValue])->webSite_name lastPathComponent];
+        NSString *str1=[((t_joshw_entry*)[obj1 pointerValue])->webSite_name  lastPathComponent];
+        NSString *str2=[((t_joshw_entry*)[obj2 pointerValue])->webSite_name lastPathComponent];
         return [str1 caseInsensitiveCompare:str2];
     }];
     ////
@@ -412,7 +410,7 @@
     
     char str[1024];
     for (int i=0;i<dbWEB_nb_entries;i++) {
-        t_webSite_entry *wentry = (t_webSite_entry *)[[sortedArray objectAtIndex:i] pointerValue];
+        t_joshw_entry *wentry = (t_joshw_entry *)[[sortedArray objectAtIndex:i] pointerValue];
         snprintf(str,1024,"%s",[wentry->webSite_name UTF8String]);
         
         dbWEB_entries[dbWEB_entries_count].label=[[NSString alloc] initWithFormat:@"%s",str];
@@ -664,7 +662,8 @@
     const NSInteger SECACT_IMAGE_TAG = 1005;
     const NSInteger COVER_IMAGE_TAG = 1006;
     
-    UILabel *topLabel;
+    //UILabel *topLabel;
+    CBAutoScrollLabel *topLabel;
     UILabel *bottomLabel;
     UIImageView *bottomImageView,*coverImgView;
     UIButton *actionView,*secActionView;
@@ -692,7 +691,13 @@
         //
         // Create the label for the top row of text
         //
-        topLabel = [[UILabel alloc] init];
+//        topLabel = [[UILabel alloc] init];
+//        [cell.contentView addSubview:topLabel];
+        topLabel = [[CBAutoScrollLabel alloc] init];
+        topLabel.labelSpacing = 35; // distance between start and end labels
+        topLabel.pauseInterval = 3.7; // seconds of pause before scrolling starts again
+        topLabel.scrollSpeed = 30; // pixels per second
+        topLabel.fadeLength = 12.f; // length of the left and right edge fade, 0 to disable
         [cell.contentView addSubview:topLabel];
         //
         // Configure the properties for the text that are the same on every row
@@ -700,8 +705,8 @@
         topLabel.tag = TOP_LABEL_TAG;
         topLabel.backgroundColor = [UIColor clearColor];
         topLabel.font = [UIFont systemFontOfSize:17 weight:MDZ_UIFONT_WEIGHT];
-        topLabel.lineBreakMode=(settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value?
-                                ((settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value==2) ? NSLineBreakByTruncatingTail:NSLineBreakByTruncatingMiddle):NSLineBreakByTruncatingHead);;;
+//        topLabel.lineBreakMode=(settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value?
+//                                ((settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value==2) ? NSLineBreakByTruncatingTail:NSLineBreakByTruncatingMiddle):NSLineBreakByTruncatingHead);;;
         topLabel.opaque=TRUE;
         
         //
@@ -746,16 +751,16 @@
         cell.accessoryView=nil;
         //cell.selectionStyle=UITableViewCellSelectionStyleGray;
     } else {
-        topLabel = (UILabel *)[cell viewWithTag:TOP_LABEL_TAG];
+        topLabel = (CBAutoScrollLabel *)[cell viewWithTag:TOP_LABEL_TAG];
         bottomLabel = (UILabel *)[cell viewWithTag:BOTTOM_LABEL_TAG];
         bottomImageView = (UIImageView *)[cell viewWithTag:BOTTOM_IMAGE_TAG];
         coverImgView = (UIImageView *)[cell viewWithTag:COVER_IMAGE_TAG];
         actionView = (UIButton *)[cell viewWithTag:ACT_IMAGE_TAG];
         secActionView = (UIButton *)[cell viewWithTag:SECACT_IMAGE_TAG];
         
-        topLabel.lineBreakMode=(settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value?
-                                ((settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value==2) ? NSLineBreakByTruncatingTail:NSLineBreakByTruncatingMiddle):NSLineBreakByTruncatingHead);
-        
+//        topLabel.lineBreakMode=(settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value?
+//                                ((settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value==2) ? NSLineBreakByTruncatingTail:NSLineBreakByTruncatingMiddle):NSLineBreakByTruncatingHead);
+//        
         bottomLabel.lineBreakMode=(settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value?
                                 ((settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value==2) ? NSLineBreakByTruncatingTail:NSLineBreakByTruncatingMiddle):NSLineBreakByTruncatingHead);
     }
@@ -768,12 +773,12 @@
     
     if (darkMode) {
         topLabel.textColor = [UIColor colorWithRed:0.9 green:0.9 blue:0.9 alpha:1.0];
-        topLabel.highlightedTextColor = [UIColor colorWithRed:1 green:1 blue:1 alpha:1.0];
+//        topLabel.highlightedTextColor = [UIColor colorWithRed:1 green:1 blue:1 alpha:1.0];
         bottomLabel.textColor = [UIColor colorWithRed:0.6 green:0.6 blue:0.6 alpha:1.0];
         bottomLabel.highlightedTextColor = [UIColor colorWithRed:0.8 green:0.8 blue:0.8 alpha:1.0];
     } else {
         topLabel.textColor = [UIColor colorWithRed:0.1 green:0.1 blue:0.1 alpha:1.0];
-        topLabel.highlightedTextColor = [UIColor colorWithRed:0.0 green:0.0 blue:0.0 alpha:1.0];
+//        topLabel.highlightedTextColor = [UIColor colorWithRed:0.0 green:0.0 blue:0.0 alpha:1.0];
         bottomLabel.textColor = [UIColor colorWithRed:0.4 green:0.4 blue:0.4 alpha:1.0];
         bottomLabel.highlightedTextColor = [UIColor colorWithRed:0.2 green:0.2 blue:0.2 alpha:1.0];
     }
@@ -943,96 +948,6 @@
     if (cur_db_entries[indexPath.row].downloaded==1) return YES;
     return NO;
 }
-
-#pragma mark - Image grabber helper
-
-- (void)showToast:(NSString *)message
-         duration:(NSTimeInterval)duration
-       nearPoint:(CGPoint)touchPoint {
-    
-    UILabel *toastLabel = [[UILabel alloc] init];
-    toastLabel.text = message;
-    toastLabel.font = [UIFont systemFontOfSize:14 weight:UIFontWeightMedium];
-    toastLabel.textColor = [UIColor whiteColor];
-    toastLabel.numberOfLines = 0;
-    
-    // Adaptation dark mode
-    if (@available(iOS 13.0, *)) {
-        toastLabel.backgroundColor = [[UIColor labelColor] colorWithAlphaComponent:0.9];
-        toastLabel.textColor = [UIColor systemBackgroundColor];
-    } else {
-        toastLabel.backgroundColor = [[UIColor blackColor] colorWithAlphaComponent:0.8];
-    }
-    
-    toastLabel.textAlignment = NSTextAlignmentCenter;
-    toastLabel.layer.cornerRadius = 12;
-    toastLabel.clipsToBounds = YES;
-    
-    // Calculer la taille
-    CGFloat padding = 16;
-    CGSize maxSize = CGSizeMake(self.view.bounds.size.width - (padding * 4), 1000);
-    CGSize textSize = [message boundingRectWithSize:maxSize
-                                            options:NSStringDrawingUsesLineFragmentOrigin
-                                         attributes:@{NSFontAttributeName: toastLabel.font}
-                                            context:nil].size;
-    
-    CGFloat width = textSize.width + (padding * 2);
-    CGFloat height = textSize.height + (padding * 1.5);
-    
-    // Déterminer la position optimale en fonction du touch
-    CGFloat yPosition;
-    CGFloat screenHeight = self.view.bounds.size.height;
-    CGFloat screenMidpoint = screenHeight / 2;
-    CGFloat offset = 20; // Espace entre le toast et le point de touch
-    
-    // Si le touch est dans la moitié supérieure de l'écran
-    if (touchPoint.y < screenMidpoint) {
-        // Placer le toast EN DESSOUS du point de touch
-        yPosition = touchPoint.y + offset;
-        
-        // Vérifier qu'on ne dépasse pas en bas
-        if (yPosition + height > screenHeight - 40) {
-            yPosition = screenHeight - height - 40;
-        }
-    } else {
-        // Touch dans la moitié inférieure : placer le toast AU-DESSUS
-        yPosition = touchPoint.y - height - offset;
-        
-        // Vérifier qu'on ne dépasse pas en haut
-        if (yPosition < 40) {
-            yPosition = 40;
-        }
-    }
-    
-    // Position X centrée
-    CGFloat xPosition = (self.view.bounds.size.width - width) / 2;
-    
-    toastLabel.frame = CGRectMake(xPosition, yPosition, width, height);
-    toastLabel.alpha = 0.0;
-    toastLabel.transform = CGAffineTransformMakeScale(0.8, 0.8);
-    
-    [self.view addSubview:toastLabel];
-    
-    // Animation d'apparition
-    [UIView animateWithDuration:0.3 delay:0.0
-         usingSpringWithDamping:0.7
-          initialSpringVelocity:0.5
-                        options:UIViewAnimationOptionCurveEaseOut
-                     animations:^{
-        toastLabel.alpha = 1.0;
-        toastLabel.transform = CGAffineTransformIdentity;
-    } completion:^(BOOL finished) {
-        // Disparition après la durée spécifiée
-        [UIView animateWithDuration:0.3 delay:duration options:0 animations:^{
-            toastLabel.alpha = 0.0;
-            toastLabel.transform = CGAffineTransformMakeScale(0.9, 0.9);
-        } completion:^(BOOL finished) {
-            [toastLabel removeFromSuperview];
-        }];
-    }];
-}
-
-
 
 #pragma mark -
 #pragma mark Table view delegate

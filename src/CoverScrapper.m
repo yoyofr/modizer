@@ -87,6 +87,9 @@
         }
         NSInteger index = [self.matcher bestMatchIndexFor:cleanName inArray:gameNames minimumScore:0.5];
         
+        //if not found and only 1 game, let's use it. Sometimes it is related to game having different names/region, ex: Fire Suplex / 3 Count Bout on neogeo cd
+        if ((index == NSNotFound) && ([gameNames count]==1)) index=0;
+        
         if (index != NSNotFound) {
             //NSLog(@"Best match: %@", gameNames[index]);
             el=[arr_img objectAtIndex:index];

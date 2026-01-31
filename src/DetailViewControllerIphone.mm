@@ -2007,6 +2007,7 @@ static float movePinchScale,movePinchScaleOld,movePinchAngle;
             [SettingsGenViewController changeSettingsValue:GLOB_FX3DLandscape change:val];
             break;
         case 0:
+            [SettingsGenViewController changeSettingsValue:GLOB_FXCover change:val];
             break;
     }
     [self settingsChanged:SETTINGS_VISU];
@@ -2111,16 +2112,16 @@ static float movePinchScale,movePinchScaleOld,movePinchAngle;
 }
 
 
--(void) jumpSeekFwd {
+-(void) jumpSeekFwd:(double)seconds {
     int64_t itime=[mplayer getCurrentTime];
-    itime+=10000;
+    itime+=seconds*1000;
     [mplayer Seek:itime];
     _seekRequested=itime;
 }
 
--(void) jumpSeekBwd {
+-(void) jumpSeekBwd:(double)seconds {
     int64_t itime=[mplayer getCurrentTime];
-    itime-=10000;
+    itime-=seconds*1000;
     if (itime<0) itime=0;
     [mplayer Seek:itime];
     _seekRequested=itime;
@@ -2130,6 +2131,7 @@ static float movePinchScale,movePinchScaleOld,movePinchAngle;
     int64_t curTime;
     if (curSongLength>0) curTime=[seekTime intValue];//(int)(sliderProgressModule.value*(float)(curSongLength-1));
     else return;
+    if (curTime<0) curTime=0;
     
     MDZILog("seek %d",(int)(curTime/1000));
     
@@ -2494,7 +2496,7 @@ static float movePinchScale,movePinchScaleOld,movePinchAngle;
      */
     if (!sliderProgressModuleEdit) {
         
-        if (_seekRequested) {
+        if (_seekRequested>=0) {
             static int64_t last_time_diff=0xFFFFFFFFFFFFFF;
             int64_t time_diff=abs(itime-_seekRequested);
             if (time_diff<1000) {

@@ -388,8 +388,8 @@ enum {
 
 -(void) generateBGTexture;
 
--(void) jumpSeekFwd;
--(void) jumpSeekBwd;
+-(void) jumpSeekFwd:(double)seconds;
+-(void) jumpSeekBwd:(double)seconds;
 -(void) oglViewSwitchFS;
 
 -(void) mdPrevPreset;

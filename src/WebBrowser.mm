@@ -1211,17 +1211,17 @@ didFinishNavigation:(WKNavigation *)navigation {
                     while (browser.childController) {
                         browser=browser.childController;
                     }
-                    NSString *path=[ModizFileHelper getFullPathForFilePath:browser.currentPath];
+                    NSString *path=browser.currentPath;//[ModizFileHelper getFullPathForFilePath:browser.currentPath];
                     
                     if (found_img==1) filename=[NSString stringWithFormat:@"%@/folder.jpg",path];
                     if (found_img==2) filename=[NSString stringWithFormat:@"%@/folder.png",path];
                     if (found_img==3) filename=[NSString stringWithFormat:@"%@/folder.gif",path];
                     NSFileManager *mFileMngr=[[NSFileManager alloc] init];
-                    [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/folder.jpg",[path stringByDeletingLastPathComponent]] error:&err];
-                    [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/folder.jpeg",[path stringByDeletingLastPathComponent]] error:&err];
-                    [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/folder.png",[path stringByDeletingLastPathComponent]] error:&err];
-                    [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/folder.webp",[path stringByDeletingLastPathComponent]] error:&err];
-                    [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/folder.gif",[path stringByDeletingLastPathComponent]] error:&err];
+                    [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@/folder.jpg",[ModizFileHelper getAppHomeDirectory], path] error:&err];
+                    [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@/folder.jpeg",[ModizFileHelper getAppHomeDirectory], path ] error:&err];
+                    [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@/folder.png",[ModizFileHelper getAppHomeDirectory], path] error:&err];
+                    [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@/folder.webp",[ModizFileHelper getAppHomeDirectory], path] error:&err];
+                    [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@/folder.gif",[ModizFileHelper getAppHomeDirectory], path] error:&err];
                     
                     [self openPopup: [NSString stringWithFormat:@"Downloading : %@",[filename lastPathComponent] ]];
                     [downloadViewController addURLImageToDownloadList:cover_url_string fileName:filename filesize:cover_expectedContentLength];

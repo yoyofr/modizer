@@ -153,7 +153,11 @@ extern volatile t_settings settings[MAX_SETTINGS];
                 detailViewController.radioSource.mRadioSource_mode=0;
                 break;
         }
-        [detailViewController.radioSource activate];
+        [self showToast:NSLocalizedString(@"Launching Radio", @"") duration:2 nearPoint:radioButton.frame.origin];
+        
+        dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void){
+            [detailViewController.radioSource activate];
+        });
         [radioButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
     }
 }
@@ -1402,7 +1406,8 @@ END_PROFILE
     const NSInteger BOTTOM_IMAGE_TAG = 1003;
     const NSInteger ACT_IMAGE_TAG = 1004;
     const NSInteger SECACT_IMAGE_TAG = 1005;
-    UILabel *topLabel;
+    //UILabel *topLabel;
+    CBAutoScrollLabel *topLabel;
     UILabel *bottomLabel;
     UIImageView *bottomImageView;
     UIButton *actionView,*secActionView;
@@ -1428,7 +1433,13 @@ END_PROFILE
         //
         // Create the label for the top row of text
         //
-        topLabel = [[UILabel alloc] init];
+//        topLabel = [[UILabel alloc] init];
+//        [cell.contentView addSubview:topLabel];
+        topLabel = [[CBAutoScrollLabel alloc] init];
+        topLabel.labelSpacing = 35; // distance between start and end labels
+        topLabel.pauseInterval = 3.7; // seconds of pause before scrolling starts again
+        topLabel.scrollSpeed = 30; // pixels per second
+        topLabel.fadeLength = 12.f; // length of the left and right edge fade, 0 to disable
         [cell.contentView addSubview:topLabel];
         //
         // Configure the properties for the text that are the same on every row
@@ -1436,8 +1447,8 @@ END_PROFILE
         topLabel.tag = TOP_LABEL_TAG;
         topLabel.backgroundColor = [UIColor clearColor];
         topLabel.font = [UIFont systemFontOfSize:17 weight:MDZ_UIFONT_WEIGHT];
-        topLabel.lineBreakMode=(settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value?
-                                ((settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value==2) ? NSLineBreakByTruncatingTail:NSLineBreakByTruncatingMiddle):NSLineBreakByTruncatingHead);;;
+//        topLabel.lineBreakMode=(settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value?
+//                                ((settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value==2) ? NSLineBreakByTruncatingTail:NSLineBreakByTruncatingMiddle):NSLineBreakByTruncatingHead);;;
         topLabel.opaque=TRUE;
         
         //
@@ -1475,14 +1486,14 @@ END_PROFILE
         cell.accessoryView=nil;
         //cell.selectionStyle=UITableViewCellSelectionStyleGray;
     } else {
-        topLabel = (UILabel *)[cell viewWithTag:TOP_LABEL_TAG];
+        topLabel = (CBAutoScrollLabel *)[cell viewWithTag:TOP_LABEL_TAG];
         bottomLabel = (UILabel *)[cell viewWithTag:BOTTOM_LABEL_TAG];
         bottomImageView = (UIImageView *)[cell viewWithTag:BOTTOM_IMAGE_TAG];
         actionView = (UIButton *)[cell viewWithTag:ACT_IMAGE_TAG];
         secActionView = (UIButton *)[cell viewWithTag:SECACT_IMAGE_TAG];
         
-        topLabel.lineBreakMode=(settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value?
-                                ((settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value==2) ? NSLineBreakByTruncatingTail:NSLineBreakByTruncatingMiddle):NSLineBreakByTruncatingHead);
+//        topLabel.lineBreakMode=(settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value?
+//                                ((settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value==2) ? NSLineBreakByTruncatingTail:NSLineBreakByTruncatingMiddle):NSLineBreakByTruncatingHead);
         
         bottomLabel.lineBreakMode=(settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value?
                                 ((settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value==2) ? NSLineBreakByTruncatingTail:NSLineBreakByTruncatingMiddle):NSLineBreakByTruncatingHead);
@@ -1496,12 +1507,12 @@ END_PROFILE
     
     if (darkMode) {
         topLabel.textColor = [UIColor colorWithRed:0.9 green:0.9 blue:0.9 alpha:1.0];
-        topLabel.highlightedTextColor = [UIColor colorWithRed:1 green:1 blue:1 alpha:1.0];
+//        topLabel.highlightedTextColor = [UIColor colorWithRed:1 green:1 blue:1 alpha:1.0];
         bottomLabel.textColor = [UIColor colorWithRed:0.6 green:0.6 blue:0.6 alpha:1.0];
         bottomLabel.highlightedTextColor = [UIColor colorWithRed:0.8 green:0.8 blue:0.8 alpha:1.0];
     } else {
         topLabel.textColor = [UIColor colorWithRed:0.1 green:0.1 blue:0.1 alpha:1.0];
-        topLabel.highlightedTextColor = [UIColor colorWithRed:0.0 green:0.0 blue:0.0 alpha:1.0];
+//        topLabel.highlightedTextColor = [UIColor colorWithRed:0.0 green:0.0 blue:0.0 alpha:1.0];
         bottomLabel.textColor = [UIColor colorWithRed:0.4 green:0.4 blue:0.4 alpha:1.0];
         bottomLabel.highlightedTextColor = [UIColor colorWithRed:0.2 green:0.2 blue:0.2 alpha:1.0];
     }

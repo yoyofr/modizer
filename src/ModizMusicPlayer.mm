@@ -317,8 +317,9 @@ static FILE *openFile_inPath(std::string const &filename, std::string const &pat
         }
     }
     if (f == nullptr) {
-        fprintf(stderr, "error finding %s\n", filename.c_str());
-        std::fflush(stderr);
+        //fprintf(stderr, "error finding %s\n", filename.c_str());
+        //std::fflush(stderr);
+        MDZELog("error finding %s\n", filename.c_str());
     }
     
     return f;
@@ -352,16 +353,18 @@ uint8_t *EUPPlayer_readFile(EUPPlayer *player,
         }
         
         if (statbufEupFile.st_size < 2048 + 6 + 6) {
-            fprintf(stderr, "%s: too short file.\n", nameOfEupFile.c_str());
-            std::fflush(stderr);
+            //fprintf(stderr, "%s: too short file.\n", nameOfEupFile.c_str());
+            //std::fflush(stderr);
+            MDZELog("%s: too short file.\n", nameOfEupFile.c_str());
             fclose(f);
             return nullptr;
         }
         
         size_t eupRead = fread(&eupHeader, 1, sizeof(EUPHEAD), f);
         if (eupRead != sizeof(EUPHEAD)) {
-            fprintf(stderr, "EUP file does not follow specification.\n");
-            std::fflush(stderr);
+            //fprintf(stderr, "EUP file does not follow specification.\n");
+            //std::fflush(stderr);
+            MDZELog("EUP file does not follow specification.\n");
             fclose(f);
             return nullptr;
         }
@@ -410,7 +413,8 @@ uint8_t *EUPPlayer_readFile(EUPPlayer *player,
         fseek(f, 0, SEEK_SET); // seek to start
         eupRead = fread(eupbuf, 1, statbufEupFile.st_size, f);
         if (eupRead != statbufEupFile.st_size) {
-            fprintf(stderr, "EUP not fully read: %zu instead of %lu.\n", eupRead, statbufEupFile.st_size);
+            //fprintf(stderr, "EUP not fully read: %zu instead of %lu.\n", eupRead, statbufEupFile.st_size);
+            MDZELog("EUP not fully read: %zu instead of %lld.\n", eupRead, statbufEupFile.st_size);
             fclose(f);
             delete eupbuf;
             return nullptr;
@@ -470,7 +474,8 @@ uint8_t *EUPPlayer_readFile(EUPPlayer *player,
                 uint8_t buf1[statbuf1.st_size];
                 size_t fmbRead = fread(buf1, 1, statbuf1.st_size, f);
                 if (fmbRead != statbuf1.st_size) {
-                    fprintf(stderr, "FMB not fully read: %zu instead of %lu.\n", fmbRead, statbuf1.st_size);
+                    //fprintf(stderr, "FMB not fully read: %zu instead of %lu.\n", fmbRead, statbuf1.st_size);
+                    MDZELog("FMB not fully read: %zu instead of %lld.\n", fmbRead, statbuf1.st_size);
                 }
                 fclose(f);
                 for (int n = 0; n < (statbuf1.st_size - 8) / 48; n++) {
@@ -497,7 +502,8 @@ uint8_t *EUPPlayer_readFile(EUPPlayer *player,
                 uint8_t buf1[statbuf1.st_size];
                 size_t pmbRead = fread(buf1, 1, statbuf1.st_size, f);
                 if (pmbRead != statbuf1.st_size) {
-                    fprintf(stderr, "PMB not fully read: %zu instead of %lu.\n", pmbRead, statbuf1.st_size);
+                    //fprintf(stderr, "PMB not fully read: %zu instead of %lu.\n", pmbRead, statbuf1.st_size);
+                    MDZELog("PMB not fully read: %zu instead of %lld.\n", pmbRead, statbuf1.st_size);
                 }
                 fclose(f);
                 device->setPcmInstrumentParameters(buf1, statbuf1.st_size);
@@ -521,8 +527,9 @@ int EUPPlayer_ResetReload(){
     eup_player->outputDevice(eup_dev);
     eup_buf = EUPPlayer_readFile(eup_player, eup_dev, eup_filename,&eup_header);
     if (eup_buf == nullptr) {
-        fprintf(stderr, "%s: read failed\n", eup_filename);
-        std::fflush(stderr);
+        //fprintf(stderr, "%s: read failed\n", eup_filename);
+        //std::fflush(stderr);
+        MDZELog("%s: read failed\n", eup_filename);
         return -1;
     }
     eup_player->startPlaying(eup_buf + 2048 + 6);
@@ -702,9 +709,9 @@ static void vgm_PlayerLogCallback(void* userParam, PlayerBase* player, UINT8 lev
     if (level > vgm_logLevel)
         return;    // don't print messages with higher verbosity than current log level
     if (srcType == PLRLOGSRC_PLR)
-        printf("[%s] %s: %s", vgm_LogLevel2Str(level), player->GetPlayerName(), message);
+        MDZILog("[%s] %s: %s", vgm_LogLevel2Str(level), player->GetPlayerName(), message);
     else
-        printf("[%s] %s %s: %s", vgm_LogLevel2Str(level), player->GetPlayerName(), srcTag, message);
+        MDZILog("[%s] %s %s: %s", vgm_LogLevel2Str(level), player->GetPlayerName(), srcTag, message);
     return;
 }
 
@@ -935,7 +942,7 @@ int vgm_getNote(int ch) {
     if (vgm_last_note[ch]==0) return 0;
     double freq=(double)(vgm_last_note[ch]);
     int note=vgm_getNoteFromFreq(freq);
-    //printf("ch %d note %d\n",ch,note);
+    //MDZILog("ch %d note %d\n",ch,note);
     return note;
 }
 
@@ -944,7 +951,7 @@ int vgm_getSubNote(int ch) {
     if (vgm_last_note[ch]==0) return 0;
     double freq=(double)(vgm_last_note[ch]);
     int note=vgm_getSubNoteFromFreq(freq);
-    //printf("ch %d note %d\n",ch,note);
+    //MDZILog("ch %d note %d\n",ch,note);
     return note;
 }
 
@@ -1327,12 +1334,12 @@ extern "C" void writeSound(void) {
             decode_pos_ms=0;
         }
     }
-    //	printf("write : %d\n",lBytes);
+    //	MDZILog("write : %d\n",lBytes);
 }
 
 
 void gsf_loop() {
-    //	printf("enter loop %d,%d\n",TrackLength,decode_pos_ms);
+    //	MDZILog("enter loop %d,%d\n",TrackLength,decode_pos_ms);
     while (g_playing) {
         int remaining = TrackLength - (int)decode_pos_ms;
         if (remaining<0) {
@@ -1341,10 +1348,10 @@ void gsf_loop() {
         }
         EmulationLoop();
         
-        //		printf("remaining : %d\n",remaining);
+        //		MDZILog("remaining : %d\n",remaining);
         
     }
-    //	printf("exit\n");
+    //	MDZILog("exit\n");
 }
 
 static int16_t *vgm_sample_data;
@@ -1929,7 +1936,7 @@ int snsf_loader(void * context, const uint8_t * exe, size_t exe_size,
             // SRAM block
             if (reserved_size < 12 || rsvsize < 4)
             {
-                printf("Reserve section (SRAM) is too short\n");
+                MDZELog("Reserve section (SRAM) is too short\n");
                 return -1;
             }
             
@@ -1938,7 +1945,7 @@ int snsf_loader(void * context, const uint8_t * exe, size_t exe_size,
             unsigned sram_patch_size = rsvsize - 4;
             if (sram_offset + sram_patch_size > 0x20000)
             {
-                printf("SRAM size error\n");
+                MDZELog("SRAM size error\n");
                 return -1;
             }
             
@@ -1961,7 +1968,7 @@ int snsf_loader(void * context, const uint8_t * exe, size_t exe_size,
         }
         else
         {
-            printf("Unsupported reserve section type\n");
+            MDZELog("Unsupported reserve section type\n");
             return -1;
         }
     }
@@ -2130,8 +2137,11 @@ void mdx_update(unsigned char *data,int len,int end_reached);
 #include "uadeconstants.h"
 #include "common/md5.h"
 
+static volatile int64_t mNeedSeek,mNeedSeekTime;
+
 void uade_dummy_wait() {
-    [NSThread sleepForTimeInterval:DEFAULT_WAIT_TIME_UADE_MS];
+    if (mNeedSeek) [NSThread sleepForTimeInterval:DEFAULT_WAIT_TIME_UADE_SEEK_MS];
+    else [NSThread sleepForTimeInterval:DEFAULT_WAIT_TIME_UADE_MS];
 }
 int uade_main (int argc, char **argv);
 struct uade_state UADEstate,UADEstatebase;
@@ -2153,7 +2163,7 @@ static volatile int buffer_ana_gen_ofs,buffer_ana_play_ofs;
 static volatile char *buffer_ana_flag;
 static volatile int64_t *buffer_ana_sample_ofs,*buffer_ana_cpy_sample_ofs;
 static volatile int bGlobalIsPlaying,bGlobalShouldEnd,bGlobalSeekProgress,bGlobalEndReached,bGlobalSoundGenInProgress,bGlobalSoundHasStarted;
-static volatile int64_t mNeedSeek,mNeedSeekTime;
+
 
 static int tim_open_output(void) {
     return 0;
@@ -2796,7 +2806,7 @@ void propertyListenerCallback (void                   *inUserData,              
          //voicesChipColHalf[i]=[UIColor colorWithHue:0.8f-i*0.4f/(float)SOUND_VOICES_MAX_ACTIVE_CHIPS saturation:0.7f brightness:0.4f alpha:1.0f];
          [col getRed:&red green:&green blue:&blue alpha:NULL];
          m_voice_systemColor[i]=(((int)(red*255))<<16)|(((int)(green*255))<<8)|(((int)(blue*255))<<0);
-         printf("col %d: %02X%02X%02\n",i,(int)(red*255),(int)(green*255),(int)(blue*255));
+         MDZILog("col %d: %02X%02X%02\n",i,(int)(red*255),(int)(green*255),(int)(blue*255));
          }*/
         
         pmBufferPosRead=0;
@@ -3182,7 +3192,7 @@ void propertyListenerCallback (void                   *inUserData,              
     UInt32 err;
     UInt32 i;
     
-    //printf("restart\n");
+    //MDZILog("restart\n");
     
     mQueueIsBeingStopped = TRUE;
     AudioQueueStop( mAudioQueue, TRUE );
@@ -3517,7 +3527,7 @@ void mdx_update(unsigned char *data,int len,int end_reached) {
                 unsigned int idx=vgm_getNote(j);
                 if ((idx>0)&&vgm_last_vol[j]) {
                     unsigned int subidx=vgm_getSubNote(j);
-                    // printf("ch %d note %d vol %d\n",j,idx,vgm_last_vol[j]);
+                    // MDZILog("ch %d note %d vol %d\n",j,idx,vgm_last_vol[j]);
                     unsigned int instr=vgm_last_instr[j];
                     tim_notes[buffer_ana_gen_ofs][voices_idx]=
                     (unsigned int)idx|
@@ -3835,7 +3845,7 @@ void gsf_update(unsigned char* pSound,int lBytes) {
 
 // Handle main UADE thread (amiga emu)
 -(void) uadeThread {
-    //	printf("start thread\n");
+    //	MDZILog("start thread\n");
     
     uadeThread_running=1;
     //NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
@@ -3862,7 +3872,7 @@ void gsf_update(unsigned char* pSound,int lBytes) {
     }
     
     uadeThread_running=0;
-    //	printf("stop thread\n");
+    //	MDZILog("stop thread\n");
 }
 //invoked by secondary UADE thread, in charge of receiving sound data
 int uade_audio_play(char *pSound,int lBytes,int song_end) {
@@ -3919,7 +3929,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
                     unsigned int idx=vgm_getNote(j);
                     if ((idx>0)&&vgm_last_vol[j]) {
                         unsigned int subidx=vgm_getSubNote(j);
-                        // printf("ch %d note %d vol %d\n",j,idx,vgm_last_vol[j]);
+                        // MDZILog("ch %d note %d vol %d\n",j,idx,vgm_last_vol[j]);
                         unsigned int instr=vgm_last_instr[j];
                         tim_notes[buffer_ana_gen_ofs][voices_idx]=
                         (unsigned int)idx|
@@ -4030,8 +4040,6 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
                 mUADE_OptChange=0;
             }
             
-            
-            
             if (subsong_end && uade_song_end_trigger == 0) {
                 if (uc->one_subsong == 0 && us->cur_subsong != -1 && us->max_subsong != -1) {
                     if (moveToSubSong) {
@@ -4045,9 +4053,14 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
                         uade_change_subsong(state);
                         mod_currentsub=us->cur_subsong;
                         
+                        //do not reset seek if move is requested by seek (to restart)
+                        if (moveToSubSong==1) {
+                            mNeedSeek=0;bGlobalSeekProgress=0;
+                        }
+                        
                         iCurrentTime=0;
                         mCurrentSamples=0;
-                        mNeedSeek=0;bGlobalSeekProgress=0;
+                        
                         iModuleLength=[self getSongLengthfromMD5:mod_currentsub-mod_minsub+1];
                         mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
                         //Loop
@@ -4055,7 +4068,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
                         mod_message_updated=1;
                         
                         if(moveToSubSong) {
-                            //printf("yo %d\n",moveToSubSong);
+                            //MDZILog("yo %d\n",moveToSubSong);
                             mod_wantedcurrentsub=-1;
                             what_was_left=0;
                             tailbytes=0;
@@ -4096,9 +4109,9 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
             if (uade_song_end_trigger) {
                 // uade_song_end_trigger=0;
                 next_song=1;
-                //				printf("now exiting\n");
+                //				MDZILog("now exiting\n");
                 if (uade_send_short_message(UADE_EXIT, ipc)) {
-                    printf("\nCan not send exit\n");
+                    MDZELog("\nCan not send exit\n");
                 }
                 goto sendtoken;
             }
@@ -4107,7 +4120,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
             
         sendtoken:
             if (uade_send_short_message(UADE_COMMAND_TOKEN, ipc)) {
-                printf("\nCan not send token\n");
+                MDZELog("\nCan not send token\n");
                 return 0;
             }
             
@@ -4124,17 +4137,41 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
                 }
                 
                 if (playbytes) {
-                    
                     us->out_bytes += playbytes;
                     subsong_bytes += playbytes;
                     
-                    uade_effect_run(ue, (int16_t *) sampledata, playbytes / framesize);
+                    if (mNeedSeek==1) {
+                        bGlobalSeekProgress=-1;
+                        mNeedSeek=2;
+                        seek_tgtSamples=mNeedSeekTime*PLAYBACK_FREQ/1000;
+                        if (seek_tgtSamples<mCurrentSamples) {
+                            //restart
+                            mod_wantedcurrentsub=mod_currentsub;
+                            moveToSubSong=2;
+                            moveToSubSongIndex=mod_currentsub;
+                        }
+//                        MDZILog("seek received, targeting: %lld / %lld",seek_tgtSamples,mCurrentSamples);
+                    }
                     
-                    if (skip_first) skip_first=0;
-                    else {
-                        if (uade_audio_play((char*)sampledata, playbytes,subsong_end)) uade_song_end_trigger=2;
-                        
-                        
+                    if ((mNeedSeek==2)&&(moveToSubSong==0)) {
+                        mCurrentSamples+=playbytes/4;
+//                        MDZILog("seek in progress, targeting: %lld / %lld",seek_tgtSamples,mCurrentSamples);
+                        if (mCurrentSamples>=seek_tgtSamples) {
+                            mNeedSeek=3;
+                            seek_tgtSamples=0;
+                            mdzSilentBufferCount=0;
+                            buffer_ana_flag[buffer_ana_gen_ofs]|=2;
+                            //mCurrentSamples=seek_tgtSamples;
+                            iCurrentTime=mCurrentSamples*1000/PLAYBACK_FREQ;
+//                            MDZILog("seek reached, time: %lf",iCurrentTime);
+                        }
+                        mdzSilentBufferCount=0;
+                    } else {
+                        uade_effect_run(ue, (int16_t *) sampledata, playbytes / framesize);
+                        if (skip_first) skip_first=0;
+                        else {
+                            if (uade_audio_play((char*)sampledata, playbytes,subsong_end)) uade_song_end_trigger=2;
+                        }
                     }
                 }
                 
@@ -4142,7 +4179,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
                 if (uc->timeout != -1 && uc->use_timeouts) {
                     if (uade_song_end_trigger == 0) {
                         if (us->out_bytes / bytes_per_second >= uc->timeout) {
-                            printf("\nSong end (timeout %ds)\n", uc->timeout);
+                            //MDZILog("\nSong end (timeout %ds)\n", uc->timeout);
                             uade_song_end_trigger = 1;
                         }
                     }
@@ -4151,10 +4188,16 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
                 if (uc->subsong_timeout != -1 && uc->use_timeouts) {
                     if (subsong_end == 0 && uade_song_end_trigger == 0) {
                         if (subsong_bytes / bytes_per_second >= uc->subsong_timeout) {
-                            printf("\nSong end (subsong timeout %ds)\n", uc->subsong_timeout);
+                            //MDZILog("\nSong end (subsong timeout %ds)\n", uc->subsong_timeout);
                             subsong_end = 1;
                         }
                     }
+                }
+                
+                //silence timeout
+                if (mdzSilentBufferLimit&&(mdzSilentBufferCount>=mdzSilentBufferLimit)) {
+                    subsong_end=1;
+                    [self setSongLengthfromMD5:mod_currentsub-mod_minsub+1 songlength:mCurrentSamples*1000/PLAYBACK_FREQ];
                 }
             }
             
@@ -4169,7 +4212,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
             
             /* receive state */
             if (uade_receive_message(um, sizeof(space), ipc) <= 0) {
-                printf("\nCan not receive events from uade\n");
+                MDZELog("\nCan not receive events from uade\n");
                 return 0;
             }
             
@@ -4212,7 +4255,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
                         mod_subsongs=1 + us->max_subsong - us->min_subsong;
                     }
                     mod_message_updated=2;
-                    //printf("\nFormat name: %s\n", (uint8_t *) um->data);
+                    //MDZILog("\nFormat name: %s\n", (uint8_t *) um->data);
                     break;
                     
                 case UADE_REPLY_MODULENAME:
@@ -4229,12 +4272,12 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
                         mod_subsongs=1 + us->max_subsong - us->min_subsong;
                     }
                     mod_message_updated=2;
-                    //printf("\nModule name: %s\n", (uint8_t *) um->data);
+                    //MDZILog("\nModule name: %s\n", (uint8_t *) um->data);
                     break;
                     
                 case UADE_REPLY_MSG:
                     uade_check_fix_string(um, 512);
-                    //printf("UADE msg : %s\n",(const char*)(um->data));
+                    //MDZILog("UADE msg : %s\n",(const char*)(um->data));
                     break;
                     
                 case UADE_REPLY_PLAYERNAME:
@@ -4251,13 +4294,13 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
                         mod_subsongs=1 + us->max_subsong - us->min_subsong;
                     }
                     mod_message_updated=2;
-                    //printf("\nPlayer name: %s\n", (uint8_t *) um->data);
+                    //MDZILog("\nPlayer name: %s\n", (uint8_t *) um->data);
                     break;
                     
                 case UADE_REPLY_SONG_END:
                     if (um->size < 9) {
-                        printf("\nInvalid song end reply\n");
-                        exit(-1);
+                        MDZELog("\nInvalid song end reply\n");
+                        return(-1);
                     }
                     tailbytes = ntohl(((uint32_t *) um->data)[0]);
                     if (!tailbytes)
@@ -4272,7 +4315,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
                         }
                         //update song length
                         [self setSongLengthfromMD5:mod_currentsub-mod_minsub+1 songlength:mCurrentSamples*1000/PLAYBACK_FREQ];
-                        //printf("received happy song end %d\n",mod_wantedcurrentsub);
+                        //MDZILog("received happy song end %d\n",mod_wantedcurrentsub);
                     } else {
                         /* unhappy song end (error in the 68k side). skip to next song
                          ignoring possible subsongs */
@@ -4283,24 +4326,24 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
                         //moveToNextSubSong=2;
                         
                         [self setSongLengthfromMD5:mod_currentsub-mod_minsub+1 songlength:mCurrentSamples*1000/PLAYBACK_FREQ];
-                        //printf("received unhappy song end %d\n",mod_wantedcurrentsub);
+                        //MDZILog("received unhappy song end %d\n",mod_wantedcurrentsub);
                     }
                     i = 0;
                     reason = (char *) &um->data[8];
                     while (reason[i] && i < (um->size - 8))
                         i++;
                     if (reason[i] != 0 || (i != (um->size - 9))) {
-                        printf("\nbroken reason string with song end notice\n");
-                        exit(-1);
+                        MDZELog("\nbroken reason string with song end notice\n");
+                        return(-1);
                     }
-                    printf("UADE: Song end (%s)\n", reason);
+                    //MDZILog("UADE: Song end (%s)\n", reason);
                     if (strcmp(reason,"module check failed")==0) mLoadModuleStatus=-1;
                     break;
                     
                 case UADE_REPLY_SUBSONG_INFO:
                     if (um->size != 12) {
-                        printf("\nsubsong info: too short a message\n");
-                        exit(-1);
+                        MDZELog("\nsubsong info: too short a message\n");
+                        return(-1);
                     }
                     
                     u32ptr = (uint32_t *) um->data;
@@ -4308,11 +4351,11 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
                     us->max_subsong = ntohl(u32ptr[1]);
                     us->cur_subsong = ntohl(u32ptr[2]);
                     
-                    //printf("\nsubsong: %d from range [%d, %d]\n", us->cur_subsong, us->min_subsong, us->max_subsong);
+                    //MDZILog("\nsubsong: %d from range [%d, %d]\n", us->cur_subsong, us->min_subsong, us->max_subsong);
                     
                     if (!(-1 <= us->min_subsong && us->min_subsong <= us->cur_subsong && us->cur_subsong <= us->max_subsong)) {
                         int tempmin = us->min_subsong, tempmax = us->max_subsong;
-                        fprintf(stderr, "\nThe player is broken. Subsong info does not match.\n");
+                        MDZELog("\nThe player is broken. Subsong info does not match.\n");
                         us->min_subsong = tempmin <= tempmax ? tempmin : tempmax;
                         us->max_subsong = tempmax >= tempmin ? tempmax : tempmin;
                         if (us->cur_subsong > us->max_subsong)
@@ -4322,7 +4365,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
                     }
                     
                     if ((us->max_subsong - us->min_subsong) != 0) {
-                        //	printf("\nThere are %d subsongs in range [%d, %d].\n", 1 + us->max_subsong - us->min_subsong, us->min_subsong, us->max_subsong);
+                        //	MDZILog("\nThere are %d subsongs in range [%d, %d].\n", 1 + us->max_subsong - us->min_subsong, us->min_subsong, us->max_subsong);
                         if (1 + us->max_subsong - us->min_subsong==1) {
                             snprintf(mod_message,MAX_STIL_DATA_LENGTH*2,"%s\n%s\n%s\nSubsong: 1",moduleName,formatName,playerName);
                         }
@@ -4339,13 +4382,13 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
                     break;
                     
                 default:
-                    printf("\nExpected sound data. got %u.\n", (unsigned int) um->msgtype);
+                    MDZELog("\nExpected sound data. got %u.\n", (unsigned int) um->msgtype);
                     return 0;
             }
             
             if ((prev_mod_subsongs!=mod_subsongs)&&(mod_subsongs>1)) {
                 [self initSubSongPlayed];
-                //printf("initsubsong / %d subsongs\n",mod_subsongs);
+                //MDZILog("initsubsong / %d subsongs\n",mod_subsongs);
                 if (mdz_ShufflePlayMode) {
                     [self playNextSub];
                     if (moveToSubSong) moveToSubSong=2;
@@ -4353,22 +4396,11 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
             }
         }
     }
-    /*do {
-     ret = uade_receive_message(um, sizeof(space), ipc);
-     if (ret < 0) {
-     printf("\nCan not receive events (TOKEN) from uade.\n");
-     return 0;
-     }
-     if (ret == 0) {
-     printf("\nEnd of input after reboot.\n");
-     return 0;
-     }
-     } while (um->msgtype != UADE_COMMAND_TOKEN);*/
     return 0;
 }
 
 int64_t src_callback_hc(void *cb_data, float **data) {
-    //printf("start\n");
+    //MDZILog("start\n");
     uint32_t howmany = SOUND_BUFFER_SIZE_SAMPLE;
     switch (HC_type) {
         case 1:
@@ -4384,11 +4416,11 @@ int64_t src_callback_hc(void *cb_data, float **data) {
             int32_t srate;
             srate=hc_sample_rate;
             if (ret=usf_render(lzu_state, hc_sample_data, SOUND_BUFFER_SIZE_SAMPLE, &srate)) {
-                printf("usf: %s\n",ret);
+                //MDZILog("usf: %s\n",ret);
                 return 0;
             }
             if (srate!=hc_sample_rate) {
-                printf("rate changed: %d / %d (new / old)\n",srate,hc_sample_rate);
+                //MDZILog("rate changed: %d / %d (new / old)\n",srate,hc_sample_rate);
             }
         }
             break;
@@ -4427,7 +4459,7 @@ int64_t src_callback_hc(void *cb_data, float **data) {
     src_short_to_float_array (hc_sample_data, hc_sample_data_float,SOUND_BUFFER_SIZE_SAMPLE*2);
     *data=hc_sample_data_float;
     
-    //printf("end\n");
+    //MDZILog("end\n");
     return SOUND_BUFFER_SIZE_SAMPLE;
 }
 
@@ -6492,7 +6524,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                         unsigned int vol;//=(xmp_fi.channel_info[j].volume);
                                         double note_adj=round((double)(xmp_fi.channel_info[j].pitchbend)/100.0f);
                                         double subnote_adj=(xmp_fi.channel_info[j].pitchbend-note_adj*100.0f)*7.0f/100.0f;
-                                        //if (vol) printf("%d %d -> %lf / %lf\n",j,xmp_fi.channel_info[j].pitchbend,note_adj,subnote_adj);
+                                        //if (vol) MDZILog("%d %d -> %lf / %lf\n",j,xmp_fi.channel_info[j].pitchbend,note_adj,subnote_adj);
                                         vol=(xmp_fi.channel_info[j].event.note?2:1);
                                         if (xmp_fi.channel_info[j].volume==0) vol=0;
                                         idx+=note_adj;
@@ -6645,7 +6677,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     unsigned int idx=vgm_getNote(j);
                                     if ((idx>0)&&vgm_last_vol[j]) {
                                         unsigned int subidx=vgm_getSubNote(j);
-                                        // printf("ch %d note %d vol %d\n",j,idx,vgm_last_vol[j]);
+                                        // MDZILog("ch %d note %d vol %d\n",j,idx,vgm_last_vol[j]);
                                         unsigned int instr=vgm_last_instr[j];
                                         tim_notes[buffer_ana_gen_ofs][voices_idx]=
                                         (unsigned int)idx|
@@ -6686,7 +6718,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     unsigned int idx=vgm_getNote(j);
                                     if ((idx>0)&&vgm_last_vol[j]) {
                                         unsigned int subidx=vgm_getSubNote(j);
-                                        // printf("ch %d note %d vol %d\n",j,idx,vgm_last_vol[j]);
+                                        // MDZILog("ch %d note %d vol %d\n",j,idx,vgm_last_vol[j]);
                                         unsigned int instr=vgm_last_instr[j];
                                         tim_notes[buffer_ana_gen_ofs][voices_idx]=
                                         (unsigned int)idx|
@@ -6758,7 +6790,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                         unsigned int idx=vgm_getNote(j);
                                         if ((idx>0)&&vgm_last_vol[j]) {
                                             unsigned int subidx=vgm_getSubNote(j);
-                                            // printf("ch %d note %d vol %d\n",j,idx,vgm_last_vol[j]);
+                                            // MDZILog("ch %d note %d vol %d\n",j,idx,vgm_last_vol[j]);
                                             unsigned int instr=vgm_last_instr[j];
                                             tim_notes[buffer_ana_gen_ofs][voices_idx]=
                                             (unsigned int)idx|
@@ -7192,7 +7224,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                         unsigned int idx=vgm_getNote(j);
                                         if ((idx>0)&&vgm_last_vol[j]) {
                                             unsigned int subidx=vgm_getSubNote(j);
-                                            // printf("ch %d note %d vol %d\n",j,idx,vgm_last_vol[j]);
+                                            // MDZILog("ch %d note %d vol %d\n",j,idx,vgm_last_vol[j]);
                                             unsigned int instr=vgm_last_instr[j];
                                             tim_notes[buffer_ana_gen_ofs][voices_idx]=
                                             (unsigned int)idx|
@@ -7285,7 +7317,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     unsigned int idx=vgm_getNote(j);
                                     if ((idx>0)&&vgm_last_vol[j]) {
                                         unsigned int subidx=vgm_getSubNote(j);
-                                        // printf("ch %d note %d vol %d\n",j,idx,vgm_last_vol[j]);
+                                        // MDZILog("ch %d note %d vol %d\n",j,idx,vgm_last_vol[j]);
                                         unsigned int instr=vgm_last_instr[j];
                                         tim_notes[buffer_ana_gen_ofs][voices_idx]=
                                         (unsigned int)idx|
@@ -7469,7 +7501,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                         if ((idx>=0)&&m_voicesStatus[i+j*4]) {
                                             unsigned int subidx=vgm_getSubNote(i+j*4);
                                             unsigned int vol=vgm_last_vol[i+j*4];//(registers[0x04 + i * 0x07] & 0x01);
-                                            //printf("ch %d note %d vol %d\n",i,idx,vol);
+                                            //MDZILog("ch %d note %d vol %d\n",i,idx,vol);
                                             
                                             if (idx && vol) {
                                                 tim_notes[buffer_ana_gen_ofs][voices_idx]=
@@ -7537,7 +7569,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     unsigned int idx=vgm_getNote(j);
                                     if ((idx>0)&&vgm_last_vol[j]) {
                                         unsigned int subidx=vgm_getSubNote(j);
-                                        // printf("ch %d note %d vol %d\n",j,idx,vgm_last_vol[j]);
+                                        // MDZILog("ch %d note %d vol %d\n",j,idx,vgm_last_vol[j]);
                                         unsigned int instr=vgm_last_instr[j];
                                         tim_notes[buffer_ana_gen_ofs][voices_idx]=
                                         (unsigned int)idx|
@@ -7575,7 +7607,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     unsigned int idx=vgm_getNote(j);
                                     if ((idx>0)&&vgm_last_vol[j]) {
                                         unsigned int subidx=vgm_getSubNote(j);
-                                        // printf("ch %d note %d vol %d\n",j,idx,vgm_last_vol[j]);
+                                        // MDZILog("ch %d note %d vol %d\n",j,idx,vgm_last_vol[j]);
                                         unsigned int instr=vgm_last_instr[j];
                                         tim_notes[buffer_ana_gen_ofs][voices_idx]=
                                         (unsigned int)idx|
@@ -7625,7 +7657,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                             unsigned int idx=vgm_getNote(j);
                                             if ((idx>0)) {
                                                 unsigned int subidx=vgm_getSubNote(j);
-                                                // printf("ch %d note %d vol %d\n",j,idx,vgm_last_vol[j]);
+                                                // MDZILog("ch %d note %d vol %d\n",j,idx,vgm_last_vol[j]);
                                                 unsigned int instr=vgm_last_instr[j];
                                                 tim_notes[buffer_ana_gen_ofs][voices_idx]=
                                                 (unsigned int)idx|
@@ -7669,7 +7701,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                             unsigned int idx=vgm_getNote(j);
                                             if ((idx>0)&&vgm_last_vol[j]) {
                                                 unsigned int subidx=vgm_getSubNote(j);
-                                                // printf("ch %d note %d vol %d\n",j,idx,vgm_last_vol[j]);
+                                                // MDZILog("ch %d note %d vol %d\n",j,idx,vgm_last_vol[j]);
                                                 unsigned int instr=vgm_last_instr[j];
                                                 tim_notes[buffer_ana_gen_ofs][voices_idx]=
                                                 (unsigned int)idx|
@@ -7734,7 +7766,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                         unsigned int idx=vgm_getNote(j);
                                         if ((idx>0)&&vgm_last_vol[j]) {
                                             unsigned int subidx=vgm_getSubNote(j);
-                                            // printf("ch %d note %d vol %d\n",j,idx,vgm_last_vol[j]);
+                                            // MDZILog("ch %d note %d vol %d\n",j,idx,vgm_last_vol[j]);
                                             unsigned int instr=vgm_last_instr[j];
                                             tim_notes[buffer_ana_gen_ofs][voices_idx]=
                                             (unsigned int)idx|
@@ -8032,7 +8064,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             
                             for (int ch = 0; ch<pt3_numofchips; ch++) {
                                 if (pt3_renday(pt3_tmpbuf[ch], SOUND_BUFFER_SIZE_SAMPLE*4, &pt3_ay[ch], &pt3_t, ch,mLoopMode)) {
-                                    //printf("PT3: loop/end point reached\n");
+                                    //MDZILog("PT3: loop/end point reached\n");
                                     if (mLoopMode) nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
                                     else nbBytes=0;
                                 }
@@ -8090,7 +8122,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     unsigned int idx=vgm_getNote(j);
                                     if ((idx>0)&&vgm_last_vol[j]) {
                                         unsigned int subidx=vgm_getSubNote(j);
-                                        //printf("ch %d note %d vol %d\n",j,idx,vgm_last_vol[j]);
+                                        //MDZILog("ch %d note %d vol %d\n",j,idx,vgm_last_vol[j]);
                                         unsigned int instr=vgm_last_instr[j];
                                         tim_notes[buffer_ana_gen_ofs][voices_idx]=
                                         idx|
@@ -8174,7 +8206,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     unsigned int idx=vgm_getNote(j);
                                     if ((idx>0)&&vgm_last_vol[j]) {
                                         unsigned int subidx=vgm_getSubNote(j);
-                                        //printf("ch %d note %d vol %d\n",j,idx,vgm_last_vol[j]);
+                                        //MDZILog("ch %d note %d vol %d\n",j,idx,vgm_last_vol[j]);
                                         unsigned int instr=vgm_last_instr[j];
                                         tim_notes[buffer_ana_gen_ofs][voices_idx]=
                                         idx|
@@ -8666,70 +8698,48 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
     snprintf(mod_message,MAX_STIL_DATA_LENGTH*2,"\n");
     
     if (!psftag_getvar(tag, "title", title_str, sizeof(title_str)-1)) {
-        //BOLD(); printf("Title: "); NORMAL();
         snprintf(mod_message,MAX_STIL_DATA_LENGTH*2,"%sTitle......: %s\n",mod_message,title_str);
-        //printf("%s\n", title_str);
     }
     
     if (!psftag_getvar(tag, "artist", tmp_str, sizeof(tmp_str)-1)) {
-        //BOLD(); printf("Artist: "); NORMAL();
-        //printf("%s\n", tmp_str);
         snprintf(mod_message,MAX_STIL_DATA_LENGTH*2,"%sArtist.....: %s\n",mod_message,tmp_str);
         artist=[NSString stringWithUTF8String:tmp_str];
     }
     
     if (!psftag_getvar(tag, "game", game_str, sizeof(tmp_str)-1)) {
-        //BOLD(); printf("Game: "); NORMAL();
-        //printf("%s\n", tmp_str);
         snprintf(mod_message,MAX_STIL_DATA_LENGTH*2,"%sGame.......: %s\n",mod_message,game_str);
         album=[NSString stringWithFormat:@"%s",game_str];
     }
     
     if (!psftag_getvar(tag, "year", tmp_str, sizeof(tmp_str)-1)) {
-        //BOLD(); printf("Year: "); NORMAL();
-        //printf("%s\n", tmp_str);
         snprintf(mod_message,MAX_STIL_DATA_LENGTH*2,"%sYear.......: %s\n",mod_message,tmp_str);
     }
     
     if (!psftag_getvar(tag, "copyright", tmp_str, sizeof(tmp_str)-1)) {
-        //BOLD(); printf("Copyright: "); NORMAL();
-        //printf("%s\n", tmp_str);
         snprintf(mod_message,MAX_STIL_DATA_LENGTH*2,"%sCopyright..: %s\n",mod_message,tmp_str);
     }
     
     if (!psftag_getvar(tag, "gsfby", tmp_str, sizeof(tmp_str)-1)) {
-        //BOLD(); printf("GSF By: "); NORMAL();
-        //printf("%s\n", tmp_str);
         snprintf(mod_message,MAX_STIL_DATA_LENGTH*2,"%sGSFby......: %s\n",mod_message,tmp_str);
     }
     
     if (!psftag_getvar(tag, "tagger", tmp_str, sizeof(tmp_str)-1)) {
-        //BOLD(); printf("Tagger: "); NORMAL();
-        //printf("%s\n", tmp_str);
         snprintf(mod_message,MAX_STIL_DATA_LENGTH*2,"%sTagger.....: %s\n",mod_message,tmp_str);
     }
     
     if (!psftag_getvar(tag, "comment", tmp_str, sizeof(tmp_str)-1)) {
-        //BOLD(); printf("Comment: "); NORMAL();
-        //printf("%s\n", tmp_str);
         snprintf(mod_message,MAX_STIL_DATA_LENGTH*2,"%sComment....: %s\n",mod_message,tmp_str);
     }
     
     if (!psftag_getvar(tag, "fade", fade_str, sizeof(fade_str)-1)) {
         FadeLength = LengthFromString(fade_str);
-        //BOLD(); printf("Fade: "); NORMAL();
-        //printf("%s (%d ms)\n", fade_str, FadeLength);
     }
     
     if (!psftag_raw_getvar(tag, "length", length_str, sizeof(length_str)-1)) {
         TrackLength = LengthFromString(length_str) + FadeLength;
-        //BOLD(); printf("Length: "); NORMAL();
-        //printf("%s (%d ms) ", length_str, TrackLength);
         if (IgnoreTrackLength) {
-            //	printf("(ignored)");
             TrackLength = settings[GLOB_DefaultLength].detail.mdz_slider.slider_value*1000;
         }
-        //printf("\n");
     }
     else {
         TrackLength = settings[GLOB_DefaultLength].detail.mdz_slider.slider_value*1000;
@@ -9087,8 +9097,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
     
     eup_buf = EUPPlayer_readFile(eup_player, eup_dev, [filePath UTF8String],&eup_header);
     if (eup_buf == nullptr) {
-        fprintf(stderr, "%s: read failed\n", [filePath UTF8String]);
-        std::fflush(stderr);
+        MDZELog("%s: read failed\n", [filePath UTF8String]);
         return -1;
     }
     
@@ -9772,12 +9781,12 @@ static WSRPlayerApi* s_coreSwan=&oswan::g_wsr_player_api;
     int num = func_setup_music((uint8_t*)pt3_music_buf, pt3_music_size, pt3_numofchips, 1);
     
     pt3_numofchips+=num;
-    printf("Number of chips: %i\n",num);
+//    MDZILog("Number of chips: %i\n",num);
     
     
     for (int ch=0; ch<pt3_numofchips; ch++) {
         if (!ayumi_configure(&pt3_ay[ch], pt3_t.is_ym, pt3_t.clock_rate, pt3_t.sample_rate)) {
-            printf("ayumi_configure error (wrong sample rate?)\n");
+            MDZELog("ayumi_configure error (wrong sample rate?)\n");
             return 1;
         }
         ayumi_set_pan(&pt3_ay[ch], 0, pt3_t.pan[0], pt3_t.eqp_stereo_on);
@@ -9785,7 +9794,7 @@ static WSRPlayerApi* s_coreSwan=&oswan::g_wsr_player_api;
         ayumi_set_pan(&pt3_ay[ch], 2, pt3_t.pan[2], pt3_t.eqp_stereo_on);
         pt3_frame[ch]=0;
         pt3_sample[ch]=0;
-        printf("Ayumi #%i configured\n",ch);
+//        MDZILog("Ayumi #%i configured\n",ch);
     }
     
     //    ayumi_play(pt3_ay, &pt3_t);
@@ -11757,7 +11766,7 @@ char* loadRom(const char* path, size_t romSize)
     UADEstate.ipc.output = uade_ipc_set_output("fd://1");
     
     if (uade_send_string(UADE_COMMAND_CONFIG, UADEconfigname, &(UADEstate.ipc))) {
-        printf("Can not send config name: %s\n",strerror(errno));
+        MDZELog("Can not send config name: %s\n",strerror(errno));
         mPlayType=0;
         return -4;
     }
@@ -11768,7 +11777,7 @@ char* loadRom(const char* path, size_t romSize)
     UADEstate.song = NULL;
     UADEstate.ep = NULL;
     if (!uade_is_our_file(modulename, 0, &UADEstate)) {
-        printf("Unknown format: %s\n", modulename);
+        MDZELog("Unknown format: %s\n", modulename);
         mPlayType=0;
         return -3;
     }
@@ -11785,7 +11794,7 @@ char* loadRom(const char* path, size_t romSize)
     //printf("Player name: %s\n", UADEplayername);
     
     if (strlen(UADEplayername) == 0) {
-        printf("Error: an empty player name given\n");
+        MDZELog("Error: an empty player name given\n");
         mPlayType=0;
         return -4;
     }
@@ -11793,7 +11802,7 @@ char* loadRom(const char* path, size_t romSize)
     strcpy(songname, modulename[0] ? modulename : UADEplayername);
     
     if (!uade_alloc_song(&UADEstate, songname)) {
-        printf("Can not read %s: %s\n", songname,strerror(errno));
+        MDZELog("Can not read %s: %s\n", songname,strerror(errno));
         mPlayType=0;
         return -5;
     }
@@ -11830,14 +11839,14 @@ char* loadRom(const char* path, size_t romSize)
             //				goto cleanup;
             
         } else if (ret == UADECORE_CANT_PLAY) {
-            printf("Uadecore refuses to play the song.\n");
+            MDZELog("Uadecore refuses to play the song.\n");
             uade_unalloc_song(&UADEstate);
             mPlayType=0;
             return -7;
             //				continue;
         }
         
-        printf("Unknown error from uade_song_initialization()\n");
+        MDZELog("Unknown error from uade_song_initialization()\n");
         return -8;
     }
     
@@ -12020,7 +12029,7 @@ char* loadRom(const char* path, size_t romSize)
 static void libopenmpt_example_logfunc( const char * message, void * userdata ) {
     (void)userdata;
     if ( message ) {
-        printf( "openmpt: %s\n", message );
+        MDZILog( "openmpt: %s\n", message );
     }
 }
 
@@ -12037,9 +12046,9 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
     if ( mod_err == OPENMPT_ERROR_OUT_OF_MEMORY ) {
         mod_err_str = openmpt_error_string( mod_err );
         if ( !mod_err_str ) {
-            printf( "Error: %s\n", "OPENMPT_ERROR_OUT_OF_MEMORY" );
+            MDZELog( "Error: %s\n", "OPENMPT_ERROR_OUT_OF_MEMORY" );
         } else {
-            printf( "Error: %s\n", mod_err_str );
+            MDZELog( "Error: %s\n", mod_err_str );
             openmpt_free_string( mod_err_str );
             mod_err_str = NULL;
         }
@@ -12047,14 +12056,14 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
         if ( !mod_err_str ) {
             mod_err_str = openmpt_error_string( mod_err );
             if ( !mod_err_str ) {
-                printf( "Error: %s failed.\n", func_name );
+                MDZELog( "Error: %s failed.\n", func_name );
             } else {
-                printf( "Error: %s failed: %s\n", func_name, mod_err_str );
+                MDZELog( "Error: %s failed: %s\n", func_name, mod_err_str );
             }
             openmpt_free_string( mod_err_str );
             mod_err_str = NULL;
         }
-        printf( "Error: %s failed: %s\n", func_name, mod_err_str );
+        MDZELog( "Error: %s failed: %s\n", func_name, mod_err_str );
     }
 }
 
@@ -12144,7 +12153,7 @@ NSString* convertAmigaGreekToUnicode(NSString *input) {
     
     ompt_mod=openmpt_module_ext_create_from_memory(mp_data, mp_datasize, &libopenmpt_example_logfunc, NULL, &libopenmpt_example_errfunc, NULL, &mod_err, &mod_err_str, NULL );
     if (!ompt_mod) {
-        printf("openmpt error initializing ompt\n");
+        MDZELog("openmpt error initializing ompt\n");
         mPlayType=0;
         free(mp_data);
         free(ompt_mod_interactive);
@@ -12153,7 +12162,7 @@ NSString* convertAmigaGreekToUnicode(NSString *input) {
     //openmpt_module_ext_interface_interactive *ompt_mod_interactive;
     
     if (!openmpt_module_ext_get_interface( ompt_mod, "interactive", ompt_mod_interactive, sizeof(openmpt_module_ext_interface_interactive))) {
-        printf("openmpt error initializing interactive extension\n");
+        MDZELog("openmpt error initializing interactive extension\n");
         mPlayType=0;
         free(mp_data);
         free(ompt_mod_interactive);
@@ -13049,13 +13058,13 @@ static unsigned char* v2m_check_and_convert(unsigned char* tune, unsigned int* l
     
     if (tune[2] != 0 || tune[3] != 0)
     {
-        printf("No valid input file\n");
+        MDZELog("No valid input file\n");
         return NULL;
     }
     int version = CheckV2MVersion(tune, *length);
     if (version < 0)
     {
-        printf("Failed to Check Version on input file\n");
+        MDZELog("Failed to Check Version on input file\n");
         return NULL;
     }
     
@@ -13387,7 +13396,7 @@ static unsigned char* v2m_check_and_convert(unsigned char* tune, unsigned int* l
         
         usf_render(lzu_state, 0, 0, &hc_sample_rate);
         
-        printf("rate: %d\n",hc_sample_rate);
+//        MDZILog("rate: %d\n",hc_sample_rate);
         m_voice_current_samplerate=hc_sample_rate;
         
         iModuleLength=usf_length_ms;
@@ -13605,14 +13614,14 @@ static void vgm_set_dev_option(PlayerBase *player, UINT8 devId, UINT32 coreOpts)
     
     vgm_loader = FileLoader_Init([filePath UTF8String]);
     if(vgm_loader == NULL) {
-        printf("failed to create FileLoader\n");
+        MDZELog("failed to create FileLoader\n");
         return 1;
     }
     
     /* attempt to load 256 bytes, bail if not possible */
     DataLoader_SetPreloadBytes(vgm_loader,0x100);
     if(DataLoader_Load(vgm_loader)) {
-        printf("failed to load DataLoader\n");
+        MDZELog("failed to load DataLoader\n");
         DataLoader_Deinit(vgm_loader);
         vgm_player.UnregisterAllPlayers();
         vgm_loader=NULL;
@@ -13623,7 +13632,7 @@ static void vgm_set_dev_option(PlayerBase *player, UINT8 devId, UINT32 coreOpts)
     /* associate the fileloader to the player -
      * automatically reads the rest of the file */
     if(vgm_player.LoadFile(vgm_loader)) {
-        printf("failed to load file\n");
+        MDZELog("failed to load file\n");
         DataLoader_Deinit(vgm_loader);
         vgm_player.UnregisterAllPlayers();
         vgm_loader=NULL;
@@ -14634,7 +14643,7 @@ extern bool icloud_available;
     mdz_SubsongPlayed[idx]=maxid+1;
     
     //printf("sub data:\n");
-    //for (int i=0;i<mod_subsongs;i++) printf("%d ",mdz_SubsongPlayed[i]);
+    //for (int i=0;i<mod_subsongs;i++) MDZILog("%d ",mdz_SubsongPlayed[i]);
     //printf("\n");
 }
 
@@ -15445,9 +15454,9 @@ extern bool icloud_available;
     
     
     /*if (mdz_IsArchive && mdz_ArchiveFilesCnt) {
-     printf("current play stat:\n");
-     for (int i=0;i<mdz_ArchiveFilesCnt;i++) printf("%d ",mdz_ArchiveEntryPlayed[i]);
-     printf("\n");
+     MDZILog("current play stat:\n");
+     for (int i=0;i<mdz_ArchiveFilesCnt;i++) MDZILog("%d ",mdz_ArchiveEntryPlayed[i]);
+     MDZILog("\n");
      }*/
     
     int retval=1;
@@ -17497,8 +17506,6 @@ extern "C" void adjust_amplification(void);
 -(void) Seek:(int64_t) seek_time {
     if ([self isSeeking]) return;
     
-    if ((mPlayType==MMP_UADE) /*||mNeedSeek*/) return;
-    
     if (mPlayType==MMP_STSOUND) {
         if (ymMusicIsSeekable(ymMusic)==YMFALSE) return;
     }
@@ -18546,7 +18553,7 @@ extern "C" void adjust_amplification(void);
                     PLR_DEV_OPTS devOpts;
                     UINT8 retVal = vgm_plrEngine->GetDeviceOptions((UINT32)vgmplay_activeChipsID[i], devOpts);
                     if (retVal & 0x80) {
-                        printf("Invalid sound chip ID.\n");
+                        MDZELog("Invalid sound chip ID.\n");
                         continue;
                     }
                     

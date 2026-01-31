@@ -365,12 +365,81 @@ extern NSMutableArray *mac_key_pressed,*mac_key_released;
 }
 
 
+#pragma mark - UIDropInteractionDelegate
 
+- (void)playDroppedFile:(NSURL *)fileURL {
+    // Le fichier est dans un dossier temporaire, il faut le copier
+    NSString *documentsPath = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) firstObject];
+    NSString *fileName = [fileURL lastPathComponent];
+    NSString *destinationPath = [documentsPath stringByAppendingPathComponent:fileName];
+    
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    NSError *error = nil;
+    
+    // Copier le fichier si nécessaire
+    if ([fileManager fileExistsAtPath:destinationPath]) {
+        [fileManager removeItemAtPath:destinationPath error:nil];
+    }
+    
+    [fileManager copyItemAtPath:fileURL.path toPath:destinationPath error:&error];
+    
+    if (!error) {
+        // Lancer la lecture avec ton système existant
+        // Par exemple, appeler ta méthode de lecture de fichier
+        //[self loadAndPlayFile:destinationPath];
+        [self openURL:[NSURL fileURLWithPath:destinationPath]];
+    }
+}
+
+- (BOOL)dropInteraction:(UIDropInteraction *)interaction canHandleSession:(id<UIDropSession>)session {
+    // Vérifier que la session contient des fichiers audio/musique
+    return [session hasItemsConformingToTypeIdentifiers:@[@"public.audio", @"public.data"]];
+}
+
+- (UIDropProposal *)dropInteraction:(UIDropInteraction *)interaction
+                   sessionDidUpdate:(id<UIDropSession>)session {
+    // Proposer une copie des fichiers
+    return [[UIDropProposal alloc] initWithDropOperation:UIDropOperationCopy];
+}
+
+- (void)dropInteraction:(UIDropInteraction *)interaction
+            performDrop:(id<UIDropSession>)session {
+    
+    for (UIDragItem *item in session.items) {
+        [item.itemProvider loadFileRepresentationForTypeIdentifier:@"public.data"
+                                                 completionHandler:^(NSURL *url, NSError *error) {
+            if (url && !error) {
+                BOOL accessGranted = [url startAccessingSecurityScopedResource];
+                
+                // Lire directement depuis l'URL temporaire
+                NSData *fileData = [NSData dataWithContentsOfURL:url];
+                NSString *fileName = [url lastPathComponent];
+                
+                if (accessGranted) {
+                    [url stopAccessingSecurityScopedResource];
+                }
+                
+                if (fileData) {
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        // Sauvegarder et lire
+                        NSString *documentsPath = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) firstObject];
+                        NSString *destinationPath = [documentsPath stringByAppendingPathComponent:fileName];
+                        [fileData writeToFile:destinationPath atomically:YES];
+                        //[self loadAndPlayFile:destinationPath];
+                        [self openURL:[NSURL fileURLWithPath:destinationPath]];
+                    });
+                }
+            }
+        }];
+    }
+}
 - (void)viewDidLoad {
     START_PROFILE
 	[super viewDidLoad];
     self.navigationController.delegate = self;
     
+    UIDropInteraction *dropInteraction = [[UIDropInteraction alloc] initWithDelegate:self];
+        [self.view addInteraction:dropInteraction];
     
     //self.view.backgroundColor = [UIColor clearColor];
     
@@ -879,6 +948,14 @@ extern NSMutableArray *mac_key_pressed,*mac_key_released;
     if (@available(iOS 15.0, *)) {
         rightCommand.wantsPriorityOverSystemBehavior = YES;
     }
+    UIKeyCommand *leftShiftCommand = [UIKeyCommand keyCommandWithInput:UIKeyInputLeftArrow modifierFlags:UIKeyModifierShift action:@selector(leftShiftPressed)];
+    if (@available(iOS 15.0, *)) {
+        leftCommand.wantsPriorityOverSystemBehavior = YES;
+    }
+    UIKeyCommand *rightShiftCommand = [UIKeyCommand keyCommandWithInput:UIKeyInputRightArrow modifierFlags:UIKeyModifierShift action:@selector(rightShiftPressed)];
+    if (@available(iOS 15.0, *)) {
+        rightCommand.wantsPriorityOverSystemBehavior = YES;
+    }
     UIKeyCommand *leftAltCommand = [UIKeyCommand keyCommandWithInput:UIKeyInputLeftArrow modifierFlags:UIKeyModifierAlternate action:@selector(leftAltPressed)];
     if (@available(iOS 15.0, *)) {
         leftAltCommand.wantsPriorityOverSystemBehavior = YES;
@@ -904,7 +981,7 @@ extern NSMutableArray *mac_key_pressed,*mac_key_released;
         downCommand.wantsPriorityOverSystemBehavior = YES;
     }
 
-    return @[leftCommand,rightCommand,leftAltCommand,rightAltCommand,leftCmdCommand,rightCmdCommand,upCommand,downCommand,
+    return @[leftCommand,rightCommand,leftShiftCommand,rightShiftCommand,leftAltCommand,rightAltCommand,leftCmdCommand,rightCmdCommand,upCommand,downCommand,
 //                [UIKeyCommand keyCommandWithInput:UIKeyInputLeftArrow  modifierFlags:0 action:@selector(leftPressed)],
 //              [UIKeyCommand keyCommandWithInput:UIKeyInputRightArrow   modifierFlags:0 action:@selector(rightPressed)],
 //              [UIKeyCommand keyCommandWithInput:UIKeyInputLeftArrow   modifierFlags:UIKeyModifierAlternate action:@selector(leftAltPressed)],
@@ -1164,10 +1241,16 @@ extern NSMutableArray *mac_key_pressed,*mac_key_released;
 }
 
 -(void)leftPressed {
-    [detailViewControllerIphone jumpSeekBwd];
+    [detailViewControllerIphone jumpSeekBwd:30];
 }
 -(void)rightPressed {
-    [detailViewControllerIphone jumpSeekFwd];
+    [detailViewControllerIphone jumpSeekFwd:30];
+}
+-(void)leftShiftPressed {
+    [detailViewControllerIphone jumpSeekBwd:60];
+}
+-(void)rightShiftPressed {
+    [detailViewControllerIphone jumpSeekFwd:60];
 }
 -(void)leftCmdPressed {
     [detailViewControllerIphone playPrev];

@@ -27,6 +27,7 @@
 #import "RadioSource.h"
 #import "TFHpple.h"
 #import "CoverScrapper.h"
+#import "RootViewControllerJoshWWebParser.h"
 
 #include <stdlib.h>
 #include <pthread.h>
@@ -1234,59 +1235,8 @@ NS_ASSUME_NONNULL_BEGIN
     return [trimmed longLongValue];
 }
 
-
-typedef struct {
-    NSString *webSite_URL;
-    NSString *webSite_name;
-    NSString *webSite_baseDir;
-    NSString *category;
-    bool has_letter_index;
-    NSArray *extra_index;
-    NSString *gameDBsearchURL;
-} t_joshw_entry;
-
-t_joshw_entry joshw_subsites[]= {
-    //computers
-    {@"https://pc.joshw.info",@"PC Streamed Music",@"JoshW/PC",@"Computers",TRUE,@[],@"https://www.mobygames.com/game/include_dlc:false/include_nsfw:false/platform:dos/platform:windows/release_status:all/title:%@/sort:moby_score/page:1/"},
-    {@"https://cdi.joshw.info/amiga",@"Amiga Music",@"JoshW/Amiga",@"Computers",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=4911"},
-    {@"https://fmtowns.joshw.info",@"FM Towns Music",@"JoshW/FMT",@"Computers",TRUE,@[],@"https://www.mobygames.com/game/include_dlc:false/include_nsfw:false/platform:fmtowns/release_status:all/title:%@/sort:moby_score/page:1/"},
-    {@"https://s98.joshw.info",@"S98 Music",@"JoshW/S98",@"Computers",TRUE,@[],@"https://www.mobygames.com/game/include_dlc:false/include_nsfw:false/platform:pc88/platform:pc98/platform:sharp-x1/platform:sharp-x68000/release_status:all/title:%@/sort:moby_score/page:1/"},
-    {@"https://kss.joshw.info/MSX",@"MSX Music",@"JoshW/MSX",@"Computers",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=4929"},
-    //consoles
-    {@"https://nsf.joshw.info",@"NES Music",@"JoshW/NES",@"Consoles",TRUE,@[@"zzz_prototypes",@"zzz_unlicensed"],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=34&platform_id[]=7&platform_id[]=4936"},
-    {@"https://spc.joshw.info",@"SNES Music",@"JoshW/SNES",@"Consoles",TRUE,@[@"zzz_prototypes",@"zzz_unlicensed"],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=34&platform_id[]=6"},
-    {@"https://usf.joshw.info",@"Nintendo64 Music",@"JoshW/N64",@"Consoles",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=34&platform_id[]=3"},
-    {@"https://gcn.joshw.info",@"Gamecube Music",@"JoshW/GC",@"Consoles",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=34&platform_id[]=2"},
-    {@"https://wii.joshw.info",@"Nintendo Wii Music",@"JoshW/Wii",@"Consoles",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=34&platform_id[]=9"},
-    {@"https://wiiu.joshw.info",@"Nintendo Wii U Music",@"JoshW/WiiU",@"Consoles",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=34&platform_id[]=38"},
-    {@"https://kss.joshw.info/Master%20System",@"Master System Music",@"JoshW/SMS",@"Consoles",TRUE,@[@"zzz_homebrew"],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=34&platform_id[]=35"},
-    {@"https://smd.joshw.info",@"Genesis/SegaCD Music",@"JoshW/SMD",@"Consoles",TRUE,@[@"zzz_prototypes",@"zzz_unlicensed"],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=34&platform_id[]=18&platform_id[]=21&platform_id[]=33&platform_id[]=36"},
-    {@"https://ssf.joshw.info",@"Saturn Music",@"JoshW/Saturn",@"Consoles",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=34&platform_id[]=17"},
-    {@"https://dsf.joshw.info",@"Dreamcast Music",@"JoshW/DC",@"Consoles",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=34&platform_id[]=16"},
-    {@"https://hes.joshw.info",@"PC Engine Music",@"JoshW/PCE",@"Consoles",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=34&platform_id[]=4955"},
-    {@"https://ncd.joshw.info",@"Neo Geo CD Music",@"JoshW/NEOCD",@"Consoles",FALSE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=4956"},
-    {@"https://psf.joshw.info",@"PlayStation Music",@"JoshW/PS1",@"Consoles",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=10"},
-    {@"https://psf2.joshw.info",@"PlayStation 2 Music",@"JoshW/PS2",@"Consoles",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=11"},
-    {@"https://psf3.joshw.info",@"PlayStation 3 Music",@"JoshW/PS3",@"Consoles",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=12"},
-    {@"https://psf4.joshw.info",@"PlayStation 4 Music",@"JoshW/PS4",@"Consoles",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=4919"},
-    {@"https://psf5.joshw.info",@"PlayStation 5 Music",@"JoshW/PS5",@"Consoles",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=4980"},
-    {@"https://xbox.joshw.info",@"XBox Music",@"JoshW/Xbox",@"Consoles",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=14"},
-    {@"https://x360.joshw.info",@"XBox360 Music",@"JoshW/X360",@"Consoles",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=15"},
-    {@"https://3do.joshw.info",@"3DO Music",@"JoshW/3DO",@"Consoles",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=25"},
-    {@"https://switch.joshw.info",@"Nintendo Switch",@"JoshW/Switch",@"Consoles",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=4971"},
-    {@"https://cdi.joshw.info/cdi",@"Philips CD-i",@"JoshW/CD-i",@"Consoles",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=4917"},
-    {@"https://cdi.joshw.info/pgm",@"Arcade PGM",@"JoshW/PGM",@"Consoles",FALSE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=34&platform_id[]=23"},
-    //portables
-    {@"https://gbs.joshw.info",@"Game Boy Music",@"JoshW/GB",@"Portables",TRUE,@[@"zzz_unlicensed"],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=34&platform_id[]=4&platform_id[]=41"},
-    {@"https://gsf.joshw.info",@"Game Boy Advance Music",@"JoshW/GBA",@"Portables",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=34&platform_id[]=5"},
-    {@"https://2sf.joshw.info",@"Nintendo DS Music",@"JoshW/NDS",@"Portables",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=34&platform_id[]=8"},
-    {@"https://3sf.joshw.info",@"Nintendo 3DS Music",@"JoshW/3DS",@"Portables",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=34&platform_id[]=4912"},
-    {@"https://kss.joshw.info/Game%20Gear",@"Sega Game Gear Music",@"JoshW/SGG",@"Portables",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=34&platform_id[]=20"},
-    {@"https://wsr.joshw.info",@"WonderSwan Music",@"JoshW/WS",@"Portables",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=34&platform_id[]=4925&platform_id[]=4926"},
-    {@"https://psp.joshw.info",@"PSP Music",@"JoshW/PSP",@"Portables",TRUE,@[@"zzz_others"],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=13"},
-    {@"https://vita.joshw.info",@"PSVita Music",@"JoshW/PSVita",@"Portables",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=39"},
-    {@"https://mobile.joshw.info",@"Mobile/Smartphone Music",@"JoshW/Mobile",@"Portables",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=4915&platform_id[]=4916"},
-};
+extern t_joshw_entry joshw_subsites[];
+extern int joshw_subsites_size;
 
 -(void) fillUrlData:(NSData*)data idx:(int)idx max_cnt:(int)max_cnt {
     joshw_urlData[idx]=[NSData dataWithData:data];
@@ -1301,7 +1251,7 @@ t_joshw_entry joshw_subsites[]= {
     NSString *url_site=nil;
     NSString *res=nil;
     int site_idx=-1;
-    int total_sites=sizeof(joshw_subsites)/sizeof(t_joshw_entry);
+    int total_sites=joshw_subsites_size;
     for (int i=0;i<total_sites;i++) {
         if ([joshw_subsites[i].webSite_baseDir isEqualToString:site]) {
             site_idx=i;
@@ -1404,7 +1354,7 @@ t_joshw_entry joshw_subsites[]= {
     if (mRadioSource_mode==0) {
         //random
         //
-        int idx=arc4random_uniform(sizeof(joshw_subsites)/sizeof(t_joshw_entry));
+        int idx=arc4random_uniform(joshw_subsites_size);
         NSString *str=joshw_subsites[idx].webSite_baseDir;
         
         NSString *url=[self getJOSHWfileFromSite:str];
@@ -1415,6 +1365,8 @@ t_joshw_entry joshw_subsites[]= {
             
             NSString *localPath=[NSString stringWithFormat:@"%@/tmp/tmpRadio/%d/%@/%@",[ModizFileHelper getAppHomeDirectory],slot,JOSHW_BASEDIR,[str lastPathComponent]];
             
+            //create folder if needed
+            [mFileMngr createDirectoryAtPath:localPath withIntermediateDirectories:TRUE attributes:nil error:nil];
             
             if (settings[ONLINE_JOSHW_IMG_GRABBER].detail.mdz_switch.switch_value) {
                 //try to get a cover
@@ -1430,9 +1382,6 @@ t_joshw_entry joshw_subsites[]= {
                 });
             }
             
-            //create folder if needed
-            [mFileMngr createDirectoryAtPath:localPath withIntermediateDirectories:TRUE attributes:nil error:nil];
-            
             [self downloadFileFromURL:[url stringByRemovingPercentEncoding] rSource:RS_COLLECTION_JOSHW slot:slot path:[str lastPathComponent] filename:[[url stringByRemovingPercentEncoding] lastPathComponent]];
             return 1;
         }
@@ -1444,10 +1393,28 @@ t_joshw_entry joshw_subsites[]= {
         
         NSString *url=[self getJOSHWfileFromSite:str];
         if (url) {
+            NSArray *arr_urls=[url componentsSeparatedByString:@"|"];
+            url=arr_urls[0];
+            NSString *searchURL=arr_urls[1];
+            
             NSString *localPath=[NSString stringWithFormat:@"%@/tmp/tmpRadio/%d/%@/%@",[ModizFileHelper getAppHomeDirectory],slot,JOSHW_BASEDIR,[str lastPathComponent]];
             
             //create folder if needed
             [mFileMngr createDirectoryAtPath:localPath withIntermediateDirectories:TRUE attributes:nil error:nil];
+            
+            if (settings[ONLINE_JOSHW_IMG_GRABBER].detail.mdz_switch.switch_value) {
+                //try to get a cover
+                dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void){
+                    //[self getImgfromImgGrabber:cur_db_entries[indexPath.row].label label:cur_db_entries[indexPath.row].label fullpath:cur_db_entries[indexPath.row].fullpath];
+                    CoverScrapper *scrapper=[[CoverScrapper alloc] init];
+                    NSString *fileName=[[url stringByRemovingPercentEncoding] lastPathComponent];
+                    [scrapper getImgfromImgGrabber:searchURL search_label:fileName label:fileName fullpath:[NSString stringWithFormat:@"%@/%@",localPath,fileName] completion:^{
+                        //[detailViewController checkNewCover];
+                        //[tableView reloadData];
+                        //if (miniplayerVC) [self updateMiniPlayer];
+                    }];
+                });
+            }
             
             [self downloadFileFromURL:[url stringByRemovingPercentEncoding] rSource:RS_COLLECTION_JOSHW slot:slot path:[str lastPathComponent] filename:[[url stringByRemovingPercentEncoding] lastPathComponent]];
             return 1;
@@ -1460,6 +1427,7 @@ t_joshw_entry joshw_subsites[]= {
         NSString *url=arr[0];
         NSString *str_path=arr[1];
         long long fsize=[self fileSizeFromString:arr[2]];
+        NSString *searchURL=arr[3];
         
         long long limit=1L<<60;
         switch (settings[GLOB_RadioModeMaxDownloadSize].detail.mdz_switch.switch_value) {
@@ -1477,6 +1445,20 @@ t_joshw_entry joshw_subsites[]= {
             
             //create folder if needed
             [mFileMngr createDirectoryAtPath:localPath withIntermediateDirectories:TRUE attributes:nil error:nil];
+            
+            if (settings[ONLINE_JOSHW_IMG_GRABBER].detail.mdz_switch.switch_value) {
+                //try to get a cover
+                dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void){
+                    //[self getImgfromImgGrabber:cur_db_entries[indexPath.row].label label:cur_db_entries[indexPath.row].label fullpath:cur_db_entries[indexPath.row].fullpath];
+                    CoverScrapper *scrapper=[[CoverScrapper alloc] init];
+                    NSString *fileName=[[url stringByRemovingPercentEncoding] lastPathComponent];
+                    [scrapper getImgfromImgGrabber:searchURL search_label:fileName label:fileName fullpath:[NSString stringWithFormat:@"%@/%@",localPath,fileName] completion:^{
+                        //[detailViewController checkNewCover];
+                        //[tableView reloadData];
+                        //if (miniplayerVC) [self updateMiniPlayer];
+                    }];
+                });
+            }
             
             [self downloadFileFromURL:[url stringByRemovingPercentEncoding] rSource:RS_COLLECTION_JOSHW slot:slot path:[str_path stringByDeletingLastPathComponent] filename:[str_path lastPathComponent]];
             return 1;
@@ -1541,9 +1523,11 @@ t_joshw_entry joshw_subsites[]= {
             
             NSArray *arr_url_composerList=[doc searchWithXPathQuery:@"//div[@id='result']//tr[@class='tr0' or @class='tr1']/td[2]"];
             NSArray *arr_url_modulesNb=[doc searchWithXPathQuery:@"//td[@class='descript' and contains(normalize-space(.), 'Modules')]/following-sibling::td[1]/a"];
-            NSArray *arr_url_fileList=[doc searchWithXPathQuery:@"//div[@id='result']//tr[@class='tr0' or @class='tr1']/td[1]/a"];
+            NSArray *arr_url_fileList=[doc searchWithXPathQuery:@"//div[@id='result']//tr[@class='tr0' or @class='tr1']/td[1]"];
+            NSArray *arr_url_formatList=[doc searchWithXPathQuery:@"//div[@id='result']//tr[@class='tr0' or @class='tr1']/td[3]"];
             
-            arr_url_composerList=[arr_url_composerList subarrayWithRange:NSMakeRange([arr_url_composerList count]-[arr_url_fileList count], [arr_url_fileList count])];
+            arr_url_fileList=[arr_url_fileList subarrayWithRange:NSMakeRange([arr_url_fileList count]-[arr_url_formatList count], [arr_url_formatList count])];
+            arr_url_composerList=[arr_url_composerList subarrayWithRange:NSMakeRange([arr_url_composerList count]-[arr_url_formatList count], [arr_url_formatList count])];
             
             TFHppleElement *el;
             int mod_id=-1;
@@ -1560,8 +1544,20 @@ t_joshw_entry joshw_subsites[]= {
                 
                 mod_id=arc4random_uniform(mod_nb);
                 el=[arr_url_fileList objectAtIndex:mod_id];
-                NSString *fileModURL=[NSString stringWithFormat:@"https://amp.dascene.net/%@",[el objectForKey:@"href"]];
                 
+                NSString *fileModURL=@"";
+                if (el.children) {
+                    for (TFHppleElement *child in el.children) {
+                        NSString *str_url=[child objectForKey:@"href"];
+                        if (str_url) {
+                            fileModURL=[NSString stringWithFormat:@"https://amp.dascene.net/%@",str_url];
+                            break;
+                        }
+                    }
+                }
+                if (fileModURL) {
+                    fileModURL=[NSString stringWithFormat:@"https://amp.dascene.net/%@",[el objectForKey:@"href"]];
+                }
                 if ([composer length] && [fileModURL length]) {
                     mRetryCount=0;
                     [self downloadFileFromURL:fileModURL rSource:RS_COLLECTION_AMP slot:slot path:composer filename:nil];
@@ -1669,9 +1665,11 @@ t_joshw_entry joshw_subsites[]= {
                     NSArray *arr_url_composerList=[docMod searchWithXPathQuery:@"//div[@id='result']//tr[@class='tr0' or @class='tr1']/td[2]"];
                     
                     NSArray *arr_url_modulesNb=[docMod searchWithXPathQuery:@"//td[@class='descript' and contains(normalize-space(.), 'Modules')]/following-sibling::td[1]/a"];
-                    NSArray *arr_url_fileList=[docMod searchWithXPathQuery:@"//div[@id='result']//tr[@class='tr0' or @class='tr1']/td[1]/a"];
+                    NSArray *arr_url_fileList=[docMod searchWithXPathQuery:@"//div[@id='result']//tr[@class='tr0' or @class='tr1']/td[1]"];
+                    NSArray *arr_url_formatList=[docMod searchWithXPathQuery:@"//div[@id='result']//tr[@class='tr0' or @class='tr1']/td[3]"];
                     
-                    arr_url_composerList=[arr_url_composerList subarrayWithRange:NSMakeRange([arr_url_composerList count]-[arr_url_fileList count], [arr_url_fileList count])];
+                    arr_url_fileList=[arr_url_fileList subarrayWithRange:NSMakeRange([arr_url_fileList count]-[arr_url_formatList count], [arr_url_formatList count])];
+                    arr_url_composerList=[arr_url_composerList subarrayWithRange:NSMakeRange([arr_url_composerList count]-[arr_url_formatList count], [arr_url_formatList count])];
                     
                     TFHppleElement *el;
                     int mod_id=-1;
@@ -1688,7 +1686,20 @@ t_joshw_entry joshw_subsites[]= {
                         
                         mod_id=arc4random_uniform(mod_nb);
                         el=[arr_url_fileList objectAtIndex:mod_id];
-                        NSString *fileModURL=[NSString stringWithFormat:@"https://amp.dascene.net/%@",[el objectForKey:@"href"]];
+                        
+                        NSString *fileModURL=@"";
+                        if (el.children) {
+                            for (TFHppleElement *child in el.children) {
+                                NSString *str_url=[child objectForKey:@"href"];
+                                if (str_url) {
+                                    fileModURL=[NSString stringWithFormat:@"https://amp.dascene.net/%@",str_url];
+                                    break;
+                                }
+                            }
+                        }
+                        if (fileModURL) {
+                            fileModURL=[NSString stringWithFormat:@"https://amp.dascene.net/%@",[el objectForKey:@"href"]];
+                        }
                         
                         if ([composer length] && [fileModURL length]) {
                             mRetryCount=0;
@@ -1835,7 +1846,9 @@ t_joshw_entry joshw_subsites[]= {
         [array_path addObject:localPath];
         
         mCurrentPath=[NSString stringWithString:localPath];
-        [detailVC play_listmodules:array_label start_index:0 path:array_path];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [detailVC play_listmodules:array_label start_index:0 path:array_path];
+        });
     }
 }
 
@@ -2017,7 +2030,9 @@ t_joshw_entry joshw_subsites[]= {
     [array_path addObject:localPath];
     
     mCurrentPath=[NSString stringWithString:localPath];
-    [detailVC play_listmodules:array_label start_index:0 path:array_path];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [detailVC play_listmodules:array_label start_index:0 path:array_path];
+    });
 }
 
 -(void) startCurrent {
@@ -2031,7 +2046,9 @@ t_joshw_entry joshw_subsites[]= {
         [array_path addObject:localPath];
         
         mCurrentPath=[NSString stringWithString:localPath];
-        [detailVC play_listmodules:array_label start_index:0 path:array_path];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [detailVC play_listmodules:array_label start_index:0 path:array_path];
+        });
     }
 }
 

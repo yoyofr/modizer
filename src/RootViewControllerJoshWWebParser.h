@@ -9,6 +9,17 @@
 #import "RootViewControllerXPWebParser.h"
 #import "CoverScrapper.h"
 
+typedef struct {
+    NSString *webSite_URL;
+    NSString *webSite_name;
+    NSString *webSite_baseDir;
+    NSString *category;
+    bool has_letter_index;
+    NSArray *extra_index;
+    NSString *gameDBsearchURL;
+} t_joshw_entry;
+
+
 @class DetailViewControllerIphone;
 @class DownloadViewController;
 

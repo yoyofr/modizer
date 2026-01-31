@@ -27,7 +27,7 @@
 @class WelcomeVC;
 
 #if TARGET_OS_MACCATALYST
-@interface myTabBarController : UITabBarController <UINavigationControllerDelegate,UITabBarDelegate,UIPageViewControllerDataSource,UIPageViewControllerDelegate,NSToolbarDelegate,UICollectionViewDelegate,UISplitViewControllerDelegate> {
+@interface myTabBarController : UITabBarController <UINavigationControllerDelegate,UITabBarDelegate,UIPageViewControllerDataSource,UIPageViewControllerDelegate,NSToolbarDelegate,UICollectionViewDelegate,UISplitViewControllerDelegate,UIDropInteractionDelegate> {
 #else
 @interface myTabBarController : UITabBarController <UINavigationControllerDelegate,UITabBarDelegate,UIPageViewControllerDataSource,UIPageViewControllerDelegate> {
 #endif
