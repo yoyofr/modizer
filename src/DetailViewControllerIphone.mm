@@ -3031,16 +3031,16 @@ int recording=0;
     //    }
 }
 
-- (UNNotificationAttachment *)createAttachmentFromUIImage:(UIImage *)image {
-    // Convert UIImage to file and create attachment
+- (UNNotificationAttachment *)createAttachmentFromImage:(UIImage *)image {
     if (!image) {
         return nil;
     }
     
+    // Préparer l'image en Aspect Fit
+    UIImage *preparedImage = [self prepareImageForNotification:image];
+    
     // Convert UIImage to NSData (PNG format)
-    NSData *imageData = UIImagePNGRepresentation(image);
-    // Alternative: Use JPEG with compression
-    // NSData *imageData = UIImageJPEGRepresentation(image, 1.0);
+    NSData *imageData = UIImagePNGRepresentation(preparedImage);
     
     if (!imageData) {
         MDZELog("Failed to convert UIImage to NSData");
@@ -3061,12 +3061,17 @@ int recording=0;
         return nil;
     }
     
+    // Options pour ne pas rogner
+    NSDictionary *attachmentOptions = @{
+        UNNotificationAttachmentOptionsThumbnailClippingRectKey: [NSValue valueWithCGRect:CGRectMake(0, 0, 1, 1)]
+    };
+    
     // Create attachment from file URL
     NSError *attachmentError = nil;
     UNNotificationAttachment *attachment =
     [UNNotificationAttachment attachmentWithIdentifier:@"uiimage"
                                                    URL:fileURL
-                                               options:nil
+                                               options:attachmentOptions
                                                  error:&attachmentError];
     
     if (attachmentError) {
@@ -3077,6 +3082,35 @@ int recording=0;
     return attachment;
 }
 
+- (UIImage *)prepareImageForNotification:(UIImage *)image {
+    if (!image) return nil;
+    
+    // Taille carrée pour les notifications
+    CGSize targetSize = CGSizeMake(800, 800);
+    
+    CGFloat imageAspect = image.size.width / image.size.height;
+    CGFloat targetAspect = targetSize.width / targetSize.height;
+    
+    CGRect drawRect;
+    if (imageAspect > targetAspect) {
+        CGFloat height = targetSize.width / imageAspect;
+        drawRect = CGRectMake(0, (targetSize.height - height) / 2.0, targetSize.width, height);
+    } else {
+        CGFloat width = targetSize.height * imageAspect;
+        drawRect = CGRectMake((targetSize.width - width) / 2.0, 0, width, targetSize.height);
+    }
+    
+    UIGraphicsBeginImageContextWithOptions(targetSize, YES, 1.0);
+    
+    [[UIColor blackColor] setFill];
+    UIRectFill(CGRectMake(0, 0, targetSize.width, targetSize.height));
+    
+    [image drawInRect:drawRect];
+    UIImage *result = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    
+    return result;
+}
 - (void)removeNotificationWithIdentifier:(NSString *)identifier {
     UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
     
@@ -3106,7 +3140,7 @@ int recording=0;
     
     // Add image attachment
     if (cover_img) {
-        UNNotificationAttachment *attachment = [self createAttachmentFromUIImage:cover_img];
+        UNNotificationAttachment *attachment = [self createAttachmentFromImage:cover_img];
         if (attachment) {
             content.attachments = @[attachment];
         }

@@ -737,7 +737,7 @@ int joshw_subsites_size=sizeof(joshw_subsites)/sizeof(t_joshw_entry);
         coverImgView.frame= CGRectMake(0,1,34,34);
         coverImgView.contentMode=UIViewContentModeScaleAspectFit;
         coverImgView.tag = COVER_IMAGE_TAG;
-        coverImgView.opaque=TRUE;
+        coverImgView.opaque=FALSE;
         [cell.contentView addSubview:coverImgView];
         
         actionView                = [UIButton buttonWithType: UIButtonTypeCustom];
