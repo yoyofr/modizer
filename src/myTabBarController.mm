@@ -367,30 +367,6 @@ extern NSMutableArray *mac_key_pressed,*mac_key_released;
 
 #pragma mark - UIDropInteractionDelegate
 
-- (void)playDroppedFile:(NSURL *)fileURL {
-    // Le fichier est dans un dossier temporaire, il faut le copier
-    NSString *documentsPath = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) firstObject];
-    NSString *fileName = [fileURL lastPathComponent];
-    NSString *destinationPath = [documentsPath stringByAppendingPathComponent:fileName];
-    
-    NSFileManager *fileManager = [NSFileManager defaultManager];
-    NSError *error = nil;
-    
-    // Copier le fichier si nécessaire
-    if ([fileManager fileExistsAtPath:destinationPath]) {
-        [fileManager removeItemAtPath:destinationPath error:nil];
-    }
-    
-    [fileManager copyItemAtPath:fileURL.path toPath:destinationPath error:&error];
-    
-    if (!error) {
-        // Lancer la lecture avec ton système existant
-        // Par exemple, appeler ta méthode de lecture de fichier
-        //[self loadAndPlayFile:destinationPath];
-        [self openURL:[NSURL fileURLWithPath:destinationPath]];
-    }
-}
-
 - (BOOL)dropInteraction:(UIDropInteraction *)interaction canHandleSession:(id<UIDropSession>)session {
     // Vérifier que la session contient des fichiers audio/musique
     return [session hasItemsConformingToTypeIdentifiers:@[@"public.audio", @"public.data"]];
@@ -404,35 +380,61 @@ extern NSMutableArray *mac_key_pressed,*mac_key_released;
 
 - (void)dropInteraction:(UIDropInteraction *)interaction
             performDrop:(id<UIDropSession>)session {
-    
+    __block bool first=true;
     for (UIDragItem *item in session.items) {
-        [item.itemProvider loadFileRepresentationForTypeIdentifier:@"public.data"
-                                                 completionHandler:^(NSURL *url, NSError *error) {
+        // Utiliser loadInPlaceFileRepresentation au lieu de loadFileRepresentationForTypeIdentifier
+        [item.itemProvider loadInPlaceFileRepresentationForTypeIdentifier:@"public.data"
+                                                        completionHandler:^(NSURL *url, BOOL isInPlace, NSError *error) {
             if (url && !error) {
+                NSLog(@"Fichier à l'emplacement d'origine: %@", url.path);
+                NSLog(@"Est-ce in-place? %@", isInPlace ? @"OUI" : @"NON");
+                
+                // Démarrer l'accès sécurisé
                 BOOL accessGranted = [url startAccessingSecurityScopedResource];
                 
-                // Lire directement depuis l'URL temporaire
-                NSData *fileData = [NSData dataWithContentsOfURL:url];
-                NSString *fileName = [url lastPathComponent];
-                
-                if (accessGranted) {
-                    [url stopAccessingSecurityScopedResource];
-                }
-                
-                if (fileData) {
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        // Sauvegarder et lire
-                        NSString *documentsPath = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) firstObject];
-                        NSString *destinationPath = [documentsPath stringByAppendingPathComponent:fileName];
-                        [fileData writeToFile:destinationPath atomically:YES];
-                        //[self loadAndPlayFile:destinationPath];
-                        [self openURL:[NSURL fileURLWithPath:destinationPath]];
-                    });
-                }
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    // Maintenant url pointe vers ~/Downloads/spc/eotb.rsn
+                    [self loadAndPlayFileAtURL:url add_to_playlist:!first];
+                    if (first) first=false;
+                    
+                    // Libérer l'accès
+                    if (accessGranted) {
+                        [url stopAccessingSecurityScopedResource];
+                    }
+                });
+            } else {
+                NSLog(@"Erreur: %@", error);
             }
         }];
     }
 }
+
+- (void)loadAndPlayFileAtURL:(NSURL *)fileURL add_to_playlist:(bool)add_to_playlist {
+    // Ton code de lecture existant, mais avec une NSURL au lieu d'un NSString
+    // Par exemple, passer l'URL à tes librairies audio
+    NSLog(@"Lecture du fichier depuis: %@", fileURL.path);
+    
+    // Adapter ton code de lecture pour utiliser l'URL
+    //[self openURL:fileURL];
+    
+        NSString *shortfilepath=fileURL.path;
+    if (!add_to_playlist) {
+        t_playlist *pl;
+        pl=(t_playlist*)calloc(1,sizeof(t_playlist));
+        
+        pl->nb_entries=1;
+        pl->entries[0].label=[shortfilepath lastPathComponent];
+        pl->entries[0].fullpath=shortfilepath;
+        pl->entries[0].ratings=-1;
+        pl->entries[0].playcounts=0;
+        [detailViewControllerIphone play_listmodules:pl start_index:0];
+        free(pl);
+    } else {
+        [detailViewControllerIphone add_to_playlist:shortfilepath fileName:[shortfilepath lastPathComponent] forcenoplay:0];
+    }
+
+}
+
 - (void)viewDidLoad {
     START_PROFILE
 	[super viewDidLoad];
