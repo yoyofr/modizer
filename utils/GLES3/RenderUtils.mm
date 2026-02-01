@@ -96,6 +96,7 @@ static int pianoroll_cpt;
 #define PR_KEY_PRESSED (1<<0)
 #define PR_WHITE_KEY (1<<1)
 static uint8_t pianoroll_key_status[SOUND_MAXMOD_CHANNELS][256];
+static float pianoroll_key_pos[SOUND_MAXMOD_CHANNELS][256];
 
 static int piano_note_type[128];
 static float piano_note_posx[128];
@@ -330,6 +331,9 @@ int RenderUtils::RenderInit() {
     if (!LoadTextureFromFile(mdz_getBundledResFilePath(@"txt_pianoSpark.png"), &(txt_pianoRoll[TXT_PIANOROLL_SPARK]), NULL, NULL)) {
         MDZELog("Cannot load texture");
     }
+    
+    memset(pianoroll_key_status,0,sizeof(pianoroll_key_status));
+    memset(pianoroll_key_pos,0,sizeof(pianoroll_key_pos));
     
     renderIsInit=true;
     return 1;
@@ -6513,9 +6517,14 @@ int RenderUtils::DrawKeyW(LineVertexF *ptsB,int index,float x,float y,float widt
     if (!pressed) {
         //y+=height/16;
         //height=height*15/16;
-        height2=height/8;
+        if (pianoroll_key_pos[channel][note_idx]>0) pianoroll_key_pos[channel][note_idx]-=1.0/7.0;
+        if (pianoroll_key_pos[channel][note_idx]<0) pianoroll_key_pos[channel][note_idx]=0;
+        height2=(height/24)*pianoroll_key_pos[channel][note_idx]+(height/8)*(1-pianoroll_key_pos[channel][note_idx]);
     } else {
-        height2=height/24;
+        if (pianoroll_key_pos[channel][note_idx]<1) pianoroll_key_pos[channel][note_idx]+=1.0/4.0;
+        if (pianoroll_key_pos[channel][note_idx]>1) pianoroll_key_pos[channel][note_idx]=1;
+        height2=(height/24)*pianoroll_key_pos[channel][note_idx]+(height/8)*(1-pianoroll_key_pos[channel][note_idx]);
+        //height2=height/24;
         crt=crt*0.8f;
         cgt=cgt*0.8f;
         cbt=cbt*0.8f;
@@ -6668,9 +6677,15 @@ int RenderUtils::DrawKeyB(LineVertexF *ptsB,int index,float x,float y,float widt
     if (!pressed) {
         //y+=height/16;
         //height=height*15/16;
-        height2=height/4;
+        if (pianoroll_key_pos[channel][note_idx]>0) pianoroll_key_pos[channel][note_idx]-=1.0/7.0;
+        if (pianoroll_key_pos[channel][note_idx]<0) pianoroll_key_pos[channel][note_idx]=0;
+        height2=(height/12)*pianoroll_key_pos[channel][note_idx]+(height/4)*(1-pianoroll_key_pos[channel][note_idx]);
+        //height2=height/4;
     } else {
-        height2=height/12;
+        if (pianoroll_key_pos[channel][note_idx]<1) pianoroll_key_pos[channel][note_idx]+=1.0/4.0;
+        if (pianoroll_key_pos[channel][note_idx]>1) pianoroll_key_pos[channel][note_idx]=1;
+        height2=(height/12)*pianoroll_key_pos[channel][note_idx]+(height/4)*(1-pianoroll_key_pos[channel][note_idx]);
+        //height2=height/12;
         crt=crt*0.8f;
         cgt=cgt*0.8f;
         cbt=cbt*0.8f;

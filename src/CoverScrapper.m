@@ -59,6 +59,31 @@
     return [result stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
 }
 
+- (NSString *)removeParentheses:(NSString *)input {
+    if (!input) return nil;
+    
+    NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@"[\\(].*?[\\)]"
+                                                                           options:0
+                                                                             error:nil];
+    NSString *result = [regex stringByReplacingMatchesInString:input
+                                                        options:0
+                                                          range:NSMakeRange(0, input.length)
+                                                   withTemplate:@""];
+    
+    // Nettoyer tous les espaces multiples (pas seulement les doubles)
+    NSRegularExpression *spaceRegex = [NSRegularExpression regularExpressionWithPattern:@"\\s+"
+                                                                                 options:0
+                                                                                   error:nil];
+    result = [spaceRegex stringByReplacingMatchesInString:result
+                                                  options:0
+                                                    range:NSMakeRange(0, result.length)
+                                             withTemplate:@" "];
+    
+    // Trim les espaces en début et fin
+    return [result stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+}
+
+
 - (int)getImgfromTGDB:(NSString*)grabber_url search_label:(NSString*)search_label label:(NSString*)label fullpath:(NSString*)fullpath completion:(void (^)(void))block {
     //check if cover exists
     NSString *cleanName=[self removeParenthesesAndBrackets:[search_label stringByDeletingPathExtension]];
@@ -87,14 +112,16 @@
         }
         NSInteger index = [self.matcher bestMatchIndexFor:cleanName inArray:gameNames minimumScore:0.5];
         
-        //if not found and only 1 game, let's use it. Sometimes it is related to game having different names/region, ex: Fire Suplex / 3 Count Bout on neogeo cd
-        if ((index == NSNotFound) && ([gameNames count]==1)) index=0;
-        
         if (index != NSNotFound) {
             //NSLog(@"Best match: %@", gameNames[index]);
             el=[arr_img objectAtIndex:index];
             url_img=[el content];
-            NSString *imgPath=[[fullpath stringByDeletingPathExtension] stringByAppendingFormat:@".%@",[[url_img pathExtension] lowercaseString]];
+            NSString *imgPath;
+            if ([url_img pathExtension] && [[url_img pathExtension] length]) {
+                imgPath=[[fullpath stringByDeletingPathExtension] stringByAppendingFormat:@".%@",[[url_img pathExtension] lowercaseString]];
+            } else {
+                imgPath=[[fullpath stringByDeletingPathExtension] stringByAppendingFormat:@".png"];
+            }
             
 
             url = [NSURL URLWithString:url_img];
@@ -141,22 +168,39 @@
             return 1;
         }
         
-        
 //                [downloadViewController addURLToDownloadList:url_img fileName:imgName filePath:imgPath filesize:-1 isMODLAND:0 usePrimaryAction:mClickedPrimAction];
-    } else {
-        if ([search_label containsString:@"-"]) {
-            search_label=[search_label substringToIndex:[search_label rangeOfString:@"-"].location];
-            [self getImgfromTGDB:grabber_url search_label:search_label label:label fullpath:fullpath completion:block];
+    }
+    cleanName=[self removeParentheses:[search_label stringByDeletingPathExtension]];
+        int found=0;
+        if ([cleanName containsString:@"-"]) {
+            NSString *search_labelA=[search_label substringToIndex:[cleanName rangeOfString:@"-"].location];
+            NSString *search_labelB=[search_label substringFromIndex:[cleanName rangeOfString:@"-"].location+1];
+            found=[self getImgfromTGDB:grabber_url search_label:search_labelA label:label fullpath:fullpath completion:block];
+            if (!found) found=[self getImgfromTGDB:grabber_url search_label:search_labelB label:label fullpath:fullpath completion:block];
+            if (!found) {
+                if ([cleanName containsString:@"["]&&[cleanName containsString:@"]"]) {
+                    NSString *search_labelA=[cleanName substringFromIndex:[cleanName rangeOfString:@"["].location+1];
+                    search_labelA=[search_labelA substringToIndex:[search_labelA rangeOfString:@"]"].location];
+                    found=[self getImgfromTGDB:grabber_url search_label:search_labelA label:label fullpath:fullpath completion:block];
+                }
+            }
         } else {
-            //try by removing last part of search label if big enough
-            NSMutableArray *arr=[NSMutableArray arrayWithArray:[search_label componentsSeparatedByString:@" "]];
-            if ([arr count]>2) {
-                [arr removeLastObject];
-                search_label=[arr componentsJoinedByString:@" "];
-                [self getImgfromTGDB:grabber_url search_label:search_label label:label fullpath:fullpath completion:block];
+            
+            if ([cleanName containsString:@"["]&&[cleanName containsString:@"]"]) {
+                NSString *search_labelA=[cleanName substringFromIndex:[cleanName rangeOfString:@"["].location+1];
+                search_labelA=[search_labelA substringToIndex:[search_labelA rangeOfString:@"]"].location];
+                found=[self getImgfromTGDB:grabber_url search_label:search_labelA label:label fullpath:fullpath completion:block];
+            }
+            if (!found) {
+                //try by removing last part of search label if big enough
+                NSMutableArray *arr=[NSMutableArray arrayWithArray:[cleanName componentsSeparatedByString:@" "]];
+                if ([arr count]>2) {
+                    [arr removeLastObject];
+                    cleanName=[arr componentsJoinedByString:@" "];
+                    [self getImgfromTGDB:grabber_url search_label:cleanName label:label fullpath:fullpath completion:block];
+                }
             }
         }
-    }
     return 0;
 }
 

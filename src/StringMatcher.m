@@ -5,6 +5,8 @@
 //  Created by Yohann Magnien David on 28/01/2026.
 //
 
+#define DEBUG
+
 #import "StringMatcher.h"
 
 @implementation StringMatcher
@@ -37,7 +39,7 @@
     }
     
     #ifdef DEBUG
-    if (bestIndex >= 0) {
+    if (bestIndex!=NSNotFound) {
         NSLog(@"✅ Best match: '%@' with score %.4f", array[bestIndex], bestScore);
     } else {
         NSLog(@"❌ No match found with minimum score %.2f", minimumScore);
