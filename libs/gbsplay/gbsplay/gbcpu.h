@@ -24,7 +24,7 @@
 #define HL	2
 #define AF	3
 #define SP	4
-#define GBS_PC	5
+#define GBS_PC	5 //YOYOFR
 
 #define DEBUG 0
 

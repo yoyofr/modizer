@@ -2,22 +2,149 @@
 gbsplay HISTORY
 
 
-2024/xx/xx  -  unreleased
-~~~~~~~~~~~~~~~~~~~~~~~~~
+2025/11/14  -  0.0.102
+~~~~~~~~~~~~~~~~~~~~~~
+
+Bugfixes:
+
+- build process:
+  - include xgbsplay manpage in release tarball
+
+
+2025/11/13  -  0.0.101
+~~~~~~~~~~~~~~~~~~~~~~
+
+Bugfixes:
+
+- gbs core:
+  - flush buffers before subsong end so no sound gets lost
+  - increase fadeout precision (don't accumulate rounding errors)
+  - only add ROM replayer when dumping ROM via gbs2gb
+    for usage on real hardware
+  - fix off-by-one error in main_div counter comparison
+    (right before refactoring that variable away)
+
+- gbsplay:
+  - VGM plugout: enable APU on startup by initializing NR52/NR51/NR50
+
+- build process:
+  - fix compiler warnings on newer compilers and stricter settings
+    (mostly use 'void' instead of empty parameter declarations)
+  - fix warnings about unintialized Makefile variables
+
+Enhancements:
+
+- gbs core:
+  - refactor hardware code for reduced CPU usage
+
+
+2025/06/13  -  0.0.100
+~~~~~~~~~~~~~~~~~~~~~~
+
+Bugfixes:
+
+- build process:
+  - fix manpage handling when version number contains a /
+  - make 'install-*' targets self-contained
+  - remove xgbsplay binary on 'make distclean'
+  - fix libdir installation path when DESTDIR is set
+
+Enhancements:
+
+- documentation:
+  - add 'PACKAGING.md' with information for package maintainers
+    regarding version number detection and installation directories
+  - add gbs2gb(1) manpage
+
+- build process:
+  - show installation target directories via 'make show-install-dirs'
+
+
+2025/03/15  -  0.0.99
+~~~~~~~~~~~~~~~~~~~~~
+
+Bugfixes:
+
+- configuration:
+  - fix the deprecated 'loop' option to work as described in the manpage:
+    'loop=2' selects range loop mode, not single loop mode
+
+- build process:
+  - fix version number detection in GitHub CI builds
+
+Enhancements:
+
+- automatically build Windows binaries and add them to the GitHub
+  release page (marked experimental for now)
+
+- xgbsplay:
+  - loop mode can be changed interactively (use the 'l' key)
+  - display pause status when playback is paused
+  - display current loop mode
+  - add i18n
+
+- configuration:
+  - deprecate 'loop' option in gbsplayrc in favor of new 'loop_mode'
+    with values 'none', 'range' and 'single'
+  - add 'play_mode' option to gbsplayrc with values 'linear', 'random'
+    and 'shuffle'
+  - support 'native', 'little' and 'big' values for 'endian' option in
+    gbsplayrc instead of just 'n', 'l' and 'b'
+
+- documentation:
+  - describe loop mode keybinding in gbsplay(1) manpage
+  - describe 'filter_type' option in gbsplayrc(5) manpage
+  - add LICENCE to tarball
+
+
+2025/02/16  -  0.0.98
+~~~~~~~~~~~~~~~~~~~~~
+
+Bugfixes:
+
+- gbsplay:
+  - don't mess up the screen with underrun errors from the ALSA plugout
+    when resuming from a pause
+  - fix Pipewire plugout for Pipewire versions greater than 0.3.x
+
+- build process:
+  - fix i18n on brew/MaOS
+  - disable i8n during unit tests
+
+Enhancements:
+
+- gbsplay:
+  - add proper pause handling to ALSA plugout
+
+- contrib:
+  - add Zsh command completion for gbsplay, gbsinfo, gbs2gb and gbs2ogg
+  - add missiong options to bash completion script and fix some edge cases
+
+- documentation:
+  - document -- option to end option parsing
+  - update xgbsplay(1) manpage
+
+
+2024/04/17  -  0.0.97
+~~~~~~~~~~~~~~~~~~~~~
 
 Bugfixes:
 
 - gbs core:
   - fix noise channel LSFR for more faithful drumtracks in most ROMs
   - fix generated MIDI files being ~1.5% too slow
+  - reset cartridge RAM on subsong change to prevent the state of a
+    subsong from influencing later subsongs
 
-- gbsplay
+- gbsplay:
   - fix display of unknown version number (gbsplay -V)
 
 Enhancements:
 
-- build process
+- build process:
   - display version number during configure
+  - automatically provide a .tar.gz on the GitHub release page that
+    contains proper version information like the old manual releases
 
 
 2024/02/04  -  0.0.96

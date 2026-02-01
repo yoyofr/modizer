@@ -1,7 +1,7 @@
 /*
  * gbsplay is a Gameboy sound player
  *
- * 2003-2020 (C) by Tobias Diedrich <ranma+gbsplay@tdiedrich.de>
+ * 2003-2025 (C) by Tobias Diedrich <ranma+gbsplay@tdiedrich.de>
  *                  Christian Garbs <mitch@cgarbs.de>
  *
  * Licensed under GNU GPL v1 or, at your option, any later version.
@@ -31,7 +31,7 @@ long redraw = false;
 
 /* forward declarations */
 static void printstatus(struct gbs *gbs);
-static void printinfo();
+static void printinfo(void);
 
 /* Pre-generates "tracker-style" 3-character representations of the
  * note that is playing, covering everying from "C-0" to "B-9". */
@@ -111,9 +111,9 @@ static void handleuserinput(struct gbs *gbs)
 			quit = 1;
 			break;
 		case ' ':
-			toggle_pause(gbs);
+			toggle_pause();
 			if (redraw) printinfo();
-			if (verbosity>1) printstatus(gbs);
+			if (cfg.verbosity>1) printstatus(gbs);
 			break;
 		case 'l':
 			gbs_cycle_loop_mode(gbs);
@@ -154,16 +154,6 @@ static char *volstring(long v)
 	return &vollookup[5*v];
 }
 
-static char *loopmodestring(const struct gbs_status *status)
-{
-	switch (status->loop_mode) {
-	default:
-	case LOOP_OFF:    return "";
-	case LOOP_RANGE:  return _(" [loop range]");
-	case LOOP_SINGLE: return _(" [loop single]");
-	}
-}
-
 static void printregs(struct gbs *gbs)
 {
 	long i;
@@ -189,20 +179,18 @@ static void printstatus(struct gbs *gbs)
 {
 	const struct gbs_status *status;
 	struct displaytime time;
-	long pausemode;
 
 	status = gbs_get_status(gbs);
-	pausemode = get_pause();
 
 	update_displaytime(&time, status);
 
 	printf("\r\033[A\033[A"
 	       "Song %3d/%3d%s%s (%s)\033[K\n"
 	       "%02ld:%02ld/%02ld:%02ld",
-	       status->subsong+1, status->songs, pausemode ? " [Paused]" : "",
-	       loopmodestring(status), status->songtitle,
+	       status->subsong+1, status->songs, get_pause_string(),
+	       get_loopmode_string(status), status->songtitle,
 	       time.played_min, time.played_sec, time.total_min, time.total_sec);
-	if (verbosity>2) {
+	if (cfg.verbosity>2) {
 		printf("  %s %s  %s %s  %s %s  %s %s  [%s|%s]\n",
 		       notestring(gbs, 0), volstring(status->ch[0].vol),
 		       notestring(gbs, 1), volstring(status->ch[1].vol),
@@ -213,19 +201,19 @@ static void printstatus(struct gbs *gbs)
 	} else {
 		puts("");
 	}
-	if (verbosity>3) {
+	if (cfg.verbosity>3) {
 		printregs(gbs);
 	}
 	fflush(stdout);
 }
 
-static void printinfo()
+static void printinfo(void)
 {
-	if (verbosity>0) {
+	if (cfg.verbosity>0) {
 		puts(_("\ncommands:  [p]revious subsong   [n]ext subsong   [q]uit player\n" \
 		         "           [ ] pause/resume   [1-4] mute channel   [l]oop mode"));
 	}
-	if (verbosity>1) {
+	if (cfg.verbosity>1) {
 		puts("\n\n"); /* additional newlines for the status display */
 	}
 	redraw = false;
@@ -257,7 +245,7 @@ int main(int argc, char **argv)
 		}
 		if (is_running()) {
 			if (redraw) printinfo();
-			if (verbosity>1) printstatus(gbs);
+			if (cfg.verbosity>1) printstatus(gbs);
 		}
 		handleuserinput(gbs);
 	}
@@ -267,7 +255,7 @@ int main(int argc, char **argv)
 
 	/* clean up terminal */
 	restore_terminal();
-	if (verbosity>3) {
+	if (cfg.verbosity>3) {
 		printf("\n\n\n\n\n\n");
 	}
 

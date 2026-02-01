@@ -59,8 +59,7 @@ typedef uint64_t cycles_t;
 #define FREQTONOTE(f) (lround(log2((f)/C0HZ)*12)+C0MIDI)
 #define NOTE(x,ch) FREQTONOTE(FREQ(x,ch))
 
-
-#if USE_I18N == 1
+#if USE_I18N == 1 && ENABLE_TEST != 1
 
 #  include <locale.h>
 #  include <libintl.h>
@@ -126,11 +125,11 @@ static inline void i18n_init(void) {}
 #define GBS_ORDER_LITTLE_ENDIAN __ORDER_LITTLE_ENDIAN__
 #define GBS_ORDER_BIG_ENDIAN __ORDER_BIG_ENDIAN__
 
-static inline long is_le_machine() {
+static inline long is_le_machine(void) {
 	return __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__;
 }
 
-static inline long is_be_machine() {
+static inline long is_be_machine(void) {
 	return __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__;
 }
 

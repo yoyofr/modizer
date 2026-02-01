@@ -1,0 +1,529 @@
+# English translations for gbsplay.
+#
+# Copyright (C) 2003-2025 Tobias Diedrich <ranma+gbsplay@tdiedrich.de>
+#
+# This file is distributed under GNU GPL v1 or, at your option, any later version.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: 0.0.4\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-05-28 18:50+0200\n"
+"PO-Revision-Date: 2023-11-19 15:29+0100\n"
+"Last-Translator: Tobias Diedrich <ranma+gbsplay@tdiedrich.de>\n"
+"Language-Team: none\n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=ISO-8859-1\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#, c-format
+msgid ""
+"\n"
+"Caught signal %d, exiting...\n"
+msgstr ""
+"\n"
+"Caught signal %d, exiting...\n"
+
+msgid ""
+"\n"
+"commands:  [p]revious subsong   [n]ext subsong   [q]uit player\n"
+"           [ ] pause/resume   [1-4] mute channel   [l]oop mode"
+msgstr ""
+"\n"
+"commands:  [p]revious subsong   [n]ext subsong   [q]uit player\n"
+"           [ ] pause/resume   [1-4] mute channel   [l]oop mode"
+
+msgid " + VBlank (ugetab)"
+msgstr " + VBlank (ugetab)"
+
+msgid " [loop range]"
+msgstr " [loop range]"
+
+msgid " [loop single]"
+msgstr " [loop single]"
+
+msgid " [paused]"
+msgstr " [paused]"
+
+#, c-format
+msgid ""
+"\"%s\" is not a known output plugin.\n"
+"\n"
+msgstr ""
+"\"%s\" is not a known output plugin.\n"
+"\n"
+
+#, c-format
+msgid ""
+"\"%s\" is not a valid endian.\n"
+"\n"
+msgstr ""
+"\"%s\" is not a valid endian.\n"
+"\n"
+
+#, c-format
+msgid "%s: Can't create audio flow\n"
+msgstr "%s: Can't create audio flow\n"
+
+#, c-format
+msgid "%s: Can't find device with 2 channels\n"
+msgstr "%s: Can't find device with 2 channels\n"
+
+#, c-format
+msgid "%s: Can't open server: %s\n"
+msgstr "%s: Can't open server: %s\n"
+
+#, c-format
+msgid "%s: Can't set audio elements: %s\n"
+msgstr "%s: Can't set audio elements: %s\n"
+
+#, c-format
+msgid "%s: Can't start audio flow: %s\n"
+msgstr "%s: Can't start audio flow: %s\n"
+
+#, c-format
+msgid "'%s' expected at %s line %ld char %ld.\n"
+msgstr "'%s' expected at %s line %ld char %ld.\n"
+
+#, c-format
+msgid "'%s' is no valid endian at %s line %ld char %ld.\n"
+msgstr "'%s' is no valid endian at %s line %ld char %ld.\n"
+
+#, c-format
+msgid "'%s' is no valid loop mode at %s line %ld char %ld.\n"
+msgstr "'%s' is no valid loop mode at %s line %ld char %ld.\n"
+
+#, c-format
+msgid "'%s' is no valid play mode at %s line %ld char %ld.\n"
+msgstr "'%s' is no valid play mode at %s line %ld char %ld.\n"
+
+msgid "59.7Hz VBlank\n"
+msgstr "59.7Hz VBlank\n"
+
+msgid ""
+"Available output plugins:\n"
+"\n"
+msgstr ""
+"Available output plugins:\n"
+"\n"
+
+#, c-format
+msgid "Bad GD3 offset: %08lx\n"
+msgstr "Bad GD3 offset: %08lx\n"
+
+#, c-format
+msgid "Bad data length: %ld\n"
+msgstr "Bad data length: %ld\n"
+
+#, c-format
+msgid "Bad file size in header: %ld\n"
+msgstr "Bad file size in header: %ld\n"
+
+#, c-format
+msgid "Bad libgbs API version, want %s but got: %s\n"
+msgstr "Bad libgbs API version, want %s but got: %s\n"
+
+#, c-format
+msgid "Bank @0x4000:     %d\n"
+msgstr "Bank @0x4000:     %d\n"
+
+msgid "Bigger than allowed maximum (4MiB)"
+msgstr "Bigger than allowed maximum (4MiB)"
+
+#, c-format
+msgid "CRC32:            0x%08lx\n"
+msgstr "CRC32:            0x%08lx\n"
+
+#, c-format
+msgid "Could not connect to X server: XCB error %d\n"
+msgstr "Could not connect to X server: XCB error %d\n"
+
+msgid "Could not find visual\n"
+msgstr "Could not find visual\n"
+
+#, c-format
+msgid "Could not init SDL: %s\n"
+msgstr "Could not init SDL: %s\n"
+
+#, c-format
+msgid "Could not open %s: %s\n"
+msgstr "Could not open %s: %s\n"
+
+#, c-format
+msgid "Could not open %s: inflate: %d\n"
+msgstr "Could not open %s: inflate: %d\n"
+
+#, c-format
+msgid "Could not open %s: inflateInit2: %d\n"
+msgstr "Could not open %s: inflateInit2: %d\n"
+
+#, c-format
+msgid "Could not open /dev/dsp: %s\n"
+msgstr "Could not open /dev/dsp: %s\n"
+
+#, c-format
+msgid "Could not open ALSA PCM device '%s': %s\n"
+msgstr "Could not open ALSA PCM device '%s': %s\n"
+
+#, c-format
+msgid "Could not open ROM template: %s"
+msgstr "Could not open ROM template: %s"
+
+#, c-format
+msgid "Could not open SDL audio device: %s\n"
+msgstr "Could not open SDL audio device: %s\n"
+
+#, c-format
+msgid "Could not open output file: %s"
+msgstr "Could not open output file: %s"
+
+#, c-format
+msgid "Could not open output plugin \"%s\"\n"
+msgstr "Could not open output plugin \"%s\"\n"
+
+#, c-format
+msgid "Could not read %s: %s\n"
+msgstr "Could not read %s: %s\n"
+
+#, c-format
+msgid "Could not rename %s to %s: %s\n"
+msgstr "Could not rename %s to %s: %s\n"
+
+#, c-format
+msgid "Could not stat %s: %s\n"
+msgstr "Could not stat %s: %s\n"
+
+#, c-format
+msgid "Could not write SDL audio data: %s\n"
+msgstr "Could not write SDL audio data: %s\n"
+
+#, c-format
+msgid "Default subsong %d is out of range [1..%d].\n"
+msgstr "Default subsong %d is out of range [1..%d].\n"
+
+#, c-format
+msgid "GBS Version %d unsupported.\n"
+msgstr "GBS Version %d unsupported.\n"
+
+#, c-format
+msgid ""
+"GBSVersion:       %u\n"
+"Title:            \"%s\"\n"
+"Author:           \"%s\"\n"
+"Copyright:        \"%s\"\n"
+"Load address:     0x%04x\n"
+"Init address:     0x%04x\n"
+"Play address:     0x%04x\n"
+"Stack pointer:    0x%04x\n"
+"File size:        0x%08x\n"
+"ROM size:         0x%08lx (%ld banks)\n"
+"Subsongs:         %u\n"
+"Default subsong:  %u\n"
+msgstr ""
+"GBSVersion:       %u\n"
+"Title:            \"%s\"\n"
+"Author:           \"%s\"\n"
+"Copyright:        \"%s\"\n"
+"Load address:     0x%04x\n"
+"Init address:     0x%04x\n"
+"Play address:     0x%04x\n"
+"Stack pointer:    0x%04x\n"
+"File size:        0x%08x\n"
+"ROM size:         0x%08lx (%ld banks)\n"
+"Subsongs:         %u\n"
+"Default subsong:  %u\n"
+
+#, c-format
+msgid "Invalid filter type \"%s\"\n"
+msgstr "Invalid filter type \"%s\"\n"
+
+#, c-format
+msgid "Load address %04x overlaps with replayer end %04x.\n"
+msgstr "Load address %04x overlaps with replayer end %04x.\n"
+
+msgid "Memory allocation failed!"
+msgstr "Memory allocation failed!"
+
+msgid "Memory allocation failed!\n"
+msgstr "Memory allocation failed!\n"
+
+msgid ""
+"No output plugins available.\n"
+"\n"
+msgstr ""
+"No output plugins available.\n"
+"\n"
+
+#, c-format
+msgid "Not a GBR-File: %s\n"
+msgstr "Not a GBR-File: %s\n"
+
+#, c-format
+msgid "Not a GBS-File: %s\n"
+msgstr "Not a GBS-File: %s\n"
+
+#, c-format
+msgid "Not a VGM-File: %s\n"
+msgstr "Not a VGM-File: %s\n"
+
+msgid "Not compiled with zlib support"
+msgstr "Not compiled with zlib support"
+
+#, c-format
+msgid "Number of subsongs = %d is unreasonable.\n"
+msgstr "Number of subsongs = %d is unreasonable.\n"
+
+msgid "ROM size above limit (8 MiB)!"
+msgstr "ROM size above limit (8 MiB)!"
+
+msgid "ROM template data not found!\n"
+msgstr "ROM template data not found!\n"
+
+#, c-format
+msgid "Requested rate %ldHz, got %dHz.\n"
+msgstr "Requested rate %ldHz, got %dHz.\n"
+
+#, c-format
+msgid "Subsong number out of range (min=0, max=%d).\n"
+msgstr "Subsong number out of range (min=0, max=%d).\n"
+
+#, c-format
+msgid "Timing:           %2.2fHz timer%s\n"
+msgstr "Timing:           %2.2fHz timer%s\n"
+
+#, c-format
+msgid "Timing:           %s\n"
+msgstr "Timing:           %s\n"
+
+#, c-format
+msgid "Unknown option %s at %s line %ld.\n"
+msgstr "Unknown option %s at %s line %ld.\n"
+
+#, c-format
+msgid "Unsupported DMG clock: %ldHz\n"
+msgstr "Unsupported DMG clock: %ldHz\n"
+
+#, c-format
+msgid "Unsupported VGM opcode: 0x%02x\n"
+msgstr "Unsupported VGM opcode: 0x%02x\n"
+
+#, c-format
+msgid "Unsupported VGM version: %d.%02x\n"
+msgstr "Unsupported VGM version: %d.%02x\n"
+
+#, c-format
+msgid "Unsupported cartridge type: 0x%02x\n"
+msgstr "Unsupported cartridge type: 0x%02x\n"
+
+#, c-format
+msgid "Unsupported endian for output plugin \"%s\"\n"
+msgstr "Unsupported endian for output plugin \"%s\"\n"
+
+#, c-format
+msgid "Unsupported timerflag value: %d\n"
+msgstr "Unsupported timerflag value: %d\n"
+
+msgid "Untitled"
+msgstr "Untitled"
+
+#, c-format
+msgid ""
+"Usage: %s [OPTION]... [--] <GBS-FILE>\n"
+"\n"
+"Available options are:\n"
+"  -h  display this help and exit\n"
+"  -V  print version and exit\n"
+"  --  end options, next argument is GBS-FILE\n"
+msgstr ""
+"Usage: %s [OPTION]... [--] <GBS-FILE>\n"
+"\n"
+"Available options are:\n"
+"  -h  display this help and exit\n"
+"  -V  print version and exit\n"
+"  --  end options, next argument is GBS-FILE\n"
+
+#, c-format
+msgid ""
+"Usage: %s [OPTION]... [--] GBS-FILE [START-AT-SUBSONG [STOP-AFTER-SUBSONG] ]\n"
+"\n"
+"Available options are:\n"
+"  -E        endian, b == big, l == little, n == native (%s)\n"
+"  -f        set fadeout (%ld seconds)\n"
+"  -g        set subsong gap (%ld seconds)\n"
+"  -h        display this help and exit\n"
+"  -H        set output high-pass type (%s)\n"
+"  -l        set loop mode to range\n"
+"  -L        set loop mode to single\n"
+"  -o        select output plugin (%s)\n"
+"            'list' shows available plugins\n"
+"  -q        reduce verbosity\n"
+"  -r        set samplerate (%ldHz)\n"
+"  -R        set refresh delay (%ld milliseconds)\n"
+"  -t        set subsong timeout (%ld seconds)\n"
+"  -T        set silence timeout (%ld seconds)\n"
+"  -v        increase verbosity\n"
+"  -V        print version and exit\n"
+"  -z        play subsongs in shuffle mode\n"
+"  -Z        play subsongs in random mode (repetitions possible)\n"
+"  -1 to -4  mute a channel on startup\n"
+"  --        end options, next argument is GBS-FILE\n"
+msgstr ""
+"Usage: %s [OPTION]... [--] GBS-FILE [START-AT-SUBSONG [STOP-AFTER-SUBSONG] ]\n"
+"\n"
+"Available options are:\n"
+"  -E        endian, b == big, l == little, n == native (%s)\n"
+"  -f        set fadeout (%ld seconds)\n"
+"  -g        set subsong gap (%ld seconds)\n"
+"  -h        display this help and exit\n"
+"  -H        set output high-pass type (%s)\n"
+"  -l        set loop mode to range\n"
+"  -L        set loop mode to single\n"
+"  -o        select output plugin (%s)\n"
+"            'list' shows available plugins\n"
+"  -q        reduce verbosity\n"
+"  -r        set samplerate (%ldHz)\n"
+"  -R        set refresh delay (%ld milliseconds)\n"
+"  -t        set subsong timeout (%ld seconds)\n"
+"  -T        set silence timeout (%ld seconds)\n"
+"  -v        increase verbosity\n"
+"  -V        print version and exit\n"
+"  -z        play subsongs in shuffle mode\n"
+"  -Z        play subsongs in random mode (repetitions possible)\n"
+"  -1 to -4  mute a channel on startup\n"
+"  --        end options, next argument is GBS-FILE\n"
+
+msgid ""
+"Usage: gbs2gb [OPTION]... [--] GBS-FILE OUT-FILE\n"
+"\n"
+"Available options are:\n"
+"  -t  rom template\n"
+"  -h  display this help and exit\n"
+"  -V  print version and exit\n"
+"  --  end options, next argument is GBS-FILE\n"
+msgstr ""
+"Usage: gbs2gb [OPTION]... [--] GBS-FILE OUT-FILE\n"
+"\n"
+"Available options are:\n"
+"  -t  rom template\n"
+"  -h  display this help and exit\n"
+"  -V  print version and exit\n"
+"  --  end options, next argument is GBS-FILE\n"
+
+msgid "[ ] pause/resume"
+msgstr "[ ] pause/resume"
+
+msgid "[1-4] mute channel     [l]oop mode"
+msgstr "[1-4] mute channel     [l]oop mode"
+
+msgid "[p]revious/[n]ext subsong   [q]uit"
+msgstr "[p]revious/[n]ext subsong   [q]uit"
+
+msgid "big"
+msgstr "big"
+
+#, c-format
+msgid "fcntl(F_GETFL) failed: %s\n"
+msgstr "fcntl(F_GETFL) failed: %s\n"
+
+#, c-format
+msgid "fcntl(F_SETFL, flags&~O_NONBLOCK) failed: %s\n"
+msgstr "fcntl(F_SETFL, flags&~O_NONBLOCK) failed: %s\n"
+
+msgid "gb / not available"
+msgstr "gb / not available"
+
+msgid "gbr / not available"
+msgstr "gbr / not available"
+
+msgid "invalid"
+msgstr "invalid"
+
+#, c-format
+msgid "ioctl(fd, SNDCTL_DSP_GETBLKSIZE) failed: %s\n"
+msgstr "ioctl(fd, SNDCTL_DSP_GETBLKSIZE) failed: %s\n"
+
+#, c-format
+msgid "ioctl(fd, SNDCTL_DSP_SETFMT, %d) failed: %s\n"
+msgstr "ioctl(fd, SNDCTL_DSP_SETFMT, %d) failed: %s\n"
+
+#, c-format
+msgid "ioctl(fd, SNDCTL_DSP_SETFRAGMENT, %08x) failed: %s\n"
+msgstr "ioctl(fd, SNDCTL_DSP_SETFRAGMENT, %08x) failed: %s\n"
+
+#, c-format
+msgid "ioctl(fd, SNDCTL_DSP_SPEED, %ld) failed: %s\n"
+msgstr "ioctl(fd, SNDCTL_DSP_SPEED, %ld) failed: %s\n"
+
+#, c-format
+msgid "ioctl(fd, SNDCTL_DSP_STEREO, %d) failed: %s\n"
+msgstr "ioctl(fd, SNDCTL_DSP_STEREO, %d) failed: %s\n"
+
+msgid "little"
+msgstr "little"
+
+msgid "native"
+msgstr "native"
+
+#, c-format
+msgid "pw_stream_connect failed: %s\n"
+msgstr "pw_stream_connect failed: %s\n"
+
+#, c-format
+msgid "pw_stream_set_active failed: %s\n"
+msgstr "pw_stream_set_active failed: %s\n"
+
+#, c-format
+msgid "pw_thread_loop_start failed: %s\n"
+msgstr "pw_thread_loop_start failed: %s\n"
+
+#, c-format
+msgid "snd_pcm_hw_params failed: %s\n"
+msgstr "snd_pcm_hw_params failed: %s\n"
+
+#, c-format
+msgid "snd_pcm_hw_params_any failed: %s\n"
+msgstr "snd_pcm_hw_params_any failed: %s\n"
+
+#, c-format
+msgid "snd_pcm_hw_params_set_access failed: %s\n"
+msgstr "snd_pcm_hw_params_set_access failed: %s\n"
+
+#, c-format
+msgid "snd_pcm_hw_params_set_buffer_size_near failed: %s\n"
+msgstr "snd_pcm_hw_params_set_buffer_size_near failed: %s\n"
+
+#, c-format
+msgid "snd_pcm_hw_params_set_channels failed: %s\n"
+msgstr "snd_pcm_hw_params_set_channels failed: %s\n"
+
+#, c-format
+msgid "snd_pcm_hw_params_set_format failed: %s\n"
+msgstr "snd_pcm_hw_params_set_format failed: %s\n"
+
+#, c-format
+msgid "snd_pcm_hw_params_set_period_size_near failed: %s\n"
+msgstr "snd_pcm_hw_params_set_period_size_near failed: %s\n"
+
+#, c-format
+msgid "snd_pcm_hw_params_set_rate_near failed: %s\n"
+msgstr "snd_pcm_hw_params_set_rate_near failed: %s\n"
+
+#, c-format
+msgid "snd_pcm_pause failed: %s\n"
+msgstr "snd_pcm_pause failed: %s\n"
+
+#, c-format
+msgid "snd_pcm_writei failed: %s\n"
+msgstr "snd_pcm_writei failed: %s\n"
+
+#, c-format
+msgid "unhandled event %d\n"
+msgstr "unhandled event %d\n"
+
+msgid "vgm / not available"
+msgstr "vgm / not available"
+
+#~ msgid "default"
+#~ msgstr "default"

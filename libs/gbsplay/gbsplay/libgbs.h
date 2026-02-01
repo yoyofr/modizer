@@ -212,5 +212,4 @@ long gbs_toggle_setmute(struct gbs* const gbs, long channel,long muteval);
 void gbs_set_default_length(struct gbs* const gbs, long length);
 //YOYOFR
 
-
 #endif

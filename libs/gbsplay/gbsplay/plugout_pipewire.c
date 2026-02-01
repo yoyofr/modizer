@@ -1,7 +1,8 @@
 /*
  * gbsplay is a Gameboy sound player
  *
- * 2024 (C) by Christian Garbs <mitch@cgarbs.de>
+ * 2024-2025 (C) by Christian Garbs <mitch@cgarbs.de>
+ *                  Lisa Riedler <dev@riedler.wien>
  *
  * Licensed under GNU GPL v1 or, at your option, any later version.
  */
@@ -32,7 +33,7 @@ static const struct pw_stream_events pipewire_stream_events = {
 
 static long pipewire_open(enum plugout_endian *endian, long rate, long *buffer_bytes, const struct plugout_metadata metadata)
 {
-	const struct spa_pod *params[1];
+	const struct spa_pod *params[2];
 	uint8_t buffer[1024];
 	struct pw_properties *props;
 	struct spa_pod_builder pod_builder = SPA_POD_BUILDER_INIT(buffer, sizeof(buffer));
@@ -75,6 +76,10 @@ static long pipewire_open(enum plugout_endian *endian, long rate, long *buffer_b
 						       .format = fmt,
 						       .channels = CHANNELS,
 						       .rate = rate));
+	// triple-buffer audio
+	params[1] = spa_pod_builder_add_object(&pod_builder, SPA_TYPE_OBJECT_ParamBuffers,
+					       SPA_PARAM_Buffers,
+					       SPA_PARAM_BUFFERS_buffers, SPA_POD_Int(3));
 
 	// create stream
 	pipewire_data.stream = pw_stream_new_simple(pw_thread_loop_get_loop(pipewire_data.loop),
@@ -84,20 +89,21 @@ static long pipewire_open(enum plugout_endian *endian, long rate, long *buffer_b
 						    &pipewire_data);
 
 	// connect the stream
-	// TODO: do we need the realtime flag?
         if ((err = pw_stream_connect(pipewire_data.stream,
 				     PW_DIRECTION_OUTPUT,
 				     PW_ID_ANY,
 				     PW_STREAM_FLAG_AUTOCONNECT |
-				     PW_STREAM_FLAG_MAP_BUFFERS |
-				     PW_STREAM_FLAG_RT_PROCESS,
-				     params, 1))) {
+				     PW_STREAM_FLAG_MAP_BUFFERS,
+				     params, 2))) {
 		fprintf(stderr, _("pw_stream_connect failed: %s\n"), spa_strerror(err));
 		return -1;
 	}
 
 	// run the loop
-	pw_thread_loop_start(pipewire_data.loop);
+	if ((err = pw_thread_loop_start(pipewire_data.loop) != 0)) {
+		fprintf(stderr, _("pw_thread_loop_start failed: %s\n"), spa_strerror(err));
+		return -1;
+	}
 
 	return 0;
 }
@@ -105,10 +111,10 @@ static long pipewire_open(enum plugout_endian *endian, long rate, long *buffer_b
 static void pipewire_pause(int pause)
 {
 	int err;
-	if ((err = pw_stream_set_active(pipewire_data.stream, !pause))) {
+	pw_thread_loop_lock(pipewire_data.loop);
+	if ((err = pw_stream_set_active(pipewire_data.stream, !pause)))
 		fprintf(stderr, _("pw_stream_set_active failed: %s\n"), spa_strerror(err));
-		return;
-	}
+	pw_thread_loop_unlock(pipewire_data.loop);
 }
 
 static ssize_t pipewire_write(const void *buf, size_t count)
@@ -166,8 +172,6 @@ static ssize_t pipewire_write(const void *buf, size_t count)
 
 static void pipewire_close()
 {
-        pw_thread_loop_wait(pipewire_data.loop);
-        pw_thread_loop_unlock(pipewire_data.loop);
         pw_thread_loop_stop(pipewire_data.loop);
 	pw_stream_destroy(pipewire_data.stream);
         pw_thread_loop_destroy(pipewire_data.loop);

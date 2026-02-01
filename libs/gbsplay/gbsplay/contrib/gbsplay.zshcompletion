@@ -1,0 +1,111 @@
+#compdef gbsinfo gbsplay gbs2ogg gbs2gb
+
+# gbsplay, gbsinfo, gbs2gb and gbs2ogg zsh completion
+#
+# 2024-2025 (c) Riedler <dev@riedler.wien>
+# licensed under GNU GPL v1 or, at your option, any later version
+
+local gbsfiles='_files -g "*(.gbs|.gbs.gz)"'
+
+function _get_subsongs() {
+	gbsinfo "$1" | grep -i "subsongs" | grep -oP "\\d+"
+}
+
+function _gbsplay_internal() {
+	local options=(
+		-E+'[endianness]:endian:(b\:big l\:little n\:native)'
+		-f+'[set fadeout]:fadeout:'
+		-g+'[set subsong gap]:subsong gap:'
+		'(- :)'-h'[display help and exit]'
+		-H+'[set output high-pass filter]:filter:((dmg\:"Gameboy Classic (default)" cgb\:"Gameboy Color" off\:"no filter"))'
+		'(-L)'-l'[set loop mode to range]'
+		'(-l)'-L'[set loop mode to single]'
+		-o+'[select output plugin]:plugout:->plugout'
+		-r+'[set samplerate in Hz]:samplerate:'
+		-R+'[set refresh delay in ms]:refresh-delay:'
+		-t+'[set subsong timeout in s]:subsong-timeout:'
+		-T+'[set silence timeout in s]:silence-timeout:'
+		'(-v)'-q'[be quieter, reduce verbosity]' # TODO: -qqq
+		'(-q)'-v'[print more information, increase verbosity]' # TODO: -vvv
+		'(- :)'-V'[display version number and exit]'
+		'(-Z)'-z'[play subsongs in shuffle mode]'
+		'(-z)'-Z'[play subsongs in random mode]'
+		-1'[mute channel 1 on start]'
+		-2'[mute channel 2 on start]'
+		-3'[mute channel 3 on start]'
+		-4'[mute channel 4 on start]'
+		--'[end-of-options separator]'
+		": :${gbsfiles}"
+		':start_at_subsong:->subsong_start'
+		':stop_at_subsong:->subsong_stop'
+	)
+
+	_arguments -s -S -A "-*" : $options
+	
+	case $state in
+		plugout)
+			local plugouts=$(gbsplay -o list 2>/dev/null | tail -n+2 | sed -E 's/^(\w+)\s+-\s+(.+)$/\1:"\2"/g')
+			local -a optlist=(${(f)plugouts} 'list:"show available plugins"')
+			_describe plugout optlist
+		;;
+		subsong_start)
+			# NOTE: assuming previous parameters are valid
+			local max_subsongs=$(_get_subsongs "${(Q)words[-2]}")
+			local -a subsongs=($(seq 1 $max_subsongs))
+			_describe start_at_subsong subsongs
+		;;
+		subsong_stop)
+			# NOTE: assuming previous parameters are valid
+			local min_subsongs=${words[-2]}
+			local max_subsongs=$(_get_subsongs "${(Q)words[-3]}")
+			local -a subsongs=($(seq $min_subsongs $max_subsongs))
+			_describe stop_at_subsong subsongs
+		;;
+	esac
+}
+
+function _gbsinfo_internal() {
+	local options=(
+		'(- :)'-h'[display help and exit]'
+		'(- :)'-V'[display version number and exit]'
+		": :${gbsfiles}"
+	)
+	
+	_arguments -A "-*" : $options
+}
+
+function _gbs2ogg_internal() {
+	local options=(
+		": :${gbsfiles}"
+		':subsong_seconds: '
+	)
+	
+	_arguments : $options
+}
+
+function _gbs2gb_internal() {
+	local options=(
+		'(- :)'-h'[display help and exit]'
+		'(- :)'-V'[display version number and exit]'
+		-t'[rom template]:rom template:_files -g "*.gb"'
+		": :${gbsfiles}"
+		':out-file: '
+	)
+	
+	_arguments -A "-*" : $options
+}
+
+case $service in
+	gbsplay)
+		_gbsplay_internal
+	;;
+	gbsinfo)
+		_gbsinfo_internal
+	;;
+	gbs2ogg)
+		_gbs2ogg_internal
+	;;
+	gbs2gb)
+		_gbs2gb_internal
+	;;
+esac

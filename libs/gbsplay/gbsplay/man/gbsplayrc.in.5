@@ -1,4 +1,4 @@
-.\" This manpage 2003-2020 (C) by Christian Garbs <mitch@cgarbs.de>
+.\" This manpage 2003-2025 (C) by Christian Garbs <mitch@cgarbs.de>
 .\" Licensed under GNU GPL v1 or, at your option, any later version.
 .TH "GBSPLAYRC" "5" "%%%VERSION%%%" "Tobias Diedrich" "Gameboy sound player"
 .SH "NAME"
@@ -26,18 +26,64 @@ An integer number in decimal.
 \fB0\fP is considered \fIfalse\fP, everything else is \fItrue\fP.
 .TP
 .B Endian
-A single character denoting the endianness:
+A string to select the endianness:
 .RS
-.IP \fBn\fP
+.IP \fBnative\fP
 native endian
-.IP \fBl\fP
+.IP \fBlittle\fP
 little endian
-.IP \fBb\fP
+.IP \fBbig\fP
 big endian
+.RE
+.P
+.RS
+For backwards compatibility you can also use just the first character
+of each option ("\fBn\fP", "\fBl\fP" or "\fBb\fP").
+.RE
+.TP
+.B Filter type
+A string to select the output high-pass filter:
+.RS
+.IP \fBdmg\FP
+Gameboy Classic
+.IP \fBcgb\FP
+Gameboy Color
+.IP \fBoff\FP
+no filter
 .RE
 .TP
 .B Integer
 An integer number in decimal.
+.TP
+.B Loop mode
+A string to select the loop mode:
+.RS
+.IP \fBnone\fP
+no looping
+.IP \fBrange\fP
+loop over selected subsongs
+.IP \fBsingle\fP
+loop a single subsong
+.RE
+.P
+.RS
+See
+.I LOOP MODES
+in
+.BR gbsplay (1)
+for details.
+.RE
+.TP
+.B Play mode
+A string to select the play mode:
+.RS
+.IP \fBlinear\fP
+play subsongs in linear order
+.IP \fBrandom\fP
+play subsongs in random order where every subsong can be played multiple times
+.IP \fBshuffle\fP
+play subsongs in random order where every subsong is played only once
+.RE
 .TP
 .B Plugin
 The name of an output plugin.
@@ -51,13 +97,22 @@ Set the output endianness.
 Set the fadeout time in seconds.
 Instead of cutting the subsong off hard, do a soft fadeout.
 .TP
+.BR filter_type " = " \fIFilter\ type\fP
+Set the output high-pass filter.
+.TP
 .BR loop " = " \fIBoolean\fP
-Enable or disable loop mode.
-In loop mode the playback will restart from the beginning
-after the last subsong has been played.
+Set the loop mode to "\fBrange\fP" when enabled.
+Set the loop mode to "\fBnone\fP" when disabled.
+Deprecated in favor of the \fBloop_mode\fP option.
+.TP
+.BR loop_mode " = " \fILoop\ mode\fP
+Set the desired loop mode.
 .TP
 .BR output_plugin " = " \fIPlugin\fP
 Set the sound output plugin.
+.TP
+.BR play_mode " = " \fIPlay\ mode\fP
+Set the desired play mode.
 .TP
 .BR rate " = " \fIInteger\fP
 Set the samplerate in Hz.
@@ -76,7 +131,7 @@ the player will skip to the next subsong.
 .BR subsong_gap " = " \fIInteger\fP
 Set the subsong gap in seconds.
 Before playing the next subsong after the subsong timeout,
-\fIsubsong\-gap\fP seconds of silence will be played.
+\fIsubsong_gap\fP seconds of silence will be played.
 .TP
 .BR subsong_timeout " = " \fIInteger\fP
 Set the subsong timeout in seconds.

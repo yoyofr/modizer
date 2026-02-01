@@ -79,6 +79,11 @@ static int vgm_open_file(int subsong) {
 	/* zero-pad header area */
 	fwrite(blank_hdr, sizeof(blank_hdr), 1, vgmfile);
 
+	/* basic HW initialization */
+	fpack(vgmfile, "<bbb", VGM_CMD_DMGWRITE, 0xff26 - 0xff10, 0x80);  /* NR52: APU on */
+	fpack(vgmfile, "<bbb", VGM_CMD_DMGWRITE, 0xff25 - 0xff10, 0xf3);  /* NR51: L/R panning */
+	fpack(vgmfile, "<bbb", VGM_CMD_DMGWRITE, 0xff24 - 0xff10, 0x77);  /* NR50: Master volume */
+
 	sample_diff_acc = 0;
 	samples_prev = 0;
 	return 0;

@@ -38,7 +38,7 @@ int gblfsr_next_value(struct gblfsr* gblfsr) {
 	return new & 1;
 }
 
-test void test_lsfr()
+test void test_lsfr(void)
 {
 	struct gblfsr state;
 	uint32_t x = 0;

@@ -76,15 +76,15 @@ static cycles_t cycles_prev = 0;
 
 int note[4];
 
-int midi_file_error() {
+int midi_file_error(void) {
 	return ferror(file);
 }
 
-int midi_file_is_closed() {
+int midi_file_is_closed(void) {
 	return file == NULL;
 }
 
-static int midi_file_close() {
+static int midi_file_close(void) {
 	int result;
 	if (midi_file_is_closed())
 		return -1;
@@ -151,7 +151,7 @@ error:
 	return 1;
 }
 
-static int midi_close_track()
+static int midi_close_track(void)
 {
 	long track_end_offset;
 	uint32_t track_length;

@@ -1,8 +1,9 @@
 /*
  * gbsplay is a Gameboy sound player
+ *
  * This file contains the player code common to both CLI and X11 frontends.
  *
- * 2003-2020 (C) by Tobias Diedrich <ranma+gbsplay@tdiedrich.de>
+ * 2003-2025 (C) by Tobias Diedrich <ranma+gbsplay@tdiedrich.de>
  *                  Christian Garbs <mitch@cgarbs.de>
  *
  * Licensed under GNU GPL v1 or, at your option, any later version.
@@ -22,9 +23,6 @@
 extern char *myname;
 extern char *filename;
 
-/* default values */
-extern long verbosity;
-
 extern plugout_open_fn  sound_open;
 extern plugout_skip_fn  sound_skip;
 extern plugout_pause_fn sound_pause;
@@ -37,13 +35,14 @@ struct displaytime {
 	long played_min, played_sec, total_min, total_sec;
 };
 
-long is_running();
+long is_running(void);
 long nextsubsong_cb(struct gbs *gbs, void *priv);
 void play_next_subsong(struct gbs *gbs);
 void play_prev_subsong(struct gbs *gbs);
 long step_emulation(struct gbs *gbs);
-void toggle_pause();
-long get_pause();
+void toggle_pause(void);
+const char *get_pause_string(void);
+const char *get_loopmode_string(const struct gbs_status *status);
 void update_displaytime(struct displaytime *time, const struct gbs_status *status);
 struct gbs *common_init(int argc, char **argv);
 void common_cleanup(struct gbs *gbs);

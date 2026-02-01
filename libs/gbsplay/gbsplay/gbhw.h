@@ -38,7 +38,7 @@ struct gbhw_buffer {
 	long r_cap;
     //YOYOFR
     long lvl_ch[4];
-    long cap_ch[4];    
+    long cap_ch[4];
     //YOYOFR
 	long bytes;
 	long samples;
@@ -87,11 +87,11 @@ struct gbhw {
 
 	long master_volume;
 	long master_fade;
+	long master_fade_remainder;
 	long master_dstvol;
 	long sample_rate;
 	long update_level;
 	long sequence_ctr;
-	cycles_t halted_noirq_cycles;
 
 	long vblankctr;
 	long timertc;
@@ -116,7 +116,6 @@ struct gbhw {
 	struct gblfsr lfsr;
 
 	long long sound_div_tc;
-	long main_div;
 	long sweep_div;
 
 	long ch3pos;
@@ -146,11 +145,13 @@ void gbhw_init(struct gbhw* const gbhw);
 void gbhw_init_struct(struct gbhw* const gbhw);
 void gbhw_cleanup(struct gbhw* const gbhw);
 void gbhw_enable_bootrom(struct gbhw* const gbhw, const uint8_t *rombuf);
-void gbhw_master_fade(struct gbhw* const gbhw, long speed, long dstvol);
+void gbhw_master_fade(struct gbhw* const gbhw, long millis, long dstvol);
 void gbhw_calc_minmax(struct gbhw* const gbhw, int16_t *lmin, int16_t *lmax, int16_t *rmin, int16_t *rmax);
 float gbhw_calc_timer_hz(uint8_t tac, uint8_t tma);
 cycles_t gbhw_step(struct gbhw* const gbhw, long time_to_work);
 uint8_t gbhw_io_peek(const struct gbhw* const gbhw, uint16_t addr);  /* unmasked peek */
 void gbhw_io_put(struct gbhw* const gbhw, uint16_t addr, uint8_t val);
+bool gbhw_locked_up(struct gbhw* const gbhw);
+void gbhw_flush_buffer(struct gbhw *gbhw);
 
 #endif

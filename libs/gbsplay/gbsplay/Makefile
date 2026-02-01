@@ -3,7 +3,7 @@ MAKEFLAGS += --warn-undefined-variables
 SHELL := bash
 .SHELLFLAGS := -eu -o pipefail -c
 
-.PHONY: all default distclean clean install dist clean-apidoc
+.PHONY: all default distclean clean install dist clean-apidoc show-install-dirs
 
 all: default
 
@@ -56,6 +56,7 @@ DESTDIR     :=
 # Update paths with user-provided DESTDIR
 prefix       := $(DESTDIR)$(prefix)
 exec_prefix  := $(DESTDIR)$(exec_prefix)
+libdir       := $(DESTDIR)$(libdir)
 bindir       := $(DESTDIR)$(bindir)
 mandir       := $(DESTDIR)$(mandir)
 docdir       := $(DESTDIR)$(docdir)
@@ -86,13 +87,12 @@ EXTRA_CLEAN :=
 
 export Q VERBOSE CC HOSTCC BUILDCC GBSCFLAGS GBSLDFLAGS
 
-docs               := README.md HISTORY COPYRIGHT
-docs-dist          := INSTALL.md CODINGSTYLE gbsformat.txt
-contribs           := contrib/gbs2ogg.sh contrib/gbsplay.bashcompletion
+docs               := README.md HISTORY COPYRIGHT LICENCE
+docs-dist          := INSTALL.md CODINGSTYLE gbsformat.txt PACKAGING.md
+contribs           := contrib/gbs2ogg.sh contrib/gbsplay.bashcompletion contrib/gbsplay.zshcompletion
 examples           := examples/nightmode.gbs examples/gbsplayrc_sample
 
-mans               := man/gbsplay.1    man/gbsinfo.1    man/gbsplayrc.5
-mans_src           := man/gbsplay.in.1 man/gbsinfo.in.1 man/gbsplayrc.in.5
+mans               := man/gbsplay.1    man/gbsinfo.1    man/gbsplayrc.5    man/gbs2gb.1
 
 apimans_list       := libgbs.h gbs gbs_channel_status gbs_output_buffer gbs_status
 apidocdir          := apidoc
@@ -109,7 +109,7 @@ objs_xgbsplay      := xgbsplay.o util.o plugout.o player.o cfgparser.o
 objs_test_gbs      := test_gbs.o
 objs_gen_impulse_h := gen_impulse_h.ho impulsegen.ho
 
-tests              := util.test impulsegen.test gblfsr.test
+tests              := util.test impulsegen.test gblfsr.test cfgparser.test
 
 # terminal handling
 ifeq ($(windows_libprefix),lib)
@@ -185,7 +185,9 @@ endif
 
 # test built binary?
 ifeq ($(build_test),yes)
-TEST_TARGETS += test
+TEST_TARGETS = test
+else
+TEST_TARGETS =
 endif
 
 # Cygwin automatically adds .exe to binaries.
@@ -287,14 +289,13 @@ libgbspic: libgbspic.a
 	touch libgbspic
 endif # use_sharedlibs
 
-objs += $(objs_gbsplay) $(ojbs_gbs2gb) $(objs_gbsinfo)
+objs += $(objs_gbsplay) $(objs_gbs2gb) $(objs_gbsinfo)
 dsts += gbsplay gbs2gb gbsinfo
 
 ifeq ($(build_xgbsplay),yes)
 objs += $(objs_xgbsplay)
 dsts += xgbsplay
 mans += man/xgbsplay.1
-mans_src += man/xgbsplay.in.1
 EXTRA_INSTALL += install-xgbsplay
 EXTRA_UNINSTALL += uninstall-xgbsplay
 EXTRA_CLEAN += clean-xgbsplay
@@ -316,7 +317,7 @@ else
 default: config.mk
 endif
 
-distclean: clean
+distclean: clean clean-xgbsplay
 	find . -regex ".*\.d" -exec rm -f "{}" \;
 	rm -f ./config.mk ./config.h ./config.err ./config.sed ./libgbs.pc
 
@@ -328,7 +329,7 @@ clean-default:
 	rm -f libgbs libgbspic libgbs.def libgbs.so.1.ver
 	rm -f $(mans)
 	rm -f $(gbsplaybin) $(gbs2gbbin) $(gbsinfobin)
-	rm -f $(test_gbsbin)
+	rm -f $(test_gbsbin) gbsplayrc.tmp
 	rm -f $(gen_impulse_h_bin) impulse.h
 
 clean-apidoc:
@@ -337,9 +338,9 @@ clean-apidoc:
 clean-xgbsplay:
 	rm -f $(xgbsplaybin)
 
-install: all install-default $(EXTRA_INSTALL)
+install: install-default $(EXTRA_INSTALL)
 
-install-default:
+install-default: all
 	install -d $(bindir)
 	install -d $(man1dir)
 	install -d $(man5dir)
@@ -348,7 +349,7 @@ install-default:
 	install -d $(mimedir)/packages
 	install -d $(appdir)
 	install -m 755 $(gbsplaybin) $(gbs2gbbin) $(gbsinfobin) $(bindir)
-	install -m 644 man/gbsplay.1 man/gbsinfo.1 $(man1dir)
+	install -m 644 man/gbsplay.1 man/gbsinfo.1 man/gbs2gb.1 $(man1dir)
 	install -m 644 man/gbsplayrc.5 $(man5dir)
 	install -m 644 mime/gbsplay.xml $(mimedir)/packages
 	-update-mime-database $(mimedir)
@@ -366,9 +367,10 @@ install-contrib:
 	install -d $(contribdir)
 	install -m 644 $(contribs) $(contribdir)
 
-install-xgbsplay:
+install-xgbsplay: $(xgbsplaybin) $(mans)
 	install -d $(bindir)
 	install -d $(man1dir)
+	install -d $(appdir)
 	install -m 755 $(xgbsplaybin) $(bindir)
 	install -m 644 man/xgbsplay.1 $(man1dir)
 	install -m 644 desktop/xgbsplay.desktop $(appdir)
@@ -386,12 +388,34 @@ install-pkg-config:
 	install -d $(pkgconfigdir)
 	install -m 644 libgbs.pc $(pkgconfigdir)
 
+show-install-dirs:
+	@echo "+ DESTDIR      = $(DESTDIR)"
+	@echo "* bindir       = $(bindir)"
+	@echo "  includedir   = $(includedir)"
+	@echo "* libdir       = $(libdir)"
+	@echo "* mandir       = $(mandir)"
+	@echo "  man1dir      = $(man1dir)"
+	@echo "  man3dir      = $(man3dir)"
+	@echo "  man5dir      = $(man5dir)"
+	@echo "* appdir       = $(appdir)"
+	@echo "* docdir       = $(docdir)"
+	@echo "  contribdir   = $(contribdir)"
+	@echo "  exampledir   = $(exampledir)"
+	@echo "  localedir    = $(localedir)"
+	@for i in $(mos); do \
+		base=`basename $$i`; \
+		echo "                 $(localedir)/$${base%.mo}"; \
+	done
+	@echo "  mimedir      = $(mimedir)"
+	@echo "                 $(mimedir)/packages"
+	@echo "  pkgconfigdir = $(pkgconfigdir)"
+
 uninstall: uninstall-default $(EXTRA_UNINSTALL)
 
 uninstall-default:
 	rm -f $(bindir)/$(gbsplaybin) $(bindir)/$(gbs2gbbin) $(bindir)/$(gbsinfobin)
 	-rmdir -p $(bindir)
-	rm -f $(man1dir)/gbsplay.1 $(man1dir)/gbsinfo.1
+	rm -f $(man1dir)/gbsplay.1 $(man1dir)/gbsinfo.1 $(man1dir)/gbs2gb.1
 	-rmdir -p $(man1dir)
 	rm -f $(man5dir)/gbsplayrc.5
 	-rmdir -p $(man5dir)
@@ -446,7 +470,7 @@ dist:	distclean
 	install -m 644 *.c ./$(DISTDIR)/
 	install -m 644 *.h ./$(DISTDIR)/
 	install -d ./$(DISTDIR)/man
-	install -m 644 $(mans_src) ./$(DISTDIR)/man
+	install -m 644 man/*.in.? ./$(DISTDIR)/man
 	install -m 644 $(docs) $(docs-dist) ./$(DISTDIR)/
 	install -d ./$(DISTDIR)/examples
 	install -m 644 $(examples) ./$(DISTDIR)/examples
@@ -481,7 +505,7 @@ test: gbsplay $(tests) test_gbs
 		exit 1; \
 	fi
 	$(Q)MD5=`LD_LIBRARY_PATH=.:$${LD_LIBRARY_PATH-} $(TEST_WRAPPER) ./gbsplay -c examples/gbsplayrc_sample -E b -o stdout $(TESTOPTS) examples/nightmode.gbs 1 < /dev/null | (md5sum || md5 -r) | cut -f1 -d\ `; \
-	EXPECT="b2b83c42d5e250a54a90699a1faefd1a"; \
+	EXPECT="a415dadc7f8b0fcf35da6fc97c583b92"; \
 	if [ "$$MD5" = "$$EXPECT" ]; then \
 		echo "Bigendian output ok"; \
 	else \
@@ -491,7 +515,7 @@ test: gbsplay $(tests) test_gbs
 		exit 1; \
 	fi
 	$(Q)MD5=`LD_LIBRARY_PATH=.:$${LD_LIBRARY_PATH-} $(TEST_WRAPPER) ./gbsplay -c examples/gbsplayrc_sample -E l -o stdout $(TESTOPTS) examples/nightmode.gbs 1 < /dev/null | (md5sum || md5 -r) | cut -f1 -d\ `; \
-	EXPECT="a49498eff6bd5a227c007dfef9050852"; \
+	EXPECT="14b351ee391aaa11cfc0a0d0e25babab"; \
 	if [ "$$MD5" = "$$EXPECT" ]; then \
 		echo "Littleendian output ok"; \
 	else \
@@ -501,7 +525,7 @@ test: gbsplay $(tests) test_gbs
 		exit 1; \
 	fi
 	$(Q)MD5=`LD_LIBRARY_PATH=.:$${LD_LIBRARY_PATH-} $(TEST_WRAPPER) ./gbsplay -c examples/gbsplayrc_sample -E l -o wav $(TESTOPTS) examples/nightmode.gbs 1 < /dev/null; cat gbsplay-1.wav | (md5sum || md5 -r) | cut -f1 -d\ `; \
-	EXPECT="2cb6c3a16bbf49657feaebfb5742b4df"; \
+	EXPECT="f04623d1da242df5ca99effe1e3c3599"; \
 	if [ "$$MD5" = "$$EXPECT" ]; then \
 		echo "WAV output ok"; \
 	else \
@@ -512,7 +536,7 @@ test: gbsplay $(tests) test_gbs
 	fi
 	$(Q)rm gbsplay-1.wav
 	$(Q)MD5=`LD_LIBRARY_PATH=.:$${LD_LIBRARY_PATH-} $(TEST_WRAPPER) ./gbsplay -c examples/gbsplayrc_sample -E l -o vgm $(TESTOPTS) examples/nightmode.gbs 1 < /dev/null; cat gbsplay-1.vgm | (md5sum || md5 -r) | cut -f1 -d\ `; \
-	EXPECT="d00e08025048d6831caffafa3d5b88c6"; \
+	EXPECT="2cfb9d87de2b9a144d3e4710be97f429"; \
 	if [ "$$MD5" = "$$EXPECT" ]; then \
 		echo "VGM output ok"; \
 	else \

@@ -23,7 +23,7 @@ static const uint8_t blank_hdr[44];
 static long sample_rate;
 static FILE* file = NULL;
 
-static int wav_write_header() {
+static int wav_write_header(void) {
 	const uint32_t fmt_subchunk_length = 16;
 	const uint16_t audio_format_uncompressed_pcm = 1;
 	const uint16_t num_channels = 2;
@@ -57,7 +57,7 @@ static int wav_open_file(const int subsong) {
 	return 0;
 }
 
-static int wav_close_file() {
+static int wav_close_file(void) {
 	int result;
 
 	if (wav_write_header())
@@ -96,7 +96,7 @@ static ssize_t wav_write(const void *buf, const size_t count)
 	return fwrite(buf, count, 1, file);
 }
 
-static void wav_close()
+static void wav_close(void)
 {
 	if (file != NULL)
 		wav_close_file();

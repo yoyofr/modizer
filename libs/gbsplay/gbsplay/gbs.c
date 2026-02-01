@@ -255,6 +255,8 @@ long gbs_init(struct gbs* const gbs, long subsong)
 	struct gbcpu *gbcpu = &gbhw->gbcpu;
 
 	gbhw_init(gbhw);
+	if (gbs->mapper)
+		mapper_init(gbs->mapper);
 
 	if (subsong == -1) subsong = gbs->defaultsong - 1;
 	if (subsong >= gbs->songs) {
@@ -271,7 +273,7 @@ long gbs_init(struct gbs* const gbs, long subsong)
 
 	REGS16_W(gbcpu->regs, SP, gbs->stack);
 
-	/* put halt breakpoint PC on stack */
+	/* put halt breakpoint GBS_PC on stack */
 	gbcpu->halt_at_pc = 0xffff;
 	REGS16_W(gbcpu->regs, GBS_PC, 0xff80);
 	REGS16_W(gbcpu->regs, HL, gbcpu->halt_at_pc);
@@ -373,6 +375,7 @@ void gbs_set_sound_callback(struct gbs* const gbs, gbs_sound_cb fn, void *priv)
 long gbs_set_filter(struct gbs* const gbs, enum gbs_filter_type type) {
 	return gbhw_set_filter(&gbs->gbhw, type);
 }
+
 static long gbs_nextsubsong(struct gbs* const gbs)
 {
 	if (gbs->nextsubsong_cb != NULL) {
@@ -386,14 +389,43 @@ static long gbs_nextsubsong(struct gbs* const gbs)
 	return true;
 }
 
+static void blargg_debug(struct gbcpu *gbcpu)
+{
+	long i;
+
+	/* Blargg GB debug output signature. */
+	if (gbcpu_mem_get(gbcpu, 0xa001) != 0xde ||
+	    gbcpu_mem_get(gbcpu, 0xa002) != 0xb0 ||
+	    gbcpu_mem_get(gbcpu, 0xa003) != 0x61) {
+		return;
+	}
+
+	fprintf(stderr, "\nBlargg debug output:\n");
+
+	for (i = 0xa004; i < 0xb000; i++) {
+		uint8_t c = gbcpu_mem_get(gbcpu, i);
+		if (c == 0 || c >= 128) {
+			return;
+		}
+		if (c < 32 && c != 10 && c != 13) {
+			return;
+		}
+		fputc(c, stderr);
+	}
+}
+
 long gbs_step(struct gbs* const gbs, long time_to_work)
 {
 	struct gbhw *gbhw = &gbs->gbhw;
 
 	cycles_t cycles = gbhw_step(gbhw, time_to_work);
-	double time;//yoyofr
+    double time;//yoyofr
 
 	if (cycles < 0) {
+		if (gbhw_locked_up(gbhw)) {
+			fprintf(stderr, "CPU locked up (halt with interrupts disabled).\n");
+			blargg_debug(&gbhw->gbcpu);
+		}
 		return false;
 	}
 
@@ -403,27 +435,36 @@ long gbs_step(struct gbs* const gbs, long time_to_work)
 	gbs->lvol = -gbs->lmin > gbs->lmax ? -gbs->lmin : gbs->lmax;
 	gbs->rvol = -gbs->rmin > gbs->rmax ? -gbs->rmin : gbs->rmax;
 
-	time = (double)gbs->ticks / GBHW_CLOCK;
+	time = gbs->ticks / GBHW_CLOCK;
 	if (gbs->silence_timeout) {
 		if (gbs->lmin == gbs->lmax && gbs->rmin == gbs->rmax) {
 			if (gbs->silence_start == 0)
 				gbs->silence_start = gbs->ticks;
 		} else gbs->silence_start = 0;
-        
-        if (gbs->silence_start &&
-            (gbs->ticks - gbs->silence_start) / GBHW_CLOCK >= gbs->silence_timeout) {
-            if (gbs->subsong_info[gbs->subsong].len == 0) {
-                gbs->subsong_info[gbs->subsong].len = gbs->ticks * GBS_LEN_DIV / GBHW_CLOCK;
-            }
-            return gbs_nextsubsong(gbs);
-        }
 	}
 
-    
-	
+	if (gbs->silence_start &&
+	    (gbs->ticks - gbs->silence_start) / GBHW_CLOCK >= gbs->silence_timeout) {
+		if (gbs->subsong_info[gbs->subsong].len == 0) {
+			gbs->subsong_info[gbs->subsong].len = gbs->ticks * GBS_LEN_DIV / GBHW_CLOCK;
+		}
+		gbhw_flush_buffer(&gbs->gbhw);
+		return gbs_nextsubsong(gbs);
+	}
 
     //YOYOFR, some changes / fadeout
-	if (gbs->subsong_timeout && gbs->status.loop_mode != LOOP_SINGLE) {
+//	if (gbs->subsong_timeout && gbs->status.loop_mode != LOOP_SINGLE) {
+//		if (gbs->fadeout &&
+//		    time >= gbs->subsong_timeout - gbs->fadeout - gbs->gap)
+//			gbhw_master_fade(gbhw, 1000 * gbs->fadeout, 0);
+//		if (time >= gbs->subsong_timeout - gbs->gap)
+//			gbhw_master_fade(gbhw, 63, 0);
+//		if (time >= gbs->subsong_timeout) {
+//			gbhw_flush_buffer(&gbs->gbhw);
+//			return gbs_nextsubsong(gbs);
+//		}
+//	}
+    if (gbs->subsong_timeout && gbs->status.loop_mode != LOOP_SINGLE) {
         //printf("time %f/%d  fade %d\n",time,gbs->subsong_timeout,gbs->fadeout);
         if (gbs->fadeout && (time >= (gbs->subsong_timeout - gbs->fadeout - gbs->gap))) {
             //printf("will stop soon: %f %d\n",time,gbs->subsong_timeout);
@@ -437,9 +478,9 @@ long gbs_step(struct gbs* const gbs, long time_to_work)
         if (time >= (gbs->subsong_timeout - gbs->gap)) {
             //gbhw_master_fade(gbhw, 128*16, 0);
         }
-		if (time >= gbs->subsong_timeout)
-			return gbs_nextsubsong(gbs);
-	}
+        if (time >= gbs->subsong_timeout)
+            return gbs_nextsubsong(gbs);
+    }
 
 	return true;
 }
@@ -526,6 +567,7 @@ void gbs_set_default_length(struct gbs* const gbs, long length) {
 }
 //YOYOFR
 
+
 static void gbs_free(struct gbs* const gbs)
 {
 	gbhw_cleanup(&gbs->gbhw);
@@ -590,13 +632,74 @@ long gbs_write(const struct gbs* const gbs, const char* const name)
 	return 1;
 }
 
+static void gbs_add_rom_replayer(const struct gbs* const gbs)
+{
+	int addr = 0x150;
+	int jpaddr;
+
+	gbs->rom[0x0100] = 0x00; /* nop */
+	gbs->rom[0x0101] = 0xc3; /* jp */
+	gbs->rom[0x0102] = 0x150 & 0xff;
+	gbs->rom[0x0103] = 0x150 >> 8;
+
+	gbs->rom[addr++] = 0x21;  /* LD hl */
+	gbs->rom[addr++] = gbs->stack & 0xff;
+	gbs->rom[addr++] = gbs->stack >> 8;
+	gbs->rom[addr++] = 0xf9;  /* LD sp, hl */
+
+	gbs->rom[addr++] = 0x3e;  /* LD a, imm8 */
+	gbs->rom[addr++] = gbs->tma;
+	gbs->rom[addr++] = 0xe0;  /* LDH (a8), A */
+	gbs->rom[addr++] = 0x06;  /* TMA reg */
+
+	gbs->rom[addr++] = 0x3e;  /* LD a, imm8 */
+	gbs->rom[addr++] = gbs->tac;
+	gbs->rom[addr++] = 0xe0;  /* LDH (a8), A */
+	gbs->rom[addr++] = 0x07;  /* TAC reg */
+
+	gbs->rom[addr++] = 0x26;  /* LD h, imm8 */
+	gbs->rom[addr++] = 0x20;
+	gbs->rom[addr++] = 0x36;  /* LD (HL), imm8 */
+	gbs->rom[addr++] = gbs->defaultbank;
+
+	/*
+	 * Call init function while interrupts are still disabled,
+	 * otherwise nightmode.gbs breaks. This is per spec:
+	 * "PLAY - Begins after INIT process is complete"
+	 */
+	gbs->rom[addr++] = 0x3e; /* LD a, imm8 */
+	gbs->rom[addr++] = 0x00; /* first song */
+	gbs->rom[addr++] = 0xcd; /* call imm16 */
+	gbs->rom[addr++] = gbs->init & 0xff;
+	gbs->rom[addr++] = gbs->init >> 8;
+	/* Enable interrupts now */
+	gbs->rom[addr++] = 0x3e;  /* LD a, imm8 */
+	gbs->rom[addr++] = 0x05;  /* enable vblank + timer */
+	gbs->rom[addr++] = 0xe0;  /* LDH (a8), A */
+	gbs->rom[addr++] = 0xff;  /* IE reg */
+
+	jpaddr = addr;
+	gbs->rom[addr++] = 0x76; /* halt */
+	gbs->rom[addr++] = 0xc3; /* jp @loop */
+	gbs->rom[addr++] = jpaddr & 0xff;
+	gbs->rom[addr++] = jpaddr >> 8;
+
+	if (gbs->load < addr) {
+		fprintf(stderr, _("Load address %04x overlaps with replayer end %04x.\n"),
+			gbs->load, addr);
+	}
+}
+
 void gbs_write_rom(const struct gbs* const gbs, FILE *out, const uint8_t* const logo_data)
 {
+	/* For use with gbs2gb.c, for testing on real HW */
 	if (gbs->rom[0x104] != 0xce) {
 		unsigned long tmp = gbs->romsize;
 		int i;
 		uint8_t rom_size = 0;
 		uint8_t chksum = 0x19;
+
+		gbs_add_rom_replayer(gbs);
 
 		while (tmp > 32768) {
 			rom_size++;
@@ -637,7 +740,7 @@ static struct gbs* gbs_new(char *buf)
 	return gbs;
 }
 
-const uint8_t *gbs_get_bootrom()
+const uint8_t *gbs_get_bootrom(void)
 {
 	static uint8_t bootrom[256];
 	char *bootname = NULL;
@@ -1088,7 +1191,7 @@ static struct gbs *vgm_open(const char* const name, char* const buf, size_t size
 static struct gbs* gbs_open_internal(const char* const name, char* const buf, size_t size)
 {
 	struct gbs* const gbs = gbs_new(buf);
-	long i, addr, jpaddr;
+	long i;
 
 	UNUSED(name);
 
@@ -1186,58 +1289,9 @@ static struct gbs* gbs_open_internal(const char* const name, char* const buf, si
 	gbs->rom[0x58] = 0xd9; /* reti (Serial) */
 	gbs->rom[0x60] = 0xd9; /* reti (Joypad) */
 
-	/* In case this is dumped as a ROM */
-	gbs->rom[0x0100] = 0x00; /* nop */
-	gbs->rom[0x0101] = 0xc3; /* jp */
-	gbs->rom[0x0102] = 0x150 & 0xff;
-	gbs->rom[0x0103] = 0x150 >> 8;
-
-	addr = 0x150;
-	gbs->rom[addr++] = 0x21;  /* LD hl */
-	gbs->rom[addr++] = gbs->stack & 0xff;
-	gbs->rom[addr++] = gbs->stack >> 8;
-	gbs->rom[addr++] = 0xf9;  /* LD sp, hl */
-
-	gbs->rom[addr++] = 0x3e;  /* LD a, imm8 */
-	gbs->rom[addr++] = gbs->tma;
-	gbs->rom[addr++] = 0xe0;  /* LDH (a8), A */
-	gbs->rom[addr++] = 0x06;  /* TMA reg */
-
-	gbs->rom[addr++] = 0x3e;  /* LD a, imm8 */
-	gbs->rom[addr++] = gbs->tac;
-	gbs->rom[addr++] = 0xe0;  /* LDH (a8), A */
-	gbs->rom[addr++] = 0x07;  /* TAC reg */
-
-	gbs->rom[addr++] = 0x26;  /* LD h, imm8 */
-	gbs->rom[addr++] = 0x20;
-	gbs->rom[addr++] = 0x36;  /* LD (HL), imm8 */
-	gbs->rom[addr++] = gbs->defaultbank;
-
-	/*
-	 * Call init function while interrupts are still disabled,
-	 * otherwise nightmode.gbs breaks. This is per spec:
-	 * "PLAY - Begins after INIT process is complete"
-	 */
-	gbs->rom[addr++] = 0x3e; /* LD a, imm8 */
-	gbs->rom[addr++] = 0x00; /* first song */
-	gbs->rom[addr++] = 0xcd; /* call imm16 */
-	gbs->rom[addr++] = gbs->init & 0xff;
-	gbs->rom[addr++] = gbs->init >> 8;
-	/* Enable interrupts now */
-	gbs->rom[addr++] = 0x3e;  /* LD a, imm8 */
-	gbs->rom[addr++] = 0x05;  /* enable vblank + timer */
-	gbs->rom[addr++] = 0xe0;  /* LDH (a8), A */
-	gbs->rom[addr++] = 0xff;  /* IE reg */
-
-	jpaddr = addr;
-	gbs->rom[addr++] = 0x76; /* halt */
-	gbs->rom[addr++] = 0xc3; /* jp @loop */
-	gbs->rom[addr++] = jpaddr & 0xff;
-	gbs->rom[addr++] = jpaddr >> 8;
-
-	if (gbs->load < addr) {
+	if (gbs->load < 0x61) {
 		fprintf(stderr, _("Load address %04x overlaps with replayer end %04x.\n"),
-			gbs->load, addr);
+			gbs->load, 0x61);
 		gbs_free(gbs);
 		return NULL;
 	}

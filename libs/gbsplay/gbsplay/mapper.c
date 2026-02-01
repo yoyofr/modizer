@@ -1,3 +1,11 @@
+/*
+ * gbsplay is a Gameboy sound player
+ *
+ * 2020-2022 (C) by Tobias Diedrich <ranma+gbsplay@tdiedrich.de>
+ *
+ * Licensed under GNU GPL v1 or, at your option, any later version.
+ */
+
 #include <stdlib.h>
 #include <assert.h>
 
@@ -245,4 +253,8 @@ struct mapper *mapper_gb(struct gbcpu *gbcpu, const uint8_t *rom, size_t size, u
 
 void mapper_free(struct mapper *m) {
 	free(m);
+}
+
+void mapper_init(struct mapper *m) {
+	memset(m->ram, 0, sizeof(m->ram));
 }

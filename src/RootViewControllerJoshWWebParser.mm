@@ -964,6 +964,110 @@ int joshw_subsites_size=sizeof(joshw_subsites)/sizeof(t_joshw_entry);
 #pragma mark -
 #pragma mark Table view delegate
 
+- (void) primaryActionTapped: (UIButton*) sender {
+    //NSIndexPath *indexPath = [tableView indexPathForRowAtPoint:[sender convertPoint:CGPointZero toView:self.tableView]];
+    NSNumber *value=(NSNumber*)[dictActionBtn objectForKey:[[sender.description componentsSeparatedByString:@";"] firstObject] ];
+    if (value==NULL) return;
+    NSIndexPath *indexPath=[NSIndexPath indexPathForRow:(value.longValue/100) inSection:(value.longValue%100)];
+    
+    [tableView selectRowAtIndexPath:indexPath animated:FALSE scrollPosition:UITableViewScrollPositionNone];
+    
+    [self showWaiting];
+    [self flushMainLoop];
+    
+    {
+        t_WEB_browse_entry *cur_db_entries;
+        cur_db_entries=(search_dbWEB?search_dbWEB_entries:dbWEB_entries);
+        
+        if (cur_db_entries[indexPath.row].isFile) { //FILE
+            //File selected, start download is needed
+            NSString *localPath=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@",cur_db_entries[indexPath.row].fullpath];
+            
+            if (cur_db_entries[indexPath.row].downloaded==1) {
+                NSMutableArray *array_label = [[NSMutableArray alloc] init];
+                NSMutableArray *array_path = [[NSMutableArray alloc] init];
+                [array_label addObject:cur_db_entries[indexPath.row].label];
+                [array_path addObject:cur_db_entries[indexPath.row].fullpath];
+                cur_db_entries[indexPath.row].rating=-1;
+                [detailViewController play_listmodules:array_label start_index:0 path:array_path];
+                if ([detailViewController.mplayer isPlaying]) [self showMiniPlayer];
+                
+                [tableView reloadData];
+                [tableView layoutIfNeeded];
+            } else {
+                [self checkCreate:[localPath stringByDeletingLastPathComponent]];
+                
+                if (settings[ONLINE_JOSHW_IMG_GRABBER].detail.mdz_switch.switch_value) {
+                    //try to get a cover
+                    dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void){
+                        //[self getImgfromImgGrabber:cur_db_entries[indexPath.row].label label:cur_db_entries[indexPath.row].label fullpath:cur_db_entries[indexPath.row].fullpath];
+                        [self.scrapper getImgfromImgGrabber:img_grabber_url search_label:cur_db_entries[indexPath.row].label label:cur_db_entries[indexPath.row].label fullpath:cur_db_entries[indexPath.row].fullpath completion:^{
+                            [detailViewController checkNewCover];
+                            [tableView reloadData];
+                            if (miniplayerVC) [self updateMiniPlayer];
+                        }];
+                    });
+                }
+
+                
+                [downloadViewController addURLToDownloadList:cur_db_entries[indexPath.row].URL fileName:cur_db_entries[indexPath.row].label filePath:cur_db_entries[indexPath.row].fullpath filesize:-1 isMODLAND:1 usePrimaryAction:1];
+                
+            }
+        }
+        
+    }
+    
+    [self hideWaiting];
+    
+    
+}
+- (void) secondaryActionTapped: (UIButton*) sender {
+    //NSIndexPath *indexPath = [tableView indexPathForRowAtPoint:[sender convertPoint:CGPointZero toView:self.tableView]];
+    NSNumber *value=(NSNumber*)[dictActionBtn objectForKey:[[sender.description componentsSeparatedByString:@";"] firstObject] ];
+    if (value==NULL) return;
+    NSIndexPath *indexPath=[NSIndexPath indexPathForRow:(value.longValue/100) inSection:(value.longValue%100)];
+    
+    [tableView selectRowAtIndexPath:indexPath animated:FALSE scrollPosition:UITableViewScrollPositionNone];
+    
+    [self showWaiting];
+    [self flushMainLoop];
+    
+    t_WEB_browse_entry *cur_db_entries;
+    cur_db_entries=(search_dbWEB?search_dbWEB_entries:dbWEB_entries);
+    
+    if (cur_db_entries[indexPath.row].isFile) { //FILE
+        //File selected, start download is needed
+        NSString *localPath=[[ModizFileHelper getAppHomeDirectory] stringByAppendingFormat:@"/%@",cur_db_entries[indexPath.row].fullpath];
+        mClickedPrimAction=2;
+        
+        if (cur_db_entries[indexPath.row].downloaded==1) {
+            //add to playlist
+            [self addToPlaylistSelView:cur_db_entries[indexPath.row].fullpath label:cur_db_entries[indexPath.row].label showNowListening:true];
+            
+            cur_db_entries[indexPath.row].rating=-1;
+            [tableView reloadData];
+            [tableView layoutIfNeeded];
+        } else {
+            [self checkCreate:[localPath stringByDeletingLastPathComponent]];
+            
+            if (settings[ONLINE_JOSHW_IMG_GRABBER].detail.mdz_switch.switch_value) {
+                //try to get a cover
+                dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void){
+                    //[self getImgfromImgGrabber:cur_db_entries[indexPath.row].label label:cur_db_entries[indexPath.row].label fullpath:cur_db_entries[indexPath.row].fullpath];
+                    [self.scrapper getImgfromImgGrabber:img_grabber_url search_label:cur_db_entries[indexPath.row].label label:cur_db_entries[indexPath.row].label fullpath:cur_db_entries[indexPath.row].fullpath completion:^{
+                        [detailViewController checkNewCover];
+                        [tableView reloadData];
+                        if (miniplayerVC) [self updateMiniPlayer];
+                    }];
+                });
+            }
+            
+            [downloadViewController addURLToDownloadList:cur_db_entries[indexPath.row].URL fileName:cur_db_entries[indexPath.row].label filePath:cur_db_entries[indexPath.row].fullpath filesize:-1 isMODLAND:1 usePrimaryAction:mClickedPrimAction];
+        }
+    }
+    [self hideWaiting];
+}
+
 - (void)tableView:(UITableView *)tabView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     t_WEB_browse_entry *cur_db_entries;
     cur_db_entries=(search_dbWEB?search_dbWEB_entries:dbWEB_entries);

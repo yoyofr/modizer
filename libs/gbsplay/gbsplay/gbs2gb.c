@@ -1,7 +1,7 @@
 /*
  * gbsplay is a Gameboy sound player
  *
- * 2003-2021 (C) by Tobias Diedrich <ranma+gbsplay@tdiedrich.de>
+ * 2003-2025 (C) by Tobias Diedrich <ranma+gbsplay@tdiedrich.de>
  *                  Christian Garbs <mitch@cgarbs.de>
  *
  * Licensed under GNU GPL v1 or, at your option, any later version.
@@ -24,12 +24,13 @@ uint8_t logo_data[0x30];
 void usage(long exitcode)
 {
 	FILE *out = exitcode ? stderr : stdout;
-	fputs(_("Usage: gbs2gb [option] <gbs-file> <out-file>\n"
+	fputs(_("Usage: gbs2gb [OPTION]... [--] GBS-FILE OUT-FILE\n"
 		"\n"
 		"Available options are:\n"
 		"  -t  rom template\n"
 		"  -h  display this help and exit\n"
-		"  -V  print version and exit\n"),
+		"  -V  print version and exit\n"
+		"  --  end options, next argument is GBS-FILE\n"),
 	      out);
 	exit(exitcode);
 }
@@ -80,7 +81,7 @@ void parseopts(int *argc, char ***argv)
 	*argv += optind;
 }
 
-void read_default_template()
+void read_default_template(void)
 {
 	const uint8_t *bootrom = gbs_internal_api.get_bootrom();
 	if (!bootrom) {

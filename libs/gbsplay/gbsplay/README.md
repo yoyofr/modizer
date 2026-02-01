@@ -30,11 +30,12 @@ the following parts:
 
 ## License
 
-```
-(C) 2003-2024 by Tobias Diedrich <ranma+gbsplay@tdiedrich.de>
+``
+(C) 2003-2025 by Tobias Diedrich <ranma+gbsplay@tdiedrich.de>
                  Christian Garbs <mitch@cgarbs.de>
                  Maximilian Rehkopf <otakon@gmx.net>
                  Vegard Nossum <vegardno@ifi.uio.no>
+                 Lisa Riedler <dev@riedler.wien>
 
 Source Code licensed under GNU GPL v1 or, at your option, any later version.
 
@@ -59,4 +60,4 @@ File:       crc32.c
 Copyright:  Provided to GNUnet by peter@horizon.com
 License:    Public Domain
 Homepage:   n/a
-```
+``

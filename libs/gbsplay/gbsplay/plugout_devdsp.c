@@ -83,7 +83,7 @@ static ssize_t devdsp_write(const void *buf, size_t count)
 	return write(fd, buf, count);
 }
 
-static void devdsp_close()
+static void devdsp_close(void)
 {
 	(void)close(fd);
 }

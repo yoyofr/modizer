@@ -1,15 +1,16 @@
-.\" This manpage 2003-2024 (C) by Christian Garbs <mitch@cgarbs.de>
+.\" This manpage 2003-2025 (C) by Christian Garbs <mitch@cgarbs.de>
 .\" Licensed under GNU GPL v1 or, at your option, any later version.
-.TH "GBSPLAY" "1" "%%%VERSION%%%" "Tobias Diedrich" "Gameboy sound player"
+.TH "XGBSPLAY" "1" "%%%VERSION%%%" "Tobias Diedrich" "Gameboy sound player"
 .SH "NAME"
-gbsplay \- Gameboy sound player
+xgbsplay \- X11 frontent to Gameboy sound player
 .SH "SYNOPSIS"
-.B gbsplay
-.RI [ options ]
-.I gbs\-file
-.RI [ start\-subsong " [" stop\-subsong "] ]"
+.B xgbsplay
+.RI [ OPTION ]...
+.RI [ -- ]
+.I GBS\-FILE
+.RI [ START\-AT\-SUBSONG " [" STOP\-AFTER\-SUBSONG "] ]"
 .SH "DESCRIPTION"
-.B gbsplay
+.B xgbsplay
 emulates the sound hardware of the Nintendo Gameboy.
 It is able to play the sounds from a Gameboy module dump (.GBS format) over
 .I /dev/dsp
@@ -44,10 +45,14 @@ Valid values are
 Default value is dmg.
 .TP
 .B -l
-Enable loop mode.
-After the last subsong has been played,
-playback starts again with the first subsong.
-Default is no loop.
+Set loop mode to
+.B range
+(see \fILOOP MODES\fP below).
+.TP
+.B -L
+Set loop mode to
+.B single
+(see \fILOOP MODES\fP below).
 .TP
 .BI -o " plugin"
 Select sound output plugin \fIplugin\fP.
@@ -110,28 +115,112 @@ Mute channel 3 on start.
 .B -4
 Mute channel 4 on start.
 .TP
-.I gbs\-file
+.B \-\-
+Marks the end of options.
+The next argument will be treated as a filename, even when starting with a
+.BR \- .
+.TP
+.I GBS\-FILE
 The sound file to play.
 Must be in uncompressed .GBS format.
 .TP
-.I start\-subsong
+.I START\-AT\-SUBSONG
 The subsong from the sound file to play first.
 If not specified, the default song declared in the sound file will be played
 unless shuffle (\fI-z\fP) or random mode (\fI-Z\fP) are active.
 An out\-of\-bounds number will be clipped to the possible range of subsongs.
 .TP
-.I stop\-subsong
-.B gbsplay
-exits after this subsong has been played.
-If not specified or out\-of\-bounds,
-.B gbsplay
-will exit after playing the last subsong,
-unless in loop mode (\fI-l\fP).
+.I STOP\-AFTER\-SUBSONG
+The last subsong to be played.
+See \fILOOP MODES\fP below for further details.
+.SH "KEYBOARD CONTROL"
+.B xgbsplay
+supports basic keyboard control.
+The following commands are recognized:
+.TP
+.B p
+Skip to the previous subsong.
+.TP
+.B n
+Skip to the next subsong.
+.TP
+.BR q " or " Esc
+Quit \fBxgbsplay\fP.
+.TP
+.B Space
+Toggle play/pause.
+.TP
+.B 1
+Mute/unmute channel 1.
+.TP
+.B 2
+Mute/unmute channel 2.
+.TP
+.B 3
+Mute/unmute channel 3.
+.TP
+.B 4
+Mute/unmute channel 4.
+.TP
+.B l
+Cycle through the available loop modes.
+See \fILOOP MODES\fP below for further details.
+.SH "LOOP MODES"
+.B xgbsplay
+supports different loop modes that govern what happens when a subsong has finished playing.
+The default loop mode is
+.BR none .
+When multiple loop modes are set,
+the last mode set wins.
+The term
+.I first subsong
+refers to the parameter
+.I START\-AT\-SUBSONG
+if it is set,
+or the first subsong in the file otherwise.
+The term
+.I next subsong
+refers to next subsong in numerical order
+unless shuffle mode
+.RI ( -z )
+or random mode
+.RI ( -Z )
+are active.
+The term
+.I last subsong
+refers to the parameter
+.I STOP\-AFTER\-SUBSONG
+if it is set and not out-of-bounds,
+or the last subsong in the file otherwise.
+.TP
+.B none
+When a subsong has finished playing,
+the next subsong will start to play.
+When the last subsong has finished playing,
+.B xgbsplay
+will exit.
+.TP
+.B range
+When a subsong has finished playing,
+the next subsong will start to play.
+When the last subsong has finished playing,
+the fist subsong will start to play again.
+.TP
+.B single
+When a subsong has finished playing,
+the same subsong will start to play again.
+The
+.I STOP\-AFTER\-SUBSONG
+parameter will be ignored as no subsong change can occur.
+The 
+.I subsong\-timeout
+parameter will be ignored as well,
+allowing the selected subsong to play endlessly without any forced restarts.
 .SH "OUTPUT PLUGINS"
 Output plugins are sometimes called \fIplugouts\fP because that's shorter,
 so don't be confused.
 Not all of the plugins listed here may be available,
-see `\fIgbsplay\ -o\ list\fP'.
+see `\fIxgbsplay\ -o\ list\fP'.
 .TP
 .B alsa
 Use the ALSA sound driver for sound output.
@@ -224,10 +313,10 @@ If you encounter bugs, please report them via
 .SH "AUTHORS"
 .B gbsplay
 was written by Tobias Diedrich <\fIranma+gbsplay@tdiedrich.de\fP>
-(with contributions from others, see README).
+(with contributions from others, see README.md).
 .SH "COPYRIGHT"
 .B gbsplay
-is licensed under GNU GPL.
+is licensed under GNU GPL v1 or, at your option, any later version.
 .SH "SEE ALSO"
 .BR gbsplay (1),
 .BR gbsinfo (1),

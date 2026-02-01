@@ -125,7 +125,7 @@ int fpackat(FILE *f, long offset, const char *fmt, ...)
 	return written;
 }
 
-test void test_spack()
+test void test_spack(void)
 {
 	uint8_t want[] = { 0x20, 1, 2, 0, 3, 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0,
 	                   0x31, 1, 0, 2, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 4 };
@@ -182,7 +182,7 @@ void shuffle_long(long *array, long elements)
 	}
 }
 
-test void test_shuffle()
+test void test_shuffle(void)
 {
 	long actual[]   = { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
 	long expected[] = { 6, 8, 2, 7, 3, 4, 5, 9, 1 };

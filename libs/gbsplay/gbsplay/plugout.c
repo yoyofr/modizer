@@ -53,9 +53,11 @@ extern const struct output_plugin plugout_vgm;
 #ifdef PLUGOUT_WAV
 extern const struct output_plugin plugout_wav;
 #endif
+//YOYOFR
 #ifdef PLUGOUT_MODIZER
 extern const struct output_plugin plugout_modizer;
 #endif
+//YOYOFR
 
 typedef const struct output_plugin* output_plugin_const_t;
 
@@ -100,9 +102,11 @@ static output_plugin_const_t plugouts[] = {
 #ifdef PLUGOUT_WAV
 	&plugout_wav,
 #endif
+    //YOYOFR
 #ifdef PLUGOUT_MODIZER
     &plugout_modizer,
 #endif
+    //YOYOFR
 	NULL
 };
 

@@ -1,0 +1,52 @@
+.\" This manpage 2025 (C) by Christian Garbs <mitch@cgarbs.de>
+.\" Licensed under GNU GPL v1 or, at your option, any later version.
+.TH "GBS2GB" "1" "%%%VERSION%%%" "Tobias Diedrich" "Gameboy sound player"
+.SH "NAME"
+gbs2gb \- convert module dumps from GBS to GB format
+.SH "SYNOPSIS"
+.B gbs2gb
+.RI [ OPTION ]...
+.RI [ -- ]
+.I GBS\-FILE
+.I OUT\-FILE
+.SH "DESCRIPTION"
+gbs2gb converts a Gameboy module dump in .GBS format to .GB format.
+
+This is a developer tool to make .GBS files playable on real hardware.
+.SH "OPTIONS"
+.TP
+.B \-h
+Display short help and exit.
+.TP
+.B \-V
+Display version number and exit.
+.TP
+.B \-\-
+Marks the end of options.
+The next argument will be treated as GBS-FILE, even when starting with a
+.BR \- .
+.TP
+.BI \-t " rom-template"
+Read the rom template from file \fIrom-template\fP.
+Default is to use the boot rom of the \fIGBS\-FILE\fP if available.
+The conversion will fail if neither \fIrom-template\fP nor
+\fIGBS\-FILE\fP can provide a rom template.
+.TP
+.I GBS\-FILE
+The sound file to read.
+Must be in uncompressed .GBS format.
+.TP
+.I OUT\-FILE
+The converted file to write.
+Will be in .GB format.
+An existing file will be overwritten.
+.SH "BUGS"
+If you encounter bugs, please report them via
+.I https://github.com/mmitch/gbsplay/issues
+.SH "AUTHORS"
+gbs2gb was written by Tobias Diedrich <\fIranma+gbsplay@tdiedrich.de\fP>
+(with contributions from others, see README.md).
+.SH "COPYRIGHT"
+gbs2gb is licensed under GNU GPL v1 or, at your option, any later version.
+.SH "SEE ALSO"
+.BR gbsplay (1)

@@ -16,8 +16,8 @@
 
 extern int note[4];
 
-extern int  midi_file_error();
-extern int  midi_file_is_closed();
+extern int  midi_file_error(void);
+extern int  midi_file_is_closed(void);
 extern void midi_update_mute(const struct gbs_channel_status status[]);
 
 extern void midi_note_on(cycles_t cycles, int channel, int new_note, int velocity);

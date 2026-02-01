@@ -1,7 +1,7 @@
 /*
  * gbsplay is a Gameboy sound player
  *
- * 2003-2021 (C) by Tobias Diedrich <ranma+gbsplay@tdiedrich.de>
+ * 2003-2025 (C) by Tobias Diedrich <ranma+gbsplay@tdiedrich.de>
  *                  Christian Garbs <mitch@cgarbs.de>
  *
  * Licensed under GNU GPL v1 or, at your option, any later version.
@@ -25,11 +25,12 @@ void usage(long exitcode)
 {
         FILE *out = exitcode ? stderr : stdout;
         fprintf(out,
-                _("Usage: %s [option] <gbs-file>\n"
+                _("Usage: %s [OPTION]... [--] <GBS-FILE>\n"
 		  "\n"
 		  "Available options are:\n"
 		  "  -h  display this help and exit\n"
-		  "  -V  print version and exit\n"),
+		  "  -V  print version and exit\n"
+		  "  --  end options, next argument is GBS-FILE\n"),
                 myname);
         exit(exitcode);
 }

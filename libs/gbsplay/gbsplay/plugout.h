@@ -26,8 +26,8 @@
 #  define PLUGOUT_DEFAULT "alsa"
 #elif PLUGOUT_SDL == 1
 #  define PLUGOUT_DEFAULT "sdl"
-#elif PLUGOUT_MODIZER == 1
-#  define PLUGOUT_DEFAULT "modizer"
+#elif PLUGOUT_MODIZER == 1          //YOYOFR
+#  define PLUGOUT_DEFAULT "modizer"  //YOYOFR
 #else
 #  define PLUGOUT_DEFAULT "oss"
 #endif

@@ -85,7 +85,7 @@ int32_t *gen_impulsetab(long w_shift, long n_shift, double cutoff)
 	return pulsetab;
 }
 
-test void test_gen_impulsetab()
+test void test_gen_impulsetab(void)
 {
 	const long n_shift = 3;
 	const long w_shift = 5;

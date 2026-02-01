@@ -474,7 +474,7 @@ bool CSoundFile::MixChannel(int count, ModChannel &chn, CHANNELINDEX channel, bo
                 
                 //TODO:  MODIZER changes start / YOYOFR
                 for (int ii=0;ii<nSmpCount;ii++) {
-                    m_voice_buff_accumul_temp[0][ii&(SOUND_BUFFER_SIZE_SAMPLE-1)]=(pbuffer[ii*2]+pbuffer[ii*2+1]);
+                    m_voice_buff_accumul_temp[0][ii&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=(pbuffer[ii*2]+pbuffer[ii*2+1]);
                 }
                 //TODO:  MODIZER changes end / YOYOFR
                 
@@ -491,8 +491,10 @@ bool CSoundFile::MixChannel(int count, ModChannel &chn, CHANNELINDEX channel, bo
                     if (chn_idx<SOUND_MAXVOICES_BUFFER_FX) {
                         int val;
                         for (int ii=0;ii<nSmpCount;ii++) {
-                            val=(pbuffer[ii*2]+pbuffer[ii*2+1])-m_voice_buff_accumul_temp[0][ii&(SOUND_BUFFER_SIZE_SAMPLE-1)];
-                            m_voice_buff[chn_idx][((m_voice_current_ptr[chn_idx]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT) + count-nsamples + ii)&(SOUND_BUFFER_SIZE_SAMPLE-1)]=LIMIT8( (val>>19)*0.7 );
+                            val=(pbuffer[ii*2]+pbuffer[ii*2+1])-m_voice_buff_accumul_temp[0][ii&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)];
+                            m_voice_buff[chn_idx][((m_voice_current_ptr[chn_idx]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT))&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8( (val>>19)*0.7 );
+                            m_voice_current_ptr[chn_idx]+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+//                            m_voice_buff[chn_idx][((m_voice_current_ptr[chn_idx]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT) + count-nsamples + ii)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8( (val>>19)*0.7 );
                         }
                     }
                 //TODO:  MODIZER changes end / YOYOFR
@@ -566,7 +568,7 @@ bool CSoundFile::MixChannel(int count, ModChannel &chn, CHANNELINDEX channel, bo
 				chn.nLoopEnd = chn.nLength = chn.pModSample->nLoopEnd;
 			}
 		} while(nsamples > 0);
-
+        
 		// Restore sample pointer in case it got changed through loop wrap-around
 		chn.pCurrentSample = mixLoopState.samplePointer;
 	

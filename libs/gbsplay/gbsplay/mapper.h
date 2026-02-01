@@ -19,5 +19,6 @@ struct mapper *mapper_gbr(struct gbcpu *gbcpu, const uint8_t *rom, size_t size, 
 struct mapper *mapper_gb(struct gbcpu *gbcpu, const uint8_t *rom, size_t size, uint8_t cart_type, uint8_t rom_type, uint8_t ram_type);
 void mapper_lockout(struct mapper *m);
 void mapper_free(struct mapper *m);
+void mapper_init(struct mapper *m);
 
 #endif

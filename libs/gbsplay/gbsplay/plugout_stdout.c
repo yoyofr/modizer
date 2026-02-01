@@ -16,7 +16,7 @@
 
 int fd;
 
-static int set_fd_to_binmode()
+static int set_fd_to_binmode(void)
 {
 	// skip this on POSIX, as there are no text and binary modes
 #ifdef HAVE_SETMODE
@@ -54,7 +54,7 @@ static ssize_t stdout_write(const void *buf, size_t count)
 	return write(fd, buf, count);
 }
 
-static void stdout_close()
+static void stdout_close(void)
 {
 	(void)close(fd);
 }

@@ -1,13 +1,14 @@
-.\" This manpage 2003-2024 (C) by Christian Garbs <mitch@cgarbs.de>
+.\" This manpage 2003-2025 (C) by Christian Garbs <mitch@cgarbs.de>
 .\" Licensed under GNU GPL v1 or, at your option, any later version.
 .TH "GBSPLAY" "1" "%%%VERSION%%%" "Tobias Diedrich" "Gameboy sound player"
 .SH "NAME"
 gbsplay \- Gameboy sound player
 .SH "SYNOPSIS"
 .B gbsplay
-.RI [ options ]
-.I gbs\-file
-.RI [ start\-subsong " [" stop\-subsong "] ]"
+.RI [ OPTION ]...
+.RI [ -- ]
+.I GBS\-FILE
+.RI [ START\-AT\-SUBSONG " [" STOP\-AFTER\-SUBSONG "] ]"
 .SH "DESCRIPTION"
 .B gbsplay
 emulates the sound hardware of the Nintendo Gameboy.
@@ -115,17 +116,22 @@ Mute channel 3 on start.
 .B -4
 Mute channel 4 on start.
 .TP
-.I gbs\-file
+.B \-\-
+Marks the end of options.
+The next argument will be treated as a filename, even when starting with a
+.BR \- .
+.TP
+.I GBS\-FILE
 The sound file to play.
 Must be in uncompressed .GBS format.
 .TP
-.I start\-subsong
+.I START\-AT\-SUBSONG
 The subsong from the sound file to play first.
 If not specified, the default song declared in the sound file will be played
 unless shuffle (\fI-z\fP) or random mode (\fI-Z\fP) are active.
 An out\-of\-bounds number will be clipped to the possible range of subsongs.
 .TP
-.I stop\-subsong
+.I STOP\-AFTER\-SUBSONG
 The last subsong to be played.
 See \fILOOP MODES\fP below for further details.
 .SH "KEYBOARD CONTROL"
@@ -156,6 +162,10 @@ Mute/unmute channel 3.
 .TP
 .B 4
 Mute/unmute channel 4.
+.TP
+.B l
+Cycle through the available loop modes.
+See \fILOOP MODES\fP below for further details.
 .SH "LOOP MODES"
 .B gbsplay
 supports different loop modes that govern what happens when a subsong has finished playing.
@@ -166,7 +176,7 @@ the last mode set wins.
 The term
 .I first subsong
 refers to the parameter
-.I start\-subsong
+.I START\-AT\-SUBSONG
 if it is set,
 or the first subsong in the file otherwise.
 The term
@@ -180,7 +190,7 @@ are active.
 The term
 .I last subsong
 refers to the parameter
-.I stop\-subsong
+.I STOP\-AFTER\-SUBSONG
 if it is set and not out-of-bounds,
 or the last subsong in the file otherwise.
 .TP
@@ -201,7 +211,7 @@ the fist subsong will start to play again.
 When a subsong has finished playing,
 the same subsong will start to play again.
 The
-.I stop\-subsong
+.I STOP\-AFTER\-SUBSONG
 parameter will be ignored as no subsong change can occur.
 The 
 .I subsong\-timeout

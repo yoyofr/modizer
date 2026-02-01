@@ -4,7 +4,7 @@
 #
 # generate config.mk for gbsplay Makefile
 #
-# 2003-2024 (C) by Christian Garbs <mitch@cgarbs.de>
+# 2003-2025 (C) by Christian Garbs <mitch@cgarbs.de>
 #                  Tobias Diedrich <ranma+gbsplay@tdiedrich.de>
 #
 # Licensed under GNU GPL v1 or, at your option, any later version.
@@ -52,6 +52,9 @@ hostalias=
 windows_build=
 windows_libprefix=
 
+EXTRA_INCLUDEDIRS_TO_CHECK=
+EXTRA_LIBDIRS_TO_CHECK=
+
 ## define sane environment
 unset LC_ALL LC_CTYPE LC_NUMERIC LC_TIME LC_COLLATE LC_MONETARY \
       LC_MESSAGES LC_PAPER LC_NAME LC_ADDRESS LC_TELEPHONE      \
@@ -61,7 +64,7 @@ export LANG
 
 ## set default version number to unknown
 # will be overwritten on git build or tar.gz export using 'make dist'
-VERSION=unknown
+VERSION=0.0.102
 
 ##### begin of subroutines
 
@@ -80,11 +83,28 @@ die()
     exit 1
 }
 
+## guesstimate most recent gbsplay release
+get_version_from_history()
+{
+    local date dash version
+    while read -r date dash version _; do
+	if [ "$dash" = - ] \
+	       &&[[ $date =~ ^[0-9]{4}/[0-9]{2}/[0-9]{2} ]] \
+	       && [[ $version =~ [0-9]+.[0-9]+.[0-9]+ ]]; then
+	    # fix linebreaks on MSYS and MINGW builds - yuck!
+	    version=$(echo "${version}" | tr -d $'\r')
+	    echo "${version}ish"
+	    return
+	fi
+    done < HISTORY
+    echo "undetermined"
+}
+
 ## check for presense of include files
 check_include()
 {
     local include="$1"
-    local includedirs="${2-} /usr/local/include /opt/local/include"
+    local includedirs="${2-} /usr/local/include /opt/local/include ${EXTRA_INCLUDEDIRS_TO_CHECK}"
     local extraline="${3-}"
     local includename="$(echo "$include" | sed -e 's@[/\.-]@_@g')"
     eval "value=\${have_${includename}-}"
@@ -115,7 +135,7 @@ find_lib()
     local INFILE="$TEMPDIR/fl.c"
     local lib="$1"
     local libname="$(echo "$lib" | sed -e 's@[/\.-]@_@g')"
-    local libdirs="${2-} /usr/local/lib /opt/local/lib"
+    local libdirs="${2-} /usr/local/lib /opt/local/lib ${EXTRA_LIBDIRS_TO_CHECK}"
 
     cat > "$INFILE"
 
@@ -622,6 +642,8 @@ case "$BUILDOS" in
     Darwin)
         setdefault build_test yes
         append_nodupe CFLAGS "-D_DARWIN_C_SOURCE=1"
+        EXTRA_INCLUDEDIRS_TO_CHECK=/opt/homebrew/include
+        EXTRA_LIBDIRS_TO_CHECK=/opt/homebrew/lib
         ;;
 
     MSYS_*)
@@ -648,17 +670,25 @@ if [ -n "$buildalias" ] && [ "$buildalias" != "$hostalias" ]; then
     build_test=no
 fi
 
-# determine version that is built
+## determine version that is built
 
 if [ -f .git/HEAD ]; then
     # from git if the build happens in a repository
-    VERSION=$(git describe --tags)
+    if ! VERSION=$(git describe --tags); then
+	# no tags available (we might be in a GitHub CI build), so cobble something together
+	if ! gitversion=$(git describe --tags --always); then
+	    # we might be in a GitHub CI build where no git command is available (eg. the FreeBSD build VM)
+	    if [ "$GITHUB_SHA" ]; then
+		gitversion="${GITHUB_SHA::7}"
+	    else
+		gitversion="unknown"
+	    fi
+	fi
+	VERSION="$(get_version_from_history)-git-${gitversion}"
+    fi
 elif [ "$VERSION" = unknown ]; then
     # get a rough version number based on HISTORY file
-    VERSION="$(
-	grep -E '^[0-9]{4}/[0-9]{2}/[0-9]{2}  -  [0-9]+.[0-9]+.[0-9]+' HISTORY \
-	    | sed -n '1{s/^.*  -  //;s/ .*//;p}'
-	)ish"
+    VERSION="$(get_version_from_history)"
 fi
 echo "configure gbsplay $VERSION"
 
@@ -1346,7 +1376,7 @@ __EOF__
 ) > config.h
 
 (
-    echo "s/%%%VERSION%%%/$VERSION/g"
+    echo "s|%%%VERSION%%%|$VERSION|g"
 ) > config.sed
 
 # show configuration if verbose
