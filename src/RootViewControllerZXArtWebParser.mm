@@ -76,9 +76,9 @@ int qsortZXArt_entries_rating_or_entries(const void *entryA, const void *entryB)
 
 -(void) pushRadioButton {
     if ([detailViewController.radioSource isActive]&&(detailViewController.radioSource.mRadioSource==RS_COLLECTION_ZXART)) {
+        [detailViewController.radioSource stop];
         [detailViewController stop];
         [detailViewController clearQueue];
-        [detailViewController.radioSource stop];
         [radioButton setTitleColor:[UIColor grayColor] forState:UIControlStateNormal];
     } else {
         [detailViewController.radioSource stop];

@@ -3626,10 +3626,10 @@ int recording=0;
     
     //if not radio mode, stop radio
     if ([radioSource isActive]) {
-        [self stop];
-        [self clearQueue];
         [radioSource stop];
         if (bShowRadio) [self showRadioPopup];
+        [self stop];
+        [self clearQueue];
     }
     
     if (mPlaylist_size+add_entries_nb>=MAX_PL_ENTRIES) {
@@ -3722,10 +3722,10 @@ int recording=0;
     
     //if not radio mode, stop radio
     if ([radioSource isActive]) {
-        [self stop];
-        [self clearQueue];
         [radioSource stop];
         if (bShowRadio) [self showRadioPopup];
+        [self stop];
+        [self clearQueue];
     }
     
     

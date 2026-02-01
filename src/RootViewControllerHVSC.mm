@@ -76,9 +76,9 @@ extern volatile t_settings settings[MAX_SETTINGS];
 
 -(void) pushRadioButton {
     if ([detailViewController.radioSource isActive]&&(detailViewController.radioSource.mRadioSource==RS_COLLECTION_HVSC)) {
+        [detailViewController.radioSource stop];
         [detailViewController stop];
         [detailViewController clearQueue];
-        [detailViewController.radioSource stop];
         [radioButton setTitleColor:[UIColor grayColor] forState:UIControlStateNormal];
     } else {
         [detailViewController.radioSource stop];

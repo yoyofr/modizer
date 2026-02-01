@@ -66,9 +66,9 @@ int joshw_subsites_size=sizeof(joshw_subsites)/sizeof(t_joshw_entry);
 
 -(void) pushRadioButton {
     if ([detailViewController.radioSource isActive]&&(detailViewController.radioSource.mRadioSource==RS_COLLECTION_JOSHW)) {
+        [detailViewController.radioSource stop];
         [detailViewController stop];
         [detailViewController clearQueue];
-        [detailViewController.radioSource stop];
         [self updRadioStatus];
     } else {
         [detailViewController.radioSource stop];

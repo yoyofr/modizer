@@ -1555,9 +1555,6 @@ extern int joshw_subsites_size;
                         }
                     }
                 }
-                if (fileModURL) {
-                    fileModURL=[NSString stringWithFormat:@"https://amp.dascene.net/%@",[el objectForKey:@"href"]];
-                }
                 if ([composer length] && [fileModURL length]) {
                     mRetryCount=0;
                     [self downloadFileFromURL:fileModURL rSource:RS_COLLECTION_AMP slot:slot path:composer filename:nil];
@@ -1696,9 +1693,6 @@ extern int joshw_subsites_size;
                                     break;
                                 }
                             }
-                        }
-                        if (fileModURL) {
-                            fileModURL=[NSString stringWithFormat:@"https://amp.dascene.net/%@",[el objectForKey:@"href"]];
                         }
                         
                         if ([composer length] && [fileModURL length]) {

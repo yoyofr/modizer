@@ -2037,7 +2037,7 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FX3DLandscapeBloom].detail.mdz_switch.switch_default_value=0;
     settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_default_value=0;
     settings[GLOB_FXCover].detail.mdz_boolswitch.switch_default_value=0;
-    settings[GLOB_FXCoverFillMode].detail.mdz_switch.switch_default_value=0;
+    settings[GLOB_FXCoverFillMode].detail.mdz_switch.switch_default_value=1;
     settings[GLOB_FXLOD].detail.mdz_switch.switch_default_value=2;
     settings[GLOB_FXFPS].detail.mdz_switch.switch_default_value=1;
     settings[GLOB_FXSHOWINFO].detail.mdz_switch.switch_default_value=0;

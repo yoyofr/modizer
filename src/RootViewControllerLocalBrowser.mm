@@ -1935,7 +1935,7 @@ static int shouldRestart=1;
     
     if ([detailViewController not_expected_version]==1) {
         MDZILog("change of version");
-        detailViewController.not_expected_version=0;
+        //detailViewController.not_expected_version=0;
 #if 0
         UIAlertController *alertC = [UIAlertController alertControllerWithTitle:[NSString stringWithFormat:NSLocalizedString(@"Modizer v%d.%d",@""),VERSION_MAJOR,VERSION_MINOR]
                                                                         message:NSLocalizedString(@"\

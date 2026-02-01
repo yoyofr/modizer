@@ -1275,6 +1275,7 @@ void RenderUtils::DrawOscilloMultiple(float ox,float oy,float ww,float hh,signed
     ImGui::SetNextWindowSize(ImVec2(ww*mScaleFactor,hh*mScaleFactor));
     ImGui::GetStyle().Alpha=1.0f;
     ImGui::PushStyleColor(ImGuiCol_WindowBg,ImVec4(0,0,0,0));
+    ImGui::PushStyleColor(ImGuiCol_Border,ImVec4(0,0,0,0));
     
     float fontSize=16;
     int curFontIdx=settings[OSCILLO_LabelFontSize].detail.mdz_switch.switch_value%3;
@@ -1350,6 +1351,7 @@ void RenderUtils::DrawOscilloMultiple(float ox,float oy,float ww,float hh,signed
     
     ImGui::End();
     ImGui::PopFont();
+    ImGui::PopStyleColor();
     ImGui::PopStyleColor();
     
     GLfloat line_width;
@@ -7114,6 +7116,7 @@ void RenderUtils::DrawPianoRollFX(float ox,float oy,float ww,float hh,int horiz_
     ImGui::SetNextWindowSize(ImVec2(ww*mScaleFactor,hh*mScaleFactor));
     ImGui::GetStyle().Alpha=1.0f;
     ImGui::PushStyleColor(ImGuiCol_WindowBg,ImVec4(0,0,0,0));
+    ImGui::PushStyleColor(ImGuiCol_Border,ImVec4(0,0,0,0));
     
     if (font_menu) ImGui::PushFont(font_menu,15.0f*mScaleFactor);
     else ImGui::PushFont(nullptr);
@@ -7202,6 +7205,7 @@ void RenderUtils::DrawPianoRollFX(float ox,float oy,float ww,float hh,int horiz_
     
     ImGui::End();
     ImGui::PopFont();
+    ImGui::PopStyleColor();
     ImGui::PopStyleColor();
     
     //////////////////////////////////////////////
@@ -7313,6 +7317,7 @@ void RenderUtils::DrawPianoRollSynthesiaFX(float ox,float oy,float ww,float hh,i
     ImGui::SetNextWindowSize(ImVec2(ww*mScaleFactor,hh*mScaleFactor));
     ImGui::GetStyle().Alpha=1.0f;
     ImGui::PushStyleColor(ImGuiCol_WindowBg,ImVec4(0,0,0,0));
+    ImGui::PushStyleColor(ImGuiCol_Border,ImVec4(0,0,0,0));
     
     if (font_menu) ImGui::PushFont(font_menu,15.0f*mScaleFactor);
     else ImGui::PushFont(nullptr);
@@ -8135,6 +8140,7 @@ void RenderUtils::DrawPianoRollSynthesiaFX(float ox,float oy,float ww,float hh,i
     }
     ImGui::End();
     ImGui::PopFont();
+    ImGui::PopStyleColor();
     ImGui::PopStyleColor();
     
     free(ptsB);
