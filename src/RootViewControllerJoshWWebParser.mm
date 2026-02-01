@@ -783,17 +783,19 @@ int joshw_subsites_size=sizeof(joshw_subsites)/sizeof(t_joshw_entry);
         bottomLabel.highlightedTextColor = [UIColor colorWithRed:0.2 green:0.2 blue:0.2 alpha:1.0];
     }
     
+    bottomImageView.image=nil;
+    coverImgView.image=nil;
+    
     topLabel.frame= CGRectMake(1.0 * cell.indentationWidth,
                                0,
                                tabView.bounds.size.width -1.0 * cell.indentationWidth- 32,
                                22);
-    bottomLabel.frame = CGRectMake(1.0 * cell.indentationWidth,
+    bottomLabel.frame = CGRectMake((bottomImageView.image?16:0)+1.0 * cell.indentationWidth,
                                    22,
-                                   tabView.bounds.size.width -1.0 * cell.indentationWidth-32,
+                                   -(bottomImageView.image?16:0)+tabView.bounds.size.width -1.0 * cell.indentationWidth-32,
                                    18);
     bottomLabel.text=@""; //default value
-    bottomImageView.image=nil;
-    coverImgView.image=nil;
+    
     
     cell.accessoryType = UITableViewCellAccessoryNone;
     
@@ -823,13 +825,16 @@ int joshw_subsites_size=sizeof(joshw_subsites)/sizeof(t_joshw_entry);
         
         if (cur_db_entries[indexPath.row].downloaded==1) {
             if (cur_db_entries[indexPath.row].rating==-1) {
+                signed char avg_rating;
                 DBHelper::getFileStatsDBmod(cur_db_entries[indexPath.row].fullpath,
                                             &cur_db_entries[indexPath.row].playcount,
                                             &cur_db_entries[indexPath.row].rating,
-                                            NULL,
+                                            &avg_rating,
                                             &cur_db_entries[indexPath.row].song_length,
                                             &cur_db_entries[indexPath.row].channels_nb,
                                             &cur_db_entries[indexPath.row].songs);
+                if ((cur_db_entries[indexPath.row].rating==0)&&(avg_rating>0))
+                    cur_db_entries[indexPath.row].rating=1;
             }
             if (cur_db_entries[indexPath.row].rating>0) bottomImageView.image=[UIImage imageNamed:ratingImg[RATING_IMG(cur_db_entries[indexPath.row].rating)]];
             
@@ -889,19 +894,23 @@ int joshw_subsites_size=sizeof(joshw_subsites)/sizeof(t_joshw_entry);
             coverImgView.image=[UIImage imageWithContentsOfFile:imgPath];
         }
         
+        bottomImageView.frame = CGRectMake((imgExist?35:0) +1.0*cell.indentationWidth,
+                                           24,
+                                           14,14);
+        
         topLabel.frame= CGRectMake((imgExist?35:0) +  1.0 * cell.indentationWidth,
                                    0,
                                    -(imgExist?35:0) + tabView.bounds.size.width -1.0 * cell.indentationWidth- 32-PRI_SEC_ACTIONS_IMAGE_SIZE,
                                    22);
-        bottomLabel.frame = CGRectMake((imgExist?35:0) + 1.0 * cell.indentationWidth,
+        bottomLabel.frame = CGRectMake((bottomImageView.image?16:0)+(imgExist?35:0) + 1.0 * cell.indentationWidth,
                                        22,
-                                       -(imgExist?35:0) + tabView.bounds.size.width -1.0 * cell.indentationWidth-32-PRI_SEC_ACTIONS_IMAGE_SIZE,
+                                       -(bottomImageView.image?16:0)-(imgExist?35:0) + tabView.bounds.size.width -1.0 * cell.indentationWidth-32-PRI_SEC_ACTIONS_IMAGE_SIZE,
                                        18);
         
     } else { // DIR
-        bottomLabel.frame = CGRectMake( 1.0 * cell.indentationWidth,
+        bottomLabel.frame = CGRectMake((bottomImageView.image?16:0)+ 1.0 * cell.indentationWidth,
                                        22,
-                                       tabView.bounds.size.width -1.0 * cell.indentationWidth-32-PRI_SEC_ACTIONS_IMAGE_SIZE,
+                                       -(bottomImageView.image?16:0)+tabView.bounds.size.width -1.0 * cell.indentationWidth-32-PRI_SEC_ACTIONS_IMAGE_SIZE,
                                        18);
         if (cur_db_entries[indexPath.row].URL) bottomLabel.text=cur_db_entries[indexPath.row].URL;
         topLabel.frame= CGRectMake(1.0 * cell.indentationWidth,
@@ -932,8 +941,11 @@ int joshw_subsites_size=sizeof(joshw_subsites)/sizeof(t_joshw_entry);
         NSError *err;
         DBHelper::deleteStatsFileDB(fullpath);
         cur_db_entries[indexPath.row].downloaded=0;
+        cur_db_entries[indexPath.row].img_URL=nil;
         //delete local file
         [mFileMngr removeItemAtPath:fullpath error:&err];
+        [ModizFileHelper cleanAllCoversForFile:fullpath];
+        
         //ask for a reload/redraw
         [tabView reloadData];
         

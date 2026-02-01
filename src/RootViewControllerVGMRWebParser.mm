@@ -1097,7 +1097,7 @@ int qsortVGMR_entries_rating_or_entries(const void *entryA, const void *entryB) 
         
         bottomImageView = [[UIImageView alloc] initWithImage:nil];
         bottomImageView.frame = CGRectMake((has_mini_img?35:0)+1.0*cell.indentationWidth,
-                                           22,
+                                           24,
                                            14,14);
         bottomImageView.tag = BOTTOM_IMAGE_TAG;
         bottomImageView.opaque=TRUE;
@@ -1149,18 +1149,22 @@ int qsortVGMR_entries_rating_or_entries(const void *entryA, const void *entryB) 
         bottomLabel.textColor = [UIColor colorWithRed:0.4 green:0.4 blue:0.4 alpha:1.0];
         //bottomLabel.highlightedTextColor = [UIColor colorWithRed:0.2 green:0.2 blue:0.2 alpha:1.0];
     }
+    bottomImageView.image=nil;
+    coverImgView.image=nil;
+    
+    bottomImageView.frame = CGRectMake((has_mini_img?35:0) +1.0*cell.indentationWidth,
+                                       24,
+                                       14,14);
     
     topLabel.frame= CGRectMake((has_mini_img?35:0)+1.0 * cell.indentationWidth,
                                0,
                                tabView.bounds.size.width -1.0 * cell.indentationWidth- 32-(has_mini_img?35:0)-PRI_SEC_ACTIONS_IMAGE_SIZE,
                                22);
-    bottomLabel.frame = CGRectMake((has_mini_img?35:0)+1.0 * cell.indentationWidth,
+    bottomLabel.frame = CGRectMake((bottomImageView.image?16:0)+(has_mini_img?35:0)+1.0 * cell.indentationWidth,
                                    22,
-                                   tabView.bounds.size.width -1.0 * cell.indentationWidth-32-(has_mini_img?35:0)-PRI_SEC_ACTIONS_IMAGE_SIZE,
+                                   -(bottomImageView.image?16:0)+tabView.bounds.size.width -1.0 * cell.indentationWidth-32-(has_mini_img?35:0)-PRI_SEC_ACTIONS_IMAGE_SIZE,
                                    18);
     bottomLabel.text=@""; //default value
-    bottomImageView.image=nil;
-    coverImgView.image=nil;
     
     cell.accessoryType = UITableViewCellAccessoryNone;
     
@@ -1190,13 +1194,16 @@ int qsortVGMR_entries_rating_or_entries(const void *entryA, const void *entryB) 
                                    22);
         if (cur_db_entries[indexPath.row].downloaded==1) {
             if (cur_db_entries[indexPath.row].rating==-1) {
+                signed char avg_rating;
                 DBHelper::getFileStatsDBmod(cur_db_entries[indexPath.row].fullpath,
                                             &cur_db_entries[indexPath.row].playcount,
                                             &cur_db_entries[indexPath.row].rating,
-                                            NULL,
+                                            &avg_rating,
                                             &cur_db_entries[indexPath.row].song_length,
                                             &cur_db_entries[indexPath.row].channels_nb,
                                             &cur_db_entries[indexPath.row].songs);
+                if ((cur_db_entries[indexPath.row].rating==0)&&(avg_rating>0))
+                    cur_db_entries[indexPath.row].rating=1;
             }
             if (cur_db_entries[indexPath.row].rating>0) bottomImageView.image=[UIImage imageNamed:ratingImg[RATING_IMG(cur_db_entries[indexPath.row].rating)]];
             
@@ -1215,6 +1222,11 @@ int qsortVGMR_entries_rating_or_entries(const void *entryA, const void *entryB) 
             bottomStr=[NSString stringWithFormat:@"%@・Pl:%d",bottomStr,cur_db_entries[indexPath.row].playcount];
             
             bottomLabel.text=[NSString stringWithFormat:@"%@・%@",cur_db_entries[indexPath.row].info,bottomStr];
+            
+            bottomLabel.frame = CGRectMake((bottomImageView.image?16:0)+(has_mini_img?35:0)+1.0 * cell.indentationWidth,
+                                           22,
+                                           -(bottomImageView.image?16:0)+tabView.bounds.size.width -1.0 * cell.indentationWidth-32-(has_mini_img?35:0)-PRI_SEC_ACTIONS_IMAGE_SIZE,
+                                           18);
             
 //            bottomLabel.frame = CGRectMake((has_mini_img?35:0)+ 1.0 * cell.indentationWidth+20,
 //                                           22,
@@ -1251,9 +1263,9 @@ int qsortVGMR_entries_rating_or_entries(const void *entryA, const void *entryB) 
             //coverImgView.contentMode=UIViewContentModeScaleAspectFit;
         }
     } else { // DIR
-        bottomLabel.frame = CGRectMake((has_mini_img?35:0)+ 1.0 * cell.indentationWidth,
+        bottomLabel.frame = CGRectMake((bottomImageView.image?16:0)+(has_mini_img?35:0)+ 1.0 * cell.indentationWidth,
                                        22,
-                                       tabView.bounds.size.width -1.0 * cell.indentationWidth-32-PRI_SEC_ACTIONS_IMAGE_SIZE-(has_mini_img?35:0),
+                                       -(bottomImageView.image?16:0)+tabView.bounds.size.width -1.0 * cell.indentationWidth-32-PRI_SEC_ACTIONS_IMAGE_SIZE-(has_mini_img?35:0),
                                        18);
         if (cur_db_entries[indexPath.row].info) {
             bottomLabel.text=[NSString stringWithFormat:@"%@",cur_db_entries[indexPath.row].info];

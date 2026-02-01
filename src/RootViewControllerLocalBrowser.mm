@@ -2494,9 +2494,14 @@ As a consequence, some entries might disappear from existing playlist.\n\
             
             bottomLabel.text=bottomStr;
             
-            bottomLabel.frame = CGRectMake((hasImg?35:0)+ 1.0 * cell.indentationWidth,
+            bottomImageView.frame = CGRectMake((hasImg?35:0) +1.0*cell.indentationWidth,
+                                               24,
+                                               14,14);
+            
+            
+            bottomLabel.frame = CGRectMake((bottomImageView.image?16:0)+(hasImg?35:0)+ 1.0 * cell.indentationWidth,
                                            22,
-                                           -(hasImg?35:0)+tabView.bounds.size.width -1.0 * cell.indentationWidth/*-32*/-PRI_SEC_ACTIONS_IMAGE_SIZE-40-actionicon_offsetx,
+                                           -(bottomImageView.image?16:0)-(hasImg?35:0)+tabView.bounds.size.width -1.0 * cell.indentationWidth/*-32*/-PRI_SEC_ACTIONS_IMAGE_SIZE-40-actionicon_offsetx,
                                            18);
             
         }
@@ -2608,6 +2613,7 @@ trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
                     [self.detailViewController cleanPlaylistAfterDelDir:fullpath];
                 }
                 if (cur_local_entries[indexPath.row].type&3) { //File
+                    [ModizFileHelper cleanAllCoversForFile:fullpath];
                     DBHelper::deleteStatsFileDB(fullpath);
                     [self.detailViewController cleanPlaylistAfterDelFile:fullpath];
                 }

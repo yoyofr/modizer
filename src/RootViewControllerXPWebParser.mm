@@ -154,6 +154,7 @@ extern void *LoadingProgressObserverContext;
     ratingImg[1] = @"heart-half-filled.png";
     ratingImg[2] = @"heart-filled.png";
     
+    
     /* Init popup view*/
     /**/
     
@@ -746,6 +747,7 @@ trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
 
         //delete local file
         [mFileMngr removeItemAtPath:fullpath error:&err];
+        [ModizFileHelper cleanAllCoversForFile:fullpath];
 
         // Reload the cell to show the file is no longer downloaded
         [tableView reloadRowsAtIndexPaths:@[indexPath]

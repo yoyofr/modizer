@@ -1608,5 +1608,13 @@ extern bool icloud_available;
     return addFiles;
 }
 
++(void) cleanAllCoversForFile:(NSString*)fullpath {
+    NSString *filepath=[fullpath stringByDeletingPathExtension];
+    [[NSFileManager defaultManager] removeItemAtPath:[filepath stringByAppendingString:@".png"] error:nil];
+    [[NSFileManager defaultManager] removeItemAtPath:[filepath stringByAppendingString:@".webp"] error:nil];
+    [[NSFileManager defaultManager] removeItemAtPath:[filepath stringByAppendingString:@".jpg"] error:nil];
+    [[NSFileManager defaultManager] removeItemAtPath:[filepath stringByAppendingString:@".jpeg"] error:nil];
+    [[NSFileManager defaultManager] removeItemAtPath:[filepath stringByAppendingString:@".gif"] error:nil];
+}
 
 @end

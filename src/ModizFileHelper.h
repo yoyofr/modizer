@@ -40,5 +40,7 @@
 +(NSArray*) getAdditionalMODLANDRequiredFiles:(NSString*)filePath;
 +(NSArray*) getAdditionalMODLANDRequiredFilesDownloader:(NSString*)filePath;
 
++(void) cleanAllCoversForFile:(NSString*)fullpath;
+
 @end
 

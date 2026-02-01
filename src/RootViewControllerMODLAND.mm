@@ -2021,7 +2021,7 @@ END_PROFILE
         
         bottomImageView = [[UIImageView alloc] initWithImage:nil];
         bottomImageView.frame = CGRectMake(1.0*cell.indentationWidth,
-                                           22,
+                                           24,
                                            14,14);
         bottomImageView.tag = BOTTOM_IMAGE_TAG;
         bottomImageView.opaque=TRUE;
@@ -2140,15 +2140,17 @@ END_PROFILE
                     
                     if (cur_db_entries[crow].downloaded==1) {
                         if (cur_db_entries[crow].rating==-1) {
+                            signed char avg_rating;
                             DBHelper::getFileStatsDBmod([NSString stringWithFormat:@"Documents/%@/%@",MODLAND_BASEDIR,
                                                          [self getCompleteLocalPath:cur_db_entries[crow].id_mod]],
                                                         &cur_db_entries[crow].playcount,
                                                         &cur_db_entries[crow].rating,
-                                                        NULL,
+                                                        &avg_rating,
                                                         &cur_db_entries[crow].song_length,
                                                         &cur_db_entries[crow].channels_nb,
                                                         &cur_db_entries[crow].songs);
-                            
+                            if ((cur_db_entries[indexPath.row].rating==0)&&(avg_rating>0))
+                                cur_db_entries[indexPath.row].rating=1;
                         }
                         if (cur_db_entries[crow].rating>0) bottomImageView.image=[UIImage imageNamed:ratingImg[RATING_IMG(cur_db_entries[crow].rating)]];
                         
@@ -2168,15 +2170,15 @@ END_PROFILE
                         
                         bottomLabel.text=bottomStr;
                         
-                        bottomLabel.frame = CGRectMake( 1.0 * cell.indentationWidth+20,
+                        bottomLabel.frame = CGRectMake( (bottomImageView.image?16:0)+1.0 * cell.indentationWidth+0,
                                                        22,
-                                                       tabView.bounds.size.width -1.0 * cell.indentationWidth-32-PRI_SEC_ACTIONS_IMAGE_SIZE-20,
+                                                       -(bottomImageView.image?16:0)+tabView.bounds.size.width -1.0 * cell.indentationWidth-32-PRI_SEC_ACTIONS_IMAGE_SIZE-0,
                                                        18);
                     } else {
                         bottomLabel.text=[NSString stringWithFormat:@"%dKB",cur_db_entries[crow].filesize/1024];
-                        bottomLabel.frame = CGRectMake( 1.0 * cell.indentationWidth+20,
+                        bottomLabel.frame = CGRectMake( 1.0 * cell.indentationWidth+0,
                                                        22,
-                                                       tabView.bounds.size.width -1.0 * cell.indentationWidth-32-PRI_SEC_ACTIONS_IMAGE_SIZE-20,
+                                                       tabView.bounds.size.width -1.0 * cell.indentationWidth-32-PRI_SEC_ACTIONS_IMAGE_SIZE-0,
                                                        18);
                     }
                     
@@ -2264,6 +2266,7 @@ trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
             cur_db_entries[crow].downloaded=0;
             //delete local file
             [mFileMngr removeItemAtPath:localpath error:&err];
+            [ModizFileHelper cleanAllCoversForFile:localpath];
 
         // Reload the cell to show the file is no longer downloaded
         [tableView reloadRowsAtIndexPaths:@[indexPath]

@@ -2109,7 +2109,7 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
         
         bottomImageView = [[UIImageView alloc] initWithImage:nil];
         bottomImageView.frame = CGRectMake((has_mini_img?35:0)+1.0*cell.indentationWidth,
-                                           22,
+                                           24,
                                            14,14);
         bottomImageView.tag = BOTTOM_IMAGE_TAG;
         bottomImageView.opaque=TRUE;
@@ -2198,13 +2198,16 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
                                        22);
             if (cur_db_entries[indexPath.row].downloaded==1) {
                 if (cur_db_entries[indexPath.row].rating==-1) {
+                    signed char avg_rating;
                     DBHelper::getFileStatsDBmod(cur_db_entries[indexPath.row].fullpath,
                                                 &cur_db_entries[indexPath.row].playcount,
                                                 &cur_db_entries[indexPath.row].rating,
-                                                NULL,
+                                                &avg_rating,
                                                 &cur_db_entries[indexPath.row].song_length,
                                                 &cur_db_entries[indexPath.row].channels_nb,
                                                 &cur_db_entries[indexPath.row].songs);
+                    if ((cur_db_entries[indexPath.row].rating==0)&&(avg_rating>0))
+                        cur_db_entries[indexPath.row].rating=1;
                 }
                 if (cur_db_entries[indexPath.row].rating>0) bottomImageView.image=[UIImage imageNamed:ratingImg[RATING_IMG(cur_db_entries[indexPath.row].rating)]];
                 
@@ -2219,9 +2222,9 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
                 
                 bottomLabel.text=[NSString stringWithFormat:@"%@・%@",cur_db_entries[indexPath.row].info,bottomStr];
                 
-                bottomLabel.frame = CGRectMake((has_mini_img?35:0)+ 1.0 * cell.indentationWidth+20,
+                bottomLabel.frame = CGRectMake((bottomImageView.image?16:0)+(has_mini_img?35:0)+ 1.0 * cell.indentationWidth+20,
                                                22,
-                                               tabView.bounds.size.width -1.0 * cell.indentationWidth-PRI_SEC_ACTIONS_IMAGE_SIZE-20-(has_mini_img?35:0),
+                                               -(bottomImageView.image?16:0)+tabView.bounds.size.width -1.0 * cell.indentationWidth-PRI_SEC_ACTIONS_IMAGE_SIZE-20-(has_mini_img?35:0),
                                                18);
             } else {
                 bottomLabel.text=cur_db_entries[indexPath.row].info;
@@ -2290,6 +2293,10 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
         else topLabel.text = cellValue;
         
         if ([bottomLabel.text length]>0) {
+            bottomImageView.frame = CGRectMake((has_mini_img?35:0) +1.0*cell.indentationWidth,
+                                               24,
+                                               14,14);
+            
             topLabel.frame= CGRectMake((has_mini_img?35:0)+1.0 * cell.indentationWidth,
                                        0,
                                        tabView.bounds.size.width -1.0 * cell.indentationWidth-(has_mini_img?35:0)-PRI_SEC_ACTIONS_IMAGE_SIZE,
@@ -2299,6 +2306,10 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
                                            tabView.bounds.size.width -1.0 * cell.indentationWidth-(has_mini_img?35:0)-PRI_SEC_ACTIONS_IMAGE_SIZE,
                                            18);
         } else {
+            bottomImageView.frame = CGRectMake((has_mini_img?35:0) +1.0*cell.indentationWidth,
+                                               24,
+                                               14,14);
+            
             topLabel.frame= CGRectMake((has_mini_img?35:0)+1.0 * cell.indentationWidth,
                                        0,
                                        tabView.bounds.size.width -1.0 * cell.indentationWidth-(has_mini_img?35:0)-PRI_SEC_ACTIONS_IMAGE_SIZE,
