@@ -29,6 +29,7 @@ missing seek support:
 
 4.2
 ---
+- Add drag'n'drop support. 
 - UADE: seek mode support
 - Online / JoshW collection: new option to grab a cover automatically from TGDB. Use long press to force a new cover download.
 - Adplug 2.4
@@ -40,7 +41,7 @@ missing seek support:
 - Midi & Piano roll FX now have an auto scaling option to follow notes
 - New online collections: AMP (Amiga Music Preservation), CGSC (Compute's Gazette Sid Collection)
 - New playback library: nezplug integrated to play SGC files (Master system, Game Gear)
-- DB updated: HVSC #84, CGSC 1.47, ASMA & MODLAND as of 2025/12/30
+- DB updated: HVSC #84, CGSC 1.47, ASMA & MODLAND as of 2026/01/31
 - Support of pic/pgg/pjj pictures files as cover image for CGSC
 - libopenmpt: new settings to activate Amiga filter
 - Playlists: bugfixes & improvements

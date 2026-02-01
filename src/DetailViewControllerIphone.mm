@@ -270,7 +270,8 @@ extern char mplayer_error_msg[1024];
 float tim_midifx_note_range,tim_midifx_note_offset,tim_midifx_length;
 bool tim_midifx_note_offset_reset;
 
-float mScaleInfo[5];
+float mScaleMidiInfo[3];
+float mScalePianoInfo[4];
 
 float prollfx_note_range,prollfx_noteroll_offset,prollfx_length;
 bool prollfx_note_offset_reset;
@@ -6229,11 +6230,13 @@ void pm_perfTest() {
     
     [super viewDidLoad];
     
-    mScaleInfo[0]=0;
-    mScaleInfo[1]=0;
-    mScaleInfo[2]=FX_AUTO_SCALING_DELAY_ZOOMIN_SLOW;
-    mScaleInfo[3]=FX_AUTO_SCALING_DELAY_ZOOMIN_SLOW;
-    mScaleInfo[4]=FX_AUTO_SCALING_DELAY_ZOOMIN_SLOW;
+    mScaleMidiInfo[0]=0;
+    mScaleMidiInfo[1]=0;
+    mScaleMidiInfo[2]=FX_AUTO_SCALING_DELAY_ZOOMIN_SLOW;
+    mScalePianoInfo[0]=0;
+    mScalePianoInfo[1]=0;
+    mScalePianoInfo[2]=FX_AUTO_SCALING_DELAY_ZOOMIN_SLOW;
+    mScalePianoInfo[3]=FX_AUTO_SCALING_DELAY_ZOOMIN_SLOW;
     //    if (safe_bottom>0) safe_bottom+=20;
     mScaleFactor=1.0f;
     is_iPad=false;
@@ -8638,38 +8641,38 @@ void menuInterpolValue(float &curValue,float startValue,float tgtValue) {
     //max rendering size
     float maxLength=(settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value-1?ww:hh);
     //used to store min & max rendering pos
-    mScaleInfo[0]=maxLength;
-    mScaleInfo[1]=0;
+    mScaleMidiInfo[0]=maxLength;
+    mScaleMidiInfo[1]=0;
     
-    RenderUtils::DrawMidiFX(x,y,ww,hh,settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value-1,tim_midifx_note_range,tim_midifx_note_offset,tim_midifx_length,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,mScaleFactor,mScaleInfo);
+    RenderUtils::DrawMidiFX(x,y,ww,hh,settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value-1,tim_midifx_note_range,tim_midifx_note_offset,tim_midifx_length,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,mScaleFactor,mScaleMidiInfo);
 
     if (settings[GLOB_FXMIDIPatternAutoScale].detail.mdz_boolswitch.switch_value) {
         //rendered size
-        float sizeFx=mScaleInfo[1]-mScaleInfo[0]+1;
+        float sizeFx=mScaleMidiInfo[1]-mScaleMidiInfo[0]+1;
         //too large
         if ( sizeFx>=maxLength ) {
             movePinchScaleFXMID-=2.0*1.0/64.0;
             //tim_midifx_note_offset+=1;
         } else {
             //too low / bass
-            if ( (mScaleInfo[0]<0) ) {
-                float diff=-mScaleInfo[0]/4;
+            if ( (mScaleMidiInfo[0]<0) ) {
+                float diff=-mScaleMidiInfo[0]/4;
                 if (diff>8) diff=8;
                 if (diff<0.4) diff=0.4;
                 tim_midifx_note_offset-=diff;
             }
             //too high / treble
-            if ( (mScaleInfo[1]>maxLength) ) {
-                float diff=(mScaleInfo[1]-maxLength)/4;
+            if ( (mScaleMidiInfo[1]>maxLength) ) {
+                float diff=(mScaleMidiInfo[1]-maxLength)/4;
                 if (diff>8) diff=8;
                 if (diff<0.4) diff=0.4;
                 tim_midifx_note_offset+=diff;
             }
             
             //too small
-            if (sizeFx<=maxLength*0.9) mScaleInfo[2]+=1;
-            else mScaleInfo[2]=0;
-            if ( (mScaleInfo[2]>FX_AUTO_SCALING_DELAY_ZOOMIN_FAST)) {
+            if (sizeFx<=maxLength*0.9) mScaleMidiInfo[2]+=1;
+            else mScaleMidiInfo[2]=0;
+            if ( (mScaleMidiInfo[2]>FX_AUTO_SCALING_DELAY_ZOOMIN_FAST)) {
                 if (movePinchScaleFXMID<((DEFAULT_VISIBLE_MIDI_NOTES-MIN_VISIBLE_MIDI_NOTES)/64.0f)) {
                     movePinchScaleFXMID+=1.0*1.0/64.0;
                     //tim_midifx_note_offset-=2.0;
@@ -8789,13 +8792,13 @@ void menuInterpolValue(float &curValue,float startValue,float tgtValue) {
     //max rendering size
     float maxLength=ww;
     //used to store min & max rendering pos
-    float oldScaleMin,oldScaleMax;
-    oldScaleMin=mScaleInfo[0];
-    oldScaleMax=mScaleInfo[1];
-    if (mScaleInfo[4]>=FX_AUTO_SCALING_DELAY_ZOOMIN_FAST) {
-        mScaleInfo[0]=maxLength;
-        mScaleInfo[1]=0;
-        mScaleInfo[4]=0;
+    float oldScaleMin=0,oldScaleMax=0;
+    oldScaleMin=mScalePianoInfo[0];
+    oldScaleMax=mScalePianoInfo[1];
+    if (mScalePianoInfo[2]>=FX_AUTO_SCALING_DELAY_ZOOMIN_FAST) {
+        mScalePianoInfo[0]=maxLength;
+        mScalePianoInfo[1]=0;
+        mScalePianoInfo[2]=0;
     }
     
     int delay_threshold=FX_AUTO_SCALING_DELAY_ZOOMIN_FAST;
@@ -8803,63 +8806,63 @@ void menuInterpolValue(float &curValue,float startValue,float tgtValue) {
     switch (settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value) {
         case 1:
             delay_threshold=FX_AUTO_SCALING_DELAY_ZOOMIN_SLOW;
-            RenderUtils::DrawPianoRollFX(x,y,ww,hh,settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value-1,prollfx_note_range,prollfx_noteroll_offset,prollfx_length,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,mScaleFactor,(char*)voicesName,mScaleInfo);
+            RenderUtils::DrawPianoRollFX(x,y,ww,hh,settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value-1,prollfx_note_range,prollfx_noteroll_offset,prollfx_length,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,mScaleFactor,(char*)voicesName,mScalePianoInfo);
             break;
         case 2:
-            RenderUtils::DrawPianoRollSynthesiaFX(x,y,ww,hh,settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value-1,prollfx_note_range,prollfx_noteroll_offset,prollfx_length,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,mScaleFactor,(char*)voicesName,mScaleInfo);
+            RenderUtils::DrawPianoRollSynthesiaFX(x,y,ww,hh,settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value-1,prollfx_note_range,prollfx_noteroll_offset,prollfx_length,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,mScaleFactor,(char*)voicesName,mScalePianoInfo);
             break;
     }
     
-    varCheck[0]=mScaleInfo[0];
-    varCheck[1]=mScaleInfo[1];
-    varCheck[2]=mScaleInfo[3];
-    varCheck[3]=mScaleInfo[4];
+    varCheck[0]=mScalePianoInfo[0];
+    varCheck[1]=mScalePianoInfo[1];
+    varCheck[2]=mScalePianoInfo[2];
+    varCheck[3]=mScalePianoInfo[3];
     
     
     if (settings[GLOB_FXPianoRollFXAutoScale].detail.mdz_boolswitch.switch_value) {
-        if ( (oldScaleMin>mScaleInfo[0]) || (oldScaleMax<mScaleInfo[1]) ) {
+        if ( (oldScaleMin>mScalePianoInfo[0]) || (oldScaleMax<mScalePianoInfo[1]) ) {
             //change of min or max, reset counter
-            mScaleInfo[4]=0;
-        } else mScaleInfo[4]++;
+            mScalePianoInfo[2]=0;
+        } else mScalePianoInfo[2]++;
         
         //rendered size
-        float sizeFx=mScaleInfo[1]-mScaleInfo[0]+1;
+        float sizeFx=mScalePianoInfo[1]-mScalePianoInfo[0]+1;
         //too large to fit
         if ( sizeFx>=maxLength ) {
             movePinchScaleFXPRoll-=2.0*1.0/64.0;
-            mScaleInfo[4]=FX_AUTO_SCALING_DELAY_ZOOMIN_FAST;
+            mScalePianoInfo[2]=FX_AUTO_SCALING_DELAY_ZOOMIN_FAST;
             //tim_midifx_note_offset+=1;
         } else {
             //too low / bass
-            if ( (mScaleInfo[0]<0) ) {
-                float diff=-mScaleInfo[0]/4;
+            if ( (mScalePianoInfo[0]<0) ) {
+                float diff=-mScalePianoInfo[0]/4;
                 if (diff>8) diff=8;
                 if (diff<0.4) diff=0.4;
                 prollfx_noteroll_offset-=diff;
-                mScaleInfo[4]=FX_AUTO_SCALING_DELAY_ZOOMIN_FAST;
+                mScalePianoInfo[2]=FX_AUTO_SCALING_DELAY_ZOOMIN_FAST;
             }
             //too high / treble
-            if ( (mScaleInfo[1]>maxLength) ) {
-                float diff=(mScaleInfo[1]-maxLength)/4;
+            if ( (mScalePianoInfo[1]>maxLength) ) {
+                float diff=(mScalePianoInfo[1]-maxLength)/4;
                 if (diff>8) diff=8;
                 if (diff<0.4) diff=0.4;
                 prollfx_noteroll_offset+=diff;
-                mScaleInfo[4]=FX_AUTO_SCALING_DELAY_ZOOMIN_FAST;
+                mScalePianoInfo[2]=FX_AUTO_SCALING_DELAY_ZOOMIN_FAST;
             }
             
             //too small, should be zoomed
             if (sizeFx<=maxLength*0.8) {
-                mScaleInfo[3]+=1;
+                mScalePianoInfo[3]+=1;
             }
             else {
-                mScaleInfo[3]=0;
+                mScalePianoInfo[3]=0;
             }
             
-            if ( (mScaleInfo[3]>delay_threshold)) {
+            if ( (mScalePianoInfo[3]>delay_threshold)) {
                 if (movePinchScaleFXPRoll<((DEFAULT_VISIBLE_MIDI_NOTES-MIN_VISIBLE_MIDI_NOTES*1.5)/64.0f)) {
                     movePinchScaleFXPRoll+=1.0*1.0/64.0;
-                } else mScaleInfo[3]=0;
-                mScaleInfo[4]=FX_AUTO_SCALING_DELAY_ZOOMIN_FAST;
+                } else mScalePianoInfo[3]=0;
+                mScalePianoInfo[2]=FX_AUTO_SCALING_DELAY_ZOOMIN_FAST;
             }
         }
     }

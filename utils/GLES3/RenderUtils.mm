@@ -4387,7 +4387,7 @@ void RenderUtils::DrawPiano3D(float ox,float oy,float ww,float hh,int automove,f
     
     if (!renderIsInit) return;
     
-    vertices=(LineVertexF*)malloc(sizeof(LineVertexF)*6*6*48);
+    vertices=(LineVertexF*)malloc(sizeof(LineVertexF)*6*(6+1)*48);
     if (!vertices) return;
     
     if (first_call) {
@@ -4456,7 +4456,7 @@ void RenderUtils::DrawPiano3D(float ox,float oy,float ww,float hh,int automove,f
     curP->Model=glm::mat4(1.0f);
     
     if (automove) {
-        curP->Model=glm::translate(curP->Model,glm::vec3(0.0, 0.0, -100.0*11));
+        curP->Model=glm::translate(curP->Model,glm::vec3(0.0, -1.0, -100.0*15));
         
         curP->Model=glm::rotate(curP->Model,glm::radians((float)(5.0f*(0.8f*sin((float)piano_fxcpt*3.14159f/769)+
                         0.5f*sin((float)piano_fxcpt*3.14159f/229)+
@@ -4466,7 +4466,7 @@ void RenderUtils::DrawPiano3D(float ox,float oy,float ww,float hh,int automove,f
                             0.7f*sin((float)piano_fxcpt*3.14159f/911)+
                             0.3f*sin((float)piano_fxcpt*3.14159f/409)))), glm::vec3(1, 0, 0));
     } else {
-        curP->Model=glm::translate(curP->Model,glm::vec3(posx,posy,posz-100*12));
+        curP->Model=glm::translate(curP->Model,glm::vec3(posx,posy,posz-100*15));
         curP->Model=glm::rotate(curP->Model,glm::radians((float)(30+rotx)), glm::vec3(1, 0, 0));
         curP->Model=glm::rotate(curP->Model,glm::radians((float)(roty)), glm::vec3(0, 1, 0));
     }
@@ -4507,7 +4507,7 @@ if (piano_key_state[i+k]) { \
 /*crt=(0.3f*piano_key_state[i+k]+1.0f*(8-piano_key_state[i+k]))/8;*/ \
 /*cgt=(0.3f*piano_key_state[i+k]+1.0f*(8-piano_key_state[i+k]))/8;*/ \
 /*cbt=(0.9f*piano_key_state[i+k]+1.0f*(8-piano_key_state[i+k]))/8;*/ \
-} else crt=cgt=cbt=1.0f; \
+} else crt=cgt=cbt=0.87f; \
 /*Key / Up Face*/ \
 cr=crt;cg=cgt;cb=cbt;\
 vertices[index+0].r=cr;vertices[index+0].g=cg;vertices[index+0].b=cb;vertices[index+0].a=1; \
@@ -4563,7 +4563,33 @@ vertices[index+4].y=yn-key_height; \
 vertices[index+4].z=z; \
 index+=6; \
 /*Key / Front Face*/ \
-cr=crt*0.6f;cg=cgt*0.6f;cb=cbt*0.6f; \
+cr=crt+0.4f;cg=cgt+0.4f;cb=cbt+0.4f; \
+vertices[index+0].r=cr;vertices[index+0].g=cg;vertices[index+0].b=cb;vertices[index+0].a=1; \
+vertices[index+0].x=(float)(white_idx-key_leftpos+0.05f); \
+vertices[index+0].y=yn-0.1; \
+vertices[index+0].z=z+0.1;  \
+vertices[index+1].r=cr;vertices[index+1].g=cg;vertices[index+1].b=cb;vertices[index+1].a=1; \
+vertices[index+1].x=(float)(white_idx-key_leftpos+0.05f); \
+vertices[index+1].y=yn+0.01; \
+vertices[index+1].z=z+0.0;   \
+vertices[index+2].r=cr;vertices[index+2].g=cg;vertices[index+2].b=cb;vertices[index+2].a=1; \
+vertices[index+2].x=(float)(white_idx-key_leftpos+0.95f); \
+vertices[index+2].y=yn-0.1; \
+vertices[index+2].z=z+0.1;  \
+vertices[index+3].r=cr;vertices[index+3].g=cg;vertices[index+3].b=cb;vertices[index+3].a=1; \
+vertices[index+3].x=(float)(white_idx-key_leftpos+0.95f); \
+vertices[index+3].y=yn+0.01; \
+vertices[index+3].z=z+0.0;   \
+vertices[index+5].r=cr;vertices[index+5].g=cg;vertices[index+5].b=cb;vertices[index+5].a=1; \
+vertices[index+5].x=(float)(white_idx-key_leftpos+0.05f); \
+vertices[index+5].y=yn+0.01; \
+vertices[index+5].z=z+0.0;   \
+vertices[index+4].r=cr;vertices[index+4].g=cg;vertices[index+4].b=cb;vertices[index+4].a=1; \
+vertices[index+4].x=(float)(white_idx-key_leftpos+0.95f); \
+vertices[index+4].y=yn-0.1; \
+vertices[index+4].z=z+0.1;  \
+index+=6; \
+cr=crt*0.4f;cg=cgt*0.4f;cb=cbt*0.4f; \
 vertices[index+0].r=cr;vertices[index+0].g=cg;vertices[index+0].b=cb;vertices[index+0].a=1; \
 vertices[index+0].x=(float)(white_idx-key_leftpos+0.10f); \
 vertices[index+0].y=yn-key_height; \
@@ -4673,7 +4699,7 @@ if (piano_key_state[i+k]) { \
 /*crt=(0.9f*piano_key_state[i+k]+0.4f*(8-piano_key_state[i+k]))/8;*/ \
 /*cgt=(0.3f*piano_key_state[i+k]+0.4f*(8-piano_key_state[i+k]))/8;*/ \
 /*cbt=(0.3f*piano_key_state[i+k]+0.4f*(8-piano_key_state[i+k]))/8;*/ \
-} else crt=cgt=cbt=0.2f; \
+} else crt=cgt=cbt=0.16f; \
 /*TOP*/ \
 cr=crt;cg=cgt;cb=cbt;\
 vertices[index+0].r=cr;vertices[index+0].g=cg;vertices[index+0].b=cb;vertices[index+0].a=1; \
@@ -4707,7 +4733,7 @@ vertices[index+0].r=cr;vertices[index+0].g=cg;vertices[index+0].b=cb;vertices[in
 vertices[index+0].x=(float)(white_idx-key_leftpos-0.3f); \
 vertices[index+0].y=ynBL; \
 vertices[index+0].z=z-key_lengthBL;   \
-vertices[index+1].r=cr;vertices[index+1].g=cg;vertices[index+1].b=cb;vertices[index+1].a=1; \
+vertices[index+1].r=cr+0.8;vertices[index+1].g=cg+0.8;vertices[index+1].b=cb+0.8;vertices[index+1].a=1; \
 vertices[index+1].x=(float)(white_idx-key_leftpos-0.15f); \
 vertices[index+1].y=ynBL+key_heightBL; \
 vertices[index+1].z=z-key_lengthBL*6/5; \
@@ -4715,11 +4741,11 @@ vertices[index+2].r=cr;vertices[index+2].g=cg;vertices[index+2].b=cb;vertices[in
 vertices[index+2].x=(float)(white_idx-key_leftpos+0.3f); \
 vertices[index+2].y=ynBL; \
 vertices[index+2].z=z-key_lengthBL; \
-vertices[index+3].r=cr;vertices[index+3].g=cg;vertices[index+3].b=cb;vertices[index+3].a=1; \
+vertices[index+3].r=cr+0.8;vertices[index+3].g=cg+0.8;vertices[index+3].b=cb+0.8;vertices[index+3].a=1; \
 vertices[index+3].x=(float)(white_idx-key_leftpos+0.15f); \
 vertices[index+3].y=ynBL+key_heightBL; \
 vertices[index+3].z=z-key_lengthBL*6/5; \
-vertices[index+5].r=cr;vertices[index+5].g=cg;vertices[index+5].b=cb;vertices[index+5].a=1; \
+vertices[index+5].r=cr+0.8;vertices[index+5].g=cg+0.8;vertices[index+5].b=cb+0.8;vertices[index+5].a=1; \
 vertices[index+5].x=(float)(white_idx-key_leftpos-0.15f); \
 vertices[index+5].y=ynBL+key_heightBL; \
 vertices[index+5].z=z-key_lengthBL*6/5; \
@@ -5020,7 +5046,7 @@ void RenderUtils::DrawPiano3DWithNotesWall(float ox,float oy,float ww,float hh,i
 
     if (!renderIsInit) return;
     
-    vertices=(LineVertexF*)malloc(sizeof(LineVertexF)*6*6*128);
+    vertices=(LineVertexF*)malloc(sizeof(LineVertexF)*6*(6+1)*128);
     if (!vertices) return;
     
     if (first_call) {
@@ -5082,6 +5108,7 @@ void RenderUtils::DrawPiano3DWithNotesWall(float ox,float oy,float ww,float hh,i
     glVertexAttribPointer ( positionAttribHandle, 3, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(vertices[0].x) );
     glVertexAttribPointer ( colorAttribHandle, 4, GL_FLOAT, GL_FALSE, sizeof(LineVertexF), &(vertices[0].r) );
     //////////////////////////////
+    ///
     
     // Generate a model view matrix to rotate/translate the cube
     //curP->Projection=glm::perspective(glm::radians(45.f),aspectRatio,80.0f,1000.0f);
@@ -5296,7 +5323,7 @@ void RenderUtils::DrawPiano3DWithNotesWall(float ox,float oy,float ww,float hh,i
                 crt=(crt*piano_key_state[i]+1.0f*(8-piano_key_state[i]))/8;
                 cgt=(cgt*piano_key_state[i]+1.0f*(8-piano_key_state[i]))/8;
                 cbt=(cbt*piano_key_state[i]+1.0f*(8-piano_key_state[i]))/8;
-            } else crt=cgt=cbt=1.0f;
+            } else crt=cgt=cbt=0.87f;
             /*Key / Up Face*/
             cr=crt;cg=cgt;cb=cbt;
             vertices[vertices_count+0].r=cr;vertices[vertices_count+0].g=cg;vertices[vertices_count+0].b=cb;vertices[vertices_count+0].a=1;
@@ -5311,7 +5338,7 @@ void RenderUtils::DrawPiano3DWithNotesWall(float ox,float oy,float ww,float hh,i
             vertices[vertices_count+2].x=(float)(white_idx-key_leftpos+0.95f);
             vertices[vertices_count+2].y=yn+yadj;
             vertices[vertices_count+2].z=z+0.1f;
-            vertices[vertices_count+3].r=cr;vertices[vertices_count+3].g=cg;vertices[vertices_count+3].b=cb;vertices[vertices_count+4].a=1;
+            vertices[vertices_count+3].r=cr;vertices[vertices_count+3].g=cg;vertices[vertices_count+3].b=cb;vertices[vertices_count+3].a=1;
             vertices[vertices_count+3].x=(float)(white_idx-key_leftpos+0.95f);
             vertices[vertices_count+3].y=yf+yadj;
             vertices[vertices_count+3].z=z-key_length;
@@ -5357,6 +5384,34 @@ void RenderUtils::DrawPiano3DWithNotesWall(float ox,float oy,float ww,float hh,i
             vertices_count+=6;
             
             /*Key / Front Face*/
+            cr=crt+0.4f;cg=cgt+0.4f;cb=cbt+0.4f;
+            vertices[vertices_count+0].r=cr;vertices[vertices_count+0].g=cg;vertices[vertices_count+0].b=cb;vertices[vertices_count+0].a=1;
+            vertices[vertices_count+0].x=(float)(white_idx-key_leftpos+0.05f);
+            vertices[vertices_count+0].y=yn-0.1;
+            vertices[vertices_count+0].z=z+0.1;
+            vertices[vertices_count+1].r=cr;vertices[vertices_count+1].g=cg;vertices[vertices_count+1].b=cb;vertices[vertices_count+1].a=1;
+            vertices[vertices_count+1].x=(float)(white_idx-key_leftpos+0.05f);
+            vertices[vertices_count+1].y=yn+0.01;
+            vertices[vertices_count+1].z=z-0;
+            vertices[vertices_count+2].r=cr;vertices[vertices_count+2].g=cg;vertices[vertices_count+2].b=cb;vertices[vertices_count+2].a=1;
+            vertices[vertices_count+2].x=(float)(white_idx-key_leftpos+0.95f);
+            vertices[vertices_count+2].y=yn-0.1;
+            vertices[vertices_count+2].z=z+0.1;
+            vertices[vertices_count+3].r=cr;vertices[vertices_count+3].g=cg;vertices[vertices_count+3].b=cb;vertices[vertices_count+3].a=1;
+            vertices[vertices_count+3].x=(float)(white_idx-key_leftpos+0.95f);
+            vertices[vertices_count+3].y=yn+0.01;
+            vertices[vertices_count+3].z=z-0;
+            vertices[vertices_count+5].r=cr;vertices[vertices_count+5].g=cg;vertices[vertices_count+5].b=cb;vertices[vertices_count+5].a=1;
+            vertices[vertices_count+5].x=(float)(white_idx-key_leftpos+0.05f);
+            vertices[vertices_count+5].y=yn+0.01;
+            vertices[vertices_count+5].z=z-0;
+            vertices[vertices_count+4].r=cr;vertices[vertices_count+4].g=cg;vertices[vertices_count+4].b=cb;vertices[vertices_count+4].a=1;
+            vertices[vertices_count+4].x=(float)(white_idx-key_leftpos+0.95f);
+            vertices[vertices_count+4].y=yn-0.1;
+            vertices[vertices_count+4].z=z+0.1;
+            
+            vertices_count+=6;
+            
             cr=crt*0.6f;cg=cgt*0.6f;cb=cbt*0.6f;
             vertices[vertices_count+0].r=cr;vertices[vertices_count+0].g=cg;vertices[vertices_count+0].b=cb;vertices[vertices_count+0].a=1;
             vertices[vertices_count+0].x=(float)(white_idx-key_leftpos+0.10f);
@@ -5479,7 +5534,7 @@ void RenderUtils::DrawPiano3DWithNotesWall(float ox,float oy,float ww,float hh,i
                 crt=(crt*piano_key_state[i]+0.4f*(8-piano_key_state[i]))/8;
                 cgt=(cgt*piano_key_state[i]+0.4f*(8-piano_key_state[i]))/8;
                 cbt=(cbt*piano_key_state[i]+0.4f*(8-piano_key_state[i]))/8;
-            } else crt=cgt=cbt=0.2f;
+            } else crt=cgt=cbt=0.17f;
             /*TOP*/
             cr=crt;cg=cgt;cb=cbt;
             vertices[vertices_count+0].r=cr;vertices[vertices_count+0].g=cg;vertices[vertices_count+0].b=cb;vertices[vertices_count+0].a=1;
@@ -5515,7 +5570,7 @@ void RenderUtils::DrawPiano3DWithNotesWall(float ox,float oy,float ww,float hh,i
             vertices[vertices_count+0].x=(float)(white_idx-key_leftpos-0.3f);
             vertices[vertices_count+0].y=ynBL;
             vertices[vertices_count+0].z=z-key_lengthBL;
-            vertices[vertices_count+1].r=cr;vertices[vertices_count+1].g=cg;vertices[vertices_count+1].b=cb;vertices[vertices_count+1].a=1;
+            vertices[vertices_count+1].r=cr+0.8;vertices[vertices_count+1].g=cg+0.8;vertices[vertices_count+1].b=cb+0.8;vertices[vertices_count+1].a=1;
             vertices[vertices_count+1].x=(float)(white_idx-key_leftpos-0.15f);
             vertices[vertices_count+1].y=ynBL+key_heightBL;
             vertices[vertices_count+1].z=z-key_lengthBL*6/5;
@@ -5523,11 +5578,11 @@ void RenderUtils::DrawPiano3DWithNotesWall(float ox,float oy,float ww,float hh,i
             vertices[vertices_count+2].x=(float)(white_idx-key_leftpos+0.3f);
             vertices[vertices_count+2].y=ynBL;
             vertices[vertices_count+2].z=z-key_lengthBL;
-            vertices[vertices_count+3].r=cr;vertices[vertices_count+3].g=cg;vertices[vertices_count+3].b=cb;vertices[vertices_count+3].a=1;
+            vertices[vertices_count+3].r=cr+0.8;vertices[vertices_count+3].g=cg+0.8;vertices[vertices_count+3].b=cb+0.8;vertices[vertices_count+3].a=1;
             vertices[vertices_count+3].x=(float)(white_idx-key_leftpos+0.15f);
             vertices[vertices_count+3].y=ynBL+key_heightBL;
             vertices[vertices_count+3].z=z-key_lengthBL*6/5;
-            vertices[vertices_count+5].r=cr;vertices[vertices_count+5].g=cg;vertices[vertices_count+5].b=cb;vertices[vertices_count+5].a=1;
+            vertices[vertices_count+5].r=cr+0.8;vertices[vertices_count+5].g=cg+0.8;vertices[vertices_count+5].b=cb+0.8;vertices[vertices_count+5].a=1;
             vertices[vertices_count+5].x=(float)(white_idx-key_leftpos-0.15f);
             vertices[vertices_count+5].y=ynBL+key_heightBL;
             vertices[vertices_count+5].z=z-key_lengthBL*6/5;
