@@ -6,7 +6,6 @@
 //
 //
 
-
 #import "MoreViewController.h"
 #import "SettingsGenViewController.h"
 #import "ModizerConstants.h"
@@ -36,7 +35,6 @@ extern volatile t_settings settings[MAX_SETTINGS];
         [self showAlertMsg:NSLocalizedString(@"Warning",@"") message:NSLocalizedString(@"Nothing currently playing. Please select a file.",@"")];
     }
 }
-
 
 //- (id)initWithStyle:(UITableViewStyle)style
 //{
@@ -565,7 +563,6 @@ extern volatile t_settings settings[MAX_SETTINGS];
     }
 }
 
-
 #pragma mark - UINavigationControllerDelegate
 
 - (id <UIViewControllerAnimatedTransitioning>)navigationController:(UINavigationController *)navigationController
@@ -601,7 +598,6 @@ extern volatile t_settings settings[MAX_SETTINGS];
     [waitingViewPlayer.progressView setProgress:detailViewController.waitingView.progressView.progress animated:YES];
 }
 
-
 - (void) observeValueForKeyPath:(NSString *)keyPath
                       ofObject:(id)object
                         change:(NSDictionary<NSKeyValueChangeKey,id> *)change
@@ -624,6 +620,5 @@ extern volatile t_settings settings[MAX_SETTINGS];
         [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
     }
 }
-
 
 @end

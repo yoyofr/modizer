@@ -29,21 +29,20 @@ missing seek support:
 
 4.2
 ---
-- Add drag'n'drop support. 
-- UADE: seek mode support.
-- Online / JoshW collection: new option to grab a cover automatically from TGDB. Use long press to force a new cover download.
-- Adplug 2.4
-- gbsplay updated to latest version (v0.0.102)
-- UADE players routine
-- new feature: Radio mode / online collections.
-- fixes several localizations issues
-- UI fixes & improvements
-- FX can now be displayed using various layouts to combine them more easily
-- Midi & Piano roll FX now have an auto scaling option to follow notes
+- Radio mode / Online Collections. Press the Radio button when browsing an Online Collection.
 - New online collections: AMP (Amiga Music Preservation), CGSC (Compute's Gazette Sid Collection)
-- New playback library: nezplug integrated to play SGC files (Master system, Game Gear)
 - DB updated: HVSC #84, CGSC 1.47, ASMA & MODLAND as of 2026/01/31
 - Support of pic/pgg/pjj pictures files as cover image for CGSC
+- FX can now be displayed using various layouts to combine them more easily, long press on a FX to change slot.
+- Adplug updated to latest version (2.4)
+- Gbsplay updated to latest version (v0.0.102)
+- UADE players routines updated to latest version (3.05)
+- Add drag'n'drop support.
+- UADE: seek mode support.
+- Online / JoshW collection: new option to grab a cover automatically from TGDB. Use long press to force a new cover download.
+- Stability & security improvements.
+- Midi & Piano roll FX now have an auto scaling option to follow notes
+- New playback library: NEZPlug integrated to play SGC files (Master system, Game Gear)
 - libopenmpt: new settings to activate Amiga filter
 - Playlists: bugfixes & improvements
 - Faster seek for most formats.
