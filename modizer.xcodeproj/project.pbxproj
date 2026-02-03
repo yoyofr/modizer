@@ -1225,6 +1225,10 @@
 		CC5C709D17CD1D7900DC7197 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CC5C709C17CD1D7900DC7197 /* Accelerate.framework */; };
 		CC600F6D2EF9511C000E2F00 /* Notifications.m in Sources */ = {isa = PBXBuildFile; fileRef = CC600F6C2EF9511C000E2F00 /* Notifications.m */; };
 		CC600F6E2EF9511C000E2F00 /* Notifications.m in Sources */ = {isa = PBXBuildFile; fileRef = CC600F6C2EF9511C000E2F00 /* Notifications.m */; };
+		CC6597282F30EF5200809F42 /* CloudStorageManager.m in Sources */ = {isa = PBXBuildFile; fileRef = CC6597252F30EF5200809F42 /* CloudStorageManager.m */; };
+		CC6597292F30EF5200809F42 /* CloudStorageSource.m in Sources */ = {isa = PBXBuildFile; fileRef = CC6597272F30EF5200809F42 /* CloudStorageSource.m */; };
+		CC65972A2F30EF5200809F42 /* CloudStorageManager.m in Sources */ = {isa = PBXBuildFile; fileRef = CC6597252F30EF5200809F42 /* CloudStorageManager.m */; };
+		CC65972B2F30EF5200809F42 /* CloudStorageSource.m in Sources */ = {isa = PBXBuildFile; fileRef = CC6597272F30EF5200809F42 /* CloudStorageSource.m */; };
 		CC671C562E95CCEF0076CE1E /* MetalANGLE-ios13.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = CCABFADD2E9598F400AF59B0 /* MetalANGLE-ios13.xcframework */; };
 		CC671C572E95CCEF0076CE1E /* MetalANGLE-ios13.xcframework in Copy Files-Frameworks */ = {isa = PBXBuildFile; fileRef = CCABFADD2E9598F400AF59B0 /* MetalANGLE-ios13.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		CC6B930A2EDE596F00383CC4 /* SPCTagParser.mm in Sources */ = {isa = PBXBuildFile; fileRef = CC6B93092EDE596F00383CC4 /* SPCTagParser.mm */; };
@@ -4315,6 +4319,10 @@
 		CC5C709C17CD1D7900DC7197 /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
 		CC600F412EF95118000E2F00 /* Notifications.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Notifications.h; sourceTree = "<group>"; };
 		CC600F6C2EF9511C000E2F00 /* Notifications.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Notifications.m; sourceTree = "<group>"; };
+		CC6597242F30EF5200809F42 /* CloudStorageManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CloudStorageManager.h; sourceTree = "<group>"; };
+		CC6597252F30EF5200809F42 /* CloudStorageManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CloudStorageManager.m; sourceTree = "<group>"; };
+		CC6597262F30EF5200809F42 /* CloudStorageSource.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CloudStorageSource.h; sourceTree = "<group>"; };
+		CC6597272F30EF5200809F42 /* CloudStorageSource.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CloudStorageSource.m; sourceTree = "<group>"; };
 		CC671C292E95C8FF0076CE1E /* GLKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLKit.framework; path = System/Library/Frameworks/GLKit.framework; sourceTree = SDKROOT; };
 		CC671C2B2E95CCD20076CE1E /* .clang-format */ = {isa = PBXFileReference; lastKnownFileType = text; path = ".clang-format"; sourceTree = "<group>"; };
 		CC671C2C2E95CCD20076CE1E /* egl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = egl.h; sourceTree = "<group>"; };
@@ -6299,6 +6307,10 @@
 		CC1E58BA1200B3B7000A8A4E /* src */ = {
 			isa = PBXGroup;
 			children = (
+				CC6597242F30EF5200809F42 /* CloudStorageManager.h */,
+				CC6597252F30EF5200809F42 /* CloudStorageManager.m */,
+				CC6597262F30EF5200809F42 /* CloudStorageSource.h */,
+				CC6597272F30EF5200809F42 /* CloudStorageSource.m */,
 				337FA728124288FA00DDD352 /* AboutViewController.h */,
 				337FA729124288FA00DDD352 /* AboutViewController.mm */,
 				CCE8D7492B8D68FD0076D8C0 /* AnimatedLaunchVC.h */,
@@ -10113,6 +10125,8 @@
 				CC2E39372B9DA419003E9E77 /* RootViewControllerXPWebParser.mm in Sources */,
 				3370BC8E124A8B7D00691400 /* pcm8.c in Sources */,
 				CC8369612B57CCC80035A4DA /* ioplug68.c in Sources */,
+				CC6597282F30EF5200809F42 /* CloudStorageManager.m in Sources */,
+				CC6597292F30EF5200809F42 /* CloudStorageSource.m in Sources */,
 				CCAE2AA712732E0E00F42E7D /* GoogleAppHelper.mm in Sources */,
 				CC8368F02B57CA9B0035A4DA /* msg68.c in Sources */,
 				CCFDC53D17DB105500C6692C /* NVNotchFilter.m in Sources */,
@@ -10326,6 +10340,8 @@
 				CCBE60D82EE2DD44000FDD7E /* RootViewControllerXPWebParser.mm in Sources */,
 				CCBE60D92EE2DD44000FDD7E /* pcm8.c in Sources */,
 				CCBE60DA2EE2DD44000FDD7E /* ioplug68.c in Sources */,
+				CC65972A2F30EF5200809F42 /* CloudStorageManager.m in Sources */,
+				CC65972B2F30EF5200809F42 /* CloudStorageSource.m in Sources */,
 				CCBE60DB2EE2DD44000FDD7E /* GoogleAppHelper.mm in Sources */,
 				CCBE60DC2EE2DD44000FDD7E /* msg68.c in Sources */,
 				CCBE60DD2EE2DD44000FDD7E /* NVNotchFilter.m in Sources */,

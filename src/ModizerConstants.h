@@ -92,6 +92,21 @@ extern void *LoadingProgressObserverContext;
 #define ICLOUD_COLOR_GREEN_DARKMODE ((float)(0xAD)/255.0)
 #define ICLOUD_COLOR_BLUE_DARKMODE ((float)(0xED)/255.0)
 
+// Google Drive (blue: #4285F4)
+#define CLOUD_GDRIVE_COLOR_R (0x42/255.0f)
+#define CLOUD_GDRIVE_COLOR_G (0x85/255.0f)
+#define CLOUD_GDRIVE_COLOR_B (0xF4/255.0f)
+
+// Dropbox (blue: #0061FF)
+#define CLOUD_DROPBOX_COLOR_R (0x00/255.0f)
+#define CLOUD_DROPBOX_COLOR_G (0x61/255.0f)
+#define CLOUD_DROPBOX_COLOR_B (0xFF/255.0f)
+
+// OneDrive (Microsoft blue: #0078D4)
+#define CLOUD_ONEDRIVE_COLOR_R (0x00/255.0f)
+#define CLOUD_ONEDRIVE_COLOR_G (0x78/255.0f)
+#define CLOUD_ONEDRIVE_COLOR_B (0xD4/255.0f)
+
 #define MDZ_TABVIEW_SEPARATOR_MARGIN 16
 
 #define MDZ_FOLDER_DARK_R 0.4f

@@ -21,6 +21,7 @@
 #import "StoreManager.h"
 #import "ModizerPlaylistBridge.h"
 #import "ModizFileHelper.h"
+#import "CloudStorageManager.h"
 
 extern NSMutableArray *mac_key_pressed,*mac_key_released;
 
@@ -879,32 +880,53 @@ extern NSMutableArray *mac_key_pressed,*mac_key_released;
         imported_filepath=[NSString stringWithFormat:@"%@/%@",[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:@"Documents/Downloads"],[filepath lastPathComponent]];
         //////////////////
         ///Get access
-        if ([url startAccessingSecurityScopedResource]) {
+        // Check if this is a cloud source path
+        CloudStorageSource *cloudSource = [[CloudStorageManager sharedManager] sourceForPath:filepath];
+        BOOL accessGranted = NO;
+
+        if (cloudSource) {
+            // Use CloudStorageManager for cloud sources
+            accessGranted = [[CloudStorageManager sharedManager] startAccessingSource:cloudSource];
+        } else {
+            // Legacy security-scoped access
+            accessGranted = [url startAccessingSecurityScopedResource];
+        }
+
+        if (accessGranted) {
             ////////////////////
-            //Download from icould if required
-            
-            NSNumber *isDownloadedValue = NULL;
-            if ([mFileMngr isUbiquitousItemAtURL:url]) {
-                BOOL success = [url getResourceValue:&isDownloadedValue forKey:NSURLUbiquitousItemIsDownloadedKey error:NULL];
-                if (success && ![isDownloadedValue boolValue]) {
-                    [[NSFileManager defaultManager] startDownloadingUbiquitousItemAtURL:url error:NULL];
-                    
-                    
-                    //                    UIAlertView *alertDownloading = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Warning",@"") message:NSLocalizedString(@"File is not available locally.\nTrigerring download from iCloud, please check in 'Files' application.",@"") delegate:self cancelButtonTitle:NSLocalizedString(@"Close",@"") otherButtonTitles:nil];
-                    //                    if (alertDownloading) [alertDownloading show];
-                    UIAlertController *alertDownloading = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Warning",@"")
-                                                                                              message:NSLocalizedString(@"File is not available locally.\nTrigerring download from iCloud, please check in 'Files' application.",@"")
-                                                                                       preferredStyle:UIAlertControllerStyleAlert];
-                    UIAlertAction* closeAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Close",@"") style:UIAlertActionStyleCancel
-                                                                        handler:^(UIAlertAction * action) {
-                    }];
-                    [alertDownloading addAction:closeAction];
-                    [self presentViewController:alertDownloading animated:YES completion:nil];
-                    
-                    //return YES;
+            //Download from cloud if required (iCloud, Google Drive, Dropbox, etc.)
+
+            // Check if file needs to be downloaded using CloudStorageManager
+            if (![[CloudStorageManager sharedManager] isFileDownloaded:url]) {
+                // File is not downloaded locally - trigger download
+                NSError *downloadError = nil;
+                BOOL downloadStarted = [[CloudStorageManager sharedManager] startDownloadingFile:url error:&downloadError];
+
+                NSString *message;
+                if (downloadStarted) {
+                    message = NSLocalizedString(@"File is not available locally.\nDownload has been triggered, please check in 'Files' application.",@"");
+                } else {
+                    message = NSLocalizedString(@"File is not available locally and cannot be downloaded.\nPlease check your internet connection and try again.",@"");
                 }
+
+                UIAlertController *alertDownloading = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Warning",@"")
+                                                                                          message:message
+                                                                                   preferredStyle:UIAlertControllerStyleAlert];
+                UIAlertAction* closeAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Close",@"") style:UIAlertActionStyleCancel
+                                                                    handler:^(UIAlertAction * action) {
+                }];
+                [alertDownloading addAction:closeAction];
+                [self presentViewController:alertDownloading animated:YES completion:nil];
+
+                // Stop accessing and return - don't try to play a file that isn't downloaded
+                if (cloudSource) {
+                    [[CloudStorageManager sharedManager] stopAccessingSource:cloudSource];
+                } else {
+                    [url stopAccessingSecurityScopedResource];
+                }
+                return;
             }
-            
+
 #if TARGET_OS_MACCATALYST
 #else
             if ([mFileMngr copyItemAtPath:filepath toPath:imported_filepath error:&err]) {
@@ -912,7 +934,12 @@ extern NSMutableArray *mac_key_pressed,*mac_key_released;
             } else {
             }
 #endif
-            [url stopAccessingSecurityScopedResource];
+            // Stop accessing
+            if (cloudSource) {
+                [[CloudStorageManager sharedManager] stopAccessingSource:cloudSource];
+            } else {
+                [url stopAccessingSecurityScopedResource];
+            }
         } else  {
         }
 #if TARGET_OS_MACCATALYST

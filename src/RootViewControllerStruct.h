@@ -20,6 +20,7 @@ typedef struct {
 	char type; //0:dir, 1:file, 2:archives
 	signed char rating;
 	char channels_nb;
+    char cloudStatus; // 0: local/downloaded, 1: cloud not downloaded
 } t_local_browse_entry;
 
 typedef struct {

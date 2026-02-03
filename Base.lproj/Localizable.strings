@@ -1029,3 +1029,16 @@
 /* Error messages */
 "playlist_not_found_error" = "Playlist not found. Use 'Get Playlists' to see available playlists.";
 "playlist_empty_error" = "This playlist has no entries. Please add some music to it first.";
+
+/* Cloud */
+"Add Cloud Source" = "Add Cloud Source";
+"Browse iCloud, Dropbox, OneDrive..." = "Browse iCloud, Dropbox, OneDrive...";
+"Name this source" = "Name this source";
+"Enter a name for this cloud folder" = "Enter a name for this cloud folder";
+"Cloud Folder" = "Cloud Folder";
+"Add" = "Add";
+"This cloud folder was added but may not persist after the app is closed. Some cloud providers don't support persistent access." = "This cloud folder was added but may not persist after the app is closed. Some cloud providers don't support persistent access.";
+"File cannot be downloaded.\nPlease check your internet connection." = "File cannot be downloaded.\nPlease check your internet connection.";
+"Downloading from\ncloud..." = "Downloading from\ncloud...";
+"Download timed out. Please try again later." = "Download timed out. Please try again later.";
+"available" = "available";

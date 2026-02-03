@@ -30,8 +30,9 @@ missing seek support:
 4.2
 ---
 - Radio mode / Online Collections. Press the Radio button when browsing an Online Collection.
+- Flexible Cloud sources integration: iCloud, Google Drive, One Drive, Dropbox
 - New online collections: AMP (Amiga Music Preservation), CGSC (Compute's Gazette Sid Collection)
-- DB updated: HVSC #84, CGSC 1.47, ASMA & MODLAND as of 2026/01/31
+- DB updated: HVSC #84, CGSC 1.47, ASMA & MODLAND as of 2026/02/03
 - Support of pic/pgg/pjj pictures files as cover image for CGSC
 - FX can now be displayed using various layouts to combine them more easily, long press on a FX to change slot.
 - Adplug updated to latest version (2.4)

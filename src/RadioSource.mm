@@ -1810,7 +1810,7 @@ extern int joshw_subsites_size;
                 ret=[self getNewVGMRFile:slot];
                 break;
             case RS_COLLECTION_ZXART:
-                [self getNewZXARTFile:slot];
+                ret=[self getNewZXARTFile:slot];
                 break;
             case RS_COLLECTION_JOSHW:
                 ret=[self getNewJOSHWFile:slot];

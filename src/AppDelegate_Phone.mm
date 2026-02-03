@@ -22,6 +22,7 @@
 #import "myTabBarController.h"
 
 #import "ModizFileHelper.h"
+#import "CloudStorageManager.h"
 
 #import "ModizerTypes.h"
 
@@ -116,21 +117,32 @@ pthread_mutex_t gl_mutex;
     NSFileManager *mFileMngr=[[NSFileManager alloc] init];
     
     
-    //check iCloud availability
-    if (![mFileMngr ubiquityIdentityToken]) {
-        icloud_available=false;
-        icloudURL=nil;
-        MDZILog("iCloud not available");
-    } else {
-        icloud_available=true;
-        NSURL *url=[mFileMngr URLForUbiquityContainerIdentifier:nil];
-        
-        if (url) {
-            icloudURL=[url URLByAppendingPathComponent:@"Documents"];
-            
-            [mFileMngr createFileAtPath:[[icloudURL path] stringByAppendingPathComponent:@"put_files_here.modizer"] contents:NULL attributes:NULL];
-        } else icloudURL=nil;
-    }
+    //check iCloud availability - initialize asynchronously via CloudStorageManager
+    //Legacy variables are still set for backward compatibility
+    icloud_available = false;
+    icloudURL = nil;
+
+    // Initialize cloud storage asynchronously on background thread
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        [[CloudStorageManager sharedManager] initializeWithCompletion:^(BOOL success) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                // Update legacy variables for backward compatibility
+                CloudStorageSource *nativeICloud = [[CloudStorageManager sharedManager] nativeICloudSource];
+                if (nativeICloud && nativeICloud.isAccessible) {
+                    icloud_available = true;
+                    icloudURL = nativeICloud.resolvedURL;
+                    MDZILog("CloudStorage: iCloud initialized at %@", icloudURL.path);
+                } else {
+                    icloud_available = false;
+                    icloudURL = nil;
+                    MDZILog("CloudStorage: iCloud not available");
+                }
+
+                // Post notification that cloud storage is ready
+                [[NSNotificationCenter defaultCenter] postNotificationName:@"CloudStorageReady" object:nil];
+            });
+        }];
+    });
     
     [mFileMngr createDirectoryAtPath:[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:@"Documents/Downloads"] withIntermediateDirectories:true attributes:NULL error:NULL];
     

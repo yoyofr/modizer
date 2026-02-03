@@ -21,8 +21,10 @@
 #import "MiniPlayerVC.h"
 
 #import "WaitingView.h"
+#import "CloudStorageManager.h"
 
 @class DetailViewControllerIphone;
+@class CloudStorageSource;
 
 @interface RootViewControllerLocalBrowser : UIViewController <UISearchBarDelegate,UIGestureRecognizerDelegate,CMPopTipViewDelegate,UINavigationControllerDelegate,UIScrollViewDelegate,NSFileManagerDelegate> {
 	NSString *ratingImg[3];
@@ -71,7 +73,10 @@
 	int search_local;
 		
 	NSString *currentPath;
-    bool icloud_folder_mode;
+    bool icloud_folder_mode;  // Legacy - kept for backward compatibility
+    CloudStorageSource *currentCloudSource;  // Current cloud source being browsed
+    BOOL isCloudBrowseMode;  // True when browsing any cloud source
+    BOOL isCloudBrowseModeRoot;
     int mSearch;
 	NSString *mSearchText;
 	

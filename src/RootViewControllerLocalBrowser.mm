@@ -28,6 +28,7 @@ NSString *cutpaste_filesrcpath=nil;
 
 //FileHelper
 #include "ModizFileHelper.h"
+#include "CloudStorageManager.h"
 
 //SID2
 #include "sidplayfp/SidTune.h"
@@ -529,7 +530,21 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     
     
     [super viewDidLoad];
-    
+
+    // Register for cloud storage notifications
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(cloudStorageSourcesDidUpdate:)
+                                                 name:CloudStorageSourcesDidUpdateNotification
+                                               object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(cloudStorageReady:)
+                                                 name:CloudStorageReadyNotification
+                                               object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(cloudFileDownloaded:)
+                                                 name:CloudStorageFileDownloadedNotification
+                                               object:nil];
+
     // Initialize the refresh control.
     self.tableView.refreshControl = [[UIRefreshControl alloc] init];
     self.tableView.refreshControl.backgroundColor = [UIColor clearColor];
@@ -809,11 +824,12 @@ static int qsort_CompareArcEntries(const void *entryA, const void *entryB) {
                 search_local_entries[search_local_entries_count].playcount=local_entries[j].playcount;
                 search_local_entries[search_local_entries_count].rating=local_entries[j].rating;
                 search_local_entries[search_local_entries_count].type=local_entries[j].type;
-                
+
                 search_local_entries[search_local_entries_count].song_length=local_entries[j].song_length;
                 search_local_entries[search_local_entries_count].songs=local_entries[j].songs;
                 search_local_entries[search_local_entries_count].channels_nb=local_entries[j].channels_nb;
-                
+                search_local_entries[search_local_entries_count].cloudStatus=local_entries[j].cloudStatus;
+
                 search_local_entries_count++;
                 search_local_nb_entries++;
             }
@@ -1389,16 +1405,33 @@ static int qsort_CompareArcEntries(const void *entryA, const void *entryB) {
         
         //List all entries
         NSURL *directoryURL = [NSURL fileURLWithPath:cpath];
+
+        // For cloud sources, ensure we have security-scoped access
+        BOOL needsStopAccess = NO;
+        if (isCloudBrowseMode && currentCloudSource) {
+            [[CloudStorageManager sharedManager] startAccessingSource:currentCloudSource];
+            needsStopAccess = [directoryURL startAccessingSecurityScopedResource];
+            MDZILog("Cloud browse mode: started accessing %@ (success: %d)", cpath, needsStopAccess);
+        }
+
         NSDirectoryEnumerator *directoryEnumerator =
         [mFileMngr enumeratorAtURL:directoryURL
         includingPropertiesForKeys:@[NSURLPathKey, NSURLNameKey, NSURLIsDirectoryKey]
                            options:NSDirectoryEnumerationSkipsHiddenFiles|(mShowSubdir?0:NSDirectoryEnumerationSkipsSubdirectoryDescendants)
-                      errorHandler:nil];
-        
-        /*for (NSURL *fileURL in directoryEnumerator) {
-         [dirContent addObject:fileURL];
-         }*/
+                      errorHandler:^BOOL(NSURL *url, NSError *error) {
+            MDZELog("Directory enumeration error at %@: %@", url, error.localizedDescription);
+            return YES; // Continue enumeration despite error
+        }];
+
         dirContent=[directoryEnumerator allObjects];
+
+        if (isCloudBrowseMode) {
+            MDZILog("Cloud browse: found %lu items in %@", (unsigned long)[dirContent count], cpath);
+        }
+
+        if (needsStopAccess) {
+            [directoryURL stopAccessingSecurityScopedResource];
+        }
         
         //if (mShowSubdir) dirContent=[mFileMngr subpathsOfDirectoryAtPath:cpath error:&error];
         //else dirContent=[mFileMngr contentsOfDirectoryAtPath:cpath error:&error];
@@ -1654,7 +1687,20 @@ static int qsort_CompareArcEntries(const void *entryA, const void *entryB) {
                                     local_entries[local_entries_count].song_length=-1;
                                     local_entries[local_entries_count].songs=-1;
                                     local_entries[local_entries_count].channels_nb=-1;
-                                    
+
+                                    // Check cloud download status
+                                    if (isCloudBrowseMode) {
+                                        NSString *fpath=[ModizFileHelper getFullPathForFilePath:local_entries[local_entries_count].fullpath];
+                                        NSURL *furl = [NSURL fileURLWithPath:fpath];
+                                        if ([[CloudStorageManager sharedManager] isFileDownloaded:furl]) {
+                                            local_entries[local_entries_count].cloudStatus = 0; // Downloaded
+                                        } else {
+                                            local_entries[local_entries_count].cloudStatus = 1; // Not downloaded
+                                        }
+                                    } else {
+                                        local_entries[local_entries_count].cloudStatus = 0; // Local file
+                                    }
+
                                     //check for cover
                                     NSString *fpath=[ModizFileHelper getFullPathForFilePath:local_entries[local_entries_count].fullpath];
                                     NSString *imgPath=[[fpath stringByDeletingPathExtension] stringByAppendingString:@".png"];
@@ -2047,7 +2093,11 @@ As a consequence, some entries might disappear from existing playlist.\n\
 }
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
     if (section==0) {
-        if (browse_depth==0) return 2;
+        if (browse_depth==0) {
+            // 1 row for "Display All/Dir" toggle + N rows for cloud sources + 1 row for "Add Cloud Source" button
+            NSInteger cloudSourceCount = [[CloudStorageManager sharedManager] sources].count;
+            return 1 + cloudSourceCount + 1; // toggle + sources + add button
+        }
         else return 1;
     }
     return (search_local?search_local_entries_count:local_entries_count);
@@ -2304,26 +2354,87 @@ As a consequence, some entries might disappear from existing playlist.\n\
             secActionView.enabled=YES;
             secActionView.hidden=NO;
         } else {
-            cellValue=NSLocalizedString(@"iCloud","");
-            if (icloud_available) bottomLabel.text=NSLocalizedString(@"available",@"");
-            else bottomLabel.text=NSLocalizedString(@"unavailable",@"");
-            
-            bottomLabel.frame = CGRectMake( 1.0 * cell.indentationWidth,
-                                           22,
-                                           tabView.bounds.size.width -1.0 * cell.indentationWidth/*-32*/-PRI_SEC_ACTIONS_IMAGE_SIZE-60,
-                                           18);
-            
-            if (darkMode) topLabel.textColor=[UIColor colorWithRed:ICLOUD_COLOR_RED_DARKMODE green:ICLOUD_COLOR_GREEN_DARKMODE blue:ICLOUD_COLOR_BLUE_DARKMODE alpha:1.0];
-            else topLabel.textColor=[UIColor colorWithRed:ICLOUD_COLOR_RED green:ICLOUD_COLOR_GREEN blue:ICLOUD_COLOR_BLUE alpha:1.0];
-            
-            topLabel.frame= CGRectMake(1.0 * cell.indentationWidth,
-                                       0,
-                                       tabView.bounds.size.width -1.0 * cell.indentationWidth/*- 32*/-PRI_SEC_ACTIONS_IMAGE_SIZE-4-PRI_SEC_ACTIONS_IMAGE_SIZE,
-                                       22);
-            actionView.enabled=NO;
-            actionView.hidden=YES;
-            secActionView.enabled=NO;
-            secActionView.hidden=YES;
+            // Dynamic cloud sources display
+            NSArray<CloudStorageSource *> *cloudSources = [[CloudStorageManager sharedManager] sources];
+            NSInteger cloudSourceIndex = indexPath.row - 1; // Subtract 1 for the toggle row
+            NSInteger addButtonIndex = cloudSources.count; // Index of "Add Cloud Source" button
+
+            if (cloudSourceIndex < (NSInteger)cloudSources.count) {
+                // Display a cloud source
+                CloudStorageSource *source = cloudSources[cloudSourceIndex];
+                cellValue = source.name;
+
+                if (source.isAccessible) {
+                    bottomLabel.text = [NSString stringWithFormat:@"%@-%@",NSLocalizedString(@"available", @""),[CloudStorageSource displayNameForType:source.type]];
+                } else {
+                    bottomLabel.text = [NSString stringWithFormat:@"%@-%@",NSLocalizedString(@"unavailable", @""),[CloudStorageSource displayNameForType:source.type]];
+                }
+
+                bottomLabel.frame = CGRectMake(1.0 * cell.indentationWidth,
+                                               22,
+                                               tabView.bounds.size.width - 1.0 * cell.indentationWidth - PRI_SEC_ACTIONS_IMAGE_SIZE - 60,
+                                               18);
+
+                UIColor *tintColor = [CloudStorageSource tintColorForType:source.type darkMode:darkMode];
+                topLabel.textColor = tintColor;
+
+                topLabel.frame = CGRectMake(1.0 * cell.indentationWidth,
+                                            0,
+                                            tabView.bounds.size.width - 1.0 * cell.indentationWidth - PRI_SEC_ACTIONS_IMAGE_SIZE - 4 - PRI_SEC_ACTIONS_IMAGE_SIZE,
+                                            22);
+
+                // Show delete button for all sources except the auto-detected native iCloud source
+                CloudStorageSource *nativeICloud = [[CloudStorageManager sharedManager] nativeICloudSource];
+                BOOL isAutoDetectedNativeICloud = (source == nativeICloud);
+
+                if (!isAutoDetectedNativeICloud) {
+                    [secActionView setImage:[UIImage systemImageNamed:@"minus.circle.fill"] forState:UIControlStateNormal];
+                    [secActionView setTintColor:[UIColor systemRedColor]];
+                    [secActionView removeTarget:self action:NULL forControlEvents:UIControlEventTouchUpInside];
+                    [secActionView addTarget:self action:@selector(removeCloudSourceTapped:) forControlEvents:UIControlEventTouchUpInside];
+                    [dictActionBtn setObject:[NSNumber numberWithInteger:indexPath.row * 100 + indexPath.section] forKey:[[secActionView.description componentsSeparatedByString:@";"] firstObject]];
+                    secActionView.frame = CGRectMake(tabView.bounds.size.width - 2 - PRI_SEC_ACTIONS_IMAGE_SIZE - tabView.safeAreaInsets.right - tabView.safeAreaInsets.left, 0, PRI_SEC_ACTIONS_IMAGE_SIZE, PRI_SEC_ACTIONS_IMAGE_SIZE);
+                    secActionView.enabled = YES;
+                    secActionView.hidden = NO;
+                } else {
+                    secActionView.enabled = NO;
+                    secActionView.hidden = YES;
+                }
+
+                actionView.enabled = NO;
+                actionView.hidden = YES;
+            } else if (cloudSourceIndex == addButtonIndex) {
+                // "Add Cloud Source" button
+                cellValue = NSLocalizedString(@"Add Cloud Source", @"");
+                bottomLabel.text = NSLocalizedString(@"Browse iCloud, Dropbox, OneDrive...", @"");
+
+                bottomLabel.frame = CGRectMake(1.0 * cell.indentationWidth,
+                                               22,
+                                               tabView.bounds.size.width - 1.0 * cell.indentationWidth - PRI_SEC_ACTIONS_IMAGE_SIZE - 60,
+                                               18);
+
+                if (darkMode) {
+                    topLabel.textColor = [UIColor colorWithRed:0.3 green:0.7 blue:0.3 alpha:1.0];
+                } else {
+                    topLabel.textColor = [UIColor colorWithRed:0.2 green:0.6 blue:0.2 alpha:1.0];
+                }
+
+                topLabel.frame = CGRectMake(1.0 * cell.indentationWidth,
+                                            0,
+                                            tabView.bounds.size.width - 1.0 * cell.indentationWidth - PRI_SEC_ACTIONS_IMAGE_SIZE - 4,
+                                            22);
+
+                [secActionView setImage:[UIImage systemImageNamed:@"plus.circle.fill"] forState:UIControlStateNormal];
+                [secActionView setTintColor:[UIColor systemGreenColor]];
+                [secActionView removeTarget:self action:NULL forControlEvents:UIControlEventTouchUpInside];
+                [secActionView addTarget:self action:@selector(addCloudSourceTapped:) forControlEvents:UIControlEventTouchUpInside];
+                secActionView.frame = CGRectMake(tabView.bounds.size.width - 2 - PRI_SEC_ACTIONS_IMAGE_SIZE - tabView.safeAreaInsets.right - tabView.safeAreaInsets.left, 0, PRI_SEC_ACTIONS_IMAGE_SIZE, PRI_SEC_ACTIONS_IMAGE_SIZE);
+                secActionView.enabled = YES;
+                secActionView.hidden = NO;
+
+                actionView.enabled = NO;
+                actionView.hidden = YES;
+            }
         }
     } else {
         
@@ -2375,7 +2486,14 @@ As a consequence, some entries might disappear from existing playlist.\n\
             secActionView.hidden=NO;
         } else  { //file
             int actionicon_offsetx=tabView.safeAreaInsets.right+tabView.safeAreaInsets.left;
-            
+
+            // Check if this is a cloud file that is not downloaded (using pre-computed cloudStatus)
+            if (cur_local_entries[indexPath.row].cloudStatus == 1) {
+                // Gray out files that are not downloaded
+                topLabel.textColor = [UIColor colorWithRed:0.5 green:0.5 blue:0.5 alpha:0.6];
+                bottomLabel.textColor = [UIColor colorWithRed:0.5 green:0.5 blue:0.5 alpha:0.5];
+            }
+
             bool hasImg=false;
             if (cur_local_entries[indexPath.row].imgpath) {
                 coverImgView.image=[UIImage imageWithContentsOfFile:cur_local_entries[indexPath.row].imgpath];
@@ -3211,6 +3329,226 @@ leadingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
     [self tableView:tableView didSelectRowAtIndexPath:indexPath];
 }
 
+#pragma mark - Cloud Storage Management
+
+- (void)cloudStorageSourcesDidUpdate:(NSNotification *)notification {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self->tableView reloadData];
+    });
+}
+
+- (void)cloudStorageReady:(NSNotification *)notification {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self->tableView reloadData];
+    });
+}
+
+- (void)cloudFileDownloaded:(NSNotification *)notification {
+    NSString *downloadedFilePath = notification.userInfo[CloudStorageFilePathKey];
+    if (!downloadedFilePath) return;
+
+    dispatch_async(dispatch_get_main_queue(), ^{
+        t_local_browse_entry *cur_local_entries = (self->search_local ? self->search_local_entries : self->local_entries);
+        int cur_local_nb_entries = (self->search_local ? self->search_local_nb_entries : self->local_nb_entries);
+
+        if (!cur_local_entries) return;
+
+        // Find the entry with matching path and update its cloudStatus
+        for (int i = 0; i < cur_local_nb_entries; i++) {
+            if (cur_local_entries[i].fullpath && [cur_local_entries[i].fullpath isEqualToString:downloadedFilePath]) {
+                cur_local_entries[i].cloudStatus = 0; // Mark as downloaded
+                // Reload just this cell
+                NSIndexPath *indexPath = [NSIndexPath indexPathForRow:i inSection:0];
+                [self->tableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationNone];
+                break;
+            }
+        }
+    });
+}
+
+- (void)navigateToCloudSource:(CloudStorageSource *)source {
+    [self updateWaitingTitle:@""];
+    [self updateWaitingDetail:NSLocalizedString(@"Accessing cloud storage...", @"")];
+    [self hideWaitingCancel];
+    [self hideWaitingProgress];
+    [self showWaiting];
+    [self flushMainLoop];
+
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        // Start accessing the security-scoped resource
+        [[CloudStorageManager sharedManager] startAccessingSource:source];
+
+        // Try to resolve bookmark if we have one, otherwise use existing resolvedURL
+        BOOL canAccess = NO;
+        if (source.bookmarkData) {
+            canAccess = [source resolveBookmark];
+        } else if (source.resolvedURL) {
+            // No bookmark but we have a resolved URL (e.g., just added this session)
+            canAccess = source.isAccessible;
+        }
+
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self hideWaiting];
+
+            if (canAccess && source.resolvedURL) {
+                if (childController == nil) {
+                    childController = [[RootViewControllerLocalBrowser alloc] initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]];
+                }
+
+                childController.title = source.name;
+                ((RootViewControllerLocalBrowser*)childController)->currentPath = source.resolvedURL.path;
+                
+                ((RootViewControllerLocalBrowser*)childController)->icloud_folder_mode = (source.type == CloudStorageTypeICloudNative);
+                ((RootViewControllerLocalBrowser*)childController)->isCloudBrowseMode = YES;
+                ((RootViewControllerLocalBrowser*)childController)->isCloudBrowseModeRoot = YES;
+                ((RootViewControllerLocalBrowser*)childController)->currentCloudSource = source;
+                ((RootViewControllerLocalBrowser*)childController)->browse_depth = browse_depth + 1;
+                ((RootViewControllerLocalBrowser*)childController)->detailViewController = detailViewController;
+
+                if ([childController respondsToSelector:@selector(setEdgesForExtendedLayout:)]) {
+                    childController.edgesForExtendedLayout = UIRectEdgeNone;
+                    childController.extendedLayoutIncludesOpaqueBars = NO;
+                }
+                if ([childController isKindOfClass:[UITableViewController class]]) {
+                    ((UITableViewController *)childController).tableView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentAutomatic;
+                } else if ([childController.view isKindOfClass:[UIScrollView class]]) {
+                    ((UIScrollView *)childController.view).contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentAutomatic;
+                }
+
+                [self.navigationController pushViewController:childController animated:YES];
+            } else {
+                // Show error alert
+                UIAlertController *alert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Error", @"")
+                                                                               message:NSLocalizedString(@"Cloud source is unavailable. You may need to re-add it.", @"")
+                                                                        preferredStyle:UIAlertControllerStyleAlert];
+                UIAlertAction *okAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"OK", @"")
+                                                                   style:UIAlertActionStyleDefault
+                                                                 handler:nil];
+                [alert addAction:okAction];
+                [self presentViewController:alert animated:YES completion:nil];
+            }
+        });
+    });
+}
+
+- (void)addCloudSourceTapped:(UIButton *)sender {
+    MDZILog("RootViewControllerLocalBrowser: addCloudSourceTapped called");
+    [[CloudStorageManager sharedManager] presentFolderPickerFrom:self completion:^(NSURL *url, NSError *error) {
+        MDZILog("RootViewControllerLocalBrowser: folderPicker completion called - url: %@, error: %@", url, error);
+        if (url) {
+            // Ask user for a name
+            UIAlertController *alert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Name this source", @"")
+                                                                           message:NSLocalizedString(@"Enter a name for this cloud folder", @"")
+                                                                    preferredStyle:UIAlertControllerStyleAlert];
+
+            [alert addTextFieldWithConfigurationHandler:^(UITextField *textField) {
+                textField.placeholder = NSLocalizedString(@"Cloud Folder", @"");
+                textField.text = [url lastPathComponent];
+            }];
+
+            UIAlertAction *addAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Add", @"")
+                                                                style:UIAlertActionStyleDefault
+                                                              handler:^(UIAlertAction *action) {
+                NSString *name = alert.textFields.firstObject.text;
+                if (name.length == 0) {
+                    name = [url lastPathComponent];
+                }
+
+                MDZILog("RootViewControllerLocalBrowser: Adding cloud source with name: %@, url: %@", name, url);
+                CloudStorageSource *source = [[CloudStorageManager sharedManager] addSourceWithURL:url name:name];
+                MDZILog("RootViewControllerLocalBrowser: Source added: %@, bookmarkData: %@, isAccessible: %d",
+                       source.name, source.bookmarkData ? @"YES" : @"NO", source.isAccessible);
+
+                [self->tableView reloadData];
+                MDZILog("RootViewControllerLocalBrowser: tableView reloadData called");
+
+                // Check if bookmark was created successfully
+                if (!source.bookmarkData) {
+                    // Warn user that the source won't persist after app restart
+                    UIAlertController *warningAlert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Warning", @"")
+                                                                                          message:NSLocalizedString(@"This cloud folder was added but may not persist after the app is closed. Some cloud providers don't support persistent access.", @"")
+                                                                                   preferredStyle:UIAlertControllerStyleAlert];
+                    [warningAlert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"OK", @"") style:UIAlertActionStyleDefault handler:nil]];
+                    [self presentViewController:warningAlert animated:YES completion:nil];
+                }
+
+                // Stop accessing immediately - it will be re-accessed when navigating
+                [url stopAccessingSecurityScopedResource];
+            }];
+
+            UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", @"")
+                                                                   style:UIAlertActionStyleCancel
+                                                                 handler:^(UIAlertAction *action) {
+                [url stopAccessingSecurityScopedResource];
+            }];
+
+            [alert addAction:addAction];
+            [alert addAction:cancelAction];
+            MDZILog("RootViewControllerLocalBrowser: Presenting name alert from VC: %@", self);
+
+            // On Mac Catalyst, ensure we present from the correct view controller
+            UIViewController *presenter = self;
+            while (presenter.presentedViewController) {
+                presenter = presenter.presentedViewController;
+            }
+            // If we're not in the window hierarchy, find a suitable presenter
+            if (!self.view.window) {
+                UIWindowScene *windowScene = (UIWindowScene *)[[[UIApplication sharedApplication] connectedScenes] anyObject];
+                presenter = windowScene.windows.firstObject.rootViewController;
+                while (presenter.presentedViewController) {
+                    presenter = presenter.presentedViewController;
+                }
+            }
+
+            // Use dispatch_async to ensure the document picker is fully dismissed
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [presenter presentViewController:alert animated:YES completion:nil];
+            });
+        } else if (error) {
+            // Show error message (e.g., Google Drive not supported on iOS)
+            UIAlertController *errorAlert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Error", @"")
+                                                                                message:error.localizedDescription
+                                                                         preferredStyle:UIAlertControllerStyleAlert];
+            [errorAlert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"OK", @"") style:UIAlertActionStyleDefault handler:nil]];
+            [self presentViewController:errorAlert animated:YES completion:nil];
+        }
+    }];
+}
+
+- (void)removeCloudSourceTapped:(UIButton *)sender {
+    NSNumber *value = (NSNumber *)[dictActionBtn objectForKey:[[sender.description componentsSeparatedByString:@";"] firstObject]];
+    if (value == NULL) return;
+
+    NSInteger row = value.longValue / 100;
+    NSInteger cloudSourceIndex = row - 1; // Subtract 1 for toggle row
+
+    NSArray<CloudStorageSource *> *cloudSources = [[CloudStorageManager sharedManager] sources];
+    if (cloudSourceIndex >= 0 && cloudSourceIndex < (NSInteger)cloudSources.count) {
+        CloudStorageSource *source = cloudSources[cloudSourceIndex];
+
+        UIAlertController *alert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Remove Cloud Source", @"")
+                                                                       message:[NSString stringWithFormat:NSLocalizedString(@"Remove '%@' from the list?", @""), source.name]
+                                                                preferredStyle:UIAlertControllerStyleAlert];
+
+        UIAlertAction *removeAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Remove", @"")
+                                                               style:UIAlertActionStyleDestructive
+                                                             handler:^(UIAlertAction *action) {
+            [[CloudStorageManager sharedManager] removeSource:source];
+            [self->tableView reloadData];
+        }];
+
+        UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", @"")
+                                                               style:UIAlertActionStyleCancel
+                                                             handler:nil];
+
+        [alert addAction:removeAction];
+        [alert addAction:cancelAction];
+        [self presentViewController:alert animated:YES completion:nil];
+    }
+}
+
+#pragma mark - Fill Keys
+
 -(void) fillKeysSearchWithPopup {
     int old_mSearch=mSearch;
     NSString *old_mSearchText=mSearchText;
@@ -3256,48 +3594,19 @@ leadingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
                 
                 
             }
-        }else {
-            if (icloud_available) {
-                [self updateWaitingTitle:@""];
-                [self updateWaitingDetail:@""];
-                [self hideWaitingCancel];
-                [self hideWaitingProgress];
-                [self showWaiting];
-                [self flushMainLoop];
-                
-                
-                NSString *newPath=[NSString stringWithFormat:@"%@/%@",currentPath,cellValue];
-                //[newPath retain];
-                if (childController == nil) childController = [[RootViewControllerLocalBrowser alloc]  initWithNibName:@"PlaylistViewController" bundle:[NSBundle mainBundle]];
-                else {// Don't cache childviews
-                }
-                //set new title
-                childController.title = @"iCloud";
-                // Set new depth & new directory
-                ((RootViewControllerLocalBrowser*)childController)->icloud_folder_mode=true;
-                ((RootViewControllerLocalBrowser*)childController)->currentPath = [icloudURL path];
-                ((RootViewControllerLocalBrowser*)childController)->browse_depth = browse_depth+1;
-                ((RootViewControllerLocalBrowser*)childController)->detailViewController=detailViewController;
-                
-//                childController.view.frame=self.view.frame;
-                // Ensure proper layout under navigation/tab bars
-                if ([childController respondsToSelector:@selector(setEdgesForExtendedLayout:)]) {
-                    childController.edgesForExtendedLayout = UIRectEdgeNone;
-                    childController.extendedLayoutIncludesOpaqueBars = NO;
-                }
-                if ([childController isKindOfClass:[UITableViewController class]]) {
-                    ((UITableViewController *)childController).tableView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentAutomatic;
-                } else if ([childController.view isKindOfClass:[UIScrollView class]]) {
-                    ((UIScrollView *)childController.view).contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentAutomatic;
-                }
-                // And push the window
-                [self.navigationController pushViewController:childController animated:YES];
-                
-                
-                [self hideWaiting];
-            } else {
-                //iCloud not available
-                MDZILog("icloud not available");
+        } else {
+            // Handle cloud sources and add button
+            NSArray<CloudStorageSource *> *cloudSources = [[CloudStorageManager sharedManager] sources];
+            NSInteger cloudSourceIndex = indexPath.row - 1; // Subtract 1 for toggle row
+            NSInteger addButtonIndex = cloudSources.count;
+
+            if (cloudSourceIndex < (NSInteger)cloudSources.count) {
+                // Navigate to cloud source
+                CloudStorageSource *source = cloudSources[cloudSourceIndex];
+                [self navigateToCloudSource:source];
+            } else if (cloudSourceIndex == addButtonIndex) {
+                // Add new cloud source
+                [self addCloudSourceTapped:nil];
             }
         }
     } else {
@@ -3322,9 +3631,12 @@ leadingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
             childController.title = cellValue;
             // Set new depth & new directory
             ((RootViewControllerLocalBrowser*)childController)->currentPath = newPath;
-            ((RootViewControllerLocalBrowser*)childController)->icloud_folder_mode=icloud_folder_mode;
+            ((RootViewControllerLocalBrowser*)childController)->icloud_folder_mode = icloud_folder_mode;
+            ((RootViewControllerLocalBrowser*)childController)->isCloudBrowseMode = isCloudBrowseMode;
+            ((RootViewControllerLocalBrowser*)childController)->isCloudBrowseModeRoot = NO;
+            ((RootViewControllerLocalBrowser*)childController)->currentCloudSource = currentCloudSource;
             ((RootViewControllerLocalBrowser*)childController)->browse_depth = browse_depth+1;
-            ((RootViewControllerLocalBrowser*)childController)->detailViewController=detailViewController;
+            ((RootViewControllerLocalBrowser*)childController)->detailViewController = detailViewController;
             //childController.view.frame=self.view.frame;
             
             // Ensure proper layout under navigation/tab bars
@@ -3386,14 +3698,88 @@ leadingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
             [self hideWaiting];
             //				[childController autorelease];
         } else {  //File selected
-            
-            //            [self updateWaitingTitle:@""];
-            //            [self updateWaitingDetail:@""];
-            //            [self showWaitingCancel];
-            //            [self showWaitingProgress];
-            //            [self showWaiting];
-            
-            
+
+            // Check if this is a cloud file that needs to be downloaded first
+            if (cur_local_entries[indexPath.row].cloudStatus == 1) {
+                // File is not downloaded - trigger download (don't play yet)
+                NSString *filePath = cur_local_entries[indexPath.row].fullpath;
+                NSURL *fileURL = [NSURL fileURLWithPath:filePath];
+
+                NSError *downloadError = nil;
+                BOOL downloadStarted = [[CloudStorageManager sharedManager] startDownloadingFile:fileURL error:&downloadError];
+
+                if (!downloadStarted) {
+                    UIAlertController *alert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Warning",@"")
+                                                                                   message:NSLocalizedString(@"File cannot be downloaded.\nPlease check your internet connection.",@"")
+                                                                            preferredStyle:UIAlertControllerStyleAlert];
+                    [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"OK",@"") style:UIAlertActionStyleDefault handler:nil]];
+                    [self presentViewController:alert animated:YES completion:nil];
+                    return;
+                }
+
+                // Show waiting indicator
+                [self updateWaitingTitle:@""];
+                [self updateWaitingDetail:NSLocalizedString(@"Downloading from\ncloud...",@"")];
+                [self hideWaitingCancel];
+                [self hideWaitingProgress];
+                [self showWaiting];
+
+                // Store info needed to update the cell
+                NSString *filePathCopy = [filePath copy];
+                NSInteger rowIndex = indexPath.row;
+                NSInteger sectionIndex = indexPath.section;
+
+                // Wait for download in background
+                dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                    int maxWaitIterations = 120; // 60 seconds at 0.5s intervals
+                    int iterations = 0;
+                    BOOL downloadComplete = NO;
+
+                    while (iterations < maxWaitIterations) {
+                        [NSThread sleepForTimeInterval:0.5];
+                        iterations++;
+                        // Clear cached resource values to get fresh status
+                        [fileURL removeAllCachedResourceValues];
+                        if ([[CloudStorageManager sharedManager] isFileDownloaded:fileURL]) {
+                            downloadComplete = YES;
+                            break;
+                        }
+                    }
+
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        [self hideWaiting];
+
+                        if (!downloadComplete) {
+                            UIAlertController *alert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Warning",@"")
+                                                                                           message:NSLocalizedString(@"Download timed out. Please try again later.",@"")
+                                                                                    preferredStyle:UIAlertControllerStyleAlert];
+                            [alert addAction:[UIAlertAction actionWithTitle:NSLocalizedString(@"OK",@"") style:UIAlertActionStyleDefault handler:nil]];
+                            [self presentViewController:alert animated:YES completion:nil];
+                            return;
+                        }
+
+                        // Update cloudStatus in the entry
+                        t_local_browse_entry *entries = (self->search_local ? self->search_local_entries : self->local_entries);
+                        if (entries && rowIndex < (self->search_local ? self->search_local_nb_entries : self->local_nb_entries)) {
+                            entries[rowIndex].cloudStatus = 0;
+                            // Reload the cell to update appearance
+                            NSIndexPath *idxPath = [NSIndexPath indexPathForRow:rowIndex inSection:sectionIndex];
+                            [self->tableView reloadRowsAtIndexPaths:@[idxPath] withRowAnimation:UITableViewRowAnimationNone];
+                        }
+
+                        // Post notification
+                        [[NSNotificationCenter defaultCenter] postNotificationName:CloudStorageFileDownloadedNotification
+                                                                            object:nil
+                                                                          userInfo:@{CloudStorageFilePathKey: filePathCopy}];
+
+                        // Download complete - user can now click again to play
+                    });
+                });
+
+                return; // Return early, user needs to click again to play
+            }
+
+            // File is already downloaded - proceed with playback immediately
             if (settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==0) {
                 // launch Play
                 t_playlist *pl;
@@ -3404,17 +3790,17 @@ leadingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
                 pl->entries[0].ratings=cur_local_entries[indexPath.row].rating;
                 pl->entries[0].playcounts=cur_local_entries[indexPath.row].playcount;
                 [detailViewController play_listmodules:pl start_index:0];
-                
+
                 if ([detailViewController.mplayer isPlaying]) [self showMiniPlayer];
-                
+
                 free(pl);
-                
+
             } else {
                 if ([detailViewController add_to_playlist:cur_local_entries[indexPath.row].fullpath fileName:cur_local_entries[indexPath.row].label forcenoplay:0]) {
-                                    
+
                 }
             }
-            
+
             //[self hideWaiting];
         }
     }
@@ -3570,6 +3956,15 @@ leadingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
     // For example: self.myOutlet = nil;;
 }
 - (void)dealloc {
+    // Remove cloud storage observers
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:CloudStorageSourcesDidUpdateNotification object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:CloudStorageReadyNotification object:nil];
+
+    // Stop accessing cloud source if we were browsing one
+    if (isCloudBrowseModeRoot && currentCloudSource && currentCloudSource.isSecurityScoped) {
+        [[CloudStorageManager sharedManager] stopAccessingSource:currentCloudSource];
+    }
+
     [waitingView removeFromSuperview];
     waitingView=nil;
     [waitingViewExtract removeFromSuperview];

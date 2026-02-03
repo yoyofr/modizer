@@ -162,6 +162,7 @@ extern unsigned int m_voice_oscillo_pal3[8];
 #import <MediaPlayer/MediaPlayer.h>
 
 #import "EQViewController.h"
+#import "CloudStorageManager.h"
 
 //#import "../libs/libopenmpt/openmpt-trunk/include/modplug/include/libmodplug/modplug.h"
 
@@ -4339,9 +4340,16 @@ int recording=0;
     //UIViewController *vc = [self visibleViewController:[UIApplication sharedApplication].keyWindow.rootViewController];
     //mdz_safe_execute_sel(vc,@selector(hideWaiting),nil)
     [self hideWaiting];
-    
+
     loadRequestInProgress=0;
-    
+
+    // Notify that a cloud file was downloaded and is now available
+    if ([[CloudStorageManager sharedManager] isCloudPath:filePath]) {
+        [[NSNotificationCenter defaultCenter] postNotificationName:CloudStorageFileDownloadedNotification
+                                                            object:nil
+                                                          userInfo:@{CloudStorageFilePathKey: filePath}];
+    }
+
     //fix issue with OMPT settings reset after load
     //[self settingsChanged:(int)SETTINGS_ALL];
     
@@ -4546,7 +4554,8 @@ int recording=0;
     loadRequestInProgress=1;
     
     if (settings[GLOB_ResumeOnStart].detail.mdz_boolswitch.switch_value==0) mPlayingPosRestart=0;
-    
+
+
     // if already playing, stop
     if (repeatingTimer) {
         [repeatingTimer invalidate];
@@ -4555,15 +4564,15 @@ int recording=0;
     }
     mShouldUpdateInfos=1;
     // load module
-    
+
     //ensure any settings changes to be taken into account before loading next file
     //[self settingsChanged:(int)SETTINGS_ALL];
-    
+
     if (mShuffle==1) {
         mOnlyCurrentSubEntry|=2;
         mOnlyCurrentEntry|=2;
     }
-    
+
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
         int retcode;
         if ((retcode=[mplayer LoadModule:filePath archiveMode:0 archiveIndex:arcidx singleSubMode:mOnlyCurrentSubEntry singleArcMode:mOnlyCurrentEntry detailVC:self isRestarting:(bool)mRestart  shuffle:mShuffle])) {

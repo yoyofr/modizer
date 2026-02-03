@@ -12,6 +12,7 @@ extern bool icloud_available;
 
 #import "ModizFileHelper.h"
 #import "DBHelper.h"
+#import "CloudStorageManager.h"
 
 #include <sys/sysctl.h>
 #include <sys/xattr.h>
@@ -893,8 +894,18 @@ extern bool icloud_available;
 
 +(NSString*) getFullPathForFilePath:(NSString*)filePath {
     NSString *fullFilePath;
-    if (icloud_available && ([filePath containsString:[icloudURL path]])) fullFilePath=[NSString stringWithString:filePath];
-    else fullFilePath=[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:filePath];
+
+    // Check CloudStorageManager for cloud paths first
+    if ([[CloudStorageManager sharedManager] isCloudPath:filePath]) {
+        fullFilePath = [NSString stringWithString:filePath];
+    }
+    // Legacy iCloud check for backward compatibility
+    else if (icloud_available && icloudURL && ([filePath containsString:[icloudURL path]])) {
+        fullFilePath = [NSString stringWithString:filePath];
+    }
+    else {
+        fullFilePath = [[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:filePath];
+    }
     return fullFilePath;
 }
 
@@ -923,8 +934,14 @@ extern bool icloud_available;
 
 +(NSString *)getFilePathFromDocuments:(NSString*)filePath {
     NSMutableArray *tmp_path=[NSMutableArray arrayWithArray:[filePath componentsSeparatedByString:@"/"]];
-    //special case: iCloud
-    if (icloud_available&& icloudURL) {
+
+    // Check CloudStorageManager for cloud paths first
+    if ([[CloudStorageManager sharedManager] isCloudPath:filePath]) {
+        return [tmp_path componentsJoinedByString:@"/"];
+    }
+
+    //special case: iCloud (legacy)
+    if (icloud_available && icloudURL) {
         if ([filePath containsString:[icloudURL path]]) {
             return [tmp_path componentsJoinedByString:@"/"];
         }
