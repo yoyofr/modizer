@@ -824,6 +824,9 @@ bool sysMonitorIsActive;
     signed char avg_rating;
     short int playcount;
     
+    //if radio mode, do not update stats
+    if ([radioSource isActive]) return;
+    
     filePath=[ModizFileHelper getFullCleanFilePath:filePath];
     
     if ([mplayer isArchive]) {
@@ -1126,7 +1129,7 @@ bool sysMonitorIsActive;
     
     if (settings[GLOB_StatsUpload].detail.mdz_boolswitch.switch_value) {
         mSendStatTimer=0;
-        [GoogleAppHelper SendStatistics:fileName path:filePath rating:tmp_rating playcount:playcount];
+        if (![radioSource isActive]) [GoogleAppHelper SendStatistics:fileName path:filePath rating:tmp_rating playcount:playcount];
     }
 }
 
@@ -2384,7 +2387,7 @@ static float movePinchScale,movePinchScaleOld,movePinchAngle;
      */
     if (mSendStatTimer) {
         mSendStatTimer--;
-        if (mSendStatTimer==0) {
+        if ( ![radioSource isActive] && (mSendStatTimer==0)) {
             short int playcount;
             signed char tmp_rating,avg_rating;
             DBHelper::getFileStatsDBmod(mPlaylist[mPlaylist_pos].mPlaylistFilepath,&playcount,&tmp_rating,&avg_rating);
