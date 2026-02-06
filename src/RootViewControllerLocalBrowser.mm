@@ -150,14 +150,12 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
             [fileManager moveItemAtPath:pathToDB toPath:pathToOldDB error:&error];
             //        [self addSkipBackupAttributeToItemAtPath:pathToOldDB];
         }
-        
         [fileManager copyItemAtPath:defaultDBPath toPath:pathToDB error:&error];
         //    [self addSkipBackupAttributeToItemAtPath:pathToDB];
         
-        
         if (mUpdateToNewDB) {
+            bool migration_ok=true;
             sqlite3 *db,*dbold;
-            
             if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
                 if (sqlite3_open([pathToOldDB UTF8String], &dbold) == SQLITE_OK){
                     char sqlStatementR[1024];
@@ -168,7 +166,9 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
                     
                     err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
                     if (err==SQLITE_OK){
-                    } else MDZELog("ErrSQL : %d",err);
+                    } else {
+                        MDZELog("ErrSQL : %d",err);
+                    }
                     
                     //Migrate DB user data : song length, ratings, playlists, ...
                     snprintf(sqlStatementR,1024,"SELECT name,fullpath,play_count,rating FROM user_stats");
@@ -182,57 +182,83 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
                                     sqlite3_column_int(stmt, 2),
                                     sqlite3_column_int(stmt, 3));
                             err=sqlite3_exec(db, sqlStatementW, NULL, NULL, NULL);
-                            if (err!=SQLITE_OK) MDZELog("ErrSQL : %d for %s",err,sqlStatementW);
+                            if (err!=SQLITE_OK) {
+                                MDZELog("ErrSQL : %d for %s",err,sqlStatementW);
+                                migration_ok=false;
+                                break;
+                            }
                         }
                         sqlite3_finalize(stmt);
-                    } else MDZELog("ErrSQL : %d",err);
-                    
-                    snprintf(sqlStatementR,1024,"SELECT id,name,num_files FROM playlists");
-                    err=sqlite3_prepare_v2(dbold, sqlStatementR, -1, &stmt, NULL);
-                    if (err==SQLITE_OK){
-                        while (sqlite3_step(stmt) == SQLITE_ROW) {
-                            int id_playlist;
-                            //CREATE NEW PL
-                            snprintf(sqlStatementW,1024,"INSERT INTO playlists (name,num_files) SELECT \"%s\",%d",
-                                    (char*)sqlite3_column_text(stmt, 1),
-                                    sqlite3_column_int(stmt, 2));
-                            err=sqlite3_exec(db, sqlStatementW, NULL, NULL, NULL);
-                            if (err!=SQLITE_OK) MDZELog("ErrSQL : %d for %s",err,sqlStatementW);
-                            
-                            //GET NEW PL ID
-                            id_playlist=sqlite3_last_insert_rowid(db);
-                            
-                            //RECOPY PL ENTRIES
-                            snprintf(sqlStatementR2,1024,"SELECT name,fullpath FROM playlists_entries WHERE id_playlist=%d",sqlite3_column_int(stmt, 0));
-                            err=sqlite3_prepare_v2(dbold, sqlStatementR2, -1, &stmt2, NULL);
-                            if (err==SQLITE_OK){
-                                while (sqlite3_step(stmt2) == SQLITE_ROW) {
-                                    
-                                    snprintf(sqlStatementW,104,"INSERT INTO playlists_entries (id_playlist,name,fullpath) SELECT %d,\"%s\",\"%s\"",
-                                            id_playlist,
-                                            [[[NSString stringWithUTF8String:(char*)sqlite3_column_text(stmt2, 0)] lastPathComponent] UTF8String],
-                                            (char*)sqlite3_column_text(stmt2, 1));
-                                    err=sqlite3_exec(db, sqlStatementW, NULL, NULL, NULL);
-                                    if (err!=SQLITE_OK) MDZELog("ErrSQL : %d for %s",err,sqlStatementW);
+                    } else {
+                        MDZELog("ErrSQL : %d",err);
+                        MDZELog("%s",sqlStatementR);
+                        migration_ok=false;
+                    }
+                    if (migration_ok) {
+                        snprintf(sqlStatementR,1024,"SELECT id,name,num_files FROM playlists");
+                        err=sqlite3_prepare_v2(dbold, sqlStatementR, -1, &stmt, NULL);
+                        if (err==SQLITE_OK){
+                            while (sqlite3_step(stmt) == SQLITE_ROW) {
+                                int id_playlist;
+                                //CREATE NEW PL
+                                snprintf(sqlStatementW,1024,"INSERT INTO playlists (name,num_files) SELECT \"%s\",%d",
+                                         (char*)sqlite3_column_text(stmt, 1),
+                                         sqlite3_column_int(stmt, 2));
+                                err=sqlite3_exec(db, sqlStatementW, NULL, NULL, NULL);
+                                if (err!=SQLITE_OK) {
+                                    MDZELog("ErrSQL : %d for %s",err,sqlStatementW);
+                                    migration_ok=false;
+                                    break;
                                 }
-                                sqlite3_finalize(stmt2);
-                            } else MDZELog("ErrSQL : %d",err);
-                            
+                                //GET NEW PL ID
+                                id_playlist=sqlite3_last_insert_rowid(db);
+                                
+                                //RECOPY PL ENTRIES
+                                snprintf(sqlStatementR2,1024,"SELECT name,fullpath FROM playlists_entries WHERE id_playlist=%d",sqlite3_column_int(stmt, 0));
+                                err=sqlite3_prepare_v2(dbold, sqlStatementR2, -1, &stmt2, NULL);
+                                if (err==SQLITE_OK){
+                                    while (sqlite3_step(stmt2) == SQLITE_ROW) {
+                                        
+                                        snprintf(sqlStatementW,1024,"INSERT INTO playlists_entries (id_playlist,name,fullpath) SELECT %d,\"%s\",\"%s\"",
+                                                 id_playlist,
+                                                 [[[NSString stringWithUTF8String:(char*)sqlite3_column_text(stmt2, 0)] lastPathComponent] UTF8String],
+                                                 (char*)sqlite3_column_text(stmt2, 1));
+                                        err=sqlite3_exec(db, sqlStatementW, NULL, NULL, NULL);
+                                        if (err!=SQLITE_OK) {
+                                            MDZELog("ErrSQL : %d for %s",err,sqlStatementW);
+                                            migration_ok=false;
+                                            break;
+                                        }
+                                    }
+                                    sqlite3_finalize(stmt2);
+                                } else {
+                                    MDZELog("ErrSQL : %d",err);
+                                    migration_ok=false;
+                                    break;
+                                }
+                            }
+                            sqlite3_finalize(stmt);
+                        } else {
+                            MDZELog("ErrSQL : %d",err);
+                            migration_ok=false;
                         }
-                        sqlite3_finalize(stmt);
-                    } else MDZELog("ErrSQL : %d",err);
-                    
-                    
-                    
+                    }
                     sqlite3_close(dbold);
-                    
-                    //remove old DB
-                    [fileManager removeItemAtPath:pathToOldDB error:&error];
-                }
+                } else migration_ok=false;
                 sqlite3_close(db);
-            };
+            } else migration_ok=false;
+            
+            if (migration_ok) {
+                //remove old DB if successful
+                [fileManager removeItemAtPath:pathToOldDB error:&error];
+            } else {
+                //keep old DB if not successfull
+                [fileManager removeItemAtPath:pathToDB error:&error];
+                [fileManager moveItemAtPath:pathToOldDB toPath:pathToDB error:&error];
+                
+                [self showAlertMsg:NSLocalizedString(@"Info",@"") message:NSLocalizedString(@"Database couldn't be migrated.",@"")];
+            }
         }
-        
         /*	rar_main(argc,argv);
          free(argv_buffer);
          free(argv);*/

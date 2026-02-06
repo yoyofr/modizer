@@ -607,10 +607,6 @@ extern NSMutableArray *mac_key_pressed,*mac_key_released;
     
     [self setupWelcomePages];
     
-    if (settings[GLOB_ShowWelcome].detail.mdz_boolswitch.switch_value==0) {
-        [self.rootViewControllerIphone createEditableCopyOfDatabaseIfNeeded:FALSE quiet:0];
-    }
-    
 #if TARGET_OS_MACCATALYST
 
     // Set navigation controller delegates to handle pushed view controllers
@@ -664,6 +660,9 @@ extern NSMutableArray *mac_key_pressed,*mac_key_released;
 
 - (void)presentWelcomePages {
     if (!DEBUG_SHOW_WELCOME && (settings[GLOB_ShowWelcome].detail.mdz_boolswitch.switch_value==0)) {
+        if (settings[GLOB_ShowWelcome].detail.mdz_boolswitch.switch_value==0) {
+            [self.rootViewControllerIphone createEditableCopyOfDatabaseIfNeeded:FALSE quiet:0];
+        }
         return;
     }
     
@@ -810,8 +809,6 @@ extern NSMutableArray *mac_key_pressed,*mac_key_released;
         
         //[self showAnimatedLaunchOverlay];
     }
-    
-    
 }
 
 -(void) openURL:(NSURL *)url {

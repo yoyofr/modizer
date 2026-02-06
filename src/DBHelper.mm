@@ -993,7 +993,7 @@ int DBHelper::updateRatingDBmod(NSString *fullpath,signed char rating) {
 }
 
 bool dbhelper_cancel;
-char cleanDB_Status[256];
+char cleanDB_Status[1024];
 
 int DBHelper::cleanDB() {
     NSString *pathToDB=[NSString stringWithFormat:@"%@/%@",[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:  @"Documents"],DATABASENAME_USER];
@@ -1005,8 +1005,8 @@ int DBHelper::cleanDB() {
     pthread_mutex_lock(&db_mutex);
     
     if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
-        char sqlStatement[256];
-        char sqlStatement2[256];
+        char sqlStatement[1024];
+        char sqlStatement2[1024];
         sqlite3_stmt *stmt;
         
         err=sqlite3_exec(db, "PRAGMA journal_mode=WAL; PRAGMA cache_size = 1;PRAGMA synchronous = 1;PRAGMA locking_mode = EXCLUSIVE;", 0, 0, 0);
@@ -1073,7 +1073,8 @@ int DBHelper::cleanDB() {
                     snprintf(sqlStatement2,sizeof(sqlStatement2),"DELETE FROM user_stats WHERE fullpath LIKE \"%s%%\"",[DBHelper::getCleanStr([NSString stringWithUTF8String:(const char *)sqlite3_column_text(stmt, 0)]) UTF8String] );
                     err=sqlite3_exec(db, sqlStatement2, NULL, NULL, NULL);
                     if (err!=SQLITE_OK) {
-                        MDZELog("Issue during delete of user_Stats");
+                        MDZELog("Issue during delete of user_stats, err:%d",err);
+                        MDZELog("%s",sqlStatement2);
                     }
                 }
                 
@@ -1168,7 +1169,7 @@ int DBHelper::cleanDB() {
         snprintf(sqlStatement2,sizeof(sqlStatement2),"VACUUM");
         err=sqlite3_exec(db, sqlStatement2, NULL, NULL, NULL);
         if (err!=SQLITE_OK) {
-            MDZELog("Issue during VACUUM");
+            MDZELog("Issue during VACUUM, err: %d",err);
         }
     } else {
         printf("Cannot open DB\n");
