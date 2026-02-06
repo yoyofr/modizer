@@ -3696,6 +3696,15 @@ void optNSFPLAYChangedC(id param) {
     settings[SID_ForceLoop].callback=&optSIDChangedC;
     settings[SID_ForceLoop].detail.mdz_boolswitch.switch_value=0;
     
+    SETTINGS_ID_DEF(SID_UseStilData)
+    settings[SID_UseStilData].type=MDZ_BOOLSWITCH;
+    settings[SID_UseStilData].label=(char*)"Use STIL data";
+    settings[SID_UseStilData].description=(char*)"Used for subsongs titles and related artists names.";
+    settings[SID_UseStilData].family=MDZ_SETTINGS_FAMILY_SID;
+    settings[SID_UseStilData].sub_family=0;
+    settings[SID_UseStilData].callback=&optSIDChangedC;
+    settings[SID_UseStilData].detail.mdz_boolswitch.switch_value=1;
+    
     SETTINGS_ID_DEF(SID_CLOCK)
     settings[SID_CLOCK].type=MDZ_SWITCH;
     settings[SID_CLOCK].label=(char*)"Clock";
@@ -3728,6 +3737,7 @@ void optNSFPLAYChangedC(id param) {
     settings[SID_SecondSIDOn].detail.mdz_switch.switch_default_value=0;
     settings[SID_ThirdSIDOn].detail.mdz_switch.switch_default_value=0;
     settings[SID_ForceLoop].detail.mdz_boolswitch.switch_default_value=0;
+    settings[SID_UseStilData].detail.mdz_boolswitch.switch_default_value=1;
     settings[SID_CLOCK].detail.mdz_switch.switch_default_value=0;
     settings[SID_MODEL].detail.mdz_switch.switch_default_value=0;
     

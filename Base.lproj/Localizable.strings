@@ -425,6 +425,8 @@
 "Engine" = "Engine";
 "Filter" = "Filter";
 "Force loop" = "Force loop";
+"Used for subsongs titles and related artists names." = "Used for subsongs titles and related artists names.";
+"Use STIL data" = "Use STIL data";
 "Clock" = "Clock";
 "Model" = "Model";
 "Force 2nd SID" = "Force 2nd SID";

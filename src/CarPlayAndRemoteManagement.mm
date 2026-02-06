@@ -8,6 +8,7 @@
 #import "CarPlayAndRemoteManagement.h"
 #import "DetailViewControllerIphone.h"
 #import "MDZCarPlaySceneDelegate.h"
+#import "RadioSource.h"
 #import <CarPlay/CarPlay.h>
 
 #include <pthread.h>
@@ -46,6 +47,7 @@
 -(void) refreshMPItems {
     MPPlayableContentManager *contMngr=[MPPlayableContentManager sharedContentManager];
     if (plArray) {
+        // Update "Now Playing" item (index 0)
         MPContentItem *item=(MPContentItem*)([plArray objectAtIndex:0]);
         if (detailViewController.mPlaylist_size) {
             [item setTitle:[NSString stringWithFormat:NSLocalizedString(@"Now playing(%d)",@""),detailViewController.mPlaylist_size]];
@@ -59,13 +61,33 @@
             if ([detailViewController.mplayer isPaused]) [contMngr setNowPlayingIdentifiers:[NSArray arrayWithObject:@""]];
             else [contMngr setNowPlayingIdentifiers:[NSArray arrayWithObject:@"pl_NP"]];
         }
+
+        // Update "Most Played" item (index 1) - refresh count from DB
+        if ([plArray count] > 1) {
+            MPContentItem *mpItem = (MPContentItem*)([plArray objectAtIndex:1]);
+            if ([[mpItem identifier] isEqualToString:@"pl_MP"]) {
+                int nb_entries = [rootVCLocalB getMostPlayedCountFromDB];
+                [mpItem setTitle:[NSString stringWithFormat:NSLocalizedString(@"Most played (%d)",@""),nb_entries]];
+                [mpItem setPlayable:(nb_entries > 0)];
+            }
+        }
+
+        // Update "Favorites" item (index 2) - refresh count from DB
+        if ([plArray count] > 2) {
+            MPContentItem *fvItem = (MPContentItem*)([plArray objectAtIndex:2]);
+            if ([[fvItem identifier] isEqualToString:@"pl_FV"]) {
+                int nb_entries = [rootVCLocalB getFavoritesCountFromDB];
+                [fvItem setTitle:[NSString stringWithFormat:NSLocalizedString(@"Favorites (%d)",@""),nb_entries]];
+                [fvItem setPlayable:(nb_entries > 0)];
+            }
+        }
     }
 
     // Update the modern CarPlay template if available
     // This is only called when the playlist actually changes, not every second
     if (self.carPlaySceneDelegate) {
         [self refreshNowPlayingButtons];
-        
+
         [self.carPlaySceneDelegate updatePlaylistsDisplay];
     }
 }
@@ -185,7 +207,7 @@
         [buttons addObject:shuffleButton];
 
         // Favorite button
-        if (self.detailViewController.mPlaylist_size > 0) {
+        if ((self.detailViewController.mPlaylist_size > 0) && ![self.detailViewController.radioSource isActive]) {
             // Get rating from current playlist entry
             signed char rating = self.detailViewController.mPlaylist[self.detailViewController.mPlaylist_pos].mPlaylistRating;
 
@@ -201,7 +223,8 @@
                     // Add to favorites
                     [self.detailViewController performSelectorOnMainThread:@selector(cmdLike) withObject:nil waitUntilDone:YES];
                 }
-                [self refreshNowPlayingButtons];
+                // Refresh both buttons and playlists (favorites count changed)
+                [self refreshMPItems];
             }];
             [buttons addObject:favoriteButton];
         }
@@ -313,19 +336,23 @@
     
     [cmdCenter.likeCommand setEnabled:NO];
     [cmdCenter.likeCommand addTargetWithHandler:^MPRemoteCommandHandlerStatus(MPRemoteCommandEvent * _Nonnull event) {
-        
+
         [self.detailViewController performSelectorOnMainThread:@selector(cmdLike) withObject:nil waitUntilDone:YES];
-                
+
         [self.detailViewController performSelectorOnMainThread:@selector(updMediaCenter) withObject:nil waitUntilDone:YES];
+        // Refresh playlists to update favorites count
+        [self refreshMPItems];
         return MPRemoteCommandHandlerStatusSuccess;
     }];
-    
+
     [cmdCenter.dislikeCommand setEnabled:NO];
     [cmdCenter.dislikeCommand addTargetWithHandler:^MPRemoteCommandHandlerStatus(MPRemoteCommandEvent * _Nonnull event) {
-        
+
         [self.detailViewController performSelectorOnMainThread:@selector(cmdDislike) withObject:nil waitUntilDone:YES];
-                
+
         [self.detailViewController performSelectorOnMainThread:@selector(updMediaCenter) withObject:nil waitUntilDone:YES];
+        // Refresh playlists to update favorites count
+        [self refreshMPItems];
         return MPRemoteCommandHandlerStatusSuccess;
     }];
     

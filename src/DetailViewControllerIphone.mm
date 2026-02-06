@@ -811,10 +811,10 @@ bool sysMonitorIsActive;
             mainRating5.hidden=TRUE;
             mainRating5off.hidden=FALSE;
         }
-        // Update CarPlay buttons after rating change
+        // Update CarPlay buttons and playlists after rating change
         myTabBarController *tabBarController = (myTabBarController *)self.tabBarController;
         if (tabBarController && tabBarController.cpMngt) {
-            [tabBarController.cpMngt refreshNowPlayingButtons];
+            [tabBarController.cpMngt refreshMPItems];
         }
     }
 }
@@ -870,6 +870,14 @@ bool sysMonitorIsActive;
     [[NSNotificationCenter defaultCenter] postNotificationName:MDZFileStatsChangedNotification
                                                         object:self
                                                       userInfo:userInfo];
+
+    // Refresh CarPlay playlists when playcount is incremented (affects "Most Played")
+    if (playcount_inc) {
+        myTabBarController *tabBarController = (myTabBarController *)self.tabBarController;
+        if (tabBarController && tabBarController.cpMngt) {
+            [tabBarController.cpMngt refreshMPItems];
+        }
+    }
 }
 
 
@@ -2209,7 +2217,11 @@ static float movePinchScale,movePinchScaleOld,movePinchAngle;
         NSString *album=mplayer.album;
         NSString *title;
         
-        if ([mplayer getModFileTitle]) title=[NSString stringWithFormat:@"%@ /%@",[mplayer getModFileTitle],[mplayer getModName]];
+        if (mplayer.mod_subsongs>1) {
+            album=[NSString stringWithFormat:@"(%d/%d) %@",mplayer.mod_currentsub-mplayer.mod_minsub+1,mplayer.mod_subsongs, album];
+        }
+        
+        if ([mplayer getModFileTitleOrNull]) title=[NSString stringWithFormat:@"%@ /%@",[mplayer getModFileTitle],[mplayer getModName]];
         else title=[NSString stringWithFormat:@"%@",[mplayer getModName]];
         
         //if (is_macOS) {
@@ -2298,7 +2310,6 @@ static float movePinchScale,movePinchScaleOld,movePinchAngle;
                                      MPNowPlayingInfoPropertyPlaybackQueueIndex,
                                      @0,
                                      MPNowPlayingInfoPropertyPlaybackQueueCount,
-                                     
                                      @0,
                                      MPMediaItemPropertyPlaybackDuration,
                                      @0,

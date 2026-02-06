@@ -876,20 +876,40 @@ extern bool icloud_available;
 }
 
 +(NSString *)getAppHomeDirectory {
-    // On Mac Catalyst, NSHomeDirectory() returns /Users/username/ (user's home)
-    // We need to use the app's container directory instead
     #if TARGET_OS_MACCATALYST
-        // Get the app's Documents directory and go up one level to get the container
+        // Check if we're running in a sandbox container
+        NSString *home = NSHomeDirectory();
+        if ([home containsString:@"/Library/Containers/"]) {
+            // Sandboxed: NSHomeDirectory() already returns the container path
+            // e.g., /Users/username/Library/Containers/com.yoyofr.modizer/Data
+            return home;
+        }
+
+        // Not sandboxed (installed outside Xcode or without proper entitlements)
+        // Explicitly use the app's sandbox container for consistency
+        NSString *bundleId = [[NSBundle mainBundle] bundleIdentifier];
+        if (bundleId) {
+            NSString *containerPath = [NSString stringWithFormat:@"%@/Library/Containers/%@/Data",
+                                       home, bundleId];
+            NSFileManager *fm = [NSFileManager defaultManager];
+            // Create the container structure if needed
+            [fm createDirectoryAtPath:[containerPath stringByAppendingPathComponent:@"Documents"]
+          withIntermediateDirectories:YES
+                           attributes:nil
+                                error:nil];
+            return containerPath;
+        }
+
+        // Ultimate fallback
         NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
         if (paths.count > 0) {
-            NSString *documentsPath = paths[0];
-            // Remove "/Documents" to get the container path
-            return [documentsPath stringByDeletingLastPathComponent];
+            return [paths[0] stringByDeletingLastPathComponent];
         }
+        return home;
+    #else
+        // On iOS, NSHomeDirectory() always returns the correct app container
+        return NSHomeDirectory();
     #endif
-
-    // On iOS and fallback, use the standard NSHomeDirectory()
-    return NSHomeDirectory();
 }
 
 +(NSString*) getFullPathForFilePath:(NSString*)filePath {

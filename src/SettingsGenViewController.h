@@ -217,6 +217,7 @@ enum MDZ_SETTINGS {
         SID_Interpolation,
         SID_Filter,
         SID_ForceLoop,
+        SID_UseStilData,
         SID_CLOCK,
         SID_MODEL,
         SID_SecondSIDOn,

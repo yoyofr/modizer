@@ -27,29 +27,31 @@ missing seek support:
 => add a small progress bar in cells in modland/asma/hvsc... When downloading
 => ADPLUG oscillo data not generated when OPL is not Woody
 
+4.3
+---
+- UI optimization to improve responsiveness
+
 4.2
 ---
-- Radio mode / Online Collections. Press the Radio button when browsing an Online Collection.
-- Flexible Cloud sources integration: iCloud, Google Drive, One Drive, Dropbox
-- New online collections: AMP (Amiga Music Preservation), CGSC (Compute's Gazette Sid Collection)
-- DB updated: HVSC #84, CGSC 1.47, ASMA & MODLAND as of 2026/02/03
-- Support of pic/pgg/pjj pictures files as cover image for CGSC
-- FX can now be displayed using various layouts to combine them more easily, long press on a FX to change slot.
-- Adplug updated to latest version (2.4)
-- Gbsplay updated to latest version (v0.0.102)
-- UADE players routines updated to latest version (3.05)
-- Add drag'n'drop support.
-- UADE: seek mode support.
-- Online / JoshW collection: new option to grab a cover automatically from TGDB. Use long press to force a new cover download.
-- Stability & security improvements.
-- Midi & Piano roll FX now have an auto scaling option to follow notes
-- New playback library: NEZPlug integrated to play SGC files (Master system, Game Gear)
-- libopenmpt: new settings to activate Amiga filter
-- Playlists: bugfixes & improvements
-- Faster seek for most formats.
-- Better tags management for relevant audio stream formats (mp3, ogg, aac, flac, ...).
-Playlists entries will be automatically renamed based on tags (track number & title) if available, allowing to sort entries (using 'Sort A-Z' action).
-If an image is embedded it will be used as cover.
+- Radio mode for Online Collections (use the Radio button while browsing)
+- Cloud source integration: iCloud, OneDrive, Dropbox
+- New online collections: AMP (Amiga Music Preservation), CGSC (Compute's Gazette SID Collection)
+- Database updates: HVSC #84, CGSC 1.47, ASMA & MODLAND (2026/02/03)
+- CGSC cover art support for pic / pgg / pjj image files
+- New FX layouts for easier combinations (long-press an FX to change slots)
+- AdPlug updated to v2.4
+- Gbsplay updated to v0.0.102
+- UADE player routines updated to v3.05
+- Drag & drop support
+- UADE seek mode support
+- JoshW online collection: automatic cover download from TGDB / MobyGames (long-press to force refresh)
+- MIDI & Piano Roll FX auto-scaling option
+- New playback engine: NEZPlug (SGC – Master System & Game Gear)
+- libopenmpt: Amiga filter option
+- Playlist improvements and bug fixes
+- Faster seeking for most formats
+- Improved tag handling (MP3, OGG, AAC, FLAC): automatic renaming in playlists, sorting (A–Z), and embedded cover art support
+- Stability and security improvements
 
 4.1
 ----

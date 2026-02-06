@@ -159,8 +159,8 @@ extern void *LoadingProgressObserverContext;
 
 #define MODIZER_COMPIL 1
 
-#define DEFAULT_WAIT_TIME_MS  0.0001   //in s
-#define DEFAULT_WAIT_TIME_UADE_MS  0.001 //in s
+#define DEFAULT_WAIT_TIME_MS  0.002   //in s
+#define DEFAULT_WAIT_TIME_UADE_MS  0.002 //in s
 #define DEFAULT_WAIT_TIME_UADE_SEEK_MS  0.00001 //in s
 
 #define MODIZER_SUPPORT_EMAIL @"mailto:modizerhelp@gmail.com?subject=Support Request&body="
@@ -192,9 +192,6 @@ extern void *LoadingProgressObserverContext;
 
 #define PM_BUFFER_SIZE 735*2 //ProjectM sound buffer size.
 #define PM_ROOT_FOLDER_CUSTOM "/ProjectM"
-
-#define SHADER_CACHE_DIR "/.shadercache"
-
 
 #define TXT_PIANOROLL_LIGHT 0
 #define TXT_PIANOROLL_PARTICLE 1
