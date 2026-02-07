@@ -29,7 +29,7 @@ missing seek support:
 
 4.3
 ---
-- UI optimization to improve responsiveness
+- bugfixes and stability improvements
 
 4.2
 ---
