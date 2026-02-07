@@ -482,7 +482,6 @@ extern NSMutableArray *mac_key_pressed,*mac_key_released;
             self.traitOverrides.horizontalSizeClass = UIUserInterfaceSizeClassRegular;
         }
     }
-    
     // On iOS 18+, explicitly disable the tab bar mode that shows tabs as segmented control
     if (@available(iOS 18.0, *)) {
         // Set mode to tabBar (traditional) instead of automatic which might show segmented control
@@ -618,6 +617,12 @@ extern NSMutableArray *mac_key_pressed,*mac_key_released;
     }
 #endif
 
+//    if (@available(iOS 15.0, *)) {
+//        UITabBarAppearance *appearance = [UITabBarAppearance new];
+//        [appearance configureWithDefaultBackground];
+//        self.tabBar.standardAppearance = appearance;
+//        self.tabBar.scrollEdgeAppearance = appearance;
+//    }
     END_PROFILE
 }
 

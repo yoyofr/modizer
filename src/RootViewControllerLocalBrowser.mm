@@ -14,6 +14,10 @@ extern NSURL *icloudURL;
 extern bool icloud_available;
 
 NSString *cutpaste_filesrcpath=nil;
+NSString *copypaste_filesrcpath=nil;
+@class CloudStorageSource;
+CloudStorageSource *cutpaste_cloudSource=nil;
+CloudStorageSource *copypaste_cloudSource=nil;
 
 #import <UserNotifications/UserNotifications.h>
 
@@ -140,8 +144,8 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
         NSFileManager *fileManager=[[NSFileManager alloc] init];
         
         if (mUpdateToNewDB) {
-            //1st clean obsolete data
-            DBHelper::cleanDB();
+            //do not clean for update, reduce the risk to lose playlists entries, let the user clean himself if needed
+            //DBHelper::cleanDB();
         }
         
         pthread_mutex_lock(&db_mutex);
@@ -251,12 +255,13 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
             if (migration_ok) {
                 //remove old DB if successful
                 [fileManager removeItemAtPath:pathToOldDB error:&error];
+                [self showAlertMsg:NSLocalizedString(@"Info",@"") message:NSLocalizedString(@"Database updated.",@"")];
             } else {
                 //keep old DB if not successfull
                 [fileManager removeItemAtPath:pathToDB error:&error];
                 [fileManager moveItemAtPath:pathToOldDB toPath:pathToDB error:&error];
                 
-                [self showAlertMsg:NSLocalizedString(@"Info",@"") message:NSLocalizedString(@"Database couldn't be migrated.",@"")];
+                [self showAlertMsg:NSLocalizedString(@"Info",@"") message:NSLocalizedString(@"Database couldn't be updated.",@"")];
             }
         }
         /*	rar_main(argc,argv);
@@ -323,8 +328,21 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
             if (settings[GLOB_RecreateSamplesFolder].detail.mdz_boolswitch.switch_value==1) [self createSamplesFromPackage:FALSE];
             return;
         } else {
-            mUpdateToNewDB=1;
-            wrongversion=TRUE;
+            //only update if maj && min are different from 0
+            if (maj || min) {
+                mUpdateToNewDB=1;
+                wrongversion=TRUE;
+            } else {
+                db_checked=1;
+                //check if Samples folder has to be recreated
+                if (settings[GLOB_RecreateSamplesFolder].detail.mdz_boolswitch.switch_value==1) {
+                    [self createSamplesFromPackage:FALSE];
+                    [self listLocalFiles];
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        [self->tableView reloadData];
+                    });
+                }
+            }
         }
     }
     // The writable database does not exist, so copy the default to the appropriate location.
@@ -343,13 +361,17 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     if (quiet) [self recreateDB];
     else {
         if (forceInit) {
-            [self showAlertMsg:NSLocalizedString(@"Info",@"") message:NSLocalizedString(@"Database will now be recreated. Please validate & wait.",@"")];
-            [self recreateDB];
+            [self showAlertMsgAction:NSLocalizedString(@"Info",@"") message:NSLocalizedString(@"Database will now be recreated. Please validate & wait.",@"") block:^(UIAlertAction *action) {
+                [self recreateDB];
+            }];
+            
         }
         else {
             if (wrongversion) {
-                [self showAlertMsg:NSLocalizedString(@"Info",@"") message:[NSString stringWithFormat:NSLocalizedString(@"Old database version: %d.%d. Will update to %d.%d. Please validate & wait.",@""),maj,min,VERSION_MAJOR,VERSION_MINOR]];
-                [self recreateDB];
+                [self showAlertMsgAction:NSLocalizedString(@"Info",@"") message:[NSString stringWithFormat:NSLocalizedString(@"Old database version: %d.%d. Will update to %d.%d. Please validate & wait.",@""),maj,min,VERSION_MAJOR,VERSION_MINOR] block:^(UIAlertAction *action) {
+                    [self recreateDB];
+                }];
+                
             }
             else  {
                 //USer database missing, create it
@@ -441,13 +463,15 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
     START_PROFILE
     childController=nil;
     
-    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad || [NSProcessInfo processInfo].isiOSAppOnMac) {
+    if ([NSProcessInfo processInfo].isiOSAppOnMac) {
         self.hidesBottomBarWhenPushed = YES;
+    } else if (@available(iOS 18.0, *)) {
+        if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad) {
+            self.hidesBottomBarWhenPushed = YES;
+        }
     }
 
     [self loadControllers];
-    
-    cutpaste_initiated=0;
     
     dictActionBtn=[NSMutableDictionary dictionaryWithCapacity:64];
     
@@ -1867,13 +1891,6 @@ static int shouldRestart=1;
     //[self addRefreshView];
     
     
-    //check if a pending cut/paste exists
-    if (cutpaste_initiated&&(cutpaste_filesrcpath==nil)) {
-        //file has been moved, force reload
-        shouldFillKeys=1;
-        cutpaste_initiated=0;
-    }
-    
     if (shouldFillKeys) [self refreshViewReloadFiles];
     if ((!wasMiniPlayerOn) && [detailViewController mPlaylist_size]) [self showMiniPlayer];
     
@@ -2432,7 +2449,7 @@ As a consequence, some entries might disappear from existing playlist.\n\
             } else if (cloudSourceIndex == addButtonIndex) {
                 // "Add Cloud Source" button
                 cellValue = NSLocalizedString(@"Add Cloud Source", @"");
-                bottomLabel.text = NSLocalizedString(@"Browse iCloud, Dropbox, OneDrive...", @"");
+                bottomLabel.text = NSLocalizedString(@"Browse iCloud, Dropbox, ...", @"");
 
                 bottomLabel.frame = CGRectMake(1.0 * cell.indentationWidth,
                                                22,
@@ -2691,10 +2708,10 @@ trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
                 
                 UIAlertAction *saveAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Create",@"") style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
                     UITextField *tf = weakAlert.textFields.firstObject;
-                    
+
                     NSString *newPath;
                     newPath=[[ModizFileHelper getFullPathForFilePath:currentPath] stringByAppendingPathComponent:tf.text];
-                    
+
                     NSError *err;
                     if ([mFileMngr createDirectoryAtPath:newPath withIntermediateDirectories:YES attributes:nil error:&err]==NO) {
                         MDZELog("Issue %d while create folder %@",(int)(err.code),newPath);
@@ -2737,16 +2754,22 @@ trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
                                                         void (^completionHandler)(BOOL)) {
             
             //File or Directory => Delete
-            
+
             //delete entry
             NSString *fullpath=[ModizFileHelper getFullPathForFilePath:cur_local_entries[indexPath.row].fullpath];
             NSError *err;
-            
+
             if ([cutpaste_filesrcpath compare:cur_local_entries[indexPath.row].fullpath]==NSOrderedSame) {
                 //deleting file in cut/paste buffer -> cancel buffer
                 cutpaste_filesrcpath=nil;
+                cutpaste_cloudSource=nil;
             }
-            
+            if ([copypaste_filesrcpath compare:cur_local_entries[indexPath.row].fullpath]==NSOrderedSame) {
+                //deleting file in copy/paste buffer -> cancel buffer
+                copypaste_filesrcpath=nil;
+                copypaste_cloudSource=nil;
+            }
+
             if ([mFileMngr removeItemAtPath:fullpath error:&err]!=YES) {
                 MDZELog("Issue %d while removing: %@",(int)(err.code),fullpath);
                 [self showAlertMsg:NSLocalizedString(@"Warning",@"") message:[NSString stringWithFormat:NSLocalizedString(@"Issue %d while trying to delete entry.\n%@",@""),err.code,err.localizedDescription]];
@@ -2784,24 +2807,16 @@ trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
                                                   handler:^(UIContextualAction *action,
                                                             UIView *sourceView,
                                                             void (^completionHandler)(BOOL)) {
-                //File or Directory => Delete
                 //delete entry
                 NSString *fullpath=cur_local_entries[indexPath.row].imgpath;
                 NSError *err;
-                
+
                 if ([mFileMngr removeItemAtPath:fullpath error:&err]!=YES) {
                     MDZELog("Issue %d while removing: %@",(int)(err.code),fullpath);
                     [self showAlertMsg:NSLocalizedString(@"Warning",@"") message:[NSString stringWithFormat:NSLocalizedString(@"Issue %d while trying to delete entry.\n%@",@""),err.code,err.localizedDescription]];
                     completionHandler(NO);
                 } else {
-                    //                    if (mSearch) {
-                    //                        mSearch=0;
-                    //                        [self listLocalFiles]; //force a refresh
-                    //                        mSearch=1;
-                    //                    }
-                    //                    [self listLocalFiles];
                     cur_local_entries[indexPath.row].imgpath=nil;
-                    
                     [tableView reloadData];
                     completionHandler(YES);
                 }
@@ -2829,18 +2844,23 @@ leadingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
                                                             void (^completionHandler)(BOOL)) {
                 
                 if (cutpaste_filesrcpath) {
-                    //Paste file or dir
+                    //Paste file or dir (move)
                     NSString *sourcePath=[ModizFileHelper getFullPathForFilePath:cutpaste_filesrcpath];
                     NSString *destPath=[[ModizFileHelper getFullPathForFilePath:currentPath] stringByAppendingPathComponent:[cutpaste_filesrcpath lastPathComponent]];
                     NSError *err;
-                    
-                    mFileMngr.delegate=self;
-                    if ([mFileMngr moveItemAtPath:sourcePath toPath:destPath error:&err]!=YES) {
+
+                    // Start security-scoped access on source cloud if needed
+                    if (cutpaste_cloudSource) {
+                        [[CloudStorageManager sharedManager] startAccessingSource:cutpaste_cloudSource];
+                    }
+
+                    self.mFileMngr.delegate=self;
+                    if ([self.mFileMngr moveItemAtPath:sourcePath toPath:destPath error:&err]!=YES) {
                         MDZELog("Issue %d while moving: %@",(int)(err.code),cutpaste_filesrcpath);
-                        [self showAlertMsg:NSLocalizedString(@"Warning",@"") message:[NSString stringWithFormat:NSLocalizedString(@"Issue %d while moving: %@.\n%@",@""),err.code,cutpaste_filesrcpath]];
+                        [self showAlertMsg:NSLocalizedString(@"Warning",@"") message:[NSString stringWithFormat:NSLocalizedString(@"Issue %d while moving: %@.\n%@",@""),err.code,cutpaste_filesrcpath,err.localizedDescription]];
                     } else {
-                        //[cutpaste_filesrcpath release];
                         cutpaste_filesrcpath=nil;
+                        cutpaste_cloudSource=nil;
                         if (mSearch) {
                             mSearch=0;
                             [self listLocalFiles];
@@ -2849,6 +2869,44 @@ leadingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
                         [self listLocalFiles];
                         [self.tableView reloadData];
                     }
+
+                    // Stop security-scoped access on source cloud
+                    if (cutpaste_cloudSource) {
+                        [[CloudStorageManager sharedManager] stopAccessingSource:cutpaste_cloudSource];
+                    }
+
+                    completionHandler(YES);
+                } else if (copypaste_filesrcpath) {
+                    //Paste file or dir (copy)
+                    NSString *sourcePath=[ModizFileHelper getFullPathForFilePath:copypaste_filesrcpath];
+                    NSString *destPath=[[ModizFileHelper getFullPathForFilePath:currentPath] stringByAppendingPathComponent:[copypaste_filesrcpath lastPathComponent]];
+                    NSError *err;
+
+                    // Start security-scoped access on source cloud if needed
+                    if (copypaste_cloudSource) {
+                        [[CloudStorageManager sharedManager] startAccessingSource:copypaste_cloudSource];
+                    }
+
+                    self.mFileMngr.delegate=self;
+                    if ([self.mFileMngr copyItemAtPath:sourcePath toPath:destPath error:&err]!=YES) {
+                        MDZELog("Issue %d while copying: %@",(int)(err.code),copypaste_filesrcpath);
+                        [self showAlertMsg:NSLocalizedString(@"Warning",@"") message:[NSString stringWithFormat:NSLocalizedString(@"Issue %d while copying: %@.\n%@",@""),err.code,copypaste_filesrcpath,err.localizedDescription]];
+                    } else {
+                        copypaste_filesrcpath=nil;
+                        if (mSearch) {
+                            mSearch=0;
+                            [self listLocalFiles];
+                            mSearch=1;
+                        }
+                        [self listLocalFiles];
+                        [self.tableView reloadData];
+                    }
+
+                    // Stop security-scoped access on source cloud
+                    if (copypaste_cloudSource) {
+                        [[CloudStorageManager sharedManager] stopAccessingSource:copypaste_cloudSource];
+                    }
+
                     completionHandler(YES);
                 } else {
                     //Alert msg => nothing to Paste
@@ -2877,8 +2935,13 @@ leadingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
             
             if ([cutpaste_filesrcpath compare:cur_local_entries[indexPath.row].fullpath]==NSOrderedSame) {
                 //renaming file in cut/paste buffer -> cancel buffer
-                //[cutpaste_filesrcpath release];
                 cutpaste_filesrcpath=nil;
+                cutpaste_cloudSource=nil;
+            }
+            if ([copypaste_filesrcpath compare:cur_local_entries[indexPath.row].fullpath]==NSOrderedSame) {
+                //renaming file in copy/paste buffer -> cancel buffer
+                copypaste_filesrcpath=nil;
+                copypaste_cloudSource=nil;
             }
             
             UIAlertController *alertC = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Enter new name",@"")
@@ -2898,30 +2961,30 @@ leadingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
                 UITextField *tf = weakAlert.textFields.firstObject;
                 t_local_browse_entry *cur_local_entries=(search_local?search_local_entries:local_entries);
                 if (cur_local_entries[renameIdx].label) cur_local_entries[renameIdx].label=nil;
-                
+
                 NSString *curPath,*tgtPath;
-                
+
                 curPath=[ModizFileHelper getFullPathForFilePath:cur_local_entries[renameIdx].fullpath];
                 tgtPath=[ModizFileHelper getFullPathForFilePath:cur_local_entries[renameIdx].fullpath];
-                
+
                 tgtPath=[[tgtPath stringByDeletingLastPathComponent] stringByAppendingPathComponent:tf.text];
-                
+
                 NSError *err;
-                mFileMngr.delegate=self;
-                if ([mFileMngr moveItemAtPath:curPath toPath:tgtPath error:&err]==NO) {
+                self->mFileMngr.delegate=self;
+                if ([self->mFileMngr moveItemAtPath:curPath toPath:tgtPath error:&err]==NO) {
                     MDZELog("Issue %d while renaming file %@",(int)(err.code),curPath);
                 } else {
                     cur_local_entries[renameIdx].label=[[NSString alloc] initWithString:tf.text];
-                    
+
                     cur_local_entries[renameIdx].fullpath=[[NSString alloc] initWithString:tgtPath];
-                    if (mSearch) {
-                        mSearch=0;
+                    if (self->mSearch) {
+                        self->mSearch=0;
                         [self listLocalFiles];
-                        mSearch=1;
+                        self->mSearch=1;
                     }
-                    shouldFillKeys=1;
+                    self->shouldFillKeys=1;
                     [self fillKeys];
-                    
+
                     [self.tableView reloadData];
                 }
             }];
@@ -2944,9 +3007,27 @@ leadingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
             //cut
             t_local_browse_entry *cur_local_entries=(search_local?search_local_entries:local_entries);
             cutpaste_filesrcpath=[[NSString alloc] initWithString:cur_local_entries[indexPath.row].fullpath];
+            // Save cloud source for security-scoped access during paste
+            cutpaste_cloudSource = self->isCloudBrowseMode ? self->currentCloudSource : nil;
             completionHandler(YES);
         }];
         cutAction.backgroundColor = [UIColor colorWithRed:MDZ_CUT_COL_R green:MDZ_CUT_COL_G blue:MDZ_CUT_COL_B alpha:1];
+        
+        // COPY ACTION
+        UIContextualAction *copyAction =
+        [UIContextualAction contextualActionWithStyle:UIContextualActionStyleNormal
+                                                title:NSLocalizedString(@"Copy", @"")
+                                              handler:^(UIContextualAction *action,
+                                                        UIView *sourceView,
+                                                        void (^completionHandler)(BOOL)) {
+            //copy
+            t_local_browse_entry *cur_local_entries=(search_local?search_local_entries:local_entries);
+            copypaste_filesrcpath=[[NSString alloc] initWithString:cur_local_entries[indexPath.row].fullpath];
+            // Save cloud source for security-scoped access during paste
+            copypaste_cloudSource = self->isCloudBrowseMode ? self->currentCloudSource : nil;
+            completionHandler(YES);
+        }];
+        copyAction.backgroundColor = [UIColor colorWithRed:MDZ_COPY_COL_R green:MDZ_COPY_COL_G blue:MDZ_COPY_COL_B alpha:1];
         
         // EXTRACT ACTION
         UIContextualAction *extractAction =
@@ -2997,8 +3078,8 @@ leadingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
         
         // Return multiple actions - they appear from right to left
         t_local_browse_entry *cur_local_entries=(search_local?search_local_entries:local_entries);
-        if (cur_local_entries[indexPath.row].type==2) return [UISwipeActionsConfiguration configurationWithActions:@[cutAction,renameAction,extractAction]];
-        else return [UISwipeActionsConfiguration configurationWithActions:@[cutAction,renameAction]];
+        if (cur_local_entries[indexPath.row].type==2) return [UISwipeActionsConfiguration configurationWithActions:@[copyAction,cutAction,renameAction,extractAction]];
+        else return [UISwipeActionsConfiguration configurationWithActions:@[copyAction,cutAction,renameAction]];
     }
     return nil;
 }

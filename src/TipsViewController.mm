@@ -44,8 +44,12 @@ typedef NS_ENUM(NSInteger, TipTier) {
     self.title = NSLocalizedString(@"Support with a Tip", @"");
     self.view.backgroundColor = [UIColor systemBackgroundColor];
     
-    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad || [NSProcessInfo processInfo].isiOSAppOnMac) {
+    if ([NSProcessInfo processInfo].isiOSAppOnMac) {
         self.hidesBottomBarWhenPushed = YES;
+    } else if (@available(iOS 18.0, *)) {
+        if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad) {
+            self.hidesBottomBarWhenPushed = YES;
+        }
     }
     
     [self setupPriceFormatter];

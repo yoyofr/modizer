@@ -1424,8 +1424,12 @@ didFinishNavigation:(WKNavigation *)navigation {
     
     [self loadControllers];
     
-    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad || [NSProcessInfo processInfo].isiOSAppOnMac) {
+    if ([NSProcessInfo processInfo].isiOSAppOnMac) {
         self.hidesBottomBarWhenPushed = YES;
+    } else if (@available(iOS 18.0, *)) {
+        if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad) {
+            self.hidesBottomBarWhenPushed = YES;
+        }
     }
     
     self.navigationController.delegate = self;
@@ -1588,8 +1592,6 @@ didFinishNavigation:(WKNavigation *)navigation {
     lastURL=nil;
     
     bookmarksVC=nil;
-    
-	//self.hidesBottomBarWhenPushed = YES;
     
     UIBarButtonItem *item = [[UIBarButtonItem alloc] initWithImage:[UIImage systemImageNamed:NOW_PLAYING_ICON] style:UIBarButtonItemStylePlain target:self action:@selector(goPlayer)];
     self.navigationItem.rightBarButtonItem = item;

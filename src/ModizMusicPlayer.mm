@@ -5187,7 +5187,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     if (bufsize>SOUND_BUFFER_SIZE_SAMPLE) bufsize=SOUND_BUFFER_SIZE_SAMPLE;
                                     
                                     int howmany=bufsize*(double)hc_sample_rate/(double)PLAYBACK_FREQ;
-                                    fmpmini_render(buffer_ana[buffer_ana_gen_ofs], howmany);
+                                    fmpmini_render(NULL/*buffer_ana[buffer_ana_gen_ofs]*/, howmany);
                                     
                                     mCurrentSamples += bufsize;
                                     iCurrentTime=mCurrentSamples*1000/PLAYBACK_FREQ;
@@ -14632,21 +14632,6 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
 extern NSURL *icloudURL;
 extern bool icloud_available;
 
-
--(NSString*) getFullFilePath:(NSString *)_filePath {
-    NSString *fullFilePath;
-    
-    if ([_filePath length]>2) {
-        if (([_filePath characterAtIndex:0]=='/')&&([_filePath characterAtIndex:1]=='/')) fullFilePath=[_filePath substringFromIndex:2];
-        else if ([_filePath characterAtIndex:0]=='/') fullFilePath=[NSString stringWithString:_filePath];
-        else {
-            if (icloud_available && ([_filePath containsString:[icloudURL path]])) fullFilePath=[NSString stringWithString:_filePath];
-            else fullFilePath=[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:_filePath];
-        }
-    } else fullFilePath=[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:_filePath];
-    return fullFilePath;
-}
-
 -(void) updateCurSubSongPlayed:(int)idx {
     int maxid=0;
     if (!mdz_SubsongPlayed) return;
@@ -14785,7 +14770,7 @@ extern bool icloud_available;
         extension = (NSString *)[temparray_filepath lastObject];
         file_no_ext=[temparray_filepath firstObject];
         
-        filePath=[self getFullFilePath:_filePath];
+        filePath=[ModizFileHelper getFullPathForFilePath:_filePath];// getFullFilePath:_filePath];
         
         mdz_IsArchive=0;
         mNeedSeek=0;
@@ -14904,7 +14889,7 @@ extern bool icloud_available;
                     
                     
                     //filePath=[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:_filePath];
-                    filePath=[self getFullFilePath:_filePath];
+                    filePath=[ModizFileHelper getFullPathForFilePath:_filePath]; //getFullFilePath:_filePath];
                     snprintf(mod_filename,1024,"%s / %s",archive_filename,[[[filePath lastPathComponent] stringByDeletingPathExtension] UTF8String]);
                     
                     
@@ -15086,7 +15071,7 @@ extern bool icloud_available;
             extension = (NSString *)[temparray_filepath lastObject];
             file_no_ext=[temparray_filepath firstObject];
             
-            filePath=[self getFullFilePath:_filePath];
+            filePath=[ModizFileHelper getFullPathForFilePath:_filePath];//getFullFilePath:_filePath];
             snprintf(mod_filename,1024,"%s / %s",archive_filename,[[[filePath lastPathComponent] stringByDeletingPathExtension] UTF8String]);
         }
     }

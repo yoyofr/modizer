@@ -86,11 +86,11 @@ void opna_timer_mix_oscillo(struct opna_timer *timer, int16_t *buf, unsigned sam
         generate_samples = timera_samples;
       }
     }
-    opna_mix_oscillo(timer->opna, buf, generate_samples, oscillo);
+    if (buf) opna_mix_oscillo(timer->opna, buf, generate_samples, oscillo);
     if (timer->mix_cb) {
-      timer->mix_cb(timer->mix_userptr, buf, generate_samples);
+      if (buf) timer->mix_cb(timer->mix_userptr, buf, generate_samples);
     }
-    buf += generate_samples*2;
+    if (buf) buf += generate_samples*2;
     samples -= generate_samples;
     if (timer->timera_load) {
       timer->timera = (timer->timera + generate_samples) & ((1<<TIMERA_BITS)-1);

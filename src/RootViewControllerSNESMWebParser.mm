@@ -160,8 +160,12 @@ int qsortSNESM_entries_rating_or_entries(const void *entryA, const void *entryB)
     START_PROFILE
     [super viewDidLoad];
     
-    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad || [NSProcessInfo processInfo].isiOSAppOnMac) {
+    if ([NSProcessInfo processInfo].isiOSAppOnMac) {
         self.hidesBottomBarWhenPushed = YES;
+    } else if (@available(iOS 18.0, *)) {
+        if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad) {
+            self.hidesBottomBarWhenPushed = YES;
+        }
     }
     
     [radioButton addTarget:self action:@selector(pushRadioButton) forControlEvents:UIControlEventTouchUpInside];

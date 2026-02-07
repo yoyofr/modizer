@@ -10,6 +10,7 @@
 #include "DBHelper.h"
 
 #import "ModizFileHelper.h"
+#import "CloudStorageManager.h"
 
 #include "ModizerConstants.h"
 #include "sqlite3.h"
@@ -332,7 +333,7 @@ int DBHelper::getFileStatsDBmod(NSString *fullpath,short int *playcount,signed c
         if (err==SQLITE_OK){
         } else MDZELog("ErrSQL : %d",err);
         
-        snprintf(sqlStatement,1024,"SELECT play_count,rating,avg_rating,length,channels,songs FROM user_stats WHERE fullpath=\"%s\"",[DBHelper::getCleanStr(fullpath) UTF8String]);
+        snprintf(sqlStatement,1024,"SELECT play_count,rating,avg_rating,length,channels,songs FROM user_stats WHERE fullpath = \"%s\"",[DBHelper::getCleanStr(fullpath) UTF8String]);
         err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
         if (err==SQLITE_OK){
             while (sqlite3_step(stmt) == SQLITE_ROW) {
@@ -1001,7 +1002,13 @@ int DBHelper::cleanDB() {
     int err;
     BOOL success;
     NSFileManager *fileManager = [[NSFileManager alloc] init];
-    
+
+    // Start security-scoped access for all cloud sources before checking file existence
+    NSArray<CloudStorageSource *> *cloudSources = [[CloudStorageManager sharedManager] sources];
+    for (CloudStorageSource *source in cloudSources) {
+        [[CloudStorageManager sharedManager] startAccessingSource:source];
+    }
+
     pthread_mutex_lock(&db_mutex);
     
     if (sqlite3_open([pathToDB UTF8String], &db) == SQLITE_OK){
@@ -1022,9 +1029,13 @@ int DBHelper::cleanDB() {
             sqlite3_close(db);
             pthread_mutex_unlock(&db_mutex);
             fileManager=nil;
+            // Stop security-scoped access for all cloud sources
+            for (CloudStorageSource *source in cloudSources) {
+                [[CloudStorageManager sharedManager] stopAccessingSource:source];
+            }
             return -1;
         }
-        
+
         printf("checking structure\n");
         snprintf(cleanDB_Status,sizeof(cleanDB_Status),"checking structure");
         
@@ -1065,8 +1076,10 @@ int DBHelper::cleanDB() {
                 
                 NSString *fullpath=[NSString stringWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
                 //clean up for archive/multisong entries
-                fullpath=[ModizFileHelper getFullCleanFilePath:fullpath];
-                success = [fileManager fileExistsAtPath:[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:fullpath]];
+//                fullpath=[ModizFileHelper getFullCleanFilePath:fullpath];
+//                success = [fileManager fileExistsAtPath:[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:fullpath]];
+                fullpath=[ModizFileHelper getFullPathForFilePath:fullpath];
+                success = [fileManager fileExistsAtPath:fullpath];
                 if (!success) {//file does not exist
                     cleaned_entries++;
                     
@@ -1091,9 +1104,13 @@ int DBHelper::cleanDB() {
             sqlite3_close(db);
             pthread_mutex_unlock(&db_mutex);
             fileManager=nil;
+            // Stop security-scoped access for all cloud sources
+            for (CloudStorageSource *source in cloudSources) {
+                [[CloudStorageManager sharedManager] stopAccessingSource:source];
+            }
             return -1;
         }
-        
+
         checked_entries=0;
         cleaned_entries=0;
         printf("checking playlists entries\n");
@@ -1111,8 +1128,10 @@ int DBHelper::cleanDB() {
                  
                 NSString *fullpath=[NSString stringWithUTF8String:(const char*)sqlite3_column_text(stmt, 0)];
                 //clean up for archive/multisong entries
-                fullpath=[ModizFileHelper getFullCleanFilePath:fullpath];
-                success = [fileManager fileExistsAtPath:[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:fullpath]];
+//                fullpath=[ModizFileHelper getFullCleanFilePath:fullpath];
+//                success = [fileManager fileExistsAtPath:[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:fullpath]];
+                fullpath=[ModizFileHelper getFullPathForFilePath:fullpath];
+                success = [fileManager fileExistsAtPath:fullpath];
                 if (!success) {//file does not exist
                     MDZILog("missing : %s",sqlite3_column_text(stmt, 0));
                     
@@ -1175,12 +1194,17 @@ int DBHelper::cleanDB() {
         printf("Cannot open DB\n");
     }
     sqlite3_close(db);
-    
-    
-    
+
+
+
     pthread_mutex_unlock(&db_mutex);
     fileManager=nil;
-    
+
+    // Stop security-scoped access for all cloud sources
+    for (CloudStorageSource *source in cloudSources) {
+        [[CloudStorageManager sharedManager] stopAccessingSource:source];
+    }
+
     return 0;
 }
 

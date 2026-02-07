@@ -51,8 +51,8 @@ extern os_log_t mdzLog;
 
 #define VERSION_MAJOR 4
 #define VERSION_MAJOR_STR "4"
-#define VERSION_MINOR 4
-#define VERSION_MINOR_STR "4"
+#define VERSION_MINOR 3
+#define VERSION_MINOR_STR "3"
 
 #ifdef DEBUG_MODIZER
 #else
@@ -151,6 +151,10 @@ extern void *LoadingProgressObserverContext;
 #define MDZ_CUT_COL_R (0x84/255.0f)
 #define MDZ_CUT_COL_G (0x2D/255.0f)
 #define MDZ_CUT_COL_B (0x72/255.0f)
+
+#define MDZ_COPY_COL_R (0x2D/255.0f)
+#define MDZ_COPY_COL_G (0x84/255.0f)
+#define MDZ_COPY_COL_B (0x72/255.0f)
                 
 #define MDZ_PASTE_COL_R (0x84/255.0f)
 #define MDZ_PASTE_COL_G (0x2D/255.0f)

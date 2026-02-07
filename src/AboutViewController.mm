@@ -104,8 +104,13 @@
 
     [self loadControllers];
     
-    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad || [NSProcessInfo processInfo].isiOSAppOnMac) {
+    
+    if ([NSProcessInfo processInfo].isiOSAppOnMac) {
         self.hidesBottomBarWhenPushed = YES;
+    } else if (@available(iOS 18.0, *)) {
+        if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad) {
+            self.hidesBottomBarWhenPushed = YES;
+        }
     }
 
     textView.font=[UIFont systemFontOfSize:14];

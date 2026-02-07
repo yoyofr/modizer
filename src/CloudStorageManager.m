@@ -431,6 +431,7 @@ static NSString * const kCloudStorageSourcesKey = @"CloudStorageSources_v1";
 
 #if TARGET_OS_MACCATALYST
     // On Mac Catalyst, use NSOpenPanel directly via runtime
+    // Allow both files AND directories - selecting a file grants write access to its parent folder
     MDZILog("CloudStorageManager: Using NSOpenPanel on Mac Catalyst");
 
     Class NSOpenPanelClass = NSClassFromString(@"NSOpenPanel");
@@ -526,19 +527,19 @@ static NSString * const kCloudStorageSourcesKey = @"CloudStorageSources_v1";
 #if !TARGET_OS_MACCATALYST
         // On iOS, check if this is a Google Drive URL and reject it
         CloudStorageType type = [CloudStorageSource typeFromURLString:url.absoluteString];
-        if (type == CloudStorageTypeGoogleDrive) {
-            MDZILog("CloudStorageManager: Google Drive not supported on iOS");
-            [url stopAccessingSecurityScopedResource];
-            if (self.folderPickerCompletion) {
-                NSError *error = [NSError errorWithDomain:@"CloudStorageManager"
-                                                     code:-2
-                                                 userInfo:@{NSLocalizedDescriptionKey: NSLocalizedString(@"Google Drive is not supported on iOS due to system limitations. Please use iCloud or access Google Drive on Mac.", @"")}];
-                self.folderPickerCompletion(nil, error);
-            }
-            self.folderPickerCompletion = nil;
-            self.currentPicker = nil;
-            return;
-        }
+//        if (type == CloudStorageTypeGoogleDrive) {
+//            MDZILog("CloudStorageManager: Google Drive not supported on iOS");
+//            [url stopAccessingSecurityScopedResource];
+//            if (self.folderPickerCompletion) {
+//                NSError *error = [NSError errorWithDomain:@"CloudStorageManager"
+//                                                     code:-2
+//                                                 userInfo:@{NSLocalizedDescriptionKey: NSLocalizedString(@"Google Drive is not supported on iOS due to system limitations. Please use iCloud or access Google Drive on Mac.", @"")}];
+//                self.folderPickerCompletion(nil, error);
+//            }
+//            self.folderPickerCompletion = nil;
+//            self.currentPicker = nil;
+//            return;
+//        }
 #endif
 
         if (self.folderPickerCompletion) {

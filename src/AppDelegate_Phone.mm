@@ -199,8 +199,6 @@ pthread_mutex_t gl_mutex;
     [[UIDevice currentDevice] setBatteryMonitoringEnabled:YES];
     [self batteryChanged:nil];
     
-    //[rootViewControlleriPhone createEditableCopyOfDatabaseIfNeeded:FALSE quiet:0];
-    
     // REMOVED: All window setup code (lines 212-284 from original)
     // This is now handled in SceneDelegate's scene:willConnectToSession:
     // Including:

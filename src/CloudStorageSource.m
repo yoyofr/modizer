@@ -101,8 +101,14 @@
                                       relativeToURL:nil
                                               error:&error];
 
-    // Always store the resolved URL so we can display the source even if bookmark fails
-    self.resolvedURL = url;
+    // Store the resolved URL - handle file-based access case
+    if (self.isFileBasedAccess) {
+        self.securityScopedURL = url;  // Keep file URL for security-scoped access
+        self.resolvedURL = [url URLByDeletingLastPathComponent];  // Parent folder for browsing
+        MDZILog("Created file-based bookmark: file=%@, folder=%@", url.path, self.resolvedURL.path);
+    } else {
+        self.resolvedURL = url;
+    }
 
     if (error || !bookmark) {
         MDZELog("Failed to create bookmark for URL %@: %@", url, error.localizedDescription ?: @"No bookmark data returned");
@@ -114,7 +120,7 @@
     self.bookmarkData = bookmark;
     self.isAccessible = YES;
 
-    MDZILog("Created bookmark for cloud source: %@", self.name);
+    MDZILog("Created bookmark for cloud source: %@ (isFileBasedAccess: %d)", self.name, self.isFileBasedAccess);
     return YES;
 }
 
@@ -175,6 +181,7 @@
 
 - (void)startAccessing {
     if (self.isCurrentlyAccessing) {
+        MDZILog("Already accessing security-scoped resource: %@", self.name);
         return;
     }
 
@@ -185,10 +192,18 @@
         BOOL success = [urlToAccess startAccessingSecurityScopedResource];
         if (success) {
             self.isCurrentlyAccessing = YES;
-            MDZDLog("Started accessing security-scoped resource: %@ (URL: %@)", self.name, urlToAccess);
+            MDZILog("Started accessing security-scoped resource: %@ (URL: %@)", self.name, urlToAccess);
+
+            // Check if we have write access
+            NSFileManager *fm = [NSFileManager defaultManager];
+            BOOL isWritable = [fm isWritableFileAtPath:urlToAccess.path];
+            MDZILog("Write access check for %@: %@", self.name, isWritable ? @"YES" : @"NO");
         } else {
             MDZELog("Failed to start accessing security-scoped resource: %@ (URL: %@)", self.name, urlToAccess);
         }
+    } else {
+        MDZILog("No security-scoped access needed for: %@ (isSecurityScoped: %d, url: %@)",
+                self.name, self.isSecurityScoped, urlToAccess);
     }
 }
 

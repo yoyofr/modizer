@@ -924,7 +924,8 @@ extern bool icloud_available;
         fullFilePath = [NSString stringWithString:filePath];
     }
     else {
-        fullFilePath = [[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:filePath];
+        if ([filePath characterAtIndex:0]=='/') fullFilePath=[NSString stringWithString:filePath];
+        else fullFilePath = [[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:filePath];
     }
     return fullFilePath;
 }
@@ -1653,5 +1654,19 @@ extern bool icloud_available;
     [[NSFileManager defaultManager] removeItemAtPath:[filepath stringByAppendingString:@".jpeg"] error:nil];
     [[NSFileManager defaultManager] removeItemAtPath:[filepath stringByAppendingString:@".gif"] error:nil];
 }
+
+//+(NSString*) getFullFilePath:(NSString *)_filePath {
+//    NSString *fullFilePath;
+//    if ([_filePath length]>2) {
+//        if (([_filePath characterAtIndex:0]=='/')&&([_filePath characterAtIndex:1]=='/')) fullFilePath=[_filePath substringFromIndex:1];
+//        else if ([_filePath characterAtIndex:0]=='/') fullFilePath=[NSString stringWithString:_filePath];
+//        else fullFilePath=[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:_filePath];
+//    } else {
+//        if ([_filePath characterAtIndex:0]=='/') fullFilePath=[NSString stringWithString:_filePath];
+//        else fullFilePath=[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:_filePath];
+//    }
+////    MDZILog("path: %@ - %@",_filePath,fullFilePath);
+//    return fullFilePath;
+//}
 
 @end

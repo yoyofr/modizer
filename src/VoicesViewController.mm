@@ -42,8 +42,12 @@ extern volatile t_settings settings[MAX_SETTINGS];
     START_PROFILE
     currentPlayingFile=NULL;
     
-    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad || [NSProcessInfo processInfo].isiOSAppOnMac) {
+    if ([NSProcessInfo processInfo].isiOSAppOnMac) {
         self.hidesBottomBarWhenPushed = YES;
+    } else if (@available(iOS 18.0, *)) {
+        if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad) {
+            self.hidesBottomBarWhenPushed = YES;
+        }
     }
     
     for (int i=0;i<SOUND_MAXMOD_CHANNELS;i++) {

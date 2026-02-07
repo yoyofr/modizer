@@ -65,6 +65,17 @@
     [self showAlert:alertC];
 }
 
+-(void) showAlertMsgAction:(NSString*)title message:(NSString*)message block:(void (^)(UIAlertAction *action))block {
+    UIAlertController *alertC = [UIAlertController alertControllerWithTitle:title
+                                       message:message
+                                       preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertAction* closeAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Close",@"") style:UIAlertActionStyleCancel
+        handler:block];
+    [alertC addAction:closeAction];
+    [self showAlert:alertC];
+}
+
+
 - (void)showToast:(NSString *)message
          duration:(NSTimeInterval)duration
 nearPoint:(CGPoint)touchPoint {

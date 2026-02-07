@@ -112,7 +112,9 @@ int fmpmini_loadFile(const char *path) {
 }
 
 int fmpmini_render(int16_t *buffer,int samples) {
-    memset(buffer, 0, samples*4);
-    opna_timer_mix(&g.timer, buffer, samples);
+    if (buffer) {
+        memset(buffer, 0, samples*4);
+        opna_timer_mix(&g.timer, buffer, samples);
+    } else opna_timer_nomix(&g.timer, samples);
     return 0;
 }

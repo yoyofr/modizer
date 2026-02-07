@@ -19,6 +19,7 @@
 "Delete" = "Delete";
 "Rename" = "Rename";
 "Extract" = "Extract";
+"Copy" = "Copy";
 "Cut" = "Cut";
 "Paste" = "Paste";
 "Create" = "Create";
@@ -117,6 +118,7 @@
 "Issue %d while trying to renamefile.\n%@" = "Issue %d while trying to renamefile.\n%@";
 "Issue %d while moving: %@.\n%@" = "Issue %d while moving: %@.\n%@";
 "Issue %d while creating folder\n%@" = "Issue %d while creating folder\n%@";
+"Issue %d while copying: %@.\n%@" = "Issue %d while copying: %@.\n%@";
 
 "File is not available locally.\nTrigerring download from iCloud, please check in 'Files' application." = "File is not available locally.\nTrigerring download from iCloud, please check in 'Files' application.";
 
@@ -247,6 +249,9 @@
 "Database will now be recreated. Please validate & wait." = "Database will now be recreated. Please validate & wait.";
 "Wrong database version: %d.%d. Will update to %d.%d. Please validate & wait." = "Wrong database version: %d.%d. Will update to %d.%d. Please validate & wait.";
 "No database found. Will create a new one. Please validate & wait..." = "No database found. Will create a new one. Please validate & wait...";
+"Database couldn't be updated." = "Database couldn't be updated.";
+"Database updated." = "Database updated.";
+"Old database version: %d.%d. Will update to %d.%d. Please validate & wait." = "Old database version: %d.%d. Will update to %d.%d. Please validate & wait.";
 
 
 // ================================
@@ -1034,7 +1039,7 @@
 
 /* Cloud */
 "Add Cloud Source" = "Add Cloud Source";
-"Browse iCloud, Dropbox, OneDrive..." = "Browse iCloud, Dropbox, OneDrive...";
+"Browse iCloud, Dropbox, ..." = "Browse iCloud, Dropbox, ...";
 "Name this source" = "Name this source";
 "Enter a name for this cloud folder" = "Enter a name for this cloud folder";
 "Cloud Folder" = "Cloud Folder";

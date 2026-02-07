@@ -259,8 +259,12 @@ static NSFileManager *mFileMngr;
     
     [self loadControllers];
     
-    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad || [NSProcessInfo processInfo].isiOSAppOnMac) {
+    if ([NSProcessInfo processInfo].isiOSAppOnMac) {
         self.hidesBottomBarWhenPushed = YES;
+    } else if (@available(iOS 18.0, *)) {
+        if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad) {
+            self.hidesBottomBarWhenPushed = YES;
+        }
     }
     
     dictActionBtn=[NSMutableDictionary dictionaryWithCapacity:64];
@@ -1719,16 +1723,16 @@ END_PROFILE
     return customView;
 }
 
--(void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath {
-    //get real index of cell
-    local_flag=0;
-    for (int i=0;i<indexPath.section;i++) {
-        local_flag+=[tableView numberOfRowsInSection:i];
-    }
-    local_flag+=indexPath.row;
-    if (local_flag&1) [cell setBackgroundColor:[UIColor colorWithRed:.95f green:.95f blue:.95f alpha:1]];
-    else [cell setBackgroundColor:[UIColor clearColor]];
-}
+//-(void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath {
+//    //get real index of cell
+//    local_flag=0;
+//    for (int i=0;i<indexPath.section;i++) {
+//        local_flag+=[tableView numberOfRowsInSection:i];
+//    }
+//    local_flag+=indexPath.row;
+//    if (local_flag&1) [cell setBackgroundColor:[UIColor colorWithRed:.95f green:.95f blue:.95f alpha:1]];
+//    else [cell setBackgroundColor:[UIColor clearColor]];
+//}
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
     return @"";
@@ -2158,11 +2162,13 @@ END_PROFILE
     if (cell == nil) {
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
         
+        cell.frame=CGRectMake(0,0,tableView.frame.size.width,40);
         [cell setBackgroundColor:[UIColor clearColor]];
         
         UIBackgroundConfiguration *backgroundConfig = [UIBackgroundConfiguration listGroupedCellConfiguration];
         backgroundConfig.backgroundColor = [UIColor systemGroupedBackgroundColor];
         cell.backgroundConfiguration = backgroundConfig;
+        
         //
         // Create the label for the top row of text
         //
