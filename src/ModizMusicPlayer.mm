@@ -3269,7 +3269,7 @@ void propertyListenerCallback (void                   *inUserData,              
         if (bGlobalAudioPause==2) skip_queue=1;//return 0;  //End of song
     } else {
         //consume another buffer
-        if (1/* || buffer_ana_flag[buffer_ana_play_ofs]*/) {
+        if (1 /*buffer_ana_flag[buffer_ana_play_ofs]*/) {
             bGlobalSoundHasStarted++;
             if (buffer_ana_flag[buffer_ana_play_ofs]&2) { //changed currentTime
                 //iCurrentTime=mNeedSeekTime;
@@ -3390,6 +3390,7 @@ void propertyListenerCallback (void                   *inUserData,              
             buffer_ana_play_ofs++;
             if (buffer_ana_play_ofs==SOUND_BUFFER_NB) buffer_ana_play_ofs=0;
         } else {
+            MDZELog("buffer audio underrun");
             //memset((char*)mBuffer->mAudioData,0,SOUND_BUFFER_SIZE_SAMPLE*2*2);  //WARNING : not fast enough!!
             for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
                 ((int *)mBuffer->mAudioData)[i]=last_audio_sample;
@@ -3445,6 +3446,12 @@ void propertyListenerCallback (void                   *inUserData,              
     //if (buffer_to_compensate<2) buffer_to_compensate=2; //take some contingency / avoid having FX using voice_data that can be updated in the middle of the FX
     
     return buffer_to_compensate;
+}
+
+-(int) getBufferPlayAnaIdxDiff {
+    int diff_ana_ofs=(buffer_ana_gen_ofs-buffer_ana_play_ofs);
+    if (diff_ana_ofs<0) diff_ana_ofs+=SOUND_BUFFER_NB;
+    return diff_ana_ofs;
 }
 
 -(int64_t) getCurrentSamplesPos {
@@ -4634,6 +4641,30 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
     return sampleGenerated;
 }
 
+void processFadeOut(short int *buffer, int sample_count, int voice_factor) {
+    if (iModuleLength>0) {
+        if ((mFadeSamplesStart>=0)&&(mCurrentSamples>mFadeSamplesStart)) {
+            int startSmpl=mCurrentSamples-mFadeSamplesStart;
+            if (startSmpl>SOUND_BUFFER_SIZE_SAMPLE) startSmpl=SOUND_BUFFER_SIZE_SAMPLE;
+            int64_t vol=mTgtSamples-mCurrentSamples;
+            int64_t fadeLength=mTgtSamples-mFadeSamplesStart;
+            if (vol<0) vol=0;
+            
+            for (int i=SOUND_BUFFER_SIZE_SAMPLE-startSmpl;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
+                buffer[i*2]=(int64_t)(buffer[i*2])*vol/fadeLength;
+                buffer[i*2+1]=(int64_t)(buffer[i*2+1])*vol/fadeLength;
+                
+                for (int jj=0;jj<(m_genNumVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?m_genNumVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);jj++) {
+                    int64_t val=m_voice_buff[jj]
+                    [(i+(m_voice_prev_current_ptr[jj]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT))&(SOUND_BUFFER_SIZE_SAMPLE*voice_factor-1)];
+                    m_voice_buff[jj]
+                    [(i+(m_voice_prev_current_ptr[jj]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT))&(SOUND_BUFFER_SIZE_SAMPLE*voice_factor-1)]=val*vol/fadeLength;
+                }
+                if (vol) vol--;
+            }
+        }
+    }
+}
 
 -(void) generateSoundThread {
     //NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
@@ -4646,10 +4677,8 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
         
         //int cptyo=0;
         while (1) {
-            
-            [NSThread sleepForTimeInterval:DEFAULT_WAIT_TIME_MS];
+            //[NSThread sleepForTimeInterval:DEFAULT_WAIT_TIME_MS];
             if (bGlobalIsPlaying) {
-                
                 int diff_ana_ofs=(buffer_ana_gen_ofs-buffer_ana_play_ofs);
                 if (diff_ana_ofs<0) diff_ana_ofs+=SOUND_BUFFER_NB;
                 
@@ -5335,7 +5364,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     }
                                 }
                             }
-                            if (mPlayType==MMP_PMDMINI) { //PMDMini : not supported
+                            if (mPlayType==MMP_PMDMINI) { //PMDMini
                                 int64_t mStartPosSamples;
                                 int64_t mSeekSamples=(double)mNeedSeekTime*(double)(PLAYBACK_FREQ)/1000.0f;
                                 bGlobalSeekProgress=-1;
@@ -5347,7 +5376,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     arg[1]=(char*)[mod_currentfile UTF8String];
                                     arg[2]=NULL;
                                     arg[3]=NULL;
-                                    pmd_play(arg, (char*)[[mod_currentfile stringByDeletingLastPathComponent] UTF8String]);
+                                    pmd_play(arg, (char*)[[mod_currentfile stringByDeletingLastPathComponent] UTF8String],settings[GLOB_Maxloop].detail.mdz_slider.slider_value);
                                     
                                     iCurrentTime=0;
                                     mCurrentSamples=0;
@@ -5358,7 +5387,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                     int64_t sample_to_skip=mSeekSamples - mCurrentSamples;
                                     if (sample_to_skip>SOUND_BUFFER_SIZE_SAMPLE) sample_to_skip=SOUND_BUFFER_SIZE_SAMPLE;
                                     
-                                    pmd_renderer(buffer_ana[buffer_ana_gen_ofs], sample_to_skip);
+                                    pmd_renderer(NULL/*buffer_ana[buffer_ana_gen_ofs]*/, sample_to_skip);
                                     
                                     mCurrentSamples+=sample_to_skip;
                                     iCurrentTime=mCurrentSamples*1000/PLAYBACK_FREQ;
@@ -5862,8 +5891,9 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                                 
                                 mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
                                 if (mLoopMode) iModuleLength=-1;
-                                if (iModuleLength>0) mFadeSamplesStart=(int64_t)(iModuleLength-1000)*PLAYBACK_FREQ/1000; //1s
-                                else mFadeSamplesStart=1<<30;
+                                if (iModuleLength>0) { mFadeSamplesStart=(int64_t)(iModuleLength-settings[GLOB_Fadeouttime].detail.mdz_slider.slider_value*1000)*PLAYBACK_FREQ/1000; //1s
+                                    if (mFadeSamplesStart<0) mFadeSamplesStart=0;
+                                } else mFadeSamplesStart=1<<30;
                                                              
                                 int cpt_wait=0;
                                 while (mod_message_updated) {
@@ -6724,6 +6754,8 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                             nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
                             mCurrentSamples+=SOUND_BUFFER_SIZE_SAMPLE;
                             
+                            processFadeOut(buffer_ana[buffer_ana_gen_ofs], SOUND_BUFFER_SIZE_SAMPLE,4*4);
+                            
                             //midi like notes data
                             int voices_idx=0;
                             memset(tim_notes[buffer_ana_gen_ofs],0,DEFAULT_VOICES*4);
@@ -7485,6 +7517,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                         if (mPlayType==MMP_SIDPLAY) { //SID
                             
                             nbBytes=mSidEmuEngine->play(buffer_ana[buffer_ana_gen_ofs],SOUND_BUFFER_SIZE_SAMPLE*2*1)*2;
+//                            nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
                             
                             if (settings[GLOB_PBRATIO_ONOFF].detail.mdz_boolswitch.switch_value) mCurrentSamples+=nbBytes/4*settings[GLOB_PBRATIO].detail.mdz_slider.slider_value;
                             else mCurrentSamples+=nbBytes/4;
@@ -8286,9 +8319,13 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
                         
                         buffer_ana_gen_ofs++;
                         if (buffer_ana_gen_ofs==SOUND_BUFFER_NB) buffer_ana_gen_ofs=0;
+                    } else {
+                        [NSThread sleepForTimeInterval:DEFAULT_WAIT_TIME_MS];
                     }
                 }
                 bGlobalSoundGenInProgress=0;
+            } else {
+                [NSThread sleepForTimeInterval:DEFAULT_WAIT_TIME_MS];
             }
             if (bGlobalShouldEnd) break;
             
@@ -8805,7 +8842,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
     mp_datasize=ftell(f);
     fclose(f);
     
-    if (mdx_load((char*)[filePath UTF8String],&mdx,&pdx,mLoopMode) ) {
+    if (mdx_load((char*)[filePath UTF8String],&mdx,&pdx,(mLoopMode==1?32767:settings[GLOB_Maxloop].detail.mdz_slider.slider_value)) ) {
         MDZELog("MDX mdx_load error");
         mPlayType=0;
         return -1;
@@ -9254,7 +9291,9 @@ typedef struct {
     if (mLoopMode) (*nsfPlayerConfig)["PLAY_ADVANCE"]=1;
     else (*nsfPlayerConfig)["PLAY_ADVANCE"]=0;
     
-    nsfData->SetDefaults(settings[GLOB_DefaultLength].detail.mdz_slider.slider_value*1000,nsfData->default_fadetime,nsfData->default_loopnum);
+    (*nsfPlayerConfig)["LOOP_NUM"]=settings[GLOB_Maxloop].detail.mdz_slider.slider_value;
+    
+    nsfData->SetDefaults(settings[GLOB_DefaultLength].detail.mdz_slider.slider_value*1000,settings[GLOB_Fadeouttime].detail.mdz_slider.slider_value*1000,settings[GLOB_Maxloop].detail.mdz_slider.slider_value);
     
     //check if a playlist exists
     const char *plfile=[[[filePath stringByDeletingPathExtension] stringByAppendingString:@".m3u"] UTF8String];
@@ -11486,8 +11525,9 @@ char* loadRom(const char* path, size_t romSize)
     iCurrentTime=0;
     mCurrentSamples=0;
     
-    if (iModuleLength>0) mFadeSamplesStart=(int64_t)(iModuleLength-1000)*PLAYBACK_FREQ/1000; //1s
-    else mFadeSamplesStart=1<<30;
+    if (iModuleLength>0) { mFadeSamplesStart=(int64_t)(iModuleLength-settings[GLOB_Fadeouttime].detail.mdz_slider.slider_value*1000)*PLAYBACK_FREQ/1000; //1s
+        if (mFadeSamplesStart<0) mFadeSamplesStart=0;
+    } else mFadeSamplesStart=1<<30;
     
     return 0;
 }
@@ -12452,7 +12492,7 @@ NSString* convertAmigaGreekToUnicode(NSString *input) {
     BOOL fileExist;
     
     midi_time_ratio=1;
-    tim_loop_max=settings[TIM_Maxloop].detail.mdz_slider.slider_value;
+    tim_loop_max=settings[GLOB_Maxloop].detail.mdz_slider.slider_value-1;
     
     cpath=[filePath stringByDeletingLastPathComponent];
     //test if a sf2 exist with same name
@@ -12582,7 +12622,7 @@ NSString* convertAmigaGreekToUnicode(NSString *input) {
     vcfg.allow_play_forever = (mLoopMode==1?1:0);
     vcfg.play_forever =(mLoopMode==1?1:0);
     
-    vcfg.loop_count = optVGMSTREAM_loop_count;
+    vcfg.loop_count = settings[GLOB_Maxloop].detail.mdz_slider.slider_value;
     vcfg.fade_time = settings[GLOB_Fadeouttime].detail.mdz_slider.slider_value;
     vcfg.fade_delay = 0.0f;
     vcfg.ignore_fade = 0; //1;
@@ -12730,7 +12770,7 @@ NSString* convertAmigaGreekToUnicode(NSString *input) {
         NSString *value = item.stringValue;
         
         if (key && value) {
-//            NSLog(@"TAG: %@ = %@", key, value);
+            NSLog(@"Common TAG: %@ = %@", key, value);
             
             if ([[key lowercaseString] isEqualToString:@"title"]) {
                 mod_title=[NSString stringWithString:value];
@@ -12766,7 +12806,8 @@ NSString* convertAmigaGreekToUnicode(NSString *input) {
     NSNumber *total = nil;
     // ID3
     for (AVMetadataItem *item in [asset metadataForFormat:AVMetadataFormatID3Metadata]) {
-        if ([item.key isEqual:AVMetadataID3MetadataKeyTrackNumber]) {
+        NSLog(@"ID3TAG: %@ = %@", item.key, item.value);
+        if ([item.key isEqual:AVMetadataID3MetadataKeyTrackNumber]||[item.key isEqual:@"TRK"]) {
             NSArray *parts = [item.stringValue componentsSeparatedByString:@"/"];
             track = @([parts.firstObject integerValue]);
             if (parts.count > 1) {
@@ -12777,6 +12818,7 @@ NSString* convertAmigaGreekToUnicode(NSString *input) {
     if (track==nil) {
         // iTunes
         for (AVMetadataItem *item in [asset metadataForFormat:AVMetadataFormatiTunesMetadata]) {
+            NSLog(@"Itunes TAG: %@ = %@", item.key, item.value);
             if ([item.key isEqual:AVMetadataiTunesMetadataKeyTrackNumber]) {
                 NSDictionary *dict = (NSDictionary *)item.value;
                 track = dict[@"trackNumber"];
@@ -12790,6 +12832,7 @@ NSString* convertAmigaGreekToUnicode(NSString *input) {
         if ([asset.availableMetadataFormats containsObject:VorbisFormat]) {
             
             for (AVMetadataItem *item in [asset metadataForFormat:VorbisFormat]) {
+                NSLog(@"Vorbis TAG: %@ = %@", item.key, item.value);
                 NSString *key = [item.key description];
                 if ([key caseInsensitiveCompare:@"TRACKNUMBER"] == NSOrderedSame) {
                     track = @([item.stringValue integerValue]);
@@ -13619,7 +13662,7 @@ static void vgm_set_dev_option(PlayerBase *player, UINT8 devId, UINT32 coreOpts)
     {
         PlayerA::Config pCfg = vgm_player.GetConfiguration();
         pCfg.masterVol = 0x10000;    // == 1.0 == 100%
-        pCfg.loopCount = settings[VGMPLAY_Maxloop].detail.mdz_slider.slider_value;
+        pCfg.loopCount = settings[GLOB_Maxloop].detail.mdz_slider.slider_value;
         pCfg.fadeSmpls = PLAYBACK_FREQ * settings[GLOB_Fadeouttime].detail.mdz_slider.slider_value;
         pCfg.endSilenceSmpls = 0;
         pCfg.pbSpeed = (settings[GLOB_PBRATIO_ONOFF].detail.mdz_boolswitch.switch_value?settings[GLOB_PBRATIO].detail.mdz_slider.slider_value: 1.0);
@@ -13667,10 +13710,10 @@ static void vgm_set_dev_option(PlayerBase *player, UINT8 devId, UINT32 coreOpts)
     if (vgm_plrEngine->GetPlayerType() == FCC_VGM)
     {
         VGMPlayer* vgmplay = dynamic_cast<VGMPlayer*>(vgm_plrEngine);
-        vgm_player.SetLoopCount(vgmplay->GetModifiedLoopCount(settings[VGMPLAY_Maxloop].detail.mdz_slider.slider_value));
+        vgm_player.SetLoopCount(vgmplay->GetModifiedLoopCount(settings[GLOB_Maxloop].detail.mdz_slider.slider_value));
         
     } else {
-        vgm_player.SetLoopCount(settings[VGMPLAY_Maxloop].detail.mdz_slider.slider_value);
+        vgm_player.SetLoopCount(settings[GLOB_Maxloop].detail.mdz_slider.slider_value);
     }
     if (mLoopMode==1) vgm_player.SetLoopCount(-1);
     
@@ -13743,7 +13786,7 @@ static void vgm_set_dev_option(PlayerBase *player, UINT8 devId, UINT32 coreOpts)
      * configuration, 1 frame = (left sample + right sample) */
     
     /* figure out how many total frames we're going to render */
-    totalFrames = vgm_plrEngine->Tick2Sample(vgm_plrEngine->GetTotalPlayTicks(settings[VGMPLAY_Maxloop].detail.mdz_slider.slider_value));
+    totalFrames = vgm_plrEngine->Tick2Sample(vgm_plrEngine->GetTotalPlayTicks(settings[GLOB_Maxloop].detail.mdz_slider.slider_value));
     
     /* we only want to fade if there's a looping section. Assumption is
      * if the VGM doesn't specify a loop, it's a song with an actual ending */
@@ -13962,7 +14005,7 @@ static void vgm_set_dev_option(PlayerBase *player, UINT8 devId, UINT32 coreOpts)
         arg[1]=(char*)[filePath UTF8String];
         arg[2]=NULL;
         arg[3]=NULL;
-        pmd_play(arg, (char*)[[filePath stringByDeletingLastPathComponent] UTF8String]);
+        pmd_play(arg, (char*)[[filePath stringByDeletingLastPathComponent] UTF8String],settings[GLOB_Maxloop].detail.mdz_slider.slider_value);
         
         //getlength((char*)[filePath UTF8String], &iModuleLength, &loop_length);
         iModuleLength=pmd_length_msec();//pmd_loop_msec();
@@ -14034,6 +14077,10 @@ static void vgm_set_dev_option(PlayerBase *player, UINT8 devId, UINT32 coreOpts)
         mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
         //Loop
         if (mLoopMode==1) iModuleLength=-1;
+        
+        if (iModuleLength>0) { mFadeSamplesStart=(int64_t)(iModuleLength-settings[GLOB_Fadeouttime].detail.mdz_slider.slider_value*1000)*PLAYBACK_FREQ/1000; //1s
+            if (mFadeSamplesStart<0) mFadeSamplesStart=0;
+        } else mFadeSamplesStart=1<<30;
         
         return 0;
     }
@@ -15885,8 +15932,9 @@ extern bool icloud_available;
                 if (iModuleLength<1000) iModuleLength=1000;
                 mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
                 if (mLoopMode) iModuleLength=-1;
-                if (iModuleLength>0) mFadeSamplesStart=(int64_t)(iModuleLength-1000)*PLAYBACK_FREQ/1000; //1s
-                else mFadeSamplesStart=1<<30;
+                if (iModuleLength>0) { mFadeSamplesStart=(int64_t)(iModuleLength-settings[GLOB_Fadeouttime].detail.mdz_slider.slider_value*1000)*PLAYBACK_FREQ/1000; //1s
+                    if (mFadeSamplesStart<0) mFadeSamplesStart=0;
+                } else mFadeSamplesStart=1<<30;
             } else {
                 KSSPLAY_reset(kssplay, mod_currentsub, 0);
                 if (kss->info) {
@@ -15895,8 +15943,9 @@ extern bool icloud_available;
                 if (iModuleLength<1000) iModuleLength=1000;
                 mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
                 if (mLoopMode) iModuleLength=-1;
-                if (iModuleLength>0) mFadeSamplesStart=(int64_t)(iModuleLength-1000)*PLAYBACK_FREQ/1000; //1s
-                else mFadeSamplesStart=1<<30;
+                if (iModuleLength>0) { mFadeSamplesStart=(int64_t)(iModuleLength-settings[GLOB_Fadeouttime].detail.mdz_slider.slider_value*1000)*PLAYBACK_FREQ/1000; //1s
+                    if (mFadeSamplesStart<0) mFadeSamplesStart=0;
+                } else mFadeSamplesStart=1<<30;
             }
             
             if (m3uReader.size()) {
@@ -17349,9 +17398,9 @@ extern "C" void adjust_amplification(void);
 ///////////////////////////
 //VGMSTREAM
 ///////////////////////////
--(void) optVGMSTREAM_MaxLoop:(int)val {
-    optVGMSTREAM_loop_count=val;
-}
+//-(void) optVGMSTREAM_MaxLoop:(int)val {
+//    optVGMSTREAM_loop_count=val;
+//}
 -(void) optVGMSTREAM_ForceLoop:(unsigned int)val {
     optVGMSTREAM_loopmode=val;
 }

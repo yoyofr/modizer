@@ -31,7 +31,7 @@ struct IPCMMUSICDRIVER {
 	virtual void WINAPI music_start(void) = 0;
 	virtual void WINAPI music_stop(void) = 0;
 	virtual int32_t WINAPI getloopcount(void) = 0;
-	virtual bool WINAPI getlength(TCHAR *filename, int32_t *length, int32_t *loop) = 0;
+	virtual bool WINAPI getlength(TCHAR *filename, int32_t *length, int32_t *loop, int maxloop) = 0;
 	virtual int32_t WINAPI getpos(void) = 0;
 	virtual void WINAPI setpos(int32_t pos) = 0;
 	virtual void WINAPI getpcmdata(int16_t *buf, int32_t nsamples) = 0;

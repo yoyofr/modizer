@@ -486,8 +486,10 @@
 	<true/>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
-	<key>CADisableMinimumFrameDurationOnPhone</key>
-	<true/>
+	<key>NSMainStoryboardFile</key>
+	<string></string>
+	<key>CFBundleIconName</key>
+	<string></string>
 	<key>UTExportedTypeDeclarations</key>
 	<array>
 		<dict>

@@ -378,7 +378,7 @@ extern "C" {
 -(void) optGLOB_PanningValue:(float)value;
 
 
--(void) optVGMSTREAM_MaxLoop:(int)val;
+//-(void) optVGMSTREAM_MaxLoop:(int)val;
 -(void) optVGMSTREAM_ForceLoop:(unsigned int)val;
 -(void) optVGMSTREAM_ResampleQuality:(unsigned int)val;
 -(void) optVGMSTREAM_preferJapTag:(bool)val;
@@ -452,5 +452,7 @@ extern "C" {
 -(bool) isMidiLikeDataAvailable;
 
 -(int64_t) getCurrentSamplesPos;
+
+-(int) getBufferPlayAnaIdxDiff;
 
 @end

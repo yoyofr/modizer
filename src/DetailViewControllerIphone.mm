@@ -127,7 +127,10 @@ int NOTES_DISPLAY_TOPMARGIN=30;
 
 #include "DBHelper.h"
 
+//#ifndef NDEBUG
 #define DEBUG_INFOS 1
+//#endif
+
 #define DEBUG_NO_SETTINGS 0
 
 #include "ModizerTypes.h"
@@ -1394,7 +1397,7 @@ static float movePinchScale,movePinchScaleOld,movePinchAngle;
     /////////////////////
     if ((scope==SETTINGS_ALL)||(scope==SETTINGS_VGMSTREAM)) {
         [mplayer optVGMSTREAM_ForceLoop:settings[VGMSTREAM_Forceloop].detail.mdz_boolswitch.switch_value];
-        [mplayer optVGMSTREAM_MaxLoop:(int)(settings[VGMSTREAM_Maxloop].detail.mdz_slider.slider_value)];
+        //[mplayer optVGMSTREAM_MaxLoop:(int)(settings[VGMSTREAM_Maxloop].detail.mdz_slider.slider_value)];
         [mplayer optVGMSTREAM_ResampleQuality:(int)(settings[VGMSTREAM_ResampleQuality].detail.mdz_switch.switch_value)];
     }
     
@@ -8377,7 +8380,8 @@ void menuInterpolValue(float &curValue,float startValue,float tgtValue) {
                 ImGui::Text("%s",strTmp);
                 posy+=sizeText.y+2;
                 
-#ifndef NDEBUG
+
+#if DEBUG_INFOS
                 posy+=sizeText.y+6;
                 //Debug info
                 ImGui::PopStyleColor();
@@ -8835,12 +8839,6 @@ void menuInterpolValue(float &curValue,float startValue,float tgtValue) {
             RenderUtils::DrawPianoRollSynthesiaFX(x,y,ww,hh,settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value-1,prollfx_note_range,prollfx_noteroll_offset,prollfx_length,settings[GLOB_FXPianoColorMode].detail.mdz_switch.switch_value,mScaleFactor,(char*)voicesName,mScalePianoInfo);
             break;
     }
-    
-    varCheck[0]=mScalePianoInfo[0];
-    varCheck[1]=mScalePianoInfo[1];
-    varCheck[2]=mScalePianoInfo[2];
-    varCheck[3]=mScalePianoInfo[3];
-    
     
     if (settings[GLOB_FXPianoRollFXAutoScale].detail.mdz_boolswitch.switch_value) {
         if ( (oldScaleMin>mScalePianoInfo[0]) || (oldScaleMax<mScalePianoInfo[1]) ) {
@@ -9656,6 +9654,8 @@ void drawTgtSlotPattern(int fxIdx,float x,float y,float w,float h,float ww,float
     float fxalpha;
     int frameToUpdate=0;
     int shouldGoToSettings=0;
+    
+    varCheck[0]=[mplayer getBufferPlayAnaIdxDiff];
     
     if (!_pmIsInitialized) return; //PRojectM might still be initializing and calling some opengl stuff from background thread
     

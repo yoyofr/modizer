@@ -72,7 +72,8 @@ enum MDZ_SETTINGS {
     GLOB_PBRATIO,
     
     GLOB_DefaultLength,
-    GLOB_Fadeouttime,    
+    GLOB_Maxloop,
+    GLOB_Fadeouttime,
     GLOB_SilenceDetection,
     
     GLOB_RadioModeMaxDownloadSize,
@@ -226,7 +227,7 @@ enum MDZ_SETTINGS {
         SID_ThirdSIDAddress,
     
         MDZ_SETTINGS_FAMILY_TIMIDITY,
-        TIM_Maxloop,
+        //TIM_Maxloop,
         TIM_Polyphony,
         TIM_Amplification,
         TIM_Chorus,
@@ -246,7 +247,7 @@ enum MDZ_SETTINGS {
         UADE_NTSC,
     
         MDZ_SETTINGS_FAMILY_VGMPLAY,
-        VGMPLAY_Maxloop,
+        //VGMPLAY_Maxloop,
         VGMPLAY_PreferJTAG,
         VGMPLAY_YM2612Emulator,
         VGMPLAY_NUKEDOPN2_Option,
@@ -258,7 +259,7 @@ enum MDZ_SETTINGS {
         MDZ_SETTINGS_FAMILY_VGMSTREAM,
         VGMSTREAM_ResampleQuality,
         VGMSTREAM_Forceloop,
-        VGMSTREAM_Maxloop,
+        //VGMSTREAM_Maxloop,
     
         MDZ_SETTINGS_FAMILY_XMP,
         XMP_Interpolation,

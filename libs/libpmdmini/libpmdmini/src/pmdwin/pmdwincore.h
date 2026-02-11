@@ -89,7 +89,7 @@ public:
 	void WINAPI music_start(void);
 	void WINAPI music_stop(void);
 	int32_t WINAPI getloopcount(void);
-	bool WINAPI getlength(TCHAR *filename, int32_t *length, int32_t *loop);
+	bool WINAPI getlength(TCHAR *filename, int32_t *length, int32_t *loop, int maxloop);
 	int32_t WINAPI getpos(void);
 	void WINAPI setpos(int32_t pos);
 	void WINAPI getpcmdata(int16_t *buf, int32_t nsamples);

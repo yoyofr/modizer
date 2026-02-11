@@ -9,7 +9,7 @@ extern "C" {
 void pmd_init( char *pcmdir );
 void pmd_setrate( int freq );
 int pmd_is_pmd( const char *file );
-int pmd_play ( char *arg[] , char *pcmdir );
+int pmd_play ( char *arg[] , char *pcmdir,int maxloop );
 int pmd_length_sec ( void );
 int pmd_length_msec ( void ); //YOYOFR
 int pmd_loop_sec ( void );

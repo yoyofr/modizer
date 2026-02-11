@@ -7757,13 +7757,13 @@ void WINAPI PMDWIN::getpcmdata(int16_t *buf, int32_t nsamples)
 	
 	do {
 		if(nsamples - copysamples <= us2) {
-			memcpy(buf, pos2, (nsamples - copysamples)*4);
+			if (buf) memcpy(buf, pos2, (nsamples - copysamples)*4);
 			us2 -= (nsamples - copysamples);
 			pos2 += (nsamples - copysamples)*4;
 			copysamples = nsamples;
 		} else {
-			memcpy(buf, pos2, us2 * 4);
-			buf += (us2 * 2);
+            if (buf) memcpy(buf, pos2, us2 * 4);
+            if (buf) buf += (us2 * 2);
 			copysamples += us2;
 			pos2 = (char *)wavbuf2;
 
@@ -7778,10 +7778,10 @@ void WINAPI PMDWIN::getpcmdata(int16_t *buf, int32_t nsamples)
 			opna->SetReg(0x27, open_work.ch3mode | 0x30);	// TIMER RESET(timerA,Bとも)
 
 
-			us = opna->GetNextEvent();
-			us2 = (int32_t)((double)us * open_work.rate / 1000000.0);
+            us = opna->GetNextEvent();
+            us2 = (int32_t)((double)us * open_work.rate / 1000000.0);
             
-			opna->Count(us);
+            if (buf) opna->Count(us);
 
 			memset(wavbuf, 0x0, us2 * sizeof(Sample) * 2);
 
@@ -7791,14 +7791,14 @@ void WINAPI PMDWIN::getpcmdata(int16_t *buf, int32_t nsamples)
             //YOYOFR
             
 			if(open_work.rate == open_work.ppzrate) {
-				ppz8->Mix((Sample *)wavbuf, us2);
+                ppz8->Mix((Sample *)wavbuf, us2);
 			} else {
 				// ppz8 の pcm の周波数変換(補完なし)
 				ppzsample = us2 * open_work.ppzrate / open_work.rate + 1;
 				delta = 8192 * open_work.ppzrate / open_work.rate;
                 
 				memset(wavbuf_conv, 0x0, ppzsample * sizeof(Sample) * 2);
-				ppz8->Mix((Sample *)wavbuf_conv, ppzsample);
+                ppz8->Mix((Sample *)wavbuf_conv, ppzsample);
 
 				carry = 0;
 				for(i = 0; i < us2; i++) {		// 周波数変換(1 << 13 = 8192)
@@ -7816,7 +7816,7 @@ void WINAPI PMDWIN::getpcmdata(int16_t *buf, int32_t nsamples)
             }
             //YOYOFR
             
-			opna->Mix((Sample *)wavbuf, us2);
+            if (buf) opna->Mix((Sample *)wavbuf, us2);
 			if(pmdwork.ppsdrv_flag) {
 				ppsdrv->Mix((Sample *)wavbuf, us2);
 			}
@@ -8741,7 +8741,7 @@ int32_t WINAPI PMDWIN::getpos2(void)
 //=============================================================================
 //	曲の長さの取得(pos : ms)
 //=============================================================================
-bool WINAPI PMDWIN::getlength(TCHAR *filename, int32_t *length, int32_t *loop)
+bool WINAPI PMDWIN::getlength(TCHAR *filename, int32_t *length, int32_t *loop,int maxloop)
 {
 	int32_t		us;
 	int32_t		result;
@@ -8814,7 +8814,7 @@ bool WINAPI PMDWIN::getlength(TCHAR *filename, int32_t *length, int32_t *loop)
 		us = opna->GetNextEvent();
 		opna->Count(us);
 		upos += us;
-		if(open_work.status2 == 1 && *length == 0) {	// ループ時
+		if(open_work.status2 == maxloop && *length == 0) {	// ループ時
 			*length = (int32_t)(upos / 1000);
 		} else if(open_work.status2 == -1) {			// ループなし終了時
 			*length = (int32_t)(upos / 1000);
@@ -8831,34 +8831,34 @@ bool WINAPI PMDWIN::getlength(TCHAR *filename, int32_t *length, int32_t *loop)
             if (fmUsed) {
                 pmd_system_voice_idx[VOICE_FM]=pmd_real_tracks_used;
                 pmd_real_tracks_used+=13;//NumOfFMPart; //include 6FM, 6ADPCM/RHYTHM, 1 ADPCM B Channels
-                printf("FM ON\n");
+//                printf("FM ON\n");
             }
             if (ssgUsed) {
                 pmd_system_voice_idx[VOICE_SSG]=pmd_real_tracks_used;
                 pmd_real_tracks_used+=3; //3 SSG Channels
-                printf("SSG ON\n");
+//                printf("SSG ON\n");
             }
             if (adpUsed) {
         //        pmd_real_tracks_used+=1;//NumOfADPCMPart;
-                printf("ADPCM ON\n");
+//                printf("ADPCM ON\n");
             }
             if (rhyUsed) {
         //        pmd_real_tracks_used+=NumOfRhythmPart;
-                printf("RHYTHM ON\n");
+//                printf("RHYTHM ON\n");
             }
             if (extUsed) {
                 pmd_real_tracks_used+=3;  //3 Additional channels
-                printf("EXT ON\n");
+//                printf("EXT ON\n");
             }
             //if (dumUsed) pmd_real_tracks_used++;
             if (effUsed) {
                 //pmd_real_tracks_used+=1;  //1 Additional channel
-                printf("Eff ON\n");
+//                printf("Eff ON\n");
             }
             if (ppzUsed) {
                 pmd_system_voice_idx[VOICE_PPZ]=pmd_real_tracks_used;
                 pmd_real_tracks_used+=8; //8 Additional PCM channels
-                printf("PPZ8 ON\n");
+//                printf("PPZ8 ON\n");
             }
             //YOYOFR
 			return true;
@@ -8871,38 +8871,38 @@ bool WINAPI PMDWIN::getlength(TCHAR *filename, int32_t *length, int32_t *loop)
             if (fmUsed) {
                 pmd_system_voice_idx[VOICE_FM]=pmd_real_tracks_used;
                 pmd_real_tracks_used+=13;//NumOfFMPart; //include 6FM, 6ADPCM/RHYTHM, 1 ADPCM B Channels
-                printf("FM ON\n");
+//                printf("FM ON\n");
             }
             if (ssgUsed) {
                 pmd_system_voice_idx[VOICE_SSG]=pmd_real_tracks_used;
                 pmd_real_tracks_used+=3; //3 SSG Channels
-                printf("SSG ON\n");
+//                printf("SSG ON\n");
             }
             if (adpUsed) {
         //        pmd_real_tracks_used+=1;//NumOfADPCMPart;
-                printf("ADPCM ON\n");
+//                printf("ADPCM ON\n");
             }
             if (rhyUsed) {
         //        pmd_real_tracks_used+=NumOfRhythmPart;
-                printf("RHYTHM ON\n");
+//                printf("RHYTHM ON\n");
             }
             if (extUsed) {
                 //pmd_real_tracks_used+=3;  //3 Additional channels
-                printf("EXT ON\n");
+//                printf("EXT ON\n");
             }
             //if (dumUsed) pmd_real_tracks_used++;
             if (effUsed) {
                 //pmd_real_tracks_used+=1;  //1 Additional channel
-                printf("Eff ON\n");
+//                printf("Eff ON\n");
             }
             if (ppzUsed) {
                 pmd_system_voice_idx[VOICE_PPZ]=pmd_real_tracks_used;
                 pmd_real_tracks_used+=8; //8 Additional PCM channels
-                printf("PPZ8 ON\n");
+//                printf("PPZ8 ON\n");
             }
 			return true;
 		}
-	} while(open_work.status2 < 2);
+	} while(open_work.status2 < (maxloop+1));
     
     //YOYOFR
     pmd_real_tracks_used=0;
@@ -8910,36 +8910,36 @@ bool WINAPI PMDWIN::getlength(TCHAR *filename, int32_t *length, int32_t *loop)
         pmd_system_voice_idx[VOICE_FM]=pmd_real_tracks_used;
         pmd_system_voice_nb[VOICE_FM]=13;
         pmd_real_tracks_used+=13;//NumOfFMPart; //include 6FM, 6ADPCM/RHYTHM, 1 ADPCM B Channels
-        printf("FM ON\n");
+//        printf("FM ON\n");
     }
     if (ssgUsed) {
         pmd_system_voice_idx[VOICE_SSG]=pmd_real_tracks_used;
         pmd_system_voice_nb[VOICE_SSG]=3;
         pmd_real_tracks_used+=3; //3 SSG Channels
-        printf("SSG ON\n");
+//        printf("SSG ON\n");
     }
     if (adpUsed) {
 //        pmd_real_tracks_used+=1;//NumOfADPCMPart;
-        printf("ADPCM ON\n");
+//        printf("ADPCM ON\n");
     }
     if (rhyUsed) {
 //        pmd_real_tracks_used+=NumOfRhythmPart;
-        printf("RHYTHM ON\n");
+//        printf("RHYTHM ON\n");
     }
     if (extUsed) {
         //pmd_real_tracks_used+=3;  //3 Additional channels
-        printf("EXT ON\n");
+//        printf("EXT ON\n");
     }
     //if (dumUsed) pmd_real_tracks_used++;
     if (effUsed) {
         //pmd_real_tracks_used+=1;  //1 Additional channel
-        printf("Eff ON\n");
+//        printf("Eff ON\n");
     }
     if (ppzUsed) {
         pmd_system_voice_idx[VOICE_PPZ]=pmd_real_tracks_used;
         pmd_system_voice_nb[VOICE_PPZ]=8;
         pmd_real_tracks_used+=8; //8 Additional PCM channels
-        printf("PPZ8 ON\n");
+//        printf("PPZ8 ON\n");
     }
     //YOYOFR
 	

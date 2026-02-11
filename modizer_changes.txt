@@ -1,29 +1,15 @@
 Tips
 - identify all global symbols (to buid rename header file)=> nm -g liblibatariaudio.a
 one liner example:
-
   nm -g liblibatariaudio.a|grep "_m68k"|cut -c 21-|awk -F: '{ print "-D " $1 "=as_" $1 }'
-
-- generate font from ttf file: FontGen.exe, needs wine
-
 Todo/Requested:
 ���������
-
 - Todo: add PDX/MDX to keyboard visualizer
 - Todo: allmods/asma -> dynamic update ?
-
-- [UI] settings => when value available (not combo list or on/off switch), display it below label
-- TODO: rework online tab orga, multi level (DBs/Games/Mods & related/Others, then second level, ...)
-- TODO: add an option to show all files in file browser (for ex swipe right the top line)
-
 - libs not generating oscilloscope output:
   - GME(except snes): have to review blip_buffer logic, probably implement more blip_buffer/synth (1/voice)
   - PMDMINI
   - SC68 // sndh & UADE are supported, not worth it
-
-missing seek support:
-  - UADE
-
 => add a small progress bar in cells in modland/asma/hvsc... When downloading
 => ADPLUG oscillo data not generated when OPL is not Woody
 

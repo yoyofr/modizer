@@ -48,9 +48,9 @@
       shouldAutocreateTestPlan = "YES">
    </TestAction>
    <LaunchAction
-      buildConfiguration = "Distribution"
-      selectedDebuggerIdentifier = ""
-      selectedLauncherIdentifier = "Xcode.IDEFoundation.Launcher.PosixSpawn"
+      buildConfiguration = "Debug"
+      selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
+      selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       enableASanStackUseAfterReturn = "YES"
       launchStyle = "0"
       useCustomWorkingDirectory = "NO"

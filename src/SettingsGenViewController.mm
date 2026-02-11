@@ -879,6 +879,17 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_DefaultLength].detail.mdz_slider.slider_mid_value=60*10;
     settings[GLOB_DefaultLength].detail.mdz_slider.slider_max_value=60*60;
     
+    SETTINGS_ID_DEF(GLOB_Maxloop)
+    settings[GLOB_Maxloop].label=(char*)"Max loop";
+    settings[GLOB_Maxloop].description=(char*)"Max loop for supported formats";
+    settings[GLOB_Maxloop].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER;
+    settings[GLOB_Maxloop].sub_family=0;
+    settings[GLOB_Maxloop].callback=&optGLOBALChangedC;
+    settings[GLOB_Maxloop].type=MDZ_SLIDER_DISCRETE;
+    settings[GLOB_Maxloop].detail.mdz_slider.slider_digits=0;
+    settings[GLOB_Maxloop].detail.mdz_slider.slider_min_value=1;
+    settings[GLOB_Maxloop].detail.mdz_slider.slider_max_value=32;
+    
     SETTINGS_ID_DEF(GLOB_AudioLatency)
     settings[GLOB_AudioLatency].type=MDZ_SLIDER_DISCRETE;
     settings[GLOB_AudioLatency].label=(char*)"Audio latency in ms";
@@ -1222,6 +1233,7 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_Panning].detail.mdz_boolswitch.switch_default_value=1;
     settings[GLOB_PanningValue].detail.mdz_slider.slider_default_value=0.7;
     settings[GLOB_DefaultLength].detail.mdz_slider.slider_default_value=SONG_DEFAULT_LENGTH/1000;
+    settings[GLOB_Maxloop].detail.mdz_slider.slider_default_value=2;
     settings[GLOB_Fadeouttime].detail.mdz_slider.slider_default_value=3;
     settings[GLOB_SilenceDetection].detail.mdz_slider.slider_default_value=3;
     settings[GLOB_RadioModeMaxDownloadSize].detail.mdz_switch.switch_default_value=2;
@@ -3308,16 +3320,16 @@ void optNSFPLAYChangedC(id param) {
     settings[MDZ_SETTINGS_FAMILY_TIMIDITY].family=MDZ_SETTINGS_FAMILY_PLUGINS;
     settings[MDZ_SETTINGS_FAMILY_TIMIDITY].sub_family=MDZ_SETTINGS_FAMILY_TIMIDITY;
     
-    SETTINGS_ID_DEF(TIM_Maxloop)
-    settings[TIM_Maxloop].label=(char*)"Max loop";
-    settings[TIM_Maxloop].description=NULL;
-    settings[TIM_Maxloop].family=MDZ_SETTINGS_FAMILY_TIMIDITY;
-    settings[TIM_Maxloop].sub_family=0;
-    settings[TIM_Maxloop].callback=&optTIMIDITYChangedC;
-    settings[TIM_Maxloop].type=MDZ_SLIDER_DISCRETE;
-    settings[TIM_Maxloop].detail.mdz_slider.slider_digits=0;
-    settings[TIM_Maxloop].detail.mdz_slider.slider_min_value=0;
-    settings[TIM_Maxloop].detail.mdz_slider.slider_max_value=16;
+//    SETTINGS_ID_DEF(TIM_Maxloop)
+//    settings[TIM_Maxloop].label=(char*)"Max loop";
+//    settings[TIM_Maxloop].description=NULL;
+//    settings[TIM_Maxloop].family=MDZ_SETTINGS_FAMILY_TIMIDITY;
+//    settings[TIM_Maxloop].sub_family=0;
+//    settings[TIM_Maxloop].callback=&optTIMIDITYChangedC;
+//    settings[TIM_Maxloop].type=MDZ_SLIDER_DISCRETE;
+//    settings[TIM_Maxloop].detail.mdz_slider.slider_digits=0;
+//    settings[TIM_Maxloop].detail.mdz_slider.slider_min_value=0;
+//    settings[TIM_Maxloop].detail.mdz_slider.slider_max_value=16;
     
     SETTINGS_ID_DEF(TIM_Polyphony)
     settings[TIM_Polyphony].label=(char*)"Midi polyphony";
@@ -3383,7 +3395,7 @@ void optNSFPLAYChangedC(id param) {
     settings[TIM_Resample].detail.mdz_switch.switch_labels[3]=(char*)"Gaus";
     settings[TIM_Resample].detail.mdz_switch.switch_labels[4]=(char*)"Newt";
     
-    settings[TIM_Maxloop].detail.mdz_slider.slider_default_value=0;
+//    settings[TIM_Maxloop].detail.mdz_slider.slider_default_value=0;
     settings[TIM_Polyphony].detail.mdz_slider.slider_default_value=128;
     settings[TIM_Amplification].detail.mdz_slider.slider_default_value=100;
     settings[TIM_Chorus].detail.mdz_boolswitch.switch_default_value=1;
@@ -3401,16 +3413,16 @@ void optNSFPLAYChangedC(id param) {
     settings[MDZ_SETTINGS_FAMILY_VGMPLAY].family=MDZ_SETTINGS_FAMILY_PLUGINS;
     settings[MDZ_SETTINGS_FAMILY_VGMPLAY].sub_family=MDZ_SETTINGS_FAMILY_VGMPLAY;
     
-    SETTINGS_ID_DEF(VGMPLAY_Maxloop)
-    settings[VGMPLAY_Maxloop].label=(char*)"Max loop";
-    settings[VGMPLAY_Maxloop].description=NULL;
-    settings[VGMPLAY_Maxloop].family=MDZ_SETTINGS_FAMILY_VGMPLAY;
-    settings[VGMPLAY_Maxloop].sub_family=0;
-    settings[VGMPLAY_Maxloop].callback=&optVGMPLAYChangedC;
-    settings[VGMPLAY_Maxloop].type=MDZ_SLIDER_DISCRETE;
-    settings[VGMPLAY_Maxloop].detail.mdz_slider.slider_digits=0;
-    settings[VGMPLAY_Maxloop].detail.mdz_slider.slider_min_value=1;
-    settings[VGMPLAY_Maxloop].detail.mdz_slider.slider_max_value=16;
+//    SETTINGS_ID_DEF(VGMPLAY_Maxloop)
+//    settings[VGMPLAY_Maxloop].label=(char*)"Max loop";
+//    settings[VGMPLAY_Maxloop].description=NULL;
+//    settings[VGMPLAY_Maxloop].family=MDZ_SETTINGS_FAMILY_VGMPLAY;
+//    settings[VGMPLAY_Maxloop].sub_family=0;
+//    settings[VGMPLAY_Maxloop].callback=&optVGMPLAYChangedC;
+//    settings[VGMPLAY_Maxloop].type=MDZ_SLIDER_DISCRETE;
+//    settings[VGMPLAY_Maxloop].detail.mdz_slider.slider_digits=0;
+//    settings[VGMPLAY_Maxloop].detail.mdz_slider.slider_min_value=1;
+//    settings[VGMPLAY_Maxloop].detail.mdz_slider.slider_max_value=16;
     
     SETTINGS_ID_DEF(VGMPLAY_PreferJTAG)
     settings[VGMPLAY_PreferJTAG].type=MDZ_BOOLSWITCH;
@@ -3498,7 +3510,7 @@ void optNSFPLAYChangedC(id param) {
     settings[VGMPLAY_YMF262Emulator].detail.mdz_switch.switch_labels[1]=(char*)"MAME";
     settings[VGMPLAY_YMF262Emulator].detail.mdz_switch.switch_labels[2]=(char*)"Nuked";
     
-    settings[VGMPLAY_Maxloop].detail.mdz_slider.slider_default_value=2;
+//    settings[VGMPLAY_Maxloop].detail.mdz_slider.slider_default_value=2;
     if (isJapaneseOrChinese) {
         // Activer certaines options
         settings[VGMPLAY_PreferJTAG].detail.mdz_boolswitch.switch_value=1;
@@ -3529,16 +3541,16 @@ void optNSFPLAYChangedC(id param) {
     settings[VGMSTREAM_Forceloop].callback=&optVGMSTREAMChangedC;
     settings[VGMSTREAM_Forceloop].detail.mdz_boolswitch.switch_value=0;
     
-    SETTINGS_ID_DEF(VGMSTREAM_Maxloop)
-    settings[VGMSTREAM_Maxloop].label=(char*)"Max loop";
-    settings[VGMSTREAM_Maxloop].description=NULL;
-    settings[VGMSTREAM_Maxloop].family=MDZ_SETTINGS_FAMILY_VGMSTREAM;
-    settings[VGMSTREAM_Maxloop].sub_family=0;
-    settings[VGMSTREAM_Maxloop].callback=&optVGMSTREAMChangedC;
-    settings[VGMSTREAM_Maxloop].type=MDZ_SLIDER_DISCRETE;
-    settings[VGMSTREAM_Maxloop].detail.mdz_slider.slider_digits=0;
-    settings[VGMSTREAM_Maxloop].detail.mdz_slider.slider_min_value=1;
-    settings[VGMSTREAM_Maxloop].detail.mdz_slider.slider_max_value=32;
+//    SETTINGS_ID_DEF(VGMSTREAM_Maxloop)
+//    settings[VGMSTREAM_Maxloop].label=(char*)"Max loop";
+//    settings[VGMSTREAM_Maxloop].description=NULL;
+//    settings[VGMSTREAM_Maxloop].family=MDZ_SETTINGS_FAMILY_VGMSTREAM;
+//    settings[VGMSTREAM_Maxloop].sub_family=0;
+//    settings[VGMSTREAM_Maxloop].callback=&optVGMSTREAMChangedC;
+//    settings[VGMSTREAM_Maxloop].type=MDZ_SLIDER_DISCRETE;
+//    settings[VGMSTREAM_Maxloop].detail.mdz_slider.slider_digits=0;
+//    settings[VGMSTREAM_Maxloop].detail.mdz_slider.slider_min_value=1;
+//    settings[VGMSTREAM_Maxloop].detail.mdz_slider.slider_max_value=32;
     
     SETTINGS_ID_DEF(VGMSTREAM_ResampleQuality)
     settings[VGMSTREAM_ResampleQuality].label=(char*)"Resampling";
@@ -3556,7 +3568,7 @@ void optNSFPLAYChangedC(id param) {
     settings[VGMSTREAM_ResampleQuality].detail.mdz_switch.switch_labels[4]=(char*)"Lin.";
     
     settings[VGMSTREAM_Forceloop].detail.mdz_boolswitch.switch_default_value=0;
-    settings[VGMSTREAM_Maxloop].detail.mdz_slider.slider_default_value=2;
+//    settings[VGMSTREAM_Maxloop].detail.mdz_slider.slider_default_value=2;
     settings[VGMSTREAM_ResampleQuality].detail.mdz_switch.switch_default_value=1;
     
     /////////////////////////////////////

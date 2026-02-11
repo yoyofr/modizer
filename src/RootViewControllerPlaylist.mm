@@ -701,7 +701,7 @@ END_PROFILE
     NSNumber *track = nil;
     // ID3
     for (AVMetadataItem *item in [asset metadataForFormat:AVMetadataFormatID3Metadata]) {
-        if ([item.key isEqual:AVMetadataID3MetadataKeyTrackNumber]) {
+        if ([item.key isEqual:AVMetadataID3MetadataKeyTrackNumber]||[item.key isEqual:@"TRK"]) {
             NSArray *parts = [item.stringValue componentsSeparatedByString:@"/"];
             track = @([parts.firstObject integerValue]);
             break;

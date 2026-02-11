@@ -356,7 +356,6 @@ int SID::clock(unsigned int cycles, short* buf)
     while (cycles != 0)
     {
         unsigned int delta_t = std::min(nextVoiceSync, cycles);
-
         if (likely(delta_t > 0))
         {
             for (unsigned int i = 0; i < delta_t; i++)
@@ -368,23 +367,19 @@ int SID::clock(unsigned int cycles, short* buf)
                 while (mdz_ratio_fp_cnt>=65536) {
                     mdz_ratio_fp_cnt-=65536;
                     //YOYOFR
-                    
                     // clock waveform generators
                     voice[0].wave()->clock();
                     voice[1].wave()->clock();
                     voice[2].wave()->clock();
-                    
                     // clock envelope generators
                     voice[0].envelope()->clock();
                     voice[1].envelope()->clock();
                     voice[2].envelope()->clock();
-                    
                     //YOYOFR
                     sid_v1 = voice[0].output();
                     sid_v2 = voice[1].output();
                     sid_v3 = voice[2].output();
                     //YOYOFR
-                    
                     const int sidOutput = static_cast<int>(filter->clock(voice[0], voice[1], voice[2]));
                     const int c64Output = externalFilter.clock(sidOutput + INT16_MIN);
                     
@@ -392,31 +387,25 @@ int SID::clock(unsigned int cycles, short* buf)
                         if (unlikely(resampler->input(c64Output)))
                         {
                             buf[s++] = resampler->getOutput(scaleFactor);
-                            
                             for (int j=0;j<4;j++) {
                                 m_voice_buff[sid_idx+0][m_voice_current_ptr[sid_idx+0]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8((int)(sid_v1*127));
                                 m_voice_buff[sid_idx+1][m_voice_current_ptr[sid_idx+1]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8((int)(sid_v2*127));
                                 m_voice_buff[sid_idx+2][m_voice_current_ptr[sid_idx+2]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8((int)(sid_v3*127));
                                 m_voice_buff[sid_idx+3][m_voice_current_ptr[sid_idx+3]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=LIMIT8((sid_v4>>7));
                                 
-                                
                                 m_voice_current_ptr[sid_idx+j]+=smplIncr;
                                 if ((m_voice_current_ptr[sid_idx+j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*2) m_voice_current_ptr[sid_idx+j]-=(SOUND_BUFFER_SIZE_SAMPLE*2)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
                             }
-                            
                             //TODO:  MODIZER changes end / YOYOFR
                         }
                     } else {
                         if (unlikely(resampler->input(0))) {
-                            
                             int cnt=0;
                             //s++;
                             buf[s++]=0;
-                            
                             //TODO:  MODIZER changes start / YOYOFR
                             for (int j=0;j<4;j++) {
                                 m_voice_buff[sid_idx+j][m_voice_current_ptr[sid_idx+j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT]=0;
-                                
                                 m_voice_current_ptr[sid_idx+j]+=smplIncr;
                                 if ((m_voice_current_ptr[sid_idx+j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*2) m_voice_current_ptr[sid_idx+j]-=(SOUND_BUFFER_SIZE_SAMPLE*2)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
                             }

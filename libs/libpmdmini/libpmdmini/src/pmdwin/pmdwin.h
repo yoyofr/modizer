@@ -111,7 +111,7 @@ API_ATTRIBUTE void WINAPI setpos(int32_t pos);
 API_ATTRIBUTE void WINAPI setpos2(int32_t pos);
 API_ATTRIBUTE int32_t WINAPI getpos(void);
 API_ATTRIBUTE int32_t WINAPI getpos2(void);
-API_ATTRIBUTE bool WINAPI getlength(TCHAR *filename, int32_t *length, int32_t *loop);
+API_ATTRIBUTE bool WINAPI getlength(TCHAR *filename, int32_t *length, int32_t *loop,int maxloop);
 API_ATTRIBUTE bool WINAPI getlength2(TCHAR *filename, int32_t *length, int32_t *loop);
 API_ATTRIBUTE int32_t WINAPI getloopcount(void);
 API_ATTRIBUTE void WINAPI setfmwait(int32_t nsec);

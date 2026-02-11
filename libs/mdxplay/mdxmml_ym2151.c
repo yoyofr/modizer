@@ -299,8 +299,8 @@ int mdx_get_length( MDX_DATA *orig_mdx, PDX_DATA *orig_pdx ) {
     
     realtracks=0;//YOYOFR
     
-    infinite_loops=self->mdx->max_infinite_loops;
-    self->mdx->max_infinite_loops=1;
+//    infinite_loops=self->mdx->max_infinite_loops;
+//    self->mdx->max_infinite_loops=1;
     
     mdx_parse_mml_ym2151_async_initialize(orig_mdx,orig_pdx);
     while (mdx_parse_mml_ym2151_async(self)) {
@@ -310,7 +310,7 @@ int mdx_get_length( MDX_DATA *orig_mdx, PDX_DATA *orig_pdx ) {
 	
 	mdx_init_track_work_area_ym2151();
     
-    self->mdx->max_infinite_loops=infinite_loops;
+//    self->mdx->max_infinite_loops=infinite_loops;
     
     return length_ms;
 	

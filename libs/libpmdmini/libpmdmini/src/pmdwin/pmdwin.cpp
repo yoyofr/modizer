@@ -641,9 +641,9 @@ API_ATTRIBUTE int WINAPI getpos2(void)
 //=============================================================================
 //	曲の長さの取得(pos : ms)
 //=============================================================================
-API_ATTRIBUTE bool WINAPI getlength(TCHAR *filename, int *length, int *loop)
+API_ATTRIBUTE bool WINAPI getlength(TCHAR *filename, int *length, int *loop, int maxloop)
 {
-	return pmdwin2->getlength(filename, length, loop);
+	return pmdwin2->getlength(filename, length, loop,maxloop);
 }
 
 

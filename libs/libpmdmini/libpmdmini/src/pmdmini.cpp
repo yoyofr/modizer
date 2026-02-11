@@ -111,7 +111,7 @@ int pmd_is_pmd( const char *file )
 // エラーであれば0以外を返す
 //
 
-int pmd_play ( char *argv[] , char *pcmdir )
+int pmd_play ( char *argv[] , char *pcmdir, int maxloop )
 {
 	char dir[2048];
 	TCHAR pps_file[1024];
@@ -153,7 +153,7 @@ int pmd_play ( char *argv[] , char *pcmdir )
 	setpcmdir( path );
 
 	// get song length in sec
-	if ( !getlength( pmd_file , &pmd_length , &pmd_loop ) )
+	if ( !getlength( pmd_file , &pmd_length , &pmd_loop,maxloop ) )
 	{
 		pmd_length = 0;
 		pmd_loop = 0;
