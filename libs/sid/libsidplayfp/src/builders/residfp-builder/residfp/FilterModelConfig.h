@@ -117,6 +117,12 @@ protected:
 
     const double voice_voltage_range;
 
+    /// Pre-computed voice normalization scale: N16 * voice_voltage_range
+    double voice_scale;
+
+    /// Pre-computed voice DC offsets: N16 * (voiceDC[env] - vmin)
+    double voiceDC_norm[256];
+
     /// Current factor coefficient for op-amp integrators.
     double currFactorCoeff;
 
@@ -309,7 +315,7 @@ public:
 
     inline int getNormalizedVoice(float value, unsigned int env) const
     {
-        return static_cast<int>(getNormalizedValue(getVoiceVoltage(value, env)));
+        return static_cast<int>(voice_scale * value + voiceDC_norm[env] + rnd.getNoise());
     }
 };
 

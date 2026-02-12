@@ -248,9 +248,6 @@ extern float font_trackerSize[FONT_TRACKER_NB][5];
 
 #import "math.h"
 
-#import "Font.h"
-#import "GLString.h"
-
 #import "timidity.h"
 
 #import "AnimatedGif.h"
@@ -377,9 +374,11 @@ bool sysMonitorIsActive;
 }
 
 -(void)didSelectRowInAlertSubController:(NSInteger)row {
-    mPaused=0;
-    //[self play_curEntry:(int)row+mplayer.mod_minsub];
+    //mPaused=0;
     [mplayer playGoToSub:(int)row+mplayer.mod_minsub];
+    
+    if (mPaused) [self playPushed];
+    
     clearAudioFXbuffer=true;
     _seekRequested=-1;
     
@@ -4506,7 +4505,7 @@ int recording=0;
     updMPNowCnt=0;
     
     //Activate timer for play infos
-    repeatingTimer = [NSTimer scheduledTimerWithTimeInterval: 0.1f target:self selector:@selector(updateInfos:) userInfo:nil repeats: YES]; //10 times/second
+    repeatingTimer = [NSTimer scheduledTimerWithTimeInterval: 0.2f target:self selector:@selector(updateInfos:) userInfo:nil repeats: YES]; //10 times/second
     
     if (nowplayingPL) {
         NSIndexPath *myindex=[[NSIndexPath alloc] initWithIndex:0];
@@ -4947,7 +4946,7 @@ int recording=0;
     updMPNowCnt=0;
     
     //Activate timer for play infos
-    repeatingTimer = [NSTimer scheduledTimerWithTimeInterval: 0.1f target:self selector:@selector(updateInfos:) userInfo:nil repeats: YES]; //10 times/second
+    repeatingTimer = [NSTimer scheduledTimerWithTimeInterval: 0.2f target:self selector:@selector(updateInfos:) userInfo:nil repeats: YES]; //10 times/second
     
     if (nowplayingPL) {
         NSIndexPath *myindex=[[NSIndexPath alloc] initWithIndex:0];
@@ -6967,7 +6966,7 @@ void pm_perfTest() {
     m_oglView.hidden=mBackground_oglViewWasHidden;
     
     //Reactivate updateInfos timer
-    //if ([mplayer isPlaying]) repeatingTimer = [NSTimer scheduledTimerWithTimeInterval: 0.1f target:self selector:@selector(updateInfos:) userInfo:nil repeats: YES];
+    //if ([mplayer isPlaying]) repeatingTimer = [NSTimer scheduledTimerWithTimeInterval: 0.2f target:self selector:@selector(updateInfos:) userInfo:nil repeats: YES];
     
     if (labelModuleName) [labelModuleName setPaused:false];
     
@@ -7316,6 +7315,8 @@ void pm_perfTest() {
     //Display reminder / access to FX view
     [self oglButtonMessage];
     
+    
+    tgtFrameStartTime=0;
     //Displaylink: update FPS
     if (m_displayLink) {
         m_displayLink.preferredFramesPerSecond = (settings[GLOB_FXFPS].detail.mdz_switch.switch_value?60:30); //60 or 30 fps depending on device speed iPhone
@@ -9667,12 +9668,7 @@ void drawTgtSlotPattern(int fxIdx,float x,float y,float w,float h,float ww,float
     
     framecpt++;
     
-    if (shouldUpdateCoverTexture) {
-        // Generate new texture / current background view
-        [self generateBGTexture];
-        [self generateCoverTexture];
-        shouldUpdateCoverTexture=0;
-    }
+    
     
     if (mOglViewIsHidden) m_oglView.hidden=YES;
     
@@ -9698,25 +9694,46 @@ void drawTgtSlotPattern(int fxIdx,float x,float y,float w,float h,float ww,float
         tgtFrameStartTime=curFrameStartTime;
     }
     
-    //tgtFrameCnt=0;
+    
+    clearAudioFXbuffer=false;
+    
+    calcFps();
+    
     int frameToUpdateTmp=frameToUpdate;
     while (frameToUpdateTmp) {
         RenderUtils::UpdateDataMidiFX(tim_notes_cpy[[mplayer getCurrentGenBufferIdx]],clearAudioFXbuffer,mPaused);
         RenderUtils::UpdateDataPiano(tim_notes_cpy[[mplayer getCurrentGenBufferIdx]],clearAudioFXbuffer,mPaused);
         frameToUpdateTmp--;
     }
-    clearAudioFXbuffer=false;
-    
-    calcFps();
     
     if (mBackground || !mHasFocus) {
         no_reentrant=0;
+        tgtFrameStartTime=0;
         return;
     }
     
     if (self.mainView.hidden||m_oglView.hidden||(isVisible==false)) {
         no_reentrant=0;
+        tgtFrameStartTime=0;
         return;
+    }
+    
+    // Récupérer le scale factor de l'écran où se trouve la vue
+    UIScreen *currentScreen = self.view.window.windowScene.screen;
+    if (currentScreen) {
+        glScaleFactor = currentScreen.scale;
+        mScaleFactor = glScaleFactor;
+    } else {
+        // Fallback si pas encore attaché à une window
+        glScaleFactor = [[UIScreen mainScreen] scale];
+        mScaleFactor = glScaleFactor;
+    }
+    
+    if (shouldUpdateCoverTexture) {
+        // Generate new texture / current background view
+        [self generateBGTexture];
+        [self generateCoverTexture];
+        shouldUpdateCoverTexture=0;
     }
     
     //    if (!mFont || !mFontMenu ) {
@@ -10804,11 +10821,24 @@ void drawTgtSlotPattern(int fxIdx,float x,float y,float w,float h,float ww,float
         
         cell.frame=CGRectMake(0,0,tabView.frame.size.width,SELECTOR_TABVIEWCELL_HEIGHT);
         
-        [cell setBackgroundColor:[UIColor clearColor]];
+        //[cell setBackgroundColor:[UIColor clearColor]];
         
         UIBackgroundConfiguration *backgroundConfig = [UIBackgroundConfiguration listGroupedCellConfiguration];
         backgroundConfig.backgroundColor = [UIColor systemGroupedBackgroundColor];
         cell.backgroundConfiguration = backgroundConfig;
+        
+        // Pour gérer automatiquement l'état sélectionné, utilise configurationUpdateHandler
+        cell.configurationUpdateHandler = ^(UITableViewCell *cell, UICellConfigurationState *state) {
+            UIBackgroundConfiguration *config = [cell backgroundConfiguration];
+            if (state.selected || state.highlighted) {
+                config.backgroundColor = [UIColor systemBlueColor];
+                config.cornerRadius = 8.0;
+            } else {
+                config.backgroundColor = [UIColor systemGroupedBackgroundColor];
+                config.cornerRadius = 0.0;
+            }
+            [cell setBackgroundConfiguration:config];
+        };
         
         //
         // Create the label for the top row of text
@@ -10823,7 +10853,7 @@ void drawTgtSlotPattern(int fxIdx,float x,float y,float w,float h,float ww,float
         topLabel.font = [UIFont systemFontOfSize:15 weight:MDZ_UIFONT_WEIGHT];
         topLabel.lineBreakMode=(settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value?
                                 ((settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value==2) ? NSLineBreakByTruncatingTail:NSLineBreakByTruncatingMiddle):NSLineBreakByTruncatingHead);;
-        topLabel.opaque=TRUE;
+        topLabel.opaque=false;
         topLabel.numberOfLines=0;
         
         cell.accessoryView=nil;
@@ -10842,7 +10872,6 @@ void drawTgtSlotPattern(int fxIdx,float x,float y,float w,float h,float ww,float
     if (darkMode) {
         topLabel.textColor = [UIColor colorWithRed:0.9 green:0.9 blue:0.9 alpha:1.0];
         topLabel.highlightedTextColor = [UIColor colorWithRed:1.0 green:1.0 blue:1.0 alpha:1.0];
-        
     } else {
         topLabel.textColor = [UIColor colorWithRed:0.1 green:0.1 blue:0.1 alpha:1.0];
         topLabel.highlightedTextColor = [UIColor colorWithRed:0.0 green:0.0 blue:0.0 alpha:1.0];

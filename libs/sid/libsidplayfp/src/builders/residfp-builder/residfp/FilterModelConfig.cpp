@@ -54,6 +54,8 @@ FilterModelConfig::FilterModelConfig(
 {
     setUCox(ucox);
 
+    voice_scale = N16 * voice_voltage_range;
+
     // Convert op-amp voltage transfer to 16 bit values.
 
     std::vector<Spline::Point> scaled_voltage(opamp_size);

@@ -73,6 +73,7 @@ private:
     //@{
     unsigned short vcr_nVg[1 << 16];
     double vcr_n_Ids_term[1 << 16];
+    unsigned short vcr_n_Ids_term_precalc[1 << 16];
     //@}
 
     // Voice DC offset LUT
@@ -114,8 +115,10 @@ public:
     inline unsigned short getVcr_nVg(int i) const { return vcr_nVg[i]; }
     inline unsigned short getVcr_n_Ids_term(int i) const
     {
-        return to_ushort(vcr_n_Ids_term[i] * uCox);
+        return vcr_n_Ids_term_precalc[i];
     }
+
+    void precalcVcrIds();
     // only used if SLOPE_FACTOR is defined
     static inline constexpr double getUt() { return Ut; }
     inline double getN16() const { return N16; }

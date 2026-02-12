@@ -22,6 +22,8 @@
 
 #import "TTFadeAnimator.h"
 
+#import "CBAutoScrollLabel.h"
+
 //--------------------------------------------------
 // ImGui
 //--------------------------------------------------
@@ -61,8 +63,12 @@ volatile t_settings settings[MAX_SETTINGS];
     NSIndexPath *indexPath = [self.tableView indexPathForRowAtPoint:p];
     
     if (indexPath != nil) {
-        [self.tableView selectRowAtIndexPath:indexPath animated:FALSE scrollPosition:UITableViewScrollPositionNone];
-        [self tableView:self.tableView didSelectRowAtIndexPath:indexPath];
+        if (settings[cur_settings_idx[indexPath.section]].type==MDZ_FAMILY) {
+            [self.tableView selectRowAtIndexPath:indexPath animated:FALSE scrollPosition:UITableViewScrollPositionNone];
+            [self tableView:self.tableView didSelectRowAtIndexPath:indexPath];
+        } else {
+            [self handleTapPress:gestureRecognizer];
+        }
     }
 }
 
@@ -162,8 +168,12 @@ volatile t_settings settings[MAX_SETTINGS];
             NSError *err;
             NSDictionary *dict;
             
-            if (settings[cur_settings_idx[indexPath.section]].description) {
-                NSString *str=NSLocalizedString(([NSString stringWithUTF8String:settings[cur_settings_idx[indexPath.section]].description]),@"");
+            if (settings[cur_settings_idx[indexPath.section]].label) {
+                NSString *strTitle=NSLocalizedString(([NSString stringWithUTF8String:settings[cur_settings_idx[indexPath.section]].label]),@"");
+                NSString *strDescr;
+                if (settings[cur_settings_idx[indexPath.section]].description) strDescr=NSLocalizedString(([NSString stringWithUTF8String:settings[cur_settings_idx[indexPath.section]].description]),@"");
+                else strDescr=@"";
+                NSString *str=[NSString stringWithFormat:@"%@\n\n%@",strTitle,strDescr];
                 
                 if (self.popTipView == nil) {
                     self.popTipView = [[CMPopTipView alloc] initWithMessage:str];
@@ -4613,7 +4623,8 @@ void optNSFPLAYChangedC(id param) {
     const NSInteger TOP_LABEL_TAG = 1001;
     const NSInteger BOTTOM_LABEL_TAG = 1002;
     const NSInteger BTN_TAG = 1003;
-    UILabel *topLabel,*bottomLabel;
+    //UILabel *topLabel,*bottomLabel;
+    CBAutoScrollLabel *topLabel,*bottomLabel;
     UITextField *msgLabel;
     
     UISwitch *switchview;
@@ -4644,7 +4655,12 @@ void optNSFPLAYChangedC(id param) {
         //
         // Create the label for the top row of text
         //
-        topLabel = [[UILabel alloc] init];
+        //topLabel = [[UILabel alloc] init];
+        topLabel = [[CBAutoScrollLabel alloc] init];
+        topLabel.labelSpacing = 35; // distance between start and end labels
+        topLabel.pauseInterval = 3.7; // seconds of pause before scrolling starts again
+        topLabel.scrollSpeed = 30; // pixels per second
+        topLabel.fadeLength = 12.f; // length of the left and right edge fade, 0 to disable
         [cell.contentView addSubview:topLabel];
         //
         // Configure the properties for the text that are the same on every row
@@ -4652,13 +4668,18 @@ void optNSFPLAYChangedC(id param) {
         topLabel.tag = TOP_LABEL_TAG;
         topLabel.backgroundColor = [UIColor clearColor];
         topLabel.font = [UIFont systemFontOfSize:17 weight:MDZ_UIFONT_WEIGHT];
-        topLabel.lineBreakMode=(settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value?
-                                ((settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value==2) ? NSLineBreakByTruncatingTail:NSLineBreakByTruncatingMiddle):NSLineBreakByTruncatingHead);;;
+//        topLabel.lineBreakMode=(settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value?
+//                                ((settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value==2) ? NSLineBreakByTruncatingTail:NSLineBreakByTruncatingMiddle):NSLineBreakByTruncatingHead);;;
         topLabel.opaque=TRUE;
-        topLabel.numberOfLines=0;
+//        topLabel.numberOfLines=0;
         topLabel.userInteractionEnabled=true;
         
-        bottomLabel = [[UILabel alloc] init];
+        //bottomLabel = [[UILabel alloc] init];
+        bottomLabel = [[CBAutoScrollLabel alloc] init];
+        bottomLabel.labelSpacing = 35; // distance between start and end labels
+        bottomLabel.pauseInterval = 3.7; // seconds of pause before scrolling starts again
+        bottomLabel.scrollSpeed = 30; // pixels per second
+        bottomLabel.fadeLength = 12.f; // length of the left and right edge fade, 0 to disable
         [cell.contentView addSubview:bottomLabel];
         //
         // Configure the properties for the text that are the same on every row
@@ -4666,7 +4687,7 @@ void optNSFPLAYChangedC(id param) {
         bottomLabel.tag = BOTTOM_LABEL_TAG;
         bottomLabel.backgroundColor = [UIColor clearColor];
         bottomLabel.font = [UIFont systemFontOfSize:12];
-        bottomLabel.lineBreakMode=NSLineBreakByTruncatingTail;
+//        bottomLabel.lineBreakMode=NSLineBreakByTruncatingTail;
         bottomLabel.opaque=TRUE;
         
         tapLabelDesc = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapPress:)];
@@ -4685,6 +4706,11 @@ void optNSFPLAYChangedC(id param) {
         [topLabel addGestureRecognizer:tapReset];
         topLabel.userInteractionEnabled=true;
         
+//        [bottomLabel addGestureRecognizer:tapSelect];
+//        [bottomLabel addGestureRecognizer:tapLabelDesc];
+//        [bottomLabel addGestureRecognizer:tapReset];
+//        bottomLabel.userInteractionEnabled=true;
+        
 //        [bottomLabel addGestureRecognizer:tapLabelDesc];
 //        [bottomLabel addGestureRecognizer:tapReset];
 //        bottomLabel.userInteractionEnabled=true;
@@ -4697,12 +4723,12 @@ void optNSFPLAYChangedC(id param) {
         [cell.contentView addSubview:btn];
         btn.tag=BTN_TAG;
     } else {
-        topLabel = (UILabel *)[cell viewWithTag:TOP_LABEL_TAG];
-        bottomLabel = (UILabel *)[cell viewWithTag:BOTTOM_LABEL_TAG];
+        topLabel = (CBAutoScrollLabel *)[cell viewWithTag:TOP_LABEL_TAG];
+        bottomLabel = (CBAutoScrollLabel *)[cell viewWithTag:BOTTOM_LABEL_TAG];
         btn = (UIButton *)[cell viewWithTag:BTN_TAG];
         
-        topLabel.lineBreakMode=(settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value?
-                                ((settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value==2) ? NSLineBreakByTruncatingTail:NSLineBreakByTruncatingMiddle):NSLineBreakByTruncatingHead);;
+//        topLabel.lineBreakMode=(settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value?
+//                                ((settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_value==2) ? NSLineBreakByTruncatingTail:NSLineBreakByTruncatingMiddle):NSLineBreakByTruncatingHead);;
     }
     float margin=MDZ_TABVIEW_SEPARATOR_MARGIN;
     cell.layoutMargins = UIEdgeInsetsMake(0, margin, 0, margin);
@@ -4710,14 +4736,14 @@ void optNSFPLAYChangedC(id param) {
     
     if (darkMode) {
         topLabel.textColor = [UIColor colorWithRed:0.9 green:0.9 blue:0.9 alpha:1.0];
-        topLabel.highlightedTextColor = [UIColor colorWithRed:1 green:1 blue:1 alpha:1.0];
+//        topLabel.highlightedTextColor = [UIColor colorWithRed:1 green:1 blue:1 alpha:1.0];
         bottomLabel.textColor = [UIColor colorWithRed:0.6 green:0.6 blue:0.6 alpha:1.0];
-        bottomLabel.highlightedTextColor = [UIColor colorWithRed:0.8 green:0.8 blue:0.8 alpha:1.0];
+//        bottomLabel.highlightedTextColor = [UIColor colorWithRed:0.8 green:0.8 blue:0.8 alpha:1.0];
     } else {
         topLabel.textColor = [UIColor colorWithRed:0.1 green:0.1 blue:0.1 alpha:1.0];
-        topLabel.highlightedTextColor = [UIColor colorWithRed:0.0 green:0.0 blue:0.0 alpha:1.0];
+//        topLabel.highlightedTextColor = [UIColor colorWithRed:0.0 green:0.0 blue:0.0 alpha:1.0];
         bottomLabel.textColor = [UIColor colorWithRed:0.4 green:0.4 blue:0.4 alpha:1.0];
-        bottomLabel.highlightedTextColor = [UIColor colorWithRed:0.2 green:0.2 blue:0.2 alpha:1.0];
+//        bottomLabel.highlightedTextColor = [UIColor colorWithRed:0.2 green:0.2 blue:0.2 alpha:1.0];
     }
     
     btn.hidden=TRUE;

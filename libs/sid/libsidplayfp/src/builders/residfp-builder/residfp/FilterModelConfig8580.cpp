@@ -22,6 +22,9 @@
 
 #include "FilterModelConfig8580.h"
 
+#include <algorithm>
+#include <iterator>
+
 #include "Integrator8580.h"
 #include "OpAmp.h"
 
@@ -139,6 +142,11 @@ FilterModelConfig8580::FilterModelConfig8580() :
         OPAMP_SIZE
     )
 {
+    {
+        const double dc_norm = N16 * (getVref() - vmin);
+        std::fill(std::begin(voiceDC_norm), std::end(voiceDC_norm), dc_norm);
+    }
+
     // Create lookup tables for gains / summers.
 
     //

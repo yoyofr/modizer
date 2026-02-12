@@ -97,6 +97,14 @@ FilterModelConfig6581* FilterModelConfig6581::getInstance()
     return instance.get();
 }
 
+void FilterModelConfig6581::precalcVcrIds()
+{
+    for (int i = 0; i < (1 << 16); i++)
+    {
+        vcr_n_Ids_term_precalc[i] = to_ushort(vcr_n_Ids_term[i] * uCox);
+    }
+}
+
 void FilterModelConfig6581::setFilterRange(double adjustment)
 {
     // clamp into allowed range
@@ -114,6 +122,7 @@ void FilterModelConfig6581::setFilterRange(double adjustment)
         return;
 
     setUCox(new_uCox);
+    precalcVcrIds();
 }
 
 FilterModelConfig6581::FilterModelConfig6581() :
@@ -141,6 +150,7 @@ FilterModelConfig6581::FilterModelConfig6581() :
         {
             const double envI = envDac.getOutput(i);
             voiceDC[i] = 5. * VOLTAGE_SKEW + (0.2143 * envI);
+            voiceDC_norm[i] = N16 * (voiceDC[i] - vmin);
         }
     }
 
@@ -270,6 +280,8 @@ FilterModelConfig6581::FilterModelConfig6581() :
     thdVcrVg.join();
     thdVcrIds.join();
 #endif
+
+    precalcVcrIds();
 }
 
 unsigned short* FilterModelConfig6581::getDAC(double adjustment) const

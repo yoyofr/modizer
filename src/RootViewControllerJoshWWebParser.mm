@@ -36,12 +36,12 @@ t_joshw_entry joshw_subsites[]= {
     {@"https://psf.joshw.info",@"PlayStation Music",@"JoshW/PS1",@"Consoles & Arcade",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=10"},
     {@"https://psf2.joshw.info",@"PlayStation 2 Music",@"JoshW/PS2",@"Consoles & Arcade",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=11"},
     {@"https://psf3.joshw.info",@"PlayStation 3 Music",@"JoshW/PS3",@"Consoles & Arcade",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=12"},
-    {@"https://psf4.joshw.info",@"PlayStation 4 Music",@"JoshW/PS4",@"Consoles & Arcade",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=4919"},
-    {@"https://psf5.joshw.info",@"PlayStation 5 Music",@"JoshW/PS5",@"Consoles & Arcade",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=4980"},
+    //{@"https://psf4.joshw.info",@"PlayStation 4 Music",@"JoshW/PS4",@"Consoles & Arcade",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=4919"},
+    //{@"https://psf5.joshw.info",@"PlayStation 5 Music",@"JoshW/PS5",@"Consoles & Arcade",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=4980"},
     {@"https://xbox.joshw.info",@"XBox Music",@"JoshW/Xbox",@"Consoles & Arcade",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=14"},
     {@"https://x360.joshw.info",@"XBox360 Music",@"JoshW/X360",@"Consoles & Arcade",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=15"},
     {@"https://3do.joshw.info",@"3DO Music",@"JoshW/3DO",@"Consoles & Arcade",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=25"},
-    {@"https://switch.joshw.info",@"Nintendo Switch",@"JoshW/Switch",@"Consoles & Arcade",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=4971"},
+    //{@"https://switch.joshw.info",@"Nintendo Switch",@"JoshW/Switch",@"Consoles & Arcade",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=4971"},
     {@"https://cdi.joshw.info/cdi",@"Philips CD-i",@"JoshW/CD-i",@"Consoles & Arcade",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=4917"},
     {@"https://cdi.joshw.info/pgm",@"Arcade PGM",@"JoshW/PGM",@"Consoles & Arcade",FALSE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=23"},
     {@"https://hoot.joshw.info/!MDScene_Arcade_VGM",@"Arcade",@"JoshW/Arcade",@"Consoles & Arcade",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=23&platform_id[]=24"},
@@ -54,7 +54,7 @@ t_joshw_entry joshw_subsites[]= {
     {@"https://wsr.joshw.info",@"WonderSwan Music",@"JoshW/WS",@"Portables",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=4925&platform_id[]=4926"},
     {@"https://psp.joshw.info",@"PSP Music",@"JoshW/PSP",@"Portables",TRUE,@[@"zzz_others"],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=13"},
     {@"https://vita.joshw.info",@"PSVita Music",@"JoshW/PSVita",@"Portables",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=39"},
-    {@"https://mobile.joshw.info",@"Mobile/Smartphone Music",@"JoshW/Mobile",@"Portables",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=4915&platform_id[]=4916"},
+    //{@"https://mobile.joshw.info",@"Mobile/Smartphone Music",@"JoshW/Mobile",@"Portables",TRUE,@[],@"https://thegamesdb.net/search.php?name=%@&platform_id[]=4915&platform_id[]=4916"},
 };
 int joshw_subsites_size=sizeof(joshw_subsites)/sizeof(t_joshw_entry);
 

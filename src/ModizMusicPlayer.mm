@@ -4816,7 +4816,8 @@ void processFadeOut(short int *buffer, int sample_count, int voice_factor) {
                                 }
                             }
                             ///////////////////////
-                            if ((!step_emulation(gbs))||(mdzSilentBufferCount>=mdzSilentBufferLimit)) {
+                            if ((!step_emulation(gbs))||
+                                ((mdzSilentBufferCount>=mdzSilentBufferLimit) && mdzSilentBufferLimit)) {
                                 quit = 1;
                                 //break;
                             }
@@ -12770,7 +12771,7 @@ NSString* convertAmigaGreekToUnicode(NSString *input) {
         NSString *value = item.stringValue;
         
         if (key && value) {
-            NSLog(@"Common TAG: %@ = %@", key, value);
+//            NSLog(@"Common TAG: %@ = %@", key, value);
             
             if ([[key lowercaseString] isEqualToString:@"title"]) {
                 mod_title=[NSString stringWithString:value];
@@ -12806,7 +12807,7 @@ NSString* convertAmigaGreekToUnicode(NSString *input) {
     NSNumber *total = nil;
     // ID3
     for (AVMetadataItem *item in [asset metadataForFormat:AVMetadataFormatID3Metadata]) {
-        NSLog(@"ID3TAG: %@ = %@", item.key, item.value);
+//        NSLog(@"ID3TAG: %@ = %@", item.key, item.value);
         if ([item.key isEqual:AVMetadataID3MetadataKeyTrackNumber]||[item.key isEqual:@"TRK"]) {
             NSArray *parts = [item.stringValue componentsSeparatedByString:@"/"];
             track = @([parts.firstObject integerValue]);
@@ -12818,7 +12819,7 @@ NSString* convertAmigaGreekToUnicode(NSString *input) {
     if (track==nil) {
         // iTunes
         for (AVMetadataItem *item in [asset metadataForFormat:AVMetadataFormatiTunesMetadata]) {
-            NSLog(@"Itunes TAG: %@ = %@", item.key, item.value);
+//            NSLog(@"Itunes TAG: %@ = %@", item.key, item.value);
             if ([item.key isEqual:AVMetadataiTunesMetadataKeyTrackNumber]) {
                 NSDictionary *dict = (NSDictionary *)item.value;
                 track = dict[@"trackNumber"];
@@ -12832,7 +12833,7 @@ NSString* convertAmigaGreekToUnicode(NSString *input) {
         if ([asset.availableMetadataFormats containsObject:VorbisFormat]) {
             
             for (AVMetadataItem *item in [asset metadataForFormat:VorbisFormat]) {
-                NSLog(@"Vorbis TAG: %@ = %@", item.key, item.value);
+//                NSLog(@"Vorbis TAG: %@ = %@", item.key, item.value);
                 NSString *key = [item.key description];
                 if ([key caseInsensitiveCompare:@"TRACKNUMBER"] == NSOrderedSame) {
                     track = @([item.stringValue integerValue]);

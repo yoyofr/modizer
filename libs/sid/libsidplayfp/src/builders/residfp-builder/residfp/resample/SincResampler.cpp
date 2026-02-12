@@ -23,8 +23,6 @@
 #include "SincResampler.h"
 
 #include <algorithm>
-#include <iterator>
-#include <numeric>
 #ifdef __has_include
 #  if __has_include(<version>)
 #    include <version>
@@ -96,7 +94,7 @@ double I0(double x)
  * @param bLength length of the sinc buffer
  * @return convolved result
  */
-int convolve(const int* a, const short* b, int bLength)
+static inline int convolve(const short* __restrict__ a, const short* __restrict__ b, int bLength)
 {
 #if defined(__has_cpp_attribute)
 #  if __has_cpp_attribute( assume )
@@ -104,16 +102,11 @@ int convolve(const int* a, const short* b, int bLength)
 #  endif
 #endif
     int out = 0;
-#ifndef __clang__
-    out = std::inner_product(a, a+bLength, b, out);
-#else
-    // Apparently clang is unable to fully optimize the above
-    // feed it some plain ol' c code
-    for (int i=0; i<bLength; i++)
+
+    for (int i = 0; i < bLength; i++)
     {
-        out += a[i] * static_cast<int>(b[i]);
+        out += static_cast<int>(a[i]) * static_cast<int>(b[i]);
     }
-#endif
 
     return (out + (1 << 14)) >> 15;
 }
@@ -243,7 +236,8 @@ bool SincResampler::input(int input)
 {
     bool ready = false;
 
-    sample[sampleIndex] = sample[sampleIndex + RINGSIZE] = input;
+    const short s = static_cast<short>(std::clamp(input, -32768, 32767));
+    sample[sampleIndex] = sample[sampleIndex + RINGSIZE] = s;
     sampleIndex = (sampleIndex + 1) & (RINGSIZE - 1);
 
     if (sampleOffset < 1024)

@@ -57,9 +57,6 @@ struct Resources;
 @class VoicesViewController;
 @class RadioSource;
 
-class CFont;
-class CGLString;
-
 enum {
     RS_NOT_RECORDING=0,
     RS_RECORDING,
@@ -155,17 +152,6 @@ enum {
     int sliderProgressModuleChanged;
     int     module_waiting;
     NSTimer *repeatingTimer;
-    
-//    CFont *mFont,*mFontMenu;
-//    NSString *mFontPath,*mFontMenuPath;
-//    int mFontWidth,mFontHeight;
-//    int mCurrentFontSize;
-//    int mCurrentFontIdx;
-    
-//    CGLString *mText[512];
-//    CGLString *mTextLine[512];
-//    CGLString *viewTapInfoStr[MAX_MENU_FX_STRING];
-//    CGLString *mHeader;
     
     int mDeviceType;
     CGFloat safe_bottom,safe_left,safe_right,safe_top;

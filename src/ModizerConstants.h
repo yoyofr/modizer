@@ -163,10 +163,6 @@ extern void *LoadingProgressObserverContext;
 
 #define MODIZER_COMPIL 1
 
-#define DEFAULT_WAIT_TIME_MS  0.001   //in s
-#define DEFAULT_WAIT_TIME_UADE_MS  0.001 //in s
-#define DEFAULT_WAIT_TIME_UADE_SEEK_MS  0.00001 //in s
-
 #define MODIZER_SUPPORT_EMAIL @"mailto:modizerhelp@gmail.com?subject=Support Request&body="
 #define USERGUIDE_URL @"UserGuide"
 #define WORLDCHARTS_DEFAULTLIST @"ListALL"
@@ -188,8 +184,12 @@ extern void *LoadingProgressObserverContext;
 
 #define DEFAULT_PLAYBACK_FREQ 44100
 
-#define SOUND_BUFFER_SIZE_SAMPLE 512 //1024
-#define SOUND_BUFFER_NB 128 //
+#define DEFAULT_WAIT_TIME_MS  0.001   //in s
+#define DEFAULT_WAIT_TIME_UADE_MS  0.001 //in s
+#define DEFAULT_WAIT_TIME_UADE_SEEK_MS  0.00001 //in s
+
+#define SOUND_BUFFER_SIZE_SAMPLE 1024 //512 //1024
+#define SOUND_BUFFER_NB 64 //128 //
 //TODO / IMPROVE: Hardcoding -> computed on the fly
 #define MIDIFX_OFS_60FPS 89 //44 frames at 60fps to match duration of 64 buffers of 512 samples at 44.1Khz
 #define MIDIFX_OFS_30FPS 45 //22 frames at 30fps to match duration of 64 buffers of 512 samples at 44.1Khz

@@ -69,7 +69,7 @@ private:
 
     int outputValue = 0;
 
-    int sample[RINGSIZE * 2];
+    short sample[RINGSIZE * 2];
 
 private:
     int fir(int subcycle);

@@ -4033,11 +4033,7 @@
 		CC1E597F1200B3B8000A8A4E /* CFtpServerConfig.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CFtpServerConfig.h; sourceTree = "<group>"; };
 		CC1E59801200B3B8000A8A4E /* CFtpServerGlobal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CFtpServerGlobal.h; sourceTree = "<group>"; };
 		CC1E5A031200B3B8000A8A4E /* Color.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Color.h; sourceTree = "<group>"; };
-		CC1E5A041200B3B8000A8A4E /* Font.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Font.cpp; sourceTree = "<group>"; };
-		CC1E5A051200B3B8000A8A4E /* Font.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Font.h; sourceTree = "<group>"; };
 		CC1E5A081200B3B8000A8A4E /* GlErrors.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GlErrors.h; sourceTree = "<group>"; };
-		CC1E5A091200B3B8000A8A4E /* GLString.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLString.cpp; sourceTree = "<group>"; };
-		CC1E5A0A1200B3B8000A8A4E /* GLString.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLString.h; sourceTree = "<group>"; };
 		CC1E5A0B1200B3B8000A8A4E /* HardwareClock.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HardwareClock.cpp; sourceTree = "<group>"; };
 		CC1E5A0C1200B3B8000A8A4E /* HardwareClock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HardwareClock.h; sourceTree = "<group>"; };
 		CC1E5A0F1200B3B8000A8A4E /* OGLView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OGLView.h; sourceTree = "<group>"; };
@@ -6434,11 +6430,7 @@
 				331EB22613A6C45000703140 /* AnimatedGif.h */,
 				331EB22713A6C45000703140 /* AnimatedGif.m */,
 				CC1E5A031200B3B8000A8A4E /* Color.h */,
-				CC1E5A041200B3B8000A8A4E /* Font.cpp */,
-				CC1E5A051200B3B8000A8A4E /* Font.h */,
 				CC1E5A081200B3B8000A8A4E /* GlErrors.h */,
-				CC1E5A091200B3B8000A8A4E /* GLString.cpp */,
-				CC1E5A0A1200B3B8000A8A4E /* GLString.h */,
 				CC1E5A0B1200B3B8000A8A4E /* HardwareClock.cpp */,
 				CC1E5A0C1200B3B8000A8A4E /* HardwareClock.h */,
 				33F6A94017B9A36A002369E7 /* MNEValueTrackingSlider.h */,

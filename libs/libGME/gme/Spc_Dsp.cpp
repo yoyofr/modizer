@@ -363,8 +363,8 @@ void Spc_Dsp::run( int clock_count )
                     newamp=0;
                 }
                     
-                    m_voice_buff[current_voice][(m_voice_current_ptr[current_voice]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*4-1)]=LIMIT8((newamp>>21));
-                    m_voice_buff[current_voice][((m_voice_current_ptr[current_voice]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)+1)&(SOUND_BUFFER_SIZE_SAMPLE*4*4-1)]=LIMIT8((newamp>>21));
+                    m_voice_buff[current_voice][(m_voice_current_ptr[current_voice]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*4-1)]=LIMIT8((newamp>>21)*3/4);
+                    m_voice_buff[current_voice][((m_voice_current_ptr[current_voice]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)+1)&(SOUND_BUFFER_SIZE_SAMPLE*4*4-1)]=LIMIT8((newamp>>21)*3/4);
                     
                     
                     //YOYOFR
