@@ -296,6 +296,53 @@ int qsort_ComparePlaylistEntriesRevFP(const void *entryA, const void *entryB) {
     [self showAlert:alertC];
 }
 
+-(void) exportFiles {
+    UIAlertController *alertC = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Export playlist related files to a dedicated folder\nPlease enter a folder name:",@"")
+                                                                    message:nil
+                                                             preferredStyle:UIAlertControllerStyleAlert];
+    __weak UIAlertController *weakAlert = alertC;
+    [alertC addTextFieldWithConfigurationHandler:^(UITextField *textField) {
+        textField.text = playlist->playlist_name;
+    }];
+    
+    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel",@"") style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+    }];
+    [alertC addAction:cancelAction];
+    
+    UIAlertAction *exportAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Export",@"") style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        UITextField *plName = weakAlert.textFields.firstObject;
+        if (![plName.text isEqualToString:@""]) {
+            
+            NSFileManager *fileMgr=[NSFileManager defaultManager];
+            NSString *tgtFolder=[NSString stringWithFormat:@"%@/Documents/Exports/%@",[ModizFileHelper getAppHomeDirectory],plName.text];
+            NSError *error;
+            if (![fileMgr createDirectoryAtPath:tgtFolder
+                                           withIntermediateDirectories:YES
+                                                            attributes:nil
+                                                                 error:&error]) {
+                [self showAlertMsg:@"Error" message:NSLocalizedString(@"Cannot create export folder",@"")];
+                MDZELog("Create directory error: %@", error);
+            } else {
+                NSString *srcPath,*tgtPath;
+                for (int i=0;i<playlist->nb_entries;i++) {
+                    srcPath=playlist->entries[i].fullpath;
+                    tgtPath=[NSString stringWithFormat:@"%@/%@",tgtFolder,[playlist->entries[i].fullpath lastPathComponent]];
+                    if (![fileMgr copyItemAtPath:srcPath toPath:tgtPath error:&error]) {
+                        MDZELog("Error during copy of %@ to %@, error %@",srcPath,tgtPath,error);
+                    }
+                }
+                [self showAlertMsg:@"Information" message:NSLocalizedString(@"Export done",@"")];
+            }
+        }
+        else{
+            [self presentViewController:weakAlert animated:YES completion:nil];
+        }
+    }];
+    [alertC addAction:exportAction];
+    
+    [self showAlert:alertC];
+}
+
 - (void)shufflePlaylist {
     if (playlist->nb_entries) {
         int pos=0;
@@ -4204,6 +4251,12 @@ trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
                         [self sortZAPlaylist:true];
                     }];
                     [alertC addAction:sortZAActionFP];
+                    
+                    UIAlertAction* ExportFilesActionFP = [UIAlertAction actionWithTitle:NSLocalizedString(@"Export files",@"") style:UIAlertActionStyleDefault
+                                                                           handler:^(UIAlertAction * action) {
+                        [self exportFiles];
+                    }];
+                    [alertC addAction:ExportFilesActionFP];
                     
                     UIAlertAction* deleteAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Delete",@"") style:UIAlertActionStyleDestructive
                                                                          handler:^(UIAlertAction * action) {

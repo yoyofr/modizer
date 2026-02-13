@@ -57,7 +57,7 @@ volatile t_settings settings[MAX_SETTINGS];
 #include "MiniPlayerImplementTableView.h"
 #include "AlertsCommonFunctions.h"
 
--(void)handleSelectPress:(UILongPressGestureRecognizer *)gestureRecognizer {
+-(void)handleSelectPress:(UIGestureRecognizer *)gestureRecognizer {
     CGPoint p = [gestureRecognizer locationInView:self.tableView];
     
     NSIndexPath *indexPath = [self.tableView indexPathForRowAtPoint:p];
@@ -73,7 +73,7 @@ volatile t_settings settings[MAX_SETTINGS];
 }
 
 
--(void)handleResetPress:(UILongPressGestureRecognizer *)gestureRecognizer {
+-(void)handleResetPress:(UIGestureRecognizer *)gestureRecognizer {
     CGPoint p = [gestureRecognizer locationInView:self.tableView];
     
     NSIndexPath *indexPath = [self.tableView indexPathForRowAtPoint:p];
@@ -154,7 +154,7 @@ volatile t_settings settings[MAX_SETTINGS];
         }
     }
 }
--(void)handleTapPress:(UILongPressGestureRecognizer *)gestureRecognizer {
+-(void)handleTapPress:(UIGestureRecognizer *)gestureRecognizer {
     CGPoint p = [gestureRecognizer locationInView:self.tableView];
     
     NSIndexPath *indexPath = [self.tableView indexPathForRowAtPoint:p];
@@ -4706,15 +4706,18 @@ void optNSFPLAYChangedC(id param) {
         [topLabel addGestureRecognizer:tapReset];
         topLabel.userInteractionEnabled=true;
         
-//        [bottomLabel addGestureRecognizer:tapSelect];
-//        [bottomLabel addGestureRecognizer:tapLabelDesc];
-//        [bottomLabel addGestureRecognizer:tapReset];
-//        bottomLabel.userInteractionEnabled=true;
-        
-//        [bottomLabel addGestureRecognizer:tapLabelDesc];
-//        [bottomLabel addGestureRecognizer:tapReset];
-//        bottomLabel.userInteractionEnabled=true;
-        
+        UITapGestureRecognizer *tapSelectB = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleSelectPress:)];
+        tapSelectB.numberOfTapsRequired=1;
+        tapSelectB.delegate = self;
+        [bottomLabel addGestureRecognizer:tapSelectB];
+        UILongPressGestureRecognizer *tapLabelDescB = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapPress:)];
+        tapLabelDescB.delegate = self;
+        [bottomLabel addGestureRecognizer:tapLabelDescB];
+        UITapGestureRecognizer *tapResetB = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleResetPress:)];
+        tapReset.numberOfTapsRequired=2;
+        tapReset.delegate = self;
+        [bottomLabel addGestureRecognizer:tapResetB];
+        bottomLabel.userInteractionEnabled=true;
         
         cell.accessoryView=nil;
         cell.accessoryType = UITableViewCellAccessoryNone;
