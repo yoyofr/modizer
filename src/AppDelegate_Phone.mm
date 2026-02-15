@@ -264,13 +264,18 @@ pthread_mutex_t gl_mutex;
 
 
 - (void)applicationWillTerminate:(UIApplication *)application {
-    MDZILog("applicationWillTerminate");
+    //MDZILog("applicationWillTerminate");
+
+    // Stop music playback before termination to avoid "pure virtual function called"
+    // crash when SID emulation objects are destroyed in wrong order during teardown
+    [detailViewControlleriPhone stop];
+
     UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
     // Remove all delivered notifications
     [center removeAllDeliveredNotifications];
     // Remove all pending notifications
     [center removeAllPendingNotificationRequests];
-    
+
     NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
     NSNumber *valNb;
     valNb=[[NSNumber alloc] initWithInt:0];

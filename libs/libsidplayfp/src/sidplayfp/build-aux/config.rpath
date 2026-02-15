@@ -1,0 +1,4 @@
+# Hello, this is a bogus file just to avoid automake complaining for a missing file.
+# It is not needed anyway.
+# The issue arises due to the use of AM_ICONV without AM_GNU_GETTEXT.
+# Ideally we should go with the Gnulib module 'iconv'.

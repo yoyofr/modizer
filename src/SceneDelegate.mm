@@ -207,7 +207,7 @@ bool mdz_macos_AOTplugin=false;
 
 - (void)sceneDidDisconnect:(UIScene *)scene {
     // Called as the scene is being released by the system.
-//    MDZILog("sceneDidDisconnect");
+    //MDZILog("sceneDidDisconnect");
     UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
     // Remove all delivered notifications
     [center removeAllDeliveredNotifications];

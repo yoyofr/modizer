@@ -3646,7 +3646,7 @@ void optNSFPLAYChangedC(id param) {
     settings[SID_Engine].callback=&optSIDChangedC;
     settings[SID_Engine].detail.mdz_switch.switch_value_nb=2;
     settings[SID_Engine].detail.mdz_switch.switch_labels=(char**)calloc(1,settings[SID_Engine].detail.mdz_switch.switch_value_nb*sizeof(char*));
-    settings[SID_Engine].detail.mdz_switch.switch_labels[0]=(char*)"ReSID";
+    settings[SID_Engine].detail.mdz_switch.switch_labels[0]=(char*)"SidLite";
     settings[SID_Engine].detail.mdz_switch.switch_labels[1]=(char*)"ReSIDFP";
     
     SETTINGS_ID_DEF(SID_Interpolation)

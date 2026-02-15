@@ -1,0 +1,44 @@
+sidplayfp is a console C64 music player which uses the libsidplayfp engine
+to provide the best SID listening experience.
+
+Copyright (c) 2000 Simon White
+Copyright (c) 2007-2010 Antti Lankila
+Copyright (c) 2010-2025 Leandro Nini
+
+This version of the freely available sidplayfp player source code
+contains the following contributed or derived work. In the order they first
+supplied contributions or code was derived from their work:
+
+    Simon White       - Majority of SIDPLAY2 code
+    Michael Schwendt  - Sid2Wav support, OSS/Free and SPARC audio drivers
+    Rainer Sinsch     - help with the DirectX drivers
+    Jarno Paananen    - 16 bit mixer code, Windows
+                        MMSYSTEM Drivers
+    Antti Lankila     - Pulse Audio driver
+    Leandro Nini      - build system changes, port to libsidplayfp
+                        minor improvements
+    LaLa              - stilview
+    Stian Skjelstad   - SID status display
+    Michael Hartmann  - filter curves
+    Thibaut VARENE    - exSID support
+    LouD              - USBSID-Pico support
+
+
+Credit where credit is due, so if I missed anyone please let me know.
+
+-----------------------------------------------------------------------------
+
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program; if not, write to the Free Software
+  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+

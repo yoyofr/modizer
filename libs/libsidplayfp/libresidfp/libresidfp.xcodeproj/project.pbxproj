@@ -1,0 +1,518 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		CCF392832F41CE310089B673 /* FilterModelConfig6581.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCF3923F2F41CE310089B673 /* FilterModelConfig6581.cpp */; };
+		CCF392842F41CE310089B673 /* Spline.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCF3924F2F41CE310089B673 /* Spline.cpp */; };
+		CCF392852F41CE310089B673 /* ExternalFilter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCF392352F41CE310089B673 /* ExternalFilter.cpp */; };
+		CCF392872F41CE310089B673 /* residfp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCF392292F41CE310089B673 /* residfp.cpp */; };
+		CCF392882F41CE310089B673 /* Filter6581.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCF392392F41CE310089B673 /* Filter6581.cpp */; };
+		CCF392892F41CE310089B673 /* Filter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCF392372F41CE310089B673 /* Filter.cpp */; };
+		CCF3928B2F41CE310089B673 /* Dac.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCF392312F41CE310089B673 /* Dac.cpp */; };
+		CCF3928C2F41CE310089B673 /* Filter8580.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCF3923B2F41CE310089B673 /* Filter8580.cpp */; };
+		CCF3928D2F41CE310089B673 /* FilterModelConfig8580.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCF392412F41CE310089B673 /* FilterModelConfig8580.cpp */; };
+		CCF3928F2F41CE310089B673 /* SincResampler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCF3921F2F41CE310089B673 /* SincResampler.cpp */; };
+		CCF392912F41CE310089B673 /* WaveformGenerator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCF392552F41CE310089B673 /* WaveformGenerator.cpp */; };
+		CCF392932F41CE310089B673 /* version.cc in Sources */ = {isa = PBXBuildFile; fileRef = CCF392502F41CE310089B673 /* version.cc */; };
+		CCF392942F41CE310089B673 /* WaveformCalculator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCF392532F41CE310089B673 /* WaveformCalculator.cpp */; };
+		CCF392952F41CE310089B673 /* Integrator6581.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCF392442F41CE310089B673 /* Integrator6581.cpp */; };
+		CCF392962F41CE310089B673 /* EnvelopeGenerator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCF392332F41CE310089B673 /* EnvelopeGenerator.cpp */; };
+		CCF392992F41CE310089B673 /* FilterModelConfig.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCF3923D2F41CE310089B673 /* FilterModelConfig.cpp */; };
+		CCF3929A2F41CE310089B673 /* OpAmp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCF392482F41CE310089B673 /* OpAmp.cpp */; };
+		CCF3929D2F41CE310089B673 /* SID.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCF3924B2F41CE310089B673 /* SID.cpp */; };
+		CCF3929E2F41CE310089B673 /* Integrator8580.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CCF392462F41CE310089B673 /* Integrator8580.cpp */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		CCF391C72F41CDC90089B673 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "include/$(PRODUCT_NAME)";
+			dstSubfolderSpec = 16;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		CCF391C92F41CDC90089B673 /* liblibresidfp.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = liblibresidfp.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		CCF3921D2F41CE310089B673 /* Resampler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Resampler.h; sourceTree = "<group>"; };
+		CCF3921E2F41CE310089B673 /* SincResampler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SincResampler.h; sourceTree = "<group>"; };
+		CCF3921F2F41CE310089B673 /* SincResampler.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SincResampler.cpp; sourceTree = "<group>"; };
+		CCF392212F41CE310089B673 /* TwoPassSincResampler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TwoPassSincResampler.h; sourceTree = "<group>"; };
+		CCF392222F41CE310089B673 /* ZeroOrderResampler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZeroOrderResampler.h; sourceTree = "<group>"; };
+		CCF392282F41CE310089B673 /* residfp.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = residfp.h; sourceTree = "<group>"; };
+		CCF392292F41CE310089B673 /* residfp.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = residfp.cpp; sourceTree = "<group>"; };
+		CCF3922A2F41CE310089B673 /* residfp_defs.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = residfp_defs.h; sourceTree = "<group>"; };
+		CCF3922B2F41CE310089B673 /* sidversion.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = sidversion.h; sourceTree = "<group>"; };
+		CCF3922F2F41CE310089B673 /* array.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = array.h; sourceTree = "<group>"; };
+		CCF392302F41CE310089B673 /* Dac.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Dac.h; sourceTree = "<group>"; };
+		CCF392312F41CE310089B673 /* Dac.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Dac.cpp; sourceTree = "<group>"; };
+		CCF392322F41CE310089B673 /* EnvelopeGenerator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EnvelopeGenerator.h; sourceTree = "<group>"; };
+		CCF392332F41CE310089B673 /* EnvelopeGenerator.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = EnvelopeGenerator.cpp; sourceTree = "<group>"; };
+		CCF392342F41CE310089B673 /* ExternalFilter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ExternalFilter.h; sourceTree = "<group>"; };
+		CCF392352F41CE310089B673 /* ExternalFilter.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ExternalFilter.cpp; sourceTree = "<group>"; };
+		CCF392362F41CE310089B673 /* Filter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Filter.h; sourceTree = "<group>"; };
+		CCF392372F41CE310089B673 /* Filter.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Filter.cpp; sourceTree = "<group>"; };
+		CCF392382F41CE310089B673 /* Filter6581.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Filter6581.h; sourceTree = "<group>"; };
+		CCF392392F41CE310089B673 /* Filter6581.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Filter6581.cpp; sourceTree = "<group>"; };
+		CCF3923A2F41CE310089B673 /* Filter8580.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Filter8580.h; sourceTree = "<group>"; };
+		CCF3923B2F41CE310089B673 /* Filter8580.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Filter8580.cpp; sourceTree = "<group>"; };
+		CCF3923C2F41CE310089B673 /* FilterModelConfig.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FilterModelConfig.h; sourceTree = "<group>"; };
+		CCF3923D2F41CE310089B673 /* FilterModelConfig.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = FilterModelConfig.cpp; sourceTree = "<group>"; };
+		CCF3923E2F41CE310089B673 /* FilterModelConfig6581.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FilterModelConfig6581.h; sourceTree = "<group>"; };
+		CCF3923F2F41CE310089B673 /* FilterModelConfig6581.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = FilterModelConfig6581.cpp; sourceTree = "<group>"; };
+		CCF392402F41CE310089B673 /* FilterModelConfig8580.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FilterModelConfig8580.h; sourceTree = "<group>"; };
+		CCF392412F41CE310089B673 /* FilterModelConfig8580.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = FilterModelConfig8580.cpp; sourceTree = "<group>"; };
+		CCF392422F41CE310089B673 /* Integrator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Integrator.h; sourceTree = "<group>"; };
+		CCF392432F41CE310089B673 /* Integrator6581.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Integrator6581.h; sourceTree = "<group>"; };
+		CCF392442F41CE310089B673 /* Integrator6581.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Integrator6581.cpp; sourceTree = "<group>"; };
+		CCF392452F41CE310089B673 /* Integrator8580.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Integrator8580.h; sourceTree = "<group>"; };
+		CCF392462F41CE310089B673 /* Integrator8580.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Integrator8580.cpp; sourceTree = "<group>"; };
+		CCF392472F41CE310089B673 /* OpAmp.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OpAmp.h; sourceTree = "<group>"; };
+		CCF392482F41CE310089B673 /* OpAmp.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = OpAmp.cpp; sourceTree = "<group>"; };
+		CCF392492F41CE310089B673 /* README */ = {isa = PBXFileReference; lastKnownFileType = text; path = README; sourceTree = "<group>"; };
+		CCF3924A2F41CE310089B673 /* SID.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SID.h; sourceTree = "<group>"; };
+		CCF3924B2F41CE310089B673 /* SID.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SID.cpp; sourceTree = "<group>"; };
+		CCF3924C2F41CE310089B673 /* siddefs-fp.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "siddefs-fp.h"; sourceTree = "<group>"; };
+		CCF3924E2F41CE310089B673 /* Spline.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Spline.h; sourceTree = "<group>"; };
+		CCF3924F2F41CE310089B673 /* Spline.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Spline.cpp; sourceTree = "<group>"; };
+		CCF392502F41CE310089B673 /* version.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = version.cc; sourceTree = "<group>"; };
+		CCF392512F41CE310089B673 /* Voice.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Voice.h; sourceTree = "<group>"; };
+		CCF392522F41CE310089B673 /* WaveformCalculator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WaveformCalculator.h; sourceTree = "<group>"; };
+		CCF392532F41CE310089B673 /* WaveformCalculator.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = WaveformCalculator.cpp; sourceTree = "<group>"; };
+		CCF392542F41CE310089B673 /* WaveformGenerator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WaveformGenerator.h; sourceTree = "<group>"; };
+		CCF392552F41CE310089B673 /* WaveformGenerator.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = WaveformGenerator.cpp; sourceTree = "<group>"; };
+		CCF392722F41CE310089B673 /* AUTHORS */ = {isa = PBXFileReference; lastKnownFileType = text; path = AUTHORS; sourceTree = "<group>"; };
+		CCF3927C2F41CE310089B673 /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
+		CCF3927D2F41CE310089B673 /* Makefile */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
+		CCF392802F41CE310089B673 /* NEWS.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = NEWS.md; sourceTree = "<group>"; };
+		CCF392812F41CE310089B673 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		CCF391C62F41CDC90089B673 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		CCF391C02F41CDC90089B673 = {
+			isa = PBXGroup;
+			children = (
+				CCF392822F41CE310089B673 /* libresidfp */,
+				CCF391CA2F41CDC90089B673 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		CCF391CA2F41CDC90089B673 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				CCF391C92F41CDC90089B673 /* liblibresidfp.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		CCF392232F41CE310089B673 /* resample */ = {
+			isa = PBXGroup;
+			children = (
+				CCF3921D2F41CE310089B673 /* Resampler.h */,
+				CCF3921E2F41CE310089B673 /* SincResampler.h */,
+				CCF3921F2F41CE310089B673 /* SincResampler.cpp */,
+				CCF392212F41CE310089B673 /* TwoPassSincResampler.h */,
+				CCF392222F41CE310089B673 /* ZeroOrderResampler.h */,
+			);
+			path = resample;
+			sourceTree = "<group>";
+		};
+		CCF3922D2F41CE310089B673 /* residfp */ = {
+			isa = PBXGroup;
+			children = (
+				CCF392282F41CE310089B673 /* residfp.h */,
+				CCF392292F41CE310089B673 /* residfp.cpp */,
+				CCF3922A2F41CE310089B673 /* residfp_defs.h */,
+				CCF3922B2F41CE310089B673 /* sidversion.h */,
+			);
+			path = residfp;
+			sourceTree = "<group>";
+		};
+		CCF392562F41CE310089B673 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				CCF392232F41CE310089B673 /* resample */,
+				CCF3922D2F41CE310089B673 /* residfp */,
+				CCF3922F2F41CE310089B673 /* array.h */,
+				CCF392302F41CE310089B673 /* Dac.h */,
+				CCF392312F41CE310089B673 /* Dac.cpp */,
+				CCF392322F41CE310089B673 /* EnvelopeGenerator.h */,
+				CCF392332F41CE310089B673 /* EnvelopeGenerator.cpp */,
+				CCF392342F41CE310089B673 /* ExternalFilter.h */,
+				CCF392352F41CE310089B673 /* ExternalFilter.cpp */,
+				CCF392362F41CE310089B673 /* Filter.h */,
+				CCF392372F41CE310089B673 /* Filter.cpp */,
+				CCF392382F41CE310089B673 /* Filter6581.h */,
+				CCF392392F41CE310089B673 /* Filter6581.cpp */,
+				CCF3923A2F41CE310089B673 /* Filter8580.h */,
+				CCF3923B2F41CE310089B673 /* Filter8580.cpp */,
+				CCF3923C2F41CE310089B673 /* FilterModelConfig.h */,
+				CCF3923D2F41CE310089B673 /* FilterModelConfig.cpp */,
+				CCF3923E2F41CE310089B673 /* FilterModelConfig6581.h */,
+				CCF3923F2F41CE310089B673 /* FilterModelConfig6581.cpp */,
+				CCF392402F41CE310089B673 /* FilterModelConfig8580.h */,
+				CCF392412F41CE310089B673 /* FilterModelConfig8580.cpp */,
+				CCF392422F41CE310089B673 /* Integrator.h */,
+				CCF392432F41CE310089B673 /* Integrator6581.h */,
+				CCF392442F41CE310089B673 /* Integrator6581.cpp */,
+				CCF392452F41CE310089B673 /* Integrator8580.h */,
+				CCF392462F41CE310089B673 /* Integrator8580.cpp */,
+				CCF392472F41CE310089B673 /* OpAmp.h */,
+				CCF392482F41CE310089B673 /* OpAmp.cpp */,
+				CCF392492F41CE310089B673 /* README */,
+				CCF3924A2F41CE310089B673 /* SID.h */,
+				CCF3924B2F41CE310089B673 /* SID.cpp */,
+				CCF3924C2F41CE310089B673 /* siddefs-fp.h */,
+				CCF3924E2F41CE310089B673 /* Spline.h */,
+				CCF3924F2F41CE310089B673 /* Spline.cpp */,
+				CCF392502F41CE310089B673 /* version.cc */,
+				CCF392512F41CE310089B673 /* Voice.h */,
+				CCF392522F41CE310089B673 /* WaveformCalculator.h */,
+				CCF392532F41CE310089B673 /* WaveformCalculator.cpp */,
+				CCF392542F41CE310089B673 /* WaveformGenerator.h */,
+				CCF392552F41CE310089B673 /* WaveformGenerator.cpp */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
+		CCF392822F41CE310089B673 /* libresidfp */ = {
+			isa = PBXGroup;
+			children = (
+				CCF392562F41CE310089B673 /* src */,
+				CCF392722F41CE310089B673 /* AUTHORS */,
+				CCF3927C2F41CE310089B673 /* LICENSE */,
+				CCF3927D2F41CE310089B673 /* Makefile */,
+				CCF392802F41CE310089B673 /* NEWS.md */,
+				CCF392812F41CE310089B673 /* README.md */,
+			);
+			name = libresidfp;
+			path = ../src/libresidfp;
+			sourceTree = SOURCE_ROOT;
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		CCF391C82F41CDC90089B673 /* libresidfp */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CCF391D32F41CDC90089B673 /* Build configuration list for PBXNativeTarget "libresidfp" */;
+			buildPhases = (
+				CCF391C52F41CDC90089B673 /* Sources */,
+				CCF391C62F41CDC90089B673 /* Frameworks */,
+				CCF391C72F41CDC90089B673 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = libresidfp;
+			packageProductDependencies = (
+			);
+			productName = libresidfp;
+			productReference = CCF391C92F41CDC90089B673 /* liblibresidfp.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		CCF391C12F41CDC90089B673 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastUpgradeCheck = 2620;
+				TargetAttributes = {
+					CCF391C82F41CDC90089B673 = {
+						CreatedOnToolsVersion = 26.2;
+					};
+				};
+			};
+			buildConfigurationList = CCF391C42F41CDC90089B673 /* Build configuration list for PBXProject "libresidfp" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = CCF391C02F41CDC90089B673;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = CCF391CA2F41CDC90089B673 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				CCF391C82F41CDC90089B673 /* libresidfp */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		CCF391C52F41CDC90089B673 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CCF392832F41CE310089B673 /* FilterModelConfig6581.cpp in Sources */,
+				CCF392842F41CE310089B673 /* Spline.cpp in Sources */,
+				CCF392852F41CE310089B673 /* ExternalFilter.cpp in Sources */,
+				CCF392872F41CE310089B673 /* residfp.cpp in Sources */,
+				CCF392882F41CE310089B673 /* Filter6581.cpp in Sources */,
+				CCF392892F41CE310089B673 /* Filter.cpp in Sources */,
+				CCF3928B2F41CE310089B673 /* Dac.cpp in Sources */,
+				CCF3928C2F41CE310089B673 /* Filter8580.cpp in Sources */,
+				CCF3928D2F41CE310089B673 /* FilterModelConfig8580.cpp in Sources */,
+				CCF3928F2F41CE310089B673 /* SincResampler.cpp in Sources */,
+				CCF392912F41CE310089B673 /* WaveformGenerator.cpp in Sources */,
+				CCF392932F41CE310089B673 /* version.cc in Sources */,
+				CCF392942F41CE310089B673 /* WaveformCalculator.cpp in Sources */,
+				CCF392952F41CE310089B673 /* Integrator6581.cpp in Sources */,
+				CCF392962F41CE310089B673 /* EnvelopeGenerator.cpp in Sources */,
+				CCF392992F41CE310089B673 /* FilterModelConfig.cpp in Sources */,
+				CCF3929A2F41CE310089B673 /* OpAmp.cpp in Sources */,
+				CCF3929D2F41CE310089B673 /* SID.cpp in Sources */,
+				CCF3929E2F41CE310089B673 /* Integrator8580.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		CCF391D12F41CDC90089B673 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++23";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = ZV46EUY73C;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/../src/libresidfp/src";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_CFLAGS = (
+					"-DPACKAGE_NAME=\\\"libresidfp\\\"",
+					"-DPACKAGE_TARNAME=\\\"libresidfp\\\"",
+					"-DPACKAGE_VERSION=\\\"0.9.1\\\"",
+					"-DPACKAGE_STRING=\\\"libresidfp\\ 0.9.1\\\"",
+					"-DPACKAGE_BUGREPORT=\\\"\\\"",
+					"-DPACKAGE_URL=\\\"https://github.com/libsidplayfp/libresidfp/\\\"",
+					"-DPACKAGE=\\\"libresidfp\\\"",
+					"-DVERSION=\\\"0.9.1\\\"",
+					"-DHAVE_STDIO_H=1",
+					"-DHAVE_STDLIB_H=1",
+					"-DHAVE_STRING_H=1",
+					"-DHAVE_INTTYPES_H=1",
+					"-DHAVE_STDINT_H=1",
+					"-DHAVE_STRINGS_H=1",
+					"-DHAVE_SYS_STAT_H=1",
+					"-DHAVE_SYS_TYPES_H=1",
+					"-DHAVE_UNISTD_H=1",
+					"-DSTDC_HEADERS=1",
+					"-DHAVE_DLFCN_H=1",
+					"-DLT_OBJDIR=\\\".libs/\\\"",
+					"-DHAVE_CXX23=1",
+					"-DSIZEOF_SHORT=2",
+					"-DSIZEOF_INT=4",
+					"-DHAVE_BUILTIN_EXPECT=1",
+				);
+				SDKROOT = iphoneos;
+			};
+			name = Debug;
+		};
+		CCF391D22F41CDC90089B673 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++23";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = ZV46EUY73C;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/../src/libresidfp/src";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				OTHER_CFLAGS = (
+					"-DNDEBUG",
+					"-DPACKAGE_NAME=\\\"libresidfp\\\"",
+					"-DPACKAGE_TARNAME=\\\"libresidfp\\\"",
+					"-DPACKAGE_VERSION=\\\"0.9.1\\\"",
+					"-DPACKAGE_STRING=\\\"libresidfp\\ 0.9.1\\\"",
+					"-DPACKAGE_BUGREPORT=\\\"\\\"",
+					"-DPACKAGE_URL=\\\"https://github.com/libsidplayfp/libresidfp/\\\"",
+					"-DPACKAGE=\\\"libresidfp\\\"",
+					"-DVERSION=\\\"0.9.1\\\"",
+					"-DHAVE_STDIO_H=1",
+					"-DHAVE_STDLIB_H=1",
+					"-DHAVE_STRING_H=1",
+					"-DHAVE_INTTYPES_H=1",
+					"-DHAVE_STDINT_H=1",
+					"-DHAVE_STRINGS_H=1",
+					"-DHAVE_SYS_STAT_H=1",
+					"-DHAVE_SYS_TYPES_H=1",
+					"-DHAVE_UNISTD_H=1",
+					"-DSTDC_HEADERS=1",
+					"-DHAVE_DLFCN_H=1",
+					"-DLT_OBJDIR=\\\".libs/\\\"",
+					"-DHAVE_CXX23=1",
+					"-DSIZEOF_SHORT=2",
+					"-DSIZEOF_INT=4",
+					"-DHAVE_BUILTIN_EXPECT=1",
+				);
+				SDKROOT = iphoneos;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		CCF391D42F41CDC90089B673 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = ZV46EUY73C;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.5;
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		CCF391D52F41CDC90089B673 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = ZV46EUY73C;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.5;
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		CCF391C42F41CDC90089B673 /* Build configuration list for PBXProject "libresidfp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CCF391D12F41CDC90089B673 /* Debug */,
+				CCF391D22F41CDC90089B673 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		CCF391D32F41CDC90089B673 /* Build configuration list for PBXNativeTarget "libresidfp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CCF391D42F41CDC90089B673 /* Debug */,
+				CCF391D52F41CDC90089B673 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = CCF391C12F41CDC90089B673 /* Project object */;
+}

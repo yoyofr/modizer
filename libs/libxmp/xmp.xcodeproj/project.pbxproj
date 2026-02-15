@@ -178,7 +178,6 @@
 		CC89C7F02EC0EEF9000A110A /* mfp_load.c in Sources */ = {isa = PBXBuildFile; fileRef = CC89C69D2EC0EEF9000A110A /* mfp_load.c */; };
 		CC89C7F12EC0EEF9000A110A /* pw_load.c in Sources */ = {isa = PBXBuildFile; fileRef = CC89C6AA2EC0EEF9000A110A /* pw_load.c */; };
 		CC89C7F22EC0EEF9000A110A /* dt_load.c in Sources */ = {isa = PBXBuildFile; fileRef = CC89C6802EC0EEF9000A110A /* dt_load.c */; };
-		CC89C7F72EC0EF0C000A110A /* Makefile in Sources */ = {isa = PBXBuildFile; fileRef = CC89C7F42EC0EF0C000A110A /* Makefile */; };
 		CC89C8692EC0F962000A110A /* common.c in Sources */ = {isa = PBXBuildFile; fileRef = CC89C67D2EC0EEF9000A110A /* common.c */; };
 		CC89C86A2EC0F979000A110A /* itsex.c in Sources */ = {isa = PBXBuildFile; fileRef = CC89C6902EC0EEF9000A110A /* itsex.c */; };
 		CC89C86B2EC0F982000A110A /* iff.c in Sources */ = {isa = PBXBuildFile; fileRef = CC89C68B2EC0EEF9000A110A /* iff.c */; };
@@ -1016,7 +1015,6 @@
 				CC89C7E82EC0EEF9000A110A /* prun2.c in Sources */,
 				CC89C7E92EC0EEF9000A110A /* hmn_extras.c in Sources */,
 				CC89C7EA2EC0EEF9000A110A /* masi16_load.c in Sources */,
-				CC89C7F72EC0EF0C000A110A /* Makefile in Sources */,
 				CC89C7EC2EC0EEF9000A110A /* filetype.c in Sources */,
 				CC89C8692EC0F962000A110A /* common.c in Sources */,
 				CC89C7ED2EC0EEF9000A110A /* gal5_load.c in Sources */,

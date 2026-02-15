@@ -409,9 +409,6 @@
 		59BDE88B260F675D00FB0C69 /* libhighlyexperimental.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 59BDE7DF260F650C00FB0C69 /* libhighlyexperimental.a */; };
 		59BDE96D260FE5A500FB0C69 /* libHighlyQuixotic.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 59BDE95B260FE33100FB0C69 /* libHighlyQuixotic.a */; };
 		59BDE96E260FE5AB00FB0C69 /* libhighlytheoritical.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 59BDE907260FE1D000FB0C69 /* libhighlytheoritical.a */; };
-		59BE8FF526000FE400414A42 /* README in Resources */ = {isa = PBXBuildFile; fileRef = 59BE8D2E26000FE300414A42 /* README */; };
-		59BE91D326000FE500414A42 /* TODO in Resources */ = {isa = PBXBuildFile; fileRef = 59BE8E3326000FE400414A42 /* TODO */; };
-		59BE91DB26000FE500414A42 /* NEWS in Resources */ = {isa = PBXBuildFile; fileRef = 59BE8E3726000FE400414A42 /* NEWS */; };
 		59BE93A82600D3F500414A42 /* chargen.c64 in Resources */ = {isa = PBXBuildFile; fileRef = 59BE93A42600D3F500414A42 /* chargen.c64 */; };
 		59BE93AA2600D3F500414A42 /* kernal.c64 in Resources */ = {isa = PBXBuildFile; fileRef = 59BE93A52600D3F500414A42 /* kernal.c64 */; };
 		59BE93AC2600D3F500414A42 /* c1541.rom in Resources */ = {isa = PBXBuildFile; fileRef = 59BE93A62600D3F500414A42 /* c1541.rom */; };
@@ -1235,7 +1232,6 @@
 		CC6B93602EDF8C2800383CC4 /* libUnrarKIT.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CCEB5A492BB01040004831C6 /* libUnrarKIT.a */; };
 		CC6B93612EDF8E0200383CC4 /* liblibopenmpt-modizer.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CCE352A52B79704200E06DE1 /* liblibopenmpt-modizer.a */; };
 		CC6B93622EDF8E0800383CC4 /* libvgmstream.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 593928E525CF524A009281DC /* libvgmstream.a */; };
-		CC6B93632EDF8E8700383CC4 /* libsidplayfp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 59BE8FA226000FE400414A42 /* libsidplayfp.a */; };
 		CC6B93662EE0F24600383CC4 /* MDZCarPlaySceneDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = CC6B93652EE0F24600383CC4 /* MDZCarPlaySceneDelegate.mm */; };
 		CC6CBDEF17DBE380006DCBC7 /* EQViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = CC6CBDEE17DBE380006DCBC7 /* EQViewController.xib */; };
 		CC6CBDF317DBE3A8006DCBC7 /* EQViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = CC6CBDF217DBE3A8006DCBC7 /* EQViewController.mm */; };
@@ -1698,7 +1694,6 @@
 		CCBE615D2EE2DD44000FDD7E /* libHighlyQuixotic.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 59BDE95B260FE33100FB0C69 /* libHighlyQuixotic.a */; };
 		CCBE615E2EE2DD44000FDD7E /* libLazyusf.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 59C6801125CFCF2A001595B7 /* libLazyusf.a */; };
 		CCBE615F2EE2DD44000FDD7E /* libgme.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 59C6802025CFCF2A001595B7 /* libgme.a */; };
-		CCBE61602EE2DD44000FDD7E /* libsidplayfp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 59BE8FA226000FE400414A42 /* libsidplayfp.a */; };
 		CCBE61612EE2DD44000FDD7E /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CC1E56CC1200B391000A8A4E /* QuartzCore.framework */; };
 		CCBE61622EE2DD44000FDD7E /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CC1E56CE1200B391000A8A4E /* SystemConfiguration.framework */; };
 		CCBE61632EE2DD44000FDD7E /* CoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5958B42725C601B300724722 /* CoreServices.framework */; };
@@ -1787,7 +1782,6 @@
 		CCBE61B72EE2DD44000FDD7E /* DaveLowe_Deli in Resources */ = {isa = PBXBuildFile; fileRef = CC1E6277120423DF000A8A4E /* DaveLowe_Deli */; };
 		CCBE61B82EE2DD44000FDD7E /* DaveLoweNew in Resources */ = {isa = PBXBuildFile; fileRef = CC1E6278120423DF000A8A4E /* DaveLoweNew */; };
 		CCBE61B92EE2DD44000FDD7E /* DavidHanney in Resources */ = {isa = PBXBuildFile; fileRef = CC1E6279120423DF000A8A4E /* DavidHanney */; };
-		CCBE61BA2EE2DD44000FDD7E /* README in Resources */ = {isa = PBXBuildFile; fileRef = 59BE8D2E26000FE300414A42 /* README */; };
 		CCBE61BB2EE2DD44000FDD7E /* DavidWhittaker in Resources */ = {isa = PBXBuildFile; fileRef = CC1E627A120423DF000A8A4E /* DavidWhittaker */; };
 		CCBE61BC2EE2DD44000FDD7E /* tabview_gradient50Black@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 593288A7262093B800DB4E7C /* tabview_gradient50Black@2x.png */; };
 		CCBE61BD2EE2DD44000FDD7E /* DeltaMusic1.3 in Resources */ = {isa = PBXBuildFile; fileRef = CC1E627B120423DF000A8A4E /* DeltaMusic1.3 */; };
@@ -1900,7 +1894,6 @@
 		CCBE62282EE2DD44000FDD7E /* txtMenu7c_2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CCB8D97317F62356008E6A45 /* txtMenu7c_2x.png */; };
 		CCBE62292EE2DD44000FDD7E /* PierreAdane in Resources */ = {isa = PBXBuildFile; fileRef = CC1E62CF120423DF000A8A4E /* PierreAdane */; };
 		CCBE622A2EE2DD44000FDD7E /* ProfessionalSoundArtists in Resources */ = {isa = PBXBuildFile; fileRef = CC1E62D0120423DF000A8A4E /* ProfessionalSoundArtists */; };
-		CCBE622B2EE2DD44000FDD7E /* NEWS in Resources */ = {isa = PBXBuildFile; fileRef = 59BE8E3726000FE400414A42 /* NEWS */; };
 		CCBE622C2EE2DD44000FDD7E /* PTK-Prowiz in Resources */ = {isa = PBXBuildFile; fileRef = CC1E62D1120423DF000A8A4E /* PTK-Prowiz */; };
 		CCBE622D2EE2DD44000FDD7E /* PumaTracker in Resources */ = {isa = PBXBuildFile; fileRef = CC1E62D2120423DF000A8A4E /* PumaTracker */; };
 		CCBE622E2EE2DD44000FDD7E /* QuadraComposer in Resources */ = {isa = PBXBuildFile; fileRef = CC1E62D3120423DF000A8A4E /* QuadraComposer */; };
@@ -1998,7 +1991,6 @@
 		CCBE628A2EE2DD44000FDD7E /* arrow_right@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CCB21EBA1246C68E00A30F62 /* arrow_right@2x.png */; };
 		CCBE628B2EE2DD44000FDD7E /* playlist@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CCB21EBC1246C69800A30F62 /* playlist@2x.png */; };
 		CCBE628C2EE2DD44000FDD7E /* txtMenu4b_2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CCB8D98817F62A18008E6A45 /* txtMenu4b_2x.png */; };
-		CCBE628D2EE2DD44000FDD7E /* TODO in Resources */ = {isa = PBXBuildFile; fileRef = 59BE8E3326000FE400414A42 /* TODO */; };
 		CCBE628E2EE2DD44000FDD7E /* play@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CCB21EC81246C73600A30F62 /* play@2x.png */; };
 		CCBE628F2EE2DD44000FDD7E /* playlist_del@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CCB21ECA1246C90100A30F62 /* playlist_del@2x.png */; };
 		CCBE62902EE2DD44000FDD7E /* star1@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CCC678E417F88AF900F16A54 /* star1@2x.png */; };
@@ -2381,6 +2373,8 @@
 		CCE8D74E2B8F11340076D8C0 /* SONFillAnimation.m in Sources */ = {isa = PBXBuildFile; fileRef = CCE8D74C2B8F11340076D8C0 /* SONFillAnimation.m */; };
 		CCEB4E012BAE00ED004831C6 /* libiconv.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 5905362A25DBDB6500AA548E /* libiconv.tbd */; };
 		CCEB4E052BAE01E6004831C6 /* liblibarchive.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CCEB46FE2BADF7A7004831C6 /* liblibarchive.a */; };
+		CCF393492F41CFAB0089B673 /* liblibsidplayfp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CCF38C752F41B94E0089B673 /* liblibsidplayfp.a */; };
+		CCF3934A2F41CFBF0089B673 /* liblibsidplayfp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CCF38C752F41B94E0089B673 /* liblibsidplayfp.a */; };
 		CCFA9ADE1AC75848007C658A /* JSTools.js in Resources */ = {isa = PBXBuildFile; fileRef = CCFA9ADD1AC75848007C658A /* JSTools.js */; };
 		CCFB5ED02EA98C400049DA7F /* ModizerWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = CCFB5ECF2EA98C400049DA7F /* ModizerWrapper.m */; };
 		CCFB5ED22EA98C480049DA7F /* ModizerWrapper.h in Sources */ = {isa = PBXBuildFile; fileRef = CCFB5ED12EA98C480049DA7F /* ModizerWrapper.h */; };
@@ -2497,13 +2491,6 @@
 			proxyType = 2;
 			remoteGlobalIDString = 59BDE92C260FE21D00FB0C69;
 			remoteInfo = HighlyQuixotic;
-		};
-		59BE8FA126000FE400414A42 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 59BE8D3126000FE300414A42 /* sidplayfp.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 33A961E7140E0E9C007F22F5;
-			remoteInfo = sidplayfp;
 		};
 		59BF55112628ED5D0064EF5E /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -2735,6 +2722,13 @@
 			proxyType = 2;
 			remoteGlobalIDString = CCEB5A382BB0103F004831C6;
 			remoteInfo = UnrarKIT;
+		};
+		CCF38C742F41B94E0089B673 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = CCF38C5B2F41B94E0089B673 /* libsidplayfp.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = CCF38C4E2F41B94D0089B673;
+			remoteInfo = libsidplayfp;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -3712,11 +3706,6 @@
 		59BDE85E260F666C00FB0C69 /* psflib.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = psflib.xcodeproj; path = psflib/psflib.xcodeproj; sourceTree = "<group>"; };
 		59BDE902260FE1D000FB0C69 /* highlytheoritical.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = highlytheoritical.xcodeproj; sourceTree = "<group>"; };
 		59BDE94A260FE33100FB0C69 /* HighlyQuixotic.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = HighlyQuixotic.xcodeproj; sourceTree = "<group>"; };
-		59BE8D2E26000FE300414A42 /* README */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = README; sourceTree = "<group>"; };
-		59BE8D3026000FE300414A42 /* sidplayfp-Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "sidplayfp-Prefix.pch"; sourceTree = "<group>"; };
-		59BE8D3126000FE300414A42 /* sidplayfp.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = sidplayfp.xcodeproj; sourceTree = "<group>"; };
-		59BE8E3326000FE400414A42 /* TODO */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = TODO; sourceTree = "<group>"; };
-		59BE8E3726000FE400414A42 /* NEWS */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = NEWS; sourceTree = "<group>"; };
 		59BE93A42600D3F500414A42 /* chargen.c64 */ = {isa = PBXFileReference; lastKnownFileType = file; path = chargen.c64; sourceTree = "<group>"; };
 		59BE93A52600D3F500414A42 /* kernal.c64 */ = {isa = PBXFileReference; lastKnownFileType = file; path = kernal.c64; sourceTree = "<group>"; };
 		59BE93A62600D3F500414A42 /* c1541.rom */ = {isa = PBXFileReference; lastKnownFileType = file; path = c1541.rom; sourceTree = "<group>"; };
@@ -4864,6 +4853,7 @@
 		CCEB46F92BADF7A7004831C6 /* libarchive.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libarchive.xcodeproj; path = libarchive/libarchive.xcodeproj; sourceTree = "<group>"; };
 		CCEB4E002BAE00D9004831C6 /* libiconv.2.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libiconv.2.tbd; path = usr/lib/libiconv.2.tbd; sourceTree = SDKROOT; };
 		CCEB5A442BB0103F004831C6 /* UnrarKIT.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = UnrarKIT.xcodeproj; path = UnrarKIT/UnrarKIT.xcodeproj; sourceTree = "<group>"; };
+		CCF38C5B2F41B94E0089B673 /* libsidplayfp.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libsidplayfp.xcodeproj; path = libsidplayfp/libsidplayfp.xcodeproj; sourceTree = "<group>"; };
 		CCFA9ADD1AC75848007C658A /* JSTools.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = JSTools.js; sourceTree = "<group>"; };
 		CCFB5ECF2EA98C400049DA7F /* ModizerWrapper.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ModizerWrapper.m; sourceTree = "<group>"; };
 		CCFB5ED12EA98C480049DA7F /* ModizerWrapper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ModizerWrapper.h; sourceTree = "<group>"; };
@@ -4953,6 +4943,7 @@
 				CC3F53152ED3C028004D7908 /* libavfilter.xcframework in Frameworks */,
 				CC3F53162ED3C028004D7908 /* libavformat.xcframework in Frameworks */,
 				CCE827AA2B9B951500F1F2AD /* libwebsid.a in Frameworks */,
+				CCF393492F41CFAB0089B673 /* liblibsidplayfp.a in Frameworks */,
 				CCAB9F342E92D18D00AF59B0 /* libLazyusf.a in Frameworks */,
 				CCC543F82B89F51500E97EC1 /* libbinio.a in Frameworks */,
 				CCC543F72B89F46B00E97EC1 /* libadplug.a in Frameworks */,
@@ -5015,7 +5006,6 @@
 				CCB99AF92F09D6340024DFBB /* libnez.a in Frameworks */,
 				5966D0C525CFEE3000520777 /* libLazyusf.a in Frameworks */,
 				5966D0BF25CFEE0F00520777 /* libgme.a in Frameworks */,
-				CC6B93632EDF8E8700383CC4 /* libsidplayfp.a in Frameworks */,
 				CC1E56CD1200B391000A8A4E /* QuartzCore.framework in Frameworks */,
 				CC1E56CF1200B391000A8A4E /* SystemConfiguration.framework in Frameworks */,
 				5958B42825C601B300724722 /* CoreServices.framework in Frameworks */,
@@ -5046,6 +5036,7 @@
 				CCBE61202EE2DD44000FDD7E /* libavfilter.xcframework in Frameworks */,
 				CCBE61212EE2DD44000FDD7E /* libavformat.xcframework in Frameworks */,
 				CCBE61222EE2DD44000FDD7E /* libwebsid.a in Frameworks */,
+				CCF3934A2F41CFBF0089B673 /* liblibsidplayfp.a in Frameworks */,
 				CCBE61232EE2DD44000FDD7E /* libLazyusf.a in Frameworks */,
 				CCBE61242EE2DD44000FDD7E /* libbinio.a in Frameworks */,
 				CCBE61252EE2DD44000FDD7E /* libadplug.a in Frameworks */,
@@ -5108,7 +5099,6 @@
 				CC318FDA2F0A888C00C81390 /* libnez.a in Frameworks */,
 				CCBE615E2EE2DD44000FDD7E /* libLazyusf.a in Frameworks */,
 				CCBE615F2EE2DD44000FDD7E /* libgme.a in Frameworks */,
-				CCBE61602EE2DD44000FDD7E /* libsidplayfp.a in Frameworks */,
 				CCBE61612EE2DD44000FDD7E /* QuartzCore.framework in Frameworks */,
 				CCBE61622EE2DD44000FDD7E /* SystemConfiguration.framework in Frameworks */,
 				CCBE61632EE2DD44000FDD7E /* CoreServices.framework in Frameworks */,
@@ -5192,14 +5182,6 @@
 				CC9331582EA040B300CB0503 /* SwiftUI.framework */,
 			);
 			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		33236B42125FA4FC0032223C /* sidplay2 */ = {
-			isa = PBXGroup;
-			children = (
-				59BE8CFE26000FE300414A42 /* libsidplayfp */,
-			);
-			name = sidplay2;
 			sourceTree = "<group>";
 		};
 		333157371207699700815317 /* AHX */ = {
@@ -5331,14 +5313,6 @@
 				33ABE5AC17B17A5100AE0EA1 /* FontAwesome.ttf */,
 			);
 			path = resources;
-			sourceTree = "<group>";
-		};
-		33B1094D125BC322006D55D6 /* sid */ = {
-			isa = PBXGroup;
-			children = (
-				33236B42125FA4FC0032223C /* sidplay2 */,
-			);
-			path = sid;
 			sourceTree = "<group>";
 		};
 		33B9D4CF138B92A200E8B191 /* libtim */ = {
@@ -5477,6 +5451,7 @@
 		593925CB25CF0C56009281DC /* libs */ = {
 			isa = PBXGroup;
 			children = (
+				CCF38C5B2F41B94E0089B673 /* libsidplayfp.xcodeproj */,
 				CCB998AE2F09A39E0024DFBB /* nez.xcodeproj */,
 				CC3144652EF28F5B0053DCE1 /* monkeyaudiocodec.xcodeproj */,
 				CCC541B62B89DD1700E97EC1 /* adplug.xcodeproj */,
@@ -5513,7 +5488,6 @@
 				CC47A4CA2BF1FB3500472202 /* libzxtune.xcodeproj */,
 				3370BBCE124A853F00691400 /* mdxplay */,
 				CCCE9C31123D807A007D9462 /* sc68 */,
-				33B1094D125BC322006D55D6 /* sid */,
 				591054D125EAC21F00A194FF /* snsf */,
 				CCBF0FF91221788200E8DE4E /* STSound */,
 				CC1E60371202F25B000A8A4E /* uade-2.13 */,
@@ -5853,34 +5827,6 @@
 			isa = PBXGroup;
 			children = (
 				59BDE95B260FE33100FB0C69 /* libHighlyQuixotic.a */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		59BE8CFE26000FE300414A42 /* libsidplayfp */ = {
-			isa = PBXGroup;
-			children = (
-				59BE8E3726000FE400414A42 /* NEWS */,
-				59BE8D2E26000FE300414A42 /* README */,
-				59BE8D2F26000FE300414A42 /* sidplayfp */,
-				59BE8E3326000FE400414A42 /* TODO */,
-			);
-			path = libsidplayfp;
-			sourceTree = "<group>";
-		};
-		59BE8D2F26000FE300414A42 /* sidplayfp */ = {
-			isa = PBXGroup;
-			children = (
-				59BE8D3026000FE300414A42 /* sidplayfp-Prefix.pch */,
-				59BE8D3126000FE300414A42 /* sidplayfp.xcodeproj */,
-			);
-			path = sidplayfp;
-			sourceTree = "<group>";
-		};
-		59BE8D3226000FE300414A42 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				59BE8FA226000FE400414A42 /* libsidplayfp.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -7852,6 +7798,14 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		CCF38C5C2F41B94E0089B673 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				CCF38C752F41B94E0089B673 /* liblibsidplayfp.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		CCFA9ADC1AC75830007C658A /* WebTools */ = {
 			isa = PBXGroup;
 			children = (
@@ -8156,6 +8110,10 @@
 					ProjectRef = CC83697E2B5DCF8D0035A4DA /* libpt3.xcodeproj */;
 				},
 				{
+					ProductGroup = CCF38C5C2F41B94E0089B673 /* Products */;
+					ProjectRef = CCF38C5B2F41B94E0089B673 /* libsidplayfp.xcodeproj */;
+				},
+				{
 					ProductGroup = CCAB94082BCBB3D20038834A /* Products */;
 					ProjectRef = CCAB94072BCBB3D20038834A /* libvgm.xcodeproj */;
 				},
@@ -8198,10 +8156,6 @@
 				{
 					ProductGroup = 59627F3E25CFE90E00711C05 /* Products */;
 					ProjectRef = CC19620E1B66BCD600778A3E /* Resample.xcodeproj */;
-				},
-				{
-					ProductGroup = 59BE8D3226000FE300414A42 /* Products */;
-					ProjectRef = 59BE8D3126000FE300414A42 /* sidplayfp.xcodeproj */;
 				},
 				{
 					ProductGroup = 591054D625EAC21F00A194FF /* Products */;
@@ -8322,13 +8276,6 @@
 			fileType = archive.ar;
 			path = libHighlyQuixotic.a;
 			remoteRef = 59BDE95A260FE33100FB0C69 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		59BE8FA226000FE400414A42 /* libsidplayfp.a */ = {
-			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = libsidplayfp.a;
-			remoteRef = 59BE8FA126000FE400414A42 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		59BF55122628ED5D0064EF5E /* libv2mplayer.a */ = {
@@ -8555,6 +8502,13 @@
 			remoteRef = CCEB5A482BB01040004831C6 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
+		CCF38C752F41B94E0089B673 /* liblibsidplayfp.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = liblibsidplayfp.a;
+			remoteRef = CCF38C742F41B94E0089B673 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
 /* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
@@ -8647,7 +8601,6 @@
 				CC1E6325120423DF000A8A4E /* DaveLowe_Deli in Resources */,
 				CC1E6326120423DF000A8A4E /* DaveLoweNew in Resources */,
 				CC1E6327120423DF000A8A4E /* DavidHanney in Resources */,
-				59BE8FF526000FE400414A42 /* README in Resources */,
 				CC1E6328120423DF000A8A4E /* DavidWhittaker in Resources */,
 				593288A9262093B800DB4E7C /* tabview_gradient50Black@2x.png in Resources */,
 				CC1E6329120423DF000A8A4E /* DeltaMusic1.3 in Resources */,
@@ -9019,7 +8972,6 @@
 				CCB8D97A17F62356008E6A45 /* txtMenu7c_2x.png in Resources */,
 				CC1E637B120423DF000A8A4E /* PierreAdane in Resources */,
 				CC1E637C120423DF000A8A4E /* ProfessionalSoundArtists in Resources */,
-				59BE91DB26000FE500414A42 /* NEWS in Resources */,
 				CC1E637D120423DF000A8A4E /* PTK-Prowiz in Resources */,
 				CC1E637E120423DF000A8A4E /* PumaTracker in Resources */,
 				CC1E637F120423DF000A8A4E /* QuadraComposer in Resources */,
@@ -9117,7 +9069,6 @@
 				CCB21EBB1246C68E00A30F62 /* arrow_right@2x.png in Resources */,
 				CCB21EBD1246C69800A30F62 /* playlist@2x.png in Resources */,
 				CCB8D99A17F62A18008E6A45 /* txtMenu4b_2x.png in Resources */,
-				59BE91D326000FE500414A42 /* TODO in Resources */,
 				CCB21EC91246C73600A30F62 /* play@2x.png in Resources */,
 				CCB21ECB1246C90100A30F62 /* playlist_del@2x.png in Resources */,
 				CCC678EA17F88AF900F16A54 /* star1@2x.png in Resources */,
@@ -9357,7 +9308,6 @@
 				CCBE61B72EE2DD44000FDD7E /* DaveLowe_Deli in Resources */,
 				CCBE61B82EE2DD44000FDD7E /* DaveLoweNew in Resources */,
 				CCBE61B92EE2DD44000FDD7E /* DavidHanney in Resources */,
-				CCBE61BA2EE2DD44000FDD7E /* README in Resources */,
 				CCBE61BB2EE2DD44000FDD7E /* DavidWhittaker in Resources */,
 				CCBE61BC2EE2DD44000FDD7E /* tabview_gradient50Black@2x.png in Resources */,
 				CCBE61BD2EE2DD44000FDD7E /* DeltaMusic1.3 in Resources */,
@@ -9729,7 +9679,6 @@
 				CCBE62282EE2DD44000FDD7E /* txtMenu7c_2x.png in Resources */,
 				CCBE62292EE2DD44000FDD7E /* PierreAdane in Resources */,
 				CCBE622A2EE2DD44000FDD7E /* ProfessionalSoundArtists in Resources */,
-				CCBE622B2EE2DD44000FDD7E /* NEWS in Resources */,
 				CCBE622C2EE2DD44000FDD7E /* PTK-Prowiz in Resources */,
 				CCBE622D2EE2DD44000FDD7E /* PumaTracker in Resources */,
 				CCBE622E2EE2DD44000FDD7E /* QuadraComposer in Resources */,
@@ -9827,7 +9776,6 @@
 				CCBE628A2EE2DD44000FDD7E /* arrow_right@2x.png in Resources */,
 				CCBE628B2EE2DD44000FDD7E /* playlist@2x.png in Resources */,
 				CCBE628C2EE2DD44000FDD7E /* txtMenu4b_2x.png in Resources */,
-				CCBE628D2EE2DD44000FDD7E /* TODO in Resources */,
 				CCBE628E2EE2DD44000FDD7E /* play@2x.png in Resources */,
 				CCBE628F2EE2DD44000FDD7E /* playlist_del@2x.png in Resources */,
 				CCBE62902EE2DD44000FDD7E /* star1@2x.png in Resources */,
@@ -10615,6 +10563,8 @@
 					"$(PROJECT_DIR)/libs/monkeyaudiocodec/mac-master/src/MACLib",
 					"$(PROJECT_DIR)/libs/libnez/webnez/src/format",
 					"$(PROJECT_DIR)/libs/libnez/webnez/src",
+					"$(PROJECT_DIR)/libs/libsidplayfp/src/libsidplayfp/src",
+					"$(PROJECT_DIR)/libs/libsidplayfp/src",
 				);
 				INFOPLIST_FILE = "modizer-info.plist";
 				"INFOPLIST_FILE[sdk=iphone*]" = "modizer-info.plist";
@@ -10687,7 +10637,6 @@
 					"libs/uade-2.13/src/frontends",
 					"libs/uade-2.13/src/frontends/common",
 					libs/libLazyusf/libLazyusf,
-					libs/sid/libsidplayfp/src,
 					libs/v2mplayer/v2mplayer/src,
 					"libs/adplug/adplug-master/src",
 					libs/libpmdmini/libpmdmini/src,
@@ -10779,6 +10728,8 @@
 					"$(PROJECT_DIR)/libs/monkeyaudiocodec/mac-master/src/MACLib",
 					"$(PROJECT_DIR)/libs/libnez/webnez/src/format",
 					"$(PROJECT_DIR)/libs/libnez/webnez/src",
+					"$(PROJECT_DIR)/libs/libsidplayfp/src/libsidplayfp/src",
+					"$(PROJECT_DIR)/libs/libsidplayfp/src",
 				);
 				INFOPLIST_FILE = "modizer-info.plist";
 				"INFOPLIST_FILE[sdk=iphone*]" = "modizer-info.plist";
@@ -10853,7 +10804,6 @@
 					"libs/uade-2.13/src/frontends",
 					"libs/uade-2.13/src/frontends/common",
 					libs/libLazyusf/libLazyusf,
-					libs/sid/libsidplayfp/src,
 					libs/v2mplayer/v2mplayer/src,
 					"libs/adplug/adplug-master/src",
 					libs/libpmdmini/libpmdmini/src,
@@ -10944,6 +10894,8 @@
 					"$(PROJECT_DIR)/libs/monkeyaudiocodec/mac-master/src/MACLib",
 					"$(PROJECT_DIR)/libs/libnez/webnez/src/format",
 					"$(PROJECT_DIR)/libs/libnez/webnez/src",
+					"$(PROJECT_DIR)/libs/libsidplayfp/src/libsidplayfp/src",
+					"$(PROJECT_DIR)/libs/libsidplayfp/src",
 				);
 				INFOPLIST_FILE = "modizer-info.plist";
 				"INFOPLIST_FILE[sdk=iphone*]" = "modizer-info.plist";
@@ -11018,7 +10970,6 @@
 					"libs/uade-2.13/src/frontends",
 					"libs/uade-2.13/src/frontends/common",
 					libs/libLazyusf/libLazyusf,
-					libs/sid/libsidplayfp/src,
 					libs/v2mplayer/v2mplayer/src,
 					"libs/adplug/adplug-master/src",
 					libs/libpmdmini/libpmdmini/src,

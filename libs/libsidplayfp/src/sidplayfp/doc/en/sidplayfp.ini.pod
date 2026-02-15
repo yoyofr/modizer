@@ -1,0 +1,342 @@
+﻿=encoding utf8
+
+
+=head1 NAME
+
+sidplayfp.ini - Configuration file for L<sidplayfp(1)>.
+
+
+=head1 DESCRIPTION
+
+This page describes the options available for the configuration file of
+Sidplayfp.  It is composed by a number of sections, each one composed
+by a section  name, enclosed by square brackets, followed by a list of
+<parameter>=<value> lines.
+
+B<sidplayfp.ini> supports the following sections:
+
+B<[SIDPlayfp]> - Generic configuration
+
+B<[Console]> - Console appearance configuration
+
+B<[Audio]> - Audio output configuration
+
+B<[Emulation]> - Emulation engine parameters
+
+All options and values are described in detail below.
+
+For any of the following parameter, if it's specified more than one
+time the last entry encountered will be used.
+
+B<NOTE>: if any of these options is specified outside its section, it will
+be I<ignored>.
+
+=head2 SIDPlayfp
+
+=over
+
+=item B<Version>=I<< <number> >>
+
+Configuration version
+
+=item B<Songlength Database>=I<< <path> >>
+
+Full path for the Songlength DB.
+By default the program will look for a file named F<DOCUMENTS/Songlengths.txt> under the HVSC collection path, if the HVSC_BASE environment variable is defined.
+On *NIX systems, if this value is not set, L<sidplayfp(1)> will try F<$PREFIX/share/sidplayfp/Songlengths.txt>.
+
+=item B<Default Play Length>=I<MM:SS.mmm>
+
+Default play time if Songlength Database is not found.
+
+=item B<Default Record Length>=I<MM:SS.mmm>
+
+Default recording time when writing wave files if Songlength Database is not found.
+
+=item B<Kernal Rom>=I<< <path> >>
+
+Full path for the Kernal Rom file. This is the most important ROM and should always be provided, although many tunes will still work without.
+By default the program will look for a file named F<kernal> under the following locations:
+
+=over
+
+=item * $XDG_DATA_HOME/sidplayfp/
+
+on *NIX systems where XDG_DATA_HOME is defined.
+
+=item * $HOME/.local/share/sidplayfp/
+
+on *NIX systems where XDG_DATA_HOME is not defined.
+
+=item * $PREFIX/share/sidplayfp
+
+on *NIX systems when not found in the above directories.
+
+=item * %CSIDL_APPDATA%\\sidplayfp\\
+
+on Windows systems where CSIDL_APPDATA is defined.
+
+=item * %USERPROFILE%\\Application Data\\sidplayfp\\
+
+on Windows systems where CSIDL_APPDATA is not defined.
+
+=back
+
+=item B<Basic Rom>=I<< <path> >>
+
+Full path for the Basic Rom file. This is mostly useful for playing BASIC tunes.
+By default the program will look for a file named F<basic> under the same locations as above.
+
+=item B<Chargen Rom>=I<< <path> >>
+
+Full path for the Character generator Rom file. Almost useless for playback of tunes, but included for completeness.
+By default the program will look for a file named F<chargen> under the same locations as above.
+
+=item B<VerboseLevel>=I<< <number> >>
+
+Verbosity level, 0 = low, 1 = normal, >1 = high.
+Default is 0
+
+=back
+
+
+=head2 Console
+
+=over
+
+=item B<Ansi>=I<true|false>
+
+Use ANSI escape sequences to provide colored output.
+
+=item B<Char Top Left>=I<< <char> >>
+
+Character for the top left corner.
+
+=item B<Char Top Right>=I<< <char> >>
+
+Character for the top right corner.
+
+=item B<Char Bottom Left>=I<< <char> >>
+
+Character for the bottom left corner.
+
+=item B<Char Bottom Right>=I<< <char> >>
+
+Character for the bottom right corner.
+
+=item B<Char Vertical>=I<< <char> >>
+
+Character for vertical lines.
+
+=item B<Char Horizontal>=I<< <char> >>
+
+Character for horizontal lines.
+
+=item B<Char Junction Left>=I<< <char> >>
+
+Character for left junctions.
+
+=item B<Char Junction Right>=I<< <char> >>
+
+Character for right junctions.
+
+=back
+
+
+=head2 Audio
+
+=over
+
+=item B<Frequency>=I<< <number> >>
+
+Playback frequency expressed in Hertz. Default is 48000.
+
+=item B<Channels>=I<< <number> >>
+
+Number of channels, 1 for mono and 2 for stereo playback.
+Default is 1 for standard tunes and 2 for multi SID tunes.
+
+=item B<BitsPerSample>=I<< <16|32> >>
+
+Number of bits ber sample, used only for wav/au output. Using
+values other than the ones specified will produce invalid
+output.
+
+=item B<BufferLength>=I<< <number> >>
+
+Length of the buffer in milliseconds, default is 250.
+Increase if you experience audio problems or reduce to
+improve latency.
+
+=back
+
+
+=head2 Emulation
+
+=over
+
+=item B<Engine>=I<< <RESIDFP|RESID|HARDSID|EXSID|USBSID|NONE> >>
+
+Set the SID emulation engine. Default is RESIDFP.
+
+=item B<C64Model>=I<< <PAL|NTSC|OLD_NTSC|DREAN> >>
+
+Default C64 model to use if not specified by tune, PAL for
+european PAL-B model, NTSC for american/japanese NTSC-M models,
+OLD_NTSC for NTSC-M models with old video chip and DREAN
+for argentinian PAL-N model. Default is PAL.
+
+=item B<ForceC64Model>=I<true|false>
+
+Force the configured C64 model even if the tune specifies one.
+
+=item B<CiaModel>=I<< <MOS6526|MOS8521> >>
+
+Select CIA chip model, old MOS 6526 or newer MOS 8521.
+
+=item B<SidModel>=I<< <MOS6581|MOS8580> >>
+
+Default SID chip model, old MOS 6581 or newer MOS 8580.
+
+=item B<ForceSidModel>=I<true|false>
+
+Force the configured SID chip model even if the tune specifies one.
+
+=item B<DigiBoost>=I<true|false>
+
+Enable digiboost for 8580 model.
+
+=item B<UseFilter>=I<true|false>
+
+Enable/disable the emulation of the SID filter.
+
+=item B<FilterBias>=I<< <number> >>
+
+Controls the filter bias in the ReSID emulation.
+Ranges from 0.0 (dark) to 1.0 (light), the default
+value is 0.5.
+
+=item B<FilterCurve6581>=I<< <number> >>
+
+Controls the filter curve for the 6581 model in the ReSIDfp
+emulation.  Ranges from 0.0 (light) to 1.0 (dark), the default
+value is 0.5.
+
+=item B<FilterRange6581>=I<< <number> >>
+
+Controls the filter uCox parameter for the 6581 model in the ReSIDfp
+emulation.  Ranges from 0.0 (dark) to 1.0 (bright), the default
+value is 0.5.
+
+=item B<FilterCurve8580>=I<< <number> >>
+
+Controls the filter curve for the 8580 model in the ReSIDfp
+emulation.  Ranges from 0.0 (light) to 1.0 (dark), the default
+value is 0.5.
+
+=item B<CombinedWaveforms>=I<< <AVERAGE|WEAK|STRONG> >>
+
+Controls the combined waveforms strength in the ReSIDfp
+emulation.  The default value is AVERAGE.
+
+=item B<PowerOnDelay>=I<< <number> >>
+
+The C64 power on delay in number of CPU cycles.
+If greater than 8191 the delay will be random.
+
+=item B<Sampling>=I<< <INTERPOLATE|RESAMPLE> >>
+
+Set resampling mode:  Interpolation (less expensive) or
+resampling (accurate).
+
+=item B<FastSampling>=I<< <true|false> >>
+
+Fast resampling, available only for reSID emulation.
+
+=back
+
+
+=head1 SEE ALSO
+
+L<sidplayfp(1)>
+
+
+=head1 AUTHORS
+
+=over
+
+=item Leandro Nini
+
+Current maintainer.
+
+=item Simon White
+
+Wrote the original Sidplay2.
+
+=item Dag Lem
+
+Wrote the reSID emulation engine.
+
+=item Antti S. Lankila
+
+Wrote the reSIDfp emulation engine as a fork of reSID 0.16.
+
+=item The Vice team
+
+Large part of the emulation is based on the VICE's code.
+
+=item André Fachat
+
+Wrote the original reloc65 utility.
+
+=item Michael Schwendt
+
+Wrote the original SidTune library and MD5 class (based on work by L. Peter Deutsch).
+
+=item Mikko Kilponen
+
+Wrote the original man page.
+
+=back
+
+
+=head1 RESOURCES
+
+=over
+
+=item Home page: L<https://github.com/libsidplayfp/>
+
+=item Sidplay2 homepage: L<http://sidplay2.sourceforge.net/>
+
+=item High Voltage Sid Collection (HVSC): L<http://hvsc.c64.org/>
+
+=back
+
+
+=head1 COPYING
+
+=over
+
+=item Copyright (C) 2000-2004 Simon White
+
+=item Copyright (C) 2007-2010 Antti Lankila
+
+=item Copyright (C) 2009-2015 VICE Project
+
+=item Copyright (C) 2010-2024 Leandro Nini
+
+=back
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.

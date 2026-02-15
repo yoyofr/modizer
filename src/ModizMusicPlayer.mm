@@ -156,15 +156,18 @@ extern "C" {
 struct gbs *gbs;
 }
 
-//SID2
+//SID3
 #include "sidplayfp/sidplayfp.h"
 #include "sidplayfp/SidTune.h"
 #include "sidplayfp/SidInfo.h"
 #include "sidplayfp/SidTuneInfo.h"
 #include "sidplayfp/SidConfig.h"
+#include "mixer.h"
 
 #include "builders/residfp-builder/residfp.h"
-#include "builders/resid-builder/resid.h"
+#include "builders/sidlite-builder/sidlite.h"
+
+Mixer sid_mixer;
 
 static uint16_t*          m_freqTable;
 static uint16_t freqTablePal[]
@@ -5045,9 +5048,9 @@ void processFadeOut(short int *buffer, int sample_count, int voice_factor) {
                                 mdz_ratio_fp_inv_inc=0;
                                 
                                 mSIDSeekInProgress=1;
-                                mSidEmuEngine->fastForward( 100 * 32 );
+                                //mSidEmuEngine->fastForward( 100 * 32 );
                                 while (mCurrentSamples+SOUND_BUFFER_SIZE_SAMPLE*32<=mSeekSamples) {
-                                    nbBytes=mSidEmuEngine->play(buffer_ana[buffer_ana_gen_ofs],SOUND_BUFFER_SIZE_SAMPLE*2*1)*2;
+                                    //nbBytes=mSidEmuEngine->play(buffer_ana[buffer_ana_gen_ofs],SOUND_BUFFER_SIZE_SAMPLE*2*1)*2;
                                     mCurrentSamples+=(nbBytes/4)*32;
                                     iCurrentTime=mCurrentSamples*1000/PLAYBACK_FREQ;
                                     
@@ -5062,9 +5065,10 @@ void processFadeOut(short int *buffer, int sample_count, int voice_factor) {
                                     }
                                 }
                                 
-                                mSidEmuEngine->fastForward( 100 );
+                                //mSidEmuEngine->fastForward( 100 );
+                                
                                 while (mCurrentSamples<mSeekSamples) {
-                                    nbBytes=mSidEmuEngine->play(buffer_ana[buffer_ana_gen_ofs],SOUND_BUFFER_SIZE_SAMPLE*2*1)*2;
+                                    //nbBytes=mSidEmuEngine->play(buffer_ana[buffer_ana_gen_ofs],SOUND_BUFFER_SIZE_SAMPLE*2*1)*2;
                                     mCurrentSamples+=(nbBytes/4);
                                     iCurrentTime=mCurrentSamples*1000/PLAYBACK_FREQ;
                                     
@@ -7517,8 +7521,32 @@ void processFadeOut(short int *buffer, int sample_count, int voice_factor) {
                         
                         if (mPlayType==MMP_SIDPLAY) { //SID
                             
-                            nbBytes=mSidEmuEngine->play(buffer_ana[buffer_ana_gen_ofs],SOUND_BUFFER_SIZE_SAMPLE*2*1)*2;
+                            //nbBytes=mSidEmuEngine->play(buffer_ana[buffer_ana_gen_ofs],SOUND_BUFFER_SIZE_SAMPLE*2*1)*2;
 //                            nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
+                            
+                            memset(vgm_last_note,0,sizeof(vgm_last_note));
+                            memset(vgm_last_vol,0,sizeof(vgm_last_vol));
+                            memset(sid_firstcall,1,sizeof(sid_firstcall));
+                            
+                            sid_mixer.begin(buffer_ana[buffer_ana_gen_ofs],SOUND_BUFFER_SIZE_SAMPLE*2*1);
+                            short* buffers[3];
+                            mSidEmuEngine->buffers(buffers);
+                            do
+                            {
+                                int samples = mSidEmuEngine->play(2000);
+                                if (samples < 0) UNLIKELY
+                                {
+                                    MDZELog("SID error: %s",mSidEmuEngine->error());
+                                    break;
+                                }
+                                if (samples > 0)
+                                    sid_mixer.doMix(buffers, samples);
+                                else break;
+                            }
+                            while (!sid_mixer.isFull());
+                            
+                            nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
+                            
                             
                             if (settings[GLOB_PBRATIO_ONOFF].detail.mdz_boolswitch.switch_value) mCurrentSamples+=nbBytes/4*settings[GLOB_PBRATIO].detail.mdz_slider.slider_value;
                             else mCurrentSamples+=nbBytes/4;
@@ -10974,7 +11002,7 @@ char* loadRom(const char* path, size_t romSize)
     fclose(f);
     
     sid_v4=0;
-    memset(m_sid_chipId,0,sizeof(m_sid_chipId));
+    memset(m_sid_chipId,0,sizeof(m_sid_chipId));// MAXSID_CHIPS*sizeof(void*));
     /* new format: md5 on all file data*/
     int tmp_md5_data_size=mp_datasize;
     char *tmp_md5_data=(char*)malloc(tmp_md5_data_size);
@@ -11007,13 +11035,13 @@ char* loadRom(const char* path, size_t romSize)
     cfg.frequency= PLAYBACK_FREQ;
     if (sid_interpolation==0) {
         cfg.samplingMethod = SidConfig::INTERPOLATE;
-        cfg.fastSampling = true;
+//        cfg.fastSampling = true;
     } else if (sid_interpolation==1) {
-        cfg.samplingMethod = SidConfig::INTERPOLATE;
-        cfg.fastSampling = false;
+        cfg.samplingMethod = SidConfig::INTERPOLATE;        
+//        cfg.fastSampling = false;
     } else {
         cfg.samplingMethod = SidConfig::RESAMPLE_INTERPOLATE;
-        cfg.fastSampling = false;
+//        cfg.fastSampling = false;
     }
     
     cfg.playback = SidConfig::STEREO;
@@ -11058,50 +11086,49 @@ char* loadRom(const char* path, size_t romSize)
     
     // Init ReSID
     if (sid_engine==0) {
-        mBuilder = new ReSIDBuilder("resid");
+        mBuilder = new SIDLiteBuilder("SidLite");
         cfg.sidEmulation  = mBuilder;
         // Check if builder is ok
-        if (!mBuilder->getStatus()) {
-            MDZELog("issue in creating sid builder");
-            return -1;
-        }
-        unsigned int maxsids = (mSidEmuEngine->info()).maxsids();
-        mBuilder->create(maxsids);
+//        if (!mBuilder->getStatus()) {
+//            MDZELog("issue in creating sid builder");
+//            return -1;
+//        }
+        //unsigned int maxsids = (mSidEmuEngine->info()).maxsids();
+        //mBuilder->create(maxsids);
         
-        // Check if builder is ok
-        if (!mBuilder->getStatus()) {
-            MDZELog("issue in creating sid builder");
-            return -1;
-        }
+//        // Check if builder is ok
+//        if (!mBuilder->getStatus()) {
+//            MDZELog("issue in creating sid builder");
+//            return -1;
+//        }
         
-        ((ReSIDBuilder*)mBuilder)->bias(0.5f);
+        //((ReSIDBuilder*)mBuilder)->bias(0.5f);
     } else {
-        mBuilder = new ReSIDfpBuilder("residfp");
+        mBuilder = new ReSIDfpBuilder("ReSIDfp");
         cfg.sidEmulation  = mBuilder;
         // Check if builder is ok
-        if (!mBuilder->getStatus()) {
-            MDZELog("issue in creating sid builder");
-            return -1;
-        }
-        unsigned int maxsids = (mSidEmuEngine->info()).maxsids();
-        mBuilder->create(maxsids);
+//        if (!mBuilder->getStatus()) {
+//            MDZELog("issue in creating sid builder");
+//            return -1;
+//        }
+//        unsigned int maxsids = (mSidEmuEngine->info()).maxsids();
+//        mBuilder->create(maxsids);
         
         // Check if builder is ok
-        if (!mBuilder->getStatus()) {
-            MDZELog("issue in creating sid builder");
-            return -1;
-        }
-        
+//        if (!mBuilder->getStatus()) {
+//            MDZELog("issue in creating sid builder");
+//            return -1;
+//        }
+        ((ReSIDfpBuilder*)mBuilder)->combinedWaveformsStrength(SidConfig::STRONG);
+        ((ReSIDfpBuilder*)mBuilder)->filter6581Range(0.5f);
         ((ReSIDfpBuilder*)mBuilder)->filter6581Curve(0.5f);
         ((ReSIDfpBuilder*)mBuilder)->filter8580Curve(0.5f);
-        ((ReSIDfpBuilder*)mBuilder)->filter6581Range(0.5f);
-        ((ReSIDfpBuilder*)mBuilder)->combinedWaveformsStrength(SidConfig::STRONG);
-        
     }
+        
     
     // setup resid
-    if (mSIDFilterON) mBuilder->filter(true);
-    else mBuilder->filter(false);
+//    if (mSIDFilterON) mBuilder->filter(true);
+//    else mBuilder->filter(false);
     
     mSidEmuEngine->config(cfg);
     
@@ -11140,8 +11167,6 @@ char* loadRom(const char* path, size_t romSize)
         const SidTuneInfo *sidtune_info;
         sidtune_info=mSidTune->getInfo();
         
-        
-        
         mod_subsongs=sidtune_info->songs();
         mod_minsub=0;//sidtune_info.startSong;
         mod_maxsub=sidtune_info->songs()-1;
@@ -11159,6 +11184,20 @@ char* loadRom(const char* path, size_t romSize)
             
             //cfg.secondSidAddress = 0xd420;
             //mSidEmuEngine->config(cfg);
+            
+            for (int chip=0; chip<3; chip++)
+            {
+                mSidEmuEngine->filter(chip, mSIDFilterON);
+            }
+            
+            //Init mixer
+            sid_mixer.initialize(mSidEmuEngine->installedSIDs(), cfg.playback == SidConfig::STEREO);
+            
+            sid_mixer.clear();
+            sid_mixer.setFastForward(1);
+            sid_mixer.setVolume(Mixer::VOLUME_MAX);
+            
+            
             
             
             iCurrentTime=0;
@@ -11276,11 +11315,11 @@ char* loadRom(const char* path, size_t romSize)
             m_freqTable = (sidtune_info->clockSpeed() == SidTuneInfo::CLOCK_NTSC) ? freqTableNtsc : freqTablePal;
             
             //Reset mute status, all active
-            unsigned int maxsids = (mSidEmuEngine->info()).maxsids();
-            for (int i=0;i<maxsids;i++) {
+            unsigned int sids_nb = mSidEmuEngine->installedSIDs();
+            for (int i=0;i<sids_nb;i++) {
                 for (int voice=0;voice<4;voice++) mSidEmuEngine->mute(i,voice,0);
             }
-            
+            memset(m_sid_chipId,0,sizeof(m_sid_chipId));// MAXSID_CHIPS*sizeof(void*));
             return 0;
         }
     }
@@ -16401,6 +16440,7 @@ extern bool icloud_available;
 }
 
 -(void) Stop {
+    //MDZILog("stopping");
     bGlobalIsPlaying=0;
     [self iPhoneDrv_PlayStop];
     
@@ -16572,17 +16612,19 @@ extern bool icloud_available;
     
     if (mPlayType==MMP_SIDPLAY) { //SID
         if (mSidEmuEngine) {
-            mSidEmuEngine->stop();
+//            MDZILog("sid: load NULL");
             mSidEmuEngine->load(NULL);
-            //sid2_config_t cfg = mSidEmuEngine->config();
-            //cfg.sidEmulation = NULL;
-            //mSidEmuEngine->config(cfg);
-            delete mBuilder;
-            mBuilder = NULL;
-            
+
+            // Delete engine first while sidemu objects (owned by mBuilder) are still alive.
+            // The Player's c64 still holds pointers to sidemu objects via sidBank/extraSidBanks;
+            // deleting mBuilder first would destroy those objects causing a
+            // "pure virtual function called" crash when the engine is subsequently destroyed.
             delete mSidEmuEngine;
             mSidEmuEngine = NULL;
-            
+
+            delete mBuilder;
+            mBuilder = NULL;
+
             if (mSidTune) {
                 delete mSidTune;
                 mSidTune = NULL;
@@ -16810,7 +16852,7 @@ extern bool icloud_available;
     if (mPlayType==MMP_HVL) return @"HVL";
     if (mPlayType==MMP_KSS) return @"LIBKSS";
     if (mPlayType==MMP_WEBSID) return @"WebSID";
-    if (mPlayType==MMP_SIDPLAY) return ((sid_engine?@"SIDPLAY/ReSIDFP":@"SIDPLAY/ReSID"));
+    if (mPlayType==MMP_SIDPLAY) return ((sid_engine?@"SIDPLAY/ReSIDFP":@"SIDPLAY/SidLite"));
     if (mPlayType==MMP_STSOUND) return @"STSOUND";
     if (mPlayType==MMP_MAC) return @"MonkeyAudioCodec";
     if (mPlayType==MMP_NEZ) return @"Nezplug";
