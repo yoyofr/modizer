@@ -150,16 +150,16 @@ CREATE TABLE import_7hvsc (id_md5 text,dir1 text,dir2 text,dir3 text,dir4 text,d
 CREATE TABLE hvsc_file (id_md5,dir1 text,dir2 text,dir3 text,dir4 text,dir5 text,filename text,fullpath text);
 
 INSERT INTO hvsc_file (id_md5,dir1,dir2,filename,fullpath)
-SELECT Rtrim(id_md5,";"),dir1,dir2,filename,'/'||dir1||'/'||dir2||'/'||filename FROM import_4hvsc;
+SELECT Rtrim(id_md5,';'),dir1,dir2,filename,'/'||dir1||'/'||dir2||'/'||filename FROM import_4hvsc;
 
 INSERT INTO hvsc_file (id_md5,dir1,dir2,dir3,filename,fullpath)
-SELECT Rtrim(id_md5,";"),dir1,dir2,dir3,filename,'/'||dir1||'/'||dir2||'/'||dir3||'/'||filename FROM import_5hvsc;
+SELECT Rtrim(id_md5,';'),dir1,dir2,dir3,filename,'/'||dir1||'/'||dir2||'/'||dir3||'/'||filename FROM import_5hvsc;
 
 INSERT INTO hvsc_file (id_md5,dir1,dir2,dir3,dir4,filename,fullpath)
-SELECT Rtrim(id_md5,";"),dir1,dir2,dir3,dir4,filename,'/'||dir1||'/'||dir2||'/'||dir3||'/'||dir4||'/'||filename FROM import_6hvsc;
+SELECT Rtrim(id_md5,';'),dir1,dir2,dir3,dir4,filename,'/'||dir1||'/'||dir2||'/'||dir3||'/'||dir4||'/'||filename FROM import_6hvsc;
 
 INSERT INTO hvsc_file (id_md5,dir1,dir2,dir3,dir4,dir5,filename,fullpath)
-SELECT Rtrim(id_md5,";"),dir1,dir2,dir3,dir4,dir5,filename,'/'||dir1||'/'||dir2||'/'||dir3||'/'||dir4||'/'||dir5||'/'||filename FROM import_7hvsc;
+SELECT Rtrim(id_md5,';'),dir1,dir2,dir3,dir4,dir5,filename,'/'||dir1||'/'||dir2||'/'||dir3||'/'||dir4||'/'||dir5||'/'||filename FROM import_7hvsc;
 
 DROP TABLE import_4hvsc;
 DROP TABLE import_5hvsc;
@@ -241,6 +241,6 @@ CREATE INDEX idx_stilasma_fullpath on stil_asma (fullpath);
 
 CREATE TABLE version (major integer,minor integer);
 INSERT INTO version (major,minor)
-VALUES (4,3);
+VALUES (4,4);
 
 VACUUM;

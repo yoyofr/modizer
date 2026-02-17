@@ -10404,7 +10404,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 14;
+				CURRENT_PROJECT_VERSION = 15;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = NO;
 				"ENABLE_HARDENED_RUNTIME[sdk=macosx*]" = YES;
@@ -10429,7 +10429,7 @@
 				INFOPLIST_KEY_CFBundleDisplayName = Modizer;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.music";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.5;
-				MARKETING_VERSION = 4.3;
+				MARKETING_VERSION = 4.4;
 				PRODUCT_BUNDLE_IDENTIFIER = com.yoyofr.modizer;
 				PRODUCT_NAME = modizer;
 				PROVISIONING_PROFILE = "";
@@ -10455,7 +10455,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 14;
+				CURRENT_PROJECT_VERSION = 15;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = NO;
 				"ENABLE_HARDENED_RUNTIME[sdk=macosx*]" = YES;
@@ -10479,7 +10479,7 @@
 				INFOPLIST_KEY_CFBundleDisplayName = Modizer;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.music";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.5;
-				MARKETING_VERSION = 4.3;
+				MARKETING_VERSION = 4.4;
 				PRODUCT_BUNDLE_IDENTIFIER = com.yoyofr.modizer;
 				PRODUCT_NAME = modizer;
 				PROVISIONING_PROFILE = "";
@@ -11007,7 +11007,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = YES;
-				CURRENT_PROJECT_VERSION = 14;
+				CURRENT_PROJECT_VERSION = 15;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = NO;
 				"ENABLE_HARDENED_RUNTIME[sdk=macosx*]" = YES;
@@ -11031,7 +11031,7 @@
 				INFOPLIST_KEY_CFBundleDisplayName = Modizer;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.music";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.5;
-				MARKETING_VERSION = 4.3;
+				MARKETING_VERSION = 4.4;
 				PRODUCT_BUNDLE_IDENTIFIER = com.yoyofr.modizer;
 				PRODUCT_NAME = modizer;
 				PROVISIONING_PROFILE = "";
@@ -11271,7 +11271,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 14;
+				CURRENT_PROJECT_VERSION = 15;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = NO;
 				"ENABLE_HARDENED_RUNTIME[sdk=macosx*]" = YES;
@@ -11296,7 +11296,7 @@
 				INFOPLIST_KEY_CFBundleDisplayName = Modizer;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.music";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.5;
-				MARKETING_VERSION = 4.3;
+				MARKETING_VERSION = 4.4;
 				OTHER_CFLAGS = (
 					"-DMDZ_MACOS_WINDOW_AOT",
 					"-DLOAD_PROFILE",
@@ -11348,7 +11348,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 14;
+				CURRENT_PROJECT_VERSION = 15;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = NO;
 				"ENABLE_HARDENED_RUNTIME[sdk=macosx*]" = YES;
@@ -11372,7 +11372,7 @@
 				INFOPLIST_KEY_CFBundleDisplayName = Modizer;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.music";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.5;
-				MARKETING_VERSION = 4.3;
+				MARKETING_VERSION = 4.4;
 				OTHER_CFLAGS = (
 					"-DMDZ_MACOS_WINDOW_AOT",
 					"-DNDEBUG",
@@ -11426,7 +11426,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = YES;
-				CURRENT_PROJECT_VERSION = 14;
+				CURRENT_PROJECT_VERSION = 15;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = NO;
 				"ENABLE_HARDENED_RUNTIME[sdk=macosx*]" = YES;
@@ -11450,7 +11450,7 @@
 				INFOPLIST_KEY_CFBundleDisplayName = Modizer;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.music";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.5;
-				MARKETING_VERSION = 4.3;
+				MARKETING_VERSION = 4.4;
 				OTHER_CFLAGS = (
 					"-DMDZ_MACOS_WINDOW_AOT",
 					"-DNDEBUG",

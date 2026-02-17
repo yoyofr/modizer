@@ -147,7 +147,6 @@ static char websid_skip_silence_loop = 10;
 static char websid_sound_started;
 static int16_t** websid_scope_buffers;
 static const char **websid_info;
-char sid_firstcall[MAXSID_CHIPS];
 
 //GBSPLAY
 extern "C" {
@@ -7526,7 +7525,6 @@ void processFadeOut(short int *buffer, int sample_count, int voice_factor) {
                             
                             memset(vgm_last_note,0,sizeof(vgm_last_note));
                             memset(vgm_last_vol,0,sizeof(vgm_last_vol));
-                            memset(sid_firstcall,1,sizeof(sid_firstcall));
                             
                             sid_mixer.begin(buffer_ana[buffer_ana_gen_ofs],SOUND_BUFFER_SIZE_SAMPLE*2*1);
                             short* buffers[3];
@@ -11027,8 +11025,6 @@ char* loadRom(const char* path, size_t romSize)
     
     // Init SID emu engine
     mSidEmuEngine = new sidplayfp;
-    
-    memset(sid_firstcall,1,sizeof(sid_firstcall));
     
     // Set config
     SidConfig cfg = mSidEmuEngine->config();
@@ -17180,18 +17176,17 @@ extern bool icloud_available;
     if (settings[GLOB_PBRATIO].detail.mdz_slider.slider_value<min) settings[GLOB_PBRATIO].detail.mdz_slider.slider_value=min;
     if (settings[GLOB_PBRATIO].detail.mdz_slider.slider_value>max) settings[GLOB_PBRATIO].detail.mdz_slider.slider_value=max;
     
+    mdz_ratio_fp_cnt=0;
+    
     if (settings[GLOB_PBRATIO_ONOFF].detail.mdz_boolswitch.switch_value) {
         mdz_ratio_fp_inc=(1<<16)/settings[GLOB_PBRATIO].detail.mdz_slider.slider_value;
         mdz_ratio_fp_inv_inc=(1<<16)*settings[GLOB_PBRATIO].detail.mdz_slider.slider_value;
-        mdz_ratio_fp_cnt=0;
         mdz_pbratio=settings[GLOB_PBRATIO].detail.mdz_slider.slider_value;
     } else {
         mdz_ratio_fp_inc=0;
         mdz_ratio_fp_inv_inc=0;
         mdz_pbratio=1;
     }
-    
-    
 }
 
 ///////////////////////////

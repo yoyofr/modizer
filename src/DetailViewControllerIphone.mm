@@ -10254,7 +10254,7 @@ void drawTgtSlotPattern(int fxIdx,float x,float y,float w,float h,float ww,float
             if ( ((pass==0) && (fxLPselected!=FX_PROJECTM)) ||
                 ((pass==1) && (fxLPselected==FX_PROJECTM)) )
             if (settings[PROJECTM_FXONOFF].detail.mdz_switch.switch_value) {
-                drawTgtSlotPattern(FX_PROJECTM,slotsPos[fxTargetSlot].x, slotsPos[fxTargetSlot].y,
+                if (fxTargetSlot>=0) drawTgtSlotPattern(FX_PROJECTM,slotsPos[fxTargetSlot].x, slotsPos[fxTargetSlot].y,
                                    slotsPos[fxTargetSlot].z, slotsPos[fxTargetSlot].w, ww, hh);
                 
                 bool isSlot=false;
@@ -10270,7 +10270,7 @@ void drawTgtSlotPattern(int fxIdx,float x,float y,float w,float h,float ww,float
             if ( ((pass==0) && (fxLPselected!=FX_COVER)) ||
                 ((pass==1) && (fxLPselected==FX_COVER)) )
             if (settings[GLOB_FXCover].detail.mdz_boolswitch.switch_value) {
-                drawTgtSlotPattern(FX_COVER,slotsPos[fxTargetSlot].x, slotsPos[fxTargetSlot].y,
+                if (fxTargetSlot>=0) drawTgtSlotPattern(FX_COVER,slotsPos[fxTargetSlot].x, slotsPos[fxTargetSlot].y,
                                    slotsPos[fxTargetSlot].z, slotsPos[fxTargetSlot].w, ww, hh);
                 
                 initViewPortData(FX_COVER,x,y,w,h,ww,hh);
@@ -10288,7 +10288,7 @@ void drawTgtSlotPattern(int fxIdx,float x,float y,float w,float h,float ww,float
             if ( ((pass==0) && (fxLPselected!=FX_3DLandscape)) ||
                 ((pass==1) && (fxLPselected==FX_3DLandscape)) )
             if (settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value) {
-                drawTgtSlotPattern(FX_3DLandscape,slotsPos[fxTargetSlot].x, slotsPos[fxTargetSlot].y,
+                if (fxTargetSlot>=0) drawTgtSlotPattern(FX_3DLandscape,slotsPos[fxTargetSlot].x, slotsPos[fxTargetSlot].y,
                                    slotsPos[fxTargetSlot].z, slotsPos[fxTargetSlot].w, ww, hh);
                 
                 initViewPortData(FX_3DLandscape,x,y,w,h,ww,hh);
@@ -10302,7 +10302,7 @@ void drawTgtSlotPattern(int fxIdx,float x,float y,float w,float h,float ww,float
             if ( ((pass==0) && (fxLPselected!=FX_3DSpectrum)) ||
                 ((pass==1) && (fxLPselected==FX_3DSpectrum)) )
             if (settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value) {
-                drawTgtSlotPattern(FX_3DSpectrum,slotsPos[fxTargetSlot].x, slotsPos[fxTargetSlot].y,
+                if (fxTargetSlot>=0) drawTgtSlotPattern(FX_3DSpectrum,slotsPos[fxTargetSlot].x, slotsPos[fxTargetSlot].y,
                                    slotsPos[fxTargetSlot].z, slotsPos[fxTargetSlot].w, ww, hh);
                 
                 initViewPortData(FX_3DSpectrum,x,y,w,h,ww,hh);
@@ -10317,7 +10317,7 @@ void drawTgtSlotPattern(int fxIdx,float x,float y,float w,float h,float ww,float
                 ((pass==1) && (fxLPselected==FX_PIANO3D)) )
             if (settings[GLOB_FXPiano3D].detail.mdz_switch.switch_value) {
                 if (!isModPatternExclusive || !isOverlappingSlots(fxSlot[FX_PIANO3D],fxSlot[FX_MODPattern])) {
-                    drawTgtSlotPattern(FX_PIANO3D,slotsPos[fxTargetSlot].x, slotsPos[fxTargetSlot].y,
+                    if (fxTargetSlot>=0) drawTgtSlotPattern(FX_PIANO3D,slotsPos[fxTargetSlot].x, slotsPos[fxTargetSlot].y,
                                        slotsPos[fxTargetSlot].z, slotsPos[fxTargetSlot].w, ww, hh);
                     
                     initViewPortData(FX_PIANO3D,x,y,w,h,ww,hh);
@@ -10331,7 +10331,7 @@ void drawTgtSlotPattern(int fxIdx,float x,float y,float w,float h,float ww,float
             if ( ((pass==0) && (fxLPselected!=FX_2DSpectrum)) ||
                 ((pass==1) && (fxLPselected==FX_2DSpectrum)) )
             if (settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value) {
-                drawTgtSlotPattern(FX_2DSpectrum,slotsPos[fxTargetSlot].x, slotsPos[fxTargetSlot].y,
+                if (fxTargetSlot>=0) drawTgtSlotPattern(FX_2DSpectrum,slotsPos[fxTargetSlot].x, slotsPos[fxTargetSlot].y,
                                    slotsPos[fxTargetSlot].z, slotsPos[fxTargetSlot].w, ww, hh);
                 
                 initViewPortData(FX_2DSpectrum,x,y,w,h,ww,hh);
@@ -10347,7 +10347,7 @@ void drawTgtSlotPattern(int fxIdx,float x,float y,float w,float h,float ww,float
             if (settings[GLOB_FXPianoRoll].detail.mdz_switch.switch_value) {
                 
                 if (!isModPatternExclusive || !isOverlappingSlots(fxSlot[FX_PIANOROLL],fxSlot[FX_MODPattern])) {
-                    drawTgtSlotPattern(FX_PIANOROLL,slotsPos[fxTargetSlot].x, slotsPos[fxTargetSlot].y,
+                    if (fxTargetSlot>=0) drawTgtSlotPattern(FX_PIANOROLL,slotsPos[fxTargetSlot].x, slotsPos[fxTargetSlot].y,
                                        slotsPos[fxTargetSlot].z, slotsPos[fxTargetSlot].w, ww, hh);
                     
                     initViewPortData(FX_PIANOROLL,x,y,w,h,ww,hh);
@@ -10364,7 +10364,7 @@ void drawTgtSlotPattern(int fxIdx,float x,float y,float w,float h,float ww,float
             if (settings[GLOB_FXMIDIPattern].detail.mdz_switch.switch_value) {
                 
                 if (!isModPatternExclusive || !isOverlappingSlots(fxSlot[FX_MIDIPattern],fxSlot[FX_MODPattern])) {
-                    drawTgtSlotPattern(FX_MIDIPattern,slotsPos[fxTargetSlot].x, slotsPos[fxTargetSlot].y,
+                    if (fxTargetSlot>=0) drawTgtSlotPattern(FX_MIDIPattern,slotsPos[fxTargetSlot].x, slotsPos[fxTargetSlot].y,
                                        slotsPos[fxTargetSlot].z, slotsPos[fxTargetSlot].w, ww, hh);
                     
                     initViewPortData(FX_MIDIPattern,x,y,w,h,ww,hh);
@@ -10379,7 +10379,7 @@ void drawTgtSlotPattern(int fxIdx,float x,float y,float w,float h,float ww,float
             if ( ((pass==0) && (fxLPselected!=FX_MODPattern)) ||
                 ((pass==1) && (fxLPselected==FX_MODPattern)) )
             if (settings[GLOB_FXMODPattern].detail.mdz_switch.switch_value && mplayer.mPatternDataAvail) {
-                drawTgtSlotPattern(FX_MODPattern,slotsPos[fxTargetSlot].x, slotsPos[fxTargetSlot].y,
+                if (fxTargetSlot>=0) drawTgtSlotPattern(FX_MODPattern,slotsPos[fxTargetSlot].x, slotsPos[fxTargetSlot].y,
                                    slotsPos[fxTargetSlot].z, slotsPos[fxTargetSlot].w, ww, hh);
                 
                 initViewPortData(FX_MODPattern,x,y,w,h,ww,hh);
@@ -10393,7 +10393,7 @@ void drawTgtSlotPattern(int fxIdx,float x,float y,float w,float h,float ww,float
             if ( ((pass==0) && (fxLPselected!=FX_OSCILLO)) ||
                 ((pass==1) && (fxLPselected==FX_OSCILLO)) )
             if (settings[OSCILLO_FXMODE].detail.mdz_switch.switch_value) {
-                drawTgtSlotPattern(FX_OSCILLO,slotsPos[fxTargetSlot].x, slotsPos[fxTargetSlot].y,
+                if (fxTargetSlot>=0) drawTgtSlotPattern(FX_OSCILLO,slotsPos[fxTargetSlot].x, slotsPos[fxTargetSlot].y,
                                    slotsPos[fxTargetSlot].z, slotsPos[fxTargetSlot].w, ww, hh);
                 
                 initViewPortData(FX_OSCILLO,x,y,w,h,ww,hh);

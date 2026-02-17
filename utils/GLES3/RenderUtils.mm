@@ -4362,19 +4362,6 @@ int data_pianofx_first=1;
 #define VOICE_DIE	(1<<4)
 
 
-//unsigned int data_midifx_col[16]={
-////    0x8010E7,0x5D3E79,0x29004D,0xBF7BFD,0xE7CFFD,
-////     0xFF4500,0x865340,0x551700,0xFF9872,0xFFDBCE,
-////     0x00E87F,0x3A7A5D,0x004E2A,0x71FDBD,0xCCFDE6,
-////     0xFFF200
-//    //0x868240,0x555100,0xFFF872,0xFFFDCE
-//
-//    0xFF5512,0x761AFF,0x21ff94,0xffb129,
-//    0xcb30ff,0x38ffe4,0xfffc40,0xff47ed,
-//    0x4fd9ff,0xc7ff57,0xff5eb7,0x66a8ff,
-//    0x9cff6e,0xff7591,0x7d88ff,0x85ff89
-//};
-
 unsigned char piano_key[12]={0,1,0,1,0,0,1,0,1,0,1,0};
 unsigned char piano_key_state[128];
 unsigned char piano_key_instr[128];
@@ -5009,7 +4996,7 @@ void RenderUtils::UpdateDataPiano(unsigned int *data,bool clearbuffer,bool pause
             data_pianofx_subnote[data_pianofx_len-1][i]=(note>>28)&0xF;
             data_pianofx_instr[data_pianofx_len-1][i]=(note>>8)&0xFF;
             data_pianofx_vol[data_pianofx_len-1][i]=(note>>16)&0xFF;
-            data_pianofx_st[data_pianofx_len-1][i]=((note>>24)&0xF)|(data_pianofx_framecpt<<8);
+            data_pianofx_st[data_pianofx_len-1][i]=((note>>24)&0xF)|((data_pianofx_framecpt&0XFFFFFF)<<4);
         }
         
         if (settings[GLOB_FXPianoCutLine].detail.mdz_switch.switch_value==0) { //cut note bars after piano
@@ -5708,7 +5695,7 @@ void RenderUtils::DrawPiano3DWithNotesWall(float ox,float oy,float ww,float hh,i
                     data_bar2draw[data_bar2draw_count].instr=instr;
                     data_bar2draw[data_bar2draw_count].size=0;
                     data_bar2draw[data_bar2draw_count].played=0;
-                    data_bar2draw[data_bar2draw_count].frameidx=st>>8;
+                    data_bar2draw[data_bar2draw_count].frameidx=st>>4;
                     while ( (data_pianofx_instr[j][i]==instr)&&
                            (data_pianofx_note[j][i]==note)&&
                            (data_pianofx_vol[j][i]&&
@@ -5879,7 +5866,7 @@ void RenderUtils::UpdateDataMidiFX(unsigned int *data,bool clearBuffer,bool paus
             data_midifx_subnote[MIDIFX_LEN-1][i]=(note>>28)&0xF;
             data_midifx_instr[MIDIFX_LEN-1][i]=(note>>8)&0xFF;
             data_midifx_vol[MIDIFX_LEN-1][i]=(note>>16)&0xFF;
-            data_midifx_st[MIDIFX_LEN-1][i]=((note>>24)&0xF)|(data_midifx_framecpt<<8);
+            data_midifx_st[MIDIFX_LEN-1][i]=((note>>24)&0xF)|((data_midifx_framecpt&0xFFFFFF)<<4);
         }
     }
     
@@ -5995,7 +5982,7 @@ void RenderUtils::DrawMidiFX(float ox,float oy,float ww,float hh,int horiz_vert,
                     data_bar2draw[data_bar2draw_count].instr=instr;
                     data_bar2draw[data_bar2draw_count].size=0;
                     data_bar2draw[data_bar2draw_count].played=0;
-                    data_bar2draw[data_bar2draw_count].frameidx=st>>8;
+                    data_bar2draw[data_bar2draw_count].frameidx=st>>4;
                     while ( (data_midifx_instr[j][i]==instr)&&
                            (data_midifx_note[j][i]==note)&&
                            (data_midifx_vol[j][i]<=vol)&&
@@ -6141,7 +6128,7 @@ void RenderUtils::DrawMidiFX(float ox,float oy,float ww,float hh,int horiz_vert,
         }
         
         if (horiz_vert==0) { //horiz
-            float posNote=note*line_width-note_display_offset+subnote;
+            float posNote=note*line_width-note_display_offset+line_width*subnote/10.0;
             float posStart=(int)(data_bar2draw[i].startidx)*ww/data_midifx_len;
             float posEnd=((int)(data_bar2draw[i].startidx)+(int)(data_bar2draw[i].size))*ww/data_midifx_len;
             
@@ -6231,7 +6218,7 @@ void RenderUtils::DrawMidiFX(float ox,float oy,float ww,float hh,int horiz_vert,
                 }
             }
         } else {  //vert
-            float posNote=note*line_width-note_display_offset+subnote;
+            float posNote=note*line_width-note_display_offset+line_width*subnote/10.0;
             float posStart=(int)(data_bar2draw[i].startidx)*hh/data_midifx_len;
             float posEnd=((int)(data_bar2draw[i].startidx)+(int)(data_bar2draw[i].size))*hh/data_midifx_len;
             
@@ -7350,7 +7337,7 @@ void RenderUtils::DrawPianoRollSynthesiaFX(float ox,float oy,float ww,float hh,i
                     data_bar2draw[data_bar2draw_count].instr=instr;
                     data_bar2draw[data_bar2draw_count].size=0;
                     data_bar2draw[data_bar2draw_count].played=0;
-                    data_bar2draw[data_bar2draw_count].frameidx=st>>8;
+                    data_bar2draw[data_bar2draw_count].frameidx=st>>4;
                     while ( (data_midifx_instr[j][i]==instr)&&
                            (data_midifx_note[j][i]==note)&&
                            (data_midifx_vol[j][i]<=vol)&&

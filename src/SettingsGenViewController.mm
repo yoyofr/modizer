@@ -4686,7 +4686,7 @@ void optNSFPLAYChangedC(id param) {
         //
         bottomLabel.tag = BOTTOM_LABEL_TAG;
         bottomLabel.backgroundColor = [UIColor clearColor];
-        bottomLabel.font = [UIFont systemFontOfSize:12];
+        bottomLabel.font = [UIFont systemFontOfSize:10];
 //        bottomLabel.lineBreakMode=NSLineBreakByTruncatingTail;
         bottomLabel.opaque=TRUE;
         
@@ -4710,13 +4710,16 @@ void optNSFPLAYChangedC(id param) {
         tapSelectB.numberOfTapsRequired=1;
         tapSelectB.delegate = self;
         [bottomLabel addGestureRecognizer:tapSelectB];
+        
         UILongPressGestureRecognizer *tapLabelDescB = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapPress:)];
         tapLabelDescB.delegate = self;
         [bottomLabel addGestureRecognizer:tapLabelDescB];
+        
         UITapGestureRecognizer *tapResetB = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleResetPress:)];
-        tapReset.numberOfTapsRequired=2;
-        tapReset.delegate = self;
+        tapResetB.numberOfTapsRequired=2;
+        tapResetB.delegate = self;
         [bottomLabel addGestureRecognizer:tapResetB];
+        
         bottomLabel.userInteractionEnabled=true;
         
         cell.accessoryView=nil;
@@ -4751,47 +4754,19 @@ void optNSFPLAYChangedC(id param) {
     
     btn.hidden=TRUE;
     
-    if (settings[cur_settings_idx[indexPath.section]].description) {
-        topLabel.frame= CGRectMake(4,
-                                   0,
-                                   tabView.bounds.size.width*4/10,
-                                   38);
-        bottomLabel.frame= CGRectMake(4,
-                                      38,
-                                      tabView.bounds.size.width/**4/10*/,
-                                      12);
-        
-        topLabel.text=NSLocalizedString(([NSString stringWithUTF8String:settings[cur_settings_idx[indexPath.section]].label]),@"");
-        
-        if (strstr(settings[cur_settings_idx[indexPath.section]].description,"\n")) {
-            NSString *str=NSLocalizedString(([NSString stringWithUTF8String:settings[cur_settings_idx[indexPath.section]].description]),@"");
-            str=(NSString *)[[str componentsSeparatedByString:@"\n"] firstObject];
-            bottomLabel.text=[str stringByAppendingString:@"..."];
-        }
-        else bottomLabel.text=NSLocalizedString(([NSString stringWithUTF8String:settings[cur_settings_idx[indexPath.section]].description]),@"");
-    } else {
-        topLabel.frame= CGRectMake(4,
-                                   0,
-                                   tabView.bounds.size.width*4/10,
-                                   50);
-        bottomLabel.frame= CGRectMake(4,
-                                      0,
-                                      tabView.bounds.size.width*4/10,
-                                      0);
-        
-        topLabel.text=NSLocalizedString(([NSString stringWithUTF8String:settings[cur_settings_idx[indexPath.section]].label]),@"");
-        bottomLabel.text=@"";
-    }
+    
     
 //    tapLabelDesc=[[bottomLabel gestureRecognizers] firstObject];
 //    if (tapLabelDesc) [topLabel removeGestureRecognizer:tapLabelDesc];
     
+    float settings_width=tabView.bounds.size.width*1.0f/10;
     switch (settings[cur_settings_idx[indexPath.section]].type) {
         case MDZ_FAMILY:
             cell.accessoryView=nil;
             cell.accessoryType=UITableViewCellAccessoryDisclosureIndicator;
             break;
         case MDZ_BOOLSWITCH:
+            settings_width=tabView.bounds.size.width*2.5f/10;
             switchview = [[UISwitch alloc] initWithFrame:CGRectMake(0,0,tabView.bounds.size.width*5.5f/10,40)];
             [switchview addTarget:self action:@selector(boolswitchChanged:) forControlEvents:UIControlEventValueChanged];
             [dictActionBtn setObject:[NSNumber numberWithInteger:indexPath.row*100+indexPath.section] forKey:[[switchview.description componentsSeparatedByString:@";"] firstObject]];
@@ -4807,6 +4782,7 @@ void optNSFPLAYChangedC(id param) {
             }
             break;
         case MDZ_SWITCH:{
+            settings_width=tabView.bounds.size.width*6.0f/10;
             tmpArray=[[NSMutableArray alloc] init];
             for (int i=0;i<settings[cur_settings_idx[indexPath.section]].detail.mdz_switch.switch_value_nb;i++) {
                 [tmpArray addObject:NSLocalizedString(([NSString stringWithUTF8String:settings[cur_settings_idx[indexPath.section]].detail.mdz_switch.switch_labels[i]]),@"")];
@@ -4835,6 +4811,7 @@ void optNSFPLAYChangedC(id param) {
         }
             break;
         case MDZ_SLIDER_CONTINUOUS:{
+            settings_width=tabView.bounds.size.width*6.0f/10;
             UIView *accview=[[UIView alloc] initWithFrame:CGRectMake(0,0,tabView.bounds.size.width*5.5f/10,50)];
             accview.autoresizingMask=UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleLeftMargin;
             UILabel *lblValue=[[UILabel alloc] initWithFrame:CGRectMake(0,0,tabView.bounds.size.width*5.5f/10,12)];
@@ -4867,7 +4844,7 @@ void optNSFPLAYChangedC(id param) {
             break;
         }
         case MDZ_SLIDER_DISCRETE: {
-            
+            settings_width=tabView.bounds.size.width*6.0f/10;
             UIView *accview=[[UIView alloc] initWithFrame:CGRectMake(0,0,tabView.bounds.size.width*5.5f/10,50)];
             accview.autoresizingMask=UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleLeftMargin;
             UILabel *lblValue=[[UILabel alloc] initWithFrame:CGRectMake(0,0,tabView.bounds.size.width*5.5f/10,12)];
@@ -4899,7 +4876,7 @@ void optNSFPLAYChangedC(id param) {
             break;
         }
         case MDZ_SLIDER_DISCRETE_EVEN: {
-            
+            settings_width=tabView.bounds.size.width*6.0f/10;
             UIView *accview=[[UIView alloc] initWithFrame:CGRectMake(0,0,tabView.bounds.size.width*5.5f/10,50)];
             accview.autoresizingMask=UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleLeftMargin;
             UILabel *lblValue=[[UILabel alloc] initWithFrame:CGRectMake(0,0,tabView.bounds.size.width*5.5f/10,12)];
@@ -4931,6 +4908,7 @@ void optNSFPLAYChangedC(id param) {
             break;
         }
         case MDZ_SLIDER_DISCRETE_TIME:{
+            settings_width=tabView.bounds.size.width*6.0f/10;
             UIView *accview=[[UIView alloc] initWithFrame:CGRectMake(0,0,tabView.bounds.size.width*5.5f/10,50)];
             accview.autoresizingMask=UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleLeftMargin;
             UILabel *lblValue=[[UILabel alloc] initWithFrame:CGRectMake(0,0,tabView.bounds.size.width*5.5f/10,12)];
@@ -4964,6 +4942,7 @@ void optNSFPLAYChangedC(id param) {
             break;
         }
         case MDZ_SLIDER_DISCRETE_TIME_LONG:{
+            settings_width=tabView.bounds.size.width*6.0f/10;
             UIView *accview=[[UIView alloc] initWithFrame:CGRectMake(0,0,tabView.bounds.size.width*5.5f/10,50)];
             accview.autoresizingMask=UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleLeftMargin;
             UILabel *lblValue=[[UILabel alloc] initWithFrame:CGRectMake(0,0,tabView.bounds.size.width*5.5f/10,12)];
@@ -4997,6 +4976,7 @@ void optNSFPLAYChangedC(id param) {
             break;
         }
         case MDZ_TEXTBOX: {
+            settings_width=tabView.bounds.size.width*6.0f/10;
             txtfield = [[UITextField alloc] initWithFrame:CGRectMake(0,0,tabView.bounds.size.width*5.5f/10,30)];
             txtfield.autoresizingMask=UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleLeftMargin;
             txtfield.borderStyle = UITextBorderStyleRoundedRect;
@@ -5035,6 +5015,7 @@ void optNSFPLAYChangedC(id param) {
             break;
         }
         case MDZ_MSGBOX:
+            settings_width=tabView.bounds.size.width*6.0f/10;
             msgLabel = [[UITextField alloc] initWithFrame:CGRectMake(0,0,tabView.bounds.size.width*5.5f/10,30)];
             msgLabel.autoresizingMask=UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleLeftMargin;
             msgLabel.tag=indexPath.section;
@@ -5061,7 +5042,7 @@ void optNSFPLAYChangedC(id param) {
             }
             break;
         case MDZ_COLORPICKER:{
-            
+            settings_width=tabView.bounds.size.width*4.5f/10;
             //UIControlState
             [btn setTitle:@"Reset" forState:UIControlStateNormal];
             [btn setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
@@ -5113,6 +5094,7 @@ void optNSFPLAYChangedC(id param) {
             break;
         }
         case MDZ_BUTTON:
+            settings_width=tabView.bounds.size.width*4.5f/10;
             //UIControlState
             cell.accessoryView=nil;
             if (settings[cur_settings_idx[indexPath.section]].mdz_selector) {
@@ -5151,10 +5133,42 @@ void optNSFPLAYChangedC(id param) {
             }
     }
     
-    bottomLabel.frame= CGRectMake(4,
-                                  38,
-                                  tabView.bounds.size.width-cell.accessoryView.frame.size.width-16,
-                                  12);
+    if (settings[cur_settings_idx[indexPath.section]].description) {
+        topLabel.frame= CGRectMake(4,
+                                   0,
+                                   tabView.bounds.size.width-settings_width,
+                                   38);
+        bottomLabel.frame= CGRectMake(4,
+                                      38+2,
+                                      tabView.bounds.size.width/**4/10*/,
+                                      12-2);
+        
+        topLabel.text=NSLocalizedString(([NSString stringWithUTF8String:settings[cur_settings_idx[indexPath.section]].label]),@"");
+        
+        if (strstr(settings[cur_settings_idx[indexPath.section]].description,"\n")) {
+            NSString *str=NSLocalizedString(([NSString stringWithUTF8String:settings[cur_settings_idx[indexPath.section]].description]),@"");
+            str=(NSString *)[[str componentsSeparatedByString:@"\n"] firstObject];
+            bottomLabel.text=[str stringByAppendingString:@"..."];
+        }
+        else bottomLabel.text=NSLocalizedString(([NSString stringWithUTF8String:settings[cur_settings_idx[indexPath.section]].description]),@"");
+    } else {
+        topLabel.frame= CGRectMake(4,
+                                   0,
+                                   tabView.bounds.size.width-settings_width,
+                                   50);
+        bottomLabel.frame= CGRectMake(4,
+                                      0,
+                                      tabView.bounds.size.width*4/10,
+                                      0);
+        
+        topLabel.text=NSLocalizedString(([NSString stringWithUTF8String:settings[cur_settings_idx[indexPath.section]].label]),@"");
+        bottomLabel.text=@"";
+    }
+    
+//    bottomLabel.frame= CGRectMake(4,
+//                                  38,
+//                                  tabView.bounds.size.width-cell.accessoryView.frame.size.width-16,
+//                                  12);
     return cell;
 }
 
