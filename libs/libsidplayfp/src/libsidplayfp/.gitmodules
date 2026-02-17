@@ -1,0 +1,6 @@
+[submodule "src/builders/exsid-builder/driver"]
+	path = src/builders/exsid-builder/driver
+	url = https://github.com/libsidplayfp/exsid-driver.git
+[submodule "src/builders/usbsid-builder/driver"]
+	path = src/builders/usbsid-builder/driver
+	url = https://github.com/LouDnl/USBSID-Pico-driver.git

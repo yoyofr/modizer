@@ -1,0 +1,2 @@
+src/libresidfp_la-version.lo: src/version.cc src/siddefs-fp.h
+src/siddefs-fp.h:

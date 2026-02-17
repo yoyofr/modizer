@@ -1,0 +1,4 @@
+src/libresidfp_la-EnvelopeGenerator.lo: src/EnvelopeGenerator.cpp \
+  src/EnvelopeGenerator.h src/siddefs-fp.h
+src/EnvelopeGenerator.h:
+src/siddefs-fp.h:

@@ -1,0 +1,50 @@
+2.1
+	* Switch to plain pthreads for multi-threaded support
+
+2.0
+	* API change, ABI not backward compatible
+	* Remove all static variables, switch to dynamic allocation
+	* All public interfaces return execution status
+	* Remove dead code
+	* Fix exit() routine in threaded mode
+	* Move flip buffer management and delays to output thread
+	* Perform ResetDevice() in USB setup when using D2XX library
+	* Make buffer size a correct multiple of USB payload
+	* Improve buffer size for exSID+
+	* Don't purge RX/TX buffers on exit
+	* Don't set volume in exSID_reset()
+	* Fix operation with libftdi and make it first choice
+
+1.6
+	* Initial support for exSID+
+	* Rename some functions
+	* Rework delay routines
+
+1.5
+	* Remove support for 750kbps hardware
+
+1.4
+	* Store hardware constants in private structure
+	* No functional changes
+
+1.3
+	* Switch to threaded output for better playback performance
+	* Use 40ms buffer size for improved host compatibility
+	* Implement indirect error reporting with exSID_error_str()
+
+1.2
+	* Use dynamic loading to access FTDI chip
+	* Enable ftd2xx support
+	* More timing fixes
+	* Add additional debug instrumentation
+	* Account for negative drift in jitter calculation
+	* Split headers, code cleanup, more suitable for public library
+	* Switch to "exSID USB" description string
+	* Support Windows (via MinGW)
+	* Switch to 2Mpbs interface
+
+1.1
+	* Fix time drifting for 750kbps playback
+
+1.0
+	* Initial release with libftdi support

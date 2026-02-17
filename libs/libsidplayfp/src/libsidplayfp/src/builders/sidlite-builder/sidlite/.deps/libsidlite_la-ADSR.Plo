@@ -1,0 +1,8 @@
+src/builders/sidlite-builder/sidlite/libsidlite_la-ADSR.lo: \
+  src/builders/sidlite-builder/sidlite/ADSR.cpp \
+  src/builders/sidlite-builder/sidlite/ADSR.h \
+  src/builders/sidlite-builder/sidlite/sl_defs.h \
+  src/builders/sidlite-builder/sidlite/sl_constants.h
+src/builders/sidlite-builder/sidlite/ADSR.h:
+src/builders/sidlite-builder/sidlite/sl_defs.h:
+src/builders/sidlite-builder/sidlite/sl_constants.h:

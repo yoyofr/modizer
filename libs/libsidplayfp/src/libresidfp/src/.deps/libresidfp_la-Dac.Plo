@@ -1,0 +1,5 @@
+src/libresidfp_la-Dac.lo: src/Dac.cpp src/Dac.h \
+  src/residfp/residfp_defs.h src/siddefs-fp.h
+src/Dac.h:
+src/residfp/residfp_defs.h:
+src/siddefs-fp.h:

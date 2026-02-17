@@ -1,0 +1,77 @@
+body {
+  margin: 0 auto;
+} 
+
+div#terminal-history {
+  width: auto;
+  margin: 0.75em;
+  font-family: monospace;
+  border: 1px solid white;
+}
+
+div.terminal-line {
+
+  padding: 0.25em;
+  display: block;
+}
+
+div.terminal-line.stderr {
+  background-color: mistyrose;
+}
+
+div.terminal-line.stdout {
+  background-color: white;
+}
+
+div.terminal-line.info {
+  background-color: wheat;
+}
+
+div.terminal-line.error {
+  background-color: lightgray;
+  color: red;
+}
+
+button#go {
+  margin-left: 2em; 
+  font-weight: bold;
+}
+
+div#command-list {
+  width: 100%;
+  top: 0;
+  left: 0;
+  border-bottom: 2px solid darkslategrey;
+  margin-bottom: 1em;
+  padding-top: 0.75em;
+  padding-bottom: 0.75em;
+  font-family: monospace;
+  position: fixed;
+}
+
+div.disabled#command-list {
+  background-color: lightgrey;
+  pointer-events: none;
+}
+
+a.cmd-list-entry {
+  color: black;
+  text-decoration: none;
+  width: auto;
+  display: block;
+  margin-left: 0.75em;
+  margin-right: 0.75em;
+  margin-bottom: 0.25em;
+}
+
+a.cmd-list-entry.selected {
+  font-weight: bold;
+}
+
+a.cmd-list-entry:visited {
+  color: black;
+}
+
+a.cmd-list-entry:hover {
+  background-color: lightblue;
+}

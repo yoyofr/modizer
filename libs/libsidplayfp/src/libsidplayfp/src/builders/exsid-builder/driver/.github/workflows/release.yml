@@ -1,0 +1,33 @@
+name: Release
+
+on:
+  release:
+     types: [published]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: deps
+      run: sudo apt-get install libftdi1-dev
+    - uses: actions/checkout@v2
+      with:
+        ref: ${{ github.ref }}
+    - name: bootstrap
+      run: autoreconf -vfi
+    - name: configure
+      run: ./configure
+    - name: make dist
+      id: package-generator
+      run: |
+        make dist
+        RELEASE_TARBALL=$(ls libexsid-*.tar.gz)
+        echo "filename=${RELEASE_TARBALL}" >> $GITHUB_OUTPUT
+    - name: Upload to release
+      uses: JasonEtco/upload-to-release@master
+      with:
+        args: ${{ steps.package-generator.outputs.filename }} application/gzip
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

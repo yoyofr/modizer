@@ -1,0 +1,24 @@
+<html>
+  <head>
+    <link href="client.css" rel="stylesheet" />
+
+    <script src="usbsidadapter.js"></script>
+    <script src="usbsid.js"></script>
+  </head>
+
+  <body>
+    <button onclick="requestDevice()">requestDevice</button>
+    <button onclick="connect()">Connect</button>
+    <button onclick="disconnect()">Disconnect</button>
+    <br>
+    <span id="result"></span>
+    <br>
+    <button onclick="SetClockRate()">SetClockRate</button>
+    <button onclick="GetClockRate()">GetClockRate</button>
+    <button onclick="GetRefreshRate()">GetRefreshRate</button>
+    <button onclick="GetRasterRate()">GetRasterRate</button>
+    <!-- <button onclick="navigator.usb.requestDevice({ filters: [] });">CLICKME3</button> -->
+    <!-- <div id="command-list"></div> -->
+    <!-- <div id="terminal-history"></div> -->
+  </body>
+</html>

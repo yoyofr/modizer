@@ -1,0 +1,14 @@
+#ifndef LIBRESIDFP_VERSION_H
+#define LIBRESIDFP_VERSION_H
+
+#ifndef RESIDFP_H
+#  error Do not include directly.
+#endif
+
+
+
+#define LIBRESIDFP_VERSION_MAJ @LIB_MAJOR@
+#define LIBRESIDFP_VERSION_MIN @LIB_MINOR@
+#define LIBRESIDFP_VERSION_LEV @LIB_LEVEL@
+
+#endif

@@ -1,0 +1,642 @@
+2.16.0 2025-12-23
+* Fix opening STIL on MacOS (#225)
+* Expose the SID models actually used
+* residfp: implemented runtime SIMD dispatch for resampler (#206)
+* Added usbsid support (#216)
+* Improve interrupt handling in kernal stub
+
+
+
+2.15.2 2025-11-02
+* Fix building with pre c++20 standards (#214)
+* Fixed crash in SidDatabase parser (#217)
+
+
+
+2.15.1 2025-09-19
+* resid/residfp: remove accidental DC offset (#205)
+* residfp: clock voice 3 even if muted (#211)
+* resid: fix silenced tunes (#212)
+* fixed load performance regression (#207)
+
+
+
+2.15.0 2025-06-29
+* Compile with fast math, without unsafe optimizations
+* residfp: reworked the SIMD support, removed the intrinsics code leaving the compiler vectorize the loop
+* Extended the new play API
+* Marked old play API functions as deprecated
+
+
+
+2.14.0 2025-05-11
+* Rough approximation of MDAC saturation for the 6581 (#177) (#185)
+* New play API for client side mixing (#41) (#184)
+* Minor fixes and optimizations
+
+
+
+2.13.1 2025-04-25
+* Fix build with inlining disabled (#181)
+* Add missing files to the tarball (#182)
+* Update exsid driver
+* Fixed an uninitialized warning
+
+
+
+2.13.0 2025-04-13
+* Add support for c++23 where available
+* Reworked power on delay (#82)
+* Correctly link to pthread library (#179)
+* Add proper compiler flag when enabling sse4 (#172)
+* resid/residfp: Use more bits for the 8580 filter cutoff (VICE bug 2098)
+* resid: reduce aliasing noise (VICE bug 2116)
+
+
+
+2.12.0 2024-12-01
+* Better mixing for multi chip tunes (#167)
+* residfp: fixed voice sync when a saw-combined waveform is selected (#169)
+* residfp: updated CW parameters
+* resid: properly adjusted 8580 Vref value
+* switched to UTPP for unit tests (#170)
+
+
+
+2.11.0 2024-11-03
+* Remove buffer size limit from mixer (fixes #159)
+* residfp: avoid quantization noise (#156)
+* residfp: implemented 6581 DC drift (#155)
+* residfp: properly adjusted 8580 Vref value
+
+
+
+2.10.1 2024-10-20
+* residfp: fix digiboost (#157)
+* residfp: fix combined waveforms (#160)
+
+
+
+2.10.0 2024-10-06
+* Add support for c++20 where available
+* residfp: retuned cw parameters after measuring waves RMS (#143)
+* residfp: code refactoring and minor performance optimizations (#145)
+* resid/residfp: scale down filter inputs in the mixer for 6581 (#139)
+* Centralized handling of muted voices and allow muting samples (#136)
+* new API to toggle the filter and deprecated sidplayfp::filter
+
+
+
+2.9.0 2024-08-12
+* residfp: use c++11 threads for building filter tables (#92)
+* residfp: code modernization and minor performance optimizations
+* Performance optimizations (#133, #137)
+
+
+
+2.8.0 2024-06-09
+* Optimized event scheduler (#131)
+* Stop pretendig we support pre-c++11 compilers (#130)
+* Fixed thread unsafety for psid_driver (#132)
+* residfp: do not cache resampling tables (#91)
+* resid/residfp: tuned oscillator leakage
+
+
+
+2.7.1 2024-05-19
+* Sync resid with upstream
+* Make strong CWs the default (#127)
+* Downtune the leakage parameter a bit (#126)
+* Fix UBSan complaint abount uninitialized var 'is6581'
+
+
+
+2.7.0 2024-03-29
+* residfp: refactor residfp filter (#109)
+* residfp: added ability to adjust the uCox parameter at runtime (#101)
+* residfp: allow setting the combined waveforms strength (#110)
+* resid/residfp: emulate oscillator leakage (#102)
+
+
+
+2.6.0 2024-01-01
+* residfp is now thread-safe (#71)
+* residfp: fixed SSE2 version of convolve (#105)
+* residfp: updated combined waveforms model (#97)
+* residfp: amplify the output by a model dependent scale factor (#78, #79)
+* a couple of autotools fixes (#103, #104, #108)
+
+
+
+2.5.1 2023-12-23
+* Check for {g,}od at configure time (#87)
+* residfp: fix a 6581 filter bug where values could actually go negative
+* Sync resid with upstream
+
+
+
+2.5.0 2023-06-02
+* residfp: reworked the combined waveforms model by separating pulldown effect from waveform generation
+* residfp: tweaked the 8580 filter parameters for increased volume and less distortion (#45)
+* Updated to latest resid
+* Use OpenMP to speedup LUTs initialization
+* CIA: minor rework based on chip reverse engineering
+* Use c++17 where available
+* Added sanity check for buffer size
+* Minor mixer optimizations
+* Other minor changes
+
+
+
+2.4.2 2023-01-29
+* Fixed a memory leak
+* Minor fixes
+
+
+
+2.4.1 2022-11-19
+* Fixed a memory leak introduced in 2.1.0
+
+
+
+2.4.0 2022-11-06
+* Use pkgconfig for UnitTest++ and libgcrypt support (#46)
+* residfp: correct 6581 volume gain based on schematics (issue #38)
+* residfp: fixed more PVS-Studio warnings. (issue #49)
+* residfp: refactoring, changes and cleanup
+* residfp: updated the combined waveform model
+* Synced resid with upstream
+* Fixed a comparison-with-wider-type alert in the MUS loader
+* Other minor changes
+
+
+
+2.3.1 2021-12-07
+* VIC II: check badline enabled condition on raster Y increment. Fixes CPU/shxy/shx-test
+* Disable digiboost for residfp when not required (issue #37)
+
+
+
+2.3.0 2021-09-16
+* residfp: fixed some PVS-Studio warnings. (issues #20 #21 #23 #28)
+* residfp: share dac tables between voices, saves a few Kb and some initialization time (issues #34 #26)
+* CIA: rework interrupt implementation based on Denise emu code, fixes CIA/dd0dtest/dd0dtest (issue #29)
+* c64: return pseudo random numbers when reading from the I/O Area as the VIC fetches are not emulated.
+       Fixes C64/openio/gauntlet test
+* VIC-II: fix lightpen X coordinate calculation. Makes VICII/split-tests/lightpen/lightpen test pass
+
+
+
+2.2.2 2021-08-07
+* songlengthdb: fix possible corrupted data (issue #32)
+
+
+
+2.2.1 2021-07-18
+* VIC-II: fix NTSC badline timing and improve cycle skipping
+* CIA: minor refactoring
+* Fixed a few minor PVS-Studio flagged issues
+
+
+
+2.2.0 2021-05-23
+* reSIDfp: added NEON (by Christopher Snowhill) and SSE2 version of convolution function
+  the configure option has been changed to --with-simd=<sse2/mmx/neon/none>
+* Exposed last values written to the SID registers. Based on patch by Stian Skjelstad
+* API additions:
+  - Splitted ROM functions
+  - Added CIA 6526 4485 model setting, mostly for testing
+  - Added function for loading database from unicode path on Windows
+  - Added function for loading tunes using a custom loader callback
+
+
+
+2.1.2 2021-04-19
+* configure: don't fail when --with-exsid is passed and libexsid is installed (issue #13)
+* songlength DB: fix parsing of milliseconds with leading zeroes
+
+
+
+2.1.1 2021-02-27
+* Fixed building hardsid support
+* reSIDfp: shift register regression fixes
+* Updated RAM init pattern similar to how it's done in VICE
+
+
+
+2.1.0 2021-02-11
+* Do not use smart pointers in public headers [bugs:#38]
+* Updated to exSID-driver v2.1
+* Fixed static builds with external exSID libs
+* Trimmed down relocator code to the bare minimum required
+* resid/residfp:
+  - use soft instead of hard clipping
+  - rough implementation of bitfade
+* residfp:
+  - better bandpass frequency calculation
+  - updated 8580 resistor ratios based on schematics and adjusted voltage range
+  - updated TTL values
+  - assume a high impedance audio amplifier yielding an 1.6Hz high-pass
+
+
+
+2.0.5 2020-10-24
+* Fixed CIA SDR handling, code borrowed from Denise emulator
+* Fixed external filter coefficients calculation in resid/residfp
+* Update osc3 on waveform zero in resid/residfp
+
+
+
+2.0.4 2020-06-22
+* Further improved CPU/CIA/VICII emulation based on VICE testprogs (bug #27)
+* Fixed an envelope generator regression in resid/residfp (bug #31)
+* Improved noise+pulse interaction in resid/residfp (bug #28)
+
+
+
+2.0.3 2020-05-15
+* Avoid saturation of residfp 8580 filter
+* Fix some UBSan warnings
+
+
+
+2.0.2 2020-04-25
+* Adjusted residfp 6581 filter parameter range (bug #30)
+* Recalculate noise output when actually changed in residfp
+
+
+
+2.0.1 2019-09-07
+* Fix loading stereo mus tunes
+* Fix residfp envelope (bug #29)
+* Minor interrupt timing tweaks
+* Dirty hack to reduce overloading in 8580 filter (bug #29)
+
+
+
+2.0.0 2019-07-30
+* Cleaned up directory structure
+* Use c++11 features where supported
+* Added exSID USB support
+* Improved SID emulation with:
+  - Proper 8580 filter model
+  - More accurate envelope generator
+  - Other minor fixes
+* Digiboost support
+* Do not use kernal calls in psid driver
+* Support libgcrypt for md5 computation
+* Interrupt playback on invalid opcode execution
+* Selectable CIA model
+* Do not expose event scheduler
+
+
+
+1.8.8 2018-07-08
+* Fix misspelling in error message (bug #26)
+* Correctly clock oscillators in silent mode
+* CIA timing fixes
+* Allow running VICE tests
+
+
+
+1.8.7 2016-12-09
+* Fix out of range tune selection
+* Reenable accidentally broken branch hints in residfp
+* Minor fix in VIC-II code ported from VICE
+
+
+
+1.8.6 2016-04-15
+* Fix an off-by-one error in mixer code
+* Slightly improve some combined waveforms
+
+
+
+1.8.5 2016-04-09
+* Fix a regression in VIC-II code
+* Improve combined waveforms emulation
+
+
+
+1.8.4 2016-02-21
+* Fix a possible crash when locking a sid device fails
+
+
+
+1.8.3 2015-12-28
+* Fix an overflow in resid/residfp for 8580 output, noticed in /MUSICIANS/L/Linus/64_Forever.sid
+* Use log1p in resid/residfp for improved precision of 6581 filter parameter calculation
+* Fix a warning in PSID model checking
+
+
+
+1.8.2 2015-10-10
+* Fix running with -b parameter
+* Attenuate second chip output by 3dB in 3SID mode as it is mixed in both channels
+* Fix uninitialized vars
+
+
+
+1.8.1 2015-08-09
+* Fix a regresion in MUS loader introduced in 1.8.0
+* Fix a regresion in STIL
+
+
+
+1.8.0 2015-07-09
+* Rework and clean tune loading to be more portable
+* Add support for 3SID files (PSID v4)
+* Check if lightpen is really triggered before changing state
+* Define WIN32_LEAN_AND_MEAN when compiling on MinGW
+* Other minor fixes and improvements
+
+
+
+1.7.2 2015-05-10
+* Fix interpolation outside bounds in reSIDfp
+* Remove redundant code in PSID loader
+
+
+
+1.7.1 2015-03-28
+* Fix reported number of channels
+* Install psid driver before placing tune, fixes BASIC tunes and /MUSICIANS/L/Legg_Stephen/Steigar.sid
+* Apply volume to channels, not to chips output
+
+
+
+1.7.0 2015-01-25
+* Add an interface to access tune data
+* Remove generated files only for maintainer-clean target (bug #14)
+* Rework Makefile rules for generated files
+* Silence some warnings
+* Other minor changes in reSIDfp
+* Merge minor changes from zxtune fork
+
+
+
+1.6.2 2014-12-08
+* Fix a typo that broke MUSICIANS/M/Mixer/Vicious_SID_2-15638Hz.sid
+* Fix a regression in badline handling. Restores correct timing in /MUSICIANS/S/Swallow/Wonderland_XII-Digi_part_?.sid
+* Other minor fixes in VIC II emulation
+
+
+
+1.6.1 2014-11-30
+* Fix an undefined behaviour in SidDatabase
+* Remove an unused variable in reSIDfp
+* Set different SID bus TTL value for 8580
+
+
+
+1.6.0 2014-10-11
+* Make PSID loader adhere to spec when handling 2nd SID address
+* Improve PAL/NTSC switch handling
+* Reset rom descriptions if rom is not loaded
+* Fix a memory leak due to deleting auto_ptr to incomplete type (bug #13)
+* Fix Drean TOD frequency
+* Rework lightpen emulation based on VICE's code
+* Internal code refactoring
+
+
+
+1.5.3 2014-09-06
+* Copy poweron pattern in memory only if real c64 compatibility is needed, fixes /MUSICIANS/B/Brennan_Neil/Super_Pac-Man.sid
+
+
+
+1.5.2 2014-08-31
+* Restore original iomap function, fixes /MUSICIANS/C/Cooksey_Mark/Airwolf.sid
+
+
+
+1.5.1 2014-08-24
+* Correctly interpret second sid address from PSID tunes header, fixes /MUSICIANS/T/TSM/Fiki_Fiki_2SID.sid
+* Fix a signedness warning
+
+
+
+1.5.0 2014-08-09
+* Port CIA TOD fixes from VICE
+* Port some VIC-II changes from VICE
+* Check load address only for RSID tunes, fixes Hellbound from Shining 8
+* Minor changes to reSIDfp
+* Other minor fixes and improvements
+
+
+
+1.4.2 2014-05-01
+* Fix a typo made during merging in VIC II code
+* Use vector instead of non-standard VLA
+
+
+
+1.4.1 2014-04-19
+* Fix crash when trying to open a directory on *NIX
+* Various VIC II fixes, makes /MUSICIANS/T/The_Power_Terminator/Act_of_Revenge.sid play at the right speed
+
+
+
+1.4.0 2014-04-01
+* Drive the CIA TOD counter using the actual power line frequency
+* Cleanup playing routine
+* Fix residfp's distorted sound on Mahoney's Kapla Caves
+* Rewrite residfp's interpolation routine using Fritsch-Carlson method to preserve monotonicity
+* Reduce size of some residfp's structures
+
+
+
+1.3.0 2014-02-02
+* Port some missing VIC-II changes from jsidplay2
+* Port missing changes from reSID to reSIDfp
+* Fix a bug in psid driver that broke /DEMOS/G-L/Gott_Och_Blandat.sid
+* Fix building with --disable-inline
+* Other minor fixes and improvements
+
+
+
+1.2.2 2014-01-12
+* Extend the waveform TTL to about one second to fix /MUSICIANS/P/PVCF/Thomkat_with_Strange_End.sid
+* Fix 'invalid use of incomplete type' warnings on android
+* Reduce oversized array in reSIDfp
+
+
+
+1.2.1 2013-12-31
+* Fix a bug in VIC-II that broke DEMOS/S-Z/Still_Got_the_Booze_tune_5.sid
+* Fix some wrong values printed by the cpu debugger
+
+
+
+1.2.0 2013-12-24
+* Clean up includes with the help of IWYU (http://code.google.com/p/include-what-you-use/)
+* Improve checks for non-standard functions
+* Expand SidTuneInfo interface with parametrized methods. Mark the old ones as deprecated
+* Enable use of graphviz for doxygen documentation
+* Refactor mixer to be more clean and flexible
+* Improve the clock frequency calculation. Should fix the slightly off PAL-B clock
+* Some internal refactoring
+
+
+
+1.1.0 2013-09-28
+* Rework mixer to fix bug #7
+* Rework VIC emulation to be more faithful to PAL-NTSC models difference
+* Sync reSID codebase to fix a couple of regressions (See VICE bug #290)
+
+
+
+1.0.3 2013-07-06
+* Fix missing constructor in ExtraSidBank.h
+* Fix a regression in resid's external filter
+
+
+
+1.0.2 2013-04-25
+* Fix saving the last CIA 1 Timer A value
+* Fix a crash with stereo prg files
+
+
+
+1.0.1 2013-03-23
+* Fix compiling on debian/stable
+* Make sure that song is reinitialized after stop
+
+
+
+1.0.0 2013-01-27
+* Dropped support for ancient formats
+* Removed unused functionalities
+* Removed embedded roms
+* Improved emulation
+* Reworked and cleaned up codebase
+* Merged builders in the main library
+* Added libstilview
+
+
+
+0.3.8 2012-11-25
+* Bail out at configure time if stdint.h is not found
+* Fix a fixed point overflow introduced in r702, reported to break /MUSICIANS/S/Surgeon/Dual_Mind.sid (bug ID: 3588984)
+
+
+
+0.3.7 2012-08-28
+* Actually use the fastSampling parameter
+* Increase the waveform TTL even more to fix games/s-z/Scruples.sid#2
+
+
+
+0.3.6 2012-07-22
+* Correctly report sid builders error messages
+* Fix unlocking SID emulation for PSID tunes which caused an error when
+  changing subtune for PSID files
+* Port a PSIDv3 fix from sidplay2 for saving RSIDv3 files
+* Other minor fixes
+
+
+
+0.3.5 2012-04-22
+* Increase the waveform TTL in reSIDfp
+* Restore external filter high-pass resistor value to 1kOhm in reSIDfp
+
+
+
+0.3.4 2012-03-26
+* fixed possible crackling when muting and unmuting channels in reSID
+* removed useless dithering and implemented clipping with a single branch
+  in reSIDfp
+* fixed various warnings
+* fixed PETSCII conversion table to show lowercase letters in testsuite
+* fixed debugging info
+
+
+
+0.3.3 2012-01-21
+* fixed CPU/VICII interaction which affected Rayden/Boot_Zak_v2
+
+
+
+0.3.2 2012-01-12
+* Zero (ground) bit 0 of triangle waveform in reSID
+* Enable channel muting for reSID and reSIDfp
+* Fix Voice 3 Off in reSIDfp
+* Do not reject RSID v3 tunes
+* Improve scheduling efficience of CPU and VIC
+
+
+
+0.3.1 2011-10-02
+* fixed undefined behaviour which causes miscompilation on MSVC
+* fixed initialization order of class members
+
+
+
+0.3.0 2011-09-24
+
+* integrated Lorenz testsuite
+* added doxygen documentation
+* simplified the Event Scheduler
+* ported the MOS6526 emulation from jsiplay2, passes the whole CIA suite
+* reworked the 6510 emulation, passes the whole Lorenz suite
+
+API changes:
+
+deprecated methods Event::cancel and Event::schedule in favor of
+EventContext::cancel and EventContext::schedule
+
+deprecated sidplay2::timebase, it always returns 1
+
+
+
+0.2.0 2011-08-13
+
+* ported reSIDfp engine from jsidplay2 featuring two pass resampler
+  and triangular dithering and new filter model based on reSID's one
+* improved CIA emulation, fixes a bunch of tunes with digi samples
+* few fixes to the 6510 core based on Lorenz testuite
+* added support for PSIDv3 tunes
+* Updated reSID to the 1.0rc1 version (see the NEWS file in the resid dir)
+* Added version defines
+
+API changes:
+
+deprecated method filter(const sid_filter_t *filter) from reSID builder
+deprecated method filter(const sid_filterfp_t *filter) from reSIDfp builder
+
+added method bias(const double dac_bias) to the reSID builder
+The bias is given in millivolts, and a maximum reasonable control range is
+approximately -500 to 500 (Actually from testing the value seems to be
+in volts so dac_bias value should be in the range -0.5 - 0.5)
+
+added methods filter6581Curve(const double filterCurve) which sets the filter
+curve for 6581 chip filter in a range from 0.0 (light) to 1.0 (dark)
+(default 0.5) and filter8580Curve(const double filterCurve) which sets the
+filter frequency for 8580 chip (default 12500)
+
+SidDatabase.h does not include SidTuneMod.h anymore
+
+
+
+0.1.1 2011-07-10
+* add support for PSID v3 tunes (patch by hbekel)
+* minor fixes
+
+
+
+0.1.0 2010-11-10
+
+you can read a summary of changes from the original libsidplay2
+at http://www.bel.fi/~alankila/c64-sw/index-cpp.html
+
+other changes includes:
+* audio output is now signed 16bit
+* added sampling method and fast sampling parameters and removed precision
+  and samplingFormat from the sid_config_t structure
+* removed filter(const sid_filter_t*) from sidbuilder class
+  and made it builder specific
+* removed optimization method from builders
+* rewritten ini parser to be locale agnostic and use it only internally
+* headers are now installed under $(includedir)/sidplayfp
+* libsidplay and libsidutils are merged in a single library
+* two resid builders (original and distortion patched)

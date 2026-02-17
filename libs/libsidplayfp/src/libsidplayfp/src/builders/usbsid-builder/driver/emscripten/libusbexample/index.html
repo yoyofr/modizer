@@ -1,0 +1,12 @@
+<html>
+  <head>
+    <link href="client.css" rel="stylesheet" />
+    <!-- <script src="shell.js"></script> -->
+    <script src="testlibusb.js"></script>
+  </head>
+
+  <body>
+    <button onclick="navigator.usb.requestDevice({ filters: [] });">CLICKME1</button>
+    <button onclick="Module.callMain(['-v'])">CLICKME2</button>
+  </body>
+</html>

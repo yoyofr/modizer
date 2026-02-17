@@ -1,0 +1,61 @@
+# Ignore all
+*
+
+# Except these extensions
+!*.c
+!*.cc
+!*.cpp
+!*.h
+!*.hpp
+!*.jar
+!*.java
+!*.js
+!*.css
+!*.wasm
+!*.html
+!*.py
+!*.am
+!*.xml
+!*.md
+
+# And not these specific files
+!.gitignore
+!README.md
+!LICENSE
+!javax.usb.properties
+!testbuild.sh
+
+# Not these directories and their contents
+!src
+!src/**
+!test
+!test/**
+!build
+!build/**
+!java
+!java/usbsid-usb-driver-library-java/
+!java/usbsid-usb-driver-library-java/lib
+!java/usbsid-usb-driver-library-java/lib/**
+!java/usbsid-usb-driver-library-java/src
+!java/usbsid-usb-driver-library-java/src/**
+!java/usbsid-usb-driver-library-java/test/
+!java/usbsid-usb-driver-library-java/test/**
+!java/usbsid-usb-driver-library-java/resources
+!java/usbsid-usb-driver-library-java/resources/javax.usb.properties
+!java/usbsid-usb-driver-library-java/resources/logging.properties
+!java/usbsid-usb-driver-library-java/target/
+!libusbsiddrv-vice
+!libusbsiddrv-vice/*
+!webusb
+!webusb/*
+
+# Not emscripten test stuff
+# directories
+!emscripten
+!emscripten/build
+!emscripten/src
+!emscripten/htdocs
+!emscripten/libusbexample
+# files
+!emscripten/Makefile
+!emscripten/buildemscripten.sh

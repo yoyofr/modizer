@@ -1,0 +1,10 @@
+prefix=@prefix@
+exec_prefix=${prefix}
+libdir=@libdir@
+includedir=@includedir@
+
+Name: libresidfp
+Description: cycle exact SID emulation library.
+Version: @PACKAGE_VERSION@
+Libs: -L${libdir} -lresidfp
+Cflags: -I${includedir}

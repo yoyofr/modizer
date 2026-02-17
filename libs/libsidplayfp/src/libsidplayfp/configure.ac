@@ -1,0 +1,315 @@
+m4_define([lib_major], [3])
+m4_define([lib_minor], [0])
+m4_define([lib_level], [0a])
+m4_define([lib_version], [lib_major.lib_minor.lib_level])
+
+AC_PREREQ([2.62])
+AC_INIT([libsidplayfp],[lib_version],[],[],[https://github.com/libsidplayfp/libsidplayfp/])
+AC_CONFIG_AUX_DIR([build-aux])
+AC_CONFIG_MACRO_DIRS([m4 src/builders/exsid-builder/driver/m4])
+AC_CONFIG_SRCDIR([src/sidplayfp/sidplayfp.cpp])
+AC_CONFIG_HEADERS([src/config.h])
+AM_INIT_AUTOMAKE
+
+LIB_MAJOR=lib_major
+LIB_MINOR=lib_minor
+LIB_LEVEL=lib_level
+AC_SUBST([LIB_MAJOR])
+AC_SUBST([LIB_MINOR])
+AC_SUBST([LIB_LEVEL])
+
+AC_CANONICAL_HOST
+
+AS_CASE([$host_os],
+        [mingw*], [MINGW32=yes],
+        [darwin*], [MACOS=yes],
+        [MINGW32=no MACOS=no]
+)
+AM_CONDITIONAL([MINGW32], [test "x$MINGW32" = "xyes"])
+AM_CONDITIONAL([MACOS], [test "x$MACOS" = "xyes"])
+
+dnl Initialize libtool.
+LT_INIT([win32-dll])
+
+dnl Checks for programs.
+AC_PROG_CXX
+
+dnl Use C++ for tests.
+AC_LANG([C++])
+
+
+AX_CXX_COMPILE_STDCXX([23], [noext], [optional])
+AS_IF([test $ax_cv_cxx_compile_cxx23__std_cpp23 != "yes"], [
+    AX_CXX_COMPILE_STDCXX([20], [noext], [optional])
+    AS_IF([test $ax_cv_cxx_compile_cxx20__std_cpp20 != "yes"], [
+        AX_CXX_COMPILE_STDCXX([17], [noext], [optional])
+        AS_IF([test $ax_cv_cxx_compile_cxx17__std_cpp17 != "yes"], [
+            AX_CXX_COMPILE_STDCXX([14], [noext], [optional])
+            AS_IF([test $ax_cv_cxx_compile_cxx14__std_cpp14 != "yes"],
+                [AX_CXX_COMPILE_STDCXX([11], [noext], [mandatory])]
+            )
+        ])
+    ])
+])
+
+dnl check for hidden visibility support
+AX_APPEND_COMPILE_FLAGS([-fvisibility=hidden -fvisibility-inlines-hidden])
+
+dnl Checks for typedefs, structures, and compiler characteristics.
+AC_C_BIGENDIAN
+
+AC_CHECK_SIZEOF([short])
+AC_CHECK_SIZEOF([int])
+
+AS_IF([test $ac_cv_sizeof_short -ne 2],
+  [AC_MSG_ERROR([size of short must be 16 bit])]
+)
+
+AS_IF([test $ac_cv_sizeof_int -lt 4],
+  [AC_MSG_ERROR([only 32 bit or better CPUs are supported])]
+)
+
+AC_CHECK_TYPES([int8_t, uint8_t, int16_t, uint16_t, int32_t, uint32_t],
+    [],
+    [AC_MSG_ERROR([missing fixed width integer types])],
+    [[#include <cstdint>]]
+)
+
+dnl Checks for non-standard functions.
+
+AC_CHECK_DECL(
+    [strcasecmp],
+    [AC_CHECK_FUNCS([strcasecmp])]
+)
+
+AC_CHECK_DECL(
+    [strncasecmp],
+    [AC_CHECK_FUNCS([strncasecmp])]
+)
+
+AC_CHECK_PROGS([XA], [xa])
+
+# od on macOS doesn't support the -w parameter
+AC_CACHE_CHECK([for od that supports -w], [ac_cv_path_OD],
+  [AC_PATH_PROGS_FEATURE_CHECK([OD], [od god],
+    [[$ac_path_OD -w > /dev/null 2>&1 && ac_cv_path_OD=$ac_path_OD ac_path_OD_found=:]])]
+)
+AC_SUBST([OD], [$ac_cv_path_OD])
+
+AX_PTHREAD([], [AC_MSG_ERROR("pthreads not found")])
+
+dnl libtool-style version-info number
+#
+# https://autotools.io/libtool/version.html
+#
+# Always increase the revision value.
+#
+# Increase the current value whenever an interface has been added, removed or changed.
+#
+# Increase the age value only if the changes made to the ABI are backward compatible.
+
+LIBSIDPLAYCUR=13
+LIBSIDPLAYREV=44
+LIBSIDPLAYAGE=7
+LIBSIDPLAYVERSION=$LIBSIDPLAYCUR:$LIBSIDPLAYREV:$LIBSIDPLAYAGE
+
+LIBSTILVIEWCUR=0
+LIBSTILVIEWREV=7
+LIBSTILVIEWAGE=0
+LIBSTILVIEWVERSION=$LIBSTILVIEWCUR:$LIBSTILVIEWREV:$LIBSTILVIEWAGE
+
+AC_MSG_CHECKING([for debugging])
+AC_ARG_ENABLE(debug, [AS_HELP_STRING([--enable-debug], [compile for debugging @<:@no/yes, default=no@:>@])],
+ [], [enable_debug=no])
+
+AS_IF([test "x$enable_debug" = "xno"],
+  [AC_MSG_RESULT([Build without debugging messages]); debug_flags=-DNDEBUG],
+  [AC_MSG_RESULT([Build with debugging messages]); debug_flags=""]
+)
+
+AC_SUBST([debug_flags])
+
+AC_CACHE_CHECK([for __builtin_expect], [sid_cv_builtin_expect],
+  [AC_COMPILE_IFELSE([AC_LANG_SOURCE([int main() { __builtin_expect(0, 0); }])],
+    [sid_cv_builtin_expect=yes], [sid_cv_builtin_expect=no])]
+)
+
+AS_IF([test "$sid_cv_builtin_expect" = no],
+  [HAVE_BUILTIN_EXPECT=0],
+  [HAVE_BUILTIN_EXPECT=1]
+)
+
+AC_ARG_ENABLE([lto],
+  [AS_HELP_STRING([--enable-lto],
+    [enable link time optimization [default=no]])]
+)
+
+AS_IF([test "x$enable_lto" = "xyes"],
+  [AX_APPEND_COMPILE_FLAGS([-flto])]
+)
+
+
+AC_CHECK_PROGS([DOXYGEN], [doxygen])
+AS_IF([test -z "$DOXYGEN"],
+  [AC_MSG_WARN([Doxygen not found - continuing without Doxygen support])],
+  [AC_CHECK_PROG([DOT], [dot], [YES], [NO])]
+)
+
+AM_CONDITIONAL([HAVE_DOXYGEN], [test -n "$DOXYGEN"])
+
+AM_COND_IF([HAVE_DOXYGEN], [AC_CONFIG_FILES([Doxyfile])])
+
+
+AC_ARG_ENABLE([testsuite],
+  [AS_HELP_STRING([--enable-testsuite=PATH_TO_TESTSUITE],
+    [enable VICE testsuite [default=no]]
+  )],
+  [],
+  [enable_testsuite=no]
+)
+
+AS_IF([test "x$enable_testsuite" != xno],
+  AC_DEFINE_UNQUOTED([VICE_TESTSUITE],
+    ["$enable_testsuite"],
+    [Path to VICE testsuite.]
+  )
+)
+
+AM_CONDITIONAL([TESTSUITE], [test "x$enable_testsuite" != xno])
+
+
+PKG_PROG_PKG_CONFIG
+
+AC_ARG_ENABLE([tests],
+  [AS_HELP_STRING([--enable-tests],
+    [enable unit tests [default=no]]
+  )],
+  [],
+  [enable_tests=no]
+)
+
+AM_CONDITIONAL([ENABLE_TEST], [test x$enable_tests = xyes])
+
+PKG_CHECK_MODULES([RESIDFP],
+    [libresidfp >= 0.9],
+    [AC_DEFINE([HAVE_RESIDFP], 1, [Define to 1 if you have libresidfp (-lresidfp).])],
+    [AC_MSG_WARN([$RESIDFP_PKG_ERRORS])]
+)
+
+AM_CONDITIONAL([RESIDFP_SUPPORT], [ test "x$pkg_cv_RESIDFP_LIBS" != x ])
+
+AC_SUBST(HAVE_BUILTIN_EXPECT)
+
+AC_SUBST(LIBSIDPLAYVERSION)
+AC_SUBST(LIBSTILVIEWVERSION)
+
+# USBSID support
+AC_ARG_WITH(
+    [usbsid],
+    [AS_HELP_STRING([--with-usbsid], [Build with usbsid support [@<:@yes/no/check, default=check@:>@]])],
+    [],
+    [with_usbsid=check]
+)
+
+# USBSID support requires libusb
+AS_IF(
+    [test "x$with_usbsid" != "xno"],
+    [PKG_CHECK_MODULES([USBSID],
+        [libusb-1.0],
+        [AC_DEFINE([HAVE_USBSID], 1, [Define to 1 if you have libusb (-libusb-1.0).])
+        build_usbsid_builder=yes
+        build_usbsid_driver=yes],
+        [AC_MSG_WARN([$USBSID_PKG_ERRORS] [- checking for libusb header])
+            AC_MSG_CHECKING([for libusb-1.0])
+            AC_CHECK_HEADERS(libusb-1.0/libusb.h,
+                [AC_DEFINE([HAVE_LIBUSB], 1, [Define to 1 if you have libusb.h])
+                build_usbsid_builder=yes
+                build_usbsid_driver=yes
+                AC_MSG_RESULT([yes])],
+                [AC_MSG_WARN([libsub.h not found, support will not be available])]
+            )]
+
+       )]
+)
+
+AS_IF(
+    [test "x$with_usbsid" = "xyes" -a "x$build_usbsid_builder" != xyes],
+    [AC_MSG_ERROR([libusb not found])]
+)
+
+AC_SUBST([USBSID_CFLAGS])
+
+AM_CONDITIONAL([USBSID_SUPPORT], [ test "x${build_usbsid_builder}" = xyes])
+AM_CONDITIONAL([USBSID_DRIVER], [ test "x${build_usbsid_driver}" = xyes])
+
+# exSID support
+AC_ARG_WITH(
+    [exsid],
+    [AS_HELP_STRING([--with-exsid], [Build with exsid support [@<:@yes/no/check, default=check@:>@]])],
+    [],
+    [with_exsid=check]
+)
+
+# exSID support requires either libexsid or one of libfdti1 or libftd2xx
+AS_IF(
+    [test "x$with_exsid" != "xno"],
+    [PKG_CHECK_MODULES([EXSID],
+        [libexsid >= 2.0],
+        [AC_DEFINE([HAVE_EXSID], 1, [Define to 1 if you have libexsid (-lexsid).])
+        build_exsid_builder=yes],
+        [AC_MSG_WARN([$EXSID_PKG_ERRORS] [- using internal driver])
+            AS_IF([test "x$MINGW32" != "xyes"],
+                AC_SEARCH_LIBS([dlopen], [dl dld], [],
+                  [AC_MSG_ERROR([unable to find the dlopen() function])]
+                )
+            )
+            AC_CHECK_HEADERS([ftd2xx.h],
+                [AC_DEFINE([HAVE_FTD2XX], 1, [Define to 1 if you have ftd2xx.h])
+                build_exsid_builder=yes
+                build_exsid_driver=yes],
+                [AC_MSG_WARN([ftd2xx.h not found, support will not be available])]
+            )
+            AC_MSG_CHECKING([for libftdi1])
+            PKG_CHECK_EXISTS([libftdi1 >= 1.0],
+                [AC_DEFINE([HAVE_FTDI], 1, [Define to 1 if you have ftdi.h])
+                build_exsid_builder=yes
+                build_exsid_driver=yes
+                FTDI_CFLAGS=`$PKG_CONFIG --cflags libftdi1`
+                AC_MSG_RESULT([yes])],
+                [AC_MSG_WARN([libftdi1 not found, support will not be available])]
+            )]
+    )]
+)
+
+AS_IF(
+    [test "x$with_exsid" = "xyes" -a "x$build_exsid_builder" != xyes],
+    [AC_MSG_ERROR([Neither libexsid nor ftd2xx nor libftdi1 found])]
+)
+
+AC_SUBST([FTDI_CFLAGS])
+
+AM_CONDITIONAL([EXSID_SUPPORT], [ test "x${build_exsid_builder}" = xyes])
+AM_CONDITIONAL([EXSID_DRIVER], [ test "x${build_exsid_driver}" = xyes])
+
+# check for thread model if available
+AS_IF([test "x$build_exsid_driver" = xyes],
+        [AX_PTHREAD(
+                [AC_DEFINE([EXSID_THREADED], 1, [Define for threaded driver])]
+                [AC_DEFINE([HAVE_PTHREAD_H], 1, [Define to 1 if you have pthread.h])]
+        )]
+)
+
+eval loadable_shrext=$shrext_cmds
+AC_DEFINE_UNQUOTED([SHLIBEXT], ["${loadable_shrext}"], [Shared library extension])
+
+
+AC_CONFIG_FILES([
+Makefile
+libsidplayfp.pc
+libstilview.pc
+src/sidplayfp/sidversion.h
+src/builders/sidlite-builder/sidlite/sl_defs.h
+tests/Makefile
+])
+
+AC_OUTPUT

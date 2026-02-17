@@ -1,0 +1,17 @@
+A simple I/O library for exSID USB
+
+Copyright (C) 2015-2018,2021 Thibaut VARENE
+
+License: GPLv2 - http://www.gnu.org/licenses/gpl-2.0.html
+
+http://hacks.slashdirt.org/hw/exsid/#exsid-driver
+https://github.com/libsidplayfp/exsid-driver
+
+Many thanks to Leandro Nini for his help with the support of this driver in
+sidplayfp and for testing and fixing the Windows bits of this code!
+
+BUILDING
+
+- From release tarball:
+  `./configure && make && sudo make install`
+- From repository clone: `autoreconf -i` then same as above.

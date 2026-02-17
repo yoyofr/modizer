@@ -1,0 +1,4 @@
+src/libresidfp_la-ExternalFilter.lo: src/ExternalFilter.cpp \
+  src/ExternalFilter.h src/siddefs-fp.h
+src/ExternalFilter.h:
+src/siddefs-fp.h:

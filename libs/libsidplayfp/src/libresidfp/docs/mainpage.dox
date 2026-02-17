@@ -1,0 +1,35 @@
+/**
+\mainpage  libresidfp
+
+A library to emulate the SID 6581/8580 sound chip.<br/>
+<br/>
+
+Libresidfp is a SID emulation library eveolved from reSID.<br/>
+
+Copyright (c) 1999-2010 Dag Lem<br/>
+Copyright (c) 2007-2010 Antti Lankila<br/>
+Copyright (c) 2010-2026 Leandro Nini &lt;drfiemost@users.sourceforge.net&gt;<br/>
+<br/>
+
+Home page:<br/>
+https://github.com/libsidplayfp/libresidfp
+
+
+-----------------------------------------------------------------------------
+
+ This program is free software; you can redistribute it and/or modify<br/>
+ it under the terms of the GNU General Public License as published by<br/>
+ the Free Software Foundation; either version 2 of the License, or<br/>
+ (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,<br/>
+ but WITHOUT ANY WARRANTY; without even the implied warranty of<br/>
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the<br/>
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License<br/>
+ along with this program; if not, write to the Free Software<br/>
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+-----------------------------------------------------------------------------
+*/

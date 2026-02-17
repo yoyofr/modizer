@@ -1,0 +1,10 @@
+prefix=/usr/local
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: libresidfp
+Description: cycle exact SID emulation library.
+Version: 0.9.1
+Libs: -L${libdir} -lresidfp
+Cflags: -I${includedir}

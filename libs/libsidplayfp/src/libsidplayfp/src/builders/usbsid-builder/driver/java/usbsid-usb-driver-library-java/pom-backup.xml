@@ -1,0 +1,136 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>usbsid</groupId>
+  <artifactId>usbsid-usb-driver-library-java</artifactId>
+  <version>1.0</version>
+
+  <organization>
+    <url>https://www.github.com/LouDnl/USBSID-Pico</url>
+    <name>LouD</name>
+  </organization>
+  <name>USBSID-Pico driver library</name>
+
+  <url>https://www.github.com/LouDnl/USBSID-Pico</url>
+  <description>This is a library to use USBSID-Pico devices in Java</description>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.compiler.release>17</maven.compiler.release>
+  </properties>
+
+  <developers>
+    <developer>
+      <name>api calls Written by LouD, Java port by LouD</name>
+    </developer>
+  </developers>
+
+  <repositories>
+    <repository>
+      <id>lib</id>
+      <url>file://${basedir}/lib</url>
+    </repository>
+  </repositories>
+
+  <!-- Dependencies -->
+  <dependencies>
+    <!-- usb4java -->
+    <dependency>
+      <groupId>org.usb4java</groupId>
+      <artifactId>usb4java-javax</artifactId>
+      <version>1.3.0</version>
+      <!-- <scope>system</scope> -->
+      <!-- <scope>provided</scope> -->
+      <!-- <exclusions>
+        <exclusion>
+          <groupId>org.apache.commons</groupId>
+          <artifactId>commons-lang3</artifactId>
+        </exclusion>
+      </exclusions> -->
+    </dependency>
+  </dependencies>
+
+  <!-- Build specs -->
+  <build>
+    <finalName>${project.artifactId}-${project.version}</finalName>
+    <!-- Include directories -->
+    <sourceDirectory>src</sourceDirectory>
+    <testSourceDirectory>test</testSourceDirectory>
+    <!-- Sources -->
+    <resources>
+      <resource>
+        <directory>src</directory>
+        <excludes>
+          <exclude>**/*.java</exclude>
+        </excludes>
+      </resource>
+      <resource>
+        <directory>resource</directory>
+      </resource>
+    </resources>
+    <!-- Test sources -->
+    <testResources>
+      <testResource>
+        <directory>test</directory>
+        <excludes>
+          <exclude>**/*.java</exclude>
+        </excludes>
+      </testResource>
+    </testResources>
+    <plugins>
+      <!-- Compiler -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.14.0</version>
+        <configuration>
+          <encoding>${project.build.sourceEncoding}</encoding>
+          <source>1.8</source>
+          <target>1.8</target>
+        </configuration>
+      </plugin>
+      <!-- Build an executable JAR -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>3.1.0</version>
+        <configuration>
+          <archive>
+            <manifest>
+              <addClasspath>true</addClasspath>
+              <classpathPrefix>lib/</classpathPrefix>
+              <mainClass>usbsid.USBSID</mainClass>
+            </manifest>
+          </archive>
+        </configuration>
+      </plugin>
+      <!-- Maven shade -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>2.4.1</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <filters>
+                <filter>
+                  <artifact>*:*</artifact>
+                  <excludes>
+                    <exclude>META-INF/maven/**</exclude>
+                    <!--          <exclude>javax/**</exclude>-->
+                    <exclude>org/**</exclude>
+                  </excludes>
+                </filter>
+              </filters>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>
