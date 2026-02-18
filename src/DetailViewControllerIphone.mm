@@ -780,13 +780,32 @@ bool sysMonitorIsActive;
     if (settings[GLOB_FXSpectrum].detail.mdz_switch.switch_value) active_idx|=1<<FX_2DSpectrum;
     if (settings[GLOB_FX3DSpectrum].detail.mdz_switch.switch_value) active_idx|=1<<FX_3DSpectrum;
     if (settings[GLOB_FX3DLandscape].detail.mdz_switch.switch_value) active_idx|=1<<FX_3DLandscape;
+    if (settings[GLOB_FXCover].detail.mdz_boolswitch.switch_value) active_idx|=1<<FX_COVER;
     
     if (settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_value) active_idx|=1<<13;
     
     return active_idx;
 }
 
+-(void) glBtnLongPresstouch:(UILongPressGestureRecognizer *)gestureRecognizer {
+    if (settings[GLOB_FXTapMenuMode].detail.mdz_switch.switch_value!=2) return;
+    if ([gestureRecognizer state]==UIGestureRecognizerStateBegan) {
+        if (mOglViewIsHidden) {
+            mOglViewIsHidden=NO;
+            // if no active FX, show menu
+            if ([self computeActiveFX]==0) {
+                pmenu_show=1;
+                pmenu_fade=0;
+            }
+        }
+        [self checkGLViewCanDisplay];
+    }
+}
+
 -(IBAction) oglButtonPushed {
+    //check if short tap is active
+    if (settings[GLOB_FXTapMenuMode].detail.mdz_switch.switch_value!=1) return;
+    
     if (mOglViewIsHidden) {
         mOglViewIsHidden=NO;
         // if no active FX, show menu
@@ -6614,11 +6633,19 @@ void pm_perfTest() {
     // Add the gesture to the view
     [m_oglView addGestureRecognizer:glViewTwoFingersTouch];
     
+    // Create gesture recognizer
     UILongPressGestureRecognizer *glViewLongPressTouch = [[UILongPressGestureRecognizer alloc]
                                                           initWithTarget:self
                                                           action:@selector(glViewLongPresstouch:)];
     // Add the gesture to the view
     [m_oglView addGestureRecognizer:glViewLongPressTouch];
+    
+    // Create gesture recognizer
+    UILongPressGestureRecognizer *glBtnLongPressTouch = [[UILongPressGestureRecognizer alloc]
+                                                          initWithTarget:self
+                                                          action:@selector(glBtnLongPresstouch:)];
+    // Add the gesture to the view
+    [oglButton addGestureRecognizer:glBtnLongPressTouch];
     
     // Create gesture recognizer
     UIPanGestureRecognizer *glViewPanGesture = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(glViewPanGesture:)];
@@ -7339,10 +7366,23 @@ void pm_perfTest() {
 }
 
 - (void)oglButtonMessage {
+    //update message / touch mode setting
+    switch (settings[GLOB_FXTapMenuMode].detail.mdz_switch.switch_value) {
+        case 0: //OFF
+            [oglButton setTitle:NSLocalizedString(@"FX Menu access disabled in settings",@"") forState:UIControlStateNormal];
+            break;
+        case 1: //Short
+            [oglButton setTitle:NSLocalizedString(@"Touch to open FX Menu",@"") forState:UIControlStateNormal];
+            break;
+        case 2: //Long
+            [oglButton setTitle:NSLocalizedString(@"Long touch to open FX Menu",@"") forState:UIControlStateNormal];
+            break;
+    }
+    
     //reset attributes
     oglButton.titleLabel.alpha=1.0;
     oglButton.transform = CGAffineTransformIdentity; // Reset transform first
-    [UIView animateWithDuration:1.0 delay:1.0 options:0
+    [UIView animateWithDuration:1.0 delay:.5 options:0
                      animations:^{
         //fade out & zoom
         self.oglButton.titleLabel.alpha=0.0;
@@ -7374,7 +7414,6 @@ void pm_perfTest() {
             }
             i++;
         }
-        
         [self checkForCover:filePathTmp];
     }
 }
@@ -7406,7 +7445,6 @@ void pm_perfTest() {
     }
     
     tabBarVC = window.rootViewController;
-    
     if (tabBarVC != nil && [tabBarVC isKindOfClass:[UITabBarController class]]) {
         if (@available(iOS 18.0, *)) {
             if (UIDevice.currentDevice.userInterfaceIdiom == UIUserInterfaceIdiomPad) {
@@ -7431,7 +7469,6 @@ void pm_perfTest() {
     }
     
     //    if (m_displayLink) [m_displayLink invalidate];
-    
     [[self navigationController] setNavigationBarHidden:NO animated:NO];
     
     if (self.previousAppearance) {
@@ -7493,7 +7530,6 @@ void pm_perfTest() {
         CGContextRelease(tmpContext);
     }
 }
-
 
 -(void) generateBGTexture {
     backgroundImage=[self imageFromView:self.cover_viewAll];

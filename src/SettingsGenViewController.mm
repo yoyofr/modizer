@@ -1537,6 +1537,19 @@ void optNSFPLAYChangedC(id param) {
     //    settings[GLOB_BLOOMFX].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
     //    settings[GLOB_BLOOMFX].sub_family=0;
     
+    SETTINGS_ID_DEF(GLOB_FXTapMenuMode)
+    settings[GLOB_FXTapMenuMode].type=MDZ_SWITCH;
+    settings[GLOB_FXTapMenuMode].label=(char*)"Touch/Open FX Menu";
+    settings[GLOB_FXTapMenuMode].description=(char*)"Touch mode to open FX menu in main player screen";
+    settings[GLOB_FXTapMenuMode].family=MDZ_SETTINGS_FAMILY_GLOBAL_VISU;
+    settings[GLOB_FXTapMenuMode].sub_family=0;
+    settings[GLOB_FXTapMenuMode].callback=&optVISUChangedC;
+    settings[GLOB_FXTapMenuMode].detail.mdz_switch.switch_value_nb=3;
+    settings[GLOB_FXTapMenuMode].detail.mdz_switch.switch_labels=(char**)calloc(1,settings[GLOB_FXTapMenuMode].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[GLOB_FXTapMenuMode].detail.mdz_switch.switch_labels[0]=(char*)"Off";
+    settings[GLOB_FXTapMenuMode].detail.mdz_switch.switch_labels[1]=(char*)"Short";
+    settings[GLOB_FXTapMenuMode].detail.mdz_switch.switch_labels[2]=(char*)"Long";
+    
     SETTINGS_ID_DEF(GLOB_FXFullscreen)
     settings[GLOB_FXFullscreen].label=(char*)"FX Fullscreen";
     settings[GLOB_FXFullscreen].description=NULL;
@@ -2076,6 +2089,7 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_FXMODPattern_FontSize].detail.mdz_switch.switch_default_value=1;
     //    settings[GLOB_BLOOMFX].detail.mdz_boolswitch.switch_default_value=0;
     settings[GLOB_FXAlpha].detail.mdz_slider.slider_default_value=0.8;
+    settings[GLOB_FXTapMenuMode].detail.mdz_switch.switch_default_value=1;
     settings[GLOB_FXFullscreen].detail.mdz_boolswitch.switch_default_value=0;
     settings[GLOB_FXMODPattern_Theme].detail.mdz_switch.switch_default_value=0;
     settings[GLOB_FXMODPattern_VolBar].detail.mdz_boolswitch.switch_default_value=1;
