@@ -148,6 +148,7 @@ static int op_get_data(OggOpusFile *_of,int _nbytes){
   int            nbytes;
   OP_ASSERT(_nbytes>0);
   buffer=(unsigned char *)ogg_sync_buffer(&_of->oy,_nbytes);
+  if (OP_UNLIKELY(buffer==NULL)) return OP_EFAULT;
   nbytes=(int)(*_of->callbacks.read)(_of->stream,buffer,_nbytes);
   OP_ASSERT(nbytes<=_nbytes);
   if(OP_LIKELY(nbytes>0))ogg_sync_wrote(&_of->oy,nbytes);
