@@ -127,6 +127,7 @@
 		CC09C24A2ECA1D5B00BD53CE /* test_int_assignment_fix.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = test_int_assignment_fix.cpp; sourceTree = "<group>"; };
 		CC0D405A2EECC063007AB96D /* Logging.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Logging.hpp; sourceTree = "<group>"; };
 		CC0D405B2EECC063007AB96D /* Logging.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Logging.cpp; sourceTree = "<group>"; };
+		CC26657A2F4B12D40060F382 /* OpenGL.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OpenGL.h; sourceTree = "<group>"; };
 		CC3B027D2EB69FF50079D537 /* user_sprites.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = user_sprites.h; sourceTree = "<group>"; };
 		CC432B502EB3A059007972E0 /* ShaderPreprocessor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ShaderPreprocessor.h; sourceTree = "<group>"; };
 		CC432B512EB3A075007972E0 /* ShaderPreprocessor.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ShaderPreprocessor.cpp; sourceTree = "<group>"; };
@@ -619,7 +620,6 @@
 		CCABA26E2E93C97600AF59B0 /* PresetFactoryManager.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = PresetFactoryManager.cpp; sourceTree = "<group>"; };
 		CCABA26F2E93C97600AF59B0 /* ProjectM.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = ProjectM.hpp; sourceTree = "<group>"; };
 		CCABA2702E93C97600AF59B0 /* ProjectM.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ProjectM.cpp; sourceTree = "<group>"; };
-		CCABA2712E93C97600AF59B0 /* projectM-opengl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "projectM-opengl.h"; sourceTree = "<group>"; };
 		CCABA2722E93C97600AF59B0 /* projectM4Config.cmake.in */ = {isa = PBXFileReference; lastKnownFileType = text; path = projectM4Config.cmake.in; sourceTree = "<group>"; };
 		CCABA2732E93C97600AF59B0 /* ProjectMCWrapper.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = ProjectMCWrapper.hpp; sourceTree = "<group>"; };
 		CCABA2742E93C97600AF59B0 /* ProjectMCWrapper.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ProjectMCWrapper.cpp; sourceTree = "<group>"; };
@@ -689,22 +689,9 @@
 		CCF633D92EB4E50900B90435 /* HLSLTypeFixer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = HLSLTypeFixer.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
-/* Begin PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
-		CCABA0222E93C66900AF59B0 /* Exceptions for "projectm-ios" folder in "Copy Files" phase from "projectm-ios" target */ = {
-			isa = PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet;
-			buildPhase = CCABA0192E93C66900AF59B0 /* CopyFiles */;
-			membershipExceptions = (
-				projectm_ios.h,
-			);
-		};
-/* End PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
-
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		CCABA01D2E93C66900AF59B0 /* projectm-ios */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				CCABA0222E93C66900AF59B0 /* Exceptions for "projectm-ios" folder in "Copy Files" phase from "projectm-ios" target */,
-			);
 			path = "projectm-ios";
 			sourceTree = "<group>";
 		};
@@ -1390,6 +1377,7 @@
 				CCCB397A2EB0457300FE6091 /* Mesh.hpp */,
 				CCCB397B2EB0457300FE6091 /* Mesh.cpp */,
 				CCABA2522E93C97600AF59B0 /* MilkdropNoise.hpp */,
+				CC26657A2F4B12D40060F382 /* OpenGL.h */,
 				CCABA2532E93C97600AF59B0 /* MilkdropNoise.cpp */,
 				CCCB397C2EB0457300FE6091 /* Point.hpp */,
 				CCABA2542E93C97600AF59B0 /* PresetTransition.hpp */,
@@ -1446,7 +1434,6 @@
 				CCABA26E2E93C97600AF59B0 /* PresetFactoryManager.cpp */,
 				CCABA26F2E93C97600AF59B0 /* ProjectM.hpp */,
 				CCABA2702E93C97600AF59B0 /* ProjectM.cpp */,
-				CCABA2712E93C97600AF59B0 /* projectM-opengl.h */,
 				CCABA2722E93C97600AF59B0 /* projectM4Config.cmake.in */,
 				CCABA2732E93C97600AF59B0 /* ProjectMCWrapper.hpp */,
 				CCABA2742E93C97600AF59B0 /* ProjectMCWrapper.cpp */,

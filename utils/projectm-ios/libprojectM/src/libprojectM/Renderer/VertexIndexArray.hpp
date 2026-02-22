@@ -2,7 +2,7 @@
 
 #include "Renderer/VertexBufferUsage.hpp"
 
-#include <projectM-opengl.h>
+#include "Renderer/OpenGL.h"
 #include <vector>
 
 namespace libprojectM {

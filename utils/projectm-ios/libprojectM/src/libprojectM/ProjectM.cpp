@@ -302,7 +302,7 @@ void ProjectM::StartPresetTransition(std::unique_ptr<Preset>&& preset, bool hard
         m_transition.reset();
     }
 
-    if (m_activePreset)
+    if (m_activePreset && !m_presetStartClean)
     {
         preset->DrawInitialImage(m_activePreset->OutputTexture(), GetRenderContext());
     }
@@ -376,6 +376,16 @@ void ProjectM::SetPresetLocked(bool locked)
 auto ProjectM::PresetLocked() const -> bool
 {
     return m_presetLocked;
+}
+
+void ProjectM::SetPresetStartClean(bool enabled)
+{
+    m_presetStartClean = enabled;
+}
+
+auto ProjectM::PresetStartClean() const -> bool
+{
+    return m_presetStartClean;
 }
 
 void ProjectM::SetFrameTime(double secondsSinceStart)
@@ -504,8 +514,8 @@ void ProjectM::SetMeshSize(uint32_t meshResolutionX, uint32_t meshResolutionY)
     }
 
     // Constrain per-pixel mesh size to sensible limits
-    m_meshX = std::max(8u, std::min(400u, m_meshX));
-    m_meshY = std::max(8u, std::min(400u, m_meshY));
+    m_meshX = std::max(8u, std::min(300u, m_meshX));
+    m_meshY = std::max(8u, std::min(300u, m_meshY));
 }
 
 auto ProjectM::PCM() -> libprojectM::Audio::PCM&
