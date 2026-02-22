@@ -1467,7 +1467,7 @@ void ADLIBEMU(getsample)(void *chip, UINT32 numsamples, DEV_SMPL** sndptr)
 						
 						chanval = cptr[9].cval*2;
                         if (! (OPL->MuteChn[6]) ) {
-                            CHANVAL_OUT(0,6,6+1)
+                            CHANVAL_OUT(0,6,4+1)
                         }
 					}
 				}
@@ -1517,7 +1517,7 @@ void ADLIBEMU(getsample)(void *chip, UINT32 numsamples, DEV_SMPL** sndptr)
 						
 						chanval = cptr[9].cval*2;
                         if (! (OPL->MuteChn[6]) ) {
-                            CHANVAL_OUT(0,6,6+1)
+                            CHANVAL_OUT(0,6,4+1)
                         }
 					}
 				}
@@ -1552,7 +1552,7 @@ void ADLIBEMU(getsample)(void *chip, UINT32 numsamples, DEV_SMPL** sndptr)
 					operator_output(&cptr[0],0,tremval3[i]);
 					chanval = cptr[0].cval*2;
                     if (! (OPL->MuteChn[8]) ) {
-                        CHANVAL_OUT(0,8,6+1)
+                        CHANVAL_OUT(0,8,4+1)
                     }
 				}
 			}
@@ -1643,15 +1643,15 @@ void ADLIBEMU(getsample)(void *chip, UINT32 numsamples, DEV_SMPL** sndptr)
                     
                     chanval = (OPL->op[7].cval)*2;
                     if (! (OPL->MuteChn[7]) ) {
-                        CHANVAL_OUT(7,7,6+1)
+                        CHANVAL_OUT(7,7,4+1)
                     }
                     chanval = (OPL->op[7+9].cval)*2;
                     if (! (OPL->MuteChn[7]) ) {
-                        CHANVAL_OUT_ADD(7,7,6+1)
+                        CHANVAL_OUT_ADD(7,7,4+1)
                     }
                     chanval = OPL->op[8+9].cval*2;
                     if (! (OPL->MuteChn[8]) ) {
-                        CHANVAL_OUT_ADD(8,8,6+1)
+                        CHANVAL_OUT_ADD(8,8,4+1)
                     }
 				}
 			}
@@ -1720,7 +1720,7 @@ void ADLIBEMU(getsample)(void *chip, UINT32 numsamples, DEV_SMPL** sndptr)
 								operator_output(&cptr[0],(cptr[0].lastcval+cptr[0].cval)*cptr[0].mfbi/2,tremval1[i]);
 
 								chanval = cptr[0].cval;
-                                CHANVAL_OUT(3,cur_ch,5+1)	// Note: Op 1 of 4, so it needs to use the panning bits of Op 4 (Ch+3)
+                                CHANVAL_OUT(3,cur_ch,4+1)	// Note: Op 1 of 4, so it needs to use the panning bits of Op 4 (Ch+3)
 							}
 						}
 
@@ -1757,7 +1757,7 @@ void ADLIBEMU(getsample)(void *chip, UINT32 numsamples, DEV_SMPL** sndptr)
 								operator_output(&cptr[3],cptr[9].cval*FIXEDPT,tremval2[i]);
 
 								chanval = cptr[3].cval;
-                                CHANVAL_OUT(3,cur_ch,5+1)
+                                CHANVAL_OUT(3,cur_ch,4+1)
 							}
 						}
 
@@ -1778,7 +1778,7 @@ void ADLIBEMU(getsample)(void *chip, UINT32 numsamples, DEV_SMPL** sndptr)
 								operator_output(&cptr[3+9],0,tremval1[i]);
 
 								chanval = cptr[3+9].cval;
-                                CHANVAL_OUT(3,cur_ch,5+1)
+                                CHANVAL_OUT(3,cur_ch,4+1)
 							}
 						}
 					}
@@ -1810,7 +1810,7 @@ void ADLIBEMU(getsample)(void *chip, UINT32 numsamples, DEV_SMPL** sndptr)
 								operator_output(&cptr[0],(cptr[0].lastcval+cptr[0].cval)*cptr[0].mfbi/2,tremval1[i]);
 
 								chanval = cptr[0].cval;
-                                CHANVAL_OUT(3,cur_ch,5+1)
+                                CHANVAL_OUT(3,cur_ch,4+1)
 							}
 						}
 
@@ -1854,7 +1854,7 @@ void ADLIBEMU(getsample)(void *chip, UINT32 numsamples, DEV_SMPL** sndptr)
 								operator_output(&cptr[3+9],cptr[3].cval*FIXEDPT,tremval3[i]);
 
 								chanval = cptr[3+9].cval;
-                                CHANVAL_OUT(3,cur_ch,5+1)
+                                CHANVAL_OUT(3,cur_ch,4+1)
 							}
 						}
 					}
@@ -1904,7 +1904,7 @@ void ADLIBEMU(getsample)(void *chip, UINT32 numsamples, DEV_SMPL** sndptr)
 					operator_output(&cptr[9],0,tremval2[i]);
 
 					chanval = cptr[9].cval + cptr[0].cval;
-                    CHANVAL_OUT(0,cur_ch,5+1)
+                    CHANVAL_OUT(0,cur_ch,4+1)
 				}
 			}
 			else
@@ -1957,7 +1957,7 @@ void ADLIBEMU(getsample)(void *chip, UINT32 numsamples, DEV_SMPL** sndptr)
 								operator_output(&cptr[9],cptr[0].cval*FIXEDPT,tremval2[i]);
 
 								chanval = cptr[9].cval;
-                                CHANVAL_OUT(3,cur_ch,5+1)
+                                CHANVAL_OUT(3,cur_ch,4+1)
 							}
 						}
 
@@ -1986,7 +1986,7 @@ void ADLIBEMU(getsample)(void *chip, UINT32 numsamples, DEV_SMPL** sndptr)
 								operator_output(&cptr[3+9],cptr[3].cval*FIXEDPT,tremval2[i]);
 
 								chanval = cptr[3+9].cval;
-                                CHANVAL_OUT(3,cur_ch,5+1)
+                                CHANVAL_OUT(3,cur_ch,4+1)
 							}
 						}
 
@@ -2052,7 +2052,7 @@ void ADLIBEMU(getsample)(void *chip, UINT32 numsamples, DEV_SMPL** sndptr)
 								operator_output(&cptr[3+9],cptr[3].cval*FIXEDPT,tremval4[i]);
 
 								chanval = cptr[3+9].cval;
-                                CHANVAL_OUT(3,cur_ch,5+1)
+                                CHANVAL_OUT(3,cur_ch,4+1)
 							}
 						}
 					}
@@ -2102,7 +2102,7 @@ void ADLIBEMU(getsample)(void *chip, UINT32 numsamples, DEV_SMPL** sndptr)
 					operator_output(&cptr[9],cptr[0].cval*FIXEDPT,tremval2[i]);
 
 					chanval = cptr[9].cval;
-                    CHANVAL_OUT(0,cur_ch,5+1)
+                    CHANVAL_OUT(0,cur_ch,4+1)
 				}
 			}
 		}

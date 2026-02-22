@@ -4607,6 +4607,8 @@ int recording=0;
         mOnlyCurrentSubEntry|=2;
         mOnlyCurrentEntry|=2;
     }
+    
+    [mplayer Stop];
 
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
         int retcode;

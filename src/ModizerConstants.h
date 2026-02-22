@@ -191,8 +191,8 @@ extern void *LoadingProgressObserverContext;
 #define SOUND_BUFFER_SIZE_SAMPLE 1024 //512 //1024
 #define SOUND_BUFFER_NB 64 //128 //
 //TODO / IMPROVE: Hardcoding -> computed on the fly
-#define MIDIFX_OFS_60FPS 89 //44 frames at 60fps to match duration of 64 buffers of 512 samples at 44.1Khz
-#define MIDIFX_OFS_30FPS 45 //22 frames at 30fps to match duration of 64 buffers of 512 samples at 44.1Khz
+#define MIDIFX_OFS_60FPS 89 //89 frames at 60fps to match duration of 64 buffers of 1024 samples at 44.1Khz
+#define MIDIFX_OFS_30FPS 45 //45 frames at 30fps to match duration of 64 buffers of 1024 samples at 44.1Khz
 
 #define PM_BUFFER_SIZE 735*2 //ProjectM sound buffer size.
 #define PM_ROOT_FOLDER_CUSTOM "/ProjectM"

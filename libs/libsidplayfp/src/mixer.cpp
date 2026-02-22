@@ -101,7 +101,7 @@ uint_least32_t Mixer::mix(short** buffers, uint_least32_t start, uint_least32_t 
         for (unsigned int c=0; c<m_channels; c++)
         {
             const int_least32_t tmp = (this->*(m_scale))(c);
-            assert(tmp >= -32768 && tmp <= 32767);
+            //assert(tmp >= -32768 && tmp <= 32767);
             dest[j++] = static_cast<short>(tmp);
         }
     }

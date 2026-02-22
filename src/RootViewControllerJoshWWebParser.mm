@@ -685,12 +685,28 @@ int joshw_subsites_size=sizeof(joshw_subsites)/sizeof(t_joshw_entry);
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
         
         cell.frame=CGRectMake(0,0,tabView.frame.size.width,40);
-        [cell setBackgroundColor:[UIColor clearColor]];
-        
-        // Configuration de la cellule
+//        [cell setBackgroundColor:[UIColor clearColor]];
+//        // Configuration de la cellule
+//        UIBackgroundConfiguration *backgroundConfig = [UIBackgroundConfiguration listGroupedCellConfiguration];
+//        backgroundConfig.backgroundColor = [UIColor systemGroupedBackgroundColor];
+//        cell.backgroundConfiguration = backgroundConfig;
         UIBackgroundConfiguration *backgroundConfig = [UIBackgroundConfiguration listGroupedCellConfiguration];
         backgroundConfig.backgroundColor = [UIColor systemGroupedBackgroundColor];
         cell.backgroundConfiguration = backgroundConfig;
+        
+        // Pour gérer automatiquement l'état sélectionné, utilise configurationUpdateHandler
+        cell.configurationUpdateHandler = ^(UITableViewCell *cell, UICellConfigurationState *state) {
+            UIBackgroundConfiguration *config = [cell backgroundConfiguration];
+            if (state.selected || state.highlighted) {
+                config.backgroundColor = [UIColor secondarySystemGroupedBackgroundColor];
+                //config.backgroundColor = [UIColor systemBlueColor];
+                config.cornerRadius = 8.0;
+            } else {
+                config.backgroundColor = [UIColor systemGroupedBackgroundColor];
+                config.cornerRadius = 0.0;
+            }
+            [cell setBackgroundConfiguration:config];
+        };
         
         //
         // Create the label for the top row of text

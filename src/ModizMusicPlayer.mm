@@ -216,6 +216,7 @@ int sidplay_getNote(uint16_t freq)
 
 
 void* m_sid_chipId[MAXSID_CHIPS];
+int m_sid_chipNb;
 
 /* EUPMINI
  * global data
@@ -3237,6 +3238,7 @@ void propertyListenerCallback (void                   *inUserData,              
     /* Start the Audio Queue! */
     //AudioQueuePrime( mAudioQueue, 0,NULL );
     err = AudioQueueStart( mAudioQueue, NULL );
+    sleep(0.100);
     
     return 1;
 }
@@ -4668,6 +4670,25 @@ void processFadeOut(short int *buffer, int sample_count, int voice_factor) {
     }
 }
 
+-(void) sidplayMix:(short int*)buffer {
+    sid_mixer.begin(buffer,SOUND_BUFFER_SIZE_SAMPLE*2*1);
+    short* buffers[3];
+    mSidEmuEngine->buffers(buffers);
+    do
+    {
+        int samples = mSidEmuEngine->play(2000);
+        if (samples < 0) UNLIKELY
+        {
+            MDZELog("SID error: %s",mSidEmuEngine->error());
+            break;
+        }
+        if (samples > 0)
+            sid_mixer.doMix(buffers, samples);
+        else break;
+    }
+    while (!sid_mixer.isFull());
+}
+
 -(void) generateSoundThread {
     //NSAutoreleasePool* pool = [[NSAutoreleasePool alloc] init];
     @autoreleasepool {
@@ -5048,8 +5069,12 @@ void processFadeOut(short int *buffer, int sample_count, int voice_factor) {
                                 
                                 mSIDSeekInProgress=1;
                                 //mSidEmuEngine->fastForward( 100 * 32 );
+                                sid_mixer.setFastForward(32);
                                 while (mCurrentSamples+SOUND_BUFFER_SIZE_SAMPLE*32<=mSeekSamples) {
                                     //nbBytes=mSidEmuEngine->play(buffer_ana[buffer_ana_gen_ofs],SOUND_BUFFER_SIZE_SAMPLE*2*1)*2;
+                                    [self sidplayMix:buffer_ana[buffer_ana_gen_ofs]];
+                                    nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
+                                    
                                     mCurrentSamples+=(nbBytes/4)*32;
                                     iCurrentTime=mCurrentSamples*1000/PLAYBACK_FREQ;
                                     
@@ -5065,9 +5090,13 @@ void processFadeOut(short int *buffer, int sample_count, int voice_factor) {
                                 }
                                 
                                 //mSidEmuEngine->fastForward( 100 );
+                                sid_mixer.setFastForward(1);
                                 
                                 while (mCurrentSamples<mSeekSamples) {
                                     //nbBytes=mSidEmuEngine->play(buffer_ana[buffer_ana_gen_ofs],SOUND_BUFFER_SIZE_SAMPLE*2*1)*2;
+                                    [self sidplayMix:buffer_ana[buffer_ana_gen_ofs]];
+                                    nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
+                                    
                                     mCurrentSamples+=(nbBytes/4);
                                     iCurrentTime=mCurrentSamples*1000/PLAYBACK_FREQ;
                                     
@@ -7526,22 +7555,7 @@ void processFadeOut(short int *buffer, int sample_count, int voice_factor) {
                             memset(vgm_last_note,0,sizeof(vgm_last_note));
                             memset(vgm_last_vol,0,sizeof(vgm_last_vol));
                             
-                            sid_mixer.begin(buffer_ana[buffer_ana_gen_ofs],SOUND_BUFFER_SIZE_SAMPLE*2*1);
-                            short* buffers[3];
-                            mSidEmuEngine->buffers(buffers);
-                            do
-                            {
-                                int samples = mSidEmuEngine->play(2000);
-                                if (samples < 0) UNLIKELY
-                                {
-                                    MDZELog("SID error: %s",mSidEmuEngine->error());
-                                    break;
-                                }
-                                if (samples > 0)
-                                    sid_mixer.doMix(buffers, samples);
-                                else break;
-                            }
-                            while (!sid_mixer.isFull());
+                            [self sidplayMix:buffer_ana[buffer_ana_gen_ofs]];
                             
                             nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
                             
@@ -10988,6 +11002,8 @@ char* loadRom(const char* path, size_t romSize)
 -(int) mmp_sidplayLoad:(NSString*)filePath {  //SID
     mPlayType=MMP_SIDPLAY;
     
+    m_sid_chipNb=1;
+    
     //First check that the file is available and get size
     FILE *f=fopen([filePath UTF8String],"rb");
     if (f==NULL) {
@@ -11176,7 +11192,7 @@ char* loadRom(const char* path, size_t romSize)
         mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
         
         if (mSidEmuEngine->load(mSidTune)) {
-            
+            m_sid_chipNb=mSidEmuEngine->installedSIDs();
             
             //cfg.secondSidAddress = 0xd420;
             //mSidEmuEngine->config(cfg);
@@ -11311,8 +11327,7 @@ char* loadRom(const char* path, size_t romSize)
             m_freqTable = (sidtune_info->clockSpeed() == SidTuneInfo::CLOCK_NTSC) ? freqTableNtsc : freqTablePal;
             
             //Reset mute status, all active
-            unsigned int sids_nb = mSidEmuEngine->installedSIDs();
-            for (int i=0;i<sids_nb;i++) {
+            for (int i=0;i<m_sid_chipNb;i++) {
                 for (int voice=0;voice<4;voice++) mSidEmuEngine->mute(i,voice,0);
             }
             memset(m_sid_chipId,0,sizeof(m_sid_chipId));// MAXSID_CHIPS*sizeof(void*));

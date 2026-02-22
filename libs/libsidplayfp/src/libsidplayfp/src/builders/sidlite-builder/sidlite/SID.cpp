@@ -42,6 +42,7 @@ extern char mSIDSeekInProgress;
 extern void* m_sid_chipId[MAXSID_CHIPS];
 extern char sid_firstcall[MAXSID_CHIPS];
 static int sid_idx=0;
+extern int m_sid_chipNb;
 }
 //TODO:  MODIZER changes end / YOYOFR
 
@@ -63,6 +64,7 @@ int SID::clock(unsigned int cycles, short* buf)
         if (m_sid_chipId[sid_idx]==(void*)this) break;
         sid_idx++;
     }
+    sid_idx=sid_idx%m_sid_chipNb;
     int64_t smplIncr=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
     sid_idx=sid_idx*4;
     //TODO:  MODIZER changes end / YOYOFR

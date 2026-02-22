@@ -10,6 +10,9 @@
 #import "ModizerConstants.h"
 #import "ModizFileHelper.h"
 
+#define BRACKET_MIN_SIZE_TO_CHECK 8 //min char length when using a string in brackets, like [XZ XFLF SMLDLD]. Used to avoid using [SNES], [NGCD], ...
+
+
 @implementation CoverScrapper
 
 #pragma mark - Public Methods
@@ -22,6 +25,22 @@
     return self;
 }
 
+- (void) removeOldCovers:(NSString*)fullpath {
+    NSFileManager *fileMgr=[NSFileManager defaultManager];
+    NSString *tmp=[fullpath stringByDeletingPathExtension];
+    
+    if ([tmp containsString:[ModizFileHelper getAppHomeDirectory]]) {
+        tmp=[NSString stringWithFormat:@"%@",tmp];
+    } else {
+        tmp=[NSString stringWithFormat:@"%@/%@",[ModizFileHelper getAppHomeDirectory],tmp];
+    }
+    
+    [fileMgr removeItemAtPath:[tmp stringByAppendingString:@".png"] error:nil];
+    [fileMgr removeItemAtPath:[tmp stringByAppendingString:@".webp"] error:nil];
+    [fileMgr removeItemAtPath:[tmp stringByAppendingString:@".jpg"] error:nil];
+    [fileMgr removeItemAtPath:[tmp stringByAppendingString:@".jpeg"] error:nil];
+    [fileMgr removeItemAtPath:[tmp stringByAppendingString:@".gif"] error:nil];
+}
 
 - (void)getImgfromImgGrabber:(NSString*)grabber_url search_label:(NSString*)search_label label:(NSString*)label fullpath:(NSString*)fullpath completion:(void (^)(void))block {
     static int no_reentrant=0;
@@ -123,7 +142,6 @@
                 imgPath=[[fullpath stringByDeletingPathExtension] stringByAppendingFormat:@".png"];
             }
             
-
             url = [NSURL URLWithString:url_img];
             NSURLSession *session = [NSURLSession sharedSession];
             NSURLSessionDataTask *task =
@@ -153,6 +171,8 @@
                     // Traiter les autres erreurs HTTP
                     return;
                 }
+                
+                [self removeOldCovers:fullpath];
             
                 if ([imgPath containsString:[ModizFileHelper getAppHomeDirectory]]) {
                     [data writeToFile:[NSString stringWithFormat:@"%@",imgPath] atomically:NO];
@@ -171,8 +191,17 @@
 //                [downloadViewController addURLToDownloadList:url_img fileName:imgName filePath:imgPath filesize:-1 isMODLAND:0 usePrimaryAction:mClickedPrimAction];
     }
     cleanName=[self removeParentheses:[search_label stringByDeletingPathExtension]];
-        int found=0;
-        if ([cleanName containsString:@"-"]) {
+    int found=0;
+    //patch for some games names
+    if ([[cleanName lowercaseString] containsString:@" daioujou "]) {
+        cleanName=[[cleanName lowercaseString] stringByReplacingOccurrencesOfString:@" daioujou " withString:@" dai-ou-jou "];
+        found=[self getImgfromTGDB:grabber_url search_label:cleanName label:label fullpath:fullpath completion:block];
+    }
+    // change and for &
+    else if ([cleanName containsString:@" and "]) {
+        cleanName=[cleanName stringByReplacingOccurrencesOfString:@" and " withString:@" & "];
+        found=[self getImgfromTGDB:grabber_url search_label:cleanName label:label fullpath:fullpath completion:block];
+    } else if ([cleanName containsString:@"-"]) {
             NSString *search_labelA=[search_label substringToIndex:[cleanName rangeOfString:@"-"].location];
             NSString *search_labelB=[search_label substringFromIndex:[cleanName rangeOfString:@"-"].location+1];
             found=[self getImgfromTGDB:grabber_url search_label:search_labelA label:label fullpath:fullpath completion:block];
@@ -181,7 +210,7 @@
                 if ([cleanName containsString:@"["]&&[cleanName containsString:@"]"]) {
                     NSString *search_labelA=[cleanName substringFromIndex:[cleanName rangeOfString:@"["].location+1];
                     search_labelA=[search_labelA substringToIndex:[search_labelA rangeOfString:@"]"].location];
-                    found=[self getImgfromTGDB:grabber_url search_label:search_labelA label:label fullpath:fullpath completion:block];
+                    if ([search_labelA length]>=BRACKET_MIN_SIZE_TO_CHECK) found=[self getImgfromTGDB:grabber_url search_label:search_labelA label:label fullpath:fullpath completion:block];
                 }
             }
         } else {
@@ -189,7 +218,7 @@
             if ([cleanName containsString:@"["]&&[cleanName containsString:@"]"]) {
                 NSString *search_labelA=[cleanName substringFromIndex:[cleanName rangeOfString:@"["].location+1];
                 search_labelA=[search_labelA substringToIndex:[search_labelA rangeOfString:@"]"].location];
-                found=[self getImgfromTGDB:grabber_url search_label:search_labelA label:label fullpath:fullpath completion:block];
+                if ([search_labelA length]>=BRACKET_MIN_SIZE_TO_CHECK) found=[self getImgfromTGDB:grabber_url search_label:search_labelA label:label fullpath:fullpath completion:block];
             }
             if (!found) {
                 //try by removing last part of search label if big enough
@@ -344,6 +373,9 @@
                     // Traiter les autres erreurs HTTP
                     return;
                 }
+                
+                [self removeOldCovers:fullpath];
+                
                 if ([imgPath containsString:[ModizFileHelper getAppHomeDirectory]]) {
                     [data writeToFile:[NSString stringWithFormat:@"%@",imgPath] atomically:NO];
                 } else {

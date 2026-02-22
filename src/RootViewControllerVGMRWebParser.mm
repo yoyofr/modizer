@@ -495,60 +495,39 @@ int qsortVGMR_entries_rating_or_entries(const void *entryA, const void *entryB) 
             manager.responseSerializer = [AFHTTPResponseSerializer serializer];
             manager.completionQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
             
-            NSMutableArray *sem_arr=nil;
-            NSMutableDictionary *urlData_dic=nil;
-            
-            //download all remaining pages if pages nb>1
-            if (pageNb>1) {
-                sem_arr=[[NSMutableArray alloc] initWithCapacity:pageNb-1];
-                urlData_dic=[[NSMutableDictionary alloc] initWithCapacity:pageNb-1];
-                
-                for (int i=1;i<pageNb;i++) {
-                    //build URL
-                    if ([mWebBaseURL rangeOfString:@"?"].location!=NSNotFound) {
-                        url = [NSURL URLWithString:[NSString stringWithFormat:@"%@&p=%d",mWebBaseURL,i]];
-                    } else url = [NSURL URLWithString:[NSString stringWithFormat:@"%@?p=%d",mWebBaseURL,i]];
-                    
-                    //build semaphore
-                    dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
-                    [sem_arr addObject:semaphore];
-                    
-                    //prepare request
-                    NSURLRequest *request = [NSURLRequest requestWithURL:url];
-                    NSURLSessionDataTask *dataTask = [manager dataTaskWithRequest:request
-                                                                   uploadProgress:^(NSProgress * _Nonnull uploadProgress) {
-                    }
-                                                                 downloadProgress:^(NSProgress * _Nonnull downloadProgress) {
-                    }
-                                                                completionHandler:^(NSURLResponse *response, id responseObject, NSError *error) {
-                        if (error) {
-                            MDZELog("Error: %@", error);
-                        } else {
-                            //urlData_pages=responseObject;
-                            [urlData_dic setObject:responseObject forKey:[NSString stringWithFormat:@"data%d",i]];
-                        }
-                        dispatch_semaphore_signal(semaphore);
-                    }];
-                    [dataTask resume];
-                }
-            }
-            
+            // Sequential page downloads: one request at a time to limit server load.
             for (int i=0;i<pageNb;i++) {
                 dispatch_async(dispatch_get_main_queue(), ^(void){
                     [self updateWaitingDetail:[NSString stringWithFormat:@"%d/%d",i+1,pageNb]];
                 });
-                
+
                 if (i>0) {
-                    url = [NSURL URLWithString:[NSString stringWithFormat:@"%@?p=%d",mWebBaseURL,i+1]];
-                    //urlData = [NSData dataWithContentsOfURL:url];
-                    
-                    //ensure thread has finished
-                    dispatch_semaphore_t semaphore=[sem_arr objectAtIndex:i-1];
-                    dispatch_semaphore_wait(semaphore, dispatch_time(DISPATCH_TIME_NOW, 30 * NSEC_PER_SEC) /*DISPATCH_TIME_FOREVER*/); //30s timeout
-                    semaphore=nil;
-                    //get NSData
-                    urlData=[urlData_dic objectForKey:[NSString stringWithFormat:@"data%d",i]];
-                    if (urlData) doc       = [[TFHpple alloc] initWithHTMLData:urlData];
+                    // Build URL for page i (same logic as before)
+                    if ([mWebBaseURL rangeOfString:@"?"].location!=NSNotFound) {
+                        url = [NSURL URLWithString:[NSString stringWithFormat:@"%@&p=%d",mWebBaseURL,i]];
+                    } else {
+                        url = [NSURL URLWithString:[NSString stringWithFormat:@"%@?p=%d",mWebBaseURL,i]];
+                    }
+
+                    // Download this page and wait for completion before continuing.
+                    __block NSData *pageData = nil;
+                    dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+                    NSURLRequest *request = [NSURLRequest requestWithURL:url];
+                    NSURLSessionDataTask *dataTask = [manager dataTaskWithRequest:request
+                                                                   uploadProgress:nil
+                                                                 downloadProgress:nil
+                                                                completionHandler:^(NSURLResponse *response, id responseObject, NSError *error) {
+                        if (error) {
+                            MDZELog("Error: %@", error);
+                        } else {
+                            pageData = responseObject;
+                        }
+                        dispatch_semaphore_signal(semaphore);
+                    }];
+                    [dataTask resume];
+                    dispatch_semaphore_wait(semaphore, dispatch_time(DISPATCH_TIME_NOW, 30 * NSEC_PER_SEC)); // 30s timeout
+
+                    if (pageData) doc = [[TFHpple alloc] initWithHTMLData:pageData];
                     else {
                         doc=nil;
                         MDZILog("no data for page %d",i);
@@ -1046,11 +1025,28 @@ int qsortVGMR_entries_rating_or_entries(const void *entryA, const void *entryB) 
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
         
         cell.frame=CGRectMake(0,0,tabView.frame.size.width,40);
-        [cell setBackgroundColor:[UIColor clearColor]];
-        
+//        [cell setBackgroundColor:[UIColor clearColor]];
+//        UIBackgroundConfiguration *backgroundConfig = [UIBackgroundConfiguration listGroupedCellConfiguration];
+//        backgroundConfig.backgroundColor = [UIColor systemGroupedBackgroundColor];
+//        cell.backgroundConfiguration = backgroundConfig;
         UIBackgroundConfiguration *backgroundConfig = [UIBackgroundConfiguration listGroupedCellConfiguration];
         backgroundConfig.backgroundColor = [UIColor systemGroupedBackgroundColor];
         cell.backgroundConfiguration = backgroundConfig;
+        
+        // Pour gérer automatiquement l'état sélectionné, utilise configurationUpdateHandler
+        cell.configurationUpdateHandler = ^(UITableViewCell *cell, UICellConfigurationState *state) {
+            UIBackgroundConfiguration *config = [cell backgroundConfiguration];
+            if (state.selected || state.highlighted) {
+                config.backgroundColor = [UIColor secondarySystemGroupedBackgroundColor];
+                //config.backgroundColor = [UIColor systemBlueColor];
+                config.cornerRadius = 8.0;
+            } else {
+                config.backgroundColor = [UIColor systemGroupedBackgroundColor];
+                config.cornerRadius = 0.0;
+            }
+            [cell setBackgroundConfiguration:config];
+        };
+        
         //
         // Create the label for the top row of text
         //

@@ -431,11 +431,28 @@ extern char cleanDB_Status[256];
 
         cell.frame=CGRectMake(0,0,tabView.bounds.size.width,50);
         cell.autoresizingMask=UIViewAutoresizingFlexibleWidth;
-        [cell setBackgroundColor:[UIColor clearColor]];
-
+//        [cell setBackgroundColor:[UIColor clearColor]];
+//        UIBackgroundConfiguration *backgroundConfig = [UIBackgroundConfiguration listGroupedCellConfiguration];
+//        backgroundConfig.backgroundColor = [UIColor systemGroupedBackgroundColor];
+//        cell.backgroundConfiguration = backgroundConfig;
         UIBackgroundConfiguration *backgroundConfig = [UIBackgroundConfiguration listGroupedCellConfiguration];
         backgroundConfig.backgroundColor = [UIColor systemGroupedBackgroundColor];
         cell.backgroundConfiguration = backgroundConfig;
+        
+        // Pour gérer automatiquement l'état sélectionné, utilise configurationUpdateHandler
+        cell.configurationUpdateHandler = ^(UITableViewCell *cell, UICellConfigurationState *state) {
+            UIBackgroundConfiguration *config = [cell backgroundConfiguration];
+            if (state.selected || state.highlighted) {
+                config.backgroundColor = [UIColor secondarySystemGroupedBackgroundColor];
+                //config.backgroundColor = [UIColor systemBlueColor];
+                config.cornerRadius = 8.0;
+            } else {
+                config.backgroundColor = [UIColor systemGroupedBackgroundColor];
+                config.cornerRadius = 0.0;
+            }
+            [cell setBackgroundConfiguration:config];
+        };
+        
 
         btn= [[BButton alloc] initWithFrame:CGRectMake(tabView.bounds.size.width/2-100,
                                                       10,

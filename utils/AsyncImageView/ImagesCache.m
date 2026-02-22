@@ -9,7 +9,27 @@
 
 #define directoryInCache @"imagesCache"
 
+/// Maximum number of simultaneous image downloads across all ImagesCache instances.
+static const NSInteger ICMaxConcurrentDownloads = 1;
+
+/// Shared operation queue – limits concurrency globally across all ImagesCache instances.
+static NSOperationQueue *ICDownloadQueue = nil;
+
+/// Tracks URLs currently being downloaded to avoid duplicate requests.
+static NSMutableSet *ICPendingDownloads = nil;
+
 @implementation ImagesCache
+
++ (void)initialize
+{
+    if (self == [ImagesCache class]) {
+        ICDownloadQueue = [[NSOperationQueue alloc] init];
+        ICDownloadQueue.name = @"com.modizer.imagescache.download";
+        ICDownloadQueue.maxConcurrentOperationCount = ICMaxConcurrentDownloads;
+
+        ICPendingDownloads = [[NSMutableSet alloc] init];
+    }
+}
 
 -(id)init
 {
@@ -69,9 +89,16 @@
     //Before downloading setting in uiimage temporary placeholder.png image with loading text
     //Перед скачиванием задаем в uiimage временную картинку placeholder.png с текстом loading
     uiimageview.image = [UIImage imageNamed:ICPlaceholderFile];
-    //Create background thread for download and scale image without blocking our UI
-    //Создаем фоновый поток для скачивания и сжатия картинки не блокируя интерфейс нашей программы
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+
+    // Avoid duplicate downloads: if this URL is already queued/downloading, skip it.
+    @synchronized(ICPendingDownloads) {
+        if ([ICPendingDownloads containsObject:url])
+            return uiimageview.image;
+        [ICPendingDownloads addObject:url];
+    }
+
+    // Enqueue the download through the shared rate-limited queue.
+    [ICDownloadQueue addOperationWithBlock:^{
         //Try to get real image from cache by image name without extension
         //Пробуем получить оригинальную картинку из кэша по ее имени без расширения
         UIImage *realImage = [imagesReal objectForKey:imageName];
@@ -102,6 +129,12 @@
         @catch (NSException *exception) {
             NSLog(@"Error downloading image with name: %@", imageName);
         }
+
+        // Download finished (success or failure): free the slot for this URL.
+        @synchronized(ICPendingDownloads) {
+            [ICPendingDownloads removeObject:url];
+        }
+
         //Check if real image is exists
         //Проверяем что оригинальная картинка теперь у нас есть
         if(realImage)
@@ -136,7 +169,7 @@
                 }
             });
         }
-    });
+    }];
     //Return uiimage
     //Возвращаем uiimage
     return uiimageview.image;
@@ -193,7 +226,7 @@
 {
     UIGraphicsBeginImageContext( newSize );
     //[image drawInRect:CGRectMake(0,0,newSize.width,newSize.height)];
-    
+
     CGRect recto=CGRectMake(0,0,newSize.width,newSize.height);
     if (newSize.width <= CGSizeZero.width && newSize.height <= CGSizeZero.height ) {
         [image drawInRect:recto];
@@ -208,11 +241,11 @@
 
     [image drawInRect:CGRectMake(origin.x, origin.y, newSizeImg.width, newSizeImg.height)];
     UIImage* scaledImage = UIGraphicsGetImageFromCurrentImageContext();
-    
+
     [scaledImage drawInRect:recto];
-    
-    
-    
+
+
+
     UIImage* newImage = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
     return newImage;

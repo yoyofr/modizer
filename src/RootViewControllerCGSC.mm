@@ -956,11 +956,28 @@ END_PROFILE
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
         
         cell.frame=CGRectMake(0,0,tabView.frame.size.width,40);
-        [cell setBackgroundColor:[UIColor clearColor]];
-        
+//        [cell setBackgroundColor:[UIColor clearColor]];
+//        UIBackgroundConfiguration *backgroundConfig = [UIBackgroundConfiguration listGroupedCellConfiguration];
+//        backgroundConfig.backgroundColor = [UIColor systemGroupedBackgroundColor];
+//        cell.backgroundConfiguration = backgroundConfig;
         UIBackgroundConfiguration *backgroundConfig = [UIBackgroundConfiguration listGroupedCellConfiguration];
         backgroundConfig.backgroundColor = [UIColor systemGroupedBackgroundColor];
         cell.backgroundConfiguration = backgroundConfig;
+        
+        // Pour gérer automatiquement l'état sélectionné, utilise configurationUpdateHandler
+        cell.configurationUpdateHandler = ^(UITableViewCell *cell, UICellConfigurationState *state) {
+            UIBackgroundConfiguration *config = [cell backgroundConfiguration];
+            if (state.selected || state.highlighted) {
+                config.backgroundColor = [UIColor secondarySystemGroupedBackgroundColor];
+                //config.backgroundColor = [UIColor systemBlueColor];
+                config.cornerRadius = 8.0;
+            } else {
+                config.backgroundColor = [UIColor systemGroupedBackgroundColor];
+                config.cornerRadius = 0.0;
+            }
+            [cell setBackgroundConfiguration:config];
+        };
+        
         //
         // Create the label for the top row of text
         //
@@ -1409,7 +1426,7 @@ trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
             if (cur_db_entries[crow].id_md5) { //FILE
                 //File selected, start download is needed
                 NSString *sidFilename=[NSString stringWithFormat:@"%@",cur_db_entries[crow].label];
-                NSString *ftpPath=[NSString stringWithFormat:@"%@",cur_db_entries[crow].fullpath];
+                NSString *remotePath=[NSString stringWithFormat:@"%@",cur_db_entries[crow].fullpath];
                 NSString *localPath=[NSString stringWithFormat:@"Documents/%@%@",CGSC_BASEDIR,cur_db_entries[crow].fullpath];
                 
                 if (cur_db_entries[crow].downloaded==1) {
@@ -1427,14 +1444,37 @@ trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
                     mCurrentWinAskedDownload=1;
                     
                     NSString *cgsc_url=[NSString stringWithFormat:@"%s",settings[ONLINE_CGSC_CURRENT_URL].detail.mdz_msgbox.text];
-                    NSRange nsr=[cgsc_url rangeOfString:@"ftp://" options:NSCaseInsensitiveSearch];
-                    if (nsr.location==NSNotFound) {
+                    
+                    NSMutableArray *addDataSIDFname=[NSMutableArray array];
+                    NSMutableArray *addDataURLPath=[NSMutableArray array];
+                    NSMutableArray *addDataLocalPath=[NSMutableArray array];
+                    
+                    [addDataSIDFname addObject:[[sidFilename stringByDeletingPathExtension] stringByAppendingString:@".str"]];
+                    [addDataURLPath addObject:[[remotePath stringByDeletingPathExtension] stringByAppendingString:@".str"]];
+                    [addDataLocalPath addObject:[[localPath stringByDeletingPathExtension] stringByAppendingString:@".str"]];
+                    [addDataSIDFname addObject:[[sidFilename stringByDeletingPathExtension] stringByAppendingString:@".wds"]];
+                    [addDataURLPath addObject:[[remotePath stringByDeletingPathExtension] stringByAppendingString:@".wds"]];
+                    [addDataLocalPath addObject:[[localPath stringByDeletingPathExtension] stringByAppendingString:@".wds"]];
+                    [addDataSIDFname addObject:[[sidFilename stringByDeletingPathExtension] stringByAppendingString:@".pic"]];
+                    [addDataURLPath addObject:[[remotePath stringByDeletingPathExtension] stringByAppendingString:@".pic"]];
+                    [addDataLocalPath addObject:[[localPath stringByDeletingPathExtension] stringByAppendingString:@".pic"]];
+                    [addDataSIDFname addObject:[[sidFilename stringByDeletingPathExtension] stringByAppendingString:@".pgg"]];
+                    [addDataURLPath addObject:[[remotePath stringByDeletingPathExtension] stringByAppendingString:@".pgg"]];
+                    [addDataLocalPath addObject:[[localPath stringByDeletingPathExtension] stringByAppendingString:@".pgg"]];
+                    [addDataSIDFname addObject:[[sidFilename stringByDeletingPathExtension] stringByAppendingString:@".pjj"]];
+                    [addDataURLPath addObject:[[remotePath stringByDeletingPathExtension] stringByAppendingString:@".pjj"]];
+                    [addDataLocalPath addObject:[[localPath stringByDeletingPathExtension] stringByAppendingString:@".pjj"]];
+                    
                         //HTTP
-                        [downloadViewController addURLToDownloadList:[NSString stringWithFormat:@"%@%@",cgsc_url,ftpPath] fileName:sidFilename filePath:localPath filesize:-1 isMODLAND:1 usePrimaryAction:1];
-                    } else {
-                        //FTP
-                        [downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:[cgsc_url substringFromIndex:6] filesize:-1 filename:sidFilename isMODLAND:1 usePrimaryAction:1];
-                    }
+                        //Additional optional files, try to download
+                        for (int i=0;i<[addDataSIDFname count];i++) {
+                            if ([downloadViewController addURLToDownloadList:[NSString stringWithFormat:@"%@%@",cgsc_url,[addDataURLPath objectAtIndex:i]] fileName:[addDataSIDFname objectAtIndex:i] filePath:[addDataLocalPath objectAtIndex:i] filesize:-1 isMODLAND:3 usePrimaryAction:0]
+                                ) {
+                                break;
+                            }
+                        }
+                        
+                        [downloadViewController addURLToDownloadList:[NSString stringWithFormat:@"%@%@",cgsc_url,remotePath] fileName:sidFilename filePath:localPath filesize:-1 isMODLAND:2 usePrimaryAction:1];
                 }
             }
         }
@@ -1478,7 +1518,7 @@ trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
             if (cur_db_entries[crow].id_md5) { //FILE
                 //File selected, start download is needed
                 NSString *sidFilename=[NSString stringWithFormat:@"%@",cur_db_entries[crow].label];
-                NSString *ftpPath=[NSString stringWithFormat:@"%@",cur_db_entries[crow].fullpath];
+                NSString *remotePath=[NSString stringWithFormat:@"%@",cur_db_entries[crow].fullpath];
                 NSString *localPath=[NSString stringWithFormat:@"Documents/%@%@",CGSC_BASEDIR,cur_db_entries[crow].fullpath];
                 mClickedPrimAction=2;
                 
@@ -1493,14 +1533,37 @@ trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
                     mCurrentWinAskedDownload=1;
                     
                     NSString *cgsc_url=[NSString stringWithFormat:@"%s",settings[ONLINE_CGSC_CURRENT_URL].detail.mdz_msgbox.text];
-                    NSRange nsr=[cgsc_url rangeOfString:@"ftp://" options:NSCaseInsensitiveSearch];
-                    if (nsr.location==NSNotFound) {
+                    
+                    NSMutableArray *addDataSIDFname=[NSMutableArray array];
+                    NSMutableArray *addDataURLPath=[NSMutableArray array];
+                    NSMutableArray *addDataLocalPath=[NSMutableArray array];
+                    
+                    [addDataSIDFname addObject:[[sidFilename stringByDeletingPathExtension] stringByAppendingString:@".str"]];
+                    [addDataURLPath addObject:[[remotePath stringByDeletingPathExtension] stringByAppendingString:@".str"]];
+                    [addDataLocalPath addObject:[[localPath stringByDeletingPathExtension] stringByAppendingString:@".str"]];
+                    [addDataSIDFname addObject:[[sidFilename stringByDeletingPathExtension] stringByAppendingString:@".wds"]];
+                    [addDataURLPath addObject:[[remotePath stringByDeletingPathExtension] stringByAppendingString:@".wds"]];
+                    [addDataLocalPath addObject:[[localPath stringByDeletingPathExtension] stringByAppendingString:@".wds"]];
+                    [addDataSIDFname addObject:[[sidFilename stringByDeletingPathExtension] stringByAppendingString:@".pic"]];
+                    [addDataURLPath addObject:[[remotePath stringByDeletingPathExtension] stringByAppendingString:@".pic"]];
+                    [addDataLocalPath addObject:[[localPath stringByDeletingPathExtension] stringByAppendingString:@".pic"]];
+                    [addDataSIDFname addObject:[[sidFilename stringByDeletingPathExtension] stringByAppendingString:@".pgg"]];
+                    [addDataURLPath addObject:[[remotePath stringByDeletingPathExtension] stringByAppendingString:@".pgg"]];
+                    [addDataLocalPath addObject:[[localPath stringByDeletingPathExtension] stringByAppendingString:@".pgg"]];
+                    [addDataSIDFname addObject:[[sidFilename stringByDeletingPathExtension] stringByAppendingString:@".pjj"]];
+                    [addDataURLPath addObject:[[remotePath stringByDeletingPathExtension] stringByAppendingString:@".pjj"]];
+                    [addDataLocalPath addObject:[[localPath stringByDeletingPathExtension] stringByAppendingString:@".pjj"]];
+                    
                         //HTTP
-                        [downloadViewController addURLToDownloadList:[NSString stringWithFormat:@"%@%@",cgsc_url,ftpPath] fileName:sidFilename filePath:localPath filesize:-1 isMODLAND:1 usePrimaryAction:mClickedPrimAction];
-                    } else {
-                        //FTP
-                        [downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:[cgsc_url substringFromIndex:6] filesize:-1 filename:sidFilename isMODLAND:1 usePrimaryAction:mClickedPrimAction];
-                    }
+                        //Additional optional files, try to download
+                        for (int i=0;i<[addDataSIDFname count];i++) {
+                            if ([downloadViewController addURLToDownloadList:[NSString stringWithFormat:@"%@%@",cgsc_url,[addDataURLPath objectAtIndex:i]] fileName:[addDataSIDFname objectAtIndex:i] filePath:[addDataLocalPath objectAtIndex:i] filesize:-1 isMODLAND:3 usePrimaryAction:0]
+                                ) {
+                                break;
+                            }
+                        }
+                        
+                        [downloadViewController addURLToDownloadList:[NSString stringWithFormat:@"%@%@",cgsc_url,remotePath] fileName:sidFilename filePath:localPath filesize:-1 isMODLAND:2 usePrimaryAction:mClickedPrimAction];
                 }
             }
         }
@@ -1567,7 +1630,7 @@ trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
         if (download_all && (crow==-1)) {
             //download all dir
             NSString *sidFilename;
-            NSString *ftpPath;
+            NSString *remotePath;
             NSString *localPath;
             int first=0; //1;  Do not play even first file => TODO : add a setting for this
             int existing;
@@ -1576,114 +1639,96 @@ trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
             
             int cur_db_entries_count=(search_dbCGSC?search_dbCGSC_entries_count:dbCGSC_entries_count);
             
-                for (int j=0;j<cur_db_entries_count;j++) {
-                    if (cur_db_entries[j].id_md5) {//mod found
+            for (int j=0;j<cur_db_entries_count;j++) {
+                if (cur_db_entries[j].id_md5) {//mod found
+                    
+                    existing=cur_db_entries[j].downloaded;
+                    if (existing==-1) {
+                        NSString *pathToCheck=nil;
                         
-                        existing=cur_db_entries[j].downloaded;
-                        if (existing==-1) {
-                            NSString *pathToCheck=nil;
-                            
-                            if (cur_db_entries[j].fullpath)
-                                pathToCheck=[NSString stringWithFormat:@"%@/Documents/%@%@",[ModizFileHelper getAppHomeDirectory],CGSC_BASEDIR,cur_db_entries[j].fullpath];
-                            if (pathToCheck) {
-                                if ([mFileMngr fileExistsAtPath:pathToCheck]) cur_db_entries[j].downloaded=1;
-                                else existing=cur_db_entries[j].downloaded=0;
-                            } else existing=cur_db_entries[j].downloaded=0;
-                        }
-                        if (existing==0) {
-                            
-                            //File selected, start download is needed
-                            sidFilename=[NSString stringWithFormat:@"%@",cur_db_entries[j].label];
-                            ftpPath=[NSString stringWithFormat:@"%@",cur_db_entries[j].fullpath];
-                            localPath=[NSString stringWithFormat:@"Documents/%@%@",CGSC_BASEDIR,cur_db_entries[j].fullpath];
-                            mClickedPrimAction=(settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==0);
-                            
-                            [self checkCreate:[localPath stringByDeletingLastPathComponent]];
-                            mCurrentWinAskedDownload=1;
-                            
-                            NSString *cgsc_url=[NSString stringWithFormat:@"%s",settings[ONLINE_CGSC_CURRENT_URL].detail.mdz_msgbox.text];
-                            NSRange nsr=[cgsc_url rangeOfString:@"ftp://" options:NSCaseInsensitiveSearch];
-                            
-                            NSMutableArray *addDataSIDFname=[NSMutableArray array];
-                            NSMutableArray *addDataFTPPath=[NSMutableArray array];
-                            NSMutableArray *addDataLocalPath=[NSMutableArray array];
-                            
-                            [addDataSIDFname addObject:[[sidFilename stringByDeletingPathExtension] stringByAppendingString:@".str"]];
-                            [addDataFTPPath addObject:[[ftpPath stringByDeletingPathExtension] stringByAppendingString:@".str"]];
-                            [addDataLocalPath addObject:[[localPath stringByDeletingPathExtension] stringByAppendingString:@".str"]];
-                            [addDataSIDFname addObject:[[sidFilename stringByDeletingPathExtension] stringByAppendingString:@".wds"]];
-                            [addDataFTPPath addObject:[[ftpPath stringByDeletingPathExtension] stringByAppendingString:@".wds"]];
-                            [addDataLocalPath addObject:[[localPath stringByDeletingPathExtension] stringByAppendingString:@".wds"]];
-                            [addDataSIDFname addObject:[[sidFilename stringByDeletingPathExtension] stringByAppendingString:@".pic"]];
-                            [addDataFTPPath addObject:[[ftpPath stringByDeletingPathExtension] stringByAppendingString:@".pic"]];
-                            [addDataLocalPath addObject:[[localPath stringByDeletingPathExtension] stringByAppendingString:@".pic"]];
-                            [addDataSIDFname addObject:[[sidFilename stringByDeletingPathExtension] stringByAppendingString:@".pgg"]];
-                            [addDataFTPPath addObject:[[ftpPath stringByDeletingPathExtension] stringByAppendingString:@".pgg"]];
-                            [addDataLocalPath addObject:[[localPath stringByDeletingPathExtension] stringByAppendingString:@".pgg"]];
-                            [addDataSIDFname addObject:[[sidFilename stringByDeletingPathExtension] stringByAppendingString:@".pjj"]];
-                            [addDataFTPPath addObject:[[ftpPath stringByDeletingPathExtension] stringByAppendingString:@".pjj"]];
-                            [addDataLocalPath addObject:[[localPath stringByDeletingPathExtension] stringByAppendingString:@".pjj"]];
-                            
-                            if (first) {
-                                if (nsr.location==NSNotFound) {
-                                    //HTTP
-                                    //Additional optional files, try to download
-                                    for (int i=0;i<[addDataSIDFname count];i++) {
-                                        if ([downloadViewController addURLToDownloadList:[NSString stringWithFormat:@"%@%@",cgsc_url,[addDataFTPPath objectAtIndex:i]] fileName:[addDataSIDFname objectAtIndex:i] filePath:[addDataLocalPath objectAtIndex:i] filesize:-1 isMODLAND:2 usePrimaryAction:0]
-                                            ) {
-                                            tooMuch=1;
-                                            break;
-                                        }
-                                    }
-                                    
-                                    if ([downloadViewController addURLToDownloadList:[NSString stringWithFormat:@"%@%@",cgsc_url,ftpPath] fileName:sidFilename filePath:localPath filesize:-1 isMODLAND:1 usePrimaryAction:1]
-                                        ) {
-                                        tooMuch=1;
-                                        break;
-                                    }
-                                    
-                                } else {
-                                    //FTP
-                                    if ([downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:[cgsc_url substringFromIndex:6] filesize:-1 filename:sidFilename isMODLAND:1 usePrimaryAction:1]) {
-                                        tooMuch=1;
-                                        break;
-                                    }
+                        if (cur_db_entries[j].fullpath)
+                            pathToCheck=[NSString stringWithFormat:@"%@/Documents/%@%@",[ModizFileHelper getAppHomeDirectory],CGSC_BASEDIR,cur_db_entries[j].fullpath];
+                        if (pathToCheck) {
+                            if ([mFileMngr fileExistsAtPath:pathToCheck]) cur_db_entries[j].downloaded=1;
+                            else existing=cur_db_entries[j].downloaded=0;
+                        } else existing=cur_db_entries[j].downloaded=0;
+                    }
+                    if (existing==0) {
+                        
+                        //File selected, start download is needed
+                        sidFilename=[NSString stringWithFormat:@"%@",cur_db_entries[j].label];
+                        remotePath=[NSString stringWithFormat:@"%@",cur_db_entries[j].fullpath];
+                        localPath=[NSString stringWithFormat:@"Documents/%@%@",CGSC_BASEDIR,cur_db_entries[j].fullpath];
+                        mClickedPrimAction=(settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==0);
+                        
+                        [self checkCreate:[localPath stringByDeletingLastPathComponent]];
+                        mCurrentWinAskedDownload=1;
+                        
+                        NSString *cgsc_url=[NSString stringWithFormat:@"%s",settings[ONLINE_CGSC_CURRENT_URL].detail.mdz_msgbox.text];
+                        
+                        NSMutableArray *addDataSIDFname=[NSMutableArray array];
+                        NSMutableArray *addDataURLPath=[NSMutableArray array];
+                        NSMutableArray *addDataLocalPath=[NSMutableArray array];
+                        
+                        [addDataSIDFname addObject:[[sidFilename stringByDeletingPathExtension] stringByAppendingString:@".str"]];
+                        [addDataURLPath addObject:[[remotePath stringByDeletingPathExtension] stringByAppendingString:@".str"]];
+                        [addDataLocalPath addObject:[[localPath stringByDeletingPathExtension] stringByAppendingString:@".str"]];
+                        [addDataSIDFname addObject:[[sidFilename stringByDeletingPathExtension] stringByAppendingString:@".wds"]];
+                        [addDataURLPath addObject:[[remotePath stringByDeletingPathExtension] stringByAppendingString:@".wds"]];
+                        [addDataLocalPath addObject:[[localPath stringByDeletingPathExtension] stringByAppendingString:@".wds"]];
+                        [addDataSIDFname addObject:[[sidFilename stringByDeletingPathExtension] stringByAppendingString:@".pic"]];
+                        [addDataURLPath addObject:[[remotePath stringByDeletingPathExtension] stringByAppendingString:@".pic"]];
+                        [addDataLocalPath addObject:[[localPath stringByDeletingPathExtension] stringByAppendingString:@".pic"]];
+                        [addDataSIDFname addObject:[[sidFilename stringByDeletingPathExtension] stringByAppendingString:@".pgg"]];
+                        [addDataURLPath addObject:[[remotePath stringByDeletingPathExtension] stringByAppendingString:@".pgg"]];
+                        [addDataLocalPath addObject:[[localPath stringByDeletingPathExtension] stringByAppendingString:@".pgg"]];
+                        [addDataSIDFname addObject:[[sidFilename stringByDeletingPathExtension] stringByAppendingString:@".pjj"]];
+                        [addDataURLPath addObject:[[remotePath stringByDeletingPathExtension] stringByAppendingString:@".pjj"]];
+                        [addDataLocalPath addObject:[[localPath stringByDeletingPathExtension] stringByAppendingString:@".pjj"]];
+                        
+                        if (first) {
+                            //HTTP
+                            //Additional optional files, try to download
+                            for (int i=0;i<[addDataSIDFname count];i++) {
+                                if ([downloadViewController addURLToDownloadList:[NSString stringWithFormat:@"%@%@",cgsc_url,[addDataURLPath objectAtIndex:i]] fileName:[addDataSIDFname objectAtIndex:i] filePath:[addDataLocalPath objectAtIndex:i] filesize:-1 isMODLAND:3 usePrimaryAction:0]
+                                    ) {
+                                    tooMuch=1;
+                                    break;
                                 }
-                                first=0;
-                            } else {
-                                
-                                if (nsr.location==NSNotFound) {
-                                    //HTTP
-                                    //Additional optional files, try to download
-                                    for (int i=0;i<[addDataSIDFname count];i++) {
-                                        if ([downloadViewController addURLToDownloadList:[NSString stringWithFormat:@"%@%@",cgsc_url,[addDataFTPPath objectAtIndex:i]] fileName:[addDataSIDFname objectAtIndex:i] filePath:[addDataLocalPath objectAtIndex:i] filesize:-1 isMODLAND:2 usePrimaryAction:0]
-                                            ) {
-                                            tooMuch=1;
-                                            break;
-                                        }
-                                    }
-                                    
-                                    if ([downloadViewController addURLToDownloadList:[NSString stringWithFormat:@"%@%@",cgsc_url,ftpPath] fileName:sidFilename filePath:localPath filesize:-1 isMODLAND:1 usePrimaryAction:2] ) {
-                                        tooMuch=1;
-                                        break;
-                                    }
-                                } else {
-                                    //FTP
-                                    if ([downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:[cgsc_url substringFromIndex:6] filesize:-1 filename:sidFilename isMODLAND:1 usePrimaryAction:2]) {
-                                        tooMuch=1;
-                                        break;
-                                    }
+                            }
+                            
+                            if ([downloadViewController addURLToDownloadList:[NSString stringWithFormat:@"%@%@",cgsc_url,remotePath] fileName:sidFilename filePath:localPath filesize:-1 isMODLAND:2 usePrimaryAction:1]
+                                ) {
+                                tooMuch=1;
+                                break;
+                            }
+                            
+                            first=0;
+                        } else {
+                            //HTTP
+                            //Additional optional files, try to download
+                            for (int i=0;i<[addDataSIDFname count];i++) {
+                                if ([downloadViewController addURLToDownloadList:[NSString stringWithFormat:@"%@%@",cgsc_url,[addDataURLPath objectAtIndex:i]] fileName:[addDataSIDFname objectAtIndex:i] filePath:[addDataLocalPath objectAtIndex:i] filesize:-1 isMODLAND:3 usePrimaryAction:0]
+                                    ) {
+                                    tooMuch=1;
+                                    break;
                                 }
+                            }
+                            
+                            if ([downloadViewController addURLToDownloadList:[NSString stringWithFormat:@"%@%@",cgsc_url,remotePath] fileName:sidFilename filePath:localPath filesize:-1 isMODLAND:2 usePrimaryAction:2] ) {
+                                tooMuch=1;
+                                break;
                             }
                         }
                     }
                 }
+            }
         } else {
             
             if (cur_db_entries[crow].id_md5) { //FILE
                 //File selected, start download is needed
                 NSString *sidFilename=[NSString stringWithFormat:@"%@",cur_db_entries[crow].label];
-                NSString *ftpPath=[NSString stringWithFormat:@"%@",cur_db_entries[crow].fullpath];
+                NSString *remotePath=[NSString stringWithFormat:@"%@",cur_db_entries[crow].fullpath];
                 NSString *localPath=[NSString stringWithFormat:@"Documents/%@%@",CGSC_BASEDIR,cur_db_entries[crow].fullpath];
                 mClickedPrimAction=(settings[GLOB_PlayEnqueueAction].detail.mdz_switch.switch_value==0);
                 
@@ -1711,40 +1756,34 @@ trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
                     mCurrentWinAskedDownload=1;
                     
                     NSString *cgsc_url=[NSString stringWithFormat:@"%s",settings[ONLINE_CGSC_CURRENT_URL].detail.mdz_msgbox.text];
-                    NSRange nsr=[cgsc_url rangeOfString:@"ftp://" options:NSCaseInsensitiveSearch];
-                    if (nsr.location==NSNotFound) {
-                        //HTTP
-                        NSMutableArray *addDataSIDFname=[NSMutableArray array];
-                        NSMutableArray *addDataFTPPath=[NSMutableArray array];
-                        NSMutableArray *addDataLocalPath=[NSMutableArray array];
-                        
-                        [addDataSIDFname addObject:[[sidFilename stringByDeletingPathExtension] stringByAppendingString:@".str"]];
-                        [addDataFTPPath addObject:[[ftpPath stringByDeletingPathExtension] stringByAppendingString:@".str"]];
-                        [addDataLocalPath addObject:[[localPath stringByDeletingPathExtension] stringByAppendingString:@".str"]];
-                        [addDataSIDFname addObject:[[sidFilename stringByDeletingPathExtension] stringByAppendingString:@".wds"]];
-                        [addDataFTPPath addObject:[[ftpPath stringByDeletingPathExtension] stringByAppendingString:@".wds"]];
-                        [addDataLocalPath addObject:[[localPath stringByDeletingPathExtension] stringByAppendingString:@".wds"]];
-                        [addDataSIDFname addObject:[[sidFilename stringByDeletingPathExtension] stringByAppendingString:@".pic"]];
-                        [addDataFTPPath addObject:[[ftpPath stringByDeletingPathExtension] stringByAppendingString:@".pic"]];
-                        [addDataLocalPath addObject:[[localPath stringByDeletingPathExtension] stringByAppendingString:@".pic"]];
-                        [addDataSIDFname addObject:[[sidFilename stringByDeletingPathExtension] stringByAppendingString:@".pgg"]];
-                        [addDataFTPPath addObject:[[ftpPath stringByDeletingPathExtension] stringByAppendingString:@".pgg"]];
-                        [addDataLocalPath addObject:[[localPath stringByDeletingPathExtension] stringByAppendingString:@".pgg"]];
-                        [addDataSIDFname addObject:[[sidFilename stringByDeletingPathExtension] stringByAppendingString:@".pjj"]];
-                        [addDataFTPPath addObject:[[ftpPath stringByDeletingPathExtension] stringByAppendingString:@".pjj"]];
-                        [addDataLocalPath addObject:[[localPath stringByDeletingPathExtension] stringByAppendingString:@".pjj"]];
-                        
-                        for (int i=0;i<[addDataSIDFname count];i++) {
-                            if ([downloadViewController addURLToDownloadList:[NSString stringWithFormat:@"%@%@",cgsc_url,[addDataFTPPath objectAtIndex:i]] fileName:[addDataSIDFname objectAtIndex:i] filePath:[addDataLocalPath objectAtIndex:i] filesize:-1 isMODLAND:2 usePrimaryAction:0]
-                                ) {
-                            }
+                    //HTTP
+                    NSMutableArray *addDataSIDFname=[NSMutableArray array];
+                    NSMutableArray *addDataURLPath=[NSMutableArray array];
+                    NSMutableArray *addDataLocalPath=[NSMutableArray array];
+                    
+                    [addDataSIDFname addObject:[[sidFilename stringByDeletingPathExtension] stringByAppendingString:@".str"]];
+                    [addDataURLPath addObject:[[remotePath stringByDeletingPathExtension] stringByAppendingString:@".str"]];
+                    [addDataLocalPath addObject:[[localPath stringByDeletingPathExtension] stringByAppendingString:@".str"]];
+                    [addDataSIDFname addObject:[[sidFilename stringByDeletingPathExtension] stringByAppendingString:@".wds"]];
+                    [addDataURLPath addObject:[[remotePath stringByDeletingPathExtension] stringByAppendingString:@".wds"]];
+                    [addDataLocalPath addObject:[[localPath stringByDeletingPathExtension] stringByAppendingString:@".wds"]];
+                    [addDataSIDFname addObject:[[sidFilename stringByDeletingPathExtension] stringByAppendingString:@".pic"]];
+                    [addDataURLPath addObject:[[remotePath stringByDeletingPathExtension] stringByAppendingString:@".pic"]];
+                    [addDataLocalPath addObject:[[localPath stringByDeletingPathExtension] stringByAppendingString:@".pic"]];
+                    [addDataSIDFname addObject:[[sidFilename stringByDeletingPathExtension] stringByAppendingString:@".pgg"]];
+                    [addDataURLPath addObject:[[remotePath stringByDeletingPathExtension] stringByAppendingString:@".pgg"]];
+                    [addDataLocalPath addObject:[[localPath stringByDeletingPathExtension] stringByAppendingString:@".pgg"]];
+                    [addDataSIDFname addObject:[[sidFilename stringByDeletingPathExtension] stringByAppendingString:@".pjj"]];
+                    [addDataURLPath addObject:[[remotePath stringByDeletingPathExtension] stringByAppendingString:@".pjj"]];
+                    [addDataLocalPath addObject:[[localPath stringByDeletingPathExtension] stringByAppendingString:@".pjj"]];
+                    
+                    for (int i=0;i<[addDataSIDFname count];i++) {
+                        if ([downloadViewController addURLToDownloadList:[NSString stringWithFormat:@"%@%@",cgsc_url,[addDataURLPath objectAtIndex:i]] fileName:[addDataSIDFname objectAtIndex:i] filePath:[addDataLocalPath objectAtIndex:i] filesize:-1 isMODLAND:3 usePrimaryAction:0]
+                            ) {
                         }
-                        
-                        [downloadViewController addURLToDownloadList:[NSString stringWithFormat:@"%@%@",cgsc_url,ftpPath] fileName:sidFilename filePath:localPath filesize:-1 isMODLAND:1 usePrimaryAction:mClickedPrimAction];
-                    } else {
-                        //FTP
-                        [downloadViewController addFTPToDownloadList:localPath ftpURL:ftpPath ftpHost:[cgsc_url substringFromIndex:6] filesize:-1 filename:sidFilename isMODLAND:1 usePrimaryAction:mClickedPrimAction];
                     }
+                    
+                    [downloadViewController addURLToDownloadList:[NSString stringWithFormat:@"%@%@",cgsc_url,remotePath] fileName:sidFilename filePath:localPath filesize:-1 isMODLAND:2 usePrimaryAction:mClickedPrimAction];
                     
                 }
             } else { //DIR
@@ -1766,7 +1805,7 @@ trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
                 
                 ((RootViewControllerCGSC*)childController)->mDir1 = mDir1;
                 ((RootViewControllerCGSC*)childController)->mDir2 = mDir2;
-//                childController.view.frame=self.view.frame;
+                //                childController.view.frame=self.view.frame;
                 // Ensure proper layout under navigation/tab bars
                 if ([childController respondsToSelector:@selector(setEdgesForExtendedLayout:)]) {
                     childController.edgesForExtendedLayout = UIRectEdgeNone;

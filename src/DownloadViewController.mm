@@ -613,7 +613,7 @@ MDZELog("gzread error str for FTP entry %d",i); \
 		if (mIsMODLAND[0]==0) [self checkIfShouldAddFile:[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent: mCurrentFilePath] fileName:mCurrentFilename ];
 		else {  //MODLAND
 			if ([ModizFileHelper isPlayableFile:mCurrentFilename]) {
-                if ((mCurrentUsePrimaryAction==1)&&(mIsMODLAND[0]==1)) {
+                if ((mCurrentUsePrimaryAction==1)&&((mIsMODLAND[0]==1)||(mIsMODLAND[0]==2))) {
                     NSMutableArray *array_label = [[NSMutableArray alloc] init];
                     NSMutableArray *array_path = [[NSMutableArray alloc] init];
                     [array_label addObject:mCurrentFilename];
@@ -621,7 +621,7 @@ MDZELog("gzread error str for FTP entry %d",i); \
                     [detailViewController play_listmodules:array_label start_index:0 path:array_path];
                     
                 } else {
-                    if (mIsMODLAND[0]==1) {
+                    if ((mIsMODLAND[0]==1)||(mIsMODLAND[0]==2)) {
                         [detailViewController add_to_playlist:mCurrentFilePath fileName:mCurrentFilename forcenoplay:(mCurrentUsePrimaryAction==2)];
                     }
                 }
@@ -763,7 +763,7 @@ MDZELog("gzread error str for FTP entry %d",i); \
         } break;
         case NSStreamEventErrorOccurred: {
             //connection error
-            if (mCurrentIsMODLAND!=2) [self suspend];
+            if (mCurrentIsMODLAND<2) [self suspend];
 			else [self _stopReceiveWithStatus:@"Connection error." status:3];
         } break;
         case NSStreamEventEndEncountered: {
@@ -1170,8 +1170,8 @@ MDZELog("gzread error str for FTP entry %d",i); \
         }
         if (!duplicated) {
             
-            if (isMODLAND) {
-                
+            if (isMODLAND==1) {
+                //Check additional files
                 NSArray *addFiles=[ModizFileHelper getAdditionalMODLANDRequiredFilesDownloader:filePath];
                 for (NSString *addFile in addFiles) {
                     //MDZILog("2download: %@",addFile);
@@ -1209,7 +1209,7 @@ MDZELog("gzread error str for FTP entry %d",i); \
                         mURL[mURLDownloadQueueDepth]=[[NSString alloc] initWithString:modland_url];
                         mURLIsImage[mURLDownloadQueueDepth]=0;
                         
-                        mURLIsMODLAND[mURLDownloadQueueDepth]=1;
+                        mURLIsMODLAND[mURLDownloadQueueDepth]=isMODLAND;
                         mURLFilePath[mURLDownloadQueueDepth]=[[NSString alloc] initWithString:localPath];
                         mURLUsePrimaryAction[mURLDownloadQueueDepth]=0;
                         
@@ -1217,7 +1217,6 @@ MDZELog("gzread error str for FTP entry %d",i); \
                     }
                 }
             }
-            
             
             if (fileName) mURLFilename[mURLDownloadQueueDepth]=[[NSString alloc] initWithString:fileName];
             else mURLFilename[mURLDownloadQueueDepth]=nil;
@@ -1419,7 +1418,9 @@ MDZELog("gzread error str for FTP entry %d",i); \
         if (lCancelURL==2) moveToNext=false; //Suspended
 		lCancelURL=0;
 	} else {
-        if (mURLIsMODLAND[0]!=2) [self showAlertMsg:NSLocalizedString(@"Error", @"") message:NSLocalizedString(@"Cannot download from this URL.",@"")];
+        if (mURLIsMODLAND[0]<2) {
+            [self showAlertMsg:NSLocalizedString(@"Error", @"") message:NSLocalizedString(@"Cannot download from this URL.",@"")];
+        }
 	}
     if (moveToNext) [self updateToNextURL];
 	mGetURLInProgress=0;
@@ -1512,7 +1513,7 @@ MDZELog("gzread error str for FTP entry %d",i); \
         if (mCurrentURLIsImage) localPath=[[NSString alloc] initWithFormat:@"%@/%@",[ModizFileHelper getAppHomeDirectory],mCurrentURLFilename];
         else {
             if (mURLIsMODLAND[0]) {
-                if (mURLIsMODLAND[0]==3) {
+                if (mURLIsMODLAND[0]==4) {
                     //radio mode
                     localPath=[[NSString alloc] initWithFormat:@"%@/%@/%@",[ModizFileHelper getAppHomeDirectory],mURLFilePath[0],mCurrentURLFilename];
                 } else {
@@ -1527,7 +1528,7 @@ MDZELog("gzread error str for FTP entry %d",i); \
         return [NSURL fileURLWithPath:localPath];
     } completionHandler:^(NSURLResponse *response, NSURL *filePath, NSError *error) {
         if (error) {
-            MDZELog("URL file download error for %@, error: %d %@", filePath,(int)(error.code),error.localizedDescription);
+            MDZELog("URL file download error for %@, URL: %@, error: %d %@", filePath,mURL[0],(int)(error.code),error.localizedDescription);
             [self requestFailed];
             [[NSFileManager defaultManager] removeItemAtPath:[filePath path] error:NULL];
         } else {
@@ -1535,7 +1536,7 @@ MDZELog("gzread error str for FTP entry %d",i); \
             
             if (mURLIsMODLAND[0]) {
                 if ([ModizFileHelper isPlayableFile:mCurrentURLFilename]) {
-                    if ((mURLUsePrimaryAction[0]==1)&&(mURLIsMODLAND[0]==1)) {
+                    if ((mURLUsePrimaryAction[0]==1)&&((mURLIsMODLAND[0]==1)||(mURLIsMODLAND[0]==2))) {
                         NSMutableArray *array_label = [[NSMutableArray alloc] init];
                         NSMutableArray *array_path = [[NSMutableArray alloc] init];
                         [array_label addObject:mCurrentURLFilename];
@@ -1543,7 +1544,7 @@ MDZELog("gzread error str for FTP entry %d",i); \
                         [detailViewController play_listmodules:array_label start_index:0 path:array_path];
                         
                     } else {
-                        if (mURLIsMODLAND[0]==1) {
+                        if ((mURLIsMODLAND[0]==1)||(mURLIsMODLAND[0]==2)) {
                             [detailViewController add_to_playlist:mURLFilePath[0] fileName:mCurrentURLFilename forcenoplay:(mURLUsePrimaryAction[0]==2)];
                         }
                     }
@@ -1684,11 +1685,28 @@ MDZELog("gzread error str for FTP entry %d",i); \
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
         
         cell.frame=CGRectMake(0,0,tableView.frame.size.width,40);
-        [cell setBackgroundColor:[UIColor clearColor]];
-        
+//        [cell setBackgroundColor:[UIColor clearColor]];
+//        
+//        UIBackgroundConfiguration *backgroundConfig = [UIBackgroundConfiguration listGroupedCellConfiguration];
+//        backgroundConfig.backgroundColor = [UIColor systemGroupedBackgroundColor];
+//        cell.backgroundConfiguration = backgroundConfig;
         UIBackgroundConfiguration *backgroundConfig = [UIBackgroundConfiguration listGroupedCellConfiguration];
         backgroundConfig.backgroundColor = [UIColor systemGroupedBackgroundColor];
         cell.backgroundConfiguration = backgroundConfig;
+        
+        // Pour gérer automatiquement l'état sélectionné, utilise configurationUpdateHandler
+        cell.configurationUpdateHandler = ^(UITableViewCell *cell, UICellConfigurationState *state) {
+            UIBackgroundConfiguration *config = [cell backgroundConfiguration];
+            if (state.selected || state.highlighted) {
+                config.backgroundColor = [UIColor secondarySystemGroupedBackgroundColor];
+                //config.backgroundColor = [UIColor systemBlueColor];
+                config.cornerRadius = 8.0;
+            } else {
+                config.backgroundColor = [UIColor systemGroupedBackgroundColor];
+                config.cornerRadius = 0.0;
+            }
+            [cell setBackgroundConfiguration:config];
+        };
         
         cell.contentView.backgroundColor = [UIColor clearColor];
         //
