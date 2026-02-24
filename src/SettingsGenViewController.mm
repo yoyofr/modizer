@@ -3732,6 +3732,18 @@ void optNSFPLAYChangedC(id param) {
     settings[SID_ForceLoop].callback=&optSIDChangedC;
     settings[SID_ForceLoop].detail.mdz_boolswitch.switch_value=0;
     
+    SETTINGS_ID_DEF(SID_StartingSub)
+    settings[SID_StartingSub].type=MDZ_SWITCH;
+    settings[SID_StartingSub].label=(char*)"Start subsong";
+    settings[SID_StartingSub].description=(char*)"Subsong start position: first one or the one specified in file's header";
+    settings[SID_StartingSub].family=MDZ_SETTINGS_FAMILY_SID;
+    settings[SID_StartingSub].sub_family=0;
+    settings[SID_StartingSub].callback=&optSIDChangedC;
+    settings[SID_StartingSub].detail.mdz_switch.switch_value_nb=2;
+    settings[SID_StartingSub].detail.mdz_switch.switch_labels=(char**)calloc(1,settings[SID_StartingSub].detail.mdz_switch.switch_value_nb*sizeof(char*));
+    settings[SID_StartingSub].detail.mdz_switch.switch_labels[0]=(char*)"First";
+    settings[SID_StartingSub].detail.mdz_switch.switch_labels[1]=(char*)"Header";
+    
     SETTINGS_ID_DEF(SID_UseStilData)
     settings[SID_UseStilData].type=MDZ_BOOLSWITCH;
     settings[SID_UseStilData].label=(char*)"Use STIL data";
@@ -3773,6 +3785,7 @@ void optNSFPLAYChangedC(id param) {
     settings[SID_SecondSIDOn].detail.mdz_switch.switch_default_value=0;
     settings[SID_ThirdSIDOn].detail.mdz_switch.switch_default_value=0;
     settings[SID_ForceLoop].detail.mdz_boolswitch.switch_default_value=0;
+    settings[SID_StartingSub].detail.mdz_switch.switch_default_value=1;
     settings[SID_UseStilData].detail.mdz_boolswitch.switch_default_value=1;
     settings[SID_CLOCK].detail.mdz_switch.switch_default_value=0;
     settings[SID_MODEL].detail.mdz_switch.switch_default_value=0;

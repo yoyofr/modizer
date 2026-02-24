@@ -142,8 +142,12 @@
 
         // Loop/Repeat button (3 levels: 0=off, 1=all, 2=one)
         CPNowPlayingRepeatButton *repeatButton = [[CPNowPlayingRepeatButton alloc] initWithHandler:^(CPNowPlayingButton * _Nonnull button) {
-            [self.detailViewController performSelectorOnMainThread:@selector(changeLoopMode) withObject:nil waitUntilDone:YES];
-            [self refreshNowPlayingButtons];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self.detailViewController changeLoopMode];
+                [self refreshNowPlayingButtons];
+            });
+//            [self.detailViewController performSelectorOnMainThread:@selector(changeLoopMode) withObject:nil waitUntilDone:YES];
+//            [self refreshNowPlayingButtons];
         }];
         repeatButton.enabled = YES;
         [buttons addObject:repeatButton];
@@ -199,8 +203,12 @@
         }
         CPNowPlayingImageButton *shuffleButton = [[CPNowPlayingImageButton alloc] initWithImage:shuffleImage
                                                                                          handler:^(CPNowPlayingButton * _Nonnull button) {
-            [self.detailViewController performSelectorOnMainThread:@selector(shuffle) withObject:nil waitUntilDone:YES];
-            [self refreshNowPlayingButtons];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self.detailViewController shuffle];
+                [self refreshNowPlayingButtons];
+            });
+//            [self.detailViewController performSelectorOnMainThread:@selector(shuffle) withObject:nil waitUntilDone:YES];
+//            [self refreshNowPlayingButtons];
         }];
         // Mark button as selected when shuffle is active (mode 1 or 2)
         shuffleButton.selected = (self.detailViewController.mShuffle != 0);
@@ -216,15 +224,26 @@
 
             CPNowPlayingImageButton *favoriteButton = [[CPNowPlayingImageButton alloc] initWithImage:favoriteImage
                                                                                              handler:^(CPNowPlayingButton * _Nonnull button) {
-                if (rating == 5) {
-                    // Remove from favorites
-                    [self.detailViewController performSelectorOnMainThread:@selector(cmdDislike) withObject:nil waitUntilDone:YES];
-                } else {
-                    // Add to favorites
-                    [self.detailViewController performSelectorOnMainThread:@selector(cmdLike) withObject:nil waitUntilDone:YES];
-                }
-                // Refresh both buttons and playlists (favorites count changed)
-                [self refreshMPItems];
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    if (rating == 5) {
+                        // Remove from favorites
+                        [self.detailViewController cmdDislike];
+                    } else {
+                        // Add to favorites
+                        [self.detailViewController cmdLike];
+                    }
+                    // Refresh both buttons and playlists (favorites count changed)
+                    [self refreshMPItems];
+                });
+//                if (rating == 5) {
+//                    // Remove from favorites
+//                    [self.detailViewController performSelectorOnMainThread:@selector(cmdDislike) withObject:nil waitUntilDone:YES];
+//                } else {
+//                    // Add to favorites
+//                    [self.detailViewController performSelectorOnMainThread:@selector(cmdLike) withObject:nil waitUntilDone:YES];
+//                }
+//                // Refresh both buttons and playlists (favorites count changed)
+//                [self refreshMPItems];
             }];
             [buttons addObject:favoriteButton];
         }
@@ -315,44 +334,63 @@
         
     [cmdCenter.playCommand setEnabled:YES];
     [cmdCenter.playCommand addTargetWithHandler:^MPRemoteCommandHandlerStatus(MPRemoteCommandEvent * _Nonnull event) {
-        [self.detailViewController performSelectorOnMainThread:@selector(playPushed) withObject:nil waitUntilDone:YES];
-        [self.detailViewController performSelectorOnMainThread:@selector(updMediaCenter) withObject:nil waitUntilDone:YES];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.detailViewController playPushed];
+            [self.detailViewController updMediaCenter];
+        });
+//        [self.detailViewController performSelectorOnMainThread:@selector(playPushed) withObject:nil waitUntilDone:YES];
+//        [self.detailViewController performSelectorOnMainThread:@selector(updMediaCenter) withObject:nil waitUntilDone:YES];
         return MPRemoteCommandHandlerStatusSuccess;
     }];
     [cmdCenter.pauseCommand setEnabled:YES];
     [cmdCenter.pauseCommand addTargetWithHandler:^MPRemoteCommandHandlerStatus(MPRemoteCommandEvent * _Nonnull event) {
-        [self.detailViewController performSelectorOnMainThread:@selector(pausePushed) withObject:nil waitUntilDone:YES];
-        [self.detailViewController performSelectorOnMainThread:@selector(updMediaCenter) withObject:nil waitUntilDone:YES];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.detailViewController pausePushed];
+            [self.detailViewController updMediaCenter];
+        });
+//        [self.detailViewController performSelectorOnMainThread:@selector(pausePushed) withObject:nil waitUntilDone:YES];
+//        [self.detailViewController performSelectorOnMainThread:@selector(updMediaCenter) withObject:nil waitUntilDone:YES];
         return MPRemoteCommandHandlerStatusSuccess;
     }];
     [cmdCenter.togglePlayPauseCommand setEnabled:YES];
     [cmdCenter.togglePlayPauseCommand addTargetWithHandler:^MPRemoteCommandHandlerStatus(MPRemoteCommandEvent * _Nonnull event) {
-        if (self.detailViewController.mPaused) [self.detailViewController performSelectorOnMainThread:@selector(playPushed) withObject:nil waitUntilDone:YES];
-        else [self.detailViewController performSelectorOnMainThread:@selector(pausePushed) withObject:nil waitUntilDone:YES];
-                
-        [self.detailViewController performSelectorOnMainThread:@selector(updMediaCenter) withObject:nil waitUntilDone:YES];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if (self.detailViewController.mPaused) [self.detailViewController playPushed];
+            else [self.detailViewController pausePushed];
+            [self.detailViewController updMediaCenter];
+        });
+//        if (self.detailViewController.mPaused) [self.detailViewController performSelectorOnMainThread:@selector(playPushed) withObject:nil waitUntilDone:YES];
+//        else [self.detailViewController performSelectorOnMainThread:@selector(pausePushed) withObject:nil waitUntilDone:YES];
+//                
+//        [self.detailViewController performSelectorOnMainThread:@selector(updMediaCenter) withObject:nil waitUntilDone:YES];
         return MPRemoteCommandHandlerStatusSuccess;
     }];
     
     [cmdCenter.likeCommand setEnabled:NO];
     [cmdCenter.likeCommand addTargetWithHandler:^MPRemoteCommandHandlerStatus(MPRemoteCommandEvent * _Nonnull event) {
-
-        [self.detailViewController performSelectorOnMainThread:@selector(cmdLike) withObject:nil waitUntilDone:YES];
-
-        [self.detailViewController performSelectorOnMainThread:@selector(updMediaCenter) withObject:nil waitUntilDone:YES];
-        // Refresh playlists to update favorites count
-        [self refreshMPItems];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.detailViewController cmdLike];
+            [self.detailViewController updMediaCenter];
+        });
+//        [self.detailViewController performSelectorOnMainThread:@selector(cmdLike) withObject:nil waitUntilDone:YES];
+//        [self.detailViewController performSelectorOnMainThread:@selector(updMediaCenter) withObject:nil waitUntilDone:YES];
+//        // Refresh playlists to update favorites count
+//        [self refreshMPItems];
         return MPRemoteCommandHandlerStatusSuccess;
     }];
 
     [cmdCenter.dislikeCommand setEnabled:NO];
     [cmdCenter.dislikeCommand addTargetWithHandler:^MPRemoteCommandHandlerStatus(MPRemoteCommandEvent * _Nonnull event) {
 
-        [self.detailViewController performSelectorOnMainThread:@selector(cmdDislike) withObject:nil waitUntilDone:YES];
-
-        [self.detailViewController performSelectorOnMainThread:@selector(updMediaCenter) withObject:nil waitUntilDone:YES];
-        // Refresh playlists to update favorites count
-        [self refreshMPItems];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.detailViewController cmdDislike];
+            [self.detailViewController updMediaCenter];
+        });
+//        [self.detailViewController performSelectorOnMainThread:@selector(cmdDislike) withObject:nil waitUntilDone:YES];
+//
+//        [self.detailViewController performSelectorOnMainThread:@selector(updMediaCenter) withObject:nil waitUntilDone:YES];
+//        // Refresh playlists to update favorites count
+//        [self refreshMPItems];
         return MPRemoteCommandHandlerStatusSuccess;
     }];
     
@@ -364,21 +402,37 @@
     
     [cmdCenter.changeRepeatModeCommand setEnabled:YES];
     [cmdCenter.changeRepeatModeCommand addTargetWithHandler:^MPRemoteCommandHandlerStatus(MPRemoteCommandEvent * _Nonnull event) {
-        [self.detailViewController performSelectorOnMainThread:@selector(changeLoopMode) withObject:nil waitUntilDone:YES];
-        switch (self.detailViewController.mLoopMode) {
-            case 0:
-                cmdCenter.changeRepeatModeCommand.currentRepeatType=MPRepeatTypeOff;
-                break;
-            case 1:
-                cmdCenter.changeRepeatModeCommand.currentRepeatType=MPRepeatTypeAll;
-                break;
-            case 2:
-                cmdCenter.changeRepeatModeCommand.currentRepeatType=MPRepeatTypeOne;
-                break;
-        }
-        [self.detailViewController performSelectorOnMainThread:@selector(updMediaCenter) withObject:nil waitUntilDone:YES];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.detailViewController changeLoopMode];
+            switch (self.detailViewController.mLoopMode) {
+                case 0:
+                    cmdCenter.changeRepeatModeCommand.currentRepeatType=MPRepeatTypeOff;
+                    break;
+                case 1:
+                    cmdCenter.changeRepeatModeCommand.currentRepeatType=MPRepeatTypeAll;
+                    break;
+                case 2:
+                    cmdCenter.changeRepeatModeCommand.currentRepeatType=MPRepeatTypeOne;
+                    break;
+            }
+            [self.detailViewController updMediaCenter];
+        });
+//        [self.detailViewController performSelectorOnMainThread:@selector(changeLoopMode) withObject:nil waitUntilDone:YES];
+//        switch (self.detailViewController.mLoopMode) {
+//            case 0:
+//                cmdCenter.changeRepeatModeCommand.currentRepeatType=MPRepeatTypeOff;
+//                break;
+//            case 1:
+//                cmdCenter.changeRepeatModeCommand.currentRepeatType=MPRepeatTypeAll;
+//                break;
+//            case 2:
+//                cmdCenter.changeRepeatModeCommand.currentRepeatType=MPRepeatTypeOne;
+//                break;
+//        }
+//        [self.detailViewController performSelectorOnMainThread:@selector(updMediaCenter) withObject:nil waitUntilDone:YES];
         return MPRemoteCommandHandlerStatusSuccess;
     }];
+    
     switch (self.detailViewController.mLoopMode) {
         case 0:
             cmdCenter.changeRepeatModeCommand.currentRepeatType=MPRepeatTypeOff;
@@ -391,15 +445,22 @@
             break;
     }
     
-    
     [cmdCenter.changeShuffleModeCommand setEnabled:YES];
     [cmdCenter.changeShuffleModeCommand addTargetWithHandler:^MPRemoteCommandHandlerStatus(MPRemoteCommandEvent * _Nonnull event) {
-        [self.detailViewController performSelectorOnMainThread:@selector(shuffle) withObject:nil waitUntilDone:YES];
-        
-        if (self.detailViewController.mShuffle) cmdCenter.changeShuffleModeCommand.currentShuffleType=MPShuffleTypeItems;
-        else cmdCenter.changeShuffleModeCommand.currentShuffleType=MPShuffleTypeOff;
-                
-        [self.detailViewController performSelectorOnMainThread:@selector(updMediaCenter) withObject:nil waitUntilDone:YES];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.detailViewController shuffle];
+            
+            if (self.detailViewController.mShuffle) cmdCenter.changeShuffleModeCommand.currentShuffleType=MPShuffleTypeItems;
+            else cmdCenter.changeShuffleModeCommand.currentShuffleType=MPShuffleTypeOff;
+                    
+            [self.detailViewController updMediaCenter];
+        });
+//        [self.detailViewController performSelectorOnMainThread:@selector(shuffle) withObject:nil waitUntilDone:YES];
+//        
+//        if (self.detailViewController.mShuffle) cmdCenter.changeShuffleModeCommand.currentShuffleType=MPShuffleTypeItems;
+//        else cmdCenter.changeShuffleModeCommand.currentShuffleType=MPShuffleTypeOff;
+//                
+//        [self.detailViewController performSelectorOnMainThread:@selector(updMediaCenter) withObject:nil waitUntilDone:YES];
         return MPRemoteCommandHandlerStatusSuccess;
     }];
     if (self.detailViewController.mShuffle) cmdCenter.changeShuffleModeCommand.currentShuffleType=MPShuffleTypeItems;
@@ -408,22 +469,28 @@
     
     [cmdCenter.previousTrackCommand setEnabled:YES];
     [cmdCenter.previousTrackCommand addTargetWithHandler:^MPRemoteCommandHandlerStatus(MPRemoteCommandEvent * _Nonnull event) {
-        [self.detailViewController performSelectorOnMainThread:@selector(playPrevSub) withObject:nil waitUntilDone:YES];
-        [self.detailViewController performSelectorOnMainThread:@selector(updMediaCenter) withObject:nil waitUntilDone:YES];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.detailViewController playPrevSub];
+            [self.detailViewController updMediaCenter];
+        });
         return MPRemoteCommandHandlerStatusSuccess;
     }];
     [cmdCenter.nextTrackCommand setEnabled:YES];
     [cmdCenter.nextTrackCommand addTargetWithHandler:^MPRemoteCommandHandlerStatus(MPRemoteCommandEvent * _Nonnull event) {
-        [self.detailViewController performSelectorOnMainThread:@selector(playNextSub) withObject:nil waitUntilDone:YES];
-        [self.detailViewController performSelectorOnMainThread:@selector(updMediaCenter) withObject:nil waitUntilDone:YES];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.detailViewController playNextSub];
+            [self.detailViewController updMediaCenter];
+        });
         return MPRemoteCommandHandlerStatusSuccess;
     }];
     [cmdCenter.changePlaybackPositionCommand setEnabled:YES];
     [cmdCenter.changePlaybackPositionCommand addTargetWithHandler:^MPRemoteCommandHandlerStatus(MPRemoteCommandEvent * _Nonnull event) {
                 
         NSNumber *seekTime=[[NSNumber alloc] initWithDouble:((MPChangePlaybackPositionCommandEvent*)event).positionTime*1000];
-        [self.detailViewController performSelectorOnMainThread:@selector(seek:) withObject:seekTime waitUntilDone:YES];
-        [self.detailViewController performSelectorOnMainThread:@selector(updMediaCenter) withObject:nil waitUntilDone:YES];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.detailViewController seek:seekTime];
+            [self.detailViewController updMediaCenter];
+        });
         return MPRemoteCommandHandlerStatusSuccess;
     }];
     
@@ -431,8 +498,12 @@
     [cmdCenter.seekForwardCommand addTargetWithHandler:^MPRemoteCommandHandlerStatus(MPRemoteCommandEvent * _Nonnull event) {
         
         if ( ((MPSeekCommandEvent*)event).type==MPSeekCommandEventTypeBeginSeeking) {
-            [self.detailViewController performSelectorOnMainThread:@selector(playNext) withObject:nil waitUntilDone:YES];
-            [self.detailViewController performSelectorOnMainThread:@selector(updMediaCenter) withObject:nil waitUntilDone:YES];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self.detailViewController playNext];
+                [self.detailViewController updMediaCenter];
+            });
+//            [self.detailViewController performSelectorOnMainThread:@selector(playNext) withObject:nil waitUntilDone:YES];
+//            [self.detailViewController performSelectorOnMainThread:@selector(updMediaCenter) withObject:nil waitUntilDone:YES];
         }
         return MPRemoteCommandHandlerStatusSuccess;
     }];
@@ -440,13 +511,20 @@
     [cmdCenter.seekBackwardCommand setEnabled:YES];
     [cmdCenter.seekBackwardCommand addTargetWithHandler:^MPRemoteCommandHandlerStatus(MPRemoteCommandEvent * _Nonnull event) {
         if ( ((MPSeekCommandEvent*)event).type==MPSeekCommandEventTypeBeginSeeking) {
-            [self.detailViewController performSelectorOnMainThread:@selector(playPrev) withObject:nil waitUntilDone:YES];
-            [self.detailViewController performSelectorOnMainThread:@selector(updMediaCenter) withObject:nil waitUntilDone:YES];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self.detailViewController playPrev];
+                [self.detailViewController updMediaCenter];
+            });
+//            [self.detailViewController performSelectorOnMainThread:@selector(playPrev) withObject:nil waitUntilDone:YES];
+//            [self.detailViewController performSelectorOnMainThread:@selector(updMediaCenter) withObject:nil waitUntilDone:YES];
         }
         return MPRemoteCommandHandlerStatusSuccess;
     }];
     
-    [self.detailViewController performSelectorOnMainThread:@selector(updMediaCenter) withObject:nil waitUntilDone:YES];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.detailViewController updMediaCenter];
+    });
+//    [self.detailViewController performSelectorOnMainThread:@selector(updMediaCenter) withObject:nil waitUntilDone:YES];
     
     MPPlayableContentManager *contMngr=[MPPlayableContentManager sharedContentManager];
     [contMngr setDelegate:self];

@@ -10893,8 +10893,9 @@ char* loadRom(const char* path, size_t romSize)
         mod_subsongs=*((uint8_t*)(websid_info[2]));
         mod_minsub=0;//sidtune_info.startSong;
         mod_maxsub=mod_subsongs-1;
-        mod_currentsub=*((uint8_t*)(websid_info[3]));
         
+        if (settings[SID_StartingSub].detail.mdz_switch.switch_value==1) mod_currentsub=*((uint8_t*)(websid_info[3]));
+        else mod_currentsub=0;
         
         websid_loader->initTune(PLAYBACK_FREQ, mod_currentsub);
         Postprocess::init(SOUND_BUFFER_SIZE_SAMPLE, PLAYBACK_FREQ);
@@ -11182,7 +11183,8 @@ char* loadRom(const char* path, size_t romSize)
         mod_subsongs=sidtune_info->songs();
         mod_minsub=0;//sidtune_info.startSong;
         mod_maxsub=sidtune_info->songs()-1;
-        mod_currentsub=sidtune_info->startSong()-1;
+        if (settings[SID_StartingSub].detail.mdz_switch.switch_value==1) mod_currentsub=sidtune_info->startSong()-1;
+        else mod_currentsub=0;
         
         mSidTune->selectSong(mod_currentsub-mod_minsub);
         
