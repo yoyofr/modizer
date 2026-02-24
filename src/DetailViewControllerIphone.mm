@@ -1839,6 +1839,7 @@ static float movePinchScale,movePinchScaleOld,movePinchAngle;
             pos_y=(hh-textHH*(float)lineIdx-2*textHH-safe_adjust_bottom)*glScaleFactor;
             break;
     }
+    if (pmenu_show==0) ImGui::SetNextWindowFocus();
     ImGui::SetNextWindowPos(ImVec2(pos_x,pos_y));
     ImGui::SetNextWindowSize(ImVec2((str_size_max.x+4+(float)lineIdx*textHH)*glScaleFactor,((float)lineIdx+0.5)*textHH*glScaleFactor));
     ImGui::GetStyle().Alpha=1.0;
@@ -2286,7 +2287,6 @@ static float movePinchScale,movePinchScaleOld,movePinchAngle;
                 cmdCenter.changeRepeatModeCommand.currentRepeatType = MPRepeatTypeOne;
                 break;
         }
-        
         infoCenter.nowPlayingInfo = [NSMutableDictionary dictionaryWithObjectsAndKeys:
                                      title,
                                      MPMediaItemPropertyTitle,
@@ -2318,9 +2318,9 @@ static float movePinchScale,movePinchScaleOld,movePinchAngle;
                                      nil];
     } else {
         
-        if (is_macOS) {
+        //if (is_macOS) {
             infoCenter.playbackState=MPNowPlayingPlaybackStateStopped;
-        }
+        //}
         
         if (mIsPlaying) {
             [cmdCenter.playCommand setEnabled:YES];
@@ -10445,7 +10445,9 @@ void drawTgtSlotPattern(int fxIdx,float x,float y,float w,float h,float ww,float
     //-------------------------------------
     // Song info
     //-------------------------------------
-    if (settings[GLOB_FX_DISPLAYSONGINFO].detail.mdz_boolswitch.switch_value && _mdz_display_songinfo_countdown) [self showSongInfo:ImVec2(ww,hh) frameToUpdate:frameToUpdate];
+    if (settings[GLOB_FX_DISPLAYSONGINFO].detail.mdz_boolswitch.switch_value && _mdz_display_songinfo_countdown) {
+        [self showSongInfo:ImVec2(ww,hh) frameToUpdate:frameToUpdate];
+    }
     
     //-------------------------------------
     // ProjectM preset name display
