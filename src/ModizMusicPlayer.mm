@@ -10988,14 +10988,11 @@ char* loadRom(const char* path, size_t romSize)
         if (mod_name[0]==0) {
             if (websid_info[4][0]) snprintf(mod_name,sizeof(mod_name),[[[NSString stringWithFormat:@"%@",[NSString stringWithUTF8String:websid_info[4]]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"] UTF8String]);
         }
-        
-        
     } else {
         free(websid_fileBuffer);
         websid_fileBuffer=NULL;
         return -3;
     }
-    
     return 0;
 }
 
@@ -11050,7 +11047,7 @@ char* loadRom(const char* path, size_t romSize)
         cfg.samplingMethod = SidConfig::INTERPOLATE;
 //        cfg.fastSampling = true;
     } else if (sid_interpolation==1) {
-        cfg.samplingMethod = SidConfig::INTERPOLATE;        
+        cfg.samplingMethod = SidConfig::INTERPOLATE;
 //        cfg.fastSampling = false;
     } else {
         cfg.samplingMethod = SidConfig::RESAMPLE_INTERPOLATE;
@@ -11095,7 +11092,6 @@ char* loadRom(const char* path, size_t romSize)
             cfg.forceSidModel=true;
             break;
     }
-    
     
     // Init ReSID
     if (sid_engine==0) {
