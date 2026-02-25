@@ -5154,7 +5154,6 @@ int recording=0;
             }
             [self.navigationController setNavigationBarHidden:YES animated:YES];
             
-            
             mainView.frame = CGRectMake(0.0, 0, mDevice_hh, mDevice_ww);
             m_oglView.frame = CGRectMake(0.0, 0.0, mDevice_hh, mDevice_ww);  //ipad
             //cover_viewBG.frame = CGRectMake(0.0, 0, mDevice_hh, mDevice_ww);//-82+82-safe_bottom-yofs);
@@ -5180,7 +5179,7 @@ int recording=0;
             //                if (is_macOS) yofs+=104;
             //                else yofs+=12;
             
-            float yofs;
+            float yofs,yofs2;
             CGPoint pt;
             if (is_macOS||is_iPad) {
                 pt=[self.view convertPoint:self.view.frame.origin toView:[UIApplication sharedApplication].keyWindow.rootViewController.view];
@@ -5200,13 +5199,28 @@ int recording=0;
             safe_top=self.view.safeAreaInsets.top;
             safe_left=self.view.safeAreaInsets.left;
             safe_right=self.view.safeAreaInsets.right;
+            
+            //yofs+=safe_top;
+            yofs2=0;
+            if (is_macOS) {
+#if TARGET_OS_MACCATALYST
+                if ([self isFullscreen]) {
+//                    MDZILog("view fs: %f %f, ofs y:%f",mDevice_hh,mDevice_ww,yofs);
+                    yofs+=40;
+                    yofs2+=12;
+                }
+                else {
+//                    MDZILog("view: %f %f, ofs y:%f",mDevice_hh,mDevice_ww,yofs);
+                }
+#endif
+            }
             //                if (safe_bottom>0) safe_bottom+=20;
-            //                MDZILog("safe: %f %f %f %f",safe_bottom,safe_top,safe_left,safe_right);
+//                            MDZILog("safe: %f %f %f %f",safe_bottom,safe_top,safe_left,safe_right);
             
             if (is_macOS||is_iPad) {
-                mainView.frame = CGRectMake(safe_left, 0, mDevice_hh-safe_left-safe_right, mDevice_ww-yofs);
-                m_oglView.frame = CGRectMake(0, 82, mDevice_hh-safe_left-safe_right, mDevice_ww-82-safe_bottom-yofs);
-                oglButton.frame = CGRectMake(0, 82, mDevice_hh-safe_left-safe_right, mDevice_ww-82-safe_bottom-yofs);
+                mainView.frame = CGRectMake(safe_left, 0+safe_top, mDevice_hh-safe_left-safe_right, mDevice_ww-safe_top-safe_bottom-yofs);
+                m_oglView.frame = CGRectMake(0, 82+safe_top, mDevice_hh-safe_left-safe_right, mDevice_ww-82-safe_top-safe_bottom-yofs-yofs2);
+                oglButton.frame = CGRectMake(0, 82+safe_top, mDevice_hh-safe_left-safe_right, mDevice_ww-82-safe_top-safe_bottom-yofs-yofs2);
                 
             } else {
                 mainView.frame = CGRectMake(safe_left, 28, mDevice_hh-safe_left-safe_right, mDevice_ww-yofs);

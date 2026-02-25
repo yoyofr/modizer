@@ -1488,7 +1488,11 @@ MDZELog("gzread error str for FTP entry %d",i); \
     
     AFmanager.responseSerializer = [AFHTTPResponseSerializer serializer];
     
-    NSURL *URL = [NSURL URLWithString:mURL[0]];
+    NSCharacterSet *allowedChars = [NSCharacterSet characterSetWithCharactersInString:
+        @"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~:/?#[]@!$&'()*+,;=%"];
+    
+    NSURL *URL = [NSURL URLWithString:[mURL[0] stringByAddingPercentEncodingWithAllowedCharacters:allowedChars]];//[NSURL URLWithString:mURL[0]];
+    
     
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:URL];
     

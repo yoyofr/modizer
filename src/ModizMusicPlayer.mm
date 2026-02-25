@@ -2799,6 +2799,9 @@ void propertyListenerCallback (void                   *inUserData,              
             m_voice_buff_ana_cpy[j]=(signed char*)calloc(1,SOUND_BUFFER_SIZE_SAMPLE*SOUND_MAXVOICES_BUFFER_FX);
         }
         memset(m_voice_ChipID,0,sizeof(int)*SOUND_MAXVOICES_BUFFER_FX);
+        m_voice_current_systemSub=0;
+        m_voice_current_system=0;
+        m_voice_current_systemPairedOfs=0;
         
         /*for (int i=0;i<SOUND_VOICES_MAX_ACTIVE_CHIPS;i++) {
          CGFloat hue=(240.0f/360.0f)+i*(70.0f/360.0f);
@@ -15543,6 +15546,9 @@ extern bool icloud_available;
     }
     memset(m_voice_ChipID,0,sizeof(int)*SOUND_MAXVOICES_BUFFER_FX);
     m_voice_current_system=0;
+    m_voice_current_systemSub=0;
+    m_voice_current_systemPairedOfs=0;
+    
     mSIDSeekInProgress=0;
     snprintf(mmp_fileext,8,"%s",[extension UTF8String] );
     mod_title=nil;
