@@ -2831,8 +2831,8 @@ int qsort_ComparePlEntriesRev(const void *entryA, const void *entryB) {
     ]];
     
     [self presentViewController:controller animated:YES completion:^{
-//        NSIndexPath *indexPath = [NSIndexPath indexPathForRow:0 inSection:0];
-//        [alertTableView selectRowAtIndexPath:indexPath animated:YES scrollPosition:UITableViewScrollPositionMiddle];
+        NSIndexPath *indexPath = [NSIndexPath indexPathForRow:radioSource.mCurrentPlayingSlot inSection:0];
+        [alertTableView selectRowAtIndexPath:indexPath animated:YES scrollPosition:UITableViewScrollPositionMiddle];
     }];
     
     UIButton *btn=(UIButton*)sender;
@@ -3367,11 +3367,10 @@ int recording=0;
         repeatingTimer = nil; // ensures we never invalidate an already invalid Timer
         [mplayer Stop];
         mPaused=1;
-        if (mHasFocus) [[self navigationController] popViewControllerAnimated:YES];
         
         if ([radioSource isActive]) {
             [radioSource moveNext:TRUE];
-        }
+        } else if (mHasFocus) [[self navigationController] popViewControllerAnimated:YES];
         return FALSE;
     }
     
@@ -3449,6 +3448,9 @@ int recording=0;
 }
 
 -(int)play_nextEntry {
+    
+    if (loadRequestInProgress) return 0;
+    
     if ([radioSource isActive]) {
         [radioSource moveNext:FALSE];
         if ([radioSource isInLibrary:0]) [btnSaveFile setTitleColor:[UIColor grayColor] forState:UIControlStateNormal];
@@ -5342,8 +5344,6 @@ int recording=0;
 
 #pragma mark -
 #pragma mark View lifecycle
-
-
 
 /**************************************************/
 /**************************************************/

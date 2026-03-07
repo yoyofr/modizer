@@ -164,11 +164,11 @@
                                 <viewControllerLayoutGuide type="top" id="0Wz-M2-EuN"/>
                                 <viewControllerLayoutGuide type="bottom" id="oVD-qc-dyR"/>
                             </layoutGuides>
-                            <view key="view" clipsSubviews="YES" contentMode="scaleToFill" id="ai9-RI-3ow">
+                            <view key="view" clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" layoutMarginsFollowReadableWidth="YES" id="ai9-RI-3ow">
                                 <rect key="frame" x="0.0" y="0.0" width="393" height="563"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <subviews>
-                                    <tableView clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" layoutMarginsFollowReadableWidth="YES" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" translatesAutoresizingMaskIntoConstraints="NO" id="SyA-DC-hhd">
+                                    <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" translatesAutoresizingMaskIntoConstraints="NO" id="SyA-DC-hhd">
                                         <rect key="frame" x="0.0" y="0.0" width="393" height="563"/>
                                         <color key="backgroundColor" red="0.94997608420000001" green="0.94997608420000001" blue="0.94997608420000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         <connections>
@@ -314,13 +314,13 @@
                                 <viewControllerLayoutGuide type="top" id="WvC-xg-a2Q"/>
                                 <viewControllerLayoutGuide type="bottom" id="QE2-Zq-P52"/>
                             </layoutGuides>
-                            <view key="view" clipsSubviews="YES" contentMode="scaleToFill" id="Qa1-JV-OZT">
+                            <view key="view" clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" layoutMarginsFollowReadableWidth="YES" id="Qa1-JV-OZT">
                                 <rect key="frame" x="0.0" y="0.0" width="393" height="563"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <subviews>
-                                    <tableView clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" layoutMarginsFollowReadableWidth="YES" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="40" sectionHeaderHeight="18" sectionFooterHeight="0.0" translatesAutoresizingMaskIntoConstraints="NO" id="PWX-uv-g3O">
+                                    <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="40" sectionHeaderHeight="18" sectionFooterHeight="0.0" translatesAutoresizingMaskIntoConstraints="NO" id="PWX-uv-g3O">
                                         <rect key="frame" x="0.0" y="0.0" width="393" height="563"/>
-                                        <color key="backgroundColor" red="0.94997608420000001" green="0.94997608420000001" blue="0.94997608420000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                         <connections>
                                             <outlet property="dataSource" destination="Y1P-8t-IWd" id="ayo-3W-H0k"/>
                                             <outlet property="delegate" destination="Y1P-8t-IWd" id="Blm-ak-j56"/>
@@ -1205,7 +1205,7 @@
                                         <rect key="frame" x="0.0" y="0.0" width="320" height="151"/>
                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
-                                        <mutableString key="text">v4.2 © Yohann Magnien / YoyoFR
+                                        <string key="text">v4.2 © Yohann Magnien / YoyoFR
 
 Contact: mailto:modizerhelp@gmail.com
 Web: https://modizer.app
@@ -1249,7 +1249,7 @@ Integrated player libs:
 - ZXTune
 
 Disclaimer:
-Internet accesses to the Modland, HVSC &amp; ASMA libraries are provided as an as-is service, guarantee for availability and/or functionality is not given. Use this application at your own risk.</mutableString>
+Internet accesses to the Modland, HVSC &amp; ASMA libraries are provided as an as-is service, guarantee for availability and/or functionality is not given. Use this application at your own risk.</string>
                                         <color key="textColor" systemColor="labelColor"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                         <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>

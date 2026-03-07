@@ -40,6 +40,7 @@ enum t_radioSource {
 @property (nonatomic, strong) NSMutableArray *mSourceData;
 @property (nonatomic, strong) NSMutableArray *mHistory,*mHistoryComp;
 @property (nonatomic, strong) NSString *mCurrentPath;
+@property (nonatomic, assign) int mCurrentPlayingSlot;
 
 @property (nonatomic, strong) NSURLSessionConfiguration *mURLSessionConfig;
 @property (nonatomic, strong) NSOperationQueue *mURLSessionQueue;

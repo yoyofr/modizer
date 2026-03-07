@@ -47,6 +47,7 @@ NS_ASSUME_NONNULL_BEGIN
 @synthesize detailVC;
 @synthesize mActive,mFilesList,mFilesExistInLibrary,mSourceData,mHistory,mCurrentPath;
 @synthesize mURLSsession,mURLSessionQueue,mURLSessionConfig;
+@synthesize mCurrentPlayingSlot;
 
 - (instancetype)init {
     self = [super init];
@@ -62,6 +63,7 @@ NS_ASSUME_NONNULL_BEGIN
         mSourceData = [NSMutableArray array];
         mHistory = [NSMutableArray array];
         mCurrentPath=nil;
+        mCurrentPlayingSlot=0;
         [self cleanFiles];
         
         mURLSessionConfig = [NSURLSessionConfiguration defaultSessionConfiguration];
@@ -1825,8 +1827,6 @@ extern int joshw_subsites_size;
 }
 
 -(void) startNextEntry {
-    mPendingNewFileToPlay=0;
-    
     //update files list
     [self scanForPlayableFiles];
     
@@ -1840,10 +1840,12 @@ extern int joshw_subsites_size;
         [array_path addObject:localPath];
         
         mCurrentPath=[NSString stringWithString:localPath];
+        mCurrentPlayingSlot=0;
         dispatch_async(dispatch_get_main_queue(), ^{
             [detailVC play_listmodules:array_label start_index:0 path:array_path];
         });
     }
+    mPendingNewFileToPlay=0;
 }
 
 -(void) removeLastHistoryItem {
@@ -1870,6 +1872,7 @@ extern int joshw_subsites_size;
 }
 
 -(void)fetchRenewFilesAndStart:(bool)removeCurrentEntry {
+    mPendingNewFileToPlay=1;
     //update files list
     [self scanForPlayableFiles];
     
@@ -1922,7 +1925,6 @@ extern int joshw_subsites_size;
         [self scanForPlayableFiles];
     }
     
-    mPendingNewFileToPlay=1;
     //if there's at least 1 entry, start it
     if ([mFilesList count]) {
         [self startNextEntry];
@@ -2024,6 +2026,7 @@ extern int joshw_subsites_size;
     [array_path addObject:localPath];
     
     mCurrentPath=[NSString stringWithString:localPath];
+    mCurrentPlayingSlot=idx+1;
     dispatch_async(dispatch_get_main_queue(), ^{
         [detailVC play_listmodules:array_label start_index:0 path:array_path];
     });
@@ -2040,6 +2043,7 @@ extern int joshw_subsites_size;
         [array_path addObject:localPath];
         
         mCurrentPath=[NSString stringWithString:localPath];
+        mCurrentPlayingSlot=0;
         dispatch_async(dispatch_get_main_queue(), ^{
             [detailVC play_listmodules:array_label start_index:0 path:array_path];
         });
@@ -2050,6 +2054,10 @@ extern int joshw_subsites_size;
 -(void) moveNext:(bool)removeCurrentEntry {
     static int no_reenter=0;
     if (no_reenter) return;
+    
+    //already waiting for a file to launch ?
+    if (mPendingNewFileToPlay) return;
+    
     no_reenter=1;
     
     [self fetchRenewFilesAndStart:removeCurrentEntry];

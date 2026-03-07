@@ -1205,7 +1205,6 @@ extern bool icloud_available;
             int cpt=0;
             for (;;) {
                 r = archive_read_next_header(a, &entry);
-                
                                 
                 if (r == ARCHIVE_EOF) break;
                 if (r != ARCHIVE_OK) {
