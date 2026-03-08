@@ -77,6 +77,10 @@ NVPeakingEQFilter *nvdsp_PEQ[EQUALIZER_NB_BANDS];
 BOOL nvdsp_EQ;
 float nvdsp_outData[SOUND_BUFFER_SIZE_SAMPLE*2];
 
+// Dynamic audio normalization
+#import "DynamicNormalizer.h"
+DynamicNormalizer m_normalizer;
+
 #import "EQViewController.h"
 
 #include "fmpmini.h"
@@ -2914,6 +2918,11 @@ void propertyListenerCallback (void                   *inUserData,              
         
         //SID
         
+        //Dynamic audio normalizer
+        DynamicNormalizer::Config cfg;
+        cfg.sampleRate = 44100.0f;
+        cfg.targetLevelDb = -18.0f;
+        m_normalizer.setConfig(cfg);
         
         // init  UADE stuff
         char uadeconfname[PATH_MAX];
@@ -6548,6 +6557,10 @@ void processFadeOut(short int *buffer, int sample_count, int voice_factor) {
                             }
                             
                             if (xmp_play_buffer(xmp_ctx, buffer_ana[buffer_ana_gen_ofs], SOUND_BUFFER_SIZE_SAMPLE*2*2, 1) == 0) {
+                                
+                                // Dans le callback audio, après le rendu du plugin
+                                if (settings[GLOB_Normalize].detail.mdz_boolswitch.switch_value) m_normalizer.process(buffer_ana[buffer_ana_gen_ofs], SOUND_BUFFER_SIZE_SAMPLE);
+                                
                                 struct xmp_frame_info xmp_fi;
                                 xmp_get_frame_info(xmp_ctx, &xmp_fi);
                                 
@@ -7003,6 +7016,8 @@ void processFadeOut(short int *buffer, int sample_count, int voice_factor) {
                             
                             nbBytes=src_callback_read (src_state,src_ratio,SOUND_BUFFER_SIZE_SAMPLE, hc_sample_converted_data_float)*2*2;
                             src_float_to_short_array (hc_sample_converted_data_float,buffer_ana[buffer_ana_gen_ofs],SOUND_BUFFER_SIZE_SAMPLE*2) ;
+                            
+                            if (settings[GLOB_Normalize].detail.mdz_boolswitch.switch_value) m_normalizer.process(buffer_ana[buffer_ana_gen_ofs], SOUND_BUFFER_SIZE_SAMPLE);
                             
                             if ((HC_type==0x1)||(HC_type==0x2)||(HC_type==0x11)||(HC_type==0x12)||(HC_type==0x21)||(HC_type==0x23)||(HC_type==0x41)) { //PS1, PS2, SSF, DSF, SNSF, QSF
                                 //midi like notes data
@@ -9808,7 +9823,10 @@ static WSRPlayerApi* s_coreSwan=&oswan::g_wsr_player_api;
     //Loop
     if (mLoopMode) iModuleLength=-1;
     
-    hc_sample_data=(int16_t*)malloc(SOUND_BUFFER_SIZE_SAMPLE*2*2);
+    //for "seek", buffer might need to be larger
+    int max_sample=SOUND_BUFFER_SIZE_SAMPLE*2*2*(double)hc_sample_rate/(double)PLAYBACK_FREQ;
+    if (max_sample<SOUND_BUFFER_SIZE_SAMPLE*2*2) max_sample=SOUND_BUFFER_SIZE_SAMPLE*2*2;
+    hc_sample_data=(int16_t*)malloc(max_sample);
     hc_sample_data_float=(float*)malloc(SOUND_BUFFER_SIZE_SAMPLE*4*2);
     hc_sample_converted_data_float=(float*)malloc(SOUND_BUFFER_SIZE_SAMPLE*4*2);
     
@@ -10471,7 +10489,10 @@ static WSRPlayerApi* s_coreSwan=&oswan::g_wsr_player_api;
     src_ratio=PLAYBACK_FREQ/(double)(pAPEDecompress->GetInfo(APE_INFO_SAMPLE_RATE));
     numChannels=(int)pAPEDecompress->GetInfo(APE_INFO_CHANNELS);
     
-    mac_sample_data=(int16_t*)malloc(SOUND_BUFFER_SIZE_SAMPLE*2*(numChannels>2?numChannels:2));
+    //for "seek", buffer might need to be larger
+    int max_sample=SOUND_BUFFER_SIZE_SAMPLE*2*(double)(pAPEDecompress->GetInfo(APE_INFO_SAMPLE_RATE))/(double)PLAYBACK_FREQ;
+    if (max_sample<SOUND_BUFFER_SIZE_SAMPLE*2) max_sample=SOUND_BUFFER_SIZE_SAMPLE*2*2;
+    mac_sample_data=(int16_t*)malloc(max_sample*(numChannels>2?numChannels:2));
     mac_sample_data_float=(float*)malloc(SOUND_BUFFER_SIZE_SAMPLE*4*(numChannels>2?numChannels:2));
     mac_sample_converted_data_float=(float*)malloc(SOUND_BUFFER_SIZE_SAMPLE*4*(numChannels>2?numChannels:2));
 
@@ -12903,7 +12924,8 @@ NSString* convertAmigaGreekToUnicode(NSString *input) {
 
     mod_message[0]=0;
     describe_vgmstream(vgmStream,mod_message,MAX_STIL_DATA_LENGTH*2);
-    vgm_sample_data=(int16_t*)malloc(SOUND_BUFFER_SIZE_SAMPLE*2*(numChannels>2?numChannels:2));
+    //seek: take some margin, shouldn't be with freq higher than 3x playback freq
+    vgm_sample_data=(int16_t*)malloc(SOUND_BUFFER_SIZE_SAMPLE*2*3*(numChannels>2?numChannels:2));
     vgm_sample_data_float=(float*)malloc(SOUND_BUFFER_SIZE_SAMPLE*4*(numChannels>2?numChannels:2));
     vgm_sample_converted_data_float=(float*)malloc(SOUND_BUFFER_SIZE_SAMPLE*4*(numChannels>2?numChannels:2));
     
@@ -13354,8 +13376,6 @@ static unsigned char* v2m_check_and_convert(unsigned char* tune, unsigned int* l
     
     
     if (HC_type==1) { //PSF1
-        memset(vgm_last_instr,0,sizeof(vgm_last_instr));
-        memset(vgm_last_note,0,sizeof(vgm_last_note));
         hc_sample_rate=44100;
         m_voice_current_samplerate=hc_sample_rate;
         HC_emulatorCore = ( uint8_t * ) calloc( 1,psx_get_state_size( 1 ) );
@@ -13629,7 +13649,10 @@ static unsigned char* v2m_check_and_convert(unsigned char* tune, unsigned int* l
     hc_fadeStart=(int64_t)(info.tag_length_ms-info.tag_fade_ms)*(int64_t)hc_sample_rate/1000;
     if (hc_fadeStart<0) hc_fadeStart=0;
     
-    hc_sample_data=(int16_t*)malloc(SOUND_BUFFER_SIZE_SAMPLE*2*2);
+    //for "seek", buffer might need to be larger
+    int max_sample=SOUND_BUFFER_SIZE_SAMPLE*2*2*(double)hc_sample_rate/(double)PLAYBACK_FREQ;
+    if (max_sample<SOUND_BUFFER_SIZE_SAMPLE*2*2) max_sample=SOUND_BUFFER_SIZE_SAMPLE*2*2;
+    hc_sample_data=(int16_t*)malloc(max_sample);
     hc_sample_data_float=(float*)malloc(SOUND_BUFFER_SIZE_SAMPLE*4*2);
     hc_sample_converted_data_float=(float*)malloc(SOUND_BUFFER_SIZE_SAMPLE*4*2);
     
@@ -14224,7 +14247,8 @@ static void vgm_set_dev_option(PlayerBase *player, UINT8 devId, UINT32 coreOpts)
         //Loop
         if (mLoopMode==1) iModuleLength=-1;
         
-        hc_sample_data=(int16_t*)malloc(SOUND_BUFFER_SIZE_SAMPLE*2*2);
+        //take some margin / "seek" mode
+        hc_sample_data=(int16_t*)malloc(SOUND_BUFFER_SIZE_SAMPLE*2*2*2);
         hc_sample_data_float=(float*)malloc(SOUND_BUFFER_SIZE_SAMPLE*4*2);
         hc_sample_converted_data_float=(float*)malloc(SOUND_BUFFER_SIZE_SAMPLE*4*2);
         
@@ -15679,6 +15703,9 @@ extern bool icloud_available;
     
     mdzSilentBufferLimit=settings[GLOB_SilenceDetection].detail.mdz_slider.slider_value*PLAYBACK_FREQ/SOUND_BUFFER_SIZE_SAMPLE;
     mdzSilentBufferCount=0;
+    
+    //Reset audio norm
+    m_normalizer.reset();
     
     //clear oscillo data ptr
     //    for (int i=0;i<SOUND_MAXVOICES_BUFFER_FX;i++) {

@@ -814,13 +814,20 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_PBRATIO].detail.mdz_slider.slider_max_value=3;
     
     SETTINGS_ID_DEF(GLOB_ForceMono)
-    settings[GLOB_ForceMono].setting_id=STRINGIZE2(GLOB_ForceMono);
     settings[GLOB_ForceMono].label=(char*)"Force Mono";
     settings[GLOB_ForceMono].description=NULL;
     settings[GLOB_ForceMono].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER;
     settings[GLOB_ForceMono].sub_family=0;
     settings[GLOB_ForceMono].callback=&optGLOBALChangedC;
     settings[GLOB_ForceMono].type=MDZ_BOOLSWITCH;
+    
+    SETTINGS_ID_DEF(GLOB_Normalize)
+    settings[GLOB_Normalize].label=(char*)"Normalize Output";
+    settings[GLOB_Normalize].description=NULL;
+    settings[GLOB_Normalize].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER;
+    settings[GLOB_Normalize].sub_family=0;
+    settings[GLOB_Normalize].callback=&optGLOBALChangedC;
+    settings[GLOB_Normalize].type=MDZ_BOOLSWITCH;
     
     SETTINGS_ID_DEF(GLOB_Panning)
     settings[GLOB_Panning].label=(char*)"Panning (Stereo separation)";
@@ -1238,6 +1245,7 @@ void optNSFPLAYChangedC(id param) {
     settings[ADPLUG_PriorityOMPT].detail.mdz_switch.switch_labels[1]=(char*)"ADPlug";
     
     settings[GLOB_ForceMono].detail.mdz_boolswitch.switch_default_value=0;
+    settings[GLOB_Normalize].detail.mdz_boolswitch.switch_default_value=0;
     settings[GLOB_PBRATIO].detail.mdz_slider.slider_default_value=1;
     settings[GLOB_PBRATIO_ONOFF].detail.mdz_boolswitch.switch_default_value=0;
     settings[GLOB_Panning].detail.mdz_boolswitch.switch_default_value=1;

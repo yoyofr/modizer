@@ -8076,7 +8076,7 @@ void menuInterpolValue(float &curValue,float startValue,float tgtValue) {
         
         if ((_pmCanvasWidth!=canvasWidth) || (_pmCanvasHeight!=canvasHeight)) {
             projectm_set_window_size(_pm, _pmCanvasWidth, _pmCanvasHeight);
-            MDZILog("set win size: %d %d",_pmCanvasWidth,_pmCanvasHeight);
+            //MDZILog("set win size: %d %d",_pmCanvasWidth,_pmCanvasHeight);
         }
         
        

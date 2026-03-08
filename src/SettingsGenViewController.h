@@ -78,6 +78,7 @@ enum MDZ_SETTINGS {
     
     GLOB_RadioModeMaxDownloadSize,
     
+    GLOB_Normalize,
     GLOB_ForceMono,
     GLOB_Panning,
     GLOB_PanningValue,

@@ -3737,6 +3737,7 @@
 		59F726B72657ABFD006BB0E3 /* RootViewControllerSMSPWebParser.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RootViewControllerSMSPWebParser.mm; sourceTree = "<group>"; };
 		59FF9944263D65CD004152B8 /* PlaylistCommonFunctions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlaylistCommonFunctions.h; sourceTree = "<group>"; };
 		59FF99DD263F34BD004152B8 /* libkss.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = libkss.xcodeproj; sourceTree = "<group>"; };
+		CC00170D2F5DE10300B7AF06 /* DynamicNormalizer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DynamicNormalizer.h; sourceTree = "<group>"; };
 		CC07A87E2BB952EA0052DE82 /* gbsplay.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = gbsplay.xcodeproj; path = gbsplay/gbsplay.xcodeproj; sourceTree = "<group>"; };
 		CC08C3A72EA9858E00A0F15F /* modizer-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "modizer-Bridging-Header.h"; sourceTree = "<group>"; };
 		CC0C57AB2F128E5100A5E7C1 /* CollectionViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = CollectionViewController.xib; sourceTree = "<group>"; };
@@ -6306,6 +6307,7 @@
 				CCFB5ECF2EA98C400049DA7F /* ModizerWrapper.m */,
 				CC1E622812041177000A8A4E /* ModizMusicPlayer.h */,
 				CC1E622912041177000A8A4E /* ModizMusicPlayer.mm */,
+				CC00170D2F5DE10300B7AF06 /* DynamicNormalizer.h */,
 				33AB276917B3D48F00C12189 /* MoreViewController.h */,
 				33AB276A17B3D48F00C12189 /* MoreViewController.mm */,
 				CC1E622C12041177000A8A4E /* myTabBarController.h */,

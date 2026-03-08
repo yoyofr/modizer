@@ -18,6 +18,8 @@
 /Composers/Banaszkiewicz_Marcin/Moon.sap	  TITLE: Moonlight Shadow [from Crises]\n ARTIST: Mike Oldfield & Simon Philips\n
 /Composers/Bankowski_Krzysztof/New_Generation.sap	COMMENT: Last Party 1998 music compo entry.\n
 /Composers/Bendyk_Piotr/Fifth_Generation.sap	COMMENT: 2nd place at Silly Venture 2016 music compo.\n
+/Composers/Bendyk_Piotr/Fourth_of_a_Kind.sap	COMMENT: Featured in Silly Venture 2k18 Invitation by Lamers\n
+/Composers/Bendyk_Piotr/Sixth_Sense.sap	COMMENT: Featured in the demo Prozac Dream by Lamers\n
 /Composers/Bendyk_Piotr/Third.sap	COMMENT: 1st place at Silly Venture 2014 music compo.\n
 /Composers/Berger_Dominique/8bitMania.sap	COMMENT: Composed for the iPhone/iPad game Bomb On Pixel City.\n
 /Composers/Berger_Dominique/Acidjazzed_Evening.sap	  TITLE: Acidjazzed Evening [from the Amiga MOD module]\n ARTIST: Janne Suni (Tempest)\n
@@ -147,6 +149,8 @@
 /Composers/Duesterhoeft_Stephan/Hobbytronic_91_Vector_Part.sap	  TITLE: Heavy But Cool\n ARTIST: Patrick Pose (Pat)\n
 /Composers/Duma_Dariusz/Acid_Notes.sap	COMMENT: Soundtrack from the intro 'W.Y.S.I.W.I.C.' which took 4th place at\n         Silly Venture 2k19.\n
 /Composers/Duma_Dariusz/Nonsense_Song.sap	COMMENT: 5th place at Forever Reneg8 music compo.\n
+/Composers/Duma_Dariusz/Nowhere.sap	COMMENT: 6th place at Silly Venture 2k22 SE Pokey Music Competition\n
+/Composers/Duma_Dariusz/Standard_No_443.sap	COMMENT: 3rd place at Silly Venture 2k22 SE Pokey Music Competition\n
 /Composers/Ebner_von_Eschenbach_Christoph/World_of_Wonders_Against_C.sap	  TITLE: The Hootchy Kootchy Dance\n ARTIST: Sol Bloom\n
 /Composers/Ebner_von_Eschenbach_Christoph/World_of_Wonders_Amiga_Meg.sap	  TITLE: Heart [from Actually](0:00-0:14)\n ARTIST: Pet Shop Boys\n  TITLE: Nodisco (0:15-0:30)\n ARTIST: Depeche Mode\n  TITLE: Gimme Gimme Gimme (A Man After Midnight) [from Voulez Vous](1:32-1:47)\n ARTIST: ABBA\n  TITLE: Oh L'amour [from Wonderland](2:03-2:18)\n ARTIST: Erasure\n  TITLE: Just Can't Get Enough [from Speak & Spell](2:49-3:04)\n ARTIST: Depeche Mode\n  TITLE: Photographic [from Speak & Spell](3:20-4:17)\n ARTIST: Depeche Mode\n  TITLE: Gimme Gimme Gimme (A Man After Midnight) [from Voulez Vous](5:38-5:53)\n ARTIST: ABBA\n  TITLE: Axel F [from the movie Beverly Hills Cop](6:09-6:25)\n ARTIST: Harold Faltermeyer\nCOMMENT: Possibly a conversion attempt of the Amiga SoundTracker module\n         "Papermix" by Enno & FDT.\n
 /Composers/Ebner_von_Eschenbach_Christoph/World_of_Wonders_Goldrunne.sap	  TITLE: Human Race, Tune #4 [from the C64 game]\n ARTIST: Rob Hubbard\nCOMMENT: Also used in "GoldRunner" on the Atari ST.\n
@@ -1291,6 +1295,8 @@
 /Composers/Vila_Jaime/Oxygene_II.sap	  TITLE: Oxygene 2 [from Oxygene]\n ARTIST: Jean Michel Jarre\n
 /Composers/Vila_Jaime/Star_Wars_Remix.sap	  TITLE: Main Title [from all the Star Wars movies]\n ARTIST: John Williams\n
 /Composers/Vila_Jaime/Starshine.sap	  TITLE: Starshine [from ScreamTracker S3M module]\n ARTIST: Jonne Valtonen (Purple Motion)\n
+/Composers/Viralbox/Demotraz_4.sap	  TITLE: Demotraz 4\n ARTIST: Tomas Danko (Danko)\n
+/Composers/Viralbox/Shadow_Life.sap	  TITLE: Shadow Life\n ARTIST: Riku Kangas (Flotsam)\n
 /Composers/Vogt_Dariusz/Ballada_O_Januszku.sap	  TITLE: Main Theme [from the TV series Ballada o Januszku]\n ARTIST: Waldemar Kazanecki\n
 /Composers/Vogt_Dariusz/Music_1.sap	COMMENT: 12th place at QuaST party 1996 music compo.\n
 /Composers/Voss_Roland/Fischtro.sap	  TITLE: Atemlos durch die Nacht\n ARTIST: Helene Fischer\n
@@ -1328,6 +1334,7 @@
 /Composers/XLent/Rewind_the_Mind.sap	  TITLE: Rewind the Mind [from the Amiga MOD module]\n ARTIST: Thomas Lenhardt (ADT) & Ernoe Zalka (Ern0)\n
 /Composers/Zaborowski_Robert/Magnex.sap	(#1)\n  TITLE: Fred [from the Atari XE/XL POKEY]\n ARTIST: Janusz Pelc\nCOMMENT: Same melody as /Composers/Pelc_Janusz/Fred.sap\n
 /Composers/Zaborowski_Robert/Mixtrood.sap	  TITLE: The Human Race, Tune #4 [from the C64 SID]\n ARTIST: Rob Hubbard\n
+/Composers/Zubil_Krzysztof/New_Life.sap	  TITLE: New Life [from Speak & Spell]\n ARTIST: Depeche Mode\n
 /Composers/Zuegner_Alfred/America.sap	  TITLE: America [from Bookends]\n ARTIST: Simon & Garfunkel\n
 /Composers/Zuegner_Alfred/Baby_Driver.sap	  TITLE: Baby Driver [from Bridge Over Troubled Water]\n ARTIST: Simon & Garfunkel\n
 /Composers/Zuegner_Alfred/Cecilia.sap	  TITLE: Cecilia [from Bridge Over Troubled Water]\n ARTIST: Simon & Garfunkel\n
@@ -1453,6 +1460,11 @@
 /Groups/Cieslewicz_Tomasz_and_Dombek_K/Koziol.sap	  TITLE: Koziołek Matołek [from a cartoon series]\n ARTIST: Adam Markiewicz\n
 /Groups/Cieslewicz_Tomasz_and_Dombek_K/Roxette.sap	  TITLE: Listen to Your Heart [from Look Sharp!]\n ARTIST: Roxette\n
 /Groups/Cieslewicz_Tomasz_and_Dombek_K/Roxette_2.sap	  TITLE: The Look [from Look Sharp!]\n ARTIST: Roxette\n
+/Groups/Anschuetz_Eric_and_Weisgerber_John_and_Anschuetz_Robert/Dead_Mans_Chest.sap	COMMENT: Traditional song from the Atari 8bit game “Piracy” by Anschuetz/Weisgerber/Anschuetz\n
+/Groups/Anschuetz_Eric_and_Weisgerber_John_and_Anschuetz_Robert/Drunken_Sailor.sap	COMMENT: Traditional song from the Atari 8bit game “Piracy II” by Anschuetz/Weisgerber/Anschuetz\n
+/Groups/Anschuetz_Eric_and_Weisgerber_John_and_Anschuetz_Robert/Sailing_Sailing.sap	COMMENT: Traditional song from the Atari 8bit game “Piracy II” by Anschuetz/Weisgerber/Anschuetz\n
+/Groups/Anschuetz_Eric_and_Weisgerber_John_and_Anschuetz_Robert/Walk_Like_an_Egyptian.sap	  TITLE: Walk Like an Egyptian [from Different Light]\n ARTIST: The Bangles\n
+/Groups/Anschuetz_Eric_and_Weisgerber_John_and_Anschuetz_Robert/Yo_Ho_A_Pirates_Life_for_Me.sap	COMMENT: from the Atari 8bit game “Piracy II” by Anschuetz/Weisgerber/Anschuetz\n  TITLE: Yo Ho (A Pirate’s Life for Me) [from Walt Disney’s Pirates of the Carribbean]\n ARTIST: The Mellomen\n
 /Groups/Grayscale/404_Error.sap	COMMENT: 1st place at Forever 4 music compo.\n
 /Groups/Grayscale/DrillDance.sap	COMMENT: Last Party 2002 music compo entry.\n
 /Groups/Grayscale/Gray_Set_Willy.sap	  TITLE: Ucieczka z tropiku [from Ucieczka do tropiku](0:55)\n ARTIST: Marek Biliński\nCOMMENT: The title translates from Polish as "Escape from the tropic zone".\n         Marek Biliński was some kind of a Polish J. M. Jarre, and had a\n         string of instrumental hits back in the 80's.\n

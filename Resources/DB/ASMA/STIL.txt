@@ -1,7 +1,7 @@
 ﻿##############################################################################
 #
-#  STIL v3.9 - SAP Tune Information List
-#  Total number of entries: 1767
+#  STIL SAP Tune Information List
+#  UTF-8 encoded.
 #
 ##############################################################################
 
@@ -87,8 +87,15 @@ COMMENT: Last Party 1998 music compo entry.
 /Composers/Bendyk_Piotr/Fifth_Generation.sap
 COMMENT: 2nd place at Silly Venture 2016 music compo.
 
+/Composers/Bendyk_Piotr/Fourth_of_a_Kind.sap
+COMMENT: Featured in Silly Venture 2k18 Invitation by Lamers
+
+/Composers/Bendyk_Piotr/Sixth_Sense.sap
+COMMENT: Featured in the demo Prozac Dream by Lamers
+
 /Composers/Bendyk_Piotr/Third.sap
 COMMENT: 1st place at Silly Venture 2014 music compo.
+
 
 ### /Composers/Berger_Dominique ##############################################
 
@@ -706,6 +713,12 @@ COMMENT: Soundtrack from the intro 'W.Y.S.I.W.I.C.' which took 4th place at
 
 /Composers/Duma_Dariusz/Nonsense_Song.sap
 COMMENT: 5th place at Forever Reneg8 music compo.
+
+/Composers/Duma_Dariusz/Nowhere.sap
+COMMENT: 6th place at Silly Venture 2k22 SE Pokey Music Competition
+
+/Composers/Duma_Dariusz/Standard_No_443.sap
+COMMENT: 3rd place at Silly Venture 2k22 SE Pokey Music Competition
 
 ### /Composers/Ebner_von_Eschenbach_Christoph ################################
 
@@ -5694,6 +5707,16 @@ COMMENT: "This song was part of the same ABBUC Demo like ABBUC_20_1.sap and
   TITLE: Starshine [from ScreamTracker S3M module]
  ARTIST: Jonne Valtonen (Purple Motion)
 
+### /Composers/Viralbox ######################################################
+
+/Composers/Viralbox/Demotraz_4.sap
+  TITLE: Demotraz 4
+ ARTIST: Tomas Danko (Danko)
+
+/Composers/Viralbox/Shadow_Life.sap
+  TITLE: Shadow Life
+ ARTIST: Riku Kangas (Flotsam)
+
 ### /Composers/Vogt_Dariusz ##################################################
 
 /Composers/Vogt_Dariusz/Ballada_O_Januszku.sap
@@ -5876,6 +5899,12 @@ COMMENT: Same melody as /Composers/Pelc_Janusz/Fred.sap
 /Composers/Zaborowski_Robert/Mixtrood.sap
   TITLE: The Human Race, Tune #4 [from the C64 SID]
  ARTIST: Rob Hubbard
+
+### /Composers/Zubil_Krzysztof ################################################
+
+/Composers/Zubil_Krzysztof/New_Life.sap
+  TITLE: New Life [from Speak & Spell]
+ ARTIST: Depeche Mode
 
 ### /Composers/Zuegner_Alfred ################################################
 
@@ -6465,6 +6494,26 @@ COMMENT: The notes in voice 2 at the beginning of the tune spell out "SOS" in
 /Groups/Cieslewicz_Tomasz_and_Dombek_K/Roxette_2.sap
   TITLE: The Look [from Look Sharp!]
  ARTIST: Roxette
+
+### /Groups/Anschuetz_Eric_and_Weisgerber_John_and_Anschuetz_Robert ##########
+
+/Groups/Anschuetz_Eric_and_Weisgerber_John_and_Anschuetz_Robert/Dead_Mans_Chest.sap
+COMMENT: Traditional song from the Atari 8bit game “Piracy” by Anschuetz/Weisgerber/Anschuetz
+
+/Groups/Anschuetz_Eric_and_Weisgerber_John_and_Anschuetz_Robert/Drunken_Sailor.sap
+COMMENT: Traditional song from the Atari 8bit game “Piracy II” by Anschuetz/Weisgerber/Anschuetz
+
+/Groups/Anschuetz_Eric_and_Weisgerber_John_and_Anschuetz_Robert/Sailing_Sailing.sap
+COMMENT: Traditional song from the Atari 8bit game “Piracy II” by Anschuetz/Weisgerber/Anschuetz
+
+/Groups/Anschuetz_Eric_and_Weisgerber_John_and_Anschuetz_Robert/Walk_Like_an_Egyptian.sap
+  TITLE: Walk Like an Egyptian [from Different Light]
+ ARTIST: The Bangles
+
+/Groups/Anschuetz_Eric_and_Weisgerber_John_and_Anschuetz_Robert/Yo_Ho_A_Pirates_Life_for_Me.sap
+COMMENT: from the Atari 8bit game “Piracy II” by Anschuetz/Weisgerber/Anschuetz
+  TITLE: Yo Ho (A Pirate’s Life for Me) [from Walt Disney’s Pirates of the Carribbean]
+ ARTIST: The Mellomen
 
 ### /Groups/Grayscale ########################################################
 
