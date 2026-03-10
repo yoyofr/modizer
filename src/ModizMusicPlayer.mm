@@ -3360,6 +3360,11 @@ void propertyListenerCallback (void                   *inUserData,              
                     ((int *)mBuffer->mAudioData)[i]=last_audio_sample;
                 }
             } else {
+                
+                // Dans le callback audio, après le rendu du plugin
+                if (settings[GLOB_Normalize].detail.mdz_boolswitch.switch_value) m_normalizer.process(buffer_ana[buffer_ana_play_ofs], SOUND_BUFFER_SIZE_SAMPLE);
+                
+                
                 if (sampleVolume<256) {
                     if (optForceMono) {
                         for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
@@ -5798,22 +5803,6 @@ void processFadeOut(short int *buffer, int sample_count, int voice_factor) {
                                         break;
                                     }
                                 }
-                                /*if (mSeekSamples - mCurrentSamples > 0)
-                                 {
-                                 ds_read(buffer_ana[buffer_ana_gen_ofs],mSeekSamples - mCurrentSamples);
-                                 mCurrentSamples = mSeekSamples;
-                                 iCurrentTime=mCurrentSamples*1000/PLAYBACK_FREQ;
-                                 
-                                 dispatch_async(dispatch_get_main_queue(), ^(void){
-                                 //Run UI Updates
-                                 [detailViewControllerIphone setProgressWaiting:[NSNumber numberWithFloat: (float)(mCurrentSamples-mStartPosSamples)/(mSeekSamples-mStartPosSamples)]];
-                                 });
-                                 if ([detailViewControllerIphone isCancelPending]) {
-                                 [detailViewControllerIphone resetCancelStatus];
-                                 mSeekSamples=mCurrentSamples;
-                                 break;
-                                 }
-                                 }*/
                                 //mNeedSeek=0;
                             }
                             if (mPlayType==MMP_NCSF) { //NCSF
@@ -6247,6 +6236,7 @@ void processFadeOut(short int *buffer, int sample_count, int voice_factor) {
                                 
                                 sc68_play(sc68,mod_currentsub,(mLoopMode?SC68_INF_LOOP:0));
                                 sc68_process(sc68, buffer_ana[buffer_ana_gen_ofs], 0); //to apply the track change
+                                
                                 sc68_music_info_t info;
                                 sc68_music_info(sc68,&info,SC68_CUR_TRACK,0);
                                 iModuleLength=info.trk.time_ms;
@@ -6557,9 +6547,6 @@ void processFadeOut(short int *buffer, int sample_count, int voice_factor) {
                             }
                             
                             if (xmp_play_buffer(xmp_ctx, buffer_ana[buffer_ana_gen_ofs], SOUND_BUFFER_SIZE_SAMPLE*2*2, 1) == 0) {
-                                
-                                // Dans le callback audio, après le rendu du plugin
-                                if (settings[GLOB_Normalize].detail.mdz_boolswitch.switch_value) m_normalizer.process(buffer_ana[buffer_ana_gen_ofs], SOUND_BUFFER_SIZE_SAMPLE);
                                 
                                 struct xmp_frame_info xmp_fi;
                                 xmp_get_frame_info(xmp_ctx, &xmp_fi);
@@ -7016,8 +7003,6 @@ void processFadeOut(short int *buffer, int sample_count, int voice_factor) {
                             
                             nbBytes=src_callback_read (src_state,src_ratio,SOUND_BUFFER_SIZE_SAMPLE, hc_sample_converted_data_float)*2*2;
                             src_float_to_short_array (hc_sample_converted_data_float,buffer_ana[buffer_ana_gen_ofs],SOUND_BUFFER_SIZE_SAMPLE*2) ;
-                            
-                            if (settings[GLOB_Normalize].detail.mdz_boolswitch.switch_value) m_normalizer.process(buffer_ana[buffer_ana_gen_ofs], SOUND_BUFFER_SIZE_SAMPLE);
                             
                             if ((HC_type==0x1)||(HC_type==0x2)||(HC_type==0x11)||(HC_type==0x12)||(HC_type==0x21)||(HC_type==0x23)||(HC_type==0x41)) { //PS1, PS2, SSF, DSF, SNSF, QSF
                                 //midi like notes data

@@ -822,8 +822,8 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_ForceMono].type=MDZ_BOOLSWITCH;
     
     SETTINGS_ID_DEF(GLOB_Normalize)
-    settings[GLOB_Normalize].label=(char*)"Normalize Output";
-    settings[GLOB_Normalize].description=NULL;
+    settings[GLOB_Normalize].label=(char*)"AGC";
+    settings[GLOB_Normalize].description=(char*)"Automatic Gain Control";
     settings[GLOB_Normalize].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER;
     settings[GLOB_Normalize].sub_family=0;
     settings[GLOB_Normalize].callback=&optGLOBALChangedC;

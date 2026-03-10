@@ -25,13 +25,14 @@ public:
         // loud enough but leaves plenty of headroom.
         float targetLevelDb     = -18.0f;
 
-        // How fast the gain rises when signal is quiet (ms).
-        // Fast = sounds louder sooner, but can amplify transient noise.
-        float attackTimeMs      = 20.0f;
+        // How fast the gain DROPS when signal gets loud (ms).
+        // Fast = reacts quickly to loud transients, avoids saturation.
+        // Too fast = abrupt gain changes on transients.
+        float attackTimeMs      = 50.0f;
 
-        // How fast the gain falls when signal is loud (ms).
-        // Slow = smoother, preserves dynamics. Too slow = clipping on peaks.
-        float releaseTimeMs     = 1200.0f;
+        // How fast the gain RISES when signal gets quiet (ms).
+        // Slow = smooth recovery, avoids pumping. Too slow = slow recovery after loud passages.
+        float releaseTimeMs     = 1500.0f;
 
         // Maximum amplification allowed (dB). Prevents over-boosting silence.
         float maxGainDb         = 24.0f;
@@ -40,8 +41,8 @@ public:
         float minGainDb         = -12.0f;
 
         // RMS integration window (ms). Controls how "quickly" loudness is measured.
-        // ~200ms is perceptually natural (similar to ITU BS.1770 short-term).
-        float rmsWindowMs       = 200.0f;
+        // ~400ms smooths out transient peaks in rhythmic music, reducing pumping.
+        float rmsWindowMs       = 400.0f;
 
         // Soft limiter knee start (dBFS). Everything above this is gently squashed
         // before the hard int16 clip. Use -1.0 to -3.0 dBFS.
@@ -78,8 +79,9 @@ public:
 
     // Reset internal state (call on song change).
     void reset() {
-        m_rmsEst     = 0.0f;
+        m_rmsEst      = 0.0f;
         m_currentGain = 1.0f;
+        m_gainLocked  = false; // allow gain to rise again at start of new song
     }
 
     // -----------------------------------------------------------------------
@@ -108,14 +110,16 @@ public:
 
             // --- 3. Smooth gain with asymmetric attack / release ---
             if (desiredGain < m_currentGain) {
-                // Signal got louder -> reduce gain quickly (release direction)
-                m_currentGain = m_releaseCoeff * m_currentGain
-                              + (1.0f - m_releaseCoeff) * desiredGain;
-            } else {
-                // Signal got quieter -> increase gain slowly (attack direction)
+                // Signal got louder -> reduce gain fast (attack: avoids saturation)
                 m_currentGain = m_attackCoeff  * m_currentGain
                               + (1.0f - m_attackCoeff)  * desiredGain;
+                m_gainLocked = true; // from now on, gain can only decrease
+            } else if (!m_gainLocked) {
+                // Signal got quieter -> increase gain slowly, only during initial calibration
+                m_currentGain = m_releaseCoeff * m_currentGain
+                              + (1.0f - m_releaseCoeff) * desiredGain;
             }
+            // if m_gainLocked && desiredGain >= m_currentGain: hold current gain
 
             // --- 4. Apply gain ---
             float outL = L * m_currentGain;
@@ -185,4 +189,5 @@ private:
     // Per-sample state.
     float m_rmsEst        = 0.0f;  // exponential moving average of power
     float m_currentGain   = 1.0f;  // smoothed applied gain
+    bool  m_gainLocked    = false; // true once gain has decreased: no more upward gain
 };

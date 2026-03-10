@@ -1052,3 +1052,7 @@
 "Downloading from\ncloud..." = "Downloading from\ncloud...";
 "Download timed out. Please try again later." = "Download timed out. Please try again later.";
 "available" = "available";
+
+/* Other Settings */
+"Automatic Gain Control" = "Automatic Gain Control";
+"AGC" = "AGC";
