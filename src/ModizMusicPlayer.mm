@@ -3246,6 +3246,8 @@ void propertyListenerCallback (void                   *inUserData,              
         //        [self iPhoneDrv_FillAudioBuffer:mBuffers[i]];
         
     }
+    m_normalizer.reset();
+    
     bGlobalAudioPause=0;
     /* Start the Audio Queue! */
     //AudioQueuePrime( mAudioQueue, 0,NULL );

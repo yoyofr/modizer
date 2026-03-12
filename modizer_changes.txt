@@ -13,6 +13,11 @@ Todo/Requested:
 => add a small progress bar in cells in modland/asma/hvsc... When downloading
 => ADPLUG oscillo data not generated when OPL is not Woody
 
+4.4
+---
+- bugfixes and stability improvements
+
+
 4.3
 ---
 - bugfixes and stability improvements
