@@ -1,22 +1,22 @@
 {"header" : {
   "cloc_url"           : "github.com/AlDanial/cloc",
   "cloc_version"       : "1.98",
-  "elapsed_seconds"    : 27.4071509838104,
-  "n_files"            : 19259,
-  "n_lines"            : 8675304,
-  "files_per_second"   : 702.699817700001,
-  "lines_per_second"   : 316534.323656062,
+  "elapsed_seconds"    : 31.0242969989777,
+  "n_files"            : 19260,
+  "n_lines"            : 8675542,
+  "files_per_second"   : 620.803752640541,
+  "lines_per_second"   : 279637.021276772,
   "report_file"        : "../output/cloc-output.json"},
 "C/C++ Header" :{
-  "nFiles": 9328,
-  "blank": 282038,
-  "comment": 463937,
-  "code": 1920945},
+  "nFiles": 9329,
+  "blank": 282072,
+  "comment": 463998,
+  "code": 1921045},
 "C" :{
   "nFiles": 4595,
-  "blank": 317418,
-  "comment": 303045,
-  "code": 1895209},
+  "blank": 317417,
+  "comment": 303042,
+  "code": 1895203},
 "C++" :{
   "nFiles": 2712,
   "blank": 271020,
@@ -39,9 +39,9 @@
   "code": 118452},
 "Objective-C++" :{
   "nFiles": 103,
-  "blank": 18508,
-  "comment": 10575,
-  "code": 91465},
+  "blank": 18519,
+  "comment": 10572,
+  "code": 91510},
 "Scheme" :{
   "nFiles": 8,
   "blank": 49,
@@ -333,7 +333,7 @@
   "comment": 0,
   "code": 1},
 "SUM": {
-  "blank": 1072350,
-  "comment": 1088795,
-  "code": 6514159,
-  "nFiles": 19259} }
+  "blank": 1072394,
+  "comment": 1088850,
+  "code": 6514298,
+  "nFiles": 19260} }
