@@ -42,6 +42,12 @@ extern volatile t_settings settings[MAX_SETTINGS];
 
 int64_t PLAYBACK_FREQ=DEFAULT_PLAYBACK_FREQ;
 
+//Furnace
+#include "FurnacePlayer.h"
+char*           fur_fileBuffer;
+uint32_t        fur_fileBufferLen;
+FurnacePlayer *furPlayer;
+
 //MAC - Monkey Audio Codec (APE)
 #include "All.h"
 #include "GlobalFunctions.h"
@@ -6993,6 +6999,41 @@ void processFadeOut(short int *buffer, int sample_count, int voice_factor) {
                                 
                             }
                         }
+                        if (mPlayType==MMP_FUR) { //FUR
+                            furPlayer->render(buffer_ana[buffer_ana_gen_ofs], SOUND_BUFFER_SIZE_SAMPLE);
+                            nbBytes = SOUND_BUFFER_SIZE_SAMPLE*2*2;
+                                                        
+                            mCurrentSamples+=SOUND_BUFFER_SIZE_SAMPLE;
+                            
+                            if ((mCurrentSamples>=mTgtSamples)||
+                                (mdzSilentBufferLimit&&(mdzSilentBufferCount>=mdzSilentBufferLimit))
+                                ) {
+                                //end reached
+                                [self setSongLengthfromMD5:mod_currentsub-mod_minsub+1 songlength:mCurrentSamples*1000/PLAYBACK_FREQ];
+                                
+                                if (iModuleLength<0) {
+                                    //TODO: reset
+                                    mCurrentSamples=0;
+                                    iCurrentTime=0;
+                                    mdzSilentBufferCount=0;
+                                    
+                                    nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
+                                } else nbBytes=0;
+                            }
+                            
+                            if ((nbBytes==0)||( (iModuleLength>0)&&(mCurrentSamples>=mTgtSamples)) ) {
+                                if (mSingleSubMode==0) {
+                                    if ([self playNextSub]<0) nbBytes=(nbBytes==SOUND_BUFFER_SIZE_SAMPLE*2*2?nbBytes-4:nbBytes);
+                                    else {
+                                        nbBytes=(nbBytes==SOUND_BUFFER_SIZE_SAMPLE*2*2?nbBytes-4:nbBytes);
+                                        donotstop=1;
+                                        moveToSubSong=2;
+                                    }
+                                } else nbBytes=(nbBytes==SOUND_BUFFER_SIZE_SAMPLE*2*2?nbBytes-4:nbBytes);
+                            } else {
+                                
+                            }
+                        }
                         if (mPlayType==MMP_HC) { //Highly Complete
                             
                             //reset voice data for oscillo view if not SNSF
@@ -10400,6 +10441,89 @@ static WSRPlayerApi* s_coreSwan=&oswan::g_wsr_player_api;
     return 0;
 }
 
+-(int) mmp_furLoad:(NSString*)filePath {  //PxTone Collage & Organya
+    mPlayType=MMP_FUR;
+    
+    FILE *f=fopen([filePath UTF8String],"rb");
+    if (f==NULL) {
+        MDZELog("FUR Cannot open file %@",filePath);
+        mPlayType=0;
+        return -1;
+    }
+    
+    fseek(f,0L,SEEK_END);
+    mp_datasize=ftell(f);
+    fur_fileBufferLen=mp_datasize;
+    fur_fileBuffer=(char*)malloc(fur_fileBufferLen);
+    if (!fur_fileBuffer) {
+        MDZELog("cannot allocate fur_fileBuffer");
+        fclose(f);
+        return -1;
+    }
+    fseek(f,0L,SEEK_SET);
+    fread(fur_fileBuffer,1,fur_fileBufferLen,f);
+    fclose(f);
+    
+    
+    //Init player
+    furPlayer = new FurnacePlayer();
+    if (!furPlayer) {
+        MDZELog("cannot allocate furPlayer");
+        mdz_safe_free(fur_fileBuffer);
+        return -2;
+    }
+    
+    furPlayer->init(PLAYBACK_FREQ);
+    
+    if (furPlayer->load((const uint8_t*)fur_fileBuffer, fur_fileBufferLen,[filePath UTF8String])==FALSE) {
+        MDZELog("furPlayer: cannot load file");
+        mdz_safe_free(fur_fileBuffer);
+        furPlayer->close();
+        delete furPlayer;
+        furPlayer=NULL;
+        return -2;
+    }
+        
+    const FurnaceSongInfo furInfo=furPlayer->getInfo();
+    
+    mod_title=[NSString stringWithUTF8String:furInfo.title.c_str()];
+    artist=[NSString stringWithFormat:@"%s",furInfo.author.c_str()];
+    // song info
+    snprintf(mod_name,sizeof(mod_name)," %s",[[[filePath lastPathComponent] stringByDeletingPathExtension] UTF8String]);
+    mod_subsongs=furInfo.subsongCount;
+    mod_minsub=0;
+    mod_maxsub=mod_subsongs-1;
+    mod_currentsub=furInfo.currentSubsong;
+    
+    mCurrentSamples=0;
+    if (mod_currentsub<mod_minsub) mod_currentsub=mod_minsub;
+    if (mod_currentsub>mod_maxsub) mod_currentsub=mod_maxsub;
+    
+    if (iModuleLength<=0) iModuleLength=settings[GLOB_DefaultLength].detail.mdz_slider.slider_value*1000;
+    
+    iCurrentTime=0;
+    mCurrentSamples=0;
+    
+        numChannels=2;
+        m_voicesDataAvail=0;
+        m_genNumVoicesChannels=numChannels;
+        for (int i=0;i<m_genNumVoicesChannels;i++) {
+            m_voice_voiceColor[i]=m_voice_systemColor[0];
+        }
+    
+    [self mmp_updateDBStatsAtLoad];
+    
+    mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
+    if (mLoopMode) {
+        iModuleLength=-1;
+    }
+    
+    snprintf(mod_message,MAX_STIL_DATA_LENGTH*2,"");
+    snprintf(mod_message,MAX_STIL_DATA_LENGTH*2,"%sTitle: %s\n",mod_message,[mod_title UTF8String]);
+    snprintf(mod_message,MAX_STIL_DATA_LENGTH*2,"%sArtist: %s\n",mod_message,[artist UTF8String]);
+    
+    return 0;
+}
 
 -(int) mmp_macLoad:(NSString*)filePath {  //MAC Monkey Audio Codec
     mPlayType=MMP_MAC;
@@ -14775,6 +14899,7 @@ extern bool icloud_available;
     NSArray *filetype_extSID=[SUPPORTED_FILETYPE_SID componentsSeparatedByString:@","];
     NSArray *filetype_extSTSOUND=[SUPPORTED_FILETYPE_STSOUND componentsSeparatedByString:@","];
     NSArray *filetype_extMAC=[SUPPORTED_FILETYPE_MAC componentsSeparatedByString:@","];
+    NSArray *filetype_extFUR=[SUPPORTED_FILETYPE_FUR componentsSeparatedByString:@","];
     NSArray *filetype_extNEZ=[SUPPORTED_FILETYPE_NEZ componentsSeparatedByString:@","];
     NSArray *filetype_extATARISOUND=[SUPPORTED_FILETYPE_ATARISOUND componentsSeparatedByString:@","];
     NSArray *filetype_extSC68=[SUPPORTED_FILETYPE_SC68 componentsSeparatedByString:@","];
@@ -15278,6 +15403,12 @@ extern bool icloud_available;
             break;
         }
     }
+    for (int i=0;i<[filetype_extFUR count];i++) {
+        if ([extension caseInsensitiveCompare:[filetype_extFUR objectAtIndex:i]]==NSOrderedSame) {
+            [available_player addObject:[NSNumber numberWithInt:MMP_FUR]];
+            break;
+        }
+    }
     for (int i=0;i<[filetype_extNEZ count];i++) {
         if ([extension caseInsensitiveCompare:[filetype_extNEZ objectAtIndex:i]]==NSOrderedSame) {
             [available_player addObject:[NSNumber numberWithInt:MMP_NEZ]];
@@ -15618,6 +15749,9 @@ extern bool icloud_available;
                 break;
             case MMP_MAC:
                 retval=[self mmp_macLoad:filePath];
+                break;
+            case MMP_FUR:
+                retval=[self mmp_furLoad:filePath];
                 break;
             case MMP_NEZ:
                 retval=[self mmp_nezLoad:filePath];
@@ -16401,6 +16535,11 @@ extern bool icloud_available;
             [self updateCurSubSongPlayed:mod_currentsub-mod_minsub];
             [self Play];
             break;
+        case MMP_FUR: //FUR
+            if (startPos) [self Seek:startPos];
+            [self updateCurSubSongPlayed:mod_currentsub-mod_minsub];
+            [self Play];
+            break;
         case MMP_NEZ: //NEZ
             mod_currentsub=subsong;
             if (m3uReader.size()) {
@@ -16687,6 +16826,15 @@ extern bool icloud_available;
         delete pAPEDecompress;
         pAPEDecompress=NULL;
     }
+    if (mPlayType==MMP_FUR) { //FUR
+        //TODO
+        mdz_safe_free(fur_fileBuffer);
+        if (furPlayer) {
+            furPlayer->close();
+            delete furPlayer;
+            furPlayer=NULL;
+        }
+    }
     if (mPlayType==MMP_NEZ) { //NEZ
         mdz_safe_free(nez_fileBuffer);
         if (_nezPlay != NULL) {
@@ -16884,6 +17032,7 @@ extern bool icloud_available;
     if (mPlayType==MMP_SIDPLAY) return ((sid_engine?@"SIDPLAY/ReSIDFP":@"SIDPLAY/SidLite"));
     if (mPlayType==MMP_STSOUND) return @"STSOUND";
     if (mPlayType==MMP_MAC) return @"MonkeyAudioCodec";
+    if (mPlayType==MMP_FUR) return @"Furnace";
     if (mPlayType==MMP_NEZ) return @"Nezplug";
     if (mPlayType==MMP_ATARISOUND) return @"ATARISOUND";
     if (mPlayType==MMP_PT3) return @"PT3 Player";
@@ -17107,6 +17256,7 @@ extern bool icloud_available;
     if (mPlayType==MMP_SIDPLAY) return @"SID";
     if (mPlayType==MMP_STSOUND) return @"YM";
     if (mPlayType==MMP_MAC) return @"APE";
+    if (mPlayType==MMP_FUR) return @"FUR:TODO"; //TODO
     if (mPlayType==MMP_ATARISOUND) return @"SNDH";
     if (mPlayType==MMP_PT3) return @"PT3";
     if (mPlayType==MMP_ZXTUNE) return [NSString stringWithFormat:@"%s/%s",zxtune_song_info.get_codec(),zxtune_song_info.get_program()];

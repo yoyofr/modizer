@@ -1381,6 +1381,8 @@
 		CC94D9FD1AC7FCE70046C45D /* UIImage+ImageEffects.m in Sources */ = {isa = PBXBuildFile; fileRef = CC94D9FC1AC7FCE70046C45D /* UIImage+ImageEffects.m */; };
 		CC9957C12EF7F37A00FD4CDF /* AppStore512.png in Resources */ = {isa = PBXBuildFile; fileRef = CC8D41AF1801E26F00533682 /* AppStore512.png */; };
 		CC9957C22EF7F37A00FD4CDF /* AppStore512.png in Resources */ = {isa = PBXBuildFile; fileRef = CC8D41AF1801E26F00533682 /* AppStore512.png */; };
+		CC9971FC2F719E8C00A7AB21 /* liblibfurnace.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CC992C062F7140C700A7AB21 /* liblibfurnace.a */; };
+		CC9971FD2F719E9500A7AB21 /* liblibfurnace.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CC992C062F7140C700A7AB21 /* liblibfurnace.a */; };
 		CC9A51012BE37C2E00CED1F0 /* liblibpmdmini.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CC9A50BC2BE36C8300CED1F0 /* liblibpmdmini.a */; };
 		CC9A51032BE38F2D00CED1F0 /* ym2608_adpcm_rom.bin in Resources */ = {isa = PBXBuildFile; fileRef = CC9A51022BE38F2D00CED1F0 /* ym2608_adpcm_rom.bin */; };
 		CC9CE1562E96F77000725D15 /* projectm in Resources */ = {isa = PBXBuildFile; fileRef = CC9CE1552E96F68100725D15 /* projectm */; };
@@ -2638,6 +2640,13 @@
 			proxyType = 2;
 			remoteGlobalIDString = CC836A492B6322770035A4DA;
 			remoteInfo = libatariaudio;
+		};
+		CC992C052F7140C700A7AB21 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = CC992C012F7140C600A7AB21 /* libfurnace.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = CC992BF42F7140C600A7AB21;
+			remoteInfo = libfurnace;
 		};
 		CC9A50BB2BE36C8300CED1F0 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -4600,6 +4609,7 @@
 		CC9331A02EA583F300CB0503 /* ModizerGlobals.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = ModizerGlobals.c; sourceTree = "<group>"; };
 		CC94D9FB1AC7FCE70046C45D /* UIImage+ImageEffects.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+ImageEffects.h"; sourceTree = "<group>"; };
 		CC94D9FC1AC7FCE70046C45D /* UIImage+ImageEffects.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+ImageEffects.m"; sourceTree = "<group>"; };
+		CC992C012F7140C600A7AB21 /* libfurnace.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libfurnace.xcodeproj; path = libfurnace/libfurnace.xcodeproj; sourceTree = "<group>"; };
 		CC9A0AAB1ACA7BF70002C995 /* Base */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = Base; path = Base.lproj/Localizable.strings; sourceTree = "<group>"; };
 		CC9A50B72BE36C8200CED1F0 /* libpmdmini.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libpmdmini.xcodeproj; path = libpmdmini/libpmdmini.xcodeproj; sourceTree = "<group>"; };
 		CC9A51022BE38F2D00CED1F0 /* ym2608_adpcm_rom.bin */ = {isa = PBXFileReference; lastKnownFileType = archive.macbinary; path = ym2608_adpcm_rom.bin; sourceTree = "<group>"; };
@@ -4995,6 +5005,7 @@
 				CC5BAD562BFB8F85007A3920 /* liblibchpconv.a in Frameworks */,
 				CCAB95472BCBD5120038834A /* liblibvgm.a in Frameworks */,
 				596117952629613100B0F991 /* libv2mplayer.a in Frameworks */,
+				CC9971FC2F719E8C00A7AB21 /* liblibfurnace.a in Frameworks */,
 				CC1E56C11200B391000A8A4E /* AudioToolbox.framework in Frameworks */,
 				5958B42625C601AB00724722 /* WebKit.framework in Frameworks */,
 				CC1E56C31200B391000A8A4E /* AVFoundation.framework in Frameworks */,
@@ -5088,6 +5099,7 @@
 				CCBE61522EE2DD44000FDD7E /* liblibchpconv.a in Frameworks */,
 				CCBE61532EE2DD44000FDD7E /* liblibvgm.a in Frameworks */,
 				CCBE61542EE2DD44000FDD7E /* libv2mplayer.a in Frameworks */,
+				CC9971FD2F719E9500A7AB21 /* liblibfurnace.a in Frameworks */,
 				CCBE61552EE2DD44000FDD7E /* AudioToolbox.framework in Frameworks */,
 				CCBE61562EE2DD44000FDD7E /* WebKit.framework in Frameworks */,
 				CCBE61572EE2DD44000FDD7E /* AVFoundation.framework in Frameworks */,
@@ -5452,6 +5464,7 @@
 		593925CB25CF0C56009281DC /* libs */ = {
 			isa = PBXGroup;
 			children = (
+				CC992C012F7140C600A7AB21 /* libfurnace.xcodeproj */,
 				CCF38C5B2F41B94E0089B673 /* libsidplayfp.xcodeproj */,
 				CCB998AE2F09A39E0024DFBB /* nez.xcodeproj */,
 				CC3144652EF28F5B0053DCE1 /* monkeyaudiocodec.xcodeproj */,
@@ -7366,6 +7379,14 @@
 			path = mus2kss;
 			sourceTree = "<group>";
 		};
+		CC992C022F7140C600A7AB21 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				CC992C062F7140C700A7AB21 /* liblibfurnace.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		CC9A509B2BE2C11300CED1F0 /* PMDMini */ = {
 			isa = PBXGroup;
 			children = (
@@ -8084,6 +8105,10 @@
 					ProjectRef = CC57D4CA2BEB5DDD004629AA /* libfmpmini.xcodeproj */;
 				},
 				{
+					ProductGroup = CC992C022F7140C600A7AB21 /* Products */;
+					ProjectRef = CC992C012F7140C600A7AB21 /* libfurnace.xcodeproj */;
+				},
+				{
 					ProductGroup = 59FF99DE263F34BD004152B8 /* Products */;
 					ProjectRef = 59FF99DD263F34BD004152B8 /* libkss.xcodeproj */;
 				},
@@ -8418,6 +8443,13 @@
 			fileType = archive.ar;
 			path = liblibatariaudio.a;
 			remoteRef = CC836A592B6322780035A4DA /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		CC992C062F7140C700A7AB21 /* liblibfurnace.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = liblibfurnace.a;
+			remoteRef = CC992C052F7140C700A7AB21 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		CC9A50BC2BE36C8300CED1F0 /* liblibpmdmini.a */ = {
@@ -10567,6 +10599,7 @@
 					"$(PROJECT_DIR)/libs/libnez/webnez/src",
 					"$(PROJECT_DIR)/libs/libsidplayfp/src/libsidplayfp/src",
 					"$(PROJECT_DIR)/libs/libsidplayfp/src",
+					"$(PROJECT_DIR)/libs/libfurnace/furnace/src/modizer",
 				);
 				INFOPLIST_FILE = "modizer-info.plist";
 				"INFOPLIST_FILE[sdk=iphone*]" = "modizer-info.plist";
@@ -10732,6 +10765,7 @@
 					"$(PROJECT_DIR)/libs/libnez/webnez/src",
 					"$(PROJECT_DIR)/libs/libsidplayfp/src/libsidplayfp/src",
 					"$(PROJECT_DIR)/libs/libsidplayfp/src",
+					"$(PROJECT_DIR)/libs/libfurnace/furnace/src/modizer",
 				);
 				INFOPLIST_FILE = "modizer-info.plist";
 				"INFOPLIST_FILE[sdk=iphone*]" = "modizer-info.plist";
@@ -10898,6 +10932,7 @@
 					"$(PROJECT_DIR)/libs/libnez/webnez/src",
 					"$(PROJECT_DIR)/libs/libsidplayfp/src/libsidplayfp/src",
 					"$(PROJECT_DIR)/libs/libsidplayfp/src",
+					"$(PROJECT_DIR)/libs/libfurnace/furnace/src/modizer",
 				);
 				INFOPLIST_FILE = "modizer-info.plist";
 				"INFOPLIST_FILE[sdk=iphone*]" = "modizer-info.plist";

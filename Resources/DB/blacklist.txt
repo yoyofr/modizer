@@ -9,11 +9,9 @@ Beaver Sweeper
 BeRoTracker
 BoyScout
 Buzz
-Deflemask
 DreamStation
 Digitrekker
 Digital Sound Interface Kit
-FamiTracker
 GoatTracker
 GoatTracker 2
 Hippel ST COSO

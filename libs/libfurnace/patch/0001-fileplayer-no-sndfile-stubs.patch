@@ -1,0 +1,25 @@
+diff --git a/src/engine/filePlayer.h b/src/engine/filePlayer.h
+index dde47a892..78fe43730 100644
+--- a/src/engine/filePlayer.h
++++ b/src/engine/filePlayer.h
+@@ -30,8 +30,20 @@
+ #include "sfWrapper.h"
+ #else
+ typedef void SNDFILE;
++typedef long long sf_count_t;
+ struct SF_INFO {
+   int invalid;
++  int samplerate;
++  int channels;
++  sf_count_t frames;
++  int seekable;
++};
++enum { SFM_READ = 0x10 };
++inline sf_count_t sf_seek(SNDFILE*, sf_count_t, int) { return -1; }
++inline sf_count_t sf_readf_float(SNDFILE*, float*, sf_count_t) { return 0; }
++struct SFWrapper {
++  SNDFILE* doOpen(const char*, int, SF_INFO*) { return nullptr; }
++  void doClose() {}
+ };
+ #endif
+
