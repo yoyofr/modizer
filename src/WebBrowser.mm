@@ -1153,6 +1153,7 @@ didFinishNavigation:(WKNavigation *)navigation {
             if ([[url pathExtension] compare:@"jpeg" options:NSCaseInsensitiveSearch]==NSOrderedSame) found_img=1; //jpg
             if ([[url pathExtension] compare:@"png" options:NSCaseInsensitiveSearch]==NSOrderedSame) found_img=2; //png
             if ([[url pathExtension] compare:@"gif" options:NSCaseInsensitiveSearch]==NSOrderedSame) found_img=3; //gif
+            if ([[url pathExtension] compare:@"webp" options:NSCaseInsensitiveSearch]==NSOrderedSame) found_img=4; //webp
             
             if (found_img) {
                 cover_currentPlayFilepath = [detailViewController getCurrentModuleFilepath];
@@ -1168,12 +1169,14 @@ didFinishNavigation:(WKNavigation *)navigation {
                         if (found_img==1) filename=[NSString stringWithFormat:@"%@/folder.jpg",[cover_currentPlayFilepath stringByDeletingLastPathComponent]];
                         if (found_img==2) filename=[NSString stringWithFormat:@"%@/folder.png",[cover_currentPlayFilepath stringByDeletingLastPathComponent]];
                         if (found_img==3) filename=[NSString stringWithFormat:@"%@/folder.gif",[cover_currentPlayFilepath stringByDeletingLastPathComponent]];
+                        if (found_img==4) filename=[NSString stringWithFormat:@"%@/folder.webp",[cover_currentPlayFilepath stringByDeletingLastPathComponent]];
                         NSFileManager *mFileMngr=[[NSFileManager alloc] init];
                         [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@/folder.jpg",[ModizFileHelper getAppHomeDirectory],[cover_currentPlayFilepath stringByDeletingLastPathComponent]] error:&err];
                         [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@/folder.jpeg",[ModizFileHelper getAppHomeDirectory],[cover_currentPlayFilepath stringByDeletingLastPathComponent]] error:&err];
                         [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@/folder.png",[ModizFileHelper getAppHomeDirectory],[cover_currentPlayFilepath stringByDeletingLastPathComponent]] error:&err];
                         [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@/folder.webp",[ModizFileHelper getAppHomeDirectory],[cover_currentPlayFilepath stringByDeletingLastPathComponent]] error:&err];
                         [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@/folder.gif",[ModizFileHelper getAppHomeDirectory],[cover_currentPlayFilepath stringByDeletingLastPathComponent]] error:&err];
+                        
                         
                         [self openPopup: [NSString stringWithFormat:@"Downloading : %@",[filename lastPathComponent] ]];
                         [downloadViewController addURLImageToDownloadList:cover_url_string fileName:filename filesize:cover_expectedContentLength];
@@ -1188,6 +1191,7 @@ didFinishNavigation:(WKNavigation *)navigation {
                         if (found_img==1) filename=[NSString stringWithFormat:@"%@.jpg",[cover_currentPlayFilepath stringByDeletingPathExtension]];
                         if (found_img==2) filename=[NSString stringWithFormat:@"%@.png",[cover_currentPlayFilepath stringByDeletingPathExtension]];
                         if (found_img==3) filename=[NSString stringWithFormat:@"%@.gif",[cover_currentPlayFilepath stringByDeletingPathExtension]];
+                        if (found_img==4) filename=[NSString stringWithFormat:@"%@.webp",[cover_currentPlayFilepath stringByDeletingPathExtension]];
                         NSFileManager *mFileMngr=[[NSFileManager alloc] init];
                         [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@.jpg",[ModizFileHelper getAppHomeDirectory],[cover_currentPlayFilepath stringByDeletingPathExtension]] error:&err];
                         [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@.jpeg",[ModizFileHelper getAppHomeDirectory],[cover_currentPlayFilepath stringByDeletingPathExtension]] error:&err];
@@ -1216,6 +1220,7 @@ didFinishNavigation:(WKNavigation *)navigation {
                     if (found_img==1) filename=[NSString stringWithFormat:@"%@/folder.jpg",path];
                     if (found_img==2) filename=[NSString stringWithFormat:@"%@/folder.png",path];
                     if (found_img==3) filename=[NSString stringWithFormat:@"%@/folder.gif",path];
+                    if (found_img==4) filename=[NSString stringWithFormat:@"%@/folder.webp",path];
                     NSFileManager *mFileMngr=[[NSFileManager alloc] init];
                     [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@/folder.jpg",[ModizFileHelper getAppHomeDirectory], path] error:&err];
                     [mFileMngr removeItemAtPath:[NSString stringWithFormat:@"%@/%@/folder.jpeg",[ModizFileHelper getAppHomeDirectory], path ] error:&err];
