@@ -2957,6 +2957,9 @@ void propertyListenerCallback (void                   *inUserData,              
         //WEBSID
         websid_scope_buffers=NULL;
         
+        // FUR
+        furPlayer=NULL;
+        
         //
         // SIDPLAY
         
@@ -7006,13 +7009,15 @@ void processFadeOut(short int *buffer, int sample_count, int voice_factor) {
                             mCurrentSamples+=SOUND_BUFFER_SIZE_SAMPLE;
                             
                             if ((mCurrentSamples>=mTgtSamples)||
-                                (mdzSilentBufferLimit&&(mdzSilentBufferCount>=mdzSilentBufferLimit))
+                                (mdzSilentBufferLimit&&(mdzSilentBufferCount>=mdzSilentBufferLimit))||
+                                furPlayer->isEndOfSong()
                                 ) {
                                 //end reached
                                 [self setSongLengthfromMD5:mod_currentsub-mod_minsub+1 songlength:mCurrentSamples*1000/PLAYBACK_FREQ];
                                 
                                 if (iModuleLength<0) {
                                     //TODO: reset
+                                    furPlayer->stop();
                                     mCurrentSamples=0;
                                     iCurrentTime=0;
                                     mdzSilentBufferCount=0;
@@ -10478,7 +10483,6 @@ static WSRPlayerApi* s_coreSwan=&oswan::g_wsr_player_api;
     if (furPlayer->load((const uint8_t*)fur_fileBuffer, fur_fileBufferLen,[filePath UTF8String])==FALSE) {
         MDZELog("furPlayer: cannot load file");
         mdz_safe_free(fur_fileBuffer);
-        furPlayer->close();
         delete furPlayer;
         furPlayer=NULL;
         return -2;
@@ -10498,6 +10502,8 @@ static WSRPlayerApi* s_coreSwan=&oswan::g_wsr_player_api;
     mCurrentSamples=0;
     if (mod_currentsub<mod_minsub) mod_currentsub=mod_minsub;
     if (mod_currentsub>mod_maxsub) mod_currentsub=mod_maxsub;
+    
+    iModuleLength=furPlayer->getDuration()*1000;
     
     if (iModuleLength<=0) iModuleLength=settings[GLOB_DefaultLength].detail.mdz_slider.slider_value*1000;
     
@@ -16829,8 +16835,9 @@ extern bool icloud_available;
     if (mPlayType==MMP_FUR) { //FUR
         //TODO
         mdz_safe_free(fur_fileBuffer);
+            
         if (furPlayer) {
-            furPlayer->close();
+            furPlayer->stop();
             delete furPlayer;
             furPlayer=NULL;
         }

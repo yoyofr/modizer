@@ -51,7 +51,7 @@
 #define stricmp strcasecmp
 
 // emulation logic seems to be hardcoded to this..
-#define AUDIO_BUF_SIZE 512
+#define AUDIO_BUF_SIZE 1024
 
 void print_message(void * context, const char * message) {
 	// for now just a dummy noop
@@ -1201,7 +1201,7 @@ int ds_read(int16_t *output_buffer, uint16_t out_size) {
 	uint16_t requested_size= out_size;
 	
 	while (out_size) {
-		if (available_buffer_size) {
+		if (available_buffer && available_buffer_size) {
 			if (available_buffer_size >= out_size) {
 				memcpy(output_buffer, available_buffer, out_size<<2);
 				available_buffer+= out_size<<2;
