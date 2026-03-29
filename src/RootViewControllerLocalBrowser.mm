@@ -796,6 +796,7 @@ static int qsort_CompareArcEntries(const void *entryA, const void *entryB) {
 -(void) listLocalFiles {
     NSString *file,*cpath;
     NSURL *fileURL;
+    NSArray *imgtype_ext=@[@"JPG",@"JPEG",@"PNG",@"GIF",@"WEBP"];
     NSMutableArray *filetype_ext=[ModizFileHelper buildListSupportFileType:FTYPE_PLAYABLEFILE];
     NSMutableArray *filetype_extAMIGA=[ModizFileHelper buildListSupportFileType:FTYPE_PLAYABLEFILE_AMIGA];
     NSMutableArray *all_multisongstype_ext=[ModizFileHelper buildListSupportFileType:FTYPE_PLAYABLEFILE_SUBSONGS];
@@ -1565,6 +1566,7 @@ static int qsort_CompareArcEntries(const void *entryA, const void *entryB) {
                     }
                     if (!filtered) {
                         int found=0;
+                        
                         if ([filetype_ext indexOfObject:extension]!=NSNotFound) found=1;
                         else if ([filetype_ext indexOfObject:file_no_ext]!=NSNotFound) found=1;
                         else if ([archivetype_ext indexOfObject:extension]!=NSNotFound) found=1;
@@ -1702,10 +1704,14 @@ static int qsort_CompareArcEntries(const void *entryA, const void *entryB) {
                             if (!filtered) {
                                 int found=0;
                                 
-                                if ([filetype_ext indexOfObject:extension]!=NSNotFound) found=1;
-                                else if ([filetype_extAMIGA indexOfObject:file_no_ext]!=NSNotFound) found=1;
-                                else if ([archivetype_ext indexOfObject:extension]!=NSNotFound) found=1;
-                                
+                                if ([imgtype_ext indexOfObject:extension]!=NSNotFound) {
+                                    //found a picture
+                                    //TODO check if it is really an image, should read first bytes
+                                } else {
+                                    if ([filetype_ext indexOfObject:extension]!=NSNotFound) found=1;
+                                    else if ([filetype_extAMIGA indexOfObject:file_no_ext]!=NSNotFound) found=1;
+                                    else if ([archivetype_ext indexOfObject:extension]!=NSNotFound) found=1;
+                                }
                                 
                                 if (found)  {
                                     char tmp_str[1024];//,*tmp_convstr;
