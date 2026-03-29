@@ -1,0 +1,13 @@
+diff --git a/src/engine/engine.h b/src/engine/engine.h
+index 58607e1ae..18486aef0 100644
+--- a/src/engine/engine.h
++++ b/src/engine/engine.h
+@@ -1474,7 +1474,7 @@ class DivEngine {
+       memset(oscBuf,0,DIV_MAX_OUTPUTS*(sizeof(float*)));
+       memset(exportChannelMask,1,DIV_MAX_CHANS*sizeof(bool));
+       memset(chipPeak,0,DIV_MAX_CHIPS*DIV_MAX_OUTPUTS*sizeof(float));
+-      memset(filePlayerBuf,0,DIV_MAX_OUTPUTS*sizeof(float));
++      memset(filePlayerBuf,0,DIV_MAX_OUTPUTS*sizeof(float*));
+ 
+       for (int i=0; i<DIV_MAX_CHIP_DEFS; i++) {
+         sysFileMapFur[i]=DIV_SYSTEM_NULL;

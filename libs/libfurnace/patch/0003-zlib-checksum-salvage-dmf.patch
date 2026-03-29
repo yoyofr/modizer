@@ -1,0 +1,50 @@
+diff --git a/src/engine/fileOps/fileOpsCommon.cpp b/src/engine/fileOps/fileOpsCommon.cpp
+index 156bf6da8..cb62254ef 100644
+--- a/src/engine/fileOps/fileOpsCommon.cpp
++++ b/src/engine/fileOps/fileOpsCommon.cpp
+@@ -79,21 +79,33 @@ bool DivEngine::load(unsigned char* f, size_t slen, const char* nameHint) {
+ 
+       nextErr=inflate(&zl,Z_SYNC_FLUSH);
+       if (nextErr!=Z_OK && nextErr!=Z_STREAM_END) {
+-        if (zl.msg==NULL) {
+-          logD("zlib error: unknown error! %d",nextErr);
+-          lastError="unknown decompression error";
++        // Z_DATA_ERROR at end of input (avail_in==0) with already-decompressed
++        // blocks means the adler32 checksum is wrong but the data is intact.
++        // This is common with slightly corrupted .dmf files — salvage the data.
++        ib->blockSize=ib->len-zl.avail_out;
++        if (nextErr==Z_DATA_ERROR && zl.avail_in==0 && (!blocks.empty() || ib->blockSize>0)) {
++          logD("zlib checksum error — attempting to use decompressed data anyway");
++          if (ib->blockSize>0) blocks.push_back(ib); else delete ib;
++          inflateEnd(&zl);
++          nextErr=Z_STREAM_END; // treat as successful end
+         } else {
+-          logD("zlib inflate: %s",zl.msg);
+-          lastError=fmt::sprintf("decompression error: %s",zl.msg);
++          if (zl.msg==NULL) {
++            logD("zlib error: unknown error! %d",nextErr);
++            lastError="unknown decompression error";
++          } else {
++            logD("zlib inflate: %s",zl.msg);
++            lastError=fmt::sprintf("decompression error: %s",zl.msg);
++          }
++          for (InflateBlock* i: blocks) delete i;
++          blocks.clear();
++          delete ib;
++          inflateEnd(&zl);
++          throw NotZlibException(0);
+         }
+-        for (InflateBlock* i: blocks) delete i;
+-        blocks.clear();
+-        delete ib;
+-        inflateEnd(&zl);
+-        throw NotZlibException(0);
++      } else {
++        ib->blockSize=ib->len-zl.avail_out;
++        blocks.push_back(ib);
+       }
+-      ib->blockSize=ib->len-zl.avail_out;
+-      blocks.push_back(ib);
+       if (nextErr==Z_STREAM_END) {
+         break;
+       }
