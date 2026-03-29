@@ -1,0 +1,156 @@
+# demos
+
+demo songs for Furnace.
+
+these demo songs are not under the GPL. all rights are reserved to the original author(s).
+
+# contributors
+
+- 0x5066
+- 4sythe
+- Abstract 64
+- Aburtos
+- ActualNK358
+- Aishi Tsukumo
+- akumanatt
+- aloelucidity
+- ALTMUS
+- AmigaX
+- AquaDoesStuff
+- asikwus
+- AstralBlue
+- battybeats
+- bbqzzd
+- Bernie
+- billimanmcjonnson
+- biolizardshadow
+- BlastBrothers
+- Blaze Weednix
+- BlueElectric05
+- Boycraft18462
+- breakthetargets
+- brickblock369
+- Brightonic
+- Burnt Fishy
+- CaptainMalware
+- Clingojam
+- ControlleronaHanger
+- Crisps
+- DeMOSic
+- DevEd
+- Dippy
+- djtuBIG-MaliceX
+- dmKaltsit
+- Dolce
+- dumbut
+- Echodalia
+- Eggo1423
+- Eknous
+- Electric Keet
+- EntropyAuthor
+- EpicTyphlosion
+- Ether Egg
+- FΛDE
+- Forte
+- Fragmare
+- freq-mod
+- Furmilion
+- gtr3qq
+- halberd (lordlydumbass)
+- Heckett Heriot
+- Heemin
+- Hortus
+- ifrit05
+- iyatemu
+- jaezu
+- JayBOB18
+- Jimmy-DS
+- jvsTSX
+- Kagamiin~
+- Kaoru
+- kleeder
+- Korbo
+- KungFuFurby
+- Laggy
+- leejh20
+- LovelyA72
+- LTVA
+- LunaMoth
+- LVintageNerd
+- Mahbod Karamoozian
+- masicbemester
+- MelonadeM
+- Miker
+- Molkirill
+- MrCoolDude
+- Mr. Saturn
+- NeoWar
+- Nerreave
+- niffuM
+- Nikku4211
+- \<nk\>
+- Notakin
+- nwcr
+- NyaongI
+- OddPandemonium
+- PeyPey
+- PichuMario
+- pixelated
+- Poltvick
+- PotaJoe
+- potatoTeto
+- psxdominator
+- Raijin
+- railzen7
+- Rancastor
+- Rei8bit
+- RepellantMold
+- RetroCarrot
+- RevvoBolt
+- Rockyfan75000
+- Roostersox
+- scooblee
+- sheffield^2
+- sillygoose
+- smaybius
+- SnugglyBun
+- Someone64
+- Spinning Square Waves
+- src3453
+- StarryPen / Pen64
+- stomatol
+- SuperJet Spade
+- Supper\_E1
+- SwapXFO
+- Swirly
+- System64
+- TakuikaNinja
+- tapekeep
+- TapeStone
+- TCORPStudios
+- Teuthida
+- ThaCuber
+- The Beesh-Spweesh!
+- The Blender Fiddler
+- TheDuccinator
+- The Goofy-Mouse
+- theloredev
+- TheRealHedgehogSonic
+- tildearrow
+- tom\_atom
+- traumatized
+- Tytanium654
+- Ultraprogramer
+- UserSniper
+- Weeppiko
+- Wegfrei
+- Xan
+- Yuzugure!
+- Zabir
+- Zaxinoth Digital
+- Zaxolotl
+- ZoomTen (Zumi)
+
+# submit demo songs!
+
+we are not accepting demo song submissions at the moment. sorry!
