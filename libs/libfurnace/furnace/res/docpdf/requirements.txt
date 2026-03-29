@@ -1,4 +1,4 @@
-Brotli==1.0.9
+Brotli==1.2.0
 cffi==1.15.1
 cssselect2==0.7.0
 fonttools==4.39.3
