@@ -4261,9 +4261,6 @@ int recording=0;
                           options:NSDirectoryEnumerationSkipsHiddenFiles
                      errorHandler:nil];
         
-        /*for (NSURL *fileURL in directoryEnumerator) {
-         [dirContent addObject:fileURL];
-         }*/
         dirContent=[directoryEnumerator allObjects];
         
         NSArray *sortedDirContent = [dirContent sortedArrayUsingComparator:^(id obj1, id obj2) {
@@ -4274,12 +4271,12 @@ int recording=0;
             
             [(NSURL*)obj1 getResourceValue:&str1 forKey:NSURLPathKey error:nil];
             [(NSURL*)obj2 getResourceValue:&str2 forKey:NSURLPathKey error:nil];
+            str1=[str1 stringByDeletingPathExtension];
+            str2=[str2 stringByDeletingPathExtension];
             
             return [str1 caseInsensitiveCompare:str2];
         }];
         
-        int file_idx=0;
-        int file_cnt=[sortedDirContent count];
         for (fileURL in sortedDirContent) {
             
             NSNumber *isDirectory = nil;
@@ -4293,11 +4290,10 @@ int recording=0;
                 
                 if ([filetype_ext indexOfObject:extension]!=NSNotFound) {
                     cover_img=[UIImage imageWithContentsOfFile:file];
-                    break;
+                    if (cover_img) break;
                 }
             }
         }
-        //[fileMngr release];
     }
     
     if (cover_img==nil) {

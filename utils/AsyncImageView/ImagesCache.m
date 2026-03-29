@@ -9,6 +9,8 @@
 
 #define directoryInCache @"imagesCache"
 
+#define DELAY_BETWEEN_DOWNLOADS 0.2f
+
 /// Maximum number of simultaneous image downloads across all ImagesCache instances.
 static const NSInteger ICMaxConcurrentDownloads = 1;
 
@@ -125,6 +127,9 @@ static NSMutableSet *ICPendingDownloads = nil;
                 //Save downloaded real image to file on disk
                 //Сохраняем загруженную оригинальную картинку в файл на диск
                 [self saveImage:realImage toFileWithName:imageName type:ICTypeReal extension:imageExtension];
+                
+                //add a pause
+                [NSThread sleepForTimeInterval:DELAY_BETWEEN_DOWNLOADS];
             }
         @catch (NSException *exception) {
             NSLog(@"Error downloading image with name: %@", imageName);

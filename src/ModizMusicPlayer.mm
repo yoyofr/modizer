@@ -10748,6 +10748,7 @@ static WSRPlayerApi* s_coreSwan=&oswan::g_wsr_player_api;
         MDZELog("STSOUND ymMusicLoad error");
         mPlayType=0;
         ymMusicDestroy(ymMusic);
+        ymMusic=NULL;
         return -1;
     } else {
         ymMusicInfo_t info;
@@ -16825,8 +16826,11 @@ extern bool icloud_available;
         }
     }
     if (mPlayType==MMP_STSOUND) { //STSOUND
-        ymMusicStop(ymMusic);
-        ymMusicDestroy(ymMusic);
+        if (ymMusic) {
+            ymMusicStop(ymMusic);
+            ymMusicDestroy(ymMusic);
+            ymMusic=NULL;
+        }
     }
     if (mPlayType==MMP_MAC) { //MAC
         delete pAPEDecompress;
