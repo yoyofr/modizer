@@ -3,7 +3,7 @@ cffi==1.15.1
 cssselect2==0.7.0
 fonttools==4.39.3
 html5lib==1.1
-Markdown==3.4.3
+Markdown==3.8.1
 Pillow==9.4.0
 mdx-breakless-lists==1.0.1
 py-gfm==2.0.0
