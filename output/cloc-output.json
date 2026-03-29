@@ -1,17 +1,17 @@
 {"header" : {
   "cloc_url"           : "github.com/AlDanial/cloc",
   "cloc_version"       : "1.98",
-  "elapsed_seconds"    : 29.4371819496155,
-  "n_files"            : 19260,
-  "n_lines"            : 8675542,
-  "files_per_second"   : 654.274584875866,
-  "lines_per_second"   : 294713.740426954,
+  "elapsed_seconds"    : 27.9278070926666,
+  "n_files"            : 19261,
+  "n_lines"            : 8675741,
+  "files_per_second"   : 689.671048503397,
+  "lines_per_second"   : 310648.844401324,
   "report_file"        : "../output/cloc-output.json"},
 "C/C++ Header" :{
   "nFiles": 9329,
-  "blank": 282072,
+  "blank": 282073,
   "comment": 463998,
-  "code": 1921045},
+  "code": 1921047},
 "C" :{
   "nFiles": 4595,
   "blank": 317417,
@@ -39,9 +39,9 @@
   "code": 118452},
 "Objective-C++" :{
   "nFiles": 103,
-  "blank": 18519,
-  "comment": 10572,
-  "code": 91510},
+  "blank": 18544,
+  "comment": 10579,
+  "code": 91649},
 "Scheme" :{
   "nFiles": 8,
   "blank": 49,
@@ -247,16 +247,16 @@
   "blank": 30,
   "comment": 23,
   "code": 178},
+"diff" :{
+  "nFiles": 7,
+  "blank": 47,
+  "comment": 152,
+  "code": 155},
 "Maven" :{
   "nFiles": 1,
   "blank": 8,
   "comment": 21,
   "code": 146},
-"diff" :{
-  "nFiles": 6,
-  "blank": 46,
-  "comment": 143,
-  "code": 140},
 "yacc" :{
   "nFiles": 1,
   "blank": 35,
@@ -333,7 +333,7 @@
   "comment": 0,
   "code": 1},
 "SUM": {
-  "blank": 1072394,
-  "comment": 1088850,
-  "code": 6514298,
-  "nFiles": 19260} }
+  "blank": 1072421,
+  "comment": 1088866,
+  "code": 6514454,
+  "nFiles": 19261} }
