@@ -12,6 +12,6 @@ pydyf==0.5.0
 pyphen==0.14.0
 six==1.16.0
 tinycss2==1.2.1
-weasyprint==58.1
+weasyprint==68.0
 webencodings==0.5.1
 zopfli==0.2.2
