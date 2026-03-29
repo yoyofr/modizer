@@ -1,7 +1,7 @@
 Brotli==1.0.9
 cffi==1.15.1
 cssselect2==0.7.0
-fonttools==4.39.3
+fonttools==4.60.2
 html5lib==1.1
 Markdown==3.4.3
 Pillow==9.4.0
