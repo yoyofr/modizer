@@ -59,13 +59,13 @@ Other main libs & frameworks:
 ```
 [ LANGUAGES BREAKDOWN ]
 
-C            --> 1,895,203 lines
-C++          --> 1,351,944 lines
-Objective-C++ --> 91,649 lines
-Objective-C  --> 37,829 lines
+C            --> 3,303,265 lines
+C++          --> 2,110,382 lines
+Objective-C++ --> 93,616 lines
+Objective-C  --> 51,910 lines
 GLSL         --> 1,050 lines
-Others       --> 3,136,779 lines
+Others       --> 4,077,805 lines
 
-[ TOTAL LINES OF CODE: 6,514,454 ]
+[ TOTAL LINES OF CODE: 9,638,028 ]
 ```
 <!-- LANGUAGES BREAKDOWN END -->
