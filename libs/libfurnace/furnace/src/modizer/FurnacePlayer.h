@@ -20,6 +20,54 @@
 class DivEngine;
 
 /**
+ * Live state of a channel — values reflect the current engine state including
+ * all active effects (vibrato, portamento, tremolo, fine pitch…).
+ */
+struct FurnaceChannelLiveState {
+  // --- Note & instrument ---
+  // note = pattern_note - 60  (e.g. A-4 = pattern 57 → note = -3)
+  // To display: patNote = note+60; octave = patNote/12; semitone = patNote%12
+  // (semitone: 0=C, 1=C#, 2=D, 3=D#, 4=E, 5=F, 6=F#, 7=G, 8=G#, 9=A, 10=A#, 11=B)
+  int  note;        // -60..119, or INT_MIN if no note playing
+  int  instrument;  // last used instrument index, -1 = none
+  int  volume;      // current volume 0-127 (upper byte of engine's 16-bit fixed-point)
+
+  // --- Pitch ---
+  // pitch offset in ~1/128-semitone units (includes E5xx, vibrato, portamento).
+  int  pitch;
+
+  // Frequency in Hz for the current note + pitch offset.
+  // Formula: song.tuning * 2^((note + 3 + pitch/128) / 12)
+  // (tuning = song's A4 frequency, default 440 Hz; A-4 → note=-3 → 440 Hz ✓)
+  double freqHz;
+
+  // --- Modulation ---
+  int  vibratoDepth; // 0 = off
+  int  vibratoRate;
+  int  tremoloDepth; // 0 = off
+  int  tremoloRate;
+
+  // --- Key / portamento state ---
+  bool keyOn;    // note just triggered this tick
+  bool keyOff;   // note releasing
+  bool active;   // channel is producing sound
+  bool inPorta;  // portamento slide in progress
+  int  portaNote; // portamento target note (-1 = none)
+};
+
+/**
+ * One note cell in a pattern — equivalent to ModPlugNote for Furnace data.
+ * Layout: array[row * numChannels + chan]
+ */
+struct FurnacePatternNote {
+  int16_t note;        // 0-179 (C-0..B-14), 253=note off, 254=release, -1=empty
+  int16_t instrument;  // 0-based instrument index, -1=empty
+  int16_t volume;      // 0-255, -1=empty
+  int16_t fx[4];       // effect codes  (columns 0-3), -1=empty
+  int16_t fxVal[4];    // effect values (columns 0-3), -1=empty
+};
+
+/**
  * One row of pattern data for a single channel, at the current playhead.
  */
 struct FurnaceChannelRow {
@@ -36,9 +84,12 @@ struct FurnaceChannelRow {
  */
 struct FurnaceOscData {
   const short* data;       // pointer into the circular buffer (65536 samples at 65536 Hz)
-  unsigned short readPos;  // current read needle — start reading from here
-  size_t        rate;      // actual chip sample rate in Hz
+  unsigned short readPos;  // write needle (most recent sample index) — read backwards from here
+  size_t        rate;      // actual chip sample rate in Hz (buffer always runs at 65536 Hz)
   bool          valid;     // false if this channel has no osc buffer
+
+  // Buffer always runs at OSC_RATE Hz regardless of output sample rate.
+  static constexpr int OSC_RATE = 65536;
 };
 
 /**
@@ -161,6 +212,34 @@ public:
   FurnaceOscData getOscData(int chan) const;
 
   /**
+   * Get the live engine state of a channel (note, volume, pitch with effects, etc.).
+   * Reflects the actual playing state including vibrato, portamento, fine pitch…
+   * @param chan  Channel index in [0, channels).
+   * @return Populated FurnaceChannelLiveState; note=-1 if channel is inactive.
+   */
+  FurnaceChannelLiveState getChannelLiveState(int chan) const;
+
+  /**
+   * Get all pattern data for a given order position in the current subsong.
+   *
+   * Equivalent to xmp_getPattern:numrows: — returns a flat array of
+   * FurnacePatternNote laid out as [row * numChannels + chan].
+   *
+   * The returned buffer is owned by the caller and must be freed with delete[].
+   * Returns nullptr if no song is loaded or orderIdx is out of range.
+   *
+   * @param orderIdx   Order index in [0, ordersLen).
+   * @param numrows    Filled with the number of rows in the pattern.
+   * @param numchans   Filled with the number of channels.
+   */
+  FurnacePatternNote* getOrderPattern(int orderIdx, int* numrows, int* numchans) const;
+
+  /**
+   * Number of orders in the current subsong.
+   */
+  int getOrderCount() const;
+
+  /**
    * Duration of the current subsong in seconds.
    * Returns 0 if no song is loaded or timestamps have not been calculated.
    * Triggers timestamp calculation on first call after load/selectSong.
@@ -178,6 +257,18 @@ public:
    * Returns 0 if no song is loaded or position cannot be determined.
    */
   double getPosition() const;
+  
+  /**
+   * Current order index
+   * Returns -1 if no song is loaded or order index cannot be determined.
+   */
+  int getCurrentOrder();
+  
+  /**
+   * Current row
+   * Returns -1 if no song is loaded or row cannot be determined.
+   */
+  int getCurrentRow();
 
   /**
    * Seek to the given position (in seconds) within the current subsong.

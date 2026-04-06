@@ -955,8 +955,16 @@ int qsortVGMR_entries_rating_or_entries(const void *entryA, const void *entryB) 
         if (wef->file_type==1) dbWEB_entries[dbWEB_entries_count].label=[[NSString alloc] initWithFormat:@"%@.zip",wef->file_name];
         else dbWEB_entries[dbWEB_entries_count].label=[[NSString alloc] initWithFormat:@"%@",wef->file_name];
         
-        if (wef->file_type==1) dbWEB_entries[dbWEB_entries_count].fullpath=[NSString stringWithFormat:@"Documents/VGMRips/%@/%@/%@/%@.zip",wef->file_company,wef->file_chipsets,wef->file_systems,wef->file_name];
-        else dbWEB_entries[dbWEB_entries_count].fullpath=[[NSString alloc] initWithFormat:@"%@",wef->file_name];
+        if (wef->file_type==1) {
+            dbWEB_entries[dbWEB_entries_count].fullpath=[NSString stringWithFormat:@"Documents/VGMRips/%@/%@/%@/%@.zip",wef->file_company,wef->file_chipsets,wef->file_systems,wef->file_name];
+            
+            dbWEB_entries[dbWEB_entries_count].img_LOCAL=[NSString stringWithFormat:@"%@/%@",[ModizFileHelper getAppHomeDirectory],[[dbWEB_entries[dbWEB_entries_count].fullpath stringByDeletingPathExtension] stringByAppendingString:@".png"]];
+            if ([[NSFileManager defaultManager] fileExistsAtPath:dbWEB_entries[dbWEB_entries_count].img_LOCAL]) {
+                
+            } else {
+                dbWEB_entries[dbWEB_entries_count].img_LOCAL=nil;
+            }
+        } else dbWEB_entries[dbWEB_entries_count].fullpath=[[NSString alloc] initWithFormat:@"%@",wef->file_name];
         
         if (wef->file_URL) dbWEB_entries[dbWEB_entries_count].URL=[NSString stringWithString:wef->file_URL];
         
@@ -1013,7 +1021,7 @@ int qsortVGMR_entries_rating_or_entries(const void *entryA, const void *entryB) 
     t_WEB_browse_entry *cur_db_entries;
     
     cur_db_entries=(search_dbWEB?search_dbWEB_entries:dbWEB_entries);
-    bool has_mini_img=(cur_db_entries[indexPath.row].img_URL?TRUE:FALSE);
+    bool has_mini_img=(cur_db_entries[indexPath.row].img_LOCAL?TRUE:FALSE);
     
     if (forceReloadCells) {
         while ([tableView dequeueReusableCellWithIdentifier:CellIdentifier]) {}
@@ -1255,12 +1263,8 @@ int qsortVGMR_entries_rating_or_entries(const void *entryA, const void *entryB) 
         actionView.enabled=YES;
         actionView.hidden=NO;
         
-        if (cur_db_entries[indexPath.row].img_URL) {
-            coverImgView.image = [imagesCache getImageWithURL:cur_db_entries[indexPath.row].img_URL
-                                                       prefix:@"vgmrips_mini"
-                                                         size:CGSizeMake(34.0f, 34.0f)
-                                               forUIImageView:coverImgView];
-            //coverImgView.contentMode=UIViewContentModeScaleAspectFit;
+        if (cur_db_entries[indexPath.row].img_LOCAL) {
+            coverImgView.image = [UIImage imageWithContentsOfFile:cur_db_entries[indexPath.row].img_LOCAL];
         }
     } else { // DIR
         bottomLabel.frame = CGRectMake((bottomImageView.image?16:0)+(has_mini_img?35:0)+ 1.0 * cell.indentationWidth,
@@ -1279,13 +1283,13 @@ int qsortVGMR_entries_rating_or_entries(const void *entryA, const void *entryB) 
         if (darkMode) topLabel.textColor=[UIColor colorWithRed:MDZ_FOLDER_DARK_R green:MDZ_FOLDER_DARK_G blue:MDZ_FOLDER_DARK_B alpha:1.0f];
         else topLabel.textColor=[UIColor colorWithRed:MDZ_FOLDER_LIGHT_R green:MDZ_FOLDER_LIGHT_G blue:MDZ_FOLDER_LIGHT_B alpha:1.0f];
         
-        if (cur_db_entries[indexPath.row].img_URL) {
-            coverImgView.image = [imagesCache getImageWithURL:cur_db_entries[indexPath.row].img_URL
-                                                       prefix:@"vgmrips_mini"
-                                                         size:CGSizeMake(34.0f, 34.0f)
-                                               forUIImageView:coverImgView];
-            coverImgView.contentMode=UIViewContentModeScaleAspectFit;
-        }
+//        if (cur_db_entries[indexPath.row].img_URL) {
+//            coverImgView.image = [imagesCache getImageWithURL:cur_db_entries[indexPath.row].img_URL
+//                                                       prefix:@"vgmrips_mini"
+//                                                         size:CGSizeMake(34.0f, 34.0f)
+//                                               forUIImageView:coverImgView];
+//            coverImgView.contentMode=UIViewContentModeScaleAspectFit;
+//        }
         
         cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
     }
@@ -1293,6 +1297,36 @@ int qsortVGMR_entries_rating_or_entries(const void *entryA, const void *entryB) 
     
     return cell;
 }
+
+-(bool) getVGMRCover:(NSString*)url fullpath:(NSString*)fullpath  {
+        NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
+        AFURLSessionManager *manager = [[AFURLSessionManager alloc] initWithSessionConfiguration:configuration];
+        manager.responseSerializer = [AFHTTPResponseSerializer serializer];
+        
+        NSURL *URL = [NSURL URLWithString:url];
+        NSURLRequest *request = [NSURLRequest requestWithURL:URL];
+        
+        NSURLSessionDataTask *dataTask = [manager dataTaskWithRequest:request
+                                                       uploadProgress:^(NSProgress * _Nonnull uploadProgress) {
+        }
+                                                     downloadProgress:^(NSProgress * _Nonnull downloadProgress) {
+            
+        }
+                                                    completionHandler:^(NSURLResponse *response, id responseObject, NSError *error) {
+            if (error) {
+                MDZELog("Error: %@", error);
+            } else {
+                NSData *data=responseObject;
+                [data writeToFile:[NSString stringWithFormat:@"%@/%@",[ModizFileHelper getAppHomeDirectory],[[fullpath stringByDeletingPathExtension] stringByAppendingString:@".png"]] atomically:NO];
+            }
+        }];
+        
+        [dataTask resume];
+        
+        [manager invalidateSessionCancelingTasks:NO resetSession:NO];
+    return true;
+}
+
 
 #pragma mark -
 #pragma mark Table view delegate
@@ -1326,11 +1360,13 @@ int qsortVGMR_entries_rating_or_entries(const void *entryA, const void *entryB) 
                 }
             }
         } else {
+            [self getVGMRCover:cur_db_entries[indexPath.row].img_URL fullpath:cur_db_entries[indexPath.row].fullpath];
+            
+            dbWEB_entries[indexPath.row].img_LOCAL=[NSString stringWithFormat:@"%@/%@",[ModizFileHelper getAppHomeDirectory],[[cur_db_entries[indexPath.row].fullpath stringByDeletingPathExtension] stringByAppendingString:@".png"]];
+            
             [self checkCreate:[localPath stringByDeletingLastPathComponent]];
-            
-            
             [downloadViewController addURLToDownloadList:cur_db_entries[indexPath.row].URL fileName:cur_db_entries[indexPath.row].label filePath:cur_db_entries[indexPath.row].fullpath filesize:-1 isMODLAND:1 usePrimaryAction:mClickedPrimAction];
-            
+
         }
     } else {
         childController = [[RootViewControllerVGMRWebParser alloc]  initWithNibName:@"CollectionViewController" bundle:[NSBundle mainBundle]];

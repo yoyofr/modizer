@@ -1514,7 +1514,7 @@ void RenderUtils::DrawChanLayout(float ox,float oy,float ww,float hh,int display
     switch (display_note_mode){
         case 0:col_size=11*char_width;col_ofs=(char_width)*3.5f;break;
         case 1:col_size=6*char_width;col_ofs=(char_width)*3.5f;break;
-        case 2:col_size=4*char_width;col_ofs=(char_width)*3.5f;break;
+        case 2:col_size=4*char_width;col_ofs=(char_width)*3.5f;break;        
     }
     
     pts=(LineVertexF*)malloc(sizeof(LineVertexF)*6*((chanNb+1)*8+9+1));

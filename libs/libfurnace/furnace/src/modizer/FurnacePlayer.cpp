@@ -297,6 +297,33 @@ bool FurnacePlayer::isPlaying() const {
 }
 
 // ---------------------------------------------------------------------------
+// getCurrentOrder
+// ---------------------------------------------------------------------------
+int FurnacePlayer::getCurrentOrder() {
+  int ret=-1;
+  
+  if (songLoaded) {
+    ret = static_cast<int>(engine->getOrder());
+  }
+  
+  return ret;
+}
+
+// ---------------------------------------------------------------------------
+// getCurrentRow
+// ---------------------------------------------------------------------------
+int FurnacePlayer::getCurrentRow() {
+  int ret=-1;
+  
+  if (songLoaded) {
+    ret = engine->getRow();
+  }
+  
+  return ret;
+}
+
+
+// ---------------------------------------------------------------------------
 // getChannelRow
 // ---------------------------------------------------------------------------
 
@@ -346,10 +373,158 @@ FurnaceOscData FurnacePlayer::getOscData(int chan) const {
   if (!buf) return osc;
 
   osc.data    = buf->data;
-  osc.readPos = buf->readNeedle;
+  // needle uses fixed-point with OSCBUF_PREC=16 bits of fractional precision.
+  // The actual write index into data[] is the upper 16 bits (needle >> 16).
+  osc.readPos = static_cast<unsigned short>(buf->needle >> 16);
   osc.rate    = buf->rate;
   osc.valid   = true;
   return osc;
+}
+
+// ---------------------------------------------------------------------------
+// getOrderPattern
+// ---------------------------------------------------------------------------
+
+FurnacePatternNote* FurnacePlayer::getOrderPattern(int orderIdx, int* numrows, int* numchans) const {
+  if (!songLoaded || !engineReady) return nullptr;
+
+  int cur = static_cast<int>(engine->getCurrentSubSong());
+  if (cur < 0 || cur >= static_cast<int>(engine->song.subsong.size())) return nullptr;
+
+  DivSubSong* ss = engine->song.subsong[cur];
+  if (orderIdx < 0 || orderIdx >= ss->ordersLen) return nullptr;
+
+  int numr = ss->patLen;
+  int numc = engine->getTotalChannelCount();
+
+  if (numrows)  *numrows  = numr;
+  if (numchans) *numchans = numc;
+
+  FurnacePatternNote* buf = new FurnacePatternNote[numr * numc]();
+
+  for (int c = 0; c < numc; c++) {
+    int patIndex = ss->orders.ord[c][orderIdx];
+    DivPattern* pat = ss->pat[c].getPattern(patIndex, false);
+    if (!pat) continue;
+
+    int effectCols = ss->pat[c].effectCols;
+
+    for (int r = 0; r < numr; r++) {
+      const short* rd = pat->newData[r];
+      FurnacePatternNote& n = buf[r * numc + c];
+
+      n.note       = rd[DIV_PAT_NOTE];
+      n.instrument = rd[DIV_PAT_INS];
+      n.volume     = rd[DIV_PAT_VOL];
+
+      for (int e = 0; e < 4 && e < effectCols; e++) {
+        n.fx[e]    = rd[DIV_PAT_FX(e)];
+        n.fxVal[e] = rd[DIV_PAT_FXVAL(e)];
+      }
+      for (int e = effectCols; e < 4; e++) {
+        n.fx[e] = n.fxVal[e] = -1;
+      }
+    }
+  }
+
+  return buf;
+}
+
+int FurnacePlayer::getOrderCount() const {
+  if (!songLoaded || !engineReady) return 0;
+  int cur = static_cast<int>(engine->getCurrentSubSong());
+  if (cur < 0 || cur >= static_cast<int>(engine->song.subsong.size())) return 0;
+  return engine->song.subsong[cur]->ordersLen;
+}
+
+// ---------------------------------------------------------------------------
+// getChannelLiveState
+// ---------------------------------------------------------------------------
+
+FurnaceChannelLiveState FurnacePlayer::getChannelLiveState(int chan) const {
+  FurnaceChannelLiveState s{};
+  s.note = s.instrument = -1;
+  s.volume = 0;
+  s.pitch = 0;
+  s.freqHz = 0.0;
+  s.vibratoDepth = s.vibratoRate = 0;
+  s.tremoloDepth = s.tremoloRate = 0;
+  s.keyOn = s.keyOff = s.active = s.inPorta = false;
+  s.portaNote = -1;
+
+  if (!songLoaded || !engineReady || chan < 0) return s;
+  if (chan >= engine->getTotalChannelCount()) return s;
+
+  DivChannelState* cs = engine->getChanState(chan);
+  if (!cs) return s;
+
+  s.note       = cs->note;
+  s.instrument = cs->lastIns;
+  s.volume     = cs->volume >> 8;   // 0-127
+  s.pitch      = cs->pitch;         // 1/128-semitone units
+  s.keyOn      = cs->keyOn;
+  s.keyOff     = cs->keyOff;
+  s.inPorta    = cs->inPorta;
+  s.portaNote  = cs->portaNote;
+  s.vibratoDepth = cs->vibratoDepth;
+  s.vibratoRate  = cs->vibratoRate;
+  s.tremoloDepth = cs->tremoloDepth;
+  s.tremoloRate  = cs->tremoloRate;
+
+  // Derive active: note is playing and not keyed off.
+  // note can be negative (e.g. -3 for A-4), use the engine's keyOn state instead.
+  s.active = (cs->note > -1000 && !cs->keyOff);
+
+  // Convert note + fine pitch to Hz.
+  // DivChannelState.note = pattern_note - 60  (playback.cpp: note = patNote - 60).
+  // calcBaseFreq formula: hz = tuning * pow(2, (note + 3) / 12)
+  // → A-4 (pattern 57): note = -3 → 440 * pow(2, 0) = 440 Hz ✓
+  //
+  // The actual dispatched pitch includes the vibrato contribution:
+  //   actual_pitch = cs->pitch + ((vibratoDepth * vibTable[vibratoPos] * vibratoFine) >> 4) / 15
+  // vibTable[64] is a sine-shaped table in DivEngine, range roughly ±15.
+  if (cs->note > -1000) {
+    // Recompute the vibrato output exactly as playback.cpp does (line ~2364),
+    // but without accessing private vibTable — reconstruct all shapes analytically.
+    // vibTable[i] = 127 * sin(i * 2π / 64)
+    auto vibSine = [](int pos) -> int {
+      return static_cast<int>(127.0 * sin(pos * (2.0 * M_PI / 64.0)));
+    };
+
+    int vibratoContrib = 0;
+    if (cs->vibratoDepth > 0) {
+      int pos = cs->vibratoPos & 63;
+      int vibratoOut = 0;
+      switch (cs->vibratoShape) {
+        case 1:  vibratoOut = std::max(0, vibSine(pos)); break;          // sine up only
+        case 2:  vibratoOut = std::min(0, vibSine(pos)); break;          // sine down only
+        case 3: {                                                          // triangle
+          vibratoOut = pos & 31;
+          if (pos & 16) vibratoOut = 32 - (pos & 31);
+          if (pos & 32) vibratoOut = -vibratoOut;
+          vibratoOut <<= 3;
+          break;
+        }
+        case 4:  vibratoOut = pos << 1;  break;                          // ramp up
+        case 5:  vibratoOut = -(pos << 1); break;                        // ramp down
+        case 6:  vibratoOut = (pos >= 32) ? -127 : 127; break;          // square
+        case 7:  vibratoOut = (rand() & 255) - 128; break;              // random
+        case 8:  vibratoOut = (pos >= 32) ? 0 : 127; break;             // square up
+        case 9:  vibratoOut = (pos >= 32) ? 0 : -127; break;            // square down
+        case 10: vibratoOut = vibSine(pos >> 1); break;                  // half sine up
+        case 11: vibratoOut = vibSine(32 | (pos >> 1)); break;           // half sine down
+        default: vibratoOut = vibSine(pos); break;                       // sine (default)
+      }
+      vibratoContrib = ((cs->vibratoDepth * vibratoOut * cs->vibratoFine) >> 4) / 15;
+    }
+    int actualPitch = cs->pitch + vibratoContrib;
+    double tuning = engine->song.tuning;  // default 440.0 Hz
+    double semitones = cs->note + 3.0 + actualPitch / 128.0;
+    s.freqHz = tuning * pow(2.0, semitones / 12.0);
+    s.pitch  = actualPitch;  // override with full pitch including vibrato
+  }
+
+  return s;
 }
 
 // ---------------------------------------------------------------------------

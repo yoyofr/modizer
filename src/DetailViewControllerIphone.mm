@@ -8952,7 +8952,7 @@ void menuInterpolValue(float &curValue,float startValue,float tgtValue) {
     int linestodraw,midline;
     ModPlugNote *currentNotes,*prevNotes,*nextNotes,*readNotes;
     
-    //LIBOMPT or LIBXMP
+    //LIBOMPT or LIBXMP or LIBFURNACE
     //DISPLAY MOD PATTERNS
     
     /*******************************************************/

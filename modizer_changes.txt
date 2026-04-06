@@ -13,6 +13,13 @@ Todo/Requested:
 => add a small progress bar in cells in modland/asma/hvsc... When downloading
 => ADPLUG oscillo data not generated when OPL is not Woody
 
+4.5
+---
+- VIO2SF, AtariSound crash bugfixes
+- New playback library: Furnace, also allowing Famitracker & Deflemask compatibility
+- Online: optimize http parser to reduce load on servers
+- bugfixes, security, performance and stability improvements
+
 4.4
 ---
 - bugfixes, security, performance and stability improvements

@@ -2743,21 +2743,21 @@ void propertyListenerCallback (void                   *inUserData,              
         [session setCategory:AVAudioSessionCategoryPlayback error:&audioSessionError];
         if (audioSessionError) {
             MDZELog("Audio session setCategory Error %ld, %@",
-                  (long)audioSessionError.code, audioSessionError.localizedDescription);
+                    (long)audioSessionError.code, audioSessionError.localizedDescription);
         }
         
         NSTimeInterval bufferDuration = SOUND_BUFFER_SIZE_SAMPLE*2.0f/PLAYBACK_FREQ;
         [session setPreferredIOBufferDuration:bufferDuration error:&audioSessionError];
         if (audioSessionError) {
             MDZELog("Error %ld, %@",
-                  (long)audioSessionError.code, audioSessionError.localizedDescription);
+                    (long)audioSessionError.code, audioSessionError.localizedDescription);
         }
         
         double sampleRate = PLAYBACK_FREQ;
         [session setPreferredSampleRate:sampleRate error:&audioSessionError];
         if (audioSessionError) {
             MDZELog("Error %ld, %@",
-                  (long)audioSessionError.code, audioSessionError.localizedDescription);
+                    (long)audioSessionError.code, audioSessionError.localizedDescription);
         }
         
         // Register for Route Change notifications
@@ -2777,7 +2777,7 @@ void propertyListenerCallback (void                   *inUserData,              
         [session setPreferredSampleRate:sampleRate error:&audioSessionError];
         if (audioSessionError) {
             MDZELog("Error %ld, %@",
-                  (long)audioSessionError.code, audioSessionError.localizedDescription);
+                    (long)audioSessionError.code, audioSessionError.localizedDescription);
         }
         
         buffer_ana_flag=(char*)malloc(SOUND_BUFFER_NB*sizeof(char));
@@ -3181,7 +3181,7 @@ void propertyListenerCallback (void                   *inUserData,              
     
     return 1;
 }
-    
+
 -(BOOL) iPhoneDrv_LittlePlayStart {
     UInt32 err;
     
@@ -3273,7 +3273,7 @@ void propertyListenerCallback (void                   *inUserData,              
         (mPlayType==MMP_ATARISOUND)||(mPlayType==MMP_OPENMPT)||(mPlayType==MMP_XMP)||
         (mPlayType==MMP_UADE)||(mPlayType==MMP_HVL)||(mPlayType==MMP_EUP)||(mPlayType==MMP_PIXEL)||
         (mPlayType==MMP_MDXPDX)||(mPlayType==MMP_STSOUND)||(mPlayType==MMP_PMDMINI)||(mPlayType==MMP_ADPLUG)||
-        (mPlayType==MMP_FMPMINI)||(mPlayType==MMP_WSR)||(mPlayType==MMP_ZXTUNE) ) return true;
+        (mPlayType==MMP_FMPMINI)||(mPlayType==MMP_WSR)||(mPlayType==MMP_ZXTUNE)||(mPlayType==MMP_FUR) ) return true;
     return false;
 }
 
@@ -3893,7 +3893,7 @@ void gsf_update(unsigned char* pSound,int lBytes) {
         char *argv[5];
         char *argv_buffer;
         
-//        if ([[NSThread currentThread] respondsToSelector:@selector(setThreadPriority)])	[[NSThread currentThread] setThreadPriority:SND_THREAD_PRIO];
+        //        if ([[NSThread currentThread] respondsToSelector:@selector(setThreadPriority)])	[[NSThread currentThread] setThreadPriority:SND_THREAD_PRIO];
         [NSThread currentThread].qualityOfService = NSQualityOfServiceUserInteractive;
         
         argc=5;
@@ -4190,12 +4190,12 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
                             moveToSubSong=2;
                             moveToSubSongIndex=mod_currentsub;
                         }
-//                        MDZILog("seek received, targeting: %lld / %lld",seek_tgtSamples,mCurrentSamples);
+                        //                        MDZILog("seek received, targeting: %lld / %lld",seek_tgtSamples,mCurrentSamples);
                     }
                     
                     if ((mNeedSeek==2)&&(moveToSubSong==0)) {
                         mCurrentSamples+=playbytes/4;
-//                        MDZILog("seek in progress, targeting: %lld / %lld",seek_tgtSamples,mCurrentSamples);
+                        //                        MDZILog("seek in progress, targeting: %lld / %lld",seek_tgtSamples,mCurrentSamples);
                         if (mCurrentSamples>=seek_tgtSamples) {
                             mNeedSeek=3;
                             seek_tgtSamples=0;
@@ -4203,7 +4203,7 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
                             buffer_ana_flag[buffer_ana_gen_ofs]|=2;
                             //mCurrentSamples=seek_tgtSamples;
                             iCurrentTime=mCurrentSamples*1000/PLAYBACK_FREQ;
-//                            MDZILog("seek reached, time: %lf",iCurrentTime);
+                            //                            MDZILog("seek reached, time: %lf",iCurrentTime);
                         }
                         mdzSilentBufferCount=0;
                     } else {
@@ -4722,7 +4722,7 @@ void processFadeOut(short int *buffer, int sample_count, int voice_factor) {
     @autoreleasepool {
         int donotstop=0;
         
-//        if ([[NSThread currentThread] respondsToSelector:@selector(setThreadPriority)]) [[NSThread currentThread] setThreadPriority:SND_THREAD_PRIO];
+        //        if ([[NSThread currentThread] respondsToSelector:@selector(setThreadPriority)]) [[NSThread currentThread] setThreadPriority:SND_THREAD_PRIO];
         
         [NSThread currentThread].qualityOfService = NSQualityOfServiceUserInteractive;
         
@@ -5939,7 +5939,7 @@ void processFadeOut(short int *buffer, int sample_count, int voice_factor) {
                                 if (iModuleLength>0) { mFadeSamplesStart=(int64_t)(iModuleLength-settings[GLOB_Fadeouttime].detail.mdz_slider.slider_value*1000)*PLAYBACK_FREQ/1000; //1s
                                     if (mFadeSamplesStart<0) mFadeSamplesStart=0;
                                 } else mFadeSamplesStart=1<<30;
-                                                             
+                                
                                 int cpt_wait=0;
                                 while (mod_message_updated) {
                                     //wait
@@ -6072,13 +6072,13 @@ void processFadeOut(short int *buffer, int sample_count, int voice_factor) {
                                     if (iModuleLength<=0) iModuleLength=settings[GLOB_DefaultLength].detail.mdz_slider.slider_value*1000;
                                     
                                     snprintf(mod_message,MAX_STIL_DATA_LENGTH*2,"Song.......: %s\nGame.......: %s\nAuthor.....: %s\nDumper.....: %s\nCopyright..: %s\nTracks......: %d\n%s",
-                                            (title?title:(gme_info->song?gme_info->song:" ")),
-                                            (gme_info->game?gme_info->game:" "),
-                                            (gme_info->author?gme_info->author:" "),
-                                            (gme_info->dumper?gme_info->dumper:" "),
-                                            (gme_info->copyright?gme_info->copyright:" "),
-                                            gme_track_count( gme_emu ),
-                                            (gme_info->comment?gme_info->comment:" "));
+                                             (title?title:(gme_info->song?gme_info->song:" ")),
+                                             (gme_info->game?gme_info->game:" "),
+                                             (gme_info->author?gme_info->author:" "),
+                                             (gme_info->dumper?gme_info->dumper:" "),
+                                             (gme_info->copyright?gme_info->copyright:" "),
+                                             gme_track_count( gme_emu ),
+                                             (gme_info->comment?gme_info->comment:" "));
                                     
                                     if (gme_info->song){
                                         if (gme_info->song[0]) mod_title=[NSString stringWithCString:gme_info->song encoding:NSShiftJISStringEncoding];
@@ -6283,9 +6283,9 @@ void processFadeOut(short int *buffer, int sample_count, int voice_factor) {
                                 atariSndh.GetSubsongInfo(mod_currentsub,info);
                                 
                                 if (info.musicSubTitle) snprintf(mod_message,MAX_STIL_DATA_LENGTH*2,"Title..........: %s\nSubsong title..: %s\nArtist.........: %s\nYear.........: %s\nRipper.........: %s\nConverter......: %s\n",
-                                                                info.musicTitle,info.musicSubTitle,info.musicAuthor,info.year,info.ripper,info.converter);
+                                                                 info.musicTitle,info.musicSubTitle,info.musicAuthor,info.year,info.ripper,info.converter);
                                 else snprintf(mod_message,MAX_STIL_DATA_LENGTH*2,"Title.....: %s\nArtist....: %s\nYear......: %s\nRipper....: %s\nConverter.: %s\n",
-                                             info.musicTitle,info.musicAuthor,info.year,info.ripper,info.converter);
+                                              info.musicTitle,info.musicAuthor,info.year,info.ripper,info.converter);
                                 
                                 if (info.musicSubTitle) snprintf(mod_name,sizeof(mod_name)," %s",info.musicSubTitle);
                                 else if (info.musicTitle) snprintf(mod_name,sizeof(mod_name)," %s",info.musicTitle);
@@ -6507,8 +6507,8 @@ void processFadeOut(short int *buffer, int sample_count, int voice_factor) {
                                             ((unsigned int)(1<<1)<<24)|
                                             ((unsigned int)subidx<<28);
                                             
-                                                vgm_last_vol[j+vgmofs]=0;
-                                                vgm_last_note[j+vgmofs]=0;
+                                            vgm_last_vol[j+vgmofs]=0;
+                                            vgm_last_note[j+vgmofs]=0;
                                         }
                                         voices_idx++;
                                     }
@@ -6564,7 +6564,7 @@ void processFadeOut(short int *buffer, int sample_count, int voice_factor) {
                                 
                                 nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
                                 mCurrentSamples+=SOUND_BUFFER_SIZE_SAMPLE;
-                            
+                                
                                 static int last_pat,last_row,last_prev,last_next;
                                 if ((xmp_fi.loop_count==0)||(mLoopMode==1)) {
                                     genPattern[buffer_ana_gen_ofs]=xmp_fi.pattern;
@@ -6650,7 +6650,7 @@ void processFadeOut(short int *buffer, int sample_count, int voice_factor) {
                             
                             if (m_voicesDataAvail) {
                                 //reset to 0 buffer
-//                                for (int j=0;j<(m_genNumVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?m_genNumVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++)  memset(m_voice_buff[j],0,SOUND_BUFFER_SIZE_SAMPLE);
+                                //                                for (int j=0;j<(m_genNumVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?m_genNumVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++)  memset(m_voice_buff[j],0,SOUND_BUFFER_SIZE_SAMPLE);
                             }
                             
                             nbBytes=openmpt_module_read_interleaved_stereo(openmpt_module_ext_get_module(ompt_mod),PLAYBACK_FREQ,SOUND_BUFFER_SIZE_SAMPLE, buffer_ana[buffer_ana_gen_ofs] );
@@ -6721,13 +6721,13 @@ void processFadeOut(short int *buffer, int sample_count, int voice_factor) {
                             }
                             tim_voicenb[buffer_ana_gen_ofs]=voices_idx;
                             
-//                            if (m_voicesDataAvail) {
-//                                //copy voice data for oscillo view
-//                                for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
-//                                    for (int j=0;j<(m_genNumVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?m_genNumVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) { m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][(i+(m_voice_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT))&(SOUND_BUFFER_SIZE_SAMPLE-1)];
-//                                    }
-//                                }
-//                            }
+                            //                            if (m_voicesDataAvail) {
+                            //                                //copy voice data for oscillo view
+                            //                                for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
+                            //                                    for (int j=0;j<(m_genNumVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?m_genNumVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) { m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=m_voice_buff[j][(i+(m_voice_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT))&(SOUND_BUFFER_SIZE_SAMPLE-1)];
+                            //                                    }
+                            //                                }
+                            //                            }
                             if (m_voicesDataAvail) {
                                 //copy voice data for oscillo view
                                 for (int j=0;j<(m_genNumVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?m_genNumVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) {
@@ -6970,7 +6970,7 @@ void processFadeOut(short int *buffer, int sample_count, int voice_factor) {
                         if (mPlayType==MMP_NEZ) { //NEZ
                             NEZRender(_nezPlay, buffer_ana[buffer_ana_gen_ofs], SOUND_BUFFER_SIZE_SAMPLE);
                             nbBytes = SOUND_BUFFER_SIZE_SAMPLE*2*2;
-                                                        
+                            
                             mCurrentSamples+=SOUND_BUFFER_SIZE_SAMPLE;
                             
                             if ((mCurrentSamples>=mTgtSamples)||
@@ -7002,10 +7002,100 @@ void processFadeOut(short int *buffer, int sample_count, int voice_factor) {
                                 
                             }
                         }
-                        if (mPlayType==MMP_FUR) { //FUR
+                        if (mPlayType==MMP_FUR) { //FURNACE
                             furPlayer->render(buffer_ana[buffer_ana_gen_ofs], SOUND_BUFFER_SIZE_SAMPLE);
                             nbBytes = SOUND_BUFFER_SIZE_SAMPLE*2*2;
-                                                        
+                            
+                            // Convert voice data from a 65536Hz / 1s buffer to current playback_freq an
+                            const float oscSamplesPerFrame = 65536.0f / (float)PLAYBACK_FREQ;
+                            const int   oscWindowSize = (int)(SOUND_BUFFER_SIZE_SAMPLE * oscSamplesPerFrame) + 2;
+                            
+                            for (int j = 0; j < (m_genNumVoicesChannels < SOUND_MAXVOICES_BUFFER_FX ?
+                                                 m_genNumVoicesChannels : SOUND_MAXVOICES_BUFFER_FX); j++) {
+                                FurnaceOscData osc = furPlayer->getOscData(j);
+                                if (!osc.valid) continue;
+                                
+                                int k = (buffer_ana_gen_ofs + SOUND_BUFFER_NB - 1) % SOUND_BUFFER_NB;
+                                short lastValid = (short)(m_voice_buff_ana[k][(SOUND_BUFFER_SIZE_SAMPLE - 1) * SOUND_MAXVOICES_BUFFER_FX + j] << 8);
+                                
+                                unsigned short baseIdx = (unsigned short)(osc.readPos - oscWindowSize);
+                                
+                                for (int i = 0; i < SOUND_BUFFER_SIZE_SAMPLE; i++) {
+                                    // Intervalle de slots osc couverts par cette frame d'affichage
+                                    int slotStart = (int)(i       * oscSamplesPerFrame);
+                                    int slotEnd   = (int)((i + 1) * oscSamplesPerFrame);
+                                    if (slotEnd == slotStart) slotEnd = slotStart + 1;  // toujours au moins 1 slot
+                                    
+                                    // Moyenne des slots valides dans [slotStart, slotEnd)
+                                    int sum = 0, count = 0;
+                                    for (int s = slotStart; s < slotEnd; s++) {
+                                        short v = osc.data[(unsigned short)(baseIdx + s)];
+                                        if (v != -1) { sum += v; count++; }
+                                    }
+                                    
+                                    short sample;
+                                    if (count > 0) {
+                                        sample = (short)(sum / count);
+                                        lastValid = sample;
+                                    } else {
+                                        // Tous les slots sont -1 : cherche le prochain valide (max 3 slots)
+                                        sample = -1;
+                                        for (int d = slotEnd; d < slotEnd + 3 && sample == -1; d++) {
+                                            short v = osc.data[(unsigned short)(baseIdx + d)];
+                                            if (v != -1) sample = v;
+                                        }
+                                        if (sample == -1) sample = lastValid;
+                                        else lastValid = sample;
+                                    }
+                                    
+                                    m_voice_buff_ana[buffer_ana_gen_ofs][i * SOUND_MAXVOICES_BUFFER_FX + j] = (sample) >> 8;
+                                }
+                            }
+                            
+                            //midi like notes data
+                            int voices_idx=0;
+                            memset(tim_notes[buffer_ana_gen_ofs],0,DEFAULT_VOICES*sizeof(unsigned int));
+                            
+                            for (int j=0; j < m_genNumVoicesChannels; j++) {
+                                FurnaceChannelLiveState st = furPlayer->getChannelLiveState(j);
+                                if (st.active && st.note >= 0) {
+                                    vgm_last_note[j]=st.freqHz;
+                                    unsigned int idx=vgm_getNote(j);
+                                    //unsigned int idx=st.note;
+                                    unsigned int vol=st.volume;
+                                    if ((idx>0)&&(vol>0)) {
+                                        unsigned int instr=st.instrument;
+                                        unsigned int subidx=vgm_getSubNote(j);
+                                        
+                                        tim_notes[buffer_ana_gen_ofs][voices_idx]=
+                                        (unsigned int)(idx&0xFF)|
+                                        ((unsigned int)(instr&0xFF)<<8)|
+                                        ((unsigned int)(vol&0xFF)<<16)|
+                                        ((unsigned int)(1<<1)<<24)|
+                                        ((unsigned int)(subidx&15)<<28);
+                                    }
+                                    voices_idx++;
+                                    
+                                    //                                        unsigned int idx=vgm_getNote(j+vgmofs);
+                                    //                                        if ((idx>0)&&vgm_last_vol[j+vgmofs]) {
+                                    //                                            unsigned int subidx=vgm_getSubNote(j+vgmofs);
+                                    //                                            //printf("ch %d note %d vol %d\n",j,idx,vgm_last_vol[j]);
+                                    //
+                                    //                                            unsigned int instr=vgm_last_instr[j+vgmofs];
+                                    //                                            tim_notes[buffer_ana_gen_ofs][voices_idx]=
+                                    //                                            (unsigned int)idx|
+                                    //                                            ((unsigned int)(instr)<<8)|
+                                    //                                            ((unsigned int)vgm_last_vol[j+vgmofs]<<16)|
+                                    //                                            ((unsigned int)(1<<1)<<24)|
+                                    //                                            ((unsigned int)subidx<<28);
+                                    //
+                                    //                                                vgm_last_vol[j+vgmofs]=0;
+                                    //                                                vgm_last_note[j+vgmofs]=0;
+                                    //                                        }
+                                }
+                            }
+                            tim_voicenb[buffer_ana_gen_ofs]=voices_idx;
+                            
                             mCurrentSamples+=SOUND_BUFFER_SIZE_SAMPLE;
                             
                             if ((mCurrentSamples>=mTgtSamples)||
@@ -7037,6 +7127,33 @@ void processFadeOut(short int *buffer, int sample_count, int voice_factor) {
                                 } else nbBytes=(nbBytes==SOUND_BUFFER_SIZE_SAMPLE*2*2?nbBytes-4:nbBytes);
                             } else {
                                 
+                            }
+                            
+                            
+                            static int last_pat,last_row,last_prev,last_next;
+                            if (furPlayer->isEndOfSong()) {
+                                genPattern[buffer_ana_gen_ofs]=last_pat;
+                                genRow[buffer_ana_gen_ofs]=last_row;
+                                genPrevPattern[buffer_ana_gen_ofs]=last_prev;
+                                genNextPattern[buffer_ana_gen_ofs]=last_next;
+                            } else {
+                                int order_idx=-1;
+                                int current_order=furPlayer->getCurrentOrder();
+                                
+                                if (current_order>0) order_idx=current_order-1;
+                                genPrevPattern[buffer_ana_gen_ofs]=order_idx;
+                                
+                                order_idx=-1;
+                                if (current_order<furPlayer->getOrderCount()-1) order_idx=current_order+1;
+                                genNextPattern[buffer_ana_gen_ofs]=order_idx;
+                                
+                                genPattern[buffer_ana_gen_ofs]=current_order;
+                                genRow[buffer_ana_gen_ofs]=furPlayer->getCurrentRow();
+                                
+                                last_pat=genPattern[buffer_ana_gen_ofs];
+                                last_row=genRow[buffer_ana_gen_ofs];
+                                last_prev=genPrevPattern[buffer_ana_gen_ofs];
+                                last_next=genNextPattern[buffer_ana_gen_ofs];
                             }
                         }
                         if (mPlayType==MMP_HC) { //Highly Complete
@@ -7601,7 +7718,7 @@ void processFadeOut(short int *buffer, int sample_count, int voice_factor) {
                         if (mPlayType==MMP_SIDPLAY) { //SID
                             
                             //nbBytes=mSidEmuEngine->play(buffer_ana[buffer_ana_gen_ofs],SOUND_BUFFER_SIZE_SAMPLE*2*1)*2;
-//                            nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
+                            //                            nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
                             
                             memset(vgm_last_note,0,sizeof(vgm_last_note));
                             memset(vgm_last_vol,0,sizeof(vgm_last_vol));
@@ -8008,10 +8125,10 @@ void processFadeOut(short int *buffer, int sample_count, int voice_factor) {
                                     mdzSilentBufferCount=0;
                                     
                                     nbBytes=SOUND_BUFFER_SIZE_SAMPLE*2*2;
-//                                    for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
-//                                        buffer_ana[buffer_ana_gen_ofs][i*2+0]=0;
-//                                        buffer_ana[buffer_ana_gen_ofs][i*2+1]=0;
-//                                    }
+                                    //                                    for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
+                                    //                                        buffer_ana[buffer_ana_gen_ofs][i*2+0]=0;
+                                    //                                        buffer_ana[buffer_ana_gen_ofs][i*2+1]=0;
+                                    //                                    }
                                     //}
                                 } else nbBytes=0;
                             }
@@ -8972,9 +9089,9 @@ void processFadeOut(short int *buffer, int sample_count, int voice_factor) {
         
         if (tmp_mod_name) free(tmp_mod_name);
         
-            if (strlen(mdx->pdx_name) && (mdx->haspdx==0)) {
-                snprintf(mod_message,MAX_STIL_DATA_LENGTH*2,"%sMissing PDX file: %s\n",mod_message,mdx->pdx_name);
-            }
+        if (strlen(mdx->pdx_name) && (mdx->haspdx==0)) {
+            snprintf(mod_message,MAX_STIL_DATA_LENGTH*2,"%sMissing PDX file: %s\n",mod_message,mdx->pdx_name);
+        }
         
         mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
         //Loop
@@ -9102,9 +9219,9 @@ void processFadeOut(short int *buffer, int sample_count, int voice_factor) {
         }
         
         if (info.musicSubTitle) snprintf(mod_message,MAX_STIL_DATA_LENGTH*2,"Title..........: %s\nSubsong title..: %s\nArtist.........: %s\nYear.........: %s\nRipper.........: %s\nConverter......: %s\n",
-                                        info.musicTitle,info.musicSubTitle,info.musicAuthor,info.year,info.ripper,info.converter);
+                                         info.musicTitle,info.musicSubTitle,info.musicAuthor,info.year,info.ripper,info.converter);
         else snprintf(mod_message,MAX_STIL_DATA_LENGTH*2,"Title.....: %s\nArtist....: %s\nYear......: %s\nRipper....: %s\nConverter.: %s\n",
-                     info.musicTitle,info.musicAuthor,info.year,info.ripper,info.converter);
+                      info.musicTitle,info.musicAuthor,info.year,info.ripper,info.converter);
         
         
         artist=[NSString stringWithUTF8String:info.musicAuthor];
@@ -9200,7 +9317,7 @@ void processFadeOut(short int *buffer, int sample_count, int voice_factor) {
         
         
         snprintf(mod_message,MAX_STIL_DATA_LENGTH*2,"Title.....: %s\nArtist....: %s\nFormat....: %s\nHardware..: %s\nConverter.: %s\nRipper....: %s\n",
-                info.title,info.artist,info.format,info.dsk.hw,info.converter,info.ripper);
+                 info.title,info.artist,info.format,info.dsk.hw,info.converter,info.ripper);
         artist=[NSString stringWithUTF8String:info.artist];
         
         mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
@@ -9334,7 +9451,7 @@ typedef struct {
     
     nsfPlayerConfig=new xgm::NSFPlayerConfig();
     (*nsfPlayerConfig)["RATE"]=44100;
-    (*nsfPlayerConfig)["MASTER_VOLUME"]=256;
+    (*nsfPlayerConfig)["MASTER_VOLUME"]=128;//256;
     
     if (settings[GLOB_PBRATIO_ONOFF].detail.mdz_boolswitch.switch_value) (*nsfPlayerConfig)["MULT_SPEED"]=settings[GLOB_PBRATIO].detail.mdz_slider.slider_value*256;
     else (*nsfPlayerConfig)["MULT_SPEED"]=256;
@@ -9929,7 +10046,7 @@ static WSRPlayerApi* s_coreSwan=&oswan::g_wsr_player_api;
     int num = func_setup_music((uint8_t*)pt3_music_buf, pt3_music_size, pt3_numofchips, 1);
     
     pt3_numofchips+=num;
-//    MDZILog("Number of chips: %i\n",num);
+    //    MDZILog("Number of chips: %i\n",num);
     
     
     for (int ch=0; ch<pt3_numofchips; ch++) {
@@ -9942,7 +10059,7 @@ static WSRPlayerApi* s_coreSwan=&oswan::g_wsr_player_api;
         ayumi_set_pan(&pt3_ay[ch], 2, pt3_t.pan[2], pt3_t.eqp_stereo_on);
         pt3_frame[ch]=0;
         pt3_sample[ch]=0;
-//        MDZILog("Ayumi #%i configured\n",ch);
+        //        MDZILog("Ayumi #%i configured\n",ch);
     }
     
     //    ayumi_play(pt3_ay, &pt3_t);
@@ -10341,7 +10458,7 @@ static WSRPlayerApi* s_coreSwan=&oswan::g_wsr_player_api;
         mdz_safe_free(nez_fileBuffer);
         return -2;
     }
-
+    
     NEZSetFrequency(_nezPlay, PLAYBACK_FREQ);
     NEZSetChannel(_nezPlay, 2);
     
@@ -10360,7 +10477,7 @@ static WSRPlayerApi* s_coreSwan=&oswan::g_wsr_player_api;
     //
     
     SONGINFO_Reset(_nezPlay->song);    // e.g. HES does not set anything..
-
+    
     if (!NEZLoad(_nezPlay, (Uint8 *)nez_fileBuffer, (Uint)nez_fileBufferLen))
     {
         std::string title = SONGINFO_GetTitle(_nezPlay->song);
@@ -10413,7 +10530,7 @@ static WSRPlayerApi* s_coreSwan=&oswan::g_wsr_player_api;
         }
         return -1;
     }
-
+    
     
     mCurrentSamples=0;
     if (mod_currentsub<mod_minsub) mod_currentsub=mod_minsub;
@@ -10424,12 +10541,12 @@ static WSRPlayerApi* s_coreSwan=&oswan::g_wsr_player_api;
     iCurrentTime=0;
     mCurrentSamples=0;
     
-        numChannels=2;
-        m_voicesDataAvail=0;
-        m_genNumVoicesChannels=numChannels;
-        for (int i=0;i<m_genNumVoicesChannels;i++) {
-            m_voice_voiceColor[i]=m_voice_systemColor[0];
-        }
+    numChannels=2;
+    m_voicesDataAvail=0;
+    m_genNumVoicesChannels=numChannels;
+    for (int i=0;i<m_genNumVoicesChannels;i++) {
+        m_voice_voiceColor[i]=m_voice_systemColor[0];
+    }
     
     [self mmp_updateDBStatsAtLoad];
     
@@ -10487,7 +10604,7 @@ static WSRPlayerApi* s_coreSwan=&oswan::g_wsr_player_api;
         furPlayer=NULL;
         return -2;
     }
-        
+    
     const FurnaceSongInfo furInfo=furPlayer->getInfo();
     
     mod_title=[NSString stringWithUTF8String:furInfo.title.c_str()];
@@ -10510,12 +10627,17 @@ static WSRPlayerApi* s_coreSwan=&oswan::g_wsr_player_api;
     iCurrentTime=0;
     mCurrentSamples=0;
     
-        numChannels=2;
-        m_voicesDataAvail=0;
-        m_genNumVoicesChannels=numChannels;
-        for (int i=0;i<m_genNumVoicesChannels;i++) {
-            m_voice_voiceColor[i]=m_voice_systemColor[0];
-        }
+    numChannels=furInfo.channels;
+    
+    numPatterns=furPlayer->getOrderCount();
+    ompt_patterns = (ModPlugNote**)calloc(1,sizeof(ModPlugNote*)*numPatterns);
+    mPatternDataAvail=3; //Furnace style
+    
+    m_voicesDataAvail=1;
+    m_genNumVoicesChannels=numChannels;
+    for (int i=0;i<m_genNumVoicesChannels;i++) {
+        m_voice_voiceColor[i]=m_voice_systemColor[0];
+    }
     
     [self mmp_updateDBStatsAtLoad];
     
@@ -10560,7 +10682,7 @@ static WSRPlayerApi* s_coreSwan=&oswan::g_wsr_player_api;
     {
         mMAC_force_loop = true;
     }
-
+    
     
     ///////////////////////////////////////////////////////////////////////////////
     // variable declares
@@ -10570,7 +10692,7 @@ static WSRPlayerApi* s_coreSwan=&oswan::g_wsr_player_api;
     const char *                pFilename = [filePath UTF8String];                                // the file to open
     pAPEDecompress = NULL;                                // APE interface
     CSmartPtr<wchar_t> spInput;
-
+    
     spInput.Assign(CAPECharacterHelper::GetUTF16FromANSI(pFilename), TRUE);
     
     ///////////////////////////////////////////////////////////////////////////////
@@ -10583,7 +10705,7 @@ static WSRPlayerApi* s_coreSwan=&oswan::g_wsr_player_api;
         src_delete(src_state);
         return -1;
     }
-
+    
     ///////////////////////////////////////////////////////////////////////////////
     // display some information about the file
     ///////////////////////////////////////////////////////////////////////////////
@@ -10597,7 +10719,7 @@ static WSRPlayerApi* s_coreSwan=&oswan::g_wsr_player_api;
         case COMPRESSION_LEVEL_HIGH: snprintf(mod_message,MAX_STIL_DATA_LENGTH*2,"%s\tCompression level: High\r\n\r\n",mod_message); break;
         case COMPRESSION_LEVEL_EXTRA_HIGH: snprintf(mod_message,MAX_STIL_DATA_LENGTH*2,"%s\tCompression level: Extra High\r\n\r\n",mod_message); break;
     }
-
+    
     // audio format information
     snprintf(mod_message,MAX_STIL_DATA_LENGTH*2,"%sAudio Format:\r\n",mod_message);
     snprintf(mod_message,MAX_STIL_DATA_LENGTH*2,"%s\tSamples per second: %d\r\n",mod_message, (int)pAPEDecompress->GetInfo(APE_INFO_SAMPLE_RATE));
@@ -10612,7 +10734,7 @@ static WSRPlayerApi* s_coreSwan=&oswan::g_wsr_player_api;
     mac_sample_data=(int16_t*)malloc(max_sample*(numChannels>2?numChannels:2));
     mac_sample_data_float=(float*)malloc(SOUND_BUFFER_SIZE_SAMPLE*4*(numChannels>2?numChannels:2));
     mac_sample_converted_data_float=(float*)malloc(SOUND_BUFFER_SIZE_SAMPLE*4*(numChannels>2?numChannels:2));
-
+    
     if (mLoopMode==1) {
         mMAC_total_samples = -1;
         mMAC_totalinternal_samples=-1;
@@ -10650,7 +10772,7 @@ static WSRPlayerApi* s_coreSwan=&oswan::g_wsr_player_api;
     CAPETag * pAPETag = (CAPETag *) pAPEDecompress->GetInfo(APE_INFO_TAG);
     BOOL bHasID3Tag = pAPETag->GetHasID3Tag();
     BOOL bHasAPETag = pAPETag->GetHasAPETag();
-
+    
     
     if (bHasID3Tag || bHasAPETag)
     {
@@ -10663,7 +10785,7 @@ static WSRPlayerApi* s_coreSwan=&oswan::g_wsr_player_api;
         // iterate through all the tag fields
         BOOL bFirst = TRUE;
         CAPETagField * pTagField;
-//        while (pAPETag->GetNextTagField(bFirst, &pTagField))
+        //        while (pAPETag->GetNextTagField(bFirst, &pTagField))
         int index = 0;
         while ((pTagField = pAPETag->GetTagField(index)) != NULL)
         {
@@ -10677,37 +10799,37 @@ static WSRPlayerApi* s_coreSwan=&oswan::g_wsr_player_api;
             }
             else
             {
-/*
-                const wchar_t *fieldName;
-                char *name;
-                wchar_t fieldValue[255];
-                char *value;
-
-                fieldName = pTagField->GetFieldName();
-                name = GetANSIFromUTF16(fieldName);
-
-                memset(fieldValue, 0, 255 * sizeof(wchar_t));
-                int len;
-                pAPETag->GetFieldString(fieldName, fieldValue, &len);
-                
-                value = GetANSIFromUTF16(fieldValue);
-*/
+                /*
+                 const wchar_t *fieldName;
+                 char *name;
+                 wchar_t fieldValue[255];
+                 char *value;
+                 
+                 fieldName = pTagField->GetFieldName();
+                 name = GetANSIFromUTF16(fieldName);
+                 
+                 memset(fieldValue, 0, 255 * sizeof(wchar_t));
+                 int len;
+                 pAPETag->GetFieldString(fieldName, fieldValue, &len);
+                 
+                 value = GetANSIFromUTF16(fieldValue);
+                 */
                 const wchar_t *fieldName;
                 char *name;
                 const char *fieldValue;
                 char *value;
-
+                
                 fieldName = pTagField->GetFieldName();
                 name = CAPECharacterHelper::GetANSIFromUTF16(fieldName);
-
+                
                 fieldValue = pTagField->GetFieldValue();
                 if (pAPETag->GetAPETagVersion() == CURRENT_APE_TAG_VERSION)
                 {
-                value = CAPECharacterHelper::GetANSIFromUTF8((unsigned char *)fieldValue);
+                    value = CAPECharacterHelper::GetANSIFromUTF8((unsigned char *)fieldValue);
                 }
                 else
                 {
-                value = (char *)fieldValue;
+                    value = (char *)fieldValue;
                 }
                 snprintf(mod_message,MAX_STIL_DATA_LENGTH*2,"%s\t%s : %s\n",mod_message, name, value);
             }
@@ -11187,13 +11309,13 @@ char* loadRom(const char* path, size_t romSize)
     cfg.frequency= PLAYBACK_FREQ;
     if (sid_interpolation==0) {
         cfg.samplingMethod = SidConfig::INTERPOLATE;
-//        cfg.fastSampling = true;
+        //        cfg.fastSampling = true;
     } else if (sid_interpolation==1) {
         cfg.samplingMethod = SidConfig::INTERPOLATE;
-//        cfg.fastSampling = false;
+        //        cfg.fastSampling = false;
     } else {
         cfg.samplingMethod = SidConfig::RESAMPLE_INTERPOLATE;
-//        cfg.fastSampling = false;
+        //        cfg.fastSampling = false;
     }
     
     cfg.playback = SidConfig::STEREO;
@@ -11240,46 +11362,46 @@ char* loadRom(const char* path, size_t romSize)
         mBuilder = new SIDLiteBuilder("SidLite");
         cfg.sidEmulation  = mBuilder;
         // Check if builder is ok
-//        if (!mBuilder->getStatus()) {
-//            MDZELog("issue in creating sid builder");
-//            return -1;
-//        }
+        //        if (!mBuilder->getStatus()) {
+        //            MDZELog("issue in creating sid builder");
+        //            return -1;
+        //        }
         //unsigned int maxsids = (mSidEmuEngine->info()).maxsids();
         //mBuilder->create(maxsids);
         
-//        // Check if builder is ok
-//        if (!mBuilder->getStatus()) {
-//            MDZELog("issue in creating sid builder");
-//            return -1;
-//        }
+        //        // Check if builder is ok
+        //        if (!mBuilder->getStatus()) {
+        //            MDZELog("issue in creating sid builder");
+        //            return -1;
+        //        }
         
         //((ReSIDBuilder*)mBuilder)->bias(0.5f);
     } else {
         mBuilder = new ReSIDfpBuilder("ReSIDfp");
         cfg.sidEmulation  = mBuilder;
         // Check if builder is ok
-//        if (!mBuilder->getStatus()) {
-//            MDZELog("issue in creating sid builder");
-//            return -1;
-//        }
-//        unsigned int maxsids = (mSidEmuEngine->info()).maxsids();
-//        mBuilder->create(maxsids);
+        //        if (!mBuilder->getStatus()) {
+        //            MDZELog("issue in creating sid builder");
+        //            return -1;
+        //        }
+        //        unsigned int maxsids = (mSidEmuEngine->info()).maxsids();
+        //        mBuilder->create(maxsids);
         
         // Check if builder is ok
-//        if (!mBuilder->getStatus()) {
-//            MDZELog("issue in creating sid builder");
-//            return -1;
-//        }
+        //        if (!mBuilder->getStatus()) {
+        //            MDZELog("issue in creating sid builder");
+        //            return -1;
+        //        }
         ((ReSIDfpBuilder*)mBuilder)->combinedWaveformsStrength(SidConfig::STRONG);
         ((ReSIDfpBuilder*)mBuilder)->filter6581Range(0.5f);
         ((ReSIDfpBuilder*)mBuilder)->filter6581Curve(0.5f);
         ((ReSIDfpBuilder*)mBuilder)->filter8580Curve(0.5f);
     }
-        
+    
     
     // setup resid
-//    if (mSIDFilterON) mBuilder->filter(true);
-//    else mBuilder->filter(false);
+    //    if (mSIDFilterON) mBuilder->filter(true);
+    //    else mBuilder->filter(false);
     
     mSidEmuEngine->config(cfg);
     
@@ -12266,7 +12388,7 @@ char* loadRom(const char* path, size_t romSize)
         genPattern[i]=mod_startPat;
     }
     
-//    xmp_restart_module(xmp_ctx);
+    //    xmp_restart_module(xmp_ctx);
     
     return 0;
 }
@@ -12313,63 +12435,63 @@ static void libopenmpt_example_print_error( const char * func_name, int mod_err,
 }
 
 NSString* decodeGreekText(NSData *data) {
-     // Essayer différents encodages grecs
-     NSArray *greekEncodings = @[
-         @(CFStringConvertEncodingToNSStringEncoding(kCFStringEncodingISOLatinGreek)), // ISO-8859-7
-         @(CFStringConvertEncodingToNSStringEncoding(kCFStringEncodingWindowsGreek)),   // Windows-1253
-         @(NSISOLatin1StringEncoding),                                                   // Fallback
-     ];
-
-     for (NSNumber *encodingNum in greekEncodings) {
-         NSStringEncoding encoding = [encodingNum unsignedIntegerValue];
-         NSString *text = [[NSString alloc] initWithData:data encoding:encoding];
-
-         if (text && [text length] > 0) {
-             // Vérifier si ça ressemble à du grec (présence de caractères grecs)
-             if ([text rangeOfCharacterFromSet:[NSCharacterSet characterSetWithRange:NSMakeRange(0x0370, 0x03FF)]].location != NSNotFound) {
-                 return text;
-             }
-         }
-     }
-
-     // Fallback : UTF-8
-     return [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
- }
+    // Essayer différents encodages grecs
+    NSArray *greekEncodings = @[
+        @(CFStringConvertEncodingToNSStringEncoding(kCFStringEncodingISOLatinGreek)), // ISO-8859-7
+        @(CFStringConvertEncodingToNSStringEncoding(kCFStringEncodingWindowsGreek)),   // Windows-1253
+        @(NSISOLatin1StringEncoding),                                                   // Fallback
+    ];
+    
+    for (NSNumber *encodingNum in greekEncodings) {
+        NSStringEncoding encoding = [encodingNum unsignedIntegerValue];
+        NSString *text = [[NSString alloc] initWithData:data encoding:encoding];
+        
+        if (text && [text length] > 0) {
+            // Vérifier si ça ressemble à du grec (présence de caractères grecs)
+            if ([text rangeOfCharacterFromSet:[NSCharacterSet characterSetWithRange:NSMakeRange(0x0370, 0x03FF)]].location != NSNotFound) {
+                return text;
+            }
+        }
+    }
+    
+    // Fallback : UTF-8
+    return [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+}
 
 NSString* convertAmigaGreekToUnicode(NSString *input) {
-      if (!input || [input length] == 0) return input;
-
-      // Table de correspondance ISO-8859-7 mal lu comme ISO-8859-1 → Unicode
-      NSDictionary *conversionMap = @{
-          @"Á": @"Α", @"Â": @"Β", @"Ã": @"Γ", @"Ä": @"Δ", @"Å": @"Ε", @"Æ": @"Φ",
-          @"Ç": @"Η", @"È": @"Θ", @"É": @"Ι", @"Ê": @"Κ", @"Ë": @"Λ", @"Ì": @"Μ",
-          @"Í": @"Ν", @"Î": @"Ξ", @"Ï": @"Ο", @"Ð": @"Π", @"Ñ": @"Ρ", @"Ó": @"Σ",
-          @"Ô": @"Τ", @"Õ": @"Υ", @"Ö": @"Χ", @"×": @"Ψ", @"Ø": @"Ω",
-
-          @"á": @"α", @"â": @"β", @"ã": @"γ", @"ä": @"δ", @"å": @"ε", @"æ": @"φ",
-          @"ç": @"η", @"è": @"θ", @"é": @"ι", @"ê": @"κ", @"ë": @"λ", @"ì": @"μ",
-          @"í": @"ν", @"î": @"ξ", @"ï": @"ο", @"ð": @"π", @"ñ": @"ρ", @"ò": @"ς",
-          @"ó": @"σ", @"ô": @"τ", @"õ": @"υ", @"ö": @"χ", @"÷": @"ψ", @"ø": @"ω",
-
-          // Avec accents
-          @"¼": @"Ό", @"½": @"Ύ", @"¾": @"Ώ",
-          @"Ü": @"Ά", @"Ý": @"ύ", @"Þ": @"ώ", @"ß": @"ί",
-          @"Ú": @"Ή", @"Û": @"Ί", @"Ù": @"Έ",
-          @"ú": @"ή", @"û": @"ί", @"ù": @"έ", @"ü": @"ά"
-      };
-
-      NSMutableString *result = [input mutableCopy];
-
-      for (NSString *wrongChar in conversionMap) {
-          NSString *correctChar = conversionMap[wrongChar];
-          [result replaceOccurrencesOfString:wrongChar
-                                  withString:correctChar
-                                     options:0
-                                       range:NSMakeRange(0, [result length])];
-      }
-
-      return result;
-  }
+    if (!input || [input length] == 0) return input;
+    
+    // Table de correspondance ISO-8859-7 mal lu comme ISO-8859-1 → Unicode
+    NSDictionary *conversionMap = @{
+        @"Á": @"Α", @"Â": @"Β", @"Ã": @"Γ", @"Ä": @"Δ", @"Å": @"Ε", @"Æ": @"Φ",
+        @"Ç": @"Η", @"È": @"Θ", @"É": @"Ι", @"Ê": @"Κ", @"Ë": @"Λ", @"Ì": @"Μ",
+        @"Í": @"Ν", @"Î": @"Ξ", @"Ï": @"Ο", @"Ð": @"Π", @"Ñ": @"Ρ", @"Ó": @"Σ",
+        @"Ô": @"Τ", @"Õ": @"Υ", @"Ö": @"Χ", @"×": @"Ψ", @"Ø": @"Ω",
+        
+        @"á": @"α", @"â": @"β", @"ã": @"γ", @"ä": @"δ", @"å": @"ε", @"æ": @"φ",
+        @"ç": @"η", @"è": @"θ", @"é": @"ι", @"ê": @"κ", @"ë": @"λ", @"ì": @"μ",
+        @"í": @"ν", @"î": @"ξ", @"ï": @"ο", @"ð": @"π", @"ñ": @"ρ", @"ò": @"ς",
+        @"ó": @"σ", @"ô": @"τ", @"õ": @"υ", @"ö": @"χ", @"÷": @"ψ", @"ø": @"ω",
+        
+        // Avec accents
+        @"¼": @"Ό", @"½": @"Ύ", @"¾": @"Ώ",
+        @"Ü": @"Ά", @"Ý": @"ύ", @"Þ": @"ώ", @"ß": @"ί",
+        @"Ú": @"Ή", @"Û": @"Ί", @"Ù": @"Έ",
+        @"ú": @"ή", @"û": @"ί", @"ù": @"έ", @"ü": @"ά"
+    };
+    
+    NSMutableString *result = [input mutableCopy];
+    
+    for (NSString *wrongChar in conversionMap) {
+        NSString *correctChar = conversionMap[wrongChar];
+        [result replaceOccurrencesOfString:wrongChar
+                                withString:correctChar
+                                   options:0
+                                     range:NSMakeRange(0, [result length])];
+    }
+    
+    return result;
+}
 
 
 
@@ -12563,6 +12685,66 @@ NSString* convertAmigaGreekToUnicode(NSString *input) {
     return 0;
 }
 
+-(ModPlugNote*) fur_getPattern:(int)orderIdx numrows:(unsigned int*)numrows {
+    int c;
+    int r;
+    int numr,numc;
+    ModPlugNote note;
+    
+    //safety checks
+    if (!furPlayer) return NULL;
+    
+//    if(pattern<0||pattern>=xmp_mi->mod->pat ){
+//        return NULL;
+//    }
+//    // Allouer et mettre en cache les patterns (dans une propriété ou ivar)
+    // FurnacePatternNote** fur_patterns;  // tableau [ordersLen]
+    
+//    if (!fur_patterns[pattern]) {
+//        fur_patterns[pattern] = furPlayer->getOrderPattern(pattern, &numr, &numc);
+//    }
+    
+    FurnacePatternNote* furPatternNote=furPlayer->getOrderPattern(orderIdx, &numr, &numc);
+    
+    if(numrows){
+        *numrows = numr;
+    }
+    
+    // Accès à une cellule :
+    //FurnacePatternNote& cell = fur_patterns[pattern][row * numc + numChannels];
+    // cell.note, cell.instrument, cell.volume, cell.fx[0], cell.fxVal[0]...
+    
+    //allocate pattern if not already done
+    if(!ompt_patterns[orderIdx]){
+        ompt_patterns[orderIdx] = (ModPlugNote*)calloc(1,sizeof(ModPlugNote)*numr*numChannels);
+        if(!ompt_patterns[orderIdx]) return NULL;
+        
+        FurnacePatternNote* patternData=furPlayer->getOrderPattern(orderIdx, &numr, &numc);
+        //fill pattern data
+        if (numc!=numChannels) {
+            MDZELog("fur: numc and numchannels different %d/%d",numc,numChannels);
+        }
+        numc=numChannels;
+        for(r=0;r<numr;r++){
+            for(c=0;c<numc;c++){
+                memset(&note,0,sizeof(ModPlugNote));
+                
+                FurnacePatternNote& cell = patternData[r * numc + c];
+                
+                note.Note = cell.note+1;
+                note.Instrument = cell.instrument+1;
+                note.VolumeEffect = 0;
+                note.Effect = (unsigned char)(cell.fx[0]+1);
+                note.Volume = (cell.volume<0?0:cell.volume);
+                note.Parameter = (unsigned char)(cell.fxVal[0]+1);
+                memcpy(&ompt_patterns[orderIdx][r*numc+c],&note,sizeof(ModPlugNote));
+            }
+        }
+    }
+    
+    return ompt_patterns[orderIdx];
+}
+
 -(ModPlugNote*) xmp_getPattern:(int)pattern numrows:(unsigned int*)numrows {
     int c;
     int r;
@@ -12620,6 +12802,7 @@ NSString* convertAmigaGreekToUnicode(NSString *input) {
     ModPlugNote note;
     
     if (mPlayType==MMP_XMP) return [self xmp_getPattern:pattern numrows:numrows];
+    if (mPlayType==MMP_FUR) return [self fur_getPattern:pattern numrows:numrows];
     
     if(!ompt_mod) return NULL;
     if (!openmpt_module_ext_get_module(ompt_mod)) return NULL;
@@ -16845,6 +17028,14 @@ extern bool icloud_available;
             delete furPlayer;
             furPlayer=NULL;
         }
+        
+        if (ompt_patterns) {
+            for (int i=0;i<numPatterns;i++) {
+                if (ompt_patterns[i]) free(ompt_patterns[i]);
+            }
+            free(ompt_patterns);
+        }
+        ompt_patterns=NULL;
     }
     if (mPlayType==MMP_NEZ) { //NEZ
         mdz_safe_free(nez_fileBuffer);

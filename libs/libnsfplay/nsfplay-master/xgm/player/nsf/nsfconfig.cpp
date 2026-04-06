@@ -114,7 +114,7 @@ NSFPlayerConfig::NSFPlayerConfig () : PlayerConfig ()
   CreateValue("PLAY_ADVANCE", 0);
   CreateValue("FAST_SEEK", 1);
   CreateValue("QUALITY", 10);
-  CreateValue("MASTER_VOLUME", 256/*128*/);
+  CreateValue("MASTER_VOLUME", 128);
 
   for (i = 0; i < NES_CHANNEL_MAX; ++i)
   {

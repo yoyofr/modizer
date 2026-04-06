@@ -483,7 +483,7 @@ namespace xgm
     int i;
     mask = 0;
 
-    InitializeTNDTable(8227,12241,22638);
+    InitializeTNDTable(8110, 12165, 24329); //YOYOFR, change to be more HW accurate. Formerly: InitializeTNDTable(8227,12241,22638);
 
     counter[0] = 0;
     counter[1] = 0;

@@ -82,6 +82,7 @@ typedef struct {
     NSString *fullpath;
     NSString *URL;
     NSString *img_URL;
+    NSString *img_LOCAL;
     NSString *info;
     NSAttributedString *infoAttr;
     double webRating;
