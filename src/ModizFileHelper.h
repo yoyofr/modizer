@@ -16,6 +16,7 @@
 
 +(bool) isGMEFileWithSubsongs:(NSString*)cpath;
 +(bool) isSidFileWithSubsongs:(NSString*)cpath;
++(bool) isM3UFileWithSubsongs:(NSString*)cpath;
 +(bool) isABrowsableArchive:(NSString*)cpath;
 +(NSMutableArray*)buildListSupportFileType:(t_filetypeList)ftype;
 

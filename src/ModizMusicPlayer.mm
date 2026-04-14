@@ -5152,6 +5152,13 @@ void processFadeOut(short int *buffer, int sample_count, int voice_factor) {
                                 openmpt_module_set_position_seconds(openmpt_module_ext_get_module(ompt_mod), (double)(mNeedSeekTime)/1000.0f );
                                 mCurrentSamples=mNeedSeekTime*PLAYBACK_FREQ/1000;
                             }
+                            if (mPlayType==MMP_FUR) { //FUR
+                                bGlobalSeekProgress=-1;
+                                furPlayer->seek((double)mNeedSeekTime/1000);
+                                double pos=furPlayer->getPosition();
+                                mNeedSeekTime=pos*1000;
+                                mCurrentSamples=mNeedSeekTime*PLAYBACK_FREQ/1000;
+                            }
                             if (mPlayType==MMP_XMP) { //XMP
                                 bGlobalSeekProgress=-1;
                                 xmp_seek_time(xmp_ctx,mNeedSeekTime);
@@ -5990,6 +5997,34 @@ void processFadeOut(short int *buffer, int sample_count, int voice_factor) {
                                     if (cpt_wait>MAX_USLEEP_WAIT) break;
                                 }
                                 mod_message_updated=1;
+                            } else if (mPlayType==MMP_FUR) {
+                                furPlayer->selectSong(mod_currentsub);
+                                iModuleLength=furPlayer->getDuration()*1000;
+                                
+                                const FurnaceSongInfo furInfo=furPlayer->getInfo();
+                                mod_title=[NSString stringWithUTF8String:furInfo.title.c_str()];
+                                if (furInfo.subsongName.length()) mod_title=[mod_title stringByAppendingFormat:@"/%s",furInfo.subsongName.c_str()];
+                                
+                                snprintf(mod_message,MAX_STIL_DATA_LENGTH*2,"");
+                                snprintf(mod_message,MAX_STIL_DATA_LENGTH*2,"%sTitle: %s\n",mod_message,[mod_title UTF8String]);
+                                snprintf(mod_message,MAX_STIL_DATA_LENGTH*2,"%sArtist: %s\n",mod_message,[artist UTF8String]);
+                                
+                                mCurrentSamples=0;
+                                iCurrentTime=0;
+                                mNeedSeek=0;bGlobalSeekProgress=0;
+                                
+                                if (moveToSubSong==1) [self iPhoneDrv_PlayRestart];
+                                
+                                mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
+                                if (mLoopMode) iModuleLength=-1;
+                                int cpt_wait=0;
+                                while (mod_message_updated) {
+                                    //wait
+                                    usleep(1);
+                                    cpt_wait++;
+                                    if (cpt_wait>MAX_USLEEP_WAIT) break;
+                                }
+                                mod_message_updated=2;
                             } else if (mPlayType==MMP_XMP) {
                                 xmp_set_position(xmp_ctx,mod_currentsub);
                                 
@@ -10608,6 +10643,7 @@ static WSRPlayerApi* s_coreSwan=&oswan::g_wsr_player_api;
     const FurnaceSongInfo furInfo=furPlayer->getInfo();
     
     mod_title=[NSString stringWithUTF8String:furInfo.title.c_str()];
+    if (furInfo.subsongName.length()) mod_title=[mod_title stringByAppendingFormat:@"/%s",furInfo.subsongName.c_str()];
     artist=[NSString stringWithFormat:@"%s",furInfo.author.c_str()];
     // song info
     snprintf(mod_name,sizeof(mod_name)," %s",[[[filePath lastPathComponent] stringByDeletingPathExtension] UTF8String]);

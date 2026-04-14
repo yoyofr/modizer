@@ -26,6 +26,11 @@ CloudStorageSource *copypaste_cloudSource=nil;
 
 #include "gme.h"
 
+// GME M3U reader
+#include "../../libs/libGME/gme/M3u_Playlist.h"
+M3u_Playlist browserM3uReader;
+
+
 //SPC parser
 #include "SPCTagParser.h"
 
@@ -831,8 +836,10 @@ static int qsort_CompareArcEntries(const void *entryA, const void *entryB) {
             //check if Multisongs file
             else if ([all_multisongstype_ext indexOfObject:extension]!=NSNotFound) {
                 //check if really a gme file
-                if ([ModizFileHelper isGMEFileWithSubsongs:cpath]) browseType=2;
+                if ([ModizFileHelper isM3UFileWithSubsongs:cpath]) browseType=4;
+                else if ([ModizFileHelper isGMEFileWithSubsongs:cpath]) browseType=2;
                 else if ([ModizFileHelper isSidFileWithSubsongs:cpath]) browseType=3;
+                
             }
         }
     }
@@ -1250,6 +1257,127 @@ static int qsort_CompareArcEntries(const void *entryA, const void *entryB) {
                         }
                     }
                     gme_delete(gme_emu);
+                }
+            }
+        }
+    } else if (browseType==4) { //M3U Multisongs
+        NSString *tmpPath;
+        tmpPath=[[cpath stringByDeletingPathExtension] stringByAppendingPathExtension:@"M3U"];
+        if (![[NSFileManager defaultManager] fileExistsAtPath:tmpPath]) tmpPath=[[cpath stringByDeletingPathExtension] stringByAppendingPathExtension:@"m3u"];
+        
+        int m3u_minEntry=1;
+        browserM3uReader.clear();
+        browserM3uReader.load([tmpPath UTF8String]);
+        if (browserM3uReader.size()) {
+            
+            for (int i=0;i<browserM3uReader.size();i++) {
+                if (browserM3uReader[i].track<m3u_minEntry) m3u_minEntry=browserM3uReader[i].track;
+            }
+            
+            int total_trackNb=browserM3uReader.size();
+            for (int i=0;i<total_trackNb;i++) {
+                file=[NSString stringWithFormat:@"%.3d-%s",i+1,browserM3uReader[i].name];
+                int filtered=0;
+                if ((mSearch)&&([mSearchText length]>0)) {
+                    filtered=1;
+                    //NSRange r = [file rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
+                    //if (r.location != NSNotFound) {
+                    if ([self searchStringRegExp:mSearchText sourceString:file]) {
+                        /*if(r.location== 0)*/ filtered=0;
+                    }
+                }
+                if (!filtered) {
+                    local_entries_count++;
+                    local_nb_entries++;
+                }
+            }
+        }
+        if (local_nb_entries) {
+            //2nd initialize array to receive entries
+            local_entries_data=(t_local_browse_entry *)calloc(local_nb_entries,sizeof(t_local_browse_entry));
+            if (!local_entries_data) {
+                //Not enough memory
+                //try to allocate less entries
+                local_nb_entries_limit=LIMITED_LIST_SIZE;
+                if (local_nb_entries_limit>local_nb_entries) local_nb_entries_limit=local_nb_entries;
+                local_entries_data=(t_local_browse_entry *)calloc(local_nb_entries_limit,sizeof(t_local_browse_entry));
+                if (local_entries_data==NULL) {
+                    //show alert : cannot list
+                    [self showAlertMsg:NSLocalizedString(@"Warning",@"") message:NSLocalizedString(@"Browser not enough mem.",@"")];
+                } else {
+                    //show alert : limited list
+                    [self showAlertMsg:NSLocalizedString(@"Warning",@"") message:NSLocalizedString(@"Browser not enough mem. Limited.",@"")];
+                    local_nb_entries=local_nb_entries_limit;
+                }
+            } else local_nb_entries_limit=0;
+            if (local_entries_data) {
+                local_entries_index=0;
+                if (local_entries_count) {
+                    if (local_entries_index+local_entries_count>local_nb_entries) {
+                        local_entries_count=local_nb_entries-local_entries_index;
+                        local_entries=&(local_entries_data[local_entries_index]);
+                        local_entries_index+=local_entries_count;
+                        local_entries_count=0;
+                    } else {
+                        local_entries=&(local_entries_data[local_entries_index]);
+                        local_entries_index+=local_entries_count;
+                        local_entries_count=0;
+                    }
+                }
+                
+                for (int i=0;i<browserM3uReader.size();i++) {
+                    {
+                        file=[NSString stringWithFormat:@"%.3d-%s",i+1,browserM3uReader[i].name];
+                        
+                        int filtered=0;
+                        if ((mSearch)&&([mSearchText length]>0)) {
+                            filtered=1;
+                            //NSRange r = [file rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
+                            if ([self searchStringRegExp:mSearchText sourceString:file]) {
+                                //if (r.location != NSNotFound) {
+                                /*if(r.location== 0)*/ filtered=0;
+                            }
+                        }
+                        if (!filtered) {
+                            
+                            local_entries[local_entries_count].type=1;
+                            local_entries[local_entries_count].label=[[NSString alloc ] initWithString:[file lastPathComponent]];
+                            local_entries[local_entries_count].fullpath=[[NSString alloc] initWithFormat:@"%@?%d",currentPath,i];
+                            
+                            local_entries[local_entries_count].rating=0;
+                            local_entries[local_entries_count].playcount=0;
+                            local_entries[local_entries_count].song_length=0;
+                            local_entries[local_entries_count].songs=1;//0;
+                            local_entries[local_entries_count].channels_nb=0;
+                            
+                            snprintf(sqlStatement,1024,"SELECT play_count,rating,length,channels,songs,avg_rating FROM user_stats WHERE fullpath=\"%s\"",[local_entries[local_entries_count].fullpath UTF8String]);
+                            err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+                            if (err==SQLITE_OK){
+                                while (sqlite3_step(stmt) == SQLITE_ROW) {
+                                    signed char rating=(signed char)sqlite3_column_int(stmt, 1);
+                                    if (rating<0) rating=0;
+                                    if (rating>5) rating=5;
+                                    if ((rating==0)&&(sqlite3_column_type(stmt,5)!=SQLITE_NULL)) {
+                                        rating=(signed char)sqlite3_column_int(stmt, 5);
+                                        if (rating) rating=1;
+                                    }
+                                    local_entries[local_entries_count].playcount=(short int)sqlite3_column_int(stmt, 0);
+                                    local_entries[local_entries_count].rating=rating;
+                                    local_entries[local_entries_count].song_length=(int)sqlite3_column_int(stmt, 2);
+                                    local_entries[local_entries_count].channels_nb=(char)sqlite3_column_int(stmt, 3);
+                                }
+                                sqlite3_finalize(stmt);
+                            } else MDZELog("ErrSQL : %d",err);
+                            
+                            local_entries_count++;
+                            
+                            if (local_nb_entries_limit) {
+                                local_nb_entries_limit--;
+                                if (!local_nb_entries_limit) shouldStop=1;
+                            }
+                            
+                        }
+                    }
                 }
             }
         }
@@ -1728,7 +1856,8 @@ static int qsort_CompareArcEntries(const void *entryA, const void *entryB) {
                                         local_entries[local_entries_count].type=2|16;  //16 is to flag them as to check before displaying entry in tabiew
                                     } else if ([all_multisongstype_ext indexOfObject:extension]!=NSNotFound) { //check if Multisongs file
                                         local_entries[local_entries_count].type=3|16;  //16 is to flag them as to check before displaying entry in tabiew
-                                        
+                                    } else if ([ModizFileHelper isM3UFileWithSubsongs:[fileURL path]]) {
+                                        local_entries[local_entries_count].type=3|16;  //16 is to flag them as to check before
                                     }
                                     
                                     if (other_encoding) {
@@ -2574,6 +2703,7 @@ As a consequence, some entries might disappear from existing playlist.\n\
                 } else if ((cur_local_entries[indexPath.row].type&15)==3) { //need to confirm if true multisong
                     if ([ModizFileHelper isGMEFileWithSubsongs:[ModizFileHelper getFullPathForFilePath:cur_local_entries[indexPath.row].fullpath]]) cur_local_entries[indexPath.row].type=3;
                     else if ([ModizFileHelper isSidFileWithSubsongs:[ModizFileHelper getFullPathForFilePath:cur_local_entries[indexPath.row].fullpath]]) cur_local_entries[indexPath.row].type=3;
+                    else if ([ModizFileHelper isM3UFileWithSubsongs:[ModizFileHelper getFullPathForFilePath:cur_local_entries[indexPath.row].fullpath]]) cur_local_entries[indexPath.row].type=3;
                     else cur_local_entries[indexPath.row].type=1;
                 }
             }

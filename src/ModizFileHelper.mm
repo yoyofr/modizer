@@ -60,6 +60,18 @@ extern bool icloud_available;
     return ret;
 }
 
++(bool) isM3UFileWithSubsongs:(NSString*)cpath {
+    NSString *tmpPath;
+    tmpPath=[[cpath stringByDeletingPathExtension] stringByAppendingPathExtension:@"M3U"];
+    if ([[NSFileManager defaultManager] fileExistsAtPath:tmpPath]) return true;
+    
+    tmpPath=[[cpath stringByDeletingPathExtension] stringByAppendingPathExtension:@"m3u"];
+    if ([[NSFileManager defaultManager] fileExistsAtPath:tmpPath]) return true;
+    
+    return false;
+}
+
+
 +(bool) isSidFileWithSubsongs:(NSString*)cpath {
     bool ret=false;
     
@@ -349,9 +361,11 @@ extern bool icloud_available;
         case FTYPE_PLAYABLEFILE_SUBSONGS: {
             NSArray *filetype_extGMEMULTI=[SUPPORTED_FILETYPE_GME_MULTISONGS componentsSeparatedByString:@","];
             NSArray *filetype_extSID=[SUPPORTED_FILETYPE_SID componentsSeparatedByString:@","];
+            NSArray *filetype_extWSR=[SUPPORTED_FILETYPE_WSR componentsSeparatedByString:@","];
             filetype_ext=[NSMutableArray arrayWithCapacity:[filetype_extGMEMULTI count]+[filetype_extSID count]];
             [filetype_ext addObjectsFromArray:filetype_extGMEMULTI];
             [filetype_ext addObjectsFromArray:filetype_extSID];
+            [filetype_ext addObjectsFromArray:filetype_extWSR];
             break;
         }
         case FTYPE_ARCHIVE: {
