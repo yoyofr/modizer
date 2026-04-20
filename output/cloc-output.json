@@ -1,11 +1,11 @@
 {"header" : {
   "cloc_url"           : "github.com/AlDanial/cloc",
   "cloc_version"       : "1.98",
-  "elapsed_seconds"    : 40.2891819477081,
-  "n_files"            : 27296,
-  "n_lines"            : 12704891,
-  "files_per_second"   : 677.501966543472,
-  "lines_per_second"   : 315342.491105673,
+  "elapsed_seconds"    : 38.2634491920471,
+  "n_files"            : 27297,
+  "n_lines"            : 12706341,
+  "files_per_second"   : 713.396219535628,
+  "lines_per_second"   : 332075.15967068,
   "report_file"        : "../output/cloc-output.json"},
 "C" :{
   "nFiles": 9122,
@@ -14,14 +14,14 @@
   "code": 3303265},
 "C/C++ Header" :{
   "nFiles": 10998,
-  "blank": 331948,
-  "comment": 587778,
-  "code": 2163091},
+  "blank": 331960,
+  "comment": 587828,
+  "code": 2163122},
 "C++" :{
-  "nFiles": 3292,
-  "blank": 310370,
-  "comment": 165053,
-  "code": 2110382},
+  "nFiles": 3293,
+  "blank": 310495,
+  "comment": 165119,
+  "code": 2111141},
 "Bourne Shell" :{
   "nFiles": 380,
   "blank": 107378,
@@ -44,9 +44,9 @@
   "code": 204976},
 "Objective-C++" :{
   "nFiles": 107,
-  "blank": 18939,
-  "comment": 10864,
-  "code": 93616},
+  "blank": 19003,
+  "comment": 10917,
+  "code": 93906},
 "make" :{
   "nFiles": 598,
   "blank": 11989,
@@ -383,7 +383,7 @@
   "comment": 0,
   "code": 1},
 "SUM": {
-  "blank": 1481622,
-  "comment": 1585241,
-  "code": 9638028,
-  "nFiles": 27296} }
+  "blank": 1481823,
+  "comment": 1585410,
+  "code": 9639108,
+  "nFiles": 27297} }
