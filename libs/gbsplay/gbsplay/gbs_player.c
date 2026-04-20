@@ -397,6 +397,7 @@ static void parseopts(int *argc, char ***argv)
 {
 	long res;
 	myname = filename_only(*argv[0]);
+    optind = 1;  // reset getopt   
 	while ((res = getopt(*argc, *argv, "1234c:E:f:g:hH:lLo:qr:R:t:T:vVzZ")) != -1) {
 		switch (res) {
 		default:

@@ -1375,7 +1375,7 @@ struct gbs* gbs_open(const char* const name)
 	struct stat st;
 	char *buf;
 
-	if ((f = fopen(name, "rb")) == NULL) {
+    if ((f = fopen(name, "rb")) == NULL) {
 		fprintf(stderr, _("Could not open %s: %s\n"), name, strerror(errno));
 		return NULL;
 	}

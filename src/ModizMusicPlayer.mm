@@ -10159,6 +10159,7 @@ static WSRPlayerApi* s_coreSwan=&oswan::g_wsr_player_api;
     int argc;
     char *argv[3];
     argv[0]=strdup("gbsplay");
+    
     argv[1]=strdup([filePath UTF8String]);
     argv[2]=NULL;
     
@@ -12877,6 +12878,8 @@ NSString* convertAmigaGreekToUnicode(NSString *input) {
 
 -(int) mmp_timidityLoad:(NSString*)filePath { //timidity
     mPlayType=MMP_TIMIDITY;
+    
+      
     max_voices = voices = tim_max_voices;  //polyphony : MOVE TO SETTINGS
     set_current_resampler(tim_resampler);
     opt_reverb_control=tim_reverb;
