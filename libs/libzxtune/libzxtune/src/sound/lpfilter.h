@@ -111,7 +111,6 @@ namespace Sound
     Sample Get() const
     {
         //YOYOFR, add oscillo here
-        
       return Out1;
     }
   private:

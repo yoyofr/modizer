@@ -99,11 +99,13 @@ private:
             int chanout;
 
             if (generic_mute_mask&(1<<m_voice_ofs+j)) chanout=0;
-            else chanout = MAXVAL(PSG.GetLevelsChan(j+m_voicesForceOfs).Left(),PSG.GetLevelsChan(j+m_voicesForceOfs).Right());
+            else {
+                chanout = PSG.GetLevelsChan(j+m_voicesForceOfs).Left()+PSG.GetLevelsChan(j+m_voicesForceOfs).Right();
+            }
             
             if (ofs_end>ofs_start)
                 for (;;) {
-                    m_voice_buff[m_voice_ofs+j][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8( (chanout>>7) );
+                    m_voice_buff[m_voice_ofs+j][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8( ((chanout)>>8) );
                     ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
                     if (ofs_start>=ofs_end) break;
                 }

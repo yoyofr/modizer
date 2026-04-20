@@ -2606,6 +2606,20 @@
 			remoteGlobalIDString = CC5BAD412BFB818A007A3920;
 			remoteInfo = libchpconv;
 		};
+		CC67CB8B2F93D6000094FD3C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = CC47A4CA2BF1FB3500472202 /* libzxtune.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = CC47A4BD2BF1FB3500472202;
+			remoteInfo = libzxtune;
+		};
+		CC4A00012F9400000094FD3C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = CC47A4CA2BF1FB3500472202 /* libzxtune.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = CC47A4BD2BF1FB3500472202;
+			remoteInfo = libzxtune;
+		};
 		CC7BBD252B800AC600D8CAAE /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = CC7BBD212B800AC600D8CAAE /* vorbis-openmpt.xcodeproj */;
@@ -7935,6 +7949,7 @@
 				CC2CF9DF2EBF47B30045F738 /* PBXBuildRule */,
 			);
 			dependencies = (
+				CC67CB8C2F93D6000094FD3C /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				CC88FB962EDB2D0600717901 /* ModizerMacPlugin */,
@@ -7987,6 +8002,7 @@
 			);
 			dependencies = (
 				CC1D50F12EE2E6FC00F779EF /* PBXTargetDependency */,
+				CC4A00022F9400000094FD3C /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				CC88FB962EDB2D0600717901 /* ModizerMacPlugin */,
@@ -10386,6 +10402,16 @@
 			isa = PBXTargetDependency;
 			target = CC88FB902EDB2CD100717901 /* ModizerMacWindowPlugin */;
 			targetProxy = CC1D50F02EE2E6FC00F779EF /* PBXContainerItemProxy */;
+		};
+		CC67CB8C2F93D6000094FD3C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = libzxtune;
+			targetProxy = CC67CB8B2F93D6000094FD3C /* PBXContainerItemProxy */;
+		};
+		CC4A00022F9400000094FD3C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = libzxtune;
+			targetProxy = CC4A00012F9400000094FD3C /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 

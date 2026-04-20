@@ -15,8 +15,10 @@
 #define SPC_DSP                 furnaceSPC_DSP
 #define SPC_State_Copier        furnaceSPC_State_Copier
 
-/* ── reSIDfp namespace ── conflicts with liblibsidplayfp.a ──────────────── */
+/* ── reSIDfp namespace + matrix template ── conflicts with liblibsidplayfp.a ── */
 #define reSIDfp                 furnaceReSIDfp
+#define matrix                  furnaceMatrix
+#define matrix_t                furnaceMatrix_t
 
 /* ── xgm namespace (NSFPlay) ── conflicts with liblibnsfplay.a ───────────── */
 #define xgm                     furnaceXgm

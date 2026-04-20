@@ -10908,12 +10908,14 @@
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					"$(inherited)",
 				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
@@ -10938,29 +10940,18 @@
 					"-DZ80EX_RELEASE_TYPE=pre1",
 				);
 				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS) ";
+				HEADER_SEARCH_PATHS = (
+					libzxtune,
+					libzxtune/include,
+					libzxtune/src,
+					libzxtune/3rdparty,
+					libzxtune/3rdparty/fmt/include,
+					libzxtune/3rdparty/zlib,
+					libzxtune/3rdparty/zx80ex,
+					libzxtune/3rdparty/zx80ex/include,
+					libzxtune/3rdparty/curl,
+				);
 				SDKROOT = iphoneos;
-				SYSTEM_HEADER_SEARCH_PATHS = (
-					libzxtune,
-					libzxtune/include,
-					libzxtune/src,
-					libzxtune/3rdparty,
-					libzxtune/3rdparty/fmt/include,
-					libzxtune/3rdparty/zlib,
-					libzxtune/3rdparty/zx80ex,
-					libzxtune/3rdparty/zx80ex/include,
-					libzxtune/3rdparty/curl,
-				);
-				USER_HEADER_SEARCH_PATHS = (
-					libzxtune,
-					libzxtune/include,
-					libzxtune/src,
-					libzxtune/3rdparty,
-					libzxtune/3rdparty/fmt/include,
-					libzxtune/3rdparty/zlib,
-					libzxtune/3rdparty/zx80ex,
-					libzxtune/3rdparty/zx80ex/include,
-					libzxtune/3rdparty/curl,
-				);
 			};
 			name = Debug;
 		};
@@ -11003,7 +10994,9 @@
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
@@ -11027,29 +11020,18 @@
 					"-DZ80EX_RELEASE_TYPE=pre1",
 				);
 				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS) ";
+				HEADER_SEARCH_PATHS = (
+					libzxtune,
+					libzxtune/include,
+					libzxtune/src,
+					libzxtune/3rdparty,
+					libzxtune/3rdparty/fmt/include,
+					libzxtune/3rdparty/zlib,
+					libzxtune/3rdparty/zx80ex,
+					libzxtune/3rdparty/zx80ex/include,
+					libzxtune/3rdparty/curl,
+				);
 				SDKROOT = iphoneos;
-				SYSTEM_HEADER_SEARCH_PATHS = (
-					libzxtune,
-					libzxtune/include,
-					libzxtune/src,
-					libzxtune/3rdparty,
-					libzxtune/3rdparty/fmt/include,
-					libzxtune/3rdparty/zlib,
-					libzxtune/3rdparty/zx80ex,
-					libzxtune/3rdparty/zx80ex/include,
-					libzxtune/3rdparty/curl,
-				);
-				USER_HEADER_SEARCH_PATHS = (
-					libzxtune,
-					libzxtune/include,
-					libzxtune/src,
-					libzxtune/3rdparty,
-					libzxtune/3rdparty/fmt/include,
-					libzxtune/3rdparty/zlib,
-					libzxtune/3rdparty/zx80ex,
-					libzxtune/3rdparty/zx80ex/include,
-					libzxtune/3rdparty/curl,
-				);
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;

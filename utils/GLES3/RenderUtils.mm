@@ -1046,7 +1046,8 @@ bool RenderUtils::initRenderToTexture(int width,int height) {
 }
 
 
-#define OSCILLO_BUFFER_NB 4
+#define OSCILLO_VIEW_SAMPLE_SIZE 512
+#define OSCILLO_BUFFER_NB 2
 #define OSCILLO_BUFFER_SIZE SOUND_BUFFER_SIZE_SAMPLE*OSCILLO_BUFFER_NB
 static signed char *prev_snd_data;
 static signed char *prev_snd_dataStereo;
@@ -1082,13 +1083,10 @@ void RenderUtils::DrawOscilloMultiple(float ox,float oy,float ww,float hh,signed
     while (snd_data_idx<0) snd_data_idx+=SOUND_BUFFER_NB;
     while (snd_data_idx>=SOUND_BUFFER_NB) snd_data_idx-=SOUND_BUFFER_NB;
     
-    int max_len_oscillo_buffer=735;// 1frame at 60fps & 44100Hz, assume OSCILLO_BUFFER_SIZE>735  OSCILLO_BUFFER_SIZE*2/6;
+    int max_len_oscillo_buffer=OSCILLO_VIEW_SAMPLE_SIZE;// 1frame at 60fps & 44100Hz, assume OSCILLO_BUFFER_SIZE>735  OSCILLO_BUFFER_SIZE*2/6;
     int max_ofs=OSCILLO_BUFFER_SIZE-max_len_oscillo_buffer;
     
     colA=255;//128;
-    
-    while (snd_data_idx<0) snd_data_idx+=SOUND_BUFFER_NB;
-    while (snd_data_idx>=SOUND_BUFFER_NB) snd_data_idx-=SOUND_BUFFER_NB;
     
     //-----------------------------------------------------------------
     if (flag_direct_stereo) {
@@ -1191,7 +1189,7 @@ void RenderUtils::DrawOscilloMultiple(float ox,float oy,float ww,float hh,signed
     countLines=0;
     
     //determine min smplincr / width of oscillo on screen, help reduce processing time
-    int smplincr=OSCILLO_BUFFER_SIZE/columns_width;
+    int smplincr=/*OSCILLO_BUFFER_SIZE*/max_len_oscillo_buffer/columns_width;
     if (smplincr<1) smplincr=1;
     int bufflen=max_len_oscillo_buffer/smplincr;
     
@@ -1259,6 +1257,8 @@ void RenderUtils::DrawOscilloMultiple(float ox,float oy,float ww,float hh,signed
         }
         //snd_data_ofs[j]=0;
     }
+    
+    //for (int j=0;j<num_voices;j++) snd_data_ofs[j]=0;
     
     for (int i=0;i<max_len_oscillo_buffer;i++){
         for (int j=0;j<num_voices;j++) {

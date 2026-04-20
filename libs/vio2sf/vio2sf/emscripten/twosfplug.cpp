@@ -50,8 +50,15 @@
 
 #define stricmp strcasecmp
 
+
+//TODO:  MODIZER changes start / YOYOFR
+extern "C" {
+#include "../../../../src/ModizerVoicesData.h"
+}
+//TODO:  MODIZER changes end / YOYOFR
+
 // emulation logic seems to be hardcoded to this..
-#define AUDIO_BUF_SIZE 1024
+#define AUDIO_BUF_SIZE SOUND_BUFFER_SIZE_SAMPLE
 
 void print_message(void * context, const char * message) {
 	// for now just a dummy noop

@@ -3402,6 +3402,7 @@
 					"$(PROJECT_DIR)/furnace/src/momo",
 					"$(PROJECT_DIR)/furnace/extern/vgsound_emu-modified",
 					"$(PROJECT_DIR)/furnace/extern/IconFontCppHeaders",
+					"$(PROJECT_DIR)/furnace/extern/blip_buf",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
@@ -3474,6 +3475,7 @@
 					"$(PROJECT_DIR)/furnace/src/momo",
 					"$(PROJECT_DIR)/furnace/extern/vgsound_emu-modified",
 					"$(PROJECT_DIR)/furnace/extern/IconFontCppHeaders",
+					"$(PROJECT_DIR)/furnace/extern/blip_buf",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;

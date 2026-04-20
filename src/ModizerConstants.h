@@ -188,8 +188,8 @@ extern void *LoadingProgressObserverContext;
 #define DEFAULT_WAIT_TIME_UADE_MS  0.001 //in s
 #define DEFAULT_WAIT_TIME_UADE_SEEK_MS  0.00001 //in s
 
-#define SOUND_BUFFER_SIZE_SAMPLE 1024 //512 //1024
-#define SOUND_BUFFER_NB 64 //128 //
+#define SOUND_BUFFER_SIZE_SAMPLE 512 //512 //1024
+#define SOUND_BUFFER_NB 128 //64 //128 //
 //TODO / IMPROVE: Hardcoding -> computed on the fly
 #define MIDIFX_OFS_60FPS 89 //89 frames at 60fps to match duration of 64 buffers of 1024 samples at 44.1Khz
 #define MIDIFX_OFS_30FPS 45 //45 frames at 30fps to match duration of 64 buffers of 1024 samples at 44.1Khz

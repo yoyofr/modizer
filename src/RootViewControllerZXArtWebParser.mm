@@ -411,8 +411,8 @@ int qsortZXArt_entries_rating_or_entries(const void *entryA, const void *entryB)
             //here we have the data
             if (i==0) we[we_index].file_name=@"#";
             else we[we_index].file_name=[NSString stringWithFormat:@"%c",i+'A'-1];
-            if (i==0) we[we_index].file_URL=@"https://zxart.ee/eng/music/authors/filter/letter:letter20332/";
-            else we[we_index].file_URL=[NSString stringWithFormat:@"https://zxart.ee/eng/music/authors/filter/letter:%c/",i+'a'-1];
+            if (i==0) we[we_index].file_URL=@"https://zxart.ee/authorlist/?elementId=84320&start=0&limit=500&sorting=title,asc&letter=letter20332&items=music";
+            else we[we_index].file_URL=[NSString stringWithFormat:@"https://zxart.ee/authorlist/?elementId=84320&start=0&limit=500&sorting=title,asc&letter=%c&items=music",i+'a'-1];
             we[we_index].file_author=nil;
             we[we_index].file_format=nil;
             we[we_index].file_rating=0;
@@ -423,43 +423,110 @@ int qsortZXArt_entries_rating_or_entries(const void *entryA, const void *entryB)
         
     } else if (browse_mode==BROWSE_ALL_AUTHORS) {
         url = [NSURL URLWithString:[NSString stringWithFormat:@"%@",mWebBaseURL]];
-        urlData = [NSData dataWithContentsOfURL:url];
-        doc       = [[TFHpple alloc] initWithHTMLData:urlData];
         
-        NSArray *arr_url=[doc searchWithXPathQuery:@"//div[contains(@class, 'contentmodule_content')]//tbody/tr/td[2]/a"];
-        NSArray *arr_musicrating=[doc searchWithXPathQuery:@"//div[contains(@class, 'contentmodule_content')]//tbody/tr/td[7]"];
+        __block bool op_done=false;
+        __block NSDictionary *data;
         
-        we=(t_web_file_entry*)calloc(1,sizeof(t_web_file_entry)*[arr_url count]);
-        
-        if (arr_url&&[arr_url count]) {
+        AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
+        [manager GET:[url absoluteString]
+            parameters:nil
+            headers:nil
+            progress:^(NSProgress * _Nonnull downloadProgress) {
             
-            for (int j=0;j<[arr_url count];j++) {
-                TFHppleElement *el=[arr_url objectAtIndex:j];
+            }
+            success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+                data = [responseObject objectForKey:@"items"];
+                op_done=true;
+            }
+            failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+                MDZELog("ERROR: %@", error);
+                op_done=true;
+            }
+        ];
+        
+        while (!op_done) {
+            [NSThread sleepForTimeInterval:0.1f];
+        }
+        
+        //urlData = [NSData dataWithContentsOfURL:url];
+        
+        we=(t_web_file_entry*)calloc(1,sizeof(t_web_file_entry)*[data count]);
+        int we_index=0;
+        
+        for(NSDictionary *tmpDict in data){
+            //here we have the data
+            NSNumber *authorID=[tmpDict objectForKey:@"id"];
+            NSString *author=[NSString stringWithString:[tmpDict objectForKey:@"title"]];
+            
+            if (author!=nil) {
                 
-                if ([[NSString stringWithFormat:@"%@",[[arr_musicrating objectAtIndex:j] text]] floatValue]>0) {
-                    
-                    we[we_index].file_URL=[NSString stringWithFormat:@"%@",[el objectForKey:@"href"]];
-                    we[we_index].file_name=[NSString stringWithFormat:@"%@",[el text]];
-                    we[we_index].file_name=[[we[we_index].file_name componentsSeparatedByString:@"_-_"] lastObject];
-                    
-                    we[we_index].file_type=2;
-                    
-                    we[we_index].file_format=nil;
-                    
-                    el=[arr_musicrating objectAtIndex:j];
-                    we[we_index].file_rating=[[NSString stringWithFormat:@"%@",[el text]] floatValue];
-                    
-                    [tmpArray addObject:[NSValue valueWithPointer:&(we[we_index])]];
-                    
-                    we_index++;
-                }
+                we[we_index].file_name=[NSString stringWithString:author];
+                //we[we_index].file_name=[[we[we_index].file_name componentsSeparatedByString:@"_-_"] lastObject];
+                
+                if (authorID!=nil) we[we_index].file_URL=[NSString stringWithFormat:@"https://zxart.ee/tunes/?action=tunesByElement&elementId=%d",[authorID intValue]];
+                else we[we_index].file_URL=nil;
+                
+                we[we_index].file_format=nil;
+                
+                if ([tmpDict objectForKey:@"musicRating"]!=nil) we[we_index].file_rating=[[tmpDict objectForKey:@"musicRating"] floatValue];
+                else we[we_index].file_rating=0;
+                
+                we[we_index].file_type=2;
+                [tmpArray addObject:[NSValue valueWithPointer:&(we[we_index])]];
+                we_index++;
             }
         }
     } else if (browse_mode==BROWSE_ALL_AUTHORS_SONGS) {
         url = [NSURL URLWithString:[NSString stringWithFormat:@"%@",mWebBaseURL]];
-        urlData = [NSData dataWithContentsOfURL:url options:NSUTF8StringEncoding error:nil];
-        doc       = [[TFHpple alloc] initWithHTMLData:urlData];
         
+        __block bool op_done=false;
+        __block NSDictionary *data;
+        
+        AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
+        [manager GET:[url absoluteString]
+            parameters:nil
+            headers:nil
+            progress:^(NSProgress * _Nonnull downloadProgress) {
+            
+            }
+            success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+                data = (NSDictionary *)responseObject;
+                op_done=true;
+            }
+            failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+                MDZELog("ERROR: %@", error);
+                op_done=true;
+            }
+        ];
+        
+        while (!op_done) {
+            [NSThread sleepForTimeInterval:0.1f];
+        }
+        
+        we=(t_web_file_entry*)calloc(1,sizeof(t_web_file_entry)*[data count]);
+        int we_index=0;
+        
+        for(NSDictionary *tmpDict in data){
+            //here we have the data
+            NSNumber *rating=[tmpDict objectForKey:@"votes"];
+            we[we_index].file_rating=[rating floatValue];
+            
+            we[we_index].file_URL=[NSString stringWithString:[tmpDict objectForKey:@"originalFileUrl"]];
+            
+            we[we_index].file_format=[NSString stringWithString:[tmpDict objectForKey:@"format"]];
+            
+            we[we_index].file_name=[NSString stringWithFormat:@"%@.%@",[tmpDict objectForKey:@"title"],[we[we_index].file_format lowercaseString]];
+            
+            we[we_index].file_type=1;
+            NSDictionary *tmpDict2=[tmpDict objectForKey:@"authors"][0];
+            if (tmpDict2!=nil) we[we_index].file_author=[NSString stringWithString:[tmpDict2 objectForKey:@"name"]];
+            else we[we_index].file_author=nil;
+            
+            [tmpArray addObject:[NSValue valueWithPointer:&(we[we_index])]];
+            
+            we_index++;
+        }
+#if 0
         NSArray *arr_realauthor=[doc searchWithXPathQuery:@"//table[contains(@class, 'author_details_info')]//tr/td[1]"];
         if ([arr_realauthor count]>=1) {
             if ([ (NSString*)[[arr_realauthor objectAtIndex:0] content] containsString:@"Author's profile page"]) {
@@ -531,6 +598,7 @@ int qsortZXArt_entries_rating_or_entries(const void *entryA, const void *entryB)
                 we_index++;
             }
         }
+#endif
     } else if ((browse_mode==BROWSE_LATEST)||(browse_mode==BROWSE_TOP)) {
         ///////////////////////////////////////////////////////////////////////:
         // ZXArt latest

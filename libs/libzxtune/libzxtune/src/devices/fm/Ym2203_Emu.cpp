@@ -1296,7 +1296,7 @@ void YM2203UpdateOne(void *chip, int32_t *buffer, int length)
             
             int val=(state->out_fm[jj])>>7;
             if (ofs_end>ofs_start)
-                for (;;) {
+                for (;;) {                    
                     m_voice_buff[m_voice_ofs+jj][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=LIMIT8( val );
                     ofs_start+=1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
                     if (ofs_start>=ofs_end) break;
