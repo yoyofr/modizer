@@ -1554,7 +1554,10 @@ static float movePinchScale,movePinchScaleOld,movePinchAngle;
 }
 -(void) mdBackAction {
     if (pmenu_show) {
-        PMenu::playerMenuBack();
+        if (PMenu::playerMenuBack()==0) {
+            //close menu
+            pmenu_show=-0;
+        }
     } else {
         //Ensure all keys are processed
         //        ImGuiIOSEvent imgui_event;

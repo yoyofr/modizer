@@ -1233,9 +1233,17 @@ extern NSMutableArray *mac_key_pressed,*mac_key_released;
 - (void)keyESCPressed{
     [detailViewControllerIphone mdOpenCloseMenu];
 }
-- (void)keyDeletePressed{
-    [detailViewControllerIphone mdBackAction];
-}
+//- (void)keyDeletePressed{
+//    [detailViewControllerIphone mdBackAction];
+//}
+- (void)keyDeletePressed {
+      if (detailViewControllerIphone.isViewLoaded && detailViewControllerIphone.view.window) {
+          [detailViewControllerIphone mdBackAction];
+      } else {
+          UINavigationController *navController = (UINavigationController *)self.selectedViewController;
+          [navController popViewControllerAnimated:YES];
+      }
+  }
 - (void)keyQPressed {
     [detailViewControllerIphone mdTestAsyncLoad];
 }

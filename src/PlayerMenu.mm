@@ -1170,10 +1170,11 @@ void playerMenuShutdown() {
 // playerMenuBack
 //   go back one level, if possible
 //------------------------------------------------------
-void playerMenuBack() {
+int playerMenuBack() {
     if (pMenu_state.menu_idx>MENU_ROOT) {
         pMenu_state.menu_idx=MENU_ROOT;
-    }
+        return 1;
+    } else return 0;
 }
 
 int buildSubMenu(int r,

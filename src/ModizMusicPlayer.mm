@@ -11508,9 +11508,6 @@ char* loadRom(const char* path, size_t romSize)
             sid_mixer.setFastForward(1);
             sid_mixer.setVolume(Mixer::VOLUME_MAX);
             
-            
-            
-            
             iCurrentTime=0;
             mCurrentSamples=0;
             numChannels=4*sidtune_info->sidChips();//(mSidEmuEngine->info()).channels();
@@ -11530,7 +11527,11 @@ char* loadRom(const char* path, size_t romSize)
             //if sid file, assuming 2nd infoString is artist
             if (strcasecmp([[filePath pathExtension] UTF8String],"sid")==0) {
                 if (sidtune_info->numberOfInfoStrings()>=2) {
-                    artist=[NSString stringWithFormat:@"%s",sidtune_info->infoString(1)];
+                    //artist=[NSString stringWithString:sidtune_info->infoString(1)];
+                    const char *str=sidtune_info->infoString(1);
+                    NSData *data=[NSData dataWithBytes:str length:strlen(str)+1];
+                    NSString *text=decodeGreekText(data);
+                    artist=convertAmigaGreekToUnicode(text);
                 }
             }
             
@@ -11570,14 +11571,6 @@ char* loadRom(const char* path, size_t romSize)
             [self sid_parseStilInfo];
             
             mod_name[0]=0;
-            //            if (sidtune_name) {
-            //                if (sidtune_name[mod_currentsub]) snprintf(mod_name,sizeof(mod_name)," %s",[[[NSString stringWithFormat:@"%@",[NSString stringWithUTF8String:sidtune_name[mod_currentsub]]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"] UTF8String]);
-            //            }
-            //            if (sidtune_title) {
-            //                if (sidtune_title[mod_currentsub]) {
-            //                    if (mod_name[0]==0) snprintf(mod_name,sizeof(mod_name)," %s",[[[NSString stringWithFormat:@"%@",[NSString stringWithUTF8String:sidtune_title[mod_currentsub]]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"] UTF8String]);
-            //                    else strcat(mod_name, [[NSString stringWithFormat:@" / %@",[[NSString stringWithUTF8String:sidtune_title[mod_currentsub]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"]] UTF8String]);
-            //                }
             //            }
             if (mod_name[0]==0) {
                 if (sidtune_info->infoString(0)[0]) {
