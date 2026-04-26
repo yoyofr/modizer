@@ -1,27 +1,27 @@
 {"header" : {
   "cloc_url"           : "github.com/AlDanial/cloc",
   "cloc_version"       : "1.98",
-  "elapsed_seconds"    : 38.2634491920471,
+  "elapsed_seconds"    : 41.4957399368286,
   "n_files"            : 27297,
-  "n_lines"            : 12706341,
-  "files_per_second"   : 713.396219535628,
-  "lines_per_second"   : 332075.15967068,
+  "n_lines"            : 12706425,
+  "files_per_second"   : 657.826563438941,
+  "lines_per_second"   : 306210.348805534,
   "report_file"        : "../output/cloc-output.json"},
 "C" :{
   "nFiles": 9122,
   "blank": 457563,
   "comment": 433196,
-  "code": 3303265},
+  "code": 3303266},
 "C/C++ Header" :{
   "nFiles": 10998,
-  "blank": 331960,
+  "blank": 331959,
   "comment": 587828,
-  "code": 2163122},
+  "code": 2163126},
 "C++" :{
   "nFiles": 3293,
-  "blank": 310495,
-  "comment": 165119,
-  "code": 2111141},
+  "blank": 310497,
+  "comment": 165121,
+  "code": 2111144},
 "Bourne Shell" :{
   "nFiles": 380,
   "blank": 107378,
@@ -44,9 +44,9 @@
   "code": 204976},
 "Objective-C++" :{
   "nFiles": 107,
-  "blank": 19003,
-  "comment": 10917,
-  "code": 93906},
+  "blank": 19016,
+  "comment": 10919,
+  "code": 93967},
 "make" :{
   "nFiles": 598,
   "blank": 11989,
@@ -66,7 +66,7 @@
   "nFiles": 214,
   "blank": 12674,
   "comment": 7715,
-  "code": 51910},
+  "code": 51907},
 "MSBuild script" :{
   "nFiles": 113,
   "blank": 7,
@@ -383,7 +383,7 @@
   "comment": 0,
   "code": 1},
 "SUM": {
-  "blank": 1481823,
-  "comment": 1585410,
-  "code": 9639108,
+  "blank": 1481837,
+  "comment": 1585414,
+  "code": 9639174,
   "nFiles": 27297} }
