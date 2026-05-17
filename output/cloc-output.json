@@ -1,11 +1,11 @@
 {"header" : {
   "cloc_url"           : "github.com/AlDanial/cloc",
   "cloc_version"       : "1.98",
-  "elapsed_seconds"    : 41.8421258926392,
+  "elapsed_seconds"    : 38.6187670230865,
   "n_files"            : 27297,
   "n_lines"            : 12706425,
-  "files_per_second"   : 652.380810431099,
-  "lines_per_second"   : 303675.416316151,
+  "files_per_second"   : 706.832509274097,
+  "lines_per_second"   : 329022.02684006,
   "report_file"        : "../output/cloc-output.json"},
 "C" :{
   "nFiles": 9122,
