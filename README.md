@@ -53,19 +53,29 @@ Other main libs & frameworks:
  - [SARUnArchiveANY](https://github.com/saru2020/SARUnArchiveANY)
  - [UnrarKIT](https://github.com/abbeycode/UnrarKit) 
 
+## Star History
+
+<a href="https://www.star-history.com/?repos=yoyofr%2Fmodizer&type=date&legend=top-left">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=yoyofr/modizer&type=date&theme=dark&legend=top-left" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=yoyofr/modizer&type=date&legend=top-left" />
+   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=yoyofr/modizer&type=date&legend=top-left" />
+ </picture>
+</a>
+
 ## Statistics
 
 <!-- LANGUAGES BREAKDOWN START -->
 ```
 [ LANGUAGES BREAKDOWN ]
 
-C            --> 3,303,265 lines
-C++          --> 2,111,141 lines
-Objective-C++ --> 93,906 lines
-Objective-C  --> 51,910 lines
+C            --> 3,303,266 lines
+C++          --> 2,111,144 lines
+Objective-C++ --> 93,967 lines
+Objective-C  --> 51,907 lines
 GLSL         --> 1,050 lines
-Others       --> 4,077,836 lines
+Others       --> 4,077,840 lines
 
-[ TOTAL LINES OF CODE: 9,639,108 ]
+[ TOTAL LINES OF CODE: 9,639,174 ]
 ```
 <!-- LANGUAGES BREAKDOWN END -->
