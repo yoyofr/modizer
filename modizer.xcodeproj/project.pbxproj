@@ -2377,6 +2377,8 @@
 		CCEB4E052BAE01E6004831C6 /* liblibarchive.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CCEB46FE2BADF7A7004831C6 /* liblibarchive.a */; };
 		CCF393492F41CFAB0089B673 /* liblibsidplayfp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CCF38C752F41B94E0089B673 /* liblibsidplayfp.a */; };
 		CCF3934A2F41CFBF0089B673 /* liblibsidplayfp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CCF38C752F41B94E0089B673 /* liblibsidplayfp.a */; };
+		CCF5D99B2FDC69CA00F4808E /* liblibg719.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CCF5D9402FDC67FC00F4808E /* liblibg719.a */; };
+		CCF5D99C2FDC69D100F4808E /* liblibg719.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CCF5D9402FDC67FC00F4808E /* liblibg719.a */; };
 		CCFA9ADE1AC75848007C658A /* JSTools.js in Resources */ = {isa = PBXBuildFile; fileRef = CCFA9ADD1AC75848007C658A /* JSTools.js */; };
 		CCFB5ED02EA98C400049DA7F /* ModizerWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = CCFB5ECF2EA98C400049DA7F /* ModizerWrapper.m */; };
 		CCFB5ED22EA98C480049DA7F /* ModizerWrapper.h in Sources */ = {isa = PBXBuildFile; fileRef = CCFB5ED12EA98C480049DA7F /* ModizerWrapper.h */; };
@@ -2578,6 +2580,13 @@
 			remoteGlobalIDString = CC47A4BE2BF1FB3500472202;
 			remoteInfo = libzxtune;
 		};
+		CC4A00012F9400000094FD3C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = CC47A4CA2BF1FB3500472202 /* libzxtune.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = CC47A4BD2BF1FB3500472202;
+			remoteInfo = libzxtune;
+		};
 		CC4AF40C2BC09067006D7EFC /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = CC4AF4082BC09067006D7EFC /* vio2sf.xcodeproj */;
@@ -2607,13 +2616,6 @@
 			remoteInfo = libchpconv;
 		};
 		CC67CB8B2F93D6000094FD3C /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = CC47A4CA2BF1FB3500472202 /* libzxtune.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = CC47A4BD2BF1FB3500472202;
-			remoteInfo = libzxtune;
-		};
-		CC4A00012F9400000094FD3C /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = CC47A4CA2BF1FB3500472202 /* libzxtune.xcodeproj */;
 			proxyType = 1;
@@ -2752,6 +2754,13 @@
 			proxyType = 2;
 			remoteGlobalIDString = CCF38C4E2F41B94D0089B673;
 			remoteInfo = libsidplayfp;
+		};
+		CCF5D93F2FDC67FC00F4808E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = CCF5D92C2FDC67FB00F4808E /* libg719.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = CCF5D91F2FDC67FA00F4808E;
+			remoteInfo = libg719;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -4879,6 +4888,7 @@
 		CCEB4E002BAE00D9004831C6 /* libiconv.2.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libiconv.2.tbd; path = usr/lib/libiconv.2.tbd; sourceTree = SDKROOT; };
 		CCEB5A442BB0103F004831C6 /* UnrarKIT.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = UnrarKIT.xcodeproj; path = UnrarKIT/UnrarKIT.xcodeproj; sourceTree = "<group>"; };
 		CCF38C5B2F41B94E0089B673 /* libsidplayfp.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libsidplayfp.xcodeproj; path = libsidplayfp/libsidplayfp.xcodeproj; sourceTree = "<group>"; };
+		CCF5D92C2FDC67FB00F4808E /* libg719.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libg719.xcodeproj; path = libg719/libg719.xcodeproj; sourceTree = "<group>"; };
 		CCFA9ADD1AC75848007C658A /* JSTools.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = JSTools.js; sourceTree = "<group>"; };
 		CCFB5ECF2EA98C400049DA7F /* ModizerWrapper.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ModizerWrapper.m; sourceTree = "<group>"; };
 		CCFB5ED12EA98C480049DA7F /* ModizerWrapper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ModizerWrapper.h; sourceTree = "<group>"; };
@@ -5017,6 +5027,7 @@
 				CCB4C4672BA0F1F300695908 /* ReplayKit.framework in Frameworks */,
 				CCEB4E052BAE01E6004831C6 /* liblibarchive.a in Frameworks */,
 				CC5BAD562BFB8F85007A3920 /* liblibchpconv.a in Frameworks */,
+				CCF5D99B2FDC69CA00F4808E /* liblibg719.a in Frameworks */,
 				CCAB95472BCBD5120038834A /* liblibvgm.a in Frameworks */,
 				596117952629613100B0F991 /* libv2mplayer.a in Frameworks */,
 				CC9971FC2F719E8C00A7AB21 /* liblibfurnace.a in Frameworks */,
@@ -5111,6 +5122,7 @@
 				CCBE61502EE2DD44000FDD7E /* ReplayKit.framework in Frameworks */,
 				CCBE61512EE2DD44000FDD7E /* liblibarchive.a in Frameworks */,
 				CCBE61522EE2DD44000FDD7E /* liblibchpconv.a in Frameworks */,
+				CCF5D99C2FDC69D100F4808E /* liblibg719.a in Frameworks */,
 				CCBE61532EE2DD44000FDD7E /* liblibvgm.a in Frameworks */,
 				CCBE61542EE2DD44000FDD7E /* libv2mplayer.a in Frameworks */,
 				CC9971FD2F719E9500A7AB21 /* liblibfurnace.a in Frameworks */,
@@ -5478,6 +5490,7 @@
 		593925CB25CF0C56009281DC /* libs */ = {
 			isa = PBXGroup;
 			children = (
+				CCF5D92C2FDC67FB00F4808E /* libg719.xcodeproj */,
 				CC992C012F7140C600A7AB21 /* libfurnace.xcodeproj */,
 				CCF38C5B2F41B94E0089B673 /* libsidplayfp.xcodeproj */,
 				CCB998AE2F09A39E0024DFBB /* nez.xcodeproj */,
@@ -7843,6 +7856,14 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		CCF5D92D2FDC67FB00F4808E /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				CCF5D9402FDC67FC00F4808E /* liblibg719.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		CCFA9ADC1AC75830007C658A /* WebTools */ = {
 			isa = PBXGroup;
 			children = (
@@ -8123,6 +8144,10 @@
 				{
 					ProductGroup = CC992C022F7140C600A7AB21 /* Products */;
 					ProjectRef = CC992C012F7140C600A7AB21 /* libfurnace.xcodeproj */;
+				},
+				{
+					ProductGroup = CCF5D92D2FDC67FB00F4808E /* Products */;
+					ProjectRef = CCF5D92C2FDC67FB00F4808E /* libg719.xcodeproj */;
 				},
 				{
 					ProductGroup = 59FF99DE263F34BD004152B8 /* Products */;
@@ -8557,6 +8582,13 @@
 			fileType = archive.ar;
 			path = liblibsidplayfp.a;
 			remoteRef = CCF38C742F41B94E0089B673 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		CCF5D9402FDC67FC00F4808E /* liblibg719.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = liblibg719.a;
+			remoteRef = CCF5D93F2FDC67FC00F4808E /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */
@@ -10403,15 +10435,15 @@
 			target = CC88FB902EDB2CD100717901 /* ModizerMacWindowPlugin */;
 			targetProxy = CC1D50F02EE2E6FC00F779EF /* PBXContainerItemProxy */;
 		};
-		CC67CB8C2F93D6000094FD3C /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = libzxtune;
-			targetProxy = CC67CB8B2F93D6000094FD3C /* PBXContainerItemProxy */;
-		};
 		CC4A00022F9400000094FD3C /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = libzxtune;
 			targetProxy = CC4A00012F9400000094FD3C /* PBXContainerItemProxy */;
+		};
+		CC67CB8C2F93D6000094FD3C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = libzxtune;
+			targetProxy = CC67CB8B2F93D6000094FD3C /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -10654,6 +10686,10 @@
 					"-D",
 					"VGM_USE_ATRAC9=1",
 					"-D",
+					"VGM_USE_G719=1",
+					"-D",
+					"VGM_USE_G7221=1",
+					"-D",
 					LSB_FIRST,
 					"-D",
 					LONG_IS_64BIT,
@@ -10819,6 +10855,10 @@
 					"VGM_USE_FFMPEG=1",
 					"-D",
 					"VGM_USE_ATRAC9=1",
+					"-D",
+					"VGM_USE_G719=1",
+					"-D",
+					"VGM_USE_G7221=1",
 					"-DNS_BLOCK_ASSERTIONS=1",
 					"-D",
 					LSB_FIRST,
@@ -10986,6 +11026,10 @@
 					"VGM_USE_FFMPEG=1",
 					"-D",
 					"VGM_USE_ATRAC9=1",
+					"-D",
+					"VGM_USE_G719=1",
+					"-D",
+					"VGM_USE_G7221=1",
 					"-DNS_BLOCK_ASSERTIONS=1",
 					"-D",
 					LSB_FIRST,
@@ -11373,6 +11417,10 @@
 					"-D",
 					"VGM_USE_ATRAC9=1",
 					"-D",
+					"VGM_USE_G719=1",
+					"-D",
+					"VGM_USE_G7221=1",
+					"-D",
 					LSB_FIRST,
 					"-D",
 					LONG_IS_64BIT,
@@ -11448,6 +11496,10 @@
 					"VGM_USE_FFMPEG=1",
 					"-D",
 					"VGM_USE_ATRAC9=1",
+					"-D",
+					"VGM_USE_G719=1",
+					"-D",
+					"VGM_USE_G7221=1",
 					"-DNS_BLOCK_ASSERTIONS=1",
 					"-D",
 					LSB_FIRST,
@@ -11526,6 +11578,10 @@
 					"VGM_USE_FFMPEG=1",
 					"-D",
 					"VGM_USE_ATRAC9=1",
+					"-D",
+					"VGM_USE_G719=1",
+					"-D",
+					"VGM_USE_G7221=1",
 					"-DNS_BLOCK_ASSERTIONS=1",
 					"-D",
 					LSB_FIRST,

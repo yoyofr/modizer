@@ -1,0 +1,114 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="g719.c" />
+    <ClCompile Include="reference_code\decoder\decode_frame.c">
+      <Filter>reference_code\decoder</Filter>
+    </ClCompile>
+    <ClCompile Include="reference_code\decoder\decoder_init.c">
+      <Filter>reference_code\decoder</Filter>
+    </ClCompile>
+    <ClCompile Include="reference_code\decoder\decoder_rom.c">
+      <Filter>reference_code\decoder</Filter>
+    </ClCompile>
+    <ClCompile Include="reference_code\decoder\dprocnf.c">
+      <Filter>reference_code\decoder</Filter>
+    </ClCompile>
+    <ClCompile Include="reference_code\decoder\dprocnobitsbfm.c">
+      <Filter>reference_code\decoder</Filter>
+    </ClCompile>
+    <ClCompile Include="reference_code\decoder\dqcoefs.c">
+      <Filter>reference_code\decoder</Filter>
+    </ClCompile>
+    <ClCompile Include="reference_code\decoder\fill_spectrum.c">
+      <Filter>reference_code\decoder</Filter>
+    </ClCompile>
+    <ClCompile Include="reference_code\decoder\flvqdec.c">
+      <Filter>reference_code\decoder</Filter>
+    </ClCompile>
+    <ClCompile Include="reference_code\decoder\hdeclvq.c">
+      <Filter>reference_code\decoder</Filter>
+    </ClCompile>
+    <ClCompile Include="reference_code\decoder\hdecnrm.c">
+      <Filter>reference_code\decoder</Filter>
+    </ClCompile>
+    <ClCompile Include="reference_code\decoder\trans_inv.c">
+      <Filter>reference_code\decoder</Filter>
+    </ClCompile>
+    <ClCompile Include="reference_code\decoder\unpackc.c">
+      <Filter>reference_code\decoder</Filter>
+    </ClCompile>
+    <ClCompile Include="reference_code\decoder\window_ola.c">
+      <Filter>reference_code\decoder</Filter>
+    </ClCompile>
+    <ClCompile Include="reference_code\common\bitalloc.c">
+      <Filter>reference_code\common</Filter>
+    </ClCompile>
+    <ClCompile Include="reference_code\common\bitstream.c">
+      <Filter>reference_code\common</Filter>
+    </ClCompile>
+    <ClCompile Include="reference_code\common\codesearch.c">
+      <Filter>reference_code\common</Filter>
+    </ClCompile>
+    <ClCompile Include="reference_code\common\common_rom.c">
+      <Filter>reference_code\common</Filter>
+    </ClCompile>
+    <ClCompile Include="reference_code\common\complxop.c">
+      <Filter>reference_code\common</Filter>
+    </ClCompile>
+    <ClCompile Include="reference_code\common\dct.c">
+      <Filter>reference_code\common</Filter>
+    </ClCompile>
+    <ClCompile Include="reference_code\common\idx2code.c">
+      <Filter>reference_code\common</Filter>
+    </ClCompile>
+    <ClCompile Include="reference_code\common\interleave_spectrum.c">
+      <Filter>reference_code\common</Filter>
+    </ClCompile>
+    <ClCompile Include="reference_code\common\recovernorm.c">
+      <Filter>reference_code\common</Filter>
+    </ClCompile>
+    <ClCompile Include="reference_code\common\reordvct.c">
+      <Filter>reference_code\common</Filter>
+    </ClCompile>
+    <ClCompile Include="reference_code\common\weight.c">
+      <Filter>reference_code\common</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="g719.def" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="g719.h" />
+    <ClInclude Include="stack_alloc.h" />
+    <ClInclude Include="reference_code\include\cnst.h">
+      <Filter>reference_code\include</Filter>
+    </ClInclude>
+    <ClInclude Include="reference_code\include\complxop.h">
+      <Filter>reference_code\include</Filter>
+    </ClInclude>
+    <ClInclude Include="reference_code\include\proto.h">
+      <Filter>reference_code\include</Filter>
+    </ClInclude>
+    <ClInclude Include="reference_code\include\rom.h">
+      <Filter>reference_code\include</Filter>
+    </ClInclude>
+    <ClInclude Include="reference_code\include\state.h">
+      <Filter>reference_code\include</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="reference_code">
+      <UniqueIdentifier>{c50277f2-aef6-44be-987f-932526244371}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="reference_code\decoder">
+      <UniqueIdentifier>{180e3ec2-50eb-4ca3-9091-3fcfe16ee550}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="reference_code\common">
+      <UniqueIdentifier>{6acab86d-4567-4086-ab0a-9205ab12110f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="reference_code\include">
+      <UniqueIdentifier>{77f0d502-ff07-4cde-bad7-bfdc7008938f}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

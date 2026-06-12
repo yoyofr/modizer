@@ -3551,6 +3551,7 @@
 					"../../libopenmpt/openmpt-trunk/include/vorbis/include",
 					"../../libopenmpt/openmpt-trunk/include/ogg/include",
 					"../../libvgmstream/vgmstream-master/ext_includes/ffmpeg",
+					"../../libg719/libg719_decode-master/",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				MTL_ENABLE_DEBUG_INFO = YES;
@@ -3564,6 +3565,10 @@
 					"VGM_USE_FFMPEG=1",
 					"-D",
 					"VGM_USE_ATRAC9=1",
+					"-D",
+					"VGM_USE_G719=1",
+					"-D",
+					"VGM_USE_G7221=1",
 				);
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
@@ -3611,6 +3616,7 @@
 					"../../libopenmpt/openmpt-trunk/include/vorbis/include",
 					"../../libopenmpt/openmpt-trunk/include/ogg/include",
 					"../../libvgmstream/vgmstream-master/ext_includes/ffmpeg",
+					"../../libg719/libg719_decode-master/",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				MTL_ENABLE_DEBUG_INFO = NO;
@@ -3623,6 +3629,10 @@
 					"VGM_USE_FFMPEG=1",
 					"-D",
 					"VGM_USE_ATRAC9=1",
+					"-D",
+					"VGM_USE_G719=1",
+					"-D",
+					"VGM_USE_G7221=1",
 				);
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
@@ -3635,6 +3645,13 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				DEVELOPMENT_TEAM = ZV46EUY73C;
+				HEADER_SEARCH_PATHS = (
+					"../../libopenmpt/openmpt-trunk/include/mpg123/src/include",
+					"../../libopenmpt/openmpt-trunk/include/vorbis/include",
+					"../../libopenmpt/openmpt-trunk/include/ogg/include",
+					"../../libvgmstream/vgmstream-master/ext_includes/ffmpeg",
+					"../../libg719/libg719_decode-master/",
+				);
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -3645,6 +3662,13 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				DEVELOPMENT_TEAM = ZV46EUY73C;
+				HEADER_SEARCH_PATHS = (
+					"../../libopenmpt/openmpt-trunk/include/mpg123/src/include",
+					"../../libopenmpt/openmpt-trunk/include/vorbis/include",
+					"../../libopenmpt/openmpt-trunk/include/ogg/include",
+					"../../libvgmstream/vgmstream-master/ext_includes/ffmpeg",
+					"../../libg719/libg719_decode-master/",
+				);
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;

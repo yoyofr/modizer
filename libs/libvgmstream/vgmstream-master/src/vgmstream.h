@@ -8,14 +8,17 @@
  * Libs are disabled by default, defined on compile-time for builds that support it */
 //#define VGM_USE_VORBIS
 //#define VGM_USE_MPEG
-//#define VGM_USE_G7221
-//#define VGM_USE_G719
-//#define VGM_USE_MP4V2
-//#define VGM_USE_FDKAAC
 //#define VGM_USE_FFMPEG
 //#define VGM_USE_ATRAC9
+
+//#define VGM_USE_G7221
+//#define VGM_USE_G719
 //#define VGM_USE_CELT
 //#define VGM_USE_SPEEX
+
+//#define VGM_USE_MP4V2
+//#define VGM_USE_FDKAAC
+
 
 
 /* reasonable limits */
