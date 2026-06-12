@@ -1011,7 +1011,11 @@ static VGMSTREAM* init_vgmstream_ubi_sb_base(ubi_sb_header* sb, STREAMFILE* sf_h
             vgmstream->layout_type = layout_interleave;
             vgmstream->interleave_block_size = 0x02;
 
-            if (vgmstream->num_samples == 0) { /* happens in .bnm */
+            // in .bnm samples may be null, or PCM size (similar to Ubi-MPEG)
+            if (sb->is_bnm)
+                vgmstream->num_samples = 0;
+
+            if (vgmstream->num_samples == 0) {
                 vgmstream->num_samples       = pcm_bytes_to_samples(sb->stream_size, sb->channels, 16);
                 vgmstream->loop_end_sample   = vgmstream->num_samples;
             }
@@ -1196,29 +1200,9 @@ static VGMSTREAM* init_vgmstream_ubi_sb_base(ubi_sb_header* sb, STREAMFILE* sf_h
 
         case FMT_APM:
             /* APM is a full format though most fields are repeated from .bnm
-             * (info from https://github.com/Synthesis/ray2get)
-             * 0x00(2): format tag (0x2000 for Ubisoft ADPCM)
-             * 0x02(2): channels
-             * 0x04(4): sample rate
-             * 0x08(4): byte rate? PCM samples?
-             * 0x0C(2): block align
-             * 0x0E(2): bits per sample
-             * 0x10(4): header size
-             * 0x14(4): "vs12"
-             * 0x18(4): file size
-             * 0x1C(4): nibble size
-             * 0x20(4): -1?
-             * 0x24(4): 0?
-             * 0x28(4): high/low nibble flag (when loaded in memory)
-             * 0x2C(N): ADPCM info per channel, last to first
-             * - 0x00(4): ADPCM hist
-             * - 0x04(4): ADPCM step index
-             * - 0x08(4): copy of ADPCM data (after interleave, ex. R from data + 0x01)
-             * 0x60(4): "DATA"
-             * 0x64(N): ADPCM data
-             */
+             * see ubi_apm.c for documentation */
 
-            vgmstream->coding_type = coding_DVI_IMA_int;
+            vgmstream->coding_type = coding_DVI_IMA_mono;
             vgmstream->layout_type = layout_interleave;
             vgmstream->interleave_block_size = 0x01;
 
@@ -1241,14 +1225,44 @@ static VGMSTREAM* init_vgmstream_ubi_sb_base(ubi_sb_header* sb, STREAMFILE* sf_h
             }
             break;
 
-        case FMT_MPDX:
-            /* a custom, chunked MPEG format (sigh)
-             * 0x00: samples? (related to size)
-             * 0x04: "2RUS" (apparently "1RUS" for mono files)
-             * Rest is a MPEG-like sync but not an actual MPEG header? (DLLs do refer it as MPEG)
-             * Files may have multiple "2RUS" or just a big one
-             * A companion .csb has some not-too-useful info */
-            goto fail;
+        case FMT_MPDX: {
+            /* custom MPEG (.MPD, .MPU. MPX, internal, etc):
+             * 0x00: samples
+             * 0x04: optional ID for 'surround' config ("2RUS" or "1RUS" or none)
+             * Data is custom-ish MP2 packets with odd surround modes
+             * - .MPX have multiple small streams pasted together (subsongs in .bnm point to each)
+             * - .MPD has 1 big-ish stream
+             * A companion .csb has sequence info (maybe before compiled to .bnm)
+             */
+
+            int32_t block_samples = read_s32le(start_offset + 0x00, sf_data);
+            uint32_t mode = read_u32be(start_offset + 0x04, sf_data);
+            start_offset += 0x04;
+            if ((mode & 0x00FFFFFF) == get_id32be("\0RUS"))
+                start_offset += 0x04;
+
+            // for some reason num_samples is either size of PCM or 0
+            if (sb->num_samples && block_samples * sizeof(short) * sb->channels != sb->num_samples) {
+                VGM_LOG("UBI SB: wrong MPEG block samples found block=%i vs total=%i\n", block_samples, sb->num_samples);
+                goto fail;
+            }
+
+            //TODO: needed for smoother segments, but not sure if block samples counts this
+            // (usually blocks' frames have more samples than defined but not always; maybe should output delay's samples at EOF)
+            int encoder_delay = 480; //observed
+
+            vgmstream->num_samples = block_samples - encoder_delay;
+            vgmstream->loop_end_sample = block_samples - encoder_delay;
+            if (sb->loop_start) {
+                vgmstream->loop_start_sample = sb->loop_start / sizeof(short) / sb->channels;
+            }
+
+            vgmstream->codec_data = init_ubimpeg(mode);
+            if (!vgmstream->codec_data) goto fail;
+            vgmstream->coding_type = coding_UBI_MPEG;
+            vgmstream->layout_type = layout_none;
+            break;
+        }
 
         default:
             VGM_LOG("UBI SB: unknown codec\n");
@@ -1256,7 +1270,7 @@ static VGMSTREAM* init_vgmstream_ubi_sb_base(ubi_sb_header* sb, STREAMFILE* sf_h
     }
 
     /* open the actual for decoding (sf_data can be an internal or external stream) */
-    if ( !vgmstream_open_stream(vgmstream, sf_data, start_offset) )
+    if (!vgmstream_open_stream(vgmstream, sf_data, start_offset))
         goto fail;
     return vgmstream;
 
@@ -2494,6 +2508,8 @@ static int parse_header(ubi_sb_header* sb, STREAMFILE* sf, off_t offset, int ind
                 sb->duration = 1.0f;
                 break;
             }
+
+            // fall through
         default:
             VGM_LOG("UBI SB: unknown header type %x at %x\n", sb->header_type, (uint32_t)offset);
             goto fail;
@@ -2763,8 +2779,8 @@ static void config_sb_random_old(ubi_sb_header* sb, off_t sequence_count, off_t 
     sb->cfg.random_percent_int = 1;
 }
 
-static int check_project_file(STREAMFILE *sf_header, const char *name, int has_localized_banks) {
-    STREAMFILE *sf_test = open_streamfile_by_filename(sf_header, name);
+static int check_project_file(STREAMFILE* sf_header, const char *name, bool has_localized_banks) {
+    STREAMFILE *sf_test = open_streamfile_by_pathname(sf_header, name);
     if (sf_test) {
         close_streamfile(sf_test);
         return 1;
@@ -3089,10 +3105,10 @@ static int config_sb_version(ubi_sb_header* sb, STREAMFILE* sf) {
         sb->version = 0x00000000;
     }
 
-    /* Tonic Touble beta has garbage instead of version */
+    /* Tonic Touble Special Edition has garbage instead of version */
     if (sb->is_bnm && sb->version > 0x00000000 && sb->platform == UBI_PC) {
-        if (check_project_file(sf, "ED_MAIN.LCB", 0)) {
-            is_ttse_pc = 1;
+        if (check_project_file(sf, "ED_MAIN.LCB", true)) {
+            is_ttse_pc = true;
             sb->version = 0x00000000;
         }
     }

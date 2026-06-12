@@ -1,30 +1,24 @@
 # CLI
 
 add_executable(vgmstream_cli
-	vgmstream_cli.c)
+	vgmstream_cli.c vgmstream_cli_utils.c wav_utils.c windows_utils.c)
 
 set_target_properties(vgmstream_cli PROPERTIES
 	PREFIX ""
 	OUTPUT_NAME "vgmstream-cli")
 
 # Link to the vgmstream library
-target_link_libraries(vgmstream_cli libvgmstream)
+target_link_libraries(vgmstream_cli PUBLIC libvgmstream)
 
-# Link to Jansson, if we have it
-if (USE_JANSSON)
-    target_compile_definitions(vgmstream_cli PRIVATE HAVE_JSON)
-	target_include_directories(vgmstream_cli PRIVATE ${JANSSON_INCLUDE_DIRS})
-	target_link_libraries(vgmstream_cli jansson)
-endif()
 
 setup_target(vgmstream_cli TRUE)
 
 if(WIN32)
 	# Add the preprocessor definitions
-	target_compile_definitions(vgmstream_cli PRIVATE _CONSOLE)
+	target_compile_definitions(vgmstream_cli PRIVATE _CONSOLE UNICODE _UNICODE VGM_STDIO_UNICODE)
 
 	# Link to the getopt library
-	target_link_libraries(vgmstream_cli getopt)
+	target_link_libraries(vgmstream_cli PUBLIC getopt)
 
 	# Make sure that the binary directory is included (for version.h), as well as the getopt library include directory
 	target_include_directories(vgmstream_cli PRIVATE
@@ -67,10 +61,10 @@ if(NOT WIN32 AND BUILD_V123)
 	# vgmstream123
 
 	add_executable(vgmstream123
-		vgmstream123.c)
+		vgmstream123.c wav_utils.c)
 
 	# Link to the vgmstream library as well as libao
-	target_link_libraries(vgmstream123
+	target_link_libraries(vgmstream123 PUBLIC
 		libvgmstream
 		ao pthread dl)
 

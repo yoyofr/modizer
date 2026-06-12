@@ -6,7 +6,7 @@
 
 #define PSB_MAX_LAYERS 6 /* MGS Master Collection Vo.1 (Switch) */
 
-typedef enum { PCM, RIFF_AT3, XMA2, MSADPCM, XWMA, DSP, OPUSNX, RIFF_AT9, VAG } psb_codec_t;
+typedef enum { PCM, RIFF_AT3, XMA2, MSADPCM, XWMA, DSP, OPUSNX, RIFF_AT9, VAG, OGG_VORBIS, RIFF_WAV } psb_codec_t;
 typedef struct {
     const char* id; /* format */
     const char* spec; /* platform */
@@ -48,17 +48,18 @@ typedef struct {
     int32_t num_samples;
     int32_t body_samples;
     int32_t intro_samples;
-    int32_t skip_samples;
+    int32_t intro_skip;
+    int32_t body_skip;
     int loop_flag;
-    int loop_range;
+    bool loop_range;
     int32_t loop_start;
     int32_t loop_end;
-    int loop_test;
+    bool loop_type_unknown;
 
 } psb_header_t;
 
 
-static int parse_psb(STREAMFILE* sf, psb_header_t* psb);
+static bool parse_psb(STREAMFILE* sf, psb_header_t* psb);
 
 
 static segmented_layout_data* build_segmented_psb_opus(STREAMFILE* sf, psb_header_t* psb);
@@ -102,6 +103,16 @@ VGMSTREAM* init_vgmstream_psb(STREAMFILE* sf) {
                 init_vgmstream = init_vgmstream_riff;
                 break;
 
+            case RIFF_WAV: /* Legend of Mana (Android) */
+                ext = "wav";
+                init_vgmstream = init_vgmstream_riff;
+                break;
+
+            case OGG_VORBIS: /* Legend of Mana (Android) */
+                ext = "ogg";
+                init_vgmstream = init_vgmstream_ogg_vorbis;
+                break;
+
             default:
                 break;
         }
@@ -113,6 +124,12 @@ VGMSTREAM* init_vgmstream_psb(STREAMFILE* sf) {
             vgmstream = init_vgmstream(temp_sf);
             close_streamfile(temp_sf);
             if (!vgmstream) goto fail;
+
+            if (psb.codec == OGG_VORBIS || psb.codec == RIFF_WAV) {
+                vgmstream_force_loop(vgmstream, psb.loop_flag, psb.loop_start, psb.loop_start + psb.loop_end);
+                if (vgmstream->loop_end_sample < vgmstream->num_samples)
+                    vgmstream->loop_end_sample += 1;
+            }
 
             vgmstream->num_streams = psb.total_subsongs;
             strncpy(vgmstream->stream_name, psb.readable_name, STREAM_NAME_SIZE);
@@ -225,10 +242,10 @@ VGMSTREAM* init_vgmstream_psb(STREAMFILE* sf) {
     }
 
     /* loop meaning varies, no apparent flags, seen in PCM/DSP/MSADPCM/WMAv2:
-     * - loop_start + loop_length [LoM (PC), Namco Museum V1 (PC), Senxin Aleste (PC)]
+     * - loop_start + loop_length [LoM (PC/And), Namco Museum V1 (PC), Senxin Aleste (PC)]
      * - loop_start + loop_end [G-Darius (Sw)]
      * (only in some cases of "loop" field so shouldn't happen to often) */
-    if (psb.loop_test) {
+    if (psb.loop_type_unknown) {
         if (psb.loop_start + psb.loop_end <= vgmstream->num_samples) {
             vgmstream->loop_end_sample += psb.loop_start;
             /* assumed, matches num_samples in LoM and Namco but not in Senjin Aleste (unknown in G-Darius) */
@@ -250,30 +267,33 @@ fail:
 
 static segmented_layout_data* build_segmented_psb_opus(STREAMFILE* sf, psb_header_t* psb) {
     segmented_layout_data* data = NULL;
-    int i, pos = 0, segment_count = 0, max_count = 2;
 
     //TODO improve
     //TODO these use standard switch opus (VBR), could sub-file? but skip_samples becomes more complex
 
     uint32_t offsets[] = {psb->intro_offset, psb->body_offset};
     uint32_t sizes[] = {psb->intro_size, psb->body_size};
-    uint32_t samples[] = {psb->intro_samples, psb->body_samples};
-    uint32_t skips[] = {0, psb->skip_samples};
+    int32_t samples[] = {psb->intro_samples, psb->body_samples};
+    int32_t skips[] = {0, psb->body_skip};
+
+    int pos = 0, max_count = 2;
 
     /* intro + body (looped songs) or just body (standard songs)
      * In full loops intro is 0 samples with a micro 1-frame opus [Nekopara (Switch)] */
-    if (offsets[0] && samples[0])
+    int segment_count = 0;
+    if (offsets[0] && samples[0] > 0)
         segment_count++;
-    if (offsets[1] && samples[1])
+    if (offsets[1] && samples[1] > 0)
         segment_count++;
 
     /* init layout */
     data = init_layout_segmented(segment_count);
     if (!data) goto fail;
 
-    for (i = 0; i < max_count; i++) {
-        if (!offsets[i] || !samples[i])
+    for (int i = 0; i < max_count; i++) {
+        if (!offsets[i] || samples[i] <= 0)
             continue;
+
 #ifdef VGM_USE_FFMPEG
        {
             int start = read_u32le(offsets[i] + 0x10, sf) + 0x08;
@@ -321,14 +341,13 @@ fail:
 
 static layered_layout_data* build_layered_psb(STREAMFILE* sf, psb_header_t* psb) {
     layered_layout_data* data = NULL;
-    int i;
 
 
     /* init layout */
     data = init_layout_layered(psb->layers);
     if (!data) goto fail;
 
-    for (i = 0; i < psb->layers; i++) {
+    for (int i = 0; i < psb->layers; i++) {
         switch (psb->codec) {
             case PCM: {
                 VGMSTREAM* v = allocate_vgmstream(1, 0);
@@ -376,7 +395,7 @@ fail:
 
 /*****************************************************************************/
 
-static int prepare_fmt(STREAMFILE* sf, psb_header_t* psb) {
+static bool prepare_fmt(STREAMFILE* sf, psb_header_t* psb) {
     uint32_t offset = psb->fmt_offset;
     if (!offset)
         return 1; /* other codec, probably */
@@ -413,12 +432,12 @@ static int prepare_fmt(STREAMFILE* sf, psb_header_t* psb) {
 
     }
 
-    return 1;
+    return true;
 fail:
-    return 0;
+    return false;
 }
 
-static int prepare_codec(STREAMFILE* sf, psb_header_t* psb) {
+static bool prepare_codec(STREAMFILE* sf, psb_header_t* psb) {
     const char* spec = psb->tmp->spec;
     const char* ext = psb->tmp->ext;
 
@@ -440,7 +459,7 @@ static int prepare_codec(STREAMFILE* sf, psb_header_t* psb) {
             default:
                 goto fail;
         }
-        return 1;
+        return true;
     }
 
     /* try console strings */
@@ -455,23 +474,28 @@ static int prepare_codec(STREAMFILE* sf, psb_header_t* psb) {
         if (strcmp(ext, ".opus") == 0) {
             psb->codec = OPUSNX;
 
-            psb->body_samples -= psb->skip_samples;
+            psb->body_samples -= psb->body_skip;
 
-            /* When setting loopstr="range:N,M", doesn't seem to transition properly (clicks) unless aligned (not always?)
-             * > N=intro's sampleCount, M=intro+body's sampleCount - skipSamples - default_skip, but not always
-             * [Anonymous;Code (Switch)-bgm08, B-Project: Ryuusei Fantasia (Switch)-bgm27] */
-            if (psb->loop_range) {
-                //TODO read actual default skip
-                psb->intro_samples -= 120;
-                psb->body_samples -= 120; 
+            /* Sometimes intro + body loops don't seem to transition properly (clicks) unless aligned, but not always
+             * > N=intro's sampleCount, M=intro+body's sampleCount - skipSamples - default_skip.  [B-Project: Ryuusei Fantasia (Switch)-bgm27]
+             * However this click may happen too in other codecs, so it's probably an encoder quirk [Anonymous;Code (Switch)-bgm08 SW opus vs PC msadpcm]
+             * There is a 'loopstr="range:N,M"' value, which may match intro + body samples, or be slightly smaller than body samples.
+             * Since presumably the point of separate intro + body is manual looping via subfiles, assume loopstr is just info and not used.
+             * skipSamples may not be set with full loops [The Quintessential Quintuplets: Memories of a Quintessential Summer (Switch)-bgm02 vs bgm03] */
+            #if 0
+            if (psb->body_skip) {
+                int default_skip = 120; //TODO read actual value, but harder to fix loops later
+                if (psb->intro_samples > default_skip) psb->intro_samples -= default_skip; //this seems to match loop_start plus may be 0
+                if (psb->body_samples > default_skip) psb->body_samples -= default_skip;
             }
+            #endif
 
             if (!psb->loop_flag)
                 psb->loop_flag = psb->intro_samples > 0;
             psb->loop_start = psb->intro_samples;
             psb->loop_end = psb->body_samples + psb->intro_samples;
             psb->num_samples = psb->intro_samples + psb->body_samples;
-            return 1;
+            return true;
         }
 
         /* Legend of Mana (Switch), layered */
@@ -479,7 +503,7 @@ static int prepare_codec(STREAMFILE* sf, psb_header_t* psb) {
             psb->codec = DSP;
 
             psb->channels = psb->layers;
-            return 1;
+            return true;
         }
 
         /* Castlevania Advance Collection (Switch), layered */
@@ -488,13 +512,13 @@ static int prepare_codec(STREAMFILE* sf, psb_header_t* psb) {
             psb->bps = 16;
 
             psb->channels = psb->layers;
-            return 1;
+            return true;
         }
     }
 
     if (strcmp(spec, "ps3") == 0) {
         psb->codec = RIFF_AT3;
-        return 1;
+        return true;
     }
 
     if (strcmp(spec, "vita") == 0 || strcmp(spec, "ps4") == 0) {
@@ -502,23 +526,38 @@ static int prepare_codec(STREAMFILE* sf, psb_header_t* psb) {
             psb->codec = RIFF_AT9;
         else
             psb->codec = VAG;
-        return 1;
+        return true;
+    }
+
+    if (strcmp(spec, "and") == 0) {
+        if (!ext)
+            goto fail;
+
+        if (strcmp(ext, ".ogg") == 0) {
+            psb->codec = OGG_VORBIS;
+            return true;
+        }
+
+        if (strcmp(ext, ".wav") == 0) {
+            psb->codec = RIFF_WAV;
+            return true;
+        }
     }
 
 fail:
     vgm_logi("PSB: unknown codec (report)\n");
-    return 0;
+    return false;
 }
 
 
-static int prepare_name(psb_header_t* psb) {
+static bool prepare_name(psb_header_t* psb) {
     const char* main_name = psb->tmp->voice;
     const char* sub_name = psb->tmp->uniq;
     char* buf = psb->readable_name;
     int buf_size = sizeof(psb->readable_name);
 
     if (!main_name) /* shouldn't happen */
-        return 1;
+        return true;
 
     if (!sub_name)
         sub_name = psb->tmp->wav;
@@ -544,19 +583,19 @@ static int prepare_name(psb_header_t* psb) {
         snprintf(buf, buf_size, "%s", main_name);
     }
 
-    return 1;
+    return true;
 }
 
-static int prepare_psb_extra(STREAMFILE* sf, psb_header_t* psb) {
+static bool prepare_psb_extra(STREAMFILE* sf, psb_header_t* psb) {
     if (!prepare_fmt(sf, psb))
         goto fail;
     if (!prepare_codec(sf, psb))
         goto fail;
     if (!prepare_name(psb))
         goto fail;
-    return 1;
+    return true;
 fail:
-    return 0;
+    return false;
 }
 
 
@@ -569,15 +608,14 @@ fail:
  *   - data/dpds/fmt/wav/loop
  * - pan: array [N.0 .. 0.N] (when N layers, in practice just a wonky L/R definition)
  */
-static int parse_psb_channels(psb_header_t* psb, psb_node_t* nchans) {
-    int i;
+static bool parse_psb_channels(psb_header_t* psb, psb_node_t* nchans) {
     psb_node_t nchan, narch, nsub, node;
 
     psb->layers = psb_node_get_count(nchans);
     if (psb->layers == 0) goto fail;
     if (psb->layers > PSB_MAX_LAYERS) goto fail;
 
-    for (i = 0; i < psb->layers; i++) {
+    for (int i = 0; i < psb->layers; i++) {
         psb_data_t data;
         psb_type_t type;
 
@@ -611,17 +649,29 @@ static int parse_psb_channels(psb_header_t* psb, psb_node_t* nchans) {
                     psb->fmt_size = data.size;
                 }
 
+                psb->tmp->ext = psb_node_get_string(&narch, "ext"); /* appears for all channels, assumed to be the same */
+
                 if (psb_node_by_key(&narch, "loop", &node)) {
                     /* can be found as "false" with body+intro */
                     if (psb_node_get_type(&node) == PSB_TYPE_ARRAY) {
                         //todo improve
                         psb_node_by_index(&node, 0, &nsub);
-                        psb->loop_start = psb_node_get_result(&nsub).num;
+                        psb_result_t ls = psb_node_get_result(&nsub);
 
                         psb_node_by_index(&node, 1, &nsub);
-                        psb->loop_end = psb_node_get_result(&nsub).num;
+                        psb_result_t le = psb_node_get_result(&nsub);
 
-                        psb->loop_test = 1; /* loop end meaning varies*/
+                        if (psb->tmp->ext != NULL && (strcmp(psb->tmp->ext, ".ogg") == 0 || strcmp(psb->tmp->ext, ".wav") == 0)) {
+                            /* LoM Android, still in samples but rarely they have decimals (only in .wav?) */
+                            psb->loop_start = ls.flt;
+                            psb->loop_end = le.flt;
+                        }
+                        else {
+                            psb->loop_start = ls.num;
+                            psb->loop_end = le.num;
+                        }
+
+                        psb->loop_type_unknown = true; /* loop end meaning varies*/
                     }
                 }
 
@@ -630,7 +680,7 @@ static int parse_psb_channels(psb_header_t* psb, psb_node_t* nchans) {
                     psb->body_offset = data.offset;
                     psb->body_size = data.size;
                     psb->body_samples = psb_node_get_integer(&node, "sampleCount");
-                    psb->skip_samples = psb_node_get_integer(&node, "skipSampleCount"); /* fixed to seek_preroll? (80ms) */
+                    psb->body_skip = psb_node_get_integer(&node, "skipSampleCount"); /* fixed to seek_preroll? (80ms) */
                 }
 
                 if (psb_node_by_key(&narch, "intro", &node)) {
@@ -638,6 +688,8 @@ static int parse_psb_channels(psb_header_t* psb, psb_node_t* nchans) {
                     psb->intro_offset = data.offset;
                     psb->intro_size = data.size;
                     psb->intro_samples = psb_node_get_integer(&node, "sampleCount");
+                    psb->intro_skip = psb_node_get_integer(&node, "skipSampleCount"); /* fixed to seek_preroll? (80ms) */
+                    vgm_asserti(psb->intro_skip, "PSB: intro skip found\n");
                 }
 
                 data = psb_node_get_data(&narch, "dpds");
@@ -651,8 +703,6 @@ static int parse_psb_channels(psb_header_t* psb, psb_node_t* nchans) {
                 psb->sample_rate = (int)psb_node_get_float(&narch, "samprate"); /* seen in DSP */
                 if (!psb->sample_rate)
                     psb->sample_rate = psb_node_get_integer(&narch, "samprate"); /* seen in OpusNX */
-
-                psb->tmp->ext = psb_node_get_string(&narch, "ext"); /* appears for all channels, assumed to be the same */
 
                 psb->tmp->wav = psb_node_get_string(&narch, "wav");
 
@@ -673,15 +723,16 @@ static int parse_psb_channels(psb_header_t* psb, psb_node_t* nchans) {
                 goto fail;
         }
     }
-    return 1;
+
+    return true;
 fail:
     VGM_LOG("psb: can't parse channel\n");
-    return 0;
+    return false;
 }
 
 
 /* parse a single archive, that can contain extra info here or inside channels */
-static int parse_psb_voice(psb_header_t* psb, psb_node_t* nvoice) {
+static bool parse_psb_voice(psb_header_t* psb, psb_node_t* nvoice) {
     psb_node_t nsong, nchans;
 
 
@@ -716,7 +767,7 @@ static int parse_psb_voice(psb_header_t* psb, psb_node_t* nvoice) {
         /* loopstr values:
          * - "none", w/ loop=0
          * - "all", w/ loop = 2 [Legend of Mana (multi)]
-         * - "range:N,M", w/ loop = 2 [Anonymous;Code (Switch)] */
+         * - "range:N,M", w/ loop = 2 [Anonymous;Code (Switch/PC)], assumed to be info info */
         psb->loop_range = loopstr && strncmp(loopstr, "range:", 6) == 0; /* slightly different in rare cases */
     }
 
@@ -728,10 +779,10 @@ static int parse_psb_voice(psb_header_t* psb, psb_node_t* nvoice) {
      * - group?
      */
 
-    return 1;
+    return true;
 fail:
     VGM_LOG("psb: can't parse voice\n");
-    return 0;
+    return false;
 }
 
 /* .psb is binary JSON-like structure that can be used to hold various formats, we want audio data:
@@ -749,7 +800,7 @@ fail:
  * From decompilations, audio code reads common keys up to "archData", then depends on game (not unified).
  * Keys are (seemingly) stored in text order.
  */
-static int parse_psb(STREAMFILE* sf, psb_header_t* psb) {
+static bool parse_psb(STREAMFILE* sf, psb_header_t* psb) {
     psb_temp_t tmp = {0};
     psb_context_t* ctx = NULL;
     psb_node_t nroot, nvoice;
@@ -760,7 +811,9 @@ static int parse_psb(STREAMFILE* sf, psb_header_t* psb) {
 
     ctx = psb_init(sf);
     if (!ctx) goto fail;
+#ifdef VGM_DEBUG_OUTPUT
     //psb_print(ctx);
+#endif
 
     /* main process */
     psb_get_root(ctx, &nroot);
@@ -782,7 +835,7 @@ static int parse_psb(STREAMFILE* sf, psb_header_t* psb) {
     /* enforced by M2 code */
     version = psb_node_get_float(&nroot, "version");
     if (version < 1.02f || version > 1.02f) {
-        vgm_logi("PSB: unsupported version %f (report)\n", version);
+        vgm_logi("PSB: unsupported version %f (report)\n", (double)version);
         goto fail;
     }
 
@@ -797,25 +850,9 @@ static int parse_psb(STREAMFILE* sf, psb_header_t* psb) {
 
     psb->tmp = NULL;
     psb_close(ctx);
-    return 1;
+    return true;
 fail:
     psb_close(ctx);
     VGM_LOG("psb: can't parse PSB\n");
-    return 0;
+    return false;
 }
-
-#if 0
-typedef struct {
-    void* init;
-    const char* id32;
-    const char* exts;
-} metadef_t;
-
-metadef_t md_psb = {
-    .init = init_vgmstream_psb,
-    .exts = "psb",
-    .id32 = "PSB\0", //24b/masked IDs?
-    .id32 = get_id32be("PSB\0"), //???
-    .idfn = psb_check_id,
-}
-#endif

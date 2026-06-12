@@ -1,28 +1,39 @@
 # TXTH format
 
-TXTH is a simple text file with text commands to simulate a header for files unsupported by vgmstream, mainly headerless audio.
+TXTH is simply a text file with text commands that tells *vgmstream* how to play an unknown format.
 
-When an unsupported file is loaded (for instance `bgm01.snd`), vgmstream tries to find a TXTH header in the same dir, in this order:
-- `(filename.ext).txth`
-- `.(ext).txth`
-- `.txth`
+When you open an unsupported file (for instance `bgm01.adp`), vgmstream tries to find a TXTH in the same dir, in this order:
+- `(filename.extension).txth` (for a single file)
+- `.(extension).txth` (for all files in the folder with the same extension)
+- `.txth` (for all files in the folder)
 
-If found and parsed correctly, vgmstream will play the file as described.
+If found and parsed correctly, vgmstream will play the file as described in the `.txth`.
 
 ## Example of a TXTH file
-For an unsupported `bgm01.vag` this would be a simple TXTH for it:
+For an unsupported `bgm01.adp` file this could be a TXTH that makes it playable:
 ```
-codec = PSX                 #data uses PS-ADPCM
-sample_rate = @0x10$2       #get sample rate at offset 0x10, 16 bit value
-channels = @0x14            #get number of channels at offset 14
-interleave = 0x1000         #fixed value
-start_offset = 0x100        #data starts after exactly this value
-num_samples = data_size     #find automatically number of samples in the file
-loop_flag = auto            #find loop points in PS-ADPCM
+codec = IMA                 # data uses IMA-ADPCM codec
+sample_rate = 44100         # fixed sample rate (tweak if sounds too fast/slow)
+channels = 2                # file is stereo
+start_offset = 0x20         # first 0x20 bytes are not audio
+num_samples = data_size     # audio length is automatically calculated
 ```
-A text file with the above commands must be saved as `.vag.txth` or `.txth` (preferably the former), notice it starts with a "." (dot). On some Windows versions files starting with a dot need to be created by appending a dot at the end when renaming: `.txth.`
+Make a plain text file with the above text, and save it as `.adp.txth` or `.txth` (preferably the former), then play `bgm01.adp` with vgmstream. You will need to tweak `codec` and other parameters for your case (ask for support in vgm communities).
 
-While the main point is playing the file, many of TXTH's features are aimed towards keeping original data intact, for documentation and preservation purposes; try leaving data as untouched as possible and consider how the game plays the file, as there is a good chance some feature can mimic it.
+Notice the `.txth` file starts with a "." (dot). On some Windows versions files starting with a dot need to be created by appending a dot at the end when renaming: `.txth.`.
+
+A slightly more complex example, where some values are read from the file itself:
+```
+codec = PSX                 # data uses PS-ADPCM codec
+interleave = 0x1000         # interleaved channel blocks
+channels = @0x08$2          # get number of channels at offset 0x14, 16 bit value
+sample_rate = @0x10:BE      # get sample rate at offset 0x10, in big endian order
+num_samples = @0x18         # audio length in samples at offset 0x18
+start_offset = @0x1c        # data starts after value at offset 0x1c
+loop_flag = auto            # find loop points in PS-ADPCM
+```
+
+While the main point is playing the file, many of TXTH's features are aimed towards keeping original data intact, for documentation and preservation purposes. Consider leaving data untouched and how the game could process the file, as there is a good chance some TXTH feature can mimic that and make audio playable.
 
 Also check the [examples](#examples) section for some quick recipes, of varying complexity.
 
@@ -85,6 +96,8 @@ as explained below, but often will use default values. Accepted codec strings:
 # - PCM16LE        PCM 16-bit little endian
 #   * For many games (usually on PC)
 #   * Interleave is multiple of 0x2 (default)
+# - PCM16LE_U      PCM 16-bit little endian unsigned
+#   * Variation for very rare games [Go Go Strike (AC)]
 # - PCM16BE        PCM 16-bit big endian
 #   * Variation for certain consoles (GC/Wii/PS3/X360)
 # - PCM8           PCM 8-bit signed
@@ -92,11 +105,9 @@ as explained below, but often will use default values. Accepted codec strings:
 #   * Interleave is multiple of 0x1 (default)
 # - PCM8_U         PCM 8-bit unsigned
 #   * Variation with modified encoding
-# - PCM8_U_int     PCM 8-bit unsigned (interleave block)
-#   * Variation with modified encoding
 # - PCM8_SB        PCM 8-bit with sign bit
 #   * Variation with modified encoding
-#   * For few rare games [Sonic CD (SCD)]
+#   * For few rare games [Sonic CD (SCD), Road Avenger (SCD)]
 # - PCM24LE        PCM 24-bit little endian
 #   * For few rare games [100% Orange Juice (PC)-sfx]
 #   * Interleave is multiple of 0x3 (default)
@@ -113,6 +124,8 @@ as explained below, but often will use default values. Accepted codec strings:
 # - ALAW           A-Law 8-bit PCM
 #   * For few rare games [Illwinter Game Design games: Conquest of Elysium 3 (PC), Dominions 3/4 (PC)]
 #   * Interleave is multiple of 0x1 (default)
+# - DPCM_KCEJ      DPCM 8-bit (KCE Japan)
+#   * For rare games [Metal Gear Solid 2 (PS2)-cutscenes]
 #
 # - IMA            IMA ADPCM (mono/stereo)
 #   * For some PC games, and rarely consoles
@@ -122,18 +135,24 @@ as explained below, but often will use default values. Accepted codec strings:
 # - XBOX           Xbox IMA ADPCM (mono/stereo)
 #   * For many XBOX games, and some PC games
 #   * Special interleave is multiple of 0x24 (mono) or 0x48 (stereo)
+# - XBOX_SABER     Xbox IMA ADPCM (Saber Interactive)
+#   * For rare PC games [Halo 2 Anniversary Edition (PC)]
 # - MS_IMA         Microsoft IMA ADPCM
 #   * For some PC games
-#   * Interleave (frame size) varies, often multiple of 0x100 [required]
+#   * frame_size (or interleave) varies, often multiple of 0x100 [required]
+#   * frame_size + interleave forces mono mode
 # - APPLE_IMA4     Apple Quicktime IMA ADPCM
 #   * For some Mac/iOS games
 # - IMA_HV         High Voltage's IMA ADPCM
 #   * For some High Voltage Software PC games [NBA Hangtime (PC), NHL Open Ice (PC)]
+# - IMA_SNDS       Heavy Iron Studios's IMA ADPCM
+#   * For some Heavy Iron Studios PC games [The Incredibles (PC)]
 #
 # - MSADPCM        Microsoft ADPCM (mono/stereo)
 #   * For some PC games
-#   * Interleave (frame size) varies, often 0x2c/0x8c/0x100/0x400 and max 0x800 [required]
-
+#   * frame_size (or interleave) varies, often 0x2c/0x8c/0x100/0x400 and max 0x800 [required]
+#   * frame_size + interleave forces mono mode
+#
 # - AICA           Yamaha AICA ADPCM (mono/stereo)
 #   * For some Dreamcast games, and some arcade (Naomi) games
 #   * Special interleave is multiple of 0x1
@@ -152,11 +171,11 @@ as explained below, but often will use default values. Accepted codec strings:
 #
 # - ATRAC3         Sony ATRAC3
 #   * For some PS2 and PS3 games
-#   * Interleave (frame size) can be 0x60/0x98/0xC0 * channels [required]
+#   * frame_size (or interleave) can be 0x60/0x98/0xC0 * channels [required]
 #   * Should set skip_samples (around 1024+69 but varies)
 # - ATRAC3PLUS     Sony ATRAC3plus
 #   * For many PSP games and rare PS3 games
-#   * Interleave (frame size) can be: [required]
+#   * frame_size (or interleave) can be: [required]
 #     Mono: 0x0118|0178|0230|02E8
 #     Stereo: 0x0118|0178|0230|02E8|03A8|0460|05D0|0748|0800
 #     6/8 channels: multiple of one of the above
@@ -168,8 +187,9 @@ as explained below, but often will use default values. Accepted codec strings:
 #   * For later X360 games
 #
 # - AC3            AC3/SPDIF
-#   * For few PS2 games
+#   * For few PS2 games [Burnout (PS2)]
 #   * Should set skip_samples (around 256 but varies)
+#   * bytes-to-samples needs interleave, but only works for PS2-style AC3 (use sync work 0x72F8/0x770B rather than 0x0b77)
 # - AAC            Advanced Audio Coding (raw outside .mp4)
 #   * For some 3DS games and many iOS games
 #   * Should set skip_samples (typically 1024 but varies, 2112 is also common)
@@ -206,9 +226,9 @@ codec = (codec string)
 #### CODEC VARIATIONS
 Changes the behavior of some codecs:
 ```
+# - XBOX|EAXA: 0=standard (mono or stereo interleave), 1=force mono interleave mode
 # - NGC_DSP: 0=normal interleave, 1=byte interleave, 2=no interleave
 # - XMA1|XMA2: 0=dual multichannel (2ch xN), 1=single multichannel (1ch xN)
-# - XBOX|EAXA: 0=standard (mono or stereo interleave), 1=force mono interleave mode
 # - PCFX: 0=standard, 1='buggy encoder' mode, 2/3=same as 0/1 but with double volume
 # - PCM4|PCM4_U: 0=low nibble first, 1=high nibble first
 # - others: ignored
@@ -226,16 +246,43 @@ value_add|value_+ = (value)
 value_sub|value_- = (value)
 ```
 
-#### INTERLEAVE / FRAME SIZE [REQUIRED depending on codec]
-This value changes how data is read depending on the codec:
-- For mono/interleaved codecs it's the amount of data between channels, and while optional (defaults described in the "codec" section) you'll often need to set it to get proper sound.
-- For codecs with custom frame sizes (MSADPCM, MS-IMA, ATRAC3/plus) means frame size and is required.
-- Interleave 0 means "stereo mode" for codecs marked as "mono/stereo", and setting it will usually force mono-interleaved mode.
+#### INTERLEAVE [REQUIRED depending on codec]
+This value changes how data is read, and while optional (defaults described in the "codec" section) you'll often need it to get proper sound.
+
+Roughly speaking interleave is the separation between data of each channel (or the size of a data chunk). For example `interleave = 0x02` means there are 2 bytes of data from channel 1, then 2 bytes from channel 2, then bytes for other channels if any (this is common for PCM16LE, where 2 bytes = 1 sample). While `interleave = 0x1000` works the same but means there is a lot more data of one channel before next channel:
+```
+interleave = 0x02:    | ch1 | ch2 | ch1 | ch2 | ...
+interleave = 0x08:    | ch1 ch1 ch1 ch1 | ch2 ch2 ch2 ch2 | ch1 ch1 ch1 ch1 | ch2 ch2 ch2 ch2 | ...
+```
+
+Incorrect interleave will usually sound like audio is "fragmented" or noisy (since channel data is misinterpreted), but it's usually easy enough to try a few common values until it sounds right. Interleave needs to be a multiple of some value (PCM16LE is multiple of 0x02 so can't use interleave 0x05).
 
 Special values:
 - `half_size`: sets interleave as data_size / channels automatically
 ```
 interleave = (value)|half_size
+```
+
+##### Special cases
+Depending on the codec itself interleave has certain implications:
+- mono-interleaved codecs: uses default value or value in `interleave` as described above
+- mono/stereo codecs: no default, setting interleave usually forces mono-interleaved mode (if known cases exists)
+- codecs with frame sizes: if `interleave` is set but `frame_size` isn't set, it'll use the former as `frame_size` (see below)
+- other codecs: ignored
+
+Mono/stereo codecs are a bit particular in that they have two modes. For 1 channel files mono mode is always used. But for stereo files, different games may have either mono-interleave data or stereo data:
+- stereo file uses mono data: set interleave (forces mono mode with interleaved chunks)
+- stereo file uses stereo data: don't set interleave (forces stereo mode with linear chunks)
+
+It's technically possible that a game could use stereo mode with interleave for multichannel, but isn't handled at the moment.
+
+#### FRAME SIZE [REQUIRED depending on codec]
+Codecs with custom frame sizes (MSADPCM, MS-IMA, ATRAC3/plus) need `frame_size`. "frame size" is the amount of data the decoder needs as a single unit. Conceptually it's similar to interleave, so to simplify usage you may set `interleave` instead of `frame_size`.
+
+It's possible though rare (seen in some MSADPCM files) that a game needs a `frame_size` then sets another `interleave` value, for example has frame_size 0x100 with mono interleave 0x400. This means it reads multiple smaller 0x100 for one channel up to 0x400, then next channel, etc.
+
+```
+frame_size = (value)
 ```
 
 #### INTERLEAVE IN THE LAST BLOCK
@@ -273,11 +320,13 @@ id_check = (value)
 ```
 
 #### NUMBER OF CHANNELS [REQUIRED]
+How many audio channels the file has, typically 2 (stereo).
 ```
 channels = (value)
 ```
 
-#### MUSIC FREQUENCY [REQUIRED]
+#### AUDIO FREQUENCY [REQUIRED]
+Number of samples per second, typically 48000/44100/32000/24000/22050/11025.
 ```
 sample_rate = (value)
 ```
@@ -334,6 +383,14 @@ num_samples         = (value)|data_size
 loop_start_sample   = (value)
 loop_end_sample     = (value)|data_size
 ```
+
+If values are in bytes, you can use these instead. They will convert bytes-to-samples automatically (equivalent to `sample_type = bytes`)
+```
+num_samples_bytes   = (value)
+loop_start_bytes    = (value)
+loop_end_bytes      = (value)
+```
+
 
 #### LOOP SETTINGS
 Force loop on or off, as loop start/end may be defined but not used. If not set, by default it loops when loop_end_sample is defined and not bigger than num_samples.
@@ -396,7 +453,7 @@ State values can be little or big endian (usually BE for DSP), set `hist_endiann
 
 Normally audio starts with silence or hist samples are set to zero and can be ignored, but it does affect a bit resulting output.
 
-Currently used by DSP.
+Currently used by DSP and IMA.
 ```
 hist_offset = (value)
 hist_spacing = (value)
@@ -406,19 +463,20 @@ hist_endianness = BE|LE|(value)
 #### HEADER/BODY SETTINGS
 Changes internal header/body representation to external files.
 
-TXTH commands are done on a "header", and decoding on "body". When loading an unsupported file it becomes the "base" file
-that loads the .txth, and is both header and body.
+TXTH commands are done on a "header", and decoding on "body". When loading an unsupported file it becomes the "base" file that loads the .txth, and is both header and body.
 
 You can alter those, mainly for files that split header and body in separate files (load base file and txth sets header on another file). It's also possible to load the .txth directly with a set body, as a sort of "reverse TXTH" (useful with bigfiles, as you could have one .txth per song).
 
 Allowed values:
-- (filename): open any file, subdirs also work (dir/filename)
-- *.(extension): opens with same name as the "base" file (the one you open, not the .txth) plus another extension
-- null: unloads file and goes back to defaults (body/header = base file).
+- `(filename)`: open any file, subdirs also work (dir/filename)
+- `*.(extension)`: opens with same name as the "base" file (the one you open, not the .txth) plus another extension
+- `.txtm`: uses an external .txtm to decide which file is opened (see USAGE.md).
+- `null`: unloads file and goes back to defaults (body/header = base file).
 ```
 header_file = (filename)|*.(extension)|null
 body_file = (filename)|*.(extension)|null
 ```
+`head_file` can be used as an alt of `header_file`.
 
 #### SUBSONGS
 Sets the number of subsongs in the file, adjusting reads per subsong N: `value = @(offset) + subsong_spacing*N`. Number/constants values aren't adjusted though.
@@ -431,7 +489,12 @@ subsong_count = (value)
 subsong_spacing = (value)
 ```
 
-A experimental field is `subsong_sum = (value)`, that sums all subsong values up to current subsong. Mainly meant when offsets are the sum of subsong sizes: if you have a table of sizes at 0x10 for 3 subsongs, each of size 0x1000, then `subsong_sum = @0x10` for first subsong sums 0x0000, 0x1000 for second, 0x2000 for third (can be used later as `start_offset = subsong_sum`).
+##### SUBSONGS HELPERS
+Some experimental fields for special calculations:
+
+`subsong_sum = (value)` sums values at offset for all subsongs up to current subsong. Mainly used to calculate subsong offset from sizes. Example: `subsong_sum = @0x10` + `start_offset = subsong_sum`.
+
+`subsong_delta = (value)`: substracts next subsong's value with current value. Mainly used to calculate subsong size from offsets. Example: `subsong_delta = @0x14` + `data_size = subsong_delta`. The 'next' value in the last subsong can be configured with `subsong_delta_max` (defaults to data_size).
 
 #### NAMES
 Sets the name of the stream, most useful when used with subsongs. TXTH will read a string at `name_offset`, with `name_size characters`.
@@ -547,6 +610,8 @@ You can set a default offset that affects next `@(offset)` reads making them `@(
 This is particularly interesting when combined with offsets to some long value. For example instead of `channels = @0x714` you could set `base_offset = 0x710, channels = @0x04`. Or values from the `name_table`, like `base_offset = name_value, channels = @0x04`.
 
 It also allows parsing formats that set offsets to another offset, by "chaining" `base_offset`. With `base_offset = @0x10` (pointing to `0x40`) then `base_offset = @0x20`, it reads value at `0x60`. Set to 0 when you want to disable/reset the chain: `base_offset = @0x10` then `base_offset = 0` then `base_offset = @0x20` reads value at `0x20`
+
+You can also use `base_offset` to read values from the end of the stream: `base_offset = data_size - 0x100`.
 
 ```
 base_offset = (value)
@@ -887,6 +952,19 @@ num_samples = data_size
 #@0x04 number of 0x800 sectors
 ```
 
+#### Metal Gear Solid 2 Substance (PC) .txth
+```
+# cutscene/voices use mono interleave for stereo tracks, set both frame_size and interleave
+codec = MSADPCM
+frame_size = 0x400
+interleave = 0x800
+sample_rate = @0x06:BE$2
+channels = @0x08$1
+# 0a: codec (11=msapdcm)
+start_offset = 0x10
+num_samples = data_size
+```
+
 #### Colin McRae DiRT (PC) .wip.txth
 ```
 # first check that value at 0x00 is really 0x00000000 (rarely needed though)
@@ -1025,7 +1103,7 @@ subfile_size      = ((@0x04 - @0x00) & 0xFFFFF) * 0x800
 
 #### Zack & Wiki (Wii) .ssd.txth
 ```
-header_file = bgm_S01.srt
+header_file = .txtm
 name_table = .names.txt
 
 base_offset = @0x0c:BE
@@ -1049,53 +1127,36 @@ coef_endianness = BE
 ```
 *.names.txt*
 ```
-st_s01_00a.ssd: 0*0x04
-st_s01_00b.ssd: 1*0x04
-st_s01_00c.ssd: 2*0x04
-st_s01_01a.ssd: 3*0x04
-st_s01_01b.ssd: 4*0x04
-st_s01_02a.ssd: 5*0x04
-st_s01_02b.ssd: 6*0x04
-st_s01_02c.ssd: 7*0x04
+01_st_s01_01b.ssd: 0 * 0x04
+02_st_s01_00b.ssd: 1 * 0x04
+03_st_s01_01a.ssd: 2 * 0x04
+04_st_s01_02a.ssd: 3 * 0x04
+05_st_s01_02b.ssd: 4 * 0x04
+06_st_s02_00.ssd: 5 * 0x04
+...
+st_s_ajito.ssd: 0 * 0x04
+st_s_select.ssd: 1 * 0x04
+st_s_result.ssd: 2 * 0x04
+st_s_remocon.ssd: 3 * 0x04
+st_s_usagi.ssd: 4 * 0x04
+st_j_item.ssd: 5 * 0x04
+...
 ```
-
-#### Zack & Wiki (Wii) st_s01_00a.txth
+*.txtm*
 ```
-#alt from above with untouched folders
-header_file = Sound/BGM/bgm_S01.srt
-body_file = snd/stream/st_s01_00a.ssd
-name_table = .names.txt
+01_st_s01_01b.ssd: srt/bgm_S09.srt
+02_st_s01_00b.ssd: srt/bgm_S09.srt
+03_st_s01_01a.ssd: srt/bgm_S09.srt
+04_st_s01_02a.ssd: srt/bgm_S09.srt
+05_st_s01_02b.ssd: srt/bgm_S09.srt
+...
 
-base_offset = @0x0c:BE
-base_offset = base_offset + @0x08:BE + name_value
-base_offset = base_offset + @0x00:BE - name_value
-
-codec = NGC_DSP
-channels = 2
-interleave = half_size
-sample_rate = @0x08:BE
-loop_flag = @0x04:BE
-
-sample_type = bytes
-loop_start_sample = @0x10:BE
-loop_end_sample = @0x14:BE
-num_samples = @0x18:BE
-
-coef_offset = 0x20
-coef_spacing = 0x40
-coef_endianness = BE
-```
-*.names.txt*
-```
-*snd/stream/st_s01_00a.ssd: 0*0x04
-*snd/stream/st_s01_00b.ssd: 1*0x04
-*snd/stream/st_s01_00c.ssd: 2*0x04
-*snd/stream/st_s01_01a.ssd: 3*0x04
-*snd/stream/st_s01_01b.ssd: 4*0x04
-*snd/stream/st_s01_02a.ssd: 5*0x04
-*snd/stream/st_s01_02b.ssd: 6*0x04
-*snd/stream/st_s01_02c.ssd: 7*0x04
-# uses wildcards for full paths from plugins
+st_s_ajito.ssd: srt/bgm_SYS.srt
+st_s_select.ssd: srt/bgm_SYS.srt
+st_s_result.ssd: srt/bgm_SYS.srt
+st_s_remocon.ssd: srt/bgm_SYS.srt
+st_s_usagi.ssd: srt/bgm_SYS.srt
+...
 ```
 
 #### Croc (SAT) .asf.txth
@@ -1383,4 +1444,18 @@ chunk_count = 1
 chunk_start = 0x28 #first chunk after header
 
 num_samples = data_size
+```
+
+#### FIFA 99 (PC) .OFF.txth
+```
+body_file = *.STR
+subsong_count = @0x00 * @0x04 #cues + variations?
+base_offset = @0x00 * 0x04 + 0x08
+
+subsong_spacing = 0x04
+subsong_delta = @0x00 #size from offset
+
+subfile_offset = @0x00
+subfile_size = subsong_delta
+subfile_extension = str
 ```

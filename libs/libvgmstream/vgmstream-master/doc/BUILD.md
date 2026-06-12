@@ -22,7 +22,7 @@ Though it's rather flexible (like using Windows with GCC and autotools), some co
 ```sh
 sudo apt-get update
 # base deps
-sudo apt-get install -y gcc g++ make cmake build-essential git
+sudo apt-get install -y gcc g++ make cmake build-essential git pkg-config
 # optional: for extra formats (can be ommited to build with static libs)
 sudo apt-get install -y libmpg123-dev libvorbis-dev libspeex-dev
 sudo apt-get install -y libavformat-dev libavcodec-dev libavutil-dev libswresample-dev
@@ -123,11 +123,15 @@ First, follow the *Emscripten* installation instructions:
 
 Though basically:
 ```sh
+apt-get install -y python3
+
 git clone https://github.com/emscripten-core/emsdk
 cd emsdk
 ./emsdk install latest
 ./emsdk activate latest
 source ./emsdk_env.sh
+
+emsdk
 ```
 
 Then you should be able to build it on **Linux** (**Windows** should be possible too, but has some issues at the moment), for example with CMake:
@@ -369,14 +373,14 @@ Requires the dev version of Audacious (and dependencies), autotools (automake/au
 
 The plugin needs Audacious 3.5 or higher. New Audacious releases can break plugin compatibility so it may not work with the latest version unless adapted first.
 
+If you get errors during the build phase we probably forgot some `#ifdef` needed for Audacious, please [notify us](https://github.com/vgmstream/vgmstream/issues) if that happens.
+
+Take note of other plugins stealing extensions (see [USAGE.md](USAGE.md#common-and-unknown-extensions)). To change Audacious's default priority for vgmstream you can make with CFLAG `AUDACIOUS_VGMSTREAM_PRIORITY n` (where `N` is a number where 10=lowest).
+
+**Windows** builds aren't supported at the moment (should be possible but there are complex dependency chains). Note that you can compile and run Audacious (GUI+sound included) with a recent-ish version of Windows's *WSL*: install *WSL*, some Ubuntu image through *Windows Store* and follow the `sh` commands below. You may need to change Audacious's *Output > audio settings > Output plugin* to PulseAudio or ALSA.
+
+#### Compilation
 CMake should handle all correctly, while when using autotools, libvorbis/libmpg123/libspeex will be used if found, while FFmpeg and other external libraries aren't enabled at the moment, thus some formats won't work (build scripts need to be fixed).
-
-**Windows** builds aren't supported at the moment (should be possible but there are complex dependency chains).
-
-If you get errors during the build phase, we probably forgot some `#ifdef` needed for Audacious, please [notify us](https://github.com/vgmstream/vgmstream/issues) if that happens.
-
-Take note of other plugins stealing extensions (see [USAGE.md](USAGE.md#common-and-unknown-extensions)). To change Audacious's default priority for vgmstream you can make with CFLAG `AUDACIOUS_VGMSTREAM_PRIORITY n` (where `N` is a number where 10=lowest)
-
 
 You can try building with CMake. See the build steps in the [Cmake section](#cmake-builds). Some older distros may not work though (CMake version needs to recognize FILTER command), and may need to install resulting artifacts manually (check `./audacious` dir).
 
@@ -396,6 +400,10 @@ sudo apt-get install audacious
 sudo apt-get install audacious-dev libglib2.0-dev libgtk2.0-dev libpango1.0-dev
 # vgmstream123 dependencies (optional)
 sudo apt-get install libao-dev
+# probably included by default (audio output can be changed in Audacious's config)
+#sudo apt-get install pulseaudio pulseaudio-utils
+#sudo apt-get install alsa-base alsa-utils
+
 
 # check Audacious version >= 3.5
 pkg-config --modversion audacious
@@ -446,33 +454,41 @@ Should be buildable with Autotools/CMake by following the same steps as listen i
 
 
 ## Shared lib
-Currently there isn't an official way to make vgmstream a shared lib (`.so`/`.dll`), but it can be achieved with some effort.
+There is a public API, using `libvgmstream.h` and `libvgmstream_streamfile.h`.
 
-For example with CMake (outputs in `build/src/libvgmstream.so`):
-```sh
-mkdir -p build
-cd build
-cmake ..
-make libvgmstream_shared
-```
+With CMake build with `-DBUILD_SHARED_LIBS:BOOL=YES` to make `libvgmstream` (`.so`/`.dll`).
 
 Or with the basic makefiles:
 ```sh
 # build all of the intermediates with relocatable code
 # *note*: quick hack with performance penalty, needs better dependency rules
-make vgmstream_cli EXTRA_CFLAGS=-fPIC
+make vgmstream_cli EXTRA_CFLAGS=-fPIC -DLIBVGMSTREAM_EXPORT
 
 # build the actual shared library
 make -C src libvgmstream.so
 ```
 
-May also need to take `vgmstream.h`, `streamfile.h` and `plugins.h`, and trim them somewhat to use as includes for the `.so`.
+Example for MSVC:
+```bat
+cmake -A x64 -S . -B build -G "Visual Studio 17 2022"^
+    -DBUILD_CLI:BOOL=OFF^
+    -DBUILD_FB2K:BOOL=OFF^
+    -DBUILD_WINAMP:BOOL=OFF^
+    -DBUILD_XMPLAY:BOOL=OFF^
+    -DUSE_CELT:BOOL=OFF^
+    -DUSE_G719:BOOL=OFF^
+    -DUSE_G7221:BOOL=OFF^
+    -DUSE_MPEG:BOOL=OFF^
+    -DUSE_SPEEX:BOOL=OFF^
+    -DUSE_VORBIS:BOOL=OFF^
+    -DUSE_ATRAC9:BOOL=ON^
+    -DBUILD_SHARED_LIBS:BOOL=YES
 
-For MSVC, you could add `__declspec(dllexport)` to exported functions in the "public" API of the above `.h`, and set `<ConfigurationType>DynamicLibrary</ConfigurationType>` in `libvgmstream.vcxproj`, plus add a `<Link>` under `<ClCompile>` to those libs (copy from `vgmstream_cli.vcxproj`).
+cmake --build build --config MinSizeRel
+```
+Replace `Visual Studio 17 2022` with your tool (like `Visual Studio 16 2019`) and `-A x64` with `-A Win32` for 32-bit DLLs.
 
-For integration and "API" usage, easiest would be checking how `vgmstream_cli.c` works.
-
-A cleaner API/.h and build methods is planned for the future (low priority though).
+For integration and API usage, easiest would be checking how `vgmstream_cli.c` or other plugins use `libvgmstream.h`.
 
 
 ## External libraries

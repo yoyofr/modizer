@@ -67,7 +67,7 @@ export RMF SHELL CC AR STRIP WINDRES DLLTOOL
 ###############################################################################
 ### build defs
 
-DEF_CFLAGS += -ffast-math -O3 -Wall -Werror=format-security -Wvla -Wimplicit-function-declaration -Wignored-qualifiers
+DEF_CFLAGS += -ffast-math -O3 -Wall -Werror=format-security -Wvla -Wimplicit-function-declaration -Wignored-qualifiers -Wmissing-declarations
 
 VGM_DEBUG_FLAGS = 0
 ifeq ($(VGM_DEBUG_FLAGS),1)
@@ -101,6 +101,14 @@ LIBS_TARGET_EXT_LIBS=
 #endif
 ifneq ($(VGM_X64),0)
   DEF_CFLAGS += -m64
+endif
+
+ifeq ($(TARGET_OS),Windows_NT)
+  VGM_UNICODE = 1
+  ifneq ($(VGM_UNICODE),0)
+    # -DUNICODE/_UNICODE forces certain APIs to use UTF-16
+    DEF_CFLAGS  += -DUNICODE -D_UNICODE -DVGM_STDIO_UNICODE -municode
+  endif
 endif
 
 # config libs
@@ -280,6 +288,9 @@ vgmstream_cli: version
 vgmstream123: version
 	$(MAKE) -C cli vgmstream123
 
+api_example: version
+	$(MAKE) -C cli api_example
+
 winamp: version
 	$(MAKE) -C winamp in_vgmstream
 
@@ -297,4 +308,4 @@ clean:
 	$(MAKE) -C xmplay clean
 	$(MAKE) -C ext_libs clean
 
-.PHONY: clean buildfullrelease buildrelease sourceball bin vgmstream-cli vgmstream_cli vgmstream123 winamp xmplay version
+.PHONY: clean buildfullrelease buildrelease sourceball bin vgmstream-cli vgmstream_cli vgmstream123 api_example winamp xmplay version

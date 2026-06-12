@@ -161,7 +161,6 @@ fail:
 
 static int _init_vgmstream_ogg_vorbis_tests(STREAMFILE* sf, ogg_vorbis_io_config_data* cfg, ogg_vorbis_meta_info_t* ovmi) {
 
-
     /* standard  */
     if (is_id32be(0x00,sf, "OggS")) {
 
@@ -171,9 +170,13 @@ static int _init_vgmstream_ogg_vorbis_tests(STREAMFILE* sf, ogg_vorbis_io_config
          * .acm: Planescape Torment Enhanced Edition (PC)
          * .sod: Zone 4 (PC)
          * .msa: Metal Slug Attack (Mobile)
-         * .bin/lbin: Devil May Cry 3: Special Edition (PC) */
-        if (check_extensions(sf,"ogg,logg,adx,rof,acm,sod,msa,bin,lbin"))
-            return 1;
+         * .bin/lbin: Devil May Cry 3: Special Edition (PC)
+         * .oga: Aqua Panic! (PC), Heroes of Annihilated Empires (PC)-pre-demuxed movie audio 
+         * .ogs: Exodus from the Earth (PC)
+         * .ogv: Tenshi no Hane wo Fumanaide (PC)
+         * .snd: Raillore no Ryakudatsusha (Android) */
+        if (check_extensions(sf,"ogg,logg,adx,rof,acm,sod,msa,bin,lbin,oga,ogs,ogv,snd"))
+            return true;
         /* ignore others to allow stuff like .sngw */
     }
 
@@ -186,7 +189,7 @@ static int _init_vgmstream_ogg_vorbis_tests(STREAMFILE* sf, ogg_vorbis_io_config
 
         cfg->start = 0x20;
 
-        /* .kvs: Atelier Sophie (PC)
+        /* .kvs: Atelier Sophie (PC), debug strings
          * .kovs: header id only? */
         if (!check_extensions(sf,"kvs,kovs"))
             goto fail;
@@ -266,7 +269,7 @@ static int _init_vgmstream_ogg_vorbis_tests(STREAMFILE* sf, ogg_vorbis_io_config
 
     /* encrypted [Adventure Field 4 (PC)] */
     if (read_u32be(0x00,sf) == 0x4F756F71) {
-        ovmi->decryption_callback = at4_ogg_decryption_callback; //TODO replace with generic descryption?
+        ovmi->decryption_callback = at4_ogg_decryption_callback; //TODO replace with generic decryption?
 
         if (!check_extensions(sf,"ogg,logg"))
             goto fail;
@@ -314,7 +317,7 @@ static int _init_vgmstream_ogg_vorbis_tests(STREAMFILE* sf, ogg_vorbis_io_config
             uint32_t key = i;
             for (int round = 0; round < 8; round++) {
                 uint32_t tmp1 = (key >> 1);
-                uint32_t tmp2 = -(key & 1) & 0xEDB88324;
+                uint32_t tmp2 = (key & 1) ? 0xEDB88324 : 0; //original (UB-ish): -(key & 1) & 0xEDB88324;
                 key = tmp1 ^ tmp2;
             }
             if (key == 0)
@@ -330,6 +333,17 @@ static int _init_vgmstream_ogg_vorbis_tests(STREAMFILE* sf, ogg_vorbis_io_config
         return 1;
     }
 
+    /* .owp: anemoi (PC) (RealLive engine?) */
+    if (read_u32be(0x00,sf) == 0x765E5E6A) { 
+        cfg->key[0] = 0x39;
+        cfg->key_len = 1;
+        cfg->is_encrypted = 1;
+
+        if (!check_extensions(sf,"owp"))
+            goto fail;
+
+        return 1;
+    }
 
     /***************************************/
     /* harder to check (could be improved) */
@@ -398,7 +412,7 @@ static int _init_vgmstream_ogg_vorbis_tests(STREAMFILE* sf, ogg_vorbis_io_config
                 /* try in ../(file) too since that's how the .isl is stored on disc */
                 char isl_path[PATH_LIMIT];
                 snprintf(isl_path, sizeof(isl_path), "../%s", isl_name);
-                sf_isl = open_streamfile_by_filename(sf, isl_path);
+                sf_isl = open_streamfile_by_pathname(sf, isl_path);
             }
 
             if (sf_isl) {
@@ -651,7 +665,7 @@ static VGMSTREAM* _init_vgmstream_ogg_vorbis_config(STREAMFILE* sf, off_t start,
                 || strstr(comment,"LOOPSTART=") == comment                  /* common? */
                 || strstr(comment,"um3.stream.looppoint.start=") == comment /* Ultramarine / Bruns Engine files */
                 || strstr(comment,"LOOP_BEGIN=") == comment                 /* Hatsune Miku: Project Diva F (PS3) */
-                || strstr(comment,"LoopStart=") == comment                  /* Capcom games [Devil May Cry 4 (PC)] */
+                || strstr(comment,"LoopStart=") == comment                  /* Capcom games [Devil May Cry 4 (PC), Street Fighter III 3rd Strike for NESiCAxLive (AC)] */
                 || strstr(comment,"LOOP=") == comment                       /* Duke Nukem 3D: 20th Anniversary World Tour */
                 || strstr(comment,"XIPH_CUE_LOOPSTART=") == comment         /* DeNa games [Super Mario Run (Android), FF Record Keeper (Android)] */
                 || strstr(comment,"LOOPS=") == comment                      /* The Rumble Fish + (Switch) */
@@ -659,14 +673,16 @@ static VGMSTREAM* _init_vgmstream_ogg_vorbis_config(STREAMFILE* sf, off_t start,
                 loop_start = atol(strrchr(comment,'=')+1);
                 loop_flag = (loop_start >= 0);
             }
-            else if (strstr(comment,"LOOPLENGTH=") == comment) {            /* (LOOPSTART pair) */
+            else if (strstr(comment,"LOOPLENGTH=") == comment) {            // (LOOPSTART pair) [Ys VI (PC), Zwei II, Steins;Gate 0 (PC)]
                 loop_length = atol(strrchr(comment,'=')+1);
                 loop_length_found = 1;
             }
-            else if (  strstr(comment,"LoopEnd=") == comment                /* (LoopStart pair) */
-                    || strstr(comment,"LOOP_END=") == comment               /* (LOOP_START/LOOP_BEGIN pair) */
-                    || strstr(comment, "XIPH_CUE_LOOPEND=") == comment      /* (XIPH_CUE_LOOPSTART pair) */
-                    || strstr(comment, "LOOPE=") == comment                 /* (LOOPS pair) */
+            else if (  strstr(comment,"loop_end=") == comment               // (not seen but in case loop_start is used, to avoid full loops)
+                    || strstr(comment,"LOOP_END=") == comment               // (LOOP_START/LOOP_BEGIN pair)
+                    || strstr(comment,"LoopEnd=") == comment                // (LoopStart pair)
+                  //|| strstr(comment,"LOOPEND=") == comment                // (LOOPSTART pair) [Siralim (PC)-incorrect end]
+                    || strstr(comment, "XIPH_CUE_LOOPEND=") == comment      // (XIPH_CUE_LOOPSTART pair)
+                    || strstr(comment, "LOOPE=") == comment                 // (LOOPS pair)
                     ) {
                 loop_end = atol(strrchr(comment, '=') + 1);
                 loop_end_found = 1;
@@ -686,7 +702,7 @@ static VGMSTREAM* _init_vgmstream_ogg_vorbis_config(STREAMFILE* sf, off_t start,
                 loop_end_found = 1;
                 loop_flag = 1;
             }
-            else if (strstr(comment,"LOOPDEFS=") == comment) {              /* Fairy Fencer F: Advent Dark Force */
+            else if (strstr(comment,"LOOPDEFS=") == comment) {              // Fairy Fencer F: Advent Dark Force (PC), Lost Dimension (PC), Tokyo Xanadu (PC)
                 sscanf(strrchr(comment,'=')+1,"%d,%d", &loop_start,&loop_end);
                 loop_end_found = 1;
                 loop_flag = 1;
@@ -706,10 +722,10 @@ static VGMSTREAM* _init_vgmstream_ogg_vorbis_config(STREAMFILE* sf, off_t start,
                 loop_flag = 1;
             }
             else if (strstr(comment,"M=7F") == comment) {                   /* Megaman X Legacy Collection: MMX1/2/3 (PC) start/end */
-                if (loop_flag && loop_start < 0) { /* LoopStart should set as -1 before */
+                if (loop_flag && loop_start < 0 && loop_end <= 0) { /* LoopStart should set as -1 before */
                     sscanf(comment,"M=7F%x", &loop_start);
                 }
-                else if (loop_flag && loop_start >= 0) {
+                else if (loop_flag && loop_start >= 0 && loop_end <= 0) {
                     sscanf(comment,"M=7F%x", &loop_end);
                     loop_end_found = 1;
                 }
@@ -737,6 +753,19 @@ static VGMSTREAM* _init_vgmstream_ogg_vorbis_config(STREAMFILE* sf, off_t start,
                     loop_flag = 1;
                     loop_end_found = 1;
                 }
+            }
+            else if (strstr(comment,"COMMENT=SetSample ") == comment) {   /* Ore no Tsure wa Hito de Nashi (PC) */
+                int unk0; // always 0 (delay?)
+                int m = sscanf(comment,"COMMENT=SetSample %d,%d,%d", &unk0, &loop_start, &loop_end);
+                if (m == 3) {
+                    loop_flag = true;
+                    loop_end_found = true;
+                }
+            }
+            else if (strstr(comment,"L=") == comment) { /* Kamaitachi no Yoru 2 (PS2) */
+                //sscanf(strrchr(comment,'=')+1,"%d", &loop_start);
+                loop_start = atol(strrchr(comment,'=')+1);
+                loop_flag = 1;
             }
 
             /* Hatsune Miku Project DIVA games, though only 'Arcade Future Tone' has >4ch files

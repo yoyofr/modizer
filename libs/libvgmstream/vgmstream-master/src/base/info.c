@@ -1,9 +1,13 @@
 #include <ctype.h>
-#include "../vgmstream.h"
+#include "info.h"
 #include "../coding/coding.h"
+#include "../layout/layout.h"
 #include "mixing.h"
+#include "play_state.h"
 #include "../util/channel_mappings.h"
 #include "../util/sf_utils.h"
+
+#define TEMPSIZE (256+32)
 
 /*******************************************************************************/
 /* TEXT                                                                        */
@@ -12,7 +16,7 @@
 static void describe_get_time(int32_t samples, int sample_rate, double* p_time_mm, double* p_time_ss) {
     double seconds = (double)samples / sample_rate;
     *p_time_mm = (int)(seconds / 60.0);
-    *p_time_ss = seconds - *p_time_mm * 60.0f;
+    *p_time_ss = seconds - *p_time_mm * 60.0;
     if (*p_time_ss >= 59.999) /* avoid round up to 60.0 when printing to %06.3f */
         *p_time_ss = 59.999;
 }
@@ -20,7 +24,6 @@ static void describe_get_time(int32_t samples, int sample_rate, double* p_time_m
 /* Write a description of the stream into array pointed by desc, which must be length bytes long.
  * Will always be null-terminated if length > 0 */
 void describe_vgmstream(VGMSTREAM* vgmstream, char* desc, int length) {
-#define TEMPSIZE (256+32)
     char temp[TEMPSIZE];
     double time_mm, time_ss;
 
@@ -32,7 +35,13 @@ void describe_vgmstream(VGMSTREAM* vgmstream, char* desc, int length) {
         return;
     }
 
-    snprintf(temp,TEMPSIZE, "sample rate: %d Hz\n", vgmstream->sample_rate);
+    int input_sample_rate = vgmstream->sample_rate;
+    int output_sample_rate = mixing_get_output_sample_rate(vgmstream);
+    if (output_sample_rate == 0)
+        output_sample_rate = input_sample_rate;
+
+
+    snprintf(temp,TEMPSIZE, "sample rate: %d Hz\n", output_sample_rate);
     concatn(length,desc,temp);
 
     snprintf(temp,TEMPSIZE, "channels: %d\n", vgmstream->channels);
@@ -51,7 +60,7 @@ void describe_vgmstream(VGMSTREAM* vgmstream, char* desc, int length) {
     }
 
     if (vgmstream->channel_layout) {
-        int cl = vgmstream->channel_layout;
+        uint32_t cl = vgmstream->channel_layout;
 
         /* not "channel layout: " to avoid mixups with "layout: " */
         snprintf(temp,TEMPSIZE, "channel mask: 0x%x /", vgmstream->channel_layout);
@@ -62,8 +71,8 @@ void describe_vgmstream(VGMSTREAM* vgmstream, char* desc, int length) {
         if (cl & speaker_LFE)   concatn(length,desc," LFE");
         if (cl & speaker_BL)    concatn(length,desc," BL");
         if (cl & speaker_BR)    concatn(length,desc," BR");
-        if (cl & speaker_FLC)   concatn(length,desc," FLC");
-        if (cl & speaker_FRC)   concatn(length,desc," FRC");
+        if (cl & speaker_FLC)   concatn(length,desc," FLC"); //FCL is also common
+        if (cl & speaker_FRC)   concatn(length,desc," FRC"); //FCR is also common
         if (cl & speaker_BC)    concatn(length,desc," BC");
         if (cl & speaker_SL)    concatn(length,desc," SL");
         if (cl & speaker_SR)    concatn(length,desc," SR");
@@ -83,16 +92,16 @@ void describe_vgmstream(VGMSTREAM* vgmstream, char* desc, int length) {
             concatn(length,desc,"looping: disabled\n");
         }
 
-        describe_get_time(vgmstream->loop_start_sample, vgmstream->sample_rate, &time_mm, &time_ss);
+        describe_get_time(vgmstream->loop_start_sample, output_sample_rate, &time_mm, &time_ss);
         snprintf(temp,TEMPSIZE, "loop start: %d samples (%1.0f:%06.3f seconds)\n", vgmstream->loop_start_sample, time_mm, time_ss);
         concatn(length,desc,temp);
 
-        describe_get_time(vgmstream->loop_end_sample, vgmstream->sample_rate, &time_mm, &time_ss);
+        describe_get_time(vgmstream->loop_end_sample, output_sample_rate, &time_mm, &time_ss);
         snprintf(temp,TEMPSIZE, "loop end: %d samples (%1.0f:%06.3f seconds)\n", vgmstream->loop_end_sample, time_mm, time_ss);
         concatn(length,desc,temp);
     }
 
-    describe_get_time(vgmstream->num_samples, vgmstream->sample_rate, &time_mm, &time_ss);
+    describe_get_time(vgmstream->num_samples, input_sample_rate, &time_mm, &time_ss);
     snprintf(temp,TEMPSIZE, "stream total samples: %d (%1.0f:%06.3f seconds)\n", vgmstream->num_samples, time_mm, time_ss);
     concatn(length,desc,temp);
 
@@ -128,10 +137,11 @@ void describe_vgmstream(VGMSTREAM* vgmstream, char* desc, int length) {
         int32_t frame_size = vgmstream->frame_size > 0 ? vgmstream->frame_size : vgmstream->interleave_block_size;
         switch (vgmstream->coding_type) {
             case coding_MSADPCM:
-            case coding_MSADPCM_int:
+            case coding_MSADPCM_mono:
             case coding_MSADPCM_ck:
             case coding_MS_IMA:
-            case coding_MC3:
+            case coding_MS_IMA_mono:
+            case coding_MPC3:
             case coding_WWISE_IMA:
             case coding_REF_IMA:
             case coding_PSX_cfg:
@@ -168,103 +178,32 @@ void describe_vgmstream(VGMSTREAM* vgmstream, char* desc, int length) {
         concatn(length,desc,temp);
     }
 
-    if (vgmstream->config_enabled) {
-        int32_t samples = vgmstream->pstate.play_duration;
+    sfmt_t sfmt = mixing_get_input_sample_type(vgmstream);
+    if (sfmt != SFMT_S16) {
+        const char* sfmt_desc;
+        switch(sfmt) {
+            case SFMT_FLT: sfmt_desc = "float"; break;
+            case SFMT_F16: sfmt_desc = "float16"; break;
+            case SFMT_S16: sfmt_desc = "pcm16"; break;
+            case SFMT_S24: sfmt_desc = "pcm24"; break;
+            case SFMT_S32: sfmt_desc = "pcm32"; break;
+            case SFMT_O24: sfmt_desc = "pcm24"; break;
+            default: sfmt_desc = "???";
+        }
 
-        describe_get_time(samples, vgmstream->sample_rate, &time_mm, &time_ss);
+        snprintf(temp,TEMPSIZE, "sample type: %s\n", sfmt_desc);
+        concatn(length,desc,temp);
+    }
+
+
+    if (vgmstream->config_enabled) {
+        int32_t samples = vgmstream_get_samples(vgmstream);
+
+        describe_get_time(samples, output_sample_rate, &time_mm, &time_ss);
         snprintf(temp,TEMPSIZE, "play duration: %d samples (%1.0f:%06.3f seconds)\n", samples, time_mm, time_ss);
         concatn(length,desc,temp);
     }
-}
 
-void describe_vgmstream_info(VGMSTREAM* vgmstream, vgmstream_info* info) {
-    if (!info) {
-        return;
-    }
-
-    memset(info, 0, sizeof(*info));
-
-    if (!vgmstream) {
-        return;
-    }
-
-    info->sample_rate = vgmstream->sample_rate;
-
-    info->channels = vgmstream->channels;
-
-    {
-        int output_channels = 0;
-        mixing_info(vgmstream, NULL, &output_channels);
-
-        if (output_channels != vgmstream->channels) {
-            info->mixing_info.input_channels = vgmstream->channels;
-            info->mixing_info.output_channels = output_channels;
-        }
-    }
-
-    info->channel_layout = vgmstream->channel_layout;
-
-    if (vgmstream->loop_start_sample >= 0 && vgmstream->loop_end_sample > vgmstream->loop_start_sample) {
-        info->loop_info.start = vgmstream->loop_start_sample;
-        info->loop_info.end = vgmstream->loop_end_sample;
-    }
-
-    info->num_samples = vgmstream->num_samples;
-
-    get_vgmstream_coding_description(vgmstream, info->encoding, sizeof(info->encoding));
-
-    get_vgmstream_layout_description(vgmstream, info->layout, sizeof(info->layout));
-
-    if (vgmstream->layout_type == layout_interleave && vgmstream->channels > 1) {
-        info->interleave_info.value = vgmstream->interleave_block_size;
-
-        if (vgmstream->interleave_first_block_size && vgmstream->interleave_first_block_size != vgmstream->interleave_block_size) {
-            info->interleave_info.first_block = vgmstream->interleave_first_block_size;
-        }
-
-        if (vgmstream->interleave_last_block_size && vgmstream->interleave_last_block_size != vgmstream->interleave_block_size) {
-            info->interleave_info.last_block = vgmstream->interleave_last_block_size;
-        }
-    }
-
-    /* codecs with configurable frame size */
-    if (vgmstream->frame_size > 0 || vgmstream->interleave_block_size > 0) {
-        int32_t frame_size = vgmstream->frame_size > 0 ? vgmstream->frame_size : vgmstream->interleave_block_size;
-        switch (vgmstream->coding_type) {
-        case coding_MSADPCM:
-        case coding_MSADPCM_int:
-        case coding_MSADPCM_ck:
-        case coding_MS_IMA:
-        case coding_MC3:
-        case coding_WWISE_IMA:
-        case coding_REF_IMA:
-        case coding_PSX_cfg:
-            info->frame_size = frame_size;
-            break;
-        default:
-            break;
-        }
-    }
-
-    get_vgmstream_meta_description(vgmstream, info->metadata, sizeof(info->metadata));
-
-    info->bitrate = get_vgmstream_average_bitrate(vgmstream);
-
-    /* only interesting if more than one */
-    if (vgmstream->num_streams > 1) {
-        info->stream_info.total = vgmstream->num_streams;
-    }
-    else {
-        info->stream_info.total = 1;
-    }
-
-    if (vgmstream->num_streams > 1) {
-        info->stream_info.current = vgmstream->stream_index == 0 ? 1 : vgmstream->stream_index;
-    }
-
-    if (vgmstream->stream_name[0] != '\0') {
-        snprintf(info->stream_info.name, sizeof(info->stream_info.name), "%s", vgmstream->stream_name);
-    }
 }
 
 
@@ -310,7 +249,7 @@ static STREAMFILE* get_vgmstream_average_bitrate_channel_streamfile(VGMSTREAM* v
     }
 
     if (vgmstream->coding_type == coding_COMPRESSWAVE) {
-        return compresswave_get_streamfile(vgmstream->codec_data);
+        return compresswave_get_streamfile(vgmstream);
     }
 
 #ifdef VGM_USE_VORBIS
@@ -328,8 +267,7 @@ static STREAMFILE* get_vgmstream_average_bitrate_channel_streamfile(VGMSTREAM* v
 #endif
 #if defined(VGM_USE_MP4V2) && defined(VGM_USE_FDKAAC)
     if (vgmstream->coding_type == coding_MP4_AAC) {
-        mp4_aac_codec_data *data = vgmstream->codec_data;
-        return data ? data->if_file.streamfile : NULL;
+        return mp4_aac_get_streamfile(vgmstream->codec_data);
     }
 #endif
 

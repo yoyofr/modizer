@@ -4,9 +4,9 @@
 #include <vorbis/codec.h>
 #include "../util/bitstream_lsb.h"
 
-#define WWISE_VORBIS_USE_PRECOMPILED_WVC 1 /* if enabled vgmstream weights ~150kb more but doesn't need external .wvc packets */
-#if WWISE_VORBIS_USE_PRECOMPILED_WVC
-#include "vorbis_custom_data_wwise.h"
+// if enabled vgmstream weights ~150kb more but doesn't need external packets
+#ifndef VGM_DISABLE_CODEBOOKS
+#include "libs/vorbis_codebooks_wwise.h"
 #endif
 
 
@@ -19,12 +19,9 @@ typedef struct {
     size_t packet_size;
     int granulepos;
 
-    int has_next;
+    bool has_next;
     uint8_t inxt[0x01];
 } wpacket_t;
-
-static size_t build_header_identification(uint8_t* buf, size_t bufsize, vorbis_custom_config* cfg);
-static size_t build_header_comment(uint8_t* buf, size_t bufsize);
 
 static int read_packet(wpacket_t* wp, uint8_t* ibuf, size_t ibufsize, STREAMFILE* sf, off_t offset, vorbis_custom_codec_data* data, int is_setup);
 static size_t rebuild_packet(uint8_t* obuf, size_t obufsize, wpacket_t* wp, STREAMFILE* sf, off_t offset, vorbis_custom_codec_data* data);
@@ -33,21 +30,73 @@ static size_t rebuild_setup(uint8_t* obuf, size_t obufsize, wpacket_t* wp, STREA
 static int ww2ogg_generate_vorbis_packet(bitstream_t* ow, bitstream_t* iw, wpacket_t* wp, vorbis_custom_codec_data* data);
 static int ww2ogg_generate_vorbis_setup(bitstream_t* ow, bitstream_t* iw, vorbis_custom_codec_data* data, size_t packet_size, STREAMFILE* sf);
 
-static int load_wvc(uint8_t* ibuf, size_t ibufsize, uint32_t codebook_id, wwise_setup_t setup_type, STREAMFILE* sf);
-#if !(WWISE_VORBIS_USE_PRECOMPILED_WVC)
-static int load_wvc_file(uint8_t* buf, size_t bufsize, uint32_t codebook_id, STREAMFILE* sf);
-#endif
-static int load_wvc_array(uint8_t* buf, size_t bufsize, uint32_t codebook_id, wwise_setup_t setup_type);
+static int load_codebooks(uint8_t* ibuf, size_t ibufsize, uint32_t codebook_id, wwise_setup_t setup_type, STREAMFILE* sf);
 
 
 /* **************************************************************************** */
 /* EXTERNAL API                                                                 */
 /* **************************************************************************** */
 
+static void setup_version_config(vorbis_custom_codec_data* data) {
+
+    switch (data->config.ww_version) {
+        case WWVORBIS_V34:
+            data->header_type = WWV_TYPE_8;
+            data->packet_type = WWV_STANDARD;
+            data->setup_type = WWV_HEADER_TRIAD;
+            break;
+
+        case WWVORBIS_V38:
+            data->header_type = WWV_TYPE_6;
+            data->packet_type = WWV_STANDARD;
+            data->setup_type = WWV_FULL_SETUP;
+            break;
+
+        case WWVORBIS_V44:
+            data->header_type = WWV_TYPE_6;
+            data->packet_type = WWV_STANDARD;
+            data->setup_type = WWV_INLINE_CODEBOOKS;
+            break;
+
+        case WWVORBIS_V48:
+        case WWVORBIS_V52:
+            data->header_type = WWV_TYPE_6;
+            data->packet_type = WWV_STANDARD;
+            data->setup_type = WWV_EXTERNAL_CODEBOOKS;
+            break;
+
+        case WWVORBIS_V53:
+        case WWVORBIS_V56:
+            data->header_type = WWV_TYPE_2;
+            data->packet_type = WWV_MODIFIED;
+            data->setup_type = WWV_EXTERNAL_CODEBOOKS;
+            break;
+
+        case WWVORBIS_V62:
+            data->header_type = WWV_TYPE_2;
+            data->packet_type = WWV_MODIFIED;
+            data->setup_type = WWV_AOTUV603_CODEBOOKS;
+            break;
+
+        default:
+            break;
+    }
+
+    /* almost all blocksizes are 0x08+0x0B except:
+     * - 0x0a+0x0a [Captain America: Super Soldier (X360) voices/sfx]-v53
+     * - 0x09+0x09 [Oddworld New 'n' Tasty! (PSV)-v112
+     */
+    if (data->config.ww_version >= WWVORBIS_V53) {
+        if (data->config.blocksize_0_exp == data->config.blocksize_1_exp) {
+            data->packet_type = WWV_STANDARD;
+        }
+    }
+}
+
+
 /**
  * Wwise stores a reduced setup, and packets have mini headers with the size, and data packets
  * may reduced as well. The format evolved over time so there are many variations.
- * The Wwise implementation uses Tremor (fixed-point Vorbis) but shouldn't matter.
  *
  * Format reverse-engineered by hcs in ww2ogg (https://github.com/hcs64/ww2ogg).
  */
@@ -55,8 +104,9 @@ int vorbis_custom_setup_init_wwise(STREAMFILE* sf, off_t start_offset, vorbis_cu
     wpacket_t wp = {0};
     int ok;
 
+    setup_version_config(data);
 
-    if (data->config.setup_type == WWV_HEADER_TRIAD) {
+    if (data->setup_type == WWV_HEADER_TRIAD) {
         /* read 3 Wwise packets with triad (id/comment/setup), each with a Wwise header */
         off_t offset = start_offset;
 
@@ -64,44 +114,43 @@ int vorbis_custom_setup_init_wwise(STREAMFILE* sf, off_t start_offset, vorbis_cu
         ok = read_packet(&wp, data->buffer, data->buffer_size, sf, offset, data, 1);
         if (!ok) goto fail;
         data->op.bytes = wp.packet_size;
-        if (vorbis_synthesis_headerin(&data->vi, &data->vc, &data->op) != 0) goto fail;
+        if (vorbis_synthesis_headerin(&data->vi, &data->vc, &data->op) != 0)
+            goto fail;
         offset += wp.header_size + wp.packet_size;
 
         /* normal comment packet */
         ok = read_packet(&wp, data->buffer, data->buffer_size, sf, offset, data, 1);
         if (!ok) goto fail;
         data->op.bytes = wp.packet_size;
-        if (vorbis_synthesis_headerin(&data->vi, &data->vc, &data->op) != 0) goto fail;
+        if (vorbis_synthesis_headerin(&data->vi, &data->vc, &data->op) != 0)
+            goto fail;
         offset += wp.header_size + wp.packet_size;
 
         /* normal setup packet */
         ok = read_packet(&wp, data->buffer, data->buffer_size, sf, offset, data, 1);
         if (!ok) goto fail;
         data->op.bytes = wp.packet_size;
-        if (vorbis_synthesis_headerin(&data->vi, &data->vc, &data->op) != 0) goto fail;
+        if (vorbis_synthesis_headerin(&data->vi, &data->vc, &data->op) != 0)
+            goto fail;
         offset += wp.header_size + wp.packet_size;
     }
     else {
         /* rebuild headers */
 
-        /* new identificacion packet */
         data->op.bytes = build_header_identification(data->buffer, data->buffer_size, &data->config);
-        if (!data->op.bytes) goto fail;
-        if (vorbis_synthesis_headerin(&data->vi, &data->vc, &data->op) != 0) goto fail; /* parse identification header */
+        if (vorbis_synthesis_headerin(&data->vi, &data->vc, &data->op) != 0) /* identification packet */
+            goto fail;
 
-        /* new comment packet */
         data->op.bytes = build_header_comment(data->buffer, data->buffer_size);
-        if (!data->op.bytes) goto fail;
-        if (vorbis_synthesis_headerin(&data->vi, &data->vc, &data->op) !=0 ) goto fail; /* parse comment header */
+        if (vorbis_synthesis_headerin(&data->vi, &data->vc, &data->op) !=0 ) /* comment packet */
+            goto fail;
 
-        /* rebuild setup packet */
         data->op.bytes = rebuild_setup(data->buffer, data->buffer_size, &wp, sf, start_offset, data);
-        if (!data->op.bytes) goto fail;
-        if (vorbis_synthesis_headerin(&data->vi, &data->vc, &data->op) != 0) goto fail; /* parse setup header */
+        if (vorbis_synthesis_headerin(&data->vi, &data->vc, &data->op) != 0) /* setup packet */
+            goto fail;
     }
 
     return 1;
-
 fail:
     return 0;
 }
@@ -133,7 +182,7 @@ static int read_packet(wpacket_t* wp, uint8_t* ibuf, size_t ibufsize, STREAMFILE
     int32_t  (*get_s32)(const uint8_t*) = data->config.big_endian ? get_s32be : get_s32le;
 
     /* read header info (packet size doesn't include header size) */
-    switch(data->config.header_type) {
+    switch(data->header_type) {
         case WWV_TYPE_8:
             wp->header_size = 0x08;
             read_streamfile(ibuf, offset, wp->header_size, sf);
@@ -171,7 +220,7 @@ static int read_packet(wpacket_t* wp, uint8_t* ibuf, size_t ibufsize, STREAMFILE
         size_t read;
 
         /* mod packets need next packet's first byte (6 bits) except at EOF, so read now too */
-        if (!is_setup && data->config.packet_type == WWV_MODIFIED) {
+        if (!is_setup && data->packet_type == WWV_MODIFIED) {
             read_size += wp->header_size + 0x01;
         }
 
@@ -184,12 +233,12 @@ static int read_packet(wpacket_t* wp, uint8_t* ibuf, size_t ibufsize, STREAMFILE
             goto fail;
         }
 
-        if (!is_setup && data->config.packet_type == WWV_MODIFIED && read == read_size) {
-            wp->has_next = 1;
+        if (!is_setup && data->packet_type == WWV_MODIFIED && read == read_size) {
+            wp->has_next = true;
             wp->inxt[0] = ibuf[wp->packet_size + wp->header_size];
         }
         else {
-            wp->has_next = 0;
+            wp->has_next = false;
         }
     }
 
@@ -259,44 +308,6 @@ fail:
     return 0;
 }
 
-static size_t build_header_identification(uint8_t* buf, size_t bufsize, vorbis_custom_config* cfg) {
-    size_t bytes = 0x1e;
-    uint8_t blocksizes;
-
-    if (bytes > bufsize) return 0;
-
-    blocksizes = (cfg->blocksize_0_exp << 4) | (cfg->blocksize_1_exp);
-
-    put_u8   (buf+0x00, 0x01);            /* packet_type (id) */
-    memcpy   (buf+0x01, "vorbis", 6);     /* id */
-    put_u32le(buf+0x07, 0x00);            /* vorbis_version (fixed) */
-    put_u8   (buf+0x0b, cfg->channels);   /* audio_channels */
-    put_u32le(buf+0x0c, cfg->sample_rate);/* audio_sample_rate */
-    put_u32le(buf+0x10, 0x00);            /* bitrate_maximum (optional hint) */
-    put_u32le(buf+0x14, 0x00);            /* bitrate_nominal (optional hint) */
-    put_u32le(buf+0x18, 0x00);            /* bitrate_minimum (optional hint) */
-    put_u8   (buf+0x1c, blocksizes);      /* blocksize_0 + blocksize_1 nibbles */
-    put_u8   (buf+0x1d, 0x01);            /* framing_flag (fixed) */
-
-    return bytes;
-}
-
-static size_t build_header_comment(uint8_t* buf, size_t bufsize) {
-    size_t bytes = 0x19;
-
-    if (bytes > bufsize) return 0;
-
-    put_u8   (buf+0x00, 0x03);            /* packet_type (comments) */
-    memcpy   (buf+0x01, "vorbis", 6);     /* id */
-    put_u32le(buf+0x07, 0x09);            /* vendor_length */
-    memcpy   (buf+0x0b, "vgmstream", 9);  /* vendor_string */
-    put_u32le(buf+0x14, 0x00);            /* user_comment_list_length */
-    put_u8   (buf+0x18, 0x01);            /* framing_flag (fixed) */
-
-    return bytes;
-}
-
-
 /* copy packet bytes, where input/output bufs may not be byte-aligned (so no memcpy) */
 static int copy_bytes(bitstream_t* ob, bitstream_t* ib, uint32_t bytes) {
     int i;
@@ -363,7 +374,7 @@ static int ww2ogg_generate_vorbis_packet(bitstream_t* ow, bitstream_t* iw, wpack
     //VGM_ASSERT(granule < 0, "Wwise Vorbis: negative granule %i @ 0x%lx\n", granule, offset);
 
 
-    if (data->config.packet_type == WWV_MODIFIED) {
+    if (data->packet_type == WWV_MODIFIED) {
         /* rebuild first bits of packet type and window info (for the i-MDCT) */
         uint32_t packet_type = 0, mode_number = 0, remainder = 0;
 
@@ -719,7 +730,7 @@ static int ww2ogg_codebook_library_rebuild_by_id(bitstream_t* ow, uint32_t codeb
     size_t cb_size;
     bitstream_t iw;
 
-    cb_size = load_wvc(ibuf,ibufsize, codebook_id, setup_type, sf);
+    cb_size = load_codebooks(ibuf,ibufsize, codebook_id, setup_type, sf);
     if (cb_size == 0) goto fail;
 
     bl_setup(&iw, ibuf, ibufsize);
@@ -750,14 +761,14 @@ static int ww2ogg_generate_vorbis_setup(bitstream_t* ow, bitstream_t* iw, vorbis
     bl_put(ow,  8, codebook_count_less1);
     codebook_count = codebook_count_less1 + 1;
 
-    if (data->config.setup_type == WWV_FULL_SETUP) {
+    if (data->setup_type == WWV_FULL_SETUP) {
         /* rebuild Wwise codebooks: untouched */
         for (i = 0; i < codebook_count; i++) {
             if (!ww2ogg_codebook_library_copy(ow, iw))
                 goto fail;
         }
     }
-    else if (data->config.setup_type == WWV_INLINE_CODEBOOKS) {
+    else if (data->setup_type == WWV_INLINE_CODEBOOKS) {
         /* rebuild Wwise codebooks: inline in simplified format */
         for (i = 0; i < codebook_count; i++) {
             if (!ww2ogg_codebook_library_rebuild(ow, iw, 0, sf))
@@ -772,7 +783,7 @@ static int ww2ogg_generate_vorbis_setup(bitstream_t* ow, bitstream_t* iw, vorbis
 
             bl_get(iw, 10,&codebook_id);
 
-            rc = ww2ogg_codebook_library_rebuild_by_id(ow, codebook_id, data->config.setup_type, sf);
+            rc = ww2ogg_codebook_library_rebuild_by_id(ow, codebook_id, data->setup_type, sf);
             if (!rc) goto fail;
         }
     }
@@ -785,7 +796,7 @@ static int ww2ogg_generate_vorbis_setup(bitstream_t* ow, bitstream_t* iw, vorbis
     bl_put(ow, 16, dummy_time_value);
 
 
-    if (data->config.setup_type == WWV_FULL_SETUP) {
+    if (data->setup_type == WWV_FULL_SETUP) {
         /* rest of setup is untouched, copy bits */
         uint32_t bitly = 0;
         uint32_t total_bits_read = iw->b_off;
@@ -1126,28 +1137,7 @@ fail:
 /* INTERNAL UTILS                                                               */
 /* **************************************************************************** */
 
-/* loads an external Wwise Vorbis Codebooks file (wvc) referenced by ID and returns size */
-static int load_wvc(uint8_t* ibuf, size_t ibufsize, uint32_t codebook_id, wwise_setup_t setup_type, STREAMFILE* sf) {
-    size_t bytes;
-
-    /* try to locate from the precompiled list */
-    bytes = load_wvc_array(ibuf, ibufsize, codebook_id, setup_type);
-    if (bytes)
-        return bytes;
-
-#if !(WWISE_VORBIS_USE_PRECOMPILED_WVC)
-    /* try to load from external file (ignoring type, just use file if found) */
-    bytes = load_wvc_file(ibuf, ibufsize, codebook_id, sf);
-    if (bytes)
-        return bytes;
-#endif
-
-    /* not found */
-    VGM_LOG("Wwise Vorbis: codebook_id %04x not found\n", codebook_id);
-    return 0;
-}
-
-#if !(WWISE_VORBIS_USE_PRECOMPILED_WVC)
+#ifdef VGM_DISABLE_CODEBOOKS
 static int load_wvc_file(uint8_t* buf, size_t bufsize, uint32_t codebook_id, STREAMFILE* sf) {
     STREAMFILE* sf_setup = NULL;
     size_t wvc_size = 0;
@@ -1192,36 +1182,25 @@ fail:
 }
 #endif
 
-static int load_wvc_array(uint8_t* buf, size_t bufsize, uint32_t codebook_id, wwise_setup_t setup_type) {
-#if WWISE_VORBIS_USE_PRECOMPILED_WVC
+/* loads an external Wwise Vorbis Codebooks file (wvc) referenced by ID and returns size */
+static int load_codebooks(uint8_t* ibuf, size_t ibufsize, uint32_t codebook_id, wwise_setup_t setup_type, STREAMFILE* sf) {
+    int bytes;
 
-    /* get pointer to array */
-    {
-        int i, list_length;
-        const wvc_info * wvc_list;
+#ifndef VGM_DISABLE_CODEBOOKS
 
-        switch (setup_type) {
-            case WWV_EXTERNAL_CODEBOOKS:
-                wvc_list = wvc_list_standard;
-                list_length = sizeof(wvc_list_standard) / sizeof(wvc_info);
-                break;
-            case WWV_AOTUV603_CODEBOOKS:
-                wvc_list = wvc_list_aotuv603;
-                list_length = sizeof(wvc_list_standard) / sizeof(wvc_info);
-                break;
-            default:
-                goto fail;
-        }
-
-        for (i=0; i < list_length; i++) {
-            if (wvc_list[i].id == codebook_id) {
-                if (wvc_list[i].size > bufsize) goto fail;
-                /* found: copy data as-is */
-                memcpy(buf,wvc_list[i].codebook, wvc_list[i].size);
-                return wvc_list[i].size;
-            }
-        }
+    // locate from precompiled list
+    switch (setup_type) {
+        case WWV_EXTERNAL_CODEBOOKS:
+            bytes = vcb_load_codebook_array(ibuf, ibufsize, codebook_id, vcb_list_standard, vcb_list_count_standard);
+            break;
+        case WWV_AOTUV603_CODEBOOKS:
+            bytes = vcb_load_codebook_array(ibuf, ibufsize, codebook_id, vcb_list_aotuv603, vcb_list_count_aotuv603);
+            break;
+        default:
+            return 0;
     }
+    if (bytes)
+        return bytes;
 
     // this can be used with 1:1 dump of the codebook file
 #if 0
@@ -1247,8 +1226,14 @@ static int load_wvc_array(uint8_t* buf, size_t bufsize, uint32_t codebook_id, ww
     }
 #endif
 
-fail:
+#else
+    // load from external files
+    bytes = load_wvc_file(ibuf, ibufsize, codebook_id, sf);
+    if (bytes)
+        return bytes;
 #endif
+
+    VGM_LOG("Wwise Vorbis: codebook_id %04x not found\n", codebook_id);
     return 0;
 }
 

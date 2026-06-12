@@ -1,11 +1,19 @@
-# github workflow to automate builds
-
 name: macOS build
 
-on: [push, pull_request, workflow_dispatch]
+on:
+  push:
+    branches: [ master, main ]
+    tags: [ 'r*' ]
+    paths-ignore: ['doc/**', '**.md', 'COPYING', '.gitignore', 'cli/tools/**']
+  pull_request:
+    paths-ignore: ['doc/**', '**.md', 'COPYING', '.gitignore', 'cli/tools/**']
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 env:
-  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
   BUILD_TYPE: Release
 
 jobs:
@@ -14,15 +22,18 @@ jobs:
     runs-on: macos-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v6
+        # needs history + tags for auto-versioning
         with:
           fetch-depth: 0
+          fetch-tags: true
 
       - name: Install dependencies
-        run: brew install autoconf automake cmake pkgconfig ffmpeg jansson libao libvorbis mpg123
+        run: brew install autoconf automake ffmpeg libao libvorbis mpg123 libtool
+        #cmake pkgconfig
 
       - name: Cache celt
-        uses: actions/cache@v3
+        uses: actions/cache@v5
         with:
           path: |
             ${{ github.workspace }}/dependencies/celt-0061
@@ -32,13 +43,13 @@ jobs:
           key: mac-celt-${{ hashFiles('cmake/dependencies/celt.cmake') }}
 
       - name: Cache atrac9
-        uses: actions/cache@v3
+        uses: actions/cache@v5
         with:
           path: ${{ github.workspace }}/build/dependencies/LibAtrac9/bin
           key: mac-atrac9-${{ hashFiles('cmake/dependencies/atrac9.cmake') }}
 
       - name: Cache g719
-        uses: actions/cache@v3
+        uses: actions/cache@v5
         with:
           path: ${{ github.workspace }}/build/dependencies/libg719_decode/libg719_decode.a
           key: mac-g719-${{ hashFiles('cmake/dependencies/g719.cmake') }}
@@ -49,15 +60,15 @@ jobs:
           cmake -S . -B build -DBUILD_AUDACIOUS:BOOL=OFF -DCMAKE_BUILD_TYPE=$BUILD_TYPE
           cmake --build build
 
-      - name: Upload CLI tools artifact
-        uses: actions/upload-artifact@v3
+      - name: Upload CLI tools
+        uses: actions/upload-artifact@v7
         with:
           path: ${{ github.workspace }}/build/cli/vgmstream-cli
           name: vgmstream-mac
 
       # uploads current assets to vgmstream-releases (token only works on merges)
       - name: Upload artifacts to vgmstream-releases
-        if: github.event_name != 'pull_request' 
+        if: github.event_name != 'pull_request'
         working-directory: ${{github.workspace}}
         shell: bash
         env:

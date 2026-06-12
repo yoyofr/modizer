@@ -1137,11 +1137,16 @@ UINT8 vgmGetVoicesNb(UINT8 chipId) {
 }
 
 //VGMSTREAM
-#import "../libs/libvgmstream/vgmstream-master/src/vgmstream.h"
-#import "../libs/libvgmstream/vgmstream-master/src/base/plugins.h"
+#import "../libs/libvgmstream/vgmstream-master/src/libvgmstream.h"
+#import "../libs/libvgmstream/vgmstream-master/src/util.h"
+//#import "../libs/libvgmstream/vgmstream-master/src/vgmstream.h"
+//#import "../libs/libvgmstream/vgmstream-master/src/base/plugins.h"
 
-static VGMSTREAM* vgmStream = NULL;
-static STREAMFILE* vgmFile = NULL;
+static libvgmstream_t* vgmStream = NULL;
+static libstreamfile_t* vgmFile = NULL;
+//static VGMSTREAM* vgmStream = NULL;
+//static STREAMFILE* vgmFile = NULL;
+
 bool optVGMSTREAM_loopmode = false;
 int optVGMSTREAM_loop_count = 2.0f;
 int optVGMSTREAM_resampleQuality=1;
@@ -4618,23 +4623,29 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
     sampleData=vgm_sample_data;
     while (nbSamplesToRender) {
         if (nbSamplesToRender<=real_available_samples) {
-            render_vgmstream(sampleData, nbSamplesToRender, vgmStream);
+            //render_vgmstream(sampleData, nbSamplesToRender, vgmStream);
+            int err = libvgmstream_fill(vgmStream, sampleData, nbSamplesToRender);
+            
             mVGMSTREAM_decode_pos_samples+=nbSamplesToRender;
             nbSamplesToRender=0;
         } else {
-            render_vgmstream(sampleData, real_available_samples, vgmStream);
+            //render_vgmstream(sampleData, real_available_samples, vgmStream);
+            int err = libvgmstream_fill(vgmStream, sampleData, real_available_samples);
+            
             sampleData+=real_available_samples;
             mVGMSTREAM_decode_pos_samples+=real_available_samples;
             nbSamplesToRender-=real_available_samples;
             //end reached, looping from start
-            reset_vgmstream(vgmStream);
+            //reset_vgmstream(vgmStream);
+            libvgmstream_reset(vgmStream);
+            
             mVGMSTREAM_decode_pos_samples=0;
             real_available_samples=mVGMSTREAM_totalinternal_samples-mVGMSTREAM_decode_pos_samples;
         }
     }
     mCurrentSamples=mVGMSTREAM_decode_pos_samples;
     
-    if (vgmStream->channels==1) {
+    if (vgmStream->format->channels==1) {
         snd_ptr=vgm_sample_data;
         for (int i=sampleGenerated-1;i>=0;i--) {
             snd_ptr[i*2]=snd_ptr[i];
@@ -4642,7 +4653,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
         }
     }
     
-    switch (vgmStream->channels) {
+    switch (vgmStream->format->channels) {
         case 1: //turno mono into stereo, L=R
             /*snd_ptr=vgm_sample_data;
              for (int i=nbSamplesToRender-1;i>=0;i--) {
@@ -5872,10 +5883,11 @@ void processFadeOut(short int *buffer, int sample_count, int voice_factor) {
                             }
                             if (mPlayType==MMP_VGMSTREAM) { //VGMSTREAM
                                 int64_t mStartPosSamples;
-                                int64_t mSeekSamples=(double)mNeedSeekTime*(double)(vgmStream->sample_rate)/1000.0f;
+                                int64_t mSeekSamples=(double)mNeedSeekTime*(double)(vgmStream->format->sample_rate)/1000.0f;
                                 bGlobalSeekProgress=-1;
                                 if (mVGMSTREAM_decode_pos_samples>mSeekSamples) {
-                                    reset_vgmstream(vgmStream);
+                                    //reset_vgmstream(vgmStream);
+                                    libvgmstream_reset(vgmStream);
                                     mVGMSTREAM_decode_pos_samples=0;
                                 }
                                 mStartPosSamples=mVGMSTREAM_decode_pos_samples;
@@ -5883,10 +5895,11 @@ void processFadeOut(short int *buffer, int sample_count, int voice_factor) {
                                 while (mVGMSTREAM_decode_pos_samples<mSeekSamples) {
                                     int nbSamplesToRender=mSeekSamples-mVGMSTREAM_decode_pos_samples;
                                     if (nbSamplesToRender>SOUND_BUFFER_SIZE_SAMPLE) nbSamplesToRender=SOUND_BUFFER_SIZE_SAMPLE;
-                                    render_vgmstream(vgm_sample_data, nbSamplesToRender, vgmStream);
+                                    //render_vgmstream(vgm_sample_data, nbSamplesToRender, vgmStream);
+                                    int err = libvgmstream_fill(vgmStream, vgm_sample_data, nbSamplesToRender);
                                     
                                     mVGMSTREAM_decode_pos_samples+=nbSamplesToRender;
-                                    iCurrentTime=mVGMSTREAM_decode_pos_samples*1000/(vgmStream->sample_rate);
+                                    iCurrentTime=mVGMSTREAM_decode_pos_samples*1000/(vgmStream->format->sample_rate);
                                     
                                     dispatch_async(dispatch_get_main_queue(), ^(void){
                                         //Run UI Updates
@@ -7131,8 +7144,9 @@ void processFadeOut(short int *buffer, int sample_count, int voice_factor) {
                             }
                             tim_voicenb[buffer_ana_gen_ofs]=voices_idx;
                             
-                            mCurrentSamples+=SOUND_BUFFER_SIZE_SAMPLE;
-                            
+                            if (settings[GLOB_PBRATIO_ONOFF].detail.mdz_boolswitch.switch_value) mCurrentSamples+=SOUND_BUFFER_SIZE_SAMPLE*settings[GLOB_PBRATIO].detail.mdz_slider.slider_value;
+                            else mCurrentSamples+=SOUND_BUFFER_SIZE_SAMPLE;
+
                             if ((mCurrentSamples>=mTgtSamples)||
                                 (mdzSilentBufferLimit&&(mdzSilentBufferCount>=mdzSilentBufferLimit))||
                                 furPlayer->isEndOfSong()
@@ -7140,9 +7154,10 @@ void processFadeOut(short int *buffer, int sample_count, int voice_factor) {
                                 //end reached
                                 [self setSongLengthfromMD5:mod_currentsub-mod_minsub+1 songlength:mCurrentSamples*1000/PLAYBACK_FREQ];
                                 
-                                if (iModuleLength<0) {
-                                    //TODO: reset
+                                if (iModuleLength<0) { //infinite loop mode
+                                    //reset position
                                     furPlayer->stop();
+                                    furPlayer->selectSong(mod_currentsub);
                                     mCurrentSamples=0;
                                     iCurrentTime=0;
                                     mdzSilentBufferCount=0;
@@ -10676,6 +10691,22 @@ static WSRPlayerApi* s_coreSwan=&oswan::g_wsr_player_api;
         m_voice_voiceColor[i]=m_voice_systemColor[0];
     }
     
+    int chan=0;
+    modizChipsetCount=furPlayer->getSystemCount();
+    for (int i=0;i<modizChipsetCount;i++) {
+        FurnaceSystemInfo f_sysInfo=furPlayer->getSystemInfo(i);
+        modizChipsetStartVoice[i]=f_sysInfo.firstChannel;
+        modizChipsetVoicesCount[i]=f_sysInfo.channelCount;
+        
+        snprintf(modizChipsetName[i],MODIZ_CHIP_NAME_MAX_CHAR,"%s",f_sysInfo.name);
+        
+        for (int j=0;j<f_sysInfo.channelCount;j++) {
+            m_voice_voiceColor[chan]=m_voice_systemColor[i];
+            snprintf(modizVoicesName[chan],MODIZ_VOICE_NAME_MAX_CHAR,"%s",furPlayer->getChannelLongName(modizChipsetStartVoice[i]+j));
+            chan++;
+        }
+    }
+    
     [self mmp_updateDBStatsAtLoad];
     
     mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
@@ -10686,7 +10717,9 @@ static WSRPlayerApi* s_coreSwan=&oswan::g_wsr_player_api;
     snprintf(mod_message,MAX_STIL_DATA_LENGTH*2,"");
     snprintf(mod_message,MAX_STIL_DATA_LENGTH*2,"%sTitle: %s\n",mod_message,[mod_title UTF8String]);
     snprintf(mod_message,MAX_STIL_DATA_LENGTH*2,"%sArtist: %s\n",mod_message,[artist UTF8String]);
-    
+
+    [self optGENPBRatio];
+
     return 0;
 }
 
@@ -11565,7 +11598,6 @@ char* loadRom(const char* path, size_t romSize)
             mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
             //Loop
             if (mLoopMode==1) iModuleLength=-1;
-            
             
             //Parse STIL INFO for subsongs info
             [self sid_parseStilInfo];
@@ -13007,10 +13039,15 @@ NSString* convertAmigaGreekToUnicode(NSString *input) {
 }
 
 -(void) vgmStream_ChangeToSub:(int) subsong {
-    if (vgmStream) close_vgmstream(vgmStream);
-    vgmFile->stream_index=subsong;
-    vgmStream = init_vgmstream_from_STREAMFILE(vgmFile);
-    if (!vgmStream) {
+    if (vgmStream) {
+        //close_vgmstream(vgmStream);
+        libvgmstream_close_stream(vgmStream);
+    }
+    //vgmFile->stream_index=subsong;
+    //vgmStream = init_vgmstream_from_STREAMFILE(vgmFile);
+    int err = libvgmstream_open_stream(vgmStream, vgmFile, subsong);
+    if (err < 0) {
+        MDZELog("VGMSTREAM: error opening stream for subsong %d\n",subsong);
         iModuleLength=0;
         
         mVGMSTREAM_total_samples = 0;
@@ -13019,15 +13056,17 @@ NSString* convertAmigaGreekToUnicode(NSString *input) {
         
         numChannels=0;
         mod_message[0]=0;
-        describe_vgmstream(vgmStream,mod_message,MAX_STIL_DATA_LENGTH*2);
+        //describe_vgmstream(vgmStream,mod_message,MAX_STIL_DATA_LENGTH*2);
+        
+        libvgmstream_format_describe(vgmStream, mod_message,MAX_STIL_DATA_LENGTH*2);
         
         return;
     }
     
-    vgmstream_cfg_t vcfg = {0};
+    //vgmstream_cfg_t vcfg = {0};
+    libvgmstream_config_t vcfg = {0};
     vcfg.allow_play_forever = (mLoopMode==1?1:0);
     vcfg.play_forever =(mLoopMode==1?1:0);
-    
     vcfg.loop_count = settings[GLOB_Maxloop].detail.mdz_slider.slider_value;
     vcfg.fade_time = settings[GLOB_Fadeouttime].detail.mdz_slider.slider_value;
     vcfg.fade_delay = 0.0f;
@@ -13035,35 +13074,38 @@ NSString* convertAmigaGreekToUnicode(NSString *input) {
     vcfg.force_loop = (mVGMSTREAM_force_loop?1:0);
     vcfg.ignore_loop = 0;//ignore_loop;
     numChannels=2;
+    vcfg.stereo_track=1;
+    vcfg.auto_downmix_channels=2;
     
-    vgmstream_apply_config(vgmStream, &vcfg);
-    vgmstream_set_play_forever(vgmStream,vcfg.play_forever);
-    vgmstream_mixing_autodownmix(vgmStream, 2);
-    vgmstream_mixing_enable(vgmStream, SOUND_BUFFER_SIZE_SAMPLE, NULL /*&input_channels*/, &numChannels);
+    libvgmstream_setup(vgmStream, &vcfg);
+    //vgmstream_apply_config(vgmStream, &vcfg);
+    //vgmstream_set_play_forever(vgmStream,vcfg.play_forever);
+    //vgmstream_mixing_autodownmix(vgmStream, 2);
+    //vgmstream_mixing_enable(vgmStream, SOUND_BUFFER_SIZE_SAMPLE, NULL /*&input_channels*/, &numChannels);
     
-    src_ratio=PLAYBACK_FREQ/(double)(vgmStream->sample_rate);
+    src_ratio=PLAYBACK_FREQ/(double)(vgmStream->format->sample_rate);
     
     if (mLoopMode==1) {
         mVGMSTREAM_total_samples = -1;
         mVGMSTREAM_totalinternal_samples=-1;
     } else {
-        mVGMSTREAM_total_samples = vgmstream_get_samples(vgmStream);
+        mVGMSTREAM_total_samples = vgmStream->format->stream_samples;
         mVGMSTREAM_totalinternal_samples = mVGMSTREAM_total_samples;
     }
     
     mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
     //Loop
     if (mLoopMode==1) iModuleLength=-1;
-    else iModuleLength=(double)mVGMSTREAM_total_samples*1000.0f/(double)(vgmStream->sample_rate);
+    else iModuleLength=(double)mVGMSTREAM_total_samples*1000.0f/(double)(vgmStream->format->sample_rate);
     
     mVGMSTREAM_decode_pos_samples=0;
     
-    numChannels=vgmStream->channels;
-    if (vgmStream->stream_name[0]) snprintf(mod_name,sizeof(mod_name)," %s",vgmStream->stream_name);
+    numChannels=vgmStream->format->channels;
+    if (vgmStream->format->stream_name[0]) snprintf(mod_name,sizeof(mod_name)," %s",vgmStream->format->stream_name);
     else snprintf(mod_name,sizeof(mod_name)," %s",mod_filename);
     
     mod_message[0]=0;
-    describe_vgmstream(vgmStream,mod_message,MAX_STIL_DATA_LENGTH*2);
+    libvgmstream_format_describe(vgmStream,mod_message,MAX_STIL_DATA_LENGTH*2);
 }
 
 -(int) mmp_vgmstreamLoad:(NSString*)filePath extension:(NSString*)extension{  //VGMSTREAM
@@ -13096,7 +13138,8 @@ NSString* convertAmigaGreekToUnicode(NSString *input) {
         mVGMSTREAM_force_loop = true;
     }
     
-    vgmFile = open_stdio_streamfile([filePath UTF8String]);
+    //vgmFile = open_stdio_streamfile([filePath UTF8String]);
+    vgmFile = libstreamfile_open_from_stdio([filePath UTF8String]);
     if (!vgmFile) {
         MDZELog("Error open_stdio_streamfile %@",filePath);
         mPlayType=0;
@@ -13104,21 +13147,26 @@ NSString* convertAmigaGreekToUnicode(NSString *input) {
         return -1;
     }
     
-    vgmFile->stream_index=0;
+    vgmStream=libvgmstream_init();
     
-    vgmStream = init_vgmstream_from_STREAMFILE(vgmFile);
+    //vgmFile->stream_index=0;
+    int err = libvgmstream_open_stream(vgmStream, vgmFile, 0);
+    //vgmStream = init_vgmstream_from_STREAMFILE(vgmFile);
     
-    if (!vgmStream) {
+    if (err < 0) {
         MDZELog("Error init_vgmstream_from_STREAMFILE %@",filePath);
         mPlayType=0;
         src_delete(src_state);
-        close_streamfile(vgmFile);
+        //close_streamfile(vgmFile);
+        libstreamfile_close(vgmFile);
+        libvgmstream_free(vgmStream);
         vgmFile=NULL;
         return -1;
     }
     /////////////////////////
     
-    vgmstream_cfg_t vcfg = {0};
+    //vgmstream_cfg_t vcfg = {0};
+    libvgmstream_config_t vcfg = {0};
     vcfg.allow_play_forever = (mLoopMode==1?1:0);
     vcfg.play_forever =(mLoopMode==1?1:0);
     
@@ -13129,20 +13177,27 @@ NSString* convertAmigaGreekToUnicode(NSString *input) {
     vcfg.force_loop = (mVGMSTREAM_force_loop?1:0);
     vcfg.ignore_loop = 0;//ignore_loop;
     numChannels=2;
+    vcfg.stereo_track=1;
+    vcfg.auto_downmix_channels=2;
+    vcfg.force_sfmt = LIBVGMSTREAM_SFMT_PCM16; //not sure how to tell libao to open in float mode
+    libvgmstream_setup(vgmStream, &vcfg);
     
-    vgmstream_apply_config(vgmStream, &vcfg);
-    vgmstream_set_play_forever(vgmStream,vcfg.play_forever);
-    vgmstream_mixing_autodownmix(vgmStream, 2);
-    vgmstream_mixing_enable(vgmStream, SOUND_BUFFER_SIZE_SAMPLE, NULL /*&input_channels*/, &numChannels);
+    //vgmstream_apply_config(vgmStream, &vcfg);
+    //vgmstream_set_play_forever(vgmStream,vcfg.play_forever);
+    //vgmstream_mixing_autodownmix(vgmStream, 2);
+    //vgmstream_mixing_enable(vgmStream, SOUND_BUFFER_SIZE_SAMPLE, NULL /*&input_channels*/, &numChannels);
     
-    src_ratio=PLAYBACK_FREQ/(double)(vgmStream->sample_rate);
+    src_ratio=PLAYBACK_FREQ/(double)(vgmStream->format->sample_rate);
     
-    if (vgmStream->channels <= 0) {
-        MDZELog("Error vgmStream->channels: %d",vgmStream->channels);
-        close_vgmstream(vgmStream);
+    if (vgmStream->format->channels <= 0) {
+        MDZELog("Error vgmStream->channels: %d",vgmStream->format->channels);
+        //close_vgmstream(vgmStream);
+        libvgmstream_close_stream(vgmStream);
         vgmStream = NULL;
         src_delete(src_state);
-        close_streamfile(vgmFile);
+        //close_streamfile(vgmFile);
+        libstreamfile_close(vgmFile);
+        libvgmstream_free(vgmStream);
         vgmFile=NULL;
         return -1;
     }
@@ -13151,20 +13206,21 @@ NSString* convertAmigaGreekToUnicode(NSString *input) {
         mVGMSTREAM_total_samples = -1;
         mVGMSTREAM_totalinternal_samples=-1;
     } else {
-        mVGMSTREAM_total_samples = vgmstream_get_samples(vgmStream);
+        //mVGMSTREAM_total_samples = vgmstream_get_samples(vgmStream);
+        mVGMSTREAM_total_samples = vgmStream->format->stream_samples;
         mVGMSTREAM_totalinternal_samples = mVGMSTREAM_total_samples;
     }
     
     mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
     //Loop
     if (mLoopMode==1) iModuleLength=-1;
-    else iModuleLength=(double)mVGMSTREAM_total_samples*1000.0f/(double)(vgmStream->sample_rate);
+    else iModuleLength=(double)mVGMSTREAM_total_samples*1000.0f/(double)(vgmStream->format->sample_rate);
     iCurrentTime=0;
     mCurrentSamples=0;
     mVGMSTREAM_decode_pos_samples=0;
     
-    numChannels=vgmStream->channels;
-    if (vgmStream->stream_name[0]) snprintf(mod_name,sizeof(mod_name)," %s",vgmStream->stream_name);
+    numChannels=vgmStream->format->channels;
+    if (vgmStream->format->stream_name[0]) snprintf(mod_name,sizeof(mod_name)," %s",vgmStream->format->stream_name);
     else snprintf(mod_name,sizeof(mod_name)," %s",mod_filename);
     
     
@@ -13256,17 +13312,17 @@ NSString* convertAmigaGreekToUnicode(NSString *input) {
     }
 
     mod_message[0]=0;
-    describe_vgmstream(vgmStream,mod_message,MAX_STIL_DATA_LENGTH*2);
+    libvgmstream_format_describe(vgmStream,mod_message,MAX_STIL_DATA_LENGTH*2);
     //seek: take some margin, shouldn't be with freq higher than 3x playback freq
     vgm_sample_data=(int16_t*)malloc(SOUND_BUFFER_SIZE_SAMPLE*2*3*(numChannels>2?numChannels:2));
     vgm_sample_data_float=(float*)malloc(SOUND_BUFFER_SIZE_SAMPLE*4*(numChannels>2?numChannels:2));
     vgm_sample_converted_data_float=(float*)malloc(SOUND_BUFFER_SIZE_SAMPLE*4*(numChannels>2?numChannels:2));
     
-    mod_subsongs=vgmStream->num_streams;
+    mod_subsongs=vgmStream->format->subsong_count;//num_streams;
     if (mod_subsongs>1) {
-        mod_maxsub=vgmStream->num_streams;
+        mod_maxsub=vgmStream->format->subsong_count;//num_streams;
         mod_minsub=1;
-        mod_currentsub=vgmStream->stream_index;
+        mod_currentsub=vgmStream->format->subsong_index;//stream_index;
         if (mod_currentsub<mod_minsub) mod_currentsub=mod_minsub;
     }
     
@@ -13276,13 +13332,17 @@ NSString* convertAmigaGreekToUnicode(NSString *input) {
     if (mod_subsongs) {
         for (int i=0;i<mod_subsongs; i++) {
             //change subsong
-            vgmFile->stream_index=i;
-            VGMSTREAM* vgmStreamTmp = init_vgmstream_from_STREAMFILE(vgmFile);
+            //vgmFile->stream_index=i;
+            libvgmstream_t *vgmStreamTmp=libvgmstream_init();// = init_vgmstream_from_STREAMFILE(vgmFile);
+            
+            libvgmstream_open_stream(vgmStreamTmp, vgmFile, i);
+            
             if (vgmStreamTmp) {
-                int subsong_length= vgmstream_get_samples(vgmStreamTmp);
-                mod_total_length+=(double)subsong_length*1000.0f/(double)(vgmStream->sample_rate);
+                int subsong_length= vgmStreamTmp->format->stream_samples;
+                mod_total_length+=(double)subsong_length*1000.0f/(double)(vgmStream->format->sample_rate);
                 
-                close_vgmstream(vgmStreamTmp);
+                //close_vgmstream(vgmStreamTmp);
+                libvgmstream_close_stream(vgmStreamTmp);
                 
                 NSString *filePathMain;
                 NSString *fileName=[self getSubTitle:i];
@@ -13297,12 +13357,13 @@ NSString* convertAmigaGreekToUnicode(NSString *input) {
                     [self mmp_updateDBStatsAtLoadSubsong:mod_total_length];
                 }
             }
+            libvgmstream_free(vgmStreamTmp);
         }
     } else {
         [self mmp_updateDBStatsAtLoad];
     }
     
-    vgmFile->stream_index=mod_currentsub;
+    //vgmFile->stream_index=mod_currentsub;
     return 0;
 }
 
@@ -16209,7 +16270,7 @@ extern bool icloud_available;
     iCurrentTime=0;
     mCurrentSamples=0;
     bGlobalAudioPause=0;
-    mNeedSeek=0;bGlobalSeekProgress=0;
+    
     
     [self iPhoneDrv_PlayStart];
     bGlobalEndReached=0;
@@ -16234,6 +16295,9 @@ extern bool icloud_available;
         }
     }
     if (startPos<0) startPos=0;
+    
+    mNeedSeek=0;bGlobalSeekProgress=0;
+    iCurrentTime=0;
     
     switch (mPlayType) {
         case MMP_GME:  //GME
@@ -16309,10 +16373,10 @@ extern bool icloud_available;
             iModuleLength=openmpt_module_get_duration_seconds( openmpt_module_ext_get_module(ompt_mod) )*1000;
             mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
             if (mLoopMode) iModuleLength=-1;
-            if (startPos) [self Seek:startPos];
             [self updateCurSubSongPlayed:mod_currentsub-mod_minsub];
+            
+            if (startPos) [self Seek:startPos];
             [self Play];
-            iCurrentTime=startPos;
             break;
         case MMP_ADPLUG:  //ADPLUG
             if ((subsong!=-1)&&(subsong>=mod_minsub)&&(subsong<=mod_maxsub)) {
@@ -17191,9 +17255,14 @@ extern bool icloud_available;
         mdz_safe_free(v2m_sample_data_float);
     }
     if (mPlayType==MMP_VGMSTREAM) { //VGMSTREAM
-        if (vgmFile) close_streamfile(vgmFile);
+        //if (vgmFile) close_streamfile(vgmFile);
+        if (vgmFile) libstreamfile_close(vgmFile);
         vgmFile=NULL;
-        if (vgmStream != NULL) close_vgmstream(vgmStream);
+        if (vgmStream != NULL) {
+            //close_vgmstream(vgmStream);
+            libvgmstream_close_stream(vgmStream);
+            libvgmstream_free(vgmStream);
+        }
         vgmStream = NULL;
         mdz_safe_free(vgm_sample_data);
         mdz_safe_free(vgm_sample_data_float);
@@ -17293,29 +17362,37 @@ extern bool icloud_available;
     if (mPlayType==MMP_VGMSTREAM) return @"VGMSTREAM";
     return @"";
 }
+
 -(NSString*) getSubTitle:(int)subsong {
     NSString *result;
     if ((subsong<mod_minsub)||(subsong>mod_maxsub)) return @"";
     if (mPlayType==MMP_VGMSTREAM) {
         if (subsong==mod_currentsub) {
-            if (vgmStream && vgmStream->stream_name[0]) result=[NSString stringWithFormat:@"%.3d-%s",subsong-mod_minsub+1,vgmStream->stream_name];
+            if (vgmStream && vgmStream->format->stream_name[0]) result=[NSString stringWithFormat:@"%.3d-%s",subsong-mod_minsub+1,vgmStream->format->stream_name];
             else result=[[NSString stringWithFormat:@"%.3d",subsong] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"];
         } else {
-            VGMSTREAM* vgmStreamTmp = NULL;
-            STREAMFILE* vgmFileTmp = NULL;
+            //VGMSTREAM* vgmStreamTmp = NULL;
+            libvgmstream_t *vgmStreamTmp = NULL;
+            //STREAMFILE* vgmFileTmp = NULL;
+            libstreamfile_t *vgmFileTmp = NULL;
             
-            vgmFileTmp = open_stdio_streamfile([mod_currentfile UTF8String]);
+            //vgmFileTmp = open_stdio_streamfile([mod_currentfile UTF8String]);
+            vgmFileTmp = libstreamfile_open_from_stdio([mod_currentfile UTF8String]);
             if (!vgmFileTmp) {
                 result=[NSString stringWithFormat:@"%.3d",subsong-mod_minsub+1];
             } else {
-                vgmFileTmp->stream_index=subsong;
-                vgmStreamTmp = init_vgmstream_from_STREAMFILE(vgmFileTmp);
-                close_streamfile(vgmFileTmp);
+                //vgmFileTmp->stream_index=subsong;
+                int err = libvgmstream_open_stream(vgmStreamTmp, vgmFileTmp, subsong);
+                //vgmStreamTmp = init_vgmstream_from_STREAMFILE(vgmFileTmp);
+                //close_streamfile(vgmFileTmp);
+                libstreamfile_close(vgmFileTmp);
                 if (vgmStreamTmp) {
-                    if (vgmStreamTmp->stream_name[0]) result=[[NSString stringWithFormat:@"%.3d-%s",subsong-mod_minsub+1,vgmStreamTmp->stream_name] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"];
+                    if (vgmStreamTmp->format->stream_name[0]) result=[[NSString stringWithFormat:@"%.3d-%s",subsong-mod_minsub+1,vgmStreamTmp->format->stream_name] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"];
                     else result=[NSString stringWithFormat:@"%.3d",subsong-mod_minsub+1];
-                    close_vgmstream(vgmStreamTmp);
+                    //close_vgmstream(vgmStreamTmp);
+                    libvgmstream_close_stream(vgmStreamTmp);
                 } else result=[NSString stringWithFormat:@"%.3d",subsong-mod_minsub+1];
+                libvgmstream_free(vgmStreamTmp);
             }
         }
         return result;
@@ -17599,10 +17676,12 @@ extern bool icloud_available;
         mdz_ratio_fp_inc=(1<<16)/settings[GLOB_PBRATIO].detail.mdz_slider.slider_value;
         mdz_ratio_fp_inv_inc=(1<<16)*settings[GLOB_PBRATIO].detail.mdz_slider.slider_value;
         mdz_pbratio=settings[GLOB_PBRATIO].detail.mdz_slider.slider_value;
+        if (mPlayType==MMP_FUR && furPlayer) furPlayer->setPlaybackSpeed(mdz_pbratio);
     } else {
         mdz_ratio_fp_inc=0;
         mdz_ratio_fp_inv_inc=0;
         mdz_pbratio=1;
+        if (mPlayType==MMP_FUR && furPlayer) furPlayer->setPlaybackSpeed(1.0f);
     }
 }
 
@@ -18028,7 +18107,7 @@ extern "C" void adjust_amplification(void);
 
 
 -(BOOL) isPBRatioSupported {
-    if ((mPlayType==MMP_GME)||(mPlayType==MMP_NSFPLAY)||(mPlayType==MMP_VGMPLAY)||
+    if ((mPlayType==MMP_GME)||(mPlayType==MMP_NSFPLAY)||(mPlayType==MMP_FUR)||(mPlayType==MMP_VGMPLAY)||
         (mPlayType==MMP_TIMIDITY)||(mPlayType==MMP_SIDPLAY)||(mPlayType==MMP_WEBSID)||
         (mPlayType==MMP_OPENMPT)||(mPlayType==MMP_XMP)||(mPlayType==MMP_WSR) ) return TRUE;
     return FALSE;
@@ -18040,6 +18119,7 @@ extern "C" void adjust_amplification(void);
             return 0.3;
         case MMP_GME:
         case MMP_NSFPLAY:
+        case MMP_FUR:
         case MMP_VGMPLAY:
         case MMP_TIMIDITY:
         case MMP_WEBSID:
@@ -18055,6 +18135,7 @@ extern "C" void adjust_amplification(void);
     switch (mPlayType) {
         case MMP_GME:
         case MMP_NSFPLAY:
+        case MMP_FUR:
         case MMP_VGMPLAY:
         case MMP_TIMIDITY:
         case MMP_XMP:
@@ -18156,6 +18237,7 @@ extern "C" void adjust_amplification(void);
         case MMP_TIMIDITY:
         case MMP_KSS:
         case MMP_NSFPLAY:
+        case MMP_FUR:
         case MMP_PIXEL:
         case MMP_WSR:
         case MMP_EUP:
@@ -18191,7 +18273,8 @@ extern "C" void adjust_amplification(void);
             return [NSString stringWithFormat:@"%d-%s",channel+1,channel_instrum_name(m_voice_channel_mapping[channel])];
         case MMP_KSS:
         case MMP_GBS:
-        case MMP_NSFPLAY: {
+        case MMP_NSFPLAY:
+        case MMP_FUR: {
             return [NSString stringWithFormat:@"%s",modizVoicesName[channel]];
         }
         case MMP_ZXTUNE:
@@ -18313,6 +18396,7 @@ extern "C" void adjust_amplification(void);
         case MMP_KSS:
         case MMP_GBS:
         case MMP_NSFPLAY:
+        case MMP_FUR:
             return modizChipsetCount;
         case MMP_ZXTUNE:
             return 1;
@@ -18370,6 +18454,7 @@ extern "C" void adjust_amplification(void);
         case MMP_KSS:
         case MMP_GBS:
         case MMP_NSFPLAY:
+        case MMP_FUR:
             return [NSString stringWithFormat:@"%s",modizChipsetName[systemIdx]];
         case MMP_ZXTUNE:
             return [NSString stringWithFormat:@"%s",mdz_zxtune->get_system_name()];
@@ -18449,6 +18534,7 @@ extern "C" void adjust_amplification(void);
 -(int) getSystemForVoice:(int)voiceIdx {
     switch (mPlayType) {
         case MMP_NSFPLAY:
+        case MMP_FUR:
         case MMP_GBS:
         case MMP_KSS:
             for (int i=0;i<modizChipsetCount;i++) {
@@ -18527,6 +18613,7 @@ extern "C" void adjust_amplification(void);
         case MMP_KSS:
         case MMP_GBS:
         case MMP_NSFPLAY:
+        case MMP_FUR:
             tmp=0;
             for (int i=modizChipsetStartVoice[systemIdx];i<modizChipsetStartVoice[systemIdx]+modizChipsetVoicesCount[systemIdx];i++) tmp+=(m_voicesStatus[i]?1:0);
             if (tmp==modizChipsetVoicesCount[systemIdx]) return 2; //all active
@@ -18795,6 +18882,9 @@ extern "C" void adjust_amplification(void);
                 [self setm_voicesStatus:active index:systemIdx*3+i];
             }
             break;
+        case MMP_FUR:
+            for (int i=modizChipsetStartVoice[systemIdx];i<modizChipsetStartVoice[systemIdx]+modizChipsetVoicesCount[systemIdx];i++) [self setm_voicesStatus:active index:i];
+            break;
         case MMP_PMDMINI: {
             int idx=0;
             //1st reach 1st voice of systemIdx
@@ -19037,6 +19127,10 @@ extern "C" void adjust_amplification(void);
             break;
         case MMP_PT3: {
             pt3_mute[channel]=(active?0:1);
+            break;
+        }
+        case MMP_FUR: {
+            furPlayer->setMute(channel, (active?0:1));
             break;
         }
         case MMP_ASAP: {

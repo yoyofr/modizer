@@ -29,15 +29,6 @@
  * Public libavcodec Videotoolbox header.
  */
 
-/**
- * @defgroup lavc_codec_hwaccel_videotoolbox VideoToolbox Decoder
- * @ingroup lavc_codec_hwaccel
- *
- * Hardware accelerated decoding using VideoToolbox on Apple Platforms
- *
- * @{
- */
-
 #include <stdint.h>
 
 #define Picture QuickdrawPicture
@@ -45,8 +36,6 @@
 #undef Picture
 
 #include "libavcodec/avcodec.h"
-
-#include "libavutil/attributes.h"
 
 /**
  * This struct holds all the information that needs to be passed
@@ -57,17 +46,15 @@
 typedef struct AVVideotoolboxContext {
     /**
      * Videotoolbox decompression session object.
+     * Created and freed the caller.
      */
     VTDecompressionSessionRef session;
 
-#if FF_API_VT_OUTPUT_CALLBACK
     /**
      * The output callback that must be passed to the session.
      * Set by av_videottoolbox_default_init()
      */
-    attribute_deprecated
     VTDecompressionOutputCallback output_callback;
-#endif
 
     /**
      * CVPixelBuffer Format Type that Videotoolbox will use for decoded frames.
@@ -78,16 +65,16 @@ typedef struct AVVideotoolboxContext {
 
     /**
      * CoreMedia Format Description that Videotoolbox will use to create the decompression session.
+     * Set by the caller.
      */
     CMVideoFormatDescriptionRef cm_fmt_desc;
 
     /**
      * CoreMedia codec type that Videotoolbox will use to create the decompression session.
+     * Set by the caller.
      */
     int cm_codec_type;
 } AVVideotoolboxContext;
-
-#if FF_API_VT_HWACCEL_CONTEXT
 
 /**
  * Allocate and initialize a Videotoolbox context.
@@ -101,9 +88,7 @@ typedef struct AVVideotoolboxContext {
  * object and free the Videotoolbox context using av_free().
  *
  * @return the newly allocated context or NULL on failure
- * @deprecated Use AVCodecContext.hw_frames_ctx or hw_device_ctx instead.
  */
-attribute_deprecated
 AVVideotoolboxContext *av_videotoolbox_alloc_context(void);
 
 /**
@@ -113,9 +98,7 @@ AVVideotoolboxContext *av_videotoolbox_alloc_context(void);
  * @param avctx the corresponding codec context
  *
  * @return >= 0 on success, a negative AVERROR code on failure
- * @deprecated Use AVCodecContext.hw_frames_ctx or hw_device_ctx instead.
  */
-attribute_deprecated
 int av_videotoolbox_default_init(AVCodecContext *avctx);
 
 /**
@@ -126,9 +109,7 @@ int av_videotoolbox_default_init(AVCodecContext *avctx);
  * @param vtctx the Videotoolbox context to use
  *
  * @return >= 0 on success, a negative AVERROR code on failure
- * @deprecated Use AVCodecContext.hw_frames_ctx or hw_device_ctx instead.
  */
-attribute_deprecated
 int av_videotoolbox_default_init2(AVCodecContext *avctx, AVVideotoolboxContext *vtctx);
 
 /**
@@ -136,12 +117,8 @@ int av_videotoolbox_default_init2(AVCodecContext *avctx, AVVideotoolboxContext *
  * av_videotoolbox_default_init().
  *
  * @param avctx the corresponding codec context
- * @deprecated Use AVCodecContext.hw_frames_ctx or hw_device_ctx instead.
  */
-attribute_deprecated
 void av_videotoolbox_default_free(AVCodecContext *avctx);
-
-#endif /* FF_API_VT_HWACCEL_CONTEXT */
 
 /**
  * @}

@@ -29,6 +29,12 @@
     <ConfigurationType>Application</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
+  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <UseDebugLibraries>true</UseDebugLibraries>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <UseDebugLibraries>true</UseDebugLibraries>
+  </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="PropertySheets">
     <Import Project="..\vgmstream_msvc.props" />
@@ -60,6 +66,7 @@
     <Link>
       <AdditionalDependencies>$(VCliAdditionalDependencies32);%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
+      <EntryPointSymbol>wmainCRTStartup</EntryPointSymbol>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
@@ -72,6 +79,7 @@
     <Link>
       <AdditionalDependencies>$(VCliAdditionalDependencies64);%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
+      <EntryPointSymbol>wmainCRTStartup</EntryPointSymbol>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
@@ -84,6 +92,7 @@
     <Link>
       <AdditionalDependencies>$(VCliAdditionalDependencies32);%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
+      <EntryPointSymbol>wmainCRTStartup</EntryPointSymbol>
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -98,13 +107,23 @@
     <Link>
       <AdditionalDependencies>$(VCliAdditionalDependencies64);%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
+      <EntryPointSymbol>wmainCRTStartup</EntryPointSymbol>
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="vgmstream_cli.h" />
+    <ClInclude Include="vjson.h" />
+    <ClInclude Include="wav_utils.h" />
+    <ClInclude Include="windows_utils.h" />
+  </ItemGroup>
+  <ItemGroup>
     <ClCompile Include="vgmstream_cli.c" />
+    <ClCompile Include="vgmstream_cli_utils.c" />
+    <ClCompile Include="wav_utils.c" />
+    <ClCompile Include="windows_utils.c" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ext_libs\ext_libs.vcxproj">

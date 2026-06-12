@@ -61,8 +61,9 @@ if(USE_FFMPEG)
 
 		FetchDependency(FFMPEG
 			DIR ffmpeg
-			GIT_REPOSITORY https://git.ffmpeg.org/ffmpeg.git
-			GIT_TAG n5.1.2
+			#GIT_REPOSITORY https://git.ffmpeg.org/ffmpeg.git #broken at the moment
+			GIT_REPOSITORY https://github.com/FFmpeg/FFmpeg
+			GIT_TAG n7.1.1
 		)
 
 		if(FFMPEG_PATH)
@@ -114,6 +115,7 @@ if(USE_FFMPEG)
 				--disable-nvdec
 				--disable-vdpau
 				--disable-vulkan
+				--disable-libdrm
 				--enable-parser=${FFMPEG_CONF_PARSER}
 				--enable-demuxer=${FFMPEG_CONF_DEMUXER}
 				--enable-decoder=${FFMPEG_CONF_DECODER}

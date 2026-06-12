@@ -1,60 +1,59 @@
 #include "meta.h"
 #include "../util.h"
+#include "../util/meta_utils.h"
+#include "ivb_streamfile.h"
 
-/* a simple PS2 ADPCM format seen in Langrisser 3 */
-VGMSTREAM * init_vgmstream_ivb(STREAMFILE *streamFile) {
-    VGMSTREAM * vgmstream = NULL;
-    char filename[PATH_LIMIT];
-    off_t start_offset;
-    off_t stream_length;
 
-    int loop_flag = 0;
-	int channel_count;
+/* IVB - from Metro PS2 games [Bomberman Jetters (PS2), Dance Summit 2001: Bust A Move (PS2)] */
+VGMSTREAM* init_vgmstream_ivb(STREAMFILE* sf) {
 
-    /* check extension, case insensitive */
-    streamFile->get_name(streamFile,filename,sizeof(filename));
-    if (strcasecmp("ivb",filename_extension(filename))) goto fail;
+    /* checks */
+    if (!is_id32be(0x00, sf, "IVB\0"))
+        return NULL;
+    if (!check_extensions(sf,"ivb"))
+        return NULL;
 
-    /* check header */
-    if (read_32bitBE(0x00,streamFile) != 0x42564949) /* "BVII", probably */
-        goto fail;                                   /* supposed to be "IIVB"*/
+    meta_header_t h = {0};
+    h.meta = meta_IVB;
 
-    loop_flag = 0;
-    channel_count = 2;
-    
-	/* build the VGMSTREAM */
-    vgmstream = allocate_vgmstream(channel_count,loop_flag);
-    if (!vgmstream) goto fail;
+    // N stereo tracks, treat as subsongs instead of channels as both may have different total time
+    // and aren't meant to play at once, though data is padded so tracks have same size
 
-	/* fill in the vital statistics */
-	vgmstream->channels = channel_count;
-    vgmstream->sample_rate = read_32bitBE(0x8,streamFile);  /* big endian? */
-    vgmstream->coding_type = coding_PSX;
-    stream_length = read_32bitLE(0x04,streamFile);
-    start_offset = 0x10;
-    vgmstream->num_samples = stream_length*28/16;
+    h.total_subsongs = read_s32le(0x04, sf); // always 2 tracks
+    h.interleave = read_s32le(0x08, sf);
+    // 0c: null
 
-    vgmstream->layout_type = layout_none;
-    vgmstream->meta_type = meta_PS2_IVB;
+    // per track
+    // 00: channel size
+    // 04: channel blocks (may be less than channel size due to padding and different per track)
+    // 08: size of last block (1 channel)
+    // 0c: null
 
-    /* open the file for reading */
-    {
-        int i;
-        for (i=0;i<channel_count;i++) {
-            vgmstream->ch[i].streamfile = streamFile->open(streamFile,filename,STREAMFILE_DEFAULT_BUFFER_SIZE);
+    int target_subsong = sf->stream_index;
+    if (target_subsong == 0)
+        target_subsong = 1;
 
-            if (!vgmstream->ch[i].streamfile) goto fail;
+    uint32_t head_offset = 0x10 + (target_subsong - 1) * 0x10;
+    //uint32_t chan_size    = read_u32le(head_offset + 0x00, sf); //with padding
+    uint32_t chan_blocks    = read_u32le(head_offset + 0x04, sf);
+    uint32_t last_size      = read_u32le(head_offset + 0x08, sf); // last block without padding
 
-            vgmstream->ch[i].channel_start_offset=
-                vgmstream->ch[i].offset=start_offset+stream_length*i;
+    h.channels = 2;
+    h.sample_rate = 44100;
+    h.has_subsongs = true;
 
-        }
-    }
+    h.coding = coding_PSX;
+    h.layout = layout_interleave;
 
-    return vgmstream;
+    h.stream_offset = 0x00;
+    h.stream_size = (chan_blocks - 1) * h.interleave * h.channels + last_size * h.channels;
 
-    /* clean up anything we may have opened */
-fail:
-    if (vgmstream) close_vgmstream(vgmstream);
-    return NULL;
+    h.num_samples = ps_bytes_to_samples(h.stream_size, h.channels);
+
+    h.sf = setup_ivb_streamfile(sf, 0x800, h.total_subsongs, target_subsong - 1, h.interleave * h.channels);
+    h.open_stream = true;
+
+    VGMSTREAM* v = alloc_metastream(&h);
+    close_streamfile(h.sf);
+    return v;
 }

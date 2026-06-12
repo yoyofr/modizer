@@ -20,7 +20,6 @@
 
 /**
  * @file
- * @ingroup lavu_video_stereo3d
  * Stereoscopic video
  */
 
@@ -32,15 +31,19 @@
 #include "frame.h"
 
 /**
- * @defgroup lavu_video_stereo3d Stereo3D types and functions
- * @ingroup lavu_video
+ * @addtogroup lavu_video
+ * @{
  *
+ * @defgroup lavu_video_stereo3d Stereo3D types and functions
+ * @{
+ */
+
+/**
+ * @addtogroup lavu_video_stereo3d
  * A stereoscopic video file consists in multiple views embedded in a single
  * frame, usually describing two views of a scene. This file describes all
  * possible codec-independent view arrangements.
- *
- * @{
- */
+ * */
 
 /**
  * List of possible 3D Types
@@ -223,6 +226,7 @@ const char *av_stereo3d_type_name(unsigned int type);
 int av_stereo3d_from_name(const char *name);
 
 /**
+ * @}
  * @}
  */
 

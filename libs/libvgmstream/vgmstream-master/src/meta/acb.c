@@ -14,13 +14,15 @@ VGMSTREAM* init_vgmstream_acb(STREAMFILE* sf) {
 
     /* checks */
     if (!is_id32be(0x00,sf, "@UTF"))
-        goto fail;
+        return NULL;
     /* mainly for bigger files (utf lib checks smaller) */
     if (read_u32be(0x04,sf) + 0x08 != get_streamfile_size(sf))
-        goto fail;
+        return NULL;
 
-    if (!check_extensions(sf, "acb"))
-        goto fail;
+    /* .acb: standard
+     * .acx: Dariusburst - Chronicle Saviors (multi) */
+    if (!check_extensions(sf, "acb,acx"))
+        return NULL;
 
     /* .acb is a cue sheet that uses @UTF (CRI's generic table format) to store row/columns
      * with complex info (cues, sequences, spatial info, etc). It can store a memory .awb
@@ -51,10 +53,18 @@ VGMSTREAM* init_vgmstream_acb(STREAMFILE* sf) {
         }
     }
 
-    //;VGM_LOG("acb: subfile offset=%lx + %x\n", subfile_offset, subfile_size);
+    //;VGM_LOG("acb: subfile offset=%x + %x\n", subfile_offset, subfile_size);
 
-    temp_sf = setup_subfile_streamfile(sf, subfile_offset,subfile_size, "awb");
-    if (!temp_sf) goto fail;
+    // .acb+awb (most common)
+    if (!temp_sf)
+        temp_sf = setup_subfile_streamfile(sf, subfile_offset,subfile_size, "awb");
+
+    // .acx+awx [Dariusburst: Chronicle Saviors (multi)]
+    if (!temp_sf && check_extensions(sf, "acx"))
+        temp_sf = setup_subfile_streamfile(sf, subfile_offset,subfile_size, "awx");
+
+    if (!temp_sf)
+        goto fail;
 
     if (is_id32be(0x00, temp_sf, "CPK ")) {
         vgmstream = init_vgmstream_cpk_memory(temp_sf, sf); /* older */
@@ -319,7 +329,7 @@ static int preload_acb_waveform(acb_header* acb) {
         return 1;
     //;VGM_LOG("acb: preload Waveform=%i\n", *p_rows);
 
-    acb->Waveform = malloc(*p_rows * sizeof(Waveform_t));
+    acb->Waveform = calloc(1, *p_rows * sizeof(Waveform_t));
     if (!acb->Waveform) goto fail;
 
     c_Id = utf_get_column(Table, "Id");
@@ -410,7 +420,7 @@ static int preload_acb_synth(acb_header* acb) {
         return 1;
     //;VGM_LOG("acb: preload Synth=%i\n", *p_rows);
 
-    acb->Synth = malloc(*p_rows * sizeof(Synth_t));
+    acb->Synth = calloc(1, *p_rows * sizeof(Synth_t));
     if (!acb->Synth) goto fail;
 
     c_Type = utf_get_column(Table, "Type");
@@ -538,7 +548,7 @@ static int load_acb_command_tlvs(acb_header* acb, STREAMFILE* sf, uint32_t Comma
 
                 tlv_type = read_u16be(Command_offset + pos + 0x00, sf); /* ReferenceItem */
                 tlv_index = read_u16be(Command_offset + pos + 0x02, sf);
-                //;VGM_LOG("acb: TLV at %x: type %x, index=%x\n", offset, tlv_type, tlv_index);
+                //;VGM_LOG("acb: TLV at %x: type %x, index=%x\n", Command_offset, tlv_type, tlv_index);
 
                 /* same as Synth's ReferenceItem type? */
                 switch(tlv_type) {
@@ -561,7 +571,7 @@ static int load_acb_command_tlvs(acb_header* acb, STREAMFILE* sf, uint32_t Comma
 
             case 2004: /* noteOnWithDuration */
                 /* same as the above plus extra field */
-                //;VGM_LOG("acb: TLV at %x: usable code %i?\n", offset-0x03, tlv_code);
+                //;VGM_LOG("acb: TLV at %x: usable code %i?\n", Command_offset-0x03, tlv_code);
                 break;
 
             case 33:   /* mute */
@@ -576,7 +586,7 @@ static int load_acb_command_tlvs(acb_header* acb, STREAMFILE* sf, uint32_t Comma
             case 7100: /* startAction */
             case 7101: /* stopAction */
                 /* may be needed? */
-                //;VGM_LOG("acb: TLV at %x: check code %i?\n", offset-0x03, tlv_code);
+                //;VGM_LOG("acb: TLV at %x: check code %i?\n", Command_offset-0x03, tlv_code);
                 break;
 
             case 0:    /* no-op */
@@ -613,7 +623,7 @@ static int preload_acb_trackcommand(acb_header* acb) {
         return 1;
     //;VGM_LOG("acb: preload TrackEvent/Command=%i\n", *p_rows);
 
-    acb->TrackCommand = malloc(*p_rows * sizeof(TrackCommand_t));
+    acb->TrackCommand = calloc(1, *p_rows * sizeof(TrackCommand_t));
     if (!acb->TrackCommand) goto fail;
 
     c_Command = utf_get_column(Table, "Command");
@@ -665,7 +675,7 @@ static int preload_acb_track(acb_header* acb) {
         return 1;
     //;VGM_LOG("acb: preload Track=%i\n", *p_rows);
 
-    acb->Track = malloc(*p_rows * sizeof(Track_t));
+    acb->Track = calloc(1, *p_rows * sizeof(Track_t));
     if (!acb->Track) goto fail;
 
     c_EventIndex = utf_get_column(Table, "EventIndex");
@@ -724,7 +734,7 @@ static int preload_acb_sequence(acb_header* acb) {
         return 1;
     //;VGM_LOG("acb: preload Sequence=%i\n", *p_rows);
 
-    acb->Sequence = malloc(*p_rows * sizeof(Sequence_t));
+    acb->Sequence = calloc(1, *p_rows * sizeof(Sequence_t));
     if (!acb->Sequence) goto fail;
 
     c_NumTracks = utf_get_column(Table, "NumTracks");
@@ -826,7 +836,7 @@ static int preload_acb_block(acb_header* acb) {
         return 1;
     //;VGM_LOG("acb: preload Block=%i\n", *p_rows);
 
-    acb->Block = malloc(*p_rows * sizeof(Block_t));
+    acb->Block = calloc(1, *p_rows * sizeof(Block_t));
     if (!acb->Block) goto fail;
 
     c_NumTracks = utf_get_column(Table, "NumTracks");
@@ -891,7 +901,7 @@ static int preload_acb_blocksequence(acb_header* acb) {
         return 1;
     //;VGM_LOG("acb: preload BlockSequence=%i\n", *p_rows);
 
-    acb->BlockSequence = malloc(*p_rows * sizeof(BlockSequence_t));
+    acb->BlockSequence = calloc(1, *p_rows * sizeof(BlockSequence_t));
     if (!acb->BlockSequence) goto fail;
 
     c_NumTracks = utf_get_column(Table, "NumTracks");
@@ -972,7 +982,7 @@ static int preload_acb_cue(acb_header* acb) {
         return 1;
     //;VGM_LOG("acb: preload Cue=%i\n", *p_rows);
 
-    acb->Cue = malloc(*p_rows * sizeof(Cue_t));
+    acb->Cue = calloc(1, *p_rows * sizeof(Cue_t));
     if (!acb->Cue) goto fail;
 
     c_ReferenceType = utf_get_column(Table, "ReferenceType");
@@ -1055,13 +1065,16 @@ static int preload_acb_cuename(acb_header* acb) {
 
     if (*p_rows) 
         return 1;
+
     if (!open_utf_subtable(acb, &acb->CueNameSf, &Table, "CueNameTable", p_rows, ACB_TABLE_BUFFER_CUENAME))
         goto fail;
+    acb->CueNames = Table; /* keep this table around since we need CueName pointers */
+
     if (!*p_rows)
         return 1;
     //;VGM_LOG("acb: preload CueName=%i\n", *p_rows);
 
-    acb->CueName = malloc(*p_rows * sizeof(CueName_t));
+    acb->CueName = calloc(1, *p_rows * sizeof(CueName_t));
     if (!acb->CueName) goto fail;
 
     c_CueIndex = utf_get_column(Table, "CueIndex");
@@ -1074,7 +1087,7 @@ static int preload_acb_cuename(acb_header* acb) {
         utf_query_col_string(Table, i, c_CueName, &r->CueName);
     }
 
-    //utf_close(Table); /* keep this table around since we need CueName pointers */
+    //utf_close(Table); /* released at the end */
     return 1;
 fail:
     VGM_LOG("acb: failed CueName preload\n");
@@ -1115,7 +1128,7 @@ static int preload_acb_waveformextensiondata(acb_header* acb) {
         return 1;
     //;VGM_LOG("acb: preload WaveformExtensionData=%i\n", *p_rows);
 
-    acb->WaveformExtensionData = malloc(*p_rows * sizeof(WaveformExtensionData_t));
+    acb->WaveformExtensionData = calloc(1, *p_rows * sizeof(WaveformExtensionData_t));
     if (!acb->WaveformExtensionData) goto fail;
 
     c_LoopStart = utf_get_column(Table, "LoopStart");
@@ -1164,7 +1177,7 @@ static int load_acb_loops(acb_header* acb, VGMSTREAM* vgmstream) {
 
     r = &acb->WaveformExtensionData[ExtensionIndex];
 
-    //;VGM_LOG("acb: WaveformExtensionData[%i]: LoopStart=%i, LoopEnd=%i\n", Index, r->LoopStart, r->LoopEnd);
+    //;VGM_LOG("acb: WaveformExtensionData[%i]: LoopStart=%i, LoopEnd=%i\n", ExtensionIndex, r->LoopStart, r->LoopEnd);
 
     vgmstream_force_loop(vgmstream, 1, r->LoopStart, r->LoopEnd);
 
@@ -1206,19 +1219,17 @@ fail:
  */
 
 void load_acb_wave_info(STREAMFILE* sf, VGMSTREAM* vgmstream, int waveid, int port, int is_memory, int load_loops) {
-    acb_header acb = {0};
-    int i;
-
 
     if (!sf || !vgmstream || waveid < 0)
         return;
 
     //;VGM_LOG("acb: find waveid=%i, port=%i\n", waveid, port);
 
+    acb_header acb = {0};
     acb.acbFile = sf;
 
     acb.Header = utf_open(acb.acbFile, 0x00, NULL, NULL);
-    if (!acb.Header) goto fail;
+    if (!acb.Header) return;
 
     acb.target_waveid = waveid;
     acb.target_port = port;
@@ -1227,7 +1238,7 @@ void load_acb_wave_info(STREAMFILE* sf, VGMSTREAM* vgmstream, int waveid, int po
 
     /* read all possible cue names and find which waveids are referenced by it */
     preload_acb_cuename(&acb);
-    for (i = 0; i < acb.CueName_rows; i++) {
+    for (int i = 0; i < acb.CueName_rows; i++) {
         if (!load_acb_cuename(&acb, i))
             goto fail;
     }

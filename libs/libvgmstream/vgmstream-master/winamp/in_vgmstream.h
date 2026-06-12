@@ -20,9 +20,10 @@
 #include <string.h>
 #include <ctype.h>
 #include <math.h>
+#include <stdio.h>
+#include <stdbool.h>
 
-#include "../src/vgmstream.h"
-#include "../src/api.h"
+#include "../src/libvgmstream.h"
 #include "sdk/in2.h"
 #include "sdk/wa_ipc.h"
 #include "sdk/ipc_pe.h"
@@ -33,8 +34,10 @@
 /* IN_CONFIG                             */
 /* ************************************* */
 
+#define WINAMP_PATH_LIMIT 4096
+
 extern In_Module input_module;
-extern int priority_values[7];
+extern const int priority_values[7];
 
 typedef enum {
     REPLAYGAIN_NONE,
@@ -62,19 +65,21 @@ typedef struct {
     replay_gain_type_t gain_type;
     replay_gain_type_t clip_type;
 
-    int is_xmplay;
+    bool is_xmplay;
 } winamp_settings_t;
 
 extern winamp_settings_t defaults;
 extern winamp_settings_t settings;
 
-/* in_config.c */
 void load_defaults(winamp_settings_t* defaults);
 void load_config(In_Module* input_module, winamp_settings_t* settings, winamp_settings_t* defaults);
 INT_PTR CALLBACK configDlgProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 
-/* logger */
+/* ************************************* */
+/* IN_LOG                                */
+/* ************************************* */
+
 typedef struct winamp_log_t winamp_log_t;
 void logger_init();
 void logger_free();
@@ -87,8 +92,13 @@ extern winamp_log_t* walog;
 /* ************************************* */
 /* IN_UNICODE                            */
 /* ************************************* */
-//todo safe ops
-//todo there must be a better way to handle unicode...
+//TODO safe ops
+//TODO there must be a better way to handle unicode...
+
+#ifdef _MSC_VER
+  #define strcasecmp _stricmp
+#endif
+
 #ifdef UNICODE_INPUT_PLUGIN
 #define wa_strcmp wcscmp
 #define wa_strncmp wcsncmp
@@ -97,6 +107,7 @@ extern winamp_log_t* walog;
 #define wa_strcat wcscat
 #define wa_strlen wcslen
 #define wa_strchr wcschr
+#define wa_strstr wcsstr
 #define wa_sscanf swscanf
 #define wa_snprintf _snwprintf
 #define wa_strrchr wcsrchr
@@ -111,6 +122,7 @@ extern winamp_log_t* walog;
 #define wa_strcat strcat
 #define wa_strlen strlen
 #define wa_strchr strchr
+#define wa_strstr strstr
 #define wa_sscanf sscanf
 #define wa_snprintf snprintf
 #define wa_strrchr strrchr
@@ -190,11 +202,11 @@ static inline void cfg_char_to_wchar(TCHAR *wdst, size_t wdstsize, const char *s
 }
 
 
-/* ************************************* */
-/* IN_STREAMFILE                         */
-/* ************************************* */
-
 /* in_streamfile.c */
-STREAMFILE* open_winamp_streamfile_by_ipath(const in_char* wpath);
+libstreamfile_t* open_winamp_streamfile_by_ipath(const in_char* wpath);
 
-#endif /*_IN_VGMSTREAM_*/
+void build_extension_list(char* extension_list, int list_size);
+
+bool split_subsongs(const in_char* filename, int subsong_index, libvgmstream_t* vgmstream);
+
+#endif

@@ -1,12 +1,41 @@
 #ifndef _FOO_VGMSTREAM_
 #define _FOO_VGMSTREAM_
 
-#define SAMPLE_BUFFER_SIZE     1024
+#define SAMPLE_BUFFER_SIZE    1024
+#define FOO_PATH_LIMIT        4096 /* see vgmstream_limits.h*/
 
 extern "C" {
-#include "../src/vgmstream.h"
+#include "../src/libvgmstream.h"
 }
 
+typedef struct {
+    pfc::string8_fast title;
+    pfc::string8_fast stream_name;
+    pfc::string8_fast layout_name;
+    pfc::string8_fast codec_name;
+    pfc::string8_fast meta_name;
+    pfc::string8_fast channel_mask;
+
+    int channels;
+    int sample_rate;
+
+    int input_channels;
+    int subsong_count;
+    int subsong_index;
+
+    int bits_per_sample;
+
+    int64_t stream_samples;
+    int64_t loop_start;
+    int64_t loop_end;
+    bool loop_flag;
+
+    int bitrate;
+    uint32_t channel_layout;
+
+    double play_length_s;
+
+} vgmstream_info_t;
 
 class input_vgmstream : public input_stubs {
     public:
@@ -48,24 +77,17 @@ class input_vgmstream : public input_stubs {
         t_filestats2 stats2;
 
         /* state */
-        VGMSTREAM* vgmstream;
+        libvgmstream_t* vgmstream;
         t_uint32 subsong;
         bool direct_subsong;
-        int output_channels;
-
-        bool decoding;
-        int paused;
-        int decode_pos_ms;
-        int decode_pos_samples;
-        int length_samples;
-        short sample_buffer[SAMPLE_BUFFER_SIZE * VGMSTREAM_MAX_CHANNELS];
 
         /* settings */
         double fade_seconds;
         double fade_delay_seconds;
         double loop_count;
+        bool allow_loop_forever;
         bool loop_forever;
-        int ignore_loop;
+        bool ignore_loop;
         bool disable_subsongs;
 
         int downmix_channels;
@@ -76,18 +98,23 @@ class input_vgmstream : public input_stubs {
       //bool exts_unknown_on;
 
         /* helpers */
-        VGMSTREAM* init_vgmstream_foo(t_uint32 p_subsong, const char* const filename, abort_callback& p_abort);
-        void setup_vgmstream(abort_callback& p_abort);
         void load_settings();
-        void get_subsong_info(t_uint32 p_subsong, pfc::string_base& title, int* length_in_ms, int* total_samples, int* loop_flag, int *loop_start, int* loop_end, int* sample_rate, int* channels, int* bitrate, pfc::string_base& description, abort_callback& p_abort);
-        bool get_description_tag(pfc::string_base& temp, pfc::string_base const& description, const char* tag, char delimiter = '\n');
-        void apply_config(VGMSTREAM* vgmstream);
 
-        static void g_load_cfg(int* accept_unknown, int* accept_common);
+        void put_info_tags(file_info& p_info, vgmstream_info_t& v_info);
+        void put_into_tagfile(file_info& p_info, abort_callback& p_abort);
+        void put_info_details(file_info& p_info, vgmstream_info_t& v_info);
+
+        libvgmstream_t* init_vgmstream_foo(t_uint32 p_subsong, const char* const filename, abort_callback& p_abort);
+        void setup_vgmstream(abort_callback& p_abort);
+        void load_vconfig(libvgmstream_config_t* vcfg);
+
+        void query_subsong_info(t_uint32 p_subsong, vgmstream_info_t& v_info, abort_callback& p_abort);
+        bool query_description_tag(pfc::string_base& temp, pfc::string_base const& description, const char* tag, char delimiter = '\n');
+
+        static void g_load_cfg(bool* accept_unknown, bool* accept_common);
 };
 
 /* foo_streamfile.cpp */
-STREAMFILE* open_foo_streamfile(const char* const filename, abort_callback* p_abort, t_filestats* stats);
+libstreamfile_t* open_foo_streamfile(const char* const filename, abort_callback* p_abort, t_filestats* stats);
 
-
-#endif /*_FOO_VGMSTREAM_*/
+#endif

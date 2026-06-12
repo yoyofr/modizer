@@ -1,10 +1,11 @@
 /**
  * vgmstream for Audacious
  */
-
+#include <glib.h>
 #include <cstdlib>
 #include <algorithm>
 #include <string.h>
+#include <stdio.h>
 
 #if DEBUG
 #include <ctime>
@@ -15,8 +16,7 @@
 
 
 extern "C" {
-#include "../src/vgmstream.h"
-#include "../src/api.h"
+#include "../src/libvgmstream.h"
 }
 #include "plugin.h"
 #include "vfs.h"
@@ -32,7 +32,7 @@ extern "C" {
 
 
 #define CFG_ID "vgmstream" // ID for storing in audacious
-#define MIN_BUFFER_SIZE 576
+#define AU_PATH_LIMIT 0x4000
 
 /* global state */
 /*EXPORT*/ VgmstreamPlugin aud_plugin_instance;
@@ -126,27 +126,27 @@ const PluginPreferences VgmstreamPlugin::prefs = {
 bool VgmstreamPlugin::is_our_file(const char * filename, VFSFile & file) {
     AUDDBG("test file=%s\n", filename);
 
-    vgmstream_ctx_valid_cfg cfg = {0};
+    libvgmstream_valid_t vcfg = {0};
 
-    cfg.accept_unknown = settings.exts_unknown_on;
-    cfg.accept_common = settings.exts_common_on;
+    vcfg.accept_unknown = settings.exts_unknown_on;
+    vcfg.accept_common = settings.exts_common_on;
 
-    int ok = vgmstream_ctx_is_valid(filename, &cfg);
+    int ok = libvgmstream_is_valid(filename, &vcfg);
     if (!ok) {
         return false;
     }
 
     // just in case reject non-supported files, to avoid hijacking certain files like .vgm
     // (other plugins should have higher priority though)
-    STREAMFILE* sf = open_vfs(filename);
+    libstreamfile_t* sf = open_vfs(filename);
     if (!sf) return false;
 
-    VGMSTREAM* infostream = init_vgmstream_from_STREAMFILE(sf);
-    close_streamfile(sf);
+    libvgmstream_t* infostream = libvgmstream_create(sf, 0, NULL);
+    libstreamfile_close(sf);
     if (!infostream) {
         return false;
     }
-    close_vgmstream(infostream);
+    libvgmstream_free(infostream);
 
     return true;
 }
@@ -154,7 +154,7 @@ bool VgmstreamPlugin::is_our_file(const char * filename, VFSFile & file) {
 
 /* default output in audacious is: "INFO/DEBUG plugin.cc:xxx [(fn name)]: (msg)" */
 static void vgmstream_log(int level, const char* str) {
-    if (level == VGM_LOG_LEVEL_DEBUG)
+    if (level == LIBVGMSTREAM_LOG_LEVEL_DEBUG)
         AUDDBG("%s", str);
     else
         AUDINFO("%s", str);
@@ -166,7 +166,7 @@ bool VgmstreamPlugin::init() {
 
     vgmstream_settings_load();
 
-    vgmstream_set_log_callback(VGM_LOG_LEVEL_ALL, (void*)&vgmstream_log);
+    libvgmstream_set_log(LIBVGMSTREAM_LOG_LEVEL_ALL, vgmstream_log);
 
     return true;
 }
@@ -178,14 +178,14 @@ void VgmstreamPlugin::cleanup() {
     vgmstream_settings_save();
 }
 
-static int get_basename_subtune(const char* filename, char* buf, int buf_len, int* p_subtune) {
+static bool get_basename_subtune(const char* filename, char* buf, int buf_len, int* p_subtune) {
     int subtune;
 
     const char* pos = strrchr(filename, '?');
     if (!pos)
-        return 0;
+        return false;
     if (sscanf(pos, "?%i", &subtune) != 1)
-        return 0;
+        return false;
 
     if (p_subtune)
         *p_subtune = subtune;
@@ -195,20 +195,15 @@ static int get_basename_subtune(const char* filename, char* buf, int buf_len, in
     if (pos2) //removes '?'
         pos2[0] = '\0';
 
-    return 1;
+    return true;
 }
-
-static void apply_config(VGMSTREAM* vgmstream, audacious_settings_t* settings) {
-    vgmstream_cfg_t vcfg = {0};
-
-    vcfg.allow_play_forever = 1;
-    vcfg.play_forever = settings->loop_forever;
-    vcfg.loop_count = settings->loop_count;
-    vcfg.fade_time = settings->fade_time;
-    vcfg.fade_delay = settings->fade_delay;
-    vcfg.ignore_loop = settings->ignore_loop;
-
-    vgmstream_apply_config(vgmstream, &vcfg);
+static void load_vconfig(libvgmstream_config_t* vcfg, audacious_settings_t* cfg) {
+    vcfg->allow_play_forever = true;
+    vcfg->play_forever = cfg->loop_forever;
+    vcfg->loop_count = cfg->loop_count;
+    vcfg->fade_time = cfg->fade_time;
+    vcfg->fade_delay = cfg->fade_delay;
+    vcfg->ignore_loop = cfg->ignore_loop;
 }
 
 // internal helper, called every time user adds a new file to playlist
@@ -218,75 +213,88 @@ static bool read_info(const char* filename, Tuple & tuple) {
     // Audacious first calls this as a regular file (use_subtune is 0). If file has subsongs,
     // you need to detect and call set_subtunes below and return. Then Audacious will call again
     // this and "play" with "filename?N" (where N=subtune, 1=first), that must be detected and handled
-    // (see plugin.h)
-    char basename[PATH_LIMIT]; //filename without '?'
+    // (see plugin.h + audacious-plugins/src/sid)
+    char basename[AU_PATH_LIMIT]; //filename without '?'
     int subtune = 0;
-    int use_subtune = get_basename_subtune(filename, basename, sizeof(basename), &subtune);
+    bool use_subtune = get_basename_subtune(filename, basename, sizeof(basename), &subtune);
+    if (!use_subtune)
+        subtune = 0;
 
-    STREAMFILE* sf = open_vfs(use_subtune ? basename : filename);
+    libstreamfile_t* sf = open_vfs(use_subtune ? basename : filename);
     if (!sf) return false;
 
-    if (use_subtune)
-        sf->stream_index = subtune;
+    libvgmstream_config_t vcfg = {0};
+    load_vconfig(&vcfg, &settings);
 
-    VGMSTREAM* infostream = init_vgmstream_from_STREAMFILE(sf);
-    close_streamfile(sf);
+    libvgmstream_t* infostream = libvgmstream_create(sf, subtune, &vcfg);
+    libstreamfile_close(sf);
     if (!infostream) {
         return false;
     }
 
-    int total_subtunes = infostream->num_streams;
 
+    int total_subtunes = infostream->format->subsong_count;
     // int was changed to short in some version, though vgmstream formats can exceed it
     if (total_subtunes > 32767)
         total_subtunes = 32767;
+
     // format has subsongs but Audacious didn't ask for subsong yet
     if (total_subtunes >= 1 && !use_subtune) {
-        //set nullptr to leave subsong index linear (must add +1 to subtune)
-        tuple.set_subtunes(total_subtunes, nullptr);
+        // pass nullptr to leave subsong index linear (must add +1 to subtune on open)
+        tuple.set_subtunes(total_subtunes, nullptr); // equivalent to setting NumSubtunes
 
-        close_vgmstream(infostream);
-        return true;
+        // In Audacious 3.10+ (95e229a) subsongs only work for extensions in VgmstreamPlugin::exts, unless the "slow_probe"
+        // option is set (*Settings > Advanced > Probe contents of files with no recognized file name extensions*).
+        // Can't quite maintain extensions for subsongs so simply hope the option is enabled.
+        // BUT! with slow_probe disabled, adding a file > removing it > adding it again unpacks subsongs (bug?).
+        // Keep going if not enabled, will play first subsong normally.
+        bool subtunes_enabled = aud_get_bool("slow_probe");
+        if (subtunes_enabled) {
+            // stop for performance reasons (could set info but would be ignored)
+            libvgmstream_free(infostream);
+            return true;
+        }
     }
 
 
-    apply_config(infostream, &settings);
+    int bitrate = infostream->format->stream_bitrate; // must be in kb/s
+    int length_samples = infostream->format->play_samples;
+    int length_ms = length_samples * 1000LL / infostream->format->sample_rate;
 
-    int output_channels = infostream->channels;
-    vgmstream_mixing_autodownmix(infostream, settings.downmix_channels);
-    vgmstream_mixing_enable(infostream, 0, NULL, &output_channels);
-
-    int bitrate = get_vgmstream_average_bitrate(infostream);
-    int length_samples = vgmstream_get_samples(infostream);
-    int length_ms = length_samples * 1000LL / infostream->sample_rate;
-
-    //todo: set_format may throw std::bad_alloc if output_channels isn't supported (only 2?)
-    // short form, not sure if better way
-    tuple.set_format("vgmstream codec", output_channels, infostream->sample_rate, bitrate);
-    tuple.set_filename(filename); //used?
-    tuple.set_int(Tuple::Bitrate, bitrate); //in kb/s
+    // pass some defaults, same as manual tuple.set_x(Tuple::Thing, x) (info only, actual validations are in open_audio)
+    tuple.set_format(infostream->format->codec_name, infostream->format->channels, infostream->format->sample_rate, bitrate);
+    //tuple.set_filename(filename); //used?
     tuple.set_int(Tuple::Length, length_ms);
+    tuple.set_str(Tuple::Comment, "vgmstream " VGMSTREAM_VERSION); //to make clearer vgmstream is actually opening the file
 
-    //todo here we could call describe_vgmstream() and get substring to add tags and stuff
-    tuple.set_str(Tuple::Codec, "vgmstream codec");
-    if (use_subtune) {
+    { /*if (use_subtune)*/
         tuple.set_int(Tuple::Subtune, subtune);
-        tuple.set_int(Tuple::NumSubtunes, infostream->num_streams);
+        tuple.set_int(Tuple::NumSubtunes, total_subtunes);
 
-        char title[1024];
-        vgmstream_get_title(title, sizeof(title), basename, infostream, NULL);
+        // Audacious uses URLs,  must decode back and forth (see vfs.cc too)
+        gchar* hostname;
+        gchar* dec_name = g_filename_from_uri(use_subtune ? basename : filename, &hostname, NULL);
+
+        char title[1024] = {0};
+        libvgmstream_title_t cfg = {
+            .filename = dec_name
+        };
+        libvgmstream_get_title(infostream, &cfg, title, sizeof(title));
         tuple.set_str(Tuple::Title, title); //may be overwritten by tags
+
+        g_free(hostname);
+        g_free(dec_name);
     }
 
 
     // this function is only called when files are added to playlist,
-    // so to reload tags files need to readded
+    // so to reload tags files need to re-added
     if (!settings.tagfile_disable) {
         //todo improve string functions
-        char tagfile_path[PATH_LIMIT];
+        char tagfile_path[AU_PATH_LIMIT];
         strcpy(tagfile_path, filename);
 
-        char *path = strrchr(tagfile_path,'/');
+        char* path = strrchr(tagfile_path,'/');
         if (path != NULL) {
             path[1] = '\0';  /* includes "/", remove after that from tagfile_path */
             strcat(tagfile_path,tagfile_name);
@@ -295,14 +303,16 @@ static bool read_info(const char* filename, Tuple & tuple) {
             strcpy(tagfile_path,tagfile_name);
         }
 
-        STREAMFILE* sf_tags = open_vfs(tagfile_path);
+        libstreamfile_t* sf_tags = open_vfs(tagfile_path);
         if (sf_tags != NULL) {
-            VGMSTREAM_TAGS* tags;
-            const char *tag_key, *tag_val;
+            libvgmstream_tags_t* tags = NULL;
 
-            tags = vgmstream_tags_init(&tag_key, &tag_val);
-            vgmstream_tags_reset(tags, filename);
-            while (vgmstream_tags_next_tag(tags, sf_tags)) {
+            tags = libvgmstream_tags_init(sf_tags);
+            libvgmstream_tags_find(tags, filename);
+            while (libvgmstream_tags_next_tag(tags)) {
+                const char* tag_key = tags->key;
+                const char* tag_val = tags->val;
+
                 // see tuple.h (ugly but other plugins do it like this)
                 if (strcasecmp(tag_key, "ARTIST") == 0)
                     tuple.set_str(Tuple::Artist, tag_val);
@@ -336,12 +346,12 @@ static bool read_info(const char* filename, Tuple & tuple) {
 #endif
             }
 
-            vgmstream_tags_close(tags);
-            close_streamfile(sf_tags);
+            libvgmstream_tags_free(tags);
+            libstreamfile_close(sf_tags);
         }
     }
 
-    close_vgmstream(infostream);
+    libvgmstream_free(infostream);
 
     return true;
 }
@@ -359,94 +369,77 @@ bool VgmstreamPlugin::read_tag(const char * filename, VFSFile & file, Tuple & tu
 }
 
 // internal util to seek during play
-static void do_seek(VGMSTREAM* vgmstream, int seek_ms, int& current_sample_pos) {
+static void do_seek(libvgmstream_t* vgmstream, int seek_ms) {
     AUDINFO("seeking\n");
 
     // compute from ms to samples
-    int seek_sample = (long long)seek_ms * vgmstream->sample_rate / 1000L;
+    int seek_sample = (long long)seek_ms * vgmstream->format->sample_rate / 1000L;
 
-    seek_vgmstream(vgmstream, seek_sample);
-
-    current_sample_pos = seek_sample;
+    libvgmstream_seek(vgmstream, seek_sample);
 }
 
 // called on play (play thread)
 bool VgmstreamPlugin::play(const char * filename, VFSFile & file) {
     AUDINFO("play file=%s\n", filename);
 
-    //handle subsongs (see read_info)
-    char basename[PATH_LIMIT]; //filename without '?'
+    // handle subsongs (see read_info)
+    char basename[AU_PATH_LIMIT]; //filename without '?'
     int subtune = 0;
     int use_subtune = get_basename_subtune(filename, basename, sizeof(basename), &subtune);
+    if (!use_subtune)
+        subtune = 0;
 
-    STREAMFILE* sf = open_vfs(use_subtune ? basename : filename);
+    libstreamfile_t* sf = open_vfs(use_subtune ? basename : filename);
     if (!sf) {
         AUDERR("failed opening file %s\n", filename);
         return false;
     }
 
-    if (use_subtune)
-        sf->stream_index = subtune;
+    libvgmstream_config_t vcfg = {0};
+    load_vconfig(&vcfg, &settings);
 
-    VGMSTREAM* vgmstream = init_vgmstream_from_STREAMFILE(sf);
-    close_streamfile(sf);
-
+    libvgmstream_t* vgmstream = libvgmstream_create(sf, subtune, &vcfg);
+    libstreamfile_close(sf);
     if (!vgmstream) {
         AUDINFO("filename %s is not a valid format\n", filename);
         return false;
     }
 
-    int bitrate = get_vgmstream_average_bitrate(vgmstream);
-    set_stream_bitrate(bitrate);
-
-    //todo apply config
-
-    apply_config(vgmstream, &settings);
-
-    int input_channels = vgmstream->channels;
-    int output_channels = vgmstream->channels;
-    /* enable after all config but before outbuf */
-    vgmstream_mixing_autodownmix(vgmstream, settings.downmix_channels);
-    vgmstream_mixing_enable(vgmstream, MIN_BUFFER_SIZE, &input_channels, &output_channels);
+    set_stream_bitrate(vgmstream->format->stream_bitrate);
 
     //FMT_S8 / FMT_S16_NE / FMT_S24_NE / FMT_S32_NE / FMT_FLOAT
-    open_audio(FMT_S16_LE, vgmstream->sample_rate, output_channels);
+    int format;
+    switch(vgmstream->format->sample_format) {
+        case LIBVGMSTREAM_SFMT_FLOAT: format = FMT_FLOAT; break;
+        case LIBVGMSTREAM_SFMT_PCM16: format = FMT_S16_LE; break;
+        case LIBVGMSTREAM_SFMT_PCM24: format = FMT_S24_LE; break;
+        case LIBVGMSTREAM_SFMT_PCM32: format = FMT_S32_LE; break;
+        default:
+            libvgmstream_free(vgmstream);
+            return false;
+    }
+    open_audio(format, vgmstream->format->sample_rate, vgmstream->format->channels);
 
     // play
-    short buffer[MIN_BUFFER_SIZE * input_channels];
-    int max_buffer_samples = MIN_BUFFER_SIZE;
-
-    int play_forever = vgmstream_get_play_forever(vgmstream);
-    int length_samples = vgmstream_get_samples(vgmstream);
-    int decode_pos_samples = 0;
-
     while (!check_stop()) {
-        int to_do = max_buffer_samples;
+        if (vgmstream->decoder->done)
+            break;
 
         // handle seek request
         int seek_value = check_seek();
         if (seek_value >= 0) {
-            do_seek(vgmstream, seek_value, decode_pos_samples);
+            do_seek(vgmstream, seek_value);
             continue;
         }
 
-        // check stream finished
-        if (!play_forever) {
-            if (decode_pos_samples >= length_samples)
-                break;
-
-            if (decode_pos_samples + to_do > length_samples)
-                to_do = length_samples - decode_pos_samples;
-        }
-
-        render_vgmstream(buffer, to_do, vgmstream);
-
-        write_audio(buffer, to_do * sizeof(short) * output_channels);
-        decode_pos_samples += to_do;
+        int err = libvgmstream_render(vgmstream);
+        if (err < 0)
+            break;
+        write_audio(vgmstream->decoder->buf, vgmstream->decoder->buf_bytes);
     }
 
     AUDINFO("play finished\n");
 
-    close_vgmstream(vgmstream);
+    libvgmstream_free(vgmstream);
     return true;
 }

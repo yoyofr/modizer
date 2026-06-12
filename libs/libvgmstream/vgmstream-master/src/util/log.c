@@ -2,8 +2,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "log.h"
 
-/* log context; should probably make a unique instance and pass to metas/decoders/etc, but for the time being use global */
+/* log context; should probably make a unique instance and pass to metas/decoders/etc, but for the time being use a global */
 //extern ...* log;
 
 typedef struct {
@@ -15,6 +16,7 @@ logger_t log_impl = {0};
 //void* log = &log_impl;
 
 enum {
+    LOG_LEVEL_NONE = 0,
     LOG_LEVEL_INFO = 1,
     LOG_LEVEL_DEBUG = 2,
     LOG_LEVEL_ALL = 100,
@@ -30,6 +32,11 @@ void vgm_log_set_callback(void* ctx_p, int level, int type, void* callback) {
 
     ctx->level = level;
 
+    if (level == LOG_LEVEL_NONE) {
+        ctx->callback = NULL;
+        return;
+    }
+
     switch(type) {
         case 0:
             ctx->callback = callback;
@@ -42,9 +49,8 @@ void vgm_log_set_callback(void* ctx_p, int level, int type, void* callback) {
     }
 }
 
+#if defined(VGM_LOG_OUTPUT) || defined(VGM_DEBUG_OUTPUT)
 static void log_internal(void* ctx_p, int level, const char* fmt, va_list args) {
-    char line[255];
-    int out;
     logger_t* ctx = ctx_p;
     if (!ctx) ctx = &log_impl;
 
@@ -54,12 +60,15 @@ static void log_internal(void* ctx_p, int level, const char* fmt, va_list args) 
     if (level > ctx->level)
         return;
 
-    out = vsnprintf(line, sizeof(line), fmt, args);
-    if (out < 0 || out > sizeof(line))
+    char line[256];
+    int done = vsnprintf(line, sizeof(line), fmt, args);
+    if (done < 0 || done > sizeof(line))
         strcpy(line, "(ignored log)"); //to-do something better, meh
     ctx->callback(level, line);
 }
+#endif
 
+#ifdef VGM_DEBUG_OUTPUT
 void vgm_logd(const char* fmt, ...) {
     va_list args;
 
@@ -67,7 +76,9 @@ void vgm_logd(const char* fmt, ...) {
     log_internal(NULL, LOG_LEVEL_DEBUG, fmt, args);
     va_end(args);
 }
+#endif
 
+#if defined(VGM_LOG_OUTPUT) || defined(VGM_DEBUG_OUTPUT)
 void vgm_logi(const char* fmt, ...) {
     va_list args;
 
@@ -88,3 +99,4 @@ void vgm_asserti(int condition, const char* fmt, ...) {
         va_end(args);
     }
 }
+#endif

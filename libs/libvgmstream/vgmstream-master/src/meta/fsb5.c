@@ -1,7 +1,9 @@
 #include "meta.h"
 #include "../coding/coding.h"
 #include "../layout/layout.h"
+#include "../base/seek_table.h"
 #include "fsb5_streamfile.h"
+#include "fsb_fev.h"
 
 
 typedef struct {
@@ -33,7 +35,9 @@ typedef struct {
 
 /* ********************************************************************************** */
 
+static void get_name(char* buf, size_t buf_size, int target_subsong, fsb5_header* fsb5, STREAMFILE* sf_fsb);
 static layered_layout_data* build_layered_fsb5(STREAMFILE* sf, STREAMFILE* sb, fsb5_header* fsb5);
+static void read_vorbis_seek(VGMSTREAM* v, STREAMFILE* sf, fsb5_header* fsb5);
 
 /* FSB5 - Firelight's FMOD Studio SoundBank format */
 VGMSTREAM* init_vgmstream_fsb5(STREAMFILE* sf) {
@@ -42,22 +46,22 @@ VGMSTREAM* init_vgmstream_fsb5(STREAMFILE* sf) {
     fsb5_header fsb5 = {0};
     uint32_t offset;
     int target_subsong = sf->stream_index;
-    int i;
 
 
     /* checks */
     if (!is_id32be(0x00,sf, "FSB5"))
-        goto fail;
+        return NULL;
 
     /* .fsb: standard
-     * .snd: Alchemy engine (also Unity) */
-    if (!check_extensions(sf,"fsb,snd"))
-        goto fail;
+     * .snd: Alchemy engine (also Unity)
+     * .fsb.ps3: Guacamelee! (PS3) */
+    if (!check_extensions(sf,"fsb,snd,ps3"))
+        return NULL;
 
     /* v0 is rare, seen in Tales from Space (Vita) */
     fsb5.version = read_u32le(0x04,sf);
     if (fsb5.version != 0x00 && fsb5.version != 0x01)
-        goto fail;
+        return NULL;
 
     fsb5.total_subsongs     = read_u32le(0x08,sf);
     fsb5.sample_header_size = read_u32le(0x0C,sf);
@@ -80,8 +84,9 @@ VGMSTREAM* init_vgmstream_fsb5(STREAMFILE* sf) {
     }
 
     if ((fsb5.sample_header_size + fsb5.name_table_size + fsb5.sample_data_size + fsb5.base_header_size) != get_streamfile_size(sf)) {
-        vgm_logi("FSB5: wrong size, expected %x + %x + %x + %x vs %x (re-rip)\n", fsb5.sample_header_size, fsb5.name_table_size, fsb5.sample_data_size, fsb5.base_header_size, (uint32_t)get_streamfile_size(sf));
-        goto fail;
+        uint32_t expected_size = fsb5.sample_header_size + fsb5.name_table_size + fsb5.sample_data_size + fsb5.base_header_size;
+        vgm_logi("FSB5: wrong size, expected %x + %x + %x + %x = %x vs %x (re-rip)\n", fsb5.sample_header_size, fsb5.name_table_size, fsb5.sample_data_size, fsb5.base_header_size, expected_size, (uint32_t)get_streamfile_size(sf));
+        return NULL;
     }
 
     if (target_subsong == 0) target_subsong = 1;
@@ -90,7 +95,7 @@ VGMSTREAM* init_vgmstream_fsb5(STREAMFILE* sf) {
     /* find target stream header and data offset, and read all needed values for later use
      *  (reads one by one as the size of a single stream header is variable) */
     offset = fsb5.base_header_size;
-    for (i = 0; i < fsb5.total_subsongs; i++) {
+    for (int i = 0; i < fsb5.total_subsongs; i++) {
         uint32_t stream_header_size = 0;
         uint32_t data_offset = 0;
         uint64_t sample_mode;
@@ -188,7 +193,8 @@ VGMSTREAM* init_vgmstream_fsb5(STREAMFILE* sf) {
                             break;
                         case 0x05:  /* unknown 32b */
                             /* rare, found in Tearaway (Vita) with value 0 in first stream and
-                             * Shantae and the Seven Sirens (Mobile) with value 0x0003bd72 BE in #44 (Arena Town) */
+                             * Shantae and the Seven Sirens (Mobile) with value 0x0003bd72 BE in #44 (Arena Town),
+                             * also in SMT3 Remaster same as loop start (cue to jump to next segment?) */
                             VGM_LOG("FSB5: stream %i flag %x with value %08x\n", i, extraflag_type, read_u32le(extraflag_offset+0x04,sf));
                             break;
                         case 0x06:  /* XMA seek table */
@@ -197,6 +203,9 @@ VGMSTREAM* init_vgmstream_fsb5(STREAMFILE* sf) {
                         case 0x07:  /* DSP coefs */
                             fsb5.extradata_offset = extraflag_offset + 0x04;
                             break;
+                        case 0x08:  /* ATRAC9(?) 4ch+ config(?) [Tearaway (Vita)] */
+                            /* appears for 4ch streams only, usually 1, rarely 0 */
+                            break;
                         case 0x09:  /* ATRAC9 config */
                             fsb5.extradata_offset = extraflag_offset + 0x04;
                             fsb5.extradata_size = extraflag_size;
@@ -204,13 +213,8 @@ VGMSTREAM* init_vgmstream_fsb5(STREAMFILE* sf) {
                         case 0x0a:  /* XWMA config */
                             fsb5.extradata_offset = extraflag_offset + 0x04;
                             break;
-                        case 0x0b:  /* Vorbis setup ID and seek table */
+                        case 0x0b:  /* Vorbis setup ID and seek table (see read_vorbis_seek) */
                             fsb5.extradata_offset = extraflag_offset + 0x04;
-                            /* seek table format:
-                             * 0x08: table_size (total_entries = seek_table_size / (4+4)), not counting this value; can be 0
-                             * 0x0C: sample number (only some samples are saved in the table)
-                             * 0x10: offset within data, pointing to a FSB vorbis block (with the 16b block size header)
-                             * (xN entries) */
                             break;
                         case 0x0d:  /* peak volume float (optional setting when making fsb) */
                             break;
@@ -296,8 +300,7 @@ VGMSTREAM* init_vgmstream_fsb5(STREAMFILE* sf) {
     vgmstream->num_streams = fsb5.total_subsongs;
     vgmstream->stream_size = fsb5.stream_size;
     vgmstream->meta_type = meta_FSB5;
-    if (fsb5.name_offset)
-        read_string(vgmstream->stream_name,STREAM_NAME_SIZE, fsb5.name_offset, sf);
+    get_name(vgmstream->stream_name, STREAM_NAME_SIZE, target_subsong, &fsb5, sf);
 
     switch (fsb5.codec) {
         case 0x00:  /* FMOD_SOUND_FORMAT_NONE */
@@ -384,6 +387,7 @@ VGMSTREAM* init_vgmstream_fsb5(STREAMFILE* sf) {
             mpeg_custom_config cfg = {0};
 
             cfg.fsb_padding = (vgmstream->channels > 2 ? 16 : 4); /* observed default */
+            cfg.data_size = fsb5.stream_offset + fsb5.stream_size;
 
             vgmstream->codec_data = init_mpeg_custom(sb, fsb5.stream_offset, &vgmstream->coding_type, vgmstream->channels, MPEG_FSB, &cfg);
             if (!vgmstream->codec_data) goto fail;
@@ -403,7 +407,7 @@ VGMSTREAM* init_vgmstream_fsb5(STREAMFILE* sf) {
                 vgmstream->layout_type = layout_layered;
             }
             else {
-                vgmstream->codec_data = init_celt_fsb(vgmstream->channels, CELT_0_11_0);
+                vgmstream->codec_data = init_celt_fsb_v2(vgmstream->channels);
                 if (!vgmstream->codec_data) goto fail;
                 vgmstream->coding_type = coding_CELT_FSB;
                 vgmstream->layout_type = layout_none;
@@ -478,6 +482,8 @@ VGMSTREAM* init_vgmstream_fsb5(STREAMFILE* sf) {
             if (!vgmstream->codec_data) goto fail;
             vgmstream->coding_type = coding_VORBIS_custom;
             vgmstream->layout_type = layout_none;
+
+            read_vorbis_seek(vgmstream, sf, &fsb5);
             break;
         }
 #endif
@@ -589,7 +595,7 @@ static layered_layout_data* build_layered_fsb5(STREAMFILE* sf, STREAMFILE* sb, f
         switch (fsb5->codec) {
 #ifdef VGM_USE_CELT
             case 0x0C: { /* CELT */
-                data->layers[i]->codec_data = init_celt_fsb(layer_channels, CELT_0_11_0);
+                data->layers[i]->codec_data = init_celt_fsb_v2(layer_channels);
                 if (!data->layers[i]->codec_data) goto fail;
                 data->layers[i]->coding_type = coding_CELT_FSB;
                 data->layers[i]->layout_type = layout_none;
@@ -637,4 +643,57 @@ fail:
     close_streamfile(temp_sf);
     free_layout_layered(data);
     return NULL;
+}
+
+/* Convert FSB's seek table to vgmstream's seek table */
+static void read_vorbis_seek(VGMSTREAM* v, STREAMFILE* sf, fsb5_header* fsb5) {
+    uint32_t base_offset = fsb5->base_header_size + fsb5->sample_header_size + fsb5->name_table_size;
+    uint32_t max_offset = base_offset + fsb5->sample_data_size;
+    int32_t max_samples = v->num_samples;
+
+    uint32_t table_size = read_u32le(fsb5->extradata_offset + 0x04, sf); //not counting this value; can be 0
+
+    int entries = table_size / 0x08;
+    uint32_t offset = fsb5->extradata_offset + 0x08;
+    for (int i = 0; i < entries; i++) {
+        int32_t  stream_sample = read_s32le(offset + 0x00, sf);
+        uint32_t stream_offset = read_u32le(offset + 0x04, sf);
+
+        stream_offset += base_offset; // within data, pointing to a FSB vorbis block (with the 16b block size header)
+
+        seek_table_add_entry_validate(v, stream_sample, max_samples, stream_offset, max_offset);
+        offset += 0x08;
+    }
+
+    //TODO: same vs discard loop but MPEG FSB doesn't reset decoder on loops, check recordings
+    seek_table_set_reset_decoder(v);
+}
+
+static void get_name(char* buf, size_t buf_size, int target_subsong, fsb5_header* fsb5, STREAMFILE* sf_fsb) {
+    STREAMFILE* sf_fev = NULL;
+    fev_header_t fev = {0};
+    bool fev_parsed = false;
+
+    sf_fev = open_fev_filename_pair(sf_fsb);
+    if (sf_fev) {
+        get_streamfile_basename(sf_fsb, fev.fsb_wavebank_name, STREAM_NAME_SIZE);
+
+        fev.target_subsong = target_subsong - 1;
+        fev_parsed = parse_fev(&fev, sf_fev);
+        // should be just RIFF FEV, which contain a LGCY chunk with FEV1 data
+        // (not counting the newer RIFF FEV .bank files with an embedded FSB)
+        if (!fev_parsed)
+            VGM_LOG("FSB: Failed to parse FEV data\n");
+    }
+
+    // prioritise FEV stream names; maybe not as beneficial as FSB3/4, but still has
+    // full names not trimmed to the base name, and some streams have multiple names
+    // which the FSB only stores the last one [Tearaway (PSV) - sports_t02_l03.fsb#1
+    // Superbrothers: Sword & Sworcery (Android) - SSSpeoplecombat.fsb#3]
+    if (fev_parsed && fev.stream_name_size)
+        snprintf(buf, buf_size, "%s", fev.stream_name);
+    else if (fsb5->name_offset)
+        read_string(buf, buf_size, fsb5->name_offset, sf_fsb);
+
+    close_streamfile(sf_fev);
 }

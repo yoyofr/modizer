@@ -93,6 +93,27 @@ struct FurnaceOscData {
 };
 
 /**
+ * Information about one sound system slot in a song.
+ * A song can combine up to DIV_MAX_CHIPS systems simultaneously.
+ */
+struct FurnaceSystemInfo {
+  int         index;        // system slot index (0 .. systemCount-1)
+  const char* name;         // human-readable name, e.g. "NES", "Game Boy"
+  int         firstChannel; // global index of the first channel of this system
+  int         channelCount; // number of channels contributed by this system
+};
+
+/**
+ * Per-channel system mapping — tells which system and sub-channel a global
+ * channel index belongs to.
+ */
+struct FurnaceChannelSystemInfo {
+  int         systemIndex;  // system slot index (same as FurnaceSystemInfo::index)
+  const char* systemName;   // human-readable system name
+  int         subChannel;   // channel index within that system (-1 if unmapped)
+};
+
+/**
  * Song information returned by getInfo().
  */
 struct FurnaceSongInfo {
@@ -278,12 +299,70 @@ public:
    */
   bool seek(double seconds);
 
+  /**
+   * Return the number of sound systems active in the loaded song.
+   * Returns 0 if no song is loaded.
+   */
+  int getSystemCount() const;
+
+  /**
+   * Return information about one system slot (index in [0, getSystemCount())).
+   * FurnaceSystemInfo::name is valid for the lifetime of the loaded song.
+   */
+  FurnaceSystemInfo getSystemInfo(int sysIdx) const;
+
+  /**
+   * Return the system mapping for a global channel index.
+   * Tells which system the channel belongs to and its sub-channel index within
+   * that system.  systemName is valid for the lifetime of the loaded song.
+   * @param chan  Channel index in [0, channels).
+   */
+  FurnaceChannelSystemInfo getChannelSystemInfo(int chan) const;
+
+  /**
+   * Set playback speed as a ratio (1.0 = normal, 2.0 = 2× faster, 0.5 = 2× slower).
+   * Implemented via the engine's virtualTempoN/D mechanism.
+   * @param ratio  Speed multiplier, clamped to [0.01, 100].
+   */
+  void setPlaybackSpeed(float ratio);
+
+  /**
+   * Mute or unmute a channel.
+   * @param chan  Channel index in [0, channels).
+   * @param mute  true to mute, false to unmute.
+   */
+  void setMute(int chan, bool mute);
+
+  /**
+   * Return the mute state of a channel.
+   * @param chan  Channel index in [0, channels).
+   * @return true if muted, false otherwise (also false for an invalid channel).
+   */
+  bool isMuted(int chan) const;
+
+  /**
+   * Return the short name of a channel (signal type: FM, PCM, square, wave…).
+   * The pointer is valid for the lifetime of the loaded song.
+   * @param chan  Channel index in [0, channels).
+   * @return Short name string, or "??" for an invalid channel.
+   */
+  const char* getChannelShortName(int chan) const;
+
+  /**
+   * Return the long name of a channel (device + signal type, e.g. "YM2612 CH1").
+   * The pointer is valid for the lifetime of the loaded song.
+   * @param chan  Channel index in [0, channels).
+   * @return Long name string, or "??" for an invalid channel.
+   */
+  const char* getChannelLongName(int chan) const;
+
 private:
   DivEngine* engine;
   int        sampleRate;
   bool       engineReady;
   bool       songLoaded;
   bool       userStopped;   // true when stop() was called explicitly
+  float      playbackSpeed; // current speed ratio (1.0 = normal)
 
   // Internal float stereo buffer used to bridge DivEngine (float) → int16_t
   float** floatBuf;       // floatBuf[0] = left, floatBuf[1] = right

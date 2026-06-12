@@ -49,6 +49,8 @@ class Cli(object):
                                                       "- {filename}|{fn}=filename without extension\n"
                                                       "- {subsong}|{ss}=subsong number)\n"
                                                       "- {internal-name}|{in}=internal stream name\n"
+                                                      "- {prev-path}=file's last directory\n"
+                                                      "- {full-path}=file's full directory (/ separated by ~)\n"
                                                       "- {if}=internal name or filename if not found\n"
                                                       "* may be inside <...> for conditional text\n"))
         p.add_argument('-z',  dest='zero_fill', help="Zero-fill subsong number (default: auto per subsongs)", type=int)
@@ -74,6 +76,7 @@ class Cli(object):
         p.add_argument('-fni', dest='include_regex', help="Filter by REGEX including matches of subsong name")
         p.add_argument('-fne', dest='exclude_regex', help="Filter by REGEX excluding matches of subsong name")
         p.add_argument('-nsc',dest='no_semicolon', help="Remove semicolon names (for songs with multinames)", action='store_true')
+        p.add_argument('-sj',dest='shift_jis', help="Take extended names as shift-jis", action='store_true')
         p.add_argument("-cmd","--command", help="sets any command (free text)")
         p.add_argument("-cmdi","--command-inline", help="sets any inline command (free text)")
         p.add_argument('-v', dest='log_level', help="Verbose log level (off|debug|info, default: info)", default='info')
@@ -158,19 +161,19 @@ class Cr32Helper(object):
 #******************************************************************************
 
 class TxtpInfo(object):
-    def __init__(self, output_b):
+    def __init__(self, output_b, cfg):
         self.output = str(output_b).replace("\\r","").replace("\\n","\n")
         self.channels = self._get_value("channels: ")
         self.sample_rate = self._get_value("sample rate: ")
         self.num_samples = self._get_value("stream total samples: ")
         self.stream_count = self._get_value("stream count: ")
         self.stream_index = self._get_value("stream index: ")
-        self.stream_name = self._get_text("stream name: ")
+        self.stream_name = self._get_text("stream name: ", cfg.shift_jis)
         self.encoding = self._get_text("encoding: ")
 
         # in case vgmstream returns error, but output code wasn't EXIT_FAILURE
         if self.channels <= 0 or self.sample_rate <= 0:
-            raise ValueError('Incorrect vgmstream command')
+            raise ValueError('Incorrect vgmstream command with ' + self.output)
 
         self.stream_seconds = self.num_samples / self.sample_rate
 
@@ -185,12 +188,16 @@ class TxtpInfo(object):
         else:
             return str_cut.split()[0].strip()
 
-    def _get_text(self, str):
+    def _get_text(self, str, shift_jis=False):
         text = self._get_string(str, full=True)
         # stream names in CLI is printed as UTF-8 using '\xNN', so detect and transform
         try:
             if text and '\\' in text:
-                return text.encode('ascii').decode('unicode-escape').encode('iso-8859-1').decode('utf-8')
+                text_bytes = text.encode('ascii').decode('unicode-escape').encode('iso-8859-1')
+                if shift_jis:
+                    return text_bytes.decode('shift-jis')
+                else:
+                    return text_bytes.decode('utf-8')
         except:
             return text #odd/buggy names
         return text
@@ -215,7 +222,7 @@ class TxtpMaker(object):
         return str(self.__dict__)
 
     def parse(self, output_b):
-        self.info = TxtpInfo(output_b)
+        self.info = TxtpInfo(output_b, self.cfg)
         self.ignorable = self._is_ignorable(self.cfg)
 
     def reset(self):
@@ -345,7 +352,7 @@ class TxtpMaker(object):
         log.debug("created: " + outname)
         return
         
-    def include(self, filename_path, filename_clean):
+    def include(self, filename_path, filename_clean, filename_folder):
         cfg = self.cfg
         total_done = 0
 
@@ -389,6 +396,8 @@ class TxtpMaker(object):
                 internal_filename = stream_name
                 if not internal_filename:
                     internal_filename = filename_base
+                full_path = os.path.dirname(filename_folder).replace("\\", "/").replace("/", "~")
+                prev_path = os.path.basename(os.path.dirname(filename_folder))
 
                 replaces = {
                     'fn': filename_base,
@@ -397,6 +406,8 @@ class TxtpMaker(object):
                     'subsong': index,
                     'in': stream_name,
                     'internal-name': stream_name,
+                    'prev-path': prev_path,
+                    'full-path': full_path,
                     'if': internal_filename,
                 }
 
@@ -547,9 +558,9 @@ class App(object):
 
     def _make_cmd(self, filename_in, filename_out, target_subsong):
         if self.cfg.test_dupes:
-            cmd = "%s -s %s -i -o \"%s\" \"%s\"" % (self.cfg.cli, target_subsong, filename_out, filename_in)
+            cmd = [self.cfg.cli, '-s', str(target_subsong), '-i', '-o', filename_out, filename_in]
         else:
-            cmd = "%s -s %s -m -i -O \"%s\"" % (self.cfg.cli, target_subsong, filename_in)
+            cmd = [self.cfg.cli, '-s', str(target_subsong), '-m', '-i', '-O', filename_in]
         return cmd
 
     def _find_files(self, dir, pattern):
@@ -643,7 +654,7 @@ class App(object):
                     self.crc32.update(filename_out)
 
                 if not self.crc32.is_last_dupe():
-                    created += maker.include(filename_in_base, filename_in_clean)
+                    created += maker.include(filename_in_base, filename_in_clean, filename_in)
                 else:
                     dupes += 1
                     log.debug("dupe subsong %s", target_subsong)

@@ -8,6 +8,7 @@
 #ifdef VGM_USE_G7221
 //#define BNSF_BRUTEFORCE
 #ifdef BNSF_BRUTEFORCE
+#include "../util/reader_text.h"
 static void bruteforce_bnsf_key(STREAMFILE* sf, off_t start, g7221_codec_data* data, uint8_t* best_key);
 #endif
 static void find_bnsf_key(STREAMFILE *sf, off_t start, g7221_codec_data *data, uint8_t *best_key);
@@ -25,9 +26,12 @@ VGMSTREAM* init_vgmstream_bnsf(STREAMFILE* sf) {
 
     /* checks */
     if (!is_id32be(0x00,sf, "BNSF"))
-        goto fail;
-    if (!check_extensions(sf,"bnsf"))
-        goto fail;
+        return NULL;
+    /* .bnsf: header id only?
+     * .spsis14/spsis22: TLFILE archives [Tales of Zestiria/Berseria (PS3)] (hashed filenames, but from debug/unhashed strings this seems the intended extension)
+     */
+    if (!check_extensions(sf,"bnsf,spsis14,spsis22"))
+        return NULL;
 
     bnsf_size = read_u32be(0x04,sf);
     codec = read_u32be(0x08,sf);
@@ -35,7 +39,7 @@ VGMSTREAM* init_vgmstream_bnsf(STREAMFILE* sf) {
     if (codec != get_id32be("IS22")) /* uses full size */
         bnsf_size += 0x08;
     if (bnsf_size != get_streamfile_size(sf))
-        goto fail;
+        return NULL;
 
     {
         enum {

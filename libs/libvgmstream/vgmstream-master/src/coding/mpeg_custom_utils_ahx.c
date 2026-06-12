@@ -130,7 +130,7 @@ fail:
 
 /* writes data to the buffer and moves offsets, transforming AHX frames as needed */
 int mpeg_custom_parse_frame_ahx(VGMSTREAMCHANNEL* stream, mpeg_codec_data* data, int num_stream) {
-    mpeg_custom_stream *ms = data->streams[num_stream];
+    mpeg_custom_stream* ms = &data->streams[num_stream];
     size_t curr_size = 0;
     size_t file_size = get_streamfile_size(stream->streamfile);
 
@@ -192,7 +192,7 @@ fail:
 #define AHX_KEY_TEST_FRAMES  25 /* wrong keys may work ok in some frames (specially blank) */
 
 /* check if current key ends properly in frame syncs */
-int test_ahx_key(STREAMFILE* sf, off_t offset, crikey_t* crikey) {
+bool test_ahx_key(STREAMFILE* sf, off_t offset, crikey_t* crikey) {
     int bytes = 0;
     uint8_t buf[AHX_KEY_BUFFER];
     const int buf_size = sizeof(buf);

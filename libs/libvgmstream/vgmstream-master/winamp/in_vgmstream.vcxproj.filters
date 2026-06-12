@@ -21,6 +21,21 @@
     <ClInclude Include="resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="sdk\in2.h">
+      <Filter>sdk\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sdk\in2_extra.h">
+      <Filter>sdk\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sdk\ipc_pe.h">
+      <Filter>sdk\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sdk\out.h">
+      <Filter>sdk\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sdk\wa_ipc.h">
+      <Filter>sdk\Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc">
@@ -31,7 +46,13 @@
     <ClCompile Include="in_config.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="in_log.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="in_streamfile.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="in_utils.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="in_vgmstream.c">

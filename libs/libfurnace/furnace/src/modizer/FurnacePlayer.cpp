@@ -45,6 +45,7 @@ FurnacePlayer::FurnacePlayer()
   , engineReady(false)
   , songLoaded(false)
   , userStopped(false)
+  , playbackSpeed(1.0f)
   , floatBuf(nullptr)
   , floatBufSize(0)
   , timestampsReady(false)
@@ -201,6 +202,7 @@ bool FurnacePlayer::selectSong(int index) {
   engine->changeSongP(static_cast<size_t>(index));
   timestampsReady = false;   // new subsong needs fresh timestamps
   engine->play();
+  setPlaybackSpeed(playbackSpeed);  // re-apply speed to the new subsong
   return true;
 }
 
@@ -620,6 +622,103 @@ bool FurnacePlayer::seek(double seconds) {
 
   engine->setOrder(static_cast<unsigned char>(targetOrder));
   return true;
+}
+
+// ---------------------------------------------------------------------------
+// getSystemCount / getSystemInfo / getChannelSystemInfo
+// ---------------------------------------------------------------------------
+
+int FurnacePlayer::getSystemCount() const {
+  if (!songLoaded) return 0;
+  return static_cast<int>(engine->song.systemLen);
+}
+
+FurnaceSystemInfo FurnacePlayer::getSystemInfo(int sysIdx) const {
+  FurnaceSystemInfo info{};
+  info.index        = sysIdx;
+  info.name         = "??";
+  info.firstChannel = -1;
+  info.channelCount = 0;
+
+  if (!songLoaded || sysIdx < 0 || sysIdx >= engine->song.systemLen) return info;
+
+  info.name         = engine->getSystemName(engine->song.system[sysIdx]);
+  info.channelCount = static_cast<int>(engine->song.systemChans[sysIdx]);
+
+  // The first global channel that belongs to this system slot.
+  int total = engine->getTotalChannelCount();
+  for (int c = 0; c < total; ++c) {
+    if (engine->song.dispatchOfChan[c] == sysIdx) {
+      info.firstChannel = c;
+      break;
+    }
+  }
+  return info;
+}
+
+FurnaceChannelSystemInfo FurnacePlayer::getChannelSystemInfo(int chan) const {
+  FurnaceChannelSystemInfo info{};
+  info.systemIndex = -1;
+  info.systemName  = "??";
+  info.subChannel  = -1;
+
+  if (!songLoaded || chan < 0 || chan >= engine->getTotalChannelCount()) return info;
+
+  int sysIdx       = engine->song.dispatchOfChan[chan];
+  info.systemIndex = sysIdx;
+  info.systemName  = engine->getSystemName(engine->song.system[sysIdx]);
+  info.subChannel  = engine->song.dispatchChanOfChan[chan];
+  return info;
+}
+
+// ---------------------------------------------------------------------------
+// setMute / isMuted
+// ---------------------------------------------------------------------------
+
+void FurnacePlayer::setMute(int chan, bool mute) {
+  if (!engineReady || !songLoaded) return;
+  if (chan < 0 || chan >= engine->getTotalChannelCount()) return;
+  engine->muteChannel(chan, mute);
+}
+
+bool FurnacePlayer::isMuted(int chan) const {
+  if (!engineReady || !songLoaded) return false;
+  if (chan < 0 || chan >= engine->getTotalChannelCount()) return false;
+  return engine->isChannelMuted(chan);
+}
+
+// ---------------------------------------------------------------------------
+// getChannelShortName / getChannelLongName
+// ---------------------------------------------------------------------------
+
+const char* FurnacePlayer::getChannelShortName(int chan) const {
+  if (!songLoaded || chan < 0 || chan >= engine->getTotalChannelCount()) return "??";
+  return engine->getChannelShortName(chan);
+}
+
+const char* FurnacePlayer::getChannelLongName(int chan) const {
+  if (!songLoaded || chan < 0 || chan >= engine->getTotalChannelCount()) return "??";
+  return engine->getChannelName(chan);
+}
+
+// ---------------------------------------------------------------------------
+// setPlaybackSpeed
+// ---------------------------------------------------------------------------
+
+void FurnacePlayer::setPlaybackSpeed(float ratio) {
+  if (ratio < 0.01f) ratio = 0.01f;
+  if (ratio > 100.0f) ratio = 100.0f;
+  playbackSpeed = ratio;
+
+  if (!engineReady || !songLoaded) return;
+
+  int cur = static_cast<int>(engine->getCurrentSubSong());
+  if (cur < 0 || cur >= static_cast<int>(engine->song.subsong.size())) return;
+
+  DivSubSong* ss = engine->song.subsong[cur];
+  ss->virtualTempoN = static_cast<short>(std::max(1, static_cast<int>(roundf(150.0f * ratio))));
+  ss->virtualTempoD = 150;
+  engine->virtualTempoChanged();
 }
 
 // ---------------------------------------------------------------------------

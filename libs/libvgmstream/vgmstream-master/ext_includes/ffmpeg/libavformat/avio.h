@@ -101,13 +101,9 @@ typedef struct AVIODirEntry {
     int64_t filemode;                     /**< Unix file mode, -1 if unknown. */
 } AVIODirEntry;
 
-#if FF_API_AVIODIRCONTEXT
 typedef struct AVIODirContext {
     struct URLContext *url_context;
 } AVIODirContext;
-#else
-typedef struct AVIODirContext AVIODirContext;
-#endif
 
 /**
  * Different data types that can be returned via the AVIO
@@ -295,6 +291,16 @@ typedef struct AVIOContext {
      */
     int ignore_boundary_point;
 
+#if FF_API_AVIOCONTEXT_WRITTEN
+    /**
+     * @deprecated field utilized privately by libavformat. For a public
+     *             statistic of how many bytes were written out, see
+     *             AVIOContext::bytes_written.
+     */
+    attribute_deprecated
+    int64_t written;
+#endif
+
     /**
      * Maximum reached position before a backward seek in the write buffer,
      * used keeping track of already written data for a later flush.
@@ -458,7 +464,6 @@ int avio_put_str16be(AVIOContext *s, const char *str);
  *
  * Zero-length ranges are omitted from the output.
  *
- * @param s    the AVIOContext
  * @param time the stream time the current bytestream pos corresponds to
  *             (in AV_TIME_BASE units), or AV_NOPTS_VALUE if unknown or not
  *             applicable

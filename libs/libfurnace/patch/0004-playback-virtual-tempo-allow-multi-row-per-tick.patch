@@ -1,0 +1,21 @@
+Allow multiple row advances per tick when virtualTempoN > virtualTempoD.
+
+The break after nextRow() was limiting row advances to at most one per engine
+tick. When virtualTempoN > virtualTempoD (playback ratio > 1), the while loop
+needs to be able to call nextRow() more than once per tick to achieve the
+intended speed-up. Commenting out the break lets the accumulator continue
+consuming ticks within the same loop iteration, enabling correct speed-up
+behavior for ratios > 1.
+
+diff --git a/src/engine/playback.cpp b/src/engine/playback.cpp
+--- a/src/engine/playback.cpp
++++ b/src/engine/playback.cpp
+@@ -2182,7 +2182,7 @@ bool DivEngine::nextTick(bool noAccum, bool inhibitLowLat) {
+             }
+             // ...and now process the next row!
+             nextRow();
+-            break;
++            //break;
+           }
+         }
+         // under no circumstances shall the accumulator become this large

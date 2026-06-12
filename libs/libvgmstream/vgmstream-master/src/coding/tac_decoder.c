@@ -1,32 +1,31 @@
 #include "coding.h"
-#include "coding_utils_samples.h"
-
-#include "tac_decoder_lib.h"
+#include "../base/codec_info.h"
+#include "../base/decode_state.h"
+#include "libs/tac_lib.h"
 
 
 /* opaque struct */
-struct tac_codec_data {
-    /* config */
-    int channels;
-    int samples_discard;
-    int encoder_delay;
-
+typedef struct {
     uint8_t buf[TAC_BLOCK_SIZE];
-    int feed_block;
+    bool feed_block;
     off_t offset;
 
-    int16_t* samples;
-    int frame_samples;
-
-    /* frame state */
-    s16buf_t sbuf;
+    float fbuf[TAC_FRAME_SAMPLES * TAC_CHANNELS];
+    int discard;
 
     void* handle;
-};
+} tac_codec_data;
 
+static void free_tac(void* priv_data) {
+    tac_codec_data* data = priv_data;
+    if (!data)
+        return;
 
-/* raw SPEEX */
-tac_codec_data* init_tac(STREAMFILE* sf) {
+    tac_free(data->handle);
+    free(data);
+}
+
+void* init_tac(STREAMFILE* sf) {
     tac_codec_data* data = NULL;
     int bytes;
 
@@ -38,16 +37,8 @@ tac_codec_data* init_tac(STREAMFILE* sf) {
     data->handle = tac_init(data->buf, bytes);
     if (!data->handle) goto fail;
 
-    data->feed_block = 0; /* ok to use current block */
+    data->feed_block = false; // ok to use first block
     data->offset = bytes;
-    data->channels = TAC_CHANNELS;
-    data->frame_samples = TAC_FRAME_SAMPLES;
-
-    data->encoder_delay = 0;
-    data->samples_discard = data->encoder_delay;
-
-    data->samples = malloc(data->channels * data->frame_samples * sizeof(int16_t));
-    if (!data->samples) goto fail;
 
     return data;
 fail:
@@ -57,131 +48,108 @@ fail:
 
 
 static int decode_frame(tac_codec_data* data) {
-    int err;
-
-    data->sbuf.samples = data->samples;
-    data->sbuf.channels = 2;
-    data->sbuf.filled = 0;
-
-    err = tac_decode_frame(data->handle, data->buf);
+    int err = tac_decode_frame(data->handle, data->buf);
 
     if (err == TAC_PROCESS_NEXT_BLOCK) {
-        data->feed_block = 1;
-        return 1;
+        data->feed_block = true;
+        return 0;
     }
 
     if (err == TAC_PROCESS_DONE) {
         VGM_LOG("TAC: process done (EOF) %i\n", err);
-        goto fail; /* shouldn't reach this */
+        return -1; // shouldn't reach this
     }
     
     if (err != TAC_PROCESS_OK) {
         VGM_LOG("TAC: process error %i\n", err);
-        goto fail;
+        return -1;
     }
 
-
-    tac_get_samples_pcm16(data->handle, data->sbuf.samples);
-    data->sbuf.filled = data->frame_samples;
-
-    return 1;
-fail:
-    return 0;
+    tac_get_samples_float(data->handle, data->fbuf);
+    return TAC_FRAME_SAMPLES;
 }
 
-static int read_frame(tac_codec_data* data, STREAMFILE* sf) {
+static bool read_frame(tac_codec_data* data, STREAMFILE* sf) {
 
-    /* new block must be read only when signaled by lib */
-    if (data->feed_block) {
-        int bytes = read_streamfile(data->buf, data->offset, sizeof(data->buf), sf);
-        data->offset += bytes;
-        data->feed_block = 0;
-        if (bytes <= 0) goto fail; /* can read less that buf near EOF */
+    // new block must be read only when signaled by lib (a single block has N frames)
+    if (!data->feed_block)
+        return true;
+    
+    int bytes = read_streamfile(data->buf, data->offset, sizeof(data->buf), sf);
+    data->offset += bytes;
+    data->feed_block = 0;
+    if (bytes <= 0) return false; // will read less that buf near EOF
+
+    return true;
+}
+
+static bool decode_frame_tac(VGMSTREAM* v) {
+    VGMSTREAMCHANNEL* stream = &v->ch[0];
+    tac_codec_data* data = v->codec_data;
+
+    bool ok = read_frame(data, stream->streamfile);
+    if (!ok)
+        return false;
+
+    decode_state_t* ds = v->decode_state;
+
+    int samples = decode_frame(data);
+    if (samples < 0)
+        return false;
+
+    sbuf_init_f16(&ds->sbuf, data->fbuf, samples, v->channels);
+    ds->sbuf.filled = samples;
+
+    // copy and let decoder handle
+    if (data->discard) {
+        ds->discard += data->discard;
+        data->discard = 0;
     }
 
-    return 1;
-fail:
-    return 0;
+    return true;
 }
 
-void decode_tac(VGMSTREAM* vgmstream, sample_t* outbuf, int32_t samples_to_do) {
-    VGMSTREAMCHANNEL* stream = &vgmstream->ch[0];
-    tac_codec_data* data = vgmstream->codec_data;
-    int ok;
-
-
-    while (samples_to_do > 0) {
-        s16buf_t* sbuf = &data->sbuf;
-
-        if (sbuf->filled <= 0) {
-            ok = read_frame(data, stream->streamfile);
-            if (!ok) goto fail;
-
-            ok = decode_frame(data);
-            if (!ok) goto fail;
-        }
-
-        if (data->samples_discard)
-            s16buf_discard(&outbuf, sbuf, &data->samples_discard);
-        else
-            s16buf_consume(&outbuf, sbuf, &samples_to_do);
-    }
-
-    return;
-
-fail:
-    /* on error just put some 0 samples */
-    VGM_LOG("TAC: decode fail at %x, missing %i samples\n", (uint32_t)data->offset, samples_to_do);
-    s16buf_silence(&outbuf, &samples_to_do, data->channels);
-}
-
-
-void reset_tac(tac_codec_data* data) {
+static void reset_tac(void* priv_data) {
+    tac_codec_data* data = priv_data;
     if (!data) return;
 
     tac_reset(data->handle);
 
-    data->offset = 0;
-    data->feed_block = 1;
-    data->sbuf.filled = 0;
-    data->samples_discard = data->encoder_delay;
-
-    return;
+    data->feed_block = true;
+    data->offset = 0x00;
 }
 
-void seek_tac(tac_codec_data* data, int32_t num_sample) {
+static void seek_tac(VGMSTREAM* v, int32_t num_sample) {
+    tac_codec_data* data = v->codec_data;
     int32_t loop_sample;
-    const tac_header_t* hdr;
 
     if (!data)
         return;
 
-    hdr = tac_get_header(data->handle);
+    const tac_header_t* hdr = tac_get_header(data->handle);
 
     loop_sample = (hdr->loop_frame - 1) * TAC_FRAME_SAMPLES + hdr->loop_discard;
     if (loop_sample == num_sample) {
         tac_set_loop(data->handle); /* direct looping */
 
-        data->samples_discard = hdr->loop_discard;
+        data->feed_block = true;
         data->offset = hdr->loop_offset;
-        data->feed_block = 1;
-        data->sbuf.filled = 0;
+        data->discard = hdr->loop_discard;
     }
     else {
         tac_reset(data->handle);
 
-        data->samples_discard = num_sample;
-        data->offset = 0;
-        data->feed_block = 1;
-        data->sbuf.filled = 0;
+        data->feed_block = true;
+        data->offset = 0x00;
+        data->discard = num_sample;
     }
 }
 
-void free_tac(tac_codec_data* data) {
-    if (!data)
-        return;
-
-    tac_free(data->handle);
-    free(data->samples);
-    free(data);
-}
+const codec_info_t tac_decoder = {
+    .sample_type = SFMT_F16,
+    .decode_frame = decode_frame_tac,
+    .free = free_tac,
+    .reset = reset_tac,
+    .seek = seek_tac,
+    //frame_samples = 1024,
+};

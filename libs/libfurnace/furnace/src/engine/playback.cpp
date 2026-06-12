@@ -2182,7 +2182,7 @@ bool DivEngine::nextTick(bool noAccum, bool inhibitLowLat) {
             }
             // ...and now process the next row!
             nextRow();
-            break;
+            //break;
           }
         }
         // under no circumstances shall the accumulator become this large

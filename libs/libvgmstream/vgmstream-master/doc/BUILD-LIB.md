@@ -1,6 +1,8 @@
 # vgmstream lib build help
 This document explains how to build various external dependencies used in vgmstream.  Like *vgmstream*, most external libs use C and need to be compiled as such.
 
+The main purpose this doc is to have a reference of what each lib is doing, and to rebuild Windows DLLs. Linux libs are handled automatically using CMake, though you can use these steps too.
+
 See [BUILD](BUILD.md#external-libraries) for a description of each lib first.
 
 ## Intro
@@ -60,7 +62,7 @@ On Linux `install` is used to actually *install* libs on system dirs (so `--pref
 You can call multiple *targets* in a single line `make clean install-strip` is the same as `make clean` and `make install` (which in turn calls plain `make` / default). That's the theory, but at some libs don't properly handle this.
 
 ### autotools config
-*autotools* are **very** fragile and picky, beware when changing stuff.Check other flags by calling `sh ./configure --help`, but changing some of the steps will likely cause odd issues, *autotools are not consistent between libs*.
+*autotools* are **very** fragile and picky, beware when changing stuff. Check other flags by calling `sh ./configure --help`, but changing some of the steps will likely cause odd issues. *autotools are not consistent between libs*.
 
 Common *configure*/Makefile params:
 - `--build=...`: current compilation environment (autodetected, but may fail in outdated libs)
@@ -90,7 +92,7 @@ However, *those flags aren't consistent between libs*, meaning in one using *con
 ### Xiph's releases and exports
 Sometimes we use "official releases" sources rather than using Git's sources. Both should be the same, but releases have pre-generated *./configure*, while Git needs to call `autogen.sh` that calls `autoreconf` that generates a base `configure` script. Since getting `autoreconf` working on **Windows** without MSYS2 requires extra steps (not described), Xiph's releases are recommended.
 
-When building a DLL/lib compiler sets *exported symbols* (functions). Xiph's *autoconf* may generate DLLs correctly, butdon't detect Mingw/Win config properly and export all symbols by default. This is fixed manually, but there may be better ways to handle it (to be researched).
+When building a DLL/lib compiler sets *exported symbols* (functions). Xiph's *autoconf* may generate DLLs correctly, but don't detect Mingw/Win config properly and export all symbols by default. This is fixed manually, but there may be better ways to handle it (to be researched).
 
 ### Shared libs details
 Roughly, a `.dll` is a Windows "shared library"; Linux equivalent would be a `.so` file. First, `.c` files are compiled into objects (`.o` in GCC, `.obj` in MSCV), then can be made into a `.dll`. Later, when a program needs that DLL (or rather, it's functions), a compiler can use it as long as some conditions are met.
@@ -98,7 +100,7 @@ Roughly, a `.dll` is a Windows "shared library"; Linux equivalent would be a `.s
 DLL must *export symbols* (functions), which on a Windows's DLL is done with:
 - adding `__declspec(dllexport)` to a function (usually done with `#define EXPORT ...` and similar ways)
 - using a `.def` module definition file
-- if neither of the above is used, GCC exports every function by default (not great=
+- if neither of the above is used, GCC exports every function by default (not great)
 
 Then, to *link* (refer to) a DLL compiler usually needs helper files (`.dll.a` in GCC, `.lib` in MSVC). DLL's are copied to vgmstream's source, while helper files are created on compile time from `.dll`+`.def` (see *ext_libs/Makefile* for GCC and `ext_libs.vcxproj` for MSVC).
 
@@ -475,8 +477,6 @@ MSBuild.exe opus.sln /p:Platform=x64 /p:Configuration=Release /p:WindowsTargetPl
 ### FFmpeg
 vgmstream's FFmpeg builds for **Windows** and static builds for **Linux** remove many unnecessary parts of FFmpeg to trim down its gigantic size, and, on Windows, are also built with the "-vgmstream" suffix to prevent clashing with other plugins. Current options can be seen in `ffmpeg_options.txt`. Shared **Linux** builds usually link to system FFmpeg without issues, while standard FFmpeg DLLs may work (renamed to -vgmstream).
 
-FFmpeg can be compiled with *libopus* (external lib) rather than internal *opus*. This is used because FFmpeg decodes incorrectly Opus files used some in games (mostly low bitrate). In older versions this was audibly wrong, but currently the difference shouldn't be that much, but still not that accurate compared with *libopus* (PCM sample diffs of +5000), so *vgmstream* enables it. Getting *libopus* recognized can be unwieldly, so internal *opus* is a decent enough substitute (remove `--enable-libopus` and change `libopus` to `opus` in `--enable-decoder` from options, and remove `--enable-custom-modes` from *configure*).
-
 GCC and MSVC need `yasm.exe` somewhere in `PATH` to properly compile/optimize: https://yasm.tortall.net (add `--disable-yasm` to *configure* options to disable, may decrease performance).
 
 FFmpeg uses separates DLLs, that depend on each other like this:
@@ -485,7 +485,7 @@ FFmpeg uses separates DLLs, that depend on each other like this:
 - avformat: avcodec, avutil
 - avcodec: avutil, swresample
 
-Note that *vgmstream* applies various patches in real time to fix several FFmpeg quirks (including infinite loops). Could be done with *git* patches, but not currently since users on Linux may link to system's libs and/or use different versions. Updating FFmpeg version without testing carefully is not recommended.
+When updating FFmpeg versions careful testing is recommended. *vgmstream* fixes a few of FFmpeg's quirks during playback; some may need to be tweaked depending on version.
 
 #### Source
 ```bat
@@ -493,6 +493,14 @@ Note that *vgmstream* applies various patches in real time to fix several FFmpeg
 git clone https://git.ffmpeg.org/ffmpeg.git --depth 1 --branch n5.1.2
 cd ffmpeg
 ```
+
+#### Headers
+If you are using your own FFmpeg libs (not pre-compiled for vgmstream), make sure you compile with the FFmpeg `.h` headers provided by your lib and not those in `ext_includes`. vgmstream *will* crash if the FFmpeg version has changed (see `LIB*_VERSION_MAJOR` and possibly `LIB*_VERSION_MINOR`), even if it compiles correctly.
+
+#### libopus vs FFmpeg's opus
+FFmpeg can be compiled with *libopus* (external lib) rather than internal *opus*. We use *libopus* because FFmpeg decodes incorrectly certain games (mostly low bitrate). In older versions this was audibly wrong, though currently the differences shouldn't matter that much, but still not that accurate compared to *libopus* (PCM sample diffs of +5000). Getting *libopus* recognized can be unwieldly, so internal *opus* is a decent enough substitute. 
+
+To disable it, go to `ffmpeg_options.txt` and remove `--enable-libopus` plus change `libopus` to `opus` in `--enable-decoder`. Also, when calling *configure* remove `--enable-custom-modes` (a *libopus*-only option).
 
 #### libopus and pkg-config
 FFmpeg uses *pkg-config* (a kind of "installed lib manager") to detect pre-compiled *libopus*. On Linux it should detect *libopus* after `make install` with default `--prefix`, or adding opus's `--prefix` path to `PKG_CONFIG_PATH`. On Windows, MSYS2 *probably* works the same.
@@ -505,7 +513,7 @@ However when compiling with MSVC it's not clear how to mix Windows-style `.lib` 
 
 ```sh
 # read current options (removing comments and line breaks); change file path if needed (or manually copy options below)
-FFMPEG_OPTIONS=`sed -e '/^#/d' ../vgmstream/ext_libs/ffmpeg_options.txt`
+FFMPEG_OPTIONS=`sed -e '/^#/d' ../vgmstream/ext_libs/extra/ffmpeg_options.txt`
 echo $FFMPEG_OPTIONS
 
 # PKG-CONFIG HACK: disables pkg-config in FFmpeg's configure (use only if *configure* throws a pkg-config error)
@@ -587,7 +595,7 @@ C:\msys64\msys2_shell.cmd -mingw32 -use-full-path
 cd /c/vgmstream-dlls/sources/ffmpeg
 
 # read current options (removing comments and line breaks); change file path if needed (or manually copy options below)
-FFMPEG_OPTIONS=`sed -e '/^#/d' ../vgmstream/ext_libs/ffmpeg_options.txt`
+FFMPEG_OPTIONS=`sed -e '/^#/d' ../vgmstream/ext_libs/extra/ffmpeg_options.txt`
 echo $FFMPEG_OPTIONS
 
 # PKG-CONFIG HACK: disables pkg-config in FFmpeg's configure (use only if *configure* throws a pkg-config error)
@@ -619,7 +627,7 @@ C:\msys64\msys2_shell.cmd -mingw64 -use-full-path
 cd /c/vgmstream-dlls/sources/ffmpeg
 
 # read current options (removing comments and line breaks); change file path if needed (or manually copy options below)
-FFMPEG_OPTIONS=`sed -e '/^#/d' ../vgmstream/ext_libs/ffmpeg_options.txt`
+FFMPEG_OPTIONS=`sed -e '/^#/d' ../vgmstream/ext_libs/extra/ffmpeg_options.txt`
 echo $FFMPEG_OPTIONS
 
 # PKG-CONFIG HACK: disables pkg-config in FFmpeg's configure (use only if *configure* throws a pkg-config error)

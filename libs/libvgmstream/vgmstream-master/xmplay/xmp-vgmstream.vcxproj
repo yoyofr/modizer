@@ -20,6 +20,9 @@
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
+  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <UseDebugLibraries>true</UseDebugLibraries>
+  </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="PropertySheets">
     <Import Project="..\vgmstream_msvc.props" />
@@ -69,8 +72,11 @@
   <ItemGroup>
     <ClInclude Include="xmpfunc.h" />
     <ClInclude Include="xmpin.h" />
+    <ClInclude Include="xmp_vgmstream.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="xmp_streamfile.c" />
+    <ClCompile Include="xmp_utils.c" />
     <ClCompile Include="xmp_vgmstream.c" />
   </ItemGroup>
   <ItemGroup>
