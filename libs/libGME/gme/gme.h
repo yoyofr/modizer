@@ -109,7 +109,7 @@ Warning is also cleared when loading a file and starting a track. */
 BLARGG_EXPORT const char* gme_warning( Music_Emu* );
 
 /* Load m3u playlist file (must be done after loading music) */
-BLARGG_EXPORT gme_err_t gme_load_m3u( Music_Emu*, const char path [] );
+BLARGG_EXPORT gme_err_t gme_load_m3u( Music_Emu*, const char path [], const char org_filename [] );
 
 /* Clear any loaded m3u playlist and any internal playlist that the music format
 supports (NSFE for example). */

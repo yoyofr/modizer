@@ -3278,7 +3278,8 @@ void propertyListenerCallback (void                   *inUserData,              
         (mPlayType==MMP_ATARISOUND)||(mPlayType==MMP_OPENMPT)||(mPlayType==MMP_XMP)||
         (mPlayType==MMP_UADE)||(mPlayType==MMP_HVL)||(mPlayType==MMP_EUP)||(mPlayType==MMP_PIXEL)||
         (mPlayType==MMP_MDXPDX)||(mPlayType==MMP_STSOUND)||(mPlayType==MMP_PMDMINI)||(mPlayType==MMP_ADPLUG)||
-        (mPlayType==MMP_FMPMINI)||(mPlayType==MMP_WSR)||(mPlayType==MMP_ZXTUNE)||(mPlayType==MMP_FUR) ) return true;
+        (mPlayType==MMP_FMPMINI)||(mPlayType==MMP_WSR)||(mPlayType==MMP_ZXTUNE)||(mPlayType==MMP_FUR)||
+        (mPlayType==MMP_NEZ)) return true;
     return false;
 }
 
@@ -7018,8 +7019,42 @@ void processFadeOut(short int *buffer, int sample_count, int voice_factor) {
                         if (mPlayType==MMP_NEZ) { //NEZ
                             NEZRender(_nezPlay, buffer_ana[buffer_ana_gen_ofs], SOUND_BUFFER_SIZE_SAMPLE);
                             nbBytes = SOUND_BUFFER_SIZE_SAMPLE*2*2;
-                            
                             mCurrentSamples+=SOUND_BUFFER_SIZE_SAMPLE;
+                            
+                            //copy voice data for oscillo view
+                            for (int j=0;j<(m_genNumVoicesChannels<SOUND_MAXVOICES_BUFFER_FX?m_genNumVoicesChannels:SOUND_MAXVOICES_BUFFER_FX);j++) {
+                                for (int i=0;i<SOUND_BUFFER_SIZE_SAMPLE;i++) {
+                                    m_voice_buff_ana[buffer_ana_gen_ofs][i*SOUND_MAXVOICES_BUFFER_FX+j]=((int)m_voice_buff[j][(i+(m_voice_prev_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT))&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]);
+                                    m_voice_buff[j][(i+(m_voice_prev_current_ptr[j]>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT))&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=0;
+                                }
+                                m_voice_prev_current_ptr[j]+=SOUND_BUFFER_SIZE_SAMPLE<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT;
+                                m_voice_prev_current_ptr[j]=m_voice_prev_current_ptr[j]-((SOUND_BUFFER_SIZE_SAMPLE*4*2)<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+                            }
+                            
+                            //midi like notes data
+                            int voices_idx=0;
+                            memset(tim_notes[buffer_ana_gen_ofs],0,DEFAULT_VOICES*4);
+                            for (int j=0; j < m_genNumVoicesChannels; j++) {
+                                if (m_voicesStatus[j]) {
+                                    unsigned int idx=vgm_getNote(j);
+                                    if ((idx>0)&&vgm_last_vol[j]) {
+                                        unsigned int subidx=vgm_getSubNote(j);
+                                        // MDZILog("ch %d note %d vol %d\n",j,idx,vgm_last_vol[j]);
+                                        unsigned int instr=vgm_last_instr[j];
+                                        tim_notes[buffer_ana_gen_ofs][voices_idx]=
+                                        (unsigned int)idx|
+                                        ((unsigned int)(instr)<<8)|
+                                        ((unsigned int)vgm_last_vol[j]<<16)|
+                                        ((unsigned int)(1<<1)<<24)|
+                                        ((unsigned int)subidx<<28);
+                                    }
+                                    voices_idx++;
+                                }
+                            }
+                            tim_voicenb[buffer_ana_gen_ofs]=voices_idx;
+                            
+                            memset(vgm_last_note,0,sizeof(vgm_last_note));
+                            memset(vgm_last_vol,0,sizeof(vgm_last_vol));
                             
                             if ((mCurrentSamples>=mTgtSamples)||
                                 (mdzSilentBufferLimit&&(mdzSilentBufferCount>=mdzSilentBufferLimit))
@@ -10465,7 +10500,7 @@ static WSRPlayerApi* s_coreSwan=&oswan::g_wsr_player_api;
     return 0;
 }
 
--(int) mmp_nezLoad:(NSString*)filePath {  //PxTone Collage & Organya
+-(int) mmp_nezLoad:(NSString*)filePath {  //Game Gear & PCEngine
     mPlayType=MMP_NEZ;
     
     FILE *f=fopen([filePath UTF8String],"rb");
@@ -10534,7 +10569,7 @@ static WSRPlayerApi* s_coreSwan=&oswan::g_wsr_player_api;
         std::string title = SONGINFO_GetTitle(_nezPlay->song);
         if (title.length() == 0)
         {
-            title = [filePath UTF8String];
+            title = [[filePath lastPathComponent] UTF8String];
             title.erase( title.find_last_of( '.' ) );    // remove ext
         }
         mod_title=[NSString stringWithUTF8String:title.c_str()];
@@ -10544,7 +10579,11 @@ static WSRPlayerApi* s_coreSwan=&oswan::g_wsr_player_api;
         
         if (m3uReader.size()) {
             const char* tmpStr=m3uReader.info().title;
-            if (tmpStr && tmpStr[0]) snprintf(mod_name,sizeof(mod_name)," %s",tmpStr);
+            if (tmpStr && tmpStr[0]) {
+                snprintf(mod_name,sizeof(mod_name)," %s",tmpStr);
+                mod_title=[NSString stringWithUTF8String:tmpStr];
+            }
+            
             tmpStr=m3uReader.info().composer;
             if (tmpStr && tmpStr[0]) artist=[NSString stringWithFormat:@"%s",tmpStr];
             else {
@@ -10555,20 +10594,31 @@ static WSRPlayerApi* s_coreSwan=&oswan::g_wsr_player_api;
         
         iModuleLength=0;
         
-        
-        if (m3uReader.size()) {
-            mod_subsongs=m3uReader.size();
-            mod_minsub=0;
-            mod_maxsub=m3uReader.size()-1;
-            mod_currentsub=0;
-            
-            NEZSetSongNo(_nezPlay, m3uReader[mod_currentsub-mod_minsub].track+1);
-        } else {
-            mod_subsongs=NEZGetSongMax(_nezPlay);
-            mod_minsub=1;
-            mod_maxsub=NEZGetSongMax(_nezPlay);
-            mod_currentsub=NEZGetSongNo(_nezPlay);
-            NEZSetSongNo(_nezPlay, mod_currentsub-mod_minsub+1);
+        if (m3uArchiveMode) {
+            if (mdz_ArchiveEntryMonoSub[mdz_currentArchiveIndex]>=0) {
+                mod_subsongs=1;
+                mod_minsub=mdz_ArchiveEntryMonoSub[mdz_currentArchiveIndex];
+                mod_maxsub=mdz_ArchiveEntryMonoSub[mdz_currentArchiveIndex];
+                mod_currentsub=mdz_ArchiveEntryMonoSub[mdz_currentArchiveIndex];
+                iModuleLength=mdz_ArchiveEntryMonoSubLength[mdz_currentArchiveIndex];
+                NEZSetSongNo(_nezPlay, mod_currentsub+1);
+            }
+        }
+        else {
+            if (m3uReader.size()) {
+                mod_subsongs=m3uReader.size();
+                mod_minsub=0;
+                mod_maxsub=m3uReader.size()-1;
+                mod_currentsub=0;
+                
+                NEZSetSongNo(_nezPlay, m3uReader[mod_currentsub-mod_minsub].track+1);
+            } else {
+                mod_subsongs=NEZGetSongMax(_nezPlay);
+                mod_minsub=1;
+                mod_maxsub=NEZGetSongMax(_nezPlay);
+                mod_currentsub=NEZGetSongNo(_nezPlay);
+                NEZSetSongNo(_nezPlay, mod_currentsub-mod_minsub+1);
+            }
         }
         
         NEZReset(_nezPlay);        // without this there is no sound..
@@ -10594,6 +10644,13 @@ static WSRPlayerApi* s_coreSwan=&oswan::g_wsr_player_api;
     
     numChannels=2;
     m_voicesDataAvail=0;
+    
+    if ([[[filePath pathExtension] lowercaseString] isEqualToString:@"hes"]) {
+        //PCEngine mode
+        numChannels=6;
+        m_voicesDataAvail=1;
+    }
+    
     m_genNumVoicesChannels=numChannels;
     for (int i=0;i<m_genNumVoicesChannels;i++) {
         m_voice_voiceColor[i]=m_voice_systemColor[0];
@@ -14976,10 +15033,10 @@ static void vgm_set_dev_option(PlayerBase *player, UINT8 devId, UINT32 coreOpts)
         if (!m3uArchiveMode) {
             //is a m3u available ?
             NSString *tmpStr=[NSString stringWithFormat:@"%@.m3u",[filePath stringByDeletingPathExtension]];
-            err=gme_load_m3u(gme_emu,[tmpStr UTF8String] );
+            err=gme_load_m3u(gme_emu,[tmpStr UTF8String],[[filePath lastPathComponent] UTF8String] );
             if (err) {
                 NSString *tmpStr=[NSString stringWithFormat:@"%@.M3U",[filePath stringByDeletingPathExtension]];
-                err=gme_load_m3u(gme_emu,[tmpStr UTF8String] );
+                err=gme_load_m3u(gme_emu,[tmpStr UTF8String],[[filePath lastPathComponent] UTF8String] );
             }
         }
         
@@ -15001,7 +15058,7 @@ static void vgm_set_dev_option(PlayerBase *player, UINT8 devId, UINT32 coreOpts)
                 mod_currentsub=mdz_ArchiveEntryMonoSub[mdz_currentArchiveIndex];
             }
         }
-        
+         
         numChannels=gme_voice_count( gme_emu );
         
         memset(m_voice_current_ptr,0,sizeof(m_voice_current_ptr));
@@ -16828,21 +16885,24 @@ extern bool icloud_available;
             break;
         case MMP_NEZ: //NEZ
             mod_currentsub=subsong;
-            if (m3uReader.size()) {
-                NEZSetSongNo(_nezPlay, m3uReader[mod_currentsub-mod_minsub].track+1);
-            } else NEZSetSongNo(_nezPlay, mod_currentsub-mod_minsub+1);
+            iModuleLength=0;
+            if (m3uArchiveMode) {
+                NEZSetSongNo(_nezPlay, mod_currentsub+1);
+                iModuleLength=mdz_ArchiveEntryMonoSubLength[mdz_currentArchiveIndex];
+                mod_title=[NSString stringWithUTF8String:m3uReader[mdz_currentArchiveIndex].name];
+            } else {
+                if (m3uReader.size()) {
+                    NEZSetSongNo(_nezPlay, m3uReader[mod_currentsub-mod_minsub].track+1);
+                    iModuleLength=m3uReader[mod_currentsub-mod_minsub].length;
+                    mod_title=[NSString stringWithUTF8String:m3uReader[mod_currentsub-mod_minsub].name];
+                } else {
+                    NEZSetSongNo(_nezPlay, mod_currentsub-mod_minsub+1);
+                    mod_title=[NSString stringWithUTF8String:SONGINFO_GetTitle(_nezPlay->song)];
+                    artist=[NSString stringWithFormat:@"%s",SONGINFO_GetArtist(_nezPlay->song)];
+                }
+            }
             NEZReset(_nezPlay);
             
-            // song info
-            if (m3uReader.size()) {
-                mod_title=[NSString stringWithUTF8String:m3uReader[mod_currentsub-mod_minsub].name];
-            } else {
-                mod_title=[NSString stringWithUTF8String:SONGINFO_GetTitle(_nezPlay->song)];
-                artist=[NSString stringWithFormat:@"%s",SONGINFO_GetArtist(_nezPlay->song)];
-            }
-            
-            iModuleLength=0;
-            if (m3uReader.size()) iModuleLength=m3uReader[mod_currentsub-mod_minsub].length;
             if (iModuleLength<=0) iModuleLength=settings[GLOB_DefaultLength].detail.mdz_slider.slider_value*1000;
             
             mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;

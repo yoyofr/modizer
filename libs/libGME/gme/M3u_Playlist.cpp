@@ -48,11 +48,11 @@ blargg_err_t Gme_File::load_m3u_( blargg_err_t err )
 	return err;
 }
 
-blargg_err_t Gme_File::load_m3u( const char* path ) { return load_m3u_( playlist.load( path ) ); }
+blargg_err_t Gme_File::load_m3u( const char* path, const char* org_filename ) { return load_m3u_( playlist.load( path,org_filename ) ); }
 
-blargg_err_t Gme_File::load_m3u( Data_Reader& in )  { return load_m3u_( playlist.load( in ) ); }
+blargg_err_t Gme_File::load_m3u( Data_Reader& in, const char* org_filename )  { return load_m3u_( playlist.load( in,org_filename ) ); }
 
-gme_err_t gme_load_m3u( Music_Emu* me, const char* path ) { return me->load_m3u( path ); }
+gme_err_t gme_load_m3u( Music_Emu* me, const char* path,const char *org_filename ) { return me->load_m3u( path,org_filename ); }
 
 gme_err_t gme_load_m3u_data( Music_Emu* me, const void* data, long size )
 {
@@ -403,7 +403,7 @@ static void parse_comment( char* in, M3u_Playlist::info_t& info, char *& last_co
 		info.title = field;
 }
 
-blargg_err_t M3u_Playlist::parse_()
+blargg_err_t M3u_Playlist::parse_(const char* org_filename)
 {
 	info_.title     = "";
 	info_.artist    = "";
@@ -452,8 +452,11 @@ blargg_err_t M3u_Playlist::parse_()
 			if ( (int) entries.size() <= count )
 				RETURN_ERR( entries.resize( count * 2 + 64 ) );
 			
-			if ( !parse_line( begin, entries [count] ) )
-				count++;
+            if ( !parse_line( begin, entries [count] ) ) {
+                if (org_filename) {
+                    if (strcasecmp(entries[count].file,org_filename)==0) count++;
+                } else count++;
+            }
 			else if ( !first_error_ )
 				first_error_ = line;
 			first_comment = false;
@@ -469,9 +472,9 @@ blargg_err_t M3u_Playlist::parse_()
 	return entries.resize( count );
 }
 
-blargg_err_t M3u_Playlist::parse()
+blargg_err_t M3u_Playlist::parse(const char* org_filename)
 {
-	blargg_err_t err = parse_();
+	blargg_err_t err = parse_(org_filename);
 	if ( err )
 	{
 		entries.clear();
@@ -480,18 +483,18 @@ blargg_err_t M3u_Playlist::parse()
 	return err;
 }
 
-blargg_err_t M3u_Playlist::load( Data_Reader& in )
+blargg_err_t M3u_Playlist::load( Data_Reader& in,const char* org_filepath )
 {
 	RETURN_ERR( data.resize( in.remain() + 1 ) );
 	RETURN_ERR( in.read( data.begin(), data.size() - 1 ) );
-	return parse();
+	return parse(org_filepath);
 }
 
-blargg_err_t M3u_Playlist::load( const char* path )
+blargg_err_t M3u_Playlist::load( const char* path,const char* org_filepath )
 {
 	GME_FILE_READER in;
 	RETURN_ERR( in.open( path ) );
-	return load( in );
+	return load( in, org_filepath );
 }
 
 blargg_err_t M3u_Playlist::load( void const* in, long size )

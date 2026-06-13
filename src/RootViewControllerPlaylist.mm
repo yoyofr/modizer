@@ -334,7 +334,7 @@ int qsort_ComparePlaylistEntriesRevFP(const void *entryA, const void *entryB) {
                 [self showAlertMsg:@"Information" message:NSLocalizedString(@"Export done",@"")];
             }
         }
-        else{
+        else {
             [self presentViewController:weakAlert animated:YES completion:nil];
         }
     }];
@@ -1680,10 +1680,10 @@ static int qsort_CompareArcEntries(const void *entryA, const void *entryB) {
             
             //is a m3u available ?
             NSString *tmpStr=[NSString stringWithFormat:@"%@.m3u",[cpath stringByDeletingPathExtension]];
-            gme_err=gme_load_m3u(gme_emu,[tmpStr UTF8String] );
+            gme_err=gme_load_m3u(gme_emu,[tmpStr UTF8String],[[cpath lastPathComponent] UTF8String] );
             if (gme_err) {
                 NSString *tmpStr=[NSString stringWithFormat:@"%@.M3U",[cpath stringByDeletingPathExtension]];
-                gme_err=gme_load_m3u(gme_emu,[tmpStr UTF8String] );
+                gme_err=gme_load_m3u(gme_emu,[tmpStr UTF8String],[[cpath lastPathComponent] UTF8String] );
             }
             
             
@@ -1765,10 +1765,10 @@ static int qsort_CompareArcEntries(const void *entryA, const void *entryB) {
                     
                     //is a m3u available ?
                     NSString *tmpStr=[NSString stringWithFormat:@"%@.m3u",[cpath stringByDeletingPathExtension]];
-                    gme_err=gme_load_m3u(gme_emu,[tmpStr UTF8String] );
+                    gme_err=gme_load_m3u(gme_emu,[tmpStr UTF8String],[[cpath lastPathComponent] UTF8String] );
                     if (gme_err) {
                         NSString *tmpStr=[NSString stringWithFormat:@"%@.M3U",[cpath stringByDeletingPathExtension]];
-                        gme_err=gme_load_m3u(gme_emu,[tmpStr UTF8String] );
+                        gme_err=gme_load_m3u(gme_emu,[tmpStr UTF8String],[[cpath lastPathComponent] UTF8String] );
                     }
                     
                     for (int i=0;i<gme_track_count( gme_emu );i++) {

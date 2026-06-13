@@ -5482,12 +5482,12 @@ bool coverAvailable;
     else mPlaylist_pos= [valNb intValue];
     
     valNb=[prefs objectForKey:@"Subsongs"];if (safe_mode) valNb=nil;
-    if (valNb != nil) {
-        if ([valNb intValue]>1) {
+    //if (valNb != nil) {
+//        if ([valNb intValue]>1) {
             valNb=[prefs objectForKey:@"Cur_subsong"];if (safe_mode) valNb=nil;
             if (valNb != nil) mRestart_sub=[valNb intValue];
-        }
-    }
+//        }
+//    }
     
     valNb=[prefs objectForKey:@"ArchiveCnt"];if (safe_mode) valNb=nil;
     if (valNb != nil) {

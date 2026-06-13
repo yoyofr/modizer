@@ -3,6 +3,13 @@
 #include "s_hes.h"
 #include "s_logtbl.h"
 
+//TODO:  MODIZER changes start / YOYOFR
+#define MDZ_VOL_BOOST 3
+#include "../../../../src/ModizerVoicesData.h"
+extern int nezChan_output[6];
+//TODO:  MODIZER changes end / YOYOFR
+
+
 #define CPS_SHIFT 16
 #define RENDERS 5
 #define NOISE_RENDERS 3
@@ -103,8 +110,8 @@ static void HESSoundWaveMemoryRender(HESSOUND *sndp, HES_WAVEMEMORY *ch, Int32 *
 	{
 		output = ch->dda;
 		if(chmask[DEV_HUC6230_CH1+chn]){
-			p[0] += LogToLin(sndp->logtbl, lvol + output + sndp->common.mastervolume, LOG_LIN_BITS - LIN_BITS - 17 - 1);
-			p[1] += LogToLin(sndp->logtbl, rvol + output + sndp->common.mastervolume, LOG_LIN_BITS - LIN_BITS - 17 - 1);
+			p[0] += MDZ_VOL_BOOST*LogToLin(sndp->logtbl, lvol + output + sndp->common.mastervolume, LOG_LIN_BITS - LIN_BITS - 17 - 1);
+			p[1] += MDZ_VOL_BOOST*LogToLin(sndp->logtbl, rvol + output + sndp->common.mastervolume, LOG_LIN_BITS - LIN_BITS - 17 - 1);
 		}
 	}
 	else if (ch->regs[7 - 2] & 0x80)	/* NOISE */
@@ -142,8 +149,8 @@ static void HESSoundWaveMemoryRender(HESSOUND *sndp, HES_WAVEMEMORY *ch, Int32 *
 		count++;
 
 		if(chmask[DEV_HUC6230_CH1+chn]){
-			p[0] += outputbf[0] / count;
-			p[1] += outputbf[1] / count;
+			p[0] += MDZ_VOL_BOOST*outputbf[0] / count;
+			p[1] += MDZ_VOL_BOOST*outputbf[1] / count;
 		}
 		
 	}
@@ -188,8 +195,8 @@ static void HESSoundWaveMemoryRender(HESSOUND *sndp, HES_WAVEMEMORY *ch, Int32 *
 		outputbf[1] += ch->output[1];
 		count++;
 		if(chmask[DEV_HUC6230_CH1+chn]){
-			p[0] += outputbf[0] / count;
-			p[1] += outputbf[1] / count;
+			p[0] += MDZ_VOL_BOOST*outputbf[0] / count;
+			p[1] += MDZ_VOL_BOOST*outputbf[1] / count;
 		}
 	}
 }
@@ -240,11 +247,29 @@ static void HESSoundLfoStep(HESSOUND *sndp)
 
 static void sndsynth(void *ctx, Int32 *p)
 {
+    //YOYOFR
+    int tmpval[2];
+    //YOYOFR
+    
+    
 	HESSOUND *sndp = ctx;
+    tmpval[0]=p[0];tmpval[1]=p[1];
 	HESSoundWaveMemoryRender(sndp, &sndp->ch[5], p, 5);
+    nezChan_output[5]+=(p[0]-tmpval[0])+(p[1]-tmpval[1]);
+    
+    tmpval[0]=p[0];tmpval[1]=p[1];
 	HESSoundWaveMemoryRender(sndp, &sndp->ch[4], p, 4);
+    nezChan_output[4]+=(p[0]-tmpval[0])+(p[1]-tmpval[1]);
+    
+    tmpval[0]=p[0];tmpval[1]=p[1];
 	HESSoundWaveMemoryRender(sndp, &sndp->ch[3], p, 3);
+    nezChan_output[3]+=(p[0]-tmpval[0])+(p[1]-tmpval[1]);
+    
+    tmpval[0]=p[0];tmpval[1]=p[1];
 	HESSoundWaveMemoryRender(sndp, &sndp->ch[2], p, 2);
+    nezChan_output[2]+=(p[0]-tmpval[0])+(p[1]-tmpval[1]);
+    
+    tmpval[0]=p[0];tmpval[1]=p[1];
 	if (sndp->lfo.regs[1] & 0x80)
 	{
 		HESSoundWaveMemoryRender(sndp, &sndp->ch[1], p, 1);
@@ -256,7 +281,21 @@ static void sndsynth(void *ctx, Int32 *p)
 		HESSoundWaveMemoryRender(sndp, &sndp->ch[1], p, 1);
 		HESSoundLfoStep(sndp);
 	}
+    nezChan_output[1]+=(p[0]-tmpval[0])+(p[1]-tmpval[1]);
+    
+    tmpval[0]=p[0];tmpval[1]=p[1];
 	HESSoundWaveMemoryRender(sndp, &sndp->ch[0], p, 0);
+    nezChan_output[0]+=(p[0]-tmpval[0])+(p[1]-tmpval[1]);
+    
+    //YOYOFR
+    for (int c=0;c<6;c++) {
+        if (sndp->ch[c].wl) {
+            vgm_last_note[c]=440*111860.78/sndp->ch[c].wl;
+            vgm_last_instr[c]=c;
+            vgm_last_vol[c]=1;
+        }
+    }
+    //YOYOFR
 }
 
 static void HESSoundChReset(HESSOUND *sndp, HES_WAVEMEMORY *ch, Uint32 clock, Uint32 freq)

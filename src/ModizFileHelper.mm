@@ -47,10 +47,10 @@ extern bool icloud_available;
         
         //is a m3u available ?
         NSString *tmpStr=[NSString stringWithFormat:@"%@.m3u",[cpath stringByDeletingPathExtension]];
-        gme_err=gme_load_m3u(gme_emu,[tmpStr UTF8String] );
+        gme_err=gme_load_m3u(gme_emu,[tmpStr UTF8String],[[cpath lastPathComponent] UTF8String] );
         if (gme_err) {
             NSString *tmpStr=[NSString stringWithFormat:@"%@.M3U",[cpath stringByDeletingPathExtension]];
-            gme_err=gme_load_m3u(gme_emu,[tmpStr UTF8String] );
+            gme_err=gme_load_m3u(gme_emu,[tmpStr UTF8String],[[cpath lastPathComponent] UTF8String] );
         }
         int total_trackNb=gme_track_count( gme_emu );
         if (total_trackNb>1) ret=true;

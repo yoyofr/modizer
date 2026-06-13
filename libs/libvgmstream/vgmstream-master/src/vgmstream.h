@@ -10,12 +10,14 @@
 //#define VGM_USE_MPEG
 //#define VGM_USE_FFMPEG
 //#define VGM_USE_ATRAC9
-
 //#define VGM_USE_G7221
 //#define VGM_USE_G719
+
+//to check if worth it
 //#define VGM_USE_CELT
 //#define VGM_USE_SPEEX
 
+//not required
 //#define VGM_USE_MP4V2
 //#define VGM_USE_FDKAAC
 

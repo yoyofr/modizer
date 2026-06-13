@@ -1,6 +1,13 @@
 #include "nezplug.h"
 #include "audiosys.h"
 
+//TODO:  MODIZER changes start / YOYOFR
+#include "../../../../src/ModizerVoicesData.h"
+int nezChan_output[6];
+Int32 output2Ch[6];
+//TODO:  MODIZER changes end / YOYOFR
+
+
 /* ---------------------- */
 /*  Audio Render Handler  */
 /* ---------------------- */
@@ -17,11 +24,22 @@ void NESAudioFilterSet(NEZ_PLAY *pNezPlay, Uint filter)
 	pNezPlay->naf_prev[1] = 0x8000;
 	output2[0] = 0x7fffffff;
 	output2[1] = 0x7fffffff;
+    
+    //YOYOFR
+    for (int c=0;c<6;c++) output2Ch[c] = 0x7fffffff;
+    //YOYOFR
 }
 
 void NESAudioRender(NEZ_PLAY *pNezPlay, Int16 *bufp, Uint buflen)
 {
 	Uint maxch = NESAudioChannelGet(pNezPlay);
+    
+    //YOYOFR
+    for (int c=0;c<6;c++) {
+        nezChan_output[c]=0;
+    }
+    //YOYOFR
+    
 	while (buflen--)
 	{
 		NES_AUDIO_HANDLER *ph;
@@ -57,7 +75,7 @@ void NESAudioRender(NEZ_PLAY *pNezPlay, Int16 *bufp, Uint buflen)
 				else
 					output[ch] = accum[ch];
 				output[ch] >>= SHIFT_BITS;
-
+                
 				//DCオフセットフィルタ
 				if(!(pNezPlay->naf_type&4)){
 					Int32 buffer;
@@ -110,6 +128,51 @@ void NESAudioRender(NEZ_PLAY *pNezPlay, Int16 *bufp, Uint buflen)
 				}
 				*bufp++ = (Int16)(((Int32)output[ch]) - 0x8000);
 			}
+            
+            //YOYOFR
+            Uint32 outputCh[6];
+            for (int c=0;c<6;c++) {
+                nezChan_output[c] += (0x10000 << SHIFT_BITS);
+                if (nezChan_output[c] < 0)
+                    outputCh[c] = 0;
+                else if (nezChan_output[c] > (0x20000 << SHIFT_BITS) - 1)
+                    outputCh[c] = (0x20000 << SHIFT_BITS) - 1;
+                else
+                    outputCh[c] = nezChan_output[c];
+                outputCh[c] >>= SHIFT_BITS;
+                
+                if(!(pNezPlay->naf_type&4)) {
+                    Int32 buffer;
+                    if (output2Ch[c] == 0x7fffffff){
+                        output2Ch[c] = ((Int32)outputCh[c]<<14) - 0x40000000;
+                        //output2[ch] *= -1;
+                    }
+                    output2Ch[c] -= (output2Ch[c] - (((Int32)outputCh[c]<<14) - 0x40000000))/(64*filter);
+                    buffer =  outputCh[c]/2 - output2Ch[c]/0x8000;
+                    
+                    if (buffer < 0)
+                        outputCh[c] = 0;
+                    else if (buffer > 0xffff)
+                        outputCh[c] = 0xffff;
+                    else
+                        outputCh[c] = buffer;
+                }else{
+                    outputCh[c] >>= 1;
+                }
+                
+                int64_t smplIncr=(1<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+                int64_t ofs_start=m_voice_current_ptr[c];
+                int64_t ofs_end=(m_voice_current_ptr[c]+smplIncr);
+                int outp=((Int16)(((Int32)outputCh[c]) - 0x8000))>>7;
+                
+                m_voice_buff[c][(ofs_start>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)&(SOUND_BUFFER_SIZE_SAMPLE*2*4-1)]=LIMIT8(outp);
+                
+                while ((ofs_end>>MODIZER_OSCILLO_OFFSET_FIXEDPOINT)>=SOUND_BUFFER_SIZE_SAMPLE*2*4) ofs_end-=(SOUND_BUFFER_SIZE_SAMPLE*2*4<<MODIZER_OSCILLO_OFFSET_FIXEDPOINT);
+                m_voice_current_ptr[c]=ofs_end;
+                
+                nezChan_output[c]=0;
+            }
+            //TODO:  MODIZER changes end / YOYOFR
 		}
 	}
 }

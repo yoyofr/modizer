@@ -10,8 +10,8 @@
 class M3u_Playlist {
 public:
 	// Load playlist data
-	blargg_err_t load( const char* path );
-	blargg_err_t load( Data_Reader& in );
+	blargg_err_t load( const char* path,const char* org_filepath=NULL );
+	blargg_err_t load( Data_Reader& in,const char* org_filepath=NULL );
 	blargg_err_t load( void const* data, long size );
 
 	// Line number of first parse error, 0 if no error. Any lines with parse
@@ -57,8 +57,8 @@ private:
 	int first_error_;
 	info_t info_;
 
-	blargg_err_t parse();
-	blargg_err_t parse_();
+	blargg_err_t parse(const char* org_filename=NULL);
+	blargg_err_t parse_(const char* org_filename=NULL);
 };
 
 inline void M3u_Playlist::clear()
