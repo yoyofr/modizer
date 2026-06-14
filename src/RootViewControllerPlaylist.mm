@@ -325,7 +325,7 @@ int qsort_ComparePlaylistEntriesRevFP(const void *entryA, const void *entryB) {
             } else {
                 NSString *srcPath,*tgtPath;
                 for (int i=0;i<playlist->nb_entries;i++) {
-                    srcPath=playlist->entries[i].fullpath;
+                    srcPath=[ModizFileHelper getFullPathForFilePath:playlist->entries[i].fullpath];
                     tgtPath=[NSString stringWithFormat:@"%@/%@",tgtFolder,[playlist->entries[i].fullpath lastPathComponent]];
                     if (![fileMgr copyItemAtPath:srcPath toPath:tgtPath error:&error]) {
                         MDZELog("Error during copy of %@ to %@, error %@",srcPath,tgtPath,error);

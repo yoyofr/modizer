@@ -96,7 +96,6 @@ COMMENT: Featured in the demo Prozac Dream by Lamers
 /Composers/Bendyk_Piotr/Third.sap
 COMMENT: 1st place at Silly Venture 2014 music compo.
 
-
 ### /Composers/Berger_Dominique ##############################################
 
 /Composers/Berger_Dominique/8bitMania.sap
@@ -4922,7 +4921,6 @@ COMMENT: 2nd place at Grayscale Music Competition I.
   TITLE: Silkworm Title [from the Amiga MOD module]
  ARTIST: Barry Leitch
 
-
 ### /Composers/Soelbrandt_Stefan #############################################
 
 /Composers/Soelbrandt_Stefan/Bright_Eyes.sap
@@ -7824,7 +7822,6 @@ COMMENT: Demonstation of the range of frequencies in 16 bit music.
 /Unknown/Rydeen.sap
   TITLE: Rydeen [from Solid State Survivor]
  ARTIST: Yellow Magic Orchestra (YMO)
-
 
 /Unknown/Sing_Hosanna.sap
   TITLE: Give Me Joy in My Heart (Sing Hosanna)
