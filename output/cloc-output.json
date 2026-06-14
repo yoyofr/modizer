@@ -1,32 +1,32 @@
 {"header" : {
   "cloc_url"           : "github.com/AlDanial/cloc",
   "cloc_version"       : "1.98",
-  "elapsed_seconds"    : 39.4200649261475,
-  "n_files"            : 27297,
-  "n_lines"            : 12706425,
-  "files_per_second"   : 692.464612910716,
-  "lines_per_second"   : 322333.94399033,
+  "elapsed_seconds"    : 38.5921988487244,
+  "n_files"            : 27533,
+  "n_lines"            : 12779620,
+  "files_per_second"   : 713.434342208,
+  "lines_per_second"   : 331145.163562569,
   "report_file"        : "../output/cloc-output.json"},
 "C" :{
-  "nFiles": 9122,
-  "blank": 457563,
-  "comment": 433196,
-  "code": 3303266},
+  "nFiles": 9241,
+  "blank": 461815,
+  "comment": 436582,
+  "code": 3322615},
 "C/C++ Header" :{
-  "nFiles": 10998,
-  "blank": 331959,
-  "comment": 587828,
-  "code": 2163126},
+  "nFiles": 11114,
+  "blank": 336503,
+  "comment": 603228,
+  "code": 2188831},
 "C++" :{
   "nFiles": 3293,
-  "blank": 310497,
-  "comment": 165121,
-  "code": 2111144},
+  "blank": 310536,
+  "comment": 165172,
+  "code": 2111257},
 "Bourne Shell" :{
   "nFiles": 380,
-  "blank": 107378,
-  "comment": 108993,
-  "code": 644284},
+  "blank": 107380,
+  "comment": 108992,
+  "code": 644294},
 "Assembly" :{
   "nFiles": 252,
   "blank": 49871,
@@ -39,19 +39,19 @@
   "code": 251068},
 "m4" :{
   "nFiles": 237,
-  "blank": 22592,
+  "blank": 22591,
   "comment": 5122,
-  "code": 204976},
+  "code": 204972},
 "Objective-C++" :{
   "nFiles": 107,
-  "blank": 19016,
-  "comment": 10919,
-  "code": 93967},
+  "blank": 19032,
+  "comment": 10968,
+  "code": 94056},
 "make" :{
-  "nFiles": 598,
-  "blank": 11989,
-  "comment": 16509,
-  "code": 74353},
+  "nFiles": 599,
+  "blank": 12007,
+  "comment": 16514,
+  "code": 74403},
 "Scheme" :{
   "nFiles": 8,
   "blank": 49,
@@ -73,10 +73,10 @@
   "comment": 29,
   "code": 49439},
 "CMake" :{
-  "nFiles": 380,
-  "blank": 5594,
-  "comment": 5786,
-  "code": 33380},
+  "nFiles": 379,
+  "blank": 5596,
+  "comment": 5789,
+  "code": 33363},
 "JavaScript" :{
   "nFiles": 126,
   "blank": 3501,
@@ -84,9 +84,9 @@
   "code": 26239},
 "Python" :{
   "nFiles": 79,
-  "blank": 3410,
-  "comment": 9543,
-  "code": 14693},
+  "blank": 3427,
+  "comment": 9554,
+  "code": 14759},
 "C#" :{
   "nFiles": 54,
   "blank": 1137,
@@ -108,10 +108,10 @@
   "comment": 2419,
   "code": 9913},
 "Windows Module Definition" :{
-  "nFiles": 66,
-  "blank": 850,
+  "nFiles": 65,
+  "blank": 849,
   "comment": 246,
-  "code": 7862},
+  "code": 7785},
 "Java" :{
   "nFiles": 20,
   "blank": 1461,
@@ -143,10 +143,10 @@
   "comment": 951,
   "code": 5064},
 "Visual Studio Solution" :{
-  "nFiles": 48,
-  "blank": 35,
-  "comment": 44,
-  "code": 4386},
+  "nFiles": 49,
+  "blank": 36,
+  "comment": 45,
+  "code": 4412},
 "Pascal" :{
   "nFiles": 16,
   "blank": 773,
@@ -203,10 +203,10 @@
   "comment": 66,
   "code": 887},
 "diff" :{
-  "nFiles": 11,
-  "blank": 248,
-  "comment": 810,
-  "code": 740},
+  "nFiles": 12,
+  "blank": 250,
+  "comment": 818,
+  "code": 751},
 "TNSDL" :{
   "nFiles": 5,
   "blank": 171,
@@ -257,6 +257,11 @@
   "blank": 46,
   "comment": 47,
   "code": 308},
+"PowerShell" :{
+  "nFiles": 1,
+  "blank": 71,
+  "comment": 53,
+  "code": 267},
 "C Shell" :{
   "nFiles": 3,
   "blank": 51,
@@ -272,11 +277,6 @@
   "blank": 58,
   "comment": 80,
   "code": 218},
-"PowerShell" :{
-  "nFiles": 1,
-  "blank": 59,
-  "comment": 45,
-  "code": 217},
 "MATLAB" :{
   "nFiles": 4,
   "blank": 49,
@@ -383,7 +383,7 @@
   "comment": 0,
   "code": 1},
 "SUM": {
-  "blank": 1481837,
-  "comment": 1585414,
-  "code": 9639174,
-  "nFiles": 27297} }
+  "blank": 1490740,
+  "comment": 1604335,
+  "code": 9684545,
+  "nFiles": 27533} }
