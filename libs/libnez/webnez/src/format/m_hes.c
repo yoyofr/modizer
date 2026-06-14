@@ -687,7 +687,10 @@ First Mapper 7 : %02XH"
 		);
 
 	SONGINFO_SetDetail(pNezPlay->song, songinfodata.detail);	// EMSCRIPTEN
-
+    
+    SONGINFO_SetType(pNezPlay->song, "HES");
+    SONGINFO_SetSystem(pNezPlay->song, "PC Engine");
+    
 	if (!alloc_physical_address(THIS_, 0xf8 << 13, 0x2000))	/* RAM */
 		return NESERR_SHORTOFMEMORY;
 	if (!alloc_physical_address(THIS_, 0xf9 << 13, 0x2000))	/* SGX-RAM */

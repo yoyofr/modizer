@@ -10534,7 +10534,7 @@ static WSRPlayerApi* s_coreSwan=&oswan::g_wsr_player_api;
     m3uReader_adjofs=0;
     if (f) {
         fclose(f);
-        m3uReader.load(plfile);
+        m3uReader.load(plfile,[[filePath lastPathComponent] UTF8String]);
     }
     
     //Init player

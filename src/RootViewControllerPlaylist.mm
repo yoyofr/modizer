@@ -11,8 +11,6 @@
 #define PRI_SEC_ACTIONS_IMAGE_SIZE 40
 #define ROW_HEIGHT 40
 
-
-
 #define LIMITED_LIST_SIZE 1024
 
 #import "MDZUIImageView.h"
@@ -59,7 +57,6 @@ static char **browser_sidtune_title,**browser_sidtune_name;
 extern volatile t_settings settings[MAX_SETTINGS];
 
 #import "TTFadeAnimator.h"
-
 
 @implementation RootViewControllerPlaylist
 
