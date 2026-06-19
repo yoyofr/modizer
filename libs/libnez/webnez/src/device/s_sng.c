@@ -3,6 +3,13 @@
 #include "s_logtbl.h"
 #include "s_sng.h"
 
+//TODO:  MODIZER changes start / YOYOFR
+#define MDZ_VOL_BOOST 3
+#include "../../../../src/ModizerVoicesData.h"
+extern int nezChan_output[4+11];
+//TODO:  MODIZER changes end / YOYOFR
+
+
 #define CPS_SHIFT 18
 #define LOG_KEYOFF (31 << LOG_BITS)
 
@@ -144,17 +151,73 @@ static void sndsynth(void *ctx, Int32 *p)
 	SNGSOUND *sndp = (SNGSOUND*)ctx;
 	Uint32 ch;
 	Int32 accum = 0;
+    
+    //YOYOFR
+    for (int c=0;c<3;c++) {
+        sndp->square[c].mute=generic_mute_mask&(1<<c);
+    }
+    sndp->noise.mute=generic_mute_mask&(1<<3);
+    //YOYOFR
+    
 	for (ch = 0; ch < 3; ch++)
 	{
 		accum = SNGSoundSquareSynth(sndp, &sndp->square[ch]);
 		if (chmask[DEV_SN76489_SQ1 + ch]){
 			if ((sndp->common.ggs >> ch) & 0x10) p[0] += accum;
 			if ((sndp->common.ggs >> ch) & 0x01) p[1] += accum;
+            
+            if ((sndp->common.ggs >> ch) & 0x11) nezChan_output[ch] += accum; //YOYOFR
 		}
 	}
 	accum = SNGSoundNoiseSynth(sndp, &sndp->noise) * chmask[DEV_SN76489_NOISE];
+    
 	if (sndp->common.ggs & 0x80) p[0] += accum;
 	if (sndp->common.ggs & 0x08) p[1] += accum;
+    
+    if (sndp->common.ggs & 0x88) nezChan_output[3] += accum; //YOYOFR
+    
+    //YOYOFR
+    for (int c=0;c<3;c++) {
+        if (chmask[DEV_SN76489_SQ1 + c]){
+            if (((sndp->common.ggs >> c) & 0x11) && sndp->square[c].spd && sndp->square[c].vol) {
+                double half_period_samples = (double)sndp->square[c].spd / (1 << CPS_SHIFT);
+                vgm_last_note[c]=(float)(44100 / (2.0 * half_period_samples));
+                vgm_last_instr[c]=c;
+                vgm_last_vol[c]=(sndp->square[c].vol >> LOG_BITS)+1;
+            }
+        }
+    }
+    if (chmask[DEV_SN76489_NOISE]) {
+        if (sndp->noise.vol < LOG_KEYOFF && sndp->noise.spd) {
+            uint8_t noise_mode = sndp->noise.step1 & 0x03; // NF bits [1:0]
+            uint8_t is_white = (sndp->noise.fb == FB_WNOISE);
+            
+            // Mode 3 = slavÃ© sur canal 3 â†’ pas de frÃ©quence propre au noise
+            // â†’ utiliser la frÃ©quence du canal 3 ou ignorer
+            if (noise_mode == 3) {
+                // slavÃ© : la "frÃ©quence" est celle du canal tone 3
+                if (sndp->square[2].spd) {
+                    double half_period = (double)sndp->square[2].spd / (1 << CPS_SHIFT);
+                    vgm_last_note[3] = (float)(44100 / (2.0 * half_period));
+                } else {
+                    vgm_last_note[3] = 0;
+                }
+            } else {
+                // Modes 0/1/2 : frÃ©quences fixes clock/512, /1024, /2048
+                // ncps est le cps du noise (peut diffÃ©rer de cps)
+                if (sndp->noise.spd) {
+                    double half_period = (double)sndp->noise.spd / (1 << CPS_SHIFT);
+                    vgm_last_note[3] = (float)(44100 / (2.0 * half_period));
+                } else {
+                    vgm_last_note[3] = 0;
+                }
+            }
+            
+            vgm_last_instr[3] = is_white ? 4 : 3; // distinguer bruit blanc/pÃ©riodique
+            vgm_last_vol[3] = (sndp->noise.vol >> LOG_BITS) + 1;
+        }
+    }
+    //YOYOFR
 }
 
 static void sndvolume(void *ctx, Int32 volume)
@@ -181,7 +244,7 @@ static void sndwrite(void *ctx, Uint32 a, Uint32 v)
 	{
 		Uint32 ch = (sndp->common.first >> 5) & 3;
 		if (sndp->type == SNG_TYPE_SN76489AN) {
-			//0x000‚ªˆê”Ô’á‚­A0x001‚ªˆê”Ô‚‚¢B
+			//0x000Ã‡â„¢Ã ÃÃ®â€˜Ã­Â·Ã‡â‰ Ã…A0x001Ã‡â„¢Ã ÃÃ®â€˜Ã§Ã‡Ã‡Â¢Ã…B
 			sndp->square[ch].spd = (((((v & 0x3F) << 4) + (sndp->common.first & 0xF)) + 0x3ff)&0x3ff) +1;
 		} else {
 			sndp->square[ch].spd = (((v & 0x3F) << 4) + (sndp->common.first & 0xF));
@@ -210,7 +273,7 @@ static void sndwrite(void *ctx, Uint32 a, Uint32 v)
 				sndp->square[ch].vol = voltbl[v & 0xF];
 				break;
 			case 0xE0:
-				//ŽèŽ‚¿‚ÌSN76489AN‚ªA‚±‚±‚É‘‚¢‚½‚çƒŠƒZƒbƒg‚µ‚Ä‚½‚Ì‚Å
+				//Ã©Ã‹Ã©Ã¹Ã‡Ã¸Ã‡ÃƒSN76489ANÃ‡â„¢Ã…AÃ‡Â±Ã‡Â±Ã‡â€¦Ã¨Ã«Ã‡Â¢Ã‡Î©Ã‡ÃÃ‰Ã¤Ã‰ZÃ‰bÃ‰gÃ‡ÂµÃ‡Æ’Ã‡Î©Ã‡ÃƒÃ‡â‰ˆ
 				sndp->noise.rng = sndp->type == SNG_TYPE_SN76489AN ? SN76489AN_PRESET : SG76489_PRESET;
 				sndp->noise.mode = v & 0x3;
 				sndp->noise.fb = (v & 4) ? FB_WNOISE : FB_PNOISE;
@@ -266,7 +329,7 @@ static void sndrelease(void *ctx)
 
 static void setinst(void *ctx, Uint32 n, void *p, Uint32 l){}
 
-//‚±‚±‚©‚çƒŒƒWƒXƒ^ƒrƒ…ƒA[Ý’è
+//Ã‡Â±Ã‡Â±Ã‡Â©Ã‡ÃÃ‰Ã¥Ã‰WÃ‰XÃ‰^Ã‰rÃ‰Ã–Ã‰AÃ…[Ãªâ€ºÃ­Ã‹
 static Uint8 *regdata;
 Uint32 (*ioview_ioread_DEV_SN76489)(Uint32 a);
 static Uint32 ioview_ioread_bf(Uint32 a){
@@ -278,7 +341,7 @@ static Uint32 ioview_ioread_bf(Uint32 a){
 	}
 	return 0x100;
 }
-//‚±‚±‚Ü‚ÅƒŒƒWƒXƒ^ƒrƒ…ƒA[Ý’è
+//Ã‡Â±Ã‡Â±Ã‡â€¹Ã‡â‰ˆÃ‰Ã¥Ã‰WÃ‰XÃ‰^Ã‰rÃ‰Ã–Ã‰AÃ…[Ãªâ€ºÃ­Ã‹
 
 KMIF_SOUND_DEVICE *SNGSoundAlloc(Uint32 sng_type)
 {
@@ -301,9 +364,9 @@ KMIF_SOUND_DEVICE *SNGSoundAlloc(Uint32 sng_type)
 		sndrelease(sndp);
 		return 0;
 	}
-	//‚±‚±‚©‚çƒŒƒWƒXƒ^ƒrƒ…ƒA[Ý’è
+	//Ã‡Â±Ã‡Â±Ã‡Â©Ã‡ÃÃ‰Ã¥Ã‰WÃ‰XÃ‰^Ã‰rÃ‰Ã–Ã‰AÃ…[Ãªâ€ºÃ­Ã‹
 	regdata = sndp->regs;
 	ioview_ioread_DEV_SN76489 = ioview_ioread_bf;
-	//‚±‚±‚Ü‚ÅƒŒƒWƒXƒ^ƒrƒ…ƒA[Ý’è
+	//Ã‡Â±Ã‡Â±Ã‡â€¹Ã‡â‰ˆÃ‰Ã¥Ã‰WÃ‰XÃ‰^Ã‰rÃ‰Ã–Ã‰AÃ…[Ãªâ€ºÃ­Ã‹
 	return &sndp->kmif;
 }

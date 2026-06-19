@@ -56,12 +56,12 @@ namespace Module
       
       virtual const char *GetHWChannelName(int chan) {
           switch (chan) {
-              case 0:return "FM1";
-              case 1:return "FM2";
-              case 2:return "FM3";
-              case 3:return "FM4";
-              case 4:return "FM5";
-              case 5:return "FM6";
+              case 0:return "FM 1";
+              case 1:return "FM 2";
+              case 2:return "FM 3";
+              case 3:return "FM 4";
+              case 4:return "FM 5";
+              case 5:return "FM 6";
               default:return "FM";
           }
       }

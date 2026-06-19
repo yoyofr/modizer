@@ -115,12 +115,12 @@ namespace Module
       
       virtual const char *GetHWChannelName(int chan) {
           switch (chan) {
-              case 0:return "SAA1";
-              case 1:return "SAA2";
-              case 2:return "SAA3";
-              case 3:return "SAA4";
-              case 4:return "SAA5";
-              case 5:return "SAA6";
+              case 0:return "SAA 1";
+              case 1:return "SAA 2";
+              case 2:return "SAA 3";
+              case 3:return "SAA 4";
+              case 4:return "SAA 5";
+              case 5:return "SAA 6";
               default:return "SAA";
           }
       }

@@ -3176,12 +3176,9 @@ void propertyListenerCallback (void                   *inUserData,              
         memset(mBuffers[i]->mAudioData,0,SOUND_BUFFER_SIZE_SAMPLE*2*2);
         mBuffers[i]->mAudioDataByteSize = SOUND_BUFFER_SIZE_SAMPLE*2*2;
         AudioQueueEnqueueBuffer( mAudioQueue, mBuffers[i], 0, NULL);
-        //		[self iPhoneDrv_FillAudioBuffer:mBuffers[i]];
-        
     }
     bGlobalAudioPause=0;
     /* Start the Audio Queue! */
-    //AudioQueuePrime( mAudioQueue, 0,NULL );
     err = AudioQueueStart( mAudioQueue, NULL );
     
     return 1;
@@ -3257,16 +3254,13 @@ void propertyListenerCallback (void                   *inUserData,              
         
         mBuffers[i]->mAudioDataByteSize = SOUND_BUFFER_SIZE_SAMPLE*2*2;
         AudioQueueEnqueueBuffer( mAudioQueue, mBuffers[i], 0, NULL);
-        //        [self iPhoneDrv_FillAudioBuffer:mBuffers[i]];
-        
     }
     m_normalizer.reset();
     
     bGlobalAudioPause=0;
     /* Start the Audio Queue! */
-    //AudioQueuePrime( mAudioQueue, 0,NULL );
     err = AudioQueueStart( mAudioQueue, NULL );
-    sleep(0.100);
+//    sleep(0.100);
     
     return 1;
 }
@@ -10649,12 +10643,49 @@ static WSRPlayerApi* s_coreSwan=&oswan::g_wsr_player_api;
         //PCEngine mode
         numChannels=6;
         m_voicesDataAvail=1;
+        
+        modizChipsetCount=1;
+        
+        modizChipsetStartVoice[0]=0;
+        modizChipsetVoicesCount[0]=6;
+        snprintf(modizChipsetName[0],MODIZ_CHIP_NAME_MAX_CHAR,"%s","HuC6280");
+        int chan=0;
+        for (int j=0;j<6;j++) {
+            m_voice_voiceColor[chan]=m_voice_systemColor[0];
+            snprintf(modizVoicesName[chan],MODIZ_VOICE_NAME_MAX_CHAR,"HuC6280 %d",j+1);
+            chan++;
+        }
+    } else { //SGC
+        numChannels=4;
+        m_voicesDataAvail=1;
+        modizChipsetCount=1;
+        
+        modizChipsetStartVoice[0]=0;
+        modizChipsetVoicesCount[0]=4;
+        snprintf(modizChipsetName[0],MODIZ_CHIP_NAME_MAX_CHAR,"%s","SN76489");
+        int chan=0;
+        for (int j=0;j<4;j++) {
+            m_voice_voiceColor[chan]=m_voice_systemColor[0];
+            snprintf(modizVoicesName[chan],MODIZ_VOICE_NAME_MAX_CHAR,"PSG %d",j+1);
+            chan++;
+        }
+        
+        if (strcmp(SONGINFO_GetType(_nezPlay->song),"Sega Master System")==0) {
+            numChannels=4+(6+5);
+            modizChipsetCount=2;
+            
+            modizChipsetStartVoice[1]=4;
+            modizChipsetVoicesCount[1]=6+5;
+            snprintf(modizChipsetName[1],MODIZ_CHIP_NAME_MAX_CHAR,"%s","YM2413");
+            for (int j=0;j<6+5;j++) {
+                m_voice_voiceColor[chan]=m_voice_systemColor[1];
+                snprintf(modizVoicesName[chan],MODIZ_VOICE_NAME_MAX_CHAR,"FM %d",j+1);
+                chan++;
+            }
+        }
     }
     
     m_genNumVoicesChannels=numChannels;
-    for (int i=0;i<m_genNumVoicesChannels;i++) {
-        m_voice_voiceColor[i]=m_voice_systemColor[0];
-    }
     
     [self mmp_updateDBStatsAtLoad];
     
@@ -17665,7 +17696,7 @@ extern bool icloud_available;
     if (mPlayType==MMP_NCSF) return [NSString stringWithFormat:@"%s",mmp_fileext];
     if (mPlayType==MMP_V2M) return [NSString stringWithFormat:@"%s",mmp_fileext];
     if (mPlayType==MMP_VGMSTREAM) return [NSString stringWithFormat:@"%s",mmp_fileext];
-    if (mPlayType==MMP_NEZ) return [NSString stringWithUTF8String:SONGINFO_GetType(_nezPlay->song)];
+    if (mPlayType==MMP_NEZ) return [NSString stringWithFormat:@"%s",mmp_fileext];;
     return @" ";
 }
 -(BOOL) isPlaying {
@@ -18321,6 +18352,7 @@ extern "C" void adjust_amplification(void);
         case MMP_SIDPLAY:
         case MMP_ASAP:
         case MMP_VGMPLAY:
+        case MMP_NEZ:
             return true;
         default: return false;
     }
@@ -18334,119 +18366,119 @@ extern "C" void adjust_amplification(void);
         case MMP_KSS:
         case MMP_GBS:
         case MMP_NSFPLAY:
-        case MMP_FUR: {
+        case MMP_FUR:
+        case MMP_NEZ:
             return [NSString stringWithFormat:@"%s",modizVoicesName[channel]];
-        }
         case MMP_ZXTUNE:
             return [NSString stringWithFormat:@"%s",mdz_zxtune->get_channel_name(channel)];
         case MMP_NCSF:
         case MMP_2SF:
-            return [NSString stringWithFormat:@"#%d-NDS",channel+1];
+            return [NSString stringWithFormat:@"NDS %d",channel+1];
         case MMP_V2M:
-            return [NSString stringWithFormat:@"#%d-V2",channel+1];
+            return [NSString stringWithFormat:@"V2 %d",channel+1];
         case MMP_WSR:
-            if (channel<4) return [NSString stringWithFormat:@"#%d-PCM",channel+1];
-            else if (channel<5) return [NSString stringWithFormat:@"#%d-Voice",channel+1];
-            else return [NSString stringWithFormat:@"#%d-Noise",channel+1];
+            if (channel<4) return [NSString stringWithFormat:@"PCM %d",channel+1];
+            else if (channel<5) return [NSString stringWithFormat:@"Voice %d",channel+1];
+            else return [NSString stringWithFormat:@"Noise %d",channel+1];
         case MMP_PIXEL: {
             if (pixel_organya_mode) {
-                return [NSString stringWithFormat:@"#%d-Organya",channel+1];
+                return [NSString stringWithFormat:@"Organya %d",channel+1];
             } else {
                 const pxtnUnit *unit=pixel_pxtn->Unit_Get(channel);
                 if (unit) {
                     const char *name=unit->get_name_buf(NULL);
-                    if (name && name[0]) return [NSString stringWithFormat:@"#%d-%@",channel+1,[self sjisToNS:name]];
+                    if (name && name[0]) return [NSString stringWithFormat:@"%@ %d",[self sjisToNS:name],channel+1];
                 }
                 return [NSString stringWithFormat:@"#%d",channel+1];
             }
         }
         case MMP_ATARISOUND:
-            if (channel<3) return [NSString stringWithFormat:@"#%d-YM2149F",channel+1];
-            else return [NSString stringWithFormat:@"#%d-DMA",channel+1];
+            if (channel<3) return [NSString stringWithFormat:@"YM2149F %d",channel+1];
+            else return [NSString stringWithFormat:@"DMA %d",channel+1];
         case MMP_HC:
-            if (HC_type==1) return [NSString stringWithFormat:@"#%d-SPU",channel+1];
-            else if (HC_type==2) return [NSString stringWithFormat:@"#%d-SPU#%d",(channel%24)+1,(channel/24)+1];
-            else if (HC_type==0x11) return [NSString stringWithFormat:@"#%d-SCSP",channel+1];
-            else if (HC_type==0x12) return [NSString stringWithFormat:@"#%d-AICA",channel+1];
-            else if (HC_type==0x21) return [NSString stringWithFormat:@"#%d-N64",channel+1];
-            else if (HC_type==0x23) return [NSString stringWithFormat:@"#%d-SPC700",channel+1];
+            if (HC_type==1) return [NSString stringWithFormat:@"SPU %d",channel+1];
+            else if (HC_type==2) return [NSString stringWithFormat:@"SPU#%d %d",(channel/24)+1,(channel%24)+1];
+            else if (HC_type==0x11) return [NSString stringWithFormat:@"SCSP %d",channel+1];
+            else if (HC_type==0x12) return [NSString stringWithFormat:@"AICA %d",channel+1];
+            else if (HC_type==0x21) return [NSString stringWithFormat:@"N64 %d",channel+1];
+            else if (HC_type==0x23) return [NSString stringWithFormat:@"SPC700 %d",channel+1];
             else if (HC_type==0x41) {
-                if (channel<16) return [NSString stringWithFormat:@"#%d-PCM",channel+1];
-                else return [NSString stringWithFormat:@"#%d-ADPCM",channel-15];
+                if (channel<16) return [NSString stringWithFormat:@"PCM %d",channel+1];
+                else return [NSString stringWithFormat:@"ADPCM %d",channel-15];
             }
             return @"";
         case MMP_OPENMPT: {
             NSString *result;
             char *strTmp=(char*)openmpt_module_get_channel_name(openmpt_module_ext_get_module(ompt_mod),channel);
             if (strTmp&&strTmp[0]) {
-                result=[NSString stringWithFormat:@"#%d-%s",channel+1,strTmp];
+                result=[NSString stringWithFormat:@"%s %d",channel+1,strTmp];
                 free(strTmp);
-            } else result=[NSString stringWithFormat:@"#%d-OMPT",channel+1];
+            } else result=[NSString stringWithFormat:@"OMPT %d",channel+1];
             return result;
         }
         case MMP_EUP:
-            if (channel<6) return [NSString stringWithFormat:@"%d-FM",channel+1];
-            else return [NSString stringWithFormat:@"%d-PCM",channel-5];
+            if (channel<6) return [NSString stringWithFormat:@"FM %d",channel+1];
+            else return [NSString stringWithFormat:@"PCM %d",channel-5];
         case MMP_GSF:
-            if (channel<4) return [NSString stringWithFormat:@"#%d-DMG",channel+1];
-            else return [NSString stringWithFormat:@"#%d-DirectSnd",channel-4+1];
+            if (channel<4) return [NSString stringWithFormat:@"DMG %d",channel+1];
+            else return [NSString stringWithFormat:@"DirectSnd %d",channel-4+1];
         case MMP_UADE:
-            return [NSString stringWithFormat:@"#%d-PAULA",channel+1];
+            return [NSString stringWithFormat:@"PAULA %d",channel+1];
         case MMP_XMP:
-            return [NSString stringWithFormat:@"#%d-XMP",channel+1];
+            return [NSString stringWithFormat:@"XMP %d",channel+1];
         case MMP_HVL:
-            if (hvl_song->ht_ModType) return [NSString stringWithFormat:@"#%d-HVL",channel+1];
-            return [NSString stringWithFormat:@"#%d-AHX",channel+1];
+            if (hvl_song->ht_ModType) return [NSString stringWithFormat:@"HVL %d",channel+1];
+            return [NSString stringWithFormat:@"AHX %d",channel+1];
         case MMP_MDXPDX:
-            if (channel<8) return [NSString stringWithFormat:@"#%d-FM",channel+1];
-            else return [NSString stringWithFormat:@"#%d-PCM",channel+1];
+            if (channel<8) return [NSString stringWithFormat:@"FM %d",channel+1];
+            else return [NSString stringWithFormat:@"PCM %d",channel+1];
         case MMP_FMPMINI:
             if (channel<16) {
-                if (channel<6) return [NSString stringWithFormat:@"#%d-FM",channel+1];
-                else if (channel<6+3) return [NSString stringWithFormat:@"#%d-SSG",channel+1-6];
-                else if (channel<6+3+6) return [NSString stringWithFormat:@"#%d-DRUM",channel+1-6-3];
+                if (channel<6) return [NSString stringWithFormat:@"FM %d",channel+1];
+                else if (channel<6+3) return [NSString stringWithFormat:@"SSG %d",channel+1-6];
+                else if (channel<6+3+6) return [NSString stringWithFormat:@"DRUM %d",channel+1-6-3];
                 else return [NSString stringWithFormat:@"ADPCM"];
-            } else return [NSString stringWithFormat:@"#%d-PPZ8",channel+1-16];
+            } else return [NSString stringWithFormat:@"PPZ8 %d",channel+1-16];
         case MMP_PMDMINI: {
             int idx=0;
             for (int i=0;i<mod_activeChipsNb;i++) {
                 if ((channel>=idx)&&(channel<idx+mod_activeChip_VoiceNb[i])) {
-                    return [NSString stringWithFormat:@"#%d-%s",channel-idx+1,mod_activeChipsName[i]];
+                    return [NSString stringWithFormat:@"%s %d",channel-idx+1,mod_activeChipsName[i]];
                 }
                 idx+=mod_activeChip_VoiceNb[i];
             }
             return @"";
         }
         case MMP_ADPLUG:
-            return [NSString stringWithFormat:@"#%d-OPL3",channel+1];
+            return [NSString stringWithFormat:@"OPL3 %d",channel+1];
         case MMP_STSOUND:
-            return [NSString stringWithFormat:@"#%d-YM2149",channel+1];
+            return [NSString stringWithFormat:@"YM2149 %d",channel+1];
         case MMP_PT3:
             return [NSString stringWithFormat:@"AY#%d %c",channel/3,(channel%3)+'A'];
         case MMP_ASAP:
-            return [NSString stringWithFormat:@"#%d-POKEY#%d",(channel&3)+1,channel/4+1];
+            return [NSString stringWithFormat:@"POKEY#%d %d",channel/4+1,(channel&3)+1];
         case MMP_GME:
             return [NSString stringWithFormat:@"%s",gme_voice_name(gme_emu,channel)];
         case MMP_WEBSID:
-            if (onlyMidi) return [NSString stringWithFormat:@"#%d-SID#%d",(channel%3)+1,channel/3+1];
-            return [NSString stringWithFormat:@"#%d-SID#%d",(channel%4)+1,channel/4+1];
+            if (onlyMidi) return [NSString stringWithFormat:@"SID#%d %d",channel/3+1,(channel%3)+1];
+            return [NSString stringWithFormat:@"SID#%d %d",channel/4+1,(channel%4)+1];
         case MMP_SIDPLAY:
-            if (onlyMidi) return [NSString stringWithFormat:@"#%d-SID#%d",(channel%3)+1,channel/3+1];
-            return [NSString stringWithFormat:@"#%d-SID#%d",(channel%4)+1,channel/4+1];
+            if (onlyMidi) return [NSString stringWithFormat:@"SID#%d %d",channel/3+1,(channel%3)+1];
+            return [NSString stringWithFormat:@"SID#%d %d",channel/4+1,(channel%4)+1];
         case MMP_VGMPLAY:{
             int idx=0;
             for (int i=0;i<mod_activeChipsNb;i++) {
                 if ((channel>=idx)&&(channel<idx+vgmGetVoicesNb(vgmplay_activeChips[i]))) {
                     vgmGetVoiceDetailedVoiceName(vgmplay_activeChips[i],channel-idx);
-                    if (vgm_voice_name[0]) return [NSString stringWithFormat:@"#%d-%s",channel-idx+1,vgm_voice_name];
-                    else return [NSString stringWithFormat:@"#%d-%s#%d",channel-idx+1,mod_activeChipsName[i],vgmplay_activeChipsInstance[i]+1];
+                    if (vgm_voice_name[0]) return [NSString stringWithFormat:@"%s %d",vgm_voice_name,channel-idx+1];
+                    else return [NSString stringWithFormat:@"%s#%d %d",mod_activeChipsName[i],vgmplay_activeChipsInstance[i]+1,channel-idx+1];
                 }
                 idx+=vgmGetVoicesNb(vgmplay_activeChips[i]);
             }
             return @"";
         }
         default:
-            return [NSString stringWithFormat:@"#%d",channel+1];
+            return [NSString stringWithFormat:@"%d",channel+1];
             break;
     }
 }
@@ -18457,6 +18489,7 @@ extern "C" void adjust_amplification(void);
         case MMP_GBS:
         case MMP_NSFPLAY:
         case MMP_FUR:
+        case MMP_NEZ:
             return modizChipsetCount;
         case MMP_ZXTUNE:
             return 1;
@@ -18477,7 +18510,6 @@ extern "C" void adjust_amplification(void);
         case MMP_ATARISOUND:
         case MMP_2SF:
         case MMP_NCSF:
-        case MMP_NEZ:
         case MMP_ADPLUG:
         case MMP_HVL:
         case MMP_STSOUND:
@@ -18515,14 +18547,13 @@ extern "C" void adjust_amplification(void);
         case MMP_GBS:
         case MMP_NSFPLAY:
         case MMP_FUR:
+        case MMP_NEZ:
             return [NSString stringWithFormat:@"%s",modizChipsetName[systemIdx]];
         case MMP_ZXTUNE:
             return [NSString stringWithFormat:@"%s",mdz_zxtune->get_system_name()];
         case MMP_2SF:
         case MMP_NCSF:
             return @"NDS";
-        case MMP_NEZ:
-            return [NSString stringWithUTF8String:SONGINFO_GetSystem(_nezPlay->song)];
         case MMP_V2M:
             return @"V2";
         case MMP_WSR:
@@ -18597,6 +18628,7 @@ extern "C" void adjust_amplification(void);
         case MMP_FUR:
         case MMP_GBS:
         case MMP_KSS:
+        case MMP_NEZ:
             for (int i=0;i<modizChipsetCount;i++) {
                 if ((voiceIdx>=modizChipsetStartVoice[i])&&(voiceIdx<modizChipsetStartVoice[i]+modizChipsetVoicesCount[i])) return i;
             }
@@ -18674,6 +18706,7 @@ extern "C" void adjust_amplification(void);
         case MMP_GBS:
         case MMP_NSFPLAY:
         case MMP_FUR:
+        case MMP_NEZ:
             tmp=0;
             for (int i=modizChipsetStartVoice[systemIdx];i<modizChipsetStartVoice[systemIdx]+modizChipsetVoicesCount[systemIdx];i++) tmp+=(m_voicesStatus[i]?1:0);
             if (tmp==modizChipsetVoicesCount[systemIdx]) return 2; //all active
@@ -18894,8 +18927,11 @@ extern "C" void adjust_amplification(void);
         case MMP_KSS:
         case MMP_GBS:
         case MMP_NSFPLAY:
+        case MMP_FUR:
+        case MMP_NEZ:
             for (int i=modizChipsetStartVoice[systemIdx];i<modizChipsetStartVoice[systemIdx]+modizChipsetVoicesCount[systemIdx];i++) [self setm_voicesStatus:active index:i];
             break;
+        
         case MMP_WSR:
         case MMP_PIXEL:
         case MMP_2SF:
@@ -18941,9 +18977,6 @@ extern "C" void adjust_amplification(void);
             for (int i=0;i<3;i++) {
                 [self setm_voicesStatus:active index:systemIdx*3+i];
             }
-            break;
-        case MMP_FUR:
-            for (int i=modizChipsetStartVoice[systemIdx];i<modizChipsetStartVoice[systemIdx]+modizChipsetVoicesCount[systemIdx];i++) [self setm_voicesStatus:active index:i];
             break;
         case MMP_PMDMINI: {
             int idx=0;
@@ -19067,6 +19100,7 @@ extern "C" void adjust_amplification(void);
         case MMP_HVL:
         case MMP_STSOUND:
         case MMP_V2M:
+        case MMP_NEZ:
             if (active) generic_mute_mask&=~(1<<channel);
             else generic_mute_mask|=(1<<channel);
             break;

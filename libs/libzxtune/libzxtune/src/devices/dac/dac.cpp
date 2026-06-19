@@ -624,14 +624,14 @@ public:
     
     virtual const char *GetHWChannelName(int chan) {
         switch (chan) {
-            case 0:return "DAC1";
-            case 1:return "DAC2";
-            case 2:return "DAC3";
-            case 3:return "DAC4";
-            case 4:return "DAC5";
-            case 5:return "DAC6";
-            case 6:return "DAC7";
-            case 7:return "DAC8";
+            case 0:return "DAC 1";
+            case 1:return "DAC 2";
+            case 2:return "DAC 3";
+            case 3:return "DAC 4";
+            case 4:return "DAC 5";
+            case 5:return "DAC 6";
+            case 6:return "DAC 7";
+            case 7:return "DAC 8";
             default:return "DAC";
         }
     }

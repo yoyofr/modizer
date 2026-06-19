@@ -20,6 +20,13 @@
 #include "s_opl.h"
 #include "s_deltat.h"
 
+//TODO:  MODIZER changes start / YOYOFR
+#define MDZ_VOL_BOOST 3
+#include "../../../../src/ModizerVoicesData.h"
+extern int nezChan_output[4+11];
+//TODO:  MODIZER changes end / YOYOFR
+
+
 #define PG_SHIFT 13 /* fix */
 #define CPS_SHIFTE 20
 #define CPS_SHIFTP 14
@@ -657,6 +664,17 @@ __inline static void LfoStep(OPL_LFO *lfop)
 static void sndsynth(OPLSOUND *sndp, Int32 *p)
 {
 	long accum[2] = { 0, 0 };
+    
+    //YOYOFR
+    long tmpAccum;
+    for (int i=0;i<9;i++) chmask[DEV_YM2413_CH1+i]=generic_mute_mask&(1<<(i+4))?0:1;
+    chmask[DEV_YM2413_BD]=generic_mute_mask&(1<<(6+4))?0:1;
+    chmask[DEV_YM2413_HH]=generic_mute_mask&(1<<(7+4))?0:1;
+    chmask[DEV_YM2413_SD]=generic_mute_mask&(1<<(8+4))?0:1;
+    chmask[DEV_YM2413_TOM]=generic_mute_mask&(1<<(9+4))?0:1;
+    chmask[DEV_YM2413_TCY]=generic_mute_mask&(1<<(10+4))?0:1;
+    //YOYOFR
+    
 //	int i = 0 ,count;
 //	count = (FM_FREQ-sndp->freqp)/sndp->freq;
 //	if(count){
@@ -672,15 +690,31 @@ static void sndsynth(OPLSOUND *sndp, Int32 *p)
 				if(rch==9)
 					for (i = 0; i < rch; i++)
 					{
+                        tmpAccum = accum[0]; //YOYOFR
+                        
 						if (sndp->ch[i].op[0].modcar)
 							OpSynthMod(sndp, &sndp->ch[i].op[0]);
-						else
+                        else
 							accum[0] += OpSynthCarFb(sndp, &sndp->ch[i].op[0]) * chmask[DEV_YM2413_CH1+i];
 						accum[0] += OpSynthCar(sndp, &sndp->ch[i].op[1]) * chmask[DEV_YM2413_CH1+i];
+                        
+                        nezChan_output[4+i] += 4*(accum[0]-tmpAccum); //YOYOFR
+                        
+                        int64_t freq;
+                        int64_t block;
+                        freq=((sndp->ch[i].freqh&0x01)<<8)|sndp->ch[i].freql;
+                        block=sndp->ch[i].blk;
+                        if (block && freq && sndp->ch[i].op[1].tll) {
+                            vgm_last_note[i+4]=freq*(3579545)/(72*(1<<(19-block)));
+                            vgm_last_instr[i+4]=i+4;
+                            vgm_last_vol[i+4]=1;
+                        }
 					}
 				else
 					for (i = 0; i < rch; i++)
 					{
+                        tmpAccum = accum[0]; //YOYOFR
+                        
 						if (sndp->ch[i].op[0].modcar)
 							OpSynthMod(sndp, &sndp->ch[i].op[0]);
 						else{
@@ -690,6 +724,17 @@ static void sndsynth(OPLSOUND *sndp, Int32 *p)
 
 						if(i==6) accum[0] += OpSynthCar(sndp, &sndp->ch[i].op[1]) * chmask[DEV_YM2413_BD];
 						else     accum[0] += OpSynthCar(sndp, &sndp->ch[i].op[1]) * chmask[DEV_YM2413_CH1+i];
+                        
+                        nezChan_output[4+i] += 4*(accum[0]-tmpAccum); //YOYOFR
+                        int64_t freq;
+                        int64_t block;
+                        freq=((sndp->ch[i].freqh&0x01)<<8)|sndp->ch[i].freql;
+                        block=sndp->ch[i].blk;
+                        if (block && freq && sndp->ch[i].op[1].tll) {
+                            vgm_last_note[i+4]=freq*(3579545)/(72*(1<<(19-block)));
+                            vgm_last_instr[i+4]=i+4;
+                            vgm_last_vol[i+4]=1;
+                        }
 					}
 
 				if (sndp->common.rmode)
@@ -698,15 +743,29 @@ static void sndsynth(OPLSOUND *sndp, Int32 *p)
 					OpStep(sndp, &sndp->ch[7].op[1]);
 					OpStep(sndp, &sndp->ch[8].op[0]);
 					OpStep(sndp, &sndp->ch[8].op[1]);
+                    
+                    tmpAccum = accum[0]; //YOYOFR
 					accum[0] += OpSynthHat (sndp, &sndp->ch[7].op[0], &sndp->ch[8].op[1]) * chmask[DEV_YM2413_HH];
+                    nezChan_output[4+6] += 4*(accum[0]-tmpAccum); //YOYOFR
+                    
+                    tmpAccum = accum[0]; //YOYOFR
 					accum[0] += OpSynthSnr (sndp, &sndp->ch[7].op[0], &sndp->ch[7].op[1]) * chmask[DEV_YM2413_SD];
+                    nezChan_output[4+7] += 4*(accum[0]-tmpAccum); //YOYOFR
+                    
+                    tmpAccum = accum[0]; //YOYOFR
 					accum[0] += OpSynthTom (sndp, &sndp->ch[8].op[0], &sndp->ch[8].op[1]) * chmask[DEV_YM2413_TOM];
+                    nezChan_output[4+8] += 4*(accum[0]-tmpAccum); //YOYOFR
+                    
+                    tmpAccum = accum[0]; //YOYOFR
 					accum[0] += OpSynthRym (sndp, &sndp->ch[7].op[0], &sndp->ch[8].op[1]) * chmask[DEV_YM2413_TCY];
+                    nezChan_output[4+9] += 4*(accum[0]-tmpAccum); //YOYOFR
 				}
 			}
 			if (sndp->deltatpcm)
 			{
+                tmpAccum = accum[0]; //YOYOFR
 				sndp->deltatpcm->synth(sndp->deltatpcm->ctx, accum);
+                nezChan_output[4+10] += 4*(accum[0]-tmpAccum); //YOYOFR
 			}
 /*		#if USE_FBBUF
 			{

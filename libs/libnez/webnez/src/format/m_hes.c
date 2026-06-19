@@ -688,8 +688,8 @@ First Mapper 7 : %02XH"
 
 	SONGINFO_SetDetail(pNezPlay->song, songinfodata.detail);	// EMSCRIPTEN
     
-    SONGINFO_SetType(pNezPlay->song, "HES");
-    SONGINFO_SetSystem(pNezPlay->song, "PC Engine");
+    SONGINFO_SetType(pNezPlay->song, "PC Engine");
+    SONGINFO_SetSystem(pNezPlay->song, "HuC6280");
     
 	if (!alloc_physical_address(THIS_, 0xf8 << 13, 0x2000))	/* RAM */
 		return NESERR_SHORTOFMEMORY;

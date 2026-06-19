@@ -3,8 +3,8 @@
 
 //TODO:  MODIZER changes start / YOYOFR
 #include "../../../../src/ModizerVoicesData.h"
-int nezChan_output[6];
-Int32 output2Ch[6];
+int nezChan_output[4+11];
+Int32 output2Ch[4+11];
 //TODO:  MODIZER changes end / YOYOFR
 
 
@@ -130,8 +130,8 @@ void NESAudioRender(NEZ_PLAY *pNezPlay, Int16 *bufp, Uint buflen)
 			}
             
             //YOYOFR
-            Uint32 outputCh[6];
-            for (int c=0;c<6;c++) {
+            Uint32 outputCh[4+11];
+            for (int c=0;c<4+11;c++) {
                 nezChan_output[c] += (0x10000 << SHIFT_BITS);
                 if (nezChan_output[c] < 0)
                     outputCh[c] = 0;

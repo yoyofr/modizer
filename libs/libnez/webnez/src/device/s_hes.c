@@ -6,7 +6,7 @@
 //TODO:  MODIZER changes start / YOYOFR
 #define MDZ_VOL_BOOST 3
 #include "../../../../src/ModizerVoicesData.h"
-extern int nezChan_output[6];
+extern int nezChan_output[4+11];
 //TODO:  MODIZER changes end / YOYOFR
 
 
@@ -247,12 +247,15 @@ static void HESSoundLfoStep(HESSOUND *sndp)
 
 static void sndsynth(void *ctx, Int32 *p)
 {
+	HESSOUND *sndp = ctx;
+    
     //YOYOFR
     int tmpval[2];
+    for (int c=0;c<6;c++) {
+        sndp->ch[c].mute=generic_mute_mask&(1<<c);
+    }
     //YOYOFR
     
-    
-	HESSOUND *sndp = ctx;
     tmpval[0]=p[0];tmpval[1]=p[1];
 	HESSoundWaveMemoryRender(sndp, &sndp->ch[5], p, 5);
     nezChan_output[5]+=(p[0]-tmpval[0])+(p[1]-tmpval[1]);

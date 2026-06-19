@@ -590,8 +590,8 @@ static Uint32 load(NEZ_PLAY *pNezPlay, SGCSEQ *THIS_, Uint8 *pData, Uint32 uSize
 	SONGINFO_SetPlayAddress(pNezPlay->song, THIS_->playaddr);
 //	SONGINFO_SetExtendDevice(pNezPlay->song, THIS_->extdevice << 8);
 
-    songinfodata.type="SGC";
-    songinfodata.system=system_name[THIS_->systype];
+    songinfodata.type=system_name[THIS_->systype];
+    songinfodata.system="SN76489";
     
     SONGINFO_SetSystem(pNezPlay->song, songinfodata.system);
     SONGINFO_SetType(pNezPlay->song, songinfodata.type);

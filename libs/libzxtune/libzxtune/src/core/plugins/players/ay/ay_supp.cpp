@@ -601,9 +601,9 @@ namespace AY
       
       virtual const char *GetHWChannelName(int chan) {
           switch (chan) {
-              case 0:return "AY1";
-              case 1:return "AY2";
-              case 2:return "AY3";
+              case 0:return "AY 1";
+              case 1:return "AY 2";
+              case 2:return "AY 3";
               case 3:return "Beeper";
               default:return "AY";
           }
