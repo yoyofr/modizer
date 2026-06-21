@@ -183,19 +183,47 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
                     snprintf(sqlStatementR,1024,"SELECT name,fullpath,play_count,rating FROM user_stats");
                     err=sqlite3_prepare_v2(dbold, sqlStatementR, -1, &stmt, NULL);
                     if (err==SQLITE_OK){
-                        while (sqlite3_step(stmt) == SQLITE_ROW) {
-                            
-                            snprintf(sqlStatementW,1024,"INSERT INTO user_stats (name,fullpath,play_count,rating) SELECT \"%s\",\"%s\",%d,%d",
-                                    (char*)sqlite3_column_text(stmt, 0),
-                                    (char*)sqlite3_column_text(stmt, 1),
-                                    sqlite3_column_int(stmt, 2),
-                                    sqlite3_column_int(stmt, 3));
-                            err=sqlite3_exec(db, sqlStatementW, NULL, NULL, NULL);
-                            if (err!=SQLITE_OK) {
-                                MDZELog("ErrSQL : %d for %s",err,sqlStatementW);
-                                migration_ok=false;
-                                break;
+//                        while (sqlite3_step(stmt) == SQLITE_ROW) {
+//                            
+//                            snprintf(sqlStatementW,1024,"INSERT INTO user_stats (name,fullpath,play_count,rating) SELECT \"%s\",\"%s\",%d,%d",
+//                                    (char*)sqlite3_column_text(stmt, 0),
+//                                    (char*)sqlite3_column_text(stmt, 1),
+//                                    sqlite3_column_int(stmt, 2),
+//                                    sqlite3_column_int(stmt, 3));
+//                            err=sqlite3_exec(db, sqlStatementW, NULL, NULL, NULL);
+//                            if (err!=SQLITE_OK) {
+//                                MDZELog("ErrSQL : %d for %s",err,sqlStatementW);
+//                                migration_ok=false;
+//                                break;
+//                            }
+//                        }
+                        
+                        sqlite3_stmt *insertStmt = NULL;
+                        const char *insertSQL = "INSERT INTO user_stats (name, fullpath, play_count, rating) VALUES (?, ?, ?, ?)";
+
+                        if (sqlite3_prepare_v2(db, insertSQL, -1, &insertStmt, NULL) == SQLITE_OK) {
+                            while (sqlite3_step(stmt) == SQLITE_ROW) {
+                                const char *name     = (const char*)sqlite3_column_text(stmt, 0);
+                                const char *fullpath = (const char*)sqlite3_column_text(stmt, 1);
+                                int play_count       = sqlite3_column_int(stmt, 2);
+                                int rating           = sqlite3_column_int(stmt, 3);
+
+                                sqlite3_bind_text(insertStmt, 1, name,     -1, SQLITE_TRANSIENT);
+                                sqlite3_bind_text(insertStmt, 2, fullpath, -1, SQLITE_TRANSIENT);
+                                sqlite3_bind_int (insertStmt, 3, play_count);
+                                sqlite3_bind_int (insertStmt, 4, rating);
+
+                                int err = sqlite3_step(insertStmt);
+                                if (err != SQLITE_DONE) {
+                                    MDZELog("ErrSQL : %d for name=%s", err, name);
+                                    migration_ok = false;
+                                    break;
+                                }
+
+                                sqlite3_reset(insertStmt);
+                                sqlite3_clear_bindings(insertStmt);
                             }
+                            sqlite3_finalize(insertStmt);
                         }
                         sqlite3_finalize(stmt);
                     } else {

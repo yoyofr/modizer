@@ -51,8 +51,8 @@ extern os_log_t mdzLog;
 
 #define VERSION_MAJOR 4
 #define VERSION_MAJOR_STR "4"
-#define VERSION_MINOR 4
-#define VERSION_MINOR_STR "4"
+#define VERSION_MINOR 5
+#define VERSION_MINOR_STR "5"
 
 #ifdef DEBUG_MODIZER
 #else
@@ -306,7 +306,7 @@ extern void *LoadingProgressObserverContext;
 
 #define SUPPORTED_FILETYPE_MAC @"APE"
 
-#define SUPPORTED_FILETYPE_FUR @"FUR,DMF,FTM"
+#define SUPPORTED_FILETYPE_FUR @"FUR,DMF,FTM,0CC"
 
 #define SUPPORTED_FILETYPE_NEZ @"HES,SGC"
 
