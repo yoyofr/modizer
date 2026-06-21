@@ -3693,6 +3693,54 @@ void optNSFPLAYChangedC(id param) {
     settings[SID_Filter].callback=&optSIDChangedC;
     settings[SID_Filter].detail.mdz_boolswitch.switch_value=1;
     
+    SETTINGS_ID_DEF(SID_6581RANGE)
+    settings[SID_6581RANGE].label=(char*)"6581 Range";
+    settings[SID_6581RANGE].description=NULL;
+    settings[SID_6581RANGE].family=MDZ_SETTINGS_FAMILY_SID;
+    settings[SID_6581RANGE].sub_family=0;
+    settings[SID_6581RANGE].callback=&optSIDChangedC;
+    settings[SID_6581RANGE].type=MDZ_SLIDER_CONTINUOUS;
+    settings[SID_6581RANGE].detail.mdz_slider.slider_value=0.5;
+    settings[SID_6581RANGE].detail.mdz_slider.slider_digits=2;
+    settings[SID_6581RANGE].detail.mdz_slider.slider_min_value=0;
+    settings[SID_6581RANGE].detail.mdz_slider.slider_max_value=1;
+    
+    SETTINGS_ID_DEF(SID_6581CURVE)
+    settings[SID_6581CURVE].label=(char*)"6581 Curve";
+    settings[SID_6581CURVE].description=NULL;
+    settings[SID_6581CURVE].family=MDZ_SETTINGS_FAMILY_SID;
+    settings[SID_6581CURVE].sub_family=0;
+    settings[SID_6581CURVE].callback=&optSIDChangedC;
+    settings[SID_6581CURVE].type=MDZ_SLIDER_CONTINUOUS;
+    settings[SID_6581CURVE].detail.mdz_slider.slider_value=0.5;
+    settings[SID_6581CURVE].detail.mdz_slider.slider_digits=2;
+    settings[SID_6581CURVE].detail.mdz_slider.slider_min_value=0;
+    settings[SID_6581CURVE].detail.mdz_slider.slider_max_value=1;
+    
+    SETTINGS_ID_DEF(SID_8580CURVE)
+    settings[SID_8580CURVE].label=(char*)"8580 Curve";
+    settings[SID_8580CURVE].description=(NULL);
+    settings[SID_8580CURVE].family=MDZ_SETTINGS_FAMILY_SID;
+    settings[SID_8580CURVE].sub_family=0;
+    settings[SID_8580CURVE].callback=&optSIDChangedC;
+    settings[SID_8580CURVE].type=MDZ_SLIDER_CONTINUOUS;
+    settings[SID_8580CURVE].detail.mdz_slider.slider_value=0.5;
+    settings[SID_8580CURVE].detail.mdz_slider.slider_digits=2;
+    settings[SID_8580CURVE].detail.mdz_slider.slider_min_value=0;
+    settings[SID_8580CURVE].detail.mdz_slider.slider_max_value=1;
+    
+    SETTINGS_ID_DEF(UADE_GainValue)
+    settings[UADE_GainValue].label=(char*)"Gain value";
+    settings[UADE_GainValue].description=NULL;
+    settings[UADE_GainValue].family=MDZ_SETTINGS_FAMILY_UADE;
+    settings[UADE_GainValue].sub_family=0;
+    settings[UADE_GainValue].callback=&optUADEChangedC;
+    settings[UADE_GainValue].type=MDZ_SLIDER_CONTINUOUS;
+    settings[UADE_GainValue].detail.mdz_slider.slider_value=0.5;
+    settings[UADE_GainValue].detail.mdz_slider.slider_digits=100;
+    settings[UADE_GainValue].detail.mdz_slider.slider_min_value=0;
+    settings[UADE_GainValue].detail.mdz_slider.slider_max_value=1;
+    
     SETTINGS_ID_DEF(SID_SecondSIDOn)
     settings[SID_SecondSIDOn].type=MDZ_BOOLSWITCH;
     settings[SID_SecondSIDOn].label=(char*)"Force 2nd SID";
@@ -3797,6 +3845,9 @@ void optNSFPLAYChangedC(id param) {
     settings[SID_UseStilData].detail.mdz_boolswitch.switch_default_value=1;
     settings[SID_CLOCK].detail.mdz_switch.switch_default_value=0;
     settings[SID_MODEL].detail.mdz_switch.switch_default_value=0;
+    settings[SID_6581RANGE].detail.mdz_slider.slider_default_value=0.5;
+    settings[SID_6581CURVE].detail.mdz_slider.slider_default_value=0.5;
+    settings[SID_8580CURVE].detail.mdz_slider.slider_default_value=0.5;
     
     //0xD420-0xD7FF  or  0xDE00-0xDFFF
     if (settings[SID_SecondSIDAddress].detail.mdz_msgbox.default_text) free(settings[SID_SecondSIDAddress].detail.mdz_msgbox.default_text);

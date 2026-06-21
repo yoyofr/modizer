@@ -207,7 +207,7 @@ int do_extract(unzFile uf,char *pathToExtract,NSString *pathBase);
                                 const char *fullpath = (const char*)sqlite3_column_text(stmt, 1);
                                 int play_count       = sqlite3_column_int(stmt, 2);
                                 int rating           = sqlite3_column_int(stmt, 3);
-
+ 
                                 sqlite3_bind_text(insertStmt, 1, name,     -1, SQLITE_TRANSIENT);
                                 sqlite3_bind_text(insertStmt, 2, fullpath, -1, SQLITE_TRANSIENT);
                                 sqlite3_bind_int (insertStmt, 3, play_count);

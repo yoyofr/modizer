@@ -11551,11 +11551,10 @@ char* loadRom(const char* path, size_t romSize)
         //            return -1;
         //        }
         ((ReSIDfpBuilder*)mBuilder)->combinedWaveformsStrength(SidConfig::STRONG);
-        ((ReSIDfpBuilder*)mBuilder)->filter6581Range(0.5f);
-        ((ReSIDfpBuilder*)mBuilder)->filter6581Curve(0.5f);
-        ((ReSIDfpBuilder*)mBuilder)->filter8580Curve(0.5f);
+        ((ReSIDfpBuilder*)mBuilder)->filter6581Range(settings[SID_6581RANGE].detail.mdz_slider.slider_value);
+        ((ReSIDfpBuilder*)mBuilder)->filter6581Curve(settings[SID_6581CURVE].detail.mdz_slider.slider_value);
+        ((ReSIDfpBuilder*)mBuilder)->filter8580Curve(settings[SID_8580CURVE].detail.mdz_slider.slider_value);
     }
-    
     
     // setup resid
     //    if (mSIDFilterON) mBuilder->filter(true);
