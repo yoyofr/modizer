@@ -6469,6 +6469,7 @@ void processFadeOut(short int *buffer, int sample_count, int voice_factor) {
                                 mod_message_updated=2;
                             } else if (mPlayType==MMP_ASAP) {//ASAP
                                 iModuleLength=ASAPInfo_GetDuration(ASAP_GetInfo(asap),mod_currentsub);
+                                if (iModuleLength<=0) iModuleLength=settings[GLOB_DefaultLength].detail.mdz_slider.slider_value*1000;
                                 if (iModuleLength<1000) iModuleLength=1000;
                                 ASAP_PlaySong(asap, mod_currentsub, iModuleLength);
                                 
@@ -14776,6 +14777,7 @@ static void vgm_set_dev_option(PlayerBase *player, UINT8 devId, UINT32 coreOpts)
     mod_currentsub = ASAPInfo_GetDefaultSong(ASAP_GetInfo(asap));
     
     duration = ASAPInfo_GetDuration(ASAP_GetInfo(asap),mod_currentsub);
+    if (duration<0) duration=settings[GLOB_DefaultLength].detail.mdz_slider.slider_value*1000;
     
     stil_info[0]=0;
     [self getStilAsmaInfo:(char*)[filePath UTF8String]];
@@ -14802,6 +14804,7 @@ static void vgm_set_dev_option(PlayerBase *player, UINT8 devId, UINT32 coreOpts)
     //////////////////////////////////
     for (int i=0;i<mod_subsongs; i++) {
         int subsong_length=ASAPInfo_GetDuration(ASAP_GetInfo(asap),i);
+        if (subsong_length<0) subsong_length=settings[GLOB_DefaultLength].detail.mdz_slider.slider_value*1000;
         mod_total_length+=subsong_length;
         
         NSString *filePathMain;
@@ -16828,6 +16831,7 @@ extern bool icloud_available;
                 mod_currentsub=subsong;
             }
             iModuleLength=ASAPInfo_GetDuration(ASAP_GetInfo(asap),mod_currentsub);
+            if (iModuleLength<=0) iModuleLength=settings[GLOB_DefaultLength].detail.mdz_slider.slider_value*1000;
             if (iModuleLength<1000) iModuleLength=1000;
             ASAP_PlaySong(asap, mod_currentsub, iModuleLength);
             mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
