@@ -1,5 +1,0 @@
----
-triple:          'x86_64-apple-darwin'
-binary-path:     '/Users/yoyofr/Documents/dev/ffmpeg-kit/prebuilt/bundle-apple-framework-mac-catalyst/libavdevice.framework/Versions/A/libavdevice'
-relocations:     []
-...

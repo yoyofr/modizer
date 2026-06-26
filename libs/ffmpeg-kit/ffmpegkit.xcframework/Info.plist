@@ -7,8 +7,6 @@
 		<dict>
 			<key>BinaryPath</key>
 			<string>ffmpegkit.framework/ffmpegkit</string>
-			<key>DebugSymbolsPath</key>
-			<string>dSYMs</string>
 			<key>LibraryIdentifier</key>
 			<string>ios-arm64_x86_64-simulator</string>
 			<key>LibraryPath</key>
@@ -26,16 +24,13 @@
 		<dict>
 			<key>BinaryPath</key>
 			<string>ffmpegkit.framework/ffmpegkit</string>
-			<key>DebugSymbolsPath</key>
-			<string>dSYMs</string>
 			<key>LibraryIdentifier</key>
-			<string>ios-arm64_arm64e</string>
+			<string>ios-arm64</string>
 			<key>LibraryPath</key>
 			<string>ffmpegkit.framework</string>
 			<key>SupportedArchitectures</key>
 			<array>
 				<string>arm64</string>
-				<string>arm64e</string>
 			</array>
 			<key>SupportedPlatform</key>
 			<string>ios</string>
@@ -43,8 +38,6 @@
 		<dict>
 			<key>BinaryPath</key>
 			<string>ffmpegkit.framework/Versions/A/ffmpegkit</string>
-			<key>DebugSymbolsPath</key>
-			<string>dSYMs</string>
 			<key>LibraryIdentifier</key>
 			<string>ios-arm64_x86_64-maccatalyst</string>
 			<key>LibraryPath</key>
