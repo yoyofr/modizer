@@ -30,10 +30,11 @@ CloudStorageSource *copypaste_cloudSource=nil;
 #include "../../libs/libGME/gme/M3u_Playlist.h"
 M3u_Playlist browserM3uReader;
 
-
 //SPC parser
 #include "SPCTagParser.h"
 
+//Furnace
+#include "FurnacePlayer.h"
 
 //FileHelper
 #include "ModizFileHelper.h"
@@ -860,13 +861,12 @@ static int qsort_CompareArcEntries(const void *entryA, const void *entryB) {
             if ([archivetype_ext indexOfObject:extension]!=NSNotFound) {
                 //check if really an archive
                 if ([ModizFileHelper isABrowsableArchive:cpath]) browseType=1;
-            }
-            //check if Multisongs file
-            else if ([all_multisongstype_ext indexOfObject:extension]!=NSNotFound) {
-                //check if really a gme file
+            } else if ([all_multisongstype_ext indexOfObject:extension]!=NSNotFound) { //check if Multisongs file
+                //NSLog(@"%@",[cpath lastPathComponent]);
                 if ([ModizFileHelper isM3UFileWithSubsongs:cpath]) browseType=4;
                 else if ([ModizFileHelper isGMEFileWithSubsongs:cpath]) browseType=2;
                 else if ([ModizFileHelper isSidFileWithSubsongs:cpath]) browseType=3;
+                else if ([ModizFileHelper isFURFileWithSubsongs:cpath]) browseType=5;
                 
             }
         }
@@ -1409,6 +1409,194 @@ static int qsort_CompareArcEntries(const void *entryA, const void *entryB) {
                 }
             }
         }
+    } else if (browseType==5) { //FUR Multisongs
+        // Open music file in new emulator
+        int err=0;
+        char*           fur_fileBuffer;
+        uint32_t        fur_fileBufferLen;
+        FurnacePlayer *furPlayer;
+        
+        FILE *f=fopen([cpath UTF8String],"rb");
+        if (f==NULL) {
+            MDZELog("FUR Cannot open file %@",cpath);
+            err=-1;
+        } else {
+            fseek(f,0L,SEEK_END);
+            fur_fileBufferLen=ftell(f);
+            fur_fileBuffer=(char*)malloc(fur_fileBufferLen);
+            if (!fur_fileBuffer) {
+                MDZELog("cannot allocate fur_fileBuffer");
+                fclose(f);
+                err=-2;
+            } else {
+                fseek(f,0L,SEEK_SET);
+                fread(fur_fileBuffer,1,fur_fileBufferLen,f);
+                fclose(f);
+                
+                furPlayer = new FurnacePlayer();
+                if (!furPlayer) {
+                    MDZELog("cannot allocate furPlayer");
+                    mdz_safe_free(fur_fileBuffer);
+                    err=-3;
+                }
+            }
+        }
+        
+        if (err==0) {
+            //Init player
+            furPlayer->init(44100); //not really important for browsing
+            
+            if (furPlayer->load((const uint8_t*)fur_fileBuffer, fur_fileBufferLen,[cpath UTF8String])==FALSE) {
+                MDZELog("furPlayer: cannot load file");
+                mdz_safe_free(fur_fileBuffer);
+                delete furPlayer;
+                furPlayer=NULL;
+                err=-4;
+            }
+        }
+        
+        if (err==0) {
+            
+            
+            const FurnaceSongInfo furInfoT=furPlayer->getInfo();
+            int total_trackNb=furInfoT.subsongCount;
+            
+            for (int i=0;i<total_trackNb;i++) {
+                
+                file=nil;
+                furPlayer->selectSong(i);
+                const FurnaceSongInfo furInfo=furPlayer->getInfo();
+                
+                if (furInfo.subsongName.length()) file=[NSString stringWithFormat:@"%.3d-%s",i+1,furInfo.subsongName.c_str()];
+                if (!file) {
+                    if (furInfo.title.length()) file=[NSString stringWithFormat:@"%.3d-%s",i+1,furInfo.title.c_str()];
+                }
+                if (!file) {
+                    file=[NSString stringWithFormat:@"%.3d-%@",i+1,[cpath lastPathComponent]];
+                }
+                
+                int filtered=0;
+                if ((mSearch)&&([mSearchText length]>0)) {
+                    filtered=1;
+                    //NSRange r = [file rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
+                    //if (r.location != NSNotFound) {
+                    if ([self searchStringRegExp:mSearchText sourceString:file]) {
+                        /*if(r.location== 0)*/ filtered=0;
+                    }
+                }
+                if (!filtered) {
+                    local_entries_count++;
+                    local_nb_entries++;
+                }
+            }
+            
+            if (local_nb_entries) {
+                //2nd initialize array to receive entries
+                local_entries_data=(t_local_browse_entry *)calloc(local_nb_entries,sizeof(t_local_browse_entry));
+                if (!local_entries_data) {
+                    //Not enough memory
+                    //try to allocate less entries
+                    local_nb_entries_limit=LIMITED_LIST_SIZE;
+                    if (local_nb_entries_limit>local_nb_entries) local_nb_entries_limit=local_nb_entries;
+                    local_entries_data=(t_local_browse_entry *)calloc(local_nb_entries_limit,sizeof(t_local_browse_entry));
+                    if (local_entries_data==NULL) {
+                        //show alert : cannot list
+                        [self showAlertMsg:NSLocalizedString(@"Warning",@"") message:NSLocalizedString(@"Browser not enough mem.",@"")];
+                    } else {
+                        //show alert : limited list
+                        [self showAlertMsg:NSLocalizedString(@"Warning",@"") message:NSLocalizedString(@"Browser not enough mem. Limited.",@"")];
+                        local_nb_entries=local_nb_entries_limit;
+                    }
+                } else local_nb_entries_limit=0;
+                if (local_entries_data) {
+                    local_entries_index=0;
+                    if (local_entries_count) {
+                        if (local_entries_index+local_entries_count>local_nb_entries) {
+                            local_entries_count=local_nb_entries-local_entries_index;
+                            local_entries=&(local_entries_data[local_entries_index]);
+                            local_entries_index+=local_entries_count;
+                            local_entries_count=0;
+                        } else {
+                            local_entries=&(local_entries_data[local_entries_index]);
+                            local_entries_index+=local_entries_count;
+                            local_entries_count=0;
+                        }
+                    }
+                    furPlayer->selectSong(0);
+                    const FurnaceSongInfo furInfoT=furPlayer->getInfo();
+                    int totalTrack=furInfoT.subsongCount;
+                    
+                    for (int i=0;i<totalTrack;i++) {
+                        furPlayer->selectSong(i);
+                        const FurnaceSongInfo furInfo=furPlayer->getInfo();
+                        
+                        file=nil;
+                        
+                        if (furInfo.subsongName.length()) file=[NSString stringWithFormat:@"%.3d-%s",i+1,furInfo.subsongName.c_str()];
+                        if (!file) {
+                            if (furInfo.title.length()) file=[NSString stringWithFormat:@"%.3d-%s",i+1,furInfo.title.c_str()];
+                        }
+                        
+                        if (!file) {
+                            file=[NSString stringWithFormat:@"%.3d-%@",i+1,[cpath lastPathComponent]];
+                        }
+                        
+                        int filtered=0;
+                        if ((mSearch)&&([mSearchText length]>0)) {
+                            filtered=1;
+                            //NSRange r = [file rangeOfString:mSearchText options:NSCaseInsensitiveSearch];
+                            if ([self searchStringRegExp:mSearchText sourceString:file]) {
+                                //if (r.location != NSNotFound) {
+                                /*if(r.location== 0)*/ filtered=0;
+                            }
+                        }
+                        if (!filtered) {
+                            
+                            local_entries[local_entries_count].type=1;
+                            local_entries[local_entries_count].label=[[NSString alloc ] initWithString:[file lastPathComponent]];
+                            local_entries[local_entries_count].fullpath=[[NSString alloc] initWithFormat:@"%@?%d",currentPath,i];
+                            
+                            local_entries[local_entries_count].rating=0;
+                            local_entries[local_entries_count].playcount=0;
+                            local_entries[local_entries_count].song_length=0;
+                            local_entries[local_entries_count].songs=1;//0;
+                            local_entries[local_entries_count].channels_nb=0;
+                            
+                            snprintf(sqlStatement,1024,"SELECT play_count,rating,length,channels,songs,avg_rating FROM user_stats WHERE fullpath=\"%s\"",[local_entries[local_entries_count].fullpath UTF8String]);
+                            err=sqlite3_prepare_v2(db, sqlStatement, -1, &stmt, NULL);
+                            if (err==SQLITE_OK){
+                                while (sqlite3_step(stmt) == SQLITE_ROW) {
+                                    signed char rating=(signed char)sqlite3_column_int(stmt, 1);
+                                    if (rating<0) rating=0;
+                                    if (rating>5) rating=5;
+                                    if ((rating==0)&&(sqlite3_column_type(stmt,5)!=SQLITE_NULL)) {
+                                        rating=(signed char)sqlite3_column_int(stmt, 5);
+                                        if (rating) rating=1;
+                                    }
+                                    local_entries[local_entries_count].playcount=(short int)sqlite3_column_int(stmt, 0);
+                                    local_entries[local_entries_count].rating=rating;
+                                    local_entries[local_entries_count].song_length=(int)sqlite3_column_int(stmt, 2);
+                                    local_entries[local_entries_count].channels_nb=(char)sqlite3_column_int(stmt, 3);
+                                }
+                                sqlite3_finalize(stmt);
+                            } else MDZELog("ErrSQL : %d",err);
+                            
+                            local_entries_count++;
+                            
+                            if (local_nb_entries_limit) {
+                                local_nb_entries_limit--;
+                                if (!local_nb_entries_limit) shouldStop=1;
+                            }
+                        }
+                    }
+                }else {
+                }
+            }
+            
+            mdz_safe_free(fur_fileBuffer);
+            delete furPlayer;
+            furPlayer=NULL;
+        }
     } else if (browseType==1) { //Archive
         char **archive_entries;
         int archive_entries_count;
@@ -1885,6 +2073,8 @@ static int qsort_CompareArcEntries(const void *entryA, const void *entryB) {
                                     } else if ([all_multisongstype_ext indexOfObject:extension]!=NSNotFound) { //check if Multisongs file
                                         local_entries[local_entries_count].type=3|16;  //16 is to flag them as to check before displaying entry in tabiew
                                     } else if ([ModizFileHelper isM3UFileWithSubsongs:[fileURL path]]) {
+                                        local_entries[local_entries_count].type=3|16;  //16 is to flag them as to check before
+                                    } else if ([ModizFileHelper isFURFileWithSubsongs:[fileURL path]]) {
                                         local_entries[local_entries_count].type=3|16;  //16 is to flag them as to check before
                                     }
                                     
@@ -2731,12 +2921,13 @@ As a consequence, some entries might disappear from existing playlist.\n\
                 } else if ((cur_local_entries[indexPath.row].type&15)==3) { //need to confirm if true multisong
                     if ([ModizFileHelper isGMEFileWithSubsongs:[ModizFileHelper getFullPathForFilePath:cur_local_entries[indexPath.row].fullpath]]) cur_local_entries[indexPath.row].type=3;
                     else if ([ModizFileHelper isSidFileWithSubsongs:[ModizFileHelper getFullPathForFilePath:cur_local_entries[indexPath.row].fullpath]]) cur_local_entries[indexPath.row].type=3;
-                    else if ([ModizFileHelper isM3UFileWithSubsongs:[ModizFileHelper getFullPathForFilePath:cur_local_entries[indexPath.row].fullpath]]) cur_local_entries[indexPath.row].type=3;
+                    else if ([ModizFileHelper isM3UFileWithSubsongs:[ModizFileHelper getFullPathForFilePath:cur_local_entries[indexPath.row].fullpath]]) cur_local_entries[indexPath.row].type=4;
+                    else if ([ModizFileHelper isFURFileWithSubsongs:[ModizFileHelper getFullPathForFilePath:cur_local_entries[indexPath.row].fullpath]]) cur_local_entries[indexPath.row].type=5;
                     else cur_local_entries[indexPath.row].type=1;
                 }
             }
             
-            if ((cur_local_entries[indexPath.row].type==2)||(cur_local_entries[indexPath.row].type==3)) {
+            if ((cur_local_entries[indexPath.row].type==2)||(cur_local_entries[indexPath.row].type==3)||(cur_local_entries[indexPath.row].type==4)||(cur_local_entries[indexPath.row].type==5)) {
                 actionicon_offsetx=PRI_SEC_ACTIONS_IMAGE_SIZE+tabView.safeAreaInsets.right+tabView.safeAreaInsets.left;
                 //                    cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
                 
@@ -3943,7 +4134,7 @@ leadingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
             
             [self hideWaiting];
             //				[childController autorelease];
-        } else if (((cur_local_entries[indexPath.row].type==2)||(cur_local_entries[indexPath.row].type==3))&&(mAccessoryButton||settings[GLOB_ArcMultiDefaultAction].detail.mdz_switch.switch_value)) { //Archive selected or multisongs: display files inside
+        } else if (((cur_local_entries[indexPath.row].type==2)||(cur_local_entries[indexPath.row].type==3)||(cur_local_entries[indexPath.row].type==4)||(cur_local_entries[indexPath.row].type==5))&&(mAccessoryButton||settings[GLOB_ArcMultiDefaultAction].detail.mdz_switch.switch_value)) { //Archive selected or multisongs: display files inside
             
             
             [self updateWaitingTitle:@""];

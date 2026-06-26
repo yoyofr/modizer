@@ -22,6 +22,8 @@ extern bool icloud_available;
 //SID2
 #include "sidplayfp/SidTune.h"
 #include "sidplayfp/SidTuneInfo.h"
+//Furnace
+#include "FurnacePlayer.h"
 
 //UnrarKIT
 #import "UnrarKit.h"
@@ -39,26 +41,93 @@ extern bool icloud_available;
     
     return true;
     
-    gme_err_t gme_err=gme_open_file( [cpath UTF8String], &gme_emu, gme_info_only );
-    if (gme_err) {
-        MDZELog("gme_open_file error: %s",gme_err);
-    } else {
-        gme_info_t *gme_info;
-        
-        //is a m3u available ?
-        NSString *tmpStr=[NSString stringWithFormat:@"%@.m3u",[cpath stringByDeletingPathExtension]];
-        gme_err=gme_load_m3u(gme_emu,[tmpStr UTF8String],[[cpath lastPathComponent] UTF8String] );
-        if (gme_err) {
-            NSString *tmpStr=[NSString stringWithFormat:@"%@.M3U",[cpath stringByDeletingPathExtension]];
-            gme_err=gme_load_m3u(gme_emu,[tmpStr UTF8String],[[cpath lastPathComponent] UTF8String] );
-        }
-        int total_trackNb=gme_track_count( gme_emu );
-        if (total_trackNb>1) ret=true;
-        gme_delete(gme_emu);
-    }
-    
-    return ret;
+//    gme_err_t gme_err=gme_open_file( [cpath UTF8String], &gme_emu, gme_info_only );
+//    if (gme_err) {
+//        MDZELog("gme_open_file error: %s",gme_err);
+//    } else {
+//        gme_info_t *gme_info;
+//        
+//        //is a m3u available ?
+//        NSString *tmpStr=[NSString stringWithFormat:@"%@.m3u",[cpath stringByDeletingPathExtension]];
+//        gme_err=gme_load_m3u(gme_emu,[tmpStr UTF8String],[[cpath lastPathComponent] UTF8String] );
+//        if (gme_err) {
+//            NSString *tmpStr=[NSString stringWithFormat:@"%@.M3U",[cpath stringByDeletingPathExtension]];
+//            gme_err=gme_load_m3u(gme_emu,[tmpStr UTF8String],[[cpath lastPathComponent] UTF8String] );
+//        }
+//        int total_trackNb=gme_track_count( gme_emu );
+//        if (total_trackNb>1) ret=true;
+//        gme_delete(gme_emu);
+//    }
+//    
+//    return ret;
 }
+
++(bool) isFURFileWithSubsongs:(NSString*)cpath {
+    bool ret=false;
+    char*           fur_fileBuffer;
+    uint32_t        fur_fileBufferLen;
+    FurnacePlayer *furPlayer;
+
+    NSArray *filetypes_ext=[SUPPORTED_FILETYPE_FUR componentsSeparatedByString:@","];
+    if ([filetypes_ext indexOfObject:[[cpath pathExtension] uppercaseString]]==NSNotFound) return ret;
+    
+    return true;
+    
+//    FILE *f=fopen([cpath UTF8String],"rb");
+//    if (f==NULL) {
+//        MDZELog("FUR Cannot open file %@",cpath);
+//        return false;
+//    }
+//    fseek(f,0L,SEEK_END);
+//    fur_fileBufferLen=ftell(f);
+//    fur_fileBuffer=(char*)malloc(fur_fileBufferLen);
+//    if (!fur_fileBuffer) {
+//        MDZELog("cannot allocate fur_fileBuffer");
+//        fclose(f);
+//        return false;
+//    }
+//    fseek(f,0L,SEEK_SET);
+//    fread(fur_fileBuffer,1,fur_fileBufferLen,f);
+//    fclose(f);
+//    
+//    //Init player
+//    furPlayer = new FurnacePlayer();
+//    if (!furPlayer) {
+//        MDZELog("cannot allocate furPlayer");
+//        mdz_safe_free(fur_fileBuffer);
+//        return false;
+//    }
+//    
+//    furPlayer->init(44100); //not really important for browsing
+//    
+//    if (furPlayer->load((const uint8_t*)fur_fileBuffer, fur_fileBufferLen,[cpath UTF8String])==FALSE) {
+//        MDZELog("furPlayer: cannot load file");
+//        mdz_safe_free(fur_fileBuffer);
+//        delete furPlayer;
+//        furPlayer=NULL;
+//        return false;
+//    }
+//    
+//    const FurnaceSongInfo furInfo=furPlayer->getInfo();
+//    
+////    mod_title=[NSString stringWithUTF8String:furInfo.title.c_str()];
+////    if (furInfo.subsongName.length()) mod_title=[mod_title stringByAppendingFormat:@"/%s",furInfo.subsongName.c_str()];
+////    artist=[NSString stringWithFormat:@"%s",furInfo.author.c_str()];
+////    // song info
+////    snprintf(mod_name,sizeof(mod_name)," %s",[[[filePath lastPathComponent] stringByDeletingPathExtension] UTF8String]);
+//    if (furInfo.subsongCount>1) ret=true;
+//    
+//    mdz_safe_free(fur_fileBuffer);
+//        
+//    if (furPlayer) {
+//        furPlayer->stop();
+//        delete furPlayer;
+//        furPlayer=NULL;
+//    }
+//    
+//    return ret;
+}
+
 
 +(bool) isM3UFileWithSubsongs:(NSString*)cpath {
     NSString *tmpPath;
@@ -362,10 +431,12 @@ extern bool icloud_available;
             NSArray *filetype_extGMEMULTI=[SUPPORTED_FILETYPE_GME_MULTISONGS componentsSeparatedByString:@","];
             NSArray *filetype_extSID=[SUPPORTED_FILETYPE_SID componentsSeparatedByString:@","];
             NSArray *filetype_extWSR=[SUPPORTED_FILETYPE_WSR componentsSeparatedByString:@","];
-            filetype_ext=[NSMutableArray arrayWithCapacity:[filetype_extGMEMULTI count]+[filetype_extSID count]];
+            NSArray *filetype_extFUR=[SUPPORTED_FILETYPE_FUR componentsSeparatedByString:@","];
+            filetype_ext=[NSMutableArray arrayWithCapacity:[filetype_extGMEMULTI count]+[filetype_extSID count]+[filetype_extWSR count]+[filetype_extFUR count]];
             [filetype_ext addObjectsFromArray:filetype_extGMEMULTI];
             [filetype_ext addObjectsFromArray:filetype_extSID];
             [filetype_ext addObjectsFromArray:filetype_extWSR];
+            [filetype_ext addObjectsFromArray:filetype_extFUR];
             break;
         }
         case FTYPE_ARCHIVE: {

@@ -16912,11 +16912,28 @@ extern bool icloud_available;
             [self updateCurSubSongPlayed:mod_currentsub-mod_minsub];
             [self Play];
             break;
-        case MMP_FUR: //FUR
+        case MMP_FUR: {//FUR
+            if ((subsong!=-1)&&(subsong>=mod_minsub)&&(subsong<=mod_maxsub)) {
+                mod_currentsub=subsong;
+            }
+            furPlayer->selectSong(mod_currentsub);
+            iModuleLength=furPlayer->getDuration()*1000;
+            
+            const FurnaceSongInfo furInfo=furPlayer->getInfo();
+            mod_title=[NSString stringWithUTF8String:furInfo.title.c_str()];
+            if (furInfo.subsongName.length()) mod_title=[mod_title stringByAppendingFormat:@"/%s",furInfo.subsongName.c_str()];
+            
+            snprintf(mod_message,MAX_STIL_DATA_LENGTH*2,"");
+            snprintf(mod_message,MAX_STIL_DATA_LENGTH*2,"%sTitle: %s\n",mod_message,[mod_title UTF8String]);
+            snprintf(mod_message,MAX_STIL_DATA_LENGTH*2,"%sArtist: %s\n",mod_message,[artist UTF8String]);
+            
+            mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
+            
             if (startPos) [self Seek:startPos];
             [self updateCurSubSongPlayed:mod_currentsub-mod_minsub];
             [self Play];
             break;
+        }
         case MMP_NEZ: //NEZ
             mod_currentsub=subsong;
             iModuleLength=0;
