@@ -4638,7 +4638,7 @@ int64_t src_callback_vgmstream(void *cb_data, float **data) {
             real_available_samples=mVGMSTREAM_totalinternal_samples-mVGMSTREAM_decode_pos_samples;
         }
     }
-    mCurrentSamples=mVGMSTREAM_decode_pos_samples;
+    //mCurrentSamples=mVGMSTREAM_decode_pos_samples;
     
     if (vgmStream->format->channels==1) {
         snd_ptr=vgm_sample_data;
@@ -5877,37 +5877,10 @@ void processFadeOut(short int *buffer, int sample_count, int voice_factor) {
                                 //mNeedSeek=0;
                             }
                             if (mPlayType==MMP_VGMSTREAM) { //VGMSTREAM
-                                int64_t mStartPosSamples;
-                                int64_t mSeekSamples=(double)mNeedSeekTime*(double)(vgmStream->format->sample_rate)/1000.0f;
                                 bGlobalSeekProgress=-1;
-                                if (mVGMSTREAM_decode_pos_samples>mSeekSamples) {
-                                    //reset_vgmstream(vgmStream);
-                                    libvgmstream_reset(vgmStream);
-                                    mVGMSTREAM_decode_pos_samples=0;
-                                }
-                                mStartPosSamples=mVGMSTREAM_decode_pos_samples;
-                                
-                                while (mVGMSTREAM_decode_pos_samples<mSeekSamples) {
-                                    int nbSamplesToRender=mSeekSamples-mVGMSTREAM_decode_pos_samples;
-                                    if (nbSamplesToRender>SOUND_BUFFER_SIZE_SAMPLE) nbSamplesToRender=SOUND_BUFFER_SIZE_SAMPLE;
-                                    //render_vgmstream(vgm_sample_data, nbSamplesToRender, vgmStream);
-                                    int err = libvgmstream_fill(vgmStream, vgm_sample_data, nbSamplesToRender);
-                                    
-                                    mVGMSTREAM_decode_pos_samples+=nbSamplesToRender;
-                                    iCurrentTime=mVGMSTREAM_decode_pos_samples*1000/(vgmStream->format->sample_rate);
-                                    
-                                    dispatch_async(dispatch_get_main_queue(), ^(void){
-                                        //Run UI Updates
-                                        mCurrentSamples=mVGMSTREAM_decode_pos_samples;
-                                        [detailViewControllerIphone setProgressWaiting:[NSNumber numberWithFloat: (float)(mVGMSTREAM_decode_pos_samples-mStartPosSamples)/(mSeekSamples-mStartPosSamples)]];
-                                    });
-                                    if ([detailViewControllerIphone isCancelPending]) {
-                                        [detailViewControllerIphone resetCancelStatus];
-                                        mSeekSamples=mVGMSTREAM_decode_pos_samples;
-                                        break;
-                                    }
-                                }
-                                mCurrentSamples=mVGMSTREAM_decode_pos_samples;
+                                mVGMSTREAM_decode_pos_samples=(double)mNeedSeekTime*(double)(vgmStream->format->sample_rate)/1000.0f;
+                                libvgmstream_seek(vgmStream,mVGMSTREAM_decode_pos_samples);
+                                mCurrentSamples=mNeedSeekTime*PLAYBACK_FREQ/1000;
                             }
                             
                             dispatch_async(dispatch_get_main_queue(), ^(void){
@@ -6981,7 +6954,7 @@ void processFadeOut(short int *buffer, int sample_count, int voice_factor) {
                             if (mVGMSTREAM_total_samples>=0) {
                                 if (mVGMSTREAM_decode_pos_samples>=mVGMSTREAM_total_samples) nbBytes=0;
                             }
-                            mCurrentSamples=mVGMSTREAM_decode_pos_samples;
+                            mCurrentSamples=mVGMSTREAM_decode_pos_samples*PLAYBACK_FREQ/(vgmStream->format->sample_rate);
                             
                             
                             if (nbBytes<SOUND_BUFFER_SIZE_SAMPLE*2*2) {
@@ -13165,6 +13138,7 @@ NSString* convertAmigaGreekToUnicode(NSString *input) {
     vcfg.stereo_track=1;
     vcfg.auto_downmix_channels=2;
     
+    libvgmstream_setup(vgmStream, NULL);
     libvgmstream_setup(vgmStream, &vcfg);
     //vgmstream_apply_config(vgmStream, &vcfg);
     //vgmstream_set_play_forever(vgmStream,vcfg.play_forever);
@@ -13268,6 +13242,7 @@ NSString* convertAmigaGreekToUnicode(NSString *input) {
     vcfg.stereo_track=1;
     vcfg.auto_downmix_channels=2;
     vcfg.force_sfmt = LIBVGMSTREAM_SFMT_PCM16; //not sure how to tell libao to open in float mode
+    libvgmstream_setup(vgmStream, NULL);
     libvgmstream_setup(vgmStream, &vcfg);
     
     //vgmstream_apply_config(vgmStream, &vcfg);
@@ -13450,6 +13425,9 @@ NSString* convertAmigaGreekToUnicode(NSString *input) {
     } else {
         [self mmp_updateDBStatsAtLoad];
     }
+    
+    libvgmstream_setup(vgmStream, NULL);
+    libvgmstream_setup(vgmStream, &vcfg);
     
     //vgmFile->stream_index=mod_currentsub;
     return 0;
@@ -16902,7 +16880,6 @@ extern bool icloud_available;
                 mod_currentsub=subsong;
                 [self vgmStream_ChangeToSub:mod_currentsub];
             }
-            
             if (startPos) [self Seek:startPos];
             [self updateCurSubSongPlayed:mod_currentsub-mod_minsub];
             [self Play];
