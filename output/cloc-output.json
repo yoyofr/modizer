@@ -1,32 +1,32 @@
 {"header" : {
   "cloc_url"           : "github.com/AlDanial/cloc",
   "cloc_version"       : "1.98",
-  "elapsed_seconds"    : 39.7980818748474,
-  "n_files"            : 27533,
-  "n_lines"            : 12779779,
-  "files_per_second"   : 691.817261107777,
-  "lines_per_second"   : 321115.450744295,
+  "elapsed_seconds"    : 40.9588119983673,
+  "n_files"            : 28073,
+  "n_lines"            : 12947563,
+  "files_per_second"   : 685.395855746965,
+  "lines_per_second"   : 316111.780793743,
   "report_file"        : "../output/cloc-output.json"},
 "C" :{
-  "nFiles": 9241,
-  "blank": 461839,
-  "comment": 436597,
-  "code": 3322704},
+  "nFiles": 9518,
+  "blank": 469954,
+  "comment": 444184,
+  "code": 3361655},
 "C/C++ Header" :{
-  "nFiles": 11114,
-  "blank": 336503,
-  "comment": 603228,
-  "code": 2188831},
+  "nFiles": 11076,
+  "blank": 349167,
+  "comment": 600841,
+  "code": 2257385},
 "C++" :{
-  "nFiles": 3293,
-  "blank": 310536,
-  "comment": 165172,
-  "code": 2111257},
+  "nFiles": 3356,
+  "blank": 311142,
+  "comment": 165577,
+  "code": 2114209},
 "Bourne Shell" :{
-  "nFiles": 380,
-  "blank": 107380,
-  "comment": 108992,
-  "code": 644294},
+  "nFiles": 388,
+  "blank": 107463,
+  "comment": 109045,
+  "code": 644717},
 "Assembly" :{
   "nFiles": 252,
   "blank": 49871,
@@ -43,10 +43,10 @@
   "comment": 5122,
   "code": 204972},
 "Objective-C++" :{
-  "nFiles": 107,
-  "blank": 19033,
-  "comment": 10965,
-  "code": 94089},
+  "nFiles": 217,
+  "blank": 19128,
+  "comment": 11075,
+  "code": 94776},
 "make" :{
   "nFiles": 599,
   "blank": 12007,
@@ -63,30 +63,35 @@
   "comment": 13223,
   "code": 58396},
 "Objective-C" :{
-  "nFiles": 214,
-  "blank": 12674,
-  "comment": 7715,
-  "code": 51907},
+  "nFiles": 218,
+  "blank": 12682,
+  "comment": 7723,
+  "code": 51933},
 "MSBuild script" :{
   "nFiles": 113,
   "blank": 7,
   "comment": 29,
   "code": 49439},
 "CMake" :{
-  "nFiles": 379,
-  "blank": 5596,
-  "comment": 5789,
-  "code": 33363},
+  "nFiles": 388,
+  "blank": 5723,
+  "comment": 5943,
+  "code": 34013},
 "JavaScript" :{
   "nFiles": 126,
   "blank": 3501,
   "comment": 5192,
   "code": 26239},
 "Python" :{
-  "nFiles": 79,
-  "blank": 3427,
-  "comment": 9554,
-  "code": 14759},
+  "nFiles": 92,
+  "blank": 4275,
+  "comment": 10571,
+  "code": 18360},
+"Dart" :{
+  "nFiles": 39,
+  "blank": 1588,
+  "comment": 1335,
+  "code": 13142},
 "C#" :{
   "nFiles": 54,
   "blank": 1137,
@@ -123,10 +128,10 @@
   "comment": 548,
   "code": 7331},
 "Windows Resource File" :{
-  "nFiles": 49,
-  "blank": 871,
-  "comment": 723,
-  "code": 7029},
+  "nFiles": 50,
+  "blank": 894,
+  "comment": 752,
+  "code": 7098},
 "LESS" :{
   "nFiles": 71,
   "blank": 1178,
@@ -142,6 +147,11 @@
   "blank": 27,
   "comment": 951,
   "code": 5064},
+"SQL" :{
+  "nFiles": 48,
+  "blank": 466,
+  "comment": 729,
+  "code": 4791},
 "Visual Studio Solution" :{
   "nFiles": 49,
   "blank": 36,
@@ -168,10 +178,10 @@
   "comment": 32,
   "code": 2056},
 "Swift" :{
-  "nFiles": 10,
-  "blank": 295,
-  "comment": 288,
-  "code": 1648},
+  "nFiles": 14,
+  "blank": 304,
+  "comment": 291,
+  "code": 1696},
 "Meson" :{
   "nFiles": 12,
   "blank": 213,
@@ -182,26 +192,26 @@
   "blank": 229,
   "comment": 148,
   "code": 1098},
+"GLSL" :{
+  "nFiles": 49,
+  "blank": 291,
+  "comment": 170,
+  "code": 1070},
 "awk" :{
   "nFiles": 9,
   "blank": 75,
   "comment": 73,
   "code": 1064},
-"GLSL" :{
-  "nFiles": 48,
-  "blank": 282,
-  "comment": 160,
-  "code": 1050},
 "Tcl/Tk" :{
   "nFiles": 4,
   "blank": 152,
   "comment": 254,
   "code": 1027},
-"Dart" :{
-  "nFiles": 7,
-  "blank": 143,
-  "comment": 66,
-  "code": 887},
+"Ruby" :{
+  "nFiles": 6,
+  "blank": 139,
+  "comment": 153,
+  "code": 858},
 "diff" :{
   "nFiles": 12,
   "blank": 250,
@@ -217,6 +227,11 @@
   "blank": 51,
   "comment": 51,
   "code": 533},
+"Gradle" :{
+  "nFiles": 17,
+  "blank": 73,
+  "comment": 69,
+  "code": 532},
 "HLSL" :{
   "nFiles": 18,
   "blank": 82,
@@ -232,11 +247,6 @@
   "blank": 49,
   "comment": 113,
   "code": 427},
-"Gradle" :{
-  "nFiles": 13,
-  "blank": 53,
-  "comment": 63,
-  "code": 416},
 "INI" :{
   "nFiles": 13,
   "blank": 92,
@@ -287,6 +297,11 @@
   "blank": 8,
   "comment": 21,
   "code": 146},
+"Kotlin" :{
+  "nFiles": 5,
+  "blank": 30,
+  "comment": 5,
+  "code": 142},
 "yacc" :{
   "nFiles": 1,
   "blank": 35,
@@ -297,11 +312,6 @@
   "blank": 20,
   "comment": 10,
   "code": 107},
-"Ruby" :{
-  "nFiles": 4,
-  "blank": 7,
-  "comment": 18,
-  "code": 105},
 "Metal" :{
   "nFiles": 1,
   "blank": 20,
@@ -337,11 +347,6 @@
   "blank": 31,
   "comment": 96,
   "code": 33},
-"Kotlin" :{
-  "nFiles": 2,
-  "blank": 9,
-  "comment": 3,
-  "code": 33},
 "sed" :{
   "nFiles": 3,
   "blank": 1,
@@ -362,11 +367,6 @@
   "blank": 0,
   "comment": 5,
   "code": 26},
-"SQL" :{
-  "nFiles": 1,
-  "blank": 6,
-  "comment": 0,
-  "code": 16},
 "CUDA" :{
   "nFiles": 1,
   "blank": 6,
@@ -383,7 +383,7 @@
   "comment": 0,
   "code": 1},
 "SUM": {
-  "blank": 1490765,
-  "comment": 1604347,
-  "code": 9684667,
-  "nFiles": 27533} }
+  "blank": 1515430,
+  "comment": 1613477,
+  "code": 9818656,
+  "nFiles": 28073} }
