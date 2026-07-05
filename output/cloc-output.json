@@ -1,32 +1,32 @@
 {"header" : {
   "cloc_url"           : "github.com/AlDanial/cloc",
   "cloc_version"       : "1.98",
-  "elapsed_seconds"    : 40.9588119983673,
-  "n_files"            : 28073,
-  "n_lines"            : 12947563,
-  "files_per_second"   : 685.395855746965,
-  "lines_per_second"   : 316111.780793743,
+  "elapsed_seconds"    : 53.4415121078491,
+  "n_files"            : 28370,
+  "n_lines"            : 13213489,
+  "files_per_second"   : 530.860727569743,
+  "lines_per_second"   : 247251.405860937,
   "report_file"        : "../output/cloc-output.json"},
 "C" :{
-  "nFiles": 9518,
-  "blank": 469954,
-  "comment": 444184,
-  "code": 3361655},
+  "nFiles": 9605,
+  "blank": 476955,
+  "comment": 449563,
+  "code": 3564893},
 "C/C++ Header" :{
-  "nFiles": 11076,
-  "blank": 349167,
-  "comment": 600841,
-  "code": 2257385},
+  "nFiles": 11186,
+  "blank": 351483,
+  "comment": 605010,
+  "code": 2266751},
 "C++" :{
-  "nFiles": 3356,
-  "blank": 311142,
-  "comment": 165577,
-  "code": 2114209},
+  "nFiles": 3379,
+  "blank": 313105,
+  "comment": 166892,
+  "code": 2124550},
 "Bourne Shell" :{
-  "nFiles": 388,
-  "blank": 107463,
-  "comment": 109045,
-  "code": 644717},
+  "nFiles": 390,
+  "blank": 107477,
+  "comment": 109073,
+  "code": 644785},
 "Assembly" :{
   "nFiles": 252,
   "blank": 49871,
@@ -44,9 +44,9 @@
   "code": 204972},
 "Objective-C++" :{
   "nFiles": 217,
-  "blank": 19128,
-  "comment": 11075,
-  "code": 94776},
+  "blank": 19127,
+  "comment": 11073,
+  "code": 94770},
 "make" :{
   "nFiles": 599,
   "blank": 12007,
@@ -73,25 +73,25 @@
   "comment": 29,
   "code": 49439},
 "CMake" :{
-  "nFiles": 388,
-  "blank": 5723,
-  "comment": 5943,
-  "code": 34013},
+  "nFiles": 394,
+  "blank": 5791,
+  "comment": 6110,
+  "code": 35055},
 "JavaScript" :{
   "nFiles": 126,
   "blank": 3501,
   "comment": 5192,
   "code": 26239},
 "Python" :{
-  "nFiles": 92,
-  "blank": 4275,
-  "comment": 10571,
-  "code": 18360},
+  "nFiles": 110,
+  "blank": 5235,
+  "comment": 11937,
+  "code": 23477},
 "Dart" :{
-  "nFiles": 39,
-  "blank": 1588,
-  "comment": 1335,
-  "code": 13142},
+  "nFiles": 49,
+  "blank": 2027,
+  "comment": 1969,
+  "code": 18173},
 "C#" :{
   "nFiles": 54,
   "blank": 1137,
@@ -112,6 +112,11 @@
   "blank": 2178,
   "comment": 2419,
   "code": 9913},
+"SQL" :{
+  "nFiles": 86,
+  "blank": 715,
+  "comment": 1098,
+  "code": 8829},
 "Windows Module Definition" :{
   "nFiles": 65,
   "blank": 849,
@@ -147,11 +152,6 @@
   "blank": 27,
   "comment": 951,
   "code": 5064},
-"SQL" :{
-  "nFiles": 48,
-  "blank": 466,
-  "comment": 729,
-  "code": 4791},
 "Visual Studio Solution" :{
   "nFiles": 49,
   "blank": 36,
@@ -179,9 +179,14 @@
   "code": 2056},
 "Swift" :{
   "nFiles": 14,
-  "blank": 304,
-  "comment": 291,
-  "code": 1696},
+  "blank": 306,
+  "comment": 298,
+  "code": 1718},
+"Ruby" :{
+  "nFiles": 6,
+  "blank": 199,
+  "comment": 337,
+  "code": 1290},
 "Meson" :{
   "nFiles": 12,
   "blank": 213,
@@ -202,36 +207,31 @@
   "blank": 75,
   "comment": 73,
   "code": 1064},
+"diff" :{
+  "nFiles": 15,
+  "blank": 297,
+  "comment": 1005,
+  "code": 1039},
 "Tcl/Tk" :{
   "nFiles": 4,
   "blank": 152,
   "comment": 254,
   "code": 1027},
-"Ruby" :{
-  "nFiles": 6,
-  "blank": 139,
-  "comment": 153,
-  "code": 858},
-"diff" :{
-  "nFiles": 12,
-  "blank": 250,
-  "comment": 818,
-  "code": 751},
 "TNSDL" :{
   "nFiles": 5,
   "blank": 171,
   "comment": 57,
   "code": 706},
+"Gradle" :{
+  "nFiles": 17,
+  "blank": 76,
+  "comment": 71,
+  "code": 552},
 "Lisp" :{
   "nFiles": 2,
   "blank": 51,
   "comment": 51,
   "code": 533},
-"Gradle" :{
-  "nFiles": 17,
-  "blank": 73,
-  "comment": 69,
-  "code": 532},
 "HLSL" :{
   "nFiles": 18,
   "blank": 82,
@@ -300,7 +300,7 @@
 "Kotlin" :{
   "nFiles": 5,
   "blank": 30,
-  "comment": 5,
+  "comment": 8,
   "code": 142},
 "yacc" :{
   "nFiles": 1,
@@ -383,7 +383,7 @@
   "comment": 0,
   "code": 1},
 "SUM": {
-  "blank": 1515430,
-  "comment": 1613477,
-  "code": 9818656,
-  "nFiles": 28073} }
+  "blank": 1528551,
+  "comment": 1627285,
+  "code": 10057653,
+  "nFiles": 28370} }
