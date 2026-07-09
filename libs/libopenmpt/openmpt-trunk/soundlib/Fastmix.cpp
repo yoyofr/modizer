@@ -98,7 +98,10 @@ struct MixLoopState
 	// Returns the buffer length required to render a certain amount of samples, based on the channel's playback speed.
 	static MPT_FORCEINLINE uint32 DistanceToBufferLength(SamplePosition from, SamplePosition to, SamplePosition inc)
 	{
-		return static_cast<uint32>((to - from - SamplePosition(1)) / inc) + 1;
+		if(from < to)
+			return static_cast<uint32>((to - from - SamplePosition(1)) / inc) + 1;
+		else
+			return 1;
 	}
 
 	// Check how many samples can be rendered without encountering loop or sample end, and also update loop position / direction
@@ -234,16 +237,20 @@ struct MixLoopState
 		{
 			if(nPosInt >= lookaheadStart)
 			{
+				// We are close to the loop end
 				if(nInc.IsNegative())
 				{
+					// Going backward -> only go up to start of lookahead area
 					nSmpCount = DistanceToBufferLength(SamplePosition(lookaheadStart, 0), nPos, nInv);
 					chn.pCurrentSample = lookaheadPointer;
 				} else if(nPosInt <= chn.nLoopEnd)
 				{
+					// Going forward, approaching loop end -> only go up to end of loop
 					nSmpCount = DistanceToBufferLength(nPos, SamplePosition(chn.nLoopEnd, 0), nInv);
 					chn.pCurrentSample = lookaheadPointer;
 				} else
 				{
+					// We are already past the end of the loop
 					nSmpCount = DistanceToBufferLength(nPos, SamplePosition(chn.nLength, 0), nInv);
 				}
 				checkDest = false;
@@ -251,7 +258,7 @@ struct MixLoopState
 			{
 				// We just restarted the loop, so interpolate correctly after wrapping around
 				nSmpCount = DistanceToBufferLength(nPos, SamplePosition(nLoopStart + InterpolationLookaheadBufferSize, 0), nInv);
-				chn.pCurrentSample = lookaheadPointer + (chn.nLength - nLoopStart) * chn.pModSample->GetBytesPerSample();
+				chn.pCurrentSample = lookaheadPointer + (chn.nLoopEnd - nLoopStart) * chn.pModSample->GetBytesPerSample();
 				checkDest = false;
 			} else if(nInc.IsPositive() && static_cast<SmpLength>(nPosDest) >= lookaheadStart && nSmpCount > 1)
 			{
@@ -350,6 +357,8 @@ std::pair<mixsample_t *, mixsample_t *> CSoundFile::GetChannelOffsets(const ModC
 			pOfsL = &mixState.nVolDecayL;
 		}
 	}
+#else  // NO_PLUGINS
+	MPT_UNUSED(channel);
 #endif  // NO_PLUGINS
 	return std::make_pair(pOfsL, pOfsR);
 }
@@ -477,7 +486,7 @@ bool CSoundFile::MixChannel(int count, ModChannel &chn, CHANNELINDEX channel, bo
                     m_voice_buff_accumul_temp[0][ii&(SOUND_BUFFER_SIZE_SAMPLE*4*2-1)]=(pbuffer[ii*2]+pbuffer[ii*2+1]);
                 }
                 //TODO:  MODIZER changes end / YOYOFR
-                
+
 #ifdef MPT_BUILD_DEBUG
 				SamplePosition targetpos = chn.position + chn.increment * nSmpCount;
 #endif
@@ -485,7 +494,7 @@ bool CSoundFile::MixChannel(int count, ModChannel &chn, CHANNELINDEX channel, bo
 #ifdef MPT_BUILD_DEBUG
 				MPT_ASSERT(chn.position.GetUInt() == targetpos.GetUInt());
 #endif
-                                
+
                 //TODO:  MODIZER changes start / YOYOFR
                 int chn_idx=channel;//m_PlayState.ChnMix[nChn];
                     if (chn_idx<SOUND_MAXVOICES_BUFFER_FX) {
@@ -568,7 +577,7 @@ bool CSoundFile::MixChannel(int count, ModChannel &chn, CHANNELINDEX channel, bo
 				chn.nLoopEnd = chn.nLength = chn.pModSample->nLoopEnd;
 			}
 		} while(nsamples > 0);
-        
+
 		// Restore sample pointer in case it got changed through loop wrap-around
 		chn.pCurrentSample = mixLoopState.samplePointer;
 	

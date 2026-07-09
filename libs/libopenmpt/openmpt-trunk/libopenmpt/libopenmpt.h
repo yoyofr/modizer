@@ -1225,6 +1225,14 @@ LIBOPENMPT_API int32_t openmpt_module_get_current_row( openmpt_module * mod );
  */
 LIBOPENMPT_API int32_t openmpt_module_get_current_playing_channels( openmpt_module * mod );
 
+/*! \brief Get an approximate indication of the channel volume.
+ *
+ * \param mod The module handle to work on.
+ * \param channel The channel whose volume should be retrieved.
+ * \return The approximate channel volume.
+ * \remarks The returned value is solely based on the note velocity and does not take the actual waveform of the playing sample into account.
+ */
+
 //YOYOFR
 /*! \brief Get currently playing instrument
  *
@@ -1249,18 +1257,11 @@ LIBOPENMPT_API bool openmpt_module_get_current_channel_triggerNote( openmpt_modu
  * \param mod The module handle to work on.
  * \param channel The channel whose note should be retrieved.
  * \return The approximate channel note.
- * \remarks 
+ * \remarks
  */
 LIBOPENMPT_API uint32_t openmpt_module_get_current_channel_note( openmpt_module * mod, int32_t channel );
 //YOYOFR
 
-/*! \brief Get an approximate indication of the channel volume.
- *
- * \param mod The module handle to work on.
- * \param channel The channel whose volume should be retrieved.
- * \return The approximate channel volume.
- * \remarks The returned value is solely based on the note velocity and does not take the actual waveform of the playing sample into account.
- */
 LIBOPENMPT_API float openmpt_module_get_current_channel_vu_mono( openmpt_module * mod, int32_t channel );
 /*! \brief Get an approximate indication of the channel volume on the front-left speaker.
  *

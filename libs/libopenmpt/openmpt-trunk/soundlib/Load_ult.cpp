@@ -60,7 +60,7 @@ struct UltSample
 
 		mptSmp.nLength = sizeEnd - sizeStart;
 		mptSmp.nSustainStart = loopStart;
-		mptSmp.nSustainEnd = std::min(static_cast<SmpLength>(loopEnd), mptSmp.nLength);
+		mptSmp.nSustainEnd = loopEnd;
 		mptSmp.nVolume = volume;
 
 		mptSmp.nC5Speed = speed * 2;  // Doubled to fit the note range
@@ -316,6 +316,7 @@ bool CSoundFile::ReadULT(FileReader &file, ModLoadingFlags loadFlags)
 	m_SongFlags = SONG_AUTO_TONEPORTA | SONG_AUTO_TONEPORTA_CONT | SONG_ITCOMPATGXX | SONG_ITOLDEFFECTS;  // this will be converted to IT format by MPT.
 	m_playBehaviour.reset(kITClearPortaTarget);
 	m_playBehaviour.reset(kITPortaTargetReached);
+	m_playBehaviour.reset(kITNoSustainOnPortamento);
 	m_playBehaviour.set(kFT2PortaTargetNoReset);
 
 	// Read "messageLength" lines, each containing 32 characters.

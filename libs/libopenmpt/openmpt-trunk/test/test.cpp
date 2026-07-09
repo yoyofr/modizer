@@ -111,7 +111,24 @@
 #include <zlib.h>
 #elif defined(MPT_WITH_MINIZ)
 #define MINIZ_NO_ZLIB_COMPATIBLE_NAMES
+#if MPT_COMPILER_MSVC
+#pragma warning(push)
+#pragma warning(disable : 4505) // unreferenced function with internal linkage has been removed
+#elif MPT_COMPILER_GCC
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
+#elif MPT_COMPILER_CLANG
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-function"
+#endif
 #include <miniz/miniz.h>
+#if MPT_COMPILER_MSVC
+//#pragma warning(pop)
+#elif MPT_COMPILER_GCC
+#pragma GCC diagnostic pop
+#elif MPT_COMPILER_CLANG
+#pragma clang diagnostic pop
+#endif
 #endif
 
 #define MPT_TEST_HAS_FILESYSTEM 1
@@ -176,8 +193,8 @@ void PrintHeader()
 {
 	#ifdef LIBOPENMPT_BUILD
 		std::cout << "libopenmpt test suite starting." << std::endl;
-		std::cout << "libopenmpt library version: " << std::hex << std::setfill('0') << std::setw(8) << openmpt::get_library_version() << std::endl;
-		std::cout << "libopenmpt core version: " << std::hex << std::setfill('0') << std::setw(8) << openmpt::get_core_version() << std::endl;
+		std::cout << "libopenmpt library version: " << std::hex << std::setfill('0') << std::setw(8) << openmpt::get_library_version() << std::dec << std::endl;
+		std::cout << "libopenmpt core version: " << std::hex << std::setfill('0') << std::setw(8) << openmpt::get_core_version() << std::dec << std::endl;
 		std::cout << "libopenmpt library_version: " << openmpt::string::get("library_version") << std::endl;
 		std::cout << "libopenmpt library_features: " << openmpt::string::get("library_features") << std::endl;
 		std::cout << "libopenmpt core_version: " << openmpt::string::get("core_version") << std::endl;
@@ -283,7 +300,7 @@ void DoTests()
 						}
 						return result;
 					};
-					std::cout << "FCW: " << std::hex << std::setfill('0') << std::setw(4) << fpstate.x87fcw << std::endl;
+					std::cout << "FCW: " << std::hex << std::setfill('0') << std::setw(4) << fpstate.x87fcw << std::dec << std::endl;
 					std::cout << " " << format_rounding(fpstate.x87fcw);
 					std::cout << " " << format_precision(fpstate.x87fcw);
 					if (fpstate.x87_level <= 2) {
@@ -312,7 +329,7 @@ void DoTests()
 						}
 						return result;
 					};
-					std::cout << "MXCSR (mask): " << std::hex << std::setfill('0') << std::setw(8) << fpstate.mxcsr << " (" << std::hex << std::setfill('0') << std::setw(8) << fpstate.mxcsr_mask << ")" << std::endl;
+					std::cout << "MXCSR (mask): " << std::hex << std::setfill('0') << std::setw(8) << fpstate.mxcsr << std::dec << " (" << std::hex << std::setfill('0') << std::setw(8) << fpstate.mxcsr_mask << std::dec << ")" << std::endl;
 					std::cout << " " << format_rounding(fpstate.mxcsr);
 					if(fpstate.mxcsr & fpstate.mxcsr_mask & mpt::arch::x86::floating_point::MXCSR_FTZ)
 					{

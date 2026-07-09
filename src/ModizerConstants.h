@@ -51,8 +51,8 @@ extern os_log_t mdzLog;
 
 #define VERSION_MAJOR 4
 #define VERSION_MAJOR_STR "4"
-#define VERSION_MINOR 5
-#define VERSION_MINOR_STR "5"
+#define VERSION_MINOR 6
+#define VERSION_MINOR_STR "6"
 
 #ifdef DEBUG_MODIZER
 #else

@@ -26,7 +26,6 @@ extern int m_genNumVoicesChannels;
 //TODO:  MODIZER changes end / YOYOFR
 
 
-
 #include <cstdint>
 #include "../common/mptBaseUtils.h"
 
@@ -605,7 +604,6 @@ void Opal::Output(int16_t &left, int16_t &right) {
 
         leftmix += chanleft;
         rightmix += chanright;
-        
         //TODO:  MODIZER changes start / YOYOFR
         int chn_idx=i%m_genNumVoicesChannels;
         if (chn_idx<SOUND_MAXVOICES_BUFFER_FX) {

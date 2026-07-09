@@ -129,7 +129,7 @@ static std::string get_library_version_string() {
 	str += mpt::format_value_default<std::string>(OPENMPT_API_VERSION_MINOR);
 	str += ".";
 	str += mpt::format_value_default<std::string>(OPENMPT_API_VERSION_PATCH);
-	if ( std::string(OPENMPT_API_VERSION_PREREL).length() > 0 ) {
+	MPT_MAYBE_CONSTANT_IF ( std::string(OPENMPT_API_VERSION_PREREL).length() > 0 ) {
 		str += OPENMPT_API_VERSION_PREREL;
 	}
 	std::vector<std::string> fields;
@@ -218,7 +218,14 @@ std::string get_string( const std::string & key ) {
 	} else if ( key == "library_version_prerel" ) {
 		return mpt::format_value_default<std::string>(OPENMPT_API_VERSION_PREREL);
 	} else if ( key == "library_version_is_release" ) {
+#if MPT_COMPILER_CLANG
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunreachable-code"
+#endif // MPT_COMPILER_CLANG
 		return ( std::string(OPENMPT_API_VERSION_PREREL).length() == 0 ) ? "1" : "0";
+#if MPT_COMPILER_CLANG
+#pragma clang diagnostic pop
+#endif // MPT_COMPILER_CLANG
 	} else if ( key == "library_features" ) {
 		return get_library_features_string();
 	} else if ( key == "core_version" ) {
@@ -1403,6 +1410,7 @@ uint32_t module_impl::get_current_channel_note( std::int32_t channel ) const {
     return freq;
 }
 //YOYOFR
+
 
 float module_impl::get_current_channel_vu_mono( std::int32_t channel ) const {
 	if ( channel < 0 || channel >= m_sndFile->GetNumChannels() ) {

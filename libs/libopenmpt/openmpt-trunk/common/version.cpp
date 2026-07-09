@@ -600,12 +600,12 @@ mpt::ustring GetFullCreditsString()
 		"libopenmpt (based on OpenMPT / Open ModPlug Tracker)\n"
 #endif
 		"\n"
-		"Copyright \xC2\xA9 2004-2025 OpenMPT Project Developers and Contributors\n"
+		"Copyright \xC2\xA9 2004-2026 OpenMPT Project Developers and Contributors\n"
 		"Copyright \xC2\xA9 1997-2003 Olivier Lapicque\n"
 		"\n"
 		"Developers:\n"
-		"Johannes Schultz (2008-2025)\n"
-		"J\xC3\xB6rn Heusipp (2012-2025)\n"
+		"Johannes Schultz (2008-2026)\n"
+		"J\xC3\xB6rn Heusipp (2012-2026)\n"
 		"Ahti Lepp\xC3\xA4nen (2005-2011)\n"
 		"Robin Fernandes (2004-2007)\n"
 		"Sergiy Pylypenko (2007)\n"
@@ -626,7 +626,7 @@ mpt::ustring GetFullCreditsString()
 		"Thanks to:\n"
 		"\n"
 		"Konstanty for the XMMS-ModPlug resampling implementation\n"
-		"http://modplug-xmms.sourceforge.net/\n"
+		"https://modplug-xmms.sourceforge.net/\n"
 		"\n"
 #ifdef MODPLUG_TRACKER
 		"Geraint Luff for Signalsmith Stretch\n"
@@ -638,7 +638,7 @@ mpt::ustring GetFullCreditsString()
 #endif
 #ifdef MPT_WITH_VST
 		"Hermann Seib for his example VST Host implementation\n"
-		"http://www.hermannseib.com/english/vsthost.htm\n"
+		"https://www.hermannseib.com/english/vsthost.htm\n"
 		"\n"
 		"Benjamin \"BeRo\" Rosseaux for his independent VST header\n"
 		"https://blog.rosseaux.net/\n"
@@ -646,7 +646,7 @@ mpt::ustring GetFullCreditsString()
 #endif
 		"Storlek for all the IT compatibility hints and testcases\n"
 		"as well as the IMF, MDL, OKT and ULT loaders\n"
-		"http://schismtracker.org/\n"
+		"https://schismtracker.org/\n"
 		"\n"
 		"Sergei \"x0r\" Kolzun for various hints on Scream Tracker 2 compatibility\n"
 		"https://github.com/viiri/st2play\n"
@@ -693,7 +693,7 @@ mpt::ustring GetFullCreditsString()
 #endif
 #ifdef MPT_WITH_PORTAUDIO
 		"PortAudio contributors\n"
-		"http://www.portaudio.com/\n"
+		"https://www.portaudio.com/\n"
 		"\n"
 #endif
 #ifdef MPT_WITH_RTAUDIO
@@ -745,7 +745,7 @@ mpt::ustring GetFullCreditsString()
 #endif
 #if defined(MPT_WITH_OPUSENC)
 		"Xiph.Org Foundation, Jean-Marc Valin and contributors for libopusenc\n"
-		"https://git.xiph.org/?p=libopusenc.git;a=summary\n"
+		"https://opus-codec.org/\n"
 		"\n"
 #endif
 #if defined(MPT_WITH_LAME)
@@ -774,6 +774,9 @@ mpt::ustring GetFullCreditsString()
 		"Nobuyuki for file icon\n"
 		"https://github.com/nobuyukinyuu/\n"
 		"\n"
+		"ESI Audiotechnik GmbH for testing hardware\n"
+		"https://www.esi-audio.com/\n"
+		"\n"
 #endif
 		"Daniel Collin (emoon/TBL) for providing test infrastructure\n"
 		"https://mastodon.gamedev.place/@daniel_collin\n"
@@ -800,7 +803,7 @@ mpt::ustring GetFullCreditsString()
 mpt::ustring GetLicenseString()
 {
 	return MPT_UTF8(
-		"Copyright (c) 2004-2025, OpenMPT Project Developers and Contributors" "\n"
+		"Copyright (c) 2004-2026, OpenMPT Project Developers and Contributors" "\n"
 		"Copyright (c) 1997-2003, Olivier Lapicque" "\n"
 		"All rights reserved." "\n"
 		"" "\n"

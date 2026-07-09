@@ -2707,6 +2707,6 @@ GENERATE_LEGEND        = YES
 # The default value is: YES.
 
 DOT_CLEANUP            = YES
-PROJECT_NUMBER = 0.8.3+release.autotools
+PROJECT_NUMBER = 0.8.7+release.autotools
 OUTPUT_DIRECTORY = doxygen-doc
 WARN_IF_DOC_ERROR = NO

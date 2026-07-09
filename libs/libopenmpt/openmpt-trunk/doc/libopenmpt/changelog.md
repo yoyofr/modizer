@@ -5,6 +5,49 @@ Changelog {#changelog}
 For fully detailed change log, please see the source repository directly. This
 is just a high-level summary.
 
+### libopenmpt 0.8.7 (2026-05-17)
+
+ *  ULT: Sustain loops were stopped after a portamento.
+
+ *  mpg123: Update to v1.33.5 (2026-04-25).
+
+### libopenmpt 0.8.6 (2026-03-24)
+
+ *  [**Sec**] The security fix in libopenmpt 0.8.5 (r25042) was incomplete,
+    causing a regression when playing short looped ("chip") samples (r25084).
+
+ *  mpg123: Update to v1.33.4 (2025-12-20).
+
+### libopenmpt 0.8.5 (2026-03-22)
+
+ *  [**Sec**] Possible out-of-bounds sample data read in a specific combination
+    of reverse sample playback + offset past sample loop. (r25042).
+
+ *  MOD: ProTracker arpeggio wrapraound results in an effective period of 65536
+    on Paula, not pausing the sample entirely.
+ *  ULT: Loop points were incorrectly limited for 16-bit samples.
+
+ *  zlib: Update to v1.3.2 (2026-02-17).
+ *  miniz: Update to v3.1.1 (2026-02-03).
+
+### libopenmpt 0.8.4 (2025-12-14)
+
+ *  [**Bug**] openmpt123: libsndfile float32 output was broken since 0.8.1.
+ *  [**Bug**] `build/download_externals.txt` was missing from `makefile` and
+    `msvc` source archives.
+
+ *  PT36: Some MODs with samples larger than 64k inside PT36 containers were not
+    read correctly.
+ *  IT: Files are no longer interpreted as ModPlug-made (thus disabling all
+    compatibility settings) just because instrument extensions are found (no
+    such files are currently known to exist in the wild).
+
+ *  mpg123: Update to v1.33.3 (2025-10-05).
+ *  miniz: Update to v3.1.0 (2025-09-21).
+ *  minimp3: Update to fork
+    <https://github.com/manxorist/minimp3/releases/tag/openmpt-2025-11-07-v5>
+    commit ec51f21ef59ecf6d87bdcb028fe8f76fe761e0fe (2025-11-07).
+
 ### libopenmpt 0.8.3 (2025-09-06)
 
  *  [**Bug**] libopenmpt is now compatible with most non-standard builds of

@@ -531,7 +531,7 @@ INLINE INT16 get_sample(struct qsound_chip *chip, UINT16 bank,UINT16 address)
 	bank &= 0x7FFF;
 	rom_addr = (bank << 16) | (address << 0);
 	
-	sample_data = chip->romData[rom_addr];
+	sample_data = chip->romData[rom_addr & chip->romMask];
 	
 	return (INT16)((sample_data << 8) | (sample_data << 0));	// MAME currently expands the 8 bit ROM data to 16 bits this way.
 }

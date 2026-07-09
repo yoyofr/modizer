@@ -1,7 +1,7 @@
 #######################################################################
 #   The High Voltage SID Collection (HVSC) Bugged Tunes List          #
 #   Maintained by iAN CooG <hvsc.crew (sid) gmail.com>                #
-#   Last Updated: June 15, 2025.                                      #
+#   Last Updated: April 18, 2026                                      #
 #######################################################################
 #                                                                     #
 # The purpose of this text document is to highlight all the tunes     #
@@ -34,7 +34,7 @@
 #######################################################################
 
 ##############################
-# Bugged tunes as of HVSC 80 #
+# Bugged tunes as of HVSC 85 #
 ##############################
 
 /DEMOS/A-F/Digital_II.sid
@@ -46,10 +46,6 @@
 /DEMOS/UNKNOWN/Misc_Tune_05.sid
     BUG: Subtune #1 plays bad notes at 0:46. No bad reads.
 (Wilfred)
-
-/DEMOS/UNKNOWN/New_Intro.sid
-    BUG: Falls out of synch at 1:30.
-(iAN CooG)
 
 /DEMOS/UNKNOWN/Wham.sid
     BUG: Has a lot of wrong sounds inside, obviously a bad rip.
@@ -80,16 +76,9 @@
     BUG: File seems truncated, lacks lots of data at end. No good source known.
 (iAN CooG)
 
-/DEMOS/UNKNOWN/Master_Composer/Take_Me_Home.sid
-    BUG: File seems truncated, lacks lots of data at end. No good source known.
-(iAN CooG)
-
 /DEMOS/UNKNOWN/Master_Composer/We_Two.sid
     BUG: File seems truncated, lacks lots of data at end. No good source known.
 (iAN CooG)
-
-/MUSICIANS/A/A-Man/Zack_Theme.sid
-    BUG: Falls out of synch on loop. No good version found.
 
 /MUSICIANS/A/Astovel/Tengu_Warez_1_menu.sid
     BUG: Gets progressively out of sync with each loop.
@@ -101,10 +90,6 @@
          of playtime.
 (Mariusz)
 
-/MUSICIANS/B/Bakewell_Dwayne/Crappy_Rap.sid
-    BUG: Falls out of synch at around the 1:22 mark.
-(Mariusz)
-
 /MUSICIANS/B/Bleed_Into_One/Knick_Knack.sid
     BUG: Falls out of sync after 2:20, just like in the music collection it
          was taken from.
@@ -112,6 +97,10 @@
 
 /MUSICIANS/C/Cane/Brainball.sid
     BUG: Wrong notes from 2:00. No known clean version found yet.
+
+/MUSICIANS/D/Davis_John/Santuzza.sid
+    BUG: Stops abruptly at 1:57 due to missing data at end.
+         No known clean version found yet.
 
 /MUSICIANS/D/Digiblaster/Mix3_plus_plus.sid
     BUG: Falls out of synch from 1:13. No good version found.
@@ -168,10 +157,6 @@
 /MUSICIANS/M/MAC2/Amnesia_Intro_12.sid
     BUG: The tune starts to bug at the 01:39 mark. It's used in the intro to
          Bobix/Amnesia and the music data at $2000 were overwritten by gfx.
-(iAN CooG)
-
-/MUSICIANS/M/MHD/Airwolf.sid
-    BUG: Falls out of synch at around 0:53. No bad reads.
 (iAN CooG)
 
 /MUSICIANS/S/Shogoon/Dune_Cover.sid

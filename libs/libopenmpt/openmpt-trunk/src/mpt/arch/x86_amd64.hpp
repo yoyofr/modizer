@@ -862,7 +862,7 @@ private:
 #endif // MPT_COMPILER
 	}
 
-	[[nodiscard]] static bool detect_nexgen() noexcept {
+	[[nodiscard]] MPT_NOINLINE static bool detect_nexgen() noexcept {
 
 #if MPT_ARCH_X86 && MPT_COMPILER_MSVC
 
@@ -916,7 +916,7 @@ private:
 #endif
 	}
 
-	[[nodiscard]] static bool detect_cyrix() noexcept {
+	[[nodiscard]] MPT_NOINLINE static bool detect_cyrix() noexcept {
 
 #if MPT_ARCH_X86 && MPT_COMPILER_MSVC
 
@@ -1228,7 +1228,11 @@ public:
 					Virtualized = true;
 				}
 			}
-			if (VendorString.a >= 0x0000'0007u) {
+			if ((VendorString.a >= 0x0000'0007u) && Features.supports(feature::avx)) {
+				// Some Skylake Celerons wrongly report BMI1 even though they do not support it.
+				// They also do not support AVX.
+				// Guard BMI1/BMI2 with AVX, as all known CPUs with BMI1 also support AVX.
+				// See <https://mastodon.gamedev.place/@rygorous/115375820395748540>.
 				cpuid_result ExtendedFeatures = cpuidex(0x0000'0007u, 0x0000'0000u);
 				// clang-format off
 				Features |= (ExtendedFeatures.b & (1u <<  3)) ? (feature::bmi1) : feature::none;

@@ -6,7 +6,8 @@ libdir=${exec_prefix}/lib
 
 Name: libopenmpt
 Description: Tracker module player based on OpenMPT
-Version: 0.8.3+release.autotools
+URL: https://lib.openmpt.org/
+Version: 0.8.7+release.autotools
 Requires.private: zlib libmpg123 ogg vorbis vorbisfile
 Libs: -L${libdir} -lopenmpt
 Libs.private:  

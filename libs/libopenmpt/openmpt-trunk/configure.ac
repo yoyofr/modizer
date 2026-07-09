@@ -1,4 +1,4 @@
-AC_INIT([libopenmpt], [0.8.3+release.autotools], [https://bugs.openmpt.org/], [libopenmpt], [https://lib.openmpt.org/])
+AC_INIT([libopenmpt], [0.8.7+release.autotools], [https://bugs.openmpt.org/], [libopenmpt], [https://lib.openmpt.org/])
 AC_PREREQ([2.69])
 # we do want 2.70, but distributions are not ready yet
 #AC_PREREQ([2.70])
@@ -88,9 +88,9 @@ AC_SUBST([LIBOPENMPT_LTVER_CURRENT])
 AC_SUBST([LIBOPENMPT_LTVER_REVISION])
 AC_SUBST([LIBOPENMPT_LTVER_AGE])
 
-AC_DEFINE([MPT_SVNURL], ["https://source.openmpt.org/svn/openmpt/tags/libopenmpt-0.8.3"], [svn version])
-AC_DEFINE([MPT_SVNVERSION], ["24141"], [svn version])
-AC_DEFINE([MPT_SVNDATE], ["2025-09-06T13:42:08.986313Z"], [svn date])
+AC_DEFINE([MPT_SVNURL], ["https://source.openmpt.org/svn/openmpt/tags/libopenmpt-0.8.7"], [svn version])
+AC_DEFINE([MPT_SVNVERSION], ["25325"], [svn version])
+AC_DEFINE([MPT_SVNDATE], ["2026-05-17T11:08:12.701337Z"], [svn date])
 AC_DEFINE([MPT_PACKAGE], [true], [is package])
 
 
@@ -309,7 +309,7 @@ AS_IF([test "x$with_portaudiocpp" != "xno"],
    ],
    [
     have_portaudiocpp=0
-    AC_MSG_ERROR([Unable to find libportaudiocpp.])
+    AC_MSG_WARN([Unable to find libportaudiocpp.])
    ]
   )
  ],
