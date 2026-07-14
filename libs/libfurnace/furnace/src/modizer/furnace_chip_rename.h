@@ -19,6 +19,14 @@
 #define reSIDfp                 furnaceReSIDfp
 #define matrix                  furnaceMatrix
 #define matrix_t                furnaceMatrix_t
+/* array.h declares `counter` and `counterOps` at global scope, and siddefs-fp.h
+   defines residfp_version_string — all duplicated by liblibsidplayfp/liblibresidfp. */
+#define counter                 furnaceCounter
+#define counterOps              furnaceCounterOps
+#define residfp_version_string  furnaceResidfp_version_string
+
+/* ── ymfm namespace ── conflicts with liblibpmdmini.a (older ymfm copy) ───── */
+#define ymfm                    furnaceYmfm
 
 /* ── xgm namespace (NSFPlay) ── conflicts with liblibnsfplay.a ───────────── */
 #define xgm                     furnaceXgm

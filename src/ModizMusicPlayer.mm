@@ -18440,7 +18440,7 @@ extern "C" void adjust_amplification(void);
             int idx=0;
             for (int i=0;i<mod_activeChipsNb;i++) {
                 if ((channel>=idx)&&(channel<idx+mod_activeChip_VoiceNb[i])) {
-                    return [NSString stringWithFormat:@"%s %d",channel-idx+1,mod_activeChipsName[i]];
+                    return [NSString stringWithFormat:@"%s %d",mod_activeChipsName[i],channel-idx+1];
                 }
                 idx+=mod_activeChip_VoiceNb[i];
             }
