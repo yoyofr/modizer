@@ -13138,7 +13138,6 @@ NSString* convertAmigaGreekToUnicode(NSString *input) {
     vcfg.stereo_track=1;
     vcfg.auto_downmix_channels=2;
     
-    libvgmstream_setup(vgmStream, NULL);
     libvgmstream_setup(vgmStream, &vcfg);
     //vgmstream_apply_config(vgmStream, &vcfg);
     //vgmstream_set_play_forever(vgmStream,vcfg.play_forever);
@@ -13242,7 +13241,6 @@ NSString* convertAmigaGreekToUnicode(NSString *input) {
     vcfg.stereo_track=1;
     vcfg.auto_downmix_channels=2;
     vcfg.force_sfmt = LIBVGMSTREAM_SFMT_PCM16; //not sure how to tell libao to open in float mode
-    libvgmstream_setup(vgmStream, NULL);
     libvgmstream_setup(vgmStream, &vcfg);
     
     //vgmstream_apply_config(vgmStream, &vcfg);
@@ -13425,8 +13423,7 @@ NSString* convertAmigaGreekToUnicode(NSString *input) {
     } else {
         [self mmp_updateDBStatsAtLoad];
     }
-    
-    libvgmstream_setup(vgmStream, NULL);
+        
     libvgmstream_setup(vgmStream, &vcfg);
     
     //vgmFile->stream_index=mod_currentsub;
