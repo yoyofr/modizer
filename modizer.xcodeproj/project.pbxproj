@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0F8FF2F3301A3C70001C281B /* songlengths.tsv.gz in Resources */ = {isa = PBXBuildFile; fileRef = 0F8FF2F2301A3C70001C281B /* songlengths.tsv.gz */; };
+		0F8FF2F4301A3C70001C281B /* songlengths.tsv.gz in Resources */ = {isa = PBXBuildFile; fileRef = 0F8FF2F2301A3C70001C281B /* songlengths.tsv.gz */; };
 		1D60589F0D05DD5A006BFB54 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1D30AB110D05D00D00671497 /* Foundation.framework */; };
 		1DF5F4E00D08C38300B7A737 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1DF5F4DF0D08C38300B7A737 /* UIKit.framework */; };
 		288765FD0DF74451002DB57D /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 288765FC0DF74451002DB57D /* CoreGraphics.framework */; };
@@ -3349,6 +3351,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		0F8FF2F2301A3C70001C281B /* songlengths.tsv.gz */ = {isa = PBXFileReference; lastKnownFileType = archive.gzip; path = songlengths.tsv.gz; sourceTree = "<group>"; };
 		1D30AB110D05D00D00671497 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		1D6058910D05DD3D006BFB54 /* modizer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = modizer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1DF5F4DF0D08C38300B7A737 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
@@ -6706,6 +6709,7 @@
 		CC1E6260120423DF000A8A4E /* UADE */ = {
 			isa = PBXGroup;
 			children = (
+				0F8FF2F2301A3C70001C281B /* songlengths.tsv.gz */,
 				CC1E6261120423DF000A8A4E /* eagleplayer.conf */,
 				CC1E6262120423DF000A8A4E /* players */,
 				CC1E630D120423DF000A8A4E /* score */,
@@ -8869,6 +8873,7 @@
 				CC0C59522F16C9E700A5E7C1 /* cw.png in Resources */,
 				CC0C59532F16C9E700A5E7C1 /* dm.png in Resources */,
 				CC0C59542F16C9E700A5E7C1 /* vn.png in Resources */,
+				0F8FF2F4301A3C70001C281B /* songlengths.tsv.gz in Resources */,
 				CC0C59552F16C9E700A5E7C1 /* de.png in Resources */,
 				CC0C59562F16C9E700A5E7C1 /* rw.png in Resources */,
 				CC0C59572F16C9E700A5E7C1 /* kr.png in Resources */,
@@ -9576,6 +9581,7 @@
 				CC0C5A542F16C9E700A5E7C1 /* cw.png in Resources */,
 				CC0C5A552F16C9E700A5E7C1 /* dm.png in Resources */,
 				CC0C5A562F16C9E700A5E7C1 /* vn.png in Resources */,
+				0F8FF2F3301A3C70001C281B /* songlengths.tsv.gz in Resources */,
 				CC0C5A572F16C9E700A5E7C1 /* de.png in Resources */,
 				CC0C5A582F16C9E700A5E7C1 /* rw.png in Resources */,
 				CC0C5A592F16C9E700A5E7C1 /* kr.png in Resources */,

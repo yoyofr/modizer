@@ -611,6 +611,10 @@ char m3uReader_adjofs;
 #include "M3UTagsParser.h"
 M3U_Tags m3uTags;
 
+// UADE song lengths database (Resources/UADE/songlengths.tsv.gz)
+#include "UADESongLengths.h"
+UADE_SongLengths uadeSongLengths;
+
 
 /* file types */
 static char gmetype[64];
@@ -4104,8 +4108,9 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
                         
                         iCurrentTime=0;
                         mCurrentSamples=0;
-                        
-                        iModuleLength=[self getSongLengthfromMD5:mod_currentsub-mod_minsub+1];
+
+                        iModuleLength=[self getUADESongLength:mod_currentsub];
+                        if (iModuleLength<0) iModuleLength=[self getSongLengthfromMD5:mod_currentsub-mod_minsub+1];
                         mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
                         //Loop
                         if (mLoopMode==1) iModuleLength=-1;
@@ -4140,7 +4145,8 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
                 if (us->cur_subsong>us->max_subsong) us->cur_subsong=us->max_subsong;
                 if (us->cur_subsong<us->min_subsong) us->cur_subsong=us->min_subsong;
                 mod_currentsub=us->cur_subsong;
-                iModuleLength=[self getSongLengthfromMD5:mod_currentsub-mod_minsub+1];
+                iModuleLength=[self getUADESongLength:mod_currentsub];
+                if (iModuleLength<0) iModuleLength=[self getSongLengthfromMD5:mod_currentsub-mod_minsub+1];
                 mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
                 
                 //Loop
@@ -4431,6 +4437,16 @@ int uade_audio_play(char *pSound,int lBytes,int song_end) {
             }
             
             if ((prev_mod_subsongs!=mod_subsongs)&&(mod_subsongs>1)) {
+                //subsongs range now known: publish the songlengths database durations
+                [self uadeUpdateSubsongsLengthDB];
+
+                int dbLength=[self getUADESongLength:mod_currentsub];
+                if (dbLength>=0) {
+                    iModuleLength=dbLength;
+                    mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
+                    if (mLoopMode==1) iModuleLength=-1;
+                }
+
                 [self initSubSongPlayed];
                 //MDZILog("initsubsong / %d subsongs\n",mod_subsongs);
                 if (mdz_ShufflePlayMode) {
@@ -12226,9 +12242,44 @@ char* loadRom(const char* path, size_t romSize)
 }
 
 
+//
+// Song length of a UADE subsong, taken from the songlengths database shipped in the bundle.
+// subsong is the absolute index (the database stores its own minsubsong).
+// Returns -1 when the module or the subsong is unknown, or when the scan produced nothing usable.
+//
+-(int) getUADESongLength:(int)subsong {
+    if (!uadeSongLengths.loaded()) return -1;
+    return uadeSongLengths.lengthForSubsong(song_md5,subsong);
+}
+
+//
+// Push the per subsong lengths of the songlengths database to the DB, so that the browser and the
+// playlists show them without having to play the module. Called once the subsongs range is known.
+//
+-(void) uadeUpdateSubsongsLengthDB {
+    if (!uadeSongLengths.loaded()) return;
+    if (mod_subsongs<=1) return;
+    if (uadeSongLengths.subsongCount(song_md5)==0) return;
+
+    int total_length=0;
+    for (int i=mod_minsub;i<=mod_maxsub;i++) {
+        int sublen=[self getUADESongLength:i];
+        if (sublen<0) continue;
+        total_length+=sublen;
+
+        NSString *filePathMain=[ModizFileHelper getFilePathFromDocuments:mod_loadmodule_filepath];
+        if (mdz_ArchiveFilesCnt) filePathMain=[NSString stringWithFormat:@"%@@%d",filePathMain,mdz_currentArchiveIndex];
+
+        NSString *filePathSubsong=[NSString stringWithFormat:@"%@?%d",filePathMain,i];
+        DBHelper::updateFileStatsDBmod([self getSubTitle:i],filePathSubsong,-1,-1,-1,sublen,numChannels,mod_subsongs);
+    }
+
+    if (total_length>0) [self mmp_updateDBStatsAtLoadSubsong:total_length];
+}
+
 -(int) mmp_uadeLoad:(NSString*)filePath {  //UADE
     int ret;
-    
+
     mPlayType=MMP_UADE;
     // First check that the file is accessible and get the size
     FILE *f=fopen([filePath UTF8String],"rb");
@@ -12248,10 +12299,16 @@ char* loadRom(const char* path, size_t romSize)
     
     md5_from_buffer(song_md5,33,tmp_md5_data,mp_datasize);
     free(tmp_md5_data);
-    
-    
+
+
     //printf("loading md5=%s\n",song_md5);
-    
+
+    //songlengths database, loaded once on the first UADE module
+    if (!uadeSongLengths.loaded()) {
+        NSString *songLengthsPath=[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"songlengths.tsv.gz"];
+        if (!uadeSongLengths.load([songLengthsPath UTF8String])) MDZELog("UADE: cannot load %@",songLengthsPath);
+    }
+
     uadeThread_running=0;
     [NSThread detachNewThreadSelector:@selector(uadeThread) toTarget:self withObject:NULL];
     
@@ -12362,9 +12419,11 @@ char* loadRom(const char* path, size_t romSize)
     iCurrentTime=0;
     mCurrentSamples=0;
     
-    iModuleLength=UADEstate.song->playtime;
+    //the songlengths database is more accurate than the playtime advertised by the eagleplayer
+    iModuleLength=[self getUADESongLength:mod_currentsub];
+    if (iModuleLength<0) iModuleLength=UADEstate.song->playtime;
     if (iModuleLength<0) iModuleLength=[self getSongLengthfromMD5:mod_currentsub-mod_minsub+1];
-    
+
     
     
     [self mmp_updateDBStatsAtLoad];
