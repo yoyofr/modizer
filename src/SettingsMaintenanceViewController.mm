@@ -10,9 +10,13 @@
 #import "SettingsMaintenanceViewController.h"
 #import "ImagesCache.h"
 #import "ModizFileHelper.h"
+#import "DownloadViewController.h"
+#import "DBHelper.h"
 
 #include <pthread.h>
 extern pthread_mutex_t db_mutex;
+
+extern volatile t_settings settings[MAX_SETTINGS];
 
 extern bool dbhelper_cancel;
 
@@ -23,10 +27,11 @@ extern bool dbhelper_cancel;
 
 @implementation SettingsMaintenanceViewController
 
-@synthesize tableView,detailViewController,rootVC;
+@synthesize tableView,detailViewController,rootVC,downloadViewController;
 
 #include "MiniPlayerImplementTableView.h"
 #include "AlertsCommonFunctions.h"
+#include "PlaylistCommonFunctions.h"
 
 -(IBAction) goPlayer {
     if (detailViewController.mPlaylist_size) [self.navigationController pushViewController:detailViewController animated:YES];
@@ -392,6 +397,300 @@ extern char cleanDB_Status[256];
 }
 
 
+#pragma mark - Download of missing playlists entries
+
+//
+// Online collections local folders, as created by the OnlineViewController collections browsers.
+// Only the collections for which the remote location can be rebuilt from the local path are
+// handled: the WEB parsed ones (AMP, JoshW, VGMRips, SNESmusic, SMS Power!, ZXArt) build their
+// download URL while parsing the web pages, and that URL is not stored anywhere locally.
+//
+#define MDZ_AMP_BASEDIR @"AMP"
+
+//collections whose remote location can be rebuilt from the local path, shown as-is to the user
+#define MDZ_RESOLVABLE_COLLECTIONS @"MODLAND, HVSC, ASMA, CGSC"
+
+-(bool) isOnlineCollectionBaseDir:(NSString*)baseDir {
+    return ([baseDir isEqualToString:MODLAND_BASEDIR]||
+            [baseDir isEqualToString:HVSC_BASEDIR]||
+            [baseDir isEqualToString:ASMA_BASEDIR]||
+            [baseDir isEqualToString:CGSC_BASEDIR]||
+            [baseDir isEqualToString:MDZ_AMP_BASEDIR]||
+            [baseDir isEqualToString:JOSHW_BASEDIR]||
+            [baseDir isEqualToString:VGMR_BASEDIR]||
+            [baseDir isEqualToString:SNESmusic_BASEDIR]||
+            [baseDir isEqualToString:SMSP_BASEDIR]||
+            [baseDir isEqualToString:ZXART_BASEDIR]);
+}
+
+//recursive lookup: the DownloadViewController can be a tab child, sit in a navigation stack,
+//or be hidden in the "More" navigation controller of the tab bar
+- (id)findChildOfClass:(Class)cls inViewController:(UIViewController*)vc {
+    if (vc==nil) return nil;
+    if ([vc isKindOfClass:cls]) return vc;
+
+    if ([vc isKindOfClass:[UITabBarController class]]) {
+        for (UIViewController *child in ((UITabBarController*)vc).viewControllers) {
+            id res=[self findChildOfClass:cls inViewController:child];
+            if (res) return res;
+        }
+        id res=[self findChildOfClass:cls inViewController:((UITabBarController*)vc).moreNavigationController];
+        if (res) return res;
+        return nil;
+    }
+    if ([vc isKindOfClass:[UINavigationController class]]) {
+        for (UIViewController *child in ((UINavigationController*)vc).viewControllers) {
+            id res=[self findChildOfClass:cls inViewController:child];
+            if (res) return res;
+        }
+        return nil;
+    }
+    for (UIViewController *child in vc.childViewControllers) {
+        id res=[self findChildOfClass:cls inViewController:child];
+        if (res) return res;
+    }
+    return nil;
+}
+
+-(void) loadDownloadController {
+    if (downloadViewController) return;
+
+    //1/ walk up from ourselves: we are pushed in the same tab bar hierarchy
+    for (UIViewController *vc=self; vc!=nil; vc=vc.parentViewController) {
+        if ([vc isKindOfClass:[UITabBarController class]]) {
+            downloadViewController=[self findChildOfClass:[DownloadViewController class] inViewController:vc];
+            if (downloadViewController) return;
+        }
+    }
+
+    //2/ fallback: scan every window of every connected scene
+    NSMutableArray *windows=[NSMutableArray array];
+    for (UIScene *scene in [UIApplication sharedApplication].connectedScenes) {
+        if ([scene isKindOfClass:[UIWindowScene class]]) [windows addObjectsFromArray:((UIWindowScene*)scene).windows];
+    }
+    if ([windows count]==0) {
+        if ([UIApplication sharedApplication].keyWindow) [windows addObject:[UIApplication sharedApplication].keyWindow];
+    }
+    for (UIWindow *window in windows) {
+        downloadViewController=[self findChildOfClass:[DownloadViewController class] inViewController:window.rootViewController];
+        if (downloadViewController) return;
+    }
+}
+
+-(void) checkCreateForLocalPath:(NSString*)localPath {
+    NSString *completePath=[[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:localPath] stringByDeletingLastPathComponent];
+    NSFileManager *mFileMngr=[[NSFileManager alloc] init];
+    [mFileMngr createDirectoryAtPath:completePath withIntermediateDirectories:TRUE attributes:nil error:nil];
+}
+
+//build a download request, as used by the collections browsers (cf RootViewController<collection>.mm)
+-(NSDictionary*) buildURLRequest:(NSString*)url localPath:(NSString*)localPath fileName:(NSString*)fileName isMODLAND:(int)isMODLAND {
+    return @{@"type":@"url",@"url":url,@"local":localPath,@"name":fileName,@"ismodland":@(isMODLAND)};
+}
+
+-(NSDictionary*) buildFTPRequest:(NSString*)remotePath host:(NSString*)host localPath:(NSString*)localPath fileName:(NSString*)fileName isMODLAND:(int)isMODLAND {
+    return @{@"type":@"ftp",@"remote":remotePath,@"host":host,@"local":localPath,@"name":fileName,@"ismodland":@(isMODLAND)};
+}
+
+//
+// Rebuild the remote location of a missing playlist entry.
+// Returns the list of downloads to queue (main file + additional required ones), or nil if the
+// entry does not belong to a collection which can be resolved offline.
+//
+-(NSArray*) buildDownloadRequestsForLocalPath:(NSString*)localPath baseDir:(NSString*)baseDir {
+    NSString *fileName=[localPath lastPathComponent];
+    //path relative to the collection root, starting with a '/'
+    NSString *remotePath=[localPath substringFromIndex:[[NSString stringWithFormat:@"Documents/%@",baseDir] length]];
+    NSString *collection_url=nil;
+
+    if ([baseDir isEqualToString:MODLAND_BASEDIR]) {
+        //MODLAND local layout is author/filetype[/album]/filename, remote one is filetype/author[/album]/filename
+        NSString *fullpath=DBHelper::getFullPathFromLocalPath([remotePath substringFromIndex:1]);
+        if (fullpath==nil) return nil;  //not in the MODLAND DB anymore
+        NSString *ftpPath=[NSString stringWithFormat:@"/pub/modules/%@",fullpath];
+        collection_url=[NSString stringWithFormat:@"%s",settings[ONLINE_MODLAND_CURRENT_URL].detail.mdz_msgbox.text];
+        if ([collection_url rangeOfString:@"ftp://" options:NSCaseInsensitiveSearch].location==NSNotFound) {
+            return @[[self buildURLRequest:[NSString stringWithFormat:@"%@%@",collection_url,ftpPath] localPath:localPath fileName:fileName isMODLAND:1]];
+        }
+        return @[[self buildFTPRequest:ftpPath host:[collection_url substringFromIndex:6] localPath:localPath fileName:fileName isMODLAND:1]];
+    }
+
+    if ([baseDir isEqualToString:HVSC_BASEDIR]||[baseDir isEqualToString:ASMA_BASEDIR]) {
+        if ([baseDir isEqualToString:HVSC_BASEDIR]) collection_url=[NSString stringWithFormat:@"%s",settings[ONLINE_HVSC_CURRENT_URL].detail.mdz_msgbox.text];
+        else collection_url=[NSString stringWithFormat:@"%s",settings[ONLINE_ASMA_CURRENT_URL].detail.mdz_msgbox.text];
+        if ([collection_url rangeOfString:@"ftp://" options:NSCaseInsensitiveSearch].location==NSNotFound) {
+            return @[[self buildURLRequest:[NSString stringWithFormat:@"%@%@",collection_url,remotePath] localPath:localPath fileName:fileName isMODLAND:1]];
+        }
+        return @[[self buildFTPRequest:remotePath host:[collection_url substringFromIndex:6] localPath:localPath fileName:fileName isMODLAND:1]];
+    }
+
+    if ([baseDir isEqualToString:CGSC_BASEDIR]) {
+        //CGSC is HTTP only, and comes with optional companion files
+        collection_url=[NSString stringWithFormat:@"%s",settings[ONLINE_CGSC_CURRENT_URL].detail.mdz_msgbox.text];
+        NSMutableArray *requests=[NSMutableArray array];
+        NSArray *addExt=@[@"str",@"wds",@"pic",@"pgg",@"pjj"];
+        for (NSString *ext in addExt) {
+            NSString *addName=[[fileName stringByDeletingPathExtension] stringByAppendingFormat:@".%@",ext];
+            NSString *addLocal=[[localPath stringByDeletingPathExtension] stringByAppendingFormat:@".%@",ext];
+            NSString *addRemote=[[remotePath stringByDeletingPathExtension] stringByAppendingFormat:@".%@",ext];
+            [requests addObject:[self buildURLRequest:[NSString stringWithFormat:@"%@%@",collection_url,addRemote] localPath:addLocal fileName:addName isMODLAND:3]];
+        }
+        [requests addObject:[self buildURLRequest:[NSString stringWithFormat:@"%@%@",collection_url,remotePath] localPath:localPath fileName:fileName isMODLAND:2]];
+        return requests;
+    }
+
+    return nil;
+}
+
+-(void) queueDownloadRequests:(NSArray*)requests {
+    for (NSDictionary *req in requests) {
+        NSString *localPath=[req objectForKey:@"local"];
+        [self checkCreateForLocalPath:localPath];
+        if ([[req objectForKey:@"type"] isEqualToString:@"ftp"]) {
+            [downloadViewController addFTPToDownloadList:localPath
+                                                  ftpURL:[req objectForKey:@"remote"]
+                                                 ftpHost:[req objectForKey:@"host"]
+                                                filesize:-1
+                                                filename:[req objectForKey:@"name"]
+                                               isMODLAND:[[req objectForKey:@"ismodland"] intValue]
+                                        usePrimaryAction:0];
+        } else {
+            [downloadViewController addURLToDownloadList:[req objectForKey:@"url"]
+                                                fileName:[req objectForKey:@"name"]
+                                                filePath:localPath
+                                                filesize:-1
+                                               isMODLAND:[[req objectForKey:@"ismodland"] intValue]
+                                        usePrimaryAction:0];
+        }
+    }
+}
+
+//gather every entry of every user playlist (label + fullpath)
+-(NSArray*) collectPlaylistsEntries {
+    NSMutableArray *entries=[NSMutableArray array];
+    t_playlist_DB *plList=NULL;
+    int plListSize=[self loadPlayListsListFromDB:&plList];
+
+    for (int i=0;i<plListSize;i++) {
+        NSMutableArray *labels=[NSMutableArray array];
+        NSMutableArray *fullpaths=[NSMutableArray array];
+        [self loadUserList:plList[i].pl_id labels:labels fullpaths:fullpaths];
+        for (int j=0;j<[fullpaths count];j++) {
+            [entries addObject:@[[labels objectAtIndex:j],[fullpaths objectAtIndex:j]]];
+        }
+        mdz_safe_free(plList[i].pl_name);
+    }
+    mdz_safe_free(plList);
+
+    return entries;
+}
+
+-(void) scanPlaylistsAndDownloadMissingEntries {
+    [self hideWaitingCancel];
+    [self hideWaitingProgress];
+    [self updateWaitingTitle:NSLocalizedString(@"Checking playlists",@"")];
+    [self updateWaitingDetail:@""];
+    [self showWaiting];
+
+    dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void){
+        //Background Thread
+        NSArray *entries=[self collectPlaylistsEntries];
+        NSFileManager *mFileMngr=[[NSFileManager alloc] init];
+        NSMutableArray *requests=[NSMutableArray array];
+        NSMutableSet *alreadyChecked=[NSMutableSet set];
+        NSMutableSet *unresolvedCollections=[NSMutableSet set];
+        int nb_entries=(int)[entries count];
+        int nb_queued=0,nb_present=0,nb_notonline=0,nb_unresolved=0;
+
+        for (int i=0;i<nb_entries;i++) {
+            if ((i%16)==0) {
+                dispatch_async(dispatch_get_main_queue(), ^(void){
+                    [self updateWaitingDetail:[NSString stringWithFormat:@"%d/%d",i,nb_entries]];
+                });
+            }
+
+            //remove the archive index (@) and subsong index (?) suffixes if any
+            NSString *localPath=[ModizFileHelper getFullCleanFilePath:[[entries objectAtIndex:i] objectAtIndex:1]];
+            if (localPath==nil) continue;
+            if ([alreadyChecked containsObject:localPath]) continue;
+            [alreadyChecked addObject:localPath];
+
+            NSArray *comp=[localPath componentsSeparatedByString:@"/"];
+            if (([comp count]<3)||(![[comp objectAtIndex:0] isEqualToString:@"Documents"])) {
+                nb_notonline++;
+                continue;
+            }
+            NSString *baseDir=[comp objectAtIndex:1];
+            if (![self isOnlineCollectionBaseDir:baseDir]) {
+                nb_notonline++;
+                continue;
+            }
+
+            if ([mFileMngr fileExistsAtPath:[[ModizFileHelper getAppHomeDirectory] stringByAppendingPathComponent:localPath]]) {
+                nb_present++;
+                continue;
+            }
+
+            NSArray *entryRequests=[self buildDownloadRequestsForLocalPath:localPath baseDir:baseDir];
+            if (entryRequests==nil) {
+                //WEB parsed collection, or entry not found in the collection DB anymore
+                nb_unresolved++;
+                [unresolvedCollections addObject:baseDir];
+                continue;
+            }
+            [requests addObjectsFromArray:entryRequests];
+            nb_queued++;
+        }
+
+        dispatch_async(dispatch_get_main_queue(), ^(void){
+            //Run UI Updates
+            [self queueDownloadRequests:requests];
+            [self hideWaiting];
+
+            NSMutableArray *msgLines=[NSMutableArray array];
+            [msgLines addObject:[NSString stringWithFormat:NSLocalizedString(@"%d file(s) queued for download.",@""),nb_queued]];
+            [msgLines addObject:[NSString stringWithFormat:NSLocalizedString(@"%d file(s) already available.",@""),nb_present]];
+            [msgLines addObject:[NSString stringWithFormat:NSLocalizedString(@"%d file(s) not from an online collection.",@""),nb_notonline]];
+            if (nb_unresolved) {
+                NSArray *sortedCollections=[[unresolvedCollections allObjects] sortedArrayUsingSelector:@selector(caseInsensitiveCompare:)];
+                [msgLines addObject:[NSString stringWithFormat:NSLocalizedString(@"%d file(s) cannot be resolved (%@), browse the collection to download them.",@""),
+                                     nb_unresolved,[sortedCollections componentsJoinedByString:@", "]]];
+            }
+            [self showAlertMsg:NSLocalizedString(@"Info",@"") message:[msgLines componentsJoinedByString:@"\n"]];
+        });
+    });
+}
+
+-(void) downloadMissingPlaylistsEntries {
+    [self loadDownloadController];
+    if (downloadViewController==nil) {
+        [self showAlertMsg:NSLocalizedString(@"Warning",@"") message:NSLocalizedString(@"Download manager is not available.",@"")];
+        return;
+    }
+
+    NSString *message=[NSString stringWithFormat:@"%@\n\n%@\n%@",
+                       NSLocalizedString(@"Check all playlists entries and queue the download of the missing files coming from online collections ?",@""),
+                       NSLocalizedString(@"Supported collections:",@""),
+                       MDZ_RESOLVABLE_COLLECTIONS];
+
+    UIAlertController* alert = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Info",@"")
+                                                                  message:message
+                                                           preferredStyle:UIAlertControllerStyleAlert];
+
+    UIAlertAction* checkAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Check",@"") style:UIAlertActionStyleDefault
+                                                       handler:^(UIAlertAction * action) {
+        [self scanPlaylistsAndDownloadMissingEntries];
+    }];
+    UIAlertAction* cancelAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel",@"") style:UIAlertActionStyleCancel
+                                                         handler:^(UIAlertAction * action) {
+    }];
+
+    [alert addAction:cancelAction];
+    [alert addAction:checkAction];
+    [self presentViewController:alert animated:YES completion:nil];
+}
+
+
 #pragma mark - Table view data source
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
@@ -399,7 +698,7 @@ extern char cleanDB_Status[256];
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return 9;
+    return 10;
 }
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
@@ -475,56 +774,62 @@ extern char cleanDB_Status[256];
     cell.separatorInset = UIEdgeInsetsMake(0, margin, 0, margin);
     
     NSString *txt;
-    switch (indexPath.row) {            
-        case 0: //Clean DB
+    switch (indexPath.row) {
+        case 0: //Download missing playlists entries
+            txt=NSLocalizedString(@"Download missing playlists files",@"");
+            [btn setType:BButtonTypeSuccess];
+            [btn removeTarget:self action:NULL forControlEvents:UIControlEventTouchUpInside];
+            [btn addTarget:self action:@selector(downloadMissingPlaylistsEntries) forControlEvents:UIControlEventTouchUpInside];
+            break;
+        case 1: //Clean DB
             txt=NSLocalizedString(@"Clean Database",@"");
             [btn setType:BButtonTypePrimary];
             [btn removeTarget:self action:NULL forControlEvents:UIControlEventTouchUpInside];
             [btn addTarget:self action:@selector(cleanDB) forControlEvents:UIControlEventTouchUpInside];
             break;
-        case 1: //Clean listening now
+        case 2: //Clean listening now
             txt=NSLocalizedString(@"Clear 'Now Playing' queue",@"");
             [btn setType:BButtonTypePrimary];
             [btn removeTarget:self action:NULL forControlEvents:UIControlEventTouchUpInside];
             [btn addTarget:self action:@selector(clearPNqueue) forControlEvents:UIControlEventTouchUpInside];
             break;
-        case 2: //Recreate Samples folder
+        case 3: //Recreate Samples folder
             txt=NSLocalizedString(@"Recreate Samples folder",@"");
             [btn setType:BButtonTypePrimary];
             [btn removeTarget:self action:NULL forControlEvents:UIControlEventTouchUpInside];
             [btn addTarget:self action:@selector(recreateSamplesFolder) forControlEvents:UIControlEventTouchUpInside];
             break;
-        case 3: //Reset settings to default
+        case 4: //Reset settings to default
             txt=NSLocalizedString(@"Reset settings to default",@"");
             [btn setType:BButtonTypeWarning];
             [btn removeTarget:self action:NULL forControlEvents:UIControlEventTouchUpInside];
             [btn addTarget:self action:@selector(resetSettings) forControlEvents:UIControlEventTouchUpInside];
             break;
-        case 4: //Remove current cover
+        case 5: //Remove current cover
             txt=NSLocalizedString(@"Remove current cover",@"");
             [btn setType:BButtonTypeDanger];
             [btn removeTarget:self action:NULL forControlEvents:UIControlEventTouchUpInside];
             [btn addTarget:self action:@selector(removeCurrentCover) forControlEvents:UIControlEventTouchUpInside];
             break;
-        case 5: //Reset Ratings
+        case 6: //Reset Ratings
             txt=NSLocalizedString(@"Reset Ratings",@"");
             [btn setType:BButtonTypeDanger];
             [btn removeTarget:self action:NULL forControlEvents:UIControlEventTouchUpInside];
             [btn addTarget:self action:@selector(resetRatingsDB) forControlEvents:UIControlEventTouchUpInside];
             break;
-        case 6: //Reset played counter
+        case 7: //Reset played counter
             txt=NSLocalizedString(@"Reset Played Counters",@"");
             [btn setType:BButtonTypeDanger];
             [btn removeTarget:self action:NULL forControlEvents:UIControlEventTouchUpInside];
             [btn addTarget:self action:@selector(resetPlaycountDB) forControlEvents:UIControlEventTouchUpInside];
             break;
-        case 7: //Reset DB
+        case 8: //Reset DB
             txt=NSLocalizedString(@"Reset Database",@"");
             [btn setType:BButtonTypeDanger];
             [btn removeTarget:self action:NULL forControlEvents:UIControlEventTouchUpInside];
             [btn addTarget:self action:@selector(resetDB) forControlEvents:UIControlEventTouchUpInside];
             break;
-        case 8: //Clear image cache
+        case 9: //Clear image cache
             txt=NSLocalizedString(@"Clear images cache",@"");
             [btn setType:BButtonTypeDanger];
             [btn removeTarget:self action:NULL forControlEvents:UIControlEventTouchUpInside];

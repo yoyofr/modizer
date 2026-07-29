@@ -526,6 +526,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
             mntVC=[[SettingsMaintenanceViewController alloc] initWithNibName:@"MaintenanceViewController" bundle:[NSBundle mainBundle]];
             mntVC->detailViewController=detailViewController;
             mntVC->rootVC=rootVC;
+            mntVC->downloadViewController=downloadViewController;
             mntVC.title=NSLocalizedString(@"Maintenance",@"");
         {
             SettingsMaintenanceViewController *childController=mntVC;

@@ -14,6 +14,8 @@
 #import "MiniPlayerVC.h"
 #import "WaitingView.h"
 
+@class DownloadViewController;
+
 @interface SettingsMaintenanceViewController : UIViewController <UINavigationControllerDelegate> {
     IBOutlet UITableView *tableView;
     WaitingView *waitingView,*waitingViewPlayer;
@@ -30,11 +32,13 @@
 @public
     DetailViewControllerIphone *detailViewController;
     RootViewControllerLocalBrowser *rootVC;
+    DownloadViewController *downloadViewController;
 }
 
 @property (nonatomic,retain) IBOutlet UITableView *tableView;
 @property (nonatomic,retain) DetailViewControllerIphone *detailViewController;
 @property (nonatomic,retain) RootViewControllerLocalBrowser *rootVC;
+@property (nonatomic,retain) DownloadViewController *downloadViewController;
 @property (nonatomic, retain) WaitingView *waitingView,*waitingViewPlayer;
 
 -(IBAction) goPlayer;
