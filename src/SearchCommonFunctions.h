@@ -34,19 +34,49 @@ static void sqlite_regexp(sqlite3_context* context, int argc, sqlite3_value** va
 }
 
 
+//-(bool) searchStringRegExp:(NSString*)searchPattern sourceString:(NSString*)sourceString {
+//    NSString *searchExpression;
+//    
+//    if (settings[GLOB_SearchRegExp].detail.mdz_boolswitch.switch_value) {
+//        //replace . by \. and * by .*
+//        searchExpression=[[searchPattern stringByReplacingOccurrencesOfString:@"." withString:@"\\."] stringByReplacingOccurrencesOfString:@"*" withString:@".*"];
+//    } else searchExpression=[NSString stringWithString:searchPattern];
+//    
+//    NSError *error = NULL;
+//    NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:searchExpression options:NSRegularExpressionCaseInsensitive error:&error];
+//    NSUInteger numberOfMatches = [regex numberOfMatchesInString:sourceString options:0 range:NSMakeRange(0, [sourceString length])];
+//    if (numberOfMatches) return true;
+//    else return false;
+//}
+
 -(bool) searchStringRegExp:(NSString*)searchPattern sourceString:(NSString*)sourceString {
-    NSString *searchExpression;
+    bool regexpMode = settings[GLOB_SearchRegExp].detail.mdz_boolswitch.switch_value;
     
-    if (settings[GLOB_SearchRegExp].detail.mdz_boolswitch.switch_value) {
-        //replace . by \. and * by .*
-        searchExpression=[[searchPattern stringByReplacingOccurrencesOfString:@"." withString:@"\\."] stringByReplacingOccurrencesOfString:@"*" withString:@".*"];
-    } else searchExpression=[NSString stringWithString:searchPattern];
+    NSArray *tokens = [searchPattern componentsSeparatedByCharactersInSet:
+                       [NSCharacterSet whitespaceCharacterSet]];
     
-    NSError *error = NULL;
-    NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:searchExpression options:NSRegularExpressionCaseInsensitive error:&error];
-    NSUInteger numberOfMatches = [regex numberOfMatchesInString:sourceString options:0 range:NSMakeRange(0, [sourceString length])];
-    if (numberOfMatches) return true;
-    else return false;
+    for (NSString *token in tokens) {
+        if ([token length] == 0) continue;
+        
+        NSString *expr;
+        if (regexpMode) {
+            expr = [[token stringByReplacingOccurrencesOfString:@"." withString:@"\\."]
+                    stringByReplacingOccurrencesOfString:@"*" withString:@".*"];
+        } else {
+            // échappe tous les métacaractères regex (+, (, [, ?, etc.)
+            expr = [NSRegularExpression escapedPatternForString:token];
+        }
+        
+        NSError *error = NULL;
+        NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:expr
+                                        options:NSRegularExpressionCaseInsensitive error:&error];
+        if (!regex) return false; // pattern invalide
+        
+        if ([regex numberOfMatchesInString:sourceString options:0
+                                     range:NSMakeRange(0, [sourceString length])] == 0)
+            return false; // tous les mots doivent matcher
+    }
+    return true;
 }
 
 -(NSString *) convSearchRegExp:(NSString*)searchPattern {
