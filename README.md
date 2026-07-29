@@ -21,21 +21,22 @@ Modizer is using several playback libraries to support a wide range of music for
 | ------------ | ------------ |
 | - [Adplug](https://github.com/adplug/adplug) | - [Another Slight Atari Player(ASAP)](https://asap.sourceforge.net/) |
 | - [AtariAudio](https://github.com/arnaud-carre/sndh-player) | - [Eupmini](https://github.com/gzaffin/eupmini) |
-| - [ffmpeg/mpg123/vorbis](https://github.com/arthenica/ffmpeg-kit) | - [Game Music Emu](https://github.com/libgme/game-music-emu) | 
-| - [FMPmini](https://github.com/myon98/98fmplayer) | - [HighlyExperimental](https://gitlab.com/kode54/highly_experimental/) |
-| - [HighlyQuixotic](https://gitlab.com/kode54/highly_quixotic/) | - [HighlyTheoritical](https://gitlab.com/kode54/highly_theoretical/) |
-| - [AHX/Hively tracker](https://github.com/pete-gordon/hivelytracker) | - [LazyUSF](https://github.com/derselbst/lazyusf) |
-| - [Libvgm](https://github.com/ValleyBell/libvgm) | - [mdxmini](https://github.com/gzaffin/mdxmini) |
-| - [NSFPlay](https://bbbradsmith.github.io/nsfplay/) | - [libopenmpt](https://lib.openmpt.org/libopenmpt/) |
-| - [PlayGSF](https://github.com/yshui/playgsf) | - [Pmdmini](https://github.com/mistydemeo/pmdmini) |
-| - [PxTone / Organya](https://www.wothke.ch/webPixel/) | - [PT3Player](https://github.com/Volutar/pt3player) |
-| - [SC68](https://github.com/Zeinok/sc68) | - [Sibplayfp](https://github.com/libsidplayfp/sidplayfp) |
-| - [Snes9x/snsf](https://github.com/loveemu/snsf9x) | - [ST-Sound](http://leonard.oxg.free.fr/stsound_download.html) |
-| - [Timidity++](https://timidity.sourceforge.net/) | - [UADE](https://zakalwe.fi/uade/) |
-| - [XSF (2SF, NCSF)](https://github.com/CyberBotX/in_xsf) | - [libXMP](https://github.com/libxmp/libxmp) |
-| - [V2M tinyplayer](https://github.com/jgilje/v2m-player) | - [VGMStream](https://github.com/vgmstream/vgmstream) |
-| - [VIO2SF](https://bitbucket.org/kode54/vio2sf/src/master/) | - [WebSID](https://www.wothke.ch/websid/) |
-| - [WebNEZ](https://bitbucket.org/wothke/webnez/src/master/) | - [ZXTune](https://bitbucket.org/zxtune/zxtune/src/develop/) |
+| - [ffmpeg/mpg123/vorbis](https://github.com/arthenica/ffmpeg-kit) | - [Furnace](https://github.com/tildearrow/furnace) |
+| - [Game Music Emu](https://github.com/libgme/game-music-emu) | - [FMPmini](https://github.com/myon98/98fmplayer) |
+| - [HighlyExperimental](https://gitlab.com/kode54/highly_experimental/) | - [HighlyQuixotic](https://gitlab.com/kode54/highly_quixotic/) |
+| - [HighlyTheoritical](https://gitlab.com/kode54/highly_theoretical/) | - [AHX/Hively tracker](https://github.com/pete-gordon/hivelytracker) |
+| - [LazyUSF](https://github.com/derselbst/lazyusf) | - [Libvgm](https://github.com/ValleyBell/libvgm) |
+| - [mdxmini](https://github.com/gzaffin/mdxmini) | - [NSFPlay](https://bbbradsmith.github.io/nsfplay/) |
+| - [libopenmpt](https://lib.openmpt.org/libopenmpt/) | - [PlayGSF](https://github.com/yshui/playgsf) |
+| - [Pmdmini](https://github.com/mistydemeo/pmdmini) | - [PxTone / Organya](https://www.wothke.ch/webPixel/) |
+| - [PT3Player](https://github.com/Volutar/pt3player) | - [SC68](https://github.com/Zeinok/sc68) |
+| - [Sibplayfp](https://github.com/libsidplayfp/sidplayfp) | - [Snes9x/snsf](https://github.com/loveemu/snsf9x) |
+| - [ST-Sound](http://leonard.oxg.free.fr/stsound_download.html) | - [Timidity++](https://timidity.sourceforge.net/) |
+| - [UADE](https://zakalwe.fi/uade/) | - [XSF (2SF, NCSF)](https://github.com/CyberBotX/in_xsf) |
+| - [libXMP](https://github.com/libxmp/libxmp) | - [V2M tinyplayer](https://github.com/jgilje/v2m-player) |
+| - [VGMStream](https://github.com/vgmstream/vgmstream) | - [VIO2SF](https://bitbucket.org/kode54/vio2sf/src/master/) |
+| - [WebSID](https://www.wothke.ch/websid/) | - [WebNEZ](https://bitbucket.org/wothke/webnez/src/master/) |
+| - [ZXTune](https://bitbucket.org/zxtune/zxtune/src/develop/) |
 
 Other main libs & frameworks:
  - [ASIHTTPRequest](https://allseeing-i.com/ASIHTTPRequest/)
@@ -51,7 +52,8 @@ Other main libs & frameworks:
  - [NVDSP](https://github.com/bartolsthoorn/NVDSP)
  - [ProjectM](https://github.com/projectM-visualizer/projectm): the most advanced open-source music visualizer.
  - [SARUnArchiveANY](https://github.com/saru2020/SARUnArchiveANY)
- - [UnrarKIT](https://github.com/abbeycode/UnrarKit) 
+ - [UnrarKIT](https://github.com/abbeycode/UnrarKit)
+ - [mvtiaine UADE songlengths](https://github.com/mvtiaine/audacious-uade) 
 
 ## Star History
 

@@ -3352,6 +3352,7 @@
 
 /* Begin PBXFileReference section */
 		0F8FF2F2301A3C70001C281B /* songlengths.tsv.gz */ = {isa = PBXFileReference; lastKnownFileType = archive.gzip; path = songlengths.tsv.gz; sourceTree = "<group>"; };
+		0F8FF321301A4F7D001C281B /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		1D30AB110D05D00D00671497 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		1D6058910D05DD3D006BFB54 /* modizer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = modizer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1DF5F4DF0D08C38300B7A737 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
@@ -5163,6 +5164,7 @@
 		29B97314FDCFA39411CA2CEA /* CustomTemplate */ = {
 			isa = PBXGroup;
 			children = (
+				0F8FF321301A4F7D001C281B /* README.md */,
 				596117D5262AC74000B0F991 /* XIB */,
 				59B9991425CFDF8F0071E144 /* utils */,
 				593925CB25CF0C56009281DC /* libs */,
