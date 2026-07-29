@@ -28,6 +28,8 @@ static struct {
 } g;
 
 void fmpmini_init(void) {
+    fmpmini_close();
+    if (g.lastopenpath) free((void*)g.lastopenpath);
     g.lastopenpath=NULL;
     g.max_loop=2;
     g.mutemask=0;
@@ -39,6 +41,7 @@ void fmpmini_setMaxLoop(int loop) {
 
 void fmpmini_close(void) {
     fmplayer_file_free(g.fmfile);
+    g.fmfile = NULL;
 }
 
 void fmpmini_mute(int mask) {
@@ -48,6 +51,7 @@ void fmpmini_mute(int mask) {
 }
 
 const char *fmpmini_getName(void) {
+    if (!g.fmfile) return NULL;
     return g.fmfile->filename_sjis;
 }
 
@@ -84,7 +88,7 @@ void fmpmini_reset(void) {
 }
 
 int fmpmini_channelsNb(void){
-    if (!(g.lastopenpath)) return 0;
+    if (!(g.lastopenpath) || !(g.fmfile)) return 0;
     
     if (g.fmfile->driver.fmp.pvi_name[0] || g.fmfile->driver.fmp.ppz_name[0]) return 16+fmp_ppz8_maxChannel;
     else return 16;
