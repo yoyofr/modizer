@@ -110,6 +110,48 @@ NSDictionary *cAMPcountryFlags = @{
 
 #import "AlertsCommonFunctions.h"
 
+//
+// AMP searches are posted: passing the search term in the query string breaks on the entries
+// holding a quote (%27). The base URL already carries the fixed parameters (request=..., search=),
+// they are moved to the POST body, the search one being replaced by the user text.
+//
+-(NSURLRequest*) buildAMPSearchRequest:(NSString*)baseURL search:(NSString*)searchText position:(int)position {
+    NSRange q=[baseURL rangeOfString:@"?"];
+    NSString *endpoint=(q.location==NSNotFound?baseURL:[baseURL substringToIndex:q.location]);
+    NSString *query=(q.location==NSNotFound?@"":[baseURL substringFromIndex:q.location+1]);
+
+    NSURL *url=[NSURL URLWithString:endpoint];
+    if (url==nil) return nil;
+
+    //x-www-form-urlencoded: only the unreserved characters are kept as-is
+    NSCharacterSet *allowed=[NSCharacterSet characterSetWithCharactersInString:
+                             @"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~"];
+    NSMutableArray *pairs=[NSMutableArray array];
+
+    for (NSString *param in [query componentsSeparatedByString:@"&"]) {
+        if ([param length]==0) continue;
+        NSRange eq=[param rangeOfString:@"="];
+        NSString *key=(eq.location==NSNotFound?param:[param substringToIndex:eq.location]);
+        NSString *value=(eq.location==NSNotFound?@"":[param substringFromIndex:eq.location+1]);
+        if ([value stringByRemovingPercentEncoding]) value=[value stringByRemovingPercentEncoding];
+        if (searchText&&[key isEqualToString:@"search"]) value=searchText;
+
+        NSString *encKey=[key stringByAddingPercentEncodingWithAllowedCharacters:allowed];
+        NSString *encValue=[value stringByAddingPercentEncodingWithAllowedCharacters:allowed];
+        if (encKey&&encValue) [pairs addObject:[NSString stringWithFormat:@"%@=%@",encKey,encValue]];
+    }
+    [pairs addObject:[NSString stringWithFormat:@"position=%d",position]];
+
+    NSMutableURLRequest *request=[NSMutableURLRequest requestWithURL:url
+                                                        cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
+                                                    timeoutInterval:30];
+    [request setHTTPMethod:@"POST"];
+    [request setValue:@"application/x-www-form-urlencoded" forHTTPHeaderField:@"Content-Type"];
+    [request setHTTPBody:[[pairs componentsJoinedByString:@"&"] dataUsingEncoding:NSUTF8StringEncoding]];
+
+    return request;
+}
+
 typedef struct {
     NSString *file_URL;
     NSString *file_name;
@@ -1238,19 +1280,21 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
             [self showWaiting];
         });
         
+        NSURLRequest *urlRequest=nil;
         if (browse_subMode==AMP_LINK_SEARCH_GROUPS_LIST) {
-            if ([mSearchText length]>0) {
-                url = [NSURL URLWithString:[[NSString stringWithFormat:@"%@%@&position=%d",mWebBaseURL,mSearchText,arr_current_fetch_position] stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]]];
-            } else {
-                url = [NSURL URLWithString:@""];
-            }
-        } else url = [NSURL URLWithString:[[NSString stringWithFormat:@"%@&position=%d",mWebBaseURL,arr_current_fetch_position]stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]]];
+            //posted, a GET breaks on the search terms holding a quote
+            if ([mSearchText length]>0) urlRequest=[self buildAMPSearchRequest:mWebBaseURL search:mSearchText position:arr_current_fetch_position];
+            if (urlRequest==nil) urlRequest=[NSURLRequest requestWithURL:[NSURL URLWithString:@""]];
+        } else {
+            url = [NSURL URLWithString:[[NSString stringWithFormat:@"%@&position=%d",mWebBaseURL,arr_current_fetch_position] stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]]];
+            urlRequest=[NSURLRequest requestWithURL:url];
+        }
         
         
         NSURLSession *session = [NSURLSession sharedSession];
 
         NSURLSessionDataTask *task =
-        [session dataTaskWithURL:url
+        [session dataTaskWithRequest:urlRequest
                completionHandler:^(NSData * _Nullable data,
                                    NSURLResponse * _Nullable response,
                                    NSError * _Nullable error)
@@ -1422,19 +1466,21 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
             [self showWaiting];
         });
         
+        NSURLRequest *urlRequest=nil;
         if (browse_subMode==AMP_LINK_SEARCH_COMPOSERS_LIST) {
-            if ([mSearchText length]>0) {
-                url = [NSURL URLWithString:[[NSString stringWithFormat:@"%@%@&position=%d",mWebBaseURL,mSearchText,arr_current_fetch_position]stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]]];
-            } else {
-                url = [NSURL URLWithString:@""];
-            }
-        } else url = [NSURL URLWithString:[[NSString stringWithFormat:@"%@&position=%d",mWebBaseURL,arr_current_fetch_position]stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]]];
+            //posted, a GET breaks on the search terms holding a quote
+            if ([mSearchText length]>0) urlRequest=[self buildAMPSearchRequest:mWebBaseURL search:mSearchText position:arr_current_fetch_position];
+            if (urlRequest==nil) urlRequest=[NSURLRequest requestWithURL:[NSURL URLWithString:@""]];
+        } else {
+            url = [NSURL URLWithString:[[NSString stringWithFormat:@"%@&position=%d",mWebBaseURL,arr_current_fetch_position] stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]]];
+            urlRequest=[NSURLRequest requestWithURL:url];
+        }
         
         
         NSURLSession *session = [NSURLSession sharedSession];
 
         NSURLSessionDataTask *task =
-        [session dataTaskWithURL:url
+        [session dataTaskWithRequest:urlRequest
                completionHandler:^(NSData * _Nullable data,
                                    NSURLResponse * _Nullable response,
                                    NSError * _Nullable error)
@@ -1735,18 +1781,20 @@ int qsortAMP_entries_rating_or_entries(const void *entryA, const void *entryB) {
             [self showWaiting];
         });
         
+        NSURLRequest *urlRequest=nil;
         if (browse_subMode==AMP_LINK_SEARCH_MODULES_LIST) {
-            if ([mSearchText length]>0) {
-                url = [NSURL URLWithString:[[NSString stringWithFormat:@"%@%@&position=%d",mWebBaseURL,mSearchText,arr_current_fetch_position]stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]]];
-            } else {
-                url = [NSURL URLWithString:@""];
-            }
-        } else url = [NSURL URLWithString:[[NSString stringWithFormat:@"%@&position=%d",mWebBaseURL,arr_current_fetch_position]stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]]];
+            //posted, a GET breaks on the search terms holding a quote
+            if ([mSearchText length]>0) urlRequest=[self buildAMPSearchRequest:mWebBaseURL search:mSearchText position:arr_current_fetch_position];
+            if (urlRequest==nil) urlRequest=[NSURLRequest requestWithURL:[NSURL URLWithString:@""]];
+        } else {
+            url = [NSURL URLWithString:[[NSString stringWithFormat:@"%@&position=%d",mWebBaseURL,arr_current_fetch_position] stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]]];
+            urlRequest=[NSURLRequest requestWithURL:url];
+        }
         
         NSURLSession *session = [NSURLSession sharedSession];
 
         NSURLSessionDataTask *task =
-        [session dataTaskWithURL:url
+        [session dataTaskWithRequest:urlRequest
                completionHandler:^(NSData * _Nullable data,
                                    NSURLResponse * _Nullable response,
                                    NSError * _Nullable error)

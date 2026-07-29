@@ -31,6 +31,7 @@ typedef struct {
 	short int playcounts;
 	signed char ratings;
 	char channels_nb;
+    char missing; //1: file not available locally
 } t_playlist_entry;
 
 

@@ -51,6 +51,9 @@ static char **browser_sidtune_title,**browser_sidtune_name;
 #import "AppDelegate_Phone.h"
 #import "RootViewControllerPlaylist.h"
 #import "DetailViewControllerIphone.h"
+#import "DownloadViewController.h"
+#import "ModizerTypes.h"
+#import "RootViewControllerJoshWWebParser.h"
 #import "WebBrowser.h"
 #import "QuartzCore/CAAnimation.h"
 #import "SettingsGenViewController.h"
@@ -91,6 +94,98 @@ extern volatile t_settings settings[MAX_SETTINGS];
 #pragma mark -
 #pragma mark Waiting view functions
 #include "WaitingViewCommonMethods.h"
+
+#pragma mark -
+#pragma mark Online collections download functions
+#include "OnlineCollectionsCommonFunctions.h"
+
+#pragma mark -
+#pragma mark Missing playlist entries
+
+//
+// Flag the playlist entries which are not available locally, and count the ones which can be
+// re-downloaded from a resolvable online collection.
+//
+-(void) updatePlaylistMissingStatus {
+    mNbMissingEntries=0;
+    mNbMissingDownloadable=0;
+    if ((playlist==NULL)||(show_playlist==0)) return;
+
+    for (int i=0;i<playlist->nb_entries;i++) {
+        if (playlist->entries[i].fullpath==nil) continue;
+        if ([self isLocalFileAvailable:playlist->entries[i].fullpath]) {
+            playlist->entries[i].missing=0;
+            continue;
+        }
+        playlist->entries[i].missing=1;
+        mNbMissingEntries++;
+
+        NSString *localPath=[ModizFileHelper getFullCleanFilePath:playlist->entries[i].fullpath];
+        NSString *baseDir=[self onlineCollectionBaseDirForLocalPath:localPath];
+        if (baseDir&&[self isResolvableCollectionBaseDir:baseDir]) mNbMissingDownloadable++;
+    }
+
+    [self updateMissingEntriesBanner];
+}
+
+//banner displayed on top of the playlist when some entries are not available locally
+-(void) updateMissingEntriesBanner {
+    if ((show_playlist==0)||(mNbMissingEntries==0)) {
+        tableView.tableHeaderView=nil;
+        return;
+    }
+
+    UIView *banner=[[UIView alloc] initWithFrame:CGRectMake(0,0,tableView.bounds.size.width,40)];
+    banner.autoresizingMask=UIViewAutoresizingFlexibleWidth;
+    banner.backgroundColor=[UIColor colorWithRed:0.80 green:0.42 blue:0.10 alpha:1.0];
+
+    UILabel *lbl=[[UILabel alloc] initWithFrame:CGRectInset(banner.bounds,8,2)];
+    lbl.autoresizingMask=UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
+    lbl.numberOfLines=2;
+    lbl.adjustsFontSizeToFitWidth=YES;
+    lbl.minimumScaleFactor=0.7;
+    lbl.textAlignment=NSTextAlignmentCenter;
+    lbl.font=[UIFont systemFontOfSize:13 weight:UIFontWeightSemibold];
+    lbl.textColor=[UIColor whiteColor];
+    lbl.backgroundColor=[UIColor clearColor];
+
+    if (mNbMissingDownloadable) {
+        lbl.text=[NSString stringWithFormat:NSLocalizedString(@"%d missing file(s), %d can be downloaded. Tap to download.",@""),mNbMissingEntries,mNbMissingDownloadable];
+        UITapGestureRecognizer *tap=[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(downloadPlaylistMissingEntries)];
+        banner.userInteractionEnabled=YES;
+        [banner addGestureRecognizer:tap];
+    } else {
+        lbl.text=[NSString stringWithFormat:NSLocalizedString(@"%d missing file(s)",@""),mNbMissingEntries];
+    }
+    [banner addSubview:lbl];
+
+    tableView.tableHeaderView=banner;
+}
+
+-(NSArray*) collectPlaylistMissingFullpaths {
+    NSMutableArray *fullpaths=[NSMutableArray array];
+    if ((playlist==NULL)||(show_playlist==0)) return fullpaths;
+
+    for (int i=0;i<playlist->nb_entries;i++) {
+        if (playlist->entries[i].missing&&playlist->entries[i].fullpath)
+            [fullpaths addObject:playlist->entries[i].fullpath];
+    }
+    return fullpaths;
+}
+
+-(void) downloadPlaylistMissingEntries {
+    [self confirmDownloadMissingEntriesForPaths:[self collectPlaylistMissingFullpaths]];
+}
+
+-(void) addDownloadMissingActionTo:(UIAlertController*)alertC {
+    if (mNbMissingDownloadable<=0) return;
+    UIAlertAction* downloadMissingAction = [UIAlertAction actionWithTitle:NSLocalizedString(@"Download missing files",@"") style:UIAlertActionStyleDefault
+                                                                 handler:^(UIAlertAction * action) {
+        [self downloadPlaylistMissingEntries];
+    }];
+    [alertC addAction:downloadMissingAction];
+}
+
 
 - (void)setEditing:(BOOL)editing animated:(BOOL)animated {
     [super setEditing:editing animated:animated];
@@ -852,6 +947,7 @@ END_PROFILE
                 //no real refresh needed
                 break;
         }
+        [self updatePlaylistMissingStatus];
     } else {
         //do not show playlist -> in browsing mode
         [self listLocalFiles];
@@ -2515,6 +2611,10 @@ int getPlaylistStatsDBmod(t_playlist *pl) {
 }
 
 -(void) refreshViewAfterDownload {
+    if (show_playlist) {
+        [self updatePlaylistMissingStatus];
+        [tableView reloadData];
+    }
 }
 
 -(void) traitCollectionDidChange:(UITraitCollection *)previousTraitCollection {
@@ -3296,8 +3396,18 @@ trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
                 tmp_str = [[filename_parts subarrayWithRange:NSMakeRange(1,[filename_parts count]-1)] componentsJoinedByString:@"/"];
                 
                 bottomLabel.text=[tmp_str stringByAppendingFormat:@" | Pl:%d ",playlist->entries[row-2].playcounts];
-                
-                
+
+                if (playlist->entries[row-2].missing) {
+                    //file not available locally: grey out the entry
+                    if (darkMode) {
+                        topLabel.textColor = [UIColor colorWithRed:0.45 green:0.45 blue:0.45 alpha:1.0];
+                        bottomLabel.textColor = [UIColor colorWithRed:0.35 green:0.35 blue:0.35 alpha:1.0];
+                    } else {
+                        topLabel.textColor = [UIColor colorWithRed:0.6 green:0.6 blue:0.6 alpha:1.0];
+                        bottomLabel.textColor = [UIColor colorWithRed:0.7 green:0.7 blue:0.7 alpha:1.0];
+                    }
+                }
+
                 bottomLabel.frame = CGRectMake( 1.0 * cell.indentationWidth+20,
                                                22,
                                                tabView.bounds.size.width -1.0 * cell.indentationWidth-32-20,
@@ -4278,6 +4388,7 @@ trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
                     }];
                     [alertC addAction:deleteAction];
                     
+                    [self addDownloadMissingActionTo:alertC];
                     [self showAlert:alertC];
                 } else { //"now playing", "most played", "favorites" playlists -> does not exist in DB
                     UIAlertController *alertC;
@@ -4334,6 +4445,7 @@ trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
                         }];
                         [alertC addAction:sortZAActionFP];
                         
+                        [self addDownloadMissingActionTo:alertC];
                         [self showAlert:alertC];
                     } else if ((integrated_playlist==INTEGRATED_PLAYLIST_MOSTPLAYED)||(integrated_playlist==INTEGRATED_PLAYLIST_FAVORITES)) {
                         alertC = [UIAlertController alertControllerWithTitle:nil
@@ -4356,6 +4468,7 @@ trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
                         }];
                         [alertC addAction:editAction];
                         
+                        [self addDownloadMissingActionTo:alertC];
                         [self showAlert:alertC];
                         
                     } else if (integrated_playlist==INTEGRATED_PLAYLIST_RANDOM) {
@@ -4373,6 +4486,7 @@ trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath {
                         }];
                         [alertC addAction:saveAction];
                         
+                        [self addDownloadMissingActionTo:alertC];
                         [self showAlert:alertC];
                         
                     }

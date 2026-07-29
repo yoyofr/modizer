@@ -19,6 +19,7 @@
 #import "Notifications.h"
 
 @class DetailViewControllerIphone;
+@class DownloadViewController;
 
 @interface RootViewControllerPlaylist : UIViewController <UINavigationControllerDelegate,UISearchBarDelegate,UIActionSheetDelegate,UIGestureRecognizerDelegate,CMPopTipViewDelegate> {
 	NSString *ratingImg[3];
@@ -79,6 +80,10 @@
     
     NSTimer *repeatTimer;
     int activeKey;
+
+    DownloadViewController *downloadViewController;
+    int mNbMissingEntries;          //playlist entries not available locally
+    int mNbMissingDownloadable;     //subset coming from a resolvable online collection
 @public
     IBOutlet UITableView *tableView;
 
