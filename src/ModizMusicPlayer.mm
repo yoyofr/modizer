@@ -607,6 +607,10 @@ int sid_v4;
 M3u_Playlist m3uReader;
 char m3uReader_adjofs;
 
+// "!tags.m3u" additional tags reader
+#include "M3UTagsParser.h"
+M3U_Tags m3uTags;
+
 
 /* file types */
 static char gmetype[64];
@@ -15239,6 +15243,32 @@ extern bool icloud_available;
     }
 }
 
+//
+// Override the title/artist/album of the entry being loaded with the ones provided by a
+// "!tags.m3u" file, when the archive holds one (cf M3UTagsParser.h).
+//
+-(void) applyM3UTags {
+    if (!m3uTags.loaded()) return;
+
+    const char *tagAlbum=m3uTags.globalTag("ALBUM");
+    if (tagAlbum && tagAlbum[0]) album=[NSString stringWithUTF8String:tagAlbum];
+
+    const char *tagArtist=m3uTags.globalTag("ARTIST");
+
+    if (mdz_IsArchive && mdz_ArchiveFilesList &&
+        (mdz_currentArchiveIndex>=0) && (mdz_currentArchiveIndex<mdz_ArchiveFilesCnt)) {
+        const char *entryFile=mdz_ArchiveFilesList[mdz_currentArchiveIndex];
+
+        const char *tagTitle=m3uTags.fileTag(entryFile,"TITLE");
+        if (tagTitle && tagTitle[0]) mod_title=[NSString stringWithUTF8String:tagTitle];
+
+        const char *tagEntryArtist=m3uTags.fileTag(entryFile,"ARTIST");
+        if (tagEntryArtist && tagEntryArtist[0]) tagArtist=tagEntryArtist;
+    }
+
+    if (tagArtist && tagArtist[0]) artist=[NSString stringWithUTF8String:tagArtist];
+}
+
 -(int) LoadModule:(NSString*)_filePath archiveMode:(int)archiveMode archiveIndex:(int)archiveIndex singleSubMode:(int)singleSubMode singleArcMode:(int)singleArcMode detailVC:(DetailViewControllerIphone*)detailVC isRestarting:(bool)isRestarting shuffle:(bool)shuffle{
     NSArray *filetype_extARCHIVE=[SUPPORTED_FILETYPE_ARCHIVE componentsSeparatedByString:@","];
     NSArray *filetype_extMDX=[SUPPORTED_FILETYPE_MDX componentsSeparatedByString:@","];
@@ -15342,7 +15372,12 @@ extern bool icloud_available;
     mdz_defaultSIDPLAYER=settings[GLOB_DefaultSIDPlayer].detail.mdz_switch.switch_value;
     
     if (archiveMode==0) {
+        //only reset when the archive is (re)scanned: with archiveMode!=0 we are switching to
+        //another entry of the archive already parsed, and both readers must stay valid
         m3uArchiveMode=0;
+        m3uReader.clear();
+        m3uTags.clear();
+
         bool skip_extract=false;
         
         if ([_filePath isEqualToString:last_archive_filepath]) {
@@ -15480,7 +15515,8 @@ extern bool icloud_available;
                     __block bool m3uFound=false;
                     __block NSString *m3uFilePath=nil;
                     __block bool noArcM3Umode=false;
-                    __block unsigned long long maxFileSize=0;
+                    __block int maxM3USize=0;
+                    __block NSString *tagM3UFilePath=nil;
                     NSArray *extNoArcM3Umode=@[@"nsf",@"nsfe",@"kss",@"gbs",@"sgc",@"wsr"];
                     
                     NSArray* dirEntries = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:[NSString stringWithFormat:@"%@/tmpArchive",NSTemporaryDirectory()] error:NULL];
@@ -15489,18 +15525,21 @@ extern bool icloud_available;
                         NSString *filename = (NSString *)obj;
                         NSString *fullPath = [NSString stringWithFormat:@"%@/tmpArchive/%@",NSTemporaryDirectory(),filename];
 
-                        // Récupération des attributs
-                        NSDictionary *attributes = [[NSFileManager defaultManager] attributesOfItemAtPath:fullPath error:nil];
-
-                        // Taille du fichier en octets
-                        unsigned long long fileSize = [attributes fileSize];
-                        
                         NSString *extension = [[filename pathExtension] lowercaseString];
                         if ([extension isEqualToString:@"m3u"]) {
-                            m3uFound=true;
-                            if ( (m3uFilePath==nil) || (fileSize>maxFileSize) ) {
-                                m3uFilePath=[NSString stringWithFormat:@"%@/tmpArchive/%@",NSTemporaryDirectory(),filename];
-                                maxFileSize=fileSize;
+                            if ([[filename lowercaseString] isEqualToString:@"!tags.m3u"]) {
+                                //not a playlist but a tags only file, parsed apart (cf M3UTagsParser.h)
+                                tagM3UFilePath=fullPath;
+                            } else {
+                                m3uFound=true;
+                                //take the M3U with max entries
+                                m3uReader.clear();
+                                m3uReader.load([fullPath UTF8String]);
+                                int M3USize=m3uReader.size();
+                                if ( (m3uFilePath==nil) || (M3USize>maxM3USize) ) {
+                                    m3uFilePath=fullPath;
+                                    maxM3USize=M3USize;
+                                }
                             }
                         }
                         for (NSString *tmpExt in extNoArcM3Umode) {
@@ -15517,6 +15556,7 @@ extern bool icloud_available;
                         m3uReader.clear();
                         m3uReader_adjofs=0;
                         m3uReader.load(plfile);
+
                         if (m3uReader.size()) {
                             //MDZILog("m3u file found in archive, entries nb: %d",m3uReader.size());
                             m3uArchiveMode=1;
@@ -15599,7 +15639,25 @@ extern bool icloud_available;
                         //update file
                         DBHelper::updateFileStatsDBmod([[NSString stringWithFormat:@"%@",mod_loadmodule_filepath] lastPathComponent],[NSString stringWithFormat:@"%@",mod_loadmodule_filepath],-1,-1,-1,totalTime,8,-mdz_ArchiveFilesCnt);
                     }
-                    
+
+                    //additional tags provided by a "!tags.m3u" file, they take precedence over the
+                    //names coming from the playlist m3u
+                    if (tagM3UFilePath && mdz_ArchiveFilesCnt) {
+                        if (m3uTags.load([tagM3UFilePath UTF8String])) {
+                            if (mdz_ArchiveEntryTitle==NULL) {
+                                mdz_ArchiveEntryTitle=(char**)malloc(mdz_ArchiveFilesCnt*sizeof(char*));
+                                memset(mdz_ArchiveEntryTitle,0,mdz_ArchiveFilesCnt*sizeof(char*));
+                            }
+                            for (int i=0;i<mdz_ArchiveFilesCnt;i++) {
+                                const char *tagTitle=m3uTags.fileTag(mdz_ArchiveFilesList[i],"TITLE");
+                                if ((tagTitle==NULL)||(tagTitle[0]==0)) continue;
+                                if (mdz_ArchiveEntryTitle[i]) free(mdz_ArchiveEntryTitle[i]);
+                                mdz_ArchiveEntryTitle[i]=(char*)malloc(strlen(tagTitle)+1);
+                                strcpy(mdz_ArchiveEntryTitle[i],tagTitle);
+                            }
+                        }
+                    }
+
                     if (mdz_IsArchive && mdz_ArchiveFilesCnt) {
                         mdz_ArchiveEntryPlayed=(int*)malloc(mdz_ArchiveFilesCnt*sizeof(int));
                         memset(mdz_ArchiveEntryPlayed,0,mdz_ArchiveFilesCnt*sizeof(int));
@@ -16167,7 +16225,9 @@ extern bool icloud_available;
     [self initSubSongPlayed];
     no_reentrant=false;
     mLoadModuleStatus=retval;
-    
+
+    [self applyM3UTags];
+
     if (m_genNumMidiVoicesChannels==0) m_genNumMidiVoicesChannels=m_genNumVoicesChannels;
     
     mdzSilentBufferLimit=settings[GLOB_SilenceDetection].detail.mdz_slider.slider_value*PLAYBACK_FREQ/SOUND_BUFFER_SIZE_SAMPLE;
@@ -16914,7 +16974,10 @@ extern bool icloud_available;
             if (m3uArchiveMode) {
                 NEZSetSongNo(_nezPlay, mod_currentsub+1);
                 iModuleLength=mdz_ArchiveEntryMonoSubLength[mdz_currentArchiveIndex];
-                mod_title=[NSString stringWithUTF8String:m3uReader[mdz_currentArchiveIndex].name];
+                //do not index m3uReader here: the per format loaders reset it, the archive entries
+                //data has been copied to mdz_ArchiveEntry* at load time for that reason
+                if (mdz_ArchiveEntryTitle && mdz_ArchiveEntryTitle[mdz_currentArchiveIndex])
+                    mod_title=[NSString stringWithUTF8String:mdz_ArchiveEntryTitle[mdz_currentArchiveIndex]];
             } else {
                 if (m3uReader.size()) {
                     NEZSetSongNo(_nezPlay, m3uReader[mod_currentsub-mod_minsub].track+1);
