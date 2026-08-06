@@ -19429,35 +19429,27 @@ extern "C" void adjust_amplification(void);
                             //                            if (active) ChipOpts[vgmplay_activeChipsID[i]].RF5C68.ChnMute1&=~(1<<(channel-idx));
                             //                            else ChipOpts[vgmplay_activeChipsID[i]].RF5C68.ChnMute1|=1<<(channel-idx);
                             break;
-                            //                        case 6: {//YM2203
-                            // chnmute1 3bits -> fff f:fm 3ch
-                            // chnmute3, 3bits -> yyy y:ay 3ch
-                            //                            int voice=channel-idx;
-                            //                            if (voice<3) {
-                            //                                if (active) ChipOpts[vgmplay_activeChipsID[i]].YM2203.ChnMute1&=~(1<<voice);
-                            //                                else ChipOpts[vgmplay_activeChipsID[i]].YM2203.ChnMute1|=(1<<voice);
-                            //                            } else {
-                            //                                if (active) ChipOpts[vgmplay_activeChipsID[i]].YM2203.ChnMute3&=~(1<<(voice-3));
-                            //                                else ChipOpts[vgmplay_activeChipsID[i]].YM2203.ChnMute3|=(1<<(voice-3));
-                            //                            }
-                            //                            break;
-                            //                        }
-                            //                        case DEVID_YM2608:{ //YM2608: 16voices:
-                            // chnmute1 & chnmute2, 13bits -> daaaaaaffffff   d:delta 1ch, a:adpcm 6ch, f:fm 6ch
-                            // chnmute3, 3bits -> yyy y:ay 3ch
-                            //                            int voice=channel-idx;
-                            //                            if (voice<6) {
-                            //                                if (active) ChipOpts[vgmplay_activeChipsID[i]].YM2608.ChnMute1&=~(1<<voice);
-                            //                                else ChipOpts[vgmplay_activeChipsID[i]].YM2608.ChnMute1|=(1<<voice);
-                            //                            } else if (voice<13) {
-                            //                                if (active) ChipOpts[vgmplay_activeChipsID[i]].YM2608.ChnMute2&=~(1<<(voice-6));
-                            //                                else ChipOpts[vgmplay_activeChipsID[i]].YM2608.ChnMute2|=(1<<(voice-6));
-                            //                            } else {
-                            //                                if (active) ChipOpts[vgmplay_activeChipsID[i]].YM2608.ChnMute3&=~(1<<(voice-13));
-                            //                                else ChipOpts[vgmplay_activeChipsID[i]].YM2608.ChnMute3|=(1<<(voice-13));
-                            //                            }
-                            //                            break;
-                            //                        }
+                        case DEVID_YM2203: {//YM2203  3 FM channels and then 3 SSG
+                            if (chip_channel<3) {
+                                if (active) muteOpts.chnMute[0]&=~(1<<chip_channel);
+                                else muteOpts.chnMute[0]|=1<<chip_channel;
+                            } else {
+                                if (active) muteOpts.chnMute[1]&=~(1<<(chip_channel-3));
+                                else muteOpts.chnMute[1]|=1<<(chip_channel-3);
+                            }
+                            break;
+                        }
+                            
+                        case DEVID_YM2608:{ //YM2608: 16voicesn last 3 are SSG
+                            if (chip_channel<13) {
+                                if (active) muteOpts.chnMute[0]&=~(1<<chip_channel);
+                                else muteOpts.chnMute[0]|=1<<chip_channel;
+                            } else {
+                                if (active) muteOpts.chnMute[1]&=~(1<<(chip_channel-13));
+                                else muteOpts.chnMute[1]|=1<<(chip_channel-13);
+                            }
+                            break;                            
+                        }
                         case DEVID_YM2610://YM2610: 14voices (4 fm), YM2610b: 16voices (6 fm)
                             //                             chnmute1 & chnmute2, 13bits -> daaaaaaffffff   d:delta 1ch, a:adpcm 6ch, f:fm 6ch
                             //                             chnmute3, 3bits -> yyy y:ay 3ch
