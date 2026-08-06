@@ -1125,13 +1125,82 @@ char *vgmGetVoiceDetailedVoiceName(UINT8 chipdId,UINT8 channel) {
                 else snprintf(vgm_voice_name,32,"SSG %d",channel-4-6-1+1);
             }
             break;
-        case DEVID_C352: //C352
-            snprintf(vgm_voice_name,32,"PCM %d",channel+1);
+        case DEVID_OKIM6258:
+        case DEVID_OKIM6295:
+            snprintf(vgm_voice_name,32,"ADPCM %d",channel+1);
             break;
+        case DEVID_uPD7759:
+            snprintf(vgm_voice_name,32,"ADPCM");
+            break;
+        case DEVID_C140:
+        case DEVID_C219:
+        case DEVID_C352:
         case DEVID_GA20: //IREM GA20
+        case DEVID_SEGAPCM:
+        case DEVID_RF5C68:
+        case DEVID_K054539:
+        case DEVID_K053260:
+        case DEVID_QSOUND:
+        case DEVID_SCSP:
+        case DEVID_YMW258: //MultiPCM
+        case DEVID_YMZ280B:
             snprintf(vgm_voice_name,32,"PCM %d",channel+1);
             break;
-            
+        case DEVID_YM2151:
+        case DEVID_YM3812:
+        case DEVID_YM3526:
+        case DEVID_YMF262:
+        case DEVID_YMF271:
+            snprintf(vgm_voice_name,32,"FM %d",channel+1);
+            break;
+        case DEVID_Y8950:
+            if (channel<9) snprintf(vgm_voice_name,32,"FM %d",channel+1);
+            else snprintf(vgm_voice_name,32,"ADPCM");
+            break;
+        case DEVID_YMF278B: //OPL4: 24 wavetable + linked OPL3
+            if (channel<24) snprintf(vgm_voice_name,32,"Wave %d",channel+1);
+            else snprintf(vgm_voice_name,32,"FM %d",channel-24+1);
+            break;
+        case DEVID_AY8910:
+        case DEVID_POKEY:
+        case DEVID_SAA1099:
+        case DEVID_MIKEY:
+            snprintf(vgm_voice_name,32,"PSG %d",channel+1);
+            break;
+        case DEVID_K051649: //SCC
+            snprintf(vgm_voice_name,32,"SCC %d",channel+1);
+            break;
+        case DEVID_ES5503:
+        case DEVID_X1_010:
+            snprintf(vgm_voice_name,32,"Wave %d",channel+1);
+            break;
+        case DEVID_32X_PWM:
+            snprintf(vgm_voice_name,32,"PWM %s",channel==0?"L":"R");
+            break;
+        case DEVID_GB_DMG: {
+            static const char * const gb_names[4]={"Pulse 1","Pulse 2","Wave","Noise"};
+            if (channel<4) snprintf(vgm_voice_name,32,"%s",gb_names[channel]);
+            break;
+        }
+        case DEVID_NES_APU: {
+            static const char * const nes_names[6]={"Pulse 1","Pulse 2","Triangle","Noise","DPCM","FDS"};
+            if (channel<6) snprintf(vgm_voice_name,32,"%s",nes_names[channel]);
+            break;
+        }
+        case DEVID_VBOY_VSU:
+            if (channel<5) snprintf(vgm_voice_name,32,"Wave %d",channel+1);
+            else snprintf(vgm_voice_name,32,"Noise");
+            break;
+        case DEVID_C6280: //channels 5-6 can switch to noise
+            if (channel<4) snprintf(vgm_voice_name,32,"Wave %d",channel+1);
+            else snprintf(vgm_voice_name,32,"Wave/Noise %d",channel+1);
+            break;
+        case DEVID_WSWAN: {
+            static const char * const ws_names[4]={"Wave 1","Wave 2/Voice","Wave 3/Sweep","Wave 4/Noise"};
+            if (channel<4) snprintf(vgm_voice_name,32,"%s",ws_names[channel]);
+            break;
+        }
+
     }
     return vgm_voice_name;
 }
@@ -19448,7 +19517,7 @@ extern "C" void adjust_amplification(void);
                                 if (active) muteOpts.chnMute[1]&=~(1<<(chip_channel-13));
                                 else muteOpts.chnMute[1]|=1<<(chip_channel-13);
                             }
-                            break;                            
+                            break;
                         }
                         case DEVID_YM2610://YM2610: 14voices (4 fm), YM2610b: 16voices (6 fm)
                             //                             chnmute1 & chnmute2, 13bits -> daaaaaaffffff   d:delta 1ch, a:adpcm 6ch, f:fm 6ch
