@@ -1,32 +1,32 @@
 {"header" : {
   "cloc_url"           : "github.com/AlDanial/cloc",
   "cloc_version"       : "1.98",
-  "elapsed_seconds"    : 30.3249740600586,
-  "n_files"            : 29703,
-  "n_lines"            : 13891468,
-  "files_per_second"   : 979.48970842228,
-  "lines_per_second"   : 458086.72325615,
+  "elapsed_seconds"    : 23.8440389633179,
+  "n_files"            : 29738,
+  "n_lines"            : 13906139,
+  "files_per_second"   : 1247.18803075895,
+  "lines_per_second"   : 583212.392052935,
   "report_file"        : "../output/cloc-output.json"},
 "C" :{
   "nFiles": 9733,
   "blank": 494311,
-  "comment": 458586,
-  "code": 3661168},
+  "comment": 458592,
+  "code": 3661174},
 "C/C++ Header" :{
   "nFiles": 11705,
   "blank": 368881,
-  "comment": 623186,
-  "code": 2362420},
+  "comment": 623189,
+  "code": 2362421},
 "C++" :{
   "nFiles": 3669,
-  "blank": 337232,
-  "comment": 182896,
-  "code": 2326350},
+  "blank": 337237,
+  "comment": 182931,
+  "code": 2326488},
 "Bourne Shell" :{
-  "nFiles": 403,
-  "blank": 107634,
-  "comment": 109615,
-  "code": 645742},
+  "nFiles": 404,
+  "blank": 107640,
+  "comment": 109640,
+  "code": 645781},
 "Assembly" :{
   "nFiles": 268,
   "blank": 51088,
@@ -44,14 +44,14 @@
   "code": 204972},
 "Objective-C++" :{
   "nFiles": 222,
-  "blank": 19682,
-  "comment": 11478,
-  "code": 98268},
+  "blank": 19683,
+  "comment": 11449,
+  "code": 98357},
 "Dart" :{
-  "nFiles": 119,
-  "blank": 21812,
-  "comment": 13664,
-  "code": 92177},
+  "nFiles": 126,
+  "blank": 22506,
+  "comment": 15450,
+  "code": 97557},
 "make" :{
   "nFiles": 604,
   "blank": 12051,
@@ -83,15 +83,15 @@
   "comment": 6510,
   "code": 36409},
 "Python" :{
-  "nFiles": 175,
-  "blank": 7225,
-  "comment": 16131,
-  "code": 34000},
+  "nFiles": 185,
+  "blank": 7527,
+  "comment": 16667,
+  "code": 35719},
 "SQL" :{
-  "nFiles": 208,
-  "blank": 2080,
-  "comment": 4316,
-  "code": 28585},
+  "nFiles": 225,
+  "blank": 2332,
+  "comment": 4948,
+  "code": 31598},
 "JavaScript" :{
   "nFiles": 129,
   "blank": 3530,
@@ -189,9 +189,9 @@
   "code": 2244},
 "Swift" :{
   "nFiles": 16,
-  "blank": 327,
-  "comment": 346,
-  "code": 1890},
+  "blank": 330,
+  "comment": 353,
+  "code": 1930},
 "Meson" :{
   "nFiles": 12,
   "blank": 213,
@@ -225,8 +225,8 @@
 "Gradle" :{
   "nFiles": 18,
   "blank": 83,
-  "comment": 139,
-  "code": 601},
+  "comment": 134,
+  "code": 599},
 "Lisp" :{
   "nFiles": 2,
   "blank": 51,
@@ -270,8 +270,8 @@
 "Kotlin" :{
   "nFiles": 5,
   "blank": 53,
-  "comment": 86,
-  "code": 294},
+  "comment": 79,
+  "code": 290},
 "PowerShell" :{
   "nFiles": 1,
   "blank": 71,
@@ -383,7 +383,7 @@
   "comment": 0,
   "code": 1},
 "SUM": {
-  "blank": 1614681,
-  "comment": 1696395,
-  "code": 10580392,
-  "nFiles": 29703} }
+  "blank": 1615944,
+  "comment": 1699384,
+  "code": 10590811,
+  "nFiles": 29738} }
