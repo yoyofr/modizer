@@ -2034,8 +2034,14 @@ static void readnextsample(
     // Obtain sample
     //
     switch(chan->pcms) {
-        case 0: // 16-bit signed LSB-first
-            s = *(sint16*)(((sint8*)(state->ram_ptr)) + (((chan->sampleaddr + 2 * (chan->playpos + sample_offset)) ^ (state->mem_word_address_xor))  & (state->ram_mask)));
+        case 0:  // 16-bit signed LSB-first
+            // Adresse forcée PAIRE: sampleaddr est une adresse d'OCTET et le
+            // driver peut y poser le bit 0, alors que le SCSP/AICA l'ignore
+            // pour un échantillon 16 bits (bus adressé par mots). Sans le
+            // masque la lecture tombe à cheval sur deux échantillons et sort
+            // du bruit pleine échelle par-dessus la mélodie. aosdk fait la
+            // même chose à l'armement du slot (SA(slot) & 0x7FFFE).
+            s = *(sint16*)(((sint8*)(state->ram_ptr)) + ((((chan->sampleaddr + 2 * (chan->playpos + sample_offset)) & ~(uint32)1) ^ (state->mem_word_address_xor))  & (state->ram_mask)));
             s ^= chan->sampler_invert;
             break;
         case 1: // 8-bit signed
