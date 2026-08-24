@@ -11464,12 +11464,12 @@ char* loadRom(const char* path, size_t romSize)
         if (sidtune_name && settings[SID_UseStilData].detail.mdz_boolswitch.switch_value) {
             if (sidtune_name[mod_currentsub]) snprintf(mod_name,sizeof(mod_name),[[[NSString stringWithFormat:@"%@",[NSString stringWithUTF8String:sidtune_name[mod_currentsub]]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"] UTF8String]);
         }
-        if (sidtune_title && settings[SID_UseStilData].detail.mdz_boolswitch.switch_value) {
-            if (sidtune_title[mod_currentsub]) {
-                if (mod_name[0]==0) snprintf(mod_name,sizeof(mod_name),[[[NSString stringWithFormat:@"%@",[NSString stringWithUTF8String:sidtune_title[mod_currentsub]]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"] UTF8String]);
-                else strcat(mod_name, [[[NSString stringWithFormat:@" / %s",sidtune_title[mod_currentsub]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"] UTF8String]);
-            }
-        }
+//        if (sidtune_title && settings[SID_UseStilData].detail.mdz_boolswitch.switch_value) {
+//            if (sidtune_title[mod_currentsub]) {
+//                if (mod_name[0]==0) snprintf(mod_name,sizeof(mod_name),[[[NSString stringWithFormat:@"%@",[NSString stringWithUTF8String:sidtune_title[mod_currentsub]]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"] UTF8String]);
+//                else strcat(mod_name, [[[NSString stringWithFormat:@" / %s",sidtune_title[mod_currentsub]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"] UTF8String]);
+//            }
+//        }
         if (mod_name[0]==0) {
             if (websid_info[4][0]) snprintf(mod_name,sizeof(mod_name),[[[NSString stringWithFormat:@"%@",[NSString stringWithUTF8String:websid_info[4]]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"] UTF8String]);
         }
@@ -11765,12 +11765,12 @@ char* loadRom(const char* path, size_t romSize)
                 if (sidtune_name[mod_currentsub]) mod_title=[[NSString stringWithFormat:@"%@",[NSString stringWithUTF8String:sidtune_name[mod_currentsub]]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"];
                 else mod_title=NULL;
             } else mod_title=NULL;
-            if (sidtune_title && settings[SID_UseStilData].detail.mdz_boolswitch.switch_value) {
-                if (sidtune_title[mod_currentsub]) {
-                    if (mod_title==NULL) mod_title=[NSString stringWithFormat:@"%@",[[NSString stringWithUTF8String:sidtune_title[mod_currentsub]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"]];
-                    else mod_title=[NSString stringWithFormat:@"%@ - %@",mod_title,[[NSString stringWithUTF8String:sidtune_title[mod_currentsub]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"]];
-                }
-            }
+//            if (sidtune_title && settings[SID_UseStilData].detail.mdz_boolswitch.switch_value) {
+//                if (sidtune_title[mod_currentsub]) {
+//                    if (mod_title==NULL) mod_title=[NSString stringWithFormat:@"%@",[[NSString stringWithUTF8String:sidtune_title[mod_currentsub]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"]];
+//                    else mod_title=[NSString stringWithFormat:@"%@ - %@",mod_title,[[NSString stringWithUTF8String:sidtune_title[mod_currentsub]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"]];
+//                }
+//            }
             
             
             
@@ -16737,12 +16737,12 @@ extern bool icloud_available;
                 if (sidtune_name[mod_currentsub]) mod_title=[[NSString stringWithFormat:@"%@",[NSString stringWithUTF8String:sidtune_name[mod_currentsub]]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"];
                 else mod_title=NULL;
             } else mod_title=NULL;
-            if (sidtune_title && settings[SID_UseStilData].detail.mdz_boolswitch.switch_value) {
-                if (sidtune_title[mod_currentsub]) {
-                    if (mod_title==NULL) mod_title=[NSString stringWithFormat:@"%@",[[NSString stringWithUTF8String:sidtune_title[mod_currentsub]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"]];
-                    else mod_title=[NSString stringWithFormat:@"%@ - %@",mod_title,[[NSString stringWithUTF8String:sidtune_title[mod_currentsub]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"]];
-                }
-            }
+//            if (sidtune_title && settings[SID_UseStilData].detail.mdz_boolswitch.switch_value) {
+//                if (sidtune_title[mod_currentsub]) {
+//                    if (mod_title==NULL) mod_title=[NSString stringWithFormat:@"%@",[[NSString stringWithUTF8String:sidtune_title[mod_currentsub]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"]];
+//                    else mod_title=[NSString stringWithFormat:@"%@ - %@",mod_title,[[NSString stringWithUTF8String:sidtune_title[mod_currentsub]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"]];
+//                }
+//            }
             
             if (sidtune_artist && settings[SID_UseStilData].detail.mdz_boolswitch.switch_value) {
                 if (sidtune_artist[mod_currentsub]) {
@@ -16780,12 +16780,12 @@ extern bool icloud_available;
                 if (sidtune_name[mod_currentsub]) mod_title=[[NSString stringWithFormat:@"%@",[NSString stringWithUTF8String:sidtune_name[mod_currentsub]]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"];
                 else mod_title=NULL;
             } else mod_title=NULL;
-            if (sidtune_title && settings[SID_UseStilData].detail.mdz_boolswitch.switch_value) {
-                if (sidtune_title[mod_currentsub]) {
-                    if (mod_title==NULL) mod_title=[NSString stringWithFormat:@"%@",[[NSString stringWithUTF8String:sidtune_title[mod_currentsub]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"]];
-                    else mod_title=[NSString stringWithFormat:@"%@ - %@",mod_title,[[NSString stringWithUTF8String:sidtune_title[mod_currentsub]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"]];
-                }
-            }
+//            if (sidtune_title && settings[SID_UseStilData].detail.mdz_boolswitch.switch_value) {
+//                if (sidtune_title[mod_currentsub]) {
+//                    if (mod_title==NULL) mod_title=[NSString stringWithFormat:@"%@",[[NSString stringWithUTF8String:sidtune_title[mod_currentsub]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"]];
+//                    else mod_title=[NSString stringWithFormat:@"%@ - %@",mod_title,[[NSString stringWithUTF8String:sidtune_title[mod_currentsub]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"]];
+//                }
+//            }
             
             if (sidtune_artist && settings[SID_UseStilData].detail.mdz_boolswitch.switch_value) {
                 if (sidtune_artist[mod_currentsub]) {
@@ -17721,12 +17721,12 @@ extern bool icloud_available;
         if (sidtune_name && settings[SID_UseStilData].detail.mdz_boolswitch.switch_value) {
             if (sidtune_name[subsong]) subtitle=[[NSString stringWithFormat:@"%.3d-%@",subsong-mod_minsub+1,[NSString stringWithUTF8String:sidtune_name[subsong]]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"];
         }
-        if (sidtune_title && settings[SID_UseStilData].detail.mdz_boolswitch.switch_value) {
-            if (sidtune_title[subsong]) {
-                if (!subtitle) subtitle=[[NSString stringWithFormat:@"%.3d-%@",subsong-mod_minsub+1,[NSString stringWithUTF8String:sidtune_title[subsong]]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"];
-                else [subtitle stringByAppendingFormat:@"|%@",[[NSString stringWithUTF8String:sidtune_title[subsong]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"]];
-            }
-        }
+//        if (sidtune_title && settings[SID_UseStilData].detail.mdz_boolswitch.switch_value) {
+//            if (sidtune_title[subsong]) {
+//                if (!subtitle) subtitle=[[NSString stringWithFormat:@"%.3d-%@",subsong-mod_minsub+1,[NSString stringWithUTF8String:sidtune_title[subsong]]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"];
+//                else [subtitle stringByAppendingFormat:@"|%@",[[NSString stringWithUTF8String:sidtune_title[subsong]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"]];
+//            }
+//        }
         if (subtitle) return subtitle;
         
         if (websid_info[4][0]) return [[NSString stringWithFormat:@"%.3d-%@",subsong-mod_minsub+1,[NSString stringWithUTF8String:websid_info[4]]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"];
@@ -17735,12 +17735,12 @@ extern bool icloud_available;
         if (sidtune_name && settings[SID_UseStilData].detail.mdz_boolswitch.switch_value) {
             if (sidtune_name[subsong]) subtitle=[[NSString stringWithFormat:@"%.3d-%@",subsong-mod_minsub+1,[NSString stringWithUTF8String:sidtune_name[subsong]]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"];
         }
-        if (sidtune_title && settings[SID_UseStilData].detail.mdz_boolswitch.switch_value) {
-            if (sidtune_title[subsong]) {
-                if (!subtitle) subtitle=[[NSString stringWithFormat:@"%.3d-%@",subsong-mod_minsub+1,[NSString stringWithUTF8String:sidtune_title[subsong]]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"];
-                else [subtitle stringByAppendingFormat:@"|%@",[[NSString stringWithUTF8String:sidtune_title[subsong]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"]];
-            }
-        }
+//        if (sidtune_title && settings[SID_UseStilData].detail.mdz_boolswitch.switch_value) {
+//            if (sidtune_title[subsong]) {
+//                if (!subtitle) subtitle=[[NSString stringWithFormat:@"%.3d-%@",subsong-mod_minsub+1,[NSString stringWithUTF8String:sidtune_title[subsong]]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"];
+//                else [subtitle stringByAppendingFormat:@"|%@",[[NSString stringWithUTF8String:sidtune_title[subsong]] stringByReplacingOccurrencesOfString:@"\"" withString:@"'"]];
+//            }
+//        }
         if (subtitle) return subtitle;
         
         const SidTuneInfo *sidtune_info;
