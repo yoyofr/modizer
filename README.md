@@ -57,11 +57,13 @@ Other main libs & frameworks:
 
 ## Star History
 
+## Star History
+
 <a href="https://www.star-history.com/?repos=yoyofr%2Fmodizer&type=date&legend=top-left">
  <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=yoyofr/modizer&type=date&theme=dark&legend=top-left" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=yoyofr/modizer&type=date&legend=top-left" />
-   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=yoyofr/modizer&type=date&legend=top-left" />
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=yoyofr/modizer&type=date&theme=dark&legend=top-left&sealed_token=46fAtOwJ5xhvKcijYjYpQVMSESWxFhX70SrJ6X66Ggi2-U-HkA1XVYaygt4ml0IZvCMI0qOHd7rb32biT0iM0N2ykTV41ihsJOk4EmaZhD7Mao0l0buRaZ2AlP3QYG2pWj4nG15uc5nylyA-LZtYJqbXRPhX8m8LcZA3Go-aPBLmV_yvluRTgzgHEVzp" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=yoyofr/modizer&type=date&legend=top-left&sealed_token=46fAtOwJ5xhvKcijYjYpQVMSESWxFhX70SrJ6X66Ggi2-U-HkA1XVYaygt4ml0IZvCMI0qOHd7rb32biT0iM0N2ykTV41ihsJOk4EmaZhD7Mao0l0buRaZ2AlP3QYG2pWj4nG15uc5nylyA-LZtYJqbXRPhX8m8LcZA3Go-aPBLmV_yvluRTgzgHEVzp" />
+   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=yoyofr/modizer&type=date&legend=top-left&sealed_token=46fAtOwJ5xhvKcijYjYpQVMSESWxFhX70SrJ6X66Ggi2-U-HkA1XVYaygt4ml0IZvCMI0qOHd7rb32biT0iM0N2ykTV41ihsJOk4EmaZhD7Mao0l0buRaZ2AlP3QYG2pWj4nG15uc5nylyA-LZtYJqbXRPhX8m8LcZA3Go-aPBLmV_yvluRTgzgHEVzp" />
  </picture>
 </a>
 
@@ -71,13 +73,13 @@ Other main libs & frameworks:
 ```
 [ LANGUAGES BREAKDOWN ]
 
-C            --> 3,661,174 lines
-C++          --> 2,326,488 lines
-Objective-C++ --> 98,357 lines
+C            --> 3,630,673 lines
+C++          --> 2,352,059 lines
+Objective-C++ --> 98,415 lines
 Objective-C  --> 51,933 lines
-GLSL         --> 1,135 lines
-Others       --> 4,451,724 lines
+GLSL         --> 1,818 lines
+Others       --> 4,483,951 lines
 
-[ TOTAL LINES OF CODE: 10,590,811 ]
+[ TOTAL LINES OF CODE: 10,618,849 ]
 ```
 <!-- LANGUAGES BREAKDOWN END -->
