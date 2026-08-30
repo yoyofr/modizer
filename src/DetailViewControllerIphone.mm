@@ -6882,6 +6882,12 @@ void pm_perfTest() {
     radioView=nil;
     bShowRadio=false;
     
+#if TARGET_OS_MACCATALYST
+    mCursorHidden=NO;
+    mRootHoverGesture=nil;
+    [self setupCursorAutoHideMonitoring];
+#endif
+    
     //    [super viewDidLoad];
     END_PROFILE
     
@@ -6890,8 +6896,13 @@ void pm_perfTest() {
 #if TARGET_OS_MACCATALYST
 
 - (void)mouseDidMove:(UIGestureRecognizer *)gesture {
-    // Montrer le curseur
-    [NSCursor unhide];
+    [self resetCursorHideTimer];
+}
+
+// Montre le curseur (le compteur hide/unhide de NSCursor doit rester équilibré)
+// et réarme le timer d'inactivité.
+- (void)resetCursorHideTimer {
+    [self showCursor];
     
     // Annuler le timer précédent
     [self.mouseHideTimer invalidate];
@@ -6902,6 +6913,76 @@ void pm_perfTest() {
                                                          selector:@selector(hideCursor)
                                                          userInfo:nil
                                                           repeats:NO];
+}
+
+- (void)showCursor {
+    if (mCursorHidden) {
+        [NSCursor unhide];
+        mCursorHidden = NO;
+    }
+}
+
+// Le curseur est sorti de la fenêtre (ou l'app a perdu le focus) : on le remontre
+// et on n'arme PAS de nouveau timer, sinon il serait recaché alors qu'il est
+// ailleurs à l'écran et que plus aucun évènement ne nous parviendra.
+- (void)showCursorAndCancelHideTimer {
+    [self.mouseHideTimer invalidate];
+    self.mouseHideTimer = nil;
+    [self showCursor];
+}
+
+// Le pointeur a quitté la vue racine : sur Catalyst la vue racine remplit la
+// fenêtre, donc la fin de ce survol == pointeur sorti de la fenêtre Modizer.
+// C'est le cas que les gesture recognizers de m_oglView ne couvrent pas :
+// plus aucun évènement souris ne nous parvient et le curseur resterait caché.
+- (void)rootHoverGesture:(UIHoverGestureRecognizer *)gestureRecognizer {
+    if (gestureRecognizer.state==UIGestureRecognizerStateBegan ||
+        gestureRecognizer.state==UIGestureRecognizerStateChanged) {
+        [self resetCursorHideTimer];
+    } else {
+        [self showCursorAndCancelHideTimer];
+    }
+}
+
+// NSEvent (moniteurs globaux/locaux) n'est pas disponible sur macCatalyst :
+// on s'appuie uniquement sur UIKit :
+// - survol de la vue racine (sortie de fenêtre)
+// - notifications de perte de focus fenêtre / scène / app
+- (void)setupCursorAutoHideMonitoring {
+    if (mRootHoverGesture) return;
+    
+    mRootHoverGesture = [[UIHoverGestureRecognizer alloc] initWithTarget:self
+                                                                  action:@selector(rootHoverGesture:)];
+    mRootHoverGesture.delegate = self;
+    [self.view addGestureRecognizer:mRootHoverGesture];
+    
+    NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
+    [nc addObserver:self selector:@selector(showCursorAndCancelHideTimer)
+               name:UIWindowDidResignKeyNotification object:nil];
+    [nc addObserver:self selector:@selector(showCursorAndCancelHideTimer)
+               name:UIApplicationWillResignActiveNotification object:nil];
+    [nc addObserver:self selector:@selector(showCursorAndCancelHideTimer)
+               name:UIApplicationDidEnterBackgroundNotification object:nil];
+    if (@available(iOS 13.0, *)) {
+        [nc addObserver:self selector:@selector(showCursorAndCancelHideTimer)
+                   name:UISceneWillDeactivateNotification object:nil];
+    }
+}
+
+- (void)teardownCursorAutoHideMonitoring {
+    if (mRootHoverGesture) {
+        [self.view removeGestureRecognizer:mRootHoverGesture];
+        mRootHoverGesture = nil;
+    }
+    NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
+    [nc removeObserver:self name:UIWindowDidResignKeyNotification object:nil];
+    [nc removeObserver:self name:UIApplicationWillResignActiveNotification object:nil];
+    [nc removeObserver:self name:UIApplicationDidEnterBackgroundNotification object:nil];
+    if (@available(iOS 13.0, *)) {
+        [nc removeObserver:self name:UISceneWillDeactivateNotification object:nil];
+    }
+    
+    [self showCursorAndCancelHideTimer];
 }
 
 
@@ -6937,12 +7018,24 @@ void pm_perfTest() {
 }
 
 - (void)hideCursor {
-    if ([self isFullscreen]) [NSCursor hide];
+    self.mouseHideTimer = nil;
+    if (mCursorHidden) return;
+    
+    if (!settings[GLOB_AutoHideMouseCursor].detail.mdz_boolswitch.switch_value) return;
+    
+    if ([self isFullscreen]) {
+        [NSCursor hide];
+        mCursorHidden = YES;
+    }
 }
 
 #endif
 
 - (void)dealloc {
+#if TARGET_OS_MACCATALYST
+    [self teardownCursorAutoHideMonitoring];
+#endif
+    
     [waitingView removeFromSuperview];
     //[waitingView release];
     
@@ -7777,18 +7870,7 @@ void updateSettingsSelectedSlot() {
     }
     
 #if TARGET_OS_MACCATALYST
-    // Montrer le curseur
-        [NSCursor unhide];
-        
-        // Annuler le timer précédent
-        [self.mouseHideTimer invalidate];
-        
-        // Créer un nouveau timer pour cacher après 2 secondes d'inactivité
-        self.mouseHideTimer = [NSTimer scheduledTimerWithTimeInterval:2.0
-                                                               target:self
-                                                             selector:@selector(hideCursor)
-                                                             userInfo:nil
-                                                              repeats:NO];
+    [self resetCursorHideTimer];
 #endif
 }
 
@@ -7815,18 +7897,13 @@ void updateSettingsSelectedSlot() {
     }
     
 #if TARGET_OS_MACCATALYST
-    // Montrer le curseur
-        [NSCursor unhide];
-        
-        // Annuler le timer précédent
-        [self.mouseHideTimer invalidate];
-        
-        // Créer un nouveau timer pour cacher après 2 secondes d'inactivité
-        self.mouseHideTimer = [NSTimer scheduledTimerWithTimeInterval:2.0
-                                                               target:self
-                                                             selector:@selector(hideCursor)
-                                                             userInfo:nil
-                                                              repeats:NO];
+    if (gestureRecognizer.state==UIGestureRecognizerStateBegan ||
+        gestureRecognizer.state==UIGestureRecognizerStateChanged) {
+        [self resetCursorHideTimer];
+    } else {
+        // Fin du survol : le pointeur a quitté la vue (voire la fenêtre)
+        [self showCursorAndCancelHideTimer];
+    }
 #endif
 }
 

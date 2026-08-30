@@ -935,6 +935,16 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_NoScreenAutoLock].callback=&optGLOBALChangedC;
     settings[GLOB_NoScreenAutoLock].type=MDZ_BOOLSWITCH;
     
+    SETTINGS_ID_DEF(GLOB_AutoHideMouseCursor)
+    settings[GLOB_AutoHideMouseCursor].label=(char*)"Auto hide mouse cursor";
+    settings[GLOB_AutoHideMouseCursor].description=NULL;
+    settings[GLOB_AutoHideMouseCursor].family=MDZ_SETTINGS_FAMILY_GLOBAL_PLAYER;
+    settings[GLOB_AutoHideMouseCursor].sub_family=0;
+    settings[GLOB_AutoHideMouseCursor].callback=&optGLOBALChangedC;
+    settings[GLOB_AutoHideMouseCursor].type=MDZ_BOOLSWITCH;
+    
+    
+    
     SETTINGS_ID_DEF(GLOB_SearchRegExp)
     settings[GLOB_SearchRegExp].label=(char*)"Search: simplified regexp ('.'->'\\.', '*'->'.*')";
     settings[GLOB_SearchRegExp].description=NULL;
@@ -1277,6 +1287,7 @@ void optNSFPLAYChangedC(id param) {
     settings[GLOB_SearchRegExp].detail.mdz_boolswitch.switch_default_value=1;
     settings[GLOB_ResumeOnStart].detail.mdz_boolswitch.switch_default_value=0;
     settings[GLOB_NoScreenAutoLock].detail.mdz_boolswitch.switch_default_value=0;
+    settings[GLOB_AutoHideMouseCursor].detail.mdz_boolswitch.switch_default_value=1;
     settings[GLOB_TruncateNameMode].detail.mdz_switch.switch_default_value=1;
     settings[GLOB_TitleFilename].detail.mdz_boolswitch.switch_default_value=0;
     settings[GLOB_StatsUpload].detail.mdz_boolswitch.switch_default_value=1;

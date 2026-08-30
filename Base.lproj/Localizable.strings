@@ -296,6 +296,7 @@
 "Notification" = "Notification";
 "Notification duration" = "Notification duration";
 "Disable screen auto lock" = "Disable screen auto lock";
+"Auto hide mouse cursor" = "Auto hide mouse cursor";
 "No screen auto lock" = "No screen auto lock";
 "Enable playback ratio" = "Enable playback ratio";
 "Playback ratio" = "Playback ratio";

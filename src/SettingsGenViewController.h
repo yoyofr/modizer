@@ -68,6 +68,7 @@ enum MDZ_SETTINGS {
     GLOB_Notification,
     GLOB_NotificationDuration,
     GLOB_NoScreenAutoLock,
+    GLOB_AutoHideMouseCursor,
     GLOB_PBRATIO_ONOFF,
     GLOB_PBRATIO,
     

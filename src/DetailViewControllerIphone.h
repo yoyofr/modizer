@@ -186,6 +186,11 @@ enum {
     int mPaused;
     
     UIImage *cover_img,*default_cover;
+    
+#if TARGET_OS_MACCATALYST
+    BOOL mCursorHidden;
+    UIHoverGestureRecognizer *mRootHoverGesture;
+#endif
 }
 
 @property t_plPlaylist_entry *mPlaylist;
