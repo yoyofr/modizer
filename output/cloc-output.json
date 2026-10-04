@@ -1,27 +1,27 @@
 {"header" : {
   "cloc_url"           : "github.com/AlDanial/cloc",
   "cloc_version"       : "1.98",
-  "elapsed_seconds"    : 29.6566760540009,
-  "n_files"            : 30474,
-  "n_lines"            : 14142518,
-  "files_per_second"   : 1027.55952637817,
-  "lines_per_second"   : 476874.683266876,
+  "elapsed_seconds"    : 54.52117395401,
+  "n_files"            : 30580,
+  "n_lines"            : 14219692,
+  "files_per_second"   : 560.883007137649,
+  "lines_per_second"   : 260810.451587023,
   "report_file"        : "../output/cloc-output.json"},
 "C" :{
-  "nFiles": 9802,
-  "blank": 495800,
-  "comment": 461182,
-  "code": 3672924},
+  "nFiles": 9834,
+  "blank": 498720,
+  "comment": 465018,
+  "code": 3690095},
 "C/C++ Header" :{
-  "nFiles": 11827,
-  "blank": 371491,
-  "comment": 628920,
-  "code": 2372380},
+  "nFiles": 11865,
+  "blank": 373134,
+  "comment": 632785,
+  "code": 2385992},
 "C++" :{
-  "nFiles": 3751,
-  "blank": 343402,
-  "comment": 191223,
-  "code": 2365361},
+  "nFiles": 3772,
+  "blank": 345140,
+  "comment": 193797,
+  "code": 2378209},
 "Bourne Shell" :{
   "nFiles": 437,
   "blank": 107833,
@@ -43,10 +43,10 @@
   "comment": 5122,
   "code": 204972},
 "Dart" :{
-  "nFiles": 313,
-  "blank": 32081,
-  "comment": 36642,
-  "code": 159849},
+  "nFiles": 321,
+  "blank": 32798,
+  "comment": 41562,
+  "code": 170253},
 "Objective-C++" :{
   "nFiles": 222,
   "blank": 19702,
@@ -88,10 +88,10 @@
   "comment": 7615,
   "code": 42382},
 "CMake" :{
-  "nFiles": 410,
-  "blank": 6126,
-  "comment": 7487,
-  "code": 38607},
+  "nFiles": 415,
+  "blank": 6172,
+  "comment": 7889,
+  "code": 38929},
 "JavaScript" :{
   "nFiles": 171,
   "blank": 4467,
@@ -257,6 +257,11 @@
   "blank": 92,
   "comment": 234,
   "code": 381},
+"PowerShell" :{
+  "nFiles": 3,
+  "blank": 84,
+  "comment": 102,
+  "code": 361},
 "WebAssembly" :{
   "nFiles": 2,
   "blank": 54,
@@ -272,11 +277,6 @@
   "blank": 46,
   "comment": 47,
   "code": 308},
-"PowerShell" :{
-  "nFiles": 1,
-  "blank": 71,
-  "comment": 53,
-  "code": 267},
 "C Shell" :{
   "nFiles": 3,
   "blank": 51,
@@ -383,7 +383,7 @@
   "comment": 0,
   "code": 1},
 "SUM": {
-  "blank": 1640422,
-  "comment": 1751237,
-  "code": 10750859,
-  "nFiles": 30474} }
+  "blank": 1647499,
+  "comment": 1766883,
+  "code": 10805310,
+  "nFiles": 30580} }
