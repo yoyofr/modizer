@@ -1,32 +1,32 @@
 {"header" : {
   "cloc_url"           : "github.com/AlDanial/cloc",
   "cloc_version"       : "1.98",
-  "elapsed_seconds"    : 54.52117395401,
-  "n_files"            : 30580,
-  "n_lines"            : 14219692,
-  "files_per_second"   : 560.883007137649,
-  "lines_per_second"   : 260810.451587023,
+  "elapsed_seconds"    : 48.1879291534424,
+  "n_files"            : 30713,
+  "n_lines"            : 14369563,
+  "files_per_second"   : 637.358785479288,
+  "lines_per_second"   : 298198.392262173,
   "report_file"        : "../output/cloc-output.json"},
 "C" :{
-  "nFiles": 9834,
-  "blank": 498720,
-  "comment": 465018,
-  "code": 3690095},
-"C/C++ Header" :{
-  "nFiles": 11865,
-  "blank": 373134,
-  "comment": 632785,
-  "code": 2385992},
+  "nFiles": 9850,
+  "blank": 500044,
+  "comment": 466717,
+  "code": 3707331},
 "C++" :{
-  "nFiles": 3772,
-  "blank": 345140,
-  "comment": 193797,
-  "code": 2378209},
+  "nFiles": 3800,
+  "blank": 348094,
+  "comment": 197225,
+  "code": 2394389},
+"C/C++ Header" :{
+  "nFiles": 11877,
+  "blank": 373005,
+  "comment": 632574,
+  "code": 2386962},
 "Bourne Shell" :{
-  "nFiles": 437,
-  "blank": 107833,
-  "comment": 110520,
-  "code": 647139},
+  "nFiles": 444,
+  "blank": 107844,
+  "comment": 110604,
+  "code": 647328},
 "Assembly" :{
   "nFiles": 268,
   "blank": 51089,
@@ -37,16 +37,16 @@
   "blank": 110553,
   "comment": 140854,
   "code": 251068},
+"Dart" :{
+  "nFiles": 363,
+  "blank": 57175,
+  "comment": 48653,
+  "code": 238276},
 "m4" :{
   "nFiles": 237,
   "blank": 22591,
   "comment": 5122,
   "code": 204972},
-"Dart" :{
-  "nFiles": 321,
-  "blank": 32798,
-  "comment": 41562,
-  "code": 170253},
 "Objective-C++" :{
   "nFiles": 222,
   "blank": 19702,
@@ -78,25 +78,25 @@
   "comment": 29,
   "code": 49439},
 "Python" :{
-  "nFiles": 231,
-  "blank": 9109,
-  "comment": 21015,
-  "code": 44576},
+  "nFiles": 240,
+  "blank": 9180,
+  "comment": 21237,
+  "code": 45309},
 "SQL" :{
-  "nFiles": 279,
-  "blank": 3051,
-  "comment": 7615,
-  "code": 42382},
+  "nFiles": 281,
+  "blank": 3112,
+  "comment": 7810,
+  "code": 43617},
 "CMake" :{
-  "nFiles": 415,
-  "blank": 6172,
-  "comment": 7889,
-  "code": 38929},
+  "nFiles": 424,
+  "blank": 6324,
+  "comment": 8362,
+  "code": 39943},
 "JavaScript" :{
   "nFiles": 171,
-  "blank": 4467,
-  "comment": 6556,
-  "code": 29932},
+  "blank": 4468,
+  "comment": 6558,
+  "code": 29943},
 "C#" :{
   "nFiles": 54,
   "blank": 1137,
@@ -108,10 +108,10 @@
   "comment": 1697,
   "code": 11974},
 "diff" :{
-  "nFiles": 111,
-  "blank": 1416,
-  "comment": 5249,
-  "code": 11216},
+  "nFiles": 117,
+  "blank": 1465,
+  "comment": 5388,
+  "code": 11463},
 "TeX" :{
   "nFiles": 17,
   "blank": 1990,
@@ -162,6 +162,11 @@
   "blank": 27,
   "comment": 951,
   "code": 5064},
+"Ruby" :{
+  "nFiles": 8,
+  "blank": 619,
+  "comment": 2044,
+  "code": 4751},
 "Visual Studio Solution" :{
   "nFiles": 49,
   "blank": 36,
@@ -172,11 +177,6 @@
   "blank": 773,
   "comment": 2373,
   "code": 4024},
-"Ruby" :{
-  "nFiles": 7,
-  "blank": 460,
-  "comment": 1474,
-  "code": 3556},
 "Bourne Again Shell" :{
   "nFiles": 16,
   "blank": 583,
@@ -242,6 +242,11 @@
   "blank": 70,
   "comment": 160,
   "code": 486},
+"PowerShell" :{
+  "nFiles": 4,
+  "blank": 92,
+  "comment": 138,
+  "code": 433},
 "PHP" :{
   "nFiles": 5,
   "blank": 141,
@@ -257,11 +262,6 @@
   "blank": 92,
   "comment": 234,
   "code": 381},
-"PowerShell" :{
-  "nFiles": 3,
-  "blank": 84,
-  "comment": 102,
-  "code": 361},
 "WebAssembly" :{
   "nFiles": 2,
   "blank": 54,
@@ -383,7 +383,7 @@
   "comment": 0,
   "code": 1},
 "SUM": {
-  "blank": 1647499,
-  "comment": 1766883,
-  "code": 10805310,
-  "nFiles": 30580} }
+  "blank": 1676537,
+  "comment": 1780611,
+  "code": 10912415,
+  "nFiles": 30713} }
