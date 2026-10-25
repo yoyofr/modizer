@@ -1,32 +1,32 @@
 {"header" : {
   "cloc_url"           : "github.com/AlDanial/cloc",
-  "cloc_version"       : "1.98",
-  "elapsed_seconds"    : 45.3488211631775,
-  "n_files"            : 30636,
-  "n_lines"            : 14209065,
-  "files_per_second"   : 675.563315962796,
-  "lines_per_second"   : 313328.21086731,
+  "cloc_version"       : "2.06",
+  "elapsed_seconds"    : 29.0654060840607,
+  "n_files"            : 30948,
+  "n_lines"            : 14371227,
+  "files_per_second"   : 1064.77094833957,
+  "lines_per_second"   : 494444.390642149,
   "report_file"        : "../output/cloc-output.json"},
 "C" :{
-  "nFiles": 9835,
-  "blank": 498171,
-  "comment": 464967,
-  "code": 3688760},
+  "nFiles": 9848,
+  "blank": 498323,
+  "comment": 465300,
+  "code": 3692105},
 "C/C++ Header" :{
-  "nFiles": 11872,
-  "blank": 372719,
-  "comment": 631811,
-  "code": 2385718},
+  "nFiles": 11973,
+  "blank": 376902,
+  "comment": 637954,
+  "code": 2413273},
 "C++" :{
-  "nFiles": 3773,
-  "blank": 344854,
-  "comment": 194050,
-  "code": 2375619},
+  "nFiles": 3827,
+  "blank": 347401,
+  "comment": 196971,
+  "code": 2389861},
 "Bourne Shell" :{
-  "nFiles": 442,
-  "blank": 107841,
-  "comment": 110576,
-  "code": 647271},
+  "nFiles": 445,
+  "blank": 107872,
+  "comment": 110660,
+  "code": 647468},
 "Assembly" :{
   "nFiles": 269,
   "blank": 51104,
@@ -38,15 +38,15 @@
   "comment": 140854,
   "code": 251068},
 "m4" :{
-  "nFiles": 237,
-  "blank": 22591,
-  "comment": 5122,
-  "code": 204972},
+  "nFiles": 239,
+  "blank": 22698,
+  "comment": 5138,
+  "code": 205389},
 "Dart" :{
-  "nFiles": 331,
-  "blank": 32481,
-  "comment": 38265,
-  "code": 163498},
+  "nFiles": 343,
+  "blank": 33420,
+  "comment": 38684,
+  "code": 167860},
 "Objective-C++" :{
   "nFiles": 222,
   "blank": 19702,
@@ -77,21 +77,31 @@
   "blank": 7,
   "comment": 29,
   "code": 49439},
-"Python" :{
-  "nFiles": 241,
-  "blank": 9208,
-  "comment": 21294,
-  "code": 45479},
 "SQL" :{
-  "nFiles": 282,
-  "blank": 3130,
-  "comment": 7843,
-  "code": 43920},
+  "nFiles": 295,
+  "blank": 3231,
+  "comment": 8426,
+  "code": 46456},
+"Python" :{
+  "nFiles": 243,
+  "blank": 9262,
+  "comment": 21424,
+  "code": 45780},
 "CMake" :{
   "nFiles": 425,
   "blank": 6334,
-  "comment": 8395,
-  "code": 39991},
+  "comment": 8403,
+  "code": 39993},
+"diff" :{
+  "nFiles": 140,
+  "blank": 1525,
+  "comment": 5772,
+  "code": 39470},
+"Fortran 77" :{
+  "nFiles": 30,
+  "blank": 555,
+  "comment": 964,
+  "code": 32667},
 "JavaScript" :{
   "nFiles": 171,
   "blank": 4468,
@@ -107,11 +117,6 @@
   "blank": 2342,
   "comment": 1697,
   "code": 11974},
-"diff" :{
-  "nFiles": 117,
-  "blank": 1465,
-  "comment": 5388,
-  "code": 11463},
 "TeX" :{
   "nFiles": 17,
   "blank": 1990,
@@ -137,6 +142,11 @@
   "blank": 849,
   "comment": 246,
   "code": 7785},
+"PHP" :{
+  "nFiles": 17,
+  "blank": 419,
+  "comment": 625,
+  "code": 7713},
 "reStructuredText" :{
   "nFiles": 16,
   "blank": 2556,
@@ -157,26 +167,16 @@
   "blank": 1043,
   "comment": 1572,
   "code": 5446},
-"Fortran 77" :{
-  "nFiles": 7,
-  "blank": 27,
-  "comment": 951,
-  "code": 5064},
 "Visual Studio Solution" :{
   "nFiles": 49,
   "blank": 36,
   "comment": 45,
   "code": 4412},
-"Pascal" :{
-  "nFiles": 17,
-  "blank": 773,
-  "comment": 2373,
-  "code": 4024},
 "Ruby" :{
   "nFiles": 7,
-  "blank": 472,
-  "comment": 1507,
-  "code": 3616},
+  "blank": 475,
+  "comment": 1516,
+  "code": 3619},
 "Bourne Again Shell" :{
   "nFiles": 16,
   "blank": 583,
@@ -187,6 +187,11 @@
   "blank": 1025,
   "comment": 961,
   "code": 2910},
+"Pascal" :{
+  "nFiles": 44,
+  "blank": 767,
+  "comment": 27504,
+  "code": 2452},
 "Swift" :{
   "nFiles": 16,
   "blank": 361,
@@ -207,6 +212,11 @@
   "blank": 229,
   "comment": 148,
   "code": 1098},
+"Fortran 2003" :{
+  "nFiles": 2,
+  "blank": 146,
+  "comment": 4,
+  "code": 1078},
 "awk" :{
   "nFiles": 9,
   "blank": 75,
@@ -232,6 +242,11 @@
   "blank": 51,
   "comment": 51,
   "code": 533},
+"Templ" :{
+  "nFiles": 22,
+  "blank": 99,
+  "comment": 231,
+  "code": 525},
 "HLSL" :{
   "nFiles": 18,
   "blank": 82,
@@ -247,11 +262,6 @@
   "blank": 92,
   "comment": 138,
   "code": 433},
-"PHP" :{
-  "nFiles": 5,
-  "blank": 141,
-  "comment": 60,
-  "code": 429},
 "Visual Basic Script" :{
   "nFiles": 2,
   "blank": 49,
@@ -337,6 +347,11 @@
   "blank": 14,
   "comment": 0,
   "code": 52},
+"Snakemake" :{
+  "nFiles": 2,
+  "blank": 9,
+  "comment": 22,
+  "code": 49},
 "Qt Project" :{
   "nFiles": 1,
   "blank": 6,
@@ -377,13 +392,18 @@
   "blank": 0,
   "comment": 0,
   "code": 4},
+"Groovy" :{
+  "nFiles": 1,
+  "blank": 0,
+  "comment": 0,
+  "code": 1},
 "IDL" :{
   "nFiles": 1,
   "blank": 0,
   "comment": 0,
   "code": 1},
 "SUM": {
-  "blank": 1646366,
-  "comment": 1764139,
-  "code": 10798560,
-  "nFiles": 30636} }
+  "blank": 1655597,
+  "comment": 1801135,
+  "code": 10914495,
+  "nFiles": 30948} }
