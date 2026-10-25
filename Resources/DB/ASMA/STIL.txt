@@ -90,6 +90,9 @@ COMMENT: 2nd place at Silly Venture 2016 music compo.
 /Composers/Bendyk_Piotr/Fourth_of_a_Kind.sap
 COMMENT: Featured in Silly Venture 2k18 Invitation by Lamers
 
+/Composers/Bendyk_Piotr/Fun_with_Atari.sap
+COMMENT: 2nd place at Silly Venture 2019 music compo.
+
 /Composers/Bendyk_Piotr/Sixth_Sense.sap
 COMMENT: Featured in the demo Prozac Dream by Lamers
 
@@ -1813,9 +1816,6 @@ COMMENT: A cover of the tune from Atari XE/XL POKEY Karriere by Kemal Ezcan.
 
 ### /Composers/Grabowski_Pawel ###############################################
 
-/Composers/Grabowski_Pawel/Fun_with_Atari.sap
-COMMENT: 2nd place at Silly Venture 2019 music compo.
-
 /Composers/Grabowski_Pawel/IQ_Master.sap
 COMMENT: Music from the game 'IQ Master' released by ASF in 1992.
 
@@ -2956,7 +2956,7 @@ COMMENT: Last Party 2002 music compo entry.
 COMMENT: 1st place at Last Party 1999 music compo.
 
 /Composers/Kwiatek_Grzegorz/Cause_It_Hurts.sap
-3rd place at QuaST party 1997 music compo.
+COMMENT: 3rd place at QuaST party 1997 music compo.
 
 /Composers/Kwiatek_Grzegorz/Cubeniculosis.sap
 COMMENT: 3rd place Last Party 1999 music compo.
@@ -2979,7 +2979,7 @@ COMMENT: The title translates from Polish as "Escape from the tropic zone".
  ARTIST: Deep Purple
 
 /Composers/Kwiatek_Grzegorz/Extreme.sap
-9rd place at QuaST party 1997 music compo.
+COMMENT: 9rd place at QuaST party 1997 music compo.
 
 /Composers/Kwiatek_Grzegorz/Failure_Dream.sap
 COMMENT: 2nd place at Rush Hours 1997 music compo.
@@ -3516,7 +3516,7 @@ COMMENT: 18th place at QuaST party 1996 music compo.
   TITLE: Only You [from Only You]
  ARTIST: The Platters
 
-/Composers/Majewski_Tomasz/Oustsider.sap
+/Composers/Majewski_Tomasz/Outsider.sap
 COMMENT: 12th place at QuaST party 1997 music compo.
 
 /Composers/Majewski_Tomasz/Reksio_Theme.sap
@@ -3912,29 +3912,11 @@ COMMENT: Scenery Copy Party music compo entry.
 /Composers/Padula_Jaroslaw/Trance_Feat_House.sap
 COMMENT: Rush Hours 1997 music compo entry.
 
-/Groups/Padula_Jaroslaw/Very_Very.sap
+/Composers/Padula_Jaroslaw/Very_Very.sap
 COMMENT: 7th place at QuaST party 2003 music compo.
 
 /Composers/Padula_Jaroslaw/Xc9012.sap
 COMMENT: 3rd place at Last Party 1997 8ch music compo.
-
-### /Composers/Wyszynski_Jaroslaw ############################################
-
-/Composers/Wyszynski_Jaroslaw/Cramer.sap
-  TITLE: Speak Softly Love (Love Theme from The Godfather)
- ARTIST: Nino Rota
-
-/Composers/Wyszynski_Jaroslaw/Gladiator.sap
-  TITLE: Entry of the Gladiators
- ARTIST: Julius Fucik
-
-/Composers/Wyszynski_Jaroslaw/Indy.sap
-  TITLE: The Raiders March [from all the Indiana Jones movies]
- ARTIST: John Williams
-
-/Composers/Wyszynski_Jaroslaw/Unforgiven.sap
-  TITLE: The Unforgiven [from Black Album]
- ARTIST: Metallica
 
 ### /Composers/Pasiecznik_Michal #############################################
 
@@ -4285,8 +4267,8 @@ COMMENT: The in-game music is a tribute to Stanislaw 'Stanley' Skwiot.
  ARTIST: Traditional
 
 /Composers/Potter_Mike/Plaque_Man.sap
-Covers: Can Can [from the Orpheus in the Underworld]
-by Jacques Offenbach
+  TITLE: Can Can [from the Orpheus in the Underworld]
+ ARTIST: Jacques Offenbach
 
 /Composers/Potter_Mike/Protector.sap
   TITLE: Solfeggietto in C minor (H 220, Wq 117:2)
@@ -4295,6 +4277,14 @@ by Jacques Offenbach
 /Composers/Potter_Mike/Protector_II.sap
   TITLE: Solfeggietto in C minor (H 220, Wq 117:2)
  ARTIST: Carl Philipp Emanuel Bach
+
+### /Composers/przunk ########################################################
+
+/Composers/przunk/Baluf.sap
+COMMENT: 5th place at Silly Venture 2019 music compo.
+
+/Composers/przunk/Synk_Bass.sap
+COMMENT: 4th place at Silly Venture 2019 music compo.
 
 ### /Composers/Przybyszewski_Krzysztof #######################################
 
@@ -4313,13 +4303,13 @@ COMMENT: 10th place at QuaST party 1996 music compo.
 /Composers/Przybyszewski_Krzysztof/Odglosy_Z_Marsa.sap
 COMMENT: 5th place at QuaST party 1997 music compo.
 
-/Groups/Przybyszewski_Krzysztof/Spawik.sap
+/Composers/Przybyszewski_Krzysztof/Spawik.sap
 COMMENT: 6th place at QuaST party 2003 music compo.
 
 /Composers/Przybyszewski_Krzysztof/Szalone_Sandalki.sap
 COMMENT: 6th place at QuaST party 1997 music compo.
 
-/Groups/Przybyszewski_Krzysztof/Tanguage.sap
+/Composers/Przybyszewski_Krzysztof/Tanguage.sap
 COMMENT: 4th place at QuaST party 2005 music compo.
 
 ### /Composers/Pucinski_Rafal ################################################
@@ -4601,7 +4591,7 @@ COMMENT: Music from the game 'Neuroid' released by Sikor Soft in 1996.
 
 /Composers/Radecki_Michal/Neuroid_Game_Over.sap
   TITLE: RoboCop Theme [from the movie]
- ARTIST: Basil Poledouris 
+ ARTIST: Basil Poledouris
 COMMENT: Music from the game 'Neuroid' released by Sikor Soft in 1996.
 
 /Composers/Radecki_Michal/Neuroid_Ingame.sap
@@ -4868,7 +4858,8 @@ COMMENT: The above song was made famous in 1984 thanks to Boney M.
 (#1)
   TITLE: Hit The Road Jack
  ARTIST: Ray Charles
-COMMENT: The above song was used as jingle for "Telewizyjne Technikum Rolnicze" 80s TV program on TVP. 
+COMMENT: The above song was used as jingle for "Telewizyjne Technikum Rolnicze"
+         80s TV program on TVP.
 (#2)
   TITLE: Main Title [from the TV series Dziewczyna i chlopak](0:00-1:17)
  ARTIST: Waldemar Kazanecki
@@ -5239,6 +5230,9 @@ COMMENT: 2nd place at Forever 4 music compo.
  ARTIST: Adam Markiewicz
 COMMENT: Inspired by musics from Polish cartoon series.
 
+/Composers/Sychowicz_Lukasz/Beat_the_Beam.sap
+COMMENT: 1st place at Silly Venture 2026 Summer Edition music compo.
+
 /Composers/Sychowicz_Lukasz/Boremloza.sap
 COMMENT: Soundtrack from the demo 'Numen' which won at the Lato Ludzików
          Copy Party in 2002.
@@ -5573,7 +5567,7 @@ COMMENT: Cover of Control OST Demo by Oxygene (Amiga AGA)
 
 /Composers/Szpilowski_Michal/Control_Alt_Furore.sap
 COMMENT: 5th place at Lost Party 2025 music compo.
-         Created with RMT 1.28 Patch 8 
+         Created with RMT 1.28 Patch 8
 
 /Composers/Szpilowski_Michal/Control_Credits.sap
   TITLE: Out of Control
@@ -5674,7 +5668,7 @@ COMMENT: 22nd place at QuaST party 1996 music compo.
 
 /Composers/Szpilowski_Michal/Ill_Cry_Instead.sap
   TITLE: I'll Cry Instead [A Hard Day's Night]
- ARTIST: The Beatles 
+ ARTIST: The Beatles
 
 /Composers/Szpilowski_Michal/Isora.sap
 (#1)
@@ -6016,8 +6010,8 @@ COMMENT: Composed using Chaos Music Composer 4 times/VBL.
   TITLE: Temptation Rag
  ARTIST: Henry Lodge
 (#5)
-Covers: Maple Leaf Rag
-by Scott Joplin
+  TITLE: Maple Leaf Rag
+ ARTIST: Scott Joplin
 COMMENT: Small fragment.
 
 /Composers/Szpilowski_Michal/Strange_Garden.sap
@@ -6492,6 +6486,24 @@ COMMENT: Music from the game 'Adax' released by L.K.Avalon in 1992.
 /Composers/Witkowski_Przemyslaw/Upior.sap
 COMMENT: Music from the game 'Upiór' released by L.K.Avalon in 1992.
 
+### /Composers/Wyszynski_Jaroslaw ############################################
+
+/Composers/Wyszynski_Jaroslaw/Cramer.sap
+  TITLE: Speak Softly Love (Love Theme from The Godfather)
+ ARTIST: Nino Rota
+
+/Composers/Wyszynski_Jaroslaw/Gladiator.sap
+  TITLE: Entry of the Gladiators
+ ARTIST: Julius Fucik
+
+/Composers/Wyszynski_Jaroslaw/Indy.sap
+  TITLE: The Raiders March [from all the Indiana Jones movies]
+ ARTIST: John Williams
+
+/Composers/Wyszynski_Jaroslaw/Unforgiven.sap
+  TITLE: The Unforgiven [from Black Album]
+ ARTIST: Metallica
+
 ### /Composers/XLent #########################################################
 
 /Composers/XLent/Chuck_Rock.sap
@@ -6534,7 +6546,7 @@ COMMENT: Same melody as /Composers/Pelc_Janusz/Fred.sap
   TITLE: The Human Race, Tune #4 [from the C64 SID]
  ARTIST: Rob Hubbard
 
-### /Composers/Zubil_Krzysztof ################################################
+### /Composers/Zubil_Krzysztof ###############################################
 
 /Composers/Zubil_Krzysztof/New_Life.sap
   TITLE: New Life [from Speak & Spell]
@@ -7252,6 +7264,28 @@ COMMENT: Arranged.
 COMMENT: The notes in voice 2 at the beginning of the tune spell out "SOS" in
          Morse code (...---...).
 
+### /Groups/Anschuetz_Eric_and_Weisgerber_John_and_Anschuetz_Robert ##########
+
+/Groups/Anschuetz_Eric_and_Weisgerber_John_and_Anschuetz_Robert/Dead_Mans_Chest.sap
+COMMENT: Traditional song from the Atari 8bit game “Piracy” by Anschuetz/Weisgerber/Anschuetz
+
+/Groups/Anschuetz_Eric_and_Weisgerber_John_and_Anschuetz_Robert/Drunken_Sailor.sap
+COMMENT: Traditional song from the Atari 8bit game “Piracy II”
+         by Anschuetz/Weisgerber/Anschuetz
+
+/Groups/Anschuetz_Eric_and_Weisgerber_John_and_Anschuetz_Robert/Sailing_Sailing.sap
+COMMENT: Traditional song from the Atari 8bit game “Piracy II”
+         by Anschuetz/Weisgerber/Anschuetz
+
+/Groups/Anschuetz_Eric_and_Weisgerber_John_and_Anschuetz_Robert/Walk_Like_an_Egyptian.sap
+  TITLE: Walk Like an Egyptian [from Different Light]
+ ARTIST: The Bangles
+
+/Groups/Anschuetz_Eric_and_Weisgerber_John_and_Anschuetz_Robert/Yo_Ho_A_Pirates_Life_for_Me.sap
+COMMENT: from the Atari 8bit game “Piracy II” by Anschuetz/Weisgerber/Anschuetz
+  TITLE: Yo Ho (A Pirate’s Life for Me) [from Walt Disney’s Pirates of the Carribbean]
+ ARTIST: The Mellomen
+
 ### /Groups/Cieslewicz_Tomasz_and_Dombek_K ###################################
 
 /Groups/Cieslewicz_Tomasz_and_Dombek_K/Koziol.sap
@@ -7265,26 +7299,6 @@ COMMENT: The notes in voice 2 at the beginning of the tune spell out "SOS" in
 /Groups/Cieslewicz_Tomasz_and_Dombek_K/Roxette_2.sap
   TITLE: The Look [from Look Sharp!]
  ARTIST: Roxette
-
-### /Groups/Anschuetz_Eric_and_Weisgerber_John_and_Anschuetz_Robert ##########
-
-/Groups/Anschuetz_Eric_and_Weisgerber_John_and_Anschuetz_Robert/Dead_Mans_Chest.sap
-COMMENT: Traditional song from the Atari 8bit game “Piracy” by Anschuetz/Weisgerber/Anschuetz
-
-/Groups/Anschuetz_Eric_and_Weisgerber_John_and_Anschuetz_Robert/Drunken_Sailor.sap
-COMMENT: Traditional song from the Atari 8bit game “Piracy II” by Anschuetz/Weisgerber/Anschuetz
-
-/Groups/Anschuetz_Eric_and_Weisgerber_John_and_Anschuetz_Robert/Sailing_Sailing.sap
-COMMENT: Traditional song from the Atari 8bit game “Piracy II” by Anschuetz/Weisgerber/Anschuetz
-
-/Groups/Anschuetz_Eric_and_Weisgerber_John_and_Anschuetz_Robert/Walk_Like_an_Egyptian.sap
-  TITLE: Walk Like an Egyptian [from Different Light]
- ARTIST: The Bangles
-
-/Groups/Anschuetz_Eric_and_Weisgerber_John_and_Anschuetz_Robert/Yo_Ho_A_Pirates_Life_for_Me.sap
-COMMENT: from the Atari 8bit game “Piracy II” by Anschuetz/Weisgerber/Anschuetz
-  TITLE: Yo Ho (A Pirate’s Life for Me) [from Walt Disney’s Pirates of the Carribbean]
- ARTIST: The Mellomen
 
 ### /Groups/Grayscale ########################################################
 
@@ -7460,9 +7474,6 @@ COMMENT: 6th place at QuaST 2004 music compo.
   TITLE: Płynie w nas Gorąca Krew [from Chroń mnie]
  ARTIST: Bajm
 
-/Misc/Baluf.sap
-COMMENT: 5th place at Silly Venture 2019 music compo.
-
 /Misc/Battle_Ships.sap
   TITLE: Battle Ships, Tune #1 [from the C64 game]
  ARTIST: Mark Cooksey
@@ -7543,8 +7554,8 @@ COMMENT: Uses only a fraction of the original song.
 COMMENT: 6th place at Winter Chip II (Best Pokey) music compo.
 
 /Misc/Jaguar_Picture_Show.sap
-Covers: Ace II [from the C64 game]
-by Rob Hubbard
+  TITLE: Ace II [from the C64 game]
+ ARTIST: Rob Hubbard
 
 /Misc/Janosik.sap
   TITLE: Main Title [from the TV series Janosik]
@@ -7591,7 +7602,7 @@ COMMENT: 3rd place at Lost Party 2019 executable music compo.
  ARTIST: Manfred Linzner (Pink)
 COMMENT: Converted to Atari 8-bit (Synthtracker) by Krzysztof Święcicki
          (Święty).
-	
+
 /Misc/Reksio_2001.sap
   TITLE: Title Theme [from the cartoon series Reksio](0:07-0:30)
  ARTIST: Zenon Kowalowski
@@ -7625,9 +7636,6 @@ COMMENT: Atari XL/XE official audio-visual test tune.
 /Misc/Strangers_in_the_Night.sap
   TITLE: Strangers in The Night
  ARTIST: Frank Sinatra
-
-/Misc/Synk_Bass.sap
-COMMENT: 4th place at Silly Venture 2019 music compo.
 
 /Misc/Takie_Cos.sap
 COMMENT: Lato Ludzików 2001 music compo entry.
@@ -7869,6 +7877,14 @@ COMMENT: English Christmas carol.
  ARTIST: Ludwig van Beethoven
   TITLE: W murowanej piwnicy (0:57)
  ARTIST: Polish folk traditional
+
+/Unknown/Wonder.sap
+  TITLE: I Just Call to Say I Love You [from The Woman in Red]
+ ARTIST: Stevie Wonder
+
+/Unknown/Wonder_2.sap
+  TITLE: I Just Call to Say I Love You [from The Woman in Red]
+ ARTIST: Stevie Wonder
 
 ### /Unknown/AMP #############################################################
 
@@ -8644,15 +8660,6 @@ COMMENT: Made famous in a Oscar Mayer commercial.
 /Unknown/AMS/Witchy_Woman_2.sap
   TITLE: Witchy Woman [from Eagles]
  ARTIST: Eagles
-
-/Unknown/AMS/Wonder.sap
-  TITLE: I Just Call to Say I Love You [from The Woman in Red]
- ARTIST: Stevie Wonder
-
-/Unknown/AMS/Wonder_2.sap
-
-  TITLE: I Just Call to Say I Love You [from The Woman in Red]
- ARTIST: Stevie Wonder
 
 /Unknown/AMS/Wrapped_around_Your_Finger.sap
   TITLE: Wrapped Around Your Finger [from Synchronicity]

@@ -162,20 +162,20 @@
 				<string>com.yoyofr.modizer.vgm</string>
 			</array>
 		</dict>
-        <dict>
-            <key>CFBundleTypeIconFile</key>
-            <string>AppStore512.png</string>
-            <key>CFBundleTypeName</key>
-            <string>Furnace File</string>
-            <key>CFBundleTypeRole</key>
-            <string>Editor</string>
-            <key>LSHandlerRank</key>
-            <string>Alternate</string>
-            <key>LSItemContentTypes</key>
-            <array>
-                <string>com.yoyofr.modizer.fur</string>
-            </array>
-        </dict>
+		<dict>
+			<key>CFBundleTypeIconFile</key>
+			<string>AppStore512.png</string>
+			<key>CFBundleTypeName</key>
+			<string>Furnace File</string>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>LSHandlerRank</key>
+			<string>Alternate</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>com.yoyofr.modizer.fur</string>
+			</array>
+		</dict>
 		<dict>
 			<key>CFBundleTypeIconFile</key>
 			<string>AppStore512.png</string>
@@ -383,6 +383,8 @@
 	<array>
 		<string></string>
 	</array>
+	<key>CFBundleIconName</key>
+	<string></string>
 	<key>CFBundleIcons</key>
 	<dict/>
 	<key>CFBundleIcons~ipad</key>
@@ -404,6 +406,19 @@
 	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleSignature</key>
 	<string></string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>com.yoyofr.modizer</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>modizer</string>
+			</array>
+		</dict>
+	</array>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>LSApplicationCategoryType</key>
@@ -418,6 +433,8 @@
 		<true/>
 	</dict>
 	<key>NSHumanReadableCopyright</key>
+	<string></string>
+	<key>NSMainStoryboardFile</key>
 	<string></string>
 	<key>NSSiriUsageDescription</key>
 	<string>Control Modizer with Siri</string>
@@ -440,8 +457,6 @@
 		<string>Fonts/Montserrat-Regular.ttf</string>
 		<string>Fonts/fontawesome-webfont.ttf</string>
 	</array>
-	<key>UIApplicationSupportsCarPlay</key>
-	<true/>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
@@ -472,6 +487,8 @@
 			</array>
 		</dict>
 	</dict>
+	<key>UIApplicationSupportsCarPlay</key>
+	<true/>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>audio</string>
@@ -500,10 +517,6 @@
 	<true/>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
-	<key>NSMainStoryboardFile</key>
-	<string></string>
-	<key>CFBundleIconName</key>
-	<string></string>
 	<key>UTExportedTypeDeclarations</key>
 	<array>
 		<dict>
@@ -790,26 +803,26 @@
 				</array>
 			</dict>
 		</dict>
-        <dict>
-            <key>UTTypeConformsTo</key>
-            <array>
-                <string>public.data</string>
-            </array>
-            <key>UTTypeDescription</key>
-            <string>Furnace File</string>
-            <key>UTTypeIdentifier</key>
-            <string>com.yoyofr.modizer.fur</string>
-            <key>UTTypeTagSpecification</key>
-            <dict>
-                <key>public.filename-extension</key>
-                <array>
-                    <string>fur</string>
-                    <string>ftm</string>
-                    <string>dfm</string>
-                    <string>0CC</string>
-                </array>
-            </dict>
-        </dict>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>Furnace File</string>
+			<key>UTTypeIdentifier</key>
+			<string>com.yoyofr.modizer.fur</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>fur</string>
+					<string>ftm</string>
+					<string>dfm</string>
+					<string>0CC</string>
+				</array>
+			</dict>
+		</dict>
 		<dict>
 			<key>UTTypeConformsTo</key>
 			<array>
@@ -2033,19 +2046,6 @@
 					<string>midi</string>
 				</array>
 			</dict>
-		</dict>
-	</array>
-	<key>CFBundleURLTypes</key>
-	<array>
-		<dict>
-			<key>CFBundleTypeRole</key>
-			<string>Editor</string>
-			<key>CFBundleURLName</key>
-			<string>com.yoyofr.modizer</string>
-			<key>CFBundleURLSchemes</key>
-			<array>
-				<string>modizer</string>
-			</array>
 		</dict>
 	</array>
 </dict>
