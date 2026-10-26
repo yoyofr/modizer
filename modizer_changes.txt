@@ -13,6 +13,24 @@ Todo/Requested:
 => add a small progress bar in cells in modland/asma/hvsc... When downloading
 => ADPLUG oscillo data not generated when OPL is not Woody
 
+4.7
+---
+- New setting: auto hide mouse cursor (on by default), fixes the cursor auto-hide issue
+- SID: fixed STIL data usage (sub-tune titles no longer appended twice to the song title)
+- libvgm: more accurate channel/voice names
+- libvgm: fixed mute mask for SSG channels (YM2203, YM2608)
+- Highly Theoretical (SSF/Saturn): fixed 16-bit signed LSB-first addressing in the SCSP emulation
+- ProjectM visualizer: fixed crashes during fast preset switching or window resize, plus an HLSL shader parser fix
+- DB updated as of 2026/10/24 (ASMA + STIL)
+- bugfixes and stability improvements
+
+4.6
+---
+- Download missing playlist entries that have been removed, for a selection of online repositories
+- Better support for tags
+- UADE songdb from mvtiaine
+- bugfixes and stability improvements
+
 4.5
 ---
 - VIO2SF, AtariSound crash bugfixes
