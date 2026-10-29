@@ -1490,15 +1490,12 @@ didFinishNavigation:(WKNavigation *)navigation {
     progressIndicator.translatesAutoresizingMaskIntoConstraints=false;
     toolBar.translatesAutoresizingMaskIntoConstraints=false;
     
-    CGFloat statusbarHeight;
-    CGSize statusBarSize = [[UIApplication sharedApplication] statusBarFrame].size;
-    statusbarHeight=MIN(statusBarSize.width, statusBarSize.height);
-    
-//
     [self.view addConstraint:[NSLayoutConstraint constraintWithItem:addressTextField attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:self.view.safeAreaLayoutGuide attribute:NSLayoutAttributeWidth multiplier:0.98 constant:0]];
     [self.view addConstraint:[NSLayoutConstraint constraintWithItem:addressTextField attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:self.view.safeAreaLayoutGuide attribute:NSLayoutAttributeCenterX multiplier:1.0 constant:0]];
     
-    topConstraint=[NSLayoutConstraint constraintWithItem:addressTextField attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:self.view.safeAreaLayoutGuide attribute:NSLayoutAttributeTop multiplier:1.0 constant:statusbarHeight];
+    // Address bar sits right below the status bar / dynamic island: the safe area already accounts for it.
+    // Do not use statusBarFrame (deprecated, returns a zero frame on recent iOS), it pushed the bar under the status bar.
+    topConstraint=[NSLayoutConstraint constraintWithItem:addressTextField attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:self.view.safeAreaLayoutGuide attribute:NSLayoutAttributeTop multiplier:1.0 constant:4];
     [self.view addConstraint:topConstraint];
     
     //progressbar
@@ -1683,18 +1680,6 @@ shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherG
 #endif
     
     if ((!wasMiniPlayerOn) && [detailViewController mPlaylist_size]) [self showMiniPlayer];
-}
-
-- (void)viewWillLayoutSubviews {
-    CGFloat statusbarHeight;
-    CGSize statusBarSize = [[UIApplication sharedApplication] statusBarFrame].size;
-    statusbarHeight=MIN(statusBarSize.width, statusBarSize.height);
-    
-    if (topConstraint) [self.view removeConstraint:topConstraint];
-    topConstraint=[NSLayoutConstraint constraintWithItem:addressTextField attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:self.view attribute:NSLayoutAttributeTop multiplier:1.0 constant:statusbarHeight];
-    [self.view addConstraint:topConstraint];
-    
-    [super viewWillLayoutSubviews];
 }
 
 - (void)viewWillAppear:(BOOL)animated {
