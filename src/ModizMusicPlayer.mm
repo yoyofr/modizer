@@ -8997,8 +8997,9 @@ void processFadeOut(short int *buffer, int sample_count, int voice_factor) {
                 
                 
                 if (found)  {
-                    mdz_ArchiveFilesList[mdz_currentArchiveIndex]=(char*)malloc([file length]+1);
-                    strcpy(mdz_ArchiveFilesList[mdz_currentArchiveIndex],[file UTF8String]);
+                    const char *fileCStr=[file fileSystemRepresentation];
+                    mdz_ArchiveFilesList[mdz_currentArchiveIndex]=(char*)malloc(strlen(fileCStr)+1);
+                    strcpy(mdz_ArchiveFilesList[mdz_currentArchiveIndex],fileCStr);
                     
                     //mdz_ArchiveFilesListAlias[mdz_currentArchiveIndex]=(char*)malloc([file length]+1);
                     //strcpy(mdz_ArchiveFilesListAlias[mdz_currentArchiveIndex],[file UTF8String]);
@@ -15343,6 +15344,52 @@ static int mdz_ArchiveFiles_compare(const void *e1, const void *e2) {
     return strcasecmp(*pa,*pb);
 }
 
+// Decode a C string coming from an archive entry or a m3u playlist.
+// Those are not always UTF-8 (vgmrips m3u files are frequently cp1252), and
+// stringWithUTF8String returns nil on invalid sequences.
+static NSString* mdz_decodeLegacyCString(const char *str) {
+    if (!str) return nil;
+    NSString *result=[NSString stringWithUTF8String:str];
+    if (!result) result=[NSString stringWithCString:str encoding:NSWindowsCP1252StringEncoding];
+    if (!result) result=[NSString stringWithCString:str encoding:NSISOLatin1StringEncoding];
+    if (!result) result=[NSString stringWithFormat:@"%s",str];
+    return result;
+}
+
+// Key used to match a m3u entry against the archive entries when names differ by
+// encoding or punctuation only (e.g. typographic quote in the m3u, plain quote in the zip):
+// diacritics folded, case ignored, everything but ASCII letters and digits dropped.
+static NSString* mdz_archiveEntryMatchKey(NSString *name) {
+    NSString *folded=[name stringByFoldingWithOptions:NSDiacriticInsensitiveSearch|NSCaseInsensitiveSearch|NSWidthInsensitiveSearch locale:[NSLocale systemLocale]];
+    NSMutableString *key=[NSMutableString stringWithCapacity:[folded length]];
+    for (NSUInteger i=0;i<[folded length];i++) {
+        unichar c=[folded characterAtIndex:i];
+        if ((c>='a'&&c<='z')||(c>='0'&&c<='9')) [key appendFormat:@"%C",c];
+    }
+    return key;
+}
+
+// Resolve the file referenced by a m3u entry to an actual entry of the extracted archive.
+// Returns the m3u name as is when it exists in tmpArchive, otherwise the closest archive entry.
+static NSString* mdz_resolveM3UEntryFile(const char *m3uFile, char **archiveList, int archiveCnt) {
+    NSString *name=mdz_decodeLegacyCString(m3uFile);
+    if (!name) name=@"";
+    NSString *tmpArchivePath=[NSString stringWithFormat:@"%@/tmpArchive",NSTemporaryDirectory()];
+    if ([[NSFileManager defaultManager] fileExistsAtPath:[tmpArchivePath stringByAppendingPathComponent:name]]) return name;
+    
+    NSString *key=mdz_archiveEntryMatchKey(name);
+    if ([key length]==0) return name;
+    for (int i=0;i<archiveCnt;i++) {
+        NSString *candidate=mdz_decodeLegacyCString(archiveList[i]);
+        if (candidate && [mdz_archiveEntryMatchKey(candidate) isEqualToString:key]) {
+            MDZILog("m3u entry \"%@\" not found in archive, using \"%@\"",name,candidate);
+            return candidate;
+        }
+    }
+    MDZELog("m3u entry \"%@\" not found in archive",name);
+    return name;
+}
+
 extern NSURL *icloudURL;
 extern bool icloud_available;
 
@@ -15693,8 +15740,9 @@ extern bool icloud_available;
 //                                MDZILog("%d: file %s - type %s - track %d - length  %d",i,m3uReader[i].file,m3uReader[i].type,m3uReader[i].track,m3uReader[i].length);
 //                            }
                             
-                            for (int i=0;i<mdz_ArchiveFilesCnt;i++) free(mdz_ArchiveFilesList[i]);
-                            free(mdz_ArchiveFilesList);
+                            //keep the archive scan list to resolve m3u entries whose name does not match exactly
+                            char **scanArchiveFilesList=mdz_ArchiveFilesList;
+                            int scanArchiveFilesCnt=mdz_ArchiveFilesCnt;
                             
                             mdz_ArchiveFilesCnt=m3uReader.size();
                             mdz_ArchiveFilesList=(char**)malloc(mdz_ArchiveFilesCnt*sizeof(char*));
@@ -15714,12 +15762,14 @@ extern bool icloud_available;
                             }
                             
                             for (int i=0;i<mdz_ArchiveFilesCnt;i++) {
-                                const char *file=m3uReader[i].file;
+                                NSString *entryFile=mdz_resolveM3UEntryFile(m3uReader[i].file,scanArchiveFilesList,scanArchiveFilesCnt);
+                                const char *file=[entryFile fileSystemRepresentation];
                                 mdz_ArchiveFilesList[i]=(char*)malloc(strlen(file)+1);
                                 strcpy(mdz_ArchiveFilesList[i],file);
                                 
-                                file=m3uReader[i].name;
-                                if (file && file[0]) {
+                                NSString *entryTitle=mdz_decodeLegacyCString(m3uReader[i].name);
+                                if (entryTitle && [entryTitle length]) {
+                                    file=[entryTitle UTF8String];
                                     mdz_ArchiveEntryTitle[i]=(char*)malloc(strlen(file)+1);
                                     strcpy(mdz_ArchiveEntryTitle[i],file);
                                 } else mdz_ArchiveEntryTitle[i]=0;
@@ -15730,6 +15780,9 @@ extern bool icloud_available;
                                 }
                                 if (m3uReader[i].length>0) mdz_ArchiveEntryMonoSubLength[i]=m3uReader[i].length;
                             }
+                            
+                            for (int i=0;i<scanArchiveFilesCnt;i++) free(scanArchiveFilesList[i]);
+                            free(scanArchiveFilesList);
                         }
                     } else if ([[[mod_loadmodule_filepath pathExtension] lowercaseString] isEqualToString:@"rsn"]) {
                         //rsn file
