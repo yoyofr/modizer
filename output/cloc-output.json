@@ -1,37 +1,42 @@
 {"header" : {
   "cloc_url"           : "github.com/AlDanial/cloc",
   "cloc_version"       : "2.06",
-  "elapsed_seconds"    : 29.0654060840607,
-  "n_files"            : 30948,
-  "n_lines"            : 14371227,
-  "files_per_second"   : 1064.77094833957,
-  "lines_per_second"   : 494444.390642149,
+  "elapsed_seconds"    : 35.2962491512299,
+  "n_files"            : 31439,
+  "n_lines"            : 14786608,
+  "files_per_second"   : 890.717873882204,
+  "lines_per_second"   : 418928.593138764,
   "report_file"        : "../output/cloc-output.json"},
 "C" :{
-  "nFiles": 9848,
-  "blank": 498323,
-  "comment": 465300,
-  "code": 3692105},
-"C/C++ Header" :{
-  "nFiles": 11973,
-  "blank": 376902,
-  "comment": 637954,
-  "code": 2413273},
+  "nFiles": 9894,
+  "blank": 502479,
+  "comment": 469158,
+  "code": 3751879},
 "C++" :{
-  "nFiles": 3827,
-  "blank": 347401,
-  "comment": 196971,
-  "code": 2389861},
+  "nFiles": 3936,
+  "blank": 362936,
+  "comment": 205784,
+  "code": 2460200},
+"C/C++ Header" :{
+  "nFiles": 12150,
+  "blank": 383970,
+  "comment": 650988,
+  "code": 2454314},
 "Bourne Shell" :{
-  "nFiles": 445,
-  "blank": 107872,
-  "comment": 110660,
-  "code": 647468},
+  "nFiles": 457,
+  "blank": 107885,
+  "comment": 110752,
+  "code": 647862},
 "Assembly" :{
   "nFiles": 269,
   "blank": 51104,
   "comment": 53796,
   "code": 369495},
+"Dart" :{
+  "nFiles": 434,
+  "blank": 68793,
+  "comment": 56469,
+  "code": 293013},
 "PO File" :{
   "nFiles": 54,
   "blank": 110553,
@@ -42,16 +47,11 @@
   "blank": 22698,
   "comment": 5138,
   "code": 205389},
-"Dart" :{
-  "nFiles": 343,
-  "blank": 33420,
-  "comment": 38684,
-  "code": 167860},
 "Objective-C++" :{
   "nFiles": 222,
-  "blank": 19702,
-  "comment": 11523,
-  "code": 98459},
+  "blank": 19703,
+  "comment": 11543,
+  "code": 98490},
 "make" :{
   "nFiles": 607,
   "blank": 12071,
@@ -63,10 +63,10 @@
   "comment": 0,
   "code": 72632},
 "Lua" :{
-  "nFiles": 429,
-  "blank": 14034,
-  "comment": 13223,
-  "code": 58396},
+  "nFiles": 430,
+  "blank": 14035,
+  "comment": 13225,
+  "code": 58490},
 "Objective-C" :{
   "nFiles": 218,
   "blank": 12682,
@@ -78,35 +78,35 @@
   "comment": 29,
   "code": 49439},
 "SQL" :{
-  "nFiles": 295,
-  "blank": 3231,
-  "comment": 8426,
-  "code": 46456},
+  "nFiles": 297,
+  "blank": 3282,
+  "comment": 8638,
+  "code": 47483},
 "Python" :{
-  "nFiles": 243,
-  "blank": 9262,
-  "comment": 21424,
-  "code": 45780},
+  "nFiles": 252,
+  "blank": 9383,
+  "comment": 21733,
+  "code": 46669},
 "CMake" :{
-  "nFiles": 425,
-  "blank": 6334,
-  "comment": 8403,
-  "code": 39993},
+  "nFiles": 428,
+  "blank": 6351,
+  "comment": 8454,
+  "code": 40278},
 "diff" :{
-  "nFiles": 140,
-  "blank": 1525,
-  "comment": 5772,
-  "code": 39470},
+  "nFiles": 148,
+  "blank": 1584,
+  "comment": 5919,
+  "code": 39869},
+"JavaScript" :{
+  "nFiles": 199,
+  "blank": 4948,
+  "comment": 6742,
+  "code": 33518},
 "Fortran 77" :{
   "nFiles": 30,
   "blank": 555,
   "comment": 964,
   "code": 32667},
-"JavaScript" :{
-  "nFiles": 171,
-  "blank": 4468,
-  "comment": 6558,
-  "code": 29943},
 "C#" :{
   "nFiles": 54,
   "blank": 1137,
@@ -132,6 +132,11 @@
   "blank": 2178,
   "comment": 2419,
   "code": 9913},
+"PHP" :{
+  "nFiles": 18,
+  "blank": 419,
+  "comment": 625,
+  "code": 9680},
 "SWIG" :{
   "nFiles": 51,
   "blank": 1096,
@@ -142,11 +147,6 @@
   "blank": 849,
   "comment": 246,
   "code": 7785},
-"PHP" :{
-  "nFiles": 17,
-  "blank": 419,
-  "comment": 625,
-  "code": 7713},
 "reStructuredText" :{
   "nFiles": 16,
   "blank": 2556,
@@ -167,16 +167,16 @@
   "blank": 1043,
   "comment": 1572,
   "code": 5446},
+"Ruby" :{
+  "nFiles": 8,
+  "blank": 643,
+  "comment": 2126,
+  "code": 5145},
 "Visual Studio Solution" :{
   "nFiles": 49,
   "blank": 36,
   "comment": 45,
   "code": 4412},
-"Ruby" :{
-  "nFiles": 7,
-  "blank": 475,
-  "comment": 1516,
-  "code": 3619},
 "Bourne Again Shell" :{
   "nFiles": 16,
   "blank": 583,
@@ -187,16 +187,16 @@
   "blank": 1025,
   "comment": 961,
   "code": 2910},
+"Swift" :{
+  "nFiles": 16,
+  "blank": 383,
+  "comment": 583,
+  "code": 2495},
 "Pascal" :{
   "nFiles": 44,
   "blank": 767,
   "comment": 27504,
   "code": 2452},
-"Swift" :{
-  "nFiles": 16,
-  "blank": 361,
-  "comment": 502,
-  "code": 2178},
 "GLSL" :{
   "nFiles": 75,
   "blank": 486,
@@ -208,10 +208,10 @@
   "comment": 143,
   "code": 1227},
 "DOS Batch" :{
-  "nFiles": 67,
-  "blank": 229,
-  "comment": 148,
-  "code": 1098},
+  "nFiles": 68,
+  "blank": 234,
+  "comment": 149,
+  "code": 1123},
 "Fortran 2003" :{
   "nFiles": 2,
   "blank": 146,
@@ -232,6 +232,11 @@
   "blank": 171,
   "comment": 57,
   "code": 706},
+"Kotlin" :{
+  "nFiles": 7,
+  "blank": 87,
+  "comment": 198,
+  "code": 705},
 "Gradle" :{
   "nFiles": 18,
   "blank": 83,
@@ -252,11 +257,6 @@
   "blank": 82,
   "comment": 2,
   "code": 493},
-"Kotlin" :{
-  "nFiles": 6,
-  "blank": 70,
-  "comment": 160,
-  "code": 486},
 "PowerShell" :{
   "nFiles": 4,
   "blank": 92,
@@ -268,10 +268,10 @@
   "comment": 113,
   "code": 427},
 "INI" :{
-  "nFiles": 13,
+  "nFiles": 14,
   "blank": 92,
   "comment": 234,
-  "code": 381},
+  "code": 383},
 "WebAssembly" :{
   "nFiles": 2,
   "blank": 54,
@@ -403,7 +403,7 @@
   "comment": 0,
   "code": 1},
 "SUM": {
-  "blank": 1655597,
-  "comment": 1801135,
-  "code": 10914495,
-  "nFiles": 30948} }
+  "blank": 1718684,
+  "comment": 1846372,
+  "code": 11221552,
+  "nFiles": 31439} }
