@@ -7045,6 +7045,8 @@ void processFadeOut(short int *buffer, int sample_count, int voice_factor) {
                             }
                             mCurrentSamples=mVGMSTREAM_decode_pos_samples*PLAYBACK_FREQ/(vgmStream->format->sample_rate);
                             
+                            processFadeOut(buffer_ana[buffer_ana_gen_ofs], SOUND_BUFFER_SIZE_SAMPLE,4*4);
+                            
                             
                             if (nbBytes<SOUND_BUFFER_SIZE_SAMPLE*2*2) {
                                 if (mSingleSubMode==0) {
@@ -13262,7 +13264,7 @@ NSString* convertAmigaGreekToUnicode(NSString *input) {
     vcfg.allow_play_forever = (mLoopMode==1?1:0);
     vcfg.play_forever =(mLoopMode==1?1:0);
     vcfg.loop_count = settings[GLOB_Maxloop].detail.mdz_slider.slider_value;
-    vcfg.fade_time = settings[GLOB_Fadeouttime].detail.mdz_slider.slider_value;
+    vcfg.fade_time = 0; //no extra fade section: modizer applies its own fade (processFadeOut) over the end of the last loop, so length = intro + loop_count*loop
     vcfg.fade_delay = 0.0f;
     vcfg.ignore_fade = 0; //1;
     vcfg.force_loop = (mVGMSTREAM_force_loop?1:0);
@@ -13283,14 +13285,19 @@ NSString* convertAmigaGreekToUnicode(NSString *input) {
         mVGMSTREAM_total_samples = -1;
         mVGMSTREAM_totalinternal_samples=-1;
     } else {
-        mVGMSTREAM_total_samples = vgmStream->format->stream_samples;
+        mVGMSTREAM_total_samples = vgmStream->format->play_samples; //play_samples = intro + loop_count*loop (stream_samples = raw length, 1 loop only)
         mVGMSTREAM_totalinternal_samples = mVGMSTREAM_total_samples;
     }
     
-    mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
     //Loop
     if (mLoopMode==1) iModuleLength=-1;
     else iModuleLength=(double)mVGMSTREAM_total_samples*1000.0f/(double)(vgmStream->format->sample_rate);
+    mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
+    //Fade: only for looping streams, applied by modizer over the end of the last loop
+    if ((iModuleLength>0)&&(vgmStream->format->loop_flag)) {
+        mFadeSamplesStart=(int64_t)(iModuleLength-settings[GLOB_Fadeouttime].detail.mdz_slider.slider_value*1000)*PLAYBACK_FREQ/1000;
+        if (mFadeSamplesStart<0) mFadeSamplesStart=0;
+    } else mFadeSamplesStart=1<<30;
     
     mVGMSTREAM_decode_pos_samples=0;
     
@@ -13364,8 +13371,9 @@ NSString* convertAmigaGreekToUnicode(NSString *input) {
     vcfg.allow_play_forever = (mLoopMode==1?1:0);
     vcfg.play_forever =(mLoopMode==1?1:0);
     
+    optVGMSTREAM_loop_count=settings[GLOB_Maxloop].detail.mdz_slider.slider_value;
     vcfg.loop_count = optVGMSTREAM_loop_count;
-    vcfg.fade_time = settings[GLOB_Fadeouttime].detail.mdz_slider.slider_value;
+    vcfg.fade_time = 0; //no extra fade section: modizer applies its own fade (processFadeOut) over the end of the last loop, so length = intro + loop_count*loop
     vcfg.fade_delay = 0.0f;
     vcfg.ignore_fade = 0; //1;
     vcfg.force_loop = (mVGMSTREAM_force_loop?1:0);
@@ -13401,14 +13409,19 @@ NSString* convertAmigaGreekToUnicode(NSString *input) {
         mVGMSTREAM_totalinternal_samples=-1;
     } else {
         //mVGMSTREAM_total_samples = vgmstream_get_samples(vgmStream);
-        mVGMSTREAM_total_samples = vgmStream->format->stream_samples;
+        mVGMSTREAM_total_samples = vgmStream->format->play_samples; //play_samples = intro + loop_count*loop (stream_samples = raw length, 1 loop only)
         mVGMSTREAM_totalinternal_samples = mVGMSTREAM_total_samples;
     }
     
-    mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
     //Loop
     if (mLoopMode==1) iModuleLength=-1;
     else iModuleLength=(double)mVGMSTREAM_total_samples*1000.0f/(double)(vgmStream->format->sample_rate);
+    mTgtSamples=iModuleLength*PLAYBACK_FREQ/1000;
+    //Fade: only for looping streams, applied by modizer over the end of the last loop
+    if ((iModuleLength>0)&&(vgmStream->format->loop_flag)) {
+        mFadeSamplesStart=(int64_t)(iModuleLength-settings[GLOB_Fadeouttime].detail.mdz_slider.slider_value*1000)*PLAYBACK_FREQ/1000;
+        if (mFadeSamplesStart<0) mFadeSamplesStart=0;
+    } else mFadeSamplesStart=1<<30;
     iCurrentTime=0;
     mCurrentSamples=0;
     mVGMSTREAM_decode_pos_samples=0;
@@ -13529,10 +13542,11 @@ NSString* convertAmigaGreekToUnicode(NSString *input) {
             //vgmFile->stream_index=i;
             libvgmstream_t *vgmStreamTmp=libvgmstream_init();// = init_vgmstream_from_STREAMFILE(vgmFile);
             
+            libvgmstream_setup(vgmStreamTmp, &vcfg); //same loop/fade config as playback so DB length matches
             libvgmstream_open_stream(vgmStreamTmp, vgmFile, i);
             
             if (vgmStreamTmp) {
-                int subsong_length= vgmStreamTmp->format->stream_samples;
+                int subsong_length= vgmStreamTmp->format->play_samples;
                 mod_total_length+=(double)subsong_length*1000.0f/(double)(vgmStream->format->sample_rate);
                 
                 //close_vgmstream(vgmStreamTmp);
