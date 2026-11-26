@@ -1,0 +1,5 @@
+- vgmstream: ustawienie liczby pętli jest teraz stosowane do utworów z pętlą, a wyciszenie kończy się dokładnie na końcu ostatniej pętli
+- Archiwa: poprawiono odtwarzanie i tytuły pozycji playlist m3u o nazwach innych niż UTF-8 (np. paczki vgmrips)
+- Przeglądarka: poprawiono pasek adresu ukryty pod paskiem stanu
+- Baza danych zaktualizowana na dzień 26.11.2026 (ASMA + STIL)
+- Poprawki błędów i większa stabilność

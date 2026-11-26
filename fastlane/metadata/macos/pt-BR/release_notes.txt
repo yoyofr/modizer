@@ -1,0 +1,10 @@
+- vgmstream: o ajuste de número de loops agora é aplicado às faixas com loop, e o fade-out termina exatamente no fim do último loop
+- Arquivos compactados: corrigida a reprodução e os títulos de entradas de playlists m3u com nomes que não são UTF-8 (ex.: pacotes do vgmrips)
+- Nova configuração: ocultar automaticamente o cursor do mouse (ativada por padrão), corrige o problema de ocultação automática do cursor
+- SID: corrigido o uso dos dados STIL (os títulos das subfaixas não são mais adicionados duas vezes ao título)
+- libvgm: nomes de canais/vozes mais precisos
+- libvgm: corrigido o silenciamento dos canais SSG (YM2203, YM2608)
+- Highly Theoretical (SSF/Saturn): corrigido o endereçamento de 16 bits com sinal LSB-first na emulação SCSP
+- Visualizador ProjectM: corrigidos travamentos ao trocar rapidamente de preset ou redimensionar a janela, além de uma correção no parser de shaders HLSL
+- Banco de dados atualizado em 26/11/2026 (ASMA + STIL)
+- Correções de bugs e melhorias de estabilidade

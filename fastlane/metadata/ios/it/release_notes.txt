@@ -1,0 +1,5 @@
+- vgmstream: l'impostazione del numero di loop viene ora applicata ai brani in loop e la dissolvenza termina esattamente alla fine dell'ultimo loop
+- Archivi: corretta la riproduzione e i titoli delle voci di playlist m3u con nomi non UTF-8 (ad es. pacchetti vgmrips)
+- Browser web: corretta la barra degli indirizzi nascosta sotto la barra di stato
+- Database aggiornato al 26/11/2026 (ASMA + STIL)
+- Correzioni di bug e miglioramenti della stabilità

@@ -131,6 +131,7 @@
         [self.localBrowserVC modizerIsLaunched];
         [self removeFromParentViewController];
         [self.tabVC presentWelcomePages];
+        [self.tabVC showRewampPromoIfNeeded];
     }];
 }
 

@@ -1,0 +1,10 @@
+- vgmstream: Die Einstellung für die Anzahl der Loops wird jetzt bei Streams mit Loop berücksichtigt, und das Ausblenden endet genau am Ende des letzten Loops
+- Archive: Wiedergabe und Titel von m3u-Playlist-Einträgen mit Nicht-UTF-8-Namen korrigiert (z. B. vgmrips-Pakete)
+- Neue Einstellung: Mauszeiger automatisch ausblenden (standardmäßig aktiviert), behebt das Problem beim automatischen Ausblenden des Mauszeigers
+- SID: Verwendung der STIL-Daten korrigiert (Subtune-Titel werden nicht mehr doppelt an den Songtitel angehängt)
+- libvgm: genauere Namen für Kanäle/Stimmen
+- libvgm: Stummschaltung der SSG-Kanäle korrigiert (YM2203, YM2608)
+- Highly Theoretical (SSF/Saturn): 16-Bit-Adressierung (signed, LSB-first) in der SCSP-Emulation korrigiert
+- ProjectM-Visualizer: Abstürze beim schnellen Wechseln von Presets oder beim Ändern der Fenstergröße behoben, sowie eine Korrektur im HLSL-Shader-Parser
+- Datenbank aktualisiert (Stand 26.11.2026, ASMA + STIL)
+- Fehlerbehebungen und Stabilitätsverbesserungen

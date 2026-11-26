@@ -10,6 +10,7 @@
 #import "SettingsGenViewController.h"
 #import "ModizerConstants.h"
 #import "TipsViewController.h"
+#import "RewampPromoViewController.h"
 
 #import "TTFadeAnimator.h"
 
@@ -245,7 +246,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
     // Return the number of rows in the section.
-    return 7;
+    return 8;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -359,31 +360,35 @@ extern volatile t_settings settings[MAX_SETTINGS];
     cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
     
     switch (indexPath.row) {
-        case 0:
+        case 0: //Rewamp
+            topLabel.text=NSLocalizedString(@"Discover Rewamp",@"");
+            bottomLabel.text=NSLocalizedString(@"A modern alternative to Modizer",@"");
+            break;
+        case 1:
             topLabel.text=NSLocalizedString(@"About",@"");
             bottomLabel.text=NSLocalizedString(@"Some general informations",@"");
             break;
-        case 1:
+        case 2:
             topLabel.text=NSLocalizedString(@"Mail support",@"");
             bottomLabel.text=NSLocalizedString(@"Contact support by email",@"");
             break;
-        case 2:
+        case 3:
             topLabel.text=NSLocalizedString(@"Send a tip to Modizer",@"");
             bottomLabel.text=NSLocalizedString(@"Support Modizer development",@"");
             break;
-        case 3:
+        case 4:
             topLabel.text=NSLocalizedString(@"Settings",@"");
             bottomLabel.text=NSLocalizedString(@"Global, Visu, FTP & Plugins",@"");
             break;
-        case 4:
+        case 5:
             topLabel.text=NSLocalizedString(@"Maintenance",@"");
             bottomLabel.text=NSLocalizedString(@"Clean DB, Reset ratings, ...",@"");
             break;
-        case 5: //Voice Commands
+        case 6: //Voice Commands
             topLabel.text=NSLocalizedString(@"Voice Commands",@"");
             bottomLabel.text=NSLocalizedString(@"Siri voice commands for Modizer",@"");
             break;
-        case 6: //downloads
+        case 7: //downloads
         {
             topLabel.text=NSLocalizedString(@"Downloads",@"");
             int download_queue=downloadViewController.mFTPDownloadQueueDepth+downloadViewController.mURLDownloadQueueDepth;
@@ -468,10 +473,14 @@ extern volatile t_settings settings[MAX_SETTINGS];
     SettingsGenViewController *settingsVC;
     SettingsMaintenanceViewController *mntVC;
     switch (indexPath.row) {
-        case 0://About
+        case 0://Rewamp
+            [tableView deselectRowAtIndexPath:indexPath animated:YES];
+            [self presentViewController:[[RewampPromoViewController alloc] init] animated:YES completion:nil];
+            break;
+        case 1://About
             [self.navigationController pushViewController:aboutVC animated:YES];
             break;
-        case 1://Mail support
+        case 2://Mail support
         {
             BOOL isiOSAppOnMac = false;
             
@@ -488,7 +497,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
             [application openURL:[NSURL URLWithString: encodedString] options:@{} completionHandler:nil];
         }
             break;
-        case 2:{//Tips
+        case 3:{//Tips
 #ifdef MDZ_MACOS_WINDOW_AOT
             NSString *paypalURL=@"https://www.paypal.com/donate?business=ymagnien@hotmail.com&no_recurring=0&item_name=Modizer";
             NSString * encodedString = [paypalURL stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLFragmentAllowedCharacterSet]];
@@ -501,7 +510,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
 #endif
             break;
         }
-        case 3:{//Settings
+        case 4:{//Settings
             settingsVC=[[SettingsGenViewController alloc] initWithNibName:@"SettingsViewController" bundle:[NSBundle mainBundle]];
             settingsVC->detailViewController=detailViewController;
             settingsVC.title=NSLocalizedString(@"General Settings",@"");
@@ -522,7 +531,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
             [self.navigationController pushViewController:settingsVC animated:YES];
             break;
         }
-        case 4://Maintenance
+        case 5://Maintenance
             mntVC=[[SettingsMaintenanceViewController alloc] initWithNibName:@"MaintenanceViewController" bundle:[NSBundle mainBundle]];
             mntVC->detailViewController=detailViewController;
             mntVC->rootVC=rootVC;
@@ -544,7 +553,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
             //mntVC.view.frame=self.view.frame;
             [self.navigationController pushViewController:mntVC animated:YES];
             break;
-        case 5:{//Voice Commands
+        case 6:{//Voice Commands
             VoiceCommandsViewController *voiceVC = [[VoiceCommandsViewController alloc] init];
             voiceVC.detailViewController=detailViewController;            
             voiceVC.title = NSLocalizedString(@"Voice Commands",@"");
@@ -564,7 +573,7 @@ extern volatile t_settings settings[MAX_SETTINGS];
             [self.navigationController pushViewController:voiceVC animated:YES];
             break;
         }
-        case 6://downloads
+        case 7://downloads
             //downloadViewController.view.frame=self.view.frame;
             [self.navigationController pushViewController:downloadViewController animated:YES];
             break;

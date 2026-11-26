@@ -1,0 +1,10 @@
+- vgmstream: the loop count setting is now applied to looping streams, and the fade-out ends exactly at the end of the last loop
+- Archives: fixed playback and titles of m3u playlist entries with non-UTF-8 names (e.g. vgmrips packs)
+- New setting: auto-hide mouse cursor (enabled by default), fixes the cursor auto-hide issue
+- SID: fixed STIL data usage (sub-tune titles no longer appended twice to the song title)
+- libvgm: more accurate channel/voice names
+- libvgm: fixed mute for SSG channels (YM2203, YM2608)
+- Highly Theoretical (SSF/Saturn): fixed 16-bit signed LSB-first addressing in the SCSP emulation
+- ProjectM visualizer: fixed crashes during fast preset switching or window resize, plus an HLSL shader parser fix
+- Database updated as of 2026/11/26 (ASMA + STIL)
+- Bug fixes and stability improvements

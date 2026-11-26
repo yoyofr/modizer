@@ -1,0 +1,10 @@
+- vgmstream: indstillingen for antal loops anvendes nu på streams med loop, og udtoningen slutter præcis ved slutningen af det sidste loop
+- Arkiver: rettet afspilning og titler for m3u-playlisteposter med navne, der ikke er UTF-8 (f.eks. vgmrips-pakker)
+- Ny indstilling: skjul musemarkøren automatisk (slået til som standard), retter problemet med automatisk skjulning af markøren
+- SID: rettet brug af STIL-data (titler på delsange tilføjes ikke længere to gange til sangtitlen)
+- libvgm: mere præcise navne på kanaler/stemmer
+- libvgm: rettet lydløs for SSG-kanaler (YM2203, YM2608)
+- Highly Theoretical (SSF/Saturn): rettet 16-bit signed LSB-first-adressering i SCSP-emuleringen
+- ProjectM-visualizer: rettet nedbrud ved hurtigt skift af preset eller ændring af vinduesstørrelse, samt en rettelse i HLSL-shaderparseren
+- Database opdateret pr. 26.11.2026 (ASMA + STIL)
+- Fejlrettelser og forbedret stabilitet

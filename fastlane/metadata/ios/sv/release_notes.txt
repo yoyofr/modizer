@@ -1,0 +1,5 @@
+- vgmstream: inställningen för antal loopar används nu för strömmar med loop, och uttoningen slutar exakt vid slutet av den sista loopen
+- Arkiv: rättade uppspelning och titlar för m3u-spellisteposter med namn som inte är UTF-8 (t.ex. vgmrips-paket)
+- Webbläsare: rättade adressfältet som doldes under statusfältet
+- Databasen uppdaterad per 2026-11-26 (ASMA + STIL)
+- Buggfixar och stabilitetsförbättringar

@@ -1,0 +1,5 @@
+- vgmstream : le réglage du nombre de boucles est maintenant appliqué aux flux en boucle, et le fondu de sortie se termine exactement à la fin de la dernière boucle
+- Archives : correction de la lecture et des titres des entrées de playlists m3u aux noms non UTF-8 (par ex. packs vgmrips)
+- Navigateur web : correction de la barre d'adresse masquée sous la barre d'état
+- Base de données mise à jour au 26/11/2026 (ASMA + STIL)
+- Corrections de bugs et meilleure stabilité

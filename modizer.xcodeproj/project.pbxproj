@@ -1213,6 +1213,8 @@
 		CC4884AD2B7A609100BCFFCC /* 05-shuffleone-green@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CC4884AB2B7A609100BCFFCC /* 05-shuffleone-green@2x.png */; };
 		CC4AF45A2BC091B4006D7EFC /* libvio2sf.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CC4AF40D2BC09067006D7EFC /* libvio2sf.a */; };
 		CC4D69B312472B5C0074E94B /* info@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CC4D69B212472B5C0074E94B /* info@2x.png */; };
+		CC4E57A22F17A00100A1B2C3 /* RewampPromoViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = CC4E57A12F17A00100A1B2C3 /* RewampPromoViewController.mm */; };
+		CC4E57A32F17A00100A1B2C3 /* RewampPromoViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = CC4E57A12F17A00100A1B2C3 /* RewampPromoViewController.mm */; };
 		CC4F4A062B70581B002A9309 /* liblibeupmini.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CC4F49F62B704F4D002A9309 /* liblibeupmini.a */; };
 		CC4FC8762E8EBF8100B3E56F /* MetalKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CC4FB2F52E8EA80F00B3E56F /* MetalKit.framework */; };
 		CC4FC8792E8EBFCE00B3E56F /* Metal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CC4FC8782E8EBFCD00B3E56F /* Metal.framework */; };
@@ -4327,6 +4329,8 @@
 		CC4884AB2B7A609100BCFFCC /* 05-shuffleone-green@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "05-shuffleone-green@2x.png"; sourceTree = "<group>"; };
 		CC4AF4082BC09067006D7EFC /* vio2sf.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = vio2sf.xcodeproj; path = vio2sf/vio2sf.xcodeproj; sourceTree = "<group>"; };
 		CC4D69B212472B5C0074E94B /* info@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "info@2x.png"; sourceTree = "<group>"; };
+		CC4E57A02F17A00100A1B2C3 /* RewampPromoViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RewampPromoViewController.h; sourceTree = "<group>"; };
+		CC4E57A12F17A00100A1B2C3 /* RewampPromoViewController.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = RewampPromoViewController.mm; sourceTree = "<group>"; };
 		CC4F49F12B704F4C002A9309 /* libeupmini.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libeupmini.xcodeproj; path = libeupmini/libeupmini.xcodeproj; sourceTree = "<group>"; };
 		CC4FB2F32E8EA80A00B3E56F /* libhlsl2glsl-ios.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = "libhlsl2glsl-ios.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		CC4FB2F52E8EA80F00B3E56F /* MetalKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MetalKit.framework; path = System/Library/Frameworks/MetalKit.framework; sourceTree = SDKROOT; };
@@ -6379,7 +6383,9 @@
 				CC9331992EA55C0E00CB0503 /* SysMonitoring.h */,
 				CC93319D2EA55E6400CB0503 /* SysMonitoring.m */,
 				CCBF272D2ECB2EB10039936C /* TipsViewController.h */,
+				CC4E57A02F17A00100A1B2C3 /* RewampPromoViewController.h */,
 				CCBF272E2ECB2EDE0039936C /* TipsViewController.mm */,
+				CC4E57A12F17A00100A1B2C3 /* RewampPromoViewController.mm */,
 				CC3D657D2EF58B2600636BEE /* VoiceCommandsViewController.h */,
 				CC3D657E2EF58B2600636BEE /* VoiceCommandsViewController.mm */,
 				5918E0A926177CB1004B85DA /* VoicesViewController.h */,
@@ -10208,6 +10214,7 @@
 				33FDFF6717B6E99A00B61B65 /* SettingsGenViewController.mm in Sources */,
 				33F6A94217B9A36A002369E7 /* MNEValueTrackingSlider.m in Sources */,
 				CCBF272F2ECB2EE00039936C /* TipsViewController.mm in Sources */,
+				CC4E57A22F17A00100A1B2C3 /* RewampPromoViewController.mm in Sources */,
 				59B9997E25CFE56D0071E144 /* NSString+FontAwesome.m in Sources */,
 				CCE8D74A2B8D68FD0076D8C0 /* AnimatedLaunchVC.mm in Sources */,
 				CC6CBDF317DBE3A8006DCBC7 /* EQViewController.mm in Sources */,
@@ -10423,6 +10430,7 @@
 				CCBE61082EE2DD44000FDD7E /* SettingsGenViewController.mm in Sources */,
 				CCBE61092EE2DD44000FDD7E /* MNEValueTrackingSlider.m in Sources */,
 				CCBE610A2EE2DD44000FDD7E /* TipsViewController.mm in Sources */,
+				CC4E57A32F17A00100A1B2C3 /* RewampPromoViewController.mm in Sources */,
 				CCBE610B2EE2DD44000FDD7E /* NSString+FontAwesome.m in Sources */,
 				CCBE610C2EE2DD44000FDD7E /* AnimatedLaunchVC.mm in Sources */,
 				CCBE610E2EE2DD44000FDD7E /* EQViewController.mm in Sources */,
@@ -10504,7 +10512,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 19;
+				CURRENT_PROJECT_VERSION = 20;
 				DEVELOPMENT_TEAM = ZV46EUY73C;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = NO;
@@ -10530,7 +10538,7 @@
 				INFOPLIST_KEY_CFBundleDisplayName = Modizer;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.music";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.5;
-				MARKETING_VERSION = 4.7;
+				MARKETING_VERSION = 4.8;
 				PRODUCT_BUNDLE_IDENTIFIER = com.yoyofr.modizer;
 				PRODUCT_NAME = modizer;
 				PROVISIONING_PROFILE = "";
@@ -10556,7 +10564,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 19;
+				CURRENT_PROJECT_VERSION = 20;
 				DEVELOPMENT_TEAM = ZV46EUY73C;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = NO;
@@ -10581,7 +10589,7 @@
 				INFOPLIST_KEY_CFBundleDisplayName = Modizer;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.music";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.5;
-				MARKETING_VERSION = 4.7;
+				MARKETING_VERSION = 4.8;
 				PRODUCT_BUNDLE_IDENTIFIER = com.yoyofr.modizer;
 				PRODUCT_NAME = modizer;
 				PROVISIONING_PROFILE = "";
@@ -11124,7 +11132,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = YES;
-				CURRENT_PROJECT_VERSION = 19;
+				CURRENT_PROJECT_VERSION = 20;
 				DEVELOPMENT_TEAM = ZV46EUY73C;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = NO;
@@ -11149,7 +11157,7 @@
 				INFOPLIST_KEY_CFBundleDisplayName = Modizer;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.music";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.5;
-				MARKETING_VERSION = 4.7;
+				MARKETING_VERSION = 4.8;
 				PRODUCT_BUNDLE_IDENTIFIER = com.yoyofr.modizer;
 				PRODUCT_NAME = modizer;
 				PROVISIONING_PROFILE = "";
@@ -11389,7 +11397,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 19;
+				CURRENT_PROJECT_VERSION = 20;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = NO;
 				"ENABLE_HARDENED_RUNTIME[sdk=macosx*]" = YES;
@@ -11414,7 +11422,7 @@
 				INFOPLIST_KEY_CFBundleDisplayName = Modizer;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.music";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.5;
-				MARKETING_VERSION = 4.7;
+				MARKETING_VERSION = 4.8;
 				OTHER_CFLAGS = (
 					"-DMDZ_MACOS_WINDOW_AOT",
 					"-DLOAD_PROFILE",
@@ -11470,7 +11478,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 19;
+				CURRENT_PROJECT_VERSION = 20;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = NO;
 				"ENABLE_HARDENED_RUNTIME[sdk=macosx*]" = YES;
@@ -11494,7 +11502,7 @@
 				INFOPLIST_KEY_CFBundleDisplayName = Modizer;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.music";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.5;
-				MARKETING_VERSION = 4.7;
+				MARKETING_VERSION = 4.8;
 				OTHER_CFLAGS = (
 					"-DMDZ_MACOS_WINDOW_AOT",
 					"-DNDEBUG",
@@ -11552,7 +11560,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = YES;
-				CURRENT_PROJECT_VERSION = 19;
+				CURRENT_PROJECT_VERSION = 20;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = NO;
 				"ENABLE_HARDENED_RUNTIME[sdk=macosx*]" = YES;
@@ -11576,7 +11584,7 @@
 				INFOPLIST_KEY_CFBundleDisplayName = Modizer;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.music";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.5;
-				MARKETING_VERSION = 4.7;
+				MARKETING_VERSION = 4.8;
 				OTHER_CFLAGS = (
 					"-DMDZ_MACOS_WINDOW_AOT",
 					"-DNDEBUG",

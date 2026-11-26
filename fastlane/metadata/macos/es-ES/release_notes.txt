@@ -1,0 +1,10 @@
+- vgmstream: el ajuste de número de bucles se aplica ahora a las pistas con bucle, y el fundido de salida termina exactamente al final del último bucle
+- Archivos comprimidos: corregida la reproducción y los títulos de las entradas de listas m3u con nombres que no son UTF-8 (p. ej., packs de vgmrips)
+- Nuevo ajuste: ocultar automáticamente el cursor del ratón (activado por defecto), corrige el problema de ocultación automática del cursor
+- SID: corregido el uso de los datos STIL (los títulos de las subcanciones ya no se añaden dos veces al título)
+- libvgm: nombres de canales/voces más precisos
+- libvgm: corregido el silenciado de los canales SSG (YM2203, YM2608)
+- Highly Theoretical (SSF/Saturn): corregido el direccionamiento de 16 bits con signo LSB-first en la emulación SCSP
+- Visualizador ProjectM: corregidos cierres inesperados al cambiar rápidamente de preset o al redimensionar la ventana, además de una corrección en el analizador de shaders HLSL
+- Base de datos actualizada al 26/11/2026 (ASMA + STIL)
+- Corrección de errores y mejoras de estabilidad

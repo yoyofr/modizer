@@ -1,0 +1,5 @@
+- vgmstream: o ajuste de número de loops agora é aplicado às faixas com loop, e o fade-out termina exatamente no fim do último loop
+- Arquivos compactados: corrigida a reprodução e os títulos de entradas de playlists m3u com nomes que não são UTF-8 (ex.: pacotes do vgmrips)
+- Navegador web: corrigida a barra de endereço escondida sob a barra de status
+- Banco de dados atualizado em 26/11/2026 (ASMA + STIL)
+- Correções de bugs e melhorias de estabilidade

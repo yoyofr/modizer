@@ -1,0 +1,5 @@
+- vgmstream: toistokertojen asetusta käytetään nyt silmukoiviin kappaleisiin, ja häivytys päättyy täsmälleen viimeisen silmukan loppuun
+- Arkistot: korjattu m3u-soittolistojen sellaisten kohteiden toisto ja nimet, joiden nimet eivät ole UTF-8-muodossa (esim. vgmrips-paketit)
+- Verkkoselain: korjattu tilapalkin alle piiloon jäänyt osoitepalkki
+- Tietokanta päivitetty 26.11.2026 (ASMA + STIL)
+- Virhekorjauksia ja vakauden parannuksia

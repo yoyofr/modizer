@@ -1,0 +1,5 @@
+- vgmstream: the loop count setting is now applied to looping streams, and the fade-out ends exactly at the end of the last loop
+- Archives: fixed playback and titles of m3u playlist entries with non-UTF-8 names (e.g. vgmrips packs)
+- Web browser: fixed the address bar hidden under the status bar
+- Database updated as of 2026/11/26 (ASMA + STIL)
+- Bug fixes and stability improvements

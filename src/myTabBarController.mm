@@ -22,6 +22,7 @@
 #import "ModizerPlaylistBridge.h"
 #import "ModizFileHelper.h"
 #import "CloudStorageManager.h"
+#import "RewampPromoViewController.h"
 
 extern NSMutableArray *mac_key_pressed,*mac_key_released;
 
@@ -734,6 +735,36 @@ extern NSMutableArray *mac_key_pressed,*mac_key_released;
         UIViewController *currentVC = pageViewController.viewControllers.firstObject;
         welcomePageIndex = [self.welcomePages indexOfObject:currentVC];
     }
+}
+
+#pragma mark - Rewamp promotion
+
+// One-time popup, shown at first launch of the version introducing it (v4.8).
+// Waits until nothing else is on screen (welcome pages, DB update alert, ...).
+- (void)showRewampPromoIfNeeded {
+    NSUserDefaults *prefs=[NSUserDefaults standardUserDefaults];
+    if ([prefs boolForKey:REWAMP_PROMO_SHOWN_KEY]) return;
+    
+    __weak myTabBarController *weakSelf=self;
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        myTabBarController *strongSelf=weakSelf;
+        if (!strongSelf) return;
+        if ([[NSUserDefaults standardUserDefaults] boolForKey:REWAMP_PROMO_SHOWN_KEY]) return;
+        
+        if ((strongSelf.presentedViewController!=nil) ||
+            (strongSelf.view.window==nil) ||
+            ([UIApplication sharedApplication].applicationState!=UIApplicationStateActive)) {
+            //something else is displayed or app not in foreground, try again later
+            [strongSelf showRewampPromoIfNeeded];
+            return;
+        }
+        
+        RewampPromoViewController *promoVC=[[RewampPromoViewController alloc] init];
+        promoVC.showFindLaterNote=YES;
+        [strongSelf presentViewController:promoVC animated:YES completion:nil];
+        
+        [[NSUserDefaults standardUserDefaults] setBool:YES forKey:REWAMP_PROMO_SHOWN_KEY];
+    });
 }
 
 - (void)showAnimatedLaunchOverlay {

@@ -1,0 +1,5 @@
+- vgmstream: nastavení počtu smyček se nyní uplatňuje u skladeb se smyčkou a zeslabení končí přesně na konci poslední smyčky
+- Archivy: opraveno přehrávání a názvy položek playlistů m3u s názvy v jiném kódování než UTF-8 (např. balíčky vgmrips)
+- Webový prohlížeč: opraven adresní řádek skrytý pod stavovým řádkem
+- Databáze aktualizována k 26. 11. 2026 (ASMA + STIL)
+- Opravy chyb a vylepšení stability

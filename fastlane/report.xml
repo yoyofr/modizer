@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+  <testsuite name="fastlane.lanes">
+    
+    
+    
+      
+      <testcase classname="fastlane.lanes" name="0: Switch to release_notes_ios lane" time="0.000155">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="1: deliver" time="15.752614">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="2: Switch to release_notes_mac lane" time="0.000102">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="3: deliver" time="15.825021">
+        
+      </testcase>
+    
+  </testsuite>
+</testsuites>

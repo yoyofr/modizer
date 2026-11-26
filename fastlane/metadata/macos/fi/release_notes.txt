@@ -1,0 +1,10 @@
+- vgmstream: toistokertojen asetusta käytetään nyt silmukoiviin kappaleisiin, ja häivytys päättyy täsmälleen viimeisen silmukan loppuun
+- Arkistot: korjattu m3u-soittolistojen sellaisten kohteiden toisto ja nimet, joiden nimet eivät ole UTF-8-muodossa (esim. vgmrips-paketit)
+- Uusi asetus: piilota hiiren osoitin automaattisesti (oletuksena päällä), korjaa osoittimen automaattisen piilotuksen ongelman
+- SID: korjattu STIL-tietojen käyttö (alikappaleiden nimiä ei enää lisätä kappaleen nimeen kahdesti)
+- libvgm: tarkemmat kanavien/äänten nimet
+- libvgm: korjattu SSG-kanavien mykistys (YM2203, YM2608)
+- Highly Theoretical (SSF/Saturn): korjattu 16-bittinen etumerkillinen LSB-first-osoitus SCSP-emuloinnissa
+- ProjectM-visualisoija: korjattu kaatumiset presettien nopeassa vaihdossa tai ikkunan koon muuttamisessa sekä korjaus HLSL-varjostinjäsentimeen
+- Tietokanta päivitetty 26.11.2026 (ASMA + STIL)
+- Virhekorjauksia ja vakauden parannuksia

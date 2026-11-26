@@ -1,0 +1,10 @@
+- vgmstream: nastavení počtu smyček se nyní uplatňuje u skladeb se smyčkou a zeslabení končí přesně na konci poslední smyčky
+- Archivy: opraveno přehrávání a názvy položek playlistů m3u s názvy v jiném kódování než UTF-8 (např. balíčky vgmrips)
+- Nové nastavení: automatické skrývání kurzoru myši (ve výchozím stavu zapnuto), opravuje problém s automatickým skrýváním kurzoru
+- SID: opraveno používání dat STIL (názvy podskladeb se již nepřidávají k názvu skladby dvakrát)
+- libvgm: přesnější názvy kanálů/hlasů
+- libvgm: opraveno ztlumení kanálů SSG (YM2203, YM2608)
+- Highly Theoretical (SSF/Saturn): opraveno 16bitové znaménkové adresování LSB-first v emulaci SCSP
+- Vizualizér ProjectM: opraveny pády při rychlém přepínání presetů nebo změně velikosti okna a oprava v parseru shaderů HLSL
+- Databáze aktualizována k 26. 11. 2026 (ASMA + STIL)
+- Opravy chyb a vylepšení stability

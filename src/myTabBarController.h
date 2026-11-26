@@ -82,5 +82,6 @@
 
 -(void) openURL:(NSURL *)url;
 -(void) presentWelcomePages;
+-(void) showRewampPromoIfNeeded;
 
 @end

@@ -51,8 +51,8 @@ extern os_log_t mdzLog;
 
 #define VERSION_MAJOR 4
 #define VERSION_MAJOR_STR "4"
-#define VERSION_MINOR 7
-#define VERSION_MINOR_STR "7"
+#define VERSION_MINOR 8
+#define VERSION_MINOR_STR "8"
 
 #ifdef DEBUG_MODIZER
 #else
@@ -165,6 +165,9 @@ extern void *LoadingProgressObserverContext;
 
 #define MODIZER_SUPPORT_EMAIL @"mailto:modizerhelp@gmail.com?subject=Support Request&body="
 #define USERGUIDE_URL @"UserGuide"
+#define REWAMP_APPSTORE_URL @"https://apps.apple.com/app/rewamp/id6785285067"
+#define REWAMP_WEB_URL @"https://rewamp.app"
+#define REWAMP_PROMO_SHOWN_KEY @"RewampPromoShown"
 #define WORLDCHARTS_DEFAULTLIST @"ListALL"
 
 #define BROWSE_LOCAL_MODE 0

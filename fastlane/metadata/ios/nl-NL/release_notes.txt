@@ -1,0 +1,5 @@
+- vgmstream: de instelling voor het aantal loops wordt nu toegepast op streams met een loop, en de fade-out eindigt precies aan het einde van de laatste loop
+- Archieven: afspelen en titels van m3u-afspeellijstitems met niet-UTF-8-namen gecorrigeerd (bijv. vgmrips-pakketten)
+- Webbrowser: adresbalk die onder de statusbalk verborgen zat, gecorrigeerd
+- Database bijgewerkt tot 26-11-2026 (ASMA + STIL)
+- Bugfixes en stabiliteitsverbeteringen

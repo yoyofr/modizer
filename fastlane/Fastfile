@@ -1,0 +1,46 @@
+# Modizer - App Store Connect release notes ("What's New")
+#
+#   fastlane release_notes_ios            # push fastlane/metadata/ios/*/release_notes.txt
+#   fastlane release_notes_mac            # push fastlane/metadata/macos/*/release_notes.txt
+#   fastlane release_notes                # both
+#   fastlane release_notes version:4.9    # other version (default below)
+#
+# Only the release notes are sent: no binary, no screenshots, no submission.
+# The App Store Connect API key is read from ASC_API_KEY_PATH, or the default below.
+
+APP_IDENTIFIER = "com.yoyofr.modizer"
+DEFAULT_VERSION = "4.8"
+API_KEY_PATH = ENV["ASC_API_KEY_PATH"] || File.expand_path("~/.appstoreconnect/rewamp_api.json")
+
+def push_release_notes(platform, folder, version)
+  deliver(
+    api_key_path: API_KEY_PATH,
+    app_identifier: APP_IDENTIFIER,
+    platform: platform,
+    app_version: version,
+    metadata_path: File.expand_path("metadata/#{folder}", __dir__),
+    skip_binary_upload: true,
+    skip_screenshots: true,
+    skip_metadata: false,
+    submit_for_review: false,
+    automatic_release: false,
+    run_precheck_before_submit: false,
+    force: true # no HTML preview / interactive confirmation
+  )
+end
+
+desc "Push iOS release notes"
+lane :release_notes_ios do |options|
+  push_release_notes("ios", "ios", options[:version] || DEFAULT_VERSION)
+end
+
+desc "Push macOS release notes"
+lane :release_notes_mac do |options|
+  push_release_notes("osx", "macos", options[:version] || DEFAULT_VERSION)
+end
+
+desc "Push iOS and macOS release notes"
+lane :release_notes do |options|
+  release_notes_ios(options)
+  release_notes_mac(options)
+end

@@ -1,0 +1,5 @@
+- vgmstream: el ajuste de número de bucles se aplica ahora a las pistas con bucle, y el fundido de salida termina exactamente al final del último bucle
+- Archivos comprimidos: corregida la reproducción y los títulos de las entradas de listas m3u con nombres que no son UTF-8 (p. ej., packs de vgmrips)
+- Navegador web: corregida la barra de direcciones oculta bajo la barra de estado
+- Base de datos actualizada al 26/11/2026 (ASMA + STIL)
+- Corrección de errores y mejoras de estabilidad

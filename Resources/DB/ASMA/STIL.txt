@@ -5332,6 +5332,9 @@ COMMENT: Music from the game 'Magic of Words' released by Sikor Soft in 1996.
   TITLE: Mah Na Mah Na [from the movie Svezia, Inferno e Paradiso]
  ARTIST: Piero Umiliani
 
+/Composers/Sychowicz_Lukasz/Mantis_Shrimp.sap
+COMMENT: 1st place at Silly Venture 2026 Winter Edition music compo.
+
 /Composers/Sychowicz_Lukasz/Mental_Age_1.sap
 COMMENT: Music from the game 'Mental Age' released in 2009.
 
@@ -5361,6 +5364,10 @@ COMMENT: Silesian Atari Open party 1995 music compo entry.
 /Composers/Sychowicz_Lukasz/Pilkarski_Poker.sap
 COMMENT: Music from the game 'Piłkarski Poker' released by Sikor Soft in 1995.
 
+/Composers/Sychowicz_Lukasz/Pixelfunk.sap
+COMMENT: Soundtrack from the 16 KB intro 'Chaong' which took 2nd place
+         at Silly Venture 2026 Winter Edition.
+
 /Composers/Sychowicz_Lukasz/Porazka.sap
 COMMENT: 1st place at QuaST party 1996 music compo. This song is a cooperation
          between Łukasz Sychowicz and Piotr Świerszcz.
@@ -5385,6 +5392,9 @@ COMMENT: 1st place at Forever Reneg8 music compo.
 /Composers/Sychowicz_Lukasz/Siekacz.sap
 COMMENT: Soundtrack from the note to the demo 'Numen' which won
          at the Lato Ludzików Copy Party in 2002.
+
+/Composers/Sychowicz_Lukasz/Suki_Da_Yo.sap
+COMMENT: 3rd place at Silly Venture 2026 Winter Edition music compo.
 
 /Composers/Sychowicz_Lukasz/Swift_Ray.sap
 COMMENT: 3rd place at Forever 5 music compo.

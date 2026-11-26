@@ -1,0 +1,10 @@
+- vgmstream: ustawienie liczby pętli jest teraz stosowane do utworów z pętlą, a wyciszenie kończy się dokładnie na końcu ostatniej pętli
+- Archiwa: poprawiono odtwarzanie i tytuły pozycji playlist m3u o nazwach innych niż UTF-8 (np. paczki vgmrips)
+- Nowe ustawienie: automatyczne ukrywanie kursora myszy (domyślnie włączone), naprawia problem z automatycznym ukrywaniem kursora
+- SID: poprawione użycie danych STIL (tytuły podutworów nie są już dodawane dwukrotnie do tytułu)
+- libvgm: dokładniejsze nazwy kanałów/głosów
+- libvgm: poprawione wyciszanie kanałów SSG (YM2203, YM2608)
+- Highly Theoretical (SSF/Saturn): poprawione 16-bitowe adresowanie ze znakiem LSB-first w emulacji SCSP
+- Wizualizator ProjectM: naprawione awarie podczas szybkiej zmiany presetów lub zmiany rozmiaru okna oraz poprawka w parserze shaderów HLSL
+- Baza danych zaktualizowana na dzień 26.11.2026 (ASMA + STIL)
+- Poprawki błędów i większa stabilność

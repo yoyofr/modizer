@@ -13,6 +13,14 @@ Todo/Requested:
 => add a small progress bar in cells in modland/asma/hvsc... When downloading
 => ADPLUG oscillo data not generated when OPL is not Woody
 
+4.8
+---
+- vgmstream: loop count setting now applied to looping streams, fade-out ends exactly at the end of the last loop
+- Archives: fixed playback and titles of m3u playlist entries with non-UTF-8 names (e.g. vgmrips packs)
+- Web browser: fixed the address bar hidden under the status bar
+- DB updated as of 2026/11/26 (ASMA + STIL)
+- bugfixes and stability improvements
+
 4.7
 ---
 - New setting: auto hide mouse cursor (on by default), fixes the cursor auto-hide issue
