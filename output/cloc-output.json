@@ -1,42 +1,42 @@
 {"header" : {
   "cloc_url"           : "github.com/AlDanial/cloc",
   "cloc_version"       : "2.06",
-  "elapsed_seconds"    : 35.2962491512299,
-  "n_files"            : 31439,
-  "n_lines"            : 14786608,
-  "files_per_second"   : 890.717873882204,
-  "lines_per_second"   : 418928.593138764,
+  "elapsed_seconds"    : 33.6715500354767,
+  "n_files"            : 31930,
+  "n_lines"            : 15146094,
+  "files_per_second"   : 948.278293287901,
+  "lines_per_second"   : 449818.733739371,
   "report_file"        : "../output/cloc-output.json"},
 "C" :{
-  "nFiles": 9894,
-  "blank": 502479,
-  "comment": 469158,
-  "code": 3751879},
+  "nFiles": 9959,
+  "blank": 513319,
+  "comment": 482040,
+  "code": 3838100},
 "C++" :{
-  "nFiles": 3936,
-  "blank": 362936,
-  "comment": 205784,
-  "code": 2460200},
+  "nFiles": 4042,
+  "blank": 372346,
+  "comment": 212427,
+  "code": 2559673},
 "C/C++ Header" :{
-  "nFiles": 12150,
-  "blank": 383970,
-  "comment": 650988,
-  "code": 2454314},
+  "nFiles": 12309,
+  "blank": 388558,
+  "comment": 663224,
+  "code": 2521350},
 "Bourne Shell" :{
-  "nFiles": 457,
-  "blank": 107885,
-  "comment": 110752,
-  "code": 647862},
+  "nFiles": 464,
+  "blank": 107936,
+  "comment": 110942,
+  "code": 648219},
 "Assembly" :{
   "nFiles": 269,
   "blank": 51104,
   "comment": 53796,
   "code": 369495},
 "Dart" :{
-  "nFiles": 434,
-  "blank": 68793,
-  "comment": 56469,
-  "code": 293013},
+  "nFiles": 468,
+  "blank": 73019,
+  "comment": 58206,
+  "code": 307624},
 "PO File" :{
   "nFiles": 54,
   "blank": 110553,
@@ -49,9 +49,9 @@
   "code": 205389},
 "Objective-C++" :{
   "nFiles": 222,
-  "blank": 19703,
-  "comment": 11543,
-  "code": 98490},
+  "blank": 19704,
+  "comment": 11545,
+  "code": 98501},
 "make" :{
   "nFiles": 607,
   "blank": 12071,
@@ -72,36 +72,36 @@
   "blank": 12682,
   "comment": 7723,
   "code": 51933},
+"SQL" :{
+  "nFiles": 319,
+  "blank": 3576,
+  "comment": 9572,
+  "code": 51594},
+"Python" :{
+  "nFiles": 273,
+  "blank": 9924,
+  "comment": 23107,
+  "code": 50555},
 "MSBuild script" :{
   "nFiles": 113,
   "blank": 7,
   "comment": 29,
   "code": 49439},
-"SQL" :{
-  "nFiles": 297,
-  "blank": 3282,
-  "comment": 8638,
-  "code": 47483},
-"Python" :{
-  "nFiles": 252,
-  "blank": 9383,
-  "comment": 21733,
-  "code": 46669},
-"CMake" :{
-  "nFiles": 428,
-  "blank": 6351,
-  "comment": 8454,
-  "code": 40278},
-"diff" :{
-  "nFiles": 148,
-  "blank": 1584,
-  "comment": 5919,
-  "code": 39869},
 "JavaScript" :{
-  "nFiles": 199,
-  "blank": 4948,
-  "comment": 6742,
-  "code": 33518},
+  "nFiles": 255,
+  "blank": 5468,
+  "comment": 9394,
+  "code": 44114},
+"diff" :{
+  "nFiles": 158,
+  "blank": 1600,
+  "comment": 6107,
+  "code": 41748},
+"CMake" :{
+  "nFiles": 430,
+  "blank": 6378,
+  "comment": 8598,
+  "code": 40585},
 "Fortran 77" :{
   "nFiles": 30,
   "blank": 555,
@@ -127,16 +127,16 @@
   "blank": 1825,
   "comment": 2573,
   "code": 10780},
+"PHP" :{
+  "nFiles": 20,
+  "blank": 446,
+  "comment": 646,
+  "code": 9927},
 "Arduino Sketch" :{
   "nFiles": 82,
   "blank": 2178,
   "comment": 2419,
   "code": 9913},
-"PHP" :{
-  "nFiles": 18,
-  "blank": 419,
-  "comment": 625,
-  "code": 9680},
 "SWIG" :{
   "nFiles": 51,
   "blank": 1096,
@@ -167,16 +167,21 @@
   "blank": 1043,
   "comment": 1572,
   "code": 5446},
-"Ruby" :{
-  "nFiles": 8,
-  "blank": 643,
-  "comment": 2126,
-  "code": 5145},
+"Swift" :{
+  "nFiles": 23,
+  "blank": 551,
+  "comment": 948,
+  "code": 4454},
 "Visual Studio Solution" :{
   "nFiles": 49,
   "blank": 36,
   "comment": 45,
   "code": 4412},
+"Ruby" :{
+  "nFiles": 7,
+  "blank": 505,
+  "comment": 1633,
+  "code": 4081},
 "Bourne Again Shell" :{
   "nFiles": 16,
   "blank": 583,
@@ -187,11 +192,6 @@
   "blank": 1025,
   "comment": 961,
   "code": 2910},
-"Swift" :{
-  "nFiles": 16,
-  "blank": 383,
-  "comment": 583,
-  "code": 2495},
 "Pascal" :{
   "nFiles": 44,
   "blank": 767,
@@ -227,20 +227,20 @@
   "blank": 152,
   "comment": 254,
   "code": 1027},
+"Kotlin" :{
+  "nFiles": 8,
+  "blank": 114,
+  "comment": 297,
+  "code": 991},
 "TNSDL" :{
   "nFiles": 5,
   "blank": 171,
   "comment": 57,
   "code": 706},
-"Kotlin" :{
-  "nFiles": 7,
-  "blank": 87,
-  "comment": 198,
-  "code": 705},
 "Gradle" :{
   "nFiles": 18,
   "blank": 83,
-  "comment": 134,
+  "comment": 132,
   "code": 599},
 "Lisp" :{
   "nFiles": 2,
@@ -403,7 +403,7 @@
   "comment": 0,
   "code": 1},
 "SUM": {
-  "blank": 1718684,
-  "comment": 1846372,
-  "code": 11221552,
-  "nFiles": 31439} }
+  "blank": 1749282,
+  "comment": 1885344,
+  "code": 11511468,
+  "nFiles": 31930} }
